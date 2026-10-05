@@ -6,8 +6,8 @@
 #include "Input.h"
 #include "Sound.h"
 
-void FUN_004a9b30(void);
-void FUN_004b7d40(void);
+void Main_InitD3DX(void);
+void Input_ClearKeyPressQueue(void);
 int Args_Parse(char *pCommandLine);
 
 HINSTANCE CMain::m_hInstance;
@@ -63,9 +63,9 @@ unsigned int CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPS
 	CLogger::LogToFile(m_logFileAsterisks);
 	CLogger::LogToFile(m_logFileBlankLine);
 	m_hInstance = hInstance;
-	FUN_004a9b30();
-	CGame::FUN_004aad50();
-	FUN_004b7d40();
+	Main_InitD3DX();
+	CGame::RegisterNetworkResourceRelease();
+	Input_ClearKeyPressQueue();
 	Args_Parse(lpCmdLine);
 
 	CreateGameWindow(hInstance, &m_hWndList[m_hWndIx], m_gameName, MessageHandler);
@@ -82,7 +82,7 @@ unsigned int CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPS
 		{
 			if (!CGame::m_isActive)
 			{
-				CGame::FUN_004b7a40();
+				CGame::UpdateActiveSoundSlots();
 				CGame::FUN_004d0780();
 			}
 		}
@@ -110,7 +110,7 @@ unsigned int CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPS
 		}
 	}
 
-	FUN_0049c130();
+	UnwindGameCallbacks();
 	CLogger::LogToFile(m_logFileBlankLine);
 	CLogger::LogToFile(g_logFileFooterAsterisks);
 	CLogger::LogToFile(m_logFileFinishedNormally);
@@ -122,7 +122,7 @@ unsigned int CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPS
 
 // Destroys the current game window.
 // FUNCTION: CMR2 0x004a8270
-BOOL FUN_004a8270(void)
+BOOL Main_DestroyGameWindow(void)
 {
 	if (DestroyWindow(CMain::m_hWndList[CMain::m_hWndIx])) {
 		CMain::m_hWndList[CMain::m_hWndIx] = NULL;
@@ -178,7 +178,7 @@ BOOL CMain::CreateGameWindow(HINSTANCE hInstance, HWND *pHWND, LPCSTR sWindowNam
 	UpdateWindow(hWnd);
 	SetFocus(hWnd);
 	*pHWND = hWnd;
-	CGame::RegisterCallback(FUN_004a8270, NULL);
+	CGame::RegisterCallback(Main_DestroyGameWindow, NULL);
 	return TRUE;
 }
 
@@ -196,17 +196,17 @@ LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_SIZE: // minimised (SIZE_MINIMIZED) or hidden (SIZE_MAXHIDE) pauses the game
 		if (wParam == 4 || wParam == 1)
-			FUN_004a9a50(1);
+			SetGameActiveState(1);
 		else
-			FUN_004a9a50(0);
+			SetGameActiveState(0);
 		break;
 
 	case WM_SETFOCUS:
-		CSound::FUN_004a28c0();
+		CSound::NoOpSoundDeviceCallback();
 		break;
 
 	case WM_KILLFOCUS:
-		CSound::FUN_004a31a0();
+		CSound::StopSharedMusicBuffer();
 		break;
 
 	case WM_CLOSE:
@@ -219,7 +219,7 @@ LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_ACTIVATEAPP:
-		FUN_004a9a50(wParam == 0);
+		SetGameActiveState(wParam == 0);
 		if (wParam != 0) {
 			CGraphics::RestoreSurfaces();
 			pDD7 = (int *)g_pGraphics->pDD7;
@@ -230,11 +230,11 @@ LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
-		CInput::FUN_004b7d10(lParam);
+		CInput::QueueVirtualKeyPress(lParam);
 		break;
 
 	case WM_CHAR:
-		CInput::FUN_004b7ca0(wParam);
+		CInput::QueueInputCharacter(wParam);
 		break;
 
 	case WM_SYSCOMMAND:
@@ -258,14 +258,14 @@ LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 // Switches the game between active and inactive: input/mouse cooperative
 // level, the sound "hooked" flag and the menu bar, plus the inactive time.
 // FUNCTION: CMR2 0x004a9a50
-void CMain::FUN_004a9a50(int param1)
+void CMain::SetGameActiveState(int param1)
 {
 	int *pDD7;
 	int frameTime;
 
 	if (param1 != 0) {
 		CInput::SetMouseCoopLevel(0);
-		CSound::FUN_004b7b10();
+		CSound::RunSoundDeviceCallback();
 		m_unk0x00663dbc = GetFrameTime();
 		CGame::m_isActive = 1;
 
@@ -279,22 +279,22 @@ void CMain::FUN_004a9a50(int param1)
 	}
 
 	CInput::SetMouseCoopLevel(1);
-	CSound::FUN_004b7b10();
-	CInput::FUN_0049efc0();
-	FUN_004b2390();
+	CSound::RunSoundDeviceCallback();
+	CInput::ClearFirstJoystickControlBindings();
+	ResetFpsWarmup();
 	frameTime = GetFrameTime();
 	CGame::m_isActive = 0;
 	m_unk0x00663dc0 = frameTime - m_unk0x00663dbc;
 }
 
 // FUNCTION: CMR2 0x004b2390
-void CMain::FUN_004b2390(void)
+void CMain::ResetFpsWarmup(void)
 {
 	g_unk0x005210ac = 1;
 }
 
 // FUNCTION: CMR2 0x0049c130
-void CMain::FUN_0049c130(void)
+void CMain::UnwindGameCallbacks(void)
 {
 	CGame::UnwindCallbacks(0);
 }
@@ -302,9 +302,9 @@ void CMain::FUN_0049c130(void)
 extern "C" HRESULT WINAPI D3DXInitialize(void);
 extern "C" HRESULT WINAPI D3DXUninitialize(void);
 
-// Shuts D3DX down (registered as a callback by FUN_004a9b30).
+// Shuts D3DX down (registered as a callback by Main_InitD3DX).
 // FUNCTION: CMR2 0x004a9b50
-BYTE FUN_004a9b50(void)
+BYTE Main_ShutdownD3DX(void)
 {
     D3DXUninitialize();
     return 1;
@@ -312,10 +312,10 @@ BYTE FUN_004a9b50(void)
 
 // Starts D3DX and registers its shutdown.
 // FUNCTION: CMR2 0x004a9b30
-void FUN_004a9b30(void)
+void Main_InitD3DX(void)
 {
     D3DXInitialize();
-    CGame::RegisterCallback(FUN_004a9b50, NULL);
+    CGame::RegisterCallback(Main_ShutdownD3DX, NULL);
 }
 
 // FUNCTION: CMR2 0x004a9b60

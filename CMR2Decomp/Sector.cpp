@@ -52,7 +52,7 @@ void *g_unk0x0066f124[8192];
 extern int g_unk0x0067f228;
 extern StageObject *g_stageObjects[6000];
 
-void FUN_004b98f0(int *p, int value);
+void Graphics_AccumulateCounterOrInitialize(int *p, int value);
 void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int param5);
 void Mesh_UploadVertices(Mesh *pMesh);
 void Mesh_BuildParts(Mesh *pMesh);
@@ -65,7 +65,7 @@ void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3);
 
 // Builds the scene of a C3D model file, if the data really is one.
 // FUNCTION: CMR2 0x004b9380
-int FUN_004b9380(unsigned int data, unsigned int parent, unsigned int textures)
+int Sector_BuildC3DModelScene(unsigned int data, unsigned int parent, unsigned int textures)
 {
     int result = 0;
 
@@ -131,16 +131,16 @@ void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
     savedNodeCount = g_sceneNodeCount;
     if (*(unsigned short *)(pData + 0x18) != 0) {
         for (i = 0, p = pNodes; i < *(unsigned short *)(pData + 0x18); i++, p += 0x18c) {
-            FUN_004b98f0((int *)p, (int)pNodes);
-            FUN_004b98f0((int *)(p + 4), (int)pNodes);
+            Graphics_AccumulateCounterOrInitialize((int *)p, (int)pNodes);
+            Graphics_AccumulateCounterOrInitialize((int *)(p + 4), (int)pNodes);
             if (param_2 == 0 || *(short *)(p + 0x24) != -1) {
-                FUN_004b98f0((int *)(p + 8), (int)pNodes);
+                Graphics_AccumulateCounterOrInitialize((int *)(p + 8), (int)pNodes);
                 *(short *)(p + 0x24) = -1;
             } else {
                 SceneNode_Attach((SceneNode *)p, (SceneNode *)param_2);
             }
-            FUN_004b98f0((int *)(p + 0x170), (int)pNodes);
-            FUN_004b98f0((int *)(p + 0xc), (int)pMeshArray);
+            Graphics_AccumulateCounterOrInitialize((int *)(p + 0x170), (int)pNodes);
+            Graphics_AccumulateCounterOrInitialize((int *)(p + 0xc), (int)pMeshArray);
             g_sceneNodes[g_sceneNodeCount + i] = (SceneNode *)p;
             *(short *)(p + 0x26) = (short)(g_sceneNodeCount + i);
         }
@@ -148,7 +148,7 @@ void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
     }
     if (*(short *)(pData + 0x26) != 0) {
         for (j = 0, p = pRecords; j < *(unsigned short *)(pData + 0x26); j++, p += 0x5c) {
-            FUN_004b98f0((int *)(p + 0x58), (int)pRecords);
+            Graphics_AccumulateCounterOrInitialize((int *)(p + 0x58), (int)pRecords);
             g_unk0x0066f124[g_meshTotalSize + j] = p;
         }
         g_meshTotalSize += *(unsigned short *)(pData + 0x26);
@@ -159,10 +159,10 @@ void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
             if (*p != 0) {
                 pField = (int *)(p - 0x107);
                 do {
-                    FUN_004b98f0(pField + 6, (int)pTriangles);
-                    FUN_004b98f0(pField, (int)pVertexData);
-                    FUN_004b98f0(pField + 10, (int)pLightLevels);
-                    FUN_004b98f0(pField + 5, (int)pVertexFlags);
+                    Graphics_AccumulateCounterOrInitialize(pField + 6, (int)pTriangles);
+                    Graphics_AccumulateCounterOrInitialize(pField, (int)pVertexData);
+                    Graphics_AccumulateCounterOrInitialize(pField + 10, (int)pLightLevels);
+                    Graphics_AccumulateCounterOrInitialize(pField + 5, (int)pVertexFlags);
                     Mesh_UploadVertices((Mesh *)((BYTE *)pField - 0xc));
                     Mesh_BuildParts((Mesh *)((BYTE *)pField - 0xc));
                     *(unsigned int *)((BYTE *)pField + 0x24) &= 0xfffbffff;
@@ -170,7 +170,7 @@ void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
                     pField += 0x42;
                 } while (j < *p);
             }
-            FUN_004b98f0((int *)(p - 7), (int)pRecords);
+            Graphics_AccumulateCounterOrInitialize((int *)(p - 7), (int)pRecords);
             if (*(short *)(pData + 0x1e) == 0)
                 g_meshes[g_meshCount + i] = (Mesh *)(p - 0x113);
         }
@@ -185,10 +185,10 @@ void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
             if (*p != 0) {
                 pField = (int *)(p - 0x107);
                 do {
-                    FUN_004b98f0(pField + 6, (int)pTriangles);
-                    FUN_004b98f0(pField, (int)pVertexData);
-                    FUN_004b98f0(pField + 10, (int)pLightLevels);
-                    FUN_004b98f0(pField + 5, (int)pVertexFlags);
+                    Graphics_AccumulateCounterOrInitialize(pField + 6, (int)pTriangles);
+                    Graphics_AccumulateCounterOrInitialize(pField, (int)pVertexData);
+                    Graphics_AccumulateCounterOrInitialize(pField + 10, (int)pLightLevels);
+                    Graphics_AccumulateCounterOrInitialize(pField + 5, (int)pVertexFlags);
                     Mesh_UploadVertices((Mesh *)((BYTE *)pField - 0xc));
                     Mesh_BuildParts((Mesh *)((BYTE *)pField - 0xc));
                     *(unsigned int *)((BYTE *)pField + 0x24) &= 0xfffbffff;
@@ -196,14 +196,14 @@ void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
                     pField += 0x42;
                 } while (i < *p);
             }
-            FUN_004b98f0((int *)(p - 7), (int)pRecords);
+            Graphics_AccumulateCounterOrInitialize((int *)(p - 7), (int)pRecords);
         }
         i = 0;
         if (*(short *)(pData + 0x1c) != 0) {
             for (p = pStageObjects + 0x98; i < *(unsigned short *)(pData + 0x1c); i++, p += 0xa0) {
-                FUN_004b98f0((int *)(p - 0x8c),
+                Graphics_AccumulateCounterOrInitialize((int *)(p - 0x8c),
                              (int)(pMeshArray + *(unsigned short *)(pData + 0x1a) * 0x120));
-                FUN_004b98f0((int *)p, (int)pStageObjects);
+                Graphics_AccumulateCounterOrInitialize((int *)p, (int)pStageObjects);
                 g_stageObjects[g_unk0x0067f228 + i] = (StageObject *)(p - 0x98);
             }
         }
@@ -211,7 +211,7 @@ void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
     }
     if (*(short *)(pData + 0x1e) != 0) {
         for (i = 0, p = pSectors; i < *(unsigned short *)(pData + 0x1e); i++, p += 0x88) {
-            FUN_004b98f0((int *)(p + 0x10), (int)pMeshArray);
+            Graphics_AccumulateCounterOrInitialize((int *)(p + 0x10), (int)pMeshArray);
             g_sectors[i] = (Sector *)p;
         }
         g_sectorCount = *(unsigned short *)(pData + 0x1e);
@@ -257,7 +257,7 @@ int Sector_IsVisible(int iSector)
 // Frees the part index lists of every sector mesh and clears the sector
 // table (registered callback of 0x4b8270).
 // FUNCTION: CMR2 0x004b8540
-BYTE FUN_004b8540(void)
+BYTE Sector_FreeMeshPartLists(void)
 {
     int i;
     int j;
@@ -574,7 +574,7 @@ void Sector_BuildCorners(void)
 
 // Appends the node to the sector its world position falls in.
 // FUNCTION: CMR2 0x004b8b10
-void FUN_004b8b10(SceneNode *pNode)
+void Sector_InsertNodeByPosition(SceneNode *pNode)
 {
     FixVector pos;
     int index;
@@ -794,7 +794,7 @@ void FUN_004b8270(void)
     }
     Sector_BuildCorners();
     Sector_ComputeBounds();
-    CGame::RegisterCallback(FUN_004b8540, NULL);
+    CGame::RegisterCallback(Sector_FreeMeshPartLists, NULL);
 }
 
 // Rebuilds the node list of every sector from the positions of the root's children.

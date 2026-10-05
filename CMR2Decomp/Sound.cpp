@@ -33,10 +33,10 @@ char g_strCouldNotOpenAdpcm[44] = "Could not open Microsoft ADPCM Audio CODEC";
 // GLOBAL: CMR2 0x00520a8c
 char g_strCouldNotOpenMusicFile[28] = "Could not open music file";
 
-BOOL FUN_004a2a20(void);
-BOOL FUN_004bd120(void);
-void FUN_004a3240(int unused);
-HRESULT FUN_004a2bd0(int param1);
+BOOL Sound_CreateMusicStreamingBuffer(void);
+BOOL Sound_OpenADPCMDecoder(void);
+void Sound_NoOpMusicCallback(int unused);
+HRESULT Sound_StartLoopingMusicStream(int param1);
 
 // Opens a music file (.wav with Microsoft ADPCM data) and prepares it for
 // streaming: creates the streaming buffer and the ACM decoder; on failure the
@@ -62,31 +62,31 @@ void CSound::FUN_004a28d0(char *path) {
 
     m_pMMIO = new MMIOData();
     if (m_pMMIO->Open(path) != 0) {
-        FUN_004a3240((int)g_strCouldNotOpenMusicFile);
+        Sound_NoOpMusicCallback((int)g_strCouldNotOpenMusicFile);
     } else {
         m_unk0x005a2728 = TRUE;
-        if (FUN_004a3250(FUN_004a2a20()) == 0) {
-            FUN_004a3240((int)g_strCouldNotCreateStreamingBuffer);
+        if (IsSoundCallSuccessful(Sound_CreateMusicStreamingBuffer()) == 0) {
+            Sound_NoOpMusicCallback((int)g_strCouldNotCreateStreamingBuffer);
         } else {
             m_unk0x005a272c = TRUE;
             if (m_unk0x005a2734 == FALSE)
-                CGame::RegisterCallback((void *)FUN_004a2ac0, NULL);
-            if (FUN_004bd120() == 1) {
+                CGame::RegisterCallback((void *)CloseMusicStreamResources, NULL);
+            if (Sound_OpenADPCMDecoder() == 1) {
                 m_unk0x005a2730 = TRUE;
                 m_unk0x005a2734 = TRUE;
                 strcpy(m_unk0x005a2738, path);
             } else {
-                FUN_004a3240((int)g_strCouldNotOpenAdpcm);
+                Sound_NoOpMusicCallback((int)g_strCouldNotOpenAdpcm);
             }
         }
     }
     if (m_unk0x005a2730 == FALSE)
-        FUN_004a2b50(FALSE);
+        CloseMusicStreamAndClearPath(FALSE);
 }
 
 // FUNCTION: CMR2 0x004a2b50
-void CSound::FUN_004a2b50(BOOL param1) {
-    FUN_004a2ac0();
+void CSound::CloseMusicStreamAndClearPath(BOOL param1) {
+    CloseMusicStreamResources();
     if (param1 == 0) {
         m_unk0x005a2734 = FALSE;
         strcpy(m_unk0x005a2738, CMain::m_logFileBlankLine);
@@ -94,12 +94,12 @@ void CSound::FUN_004a2b50(BOOL param1) {
 }
 
 // FUNCTION: CMR2 0x004a2ac0
-BOOL __fastcall CSound::FUN_004a2ac0(void) {
+BOOL __fastcall CSound::CloseMusicStreamResources(void) {
     MMIOData* pvVar1;
 
     if (m_unk0x005a2728 != 0) {
         if (m_unk0x005a2730 != 0) {
-            FUN_004bd230();
+            CloseADPCMDecoder();
         }
 
         if (m_unk0x005a272c != 0) {
@@ -130,7 +130,7 @@ BOOL __fastcall CSound::FUN_004a2ac0(void) {
 
 // Converts one 16 KB block of the compressed music stream into pDst.
 // FUNCTION: CMR2 0x004bd1b0
-BOOL FUN_004bd1b0(BYTE *pSrc, BYTE *pDst)
+BOOL Sound_DecodeADPCMBlock(BYTE *pSrc, BYTE *pDst)
 {
     ACMSTREAMHEADER header;
 
@@ -146,7 +146,7 @@ BOOL FUN_004bd1b0(BYTE *pSrc, BYTE *pDst)
 }
 
 // FUNCTION: CMR2 0x004bd230
-bool CSound::FUN_004bd230(void) {
+bool CSound::CloseADPCMDecoder(void) {
     return acmStreamClose(m_unk0x00816a7c, 0) == 0;
 }
 
@@ -158,7 +158,7 @@ HRESULT CSound::StopDirectSoundBuffer(void) {
         if (m_pDirectSoundBuffer != NULL) {
             m_pDirectSoundBuffer->GetStatus(&status);
             if ((status & DSBSTATUS_PLAYING) != 0)
-                FUN_004a3250(m_pDirectSoundBuffer->Stop());
+                IsSoundCallSuccessful(m_pDirectSoundBuffer->Stop());
         }
 
         m_unk0x005a2720 = FALSE;
@@ -169,7 +169,7 @@ HRESULT CSound::StopDirectSoundBuffer(void) {
 
 
 // FUNCTION: CMR2 0x004a3250
-BOOL CSound::FUN_004a3250(HRESULT param_1) {
+BOOL CSound::IsSoundCallSuccessful(HRESULT param_1) {
     return param_1 >= 0;
 }
 
@@ -190,7 +190,7 @@ void __fastcall CSound::CloseAndCleanupMMIO(MMIOData* pMMIOData) {
 }
 
 // FUNCTION: CMR2 0x004a31f0
-void CSound::FUN_004a31f0(int volume)
+void CSound::SetMusicStreamVolume(int volume)
 {
     LONG vol;
 
@@ -492,7 +492,7 @@ HRESULT MMIOData::Read(UINT cbRead, BYTE *pbDest, UINT *pcbRead)
 
 // Releases the sound data held by one slot and clears the slot.
 // FUNCTION: CMR2 0x004b7620
-void CSound::FUN_004b7620(int index)
+void CSound::ReleaseSoundSlotData(int index)
 {
     CFileBuffer::FreeGenericFileBuffer(m_soundSlots[index]);
     m_soundSlots[index] = NULL;
@@ -500,19 +500,19 @@ void CSound::FUN_004b7620(int index)
 
 // Polls the buffer status and (re)starts it with the given play flags.
 // FUNCTION: CMR2 0x004a23f0
-void CSound::FUN_004a23f0(IDirectSoundBuffer *pBuffer, int flags)
+void CSound::EnsureBufferPlaying(IDirectSoundBuffer *pBuffer, int flags)
 {
     DWORD status;
 
     status = 0;
-    FUN_004a3250(pBuffer->GetStatus(&status));
-    FUN_004a3250(pBuffer->Play(0, 0, flags));
+    IsSoundCallSuccessful(pBuffer->GetStatus(&status));
+    IsSoundCallSuccessful(pBuffer->Play(0, 0, flags));
 }
 
 // Drops a finished sound slot: restarts looping sounds, otherwise releases the
 // buffer once the slot stops asking for it.
 // FUNCTION: CMR2 0x004a27c0
-void CSound::FUN_004a27c0(SoundSlot *pSlot)
+void CSound::UpdateFinishedSoundSlot(SoundSlot *pSlot)
 {
     DWORD status;
     IDirectSoundBuffer *pBuffer;
@@ -520,11 +520,11 @@ void CSound::FUN_004a27c0(SoundSlot *pSlot)
     status = 0;
     pBuffer = pSlot->pBuffer;
     if (pBuffer != NULL) {
-        FUN_004a3250(pBuffer->GetStatus(&status));
+        IsSoundCallSuccessful(pBuffer->GetStatus(&status));
         if (status & 1)
             return;
         if (pSlot->field_0x30 != 0) {
-            FUN_004a23f0(pSlot->pLoopBuffer, 1);
+            EnsureBufferPlaying(pSlot->pLoopBuffer, 1);
             return;
         }
         if (pSlot->field_0x2c != 0) {
@@ -532,31 +532,31 @@ void CSound::FUN_004a27c0(SoundSlot *pSlot)
             if (pBuffer != NULL && pBuffer->Release() == 0)
                 pSlot->pBuffer = NULL;
         }
-        FUN_004b7620(pSlot->id);
+        ReleaseSoundSlotData(pSlot->id);
     }
 }
 
 // FUNCTION: CMR2 0x004a28c0
-void CSound::FUN_004a28c0(void)
+void CSound::NoOpSoundDeviceCallback(void)
 {
 }
 
 // FUNCTION: CMR2 0x004b7b10
-void CSound::FUN_004b7b10(void)
+void CSound::RunSoundDeviceCallback(void)
 {
-    FUN_004a28c0();
+    NoOpSoundDeviceCallback();
 }
 
 // Stops the shared DirectSound buffer when it is still playing.
 // FUNCTION: CMR2 0x004a31a0
-void CSound::FUN_004a31a0(void)
+void CSound::StopSharedMusicBuffer(void)
 {
     DWORD status;
 
     if (m_unk0x005a2728 != 0 && m_pDirectSoundBuffer != NULL) {
         m_pDirectSoundBuffer->GetStatus(&status);
         if (status & 1) {
-            FUN_004a3250(m_pDirectSoundBuffer->Stop());
+            IsSoundCallSuccessful(m_pDirectSoundBuffer->Stop());
             m_unk0x005a2720 = 1;
         }
     }
@@ -566,7 +566,7 @@ void CSound::FUN_004a31a0(void)
 HACMDRIVERID g_unk0x00816978;
 
 // FUNCTION: CMR2 0x004bd100
-BOOL FUN_004bd100(void)
+BOOL Sound_FindADPCMDriver(void)
 {
     HACMDRIVERID id;
 
@@ -579,7 +579,7 @@ WAVEFORMATEX *AcmGetDriverFormat(HACMDRIVERID hadid, WORD wFormatTag);
 
 // Opens the ACM stream that decodes the ADPCM music into PCM.
 // FUNCTION: CMR2 0x004bd120
-BOOL FUN_004bd120(void)
+BOOL Sound_OpenADPCMDecoder(void)
 {
     WAVEFORMATEX *pSrc;
     WAVEFORMATEX *pDst;
@@ -599,11 +599,11 @@ BOOL FUN_004bd120(void)
 }
 
 // FUNCTION: CMR2 0x004a3160
-void CSound::FUN_004a3160(void)
+void CSound::PauseMusicStreaming(void)
 {
     if (m_unk0x005a2730 != 0) {
         m_unk0x005a2724 = 1;
-        FUN_004a31a0();
+        StopSharedMusicBuffer();
     }
 }
 
@@ -622,7 +622,7 @@ void FUN_004a2d30(void)
     int lo, hi;
     unsigned int v;
 
-    CSound::FUN_004a3250(((DPSoundMethod2)(*(void ***)CSound::m_pDirectSoundBuffer)[0x10 / 4])(
+    CSound::IsSoundCallSuccessful(((DPSoundMethod2)(*(void ***)CSound::m_pDirectSoundBuffer)[0x10 / 4])(
         CSound::m_pDirectSoundBuffer, &lo, &hi));
     v = (unsigned int)lo / 0xfe80u;
     g_unk0x005a2710 = (int)v;
@@ -639,7 +639,7 @@ extern int g_unk0x005a271c;
 // PCM each). At the end of the file the block is padded to the ADPCM block size
 // and the file is rewound, so the music loops.
 // FUNCTION: CMR2 0x004a2d90
-HRESULT FUN_004a2d90(BYTE *pDst, int count)
+HRESULT Sound_DecodeMusicBlocks(BYTE *pDst, int count)
 {
     BYTE buffer[0x4000];
     UINT read;
@@ -661,15 +661,15 @@ HRESULT FUN_004a2d90(BYTE *pDst, int count)
                 pad = 0x800 - (read & 0x7ff);
                 memset(buffer + read, 0, pad);
                 pos += pad;
-                FUN_004bd1b0(buffer, pOut);
+                Sound_DecodeADPCMBlock(buffer, pOut);
                 blocks = (UINT)(read * (1.0f / 2048.0f));
-                CSound::FUN_004a3250(CSound::m_pMMIO->StartDataRead());
-                CSound::FUN_004a3250(CSound::m_pMMIO->Read(0x4000 - pos, buffer + pos, &read));
-                FUN_004bd1b0(buffer, pDst + (blocks + 0xfe80) * i);
+                CSound::IsSoundCallSuccessful(CSound::m_pMMIO->StartDataRead());
+                CSound::IsSoundCallSuccessful(CSound::m_pMMIO->Read(0x4000 - pos, buffer + pos, &read));
+                Sound_DecodeADPCMBlock(buffer, pDst + (blocks + 0xfe80) * i);
                 pos += read;
             } while (pos < 0x4000);
         } else {
-            FUN_004bd1b0(buffer, pOut);
+            Sound_DecodeADPCMBlock(buffer, pOut);
         }
         g_unk0x005a2714++;
         if (g_unk0x005a2714 == 8)
@@ -680,7 +680,7 @@ HRESULT FUN_004a2d90(BYTE *pDst, int count)
 
 // Rewinds the music file and fills the whole streaming buffer from the start.
 // FUNCTION: CMR2 0x004a2c70
-HRESULT FUN_004a2c70(int unused)
+HRESULT Sound_RewindAndFillMusicBuffer(int unused)
 {
     void *pAudio1 = NULL;
     void *pAudio2 = NULL;
@@ -692,26 +692,26 @@ HRESULT FUN_004a2c70(int unused)
     CSound::m_pMMIO->StartDataRead();
     CSound::m_pDirectSoundBuffer->SetCurrentPosition(0);
     FUN_004a2d30();
-    CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Lock(0, g_unk0x005a271c, &pAudio1, &bytes1, &pAudio2, &bytes2, 0));
-    CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio1, 8));
-    CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Unlock(pAudio1, bytes1, pAudio2, bytes2));
+    CSound::IsSoundCallSuccessful(CSound::m_pDirectSoundBuffer->Lock(0, g_unk0x005a271c, &pAudio1, &bytes1, &pAudio2, &bytes2, 0));
+    CSound::IsSoundCallSuccessful(Sound_DecodeMusicBlocks((BYTE *)pAudio1, 8));
+    CSound::IsSoundCallSuccessful(CSound::m_pDirectSoundBuffer->Unlock(pAudio1, bytes1, pAudio2, bytes2));
     return 0;
 }
 
 // Restarts playing the currently opened music stream if one is open.
 // FUNCTION: CMR2 0x004a2f50
-int FUN_004a2f50(void)
+int Sound_RestartOpenedMusicStream(void)
 {
     if (CSound::m_unk0x005a2730 != 0) {
         CSound::StopDirectSoundBuffer();
-        FUN_004a2bd0(1);
+        Sound_StartLoopingMusicStream(1);
     }
     return 0;
 }
 
 // Restores the streaming buffer if it was lost, then refills it.
 // FUNCTION: CMR2 0x004a2f70
-HRESULT FUN_004a2f70(int param1)
+HRESULT Sound_RestoreLostMusicBuffer(int param1)
 {
     DWORD status;
     HRESULT hr;
@@ -725,7 +725,7 @@ HRESULT FUN_004a2f70(int param1)
                 if (CSound::m_pDirectSoundBuffer->Restore() == DSERR_BUFFERLOST)
                     Sleep(10);
             } while (CSound::m_pDirectSoundBuffer->Restore() != 0);
-            hr = FUN_004a2c70(param1);
+            hr = Sound_RewindAndFillMusicBuffer(param1);
             if (hr < 0)
                 return hr;
         }
@@ -740,11 +740,11 @@ char g_strCouldNotFillMusicBuffer[28] = "Could not fill music buffer";
 // GLOBAL: CMR2 0x00520ae0
 char g_strCouldNotRestoreMusicBuffer[32] = "Could not restore music buffer";
 
-void FUN_004a3240(int unused);
+void Sound_NoOpMusicCallback(int unused);
 
 // Starts playing the opened music from the beginning, looping.
 // FUNCTION: CMR2 0x004a2bd0
-HRESULT FUN_004a2bd0(int param1)
+HRESULT Sound_StartLoopingMusicStream(int param1)
 {
     if (CSound::m_unk0x005a2730 != 0) {
         g_unk0x005a2710 = 0;
@@ -753,12 +753,12 @@ HRESULT FUN_004a2bd0(int param1)
         CSound::m_unk0x005a2724 = FALSE;
         if (CSound::m_pDirectSoundBuffer == NULL)
             return E_FAIL;
-        if (CSound::FUN_004a3250(FUN_004a2f70(param1)) == 0)
-            FUN_004a3240((int)g_strCouldNotRestoreMusicBuffer);
-        if (CSound::FUN_004a3250(FUN_004a2c70(param1)) == 0)
-            FUN_004a3240((int)g_strCouldNotFillMusicBuffer);
-        if (CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Play(0, 0, DSBPLAY_LOOPING)) == 0)
-            FUN_004a3240((int)g_strCouldNotPlayMusicFile);
+        if (CSound::IsSoundCallSuccessful(Sound_RestoreLostMusicBuffer(param1)) == 0)
+            Sound_NoOpMusicCallback((int)g_strCouldNotRestoreMusicBuffer);
+        if (CSound::IsSoundCallSuccessful(Sound_RewindAndFillMusicBuffer(param1)) == 0)
+            Sound_NoOpMusicCallback((int)g_strCouldNotFillMusicBuffer);
+        if (CSound::IsSoundCallSuccessful(CSound::m_pDirectSoundBuffer->Play(0, 0, DSBPLAY_LOOPING)) == 0)
+            Sound_NoOpMusicCallback((int)g_strCouldNotPlayMusicFile);
     }
     return 0;
 }
@@ -770,7 +770,7 @@ extern const float g_unk0x00511420 = 1.0f / 0xfe80;
 // Refills the part of the streaming buffer that has already been played.
 
 // FUNCTION: CMR2 0x004a3050
-HRESULT FUN_004a3050(int unused)
+HRESULT Sound_RefillMusicBufferRegions(int unused)
 {
     void *pAudio1 = NULL;
     void *pAudio2 = NULL;
@@ -783,13 +783,13 @@ HRESULT FUN_004a3050(int unused)
                                                &pAudio1, &bytes1, &pAudio2, &bytes2, 0) == 0) {
             if (pAudio1 != NULL) {
                 UINT n1 = (UINT)(bytes1 * g_unk0x00511420);
-                CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio1, n1));
+                CSound::IsSoundCallSuccessful(Sound_DecodeMusicBlocks((BYTE *)pAudio1, n1));
             }
             if (pAudio2 != NULL) {
                 UINT n2 = (UINT)(bytes2 * g_unk0x00511420);
-                CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio2, n2));
+                CSound::IsSoundCallSuccessful(Sound_DecodeMusicBlocks((BYTE *)pAudio2, n2));
             }
-            CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Unlock(pAudio1, bytes1, pAudio2, bytes2));
+            CSound::IsSoundCallSuccessful(CSound::m_pDirectSoundBuffer->Unlock(pAudio1, bytes1, pAudio2, bytes2));
         }
     }
     return 0;
@@ -798,7 +798,7 @@ HRESULT FUN_004a3050(int unused)
 // Per-frame music update: keeps the streaming buffer filled while it plays,
 // or restarts it after a pause.
 // FUNCTION: CMR2 0x004a2fe0
-void FUN_004a2fe0(void)
+void Sound_UpdateMusicStreaming(void)
 {
     DWORD status;
 
@@ -806,27 +806,27 @@ void FUN_004a2fe0(void)
         if (CSound::m_unk0x005a2720 == 0) {
             CSound::m_pDirectSoundBuffer->GetStatus(&status);
             if (status & DSBSTATUS_PLAYING) {
-                FUN_004a3050(1);
+                Sound_RefillMusicBufferRegions(1);
                 CSound::m_unk0x005a2720 = FALSE;
                 return;
             }
         } else {
-            CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Play(0, 0, DSBPLAY_LOOPING));
+            CSound::IsSoundCallSuccessful(CSound::m_pDirectSoundBuffer->Play(0, 0, DSBPLAY_LOOPING));
         }
         CSound::m_unk0x005a2720 = FALSE;
     }
 }
 
 // FUNCTION: CMR2 0x004a2430
-int FUN_004a2430(SoundSlot *pSlot)
+int Sound_IsSlotPlayingOrPending(SoundSlot *pSlot)
 {
     DWORD status1 = 0;
     DWORD status2 = 0;
     int result;
 
-    CSound::FUN_004a3250(pSlot->pBuffer->GetStatus(&status1));
+    CSound::IsSoundCallSuccessful(pSlot->pBuffer->GetStatus(&status1));
     if (pSlot->pLoopBuffer != NULL)
-        CSound::FUN_004a3250(pSlot->pLoopBuffer->GetStatus(&status2));
+        CSound::IsSoundCallSuccessful(pSlot->pLoopBuffer->GetStatus(&status2));
     result = 1;
     if ((status1 & 1) == 0) {
         if (pSlot->field_0x30 == 0)
@@ -844,8 +844,8 @@ IDirectSoundBuffer *g_soundBuffers[200];
 BOOL g_unk0x005a283c;
 
 extern IDirectSound *g_unk0x005a2844;
-void FUN_004a2690(SoundSlot *pSlot);
-BOOL FUN_004b75c0(void);
+void Sound_ApplySlotFrequency(SoundSlot *pSlot);
+BOOL Sound_IsModernWindowsVersion(void);
 int Sound_GetMasterVolume(void);
 SoundSlot *Sound_GetSlot(int index);
 
@@ -862,7 +862,7 @@ DWORD g_soundSpeakerConfig = DSSPEAKER_STEREO;
 
 extern IDirectSoundBuffer *g_unk0x005a2848;
 extern int g_unk0x005a284c;
-BOOL FUN_004bd100(void);
+BOOL Sound_FindADPCMDriver(void);
 
 // Creates the DirectSound device and sets the format of the primary buffer
 // (16-bit PCM at sampleRate; mono when the speakers are mono). bits and
@@ -876,12 +876,12 @@ BOOL Sound_InitDevice(int sampleRate, int channels, int bits, int unused)
     DSBUFFERDESC desc;
 
     pPrimary = NULL;
-    if (!CSound::FUN_004a3250(DirectSoundCreate(NULL, &g_unk0x005a2844, NULL)))
+    if (!CSound::IsSoundCallSuccessful(DirectSoundCreate(NULL, &g_unk0x005a2844, NULL)))
         return FALSE;
-    if (!CSound::FUN_004a3250(g_unk0x005a2844->SetCooperativeLevel(CMain::m_hWndList[CMain::m_hWndIx], DSSCL_PRIORITY)))
+    if (!CSound::IsSoundCallSuccessful(g_unk0x005a2844->SetCooperativeLevel(CMain::m_hWndList[CMain::m_hWndIx], DSSCL_PRIORITY)))
         return FALSE;
 
-    if (FUN_004b75c0() && (g_unk0x005a2844->GetSpeakerConfig(&g_soundSpeakerConfig), (BYTE)g_soundSpeakerConfig == DSSPEAKER_MONO))
+    if (Sound_IsModernWindowsVersion() && (g_unk0x005a2844->GetSpeakerConfig(&g_soundSpeakerConfig), (BYTE)g_soundSpeakerConfig == DSSPEAKER_MONO))
         channels = 1;
     if (channels == 1)
         g_sound3DEnabled = FALSE;
@@ -902,17 +902,17 @@ BOOL Sound_InitDevice(int sampleRate, int channels, int bits, int unused)
     format.nAvgBytesPerSec = format.nBlockAlign * sampleRate;
     format.cbSize = 0;
 
-    if (!CSound::FUN_004a3250(g_unk0x005a2844->CreateSoundBuffer(&desc, &pPrimary, NULL)))
+    if (!CSound::IsSoundCallSuccessful(g_unk0x005a2844->CreateSoundBuffer(&desc, &pPrimary, NULL)))
         return FALSE;
-    if (!CSound::FUN_004a3250(pPrimary->SetFormat(&format)))
+    if (!CSound::IsSoundCallSuccessful(pPrimary->SetFormat(&format)))
         return FALSE;
     if (g_sound3DEnabled) {
-        if (!CSound::FUN_004a3250(pPrimary->QueryInterface(IID_IDirectSound3DListener, (LPVOID *)&g_unk0x005a2848)))
+        if (!CSound::IsSoundCallSuccessful(pPrimary->QueryInterface(IID_IDirectSound3DListener, (LPVOID *)&g_unk0x005a2848)))
             return FALSE;
         g_unk0x005a284c = 1;
     }
 
-    FUN_004bd100();
+    Sound_FindADPCMDriver();
     CSound::m_unk0x005a2734 = FALSE;
     strcpy(CSound::m_unk0x005a2738, CMain::m_logFileBlankLine);
     CSound::m_pMMIO = NULL;
@@ -924,10 +924,10 @@ BOOL Sound_InitDevice(int sampleRate, int channels, int bits, int unused)
 // GLOBAL: CMR2 0x00520a34
 char g_strWave[8] = "WAVE";
 
-int FUN_004b7780(void);
+int Sound_GetLoadedSampleCount(void);
 BOOL FUN_004a20c0(IDirectSound *pDS, IDirectSoundBuffer **ppBuffer, DWORD rate, int bits, int channels, int is3D,
                   DWORD size);
-BOOL FUN_004a2210(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData, DWORD size);
+BOOL Sound_CopyBufferData(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData, DWORD size);
 
 // Loads a .wav from pFile into the next free sample slot: creates its buffer
 // (a 3D one when flags & 1 and 3D sound is on) and copies the PCM data.
@@ -952,19 +952,19 @@ BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
         bits = *(WORD *)(pWave + 0x22);
         pData = pWave + 0x2c;
         if ((flags & 1) == 0 || !g_sound3DEnabled) {
-            if (!FUN_004a20c0(g_unk0x005a2844, &g_soundBuffers[FUN_004b7780()], rate, bits, channels, 0,
+            if (!FUN_004a20c0(g_unk0x005a2844, &g_soundBuffers[Sound_GetLoadedSampleCount()], rate, bits, channels, 0,
                               *(DWORD *)(pWave + 0x28)))
                 return FALSE;
-            FUN_004a2210(g_soundBuffers[FUN_004b7780()], 0, pData, *(DWORD *)(pWave + 0x28));
+            Sound_CopyBufferData(g_soundBuffers[Sound_GetLoadedSampleCount()], 0, pData, *(DWORD *)(pWave + 0x28));
         } else {
-            if (!FUN_004a20c0(g_unk0x005a2844, &g_soundBuffers[FUN_004b7780()], rate, bits, channels, 1,
+            if (!FUN_004a20c0(g_unk0x005a2844, &g_soundBuffers[Sound_GetLoadedSampleCount()], rate, bits, channels, 1,
                               *(DWORD *)(pWave + 0x28)))
                 return FALSE;
-            if (CSound::FUN_004a3250(g_soundBuffers[FUN_004b7780()]->QueryInterface(IID_IDirectSound3DBuffer,
-                                                                            (LPVOID *)&g_sound3DBuffers[FUN_004b7780()]))) {
-                if (!FUN_004a2210(g_soundBuffers[FUN_004b7780()], 0, pData, *(DWORD *)(pWave + 0x28)))
+            if (CSound::IsSoundCallSuccessful(g_soundBuffers[Sound_GetLoadedSampleCount()]->QueryInterface(IID_IDirectSound3DBuffer,
+                                                                            (LPVOID *)&g_sound3DBuffers[Sound_GetLoadedSampleCount()]))) {
+                if (!Sound_CopyBufferData(g_soundBuffers[Sound_GetLoadedSampleCount()], 0, pData, *(DWORD *)(pWave + 0x28)))
                     return FALSE;
-                CSound::FUN_004a3250(g_sound3DBuffers[FUN_004b7780()]->SetMode(DS3DMODE_NORMAL, DS3D_DEFERRED));
+                CSound::IsSoundCallSuccessful(g_sound3DBuffers[Sound_GetLoadedSampleCount()]->SetMode(DS3DMODE_NORMAL, DS3D_DEFERRED));
             }
         }
     }
@@ -1006,19 +1006,19 @@ BOOL FUN_004a20c0(IDirectSound *pDS, IDirectSoundBuffer **ppBuffer, DWORD rate, 
         desc.dwFlags |= DSBCAPS_CTRLPAN;
     if (is3D) {
         desc.dwFlags |= DSBCAPS_CTRL3D | DSBCAPS_MUTE3DATMAXDISTANCE;
-        if (FUN_004b75c0())
+        if (Sound_IsModernWindowsVersion())
             desc.guid3DAlgorithm = DS3DALG_HRTF_LIGHT;
         else
             desc.guid3DAlgorithm = GUID_NULL;
     }
     desc.dwBufferBytes = size;
     desc.lpwfxFormat = (LPWAVEFORMATEX)&format;
-    return CSound::FUN_004a3250(pDS->CreateSoundBuffer(&desc, ppBuffer, NULL)) != 0;
+    return CSound::IsSoundCallSuccessful(pDS->CreateSoundBuffer(&desc, ppBuffer, NULL)) != 0;
 }
 
 // Copies size bytes of data into the buffer at the given offset.
 // FUNCTION: CMR2 0x004a2210
-BOOL FUN_004a2210(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData, DWORD size)
+BOOL Sound_CopyBufferData(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData, DWORD size)
 {
     void *p1;
     DWORD n1;
@@ -1050,15 +1050,15 @@ void FUN_004a24a0(SoundSlot *pSlot)
     DWORD n2;
 
     caps.dwSize = sizeof(caps);
-    CSound::FUN_004a3250(pSlot->pBuffer->GetCaps(&caps));
-    CSound::FUN_004a3250(pSlot->pBuffer->GetFormat(&format, sizeof(format), NULL));
-    CSound::FUN_004a3250(pSlot->pBuffer->Lock(0, caps.dwBufferBytes, &p1, &n1, &p2, &n2, 0));
+    CSound::IsSoundCallSuccessful(pSlot->pBuffer->GetCaps(&caps));
+    CSound::IsSoundCallSuccessful(pSlot->pBuffer->GetFormat(&format, sizeof(format), NULL));
+    CSound::IsSoundCallSuccessful(pSlot->pBuffer->Lock(0, caps.dwBufferBytes, &p1, &n1, &p2, &n2, 0));
     if (FUN_004a20c0(g_unk0x005a2844, &pSlot->pLoopBuffer, format.nSamplesPerSec, format.wBitsPerSample,
                      format.nChannels, pSlot->field_0x14, n1 - pSlot->field_0x18))
-        FUN_004a2210(pSlot->pLoopBuffer, 0, (BYTE *)p1 + pSlot->field_0x18, n1 - pSlot->field_0x18);
-    CSound::FUN_004a3250(pSlot->pBuffer->Unlock(p1, n1, p2, n2));
+        Sound_CopyBufferData(pSlot->pLoopBuffer, 0, (BYTE *)p1 + pSlot->field_0x18, n1 - pSlot->field_0x18);
+    CSound::IsSoundCallSuccessful(pSlot->pBuffer->Unlock(p1, n1, p2, n2));
     if (pSlot->field_0x14 != 0 &&
-        CSound::FUN_004a3250(pSlot->pLoopBuffer->QueryInterface(IID_IDirectSound3DBuffer, (void **)&pSlot->field_0x28)))
+        CSound::IsSoundCallSuccessful(pSlot->pLoopBuffer->QueryInterface(IID_IDirectSound3DBuffer, (void **)&pSlot->field_0x28)))
         ((IDirectSound3DBuffer *)pSlot->field_0x28)->SetMode(DS3DMODE_NORMAL, DS3D_DEFERRED);
 }
 
@@ -1073,7 +1073,7 @@ extern const double g_unk0x005113c0 = 10.0;
 // Applies the slot volume (scaled by the master volume) as a logarithmic
 // attenuation in hundredths of a decibel.
 // FUNCTION: CMR2 0x004a25f0
-void FUN_004a25f0(SoundSlot *pSlot)
+void Sound_ApplySlotVolumeAttenuation(SoundSlot *pSlot)
 {
     int volume;
     int attenuation;
@@ -1081,15 +1081,15 @@ void FUN_004a25f0(SoundSlot *pSlot)
     volume = (int)((float)Sound_GetMasterVolume() * pSlot->field_0xc * g_unk0x00511418);
     attenuation = DSBVOLUME_MIN -
                   (int)(log((double)volume) * g_unk0x00511410) * abs(10000) / (int)(log(CGraphics::m_65536) * g_unk0x005113c0);
-    CSound::FUN_004a3250(pSlot->pBuffer->SetVolume(attenuation));
+    CSound::IsSoundCallSuccessful(pSlot->pBuffer->SetVolume(attenuation));
     if (pSlot->pLoopBuffer != NULL)
-        CSound::FUN_004a3250(pSlot->pLoopBuffer->SetVolume(attenuation));
+        CSound::IsSoundCallSuccessful(pSlot->pLoopBuffer->SetVolume(attenuation));
 }
 
 // Gives the slot a buffer for its sample (a duplicate when the sample is
 // already playing), sets it up and starts it.
 // FUNCTION: CMR2 0x004a22c0
-int FUN_004a22c0(SoundSlot *pSlot)
+int Sound_StartSlotBuffer(SoundSlot *pSlot)
 {
     IDirectSoundBuffer *pSource;
     SoundSlot *pOther;
@@ -1106,7 +1106,7 @@ int FUN_004a22c0(SoundSlot *pSlot)
         return 0;
     if (pSlot->field_0x10 != 0 && pSlot->field_0x18 == 0)
         flags = DSBPLAY_LOOPING;
-    CSound::FUN_004a3250(pSource->GetStatus(&status));
+    CSound::IsSoundCallSuccessful(pSource->GetStatus(&status));
     shared = 0;
     for (i = 0; i < 32; i++) {
         pOther = Sound_GetSlot(i);
@@ -1116,7 +1116,7 @@ int FUN_004a22c0(SoundSlot *pSlot)
         }
     }
     if ((status & DSBSTATUS_PLAYING) || shared) {
-        CSound::FUN_004a3250(g_unk0x005a2844->DuplicateSoundBuffer(g_soundBuffers[pSlot->sampleId], &pSlot->pBuffer));
+        CSound::IsSoundCallSuccessful(g_unk0x005a2844->DuplicateSoundBuffer(g_soundBuffers[pSlot->sampleId], &pSlot->pBuffer));
         pSlot->field_0x2c = 1;
     } else {
         pSlot->pBuffer = g_soundBuffers[pSlot->sampleId];
@@ -1129,22 +1129,22 @@ int FUN_004a22c0(SoundSlot *pSlot)
     }
     if (pSlot->field_0x10 != 0 && pSlot->field_0x18 != 0)
         FUN_004a24a0(pSlot);
-    FUN_004a25f0(pSlot);
-    FUN_004a2690(pSlot);
-    CSound::FUN_004a23f0(pSlot->pBuffer, flags);
+    Sound_ApplySlotVolumeAttenuation(pSlot);
+    Sound_ApplySlotFrequency(pSlot);
+    CSound::EnsureBufferPlaying(pSlot->pBuffer, flags);
     return 1;
 }
 
 // FUNCTION: CMR2 0x004a2690
-void FUN_004a2690(SoundSlot *pSlot)
+void Sound_ApplySlotFrequency(SoundSlot *pSlot)
 {
     if (pSlot->field_0xa < 100)
         pSlot->field_0xa = 100;
     if (pSlot->field_0xa > 100000)
         pSlot->field_0xa = 34464;
-    CSound::FUN_004a3250(pSlot->pBuffer->SetFrequency(pSlot->field_0xa));
+    CSound::IsSoundCallSuccessful(pSlot->pBuffer->SetFrequency(pSlot->field_0xa));
     if (pSlot->pLoopBuffer != NULL)
-        CSound::FUN_004a3250(pSlot->pLoopBuffer->SetFrequency(pSlot->field_0xa));
+        CSound::IsSoundCallSuccessful(pSlot->pLoopBuffer->SetFrequency(pSlot->field_0xa));
 }
 
 // GLOBAL: CMR2 0x005a271c
@@ -1155,14 +1155,14 @@ IDirectSound *g_unk0x005a2844;
 
 // Stops the slot's buffers and releases the looping ones.
 // FUNCTION: CMR2 0x004a26f0
-void FUN_004a26f0(SoundSlot *pSlot)
+void Sound_StopSlotBuffers(SoundSlot *pSlot)
 {
     DWORD status;
 
     if (pSlot->pBuffer == NULL)
         return;
     if (pSlot->field_0x30 != 0) {
-        CSound::FUN_004a3250(pSlot->pLoopBuffer->Stop());
+        CSound::IsSoundCallSuccessful(pSlot->pLoopBuffer->Stop());
         status = 0;
         pSlot->pLoopBuffer->GetStatus(&status);
         if ((status & 1) == 0 && pSlot->pLoopBuffer != NULL) {
@@ -1170,8 +1170,8 @@ void FUN_004a26f0(SoundSlot *pSlot)
                 pSlot->pLoopBuffer = NULL;
         }
     }
-    CSound::FUN_004a3250(pSlot->pBuffer->Stop());
-    CSound::FUN_004a3250(pSlot->pBuffer->SetCurrentPosition(0));
+    CSound::IsSoundCallSuccessful(pSlot->pBuffer->Stop());
+    CSound::IsSoundCallSuccessful(pSlot->pBuffer->SetCurrentPosition(0));
     if (pSlot->field_0x2c != 0 && pSlot->pBuffer != NULL) {
         if (pSlot->pBuffer->Release() == 0)
             pSlot->pBuffer = NULL;
@@ -1195,7 +1195,7 @@ void Sound_SetPan(unsigned int handle, int pan);
 
 // Whether the system is Windows 98 / NT 5 or later.
 // FUNCTION: CMR2 0x004b75c0
-BOOL FUN_004b75c0(void)
+BOOL Sound_IsModernWindowsVersion(void)
 {
     OSVERSIONINFOA info;
 
@@ -1208,21 +1208,21 @@ BOOL FUN_004b75c0(void)
 
 // Sets the volume of a playing sound.
 // FUNCTION: CMR2 0x004b79a0
-void FUN_004b79a0(unsigned int handle, int volume)
+void Sound_SetPlayingSlotVolume(unsigned int handle, int volume)
 {
     int index;
 
     index = Sound_FindHandle(handle);
     if (index != -1 && CSound::m_soundSlots[index]->field_0xc != volume) {
         CSound::m_soundSlots[index]->field_0xc = volume;
-        FUN_004a25f0(CSound::m_soundSlots[index]);
+        Sound_ApplySlotVolumeAttenuation(CSound::m_soundSlots[index]);
     }
 }
 
 // Starts a sound: takes a free slot, fills it and plays it. Returns the slot
 // handle, or -1 when no slot is free or the sample cannot be played.
 // FUNCTION: CMR2 0x004b7790
-int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D)
+int Sound_PlaySampleWithParameters(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D)
 {
     int index;
     unsigned int handle;
@@ -1242,12 +1242,12 @@ int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, in
     CSound::m_soundSlots[index]->field_0x30 = loopStart != 0;
     CSound::m_soundSlots[index]->field_0xc = volume;
     CSound::m_soundSlots[index]->field_0xa = frequency;
-    if (!FUN_004a22c0(CSound::m_soundSlots[index])) {
+    if (!Sound_StartSlotBuffer(CSound::m_soundSlots[index])) {
         CFileBuffer::FreeGenericFileBuffer(CSound::m_soundSlots[index]);
         CSound::m_soundSlots[index] = NULL;
         return -1;
     }
-    FUN_004b79a0(handle, volume);
+    Sound_SetPlayingSlotVolume(handle, volume);
     Sound_SetPan(handle, frequency);
     return handle;
 }
@@ -1257,10 +1257,10 @@ int g_soundMasterVolume = 0x10000;
 // GLOBAL: CMR2 0x006e0ef0
 int g_unk0x006e0ef0;
 
-int FUN_004a2430(SoundSlot *pSlot);
+int Sound_IsSlotPlayingOrPending(SoundSlot *pSlot);
 int Sound_FindHandle(unsigned int handle);
-void FUN_004a26f0(SoundSlot *pSlot);
-void FUN_004a2690(SoundSlot *pSlot);
+void Sound_StopSlotBuffers(SoundSlot *pSlot);
+void Sound_ApplySlotFrequency(SoundSlot *pSlot);
 
 // FUNCTION: CMR2 0x004b7610
 SoundSlot *Sound_GetSlot(int index)
@@ -1269,13 +1269,13 @@ SoundSlot *Sound_GetSlot(int index)
 }
 
 void Sound_FreeAll(void);
-void FUN_004a1d10(int sample);
+void Sound_ReleaseSampleBuffers(int sample);
 
 // Frees every loaded sound and releases the samples from index first on.
 // GLOBAL: CMR2 0x005210f8
 char g_strFailedToLoad[20] = "Failed to load \"%s\"";
 
-int FUN_004b7ae0(void);
+int Sound_ShutdownSystem(void);
 
 // Starts the sound system: clears the sound slots, creates the DirectSound
 // device and registers the shutdown callback.
@@ -1291,7 +1291,7 @@ BOOL Sound_Init(int sampleRate, int channels, int bits, int unused)
         CSound::m_soundSlots[i] = NULL;
     if (!Sound_InitDevice(sampleRate, channels, bits, unused))
         return FALSE;
-    CGame::RegisterCallback(FUN_004b7ae0, NULL);
+    CGame::RegisterCallback(Sound_ShutdownSystem, NULL);
     CSound::m_unk0x006e0eec = 1;
     return TRUE;
 }
@@ -1314,14 +1314,14 @@ BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile)
 }
 
 // FUNCTION: CMR2 0x004b7740
-void FUN_004b7740(int first)
+void Sound_FreeSamplesFromIndex(int first)
 {
     int count = g_unk0x006e0ef0;
 
     if (CSound::m_unk0x006e0eec) {
         Sound_FreeAll();
         for (; first < g_unk0x006e0ef0; first++) {
-            FUN_004a1d10(first);
+            Sound_ReleaseSampleBuffers(first);
             count--;
         }
         g_unk0x006e0ef0 = count;
@@ -1329,7 +1329,7 @@ void FUN_004b7740(int first)
 }
 
 // FUNCTION: CMR2 0x004b7780
-int FUN_004b7780(void)
+int Sound_GetLoadedSampleCount(void)
 {
     return g_unk0x006e0ef0;
 }
@@ -1339,7 +1339,7 @@ int Sound_IsPlaying(unsigned int handle)
 {
     int index = Sound_FindHandle(handle);
     if (index != -1)
-        return FUN_004a2430(CSound::m_soundSlots[index]);
+        return Sound_IsSlotPlayingOrPending(CSound::m_soundSlots[index]);
     return 0;
 }
 
@@ -1348,7 +1348,7 @@ void Sound_Free(unsigned int handle)
 {
     int index = Sound_FindHandle(handle);
     if (index != -1) {
-        FUN_004a26f0(CSound::m_soundSlots[index]);
+        Sound_StopSlotBuffers(CSound::m_soundSlots[index]);
         CFileBuffer::FreeGenericFileBuffer(CSound::m_soundSlots[index]);
         CSound::m_soundSlots[index] = NULL;
     }
@@ -1361,7 +1361,7 @@ void Sound_FreeAll(void)
 
     do {
         if (*pp != NULL) {
-            FUN_004a26f0(*pp);
+            Sound_StopSlotBuffers(*pp);
             CFileBuffer::FreeGenericFileBuffer(*pp);
             *pp = NULL;
         }
@@ -1370,7 +1370,7 @@ void Sound_FreeAll(void)
 }
 
 // FUNCTION: CMR2 0x004b7940
-int FUN_004b7940(void)
+int Sound_GetSampleCount(void)
 {
     return g_unk0x006e0ef0;
 }
@@ -1387,7 +1387,7 @@ void Sound_SetPan(unsigned int handle, int pan)
     int index = Sound_FindHandle(handle);
     if (index != -1) {
         CSound::m_soundSlots[index]->field_0xa = pan;
-        FUN_004a2690(CSound::m_soundSlots[index]);
+        Sound_ApplySlotFrequency(CSound::m_soundSlots[index]);
     }
 }
 
@@ -1429,20 +1429,20 @@ int Sound_FindHandle(unsigned int handle)
 }
 
 // FUNCTION: CMR2 0x004a1d00
-IDirectSound *FUN_004a1d00(void)
+IDirectSound *Sound_GetSampleTableState(void)
 {
     return g_unk0x005a2844;
 }
 
 // FUNCTION: CMR2 0x004a3180
-void FUN_004a3180(void)
+void Sound_ClearMusicPauseFlag(void)
 {
     if (CSound::m_unk0x005a2730 != 0)
         CSound::m_unk0x005a2724 = 0;
 }
 
 // FUNCTION: CMR2 0x004a3240
-void FUN_004a3240(int unused)
+void Sound_NoOpMusicCallback(int unused)
 {
 }
 
@@ -1458,14 +1458,14 @@ void Sound_SetMasterVolume(int volume)
     ppSlot = CSound::m_soundSlots;
     do {
         if (*ppSlot != NULL)
-            FUN_004a25f0(*ppSlot);
+            Sound_ApplySlotVolumeAttenuation(*ppSlot);
         ppSlot++;
     } while ((int)ppSlot < (int)(CSound::m_soundSlots + 32));
 }
 
 // Releases the (3D) buffers of a sample.
 // FUNCTION: CMR2 0x004a1d10
-void FUN_004a1d10(int sample)
+void Sound_ReleaseSampleBuffers(int sample)
 {
     if (g_soundBuffers[sample] != NULL) {
         if (g_soundBuffers[sample]->Release() == 0)
@@ -1482,15 +1482,15 @@ IDirectSoundBuffer *g_unk0x005a2848;
 // GLOBAL: CMR2 0x005a284c
 int g_unk0x005a284c;
 
-int FUN_004b7780(void);
+int Sound_GetLoadedSampleCount(void);
 
 // Releases every sample buffer, the primary buffer and DirectSound itself.
 // FUNCTION: CMR2 0x004a2830
-void FUN_004a2830(void)
+void Sound_ReleaseDirectSoundResources(void)
 {
     int i;
 
-    for (i = 0; i < FUN_004b7780(); i++) {
+    for (i = 0; i < Sound_GetLoadedSampleCount(); i++) {
         if (g_soundBuffers[i] != NULL && g_soundBuffers[i]->Release() == 0)
             g_soundBuffers[i] = NULL;
         if (g_sound3DBuffers[i] != NULL && g_sound3DBuffers[i]->Release() == 0)
@@ -1505,7 +1505,7 @@ void FUN_004a2830(void)
 
 // Creates the shared 16-bit stereo 44.1 kHz streaming buffer.
 // FUNCTION: CMR2 0x004a2a20
-BOOL FUN_004a2a20(void)
+BOOL Sound_CreateMusicStreamingBuffer(void)
 {
     WAVEFORMATEX format;
     DSBUFFERDESC desc;
@@ -1523,18 +1523,18 @@ BOOL FUN_004a2a20(void)
     format.nBlockAlign = 4;
     format.nAvgBytesPerSec = 176400;
     format.wBitsPerSample = 16;
-    return CSound::FUN_004a3250(g_unk0x005a2844->CreateSoundBuffer(&desc, &CSound::m_pDirectSoundBuffer, NULL)) != 0;
+    return CSound::IsSoundCallSuccessful(g_unk0x005a2844->CreateSoundBuffer(&desc, &CSound::m_pDirectSoundBuffer, NULL)) != 0;
 }
 
-void FUN_004a2830(void);
+void Sound_ReleaseDirectSoundResources(void);
 
 // Shuts the sound system down (registered callback of 0x4b7650).
 // FUNCTION: CMR2 0x004b7ae0
-int FUN_004b7ae0(void)
+int Sound_ShutdownSystem(void)
 {
     Sound_FreeAll();
     Sound_SetMasterVolume(0);
-    FUN_004a2830();
+    Sound_ReleaseDirectSoundResources();
     g_unk0x006e0ef0 = 0;
     CSound::m_unk0x006e0eec = 0;
     return 1;
@@ -1543,12 +1543,12 @@ int FUN_004b7ae0(void)
 // Restarts the music stream after the Direct3D device is created: reopens
 // the file at 0x5a2738, re-applies the music volume and starts playback.
 // FUNCTION: CMR2 0x004a2ba0
-void FUN_004a2ba0(void)
+void Sound_RestartMusicAfterDeviceCreation(void)
 {
     if (CSound::m_unk0x005a2734) {
         CSound::FUN_004a28d0(CSound::m_unk0x005a2738);
-        CSound::FUN_004a31f0(CGameInfo::FUN_00405e40());
-        FUN_004a2bd0(1);
+        CSound::SetMusicStreamVolume(CGameInfo::GetMasterSoundVolume());
+        Sound_StartLoopingMusicStream(1);
     }
 }
 

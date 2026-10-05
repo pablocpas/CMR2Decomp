@@ -10,7 +10,7 @@
 // Particle effects of the cars: breaking windows, glass shards and debris.
 
 void Scene_GetLightColour(DWORD *pColour, int level);
-unsigned char RallyData_FUN_00407e70(void);
+unsigned char RallyData_GetSelectionFlag26(void);
 int FUN_00457e10(BYTE *pCar, int offset);
 short *Car_GetOrder(void);
 short Car_GetOrderCount(void);
@@ -430,7 +430,7 @@ void Spark_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
 
 // Update callback: once old enough the particle switches to its type's look.
 // FUNCTION: CMR2 0x004994d0
-void FUN_004994d0(void *pParticle, ParticleType *pType, int param)
+void CarEffects_UpdateAgedParticleAppearance(void *pParticle, ParticleType *pType, int param)
 {
     Particle *p = (Particle *)pParticle;
 
@@ -532,8 +532,8 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
     BYTE light;
 
     glass = 0;
-    pRecord = FUN_00469680(pCar->index);
-    if ((BYTE)RallyData_FUN_00407e70() != 0 || pCar->field_0xc0c != 0)
+    pRecord = StageTiming_GetCarReplayRecord(pCar->index);
+    if ((BYTE)RallyData_GetSelectionFlag26() != 0 || pCar->field_0xc0c != 0)
         return;
     n = (FixMul(count, EFFECT_RAND()) >> 16) + 1;
     ext[0] = FixMul(0x3333, size);
@@ -713,8 +713,8 @@ void CarEffects_InitDebris(void)
 
 BYTE *RallyData_GetTyreRecord(BYTE index);
 void RallyData_MarkTyresChanged(int index);
-BYTE FUN_0041b370(void);
-int FUN_00460c80(BYTE *pCar);
+BYTE StageUI_GetRaceEndEventCount(void);
+int StageObject_GetCarWeatherRampValue(BYTE *pCar);
 int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit);
 
 // Wheel spray effects: colour, whether it is dust (longer, flatter), whether
@@ -897,7 +897,7 @@ void Tyre_AddWear(int car, int wheel, int damage, int wear)
     int *pState;
     int i;
 
-    pRecord = RallyData_GetTyreRecord(FUN_0041b370() + (char)car);
+    pRecord = RallyData_GetTyreRecord(StageUI_GetRaceEndEventCount() + (char)car);
     if (pRecord == NULL)
         return;
     if (((int *)(pRecord + 0x80))[wheel] < 1000)
@@ -919,7 +919,7 @@ void Tyre_AddWear(int car, int wheel, int damage, int wear)
             *pState = 2;
         pState++;
     }
-    RallyData_MarkTyresChanged((FUN_0041b370() & 0xff) + car);
+    RallyData_MarkTyresChanged((StageUI_GetRaceEndEventCount() & 0xff) + car);
 }
 
 // Throws the spray of the car's sliding wheels (gravel, mud, dust, water)
@@ -967,7 +967,7 @@ void WheelSpray_Update(int player)
     do {
         if (pSlip[0xcf] != 0) {
             effect = WheelSpray_GetEffect(*pSurface);
-            wet = FUN_00460c80((BYTE *)pCar);
+            wet = StageObject_GetCarWeatherRampValue((BYTE *)pCar);
             if (effect >= 0 && (wet != 0 || g_sprayAlways[effect] != 0) &&
                 --g_sprayCountdown[pCar->index][wheel] <= 0) {
                 pDust = &g_sprayDust[effect];
@@ -1103,8 +1103,8 @@ void WheelSpray_Update(int player)
 
 #include "WheelTrail.h"
 
-BYTE FUN_00460bf0(int index);
-int FUN_00460c10(int index);
+BYTE StageObject_GetViewWeatherStateByte(int index);
+int StageObject_GetViewWeatherField54(int index);
 extern BYTE g_unk0x00538d2c[0xc8];
 
 #define EFFECT_RAND_NEG() (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536)
@@ -1126,7 +1126,7 @@ BYTE g_unk0x00543808;
 
 // Sets the splash colour of a player's car (and its average brightness).
 // FUNCTION: CMR2 0x0045d1e0
-void FUN_0045d1e0(int player, BYTE *pColour)
+void CarEffects_SetSplashColour(int player, BYTE *pColour)
 {
     if (player < 8) {
         g_unk0x005435c0 = *(SplashColour *)pColour;
@@ -1139,7 +1139,7 @@ void FUN_0045d1e0(int player, BYTE *pColour)
 }
 // Update callback: lifts the particle by half its size.
 // FUNCTION: CMR2 0x0045d250
-void FUN_0045d250(void *pParticle, ParticleType *pType, int param)
+void CarEffects_UpdateRisingParticle(void *pParticle, ParticleType *pType, int param)
 {
     Particle *p = (Particle *)pParticle;
 
@@ -1148,7 +1148,7 @@ void FUN_0045d250(void *pParticle, ParticleType *pType, int param)
 
 // Update callback: moves the particle with the car stored in its effect data.
 // FUNCTION: CMR2 0x0045dea0
-void FUN_0045dea0(void *pParticle, ParticleType *pType, int param)
+void CarEffects_UpdateParticleAtCarPosition(void *pParticle, ParticleType *pType, int param)
 {
     Particle *p = (Particle *)pParticle;
     int car = p->field0x64;
@@ -1162,7 +1162,7 @@ void FUN_0045dea0(void *pParticle, ParticleType *pType, int param)
 
 // Update callback: rises by half its size (capped at 1.5) and follows its car.
 // FUNCTION: CMR2 0x0045d270
-void FUN_0045d270(void *pParticle, ParticleType *pType, int param)
+void CarEffects_UpdateCarFollowingRisingParticle(void *pParticle, ParticleType *pType, int param)
 {
     Particle *p = (Particle *)pParticle;
     Car *pCar;
@@ -1225,7 +1225,7 @@ void FUN_0045d2d0(void *pParticle, ParticleType *pType, int param)
 // Gives a particle a deterministic spiral offset and, while its owner is a
 // car slot, moves it into that car's world position.
 // FUNCTION: CMR2 0x0045d3a0
-void FUN_0045d3a0(void *pParticle, ParticleType *pType, int param)
+void CarEffects_UpdateSpiralParticle(void *pParticle, ParticleType *pType, int param)
 {
     int scales[10] = { 0x1999, 0x3333, 0x4ccc, 0x6666, 0x8000,
                        0x9999, 0xb333, 0xcccc, 0xe666, 0x10000 };
@@ -1263,7 +1263,7 @@ void FUN_0045d3a0(void *pParticle, ParticleType *pType, int param)
 
 // Spawn callback: stores the effect data passed by the spawner.
 // FUNCTION: CMR2 0x0045de80
-void FUN_0045de80(void *pParticle, ParticleType *pType, int param)
+void CarEffects_InitParticleOwnerData(void *pParticle, ParticleType *pType, int param)
 {
     int value = *(int *)param;
 
@@ -1337,8 +1337,8 @@ void WheelSplash_Update(int player)
         surface = *pSurface;
         sparks = surface == 0x19 || surface == 0x18 || surface == 0x2a;
         wet = surface == 0xe || surface == 0xf;
-        if (FUN_00460bf0(player) == 1) {
-            k = FixMul(FUN_00460c10(player), 0xff0000) >> 16;
+        if (StageObject_GetViewWeatherStateByte(player) == 1) {
+            k = FixMul(StageObject_GetViewWeatherField54(player), 0xff0000) >> 16;
             if (k > 0x1e && sparks) {
                 colour[3] = (BYTE)k;
                 type = 0xc;
@@ -1468,7 +1468,7 @@ BYTE g_wheelDustColours[10][4] = {
 // kind (plain, dust, debris) and the wheel side, its velocity follows the
 // wheel with a random lift, its colour is random earth or the given colour.
 // FUNCTION: CMR2 0x0045dc00
-void FUN_0045dc00(int car, int wheel, FixVector *pPos, FixVector *pVel, int unused, int side, FixVector *pA,
+void CarEffects_EmitWheelDustParticle(int car, int wheel, FixVector *pPos, FixVector *pVel, int unused, int side, FixVector *pA,
                   FixVector *pB, short *pC, int surfaced, int light, int debris, BYTE *pColour)
 {
     FixVector velocity;
@@ -1735,23 +1735,23 @@ void FUN_0045d540(int car)
             velocity.y = velY;
             velocity.z = velZ;
             if (water != 0) {
-                FUN_0045dc00(car, wheel, &position, &velocity, 0, side, (FixVector *)(pCar + 0x6d8),
+                CarEffects_EmitWheelDustParticle(car, wheel, &position, &velocity, 0, side, (FixVector *)(pCar + 0x6d8),
                              (FixVector *)(pCar + 0x6c0), (short *)(pCar + 0xa9e + wheel * 2), 0, 0, 0, colour);
                 continue;
             }
-            if (FUN_00460bf0(car) == 1)
-                shade = FixMul(FUN_00460c10(car), 0xff0000) >> 16;
+            if (StageObject_GetViewWeatherStateByte(car) == 1)
+                shade = FixMul(StageObject_GetViewWeatherField54(car), 0xff0000) >> 16;
             else
                 shade = 0;
             n = (0x100 - shade) / 128 + 1;
             if (dark != 0 && n > 0) {
                 for (spin = n; spin != 0; spin--)
-                    FUN_0045dc00(car, wheel, &position, &velocity, 0, side, (FixVector *)(pCar + 0x6d8),
+                    CarEffects_EmitWheelDustParticle(car, wheel, &position, &velocity, 0, side, (FixVector *)(pCar + 0x6d8),
                                  (FixVector *)(pCar + 0x6c0), (short *)(pCar + 0xa9e + wheel * 2), 1, 0, 0, colour);
             }
             if (light != 0 && n > 0) {
                 for (; n != 0; n--)
-                    FUN_0045dc00(car, wheel, &position, &velocity, 0, side, (FixVector *)(pCar + 0x6d8),
+                    CarEffects_EmitWheelDustParticle(car, wheel, &position, &velocity, 0, side, (FixVector *)(pCar + 0x6d8),
                                  (FixVector *)(pCar + 0x6c0), (short *)(pCar + 0xa9e + wheel * 2), 1, 1, 0, colour);
             }
         }

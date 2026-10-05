@@ -26,19 +26,19 @@ int GetStageSplitCount(void)
 }
 
 // FUNCTION: CMR2 0x00458390
-int FUN_00458390(void)
+int Stage_GetDriverCount(void)
 {
     return g_unk0x00542c68;
 }
 
 // FUNCTION: CMR2 0x004583a0
-int FUN_004583a0(void)
+int Stage_GetSplitPositionCount(void)
 {
     return g_unk0x00542c74;
 }
 
 // FUNCTION: CMR2 0x004583b0
-int FUN_004583b0(int index)
+int Stage_GetSplitPositionFixed(int index)
 {
     return g_unk0x00542c7c[index];
 }
@@ -47,26 +47,26 @@ int FUN_004583b0(int index)
 int g_unk0x00542d38[8];
 
 #include "Car.h"
-void RallyData_FUN_004213d0(Car *pCar, int value);
+void RallyData_SetCarRaceRecordPosition(Car *pCar, int value);
 
 // Start positions (x, -, z) of the cars when the rally modes use fixed grids.
 // GLOBAL: CMR2 0x00542cd8
 int g_unk0x00542cd8[8][3];
 
-unsigned char RallyData_FUN_00407e70(void);
+unsigned char RallyData_GetSelectionFlag26(void);
 unsigned int RallyData_GetFlag31(void);
-unsigned int RallyData_FUN_00407e90(void);
+unsigned int RallyData_GetSelectionFlag27(void);
 
 // Start x/z of a car: from the grid table, or one of the stage's start
 // points (pStarts, 3 ints each) depending on the mode.
 // FUNCTION: CMR2 0x004583d0
-void FUN_004583d0(int car, int *pStarts, int *pOut)
+void Stage_GetCarStartXZ(int car, int *pStarts, int *pOut)
 {
     int i;
 
-    if (!(BYTE)RallyData_FUN_00407e70() && !(BYTE)RallyData_GetFlag31()) {
-        if ((BYTE)RallyData_FUN_00407e90()) {
-            if (CGameInfo::FUN_00405e00()) {
+    if (!(BYTE)RallyData_GetSelectionFlag26() && !(BYTE)RallyData_GetFlag31()) {
+        if ((BYTE)RallyData_GetSelectionFlag27()) {
+            if (CGameInfo::GetGameModeOptionBit19()) {
                 i = g_unk0x00542cb4[car];
                 pOut[0] = pStarts[i * 3];
                 pOut[2] = pStarts[i * 3 + 2];
@@ -88,25 +88,25 @@ void FUN_004583d0(int car, int *pStarts, int *pOut)
 
 // Puts every car back on its stored route position.
 // FUNCTION: CMR2 0x00458480
-void FUN_00458480(void)
+void Stage_RestoreCarsToRoutePositions(void)
 {
     int i;
 
     for (i = 0; i < g_unk0x00542c68; i++) {
         Car *pCar = Car_Get(i);
-        RallyData_FUN_004213d0(pCar, g_unk0x00542d38[i] >> 16);
+        RallyData_SetCarRaceRecordPosition(pCar, g_unk0x00542d38[i] >> 16);
     }
 }
 
 // FUNCTION: CMR2 0x004584c0
-int FUN_004584c0(void)
+int Stage_GetPrimaryStartDriver(void)
 {
     return g_unk0x00542cb0;
 }
 
 // Previous checkpoint, wrapping round on looped stages.
 // FUNCTION: CMR2 0x00459320
-int FUN_00459320(int index)
+int Stage_GetPreviousCheckpoint(int index)
 {
     int result = index - 1;
     if (result == -1) {
@@ -122,7 +122,7 @@ int FUN_00459320(int index)
 
 // Next checkpoint, wrapping round on looped stages.
 // FUNCTION: CMR2 0x00459350
-int FUN_00459350(int index)
+int Stage_GetNextCheckpoint(int index)
 {
     index++;
     if (index == g_stageCheckpointCount && g_stageLooped != 0)

@@ -33,7 +33,7 @@ BYTE g_surfaceIndexMap[96] = {
 };
 
 // FUNCTION: CMR2 0x00478a10
-short FUN_00478a10(short index)
+short Surface_GetMappedIndex(short index)
 {
     return g_surfaceIndexMap[index];
 }
@@ -48,14 +48,14 @@ void *g_unk0x0058dc54;
 
 // Releases the surface texture data (registered callback of 0x478a20).
 // FUNCTION: CMR2 0x00478b20
-BYTE FUN_00478b20(void)
+BYTE Surface_FreeTextureData(void)
 {
     if (g_unk0x0058dc54 != NULL) {
         if (g_unk0x0058db50[0] == 0)
             CFileBuffer::FreeGenericFileBuffer(g_unk0x0058dc54);
         g_unk0x0058dc54 = NULL;
     }
-    CFrontend::FUN_004a3d80();
+    CFrontend::FreeLocalizedTextStrings();
     return 1;
 }
 
@@ -339,7 +339,7 @@ void Font_Load(char *name, GenericFile *pFile, unsigned int index);
 
 // Loads the seven game fonts from stage file 1.
 // FUNCTION: CMR2 0x00478b50
-void FUN_00478b50(void)
+void Surface_LoadStageFonts(void)
 {
     char *pName;
     int i;
@@ -355,7 +355,7 @@ void FUN_00478b50(void)
 
 // Blend rate between a surface and its "next" surface, at t.
 // FUNCTION: CMR2 0x004789d0
-int FUN_004789d0(int surface, int t)
+int Surface_GetTransitionBlend(int surface, int t)
 {
     int base = g_surfaceBlendRate[surface];
     int next = g_surfaceNext[surface];
@@ -378,13 +378,13 @@ int g_unk0x0058df20[2];
 
 int Sound_IsPlaying(unsigned int handle);
 void Sound_Free(unsigned int handle);
-void FUN_004b7740(int first);
-int FUN_00420120(void);
+void Sound_FreeSamplesFromIndex(int first);
+int Race_GetResourceState(void);
 
 
 // Engine sound curves: sample count and input range, then the pitch samples
 // and the volume bytes (the pointers are set by FUN_00478xxx at stage start).
-// FUN_00427ab0/ad0/b70 take the curve as an int[4]: count, min, max, samples.
+// NetRace_IsValueWithinCurveRange/ad0/b70 take the curve as an int[4]: count, min, max, samples.
 struct SoundCurve {
     int count;
     int min;
@@ -567,8 +567,8 @@ int g_unk0x0058ddc8Pair[2];
 void Sound_SetMasterVolume(int volume);
 unsigned char RallyDataState(void);
 unsigned char RallyData_GetFlag25(void);
-int FUN_004781c0(int index);
-int FUN_00478f30(void);
+int StageObject_GetCarSoundElapsedTime(int index);
+int Surface_ReleaseStageSounds(void);
 
 // Resets the per-player surface sound state and installs the sound parameter
 // tables; registered as the stage cleanup callback.
@@ -580,7 +580,7 @@ void FUN_00478dc0(void)
 
     Sound_SetMasterVolume(0x10000);
     if ((BYTE)RallyDataState() == 1 && (BYTE)RallyData_GetFlag25() != 0 &&
-        CGameInfo::FUN_00405e00() == 0 && CGameInfo::FUN_00405d80() != 3)
+        CGameInfo::GetGameModeOptionBit19() == 0 && CGameInfo::GetConfiguredGameMode() != 3)
         flag = 1;
     else
         flag = 0;
@@ -590,7 +590,7 @@ void FUN_00478dc0(void)
         g_unk0x0058de00[i] = 0;
         g_unk0x0058de18[i] = -1;
         g_unk0x0058dd68[i] = -1;
-        g_unk0x0058dd88[i] = FUN_004781c0(i);
+        g_unk0x0058dd88[i] = StageObject_GetCarSoundElapsedTime(i);
         g_unk0x0058de10[i] = -1;
         g_unk0x0058ddf0[i] = -1;
         g_unk0x0058dde0[i] = -1;
@@ -617,14 +617,14 @@ void FUN_00478dc0(void)
     g_pUnk0x0051ec60 = g_unk0x0051ed62;
     g_pUnk0x0051edf4 = g_unk0x0051edfc;
     g_pUnk0x0051edf8 = g_unk0x0051ef80;
-    CGame::RegisterCallback((void *)FUN_00478f30, 0);
+    CGame::RegisterCallback((void *)Surface_ReleaseStageSounds, 0);
 }
 
 // Releases the stage's surface sounds (registered callback of 0x478dc0).
 // FUNCTION: CMR2 0x00478f30
-int FUN_00478f30(void)
+int Surface_ReleaseStageSounds(void)
 {
-    FUN_004b7740(FUN_00420120());
+    Sound_FreeSamplesFromIndex(Race_GetResourceState());
     return 1;
 }
 
@@ -665,15 +665,15 @@ char g_strCarSoundBfl[] = "%s\\car\\%s.bfl";
 BYTE g_unk0x0058df48[2][12];
 
 extern int g_unk0x0058ddb4[2];
-BYTE FUN_00407fc0(int param1);
-BYTE FUN_0041b370(void);
-int StageTiming_FUN_00455ab0(int iSplit);
-int FUN_004b7940(void);
+BYTE RallyData_GetDriverSelectGridSlot(int param1);
+BYTE StageUI_GetRaceEndEventCount(void);
+int StageTiming_GetSplitSecondaryEntry(int iSplit);
+int Sound_GetSampleCount(void);
 BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
 
 // Loads one sample from an archive.
 // FUNCTION: CMR2 0x004792a0
-void FUN_004792a0(char *name, GenericFile *pFile)
+void Surface_LoadArchiveSample(char *name, GenericFile *pFile)
 {
     Sound_LoadSample(name, 0, pFile);
 }
@@ -681,7 +681,7 @@ void FUN_004792a0(char *name, GenericFile *pFile)
 // Loads the engine sound sets: one per player (plus the opponent's in a
 // single-player head-to-head), each from the car's sound archive.
 // FUNCTION: CMR2 0x00478f50
-void FUN_00478f50(void)
+void Surface_LoadCarEngineSounds(void)
 {
     char archive[260];
     char name[260];
@@ -694,52 +694,52 @@ void FUN_00478f50(void)
     BYTE *pFile;
 
     pDir = CInstallInfo::GetSoundsDir();
-    if ((BYTE)RallyDataState() == 1 && (char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0 &&
-        CGameInfo::FUN_00405d80() != 3)
+    if ((BYTE)RallyDataState() == 1 && (char)RallyData_GetFlag25() && CGameInfo::GetGameModeOptionBit19() == 0 &&
+        CGameInfo::GetConfiguredGameMode() != 3)
         opponent = 1;
     else
         opponent = 0;
     for (i = 0; i < (int)(BYTE)RallyDataState() + opponent; i++) {
         if (opponent != 0 && i > 0)
-            team = (int)CFrontend::FUN_0040ee90(FUN_00407fc0(StageTiming_FUN_00455ab0(FUN_0041b370())));
+            team = (int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverSelectGridSlot(StageTiming_GetSplitSecondaryEntry(StageUI_GetRaceEndEventCount())));
         else
-            team = (int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0(FUN_0041b370() + i));
-        g_unk0x0058ddb4[i] = FUN_004b7940();
+            team = (int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(StageUI_GetRaceEndEventCount() + i));
+        g_unk0x0058ddb4[i] = Sound_GetSampleCount();
         pCarName = g_carSoundDir[team];
         sprintf(archive, g_strCarSoundBfl, CInstallInfo::GetSoundsDir(), pCarName);
-        CGenericFileLoader::FUN_004a9d70((GenericFile *)&g_unk0x0058df48[i], archive);
+        CGenericFileLoader::LoadIntoFileRecord((GenericFile *)&g_unk0x0058df48[i], archive);
         pShortName = g_carSoundShort[team];
         sprintf(name, g_strCarFrontSlowWav, pDir, pCarName, pShortName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarRearSlowWav, pDir, pCarName, pShortName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarFrontMidWav, pDir, pCarName, pShortName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarRearMidWav, pDir, pCarName, pShortName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarWhineWav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarFrontTurboWav, pDir, pCarName, pShortName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarRearTurboWav, pDir, pCarName, pShortName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarChatterWav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarDet1Wav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarDet2Wav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarDet3Wav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarDet4Wav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarDetIdleWav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
-        if (CGameInfo::FUN_00406410(0x13)) {
+        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        if (CGameInfo::IsRecordFlagSet(0x13)) {
             sprintf(name, g_strRadioInsideWav);
-            FUN_004792a0(name, (GenericFile *)StageTiming_GetStageFile0());
+            Surface_LoadArchiveSample(name, (GenericFile *)StageTiming_GetStageFile0());
             sprintf(name, g_strRadioOutsideWav);
-            FUN_004792a0(name, (GenericFile *)StageTiming_GetStageFile0());
+            Surface_LoadArchiveSample(name, (GenericFile *)StageTiming_GetStageFile0());
         }
     }
     for (pFile = g_unk0x0058df48[0]; (int)pFile < (int)g_unk0x0058df48[2]; pFile += 12) {
@@ -755,7 +755,7 @@ void FUN_00478f50(void)
 
 // Stops the player's surface sound started by flag g_unk0x0058dd70.
 // FUNCTION: CMR2 0x004792c0
-void FUN_004792c0(int player)
+void Surface_StopFirstOneShotSound(int player)
 {
     if (g_unk0x0058dd70[player] != 0) {
         if (Sound_IsPlaying(g_unk0x0058ddc0[player])) {
@@ -807,29 +807,29 @@ extern int g_unk0x0058df38;
 extern int g_unk0x0058df3c;
 extern int g_unk0x0058df40;
 extern int g_unk0x0051f2d8[13];
-BYTE FUN_00427aa0(void);
-bool FUN_00427ab0(int value, int *pRange);
-unsigned int FUN_00427ad0(int value, int *pCurve);
-unsigned int FUN_00427b70(int value, int *pCurve);
-int FUN_00427d50(unsigned int view, int listener);
-unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3);
-int FUN_0041f3d0(BYTE index);
-int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
-void FUN_004b79a0(unsigned int handle, int volume);
+BYTE NetRace_GetRaceSoundMode(void);
+bool NetRace_IsValueWithinCurveRange(int value, int *pRange);
+unsigned int NetRace_InterpolateByteCurve(int value, int *pCurve);
+unsigned int NetRace_InterpolateWordCurve(int value, int *pCurve);
+int NetRace_GetListenerDistanceAttenuation(unsigned int view, int listener);
+unsigned short NetRace_ScaleViewAngleByDistance(int param_1, int param_2, unsigned short param_3);
+int Race_GetPlayerRecordField4(BYTE index);
+int Sound_PlaySampleWithParameters(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
+void Sound_SetPlayingSlotVolume(unsigned int handle, int volume);
 void Sound_SetPan(unsigned int handle, int pan);
-void FUN_0045b550(int car, int surface);
-void FUN_0047a380(int target, int player);
-void FUN_00479310(int player);
-void FUN_0047a3d0(int player, int *pState, int listener);
-int FUN_004781c0(int index);
-#define CAR_VOLUME(x, scale) FixMul(FUN_00427d50(player, listener), FixMul(g_unk0x0058dda8, FixMul((x), (scale))))
+void StageTiming_ForceWheelTrailSurface(int car, int surface);
+void Surface_SmoothPlayerSoundLevel(int target, int player);
+void Surface_StopSecondOneShotSound(int player);
+void Surface_UpdatePlayerSkidSound(int player, int *pState, int listener);
+int StageObject_GetCarSoundElapsedTime(int index);
+#define CAR_VOLUME(x, scale) FixMul(NetRace_GetListenerDistanceAttenuation(player, listener), FixMul(g_unk0x0058dda8, FixMul((x), (scale))))
 
 // Per-frame engine sounds of one player from its state (pitch, alternate
 // pitch, speed, surface level, clutch, ...): the engine pair, the load pair
 // (quieter as the throttle lifts), the idle/backfire pops with their timers,
 // the gear whine and the transmission loop, then the skid and extra loops.
 // FUNCTION: CMR2 0x00479360
-void FUN_00479360(int *pState, int player, int listener)
+void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
 {
     Car *pCar;
     int inEngine;
@@ -851,17 +851,17 @@ void FUN_00479360(int *pState, int player, int listener)
         g_unk0x0058df68[player] = 1;
     if (pitch > 5000)
         g_unk0x0058df70[player] = 1;
-    inEngine = FUN_00427ab0(pitch, g_unk0x0051ea60);
-    inLoad = FUN_00427ab0(pitch, (int *)&g_curve0x0051eab8);
-    inWhine = FUN_00427ab0(pitch, (int *)&g_curve0x0051ec50);
+    inEngine = NetRace_IsValueWithinCurveRange(pitch, g_unk0x0051ea60);
+    inLoad = NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051eab8);
+    inWhine = NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051ec50);
     if (!inEngine) {
         if (Sound_IsPlaying(g_unk0x0058dde8[player])) {
             Sound_SetPan(g_unk0x0058dde8[player], 0x2b11);
-            FUN_004b79a0(g_unk0x0058dde8[player], 0);
+            Sound_SetPlayingSlotVolume(g_unk0x0058dde8[player], 0);
         }
         if (Sound_IsPlaying(g_unk0x0058ddac[player])) {
             Sound_SetPan(g_unk0x0058ddac[player], 0x2b11);
-            FUN_004b79a0(g_unk0x0058ddac[player], 0);
+            Sound_SetPlayingSlotVolume(g_unk0x0058ddac[player], 0);
         }
         if (Sound_IsPlaying(g_unk0x0058dde8[player])) {
             Sound_Free(g_unk0x0058dde8[player]);
@@ -873,62 +873,62 @@ void FUN_00479360(int *pState, int player, int listener)
         }
     } else {
         if (Sound_IsPlaying(g_unk0x0058dde8[player]) == 0)
-            g_unk0x0058dde8[player] = FUN_004b7790((unsigned short)g_unk0x0058ddb4[player], 0, 0x5622, 0, 1, 0);
+            g_unk0x0058dde8[player] = Sound_PlaySampleWithParameters((unsigned short)g_unk0x0058ddb4[player], 0, 0x5622, 0, 1, 0);
         if (Sound_IsPlaying(g_unk0x0058ddac[player]) == 0)
-            g_unk0x0058ddac[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 1), 0, 0x5622, 0, 1, 0);
+            g_unk0x0058ddac[player] = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[player] + 1), 0, 0x5622, 0, 1, 0);
         if (Sound_IsPlaying(g_unk0x0058dde8[player])) {
-            Sound_SetPan(g_unk0x0058dde8[player], FUN_00427b70(pitch, g_unk0x0051ea60));
-            FUN_004b79a0(g_unk0x0058dde8[player],
-                         CAR_VOLUME((int)(FUN_00427ad0(pitch, g_unk0x0051ea60) << 16) / 100, g_unk0x0058df38));
+            Sound_SetPan(g_unk0x0058dde8[player], NetRace_InterpolateWordCurve(pitch, g_unk0x0051ea60));
+            Sound_SetPlayingSlotVolume(g_unk0x0058dde8[player],
+                         CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, g_unk0x0051ea60) << 16) / 100, g_unk0x0058df38));
         }
         if (Sound_IsPlaying(g_unk0x0058ddac[player])) {
-            Sound_SetPan(g_unk0x0058ddac[player], FUN_00427b70(pitch, g_unk0x0051ea60));
-            FUN_004b79a0(g_unk0x0058ddac[player],
-                         CAR_VOLUME((int)(FUN_00427ad0(pitch, g_unk0x0051ea60) << 16) / 100, g_unk0x0051f274));
+            Sound_SetPan(g_unk0x0058ddac[player], NetRace_InterpolateWordCurve(pitch, g_unk0x0051ea60));
+            Sound_SetPlayingSlotVolume(g_unk0x0058ddac[player],
+                         CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, g_unk0x0051ea60) << 16) / 100, g_unk0x0051f274));
         }
     }
     if (!inLoad) {
         if (Sound_IsPlaying(g_unk0x0058ddf0[player])) {
             Sound_SetPan(g_unk0x0058ddf0[player], 0x2b11);
-            FUN_004b79a0(g_unk0x0058ddf0[player], 0);
+            Sound_SetPlayingSlotVolume(g_unk0x0058ddf0[player], 0);
         }
         if (Sound_IsPlaying(g_unk0x0058dde0[player])) {
             Sound_SetPan(g_unk0x0058dde0[player], 0x2b11);
-            FUN_004b79a0(g_unk0x0058dde0[player], 0);
+            Sound_SetPlayingSlotVolume(g_unk0x0058dde0[player], 0);
         }
     } else {
         if (Sound_IsPlaying(g_unk0x0058ddf0[player])) {
             volume = FixMul(0x10000 - FixDiv(pCar->steerFollowRate, pCar->field_0x788),
-                            CAR_VOLUME((int)(FUN_00427ad0(pitch, (int *)&g_curve0x0051eab8) << 16) / 100,
+                            CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, (int *)&g_curve0x0051eab8) << 16) / 100,
                                        g_unk0x0058df3c));
-            if (FUN_0041f3d0((BYTE)player))
+            if (Race_GetPlayerRecordField4((BYTE)player))
                 Sound_SetPan(g_unk0x0058ddf0[player],
-                             FUN_00427e20(player, player,
-                                          FUN_00427b70(pitch, (int *)&g_curve0x0051eab8)));
+                             NetRace_ScaleViewAngleByDistance(player, player,
+                                          NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051eab8)));
             else
                 Sound_SetPan(g_unk0x0058ddf0[player],
-                             FUN_00427b70(pitch, (int *)&g_curve0x0051eab8));
-            FUN_004b79a0(g_unk0x0058ddf0[player], volume);
+                             NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051eab8));
+            Sound_SetPlayingSlotVolume(g_unk0x0058ddf0[player], volume);
         }
         if (Sound_IsPlaying(g_unk0x0058dde0[player])) {
             volume = FixMul(0x10000 - FixDiv(pCar->steerFollowRate, pCar->field_0x788),
-                            CAR_VOLUME((int)(FUN_00427ad0(pitch, (int *)&g_curve0x0051eab8) << 16) / 100,
+                            CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, (int *)&g_curve0x0051eab8) << 16) / 100,
                                        g_unk0x0051f278));
-            if (FUN_0041f3d0((BYTE)player))
+            if (Race_GetPlayerRecordField4((BYTE)player))
                 Sound_SetPan(g_unk0x0058dde0[player],
-                             FUN_00427e20(player, player,
-                                          FUN_00427b70(pitch, (int *)&g_curve0x0051eab8)));
+                             NetRace_ScaleViewAngleByDistance(player, player,
+                                          NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051eab8)));
             else
                 Sound_SetPan(g_unk0x0058dde0[player],
-                             FUN_00427b70(pitch, (int *)&g_curve0x0051eab8));
-            FUN_004b79a0(g_unk0x0058dde0[player], volume);
+                             NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051eab8));
+            Sound_SetPlayingSlotVolume(g_unk0x0058dde0[player], volume);
         }
     }
-    FUN_0047a380(pState[4], player);
-    if (!FUN_00427aa0()) {
+    Surface_SmoothPlayerSoundLevel(pState[4], player);
+    if (!NetRace_GetRaceSoundMode()) {
         if (now - g_unk0x0058dd60[player] > g_unk0x0058df28[player]) {
             if (g_unk0x0058ddf8[player] != 0) {
-                FUN_00479310(player);
+                Surface_StopSecondOneShotSound(player);
                 g_unk0x0058ddf8[player] = 0;
             }
             if (g_unk0x0058dd98[player] != 0) {
@@ -952,7 +952,7 @@ void FUN_00479360(int *pState, int player, int listener)
             }
         }
         backfire = 0;
-        if (CFrontend::FUN_0040ee80(pCar->type) != NULL &&
+        if (CFrontend::GetArchiveSecondaryFlagEntry(pCar->type) != NULL &&
             g_unk0x0058df88[player] >= 2 && g_unk0x0058df88[player] <= 6 &&
             g_unk0x0058dd68[player] != g_unk0x0058df88[player] &&
             g_unk0x0058dd68[player] < g_unk0x0058df88[player]) {
@@ -978,7 +978,7 @@ void FUN_00479360(int *pState, int player, int listener)
                 break;
             }
         }
-        if (CGameInfo::FUN_004063f0(5) && pCar->field_0xa84 > 0)
+        if (CGameInfo::IsActiveCheatEnabled(5) && pCar->field_0xa84 > 0)
             backfire = 1;
         if (pState[3] == 0) {
             hi = 3000;
@@ -990,7 +990,7 @@ void FUN_00479360(int *pState, int player, int listener)
         if (g_unk0x0058df78[player] != 0) {
             if (pState[1] < lo || pState[4] != 0)
                 g_unk0x0058df78[player] = 0;
-        } else if (CFrontend::FUN_0040ee80(pCar->type) != NULL) {
+        } else if (CFrontend::GetArchiveSecondaryFlagEntry(pCar->type) != NULL) {
             if (pState[4] == 0 && pState[1] > hi) {
                 g_unk0x0058df78[player] = 1;
                 g_unk0x0058dd60[player] = now;
@@ -1002,47 +1002,47 @@ void FUN_00479360(int *pState, int player, int listener)
             g_unk0x0058df78[player] = 0;
         }
         if (g_unk0x0058df78[player] != 0 || backfire) {
-            FUN_004792c0(player);
+            Surface_StopFirstOneShotSound(player);
             if (backfire) {
                 if (Sound_IsPlaying(g_unk0x0058ddc0[player]) == 0) {
                     g_unk0x0058ddc0[player] =
-                        FUN_004b7790((unsigned short)(rand() % 4 + g_unk0x0058ddb4[player] + 8), 0, 0x5622, 0, 0, 0);
+                        Sound_PlaySampleWithParameters((unsigned short)(rand() % 4 + g_unk0x0058ddb4[player] + 8), 0, 0x5622, 0, 0, 0);
                     g_unk0x0058dd60[player] = now;
                     g_unk0x0058df20[player] = 1;
                     g_unk0x0058ddf8[player] = 1;
                     g_unk0x0058df28[player] = rand() % 10 + 5;
-                    FUN_0045b550(player, g_unk0x0058df28[player] >> 2);
+                    StageTiming_ForceWheelTrailSurface(player, g_unk0x0058df28[player] >> 2);
                 }
-                FUN_004b79a0(g_unk0x0058ddc0[player], CAR_VOLUME(0x10000, g_unk0x0051f294));
+                Sound_SetPlayingSlotVolume(g_unk0x0058ddc0[player], CAR_VOLUME(0x10000, g_unk0x0051f294));
             } else if (g_unk0x0058dd98[player] != 0) {
                 if (Sound_IsPlaying(g_unk0x0058ddc0[player]))
-                    FUN_004b79a0(g_unk0x0058ddc0[player], CAR_VOLUME(0, g_unk0x0051f294));
+                    Sound_SetPlayingSlotVolume(g_unk0x0058ddc0[player], CAR_VOLUME(0, g_unk0x0051f294));
                 else
                     g_unk0x0058ddc0[player] = -1;
             } else {
                 if (Sound_IsPlaying(g_unk0x0058ddc0[player]) == 0) {
                     g_unk0x0058ddc0[player] =
-                        FUN_004b7790((unsigned short)(rand() % 4 + g_unk0x0058ddb4[player] + 8), 0, 0x5622, 0, 0, 0);
+                        Sound_PlaySampleWithParameters((unsigned short)(rand() % 4 + g_unk0x0058ddb4[player] + 8), 0, 0x5622, 0, 0, 0);
                     g_unk0x0058df20[player] = 1;
                 }
                 pct = 100 - (now * 100 - g_unk0x0058dd60[player] * 100) / g_unk0x0058df28[player];
-                FUN_004b79a0(g_unk0x0058ddc0[player], CAR_VOLUME(0x10000, g_unk0x0051f294));
+                Sound_SetPlayingSlotVolume(g_unk0x0058ddc0[player], CAR_VOLUME(0x10000, g_unk0x0051f294));
                 if (pct == 100 && rand() % pct < 75)
-                    FUN_0045b550(player, rand() % 2 + 2);
+                    StageTiming_ForceWheelTrailSurface(player, rand() % 2 + 2);
             }
         } else if (pState[4] == 0) {
-            FUN_00479310(player);
+            Surface_StopSecondOneShotSound(player);
             if (pState[1] < lo) {
                 if (g_unk0x0058dd70[player] == 0) {
                     g_unk0x0058ddc0[player] =
-                        FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 0xc), 0, 0x5622, 0, 1, 0);
+                        Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[player] + 0xc), 0, 0x5622, 0, 1, 0);
                     g_unk0x0058dd70[player] = 1;
                 }
-                FUN_004b79a0(g_unk0x0058ddc0[player],
+                Sound_SetPlayingSlotVolume(g_unk0x0058ddc0[player],
                              CAR_VOLUME(((0xaf0 - pState[1]) * 100 / 0xaf0 / 2 + 50 << 16) / 100, g_unk0x0051f294));
             }
         } else {
-            FUN_004792c0(player);
+            Surface_StopFirstOneShotSound(player);
         }
     }
     if (!inWhine) {
@@ -1064,58 +1064,58 @@ void FUN_00479360(int *pState, int player, int listener)
             g_unk0x0058ddd0[player] = -1;
         }
         if (g_unk0x0058df68[player] != 0 && g_unk0x0058df70[player] != 0 && g_unk0x0058df60[player] == 0) {
-            FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 7), CAR_VOLUME(0x10000, g_unk0x0051f290),
+            Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[player] + 7), CAR_VOLUME(0x10000, g_unk0x0051f290),
                          0x5622, 0, 0, 0);
             g_unk0x0058df60[player] = 1;
             g_unk0x0058df68[player] = 0;
             g_unk0x0058df70[player] = 0;
         }
     } else {
-        volume = (int)FUN_00427ad0(pitch, (int *)&g_curve0x0051ec50);
+        volume = (int)NetRace_InterpolateByteCurve(pitch, (int *)&g_curve0x0051ec50);
         volume = g_unk0x0058de08[player] * volume / 100;
         if (g_unk0x0058de10[player] != -1)
-            FUN_004781c0(player);
+            StageObject_GetCarSoundElapsedTime(player);
         g_unk0x0058df60[player] = 0;
         if (Sound_IsPlaying(g_unk0x0058dd90[player]) == 0)
-            g_unk0x0058dd90[player] = FUN_004b7790(
+            g_unk0x0058dd90[player] = Sound_PlaySampleWithParameters(
                 (unsigned short)(g_unk0x0058ddb4[player] + 5), 0, 0x5622,
-                g_unk0x0051f2a0[(int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0((BYTE)(FUN_0041b370() + player)))],
+                g_unk0x0051f2a0[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)(StageUI_GetRaceEndEventCount() + player)))],
                 1, 0);
-        if (FUN_0041f3d0((BYTE)player))
+        if (Race_GetPlayerRecordField4((BYTE)player))
             Sound_SetPan(g_unk0x0058dd90[player],
-                         FUN_00427e20(player, player,
-                                      FUN_00427b70(pitch, (int *)&g_curve0x0051ec50)));
+                         NetRace_ScaleViewAngleByDistance(player, player,
+                                      NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50)));
         else
-            Sound_SetPan(g_unk0x0058dd90[player], FUN_00427b70(pitch, (int *)&g_curve0x0051ec50));
-        FUN_004b79a0(g_unk0x0058dd90[player], CAR_VOLUME((volume << 16) / 100, g_unk0x0058df40));
+            Sound_SetPan(g_unk0x0058dd90[player], NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50));
+        Sound_SetPlayingSlotVolume(g_unk0x0058dd90[player], CAR_VOLUME((volume << 16) / 100, g_unk0x0058df40));
         if (Sound_IsPlaying(g_unk0x0058ddd0[player]) == 0)
-            g_unk0x0058ddd0[player] = FUN_004b7790(
+            g_unk0x0058ddd0[player] = Sound_PlaySampleWithParameters(
                 (unsigned short)(g_unk0x0058ddb4[player] + 6), 0, 0x5622,
-                g_unk0x0051f2d8[(int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0((BYTE)(FUN_0041b370() + player)))],
+                g_unk0x0051f2d8[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)(StageUI_GetRaceEndEventCount() + player)))],
                 1, 0);
-        if (FUN_0041f3d0((BYTE)player))
+        if (Race_GetPlayerRecordField4((BYTE)player))
             Sound_SetPan(g_unk0x0058ddd0[player],
-                         FUN_00427e20(player, player,
-                                      FUN_00427b70(pitch, (int *)&g_curve0x0051ec50)));
+                         NetRace_ScaleViewAngleByDistance(player, player,
+                                      NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50)));
         else
-            Sound_SetPan(g_unk0x0058ddd0[player], FUN_00427b70(pitch, (int *)&g_curve0x0051ec50));
-        FUN_004b79a0(g_unk0x0058ddd0[player], CAR_VOLUME((volume << 16) / 100, g_unk0x0051f27c));
+            Sound_SetPan(g_unk0x0058ddd0[player], NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50));
+        Sound_SetPlayingSlotVolume(g_unk0x0058ddd0[player], CAR_VOLUME((volume << 16) / 100, g_unk0x0051f27c));
     }
-    FUN_0047a3d0(player, pState, listener);
+    Surface_UpdatePlayerSkidSound(player, pState, listener);
     g_unk0x0058df80[player] = ((BYTE *)pCar)[0x1d2];
     g_unk0x0058dd68[player] = g_unk0x0058df88[player];
-    if (CGameInfo::FUN_00406410(0x13)) {
+    if (CGameInfo::IsRecordFlagSet(0x13)) {
         if (Sound_IsPlaying(g_unk0x0058ddd8[player]))
-            FUN_004b79a0(g_unk0x0058ddd8[player], CAR_VOLUME(0x10000, g_unk0x0051f298));
+            Sound_SetPlayingSlotVolume(g_unk0x0058ddd8[player], CAR_VOLUME(0x10000, g_unk0x0051f298));
         if (Sound_IsPlaying(g_unk0x0058df30[player]))
-            FUN_004b79a0(g_unk0x0058df30[player], CAR_VOLUME(0x10000, g_unk0x0051f29c));
+            Sound_SetPlayingSlotVolume(g_unk0x0058df30[player], CAR_VOLUME(0x10000, g_unk0x0051f29c));
     }
 }
 #undef CAR_VOLUME
 
 // Stops the player's surface sound started by flag g_unk0x0058df20.
 // FUNCTION: CMR2 0x00479310
-void FUN_00479310(int player)
+void Surface_StopSecondOneShotSound(int player)
 {
     if (g_unk0x0058df20[player] != 0) {
         if (Sound_IsPlaying(g_unk0x0058ddc0[player])) {
@@ -1127,14 +1127,14 @@ void FUN_00479310(int player)
 }
 
 
-BYTE FUN_00427aa0(void);
-bool FUN_00427ab0(int value, int *pRange);
-unsigned int FUN_00427ad0(int value, int *pCurve);
-unsigned int FUN_00427b70(int value, int *pCurve);
-int FUN_00427d50(unsigned int view, int listener);
-unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3);
-int FUN_0041f3d0(BYTE index);
-void FUN_004b79a0(unsigned int handle, int volume);
+BYTE NetRace_GetRaceSoundMode(void);
+bool NetRace_IsValueWithinCurveRange(int value, int *pRange);
+unsigned int NetRace_InterpolateByteCurve(int value, int *pCurve);
+unsigned int NetRace_InterpolateWordCurve(int value, int *pCurve);
+int NetRace_GetListenerDistanceAttenuation(unsigned int view, int listener);
+unsigned short NetRace_ScaleViewAngleByDistance(int param_1, int param_2, unsigned short param_3);
+int Race_GetPlayerRecordField4(BYTE index);
+void Sound_SetPlayingSlotVolume(unsigned int handle, int volume);
 void Sound_SetPan(unsigned int handle, int pan);
 extern int g_unk0x0058dda8;
 
@@ -1167,14 +1167,14 @@ int g_unk0x0058df3c;
 // GLOBAL: CMR2 0x0058df40
 int g_unk0x0058df40;
 extern int g_unk0x0051f27c;
-int FUN_00422f50(BYTE index);
-int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
-void FUN_00479360(int *pState, int player, int listener);
+int View_GetActiveCameraMode(BYTE index);
+int Sound_PlaySampleWithParameters(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
+void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener);
 
 // Per-frame car sounds of one player: picks the volume set of the camera
 // (in-car views 1-3 or outside), makes sure the engine, skid and optional
 // loops are playing, then hands the engine pitch, speed, surface level and
-// wheel-slip state to FUN_00479360.
+// wheel-slip state to Surface_UpdatePlayerEngineSounds.
 // FUNCTION: CMR2 0x0047a710
 void FUN_0047a710(int player, int listener)
 {
@@ -1183,8 +1183,8 @@ void FUN_0047a710(int player, int listener)
     int speed;
     int state[7];
 
-    if (FUN_00422f50((BYTE)listener) != 1 && FUN_00422f50((BYTE)listener) != 2 &&
-        FUN_00422f50((BYTE)listener) != 3) {
+    if (View_GetActiveCameraMode((BYTE)listener) != 1 && View_GetActiveCameraMode((BYTE)listener) != 2 &&
+        View_GetActiveCameraMode((BYTE)listener) != 3) {
         g_unk0x0058df38 = 0x6666;
         g_unk0x0051f274 = 0xcccc;
         g_unk0x0058df3c = 0x6000;
@@ -1207,18 +1207,18 @@ void FUN_0047a710(int player, int listener)
     }
     pCar = Car_Get(player);
     if (Sound_IsPlaying(g_unk0x0058ddf0[player]) == 0)
-        g_unk0x0058ddf0[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 2), 0, 0x5622, 0, 1, 0);
+        g_unk0x0058ddf0[player] = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[player] + 2), 0, 0x5622, 0, 1, 0);
     if (Sound_IsPlaying(g_unk0x0058dde0[player]) == 0)
-        g_unk0x0058dde0[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 3), 0, 0x5622, 0, 1, 0);
-    if (!FUN_00427aa0()) {
+        g_unk0x0058dde0[player] = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[player] + 3), 0, 0x5622, 0, 1, 0);
+    if (!NetRace_GetRaceSoundMode()) {
         if (Sound_IsPlaying(g_unk0x0058dd80[player]) == 0)
-            g_unk0x0058dd80[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 4), 0, 0x5622, 0, 1, 0);
+            g_unk0x0058dd80[player] = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[player] + 4), 0, 0x5622, 0, 1, 0);
     }
-    if (CGameInfo::FUN_00406410(0x13)) {
+    if (CGameInfo::IsRecordFlagSet(0x13)) {
         if (Sound_IsPlaying(g_unk0x0058ddd8[player]) == 0)
-            g_unk0x0058ddd8[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 0xd), 0x10000, 0x2b11, 0, 1, 0);
+            g_unk0x0058ddd8[player] = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[player] + 0xd), 0x10000, 0x2b11, 0, 1, 0);
         if (Sound_IsPlaying(g_unk0x0058df30[player]) == 0)
-            g_unk0x0058df30[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 0xe), 0x10000, 0x2b11, 0, 1, 0);
+            g_unk0x0058df30[player] = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[player] + 0xe), 0x10000, 0x2b11, 0, 1, 0);
     }
     pitch = FixMul(FixMul(pCar->field_0x7ac, pCar->field_0x798), 0x19640000) >> 16;
     state[1] = pitch;
@@ -1242,7 +1242,7 @@ void FUN_0047a710(int player, int listener)
     state[4] = (FixDiv(FixMul(pCar->steerFollowRate, 0x640000), pCar->field_0x788) < 0x50000 ? 0 : 0x640000) >> 16;
     state[5] = 0;
     state[6] = 0;
-    FUN_00479360(state, player, listener);
+    Surface_UpdatePlayerEngineSounds(state, player, listener);
 }
 
 // Skid sound of one player: when the skid level (+0xc) rises it stops the
@@ -1251,7 +1251,7 @@ void FUN_0047a710(int player, int listener)
 // 100), sets its pitch from the speed curve and its volume from the curve,
 // the level's fade-in dip, distance and master volume; otherwise silences it.
 // FUNCTION: CMR2 0x0047a3d0
-void FUN_0047a3d0(int player, int *pState, int listener)
+void Surface_UpdatePlayerSkidSound(int player, int *pState, int listener)
 {
     int speed;
     int level;
@@ -1276,20 +1276,20 @@ void FUN_0047a3d0(int player, int *pState, int listener)
             Sound_Free(g_unk0x0058dd90[player]);
             g_unk0x0058dd90[player] = -1;
         }
-        g_unk0x0058de10[player] = FUN_004781c0(player);
+        g_unk0x0058de10[player] = StageObject_GetCarSoundElapsedTime(player);
     } else {
-        FUN_004781c0(player);
+        StageObject_GetCarSoundElapsedTime(player);
         g_unk0x0058de10[player] = -1;
     }
     if (level != g_unk0x0058dd68[player] && level > g_unk0x0058dd68[player]) {
         if (rand() % 4 == 0)
-            g_unk0x0058dd88[player] = FUN_004781c0(player) + 100;
+            g_unk0x0058dd88[player] = StageObject_GetCarSoundElapsedTime(player) + 100;
         else
-            g_unk0x0058dd88[player] = FUN_004781c0(player);
+            g_unk0x0058dd88[player] = StageObject_GetCarSoundElapsedTime(player);
     }
     if (level >= 1 && level <= 3) {
-        if ((unsigned int)(FUN_004781c0(player) - g_unk0x0058dd88[player]) < 100)
-            dip = g_unk0x0051f310[(unsigned int)(FUN_004781c0(player) * 23 - g_unk0x0058dd88[player] * 23) / 100];
+        if ((unsigned int)(StageObject_GetCarSoundElapsedTime(player) - g_unk0x0058dd88[player]) < 100)
+            dip = g_unk0x0051f310[(unsigned int)(StageObject_GetCarSoundElapsedTime(player) * 23 - g_unk0x0058dd88[player] * 23) / 100];
         else
             dip = 0;
     }
@@ -1301,18 +1301,18 @@ void FUN_0047a3d0(int player, int *pState, int listener)
         } else {
             g_unk0x0058dd78[player] = 0;
         }
-        if (!FUN_00427aa0()) {
-            inRange = FUN_00427ab0(speed, (int *)&g_curve0x0051ede8);
+        if (!NetRace_GetRaceSoundMode()) {
+            inRange = NetRace_IsValueWithinCurveRange(speed, (int *)&g_curve0x0051ede8);
             if (inRange != 0) {
                 pHandle = &g_unk0x0058dd80[player];
                 if (Sound_IsPlaying(g_unk0x0058dd80[player]) == 0)
                     return;
-                if (FUN_0041f3d0((BYTE)player))
-                    Sound_SetPan(*pHandle, FUN_00427e20(player, player,
-                                 FUN_00427b70(speed, (int *)&g_curve0x0051ede8)));
+                if (Race_GetPlayerRecordField4((BYTE)player))
+                    Sound_SetPan(*pHandle, NetRace_ScaleViewAngleByDistance(player, player,
+                                 NetRace_InterpolateWordCurve(speed, (int *)&g_curve0x0051ede8)));
                 else
-                    Sound_SetPan(*pHandle, FUN_00427b70(speed, (int *)&g_curve0x0051ede8));
-                volume = FUN_00427ad0(speed, (int *)&g_curve0x0051ede8);
+                    Sound_SetPan(*pHandle, NetRace_InterpolateWordCurve(speed, (int *)&g_curve0x0051ede8));
+                volume = NetRace_InterpolateByteCurve(speed, (int *)&g_curve0x0051ede8);
                 if (locked)
                     return;
                 if (level >= 1 && level <= 3)
@@ -1321,29 +1321,29 @@ void FUN_0047a3d0(int player, int *pState, int listener)
                     volume = 10;
                 volume = g_unk0x0058dd78[player] * volume / 100;
                 if (inRange && g_unk0x0058de10[player] != -1)
-                    FUN_004781c0(player);
+                    StageObject_GetCarSoundElapsedTime(player);
                 if (volume < 0)
                     volume = 0;
                 else if (volume > 100)
                     volume = 100;
-                FUN_004b79a0(*pHandle, FixMul(FUN_00427d50(player, listener),
+                Sound_SetPlayingSlotVolume(*pHandle, FixMul(NetRace_GetListenerDistanceAttenuation(player, listener),
                                               FixMul(g_unk0x0058dda8, FixMul((volume << 16) / 100, g_unk0x0051f280))));
                 return;
             }
         }
         if (Sound_IsPlaying(g_unk0x0058dd80[player])) {
-            FUN_004b79a0(g_unk0x0058dd80[player], 0);
+            Sound_SetPlayingSlotVolume(g_unk0x0058dd80[player], 0);
             Sound_SetPan(g_unk0x0058dd80[player], 0x2b11);
         }
     } else if (Sound_IsPlaying(g_unk0x0058dd80[player])) {
-        FUN_004b79a0(g_unk0x0058dd80[player], 0);
+        Sound_SetPlayingSlotVolume(g_unk0x0058dd80[player], 0);
         Sound_SetPan(g_unk0x0058dd80[player], 0x2b11);
     }
 }
 
 // Moves the player's value toward target, at most 20 up or 10 down per call.
 // FUNCTION: CMR2 0x0047a380
-void FUN_0047a380(int target, int player)
+void Surface_SmoothPlayerSoundLevel(int target, int player)
 {
     int cur = g_unk0x0058de00[player];
 
@@ -1365,20 +1365,20 @@ DWORD g_unk0x0058dc58;
 // GLOBAL: CMR2 0x0058dc5c
 int g_unk0x0058dc5c;
 
-void FUN_004a0c40(char param1);
+void Menu_SetInputStateFlag(char param1);
 
 // Menu setup of the surface screen: input repeat from the options and the
 // button mapping stored in g_unk0x0058dc58.
 // FUNCTION: CMR2 0x00478be0
-void FUN_00478be0(void)
+void Surface_ConfigureMenuInput(void)
 {
     int rate;
 
     g_unk0x0058dc5c = -1;
-    CInput::FUN_0049ffc0(((int)(CGameInfo::FUN_00405e70() << 16) / 100) / 4);
-    CInput::FUN_0049ff80(g_unk0x0058dc58, g_unk0x0058dc58 + 1, g_unk0x0058dc58 + 2, g_unk0x0058dc58 + 3,
+    CInput::SetInputRepeatTimingState(((int)(CGameInfo::GetEffectsSoundVolume() << 16) / 100) / 4);
+    CInput::SetInputRepeatTimingParameters(g_unk0x0058dc58, g_unk0x0058dc58 + 1, g_unk0x0058dc58 + 2, g_unk0x0058dc58 + 3,
                          g_unk0x0058dc58 + 4);
-    FUN_004a0c40(1);
+    Menu_SetInputStateFlag(1);
 }
 
 // GLOBAL: CMR2 0x0051e948
@@ -1403,10 +1403,10 @@ char g_strLangEnglish[] = "genglish";
 #include "Game.h"
 #include <stdio.h>
 
-BYTE FUN_00478b20(void);
+BYTE Surface_FreeTextureData(void);
 
 // Loads the game text of the region's language and splits it into the
-// string table (release callback FUN_00478b20).
+// string table (release callback Surface_FreeTextureData).
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00478a20
 BYTE FUN_00478a20(void)
@@ -1447,8 +1447,8 @@ BYTE FUN_00478a20(void)
                                                    (BYTE *)g_unk0x0058db50, 0, 0);
     if (g_unk0x0058dc54 == NULL)
         return 0;
-    CFrontend::FUN_004a3c90(1, 0x104, (BYTE **)&g_unk0x0058dc54);
-    CGame::RegisterCallback(FUN_00478b20, 0);
+    CFrontend::BuildLocalizedTextStringTable(1, 0x104, (BYTE **)&g_unk0x0058dc54);
+    CGame::RegisterCallback(Surface_FreeTextureData, 0);
     return 1;
 }
 
@@ -1559,34 +1559,34 @@ void FUN_004786b0(BYTE *pWheel, int unused)
 // Stops the surface sounds of every active player (the per-player handles set
 // up by 0x478dc0) and frees the two shared surface sound handles.
 // FUNCTION: CMR2 0x00478c40
-void FUN_00478c40(void)
+void Surface_StopAndFreeSounds(void)
 {
     int flag;
     int i;
     int *pHandle;
 
     if ((BYTE)RallyDataState() == 1 && (BYTE)RallyData_GetFlag25() != 0 &&
-        CGameInfo::FUN_00405e00() == 0 && CGameInfo::FUN_00405d80() != 3)
+        CGameInfo::GetGameModeOptionBit19() == 0 && CGameInfo::GetConfiguredGameMode() != 3)
         flag = 1;
     else
         flag = 0;
     for (i = 0; i < (int)((RallyDataState() & 0xff) + flag); i = i + 1) {
         if (Sound_IsPlaying((unsigned int)g_unk0x0058ddf0[i]) != 0)
-            FUN_004b79a0((unsigned int)g_unk0x0058ddf0[i], 0);
+            Sound_SetPlayingSlotVolume((unsigned int)g_unk0x0058ddf0[i], 0);
         if (Sound_IsPlaying((unsigned int)g_unk0x0058dde0[i]) != 0)
-            FUN_004b79a0((unsigned int)g_unk0x0058dde0[i], 0);
+            Sound_SetPlayingSlotVolume((unsigned int)g_unk0x0058dde0[i], 0);
         if (Sound_IsPlaying((unsigned int)g_unk0x0058dde8[i]) != 0)
-            FUN_004b79a0((unsigned int)g_unk0x0058dde8[i], 0);
+            Sound_SetPlayingSlotVolume((unsigned int)g_unk0x0058dde8[i], 0);
         if (Sound_IsPlaying((unsigned int)g_unk0x0058ddac[i]) != 0)
-            FUN_004b79a0((unsigned int)g_unk0x0058ddac[i], 0);
+            Sound_SetPlayingSlotVolume((unsigned int)g_unk0x0058ddac[i], 0);
         if (Sound_IsPlaying((unsigned int)g_unk0x0058dd80[i]) != 0)
-            FUN_004b79a0((unsigned int)g_unk0x0058dd80[i], 0);
+            Sound_SetPlayingSlotVolume((unsigned int)g_unk0x0058dd80[i], 0);
         if (Sound_IsPlaying((unsigned int)g_unk0x0058ddc0[i]) != 0)
-            FUN_004b79a0((unsigned int)g_unk0x0058ddc0[i], 0);
+            Sound_SetPlayingSlotVolume((unsigned int)g_unk0x0058ddc0[i], 0);
         if (Sound_IsPlaying((unsigned int)g_unk0x0058dd90[i]) != 0)
-            FUN_004b79a0((unsigned int)g_unk0x0058dd90[i], 0);
+            Sound_SetPlayingSlotVolume((unsigned int)g_unk0x0058dd90[i], 0);
         if (Sound_IsPlaying((unsigned int)g_unk0x0058ddd0[i]) != 0)
-            FUN_004b79a0((unsigned int)g_unk0x0058ddd0[i], 0);
+            Sound_SetPlayingSlotVolume((unsigned int)g_unk0x0058ddd0[i], 0);
     }
     pHandle = &g_unk0x0058ddc8;
     while ((int)pHandle < (int)(g_unk0x0058ddc8Pair + 2)) { // 0x58ddd0 in the original

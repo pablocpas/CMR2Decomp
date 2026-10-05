@@ -18,12 +18,12 @@
 #include "Menu.h"
 
 // FUNCTION: CMR2 0x00415bc0
-void FUN_00415bc0(int, int)
+void StageUI_NoOpMapEvent(int, int)
 {
 }
 
 // FUNCTION: CMR2 0x00415f40
-void FUN_00415f40(void)
+void StageUI_NoOpMapRelease(void)
 {
 }
 
@@ -96,7 +96,7 @@ BYTE g_unk0x00537dcc;
 
 // Release callback of FUN_00418f20.
 // FUNCTION: CMR2 0x00418fe0
-int FUN_00418fe0(void)
+int StageUI_ReleaseHUDResources(void)
 {
     g_unk0x00537dcc = 0;
     return 1;
@@ -134,7 +134,7 @@ void FUN_00418f20(void)
         pState->pattern = 0x19;
     }
     if (g_unk0x00537dcc == 0) {
-        CGame::RegisterCallback(FUN_00418fe0, NULL);
+        CGame::RegisterCallback(StageUI_ReleaseHUDResources, NULL);
         g_unk0x00537dcc = 1;
     }
 }
@@ -180,7 +180,7 @@ StageSoundPattern g_stageSoundPatterns[31] = {
 void CarSound_PlaySlot(int channel, int sound, int slot, int volume, int flags);
 void CarSound_StopSlot(int channel, int slot, char clear);
 int CarSound_PickDifferentSampleIndex(int exclude, int count);
-BYTE FUN_00427aa0(void);
+BYTE NetRace_GetRaceSoundMode(void);
 
 #define STAGE_PLAY_PRIMARY(slot) do { \
     CarSound_PlaySlot(channel, pPattern->base[(BYTE)g_unk0x005375f4[channel]] + \
@@ -211,7 +211,7 @@ char g_strSurfSndRollOut[] = "%s\\SurfSnd\\%.2d_o%.2d.wav";
 char g_strSurfSndRollIn[] = "%s\\SurfSnd\\%.2d_i%.2d.wav";
 
 extern int g_unk0x00537564;
-int FUN_004b7940(void);
+int Sound_GetSampleCount(void);
 BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
 void StageTiming_FreeStageFile5(void);
 
@@ -228,7 +228,7 @@ void FUN_00418ff0(void)
 
     pDir = CInstallInfo::GetSoundsDir();
     g_stageSoundLoaded = 0;
-    g_stageSoundFirst = FUN_004b7940();
+    g_stageSoundFirst = Sound_GetSampleCount();
     for (group = 0, pPattern = g_stageSoundPatterns; group < 31; group++, pPattern++) {
         if (g_stageSoundUsed[group] == 0)
             continue;
@@ -257,11 +257,11 @@ void FUN_00418ff0(void)
             g_stageSoundLoaded++;
         }
     }
-    g_unk0x00537564 = FUN_004b7940();
+    g_unk0x00537564 = Sound_GetSampleCount();
     sprintf(CFrontend::m_stringDest, g_strSurfSndIn, pDir);
     Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)StageTiming_GetStageFile5());
     g_stageSoundLoaded++;
-    g_unk0x00537dc8 = FUN_004b7940();
+    g_unk0x00537dc8 = Sound_GetSampleCount();
     sprintf(CFrontend::m_stringDest, g_strSurfSndOut, pDir);
     Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)StageTiming_GetStageFile5());
     g_stageSoundLoaded++;
@@ -298,14 +298,14 @@ void StageUI_ApplySoundState(int channel, BYTE *pState)
         if (pPattern != NULL) {
             STAGE_PLAY_DIRECT(4);
             STAGE_PLAY_SECONDARY(0);
-            if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+            if (NetRace_GetRaceSoundMode() == 0) STAGE_PLAY_EXTRA();
         }
         return;
     case 4:
         if (pPattern != NULL) {
             STAGE_PLAY_PRIMARY(5);
             STAGE_PLAY_SECONDARY(0);
-            if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+            if (NetRace_GetRaceSoundMode() == 0) STAGE_PLAY_EXTRA();
         }
         return;
     case 5:
@@ -313,13 +313,13 @@ void StageUI_ApplySoundState(int channel, BYTE *pState)
         return;
     case 6:
         if (pPattern != NULL) {
-            if (FUN_00427aa0() != 0) STAGE_STOP(4);
+            if (NetRace_GetRaceSoundMode() != 0) STAGE_STOP(4);
             STAGE_PLAY_PRIMARY(5);
         }
         return;
     case 7:
         if (pPattern != NULL) {
-            if (FUN_00427aa0() != 0) STAGE_STOP(4);
+            if (NetRace_GetRaceSoundMode() != 0) STAGE_STOP(4);
             STAGE_PLAY_PRIMARY(5);
             STAGE_PLAY_SECONDARY(7);
         }
@@ -327,14 +327,14 @@ void StageUI_ApplySoundState(int channel, BYTE *pState)
     case 8:
         STAGE_STOP(4);
         if (pPattern == NULL) return;
-        if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+        if (NetRace_GetRaceSoundMode() == 0) STAGE_PLAY_EXTRA();
         STAGE_PLAY_DIRECT(4);
         STAGE_PLAY_SECONDARY(0);
         return;
     case 9:
         STAGE_STOP(4);
         if (pPattern == NULL) return;
-        if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+        if (NetRace_GetRaceSoundMode() == 0) STAGE_PLAY_EXTRA();
         STAGE_PLAY_PRIMARY(5);
         STAGE_PLAY_SECONDARY(0);
         return;
@@ -344,7 +344,7 @@ void StageUI_ApplySoundState(int channel, BYTE *pState)
         return;
     case 11:
         if (pPattern == NULL) return;
-        if (FUN_00427aa0() != 0) {
+        if (NetRace_GetRaceSoundMode() != 0) {
             STAGE_STOP(4);
             STAGE_STOP(6);
         }
@@ -352,7 +352,7 @@ void StageUI_ApplySoundState(int channel, BYTE *pState)
         return;
     case 12:
         if (pPattern == NULL) return;
-        if (FUN_00427aa0() != 0) {
+        if (NetRace_GetRaceSoundMode() != 0) {
             STAGE_STOP(4);
             STAGE_STOP(6);
         }
@@ -365,7 +365,7 @@ void StageUI_ApplySoundState(int channel, BYTE *pState)
         if (pPattern != NULL) {
             STAGE_PLAY_DIRECT(4);
             STAGE_PLAY_SECONDARY(0);
-            if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+            if (NetRace_GetRaceSoundMode() == 0) STAGE_PLAY_EXTRA();
         }
         return;
     case 14:
@@ -374,19 +374,19 @@ void StageUI_ApplySoundState(int channel, BYTE *pState)
         if (pPattern != NULL) {
             STAGE_PLAY_PRIMARY(5);
             STAGE_PLAY_SECONDARY(0);
-            if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+            if (NetRace_GetRaceSoundMode() == 0) STAGE_PLAY_EXTRA();
         }
         return;
     case 16:
         STAGE_STOP(4);
         STAGE_STOP(0);
-        if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
+        if (NetRace_GetRaceSoundMode() == 0) STAGE_STOP_EXTRA();
         if (pPattern != NULL) STAGE_PLAY_PRIMARY(5);
         return;
     case 17:
         STAGE_STOP(4);
         STAGE_STOP(0);
-        if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
+        if (NetRace_GetRaceSoundMode() == 0) STAGE_STOP_EXTRA();
         if (pPattern != NULL) {
             STAGE_PLAY_PRIMARY(5);
             STAGE_PLAY_SECONDARY(7);
@@ -400,18 +400,18 @@ void StageUI_ApplySoundState(int channel, BYTE *pState)
     case 20:
         STAGE_STOP(4);
         STAGE_STOP(0);
-        if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
+        if (NetRace_GetRaceSoundMode() == 0) STAGE_STOP_EXTRA();
         return;
     case 21:
         STAGE_STOP(0);
-        if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
+        if (NetRace_GetRaceSoundMode() == 0) STAGE_STOP_EXTRA();
         else STAGE_STOP(4);
         if (pPattern != NULL) STAGE_PLAY_PRIMARY(5);
         return;
     case 22:
         STAGE_STOP(4);
         STAGE_STOP(0);
-        if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
+        if (NetRace_GetRaceSoundMode() == 0) STAGE_STOP_EXTRA();
         if (pPattern != NULL) {
             STAGE_PLAY_PRIMARY(5);
             STAGE_PLAY_SECONDARY(7);
@@ -453,31 +453,31 @@ int g_unk0x00537ef8;
 int g_unk0x00537efc;
 
 // FUNCTION: CMR2 0x0041b300
-void FUN_0041b300(void)
+void StageUI_ClearRaceEndLatch(void)
 {
     g_unk0x00537ef4 = 0;
 }
 
 // FUNCTION: CMR2 0x0041b310
-void FUN_0041b310(void)
+void StageUI_SetRaceEndPending(void)
 {
     g_unk0x00537ef8 = 1;
 }
 
 // FUNCTION: CMR2 0x0041b320
-int FUN_0041b320(void)
+int StageUI_GetRaceEndState(void)
 {
     return g_unk0x00537efc;
 }
 
 // FUNCTION: CMR2 0x0041b330
-void FUN_0041b330(void)
+void StageUI_ClearRaceEndState(void)
 {
     g_unk0x00537efc = 0;
 }
 
 // FUNCTION: CMR2 0x0041b340
-void FUN_0041b340(char bFlag)
+void StageUI_RecordRaceEndEvent(char bFlag)
 {
     if (bFlag != 0)
         g_unk0x00537ef5 = 1;
@@ -485,60 +485,60 @@ void FUN_0041b340(char bFlag)
 }
 
 // FUNCTION: CMR2 0x0041b360
-void FUN_0041b360(void)
+void StageUI_ResetRaceEndEventCount(void)
 {
     g_unk0x00537ef6 = 0;
 }
 
 // FUNCTION: CMR2 0x0041b370
-BYTE FUN_0041b370(void)
+BYTE StageUI_GetRaceEndEventCount(void)
 {
     return g_unk0x00537ef6;
 }
 
 // FUNCTION: CMR2 0x0041b380
-int FUN_0041b380(void)
+int StageUI_GetRaceResultValue(void)
 {
     return g_unk0x00537df0;
 }
 
 // FUNCTION: CMR2 0x0041b390
-BYTE *FUN_0041b390(void)
+BYTE *StageUI_GetRaceResultTable(void)
 {
     return g_unk0x00537dd0;
 }
 
-void FUN_0040ad20(void);
-BOOL FUN_004a15a0(void);
-unsigned int FUN_0040aec0(int index);
-int FUN_0040ae90(void);
-void FUN_0040af60(void);
-struct NetClassification *FUN_0040aea0(int index);
-void FUN_0040e660(int index, char *name, int wins);
+void NetPlayers_BuildFinalClassification(void);
+BOOL Network_GetSessionStateFlag(void);
+unsigned int NetPlayers_GetClassificationTime(int index);
+int NetPlayers_GetClassificationCount(void);
+void NetPlayers_SendPublishedLeaderboard(void);
+struct NetClassification *NetPlayers_GetClassificationRecord(int index);
+void NetworkLeaderboard_AddWins(int index, char *name, int wins);
 
 // End of a network race: gives a leaderboard win to every driver with the
 // winning time and registers the others with no win.
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0041b3a0
-void FUN_0041b3a0(void)
+void StageUI_PublishNetworkRaceWins(void)
 {
     int i;
 
-    FUN_0040ad20();
+    NetPlayers_BuildFinalClassification();
     if (CNetworkLeaderboards::GetLeaderboardId() == -1)
         return;
-    if (FUN_004a15a0() && FUN_0040aec0(0) != -1) {
-        FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(0)->name, 1);
-        for (i = 1; i < FUN_0040ae90(); i++) {
-            if (FUN_0040aec0(i) == FUN_0040aec0(0))
-                FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name, 1);
+    if (Network_GetSessionStateFlag() && NetPlayers_GetClassificationTime(0) != -1) {
+        NetworkLeaderboard_AddWins(CNetworkLeaderboards::GetLeaderboardId(), NetPlayers_GetClassificationRecord(0)->name, 1);
+        for (i = 1; i < NetPlayers_GetClassificationCount(); i++) {
+            if (NetPlayers_GetClassificationTime(i) == NetPlayers_GetClassificationTime(0))
+                NetworkLeaderboard_AddWins(CNetworkLeaderboards::GetLeaderboardId(), NetPlayers_GetClassificationRecord(i)->name, 1);
             else
-                FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name, 0);
+                NetworkLeaderboard_AddWins(CNetworkLeaderboards::GetLeaderboardId(), NetPlayers_GetClassificationRecord(i)->name, 0);
         }
     }
-    for (i = 0; i < FUN_0040ae90(); i++)
-        FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name, 0);
-    FUN_0040af60();
+    for (i = 0; i < NetPlayers_GetClassificationCount(); i++)
+        NetworkLeaderboard_AddWins(CNetworkLeaderboards::GetLeaderboardId(), NetPlayers_GetClassificationRecord(i)->name, 0);
+    NetPlayers_SendPublishedLeaderboard();
 }
 
 
@@ -551,7 +551,7 @@ extern BYTE g_unk0x0058ca90[0x4d4];
 BYTE *g_pUnk0x0051c97c = g_unk0x0058ca90;
 
 // FUNCTION: CMR2 0x00475a40
-BYTE *FUN_00475a40(void)
+BYTE *StageUI_GetStageOverlayNode(void)
 {
     return g_pUnk0x0051c97c;
 }
@@ -564,8 +564,8 @@ int g_unk0x0058cf7c;
 
 struct Menu;
 
-void FUN_00473450(Menu *pMenu, int param);
-void FUN_00473460(Menu *pMenu, int param);
+void StageUI_NoOpPauseItemEvent(Menu *pMenu, int param);
+void StageUI_RequestPauseMenuExit(Menu *pMenu, int param);
 void FUN_00473d60(Menu *pMenu);
 void FUN_004738f0(Menu *pMenu);
 extern int g_unk0x0058cf6c;
@@ -574,16 +574,16 @@ extern int g_unk0x0058cf6c;
 // entry 0x63 that opens the second (and 0x72 back), plus the entries whose
 // actions are the patch callbacks.
 // FUNCTION: CMR2 0x00473360
-void FUN_00473360(void)
+void StageUI_BuildPauseMenus(void)
 {
     g_pUnk0x0051c97c = g_unk0x0058ca90;
     Menu_Init((Menu *)g_unk0x0058ca90, 0, 0, 0, NULL, NULL, 1, 0, 1);
-    Menu_AddItemType4((Menu *)g_unk0x0058ca90, 0, 0x13, (int)FUN_00473450, 0);
+    Menu_AddItemType4((Menu *)g_unk0x0058ca90, 0, 0x13, (int)StageUI_NoOpPauseItemEvent, 0);
     Menu_AddItemType2((Menu *)g_unk0x0058ca90, 0, 0x63, (Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 1);
     Menu_SetCallbacks((Menu *)g_unk0x0058ca90, NULL, NULL, (MenuCallback)FUN_00473d60, NULL);
     Menu_ValidateCursor((Menu *)g_unk0x0058ca90, 0);
     Menu_Init((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0, 0, NULL, NULL, 1, 0, 1);
-    Menu_AddItemType4((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0x72, (int)FUN_00473460, 0);
+    Menu_AddItemType4((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0x72, (int)StageUI_RequestPauseMenuExit, 0);
     Menu_AddItemType2((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0x73, (Menu *)g_unk0x0058ca90, 0, 1);
     Menu_SetCallbacks((Menu *)(g_unk0x0058ca90 + 0x1e8), NULL, NULL, (MenuCallback)FUN_004738f0, NULL);
     Menu_ValidateCursor((Menu *)(g_unk0x0058ca90 + 0x1e8), 0);
@@ -592,13 +592,13 @@ void FUN_00473360(void)
 
 // Item callbacks of the menu built by 0x473360.
 // FUNCTION: CMR2 0x00473450
-void FUN_00473450(Menu *pMenu, int param)
+void StageUI_NoOpPauseItemEvent(Menu *pMenu, int param)
 {
     g_unk0x0058cf64 = 1;
 }
 
 // FUNCTION: CMR2 0x00473460
-void FUN_00473460(Menu *pMenu, int param)
+void StageUI_RequestPauseMenuExit(Menu *pMenu, int param)
 {
     g_unk0x0058cf7c = 7;
 }
@@ -872,7 +872,7 @@ void StageUI_DrawStageGrid(int unused, int set)
     resX = (int)(g_pGraphics->resX * 6) / 0x280;
     cell = (int)(g_pGraphics->resY * 6) / 0x1e0;
     left = (short)((int)(g_pGraphics->resX * 0x140) / 0x280);
-    if (RallyData_FUN_00411880() != 0) {
+    if (RallyData_IsHeadToHeadRaceMode() != 0) {
         top = (short)(((int)g_pGraphics->resY + cell * -0x14) / 2) + 4;
     } else {
         top = (short)((int)(g_pGraphics->resY << 0xc) >> 0x10);
@@ -914,29 +914,29 @@ void StageUI_DrawStageGrid(int unused, int set)
 // GLOBAL: CMR2 0x0058ca88
 BYTE *g_unk0x0058ca88;
 extern int g_unk0x0058cf6c;
-void FUN_0041f2a0(void);
+void Race_SetFlag3810D(void);
 
 // Callback of the "retire" item: flags the championship and promotes the cars.
 // FUNCTION: CMR2 0x004734f0
-void FUN_004734f0(Menu *pMenu)
+void StageUI_RetireFromRace(Menu *pMenu)
 {
     int i;
 
     *RallyData_GetChampionshipState() |= 0x800000;
     g_unk0x0058cf6c = 0;
-    FUN_0041f2a0();
+    Race_SetFlag3810D();
     for (i = 0; i < *g_unk0x0058ca88; i++)
         CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x0058ca88, i, 1, 2);
 }
 
 extern int g_unk0x0058cf7c;
 extern BYTE g_unk0x0058ca90[];
-void FUN_004bc290(BYTE *p, int, int, int, int, int, BYTE);
+void Graphics_StartShapedInterpolationTimer(BYTE *p, int, int, int, int, int, BYTE);
 
 // Fade callback of the in-race state machine: releases the scene callbacks and
 // restarts the fade out of the stage objects.
 // FUNCTION: CMR2 0x00473540
-void FUN_00473540(BYTE index)
+void StageUI_ReleaseSceneAndFadeStage(BYTE index)
 {
     int i;
 
@@ -947,10 +947,10 @@ void FUN_00473540(BYTE index)
             i++;
         } while (i < (int)*g_unk0x0058ca88);
     }
-    CGameInfo::FUN_0049ea90(0);
-    FUN_0041b330();
+    CGameInfo::SetInputAndGamePaused(0);
+    StageUI_ClearRaceEndState();
     g_unk0x0058cf7c = 5;
-    FUN_004bc290(g_unk0x0058ca90 + 0x4d0, 2, 7, 0, 0, 0x10000, 0);
+    Graphics_StartShapedInterpolationTimer(g_unk0x0058ca90 + 0x4d0, 2, 7, 0, 0, 0x10000, 0);
 }
 
 // Co-driver arrow sprites: 64-pixel cells for low resolutions, 102-pixel
@@ -976,14 +976,14 @@ Texture *g_arrowTexture;
 
 // Loads the co-driver arrow texture and picks the sprite layout for the resolution.
 // FUNCTION: CMR2 0x004165e0
-void FUN_004165e0(void)
+void StageUI_LoadCoDriverArrows(void)
 {
     char path[MAX_PATH];
     bool loaded;
 
-    sprintf(path, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strArrowsTexture);
+    sprintf(path, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strArrowsTexture);
     g_arrowTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), path, &loaded, 0, 0, 0);
-    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400)) {
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) && CFrontend::IsTextureHeightSupported(0x400)) {
         g_pArrowRects = g_arrowRectsLarge;
         return;
     }
@@ -993,23 +993,23 @@ void FUN_004165e0(void)
 // GLOBAL: CMR2 0x0058ca8c
 BYTE g_unk0x0058ca8c[4];
 
-void FUN_0040bad0(void);
-void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
-BYTE FUN_004bc0c0(BYTE *p);
+void Input_TranslatePedalsToMenuKeys(void);
+void Input_MergeAssignedJoystickButtons(unsigned short slot, DeviceInfo *pOut);
+BYTE Graphics_IsRegisteredTimerRunning(BYTE *p);
 
 // Runs the current in-race menu for one frame (with no input while one of
 // the two key latches is held) and follows the menu it returns.
 // FUNCTION: CMR2 0x00473470
-void FUN_00473470(void)
+void StageUI_UpdatePauseMenu(void)
 {
     DeviceInfo *pDev;
     int next;
 
-    CInput::FUN_0049eab0();
-    FUN_0040bad0();
-    if (!FUN_004bc0c0(g_unk0x0058ca90 + 0x1e0) && !FUN_004bc0c0(g_unk0x0058ca8c)) {
-        pDev = CInput::FUN_0049ead0(0);
-        FUN_0040bd60(0, pDev);
+    CInput::UpdateAllAvailableDevices();
+    Input_TranslatePedalsToMenuKeys();
+    if (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca90 + 0x1e0) && !Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c)) {
+        pDev = CInput::GetAvailableDeviceRecord(0);
+        Input_MergeAssignedJoystickButtons(0, pDev);
         next = Menu_Update((Menu *)g_pUnk0x0051c97c, pDev->field_0x8);
     } else {
         next = Menu_Update((Menu *)g_pUnk0x0051c97c, 0);
@@ -1031,13 +1031,13 @@ int g_unk0x00536fe0;
 // GLOBAL: CMR2 0x0053705c
 unsigned int g_stageMapScale;
 
-void RallyData_FUN_00421530(int index, int *pOut);
-int RallyData_FUN_00421420(void);
+void RallyData_GetRouteNodeGroundPosition(int index, int *pOut);
+int RallyData_GetRouteAvailabilityState(void);
 
 // Fits the stage map to the route: centre and scale of the larger extent.
 // match 37%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00415e30
-void FUN_00415e30(void)
+void StageUI_FitMapToRoute(void)
 {
     int maxX = -0x7d000000;
     int maxZ = -0x7d000000;
@@ -1049,12 +1049,12 @@ void FUN_00415e30(void)
     int dz;
 
     g_unk0x00536fe0 = 0;
-    if ((unsigned int)RallyData_FUN_00421420() < 100)
+    if ((unsigned int)RallyData_GetRouteAvailabilityState() < 100)
         g_unk0x00536c24 = 1;
     else
-        g_unk0x00536c24 = (unsigned int)RallyData_FUN_00421420() / 100 + 1;
-    for (i = 0; i < RallyData_FUN_00421420(); i++) {
-        RallyData_FUN_00421530(i, point);
+        g_unk0x00536c24 = (unsigned int)RallyData_GetRouteAvailabilityState() / 100 + 1;
+    for (i = 0; i < RallyData_GetRouteAvailabilityState(); i++) {
+        RallyData_GetRouteNodeGroundPosition(i, point);
         if (point[0] > maxX)
             maxX = point[0];
         if (point[0] < minX)
@@ -1078,17 +1078,17 @@ void FUN_00415e30(void)
 extern Texture *g_unk0x0053707c;
 extern Texture *g_unk0x00537078;
 extern double g_minus65536;
-int FUN_0040a700(int index);
-int FUN_0040a720(int id);
-int FUN_00409d20(int index);
-BYTE *FUN_0040b0a0(int id);
-DWORD FUN_004a1a00(void);
-int FUN_004582f0(int index);
-int FUN_00459350(int index);
+int NetPlayers_GetResultPlayerIndex(int index);
+int NetPlayers_GetResultField4ByID(int id);
+int NetPlayers_GetPlayerID(int index);
+BYTE *NetPlayers_GetPlayerNameColour(int id);
+DWORD Network_GetLocalPlayerID(void);
+int StageTiming_GetCheckpointField0(int index);
+int Stage_GetNextCheckpoint(int index);
 short Car_GetOrderCount(void);
 struct Car *Car_Get(int index);
-int RallyData_FUN_00421370(BYTE *p);
-int RallyData_FUN_00411880(void);
+int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
+int RallyData_IsHeadToHeadRaceMode(void);
 unsigned char RallyDataState(void);
 unsigned char RallyData_GetFlag25(void);
 
@@ -1145,7 +1145,7 @@ void FUN_00415f50(int car, short *pRect)
         mapSrc[3] = g_unk0x0053707c->height - 1;
         dotSrc[2] = g_unk0x00537078->width - 1;
         dotSrc[3] = g_unk0x00537078->height - 1;
-        if (RallyData_FUN_00411880() && CGameInfo::FUN_00405dc0())
+        if (RallyData_IsHeadToHeadRaceMode() && CGameInfo::IsSplitBarEnabled())
             return;
         map[0] = (short)((int)(g_pGraphics->resX * 0x731) >> 16) + pRect[0];
         map[2] = (short)((int)(g_pGraphics->resX * 0x3f9e) >> 16);
@@ -1156,20 +1156,20 @@ void FUN_00415f50(int car, short *pRect)
         map[1] -= map[3];
         Sprite_Queue((SpriteRect *)mapSrc, (SpriteRect *)map, g_unk0x0053707c, 2, 0, NULL, NULL, colour, 8);
     }
-    if (CGameInfo::FUN_00405d80() == 11 || CGameInfo::FUN_00405d80() == 12 ||
-        (CGameInfo::FUN_00405e00() && (char)RallyData_GetFlag25() && CGameInfo::FUN_00405d80() != 10)) {
+    if (CGameInfo::GetConfiguredGameMode() == 11 || CGameInfo::GetConfiguredGameMode() == 12 ||
+        (CGameInfo::GetGameModeOptionBit19() && (char)RallyData_GetFlag25() && CGameInfo::GetConfiguredGameMode() != 10)) {
         for (i = 0; i < 8; i++) {
-            id = FUN_0040a700(i);
+            id = NetPlayers_GetResultPlayerIndex(i);
             if (id == -1)
                 continue;
             if (id == -2) {
-                index = FUN_004582f0(0);
-                netColour = *(int *)FUN_0040b0a0(FUN_004a1a00());
+                index = StageTiming_GetCheckpointField0(0);
+                netColour = *(int *)NetPlayers_GetPlayerNameColour(Network_GetLocalPlayerID());
             } else {
-                index = FUN_0040a720(FUN_00409d20(id));
-                netColour = *(int *)FUN_0040b0a0(FUN_00409d20(id));
+                index = NetPlayers_GetResultField4ByID(NetPlayers_GetPlayerID(id));
+                netColour = *(int *)NetPlayers_GetPlayerNameColour(NetPlayers_GetPlayerID(id));
             }
-            RallyData_FUN_00421530(FUN_00459350(index), point);
+            RallyData_GetRouteNodeGroundPosition(Stage_GetNextCheckpoint(index), point);
             d.x = point[0] - g_stageMapCentre.x;
             d.y = point[1] - g_stageMapCentre.y;
             d.z = point[2] - g_stageMapCentre.z;
@@ -1185,7 +1185,7 @@ void FUN_00415f50(int car, short *pRect)
         if (i >= 0) {
             pCarColour = g_stageMapCarColours[i];
             do {
-                RallyData_FUN_00421530(RallyData_FUN_00421370((BYTE *)Car_Get(i)), point);
+                RallyData_GetRouteNodeGroundPosition(RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(i)), point);
                 d.x = point[0] - g_stageMapCentre.x;
                 d.y = point[1] - g_stageMapCentre.y;
                 d.z = point[2] - g_stageMapCentre.z;
@@ -1202,7 +1202,7 @@ void FUN_00415f50(int car, short *pRect)
     }
     for (i = 0; i < (BYTE)RallyDataState(); i++) {
         sprintf(number, g_strMapNumber, i + 1);
-        RallyData_FUN_00421530(FUN_00459350(FUN_004582f0(i)), point);
+        RallyData_GetRouteNodeGroundPosition(Stage_GetNextCheckpoint(StageTiming_GetCheckpointField0(i)), point);
         d.x = point[0] - g_stageMapCentre.x;
         d.y = point[1] - g_stageMapCentre.y;
         d.z = point[2] - g_stageMapCentre.z;
@@ -1212,16 +1212,16 @@ void FUN_00415f50(int car, short *pRect)
 #undef MAP_X
 #undef MAP_Y
 
-BYTE FUN_004085a0(BYTE param1);
-BYTE FUN_00407150(BYTE param1, char param2);
-BYTE RallyData_FUN_00409010(int index, int bit);
-void RallyData_FUN_00409090(int index, int place);
-void FUN_00409150(int index, int item, int level);
-void FUN_00409680(int index, int player, int difficulty);
-char FUN_004097b0(int param_1);
-bool RallyData_FUN_00408e30(int index, int bit, char check);
-int FUN_0040ceb0(int index);
-int FUN_004483b0(int index);
+BYTE RallyData_IsDriverRecordUsable(BYTE param1);
+BYTE RallyData_GetDriverGridRow(BYTE param1, char param2);
+BYTE RallyData_SetCategoryAwardBit(int index, int bit);
+void RallyData_RecordBestFinishingPlace(int index, int place);
+void RallyData_RecordBestCategoryMedal(int index, int item, int level);
+void RallyData_RecordBestCategoryDifficulty(int index, int player, int difficulty);
+char RallyData_HasCompletedCategorySetupFields(int param_1);
+bool RallyData_HasCategoryAward(int index, int bit, char check);
+int RallyTiming_GetChampionshipPointsByPosition(int index);
+int StageTiming_GetFinishOrderSecondaryEntry(int index);
 int RallyTiming_GetStagePositionOfDriver(int iDriver);
 int RallyTiming_GetOverallPositionOfDriver(int iDriver);
 extern int g_unk0x00537f68[];
@@ -1255,51 +1255,51 @@ void FUN_0041b460(void)
     int i;
 
     flag = 0;
-    pFlags = CGameInfo::FUN_00405db0();
-    for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++) {
+    pFlags = CGameInfo::GetGameInfoField9CAddress();
+    for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++) {
         g_unk0x00537f68[i] = 0;
         g_unk0x00537f78[i] = 0;
-        bAward = FUN_004085a0((BYTE)i);
+        bAward = RallyData_IsDriverRecordUsable((BYTE)i);
         pos = StageTiming_GetDriverSlot(i);
-        switch (CGameInfo::FUN_00405d80()) {
+        switch (CGameInfo::GetConfiguredGameMode()) {
         case 0:
         case 1:
-            if (CGameInfo::FUN_00405d80() == 0) {
+            if (CGameInfo::GetConfiguredGameMode() == 0) {
                 if ((BYTE)RallyDataCountryIndex() == 7 && RallyDataStageIndex() == 0xa &&
                     RallyTiming_GetStagePositionOfDriver(pos) <= 2)
-                    RallyData_FUN_00409090(i, RallyTiming_GetStagePositionOfDriver(pos));
-                if (CGameInfo::FUN_00405d90() == 1 && (BYTE)RallyDataCountryIndex() == 7 &&
+                    RallyData_RecordBestFinishingPlace(i, RallyTiming_GetStagePositionOfDriver(pos));
+                if (CGameInfo::GetConfiguredDifficulty() == 1 && (BYTE)RallyDataCountryIndex() == 7 &&
                     RallyDataStageIndex() == 0xa && pos == 0 && (pFlags[0] & 1) == 0) {
                     pFlags[0] |= 1;
                     g_unk0x00537f68[i] |= 1;
-                    CGame::FUN_004057c0();
+                    CGame::SetStartupFlag();
                 }
-                if (CGameInfo::FUN_00405d90() == 0 && (BYTE)RallyDataCountryIndex() == 7 &&
+                if (CGameInfo::GetConfiguredDifficulty() == 0 && (BYTE)RallyDataCountryIndex() == 7 &&
                     RallyDataStageIndex() == 0xa && pos == 0 && bAward == 0 &&
-                    RallyData_FUN_00409010(i, 0x15)) {
+                    RallyData_SetCategoryAwardBit(i, 0x15)) {
                     g_unk0x00537f78[i] = 0x15;
                     g_unk0x00537f68[i] |= 0x80;
                 }
             }
-            stage = (BYTE)FUN_00407150((BYTE)RallyDataCountryIndex(),
-                                       (char)CGameInfo::FUN_00405d90()) - 1;
+            stage = (BYTE)RallyData_GetDriverGridRow((BYTE)RallyDataCountryIndex(),
+                                       (char)CGameInfo::GetConfiguredDifficulty()) - 1;
             if (RallyDataStageIndex() == stage || RallyDataStageIndex() == 0xa) {
                 if (RallyTiming_GetOverallPositionOfDriver(pos) <= 2)
-                    FUN_00409150(i, RallyDataCountryIndex() & 0xff,
+                    RallyData_RecordBestCategoryMedal(i, RallyDataCountryIndex() & 0xff,
                                  RallyTiming_GetOverallPositionOfDriver(pos));
             }
-            stage = (BYTE)FUN_00407150((BYTE)RallyDataCountryIndex(),
-                                       (char)CGameInfo::FUN_00405d90()) - 1;
+            stage = (BYTE)RallyData_GetDriverGridRow((BYTE)RallyDataCountryIndex(),
+                                       (char)CGameInfo::GetConfiguredDifficulty()) - 1;
             if (RallyDataStageIndex() == stage || RallyDataStageIndex() == 0xa) {
                 if (RallyTiming_GetOverallPositionOfDriver(pos) <= 5) {
-                    switch (CGameInfo::FUN_00405d90()) {
+                    switch (CGameInfo::GetConfiguredDifficulty()) {
                     case 2:
-                        if (CGameInfo::FUN_00405d80() == 0) {
+                        if (CGameInfo::GetConfiguredGameMode() == 0) {
                             if ((BYTE)RallyDataCountryIndex() + 1 == (pFlags[0] >> 0x10 & 0xf) &&
                                 (BYTE)RallyDataCountryIndex() != 7) {
                                 pFlags[0] = ((pFlags[0] & 0xffff0000) + 0x10000 ^ pFlags[0]) & 0xf0000 ^ pFlags[0]; // field++
                                 g_unk0x00537f68[i] |= 8;
-                                CGame::FUN_004057c0();
+                                CGame::SetStartupFlag();
                             }
                         }
                         if (((BYTE)RallyDataCountryIndex() + 1) % 2 != 0) {
@@ -1307,7 +1307,7 @@ void FUN_0041b460(void)
                             if ((pFlags[1] >> 10 & bit & 0x1f) == 0) {
                                 pFlags[1] |= (bit & 0x1f) | ((bit & 0x1f) << 5) | ((bit & 0x1f) << 10);
                                 g_unk0x00537f68[i] |= 0x40;
-                                CGame::FUN_004057c0();
+                                CGame::SetStartupFlag();
                             }
                         }
                         if (pos != 0)
@@ -1316,24 +1316,24 @@ void FUN_0041b460(void)
                             goto setflag;
                     award:
                         if (bAward == 0 &&
-                            RallyData_FUN_00409010(i, g_unk0x00519198[
+                            RallyData_SetCategoryAwardBit(i, g_unk0x00519198[
                                 ((BYTE)RallyDataCountryIndex() >> 1) +
-                                CGameInfo::FUN_00405d90() * 4])) {
+                                CGameInfo::GetConfiguredDifficulty() * 4])) {
                             g_unk0x00537f68[i] |= 0x80;
                             g_unk0x00537f78[i] = g_unk0x00519198[
                                 ((BYTE)RallyDataCountryIndex() >> 1) +
-                                CGameInfo::FUN_00405d90() * 4];
+                                CGameInfo::GetConfiguredDifficulty() * 4];
                         }
                         break;
                     case 1:
-                        if (CGameInfo::FUN_00405d80() == 0) {
+                        if (CGameInfo::GetConfiguredGameMode() == 0) {
                             if ((BYTE)RallyDataCountryIndex() + 1 == (pFlags[0] >> 12 & 0xf) &&
                                 (BYTE)RallyDataCountryIndex() != 7) {
                                 pFlags[0] = ((pFlags[0] & 0xfffff000) + 0x1000 ^ pFlags[0]) & 0xf000 ^ pFlags[0]; // field++
                                 if ((pFlags[0] & 0xf00) < (pFlags[0] & 0xf000) >> 4)
                                     pFlags[0] = (pFlags[0] & 0xfffff0ff) | ((pFlags[0] & 0xf000) >> 4);
                                 g_unk0x00537f68[i] |= 4;
-                                CGame::FUN_004057c0();
+                                CGame::SetStartupFlag();
                             }
                         }
                         if (((BYTE)RallyDataCountryIndex() + 1) % 2 != 0) {
@@ -1341,7 +1341,7 @@ void FUN_0041b460(void)
                             if ((pFlags[1] >> 5 & bit & 0x1f) == 0) {
                                 pFlags[1] |= (bit & 0x1f) | ((bit & 0x1f) << 5);
                                 g_unk0x00537f68[i] |= 0x20;
-                                CGame::FUN_004057c0();
+                                CGame::SetStartupFlag();
                             }
                         }
                         if (pos != 0)
@@ -1352,12 +1352,12 @@ void FUN_0041b460(void)
                         flag = 1;
                         break;
                     case 0:
-                        if (CGameInfo::FUN_00405d80() == 0) {
+                        if (CGameInfo::GetConfiguredGameMode() == 0) {
                             if ((BYTE)RallyDataCountryIndex() + 1 == (pFlags[0] >> 8 & 0xf) &&
                                 (BYTE)RallyDataCountryIndex() != 7) {
                                 pFlags[0] = ((pFlags[0] & 0xffffff00) + 0x100 ^ pFlags[0]) & 0xf00 ^ pFlags[0]; // field++
                                 g_unk0x00537f68[i] |= 2;
-                                CGame::FUN_004057c0();
+                                CGame::SetStartupFlag();
                             }
                         }
                         if (((BYTE)RallyDataCountryIndex() + 1) % 2 != 0) {
@@ -1365,7 +1365,7 @@ void FUN_0041b460(void)
                             if ((pFlags[1] & bit & 0x1f) == 0) {
                                 pFlags[1] |= bit & 0x1f;
                                 g_unk0x00537f68[i] |= 0x10;
-                                CGame::FUN_004057c0();
+                                CGame::SetStartupFlag();
                             }
                         }
                         break;
@@ -1378,19 +1378,19 @@ void FUN_0041b460(void)
         case 4:
             break;
         case 5:
-            if ((BYTE)RallyData_FUN_00406950() == 2 && FUN_0040ceb0(i) <= 2)
-                FUN_00409680(i, (BYTE)RallyData_FUN_00406940(), FUN_0040ceb0(i));
-            if (RallyData_FUN_004086b0((BYTE)i) < 0xc && (BYTE)RallyData_FUN_00406950() == 2 &&
-                FUN_0040ceb0(i) == 0) {
-                if ((BYTE)RallyData_FUN_00406940() == 0) {
-                    switch (CGameInfo::FUN_00405d90()) {
+            if ((BYTE)RallyData_GetSelectionBits12To13() == 2 && RallyTiming_GetChampionshipPointsByPosition(i) <= 2)
+                RallyData_RecordBestCategoryDifficulty(i, (BYTE)RallyData_GetSelectionBits10To11(), RallyTiming_GetChampionshipPointsByPosition(i));
+            if (RallyData_GetDriverRecordSelectionValue((BYTE)i) < 0xc && (BYTE)RallyData_GetSelectionBits12To13() == 2 &&
+                RallyTiming_GetChampionshipPointsByPosition(i) == 0) {
+                if ((BYTE)RallyData_GetSelectionBits10To11() == 0) {
+                    switch (CGameInfo::GetConfiguredDifficulty()) {
                     case 2:
                         if ((pFlags[0] & 0xc0) == 0x40) {
                             pFlags[0] = (pFlags[0] & 0xffffff3f) | 0x40;
                             g_unk0x00537f68[i] |= 0x200;
-                            CGame::FUN_004057c0();
+                            CGame::SetStartupFlag();
                         }
-                        if (stage == 0 && RallyData_FUN_00409010(i, 2)) {
+                        if (stage == 0 && RallyData_SetCategoryAwardBit(i, 2)) {
                             g_unk0x00537f78[i] = 2;
                             g_unk0x00537f68[i] |= 0x80;
                         }
@@ -1399,18 +1399,18 @@ void FUN_0041b460(void)
                         if ((pFlags[0] & 0x30) == 0x10) {
                             pFlags[0] = (pFlags[0] & 0xffffffcf) | 0x10;
                             g_unk0x00537f68[i] |= 0x100;
-                            CGame::FUN_004057c0();
+                            CGame::SetStartupFlag();
                         }
-                        if (stage == 0 && RallyData_FUN_00409010(i, 5)) {
+                        if (stage == 0 && RallyData_SetCategoryAwardBit(i, 5)) {
                             g_unk0x00537f78[i] = 5;
                             g_unk0x00537f68[i] |= 0x80;
                         }
                         break;
                     }
                 } else {
-                    switch (CGameInfo::FUN_00405d90()) {
+                    switch (CGameInfo::GetConfiguredDifficulty()) {
                     case 2:
-                        if (stage == 0 && RallyData_FUN_00409010(i, 3)) {
+                        if (stage == 0 && RallyData_SetCategoryAwardBit(i, 3)) {
                             g_unk0x00537f78[i] = 3;
                             g_unk0x00537f68[i] |= 0x80;
                         }
@@ -1423,14 +1423,14 @@ void FUN_0041b460(void)
                         if ((pFlags[0] & 2) == 0) {
                             pFlags[0] |= 2;
                             g_unk0x00537f68[i] |= 0x400;
-                            CGame::FUN_004057c0();
+                            CGame::SetStartupFlag();
                         }
                         if ((pFlags[0] & 0x100000) == 0) {
                             pFlags[0] |= 0x100000;
                             g_unk0x00537f68[i] |= 0x800;
-                            CGame::FUN_004057c0();
+                            CGame::SetStartupFlag();
                         }
-                        if (stage == 0 && RallyData_FUN_00409010(i, 6)) {
+                        if (stage == 0 && RallyData_SetCategoryAwardBit(i, 6)) {
                             g_unk0x00537f78[i] = 6;
                             g_unk0x00537f68[i] |= 0x80;
                         }
@@ -1440,15 +1440,15 @@ void FUN_0041b460(void)
             }
             break;
         case 6:
-            if (RallyData_FUN_004086b0((BYTE)i) < 0xc && stage == 0 &&
-                (BYTE)RallyData_FUN_00406940() == 2 && FUN_004483b0(i) == 0) {
-                if ((BYTE)RallyData_FUN_00406950() == 0) {
-                    if (RallyData_FUN_00408e30(i, 0xc, 0) && RallyData_FUN_00409010(i, 0xd)) {
+            if (RallyData_GetDriverRecordSelectionValue((BYTE)i) < 0xc && stage == 0 &&
+                (BYTE)RallyData_GetSelectionBits10To11() == 2 && StageTiming_GetFinishOrderSecondaryEntry(i) == 0) {
+                if ((BYTE)RallyData_GetSelectionBits12To13() == 0) {
+                    if (RallyData_HasCategoryAward(i, 0xc, 0) && RallyData_SetCategoryAwardBit(i, 0xd)) {
                         g_unk0x00537f78[i] = 0xd;
                         g_unk0x00537f68[i] |= 0x80;
                     }
                 } else {
-                    if (RallyData_FUN_00408e30(i, 0xc, 0) && RallyData_FUN_00409010(i, 0xe)) {
+                    if (RallyData_HasCategoryAward(i, 0xc, 0) && RallyData_SetCategoryAwardBit(i, 0xe)) {
                         g_unk0x00537f78[i] = 0xe;
                         g_unk0x00537f68[i] |= 0x80;
                     }
@@ -1457,71 +1457,71 @@ void FUN_0041b460(void)
             break;
         }
         if (flag) {
-            if (CGameInfo::FUN_00405d90() == 1) {
+            if (CGameInfo::GetConfiguredDifficulty() == 1) {
                 switch ((BYTE)RallyDataCountryIndex()) {
                 case 0:
-                    if (CGameInfo::FUN_00406360(0) == 0)
-                        CGameInfo::FUN_00406380(0, 1);
+                    if (CGameInfo::GetUnlockFlagMask(0) == 0)
+                        CGameInfo::SetUnlockFlag(0, 1);
                     g_unk0x00537f0c[i] = 1;
                     g_unk0x00537f68[i] |= 0x2000;
                     break;
                 case 2:
-                    if (CGameInfo::FUN_00406360(2) == 0)
-                        CGameInfo::FUN_00406380(2, 1);
+                    if (CGameInfo::GetUnlockFlagMask(2) == 0)
+                        CGameInfo::SetUnlockFlag(2, 1);
                     g_unk0x00537f0c[i] = 3;
                     g_unk0x00537f68[i] |= 0x2000;
                     break;
                 case 4:
-                    if (CGameInfo::FUN_00406360(4) == 0)
-                        CGameInfo::FUN_00406380(4, 1);
+                    if (CGameInfo::GetUnlockFlagMask(4) == 0)
+                        CGameInfo::SetUnlockFlag(4, 1);
                     g_unk0x00537f0c[i] = 5;
                     g_unk0x00537f68[i] |= 0x2000;
                     break;
                 case 6:
-                    if (CGameInfo::FUN_00406360(6) == 0)
-                        CGameInfo::FUN_00406380(6, 1);
+                    if (CGameInfo::GetUnlockFlagMask(6) == 0)
+                        CGameInfo::SetUnlockFlag(6, 1);
                     g_unk0x00537f0c[i] = 7;
                     g_unk0x00537f68[i] |= 0x2000;
                     break;
                 }
             }
-            if (CGameInfo::FUN_00405d90() == 2) {
+            if (CGameInfo::GetConfiguredDifficulty() == 2) {
                 switch ((BYTE)RallyDataCountryIndex()) {
                 case 0:
-                    if (CGameInfo::FUN_00406360(1) == 0)
-                        CGameInfo::FUN_00406380(1, 1);
+                    if (CGameInfo::GetUnlockFlagMask(1) == 0)
+                        CGameInfo::SetUnlockFlag(1, 1);
                     g_unk0x00537f0c[i] = 2;
                     g_unk0x00537f68[i] |= 0x2000;
                     break;
                 case 2:
-                    if (CGameInfo::FUN_00406360(3) == 0)
-                        CGameInfo::FUN_00406380(3, 1);
+                    if (CGameInfo::GetUnlockFlagMask(3) == 0)
+                        CGameInfo::SetUnlockFlag(3, 1);
                     g_unk0x00537f0c[i] = 4;
                     g_unk0x00537f68[i] |= 0x2000;
                     break;
                 case 4:
-                    if (CGameInfo::FUN_00406360(5) == 0)
-                        CGameInfo::FUN_00406380(5, 1);
+                    if (CGameInfo::GetUnlockFlagMask(5) == 0)
+                        CGameInfo::SetUnlockFlag(5, 1);
                     g_unk0x00537f0c[i] = 6;
                     g_unk0x00537f68[i] |= 0x2000;
                     break;
                 case 6:
-                    if (CGameInfo::FUN_00406360(7) == 0)
-                        CGameInfo::FUN_00406380(7, 1);
+                    if (CGameInfo::GetUnlockFlagMask(7) == 0)
+                        CGameInfo::SetUnlockFlag(7, 1);
                     g_unk0x00537f0c[i] = 8;
                     g_unk0x00537f68[i] |= 0x2000;
                     break;
                 }
             }
         }
-        if (bAward == 0 && FUN_004097b0(i) && RallyData_FUN_00409010(i, 1)) {
+        if (bAward == 0 && RallyData_HasCompletedCategorySetupFields(i) && RallyData_SetCategoryAwardBit(i, 1)) {
             g_unk0x00537f78[i] = 1;
             g_unk0x00537f68[i] |= 0x80;
         }
     }
-    for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++) {
+    for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++) {
         if (g_unk0x00537f68[i] & 0x2000) {
-            CGame::FUN_004057c0();
+            CGame::SetStartupFlag();
             break;
         }
     }

@@ -65,7 +65,7 @@ void FUN_0040cc60(void)
 }
 
 // FUNCTION: CMR2 0x0040ccb0
-void FUN_0040ccb0(void)
+void RallyTiming_RebuildChampionshipPositionMap(void)
 {
     int i;
 
@@ -73,8 +73,8 @@ void FUN_0040ccb0(void)
         g_unk0x00533620[g_unk0x00533610[i]] = i;
 }
 
-unsigned int RallyData_FUN_00406950(void);
-int FUN_0040ce40(int position);
+unsigned int RallyData_GetSelectionBits12To13(void);
+int RallyTiming_GetPositionPoints(int position);
 
 // match 89.7%: below the bar only because the pPoints loop bound compiles to the
 // address after g_unk0x005335f0, which reccmp renders as the next .bss global of
@@ -84,7 +84,7 @@ int FUN_0040ce40(int position);
 // pPositions: finishing position of each of the eight cars.
 // pPoints: points earned at each position.
 // FUNCTION: CMR2 0x0040ccd0
-void FUN_0040ccd0(char *pPositions, int *pPoints)
+void RallyTiming_AddChampionshipPoints(char *pPositions, int *pPoints)
 {
     int i;
     int j;
@@ -97,9 +97,9 @@ void FUN_0040ccd0(char *pPositions, int *pPoints)
         car = pPositions[i];
         if (i == 0)
             g_unk0x00533628[car]++;
-        score = FUN_0040ce40(i);
+        score = RallyTiming_GetPositionPoints(i);
         g_unk0x005335b8[car] += (int)(__int64)((double)score * CGraphics::m_65536);
-        *(char *)((char *)g_unk0x005335d8 + car * 3 + (RallyData_FUN_00406950() & 0xff)) =
+        *(char *)((char *)g_unk0x005335d8 + car * 3 + (RallyData_GetSelectionBits12To13() & 0xff)) =
             (char)score;
     }
     RallyTiming_SortOrder(g_unk0x005335b8, g_unk0x00533610, 0, 8, 0);
@@ -138,14 +138,14 @@ void FUN_0040ccd0(char *pPositions, int *pPoints)
 }
 
 // FUNCTION: CMR2 0x0040ce30
-int FUN_0040ce30(int index)
+int RallyTiming_GetChampionshipTieBreak(int index)
 {
     return g_unk0x00533628[index];
 }
 
 // Championship points for a finishing position.
 // FUNCTION: CMR2 0x0040ce40
-int FUN_0040ce40(int position)
+int RallyTiming_GetPositionPoints(int position)
 {
     switch (position) {
     case 0:
@@ -166,37 +166,37 @@ int FUN_0040ce40(int position)
 }
 
 // FUNCTION: CMR2 0x0040cea0
-int FUN_0040cea0(int index)
+int RallyTiming_GetChampionshipDriverAtPosition(int index)
 {
     return g_unk0x00533610[index];
 }
 
 // FUNCTION: CMR2 0x0040ceb0
-int FUN_0040ceb0(int index)
+int RallyTiming_GetChampionshipPointsByPosition(int index)
 {
     return g_unk0x00533618[index];
 }
 
 // FUNCTION: CMR2 0x0040cec0
-int FUN_0040cec0(int index)
+int RallyTiming_GetChampionshipDriverPosition(int index)
 {
     return g_unk0x00533620[index];
 }
 
 // FUNCTION: CMR2 0x0040ced0
-int FUN_0040ced0(int index)
+int RallyTiming_GetChampionshipTimeSeconds(int index)
 {
     return g_unk0x005335b8[index] >> 16;
 }
 
 // FUNCTION: CMR2 0x0040cef0
-int FUN_0040cef0(int index)
+int RallyTiming_GetChampionshipStagePoints(int index)
 {
     return g_unk0x005335f0[index];
 }
 
 // FUNCTION: CMR2 0x0040cf00
-void FUN_0040cf00(void)
+void RallyTiming_ResetStageResults(void)
 {
     int i;
     int *p;
@@ -219,7 +219,7 @@ unsigned char RallyDataCountryIndex(void);
 // Awards the stage points (by position, ties sharing) to the rally totals and
 // re-sorts the stage order.
 // FUNCTION: CMR2 0x0040cf30
-void FUN_0040cf30(void)
+void RallyTiming_AwardStagePoints(void)
 {
     int i;
     int position;
@@ -246,13 +246,13 @@ void FUN_0040cf30(void)
 }
 
 // FUNCTION: CMR2 0x0040cfe0
-int FUN_0040cfe0(int index)
+int RallyTiming_GetStageTieBreak(int index)
 {
     return g_stageTieBreak[index];
 }
 
 // FUNCTION: CMR2 0x0040cff0
-void FUN_0040cff0(int index, char value)
+void RallyTiming_SetStageTieBreak(int index, char value)
 {
     g_stageTieBreak[index] = value;
 }
@@ -333,7 +333,7 @@ void RallyTiming_SortOverallOrder(void)
 			b = g_rallyOverallOrderDriverID[j];
 			if (g_rallyOverallTimesRaw[a] != g_rallyOverallTimesRaw[b])
 				break;
-			if (16 - b <= CGameInfo::FUN_00405d70() && 16 - a > CGameInfo::FUN_00405d70())
+			if (16 - b <= CGameInfo::GetConfiguredPlayerCount() && 16 - a > CGameInfo::GetConfiguredPlayerCount())
 			{
 				g_rallyOverallPositionOfDriver[a] = j;
 				g_rallyOverallPositionOfDriver[b] = i;
@@ -367,7 +367,7 @@ void RallyTiming_SortStageOrder(void)
 			bSwap = 0;
 			if (g_stageTieBreak[b] > g_stageTieBreak[a])
 				bSwap = 1;
-			if (g_stageTieBreak[b] == g_stageTieBreak[a] && 16 - b <= CGameInfo::FUN_00405d70() && 16 - a > CGameInfo::FUN_00405d70())
+			if (g_stageTieBreak[b] == g_stageTieBreak[a] && 16 - b <= CGameInfo::GetConfiguredPlayerCount() && 16 - a > CGameInfo::GetConfiguredPlayerCount())
 				bSwap = 1;
 			if (bSwap)
 			{
@@ -468,13 +468,13 @@ void RallyTiming_AddStageTimes(char *pcDriverIDs, char *pcTimeDriverIx, int *piT
 }
 
 // FUNCTION: CMR2 0x0040d3d0
-int RallyTiming_FUN_0040d3d0(int index)
+int RallyTiming_GetOverallTimeCentiseconds(int index)
 {
     return ConvertRawTimeToCentiseconds(g_rallyOverallTimesRaw[index]);
 }
 
 // FUNCTION: CMR2 0x0040d0c0
-void RallyTiming_FUN_0040d0c0(void)
+void RallyTiming_SortStageAndOverallResults(void)
 {
     RallyTiming_SortOrder(g_stageTimesRaw, g_stageOrderDriverID, 0, 16, 1);
     RallyTiming_SortStageOrder();
@@ -484,14 +484,14 @@ void RallyTiming_FUN_0040d0c0(void)
 
 
 // FUNCTION: CMR2 0x0040d090
-void FUN_0040d090(int index, int seconds)
+void RallyTiming_SetStageTimeSeconds(int index, int seconds)
 {
     g_stageTimesRaw[index] = (int)(__int64)((double)seconds * CGraphics::m_65536);
 }
 
 // Adds each stage's penalty seconds to its raw time.
 // FUNCTION: CMR2 0x0040d010
-void FUN_0040d010(void)
+void RallyTiming_AddStagePenalties(void)
 {
     int i;
 

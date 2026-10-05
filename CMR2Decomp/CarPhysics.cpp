@@ -22,7 +22,7 @@ extern double g_unk0x00511308;
 int FUN_00457e10(BYTE *pCar, int offset);
 int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass,
                                  unsigned short *pSurface, int defaultY);
-int RallyData_FUN_00411060(void);
+int RallyData_GetChallengeRenderState(void);
 int Car_UsesNarrowWheels(Car *pCar, int param2);
 void Scene_GetShadowColour(DWORD *pColour, int *pLevel);
 void CarShadow_OffsetPointsTowardsCamera(int view, CarContact *pContact);
@@ -30,7 +30,7 @@ CarTransforms *Car_GetTransforms(int index);
 FixMatrix *Car_GetWheelTransforms(int index);
 BYTE *Car_GetRendererRecord(int index);
 void FUN_00497db0(Car *pCar);
-void FUN_004ae140(BYTE *pColour);
+void Graphics_SetLayerQuadColour(BYTE *pColour);
 void Graphics_SetTextureFactorAlpha(BYTE *pColour);
 void CarContact_BuildBodyPatch(Car *pCar, CarContact *pContact);
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface, int defaultY);
@@ -104,8 +104,8 @@ void CarContact_InitStageRecords(void)
     int driven;
     BYTE *data;
 
-    driven = (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
-              CGameInfo::FUN_00405d80() == 7);
+    driven = (CGameInfo::GetConfiguredGameMode() == 5 || CGameInfo::GetConfiguredGameMode() == 6 ||
+              CGameInfo::GetConfiguredGameMode() == 7);
     if (driven) {
         for (i = 0; i < g_unk0x00592738; i++) {
             CAR_CONTACT(i)->field_0x294 = 1;
@@ -193,10 +193,10 @@ void FUN_00497db0(Car *pCar)
             blend = 0x10000;
     }
     FixVecScale(&offset, &g_physUp, -0x5999);
-    if (CGameInfo::FUN_004063f0(6))
+    if (CGameInfo::IsActiveCheatEnabled(6))
         FixVecScale(&offset, &offset, 0x28000);
     for (wheel = 0; wheel < 4; wheel++) {
-        if (*(int *)((BYTE *)pCar->pWheelNodes[wheel] + 8) == RallyData_FUN_00411060())
+        if (*(int *)((BYTE *)pCar->pWheelNodes[wheel] + 8) == RallyData_GetChallengeRenderState())
             continue;
         FixMatrix_GetPosition(&local, &g_physWheels[wheel]);
         FixMatrix_RotateVector(&pos, &local, &g_physBody->body);
@@ -286,7 +286,7 @@ void CarContact_BuildBodyPatch(Car *pCar, CarContact *pContact)
     int along;
     int i;
 
-    stage = *FUN_00456be0(pCar->index);
+    stage = *StageTiming_GetStartTableRecord(pCar->index);
     g_physPatchWidth = 0;
     g_physPatchLength = 0;
     if (pContact->field_0x294 != 0 && pCar->field_0xc00 == 0) {
@@ -477,7 +477,7 @@ void FUN_00494db0(Car *pCar, int view)
     colour[3] = 0x32;
     count = *g_physSkidCount[pCar->index];
     all = TRUE;
-    if (*(int *)((BYTE *)FUN_00469680(pCar->index) + 0x4bc) != 0) {
+    if (*(int *)((BYTE *)StageTiming_GetCarReplayRecord(pCar->index) + 0x4bc) != 0) {
         all = FALSE;
         count -= g_physSkidRange[pCar->index][1];
     }
@@ -497,7 +497,7 @@ void FUN_00494db0(Car *pCar, int view)
     // Wheels.
     if (g_physContactView.field_0x298 != 0) {
         for (i = 0; i < 4; i++) {
-            if (*(int *)((BYTE *)pCar->pWheelNodes[i] + 8) == RallyData_FUN_00411060() ||
+            if (*(int *)((BYTE *)pCar->pWheelNodes[i] + 8) == RallyData_GetChallengeRenderState() ||
                 g_physContactView.wheelGrip[i] == 0)
                 continue;
             alpha = FixMul(0xe60000, g_physContactView.wheelGrip[i]);
@@ -892,7 +892,7 @@ void CarShadow_SetLevel(int car, int level)
 
     CAR_CONTACT(car)->field_0x250 = level;
     colour[3] = FixMul(0x4b0000, CAR_CONTACT(car)->field_0x250) >> 16;
-    FUN_004ae140(colour);
+    Graphics_SetLayerQuadColour(colour);
     alpha = FixMulShift32(0x4b0000, CAR_CONTACT(car)->field_0x250) + 100;
     factor[3] = alpha;
     if (alpha > 0xff)

@@ -9,15 +9,15 @@ void FormatGapToLeader(int iLeaderGap, unsigned int param_2, unsigned char param
 
 void PrepareFormatGapToLeader(int iLeaderGap, unsigned char param_2, unsigned int param_3, unsigned char param_4, int param_5, int param_6, void *param_7, unsigned int param_8, BOOL bIsAhead, int param_10);
 
-void FUN_0041b300(void);
-void FUN_0041b310(void);
-int FUN_0041b320(void);
-void FUN_0041b330(void);
-void FUN_0041b340(char bFlag);
-void FUN_0041b360(void);
-BYTE FUN_0041b370(void);
-int FUN_0041b380(void);
-BYTE *FUN_0041b390(void);
+void StageUI_ClearRaceEndLatch(void);
+void StageUI_SetRaceEndPending(void);
+int StageUI_GetRaceEndState(void);
+void StageUI_ClearRaceEndState(void);
+void StageUI_RecordRaceEndEvent(char bFlag);
+void StageUI_ResetRaceEndEventCount(void);
+BYTE StageUI_GetRaceEndEventCount(void);
+int StageUI_GetRaceResultValue(void);
+BYTE *StageUI_GetRaceResultTable(void);
 
 
 // Race/stage-UI tables 0x537568..0x537dcc. The original uses them as rows of
@@ -53,7 +53,7 @@ struct StageSoundPattern {
     int base[4];
 };
 extern StageSoundPattern g_stageSoundPatterns[31];
-short FUN_00478a10(short index);
+short Surface_GetMappedIndex(short index);
 
 // Per-car stage sound state (rows of 0xb4 bytes starting at 0x5377a8, inside
 // g_raceBlock). The slot arrays are the same memory as CarSoundSet above.

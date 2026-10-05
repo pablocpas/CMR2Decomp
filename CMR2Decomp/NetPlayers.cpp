@@ -29,18 +29,18 @@ NetClassification g_netClassification[8];
 
 extern int g_unk0x005320a4;
 
-void FUN_0040e890(void);
-void FUN_0040e8a0(BYTE *p);
-BYTE *FUN_0040e8c0(void);
-int FUN_004a19c0(DPID *pId, char *pIndex);
-char *FUN_004a1b60(BYTE index);
-DPID FUN_004a1a00(void);
-char FUN_004a1cb0(int data, int size);
-unsigned int FUN_00448680(int index, int split);
-char FUN_004a1c50(int to, int guaranteed, int data, int size);
+void NetworkLeaderboard_ClearPublishedBoard(void);
+void NetworkLeaderboard_PublishBoard(BYTE *p);
+BYTE *NetworkLeaderboard_GetPublishedBoard(void);
+int Network_FindSessionPlayerIndex(DPID *pId, char *pIndex);
+char *Network_GetActiveSessionPlayerLongName(BYTE index);
+DPID Network_GetLocalPlayerID(void);
+char Network_SetLocalPlayerData(int data, int size);
+unsigned int StageTiming_GetDriverSplitClock(int index, int split);
+char Network_SendPlayerMessage(int to, int guaranteed, int data, int size);
 
 // FUNCTION: CMR2 0x00409a30
-void FUN_00409a30(void)
+void NetPlayers_ResetAllTables(void)
 {
     int i;
 
@@ -56,12 +56,12 @@ void FUN_00409a30(void)
         g_netPlayers[i].bestTime = -1;
     g_netTotal = 0;
     g_netBestTime = -1;
-    FUN_0040e890();
+    NetworkLeaderboard_ClearPublishedBoard();
     RallyData_UpdateFlags();
 }
 
 // FUNCTION: CMR2 0x00409ab0
-void FUN_00409ab0(char keepReady, char resetTotal)
+void NetPlayers_ResetStageState(char keepReady, char resetTotal)
 {
     int i;
 
@@ -79,9 +79,9 @@ void FUN_00409ab0(char keepReady, char resetTotal)
     }
     if (resetTotal != 0)
         g_netTotal = 0;
-    if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 || CGameInfo::FUN_00405d80() == 11)
+    if (CGameInfo::GetConfiguredGameMode() == 8 || CGameInfo::GetConfiguredGameMode() == 9 || CGameInfo::GetConfiguredGameMode() == 11)
         FUN_00409b60();
-    FUN_0040e890();
+    NetworkLeaderboard_ClearPublishedBoard();
     RallyData_UpdateFlags();
 }
 
@@ -98,7 +98,7 @@ void FUN_00409b60(void)
 }
 
 // FUNCTION: CMR2 0x00409bc0
-void FUN_00409bc0(void)
+void NetPlayers_ClearReadyFlags(void)
 {
     unsigned int *p;
 
@@ -109,19 +109,19 @@ void FUN_00409bc0(void)
 }
 
 // FUNCTION: CMR2 0x00409be0
-void FUN_00409be0(int param)
+void NetPlayers_SetNotificationMask(int param)
 {
-    FUN_004a1cb0(param, 0x10);
+    Network_SetLocalPlayerData(param, 0x10);
 }
 
 // FUNCTION: CMR2 0x00409bf0
-void FUN_00409bf0(DPID *pId, NetPlayerInfo *pInfo, char add)
+void NetPlayers_AddOrUpdatePlayerInfo(DPID *pId, NetPlayerInfo *pInfo, char add)
 {
     DPID id;
     int i;
 
     id = *pId;
-    if (FUN_004a1a00() == id)
+    if (Network_GetLocalPlayerID() == id)
         return;
     for (i = 6; i >= 0; i--) {
         if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].id == id)
@@ -140,7 +140,7 @@ found:
 }
 
 // FUNCTION: CMR2 0x00409c80
-void FUN_00409c80(int *pId)
+void NetPlayers_RemovePlayerByID(int *pId)
 {
     int i;
 
@@ -151,41 +151,41 @@ void FUN_00409c80(int *pId)
 }
 
 // FUNCTION: CMR2 0x00409cb0
-unsigned int FUN_00409cb0(int index)
+unsigned int NetPlayers_IsPlayerPresent(int index)
 {
     return g_netPlayers[index].flags >> 7 & 1;
 }
 
 // FUNCTION: CMR2 0x00409cd0
-char *FUN_00409cd0(int index)
+char *NetPlayers_GetPlayerName(int index)
 {
     char i;
 
-    if (FUN_004a19c0((DPID *)&g_netPlayers[index].id, &i))
-        return FUN_004a1b60(i);
+    if (Network_FindSessionPlayerIndex((DPID *)&g_netPlayers[index].id, &i))
+        return Network_GetActiveSessionPlayerLongName(i);
     return NULL;
 }
 
 // FUNCTION: CMR2 0x00409d00
-unsigned int FUN_00409d00(int index)
+unsigned int NetPlayers_GetCarSelection(int index)
 {
     return g_netPlayers[index].flags & 0x1f;
 }
 
 // FUNCTION: CMR2 0x00409d20
-int FUN_00409d20(int index)
+int NetPlayers_GetPlayerID(int index)
 {
     return g_netPlayers[index].id;
 }
 
 // FUNCTION: CMR2 0x00409d30
-unsigned int FUN_00409d30(int index)
+unsigned int NetPlayers_GetPlayerFlag5(int index)
 {
     return g_netPlayers[index].flags >> 5 & 1;
 }
 
 // FUNCTION: CMR2 0x00409d50
-void FUN_00409d50(DPID *pId, NetStats *pStats)
+void NetPlayers_ReceiveStatistics(DPID *pId, NetStats *pStats)
 {
     int i;
 
@@ -203,7 +203,7 @@ void FUN_00409d50(DPID *pId, NetStats *pStats)
 }
 
 // FUNCTION: CMR2 0x00409dd0
-void FUN_00409dd0(void)
+void NetPlayers_ResetStatisticsSequences(void)
 {
     int i;
 
@@ -212,25 +212,25 @@ void FUN_00409dd0(void)
 }
 
 // FUNCTION: CMR2 0x00409df0
-BYTE FUN_00409df0(int index)
+BYTE NetPlayers_HasNewStatistics(int index)
 {
     return g_netPlayers[index].statsNew;
 }
 
 // FUNCTION: CMR2 0x00409e00
-void FUN_00409e00(int index)
+void NetPlayers_ClearNewStatisticsFlag(int index)
 {
     g_netPlayers[index].statsNew = 0;
 }
 
 // FUNCTION: CMR2 0x00409e20
-NetStats *FUN_00409e20(int index)
+NetStats *NetPlayers_GetStatisticsRecord(int index)
 {
     return &g_netPlayers[index].stats;
 }
 
 // FUNCTION: CMR2 0x00409e30
-void FUN_00409e30(char resetTotal, char resetTimes)
+void NetPlayers_ResetRaceReadyAndTimeState(char resetTotal, char resetTimes)
 {
     int i;
 
@@ -249,7 +249,7 @@ void FUN_00409e30(char resetTotal, char resetTimes)
 }
 
 // FUNCTION: CMR2 0x00409e90
-void FUN_00409e90(DPID *pId)
+void NetPlayers_MarkPlayerReadyByID(DPID *pId)
 {
     int i;
 
@@ -262,13 +262,13 @@ void FUN_00409e90(DPID *pId)
 }
 
 // FUNCTION: CMR2 0x00409ee0
-unsigned int FUN_00409ee0(int index)
+unsigned int NetPlayers_IsPlayerReady(int index)
 {
     return g_netPlayers[index].flags >> 8 & 1;
 }
 
 // FUNCTION: CMR2 0x00409f00
-void FUN_00409f00(DPID *pId, unsigned int time, int value)
+void NetPlayers_RecordPlayerFinishTime(DPID *pId, unsigned int time, int value)
 {
     int i;
 
@@ -285,7 +285,7 @@ void FUN_00409f00(DPID *pId, unsigned int time, int value)
 }
 
 // FUNCTION: CMR2 0x00409f80
-void FUN_00409f80(DPID *pId)
+void NetPlayers_MarkPlayerFinishedByID(DPID *pId)
 {
     int i;
 
@@ -309,7 +309,7 @@ void FUN_00409fd0(DPID *pId, int split, unsigned int time)
             g_netPlayers[i].splits[split - 1] = time;
             if (time < g_netSplitBest[split - 1] || g_netSplitBest[split - 1] == 0) {
                 g_netSplitBest[split - 1] = time;
-                i = FUN_0040a7a0(*pId);
+                i = NetPlayers_FindPlayerIndexByID(*pId);
                 if ((char)RallyData_GetFlag25()) {
                     if (split != 2)
                         return;
@@ -317,7 +317,7 @@ void FUN_00409fd0(DPID *pId, int split, unsigned int time)
                     if (split != 8)
                         return;
                 }
-                name = FUN_00409cd0(i);
+                name = NetPlayers_GetPlayerName(i);
                 if (name != NULL)
                     strcpy(g_netRecordName, name);
                 else
@@ -329,12 +329,12 @@ void FUN_00409fd0(DPID *pId, int split, unsigned int time)
 }
 
 // FUNCTION: CMR2 0x0040a0e0
-void FUN_0040a0e0(DPID *pId, int stage, unsigned int time)
+void NetPlayers_RecordRemoteStageTime(DPID *pId, int stage, unsigned int time)
 {
     int i;
     char *name;
 
-    if (CGameInfo::FUN_00405d80() == 12) {
+    if (CGameInfo::GetConfiguredGameMode() == 12) {
         for (i = 0; i < 7; i++) {
             if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].id == *pId) {
                 g_netPlayers[i].stageTimes[0] = time;
@@ -342,7 +342,7 @@ void FUN_0040a0e0(DPID *pId, int stage, unsigned int time)
                     g_netPrevBest = g_netStageBest[0];
                     g_netStageBest[0] = time;
                     g_netNewRecord = 0;
-                    name = FUN_00409cd0(FUN_0040a7a0(*pId));
+                    name = NetPlayers_GetPlayerName(NetPlayers_FindPlayerIndexByID(*pId));
                     if (name != NULL)
                         strcpy(g_netRecordName, name);
                     else
@@ -369,13 +369,13 @@ void FUN_0040a0e0(DPID *pId, int stage, unsigned int time)
 }
 
 // FUNCTION: CMR2 0x0040a230
-void FUN_0040a230(int splitCount)
+void NetPlayers_UpdateLocalSplitRecords(int splitCount)
 {
     int i;
     unsigned int time;
 
     for (i = 1; i <= splitCount; i++) {
-        time = FUN_00448680(0, i);
+        time = StageTiming_GetDriverSplitClock(0, i);
         if (time < g_netSplitBest[i - 1] || g_netSplitBest[i - 1] == 0) {
             g_netSplitBest[i - 1] = time;
             if ((char)RallyData_GetFlag25()) {
@@ -390,23 +390,23 @@ void FUN_0040a230(int splitCount)
     if ((char)RallyData_GetFlag25()) {
         if (splitCount != 2)
             return;
-        time = FUN_00448680(0, 2);
+        time = StageTiming_GetDriverSplitClock(0, 2);
         if (time < g_netLapBest || g_netLapBest == 0)
             g_netLapBest = time;
         return;
     } else {
         if (splitCount != 8)
             return;
-        time = FUN_00448680(0, 8);
+        time = StageTiming_GetDriverSplitClock(0, 8);
         if (time < g_netLapBest || g_netLapBest == 0)
             g_netLapBest = time;
     }
 }
 
 // FUNCTION: CMR2 0x0040a330
-void FUN_0040a330(unsigned int time, int stage)
+void NetPlayers_RecordLocalStageTime(unsigned int time, int stage)
 {
-    if (CGameInfo::FUN_00405d80() == 12) {
+    if (CGameInfo::GetConfiguredGameMode() == 12) {
         if (time < g_netStageBest[0] || g_netStageBest[0] == 0) {
             g_netPrevBest = g_netStageBest[0];
             g_netStageBest[0] = time;
@@ -422,57 +422,57 @@ void FUN_0040a330(unsigned int time, int stage)
 }
 
 // FUNCTION: CMR2 0x0040a3c0
-int FUN_0040a3c0(void)
+int NetPlayers_IsNewLocalRecord(void)
 {
     return g_netNewRecord;
 }
 
 // FUNCTION: CMR2 0x0040a3d0
-unsigned int FUN_0040a3d0(void)
+unsigned int NetPlayers_GetBestLapTime(void)
 {
     return g_netLapBest;
 }
 
 // FUNCTION: CMR2 0x0040a3e0
-void FUN_0040a3e0(unsigned int time)
+void NetPlayers_UpdateBestLapTime(unsigned int time)
 {
     if (time < g_netLapBest || g_netLapBest == 0)
         g_netLapBest = time;
 }
 
 // FUNCTION: CMR2 0x0040a400
-char *FUN_0040a400(void)
+char *NetPlayers_GetRecordHolderName(void)
 {
     return g_netRecordName;
 }
 
 // FUNCTION: CMR2 0x0040a410
-unsigned int FUN_0040a410(int split)
+unsigned int NetPlayers_GetSplitRecordTime(int split)
 {
     return g_netSplitRecords.words[split];
 }
 
 // FUNCTION: CMR2 0x0040a440
-unsigned int FUN_0040a440(void)
+unsigned int NetPlayers_GetPreviousBestTime(void)
 {
     return g_netPrevBest;
 }
 
 // FUNCTION: CMR2 0x0040a450
-unsigned int FUN_0040a450(int index)
+unsigned int NetPlayers_HasPlayerFinished(int index)
 {
     return g_netPlayers[index].flags >> 9 & 1;
 }
 
 // FUNCTION: CMR2 0x0040a470
-unsigned int FUN_0040a470(int index)
+unsigned int NetPlayers_GetPlayerFlag6(int index)
 {
     return g_netPlayers[index].flags >> 6 & 1;
 }
 
 // qsort comparator for g_netResults
 // FUNCTION: CMR2 0x0040a490
-int __cdecl FUN_0040a490(const void *a, const void *b)
+int __cdecl NetPlayers_CompareResultRecords(const void *a, const void *b)
 {
     NetResult *p1 = (NetResult *)a;
     NetResult *p2 = (NetResult *)b;
@@ -509,13 +509,13 @@ int __cdecl FUN_0040a490(const void *a, const void *b)
     return (unsigned int)p1->id > (unsigned int)p2->id ? -1 : 1;
 }
 
-void FUN_004591e0(int player, int *pCount, int *pFrac);
-BYTE *FUN_0041b390(void);
-int FUN_004483c0(int index);
+void StageTiming_AdvancePlayerHalfLapCounter(int player, int *pCount, int *pFrac);
+BYTE *StageUI_GetRaceResultTable(void);
+int StageTiming_GetValidStartTime(int index);
 
 // Rebuilds the stage results table: one entry per active remote player (speed,
 // sign-extended bits of field_0x1a, finish flag and time) plus the local player
-// at the end, then sorts it with FUN_0040a490.
+// at the end, then sorts it with NetPlayers_CompareResultRecords.
 // match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a580
 void FUN_0040a580(int param1, int param2, int param3)
@@ -539,7 +539,7 @@ void FUN_0040a580(int param1, int param2, int param3)
             g_netResults[i].field_0x14 = (BYTE)(g_netPlayers[i].flags >> 9) & 1;
             g_netResults[i].field_0x18 = g_netPlayers[i].time;
             if ((char)RallyData_GetFlag25())
-                FUN_004591e0(g_netResults[i].index, &g_netResults[i].field_0xc, &g_netResults[i].field_0x4);
+                StageTiming_AdvancePlayerHalfLapCounter(g_netResults[i].index, &g_netResults[i].field_0xc, &g_netResults[i].field_0x4);
         } else {
             g_netResults[i].index = -1;
             g_netResults[i].field_0x4 = -1;
@@ -549,25 +549,25 @@ void FUN_0040a580(int param1, int param2, int param3)
     g_netResults[i].field_0x4 = param1;
     g_netResults[i].field_0x8 = param2;
     g_netResults[i].field_0xc = param3;
-    g_netResults[i].id = FUN_004a1a00();
-    if ((*(unsigned int *)*(BYTE **)(FUN_0041b390() + 4) & 0xff) > 8)
+    g_netResults[i].id = Network_GetLocalPlayerID();
+    if ((*(unsigned int *)*(BYTE **)(StageUI_GetRaceResultTable() + 4) & 0xff) > 8)
         g_netResults[i].field_0x14 = 1;
     else
         g_netResults[i].field_0x14 = 0;
-    g_netResults[i].field_0x18 = FUN_004483c0(0);
+    g_netResults[i].field_0x18 = StageTiming_GetValidStartTime(0);
     if ((char)RallyData_GetFlag25())
-        FUN_004591e0(g_netResults[i].index, &g_netResults[i].field_0xc, &g_netResults[i].field_0x4);
-    qsort(g_netResults, 8, sizeof(NetResult), FUN_0040a490);
+        StageTiming_AdvancePlayerHalfLapCounter(g_netResults[i].index, &g_netResults[i].field_0xc, &g_netResults[i].field_0x4);
+    qsort(g_netResults, 8, sizeof(NetResult), NetPlayers_CompareResultRecords);
 }
 
 // FUNCTION: CMR2 0x0040a700
-int FUN_0040a700(int index)
+int NetPlayers_GetResultPlayerIndex(int index)
 {
     return g_netResults[index].index;
 }
 
 // FUNCTION: CMR2 0x0040a720
-int FUN_0040a720(int id)
+int NetPlayers_GetResultField4ByID(int id)
 {
     int i;
 
@@ -579,7 +579,7 @@ int FUN_0040a720(int id)
 }
 
 // FUNCTION: CMR2 0x0040a760
-int FUN_0040a760(int id)
+int NetPlayers_GetResultField8ByID(int id)
 {
     int i;
 
@@ -591,7 +591,7 @@ int FUN_0040a760(int id)
 }
 
 // FUNCTION: CMR2 0x0040a7a0
-int FUN_0040a7a0(int id)
+int NetPlayers_FindPlayerIndexByID(int id)
 {
     int i;
 
@@ -604,7 +604,7 @@ int FUN_0040a7a0(int id)
 
 // qsort comparator for the standings
 // FUNCTION: CMR2 0x0040a7d0
-int __cdecl FUN_0040a7d0(const void *a, const void *b)
+int __cdecl NetPlayers_CompareStandingRecords(const void *a, const void *b)
 {
     NetStanding *p1 = (NetStanding *)a;
     NetStanding *p2 = (NetStanding *)b;
@@ -622,7 +622,7 @@ int __cdecl FUN_0040a7d0(const void *a, const void *b)
 
 // Stage standings of all players, sorted by time, plus their ranks.
 // FUNCTION: CMR2 0x0040a820
-void FUN_0040a820(unsigned int localTime)
+void NetPlayers_BuildStageStandings(unsigned int localTime)
 {
     int rank;
     int i;
@@ -635,8 +635,8 @@ void FUN_0040a820(unsigned int localTime)
             g_netStandings2[i].index = i;
             g_netStandings2[i].time = g_netPlayers[i].time;
             g_netStandings2[i].id = g_netPlayers[i].id;
-            g_netStandings2[i].car = FUN_00409d00(i);
-            name = FUN_00409cd0(i);
+            g_netStandings2[i].car = NetPlayers_GetCarSelection(i);
+            name = NetPlayers_GetPlayerName(i);
             if (name != NULL) {
                 strcpy(g_netStandings2[i].name, name);
                 g_netStandingCount++;
@@ -647,10 +647,10 @@ void FUN_0040a820(unsigned int localTime)
     }
     g_netStandings2[i].index = -2;
     g_netStandings2[i].time = localTime;
-    g_netStandings2[i].id = FUN_004a1a00();
+    g_netStandings2[i].id = Network_GetLocalPlayerID();
     strcpy(g_netStandings2[i].name, (char *)RallyData_GetRecord(0));
-    g_netStandings2[i].car = (BYTE)RallyData_FUN_004086b0(0);
-    qsort(g_netStandings2, 8, sizeof(NetStanding), FUN_0040a7d0);
+    g_netStandings2[i].car = (BYTE)RallyData_GetDriverRecordSelectionValue(0);
+    qsort(g_netStandings2, 8, sizeof(NetStanding), NetPlayers_CompareStandingRecords);
     g_netRanks2[0] = 1;
     {
         int *r = g_netRanks2;
@@ -676,22 +676,22 @@ void FUN_0040a980(unsigned int localTime)
     rank = 1;
     g_netTotal += localTime;
     for (i = 0; i < 7; i++) {
-        if ((g_netPlayers[i].flags & 0x80) && (name = FUN_00409cd0(i)) != NULL) {
+        if ((g_netPlayers[i].flags & 0x80) && (name = NetPlayers_GetPlayerName(i)) != NULL) {
             strcpy(g_netStandings[i].name, name);
             g_netStandings[i].index = i;
             g_netStandings[i].time = g_netPlayers[i].field_0x7c;
             g_netStandings[i].id = g_netPlayers[i].id;
-            g_netStandings[i].car = FUN_00409d00(i);
+            g_netStandings[i].car = NetPlayers_GetCarSelection(i);
         } else {
             g_netStandings[i].index = -1;
         }
     }
     g_netStandings[i].index = -2;
     g_netStandings[i].time = g_netTotal;
-    g_netStandings[i].id = FUN_004a1a00();
+    g_netStandings[i].id = Network_GetLocalPlayerID();
     strcpy(g_netStandings[i].name, (char *)RallyData_GetRecord(0));
-    g_netStandings[i].car = (BYTE)RallyData_FUN_004086b0(0);
-    qsort(g_netStandings, 8, sizeof(NetStanding), FUN_0040a7d0);
+    g_netStandings[i].car = (BYTE)RallyData_GetDriverRecordSelectionValue(0);
+    qsort(g_netStandings, 8, sizeof(NetStanding), NetPlayers_CompareStandingRecords);
     g_netRanks[0] = 1;
     for (i = 1; i < 8; i++) {
         if (g_netStandings[i].index == -1)
@@ -705,13 +705,13 @@ void FUN_0040a980(unsigned int localTime)
 }
 
 // FUNCTION: CMR2 0x0040ab10
-int FUN_0040ab10(void)
+int NetPlayers_GetStandingCount(void)
 {
     return g_netStandingCount;
 }
 
 // FUNCTION: CMR2 0x0040ab20
-int FUN_0040ab20(int index, int total)
+int NetPlayers_GetPlayerRank(int index, int total)
 {
     if (total == 0)
         return g_netRanks2[index];
@@ -719,7 +719,7 @@ int FUN_0040ab20(int index, int total)
 }
 
 // FUNCTION: CMR2 0x0040ab50
-int FUN_0040ab50(int index, int total)
+int NetPlayers_GetStandingPlayerIndex(int index, int total)
 {
     if (total == 0)
         return g_netStandings2[index].index;
@@ -727,7 +727,7 @@ int FUN_0040ab50(int index, int total)
 }
 
 // FUNCTION: CMR2 0x0040ab80
-unsigned int FUN_0040ab80(int index, int total)
+unsigned int NetPlayers_GetStandingTime(int index, int total)
 {
     if (total == 0)
         return g_netStandings2[index].time;
@@ -735,7 +735,7 @@ unsigned int FUN_0040ab80(int index, int total)
 }
 
 // FUNCTION: CMR2 0x0040abb0
-char *FUN_0040abb0(int index, int total)
+char *NetPlayers_GetStandingName(int index, int total)
 {
     if (total == 0)
         return g_netStandings2[index].name;
@@ -743,7 +743,7 @@ char *FUN_0040abb0(int index, int total)
 }
 
 // FUNCTION: CMR2 0x0040abe0
-unsigned int FUN_0040abe0(int index, int total)
+unsigned int NetPlayers_GetStandingCar(int index, int total)
 {
     if (total == 0)
         return g_netStandings2[index].car;
@@ -751,35 +751,35 @@ unsigned int FUN_0040abe0(int index, int total)
 }
 
 // FUNCTION: CMR2 0x0040ac10
-int FUN_0040ac10(int index)
+int NetPlayers_GetStandingPoints(int index)
 {
     return g_netStandings[index].points;
 }
 
 // FUNCTION: CMR2 0x0040ac30
-int FUN_0040ac30(void)
+int NetPlayers_GetAccumulatedTotal(void)
 {
     return g_netTotal;
 }
 
 // FUNCTION: CMR2 0x0040ac40
-void FUN_0040ac40(BYTE carClass)
+void NetPlayers_SendCarClass(BYTE carClass)
 {
     BYTE msg[2];
 
     msg[0] = 6;
     msg[1] = carClass;
-    FUN_004a1c50(0, 1, (int)msg, 2);
+    Network_SendPlayerMessage(0, 1, (int)msg, 2);
 }
 
 // FUNCTION: CMR2 0x0040ac70
-void FUN_0040ac70(DPID *pId, unsigned int carClass)
+void NetPlayers_SetRemoteCarClass(DPID *pId, unsigned int carClass)
 {
     DPID id;
     int i;
 
     id = *pId;
-    if (FUN_004a1a00() == id)
+    if (Network_GetLocalPlayerID() == id)
         return;
     for (i = 0; i < 7; i++) {
         if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].id == id) {
@@ -791,7 +791,7 @@ void FUN_0040ac70(DPID *pId, unsigned int carClass)
 
 // qsort comparator for g_netClassification
 // FUNCTION: CMR2 0x0040acd0
-int __cdecl FUN_0040acd0(const void *a, const void *b)
+int __cdecl NetPlayers_CompareClassificationRecords(const void *a, const void *b)
 {
     NetClassification *p1 = (NetClassification *)a;
     NetClassification *p2 = (NetClassification *)b;
@@ -809,7 +809,7 @@ int __cdecl FUN_0040acd0(const void *a, const void *b)
 
 // Final classification: best time of every player plus the local one.
 // FUNCTION: CMR2 0x0040ad20
-void FUN_0040ad20(void)
+void NetPlayers_BuildFinalClassification(void)
 {
     int i;
     int count;
@@ -821,7 +821,7 @@ void FUN_0040ad20(void)
             g_netClassification[g_netClassCount].id = g_netPlayers[i].id;
             g_netClassification[g_netClassCount].carClass = g_netPlayers[i].flags >> 18 & 0xf;
             g_netClassification[g_netClassCount].time = g_netPlayers[i].bestTime;
-            name = FUN_00409cd0(i);
+            name = NetPlayers_GetPlayerName(i);
             if (name != NULL) {
                 strcpy(g_netClassification[g_netClassCount].name, name);
                 g_netClassCount++;
@@ -831,7 +831,7 @@ void FUN_0040ad20(void)
     g_netClassification[g_netClassCount].carClass = 3;
     g_netClassification[g_netClassCount].time = g_netBestTime;
     strcpy(g_netClassification[g_netClassCount].name, (char *)RallyData_GetRecord(0));
-    g_netClassification[g_netClassCount].id = FUN_004a1a00();
+    g_netClassification[g_netClassCount].id = Network_GetLocalPlayerID();
     count = ++g_netClassCount;
     for (i = count; i < 7; i++) {
         g_netClassification[i].carClass = 0;
@@ -839,69 +839,69 @@ void FUN_0040ad20(void)
         strcpy(g_netClassification[i].name, CMain::m_logFileBlankLine);
         g_netClassification[i].id = 0;
     }
-    qsort(g_netClassification, count, sizeof(NetClassification), FUN_0040acd0);
+    qsort(g_netClassification, count, sizeof(NetClassification), NetPlayers_CompareClassificationRecords);
 }
 
 // FUNCTION: CMR2 0x0040ae90
-int FUN_0040ae90(void)
+int NetPlayers_GetClassificationCount(void)
 {
     return g_netClassCount;
 }
 
 // FUNCTION: CMR2 0x0040aea0
-NetClassification *FUN_0040aea0(int index)
+NetClassification *NetPlayers_GetClassificationRecord(int index)
 {
     return &g_netClassification[index];
 }
 
 // FUNCTION: CMR2 0x0040aeb0
-unsigned int FUN_0040aeb0(int index)
+unsigned int NetPlayers_GetClassificationCarClass(int index)
 {
     return g_netClassification[index].carClass;
 }
 
 // FUNCTION: CMR2 0x0040aec0
-unsigned int FUN_0040aec0(int index)
+unsigned int NetPlayers_GetClassificationTime(int index)
 {
     return g_netClassification[index].time;
 }
 
 // FUNCTION: CMR2 0x0040aed0
-int FUN_0040aed0(void)
+int NetPlayers_FindLocalClassificationPosition(void)
 {
     int i;
 
     for (i = 0; i < 8; i++) {
-        if (g_netClassification[i].id == FUN_004a1a00())
+        if (g_netClassification[i].id == Network_GetLocalPlayerID())
             return i;
     }
     return 0;
 }
 
 // FUNCTION: CMR2 0x0040af00
-void FUN_0040af00(unsigned int time)
+void NetPlayers_UpdateBestRaceTime(unsigned int time)
 {
     if (g_netBestTime == -1 || time < g_netBestTime)
         g_netBestTime = time;
 }
 
 // FUNCTION: CMR2 0x0040af30
-int FUN_0040af30(void)
+int NetPlayers_GetInputFrameDelta(void)
 {
     return g_unk0x005320a4;
 }
 
 // FUNCTION: CMR2 0x0040af40
-void FUN_0040af40(void)
+void NetPlayers_SendType16Notification(void)
 {
     BYTE msg;
 
     msg = 0x10;
-    FUN_004a1c50(0, 1, (int)&msg, 1);
+    Network_SendPlayerMessage(0, 1, (int)&msg, 1);
 }
 
 // FUNCTION: CMR2 0x0040af60
-void FUN_0040af60(void)
+void NetPlayers_SendPublishedLeaderboard(void)
 {
     struct {
         BYTE type;
@@ -912,48 +912,48 @@ void FUN_0040af60(void)
     BYTE *p;
 
     msg.type = 0x11;
-    p = FUN_0040e8c0();
+    p = NetworkLeaderboard_GetPublishedBoard();
     if (p != NULL) {
         memcpy(msg.data, p, sizeof(msg.data));
         msg.valid = 1;
     } else {
         msg.valid = 0;
     }
-    FUN_004a1c50(0, 1, (int)&msg, sizeof(msg));
+    Network_SendPlayerMessage(0, 1, (int)&msg, sizeof(msg));
 }
 
 // FUNCTION: CMR2 0x0040afb0
-void FUN_0040afb0(char valid, BYTE *p)
+void NetPlayers_ReceivePublishedLeaderboard(char valid, BYTE *p)
 {
-    FUN_0040e890();
+    NetworkLeaderboard_ClearPublishedBoard();
     if (valid != 0)
-        FUN_0040e8a0(p);
+        NetworkLeaderboard_PublishBoard(p);
 }
 
 // FUNCTION: CMR2 0x0040afd0
-void FUN_0040afd0(void)
+void NetPlayers_BlockStatisticsReception(void)
 {
     unsigned int *p;
 
-    // Same bound as FUN_00409bc0 (see there).
+    // Same bound as NetPlayers_ClearReadyFlags (see there).
     for (p = &g_netPlayers[0].flags; (int)p < (int)&g_netRanks[1]; p += 0x20)
         *p |= 0x400000;
 }
 
 // FUNCTION: CMR2 0x0040aff0
-void FUN_0040aff0(int index, int value)
+void NetPlayers_SetPlayerField8(int index, int value)
 {
     g_netPlayers[index].field_0x8 = value;
 }
 
 // FUNCTION: CMR2 0x0040b010
-int FUN_0040b010(int index)
+int NetPlayers_GetPlayerField8(int index)
 {
     return g_netPlayers[index].field_0x8;
 }
 
 // FUNCTION: CMR2 0x0040b020
-int FUN_0040b020(int value)
+int NetPlayers_FindPlayerByField8(int value)
 {
     int i;
 
@@ -965,7 +965,7 @@ int FUN_0040b020(int value)
 }
 
 // FUNCTION: CMR2 0x0040b050
-bool FUN_0040b050(int value)
+bool NetPlayers_HasPlayerWithField8(int value)
 {
     int i;
 
@@ -978,14 +978,14 @@ bool FUN_0040b050(int value)
 
 // qsort comparator for g_netIds
 // FUNCTION: CMR2 0x0040b080
-int __cdecl FUN_0040b080(const void *a, const void *b)
+int __cdecl NetPlayers_ComparePlayerIDs(const void *a, const void *b)
 {
     return *(unsigned int *)a > *(unsigned int *)b ? 1 : -1;
 }
 
 // Colour of a player's name, a random one for unknown ids.
 // FUNCTION: CMR2 0x0040b0a0
-BYTE *FUN_0040b0a0(int id)
+BYTE *NetPlayers_GetPlayerNameColour(int id)
 {
     int i;
 
@@ -1000,36 +1000,36 @@ BYTE *FUN_0040b0a0(int id)
 }
 
 // FUNCTION: CMR2 0x0040b120
-void FUN_0040b120(void)
+void NetPlayers_RebuildSortedPlayerIDs(void)
 {
     int i;
 
     g_netIdCount = 0;
-    g_netIdsUnsorted[g_netIdCount] = g_netIds[g_netIdCount] = FUN_004a1a00();
+    g_netIdsUnsorted[g_netIdCount] = g_netIds[g_netIdCount] = Network_GetLocalPlayerID();
     g_netIdCount++;
     for (i = 0; i < 7; i++) {
-        if ((BYTE)FUN_00409cb0(i)) {
-            g_netIdsUnsorted[g_netIdCount] = g_netIds[g_netIdCount] = FUN_00409d20(i);
+        if ((BYTE)NetPlayers_IsPlayerPresent(i)) {
+            g_netIdsUnsorted[g_netIdCount] = g_netIds[g_netIdCount] = NetPlayers_GetPlayerID(i);
             g_netIdCount++;
         }
     }
-    qsort(g_netIds, g_netIdCount, sizeof(int), FUN_0040b080);
+    qsort(g_netIds, g_netIdCount, sizeof(int), NetPlayers_ComparePlayerIDs);
 }
 
 // FUNCTION: CMR2 0x0040b1a0
-int FUN_0040b1a0(int index)
+int NetPlayers_GetSortedPlayerID(int index)
 {
     return g_netIds[index];
 }
 
 // FUNCTION: CMR2 0x0040b1b0
-int FUN_0040b1b0(void)
+int NetPlayers_GetPlayerIDCount(void)
 {
     return g_netIdCount;
 }
 
 // FUNCTION: CMR2 0x0040b1c0
-void FUN_0040b1c0(void)
+void NetPlayers_ClearPlayerFlag23(void)
 {
     int i;
 
@@ -1038,13 +1038,13 @@ void FUN_0040b1c0(void)
 }
 
 // FUNCTION: CMR2 0x0040b1e0
-unsigned int FUN_0040b1e0(int index)
+unsigned int NetPlayers_GetPlayerFlag23(int index)
 {
     return g_netPlayers[index].flags >> 23 & 1;
 }
 
 // FUNCTION: CMR2 0x0040b200
-void FUN_0040b200(int index)
+void NetPlayers_SetPlayerFlag23(int index)
 {
     g_netPlayers[index].flags |= 0x800000;
 }

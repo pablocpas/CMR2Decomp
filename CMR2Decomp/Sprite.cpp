@@ -38,7 +38,7 @@ D3DTLVERTEX g_spriteVerts4[1024 * 4];
 // GLOBAL: CMR2 0x0061e858
 D3DTLVERTEX g_spriteVerts3[1024 * 4];
 
-void FUN_004a3dd0(void);
+void Graphics_InvalidateTextureStageCache(void);
 
 #define SPRITE_VERTEX(v, px, py, u, vv)                                             \
     (v)->sx = (float)(px);                                                          \
@@ -116,7 +116,7 @@ void Sprite_DrawLayer(int layer)
         h = (float)(unsigned int)pSprite->pTexture->height;
         v0 = (float)pSprite->src.y / h;
         v1 = (float)(pSprite->src.y + pSprite->src.h) / h;
-        if (CGraphics::FUN_004a8bc0() == 0) {
+        if (CGraphics::GetSelectedDisplayDriverIndex() == 0) {
             u0 += 0.5f / w;
             u1 += 0.5f / w;
             v0 += 0.5f / h;
@@ -172,7 +172,7 @@ void Sprite_DrawLayer(int layer)
     CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT);
     CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_POINT);
     for (n = count; n != 0; n--) {
-        CGraphics::FUN_004a4850(0, (int)pSprite->pTexture);
+        CGraphics::ApplyTextureStageChange(0, (int)pSprite->pTexture);
         CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, pVert, 4, 0);
         pSprite++;
         pVert += 4;
@@ -181,8 +181,8 @@ void Sprite_DrawLayer(int layer)
     CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
     CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
     CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_CLIPPING, TRUE);
-    FUN_004a3dd0();
-    CGraphics::FUN_004a3de0();
+    Graphics_InvalidateTextureStageCache();
+    CGraphics::InvalidateBlendStateCache();
 }
 
 // Exit callback of Sprite_Init.
@@ -500,7 +500,7 @@ void ScreenLine2D_Draw(int layer)
     if (g_unk0x0072f2a0 == 0 || layer == 4)
         return;
     CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_CLIPPING, FALSE);
-    CGraphics::FUN_004a4850(0, 0);
+    CGraphics::ApplyTextureStageChange(0, 0);
     for (i = 0, p = g_screenLine2D; i < (unsigned int)g_unk0x0072f2a0; i++, p++) {
         if (layer != p->layer)
             continue;
@@ -537,7 +537,7 @@ void Line2D_Draw(void)
 
     if (g_line2DCount == 0)
         return;
-    CGraphics::FUN_004a4850(0, 0);
+    CGraphics::ApplyTextureStageChange(0, 0);
     CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
     CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
     for (i = 0, p = g_line2D; i < g_line2DCount; i++, p++) {
@@ -558,11 +558,11 @@ void Line2D_Draw(void)
 // FUNCTION: CMR2 0x004bb850
 void Tri2D_DrawLayer(int layer)
 {
-    CGraphics::FUN_004a3e40(5, 6);
+    CGraphics::SetCachedSourceDestinationBlend(5, 6);
     switch (layer) {
     case 2:
         if (g_tri2DCount2 > 0u) {
-            CGraphics::FUN_004a4850(0, 0);
+            CGraphics::ApplyTextureStageChange(0, 0);
             CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer2,
                                                               g_tri2DCount2 * 3, 0);
             CGame::m_unk0x0059ce20 += g_tri2DCount2;
@@ -571,7 +571,7 @@ void Tri2D_DrawLayer(int layer)
         break;
     case 3:
         if (g_tri2DCount3 > 0u) {
-            CGraphics::FUN_004a4850(0, 0);
+            CGraphics::ApplyTextureStageChange(0, 0);
             CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer3,
                                                               g_tri2DCount3 * 3, 0);
             CGame::m_unk0x0059ce20 += g_tri2DCount3;
@@ -580,7 +580,7 @@ void Tri2D_DrawLayer(int layer)
         break;
     case 4:
         if (g_tri2DCount4 > 0u) {
-            CGraphics::FUN_004a4850(0, 0);
+            CGraphics::ApplyTextureStageChange(0, 0);
             CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer4,
                                                               g_tri2DCount4 * 3, 0);
             CGame::m_unk0x0059ce20 += g_tri2DCount4;
@@ -589,7 +589,7 @@ void Tri2D_DrawLayer(int layer)
         break;
     default:
         if (g_tri2DCount1 > 0u) {
-            CGraphics::FUN_004a4850(0, 0);
+            CGraphics::ApplyTextureStageChange(0, 0);
             CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer1,
                                                               g_tri2DCount1 * 3, 0);
             CGame::m_unk0x0059ce20 += g_tri2DCount1;
@@ -597,8 +597,8 @@ void Tri2D_DrawLayer(int layer)
         }
         break;
     }
-    FUN_004a3dd0();
-    CGraphics::FUN_004a3de0();
+    Graphics_InvalidateTextureStageCache();
+    CGraphics::InvalidateBlendStateCache();
 }
 
 struct Quad2DRenderVertex {
@@ -690,16 +690,16 @@ void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, Quad2D *pDest)
 }
 
 struct Unk0x004a3e20;
-void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
-void FUN_004a3dd0(void);
+void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
+void Graphics_InvalidateTextureStageCache(void);
 
 // Applies the texture (with its blend setup) and the z/cull flags of a queued quad.
 #define QUAD2D_SET_STATE(q)                                                          \
     if ((q)->pTexture != NULL) {                                                    \
-        FUN_004a3e20((Unk0x004a3e20 *)(q)->pTexture, (q)->pTexture->blendMode);      \
-        CGraphics::FUN_004a4850(0, (int)(q)->pTexture);                              \
+        Frontend_SetObjectField118((Unk0x004a3e20 *)(q)->pTexture, (q)->pTexture->blendMode);      \
+        CGraphics::ApplyTextureStageChange(0, (int)(q)->pTexture);                              \
     } else {                                                                        \
-        CGraphics::FUN_004a4850(0, 0);                                               \
+        CGraphics::ApplyTextureStageChange(0, 0);                                               \
     }
 
 #define QUAD2D_SET_FLAGS(q)                                                          \
@@ -714,7 +714,7 @@ void FUN_004a3dd0(void);
     if ((q)->flags & 4)                                                              \
         CGraphics::SetCullMode(1);                                                   \
     else                                                                             \
-        CGraphics::SetCullMode(CGame::FUN_0049dcb0());
+        CGraphics::SetCullMode(CGame::GetSectorDrawState());
 
 // Copies one queued layer (8, 0x10, 0x20 or other) into the shared vertex
 // buffer and draws it, flushing whenever the texture or flags change.
@@ -793,12 +793,12 @@ void Quad2D_DrawLayer(unsigned int layer)
         CGraphics::m_pTextureManager->pD3D->DrawPrimitiveVB(D3DPT_TRIANGLELIST,
                                                             CGraphics::m_pTextureManager->pVertexBuffer1, 0, n, 0);
     }
-    CGraphics::FUN_004a4850(0, 0);
+    CGraphics::ApplyTextureStageChange(0, 0);
     CGraphics::SetZEnable(1);
     CGraphics::SetZWriteEnable(1);
-    CGraphics::SetCullMode(CGame::FUN_0049dcb0());
-    FUN_004a3dd0();
-    CGraphics::FUN_004a3de0();
+    CGraphics::SetCullMode(CGame::GetSectorDrawState());
+    Graphics_InvalidateTextureStageCache();
+    CGraphics::InvalidateBlendStateCache();
 }
 
 // Converts three fixed-point vertices and queues them in the selected layer.

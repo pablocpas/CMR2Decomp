@@ -19,8 +19,8 @@ public:
     static DWORD m_fileSize;
 
     // TODO: should this not be a static class? seems silly to pass this in like this
-    static bool FUN_004a9d70(GenericFile *file, char *fileName);
-    static bool FUN_004a9c30(char *fileName, GenericFile *param_2);
+    static bool LoadIntoFileRecord(GenericFile *file, char *fileName);
+    static bool ReadIntoFileRecord(char *fileName, GenericFile *param_2);
     static int GetGenericFileSize(void);
     static GenericFile* GetGenericFile(void);
     static void *FindFileInArchive(GenericFile *pFile, char *name, DWORD *pId);

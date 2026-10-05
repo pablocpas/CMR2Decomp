@@ -9,9 +9,9 @@ public:
     static unsigned int Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd);
     static BOOL CreateGameWindow(HINSTANCE hInstance, HWND *pHWND, LPCSTR sWindowName, WNDPROC param_4);
     static LRESULT MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-    static void FUN_0049c130(void);
-    static void FUN_004a9a50(int param1);
-    static void FUN_004b2390(void);
+    static void UnwindGameCallbacks(void);
+    static void SetGameActiveState(int param1);
+    static void ResetFpsWarmup(void);
     static int GetFrameTime(void);
     static void UpdateFrameTime(void);
     static unsigned int GetFrameDelta(void);

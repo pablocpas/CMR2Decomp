@@ -178,7 +178,7 @@ BOOL CInstallInfo::ShowNoCDErrorMessage(void)
     int reply = MessageBoxA(CMain::m_hWndList[CMain::m_hWndIx], m_noCDMessages[languageID][0], m_noCDMessages[languageID][1], MB_RETRYCANCEL);
     if (reply == IDCANCEL)
     {
-        CMain::FUN_0049c130();
+        CMain::UnwindGameCallbacks();
         CLogger::CloseLogFile();
         ExitProcess(CMain::m_win32Msg.wParam);
     }
@@ -339,7 +339,7 @@ int CInstallInfo::WriteFileToDisk(char *name, int mode, LPCVOID data, DWORD size
 }
 
 // FUNCTION: CMR2 0x0040ed50
-char *CInstallInfo::FUN_0040ed50(void)
+char *CInstallInfo::GetTexturesDirectory(void)
 {
     return m_texturesDir;
 }

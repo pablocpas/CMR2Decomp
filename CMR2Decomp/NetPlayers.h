@@ -143,15 +143,15 @@ extern NetStandingsTables g_netStandingsTables;
 #define g_netClassCount (g_netSplitRecords.fields.classCount)
 #define g_netSplitBest (g_netSplitRecords.fields.best)
 
-void FUN_00409a30(void);
-void FUN_00409ab0(char keepReady, char resetTotal);
+void NetPlayers_ResetAllTables(void);
+void NetPlayers_ResetStageState(char keepReady, char resetTotal);
 void FUN_00409b60(void);
-void FUN_00409bc0(void);
-unsigned int FUN_00409cb0(int index);
-char *FUN_00409cd0(int index);
-unsigned int FUN_00409d00(int index);
-int FUN_00409d20(int index);
-int FUN_0040a7a0(int id);
+void NetPlayers_ClearReadyFlags(void);
+unsigned int NetPlayers_IsPlayerPresent(int index);
+char *NetPlayers_GetPlayerName(int index);
+unsigned int NetPlayers_GetCarSelection(int index);
+int NetPlayers_GetPlayerID(int index);
+int NetPlayers_FindPlayerIndexByID(int id);
 
 
 

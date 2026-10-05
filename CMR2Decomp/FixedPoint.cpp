@@ -577,7 +577,7 @@ unsigned int FixVec_Length(FixVector *pV)
 // Projects a world point to screen pixels through the view node's camera
 // (off-screen marker -100,-100 when behind the camera).
 // FUNCTION: CMR2 0x004bad40
-void FUN_004bad40(int *pOut, FixVector *pPoint, BYTE *pView)
+void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, BYTE *pView)
 {
     FixVector v;
     FixMatrix inverse;
@@ -720,9 +720,9 @@ extern BYTE g_unk0x00538d2c[0xcc];
 #define g_unk0x00538df0 ((int *)(g_unk0x00538d2c + 0xc4))
 extern int g_unk0x00538e04[2];
 extern int g_unk0x005391cc[2];
-int FUN_0041f3a0(void);
+int Race_IsMultiplayerRecordMode10(void);
 int RallyData_IsChampionshipFinalStage(void);
-int RallyData_FUN_00411880(void);
+int RallyData_IsHeadToHeadRaceMode(void);
 
 // Sets the camera projection for the selected player's view.
 // match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -735,13 +735,13 @@ void FUN_00422d40(unsigned int player)
     int fovX = FixMul(0x123d7, FixMul(base, ratio));
     int fovY = FixMul(0x2147a, base);
 
-    if (FUN_0041f3a0() == 0 && RallyData_FUN_00411880()) {
-        if (CGameInfo::FUN_00405dc0())
+    if (Race_IsMultiplayerRecordMode10() == 0 && RallyData_IsHeadToHeadRaceMode()) {
+        if (CGameInfo::IsSplitBarEnabled())
             fovY *= 2;
         else
             fovX *= 2;
     }
-    if (CGameInfo::FUN_004063f0(2)) {
+    if (CGameInfo::IsActiveCheatEnabled(2)) {
         CGraphics::SetProjection(-fovX, fovY, g_unk0x00538e04[i], g_unk0x00538df0[i]);
         return;
     }
@@ -850,25 +850,25 @@ extern FixVector g_unk0x0053d048[4];
 // Per-player dashboard gauge values.
 extern short g_unk0x0053d090[4];
 // View offset of a player's camera (HudDash.cpp).
-void FUN_00447ee0(FixVector *pOut, BYTE *pSel);
+void HudDash_GetCameraViewOffset(FixVector *pOut, BYTE *pSel);
 
-void FUN_00447a40(BYTE *pObj, FixMatrix *pRef);
+void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef);
 
 // Caches the reference matrix's up and right basis vectors in the player's
 // camera slots, then builds the view object's matrix from them.
 // FUNCTION: CMR2 0x00447a00
-void FUN_00447a00(BYTE *pObj, FixMatrix *pRef)
+void View_CacheReferenceBasisAndBuildMatrix(BYTE *pObj, FixMatrix *pRef)
 {
     FixMatrix_GetUp(&g_unk0x0053d048[2 + pObj[0]], pRef);
     FixMatrix_GetRight(&g_unk0x0053d000[2 + pObj[0]], pRef);
-    FUN_00447a40(pObj, pRef);
+    View_BuildMatrixFromCameraBasis(pObj, pRef);
 }
 
 // Builds a view object's matrix: the basis comes from the player's camera
 // up/forward vectors, the position from the player's view offset plus the
 // object's own, and then the object's remaining fields are set.
 // FUNCTION: CMR2 0x00447a40
-void FUN_00447a40(BYTE *pObj, FixMatrix *pRef)
+void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef)
 {
     FixMatrix identity;
     FixVector right;
@@ -881,7 +881,7 @@ void FUN_00447a40(BYTE *pObj, FixMatrix *pRef)
     int v;
 
     sel = pObj[0];
-    FUN_00447ee0(&base, pObj);
+    HudDash_GetCameraViewOffset(&base, pObj);
     FixMatrix_Identity(&identity);
     FixMatrix_SetPosition(&base, &identity);
     index = sel & 0xff;
@@ -916,17 +916,17 @@ void FUN_00447a40(BYTE *pObj, FixMatrix *pRef)
 }
 
 extern BYTE *g_pCarSetup;
-int *FUN_00469680(int index);
+int *StageTiming_GetCarReplayRecord(int index);
 
 // Copies the car's body and world matrices into the local transform of its two
 // body scene nodes.
 // FUNCTION: CMR2 0x0043ecd0
-void FUN_0043ecd0(Car *pCar)
+void Car_SyncBodySceneNodes(Car *pCar)
 {
     FixVector v;
 
     g_pCurrentCar = pCar;
-    g_pCarSetup = (BYTE *)FUN_00469680((int)pCar->index);
+    g_pCarSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)pCar->index);
     Car_StoreBodyMatrix();
     FixMatrix_GetRight(&v, g_pCurrentCar->pBodyMatrix);
     g_pCurrentCar->pNode0x720->current.right = v;
@@ -952,7 +952,7 @@ void Car_UpdateCorners(Car *pCar);
 // back on the road): copies the stored fields and rebuilds the matrix-derived
 // vectors of the body.
 // FUNCTION: CMR2 0x00426d80
-void FUN_00426d80(Car *pDst, CarNetRecord *pSrc)
+void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc)
 {
     int i;
 
@@ -1060,7 +1060,7 @@ extern int g_unk0x00590db0[64];
 // Positions a stage object: its matrix is rebuilt from the object's split
 // vector and the reference matrix's position, then its scale fields are set.
 // FUNCTION: CMR2 0x004869e0
-void FUN_004869e0(BYTE *pObj, FixMatrix *pRef)
+void StageObject_SetPositionFromSplitVector(BYTE *pObj, FixMatrix *pRef)
 {
     FixMatrix identity;
     FixVector src;
@@ -1070,7 +1070,7 @@ void FUN_004869e0(BYTE *pObj, FixMatrix *pRef)
     unsigned int mode;
     int base;
 
-    if (RallyData_FUN_00411880() != 0 && CGameInfo::FUN_00405dc0() != 0 && FUN_0041f3a0() == 0) {
+    if (RallyData_IsHeadToHeadRaceMode() != 0 && CGameInfo::IsSplitBarEnabled() != 0 && Race_IsMultiplayerRecordMode10() == 0) {
         if (g_unk0x00590d8c[pObj[0]] == 0)
             mode = 3;
         else if (g_unk0x00590d8c[pObj[0]] == 2)
@@ -1198,7 +1198,7 @@ void FUN_00486910(BYTE *pObj, int *pSrc)
     v = (int)(__int64)((double)angle * CGraphics::m_65536);
     FixMatrix_RotateAboutRight((FixMatrix *)pMat,
                                (unsigned short)(__int64)((double)v * g_unk0x00511300));
-    FUN_004869e0(pObj, (FixMatrix *)pSrc);
+    StageObject_SetPositionFromSplitVector(pObj, (FixMatrix *)pSrc);
 }
 
 // Rebuilds an object's local matrix from a reference matrix and interpolates
@@ -1206,7 +1206,7 @@ void FUN_00486910(BYTE *pObj, int *pSrc)
 // match 65%: same structure and calls; register allocation of the source loads differs
 // (setne vs the original's neg/sbb mask for the angle).
 // FUNCTION: CMR2 0x00486810
-void FUN_00486810(BYTE *pObj, int *pSrc, int param_3)
+void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3)
 {
     int m[16];
     int angle;
@@ -1239,14 +1239,14 @@ void FUN_00486810(BYTE *pObj, int *pSrc, int param_3)
         tAxis = FixMul(0x4ccc, g_physicsTimeStep);
     FixMatrix_Interpolate((FixMatrix *)(pObj + 8), (FixMatrix *)(pObj + 8), (FixMatrix *)m,
                           0x10000, tAxis, 0x10000, 0);
-    FUN_004869e0(pObj, (FixMatrix *)pSrc);
+    StageObject_SetPositionFromSplitVector(pObj, (FixMatrix *)pSrc);
 }
 
 // (defined in StageTiming.cpp, which owns the GLOBAL annotation)
 extern CarNetRecord g_unk0x005393d8;
 
 void Car_InvalidateTransforms(int index);
-void FUN_004263d0(CarNetRecord *p);
+void NetRace_AdvanceRemoteCarAccumulator(CarNetRecord *p);
 
 // Refreshes the network pose record of every car of the given order that is
 // still in play (field_0xc20): the record matrix takes the body axes and the
@@ -1310,7 +1310,7 @@ void FUN_00426fc0(Car *pCars, short *pOrder, short count)
 
         pRec->field_0xd4 = pCar->field_0xc00;
         pCar->field_0x960 = pRec->field_0xb4;
-        FUN_004263d0(pRec);
+        NetRace_AdvanceRemoteCarAccumulator(pRec);
 
         dot = FixVecDot(&pCar->up, &pCar->groundNormal);
         pCar->field_0x96c -= FixMul(0x1eb8, g_physicsTimeStep);
@@ -1579,7 +1579,7 @@ void FUN_00470580(void)
             grav.z = 0;
             if (*(int *)(pObj + 0x120) == 0)
                 grav.y = -0xa3d;
-            if (CGameInfo::FUN_004063f0(1) != 0)
+            if (CGameInfo::IsActiveCheatEnabled(1) != 0)
                 FixVecScale(&grav, &grav, 0x8000);
             FixVecScale(&grav, &grav, g_physicsTimeStep);
 

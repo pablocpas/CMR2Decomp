@@ -19,7 +19,7 @@ extern int g_stageColourState;
 
 // Sets the diffuse colour of every vertex of the stage light mesh.
 // FUNCTION: CMR2 0x004923d0
-void FUN_004923d0(DWORD *pColour)
+void TrackLighting_SetLightMeshDiffuseColour(DWORD *pColour)
 {
     union { DWORD value; BYTE bytes[4]; } colour;
     int i;
@@ -35,7 +35,7 @@ void FUN_004923d0(DWORD *pColour)
 
 // Sets the diffuse colour and alpha of every vertex of stage mesh 5.
 // FUNCTION: CMR2 0x00492470
-void FUN_00492470(DWORD *pColour)
+void TrackLighting_SetMesh5DiffuseColour(DWORD *pColour)
 {
     union { DWORD value; BYTE bytes[4]; } colour;
     int i;
@@ -51,7 +51,7 @@ void FUN_00492470(DWORD *pColour)
 
 // Sets the diffuse colour and alpha of every vertex of the stage sky mesh.
 // FUNCTION: CMR2 0x00492520
-void FUN_00492520(DWORD *pColour)
+void TrackLighting_SetSkyDiffuseColour(DWORD *pColour)
 {
     union { DWORD value; BYTE bytes[4]; } colour;
     int i;

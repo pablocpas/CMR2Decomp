@@ -116,7 +116,7 @@ private:
     static char m_texturesDir[MAX_PATH];
 
 public:
-    static char *FUN_0040ed50(void);
+    static char *GetTexturesDirectory(void);
 private:
     // GLOBAL: CMR2 0x00516a50
     static char m_texturesSubDir[11];

@@ -76,9 +76,9 @@ struct LightZone {
 };
 
 // Type-specific object release, one registry per SceneNode::type
-void FUN_004adf60(void *pObject);
+void Scene_FreeType2Object(void *pObject);
 SceneNode *SceneType2_Create(FixVector *pTranslation, FixAngles *pAngles, SceneNode *pNode, SceneNode *pParent);
 int SceneType2_ReleaseAll(void);
-void FUN_004b3480(void *pObject);
+void Scene_FreeType1Object(void *pObject);
 
 #endif

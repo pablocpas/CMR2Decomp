@@ -202,7 +202,7 @@ struct SaveSlot {
 // Builds the path of a player profile save: <hd>\pps\<name><date>.pps.
 // The packed dword after the 4-byte name holds the date fields.
 // FUNCTION: CMR2 0x004eb2e0
-char *FUN_004eb2e0(char *pName)
+char *Profile_BuildSavePath(char *pName)
 {
     unsigned int packed = *(unsigned int *)(pName + 4);
 
@@ -215,16 +215,16 @@ char *FUN_004eb2e0(char *pName)
 
 // Writes a 0x650-byte player profile to its .pps file.
 // FUNCTION: CMR2 0x004eb340
-BYTE FUN_004eb340(int unused, BYTE *pProfile)
+BYTE Profile_WriteSaveFile(int unused, BYTE *pProfile)
 {
-    char *path = FUN_004eb2e0((char *)pProfile + 0x10);
+    char *path = Profile_BuildSavePath((char *)pProfile + 0x10);
 
     CInstallInfo::WriteFileToDisk(path, 0, pProfile, 0x650);
     return 1;
 }
 
 // FUNCTION: CMR2 0x004eb450
-BYTE *FUN_004eb450(int index)
+BYTE *Profile_GetFileDateRecord(int index)
 {
     return g_unk0x00531764 + index * 12;
 }
@@ -233,7 +233,7 @@ BYTE *FUN_004eb450(int index)
 // of the ones written; returns whether all of them were saved. Profiles with
 // bit 0x200000 set are left alone.
 // FUNCTION: CMR2 0x004eb3e0
-bool FUN_004eb3e0(void)
+bool Profile_SaveEditedNames(void)
 {
     bool saved = true;
     int i;
@@ -241,7 +241,7 @@ bool FUN_004eb3e0(void)
     for (i = 0; i < 4; i++) {
         if ((*(unsigned int *)(g_saveProfiles + i * 0x650 + 0x14) & 0x200000) == 0 &&
             g_saveProfiles[i * 0x650 + 0x10] != 0 && g_saveDirty[i] != 0) {
-            BYTE result = FUN_004eb340(0, g_saveProfiles + i * 0x650);
+            BYTE result = Profile_WriteSaveFile(0, g_saveProfiles + i * 0x650);
             if (result != 0)
                 g_saveDirty[i] = 0;
             if (saved && result != 0)
@@ -254,42 +254,42 @@ bool FUN_004eb3e0(void)
 }
 
 // FUNCTION: CMR2 0x004eb440
-int FUN_004eb440(void)
+int Profile_GetFileCount(void)
 {
     return g_unk0x00531650;
 }
 
 // Saves every player profile marked dirty (unless it has flag 0x200000).
 // FUNCTION: CMR2 0x004eb470
-void FUN_004eb470(void)
+void Profile_SaveDirtyRecords(void)
 {
     BYTE *pProfile;
     int i;
 
     for (i = 0; i < 4; i++) {
         if ((*(unsigned int *)(g_saveProfiles + i * 0x650 + 0x14) & 0x200000) == 0 && g_saveDirty[i] != 0) {
-            FUN_004eb340(0, g_saveProfiles + i * 0x650);
+            Profile_WriteSaveFile(0, g_saveProfiles + i * 0x650);
             g_saveDirty[i] = 0;
         }
     }
 }
 
 // FUNCTION: CMR2 0x004eb4b0
-void *FUN_004eb4b0(char *param1, int param2)
+void *Profile_ReadLocalFile(char *param1, int param2)
 {
     return CFileBuffer::GetGenericFileBuffer(param1, 1);
 }
 
 void RallyData_ValidateIndex(int index);
 void FUN_004eb860(int index, int profile);
-void FUN_004ebf20(int index);
+void Profile_ResetCategoryData(int index);
 
 // Loads the .pps profile named by slot `param_2` and, when its name and id
 // dword match one of the four stored player records, copies the record over
 // that profile and links the record to it; otherwise the record is moved to
 // the free category 0xf. Returns 1, or 0 when the file cannot be loaded.
 // FUNCTION: CMR2 0x004eb4c0
-BYTE FUN_004eb4c0(int param_1, int param_2)
+BYTE Profile_LoadAndLinkSavedRecord(int param_1, int param_2)
 {
     BYTE *pBuffer;
     BYTE *pRecord;
@@ -297,7 +297,7 @@ BYTE FUN_004eb4c0(int param_1, int param_2)
     unsigned int i;
 
     RallyData_ValidateIndex(param_1);
-    pBuffer = (BYTE *)FUN_004eb4b0((char *)FUN_004eb2e0((char *)(g_unk0x00531764 + param_2 * 12)), 0);
+    pBuffer = (BYTE *)Profile_ReadLocalFile((char *)Profile_BuildSavePath((char *)(g_unk0x00531764 + param_2 * 12)), 0);
     if (pBuffer != NULL) {
         *(unsigned int *)(pBuffer + 0x54) &= 0xffff807f;
         for (i = 0, pRecord = g_saveProfiles + 0x14; (int)pRecord < (int)(g_saveProfiles + 0x1954); i++) {
@@ -311,7 +311,7 @@ BYTE FUN_004eb4c0(int param_1, int param_2)
 notfound:
         SLOT(param_1).category = 0xf;
         FUN_004eb860(param_1, -1);
-        FUN_004ebf20(param_1);
+        Profile_ResetCategoryData(param_1);
 found:
         memcpy(g_saveProfiles + SLOT(param_1).category * 0x650, pBuffer, 0x650);
         g_saveProfiles[0x1a + SLOT(param_1).category * 0x650] = 0;
@@ -337,7 +337,7 @@ matched:
 
 // Resets record `index` of the 0x531350 table to category 0xf, clearing bit 0x2000.
 // FUNCTION: CMR2 0x004ebe80
-void FUN_004ebe80(int index)
+void Profile_ResetRecordCategory(int index)
 {
     unsigned int value = *(unsigned int *)(g_saveSlots + index * 0x30);
     unsigned int *pRecord = (unsigned int *)(g_saveSlots + index * 0x30);
@@ -346,19 +346,19 @@ void FUN_004ebe80(int index)
 }
 
 // FUNCTION: CMR2 0x004ebec0
-void FUN_004ebec0(void)
+void Profile_ResetAllRecordCategories(void)
 {
     int i;
 
     i = 0;
     do {
-        FUN_004ebe80(i);
+        Profile_ResetRecordCategory(i);
         i++;
     } while (i < 0x10);
 }
 
 void RallyData_ValidateIndex(int index);
-void FUN_004ec260(int player);
+void RallyData_SetPlayerDefaultCarSetup(int player);
 
 // Gives record `index` a profile (category) unless it has one: `profile`
 // if given; otherwise the first free profile no earlier record uses; else
@@ -450,7 +450,7 @@ assign:
 
 // Clears the profile of record `index`'s category back to a new profile.
 // FUNCTION: CMR2 0x004ebf20
-void FUN_004ebf20(int index)
+void Profile_ResetCategoryData(int index)
 {
     unsigned int category;
 
@@ -463,7 +463,7 @@ void FUN_004ebf20(int index)
     *(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) |= 0x20;
     *(int *)(g_saveProfiles + 0x4c + category * 0x650) = 0xf11;
     g_saveProfiles[0x588 + category * 0x650] = (g_saveProfiles[0x588 + category * 0x650] & 0xfc) | 0x3c;
-    FUN_004ec260(index);
+    RallyData_SetPlayerDefaultCarSetup(index);
     g_saveDirty[(*(unsigned int *)(g_saveSlots + index * 0x30) >> 0x12 & 0xf)] = 0;
 }
 
@@ -476,7 +476,7 @@ struct Unk0x10Block {
 
 // Reads the file and copies the 12 bytes at offset 0x10 into *pOut.
 // FUNCTION: CMR2 0x004ebee0
-BYTE FUN_004ebee0(Unk0x10Block *pOut, char *param2)
+BYTE Profile_ReadFileHeaderDate(Unk0x10Block *pOut, char *param2)
 {
     void *pBuffer;
 
@@ -492,7 +492,7 @@ BYTE FUN_004ebee0(Unk0x10Block *pOut, char *param2)
 
 // Releases the current generic file buffer and resets the load state.
 // FUNCTION: CMR2 0x004eb6d0
-char FUN_004eb6d0(void)
+char Profile_ReleaseLoadBuffer(void)
 {
     if (g_unk0x00531764 != NULL) {
         CFileBuffer::FreeGenericFileBuffer(g_unk0x00531764);
@@ -511,7 +511,7 @@ char g_strPpsDirFormat[8] = "%s\\pps\\";
 // Rebuilds the player-profile file list: enters <hd>\pps, scans *.pps and
 // appends one 12-byte date block per file (the buffer grows by 12 bytes each time).
 // FUNCTION: CMR2 0x004eb700
-void FUN_004eb700(void)
+void Profile_RebuildFileList(void)
 {
     WIN32_FIND_DATAA find;
     char oldDir[260];
@@ -521,7 +521,7 @@ void FUN_004eb700(void)
 
     if (g_unk0x00818cd0 == 0) {
         g_unk0x00818cd0 = 1;
-        CGame::RegisterCallback((void *)FUN_004eb6d0, NULL);
+        CGame::RegisterCallback((void *)Profile_ReleaseLoadBuffer, NULL);
     }
     if (g_unk0x00531764 != NULL) {
         CFileBuffer::FreeGenericFileBuffer(g_unk0x00531764);
@@ -534,14 +534,14 @@ void FUN_004eb700(void)
         (hFind = FindFirstFileA(g_strPpsPattern, &find)) != INVALID_HANDLE_VALUE) {
         g_unk0x00531764 = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
             g_unk0x00531764, (g_unk0x00531650 * 3 + 3) * 4);
-        found = FUN_004ebee0((Unk0x10Block *)(g_unk0x00531764 + g_unk0x00531650 * 0xc),
+        found = Profile_ReadFileHeaderDate((Unk0x10Block *)(g_unk0x00531764 + g_unk0x00531650 * 0xc),
                              find.cFileName);
         if (found != 0)
             g_unk0x00531650++;
         while (FindNextFileA(hFind, &find) != 0) {
             g_unk0x00531764 = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
                 g_unk0x00531764, (g_unk0x00531650 * 3 + 3) * 4);
-            found = FUN_004ebee0((Unk0x10Block *)(g_unk0x00531764 + g_unk0x00531650 * 0xc),
+            found = Profile_ReadFileHeaderDate((Unk0x10Block *)(g_unk0x00531764 + g_unk0x00531650 * 0xc),
                                  find.cFileName);
             if (found != 0)
                 g_unk0x00531650++;

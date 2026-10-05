@@ -20,10 +20,10 @@
 struct GenericFile;
 extern char g_strPathConcat[];
 int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit);
-BYTE *RallyData_FUN_00408a00(BYTE index);
-BYTE FUN_0041b370(void);
+BYTE *RallyData_GetDriverKnockoutOrTeamRecord(BYTE index);
+BYTE StageUI_GetRaceEndEventCount(void);
 extern float g_oneOverRandMax;
-void FUN_00445db0(void);
+void StageTiming_ResetDashGearMarkers(void);
 
 struct DashGearNames {
     char c[12];
@@ -139,7 +139,7 @@ char g_strDashSpeedDigits[] = "%03d";
 #define DASH_X(f) (short)(FixMul(g_pGraphics->resX << 16, (f)) >> 16)
 #define DASH_Y(f) (short)(FixMul(g_pGraphics->resY << 16, (f)) >> 16)
 #define DASH_HIRES()                                                                                   \
-    (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
+    (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) && CFrontend::IsTextureHeightSupported(0x400))
 #define DASH_RAND() (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536)
 
 // FUNCTION: CMR2 0x00445a60
@@ -148,11 +148,11 @@ void Dash_LoadTextures(void)
     char path[260];
     bool loaded;
 
-    sprintf(path, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strDashMphTga);
+    sprintf(path, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strDashMphTga);
     g_dashMphTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), path, &loaded, NULL, 0, 0);
-    sprintf(path, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strDashKphTga);
+    sprintf(path, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strDashKphTga);
     g_dashKphTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), path, &loaded, NULL, 0, 0);
-    sprintf(path, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strDashBarTga);
+    sprintf(path, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strDashBarTga);
     g_dashBarTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), path, &loaded, NULL, 0, 0);
     if (DASH_HIRES()) {
         g_dashBarOff.w = 0x125;
@@ -173,7 +173,7 @@ void Dash_LoadTextures(void)
         g_dashBarOn.x = 0;
         g_dashBarOn.y = 0x7a;
     }
-    sprintf(path, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strDashDialTga);
+    sprintf(path, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strDashDialTga);
     g_dashDialTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), path, &loaded, NULL, 0, 0);
     if (DASH_HIRES()) {
         g_dashDialSrc.x = 0;
@@ -196,22 +196,22 @@ void Dash_InitStyle(void)
     int *p;
 
     i = 0;
-    if (CGameInfo::FUN_00405d70() > 0) {
+    if (CGameInfo::GetConfiguredPlayerCount() > 0) {
         p = g_dashDigital;
         do {
-            if (RallyData_FUN_00411880() != 0) {
+            if (RallyData_IsHeadToHeadRaceMode() != 0) {
                 *p = 1;
                 g_dashSimple = 1;
             } else {
-                if (CGameInfo::FUN_00405ef0() == 0)
-                    *p = g_dashCarDigital[(int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0(i))];
+                if (CGameInfo::GetNetworkOptionBits1To2() == 0)
+                    *p = g_dashCarDigital[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(i))];
                 else
-                    *p = CGameInfo::FUN_00405ef0() == 1;
+                    *p = CGameInfo::GetNetworkOptionBits1To2() == 1;
                 g_dashSimple = 0;
             }
             i++;
             p++;
-        } while (i < CGameInfo::FUN_00405d70());
+        } while (i < CGameInfo::GetConfiguredPlayerCount());
     }
 }
 
@@ -272,7 +272,7 @@ void Dash_Update(int player)
     g_dashSpeedPrev[player] = g_dashSpeedNext[player];
     g_dashRevPrev[player] = g_dashRevNext[player];
     g_dashGear[player] = Car_Get(player)->gear;
-    if ((BYTE)CGameInfo::FUN_00405eb0() != 0)
+    if ((BYTE)CGameInfo::IsDashOptionEnabled() != 0)
         g_dashSpeedNext[player] = FixMul(0x9999, Car_GetWheelSpeed(Car_Get(player), 0, 0)) +
                                   FixMul(0x6666, g_dashSpeedNext[player]);
     else
@@ -405,7 +405,7 @@ void Dash_DrawBar(int player, int layer)
     } else {
         scale = (int)(__int64)((double)((g_pGraphics->resX * 0x4b) / 640) * CGraphics::m_65536);
         len = FixMul(g_dashRevNext[player], scale) >> 16;
-        if (CGameInfo::FUN_00405dc0() == 0) {
+        if (CGameInfo::IsSplitBarEnabled() == 0) {
             if (player == 0)
                 dx = -(short)(g_pGraphics->resX / 2);
         } else if (player == 0) {
@@ -457,7 +457,7 @@ void Dash_DrawBar(int player, int layer)
     Font_DrawText(6, text, rect[0], rect[1], (int *)g_dashWhite, 0x24);
     rect[0] = rect[0] + (short)((g_pGraphics->resX * -0x67) / 640);
     rect[1] = rect[1] + (short)((g_pGraphics->resY * 3) / 480);
-    sprintf(text, CGameInfo::FUN_00405eb0() == 0 ? g_strDashKmh : g_strDashMph);
+    sprintf(text, CGameInfo::IsDashOptionEnabled() == 0 ? g_strDashKmh : g_strDashMph);
     sprintf(CFrontend::m_stringDest, g_strDashSpeedFormat, text, g_dashSpeedNext[player] >> 16);
     rect[1] = rect[1] + (short)((g_pGraphics->resY * -4) / 480);
     Font_DrawText(5, CFrontend::m_stringDest, rect[0] + 1, rect[1] + 1, (int *)g_dashShadow, 0x21);
@@ -589,7 +589,7 @@ void Dash_DrawDial(int player, int layer)
     sprintf(unit, g_strDashMph);
     g_dashAspect = 0x15553;
     if (g_pGraphics->resX != g_dashLastResX || g_pGraphics->resY != g_dashLastResY) {
-        FUN_00445db0();
+        StageTiming_ResetDashGearMarkers();
         g_dashLastResX = g_pGraphics->resX;
         g_dashLastResY = g_pGraphics->resY;
     }
@@ -639,7 +639,7 @@ void Dash_DrawDial(int player, int layer)
     // Speed unit plate.
     src.x = 0;
     src.y = 0;
-    pTexture = CGameInfo::FUN_00405eb0() == 0 ? g_dashKphTexture : g_dashMphTexture;
+    pTexture = CGameInfo::IsDashOptionEnabled() == 0 ? g_dashKphTexture : g_dashMphTexture;
     src.w = pTexture->width;
     src.h = pTexture->height;
     dst.x = DASH_X(0xf78d);
@@ -653,7 +653,7 @@ void Dash_DrawDial(int player, int layer)
         dst.x = dst.x - src.w / 2;
         dst.y = dst.y - 0xc;
     }
-    Sprite_Queue(&src, &dst, CGameInfo::FUN_00405eb0() == 0 ? g_dashKphTexture : g_dashMphTexture, 2, 0, NULL, NULL,
+    Sprite_Queue(&src, &dst, CGameInfo::IsDashOptionEnabled() == 0 ? g_dashKphTexture : g_dashMphTexture, 2, 0, NULL, NULL,
                  g_dashWhite, 8);
 
     // Gear letters down the side of the dial.
@@ -672,8 +672,8 @@ void Dash_DrawDial(int player, int layer)
 // FUNCTION: CMR2 0x00446210
 void Dash_Draw(int player, int layer)
 {
-    if (player < 2 && (*RallyData_FUN_00408a00(FUN_0041b370() + (char)player) & 0x10) != 0) {
-        if (g_dashDigital[FUN_0041b370() + player] != 0) {
+    if (player < 2 && (*RallyData_GetDriverKnockoutOrTeamRecord(StageUI_GetRaceEndEventCount() + (char)player) & 0x10) != 0) {
+        if (g_dashDigital[StageUI_GetRaceEndEventCount() + player] != 0) {
             Dash_DrawBar(player, layer);
             return;
         }
@@ -681,11 +681,11 @@ void Dash_Draw(int player, int layer)
     }
 }
 
-void RallyData_FUN_00408c20(int *pPos, short *pHeading, int *pValue, int index);
-void FUN_00447a40(BYTE *pObj, FixMatrix *pRef);
-void FUN_00447d20(BYTE index, FixVector *pOffset);
-void FUN_00447e20(BYTE index, short value);
-void FUN_00447ec0(BYTE index, int value);
+void RallyData_GetDriverCameraOffsets(int *pPos, short *pHeading, int *pValue, int index);
+void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef);
+void HudDash_SetCameraOffset(BYTE index, FixVector *pOffset);
+void HudDash_SetGaugeTarget(BYTE index, short value);
+void HudDash_SetPlayerGaugeValue(BYTE index, int value);
 extern BYTE g_unk0x0053cff8[8];
 
 
@@ -695,7 +695,7 @@ short g_unk0x0053d090[4];
 int g_unk0x0053d098[4];
 
 // FUNCTION: CMR2 0x00447e00
-short FUN_00447e00(BYTE index)
+short HudDash_GetGaugeTarget(BYTE index)
 {
     return g_unk0x0053d090[index];
 }
@@ -704,7 +704,7 @@ extern FixVector g_unk0x0053d048[4];
 
 // Sets the player's gauge target and its speed-scaled copy (less at speed).
 // FUNCTION: CMR2 0x00447e20
-void FUN_00447e20(BYTE index, short value)
+void HudDash_SetGaugeTarget(BYTE index, short value)
 {
 
     g_unk0x0053d090[index] = value;
@@ -713,13 +713,13 @@ void FUN_00447e20(BYTE index, short value)
 }
 
 // FUNCTION: CMR2 0x00447ea0
-int FUN_00447ea0(BYTE index)
+int HudDash_GetPlayerGaugeValue(BYTE index)
 {
     return g_unk0x0053d098[index];
 }
 
 // FUNCTION: CMR2 0x00447ec0
-void FUN_00447ec0(BYTE index, int value)
+void HudDash_SetPlayerGaugeValue(BYTE index, int value)
 {
     g_unk0x0053d098[index] = value;
 }
@@ -728,7 +728,7 @@ void FUN_00447ec0(BYTE index, int value)
 FixVector g_unk0x0053d048[4];
 
 // FUNCTION: CMR2 0x00447cf0
-void FUN_00447cf0(FixVector *pOut, BYTE index)
+void HudDash_GetCameraUpVector(FixVector *pOut, BYTE index)
 {
     *pOut = g_unk0x0053d048[index];
 }
@@ -742,12 +742,12 @@ FixVector g_unk0x0053d000[6];
 // GLOBAL: CMR2 0x00519ea0
 FixVector g_unk0x00519ea0[3] = { { 0, 0x13333, -0x50000 }, { 0, 0x13333, -0x50000 }, { 0, 0x13333, -0x50000 } };
 
-int FUN_0041f3a0(void);
-int RallyData_FUN_00411880(void);
+int Race_IsMultiplayerRecordMode10(void);
+int RallyData_IsHeadToHeadRaceMode(void);
 
 // View offset of a player's camera (lowered in the split-screen cockpit view).
 // FUNCTION: CMR2 0x00447ee0
-void FUN_00447ee0(FixVector *pOut, BYTE *pSel)
+void HudDash_GetCameraViewOffset(FixVector *pOut, BYTE *pSel)
 {
     BYTE mode;
     FixVector *p;
@@ -758,7 +758,7 @@ void FUN_00447ee0(FixVector *pOut, BYTE *pSel)
     else
         p = &g_unk0x00519ea0[mode];
     *pOut = *p;
-    if (FUN_0041f3a0() == 0 && RallyData_FUN_00411880() != 0 && CGameInfo::FUN_00405dc0()) {
+    if (Race_IsMultiplayerRecordMode10() == 0 && RallyData_IsHeadToHeadRaceMode() != 0 && CGameInfo::IsSplitBarEnabled()) {
         pOut->y -= 0x3333;
         pOut->z -= 0x9999;
     }
@@ -770,7 +770,7 @@ void FixMatrix_GetRight(FixVector *pOut, FixMatrix *pM);
 // Takes the camera up/right vectors of a view from the matrix, or copies them
 // from the other view when both follow the same car in modes 4..6.
 // FUNCTION: CMR2 0x00447be0
-void FUN_00447be0(BYTE *pDst, BYTE *pSrc, FixMatrix *pM)
+void HudDash_UpdateCameraBasis(BYTE *pDst, BYTE *pSrc, FixMatrix *pM)
 {
     int mode;
 
@@ -788,7 +788,7 @@ void FUN_00447be0(BYTE *pDst, BYTE *pSrc, FixMatrix *pM)
 
 // Sets a player's camera offset (and its adjusted copy for the gauges).
 // FUNCTION: CMR2 0x00447d20
-void FUN_00447d20(BYTE index, FixVector *pOffset)
+void HudDash_SetCameraOffset(BYTE index, FixVector *pOffset)
 {
     int i = index;
 
@@ -798,25 +798,25 @@ void FUN_00447d20(BYTE index, FixVector *pOffset)
         0x20000 - FixMul(0x10000 - FixMul(FixDiv(g_unk0x0053d048[i].z - 0x50000, 0x50000), 0xcccc),
                          0x20000 - g_unk0x0053d000[i].y);
     g_unk0x0053d000[i].z = -g_unk0x0053d000[i].z;
-    FUN_00447e20(index, FUN_00447e00(index));
+    HudDash_SetGaugeTarget(index, HudDash_GetGaugeTarget(index));
 }
 
 // Resets a player's camera to the default offset, height and distance.
 // FUNCTION: CMR2 0x00447ca0
-void FUN_00447ca0(unsigned int index)
+void HudDash_ResetPlayerCamera(unsigned int index)
 {
     FixVector offset;
 
     offset.x = 0;
     offset.y = 0x18000;
     offset.z = 0x68000;
-    FUN_00447d20(index, &offset);
-    FUN_00447e20(index, 0x2d);
-    FUN_00447ec0(index, 0xe0000);
+    HudDash_SetCameraOffset(index, &offset);
+    HudDash_SetGaugeTarget(index, 0x2d);
+    HudDash_SetPlayerGaugeValue(index, 0xe0000);
 }
 
-void RallyData_FUN_00408c20(int *pPos, short *pHeading, int *pValue, int index);
-void FUN_00447a40(BYTE *pObj, FixMatrix *pRef);
+void RallyData_GetDriverCameraOffsets(int *pPos, short *pHeading, int *pValue, int index);
+void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef);
 
 // Stores the camera mode of the owner of a HUD slot and, when the slot's delay
 // has elapsed, rebuilds its offset heading (through the shared position helper)
@@ -834,17 +834,17 @@ void FUN_00447530(BYTE *param_1, BYTE *param_2, int param_3)
     index = pSettings[1];
     g_unk0x0053cff8[pSettings[0]] = (BYTE)param_3;
     if (pSettings[2] >= (BYTE)RallyDataState()) {
-        RallyData_FUN_00408c20((int *)&offset, (short *)&param_1, &param_3, 0);
-        FUN_00447d20(index, &offset);
-        FUN_00447ec0(index, param_3);
+        RallyData_GetDriverCameraOffsets((int *)&offset, (short *)&param_1, &param_3, 0);
+        HudDash_SetCameraOffset(index, &offset);
+        HudDash_SetPlayerGaugeValue(index, param_3);
     } else {
-        RallyData_FUN_00408c20((int *)&offset, (short *)&param_1, &param_3,
-                               (int)(BYTE)FUN_0041b370() + pSettings[2]);
-        FUN_00447d20(index, &offset);
-        FUN_00447ec0(index, param_3);
+        RallyData_GetDriverCameraOffsets((int *)&offset, (short *)&param_1, &param_3,
+                               (int)(BYTE)StageUI_GetRaceEndEventCount() + pSettings[2]);
+        HudDash_SetCameraOffset(index, &offset);
+        HudDash_SetPlayerGaugeValue(index, param_3);
     }
-    FUN_00447e20(index, *(short *)&param_1);
-    FUN_00447a40(pSettings, (FixMatrix *)param_2);
+    HudDash_SetGaugeTarget(index, *(short *)&param_1);
+    View_BuildMatrixFromCameraBasis(pSettings, (FixMatrix *)param_2);
 }
 
 void FixMatrix_RebuildBasis(FixMatrix *pOut);
@@ -921,7 +921,7 @@ void FUN_004475f0(BYTE *param_1, FixMatrix *param_2, int param_3)
         FixMatrix_GetUp(pUp, &xform);
         FixMatrix_GetForward(pRight, &xform);
     }
-    FUN_00447a40(param_1, param_2);
+    View_BuildMatrixFromCameraBasis(param_1, param_2);
 }
 
 // Mirror of the CarStageTiming layout that StageTiming.cpp owns; the race
@@ -956,10 +956,10 @@ extern char g_unk0x0053d1a4[2];
 extern BYTE g_unk0x0053d1a6;
 extern BYTE g_unk0x0053d1a7;
 extern char g_unk0x0053dda8[8];
-extern unsigned char RallyData_FUN_00407ea0(void);
-extern unsigned int RallyData_FUN_004082e0(void);
-extern int FUN_0040cec0(int index);
-extern int FUN_00458390(void);
+extern unsigned char RallyData_GetSelectionFlag28(void);
+extern unsigned int RallyData_GetSetupFlag11(void);
+extern int RallyTiming_GetChampionshipDriverPosition(int index);
+extern int Stage_GetDriverCount(void);
 
 // Clears the stage timing state of every driver of the race that is starting:
 // the split-leader tables, the ordering of the driver slots and each car's
@@ -973,7 +973,7 @@ void FUN_00447f70(void)
     int i;
     int j;
 
-    count = FUN_00458390();
+    count = Stage_GetDriverCount();
     g_unk0x0053d1b4 = 0;
     if ((BYTE)RallyData_GetFlag24() != 0 || (BYTE)RallyData_GetFlag25() != 0) {
         g_unk0x0053e18c = 0;
@@ -1004,8 +1004,8 @@ void FUN_00447f70(void)
                 CarStageTiming *car = &g_carStageTiming[i];
 
                 car->field_0x81 = (char)(count - i - 1);
-                if ((char)CGameInfo::FUN_00405d80() == 5 && count > 2)
-                    car->field_0x81 = (char)(count - (char)FUN_0040cec0(i) - 1);
+                if ((char)CGameInfo::GetConfiguredGameMode() == 5 && count > 2)
+                    car->field_0x81 = (char)(count - (char)RallyTiming_GetChampionshipDriverPosition(i) - 1);
                 car->field_0x82 = -1;
                 car->startTime = 0;
                 g_unk0x0053dda8[car->field_0x81] = (char)i;
@@ -1020,7 +1020,7 @@ void FUN_00447f70(void)
                 car->field_0x83 = 0;
             }
         }
-        if ((BYTE)RallyData_FUN_004082e0() != 0) {
+        if ((BYTE)RallyData_GetSetupFlag11() != 0) {
             *(short *)g_unk0x0053d1a4 = 0;
             g_unk0x0053d1a7 = 0;
             g_unk0x0053d1a6 = 0;
@@ -1030,7 +1030,7 @@ void FUN_00447f70(void)
         for (i = 0; i < count; i++)
             g_unk0x0053d1da[i] = 0;
     }
-    if (RallyData_GetFlag24() != 0 && RallyData_FUN_00407ea0() != 0)
+    if (RallyData_GetFlag24() != 0 && RallyData_GetSelectionFlag28() != 0)
         g_unk0x0053d1d9 = 1;
     else
         g_unk0x0053d1d9 = 0;

@@ -10,7 +10,7 @@ struct Texture {
     char                    name[122];
     BYTE                    field_0x134[140];
     IDirectDrawSurface7*    pSurface;
-    int                     blendMode;      // 0x118 texture stage setup, see CGraphics::FUN_004a3e90
+    int                     blendMode;      // 0x118 texture stage setup, see CGraphics::ConfigureTextureStageBlendMode
     short                   field_0x11c;
     short                   field_0x11e;
     short                   width;

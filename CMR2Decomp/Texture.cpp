@@ -12,7 +12,7 @@ extern char g_emptyString[4];
 // Replaces the extension of the file name part of path with the empty string.
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a9f50
-void FUN_004a9f50(char *pOut, char *path)
+void Texture_GetPathStem(char *pOut, char *path)
 {
     ((int (__cdecl *)(char *, const char *))sprintf)(pOut, strrchr(path, '\\') + 1);
     sprintf(strrchr(pOut, '.'), g_emptyString);
@@ -30,7 +30,7 @@ Texture* CTexture::FindLoadTexture(GenericFile* pFile, char* textureName, bool *
     if (didLoadTexture != NULL)
         *didLoadTexture = false;
     if (pFile != NULL && pFile->didFileLoad && !param5) {
-        FUN_004a9f50(name, textureName);
+        Texture_GetPathStem(name, textureName);
         sprintf(name + strlen(name), g_ddsSuffix);
         pData = CGenericFileLoader::FindFileInArchive(pFile, name, (DWORD *)param4);
         if (pData == NULL) {
@@ -40,10 +40,10 @@ Texture* CTexture::FindLoadTexture(GenericFile* pFile, char* textureName, bool *
         if (pData != NULL) {
             if (didLoadTexture != NULL)
                 *didLoadTexture = true;
-            pTexture = CGraphics::FUN_004a48c0(textureName, pData, flag);
+            pTexture = CGraphics::CreateTextureFromImageData(textureName, pData, flag);
             pTexture->pArchive = pFile;
             return pTexture;
         }
     }
-    return CGraphics::FUN_004a49c0(textureName, flag);
+    return CGraphics::LoadDDSThenTGATexture(textureName, flag);
 }

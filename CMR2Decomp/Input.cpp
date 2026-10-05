@@ -639,7 +639,7 @@ void CInput::DInputReleaseDevices(void) {
         }
     }
 
-    FUN_0049ef90();
+    CountAttachedInputDevices();
     
     iVar2 = 0;
     LPDIRECTINPUTDEVICEA *pDevices = m_unk0x0059f6b0;
@@ -662,14 +662,14 @@ void CInput::DInputReleaseDevices(void) {
 }
 
 // FUNCTION: CMR2 0x0049ef90
-int CInput::FUN_0049ef90(void) {
+int CInput::CountAttachedInputDevices(void) {
   m_unk0x0059f8cc.field_0x3 = 0;
-  m_lpDirectInput7->EnumDevices(DIDEVTYPE_JOYSTICK, FUN_0049f6b0, NULL, DIEDFL_ATTACHEDONLY);
+  m_lpDirectInput7->EnumDevices(DIDEVTYPE_JOYSTICK, CountJoystickEnumerationCallback, NULL, DIEDFL_ATTACHEDONLY);
   return m_unk0x0059f8cc.field_0x1 + m_unk0x0059f8cc.field_0x3;
 }
 
 // FUNCTION: CMR2 0x0049f6b0
-BOOL CInput::FUN_0049f6b0(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
+BOOL CInput::CountJoystickEnumerationCallback(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
     m_unk0x0059f8cc.field_0x3++;
     return TRUE;
 }
@@ -866,7 +866,7 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
 
                     
                     m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->SetProperty(DIPROP_AUTOCENTER, &dipd.diph);
-                    FUN_004aae20(m_unk0x0059f8cc.field_0x0, (LPDIRECTINPUTDEVICE7)m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]);
+                    InitializeForceFeedbackDevice(m_unk0x0059f8cc.field_0x0, (LPDIRECTINPUTDEVICE7)m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]);
 
                 } else {
                     m_availableDevices[m_unk0x0059f8cc.field_0x2].unk_isJoystick = FALSE;
@@ -1024,7 +1024,7 @@ void CInput::SetJoystickAxisSaturation(int deviceID, int axisID, DWORD saturatio
 }
 
 // FUNCTION: CMR2 0x004aae20
-BOOL CInput::FUN_004aae20(int deviceID, LPDIRECTINPUTDEVICE7 pDevice) {
+BOOL CInput::InitializeForceFeedbackDevice(int deviceID, LPDIRECTINPUTDEVICE7 pDevice) {
     Graphics *pGraphics;
     HRESULT hr;
 
@@ -1033,7 +1033,7 @@ BOOL CInput::FUN_004aae20(int deviceID, LPDIRECTINPUTDEVICE7 pDevice) {
         m_forceFeedbackDevices[deviceID].device = (LPDIRECTINPUTDEVICE7A)pDevice;
         if (pGraphics->isFullscreen) {
             hr = pDevice->SendForceFeedbackCommand(DISFFC_STOPALL);
-            FUN_004ab5f0(hr);
+            IsForceFeedbackCallSuccessful(hr);
         }
 
         SetForceFeedbackAutocenter(0, deviceID);
@@ -1050,7 +1050,7 @@ BOOL CInput::FUN_004aae20(int deviceID, LPDIRECTINPUTDEVICE7 pDevice) {
 }
 
 // FUNCTION: CMR2 0x004ab5f0
-bool CInput::FUN_004ab5f0(HRESULT hr) {
+bool CInput::IsForceFeedbackCallSuccessful(HRESULT hr) {
     return hr == 0;
 }
 
@@ -1151,14 +1151,14 @@ void CInput::LoadControllerInfo(void) {
             CFileBuffer::FreeGenericFileBuffer(fileBuffer);
             m_hasLoadedControllerInfo = TRUE;
 
-            FUN_0040be90(0);
-            FUN_0040be90(1);
+            ApplyControllerButtonBindings(0);
+            ApplyControllerButtonBindings(1);
         }
     }
 }
 
 // FUNCTION: CMR2 0x0040be90
-void CInput::FUN_0040be90(unsigned short param1) {
+void CInput::ApplyControllerButtonBindings(unsigned short param1) {
     int uVar1;
     unsigned int raw;
     unsigned short uVar2;
@@ -1170,22 +1170,22 @@ void CInput::FUN_0040be90(unsigned short param1) {
     pController = &m_controllerInfo[uVar1];
 
     if (uVar1 > 1) {
-        FUN_0040c440(raw, pController);
+        AssignUnmappedControllerActions(raw, pController);
     }
 
-    FUN_0049eb90(uVar2, 1, pController->field_0x13e[0]);
-    FUN_0049eb90(uVar2, 2, pController->field_0x13e[1]);
-    FUN_0049eb90(uVar2, 4, pController->field_0x13e[2]);
-    FUN_0049eb90(uVar2, 8, pController->field_0x13e[3]);
-    FUN_0049eb90(uVar2, 0x10, pController->field_0x13e[4]);
-    FUN_0049eb90(uVar2, 0x20, pController->field_0x13e[5]);
-    FUN_0049eb90(uVar2, 0x40, pController->field_0x13e[6]);
-    FUN_0049eb90(uVar2, 0x80, pController->field_0x13e[7]);
-    FUN_0049eb90(uVar2, 0x100, pController->field_0x13e[8]);
+    SetDeviceKeyBinding(uVar2, 1, pController->field_0x13e[0]);
+    SetDeviceKeyBinding(uVar2, 2, pController->field_0x13e[1]);
+    SetDeviceKeyBinding(uVar2, 4, pController->field_0x13e[2]);
+    SetDeviceKeyBinding(uVar2, 8, pController->field_0x13e[3]);
+    SetDeviceKeyBinding(uVar2, 0x10, pController->field_0x13e[4]);
+    SetDeviceKeyBinding(uVar2, 0x20, pController->field_0x13e[5]);
+    SetDeviceKeyBinding(uVar2, 0x40, pController->field_0x13e[6]);
+    SetDeviceKeyBinding(uVar2, 0x80, pController->field_0x13e[7]);
+    SetDeviceKeyBinding(uVar2, 0x100, pController->field_0x13e[8]);
 }
 
 // FUNCTION: CMR2 0x0040c440
-void CInput::FUN_0040c440(unsigned int param1, ControllerData* param2) {
+void CInput::AssignUnmappedControllerActions(unsigned int param1, ControllerData* param2) {
     unsigned short* puVar2;
     unsigned short uVar4;
     unsigned char bVar1;
@@ -1205,12 +1205,12 @@ void CInput::FUN_0040c440(unsigned int param1, ControllerData* param2) {
                                 param2->field_0x12c | param2->field_0x12a |
                                 param2->field_0x128 | 0x400;
 
-                bVar1 = FUN_0040c530(combinedFlags & 0xffff);
+                bVar1 = FindFirstClearBindingBit(combinedFlags & 0xffff);
                 
                 uVar4 = 1 << bVar1;
                 
-                FUN_0049eb90(param1 & 0xffff, uVar4 & 0xffff, param2->field_0x13e[iVar3]);
-                FUN_0049eb90(param1 & 0xffff, (1 << iVar3) & 0xffff, 0);
+                SetDeviceKeyBinding(param1 & 0xffff, uVar4 & 0xffff, param2->field_0x13e[iVar3]);
+                SetDeviceKeyBinding(param1 & 0xffff, (1 << iVar3) & 0xffff, 0);
                 
                 *puVar2 = uVar4;
             }
@@ -1222,7 +1222,7 @@ void CInput::FUN_0040c440(unsigned int param1, ControllerData* param2) {
 }
 
 // FUNCTION: CMR2 0x0049eb90
-void CInput::FUN_0049eb90(int param1, unsigned int param2, unsigned int param3) {
+void CInput::SetDeviceKeyBinding(int param1, unsigned int param2, unsigned int param3) {
     DeviceInfo* device = &m_availableDevices[param1];
     switch(param2) {
         case 1:
@@ -1292,7 +1292,7 @@ void CInput::FUN_0049eb90(int param1, unsigned int param2, unsigned int param3) 
 }
 
 // FUNCTION: CMR2 0x0040c530 
-BYTE CInput::FUN_0040c530(unsigned int param1) {
+BYTE CInput::FindFirstClearBindingBit(unsigned int param1) {
     int iVar1 = 0;
 
     while (iVar1 < 32) {
@@ -1306,7 +1306,7 @@ BYTE CInput::FUN_0040c530(unsigned int param1) {
 }
 
 // FUNCTION: CMR2 0x0049eb50
-void CInput::FUN_0049eb50(void)
+void CInput::RebuildAvailableInputDevices(void)
 {
     int i;
 
@@ -1348,7 +1348,7 @@ BOOL CInput::IsShiftPressed(void)
 }
 
 // FUNCTION: CMR2 0x0049efc0
-void CInput::FUN_0049efc0(void)
+void CInput::ClearFirstJoystickControlBindings(void)
 {
     int i;
 
@@ -1391,7 +1391,7 @@ int CInput::GetButtonIndexFromMask(unsigned int mask)
 }
 
 // FUNCTION: CMR2 0x0049ff80
-void CInput::FUN_0049ff80(DWORD p1, DWORD p2, DWORD p3, DWORD p4, DWORD p5)
+void CInput::SetInputRepeatTimingParameters(DWORD p1, DWORD p2, DWORD p3, DWORD p4, DWORD p5)
 {
     m_unk0x0059f8f8 = p1;
     m_unk0x0059f910 = p2;
@@ -1401,31 +1401,31 @@ void CInput::FUN_0049ff80(DWORD p1, DWORD p2, DWORD p3, DWORD p4, DWORD p5)
 }
 
 // FUNCTION: CMR2 0x0049ffc0
-void CInput::FUN_0049ffc0(DWORD param1)
+void CInput::SetInputRepeatTimingState(DWORD param1)
 {
     m_unk0x0059f900 = param1;
 }
 
 // FUNCTION: CMR2 0x0040be00
-DWORD CInput::FUN_0040be00(unsigned int param1)
+DWORD CInput::GetControllerField114(unsigned int param1)
 {
     return m_controllerInfo[m_unk0x005168f4[(unsigned short)param1]].field_0x114;
 }
 
 // FUNCTION: CMR2 0x0040be30
-DWORD CInput::FUN_0040be30(unsigned int param1)
+DWORD CInput::GetControllerField120(unsigned int param1)
 {
     return m_controllerInfo[m_unk0x005168f4[(unsigned short)param1]].field_0x120;
 }
 
 // FUNCTION: CMR2 0x0040be60
-DWORD CInput::FUN_0040be60(unsigned short param1)
+DWORD CInput::GetControllerField124(unsigned short param1)
 {
     return m_controllerInfo[m_unk0x005168f4[(unsigned short)param1]].field_0x124;
 }
 
 // FUNCTION: CMR2 0x0040c210
-unsigned int CInput::FUN_0040c210(unsigned int param1, int param2)
+unsigned int CInput::GetEnabledControllerAxisBinding(unsigned int param1, int param2)
 {
     unsigned int controller;
 
@@ -1436,7 +1436,7 @@ unsigned int CInput::FUN_0040c210(unsigned int param1, int param2)
 }
 
 // FUNCTION: CMR2 0x0040c270
-BOOL CInput::FUN_0040c270(int param1, ControllerData *param2)
+BOOL CInput::IsControllerActionBound(int param1, ControllerData *param2)
 {
     if ((&param2->field_0x128)[param1] != 0 && param2->field_0x13e[param1] != 0)
         return TRUE;
@@ -1444,7 +1444,7 @@ BOOL CInput::FUN_0040c270(int param1, ControllerData *param2)
 }
 
 // FUNCTION: CMR2 0x004aaf50
-void CInput::FUN_004aaf50(DWORD param1, int index)
+void CInput::SetForceFeedbackDeviceValue(DWORD param1, int index)
 {
     m_unk0x00666ec8[index] = param1;
 }
@@ -1460,7 +1460,7 @@ void CInput::StartForceFeedbackEffect(int effectIndex, int deviceIndex)
     if (pDevice->field_0x0 != 0) {
         pEffect = pDevice->effects[effectIndex];
         if (pEffect != NULL) {
-            FUN_004ab5f0(pEffect->GetEffectStatus(&status));
+            IsForceFeedbackCallSuccessful(pEffect->GetEffectStatus(&status));
             if ((status & DIEGES_PLAYING) == 0)
                 pDevice->effects[effectIndex]->Start(1, 0);
         }
@@ -1628,7 +1628,7 @@ void CInput::ReadJoystick(DeviceInfo *pDevice)
 }
 
 // FUNCTION: CMR2 0x0040c130
-void CInput::FUN_0040c130(unsigned short *values, int index, unsigned short value)
+void CInput::SetIndexedWordBinding(unsigned short *values, int index, unsigned short value)
 {
     switch (index) {
     case 0: values[0] = value; break;
@@ -1645,7 +1645,7 @@ void CInput::FUN_0040c130(unsigned short *values, int index, unsigned short valu
 }
 
 // FUNCTION: CMR2 0x0040c550
-void CInput::FUN_0040c550(BYTE *values, int index, BYTE value)
+void CInput::SetIndexedByteBinding(BYTE *values, int index, BYTE value)
 {
     switch (index) {
     case 0: values[0] = value; break;
@@ -1835,7 +1835,7 @@ defaults:
             goto fixed;
     }
 
-    if (!FUN_0040c270(button, pController))
+    if (!IsControllerActionBound(button, pController))
         return mapping;
 
 fixed:
@@ -1947,7 +1947,7 @@ int CInput::CreateConstantForceEffect(DWORD duration, LONG direction, LONG magni
     effect.cbTypeSpecificParams = sizeof(DICONSTANTFORCE);
     effect.lpvTypeSpecificParams = &constantForce;
 
-    FUN_004ab5f0(pDevice->device->CreateEffect(GUID_ConstantForce, &effect, &pDevice->effects[i], NULL));
+    IsForceFeedbackCallSuccessful(pDevice->device->CreateEffect(GUID_ConstantForce, &effect, &pDevice->effects[i], NULL));
     return i;
 }
 
@@ -2150,12 +2150,12 @@ void CInput::FUN_0040c610(DeviceInfo *pDevice, int index)
 }
 
 // FUNCTION: CMR2 0x0040c050
-void CInput::FUN_0040c050(void)
+void CInput::RefreshControllerConfigurations(void)
 {
     DeviceInfo *pDevice;
     int i;
 
-    m_controllerCount = FUN_0049ef90();
+    m_controllerCount = CountAttachedInputDevices();
     for (i = 0; i < m_controllerCount; i++) {
         pDevice = UpdateDevice(i);
         if (m_hasLoadedControllerInfo == 0 || strcmp(m_controllerInfo[i].name, pDevice->deviceInstanceName) != 0)
@@ -2177,7 +2177,7 @@ InputQueues g_inputQueues;
 #define g_unk0x006ed46c (g_inputQueues.keys)
 
 // FUNCTION: CMR2 0x004b7c80
-void FUN_004b7c80(void)
+void Input_ClearCharacterQueue(void)
 {
     int i;
 
@@ -2187,7 +2187,7 @@ void FUN_004b7c80(void)
 
 // Queues one character for the input ring buffer.
 // FUNCTION: CMR2 0x004b7ca0
-void CInput::FUN_004b7ca0(int param1)
+void CInput::QueueInputCharacter(int param1)
 {
     int *p;
     int i;
@@ -2206,7 +2206,7 @@ void CInput::FUN_004b7ca0(int param1)
 
 // Pops the oldest character of the input ring buffer.
 // FUNCTION: CMR2 0x004b7cd0
-bool FUN_004b7cd0(int *pOut)
+bool Input_PopQueuedCharacter(int *pOut)
 {
     int i;
 
@@ -2225,7 +2225,7 @@ bool FUN_004b7cd0(int *pOut)
 
 // Queues one key press (only when the scan code carries a virtual key).
 // FUNCTION: CMR2 0x004b7d10
-void CInput::FUN_004b7d10(unsigned int param1)
+void CInput::QueueVirtualKeyPress(unsigned int param1)
 {
     int *p;
     int i;
@@ -2248,13 +2248,13 @@ void CInput::FUN_004b7d10(unsigned int param1)
 int g_unk0x005320a4;
 
 // FUNCTION: CMR2 0x0040af20
-void CInput::FUN_0040af20(void)
+void CInput::UpdateInputFrameDelta(void)
 {
     g_unk0x005320a4 = CMain::GetFrameDelta();
 }
 
 // FUNCTION: CMR2 0x0049eab0
-void CInput::FUN_0049eab0(void)
+void CInput::UpdateAllAvailableDevices(void)
 {
     int i;
 
@@ -2269,18 +2269,18 @@ void CInput::FUN_0040bc90(unsigned short param1, DWORD param2)
     unsigned short index;
 
     index = CInput::m_unk0x005168f4[param1];
-    FUN_004aaf50(m_controllerInfo[index].field_0x11c = param2, index);
+    SetForceFeedbackDeviceValue(m_controllerInfo[index].field_0x11c = param2, index);
 }
 
 
 // FUNCTION: CMR2 0x0049ead0
-DeviceInfo *CInput::FUN_0049ead0(int index)
+DeviceInfo *CInput::GetAvailableDeviceRecord(int index)
 {
     return &m_availableDevices[index];
 }
 
 // FUNCTION: CMR2 0x004b7d40
-void FUN_004b7d40(void)
+void Input_ClearKeyPressQueue(void)
 {
     int i;
 
@@ -2290,7 +2290,7 @@ void FUN_004b7d40(void)
 
 // Pops the oldest key of the key press queue.
 // FUNCTION: CMR2 0x004b7d60
-int FUN_004b7d60(int *pOut)
+int Input_PopQueuedKeyPress(int *pOut)
 {
     int i;
 
@@ -2314,16 +2314,16 @@ int g_unk0x005334f4[8][2];
 // Turns the joystick's accelerate/brake axes into one-shot "left"/"right"
 // menu presses (bits 2 and 3) when they are pushed past a quarter.
 // FUNCTION: CMR2 0x0040bad0
-void FUN_0040bad0(void)
+void Input_TranslatePedalsToMenuKeys(void)
 {
     unsigned int i;
     DeviceInfo *pDev;
 
     for (i = 0; i < 8; i++) {
-        pDev = CInput::FUN_0049ead0(i);
-        if (pDev->field_0x0 == 3 && CInput::FUN_0040c210(0, 2) != CInput::FUN_0040c210(0, 3)) {
+        pDev = CInput::GetAvailableDeviceRecord(i);
+        if (pDev->field_0x0 == 3 && CInput::GetEnabledControllerAxisBinding(0, 2) != CInput::GetEnabledControllerAxisBinding(0, 3)) {
             pDev->field_0x8 &= 0xfffffff3;
-            if (((int *)pDev)[CInput::FUN_0040c210(0, 2) * 5 + 0x11f] < 0x3333) {
+            if (((int *)pDev)[CInput::GetEnabledControllerAxisBinding(0, 2) * 5 + 0x11f] < 0x3333) {
                 if (g_unk0x005334f4[i][0] == 0) {
                     pDev->field_0x8 |= 4;
                     g_unk0x005334f4[i][0] = 1;
@@ -2331,7 +2331,7 @@ void FUN_0040bad0(void)
             } else {
                 g_unk0x005334f4[i][0] = 0;
             }
-            if (((int *)pDev)[CInput::FUN_0040c210(0, 3) * 5 + 0x11f] < 0x3333) {
+            if (((int *)pDev)[CInput::GetEnabledControllerAxisBinding(0, 3) * 5 + 0x11f] < 0x3333) {
                 if (g_unk0x005334f4[i][1] == 0) {
                     pDev->field_0x8 |= 8;
                     g_unk0x005334f4[i][1] = 1;
@@ -2345,73 +2345,73 @@ void FUN_0040bad0(void)
 
 // Controller slots are mapped to entries of m_controllerInfo through m_unk0x005168f4.
 // FUNCTION: CMR2 0x0040bba0
-unsigned short FUN_0040bba0(void)
+unsigned short Input_GetAssignedController(void)
 {
     return CInput::m_controllerCount;
 }
 
 // FUNCTION: CMR2 0x0040bbb0
-ControllerData *FUN_0040bbb0(void)
+ControllerData *Input_GetControllerTable(void)
 {
     return CInput::m_controllerInfo;
 }
 
 // FUNCTION: CMR2 0x0040bbc0
-unsigned short FUN_0040bbc0(unsigned short slot)
+unsigned short Input_GetControllerSlotMapping(unsigned short slot)
 {
     return CInput::m_unk0x005168f4[slot];
 }
 
 // FUNCTION: CMR2 0x0040bbe0
-void FUN_0040bbe0(unsigned short slot, unsigned short index)
+void Input_SetControllerSlotMapping(unsigned short slot, unsigned short index)
 {
     CInput::m_unk0x005168f4[slot] = index;
 }
 
 // FUNCTION: CMR2 0x0040bc00
-unsigned int FUN_0040bc00(unsigned short slot)
+unsigned int Input_GetControllerPrimaryFlags(unsigned short slot)
 {
     return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x0;
 }
 
 // FUNCTION: CMR2 0x0040bc30
-unsigned int FUN_0040bc30(unsigned short slot)
+unsigned int Input_GetControllerSecondaryFlags(unsigned short slot)
 {
     return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x4;
 }
 
 // FUNCTION: CMR2 0x0040bc60
-void FUN_0040bc60(unsigned short slot, unsigned int value)
+void Input_SetControllerPrimaryFlags(unsigned short slot, unsigned int value)
 {
     CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x0 = value;
 }
 
 // FUNCTION: CMR2 0x0040bcd0
-DWORD FUN_0040bcd0(unsigned short slot)
+DWORD Input_GetControllerField11C(unsigned short slot)
 {
     return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x11c;
 }
 
 // FUNCTION: CMR2 0x0040bd00
-void FUN_0040bd00(unsigned short slot, unsigned int value)
+void Input_SetControllerSecondaryFlags(unsigned short slot, unsigned int value)
 {
     CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x4 = value;
 }
 
 // FUNCTION: CMR2 0x0040bd30
-DWORD FUN_0040bd30(unsigned short slot)
+DWORD Input_GetControllerField118(unsigned short slot)
 {
     return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x118;
 }
 
 // Merges the buttons of the joystick assigned to the slot into pOut.
 // FUNCTION: CMR2 0x0040bd60
-void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut)
+void Input_MergeAssignedJoystickButtons(unsigned short slot, DeviceInfo *pOut)
 {
     DeviceInfo *pDev;
 
-    if ((short)FUN_0040bbc0(slot) != 0 && (short)FUN_0040bbc0(slot) != 1) {
-        pDev = CInput::FUN_0049ead0(FUN_0040bbc0(slot));
+    if ((short)Input_GetControllerSlotMapping(slot) != 0 && (short)Input_GetControllerSlotMapping(slot) != 1) {
+        pDev = CInput::GetAvailableDeviceRecord(Input_GetControllerSlotMapping(slot));
         if (pDev->field_0x0 == 0 || pDev->field_0x0 == 3) {
             pOut->field_0x8 |= pDev->field_0x8;
             pOut->field_0x4 |= pDev->field_0x4;
@@ -2421,13 +2421,13 @@ void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut)
 }
 
 // FUNCTION: CMR2 0x0040bdd0
-DWORD FUN_0040bdd0(unsigned short slot)
+DWORD Input_GetControllerField110(unsigned short slot)
 {
     return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x110;
 }
 
 
-int FUN_004b7d60(int *pOut);
+int Input_PopQueuedKeyPress(int *pOut);
 
 // Name of the last key pressed (waits until the key queue is empty).
 // FUNCTION: CMR2 0x0049ed80
@@ -2436,7 +2436,7 @@ void Input_GetLastKeyName(LPSTR pName, unsigned int size)
     LONG key;
 
     key = 0;
-    while (FUN_004b7d60((int *)&key) != 0)
+    while (Input_PopQueuedKeyPress((int *)&key) != 0)
         ;
     GetKeyNameTextA(key, pName, size & 0xff);
 }

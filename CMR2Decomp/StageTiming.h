@@ -42,11 +42,11 @@ StageFile *StageTiming_GetStageFile3(void);
 StageFile *StageTiming_GetStageFile4(void);
 StageFile *StageTiming_GetStageFile5(void);
 StageFile *StageTiming_GetStageFile6(void);
-int StageTiming_FUN_00455460(void);
-void StageTiming_FUN_00455610(void);
-int StageTiming_FUN_00455ab0(int iSplit);
-int StageTiming_FUN_00455ac0(int iSplit, int iIndex);
-BYTE StageTiming_FUN_00455ae0(void);
+int StageTiming_GetStageArchiveState(void);
+void StageTiming_ClearSplitDisplayFlags(void);
+int StageTiming_GetSplitSecondaryEntry(int iSplit);
+int StageTiming_GetSplitTableEntry(int iSplit, int iIndex);
+BYTE StageTiming_GetSplitDisplayState(void);
 int StageTiming_GetSplitDriverCount(int iSplit);
 int StageTiming_GetSplitPositionOfDriver(int iDriver, int iSplit);
 int StageTiming_GetCurrentSplitPositionOfDriver(int iDriver);
@@ -59,11 +59,11 @@ void StageTiming_GetSplitTimesForPositions(int iPosition1, int iPosition2, int *
 void StageTiming_Reset(void);
 void StageTiming_RebuildSplitPositions(void);
 
-BYTE *FUN_00456be0(int index);
+BYTE *StageTiming_GetStartTableRecord(int index);
 void StageDeform_ApplyRadialDent(void);
 void StageDeform_ApplyPlanarDent(void);
-int FUN_004692b0(unsigned int type, BYTE *pModel);
-int *FUN_00469680(int index);
+int StageTiming_FindModelPartByNodeType(unsigned int type, BYTE *pModel);
+int *StageTiming_GetCarReplayRecord(int index);
 
 // One deformable node of a stage record: position, spin rate, angle and scale
 // (stride 0x24).

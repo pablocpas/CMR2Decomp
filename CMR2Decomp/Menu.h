@@ -85,7 +85,7 @@ int Menu_Update(Menu *pMenu, unsigned int input);
 void Menu_SetNextAction(int action);
 void Menu_GoBack(Menu *pMenu);
 void Menu_PlaySoundId(int id);
-void FUN_004a0c40(char param1);
-void FUN_004a0c50(char param1);
+void Menu_SetInputStateFlag(char param1);
+void Menu_SetActionLatch(char param1);
 
 #endif

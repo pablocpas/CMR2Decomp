@@ -199,7 +199,7 @@ void FUN_004894b0(int *pA, int *pB, int *pDir, int amount, int scale)
 
 // Clamps the magnitude of each component of v to limit (y only when clampY).
 // FUNCTION: CMR2 0x0048c6e0
-void FUN_0048c6e0(int *v, int *limit, int clampY)
+void Collision_ClampContactOffset(int *v, int *limit, int clampY)
 {
     int a;
 
@@ -220,7 +220,7 @@ extern int g_physicsScale;
 
 // Clamps a vector to the scaled limits: eight units on X/Z, four on Y.
 // FUNCTION: CMR2 0x0048c750
-void FUN_0048c750(int *v)
+void Collision_ClampAngularCorrection(int *v)
 {
     if (v[0] > FixMul(0x80000, g_physicsScale))
         v[0] = FixMul(0x80000, g_physicsScale);
@@ -504,7 +504,7 @@ struct Car;
 class CGameInfo
 {
 public:
-    static int FUN_004063f0(int param1);
+    static int IsActiveCheatEnabled(int param1);
 };
 
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
@@ -532,7 +532,7 @@ extern int g_physicsTimeStep;
 
 int RallyData_IsChampionshipFinalStage(void);
 unsigned char RallyData_GetFlag24(void);
-unsigned int RallyData_FUN_00407e90(void);
+unsigned int RallyData_GetSelectionFlag27(void);
 int FUN_00487b80(int r1, int r2, int *pA, int *pB);
 void FUN_0047d850(Car *pCar, int *param_2);
 void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
@@ -653,8 +653,8 @@ void FUN_0048a1f0(int param_1, short *param_2, short param_3)
         } while (--j);
     }
     if (((BYTE)RallyData_IsChampionshipFinalStage() != 0 || (BYTE)RallyData_GetFlag24() != 0 ||
-         (BYTE)RallyData_FUN_00407e90() != 0) &&
-        CGameInfo::FUN_004063f0(0) != 0 && n >= 0) {
+         (BYTE)RallyData_GetSelectionFlag27() != 0) &&
+        CGameInfo::IsActiveCheatEnabled(0) != 0 && n >= 0) {
         p2 = param_2 + n;
         j = n + 1;
         do {
@@ -881,8 +881,8 @@ void FUN_0048ae90(int param_1, int param_2)
     int size;
     int bSepA;
 
-    FUN_0048c6e0((int *)(param_1 + 0x5dc), (int *)(param_1 + 0x204), 0);
-    FUN_0048c6e0((int *)(param_2 + 0x5dc), (int *)(param_2 + 0x204), 0);
+    Collision_ClampContactOffset((int *)(param_1 + 0x5dc), (int *)(param_1 + 0x204), 0);
+    Collision_ClampContactOffset((int *)(param_2 + 0x5dc), (int *)(param_2 + 0x204), 0);
 
     FixVecCross(&tmp, (FixVector *)(param_1 + 0x420), (FixVector *)(param_1 + 0x5dc));
     FixMatrix_RotateVector(&vA, &tmp, *(FixMatrix **)(param_1 + 0x750));
@@ -964,7 +964,7 @@ void FUN_0048ae90(int param_1, int param_2)
     *(int *)(param_1 + 0x5d0) += axis.x;
     *(int *)(param_1 + 0x5d4) += axis.y;
     *(int *)(param_1 + 0x5d8) += axis.z;
-    FUN_0048c750((int *)(param_1 + 0x5d0));
+    Collision_ClampAngularCorrection((int *)(param_1 + 0x5d0));
 
     FixVecScale(&impB, &impB, g_physicsScale);
     FixMatrix_InverseRotateVector(&tmp, &impB, *(FixMatrix **)(param_2 + 0x750));
@@ -982,7 +982,7 @@ void FUN_0048ae90(int param_1, int param_2)
     *(int *)(param_2 + 0x5d0) += axis.x;
     *(int *)(param_2 + 0x5d4) += axis.y;
     *(int *)(param_2 + 0x5d8) += axis.z;
-    FUN_0048c750((int *)(param_2 + 0x5d0));
+    Collision_ClampAngularCorrection((int *)(param_2 + 0x5d0));
 
     if (g_unk0x005915f4 != 0) {
         FUN_00466ef0((Car *)param_1, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
@@ -1006,7 +1006,7 @@ void FUN_0048ae90(int param_1, int param_2)
     debrisAxes[0].y = tmp.y - debrisAxes[0].y;
     debrisAxes[0].z = tmp.z - debrisAxes[0].z;
 
-    if (CGameInfo::FUN_004063f0(4) != 0) {
+    if (CGameInfo::IsActiveCheatEnabled(4) != 0) {
         *(int *)(param_1 + 0x5c4) -= impA.x;
         *(int *)(param_1 + 0x5c8) -= impA.y;
         *(int *)(param_1 + 0x5cc) -= impA.z;
@@ -1095,7 +1095,7 @@ extern int g_unk0x005915f8[0x26];
 // diff is the FPU-dense block scheduling and the reused stack slots of the
 // original (CONOCIMIENTO 4.t).
 // FUNCTION: CMR2 0x0048be20
-int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4)
+int Collision_ResolveStaticObstacleContact(int param_1, int *param_2, int param_3, int param_4)
 {
     FixVector tmp;
     FixVector vA;
@@ -1114,7 +1114,7 @@ int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4)
     flagB = 0;
     flagC = 0;
     *(int *)(param_1 + 0x5e0) = 0;
-    FUN_0048c6e0((int *)(param_1 + 0x5dc), (int *)(param_1 + 0x204), 1);
+    Collision_ClampContactOffset((int *)(param_1 + 0x5dc), (int *)(param_1 + 0x204), 1);
 
     FixVecCross(&tmp, (FixVector *)(param_1 + 0x420), (FixVector *)(param_1 + 0x5dc));
     FixMatrix_RotateVector(&vA, &tmp, *(FixMatrix **)(param_1 + 0x750));
@@ -1217,14 +1217,14 @@ known:
         *(int *)(param_1 + 0x5d4) += spin.y;
         *(int *)(param_1 + 0x5d8) += spin.z;
     }
-    FUN_0048c750((int *)(param_1 + 0x5d0));
+    Collision_ClampAngularCorrection((int *)(param_1 + 0x5d0));
 
     if (*(char *)(param_1 + 0xb3f) < 5) {
         *(short *)(param_1 + 0xae0 + *(char *)(param_1 + 0xb3f) * 2) = (short)param_4;
         *(char *)(param_1 + 0xb3f) = *(char *)(param_1 + 0xb3f) + 1;
     }
 
-    if (CGameInfo::FUN_004063f0(4) != 0) {
+    if (CGameInfo::IsActiveCheatEnabled(4) != 0) {
         *(int *)(param_1 + 0x5c4) -= imp.x;
         *(int *)(param_1 + 0x5c8) -= imp.y;
         *(int *)(param_1 + 0x5cc) -= imp.z;

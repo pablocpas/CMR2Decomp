@@ -110,7 +110,7 @@ int FrontendDraw_MenuPath(Menu *pMenu, int x, int y, char last, int depth, char 
     int n = nameCount;
 
     if (depth > 0 || depth == -1) {
-        if (pMenu->pParent != NULL && pMenu != FUN_004f8410()) {
+        if (pMenu->pParent != NULL && pMenu != FrontendMenu_GetMain()) {
             if (last == 0)
                 n = nameCount - 1;
             if (depth == -1)
@@ -144,14 +144,14 @@ void FrontendDraw_PlayTime(void)
     unsigned int minutes;
     char text[52];
 
-    ms = CFrontend::FUN_004d20d0();
+    ms = CFrontend::GetFrontendElapsedMilliseconds();
     minutes = ms / 1000 / 60;
     sprintf(text, g_loadRecordTimeFormat, minutes / 60, minutes % 60, ms / 1000 % 60);
     Font_DrawText(3, text, (int)(g_pGraphics->resX * 539) / 640, (int)(g_pGraphics->resY * 38) / 480,
                   (int *)g_colourText0x0052496c, 0x11);
     Font_DrawText(1, CFrontend::GetTextString(0x4e), (int)(g_pGraphics->resX * 535) / 640,
                   (int)(g_pGraphics->resY * 38) / 480, (int *)g_colourText0x0052496c, 0x14);
-    if (CGameInfo::FUN_00406410(0x11))
+    if (CGameInfo::IsRecordFlagSet(0x11))
         Font_DrawText(1, g_strAutomode, (int)(g_pGraphics->resX * 635) / 640, (int)(g_pGraphics->resY * 5) / 480,
                       (int *)g_colourText0x0052496c, 0xc);
 }
@@ -179,7 +179,7 @@ void FrontendDraw_ItemLabel(char *text, int x, int y, unsigned int flags, int in
 // menu and its siblings: the play time, the menu title and one centred label
 // per item.
 // FUNCTION: CMR2 0x004d43e0
-void FUN_004d43e0(Menu *pMenu)
+void FrontendDraw_DrawProfileMenu(Menu *pMenu)
 {
     BYTE i;
     int x;
@@ -227,7 +227,7 @@ void FrontendDraw_HelpText(char *text, int reset)
             g_helpColour0x00524b88[3] = g_colourText0x0052496c[3];
         }
         sprintf(CFrontend::m_stringDest, text);
-        Font_Unused((int)CFrontend::m_stringDest, FUN_004ea500());
+        Font_Unused((int)CFrontend::m_stringDest, Frontend_GetOverlayMode());
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 102) / 640,
                       (int)(g_pGraphics->resY * 64) / 480 + (int)(g_pGraphics->resY * 384) / 480,
                       (int *)g_helpColour0x00524b88, 0x11);
@@ -255,12 +255,12 @@ void FrontendDraw_Carousel(Menu *pMenu, char active, char *help)
     BYTE *pSep;
     BYTE *pSepShadow;
 
-    p = FUN_004f24f0();
+    p = FrontendScroller_GetMainScroller();
     g_unk0x008189a8[2] = 1;
     g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 384) / 480;
     g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 45) / 480;
     now = timeGetTime();
-    FUN_004ef480(&state[1], &state[0]);
+    FrontendScroller_GetSelectionAndTimestamp(&state[1], &state[0]);
     now -= state[0];
     if (help == NULL)
         help = CFrontend::GetTextString(0x57);

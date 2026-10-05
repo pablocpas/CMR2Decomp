@@ -80,15 +80,15 @@ public:
     static BOOL IsActive(void);
     static int GetCallbackCount(void);
     static void UnwindCallbacks(int count);
-    static void FUN_0049c140(void);
-    static int FUN_0049c400(void);
-    static int FUN_0049c410(void);
-    static void FUN_0049c420(int param1);
-    static int FUN_0049c430(void);
-    static void FUN_0049cb50(void *param1);
-    static void FUN_0049cb70(void *param1);
-    static void FUN_0049dca0(int param1);
-    static int FUN_0049dcb0(void);
+    static void SkipNextCallbackRenderPass(void);
+    static int GetDrawnMeshTriangleCount(void);
+    static int GetDrawnOverlayTriangleCount(void);
+    static void SetObjectRenderMode(int param1);
+    static int GetObjectRenderMode(void);
+    static void QueuePrimaryDrawObject(void *param1);
+    static void QueueSecondaryDrawObject(void *param1);
+    static void SetSectorDrawState(int param1);
+    static int GetSectorDrawState(void);
 
     // GLOBAL: CMR2 0x0059ce14
     static int m_unk0x0059ce14;
@@ -109,8 +109,8 @@ public:
     static void *m_unk0x00597d04[4096];
     // GLOBAL: CMR2 0x005207f8
     static int m_unk0x005207f8;
-    static void FUN_004a9b10(int param1);
-    static int FUN_004a9b20(void);
+    static void SetGameInputFocusState(int param1);
+    static int GetGameInputFocusState(void);
     static bool CreateDirectPlay(void);
     static bool CreateDirectPlayLobby(void);
     static void ClearConnections(void);
@@ -118,7 +118,7 @@ public:
     static int __cdecl CompareConnections(const void *a, const void *b);
     static unsigned int GetConnectionCount(void);
     static DPlayConnection *GetConnection(BYTE index);
-    static bool FUN_004aad30(BYTE param1, int param2, int param3);
+    static bool RejectUnsupportedNetworkOperation(BYTE param1, int param2, int param3);
 
     // GLOBAL: CMR2 0x00663dc4
     static int m_unk0x00663dc4;
@@ -130,39 +130,39 @@ public:
     static BYTE m_connectionCount;
     static void SetShouldExit(void);
     static BOOL FUN_004d0780(void);
-    static int FUN_004057d0(void);
-    static void FUN_0049c2c0(Unk0049c2c0 *param1);
-    static void FUN_0049c310(Unk0049c2c0 *param1);
-    static void FUN_0049c370(Unk0049c2c0 *param1);
-    static void FUN_0049c150(Unk00817d98 *param1, int param2, int param3);
-    static void FUN_0049c190(Unk0049c2c0 *p1, BYTE count, Unk00817d98 *unk, FuncTableGroup *funcLookupTable, void *unk2);
+    static int GetFrontendResourceMode(void);
+    static void RunStateUpdateCallbacks(Unk0049c2c0 *param1);
+    static void RunStateRenderCallbacks(Unk0049c2c0 *param1);
+    static void AdvanceCallbackStateTimers(Unk0049c2c0 *param1);
+    static void InitializeCallbackStateRecord(Unk00817d98 *param1, int param2, int param3);
+    static void InitializeCallbackStateMachine(Unk0049c2c0 *p1, BYTE count, Unk00817d98 *unk, FuncTableGroup *funcLookupTable, void *unk2);
     static void InitializeGame(Unk0049c2c0 *p1, BYTE p2);
-    static BOOL FUN_004ff450();
+    static BOOL UpdateSecondaryCallbackMachine();
     static BOOL FUN_0041b060();
-    static void FUN_00501680(struct Unk0049c2c0 *, BYTE);
+    static void NoOpSecondaryStateCallback(struct Unk0049c2c0 *, BYTE);
     static int FUN_0049c1c0(Unk0049c2c0 *p, BYTE index, BYTE value, int level);
-    static BYTE FUN_004ea880(void);
-    static void FUN_004083e0(BYTE param1);
-    static void FUN_00406810(BYTE param1);
-    static bool FUN_004067e0(void);
+    static BYTE GetConfigurationStateByte(void);
+    static void SetProfileSelectionState(BYTE param1);
+    static void SetSecondaryOptionStateByte(BYTE param1);
+    static bool ConsumeOptionRefreshRequest(void);
     static int RegisterCallback(void *param1, void *param2);
-    static void FUN_004b7a40(void);
-    static void FUN_0041f260(void);
-    static void FUN_004aad50(void);
-    static void FUN_004a17b0(void);
-    static void FUN_004a17e0(void);
-    static void FUN_004a17f0(bool param1);
-    static BOOL FUN_004a1a90(void);
-    static void FUN_004aaa10(void);
+    static void UpdateActiveSoundSlots(void);
+    static void SaveRaceCallbackDepth(void);
+    static void RegisterNetworkResourceRelease(void);
+    static void FreeNetworkReceiveBuffer(void);
+    static void ReleaseNetworkReceiveBuffer(void);
+    static void ResetSessionPlayerTable(bool param1);
+    static BOOL DestroyLocalNetworkPlayer(void);
+    static void FreeServiceProviderConnections(void);
     static bool Cleanup(void);
     static void DestroyDirectPlay(void);
     static void DestroyDirectPlayLobby(void);
     static IDirectPlay4A *GetDirectPlay(void);
-    static bool FUN_004d0a50(bool param1);
-    static bool FUN_004aaa40(void);
+    static bool LoadAndInitializeSplashScreens(bool param1);
+    static bool InitializeNetworkSubsystem(void);
     static void FUN_004e2e50(void);
-    static void FUN_004057c0(void);
-    static void FUN_004057e0(int param1);
+    static void SetStartupFlag(void);
+    static void SetFrontendResourceMode(int param1);
     
     // GLOBAL: CMR2 0x00663db8
     static BOOL m_shouldExit;

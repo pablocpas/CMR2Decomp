@@ -42,7 +42,7 @@ BYTE g_unk0x00819048;
 // GLOBAL: CMR2 0x00819130
 char g_unk0x00819130[12];
 // The 12 frontend scrollers are one contiguous array in the original (see
-// FUN_004ef150); the old per-address names are views (FrontendMenus.h).
+// FrontendScroller_ResetAll); the old per-address names are views (FrontendMenus.h).
 // GLOBAL: CMR2 0x00819140
 MenuScroller g_menuScrollers[12];
 // GLOBAL: CMR2 0x008196e0
@@ -175,13 +175,13 @@ unsigned int g_unk0x00819860;
 int g_unk0x00819868;
 
 // FUNCTION: CMR2 0x004d27c0
-void FUN_004d27c0(BYTE value)
+void FrontendRecords_SetProfileMode(BYTE value)
 {
     g_unk0x00818848 = value;
 }
 
 // FUNCTION: CMR2 0x004d4c40
-void FUN_004d4c40(Menu *pMenu)
+void FrontendMenu_DrawProfileActions(Menu *pMenu)
 {
     char *text[3];
 
@@ -191,16 +191,16 @@ void FUN_004d4c40(Menu *pMenu)
     text[2] = (char *)RallyData_GetRecord(0);
     FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 3);
     FrontendDraw_MenuList(pMenu, (char *)RallyData_GetRecord(0), -1, -1, 0, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
-void FUN_004d27e0(short *pRect, BYTE *pColour);
+void Frontend_DrawRectangleOutline(short *pRect, BYTE *pColour);
 
 // Lays a matrix-textured rect at (param_1, param_2) scaled to the screen and
-// queues it through FUN_004d27e0; for param_3 in 1..3 the rect is replaced by
+// queues it through Frontend_DrawRectangleOutline; for param_3 in 1..3 the rect is replaced by
 // the medal texture of that place, centred on the same point.
 // FUNCTION: CMR2 0x004d4f90
-void FUN_004d4f90(int param_1, int param_2, int param_3)
+void FrontendDraw_MatrixMedalRect(int param_1, int param_2, int param_3)
 {
     Texture *pTexture;
 
@@ -208,7 +208,7 @@ void FUN_004d4f90(int param_1, int param_2, int param_3)
     g_unk0x008189a8[1] = param_2;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x30) / 640;
     g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 0x1c) / 480;
-    FUN_004d27e0(g_unk0x008189a8, (BYTE *)g_colourText0x0052496c);
+    Frontend_DrawRectangleOutline(g_unk0x008189a8, (BYTE *)g_colourText0x0052496c);
     if (param_3 >= 1 && param_3 <= 3) {
         pTexture = (&CFrontend::m_pLgMatrixTexture)[param_3];
         g_unk0x008189a8[0] = param_1 - pTexture->width / 2;
@@ -232,11 +232,11 @@ char g_strDmdBfl[36] = "%s\\frontend\\Textures\\dmd\\dmd.bfl";
 // GLOBAL: CMR2 0x008185bc
 void *g_dmdFiles[9][11];
 
-char FUN_004eaa30(void);
+char GameInfo_AreOptionsAvailable(void);
 
 // Finds the stage map files of every rally in the common frontend archive.
 // FUNCTION: CMR2 0x004d5ca0
-void FUN_004d5ca0(void)
+void FrontendMap_FindStageFiles(void)
 {
     int counts[9] = { 10, 11, 10, 11, 10, 11, 10, 11, 8 };
     char names[8][4] = { "fin", "gre", "fra", "swe", "aus", "ken", "ita", "uk" };
@@ -257,12 +257,12 @@ void FUN_004d5ca0(void)
                     sprintf(CFrontend::m_stringDest, g_strChaDmdFormat, k + 1);
                 else
                     sprintf(CFrontend::m_stringDest, g_strDmdFormat, names[i], k + 1);
-                *ppFile = CGenericFileLoader::FindFile(CFrontend::FUN_004d2190(), CFrontend::m_stringDest, NULL, NULL, 0);
+                *ppFile = CGenericFileLoader::FindFile(CFrontend::GetCommonFrontendArchive(), CFrontend::m_stringDest, NULL, NULL, 0);
                 ppFile++;
             }
         }
     }
-    CGame::RegisterCallback((void *)FUN_004eaa30, NULL);
+    CGame::RegisterCallback((void *)GameInfo_AreOptionsAvailable, NULL);
 }
 
 // The four stage-map cell colours used by the map blitter below (index 0 is
@@ -334,12 +334,12 @@ void FUN_004d5de0(unsigned int param_1, BYTE param_2)
 }
 
 // FUNCTION: CMR2 0x004d6290
-void FUN_004d6290(Menu *pMenu)
+void FrontendMenu_DrawCarClass(Menu *pMenu)
 {
     char *text[2];
 
     FrontendDraw_PlayTime();
-    switch (CGameInfo::FUN_00405d80()) {
+    switch (CGameInfo::GetConfiguredGameMode()) {
     case 0:
         text[0] = CFrontend::GetTextString(0xe7);
         text[1] = CFrontend::GetTextString(0xc);
@@ -375,20 +375,20 @@ void FUN_004d6290(Menu *pMenu)
     }
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, text, 2);
     FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // FUNCTION: CMR2 0x004d63e0
-void FUN_004d63e0(Menu *pMenu)
+void FrontendMenu_DrawMultiplayerCarClass(Menu *pMenu)
 {
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, -1, NULL, -1);
     FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // Text lines built by the screen code above the title (rally name, date and
-// the list of stages); the third is the one built by FUN_004d6a60.
+// the list of stages); the third is the one built by FrontendMenu_DrawMultiplayerStageSelection.
 // GLOBAL: CMR2 0x00818368
 char g_unk0x00818368[32];
 // GLOBAL: CMR2 0x008183cc
@@ -406,7 +406,7 @@ void FUN_004d65c0(void)
     g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 0x4c) / 480;
     g_unk0x008189a8[2] = g_pGraphics->resX - (int)(g_pGraphics->resX * 0x3c) / 640 * 2;
     g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 100) / 480;
-    FUN_004d27e0(g_unk0x008189a8, (BYTE *)g_colourText0x0052496c);
+    Frontend_DrawRectangleOutline(g_unk0x008189a8, (BYTE *)g_colourText0x0052496c);
     Font_DrawText(0, CFrontend::GetTextString(0xe4), (int)(g_pGraphics->resX * 0x3c) / 640 + 2,
                   (int)(g_pGraphics->resY * 0x4c) / 480 + 1, (int *)g_colourText0x0052496c, 9);
     Font_DrawText(1, g_unk0x008183cc,
@@ -476,11 +476,11 @@ void FUN_004d9450(Menu *pMenu)
 }
 
 // FUNCTION: CMR2 0x004da630
-void FUN_004da630(Menu *pMenu)
+void FrontendMenu_DrawAlternateRallyStageSelection(Menu *pMenu)
 {
     char *text[2];
 
-    switch (CGameInfo::FUN_00405d80()) {
+    switch (CGameInfo::GetConfiguredGameMode()) {
     case 1:
         text[0] = CFrontend::GetTextString(0xe7);
         text[1] = CFrontend::GetTextString(0xd);
@@ -496,7 +496,7 @@ void FUN_004da630(Menu *pMenu)
     }
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, text, 2);
-    FrontendDraw_MenuList(FUN_004f8360(), NULL, -1, -1, 0, 1);
+    FrontendDraw_MenuList(FrontendMenu_GetAlternateRallyStageSelection(), NULL, -1, -1, 0, 1);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
 
@@ -506,12 +506,12 @@ extern char g_matrixMaps[11][0xd8];
 // Rally/route selection screen: the two breadcrumb lines depend on the mode,
 // and behind them is the matrix map of the selected route.
 // FUNCTION: CMR2 0x004d9ad0
-void FUN_004d9ad0(Menu *pMenu)
+void FrontendMenu_DrawRallySelection(Menu *pMenu)
 {
     char *text[2];
     int cellW;
 
-    switch (CGameInfo::FUN_00405d80()) {
+    switch (CGameInfo::GetConfiguredGameMode()) {
     case 1:
         text[0] = CFrontend::GetTextString(0xe7);
         text[1] = CFrontend::GetTextString(0xd);
@@ -527,7 +527,7 @@ void FUN_004d9ad0(Menu *pMenu)
     }
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, text, 2);
-    FrontendDraw_ScrollerRow(FUN_004f2530(), 1);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetRallySelectionScroller(), 1);
     cellW = (int)(g_pGraphics->resX * 18) / 640;
     FUN_004d28c0((cellW - (int)(g_pGraphics->resX * 11) / 640) / 2 - cellW * 18 / 2 + (int)g_pGraphics->resX / 2,
                  (int)(g_pGraphics->resY * 100) / 480, g_matrixMaps[pMenu->cursor]);
@@ -536,7 +536,7 @@ void FUN_004d9ad0(Menu *pMenu)
 
 // Network connection list.
 // FUNCTION: CMR2 0x004dc7b0
-void FUN_004dc7b0(Menu *pMenu)
+void FrontendMenu_DrawNetworkConnection(Menu *pMenu)
 {
     char *text[2];
     int y;
@@ -547,7 +547,7 @@ void FUN_004dc7b0(Menu *pMenu)
     text[0] = CFrontend::GetTextString(0x12);
     text[1] = CFrontend::GetTextString(0x3c);
     FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 2);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
     y = ((int)(g_pGraphics->resY * 8) / 480 + (int)(g_pGraphics->resY * 38) / 480 + (int)(g_pGraphics->resY * 384) / 480) / 2 -
         (int)((int)(g_pGraphics->resY * 20) / 480 * pMenu->items[0].min) / 2;
     for (i = 0; (int)i < pMenu->items[0].min; i++) {
@@ -666,7 +666,7 @@ void FUN_004e0770(Menu *pMenu)
             Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 122) / 640,
                           (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
             for (j = 0; j < pItem->min; j++) {
-                if (CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400)) {
+                if (CFrontend::IsTextureWidthSupported(0x400) && CFrontend::IsTextureHeightSupported(0x400)) {
                     if (pItem->max == j)
                         pColour = pSelColour;
                     else
@@ -723,18 +723,18 @@ void FUN_004e0770(Menu *pMenu)
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
         pItem++;
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
-void *FUN_004f4b10(void);
-int FUN_004f4b20(void);
-void *FUN_004f4b30(void);
-int FUN_004f1bf0(void);
+void *FrontendCredits_GetNameTable(void);
+int FrontendCredits_GetEntryCount(void);
+void *FrontendCredits_GetRoleTable(void);
+int FrontendCredits_GetStartTime(void);
 
 // Draws the two columns of text of the scrolling credits screen; when every
 // line has scrolled past the top the screen finishes.
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dec30
-void FUN_004dec30(Menu *pMenu)
+void FrontendMenu_DrawCredits(Menu *pMenu)
 {
     char **ppText;
     unsigned int elapsed;
@@ -742,34 +742,34 @@ void FUN_004dec30(Menu *pMenu)
     int i;
 
     allOffScreen = true;
-    ppText = (char **)FUN_004f4b10();
-    elapsed = (unsigned int)CFrontend::FUN_004d20e0();
-    elapsed -= FUN_004f1bf0();
+    ppText = (char **)FrontendCredits_GetNameTable();
+    elapsed = (unsigned int)CFrontend::GetFrontendTimestamp();
+    elapsed -= FrontendCredits_GetStartTime();
     elapsed /= 30;
     i = 0;
-    while (i < FUN_004f4b20()) {
-        ((int *)FUN_004f4b30())[i] = ((int)g_pGraphics->resY * 40) / 480 * i - elapsed + 1
-            + FUN_004f25a0() + (int)g_pGraphics->resY + Font_GetLineHeight(2);
-        if (((int *)FUN_004f4b30())[i] < (int)g_pGraphics->resY + 100
-            && ((int *)FUN_004f4b30())[i] > -100) {
+    while (i < FrontendCredits_GetEntryCount()) {
+        ((int *)FrontendCredits_GetRoleTable())[i] = ((int)g_pGraphics->resY * 40) / 480 * i - elapsed + 1
+            + FrontendCredits_GetScrollOffset() + (int)g_pGraphics->resY + Font_GetLineHeight(2);
+        if (((int *)FrontendCredits_GetRoleTable())[i] < (int)g_pGraphics->resY + 100
+            && ((int *)FrontendCredits_GetRoleTable())[i] > -100) {
             Font_DrawText(2, ppText[0], (int)g_pGraphics->resX / 2 - 10,
-                          ((unsigned short *)FUN_004f4b30())[i * 2],
+                          ((unsigned short *)FrontendCredits_GetRoleTable())[i * 2],
                           (int *)g_colourWhite0x00524968, 0x14);
             Font_DrawText(2, ppText[1], (int)g_pGraphics->resX / 2 + 10,
-                          ((unsigned short *)FUN_004f4b30())[i * 2],
+                          ((unsigned short *)FrontendCredits_GetRoleTable())[i * 2],
                           (int *)g_colourWhite0x00524968, 0x11);
         }
-        if (((int *)FUN_004f4b30())[i] > -10)
+        if (((int *)FrontendCredits_GetRoleTable())[i] > -10)
             allOffScreen = false;
         i++;
         ppText += 2;
     }
     if (allOffScreen)
-        FUN_004f1bd0(0, 0);
+        FrontendMenu_EnterCredits(0, 0);
 }
 
 // FUNCTION: CMR2 0x004e1890
-void FUN_004e1890(Menu *pMenu)
+void FrontendMenu_DrawRenderDeviceOptions(Menu *pMenu)
 {
     char *text[1];
 
@@ -777,11 +777,11 @@ void FUN_004e1890(Menu *pMenu)
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 2, text, 1);
     FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // FUNCTION: CMR2 0x004e1fb0
-void FUN_004e1fb0(Menu *pMenu)
+void FrontendMenu_DrawRallyModes(Menu *pMenu)
 {
     char *text[1];
 
@@ -789,11 +789,11 @@ void FUN_004e1fb0(Menu *pMenu)
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 2, text, 1);
     FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // FUNCTION: CMR2 0x004e2040
-void FUN_004e2040(Menu *pMenu)
+void FrontendMenu_DrawSingleRallyModes(Menu *pMenu)
 {
     char *text[2];
 
@@ -802,16 +802,16 @@ void FUN_004e2040(Menu *pMenu)
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, text, 2);
     FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // FUNCTION: CMR2 0x004e2ab0
-void FUN_004e2ab0(Menu *pMenu)
+void FrontendMenu_DrawQuitConfirmation(Menu *pMenu)
 {
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 1, NULL, -1);
     FrontendDraw_MenuList(pMenu, CFrontend::GetTextString(0x89), -1, -1, 0, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // Which background matrix map each entry of the main menu shows.
@@ -979,7 +979,7 @@ struct Unk0x4e2b40 {
 // parameters) plus a couple of register choices.
 // match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e2b40
-void FUN_004e2b40(Menu *pMenu)
+void FrontendMenu_DrawNetworkWaitingRoom(Menu *pMenu)
 {
     Unk0x4e2b40 list;
     short rowHeight;
@@ -1026,18 +1026,18 @@ void FUN_004e2b40(Menu *pMenu)
 // Draw callback of the main menu: the menu scroller and, behind it, the
 // background matrix picture of the selected entry.
 // FUNCTION: CMR2 0x004e2da0
-void FUN_004e2da0(Menu *pMenu)
+void FrontendMenu_DrawLanguage(Menu *pMenu)
 {
     int cellW;
 
-    FrontendDraw_ScrollerRow(FUN_004f2510(), 1);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetLanguageScroller(), 1);
     cellW = (int)(g_pGraphics->resX * 18) / 640;
     FUN_004d28c0((cellW - (int)(g_pGraphics->resX * 11) / 640) / 2 - cellW * 18 / 2 + (int)g_pGraphics->resX / 2,
                  (int)(g_pGraphics->resY * 100) / 480, g_matrixMaps[g_matrixMapIndex[pMenu->cursor]]);
 }
 
 // FUNCTION: CMR2 0x004e3230
-void FUN_004e3230(Menu *pMenu)
+void FrontendMenu_DrawRecordsRoot(Menu *pMenu)
 {
     char *text[4];
 
@@ -1052,7 +1052,7 @@ void FUN_004e3230(Menu *pMenu)
     }
     FrontendDraw_PlayTime();
     FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 extern char g_strTwoDigits[8];
@@ -1062,10 +1062,10 @@ extern char g_loadRecordTimeFormat[];
 extern BYTE g_colourTitle0x00524984[4];
 
 // Draw callback of the stage record pages: title of the table shown (cycled by
-// FUN_004f3a90), the column headers and the five entries (position, stage,
+// FrontendRecords_CycleTableMode), the column headers and the five entries (position, stage,
 // surface, gearbox and record time).
 // FUNCTION: CMR2 0x004e4130
-void FUN_004e4130(Menu *pMenu)
+void FrontendMenu_DrawStageRecords(Menu *pMenu)
 {
     GameInfo0xa4SubStruct12 *pEntry;
     int table;
@@ -1073,7 +1073,7 @@ void FUN_004e4130(Menu *pMenu)
     int y;
     int row;
 
-    table = FUN_004f3a60();
+    table = FrontendRecords_GetTableMode();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 2, NULL, -1);
     switch (table) {
@@ -1107,11 +1107,11 @@ void FUN_004e4130(Menu *pMenu)
     g_unk0x008189a8[3] = 1;
     for (row = 0; row < 5; row++) {
         y = (int)(g_pGraphics->resY * 19) / 480 + (int)(g_pGraphics->resY * 200) / 480 + (int)(g_pGraphics->resY * 25) / 480 * row;
-        pEntry = &CGameInfo::FUN_00405fe0()->secondLoop[15 * pMenu->cursor + 5 * table + row];
+        pEntry = &CGameInfo::GetGameInfoFieldA4Address()->secondLoop[15 * pMenu->cursor + 5 * table + row];
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, row + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 100) / 640, y, (int *)g_colourText0x0052496c, 0x12);
         Font_DrawText(1, pEntry->ident, (int)(g_pGraphics->resX * 140) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(1, CFrontend::FUN_0040ede0(pEntry->flags & 0x3f), (int)(g_pGraphics->resX * 270) / 640, y,
+        Font_DrawText(1, CFrontend::GetModeSpecificCountryText(pEntry->flags & 0x3f), (int)(g_pGraphics->resX * 270) / 640, y,
                       (int *)g_colourWhite0x00524968, 0x12);
         if ((pEntry->flags & 0x40) != 0)
             Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 395) / 640, y,
@@ -1126,12 +1126,12 @@ void FUN_004e4130(Menu *pMenu)
         g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 480) + (short)((int)(g_pGraphics->resY * 25) / 480) * ((short)row + 1);
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
     }
-    FrontendDraw_ScrollerRow(FUN_004f2540(), 1);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetStageRecordsScroller(), 1);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x16f), 1);
 }
 
 // FUNCTION: CMR2 0x004e7770
-void FUN_004e7770(int value)
+void FrontendProfile_SetHeaderMode(int value)
 {
     g_unk0x008182b4 = value;
 }
@@ -1140,13 +1140,13 @@ void FUN_004e7770(int value)
 char g_unk0x00818274[0x40];
 
 // FUNCTION: CMR2 0x004e7780
-void FUN_004e7780(const char *text)
+void FrontendProfile_SetHeaderText(const char *text)
 {
     strcpy(g_unk0x00818274, text);
 }
 
 // FUNCTION: CMR2 0x004e77b0
-void FUN_004e77b0(BYTE value)
+void FrontendProfile_SetNameEntryFlag(BYTE value)
 {
     g_unk0x008189a4 = value;
 }
@@ -1156,7 +1156,7 @@ extern char g_strLabelSpacedText[];
 extern char g_strTextCursor[];
 
 // FUNCTION: CMR2 0x004e9820
-void FUN_004e9820(Menu *pMenu)
+void FrontendMenu_DrawNetworkNameEntry(Menu *pMenu)
 {
     char *text[3];
 
@@ -1172,121 +1172,121 @@ void FUN_004e9820(Menu *pMenu)
         strcat(CFrontend::m_stringDest, g_strTextCursor);
     Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 260) / 640, (int)g_pGraphics->resY / 2,
                   (int *)g_colourWhite0x00524968, 0x11);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 
-Menu *FUN_004f8290(BYTE param1);
-Menu *FUN_004f82c0(void);
-Menu *FUN_004f82d0(void);
-Menu *FUN_004f8410(void);
-Menu *FUN_004f8450(void);
-Menu *FUN_004f8470(void);
-Menu *FUN_004f84a0(void);
-Menu *FUN_004f84b0(void);
-Menu *FUN_004f84c0(void);
-Menu *FUN_004f84d0(void);
-Menu *FUN_004f84e0(void);
-Menu *FUN_004f84f0(void);
-Menu *FUN_004f89a0(void);
-void FUN_004f5520(void);
-void FUN_004f5580(void);
-void FUN_004f5670(void);
-void FUN_004f5770(void);
-void FUN_004f5810(void);
-void FUN_004f5850(void);
-void FUN_004f58e0(void);
-void FUN_004f5940(void);
-void FUN_004f59a0(void);
-void FUN_004f5a60(void);
-void FUN_004f5ae0(void);
-void FUN_004f5b50(void);
-void FUN_004f5b90(void);
-void FUN_004f5c00(void);
-void FUN_004f5c90(void);
-void FUN_004f5d90(void);
-void FUN_004f5e50(void);
-void FUN_004f5eb0(void);
-void FUN_004f5fc0(void);
-void FUN_004f6040(void);
-void FUN_004f6130(void);
-void FUN_004f6240(void);
-void FUN_004f6300(void);
-void FUN_004f63b0(void);
-void FUN_004f6420(void);
-void FUN_004f6490(void);
-void FUN_004f6540(void);
-void FUN_004f6610(void);
-void FUN_004f66e0(void);
-void FUN_004f6740(void);
-void FUN_004f6830(void);
-void FUN_004f6910(void);
-void FUN_004f6990(void);
-void FUN_004f69f0(void);
-void FUN_004f6a50(void);
-void FUN_004f6b40(void);
-void FUN_004f6c90(void);
-void FUN_004f6d10(void);
-void FUN_004f6d70(void);
-void FUN_004f6dd0(void);
-void FUN_004f6e50(char difficulty);
-void FUN_004f6f10(char difficulty);
-void FUN_004f6fd0(char difficulty);
-void FUN_004f7090(char difficulty);
-void FUN_004f7150(char difficulty);
-void FUN_004f7270(int unused);
-void FUN_004f7310(int unused);
-void FUN_004f73b0(int unused);
-void FUN_004f7450(void);
-void FUN_004f7510(char choice);
-void FUN_004f75b0(char choice);
-void FUN_004f7650(char choice);
-void FUN_004f76f0(void);
-void FUN_004f77a0(void);
-void FUN_004f7820(void);
-void FUN_004f78c0(void);
-void FUN_004f7970(void);
-void FUN_004f7a30(void);
-void FUN_004f7d00(void);
-void FUN_004f7d70(void);
-void FUN_004f7de0(void);
-void FUN_004f7ed0(void);
-void FUN_004f8020(void);
-void FUN_004f8170(void);
-void FUN_004f8250(void);
-void FUN_004f8500(void);
-void FUN_004f85b0(void);
-void FUN_004f8670(void);
-void FUN_004f8730(void);
-void FUN_004f87d0(void);
-void FUN_004f8870(void);
-void FUN_004f88e0(void);
-void FUN_004f9300(void);
-void FUN_004f9370(void);
-void FUN_004f9400(char players);
-void FUN_004f9490(char players);
-void FUN_004f9530(char unused);
-void FUN_004f95d0(int unused);
-void FUN_004f9670(void);
-void FUN_004f9940(void);
-void FUN_004f99b0(void);
-void FUN_004f9c80(void);
-void FUN_004f9cf0(void);
-void FUN_004f9fc0(void);
-void FUN_004fa030(void);
-void FUN_004fa0b0(void);
-void FUN_004fa1c0(void);
-void FUN_004fa370(void);
-void FUN_004fa410(void);
-void FUN_004fa4d0(void);
-BYTE FUN_00406800(void);
-void FUN_004b7c80(void);
-void FUN_004a0ba0(void);
-void FUN_004a0c40(char param1);
-void FUN_004a3c30(int language);
-BOOL FUN_004a15a0(void);
-void FUN_004eaa10(BYTE param1);
-void FUN_004ef4a0(int value);
+Menu *FrontendMenu_GetInitialMenu(BYTE param1);
+Menu *FrontendMenu_GetOptions(void);
+Menu *FrontendMenu_GetLanguage(void);
+Menu *FrontendMenu_GetMain(void);
+Menu *FrontendMenu_GetNetworkSessionBrowser(void);
+Menu *FrontendMenu_GetNetworkSessionSetup(void);
+Menu *FrontendMenu_GetRallyModes(void);
+Menu *FrontendMenu_GetNetworkPlayerSetup(void);
+Menu *FrontendMenu_GetNetworkCarSetup(void);
+Menu *FrontendMenu_GetNetworkRallySetup(void);
+Menu *FrontendMenu_GetNetworkStageSetup(void);
+Menu *FrontendMenu_GetNetworkExtendedStageSetup(void);
+Menu *FrontendMenu_GetNetworkStageTimes(void);
+void FrontendMenu_BuildNetworkWaitingRoom(void);
+void FrontendMenu_BuildLanguage(void);
+void FrontendMenu_BuildMain(void);
+void FrontendMenu_BuildRallyProfile(void);
+void FrontendMenu_BuildRallyProfileDetails(void);
+void FrontendMenu_BuildProfileActions(void);
+void FrontendMenu_BuildProfileSettings(void);
+void FrontendMenu_BuildProfileRecordsSummary(void);
+void FrontendMenu_BuildRallyModes(void);
+void FrontendMenu_BuildSingleRallyModes(void);
+void FrontendMenu_BuildSingleRallySelection(void);
+void FrontendMenu_BuildRallyStartTransition(void);
+void FrontendMenu_BuildNetworkConnection(void);
+void FrontendMenu_BuildNetworkSessionBrowser(void);
+void FrontendMenu_BuildNetworkSessionDetails(void);
+void FrontendMenu_BuildNetworkSessionSetup(void);
+void FrontendMenu_BuildNetworkStageTimes(void);
+void FrontendMenu_BuildOptions(void);
+void FrontendMenu_BuildCheats(void);
+void FrontendMenu_BuildGameOptions(void);
+void FrontendMenu_BuildGraphicsOptions(void);
+void FrontendMenu_BuildAdvancedGraphicsOptions(void);
+void FrontendMenu_BuildRenderDeviceOptions(void);
+void FrontendMenu_BuildDisplayDevice(void);
+void FrontendMenu_BuildDisplayMode(void);
+void FrontendMenu_BuildSoundOptions(void);
+void FrontendMenu_BuildRecords(void);
+void FrontendMenu_BuildProfileRecords(void);
+void FrontendMenu_BuildHighScores(void);
+void FrontendMenu_BuildStageRecords(void);
+void FrontendMenu_BuildBestStageTimes(void);
+void FrontendMenu_BuildTransmissionRecords(void);
+void FrontendMenu_BuildChampionshipRecords(void);
+void FrontendMenu_BuildProfileHighScores(void);
+void FrontendMenu_BuildProfileStageRecords(void);
+void FrontendMenu_BuildProfileBestStageTimes(void);
+void FrontendMenu_BuildProfileTransmissionRecords(void);
+void FrontendMenu_BuildProfileChampionshipRecords(void);
+void FrontendMenu_BuildCredits(void);
+void FrontendMenu_BuildQuitConfirmation(void);
+void FrontendMenu_BuildSingleRallyDifficulty(char difficulty);
+void FrontendMenu_BuildChampionshipDifficulty(char difficulty);
+void FrontendMenu_BuildTimeTrialDifficulty(char difficulty);
+void FrontendMenu_BuildMultiplayerDifficulty(char difficulty);
+void FrontendMenu_BuildMultiplayerExtendedDifficulty(char difficulty);
+void FrontendMenu_BuildSingleRallyCarClass(int unused);
+void FrontendMenu_BuildChampionshipCarClass(int unused);
+void FrontendMenu_BuildTimeTrialCarClass(int unused);
+void FrontendMenu_BuildMultiplayerCarClass(void);
+void FrontendMenu_BuildSingleRallyTransmission(char choice);
+void FrontendMenu_BuildChampionshipTransmission(char choice);
+void FrontendMenu_BuildTimeTrialTransmission(char choice);
+void FrontendMenu_BuildMultiplayerProfile(void);
+void FrontendMenu_BuildMultiplayerStageSelection(void);
+void FrontendMenu_BuildProfileNameEntry(void);
+void FrontendMenu_BuildProfileRenameEntry(void);
+void FrontendMenu_BuildProfileDateEntry(void);
+void FrontendMenu_BuildCarSetup(void);
+void FrontendMenu_BuildPaletteSelection(void);
+void FrontendMenu_BuildPaletteConfirmation(void);
+void FrontendMenu_BuildRallySelection(void);
+void FrontendMenu_BuildRallyStageSelection(void);
+void FrontendMenu_BuildAlternateRallyStageSelection(void);
+void FrontendMenu_BuildMultiplayerRaceSettings(void);
+void FrontendMenu_BuildQuitTransition(void);
+void FrontendMenu_BuildNetworkPlayerSetup(void);
+void FrontendMenu_BuildNetworkCarSetup(void);
+void FrontendMenu_BuildNetworkRallySetup(void);
+void FrontendMenu_BuildNetworkStageSetup(void);
+void FrontendMenu_BuildNetworkExtendedStageSetup(void);
+void FrontendMenu_BuildNetworkNameEntry(void);
+void FrontendMenu_BuildNetworkLeaderboard(void);
+void FrontendMenu_BuildNetworkMessage(void);
+void FrontendMenu_BuildArcade(void);
+void FrontendMenu_BuildArcadeChampionshipPlayerCount(char players);
+void FrontendMenu_BuildArcadePlayerCount(char players);
+void FrontendMenu_BuildArcadeGameType(char unused);
+void FrontendMenu_BuildArcadeCarClass(int unused);
+void FrontendMenu_BuildChampionshipRouteSelection(void);
+void FrontendMenu_BuildChampionshipEntry(void);
+void FrontendMenu_BuildAlternateChampionshipRouteSelection(void);
+void FrontendMenu_BuildAlternateChampionshipEntry(void);
+void FrontendMenu_BuildArcadeChampionshipRouteSelection(void);
+void FrontendMenu_BuildArcadeChampionshipEntry(void);
+void FrontendMenu_BuildArcadeChampionshipTransmission(void);
+void FrontendMenu_BuildArcadeRallySelection(void);
+void FrontendMenu_BuildArcadeChampionshipRallySelection(void);
+void FrontendMenu_BuildQuickRaceSettings(void);
+void FrontendMenu_BuildQuickRaceAdvancedSettings(void);
+void FrontendMenu_BuildAllControlsPages(void);
+BYTE Game_GetSecondaryOptionStateByte(void);
+void Input_ClearCharacterQueue(void);
+void Menu_QueueDefaultAction(void);
+void Menu_SetInputStateFlag(char param1);
+void Frontend_SelectTextLanguage(int language);
+BOOL Network_GetSessionStateFlag(void);
+void GameInfo_SetSoundOptionBit22(BYTE param1);
+void FrontendScroller_SetSelection(int value);
 extern BYTE g_unk0x00818ac4;
 extern int g_menuEnterTime;
 
@@ -1297,22 +1297,22 @@ int g_unk0x0052f3d8;
 char g_strDemoName0x00519ec4[4] = "DEM";
 
 void FUN_004eb860(int index, int profile);
-void FUN_004ebf20(int index);
+void Profile_ResetCategoryData(int index);
 void FUN_004eb000(BYTE index, char set);
-void FUN_004eae90(unsigned int slot, char *pName);
-void RallyData_FUN_0040e330(char param1);
-void RallyData_FUN_004068e0(BYTE param1);
+void RallyData_SetEditedDriverOrCategoryName(unsigned int slot, char *pName);
+void RallyData_SetSetupFlag11(char param1);
+void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
 void FUN_0040dfa0(void);
 void RallyData_FUN_00408600(BYTE index, BYTE value);
-void FUN_004eb0c0(BYTE index, BYTE flag);
-void FUN_004ea8c0(BYTE param1);
-void FUN_004ea930(BYTE param1);
-void FUN_004ea8e0(BYTE param1);
+void FrontendChampionship_SetDriverEntryFlag(BYTE index, BYTE flag);
+void GameInfo_SetConfiguredPlayerCount(BYTE param1);
+void GameInfo_SetConfiguredDifficulty(BYTE param1);
+void GameInfo_SetConfiguredGameMode(BYTE param1);
 
 // Starts a fresh quick-race/championship session: resets the timing and rally
 // data and selects the difficulty-dependent defaults.
 // FUNCTION: CMR2 0x004e9e40
-void FUN_004e9e40(void)
+void FrontendSession_InitFreshRace(void)
 {
     int values[6] = { 5, 3, 2, 2, 0, 0 };
     int index;
@@ -1320,34 +1320,34 @@ void FUN_004e9e40(void)
     index = g_unk0x0052f3d8;
     g_unk0x0052f3d8 = (g_unk0x0052f3d8 + 1) % 4;
     FUN_004eb860(0, -1);
-    FUN_004ebf20(0);
+    Profile_ResetCategoryData(0);
     FUN_004eb000(0, 1);
-    FUN_004eae90(0, g_strDemoName0x00519ec4);
+    RallyData_SetEditedDriverOrCategoryName(0, g_strDemoName0x00519ec4);
     RallyData_FUN_00408600(0, 0);
-    FUN_004eb0c0(0, 1);
-    CGameInfo::FUN_00406470();
+    FrontendChampionship_SetDriverEntryFlag(0, 1);
+    CGameInfo::SaveFrontendOptionSettings();
     if (index == 3) {
-        FUN_004ea8e0(6);
-        FUN_004ea8c0(1);
-        FUN_004ea930(2);
-        RallyData_FUN_0040e330(0);
-        RallyData_FUN_0040d640(5);
-        RallyData_FUN_0040d600(0);
-        RallyData_FUN_00406960(0);
-        RallyData_FUN_0040d620(1);
+        GameInfo_SetConfiguredGameMode(6);
+        GameInfo_SetConfiguredPlayerCount(1);
+        GameInfo_SetConfiguredDifficulty(2);
+        RallyData_SetSetupFlag11(0);
+        RallyData_SetSecondarySelectionNibble(5);
+        RallyData_SetSelectionBits10To11(0);
+        RallyData_SetSelectionBits12To13(0);
+        RallyData_SetSelectionBits16To19(1);
         FUN_0040dfa0();
-        RallyData_FUN_004068b0(5);
-        RallyData_FUN_004068e0(2);
+        RallyData_SetCountrySelectionBits(5);
+        RallyData_SetStageSelectionAndRefreshFlags(2);
         return;
     }
-    FUN_004ea8e0(2);
-    RallyData_FUN_0040df60(1, 0);
-    FUN_004ea8c0(1);
-    FUN_004ea930(1);
-    RallyData_FUN_0040e330(0);
-    RallyData_FUN_0040d620(1);
-    RallyData_FUN_004068b0((BYTE)values[index]);
-    RallyData_FUN_004068e0((BYTE)values[index + 3]);
+    GameInfo_SetConfiguredGameMode(2);
+    RallyData_SetDriverPairingStateValues(1, 0);
+    GameInfo_SetConfiguredPlayerCount(1);
+    GameInfo_SetConfiguredDifficulty(1);
+    RallyData_SetSetupFlag11(0);
+    RallyData_SetSelectionBits16To19(1);
+    RallyData_SetCountrySelectionBits((BYTE)values[index]);
+    RallyData_SetStageSelectionAndRefreshFlags((BYTE)values[index + 3]);
 }
 
 // Builds every frontend menu and picks the first one: after a network game
@@ -1360,213 +1360,213 @@ void FUN_004e9f70(BYTE param1, BYTE back)
     Menu *pMenu;
     unsigned int region;
 
-    if (CGameInfo::FUN_00405e00() != 0) {
-        if (FUN_004a15a0() != 0) {
-            switch (CGameInfo::FUN_00405d80()) {
+    if (CGameInfo::GetGameModeOptionBit19() != 0) {
+        if (Network_GetSessionStateFlag() != 0) {
+            switch (CGameInfo::GetConfiguredGameMode()) {
             case 8:
-                pMenu = FUN_004f84b0();
+                pMenu = FrontendMenu_GetNetworkPlayerSetup();
                 break;
             case 9:
-                pMenu = FUN_004f84c0();
+                pMenu = FrontendMenu_GetNetworkCarSetup();
                 break;
             case 10:
-                pMenu = FUN_004f84d0();
+                pMenu = FrontendMenu_GetNetworkRallySetup();
                 break;
             case 11:
-                pMenu = FUN_004f84e0();
+                pMenu = FrontendMenu_GetNetworkStageSetup();
                 break;
             case 12:
-                pMenu = FUN_004f84f0();
+                pMenu = FrontendMenu_GetNetworkExtendedStageSetup();
                 break;
             default:
                 goto lobby;
             }
         } else {
-            pMenu = FUN_004f8450();
+            pMenu = FrontendMenu_GetNetworkSessionBrowser();
         }
-        FUN_004f8470()->pParent = pMenu;
+        FrontendMenu_GetNetworkSessionSetup()->pParent = pMenu;
     lobby:
         g_pMenu0x00818abc = NULL;
-        if (FUN_00406800() != 0) {
-            g_pMenu0x00818ac0 = FUN_004f89a0();
+        if (Game_GetSecondaryOptionStateByte() != 0) {
+            g_pMenu0x00818ac0 = FrontendMenu_GetNetworkStageTimes();
         } else {
-            g_pMenu0x00818ac0 = FUN_004f8470();
-            FUN_004f8470()->items[Menu_FindItem(FUN_004f8470(), 3)].max = 1;
+            g_pMenu0x00818ac0 = FrontendMenu_GetNetworkSessionSetup();
+            FrontendMenu_GetNetworkSessionSetup()->items[Menu_FindItem(FrontendMenu_GetNetworkSessionSetup(), 3)].max = 1;
         }
-        FUN_004b7c80();
-        FUN_004a3c30(CGameInfo::GetGameLanguage());
+        Input_ClearCharacterQueue();
+        Frontend_SelectTextLanguage(CGameInfo::GetGameLanguage());
         return;
     }
     g_pMenu0x00818abc = NULL;
-    g_pMenu0x00818ac0 = FUN_004f8290(param1);
+    g_pMenu0x00818ac0 = FrontendMenu_GetInitialMenu(param1);
     g_menuEnterTime = timeGetTime();
-    if (FUN_004eaa30() == 0 && CGameInfo::FUN_00406450(0) > 180000)
-        FUN_004eaa10(1);
-    FUN_004a0ba0();
-    FUN_004a0c40(0);
-    CInput::FUN_0049ff80(-1, -1, -1, -1, -1);
-    FUN_004f5670();
+    if (GameInfo_AreOptionsAvailable() == 0 && CGameInfo::GetRecordFlagsWord(0) > 180000)
+        GameInfo_SetSoundOptionBit22(1);
+    Menu_QueueDefaultAction();
+    Menu_SetInputStateFlag(0);
+    CInput::SetInputRepeatTimingParameters(-1, -1, -1, -1, -1);
+    FrontendMenu_BuildMain();
     g_unk0x00818ac4 = 0;
-    FUN_004f5520();
-    FUN_004f5580();
+    FrontendMenu_BuildNetworkWaitingRoom();
+    FrontendMenu_BuildLanguage();
     region = CGameInfo::GetGameRegion();
     if (region == 2 || region == 3) {
-        FUN_004a3c30(0);
-        FUN_004fa4d0();
+        Frontend_SelectTextLanguage(0);
+        FrontendMenu_BuildAllControlsPages();
     } else if (param1 != 0) {
-        FUN_004a3c30(0);
+        Frontend_SelectTextLanguage(0);
     } else {
-        FUN_004a3c30(CGameInfo::GetGameLanguage());
-        Menu_SetParent(FUN_004f82d0(), FUN_004f82c0());
-        FUN_004f82d0()->items[0].pSubMenu = FUN_004f82c0();
-        FUN_004f82d0()->items[1].pSubMenu = FUN_004f82c0();
-        FUN_004f82d0()->items[2].pSubMenu = FUN_004f82c0();
-        FUN_004f82d0()->items[3].pSubMenu = FUN_004f82c0();
-        FUN_004f82d0()->items[4].pSubMenu = FUN_004f82c0();
-        Menu_SetCursor(FUN_004f82d0(), CGameInfo::GetGameLanguage());
+        Frontend_SelectTextLanguage(CGameInfo::GetGameLanguage());
+        Menu_SetParent(FrontendMenu_GetLanguage(), FrontendMenu_GetOptions());
+        FrontendMenu_GetLanguage()->items[0].pSubMenu = FrontendMenu_GetOptions();
+        FrontendMenu_GetLanguage()->items[1].pSubMenu = FrontendMenu_GetOptions();
+        FrontendMenu_GetLanguage()->items[2].pSubMenu = FrontendMenu_GetOptions();
+        FrontendMenu_GetLanguage()->items[3].pSubMenu = FrontendMenu_GetOptions();
+        FrontendMenu_GetLanguage()->items[4].pSubMenu = FrontendMenu_GetOptions();
+        Menu_SetCursor(FrontendMenu_GetLanguage(), CGameInfo::GetGameLanguage());
     }
-    FUN_004f5770();
-    FUN_004f5810();
-    FUN_004f5850();
-    FUN_004f58e0();
-    FUN_004f5940();
-    FUN_004f59a0();
-    FUN_004f5a60();
-    FUN_004f5ae0();
-    FUN_004f5b50();
-    FUN_004f9370();
-    FUN_004f9400(CGameInfo::FUN_00405d70());
-    FUN_004f9490(CGameInfo::FUN_00405d70());
-    FUN_004f9530(CGameInfo::FUN_00405d90());
-    FUN_004f95d0(CGameInfo::FUN_00405d90());
-    FUN_004f9670();
-    FUN_004f9940();
-    FUN_004f99b0();
-    FUN_004f9c80();
-    FUN_004f9cf0();
-    FUN_004f9fc0();
-    FUN_004fa030();
-    FUN_004fa0b0();
-    FUN_004fa1c0();
-    FUN_004f5b90();
-    FUN_004f5c00();
-    FUN_004f5c90();
-    FUN_004f5d90();
-    FUN_004f5e50();
-    FUN_004f8500();
-    FUN_004f85b0();
-    FUN_004f8670();
-    FUN_004f8730();
-    FUN_004f87d0();
-    FUN_004f9300();
-    FUN_004f8870();
-    FUN_004f88e0();
-    FUN_004f5eb0();
-    FUN_004f6040();
-    FUN_004f6130();
-    FUN_004f6300();
-    FUN_004f6240();
-    FUN_004f63b0();
-    FUN_004f6420();
-    FUN_004f6490();
-    FUN_004f6540();
-    FUN_004f66e0();
-    FUN_004f6740();
-    FUN_004f6830();
-    FUN_004f6910();
-    FUN_004f6990();
-    FUN_004f6610();
-    FUN_004f69f0();
-    FUN_004f6a50();
-    FUN_004f6b40();
-    FUN_004f6c90();
-    FUN_004f6d10();
+    FrontendMenu_BuildRallyProfile();
+    FrontendMenu_BuildRallyProfileDetails();
+    FrontendMenu_BuildProfileActions();
+    FrontendMenu_BuildProfileSettings();
+    FrontendMenu_BuildProfileRecordsSummary();
+    FrontendMenu_BuildRallyModes();
+    FrontendMenu_BuildSingleRallyModes();
+    FrontendMenu_BuildSingleRallySelection();
+    FrontendMenu_BuildRallyStartTransition();
+    FrontendMenu_BuildArcade();
+    FrontendMenu_BuildArcadeChampionshipPlayerCount(CGameInfo::GetConfiguredPlayerCount());
+    FrontendMenu_BuildArcadePlayerCount(CGameInfo::GetConfiguredPlayerCount());
+    FrontendMenu_BuildArcadeGameType(CGameInfo::GetConfiguredDifficulty());
+    FrontendMenu_BuildArcadeCarClass(CGameInfo::GetConfiguredDifficulty());
+    FrontendMenu_BuildChampionshipRouteSelection();
+    FrontendMenu_BuildChampionshipEntry();
+    FrontendMenu_BuildAlternateChampionshipRouteSelection();
+    FrontendMenu_BuildAlternateChampionshipEntry();
+    FrontendMenu_BuildArcadeChampionshipRouteSelection();
+    FrontendMenu_BuildArcadeChampionshipEntry();
+    FrontendMenu_BuildArcadeChampionshipTransmission();
+    FrontendMenu_BuildArcadeRallySelection();
+    FrontendMenu_BuildArcadeChampionshipRallySelection();
+    FrontendMenu_BuildNetworkConnection();
+    FrontendMenu_BuildNetworkSessionBrowser();
+    FrontendMenu_BuildNetworkSessionDetails();
+    FrontendMenu_BuildNetworkSessionSetup();
+    FrontendMenu_BuildNetworkStageTimes();
+    FrontendMenu_BuildNetworkPlayerSetup();
+    FrontendMenu_BuildNetworkCarSetup();
+    FrontendMenu_BuildNetworkRallySetup();
+    FrontendMenu_BuildNetworkStageSetup();
+    FrontendMenu_BuildNetworkExtendedStageSetup();
+    FrontendMenu_BuildNetworkMessage();
+    FrontendMenu_BuildNetworkNameEntry();
+    FrontendMenu_BuildNetworkLeaderboard();
+    FrontendMenu_BuildOptions();
+    FrontendMenu_BuildGameOptions();
+    FrontendMenu_BuildGraphicsOptions();
+    FrontendMenu_BuildRenderDeviceOptions();
+    FrontendMenu_BuildAdvancedGraphicsOptions();
+    FrontendMenu_BuildDisplayDevice();
+    FrontendMenu_BuildDisplayMode();
+    FrontendMenu_BuildSoundOptions();
+    FrontendMenu_BuildRecords();
+    FrontendMenu_BuildHighScores();
+    FrontendMenu_BuildStageRecords();
+    FrontendMenu_BuildBestStageTimes();
+    FrontendMenu_BuildTransmissionRecords();
+    FrontendMenu_BuildChampionshipRecords();
+    FrontendMenu_BuildProfileRecords();
+    FrontendMenu_BuildProfileHighScores();
+    FrontendMenu_BuildProfileStageRecords();
+    FrontendMenu_BuildProfileBestStageTimes();
+    FrontendMenu_BuildProfileTransmissionRecords();
+    FrontendMenu_BuildProfileChampionshipRecords();
     if (param1 == 0)
-        FUN_004fa4d0();
-    FUN_004f5fc0();
-    FUN_004f6d70();
-    FUN_004f6dd0();
-    FUN_004f6e50(CGameInfo::FUN_00405d70());
-    FUN_004f6f10(CGameInfo::FUN_00405d70());
-    FUN_004f6fd0(CGameInfo::FUN_00405d70());
-    FUN_004f7090(CGameInfo::FUN_00405d70());
-    FUN_004f7150(CGameInfo::FUN_00405d70());
-    FUN_004f7270(CGameInfo::FUN_00405d90());
-    FUN_004f7310(CGameInfo::FUN_00405d90());
-    FUN_004f73b0(CGameInfo::FUN_00405d90());
-    FUN_004f7510(CGameInfo::FUN_00405da0());
-    FUN_004f75b0(CGameInfo::FUN_00405da0());
-    FUN_004f7650(CGameInfo::FUN_00405da0());
-    FUN_004f76f0();
-    FUN_004f77a0();
-    FUN_004f7820();
-    FUN_004f78c0();
-    FUN_004f7970();
-    FUN_004f7a30();
-    FUN_004f7d00();
-    FUN_004f7d70();
-    FUN_004f7de0();
-    FUN_004f7ed0();
-    FUN_004f8020();
-    FUN_004fa370();
-    FUN_004fa410();
-    FUN_004f7450();
-    FUN_004f8170();
-    FUN_004f8250();
+        FrontendMenu_BuildAllControlsPages();
+    FrontendMenu_BuildCheats();
+    FrontendMenu_BuildCredits();
+    FrontendMenu_BuildQuitConfirmation();
+    FrontendMenu_BuildSingleRallyDifficulty(CGameInfo::GetConfiguredPlayerCount());
+    FrontendMenu_BuildChampionshipDifficulty(CGameInfo::GetConfiguredPlayerCount());
+    FrontendMenu_BuildTimeTrialDifficulty(CGameInfo::GetConfiguredPlayerCount());
+    FrontendMenu_BuildMultiplayerDifficulty(CGameInfo::GetConfiguredPlayerCount());
+    FrontendMenu_BuildMultiplayerExtendedDifficulty(CGameInfo::GetConfiguredPlayerCount());
+    FrontendMenu_BuildSingleRallyCarClass(CGameInfo::GetConfiguredDifficulty());
+    FrontendMenu_BuildChampionshipCarClass(CGameInfo::GetConfiguredDifficulty());
+    FrontendMenu_BuildTimeTrialCarClass(CGameInfo::GetConfiguredDifficulty());
+    FrontendMenu_BuildSingleRallyTransmission(CGameInfo::IsConfiguredMultiplayer());
+    FrontendMenu_BuildChampionshipTransmission(CGameInfo::IsConfiguredMultiplayer());
+    FrontendMenu_BuildTimeTrialTransmission(CGameInfo::IsConfiguredMultiplayer());
+    FrontendMenu_BuildMultiplayerProfile();
+    FrontendMenu_BuildMultiplayerStageSelection();
+    FrontendMenu_BuildProfileNameEntry();
+    FrontendMenu_BuildProfileRenameEntry();
+    FrontendMenu_BuildProfileDateEntry();
+    FrontendMenu_BuildCarSetup();
+    FrontendMenu_BuildPaletteSelection();
+    FrontendMenu_BuildPaletteConfirmation();
+    FrontendMenu_BuildRallySelection();
+    FrontendMenu_BuildRallyStageSelection();
+    FrontendMenu_BuildAlternateRallyStageSelection();
+    FrontendMenu_BuildQuickRaceSettings();
+    FrontendMenu_BuildQuickRaceAdvancedSettings();
+    FrontendMenu_BuildMultiplayerCarClass();
+    FrontendMenu_BuildMultiplayerRaceSettings();
+    FrontendMenu_BuildQuitTransition();
     if (back != 0) {
-        FUN_004f8410()->cursor = 1;
-        FUN_004ef4a0(1);
-        FUN_004f84a0()->cursor = 2;
-        FUN_004fa2d0()->cursor = 1;
-        CFrontend::FUN_004d2790();
+        FrontendMenu_GetMain()->cursor = 1;
+        FrontendScroller_SetSelection(1);
+        FrontendMenu_GetRallyModes()->cursor = 2;
+        FrontendMenu_GetArcade()->cursor = 1;
+        CFrontend::CacheCarClassTextLabels();
         return;
     }
-    switch (CGameInfo::FUN_00405d80()) {
+    switch (CGameInfo::GetConfiguredGameMode()) {
     case 0:
     case 1:
     case 2:
     case 3:
     case 4:
-        FUN_004f84a0()->cursor = CGameInfo::FUN_00405d80();
-        FUN_004f8410()->cursor = 1;
-        FUN_004ef4a0(1);
-        FUN_004fa2d0()->cursor = 1;
-        CFrontend::FUN_004d2790();
+        FrontendMenu_GetRallyModes()->cursor = CGameInfo::GetConfiguredGameMode();
+        FrontendMenu_GetMain()->cursor = 1;
+        FrontendScroller_SetSelection(1);
+        FrontendMenu_GetArcade()->cursor = 1;
+        CFrontend::CacheCarClassTextLabels();
         return;
     case 5:
     case 6:
     case 7:
-        FUN_004fa2d0()->cursor = CGameInfo::FUN_00405d80() - 5;
-        FUN_004f8410()->cursor = 2;
-        FUN_004ef4a0(2);
-        FUN_004f84a0()->cursor = 2;
-        CFrontend::FUN_004d2790();
+        FrontendMenu_GetArcade()->cursor = CGameInfo::GetConfiguredGameMode() - 5;
+        FrontendMenu_GetMain()->cursor = 2;
+        FrontendScroller_SetSelection(2);
+        FrontendMenu_GetRallyModes()->cursor = 2;
+        CFrontend::CacheCarClassTextLabels();
         return;
     case 8:
     case 9:
     case 10:
     case 11:
     case 12:
-        FUN_004f8410()->cursor = 3;
-        FUN_004ef4a0(3);
+        FrontendMenu_GetMain()->cursor = 3;
+        FrontendScroller_SetSelection(3);
         break;
     }
-    CFrontend::FUN_004d2790();
+    CFrontend::CacheCarClassTextLabels();
 }
 
 // FUNCTION: CMR2 0x004ea470
-void FUN_004ea470(void)
+void FrontendMenu_ResetActiveMenu(void)
 {
     g_pMenu0x00818abc = g_pMenu0x00818ac0;
 }
 
 extern int g_unk0x00818ac8;
-void FUN_0040bad0(void);
-void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
-unsigned short FUN_0040bbc0(unsigned short slot);
-void FUN_004a2fe0(void);
+void Input_TranslatePedalsToMenuKeys(void);
+void Input_MergeAssignedJoystickButtons(unsigned short slot, DeviceInfo *pOut);
+unsigned short Input_GetControllerSlotMapping(unsigned short slot);
+void Sound_UpdateMusicStreaming(void);
 
-// Time (CFrontend::FUN_004d20e0) at which the current menu was entered.
+// Time (CFrontend::GetFrontendTimestamp) at which the current menu was entered.
 // GLOBAL: CMR2 0x008189b8
 int g_menuEnterTime;
 
@@ -1579,101 +1579,101 @@ void FUN_004ea510(void)
     unsigned int input;
     Menu *pNext;
 
-    pDevice = CInput::FUN_0049ead0(g_unk0x00818ac8);
-    FUN_004ea470();
-    CInput::FUN_0049eab0();
-    FUN_0040bad0();
-    FUN_004a2fe0();
-    if (g_pMenu0x00818abc != FUN_004fa510() && g_pMenu0x00818abc != FUN_004fa500())
-        FUN_0040bd60(g_unk0x00818ac8, pDevice);
+    pDevice = CInput::GetAvailableDeviceRecord(g_unk0x00818ac8);
+    FrontendMenu_ResetActiveMenu();
+    CInput::UpdateAllAvailableDevices();
+    Input_TranslatePedalsToMenuKeys();
+    Sound_UpdateMusicStreaming();
+    if (g_pMenu0x00818abc != FrontendMenu_GetDeviceBindings() && g_pMenu0x00818abc != FrontendMenu_GetDeviceCalibration())
+        Input_MergeAssignedJoystickButtons(g_unk0x00818ac8, pDevice);
     input = pDevice->field_0x8;
     if (g_unk0x00818ac8 == 1)
-        input |= CInput::FUN_0049ead0(FUN_0040bbc0(0))->field_0x8 & 0x20;
+        input |= CInput::GetAvailableDeviceRecord(Input_GetControllerSlotMapping(0))->field_0x8 & 0x20;
     pNext = (Menu *)Menu_Update(g_pMenu0x00818abc, input);
     if (pNext != NULL) {
-        g_menuEnterTime = CFrontend::FUN_004d20e0();
+        g_menuEnterTime = CFrontend::GetFrontendTimestamp();
         g_pMenu0x00818ac0 = pNext;
     }
 }
 
 // FUNCTION: CMR2 0x004ea5b0
-void FUN_004ea5b0(void)
+void FrontendMenu_DrawActiveMenu(void)
 {
     Menu_CallCallback2(g_pMenu0x00818abc);
 }
 
 // FUNCTION: CMR2 0x004ea5c0
-void FUN_004ea5c0(BYTE value)
+void FrontendMenu_SetInputState(BYTE value)
 {
     g_unk0x00818ac4 = value;
 }
 
 // FUNCTION: CMR2 0x004ea5d0
-Menu *FUN_004ea5d0(void)
+Menu *FrontendMenu_GetActiveMenu(void)
 {
     return g_pMenu0x00818abc;
 }
 
 extern BYTE g_unk0x00818ce4;
-DPID FUN_004a1a00(void);
-BYTE RallyData_FUN_004086b0(BYTE index);
-BYTE FUN_004086f0(BYTE param1);
-void FUN_00409be0(int param);
+DPID Network_GetLocalPlayerID(void);
+BYTE RallyData_GetDriverRecordSelectionValue(BYTE index);
+BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
+void NetPlayers_SetNotificationMask(int param);
 
 // Sends this machine's player description (id, car, flags) to the network
 // player list.
 // FUNCTION: CMR2 0x004ec2b0
-void FUN_004ec2b0(void)
+void FrontendNetwork_SendPlayerDescription(void)
 {
     NetPlayerInfo info;
 
     memset(&info, 0, sizeof(info));
-    info.id = FUN_004a1a00();
-    info.bits.car = RallyData_FUN_004086b0(0);
-    info.bits.bit5 = FUN_004086f0(0);
+    info.id = Network_GetLocalPlayerID();
+    info.bits.car = RallyData_GetDriverRecordSelectionValue(0);
+    info.bits.bit5 = RallyData_GetDriverOrCategoryFlag(0);
     info.bits.bit6 = g_unk0x00818ce4;
     info.bits.active = 1;
     info.bits.ready = 0;
     info.bits.finished = 0;
-    FUN_00409be0((int)&info);
+    NetPlayers_SetNotificationMask((int)&info);
 }
 
 void FUN_0040dc30(void);
 struct Unk0x0052ebc0;
-struct Unk0x0052ebc0 *RallyData_FUN_004083d0(void);
-BYTE *RallyData_FUN_004082f0(void);
-void FUN_00409bf0(DPID *pId, NetPlayerInfo *pInfo, char add);
-void FUN_00409c80(int *pId);
-void FUN_00409e30(char resetTotal, char resetTimes);
-void FUN_0040ad20(void);
-void FUN_0040afb0(char valid, BYTE *p);
-void FUN_0040b120(void);
-void FUN_00406720(int param1);
-LPVOID *FUN_004a14c0(void);
-LPVOID *FUN_004a14d0(void);
-void FUN_004a15b0(BOOL param1);
+struct Unk0x0052ebc0 *RallyData_GetDriverGroupTable(void);
+BYTE *RallyData_GetStageAvailabilityFlags(void);
+void NetPlayers_AddOrUpdatePlayerInfo(DPID *pId, NetPlayerInfo *pInfo, char add);
+void NetPlayers_RemovePlayerByID(int *pId);
+void NetPlayers_ResetRaceReadyAndTimeState(char resetTotal, char resetTimes);
+void NetPlayers_BuildFinalClassification(void);
+void NetPlayers_ReceivePublishedLeaderboard(char valid, BYTE *p);
+void NetPlayers_RebuildSortedPlayerIDs(void);
+void GameInfo_SetSessionField397C(int param1);
+LPVOID *Network_GetSessionNamePointer(void);
+LPVOID *Network_GetSessionPasswordPointer(void);
+void Network_SetSessionStateFlag(BOOL param1);
 void Session_SetOpen(char open);
 int Session_GetUserValue(BYTE index);
-void FUN_004a1760(DPSESSIONDESC2 *pDesc);
-void FUN_004a1940(DPID *pId);
-int FUN_004a1a10(int param1, int param2, int param3, int param4);
-int FUN_004a1b90(int param1, void **param2);
-char FUN_004a1c50(int to, int guaranteed, int data, int size);
-void FUN_004d0620(DPID *pFrom, char *text, char local);
-void RallyData_FUN_004068e0(BYTE param1);
+void Network_SetSessionDescription(DPSESSIONDESC2 *pDesc);
+void Network_RemoveSessionPlayerByID(DPID *pId);
+int Network_CreateLocalPlayer(int param1, int param2, int param3, int param4);
+int Network_PollReceivedMessageBuffer(int param1, void **param2);
+char Network_SendPlayerMessage(int to, int guaranteed, int data, int size);
+void NetworkChat_AppendLine(DPID *pFrom, char *text, char local);
+void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
 void RallyData_FUN_00408600(BYTE index, BYTE value);
-void FUN_004eb0c0(BYTE index, BYTE flag);
-void FUN_004f02e0(void);
+void FrontendChampionship_SetDriverEntryFlag(BYTE index, BYTE flag);
+void FrontendMenu_EnablePlayerSetupItems(void);
 void FUN_0040dfa0(void);
-void FUN_004067a0(int param1);
-unsigned int FUN_004a1480(void);
-int FUN_004a10b0(BYTE index, char *pPassword, BYTE *pInvalidPassword);
-BYTE FUN_004a1790(BYTE index);
+void GameInfo_SetSessionField3990(int param1);
+unsigned int Network_GetEnumeratedSessionCount(void);
+int Network_JoinEnumeratedSession(BYTE index, char *pPassword, BYTE *pInvalidPassword);
+BYTE Network_IsSessionFlag10Set(BYTE index);
 char Session_SetMaxPlayers(int count);
 void Session_SetUserValue(BYTE index, int value);
 void Session_SetName(LPVOID pName);
 void Session_SetPassword(LPVOID pPassword);
-void FUN_004f92e0(int value);
+void FrontendNetwork_SetMessageState(int value);
 
 // The player setup data (0x540..0x6e7 of the rally data block) is mirrored
 // into the outgoing packet and back. 0x18 bytes of it are per-player rows,
@@ -1682,13 +1682,13 @@ void FUN_004f92e0(int value);
 
 // Copies the local player's setup (20 rows) into the outgoing packet.
 // FUNCTION: CMR2 0x004ec320
-void FUN_004ec320(BYTE *pPacket)
+void FrontendNetwork_WriteSetupPacket(BYTE *pPacket)
 {
     BYTE *pState;
     int i;
 
     FUN_0040dc30();
-    pState = (BYTE *)RallyData_FUN_004083d0();
+    pState = (BYTE *)RallyData_GetDriverGroupTable();
     for (i = 0; i < NET_SETUP_COUNT; i++) {
         *(unsigned int *)(pPacket + 0x18 + i * 8) = *(unsigned int *)(pState + 0x540 + i * 8);
         *(unsigned int *)(pPacket + 0x1c + i * 8) = *(unsigned int *)(pState + 0x544 + i * 8);
@@ -1703,9 +1703,9 @@ void FUN_004ec320(BYTE *pPacket)
 
 // Copies a received setup packet (20 rows) into the local rally data block.
 // FUNCTION: CMR2 0x004ec3c0
-void FUN_004ec3c0(BYTE *pPacket)
+void FrontendNetwork_ReadSetupPacket(BYTE *pPacket)
 {
-    BYTE *pState = (BYTE *)RallyData_FUN_004083d0();
+    BYTE *pState = (BYTE *)RallyData_GetDriverGroupTable();
     int i;
 
     for (i = 0; i < NET_SETUP_COUNT; i++) {
@@ -1738,13 +1738,13 @@ struct NetSetupPacket {
 
 // Builds and sends this machine's player setup packet.
 // FUNCTION: CMR2 0x004ec460
-void FUN_004ec460(void)
+void FrontendNetwork_SendSetupPacket(void)
 {
     NetSetupPacket packet;
 
     packet.type = 3;
-    packet.gameMode = CGameInfo::FUN_00405d80();
-    switch (CGameInfo::FUN_00405d80()) {
+    packet.gameMode = CGameInfo::GetConfiguredGameMode();
+    switch (CGameInfo::GetConfiguredGameMode()) {
     case 8:
     case 9:
     case 10:
@@ -1753,20 +1753,20 @@ void FUN_004ec460(void)
         break;
     case 0xb:
     case 0xc:
-        packet.rallyA = RallyData_FUN_00406940();
-        packet.rallyB = RallyData_FUN_00406950();
-        packet.rallyC = RallyData_FUN_00406990();
+        packet.rallyA = RallyData_GetSelectionBits10To11();
+        packet.rallyB = RallyData_GetSelectionBits12To13();
+        packet.rallyC = RallyData_GetSelectionBits16To19();
         break;
     }
-    packet.field_0x14 = FUN_00406710();
-    FUN_004ec320((BYTE *)&packet);
-    FUN_004a1c50(0, 1, (int)&packet, 0x1c4);
+    packet.field_0x14 = GameInfo_GetSessionField397C();
+    FrontendNetwork_WriteSetupPacket((BYTE *)&packet);
+    Network_SendPlayerMessage(0, 1, (int)&packet, 0x1c4);
 }
 
 // Message handler of the joining side: session data, player info and the
 // setup packet of the host.
 // FUNCTION: CMR2 0x004ec560
-void FUN_004ec560(DPID *pFrom, unsigned int *pData)
+void FrontendNetwork_HandleJoinerMessage(DPID *pFrom, unsigned int *pData)
 {
     char *pText;
     unsigned int type;
@@ -1774,52 +1774,52 @@ void FUN_004ec560(DPID *pFrom, unsigned int *pData)
     type = pData[0];
     switch (type) {
     case 5:
-        FUN_004a1940((DPID *)(pData + 2));
-        FUN_00409c80((int *)(pData + 2));
+        Network_RemoveSessionPlayerByID((DPID *)(pData + 2));
+        NetPlayers_RemovePlayerByID((int *)(pData + 2));
         return;
     case 3:
-        FUN_00409bf0((DPID *)(pData + 2), (NetPlayerInfo *)pData[4], 1);
-        FUN_004ec2b0();
-        FUN_004ec460();
+        NetPlayers_AddOrUpdatePlayerInfo((DPID *)(pData + 2), (NetPlayerInfo *)pData[4], 1);
+        FrontendNetwork_SendPlayerDescription();
+        FrontendNetwork_SendSetupPacket();
         return;
     case 0x101:
-        FUN_004a15b0(1);
-        if (FUN_004a14c0() != NULL)
-            strcpy(g_unk0x00818ebc, (char *)FUN_004a14c0());
-        if (FUN_004a14d0() != NULL)
-            strcpy(g_unk0x00818ef8, (char *)FUN_004a14d0());
+        Network_SetSessionStateFlag(1);
+        if (Network_GetSessionNamePointer() != NULL)
+            strcpy(g_unk0x00818ebc, (char *)Network_GetSessionNamePointer());
+        if (Network_GetSessionPasswordPointer() != NULL)
+            strcpy(g_unk0x00818ef8, (char *)Network_GetSessionPasswordPointer());
         g_unk0x00818ce4 = 1;
-        FUN_004ec2b0();
-        switch (CGameInfo::FUN_00405d80()) {
+        FrontendNetwork_SendPlayerDescription();
+        switch (CGameInfo::GetConfiguredGameMode()) {
         case 8:
-            FUN_004f8470()->pParent = FUN_004f84b0();
+            FrontendMenu_GetNetworkSessionSetup()->pParent = FrontendMenu_GetNetworkPlayerSetup();
             break;
         case 9:
-            FUN_004f8470()->pParent = FUN_004f84c0();
+            FrontendMenu_GetNetworkSessionSetup()->pParent = FrontendMenu_GetNetworkCarSetup();
             break;
         case 10:
-            FUN_004f8470()->pParent = FUN_004f84d0();
+            FrontendMenu_GetNetworkSessionSetup()->pParent = FrontendMenu_GetNetworkRallySetup();
             break;
         case 0xb:
-            FUN_004f8470()->pParent = FUN_004f84e0();
+            FrontendMenu_GetNetworkSessionSetup()->pParent = FrontendMenu_GetNetworkStageSetup();
             break;
         case 0xc:
-            FUN_004f8470()->pParent = FUN_004f84f0();
+            FrontendMenu_GetNetworkSessionSetup()->pParent = FrontendMenu_GetNetworkExtendedStageSetup();
             break;
         }
-        if (FUN_004ea5d0() != FUN_004f8460()) {
+        if (FrontendMenu_GetActiveMenu() != FrontendMenu_GetNetworkSessionDetails()) {
             Session_SetOpen(1);
             return;
         }
         Session_SetOpen(0);
         return;
     case 0x104:
-        FUN_004a1760((DPSESSIONDESC2 *)(pData + 1));
-        FUN_004ea8e0((BYTE)Session_GetUserValue(0));
-        FUN_00406780(Session_GetUserValue(2));
+        Network_SetSessionDescription((DPSESSIONDESC2 *)(pData + 1));
+        GameInfo_SetConfiguredGameMode((BYTE)Session_GetUserValue(0));
+        GameInfo_SetSessionField398C(Session_GetUserValue(2));
         return;
     case 0x102:
-        FUN_00409bf0((DPID *)(pData + 2), (NetPlayerInfo *)pData[3], 1);
+        NetPlayers_AddOrUpdatePlayerInfo((DPID *)(pData + 2), (NetPlayerInfo *)pData[3], 1);
         return;
     }
 }
@@ -1827,64 +1827,64 @@ void FUN_004ec560(DPID *pFrom, unsigned int *pData)
 // Message handler of the host side: applies the setup packet of a joining
 // player and starts the race for it.
 // FUNCTION: CMR2 0x004ec6f0
-void FUN_004ec6f0(DPID *pFrom, BYTE *pMsg)
+void FrontendNetwork_HandleHostMessage(DPID *pFrom, BYTE *pMsg)
 {
-    BYTE *pState = RallyData_FUN_004082f0();
+    BYTE *pState = RallyData_GetStageAvailabilityFlags();
     MenuItem *pItem;
     int i;
 
     switch (pMsg[0]) {
     case 0:
-        FUN_004d0620(pFrom, (char *)(pMsg + 1), 0);
+        NetworkChat_AppendLine(pFrom, (char *)(pMsg + 1), 0);
         return;
     case 2:
     case 3:
         for (i = 0; i < 0xb; i++)
             pState[i] = pMsg[i + 8];
-        FUN_004ea8e0(pMsg[4]);
-        switch (CGameInfo::FUN_00405d80()) {
+        GameInfo_SetConfiguredGameMode(pMsg[4]);
+        switch (CGameInfo::GetConfiguredGameMode()) {
         case 8:
-            RallyData_FUN_004068b0((*(unsigned int *)(pMsg + 4) >> 8) & 0xf);
+            RallyData_SetCountrySelectionBits((*(unsigned int *)(pMsg + 4) >> 8) & 0xf);
             for (i = 0; i < 0xb; i++) {
-                if ((pState[i] & 1) != 0 && ((pState[i] & 2) == 0 || CGameInfo::FUN_00406410(0xd))
+                if ((pState[i] & 1) != 0 && ((pState[i] & 2) == 0 || CGameInfo::IsRecordFlagSet(0xd))
                     && (pState[i] & 4) == 0) {
-                    RallyData_FUN_004068e0(i);
+                    RallyData_SetStageSelectionAndRefreshFlags(i);
                     break;
                 }
             }
             break;
         case 9:
         case 10:
-            RallyData_FUN_004068b0((*(unsigned int *)(pMsg + 4) >> 8) & 0xf);
-            RallyData_FUN_004068e0((*(unsigned int *)(pMsg + 4) >> 0xc) & 0xf);
+            RallyData_SetCountrySelectionBits((*(unsigned int *)(pMsg + 4) >> 8) & 0xf);
+            RallyData_SetStageSelectionAndRefreshFlags((*(unsigned int *)(pMsg + 4) >> 0xc) & 0xf);
             break;
         case 0xb:
         case 0xc:
-            RallyData_FUN_004068e0(0);
-            RallyData_FUN_0040d600((*(unsigned int *)(pMsg + 4) >> 0x10) & 3);
-            RallyData_FUN_00406960((*(unsigned int *)(pMsg + 4) >> 0x12) & 3);
-            RallyData_FUN_0040d620((*(unsigned int *)(pMsg + 4) >> 0x14) & 0xf);
+            RallyData_SetStageSelectionAndRefreshFlags(0);
+            RallyData_SetSelectionBits10To11((*(unsigned int *)(pMsg + 4) >> 0x10) & 3);
+            RallyData_SetSelectionBits12To13((*(unsigned int *)(pMsg + 4) >> 0x12) & 3);
+            RallyData_SetSelectionBits16To19((*(unsigned int *)(pMsg + 4) >> 0x14) & 0xf);
             break;
         }
-        FUN_00406720(*(unsigned int *)(pMsg + 0x14));
-        pItem = Menu_GetItem(FUN_004f8470(), 1);
+        GameInfo_SetSessionField397C(*(unsigned int *)(pMsg + 0x14));
+        pItem = Menu_GetItem(FrontendMenu_GetNetworkSessionSetup(), 1);
         RallyData_FUN_00408600(0, g_unk0x00818d18[pItem->max]);
-        pItem = Menu_GetItem(FUN_004f8470(), 2);
-        FUN_004eb0c0(0, pItem->max);
-        FUN_004ec3c0((BYTE *)pMsg);
+        pItem = Menu_GetItem(FrontendMenu_GetNetworkSessionSetup(), 2);
+        FrontendChampionship_SetDriverEntryFlag(0, pItem->max);
+        FrontendNetwork_ReadSetupPacket((BYTE *)pMsg);
         *(unsigned int *)(g_unk0x00818ef8 + 0x14) = CMain::GetFrameDelta();
-        FUN_00409ab0(0, 1);
+        NetPlayers_ResetStageState(0, 1);
         if (pMsg[0] == 2) {
-            Menu_SetNextAction((int)FUN_004f8330());
-            FUN_00409e30(1, 1);
+            Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+            NetPlayers_ResetRaceReadyAndTimeState(1, 1);
             FUN_00409b60();
-            FUN_0040b120();
+            NetPlayers_RebuildSortedPlayerIDs();
             return;
         }
         break;
     case 0x11:
-        FUN_0040afb0(pMsg[1], (BYTE *)(pMsg + 4));
-        FUN_0040ad20();
+        NetPlayers_ReceivePublishedLeaderboard(pMsg[1], (BYTE *)(pMsg + 4));
+        NetPlayers_BuildFinalClassification();
         break;
     }
 }
@@ -1892,32 +1892,32 @@ void FUN_004ec6f0(DPID *pFrom, BYTE *pMsg)
 // Drains the network message queue, dispatching each message to the handler
 // of its direction.
 // FUNCTION: CMR2 0x004ec8d0
-void FUN_004ec8d0(void)
+void FrontendNetwork_DrainMessageQueue(void)
 {
     DPID from;
     void *pData;
 
-    while (FUN_004a1b90((int)&from, &pData) != 0) {
+    while (Network_PollReceivedMessageBuffer((int)&from, &pData) != 0) {
         if (from == 0)
-            FUN_004ec560(&from, (unsigned int *)pData);
+            FrontendNetwork_HandleJoinerMessage(&from, (unsigned int *)pData);
         else
-            FUN_004ec6f0(&from, (BYTE *)pData);
+            FrontendNetwork_HandleHostMessage(&from, (BYTE *)pData);
     }
 }
 
-bool FUN_004aac00(void);
+bool Network_EnumerateServiceProviders(void);
 
 // Callback of the network session menu: creates the DirectPlay session and
 // lobby; the connection count becomes the value of the session type item.
 // FUNCTION: CMR2 0x004ec9a0
-void FUN_004ec9a0(Menu *pMenu, int param)
+void FrontendMenu_EnterNetworkConnection(Menu *pMenu, int param)
 {
     g_unk0x00818f10 = 0;
     if (CGame::CreateDirectPlay()) {
         if (CGame::CreateDirectPlayLobby()) {
-            if (FUN_004aac00()) {
-                FUN_004f8440()->items[0].min = (BYTE)CGame::GetConnectionCount();
-                FUN_004f8440()->items[0].max = 0;
+            if (Network_EnumerateServiceProviders()) {
+                FrontendMenu_GetNetworkConnection()->items[0].min = (BYTE)CGame::GetConnectionCount();
+                FrontendMenu_GetNetworkConnection()->items[0].max = 0;
                 g_unk0x00818f10 = 1;
                 return;
             }
@@ -1933,17 +1933,17 @@ void FUN_004ec9a0(Menu *pMenu, int param)
 // Sends the local player's description to the DirectPlay lobby. The original
 // leaks the return value of the send call through this function.
 // FUNCTION: CMR2 0x004eca10
-char FUN_004eca10(void)
+char FrontendNetwork_SendLobbyPlayerDescription(void)
 {
     unsigned int info[4];
 
-    info[0] = FUN_004a1a00();
-    info[1] = (RallyData_FUN_004086b0(0) & 0x1f) | (info[1] & 0xffffffe0) | 0x80;
-    return FUN_004a1a10((int)RallyData_GetRecord(0), (int)RallyData_GetRecord(0), (int)info, 0x10);
+    info[0] = Network_GetLocalPlayerID();
+    info[1] = (RallyData_GetDriverRecordSelectionValue(0) & 0x1f) | (info[1] & 0xffffffe0) | 0x80;
+    return Network_CreateLocalPlayer((int)RallyData_GetRecord(0), (int)RallyData_GetRecord(0), (int)info, 0x10);
 }
 
 // The GUID of the session the browser list currently points at.
-int FUN_004a15c0(BYTE index, GUID *pOut);
+int Network_CopyEnumeratedSessionGUID(BYTE index, GUID *pOut);
 // GLOBAL: CMR2 0x00818cf0
 GUID g_unk0x00818cf0;
 // GLOBAL: CMR2 0x00819018
@@ -1957,14 +1957,14 @@ int g_unk0x00819018;
 // order (the original keeps the -1/-2 exits and the first-time setup after
 // the main return).
 // FUNCTION: CMR2 0x004ecaf0
-void FUN_004ecaf0(Menu *pMenu)
+void FrontendMenu_UpdateNetworkSessionBrowser(Menu *pMenu)
 {
     DeviceInfo *pDevice;
     GUID guid;
     int status;
     int i;
 
-    pDevice = CInput::FUN_0049ead0(0);
+    pDevice = CInput::GetAvailableDeviceRecord(0);
     if (g_unk0x00818ef4 == 0)
         return;
     if (g_unk0x00818d04 == 0) {
@@ -1978,13 +1978,13 @@ void FUN_004ecaf0(Menu *pMenu)
     }
     if (status == 1) {
         g_unk0x00818d04 = 1;
-        g_unk0x00819018 = FUN_004a1480();
+        g_unk0x00819018 = Network_GetEnumeratedSessionCount();
         if (g_unk0x00819014 != 0) {
             if (g_unk0x00819018 > 0) {
                 if (g_unk0x0052528c != g_unk0x00819018) {
                     if (g_unk0x00819024 != 0) {
                         for (i = 0; i < g_unk0x00819018; i++) {
-                            FUN_004a15c0((BYTE)i, &guid);
+                            Network_CopyEnumeratedSessionGUID((BYTE)i, &guid);
                             if (IsEqualGUID(guid, g_unk0x00818cf0)) {
                                 g_unk0x00525288 = i;
                                 break;
@@ -1997,7 +1997,7 @@ void FUN_004ecaf0(Menu *pMenu)
                 g_unk0x0052528c = g_unk0x00819018;
                 if (g_unk0x00525288 == -1) {
                     g_unk0x00525288 = 0;
-                    FUN_004a15c0(0, &g_unk0x00818cf0);
+                    Network_CopyEnumeratedSessionGUID(0, &g_unk0x00818cf0);
                     g_unk0x00819024 = 1;
                 } else if ((pDevice->field_0x8 & 0x20) != 0) {
                     g_unk0x00819014 = 0;
@@ -2009,11 +2009,11 @@ void FUN_004ecaf0(Menu *pMenu)
                     Menu_SetFlags(pMenu, 0, 0, 1, 0);
                     if ((pDevice->field_0x8 & 4) != 0 && g_unk0x00525288 > 0) {
                         g_unk0x00525288--;
-                        FUN_004a15c0((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
+                        Network_CopyEnumeratedSessionGUID((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
                         g_unk0x00819024 = 1;
                     } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x00525288 < g_unk0x00819018 - 1) {
                         g_unk0x00525288++;
-                        FUN_004a15c0((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
+                        Network_CopyEnumeratedSessionGUID((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
                         g_unk0x00819024 = 1;
                     }
                 }
@@ -2042,14 +2042,14 @@ void FUN_004ecaf0(Menu *pMenu)
         else
             g_unk0x00819020 = g_unk0x00819018;
     } else if (status != -1 && status == -2) {
-        CGame::FUN_0049c140();
+        CGame::SkipNextCallbackRenderPass();
         Menu_SetNextAction((int)pMenu->pParent);
     }
 }
 
 
 // FUNCTION: CMR2 0x004eca60
-void FUN_004eca60(Menu *pMenu, char param)
+void FrontendMenu_EnterNetworkSessionBrowser(Menu *pMenu, char param)
 {
     Menu_SetFlags(pMenu, 1, 1, 1, 1);
     g_unk0x00818ef4 = 0;
@@ -2057,7 +2057,7 @@ void FUN_004eca60(Menu *pMenu, char param)
     g_unk0x00819014 = 0;
     g_unk0x0052528c = -1;
     g_unk0x00525288 = -1;
-    FUN_004b7c80();
+    Input_ClearCharacterQueue();
     sprintf(g_unk0x00818da8, CMain::m_logFileBlankLine);
     g_unk0x0081901c = 0;
     g_unk0x00819020 = 0;
@@ -2067,50 +2067,50 @@ void FUN_004eca60(Menu *pMenu, char param)
         return;
     }
     g_unk0x00818d04 = 1;
-    FUN_004b7c80();
+    Input_ClearCharacterQueue();
 }
 
 // Item action of the session browser: joins the session the list points at
 // and moves on to the car select or the error screen.
 // FUNCTION: CMR2 0x004ecd60
-void FUN_004ecd60(Menu *pMenu, int param)
+void FrontendNetwork_JoinSelectedSession(Menu *pMenu, int param)
 {
     if (g_unk0x00818ef4 != 0) {
         if (g_unk0x00819014 != 0 && g_unk0x00819024 != 0 && g_unk0x00525288 >= 0
-            && (int)g_unk0x00525288 < (int)FUN_004a1480()) {
+            && (int)g_unk0x00525288 < (int)Network_GetEnumeratedSessionCount()) {
             g_unk0x00818ce4 = 0;
-            FUN_00409a30();
-            FUN_004d05f0();
+            NetPlayers_ResetAllTables();
+            NetworkChat_ClearLog();
             g_unk0x00818ef4 = 0;
-            if (FUN_004a1790((BYTE)g_unk0x00525288) == 0) {
+            if (Network_IsSessionFlag10Set((BYTE)g_unk0x00525288) == 0) {
                 // The original reuses the menu parameter slot for the
                 // invalid-password flag of the join call (its value is unused).
-                if (FUN_004a10b0((BYTE)g_unk0x00525288, g_unk0x00818da8, (BYTE *)&pMenu) != 0) {
-                    FUN_004ea8e0((BYTE)Session_GetUserValue(0));
-                    FUN_00406780(Session_GetUserValue(2));
-                    FUN_004a1a00();
-                    RallyData_FUN_004086b0(0);
-                    if (FUN_004eca10() != 0) {
-                        Menu_SetParent(FUN_004f8470(), FUN_004f8450());
-                        Menu_SetNextAction((int)FUN_004f8470());
+                if (Network_JoinEnumeratedSession((BYTE)g_unk0x00525288, g_unk0x00818da8, (BYTE *)&pMenu) != 0) {
+                    GameInfo_SetConfiguredGameMode((BYTE)Session_GetUserValue(0));
+                    GameInfo_SetSessionField398C(Session_GetUserValue(2));
+                    Network_GetLocalPlayerID();
+                    RallyData_GetDriverRecordSelectionValue(0);
+                    if (FrontendNetwork_SendLobbyPlayerDescription() != 0) {
+                        Menu_SetParent(FrontendMenu_GetNetworkSessionSetup(), FrontendMenu_GetNetworkSessionBrowser());
+                        Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
                         return;
                     }
-                    FUN_004a1280();
-                    FUN_004f92e0(3);
-                    Menu_SetNextAction((int)FUN_004f9360());
+                    Network_CloseSession();
+                    FrontendNetwork_SetMessageState(3);
+                    Menu_SetNextAction((int)FrontendMenu_GetNetworkMessage());
                     return;
                 }
             }
-            if (FUN_004a1790((BYTE)g_unk0x00525288) != 0) {
-                Menu_SetNextAction((int)FUN_004f88d0());
+            if (Network_IsSessionFlag10Set((BYTE)g_unk0x00525288) != 0) {
+                Menu_SetNextAction((int)FrontendMenu_GetNetworkNameEntry());
                 return;
             }
-            FUN_004a1280();
-            FUN_004f92e0(1);
-            Menu_SetNextAction((int)FUN_004f9360());
+            Network_CloseSession();
+            FrontendNetwork_SetMessageState(1);
+            Menu_SetNextAction((int)FrontendMenu_GetNetworkMessage());
             return;
         }
-        if ((int)FUN_004a1480() > 0)
+        if ((int)Network_GetEnumeratedSessionCount() > 0)
             g_unk0x00819014 = 1;
     } else {
         pMenu->items[0].id = 0x1ec;
@@ -2118,7 +2118,7 @@ void FUN_004ecd60(Menu *pMenu, int param)
     }
 }
 
-BYTE FUN_004ea920(void);
+BYTE GameInfo_GetLastNetworkGameMode(void);
 int FUN_004a0ec0(char *pSessionName, char *pPassword, DWORD user1, DWORD user2, DWORD user3,
                  DWORD user4, DWORD maxPlayers);
 
@@ -2126,26 +2126,26 @@ int FUN_004a0ec0(char *pSessionName, char *pPassword, DWORD user1, DWORD user2, 
 // starts the DirectPlay session, restoring the window when the game had left
 // it hidden for the network dialog.
 // FUNCTION: CMR2 0x004ecea0
-void FUN_004ecea0(Menu *pMenu, int param)
+void FrontendNetwork_CreateSelectedSession(Menu *pMenu, int param)
 {
     g_unk0x00818ef4 = 0;
     g_unk0x00818ce4 = 1;
-    FUN_00409a30();
-    FUN_004d05f0();
-    FUN_004ea8e0(FUN_004ea920());
+    NetPlayers_ResetAllTables();
+    NetworkChat_ClearLog();
+    GameInfo_SetConfiguredGameMode(GameInfo_GetLastNetworkGameMode());
     if (g_unk0x00818d04 == 0) {
         g_pGraphics->pDD7->FlipToGDISurface();
         ShowCursor(1);
     }
-    if (FUN_004a0ec0(CGameInfo::FUN_00406690(), CGameInfo::FUN_004066d0(),
-                     CGameInfo::FUN_00405d80() & 0xff, 0, 0, 0, 8) != 0) {
+    if (FUN_004a0ec0(CGameInfo::GetSessionName(), CGameInfo::GetSessionPassword(),
+                     CGameInfo::GetConfiguredGameMode() & 0xff, 0, 0, 0, 8) != 0) {
         if (g_unk0x00818d04 == 0) {
             ShowCursor(0);
             ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
             g_unk0x00818d04 = 1;
         }
-        if (FUN_004eca10() != 0) {
-            Menu_SetNextAction((int)FUN_004f8460());
+        if (FrontendNetwork_SendLobbyPlayerDescription() != 0) {
+            Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionDetails());
             return;
         }
     } else {
@@ -2156,19 +2156,19 @@ void FUN_004ecea0(Menu *pMenu, int param)
     }
 }
 
-bool FUN_004aac40(BYTE param1);
+bool Network_AddSessionPlayerSlot(BYTE param1);
 
 // Item action of the network leaderboard list: goes on to the leaderboard of
 // the slot shown in the first row, but only while it is still connected.
 // FUNCTION: CMR2 0x004ecf80
-void FUN_004ecf80(Menu *pMenu, int param)
+void FrontendNetwork_OpenConnectedLeaderboard(Menu *pMenu, int param)
 {
-    if (FUN_004aac40(pMenu->items[0].max))
-        Menu_SetNextAction((int)FUN_004f8450());
+    if (Network_AddSessionPlayerSlot(pMenu->items[0].max))
+        Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionBrowser());
 }
 
 // FUNCTION: CMR2 0x004ecfa0
-void FUN_004ecfa0(Menu *pMenu, char param)
+void FrontendNetwork_LeaveConnectionPages(Menu *pMenu, char param)
 {
     if (param != 0 && g_unk0x00818f10 != 0) {
         CGame::DestroyDirectPlayLobby();
@@ -2178,39 +2178,39 @@ void FUN_004ecfa0(Menu *pMenu, char param)
 }
 
 void Session_SetOpen(char open);
-DWORD FUN_004a1720(int index);
-BYTE FUN_004086f0(BYTE param1);
-int FUN_00406770(void);
-int FUN_00406790(void);
-BYTE FUN_004ea920(void);
+DWORD Network_GetSessionPlayerCount(int index);
+BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
+int GameInfo_GetSessionField398C(void);
+int GameInfo_GetSessionField3990(void);
+BYTE GameInfo_GetLastNetworkGameMode(void);
 
 // Prepares the "record your name" screen: copies the selected car/driver
 // names, clamps the letter rows to the current values and rebuilds the
 // keyboard rows.
 // FUNCTION: CMR2 0x004ecfd0
-void FUN_004ecfd0(Menu *pMenu, char param)
+void FrontendMenu_EnterNetworkSessionDetails(Menu *pMenu, char param)
 {
-    FUN_004b7c80();
+    Input_ClearCharacterQueue();
     Session_SetOpen(0);
-    if ((int)FUN_004a1720(-1) <= 6)
+    if ((int)Network_GetSessionPlayerCount(-1) <= 6)
         Menu_GetItem(pMenu, 1)->min = 5;
     else
         Menu_GetItem(pMenu, 1)->min = 3;
     if (Menu_GetItem(pMenu, 1)->max >= Menu_GetItem(pMenu, 1)->min)
         Menu_GetItem(pMenu, 1)->max = Menu_GetItem(pMenu, 1)->min - 1;
     if (param == 0) {
-        strcpy(g_unk0x00818ebc, CGameInfo::FUN_00406690());
-        strcpy(g_unk0x00818ef8, CGameInfo::FUN_004066d0());
-        Menu_GetItem(pMenu, 2)->max = FUN_00406770() + 1;
-        Menu_GetItem(pMenu, 3)->max = FUN_00406790() - 2;
+        strcpy(g_unk0x00818ebc, CGameInfo::GetSessionName());
+        strcpy(g_unk0x00818ef8, CGameInfo::GetSessionPassword());
+        Menu_GetItem(pMenu, 2)->max = GameInfo_GetSessionField398C() + 1;
+        Menu_GetItem(pMenu, 3)->max = GameInfo_GetSessionField3990() - 2;
     }
-    Menu_GetItem(pMenu, 1)->max = FUN_004ea920() - 8;
+    Menu_GetItem(pMenu, 1)->max = GameInfo_GetLastNetworkGameMode() - 8;
 }
 
 // Item action of the "create session" screen: validates the session name,
 // player count and password items and sends the session setup of this host.
 // FUNCTION: CMR2 0x004ed340
-void FUN_004ed340(Menu *pMenu, int param)
+void FrontendNetwork_ApplyHostSessionDetails(Menu *pMenu, int param)
 {
     if (strcmp(CMain::m_logFileBlankLine, g_unk0x00818ebc) == 0) {
         pMenu->cursor = 0;
@@ -2218,34 +2218,34 @@ void FUN_004ed340(Menu *pMenu, int param)
         return;
     }
     Session_SetUserValue(2, Menu_GetItem(pMenu, 2)->max - 1);
-    FUN_00406780(Menu_GetItem(pMenu, 2)->max - 1);
+    GameInfo_SetSessionField398C(Menu_GetItem(pMenu, 2)->max - 1);
     if (Session_SetMaxPlayers(Menu_GetItem(pMenu, 3)->max + 2)) {
-        FUN_004067a0(Menu_GetItem(pMenu, 3)->max + 2);
+        GameInfo_SetSessionField3990(Menu_GetItem(pMenu, 3)->max + 2);
         Session_SetName(g_unk0x00818ebc);
-        CGameInfo::FUN_004066a0(g_unk0x00818ebc);
+        CGameInfo::SetSessionName(g_unk0x00818ebc);
         Session_SetPassword(g_unk0x00818ef8);
-        CGameInfo::FUN_004066e0(g_unk0x00818ef8);
-        FUN_004ea8e0(Menu_GetItem(pMenu, 1)->max + 8);
+        CGameInfo::SetSessionPassword(g_unk0x00818ef8);
+        GameInfo_SetConfiguredGameMode(Menu_GetItem(pMenu, 1)->max + 8);
         Session_SetUserValue(0, Menu_GetItem(pMenu, 1)->max + 8);
         Session_SetOpen(1);
         switch (Menu_GetItem(pMenu, 1)->max) {
         case 0:
-            Menu_SetNextAction((int)FUN_004f84b0());
+            Menu_SetNextAction((int)FrontendMenu_GetNetworkPlayerSetup());
             break;
         case 1:
-            Menu_SetNextAction((int)FUN_004f84c0());
+            Menu_SetNextAction((int)FrontendMenu_GetNetworkCarSetup());
             break;
         case 2:
-            Menu_SetNextAction((int)FUN_004f84d0());
+            Menu_SetNextAction((int)FrontendMenu_GetNetworkRallySetup());
             break;
         case 3:
-            Menu_SetNextAction((int)FUN_004f84e0());
+            Menu_SetNextAction((int)FrontendMenu_GetNetworkStageSetup());
             break;
         default:
-            Menu_SetNextAction((int)FUN_004f84f0());
+            Menu_SetNextAction((int)FrontendMenu_GetNetworkExtendedStageSetup());
             break;
         }
-        FUN_004ec460();
+        FrontendNetwork_SendSetupPacket();
         return;
     }
     Menu_PlaySoundId(3);
@@ -2253,23 +2253,23 @@ void FUN_004ed340(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004ed500
-void FUN_004ed500(Menu *pMenu, char param)
+void FrontendMenu_LeaveNetworkSessionDetails(Menu *pMenu, char param)
 {
     if (param != 0) {
-        CGame::FUN_004a1a90();
-        FUN_004a1280();
+        CGame::DestroyLocalNetworkPlayer();
+        Network_CloseSession();
     } else {
-        FUN_004ea8e0(Menu_GetItem(pMenu, 1)->max + 8);
+        GameInfo_SetConfiguredGameMode(Menu_GetItem(pMenu, 1)->max + 8);
     }
 }
 
 
 // Rebuilds a front-end stage/route list menu from the current selection.
-bool RallyData_FUN_00408e30(int index, int bit, char check);
-BYTE FUN_004086f0(BYTE param1);
+bool RallyData_HasCategoryAward(int index, int bit, char check);
+BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
 
 // FUNCTION: CMR2 0x004ed530
-void FUN_004ed530(Menu *pMenu, int unused)
+void FrontendMenu_EnterNetworkSessionSetup(Menu *pMenu, int unused)
 {
     int i;
     int index;
@@ -2278,23 +2278,23 @@ void FUN_004ed530(Menu *pMenu, int unused)
     g_unk0x00818ed0 = 1;
     g_unk0x00818ce8 = -1;
     g_unk0x00818ce0 = -1;
-    FUN_004ea5c0(0);
+    FrontendMenu_SetInputState(0);
     Menu_SetFlags(pMenu, 1, 1, 1, 1);
     pMenu->cursor = 0;
     g_unk0x00818d00 = 0;
     index = 0;
     pEntry = g_unk0x00818d18;
     for (i = 0; i < 0x16; i++) {
-        if (RallyData_FUN_00408e30(0, i, 1)) {
+        if (RallyData_HasCategoryAward(0, i, 1)) {
             *pEntry = i;
-            if (i == (RallyData_FUN_004086b0(0) & 0xff)) {
+            if (i == (RallyData_GetDriverRecordSelectionValue(0) & 0xff)) {
                 Menu_GetItem(pMenu, 1)->max = index;
             }
             index++;
             pEntry++;
         }
     }
-    if (FUN_004086f0(0) != 0)
+    if (RallyData_GetDriverOrCategoryFlag(0) != 0)
         Menu_GetItem(pMenu, 2)->max = 1;
     else
         Menu_GetItem(pMenu, 2)->max = 0;
@@ -2310,36 +2310,36 @@ void FUN_004ed530(Menu *pMenu, int unused)
 // Start action of the "host race" screen: copies the selected rally setup
 // into the rally data block and sends the host setup packet (type 2).
 // FUNCTION: CMR2 0x004ed610
-void FUN_004ed610(Menu *pMenu, int param)
+void FrontendNetwork_StartHostRace(Menu *pMenu, int param)
 {
-    BYTE *pState = RallyData_FUN_004082f0();
+    BYTE *pState = RallyData_GetStageAvailabilityFlags();
     NetSetupPacket packet;
     int i;
 
-    if (FUN_004a15a0()) {
+    if (Network_GetSessionStateFlag()) {
         Session_SetOpen(0);
         for (i = 0; i < 0xb; i++) {
-            packet.field_0x8[i] = CGameInfo::FUN_00406520((BYTE)RallyDataCountryIndex(), i);
-            if (CGameInfo::FUN_00406410(0xd))
+            packet.field_0x8[i] = CGameInfo::GetStageOptionState((BYTE)RallyDataCountryIndex(), i);
+            if (CGameInfo::IsRecordFlagSet(0xd))
                 packet.field_0x8[i] &= 0xfd;
             pState[i] = packet.field_0x8[i];
         }
-        if (CGameInfo::FUN_00405d80() == 8) {
+        if (CGameInfo::GetConfiguredGameMode() == 8) {
             for (i = 0; i < 0xb; i++) {
-                if ((CGameInfo::FUN_00406520((BYTE)RallyDataCountryIndex(), i) & 1) != 0
-                    && ((CGameInfo::FUN_00406520((BYTE)RallyDataCountryIndex(), i) & 2) == 0
-                        || CGameInfo::FUN_00406410(0xd))
-                    && (CGameInfo::FUN_00406520((BYTE)RallyDataCountryIndex(), i) & 4) == 0) {
-                    RallyData_FUN_004068e0(i);
+                if ((CGameInfo::GetStageOptionState((BYTE)RallyDataCountryIndex(), i) & 1) != 0
+                    && ((CGameInfo::GetStageOptionState((BYTE)RallyDataCountryIndex(), i) & 2) == 0
+                        || CGameInfo::IsRecordFlagSet(0xd))
+                    && (CGameInfo::GetStageOptionState((BYTE)RallyDataCountryIndex(), i) & 4) == 0) {
+                    RallyData_SetStageSelectionAndRefreshFlags(i);
                     break;
                 }
             }
         }
         RallyData_FUN_00408600(0, g_unk0x00818d18[Menu_GetItem(pMenu, 1)->max]);
-        FUN_004eb0c0(0, Menu_GetItem(pMenu, 2)->max);
+        FrontendChampionship_SetDriverEntryFlag(0, Menu_GetItem(pMenu, 2)->max);
         packet.type = 2;
-        packet.gameMode = CGameInfo::FUN_00405d80();
-        switch (CGameInfo::FUN_00405d80()) {
+        packet.gameMode = CGameInfo::GetConfiguredGameMode();
+        switch (CGameInfo::GetConfiguredGameMode()) {
         case 8:
         case 9:
         case 10:
@@ -2348,77 +2348,77 @@ void FUN_004ed610(Menu *pMenu, int param)
             break;
         case 0xb:
         case 0xc:
-            packet.rallyA = RallyData_FUN_00406940();
-            packet.rallyB = RallyData_FUN_00406950();
-            packet.rallyC = RallyData_FUN_00406990();
+            packet.rallyA = RallyData_GetSelectionBits10To11();
+            packet.rallyB = RallyData_GetSelectionBits12To13();
+            packet.rallyC = RallyData_GetSelectionBits16To19();
             break;
         }
-        packet.field_0x14 = FUN_00406710();
-        FUN_004ec320((BYTE *)&packet);
-        FUN_004a1c50(0, 1, (int)&packet, 0x1c4);
-        FUN_00409e30(1, 1);
+        packet.field_0x14 = GameInfo_GetSessionField397C();
+        FrontendNetwork_WriteSetupPacket((BYTE *)&packet);
+        Network_SendPlayerMessage(0, 1, (int)&packet, 0x1c4);
+        NetPlayers_ResetRaceReadyAndTimeState(1, 1);
         FUN_00409b60();
-        FUN_00409ab0(0, 1);
-        CGame::FUN_004083e0(1);
-        Menu_SetNextAction((int)FUN_004f8330());
-        FUN_0040b120();
+        NetPlayers_ResetStageState(0, 1);
+        CGame::SetProfileSelectionState(1);
+        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+        NetPlayers_RebuildSortedPlayerIDs();
     }
 }
 
 // FUNCTION: CMR2 0x004edb30
-void FUN_004edb30(Menu *pMenu, char param)
+void FrontendMenu_LeaveNetworkSessionSetup(Menu *pMenu, char param)
 {
-    if (param != 0 && !FUN_004a15a0()) {
-        CGame::FUN_004a1a90();
-        FUN_004a1280();
+    if (param != 0 && !Network_GetSessionStateFlag()) {
+        CGame::DestroyLocalNetworkPlayer();
+        Network_CloseSession();
     }
 }
 
 // FUNCTION: CMR2 0x004edb50
-BYTE *FUN_004edb50(void)
+BYTE *FrontendNetwork_GetSessionState(void)
 {
     return g_unk0x00818f14;
 }
 
 // Update callback of the session browser menu: drains the network queue.
 // FUNCTION: CMR2 0x004edb60
-void FUN_004edb60(Menu *pMenu)
+void FrontendMenu_UpdateNetworkStageTimes(Menu *pMenu)
 {
-    FUN_004ec8d0();
-    FUN_004b7c80();
+    FrontendNetwork_DrainMessageQueue();
+    Input_ClearCharacterQueue();
 }
 
 // FUNCTION: CMR2 0x004edb70
-void FUN_004edb70(Menu *pMenu, int param)
+void FrontendMenu_EnterNetworkPlayerSetup(Menu *pMenu, int param)
 {
-    unsigned int *pFlags = CGameInfo::FUN_00405db0();
+    unsigned int *pFlags = CGameInfo::GetGameInfoField9CAddress();
     int values[2];
     int i;
 
-    FUN_004ea990(&values[0], &values[1]);
-    if (CGameInfo::FUN_00406410(0xd))
+    GameInfo_GetPlayerOptionNibbles(&values[0], &values[1]);
+    if (CGameInfo::IsRecordFlagSet(0xd))
         Menu_GetItem(pMenu, 1)->min = 8;
     else
         Menu_GetItem(pMenu, 1)->min = *pFlags >> 8 & 0xf;
     Menu_GetItem(pMenu, 1)->max = values[0];
     if (Menu_GetItem(pMenu, 1)->max > Menu_GetItem(pMenu, 1)->min)
         Menu_GetItem(pMenu, 1)->max = 0;
-    if (CGameInfo::FUN_00406410(0xd)) {
+    if (CGameInfo::IsRecordFlagSet(0xd)) {
         Menu_GetItem(pMenu, 0)->min = values[0] % 2 + 10;
         return;
     }
     for (i = 0; i < 11; i++) {
-        if (CGameInfo::FUN_00406520(values[0], i) & 2) {
+        if (CGameInfo::GetStageOptionState(values[0], i) & 2) {
             Menu_GetItem(pMenu, 0)->min = i;
             break;
         }
     }
-    if (values[0] % 2 != 0 && (i == 4 || i == 8) && !(CGameInfo::FUN_00406520(values[0], 10) & 2))
+    if (values[0] % 2 != 0 && (i == 4 || i == 8) && !(CGameInfo::GetStageOptionState(values[0], 10) & 2))
         Menu_GetItem(pMenu, 0)->min++;
 }
 
 // FUNCTION: CMR2 0x004edca0
-void FUN_004edca0(Menu *pMenu, int param)
+void FrontendNetwork_ToggleStageOption(Menu *pMenu, int param)
 {
     int value = Menu_GetItem(pMenu, 0)->max;
     BYTE flags;
@@ -2426,18 +2426,18 @@ void FUN_004edca0(Menu *pMenu, int param)
     if ((Menu_GetItem(pMenu, 0)->min == 5 && Menu_GetItem(pMenu, 0)->max == 4) ||
         (Menu_GetItem(pMenu, 0)->min == 9 && Menu_GetItem(pMenu, 0)->max == 8))
         value = 10;
-    flags = CGameInfo::FUN_00406520(Menu_GetItem(pMenu, 1)->max, value);
+    flags = CGameInfo::GetStageOptionState(Menu_GetItem(pMenu, 1)->max, value);
     if (flags & 1) {
-        CGameInfo::FUN_00406540(Menu_GetItem(pMenu, 1)->max, value, flags & ~1);
+        CGameInfo::SetStageOptionState(Menu_GetItem(pMenu, 1)->max, value, flags & ~1);
         return;
     }
-    CGameInfo::FUN_00406540(Menu_GetItem(pMenu, 1)->max, value, flags | 1);
+    CGameInfo::SetStageOptionState(Menu_GetItem(pMenu, 1)->max, value, flags | 1);
 }
 
 // Item action of the "join session" screen: applies the selected role and
 // opens the session, then continues to the car select screen.
 // FUNCTION: CMR2 0x004edd50
-void FUN_004edd50(Menu *pMenu, int param)
+void FrontendNetwork_ApplyPlayerRoleAndJoin(Menu *pMenu, int param)
 {
     int i;
     int value;
@@ -2448,51 +2448,51 @@ void FUN_004edd50(Menu *pMenu, int param)
             value = 10;
         else
             value = i;
-        if ((CGameInfo::FUN_00406520(Menu_GetItem(pMenu, 1)->max, value) & 1) != 0) {
-            RallyData_FUN_004068e0(0);
-            RallyData_FUN_004068b0(Menu_GetItem(pMenu, 1)->max);
-            FUN_004f8470()->pParent = pMenu;
-            Menu_SetNextAction((int)FUN_004f8470());
+        if ((CGameInfo::GetStageOptionState(Menu_GetItem(pMenu, 1)->max, value) & 1) != 0) {
+            RallyData_SetStageSelectionAndRefreshFlags(0);
+            RallyData_SetCountrySelectionBits(Menu_GetItem(pMenu, 1)->max);
+            FrontendMenu_GetNetworkSessionSetup()->pParent = pMenu;
+            Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
             break;
         }
     }
-    FUN_004ec460();
+    FrontendNetwork_SendSetupPacket();
 }
 
 // Change callback of the "join session" menu: keeps the role item's minimum
 // (the number of players) in sync with the selected player count.
 // FUNCTION: CMR2 0x004ede10
-void FUN_004ede10(Menu *pMenu)
+void FrontendMenu_UpdateNetworkPlayerSetup(Menu *pMenu)
 {
     int i;
 
-    if (CGameInfo::FUN_00406410(0xd)) {
+    if (CGameInfo::IsRecordFlagSet(0xd)) {
         Menu_GetItem(pMenu, 0)->min = Menu_GetItem(pMenu, 1)->max % 2 + 10;
-        FUN_004ec8d0();
+        FrontendNetwork_DrainMessageQueue();
         return;
     }
     for (i = 0; i < 0xb; i++) {
-        if ((CGameInfo::FUN_00406520(Menu_GetItem(pMenu, 1)->max, i) & 2) != 0) {
+        if ((CGameInfo::GetStageOptionState(Menu_GetItem(pMenu, 1)->max, i) & 2) != 0) {
             Menu_GetItem(pMenu, 0)->min = i;
             break;
         }
     }
     if (Menu_GetItem(pMenu, 1)->max % 2 != 0 && (i == 4 || i == 8)
-        && (CGameInfo::FUN_00406520(Menu_GetItem(pMenu, 1)->max, 10) & 2) == 0)
+        && (CGameInfo::GetStageOptionState(Menu_GetItem(pMenu, 1)->max, 10) & 2) == 0)
         Menu_GetItem(pMenu, 0)->min++;
-    FUN_004ec8d0();
+    FrontendNetwork_DrainMessageQueue();
 }
 
 // Init callback of the "join session" menu: sets the allowed player count
 // from the game mode flags and fills the setup items of the local player.
 // FUNCTION: CMR2 0x004edef0
-void FUN_004edef0(Menu *pMenu, int param)
+void FrontendMenu_EnterNetworkCarSetup(Menu *pMenu, int param)
 {
-    unsigned int *pFlags = CGameInfo::FUN_00405db0();
+    unsigned int *pFlags = CGameInfo::GetGameInfoField9CAddress();
     int values[2];
     int min;
 
-    if (CGameInfo::FUN_00406410(0xd)) {
+    if (CGameInfo::IsRecordFlagSet(0xd)) {
         min = 8;
     } else {
         unsigned int v = *pFlags;
@@ -2510,11 +2510,11 @@ void FUN_004edef0(Menu *pMenu, int param)
         values[0] = (BYTE)RallyDataCountryIndex();
         values[1] = (BYTE)RallyDataStageIndex();
     } else {
-        FUN_004ea990(&values[0], &values[1]);
+        GameInfo_GetPlayerOptionNibbles(&values[0], &values[1]);
         Menu_GetItem(pMenu, 0)->max = values[0];
         Menu_GetItem(pMenu, 1)->max = values[1];
     }
-    if (CGameInfo::FUN_00406410(0xd)) {
+    if (CGameInfo::IsRecordFlagSet(0xd)) {
         min = (values[0] % 2 != 0) + 0xa;
     } else {
         min = (int)((*pFlags >> 8) & 0xf) < values[0] + 1 ? 4 : *(volatile int *)&param;
@@ -2541,36 +2541,36 @@ void FUN_004edef0(Menu *pMenu, int param)
 // Item action of the "join" screen: applies the selected rally/route and
 // sends the join setup of this player.
 // FUNCTION: CMR2 0x004ee090
-void FUN_004ee090(Menu *pMenu, int param)
+void FrontendNetwork_ApplyRallyAndJoin(Menu *pMenu, int param)
 {
     if ((Menu_GetItem(pMenu, 1)->min == 5 && Menu_GetItem(pMenu, 1)->max == 4)
         || (Menu_GetItem(pMenu, 1)->min == 9 && Menu_GetItem(pMenu, 1)->max == 8)
         || (Menu_GetItem(pMenu, 1)->min == 0xb && Menu_GetItem(pMenu, 1)->max == 0xa))
-        RallyData_FUN_004068e0(10);
+        RallyData_SetStageSelectionAndRefreshFlags(10);
     else
-        RallyData_FUN_004068e0(Menu_GetItem(pMenu, 1)->max);
-    RallyData_FUN_004068b0(Menu_GetItem(pMenu, 0)->max);
+        RallyData_SetStageSelectionAndRefreshFlags(Menu_GetItem(pMenu, 1)->max);
+    RallyData_SetCountrySelectionBits(Menu_GetItem(pMenu, 0)->max);
     if (RallyDataStageIndex() != 0xa && g_unk0x00818d74[Menu_GetItem(pMenu, 2)->max] != -1)
-        RallyData_FUN_0040df60(1, g_unk0x00818d74[Menu_GetItem(pMenu, 2)->max]);
+        RallyData_SetDriverPairingStateValues(1, g_unk0x00818d74[Menu_GetItem(pMenu, 2)->max]);
     else
-        RallyData_FUN_0040df60(1, 0);
-    FUN_004f8470()->pParent = pMenu;
-    Menu_SetNextAction((int)FUN_004f8470());
-    FUN_004ec460();
+        RallyData_SetDriverPairingStateValues(1, 0);
+    FrontendMenu_GetNetworkSessionSetup()->pParent = pMenu;
+    Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
+    FrontendNetwork_SendSetupPacket();
 }
 
-int FUN_00406750(void);
+int GameInfo_GetSessionField3988(void);
 
 // Update callback of the two-player rally menu: limits the rally list to the
 // unlocked events and mirrors the rally/stage reached in the profile.
 // FUNCTION: CMR2 0x004ee460
-void FUN_004ee460(Menu *pMenu, int param)
+void FrontendMenu_EnterNetworkRallySetup(Menu *pMenu, int param)
 {
-    unsigned int *pFlags = CGameInfo::FUN_00405db0();
+    unsigned int *pFlags = CGameInfo::GetGameInfoField9CAddress();
     int values[2];
     int count;
 
-    if (CGameInfo::FUN_00406410(0xd)) {
+    if (CGameInfo::IsRecordFlagSet(0xd)) {
         count = 8;
     } else {
         count = 4;
@@ -2582,10 +2582,10 @@ void FUN_004ee460(Menu *pMenu, int param)
             count = (int)(*pFlags >> 0x10 & 0xf);
     }
     Menu_GetItem(pMenu, 0)->min = count;
-    FUN_004ea990(&values[0], &values[1]);
+    GameInfo_GetPlayerOptionNibbles(&values[0], &values[1]);
     Menu_GetItem(pMenu, 0)->max = values[0];
     Menu_GetItem(pMenu, 1)->max = values[1];
-    if (CGameInfo::FUN_00406410(0xd)) {
+    if (CGameInfo::IsRecordFlagSet(0xd)) {
         count = (values[0] % 2 != 0) + 10;
     } else {
         count = (int)(*pFlags >> 8 & 0xf) < values[0] + 1 ? 4 : param;
@@ -2603,38 +2603,38 @@ void FUN_004ee460(Menu *pMenu, int param)
     }
     Menu_GetItem(pMenu, 1)->min = count;
     if ((param & 0xff) == 0) {
-        Menu_GetItem(pMenu, 2)->max = FUN_00406710();
+        Menu_GetItem(pMenu, 2)->max = GameInfo_GetSessionField397C();
         if (Menu_GetItem(pMenu, 2)->max != 0)
             Menu_GetItem(pMenu, 2)->max -= 4;
     }
-    FUN_004ee6e0(pMenu);
+    FrontendMenu_UpdateNetworkRallySetup(pMenu);
 }
 
 // Item action of the two-player rally menu: selects the rally and stage and
 // moves on to the driver selection.
 // FUNCTION: CMR2 0x004ee600
-void FUN_004ee600(Menu *pMenu, int param)
+void FrontendNetwork_ApplyTwoPlayerRally(Menu *pMenu, int param)
 {
     if ((Menu_GetItem(pMenu, 1)->min == 5 && Menu_GetItem(pMenu, 1)->max == 4) ||
         (Menu_GetItem(pMenu, 1)->min == 9 && Menu_GetItem(pMenu, 1)->max == 8) ||
         (Menu_GetItem(pMenu, 1)->min == 0xb && Menu_GetItem(pMenu, 1)->max == 0xa))
-        RallyData_FUN_004068e0(10);
+        RallyData_SetStageSelectionAndRefreshFlags(10);
     else
-        RallyData_FUN_004068e0(Menu_GetItem(pMenu, 1)->max);
-    RallyData_FUN_004068b0(Menu_GetItem(pMenu, 0)->max);
+        RallyData_SetStageSelectionAndRefreshFlags(Menu_GetItem(pMenu, 1)->max);
+    RallyData_SetCountrySelectionBits(Menu_GetItem(pMenu, 0)->max);
     if (Menu_GetItem(pMenu, 2)->max != 0)
-        FUN_00406720(Menu_GetItem(pMenu, 2)->max + 4);
+        GameInfo_SetSessionField397C(Menu_GetItem(pMenu, 2)->max + 4);
     else
-        FUN_00406720(Menu_GetItem(pMenu, 2)->max);
-    RallyData_FUN_0040df60(1, 0);
-    FUN_004f8470()->pParent = pMenu;
-    Menu_SetNextAction((int)FUN_004f8470());
-    FUN_004ec460();
+        GameInfo_SetSessionField397C(Menu_GetItem(pMenu, 2)->max);
+    RallyData_SetDriverPairingStateValues(1, 0);
+    FrontendMenu_GetNetworkSessionSetup()->pParent = pMenu;
+    Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
+    FrontendNetwork_SendSetupPacket();
 }
 
 // Initialises the rally/stage select menu from the unlocked rally count.
 // FUNCTION: CMR2 0x004ee850
-void FUN_004ee850(Menu *pMenu, int param)
+void FrontendMenu_EnterNetworkStageSetup(Menu *pMenu, int param)
 {
     int order[8];
     unsigned int *pFlags;
@@ -2651,9 +2651,9 @@ void FUN_004ee850(Menu *pMenu, int param)
     order[6] = 5;
     order[7] = 7;
     i = 0;
-    pFlags = CGameInfo::FUN_00405db0();
+    pFlags = CGameInfo::GetGameInfoField9CAddress();
     count = 6;
-    if (!CGameInfo::FUN_00406410(0xd)) {
+    if (!CGameInfo::IsRecordFlagSet(0xd)) {
         count = (*pFlags >> 2 & 3) * 3;
         n = (*pFlags >> 4 & 3) * 3;
         if (n > count)
@@ -2663,36 +2663,36 @@ void FUN_004ee850(Menu *pMenu, int param)
             count = n;
     }
     do {
-        if (i < (int)count || CGameInfo::FUN_00406410(0xd))
+        if (i < (int)count || CGameInfo::IsRecordFlagSet(0xd))
             g_unk0x00818ed4[i] = order[i];
         i++;
     } while (i < 6);
-    if ((*pFlags & 0x100000) || CGameInfo::FUN_00406410(0xd)) {
+    if ((*pFlags & 0x100000) || CGameInfo::IsRecordFlagSet(0xd)) {
         count++;
         g_unk0x00818ed4[i] = 5;
     }
-    if ((*pFlags & 0x200000) || CGameInfo::FUN_00406410(0xd)) {
+    if ((*pFlags & 0x200000) || CGameInfo::IsRecordFlagSet(0xd)) {
         count++;
         g_unk0x00818ed4[i + 1] = 7;
     }
     Menu_GetItem(pMenu, 0)->min = count;
     Menu_GetItem(pMenu, 0)->max = 0;
     for (i = 0; i < (int)count; i++) {
-        if (g_unk0x00818ed4[i] == FUN_00406730()) {
+        if (g_unk0x00818ed4[i] == GameInfo_GetSessionField3984()) {
             Menu_GetItem(pMenu, 0)->max = i;
             break;
         }
     }
-    Menu_GetItem(pMenu, 1)->max = FUN_00406750() - 1;
+    Menu_GetItem(pMenu, 1)->max = GameInfo_GetSessionField3988() - 1;
 }
 
-void FUN_00406740(int param1);
-void FUN_00406760(int param1);
+void GameInfo_SetSessionField3984(int param1);
+void GameInfo_SetSessionField3988(int param1);
 
 // Item action of the single-player rally menu: selects the rally and stage
 // picked in the menu.
 // FUNCTION: CMR2 0x004ee9b0
-void FUN_004ee9b0(Menu *pMenu, int param)
+void FrontendNetwork_ApplySinglePlayerRally(Menu *pMenu, int param)
 {
     int order[8] = { 6, 3, 1, 4, 0, 2, 5, 7 };
     int i;
@@ -2702,19 +2702,19 @@ void FUN_004ee9b0(Menu *pMenu, int param)
         if (order[i] == g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max])
             break;
     }
-    RallyData_FUN_004068e0(0);
-    RallyData_FUN_0040d600(i / 3);
-    RallyData_FUN_00406960(i % 3);
-    RallyData_FUN_0040d620(Menu_GetItem(pMenu, 1)->max + 1);
-    FUN_00406760(Menu_GetItem(pMenu, 1)->max + 1);
-    FUN_00406740(g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max]);
-    FUN_004f8470()->pParent = pMenu;
-    Menu_SetNextAction((int)FUN_004f8470());
-    FUN_004ec460();
+    RallyData_SetStageSelectionAndRefreshFlags(0);
+    RallyData_SetSelectionBits10To11(i / 3);
+    RallyData_SetSelectionBits12To13(i % 3);
+    RallyData_SetSelectionBits16To19(Menu_GetItem(pMenu, 1)->max + 1);
+    GameInfo_SetSessionField3988(Menu_GetItem(pMenu, 1)->max + 1);
+    GameInfo_SetSessionField3984(g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max]);
+    FrontendMenu_GetNetworkSessionSetup()->pParent = pMenu;
+    Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
+    FrontendNetwork_SendSetupPacket();
 }
 
 // FUNCTION: CMR2 0x004eeab0
-void FUN_004eeab0(Menu *pMenu, char param)
+void FrontendMenu_EnterNetworkExtendedStageSetup(Menu *pMenu, char param)
 {
     int order[8];
     unsigned int *pFlags;
@@ -2731,9 +2731,9 @@ void FUN_004eeab0(Menu *pMenu, char param)
     order[6] = 5;
     order[7] = 7;
     i = 0;
-    pFlags = CGameInfo::FUN_00405db0();
+    pFlags = CGameInfo::GetGameInfoField9CAddress();
     count = 6;
-    if (!CGameInfo::FUN_00406410(0xd)) {
+    if (!CGameInfo::IsRecordFlagSet(0xd)) {
         count = (*pFlags >> 2 & 3) * 3;
         n = (*pFlags >> 4 & 3) * 3;
         if (n > count)
@@ -2743,28 +2743,28 @@ void FUN_004eeab0(Menu *pMenu, char param)
             count = n;
     }
     do {
-        if (i < (int)count || CGameInfo::FUN_00406410(0xd))
+        if (i < (int)count || CGameInfo::IsRecordFlagSet(0xd))
             g_unk0x00818ed4[i] = order[i];
         i++;
     } while (i < 6);
-    if ((*pFlags & 0x100000) || CGameInfo::FUN_00406410(0xd)) {
+    if ((*pFlags & 0x100000) || CGameInfo::IsRecordFlagSet(0xd)) {
         count++;
         g_unk0x00818ed4[i] = 5;
     }
-    if ((*pFlags & 0x200000) || CGameInfo::FUN_00406410(0xd)) {
+    if ((*pFlags & 0x200000) || CGameInfo::IsRecordFlagSet(0xd)) {
         count++;
         g_unk0x00818ed4[i + 1] = 7;
     }
     Menu_GetItem(pMenu, 0)->min = count;
     Menu_GetItem(pMenu, 0)->max = 0;
     for (i = 0; i < (int)count; i++) {
-        if (g_unk0x00818ed4[i] == FUN_00406730()) {
+        if (g_unk0x00818ed4[i] == GameInfo_GetSessionField3984()) {
             Menu_GetItem(pMenu, 0)->max = i;
             break;
         }
     }
     if (param == 0) {
-        Menu_GetItem(pMenu, 1)->max = FUN_00406710();
+        Menu_GetItem(pMenu, 1)->max = GameInfo_GetSessionField397C();
         if (Menu_GetItem(pMenu, 1)->max != 0)
             Menu_GetItem(pMenu, 1)->max -= 4;
     }
@@ -2773,17 +2773,17 @@ void FUN_004eeab0(Menu *pMenu, char param)
 // Update callback of the network session menu: pumps the DirectPlay message
 // queue.
 // FUNCTION: CMR2 0x004eec30
-void FUN_004eec30(Menu *pMenu)
+void FrontendNetwork_PumpMenuMessages(Menu *pMenu)
 {
-    FUN_004ec8d0();
+    FrontendNetwork_DrainMessageQueue();
 }
 
-void FUN_00406740(int param1);
+void GameInfo_SetSessionField3984(int param1);
 
 // Item action of the championship rally menu: stores the rally and stage
 // picked in the menu.
 // FUNCTION: CMR2 0x004eec40
-void FUN_004eec40(Menu *pMenu, int param)
+void FrontendNetwork_ApplyChampionshipRally(Menu *pMenu, int param)
 {
     int order[8] = { 6, 3, 1, 4, 0, 2, 5, 7 };
     int i;
@@ -2793,37 +2793,37 @@ void FUN_004eec40(Menu *pMenu, int param)
         if (order[i] == g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max])
             break;
     }
-    RallyData_FUN_004068e0(0);
-    RallyData_FUN_0040d600(i / 3);
-    RallyData_FUN_00406960(i % 3);
-    FUN_00406740(g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max]);
+    RallyData_SetStageSelectionAndRefreshFlags(0);
+    RallyData_SetSelectionBits10To11(i / 3);
+    RallyData_SetSelectionBits12To13(i % 3);
+    GameInfo_SetSessionField3984(g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max]);
     if (Menu_GetItem(pMenu, 1)->max != 0)
-        FUN_00406720(Menu_GetItem(pMenu, 1)->max + 4);
+        GameInfo_SetSessionField397C(Menu_GetItem(pMenu, 1)->max + 4);
     else
-        FUN_00406720(Menu_GetItem(pMenu, 1)->max);
-    FUN_004f8470()->pParent = pMenu;
-    Menu_SetNextAction((int)FUN_004f8470());
-    FUN_004ec460();
+        GameInfo_SetSessionField397C(Menu_GetItem(pMenu, 1)->max);
+    FrontendMenu_GetNetworkSessionSetup()->pParent = pMenu;
+    Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
+    FrontendNetwork_SendSetupPacket();
 }
 
 // FUNCTION: CMR2 0x004eed50
-void FUN_004eed50(Menu *pMenu, int param)
+void FrontendMenu_EnterNetworkNameEntry(Menu *pMenu, int param)
 {
     Menu_SetFlags(pMenu, 0, 0, 1, 1);
-    FUN_004b7c80();
+    Input_ClearCharacterQueue();
     sprintf(g_unk0x00818da8, CMain::m_logFileBlankLine);
 }
 
 // Name entry: appends the typed character or deletes the last one.
 // FUNCTION: CMR2 0x004eed80
-void FUN_004eed80(Menu *pMenu)
+void FrontendMenu_UpdateNetworkNameEntry(Menu *pMenu)
 {
     int key;
     int len;
 
     g_unk0x00818cd8 = g_unk0x00818da8;
     strcpy(CFrontend::m_stringDest, g_unk0x00818da8);
-    if (!FUN_004b7cd0(&key))
+    if (!Input_PopQueuedCharacter(&key))
         return;
     if (key != 8) {
         len = strlen(CFrontend::m_stringDest);
@@ -2839,49 +2839,49 @@ void FUN_004eed80(Menu *pMenu)
     strcpy(g_unk0x00818cd8, CFrontend::m_stringDest);
 }
 
-void FUN_004d05f0(void);
-void FUN_004ea9f0(void);
-void FUN_004f92e0(int value);
-int FUN_004a10b0(BYTE index, char *pPassword, BYTE *pInvalidPassword);
+void NetworkChat_ClearLog(void);
+void GameInfo_ResetSessionTimestamp(void);
+void FrontendNetwork_SetMessageState(int value);
+int Network_JoinEnumeratedSession(BYTE index, char *pPassword, BYTE *pInvalidPassword);
 
 // Callback that joins a DirectPlay session with the network settings of the
 // menu: sends the local player description and opens the session or the lobby.
 // FUNCTION: CMR2 0x004eee60
-void FUN_004eee60(Menu *pMenu, int param)
+void FrontendNetwork_JoinNamedSession(Menu *pMenu, int param)
 {
     BYTE invalidPassword;
 
     g_unk0x00818ce4 = 0;
-    FUN_00409a30();
-    FUN_004d05f0();
+    NetPlayers_ResetAllTables();
+    NetworkChat_ClearLog();
     g_unk0x00818ef4 = 0;
-    if (FUN_004a10b0((BYTE)g_unk0x00525288, g_unk0x00818da8, &invalidPassword) != 0) {
-        FUN_004ea8e0((BYTE)Session_GetUserValue(0));
-        FUN_00406780(Session_GetUserValue(2));
-        FUN_004a1a00();
-        RallyData_FUN_004086b0(0);
-        if (FUN_004eca10() != 0) {
-            Menu *pLobby = FUN_004f8450();
-            Menu_SetParent(FUN_004f8470(), pLobby);
-            Menu_SetNextAction((int)FUN_004f8470());
+    if (Network_JoinEnumeratedSession((BYTE)g_unk0x00525288, g_unk0x00818da8, &invalidPassword) != 0) {
+        GameInfo_SetConfiguredGameMode((BYTE)Session_GetUserValue(0));
+        GameInfo_SetSessionField398C(Session_GetUserValue(2));
+        Network_GetLocalPlayerID();
+        RallyData_GetDriverRecordSelectionValue(0);
+        if (FrontendNetwork_SendLobbyPlayerDescription() != 0) {
+            Menu *pLobby = FrontendMenu_GetNetworkSessionBrowser();
+            Menu_SetParent(FrontendMenu_GetNetworkSessionSetup(), pLobby);
+            Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
         } else {
-            FUN_004a1280();
-            FUN_004f92e0(3);
-            Menu_SetNextAction((int)FUN_004f9360());
+            Network_CloseSession();
+            FrontendNetwork_SetMessageState(3);
+            Menu_SetNextAction((int)FrontendMenu_GetNetworkMessage());
         }
         return;
     }
     if (invalidPassword != 0) {
-        Menu_SetNextAction((int)FUN_004f88d0());
+        Menu_SetNextAction((int)FrontendMenu_GetNetworkNameEntry());
         return;
     }
-    FUN_004a1280();
-    FUN_004f92e0(1);
-    Menu_SetNextAction((int)FUN_004f9360());
+    Network_CloseSession();
+    FrontendNetwork_SetMessageState(1);
+    Menu_SetNextAction((int)FrontendMenu_GetNetworkMessage());
 }
 
 // FUNCTION: CMR2 0x004eef30
-void FUN_004eef30(Menu *pMenu, int param)
+void FrontendMenu_EnterNetworkLeaderboard(Menu *pMenu, int param)
 {
     Menu_GetItem(pMenu, 0)->min = CNetworkLeaderboards::GetTotalLeaderboards();
     if (Menu_GetItem(pMenu, 0)->min != 0) {
@@ -2898,7 +2898,7 @@ void FUN_004eef30(Menu *pMenu, int param)
 // Item action of a leaderboard entry: shows the leaderboard of the slot the
 // item stands for and goes back to the list.
 // FUNCTION: CMR2 0x004eefb0
-void FUN_004eefb0(Menu *pMenu, int param)
+void FrontendLeaderboard_SelectEntry(Menu *pMenu, int param)
 {
     CNetworkLeaderboards::SetLeaderboardId(Menu_GetItem(pMenu, 0)->max);
     Menu_GoBack(pMenu);
@@ -2906,7 +2906,7 @@ void FUN_004eefb0(Menu *pMenu, int param)
 
 // Adds a new leaderboard while fewer than 0x20 slots are in use.
 // FUNCTION: CMR2 0x004eefe0
-void FUN_004eefe0(Menu *pMenu, int param)
+void FrontendLeaderboard_AddEntry(Menu *pMenu, int param)
 {
     if (CNetworkLeaderboards::GetTotalLeaderboards() < 0x20) {
         CNetworkLeaderboards::AddLeaderboard();
@@ -2917,14 +2917,14 @@ void FUN_004eefe0(Menu *pMenu, int param)
 
 // Keeps the leaderboard list consistent after the selected entry changes.
 // FUNCTION: CMR2 0x004ef000
-void FUN_004ef000(Menu *pMenu, int param)
+void FrontendLeaderboard_RefreshSelection(Menu *pMenu, int param)
 {
     if (CNetworkLeaderboards::GetTotalLeaderboards() > 0)
         CNetworkLeaderboards::RemoveLeaderboard(Menu_GetItem(pMenu, 0)->max);
 }
 
 // FUNCTION: CMR2 0x004ef030
-void FUN_004ef030(Menu *pMenu)
+void FrontendMenu_UpdateNetworkLeaderboard(Menu *pMenu)
 {
     Menu_GetItem(pMenu, 0)->min = CNetworkLeaderboards::GetTotalLeaderboards();
     if (Menu_GetItem(pMenu, 0)->min != 0) {
@@ -2950,7 +2950,7 @@ void FUN_004ef030(Menu *pMenu)
 // Resets the 12 frontend scrollers: no menu attached, item gap scaled from
 // 24 pixels at 640 wide.
 // FUNCTION: CMR2 0x004ef150
-void FUN_004ef150(void)
+void FrontendScroller_ResetAll(void)
 {
     int i;
 
@@ -2987,23 +2987,23 @@ void FUN_004ef190(void)
 }
 
 // FUNCTION: CMR2 0x004ef480
-void FUN_004ef480(int *pOut1, int *pOut2)
+void FrontendScroller_GetSelectionAndTimestamp(int *pOut1, int *pOut2)
 {
     *pOut1 = g_unk0x00525398;
     *pOut2 = g_unk0x0081912c;
 }
 
 // FUNCTION: CMR2 0x004ef4a0
-void FUN_004ef4a0(int value)
+void FrontendScroller_SetSelection(int value)
 {
     g_unk0x00525398 = value;
     g_unk0x0052539c = value;
 }
 
 // FUNCTION: CMR2 0x004ef4c0
-void FUN_004ef4c0(Menu *pMenu, int param)
+void FrontendMenu_EnterSingleRallySelection(Menu *pMenu, int param)
 {
-    g_unk0x0082aa40 = FUN_004f4db0();
+    g_unk0x0082aa40 = SavedGames_GetCount();
     g_unk0x0082a924 = 0;
     g_unk0x0082aa3c = 0;
     g_unk0x0082ac48 = 0;
@@ -3012,13 +3012,13 @@ void FUN_004ef4c0(Menu *pMenu, int param)
 // Scroll of a 13-row list: g_unk0x0082a924 is the selected row,
 // g_unk0x0082aa3c the first visible one.
 // FUNCTION: CMR2 0x004ef4e0
-void FUN_004ef4e0(Menu *pMenu)
+void FrontendMenu_UpdateSingleRallySelection(Menu *pMenu)
 {
     DeviceInfo *pDevice;
 
-    g_unk0x0082aa40 = FUN_004f4db0();
+    g_unk0x0082aa40 = SavedGames_GetCount();
     Menu_SetFlags(pMenu, 0, 0, 1, 1);
-    pDevice = CInput::FUN_0049ead0(0);
+    pDevice = CInput::GetAvailableDeviceRecord(0);
     if (g_unk0x0082aa40 > 0) {
         if (g_unk0x0082a924 == -1)
             g_unk0x0082a924 = 0;
@@ -3042,171 +3042,171 @@ void FUN_004ef4e0(Menu *pMenu)
         g_unk0x0082ac48 = g_unk0x0082aa40;
 }
 
-void FUN_004d2070(BYTE param1, BYTE param2, BYTE param3);
+void Frontend_SetDebugOverlayChannels(BYTE param1, BYTE param2, BYTE param3);
 
 // Callback of the rally options screen: arms the rally data flag from the game
 // mode and then either starts a fresh session or requests the screen change.
 // FUNCTION: CMR2 0x004ef590
-void FUN_004ef590(Menu *pMenu)
+void FrontendMenu_UpdateRallyStartTransition(Menu *pMenu)
 {
-    if (CGameInfo::FUN_00405d70() == 2 && CGameInfo::FUN_00405d80() == 6)
-        RallyData_FUN_0040e330(1);
+    if (CGameInfo::GetConfiguredPlayerCount() == 2 && CGameInfo::GetConfiguredGameMode() == 6)
+        RallyData_SetSetupFlag11(1);
     else
-        RallyData_FUN_0040e330(0);
-    if (CGameInfo::FUN_00406320() != 0) {
-        FUN_004e9e40();
-        FUN_004d2070(0, 0, 1);
+        RallyData_SetSetupFlag11(0);
+    if (CGameInfo::GetGameInfoSessionFlag() != 0) {
+        FrontendSession_InitFreshRace();
+        Frontend_SetDebugOverlayChannels(0, 0, 1);
     } else {
-        FUN_004d2070(1, 0, 0);
+        Frontend_SetDebugOverlayChannels(1, 0, 0);
     }
 }
 
 // Callback that clears the debug overlay channels.
 // FUNCTION: CMR2 0x004ef5e0
-void FUN_004ef5e0(Menu *pMenu)
+void FrontendMenu_UpdateQuitTransition(Menu *pMenu)
 {
-    FUN_004d2070(0, 0, 0);
+    Frontend_SetDebugOverlayChannels(0, 0, 0);
 }
 
 // FUNCTION: CMR2 0x004ef5f0
-void FUN_004ef5f0(Menu *pMenu, int param)
+void FrontendMenu_EnterRallyModes(Menu *pMenu, int param)
 {
-    RallyData_FUN_0040d620(1);
+    RallyData_SetSelectionBits16To19(1);
 }
 
-void RallyData_FUN_004068e0(BYTE param1);
+void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
 
 // Callback of the rally options menu: copies the current cursor to the
 // matching options sub-menu and seeds its value from the game info.
 // FUNCTION: CMR2 0x004ef600
-void FUN_004ef600(Menu *pMenu, int param)
+void FrontendMenu_LeaveRallyModes(Menu *pMenu, int param)
 {
     switch (pMenu->cursor) {
     case 0:
-        FUN_004ea8e0(0);
-        RallyData_FUN_004068b0(0);
-        RallyData_FUN_004068e0(0);
-        if (CGameInfo::FUN_00405d70() < 5) {
-            FUN_004f82e0()->items[0].max = CGameInfo::FUN_00405d70() - 1;
+        GameInfo_SetConfiguredGameMode(0);
+        RallyData_SetCountrySelectionBits(0);
+        RallyData_SetStageSelectionAndRefreshFlags(0);
+        if (CGameInfo::GetConfiguredPlayerCount() < 5) {
+            FrontendMenu_GetSingleRallyDifficulty()->items[0].max = CGameInfo::GetConfiguredPlayerCount() - 1;
             return;
         }
-        FUN_004f82e0()->items[0].max = 0;
+        FrontendMenu_GetSingleRallyDifficulty()->items[0].max = 0;
         return;
     case 1:
-        FUN_004ea8e0(1);
-        RallyData_FUN_004068e0(0);
-        if (CGameInfo::FUN_00405d70() < 5) {
-            FUN_004f82f0()->items[0].max = CGameInfo::FUN_00405d70() - 1;
+        GameInfo_SetConfiguredGameMode(1);
+        RallyData_SetStageSelectionAndRefreshFlags(0);
+        if (CGameInfo::GetConfiguredPlayerCount() < 5) {
+            FrontendMenu_GetChampionshipDifficulty()->items[0].max = CGameInfo::GetConfiguredPlayerCount() - 1;
             return;
         }
-        FUN_004f82f0()->items[0].max = 0;
+        FrontendMenu_GetChampionshipDifficulty()->items[0].max = 0;
         return;
     case 2:
-        FUN_004ea8e0(2);
-        if (CGameInfo::FUN_00405d70() < 5) {
-            FUN_004f8300()->items[0].max = CGameInfo::FUN_00405d70() - 1;
+        GameInfo_SetConfiguredGameMode(2);
+        if (CGameInfo::GetConfiguredPlayerCount() < 5) {
+            FrontendMenu_GetTimeTrialDifficulty()->items[0].max = CGameInfo::GetConfiguredPlayerCount() - 1;
             return;
         }
-        FUN_004f8300()->items[0].max = 0;
+        FrontendMenu_GetTimeTrialDifficulty()->items[0].max = 0;
         return;
     case 3:
-        FUN_004ea8e0(3);
-        if (CGameInfo::FUN_00405d70() < 5) {
-            FUN_004f8310()->items[0].max = CGameInfo::FUN_00405d70() - 1;
+        GameInfo_SetConfiguredGameMode(3);
+        if (CGameInfo::GetConfiguredPlayerCount() < 5) {
+            FrontendMenu_GetMultiplayerDifficulty()->items[0].max = CGameInfo::GetConfiguredPlayerCount() - 1;
             return;
         }
-        FUN_004f8310()->items[0].max = 0;
+        FrontendMenu_GetMultiplayerDifficulty()->items[0].max = 0;
         return;
     case 4:
-        FUN_004ea8e0(4);
-        if (CGameInfo::FUN_00405d70() < 9) {
-            FUN_004f8320()->items[0].max = CGameInfo::FUN_00405d70() - 1;
+        GameInfo_SetConfiguredGameMode(4);
+        if (CGameInfo::GetConfiguredPlayerCount() < 9) {
+            FrontendMenu_GetMultiplayerExtendedDifficulty()->items[0].max = CGameInfo::GetConfiguredPlayerCount() - 1;
             return;
         }
-        FUN_004f8320()->items[0].max = 0;
+        FrontendMenu_GetMultiplayerExtendedDifficulty()->items[0].max = 0;
         break;
     }
 }
 
 // FUNCTION: CMR2 0x004ef8f0
-void FUN_004ef8f0(Menu *pMenu, int param)
+void FrontendMenu_EnterCarClass(Menu *pMenu, int param)
 {
-    if ((*CGameInfo::FUN_00405db0() & 1) || CGameInfo::FUN_00406410(0xd))
+    if ((*CGameInfo::GetGameInfoField9CAddress() & 1) || CGameInfo::IsRecordFlagSet(0xd))
         pMenu->items[2].enabled = 1;
     else
         pMenu->items[2].enabled = 0;
-    pMenu->cursor = CGameInfo::FUN_00405d90();
+    pMenu->cursor = CGameInfo::GetConfiguredDifficulty();
 }
 
 // FUNCTION: CMR2 0x004ef950
-void FUN_004ef950(Menu *pMenu, int param)
+void FrontendMenu_EnterMultiplayerCarClass(Menu *pMenu, int param)
 {
-    pMenu->cursor = CGameInfo::FUN_00405dd0();
+    pMenu->cursor = CGameInfo::GetGameModeOptionBits20To22();
 }
 
 // FUNCTION: CMR2 0x004ef960
-void FUN_004ef960(Menu *pMenu, int param)
+void FrontendMenu_SelectMultiplayerClass(Menu *pMenu, int param)
 {
-    FUN_004ea970(pMenu->cursor);
+    GameInfo_SetGameModeOptionBits20To22(pMenu->cursor);
 }
 
 // FUNCTION: CMR2 0x004efb50
-void FUN_004efb50(Menu *pMenu)
+void FrontendMenu_UpdateRallySelection(Menu *pMenu)
 {
-    RallyData_FUN_004068b0(pMenu->cursor);
-    FUN_004f37c0(FUN_004f2530());
+    RallyData_SetCountrySelectionBits(pMenu->cursor);
+    FUN_004f37c0(FrontendScroller_GetRallySelectionScroller());
 }
 
 // FUNCTION: CMR2 0x004efdc0
-void FUN_004efdc0(Menu *pMenu)
+void FrontendMenu_UpdateRallyStageSelection(Menu *pMenu)
 {
-    FUN_004f37c0(FUN_004f2570());
+    FUN_004f37c0(FrontendScroller_GetDisplayDeviceScroller());
 }
 
 // FUNCTION: CMR2 0x004efdd0
-void FUN_004efdd0(Menu *pMenu)
+void FrontendMenu_UpdateAlternateRallyStageSelection(Menu *pMenu)
 {
-    FUN_004f37c0(FUN_004f2580());
+    FUN_004f37c0(FrontendScroller_GetAlternateStageScroller());
 }
 
 // FUNCTION: CMR2 0x004f0050
-void FUN_004f0050(Menu *pMenu, MenuItem *pItem)
+void FrontendMenu_SelectAlternateRallyStage(Menu *pMenu, MenuItem *pItem)
 {
     if (pItem->value == -1) {
-        RallyData_FUN_0040df60(0, 0);
-        Menu_SetNextAction((int)FUN_004f8330());
+        RallyData_SetDriverPairingStateValues(0, 0);
+        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
     } else {
-        RallyData_FUN_0040df60(1, pItem->value);
-        Menu_SetNextAction((int)FUN_004f8330());
+        RallyData_SetDriverPairingStateValues(1, pItem->value);
+        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
     }
 }
 
 // FUNCTION: CMR2 0x004f0600
-void FUN_004f0600(Menu *pMenu, int param)
+void FrontendMenu_LeaveMultiplayerStageSelection(Menu *pMenu, int param)
 {
-    FUN_004ea480(0);
-    FUN_004a0c40(1);
+    Frontend_SetOverlayMode(0);
+    Menu_SetInputStateFlag(1);
 }
 
-void FUN_004eae90(unsigned int slot, char *pName);
+void RallyData_SetEditedDriverOrCategoryName(unsigned int slot, char *pName);
 
 // Enters (param != 0) or leaves the category name-entry screen, resetting the
 // letter rows and the stored name.
 // FUNCTION: CMR2 0x004f0d30
-void FUN_004f0d30(Menu *pMenu, char param)
+void FrontendMenu_EnterProfileNameEntry(Menu *pMenu, char param)
 {
-    FUN_004ea480(g_unk0x00819880);
-    FUN_004a0c50(1);
-    FUN_004e77b0(1);
+    Frontend_SetOverlayMode(g_unk0x00819880);
+    Menu_SetActionLatch(1);
+    FrontendProfile_SetNameEntryFlag(1);
     if (param) {
         pMenu->cursor = 2;
         pMenu->items[2].max = pMenu->items[2].min - 1;
     } else {
         pMenu->cursor = 0;
         pMenu->items[0].max = 0;
-        FUN_004eae90(FUN_004f2be0(), CMain::m_logFileBlankLine);
+        RallyData_SetEditedDriverOrCategoryName(FrontendProfile_GetCurrentPlayer(), CMain::m_logFileBlankLine);
     }
-    FUN_004b7c80();
+    Input_ClearCharacterQueue();
     g_unk0x0081986c = 0;
 }
 // Update callback of the "select stage" screen: when the row in the first
@@ -3253,30 +3253,30 @@ void FUN_004f0620(Menu *pMenu)
             }
             g_unk0x00819884 = g_unk0x00819868;
         }
-        g_unk0x0081975c = CFrontend::FUN_004d20e0();
+        g_unk0x0081975c = CFrontend::GetFrontendTimestamp();
         g_unk0x00819044 = pMenu->items[0].max;
     }
     if (g_unk0x00819044 != -1) {
-        if ((unsigned int)(CFrontend::FUN_004d20e0() - g_unk0x0081975c) > 0xfa) {
+        if ((unsigned int)(CFrontend::GetFrontendTimestamp() - g_unk0x0081975c) > 0xfa) {
             g_unk0x00819868 = 0;
             return;
         }
         if (g_unk0x00819884 > 0)
-            g_unk0x00819868 = g_unk0x00819884 - (unsigned int)((CFrontend::FUN_004d20e0() - g_unk0x0081975c) * g_unk0x00819884) / 0xfa;
+            g_unk0x00819868 = g_unk0x00819884 - (unsigned int)((CFrontend::GetFrontendTimestamp() - g_unk0x0081975c) * g_unk0x00819884) / 0xfa;
         else
-            g_unk0x00819868 = (unsigned int)(-((CFrontend::FUN_004d20e0() - g_unk0x0081975c) * g_unk0x00819884)) / 0xfa + g_unk0x00819884;
+            g_unk0x00819868 = (unsigned int)(-((CFrontend::GetFrontendTimestamp() - g_unk0x0081975c) * g_unk0x00819884)) / 0xfa + g_unk0x00819884;
     }
 }
 
 // FUNCTION: CMR2 0x004f0e60
-void FUN_004f0e60(Menu *pMenu, int param)
+void FrontendMenu_LeaveProfileRenameEntry(Menu *pMenu, int param)
 {
-    FUN_004ea480(0);
-    FUN_004a0c50(0);
+    Frontend_SetOverlayMode(0);
+    Menu_SetActionLatch(0);
 }
 
-int FUN_004f2c00(void);
-void FUN_004eae90(unsigned int slot, char *pName);
+int FrontendProfile_GetRenameMenu(void);
+void RallyData_SetEditedDriverOrCategoryName(unsigned int slot, char *pName);
 
 // Characters of the three name-picker rows (a-j, k-t and u-z plus '.', space
 // and the delete/OK entries).
@@ -3297,7 +3297,7 @@ void FUN_004f1040(Menu *pMenu, int param)
     char *chars;
     int len;
 
-    strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(FUN_004f2be0()));
+    strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(FrontendProfile_GetCurrentPlayer()));
     len = strlen(CFrontend::m_stringDest);
     if (pMenu->items[pMenu->cursor].value == 2 && g_nameRow0x0052538c[pMenu->items[2].max] == '<') {
         if (CFrontend::m_stringDest[0] != 0) {
@@ -3306,7 +3306,7 @@ void FUN_004f1040(Menu *pMenu, int param)
         }
     } else if (pMenu->items[pMenu->cursor].value == 2 && g_nameRow0x0052538c[pMenu->items[2].max] == '_') {
         if (len > 0)
-            Menu_SetNextAction(FUN_004f2c00());
+            Menu_SetNextAction(FrontendProfile_GetRenameMenu());
         return;
     } else if (len < 3) {
         switch (pMenu->items[pMenu->cursor].value) {
@@ -3334,17 +3334,17 @@ void FUN_004f1040(Menu *pMenu, int param)
     } else {
         Menu_PlaySoundId(3);
     }
-    FUN_004eae90(FUN_004f2be0(), CFrontend::m_stringDest);
+    RallyData_SetEditedDriverOrCategoryName(FrontendProfile_GetCurrentPlayer(), CFrontend::m_stringDest);
 }
 
 // FUNCTION: CMR2 0x004f1160
-void FUN_004f1160(Menu *pMenu, char param)
+void FrontendMenu_EnterProfileRenameEntry(Menu *pMenu, char param)
 {
     g_unk0x00819040 = CMain::GetFrameDelta();
     g_unk0x0081986c = 1;
-    FUN_004a0c50(1);
+    Menu_SetActionLatch(1);
     g_unk0x00819038 = 1;
-    FUN_004ea480(FUN_004f2be0());
+    Frontend_SetOverlayMode(FrontendProfile_GetCurrentPlayer());
     if (param != 0) {
         pMenu->cursor = 2;
         pMenu->items[2].max = pMenu->items[2].min - 1;
@@ -3352,7 +3352,7 @@ void FUN_004f1160(Menu *pMenu, char param)
         pMenu->cursor = 0;
         pMenu->items[0].max = 0;
     }
-    FUN_004b7c80();
+    Input_ClearCharacterQueue();
     pMenu->cursor = 2;
     pMenu->items[2].max = pMenu->items[2].min - 1;
 }
@@ -3362,21 +3362,21 @@ char g_nameChars0x005253f4[] = "abcdefghijklmnopqrstuvwxyz. ABCDEFGHIJKLMNOPQRST
 // GLOBAL: CMR2 0x0052542c
 char g_upperChars0x0052542c[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-void *FUN_00408470(unsigned int param1);
-void FUN_004eaf90(BYTE index, char *name);
+void *RallyData_GetAssignedCategoryRecord(unsigned int param1);
+void RallyData_CopyCategoryRecordName(BYTE index, char *name);
 
 // Name entry of the category record: typed letters also move the cursor of
 // the three letter rows (a-j, k-t, u-z plus '.', space, delete and OK).
 // FUNCTION: CMR2 0x004f11d0
-void FUN_004f11d0(Menu *pMenu)
+void FrontendMenu_UpdateProfileRenameEntry(Menu *pMenu)
 {
     int key;
     int len;
 
     if (!g_unk0x00819038)
         return;
-    strcpy(CFrontend::m_stringDest, (char *)FUN_00408470(FUN_004f2be0()));
-    if (FUN_004b7cd0(&key)) {
+    strcpy(CFrontend::m_stringDest, (char *)RallyData_GetAssignedCategoryRecord(FrontendProfile_GetCurrentPlayer()));
+    if (Input_PopQueuedCharacter(&key)) {
         if (key != 8) {
             len = strlen(CFrontend::m_stringDest);
             if (len >= 0x2b || strchr(g_nameChars0x005253f4, (char)key) == NULL)
@@ -3427,19 +3427,19 @@ void FUN_004f11d0(Menu *pMenu)
         Menu_PlaySoundId(0);
     }
 done:
-    FUN_004eaf90(FUN_004f2be0(), CFrontend::m_stringDest);
+    RallyData_CopyCategoryRecordName(FrontendProfile_GetCurrentPlayer(), CFrontend::m_stringDest);
     strcpy((char *)g_unk0x008190f4, CFrontend::m_stringDest);
 }
 
-void FUN_004ebe80(int index);
-void FUN_004f2bf0(int value);
-int FUN_004f2c20(void);
-BYTE FUN_004eb290(int param_1, BYTE *param_2);
-char FUN_004eb370(int param_1);
-BYTE FUN_004eb4c0(int param_1, int param_2);
-void FUN_004ebe10(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4);
-BYTE FUN_004085a0(BYTE param1);
-BYTE *FUN_004f4e50(int index);
+void Profile_ResetRecordCategory(int index);
+void FrontendProfile_SetCurrentPlayer(int value);
+int FrontendProfile_GetCompletionMenu(void);
+BYTE RallyData_FindCheatNameIndex(int param_1, BYTE *param_2);
+char RallyData_SaveEditedCategoryProfile(int param_1);
+BYTE Profile_LoadAndLinkSavedRecord(int param_1, int param_2);
+void FrontendProfile_SetCategoryColour(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4);
+BYTE RallyData_IsDriverRecordUsable(BYTE param1);
+BYTE *SavedGames_GetRecord(int index);
 unsigned int FUN_004fb400(BYTE *pBlock);
 
 extern BYTE g_unk0x00819879;
@@ -3459,7 +3459,7 @@ void FUN_004f13c0(Menu *pMenu, int param)
     char key;
     int len;
 
-    strcpy(CFrontend::m_stringDest, (char *)FUN_00408470(FUN_004f2be0()));
+    strcpy(CFrontend::m_stringDest, (char *)RallyData_GetAssignedCategoryRecord(FrontendProfile_GetCurrentPlayer()));
     len = strlen(CFrontend::m_stringDest);
     if (pMenu->items[pMenu->cursor].value == 2 && g_nameRow0x0052538c[pMenu->items[2].max] == '<') {
         if (CFrontend::m_stringDest[0] != 0) {
@@ -3467,24 +3467,24 @@ void FUN_004f13c0(Menu *pMenu, int param)
             Menu_PlaySoundId(2);
         }
     } else if (pMenu->items[pMenu->cursor].value == 2 && g_nameRow0x0052538c[pMenu->items[2].max] == '_') {
-        if (FUN_004eb290(FUN_004f2be0(), (BYTE *)&key) != 0) {
+        if (RallyData_FindCheatNameIndex(FrontendProfile_GetCurrentPlayer(), (BYTE *)&key) != 0) {
             Menu_PlaySoundId(key != 0 ? 0 : 3);
-            if (FUN_004085a0((BYTE)FUN_004f2be0())) {
+            if (RallyData_IsDriverRecordUsable((BYTE)FrontendProfile_GetCurrentPlayer())) {
                 g_unk0x00819744--;
-                FUN_004eb000(FUN_004f2be0(), 0);
+                FUN_004eb000(FrontendProfile_GetCurrentPlayer(), 0);
             }
-            FUN_004ebf20(FUN_004f2be0());
-            FUN_004ebe80(FUN_004f2be0());
+            Profile_ResetCategoryData(FrontendProfile_GetCurrentPlayer());
+            Profile_ResetRecordCategory(FrontendProfile_GetCurrentPlayer());
             g_unk0x00819048++;
-            if (FUN_004d27d0())
-                Menu_SetNextAction((int)FUN_004f8480());
+            if (FrontendRecords_GetProfileMode())
+                Menu_SetNextAction((int)FrontendMenu_GetRallyProfile());
             else
-                Menu_SetNextAction((int)FUN_004f83a0());
+                Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
             g_unk0x00819038 = 0;
             return;
         }
         if (len > 0) {
-            Menu_SetNextAction((int)FUN_004f83e0());
+            Menu_SetNextAction((int)FrontendMenu_GetProfileDateEntry());
             g_unk0x00819038 = 0;
         }
         return;
@@ -3510,7 +3510,7 @@ void FUN_004f13c0(Menu *pMenu, int param)
     } else {
         Menu_PlaySoundId(3);
     }
-    FUN_004eaf90(FUN_004f2be0(), CFrontend::m_stringDest);
+    RallyData_CopyCategoryRecordName(FrontendProfile_GetCurrentPlayer(), CFrontend::m_stringDest);
     strcpy((char *)g_unk0x008190f4, CFrontend::m_stringDest);
 }
 
@@ -3518,23 +3518,23 @@ void FUN_004f13c0(Menu *pMenu, int param)
 // offsets of the three letter rows and steers the next screen when the name is
 // complete.
 // FUNCTION: CMR2 0x004f15d0
-void FUN_004f15d0(Menu *pMenu, int param)
+void FrontendProfile_ApplyDateEntry(Menu *pMenu, int param)
 {
-    FUN_004ebe10(FUN_004f2be0(), pMenu->items[2].max + 1, pMenu->items[1].max + 1,
+    FrontendProfile_SetCategoryColour(FrontendProfile_GetCurrentPlayer(), pMenu->items[2].max + 1, pMenu->items[1].max + 1,
                  pMenu->items[0].max);
-    if (FUN_004eb370(FUN_004f2be0()) != 0) {
-        Menu_SetNextAction((int)FUN_004f2c20());
+    if (RallyData_SaveEditedCategoryProfile(FrontendProfile_GetCurrentPlayer()) != 0) {
+        Menu_SetNextAction((int)FrontendProfile_GetCompletionMenu());
         g_unk0x00819879 = 0;
-        if (FUN_004d27d0()) {
-            FUN_004eb000(FUN_004f2be0(), 0);
-            FUN_004ebe80(FUN_004f2be0());
+        if (FrontendRecords_GetProfileMode()) {
+            FUN_004eb000(FrontendProfile_GetCurrentPlayer(), 0);
+            Profile_ResetRecordCategory(FrontendProfile_GetCurrentPlayer());
         }
     }
 }
 
 // Days in the month of the date edited by items 0 (year), 1 (month) and 2 (day)
 // FUNCTION: CMR2 0x004f1640
-void FUN_004f1640(Menu *pMenu)
+void FrontendMenu_UpdateProfileDateEntry(Menu *pMenu)
 {
     int days;
     int day = pMenu->items[2].max + 1;
@@ -3574,24 +3574,24 @@ void RallyData_FUN_00408600(BYTE index, BYTE value);
 // Update callback of the palette menu: shows the colour of the palette the
 // profile uses and resets the scrolled list.
 // FUNCTION: CMR2 0x004f1960
-void FUN_004f1960(Menu *pMenu, char param)
+void FrontendMenu_EnterPaletteSelection(Menu *pMenu, char param)
 {
-    pMenu->items[0].max = FUN_004086f0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048));
-    FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
-    if (param != 0 && CGameInfo::FUN_00405d80() != 4)
-        FUN_004f17d0(FUN_004f2500()->pMenu, 0);
+    pMenu->items[0].max = RallyData_GetDriverOrCategoryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048));
+    Frontend_SetOverlayMode((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
+    if (param != 0 && CGameInfo::GetConfiguredGameMode() != 4)
+        FUN_004f17d0(FrontendScroller_GetRouteEntryScroller()->pMenu, 0);
 }
 
 // Keeps the palette screen's OK item disabled while the palette id is invalid.
 // FUNCTION: CMR2 0x004f19d0
-void FUN_004f19d0(Menu *pMenu, int param)
+void FrontendMenu_EnterPaletteConfirmation(Menu *pMenu, int param)
 {
-    if (FUN_004086f0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048)) != 0)
+    if (RallyData_GetDriverOrCategoryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048)) != 0)
         pMenu->items[0].max = 1;
     else
         pMenu->items[0].max = 0;
 }
-void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade, unsigned int *pValue);
+void RallyData_GetDriverCategoryColour(int index, unsigned int *pHue, unsigned int *pShade, unsigned int *pValue);
 
 // Callback of the car colour menu: reads the current driver's category colour
 // and reflects it onto the colour picker items.
@@ -3604,8 +3604,8 @@ void FUN_004f16f0(Menu *pMenu, int param)
     int hue;
     BYTE idx;
 
-    FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
-    RallyData_FUN_00408b10(FUN_004f2be0(), (unsigned int *)&hue, (unsigned int *)&shade, (unsigned int *)&value);
+    Frontend_SetOverlayMode((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
+    RallyData_GetDriverCategoryColour(FrontendProfile_GetCurrentPlayer(), (unsigned int *)&hue, (unsigned int *)&shade, (unsigned int *)&value);
     pMenu->items[2].max = 0;
     pMenu->cursor = 0;
     pMenu->items[0].max = value;
@@ -3653,17 +3653,17 @@ void FUN_004f17d0(Menu *pMenu, int param)
     int count;
 
     count = 0;
-    FUN_004ea480(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1);
-    pScroller = FUN_004f2500();
+    Frontend_SetOverlayMode(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048 - 1);
+    pScroller = FrontendScroller_GetRouteEntryScroller();
     pScroller->pMenu = pMenu;
     pPalette = g_unk0x008196e8;
     pItem = pMenu->items;
     pMenu->cursor = 0;
     for (i = 0, p = pItem; i < 0x16; i++) {
-        if (RallyData_FUN_00408e30(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1, i, 1)) {
+        if (RallyData_HasCategoryAward(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048 - 1, i, 1)) {
             *pPalette = i;
             p->id = i + 0x98;
-            if (i == (RallyData_FUN_004086b0(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1) & 0xff))
+            if (i == (RallyData_GetDriverRecordSelectionValue(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048 - 1) & 0xff))
                 pMenu->cursor = count;
             count++;
             pPalette++;
@@ -3671,7 +3671,7 @@ void FUN_004f17d0(Menu *pMenu, int param)
         }
     }
     pMenu->itemCount = count;
-    pScroller = FUN_004f2500();
+    pScroller = FrontendScroller_GetRouteEntryScroller();
     pScroller->offset = 0;
     pScroller->startOffset = 0;
     pScroller->current = pMenu->cursor;
@@ -3689,112 +3689,112 @@ void FUN_004f17d0(Menu *pMenu, int param)
     }
 }
 
-void FUN_004ea9f0(void);
-void FUN_004f02e0(void);
-void FUN_004f0ac0(Menu *pMenu, int param);
+void GameInfo_ResetSessionTimestamp(void);
+void FrontendMenu_EnablePlayerSetupItems(void);
+void FrontendProfile_SetupNextPlayer(Menu *pMenu, int param);
 
 // Item action of the palette menu: opens the palette editor of the current
 // screen mode.
 // FUNCTION: CMR2 0x004f1a40
-void FUN_004f1a40(Menu *pMenu, int param)
+void FrontendProfile_OpenPaletteEditor(Menu *pMenu, int param)
 {
-    FUN_004ea480(0);
-    FUN_004eb0c0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048), pMenu->items[0].max);
+    Frontend_SetOverlayMode(0);
+    FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048), pMenu->items[0].max);
     if (g_unk0x00819048 == 0) {
-        switch (CGameInfo::FUN_00405d80()) {
+        switch (CGameInfo::GetConfiguredGameMode()) {
         case 0:
-            Menu_SetNextAction((int)FUN_004f8330());
-            FUN_004ea9f0();
+            Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+            GameInfo_ResetSessionTimestamp();
             return;
         case 1:
         case 2:
         case 3:
-            FUN_004f02e0();
-            Menu_SetParent(FUN_004f8340(), pMenu);
-            Menu_SetNextAction((int)FUN_004f8340());
+            FrontendMenu_EnablePlayerSetupItems();
+            Menu_SetParent(FrontendMenu_GetRallySelection(), pMenu);
+            Menu_SetNextAction((int)FrontendMenu_GetRallySelection());
             return;
         case 4:
-            Menu_SetParent(FUN_004f8420(), pMenu);
-            Menu_SetNextAction((int)FUN_004f8420());
+            Menu_SetParent(FrontendMenu_GetMultiplayerRaceSettings(), pMenu);
+            Menu_SetNextAction((int)FrontendMenu_GetMultiplayerRaceSettings());
             return;
         }
     } else {
-        Menu_SetParent(FUN_004f83a0(), pMenu);
-        if (CGameInfo::FUN_00405d80() != 4) {
-            Menu_SetNextAction((int)FUN_004f83a0());
+        Menu_SetParent(FrontendMenu_GetMultiplayerProfile(), pMenu);
+        if (CGameInfo::GetConfiguredGameMode() != 4) {
+            Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
             return;
         }
-        FUN_004f0ac0(pMenu, param);
-        Menu_SetNextAction((int)FUN_004f83c0());
+        FrontendProfile_SetupNextPlayer(pMenu, param);
+        Menu_SetNextAction((int)FrontendMenu_GetProfileNameEntry());
     }
 }
 
 // FUNCTION: CMR2 0x004f1a10
-void FUN_004f1a10(Menu *pMenu, int unused)
+void FrontendProfile_SelectPalette(Menu *pMenu, int unused)
 {
     RallyData_FUN_00408600(
-        CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048),
+        CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048),
         (unsigned char)g_unk0x008196e8[pMenu->cursor]);
 }
 
 // Item callback of the championship entry screens: toggles the selected
 // entry's championship flag and moves to the next or the parent menu.
 // FUNCTION: CMR2 0x004f1b30
-void FUN_004f1b30(Menu *pMenu, int param)
+void FrontendChampionship_ToggleAndAdvanceEntry(Menu *pMenu, int param)
 {
-    FUN_004eb0c0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048), pMenu->items[0].max);
+    FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048), pMenu->items[0].max);
     if (g_unk0x00819048 == 0) {
-        FUN_004f02e0();
-        Menu_SetNextAction((int)FUN_004f8420());
+        FrontendMenu_EnablePlayerSetupItems();
+        Menu_SetNextAction((int)FrontendMenu_GetMultiplayerRaceSettings());
         return;
     }
-    Menu_SetParent(FUN_004f83a0(), pMenu);
-    Menu_SetNextAction((int)FUN_004f83a0());
+    Menu_SetParent(FrontendMenu_GetMultiplayerProfile(), pMenu);
+    Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
 }
 
 // FUNCTION: CMR2 0x004f1b90
-void FUN_004f1b90(Menu *pMenu, int param)
+void FrontendMenu_ClearOverlayMode(Menu *pMenu, int param)
 {
-    FUN_004ea480(0);
+    Frontend_SetOverlayMode(0);
 }
 
 // FUNCTION: CMR2 0x004f1ba0
-BYTE FUN_004f1ba0(void)
+BYTE FrontendProfile_GetPlayersRemaining(void)
 {
     return g_unk0x00819048;
 }
 
 // FUNCTION: CMR2 0x004f1bb0
-void FUN_004f1bb0(int value)
+void FrontendProfile_SetPlayersRemaining(int value)
 {
     g_unk0x00819048 = value;
 }
 
 // FUNCTION: CMR2 0x004f1bc0
-void FUN_004f1bc0(int value)
+void FrontendProfile_SetReturnMenu(int value)
 {
     g_unk0x00819870 = value;
 }
 
 // FUNCTION: CMR2 0x004f1bd0
-void FUN_004f1bd0(Menu *pMenu, int param)
+void FrontendMenu_EnterCredits(Menu *pMenu, int param)
 {
     g_unk0x00819864 = 1;
     g_unk0x0081987c = 0;
-    g_unk0x008196e4 = CFrontend::FUN_004d20e0();
+    g_unk0x008196e4 = CFrontend::GetFrontendTimestamp();
 }
 
 // FUNCTION: CMR2 0x004f1bf0
-int FUN_004f1bf0(void)
+int FrontendCredits_GetStartTime(void)
 {
     return g_unk0x008196e4;
 }
 
 // FUNCTION: CMR2 0x004f1c00
-void FUN_004f1c00(Menu *pMenu, int param)
+void FrontendMenu_EnterGraphicsOptions(Menu *pMenu, int param)
 {
-    if (CFrontend::FUN_004b7520()) {
-        if ((BYTE)CGameInfo::FUN_00405ba0() && (g_pGraphics->field913_0x3bc & 0x40))
+    if (CFrontend::GetDeviceCapabilityFieldA8()) {
+        if ((BYTE)CGameInfo::GetGraphicsOptionBit4() && (g_pGraphics->field913_0x3bc & 0x40))
             Menu_GetItem(pMenu, 1)->max = 0;
         else
             Menu_GetItem(pMenu, 1)->max = 1;
@@ -3802,27 +3802,27 @@ void FUN_004f1c00(Menu *pMenu, int param)
     } else {
         Menu_GetItem(pMenu, 1)->enabled = 0;
     }
-    if (CGameInfo::FUN_00405c70() == 1 && (g_pGraphics->field913_0x3bc & 1))
+    if (CGameInfo::GetGraphicsOptionBits18To19() == 1 && (g_pGraphics->field913_0x3bc & 1))
         Menu_GetItem(pMenu, 4)->max = 1;
-    else if (CGameInfo::FUN_00405c70() == 2 && (g_pGraphics->field913_0x3bc & 2))
+    else if (CGameInfo::GetGraphicsOptionBits18To19() == 2 && (g_pGraphics->field913_0x3bc & 2))
         Menu_GetItem(pMenu, 4)->max = 0;
     else
         Menu_GetItem(pMenu, 4)->max = 2;
-    CGameInfo::FUN_00405ca0();
-    if ((unsigned int)CGameInfo::FUN_00405ca0() > 9)
-        CGameInfo::FUN_00405cb0(9);
-    Menu_GetItem(pMenu, 5)->max = CGameInfo::FUN_00405ca0();
+    CGameInfo::GetGraphicsOptionBits21To24();
+    if ((unsigned int)CGameInfo::GetGraphicsOptionBits21To24() > 9)
+        CGameInfo::SetGraphicsOptionBits21To24(9);
+    Menu_GetItem(pMenu, 5)->max = CGameInfo::GetGraphicsOptionBits21To24();
 }
 
 // FUNCTION: CMR2 0x004f1d00
-void FUN_004f1d00(Menu *pMenu, int param)
+void FrontendMenu_EnterAdvancedGraphicsOptions(Menu *pMenu, int param)
 {
-    Menu_GetItem(pMenu, 8)->max = CGameInfo::FUN_00405cd0();
-    if (CGameInfo::FUN_00405d00() != 0)
+    Menu_GetItem(pMenu, 8)->max = CGameInfo::GetGraphicsOptionBits25To26();
+    if (CGameInfo::GetGraphicsOptionBits27To28() != 0)
         Menu_GetItem(pMenu, 9)->max = 1;
     else
         Menu_GetItem(pMenu, 9)->max = 0;
-    if (CGameInfo::FUN_00405d10() != 0) {
+    if (CGameInfo::GetPreviewMode() != 0) {
         Menu_GetItem(pMenu, 10)->max = 1;
         return;
     }
@@ -3830,9 +3830,9 @@ void FUN_004f1d00(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004f1d60
-void FUN_004f1d60(Menu *pMenu)
+void FrontendMenu_UpdateAdvancedGraphicsOptions(Menu *pMenu)
 {
-    if (CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
+    if (CFrontend::IsTextureWidthSupported(0x400) && CFrontend::IsTextureHeightSupported(0x400))
         return;
     if (pMenu->items[pMenu->cursor].value == 10) {
         Menu_SetFlags(pMenu, 1, 0, 1, 1);
@@ -3842,85 +3842,85 @@ void FUN_004f1d60(Menu *pMenu)
 }
 
 // FUNCTION: CMR2 0x004f1db0
-void FUN_004f1db0(Menu *pMenu, int param)
+void FrontendMenu_ApplyAdvancedGraphicsOptions(Menu *pMenu, int param)
 {
-    CGameInfo::FUN_00405ce0(Menu_GetItem(pMenu, 8)->max);
+    CGameInfo::SetGraphicsOptionBits25To26(Menu_GetItem(pMenu, 8)->max);
     switch (Menu_GetItem(pMenu, 9)->max) {
     case 1:
-        CGameInfo::FUN_00405d20(1);
+        CGameInfo::SetGraphicsOptionBits27To28(1);
         break;
     case 0:
-        CGameInfo::FUN_00405d20(0);
+        CGameInfo::SetGraphicsOptionBits27To28(0);
         break;
     }
     switch (Menu_GetItem(pMenu, 10)->max) {
     case 1:
-        CGameInfo::FUN_00405d40(2);
+        CGameInfo::SetPreviewMode(2);
         break;
     case 0:
-        if (CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
-            CGameInfo::FUN_00405d40(0);
+        if (CFrontend::IsTextureWidthSupported(0x400) && CFrontend::IsTextureHeightSupported(0x400))
+            CGameInfo::SetPreviewMode(0);
         else
-            CGameInfo::FUN_00405d40(2);
+            CGameInfo::SetPreviewMode(2);
         break;
     }
 }
 
 // FUNCTION: CMR2 0x004f1e40
-void FUN_004f1e40(Menu *pMenu, int param)
+void FrontendMenu_ApplyGraphicsOptions(Menu *pMenu, int param)
 {
-    if (CFrontend::FUN_004b7520()) {
+    if (CFrontend::GetDeviceCapabilityFieldA8()) {
         if (Menu_GetItem(pMenu, 1)->max == 0) {
-            CGameInfo::FUN_00405bb0(1);
+            CGameInfo::SetGraphicsOptionBit4(1);
             g_pGraphics->field913_0x3bc |= 0x40;
         } else {
-            CGameInfo::FUN_00405bb0(0);
+            CGameInfo::SetGraphicsOptionBit4(0);
             g_pGraphics->field913_0x3bc &= ~0x40;
         }
     }
     switch (Menu_GetItem(pMenu, 4)->max) {
     case 0:
-        CGameInfo::FUN_00405c80(2);
+        CGameInfo::SetGraphicsOptionBits18To19(2);
         g_pGraphics->field913_0x3bc &= ~1;
         g_pGraphics->field913_0x3bc |= 2;
         break;
     case 1:
-        CGameInfo::FUN_00405c80(1);
+        CGameInfo::SetGraphicsOptionBits18To19(1);
         g_pGraphics->field913_0x3bc |= 1;
         g_pGraphics->field913_0x3bc &= ~2;
         break;
     case 2:
-        CGameInfo::FUN_00405c80(0);
+        CGameInfo::SetGraphicsOptionBits18To19(0);
         g_pGraphics->field913_0x3bc &= ~1;
         g_pGraphics->field913_0x3bc &= ~2;
         break;
     }
-    CGameInfo::FUN_00405cb0(Menu_GetItem(pMenu, 5)->max);
+    CGameInfo::SetGraphicsOptionBits21To24(Menu_GetItem(pMenu, 5)->max);
     g_pGraphics->field917_0x3c0 = Menu_GetItem(pMenu, 5)->max;
 }
 
 // FUNCTION: CMR2 0x004f1f70
-void FUN_004f1f70(Menu *pMenu, char param)
+void FrontendMenu_LeaveGraphicsOptions(Menu *pMenu, char param)
 {
     if (param == 0)
-        FUN_004f1e40(pMenu, (int)&pMenu->items[pMenu->cursor]);
+        FrontendMenu_ApplyGraphicsOptions(pMenu, (int)&pMenu->items[pMenu->cursor]);
 }
 
-DWORD FUN_004b7530(void);
-DWORD FUN_004b7540(void);
-DWORD FUN_004b7550(void);
+DWORD Graphics_GetDeviceCaps98(void);
+DWORD Graphics_GetDeviceCaps9C(void);
+DWORD Graphics_GetDeviceCapsA4(void);
 
 // Callback of the options menu: enables the items supported by the current
 // device and puts the cursor on the active option group.
 // FUNCTION: CMR2 0x004f1fa0
-void FUN_004f1fa0(Menu *pMenu, int param)
+void FrontendMenu_EnterRenderDeviceOptions(Menu *pMenu, int param)
 {
     pMenu->items[0].min = 4;
     pMenu->items[0].enabled |= 1;
-    pMenu->items[1].enabled = FUN_004b7530();
-    pMenu->items[2].enabled = FUN_004b7530() && FUN_004b7540();
-    pMenu->items[3].enabled = FUN_004b7530() && FUN_004b7550();
-    switch (CGameInfo::FUN_00405b50()) {
+    pMenu->items[1].enabled = Graphics_GetDeviceCaps98();
+    pMenu->items[2].enabled = Graphics_GetDeviceCaps98() && Graphics_GetDeviceCaps9C();
+    pMenu->items[3].enabled = Graphics_GetDeviceCaps98() && Graphics_GetDeviceCapsA4();
+    switch (CGameInfo::GetGraphicsOptionBits1To2()) {
     case 1:
         pMenu->cursor = 1;
         return;
@@ -3937,29 +3937,29 @@ void FUN_004f1fa0(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004f2050
-void FUN_004f2050(Menu *pMenu, int param)
+void FrontendMenu_ApplyRenderDeviceOptions(Menu *pMenu, int param)
 {
     switch (pMenu->cursor) {
     case 0:
-        CGameInfo::FUN_00405b60(0);
+        CGameInfo::SetGraphicsOptionBits1To2(0);
         g_pGraphics->field913_0x3bc &= ~8;
         g_pGraphics->field913_0x3bc &= ~0x10;
         g_pGraphics->field913_0x3bc &= ~0x80;
         break;
     case 1:
-        CGameInfo::FUN_00405b60(1);
+        CGameInfo::SetGraphicsOptionBits1To2(1);
         g_pGraphics->field913_0x3bc |= 8;
         g_pGraphics->field913_0x3bc &= ~0x10;
         g_pGraphics->field913_0x3bc &= ~0x80;
         break;
     case 2:
-        CGameInfo::FUN_00405b60(2);
+        CGameInfo::SetGraphicsOptionBits1To2(2);
         g_pGraphics->field913_0x3bc |= 8;
         g_pGraphics->field913_0x3bc |= 0x10;
         g_pGraphics->field913_0x3bc &= ~0x80;
         break;
     case 3:
-        CGameInfo::FUN_00405b60(3);
+        CGameInfo::SetGraphicsOptionBits1To2(3);
         g_pGraphics->field913_0x3bc |= 8;
         g_pGraphics->field913_0x3bc &= ~0x10;
         g_pGraphics->field913_0x3bc |= 0x80;
@@ -3969,13 +3969,13 @@ void FUN_004f2050(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004f23c0
-int FUN_004f23c0(void)
+int FrontendMenu_GetFirstVisibleDisplayDevice(void)
 {
     return g_unk0x00819128;
 }
 
 // FUNCTION: CMR2 0x004f23d0
-void FUN_004f23d0(Menu *pMenu)
+void FrontendMenu_UpdateDisplayMode(Menu *pMenu)
 {
     unsigned int count = CGraphics::GetDisplayCount();
     if (count > 10)
@@ -3984,16 +3984,16 @@ void FUN_004f23d0(Menu *pMenu)
         g_unk0x00819128--;
     if (pMenu->items[0].max >= (int)(count + g_unk0x00819128))
         g_unk0x00819128++;
-    if (CGame::FUN_004a9b20() != 0)
-        FUN_004f2360((BYTE *)pMenu, 0);
+    if (CGame::GetGameInputFocusState() != 0)
+        FrontendMenu_EnterDisplayMode((BYTE *)pMenu, 0);
 }
 
-void FUN_004f4d80(void);
+void FrontendText_ReloadFonts(void);
 
 // Item action of the video menu: switches the game to the display mode
 // selected in the first row and rebuilds the frontend on top of it.
 // FUNCTION: CMR2 0x004f2430
-void FUN_004f2430(Menu *pMenu, int param)
+void FrontendMenu_ApplyDisplayMode(Menu *pMenu, int param)
 {
     DWORD width;
     DWORD height;
@@ -4004,220 +4004,220 @@ void FUN_004f2430(Menu *pMenu, int param)
     CGameInfo::SetScreenWidth(width);
     CGameInfo::SetScreenHeight(height);
     CGameInfo::SetColourDepth(depth);
-    CMain::FUN_004a9a50(1);
-    mode = CGraphics::FUN_004a8d80();
-    CGraphics::FUN_004a78a0(width, height, depth, CGameInfo::FUN_00405bd0(), mode);
+    CMain::SetGameActiveState(1);
+    mode = CGraphics::GetSelectedRenderDeviceIndex();
+    CGraphics::RecreateGraphicsDeviceAndResources(width, height, depth, CGameInfo::GetGraphicsOptionBits5To8(), mode);
     CGameInfo::SetScreenWidth(g_pGraphics->resX);
     CGameInfo::SetScreenHeight(g_pGraphics->resY);
     CGameInfo::SetColourDepth(g_pGraphics->depth);
     CFrontend::FUN_004d21e0();
     Graphics_ReloadAllTextures();
-    FUN_004f4d80();
+    FrontendText_ReloadFonts();
     FUN_004ef190();
-    CMain::FUN_004a9a50(0);
+    CMain::SetGameActiveState(0);
     Menu_SetNextAction((int)pMenu->pParent);
 }
 
 // FUNCTION: CMR2 0x004f24f0
-MenuScroller *FUN_004f24f0(void)
+MenuScroller *FrontendScroller_GetMainScroller(void)
 {
     return &g_menuScroller0x00819140;
 }
 
 // FUNCTION: CMR2 0x004f2500
-MenuScroller *FUN_004f2500(void)
+MenuScroller *FrontendScroller_GetRouteEntryScroller(void)
 {
     return &g_menuScroller0x00819230;
 }
 
 // FUNCTION: CMR2 0x004f2510
-MenuScroller *FUN_004f2510(void)
+MenuScroller *FrontendScroller_GetLanguageScroller(void)
 {
     return &g_menuScroller0x008192a8;
 }
 
 // FUNCTION: CMR2 0x004f2520
-MenuScroller *FUN_004f2520(void)
+MenuScroller *FrontendScroller_GetDifficultyScroller(void)
 {
     return &g_menuScroller0x00819320;
 }
 
 // FUNCTION: CMR2 0x004f2530
-MenuScroller *FUN_004f2530(void)
+MenuScroller *FrontendScroller_GetRallySelectionScroller(void)
 {
     return &g_menuScroller0x00819398;
 }
 
 // FUNCTION: CMR2 0x004f2540
-MenuScroller *FUN_004f2540(void)
+MenuScroller *FrontendScroller_GetStageRecordsScroller(void)
 {
     return &g_menuScroller0x00819410;
 }
 
 // FUNCTION: CMR2 0x004f2550
-MenuScroller *FUN_004f2550(void)
+MenuScroller *FrontendScroller_GetBestStageTimesScroller(void)
 {
     return &g_menuScroller0x00819488;
 }
 
 // FUNCTION: CMR2 0x004f2560
-MenuScroller *FUN_004f2560(void)
+MenuScroller *FrontendScroller_GetTransmissionRecordsScroller(void)
 {
     return &g_menuScroller0x00819500;
 }
 
 // FUNCTION: CMR2 0x004f2570
-MenuScroller *FUN_004f2570(void)
+MenuScroller *FrontendScroller_GetDisplayDeviceScroller(void)
 {
     return &g_menuScroller0x00819578;
 }
 
 // FUNCTION: CMR2 0x004f2580
-MenuScroller *FUN_004f2580(void)
+MenuScroller *FrontendScroller_GetAlternateStageScroller(void)
 {
     return &g_menuScroller0x00819668;
 }
 
 // FUNCTION: CMR2 0x004f2590
-MenuScroller *FUN_004f2590(void)
+MenuScroller *FrontendScroller_GetArcadeRallyScroller(void)
 {
     return &g_menuScroller0x008195f0;
 }
 
 // FUNCTION: CMR2 0x004f25a0
-int FUN_004f25a0(void)
+int FrontendCredits_GetScrollOffset(void)
 {
     return g_unk0x0081987c;
 }
 
 // FUNCTION: CMR2 0x004f25b0
-int FUN_004f25b0(void)
+int FrontendScroller_GetSelection(void)
 {
     return g_unk0x00525398;
 }
 
 // FUNCTION: CMR2 0x004f25c0
-int FUN_004f25c0(void)
+int FrontendScroller_GetSelectionTimestamp(void)
 {
     return g_unk0x0081912c;
 }
 
 // FUNCTION: CMR2 0x004f2840
-void FUN_004f2840(Menu *pMenu, int param)
+void FrontendMenu_EnterSoundOptions(Menu *pMenu, int param)
 {
-    g_unk0x0081903c = CGameInfo::FUN_00405e40();
-    g_unk0x00819860 = CGameInfo::FUN_00405e70();
-    g_unk0x00819754 = CGameInfo::FUN_00405ea0();
-    pMenu->items[0].max = (int)CGameInfo::FUN_00405e40() / 10;
-    pMenu->items[1].max = (int)CGameInfo::FUN_00405e70() / 10;
-    pMenu->items[2].max = (int)CGameInfo::FUN_00405ea0() / 10;
+    g_unk0x0081903c = CGameInfo::GetMasterSoundVolume();
+    g_unk0x00819860 = CGameInfo::GetEffectsSoundVolume();
+    g_unk0x00819754 = CGameInfo::GetCoDriverSoundVolume();
+    pMenu->items[0].max = (int)CGameInfo::GetMasterSoundVolume() / 10;
+    pMenu->items[1].max = (int)CGameInfo::GetEffectsSoundVolume() / 10;
+    pMenu->items[2].max = (int)CGameInfo::GetCoDriverSoundVolume() / 10;
 }
 
 // FUNCTION: CMR2 0x004f2b70
-void FUN_004f2b70(Menu *pMenu, char param)
+void FrontendMenu_LeaveSoundOptions(Menu *pMenu, char param)
 {
     if (param != 0) {
-        CGameInfo::FUN_00405e10(g_unk0x0081903c);
-        CGameInfo::FUN_00405e50(g_unk0x00819860);
-        CGameInfo::FUN_00405e80(g_unk0x00819754);
-        CInput::FUN_0049ffc0((int)(CGameInfo::FUN_00405e70() << 16) / 100 / 4);
-        CSound::FUN_004a28c0();
+        CGameInfo::SetMasterSoundVolume(g_unk0x0081903c);
+        CGameInfo::SetEffectsSoundVolume(g_unk0x00819860);
+        CGameInfo::SetCoDriverSoundVolume(g_unk0x00819754);
+        CInput::SetInputRepeatTimingState((int)(CGameInfo::GetEffectsSoundVolume() << 16) / 100 / 4);
+        CSound::NoOpSoundDeviceCallback();
         return;
     }
-    FUN_004f2b00((BYTE *)pMenu);
+    FrontendMenu_UpdateSoundOptions((BYTE *)pMenu);
 }
 
 // FUNCTION: CMR2 0x004f2be0
-int FUN_004f2be0(void)
+int FrontendProfile_GetCurrentPlayer(void)
 {
     return g_unk0x00819880;
 }
 
 // FUNCTION: CMR2 0x004f2bf0
-void FUN_004f2bf0(int value)
+void FrontendProfile_SetCurrentPlayer(int value)
 {
     g_unk0x00819880 = value;
 }
 
 // FUNCTION: CMR2 0x004f2c00
-int FUN_004f2c00(void)
+int FrontendProfile_GetRenameMenu(void)
 {
     return g_unk0x00819030;
 }
 
 // FUNCTION: CMR2 0x004f2c10
-void FUN_004f2c10(int value)
+void FrontendProfile_SetRenameMenu(int value)
 {
     g_unk0x00819030 = value;
 }
 
 // FUNCTION: CMR2 0x004f2c20
-int FUN_004f2c20(void)
+int FrontendProfile_GetCompletionMenu(void)
 {
     return g_unk0x00819124;
 }
 
 // FUNCTION: CMR2 0x004f2c30
-void FUN_004f2c30(int value)
+void FrontendProfile_SetCompletionMenu(int value)
 {
     g_unk0x00819124 = value;
 }
 
 // FUNCTION: CMR2 0x004f2c40
-void FUN_004f2c40(Menu *pMenu, char param)
+void FrontendMenu_EnterGameOptions(Menu *pMenu, char param)
 {
     if (param == 0) {
-        if (CGameInfo::FUN_00405dc0())
+        if (CGameInfo::IsSplitBarEnabled())
             pMenu->items[Menu_FindItem(pMenu, 0)].max = 1;
         else
             pMenu->items[Menu_FindItem(pMenu, 0)].max = 0;
-        if ((BYTE)CGameInfo::FUN_00406310())
+        if ((BYTE)CGameInfo::GetSoundOptionBit30())
             pMenu->items[Menu_FindItem(pMenu, 2)].max = 0;
         else
             pMenu->items[Menu_FindItem(pMenu, 2)].max = 1;
-        if ((BYTE)CGameInfo::FUN_00405eb0())
+        if ((BYTE)CGameInfo::IsDashOptionEnabled())
             pMenu->items[Menu_FindItem(pMenu, 3)].max = 1;
         else
             pMenu->items[Menu_FindItem(pMenu, 3)].max = 0;
-        if (CGameInfo::FUN_00405ef0() == 0)
+        if (CGameInfo::GetNetworkOptionBits1To2() == 0)
             pMenu->items[Menu_FindItem(pMenu, 4)].max = 0;
-        if (CGameInfo::FUN_00405ef0() == 1)
+        if (CGameInfo::GetNetworkOptionBits1To2() == 1)
             pMenu->items[Menu_FindItem(pMenu, 4)].max = 1;
-        if (CGameInfo::FUN_00405ef0() == 2)
+        if (CGameInfo::GetNetworkOptionBits1To2() == 2)
             pMenu->items[Menu_FindItem(pMenu, 4)].max = 2;
     }
 }
 
 
 // Applies the front-end options from the menu items back to the game info.
-void FUN_004eab20(BYTE param1);
-void FUN_004eaa40(unsigned int param1);
+void GameInfo_SetSoundOptionBit30(BYTE param1);
+void GameInfo_SetNetworkOptionBits1To2(unsigned int param1);
 
 // FUNCTION: CMR2 0x004f2d20
-void FUN_004f2d20(Menu *pMenu, int param)
+void FrontendMenu_ApplyGameOptions(Menu *pMenu, int param)
 {
     int index;
 
     index = Menu_FindItem(pMenu, 0);
-    CGameInfo::FUN_00406340(pMenu->items[index].max);
+    CGameInfo::SetSplitBarEnabled(pMenu->items[index].max);
     index = Menu_FindItem(pMenu, 2);
-    FUN_004eab20(1 - pMenu->items[index].max);
+    GameInfo_SetSoundOptionBit30(1 - pMenu->items[index].max);
     index = Menu_FindItem(pMenu, 3);
-    CGameInfo::FUN_00405ec0(pMenu->items[index].max);
+    CGameInfo::SetDashOptionEnabled(pMenu->items[index].max);
     index = Menu_FindItem(pMenu, 4);
-    FUN_004eaa40(pMenu->items[index].max);
+    GameInfo_SetNetworkOptionBits1To2(pMenu->items[index].max);
 }
 
 // FUNCTION: CMR2 0x004f2d90
-void FUN_004f2d90(Menu *pMenu, int param)
+void FrontendScroller_InitStageRecords(Menu *pMenu, int param)
 {
     MenuScroller *p;
     int i;
 
-    p = FUN_004f2540();
-    p->startTime = CFrontend::FUN_004d20e0();
+    p = FrontendScroller_GetStageRecordsScroller();
+    p->startTime = CFrontend::GetFrontendTimestamp();
     p->pMenu = pMenu;
-    p = FUN_004f2540();
+    p = FrontendScroller_GetStageRecordsScroller();
     p->spacing = (int)(g_pGraphics->resX * 24) / 640;
     p->count = pMenu->itemCount;
     p->offset = 0;
@@ -4230,13 +4230,13 @@ void FUN_004f2d90(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004f2e70
-void FUN_004f2e70(Menu *pMenu, int param)
+void FrontendScroller_InitBestStageTimes(Menu *pMenu, int param)
 {
     MenuScroller *p;
     int i;
 
-    p = FUN_004f2550();
-    p->startTime = CFrontend::FUN_004d20e0();
+    p = FrontendScroller_GetBestStageTimesScroller();
+    p->startTime = CFrontend::GetFrontendTimestamp();
     p->pMenu = pMenu;
     p->spacing = (int)(g_pGraphics->resX * 24) / 640;
     p->count = pMenu->itemCount;
@@ -4250,13 +4250,13 @@ void FUN_004f2e70(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004f2f40
-void FUN_004f2f40(Menu *pMenu, int param)
+void FrontendScroller_InitTransmissionRecords(Menu *pMenu, int param)
 {
     MenuScroller *p;
     int i;
 
-    p = FUN_004f2560();
-    p->startTime = CFrontend::FUN_004d20e0();
+    p = FrontendScroller_GetTransmissionRecordsScroller();
+    p->startTime = CFrontend::GetFrontendTimestamp();
     p->pMenu = pMenu;
     p->spacing = (int)(g_pGraphics->resX * 24) / 640;
     p->count = pMenu->itemCount;
@@ -4270,7 +4270,7 @@ void FUN_004f2f40(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004f3010
-void FUN_004f3010(Menu *pMenu, int param)
+void FrontendMenu_EnterRallyStageSelection(Menu *pMenu, int param)
 {
     MenuScroller *p;
     int i;
@@ -4281,8 +4281,8 @@ void FUN_004f3010(Menu *pMenu, int param)
         else
             pMenu->items[i].enabled = 0;
     }
-    p = FUN_004f2570();
-    p->startTime = CFrontend::FUN_004d20e0();
+    p = FrontendScroller_GetDisplayDeviceScroller();
+    p->startTime = CFrontend::GetFrontendTimestamp();
     p->count = pMenu->itemCount;
     p->pMenu = pMenu;
     p->offset = 0;
@@ -4301,15 +4301,15 @@ void FUN_004f3010(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004f3120
-void FUN_004f3120(Menu *pMenu, int param)
+void FrontendMenu_EnterAlternateRallyStageSelection(Menu *pMenu, int param)
 {
     MenuScroller *p;
     int i;
 
     for (i = 0; i < pMenu->itemCount; i++)
         pMenu->items[i].enabled = 1;
-    p = FUN_004f2580();
-    p->startTime = CFrontend::FUN_004d20e0();
+    p = FrontendScroller_GetAlternateStageScroller();
+    p->startTime = CFrontend::GetFrontendTimestamp();
     p->count = pMenu->itemCount;
     p->pMenu = pMenu;
     p->spacing = (int)(g_pGraphics->resX * 24) / 640;
@@ -4324,13 +4324,13 @@ void FUN_004f3120(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004f36e0
-void FUN_004f36e0(Menu *pMenu, int param)
+void FrontendMenu_EnterRallySelection(Menu *pMenu, int param)
 {
     MenuScroller *p;
     int i;
 
-    p = FUN_004f2530();
-    p->startTime = CFrontend::FUN_004d20e0();
+    p = FrontendScroller_GetRallySelectionScroller();
+    p->startTime = CFrontend::GetFrontendTimestamp();
     p->pMenu = pMenu;
     p->count = pMenu->itemCount;
     p->offset = 0;
@@ -4363,8 +4363,8 @@ void FUN_004f37c0(MenuScroller *p)
 
     if (pMenu->cursor != p->current) {
         if (p->current != -1) {
-            if (pMenu == FUN_004f8410()) {
-                g_unk0x0081912c = CFrontend::FUN_004d20e0();
+            if (pMenu == FrontendMenu_GetMain()) {
+                g_unk0x0081912c = CFrontend::GetFrontendTimestamp();
                 g_unk0x00525398 = g_unk0x0052539c;
                 g_unk0x0052539c = pMenu->cursor;
             }
@@ -4405,88 +4405,88 @@ void FUN_004f37c0(MenuScroller *p)
             }
             p->startOffset = p->offset;
         }
-        p->startTime = CFrontend::FUN_004d20e0();
+        p->startTime = CFrontend::GetFrontendTimestamp();
         p->previous = p->current;
         p->current = pMenu->cursor;
     }
     if (p->current != -1) {
-        if ((unsigned int)(CFrontend::FUN_004d20e0() - p->startTime) > 250) {
+        if ((unsigned int)(CFrontend::GetFrontendTimestamp() - p->startTime) > 250) {
             p->offset = 0;
             p->startOffset = 0;
             return;
         }
         if (p->startOffset > 0) {
-            p->offset = p->startOffset - (unsigned int)((CFrontend::FUN_004d20e0() - p->startTime) * p->startOffset) / 250;
+            p->offset = p->startOffset - (unsigned int)((CFrontend::GetFrontendTimestamp() - p->startTime) * p->startOffset) / 250;
             return;
         }
-        p->offset = (unsigned int)-((CFrontend::FUN_004d20e0() - p->startTime) * p->startOffset) / 250 + p->startOffset;
+        p->offset = (unsigned int)-((CFrontend::GetFrontendTimestamp() - p->startTime) * p->startOffset) / 250 + p->startOffset;
     }
 }
 
 // FUNCTION: CMR2 0x004f3970
-void FUN_004f3970(Menu *pMenu)
+void FrontendScroller_UpdateStageRecords(Menu *pMenu)
 {
-    FUN_004f37c0(FUN_004f2540());
+    FUN_004f37c0(FrontendScroller_GetStageRecordsScroller());
 }
 
 // FUNCTION: CMR2 0x004f3980
-void FUN_004f3980(Menu *pMenu)
+void FrontendScroller_UpdateBestStageTimes(Menu *pMenu)
 {
-    FUN_004f37c0(FUN_004f2550());
+    FUN_004f37c0(FrontendScroller_GetBestStageTimesScroller());
 }
 
 // FUNCTION: CMR2 0x004f3990
-void FUN_004f3990(Menu *pMenu)
+void FrontendScroller_UpdateTransmissionRecords(Menu *pMenu)
 {
-    if (FUN_004f3a60() == 0) {
+    if (FrontendRecords_GetTableMode() == 0) {
         pMenu->cursor = 0;
         pMenu->items[1].enabled = 0;
     } else {
         pMenu->items[1].enabled = 1;
     }
-    FUN_004f37c0(FUN_004f2560());
+    FUN_004f37c0(FrontendScroller_GetTransmissionRecordsScroller());
 }
 
 // FUNCTION: CMR2 0x004f39d0
-void FUN_004f39d0(Menu *pMenu)
+void FrontendScroller_UpdateChampionshipEntry(Menu *pMenu)
 {
-    FUN_004f37c0(FUN_004f2500());
+    FUN_004f37c0(FrontendScroller_GetRouteEntryScroller());
 }
 
 // Applying the 3D car preview screen: when the preview is up, the block of the
 // selected car is handed to the frontend state machine.
 // FUNCTION: CMR2 0x004f3a00
-void FUN_004f3a00(Menu *pMenu, int param)
+void FrontendCar_ApplyPreviewSelection(Menu *pMenu, int param)
 {
     char ok;
 
     if (g_unk0x0082aa40 > 0) {
-        ok = FUN_004fb400(FUN_004f4e50(g_unk0x0082a924));
+        ok = FUN_004fb400(SavedGames_GetRecord(g_unk0x0082a924));
         if (ok != 0)
-            FUN_004d2070(0, 1, 0);
+            Frontend_SetDebugOverlayChannels(0, 1, 0);
     }
 }
 
 // FUNCTION: CMR2 0x004f3a30
-BYTE FUN_004f3a30(void)
+BYTE FrontendChampionship_GetRouteSelectionFlag(void)
 {
     return g_unk0x00819748;
 }
 
 // FUNCTION: CMR2 0x004f3a40
-int FUN_004f3a40(void)
+int FrontendChampionship_GetRouteIndexOffset(void)
 {
     return g_unk0x00819050;
 }
 
 // FUNCTION: CMR2 0x004f3a60
-int FUN_004f3a60(void)
+int FrontendRecords_GetTableMode(void)
 {
     return g_unk0x008196e0;
 }
 
 // FUNCTION: CMR2 0x004f3a90
-void FUN_004f3a90(Menu *pMenu, int param)
+void FrontendRecords_CycleTableMode(Menu *pMenu, int param)
 {
     g_unk0x008196e0++;
     if (g_unk0x008196e0 > 2)
@@ -4495,42 +4495,42 @@ void FUN_004f3a90(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004f3ac0
-void FUN_004f3ac0(Menu *pMenu, char param)
+void FrontendMenu_EnterProfileActions(Menu *pMenu, char param)
 {
     if (param == 0)
         pMenu->cursor = 0;
 }
 
 // FUNCTION: CMR2 0x004f3ae0
-void FUN_004f3ae0(Menu *pMenu)
+void FrontendScroller_UpdateMain(Menu *pMenu)
 {
-    FUN_004f37c0(FUN_004f24f0());
+    FUN_004f37c0(FrontendScroller_GetMainScroller());
 }
 
 // FUNCTION: CMR2 0x004f3af0
-BYTE *FUN_004f3af0(void)
+BYTE *FrontendProfile_GetEnteredNameBuffer(void)
 {
     return g_unk0x008190f4;
 }
 
 // FUNCTION: CMR2 0x004f3b00
-void FUN_004f3b00(Menu *pMenu, int param)
+void FrontendMenu_EnterQuitConfirmation(Menu *pMenu, int param)
 {
     g_unk0x00819878 = 0;
     pMenu->cursor = 1;
 }
 
 // FUNCTION: CMR2 0x004f3b20
-void FUN_004f3b20(Menu *pMenu, int param)
+void FrontendMenu_CancelQuit(Menu *pMenu, int param)
 {
     g_unk0x00819878 = 1;
 }
 
 // FUNCTION: CMR2 0x004f3b30
-void FUN_004f3b30(Menu *pMenu, char param)
+void FrontendMenu_LeaveQuitConfirmation(Menu *pMenu, char param)
 {
     if (g_unk0x00819878 == 0 && param == 0)
-        Menu_SetNextAction((int)FUN_004f8990());
+        Menu_SetNextAction((int)FrontendMenu_GetQuitTransition());
 }
 
 // Frontend sound names and path
@@ -4543,7 +4543,7 @@ char g_strMenuDotFormat[32] = "%s\\frontend\\Textures\\dot0%d.tga";
 
 // Loads the five frontend sounds from the common frontend archive.
 // FUNCTION: CMR2 0x004f3b50
-BYTE FUN_004f3b50(void)
+BYTE FrontendAudio_LoadSounds(void)
 {
     BYTE ok;
     int i;
@@ -4552,7 +4552,7 @@ BYTE FUN_004f3b50(void)
     g_menuSoundBase = 0;
     for (i = 0; i < 5; i++) {
         sprintf(CFrontend::m_stringDest, g_strMenuSoundFormat, CInstallInfo::GetGameCDPath(), g_menuSoundNames[i]);
-        if (!Sound_LoadSample(CFrontend::m_stringDest, 0, CFrontend::FUN_004d2190()))
+        if (!Sound_LoadSample(CFrontend::m_stringDest, 0, CFrontend::GetCommonFrontendArchive()))
             ok = 0;
     }
     return ok;
@@ -4561,18 +4561,18 @@ BYTE FUN_004f3b50(void)
 // Sets the input repeat rate from the options and binds the five frontend
 // sounds to the menu actions.
 // FUNCTION: CMR2 0x004f3bb0
-void FUN_004f3bb0(void)
+void FrontendAudio_ConfigureMenuSounds(void)
 {
     g_unk0x0081988c = -1;
-    CInput::FUN_0049ffc0((int)(CGameInfo::FUN_00405e70() << 16) / 100 / 4);
-    CInput::FUN_0049ff80(g_menuSoundBase, g_menuSoundBase + 1, g_menuSoundBase + 2, g_menuSoundBase + 3,
+    CInput::SetInputRepeatTimingState((int)(CGameInfo::GetEffectsSoundVolume() << 16) / 100 / 4);
+    CInput::SetInputRepeatTimingParameters(g_menuSoundBase, g_menuSoundBase + 1, g_menuSoundBase + 2, g_menuSoundBase + 3,
                          g_menuSoundBase + 4);
-    FUN_004a0c40(1);
+    Menu_SetInputStateFlag(1);
 }
 
 // Loads the four "dot" textures of the frontend.
 // FUNCTION: CMR2 0x004f3f60
-void FUN_004f3f60(void)
+void FrontendAnimation_LoadDotTextures(void)
 {
     int i;
 
@@ -4700,7 +4700,7 @@ void FUN_004f3c10(int *pPoints, int t, int *pOut)
 // Resets the main menu animation: letters spread along the path, dots at
 // the start, and the path of the entry under the cursor.
 // FUNCTION: CMR2 0x004f3dd0
-void FUN_004f3dd0(void)
+void FrontendAnimation_ResetMainPath(void)
 {
     int *pPos;
     int i;
@@ -4724,7 +4724,7 @@ void FUN_004f3dd0(void)
         k += 0x4000;
     } while ((int)pPos < (int)&g_menuStreamPos[6][0]); // 0x819da8 in the original
     g_menuAnimTime = -1;
-    switch (FUN_004f8410()->items[FUN_004f8410()->cursor].value) {
+    switch (FrontendMenu_GetMain()->items[FrontendMenu_GetMain()->cursor].value) {
     case 0:
         g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 0;
         break;
@@ -4741,8 +4741,8 @@ void FUN_004f3dd0(void)
         unsigned int t;
         g_menuPathMode = 4;
         g_menuPathPrevMode = 4;
-        t = CFrontend::FUN_004d20e0();
-        g_menuPathVariant = (t - FUN_004f25c0()) / 500 % 3;
+        t = CFrontend::GetFrontendTimestamp();
+        g_menuPathVariant = (t - FrontendScroller_GetSelectionTimestamp()) / 500 % 3;
         break;
     }
     case 5:
@@ -4757,13 +4757,13 @@ void FUN_004f3dd0(void)
 // Distance to move this frame at `speed` (16.16 per second), from the time
 // since the last update (0.02 s the first time).
 // FUNCTION: CMR2 0x004f3fb0
-void FUN_004f3fb0(int *pOut, int speed)
+void FrontendAnimation_GetFrameDistance(int *pOut, int speed)
 {
     if (g_menuAnimTime == -1) {
         *pOut = FixMul(speed, FixDiv(20 << 16, 1000 << 16));
         return;
     }
-    *pOut = FixMul(speed, FixDiv((int)(__int64)((unsigned int)(CFrontend::FUN_004d20e0() - g_menuAnimTime) * CGraphics::m_65536),
+    *pOut = FixMul(speed, FixDiv((int)(__int64)((unsigned int)(CFrontend::GetFrontendTimestamp() - g_menuAnimTime) * CGraphics::m_65536),
                                  1000 << 16));
 }
 
@@ -4790,21 +4790,21 @@ void FUN_004f4050(void)
     int dy;
     int j;
 
-    CInput::FUN_0049ead0(0);
-    FUN_004f3fb0(&step, 0xccc);
+    CInput::GetAvailableDeviceRecord(0);
+    FrontendAnimation_GetFrameDistance(&step, 0xccc);
     pPos = g_menuLetterPos;
     do {
         *pPos -= step;
         MENU_WRAP(*pPos)
         pPos++;
     } while (pPos < &g_menuLetterPos[200]);
-    if (CGameInfo::FUN_00406410(0xe)) {
+    if (CGameInfo::IsRecordFlagSet(0xe)) {
         g_pMenuPath = g_menuPathCheat[0];
     } else if (g_menuPathInit == 0) {
         g_menuPathInit = 1;
         g_pMenuPath = g_menuPaths[g_menuPathMode][0];
     } else if (g_menuPathInit == 1) {
-        switch (FUN_004f8410()->items[FUN_004f8410()->cursor].value) {
+        switch (FrontendMenu_GetMain()->items[FrontendMenu_GetMain()->cursor].value) {
         case 0:
             g_menuPathMode = 0;
             break;
@@ -4819,7 +4819,7 @@ void FUN_004f4050(void)
             break;
         case 4:
             g_menuPathMode = g_menuPathVariant + 4;
-            g_menuPathVariant = (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) / 500 % 3;
+            g_menuPathVariant = (unsigned int)(CFrontend::GetFrontendTimestamp() - FrontendScroller_GetSelectionTimestamp()) / 500 % 3;
             break;
         case 5:
             g_menuPathMode = 7;
@@ -4828,15 +4828,15 @@ void FUN_004f4050(void)
             g_menuPathMode = 8;
             break;
         }
-        if (FUN_004f25b0() == -1) {
+        if (FrontendScroller_GetSelection() == -1) {
             g_menuPathPrevMode = g_menuPathMode;
-        } else if (FUN_004f8410()->items[FUN_004f8410()->cursor].value == 4
-                   && (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) > 250) {
-            g_menuPathPrevMode = (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) / 500 % 3 + 3;
+        } else if (FrontendMenu_GetMain()->items[FrontendMenu_GetMain()->cursor].value == 4
+                   && (unsigned int)(CFrontend::GetFrontendTimestamp() - FrontendScroller_GetSelectionTimestamp()) > 250) {
+            g_menuPathPrevMode = (unsigned int)(CFrontend::GetFrontendTimestamp() - FrontendScroller_GetSelectionTimestamp()) / 500 % 3 + 3;
             if (g_menuPathPrevMode <= 3)
                 g_menuPathPrevMode = 6;
         } else {
-            switch (FUN_004f8410()->items[FUN_004f25b0()].value) {
+            switch (FrontendMenu_GetMain()->items[FrontendScroller_GetSelection()].value) {
             case 0:
                 g_menuPathPrevMode = 0;
                 break;
@@ -4860,10 +4860,10 @@ void FUN_004f4050(void)
                 break;
             }
         }
-        if (FUN_004f8410()->items[FUN_004f8410()->cursor].value == 4)
-            elapsed = (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) % 500;
+        if (FrontendMenu_GetMain()->items[FrontendMenu_GetMain()->cursor].value == 4)
+            elapsed = (unsigned int)(CFrontend::GetFrontendTimestamp() - FrontendScroller_GetSelectionTimestamp()) % 500;
         else
-            elapsed = CFrontend::FUN_004d20e0() - FUN_004f25c0();
+            elapsed = CFrontend::GetFrontendTimestamp() - FrontendScroller_GetSelectionTimestamp();
         if (elapsed > 250) {
             g_pMenuPath = g_menuPaths[g_menuPathMode][0];
         } else {
@@ -4881,7 +4881,7 @@ void FUN_004f4050(void)
             g_pMenuPath = g_menuPathMorph[0];
         }
     }
-    FUN_004f3fb0(&step, 0x1333);
+    FrontendAnimation_GetFrameDistance(&step, 0x1333);
     g_menuTrailPos[0] -= step;
     MENU_WRAP(g_menuTrailPos[0])
     for (pPos = &g_menuTrailPos[14]; pPos > g_menuTrailPos; pPos--)
@@ -4895,7 +4895,7 @@ void FUN_004f4050(void)
             *pSpeed = 0x8000;
         pSpeed++;
     } while (pSpeed < &g_menuStreamSpeed[6]);
-    FUN_004f3fb0(&step, 0x3333);
+    FrontendAnimation_GetFrameDistance(&step, 0x3333);
     pPos = g_menuStreamPos[0];
     pSpeed = g_menuStreamSpeed;
     do {
@@ -4906,12 +4906,12 @@ void FUN_004f4050(void)
         pSpeed++;
         pPos += 10;
     } while (pSpeed < &g_menuStreamSpeed[6]);
-    g_menuAnimTime = CFrontend::FUN_004d20e0();
+    g_menuAnimTime = CFrontend::GetFrontendTimestamp();
 }
 
 // Draws the 200 letters of "colinmcrae" along the path.
 // FUNCTION: CMR2 0x004f45a0
-void FUN_004f45a0(void)
+void FrontendAnimation_DrawLetters(void)
 {
     BYTE colour[4];
     int point[2];
@@ -4936,7 +4936,7 @@ void FUN_004f45a0(void)
 
 // Draws the trail of 15 dots, fading out towards the tail.
 // FUNCTION: CMR2 0x004f4650
-void FUN_004f4650(void)
+void FrontendAnimation_DrawDotTrail(void)
 {
     BYTE colour[4];
     int point[2];
@@ -4965,7 +4965,7 @@ void FUN_004f4650(void)
 
 // Draws the six streams of 10 dots, fading out towards their tails.
 // FUNCTION: CMR2 0x004f4760
-void FUN_004f4760(void)
+void FrontendAnimation_DrawDotStreams(void)
 {
     BYTE colour[4];
     Texture *pTexture;
@@ -5007,59 +5007,59 @@ void FUN_004f4760(void)
 // GLOBAL: CMR2 0x0081904c
 DWORD g_mainMenuInputTime;
 
-void FUN_004ea8a0(BYTE param1);
-void FUN_004a3c30(int language);
-bool FUN_004f48b0(void);
-void FUN_004f4910(char registerRelease);
-void FUN_004fa4d0(void);
-unsigned int FUN_0049e940(void);
-void FUN_004ea8c0(BYTE param1);
-void FUN_004ea8e0(BYTE param1);
-void FUN_004ea950(BYTE param1);
-void FUN_004ea9c0(unsigned int param1, unsigned int param2);
-void FUN_004d05f0(void);
-void FUN_00409a30(void);
-void RallyData_FUN_004068b0(BYTE param1);
-void RallyData_FUN_004068e0(BYTE param1);
+void GameInfo_SetGameModeBits0To2(BYTE param1);
+void Frontend_SelectTextLanguage(int language);
+bool FrontendCredits_ReleaseText(void);
+void FrontendCredits_LoadText(char registerRelease);
+void FrontendMenu_BuildAllControlsPages(void);
+unsigned int StageObject_GetAnyDeviceHeldButtons(void);
+void GameInfo_SetConfiguredPlayerCount(BYTE param1);
+void GameInfo_SetConfiguredGameMode(BYTE param1);
+void GameInfo_SetConfiguredMultiplayer(BYTE param1);
+void GameInfo_SetPlayerOptionNibbles(unsigned int param1, unsigned int param2);
+void NetworkChat_ClearLog(void);
+void NetPlayers_ResetAllTables(void);
+void RallyData_SetCountrySelectionBits(BYTE param1);
+void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
 
 // Leaving the language menu: applies the chosen language (texts, fonts,
 // credits), rebuilds the scrollers and, the first time, the controls menu,
 // and makes the main menu the parent of the language menu and its entries.
 // FUNCTION: CMR2 0x004ef270
-void FUN_004ef270(Menu *pMenu, char back)
+void FrontendMenu_LeaveLanguage(Menu *pMenu, char back)
 {
     int i;
 
     if (back == 0) {
-        FUN_004ea8a0(pMenu->cursor);
-        FUN_004a3c30(pMenu->cursor);
-        FUN_004f48b0();
-        FUN_004f4910(0);
+        GameInfo_SetGameModeBits0To2(pMenu->cursor);
+        Frontend_SelectTextLanguage(pMenu->cursor);
+        FrontendCredits_ReleaseText();
+        FrontendCredits_LoadText(0);
         if (CGameInfo::GetGameLanguage() == 0)
-            CGameInfo::FUN_00405ec0(1);
+            CGameInfo::SetDashOptionEnabled(1);
         else
-            CGameInfo::FUN_00405ec0(0);
-        CFrontend::FUN_004d2790();
+            CGameInfo::SetDashOptionEnabled(0);
+        CFrontend::CacheCarClassTextLabels();
         FUN_004ef190();
         if (pMenu->pParent == NULL)
-            FUN_004fa4d0();
-        Menu_SetParent(pMenu, FUN_004f82c0());
+            FrontendMenu_BuildAllControlsPages();
+        Menu_SetParent(pMenu, FrontendMenu_GetOptions());
         for (i = 0; i < pMenu->itemCount; i++)
-            Menu_SetItemSubMenu(pMenu, i, FUN_004f82c0());
+            Menu_SetItemSubMenu(pMenu, i, FrontendMenu_GetOptions());
     }
 }
 
 // Entering the main menu: resets the animation and the attract-mode timer and
 // sets up the scroller of the main menu.
 // FUNCTION: CMR2 0x004ef300
-void FUN_004ef300(Menu *pMenu, int param)
+void FrontendMenu_EnterMain(Menu *pMenu, int param)
 {
     MenuScroller *p;
     int k;
 
     g_mainMenuInputTime = timeGetTime();
-    FUN_004f3dd0();
-    p = FUN_004f24f0();
+    FrontendAnimation_ResetMainPath();
+    p = FrontendScroller_GetMainScroller();
     p->offset = 0;
     p->startOffset = 0;
     p->current = pMenu->cursor;
@@ -5073,84 +5073,84 @@ void FUN_004ef300(Menu *pMenu, int param)
         CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
         p->widths[k] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
     }
-    p->startTime = CFrontend::FUN_004d20e0();
+    p->startTime = CFrontend::GetFrontendTimestamp();
     p->pMenu = pMenu;
-    CGameInfo::FUN_00405de0(0);
+    CGameInfo::SetGameModeOptionBit19(0);
 }
 
 // Update callback of the main menu: scroller, animation, and the attract
 // mode after 30.5 s without input.
 // FUNCTION: CMR2 0x004ef420
-void FUN_004ef420(Menu *pMenu)
+void FrontendMenu_UpdateMain(Menu *pMenu)
 {
     DWORD now;
 
-    FUN_004f37c0(FUN_004f24f0());
+    FUN_004f37c0(FrontendScroller_GetMainScroller());
     FUN_004f4050();
     now = timeGetTime();
-    if (FUN_0049e940() != 0)
+    if (StageObject_GetAnyDeviceHeldButtons() != 0)
         g_mainMenuInputTime = timeGetTime();
     if ((int)(now - g_mainMenuInputTime) > 30500) {
-        CGameInfo::FUN_00406330(1);
-        Menu_SetNextAction((int)FUN_004f8330());
+        CGameInfo::SetGameInfoSessionFlag(1);
+        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
     }
 }
 
 // Draw callback of the main menu: path, carousel, the "colinmcrae" letters
 // and, for some entries, the dot trail or the dot streams.
 // FUNCTION: CMR2 0x004d4ba0
-void FUN_004d4ba0(Menu *pMenu)
+void FrontendMenu_DrawMain(Menu *pMenu)
 {
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, -1, NULL, -1);
     FrontendDraw_Carousel(pMenu, 1, NULL);
-    FUN_004f45a0();
+    FrontendAnimation_DrawLetters();
     if (pMenu->items[pMenu->cursor].value == 1)
-        FUN_004f4650();
+        FrontendAnimation_DrawDotTrail();
     if (pMenu->items[pMenu->cursor].value == 2)
-        FUN_004f4760();
+        FrontendAnimation_DrawDotStreams();
 }
 
 // Leaving the main menu: remembers the entry; the first entry (single
 // player) resets the session differently from the others.
 // FUNCTION: CMR2 0x004f25d0
-void FUN_004f25d0(Menu *pMenu, int param)
+void FrontendMenu_LeaveMain(Menu *pMenu, int param)
 {
     g_unk0x00525398 = pMenu->cursor;
     if (pMenu->items[pMenu->cursor].value == 0) {
-        FUN_004d27c0(1);
-        FUN_004ea8e0(2);
-        FUN_00409a30();
-        FUN_004d05f0();
+        FrontendRecords_SetProfileMode(1);
+        GameInfo_SetConfiguredGameMode(2);
+        NetPlayers_ResetAllTables();
+        NetworkChat_ClearLog();
         return;
     }
-    FUN_004d27c0(0);
-    FUN_00409a30();
-    FUN_004d05f0();
+    FrontendRecords_SetProfileMode(0);
+    NetPlayers_ResetAllTables();
+    NetworkChat_ClearLog();
 }
 
 // Item callback of the championship entry: sets up a new championship.
 // FUNCTION: CMR2 0x004ec930
-void FUN_004ec930(Menu *pMenu, int param)
+void FrontendChampionship_StartNewEntry(Menu *pMenu, int param)
 {
-    FUN_004ea8c0(1);
-    CGameInfo::FUN_00405de0(1);
-    FUN_004ea950(0);
-    FUN_004f1bc0((int)pMenu);
-    Menu_SetParent(FUN_004f83a0(), pMenu);
-    FUN_004f1bb0(CGameInfo::FUN_00405d70());
-    if (CGameInfo::FUN_00405d80() < 8) {
-        FUN_004ea8e0(8);
-        RallyData_FUN_004068b0(0);
-        RallyData_FUN_004068e0(0);
-        FUN_004ea9c0(0, 0);
+    GameInfo_SetConfiguredPlayerCount(1);
+    CGameInfo::SetGameModeOptionBit19(1);
+    GameInfo_SetConfiguredMultiplayer(0);
+    FrontendProfile_SetReturnMenu((int)pMenu);
+    Menu_SetParent(FrontendMenu_GetMultiplayerProfile(), pMenu);
+    FrontendProfile_SetPlayersRemaining(CGameInfo::GetConfiguredPlayerCount());
+    if (CGameInfo::GetConfiguredGameMode() < 8) {
+        GameInfo_SetConfiguredGameMode(8);
+        RallyData_SetCountrySelectionBits(0);
+        RallyData_SetStageSelectionAndRefreshFlags(0);
+        GameInfo_SetPlayerOptionNibbles(0, 0);
     }
 }
 
 // Entering the language menu: puts the cursor on the current language and
 // sets up its scroller.
 // FUNCTION: CMR2 0x004f3400
-void FUN_004f3400(Menu *pMenu, int param)
+void FrontendMenu_EnterLanguage(Menu *pMenu, int param)
 {
     MenuScroller *p;
     int language;
@@ -5158,30 +5158,30 @@ void FUN_004f3400(Menu *pMenu, int param)
 
     language = CGameInfo::GetGameLanguage();
     if (language == 1000)
-        FUN_004f82d0()->cursor = 0;
+        FrontendMenu_GetLanguage()->cursor = 0;
     else
-        FUN_004f82d0()->cursor = language;
-    p = FUN_004f2510();
-    p->current = FUN_004f82d0()->cursor;
-    p->previous = FUN_004f82d0()->cursor;
+        FrontendMenu_GetLanguage()->cursor = language;
+    p = FrontendScroller_GetLanguageScroller();
+    p->current = FrontendMenu_GetLanguage()->cursor;
+    p->previous = FrontendMenu_GetLanguage()->cursor;
     p->spacing = (int)(g_pGraphics->resX * 24) / 640;
-    p->count = FUN_004f82d0()->itemCount;
+    p->count = FrontendMenu_GetLanguage()->itemCount;
     p->offset = 0;
     p->startOffset = 0;
-    for (k = 0; k < FUN_004f82d0()->itemCount; k++) {
-        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(FUN_004f82d0()->items[k].id));
+    for (k = 0; k < FrontendMenu_GetLanguage()->itemCount; k++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(FrontendMenu_GetLanguage()->items[k].id));
         CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
         p->widths[k] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
     }
-    p->startTime = CFrontend::FUN_004d20e0();
+    p->startTime = CFrontend::GetFrontendTimestamp();
     p->pMenu = pMenu;
 }
 
 // Update callback of the language menu.
 // FUNCTION: CMR2 0x004f39e0
-void FUN_004f39e0(Menu *pMenu)
+void FrontendMenu_UpdateLanguage(Menu *pMenu)
 {
-    FUN_004f37c0(FUN_004f2510());
+    FUN_004f37c0(FrontendScroller_GetLanguageScroller());
 }
 
 // Set when the new-profile entry created a profile that "back" must undo.
@@ -5192,40 +5192,40 @@ BYTE g_unk0x00819879;
 char g_profileEntryTexts[4][40];
 
 void FUN_004eb860(int index, int profile);
-void FUN_004ebf20(int index);
+void Profile_ResetCategoryData(int index);
 void FUN_004eb000(BYTE index, char set);
-void FUN_004ebe80(int index);
+void Profile_ResetRecordCategory(int index);
 int SaveProfiles_CountAvailableProfiles(void);
 int SaveProfiles_GetAvailableProfileIndex(int n);
 BYTE *SaveProfiles_GetAvailableProfileName(int n);
 
 // Item callback: makes this menu the parent of the next one.
 // FUNCTION: CMR2 0x004f0c40
-void FUN_004f0c40(Menu *pMenu, int param)
+void FrontendMenu_SetNextParent(Menu *pMenu, int param)
 {
-    FUN_004f83b0()->pParent = pMenu;
+    FrontendMenu_GetMultiplayerStageSelection()->pParent = pMenu;
 }
 
 // Selects the current player-profile slot of the player setup screen: resets
 // the working copy and continues to the profile menu, or plays the error sound
 // when the slot does not exist.
 // FUNCTION: CMR2 0x004f26f0
-void FUN_004f26f0(Menu *pMenu, int param)
+void FrontendProfile_SelectPlayerSlot(Menu *pMenu, int param)
 {
     unsigned int index;
     int count;
     char ok;
 
-    FUN_004f2bf0(0);
+    FrontendProfile_SetCurrentPlayer(0);
     FUN_004eb860(0, -1);
-    FUN_004ebf20(0);
+    Profile_ResetCategoryData(0);
     FUN_004eb000(0, 0);
     index = pMenu->items[0].max;
-    count = FUN_004eb440();
+    count = Profile_GetFileCount();
     if ((int)index < count) {
-        ok = FUN_004eb4c0(0, index);
+        ok = Profile_LoadAndLinkSavedRecord(0, index);
         if (ok != 0) {
-            Menu_SetNextAction((int)FUN_004f8490());
+            Menu_SetNextAction((int)FrontendMenu_GetProfileActions());
             return;
         }
     } else {
@@ -5236,32 +5236,32 @@ void FUN_004f26f0(Menu *pMenu, int param)
 // Item callback of "new profile": gives player 1 a fresh profile and goes to
 // the name entry.
 // FUNCTION: CMR2 0x004f2750
-void FUN_004f2750(Menu *pMenu, int param)
+void FrontendProfile_CreateNewProfile(Menu *pMenu, int param)
 {
     g_unk0x00819879 = 1;
-    FUN_004f2bf0(0);
-    FUN_004eb860(FUN_004f2be0(), -1);
-    FUN_004ebf20(FUN_004f2be0());
-    FUN_004eb000(FUN_004f2be0(), 0);
-    Menu_SetParent(FUN_004f83c0(), pMenu);
-    FUN_004f2c10((int)FUN_004f83d0());
-    FUN_004f2c30((int)pMenu);
-    FUN_004e7780(CFrontend::GetTextString(0xb));
+    FrontendProfile_SetCurrentPlayer(0);
+    FUN_004eb860(FrontendProfile_GetCurrentPlayer(), -1);
+    Profile_ResetCategoryData(FrontendProfile_GetCurrentPlayer());
+    FUN_004eb000(FrontendProfile_GetCurrentPlayer(), 0);
+    Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
+    FrontendProfile_SetRenameMenu((int)FrontendMenu_GetProfileRenameEntry());
+    FrontendProfile_SetCompletionMenu((int)pMenu);
+    FrontendProfile_SetHeaderText(CFrontend::GetTextString(0xb));
     g_unk0x00819048--;
-    Menu_SetNextAction((int)FUN_004f83c0());
+    Menu_SetNextAction((int)FrontendMenu_GetProfileNameEntry());
 }
 
 // Item callback of a saved profile: loads it for the current player.
 // FUNCTION: CMR2 0x004f27d0
-void FUN_004f27d0(Menu *pMenu, int param)
+void FrontendProfile_LoadSelectedProfile(Menu *pMenu, int param)
 {
     int profile;
 
     profile = SaveProfiles_GetAvailableProfileIndex(pMenu->cursor - 2);
-    FUN_004f2bf0(0);
-    FUN_004eb860((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff), profile);
-    FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 0);
-    Menu_SetNextAction((int)FUN_004f8490());
+    FrontendProfile_SetCurrentPlayer(0);
+    FUN_004eb860((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), profile);
+    FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
+    Menu_SetNextAction((int)FrontendMenu_GetProfileActions());
     g_unk0x00819048--;
 }
 
@@ -5269,7 +5269,7 @@ void FUN_004f27d0(Menu *pMenu, int param)
 // Lists the free saved profiles and puts the cursor on the first one.
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f2620
-void FUN_004f2620(Menu *pMenu, char back)
+void FrontendMenu_EnterRallyProfile(Menu *pMenu, char back)
 {
     MenuItem *pItem;
     char *pText;
@@ -5278,18 +5278,18 @@ void FUN_004f2620(Menu *pMenu, char back)
     if (back != 0) {
         if (g_unk0x00819879 != 0) {
             FUN_004eb000(0, 0);
-            FUN_004ebf20(0);
-            FUN_004ebe80(0);
+            Profile_ResetCategoryData(0);
+            Profile_ResetRecordCategory(0);
         } else {
-            FUN_004ebe80(0);
+            Profile_ResetRecordCategory(0);
         }
     }
     g_unk0x00819879 = 0;
-    FUN_004e7770(1);
-    FUN_004ea8c0(1);
+    FrontendProfile_SetHeaderMode(1);
+    GameInfo_SetConfiguredPlayerCount(1);
     g_unk0x00819048 = 1;
     g_unk0x00819870 = (int)pMenu->pParent;
-    CSound::FUN_004a28c0();
+    CSound::NoOpSoundDeviceCallback();
     for (i = 0; i < 4; i++) {
         if (i < SaveProfiles_CountAvailableProfiles()) {
             sprintf(g_profileEntryTexts[i], CFrontend::GetTextString(0x17f), SaveProfiles_GetAvailableProfileName(i));
@@ -5310,48 +5310,48 @@ void FUN_004f2620(Menu *pMenu, char back)
 
 // Draw callback of the profile menu.
 // FUNCTION: CMR2 0x004d9a40
-void FUN_004d9a40(Menu *pMenu)
+void FrontendMenu_DrawRallyProfile(Menu *pMenu)
 {
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 1, NULL, 1);
     FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
 
 // Leaving the profile menu: once every player has a profile, goes on.
 // FUNCTION: CMR2 0x004f07e0
-void FUN_004f07e0(Menu *pMenu, char back)
+void FrontendMenu_LeavePlayerProfile(Menu *pMenu, char back)
 {
-    FUN_004ea480(0);
-    if (back != 0 && g_unk0x00819048 == CGameInfo::FUN_00405d70()) {
-        g_unk0x00819048 = CGameInfo::FUN_00405d70();
+    Frontend_SetOverlayMode(0);
+    if (back != 0 && g_unk0x00819048 == CGameInfo::GetConfiguredPlayerCount()) {
+        g_unk0x00819048 = CGameInfo::GetConfiguredPlayerCount();
         Menu_SetNextAction(g_unk0x00819870);
     }
 }
 
 // Draw callback of the options menu.
 // FUNCTION: CMR2 0x004e2590
-void FUN_004e2590(Menu *pMenu)
+void FrontendMenu_DrawOptions(Menu *pMenu)
 {
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 1, NULL, -1);
     FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // Entering the options menu: the cheats entry is only there once something
 // is unlocked or a cheat is on.
 // FUNCTION: CMR2 0x004f29b0
-void FUN_004f29b0(Menu *pMenu, int param)
+void FrontendMenu_EnterOptions(Menu *pMenu, int param)
 {
-    FUN_004ea480(0);
-    if (CGameInfo::FUN_00406360(7) || CGameInfo::FUN_00406360(1) || CGameInfo::FUN_00406360(2)
-        || CGameInfo::FUN_00406360(3) || CGameInfo::FUN_00406360(4) || CGameInfo::FUN_00406360(5)
-        || CGameInfo::FUN_00406360(6) || CGameInfo::FUN_00406360(0) || CGameInfo::FUN_00406410(4)
-        || CGameInfo::FUN_00406410(5) || CGameInfo::FUN_00406410(6) || CGameInfo::FUN_00406410(7)
-        || CGameInfo::FUN_00406410(8) || CGameInfo::FUN_00406410(9) || CGameInfo::FUN_00406410(10)
-        || CGameInfo::FUN_00406410(0xb)) {
+    Frontend_SetOverlayMode(0);
+    if (CGameInfo::GetUnlockFlagMask(7) || CGameInfo::GetUnlockFlagMask(1) || CGameInfo::GetUnlockFlagMask(2)
+        || CGameInfo::GetUnlockFlagMask(3) || CGameInfo::GetUnlockFlagMask(4) || CGameInfo::GetUnlockFlagMask(5)
+        || CGameInfo::GetUnlockFlagMask(6) || CGameInfo::GetUnlockFlagMask(0) || CGameInfo::IsRecordFlagSet(4)
+        || CGameInfo::IsRecordFlagSet(5) || CGameInfo::IsRecordFlagSet(6) || CGameInfo::IsRecordFlagSet(7)
+        || CGameInfo::IsRecordFlagSet(8) || CGameInfo::IsRecordFlagSet(9) || CGameInfo::IsRecordFlagSet(10)
+        || CGameInfo::IsRecordFlagSet(0xb)) {
         Menu_GetItem(pMenu, 1000)->enabled = 1;
         Menu_GetItem(pMenu, 1000)->visible = 1;
     } else {
@@ -5360,9 +5360,9 @@ void FUN_004f29b0(Menu *pMenu, int param)
     }
 }
 
-void FUN_004eab80(void);
-void FUN_004eaba0(void);
-void FUN_004eab40(int bit, int value);
+void GameInfo_SaveConfiguredCheats(void);
+void GameInfo_RestoreConfiguredCheats(void);
+void GameInfo_SetConfiguredCheat(int bit, int value);
 
 // Entering the cheats menu: each of the 8 entries is available when its
 // extra is unlocked or its cheat code was typed, and shows its state.
@@ -5373,7 +5373,7 @@ void FUN_004f28c0(Menu *pMenu, int param)
     bool cheat;
     int i;
 
-    FUN_004eab80();
+    GameInfo_SaveConfiguredCheats();
     i = 0;
     pItem = pMenu->items;
     do {
@@ -5381,17 +5381,17 @@ void FUN_004f28c0(Menu *pMenu, int param)
         pItem->visible = 1;
         pItem->max = 0;
         if (i % 2 != 0) {
-            cheat = CGameInfo::FUN_00406410(i / 2 + 8);
-            if (CGameInfo::FUN_00406360(i) != 0 || cheat) {
+            cheat = CGameInfo::IsRecordFlagSet(i / 2 + 8);
+            if (CGameInfo::GetUnlockFlagMask(i) != 0 || cheat) {
                 pItem->enabled = 1;
-                if (CGameInfo::FUN_004063d0(i))
+                if (CGameInfo::IsConfiguredCheatEnabled(i))
                     pItem->max = 1;
             }
         } else {
-            cheat = CGameInfo::FUN_00406410(i / 2 + 4);
-            if (CGameInfo::FUN_00406360(i) != 0 || cheat) {
+            cheat = CGameInfo::IsRecordFlagSet(i / 2 + 4);
+            if (CGameInfo::GetUnlockFlagMask(i) != 0 || cheat) {
                 pItem->enabled = 1;
-                if (CGameInfo::FUN_004063d0(i))
+                if (CGameInfo::IsConfiguredCheatEnabled(i))
                     pItem->max = 1;
             }
         }
@@ -5403,21 +5403,21 @@ void FUN_004f28c0(Menu *pMenu, int param)
 // Leaving the cheats menu: stores the on/off state of each cheat (back:
 // restores them first).
 // FUNCTION: CMR2 0x004f2970
-void FUN_004f2970(Menu *pMenu, char back)
+void FrontendMenu_LeaveCheats(Menu *pMenu, char back)
 {
     int i;
 
     if (back != 0) {
-        FUN_004eaba0();
+        GameInfo_RestoreConfiguredCheats();
         return;
     }
     for (i = 0; i < 8; i++)
-        FUN_004eab40(i, pMenu->items[i].max);
+        GameInfo_SetConfiguredCheat(i, pMenu->items[i].max);
 }
 
 // Item callback: back to the parent menu.
 // FUNCTION: CMR2 0x004f3a50
-void FUN_004f3a50(Menu *pMenu, int param)
+void FrontendMenu_ReturnToParent(Menu *pMenu, int param)
 {
     Menu_SetNextAction((int)pMenu->pParent);
 }
@@ -5522,67 +5522,67 @@ void FUN_004ded80(Menu *pMenu)
         g_unk0x008189a8[1]++;
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // Entering the display device menu: one entry per device, the current one
 // under the cursor, and only the usable ones enabled.
 // FUNCTION: CMR2 0x004f21c0
-void FUN_004f21c0(Menu *pMenu, int param)
+void FrontendMenu_EnterDisplayDevice(Menu *pMenu, int param)
 {
     MenuItem *pItem;
     unsigned int i;
 
-    pMenu->itemCount = CGraphics::FUN_004a8be0();
-    pMenu->cursor = CGameInfo::FUN_00405bd0();
+    pMenu->itemCount = CGraphics::GetDisplayDriverCount();
+    pMenu->cursor = CGameInfo::GetGraphicsOptionBits5To8();
     i = 0;
-    if ((unsigned int)CGraphics::FUN_004a8be0() > 0) {
+    if ((unsigned int)CGraphics::GetDisplayDriverCount() > 0) {
         pItem = pMenu->items;
         do {
-            if (CGraphics::FUN_004a96c0(i) != 0)
+            if (CGraphics::GetTextureFormatCap1(i) != 0)
                 pItem->enabled = 1;
             else
                 pItem->enabled = 0;
             i++;
             pItem++;
-        } while (i < (unsigned int)CGraphics::FUN_004a8be0());
+        } while (i < (unsigned int)CGraphics::GetDisplayDriverCount());
     }
 }
 
 // Item callback of a display device: switches to it, re-creating the
 // display, the textures and the fonts with the default video settings.
 // FUNCTION: CMR2 0x004f2210
-void FUN_004f2210(Menu *pMenu, int param)
+void FrontendMenu_SelectDisplayDevice(Menu *pMenu, int param)
 {
-    CGameInfo::FUN_00405be0(pMenu->cursor);
-    CGraphics::FUN_004a8bd0(pMenu->cursor);
-    CMain::FUN_004a9a50(1);
-    CGraphics::FUN_004a78a0(g_pGraphics->resX, g_pGraphics->resY, g_pGraphics->depth, CGameInfo::FUN_00405bd0(),
-                            CGraphics::FUN_004a8d80());
+    CGameInfo::SetGraphicsOptionBits5To8(pMenu->cursor);
+    CGraphics::SetSelectedDisplayDriverIndex(pMenu->cursor);
+    CMain::SetGameActiveState(1);
+    CGraphics::RecreateGraphicsDeviceAndResources(g_pGraphics->resX, g_pGraphics->resY, g_pGraphics->depth, CGameInfo::GetGraphicsOptionBits5To8(),
+                            CGraphics::GetSelectedRenderDeviceIndex());
     CGameInfo::SetScreenWidth(g_pGraphics->resX);
     CGameInfo::SetScreenHeight(g_pGraphics->resY);
     CGameInfo::SetColourDepth(g_pGraphics->depth);
     CFrontend::FUN_004d21e0();
     Graphics_ReloadAllTextures();
-    FUN_004f4d80();
+    FrontendText_ReloadFonts();
     FUN_004ef190();
-    CMain::FUN_004a9a50(0);
-    CGameInfo::FUN_00405b60(0);
+    CMain::SetGameActiveState(0);
+    CGameInfo::SetGraphicsOptionBits1To2(0);
     g_pGraphics->field913_0x3bc &= ~8;
     g_pGraphics->field913_0x3bc &= ~0x10;
     g_pGraphics->field913_0x3bc &= ~0x80;
-    CGameInfo::FUN_00405b80(0);
+    CGameInfo::SetGraphicsOptionBit3(0);
     g_pGraphics->field913_0x3bc &= ~0x20;
-    CGameInfo::FUN_00405bb0(0);
+    CGameInfo::SetGraphicsOptionBit4(0);
     g_pGraphics->field913_0x3bc &= ~0x40;
-    CGameInfo::FUN_00405c80(0);
+    CGameInfo::SetGraphicsOptionBits18To19(0);
     g_pGraphics->field913_0x3bc &= ~1;
     g_pGraphics->field913_0x3bc &= ~2;
-    CGameInfo::FUN_00405cb0(1);
+    CGameInfo::SetGraphicsOptionBits21To24(1);
     g_pGraphics->field917_0x3c0 = 1;
-    CGameInfo::FUN_00405ce0(1);
-    CGameInfo::FUN_00405d20(1);
-    CGameInfo::FUN_00405d40(2);
+    CGameInfo::SetGraphicsOptionBits25To26(1);
+    CGameInfo::SetGraphicsOptionBits27To28(1);
+    CGameInfo::SetPreviewMode(2);
     Menu_SetNextAction((int)pMenu->pParent);
 }
 
@@ -5597,10 +5597,10 @@ char g_strGearboxAuto[4] = "AT";
 extern BYTE g_colourTitle0x00524984[4];
 
 // Draw callback of the high score pages: title of the table shown (cycled
-// by FUN_004f3a90), the column headers and the 5 entries (position, name,
+// by FrontendRecords_CycleTableMode), the column headers and the 5 entries (position, name,
 // car, gearbox and two numbers).
 // FUNCTION: CMR2 0x004e3340
-void FUN_004e3340(Menu *pMenu)
+void FrontendMenu_DrawHighScores(Menu *pMenu)
 {
     GameInfo0xa4SubStruct12 *pEntry;
     int table;
@@ -5610,7 +5610,7 @@ void FUN_004e3340(Menu *pMenu)
     int offset;
     int i;
 
-    table = FUN_004f3a60();
+    table = FrontendRecords_GetTableMode();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 2, NULL, -1);
     switch (table) {
@@ -5649,11 +5649,11 @@ header:
     offset = table * 0x3c;
     do {
         y = (int)(g_pGraphics->resY * 19) / 480 + (int)(g_pGraphics->resY * 200) / 480 + (int)(g_pGraphics->resY * 25) / 480 * i;
-        pEntry = (GameInfo0xa4SubStruct12 *)((BYTE *)CGameInfo::FUN_00405fe0() + offset);
+        pEntry = (GameInfo0xa4SubStruct12 *)((BYTE *)CGameInfo::GetGameInfoFieldA4Address() + offset);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, i + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 100) / 640, y, (int *)g_colourText0x0052496c, 0x12);
         Font_DrawText(1, pEntry->ident, (int)(g_pGraphics->resX * 150) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(1, CFrontend::FUN_0040ede0(pEntry->flags & 0x3f), (int)(g_pGraphics->resX * 290) / 640, y,
+        Font_DrawText(1, CFrontend::GetModeSpecificCountryText(pEntry->flags & 0x3f), (int)(g_pGraphics->resX * 290) / 640, y,
                       (int *)g_colourWhite0x00524968, 0x12);
         if ((pEntry->flags & 0x40) != 0)
             Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 430) / 640, y,
@@ -5673,13 +5673,13 @@ header:
     FrontendDraw_HelpText(CFrontend::GetTextString(0x16f), 1);
 }
 
-BYTE *RallyData_FUN_00408cb0(int index);
-BYTE *FUN_004f9280(int index);
+BYTE *RallyData_GetAvailableCategorySaveRecord(int index);
+BYTE *FrontendRecords_GetEventRecordText(int index);
 
 // Draw callback of the record page: the record of the table shown (car,
 // gearbox, two numbers and its time), or "no record".
 // FUNCTION: CMR2 0x004e3a80
-void FUN_004e3a80(Menu *pMenu)
+void FrontendMenu_DrawProfileHighScores(Menu *pMenu)
 {
     unsigned int *pSecond;
     BYTE *pRecord;
@@ -5689,7 +5689,7 @@ void FUN_004e3a80(Menu *pMenu)
     int y;
     int offset;
 
-    table = FUN_004f3a60();
+    table = FrontendRecords_GetTableMode();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuTitle(pMenu);
     switch (table) {
@@ -5726,10 +5726,10 @@ header:
     g_unk0x008189a8[3] = 1;
     y = (int)(g_pGraphics->resY * 19) / 480 + (int)(g_pGraphics->resY * 200) / 480;
     offset = table * 0x10;
-    if ((RallyData_FUN_00408cb0(0)[offset] & 0x80) != 0) {
-        pSecond = (unsigned int *)(RallyData_FUN_00408cb0(0) + offset + 4);
-        pRecord = RallyData_FUN_00408cb0(0) + offset;
-        Font_DrawText(1, CFrontend::FUN_0040ede0(*(unsigned int *)pRecord & 0x3f), (int)(g_pGraphics->resX * 180) / 640, y,
+    if ((RallyData_GetAvailableCategorySaveRecord(0)[offset] & 0x80) != 0) {
+        pSecond = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + offset + 4);
+        pRecord = RallyData_GetAvailableCategorySaveRecord(0) + offset;
+        Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*(unsigned int *)pRecord & 0x3f), (int)(g_pGraphics->resX * 180) / 640, y,
                       (int *)g_colourWhite0x00524968, 0x12);
         if ((*(unsigned int *)pRecord & 0x40) != 0)
             Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 310) / 640, y,
@@ -5741,7 +5741,7 @@ header:
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 370) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, *pSecond >> 6 & 0xff);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 435) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(0, (char *)FUN_004f9280(table), (int)(g_pGraphics->resX * 520) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+        Font_DrawText(0, (char *)FrontendRecords_GetEventRecordText(table), (int)(g_pGraphics->resX * 520) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
     } else {
         Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y, (int *)g_colourWhite0x00524968, 0x12);
     }
@@ -5751,7 +5751,7 @@ header:
 }
 
 extern char g_loadRecordTimeFormat[];
-BYTE *FUN_004f9240(int row, int column);
+BYTE *FrontendRecords_GetStageRecordText(int row, int column);
 
 // Draw callback of the stage records page of a rally: for each stage (10,
 // or 11 for every second rally) the record car, gearbox, time and holder.
@@ -5768,7 +5768,7 @@ void FUN_004e5630(Menu *pMenu)
     int y;
     int i;
 
-    FUN_004f3a60();
+    FrontendRecords_GetTableMode();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuTitle(pMenu);
     odd = pMenu->cursor % 2;
@@ -5790,20 +5790,20 @@ void FUN_004e5630(Menu *pMenu)
     i = 0;
     do {
         y = (int)(g_pGraphics->resY * 19) / 480 + (int)(g_pGraphics->resY * 90) / 480 + (int)(g_pGraphics->resY * 25) / 480 * i;
-        pRecords = RallyData_FUN_00408cb0(0);
+        pRecords = RallyData_GetAvailableCategorySaveRecord(0);
         rally = pMenu->cursor;
-        pRecord = (unsigned int *)(RallyData_FUN_00408cb0(0) + 0x150 + (i + pMenu->cursor * 12) * 8);
+        pRecord = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 0x150 + (i + pMenu->cursor * 12) * 8);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, i + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 100) / 640, y, (int *)g_colourText0x0052496c, 0x12);
         if ((*pRecord & 0x80) != 0) {
-            Font_DrawText(1, CFrontend::FUN_0040ede0(*pRecord & 0x3f), (int)(g_pGraphics->resX * 230) / 640, y,
+            Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*pRecord & 0x3f), (int)(g_pGraphics->resX * 230) / 640, y,
                           (int *)g_colourWhite0x00524968, 0x12);
             Font_DrawText(1, (*pRecord & 0x40) == 0 ? g_strGearboxManual : g_strGearboxAuto,
                           (int)(g_pGraphics->resX * 355) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
             time = *(unsigned int *)(pRecords + 0x154 + (i + rally * 12) * 8);
             sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000, time / 100 % 60, time % 100);
             Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 415) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
-            Font_DrawText(0, (char *)FUN_004f9240(pMenu->cursor, i), (int)(g_pGraphics->resX * 520) / 640, y,
+            Font_DrawText(0, (char *)FrontendRecords_GetStageRecordText(pMenu->cursor, i), (int)(g_pGraphics->resX * 520) / 640, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         } else {
             Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y, (int *)g_colourWhite0x00524968, 0x12);
@@ -5812,7 +5812,7 @@ void FUN_004e5630(Menu *pMenu)
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
         i++;
     } while (i < (odd != 0) + 10);
-    FrontendDraw_ScrollerRow(FUN_004f2550(), 1);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetBestStageTimesScroller(), 1);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x172), 1);
 }
 
@@ -5820,8 +5820,8 @@ extern BYTE g_saveCarRecords[8 * 0xc4];
 extern BYTE g_saveDirty[8];
 extern BYTE g_saveProfiles[4 * 0x650];
 extern BYTE g_saveSlots[16 * 0x30];
-int FUN_004eaca0(void);
-void FUN_004ec260(int player);
+int GameInfo_GetField98(void);
+void RallyData_SetPlayerDefaultCarSetup(int player);
 
 // 7x15 dot icon drawn by FUN_004d5ad0 (the rest of the block is unused).
 // GLOBAL: CMR2 0x00523f30
@@ -5837,12 +5837,12 @@ char g_dotIconMap[216] = {
 short g_dotIconPhase;
 
 
-void FUN_004eae40(void);
-int FUN_004d2bd0(int *pCentre, int x, int y, int phase, int wavelength);
+void FrontendChampionship_InitEntries(void);
+int Frontend_ComputeRippleHeight(int *pCentre, int x, int y, int phase, int wavelength);
 void FUN_004eb860(int index, int profile);
-void FUN_004ebf20(int index);
+void Profile_ResetCategoryData(int index);
 void FUN_004eb000(BYTE index, char set);
-void FUN_004ec000(void);
+void RallyData_MarkAllDriverRecordsUnassigned(void);
 
 // Draws one 7x15 dot icon at (x, y), each dot shaded by the ripple.
 // match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -5874,7 +5874,7 @@ void FUN_004d5ad0(int x, int y, short phase)
         pDot = &g_dotIconMap[col];
         do {
             if (*pDot != 0) {
-                b = FUN_004d2bd0(centre, u,
+                b = Frontend_ComputeRippleHeight(centre, u,
                                  (int)(__int64)(((int)(g_pGraphics->resY * 18) / 480 * row + y) * CGraphics::m_65536)
                                      / (int)g_pGraphics->resX,
                                  phase, 0x140000) / 4 + 0xc000;
@@ -5905,7 +5905,7 @@ void FUN_004d5fb0(Menu *pMenu)
     int i;
 
     g_dotIconPhase = (short)(((CMain::GetFrameDelta() + 1) * -0x2000) / 360);
-    switch (CGameInfo::FUN_00405d80()) {
+    switch (CGameInfo::GetConfiguredGameMode()) {
     case 0:
         text[0] = CFrontend::GetTextString(0xe7);
         text[1] = CFrontend::GetTextString(0xc);
@@ -5941,7 +5941,7 @@ void FUN_004d5fb0(Menu *pMenu)
     }
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 3, text, 2);
-    FrontendDraw_ScrollerRow(FUN_004f2520(), 1);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetDifficultyScroller(), 1);
     y = ((int)(g_pGraphics->resY * 8) / 480 - (int)(g_pGraphics->resY * 6) / 480) / 2
         - (int)(g_pGraphics->resY * 8) / 480 * 15 / 2 + (int)g_pGraphics->resY / 2;
     x = (int)g_pGraphics->resX / 2
@@ -5957,7 +5957,7 @@ void FUN_004d5fb0(Menu *pMenu)
 // Returns the three performance values (speed, acceleration, grip) of a car
 // class: the fixed table values for the known classes, random ones otherwise.
 // FUNCTION: CMR2 0x004d7c00
-void FUN_004d7c00(int param_1, int *param_2, int *param_3, int *param_4)
+void FrontendCar_GetClassPerformance(int param_1, int *param_2, int *param_3, int *param_4)
 {
     int scale = 0x75c2;
     int iVar2;
@@ -6043,7 +6043,7 @@ void FUN_004d7c00(int param_1, int *param_2, int *param_3, int *param_4)
 // Draws the progress bar of a game mode page: param_3 small rects in a row,
 // the first param_4 highlighted, and the label of param_5 underneath.
 // FUNCTION: CMR2 0x004d8330
-int FUN_004d8330(int param_1, int param_2, int param_3, int param_4, int param_5)
+int FrontendDraw_ModeProgressBar(int param_1, int param_2, int param_3, int param_4, int param_5)
 {
     short rect[4];
     int i;
@@ -6076,7 +6076,7 @@ int FUN_004d8330(int param_1, int param_2, int param_3, int param_4, int param_5
 
 // Clears the championship data and sets up the 8 championship entries.
 // FUNCTION: CMR2 0x004eae40
-void FUN_004eae40(void)
+void FrontendChampionship_InitEntries(void)
 {
     BYTE *pEntry;
     int i;
@@ -6086,8 +6086,8 @@ void FUN_004eae40(void)
     pEntry = g_saveCarRecords + 0xc;
     do {
         *pEntry = (*pEntry & 0xfd) | 1;
-        *(int *)(pEntry - 8) = FUN_004eaca0();
-        FUN_004ec260(i);
+        *(int *)(pEntry - 8) = GameInfo_GetField98();
+        RallyData_SetPlayerDefaultCarSetup(i);
         pEntry[1] = (pEntry[1] & 0xfc) | 0x3c;
         i++;
         pEntry += 0xc4;
@@ -6101,13 +6101,13 @@ extern BYTE *g_unk0x00531764;
 // Toggles the championship entry bit of a driver slot; in game mode 4 it
 // toggles the |2 flag of that slot's profile record instead.
 // FUNCTION: CMR2 0x004eb0c0
-void FUN_004eb0c0(BYTE index, BYTE flag)
+void FrontendChampionship_SetDriverEntryFlag(BYTE index, BYTE flag)
 {
     unsigned int category;
     BYTE *pEntry;
 
     RallyData_ValidateIndex(index);
-    if (CGameInfo::FUN_00405d80() == 4) {
+    if (CGameInfo::GetConfiguredGameMode() == 4) {
         pEntry = g_saveCarRecords + 0xc + index * 0xc4;
         *pEntry = ((*pEntry ^ flag) & 1) ^ *pEntry | 2;
         return;
@@ -6120,14 +6120,14 @@ void FUN_004eb0c0(BYTE index, BYTE flag)
     }
 }
 
-void FUN_0040d090(int index, int seconds);
+void RallyTiming_SetStageTimeSeconds(int index, int seconds);
 void RallyTiming_SetOverallTimeRaw(int iDriver, int iCentiseconds);
-void RallyTiming_FUN_0040d0c0(void);
+void RallyTiming_SortStageAndOverallResults(void);
 
 // Copies the recorded stage times of the pending drivers from the save block
 // into the timing system.
 // FUNCTION: CMR2 0x004eb160
-void FUN_004eb160(void)
+void FrontendChampionship_RestoreStageTimes(void)
 {
     int count;
     int i;
@@ -6136,33 +6136,33 @@ void FUN_004eb160(void)
     BYTE *pRecord;
 
     count = 0;
-    if ((unsigned int)CGameInfo::FUN_00405d70() > 0) {
+    if ((unsigned int)CGameInfo::GetConfiguredPlayerCount() > 0) {
         pRecord = g_saveSlots + 0x4;
         i = 0xf;
         do {
-            FUN_0040d090(i, (*(unsigned int *)(pRecord - 4) >> 6) & 0x7f);
+            RallyTiming_SetStageTimeSeconds(i, (*(unsigned int *)(pRecord - 4) >> 6) & 0x7f);
             RallyTiming_SetOverallTimeRaw(i, *(int *)pRecord);
             count++;
             i--;
             pRecord += 0x30;
-        } while (count < (int)(CGameInfo::FUN_00405d70() & 0xff));
+        } while (count < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff));
     }
-    n = 0x10 - (CGameInfo::FUN_00405d70() & 0xff);
+    n = 0x10 - (CGameInfo::GetConfiguredPlayerCount() & 0xff);
     i = 0;
     while (i < n) {
-        index = (CGameInfo::FUN_00405d70() & 0xff) + i;
-        FUN_0040d090(i, (*(unsigned int *)(g_saveSlots + index * 0x30) >> 6) & 0x7f);
+        index = (CGameInfo::GetConfiguredPlayerCount() & 0xff) + i;
+        RallyTiming_SetStageTimeSeconds(i, (*(unsigned int *)(g_saveSlots + index * 0x30) >> 6) & 0x7f);
         RallyTiming_SetOverallTimeRaw(i, *(int *)(g_saveSlots + 0x4 + index * 0x30));
         i++;
     }
-    RallyTiming_FUN_0040d0c0();
+    RallyTiming_SortStageAndOverallResults();
 }
 
 // True if the profile name of a driver matches the category record that the
 // given championship entry points at.
 // match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004eb200
-bool FUN_004eb200(int param_1, BYTE *param_2)
+bool FrontendProfile_DoesDriverMatchEntry(int param_1, BYTE *param_2)
 {
     unsigned int category;
     char *pName;
@@ -6179,7 +6179,7 @@ bool FUN_004eb200(int param_1, BYTE *param_2)
 // True if the profile of the given index already matches the category record
 // that one of the championship entries points at.
 // FUNCTION: CMR2 0x004ebd60
-bool FUN_004ebd60(int index)
+bool FrontendProfile_IsAlreadyInChampionship(int index)
 {
     BYTE *pRecord;
     BYTE *pProfile;
@@ -6205,7 +6205,7 @@ bool FUN_004ebd60(int index)
 // Sets the colour word of the category record that the driver's entry points
 // at. param_2 is the 5-bit shade index, param_3 the 4-bit hue.
 // FUNCTION: CMR2 0x004ebe10
-void FUN_004ebe10(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4)
+void FrontendProfile_SetCategoryColour(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4)
 {
     unsigned int category;
     unsigned int colour;
@@ -6220,104 +6220,104 @@ void FUN_004ebe10(int param_1, unsigned int param_2, unsigned int param_3, unsig
 // Next player: gives the player a profile and goes to the name entry (or
 // for championship mode 4 to the championship screen).
 // FUNCTION: CMR2 0x004f0ac0
-void FUN_004f0ac0(Menu *pMenu, int param)
+void FrontendProfile_SetupNextPlayer(Menu *pMenu, int param)
 {
     Menu *pNext;
 
     g_unk0x00819744++;
-    FUN_004f2bf0((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff));
-    if (CGameInfo::FUN_00405d80() != 4) {
-        switch (CGameInfo::FUN_00405d80()) {
+    FrontendProfile_SetCurrentPlayer((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff));
+    if (CGameInfo::GetConfiguredGameMode() != 4) {
+        switch (CGameInfo::GetConfiguredGameMode()) {
         case 5:
-            pNext = FUN_004fa300();
+            pNext = FrontendMenu_GetChampionshipRouteSelection();
             break;
         case 6:
-            pNext = FUN_004fa310();
+            pNext = FrontendMenu_GetAlternateChampionshipRouteSelection();
             break;
         case 7:
-            pNext = FUN_004fa320();
+            pNext = FrontendMenu_GetArcadeChampionshipRouteSelection();
             break;
         default:
-            pNext = FUN_004f83f0();
+            pNext = FrontendMenu_GetCarSetup();
             break;
         }
-        FUN_004eb860((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff), -1);
-        FUN_004ebf20((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff));
-        FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 0);
-        Menu_SetParent(FUN_004f83c0(), pMenu);
-        FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 1);
-        if (CGameInfo::FUN_00405e00() != 0) {
-            FUN_004f2c10((int)FUN_004f8440());
+        FUN_004eb860((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), -1);
+        Profile_ResetCategoryData((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff));
+        FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
+        Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
+        FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 1);
+        if (CGameInfo::GetGameModeOptionBit19() != 0) {
+            FrontendProfile_SetRenameMenu((int)FrontendMenu_GetNetworkConnection());
         } else {
-            FUN_004f2c10((int)pNext);
+            FrontendProfile_SetRenameMenu((int)pNext);
             Menu_SetParent(pNext, pMenu);
         }
     } else {
-        Menu_SetParent(FUN_004f83c0(), pMenu);
-        FUN_004f2c10((int)FUN_004f8400());
-        FUN_004f8430();
+        Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
+        FrontendProfile_SetRenameMenu((int)FrontendMenu_GetPaletteSelection());
+        FrontendMenu_GetPaletteConfirmation();
     }
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc),
-            (CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) + 1);
-    FUN_004e7780(CFrontend::m_stringDest);
+            (CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) + 1);
+    FrontendProfile_SetHeaderText(CFrontend::m_stringDest);
     g_unk0x00819048--;
-    Menu_SetNextAction((int)FUN_004f83c0());
+    Menu_SetNextAction((int)FrontendMenu_GetProfileNameEntry());
 }
 
 // Item callback of a difficulty: stores it and moves on to the next screen
 // of the game mode.
 // FUNCTION: CMR2 0x004ef7c0
-void FUN_004ef7c0(Menu *pMenu, int param)
+void FrontendMenu_SelectDifficulty(Menu *pMenu, int param)
 {
-    FUN_004ea8c0(pMenu->cursor + 1);
-    FUN_004ec000();
-    CSound::FUN_004a28c0();
-    if (CGameInfo::FUN_00405d80() == 4) {
-        FUN_004eae40();
-        FUN_004ea950(0);
-        FUN_004f8400()->pfnCallback1 = NULL;
-        FUN_004f8400()->pParent = FUN_004f83c0();
-        Menu_SetParent(FUN_004f83c0(), pMenu);
-        g_unk0x00819048 = CGameInfo::FUN_00405d70();
-        FUN_004f0ac0(pMenu, param);
+    GameInfo_SetConfiguredPlayerCount(pMenu->cursor + 1);
+    RallyData_MarkAllDriverRecordsUnassigned();
+    CSound::NoOpSoundDeviceCallback();
+    if (CGameInfo::GetConfiguredGameMode() == 4) {
+        FrontendChampionship_InitEntries();
+        GameInfo_SetConfiguredMultiplayer(0);
+        FrontendMenu_GetPaletteSelection()->pfnCallback1 = NULL;
+        FrontendMenu_GetPaletteSelection()->pParent = FrontendMenu_GetProfileNameEntry();
+        Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
+        g_unk0x00819048 = CGameInfo::GetConfiguredPlayerCount();
+        FrontendProfile_SetupNextPlayer(pMenu, param);
         return;
     }
-    FUN_004f8400()->pfnCallback1 = (MenuCallback)FUN_004f39d0;
-    FUN_004f8400()->pParent = FUN_004f83f0();
-    if (CGameInfo::FUN_00405d70() == 1) {
-        FUN_004ea950(0);
+    FrontendMenu_GetPaletteSelection()->pfnCallback1 = (MenuCallback)FrontendScroller_UpdateChampionshipEntry;
+    FrontendMenu_GetPaletteSelection()->pParent = FrontendMenu_GetCarSetup();
+    if (CGameInfo::GetConfiguredPlayerCount() == 1) {
+        GameInfo_SetConfiguredMultiplayer(0);
     } else {
-        if (CGameInfo::FUN_00405d80() != 3 && CGameInfo::FUN_00405d70() == 2) {
-            switch (CGameInfo::FUN_00405d80()) {
+        if (CGameInfo::GetConfiguredGameMode() != 3 && CGameInfo::GetConfiguredPlayerCount() == 2) {
+            switch (CGameInfo::GetConfiguredGameMode()) {
             case 0:
-                Menu_SetNextAction((int)FUN_004f8370());
+                Menu_SetNextAction((int)FrontendMenu_GetSingleRallyTransmission());
                 return;
             case 1:
-                Menu_SetNextAction((int)FUN_004f8380());
+                Menu_SetNextAction((int)FrontendMenu_GetChampionshipTransmission());
                 return;
             case 2:
-                Menu_SetNextAction((int)FUN_004f8390());
+                Menu_SetNextAction((int)FrontendMenu_GetTimeTrialTransmission());
                 return;
             }
             return;
         }
-        FUN_004ea950(1);
+        GameInfo_SetConfiguredMultiplayer(1);
     }
     g_unk0x00819870 = (int)pMenu;
-    Menu_SetParent(FUN_004f83a0(), pMenu);
-    g_unk0x00819048 = CGameInfo::FUN_00405d70();
-    Menu_SetNextAction((int)FUN_004f83a0());
+    Menu_SetParent(FrontendMenu_GetMultiplayerProfile(), pMenu);
+    g_unk0x00819048 = CGameInfo::GetConfiguredPlayerCount();
+    Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
 }
 
 // Entering a difficulty page: sets up its scroller.
 // FUNCTION: CMR2 0x004f3610
-void FUN_004f3610(Menu *pMenu, int param)
+void FrontendScroller_InitDifficulty(Menu *pMenu, int param)
 {
     MenuScroller *p;
     int k;
 
-    p = FUN_004f2520();
-    p->startTime = CFrontend::FUN_004d20e0();
+    p = FrontendScroller_GetDifficultyScroller();
+    p->startTime = CFrontend::GetFrontendTimestamp();
     p->pMenu = pMenu;
     p->count = pMenu->itemCount;
     for (k = 0; k < pMenu->itemCount; k++) {
@@ -6333,22 +6333,22 @@ void FUN_004f3610(Menu *pMenu, int param)
 
 // Update callback of the difficulty pages.
 // FUNCTION: CMR2 0x004f39f0
-void FUN_004f39f0(Menu *pMenu)
+void FrontendScroller_UpdateDifficulty(Menu *pMenu)
 {
-    FUN_004f37c0(FUN_004f2520());
+    FUN_004f37c0(FrontendScroller_GetDifficultyScroller());
 }
 
 // Entering the 8-level difficulty page: sets up its scroller with all 8
 // levels enabled.
 // FUNCTION: CMR2 0x004f3530
-void FUN_004f3530(Menu *pMenu, int param)
+void FrontendMenu_EnterMultiplayerExtendedDifficulty(Menu *pMenu, int param)
 {
     MenuScroller *p;
     int k;
 
     pMenu->itemCount = 8;
-    p = FUN_004f2520();
-    p->startTime = CFrontend::FUN_004d20e0();
+    p = FrontendScroller_GetDifficultyScroller();
+    p->startTime = CFrontend::GetFrontendTimestamp();
     p->pMenu = pMenu;
     p->count = pMenu->itemCount;
     for (k = 0; k < pMenu->itemCount; k++) {
@@ -6369,11 +6369,11 @@ void FUN_004f3530(Menu *pMenu, int param)
 // Draw callback of the two-choice pages after the difficulty: the same
 // title as the difficulty pages, the list and the scroller.
 // FUNCTION: CMR2 0x004d6460
-void FUN_004d6460(Menu *pMenu)
+void FrontendMenu_DrawTransmissionChoice(Menu *pMenu)
 {
     char *text[2];
 
-    switch (CGameInfo::FUN_00405d80()) {
+    switch (CGameInfo::GetConfiguredGameMode()) {
     case 0:
         text[0] = CFrontend::GetTextString(0xe7);
         text[1] = CFrontend::GetTextString(0xc);
@@ -6410,14 +6410,14 @@ void FUN_004d6460(Menu *pMenu)
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 3, text, 2);
     FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
-    FrontendDraw_ScrollerRow(FUN_004f2520(), 0);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetDifficultyScroller(), 0);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
 
 // Update callback of the two-choice pages: the first choice is always
 // available.
 // FUNCTION: CMR2 0x004ef410
-void FUN_004ef410(Menu *pMenu)
+void FrontendMenu_UpdateTransmissionChoice(Menu *pMenu)
 {
     pMenu->items[0].enabled = 1;
 }
@@ -6425,51 +6425,51 @@ void FUN_004ef410(Menu *pMenu)
 // Item callback of the two-choice pages: stores the choice and goes to the
 // next screen of the mode.
 // FUNCTION: CMR2 0x004efb20
-void FUN_004efb20(Menu *pMenu, int param)
+void FrontendMenu_SelectTransmission(Menu *pMenu, int param)
 {
-    FUN_004ea950(pMenu->cursor);
+    GameInfo_SetConfiguredMultiplayer(pMenu->cursor);
     g_unk0x00819870 = (int)pMenu;
-    Menu_SetParent(FUN_004f83a0(), pMenu);
-    g_unk0x00819048 = CGameInfo::FUN_00405d70();
+    Menu_SetParent(FrontendMenu_GetMultiplayerProfile(), pMenu);
+    g_unk0x00819048 = CGameInfo::GetConfiguredPlayerCount();
 }
 
-BYTE FUN_004085a0(BYTE param1);
+BYTE RallyData_IsDriverRecordUsable(BYTE param1);
 
 // Menu the current game mode continues to after the player setup.
 #define FRONTEND_MODE_NEXT_MENU(pNext)          \
-    switch (CGameInfo::FUN_00405d80()) {        \
+    switch (CGameInfo::GetConfiguredGameMode()) {        \
     case 4:                                     \
-        pNext = FUN_004f8430();                 \
+        pNext = FrontendMenu_GetPaletteConfirmation();                 \
         break;                                  \
     case 5:                                     \
-        pNext = FUN_004fa300();                 \
+        pNext = FrontendMenu_GetChampionshipRouteSelection();                 \
         break;                                  \
     case 6:                                     \
-        pNext = FUN_004fa310();                 \
+        pNext = FrontendMenu_GetAlternateChampionshipRouteSelection();                 \
         break;                                  \
     case 7:                                     \
-        pNext = FUN_004fa320();                 \
+        pNext = FrontendMenu_GetArcadeChampionshipRouteSelection();                 \
         break;                                  \
     default:                                    \
-        pNext = FUN_004f83f0();                 \
+        pNext = FrontendMenu_GetCarSetup();                 \
         break;                                  \
     }
 
 // Draw callback of the player profile menu: "<mode> | Player N | <menu>".
 // FUNCTION: CMR2 0x004d9880
-void FUN_004d9880(Menu *pMenu)
+void FrontendMenu_DrawMultiplayerProfile(Menu *pMenu)
 {
     char *text[4];
 
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc), g_unk0x008182b4);
     text[2] = CFrontend::m_stringDest;
     text[3] = CFrontend::GetTextString(pMenu->field_0x4);
-    if (CGameInfo::FUN_00405e00() != 0) {
+    if (CGameInfo::GetGameModeOptionBit19() != 0) {
         text[0] = CFrontend::GetTextString(0x12);
         text[1] = NULL;
         text[2] = NULL;
     } else {
-        switch (CGameInfo::FUN_00405d80()) {
+        switch (CGameInfo::GetConfiguredGameMode()) {
         case 0:
             text[0] = CFrontend::GetTextString(0xe7);
             text[1] = CFrontend::GetTextString(0xc);
@@ -6508,32 +6508,32 @@ void FUN_004d9880(Menu *pMenu)
     FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, text, 4);
     FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
-    if (CGameInfo::FUN_00405e00() != 0)
-        FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    if (CGameInfo::GetGameModeOptionBit19() != 0)
+        FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // Enables one item per selected car/difficulty level (and up to the fourth
 // one) of the two player-setup menus, then stores the number of gears and
 // the steering aid read from the game info.
 // FUNCTION: CMR2 0x004f02e0
-void FUN_004f02e0(void)
+void FrontendMenu_EnablePlayerSetupItems(void)
 {
-    unsigned int *pInfo = CGameInfo::FUN_00405db0();
+    unsigned int *pInfo = CGameInfo::GetGameInfoField9CAddress();
     int value0;
     int value1;
     unsigned int count;
     int i;
 
-    if (CGameInfo::FUN_00406410(0xd)) {
+    if (CGameInfo::IsRecordFlagSet(0xd)) {
         count = 8;
-    } else if (CGameInfo::FUN_00405d80() == 3 || CGameInfo::FUN_00405d80() == 2) {
+    } else if (CGameInfo::GetConfiguredGameMode() == 3 || CGameInfo::GetConfiguredGameMode() == 2) {
         count = *pInfo >> 8 & 0xf;
         if ((*pInfo >> 0xc & 0xf) > count)
             count = *pInfo >> 0xc & 0xf;
         if ((*pInfo >> 0x10 & 0xf) > count)
             count = *pInfo >> 0x10 & 0xf;
     } else {
-        switch (CGameInfo::FUN_00405d90()) {
+        switch (CGameInfo::GetConfiguredDifficulty()) {
         case 0:
             count = *pInfo >> 8 & 0xf;
             break;
@@ -6546,14 +6546,14 @@ void FUN_004f02e0(void)
         }
     }
     for (i = 0; i < 8u; i++) {
-        if (i < count || (CGameInfo::FUN_00405d80() != 1 && i < 4))
-            FUN_004f8340()->items[i].enabled = 1;
+        if (i < count || (CGameInfo::GetConfiguredGameMode() != 1 && i < 4))
+            FrontendMenu_GetRallySelection()->items[i].enabled = 1;
         else
-            FUN_004f8340()->items[i].enabled = 0;
+            FrontendMenu_GetRallySelection()->items[i].enabled = 0;
     }
-    FUN_004ea990(&value0, &value1);
-    FUN_004f8340()->cursor = (char)value0;
-    FUN_004f8350()->cursor = (char)value1;
+    GameInfo_GetPlayerOptionNibbles(&value0, &value1);
+    FrontendMenu_GetRallySelection()->cursor = (char)value0;
+    FrontendMenu_GetRallyStageSelection()->cursor = (char)value1;
 }
 
 // Entering the player profile menu (back: undoes the previous player's
@@ -6567,20 +6567,20 @@ void FUN_004f03f0(Menu *pMenu, char back)
     int i;
 
     if (back != 0) {
-        if (FUN_004085a0(CGameInfo::FUN_00405d70() + (-1 - g_unk0x00819048)) || g_unk0x00819879 != 0) {
-            if (FUN_004085a0(CGameInfo::FUN_00405d70() + (-1 - g_unk0x00819048))) {
+        if (RallyData_IsDriverRecordUsable(CGameInfo::GetConfiguredPlayerCount() + (-1 - g_unk0x00819048)) || g_unk0x00819879 != 0) {
+            if (RallyData_IsDriverRecordUsable(CGameInfo::GetConfiguredPlayerCount() + (-1 - g_unk0x00819048))) {
                 g_unk0x00819744--;
-                FUN_004eb000(CGameInfo::FUN_00405d70() + (-1 - g_unk0x00819048), 0);
+                FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() + (-1 - g_unk0x00819048), 0);
             }
-            FUN_004ebf20((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
+            Profile_ResetCategoryData((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
         }
-        FUN_004ebe80((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
+        Profile_ResetRecordCategory((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
         g_unk0x00819048++;
     }
     g_unk0x00819879 = 0;
-    FUN_004e7770((CGameInfo::FUN_00405d70() & 0xff) - FUN_004f1ba0() + 1);
-    FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - FUN_004f1ba0());
-    CSound::FUN_004a28c0();
+    FrontendProfile_SetHeaderMode((CGameInfo::GetConfiguredPlayerCount() & 0xff) - FrontendProfile_GetPlayersRemaining() + 1);
+    Frontend_SetOverlayMode((CGameInfo::GetConfiguredPlayerCount() & 0xff) - FrontendProfile_GetPlayersRemaining());
+    CSound::NoOpSoundDeviceCallback();
     for (i = 0; i < 4; i++) {
         if (i < SaveProfiles_CountAvailableProfiles()) {
             sprintf(g_profileEntryTexts[i], CFrontend::GetTextString(0x17e), SaveProfiles_GetAvailableProfileName(i));
@@ -6609,39 +6609,39 @@ void FUN_004f0960(Menu *pMenu, int param)
 
     g_unk0x00819879 = 1;
     FRONTEND_MODE_NEXT_MENU(pNext)
-    FUN_004f2bf0((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff));
-    FUN_004eb860((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff), -1);
-    FUN_004ebf20((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff));
-    FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 0);
-    Menu_SetParent(FUN_004f83c0(), pMenu);
-    FUN_004f2c10((int)FUN_004f83d0());
+    FrontendProfile_SetCurrentPlayer((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff));
+    FUN_004eb860((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), -1);
+    Profile_ResetCategoryData((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff));
+    FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
+    Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
+    FrontendProfile_SetRenameMenu((int)FrontendMenu_GetProfileRenameEntry());
     pAfter = pNext;
-    if (CGameInfo::FUN_00405e00() != 0)
-        pAfter = FUN_004f8440();
-    FUN_004f2c30((int)pAfter);
+    if (CGameInfo::GetGameModeOptionBit19() != 0)
+        pAfter = FrontendMenu_GetNetworkConnection();
+    FrontendProfile_SetCompletionMenu((int)pAfter);
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc),
-            (CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) + 1);
-    FUN_004e7780(CFrontend::m_stringDest);
+            (CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) + 1);
+    FrontendProfile_SetHeaderText(CFrontend::m_stringDest);
     g_unk0x00819048--;
     Menu_SetParent(pNext, pMenu);
-    Menu_SetNextAction((int)FUN_004f83c0());
+    Menu_SetNextAction((int)FrontendMenu_GetProfileNameEntry());
 }
 
 // Item callback of a saved profile in the player profile menu.
 // FUNCTION: CMR2 0x004f0c50
-void FUN_004f0c50(Menu *pMenu, int param)
+void FrontendProfile_SelectSavedPlayerProfile(Menu *pMenu, int param)
 {
     Menu *pNext;
     int profile;
 
     profile = SaveProfiles_GetAvailableProfileIndex(pMenu->cursor - 3);
     FRONTEND_MODE_NEXT_MENU(pNext)
-    FUN_004eb860((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff), profile);
-    FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 0);
+    FUN_004eb860((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), profile);
+    FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
     g_unk0x00819048--;
-    if (CGameInfo::FUN_00405e00() != 0) {
-        Menu_SetParent(FUN_004f8440(), pMenu);
-        Menu_SetNextAction((int)FUN_004f8440());
+    if (CGameInfo::GetGameModeOptionBit19() != 0) {
+        Menu_SetParent(FrontendMenu_GetNetworkConnection(), pMenu);
+        Menu_SetNextAction((int)FrontendMenu_GetNetworkConnection());
         return;
     }
     Menu_SetParent(pNext, pMenu);
@@ -6651,24 +6651,24 @@ void FUN_004f0c50(Menu *pMenu, int param)
 // Callback that steps the player list back one player while setting up a
 // championship.
 // FUNCTION: CMR2 0x004f0da0
-void FUN_004f0da0(int param_1, char param_2)
+void FrontendMenu_LeaveProfileNameEntry(int param_1, char param_2)
 {
-    FUN_004ea480(0);
-    FUN_004a0c50(0);
+    Frontend_SetOverlayMode(0);
+    Menu_SetActionLatch(0);
     if (param_2 != 0) {
-        FUN_004e77b0(0);
-        if (CGameInfo::FUN_00405d80() == 4) {
-            if (FUN_004d27d0() == 0) {
+        FrontendProfile_SetNameEntryFlag(0);
+        if (CGameInfo::GetConfiguredGameMode() == 4) {
+            if (FrontendRecords_GetProfileMode() == 0) {
                 g_unk0x00819744--;
                 if (g_unk0x00819744 > 0) {
                     g_unk0x00819048++;
-                    FUN_004f2bf0((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
+                    FrontendProfile_SetCurrentPlayer((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
                     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc),
-                            (CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff));
-                    FUN_004e7780(CFrontend::m_stringDest);
+                            (CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff));
+                    FrontendProfile_SetHeaderText(CFrontend::m_stringDest);
                     return;
                 }
-                Menu_SetNextAction((int)FUN_004f8320());
+                Menu_SetNextAction((int)FrontendMenu_GetMultiplayerExtendedDifficulty());
             }
         }
     }
@@ -6683,20 +6683,20 @@ char g_strTextCursor[] = "_";
 // GLOBAL: CMR2 0x00524d64
 char g_strLabelSpacedText[8] = "%s : %s";
 
-unsigned int RallyData_FUN_004069b0(void);
-unsigned int RallyData_FUN_004070e0(void);
-void RallyData_FUN_0040d660(BYTE param1);
-void RallyData_FUN_0040d680(BYTE param1);
-void RallyData_FUN_0040d6a0(BYTE param1);
+unsigned int RallyData_GetKnockoutModeBits(void);
+unsigned int RallyData_GetKnockoutCountryNibble(void);
+void RallyData_SetKnockoutModeBits(BYTE param1);
+void RallyData_SetKnockoutBits6To8(BYTE param1);
+void RallyData_SetKnockoutCountryNibble(BYTE param1);
 void RallyData_InitKnockoutBracket(void);
-void RallyData_FUN_004070c0(void);
-void FUN_004ea970(BYTE param1);
-int FUN_004eaac0(unsigned int value);
+void RallyData_SelectKnockoutCountryStage(void);
+void GameInfo_SetGameModeOptionBits20To22(BYTE param1);
+int GameInfo_CountSetBits(unsigned int value);
 
 // Number of stages the player count allows: 1-2 players 1, 3-4 players 2,
 // more 3.
 #define FRONTEND_PLAYER_GROUP(call)         \
-    switch (CGameInfo::FUN_00405d70()) {    \
+    switch (CGameInfo::GetConfiguredPlayerCount()) {    \
     case 1:                                 \
     case 2:                                 \
         call(1);                            \
@@ -6713,9 +6713,9 @@ int FUN_004eaac0(unsigned int value);
 // Entering the multiplayer race settings page: loads the current settings
 // (and the ranges the player count allows) into its entries.
 // FUNCTION: CMR2 0x004ef970
-void FUN_004ef970(Menu *pMenu, int param)
+void FrontendMenu_EnterMultiplayerRaceSettings(Menu *pMenu, int param)
 {
-    switch (CGameInfo::FUN_00405d70()) {
+    switch (CGameInfo::GetConfiguredPlayerCount()) {
     case 1:
     case 2:
         g_unk0x00819050 = 0;
@@ -6728,32 +6728,32 @@ void FUN_004ef970(Menu *pMenu, int param)
         g_unk0x00819050 = 2;
         break;
     }
-    if (CGameInfo::FUN_00405d70() == 1) {
-        if (CGameInfo::FUN_00405dd0() == 0) {
-            FUN_004ea970(CGameInfo::FUN_00405d90() + 1);
-            pMenu->items[0].max = CGameInfo::FUN_00405d90();
+    if (CGameInfo::GetConfiguredPlayerCount() == 1) {
+        if (CGameInfo::GetGameModeOptionBits20To22() == 0) {
+            GameInfo_SetGameModeOptionBits20To22(CGameInfo::GetConfiguredDifficulty() + 1);
+            pMenu->items[0].max = CGameInfo::GetConfiguredDifficulty();
         } else {
-            pMenu->items[0].max = CGameInfo::FUN_00405dd0() - 1;
+            pMenu->items[0].max = CGameInfo::GetGameModeOptionBits20To22() - 1;
         }
         pMenu->items[0].min = 3;
         g_unk0x00819748 = 1;
     } else {
-        pMenu->items[0].max = CGameInfo::FUN_00405dd0();
+        pMenu->items[0].max = CGameInfo::GetGameModeOptionBits20To22();
         pMenu->items[0].min = 4;
         g_unk0x00819748 = 0;
     }
-    if (CGameInfo::FUN_00405dd0() == 0) {
-        FRONTEND_PLAYER_GROUP(RallyData_FUN_0040d660)
+    if (CGameInfo::GetGameModeOptionBits20To22() == 0) {
+        FRONTEND_PLAYER_GROUP(RallyData_SetKnockoutModeBits)
         pMenu->items[1].enabled = 0;
-        pMenu->items[1].max = RallyData_FUN_004069b0() - 1;
+        pMenu->items[1].max = RallyData_GetKnockoutModeBits() - 1;
     } else {
         pMenu->items[1].enabled = 1;
     }
     pMenu->items[1].min = 4 - g_unk0x00819050;
-    pMenu->items[1].max = RallyData_FUN_004069b0() - 1;
+    pMenu->items[1].max = RallyData_GetKnockoutModeBits() - 1;
     if (pMenu->items[1].max >= pMenu->items[1].min)
         pMenu->items[1].max = pMenu->items[1].min - 1;
-    switch ((BYTE)RallyData_FUN_004070e0()) {
+    switch ((BYTE)RallyData_GetKnockoutCountryNibble()) {
     case 1:
         pMenu->items[2].max = 1;
         break;
@@ -6773,10 +6773,10 @@ void FUN_004ef970(Menu *pMenu, int param)
         pMenu->items[2].max = 0;
         break;
     }
-    if (CGameInfo::FUN_00406410(0xd))
+    if (CGameInfo::IsRecordFlagSet(0xd))
         pMenu->items[2].min = 5;
     else
-        pMenu->items[2].min = FUN_004eaac0(CGameInfo::FUN_00405db0()[1] & 0x1f) + 1;
+        pMenu->items[2].min = GameInfo_CountSetBits(CGameInfo::GetGameInfoField9CAddress()[1] & 0x1f) + 1;
     if (pMenu->items[2].max >= pMenu->items[2].min)
         pMenu->items[2].max = pMenu->items[2].min - 1;
 }
@@ -6784,51 +6784,51 @@ void FUN_004ef970(Menu *pMenu, int param)
 // Item callback of "start" on the multiplayer race settings page: stores
 // the settings and starts the knockout.
 // FUNCTION: CMR2 0x004f01c0
-void FUN_004f01c0(Menu *pMenu, int param)
+void FrontendMenu_StartMultiplayerKnockout(Menu *pMenu, int param)
 {
     if (g_unk0x00819748 != 0)
-        FUN_004ea970(pMenu->items[0].max + 1);
+        GameInfo_SetGameModeOptionBits20To22(pMenu->items[0].max + 1);
     else
-        FUN_004ea970(pMenu->items[0].max);
-    RallyData_FUN_0040d660(pMenu->items[1].max + g_unk0x00819050 + 1);
-    RallyData_FUN_0040d680(1);
+        GameInfo_SetGameModeOptionBits20To22(pMenu->items[0].max);
+    RallyData_SetKnockoutModeBits(pMenu->items[1].max + g_unk0x00819050 + 1);
+    RallyData_SetKnockoutBits6To8(1);
     switch (pMenu->items[2].max) {
     case 1:
-        RallyData_FUN_0040d6a0(1);
+        RallyData_SetKnockoutCountryNibble(1);
         break;
     case 2:
-        RallyData_FUN_0040d6a0(3);
+        RallyData_SetKnockoutCountryNibble(3);
         break;
     case 3:
-        RallyData_FUN_0040d6a0(5);
+        RallyData_SetKnockoutCountryNibble(5);
         break;
     case 4:
-        RallyData_FUN_0040d6a0(7);
+        RallyData_SetKnockoutCountryNibble(7);
         break;
     case 0:
-        RallyData_FUN_0040d6a0(8);
+        RallyData_SetKnockoutCountryNibble(8);
         break;
     default:
-        RallyData_FUN_0040d6a0(8);
+        RallyData_SetKnockoutCountryNibble(8);
         break;
     }
     RallyData_InitKnockoutBracket();
-    RallyData_FUN_004070c0();
-    Menu_SetNextAction((int)FUN_004f8330());
+    RallyData_SelectKnockoutCountryStage();
+    Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
 }
 
 // Update callback of the multiplayer race settings page.
 // FUNCTION: CMR2 0x004f0250
-void FUN_004f0250(Menu *pMenu)
+void FrontendMenu_UpdateMultiplayerRaceSettings(Menu *pMenu)
 {
     if (g_unk0x00819748 != 0)
-        FUN_004ea970(pMenu->items[0].max + 1);
+        GameInfo_SetGameModeOptionBits20To22(pMenu->items[0].max + 1);
     else
-        FUN_004ea970(pMenu->items[0].max);
-    if (CGameInfo::FUN_00405dd0() == 0) {
-        FRONTEND_PLAYER_GROUP(RallyData_FUN_0040d660)
+        GameInfo_SetGameModeOptionBits20To22(pMenu->items[0].max);
+    if (CGameInfo::GetGameModeOptionBits20To22() == 0) {
+        FRONTEND_PLAYER_GROUP(RallyData_SetKnockoutModeBits)
         pMenu->items[1].enabled = 0;
-        pMenu->items[1].max = RallyData_FUN_004069b0() + (-1 - g_unk0x00819050);
+        pMenu->items[1].max = RallyData_GetKnockoutModeBits() + (-1 - g_unk0x00819050);
         return;
     }
     pMenu->items[1].enabled = 1;
@@ -6838,7 +6838,7 @@ void FUN_004f0250(Menu *pMenu)
 // its item value (title only, or with the stage names of the rally), over the
 // strip of the selected rows, plus the carousel.
 // FUNCTION: CMR2 0x004df410
-void FUN_004df410(Menu *pMenu)
+void FrontendMenu_DrawGameOptions(Menu *pMenu)
 {
     SpriteRect dst;
     BYTE *pColour;
@@ -6964,7 +6964,7 @@ void FUN_004df410(Menu *pMenu)
         g_unk0x008189a8[1]++;
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // Draw callback of the multiplayer race settings page.
@@ -7024,7 +7024,7 @@ void FUN_004e1230(Menu *pMenu)
         }
         switch (i) {
         case 0:
-            if (FUN_004f3a30() != 0) {
+            if (FrontendChampionship_GetRouteSelectionFlag() != 0) {
                 switch (pMenu->items[0].max) {
                 case 0:
                     id = 0x43;
@@ -7060,7 +7060,7 @@ void FUN_004e1230(Menu *pMenu)
             break;
         case 1:
             sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x143),
-                    FUN_004f3a40() + pMenu->items[1].max + 1);
+                    FrontendChampionship_GetRouteIndexOffset() + pMenu->items[1].max + 1);
             break;
         case 2:
             sprintf(CFrontend::m_stringDest, g_strLabelSpacedText, CFrontend::GetTextString(0x31),
@@ -7091,12 +7091,12 @@ void FUN_004e1230(Menu *pMenu)
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
 
-int FUN_004f92f0(void);
+int FrontendNetwork_GetMessageState(void);
 
 // Draw callback of the network message page: title and the message of the
 // current network state.
 // FUNCTION: CMR2 0x004e96d0
-void FUN_004e96d0(Menu *pMenu)
+void FrontendMenu_DrawNetworkMessage(Menu *pMenu)
 {
     char *text[2];
     int id;
@@ -7105,7 +7105,7 @@ void FUN_004e96d0(Menu *pMenu)
     text[1] = CFrontend::GetTextString(0x1e2);
     FrontendDraw_PlayTime();
     FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, text, 2);
-    switch (FUN_004f92f0()) {
+    switch (FrontendNetwork_GetMessageState()) {
     case 0:
         Font_DrawText(1, CFrontend::GetTextString(0x1e3), (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 2,
                       (int *)g_colourWhite0x00524968, 0x12);
@@ -7126,12 +7126,12 @@ void FUN_004e96d0(Menu *pMenu)
         goto done;
     }
 done:
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // Draw callback of the arcade menu.
 // FUNCTION: CMR2 0x004e2500
-void FUN_004e2500(Menu *pMenu)
+void FrontendMenu_DrawArcade(Menu *pMenu)
 {
     char *text[1];
 
@@ -7139,48 +7139,48 @@ void FUN_004e2500(Menu *pMenu)
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 2, text, 1);
     FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
-void FUN_004f1bb0(int value);
+void FrontendProfile_SetPlayersRemaining(int value);
 
 // Leaving the arcade menu: sets the arcade mode of the entry chosen.
 // FUNCTION: CMR2 0x004ef740
-void FUN_004ef740(Menu *pMenu, char back)
+void FrontendMenu_LeaveArcade(Menu *pMenu, char back)
 {
     if (back != 0)
         return;
-    FUN_004ea950(0);
+    GameInfo_SetConfiguredMultiplayer(0);
     switch (pMenu->cursor) {
     case 0:
-        FUN_004ea8e0(5);
+        GameInfo_SetConfiguredGameMode(5);
         break;
     case 1:
-        FUN_004ea8e0(6);
+        GameInfo_SetConfiguredGameMode(6);
         break;
     case 2:
-        FUN_004ea8e0(7);
-        FUN_004ea8c0(1);
-        FUN_004f1bb0(CGameInfo::FUN_00405d70());
-        FUN_004ea950(0);
-        RallyData_FUN_004068b0(0);
-        RallyData_FUN_004068e0(0);
+        GameInfo_SetConfiguredGameMode(7);
+        GameInfo_SetConfiguredPlayerCount(1);
+        FrontendProfile_SetPlayersRemaining(CGameInfo::GetConfiguredPlayerCount());
+        GameInfo_SetConfiguredMultiplayer(0);
+        RallyData_SetCountrySelectionBits(0);
+        RallyData_SetStageSelectionAndRefreshFlags(0);
         return;
     }
-    RallyData_FUN_004068b0(0);
-    RallyData_FUN_004068e0(0);
+    RallyData_SetCountrySelectionBits(0);
+    RallyData_SetStageSelectionAndRefreshFlags(0);
 }
 
-void FUN_004ea930(BYTE param1);
-void FUN_004fa970(void);
+void GameInfo_SetConfiguredDifficulty(BYTE param1);
+void FrontendMenu_SetupSinglePlayerArcade(void);
 
 // Item callback of an arcade game type.
 // FUNCTION: CMR2 0x004ef930
-void FUN_004ef930(Menu *pMenu, int param)
+void FrontendMenu_SelectCarClass(Menu *pMenu, int param)
 {
-    FUN_004ea930(pMenu->cursor);
-    if (CGameInfo::FUN_00405d80() == 5)
-        FUN_004fa970();
+    GameInfo_SetConfiguredDifficulty(pMenu->cursor);
+    if (CGameInfo::GetConfiguredGameMode() == 5)
+        FrontendMenu_SetupSinglePlayerArcade();
 }
 
 // GLOBAL: CMR2 0x00524d48
@@ -7189,21 +7189,21 @@ char g_strLabelColon[4] = "%s:";
 // GLOBAL: CMR2 0x00829320
 unsigned int g_unk0x00829320;
 
-unsigned int FUN_004eaa80(void);
-unsigned int FUN_004eaab0(void);
-unsigned int FUN_004eacf0(void);
-unsigned int FUN_004ead00(void);
-void FUN_004eaa60(unsigned int param1);
-void FUN_004eaa90(unsigned int param1);
-void FUN_004eac80(BYTE param1);
-void FUN_004eacb0(unsigned int param1);
-void FUN_004eacd0(unsigned int param1);
-unsigned int RallyData_FUN_004082b0(void);
-void RallyData_FUN_0040d620(BYTE param1);
-void RallyData_FUN_0040e360(unsigned int param1);
-void RallyData_FUN_0040e380(unsigned int param1);
-void RallyData_FUN_0040e3a0(unsigned int param1);
-MenuScroller *FUN_004f2590(void);
+unsigned int GameInfo_GetNetworkOptionBits8To10(void);
+unsigned int GameInfo_GetNetworkOptionBits3To7(void);
+unsigned int GameInfo_GetNetworkOptionBits12To15(void);
+unsigned int GameInfo_GetNetworkOptionBits16To19(void);
+void GameInfo_SetNetworkOptionBits8To10(unsigned int param1);
+void GameInfo_SetNetworkOptionBits3To7(unsigned int param1);
+void GameInfo_SetNetworkOptionBit11(BYTE param1);
+void GameInfo_SetNetworkOptionBits12To15(unsigned int param1);
+void GameInfo_SetNetworkOptionBits16To19(unsigned int param1);
+unsigned int RallyData_GetSetupModeBits(void);
+void RallyData_SetSelectionBits16To19(BYTE param1);
+void RallyData_SetSetupModeBits(unsigned int param1);
+void RallyData_SetSetupHighNibble(unsigned int param1);
+void RallyData_SetSetupLowNibble(unsigned int param1);
+MenuScroller *FrontendScroller_GetArcadeRallyScroller(void);
 
 // Draws the on/off choice of a settings row after the text in m_stringDest.
 #define QUICKRACE_DRAW_CHOICE(value, y)                                                                     \
@@ -7320,7 +7320,7 @@ void FUN_004da710(Menu *pMenu)
         QUICKRACE_ROW_LINE(i)
     }
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
-    FrontendDraw_ScrollerRow(FUN_004f2590(), 0);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetArcadeRallyScroller(), 0);
 }
 
 // Draw callback of the second quick race page (game type and its settings).
@@ -7370,42 +7370,42 @@ void FUN_004daf90(Menu *pMenu)
         QUICKRACE_ROW_LINE(i)
     }
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
-    FrontendDraw_ScrollerRow(FUN_004f2590(), 0);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetArcadeRallyScroller(), 0);
 }
 
 // Item callback of "start" on the first quick race page.
 // FUNCTION: CMR2 0x004f0090
-void FUN_004f0090(Menu *pMenu, int param)
+void FrontendMenu_StartQuickRace(Menu *pMenu, int param)
 {
-    RallyData_FUN_0040d620(pMenu->items[0].max + 1);
-    FUN_004eaa90(pMenu->items[0].max + 1);
-    if (CGameInfo::FUN_00405d70() == 2) {
-        RallyData_FUN_0040d640(0);
-        FUN_004eac80(pMenu->items[1].max);
+    RallyData_SetSelectionBits16To19(pMenu->items[0].max + 1);
+    GameInfo_SetNetworkOptionBits3To7(pMenu->items[0].max + 1);
+    if (CGameInfo::GetConfiguredPlayerCount() == 2) {
+        RallyData_SetSecondarySelectionNibble(0);
+        GameInfo_SetNetworkOptionBit11(pMenu->items[1].max);
     } else {
-        RallyData_FUN_0040d640(pMenu->items[1].max + 1);
-        FUN_004eaa60(pMenu->items[1].max + 1);
-        FUN_004eac80(0);
+        RallyData_SetSecondarySelectionNibble(pMenu->items[1].max + 1);
+        GameInfo_SetNetworkOptionBits8To10(pMenu->items[1].max + 1);
+        GameInfo_SetNetworkOptionBit11(0);
     }
-    Menu_SetNextAction((int)FUN_004f8330());
+    Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
 }
 
 // Entering the first quick race page: loads its settings.
 // FUNCTION: CMR2 0x004f3220
-void FUN_004f3220(Menu *pMenu, int param)
+void FrontendMenu_EnterQuickRaceSettings(Menu *pMenu, int param)
 {
-    pMenu->items[0].max = FUN_004eaab0() - 1;
-    if (CGameInfo::FUN_00405d70() == 2) {
+    pMenu->items[0].max = GameInfo_GetNetworkOptionBits3To7() - 1;
+    if (CGameInfo::GetConfiguredPlayerCount() == 2) {
         pMenu->items[1].value = 2;
         pMenu->items[1].max = 0;
         pMenu->items[1].min = 2;
-        pMenu->items[1].max = (BYTE)CGameInfo::FUN_00406440() != 0;
+        pMenu->items[1].max = (BYTE)CGameInfo::GetNetworkOptionBit11() != 0;
         pMenu->cursor = 2;
         return;
     }
     pMenu->items[1].value = 1;
     pMenu->items[1].min = 5;
-    BYTE max = FUN_004eaa80() - 1;
+    BYTE max = GameInfo_GetNetworkOptionBits8To10() - 1;
     pMenu->cursor = 2;
     pMenu->items[1].max = max;
 }
@@ -7415,19 +7415,19 @@ void FUN_004f3220(Menu *pMenu, int param)
 #define QUICKRACE_TYPE_SETTING(pMenu, type)                          \
     switch (type) {                                                  \
     case 0: {                                                        \
-        BYTE m = FUN_004eaab0() - 1;                                 \
+        BYTE m = GameInfo_GetNetworkOptionBits3To7() - 1;                                 \
         pMenu->items[1].min = 10;                                    \
         pMenu->items[1].max = m;                                     \
         pMenu->items[1].value = 4;                                   \
         break; }                                                     \
     case 1: {                                                        \
-        BYTE m = FUN_004eacf0() - 1;                                 \
+        BYTE m = GameInfo_GetNetworkOptionBits12To15() - 1;                                 \
         pMenu->items[1].min = 10;                                    \
         pMenu->items[1].max = m;                                     \
         pMenu->items[1].value = 6;                                   \
         break; }                                                     \
     case 2: {                                                        \
-        BYTE m = FUN_004ead00() - 1;                                 \
+        BYTE m = GameInfo_GetNetworkOptionBits16To19() - 1;                                 \
         pMenu->items[1].min = 10;                                    \
         pMenu->items[1].max = m;                                     \
         pMenu->items[1].value = 5;                                   \
@@ -7436,39 +7436,39 @@ void FUN_004f3220(Menu *pMenu, int param)
 
 // Item callback of "start" on the second quick race page.
 // FUNCTION: CMR2 0x004f0110
-void FUN_004f0110(Menu *pMenu, int param)
+void FrontendMenu_StartAdvancedQuickRace(Menu *pMenu, int param)
 {
-    RallyData_FUN_0040d640(0);
-    RallyData_FUN_0040e360(pMenu->items[0].max);
-    FUN_004eac80(pMenu->items[2].max);
-    switch (RallyData_FUN_004082b0()) {
+    RallyData_SetSecondarySelectionNibble(0);
+    RallyData_SetSetupModeBits(pMenu->items[0].max);
+    GameInfo_SetNetworkOptionBit11(pMenu->items[2].max);
+    switch (RallyData_GetSetupModeBits()) {
     case 0:
-        RallyData_FUN_0040d620(pMenu->items[1].max + 1);
-        FUN_004eaa90(pMenu->items[1].max + 1);
+        RallyData_SetSelectionBits16To19(pMenu->items[1].max + 1);
+        GameInfo_SetNetworkOptionBits3To7(pMenu->items[1].max + 1);
         break;
     case 1:
-        RallyData_FUN_0040e3a0(pMenu->items[1].max + 1);
-        FUN_004eacb0(pMenu->items[1].max + 1);
+        RallyData_SetSetupLowNibble(pMenu->items[1].max + 1);
+        GameInfo_SetNetworkOptionBits12To15(pMenu->items[1].max + 1);
         break;
     case 2:
-        RallyData_FUN_0040e380(pMenu->items[1].max + 1);
-        FUN_004eacd0(pMenu->items[1].max + 1);
+        RallyData_SetSetupHighNibble(pMenu->items[1].max + 1);
+        GameInfo_SetNetworkOptionBits16To19(pMenu->items[1].max + 1);
         break;
     }
-    Menu_SetNextAction((int)FUN_004f8330());
+    Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
 }
 
 // Entering the second quick race page: loads its settings.
 // FUNCTION: CMR2 0x004f3280
-void FUN_004f3280(Menu *pMenu, int param)
+void FrontendMenu_EnterQuickRaceAdvancedSettings(Menu *pMenu, int param)
 {
     unsigned int type;
 
-    g_unk0x00829320 = RallyData_FUN_004082b0();
-    pMenu->items[0].max = RallyData_FUN_004082b0();
-    type = RallyData_FUN_004082b0();
+    g_unk0x00829320 = RallyData_GetSetupModeBits();
+    pMenu->items[0].max = RallyData_GetSetupModeBits();
+    type = RallyData_GetSetupModeBits();
     QUICKRACE_TYPE_SETTING(pMenu, type)
-    if ((BYTE)CGameInfo::FUN_00406440() != 0) {
+    if ((BYTE)CGameInfo::GetNetworkOptionBit11() != 0) {
         pMenu->items[2].max = 1;
         pMenu->cursor = 3;
         return;
@@ -7480,7 +7480,7 @@ void FUN_004f3280(Menu *pMenu, int param)
 // Update callback of the second quick race page: when the game type changes
 // the setting row follows it; the setting is stored as it changes.
 // FUNCTION: CMR2 0x004f3310
-void FUN_004f3310(Menu *pMenu)
+void FrontendMenu_UpdateQuickRaceAdvancedSettings(Menu *pMenu)
 {
     unsigned int type;
 
@@ -7491,24 +7491,24 @@ void FUN_004f3310(Menu *pMenu)
     }
     switch (pMenu->items[0].max) {
     case 0:
-        RallyData_FUN_0040d620(pMenu->items[1].max + 1);
-        FUN_004eaa90(pMenu->items[1].max + 1);
+        RallyData_SetSelectionBits16To19(pMenu->items[1].max + 1);
+        GameInfo_SetNetworkOptionBits3To7(pMenu->items[1].max + 1);
         break;
     case 1:
-        RallyData_FUN_0040e3a0(pMenu->items[1].max + 1);
-        FUN_004eacb0(pMenu->items[1].max + 1);
+        RallyData_SetSetupLowNibble(pMenu->items[1].max + 1);
+        GameInfo_SetNetworkOptionBits12To15(pMenu->items[1].max + 1);
         break;
     case 2:
-        RallyData_FUN_0040e380(pMenu->items[1].max + 1);
-        FUN_004eacd0(pMenu->items[1].max + 1);
+        RallyData_SetSetupHighNibble(pMenu->items[1].max + 1);
+        GameInfo_SetNetworkOptionBits16To19(pMenu->items[1].max + 1);
         break;
     }
-    FUN_004f37c0(FUN_004f2590());
+    FUN_004f37c0(FrontendScroller_GetArcadeRallyScroller());
 }
 
 // Draw callback of the display device menu: one row per device name.
 // FUNCTION: CMR2 0x004e1920
-void FUN_004e1920(Menu *pMenu)
+void FrontendMenu_DrawDisplayDevice(Menu *pMenu)
 {
     char name[80];
     char description[80];
@@ -7571,31 +7571,31 @@ void FUN_004e1920(Menu *pMenu)
         g_unk0x008189a8[1]++;
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // FUNCTION: CMR2 0x004f92e0
-void FUN_004f92e0(int value)
+void FrontendNetwork_SetMessageState(int value)
 {
     g_unk0x00826138 = value;
 }
 
 // FUNCTION: CMR2 0x004f92f0
-int FUN_004f92f0(void)
+int FrontendNetwork_GetMessageState(void)
 {
     return g_unk0x00826138;
 }
 
 // FUNCTION: CMR2 0x004faa00
-void FUN_004faa00(Menu *pMenu, int param)
+void FrontendMenu_EnterArcadeCarClass(Menu *pMenu, int param)
 {
     char cursor;
 
-    if ((*CGameInfo::FUN_00405db0() & 2) || CGameInfo::FUN_00406410(0xd))
+    if ((*CGameInfo::GetGameInfoField9CAddress() & 2) || CGameInfo::IsRecordFlagSet(0xd))
         pMenu->items[2].enabled = 1;
     else
         pMenu->items[2].enabled = 0;
-    cursor = CGameInfo::FUN_00405d90();
+    cursor = CGameInfo::GetConfiguredDifficulty();
     pMenu->cursor = cursor;
     if (cursor >= pMenu->itemCount)
         pMenu->cursor = pMenu->itemCount - 1;
@@ -7604,41 +7604,41 @@ void FUN_004faa00(Menu *pMenu, int param)
 // Item callback of the entry value screens: stores the value selected for the
 // entry and moves to the next or the parent menu.
 // FUNCTION: CMR2 0x004facd0
-void FUN_004facd0(Menu *pMenu, int param)
+void FrontendChampionship_SelectRouteEntry(Menu *pMenu, int param)
 {
     RallyData_FUN_00408600(
-        CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048),
+        CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048),
         (unsigned char)g_unk0x008196e8[pMenu->cursor]);
     FUN_0040dfa0();
     if (g_unk0x00819048 == 0) {
-        Menu_SetNextAction((int)FUN_004fa330());
+        Menu_SetNextAction((int)FrontendMenu_GetArcadeChampionshipTransmission());
         return;
     }
-    Menu_SetParent(FUN_004f83a0(), pMenu);
-    Menu_SetNextAction((int)FUN_004f83a0());
+    Menu_SetParent(FrontendMenu_GetMultiplayerProfile(), pMenu);
+    Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
 }
 
 // Item callback of the championship value screens: toggles the entry's
 // championship flag and moves to the next or the parent menu.
 // FUNCTION: CMR2 0x004fad40
-void FUN_004fad40(Menu *pMenu, int param)
+void FrontendChampionship_ToggleRouteEntry(Menu *pMenu, int param)
 {
-    FUN_004eb0c0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048), pMenu->items[0].max);
+    FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048), pMenu->items[0].max);
     if (g_unk0x00819048 == 0) {
-        Menu_SetNextAction((int)FUN_004fa330());
+        Menu_SetNextAction((int)FrontendMenu_GetArcadeChampionshipTransmission());
         return;
     }
-    Menu_SetNextAction((int)FUN_004f83a0());
+    Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
 }
 
 // Change callback of the entry value screens: stores the value selected for
 // the highlighted entry and refills the event list from it.
 // FUNCTION: CMR2 0x004fad90
-void FUN_004fad90(Menu *pMenu, int param)
+void FrontendChampionship_UpdateAlternateRouteEntry(Menu *pMenu, int param)
 {
-    FUN_004ea480(0);
+    Frontend_SetOverlayMode(0);
     RallyData_FUN_00408600(
-        CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048),
+        CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048),
         (unsigned char)g_unk0x008196e8[pMenu->cursor]);
     FUN_0040dfa0();
 }
@@ -7646,33 +7646,33 @@ void FUN_004fad90(Menu *pMenu, int param)
 // Item callback of the shared entry screens: applies the value of the
 // highlighted entry and rewires the parent of the screen the mode goes to.
 // FUNCTION: CMR2 0x004fadd0
-void FUN_004fadd0(Menu *pMenu, int param)
+void FrontendChampionship_ApplySharedRouteEntry(Menu *pMenu, int param)
 {
-    FUN_004eb0c0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048), pMenu->items[0].max);
+    FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048), pMenu->items[0].max);
     if (g_unk0x00819048 == 0) {
-        if (CGameInfo::FUN_00405d70() == 2) {
-            FUN_004f83a0()->pParent = pMenu;
-            FUN_004fa340()->pParent = pMenu;
-            Menu_SetNextAction((int)FUN_004fa340());
+        if (CGameInfo::GetConfiguredPlayerCount() == 2) {
+            FrontendMenu_GetMultiplayerProfile()->pParent = pMenu;
+            FrontendMenu_GetArcadeRallySelection()->pParent = pMenu;
+            Menu_SetNextAction((int)FrontendMenu_GetArcadeRallySelection());
         } else {
-            FUN_004fa340()->pParent = FUN_004fa2f0();
-            FUN_004fa2f0()->pParent = pMenu;
-            Menu_SetNextAction((int)FUN_004fa2f0());
+            FrontendMenu_GetArcadeRallySelection()->pParent = FrontendMenu_GetArcadeCarClass();
+            FrontendMenu_GetArcadeCarClass()->pParent = pMenu;
+            Menu_SetNextAction((int)FrontendMenu_GetArcadeCarClass());
         }
     } else {
-        if (CGameInfo::FUN_00405d70() == 2)
-            FUN_004f83a0()->pParent = pMenu;
-        Menu_SetNextAction((int)FUN_004f83a0());
+        if (CGameInfo::GetConfiguredPlayerCount() == 2)
+            FrontendMenu_GetMultiplayerProfile()->pParent = pMenu;
+        Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
     }
 }
 
-// Change callback of the second entry value screens: like FUN_004fad90 but
+// Change callback of the second entry value screens: like FrontendChampionship_UpdateAlternateRouteEntry but
 // without resetting the mode's selection first.
 // FUNCTION: CMR2 0x004fae70
-void FUN_004fae70(Menu *pMenu, int param)
+void FrontendChampionship_UpdateArcadeRouteEntry(Menu *pMenu, int param)
 {
     RallyData_FUN_00408600(
-        CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048),
+        CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048),
         (unsigned char)g_unk0x008196e8[pMenu->cursor]);
     FUN_0040dfa0();
 }
@@ -7680,33 +7680,33 @@ void FUN_004fae70(Menu *pMenu, int param)
 // Item callback of the second championship value screens: toggles the entry's
 // championship flag and moves to the next or the parent menu.
 // FUNCTION: CMR2 0x004faea0
-void FUN_004faea0(Menu *pMenu, int param)
+void FrontendChampionship_ToggleArcadeRouteEntry(Menu *pMenu, int param)
 {
-    FUN_004eb0c0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048), pMenu->items[0].max);
+    FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048), pMenu->items[0].max);
     if (g_unk0x00819048 == 0) {
-        Menu_SetNextAction((int)FUN_004fa350());
+        Menu_SetNextAction((int)FrontendMenu_GetArcadeChampionshipRallySelection());
         return;
     }
-    Menu_SetNextAction((int)FUN_004f83a0());
+    Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
 }
 
 // FUNCTION: CMR2 0x004faef0
-void FUN_004faef0(Menu *pMenu, int param)
+void FrontendMenu_EnterArcadeChampionshipTransmission(Menu *pMenu, int param)
 {
-    unsigned int *pFlags = CGameInfo::FUN_00405db0();
+    unsigned int *pFlags = CGameInfo::GetGameInfoField9CAddress();
     unsigned int count;
     unsigned int i;
     char cursor;
 
-    switch (CGameInfo::FUN_00405d90()) {
+    switch (CGameInfo::GetConfiguredDifficulty()) {
     case 2:
-        if (CGameInfo::FUN_00406410(0xd))
+        if (CGameInfo::IsRecordFlagSet(0xd))
             count = 2;
         else
             count = *pFlags >> 6 & 3;
         break;
     case 1:
-        if (CGameInfo::FUN_00406410(0xd))
+        if (CGameInfo::IsRecordFlagSet(0xd))
             count = 2;
         else
             count = *pFlags >> 4 & 3;
@@ -7717,36 +7717,36 @@ void FUN_004faef0(Menu *pMenu, int param)
     }
     for (i = 0; i < 2; i++) {
         if (i < count)
-            FUN_004fa330()->items[i].enabled = 1;
+            FrontendMenu_GetArcadeChampionshipTransmission()->items[i].enabled = 1;
         else
-            FUN_004fa330()->items[i].enabled = 0;
+            FrontendMenu_GetArcadeChampionshipTransmission()->items[i].enabled = 0;
     }
-    cursor = RallyData_FUN_00406940();
-    FUN_004fa330()->cursor = cursor;
-    if (FUN_004fa330()->cursor >= FUN_004fa330()->itemCount)
-        FUN_004fa330()->cursor = FUN_004fa330()->itemCount - 1;
+    cursor = RallyData_GetSelectionBits10To11();
+    FrontendMenu_GetArcadeChampionshipTransmission()->cursor = cursor;
+    if (FrontendMenu_GetArcadeChampionshipTransmission()->cursor >= FrontendMenu_GetArcadeChampionshipTransmission()->itemCount)
+        FrontendMenu_GetArcadeChampionshipTransmission()->cursor = FrontendMenu_GetArcadeChampionshipTransmission()->itemCount - 1;
 }
 
 // FUNCTION: CMR2 0x004fafd0
-void FUN_004fafd0(Menu *pMenu)
+void FrontendMenu_UpdateArcadeChampionshipTransmission(Menu *pMenu)
 {
-    RallyData_FUN_0040d600(pMenu->cursor);
+    RallyData_SetSelectionBits10To11(pMenu->cursor);
 }
 
 // FUNCTION: CMR2 0x004fafe0
-void FUN_004fafe0(Menu *pMenu, int param)
+void FrontendMenu_SelectArcadeChampionshipTransmission(Menu *pMenu, int param)
 {
-    RallyData_FUN_0040d600(pMenu->cursor);
-    RallyData_FUN_00406960(0);
-    RallyData_FUN_0040d620(3);
-    Menu_SetNextAction((int)FUN_004f8330());
+    RallyData_SetSelectionBits10To11(pMenu->cursor);
+    RallyData_SetSelectionBits12To13(0);
+    RallyData_SetSelectionBits16To19(3);
+    Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
 }
 
 // Item callback that rebuilds a horizontally scrolling menu: the visible item
 // count comes from the current difficulty and the item widths are measured
 // from the localised strings.
 // FUNCTION: CMR2 0x004fb010
-void FUN_004fb010(Menu *pMenu, int param)
+void FrontendScroller_InitArcadeRally(Menu *pMenu, int param)
 {
     MenuScroller *pScroller;
     unsigned int *pFlags;
@@ -7754,17 +7754,17 @@ void FUN_004fb010(Menu *pMenu, int param)
     unsigned int n;
     int i;
 
-    FUN_004ea480(0);
-    pScroller = FUN_004f2590();
-    pScroller->startTime = CFrontend::FUN_004d20e0();
+    Frontend_SetOverlayMode(0);
+    pScroller = FrontendScroller_GetArcadeRallyScroller();
+    pScroller->startTime = CFrontend::GetFrontendTimestamp();
     pScroller->count = pMenu->itemCount;
     pScroller->pMenu = pMenu;
     for (i = 0; i < 8; i++) {
-        FUN_004fa340()->items[i].enabled &= ~1;
-        FUN_004fa350()->items[i].enabled &= ~1;
+        FrontendMenu_GetArcadeRallySelection()->items[i].enabled &= ~1;
+        FrontendMenu_GetArcadeChampionshipRallySelection()->items[i].enabled &= ~1;
     }
-    pFlags = CGameInfo::FUN_00405db0();
-    if (CGameInfo::FUN_00405d80() == 7) {
+    pFlags = CGameInfo::GetGameInfoField9CAddress();
+    if (CGameInfo::GetConfiguredGameMode() == 7) {
         count = (*pFlags >> 2 & 3) * 3;
         n = (*pFlags >> 4 & 3) * 3;
         if (n > count)
@@ -7772,8 +7772,8 @@ void FUN_004fb010(Menu *pMenu, int param)
         n = (*pFlags >> 6 & 3) * 3;
         if (n > count)
             count = n;
-    } else if (CGameInfo::FUN_00405d70() == 1) {
-        switch (CGameInfo::FUN_00405d90()) {
+    } else if (CGameInfo::GetConfiguredPlayerCount() == 1) {
+        switch (CGameInfo::GetConfiguredDifficulty()) {
         case 0:
             count = (*pFlags >> 2 & 3) * 3;
             break;
@@ -7794,33 +7794,33 @@ void FUN_004fb010(Menu *pMenu, int param)
             count = n;
     }
     for (i = 0; i < 6; i++) {
-        if (i < (int)count || CGameInfo::FUN_00406410(0xd)) {
-            FUN_004fa340()->items[i].enabled |= 1;
-            FUN_004fa350()->items[i].enabled |= 1;
+        if (i < (int)count || CGameInfo::IsRecordFlagSet(0xd)) {
+            FrontendMenu_GetArcadeRallySelection()->items[i].enabled |= 1;
+            FrontendMenu_GetArcadeChampionshipRallySelection()->items[i].enabled |= 1;
         } else {
-            FUN_004fa340()->items[i].enabled &= ~1;
-            FUN_004fa350()->items[i].enabled &= ~1;
+            FrontendMenu_GetArcadeRallySelection()->items[i].enabled &= ~1;
+            FrontendMenu_GetArcadeChampionshipRallySelection()->items[i].enabled &= ~1;
         }
     }
-    if (CGameInfo::FUN_00405d80() == 7) {
+    if (CGameInfo::GetConfiguredGameMode() == 7) {
         pScroller->count = 8;
         pMenu->itemCount = 8;
-        if ((*pFlags & 0x100000) || CGameInfo::FUN_00406410(0xd))
-            FUN_004fa350()->items[6].enabled |= 1;
-        if ((*pFlags & 0x200000) || CGameInfo::FUN_00406410(0xd))
-            FUN_004fa350()->items[7].enabled |= 1;
-    } else if (CGameInfo::FUN_00405d90() == 0 && CGameInfo::FUN_00405d70() == 1) {
+        if ((*pFlags & 0x100000) || CGameInfo::IsRecordFlagSet(0xd))
+            FrontendMenu_GetArcadeChampionshipRallySelection()->items[6].enabled |= 1;
+        if ((*pFlags & 0x200000) || CGameInfo::IsRecordFlagSet(0xd))
+            FrontendMenu_GetArcadeChampionshipRallySelection()->items[7].enabled |= 1;
+    } else if (CGameInfo::GetConfiguredDifficulty() == 0 && CGameInfo::GetConfiguredPlayerCount() == 1) {
         pScroller->count = 3;
         pMenu->itemCount = 3;
         for (i = count; i < pScroller->count; i++)
-            FUN_004fa340()->items[i].enabled &= ~1;
+            FrontendMenu_GetArcadeRallySelection()->items[i].enabled &= ~1;
     } else {
         pScroller->count = 8;
         pMenu->itemCount = 8;
-        if ((*pFlags & 0x100000) || CGameInfo::FUN_00406410(0xd))
-            FUN_004fa340()->items[6].enabled |= 1;
-        if ((*pFlags & 0x200000) || CGameInfo::FUN_00406410(0xd))
-            FUN_004fa340()->items[7].enabled |= 1;
+        if ((*pFlags & 0x100000) || CGameInfo::IsRecordFlagSet(0xd))
+            FrontendMenu_GetArcadeRallySelection()->items[6].enabled |= 1;
+        if ((*pFlags & 0x200000) || CGameInfo::IsRecordFlagSet(0xd))
+            FrontendMenu_GetArcadeRallySelection()->items[7].enabled |= 1;
     }
     pScroller->spacing = (int)(g_pGraphics->resX * 24) / 640;
     pScroller->count = pMenu->itemCount;
@@ -7834,59 +7834,59 @@ void FUN_004fb010(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004fb360
-void FUN_004fb360(Menu *pMenu)
+void FrontendScroller_UpdateArcadeRally(Menu *pMenu)
 {
-    FUN_004f37c0(FUN_004f2590());
+    FUN_004f37c0(FrontendScroller_GetArcadeRallyScroller());
 }
 
 
 // Selects the menu row/page for a front-end list screen.
 // FUNCTION: CMR2 0x004fb370
-void FUN_004fb370(int param_1, int unused)
+void FrontendMenu_SelectArcadeRallyRow(int param_1, int unused)
 {
-    RallyData_FUN_0040d600((int)*(signed char *)(param_1 + 7) / 3);
-    RallyData_FUN_00406960((int)*(signed char *)(param_1 + 7) % 3);
-    if (CGameInfo::FUN_00405d70() == 2)
-        RallyData_FUN_0040d640(0);
+    RallyData_SetSelectionBits10To11((int)*(signed char *)(param_1 + 7) / 3);
+    RallyData_SetSelectionBits12To13((int)*(signed char *)(param_1 + 7) % 3);
+    if (CGameInfo::GetConfiguredPlayerCount() == 2)
+        RallyData_SetSecondarySelectionNibble(0);
     else
-        RallyData_FUN_0040d640(5);
-    if (CGameInfo::FUN_00405d80() == 6) {
-        if (CGameInfo::FUN_00405d70() == 2)
-            Menu_SetNextAction((int)FUN_004fa4c0());
+        RallyData_SetSecondarySelectionNibble(5);
+    if (CGameInfo::GetConfiguredGameMode() == 6) {
+        if (CGameInfo::GetConfiguredPlayerCount() == 2)
+            Menu_SetNextAction((int)FrontendMenu_GetQuickRaceAdvancedSettings());
         else
-            Menu_SetNextAction((int)FUN_004fa360());
+            Menu_SetNextAction((int)FrontendMenu_GetQuickRaceSettings());
         return;
     }
-    RallyData_FUN_0040d620(3);
-    Menu_SetNextAction((int)FUN_004f8330());
+    RallyData_SetSelectionBits16To19(3);
+    Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
 }
 
-void FUN_004ea930(BYTE param1);
-void FUN_004ea8c0(BYTE param1);
-void FUN_004ea950(BYTE param1);
+void GameInfo_SetConfiguredDifficulty(BYTE param1);
+void GameInfo_SetConfiguredPlayerCount(BYTE param1);
+void GameInfo_SetConfiguredMultiplayer(BYTE param1);
 void FUN_004eadb0(void);
 void FUN_004eb000(BYTE index, char set);
 void FUN_004eb860(int index, int profile);
-void FUN_004ebf20(int index);
-char *FUN_004eb2e0(char *pName);
-void *FUN_004eb4b0(char *param1, int param2);
-BYTE *RallyData_FUN_00408860(int index);
+void Profile_ResetCategoryData(int index);
+char *Profile_BuildSavePath(char *pName);
+void *Profile_ReadLocalFile(char *param1, int param2);
+BYTE *RallyData_GetDriverCategoryProfile(int index);
 struct Unk0x0052ebc0 {
     BYTE field_0x0[0x148];
 };
-Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
-BYTE *RallyData_FUN_00407630(int index);
-BYTE *RallyData_FUN_00408d60(int index);
-BYTE RallyData_FUN_00409010(int index, int bit);
-BYTE *RallyData_FUN_004075d0(int index);
-int *FUN_00407520(int index);
-int *RallyData_FUN_004075e0(int index);
-int *RallyData_FUN_004075b0(int index);
-int *RallyData_FUN_004075c0(int index);
-void FUN_0040cff0(int index, char value);
-void RallyData_FUN_004068e0(BYTE param1);
-void RallyData_FUN_004068d0(char param1);
-void RallyData_FUN_0040e330(char param1);
+Unk0x0052ebc0 *RallyData_GetDriverGroupRecord(int index);
+BYTE *RallyData_GetDriverSkillRecord(int index);
+BYTE *RallyData_GetDriverEntryRecord(int index);
+BYTE RallyData_SetCategoryAwardBit(int index, int bit);
+BYTE *RallyData_GetDriverSelectionFlagRecord(int index);
+int *RallyData_GetDriverSettingPair(int index);
+int *RallyData_GetDriverPrimaryPairRecord(int index);
+int *RallyData_GetDriverPairRecord(int index);
+int *RallyData_GetDriverSecondaryPairRecord(int index);
+void RallyTiming_SetStageTieBreak(int index, char value);
+void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
+void RallyData_SetSelectionStateByte(char param1);
+void RallyData_SetSetupFlag11(char param1);
 
 // Applies a 0x7e0-byte driver profile block to the game state: resets the four
 // players, copies each one's car record (0x148), controller setup (7) and name
@@ -7911,55 +7911,55 @@ unsigned int FUN_004fb400(BYTE *pBlock)
 
     if (pBlock == NULL)
         return 0;
-    FUN_004ea8e0(pBlock[0x30] & 0x7f);
-    FUN_004ea930((*(unsigned int *)(pBlock + 0x30) >> 7) & 7);
-    FUN_004ea8c0((*(unsigned int *)(pBlock + 0x30) >> 0xa) & 0xf);
-    FUN_004ea950((*(unsigned int *)(pBlock + 0x30) >> 0xe) & 1);
+    GameInfo_SetConfiguredGameMode(pBlock[0x30] & 0x7f);
+    GameInfo_SetConfiguredDifficulty((*(unsigned int *)(pBlock + 0x30) >> 7) & 7);
+    GameInfo_SetConfiguredPlayerCount((*(unsigned int *)(pBlock + 0x30) >> 0xa) & 0xf);
+    GameInfo_SetConfiguredMultiplayer((*(unsigned int *)(pBlock + 0x30) >> 0xe) & 1);
     FUN_004eadb0();
     i = 0;
-    if (CGameInfo::FUN_00405d70() != 0) {
+    if (CGameInfo::GetConfiguredPlayerCount() != 0) {
         pDest = pBlock + 0xf4;
         pName = pBlock + 0xc4;
         pSetup = pBlock + 0x614;
         pSrc = pBlock + 0xb4;
         do {
             FUN_004eb860(i, -1);
-            FUN_004ebf20(i);
+            Profile_ResetCategoryData(i);
             FUN_004eb000((BYTE)i, 0);
-            pRecord = RallyData_FUN_00408860(i);
+            pRecord = RallyData_GetDriverCategoryProfile(i);
             *(unsigned int *)(pRecord + 0x5c) =
                 (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0x300 ^
                 *(unsigned int *)(pRecord + 0x5c);
-            pRecord = RallyData_FUN_00408860(i);
+            pRecord = RallyData_GetDriverCategoryProfile(i);
             *(unsigned int *)(pRecord + 0x5c) =
                 (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0x38 ^
                 *(unsigned int *)(pRecord + 0x5c);
-            pRecord = RallyData_FUN_00408860(i);
+            pRecord = RallyData_GetDriverCategoryProfile(i);
             *(unsigned int *)(pRecord + 0x5c) =
                 (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0x1c00 ^
                 *(unsigned int *)(pRecord + 0x5c);
-            pRecord = RallyData_FUN_00408860(i);
+            pRecord = RallyData_GetDriverCategoryProfile(i);
             *(unsigned int *)(pRecord + 0x5c) =
                 (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0xc0 ^
                 *(unsigned int *)(pRecord + 0x5c);
-            pRecord = RallyData_FUN_00408860(i);
+            pRecord = RallyData_GetDriverCategoryProfile(i);
             *(unsigned int *)(pRecord + 0x5c) =
                 (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 7 ^
                 *(unsigned int *)(pRecord + 0x5c);
-            pRecord = RallyData_FUN_00408860(i);
+            pRecord = RallyData_GetDriverCategoryProfile(i);
             *(unsigned int *)(pRecord + 0x10) = *(unsigned int *)pName;
             *(unsigned int *)(pRecord + 0x14) = *((unsigned int *)pName + 1);
             *(unsigned int *)(pRecord + 0x18) = *((unsigned int *)pName + 2);
-            memcpy(RallyData_FUN_00407610(i), pDest, 0x148);
-            pBuffer = RallyData_FUN_00407630(i);
+            memcpy(RallyData_GetDriverGroupRecord(i), pDest, 0x148);
+            pBuffer = RallyData_GetDriverSkillRecord(i);
             *(unsigned int *)pBuffer = *(unsigned int *)pSetup;
             *(unsigned short *)(pBuffer + 4) = *(unsigned short *)(pSetup + 4);
             pBuffer[6] = pSetup[6];
-            if ((*(unsigned int *)(RallyData_FUN_00408860(i) + 0x14) & 0x200000) == 0) {
-                pBuffer = (BYTE *)FUN_004eb4b0(FUN_004eb2e0((char *)pName), 0);
+            if ((*(unsigned int *)(RallyData_GetDriverCategoryProfile(i) + 0x14) & 0x200000) == 0) {
+                pBuffer = (BYTE *)Profile_ReadLocalFile(Profile_BuildSavePath((char *)pName), 0);
                 if (pBuffer != NULL) {
-                    memcpy(RallyData_FUN_00408860(i), pBuffer, 0x650);
-                    pRecord = RallyData_FUN_00408860(i);
+                    memcpy(RallyData_GetDriverCategoryProfile(i), pBuffer, 0x650);
+                    pRecord = RallyData_GetDriverCategoryProfile(i);
                     *(unsigned int *)(pRecord + 0x10) = *(unsigned int *)pName;
                     *(unsigned int *)(pRecord + 0x14) = *((unsigned int *)pName + 1);
                     *(unsigned int *)(pRecord + 0x18) = *((unsigned int *)pName + 2);
@@ -7973,47 +7973,47 @@ unsigned int FUN_004fb400(BYTE *pBlock)
             i++;
             pSrc += 4;
             pName += 0xc;
-        } while ((int)i < (int)(CGameInfo::FUN_00405d70() & 0xff));
+        } while ((int)i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff));
     }
     pState = (unsigned int *)(pBlock + 0x34);
     i = 0;
     pOut = pState;
     do {
-        pRecord = RallyData_FUN_00408d60(i);
+        pRecord = RallyData_GetDriverEntryRecord(i);
         *(unsigned int *)pRecord = (*(unsigned int *)pRecord ^ *pOut) & 0x3f ^ *(unsigned int *)pRecord;
-        pRecord = RallyData_FUN_00408d60(i);
+        pRecord = RallyData_GetDriverEntryRecord(i);
         *(unsigned int *)pRecord = *pOut >> 1 & 0x1fc0 | *(unsigned int *)pRecord & 0xffffe03f;
-        pRecord = RallyData_FUN_00408d60(i);
+        pRecord = RallyData_GetDriverEntryRecord(i);
         i++;
         pOut += 2;
         *(unsigned int *)(pRecord + 4) = *(pOut - 1);
     } while ((int)i < 0x10);
     i = 0;
-    if (CGameInfo::FUN_00405d70() != 0) {
+    if (CGameInfo::GetConfiguredPlayerCount() != 0) {
         do {
-            FUN_004eb0c0((BYTE)i, (BYTE)(*pState >> 6) & 1);
-            pRecord = RallyData_FUN_00408d60(i);
-            RallyData_FUN_00409010(i, *(unsigned int *)pRecord & 0x3f);
+            FrontendChampionship_SetDriverEntryFlag((BYTE)i, (BYTE)(*pState >> 6) & 1);
+            pRecord = RallyData_GetDriverEntryRecord(i);
+            RallyData_SetCategoryAwardBit(i, *(unsigned int *)pRecord & 0x3f);
             i++;
             pState += 2;
-        } while ((int)i < (int)(CGameInfo::FUN_00405d70() & 0xff));
+        } while ((int)i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff));
     }
     i = 0;
     do {
-        FUN_0040cff0(i, pBlock[0x7dc + i]);
+        RallyTiming_SetStageTieBreak(i, pBlock[0x7dc + i]);
         i++;
     } while ((int)i < 0x10);
-    memcpy(FUN_00407520(0), pBlock + 0x630, 0xa0);
-    memcpy(RallyData_FUN_004075e0(0), pBlock + 0x6d0, 0x50);
-    memcpy(RallyData_FUN_004075d0(0), pBlock + 0x720, 0x14);
-    memcpy(RallyData_FUN_004075b0(0), pBlock + 0x734, 0x50);
-    memcpy(RallyData_FUN_004075c0(0), pBlock + 0x784, 0x50);
-    RallyData_FUN_004068b0(pBlock[0x7d8] & 0x1f);
-    RallyData_FUN_004068e0((*(unsigned int *)(pBlock + 0x7d8) >> 5) & 0x1f);
-    RallyData_FUN_004068d0(pBlock[0x7d4]);
-    FUN_004eb160();
-    pOut = CGameInfo::FUN_00405db0();
-    switch (CGameInfo::FUN_00405d90()) {
+    memcpy(RallyData_GetDriverSettingPair(0), pBlock + 0x630, 0xa0);
+    memcpy(RallyData_GetDriverPrimaryPairRecord(0), pBlock + 0x6d0, 0x50);
+    memcpy(RallyData_GetDriverSelectionFlagRecord(0), pBlock + 0x720, 0x14);
+    memcpy(RallyData_GetDriverPairRecord(0), pBlock + 0x734, 0x50);
+    memcpy(RallyData_GetDriverSecondaryPairRecord(0), pBlock + 0x784, 0x50);
+    RallyData_SetCountrySelectionBits(pBlock[0x7d8] & 0x1f);
+    RallyData_SetStageSelectionAndRefreshFlags((*(unsigned int *)(pBlock + 0x7d8) >> 5) & 0x1f);
+    RallyData_SetSelectionStateByte(pBlock[0x7d4]);
+    FrontendChampionship_RestoreStageTimes();
+    pOut = CGameInfo::GetGameInfoField9CAddress();
+    switch (CGameInfo::GetConfiguredDifficulty()) {
     case 0:
         value = RallyDataCountryIndex() & 0xff;
         if ((*pOut >> 8 & 0xf) < value + 1)
@@ -8039,11 +8039,11 @@ unsigned int FUN_004fb400(BYTE *pBlock)
             *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 0x10) ^ *pOut) & 0xf0000 ^ *pOut;
         break;
     }
-    RallyData_FUN_0040e330(0);
+    RallyData_SetSetupFlag11(0);
     return 1;
 }
 
-void FUN_004fb9c0(unsigned int param_1, unsigned int param_2, BYTE param_3, char *param_4);
+void FrontendProfile_BuildGuestIdentifier(unsigned int param_1, unsigned int param_2, BYTE param_3, char *param_4);
 
 // Three 12-byte keyboard-style tables scrambled by FUN_004fb8d0.
 // GLOBAL: CMR2 0x00526ea4
@@ -8055,7 +8055,7 @@ char g_unk0x00526ebc[12] = "\\`!QAZ@WSX";
 
 // Scrambles the dword *pNumber with the three key tables above (seeded by
 // *pByte) and turns the result into an identifier string through
-// FUN_004fb9c0.
+// FrontendProfile_BuildGuestIdentifier.
 // match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // logic verified against the dump; remaining diff is the operand evaluation
 // order of the byte sums and the register/stack split (the original keeps the
@@ -8080,7 +8080,7 @@ void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char
         i++;
         p--;
     } while ((int)p > (int)(g_unk0x00526ea4 + 6));
-    FUN_004fb9c0(param_1, (bytes[3] << 24) + (bytes[2] << 16) + (bytes[1] << 8) + bytes[0],
+    FrontendProfile_BuildGuestIdentifier(param_1, (bytes[3] << 24) + (bytes[2] << 16) + (bytes[1] << 8) + bytes[0],
                  g_unk0x00526ea4[4] + g_unk0x00526eb0[4] + g_unk0x00526ebc[4] + g_unk0x00526ea4[6] +
                      g_unk0x00526eb0[6] + g_unk0x00526ebc[6] + seed,
                  pOut);
@@ -8090,7 +8090,7 @@ void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char
 // followed by five checksum digits derived from the byte sum of param_2 and
 // param_3.
 // FUNCTION: CMR2 0x004fb9c0
-void FUN_004fb9c0(unsigned int param_1, unsigned int param_2, BYTE param_3, char *param_4)
+void FrontendProfile_BuildGuestIdentifier(unsigned int param_1, unsigned int param_2, BYTE param_3, char *param_4)
 {
     unsigned short checksum;
     BYTE sum;
@@ -8120,22 +8120,22 @@ void FUN_004fb9c0(unsigned int param_1, unsigned int param_2, BYTE param_3, char
 // ---------------------------------------------------------------------------
 // Cascade layer 0 (W136): forward declarations for cross-module callees.
 // ---------------------------------------------------------------------------
-char *FUN_004a1490(BYTE index);
+char *Network_GetEnumeratedSessionName(BYTE index);
 int Session_GetListedUserValue(unsigned int session, BYTE index);
-DWORD FUN_004a1720(int index);
-DWORD FUN_004a1740(BYTE index);
-BYTE *FUN_004eb450(int index);
+DWORD Network_GetSessionPlayerCount(int index);
+DWORD Network_GetSessionMaxPlayers(BYTE index);
+BYTE *Profile_GetFileDateRecord(int index);
 void RallyData_FUN_00408600(BYTE index, BYTE value);
-unsigned int FUN_0040a470(int index);
+unsigned int NetPlayers_GetPlayerFlag6(int index);
 int Font_GetTextWidth(BYTE index, BYTE *text);
-void FUN_004d0700(char *text);
-unsigned int FUN_004f4e20(int index);
-unsigned int FUN_004f4e00(int index);
-unsigned int FUN_004f4de0(int index);
-void *FUN_004f4e70(int index);
-BYTE *FUN_004f4dc0(int index);
-bool FUN_004f4e80(void);
-int FUN_004a1af0(void);
+void NetworkChat_SendLine(char *text);
+unsigned int SavedGames_GetDateMiddleBits(int index);
+unsigned int SavedGames_GetDateLowBits(int index);
+unsigned int SavedGames_GetDifficulty(int index);
+void *SavedGames_GetFileName(int index);
+BYTE *SavedGames_GetRecordData(int index);
+bool SavedGames_ReleaseRecords(void);
+int Network_RebuildSessionPlayerList(void);
 extern char g_stageNumberFormat[];
 
 // Draws the "stage select" screen: breadcrumb title, the four column headers
@@ -8185,19 +8185,19 @@ void FUN_004dc930(Menu *pMenu)
             if (g_unk0x00525288 != index)
                 pColour = pUnselColour;
             y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * row;
-            Font_DrawText(1, FUN_004a1490(index), (int)(g_pGraphics->resX * 100) / 0x280, y, pColour, 10);
-            Font_DrawText(1, CGameInfo::FUN_004f8a70(Session_GetListedUserValue(index, 0) - 8),
+            Font_DrawText(1, Network_GetEnumeratedSessionName(index), (int)(g_pGraphics->resX * 100) / 0x280, y, pColour, 10);
+            Font_DrawText(1, CGameInfo::GetCodeEntryText(Session_GetListedUserValue(index, 0) - 8),
                           (int)(g_pGraphics->resX * 300) / 0x280, y, pColour, 10);
-            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_004a1720(index));
+            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, Network_GetSessionPlayerCount(index));
             Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1c2) / 0x280, y, pColour, 10);
-            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_004a1740(index));
+            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, Network_GetSessionMaxPlayers(index));
             Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x226) / 0x280, y, pColour, 10);
             row++;
             index++;
         } while (index < g_unk0x00819020 + g_unk0x0081901c);
     }
     FrontendDraw_MenuList(pMenu, NULL, (int)(g_pGraphics->resY * 0x140) / 0x1e0, -1, 0, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // ---------------------------------------------------------------------------
@@ -8233,10 +8233,10 @@ extern char g_keypad6[];
 extern char g_keypad7[];
 extern char g_keypad8[];
 extern char g_keypad9[];
-void RallyData_FUN_004068b0(BYTE param1);
-void FUN_004081d0(void);
-int RallyData_FUN_00408280(void);
-BYTE *RallyData_FUN_00408270(void);
+void RallyData_SetCountrySelectionBits(BYTE param1);
+void RallyData_RebuildDistinctValueList(void);
+int RallyData_GetDistinctValueCount(void);
+BYTE *RallyData_GetDistinctValueList(void);
 
 // Draws the network "waiting room" player list: a line per session built from
 // the player name, the car and the control assignment, plus the controller
@@ -8278,17 +8278,17 @@ void FUN_004e20e0(Menu *pMenu)
                             (int)(g_pGraphics->resY * 0x26) / 0x1e0, pText, 3);
     if (g_unk0x0082ac48 > 0) {
         for (index = 0; index < g_unk0x0082ac48; index++) {
-            pad = FUN_004f4e20(g_unk0x0082aa3c + index);
+            pad = SavedGames_GetDateMiddleBits(g_unk0x0082aa3c + index);
             pColour = (int *)names[pad];
-            player = FUN_004f4e00(g_unk0x0082aa3c + index);
+            player = SavedGames_GetDateLowBits(g_unk0x0082aa3c + index);
             pName = CFrontend::GetTextString(player + 0x27);
-            car = FUN_004f4de0(g_unk0x0082aa3c + index);
+            car = SavedGames_GetDifficulty(g_unk0x0082aa3c + index);
             pFormat = CFrontend::GetTextString(0x210);
             sprintf(CFrontend::m_stringDest, pFormat, car, pName, pColour);
             if (g_unk0x0082a924 == g_unk0x0082aa3c + index) {
                 y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
                 x = (int)(g_pGraphics->resX * 0x32) / 0x280;
-                Font_DrawText(0, (char *)FUN_004f4e70(g_unk0x0082aa3c + index), x, y,
+                Font_DrawText(0, (char *)SavedGames_GetFileName(g_unk0x0082aa3c + index), x, y,
                               (int *)g_colourWhite0x00524968, 0x11);
                 Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x9b) / 0x280,
                               (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
@@ -8297,7 +8297,7 @@ void FUN_004e20e0(Menu *pMenu)
             } else {
                 y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
                 x = (int)(g_pGraphics->resX * 0x32) / 0x280;
-                Font_DrawText(0, (char *)FUN_004f4e70(g_unk0x0082aa3c + index), x, y,
+                Font_DrawText(0, (char *)SavedGames_GetFileName(g_unk0x0082aa3c + index), x, y,
                               (int *)g_colourText0x0052496c, 0x11);
                 Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x9b) / 0x280,
                               (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
@@ -8306,19 +8306,19 @@ void FUN_004e20e0(Menu *pMenu)
             }
             y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
             x = (int)(g_pGraphics->resX * 0xff) / 0x280;
-            Font_DrawText(0, (char *)FUN_004f4dc0(g_unk0x0082aa3c + index), x, y, pColour, 0x11);
+            Font_DrawText(0, (char *)SavedGames_GetRecordData(g_unk0x0082aa3c + index), x, y, pColour, 0x11);
         }
     } else {
         Font_DrawText(0, CFrontend::GetTextString(0x20d), (int)g_pGraphics->resX / 2,
                       (int)g_pGraphics->resY / 2, (int *)g_colourText0x0052496c, 0x12);
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // Clamps the stage-selection item of a network setup menu to the number of
 // stages available for the current car, and builds the "1..N SS" label.
 // FUNCTION: CMR2 0x004ee6e0
-void FUN_004ee6e0(Menu *pMenu)
+void FrontendMenu_UpdateNetworkRallySetup(Menu *pMenu)
 {
     unsigned int *pFlags;
     unsigned int mask;
@@ -8327,9 +8327,9 @@ void FUN_004ee6e0(Menu *pMenu)
     int i;
     char *pDest;
 
-    pFlags = CGameInfo::FUN_00405db0();
+    pFlags = CGameInfo::GetGameInfoField9CAddress();
     max = Menu_GetItem(pMenu, 0)->max;
-    if (CGameInfo::FUN_00406410(0xd) == 0) {
+    if (CGameInfo::IsRecordFlagSet(0xd) == 0) {
         count = 1;
         if ((int)(*pFlags >> 8 & 0xf) >= max + 1)
             count = 4;
@@ -8350,7 +8350,7 @@ void FUN_004ee6e0(Menu *pMenu)
         } while (i < count);
     }
     sprintf(&g_unk0x00818d84[i * 3], g_strFlagSS);
-    if (CGameInfo::FUN_00406410(0xd) != 0) {
+    if (CGameInfo::IsRecordFlagSet(0xd) != 0) {
         count = ((max % 2) != 0) + 10;
     } else {
         if ((max % 2) != 0) {
@@ -8364,7 +8364,7 @@ void FUN_004ee6e0(Menu *pMenu)
     Menu_GetItem(pMenu, 1)->min = (char)count;
     if (Menu_GetItem(pMenu, 1)->max >= Menu_GetItem(pMenu, 1)->min)
         Menu_GetItem(pMenu, 1)->max = Menu_GetItem(pMenu, 1)->min - 1;
-    FUN_004ec8d0();
+    FrontendNetwork_DrainMessageQueue();
 }
 
 // Refreshes the "car setup" network menu: rebuilds the transmission item, its
@@ -8384,13 +8384,13 @@ void FUN_004ee170(Menu *pMenu)
     char *pDest;
     int *pList;
 
-    pFlags = CGameInfo::FUN_00405db0();
+    pFlags = CGameInfo::GetGameInfoField9CAddress();
     max = Menu_GetItem(pMenu, 0)->max;
     if (max != (BYTE)g_unk0x00818d70) {
         Menu_GetItem(pMenu, 2)->max = 0;
         g_unk0x00818d70 = max;
     }
-    if (CGameInfo::FUN_00406410(0xd) == 0) {
+    if (CGameInfo::IsRecordFlagSet(0xd) == 0) {
         level = max + 1;
         count = 1;
         if (level <= (*pFlags >> 8 & 0xf))
@@ -8412,7 +8412,7 @@ void FUN_004ee170(Menu *pMenu)
         } while (i < count);
     }
     sprintf(&g_unk0x00818d84[i * 3], g_strFlagSS);
-    if (!(CGameInfo::FUN_00406410(0xd) == 0)) {
+    if (!(CGameInfo::IsRecordFlagSet(0xd) == 0)) {
         count = ((max & 1) != 0) + 10;
     } else {
         if ((max & 1) != 0) {
@@ -8433,10 +8433,10 @@ void FUN_004ee170(Menu *pMenu)
         Menu_GetItem(pMenu, 2)->enabled = 0;
     else
         Menu_GetItem(pMenu, 2)->enabled = 1;
-    RallyData_FUN_004068b0((BYTE)max);
-    FUN_004081d0();
-    n = RallyData_FUN_00408280();
-    pList = (int *)RallyData_FUN_00408270();
+    RallyData_SetCountrySelectionBits((BYTE)max);
+    RallyData_RebuildDistinctValueList();
+    n = RallyData_GetDistinctValueCount();
+    pList = (int *)RallyData_GetDistinctValueList();
     g_unk0x00818d08[0] = 0x156;
     g_unk0x00818d74[0] = -1;
     if (n <= 3) {
@@ -8446,7 +8446,7 @@ void FUN_004ee170(Menu *pMenu)
                 g_unk0x00818d08[i] = pList[i - 1] + 0x157;
                 g_unk0x00818d74[i] = pList[i - 1];
             }
-            FUN_004ec8d0();
+            FrontendNetwork_DrainMessageQueue();
             return;
         }
     } else {
@@ -8458,7 +8458,7 @@ void FUN_004ee170(Menu *pMenu)
         g_unk0x00818d08[3] = pList[n - 1] + 0x157;
         g_unk0x00818d74[3] = pList[n - 1];
     }
-    FUN_004ec8d0();
+    FrontendNetwork_DrainMessageQueue();
 }
 
 // Draws one row of the championship standings: the entry name placed at
@@ -8491,13 +8491,13 @@ BYTE FUN_004d6870(int param_1, unsigned int param_2)
     alpha = (int)g_colourText0x0052496c[3] - offset * 0x32;
     colourText[3] = alpha < 0 ? 0 : (BYTE)alpha;
     colourShadow[3] = (BYTE)(offset * 0x32);
-    count = FUN_004eb440();
+    count = Profile_GetFileCount();
     index = (param_1 + (int)param_2) % count;
     if (index < 0)
-        index += FUN_004eb440();
-    pName = (char *)FUN_004eb450(index);
+        index += Profile_GetFileCount();
+    pName = (char *)Profile_GetFileDateRecord(index);
     sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, pName);
-    if (!(!FUN_004ebd60(index))) {
+    if (!(!FrontendProfile_IsAlreadyInChampionship(index))) {
         pColour = (int *)colourShadow;
         x = (int)g_pGraphics->resX;
         x = x / 2 + g_unk0x00819868 + ((x * 0x50) / 0x280) * (int)param_2;
@@ -8554,7 +8554,7 @@ void FUN_004e1d70(Menu *pMenu)
     count = (int)CGraphics::GetDisplayCount();
     if (count > 10)
         count = 10;
-    mode = FUN_004f23c0();
+    mode = FrontendMenu_GetFirstVisibleDisplayDevice();
     value = (int)CGraphics::GetDisplayCount();
     i = (int)CGraphics::GetDisplayCount();
     rect[2] = 0x14;
@@ -8577,7 +8577,7 @@ void FUN_004e1d70(Menu *pMenu)
                                                          : (int *)g_colourText0x0052496c, 10);
         }
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // Network car-setup screen callback: keeps the transmission and car items in
@@ -8596,7 +8596,7 @@ void FUN_004ed840(Menu *pMenu)
 
     b = 1;
     if (g_unk0x00818ed0 != 0) {
-        pDevice = CInput::FUN_0049ead0(0);
+        pDevice = CInput::GetAvailableDeviceRecord(0);
         if ((pDevice->field_0x8 & 8) == 0) {
             if ((pDevice->field_0x8 & 4) != 0)
                 pMenu->cursor = pMenu->itemCount - 1;
@@ -8606,33 +8606,33 @@ void FUN_004ed840(Menu *pMenu)
     }
     if (g_unk0x00818ce8 != Menu_GetItem(pMenu, 1)->max) {
         RallyData_FUN_00408600(0, ((BYTE *)g_unk0x00818d18)[Menu_GetItem(pMenu, 1)->max]);
-        FUN_004ec2b0();
+        FrontendNetwork_SendPlayerDescription();
         g_unk0x00818ce8 = Menu_GetItem(pMenu, 1)->max;
     }
     if (g_unk0x00818ce0 != Menu_GetItem(pMenu, 2)->max) {
-        FUN_004eb0c0(0, Menu_GetItem(pMenu, 2)->max);
-        FUN_004ec2b0();
+        FrontendChampionship_SetDriverEntryFlag(0, Menu_GetItem(pMenu, 2)->max);
+        FrontendNetwork_SendPlayerDescription();
         g_unk0x00818ce0 = Menu_GetItem(pMenu, 2)->max;
     }
     if (g_unk0x00818d00 != pMenu->cursor) {
         if (pMenu->items[pMenu->cursor].value != 0) {
             if (pMenu->items[g_unk0x00818d00].value == 0) {
-                FUN_004ea5c0(0);
+                FrontendMenu_SetInputState(0);
                 Menu_SetFlags(pMenu, 1, 1, 1, 1);
             }
             g_unk0x00818ed0 = 0;
         } else {
-            FUN_004b7c80();
+            Input_ClearCharacterQueue();
             g_unk0x00818f14[0] = 0;
             g_unk0x00819028 = 0;
             g_unk0x00818ed0 = 1;
-            FUN_004ea5c0(1);
+            FrontendMenu_SetInputState(1);
             Menu_SetFlags(pMenu, 0, 0, 0, 0);
         }
         g_unk0x00818d00 = pMenu->cursor;
     }
-    FUN_004a1af0();
-    if (g_unk0x00818ed0 != 0 && FUN_004b7cd0(&key)) {
+    Network_RebuildSessionPlayerList();
+    if (g_unk0x00818ed0 != 0 && Input_PopQueuedCharacter(&key)) {
         if (key == 8) {
             len = strlen((char *)g_unk0x00818f14);
             if (0 < (int)len) {
@@ -8641,13 +8641,13 @@ void FUN_004ed840(Menu *pMenu)
             }
         } else if (key == 0xd) {
             if (g_unk0x00818f14[0] != 0) {
-                FUN_004d0700((char *)g_unk0x00818f14);
+                NetworkChat_SendLine((char *)g_unk0x00818f14);
                 g_unk0x00819028 = 0;
                 g_unk0x00818f14[0] = 0;
             }
         } else if (key == 0x1b) {
             g_unk0x00818ed0 = 0;
-            FUN_004ea5c0(0);
+            FrontendMenu_SetInputState(0);
             Menu_SetFlags(pMenu, 1, 1, 1, 1);
             pMenu->cursor = 1;
         } else {
@@ -8663,11 +8663,11 @@ void FUN_004ed840(Menu *pMenu)
             }
         }
     }
-    if (FUN_004a15a0() != 0) {
+    if (Network_GetSessionStateFlag() != 0) {
         i = 0;
         do {
-            c = (char)FUN_00409cb0(i);
-            if (c != 0 && FUN_0040a470(i) == 0) {
+            c = (char)NetPlayers_IsPlayerPresent(i);
+            if (c != 0 && NetPlayers_GetPlayerFlag6(i) == 0) {
                 b = 0;
                 break;
             }
@@ -8677,19 +8677,19 @@ void FUN_004ed840(Menu *pMenu)
         if (g_unk0x00818ce4 != 0) {
             if (Menu_GetItem(pMenu, 3)->max == 1) {
                 g_unk0x00818ce4 = 0;
-                FUN_004ec2b0();
+                FrontendNetwork_SendPlayerDescription();
             }
             if (g_unk0x00818ce4 != 0)
                 goto LAB_004edb02;
         }
         if (Menu_GetItem(pMenu, 3)->max == 0) {
             g_unk0x00818ce4 = 1;
-            FUN_004ec2b0();
+            FrontendNetwork_SendPlayerDescription();
         }
     }
 LAB_004edb02:
     Menu_GetItem(pMenu, 3)->enabled = b;
-    FUN_004ec8d0();
+    FrontendNetwork_DrainMessageQueue();
 }
 
 // Network car-setup screen callback: rebuilds the item ranges and mirrors the
@@ -8712,7 +8712,7 @@ void FUN_004ed100(Menu *pMenu)
         Menu_GetItem(pMenu, 2)->enabled = 0;
     else
         Menu_GetItem(pMenu, 2)->enabled = 1;
-    if ((int)FUN_004a1720(-1) <= 6)
+    if ((int)Network_GetSessionPlayerCount(-1) <= 6)
         Menu_GetItem(pMenu, 1)->min = 5;
     else
         Menu_GetItem(pMenu, 1)->min = 3;
@@ -8731,7 +8731,7 @@ void FUN_004ed100(Menu *pMenu)
         g_unk0x00818cdc = (char *)g_unk0x00818ef8;
     if (value == 0 || value == 4) {
         strcpy(CFrontend::m_stringDest, g_unk0x00818cdc);
-        if (FUN_004b7cd0(&key) != 0) {
+        if (Input_PopQueuedCharacter(&key) != 0) {
             if (key != 8) {
                 i = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
                 len = strlen(CFrontend::m_stringDest);
@@ -8755,21 +8755,21 @@ void FUN_004ed100(Menu *pMenu)
         }
         strcpy(g_unk0x00818cdc, CFrontend::m_stringDest);
     }
-    FUN_004ec8d0();
+    FrontendNetwork_DrainMessageQueue();
 }
 
-void FUN_004eb700(void);
+void Profile_RebuildFileList(void);
 
 // Prepares the stage-selection screen before it is shown: reloads the profile
 // list and picks a random starting stage and player.
 // FUNCTION: CMR2 0x004f0580
-void FUN_004f0580(Menu *pMenu, int param)
+void FrontendMenu_EnterMultiplayerStageSelection(Menu *pMenu, int param)
 {
-    FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - FUN_004f1ba0());
-    FUN_004eb700();
+    Frontend_SetOverlayMode((CGameInfo::GetConfiguredPlayerCount() & 0xff) - FrontendProfile_GetPlayersRemaining());
+    Profile_RebuildFileList();
     pMenu->items[0].max = 0;
-    pMenu->items[0].min = (BYTE)FUN_004eb440();
-    pMenu->items[0].enabled = (0 < FUN_004eb440());
+    pMenu->items[0].min = (BYTE)Profile_GetFileCount();
+    pMenu->items[0].enabled = (0 < Profile_GetFileCount());
     g_unk0x00819868 = 0;
     g_unk0x00819044 = -1;
     if ((char)param == 0) {
@@ -8877,7 +8877,7 @@ void FUN_004db850(Menu *pMenu)
 }
 
 extern char g_classRowHeaderFormat[];
-BYTE *FUN_004f9260(int row, int column);
+BYTE *FrontendRecords_GetCarClassRecordText(int row, int column);
 
 // Draws the network "car" selection screen: one row per car with its name and
 // the value columns, plus the highlight bars.
@@ -8960,7 +8960,7 @@ void FUN_004e2610(Menu *pMenu)
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pLineColour, 1);
         }
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // Draws the network "stage times" screen: the three mode titles, the column
@@ -8968,7 +8968,7 @@ void FUN_004e2610(Menu *pMenu)
 // match 86%: ranuras de pila de los temporales de las cabeceras
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e48b0
-void FUN_004e48b0(Menu *pMenu)
+void FrontendMenu_DrawProfileStageRecords(Menu *pMenu)
 {
     BYTE *pBase;
     BYTE *pEntry;
@@ -8979,7 +8979,7 @@ void FUN_004e48b0(Menu *pMenu)
     int y;
     int index;
 
-    mode = FUN_004f3a60();
+    mode = FrontendRecords_GetTableMode();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuTitle(pMenu);
     switch (mode) {
@@ -9022,11 +9022,11 @@ void FUN_004e48b0(Menu *pMenu)
 
     g_unk0x008189a8[3] = 1;
     y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 200) / 0x1e0;
-    if ((RallyData_FUN_00408cb0(0)[(pMenu->cursor * 3 + 4 + mode) * 0xc] & 0x80) != 0) {
-        pEntry = RallyData_FUN_00408cb0(0) + 0x34 + (mode + pMenu->cursor * 3) * 0xc;
-        pFlags = (unsigned int *)(RallyData_FUN_00408cb0(0) +
+    if ((RallyData_GetAvailableCategorySaveRecord(0)[(pMenu->cursor * 3 + 4 + mode) * 0xc] & 0x80) != 0) {
+        pEntry = RallyData_GetAvailableCategorySaveRecord(0) + 0x34 + (mode + pMenu->cursor * 3) * 0xc;
+        pFlags = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) +
                                   (pMenu->cursor * 3 + 4 + mode) * 0xc);
-        Font_DrawText(1, CFrontend::FUN_0040ede0(*pFlags & 0x3f),
+        Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*pFlags & 0x3f),
                       (int)(g_pGraphics->resX * 0xb4) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
         if (!((*pFlags & 0x40) == 0))
@@ -9043,7 +9043,7 @@ void FUN_004e48b0(Menu *pMenu)
                 (int)((time / 100) % 0x3c), time % 100);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1b3) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(0, (char *)FUN_004f9260(pMenu->cursor, mode),
+        Font_DrawText(0, (char *)FrontendRecords_GetCarClassRecordText(pMenu->cursor, mode),
                       (int)(g_pGraphics->resX * 0x212) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
     } else {
@@ -9053,14 +9053,14 @@ void FUN_004e48b0(Menu *pMenu)
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0x19) / 0x1e0 +
                                  (int)(g_pGraphics->resY * 200) / 0x1e0);
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
-    FrontendDraw_ScrollerRow(FUN_004f2540(), 1);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetStageRecordsScroller(), 1);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x16f), 1);
 }
 
 // Draws the network "best times" screen: the mode headers, the two highlight
 // bars and one row per stage with its time.
 // FUNCTION: CMR2 0x004e4fc0
-void FUN_004e4fc0(Menu *pMenu)
+void FrontendMenu_DrawBestStageTimes(Menu *pMenu)
 {
     BYTE *pRow;
     unsigned int time;
@@ -9069,7 +9069,7 @@ void FUN_004e4fc0(Menu *pMenu)
     int x;
     int y;
 
-    FUN_004f3a60();
+    FrontendRecords_GetTableMode();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 0x18) / 0x280,
                           (int)(g_pGraphics->resY * 0x26) / 0x1e0, 1, 2, NULL, -1);
@@ -9101,13 +9101,13 @@ void FUN_004e4fc0(Menu *pMenu)
     for (i = 0; i < count; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0x5a) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
-        pRow = (BYTE *)CGameInfo::FUN_00405fe0() + 0x654 + (pMenu->cursor * 0xb + i) * 8;
+        pRow = (BYTE *)CGameInfo::GetGameInfoFieldA4Address() + 0x654 + (pMenu->cursor * 0xb + i) * 8;
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, i + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 100) / 0x280, y,
                       (int *)g_colourText0x0052496c, 0x12);
         Font_DrawText(1, (char *)pRow, (int)(g_pGraphics->resX * 0x96) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(1, CFrontend::FUN_0040ede0(*(unsigned int *)(pRow + 4) & 0x3f),
+        Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*(unsigned int *)(pRow + 4) & 0x3f),
                       (int)(g_pGraphics->resX * 0x122) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
         if ((*(unsigned int *)(pRow + 4) & 0x40) != 0)
             Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
@@ -9124,17 +9124,17 @@ void FUN_004e4fc0(Menu *pMenu)
                                      ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * (i + 1));
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
     }
-    FrontendDraw_ScrollerRow(FUN_004f2550(), 1);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetBestStageTimesScroller(), 1);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x172), 1);
 }
 
-BYTE *FUN_004f92a0(int row, int column);
-MenuScroller *FUN_004f2560(void);
+BYTE *FrontendRecords_GetProfileCarClassRecordText(int row, int column);
+MenuScroller *FrontendScroller_GetTransmissionRecordsScroller(void);
 
 // Draws the network "records" screen: mode title, the two bars, the column
 // headers and five rows with the player, car, gearbox and two values.
 // FUNCTION: CMR2 0x004e5c90
-void FUN_004e5c90(Menu *pMenu)
+void FrontendMenu_DrawTransmissionRecords(Menu *pMenu)
 {
     BYTE *pRow;
     int mode;
@@ -9142,7 +9142,7 @@ void FUN_004e5c90(Menu *pMenu)
     int x;
     int y;
 
-    mode = FUN_004f3a60();
+    mode = FrontendRecords_GetTableMode();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 0x18) / 0x280,
                           (int)(g_pGraphics->resY * 0x26) / 0x1e0, 1, 2, NULL, -1);
@@ -9188,14 +9188,14 @@ void FUN_004e5c90(Menu *pMenu)
     for (i = 0; i < 5; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
-        pRow = (BYTE *)CGameInfo::FUN_00405fe0() + 0xff4 +
+        pRow = (BYTE *)CGameInfo::GetGameInfoFieldA4Address() + 0xff4 +
                ((mode + pMenu->cursor * 3) * 5 + i) * 0xc;
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, i + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 100) / 0x280, y,
                       (int *)g_colourText0x0052496c, 0x12);
         Font_DrawText(1, (char *)pRow, (int)(g_pGraphics->resX * 0x96) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(1, CFrontend::FUN_0040ede0(*(unsigned int *)(pRow + 4) & 0x3f),
+        Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*(unsigned int *)(pRow + 4) & 0x3f),
                       (int)(g_pGraphics->resX * 0x122) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
         if ((*(unsigned int *)(pRow + 4) & 0x40) != 0)
             Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
@@ -9213,7 +9213,7 @@ void FUN_004e5c90(Menu *pMenu)
                                      (short)((int)(g_pGraphics->resY * 0x19) / 0x1e0) * (i + 1));
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
     }
-    FrontendDraw_ScrollerRow(FUN_004f2560(), 1);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetTransmissionRecordsScroller(), 1);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x16f), 1);
 }
 
@@ -9222,7 +9222,7 @@ void FUN_004e5c90(Menu *pMenu)
 // match 84%: ranuras de pila y orden de los dos bloques de barra
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e63d0
-void FUN_004e63d0(Menu *pMenu)
+void FrontendMenu_DrawProfileTransmissionRecords(Menu *pMenu)
 {
     BYTE *pRow;
     unsigned int *pFlags;
@@ -9230,7 +9230,7 @@ void FUN_004e63d0(Menu *pMenu)
     int x;
     int y;
 
-    mode = FUN_004f3a60();
+    mode = FrontendRecords_GetTableMode();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuTitle(pMenu);
     switch (mode) {
@@ -9273,11 +9273,11 @@ void FUN_004e63d0(Menu *pMenu)
 
     g_unk0x008189a8[3] = 1;
     y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 200) / 0x1e0;
-    pRow = RallyData_FUN_00408cb0(0) + 0x454 + (mode + pMenu->cursor * 3) * 0xc;
-    pFlags = (unsigned int *)(RallyData_FUN_00408cb0(0) +
+    pRow = RallyData_GetAvailableCategorySaveRecord(0) + 0x454 + (mode + pMenu->cursor * 3) * 0xc;
+    pFlags = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) +
                               (pMenu->cursor * 3 + 0x5c + mode) * 0xc);
     if ((*pFlags & 0x80) != 0) {
-        Font_DrawText(1, CFrontend::FUN_0040ede0(*pFlags & 0x3f),
+        Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*pFlags & 0x3f),
                       (int)(g_pGraphics->resX * 0xbe) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
         if (!((*pFlags & 0x40) == 0))
             Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x14a) / 0x280, y,
@@ -9291,7 +9291,7 @@ void FUN_004e63d0(Menu *pMenu)
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, (*(unsigned int *)pRow & 7) + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x17c) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(0, (char *)FUN_004f92a0(pMenu->cursor, mode),
+        Font_DrawText(0, (char *)FrontendRecords_GetProfileCarClassRecordText(pMenu->cursor, mode),
                       (int)(g_pGraphics->resX * 0x1fe) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
     } else {
@@ -9301,16 +9301,16 @@ void FUN_004e63d0(Menu *pMenu)
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0 +
                                  (int)(g_pGraphics->resY * 0x19) / 0x1e0);
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
-    FrontendDraw_ScrollerRow(FUN_004f2560(), 1);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetTransmissionRecordsScroller(), 1);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x16f), 1);
 }
 
-BYTE *FUN_004f92c0(int index);
+BYTE *FrontendRecords_GetChampionshipRecordText(int index);
 
 // Draws the network "championship standings" screen: the column headers and
 // eight rows with the player, car, gearbox and time.
 // FUNCTION: CMR2 0x004e6a80
-void FUN_004e6a80(Menu *pMenu)
+void FrontendMenu_DrawChampionshipRecords(Menu *pMenu)
 {
     int order[8];
     BYTE *pRow;
@@ -9319,7 +9319,7 @@ void FUN_004e6a80(Menu *pMenu)
     int x;
     int y;
 
-    FUN_004f3a60();
+    FrontendRecords_GetTableMode();
     order[0] = 6;
     order[1] = 3;
     order[2] = 1;
@@ -9358,12 +9358,12 @@ void FUN_004e6a80(Menu *pMenu)
     for (i = 0; i < 8; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
-        pRow = (BYTE *)CGameInfo::FUN_00405fe0() + 0x1210 + ((i / 3) * 3 + i % 3) * 8;
+        pRow = (BYTE *)CGameInfo::GetGameInfoFieldA4Address() + 0x1210 + ((i / 3) * 3 + i % 3) * 8;
         Font_DrawText(1, CFrontend::GetTextString(order[i] + 0x27), (int)(g_pGraphics->resX * 0x82) / 0x280,
                       y, (int *)g_colourText0x0052496c, 0x12);
         Font_DrawText(1, (char *)pRow, (int)(g_pGraphics->resX * 0xd2) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(1, CFrontend::FUN_0040ede0(*(unsigned int *)(pRow + 4) & 0x3f),
+        Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*(unsigned int *)(pRow + 4) & 0x3f),
                       (int)(g_pGraphics->resX * 0x159) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
         if ((*(unsigned int *)(pRow + 4) & 0x40) != 0)
             Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1d6) / 0x280, y,
@@ -9399,7 +9399,7 @@ void FUN_004e7120(Menu *pMenu)
     int x;
     int y;
 
-    FUN_004f3a60();
+    FrontendRecords_GetTableMode();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuTitle(pMenu);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
@@ -9431,12 +9431,12 @@ void FUN_004e7120(Menu *pMenu)
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
         n = (i / 3) * 3 + i % 3;
-        pBase = RallyData_FUN_00408cb0(0);
-        pFlags = (unsigned int *)(RallyData_FUN_00408cb0(0) + 0x4bc + n * 8);
+        pBase = RallyData_GetAvailableCategorySaveRecord(0);
+        pFlags = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 0x4bc + n * 8);
         Font_DrawText(1, CFrontend::GetTextString(order[i] + 0x27), (int)(g_pGraphics->resX * 100) / 0x280,
                       y, (int *)g_colourText0x0052496c, 0x12);
         if ((*pFlags & 0x80) != 0) {
-            Font_DrawText(1, CFrontend::FUN_0040ede0(*pFlags & 0x3f),
+            Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*pFlags & 0x3f),
                           (int)(g_pGraphics->resX * 0x109) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
             if (!((*pFlags & 0x40) == 0))
                 Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x181) / 0x280, y,
@@ -9449,7 +9449,7 @@ void FUN_004e7120(Menu *pMenu)
                     (int)((time / 100) % 0x3c), time % 100);
             Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
-            Font_DrawText(0, (char *)FUN_004f92c0(i), (int)(g_pGraphics->resX * 0x21c) / 0x280, y,
+            Font_DrawText(0, (char *)FrontendRecords_GetChampionshipRecordText(i), (int)(g_pGraphics->resX * 0x21c) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         } else {
             Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y,
@@ -9573,7 +9573,7 @@ void FUN_004e7ed0(Menu *pMenu)
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pLineColour, 1);
         }
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // FUNCTION: CMR2 0x004f0820
@@ -9583,38 +9583,38 @@ void FUN_004f0820(Menu *pMenu, int param)
     unsigned int index;
     BYTE result;
 
-    if (FUN_004d27d0()) {
-        FUN_004f26f0(pMenu, param);
+    if (FrontendRecords_GetProfileMode()) {
+        FrontendProfile_SelectPlayerSlot(pMenu, param);
         return;
     }
     g_unk0x00819048++;
-    switch (CGameInfo::FUN_00405d80()) {
+    switch (CGameInfo::GetConfiguredGameMode()) {
     case 4:
-        pScreen = FUN_004f8430();
+        pScreen = FrontendMenu_GetPaletteConfirmation();
         break;
     case 5:
-        pScreen = FUN_004fa300();
+        pScreen = FrontendMenu_GetChampionshipRouteSelection();
         break;
     case 6:
-        pScreen = FUN_004fa310();
+        pScreen = FrontendMenu_GetAlternateChampionshipRouteSelection();
         break;
     case 7:
-        pScreen = FUN_004fa320();
+        pScreen = FrontendMenu_GetArcadeChampionshipRouteSelection();
         break;
     default:
-        pScreen = FUN_004f83f0();
+        pScreen = FrontendMenu_GetCarSetup();
     }
     index = pMenu->items[0].max;
-    if ((int)index < FUN_004eb440() && !FUN_004ebd60(index)) {
-        result = (BYTE)FUN_004eb4c0((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff), index);
-        FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 0);
+    if ((int)index < Profile_GetFileCount() && !FrontendProfile_IsAlreadyInChampionship(index)) {
+        result = (BYTE)Profile_LoadAndLinkSavedRecord((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), index);
+        FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
         if (result != 0) {
-            if (CGameInfo::FUN_00405e00() != 0) {
-                Menu_SetNextAction((int)FUN_004f8440());
+            if (CGameInfo::GetGameModeOptionBit19() != 0) {
+                Menu_SetNextAction((int)FrontendMenu_GetNetworkConnection());
                 g_unk0x00819048--;
                 return;
             }
-            Menu_SetParent(pScreen, FUN_004f83a0());
+            Menu_SetParent(pScreen, FrontendMenu_GetMultiplayerProfile());
             Menu_SetNextAction((int)pScreen);
             g_unk0x00819048--;
             return;
@@ -9638,7 +9638,7 @@ char g_strDate[16] = "%.2d.%.2d.%.4d";
 // Draws the options screen: the breadcrumb, the play time, the three setting
 // rows and the date of the loaded rally data.
 // FUNCTION: CMR2 0x004d4cf0
-void FUN_004d4cf0(Menu *pMenu)
+void FrontendMenu_DrawProfileSettings(Menu *pMenu)
 {
     char *text[4];
     char *pRecord;
@@ -9651,7 +9651,7 @@ void FUN_004d4cf0(Menu *pMenu)
     text[2] = (char *)RallyData_GetRecord(0);
     text[3] = CFrontend::GetTextString(pMenu->field_0x4);
     FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 4);
-    pRecord = (char *)RallyData_FUN_00408860(0);
+    pRecord = (char *)RallyData_GetDriverCategoryProfile(0);
     FrontendDraw_PlayTime();
     Font_DrawText(1, CFrontend::GetTextString(0x7e), (int)(g_pGraphics->resX * 0x32) / 0x280, y,
                   (int *)g_colourText0x0052496c, 9);
@@ -9669,12 +9669,12 @@ void FUN_004d4cf0(Menu *pMenu)
     sprintf(CFrontend::m_stringDest, g_strDate, date >> 0x10 & 0x1f, date >> 8 & 0xf, (date & 0xff) + 0x73a);
     Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x3c) / 0x280, y + 0x14,
                   (int *)g_colourWhite0x00524968, 9);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // Draws the header of the rally sub-menu and the car of the selected rally.
 // FUNCTION: CMR2 0x004dc710
-void FUN_004dc710(Menu *pMenu)
+void FrontendMenu_DrawArcadeRallySelection(Menu *pMenu)
 {
     char *text[2];
 
@@ -9682,17 +9682,17 @@ void FUN_004dc710(Menu *pMenu)
     text[1] = CFrontend::GetTextString(0xe2);
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, text, 2);
     FrontendDraw_PlayTime();
-    FrontendDraw_ScrollerRow(FUN_004f2590(), 1);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetArcadeRallyScroller(), 1);
     FUN_004dbd80(pMenu);
 }
 
 // Clears the selected carousel entry and refreshes the owning screen when the
 // game is in the frontend.
 // FUNCTION: CMR2 0x004f3a70
-void FUN_004f3a70(Menu *pMenu, int param)
+void FrontendRecords_ResetCarouselSelection(Menu *pMenu, int param)
 {
     g_unk0x008196e0 = 0;
-    if (FUN_004d27d0())
+    if (FrontendRecords_GetProfileMode())
         FUN_004f8b30();
 }
 
@@ -9709,14 +9709,14 @@ char g_strUpperChars0x005253d8[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 // match 83%: el original calcula el rectangulo en otro orden y reutiliza
 // registros en el bloque de la tecla; misma logica
 // FUNCTION: CMR2 0x004f0e80
-void FUN_004f0e80(Menu *pMenu)
+void FrontendMenu_UpdateProfileNameEntry(Menu *pMenu)
 {
     char c;
     int key;
     int len;
 
-    strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(FUN_004f2be0()));
-    if (FUN_004b7cd0(&key)) {
+    strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(FrontendProfile_GetCurrentPlayer()));
+    if (Input_PopQueuedCharacter(&key)) {
         if (key != 8) {
             len = strlen(CFrontend::m_stringDest);
             if (len < 3 && strchr(g_strKeyChars0x005253a0, (char)key) != NULL) {
@@ -9765,14 +9765,14 @@ void FUN_004f0e80(Menu *pMenu)
         g_unk0x0081986c = 0;
         Menu_PlaySoundId(0);
     }
-    FUN_004eae90(FUN_004f2be0(), CFrontend::m_stringDest);
+    RallyData_SetEditedDriverOrCategoryName(FrontendProfile_GetCurrentPlayer(), CFrontend::m_stringDest);
 }
 
 // Draws the car setup screen: one banner per item with the value of the
 // selected column, plus the highlight bars.
 // match 62%: asignacion de registros y ranuras de pila del bucle de filas
 // FUNCTION: CMR2 0x004d7750
-void FUN_004d7750(Menu *pMenu)
+void FrontendMenu_DrawProfileDateEntry(Menu *pMenu)
 {
     short rect[4];
     char *text[2];
@@ -9900,7 +9900,7 @@ void FUN_004d6f10(Menu *pMenu)
 
     g_unk0x0081854c = g_unk0x00818274;
     if (g_unk0x008189a4 != 0)
-        g_unk0x00818550 = CFrontend::GetTextString(FUN_004085a0((BYTE)FUN_004f2be0()) ? 0xe5 : 0x17b);
+        g_unk0x00818550 = CFrontend::GetTextString(RallyData_IsDriverRecordUsable((BYTE)FrontendProfile_GetCurrentPlayer()) ? 0xe5 : 0x17b);
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, g_nameEntryPath0x0081854c, 2);
     FrontendDraw_PlayTime();
     for (row = 0; row < 3; row++) {
@@ -9931,7 +9931,7 @@ void FUN_004d6f10(Menu *pMenu)
                                      (short)(Font_GetTextHeight(font, CMain::m_logFileBlankLine) / 2);
                 g_unk0x008189a8[2] = (short)(g_pGraphics->resX / 0xe);
                 g_unk0x008189a8[3] = (short)(Font_GetTextHeight(font, CMain::m_logFileBlankLine) / 2);
-                FUN_004d27e0(g_unk0x008189a8, (BYTE *)pColour);
+                Frontend_DrawRectangleOutline(g_unk0x008189a8, (BYTE *)pColour);
             }
             Font_DrawText(font, CFrontend::m_stringDest,
                           g_pGraphics->resX / 0x1c + ((col + 2) * g_pGraphics->resX) / 0xe,
@@ -9939,8 +9939,8 @@ void FUN_004d6f10(Menu *pMenu)
         }
     }
     if (g_unk0x008189a4 != 0) {
-        strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(FUN_004f2be0()));
-        strcpy(name, (char *)RallyData_GetRecord(FUN_004f2be0()));
+        strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(FrontendProfile_GetCurrentPlayer()));
+        strcpy(name, (char *)RallyData_GetRecord(FrontendProfile_GetCurrentPlayer()));
     } else {
         sprintf(CFrontend::m_stringDest, CMain::m_logFileBlankLine);
         sprintf(name, CMain::m_logFileBlankLine);
@@ -9961,8 +9961,8 @@ void FUN_004d6f10(Menu *pMenu)
                       (int)(g_pGraphics->resY * 2) / 8, pColour, 0x12);
     }
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
-    if (CGameInfo::FUN_00405e00() != 0)
-        FrontendDraw_Carousel(FUN_004f8410(), 0, 0);
+    if (CGameInfo::GetGameModeOptionBit19() != 0)
+        FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, 0);
 }
 
 // Scratch buffer of the rally screens: holds the formatted rally/stage name.
@@ -9980,7 +9980,7 @@ char g_str0x00524cfc[12] = "%s:\n%s:\n%s:";
 // match 74%: reparto de registros en el switch del breadcrumb y en las dos
 // lineas de sprintf
 // FUNCTION: CMR2 0x004d6a60
-void FUN_004d6a60(Menu *pMenu)
+void FrontendMenu_DrawMultiplayerStageSelection(Menu *pMenu)
 {
     char *text[4];
     BYTE *pRecord;
@@ -9998,12 +9998,12 @@ void FUN_004d6a60(Menu *pMenu)
         sprintf(g_str0x008188a4, CFrontend::GetTextString(0xdc), g_unk0x008182b4);
         text[2] = g_str0x008188a4;
         text[3] = CFrontend::GetTextString(0x17a);
-        if (CGameInfo::FUN_00405e00() != 0) {
+        if (CGameInfo::GetGameModeOptionBit19() != 0) {
             text[0] = CFrontend::GetTextString(0x12);
             text[1] = 0;
             text[2] = 0;
         } else {
-            switch (CGameInfo::FUN_00405d80()) {
+            switch (CGameInfo::GetConfiguredGameMode()) {
             case 0:
                 text[0] = CFrontend::GetTextString(0xe7);
                 text[1] = CFrontend::GetTextString(0xc);
@@ -10040,7 +10040,7 @@ void FUN_004d6a60(Menu *pMenu)
         }
         FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 4);
     }
-    count = FUN_004eb440();
+    count = Profile_GetFileCount();
     if (count > 0) {
         // the two counts are kept in the original but the result is discarded
         value = pMenu->items[0].max;
@@ -10057,19 +10057,19 @@ void FUN_004d6a60(Menu *pMenu)
     }
     FrontendDraw_MenuList(pMenu, NULL, (int)(g_pGraphics->resY * 0x184) / 0x1e0, -1, 1, 1);
     if (pMenu->cursor == 0) {
-        count = FUN_004eb440();
+        count = Profile_GetFileCount();
         if (0 < count) {
-            pRecord = FUN_004eb450(pMenu->items[0].max);
+            pRecord = Profile_GetFileDateRecord(pMenu->items[0].max);
             sprintf(g_unk0x008183cc, g_str0x00524cfc, CFrontend::GetTextString(0x139),
                     CFrontend::GetTextString(0x7e), CFrontend::GetTextString(0x80));
             flags = *(unsigned int *)(pRecord + 4);
             sprintf(g_unk0x00818554, g_str0x00524ce4, CFrontend::GetTextString(0x13a), pRecord,
                     flags >> 0x10 & 0x1f, flags >> 8 & 0xf, (flags & 0xff) + 0x73a);
-            if (FUN_004ebd60(pMenu->items[0].max)) {
+            if (FrontendProfile_IsAlreadyInChampionship(pMenu->items[0].max)) {
                 strcpy(g_unk0x00818368, CFrontend::GetTextString(0xdf));
             } else {
                 sprintf(g_unk0x00818368, CFrontend::GetTextString(0x13b));
-                Font_Unused((int)g_unk0x00818368, FUN_004ea500());
+                Font_Unused((int)g_unk0x00818368, Frontend_GetOverlayMode());
                 FUN_004d65c0();
                 FrontendDraw_HelpText(CFrontend::GetTextString(0xf9), 1);
                 return;
@@ -10136,14 +10136,14 @@ void FUN_004d7380(Menu *pMenu)
                                      (short)(Font_GetTextHeight(font, CMain::m_logFileBlankLine) / 2);
                 g_unk0x008189a8[2] = (short)(g_pGraphics->resX / 0xe);
                 g_unk0x008189a8[3] = (short)(Font_GetTextHeight(font, CMain::m_logFileBlankLine) / 2);
-                FUN_004d27e0(g_unk0x008189a8, (BYTE *)pColour);
+                Frontend_DrawRectangleOutline(g_unk0x008189a8, (BYTE *)pColour);
             }
             Font_DrawText(font, CFrontend::m_stringDest,
                           g_pGraphics->resX / 0x1c + ((col + 2) * g_pGraphics->resX) / 0xe,
                           (int)(g_pGraphics->resY * (row + 4)) / 8, pColour, 0x12);
         }
     }
-    strcpy(CFrontend::m_stringDest, (char *)FUN_004f3af0());
+    strcpy(CFrontend::m_stringDest, (char *)FrontendProfile_GetEnteredNameBuffer());
     while (strlen(CFrontend::m_stringDest) < 43) {
         CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) + 1] = 0;
         CFrontend::m_stringDest[strlen(CFrontend::m_stringDest)] = (char)(rand() % 0x1a) + 'a';
@@ -10151,7 +10151,7 @@ void FUN_004d7380(Menu *pMenu)
     for (i = 0; i < 43; i++) {
         ch[0] = CFrontend::m_stringDest[i];
         ch[1] = 0;
-        if (i < (int)strlen((char *)FUN_004f3af0()))
+        if (i < (int)strlen((char *)FrontendProfile_GetEnteredNameBuffer()))
             pColour = (int *)g_colourWhite0x00524968;
         else
             pColour = (int *)g_colourText0x0052496c;
@@ -10180,8 +10180,8 @@ void FUN_004d8480(Menu *pMenu)
     rect[3] = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();
     sprintf(g_str0x008188a4, CFrontend::GetTextString(0xdc),
-            (CGameInfo::FUN_00405d70() & 0xff) - FUN_004f1ba0());
-    strcpy(name, (char *)RallyData_GetRecord(CGameInfo::FUN_00405d70() - 1 - FUN_004f1ba0()));
+            (CGameInfo::GetConfiguredPlayerCount() & 0xff) - FrontendProfile_GetPlayersRemaining());
+    strcpy(name, (char *)RallyData_GetRecord(CGameInfo::GetConfiguredPlayerCount() - 1 - FrontendProfile_GetPlayersRemaining()));
     text[0] = g_str0x008188a4;
     text[1] = name;
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, text, 2);
@@ -10220,8 +10220,8 @@ void FUN_004d8480(Menu *pMenu)
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)g_colourShadowWhite0x00524974, 1);
     g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)g_colourWhite0x00524968, 1);
-    if (CGameInfo::FUN_00405d80() != 4)
-        FrontendDraw_ScrollerRow(FUN_004f2500(), 0);
+    if (CGameInfo::GetConfiguredGameMode() != 4)
+        FrontendDraw_ScrollerRow(FrontendScroller_GetRouteEntryScroller(), 0);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
 
@@ -10242,7 +10242,7 @@ extern char g_stageNumberFormat[];
 // and the list of leaderboards.
 // match 73%: reparto de registros en el bucle de las diez filas
 // FUNCTION: CMR2 0x004e9990
-void FUN_004e9990(Menu *pMenu)
+void FrontendMenu_DrawNetworkLeaderboard(Menu *pMenu)
 {
     char *text[3];
     NetworkLeaderboard *pBoard;
@@ -10296,12 +10296,12 @@ void FUN_004e9990(Menu *pMenu)
                       (int)(g_pGraphics->resY) / 4, pColour, 0x12);
     }
     FrontendDraw_MenuList(pMenu, NULL, (int)(g_pGraphics->resY * 0x140) / 0x1e0, -1, 1, 1);
-    FrontendDraw_Carousel(FUN_004f8410(), 0, 0);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, 0);
 }
 
-extern unsigned int FUN_004eba60(int param_1, int param_2);
-extern unsigned int FUN_004ebad0(int param_1, int param_2, int param_3);
-extern unsigned int FUN_004ebcd0(int param_1, int param_2, int param_3);
+extern unsigned int RallyData_GetCategoryDisplaySetting(int param_1, int param_2);
+extern unsigned int RallyData_GetCategoryBlockSetting(int param_1, int param_2, int param_3);
+extern unsigned int RallyData_GetCategoryFourthFifthBlockSetting(int param_1, int param_2, int param_3);
 
 // Draws the multiplayer entry screen: breadcrumb and play time, the three
 // driver columns with their flags, the three car rows and the bottom row of
@@ -10324,8 +10324,8 @@ void FUN_004d50a0(Menu *pMenu)
     src.w = 0x12;
     src.h = 0xc;
     if (CGameInfo::GetScreenWidth() >= 0x400) {
-        if (CFrontend::FUN_004b7560(0x400) != 0) {
-            if (CFrontend::FUN_004b7590(0x400) != 0) {
+        if (CFrontend::IsTextureWidthSupported(0x400) != 0) {
+            if (CFrontend::IsTextureHeightSupported(0x400) != 0) {
                 src.w = 0x1c;
                 src.h = 0x12;
             }
@@ -10344,10 +10344,10 @@ void FUN_004d50a0(Menu *pMenu)
                   (int)(g_pGraphics->resY * 0x46) / 0x1e0,
                   (int *)g_colourWhite0x00524968, 0x12);
     for (i = 0; i < 3; i++) {
-        FUN_004d4f90(((int)g_pGraphics->resX / 4) * (i + 1),
+        FrontendDraw_MatrixMedalRect(((int)g_pGraphics->resX / 4) * (i + 1),
                      (int)(g_pGraphics->resY * 0x19) / 0x1e0 +
                      (int)(g_pGraphics->resY * 0x46) / 0x1e0,
-                     FUN_004eba60(0, i));
+                     RallyData_GetCategoryDisplaySetting(0, i));
         Font_DrawText(1, CFrontend::GetTextString(i + 0xd0),
                       ((int)g_pGraphics->resX / 4) * (i + 1),
                       (int)(g_pGraphics->resY * 0x19) / 0x1e0 +
@@ -10384,13 +10384,13 @@ void FUN_004d50a0(Menu *pMenu)
                      CFrontend::m_pTinyFlags[i], 1, 0, NULL, NULL,
                      g_colourWhite0x00524968, 8);
         for (j = 0; j < 3; j++) {
-            FUN_004d4f90((int)(g_pGraphics->resX * 0xb4) / 0x280 +
+            FrontendDraw_MatrixMedalRect((int)(g_pGraphics->resX * 0xb4) / 0x280 +
                          ((int)(g_pGraphics->resX * 0x32) / 0x280) * i,
                          (int)(g_pGraphics->resY * 10) / 0x1e0 +
                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
                          (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
                          ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * j,
-                         FUN_004ebad0(0, i, j));
+                         RallyData_GetCategoryBlockSetting(0, i, j));
         }
     }
 
@@ -10423,19 +10423,19 @@ void FUN_004d50a0(Menu *pMenu)
                       (int)(g_pGraphics->resY * 0x145) / 0x1e0 +
                       ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * i,
                       (int *)g_colourText0x0052496c, 0xc);
-        FUN_004d4f90((int)(g_pGraphics->resX * 300) / 0x280,
+        FrontendDraw_MatrixMedalRect((int)(g_pGraphics->resX * 300) / 0x280,
                      (int)(g_pGraphics->resY * 5) / 0x1e0 +
                      (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
                      (int)(g_pGraphics->resY * 0x145) / 0x1e0 +
                      ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * i,
-                     FUN_004ebcd0(0, 0, i));
+                     RallyData_GetCategoryFourthFifthBlockSetting(0, 0, i));
         if (i != 0) {
-            FUN_004d4f90((int)(g_pGraphics->resX * 0x17c) / 0x280,
+            FrontendDraw_MatrixMedalRect((int)(g_pGraphics->resX * 0x17c) / 0x280,
                          (int)(g_pGraphics->resY * 5) / 0x1e0 +
                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
                          (int)(g_pGraphics->resY * 0x145) / 0x1e0 +
                          ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * i,
-                         FUN_004ebcd0(0, 1, i));
+                         RallyData_GetCategoryFourthFifthBlockSetting(0, 1, i));
         } else {
             g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0x17c) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x30) / 0x280) / 2;
@@ -10446,7 +10446,7 @@ void FUN_004d50a0(Menu *pMenu)
             g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 0x1c) / 0x1e0;
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8,
                             g_colourDim0x00524970, 4);
-            FUN_004d27e0(g_unk0x008189a8, g_colourText0x0052496c);
+            Frontend_DrawRectangleOutline(g_unk0x008189a8, g_colourText0x0052496c);
         }
     }
 }
@@ -10455,23 +10455,23 @@ void FUN_004efe60(int param_1, int param_2, char param_3);
 // Item action of the stage-split list: opens the split editor of the selected
 // row, or the next screen of the current game mode.
 // FUNCTION: CMR2 0x004efde0
-void FUN_004efde0(Menu *pMenu, int param)
+void FrontendMenu_SelectRallyStage(Menu *pMenu, int param)
 {
-    RallyData_FUN_004068e0(pMenu->cursor);
+    RallyData_SetStageSelectionAndRefreshFlags(pMenu->cursor);
     if (g_unk0x00819130[pMenu->cursor] == 1) {
-        if (CGameInfo::FUN_00405d80() == 2) {
+        if (CGameInfo::GetConfiguredGameMode() == 2) {
             FUN_004efe60((int)pMenu, param, 1);
             return;
         }
-        if (CGameInfo::FUN_00405d80() == 6) {
-            if (CGameInfo::FUN_00405d70() == 2) {
-                Menu_SetNextAction((int)FUN_004fa4c0());
+        if (CGameInfo::GetConfiguredGameMode() == 6) {
+            if (CGameInfo::GetConfiguredPlayerCount() == 2) {
+                Menu_SetNextAction((int)FrontendMenu_GetQuickRaceAdvancedSettings());
                 return;
             }
-            Menu_SetNextAction((int)FUN_004fa360());
+            Menu_SetNextAction((int)FrontendMenu_GetQuickRaceSettings());
             return;
         }
-        Menu_SetNextAction((int)FUN_004f8330());
+        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
     }
 }
 
@@ -10483,24 +10483,24 @@ void FUN_004efb70(Menu *pMenu, int param)
     unsigned int *pInfo;
     int limit;
 
-    RallyData_FUN_004068b0(pMenu->cursor);
-    if (CGameInfo::FUN_00405d80() == 2)
+    RallyData_SetCountrySelectionBits(pMenu->cursor);
+    if (CGameInfo::GetConfiguredGameMode() == 2)
         FUN_004efe60((int)pMenu, param, 0);
-    if (CGameInfo::FUN_00405d80() == 1) {
-        RallyData_FUN_004068e0(0);
-        Menu_SetNextAction((int)FUN_004f8330());
-        FUN_004ea9f0();
+    if (CGameInfo::GetConfiguredGameMode() == 1) {
+        RallyData_SetStageSelectionAndRefreshFlags(0);
+        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+        GameInfo_ResetSessionTimestamp();
         return;
     }
     limit = 1;
-    pInfo = CGameInfo::FUN_00405db0();
+    pInfo = CGameInfo::GetGameInfoField9CAddress();
     memset(g_unk0x00819130, 1, 11);
-    if (CGameInfo::FUN_00406410(0xd) != 0) {
+    if (CGameInfo::IsRecordFlagSet(0xd) != 0) {
         if ((BYTE)RallyDataCountryIndex() % 2 != 0) {
-            FUN_004f8350()->itemCount = 0xb;
+            FrontendMenu_GetRallyStageSelection()->itemCount = 0xb;
         } else {
             g_unk0x00819130[10] = 0xff;
-            FUN_004f8350()->itemCount = 10;
+            FrontendMenu_GetRallyStageSelection()->itemCount = 10;
         }
     } else {
         if ((BYTE)(*pInfo >> 8 & 0xf) >= (BYTE)RallyDataCountryIndex() + 1)
@@ -10511,8 +10511,8 @@ void FUN_004efb70(Menu *pMenu, int param)
             limit = 10;
         if (limit < 11)
             memset(&g_unk0x00819130[limit], 0, 11 - limit);
-        if (CGameInfo::FUN_00405d80() == 2) {
-            switch (CGameInfo::FUN_00405d90()) {
+        if (CGameInfo::GetConfiguredGameMode() == 2) {
+            switch (CGameInfo::GetConfiguredDifficulty()) {
             case 0:
                 memset(&g_unk0x00819130[4], 0, 6);
                 break;
@@ -10530,15 +10530,15 @@ void FUN_004efb70(Menu *pMenu, int param)
                 if ((((pInfo[1] >> 10) & 0x1f) & (1 << ((BYTE)RallyDataCountryIndex() + 1) / 2 - 1)) != 0)
                     g_unk0x00819130[10] = 1;
             }
-            FUN_004f8350()->itemCount = 0xb;
+            FrontendMenu_GetRallyStageSelection()->itemCount = 0xb;
         } else {
             g_unk0x00819130[10] = 0xff;
-            FUN_004f8350()->itemCount = 10;
+            FrontendMenu_GetRallyStageSelection()->itemCount = 10;
         }
     }
-    if (FUN_004f8350()->cursor >= FUN_004f8350()->itemCount)
-        FUN_004f8350()->cursor = FUN_004f8350()->itemCount - 1;
-    Menu_SetNextAction((int)FUN_004f8350());
+    if (FrontendMenu_GetRallyStageSelection()->cursor >= FrontendMenu_GetRallyStageSelection()->itemCount)
+        FrontendMenu_GetRallyStageSelection()->cursor = FrontendMenu_GetRallyStageSelection()->itemCount - 1;
+    Menu_SetNextAction((int)FrontendMenu_GetRallyStageSelection());
 }
 
 // Palette index (g_unk0x008196e8) -> livery index of m_unk0x00818530.
@@ -10621,20 +10621,20 @@ void FUN_004d7db0(Menu *pMenu)
     short height;
     int x;
 
-    if (CGameInfo::GetScreenWidth() < 0x400 || CFrontend::FUN_004b7560(0x400) == 0 ||
-        CFrontend::FUN_004b7590(0x400) == 0)
+    if (CGameInfo::GetScreenWidth() < 0x400 || CFrontend::IsTextureWidthSupported(0x400) == 0 ||
+        CFrontend::IsTextureHeightSupported(0x400) == 0)
         pRects = g_unk0x00524a28;
     else
         pRects = g_unk0x00524ad8;
     FrontendDraw_PlayTime();
     sprintf(g_str0x008188a4, CFrontend::GetTextString(0xdc),
-            (BYTE)CGameInfo::FUN_00405d70() - (BYTE)FUN_004f1ba0());
-    strcpy(label, (char *)RallyData_GetRecord((BYTE)(0xff - (BYTE)FUN_004f1ba0() + (BYTE)CGameInfo::FUN_00405d70())));
+            (BYTE)CGameInfo::GetConfiguredPlayerCount() - (BYTE)FrontendProfile_GetPlayersRemaining());
+    strcpy(label, (char *)RallyData_GetRecord((BYTE)(0xff - (BYTE)FrontendProfile_GetPlayersRemaining() + (BYTE)CGameInfo::GetConfiguredPlayerCount())));
     names[0] = g_str0x008188a4;
     names[1] = label;
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
-    FrontendDraw_ScrollerRow(FUN_004f2500(), 1);
-    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
+    FrontendDraw_ScrollerRow(FrontendScroller_GetRouteEntryScroller(), 1);
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) && CFrontend::IsTextureHeightSupported(0x400))
         height = 0x1ce;
     else
         height = 0xe8;
@@ -10671,10 +10671,10 @@ void FUN_004d7db0(Menu *pMenu)
         Sprite_Queue((SpriteRect *)pRects[g_unk0x008196e8[pMenu->cursor]], (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, 0, NULL,
                      g_colourWhite0x00524968, 8);
     }
-    FUN_004d7c00((int)CFrontend::FUN_0040ee90(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
-    FUN_004d8330((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
+    FrontendCar_GetClassPerformance((int)CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
+    FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
                  (int)CFrontend::GetTextString(0x186));
-    x = FUN_004d8330((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,
+    x = FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,
                      (int)CFrontend::GetTextString(0x187));
     sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(grip + 0x183));
     Font_DrawText(1, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 245) / 480,
@@ -10698,20 +10698,20 @@ void FUN_004d8950(Menu *pMenu)
     short height;
     int x;
 
-    if (CGameInfo::GetScreenWidth() < 0x400 || CFrontend::FUN_004b7560(0x400) == 0 ||
-        CFrontend::FUN_004b7590(0x400) == 0)
+    if (CGameInfo::GetScreenWidth() < 0x400 || CFrontend::IsTextureWidthSupported(0x400) == 0 ||
+        CFrontend::IsTextureHeightSupported(0x400) == 0)
         pRects = g_unk0x00524a28;
     else
         pRects = g_unk0x00524ad8;
     FrontendDraw_PlayTime();
     sprintf(g_str0x008188a4, CFrontend::GetTextString(0xdc),
-            (BYTE)CGameInfo::FUN_00405d70() - (BYTE)FUN_004f1ba0());
-    strcpy(label, (char *)RallyData_GetRecord((BYTE)(0xff - (BYTE)FUN_004f1ba0() + (BYTE)CGameInfo::FUN_00405d70())));
+            (BYTE)CGameInfo::GetConfiguredPlayerCount() - (BYTE)FrontendProfile_GetPlayersRemaining());
+    strcpy(label, (char *)RallyData_GetRecord((BYTE)(0xff - (BYTE)FrontendProfile_GetPlayersRemaining() + (BYTE)CGameInfo::GetConfiguredPlayerCount())));
     names[0] = g_str0x008188a4;
     names[1] = label;
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
-    FrontendDraw_ScrollerRow(FUN_004f2500(), 1);
-    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
+    FrontendDraw_ScrollerRow(FrontendScroller_GetRouteEntryScroller(), 1);
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) && CFrontend::IsTextureHeightSupported(0x400))
         height = 0x1ce;
     else
         height = 0xe8;
@@ -10748,10 +10748,10 @@ void FUN_004d8950(Menu *pMenu)
         Sprite_Queue((SpriteRect *)pRects[g_unk0x008196e8[pMenu->cursor]], (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, 0, NULL,
                      g_colourWhite0x00524968, 8);
     }
-    FUN_004d7c00((int)CFrontend::FUN_0040ee90(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
-    FUN_004d8330((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
+    FrontendCar_GetClassPerformance((int)CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
+    FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
                  (int)CFrontend::GetTextString(0x186));
-    x = FUN_004d8330((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,
+    x = FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,
                      (int)CFrontend::GetTextString(0x187));
     sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(grip + 0x183));
     Font_DrawText(1, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 245) / 480,
@@ -10765,7 +10765,7 @@ void FUN_004d8950(Menu *pMenu)
 // reparto de registros/slots del bucle y el orden de las cargas no cuadran
 // todavia; falta afinar la forma del fuente (no hay bug de logica conocido).
 // FUNCTION: CMR2 0x004e8b60
-void FUN_004e8b60(Menu *pMenu)
+void FrontendMenu_DrawNetworkStageSetup(Menu *pMenu)
 {
     SpriteRect rect;
     char *text[3];
@@ -10853,16 +10853,16 @@ void FUN_004e8b60(Menu *pMenu)
             pItem++;
         } while (i < pMenu->itemCount);
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 extern char g_str0x00524d0c[];  // "%d%% %s"   (GameInfo.cpp)
 extern char g_str0x00524d14[];  // "%s: "      (GameInfo.cpp)
 extern char g_str0x00524d20[];  // "%s: %d.%d" (GameInfo.cpp)
 extern char g_str0x00524d2c[];  // "%s: %d.0"  (GameInfo.cpp)
-BYTE FUN_004f89b0(BYTE **out, int row, int column);
-const char *FUN_004f89e0(int row, int column);
-BYTE *FUN_004f8a00(int row, int column);
+BYTE FrontendRecords_GetStageEntryPayload(BYTE **out, int row, int column);
+const char *FrontendRecords_GetStageName(int row, int column);
+BYTE *FrontendRecords_GetStageEntry(int row, int column);
 
 // Placeholder shown in the stage rows of the rally summary when the stage has
 // no recorded time yet.
@@ -10892,7 +10892,7 @@ void FUN_004d9c40(Menu *pMenu)
 
     country = RallyDataCountryIndex() & 0xff;
     column = pMenu->cursor;
-    switch (CGameInfo::FUN_00405d80()) {
+    switch (CGameInfo::GetConfiguredGameMode()) {
     case 2:
         text[0] = CFrontend::GetTextString(0xe7);
         text[1] = CFrontend::GetTextString(0xf);
@@ -10902,7 +10902,7 @@ void FUN_004d9c40(Menu *pMenu)
         text[1] = CFrontend::GetTextString(0x10);
         break;
     }
-    FrontendDraw_ScrollerRow(FUN_004f2570(), 1);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetDisplayDeviceScroller(), 1);
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 0x18) / 0x280,
                           (int)(g_pGraphics->resY * 0x26) / 0x1e0, 1, 3, text, 2);
@@ -10920,11 +10920,11 @@ void FUN_004d9c40(Menu *pMenu)
     x = (int)(g_pGraphics->resX * 0x19f) / 0x280;
     y = (int)(g_pGraphics->resY * 0x4b) / 0x1e0 + (int)(g_pGraphics->resY * 0x50) / 0x1e0;
     sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x18b),
-            FUN_004f89e0(country, column));
+            FrontendRecords_GetStageName(country, column));
     Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
-    rating[0] = FUN_004f8a00(country, column)[0];
-    rating[1] = FUN_004f8a00(country, column)[1];
+    rating[0] = FrontendRecords_GetStageEntry(country, column)[0];
+    rating[1] = FrontendRecords_GetStageEntry(country, column)[1];
     if (rating[1] == 0)
         sprintf(CFrontend::m_stringDest, g_str0x00524d2c, CFrontend::GetTextString(0x18c), rating[0]);
     else
@@ -10936,7 +10936,7 @@ void FUN_004d9c40(Menu *pMenu)
     Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
     width = 0;
-    limit = FUN_004f89b0(&table, country, column) & 0xff;
+    limit = FrontendRecords_GetStageEntryPayload(&table, country, column) & 0xff;
     if (limit >= 2)
         limit = 2;
     for (i = 0; i < limit; i++) {
@@ -10948,7 +10948,7 @@ void FUN_004d9c40(Menu *pMenu)
         if (n > width)
             width = n;
     }
-    time = *(unsigned int *)((char *)CGameInfo::FUN_00405fe0() + 0x658 +
+    time = *(unsigned int *)((char *)CGameInfo::GetGameInfoFieldA4Address() + 0x658 +
                              ((RallyDataCountryIndex() & 0xff) * 0xb + pMenu->cursor) * 8) >> 7 & 0xffff;
     sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
             (int)((time / 100) % 0x3c), time % 100);
@@ -10958,7 +10958,7 @@ void FUN_004d9c40(Menu *pMenu)
                       ((int)(g_pGraphics->resY * 8) / 0x1e0) * 0x24,
                   (int *)g_colourText0x0052496c, 0x21);
     sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
-            (char *)CGameInfo::FUN_00405fe0() + 0x654 +
+            (char *)CGameInfo::GetGameInfoFieldA4Address() + 0x654 +
                 ((RallyDataCountryIndex() & 0xff) * 0xb + pMenu->cursor) * 8);
     Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x19f) / 0x280,
                   (int)(g_pGraphics->resY * 0x4b) / 0x1e0 +
@@ -10971,11 +10971,11 @@ void FUN_004d9c40(Menu *pMenu)
                   (int *)g_colourText0x0052496c, 0x21);
     count = 0;
     width = 0;
-    for (n = 0; n < (CGameInfo::FUN_00405d70() & 0xff); n++) {
-        if (FUN_004085a0(n) == 0) {
+    for (n = 0; n < (CGameInfo::GetConfiguredPlayerCount() & 0xff); n++) {
+        if (RallyData_IsDriverRecordUsable(n) == 0) {
             count++;
-            if ((RallyData_FUN_00408cb0(n)[0x150 + (RallyDataCountryIndex() * 0xc + pMenu->cursor) * 8] & 0x80) != 0) {
-                time = *(unsigned int *)(RallyData_FUN_00408cb0(n) + 0x154 +
+            if ((RallyData_GetAvailableCategorySaveRecord(n)[0x150 + (RallyDataCountryIndex() * 0xc + pMenu->cursor) * 8] & 0x80) != 0) {
+                time = *(unsigned int *)(RallyData_GetAvailableCategorySaveRecord(n) + 0x154 +
                                          (RallyDataCountryIndex() * 0xc + pMenu->cursor) * 8);
                 sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
                         (int)((time / 100) % 0x3c), time % 100);
@@ -11010,9 +11010,9 @@ void FUN_004d9c40(Menu *pMenu)
 // ---------------------------------------------------------------------------
 // Rally report (cascade pass).
 
-BYTE FUN_004f8a20(BYTE **out, int index);
-const char *FUN_004f8a40(int index);
-BYTE *FUN_004f8a50(int index);
+BYTE FrontendRecords_GetEventEntryPayload(BYTE **out, int index);
+const char *FrontendRecords_GetEventName(int index);
+BYTE *FrontendRecords_GetEventEntry(int index);
 
 extern char g_str0x00524d0c[];
 extern char g_str0x00524d14[];
@@ -11052,11 +11052,11 @@ void FUN_004dbd80(Menu *pMenu)
     FUN_004d5de0(pMenu->cursor, 1);
     x = (int)(g_pGraphics->resX * 0x19f) / 0x280;
     y = (int)(g_pGraphics->resY * 0x4b) / 0x1e0 + (int)(g_pGraphics->resY * 0x50) / 0x1e0;
-    sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x18b), FUN_004f8a40(pMenu->cursor));
+    sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x18b), FrontendRecords_GetEventName(pMenu->cursor));
     Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
-    v0 = FUN_004f8a50(pMenu->cursor)[0];
-    v1 = FUN_004f8a50(pMenu->cursor)[1];
+    v0 = FrontendRecords_GetEventEntry(pMenu->cursor)[0];
+    v1 = FrontendRecords_GetEventEntry(pMenu->cursor)[1];
     if (v1 == 0)
         sprintf(CFrontend::m_stringDest, g_str0x00524d2c, CFrontend::GetTextString(0x18c), v0);
     else
@@ -11069,7 +11069,7 @@ void FUN_004dbd80(Menu *pMenu)
     i = 0;
     width = 0;
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
-    count = FUN_004f8a20(&table, pMenu->cursor) & 0xff;
+    count = FrontendRecords_GetEventEntryPayload(&table, pMenu->cursor) & 0xff;
     if (count >= 2)
         count = 2;
     for (i = 0; i < count; i++) {
@@ -11081,7 +11081,7 @@ void FUN_004dbd80(Menu *pMenu)
         if (w > width)
             width = w;
     }
-    time = *(unsigned int *)((char *)CGameInfo::FUN_00405fe0() + 0x1214 +
+    time = *(unsigned int *)((char *)CGameInfo::GetGameInfoFieldA4Address() + 0x1214 +
                              ((pMenu->cursor / 3) * 3 + pMenu->cursor % 3) * 8) >> 7 & 0xffff;
     sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000, (int)((time / 100) % 0x3c), time % 100);
     Font_DrawText(1, CFrontend::m_stringDest,
@@ -11089,7 +11089,7 @@ void FUN_004dbd80(Menu *pMenu)
                   (int)(g_pGraphics->resY * 0x4b) / 0x1e0 + (int)(g_pGraphics->resY * 8) / 0x1e0 * 0x24,
                   (int *)g_colourText0x0052496c, 0x21);
     sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
-            (char *)CGameInfo::FUN_00405fe0() + 0x1210 + ((pMenu->cursor / 3) * 3 + pMenu->cursor % 3) * 8);
+            (char *)CGameInfo::GetGameInfoFieldA4Address() + 0x1210 + ((pMenu->cursor / 3) * 3 + pMenu->cursor % 3) * 8);
     Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x19f) / 0x280,
                   (int)(g_pGraphics->resY * 0x4b) / 0x1e0 + (int)(g_pGraphics->resY * 8) / 0x1e0 * 0x24,
                   (int *)g_colourText0x0052496c, 0x21);
@@ -11099,11 +11099,11 @@ void FUN_004dbd80(Menu *pMenu)
                   (int *)g_colourText0x0052496c, 0x21);
     i = 0;
     shown = 0;
-    while (i < (int)(CGameInfo::FUN_00405d70() & 0xff)) {
-        if (FUN_004085a0(i) == 0) {
+    while (i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff)) {
+        if (RallyData_IsDriverRecordUsable(i) == 0) {
             shown++;
-            if ((RallyData_FUN_00408cb0(i)[0x4bc + ((pMenu->cursor / 3) * 3 + pMenu->cursor % 3) * 8] & 0x80) != 0) {
-                time = *(unsigned int *)(RallyData_FUN_00408cb0(i) + 0x4c0 +
+            if ((RallyData_GetAvailableCategorySaveRecord(i)[0x4bc + ((pMenu->cursor / 3) * 3 + pMenu->cursor % 3) * 8] & 0x80) != 0) {
+                time = *(unsigned int *)(RallyData_GetAvailableCategorySaveRecord(i) + 0x4c0 +
                                          ((pMenu->cursor / 3) * 3 + pMenu->cursor % 3) * 8);
                 sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000, (int)((time / 100) % 0x3c),
                         time % 100);
@@ -11216,7 +11216,7 @@ void FUN_004dfe20(Menu *pMenu)
             }
             switch (pItem->value) {
             case 0:
-                switch (CGameInfo::FUN_00405b50()) {
+                switch (CGameInfo::GetGraphicsOptionBits1To2()) {
                 case 1:
                     textId = 0x1cd;
                     break;
@@ -11252,7 +11252,7 @@ void FUN_004dfe20(Menu *pMenu)
                 }
                 break;
             case 2:
-                CGraphics::GetDisplayDeviceNames(CGraphics::FUN_004a8bc0(), description, name);
+                CGraphics::GetDisplayDeviceNames(CGraphics::GetSelectedDisplayDriverIndex(), description, name);
                 sprintf(CFrontend::m_stringDest, g_strDeviceOptionFormat, CFrontend::GetTextString(0x1d0), description);
                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
                               (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
@@ -11316,7 +11316,7 @@ void FUN_004dfe20(Menu *pMenu)
             i++;
         } while (i < pMenu->itemCount);
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 
@@ -11399,7 +11399,7 @@ void FUN_004dce00(Menu *pMenu)
                 break;
             case 1:
                 sprintf(CFrontend::m_stringDest, g_strItemTextFmt, CFrontend::GetTextString(0x1c0),
-                        CGameInfo::FUN_004f8a70(Menu_GetItem(pMenu, 1)->max));
+                        CGameInfo::GetCodeEntryText(Menu_GetItem(pMenu, 1)->max));
                 pText = CFrontend::m_stringDest;
                 break;
             case 2:
@@ -11447,7 +11447,7 @@ void FUN_004dce00(Menu *pMenu)
             i++;
         } while (i < pMenu->itemCount);
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 
@@ -11568,7 +11568,7 @@ void FUN_004e77c0(Menu *pMenu)
                     if ((Menu_GetItem(pMenu, 0)->min == 5 && j == 4) ||
                         (Menu_GetItem(pMenu, 0)->min == 9 && j == 8))
                         index = 10;
-                    flags = CGameInfo::FUN_00406520(Menu_GetItem(pMenu, 1)->max, index);
+                    flags = CGameInfo::GetStageOptionState(Menu_GetItem(pMenu, 1)->max, index);
                     if (pMenu->cursor == i) {
                         if ((flags & 1) != 0)
                             pColour = (pItem->max == j) ? g_colourWhite0x00524968 : g_colourText0x0052496c;
@@ -11611,7 +11611,7 @@ void FUN_004e77c0(Menu *pMenu)
             pItem++;
         } while (i < pMenu->itemCount);
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 
@@ -11720,7 +11720,7 @@ void FUN_004e8500(Menu *pMenu)
             i++;
         } while (i < pMenu->itemCount);
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 
@@ -11822,13 +11822,13 @@ void FUN_004e90f0(Menu *pMenu)
             pItem++;
         } while (i < pMenu->itemCount);
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
 // Draws the stage list screen: the breadcrumbs, the separator bar and one row
 // per item (the row sprite, its label and the value strings of the item).
 // FUNCTION: CMR2 0x004d8ed0
-void FUN_004d8ed0(Menu *pMenu)
+void FrontendMenu_DrawChampionshipEntry(Menu *pMenu)
 {
     SpriteRect rect;
     char label[4];
@@ -11847,8 +11847,8 @@ void FUN_004d8ed0(Menu *pMenu)
     rect.h = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();
     sprintf(g_str0x008188a4, CFrontend::GetTextString(0xdc),
-            (BYTE)CGameInfo::FUN_00405d70() - (BYTE)FUN_004f1ba0());
-    strcpy(label, (char *)RallyData_GetRecord((BYTE)(0xff - (BYTE)FUN_004f1ba0() + (BYTE)CGameInfo::FUN_00405d70())));
+            (BYTE)CGameInfo::GetConfiguredPlayerCount() - (BYTE)FrontendProfile_GetPlayersRemaining());
+    strcpy(label, (char *)RallyData_GetRecord((BYTE)(0xff - (BYTE)FrontendProfile_GetPlayersRemaining() + (BYTE)CGameInfo::GetConfiguredPlayerCount())));
     names[0] = g_str0x008188a4;
     names[1] = label;
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
@@ -11914,7 +11914,7 @@ void FUN_004d8ed0(Menu *pMenu)
             pItem++;
         } while (i < pMenu->itemCount);
     }
-    FrontendDraw_ScrollerRow(FUN_004f2500(), 0);
+    FrontendDraw_ScrollerRow(FrontendScroller_GetRouteEntryScroller(), 0);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
 
@@ -11926,9 +11926,9 @@ void FUN_004d8ed0(Menu *pMenu)
 // ---------------------------------------------------------------------------
 extern char g_keypadFormat[];   // 0x516940 "%s %s" (Input.cpp)
 extern char g_str0x00519fb8[];  // 0x519fb8 "%s_" (GameMenus.cpp)
-BYTE FUN_004086f0(BYTE param1);
-char *FUN_004d06f0(int index);
-unsigned int FUN_00409d30(int index);
+BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
+char *NetworkChat_GetLine(int index);
+unsigned int NetPlayers_GetPlayerFlag5(int index);
 
 // GLOBAL: CMR2 0x00524d9c
 char g_str0x00524d9c[12] = "%s: < %s >";
@@ -11989,8 +11989,8 @@ void FUN_004dd4b0(Menu *pMenu)
     order[7] = 7;
 
     texts[0] = CFrontend::GetTextString(0x12);
-    texts[1] = CGameInfo::FUN_004f8a70((CGameInfo::FUN_00405d80() & 0xff) - 8);
-    switch (CGameInfo::FUN_00405d80() & 0xff) {
+    texts[1] = CGameInfo::GetCodeEntryText((CGameInfo::GetConfiguredGameMode() & 0xff) - 8);
+    switch (CGameInfo::GetConfiguredGameMode() & 0xff) {
     case 8:
         sprintf(buf, CRegKey::m_regKeyPathFormatValue,
                 CFrontend::GetTextString((RallyDataCountryIndex() & 0xff) + 0x27));
@@ -12004,12 +12004,12 @@ void FUN_004dd4b0(Menu *pMenu)
     case 11:
     case 12:
         sprintf(buf, CRegKey::m_regKeyPathFormatValue,
-                CFrontend::GetTextString(order[(RallyData_FUN_00406940() & 0xff) * 3 +
-                                               (RallyData_FUN_00406950() & 0xff)] + 0x27));
+                CFrontend::GetTextString(order[(RallyData_GetSelectionBits10To11() & 0xff) * 3 +
+                                               (RallyData_GetSelectionBits12To13() & 0xff)] + 0x27));
         break;
     }
     texts[2] = buf;
-    texts[3] = CFrontend::GetTextString(FUN_004a15a0() != 0 ? 0x3d : 0x1c5);
+    texts[3] = CFrontend::GetTextString(Network_GetSessionStateFlag() != 0 ? 0x3d : 0x1c5);
     FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), texts, 4);
     if (g_unk0x00818ed0 != 0) {
         colour[3] = 0x20;
@@ -12025,9 +12025,9 @@ void FUN_004dd4b0(Menu *pMenu)
     Sprite_FillRect((int)g_pGraphics + 0x150, panel, colour, 1);
 
     sprintf(CFrontend::m_stringDest, g_str0x00524da8, (char *)RallyData_GetRecord(0),
-            CFrontend::FUN_0040ee20(RallyData_FUN_004086b0(0)),
-            FUN_004086f0(0) != 0 ? g_strGearboxAuto : g_strGearboxManual);
-    if (FUN_004a15a0() != 0) {
+            CFrontend::GetModeSpecificStageText(RallyData_GetDriverRecordSelectionValue(0)),
+            RallyData_GetDriverOrCategoryFlag(0) != 0 ? g_strGearboxAuto : g_strGearboxManual);
+    if (Network_GetSessionStateFlag() != 0) {
         pColour = g_colourWhite0x00524968;
     } else if (g_unk0x00818ce4 != 0) {
         pColour = g_colourWhite0x00524968;
@@ -12039,14 +12039,14 @@ void FUN_004dd4b0(Menu *pMenu)
 
     i = 1;
     for (j = 0, count = 7; count != 0; count--, j++) {
-        if (i < 8 && FUN_00409cb0(j) != 0) {
-            char *pName = FUN_00409cd0(j);
+        if (i < 8 && NetPlayers_IsPlayerPresent(j) != 0) {
+            char *pName = NetPlayers_GetPlayerName(j);
             if (pName == NULL)
                 pName = CMain::m_logFileBlankLine;
             sprintf(CFrontend::m_stringDest, g_str0x00524da8, pName,
-                    CFrontend::FUN_0040ee20(FUN_00409d00(j)),
-                    FUN_00409d30(j) != 0 ? g_strGearboxAuto : g_strGearboxManual);
-            if (FUN_0040a470(j) != 0)
+                    CFrontend::GetModeSpecificStageText(NetPlayers_GetCarSelection(j)),
+                    NetPlayers_GetPlayerFlag5(j) != 0 ? g_strGearboxAuto : g_strGearboxManual);
+            if (NetPlayers_GetPlayerFlag6(j) != 0)
                 pColour = g_colourWhite0x00524968;
             else
                 pColour = g_colourText0x0052496c;
@@ -12057,14 +12057,14 @@ void FUN_004dd4b0(Menu *pMenu)
     }
 
     for (j = 4, count = 0; j >= 0; j--, count++) {
-        Font_DrawText(1, FUN_004d06f0(j), (g_pGraphics->resX * 35) / 640,
+        Font_DrawText(1, NetworkChat_GetLine(j), (g_pGraphics->resX * 35) / 640,
                       ((count + 3) * g_pGraphics->resY * 20) / 480, (int *)pColour, 9);
     }
     if (g_unk0x00818ed0 != 0) {
         sprintf(CFrontend::m_stringDest,
-                (unsigned int)CFrontend::FUN_004d20e0() % 20 <= 9 ? CRegKey::m_regKeyPathFormatValue
+                (unsigned int)CFrontend::GetFrontendTimestamp() % 20 <= 9 ? CRegKey::m_regKeyPathFormatValue
                                                                  : g_str0x00519fb8,
-                (char *)FUN_004edb50());
+                (char *)FrontendNetwork_GetSessionState());
         Font_DrawText(1, CFrontend::m_stringDest, (g_pGraphics->resX * 35) / 640,
                       ((count + 4) * g_pGraphics->resY * 20) / 480, (int *)g_colourWhite0x00524968, 9);
     }
@@ -12115,7 +12115,7 @@ void FUN_004dd4b0(Menu *pMenu)
                     CFrontend::GetTextString(Menu_GetItem(pMenu, 2)->max + 0x131));
             break;
         case 3:
-            if (FUN_004a15a0() != 0) {
+            if (Network_GetSessionStateFlag() != 0) {
                 strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x3f));
                 break;
             }
@@ -12159,5 +12159,5 @@ void FUN_004dd4b0(Menu *pMenu)
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
         pItem++;
     }
-    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }

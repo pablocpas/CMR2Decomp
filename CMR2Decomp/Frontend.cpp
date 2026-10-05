@@ -16,38 +16,38 @@
 
 // Not ported/declared elsewhere yet.
 void Scene_SetAmbient(BYTE *pColour, int boost);
-void FUN_004ae260(void);
+void Glow_ResetEntries(void);
 void FUN_004b1150(void);
-void FUN_004b7b20(void);
-void FUN_004d0840(void);
+void Scene_InitFixedMathTables(void);
+void Game_CreateSplashScene(void);
 
 // Callees that live in other translation units and are not declared in their
 // headers yet.
-BYTE *RallyData_FUN_00408c70(int index);
-BYTE *RallyData_FUN_00408cb0(int index);
+BYTE *RallyData_GetCategoryOptionRecord(int index);
+BYTE *RallyData_GetAvailableCategorySaveRecord(int index);
 unsigned int RallyData_GetFlag30(void);
 unsigned int RallyData_GetFlag23(void);
-BYTE FUN_004086f0(BYTE param1);
+BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
 void RallyData_MarkTyresChanged(int index);
-BYTE FUN_004071c0(BYTE flags, char mode);
-BYTE FUN_00448cb0(int index);
-BYTE FUN_00448cc0(void);
-unsigned int FUN_00448680(int index, int split);
-int FUN_00448240(int car, int index);
-int FUN_004582d0(int index);
-int FUN_004583a0(void);
+BYTE RallyData_GetModeStageGroup(BYTE flags, char mode);
+BYTE StageTiming_GetFinishStateEntry(int index);
+BYTE StageTiming_GetFinishStateByte(void);
+unsigned int StageTiming_GetDriverSplitClock(int index, int split);
+int StageTiming_GetCarSplitMarker(int car, int index);
+int StageTiming_GetCheckpointField2(int index);
+int Stage_GetSplitPositionCount(void);
 extern BYTE g_unk0x008180fa;
 
 // Defined later in this file (device setup helpers).
-BYTE *FUN_004d0280(int index);
-BYTE *FUN_004d02d0(int index);
-void FUN_004d0300(int *pDest, int *pSource);
-void FUN_004d0310(int *pDest, int *pSource);
-void FUN_004d0370(int *pDest, int *pSource);
-void FUN_004d03b0(int *pDest, int *pSource);
-void FUN_004d03f0(int *pDest, int *pSource);
-void FUN_004d0470(int *pDest, int *pSource);
-void FUN_004d0500(int *pDest, int *pSource);
+BYTE *Frontend_GetDeviceOptionBlock(int index);
+BYTE *Frontend_GetDeviceSetupWord(int index);
+void Frontend_CopyOptionWord(int *pDest, int *pSource);
+void Frontend_MergeFourNibbleOptionFields(int *pDest, int *pSource);
+void Frontend_MergeFourTwoSixBitOptionFields(int *pDest, int *pSource);
+void Frontend_MergeThreeTwoSixBitOptionFields(int *pDest, int *pSource);
+void Frontend_MergeNamedRecordFourBitFields(int *pDest, int *pSource);
+void Frontend_MergeNamedRecordSevenBitFields(int *pDest, int *pSource);
+void Frontend_MergeNamedRecordSixBitFields(int *pDest, int *pSource);
 
 char FUN_004cfb30(int param1, int index, char *pName);
 int FUN_004cfc90(int param1, int index, char *pName);
@@ -165,7 +165,7 @@ Texture* CFrontend::m_unk0x008182cc[22];
 Texture* CFrontend::m_unk0x0081884c[22];
 
 // FUNCTION: CMR2 0x004b7520
-DWORD CFrontend::FUN_004b7520(void)
+DWORD CFrontend::GetDeviceCapabilityFieldA8(void)
 {
     return CGraphics::m_d3dDeviceDesc7.field0xa8;
 }
@@ -187,11 +187,11 @@ void CFrontend::FUN_004d21e0(void)
 
     if (CGameInfo::GetScreenWidth() >= 1024U)
     {
-        if (FUN_004b7560(1024) != 0)
+        if (IsTextureWidthSupported(1024) != 0)
         {
-            if (FUN_004b7590(1024) != 0)
+            if (IsTextureHeightSupported(1024) != 0)
             {
-                if (FUN_004a9700() != FALSE)
+                if (HasDXT1TextureSupport() != FALSE)
                     sprintf(m_stringDest, m_feRes1024C, CInstallInfo::GetFrontendDir());
 
                 else
@@ -202,13 +202,13 @@ void CFrontend::FUN_004d21e0(void)
     else
     {
 
-        if (FUN_004a9700() != FALSE)
+        if (HasDXT1TextureSupport() != FALSE)
             sprintf(m_stringDest, m_feRes640C, CInstallInfo::GetFrontendDir());
         else
             sprintf(m_stringDest, m_feRes640, CInstallInfo::GetFrontendDir());
     }
 
-    CGenericFileLoader::FUN_004a9d70(&CGenericFileLoader::m_genericFile, m_stringDest);
+    CGenericFileLoader::LoadIntoFileRecord(&CGenericFileLoader::m_genericFile, m_stringDest);
     if (m_unk0x00818260.buffer != NULL)
     {
         CFileBuffer::FreeGenericFileBuffer(m_unk0x00818260.buffer);
@@ -227,11 +227,11 @@ void CFrontend::FUN_004d21e0(void)
 
     if (CGameInfo::GetScreenWidth() >= 1024U)
     {
-        if (FUN_004b7560(1024) != FALSE)
+        if (IsTextureWidthSupported(1024) != FALSE)
         {
-            if (FUN_004b7590(1024) != FALSE)
+            if (IsTextureHeightSupported(1024) != FALSE)
             {
-                if (FUN_004a9700())
+                if (HasDXT1TextureSupport())
                     sprintf(m_stringDest, m_feRes1024CCountrySpecific, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory(), regionKey);
                 else
                     sprintf(m_stringDest, m_feRes1024CountrySpecific, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory(), regionKey);
@@ -240,17 +240,17 @@ void CFrontend::FUN_004d21e0(void)
     }
     else
     {
-        if (FUN_004a9700())
+        if (HasDXT1TextureSupport())
             sprintf(m_stringDest, m_feRes640CCountrySpecific, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory(), regionKey);
         else
             sprintf(m_stringDest, m_feRes640CountrySpecific, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory(), regionKey);
     }
 
-    CGenericFileLoader::FUN_004a9d70(&m_unk0x00818260, m_stringDest);
+    CGenericFileLoader::LoadIntoFileRecord(&m_unk0x00818260, m_stringDest);
 }
 
 // FUNCTION: CMR2 0x004b7560
-BOOL CFrontend::FUN_004b7560(unsigned int param_1)
+BOOL CFrontend::IsTextureWidthSupported(unsigned int param_1)
 {
     if (param_1 >= CGraphics::m_d3dDeviceDesc7.minTextureWidth && param_1 <= CGraphics::m_d3dDeviceDesc7.maxTextureWidth)
         return TRUE;
@@ -259,7 +259,7 @@ BOOL CFrontend::FUN_004b7560(unsigned int param_1)
 }
 
 // FUNCTION: CMR2 0x004b7590
-BOOL CFrontend::FUN_004b7590(unsigned int param_1)
+BOOL CFrontend::IsTextureHeightSupported(unsigned int param_1)
 {
     if (param_1 >= CGraphics::m_d3dDeviceDesc7.minTextureHeight && param_1 <= CGraphics::m_d3dDeviceDesc7.maxTextureHeight)
         return TRUE;
@@ -268,7 +268,7 @@ BOOL CFrontend::FUN_004b7590(unsigned int param_1)
 }
 
 // FUNCTION: CMR2 0x004a9700
-BOOL CFrontend::FUN_004a9700(void)
+BOOL CFrontend::HasDXT1TextureSupport(void)
 {
     if (!CGraphics::m_hasTexFormatDXT1_16 && !CGraphics::m_hasTexFormatDXT1_32)
         return FALSE;
@@ -277,7 +277,7 @@ BOOL CFrontend::FUN_004a9700(void)
 }
 
 // FUNCTION: CMR2 0x004d2590
-void CFrontend::FUN_004d2590(void) {
+void CFrontend::LoadFrontendCarPreviewTextures(void) {
     int index;
     int ix;
     const char* carNames[22] = {
@@ -360,20 +360,20 @@ void CFrontend::FUN_004d2590(void) {
 
 // Returns the common frontend archive (Common.bfl).
 // FUNCTION: CMR2 0x004d2190
-GenericFile* CFrontend::FUN_004d2190(void) {
+GenericFile* CFrontend::GetCommonFrontendArchive(void) {
     return &m_commonFile;
 }
 
 // Returns the archive the copyright screens are loaded from (the one
 // FUN_004d21e0 opens).
 // FUNCTION: CMR2 0x004d21b0
-GenericFile* CFrontend::FUN_004d21b0(void) {
+GenericFile* CFrontend::GetCopyrightFrontendArchive(void) {
     return &m_unk0x00818260;
 }
 
 // Returns the archive of one frontend language.
 // FUNCTION: CMR2 0x004d21c0
-GenericFile* CFrontend::FUN_004d21c0(int language) {
+GenericFile* CFrontend::GetLocalizedFrontendArchive(int language) {
     return &m_languageFiles[language];
 }
 
@@ -391,25 +391,25 @@ bool CFrontend::LoadSplashScreens(bool param1) {
     int i;
 
     if (param1) {
-        CGraphics::FUN_004a78a0(CGameInfo::GetScreenWidth(), CGameInfo::GetScreenHeight(), CGameInfo::GetColourDepth(), CGameInfo::FUN_00405bd0(), CGameInfo::FUN_00405c00());
-        FUN_004b7b20();
+        CGraphics::RecreateGraphicsDeviceAndResources(CGameInfo::GetScreenWidth(), CGameInfo::GetScreenHeight(), CGameInfo::GetColourDepth(), CGameInfo::GetGraphicsOptionBits5To8(), CGameInfo::GetGraphicsOptionBits9To12());
+        Scene_InitFixedMathTables();
         Sprite_Init();
         Line2D_Init();
         Tri2D_Init();
     }
 
     RallyData_ValidateIndex(0);
-    FUN_004ae260();
-    FUN_004d20c0();
+    Glow_ResetEntries();
+    SaveFrontendCallbackDepth();
     LoadLanguageFiles();
 
-    if (CGameInfo::GetScreenWidth() >= 0x400 && FUN_004b7560(0x400) != 0 && FUN_004b7590(0x400) != 0)
+    if (CGameInfo::GetScreenWidth() >= 0x400 && IsTextureWidthSupported(0x400) != 0 && IsTextureHeightSupported(0x400) != 0)
         screenCount = 4;
     else
         screenCount = 3;
 
-    FUN_004d0840();
-    CGame::FUN_0049dca0(3);
+    Game_CreateSplashScene();
+    CGame::SetSectorDrawState(3);
     FUN_004b1150();
     Scene_SetAmbient((BYTE *)&colour, 0);
 
@@ -418,7 +418,7 @@ bool CFrontend::LoadSplashScreens(bool param1) {
 
     for (i = 0; i < screenCount; i++) {
         sprintf(m_stringDest, m_strFrontEndTexturesCopyright, CInstallInfo::GetGameCDPath(), i + 1);
-        m_unk0x00817fd4[i] = CTexture::FindLoadTexture(FUN_004d21b0(), m_stringDest, 0, 0, 0, 0);
+        m_unk0x00817fd4[i] = CTexture::FindLoadTexture(GetCopyrightFrontendArchive(), m_stringDest, 0, 0, 0, 0);
     }
 
     sprintf(m_stringDest, m_strFrontEndBinkTGA, CInstallInfo::GetGameCDPath());
@@ -467,39 +467,39 @@ void CFrontend::LoadLanguageFiles(void)
     char *format;
 
     sprintf(m_stringDest, m_strCommonBfl, CInstallInfo::GetFrontendDir());
-    CGenericFileLoader::FUN_004a9d70(&m_commonFile, m_stringDest);
+    CGenericFileLoader::LoadIntoFileRecord(&m_commonFile, m_stringDest);
     FUN_004d21e0();
 
     switch (CGameInfo::GetGameRegion()) {
     case 0:
         sprintf(m_stringDest, m_strEnglishTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
-        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[0], m_stringDest);
+        CGenericFileLoader::LoadIntoFileRecord(&m_languageFiles[0], m_stringDest);
         sprintf(m_stringDest, m_strFrenchTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
-        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[1], m_stringDest);
+        CGenericFileLoader::LoadIntoFileRecord(&m_languageFiles[1], m_stringDest);
         sprintf(m_stringDest, m_strGermanTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
-        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[4], m_stringDest);
+        CGenericFileLoader::LoadIntoFileRecord(&m_languageFiles[4], m_stringDest);
         sprintf(m_stringDest, m_strSpanishTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
-        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[2], m_stringDest);
+        CGenericFileLoader::LoadIntoFileRecord(&m_languageFiles[2], m_stringDest);
         sprintf(m_stringDest, m_strItalianTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
-        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[3], m_stringDest);
+        CGenericFileLoader::LoadIntoFileRecord(&m_languageFiles[3], m_stringDest);
         break;
     case 1:
         sprintf(m_stringDest, m_strEngUSATextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
-        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[0], m_stringDest);
+        CGenericFileLoader::LoadIntoFileRecord(&m_languageFiles[0], m_stringDest);
         sprintf(m_stringDest, m_strFrenchTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
-        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[1], m_stringDest);
+        CGenericFileLoader::LoadIntoFileRecord(&m_languageFiles[1], m_stringDest);
         sprintf(m_stringDest, m_strSpanishTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
-        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[2], m_stringDest);
+        CGenericFileLoader::LoadIntoFileRecord(&m_languageFiles[2], m_stringDest);
         break;
     case 2:
         format = m_strEnglishTextBfl;
         sprintf(m_stringDest, format, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
-        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[0], m_stringDest);
+        CGenericFileLoader::LoadIntoFileRecord(&m_languageFiles[0], m_stringDest);
         break;
     default:
         format = m_strPolishTextBfl;
         sprintf(m_stringDest, format, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
-        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[0], m_stringDest);
+        CGenericFileLoader::LoadIntoFileRecord(&m_languageFiles[0], m_stringDest);
         break;
     }
     CGame::RegisterCallback(ReleaseLanguageFiles, NULL);
@@ -516,7 +516,7 @@ BYTE CFrontend::m_unk0x0065aa71;
 // "INVALID TEXT STRING" placeholder.
 // Selects the language of the text strings.
 // FUNCTION: CMR2 0x004a3c30
-void FUN_004a3c30(int language)
+void Frontend_SelectTextLanguage(int language)
 {
     if (language < CFrontend::m_unk0x0065aa71) {
         CFrontend::m_unk0x0065aa70 = language;
@@ -524,11 +524,11 @@ void FUN_004a3c30(int language)
     }
 }
 
-BYTE *FUN_004a3d50(BYTE *p, char next);
+BYTE *Frontend_TerminateTextLine(BYTE *p, char next);
 
 // Splits the loaded text files (one per language) into the string table.
 // FUNCTION: CMR2 0x004a3c90
-void CFrontend::FUN_004a3c90(int languages, int count, BYTE **pFiles)
+void CFrontend::BuildLocalizedTextStringTable(int languages, int count, BYTE **pFiles)
 {
     int i;
     int j;
@@ -546,9 +546,9 @@ void CFrontend::FUN_004a3c90(int languages, int count, BYTE **pFiles)
             for (j = 0; j < count; j++) {
                 m_textStrings[row + j] = (char *)p;
                 if (j < count - 1)
-                    p = FUN_004a3d50(p, 1);
+                    p = Frontend_TerminateTextLine(p, 1);
                 else
-                    FUN_004a3d50(p, 0);
+                    Frontend_TerminateTextLine(p, 0);
             }
         }
     }
@@ -572,25 +572,25 @@ BYTE g_unk0x00817fec;
 unsigned int g_unk0x00817ff4;
 
 // FUNCTION: CMR2 0x004d20c0
-void CFrontend::FUN_004d20c0(void)
+void CFrontend::SaveFrontendCallbackDepth(void)
 {
     g_unk0x00817fe8 = CGame::GetCallbackCount();
 }
 
 // FUNCTION: CMR2 0x004d20d0
-unsigned int CFrontend::FUN_004d20d0(void)
+unsigned int CFrontend::GetFrontendElapsedMilliseconds(void)
 {
     return g_unk0x00817ff4;
 }
 
 // FUNCTION: CMR2 0x004d20e0
-int CFrontend::FUN_004d20e0(void)
+int CFrontend::GetFrontendTimestamp(void)
 {
     return g_unk0x00817fe4;
 }
 
 // FUNCTION: CMR2 0x004d20f0
-BYTE CFrontend::FUN_004d20f0(void)
+BYTE CFrontend::GetFrontendIntroFlag(void)
 {
     return g_unk0x00817fec;
 }
@@ -618,7 +618,7 @@ extern short g_unk0x008189a8[4];
 // Height of a ripple centred on pCentre at (x, y): sine of the distance,
 // with the given phase and wavelength (all 16.16).
 // FUNCTION: CMR2 0x004d2bd0
-int FUN_004d2bd0(int *pCentre, int x, int y, int phase, int wavelength)
+int Frontend_ComputeRippleHeight(int *pCentre, int x, int y, int phase, int wavelength)
 {
     FixVector d;
 
@@ -631,7 +631,7 @@ int FUN_004d2bd0(int *pCentre, int x, int y, int phase, int wavelength)
 // Draws the one-pixel outline of pRect (x, y, width, height) in pColour as
 // four one-pixel thick rectangles.
 // FUNCTION: CMR2 0x004d27e0
-void FUN_004d27e0(short *pRect, BYTE *pColour)
+void Frontend_DrawRectangleOutline(short *pRect, BYTE *pColour)
 {
     short rect[4];
 
@@ -694,8 +694,8 @@ void FUN_004d28c0(short x0, short y0, char *pMap)
                        (int)(__int64)((int)g_pGraphics->resX * CGraphics::m_65536));
             v = FixDiv((int)(__int64)(g_unk0x008189a8[1] * CGraphics::m_65536),
                        (int)(__int64)((int)g_pGraphics->resX * CGraphics::m_65536));
-            wave1 = FUN_004d2bd0(centre1, u, v, g_matrixPhase1, 0x20000);
-            wave = (FUN_004d2bd0(centre2, u, v, g_matrixPhase2, 0x140000) + wave1) / 2;
+            wave1 = Frontend_ComputeRippleHeight(centre1, u, v, g_matrixPhase1, 0x20000);
+            wave = (Frontend_ComputeRippleHeight(centre2, u, v, g_matrixPhase2, 0x140000) + wave1) / 2;
             g_unk0x008189a8[0] -= FixMulShift32(0x30000, wave);
             g_unk0x008189a8[1] -= FixMulShift32(0x30000, wave);
             *(unsigned int *)colour = g_matrixColours[*pCell];
@@ -714,13 +714,13 @@ void FUN_004d28c0(short x0, short y0, char *pMap)
 BYTE g_unk0x00818848;
 
 // FUNCTION: CMR2 0x004d27d0
-BYTE FUN_004d27d0(void)
+BYTE FrontendRecords_GetProfileMode(void)
 {
     return g_unk0x00818848;
 }
 
 // FUNCTION: CMR2 0x004d2790
-void CFrontend::FUN_004d2790(void)
+void CFrontend::CacheCarClassTextLabels(void)
 {
     CFrontend::m_unk0x0081853c = GetTextString(0xd0);
     g_unk0x00818540 = GetTextString(0xd1);
@@ -730,7 +730,7 @@ void CFrontend::FUN_004d2790(void)
 // Releases the text string table.
 // Terminates the line at p and, when asked, returns the start of the next one.
 // FUNCTION: CMR2 0x004a3d50
-BYTE *FUN_004a3d50(BYTE *p, char next)
+BYTE *Frontend_TerminateTextLine(BYTE *p, char next)
 {
     while (*p >= 0x20)
         p++;
@@ -745,7 +745,7 @@ BYTE *FUN_004a3d50(BYTE *p, char next)
 }
 
 // FUNCTION: CMR2 0x004a3d80
-void CFrontend::FUN_004a3d80(void)
+void CFrontend::FreeLocalizedTextStrings(void)
 {
     if (m_textStrings != NULL) {
         CFileBuffer::FreeGenericFileBuffer(m_textStrings);
@@ -763,32 +763,32 @@ int g_unk0x00817404;
 int g_unk0x008173fc;
 
 // FUNCTION: CMR2 0x004cfe50
-unsigned int CFrontend::FUN_004cfe50(void)
+unsigned int CFrontend::GetCurrentRecordOptionValue(void)
 {
     GameInfo0xa4 *pInfo;
     int index;
 
-    pInfo = CGameInfo::FUN_00405fe0();
+    pInfo = CGameInfo::GetGameInfoFieldA4Address();
     index = g_unk0x00817404 * 3 + g_unk0x008173fc;
     return (*(unsigned int *)((char *)pInfo + index * 8 + 0x1214) >> 7) & 0xffff;
 }
 
 // FUNCTION: CMR2 0x0040ede0
-char *CFrontend::FUN_0040ede0(int offset)
+char *CFrontend::GetModeSpecificCountryText(int offset)
 {
-    if (CGame::FUN_004057d0() == 0)
+    if (CGame::GetFrontendResourceMode() == 0)
         return GetTextString(offset + 0x98);
-    if (CGame::FUN_004057d0() == 3)
+    if (CGame::GetFrontendResourceMode() == 3)
         return GetTextString(offset + 0xc2);
     return NULL;
 }
 
 // FUNCTION: CMR2 0x0040ee20
-char *CFrontend::FUN_0040ee20(int offset)
+char *CFrontend::GetModeSpecificStageText(int offset)
 {
-    if (CGame::FUN_004057d0() == 0)
+    if (CGame::GetFrontendResourceMode() == 0)
         return GetTextString(offset + 0xae);
-    if (CGame::FUN_004057d0() == 3)
+    if (CGame::GetFrontendResourceMode() == 3)
         return GetTextString(offset + 0xd8);
     return NULL;
 }
@@ -829,20 +829,20 @@ short g_unk0x00817416;
 // GLOBAL: CMR2 0x00817418
 short g_unk0x00817418;
 
-void FUN_004d0230(void);
+void Frontend_StoreCurrentCountryStageSelection(void);
 
 // Reads the player/mode values of the game info block, clears the per-device
 // input state for every device and resets the global key state.
 // FUNCTION: CMR2 0x004cf060
-void CFrontend::FUN_004cf060(void)
+void CFrontend::ResetFrontendPlayerInputState(void)
 {
     InputKeyState *pState;
     int i;
 
-    g_unk0x008173f0 = CGameInfo::FUN_00405d70() & 0xff;
-    g_unk0x008173f4 = CGameInfo::FUN_00405d80() & 0xff;
-    g_unk0x00817400 = CGameInfo::FUN_00405d90() & 0xff;
-    FUN_004d0230();
+    g_unk0x008173f0 = CGameInfo::GetConfiguredPlayerCount() & 0xff;
+    g_unk0x008173f4 = CGameInfo::GetConfiguredGameMode() & 0xff;
+    g_unk0x00817400 = CGameInfo::GetConfiguredDifficulty() & 0xff;
+    Frontend_StoreCurrentCountryStageSelection();
     pState = (InputKeyState *)g_unk0x00817420;
     for (i = 0; i < g_unk0x008173f0; i++) {
         pState->field_0x8 = 0;
@@ -864,7 +864,7 @@ void CFrontend::FUN_004cf060(void)
 }
 
 // FUNCTION: CMR2 0x004cf0f0
-void CFrontend::FUN_004cf0f0(void)
+void CFrontend::ClearFrontendPlayerInputCounters(void)
 {
     int i;
     BYTE index;
@@ -881,12 +881,12 @@ void CFrontend::FUN_004cf0f0(void)
         g_unk0x00817410 = index;
 }
 
-void RallyData_FUN_00408fc0(int index);
+void RallyData_IncrementCategoryCounter10(int index);
 
 // Accumulates the pressed keys of every input device (and of the two global
 // flags) into the per-key counters.
 // FUNCTION: CMR2 0x004cf260
-void FUN_004cf260(void)
+void Frontend_AccumulateDeviceKeyCounters(void)
 {
     InputKeyState *pState;
     int i;
@@ -897,12 +897,12 @@ void FUN_004cf260(void)
             pState = (InputKeyState *)(g_unk0x00817420 + j * 0xa);
             if ((1 << i) & pState->field_0x4) {
                 pState->field_0x8++;
-                RallyData_FUN_00408fc0(j);
+                RallyData_IncrementCategoryCounter10(j);
             }
         }
         if ((1 << i) & g_unk0x00817414) {
             g_unk0x00817418++;
-            CGame::FUN_004057c0();
+            CGame::SetStartupFlag();
         }
     }
     for (i = 0; i < 8; i++) {
@@ -910,32 +910,32 @@ void FUN_004cf260(void)
             pState = (InputKeyState *)(g_unk0x00817420 + j * 0xa);
             if ((1 << i) & pState->field_0x6) {
                 pState->field_0x8++;
-                RallyData_FUN_00408fc0(j);
+                RallyData_IncrementCategoryCounter10(j);
             }
         }
         if ((1 << i) & g_unk0x00817416) {
             g_unk0x00817418++;
-            CGame::FUN_004057c0();
+            CGame::SetStartupFlag();
         }
     }
     for (j = 0; j < g_unk0x008173f0; j++) {
         pState = (InputKeyState *)(g_unk0x00817420 + j * 0xa);
         if (pState->field_0x2 != 0) {
             pState->field_0x8++;
-            RallyData_FUN_00408fc0(j);
+            RallyData_IncrementCategoryCounter10(j);
         }
         if (pState->field_0x3 != 0) {
             pState->field_0x8++;
-            RallyData_FUN_00408fc0(j);
+            RallyData_IncrementCategoryCounter10(j);
         }
     }
     if (g_unk0x00817412 != 0) {
         g_unk0x00817418++;
-        CGame::FUN_004057c0();
+        CGame::SetStartupFlag();
     }
     if (g_unk0x00817413 != 0) {
         g_unk0x00817418++;
-        CGame::FUN_004057c0();
+        CGame::SetStartupFlag();
     }
 }
 
@@ -944,12 +944,12 @@ int g_unk0x008173f8;
 
 // Stores the country/stage selection of the current rally data record.
 // FUNCTION: CMR2 0x004d0230
-void FUN_004d0230(void)
+void Frontend_StoreCurrentCountryStageSelection(void)
 {
     g_unk0x008173f8 = RallyDataCountryIndex() & 0xff;
     if ((BYTE)RallyData_GetFlag24() != 0) {
-        g_unk0x008173fc = RallyData_FUN_00406950() & 0xff;
-        g_unk0x00817404 = RallyData_FUN_00406940() & 0xff;
+        g_unk0x008173fc = RallyData_GetSelectionBits12To13() & 0xff;
+        g_unk0x00817404 = RallyData_GetSelectionBits10To11() & 0xff;
         return;
     }
     g_unk0x008173fc = RallyDataStageIndex() & 0xff;
@@ -979,31 +979,31 @@ Unk0x00516b40 g_unk0x00516b40 = {
 };
 
 // FUNCTION: CMR2 0x0040ee60
-void *CFrontend::FUN_0040ee60(int index)
+void *CFrontend::GetArchiveDirectoryEntry(int index)
 {
     return (void *)g_unk0x00516b40.dirs[index];
 }
 
 // FUNCTION: CMR2 0x0040ee70
-void *CFrontend::FUN_0040ee70(int index)
+void *CFrontend::GetArchivePrimaryFlagEntry(int index)
 {
     return (void *)g_unk0x00516b40.flags[index];
 }
 
 // FUNCTION: CMR2 0x0040ee80
-void *CFrontend::FUN_0040ee80(int index)
+void *CFrontend::GetArchiveSecondaryFlagEntry(int index)
 {
     return (void *)g_unk0x00516b40.flags[index + 14];
 }
 
 // FUNCTION: CMR2 0x0040ee90
-void *CFrontend::FUN_0040ee90(int index)
+void *CFrontend::GetArchivePrimaryIDEntry(int index)
 {
     return (void *)g_unk0x00516b40.ids[index];
 }
 
 // FUNCTION: CMR2 0x0040eea0
-void *CFrontend::FUN_0040eea0(int index)
+void *CFrontend::GetArchiveSecondaryIDEntry(int index)
 {
     return (void *)g_unk0x00516b40.ids[index + 22];
 }
@@ -1014,7 +1014,7 @@ struct Unk0x004a3e20 {
 };
 
 // FUNCTION: CMR2 0x004a3e20
-void FUN_004a3e20(Unk0x004a3e20 *pObject, int value)
+void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value)
 {
     if (pObject != NULL)
         pObject->field_0x118 = value;
@@ -1039,7 +1039,7 @@ char g_str0x00523bb4[8] = "ABCDEFG";
 // word of each state comes from the "keys" flag and the second from the
 // "buttons" flag, each one shifted by the current stage index.
 // FUNCTION: CMR2 0x004cf140
-void FUN_004cf140(void)
+void Frontend_MergeMenuKeysIntoPlayerState(void)
 {
     InputKeyState *pState;
     BYTE stage;
@@ -1055,11 +1055,11 @@ void FUN_004cf140(void)
     if ((BYTE)RallyData_GetFlag24()) {
         for (i = 0; i < g_unk0x008173f0; i++) {
             pState = (InputKeyState *)(g_unk0x00817420 + i * 0xa);
-            pState->field_0x4 |= (short)(FUN_00448cb0(i) << RallyData_FUN_00406950());
+            pState->field_0x4 |= (short)(StageTiming_GetFinishStateEntry(i) << RallyData_GetSelectionBits12To13());
         }
-        g_unk0x00817414 |= (short)(FUN_00448cc0() << RallyData_FUN_00406950());
+        g_unk0x00817414 |= (short)(StageTiming_GetFinishStateByte() << RallyData_GetSelectionBits12To13());
     }
-    stage = FUN_004071c0(RallyDataCountryIndex(), (char)CGameInfo::FUN_00405d90());
+    stage = RallyData_GetModeStageGroup(RallyDataCountryIndex(), (char)CGameInfo::GetConfiguredDifficulty());
     if (RallyDataStageIndex() == stage) {
         for (i = 0; i < g_unk0x008173f0; i++) {
             pState = (InputKeyState *)(g_unk0x00817420 + i * 0xa);
@@ -1071,9 +1071,9 @@ void FUN_004cf140(void)
 
 // Clears the two key fields of a device option word.
 // FUNCTION: CMR2 0x004cf390
-void FUN_004cf390(int index)
+void Frontend_ClearDeviceKeyFields(int index)
 {
-    unsigned int *pValue = (unsigned int *)FUN_004d02d0(index);
+    unsigned int *pValue = (unsigned int *)Frontend_GetDeviceSetupWord(index);
 
     if (pValue != NULL)
         *pValue &= 0xffffc3ff;
@@ -1081,9 +1081,9 @@ void FUN_004cf390(int index)
 
 // Advances the 4-bit option field of a device word; only for the first mode.
 // FUNCTION: CMR2 0x004cf3b0
-void FUN_004cf3b0(int index, int mode)
+void Frontend_AdvanceDeviceOptionNibble(int index, int mode)
 {
-    unsigned int *pValue = (unsigned int *)FUN_004d02d0(index);
+    unsigned int *pValue = (unsigned int *)Frontend_GetDeviceSetupWord(index);
 
     if (pValue != NULL && mode == 0)
         *pValue = (((*pValue & 0xfffffc00) + 0x400) ^ *pValue) & 0x3c00 ^ *pValue;
@@ -1094,7 +1094,7 @@ void FUN_004cf3b0(int index, int mode)
 // FUNCTION: CMR2 0x004cf3f0
 void FUN_004cf3f0(int index)
 {
-    BYTE *pDevice = RallyData_FUN_00408c70(index);
+    BYTE *pDevice = RallyData_GetCategoryOptionRecord(index);
 
     if (pDevice != NULL) {
         *(int *)(pDevice + 4) = 0;
@@ -1104,9 +1104,9 @@ void FUN_004cf3f0(int index)
 
 // Adds to the value field of a device record and bumps one of its three stats.
 // FUNCTION: CMR2 0x004cf420
-void FUN_004cf420(int index, int amount, int stat)
+void Frontend_AddDeviceValueAndStatistic(int index, int amount, int stat)
 {
-    BYTE *pDevice = RallyData_FUN_00408c70(index);
+    BYTE *pDevice = RallyData_GetCategoryOptionRecord(index);
 
     if (pDevice != NULL) {
         *(int *)(pDevice + 4) = *(int *)(pDevice + 4) + amount;
@@ -1115,14 +1115,14 @@ void FUN_004cf420(int index, int amount, int stat)
     }
 }
 
-// Stores a value into the option block of a device (see FUN_004d0280).
+// Stores a value into the option block of a device (see Frontend_GetDeviceOptionBlock).
 // FUNCTION: CMR2 0x004cf450
-void FUN_004cf450(int index, int arg, int value)
+void Frontend_SetDeviceOptionBlockValue(int index, int arg, int value)
 {
     int *pOption;
 
-    FUN_004d0230();
-    pOption = (int *)FUN_004d0280(index);
+    Frontend_StoreCurrentCountryStageSelection();
+    pOption = (int *)Frontend_GetDeviceOptionBlock(index);
     if (pOption != NULL)
         *pOption = value;
 }
@@ -1131,9 +1131,9 @@ void FUN_004cf450(int index, int arg, int value)
 // a 4-bit field above it, and the value in the following dword.
 struct DeviceBits4cf470 { unsigned a : 4; unsigned f : 4; unsigned b : 2; unsigned rest : 22; int value; };
 // FUNCTION: CMR2 0x004cf470
-void FUN_004cf470(int index, int value, unsigned int option, unsigned int field)
+void Frontend_SetDeviceSetupOptionFields(int index, int value, unsigned int option, unsigned int field)
 {
-    DeviceBits4cf470 *p = (DeviceBits4cf470 *)FUN_004d02d0(index);
+    DeviceBits4cf470 *p = (DeviceBits4cf470 *)Frontend_GetDeviceSetupWord(index);
     if (p != NULL) {
         p->a = option;
         p->f = field;
@@ -1147,9 +1147,9 @@ void FUN_004cf470(int index, int value, unsigned int option, unsigned int field)
 // Writes the two 6-bit fields of a device record and clears its second dword.
 struct DeviceBits4cf4d0 { unsigned a : 4; unsigned b : 2; unsigned f : 8; unsigned rest : 18; int extra; };
 // FUNCTION: CMR2 0x004cf4d0
-void FUN_004cf4d0(int index, unsigned int value, unsigned int field)
+void Frontend_SetDeviceRecordOptionFields(int index, unsigned int value, unsigned int field)
 {
-    DeviceBits4cf4d0 *p = (DeviceBits4cf4d0 *)RallyData_FUN_00408c70(index);
+    DeviceBits4cf4d0 *p = (DeviceBits4cf4d0 *)RallyData_GetCategoryOptionRecord(index);
 
     if (p != NULL) {
         p->f = field;
@@ -1163,12 +1163,12 @@ void FUN_004cf4d0(int index, unsigned int value, unsigned int field)
 
 // Stores a value into the extra dword of a device record.
 // FUNCTION: CMR2 0x004cf530
-void FUN_004cf530(int index, int value)
+void Frontend_SetDeviceExtraValue(int index, int value)
 {
     int *pField;
 
-    FUN_004d0230();
-    pField = (int *)(RallyData_FUN_00408c70(index) + 0x20);
+    Frontend_StoreCurrentCountryStageSelection();
+    pField = (int *)(RallyData_GetCategoryOptionRecord(index) + 0x20);
     if (pField != NULL)
         *pField = value;
 }
@@ -1177,9 +1177,9 @@ void FUN_004cf530(int index, int value)
 // dword.
 struct DeviceBits4cf550 { unsigned a : 3; unsigned b : 2; unsigned f : 6; unsigned rest : 21; int extra; };
 // FUNCTION: CMR2 0x004cf550
-void FUN_004cf550(int index, unsigned int value, unsigned int field, int extra)
+void Frontend_SetSecondaryRecordOptionFields(int index, unsigned int value, unsigned int field, int extra)
 {
-    DeviceBits4cf550 *p = (DeviceBits4cf550 *)(RallyData_FUN_00408c70(index) + 0x18);
+    DeviceBits4cf550 *p = (DeviceBits4cf550 *)(RallyData_GetCategoryOptionRecord(index) + 0x18);
     if (p != NULL) {
         p->extra = extra;
         p->f = field;
@@ -1193,23 +1193,23 @@ void FUN_004cf550(int index, unsigned int value, unsigned int field, int extra)
 // Rebuilds the option value of a device into the stage setup block when it is
 // better than the stored one, and marks the player's key state as dirty.
 // FUNCTION: CMR2 0x004cf5b0
-BYTE FUN_004cf5b0(int index, int pBlock)
+BYTE Frontend_MergeBestDeviceStageOption(int index, int pBlock)
 {
     unsigned int *pOption;
     unsigned int *pEntry;
     unsigned int *pValue;
     unsigned int value;
 
-    pOption = (unsigned int *)FUN_004d0280(index);
+    pOption = (unsigned int *)Frontend_GetDeviceOptionBlock(index);
     pEntry = (unsigned int *)(pBlock + 0x150 + (g_unk0x008173fc + g_unk0x008173f8 * 0xc) * 8);
     pValue = pEntry + 1;
     if (pOption != NULL && (*pOption < *pValue || (*pEntry & 0x80) == 0)) {
         *pEntry |= 0x80;
         value = rand();
         *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
-        FUN_004d0300((int *)pValue, (int *)pOption);
-        *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
-        *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+        Frontend_CopyOptionWord((int *)pValue, (int *)pOption);
+        *pEntry = (RallyData_GetDriverRecordSelectionValue((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
+        *pEntry = (RallyData_GetDriverOrCategoryFlag((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
         RallyData_MarkTyresChanged(index);
         g_unk0x00817420[index * 0xa] = 1;
         return 1;
@@ -1217,10 +1217,10 @@ BYTE FUN_004cf5b0(int index, int pBlock)
     return 0;
 }
 
-// Same as FUN_004cf5b0 for the button option word (uses the record option
-// block of FUN_004d02d0 and the three-field merge of FUN_004d0310).
+// Same as Frontend_MergeBestDeviceStageOption for the button option word (uses the record option
+// block of Frontend_GetDeviceSetupWord and the three-field merge of Frontend_MergeFourNibbleOptionFields).
 // FUNCTION: CMR2 0x004cf660
-BYTE FUN_004cf660(int index, int pBlock)
+BYTE Frontend_MergeBestDeviceButtonOption(int index, int pBlock)
 {
     unsigned int *pOption;
     unsigned int *pEntry;
@@ -1228,7 +1228,7 @@ BYTE FUN_004cf660(int index, int pBlock)
     unsigned int value;
     BOOL better;
 
-    pOption = (unsigned int *)FUN_004d02d0(index);
+    pOption = (unsigned int *)Frontend_GetDeviceSetupWord(index);
     better = FALSE;
     pEntry = (unsigned int *)(pBlock + (g_unk0x008173f8 * 3 + 4 + g_unk0x00817400) * 0xc);
     pValue = pEntry + 1;
@@ -1241,9 +1241,9 @@ BYTE FUN_004cf660(int index, int pBlock)
             *pEntry |= 0x80;
             value = rand();
             *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
-            FUN_004d0310((int *)pValue, (int *)pOption);
-            *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
-            *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+            Frontend_MergeFourNibbleOptionFields((int *)pValue, (int *)pOption);
+            *pEntry = (RallyData_GetDriverRecordSelectionValue((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
+            *pEntry = (RallyData_GetDriverOrCategoryFlag((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
             RallyData_MarkTyresChanged(index);
             g_unk0x00817420[index * 0xa + 1] = 1;
             return 1;
@@ -1294,19 +1294,19 @@ struct RecordEntry {
     int field_0x8;
 };
 
-// Same as FUN_004cf5b0 for the per-player word of the second dword, using the
-// two 4-bit fields merge of FUN_004d0370.
+// Same as Frontend_MergeBestDeviceStageOption for the per-player word of the second dword, using the
+// two 4-bit fields merge of Frontend_MergeFourTwoSixBitOptionFields.
 // match 59%: register allocation of the device pointer and of the "better" flag
 // differs (the original keeps more values on the stack).
 // FUNCTION: CMR2 0x004cf740
-BYTE FUN_004cf740(int index, int pBlock)
+BYTE Frontend_MergeBestPlayerStageOption(int index, int pBlock)
 {
     DeviceResult *pDevice;
     RecordHeader *pEntry;
     DeviceResult *pValue;
     BOOL better;
 
-    pDevice = (DeviceResult *)RallyData_FUN_00408c70(index);
+    pDevice = (DeviceResult *)RallyData_GetCategoryOptionRecord(index);
     if (pDevice != NULL) {
         pEntry = (RecordHeader *)(g_unk0x00817400 * 0x10 + pBlock);
         pValue = (DeviceResult *)(pEntry + 1);
@@ -1316,9 +1316,9 @@ BYTE FUN_004cf740(int index, int pBlock)
         if ((pDevice->level == pValue->level && pDevice->score > pValue->score) || better || !pEntry->used) {
             pEntry->used = 1;
             pEntry->tag = rand();
-            FUN_004d0370((int *)pValue, (int *)pDevice);
-            pEntry->car = RallyData_FUN_004086b0((BYTE)index);
-            pEntry->bit6 = FUN_004086f0((BYTE)index);
+            Frontend_MergeFourTwoSixBitOptionFields((int *)pValue, (int *)pDevice);
+            pEntry->car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
+            pEntry->bit6 = RallyData_GetDriverOrCategoryFlag((BYTE)index);
             RallyData_MarkTyresChanged(index);
             g_unk0x00817420[index * 0xa + 2] = 1;
             return 1;
@@ -1330,7 +1330,7 @@ BYTE FUN_004cf740(int index, int pBlock)
 // Rebuilds the arcade-record option value of a device from the category record
 // (pointer at +0x20) into the arcade block.
 // FUNCTION: CMR2 0x004cf830
-BYTE FUN_004cf830(int index)
+BYTE Frontend_MergeBestArcadeRecordOption(int index)
 {
     int base;
     unsigned int *pDevice;
@@ -1338,33 +1338,33 @@ BYTE FUN_004cf830(int index)
     unsigned int *pValue;
     unsigned int value;
 
-    base = (int)RallyData_FUN_00408cb0(index);
-    pDevice = (unsigned int *)((int)RallyData_FUN_00408c70(index) + 0x20);
+    base = (int)RallyData_GetAvailableCategorySaveRecord(index);
+    pDevice = (unsigned int *)((int)RallyData_GetCategoryOptionRecord(index) + 0x20);
     pEntry = (unsigned int *)(base + 0x4bc + (g_unk0x008173fc + g_unk0x00817404 * 3) * 8);
     pValue = pEntry + 1;
     if (pDevice != NULL && (*pDevice < *pValue || (*pEntry & 0x80) == 0)) {
         *pEntry |= 0x80;
         value = rand();
         *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
-        FUN_004d0300((int *)pValue, (int *)pDevice);
-        *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
-        *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+        Frontend_CopyOptionWord((int *)pValue, (int *)pDevice);
+        *pEntry = (RallyData_GetDriverRecordSelectionValue((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
+        *pEntry = (RallyData_GetDriverOrCategoryFlag((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
         RallyData_MarkTyresChanged(index);
         return 1;
     }
     return 0;
 }
 
-// Same as FUN_004cf740 for the 3-bit/6-bit option word at +0x18, using the
-// three 3-bit fields merge of FUN_004d03b0.
+// Same as Frontend_MergeBestPlayerStageOption for the 3-bit/6-bit option word at +0x18, using the
+// three 3-bit fields merge of Frontend_MergeThreeTwoSixBitOptionFields.
 // FUNCTION: CMR2 0x004cf8e0
-BYTE FUN_004cf8e0(int index, int pBlock)
+BYTE Frontend_MergeBestSecondaryPlayerOption(int index, int pBlock)
 {
     RecordResult *pValue;
     RecordEntry *pEntry;
     BOOL better;
 
-    pValue = (RecordResult *)(RallyData_FUN_00408c70(index) + 0x18);
+    pValue = (RecordResult *)(RallyData_GetCategoryOptionRecord(index) + 0x18);
     pEntry = (RecordEntry *)(pBlock + (g_unk0x00817404 * 3 + 0x5c + g_unk0x00817400) * 0xc);
     better = FALSE;
     if (pValue != NULL) {
@@ -1374,9 +1374,9 @@ BYTE FUN_004cf8e0(int index, int pBlock)
             !pEntry->header.used) {
             pEntry->header.used = 1;
             pEntry->header.tag = rand();
-            FUN_004d03b0((int *)&pEntry->result, (int *)pValue);
-            pEntry->header.car = RallyData_FUN_004086b0((BYTE)index);
-            pEntry->header.bit6 = FUN_004086f0((BYTE)index);
+            Frontend_MergeThreeTwoSixBitOptionFields((int *)&pEntry->result, (int *)pValue);
+            pEntry->header.car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
+            pEntry->header.bit6 = RallyData_GetDriverOrCategoryFlag((BYTE)index);
             RallyData_MarkTyresChanged(index);
             g_unk0x00817420[index * 0xa + 3] = 1;
             return 1;
@@ -1387,12 +1387,12 @@ BYTE FUN_004cf8e0(int index, int pBlock)
 
 // Keeps the lowest option value of a device in the running minimum.
 // FUNCTION: CMR2 0x004cf9d0
-int FUN_004cf9d0(int param_1, int param_2)
+int Frontend_AccumulateMinimumDeviceOption(int param_1, int param_2)
 {
     unsigned int *pOption;
 
-    RallyData_FUN_00408c70(param_2);
-    pOption = (unsigned int *)FUN_004d0280(param_2);
+    RallyData_GetCategoryOptionRecord(param_2);
+    pOption = (unsigned int *)Frontend_GetDeviceOptionBlock(param_2);
     if (pOption != NULL && *pOption < (unsigned int)g_unk0x00817570) {
         g_unk0x00817570 = *pOption;
         return 1;
@@ -1405,7 +1405,7 @@ int FUN_004cf9d0(int param_1, int param_2)
 // match 70%: register allocation and the stack frame differ (the original uses
 // push ecx where we allocate two slots); the code is the same.
 // FUNCTION: CMR2 0x004cfa10
-int FUN_004cfa10(int param_1, int param_2, char *pName)
+int Frontend_CopyImprovedStageRecordAndSplits(int param_1, int param_2, char *pName)
 {
     GameInfo0xa4 *pInfo;
     GameInfo0xa4SubStruct8 *pRecord;
@@ -1414,20 +1414,20 @@ int FUN_004cfa10(int param_1, int param_2, char *pName)
     int index;
     int i;
 
-    RallyData_FUN_00408c70(param_2);
-    pOption = (unsigned int *)FUN_004d0280(param_2);
-    pInfo = CGameInfo::FUN_00405fe0();
+    RallyData_GetCategoryOptionRecord(param_2);
+    pOption = (unsigned int *)Frontend_GetDeviceOptionBlock(param_2);
+    pInfo = CGameInfo::GetGameInfoFieldA4Address();
     index = g_unk0x008173fc + g_unk0x008173f8 * 0xb;
     pSplits = pInfo->rallyStageRecordSplits[index];
     pRecord = &pInfo->rallyStageRecordTimes[index];
     if (pOption == NULL || *pOption >= pRecord->bits.time)
         return 0;
     strcpy(pRecord->ident, pName);
-    pRecord->bits.car = RallyData_FUN_004086b0((BYTE)param_2);
-    pRecord->bits.manual = FUN_004086f0((BYTE)param_2);
+    pRecord->bits.car = RallyData_GetDriverRecordSelectionValue((BYTE)param_2);
+    pRecord->bits.manual = RallyData_GetDriverOrCategoryFlag((BYTE)param_2);
     pRecord->bits.time = *pOption;
     for (i = 0; i < 10; i++) {
-        unsigned short value = (unsigned short)FUN_00448680(param_1, i);
+        unsigned short value = (unsigned short)StageTiming_GetDriverSplitClock(param_1, i);
         pSplits[i] = value;
         g_unk0x00817448[i] = value;
     }
@@ -1451,9 +1451,9 @@ char FUN_004cfb30(int param1, int index, char *pName)
     int slot;
     int i;
 
-    RallyData_FUN_00408c70(index);
-    pDevice = (unsigned int *)FUN_004d02d0(index);
-    pInfo = (unsigned char *)CGameInfo::FUN_00405fe0();
+    RallyData_GetCategoryOptionRecord(index);
+    pDevice = (unsigned int *)Frontend_GetDeviceSetupWord(index);
+    pInfo = (unsigned char *)CGameInfo::GetGameInfoFieldA4Address();
     slot = 0;
     pInfo += (g_unk0x00817400 + g_unk0x008173f8 * 3) * 0x3c;
     better = 0;
@@ -1472,13 +1472,13 @@ char FUN_004cfb30(int param1, int index, char *pName)
                     GameInfo0xa4SubStruct12 *pPrev = p - 1;
 
                     for (i = 4 - slot; i != 0; i--) {
-                        FUN_004d03f0((int *)p, (int *)pPrev);
+                        Frontend_MergeNamedRecordFourBitFields((int *)p, (int *)pPrev);
                         p = pPrev;
                     }
                 }
                 strcpy(pRecord->ident, pName);
-                pRecord->bits.car = RallyData_FUN_004086b0((BYTE)index);
-                pRecord->bits.manual = FUN_004086f0((BYTE)index);
+                pRecord->bits.car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
+                pRecord->bits.manual = RallyData_GetDriverOrCategoryFlag((BYTE)index);
                 pRecord->bits.level = *pDevice;
                 pRecord->value = pDevice[1];
                 pRecord->bits.extra = (*pDevice & 0x3c00) >> 10;
@@ -1516,8 +1516,8 @@ int FUN_004cfc90(int param1, int index, char *pName)
     int k;
     int i;
 
-    pDevice = (unsigned int *)RallyData_FUN_00408c70(index);
-    pRecords = (GameInfo0xa4SubStruct12 *)CGameInfo::FUN_00405fe0();
+    pDevice = (unsigned int *)RallyData_GetCategoryOptionRecord(index);
+    pRecords = (GameInfo0xa4SubStruct12 *)CGameInfo::GetGameInfoFieldA4Address();
     better = 0;
     slot = 0;
     pRecords = (GameInfo0xa4SubStruct12 *)((BYTE *)pRecords + g_unk0x00817400 * 0x3c);
@@ -1529,10 +1529,10 @@ int FUN_004cfc90(int param1, int index, char *pName)
             if ((LEVEL_BITS(pRecord).level == (*pDevice & 0xf) &&
                  (*pDevice & 0x3fc0) < ((pRecord->flags >> 1) & 0x1fc0)) || better) {
                 for (i = 4; i > slot; i--)
-                    FUN_004d0470((int *)&pRecords[i], (int *)&pRecords[i - 1]);
+                    Frontend_MergeNamedRecordSevenBitFields((int *)&pRecords[i], (int *)&pRecords[i - 1]);
                 strcpy(pRecord->ident, pName);
-                LEVEL_BITS(pRecord).car = RallyData_FUN_004086b0((BYTE)index);
-                LEVEL_BITS(pRecord).manual = FUN_004086f0((BYTE)index);
+                LEVEL_BITS(pRecord).car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
+                LEVEL_BITS(pRecord).manual = RallyData_GetDriverOrCategoryFlag((BYTE)index);
                 LEVEL_BITS(pRecord).level = *pDevice;
                 LEVEL_BITS(pRecord).score = *pDevice >> 6;
                 for (k = 0; k < 3; k++)
@@ -1549,12 +1549,12 @@ int FUN_004cfc90(int param1, int index, char *pName)
 
 // Keeps the lowest arcade-record option value in the running minimum.
 // FUNCTION: CMR2 0x004cfe20
-int FUN_004cfe20(int param_1, int param_2)
+int Frontend_AccumulateMinimumArcadeOption(int param_1, int param_2)
 {
     unsigned int *pDevice;
     unsigned int value;
 
-    pDevice = (unsigned int *)((int)RallyData_FUN_00408c70(param_2) + 0x20);
+    pDevice = (unsigned int *)((int)RallyData_GetCategoryOptionRecord(param_2) + 0x20);
     if (pDevice != NULL) {
         value = *pDevice;
         if (value < (unsigned int)g_unk0x00817570) {
@@ -1582,11 +1582,11 @@ int FUN_004cfe80(int param_1, int param_2)
     int group;
     int i;
 
-    pOption = (unsigned int *)RallyData_FUN_00408c70(param_2);
-    pInfo = CGameInfo::FUN_00405fe0();
+    pOption = (unsigned int *)RallyData_GetCategoryOptionRecord(param_2);
+    pInfo = CGameInfo::GetGameInfoFieldA4Address();
     stage = g_unk0x008173fc;
     group = g_unk0x00817404;
-    FUN_004582d0(param_1);
+    StageTiming_GetCheckpointField2(param_1);
     strcpy(placeholder, g_str0x00523bb4);
     pSplits = pInfo->arcadeRecordSplits[stage + group * 3];
     pTime = (unsigned int *)((int)pOption + 0x20);
@@ -1597,16 +1597,16 @@ int FUN_004cfe80(int param_1, int param_2)
         if (value < ((pRecord->value >> 7) & 0xffff)) {
             pRecord->value = (value & 0xffff) << 7 | (pRecord->value & 0xff80007f);
             for (i = 0; i < 6; i++) {
-                unsigned short split = (unsigned short)FUN_00448240(param_1, i);
+                unsigned short split = (unsigned short)StageTiming_GetCarSplitMarker(param_1, i);
                 pSplits[i] = split;
                 g_unk0x00817448[i] = split;
             }
             value = (pRecord->value >> 7) & 0xffff;
-            i = FUN_004583a0();
+            i = Stage_GetSplitPositionCount();
             g_unk0x00817448[i] = value;
             strcpy(pRecord->ident, (char *)RallyData_GetRecord((BYTE)param_2));
-            pRecord->value = (RallyData_FUN_004086b0((BYTE)param_2) & 0x3f) | (pRecord->value & 0xffffffc0);
-            pRecord->value = (FUN_004086f0((BYTE)param_2) & 1) << 6 | (pRecord->value & 0xffffffbf);
+            pRecord->value = (RallyData_GetDriverRecordSelectionValue((BYTE)param_2) & 0x3f) | (pRecord->value & 0xffffffc0);
+            pRecord->value = (RallyData_GetDriverOrCategoryFlag((BYTE)param_2) & 1) << 6 | (pRecord->value & 0xffffffbf);
             return 1;
         }
     }
@@ -1629,8 +1629,8 @@ char FUN_004cfff0(int param1, int index, char *pName)
     int slot;
     int i;
 
-    pDevice = (RecordResult *)((char *)RallyData_FUN_00408c70(index) + 0x18);
-    pInfo = (unsigned char *)CGameInfo::FUN_00405fe0();
+    pDevice = (RecordResult *)((char *)RallyData_GetCategoryOptionRecord(index) + 0x18);
+    pInfo = (unsigned char *)CGameInfo::GetGameInfoFieldA4Address();
     better = 0;
     slot = 0;
     pInfo += (g_unk0x00817400 + g_unk0x00817404 * 3) * 0x3c;
@@ -1649,13 +1649,13 @@ char FUN_004cfff0(int param1, int index, char *pName)
                     GameInfo0xa4SubStruct12 *pPrev = pMove - 1;
 
                     for (i = 4 - slot; i != 0; i--) {
-                        FUN_004d0500((int *)pMove, (int *)pPrev);
+                        Frontend_MergeNamedRecordSixBitFields((int *)pMove, (int *)pPrev);
                         pMove = pPrev;
                     }
                 }
                 strcpy(pRecord->ident, pName);
-                SCORE_BITS(pRecord).car = RallyData_FUN_004086b0((BYTE)index);
-                SCORE_BITS(pRecord).manual = FUN_004086f0((BYTE)index);
+                SCORE_BITS(pRecord).car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
+                SCORE_BITS(pRecord).manual = RallyData_GetDriverOrCategoryFlag((BYTE)index);
                 SCORE_BITS(pRecord).level = pDevice->level;
                 SCORE_BITS(pRecord).score = pDevice->score;
                 pRecord->value = ((unsigned int *)pDevice)[1];
@@ -1674,16 +1674,16 @@ char FUN_004cfff0(int param1, int index, char *pName)
 // Loads the current set of split times (rally or arcade) into the mirror array
 // and resets the running minimum to a whole stage length.
 // FUNCTION: CMR2 0x004d0180
-void FUN_004d0180(void)
+void Frontend_LoadSplitTimeMirror(void)
 {
     GameInfo0xa4 *pInfo;
     int *pDest;
     int index;
     int i;
 
-    pInfo = CGameInfo::FUN_00405fe0();
+    pInfo = CGameInfo::GetGameInfoFieldA4Address();
     if ((BYTE)RallyData_GetFlag23()) {
-        FUN_004d0230();
+        Frontend_StoreCurrentCountryStageSelection();
         i = 0;
         pDest = g_unk0x00817448;
         do {
@@ -1704,9 +1704,9 @@ void FUN_004d0180(void)
     g_unk0x00817570 = 360000;
 }
 
-// Stores a value into the option block of the given device (see FUN_004d0280).
+// Stores a value into the option block of the given device (see Frontend_GetDeviceOptionBlock).
 // FUNCTION: CMR2 0x004d0220
-int FUN_004d0220(int index)
+int Frontend_StoreSelectedDeviceOption(int index)
 {
     return g_unk0x00817448[index];
 }
@@ -1714,9 +1714,9 @@ int FUN_004d0220(int index)
 // Returns the option block of a device when the current menu mode has one
 // (five option words per device), or NULL.
 // FUNCTION: CMR2 0x004d0280
-BYTE *FUN_004d0280(int index)
+BYTE *Frontend_GetDeviceOptionBlock(int index)
 {
-    BYTE *pDevice = RallyData_FUN_00408c70(index);
+    BYTE *pDevice = RallyData_GetCategoryOptionRecord(index);
 
     switch (g_unk0x008173f4) {
     case 0:
@@ -1734,9 +1734,9 @@ BYTE *FUN_004d0280(int index)
 // Returns the setup word of a device in the single-player and the first
 // multi-player modes.
 // FUNCTION: CMR2 0x004d02d0
-BYTE *FUN_004d02d0(int index)
+BYTE *Frontend_GetDeviceSetupWord(int index)
 {
-    BYTE *pDevice = RallyData_FUN_00408c70(index);
+    BYTE *pDevice = RallyData_GetCategoryOptionRecord(index);
 
     if (g_unk0x008173f4 >= 0 && (g_unk0x008173f4 <= 1 || g_unk0x008173f4 == 8))
         return pDevice + 0xc;
@@ -1745,14 +1745,14 @@ BYTE *FUN_004d02d0(int index)
 
 // Copies one 32-bit option word.
 // FUNCTION: CMR2 0x004d0300
-void FUN_004d0300(int *pDest, int *pSource)
+void Frontend_CopyOptionWord(int *pDest, int *pSource)
 {
     *pDest = *pSource;
 }
 
 // Merges the four 4-bit fields of a source word into a destination word.
 // FUNCTION: CMR2 0x004d0310
-void FUN_004d0310(int *pDest, int *pSource)
+void Frontend_MergeFourNibbleOptionFields(int *pDest, int *pSource)
 {
     pDest[1] = pSource[1];
     *pDest = (((*pDest ^ *pSource) & 0xf) ^ *pDest);
@@ -1764,7 +1764,7 @@ void FUN_004d0310(int *pDest, int *pSource)
 // Merges the 4-bit, 2-bit and 6-bit fields of a source word into a
 // destination word.
 // FUNCTION: CMR2 0x004d0370
-void FUN_004d0370(int *pDest, int *pSource)
+void Frontend_MergeFourTwoSixBitOptionFields(int *pDest, int *pSource)
 {
     pDest[1] = pSource[1];
     *pDest = (((*pDest ^ *pSource) & 0xf) ^ *pDest);
@@ -1775,7 +1775,7 @@ void FUN_004d0370(int *pDest, int *pSource)
 // Merges the 3-bit, 2-bit and 6-bit fields of a source word into a
 // destination word.
 // FUNCTION: CMR2 0x004d03b0
-void FUN_004d03b0(int *pDest, int *pSource)
+void Frontend_MergeThreeTwoSixBitOptionFields(int *pDest, int *pSource)
 {
     pDest[1] = pSource[1];
     *pDest = (((*pDest ^ *pSource) & 7) ^ *pDest);
@@ -1786,7 +1786,7 @@ void FUN_004d03b0(int *pDest, int *pSource)
 // Copies a record name and merges the 6-bit, 1-bit, 4-bit and 4-bit fields of
 // the source word into the destination word.
 // FUNCTION: CMR2 0x004d03f0
-void FUN_004d03f0(int *pDest, int *pSource)
+void Frontend_MergeNamedRecordFourBitFields(int *pDest, int *pSource)
 {
     strcpy((char *)pDest, (char *)pSource);
     pDest[1] = (((pDest[1] ^ pSource[1]) & 0x3f) ^ pDest[1]);
@@ -1799,7 +1799,7 @@ void FUN_004d03f0(int *pDest, int *pSource)
 // Copies a record name and merges the 6-bit, 1-bit, 7-bit and 2-bit fields of
 // the source word into the destination word, plus three trailing bytes.
 // FUNCTION: CMR2 0x004d0470
-void FUN_004d0470(int *pDest, int *pSource)
+void Frontend_MergeNamedRecordSevenBitFields(int *pDest, int *pSource)
 {
     char *pDestBytes = (char *)pDest;
     char *pSourceBytes = (char *)pSource;
@@ -1817,7 +1817,7 @@ void FUN_004d0470(int *pDest, int *pSource)
 // Copies a record name and merges the 6-bit, 1-bit, 6-bit and 3-bit fields of
 // the source word into the destination word.
 // FUNCTION: CMR2 0x004d0500
-void FUN_004d0500(int *pDest, int *pSource)
+void Frontend_MergeNamedRecordSixBitFields(int *pDest, int *pSource)
 {
     strcpy((char *)pDest, (char *)pSource);
     pDest[1] = (((pDest[1] ^ pSource[1]) & 0x3f) ^ pDest[1]);
@@ -1828,9 +1828,9 @@ void FUN_004d0500(int *pDest, int *pSource)
 }
 
 // cross-range: 0x4d0770 belongs to the Game.cpp range but is only used by
-// FUN_004d2070 here; it returns the callback machine state block.
+// Frontend_SetDebugOverlayChannels here; it returns the callback machine state block.
 // FUNCTION: CMR2 0x004d0770
-Unk0049c2c0 *FUN_004d0770(void)
+Unk0049c2c0 *Frontend_GetOverlayCallbackState(void)
 {
     return &CGame::m_unk0x00817da0;
 }
@@ -1838,11 +1838,11 @@ Unk0049c2c0 *FUN_004d0770(void)
 // Enables/disables the debug overlay channels and pushes the new flags into
 // the grouped callback machine.
 // FUNCTION: CMR2 0x004d2070
-void FUN_004d2070(BYTE param1, BYTE param2, BYTE param3)
+void Frontend_SetDebugOverlayChannels(BYTE param1, BYTE param2, BYTE param3)
 {
     Unk0049c2c0 *p;
 
-    p = (Unk0049c2c0 *)FUN_004d0770();
+    p = (Unk0049c2c0 *)Frontend_GetOverlayCallbackState();
     CGame::m_unk0x00523d68 = param1;
     CGame::m_unk0x008180f9 = param2;
     g_unk0x008180fa = param3;

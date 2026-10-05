@@ -62,13 +62,13 @@ void Car_GetViewPositionDelta(FixVector *pOut, unsigned int view)
 }
 
 // FUNCTION: CMR2 0x00422f90
-void FUN_00422f90(BYTE index, int value)
+void View_SetDistanceOverride(BYTE index, int value)
 {
     g_unk0x00538e04[index] = value;
 }
 
 // FUNCTION: CMR2 0x00422f50
-int FUN_00422f50(BYTE index)
+int View_GetActiveCameraMode(BYTE index)
 {
     if (*(int *)(g_unk0x00538d2c + index * 100) != 8)
         return *(int *)(g_unk0x0053901c + ((unsigned int)g_unk0x00538e0c[index] + index * 2) * 100);
@@ -76,14 +76,14 @@ int FUN_00422f50(BYTE index)
 }
 
 // FUNCTION: CMR2 0x00422fb0
-BYTE FUN_00422fb0(BYTE index)
+BYTE View_GetActiveCameraFlags(BYTE index)
 {
     return g_unk0x0053901a[((unsigned int)g_unk0x00538e0c[index] + index * 2) * 100];
 }
 
 // match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423d70
-FixMatrix *FUN_00423d70(BYTE index)
+FixMatrix *Car_GetCameraReferenceMatrix(BYTE index)
 {
     BYTE state = (BYTE)RallyDataState();
     return index < state ? &g_unk0x00538ca0[index] : Car_Get(index)->pWorld;
@@ -118,9 +118,9 @@ void Car_AllocateTable(int count)
     CGame::RegisterCallback(Car_FreeTable, NULL);
 }
 
-int FUN_0040b010(int index);
-BYTE *FUN_0041f350(int index);
-unsigned int FUN_00409cb0(int index);
+int NetPlayers_GetPlayerField8(int index);
+BYTE *Race_GetPlayerRecordPointer(int index);
+unsigned int NetPlayers_IsPlayerPresent(int index);
 void Car_MarkHiddenFromCameras(Car *pCar);
 extern short g_unk0x0053a314[8];
 extern short g_unk0x0053bd6c[26];
@@ -144,17 +144,17 @@ void Car_BuildViewOrder(void)
     int j;
     int flag;
     int pCar;
-    if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 ||
-        CGameInfo::FUN_00405d80() == 0xb || CGameInfo::FUN_00405d80() == 0xc) {
+    if (CGameInfo::GetConfiguredGameMode() == 8 || CGameInfo::GetConfiguredGameMode() == 9 ||
+        CGameInfo::GetConfiguredGameMode() == 0xb || CGameInfo::GetConfiguredGameMode() == 0xc) {
         g_carOrder[0] = 0;
         g_carOrderCount = 1;
         for (i = 0; i < 7; i++) {
             flag = 0;
-            pCar = (int)FUN_0041f350(i + 1);
+            pCar = (int)Race_GetPlayerRecordPointer(i + 1);
             if (pCar != 0 && *(int *)(pCar + 4) != 0 && *(int *)(pCar + 0xe8) != 0)
                 flag = 1;
-            if ((BYTE)FUN_00409cb0(i) != 0 || flag) {
-                g_carOrder[g_carOrderCount] = FUN_0040b010(i);
+            if ((BYTE)NetPlayers_IsPlayerPresent(i) != 0 || flag) {
+                g_carOrder[g_carOrderCount] = NetPlayers_GetPlayerField8(i);
                 g_carOrderCount++;
             }
         }
@@ -207,8 +207,8 @@ nextCar:
     }
 }
 
-unsigned char RallyData_FUN_00407e70(void);
-BYTE *FUN_0041b390(void);
+unsigned char RallyData_GetSelectionFlag26(void);
+BYTE *StageUI_GetRaceResultTable(void);
 
 // Marks which player camera records are too far from, or face away from, the
 // car. The fourth word is set when every active camera has been rejected.
@@ -229,8 +229,8 @@ void Car_MarkHiddenFromCameras(Car *pCar)
     pCar->field_0xb70 = 0;
     pCar->field_0xb6c = 0;
     *pRejected = 0;
-    if ((char)RallyData_FUN_00407e70() != 0 && **(char **)(FUN_0041b390() + 4) != '\n' &&
-        **(char **)(FUN_0041b390() + 4) != '\t' && **(char **)(FUN_0041b390() + 4) != '\r') {
+    if ((char)RallyData_GetSelectionFlag26() != 0 && **(char **)(StageUI_GetRaceResultTable() + 4) != '\n' &&
+        **(char **)(StageUI_GetRaceResultTable() + 4) != '\t' && **(char **)(StageUI_GetRaceResultTable() + 4) != '\r') {
         rejected = 0;
         count = RallyDataState() & 0xff;
         pView = (FixMatrix *)(g_unk0x00538d2c + 4);
@@ -258,9 +258,9 @@ void Car_MarkHiddenFromCameras(Car *pCar)
     }
 }
 
-unsigned char RallyData_FUN_00407e70(void);
-int FUN_004054b0(unsigned int param1);
-void FUN_0046b760(int index, int reset);
+unsigned char RallyData_GetSelectionFlag26(void);
+int InRaceMenu_IsPlayerEditingCarSetup(unsigned int param1);
+void StageObject_SetCarValuePendingFlag(int index, int reset);
 extern float g_65536f;
 
 // Picks the up to three cars to display in one split-screen view (nearest to
@@ -295,16 +295,16 @@ void View_SelectVisibleCars(unsigned int view, short *pRect)
     int sx;
     int sy;
 
-    if (CGameInfo::FUN_00406410(0x10))
+    if (CGameInfo::IsRecordFlagSet(0x10))
         return;
-    if ((char)RallyData_FUN_00407e70() && RallyData_FUN_00411880() != 0) {
-        FUN_0046b760(0, 1);
-        FUN_0046b760(1, 1);
+    if ((char)RallyData_GetSelectionFlag26() && RallyData_IsHeadToHeadRaceMode() != 0) {
+        StageObject_SetCarValuePendingFlag(0, 1);
+        StageObject_SetCarValuePendingFlag(1, 1);
         return;
     }
-    if (!((char)RallyData_FUN_00407e70() || CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 ||
-          CGameInfo::FUN_00405d80() == 10 || CGameInfo::FUN_00405d80() == 11 ||
-          CGameInfo::FUN_00405d80() == 12 || CGameInfo::FUN_00405d80() == 8))
+    if (!((char)RallyData_GetSelectionFlag26() || CGameInfo::GetConfiguredGameMode() == 8 || CGameInfo::GetConfiguredGameMode() == 9 ||
+          CGameInfo::GetConfiguredGameMode() == 10 || CGameInfo::GetConfiguredGameMode() == 11 ||
+          CGameInfo::GetConfiguredGameMode() == 12 || CGameInfo::GetConfiguredGameMode() == 8))
         return;
 
     i = g_carOrderCount;
@@ -344,14 +344,14 @@ void View_SelectVisibleCars(unsigned int view, short *pRect)
     if (g_carOrderCount > 1) {
         do {
             FixMatrix_GetPosition(&otherPos, &Car_Get(g_carOrder[j])->pNode0x71c->current);
-            FUN_004bad40(proj1, &otherPos, (BYTE *)pView);
+            FixMatrix_ProjectWorldPointToView(proj1, &otherPos, (BYTE *)pView);
             proj1[0] >>= 16;
             proj1[1] >>= 16;
             FixVecScale(&delta, &up, Car_Get(g_carOrder[j])->field_0x758);
             delta.x += otherPos.x;
             delta.y += otherPos.y;
             delta.z += otherPos.z;
-            FUN_004bad40(proj2, &delta, (BYTE *)pView);
+            FixMatrix_ProjectWorldPointToView(proj2, &delta, (BYTE *)pView);
             proj2[0] >>= 16;
             proj2[1] >>= 16;
             if ((proj1[0] == -100 && proj1[1] == -100) || (proj2[0] == -100 && proj2[1] == -100)) {
@@ -404,7 +404,7 @@ void View_SelectVisibleCars(unsigned int view, short *pRect)
     i = 0;
     if (g_carOrderCount > 0) {
         do {
-            FUN_0046b760(g_carOrder[i], visible[g_carOrder[i]] == 2);
+            StageObject_SetCarValuePendingFlag(g_carOrder[i], visible[g_carOrder[i]] == 2);
             i++;
         } while (i < g_carOrderCount);
     }
@@ -528,10 +528,10 @@ void Car_SetDifficultyHandling(int level)
     g_pCurrentCar->field_0x800 = FixMul(0x3333, level) + 0x1999;
 }
 
-BYTE *FUN_00456be0(int index);
+BYTE *StageTiming_GetStartTableRecord(int index);
 SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
 int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent);
-int RallyData_FUN_00411060(void);
+int RallyData_GetChallengeRenderState(void);
 void Car_SwapWheelTextures(char mode, SceneNode **pWheels);
 
 // Binds a car to its loaded model: body nodes, wheels and view nodes, and
@@ -539,7 +539,7 @@ void Car_SwapWheelTextures(char mode, SceneNode **pWheels);
 // FUNCTION: CMR2 0x0043e5a0
 void Car_BindModel(int model, Car *pCar)
 {
-    BYTE *pModel = FUN_00456be0(model);
+    BYTE *pModel = StageTiming_GetStartTableRecord(model);
     SceneNode *pBody = *(SceneNode **)(pModel + 8);
     SceneNode *pBody2 = *(SceneNode **)(pModel + 4);
 
@@ -551,11 +551,11 @@ void Car_BindModel(int model, Car *pCar)
     pCar->pWheelNodes[3] = SceneNode_FindByType(pBody, 4);
     pCar->pViewNodeFar = SceneNode_FindByType(pBody2, 0xe);
     pCar->pViewNodeNear = SceneNode_FindByType(pBody2, 0xf);
-    Car_SwapWheelTextures(FUN_00456be0(pCar->index)[0x20], pCar->pWheelNodes);
-    if (*(int *)((BYTE *)pBody + 8) != RallyData_FUN_00411060())
-        SceneNode_Reparent(pBody, (SceneNode *)RallyData_FUN_00411060());
-    if (*(int *)((BYTE *)pCar->pNode0x720 + 8) != RallyData_FUN_00411060())
-        SceneNode_Reparent(pCar->pNode0x720, (SceneNode *)RallyData_FUN_00411060());
+    Car_SwapWheelTextures(StageTiming_GetStartTableRecord(pCar->index)[0x20], pCar->pWheelNodes);
+    if (*(int *)((BYTE *)pBody + 8) != RallyData_GetChallengeRenderState())
+        SceneNode_Reparent(pBody, (SceneNode *)RallyData_GetChallengeRenderState());
+    if (*(int *)((BYTE *)pCar->pNode0x720 + 8) != RallyData_GetChallengeRenderState())
+        SceneNode_Reparent(pCar->pNode0x720, (SceneNode *)RallyData_GetChallengeRenderState());
 }
 
 // Recomputes the eight world-space corners of the car's box from its
@@ -1195,7 +1195,7 @@ void Car_UpdateBodyMatrix(void)
 
     for (i = 0; i < 4; i++) {
         comp[i] = g_pCurrentCar->wheel0x988[i] + g_pCurrentCar->wheel0x9d8[i] + g_pCurrentCar->wheel0x9a8[i];
-        if (CGameInfo::FUN_004063f0(6) != 0) {
+        if (CGameInfo::IsActiveCheatEnabled(6) != 0) {
             if (comp[i] < -0x5999)
                 comp[i] = -0x5999;
         } else if (comp[i] < -0x1999) {
@@ -1320,10 +1320,10 @@ void Car_FlagAirborneCorners(void);
 void Car_SettleFreeCorners(void);
 void Car_SolveUpright(void);
 void Car_IntegrateWheelTravel(void);
-void FUN_004930e0(Car *pCar, int count);
+void StageObject_UpdateCarCornerGroundHeights(Car *pCar, int count);
 void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
                   unsigned char param_5, int param_6);
-int FUN_00428760(BYTE index);
+int NetRace_IsPlayerFadeTimed(BYTE index);
 
 // Scratch vectors of the ground-contact step (referenced only from 0x42eae0).
 // GLOBAL: CMR2 0x0053c9c8
@@ -1406,7 +1406,7 @@ void Car_UpdateGroundContact(void)
             g_pCurrentCar->field_0xbf8 = 1;
         }
     } else {
-        if (FUN_00428760(g_pCurrentCar->index) != 0) {
+        if (NetRace_IsPlayerFadeTimed(g_pCurrentCar->index) != 0) {
             memcpy(&g_pCurrentCar->right, g_pCurrentCar->field_0x384, 0x24);
             g_pCurrentCar->position = g_pCurrentCar->positionPrev;
         } else {
@@ -1425,7 +1425,7 @@ void Car_UpdateGroundContact(void)
     prevGrounded = (char)g_pCurrentCar->field_0xb34;
     for (i = 3; i >= 0; i--)
         g_carSurfaceSnapshot[i] = g_pCurrentCar->wheelSurface[i];
-    FUN_004930e0(g_pCurrentCar, 8);
+    StageObject_UpdateCarCornerGroundHeights(g_pCurrentCar, 8);
     Car_FlagAirborneCorners();
 
     if (g_pCurrentCar->field_0xb34 != 0) {
@@ -2574,7 +2574,7 @@ void Car_UpdateTyreForces(void)
 }
 
 
-int FUN_00469bc0(void *pCar, int index);
+int StageTiming_GetCarReplayTailEntry(void *pCar, int index);
 
 extern double g_unk0x00511300;
 
@@ -2813,7 +2813,7 @@ void Car_UpdateWheelTorques(void)
         g_pCurrentCar->field_0x8b8[i] = quarter - FixMul(load, g_pCurrentCar->field_0x8d8);
     }
 
-    if (FUN_00469bc0(g_pCurrentCar, 3) != 0) {
+    if (StageTiming_GetCarReplayTailEntry(g_pCurrentCar, 3) != 0) {
         int rate = FixMul(g_pCurrentCar->speed, 0x2000);
 
         if (rate > 0x10000) {
@@ -3241,12 +3241,12 @@ void Car_UpdateWheelForces(void)
             }
             a = a + extra;
             b = b + extra;
-            if (CGameInfo::FUN_00405d90() == 2) {
-                if ((BYTE)RallyData_FUN_00406940() == 0 && (BYTE)RallyData_FUN_00406950() == 1) {
+            if (CGameInfo::GetConfiguredDifficulty() == 2) {
+                if ((BYTE)RallyData_GetSelectionBits10To11() == 0 && (BYTE)RallyData_GetSelectionBits12To13() == 1) {
                     b = FixMul(b, 0x18000);
                     a = FixMul(a, 0x18000);
                 }
-                if ((BYTE)RallyData_FUN_00406940() == 0 && (BYTE)RallyData_FUN_00406950() == 2) {
+                if ((BYTE)RallyData_GetSelectionBits10To11() == 0 && (BYTE)RallyData_GetSelectionBits12To13() == 2) {
                     b = FixMul(b, 0x13333);
                     a = FixMul(a, 0x13333);
                 }
@@ -3318,7 +3318,7 @@ CarShortValues g_unk0x0053a230[8];
 
 extern int g_unk0x005199c8[14];
 extern int g_unk0x00519a00[14];
-int *FUN_00469680(int index);
+int *StageTiming_GetCarReplayRecord(int index);
 
 // Per-wheel record of CarTransforms (+0x80): hub position and the three
 // wheel angles (x spin, y steering, z camber), 16.16 degrees.
@@ -3356,7 +3356,7 @@ void Car_StoreRenderTransforms(short *pList, short count)
     for (i = count - 1; i >= 0; i--) {
         car = pList[i];
         pCar = &g_carBuffer[car];
-        type = *FUN_00456be0(pCar->index);
+        type = *StageTiming_GetStartTableRecord(pCar->index);
         pRow = g_unk0x0053a3a8[car];
         pShadow = (BYTE *)&g_carTransformsShadow[car];
         memcpy(pRow, pShadow, 0x40);
@@ -3376,7 +3376,7 @@ void Car_StoreRenderTransforms(short *pList, short count)
         } else {
             FixVecScale(&up, &up, g_unk0x005199c8[pCar->type]);
         }
-        if (CGameInfo::FUN_004063f0(6) != 0) {
+        if (CGameInfo::IsActiveCheatEnabled(6) != 0) {
             FixMatrix_GetUp(&ride, &pCar->pNode0x71c->current);
             FixVecScale(&ride, &ride, FixMul(pCar->field_0xa8c, 0x8000));
             up.x += ride.x;
@@ -3413,7 +3413,7 @@ void Car_StoreRenderTransforms(short *pList, short count)
             for (j = 3; j >= 0; j--)
                 pWheels[j].pos = pCar->wheelEmitter[j];
         } else {
-            pRecord = FUN_00469680(car);
+            pRecord = StageTiming_GetCarReplayRecord(car);
             for (j = 3; j >= 0; j--) {
                 typeAngle = (short)(int)(__int64)((double)FixMul(0x50000,
                         *(int *)((BYTE *)pRecord + 0x240 + j * 4)) * g_unk0x00511300);
@@ -3428,7 +3428,7 @@ void Car_StoreRenderTransforms(short *pList, short count)
                 }
                 up = pCar->wheelEmitter[j];
                 up.y += *(int *)((BYTE *)pCar + 0x928 + j * 4);
-                sum = *(int *)((BYTE *)FUN_00469680(pCar->index) + 0x250 + j * 4) +
+                sum = *(int *)((BYTE *)StageTiming_GetCarReplayRecord(pCar->index) + 0x250 + j * 4) +
                       *(int *)((BYTE *)pCar + 0x978 + j * 4);
                 if (sum > 0x10000)
                     sum = 0x10000;
@@ -3461,16 +3461,16 @@ void Car_ClearWheelRotation(int first, int count)
     }
 }
 
-void FUN_004b23b0(float value);
+void Graphics_SetPlaybackRate(float value);
 
 // FUNCTION: CMR2 0x0042b7e0
-void FUN_0042b7e0(void)
+void Car_ResetPlaybackSpeed(void)
 {
-    FUN_004b23b0(100.0f);
+    Graphics_SetPlaybackRate(100.0f);
     g_unk0x0053c9a8 = 6;
 }
 
-unsigned short FUN_0040bbc0(unsigned short);
+unsigned short Input_GetControllerSlotMapping(unsigned short);
 void Car_SetDrawnFlag(int, char);
 void Car_ResetRenderTransforms(void);
 
@@ -3501,8 +3501,8 @@ void Car_BuildRaceOrder(int count)
     g_carOrder[25] = count;
     memset(g_unk0x0053acc8, 0, 8);
     for (j = 0; j < 2; j++) {
-        g_unk0x0053acc8[j] = FUN_0040bbc0(j);
-        if (!CGameInfo::FUN_00405e00() && j >= (int)(BYTE)RallyDataState())
+        g_unk0x0053acc8[j] = Input_GetControllerSlotMapping(j);
+        if (!CGameInfo::GetGameModeOptionBit19() && j >= (int)(BYTE)RallyDataState())
             Car_SetDrawnFlag(j, -1);
     }
     Car_ResetRenderTransforms();
@@ -3534,20 +3534,20 @@ void Car_SetDrawnFlag(int index, char value)
 
 void FUN_00487140(FixVector *pCorners, FixVector *pCenter, FixMatrix *pRot, FixVector *pHalf);
 
-void FUN_00427890(void);
+void NetRace_DrainPendingMessages(void);
 void FUN_0046c8e0(void);
-void FUN_0046d270(void);
-void FUN_00425950(Car *pCars, short *pIndices, short count);
+void Replay_PlaybackAllStreamFrames(void);
+void NetRace_ReceiveAndIntegrateListedCars(Car *pCars, short *pIndices, short count);
 void FUN_004877a0(BYTE *pCars, short *pOrder, short count);
 void FUN_00470580(void);
 void FUN_00426fc0(Car *pCars, short *pOrder, short count);
-void FUN_0046d5e0(void);
+void Replay_RecordAllStreamFrames(void);
 void Car_PrepareStep(int base, short *pList, short count);
-void FUN_0046d510(void);
-void FUN_00480bb0(BYTE *pCars, short *pOrder, short count);
-void FUN_00469e40(int base, short *pList, short count);
+void Replay_RecordPeriodicCarSamples(void);
+void StageTiming_UpdateAttachedCarParts(BYTE *pCars, short *pOrder, short count);
+void StageObject_UpdateEnabledCornerContactFrames(int base, short *pList, short count);
 void ForceFeedback_UpdatePlayerSlot(int param_1);
-void FUN_004258e0(int base, short *pList, short count);
+void NetRace_PackListedCars(int base, short *pList, short count);
 void Car_RunStepPasses(int carBase, short *pOrder, short count);
 void Car_UpdateSuspensionPass(int param_1, short *param_2, short param_3);
 void Car_StepAll(int base, short *pList, short count);
@@ -3556,18 +3556,18 @@ void Car_IntegrateWheelRotation(int *pList, short count);
 
 void Car_ClearRecords(int first, int count);
 void Car_InvalidateTransformsRange(int first, int count);
-void FUN_00457e50(SceneNode *pNodeA, SceneNode *pNodeB, int carIndex, int param_4,
+void StageTiming_PlaceCarViewNodesAndBody(SceneNode *pNodeA, SceneNode *pNodeB, int carIndex, int param_4,
                   FixAngles *pAngles, FixVector *pPosition, int param_7);
-void FUN_004669b0(int first, int count);
+void StageTiming_ClearCarReplayRecordRange(int first, int count);
 void FUN_004669f0(int lock, int keep, short *pOrder, short count);
 void FUN_0045c610(int a, int b, int count);
-int FUN_00456c90(int unused);
-int *FUN_00456c70(int car);
+int StageTiming_GetStartTableField244(int unused);
+int *StageTiming_GetCarStartPosition(int car);
 void Events_Flush(void);
 void Particle_KillAll(void);
-void FUN_0043ecd0(Car *pCar);
-unsigned int RallyData_FUN_00407e90(void);
-void RallyData_FUN_004207a0(int index);
+void Car_SyncBodySceneNodes(Car *pCar);
+unsigned int RallyData_GetSelectionFlag27(void);
+void RallyData_ResetRaceRecordAndRouteProbe(int index);
 
 // Scratch copies of the node pointers and the engine state of every car, saved
 // while the race order is rebuilt and restored afterwards (0x42b800).
@@ -3620,7 +3620,7 @@ void Car_ReloadModels(int first, int count, int param_3)
         }
         g_unk0x0053bd44[i] = g_carBuffer[i].field_0xc0c;
         g_unk0x0053ab88[i] = *(int *)((BYTE *)&g_carBuffer[i] + 0xb58);
-        if (CGameInfo::FUN_00405d80() == 4)
+        if (CGameInfo::GetConfiguredGameMode() == 4)
             g_unk0x0053a398[i] = 0;
     }
     Car_ClearRecords(first, count);
@@ -3639,19 +3639,19 @@ void Car_ReloadModels(int first, int count, int param_3)
         *(int *)((BYTE *)&g_carBuffer[i] + 0xb58) = g_unk0x0053ab88[i];
     }
     for (i = first; i < end; i++)
-        FUN_00457e50((SceneNode *)g_unk0x0053a378[i], (SceneNode *)g_unk0x0053b510[i], i,
-                     g_unk0x0053a398[i], (FixAngles *)FUN_00456c90(i), (FixVector *)FUN_00456c70(i), 1);
-    FUN_004669b0(first, count);
+        StageTiming_PlaceCarViewNodesAndBody((SceneNode *)g_unk0x0053a378[i], (SceneNode *)g_unk0x0053b510[i], i,
+                     g_unk0x0053a398[i], (FixAngles *)StageTiming_GetStartTableField244(i), (FixVector *)StageTiming_GetCarStartPosition(i), 1);
+    StageTiming_ClearCarReplayRecordRange(first, count);
     FUN_004669f0(1, param_3, g_unk0x0053a300, count);
     FUN_0045c610(1, param_3, (BYTE)RallyDataState());
     Events_Flush();
     Particle_KillAll();
     Car_InvalidateTransformsRange(first, count);
     for (i = first; i < end; i++)
-        FUN_0043ecd0(Car_Get(i));
-    if ((BYTE)RallyData_FUN_00407e70() == 0 && (BYTE)RallyData_FUN_00407e90() == 0) {
+        Car_SyncBodySceneNodes(Car_Get(i));
+    if ((BYTE)RallyData_GetSelectionFlag26() == 0 && (BYTE)RallyData_GetSelectionFlag27() == 0) {
         for (i = first; i < end; i++)
-            RallyData_FUN_004207a0(i);
+            RallyData_ResetRaceRecordAndRouteProbe(i);
     }
     Car_StoreRenderTransforms(g_unk0x0053a300, count);
 }
@@ -3663,35 +3663,35 @@ void Car_ReloadModels(int first, int count, int param_3)
 // FUNCTION: CMR2 0x0042baf0
 void Car_UpdateAndRenderAll(void)
 {
-    FUN_00427890();
+    NetRace_DrainPendingMessages();
     Car_BuildViewOrder();
     FUN_0046c8e0();
-    FUN_0046d270();
+    Replay_PlaybackAllStreamFrames();
     Car_StepAll((int)g_carBuffer, g_unk0x0053b4f0, g_unk0x0053a310);
     Car_RunStepPasses((int)g_carBuffer, (short *)&g_carViewScale[8][0], g_carOrder[26]);
-    FUN_00425950((Car *)g_carBuffer, g_unk0x0053bd6c, g_carOrder[25]);
+    NetRace_ReceiveAndIntegrateListedCars((Car *)g_carBuffer, g_unk0x0053bd6c, g_carOrder[25]);
     FUN_004877a0((BYTE *)g_carBuffer, g_unk0x0053a270, g_carOrder[44]);
     FUN_00470580();
     Car_PrepareBodies((int)g_carBuffer, g_unk0x0053b4f0, g_unk0x0053a310);
     if (g_carOrder[26] > 0)
         Car_UpdateSuspensionPass((int)g_carBuffer, (short *)&g_carViewScale[8][0], g_carOrder[26]);
     FUN_00426fc0((Car *)g_carBuffer, g_unk0x0053bd6c, g_carOrder[25]);
-    FUN_0046d5e0();
+    Replay_RecordAllStreamFrames();
     Car_PrepareStep((int)g_carBuffer, g_unk0x0053bd6c, g_carOrder[25]);
     Car_IntegrateWheelRotation((int *)g_unk0x0053a314, g_unk0x0053c9a0);
     Car_IntegrateWheelRotation((int *)g_unk0x0053bd6c, g_carOrder[25]);
     Car_StoreRenderTransforms(g_unk0x0053a314, g_unk0x0053c9a0);
     Car_StoreRenderTransforms(g_unk0x0053bd6c, g_carOrder[25]);
-    FUN_0046d510();
-    FUN_00480bb0((BYTE *)g_carBuffer, g_unk0x0053a314, g_unk0x0053c9a0);
-    FUN_00469e40((int)g_carBuffer, g_unk0x0053b4f0, g_unk0x0053a310);
+    Replay_RecordPeriodicCarSamples();
+    StageTiming_UpdateAttachedCarParts((BYTE *)g_carBuffer, g_unk0x0053a314, g_unk0x0053c9a0);
+    StageObject_UpdateEnabledCornerContactFrames((int)g_carBuffer, g_unk0x0053b4f0, g_unk0x0053a310);
     ForceFeedback_UpdatePlayerSlot(0);
-    FUN_004258e0((int)g_carBuffer, g_carOrder, g_carOrderCount);
+    NetRace_PackListedCars((int)g_carBuffer, g_carOrder, g_carOrderCount);
 }
 
 // Counts down field 0xb43 of every car in the list.
 // FUNCTION: CMR2 0x0042bc80
-void FUN_0042bc80(short *pList, short count)
+void Car_DecrementContactTimers(short *pList, short count)
 {
     int i;
     Car *pCar;
@@ -3870,7 +3870,7 @@ void Car_InterpolateRenderTransforms(void)
 
                 if (Car_UsesNarrowWheels(&g_carBuffer[car], 0) != 0)
                     FixVecScale(&basis.forward, &basis.forward, 0x9999);
-                if (CGameInfo::FUN_004063f0(6) != 0) {
+                if (CGameInfo::IsActiveCheatEnabled(6) != 0) {
                     p = &basis.right;
                     for (k = 3; k != 0; k--) {
                         FixVecScale(p, p, 0x28000);
@@ -3960,9 +3960,9 @@ int g_unk0x0053a374;
 // GLOBAL: CMR2 0x005113a0
 float g_unk0x005113a0 = 0.001f;
 
-BYTE FUN_00404f30(void);
-void FUN_00404f10(void);
-int FUN_0041f360(void);
+BYTE InRaceMenu_IsOpening(void);
+void InRaceMenu_ClearOpeningFlag(void);
+int Race_ConsumeTransitionLatch(void);
 
 // Walks the car order and recomputes each car's fraction of the timing window
 // (the engine note falloff), writing it to the car and returning the largest.
@@ -3994,11 +3994,11 @@ int Car_UpdateEngineNoteFalloff(int *pOut)
         g_unk0x0053a374 = CMain::GetFrameTime();
     }
     g_unk0x0053bd40 = CMain::GetFrameTime();
-    if (FUN_00404f30() != 0)
+    if (InRaceMenu_IsOpening() != 0)
         g_unk0x0053a374 = g_unk0x0053bd40;
-    if (FUN_0041f360() != 0)
+    if (Race_ConsumeTransitionLatch() != 0)
         g_unk0x0053a374 = g_unk0x0053bd40;
-    FUN_00404f10();
+    InRaceMenu_ClearOpeningFlag();
     max = 0;
     for (i = 0; i < g_carOrderCount; i++) {
         pCar = &g_carBuffer[g_carOrder[i]];
@@ -4051,7 +4051,7 @@ BYTE *Car_GetRendererRecord(int index)
     return g_unk0x0053c5a0[index];
 }
 
-BYTE *FUN_00456be0(int index);
+BYTE *StageTiming_GetStartTableRecord(int index);
 
 // Whether the car uses the narrow wheel setup (car class 6 on the normal
 // surfaces); param2 also accepts the 'A' variant.
@@ -4060,9 +4060,9 @@ int Car_UsesNarrowWheels(Car *pCar, int param2)
 {
     char stage;
 
-    stage = *FUN_00456be0(pCar->index);
-    if (!CGameInfo::FUN_004063f0(6) && pCar->field_0xb29 == 6 && stage != 0xb && stage != 8 && stage != 0xa &&
-        stage != 0xd && (FUN_00456be0(pCar->index)[0x20] != 'A' || param2 != 0))
+    stage = *StageTiming_GetStartTableRecord(pCar->index);
+    if (!CGameInfo::IsActiveCheatEnabled(6) && pCar->field_0xb29 == 6 && stage != 0xb && stage != 8 && stage != 0xa &&
+        stage != 0xd && (StageTiming_GetStartTableRecord(pCar->index)[0x20] != 'A' || param2 != 0))
         return 1;
     return 0;
 }
@@ -4077,7 +4077,7 @@ void Car_SetRideHeight(int param_1)
     int n0;
     int n1;
 
-    if (CGameInfo::FUN_004063f0(6) != 0)
+    if (CGameInfo::IsActiveCheatEnabled(6) != 0)
         param_1 = -0x6666;
     g_pCurrentCar->field_0x9b8 = FixMul(param_1, 0x6666) + 0x9999;
     g_pCurrentCar->field_0x9bc = FixMul(param_1, 0x3333) + 0x6666;
@@ -4097,7 +4097,7 @@ void Car_SetRideHeight(int param_1)
 }
 
 // FUNCTION: CMR2 0x0043e160
-void FUN_0043e160(int value)
+void Car_SetSteeringSwingTarget(int value)
 {
     g_pCurrentCar->field_0x82c = FixMul(0x13333, value) + 0x3333;
 }
@@ -4115,12 +4115,12 @@ void Car_SetDriveSplit(int value)
 }
 
 // FUNCTION: CMR2 0x0043e1d0
-void FUN_0043e1d0(int value)
+void Car_SetSurfaceDragLevel(int value)
 {
     g_pCurrentCar->field_0xb29 = (BYTE)value;
 }
 
-int FUN_00437f90(void);
+int Car_GetScaledSteerFollowRate(void);
 
 // Engine torque of the current car (less the speed drag) split between the
 // front and rear wheels by the drive split.
@@ -4132,7 +4132,7 @@ void Car_SplitEngineTorque(void)
     int front;
     int split;
 
-    torque = FUN_00437f90();
+    torque = Car_GetScaledSteerFollowRate();
     g_pCurrentCar->field_0x780 = torque - FixMul(g_pCurrentCar->field_0x784,
         FixMul(g_pCurrentCar->field_0x7a4, g_pCurrentCar->field_0x7a4));
     split = FixMul(g_pCurrentCar->field_0x780, g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]);
@@ -4170,13 +4170,13 @@ void Car_UpdateRideHeight(void)
 }
 
 // FUNCTION: CMR2 0x00443230
-void FUN_00443230(void)
+void Car_CopySteeringFollowState(void)
 {
     g_pCurrentCar->field_0x7ac = g_pCurrentCar->field_0x7a4;
 }
 
 // FUNCTION: CMR2 0x00417760
-int FUN_00417760(int index)
+int Car_IsStateC10Set(int index)
 {
     return Car_Get(index)->field_0xc10 != 0;
 }
@@ -4208,7 +4208,7 @@ BOOL Car_ShowsCleanWheels(Car *pCar)
 {
     char stage;
 
-    stage = *FUN_00456be0(pCar->index);
+    stage = *StageTiming_GetStartTableRecord(pCar->index);
     if (pCar->field_0xb29 <= 1 && stage != 11 && stage != 8 && stage != 10 && stage != 13)
         return TRUE;
     return FALSE;
@@ -4328,7 +4328,7 @@ void Car_UpdateSuspensionPass(int param_1, short *param_2, short param_3)
     n++;
     do {
         g_pCurrentCar = (Car *)(param_1 + *p * 0xc24);
-        g_pCarSetup = (BYTE *)FUN_00469680((int)g_pCurrentCar->index);
+        g_pCarSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_UpdateWheelTravel();
         g_pCurrentCar->field_0xabe[0] = g_pCurrentCar->wheelSurface[0];
         g_pCurrentCar->field_0xabe[1] = g_pCurrentCar->wheelSurface[1];
@@ -4614,11 +4614,11 @@ void Car_UpdateRollover(void)
 extern int g_unk0x0053c9d4;
 
 // Lowers the current car's target (0x7a4) toward 0x794 minus a fading offset.
-int FUN_00458310(int index);
+int StageTiming_GetCheckpointField12(int index);
 
 void Car_BalanceTwoPlayerRideHeight(BYTE *param_1, short *param_2, short param_3);
 void Car_StartPendingCountdown(void);
-void FUN_004340f0(void);
+void Car_UpdateLowSpeedWheelLoadTimer(void);
 void CarEffects_UpdateBrokenLightFlicker(BYTE *pCar);
 void Car_UpdateSlopeGrip(void);
 void FUN_004348c0(void);
@@ -4627,14 +4627,14 @@ void Car_ShareWeightOnWheels(void);
 void Car_UpdateEngineTorque(void);
 void Car_IntegrateContacts(void);
 void Car_UpdateEngineSpeed(void);
-void FUN_00433fd0(void);
-int FUN_00460c80(BYTE *pCar);
+void Car_UpdateResponseValueCountdown(void);
+int StageObject_GetCarWeatherRampValue(BYTE *pCar);
 void Car_UpdateSurfaceParams(Car *pCar, int blend);
 void Car_UpdateCornerLoads(void);
 void Car_UpdateSteering(void);
 void Car_UpdateCornerVelocities(void);
 short Sector_GetNeighbours(FixVector *pPos, short *pOut);
-void FUN_00493520(Car *pCar);
+void AutoGear_UpdateCarGearState(Car *pCar);
 
 // One whole update step over every car of the list: rebuilds the body frame and
 // the corner state of each car, runs its ground/contact, engine, steering and
@@ -4677,13 +4677,13 @@ void Car_StepAll(int base, short *pList, short count)
         g_pCurrentCar->field_0x964 = g_pCurrentCar->field_0x960;
         if (g_pCurrentCar->field_0xbfc == 0)
             Car_StartPendingCountdown();
-        Car_UpdateSurfaceParams(g_pCurrentCar, FUN_00460c80((BYTE *)g_pCurrentCar));
-        FUN_004340f0();
+        Car_UpdateSurfaceParams(g_pCurrentCar, StageObject_GetCarWeatherRampValue((BYTE *)g_pCurrentCar));
+        Car_UpdateLowSpeedWheelLoadTimer();
         CarEffects_UpdateBrokenLightFlicker((BYTE *)g_pCurrentCar);
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);
-        FUN_00493520(g_pCurrentCar);
+        AutoGear_UpdateCarGearState(g_pCurrentCar);
         for (k = 0x888; k >= 0x880; k -= 4) {
             *(int *)((BYTE *)g_pCurrentCar + k - 0xc) = 0;
             *(int *)((BYTE *)g_pCurrentCar + k + 4) = 0;
@@ -4699,7 +4699,7 @@ void Car_StepAll(int base, short *pList, short count)
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);
-        g_pCarSetup = (BYTE *)FUN_00469680((int)g_pCurrentCar->index);
+        g_pCarSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         if (*(int *)(g_pCarSetup + 0x46c) == 0 && *(BYTE *)(g_pCarSetup + 0x469) != 0)
             *(BYTE *)(g_pCarSetup + 0x469) -= 1;
         *(int *)(g_pCarSetup + 0x46c) = 0;
@@ -4719,7 +4719,7 @@ void Car_StepAll(int base, short *pList, short count)
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);
-        g_pCarSetup = (BYTE *)FUN_00469680((int)g_pCurrentCar->index);
+        g_pCarSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_UpdateEngineTorque();
     }
     for (i = count - 1; i >= 0; i--) {
@@ -4728,14 +4728,14 @@ void Car_StepAll(int base, short *pList, short count)
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);
-        g_pCarSetup = (BYTE *)FUN_00469680((int)g_pCurrentCar->index);
+        g_pCarSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_IntegrateContacts();
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);
         g_pCurrentCar->field_0x7a8 = g_pCurrentCar->field_0x7a4;
         Car_UpdateEngineSpeed();
-        FUN_00433fd0();
+        Car_UpdateResponseValueCountdown();
         g_pCurrentCar->field_0x5c4.x = 0;
         g_pCurrentCar->field_0x5c4.y = 0;
         g_pCurrentCar->field_0x5c4.z = 0;
@@ -4772,12 +4772,12 @@ void Car_BalanceTwoPlayerRideHeight(BYTE *param_1, short *param_2, short param_3
         return;
     if ((BYTE)RallyData_GetFlag24() == 0)
         return;
-    if ((BYTE)CGameInfo::FUN_00406440() == 0)
+    if ((BYTE)CGameInfo::GetNetworkOptionBit11() == 0)
         return;
     pCar1 = param_1 + param_2[0] * 0xc24;
     pCar2 = param_1 + param_2[1] * 0xc24;
-    diff = FUN_00458310(*(char *)(pCar1 + 0xb1a));
-    diff -= FUN_00458310(*(char *)(pCar2 + 0xb1a));
+    diff = StageTiming_GetCheckpointField12(*(char *)(pCar1 + 0xb1a));
+    diff -= StageTiming_GetCheckpointField12(*(char *)(pCar2 + 0xb1a));
     dist = diff * 0x10000;
     if (dist < 0)
         dist = -dist;
@@ -4804,7 +4804,7 @@ void Car_BalanceTwoPlayerRideHeight(BYTE *param_1, short *param_2, short param_3
 }
 
 // FUNCTION: CMR2 0x00433fd0
-void FUN_00433fd0(void)
+void Car_UpdateResponseValueCountdown(void)
 {
     int target = g_pCurrentCar->field_0x794 - FixMul(g_pCurrentCar->field_0xb1d << 16, 0x3333);
 
@@ -4841,7 +4841,7 @@ void Car_UpdateSlopeGrip(void)
 // Counts field 0xb1f of the current car down while it is slow compared to
 // the load of the (front or rear) wheels; clears it once it is fast enough.
 // FUNCTION: CMR2 0x004340f0
-void FUN_004340f0(void)
+void Car_UpdateLowSpeedWheelLoadTimer(void)
 {
     int load;
 
@@ -5203,7 +5203,7 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
             }
             g_pCurrentCar->field_0x7ac = g_pCurrentCar->field_0x7a4;
             g_pCurrentCar->field_0xb60 = 0;
-            FUN_004930e0(g_pCurrentCar, 8);
+            StageObject_UpdateCarCornerGroundHeights(g_pCurrentCar, 8);
             Car_FlagAirborneCorners();
             Car_ShareWeightOnWheels();
             Car_UpdateGroundNormal();
@@ -5238,7 +5238,7 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
                     FixMatrix_SetUp(&g_pCurrentCar->up, g_pCurrentCar->pWorld);
                     FixMatrix_SetForward(pForward, g_pCurrentCar->pWorld);
                     Car_UpdateCorners(g_pCurrentCar);
-                    FUN_004930e0(g_pCurrentCar, 8);
+                    StageObject_UpdateCarCornerGroundHeights(g_pCurrentCar, 8);
                     Car_LiftOutOfGround();
                     g_pCurrentCar->position.y += lift;
                     g_pCurrentCar->corners[0].y += lift;
@@ -5351,16 +5351,16 @@ void Car_LiftOutOfGround(void)
 int g_unk0x0053cdb4;
 
 // FUNCTION: CMR2 0x00445a20
-int FUN_00445a20(void)
+int View_IsPlaybackCameraActive(void)
 {
-    if (FUN_00422f50(0) != 9 && g_unk0x0053cdb4 == 0)
+    if (View_GetActiveCameraMode(0) != 9 && g_unk0x0053cdb4 == 0)
         return 0;
     return 1;
 }
 
 BYTE *Car_GetPhysicsRow(int index);
-int FUN_0048df10(BYTE *pCar);
-int FUN_0048d930(BYTE *p);
+int StageObject_IsNegativeRightAngleCameraSpot(BYTE *pCar);
+int StageObject_GetCarCameraSpotIndex(BYTE *p);
 
 // Rotation of car `index`'s camera placement.
 // FUNCTION: CMR2 0x00423a00
@@ -5435,21 +5435,21 @@ int Render_GetDetailDistanceScale(void)
     steps[9] = 4.0f;
     *(volatile float *)&base =
         (float)(*(int *)&g_pGraphics->field921_0x3c4 * CGraphics::m_oneOver65536);
-    float scale = base * steps[CGameInfo::FUN_00405ca0()];
+    float scale = base * steps[CGameInfo::GetGraphicsOptionBits21To24()];
 
     return (int)(__int64)((scale + base) * CGraphics::m_65536);
 }
 
 // FUNCTION: CMR2 0x00423fc0
-int FUN_00423fc0(int view)
+int View_IsNegativeRightAngleCameraSpot(int view)
 {
-    return FUN_0048df10(VIEW_MODE_RECORD(view));
+    return StageObject_IsNegativeRightAngleCameraSpot(VIEW_MODE_RECORD(view));
 }
 
-int FUN_00423970(unsigned int index, int mode);
+int RallyData_IsDriverViewModeAllowed(unsigned int index, int mode);
 void View_SwitchCamera(unsigned char index, int a, int b, unsigned char c, int d);
-unsigned int FUN_0048d8b0(FixVector *pPos);
-int FUN_00421980(unsigned int view);
+unsigned int StageObject_FindNearestCameraSpot(FixVector *pPos);
+int View_GetCameraSpotIndex(unsigned int view);
 
 // Next free view-mode slot (0..0xa) of a player's view record.
 // FUNCTION: CMR2 0x004218d0
@@ -5464,9 +5464,9 @@ int View_FindFreeModeSlot(unsigned int view)
         mode++;
         if (mode == 0xb)
             mode = 0;
-        found = FUN_00423970(view, mode);
+        found = RallyData_IsDriverViewModeAllowed(view, mode);
     } while (found == 0);
-    View_SwitchCamera(view, mode, 0xffff, FUN_00422fb0(view), 1);
+    View_SwitchCamera(view, mode, 0xffff, View_GetActiveCameraFlags(view), 1);
     return mode;
 }
 
@@ -5477,26 +5477,26 @@ void View_UpdateModeSurface(unsigned int view)
     FixVector target;
     unsigned int surface;
 
-    surface = FUN_0048d8b0(View_GetCarCameraTarget(&target, FUN_00422fb0(view)));
-    if (surface != FUN_00421980(view))
-        View_SwitchCamera(view, 7, surface, FUN_00422fb0(view), 0);
+    surface = StageObject_FindNearestCameraSpot(View_GetCarCameraTarget(&target, View_GetActiveCameraFlags(view)));
+    if (surface != View_GetCameraSpotIndex(view))
+        View_SwitchCamera(view, 7, surface, View_GetActiveCameraFlags(view), 0);
 }
 
 // FUNCTION: CMR2 0x00421980
-int FUN_00421980(unsigned int view)
+int View_GetCameraSpotIndex(unsigned int view)
 {
     view &= 0xff;
-    return FUN_0048d930(VIEW_MODE_RECORD(view));
+    return StageObject_GetCarCameraSpotIndex(VIEW_MODE_RECORD(view));
 }
 
 // FUNCTION: CMR2 0x00437f90
-int FUN_00437f90(void)
+int Car_GetScaledSteerFollowRate(void)
 {
     return FixMul(g_pCurrentCar->steerFollowRate, *(int *)(g_pCarSetup + 0x404));
 }
 
-int FUN_00476520(BYTE index);
-int FUN_0048ca90(void);
+int StageObject_GetCarNodeSlotValue(BYTE index);
+int StageObject_GetSelectedRecordListState(void);
 
 // Whether view mode `mode` is available for car `index`.
 // FUNCTION: CMR2 0x004232a0
@@ -5514,9 +5514,9 @@ int View_IsModeAvailable(BYTE index, int mode)
     case 10:
         return 1;
     case 7:
-        return (unsigned int)FUN_0048ca90() > 0;
+        return (unsigned int)StageObject_GetSelectedRecordListState() > 0;
     case 3:
-        result = FUN_00476520((BYTE)index);
+        result = StageObject_GetCarNodeSlotValue((BYTE)index);
         break;
     }
     return result;
@@ -5532,9 +5532,9 @@ void Car_ClearRecords(int first, int count)
         memset((BYTE *)g_carBuffer + i * 0xc24, 0, 0xc24);
 }
 
-float FUN_004b23a0(void);
-void FUN_004b23b0(float value);
-void FUN_00466630(int value);
+float Graphics_GetFrameScale(void);
+void Graphics_SetPlaybackRate(float value);
+void StageObject_SetPhysicsScaleAndReciprocal(int value);
 extern int g_unk0x0053c9a8;
 
 // GLOBAL: CMR2 0x005210c8
@@ -5547,11 +5547,11 @@ void Physics_UpdateRateHold(void)
 {
     if (g_unk0x0053c9a8 != 0) {
         if (g_unk0x0053c9a8 == 1)
-            FUN_004b23b0(1.0f);
+            Graphics_SetPlaybackRate(1.0f);
         g_unk0x0053c9a8--;
     }
     {
-        float rate = FUN_004b23a0();
+        float rate = Graphics_GetFrameScale();
         int scaled;
 
         __asm {
@@ -5559,7 +5559,7 @@ void Physics_UpdateRateHold(void)
             fmul g_65536f
             fistp scaled
         }
-        FUN_00466630(scaled);
+        StageObject_SetPhysicsScaleAndReciprocal(scaled);
     }
 }
 
@@ -5608,7 +5608,7 @@ FixMatrix *View_GetCarBodyMatrix(FixMatrix *pOut, BYTE car)
     int shake;
 
     FixMatrix_CopyRotationFrom(pOut, Car_Get(car)->pBodyMatrix);
-    if (CGameInfo::FUN_004063f0(6)) {
+    if (CGameInfo::IsActiveCheatEnabled(6)) {
         FixMatrix_GetUp(&up, Car_Get(car)->pWorld);
         shake = FixMul(Car_Get(car)->field_0xa8c, 0x8000);
         FixVecScale(&up, &up, shake);
@@ -5621,12 +5621,12 @@ FixMatrix *View_GetCarBodyMatrix(FixMatrix *pOut, BYTE car)
     return pOut;
 }
 
-int RallyData_FUN_00421500(void);
-void RallyData_FUN_00421530(int index, int *pOut);
+int RallyData_GetRouteAdditionalState(void);
+void RallyData_GetRouteNodeGroundPosition(int index, int *pOut);
 int StageObject_UsesExtendedMode(void);
 
 typedef void (*CarFadeCallback)(BYTE index);
-void FUN_004283e0(BYTE index, CarFadeCallback pfnDone, int param3, int param4, int param5, char force);
+void NetRace_FadeOutPlayerScreen(BYTE index, CarFadeCallback pfnDone, int param3, int param4, int param5, char force);
 
 void Car_ResetToStage(unsigned int param_1);
 
@@ -5645,7 +5645,7 @@ void Car_StartResetFade(void)
     colour.channels[3] = 0;
 
     if (g_pCurrentCar->field_0xbf8 != 0)
-        FUN_004283e0((BYTE)g_pCurrentCar->index, (CarFadeCallback)Car_ResetToStage, 2, 1, colour.value, 0);
+        NetRace_FadeOutPlayerScreen((BYTE)g_pCurrentCar->index, (CarFadeCallback)Car_ResetToStage, 2, 1, colour.value, 0);
 }
 
 // Relative position of the current car against every other car in the race
@@ -5660,13 +5660,13 @@ int g_unk0x0053ca24;
 FixVector g_unk0x0053ca58;
 // GLOBAL: CMR2 0x0053cae8
 FixVector g_unk0x0053cae8;
-int RallyData_FUN_00421370(BYTE *p);
-BYTE *RallyData_FUN_00421440(int index);
-int RallyData_FUN_00421420(void);
-void FUN_00421570(unsigned int nodeIndex, FixVector *pOut);
+int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
+BYTE *RallyData_GetAvailableRouteNodeRecord(int index);
+int RallyData_GetRouteAvailabilityState(void);
+void RallyRoute_CopyIndexedNodeDirection(unsigned int nodeIndex, FixVector *pOut);
 int Car_OverlapsOtherCar(int param_1);
 void Car_PlaceAtStart(int *param_1, int *param_2);
-void FUN_00417780(int player);
+void Race_StorePlayerRouteAndClearSlots(int player);
 void View_ResetCameras(int view);
 void Particle_KillAll(void);
 
@@ -5684,30 +5684,30 @@ void Car_ResetToStage(unsigned int param_1)
     BYTE *pRecord;
 
     g_pCurrentCar = Car_Get(param_1 & 0xff);
-    node = RallyData_FUN_00421370((BYTE *)g_pCurrentCar);
-    pRecord = RallyData_FUN_00421440(node);
+    node = RallyData_GetActiveCarRaceRecordField0((BYTE *)g_pCurrentCar);
+    pRecord = RallyData_GetAvailableRouteNodeRecord(node);
     if (pRecord != NULL) {
         while (Car_OverlapsOtherCar(node) != 0) {
             node--;
             if (node < 0) {
-                if (RallyData_FUN_00421500() != 0)
-                    node += RallyData_FUN_00421420();
+                if (RallyData_GetRouteAdditionalState() != 0)
+                    node += RallyData_GetRouteAvailabilityState();
                 else
                     node = 0;
             }
         }
         while ((*(BYTE *)(pRecord + 0x18) & 2) != 0 && node > 0) {
             node--;
-            pRecord = RallyData_FUN_00421440(node);
+            pRecord = RallyData_GetAvailableRouteNodeRecord(node);
         }
-        FUN_00421570(node, &heading);
-        RallyData_FUN_00421530(node, (int *)&position);
+        RallyRoute_CopyIndexedNodeDirection(node, &heading);
+        RallyData_GetRouteNodeGroundPosition(node, (int *)&position);
     } else {
         position = g_pCurrentCar->position;
         heading = g_pCurrentCar->right;
     }
     Car_PlaceAtStart((int *)&position, (int *)&heading);
-    FUN_00417780(param_1 & 0xff);
+    Race_StorePlayerRouteAndClearSlots(param_1 & 0xff);
     Particle_KillAll();
     if ((BYTE)param_1 < (BYTE)RallyDataState())
         View_ResetCameras(param_1);
@@ -5727,11 +5727,11 @@ int Car_OverlapsOtherCar(int param_1)
     Car *pOther;
 
     result = 0;
-    if (param_1 == 0 && RallyData_FUN_00421500() == 0)
+    if (param_1 == 0 && RallyData_GetRouteAdditionalState() == 0)
         return 0;
     pOrder = Car_GetOrder();
     count = Car_GetOrderCount();
-    RallyData_FUN_00421530(param_1, (int *)&g_unk0x0053cae8);
+    RallyData_GetRouteNodeGroundPosition(param_1, (int *)&g_unk0x0053cae8);
     for (i = 0; i < count; i++) {
         pOther = Car_Get(pOrder[i]);
         if (pOther->index != g_pCurrentCar->index && StageObject_UsesExtendedMode() != 0) {
@@ -5809,7 +5809,7 @@ void Car_UpdateEngineTorque(void)
         } else if (g_pCurrentCar->gear != 0 && g_pCurrentCar->field_0xb84 == 1) {
             g_pCurrentCar->field_0x780 = FixMul(g_pCurrentCar->field_0x784, FixMul(g_pCurrentCar->field_0x7a4, g_pCurrentCar->field_0x7a4));
         } else {
-            value = FUN_00437f90();
+            value = Car_GetScaledSteerFollowRate();
             g_pCurrentCar->field_0x780 = value -
                 FixMul(g_pCurrentCar->field_0x784, FixMul(g_pCurrentCar->field_0x7a4, g_pCurrentCar->field_0x7a4));
         }
@@ -5871,7 +5871,7 @@ int g_unk0x005391b0[2];
 // GLOBAL: CMR2 0x005391c4
 int g_unk0x005391c4[2];
 
-void FUN_00447ca0(unsigned int index);
+void HudDash_ResetPlayerCamera(unsigned int index);
 int SceneNode_Destroy(SceneNode *pNode);
 
 // Releases both players' view nodes and resets their view state (callback).
@@ -5901,7 +5901,7 @@ BYTE View_ReleaseNodes(void)
         *(int *)((BYTE *)g_unk0x005391c4 + off) = 0;
         *(int *)((BYTE *)g_unk0x005391a8 + off) = 0;
         *(int *)((BYTE *)g_unk0x00538f00 + off) = 0;
-        FUN_00447ca0(i);
+        HudDash_ResetPlayerCamera(i);
         i++;
     }
     return 1;
@@ -6033,8 +6033,8 @@ void Car_IntegrateWheelRotation(int *pList, short count)
     }
 }
 
-int FUN_0045c720(char car, int wheel);
-void FUN_0049c440(Mesh *pMesh, int mask, int value);
+int StageTiming_GetRelativeTyreRecordValue(char car, int wheel);
+void Game_SetTriangleField2CByGroup(Mesh *pMesh, int mask, int value);
 
 // Sets four wheel mesh states for each car in draw order.
 // FUNCTION: CMR2 0x0042be30
@@ -6050,7 +6050,7 @@ void Car_UpdateWheelMeshStates(void)
     for (order = g_carOrderCount - 1; order >= 0; order--) {
         car = g_carOrder[order];
         for (wheel = 0; wheel < 4; wheel++) {
-            state = FUN_0045c720(car, wheel);
+            state = StageTiming_GetRelativeTyreRecordValue(car, wheel);
             if (g_unk0x0053ac48[car][wheel] != 0) {
                 switch (state) {
                 case 0: appearance = 6; break;
@@ -6069,10 +6069,10 @@ void Car_UpdateWheelMeshStates(void)
                 }
             }
             pNode = *(BYTE **)((BYTE *)g_carBuffer + car * 0xc24 + 0x738 + wheel * 4);
-            FUN_0049c440(*(Mesh **)(pNode + 0xc), 1, appearance);
+            Game_SetTriangleField2CByGroup(*(Mesh **)(pNode + 0xc), 1, appearance);
             pNode = *(BYTE **)((BYTE *)g_carBuffer + car * 0xc24 + 0x728 + wheel * 4);
             if (pNode != NULL)
-                FUN_0049c440(*(Mesh **)(pNode + 0xc), 1, appearance);
+                Game_SetTriangleField2CByGroup(*(Mesh **)(pNode + 0xc), 1, appearance);
         }
     }
 }
@@ -6135,7 +6135,7 @@ void Car_IntegrateContacts(void)
     Car_DampenBodyMotion();
     torque.x = torque.y = torque.z = 0;
     force = g_pCurrentCar->baseForce;
-    if (CGameInfo::FUN_004063f0(1)) {
+    if (CGameInfo::IsActiveCheatEnabled(1)) {
         FixVecScale(&force, &force, 0x6666);
     } else {
         FixVecScale(&force, &force, 0xcccc);
@@ -6310,9 +6310,9 @@ void Car_IntegrateContacts(void)
 }
 
 // --- 0x0043e680 (layer 0) ----------------------------------------------------
-void FUN_004930e0(Car *pCar, int count);
-int FUN_00460c80(BYTE *pCar);
-void FUN_004789b0(BYTE *pCar);
+void StageObject_UpdateCarCornerGroundHeights(Car *pCar, int count);
+int StageObject_GetCarWeatherRampValue(BYTE *pCar);
+void StageObject_CopyCarSurfaceNoiseTarget(BYTE *pCar);
 void Car_UpdateSurfaceParams(Car *pCar, int blend);
 
 // The original preserves the ground normal as up and normalises only right
@@ -6331,7 +6331,7 @@ void Car_ResetBodyBasis(int param_1)
 #define CARV(off) (*(FixVector *)((int)g_pCurrentCar + (off)))
 
     g_pCurrentCar = (Car *)param_1;
-    FUN_004930e0((Car *)param_1, 8);
+    StageObject_UpdateCarCornerGroundHeights((Car *)param_1, 8);
     Car_UpdateGroundNormal();
     g_pCurrentCar->up = g_pCurrentCar->groundNormal;
     dot = FixVecDot((FixVector *)((int)g_pCurrentCar + 0x360),
@@ -6353,8 +6353,8 @@ void Car_ResetBodyBasis(int param_1)
     Car_UpdateCorners(g_pCurrentCar);
     Car_FlagAirborneCorners();
     g_pCurrentCar->rearWheelDir = g_pCurrentCar->right;
-    Car_UpdateSurfaceParams(g_pCurrentCar, FUN_00460c80((BYTE *)g_pCurrentCar));
-    FUN_004789b0((BYTE *)g_pCurrentCar);
+    Car_UpdateSurfaceParams(g_pCurrentCar, StageObject_GetCarWeatherRampValue((BYTE *)g_pCurrentCar));
+    StageObject_CopyCarSurfaceNoiseTarget((BYTE *)g_pCurrentCar);
     for (i = 0x300; i < 0x330; i += 0xc) {
         *(FixVector *)((int)g_pCurrentCar + i) = *(FixVector *)((int)g_pCurrentCar + i - 0x90);
         *(FixVector *)((int)g_pCurrentCar + i + 0x30) = *(FixVector *)((int)g_pCurrentCar + i);
@@ -6533,7 +6533,7 @@ void Car_PlaceAtStart(int *param_1, int *param_2)
     g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
     g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
     Car_UpdateCorners(g_pCurrentCar);
-    FUN_004930e0(g_pCurrentCar, 8);
+    StageObject_UpdateCarCornerGroundHeights(g_pCurrentCar, 8);
     Car_UpdateGroundNormal();
     g_pCurrentCar->up = g_pCurrentCar->groundNormal;
     dot = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->up);
@@ -6548,7 +6548,7 @@ void Car_PlaceAtStart(int *param_1, int *param_2)
     g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
     g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
     Car_UpdateCorners(g_pCurrentCar);
-    FUN_004930e0(g_pCurrentCar, 8);
+    StageObject_UpdateCarCornerGroundHeights(g_pCurrentCar, 8);
     Car_FlagAirborneCorners();
     Car_LiftFreeCorners();
     Car_FlagAirborneCorners();
@@ -6636,9 +6636,9 @@ void Car_PlaceAtStart(int *param_1, int *param_2)
     g_pCurrentCar->field_0xc04[1] = 1;
     g_pCurrentCar->field_0x970[0] = 0x320000;
     CARF(0xc14) = 1;
-    l = FUN_00460c80((BYTE *)g_pCurrentCar);
+    l = StageObject_GetCarWeatherRampValue((BYTE *)g_pCurrentCar);
     Car_UpdateSurfaceParams(g_pCurrentCar, l);
-    FUN_004789b0((BYTE *)g_pCurrentCar);
+    StageObject_CopyCarSurfaceNoiseTarget((BYTE *)g_pCurrentCar);
 
 #undef CARF
 #undef CARV
@@ -6648,20 +6648,20 @@ void Car_PlaceAtStart(int *param_1, int *param_2)
 class CFrontend
 {
 public:
-    static void *FUN_0040ee70(int index);
-    static void *FUN_0040ee80(int index);
-    static void *FUN_0040ee90(int index);
+    static void *GetArchivePrimaryFlagEntry(int index);
+    static void *GetArchiveSecondaryFlagEntry(int index);
+    static void *GetArchivePrimaryIDEntry(int index);
 };
 
-unsigned char RallyData_FUN_00407ea0(void);
+unsigned char RallyData_GetSelectionFlag28(void);
 unsigned int StageTiming_GetTotalCarCount(void);
-int FUN_004660f0(void);
-BYTE FUN_004086f0(BYTE param1);
-char *RallyData_FUN_00406890(void);
-char *RallyData_FUN_00494a40(void);
-BYTE *RallyData_FUN_00407630(int index);
-BYTE *FUN_00494a70(void);
-BYTE FUN_0041b370(void);
+int Replay_GetSelectionStateByte(void);
+BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
+char *RallyData_GetCountrySevenByteRecord(void);
+char *RallyData_GetSelectedSettingSevenByteRecord(void);
+BYTE *RallyData_GetDriverSkillRecord(int index);
+BYTE *RallyData_GetCountrySettingSevenByteRecord(void);
+BYTE StageUI_GetRaceEndEventCount(void);
 
 // Spawns the current car at a stage/restart: picks the car model from the
 // rally selection, sets up its tuning from the per-model table, its body box
@@ -6695,13 +6695,13 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     flag8 = 0;
     flagC = 0;
     g_pCurrentCar = (Car *)param_1;
-    if (RallyData_FUN_00407ea0() != 0 && CGameInfo::FUN_00406310() != 0 &&
+    if (RallyData_GetSelectionFlag28() != 0 && CGameInfo::GetSoundOptionBit30() != 0 &&
         param_5 == (int)StageTiming_GetTotalCarCount() - 1) {
-        if (FUN_004660f0() == -1) {
+        if (Replay_GetSelectionStateByte() == -1) {
             carType = 0;
             flag8 = 1;
         } else {
-            carType = (int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0((BYTE)FUN_004660f0()));
+            carType = (int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)Replay_GetSelectionStateByte()));
             flagC = 1;
         }
     } else {
@@ -6716,7 +6716,7 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     for (i = 0; i < 4; i++) {
         FixMatrix_GetPosition((FixVector *)((int)g_pCurrentCar + 0x3c0 + i * 0xc),
                               (FixMatrix *)(*(int *)((int)g_pCurrentCar + 0x738 + i * 4) + 0x58));
-        if (CGameInfo::FUN_004063f0(6) != 0)
+        if (CGameInfo::IsActiveCheatEnabled(6) != 0)
             *(int *)((int)g_pCurrentCar + 0x3c4 + i * 0xc) -= g_pCurrentCar->field_0xa88;
     }
     g_pCurrentCar->position = *(FixVector *)param_4;
@@ -6921,7 +6921,7 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
         break;
     }
     bVar6 = 0;
-    if (RallyData_FUN_00407e70() != 0 && RallyDataState() == 1 && g_pCurrentCar->index != 0) {
+    if (RallyData_GetSelectionFlag26() != 0 && RallyDataState() == 1 && g_pCurrentCar->index != 0) {
         switch (g_pCurrentCar->type) {
         case 6:
         case 7:
@@ -6935,7 +6935,7 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
             g_pCurrentCar->field_0x794 = 0x98b02;
         }
     }
-    if (CGameInfo::FUN_004063f0(6) != 0) {
+    if (CGameInfo::IsActiveCheatEnabled(6) != 0) {
         g_pCurrentCar->field_0x1f8.y += g_pCurrentCar->field_0xa8c;
         g_pCurrentCar->field_0x770[1] += g_pCurrentCar->field_0xa8c;
         g_pCurrentCar->field_0x770[0] += g_pCurrentCar->field_0xa8c;
@@ -6949,7 +6949,7 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     g_pCurrentCar->gearSpeed[6] = FixDiv(0x190000, 0x180000);
     g_pCurrentCar->gearSpeed[7] = -FixDiv(0xc0000, 0x240000);
     g_pCurrentCar->field_0x788 += -0x51e;
-    if (CGameInfo::FUN_004063f0(7) != 0) {
+    if (CGameInfo::IsActiveCheatEnabled(7) != 0) {
         g_pCurrentCar->field_0x788 *= 2;
         g_pCurrentCar->field_0x794 = FixMul(g_pCurrentCar->field_0x794, 0x14ccc);
     }
@@ -6958,37 +6958,37 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     g_pCurrentCar->field_0x760 = FixDiv(0x10000, g_pCurrentCar->field_0x75c);
     g_pCurrentCar->field_0x824 = 0x1333;
     g_pCurrentCar->field_0x828 = FixDiv(0x10000, 0x30000);
-    g_pCurrentCar->field_0xb7c = (int)CFrontend::FUN_0040ee80((int)g_pCurrentCar->type);
-    g_pCurrentCar->field_0xb80 = (int)CFrontend::FUN_0040ee70((int)g_pCurrentCar->type);
+    g_pCurrentCar->field_0xb7c = (int)CFrontend::GetArchiveSecondaryFlagEntry((int)g_pCurrentCar->type);
+    g_pCurrentCar->field_0xb80 = (int)CFrontend::GetArchivePrimaryFlagEntry((int)g_pCurrentCar->type);
     if (flagC != 0) {
-        pcVar13 = (char *)RallyData_FUN_00407630(FUN_004660f0());
+        pcVar13 = (char *)RallyData_GetDriverSkillRecord(Replay_GetSelectionStateByte());
         goto LAB_0043d703;
     }
     if (RallyData_GetFlag24() != 0) {
-        pcVar13 = (char *)RallyData_FUN_00494a40();
+        pcVar13 = (char *)RallyData_GetSelectedSettingSevenByteRecord();
         goto LAB_0043d703;
     }
-    if (CGameInfo::FUN_00405d80() == 4 ||
-        (RallyData_GetFlag25() != 0 && CGameInfo::FUN_00405e00() == 0 &&
-         RallyData_FUN_00408500((BYTE)g_pCurrentCar->index) != -1) ||
-        (RallyData_GetFlag25() != 0 && flag8 != 0 && CGameInfo::FUN_00405e00() == 0)) {
+    if (CGameInfo::GetConfiguredGameMode() == 4 ||
+        (RallyData_GetFlag25() != 0 && CGameInfo::GetGameModeOptionBit19() == 0 &&
+         RallyData_GetUsableRecordCategory((BYTE)g_pCurrentCar->index) != -1) ||
+        (RallyData_GetFlag25() != 0 && flag8 != 0 && CGameInfo::GetGameModeOptionBit19() == 0)) {
 LAB_0043d6fe:
-        pcVar13 = (char *)FUN_00494a70();
+        pcVar13 = (char *)RallyData_GetCountrySettingSevenByteRecord();
         goto LAB_0043d703;
     }
-    if (!(CGameInfo::FUN_00405da0() == 0 || param_5 != 1 || RallyData_GetFlag25() == 0)) {
+    if (!(CGameInfo::IsConfiguredMultiplayer() == 0 || param_5 != 1 || RallyData_GetFlag25() == 0)) {
         if (flag8 != 0) {
 LAB_0043d6f7:
-            pcVar13 = (char *)RallyData_FUN_00406890();
+            pcVar13 = (char *)RallyData_GetCountrySevenByteRecord();
             goto LAB_0043d703;
         }
-        if (CGameInfo::FUN_00405e00() == 0)
+        if (CGameInfo::GetGameModeOptionBit19() == 0)
             goto LAB_0043d6fe;
     } else {
         if (flag8 != 0)
             goto LAB_0043d6f7;
     }
-    pcVar13 = (char *)RallyData_FUN_00407630((FUN_0041b370() & 0xff) + (int)g_pCurrentCar->index);
+    pcVar13 = (char *)RallyData_GetDriverSkillRecord((StageUI_GetRaceEndEventCount() & 0xff) + (int)g_pCurrentCar->index);
 LAB_0043d703:
     Car_SetRideHeight(FixMul((int)pcVar13[2] << 0x10, 0x28f));
     if (pcVar13[4] == '2') {
@@ -7022,8 +7022,8 @@ LAB_0043d703:
             Car_SetDriveSplit(0x8000);
         }
     }
-    FUN_0043e160(FixMul((int)pcVar13[5] << 0x10, 0x28f));
-    FUN_0043e1d0(*pcVar13);
+    Car_SetSteeringSwingTarget(FixMul((int)pcVar13[5] << 0x10, 0x28f));
+    Car_SetSurfaceDragLevel(*pcVar13);
     Car_SelectGearSpeedTable((unsigned int)pcVar13[1]);
     Car_SetDifficultyHandling(FixMul((int)pcVar13[6] << 0x10, 0x28f));
     if (bVar6)
@@ -7098,14 +7098,14 @@ LAB_0043d703:
     g_pCurrentCar->field_0x920 = 0x10000;
     g_pCurrentCar->field_0x924 = 0;
     if (flagC != 0) {
-        if (FUN_004086f0((BYTE)FUN_004660f0()) != 0)
+        if (RallyData_GetDriverOrCategoryFlag((BYTE)Replay_GetSelectionStateByte()) != 0)
             g_pCurrentCar->field_0xb48 = 2;
         else
             g_pCurrentCar->field_0xb48 = 1;
     } else if (flag8 != 0) {
         g_pCurrentCar->field_0xb48 = 2;
     } else if ((int)g_pCurrentCar->index < (int)(unsigned int)RallyDataState()) {
-        if (FUN_004086f0((BYTE)(FUN_0041b370() + g_pCurrentCar->index)) != 0)
+        if (RallyData_GetDriverOrCategoryFlag((BYTE)(StageUI_GetRaceEndEventCount() + g_pCurrentCar->index)) != 0)
             g_pCurrentCar->field_0xb48 = 2;
         else
             g_pCurrentCar->field_0xb48 = 1;
@@ -7113,19 +7113,19 @@ LAB_0043d703:
         g_pCurrentCar->field_0xb48 = 2;
     }
     g_pCurrentCar->field_0xb50 = 1;
-    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
-        CGameInfo::FUN_00405d80() == 7 ||
-        (CGameInfo::FUN_00405d80() == 4 && g_pCurrentCar->index != 0) ||
-        (RallyData_GetFlag25() != 0 && CGameInfo::FUN_00405e00() == 0 &&
-         RallyData_FUN_00408500((BYTE)g_pCurrentCar->index) != -1) ||
-        (RallyData_FUN_00407ea0() != 0 && CGameInfo::FUN_00406310() != 0) ||
-        CGameInfo::FUN_00406320() != 0 || CGameInfo::FUN_00405d80() == 0xb ||
-        CGameInfo::FUN_00405d80() == 0xc) {
+    if (CGameInfo::GetConfiguredGameMode() == 5 || CGameInfo::GetConfiguredGameMode() == 6 ||
+        CGameInfo::GetConfiguredGameMode() == 7 ||
+        (CGameInfo::GetConfiguredGameMode() == 4 && g_pCurrentCar->index != 0) ||
+        (RallyData_GetFlag25() != 0 && CGameInfo::GetGameModeOptionBit19() == 0 &&
+         RallyData_GetUsableRecordCategory((BYTE)g_pCurrentCar->index) != -1) ||
+        (RallyData_GetSelectionFlag28() != 0 && CGameInfo::GetSoundOptionBit30() != 0) ||
+        CGameInfo::GetGameInfoSessionFlag() != 0 || CGameInfo::GetConfiguredGameMode() == 0xb ||
+        CGameInfo::GetConfiguredGameMode() == 0xc) {
         g_pCurrentCar->field_0xb50 = 0;
     }
-    if (CGameInfo::FUN_00405da0() != 0 && param_5 == 1 && RallyData_GetFlag25() != 0)
+    if (CGameInfo::IsConfiguredMultiplayer() != 0 && param_5 == 1 && RallyData_GetFlag25() != 0)
         g_pCurrentCar->field_0xb50 = 0;
-    if (CGameInfo::FUN_00405d80() == 4)
+    if (CGameInfo::GetConfiguredGameMode() == 4)
         g_pCurrentCar->field_0xb50 = 0;
     g_pCurrentCar->field_0xb4c = 0;
     *(short *)((int)g_pCurrentCar + 0xafe) = 0;
@@ -7134,7 +7134,7 @@ LAB_0043d703:
     g_gravityScale = 0x9999;
     g_pCurrentCar->field_0x78c = g_pCurrentCar->field_0x788;
     CARF(0xa98) = 0x41c80000;
-    if (CGameInfo::FUN_00405e00() != 0 && g_pCurrentCar->index > 0) {
+    if (CGameInfo::GetGameModeOptionBit19() != 0 && g_pCurrentCar->index > 0) {
         g_pCurrentCar->field_0xc18 = 1;
         g_pCurrentCar->field_0xc1c = 1;
     }
@@ -7144,7 +7144,7 @@ LAB_0043d703:
 #undef CARB
 }
 
-int FUN_00447ea0(BYTE index);
+int HudDash_GetPlayerGaugeValue(BYTE index);
 void FixMatrix_RebuildBasis(FixMatrix *pOut);
 
 // Places one car's view-camera basis for the given view slot: copies the car
@@ -7170,7 +7170,7 @@ void View_PlaceCarCamera(BYTE param_1)
     index = param_1 & 0xff;
     FixMatrix_CopyRotationFrom(&g_unk0x00538ca0[index], Car_Get(index)->pWorld);
     pView = &g_unk0x00538ca0[index];
-    if (CGameInfo::FUN_004063f0(6) != 0) {
+    if (CGameInfo::IsActiveCheatEnabled(6) != 0) {
         FixMatrix_GetUp(&up, Car_Get(index)->pWorld);
         scale = FixMul(Car_Get(index)->field_0xa8c, 0x8000);
         FixVecScale(&up, &up, scale);
@@ -7183,7 +7183,7 @@ void View_PlaceCarCamera(BYTE param_1)
     if (g_unk0x00538f00[index] != 0) {
         angle = (short)(__int64)((double)FixMul(
                     g_sinTable[g_unk0x00538df8[index] & 0xfff],
-                    FixDiv(FUN_00447ea0(param_1) - 0x80000, 0x100000) * 0x5a + 0x140000) *
+                    FixDiv(HudDash_GetPlayerGaugeValue(param_1) - 0x80000, 0x100000) * 0x5a + 0x140000) *
                     g_unk0x00511300);
         FixMatrix_CopyRotationFrom(&src, Car_Get(index)->pBodyMatrix);
         basis = *pView;
@@ -7227,7 +7227,7 @@ void Car_PrepareBodies(int base, short *pList, short count)
 
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);
-        g_pCarSetup = (BYTE *)FUN_00469680((int)g_pCurrentCar->index);
+        g_pCarSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_UpdateWheelTravel();
         g_pCurrentCar->field_0xabe[0] = g_pCurrentCar->wheelSurface[0];
         g_pCurrentCar->field_0xabe[1] = g_pCurrentCar->wheelSurface[1];
@@ -7283,7 +7283,7 @@ void Car_StepGroundContact(void)
     g_pCurrentCar->field_0xba0[0] = 0;
     g_pCurrentCar->field_0xba0[1] = 0;
     g_pCurrentCar->field_0xba0[2] = 0;
-    FUN_004930e0(g_pCurrentCar, 4);
+    StageObject_UpdateCarCornerGroundHeights(g_pCurrentCar, 4);
     if (g_pCurrentCar->field_0xb35[0] == 1)
         Car_FlagAirborneCorners();
 
@@ -7340,9 +7340,9 @@ void Car_StepGroundContact(void)
             g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
             Car_UpdateCorners(g_pCurrentCar);
             if (!(g_pCurrentCar->field_0xc00 == 0))
-                FUN_004930e0(g_pCurrentCar, 8);
+                StageObject_UpdateCarCornerGroundHeights(g_pCurrentCar, 8);
             else
-                FUN_004930e0(g_pCurrentCar, 4);
+                StageObject_UpdateCarCornerGroundHeights(g_pCurrentCar, 4);
         } else {
             // Fast along the normal: turn the change of the ground normal
             // into a body torque perpendicular to it.
@@ -7407,7 +7407,7 @@ void Car_StepGroundContact(void)
 }
 
 // --- 0x0043f630 (layer 0) ----------------------------------------------------
-void FUN_00493520(Car *pCar);
+void AutoGear_UpdateCarGearState(Car *pCar);
 void FUN_004786b0(BYTE *pWheel, int unused);
 short Sector_GetNeighbours(FixVector *pPos, short *pOut);
 
@@ -7451,13 +7451,13 @@ void Car_RunStepPasses(int carBase, short *pOrder, short count)
         g_pCurrentCar->field_0x968 = g_pCurrentCar->field_0x964;
         g_pCurrentCar->field_0x964 = g_pCurrentCar->field_0x960;
         FUN_004786b0((BYTE *)g_pCurrentCar, 0);
-        FUN_004340f0();
+        Car_UpdateLowSpeedWheelLoadTimer();
     }
 
     // Pass 2: clear the per-wheel accumulators walked over by the surface code.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(carBase + pOrder[i] * 0xc24);
-        FUN_00493520(g_pCurrentCar);
+        AutoGear_UpdateCarGearState(g_pCurrentCar);
         for (j = 3; j >= 0; j--) {
             g_pCurrentCar->wheelSlip[j] = 0;
             g_pCurrentCar->wheelSlipLateral[j] = 0;
@@ -7467,7 +7467,7 @@ void Car_RunStepPasses(int carBase, short *pOrder, short count)
     // Pass 3: corner loads and forces.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(carBase + pOrder[i] * 0xc24);
-        g_pCarSetup = (BYTE *)FUN_00469680((int)g_pCurrentCar->index);
+        g_pCarSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_UpdateCornerVelocityPair();
         for (j = 7; j >= 0; j--) {
             g_pCurrentCar->cornerLoad[j].x = 0;
@@ -7484,7 +7484,7 @@ void Car_RunStepPasses(int carBase, short *pOrder, short count)
     // Pass 4: body lean and steering.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(carBase + pOrder[i] * 0xc24);
-        g_pCarSetup = (BYTE *)FUN_00469680((int)g_pCurrentCar->index);
+        g_pCarSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_UpdateBodyLean();
         if (g_pCurrentCar->field_0xb74 != 0) {
             Car_SetupSuspensionRates();
@@ -7495,7 +7495,7 @@ void Car_RunStepPasses(int carBase, short *pOrder, short count)
     // Pass 5: wheel forces.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(carBase + pOrder[i] * 0xc24);
-        g_pCarSetup = (BYTE *)FUN_00469680((int)g_pCurrentCar->index);
+        g_pCarSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         if (g_pCurrentCar->field_0xb74 != 0) {
             Car_SplitEngineTorque();
             Car_UpdateWheelForces();
@@ -7506,7 +7506,7 @@ void Car_RunStepPasses(int carBase, short *pOrder, short count)
     // Pass 6: body axes without damping.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(carBase + pOrder[i] * 0xc24);
-        g_pCarSetup = (BYTE *)FUN_00469680((int)g_pCurrentCar->index);
+        g_pCarSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         if (g_pCurrentCar->field_0xb74 != 0)
             Car_UpdateBodyAxesNoDamping();
     }
@@ -7514,7 +7514,7 @@ void Car_RunStepPasses(int carBase, short *pOrder, short count)
     // Pass 7: integrate the rigid body.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(carBase + pOrder[i] * 0xc24);
-        g_pCarSetup = (BYTE *)FUN_00469680((int)g_pCurrentCar->index);
+        g_pCarSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_Integrate();
     }
 
@@ -7523,7 +7523,7 @@ void Car_RunStepPasses(int carBase, short *pOrder, short count)
         g_pCurrentCar = (Car *)(carBase + pOrder[i] * 0xc24);
         if (g_pCurrentCar->field_0xb74 != 0) {
             Car_UpdateRideHeight();
-            FUN_00443230();
+            Car_CopySteeringFollowState();
         }
         g_pCurrentCar->field_0x5c4.x = 0;
         g_pCurrentCar->field_0x5c4.y = 0;
@@ -7805,36 +7805,36 @@ found:
 extern double g_unk0x00511308;
 extern double g_unk0x00511300;
 struct Unk004238e0;
-void FUN_00423810(BYTE *pObject, BYTE *pInfo);
-void FUN_00423860(BYTE *pObject, BYTE *pInfo);
-void FUN_004238e0(Unk004238e0 *param1, int param2);
+void Game_DispatchObjectTypeEvent(BYTE *pObject, BYTE *pInfo);
+void Game_DispatchObjectTypeUpdate(BYTE *pObject, BYTE *pInfo);
+void Game_UpdateType3ObjectState(Unk004238e0 *param1, int param2);
 void FUN_00423900(BYTE *pObject, BYTE *pInfo);
-void FUN_004239e0(int *p);
-void FUN_004ae410(BYTE a, BYTE b, int c, int d);
-void FUN_00486740(BYTE *pObj, int *pSrc, BYTE index, BYTE value);
-void FUN_00476410(BYTE *p, int *src, int unused, BYTE value);
+void RallyData_ValidateType3Entry(int *p);
+void Glow_NoOpEntryCallback(BYTE a, BYTE b, int c, int d);
+void StageObject_SelectAndCopyCarNodePayload(BYTE *pObj, int *pSrc, BYTE index, BYTE value);
+void StageObject_SyncStateAndSceneMatrix(BYTE *p, int *src, int unused, BYTE value);
 void FUN_00447530(BYTE *param_1, BYTE *param_2, int param_3);
 void FUN_0048cae0(BYTE *pRecord, FixMatrix *pRef, int param);
 void FUN_00486910(BYTE *pObj, int *pSrc);
-void FUN_00477850(int object, int *src);
-void FUN_00447a00(BYTE *pObj, FixMatrix *pRef);
+void StageObject_BuildCarNodeOrientation(int object, int *src);
+void View_CacheReferenceBasisAndBuildMatrix(BYTE *pObj, FixMatrix *pRef);
 void FUN_0048ce80(BYTE *pRecord, FixMatrix *pRef);
-void FUN_004869e0(BYTE *pObj, FixMatrix *pRef);
-void FUN_004778b0(BYTE *object, int unused);
-void FUN_00447a40(BYTE *pObj, FixMatrix *pRef);
+void StageObject_SetPositionFromSplitVector(BYTE *pObj, FixMatrix *pRef);
+void StageObject_BuildCarMountWorldMatrix(BYTE *object, int unused);
+void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef);
 void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef);
-void FUN_00486810(BYTE *pObj, int *pSrc, int param_3);
-void FUN_004765e0(BYTE *pObj, int a, int b);
+void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3);
+void StageObject_DispatchActiveCarObjectUpdate(BYTE *pObj, int a, int b);
 void FUN_004475f0(BYTE *param_1, FixMatrix *param_2, int param_3);
 void FUN_0048cc30(BYTE *pRecord, FixMatrix *pRef);
 int Track_GetGroundHeight5(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass, int defaultY);
 void FUN_004760a0(int record, BYTE car);
-unsigned short FUN_00407650(void);
-unsigned short FUN_00407710(void);
+unsigned short RallyData_GetPrimaryStageScoreScale(void);
+unsigned short RallyData_GetSecondaryStageScoreScale(void);
 void FUN_00475f80(void);
-void FUN_00486700(void);
-void FUN_00459250(BYTE player, unsigned int node, int dir);
-int RallyData_FUN_00411060(void);
+void StageObject_CacheCarSplitVectorPointers(void);
+void StageTiming_SetViewRouteDistanceLimit(BYTE player, unsigned int node, int dir);
+int RallyData_GetChallengeRenderState(void);
 void View_PlaceCarCamera(BYTE param_1);
 int View_IsModeAvailable(BYTE index, int mode);
 FixMatrix *View_GetCarBodyMatrix(FixMatrix *pOut, BYTE car);
@@ -7855,28 +7855,28 @@ void Camera_Start(CameraRecord *pRecord, int type, int param)
     View_GetCarBodyMatrix(&body, car);
     switch (type) {
     case 6:
-        FUN_00447530((BYTE *)pRecord, (BYTE *)FUN_00423d70(car), 3);
+        FUN_00447530((BYTE *)pRecord, (BYTE *)Car_GetCameraReferenceMatrix(car), 3);
         return;
     case 4:
-        FUN_00447530((BYTE *)pRecord, (BYTE *)FUN_00423d70(car), 0);
+        FUN_00447530((BYTE *)pRecord, (BYTE *)Car_GetCameraReferenceMatrix(car), 0);
         return;
     case 5:
-        FUN_00447530((BYTE *)pRecord, (BYTE *)FUN_00423d70(car), 4);
+        FUN_00447530((BYTE *)pRecord, (BYTE *)Car_GetCameraReferenceMatrix(car), 4);
         return;
     case 3:
-        FUN_00476410((BYTE *)pRecord, (int *)FUN_00423d70(car), FUN_00422f50(view), (BYTE)pCar->type);
+        StageObject_SyncStateAndSceneMatrix((BYTE *)pRecord, (int *)Car_GetCameraReferenceMatrix(car), View_GetActiveCameraMode(view), (BYTE)pCar->type);
         return;
     case 2:
-        FUN_00486740((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 0);
+        StageObject_SelectAndCopyCarNodePayload((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 0);
         return;
     case 10:
-        FUN_00486740((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 2);
+        StageObject_SelectAndCopyCarNodePayload((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 2);
         return;
     case 1:
-        FUN_00486740((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 1);
+        StageObject_SelectAndCopyCarNodePayload((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 1);
         return;
     case 7:
-        FUN_0048cae0((BYTE *)pRecord, FUN_00423d70(car), param);
+        FUN_0048cae0((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car), param);
     }
 }
 
@@ -7911,25 +7911,25 @@ void Camera_Update(CameraRecord *pRecord)
     case 4:
     case 5:
     case 6:
-        FUN_004475f0((BYTE *)pRecord, FUN_00423d70(car), onCar);
+        FUN_004475f0((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car), onCar);
         break;
     case 3:
-        FUN_004765e0((BYTE *)pRecord, (int)FUN_00423d70(car), (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
+        StageObject_DispatchActiveCarObjectUpdate((BYTE *)pRecord, (int)Car_GetCameraReferenceMatrix(car), (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         break;
     case 2:
-        FUN_00486810((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
+        StageObject_InterpolateReferenceMatrix((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         break;
     case 10:
-        FUN_00486810((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
+        StageObject_InterpolateReferenceMatrix((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         break;
     case 1:
-        FUN_00486810((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
+        StageObject_InterpolateReferenceMatrix((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         break;
     case 7:
-        FUN_0048cc30((BYTE *)pRecord, FUN_00423d70(car));
+        FUN_0048cc30((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car));
         break;
     }
-    if (FUN_00445a20() == 0 && check != 0) {
+    if (View_IsPlaybackCameraActive() == 0 && check != 0) {
         FixMatrix_GetPosition(&position, &pRecord->matrix);
         tri = 0;
         clearance = Track_GetGroundHeight5(&position, &normal, &tri, &surface,
@@ -7958,10 +7958,10 @@ void Camera_Restart(CameraRecord *pRecord)
     case 4:
     case 5:
     case 6:
-        FUN_00447a00((BYTE *)pRecord, FUN_00423d70(car));
+        View_CacheReferenceBasisAndBuildMatrix((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car));
         return;
     case 3:
-        FUN_00477850((int)pRecord, (int *)FUN_00423d70(car));
+        StageObject_BuildCarNodeOrientation((int)pRecord, (int *)Car_GetCameraReferenceMatrix(car));
         return;
     case 2:
         FUN_00486910((BYTE *)pRecord, (int *)&body);
@@ -7973,7 +7973,7 @@ void Camera_Restart(CameraRecord *pRecord)
         FUN_00486910((BYTE *)pRecord, (int *)&body);
         return;
     case 7:
-        FUN_0048ce80((BYTE *)pRecord, FUN_00423d70(car));
+        FUN_0048ce80((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car));
     }
 }
 
@@ -7984,20 +7984,20 @@ void Camera_SnapTo(CameraRecord *pRecord, FixMatrix *pRef)
     switch (pRecord->type) {
     case 5:
     case 6:
-        FUN_00447a40((BYTE *)pRecord, pRef);
+        View_BuildMatrixFromCameraBasis((BYTE *)pRecord, pRef);
         return;
     case 4:
-        FUN_00447a40((BYTE *)pRecord, pRef);
+        View_BuildMatrixFromCameraBasis((BYTE *)pRecord, pRef);
         return;
     case 3:
-        FUN_004778b0((BYTE *)pRecord, (int)pRef);
+        StageObject_BuildCarMountWorldMatrix((BYTE *)pRecord, (int)pRef);
         return;
     case 10:
-        FUN_004869e0((BYTE *)pRecord, pRef);
+        StageObject_SetPositionFromSplitVector((BYTE *)pRecord, pRef);
         return;
     case 1:
     case 2:
-        FUN_004869e0((BYTE *)pRecord, pRef);
+        StageObject_SetPositionFromSplitVector((BYTE *)pRecord, pRef);
         return;
     case 7:
         FUN_0048d0f0((BYTE *)pRecord, pRef);
@@ -8013,11 +8013,11 @@ void View_SetupCameras(void)
     FixAngles angles;
     BYTE i;
 
-    if ((unsigned short)FUN_00407650() < 0x834)
-        FUN_00407710();
+    if ((unsigned short)RallyData_GetPrimaryStageScoreScale() < 0x834)
+        RallyData_GetSecondaryStageScoreScale();
     CGame::RegisterCallback(View_ReleaseNodes, NULL);
     FUN_00475f80();
-    FUN_00486700();
+    StageObject_CacheCarSplitVectorPointers();
     for (i = 0; i < 4; i++) {
         g_viewRecords[i].index = i;
         g_viewRecords[i].view = i >> 1;
@@ -8033,16 +8033,16 @@ void View_SetupCameras(void)
     angles.z = 0;
     i = 0;
     for (i = 0; i < 2; i++) {
-        g_viewNodes[i] = SceneType2_Create(&position, &angles, NULL, (SceneNode *)RallyData_FUN_00411060());
+        g_viewNodes[i] = SceneType2_Create(&position, &angles, NULL, (SceneNode *)RallyData_GetChallengeRenderState());
         *(int *)(g_unk0x00538d2c + i * 100) = 0;
         g_unk0x00538d20[i] = -0x10000;
         g_unk0x00538e0c[i] = 0;
         g_unk0x005391b0[i] = 0;
         g_unk0x005391c4[i] = 0;
         g_unk0x005391a8[i] = 0;
-        FUN_00459250(0, 0, 1);
+        StageTiming_SetViewRouteDistanceLimit(0, 0, 1);
         g_unk0x00538f00[i] = 0;
-        FUN_00447ca0(i);
+        HudDash_ResetPlayerCamera(i);
     }
 }
 
@@ -8056,7 +8056,7 @@ void View_SwitchCamera(BYTE view, int type, int param, BYTE target, int blend)
     BYTE active;
     BYTE next;
 
-    if (FUN_00422f50(view) != 8 && View_IsModeAvailable(view, type) != 0)
+    if (View_GetActiveCameraMode(view) != 8 && View_IsModeAvailable(view, type) != 0)
         ok = 1;
     else
         ok = 0;
@@ -8070,24 +8070,24 @@ void View_SwitchCamera(BYTE view, int type, int param, BYTE target, int blend)
     else
         blend = 1;
     if (type == 7 && param == 0xffff)
-        param = FUN_0048d8b0((FixVector *)((BYTE *)Car_Get(view) + 0x2d0));
+        param = StageObject_FindNearestCameraSpot((FixVector *)((BYTE *)Car_Get(view) + 0x2d0));
     VIEW_RECORD(next)->type = type;
     if (VIEW_RECORD(next)->car != target) {
-        FUN_004ae410(VIEW_RECORD(next)->car, VIEW_RECORD(next)->view, 1, 1);
-        FUN_004ae410(target, VIEW_RECORD(next)->view, 1, 1);
+        Glow_NoOpEntryCallback(VIEW_RECORD(next)->car, VIEW_RECORD(next)->view, 1, 1);
+        Glow_NoOpEntryCallback(target, VIEW_RECORD(next)->view, 1, 1);
     }
     VIEW_RECORD(next)->car = target;
-    FUN_00423810((BYTE *)VIEW_RECORD(active), (BYTE *)VIEW_RECORD(next));
-    FUN_00423860((BYTE *)VIEW_RECORD(next), (BYTE *)VIEW_RECORD(active));
+    Game_DispatchObjectTypeEvent((BYTE *)VIEW_RECORD(active), (BYTE *)VIEW_RECORD(next));
+    Game_DispatchObjectTypeUpdate((BYTE *)VIEW_RECORD(next), (BYTE *)VIEW_RECORD(active));
     Camera_Start(VIEW_RECORD(next), type, param);
     VIEW_RECORD(next)->clearance = 0;
     if (blend) {
         g_unk0x00538d20[view] = 0xc8000;
         return;
     }
-    FUN_004238e0((Unk004238e0 *)VIEW_RECORD(active), (int)VIEW_RECORD(next));
+    Game_UpdateType3ObjectState((Unk004238e0 *)VIEW_RECORD(active), (int)VIEW_RECORD(next));
     FUN_00423900((BYTE *)VIEW_RECORD(next), (BYTE *)VIEW_RECORD(active));
-    FUN_004239e0((int *)VIEW_RECORD(active));
+    RallyData_ValidateType3Entry((int *)VIEW_RECORD(active));
     g_unk0x005391b0[view] = 1;
     g_unk0x00538e0c[view] = 1 - g_unk0x00538e0c[view];
 }
@@ -8177,9 +8177,9 @@ void View_UpdateCamera(BYTE view)
         *pTimer -= g_physicsTimeStep;
         return;
     }
-    FUN_004238e0((Unk004238e0 *)pActive, (int)pNext);
+    Game_UpdateType3ObjectState((Unk004238e0 *)pActive, (int)pNext);
     FUN_00423900((BYTE *)pNext, (BYTE *)pActive);
-    FUN_004239e0((int *)pActive);
+    RallyData_ValidateType3Entry((int *)pActive);
     CameraState_Copy(VIEW_STATE(index), pNext);
     g_unk0x00538e0c[index] = 1 - g_unk0x00538e0c[index];
     *pTimer -= g_physicsTimeStep;
@@ -8197,7 +8197,7 @@ void View_ResetCameras(int view)
     View_PlaceCarCamera(view);
     Camera_Restart(VIEW_RECORD(active));
     VIEW_RECORD(active)->clearance = 0;
-    if (FUN_00422f50(view) == 8) {
+    if (View_GetActiveCameraMode(view) == 8) {
         Camera_Restart(VIEW_RECORD(next));
         VIEW_RECORD(next)->clearance = 0;
     }
@@ -8219,7 +8219,7 @@ void View_SnapCameras(BYTE view)
     View_PlaceCarCamera(view);
     View_GetCarCameraRotation(&placement, view);
     Camera_SnapTo(VIEW_RECORD(active), &placement);
-    if (FUN_00422f50(view) == 8) {
+    if (View_GetActiveCameraMode(view) == 8) {
             Camera_SnapTo(VIEW_RECORD(next), &placement);
         CameraState_Interpolate(VIEW_STATE(view), VIEW_RECORD(active), VIEW_RECORD(next),
                      0x10000 - FixMul(VIEW_EASE(g_unk0x00538d20[view]), VIEW_EASE(g_unk0x00538d20[view])));
@@ -8235,7 +8235,7 @@ void View_SnapCameras(BYTE view)
 void View_SetCameraType(int view, int type, BYTE target, int blend)
 {
     if (type == 0)
-        type = FUN_00422f50(view);
+        type = View_GetActiveCameraMode(view);
     View_SwitchCamera(view, type, 0xffff, target, blend);
 }
 

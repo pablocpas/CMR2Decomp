@@ -34,7 +34,7 @@ extern RallyOverallTables g_rallyOverallTables;
 #define g_rallyOverallTimesRaw (g_rallyOverallTables.times)
 #define g_unk0x00533698 (g_rallyOverallTables.count)
 
-void FUN_0040ccd0(char *pPositions, int *pPoints);
+void RallyTiming_AddChampionshipPoints(char *pPositions, int *pPoints);
 int RallyTiming_GetStageOrderDriverID(int iPosition);
 int RallyTiming_GetStagePositionOfDriver(int iDriver);
 int RallyTiming_GetStageTimeSeconds(int iDriver);
@@ -42,7 +42,7 @@ void RallyTiming_AddStageTimes(char *pcDriverIDs, char *pcTimeDriverIx, int *piT
 void RallyTiming_SortOverallOrder(void);
 void RallyTiming_SortStageOrder(void);
 int RallyTiming_GetOverallPositionOfDriver(int iDriver);
-int RallyTiming_FUN_0040d3d0(int index);
+int RallyTiming_GetOverallTimeCentiseconds(int index);
 int RallyTiming_GetStagePenalty(int iDriver, int iUnused);
 int RallyTiming_GetPointsForPosition(int iPosition);
 void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCount, char bInitialise);

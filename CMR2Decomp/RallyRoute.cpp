@@ -7,7 +7,7 @@ short g_routeDirCount;
 FixVector g_routeDir[3];
 
 // FUNCTION: CMR2 0x00421570
-void FUN_00421570(unsigned int nodeIndex, FixVector *pOut)
+void RallyRoute_CopyIndexedNodeDirection(unsigned int nodeIndex, FixVector *pOut)
 {
     RallyRoute_GetNodeDirection(pOut, nodeIndex);
 }

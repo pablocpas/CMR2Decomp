@@ -1105,51 +1105,51 @@ class CGraphics {
 public:
     static bool InitializeDirectX(void);
     static void SetDefaults(void);
-    static void FUN_004a78a0(unsigned int screenWidth, unsigned int screenHeight, unsigned int colourDepth, unsigned int param4, unsigned int param5);
-    static void FUN_004a5ba0(void);
+    static void RecreateGraphicsDeviceAndResources(unsigned int screenWidth, unsigned int screenHeight, unsigned int colourDepth, unsigned int param4, unsigned int param5);
+    static void ReleaseCachedTextureSurfaces(void);
     static BYTE FUN_004a5be0(void);
     static BOOL ReleaseDirect3D(void);
     static void ReleaseVertexBuffers(void);
     static int ReleaseSurfaces(void);
-    static void FUN_004a8bd0(int param1);
-    static void FUN_004a8d90(int param1);
+    static void SetSelectedDisplayDriverIndex(int param1);
+    static void SetSelectedRenderDeviceIndex(int param1);
     static BOOL FUN_004a7910(int screenWidth, int screenHeight, int colourDepth);
-    static BOOL FUN_004bdb60(DDDeviceEnumBuffer* param1, HWND hWnd);
-    static BOOL FUN_004bdb60_DDEnumCallback(GUID* lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName,  LPVOID lpContext, HMONITOR hMonitor);
+    static BOOL EnumerateAndProbeDisplayDevices(DDDeviceEnumBuffer* param1, HWND hWnd);
+    static BOOL EnumerateDisplayDeviceGUIDCallback(GUID* lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName,  LPVOID lpContext, HMONITOR hMonitor);
     static BOOL FUN_004bdd30(DDEnumDeviceBufferEntry *device,IDirectDraw7 *pDD);
-    static void FUN_004bde20(DDEnumDeviceBufferEntry *device,IDirectDraw7 *pDD);
-    static HRESULT FUN_004bde60(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg);
-    static DWORD FUN_004a96c0(int param1);
-    static INT32 FUN_004a8bc0(void);
-    static DWORD FUN_004a96e0(int param_1);
-    static BOOL FUN_004a8b30_DDEnumCallback(GUID* lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName,  LPVOID lpContext, HMONITOR hMonitor);
-    static HRESULT FUN_004a8da0(DDSURFACEDESC2* lpDDSurfaceDesc2, void* lpContext);
+    static void EnumerateRenderDeviceCapabilities(DDEnumDeviceBufferEntry *device,IDirectDraw7 *pDD);
+    static HRESULT CollectRenderDeviceCapabilitiesCallback(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg);
+    static DWORD GetTextureFormatCap1(int param1);
+    static INT32 GetSelectedDisplayDriverIndex(void);
+    static DWORD GetTextureFormatCap80000(int param_1);
+    static BOOL EnumerateDisplayDriverDescriptions(GUID* lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName,  LPVOID lpContext, HMONITOR hMonitor);
+    static HRESULT EnumerateCompatibleDisplayModes(DDSURFACEDESC2* lpDDSurfaceDesc2, void* lpContext);
     static int DeviceCanRender16Bit(int param1);
-    static DWORD FUN_004bdd00(DWORD caps);
-    static BOOL FUN_004a8f60(int width, int height, int colourDepth);
-    static void FUN_004a8ec0(int width, int height, int colourDepth);
-    static DWORD FUN_004a8d60(void);
+    static DWORD QueryAvailableVideoMemoryForCaps(DWORD caps);
+    static BOOL IsDisplayModeEnumerated(int width, int height, int colourDepth);
+    static void SelectMatchingDisplayMode(int width, int height, int colourDepth);
+    static DWORD GetSelectedRenderDeviceSurfaceCaps(void);
     static HRESULT FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg);
     static void BltTexture(Texture *pTexture, int surfaceIndex);
     static void UnlockTexture(Texture *pTexture);
     static unsigned int GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y);
     static unsigned int GetPixelAlpha(DDSURFACEDESC2 *pDesc, int x, int y);
     static BOOL FreeTextureBuffers(void);
-    static unsigned int FUN_004a5fe0(void);
-    static void FUN_004a5ff0(BYTE param1);
-    static void FUN_004a6040(BYTE param1);
-    static void FUN_004a6060(BYTE param1);
-    static void FUN_004a60b0(BYTE param1);
+    static unsigned int GetTextureMemoryKilobytes(void);
+    static void SetPrimaryColourByte(BYTE param1);
+    static void SetPrimaryColourBias(BYTE param1);
+    static void SetSecondaryColourByte(BYTE param1);
+    static void SetSecondaryColourBias(BYTE param1);
     static HRESULT CALLBACK CopyZBufferPixelFormat(DDPIXELFORMAT *pSrc, LPVOID lpContext);
-    static int FUN_004a8be0(void);
+    static int GetDisplayDriverCount(void);
     static void GetDisplayDeviceNames(int index, LPSTR description, LPSTR name);
-    static int FUN_004a8d80(void);
+    static int GetSelectedRenderDeviceIndex(void);
     static int GetSelectedDisplayDeviceIx(void);
     static DWORD GetDisplayCount(void);
     static void GetDisplayMode(int index, DWORD *pWidth, DWORD *pHeight, DWORD *pColourDepth);
-    static DWORD FUN_004a96d0(int param1);
-    static void FUN_004a6010(BYTE param1);
-    static void FUN_004a6080(BYTE param1);
+    static DWORD GetTextureFormatCap200(int param1);
+    static void SetPrimaryColourScale(BYTE param1);
+    static void SetSecondaryColourScale(BYTE param1);
     static TGAImageInfo *ParseTGAHeader(BYTE *pHeader);
     static void RestoreSurfaces(void);
     static void SetMipMapCount(DDSURFACEDESC2 *pDesc);
@@ -1164,15 +1164,15 @@ public:
     static DWORD m_cubeMapSize;
 
 public:
-    static void FUN_004a3de0(void);
-    static int FUN_004b1970(void);
+    static void InvalidateBlendStateCache(void);
+    static int GetSharedVertexMemoryKilobytes(void);
     static HRESULT CALLBACK EnumTextureFormatsCallback(DDPIXELFORMAT *pddpf, LPVOID lpContext);
     static void SelectTextureFormats(void);
     static BOOL CreateDirect3DDevice(int param1, int param2, int param3);
-    static BOOL FUN_004b74b0(void);
-    static void FUN_004b1980(void);
+    static BOOL GetRasterCapabilityField84(void);
+    static void AllocateSharedVertexBuffers(void);
     static void FUN_004b7210(void);
-    static void FUN_0049df90(BOOL param1, int param2);
+    static void ConfigureDefaultRenderStates(BOOL param1, int param2);
 
     static void SetProjection(int fovX, int fovY, int farPlane, int nearPlane);
     static void GenerateBumpMap(Texture *pSrc, Texture *pDst);
@@ -1180,8 +1180,8 @@ public:
     static void RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD from1, WORD to1, WORD from2, WORD to2, int cacheSlot);
     static void BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BYTE *pColour);
     static Texture *LoadDDSTexture(DDSFile *pDDS, Texture *pTexture);
-    static Texture *FUN_004a48c0(char *name, void *pData, unsigned int flags);
-    static Texture *FUN_004a49c0(char *name, unsigned int flags);
+    static Texture *CreateTextureFromImageData(char *name, void *pData, unsigned int flags);
+    static Texture *LoadDDSThenTGATexture(char *name, unsigned int flags);
     static Texture *LoadTGATexture(BYTE *pTGA, Texture *pTexture);
     static BYTE *SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pInfo, unsigned int flags);
     static Texture *LoadTGABumpMap(BYTE *pTGA, Texture *pTexture);
@@ -1303,9 +1303,9 @@ private:
 
     // Mesh_Rebuild locks/unlocks a shared vertex buffer.
     friend void Mesh_Rebuild(Mesh *pMesh);
-    friend int FUN_004a4bd0(void *pSource, int param2);
-    friend void FUN_004ae0a0(void);
-    friend RenderTexture *FUN_004a4b10(void);
+    friend int Graphics_CopyIntoFreeTextureSlot(void *pSource, int param2);
+    friend void Graphics_CreateSharedWriteOnlyVertexBuffer(void);
+    friend RenderTexture *Graphics_AllocateCubeMapTextureSlot(void);
 
     // GLOBAL: CMR2 0x00520b1c
     static int m_unk0x00520b1c;
@@ -1318,30 +1318,30 @@ private:
     // GLOBAL: CMR2 0x0065fa38
     static int m_unk0x0065fa38;
 
-    static void FUN_004a3e40(int param1, int param2);
-    static void FUN_004a3e90(int param1, int param2);
-    static void FUN_004a4850(int param1, int param2);
+    static void SetCachedSourceDestinationBlend(int param1, int param2);
+    static void ConfigureTextureStageBlendMode(int param1, int param2);
+    static void ApplyTextureStageChange(int param1, int param2);
     // SceneNode_CreateRoot stores the root node in the texture manager.
     friend SceneNode *SceneNode_CreateRoot(void);
     friend void Graphics_SetTextureFactorAlpha(BYTE *pColour);
     friend void Graphics_ReloadTexture(Texture *pTexture);
     friend void Car_SwapWheelTextures(char mode, SceneNode **pWheels);
-    friend void FUN_0049dcc0(int enable);
-    friend void FUN_0049de40(void);
-    friend void FUN_0049c7b0(Mesh *pMesh);
-    friend void FUN_00477b60(int car, int unused1, int unused2, BYTE flag);
-    friend void FUN_004bad40(int *pOut, FixVector *pPoint, BYTE *pView);
-    friend void FUN_0049c880(Mesh *pMesh);
+    friend void Graphics_SwitchAlphaBlendAndTest(int enable);
+    friend void Graphics_PresentFrameAndResetCounters(void);
+    friend void Graphics_MarkTexturesAndDrawMeshParts(Mesh *pMesh);
+    friend void StageObject_InitCarBodyDamageTextures(int car, int unused1, int unused2, BYTE flag);
+    friend void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, BYTE *pView);
+    friend void Graphics_DrawMeshPartsByTexture(Mesh *pMesh);
     // Draws the mesh LOD record in use with the state its flags ask for.
     friend void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
-    friend int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size);
-    friend void FUN_004b2460(Mesh *pMesh);
-    friend void FUN_004b2610(Mesh *pMesh);
+    friend int Graphics_ReserveCubeMapsAndLoadEnvironment(char *name, int count, GenericFile *pFile, DWORD size);
+    friend void Graphics_ProjectMeshVertexMidpoints(Mesh *pMesh);
+    friend void Graphics_DrawCubeMappedShadowTriangles(Mesh *pMesh);
     // Mesh_DrawEnvMapped sets the texture transform of the projected cube map.
     friend void Mesh_DrawEnvMapped(Mesh *pMesh);
     friend void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3);
-    friend void FUN_00506080(int param1);
-    friend Texture *FUN_004b9b80(char *name);
+    friend void OptionPreview_UpdateWheelMeshVariants(int param1);
+    friend Texture *Graphics_FindAndEnsureResidentTexture(char *name);
     friend void Events_Init(int unused, int slot, char animate);
     friend void Scene_SetAmbient(BYTE *pColour, int boost);
     friend void Sprite_DrawLayer(int layer);
@@ -1374,9 +1374,9 @@ private:
     friend void Mesh_UploadVertices(Mesh *pMesh);
     friend void FUN_00477340(int player);
     friend void FUN_0049c680(Mesh *pMesh);
-    friend int FUN_0050ff90(char *fileName, unsigned int trackIndex);
+    friend int OptionMovie_Open(char *fileName, unsigned int trackIndex);
     friend void FUN_0049c510(Mesh *pMesh);
-    friend void FUN_00424c50(void);
+    friend void StageTiming_RestoreDeviceStageResources(void);
     friend int FUN_005062d0(int);
 
     // GLOBAL: CMR2 0x00520b78
@@ -1491,14 +1491,14 @@ private:
 
     // Declared after the data members: a friend name added before them shifts
     // the register allocation of FUN_004a7910 (87.9% -> 86.8%).
-    friend void FUN_0049cd90(void);
-    friend void FUN_0049cec0(void);
-    friend void FUN_0049cf80(void);
+    friend void Game_DrawWorldMeshNodesAnd2DLayer(void);
+    friend void Game_DrawCulledSectorMeshes(void);
+    friend void Game_DrawCulledSectorShadows(void);
     friend void Game_DrawViewMaskNodes(SceneNode *pNode, int bit);
     friend void Game_DrawViewMaskNode(SceneNode *pNode, int bit);
     friend void Game_DrawDeferredObjects(void);
-    friend int FUN_0049e1f0(SceneNode *pNode, int bit);
-    friend int FUN_0049d3f0(int param1, int param2, void *param3, int bit, BYTE flag);
+    friend int Graphics_RenderNodeCubeMapFaces(SceneNode *pNode, int bit);
+    friend int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE flag);
 };
 
 // A camera-facing sprite queued by Billboard_Add.

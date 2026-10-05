@@ -48,29 +48,29 @@ void RallyData_InitKnockoutBracket(void);
 
 unsigned char RallyDataCountryIndex(void);
 unsigned char RallyDataStageIndex(void);
-unsigned int RallyData_FUN_00406940(void);
-unsigned int RallyData_FUN_00406950(void);
-unsigned int RallyData_FUN_00406990(void);
-BYTE RallyData_FUN_004069a0(void);
+unsigned int RallyData_GetSelectionBits10To11(void);
+unsigned int RallyData_GetSelectionBits12To13(void);
+unsigned int RallyData_GetSelectionBits16To19(void);
+BYTE RallyData_GetSecondarySelectionNibble(void);
 unsigned char RallyDataState(void);
 void RallyData_UpdateFlags(void);
 void RallyData_ResetSelection(void);
-void RallyData_FUN_0040d600(BYTE param1);
-void RallyData_FUN_0040d620(BYTE param1);
-void RallyData_FUN_0040d640(BYTE param1);
-void RallyData_FUN_0040d660(BYTE param1);
-void RallyData_FUN_0040d680(BYTE param1);
-void RallyData_FUN_0040d6a0(BYTE param1);
+void RallyData_SetSelectionBits10To11(BYTE param1);
+void RallyData_SetSelectionBits16To19(BYTE param1);
+void RallyData_SetSecondarySelectionNibble(BYTE param1);
+void RallyData_SetKnockoutModeBits(BYTE param1);
+void RallyData_SetKnockoutBits6To8(BYTE param1);
+void RallyData_SetKnockoutCountryNibble(BYTE param1);
 
-int RallyData_FUN_004070f0(void);
+int RallyData_IsTwoUnassignedDriverMatch(void);
 unsigned int *RallyData_GetChampionshipState(void);
 void RallyData_GetRoundDrivers(unsigned int *pFirst, unsigned int *pSecond);
 unsigned char RallyData_GetFlag24(void);
 unsigned char RallyData_GetFlag25(void);
 void RallyData_ValidateIndex(int index);
 void *RallyData_GetRecord(BYTE index);
-char RallyData_FUN_00408500(BYTE param1);
-BYTE RallyData_FUN_004086b0(BYTE index);
-int RallyData_FUN_00411880(void);
+char RallyData_GetUsableRecordCategory(BYTE param1);
+BYTE RallyData_GetDriverRecordSelectionValue(BYTE index);
+int RallyData_IsHeadToHeadRaceMode(void);
 
 #endif

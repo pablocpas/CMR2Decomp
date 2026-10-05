@@ -5,7 +5,7 @@ class CAIHelper
 {
 public:
     static char *GetNameForID(int ix);
-    static int FUN_00407f80(int id);
+    static int ResolveNameIndex(int id);
 };
 
 #endif

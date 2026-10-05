@@ -4,11 +4,11 @@
 // Empty bodies for the frontend screen callbacks that are not decompiled
 // yet, so that the menu builders have something to point at.
 
-// FUN_004d4cf0 (0x004d4cf0) is implemented in FrontendScreens.cpp.
+// FrontendMenu_DrawProfileSettings (0x004d4cf0) is implemented in FrontendScreens.cpp.
 // FUN_004d50a0 (0x004d50a0) is implemented in FrontendScreens.cpp.
 //
 
-// FUN_004d6a60 (0x004d6a60) is implemented in FrontendScreens.cpp.
+// FrontendMenu_DrawMultiplayerStageSelection (0x004d6a60) is implemented in FrontendScreens.cpp.
 //
 //
 
@@ -20,7 +20,7 @@
 //
 //
 
-// FUN_004d7750 (0x004d7750) is implemented in FrontendScreens.cpp.
+// FrontendMenu_DrawProfileDateEntry (0x004d7750) is implemented in FrontendScreens.cpp.
 //
 //
 
@@ -28,27 +28,27 @@
 //
 //
 
-// FUN_004dc710 (0x004dc710) is implemented in FrontendScreens.cpp.
+// FrontendMenu_DrawArcadeRallySelection (0x004dc710) is implemented in FrontendScreens.cpp.
 //
 //
-// FUN_004de1d0 is implemented with its original callback signature.
+// FrontendDraw_DrawStageTimes is implemented with its original callback signature.
 
 
-// FUN_004e9990 (0x004e9990) is implemented in FrontendScreens.cpp.
-//
-//
-
-// FUN_004ecaf0 is implemented with its original callback signature.
-
-
-// FUN_004f0da0 is implemented with its original callback signature.
-
-// FUN_004f0e80 (0x004f0e80) is implemented in FrontendScreens.cpp.
+// FrontendMenu_DrawNetworkLeaderboard (0x004e9990) is implemented in FrontendScreens.cpp.
 //
 //
 
+// FrontendMenu_UpdateNetworkSessionBrowser is implemented with its original callback signature.
 
-// FUN_004f3a70 (0x004f3a70) is implemented in FrontendScreens.cpp.
+
+// FrontendMenu_LeaveProfileNameEntry is implemented with its original callback signature.
+
+// FrontendMenu_UpdateProfileNameEntry (0x004f0e80) is implemented in FrontendScreens.cpp.
+//
+//
+
+
+// FrontendRecords_ResetCarouselSelection (0x004f3a70) is implemented in FrontendScreens.cpp.
 //
 //
 

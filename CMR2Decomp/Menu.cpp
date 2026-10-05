@@ -268,7 +268,7 @@ void Menu_CallCallback2(Menu *pMenu)
 void Menu_PlaySound(int id)
 {
     if (id >= 0)
-        FUN_004b7790(id, CInput::m_unk0x0059f900, 0x57e4, 0, 0, 0);
+        Sound_PlaySampleWithParameters(id, CInput::m_unk0x0059f900, 0x57e4, 0, 0, 0);
 }
 
 // FUNCTION: CMR2 0x004a0ad0
@@ -521,7 +521,7 @@ void Menu_GoBack(Menu *pMenu)
 }
 
 // FUNCTION: CMR2 0x004a0ba0
-void FUN_004a0ba0(void)
+void Menu_QueueDefaultAction(void)
 {
     g_menuActionPending = 1;
     g_unk0x0059fa15 = 0;
@@ -554,13 +554,13 @@ void Menu_PlaySoundId(int id)
 }
 
 // FUNCTION: CMR2 0x004a0c40
-void FUN_004a0c40(char param1)
+void Menu_SetInputStateFlag(char param1)
 {
     g_unk0x0059fa14 = param1;
 }
 
 // FUNCTION: CMR2 0x004a0c50
-void FUN_004a0c50(char param1)
+void Menu_SetActionLatch(char param1)
 {
     g_unk0x0059fa15 = param1;
 }

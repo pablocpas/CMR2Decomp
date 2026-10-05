@@ -43,7 +43,7 @@ HACMDRIVERID AcmFindDriver(WORD wFormatTag);
 WAVEFORMATEX *AcmGetDriverFormat(HACMDRIVERID hadid, WORD wFormatTag);
 
 
-// One sound slot; CSound::FUN_004a27c0 stops/releases it when its buffer has
+// One sound slot; CSound::UpdateFinishedSoundSlot stops/releases it when its buffer has
 // finished playing.
 struct SoundSlot {
     unsigned short id;                  // 0x00 index into CSound::m_soundSlots
@@ -65,23 +65,23 @@ struct SoundSlot {
 
 class CSound {
 public:
-    static void FUN_004a23f0(IDirectSoundBuffer *pBuffer, int flags);
-    static void FUN_004a28c0(void);
-    static void FUN_004a31a0(void);
-    static void FUN_004b7b10(void);
-    static void FUN_004a3160(void);
-    static void FUN_004a27c0(SoundSlot *pSlot);
-    static void FUN_004b7620(int index);
+    static void EnsureBufferPlaying(IDirectSoundBuffer *pBuffer, int flags);
+    static void NoOpSoundDeviceCallback(void);
+    static void StopSharedMusicBuffer(void);
+    static void RunSoundDeviceCallback(void);
+    static void PauseMusicStreaming(void);
+    static void UpdateFinishedSoundSlot(SoundSlot *pSlot);
+    static void ReleaseSoundSlotData(int index);
 
-    static BOOL __fastcall FUN_004a2ac0(void);
+    static BOOL __fastcall CloseMusicStreamResources(void);
     static void FUN_004a28d0(char *path);
-    static void FUN_004a2b50(BOOL param1);
-    static bool FUN_004bd230(void);
+    static void CloseMusicStreamAndClearPath(BOOL param1);
+    static bool CloseADPCMDecoder(void);
     static HRESULT StopDirectSoundBuffer(void);
-    static BOOL FUN_004a3250(HRESULT param1);
+    static BOOL IsSoundCallSuccessful(HRESULT param1);
     static MMRESULT __fastcall CloseMMIO(MMIOData* hhmio);
     static void __fastcall CloseAndCleanupMMIO(MMIOData* pMMIO);
-    static void FUN_004a31f0(int volume);
+    static void SetMusicStreamVolume(int volume);
     
 
     // GLOBAL: CMR2 0x005a23e8
@@ -123,7 +123,7 @@ public:
     static SoundSlot *m_soundSlotsEnd;
 };
 
-int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
+int Sound_PlaySampleWithParameters(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
 
 struct GenericFile;
 BOOL Sound_InitDevice(int sampleRate, int channels, int bits, int unused);

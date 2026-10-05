@@ -184,7 +184,7 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
     g_collisionCar->velocity.x += pImpulse->x;
     g_collisionCar->velocity.y += pImpulse->y;
     g_collisionCar->velocity.z += pImpulse->z;
-    if (CGameInfo::FUN_004063f0(4) != 0) {
+    if (CGameInfo::IsActiveCheatEnabled(4) != 0) {
         g_collisionCar->velocity.x += pImpulse->x;
         g_collisionCar->velocity.y += pImpulse->y;
         g_collisionCar->velocity.z += pImpulse->z;
@@ -260,7 +260,7 @@ int g_unk0x005919b8;
 // Accepts the collision direction when it is nearly parallel to the face and
 // picks the side of the car the target is on.
 // FUNCTION: CMR2 0x00490570
-int FUN_00490570(void)
+int VehiclePhysics_SelectParallelCollisionSide(void)
 {
     int d = FixMul(g_unk0x005918d0, g_collisionDirection.x) + FixMul(g_unk0x0059195c, g_collisionDirection.z);
     FixVector delta;
@@ -281,7 +281,7 @@ int FUN_00490570(void)
 // Accepts the collision when the target is behind the face and the direction
 // is nearly parallel to it.
 // FUNCTION: CMR2 0x00490640
-int FUN_00490640(void)
+int VehiclePhysics_TestBehindFaceCollision(void)
 {
     BYTE *pCar = (BYTE *)g_collisionCar;
     FixVector delta;
@@ -478,15 +478,15 @@ void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
 // candidate and side counts to decide whether it participates in car collision.
 // Byte-exact against the original (fastcmp EXACT).
 // FUNCTION: CMR2 0x00490b90
-int FUN_00490b90(int param_1)
+int VehiclePhysics_ClassifyCandidateFace(int param_1)
 {
     int result = 0;
     int found;
 
     if (param_1 != 0)
-        found = FUN_00490570();
+        found = VehiclePhysics_SelectParallelCollisionSide();
     else
-        found = FUN_00490640();
+        found = VehiclePhysics_TestBehindFaceCollision();
     if (found != 0) {
         FUN_00486c30((int *)g_collisionFace, &g_collisionCar->right.x,
                      &g_collisionCar->position.x,
@@ -505,18 +505,18 @@ int FUN_00490b90(int param_1)
     return result;
 }
 
-void FUN_00483010(void);
+void StageTiming_ClearPartFlagAndReselectIndex(void);
 
 // Tests whether the length of the motion-state correction vector exceeds the
 // current ground offset; when it does, latches the collision and reports it.
 // FUNCTION: CMR2 0x00482f30
-int FUN_00482f30(void)
+int VehiclePhysics_TestMotionCorrectionCollision(void)
 {
     FixVector *pV = &g_partState->correction;
 
     if (FixVecLength(pV) >
         g_partCar->field_0x758 + g_partState->field_0x15c) {
-        FUN_00483010();
+        StageTiming_ClearPartFlagAndReselectIndex();
         return 1;
     }
     return 0;
@@ -562,9 +562,9 @@ int FUN_0048fb80(char type, int param)
 
     result = 0;
     if ((*(BYTE *)((BYTE *)g_unk0x0059190c + 0x2d) & 1) != 0)
-        found = FUN_00490570();
+        found = VehiclePhysics_SelectParallelCollisionSide();
     else
-        found = FUN_00490640();
+        found = VehiclePhysics_TestBehindFaceCollision();
     if (found == 0)
         goto finish;
 

@@ -26,7 +26,7 @@
 // Not declared in Mesh.h yet; the other two are not analysed yet.
 void Mesh_ReuploadAll(void);
 void Scene_RestoreLights(void);
-void FUN_004a2ba0(void);
+void Sound_RestartMusicAfterDeviceCreation(void);
 
 // GLOBAL: CMR2 0x00660830
 Graphics g_graphics;
@@ -210,22 +210,22 @@ void CGraphics::SetDefaults(void) {
 }
 
 // FUNCTION: CMR2 0x004a78a0
-void CGraphics::FUN_004a78a0(unsigned int screenWidth, unsigned int screenHeight, unsigned int colourDepth, unsigned int param4, unsigned int param5) {
+void CGraphics::RecreateGraphicsDeviceAndResources(unsigned int screenWidth, unsigned int screenHeight, unsigned int colourDepth, unsigned int param4, unsigned int param5) {
     if (m_unk0x00520b7c == 0) {
-        CSound::FUN_004a2b50(TRUE);
+        CSound::CloseMusicStreamAndClearPath(TRUE);
         FUN_004a5be0(); // TODO: UNFINISHED
         ReleaseDirect3D();
         ReleaseSurfaces();
     }
 
-    FUN_004a8bd0(param4);
-    FUN_004a8d90(param5);
+    SetSelectedDisplayDriverIndex(param4);
+    SetSelectedRenderDeviceIndex(param5);
 
     if (FUN_004a7910(screenWidth, screenHeight, colourDepth) != 0) {
         if (CreateDirect3DDevice(screenWidth, screenHeight, colourDepth) != 0) {
             Mesh_ReuploadAll();
             Scene_RestoreLights();
-            FUN_004a2ba0();
+            Sound_RestartMusicAfterDeviceCreation();
         }
     }
 }
@@ -250,7 +250,7 @@ BYTE CGraphics::FUN_004a5be0(void) {
         textureID++;
     } while (index < 2048);
 
-    FUN_004a5ba0();
+    ReleaseCachedTextureSurfaces();
 
     for (index = 0; index < m_unk0x0065fa28; index++) {
         for (face = 5; face >= 0; face--) {
@@ -288,7 +288,7 @@ unsigned int g_unk0x0065fa30;
 
 // Releases the 64 cached surfaces held by m_textureCache.
 // FUNCTION: CMR2 0x004a5ba0
-void CGraphics::FUN_004a5ba0(void)
+void CGraphics::ReleaseCachedTextureSurfaces(void)
 {
     unsigned int i;
 
@@ -353,12 +353,12 @@ int CGraphics::ReleaseSurfaces(void) {
 }
 
 // FUNCTION: CMR2 0x004a8bd0
-void CGraphics::FUN_004a8bd0(int param1) {
+void CGraphics::SetSelectedDisplayDriverIndex(int param1) {
     m_unk0x00663b1c = param1;
 }
 
 // FUNCTION: CMR2 0x004a8d90
-void CGraphics::FUN_004a8d90(int param1) {
+void CGraphics::SetSelectedRenderDeviceIndex(int param1) {
     m_unk0x00663b24 = param1;
 }
 
@@ -386,15 +386,15 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
     m_pTextureManager->textureInfo5 = NULL;
     m_pTextureManager->textureInfo1 = NULL;
 
-    FUN_004bdb60(&m_unk0x0065fd08,CMain::m_hWndList[CMain::m_hWndIx]);
-    tier = FUN_004a96c0(m_unk0x00663b1c);
+    EnumerateAndProbeDisplayDevices(&m_unk0x0065fd08,CMain::m_hWndList[CMain::m_hWndIx]);
+    tier = GetTextureFormatCap1(m_unk0x00663b1c);
     while (tier == 0) {
         if (m_unk0x00663b1c + 1 > m_unk0x0065fd08.count - 1) {
             return FALSE;
         }
 
-        FUN_004a8bd0(m_unk0x00663b1c + 1U);
-        tier = FUN_004a96c0(m_unk0x00663b1c);
+        SetSelectedDisplayDriverIndex(m_unk0x00663b1c + 1U);
+        tier = GetTextureFormatCap1(m_unk0x00663b1c);
     }
 
     m_unk0x0065fd08.reserved = m_unk0x00663b1c;
@@ -412,12 +412,12 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
     g_pGraphics->screenResY = GetDeviceCaps(GetDC(NULL), VERTRES);
     ReleaseDC(NULL, GetDC(NULL));
 
-    tier = FUN_004a8bc0();
-    tier = FUN_004a96e0(tier);
+    tier = GetSelectedDisplayDriverIndex();
+    tier = GetTextureFormatCap80000(tier);
 #ifndef CMR2_WINDOWED
     if (tier == 0) {
         g_pGraphics->isFullscreen = 1;
-        FUN_004a8d90(0);
+        SetSelectedRenderDeviceIndex(0);
         m_unk0x00660040[tier].surfaceCap = 1;
     }
 
@@ -463,14 +463,14 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
     m_unk0x00663b18 = 0;
     m_unk0x00663b20 = 0;
 
-    DirectDrawEnumerateExA(&FUN_004a8b30_DDEnumCallback, NULL, DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES | DDENUM_NONDISPLAYDEVICES);
+    DirectDrawEnumerateExA(&EnumerateDisplayDriverDescriptions, NULL, DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES | DDENUM_NONDISPLAYDEVICES);
 
     m_pTextureManager->pDD->EnumDevices(FUN_004a8c30_DDEnumCallback, NULL);
 
     m_displayCount = 0;
-    g_pGraphics->pDD7->EnumDisplayModes(0, NULL, NULL, FUN_004a8da0);
+    g_pGraphics->pDD7->EnumDisplayModes(0, NULL, NULL, EnumerateCompatibleDisplayModes);
 
-    findMatchingDevice = FUN_004a8f60(screenWidth, screenHeight, colourDepth);
+    findMatchingDevice = IsDisplayModeEnumerated(screenWidth, screenHeight, colourDepth);
     s.ddsdDisplayMode.dwSize = sizeof(DDSURFACEDESC2);
     if (findMatchingDevice != FALSE) {
         g_pGraphics->resX = screenWidth;
@@ -483,7 +483,7 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
         g_pGraphics->depth = s.ddsdDisplayMode.ddpfPixelFormat.dwRGBBitCount;
     }
 
-    FUN_004a8ec0(g_pGraphics->resX, g_pGraphics->resY, g_pGraphics->depth);
+    SelectMatchingDisplayMode(g_pGraphics->resX, g_pGraphics->resY, g_pGraphics->depth);
 
     Unk0x0065ff90* deviceEntry = &m_unk0x0065ff90[m_unk0x00663b24];
     D3DTextureManager* textureManager = m_pTextureManager;
@@ -500,7 +500,7 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
             s.ddsd.dwFlags = DDSD_CAPS;
             s.ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
             
-            if (FUN_004a8d60() != 1 && FUN_004a8d60() != 2) {
+            if (GetSelectedRenderDeviceSurfaceCaps() != 1 && GetSelectedRenderDeviceSurfaceCaps() != 2) {
                 s.ddsd.ddsCaps.dwCaps |= 0x800;
             } else {
                 s.ddsd.ddsCaps.dwCaps |= capFlag;
@@ -527,8 +527,8 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
             s.ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
             s.ddsd.ddsCaps.dwCaps = DDSCAPS_3DDEVICE | DDSCAPS_OFFSCREENPLAIN;
 
-            if (FUN_004a8d60() != 1) {
-                if (FUN_004a8d60() != 2) {
+            if (GetSelectedRenderDeviceSurfaceCaps() != 1) {
+                if (GetSelectedRenderDeviceSurfaceCaps() != 2) {
                     s.ddsd.ddsCaps.dwCaps |= 0x800;
                 }
             }
@@ -542,7 +542,7 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
             s.ddsd.dwBackBufferCount = 1;
             s.ddsd.ddsCaps.dwCaps = DDSCAPS_COMPLEX | DDSCAPS_FLIP | DDSCAPS_PRIMARYSURFACE | DDSCAPS_3DDEVICE;
 
-            if (FUN_004a8d60() == 1 || FUN_004a8d60() == 2) {
+            if (GetSelectedRenderDeviceSurfaceCaps() == 1 || GetSelectedRenderDeviceSurfaceCaps() == 2) {
                 s.ddsd.ddsCaps.dwCaps |= capFlag;
             } else {
                 s.ddsd.ddsCaps.dwCaps |= 0x800;
@@ -556,7 +556,7 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
             s.ddsd.dwFlags = DDSD_CAPS;
             s.ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER | DDSCAPS_COMPLEX | DDSCAPS_FLIP | DDSCAPS_3DDEVICE;
 
-            if (FUN_004a8d60() == 1 || FUN_004a8d60() == 2) {
+            if (GetSelectedRenderDeviceSurfaceCaps() == 1 || GetSelectedRenderDeviceSurfaceCaps() == 2) {
                 s.ddsd.ddsCaps.dwCaps |= capFlag;
             } else {
                 s.ddsd.ddsCaps.dwCaps |= 0x800;
@@ -584,7 +584,7 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
 }
 
 // FUNCTION: CMR2 0x004bdb60
-BOOL CGraphics::FUN_004bdb60(DDDeviceEnumBuffer* param1, HWND hWnd) {
+BOOL CGraphics::EnumerateAndProbeDisplayDevices(DDDeviceEnumBuffer* param1, HWND hWnd) {
     LPDIRECTDRAW7 pDirectDraw = NULL;
     LPDIRECTDRAW7 pDirectDrawConfirm = NULL;
     DDEnumDeviceBufferEntry* pEntry;
@@ -594,7 +594,7 @@ BOOL CGraphics::FUN_004bdb60(DDDeviceEnumBuffer* param1, HWND hWnd) {
         m_displayDevicePool.count = 0;
         memset(param1, 0, 0x288);
 
-        DirectDrawEnumerateExA(&FUN_004bdb60_DDEnumCallback, param1, DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES | DDENUM_NONDISPLAYDEVICES);
+        DirectDrawEnumerateExA(&EnumerateDisplayDeviceGUIDCallback, param1, DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES | DDENUM_NONDISPLAYDEVICES);
         param1->count = m_displayDevicePool.count;
 
         if (m_displayDevicePool.count > 0) {
@@ -608,7 +608,7 @@ BOOL CGraphics::FUN_004bdb60(DDDeviceEnumBuffer* param1, HWND hWnd) {
 
                 pDirectDrawConfirm->SetCooperativeLevel(hWnd, DDSCL_NORMAL);
 
-                FUN_004bde20(pEntry, pDirectDrawConfirm);
+                EnumerateRenderDeviceCapabilities(pEntry, pDirectDrawConfirm);
 
                 if (pDirectDrawConfirm != NULL && pDirectDrawConfirm->Release() == 0) {
                     pDirectDrawConfirm = NULL;
@@ -632,7 +632,7 @@ BOOL CGraphics::FUN_004bdb60(DDDeviceEnumBuffer* param1, HWND hWnd) {
 }
 
 // FUNCTION: CMR2 0x004bdc80
-BOOL CGraphics::FUN_004bdb60_DDEnumCallback(GUID* lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName,
+BOOL CGraphics::EnumerateDisplayDeviceGUIDCallback(GUID* lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName,
                                              LPVOID lpContext, HMONITOR hMonitor)
 {
     DDDeviceEnumBuffer* pBuffer = (DDDeviceEnumBuffer*)lpContext;
@@ -695,17 +695,17 @@ BOOL CGraphics::FUN_004bdd30(DDEnumDeviceBufferEntry *pEnumDevice,IDirectDraw7 *
 }
 
 // FUNCTION: CMR2 0x004bde20
-void CGraphics::FUN_004bde20(DDEnumDeviceBufferEntry *pEnumDevice,IDirectDraw7 *pDevice) {
+void CGraphics::EnumerateRenderDeviceCapabilities(DDEnumDeviceBufferEntry *pEnumDevice,IDirectDraw7 *pDevice) {
     pDevice->QueryInterface(IID_IDirect3D7, (LPVOID*)&pDevice);
 
-    ((IDirect3D7*)pDevice)->EnumDevices(FUN_004bde60, pEnumDevice);
+    ((IDirect3D7*)pDevice)->EnumDevices(CollectRenderDeviceCapabilitiesCallback, pEnumDevice);
 
     if (pDevice != NULL)
         pDevice->Release();
 }
 
 // FUNCTION: CMR2 0x004bde60
-HRESULT CGraphics::FUN_004bde60(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg) {
+HRESULT CGraphics::CollectRenderDeviceCapabilitiesCallback(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg) {
     if ((lpD3DDeviceDesc->dpcTriCaps.dwTextureFilterCaps & 1) == 0)
         return 1;
 
@@ -741,22 +741,22 @@ HRESULT CGraphics::FUN_004bde60(LPSTR lpDeviceDescription, LPSTR lpDeviceName, L
 }
 
 // FUNCTION: CMR2 0x004a96c0
-DWORD CGraphics::FUN_004a96c0(int param1) {
+DWORD CGraphics::GetTextureFormatCap1(int param1) {
     return m_unk0x0065fd08.entries[param1].capFlag1;
 }
 
 // FUNCTION: CMR2 0x004a8bc0
-INT32 CGraphics::FUN_004a8bc0(void) {
+INT32 CGraphics::GetSelectedDisplayDriverIndex(void) {
     return m_unk0x00663b1c;
 }
 
 // FUNCTION: CMR2 0x004a96e0
-DWORD CGraphics::FUN_004a96e0(int param_1) {
+DWORD CGraphics::GetTextureFormatCap80000(int param_1) {
     return m_unk0x0065fd08.entries[param_1].capFlag80000;
 }
 
 // FUNCTION: CMR2 0x004a8b30
-BOOL CGraphics::FUN_004a8b30_DDEnumCallback(GUID* lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName, LPVOID lpContext, HMONITOR hMonitor) {
+BOOL CGraphics::EnumerateDisplayDriverDescriptions(GUID* lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName, LPVOID lpContext, HMONITOR hMonitor) {
     LPDIRECTDRAW7 lplpDD;
     DDDEVICEIDENTIFIER2 ddDeviceIdent;
     DirectDrawCreateEx(lpGUID, (LPVOID*)&lplpDD, IID_IDirectDraw7, NULL);
@@ -775,7 +775,7 @@ BOOL CGraphics::FUN_004a8b30_DDEnumCallback(GUID* lpGUID, LPSTR lpDriverDescript
 }
 
 // FUNCTION: CMR2 0x004a8da0
-HRESULT CGraphics::FUN_004a8da0(DDSURFACEDESC2* lpDDSurfaceDesc2, void* lpContext) {
+HRESULT CGraphics::EnumerateCompatibleDisplayModes(DDSURFACEDESC2* lpDDSurfaceDesc2, void* lpContext) {
     int width  = lpDDSurfaceDesc2->dwWidth, height = lpDDSurfaceDesc2->dwHeight, bpp = lpDDSurfaceDesc2->ddpfPixelFormat.dwRGBBitCount;
     DWORD canRender16Bit = 0, dwTextureMem = 0, dwVidMem = 0;
 
@@ -783,18 +783,18 @@ HRESULT CGraphics::FUN_004a8da0(DDSURFACEDESC2* lpDDSurfaceDesc2, void* lpContex
     ddsd.dwSize = sizeof(DDSURFACEDESC2);
     g_pGraphics->pDD7->GetDisplayMode(&ddsd);
 
-    canRender16Bit = FUN_004a8bc0();
+    canRender16Bit = GetSelectedDisplayDriverIndex();
     canRender16Bit = DeviceCanRender16Bit(canRender16Bit);
 
     if (((canRender16Bit != 0 || bpp != 0x20) &&  (g_pGraphics->isFullscreen != 0 || ddsd.ddpfPixelFormat.dwRGBBitCount == bpp)) && (width >= 0x280 && height >= 0x1e0) && (bpp == 0x10 || bpp == 0x20)) {
-        dwTextureMem = FUN_004bdd00(DDSCAPS_TEXTURE);
-        dwVidMem = FUN_004bdd00(DDSCAPS_LOCALVIDMEM);
+        dwTextureMem = QueryAvailableVideoMemoryForCaps(DDSCAPS_TEXTURE);
+        dwVidMem = QueryAvailableVideoMemoryForCaps(DDSCAPS_LOCALVIDMEM);
         if (dwTextureMem < dwVidMem) {
-            dwTextureMem = FUN_004bdd00(DDSCAPS_LOCALVIDMEM);            
-            dwVidMem = FUN_004bdd00(DDSCAPS_TEXTURE);
+            dwTextureMem = QueryAvailableVideoMemoryForCaps(DDSCAPS_LOCALVIDMEM);            
+            dwVidMem = QueryAvailableVideoMemoryForCaps(DDSCAPS_TEXTURE);
             dwTextureMem = dwTextureMem + -dwVidMem;
         } else {
-            dwTextureMem = FUN_004bdd00(DDSCAPS_LOCALVIDMEM);
+            dwTextureMem = QueryAvailableVideoMemoryForCaps(DDSCAPS_LOCALVIDMEM);
         }
 
         if ((bpp / 8) * height * width * 3 < dwTextureMem) {
@@ -814,7 +814,7 @@ int CGraphics::DeviceCanRender16Bit(int param1) {
 }
 
 // FUNCTION: CMR2 0x004bdd00
-DWORD CGraphics::FUN_004bdd00(DWORD caps) {
+DWORD CGraphics::QueryAvailableVideoMemoryForCaps(DWORD caps) {
   DDEnumDeviceBufferEntry* pDVar1 = &m_displayDevicePool.entries[0];
   
   pDVar1->caps.caps.dwCaps = caps;
@@ -824,7 +824,7 @@ DWORD CGraphics::FUN_004bdd00(DWORD caps) {
 }
 
 // FUNCTION: CMR2 0x004a8f60
-BOOL CGraphics::FUN_004a8f60(int width, int height, int colourDepth)
+BOOL CGraphics::IsDisplayModeEnumerated(int width, int height, int colourDepth)
 {
     for (int i = 0; i < m_displayCount; i++) {
         if (width == m_displays[i].width && height == m_displays[i].height && colourDepth == m_displays[i].colourDepth)
@@ -835,7 +835,7 @@ BOOL CGraphics::FUN_004a8f60(int width, int height, int colourDepth)
 }
 
 // FUNCTION: CMR2 0x004a8ec0
-void CGraphics::FUN_004a8ec0(int width, int height, int colourDepth)
+void CGraphics::SelectMatchingDisplayMode(int width, int height, int colourDepth)
 {
     for (int i = 0; i < m_displayCount; i++) {
         if (width == m_displays[i].width && height == m_displays[i].height && colourDepth == m_displays[i].colourDepth)
@@ -844,7 +844,7 @@ void CGraphics::FUN_004a8ec0(int width, int height, int colourDepth)
 }
 
 // FUNCTION: CMR2 0x004a8d60
-DWORD CGraphics::FUN_004a8d60(void) {
+DWORD CGraphics::GetSelectedRenderDeviceSurfaceCaps(void) {
   return m_unk0x00660040[m_unk0x00663b24].surfaceCap;
 }
 
@@ -1137,34 +1137,34 @@ BOOL CGraphics::FreeTextureBuffers(void)
 }
 
 // FUNCTION: CMR2 0x004a5fe0
-unsigned int CGraphics::FUN_004a5fe0(void)
+unsigned int CGraphics::GetTextureMemoryKilobytes(void)
 {
     return m_unk0x0065fa2c >> 10;
 }
 
 // FUNCTION: CMR2 0x004a5ff0
-void CGraphics::FUN_004a5ff0(BYTE param1)
+void CGraphics::SetPrimaryColourByte(BYTE param1)
 {
     if (param1 <= 0xff)
         m_unk0x00520b2c = param1;
 }
 
 // FUNCTION: CMR2 0x004a6040
-void CGraphics::FUN_004a6040(BYTE param1)
+void CGraphics::SetPrimaryColourBias(BYTE param1)
 {
     if (param1 <= 0xff)
         m_unk0x0065fa44 = param1 - 0x80;
 }
 
 // FUNCTION: CMR2 0x004a6060
-void CGraphics::FUN_004a6060(BYTE param1)
+void CGraphics::SetSecondaryColourByte(BYTE param1)
 {
     if (param1 <= 0xff)
         m_unk0x00520b30 = param1;
 }
 
 // FUNCTION: CMR2 0x004a60b0
-void CGraphics::FUN_004a60b0(BYTE param1)
+void CGraphics::SetSecondaryColourBias(BYTE param1)
 {
     if (param1 <= 0xff)
         m_unk0x0065fa48 = param1 - 0x80;
@@ -1186,7 +1186,7 @@ HRESULT CALLBACK CGraphics::CopyZBufferPixelFormat(DDPIXELFORMAT *pSrc, LPVOID l
 }
 
 // FUNCTION: CMR2 0x004a8be0
-int CGraphics::FUN_004a8be0(void)
+int CGraphics::GetDisplayDriverCount(void)
 {
     return m_unk0x00663b18;
 }
@@ -1199,7 +1199,7 @@ void CGraphics::GetDisplayDeviceNames(int index, LPSTR description, LPSTR name)
 }
 
 // FUNCTION: CMR2 0x004a8d80
-int CGraphics::FUN_004a8d80(void)
+int CGraphics::GetSelectedRenderDeviceIndex(void)
 {
     return m_unk0x00663b24;
 }
@@ -1225,20 +1225,20 @@ void CGraphics::GetDisplayMode(int index, DWORD *pWidth, DWORD *pHeight, DWORD *
 }
 
 // FUNCTION: CMR2 0x004a96d0
-DWORD CGraphics::FUN_004a96d0(int param1)
+DWORD CGraphics::GetTextureFormatCap200(int param1)
 {
     return m_unk0x0065fd08.entries[param1].capFlag200;
 }
 
 // FUNCTION: CMR2 0x004a6010
-void CGraphics::FUN_004a6010(BYTE param1)
+void CGraphics::SetPrimaryColourScale(BYTE param1)
 {
     if (param1 <= 0xff)
         m_unk0x00520b34 = (float)param1 * m_oneOver128;
 }
 
 // FUNCTION: CMR2 0x004a6080
-void CGraphics::FUN_004a6080(BYTE param1)
+void CGraphics::SetSecondaryColourScale(BYTE param1)
 {
     if (param1 <= 0xff)
         m_unk0x00520b38 = (float)param1 * m_oneOver128;
@@ -1339,7 +1339,7 @@ void CGraphics::GetMipMapSurfaces(Texture *pTexture)
     m_mipMapSurfaces[0] = NULL;
     m_mipMapSurfaces[1] = NULL;
     caps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_MIPMAP;
-    if (FUN_004a8d60() == 1 || FUN_004a8d60() == 2)
+    if (GetSelectedRenderDeviceSurfaceCaps() == 1 || GetSelectedRenderDeviceSurfaceCaps() == 2)
         caps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
     else
         caps.dwCaps2 = 0;
@@ -1857,7 +1857,7 @@ void CGraphics::SelectTextureFormats(void)
 // Allocates the shared vertex buffers: 100 small ones plus three larger
 // ones, bumping the vertex memory counter after each allocation.
 // FUNCTION: CMR2 0x004b1980
-void CGraphics::FUN_004b1980(void)
+void CGraphics::AllocateSharedVertexBuffers(void)
 {
     D3DVERTEXBUFFERDESC desc;
     int i;
@@ -1866,7 +1866,7 @@ void CGraphics::FUN_004b1980(void)
     desc.dwSize = 0x10;
     desc.dwCaps = 0x10000;
     desc.dwFVF = 0x2d2;
-    if (FUN_004a8d60() != 2)
+    if (GetSelectedRenderDeviceSurfaceCaps() != 2)
         desc.dwCaps |= 0x800;
     desc.dwNumVertices = 2000;
 
@@ -1890,7 +1890,7 @@ void CGraphics::FUN_004b1980(void)
 }
 
 // FUNCTION: CMR2 0x0049df90
-void CGraphics::FUN_0049df90(BOOL param1, int param2)
+void CGraphics::ConfigureDefaultRenderStates(BOOL param1, int param2)
 {
 	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x8, 3);
 	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x9, 2);
@@ -1916,7 +1916,7 @@ void CGraphics::FUN_0049df90(BOOL param1, int param2)
 
 	SetZEnable(1);
 	SetZWriteEnable(1);
-	SetCullMode(CGame::FUN_0049dcb0());
+	SetCullMode(CGame::GetSectorDrawState());
 
 	m_pTextureManager->pD3D->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)0xc, 3);
 	m_pTextureManager->pD3D->SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)0xc, 3);
@@ -1960,7 +1960,7 @@ BOOL CGraphics::CreateDirect3DDevice(int param1, int param2, int param3)
         m_pTextureManager->pDD->EnumZBufferFormats(m_pTextureManager->deviceGUID, CopyZBufferPixelFormat, &m_pTextureManager->ddpfZBuffer);
     }
 
-    if (!FUN_004b74b0()) {
+    if (!GetRasterCapabilityField84()) {
         memset(&zBufferDesc, 0, sizeof(zBufferDesc));
         zBufferDesc.dwSize = sizeof(DDSURFACEDESC2);
         zBufferDesc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
@@ -1970,7 +1970,7 @@ BOOL CGraphics::CreateDirect3DDevice(int param1, int param2, int param3)
         zBufferDesc.dwHeight = g_pGraphics->resY;
         zBufferDesc.dwWidth = g_pGraphics->resX;
         zBufferDesc.ddpfPixelFormat = m_pTextureManager->ddpfZBuffer;
-        if (FUN_004a8d60() == 1 || FUN_004a8d60() == 2)
+        if (GetSelectedRenderDeviceSurfaceCaps() == 1 || GetSelectedRenderDeviceSurfaceCaps() == 2)
             zBufferDesc.ddsCaps.dwCaps |= DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
         else
             zBufferDesc.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
@@ -1982,23 +1982,23 @@ BOOL CGraphics::CreateDirect3DDevice(int param1, int param2, int param3)
     displayMode.dwSize = sizeof(DDSURFACEDESC2);
     g_pGraphics->pDD7->GetDisplayMode(&displayMode);
     if (g_pGraphics->isFullscreen == 0 && displayMode.ddpfPixelFormat.dwRGBBitCount == 32) {
-        if (DeviceCanRender16Bit(FUN_004a8bc0()) == 0)
+        if (DeviceCanRender16Bit(GetSelectedDisplayDriverIndex()) == 0)
             MessageBoxA(CMain::m_hWndList[CMain::m_hWndIx], m_strSetDesktopTo16Bit, CMain::m_logFileBlankLine, MB_TASKMODAL | MB_TOPMOST);
     }
 
-    if (FUN_004a8d60() == 0)
+    if (GetSelectedRenderDeviceSurfaceCaps() == 0)
         m_pTextureManager->pDD->CreateDevice(IID_IDirect3DRGBDevice, g_pGraphics->pBackBufferSurface, &m_pTextureManager->pD3D);
-    if (FUN_004a8d60() == 1)
+    if (GetSelectedRenderDeviceSurfaceCaps() == 1)
         m_pTextureManager->pDD->CreateDevice(IID_IDirect3DHALDevice, g_pGraphics->pBackBufferSurface, &m_pTextureManager->pD3D);
-    if (FUN_004a8d60() == 2)
+    if (GetSelectedRenderDeviceSurfaceCaps() == 2)
         m_pTextureManager->pDD->CreateDevice(IID_IDirect3DTnLHalDevice, g_pGraphics->pBackBufferSurface, &m_pTextureManager->pD3D);
-    if (FUN_004a8d60() == 3)
+    if (GetSelectedRenderDeviceSurfaceCaps() == 3)
         m_pTextureManager->pDD->CreateDevice(IID_IDirect3DRefDevice, g_pGraphics->pBackBufferSurface, &m_pTextureManager->pD3D);
 
     FUN_004b7210();
     SelectTextureFormats();
-    FUN_0049df90(m_unk0x00520b7c, 1);
-    FUN_004b1980();
+    ConfigureDefaultRenderStates(m_unk0x00520b7c, 1);
+    AllocateSharedVertexBuffers();
     m_unk0x00520b7c = FALSE;
     return TRUE;
 }
@@ -2202,13 +2202,13 @@ void CGraphics::CreateTextureSurface(Texture *pTexture, int width, int height, u
     desc.dwHeight = height;
 
     if (flags & 0x2) {
-        if (FUN_004a8d60() == 1 || FUN_004a8d60() == 2)
+        if (GetSelectedRenderDeviceSurfaceCaps() == 1 || GetSelectedRenderDeviceSurfaceCaps() == 2)
             desc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY;
         else
             desc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
     } else {
         desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
-        if (FUN_004a8d60() == 1 || FUN_004a8d60() == 2)
+        if (GetSelectedRenderDeviceSurfaceCaps() == 1 || GetSelectedRenderDeviceSurfaceCaps() == 2)
             desc.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
         else
             desc.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
@@ -2262,60 +2262,60 @@ void CGraphics::CreateTextureSurface(Texture *pTexture, int width, int height, u
 
 // Ported from upstream branch add/FUN_004a8450 (Matt Hadden)
 // FUNCTION: CMR2 0x004b74b0
-BOOL CGraphics::FUN_004b74b0(void) {
+BOOL CGraphics::GetRasterCapabilityField84(void) {
   return m_d3dDeviceDesc7.field0x84;
 }
 
 // FUNCTION: CMR2 0x004b74c0
-DWORD FUN_004b74c0(void)
+DWORD Graphics_GetDeviceCaps90(void)
 {
     return CGraphics::m_d3dDeviceDesc7.field0x90;
 }
 
 // FUNCTION: CMR2 0x004b74d0
-DWORD FUN_004b74d0(void)
+DWORD Graphics_GetDeviceCaps94(void)
 {
     return CGraphics::m_d3dDeviceDesc7.field0x94;
 }
 
 // FUNCTION: CMR2 0x004b74e0
-DWORD FUN_004b74e0(void)
+DWORD Graphics_GetDeviceCaps3C(void)
 {
     return CGraphics::m_d3dDeviceDesc7.field0x3c;
 }
 
 // FUNCTION: CMR2 0x004b74f0
-DWORD FUN_004b74f0(void)
+DWORD Graphics_GetDeviceCaps40(void)
 {
     return CGraphics::m_d3dDeviceDesc7.field0x40;
 }
 
 // FUNCTION: CMR2 0x004b7500
-DWORD FUN_004b7500(void)
+DWORD Graphics_GetDeviceCaps44(void)
 {
     return CGraphics::m_d3dDeviceDesc7.field0x44;
 }
 
 // FUNCTION: CMR2 0x004b7510
-DWORD FUN_004b7510(void)
+DWORD Graphics_GetDeviceCaps64(void)
 {
     return CGraphics::m_d3dDeviceDesc7.field0x64;
 }
 
 // FUNCTION: CMR2 0x004b7530
-DWORD FUN_004b7530(void)
+DWORD Graphics_GetDeviceCaps98(void)
 {
     return CGraphics::m_d3dDeviceDesc7.field0x98;
 }
 
 // FUNCTION: CMR2 0x004b7540
-DWORD FUN_004b7540(void)
+DWORD Graphics_GetDeviceCaps9C(void)
 {
     return CGraphics::m_d3dDeviceDesc7.field0x9c;
 }
 
 // FUNCTION: CMR2 0x004b7550
-DWORD FUN_004b7550(void)
+DWORD Graphics_GetDeviceCapsA4(void)
 {
     return CGraphics::m_d3dDeviceDesc7.field0xa4;
 }
@@ -2534,7 +2534,7 @@ BOOL CGraphics::ClearZBuffer(void)
     rect.y1 = 0;
     rect.x2 = g_pGraphics->resX;
     rect.y2 = g_pGraphics->resY;
-    if (!FUN_004b74b0()) {
+    if (!GetRasterCapabilityField84()) {
         flags = D3DCLEAR_ZBUFFER;
         if (g_pGraphics->field913_0x3bc & 0x20)
             flags = D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL;
@@ -2631,11 +2631,11 @@ int g_unk0x0059ce30;
 
 // Switches alpha blending; with alpha test support the reference value follows.
 // FUNCTION: CMR2 0x0049dcc0
-void FUN_0049dcc0(int enable)
+void Graphics_SwitchAlphaBlendAndTest(int enable)
 {
     if (enable != g_unk0x0059ce30) {
         CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1b, enable);
-        if (FUN_004b7510()) {
+        if (Graphics_GetDeviceCaps64()) {
             if (enable != 0) {
                 CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x18, 1);
             } else {
@@ -2705,7 +2705,7 @@ char g_str0x005207fc[] = "gamegauge";
 // window and in fullscreen mode flipping (waiting for the vertical blank only
 // when the frame rate counter is off).
 // FUNCTION: CMR2 0x0049de40
-void FUN_0049de40(void)
+void Graphics_PresentFrameAndResetCounters(void)
 {
     POINT pt;
     POINT corners[2];
@@ -2782,8 +2782,8 @@ extern D3DMATRIX g_unk0x00597cc0;
 extern D3DMATRIX g_unk0x005207b8;
 extern unsigned short g_unk0x006ed5f0[];
 D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
-void FUN_004b2970(int value);
-void FUN_0049d290(int param1);
+void Graphics_SetShadowGeometryState(int value);
+void Game_QueueVisibleSectorNodes(int param1);
 void Game_DrawSortedNodes(int bit);
 
 // Scratch view matrix rebuilt for every cube map face (0x0049d3f0 uses it too).
@@ -2796,7 +2796,7 @@ FixMatrix g_unk0x0059bd28;
 // meshes, static objects and view-mask nodes). Restores the transforms and the
 // back buffer afterwards.
 // FUNCTION: CMR2 0x0049e1f0
-int FUN_0049e1f0(SceneNode *pNode, int bit)
+int Graphics_RenderNodeCubeMapFaces(SceneNode *pNode, int bit)
 {
     D3DRECT rect;
     D3DVIEWPORT7 viewport;
@@ -2828,8 +2828,8 @@ int FUN_0049e1f0(SceneNode *pNode, int bit)
     if (CGraphics::m_pTextureManager->textureBuffer2[cubeIndex] == NULL)
         return 1;
 
-    FUN_004b2970(1);
-    FUN_0049dcc0(0);
+    Graphics_SetShadowGeometryState(1);
+    Graphics_SwitchAlphaBlendAndTest(0);
 
     memset(&viewport, 0, sizeof(viewport));
     viewport.dwX = 0;
@@ -2975,7 +2975,7 @@ int FUN_0049e1f0(SceneNode *pNode, int bit)
                 }
             }
         }
-        FUN_0049d290(bit);
+        Game_QueueVisibleSectorNodes(bit);
         Game_DrawSortedNodes(bit);
         CGraphics::m_pTextureManager->pD3D->EndScene();
     }
@@ -2983,7 +2983,7 @@ int FUN_0049e1f0(SceneNode *pNode, int bit)
     Graphics_SetRenderTarget((Texture *)((BYTE *)g_pGraphics + 0x150));
     CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_VIEW, &view);
     CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &projection);
-    FUN_0049dcc0(1);
+    Graphics_SwitchAlphaBlendAndTest(1);
     return 1;
 }
 
@@ -3146,7 +3146,7 @@ TimerPulseState g_timerPulseState = { {
 #define g_pulseMax (g_timerPulseState.maximum)
 
 // FUNCTION: CMR2 0x004b2970
-void FUN_004b2970(int value)
+void Graphics_SetShadowGeometryState(int value)
 {
     g_unk0x005210bc = value;
 }
@@ -3159,7 +3159,7 @@ float g_unk0x006dfdf8;
 FixMatrix *FloatMatrix_ToFix(FixMatrix *pOut, D3DMATRIX *pIn);
 D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
 struct Unk0x004a3e20;
-void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
 extern unsigned int g_unk0x006de95c[20];
 extern unsigned short g_unk0x006dd9bc[2000];
 
@@ -3189,7 +3189,7 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
     currentTexture = -1;
     if ((*(BYTE *)&g_pGraphics->field913_0x3bc & 0x80) != 0) {
         if ((int)g_unk0x006de95c[(pMesh->flags >> 15) & 7] < 0) {
-            FUN_004b2610(pMesh);
+            Graphics_DrawCubeMappedShadowTriangles(pMesh);
             return;
         }
         CGraphics::m_pTextureManager->pD3D->GetTransform(D3DTRANSFORMSTATE_VIEW, &view);
@@ -3204,12 +3204,12 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
         CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_TEXTURE0, &projected);
         CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_NORMALIZENORMALS, 1);
         CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LOCALVIEWER, 1);
-        FUN_0049dcc0(1);
+        Graphics_SwitchAlphaBlendAndTest(1);
         CGraphics::SetTextureAddressClamp(0);
-        FUN_004a3e20(
+        Frontend_SetObjectField118(
             (Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer2[g_unk0x006de95c[(pMesh->flags >> 15) & 7]],
             0xb);
-        CGraphics::FUN_004a4850(
+        CGraphics::ApplyTextureStageChange(
             0, (int)CGraphics::m_pTextureManager->textureBuffer2[g_unk0x006de95c[(pMesh->flags >> 15) & 7]]);
         if ((g_unk0x005210b8 >= 0 || (int)g_unk0x006de95c[(pMesh->flags >> 15) & 7] >= 0) &&
             triangleCount > 0) {
@@ -3225,10 +3225,10 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
                     count = 0;
                     currentTexture = *(int *)((BYTE *)&pMesh->pTriangles[i] + 4 + textureIndex * 4);
                     if (currentTexture > -1) {
-                        FUN_004a3e20(
+                        Frontend_SetObjectField118(
                             (Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[currentTexture], 5);
                         if (g_unk0x005210bc != 0)
-                            CGraphics::FUN_004a4850(
+                            CGraphics::ApplyTextureStageChange(
                                 1, (int)CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
                     }
                 }
@@ -3242,10 +3242,10 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
             if (count != 0) {
                 texture = *(int *)((BYTE *)&pMesh->pTriangles[triangleCount - 1] + 4 + textureIndex * 4);
                 if (texture > -1) {
-                    FUN_004a3e20(
+                    Frontend_SetObjectField118(
                         (Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[texture], 5);
                     if (g_unk0x005210bc != 0)
-                        CGraphics::FUN_004a4850(1, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+                        CGraphics::ApplyTextureStageChange(1, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
                     CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
                         D3DPT_TRIANGLELIST,
                         CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
@@ -3254,8 +3254,8 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
             }
         }
         CGraphics::SetTextureAddressClamp(1);
-        CGraphics::FUN_004a4850(1, 0);
-        CGraphics::FUN_004a4850(2, 0);
+        CGraphics::ApplyTextureStageChange(1, 0);
+        CGraphics::ApplyTextureStageChange(2, 0);
         CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, 0);
         CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_NORMALIZENORMALS, 0);
         CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LOCALVIEWER, 0);
@@ -3268,17 +3268,17 @@ extern const float g_netOne;
 
 // Startup (C runtime .CRT$XCU) initializer of g_unk0x006dfdf8.
 // FUNCTION: CMR2 0x004b2e20
-void __cdecl FUN_004b2e20(void)
+void __cdecl Graphics_InitializeShadowGeometryStorage(void)
 {
     g_unk0x006dfdf8 = g_netOne - g_unk0x005210d0;
 }
 
 #pragma data_seg(".CRT$XCU")
-static void (__cdecl *s_graphicsInit)(void) = FUN_004b2e20;
+static void (__cdecl *s_graphicsInit)(void) = Graphics_InitializeShadowGeometryStorage;
 #pragma data_seg()
 
 // FUNCTION: CMR2 0x004b2e40
-void FUN_004b2e40(BYTE *p, int value)
+void Graphics_SetRecordField2C(BYTE *p, int value)
 {
     *(int *)(p + 0x2c) = value;
 }
@@ -3509,7 +3509,7 @@ int Scene_AttenuateSectorLight(int sector, int light)
 }
 
 // FUNCTION: CMR2 0x004b6ef0
-void FUN_004b6ef0(int value)
+void Graphics_SetGeometryStateValue(int value)
 {
     g_unk0x005210c0 = value;
 }
@@ -3581,13 +3581,13 @@ void Graphics_SetLightingMode(int mode)
 }
 
 // FUNCTION: CMR2 0x004b7200
-int FUN_004b7200(void)
+int Graphics_GetGeometryStateValue(void)
 {
     return g_unk0x005210c4;
 }
 
 // FUNCTION: CMR2 0x004b98f0
-void FUN_004b98f0(int *p, int value)
+void Graphics_AccumulateCounterOrInitialize(int *p, int value)
 {
     if (*p == -1) {
         *p = 0;
@@ -3671,7 +3671,7 @@ int Timer_GetValue(BYTE index)
 // Whether the timer that p was registered with (its first byte is the slot)
 // is still running.
 // FUNCTION: CMR2 0x004bc0c0
-BYTE FUN_004bc0c0(BYTE *p)
+BYTE Graphics_IsRegisteredTimerRunning(BYTE *p)
 {
     BYTE *timer = g_unk0x00521138[*p];
 
@@ -3682,7 +3682,7 @@ BYTE FUN_004bc0c0(BYTE *p)
     return *(unsigned int *)(timer + 0x28) < *(unsigned int *)(timer + 4);
 }
 
-BYTE FUN_004bc3e0(BYTE index);
+BYTE Graphics_GetTimerRecordBitUnion(BYTE index);
 BYTE Timer_FindFree(void);
 
 // When set, Timer_Start collapses the range to its end value (the demo
@@ -3695,7 +3695,7 @@ int g_unk0x00816290;
 // length steps following one of five shapes, and the slot keeps the
 // interpolation speed, the shape sign and the caller's extra parameters.
 // FUNCTION: CMR2 0x004bc290
-void FUN_004bc290(BYTE *pSlot, int shape, int length, int param4, int start, int end, BYTE param7)
+void Graphics_StartShapedInterpolationTimer(BYTE *pSlot, int shape, int length, int param4, int start, int end, BYTE param7)
 {
     BYTE *rec;
     int speed;
@@ -3747,11 +3747,11 @@ void FUN_004bc290(BYTE *pSlot, int shape, int length, int param4, int start, int
     *(int *)(rec + 0xc) = end;
     *(BYTE **)(rec + 0x20) = pSlot;
     *(int *)(rec + 0x28) = 0;
-    rec[0x18] = FUN_004bc3e0(*pSlot);
+    rec[0x18] = Graphics_GetTimerRecordBitUnion(*pSlot);
 }
 
 // FUNCTION: CMR2 0x004bc3e0
-BYTE FUN_004bc3e0(BYTE index)
+BYTE Graphics_GetTimerRecordBitUnion(BYTE index)
 {
     BYTE *p = g_unk0x00521138[index & 0xff];
     BYTE r = (BYTE)index;
@@ -3764,7 +3764,7 @@ BYTE FUN_004bc3e0(BYTE index)
 }
 
 // FUNCTION: CMR2 0x004bc440
-void FUN_004bc440(void)
+void Graphics_ResetInterpolationTimers(void)
 {
     BYTE *p;
 
@@ -3777,7 +3777,7 @@ void FUN_004bc440(void)
 }
 
 // FUNCTION: CMR2 0x004bc470
-void FUN_004bc470(BYTE *p)
+void Graphics_StopRegisteredTimer(BYTE *p)
 {
     g_unk0x00521138[*p][0] = 5;
 }
@@ -3870,19 +3870,19 @@ void Pulse_Update(unsigned int dt)
 }
 
 // FUNCTION: CMR2 0x004bcad0
-void FUN_004bcad0(int value)
+void Graphics_SetFlareStateValue(int value)
 {
     g_unk0x00816704 = value;
 }
 
 // FUNCTION: CMR2 0x004bcae0
-int FUN_004bcae0(void)
+int Graphics_GetFlareStateValue(void)
 {
     return g_unk0x00816704;
 }
 
 // FUNCTION: CMR2 0x004bcfe0
-char *FUN_004bcfe0(unsigned int index)
+char *Graphics_GetBoundedStringEntry(unsigned int index)
 {
     if (index >= 20)
         return CMain::m_logFileBlankLine;
@@ -3959,7 +3959,7 @@ int Args_Has(char *pArg)
     strcpy(wanted, pArg);
     _strlwr(wanted);
     for (i = 0; i < g_unk0x00816974; i++) {
-        strcpy(arg, FUN_004bcfe0(i));
+        strcpy(arg, Graphics_GetBoundedStringEntry(i));
         _strlwr(arg);
         if (strcmp(wanted, arg) == 0)
             return 1;
@@ -3968,7 +3968,7 @@ int Args_Has(char *pArg)
 }
 
 // FUNCTION: CMR2 0x004bcac0
-int FUN_004bcac0(void)
+int Graphics_ClearFlareTextureRegistration(void)
 {
     g_unk0x008164c8 = 0;
     return 1;
@@ -3995,7 +3995,7 @@ void Graphics_SetFog(int start, int end, int a, int b, DWORD colour)
     g_fogField2 = (float)b * CGraphics::m_oneOver65536;
     CGraphics::m_pTextureManager->pD3D->SetRenderState(
         D3DRENDERSTATE_FOGCOLOR, RGBA_MAKE(((BYTE *)&colour)[0], ((BYTE *)&colour)[1], ((BYTE *)&colour)[2], 0xff));
-    if (FUN_004b74c0() != 0) {
+    if (Graphics_GetDeviceCaps90() != 0) {
         CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGTABLEMODE, D3DFOG_NONE);
         CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGVERTEXMODE, D3DFOG_LINEAR);
     }
@@ -4005,7 +4005,7 @@ void Graphics_SetFog(int start, int end, int a, int b, DWORD colour)
 // FUNCTION: CMR2 0x004bcbb0
 void Graphics_EnableFog(void)
 {
-    if (FUN_004b74c0() != 0) {
+    if (Graphics_GetDeviceCaps90() != 0) {
         CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGTABLEMODE, D3DFOG_NONE);
         CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGVERTEXMODE, D3DFOG_LINEAR);
         CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGSTART, *(DWORD *)&g_fogStart);
@@ -4016,7 +4016,7 @@ void Graphics_EnableFog(void)
 // FUNCTION: CMR2 0x004bcc20
 void Graphics_DisableFog(void)
 {
-    if (FUN_004b74d0() != 0 || FUN_004b74c0() != 0) {
+    if (Graphics_GetDeviceCaps94() != 0 || Graphics_GetDeviceCaps90() != 0) {
         CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGTABLEMODE, D3DFOG_NONE);
         CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGVERTEXMODE, D3DFOG_NONE);
     }
@@ -4058,7 +4058,7 @@ char g_strSuffixW[4] = "W";
 
 extern char g_fontTgaFormat[12];
 int Graphics_HasLocalSuffix(char *pName);
-Texture *FUN_004b9b80(char *name);
+Texture *Graphics_FindAndEnsureResidentTexture(char *name);
 
 // Variants of the texture file suffix the load flags depend on.
 // GLOBAL: CMR2 0x00521114
@@ -4091,11 +4091,11 @@ void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int p
                 do {
                     pName = (char *)(param2 + *pEntry * 0x104);
                     CGenericFileLoader::StrUpperPolish((BYTE *)pName);
-                    strcpy(CFrontend::m_stringDest, CInstallInfo::FUN_0040ed50());
+                    strcpy(CFrontend::m_stringDest, CInstallInfo::GetTexturesDirectory());
                     ((int (__cdecl *)(char *, const char *, char *, char *))sprintf)(fileName, g_fontTgaFormat, CFrontend::m_stringDest,
                             strchr(pName, '\\') + 1);
                     if (param4 == 6) {
-                        if (FUN_004b9b80(fileName) != 0)
+                        if (Graphics_FindAndEnsureResidentTexture(fileName) != 0)
                             goto nextEntry;
                         if (strncmp(fileName + strlen(fileName) - 6, CGraphics::m_strSuffixBU, 2) != 0 &&
                             strncmp(fileName + strlen(fileName) - 6, g_str0x00521118, 2) != 0 &&
@@ -4129,11 +4129,11 @@ int Graphics_HasLocalSuffix(char *pName)
 }
 
 // FUNCTION: CMR2 0x004bca70
-void FUN_004bca70(short *param1)
+void Graphics_InitializeFlareTextureSurface(short *param1)
 {
     if (g_unk0x008164c8 != 0)
         return;
-    CGame::RegisterCallback(FUN_004bcac0, NULL);
+    CGame::RegisterCallback(Graphics_ClearFlareTextureRegistration, NULL);
     if (param1[2] != 0 && param1[3] != 0) {
         CGraphics::CreateTextureSurface((Texture *)g_unk0x00816298, param1[2], param1[3], 8);
         g_unk0x008164c8 = 1;
@@ -4215,7 +4215,7 @@ BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance)
     if (g_unk0x008164c8 == 0) {
         if (pRect == NULL)
             goto sample;
-        FUN_004bca70(pRect);
+        Graphics_InitializeFlareTextureSurface(pRect);
         if (g_unk0x008164c8 == 0)
             return 0;
     }
@@ -4502,7 +4502,7 @@ struct BillboardVertex {
 // GLOBAL: CMR2 0x006a2cf8
 BillboardVertex g_billboardVerts[800 * 4];
 
-void FUN_004a3dd0(void);
+void Graphics_InvalidateTextureStageCache(void);
 D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
 
 // Turns the queued billboards into quads facing pCamera (rotated by their
@@ -4602,7 +4602,7 @@ void Billboard_Draw(SceneNode *pCamera)
     CGraphics::SetZWriteEnable(0);
     g_billboardRun = g_billboardRuns[0];
     for (i = 0; i < (unsigned int)g_unk0x006dd788; i++) {
-        CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[g_billboardRun[1]]);
+        CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[g_billboardRun[1]]);
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0x2d2, &g_billboardVerts[first * 4],
                                                                  g_billboardRun[0] * 4, g_unk0x006db200,
                                                                  g_billboardRun[0] * 6, 0);
@@ -4612,14 +4612,14 @@ void Billboard_Draw(SceneNode *pCamera)
     CGraphics::SetZWriteEnable(1);
     g_unk0x006dd784 = 0;
     g_unk0x006dd788 = 0;
-    FUN_004a3dd0();
-    CGraphics::FUN_004a3de0();
+    Graphics_InvalidateTextureStageCache();
+    CGraphics::InvalidateBlendStateCache();
 }
 
 // Takes a free texture slot, copies the 0x130-byte texture into it and
 // returns the slot index (or -1 when the table is full).
 // FUNCTION: CMR2 0x004a4bd0
-int FUN_004a4bd0(void *pSource, int param2)
+int Graphics_CopyIntoFreeTextureSlot(void *pSource, int param2)
 {
     int i;
 
@@ -4656,7 +4656,7 @@ FixVector g_quadBasisA = {0, 0x10000, 0};
 FixVector g_quadBasisB = {0, 0, 0x10000};
 
 // FUNCTION: CMR2 0x004ae140
-void FUN_004ae140(BYTE *pColour)
+void Graphics_SetLayerQuadColour(BYTE *pColour)
 {
     g_unk0x00520f94[0] = pColour[0];
     g_unk0x00520f94[1] = pColour[1];
@@ -4665,7 +4665,7 @@ void FUN_004ae140(BYTE *pColour)
 }
 
 // FUNCTION: CMR2 0x004ae230
-void FUN_004ae230(int *p, int x, int y)
+void Glow_SetSymmetricBounds(int *p, int x, int y)
 {
     p[3] = -x;
     p[4] = y;
@@ -4674,7 +4674,7 @@ void FUN_004ae230(int *p, int x, int y)
 }
 
 // FUNCTION: CMR2 0x004ae260
-void FUN_004ae260(void)
+void Glow_ResetEntries(void)
 {
     int i;
 
@@ -4684,21 +4684,21 @@ void FUN_004ae260(void)
 }
 
 // FUNCTION: CMR2 0x004ae3d0
-void FUN_004ae3d0(BYTE *p, BYTE value)
+void Glow_SetEntryByte50(BYTE *p, BYTE value)
 {
     if (p != NULL)
         p[0x50] = value;
 }
 
 // FUNCTION: CMR2 0x004ae3f0
-void FUN_004ae3f0(BYTE *p, int value)
+void Glow_SetEntryValue3C(BYTE *p, int value)
 {
     if (p != NULL)
         *(int *)(p + 0x3c) = value;
 }
 
 // FUNCTION: CMR2 0x004ae410
-void FUN_004ae410(BYTE a, BYTE b, int c, int d)
+void Glow_NoOpEntryCallback(BYTE a, BYTE b, int c, int d)
 {
 }
 
@@ -4803,7 +4803,7 @@ void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pT
 }
 
 // FUNCTION: CMR2 0x004b1970
-int CGraphics::FUN_004b1970(void)
+int CGraphics::GetSharedVertexMemoryKilobytes(void)
 {
     return (unsigned int)m_unk0x006dd890 >> 10;
 }
@@ -5092,7 +5092,7 @@ void Glow_Draw(SceneNode *pCamera, BYTE view)
         }
 
         intensity = FixMul(fade, pLight->intensity);
-        FUN_004ae230((int *)&g_glowDef, pLight->sizeX, pLight->sizeY);
+        Glow_SetSymmetricBounds((int *)&g_glowDef, pLight->sizeX, pLight->sizeY);
         g_glowDef.r = (BYTE)((intensity * 254) >> 16);
         g_glowDef.g = g_glowDef.r;
         g_glowDef.b = g_glowDef.r;
@@ -5124,7 +5124,7 @@ void Glow_Draw(SceneNode *pCamera, BYTE view)
     }
 }
 
-// Release callback of FUN_004ae170: frees the glow table.
+// Release callback of Glow_AllocateEntryTable: frees the glow table.
 // FUNCTION: CMR2 0x004ae200
 int Glow_FreeTable(void)
 {
@@ -5137,7 +5137,7 @@ int Glow_FreeTable(void)
 }
 
 // FUNCTION: CMR2 0x004ae170
-void FUN_004ae170(int param1)
+void Glow_AllocateEntryTable(int param1)
 {
     if (g_unk0x006a2a98 != NULL) {
         CFileBuffer::FreeGenericFileBuffer(g_unk0x006a2a98);
@@ -5159,7 +5159,7 @@ void FUN_004ae170(int param1)
 // GLOBAL: CMR2 0x006a2a08
 LPDIRECT3DVERTEXBUFFER7 g_quadVertexBuffer;
 
-// Release callback of FUN_004ae0a0: releases the quad vertex buffer.
+// Release callback of Graphics_CreateSharedWriteOnlyVertexBuffer: releases the quad vertex buffer.
 // FUNCTION: CMR2 0x004ae120
 int QuadVB_Release(void)
 {
@@ -5173,7 +5173,7 @@ int QuadVB_Release(void)
 
 // Creates the 0x1000-vertex write-only buffer once and registers its callback.
 // FUNCTION: CMR2 0x004ae0a0
-void FUN_004ae0a0(void)
+void Graphics_CreateSharedWriteOnlyVertexBuffer(void)
 {
     D3DVERTEXBUFFERDESC desc;
     memset(&desc, 0, sizeof(desc));
@@ -5181,7 +5181,7 @@ void FUN_004ae0a0(void)
     desc.dwSize = 0x10;
     desc.dwCaps = 0x10000;
     desc.dwFVF = 0x2d2;
-    if (CGraphics::FUN_004a8d60() != 2)
+    if (CGraphics::GetSelectedRenderDeviceSurfaceCaps() != 2)
         desc.dwCaps |= 0x800;
     desc.dwNumVertices = 0x1000;
     CGraphics::m_pTextureManager->pDD->CreateVertexBuffer(
@@ -5196,7 +5196,7 @@ void FUN_004ae0a0(void)
 // surfaces; returns the render texture (NULL when out of memory).
 // match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a4b10
-RenderTexture *FUN_004a4b10(void)
+RenderTexture *Graphics_AllocateCubeMapTextureSlot(void)
 {
     Texture *p = NULL;
     int i;
@@ -5244,10 +5244,10 @@ extern BYTE g_unk0x00542630[];
 
 // Raises the detail levels when the hardware allows it (texture memory, caps).
 // FUNCTION: CMR2 0x00457c50
-void FUN_00457c50(void)
+void Graphics_RaiseSupportedDetailLevels(void)
 {
-    if (CGameInfo::FUN_00406410(0x10) != 0 && CFrontend::FUN_004b7560(0x400) != 0 &&
-        CFrontend::FUN_004b7590(0x400) != 0) {
+    if (CGameInfo::IsRecordFlagSet(0x10) != 0 && CFrontend::IsTextureWidthSupported(0x400) != 0 &&
+        CFrontend::IsTextureHeightSupported(0x400) != 0) {
         g_stageQualityCodes[0] = 'A';
         g_stageQualityCodes[1] = 'A';
         g_stageQualityCodes[3] = 'A';
@@ -5270,7 +5270,7 @@ void FUN_00457c50(void)
         g_stageQualityCodes[12] = 'A';
         return;
     }
-    switch (CGameInfo::FUN_00405d10()) {
+    switch (CGameInfo::GetPreviewMode()) {
     case 2:
         g_stageQualityCodes[0] = 'C';
         g_stageQualityCodes[1] = 'C';
@@ -5380,13 +5380,13 @@ void FUN_004b21e0(void)
 }
 
 // FUNCTION: CMR2 0x004b23a0
-float FUN_004b23a0(void)
+float Graphics_GetFrameScale(void)
 {
     return g_frameScale;
 }
 
 // FUNCTION: CMR2 0x004b23b0
-void FUN_004b23b0(float value)
+void Graphics_SetPlaybackRate(float value)
 {
     g_unk0x0052109c = value;
 }
@@ -5597,7 +5597,7 @@ void ParticleEdit_SetCallbacks(int field0x5c, void (*update)(void *, ParticleTyp
 }
 
 // FUNCTION: CMR2 0x004afe80
-void FUN_004afe80(short param1)
+void ParticleEdit_SetField2CAndFlag5(short param1)
 {
     if (g_pEditParticleType != NULL) {
         g_pEditParticleType->field0x2c = param1;
@@ -5606,7 +5606,7 @@ void FUN_004afe80(short param1)
 }
 
 // FUNCTION: CMR2 0x004aff60
-void FUN_004aff60(void)
+void ParticleEdit_CommitCurrentType(void)
 {
     if (g_pEditParticleType != NULL) {
         g_pEditParticleType->flags |= 1;
@@ -5633,7 +5633,7 @@ void Particle_KillAll(void)
 }
 
 // FUNCTION: CMR2 0x004affb0
-void FUN_004affb0(void)
+void Particle_ClearActiveFlags(void)
 {
     int i;
     BYTE *p;
@@ -5650,7 +5650,7 @@ void FUN_004affb0(void)
 }
 
 // FUNCTION: CMR2 0x004affe0
-void FUN_004affe0(void)
+void ParticleType_ClearEnabledFlags(void)
 {
     int i;
     BYTE *p;
@@ -5666,14 +5666,14 @@ void FUN_004affe0(void)
     }
 }
 
-void FUN_004affb0(void);
+void Particle_ClearActiveFlags(void);
 
 // Release callback of the particle system.
 // FUNCTION: CMR2 0x004b0010
 BYTE Particle_Shutdown(void)
 {
-    FUN_004affe0();
-    FUN_004affb0();
+    ParticleType_ClearEnabledFlags();
+    Particle_ClearActiveFlags();
     if (g_particleTypes != NULL) {
         CFileBuffer::FreeGenericFileBuffer(g_particleTypes);
         g_particleTypes = NULL;
@@ -5697,8 +5697,8 @@ void Particle_Init(int typeCount, int particleCount)
         if (g_particles != NULL) {
             g_particleTypeCount = typeCount;
             g_particleCount = particleCount;
-            FUN_004affe0();
-            FUN_004affb0();
+            ParticleType_ClearEnabledFlags();
+            Particle_ClearActiveFlags();
             CGame::RegisterCallback(Particle_Shutdown, NULL);
             return;
         }
@@ -5714,7 +5714,7 @@ void Particle_Init(int typeCount, int particleCount)
 }
 
 // FUNCTION: CMR2 0x004b1140
-void FUN_004b1140(int count)
+void Particle_SetPoolCapacity(int count)
 {
     g_particleCount = count;
 }
@@ -6220,19 +6220,19 @@ int CGraphics::m_unk0x00520b20 = 1;
 int g_unk0x00520b18 = -1;
 
 // FUNCTION: CMR2 0x004a3dc0
-void FUN_004a3dc0(int param1)
+void Graphics_SetTextureStageState(int param1)
 {
     CGraphics::m_unk0x00520b14 = param1;
 }
 
 // FUNCTION: CMR2 0x004a3dd0
-void FUN_004a3dd0(void)
+void Graphics_InvalidateTextureStageCache(void)
 {
     g_unk0x00520b18 = -1;
 }
 
 // FUNCTION: CMR2 0x004a3de0
-void CGraphics::FUN_004a3de0(void)
+void CGraphics::InvalidateBlendStateCache(void)
 {
     m_unk0x00520b1c = 1;
     m_unk0x00520b20 = 1;
@@ -6243,7 +6243,7 @@ int CGraphics::m_unk0x0065fa38;
 
 // Sets render states 0x13/0x14 when the pair changes.
 // FUNCTION: CMR2 0x004a3e40
-void CGraphics::FUN_004a3e40(int param1, int param2)
+void CGraphics::SetCachedSourceDestinationBlend(int param1, int param2)
 {
     if (param1 == m_unk0x00520b1c && param2 == m_unk0x00520b20)
         return;
@@ -6254,11 +6254,11 @@ void CGraphics::FUN_004a3e40(int param1, int param2)
 }
 
 struct Unk0x004a3e20;
-void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
 
 // Creates a texture from file data already in memory (DDS or TGA).
 // FUNCTION: CMR2 0x004a48c0
-Texture *CGraphics::FUN_004a48c0(char *name, void *pData, unsigned int flags)
+Texture *CGraphics::CreateTextureFromImageData(char *name, void *pData, unsigned int flags)
 {
     Texture *pTexture;
     BOOL isDDS;
@@ -6277,7 +6277,7 @@ Texture *CGraphics::FUN_004a48c0(char *name, void *pData, unsigned int flags)
             m_pTextureManager->textureBuffer[i] = (Texture *)CFileBuffer::AllocateLockedBuffer(0x130);
             pTexture = m_pTextureManager->textureBuffer[i];
             pTexture->textureId = i;
-            FUN_004a3e20((Unk0x004a3e20 *)pTexture, 0);
+            Frontend_SetObjectField118((Unk0x004a3e20 *)pTexture, 0);
             if (pTexture == NULL)
                 return NULL;
             m_textureCount++;
@@ -6297,7 +6297,7 @@ Texture *CGraphics::FUN_004a48c0(char *name, void *pData, unsigned int flags)
 // file next.
 // match 46%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a49c0
-Texture *CGraphics::FUN_004a49c0(char *name, unsigned int flags)
+Texture *CGraphics::LoadDDSThenTGATexture(char *name, unsigned int flags)
 {
     Texture *pTexture;
     void *pData;
@@ -6326,7 +6326,7 @@ Texture *CGraphics::FUN_004a49c0(char *name, unsigned int flags)
             pTexture = m_pTextureManager->textureBuffer[i];
             pTexture->textureId = i;
             pTexture->pArchive = NULL;
-            FUN_004a3e20((Unk0x004a3e20 *)pTexture, 0);
+            Frontend_SetObjectField118((Unk0x004a3e20 *)pTexture, 0);
             if (pTexture == NULL)
                 return NULL;
             m_textureCount++;
@@ -6716,7 +6716,7 @@ Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
 // no texture): colour/alpha operations, filters, blend render states and
 // texture coordinate set.
 // FUNCTION: CMR2 0x004a3e90
-void CGraphics::FUN_004a3e90(int param1, int param2)
+void CGraphics::ConfigureTextureStageBlendMode(int param1, int param2)
 {
     Texture *pTexture;
     float value;
@@ -6747,7 +6747,7 @@ void CGraphics::FUN_004a3e90(int param1, int param2)
         else
             m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MIPFILTER, D3DTFP_NONE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MAXMIPLEVEL, 0);
-        FUN_004a3e40(5, 6);
+        SetCachedSourceDestinationBlend(5, 6);
         SetTexCoordIndex(param1, 0);
         break;
     case 1:
@@ -6757,7 +6757,7 @@ void CGraphics::FUN_004a3e90(int param1, int param2)
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
-        FUN_004a3e40(2, 2);
+        SetCachedSourceDestinationBlend(2, 2);
         SetTexCoordIndex(param1, 0);
         break;
     case 2:
@@ -6767,7 +6767,7 @@ void CGraphics::FUN_004a3e90(int param1, int param2)
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-        FUN_004a3e40(5, 2);
+        SetCachedSourceDestinationBlend(5, 2);
         SetTexCoordIndex(param1, 0);
         break;
     case 3:
@@ -6777,7 +6777,7 @@ void CGraphics::FUN_004a3e90(int param1, int param2)
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-        FUN_004a3e40(1, 4);
+        SetCachedSourceDestinationBlend(1, 4);
         SetTexCoordIndex(param1, 0);
         break;
     case 4:
@@ -6796,7 +6796,7 @@ void CGraphics::FUN_004a3e90(int param1, int param2)
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-        FUN_004a3e40(5, 2);
+        SetCachedSourceDestinationBlend(5, 2);
         SetTexCoordIndex(param1, 0);
         break;
     case 6:
@@ -6815,7 +6815,7 @@ void CGraphics::FUN_004a3e90(int param1, int param2)
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
-        FUN_004a3e40(9, 3);
+        SetCachedSourceDestinationBlend(9, 3);
         SetTexCoordIndex(param1, 1);
         break;
     case 8:
@@ -6848,7 +6848,7 @@ void CGraphics::FUN_004a3e90(int param1, int param2)
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MINFILTER, D3DTFN_LINEAR);
-        FUN_004a3e40(2, 2);
+        SetCachedSourceDestinationBlend(2, 2);
         SetTexCoordIndex(param1, 1);
         break;
     case 10:
@@ -6858,7 +6858,7 @@ void CGraphics::FUN_004a3e90(int param1, int param2)
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-        FUN_004a3e40(5, 6);
+        SetCachedSourceDestinationBlend(5, 6);
         SetTexCoordIndex(param1, 0);
         break;
     case 11:
@@ -6879,7 +6879,7 @@ void CGraphics::FUN_004a3e90(int param1, int param2)
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
         m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-        FUN_004a3e40(5, 6);
+        SetCachedSourceDestinationBlend(5, 6);
         SetTexCoordIndex(param1, 0);
         break;
     }
@@ -6888,7 +6888,7 @@ void CGraphics::FUN_004a3e90(int param1, int param2)
 
 // Applies a texture stage change and forwards it to the render states.
 // FUNCTION: CMR2 0x004a4850
-void CGraphics::FUN_004a4850(int param1, int param2)
+void CGraphics::ApplyTextureStageChange(int param1, int param2)
 {
     if (m_unk0x0065fa38 == param2 && m_unk0x00520b28 == param1)
         return;
@@ -6897,10 +6897,10 @@ void CGraphics::FUN_004a4850(int param1, int param2)
     if (param2 != 0) {
         m_pTextureManager->pD3D->SetTexture((DWORD)param1,
             (IDirectDrawSurface7 *)*(int *)(param2 + 0x114));
-        FUN_004a3e90(param1, param2);
+        ConfigureTextureStageBlendMode(param1, param2);
     } else {
         m_pTextureManager->pD3D->SetTexture((DWORD)param1, NULL);
-        FUN_004a3e90(param1, 0);
+        ConfigureTextureStageBlendMode(param1, 0);
     }
     m_unk0x0065fa24++;
 }
@@ -6969,7 +6969,7 @@ unsigned int g_unk0x006de95c[20];
 // Reserves count cube maps of the given size, then loads the environment
 // texture; returns 0 when it is missing.
 // FUNCTION: CMR2 0x004b23c0
-int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size)
+int Graphics_ReserveCubeMapsAndLoadEnvironment(char *name, int count, GenericFile *pFile, DWORD size)
 {
     unsigned int *pId;
     unsigned short *pTexture;
@@ -6979,7 +6979,7 @@ int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size)
     if ((*(BYTE *)&g_pGraphics->field913_0x3bc & 0x80) != 0 && count > 0) {
         pId = g_unk0x006de95c;
         do {
-            *pId++ = *(unsigned short *)FUN_004a4b10();
+            *pId++ = *(unsigned short *)Graphics_AllocateCubeMapTextureSlot();
         } while (--count != 0);
     }
     pTexture = (unsigned short *)CTexture::FindLoadTexture(pFile, name, NULL, 0, 0, 0x8000);
@@ -6987,7 +6987,7 @@ int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size)
         return (int)pTexture;
     {
         g_unk0x005210b8 = *pTexture;
-        FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 4);
+        Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 4);
         return 1;
     }
 }
@@ -7004,7 +7004,7 @@ extern const float g_unk0x00511424 = 0.5f;
 // x/y stored at offsets 0x28/0x2c of the vertex, and re-uploads the vertices
 // to the mesh's slot of the shared vertex buffer.
 // FUNCTION: CMR2 0x004b2460
-void FUN_004b2460(Mesh *pMesh)
+void Graphics_ProjectMeshVertexMidpoints(Mesh *pMesh)
 {
     D3DMATRIX transform;
     D3DMATRIX world;
@@ -7045,7 +7045,7 @@ void FUN_004b2460(Mesh *pMesh)
 // reserved cube map as texture and clamping the texture address while the
 // shadow geometry is drawn.
 // FUNCTION: CMR2 0x004b2610
-void FUN_004b2610(Mesh *pMesh)
+void Graphics_DrawCubeMappedShadowTriangles(Mesh *pMesh)
 {
     int triangleCount;
     int count;
@@ -7054,11 +7054,11 @@ void FUN_004b2610(Mesh *pMesh)
     int textureIndex;
     int texture;
 
-    FUN_004b2460(pMesh);
+    Graphics_ProjectMeshVertexMidpoints(pMesh);
     count = 0;
     triangleCount = pMesh->triangleCount;
     currentTexture = -1;
-    FUN_0049dcc0(1);
+    Graphics_SwitchAlphaBlendAndTest(1);
     CGraphics::SetTextureAddressClamp(0);
     if ((g_unk0x005210b8 < 0 && (int)g_unk0x006de95c[(pMesh->flags >> 15) & 7] < 0) || triangleCount <= 0)
         goto done;
@@ -7075,17 +7075,17 @@ void FUN_004b2610(Mesh *pMesh)
             currentTexture = *(int *)((BYTE *)&pMesh->pTriangles[i] + 4 + textureIndex * 4);
             if (currentTexture > -1) {
                 if ((g_pGraphics->field913_0x3bc & 0x10) != 0) {
-                    FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[currentTexture], 8);
-                    CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
-                    FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 9);
+                    Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[currentTexture], 8);
+                    CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
+                    Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 9);
                     if (g_unk0x005210bc != 0)
-                        CGraphics::FUN_004a4850(1, (int)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
+                        CGraphics::ApplyTextureStageChange(1, (int)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
                 } else {
-                    FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 4);
-                    CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
-                    FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[currentTexture], 5);
+                    Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 4);
+                    CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
+                    Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[currentTexture], 5);
                     if (g_unk0x005210bc != 0)
-                        CGraphics::FUN_004a4850(1, (int)CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
+                        CGraphics::ApplyTextureStageChange(1, (int)CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
                 }
             }
         }
@@ -7101,17 +7101,17 @@ void FUN_004b2610(Mesh *pMesh)
     texture = *(int *)((BYTE *)&pMesh->pTriangles[triangleCount - 1] + 4 + textureIndex * 4);
     if (texture > -1) {
         if ((g_pGraphics->field913_0x3bc & 0x10) != 0) {
-            FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[texture], 8);
-            CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
-            FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 9);
+            Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[texture], 8);
+            CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+            Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 9);
             if (g_unk0x005210bc != 0)
-                CGraphics::FUN_004a4850(1, (int)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
+                CGraphics::ApplyTextureStageChange(1, (int)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
             } else {
-            FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 4);
-            CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
-            FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[texture], 5);
+            Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 4);
+            CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
+            Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[texture], 5);
             if (g_unk0x005210bc != 0)
-                CGraphics::FUN_004a4850(1, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+                CGraphics::ApplyTextureStageChange(1, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
         }
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
             D3DPT_TRIANGLELIST,
@@ -7120,14 +7120,14 @@ void FUN_004b2610(Mesh *pMesh)
     }
 done:
     CGraphics::SetTextureAddressClamp(1);
-    CGraphics::FUN_004a4850(1, 0);
-    CGraphics::FUN_004a4850(2, 0);
+    CGraphics::ApplyTextureStageChange(1, 0);
+    CGraphics::ApplyTextureStageChange(2, 0);
 }
 
 // Finds a loaded texture by name (not for "local" textures) and makes sure
 // it is resident.
 // FUNCTION: CMR2 0x004b9b80
-Texture *FUN_004b9b80(char *name)
+Texture *Graphics_FindAndEnsureResidentTexture(char *name)
 {
     int i;
 
@@ -7135,7 +7135,7 @@ Texture *FUN_004b9b80(char *name)
         for (i = 0; i < (int)CGraphics::m_textureCount; i++) {
             if (CGraphics::m_pTextureManager->textureBuffer[i] != NULL &&
                 strcmp(CGraphics::m_pTextureManager->textureBuffer[i]->name, name) == 0) {
-                i = FUN_004a4bd0(CGraphics::m_pTextureManager->textureBuffer[i], i);
+                i = Graphics_CopyIntoFreeTextureSlot(CGraphics::m_pTextureManager->textureBuffer[i], i);
                 return CGraphics::m_pTextureManager->textureBuffer[i];
             }
         }
@@ -7167,13 +7167,13 @@ void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markT
     if ((pLod->flags & 1) != 0)
         CGraphics::SetCullMode(1);
     else
-        CGraphics::SetCullMode(CGame::FUN_0049dcb0());
+        CGraphics::SetCullMode(CGame::GetSectorDrawState());
 
     // Meshes with flag 0x20 keep their own lighting mode and the restore at
     // the end skips them, so the saved mode stays uninitialised for them
     // (the original reads it anyway).
     if ((pLod->flags & 0x20) == 0) {
-        lightingMode = (unsigned int)FUN_004b7200();
+        lightingMode = (unsigned int)Graphics_GetGeometryStateValue();
         if ((pLod->flags & 0x40000) != 0)
             Graphics_SetLightingMode(3);
         else
@@ -7181,15 +7181,15 @@ void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markT
     }
 
     if (g_unk0x005207b4 != 0)
-        FUN_0049dcc0((int)((pLod->flags >> 3) & 1));
+        Graphics_SwitchAlphaBlendAndTest((int)((pLod->flags >> 3) & 1));
     else
-        FUN_0049dcc0(0);
+        Graphics_SwitchAlphaBlendAndTest(0);
 
     if (useParts != 0) {
         if (markTextures != 0)
-            FUN_0049c7b0(pLod);
+            Graphics_MarkTexturesAndDrawMeshParts(pLod);
         else
-            FUN_0049c880(pLod);
+            Graphics_DrawMeshPartsByTexture(pLod);
     } else if (clampTexture != 0) {
         FUN_0049c510(pLod);
     } else {
@@ -7201,7 +7201,7 @@ void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markT
         if ((g_pGraphics->field913_0x3bc & 0x80) != 0)
             Mesh_DrawEnvMapped(pLod);
         else
-            FUN_004b2610(pLod);
+            Graphics_DrawCubeMappedShadowTriangles(pLod);
     }
 
     if ((pLod->flags & 0x20) == 0)
@@ -7211,7 +7211,7 @@ void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markT
 // Draws every part of a mesh from its vertex buffer, one texture at a time,
 // and counts the triangles drawn.
 // FUNCTION: CMR2 0x0049c880
-void FUN_0049c880(Mesh *pMesh)
+void Graphics_DrawMeshPartsByTexture(Mesh *pMesh)
 {
     int i;
     MeshPart **ppPart;
@@ -7222,7 +7222,7 @@ void FUN_0049c880(Mesh *pMesh)
         ppPart = pMesh->pParts;
         do {
             pPart = *ppPart;
-            CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
+            CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
             CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
                 D3DPT_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
                 pMesh->vertexOffset + pPart->minIndex, pMesh->field_0x10 - pPart->minIndex, pPart->pData,
@@ -7234,9 +7234,9 @@ void FUN_0049c880(Mesh *pMesh)
     }
 }
 
-// Same as FUN_0049c880, first marking each part's texture as used (10).
+// Same as Graphics_DrawMeshPartsByTexture, first marking each part's texture as used (10).
 // FUNCTION: CMR2 0x0049c7b0
-void FUN_0049c7b0(Mesh *pMesh)
+void Graphics_MarkTexturesAndDrawMeshParts(Mesh *pMesh)
 {
     int i;
     MeshPart **ppPart;
@@ -7247,8 +7247,8 @@ void FUN_0049c7b0(Mesh *pMesh)
         ppPart = pMesh->pParts;
         do {
             pPart = *ppPart;
-            FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[pPart->texture], 10);
-            CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
+            Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[pPart->texture], 10);
+            CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
             CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
                 D3DPT_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
                 pMesh->vertexOffset + pPart->minIndex, pMesh->field_0x10 - pPart->minIndex, pPart->pData,
@@ -7284,7 +7284,7 @@ void FUN_0049c680(Mesh *pMesh)
                     pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
             }
             count = 0;
-            CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+            CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
             currentTexture = texture;
         }
         g_unk0x0059be74[count++] = pTri->vertexIndex[0];
@@ -7296,7 +7296,7 @@ void FUN_0049c680(Mesh *pMesh)
     if (count != 0) {
         MeshTriangle *pLast = &pMesh->pTriangles[total - 1];
         int texture = *(int *)((BYTE *)pLast + 4 + pLast->field_0x2c * 4);
-        CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+        CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
             D3DPT_TRIANGLELIST,
             CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],

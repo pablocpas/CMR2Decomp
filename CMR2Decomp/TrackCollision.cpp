@@ -8,11 +8,11 @@
 #include "StageTiming.h"
 #include "GameInfo.h"
 
-// Ground queries against the stage collision mesh loaded by FUN_00490d50:
+// Ground queries against the stage collision mesh loaded by StageTiming_IndexSerializedStageTables:
 // triangles (three vertex indices plus a surface byte, 8 bytes each), their
 // vertices, and a five-level quadtree whose leaves list the triangles of a cell.
 
-// Pointers into the stage collision block (see FUN_00490d50).
+// Pointers into the stage collision block (see StageTiming_IndexSerializedStageTables).
 extern int g_unk0x00591af0;     // triangles: unsigned short v0, v1, v2; BYTE pad, surface
 extern int g_unk0x00591af8;     // grid origin: int x, z
 extern int g_unk0x00591b00[5];  // quadtree levels: { short count; int first; } per node
@@ -21,7 +21,7 @@ extern int g_unk0x00591b18;     // triangle index lists (short)
 extern int g_unk0x00591b1c;     // grid depth in cells (short)
 extern int g_unk0x00591b20;     // grid width in cells (short)
 
-short FUN_00478a10(short index);
+short Surface_GetMappedIndex(short index);
 
 // Scratch values of the point-in-triangle edge test.
 // GLOBAL: CMR2 0x00591af4
@@ -243,16 +243,16 @@ BYTE *g_finData;
 // GLOBAL: CMR2 0x0051fc38
 char g_strFinFormat[] = "%sfin.dat";
 
-BYTE *FUN_0041f900(void);
+BYTE *GameMenu_GetChampionshipTransitionState(void);
 
 // Loads the stage's fin.dat table (0x30-byte records).
 // FUNCTION: CMR2 0x00490c30
-void FUN_00490c30(void)
+void TrackCollision_LoadFinishRecords(void)
 {
     DWORD size = 0;
 
     g_unk0x005918d8 = 0;
-    sprintf(CFrontend::m_stringDest, g_strFinFormat, FUN_0041f900());
+    sprintf(CFrontend::m_stringDest, g_strFinFormat, GameMenu_GetChampionshipTransitionState());
     g_finData = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
                                                      CFrontend::m_stringDest, 0, &size, 0);
     g_finCount = size / 0x30;
@@ -286,7 +286,7 @@ int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *p
     int height;
 
     height = Track_GetGroundHeight(pPoint, pNormal, pTri, pSurface, defaultY);
-    *pSurfaceClass = FUN_00478a10(*pSurface);
+    *pSurfaceClass = Surface_GetMappedIndex(*pSurface);
     return height;
 }
 
@@ -299,7 +299,7 @@ BYTE *g_pAutoGearSetup;
 // up-shift, a little extra hysteresis is derived from the difference between
 // the first and third body corners.
 // FUNCTION: CMR2 0x00493890
-void FUN_00493890(void)
+void AutoGear_RequestAdjacentGear(void)
 {
     char gear;
     int load;
@@ -445,9 +445,9 @@ void Car_UpdateAutomaticGear(void)
     }
 }
 
-void FUN_0046f4c0(int *pOut);
-void FUN_0046f4d0(int *pOut);
-void FUN_0046f4e0(int *pOut1, int *pOut2);
+void StageObject_GetCurrentObjectPointer(int *pOut);
+void StageObject_GetCurrentObjectContext(int *pOut);
+void StageObject_GetCurrentObjectValues(int *pOut1, int *pOut2);
 extern BYTE *g_unk0x005920f0;
 extern FixVector g_unk0x00592114;
 
@@ -545,9 +545,9 @@ void Stage_InitLightMeshes(void)
     int maximum;
     float *vertices;
 
-    FUN_0046f4c0(&object0);
-    FUN_0046f4d0(&object1);
-    FUN_0046f4e0(&object2, &object3);
+    StageObject_GetCurrentObjectPointer(&object0);
+    StageObject_GetCurrentObjectContext(&object1);
+    StageObject_GetCurrentObjectValues(&object2, &object3);
     node = NULL;
     root = NULL;
     child = NULL;
@@ -745,7 +745,7 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
 
 // Ramps field 0x818 of the auto-gear car toward +1 or -1 by its two flags.
 // FUNCTION: CMR2 0x00494540
-void FUN_00494540(void)
+void AutoGear_RampDirectionState(void)
 {
     if (g_pAutoGearCar->flag0x1d0[0] != 0) {
         if (g_pAutoGearCar->field_0x818 < 0)
@@ -775,7 +775,7 @@ void Mesh_RefreshVertices(Mesh *pMesh);
 
 // Sets the stage ambient light from an 8-bit RGB triple (scaled to 16.16).
 // FUNCTION: CMR2 0x00492e60
-void FUN_00492e60(int *pRGB)
+void TrackLighting_SetAmbientRGB(int *pRGB)
 {
     int r = FixMul(pRGB[0], 0x106);
     int g;
@@ -801,7 +801,7 @@ void FUN_00492e60(int *pRGB)
 
 // Pushes the vertex colours of every recoloured stage mesh.
 // FUNCTION: CMR2 0x00492f10
-void FUN_00492f10(void)
+void TrackLighting_PushRecolouredMeshVertices(void)
 {
     if (g_stageColourStep != 0) {
         Mesh_RefreshVertices(g_stageMesh2);
@@ -836,7 +836,7 @@ extern double g_unk0x00511300;
 // Swings field 0x848 of the auto-gear car toward its target over time (a
 // quarter sine), or resets it when the swing is off.
 // FUNCTION: CMR2 0x00494960
-void FUN_00494960(void)
+void AutoGear_UpdateSecondarySwing(void)
 {
     unsigned short angle;
 
@@ -868,7 +868,7 @@ void FUN_00492fe0(DWORD *pColour, int start, int end)
     int alpha;
 
     Graphics_SetFog(start, end, start, end, *pColour);
-    distance = (CGameInfo::FUN_00405ca0() + 2) * 0x320000;
+    distance = (CGameInfo::GetGraphicsOptionBits21To24() + 2) * 0x320000;
     if (distance < start) {
         g_unk0x00592146 = 0xff;
         g_stageColourAlpha = 0xff;
@@ -895,7 +895,7 @@ void FUN_00492fe0(DWORD *pColour, int start, int end)
 // body (field 0x79c) from the phase in field 0x7a0, and latches flag 2 when
 // the car starts rolling while the shift is unlocked.
 // FUNCTION: CMR2 0x004946c0
-void FUN_004946c0(void)
+void AutoGear_UpdateRollingFollowRate(void)
 {
     unsigned short angle;
 
@@ -931,7 +931,7 @@ void FUN_004946c0(void)
 // Swings field 0x838 of the auto-gear car toward 0x82c over time while its
 // flag 3 is set and the shift is unlocked; else resets it.
 // FUNCTION: CMR2 0x00494880
-void FUN_00494880(void)
+void AutoGear_UpdateSteeringSwing(void)
 {
     unsigned short angle;
 
@@ -953,7 +953,7 @@ void FUN_00494880(void)
 // Flags whether the auto-gear car is at or below its best gear for the
 // current revs (gear with the most torque below 98% of the limit).
 // FUNCTION: CMR2 0x00493a40
-void FUN_00493a40(void)
+void AutoGear_UpdateBestGearFlag(void)
 {
     BYTE best;
     int bestTorque;
@@ -991,7 +991,7 @@ int g_unk0x00592160;
 // Reduces the steering scale as the car's forward velocity aligns with its
 // right axis.  The result is expressed in the same 0x1680 units as field b16.
 // FUNCTION: CMR2 0x004943d0
-void FUN_004943d0(void)
+void AutoGear_UpdateSteeringScale(void)
 {
     int alignment;
     int amount;
@@ -1007,18 +1007,18 @@ void FUN_004943d0(void)
     g_unk0x00592160 = g_pAutoGearCar->field_0xb16 * 0x1680;
 }
 
-void FUN_00494540(void);
+void AutoGear_RampDirectionState(void);
 extern int g_physicsTimeStep;
 
 // Steering torque of the auto-gear car from its steering swing.
 // FUNCTION: CMR2 0x004945d0
-void FUN_004945d0(void)
+void AutoGear_ComputeSteeringTorque(void)
 {
     int torque;
     int a;
     int r;
 
-    FUN_00494540();
+    AutoGear_RampDirectionState();
     if (g_pAutoGearCar->flag0x1d0[1] == 0 && g_pAutoGearCar->flag0x1d0[0] == 0) {
         g_unk0x00592164 = 0;
         return;
@@ -1066,7 +1066,7 @@ void FUN_004925c0(int oldHeight, int newHeight, int mode)
     g_unk0x00592128 = mode;
     g_unk0x00592130 = newHeight;
     g_unk0x0059212c = oldHeight;
-    FUN_0046f4c0(&object);
+    StageObject_GetCurrentObjectPointer(&object);
     FixMatrix_RotateVector(&position, &g_unk0x00592114, (FixMatrix *)(object + 0x98));
     position.y += g_unk0x0059212c;
     Scene_SetLightPosition(g_stageAmbientNode, position.x, position.y, position.z);
@@ -1075,30 +1075,30 @@ void FUN_004925c0(int oldHeight, int newHeight, int mode)
 int RallyData_IsChampionshipFinalStage(void);
 unsigned char RallyDataState(void);
 unsigned char RallyData_GetFlag24(void);
-unsigned int RallyData_FUN_00407e90(void);
-BYTE *FUN_0041b390(void);
-int FUN_0041f3d0(BYTE index);
-BYTE *FUN_0041f350(int index);
+unsigned int RallyData_GetSelectionFlag27(void);
+BYTE *StageUI_GetRaceResultTable(void);
+int Race_GetPlayerRecordField4(BYTE index);
+BYTE *Race_GetPlayerRecordPointer(int index);
 void FUN_0047d5a0(BYTE car);
 
 // Applies the automatic gearbox's mid-shift body nudge: while a shift is in
 // progress the body is pushed along its right axis by an amount derived from
 // the road speed, then the shift flag is cleared.
 // FUNCTION: CMR2 0x004932f0
-void FUN_004932f0(void)
+void AutoGear_ApplyShiftBodyNudge(void)
 {
     int shifted;
     int speed;
     FixVector offset;
 
     shifted = 0;
-    if (CGameInfo::FUN_004063f0(5) != 0) {
+    if (CGameInfo::IsActiveCheatEnabled(5) != 0) {
         g_pAutoGearCar->field_0xa84 = 0;
         if ((int)g_pAutoGearCar->index < (int)(BYTE)RallyDataState() &&
-            FUN_0041f3d0(g_pAutoGearCar->index) != 0 &&
-            *(char *)(FUN_0041f350((int)g_pAutoGearCar->index) + 0x10c) == 8)
+            Race_GetPlayerRecordField4(g_pAutoGearCar->index) != 0 &&
+            *(char *)(Race_GetPlayerRecordPointer((int)g_pAutoGearCar->index) + 0x10c) == 8)
             shifted = 1;
-        if (*(char *)(*(int *)(FUN_0041b390() + 4) + g_pAutoGearCar->index * 8) == 8 ||
+        if (*(char *)(*(int *)(StageUI_GetRaceResultTable() + 4) + g_pAutoGearCar->index * 8) == 8 ||
             shifted) {
             if (g_pAutoGearCar->handbrake != 0) {
                 speed = g_pAutoGearCar->speed;
@@ -1122,9 +1122,9 @@ void FUN_004932f0(void)
             g_pAutoGearCar->handbrake = 0;
         }
     } else {
-        if (CGameInfo::FUN_004063f0(0) != 0) {
+        if (CGameInfo::IsActiveCheatEnabled(0) != 0) {
             if (((char)RallyData_IsChampionshipFinalStage() != 0 || (char)RallyData_GetFlag24() != 0 ||
-                 (char)RallyData_FUN_00407e90() != 0) &&
+                 (char)RallyData_GetSelectionFlag27() != 0) &&
                 (g_pAutoGearCar->field_0xb9c != 0 && g_pAutoGearCar->handbrake != 0))
                 FUN_0047d5a0(g_pAutoGearCar->index);
             g_pAutoGearCar->handbrake = 0;
@@ -1158,7 +1158,7 @@ void FUN_00493ed0(void)
     if (other > 0x10000)
         other = 0x10000;
     value -= other;
-    FUN_004943d0();
+    AutoGear_UpdateSteeringScale();
 
     if (value < -0x10000)
         value = -0x10000;
@@ -1206,7 +1206,7 @@ double g_unk0x00511308 = -4096.0 / (360.0 * 65536.0);
 // Keeps the original intermediate forces and materialized zero bounds.
 // Differential coverage: guarded car, signed limits, angles and real helpers.
 // FUNCTION: CMR2 0x00494110
-void FUN_00494110(void)
+void AutoGear_IntegrateSteeringAccumulator(void)
 {
     int v;
     int sum;
@@ -1218,8 +1218,8 @@ void FUN_00494110(void)
     short step;
     short limit;
 
-    FUN_004943d0();
-    FUN_004945d0();
+    AutoGear_UpdateSteeringScale();
+    AutoGear_ComputeSteeringTorque();
     g_unk0x00592168 = g_pAutoGearCar->field_0x820;
     if (g_pAutoGearCar->field_0x81c == 0) {
         g_unk0x00592168 = 0;
@@ -1285,7 +1285,7 @@ convert:
         *(short *)&g_pAutoGearCar->heading -= limit;
 }
 
-int *FUN_00469680(int index);
+int *StageTiming_GetCarReplayRecord(int index);
 extern double g_unk0x00511300;
 
 // Applies the automatic-gear state to the car for one frame: rebuilds the body
@@ -1293,7 +1293,7 @@ extern double g_unk0x00511300;
 // hysteresis, and updates the gear ratios written to the car.
 // match 49%: implementada, caching de registros y orden de bloques distinto
 // FUNCTION: CMR2 0x00493520
-void FUN_00493520(Car *pCar)
+void AutoGear_UpdateCarGearState(Car *pCar)
 {
     char cVar1;
     int t;
@@ -1301,8 +1301,8 @@ void FUN_00493520(Car *pCar)
     int v;
 
     g_pAutoGearCar = pCar;
-    g_pAutoGearSetup = (BYTE *)FUN_00469680((int)pCar->index);
-    FUN_004932f0();
+    g_pAutoGearSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)pCar->index);
+    AutoGear_ApplyShiftBodyNudge();
     if (g_pAutoGearCar->field_0xb8c != 0) {
         if (*(BYTE *)&g_pAutoGearCar->flag0x1d0[2] != 0) {
             t = FixMul((int)((unsigned int)*(BYTE *)&g_pAutoGearCar->flag0x1d0[2] << 16), 0x410);
@@ -1313,7 +1313,7 @@ void FUN_00493520(Car *pCar)
             g_pAutoGearCar->steerFollowRate = 0;
         }
     } else {
-        FUN_004946c0();
+        AutoGear_UpdateRollingFollowRate();
     }
     if (g_pAutoGearCar->field_0x7bc[g_pAutoGearCar->gear] < 0)
         g_pAutoGearCar->field_0xb5c = 1;
@@ -1338,7 +1338,7 @@ void FUN_00493520(Car *pCar)
             }
         } else {
             if ((g_pAutoGearCar->field_0xb48 == 1) && (g_pAutoGearCar->field_0x1d4[0] != 0))
-                FUN_00493890();
+                AutoGear_RequestAdjacentGear();
             else if (g_pAutoGearCar->field_0xb48 == 2)
                 Car_UpdateAutomaticGear();
         }
@@ -1346,7 +1346,7 @@ void FUN_00493520(Car *pCar)
     if (g_pAutoGearCar->field_0xb88 != 0)
         FUN_00493ed0();
     else
-        FUN_00494110();
+        AutoGear_IntegrateSteeringAccumulator();
     if (g_pAutoGearCar->field_0xb90 != 0) {
         if (*(BYTE *)&g_pAutoGearCar->flag0x1d0[3] != 0) {
             t = FixMul((int)((unsigned int)*(BYTE *)&g_pAutoGearCar->flag0x1d0[3] << 16), 0x410);
@@ -1368,7 +1368,7 @@ void FUN_00493520(Car *pCar)
             g_pAutoGearCar->brakeInput = 0;
         }
     } else {
-        FUN_00494880();
+        AutoGear_UpdateSteeringSwing();
         if ((g_pAutoGearCar->field_0xb8c != 0) && (g_pAutoGearCar->field_0xb94 != 0)) {
             t = FixMul((int)((unsigned int)*(BYTE *)&g_pAutoGearCar->flag0x1d0[3] << 16), 0x410);
             if (t > 0x10000)
@@ -1376,9 +1376,9 @@ void FUN_00493520(Car *pCar)
             g_pAutoGearCar->steerFollowRate = FixMul(g_pAutoGearCar->field_0x788, t);
         }
     }
-    FUN_00494960();
+    AutoGear_UpdateSecondarySwing();
     if (g_pAutoGearCar->field_0xb48 == 1)
-        FUN_00493a40();
+        AutoGear_UpdateBestGearFlag();
 
     t = FixMul(*(short *)&g_pAutoGearCar->heading * 0x1680, 0x20000);
     u = t;

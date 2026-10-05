@@ -498,7 +498,7 @@ void Mesh_ReuploadAll(void)
     unsigned int i;
 
     CGraphics::ReleaseVertexBuffers();
-    CGraphics::FUN_004b1980();
+    CGraphics::AllocateSharedVertexBuffers();
     for (i = 0; i < (unsigned int)g_meshCount; i++) {
         if (g_meshes[i] != NULL)
             Mesh_UploadVertices((Mesh *)((BYTE *)g_meshes[i] + ((BYTE *)g_meshes[i])[0x112] * 0x108));

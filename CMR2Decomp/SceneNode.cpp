@@ -395,10 +395,10 @@ void SceneNode_Free(SceneNode *pNode)
             Mesh_Free(pObject);
             break;
         case SCENE_NODE_TYPE1:
-            FUN_004b3480(pObject);
+            Scene_FreeType1Object(pObject);
             break;
         case SCENE_NODE_TYPE2:
-            FUN_004adf60(pObject);
+            Scene_FreeType2Object(pObject);
             break;
         }
     }
@@ -486,7 +486,7 @@ void *g_sceneType2Objects[256];
 int g_sceneType2Count;
 
 // FUNCTION: CMR2 0x004b3480
-void FUN_004b3480(void *pObject)
+void Scene_FreeType1Object(void *pObject)
 {
     int i;
 
@@ -519,7 +519,7 @@ int Scene_FreeAllLights(void)
     g_sceneLightCallbackSet = 0;
     for (i = 0; i < 60; i++) {
         if (g_sceneType1Objects[i] != NULL)
-            FUN_004b3480(g_sceneType1Objects[i]);
+            Scene_FreeType1Object(g_sceneType1Objects[i]);
     }
     return 1;
 }
@@ -635,7 +635,7 @@ found:
 }
 
 // FUNCTION: CMR2 0x004adf60
-void FUN_004adf60(void *pObject)
+void Scene_FreeType2Object(void *pObject)
 {
     void **pSlot;
     int count;
@@ -677,7 +677,7 @@ int SceneType2_ReleaseAll(void)
     pSlot = g_sceneType2Objects;
     do {
         if (*pSlot != NULL)
-            FUN_004adf60(*pSlot);
+            Scene_FreeType2Object(*pSlot);
         pSlot++;
     } while ((int)pSlot < (int)&g_sceneType2Objects[256]);
     g_sceneType2CallbackRegistered = 0;
@@ -985,7 +985,7 @@ BYTE g_sceneLightFlag;
 // GLOBAL: CMR2 0x006e0b99
 BYTE g_sceneLightFlag2;
 
-void FUN_004a3240(int unused);
+void Sound_NoOpMusicCallback(int unused);
 int Scene_AttenuateSectorLight(int sector, int light);
 extern int g_unk0x005210c0;
 
@@ -1053,7 +1053,7 @@ void Scene_RelightSector(int sector)
                 }
             }
             for (pNode = pSector->pFirstNode; pNode != NULL; pNode = pNode->pNextInSector)
-                FUN_004a3240((int)pNode);
+                Sound_NoOpMusicCallback((int)pNode);
             if (g_sceneShadowMeshes == NULL)
                 return;
             if (g_sceneShadowMeshes[sector] != NULL)
@@ -1136,7 +1136,7 @@ int FUN_004b50b0(SceneNode *pNode, int param_2);
 // the null test), so ours loads it again at the store and the loop header loses
 // the `jmp` that skips that reload on the first iteration.
 // FUNCTION: CMR2 0x004b3f20
-void FUN_004b3f20(void)
+void Scene_AnimateAmbientRedChannel(void)
 {
     unsigned int sector;
     SceneNode *pNode;
@@ -1609,7 +1609,7 @@ int g_shadowLastFlags = -1;
 FixVector g_sceneShadowDir;
 
 // Light zone vertices near the current car, collected by FUN_004b5f90 and
-// consumed by FUN_004b5ee0 (99 entries max).
+// consumed by Scene_EmitNodeShadowGeometry (99 entries max).
 // GLOBAL: CMR2 0x006dfe14
 void *g_sceneZoneList[99];
 // GLOBAL: CMR2 0x006e01c0
@@ -2011,7 +2011,7 @@ void FUN_004b4490(ShadowCaster *pCaster, int param2)
 // Marks the node's shadow caster and emits every light zone vertex collected by
 // FUN_004b5f90 through the shadow geometry builder.
 // FUNCTION: CMR2 0x004b5ee0
-void FUN_004b5ee0(SceneNode *pNode, int param2, BYTE param3)
+void Scene_EmitNodeShadowGeometry(SceneNode *pNode, int param2, BYTE param3)
 {
     ShadowCaster *pCaster;
     int i;
@@ -2378,8 +2378,8 @@ void Scene_FreeShadowCasters(void)
 }
 
 struct Unk0x004a3e20;
-void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
-void FUN_004a3dd0(void);
+void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
+void Graphics_InvalidateTextureStageCache(void);
 
 // Draws the shadow batches visible in view `view` (bit of each batch mask),
 // with the batch texture forced to blend mode 10.
@@ -2405,9 +2405,9 @@ void Scene_DrawShadowBatches(unsigned int view)
             if (pTexture != pLast) {
                 pLast = pTexture;
                 blend = pTexture->blendMode;
-                FUN_004a3e20((Unk0x004a3e20 *)pTexture, 10);
-                CGraphics::FUN_004a4850(0, (int)pTexture);
-                FUN_004a3e20((Unk0x004a3e20 *)pTexture, blend);
+                Frontend_SetObjectField118((Unk0x004a3e20 *)pTexture, 10);
+                CGraphics::ApplyTextureStageChange(0, (int)pTexture);
+                Frontend_SetObjectField118((Unk0x004a3e20 *)pTexture, blend);
             }
             CGraphics::m_pTextureManager->pD3D->DrawPrimitiveVB(D3DPT_TRIANGLELIST,
                                                                 CGraphics::m_pTextureManager->pVertexBuffer2,
@@ -2415,11 +2415,11 @@ void Scene_DrawShadowBatches(unsigned int view)
         }
         g_shadowBatch += 4;
     }
-    CGraphics::FUN_004a4850(0, 0);
+    CGraphics::ApplyTextureStageChange(0, 0);
     CGraphics::SetZWriteEnable(1);
-    CGraphics::SetCullMode(CGame::FUN_0049dcb0());
-    FUN_004a3dd0();
-    CGraphics::FUN_004a3de0();
+    CGraphics::SetCullMode(CGame::GetSectorDrawState());
+    Graphics_InvalidateTextureStageCache();
+    CGraphics::InvalidateBlendStateCache();
 }
 
 // Sets the byte at 0x17c (view mask) on a node list and, recursively, on the
@@ -2608,7 +2608,7 @@ void SceneNode_FlushTransforms(SceneNode *pNode)
 }
 
 // FUNCTION: CMR2 0x004b5760
-void FUN_004b5760(FixVector *pLightDir)
+void Scene_ApplyShadowLightDirection(FixVector *pLightDir)
 {
     Scene_SetShadowDirection(pLightDir);
 }
@@ -2645,7 +2645,7 @@ extern const double g_unk0x00511380;
 // like the original does.
 // match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7b20
-void FUN_004b7b20(void)
+void Scene_InitFixedMathTables(void)
 {
     int i;
     int value;

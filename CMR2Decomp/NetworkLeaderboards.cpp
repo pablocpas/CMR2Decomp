@@ -94,11 +94,11 @@ NetworkLeaderboard *CNetworkLeaderboards::GetLoadedLeaderboard(int index)
     return *(BYTE *)p ? p : NULL;
 }
 
-void FUN_0040e8a0(BYTE *p);
+void NetworkLeaderboard_PublishBoard(BYTE *p);
 
 // Leaderboard order: most wins first, then names in reverse order.
 // FUNCTION: CMR2 0x0040e790
-int __cdecl FUN_0040e790(const void *a, const void *b)
+int __cdecl NetworkLeaderboard_CompareEntries(const void *a, const void *b)
 {
     const NetworkLeaderboardEntry *e1 = (const NetworkLeaderboardEntry *)a;
     const NetworkLeaderboardEntry *e2 = (const NetworkLeaderboardEntry *)b;
@@ -113,10 +113,10 @@ int __cdecl FUN_0040e790(const void *a, const void *b)
 }
 
 // FUNCTION: CMR2 0x0040e850
-void FUN_0040e850(int index)
+void NetworkLeaderboard_SortAndPublish(int index)
 {
-    qsort(CNetworkLeaderboards::m_leaderboards[index].entries, 0x20, sizeof(NetworkLeaderboardEntry), FUN_0040e790);
-    FUN_0040e8a0((BYTE *)&CNetworkLeaderboards::m_leaderboards[index]);
+    qsort(CNetworkLeaderboards::m_leaderboards[index].entries, 0x20, sizeof(NetworkLeaderboardEntry), NetworkLeaderboard_CompareEntries);
+    NetworkLeaderboard_PublishBoard((BYTE *)&CNetworkLeaderboards::m_leaderboards[index]);
 }
 
 void *RallyData_GetRecord(BYTE index);
@@ -156,14 +156,14 @@ void CNetworkLeaderboards::RemoveLeaderboard(int index)
 // Adds wins to the entry with the given name, creating it in the first
 // empty slot when it is not listed yet, and re-sorts the leaderboard.
 // FUNCTION: CMR2 0x0040e660
-void FUN_0040e660(int index, char *name, int wins)
+void NetworkLeaderboard_AddWins(int index, char *name, int wins)
 {
     int i;
 
     for (i = 0; i < 0x20; i++) {
         if (strcmp(CNetworkLeaderboards::m_leaderboards[index].entries[i].name, name) == 0) {
             CNetworkLeaderboards::m_leaderboards[index].entries[i].wins += wins;
-            FUN_0040e850(index);
+            NetworkLeaderboard_SortAndPublish(index);
             return;
         }
     }
@@ -174,7 +174,7 @@ void FUN_0040e660(int index, char *name, int wins)
             break;
         }
     }
-    FUN_0040e850(index);
+    NetworkLeaderboard_SortAndPublish(index);
 }
 
 // GLOBAL: CMR2 0x00533900
@@ -183,20 +183,20 @@ BYTE g_unk0x00533900[0x104];
 BYTE g_unk0x00535b8c;
 
 // FUNCTION: CMR2 0x0040e890
-void FUN_0040e890(void)
+void NetworkLeaderboard_ClearPublishedBoard(void)
 {
     g_unk0x00535b8c = 0;
 }
 
 // FUNCTION: CMR2 0x0040e8a0
-void FUN_0040e8a0(BYTE *p)
+void NetworkLeaderboard_PublishBoard(BYTE *p)
 {
     memcpy(g_unk0x00533900, p, sizeof(g_unk0x00533900));
     g_unk0x00535b8c = 1;
 }
 
 // FUNCTION: CMR2 0x0040e8c0
-BYTE *FUN_0040e8c0(void)
+BYTE *NetworkLeaderboard_GetPublishedBoard(void)
 {
     return g_unk0x00535b8c ? g_unk0x00533900 : NULL;
 }

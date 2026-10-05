@@ -15,9 +15,9 @@ extern const float g_netFontMaximumScale;
 
 // Network messages sent during a race (0x427620-0x428760)
 
-char FUN_004a1c50(int to, int guaranteed, int data, int size);
-int FUN_0040ac30(void);
-void FUN_0040afd0(void);
+char Network_SendPlayerMessage(int to, int guaranteed, int data, int size);
+int NetPlayers_GetAccumulatedTotal(void);
+void NetPlayers_BlockStatisticsReception(void);
 
 
 // GLOBAL: CMR2 0x00539dcc
@@ -55,7 +55,7 @@ int g_unk0x005393d4;
 
 // Chooses the HUD font from the screen size and the number of players shown.
 // FUNCTION: CMR2 0x00427580
-void FUN_00427580(int width, int height, int players)
+void NetRace_SelectHUDFont(int width, int height, int players)
 {
     float rowWidth = (float)(players * 0xc0 + 0x230);
     float scaleX = (float)width / rowWidth;
@@ -74,32 +74,32 @@ void FUN_00427580(int width, int height, int players)
 }
 
 // FUNCTION: CMR2 0x00427620
-int FUN_00427620(int index)
+int NetRace_GetPlayerStatisticsValue(int index)
 {
     return *(int *)g_unk0x005394bc[index];
 }
 
 // FUNCTION: CMR2 0x00427640
-void FUN_00427640(BYTE param1)
+void NetRace_SetRaceControlFlag(BYTE param1)
 {
     g_unk0x00539cc8 = param1;
 }
 
 // FUNCTION: CMR2 0x00427650
-void FUN_00427650(void)
+void NetRace_ResetType8And9PlayerIndices(void)
 {
     g_unk0x00539ed0 = -1;
     g_unk0x00539dcc = -1;
 }
 
 // FUNCTION: CMR2 0x00427660
-int FUN_00427660(void)
+int NetRace_GetType8PlayerIndex(void)
 {
     return g_unk0x00539ed0;
 }
 
 // FUNCTION: CMR2 0x00427670
-int FUN_00427670(void)
+int NetRace_GetType9PlayerIndex(void)
 {
     return g_unk0x00539dcc;
 }
@@ -107,111 +107,111 @@ int FUN_00427670(void)
 // GLOBAL: CMR2 0x00539ed4
 int g_unk0x00539ed4;
 
-void FUN_0040ac70(DWORD *pId, unsigned int carClass);
-void FUN_00409e90(DWORD *pId);
+void NetPlayers_SetRemoteCarClass(DWORD *pId, unsigned int carClass);
+void NetPlayers_MarkPlayerReadyByID(DWORD *pId);
 void FUN_00409fd0(DWORD *pId, int split, unsigned int time);
-void FUN_0040a0e0(DWORD *pId, int stage, unsigned int time);
-void FUN_00409f80(DWORD *pId);
-void FUN_00409f00(DWORD *pId, unsigned int time, int value);
-void FUN_00409d50(DWORD *pId, NetStats *pStats);
-void FUN_0040afb0(char valid, BYTE *p);
-void FUN_0040ad20(void);
-void FUN_004d0620(DWORD *pFrom, char *text, char local);
-void FUN_0041f280(void);
-void FUN_0041f290(void);
-void FUN_00449fe0(BYTE index);
-void FUN_00401540(BYTE index);
-void FUN_004014f0(BYTE index);
-void FUN_00449090(BYTE index);
-void FUN_004283e0(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force);
+void NetPlayers_RecordRemoteStageTime(DWORD *pId, int stage, unsigned int time);
+void NetPlayers_MarkPlayerFinishedByID(DWORD *pId);
+void NetPlayers_RecordPlayerFinishTime(DWORD *pId, unsigned int time, int value);
+void NetPlayers_ReceiveStatistics(DWORD *pId, NetStats *pStats);
+void NetPlayers_ReceivePublishedLeaderboard(char valid, BYTE *p);
+void NetPlayers_BuildFinalClassification(void);
+void NetworkChat_AppendLine(DWORD *pFrom, char *text, char local);
+void Race_SetFlag3810C(void);
+void Race_SetFlag37FFA(void);
+void GameMenu_FinishContinueFade(BYTE index);
+void GameMenu_FinishNetworkCloseFade(BYTE index);
+void GameMenu_FinishNetworkRestartFade(BYTE index);
+void GameMenu_FinishNetworkResultsQuitFade(BYTE index);
+void NetRace_FadeOutPlayerScreen(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force);
 extern int g_unk0x00537f34[2];
 extern int g_unk0x005199b0;
 
 // Dispatches a message of the in-race network stream to its handler.
 // FUNCTION: CMR2 0x004276c0
-void FUN_004276c0(DWORD *pId, BYTE *pPacket)
+void NetRace_DispatchRacePacket(DWORD *pId, BYTE *pPacket)
 {
     switch (pPacket[0]) {
     case 0xb:
         if (g_unk0x00539cc8 != 0) {
-            FUN_00409d50(pId, (NetStats *)(pPacket + 2));
+            NetPlayers_ReceiveStatistics(pId, (NetStats *)(pPacket + 2));
             return;
         }
         break;
     case 7:
-        FUN_00409e90(pId);
+        NetPlayers_MarkPlayerReadyByID(pId);
         return;
     case 8:
         FUN_00409fd0(pId, pPacket[1], *(unsigned int *)(pPacket + 4));
         return;
     case 9:
-        FUN_0040a0e0(pId, pPacket[1], *(unsigned int *)(pPacket + 4));
+        NetPlayers_RecordRemoteStageTime(pId, pPacket[1], *(unsigned int *)(pPacket + 4));
         return;
     case 10:
-        FUN_00409f80(pId);
-        FUN_00409f00(pId, *(unsigned int *)(pPacket + 4), *(unsigned int *)(pPacket + 8));
+        NetPlayers_MarkPlayerFinishedByID(pId);
+        NetPlayers_RecordPlayerFinishTime(pId, *(unsigned int *)(pPacket + 4), *(unsigned int *)(pPacket + 8));
         return;
     case 12:
-        FUN_004283e0(0, FUN_00449090, 1, 0, g_unk0x005199b0, 1);
+        NetRace_FadeOutPlayerScreen(0, GameMenu_FinishNetworkResultsQuitFade, 1, 0, g_unk0x005199b0, 1);
         return;
     case 13:
-        FUN_004283e0(0, FUN_00449fe0, 1, 0, g_unk0x005199b0, 1);
+        NetRace_FadeOutPlayerScreen(0, GameMenu_FinishContinueFade, 1, 0, g_unk0x005199b0, 1);
         return;
     case 14:
-        FUN_0041f280();
-        if (CGameInfo::FUN_00405d80() == 8) {
-            FUN_0041f290();
-            FUN_004283e0(0, FUN_00401540, 1, 0, g_unk0x005199b0, 1);
+        Race_SetFlag3810C();
+        if (CGameInfo::GetConfiguredGameMode() == 8) {
+            Race_SetFlag37FFA();
+            NetRace_FadeOutPlayerScreen(0, GameMenu_FinishNetworkCloseFade, 1, 0, g_unk0x005199b0, 1);
         } else {
-            FUN_004283e0(0, FUN_00401540, 1, 0, g_unk0x00539ed4, 1);
+            NetRace_FadeOutPlayerScreen(0, GameMenu_FinishNetworkCloseFade, 1, 0, g_unk0x00539ed4, 1);
         }
-        FUN_00409bc0();
+        NetPlayers_ClearReadyFlags();
         return;
     case 15:
-        FUN_0041f280();
-        FUN_0041f290();
-        FUN_004283e0(0, FUN_004014f0, 1, 0, g_unk0x005199b0, 1);
+        Race_SetFlag3810C();
+        Race_SetFlag37FFA();
+        NetRace_FadeOutPlayerScreen(0, GameMenu_FinishNetworkRestartFade, 1, 0, g_unk0x005199b0, 1);
         return;
     case 0:
-        FUN_004d0620((DWORD *)pId, (char *)(pPacket + 1), 0);
+        NetworkChat_AppendLine((DWORD *)pId, (char *)(pPacket + 1), 0);
         return;
     case 6:
-        FUN_0040ac70(pId, pPacket[1]);
+        NetPlayers_SetRemoteCarClass(pId, pPacket[1]);
         return;
     case 0x10:
         g_unk0x00537f34[0] = CMain::GetFrameDelta();
-        FUN_004283e0(0, FUN_00449090, 1, 0, g_unk0x005199b0, 1);
+        NetRace_FadeOutPlayerScreen(0, GameMenu_FinishNetworkResultsQuitFade, 1, 0, g_unk0x005199b0, 1);
         return;
     case 0x11:
-        FUN_0040afb0(pPacket[1], pPacket + 4);
-        FUN_0040ad20();
+        NetPlayers_ReceivePublishedLeaderboard(pPacket[1], pPacket + 4);
+        NetPlayers_BuildFinalClassification();
         return;
     }
 }
 
-int FUN_004a1b90(int param1, void **param2);
-void FUN_00427680(int param_1, int *param_2);
-void FUN_004276c0(DWORD *pId, BYTE *pPacket);
+int Network_PollReceivedMessageBuffer(int param1, void **param2);
+void NetRace_HandleDeviceNotification(int param_1, int *param_2);
+void NetRace_DispatchRacePacket(DWORD *pId, BYTE *pPacket);
 
 // Drains the pending network messages of a race: system messages (from id 0)
 // and player packets.
 // FUNCTION: CMR2 0x00427890
-void FUN_00427890(void)
+void NetRace_DrainPendingMessages(void)
 {
     DWORD from;
     void *pData;
 
-    while (FUN_004a1b90((int)&from, &pData)) {
+    while (Network_PollReceivedMessageBuffer((int)&from, &pData)) {
         if (from == 0)
-            FUN_00427680((int)&from, (int *)pData);
+            NetRace_HandleDeviceNotification((int)&from, (int *)pData);
         else
-            FUN_004276c0(&from, (BYTE *)pData);
+            NetRace_DispatchRacePacket(&from, (BYTE *)pData);
     }
 }
 
 // Sends the local car state.
 // FUNCTION: CMR2 0x004278f0
-void FUN_004278f0(NetStats *pStats)
+void NetRace_SendLocalCarState(NetStats *pStats)
 {
     struct {
         BYTE type;
@@ -221,21 +221,21 @@ void FUN_004278f0(NetStats *pStats)
 
     msg.type = 0xb;
     msg.stats = *pStats;
-    FUN_004a1c50(0, 0, (int)&msg, sizeof(msg));
+    Network_SendPlayerMessage(0, 0, (int)&msg, sizeof(msg));
 }
 
 // FUNCTION: CMR2 0x00427930
-void FUN_00427930(void)
+void NetRace_SendType7Notification(void)
 {
     BYTE msg;
 
     msg = 7;
-    FUN_004a1c50(0, 1, (int)&msg, 1);
+    Network_SendPlayerMessage(0, 1, (int)&msg, 1);
 }
 
 // Sends the stage time and the accumulated total.
 // FUNCTION: CMR2 0x00427950
-void FUN_00427950(int time)
+void NetRace_SendStageAndOverallTimes(int time)
 {
     struct {
         BYTE type;
@@ -245,12 +245,12 @@ void FUN_00427950(int time)
 
     msg.type = 0xa;
     msg.time = time;
-    msg.total = FUN_0040ac30() + time;
-    FUN_004a1c50(0, 1, (int)&msg, sizeof(msg));
+    msg.total = NetPlayers_GetAccumulatedTotal() + time;
+    Network_SendPlayerMessage(0, 1, (int)&msg, sizeof(msg));
 }
 
 // FUNCTION: CMR2 0x00427990
-void FUN_00427990(int index, int value)
+void NetRace_SendType8PlayerValue(int index, int value)
 {
     struct {
         BYTE type;
@@ -262,11 +262,11 @@ void FUN_00427990(int index, int value)
     msg.type = 8;
     msg.value = value;
     msg.index = index;
-    FUN_004a1c50(0, 0, (int)&msg, sizeof(msg));
+    Network_SendPlayerMessage(0, 0, (int)&msg, sizeof(msg));
 }
 
 // FUNCTION: CMR2 0x004279d0
-void FUN_004279d0(int index, int value)
+void NetRace_SendType9PlayerValue(int index, int value)
 {
     struct {
         BYTE type;
@@ -278,57 +278,57 @@ void FUN_004279d0(int index, int value)
     msg.type = 9;
     msg.value = value;
     msg.index = index;
-    FUN_004a1c50(0, 1, (int)&msg, sizeof(msg));
+    Network_SendPlayerMessage(0, 1, (int)&msg, sizeof(msg));
 }
 
 // FUNCTION: CMR2 0x00427a10
-void FUN_00427a10(void)
+void NetRace_SendType12Notification(void)
 {
     BYTE msg;
 
     msg = 0xc;
-    FUN_004a1c50(0, 1, (int)&msg, 1);
+    Network_SendPlayerMessage(0, 1, (int)&msg, 1);
 }
 
 // FUNCTION: CMR2 0x00427a30
-void FUN_00427a30(void)
+void NetRace_SendType13AndResetInput(void)
 {
     BYTE msg;
 
     msg = 0xd;
-    FUN_004a1c50(0, 1, (int)&msg, 1);
-    FUN_0040afd0();
+    Network_SendPlayerMessage(0, 1, (int)&msg, 1);
+    NetPlayers_BlockStatisticsReception();
 }
 
 // FUNCTION: CMR2 0x00427a50
-void FUN_00427a50(void)
+void NetRace_SendType14AndClearRaceFlag(void)
 {
     BYTE msg;
 
     msg = 0xe;
-    FUN_004a1c50(0, 1, (int)&msg, 1);
-    FUN_00427640(0);
-    FUN_0040afd0();
+    Network_SendPlayerMessage(0, 1, (int)&msg, 1);
+    NetRace_SetRaceControlFlag(0);
+    NetPlayers_BlockStatisticsReception();
 }
 
 // FUNCTION: CMR2 0x00427a80
-void FUN_00427a80(void)
+void NetRace_SendType15AndResetInput(void)
 {
     BYTE msg;
 
     msg = 0xf;
-    FUN_004a1c50(0, 1, (int)&msg, 1);
-    FUN_0040afd0();
+    Network_SendPlayerMessage(0, 1, (int)&msg, 1);
+    NetPlayers_BlockStatisticsReception();
 }
 
 // FUNCTION: CMR2 0x00427aa0
-BYTE FUN_00427aa0(void)
+BYTE NetRace_GetRaceSoundMode(void)
 {
     return g_unk0x00539ed8;
 }
 
 // FUNCTION: CMR2 0x00427ab0
-bool FUN_00427ab0(int value, int *pRange)
+bool NetRace_IsValueWithinCurveRange(int value, int *pRange)
 {
     if (value < pRange[1])
         return false;
@@ -344,8 +344,8 @@ FixVector g_unk0x00539ef0;
 // GLOBAL: CMR2 0x00539f00
 FixVector g_unk0x00539f00;
 
-FixMatrix *FUN_00423d70(BYTE index);
-int FUN_0041f3a0(void);
+FixMatrix *Car_GetCameraReferenceMatrix(BYTE index);
+int Race_IsMultiplayerRecordMode10(void);
 unsigned int FixVec_Length(FixVector *pV);
 extern BYTE g_unk0x00538d2c[0xc8];
 
@@ -353,16 +353,16 @@ extern BYTE g_unk0x00538d2c[0xc8];
 // fading to 0 at 100.
 // match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00427d50
-int FUN_00427d50(unsigned int view, int listener)
+int NetRace_GetListenerDistanceAttenuation(unsigned int view, int listener)
 {
     int index;
     int distance;
 
-    if (FUN_0041f3a0() != 0)
+    if (Race_IsMultiplayerRecordMode10() != 0)
         index = 1;
     else
         index = listener;
-    FixMatrix_GetPosition(&g_unk0x00539f00, FUN_00423d70(view));
+    FixMatrix_GetPosition(&g_unk0x00539f00, Car_GetCameraReferenceMatrix(view));
     FixMatrix_GetPosition(&g_unk0x00539ee0, (FixMatrix *)(g_unk0x00538d2c + 4 + index * 100));
     g_unk0x00539ef0.x = g_unk0x00539f00.x - g_unk0x00539ee0.x;
     g_unk0x00539ef0.y = g_unk0x00539f00.y - g_unk0x00539ee0.y;
@@ -378,29 +378,29 @@ int FUN_00427d50(unsigned int view, int listener)
 }
 
 // FUNCTION: CMR2 0x004283b0
-void FUN_004283b0(void)
+void NetRace_ResetPlayerFadeStates(void)
 {
     memset(g_unk0x0053a0cc, 0, sizeof(g_unk0x0053a0cc));
     memset(g_unk0x0053a06c, 0, sizeof(g_unk0x0053a06c));
     memset(g_unk0x0053a0ac, 0, sizeof(g_unk0x0053a0ac));
 }
 
-int FUN_0041f3a0(void);
-BYTE FUN_00422fb0(BYTE index);
+int Race_IsMultiplayerRecordMode10(void);
+BYTE View_GetActiveCameraFlags(BYTE index);
 
-int FUN_00428740(BYTE index);
+int NetRace_IsPlayerFadeActive(BYTE index);
 
 extern int g_physicsTimeStep;
 
 // Advances a player's flash timer; at the end it restarts (mode 3) or stops,
 // and runs the player's fade callback.
 // FUNCTION: CMR2 0x004284d0
-void FUN_004284d0(unsigned int player, int check)
+void NetRace_UpdatePlayerFlashTimer(unsigned int player, int check)
 {
     int state;
     int value;
 
-    if (FUN_00428740((BYTE)player) != 0) {
+    if (NetRace_IsPlayerFadeActive((BYTE)player) != 0) {
         if (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0) {
             state = g_unk0x0053a0ac[player & 0xff];
             if (state == 4) {
@@ -434,11 +434,11 @@ void FUN_004284d0(unsigned int player, int check)
 // by t, divided by its duration (magnitude only).
 // match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004285b0
-void FUN_004285b0(unsigned int player, int t, int check)
+void NetRace_SetPlayerFlashIntensity(unsigned int player, int t, int check)
 {
     int value;
 
-    if (FUN_00428740((BYTE)player) != 0) {
+    if (NetRace_IsPlayerFadeActive((BYTE)player) != 0) {
         if (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0) {
             value = FixMul(t, g_unk0x0053a04c[player & 0xff]) + FixMul(0x10000 - t, g_unk0x0053a02c[player & 0xff]);
             if (value < 0) {
@@ -453,13 +453,13 @@ void FUN_004285b0(unsigned int player, int t, int check)
 // Draws a player's flash overlay (fading with g_unk0x0053a06c) over pRect.
 // match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00428680
-void FUN_00428680(unsigned int player, short *pRect, int check)
+void NetRace_DrawPlayerFlashOverlay(unsigned int player, short *pRect, int check)
 {
     unsigned int alpha;
     unsigned int view;
 
-    if ((FUN_0041f3a0() == 0 || (BYTE)player != 0) && (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0)) {
-        view = FUN_00422fb0(player) & 0xff;
+    if ((Race_IsMultiplayerRecordMode10() == 0 || (BYTE)player != 0) && (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0)) {
+        view = View_GetActiveCameraFlags(player) & 0xff;
         if ((BYTE)player < (BYTE)RallyDataState() && g_unk0x0053a06c[view] > 0) {
             BYTE colour[4];
             alpha = g_unk0x0053a06c[view] * 0xff >> 16;
@@ -475,7 +475,7 @@ void FUN_00428680(unsigned int player, short *pRect, int check)
 }
 
 // FUNCTION: CMR2 0x00428740
-int FUN_00428740(BYTE index)
+int NetRace_IsPlayerFadeActive(BYTE index)
 {
     return g_unk0x0053a0ac[index] != 0;
 }
@@ -483,10 +483,10 @@ int FUN_00428740(BYTE index)
 // Starts a fade of the player's screen; an active fade is only replaced
 // (running its callback first) when force is set.
 // FUNCTION: CMR2 0x00428410
-void FUN_00428410(BYTE index, int speed, FadeCallback pfnDone, int mode, int param5, int param6, int param7,
+void NetRace_StartPlayerFade(BYTE index, int speed, FadeCallback pfnDone, int mode, int param5, int param6, int param7,
                   char force)
 {
-    if (FUN_00428740((BYTE)index)) {
+    if (NetRace_IsPlayerFadeActive((BYTE)index)) {
         if (!force)
             return;
         if (g_fadeCallbacks[index & 0xff] != NULL)
@@ -507,28 +507,28 @@ void FUN_00428410(BYTE index, int speed, FadeCallback pfnDone, int mode, int par
 
 // Fades the player's screen out (mode 3) and runs pfnDone when it is done.
 // FUNCTION: CMR2 0x004283e0
-void FUN_004283e0(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force)
+void NetRace_FadeOutPlayerScreen(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force)
 {
-    FUN_00428410(index, 0xc8000, pfnDone, 3, param3, param4, param5, force);
+    NetRace_StartPlayerFade(index, 0xc8000, pfnDone, 3, param3, param4, param5, force);
 }
 
 // FUNCTION: CMR2 0x00428760
-int FUN_00428760(BYTE index)
+int NetRace_IsPlayerFadeTimed(BYTE index)
 {
-    if (FUN_00428740(index) && g_unk0x0053a04c[index] > 0)
+    if (NetRace_IsPlayerFadeActive(index) && g_unk0x0053a04c[index] > 0)
         return 1;
     return 0;
 }
 
-void FUN_0047aa60(int value);
-void FUN_0041b040(int value);
-void FUN_00418560(int value);
-void FUN_00418d20(int value);
+void StageObject_SetSoundStateValue(int value);
+void Race_SetSurfaceSoundScale(int value);
+void Race_SetCoDriverCallState(int value);
+void Race_SetCarSoundSelectionState(int value);
 
 // Linearly interpolated lookup in a byte curve {count, min, max, -, bytes}.
 // match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00427ad0
-unsigned int FUN_00427ad0(int value, int *pCurve)
+unsigned int NetRace_InterpolateByteCurve(int value, int *pCurve)
 {
     int range = pCurve[2] - pCurve[1];
     int i = value - pCurve[1];
@@ -547,7 +547,7 @@ unsigned int FUN_00427ad0(int value, int *pCurve)
 // Linearly interpolated lookup in a 16-bit curve {count, min, max, words}.
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00427b70
-unsigned int FUN_00427b70(int value, int *pCurve)
+unsigned int NetRace_InterpolateWordCurve(int value, int *pCurve)
 {
     int range = pCurve[2] - pCurve[1];
     int i = value - pCurve[1];
@@ -566,19 +566,19 @@ unsigned int FUN_00427b70(int value, int *pCurve)
 // Race start: decides g_unk0x00539ed8 from the game mode and applies the
 // volume settings (percentages scaled to 16.16).
 // FUNCTION: CMR2 0x00427c10
-void FUN_00427c10(void)
+void NetRace_InitializeRaceSoundVolumes(void)
 {
-    if (CGameInfo::FUN_00405d80() != 4 && CGameInfo::FUN_00405d80() != 5 && CGameInfo::FUN_00405d80() != 6 &&
-        (CGameInfo::FUN_00405d70() != 2 || CGameInfo::FUN_00405da0()) &&
-        ((BYTE)RallyDataState() != 1 || !(BYTE)RallyData_GetFlag25() || CGameInfo::FUN_00405e00() ||
-         CGameInfo::FUN_00405d80() == 3))
+    if (CGameInfo::GetConfiguredGameMode() != 4 && CGameInfo::GetConfiguredGameMode() != 5 && CGameInfo::GetConfiguredGameMode() != 6 &&
+        (CGameInfo::GetConfiguredPlayerCount() != 2 || CGameInfo::IsConfiguredMultiplayer()) &&
+        ((BYTE)RallyDataState() != 1 || !(BYTE)RallyData_GetFlag25() || CGameInfo::GetGameModeOptionBit19() ||
+         CGameInfo::GetConfiguredGameMode() == 3))
         g_unk0x00539ed8 = 0;
     else
         g_unk0x00539ed8 = 1;
-    FUN_0047aa60(FixMul((int)(CGameInfo::FUN_00405e70() << 16) / 100, 0x5555));
-    FUN_0041b040(FixMul((int)(CGameInfo::FUN_00405e70() << 16) / 100, 0x5555));
-    FUN_00418560(FixMul((int)(CGameInfo::FUN_00405ea0() << 16) / 100, 0x10000));
-    FUN_00418d20(FixMul((int)(CGameInfo::FUN_00405e70() << 16) / 100, 0xaaaa));
+    StageObject_SetSoundStateValue(FixMul((int)(CGameInfo::GetEffectsSoundVolume() << 16) / 100, 0x5555));
+    Race_SetSurfaceSoundScale(FixMul((int)(CGameInfo::GetEffectsSoundVolume() << 16) / 100, 0x5555));
+    Race_SetCoDriverCallState(FixMul((int)(CGameInfo::GetCoDriverSoundVolume() << 16) / 100, 0x10000));
+    Race_SetCarSoundSelectionState(FixMul((int)(CGameInfo::GetEffectsSoundVolume() << 16) / 100, 0xaaaa));
 }
 
 // GLOBAL: CMR2 0x005393a8
@@ -595,7 +595,7 @@ NetTriangleState g_netTriangleState;
 
 // Resets the network race state and builds the triangle number table.
 // FUNCTION: CMR2 0x00424ed0
-void FUN_00424ed0(void)
+void NetRace_ResetStateAndTriangleTable(void)
 {
     int sum = 0;
     int n;
@@ -605,7 +605,7 @@ void FUN_00424ed0(void)
         sum += n;
         g_triangleNumbers[n] = sum;
     }
-    FUN_00427580(20000, 1000000, 2);
+    NetRace_SelectHUDFont(20000, 1000000, 2);
     g_unk0x005393a8 = -1;
     g_unk0x005393cc = -1;
     g_unk0x005393d0 = -1;
@@ -614,10 +614,10 @@ void FUN_00424ed0(void)
 #include "Car.h"
 #include "Sector.h"
 
-extern int FUN_0041d2a0(void);
-extern int FUN_004582d0(int);
-extern int FUN_004582f0(int);
-extern int RallyData_FUN_004209d0(BYTE *);
+extern int Race_ReadState37F24(void);
+extern int StageTiming_GetCheckpointField2(int);
+extern int StageTiming_GetCheckpointField0(int);
+extern int RallyData_GetCarRaceRecordField10(BYTE *);
 
 // GLOBAL: CMR2 0x00539388
 NetStats g_localCarStats;
@@ -668,7 +668,7 @@ void NetRace_PackCarState(Car *car)
     FixVector average, displacement, relative, axes[2];
     float value, z;
     int i;
-    g_localCarStats.seq = (unsigned short)FUN_0041d2a0();
+    g_localCarStats.seq = (unsigned short)Race_ReadState37F24();
     displacement.x = *(int *)(raw + 0x2dc) - *(int *)(raw + 0x2e8);
     displacement.z = *(int *)(raw + 0x2e4) - *(int *)(raw + 0x2f0);
     average.x = average.y = average.z = 0;
@@ -769,20 +769,20 @@ void NetRace_PackCarState(Car *car)
         g_localCarStats.field_0x1a |= 0x200;
         --raw[0xb45];
     } else g_localCarStats.field_0x1a &= 0xfdff;
-    if (CGameInfo::FUN_00404f20()) g_localCarStats.field_0x1a |= 0x400;
+    if (CGameInfo::IsInRaceMenuOpen()) g_localCarStats.field_0x1a |= 0x400;
     else g_localCarStats.field_0x1a &= 0xfbff;
-    int node = FUN_004582f0(car->index);
+    int node = StageTiming_GetCheckpointField0(car->index);
     if (node < 0) node = 0;
     else if (node > 0x400) node = 0x400;
     g_localCarStats.field_0x18 = (g_localCarStats.field_0x18 & 0xfc00) | (node & 0x3ff);
-    int stage = FUN_004582d0(car->index);
+    int stage = StageTiming_GetCheckpointField2(car->index);
     if (stage < 0) {
         stage = -stage;
         g_localCarStats.field_0x1a |= 0x8000;
     } else g_localCarStats.field_0x1a &= 0x7fff;
     if (stage > 15) stage = 15;
     g_localCarStats.field_0x1a = (g_localCarStats.field_0x1a & 0x87ff) | ((stage & 15) << 11);
-    int progress = FixMul(RallyData_FUN_004209d0(raw), 0x400000) >> 16;
+    int progress = FixMul(RallyData_GetCarRaceRecordField10(raw), 0x400000) >> 16;
     if (progress < 0) progress = 0;
     else if (progress > 63) progress = 63;
     g_localCarStats.speed = (g_localCarStats.speed & 0x3ff) | (progress << 10);
@@ -790,7 +790,7 @@ void NetRace_PackCarState(Car *car)
 
 // Packs the state of every car listed in pIndices, from the highest index down.
 // FUNCTION: CMR2 0x004258e0
-void FUN_004258e0(int base, short *pIndices, short count)
+void NetRace_PackListedCars(int base, short *pIndices, short count)
 {
     int i;
 
@@ -800,7 +800,7 @@ void FUN_004258e0(int base, short *pIndices, short count)
 
             if (pCar->field_0xc1c == 0 &&
                 (NetRace_PackCarState(pCar), g_unk0x00539cc8 != 0))
-                FUN_004278f0(&g_localCarStats);
+                NetRace_SendLocalCarState(&g_localCarStats);
         }
     }
 }
@@ -810,7 +810,7 @@ void FUN_004258e0(int base, short *pIndices, short count)
 // match 89%: identical logic; MSVC6 only differs in which stack slot holds the
 // first dot product ([ebp-4] vs [ebp+8]).
 // FUNCTION: CMR2 0x00426b90
-void FUN_00426b90(CarNetRecord *p, int param_2)
+void NetRace_ClampRemoteCarDisplacement(CarNetRecord *p, int param_2)
 {
     int dot;
     int scale;
@@ -849,7 +849,7 @@ extern const double g_unk0x00511380;
 // the reference basis by the resulting velocity angle, then either writes the
 // basis straight into the car or blends it with a copy of the current one.
 // FUNCTION: CMR2 0x00426810
-void FUN_00426810(CarNetRecord *p, int param_2)
+void NetRace_IntegrateRemoteCarBody(CarNetRecord *p, int param_2)
 {
     FixVector v;
     short angles[3];
@@ -868,7 +868,7 @@ void FUN_00426810(CarNetRecord *p, int param_2)
         delta = (param_2 - (unsigned int)p->seq) * 0x10000;
     }
     if (p->updated != 0)
-        FUN_00426b90(p, delta);
+        NetRace_ClampRemoteCarDisplacement(p, delta);
 
     FixVecScale(&v, &p->velocity, delta);
     p->position.x += v.x;
@@ -926,7 +926,7 @@ void FUN_00426810(CarNetRecord *p, int param_2)
 // or the forward row 0x58 once the car is above the slow threshold) and adds
 // the speed-derived step along it.
 // FUNCTION: CMR2 0x004263d0
-void FUN_004263d0(CarNetRecord *p)
+void NetRace_AdvanceRemoteCarAccumulator(CarNetRecord *p)
 {
     FixVector v;
     FixVector step;
@@ -964,27 +964,27 @@ void FUN_004263d0(CarNetRecord *p)
     p->accel.z += step.z;
 }
 
-void FUN_004a15b0(BOOL param1);
+void Network_SetSessionStateFlag(BOOL param1);
 void FUN_00402c90(int param);
 void FUN_0044a1b0(int param);
-void FUN_004a1940(DWORD *pId);
-void FUN_00409c80(int *pId);
+void Network_RemoveSessionPlayerByID(DWORD *pId);
+void NetPlayers_RemovePlayerByID(int *pId);
 
 // Network-device notification: id 5 refreshes the player list of the entry,
 // id 0x101 re-initialises the in-race menu and the HUD.
 // FUNCTION: CMR2 0x00427680
-void FUN_00427680(int param_1, int *param_2)
+void NetRace_HandleDeviceNotification(int param_1, int *param_2)
 {
     if (*param_2 != 5) {
         if (*param_2 == 0x101) {
-            FUN_004a15b0(1);
+            Network_SetSessionStateFlag(1);
             FUN_00402c90(1);
             FUN_0044a1b0(1);
         }
         return;
     }
-    FUN_004a1940((DWORD *)(param_2 + 2));
-    FUN_00409c80(param_2 + 2);
+    Network_RemoveSessionPlayerByID((DWORD *)(param_2 + 2));
+    NetPlayers_RemovePlayerByID(param_2 + 2);
 }
 
 void Car_GetViewPositionDelta(FixVector *pOut, unsigned int view);
@@ -998,7 +998,7 @@ void Car_GetViewPositionDelta(FixVector *pOut, unsigned int view);
 // en AX en 'return param_3' y sus llamadores lo enmascaran con 0xffff); el resto de los diffs es
 // reparto de registros y slots, sin cambio de comportamiento.
 // FUNCTION: CMR2 0x00427e20
-unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3)
+unsigned short NetRace_ScaleViewAngleByDistance(int param_1, int param_2, unsigned short param_3)
 {
     FixVector carPos;
     FixVector camView;
@@ -1013,7 +1013,7 @@ unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3)
     int value;
 
     index = param_1;
-    if (FUN_0041f3a0() != 0)
+    if (Race_IsMultiplayerRecordMode10() != 0)
         index = 1;
     FixMatrix_GetPosition(&carPos, (FixMatrix *)(g_unk0x00538d2c + 4 + index * 100));
     delta.x = carPos.x - *(int *)((BYTE *)Car_Get(param_2) + 0x2d0);
@@ -1234,7 +1234,7 @@ int FUN_00425c40(CarNetRecord *pRec, int *pOut)
             pRec->holdTicks = 100;
         }
         pRec->field_0xe4 = (*(unsigned short *)(packet + 0x1a) >> 10) & 1;
-        FUN_004263d0(pRec);
+        NetRace_AdvanceRemoteCarAccumulator(pRec);
         return 1;
     }
     return 0;
@@ -1244,15 +1244,15 @@ int FUN_00425c40(CarNetRecord *pRec, int *pOut)
 #include "Input.h"
 
 // Helpers implemented in NetPlayers.cpp / RallyData.cpp.
-extern int FUN_0040b010(int index);
-extern int FUN_0040b020(int value);
-extern BYTE FUN_00409df0(int index);
-extern void FUN_00409e00(int index);
-extern NetStats *FUN_00409e20(int index);
+extern int NetPlayers_GetPlayerField8(int index);
+extern int NetPlayers_FindPlayerByField8(int value);
+extern BYTE NetPlayers_HasNewStatistics(int index);
+extern void NetPlayers_ClearNewStatisticsFlag(int index);
+extern NetStats *NetPlayers_GetStatisticsRecord(int index);
 extern double g_unk0x00511300;
 extern void FUN_0040a580(int param1, int param2, int param3);
-extern void FUN_00425a90(BYTE *pCars);
-extern void FUN_00426d80(Car *pDst, CarNetRecord *pSrc);
+extern void NetRace_PollPlayerStatisticsPackets(BYTE *pCars);
+extern void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc);
 
 extern CarNetRecord g_unk0x005393d8;
 
@@ -1267,31 +1267,31 @@ char g_str0x0051995c[42] = "Not received any gnNetworkFrame[%d] = %d\n";
 // cars still in play from their network records and copies those records back
 // into the cars. With networking off it only refreshes the readout.
 // FUNCTION: CMR2 0x00425950
-void FUN_00425950(Car *pCars, short *pIndices, short count)
+void NetRace_ReceiveAndIntegrateListedCars(Car *pCars, short *pIndices, short count)
 {
     int progress;
     int i;
 
     if (g_unk0x00539cc8 == 0) {
-        progress = (RallyData_FUN_004209d0((BYTE *)Car_Get(0)) * 100) >> 16;
-        FUN_0040a580(FUN_004582f0(0), progress, FUN_004582d0(0));
+        progress = (RallyData_GetCarRaceRecordField10((BYTE *)Car_Get(0)) * 100) >> 16;
+        FUN_0040a580(StageTiming_GetCheckpointField0(0), progress, StageTiming_GetCheckpointField2(0));
         return;
     }
-    FUN_00425a90((BYTE *)pCars);
-    progress = (RallyData_FUN_004209d0((BYTE *)Car_Get(0)) * 100) >> 16;
-    FUN_0040a580(FUN_004582f0(0), progress, FUN_004582d0(0));
+    NetRace_PollPlayerStatisticsPackets((BYTE *)pCars);
+    progress = (RallyData_GetCarRaceRecordField10((BYTE *)Car_Get(0)) * 100) >> 16;
+    FUN_0040a580(StageTiming_GetCheckpointField0(0), progress, StageTiming_GetCheckpointField2(0));
 
     for (i = (int)count - 1; i >= 0; i--) {
         int idx = pIndices[i];
 
         if (*(int *)((BYTE *)pCars + idx * 0xc24 + 0xc1c) != 0)
-            FUN_00426810(&g_unk0x005393d8 + idx, g_unk0x005393ac[FUN_0040b020(idx)]);
+            NetRace_IntegrateRemoteCarBody(&g_unk0x005393d8 + idx, g_unk0x005393ac[NetPlayers_FindPlayerByField8(idx)]);
     }
     for (i = (int)count - 1; i >= 0; i--) {
         int idx = pIndices[i];
 
         if (*(int *)((BYTE *)pCars + idx * 0xc24 + 0xc1c) != 0)
-            FUN_00426d80(pCars + idx, &g_unk0x005393d8 + idx);
+            Car_RestorePhysicsFromRecord(pCars + idx, &g_unk0x005393d8 + idx);
     }
 }
 
@@ -1304,7 +1304,7 @@ void FUN_00425950(Car *pCars, short *pIndices, short count)
 // contador (el original carga CX y luego copia/enmascara a EDX) y los
 // desplazamientos de los saltos encadenados.
 // FUNCTION: CMR2 0x00425a90
-void FUN_00425a90(BYTE *pCars)
+void NetRace_PollPlayerStatisticsPackets(BYTE *pCars)
 {
     NetStats *pStats;
     CarNetRecord *pEntry;
@@ -1315,12 +1315,12 @@ void FUN_00425a90(BYTE *pCars)
 
     i = 0;
     do {
-        if ((BYTE)FUN_00409cb0(i) != 0 && FUN_00409df0(i) != 0) {
-            FUN_00409e00(i);
-            pStats = FUN_00409e20(i);
+        if ((BYTE)NetPlayers_IsPlayerPresent(i) != 0 && NetPlayers_HasNewStatistics(i) != 0) {
+            NetPlayers_ClearNewStatisticsFlag(i);
+            pStats = NetPlayers_GetStatisticsRecord(i);
             g_localCarStats = *pStats;
-            pEntry = &g_unk0x005393d8 + FUN_0040b010(i);
-            pCar = pCars + FUN_0040b010(i) * 0xc24;
+            pEntry = &g_unk0x005393d8 + NetPlayers_GetPlayerField8(i);
+            pCar = pCars + NetPlayers_GetPlayerField8(i) * 0xc24;
             if (FUN_00425c40(pEntry, &local) != 0) {
                 value = FixMul(local, *(short *)(pCar + 0xb16) * 0x1680);
                 pEntry->heading =

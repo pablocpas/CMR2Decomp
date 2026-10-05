@@ -87,25 +87,25 @@ char *CGameInfo::GetGameRegionDirectory(void)
 }
 
 // FUNCTION: CMR2 0x00405d80
-unsigned char CGameInfo::FUN_00405d80(void)
+unsigned char CGameInfo::GetConfiguredGameMode(void)
 {
     return m_gameInfo.field_0x14 >> 3 & 0x7f;
 }
 
 // FUNCTION: CMR2 0x00405d90
-unsigned char CGameInfo::FUN_00405d90(void)
+unsigned char CGameInfo::GetConfiguredDifficulty(void)
 {
     return m_gameInfo.field_0x14 >> 10 & 7;
 }
 
 // FUNCTION: CMR2 0x00405d70
-unsigned char CGameInfo::FUN_00405d70(void)
+unsigned char CGameInfo::GetConfiguredPlayerCount(void)
 {
     return m_gameInfo.field_0x14 >> 13 & 0xf;
 }
 
 // FUNCTION: CMR2 0x00405da0
-unsigned char CGameInfo::FUN_00405da0(void)
+unsigned char CGameInfo::IsConfiguredMultiplayer(void)
 {
     return m_gameInfo.field_0x14 >> 17 & 1;
 }
@@ -147,7 +147,7 @@ void CGameInfo::SetColourDepth(unsigned int depth)
 }
 
 // FUNCTION: CMR2 0x004f4b40
-void CGameInfo::FUN_004f4b40(void)
+void CGameInfo::InitRegionLanguageCount(void)
 {
     switch (GetGameRegion())
     {
@@ -164,116 +164,116 @@ void CGameInfo::FUN_004f4b40(void)
 }
 
 // FUNCTION: CMR2 0x00405de0
-void CGameInfo::FUN_00405de0(BYTE param1)
+void CGameInfo::SetGameModeOptionBit19(BYTE param1)
 {
     m_gameInfo.field_0x14 = ((param1 & 1) << 0x13) | (m_gameInfo.field_0x14 & 0xfff7ffffU);
 }
 
 // FUNCTION: CMR2 0x00405dc0
-unsigned char CGameInfo::FUN_00405dc0(void)
+unsigned char CGameInfo::IsSplitBarEnabled(void)
 {
     return m_gameInfo.field_0x14 >> 18 & 1;
 }
 
 // FUNCTION: CMR2 0x00405dd0
-unsigned char CGameInfo::FUN_00405dd0(void)
+unsigned char CGameInfo::GetGameModeOptionBits20To22(void)
 {
     return m_gameInfo.field_0x14 >> 20 & 7;
 }
 
 // FUNCTION: CMR2 0x00405e00
-unsigned char CGameInfo::FUN_00405e00(void)
+unsigned char CGameInfo::GetGameModeOptionBit19(void)
 {
     return m_gameInfo.field_0x14 >> 19 & 1;
 }
 
 // FUNCTION: CMR2 0x00405e10
-void CGameInfo::FUN_00405e10(unsigned int param1)
+void CGameInfo::SetMasterSoundVolume(unsigned int param1)
 {
     m_gameInfo.field_0x18 = m_gameInfo.field_0x18 ^ (m_gameInfo.field_0x18 ^ param1) & 0x7f;
-    CSound::FUN_004a31f0(m_gameInfo.field_0x18 & 0x7f);
+    CSound::SetMusicStreamVolume(m_gameInfo.field_0x18 & 0x7f);
 }
 
 // FUNCTION: CMR2 0x00405e40
-unsigned int CGameInfo::FUN_00405e40(void)
+unsigned int CGameInfo::GetMasterSoundVolume(void)
 {
     return m_gameInfo.field_0x18 & 0x7f;
 }
 
 // FUNCTION: CMR2 0x00405e50
-void CGameInfo::FUN_00405e50(unsigned int param1)
+void CGameInfo::SetEffectsSoundVolume(unsigned int param1)
 {
     m_gameInfo.field_0x18 = ((param1 & 0x7f) << 7) | (m_gameInfo.field_0x18 & 0xffffc07fU);
 }
 
 // FUNCTION: CMR2 0x00405e70
-unsigned int CGameInfo::FUN_00405e70(void)
+unsigned int CGameInfo::GetEffectsSoundVolume(void)
 {
     return m_gameInfo.field_0x18 >> 7 & 0x7f;
 }
 
 // FUNCTION: CMR2 0x00405e80
-void CGameInfo::FUN_00405e80(unsigned int param1)
+void CGameInfo::SetCoDriverSoundVolume(unsigned int param1)
 {
     m_gameInfo.field_0x18 = ((param1 & 0x7f) << 14) | (m_gameInfo.field_0x18 & 0xffe03fffU);
 }
 
 // FUNCTION: CMR2 0x00405ea0
-unsigned int CGameInfo::FUN_00405ea0(void)
+unsigned int CGameInfo::GetCoDriverSoundVolume(void)
 {
     return m_gameInfo.field_0x18 >> 14 & 0x7f;
 }
 
 // FUNCTION: CMR2 0x00405eb0
-unsigned int CGameInfo::FUN_00405eb0(void)
+unsigned int CGameInfo::IsDashOptionEnabled(void)
 {
     return m_gameInfo.field_0x18 >> 31;
 }
 
 // FUNCTION: CMR2 0x00405ec0
-void CGameInfo::FUN_00405ec0(BYTE param1)
+void CGameInfo::SetDashOptionEnabled(BYTE param1)
 {
     m_gameInfo.field_0x18 = (param1 << 31) | (m_gameInfo.field_0x18 & 0x7fffffffU);
 }
 
 // FUNCTION: CMR2 0x00405ef0
-unsigned int CGameInfo::FUN_00405ef0(void)
+unsigned int CGameInfo::GetNetworkOptionBits1To2(void)
 {
     return m_gameInfo.field_0x1c >> 1 & 3;
 }
 
 // FUNCTION: CMR2 0x00405f00
-void CGameInfo::FUN_00405f00(unsigned int param1)
+void CGameInfo::SetSoundOptionBits24To25(unsigned int param1)
 {
     m_gameInfo.field_0x18 = ((param1 & 3) << 24) | (m_gameInfo.field_0x18 & 0xfcffffffU);
 }
 
 // FUNCTION: CMR2 0x00405f20
-void CGameInfo::FUN_00405f20(BYTE param1)
+void CGameInfo::SetSoundOptionBit27(BYTE param1)
 {
     m_gameInfo.field_0x18 = ((param1 & 1) << 27) | (m_gameInfo.field_0x18 & 0xf7ffffffU);
 }
 
 // FUNCTION: CMR2 0x00405f40
-void CGameInfo::FUN_00405f40(BYTE param1)
+void CGameInfo::SetSoundOptionBit26(BYTE param1)
 {
     m_gameInfo.field_0x18 = ((param1 & 1) << 26) | (m_gameInfo.field_0x18 & 0xfbffffffU);
 }
 
 // FUNCTION: CMR2 0x00405f60
-void CGameInfo::FUN_00405f60(BYTE param1)
+void CGameInfo::SetSoundOptionBit28(BYTE param1)
 {
     m_gameInfo.field_0x18 = ((param1 & 1) << 28) | (m_gameInfo.field_0x18 & 0xefffffffU);
 }
 
 // FUNCTION: CMR2 0x00405f80
-void CGameInfo::FUN_00405f80(BYTE param1)
+void CGameInfo::SetSoundOptionBit29(BYTE param1)
 {
     m_gameInfo.field_0x18 = ((param1 & 1) << 29) | (m_gameInfo.field_0x18 & 0xdfffffffU);
 }
 
 // FUNCTION: CMR2 0x00405fa0
-void CGameInfo::FUN_00405fa0(DWORD *param1, WORD param2, DWORD param3)
+void CGameInfo::SetDefaultCameraParameters(DWORD *param1, WORD param2, DWORD param3)
 {
     m_gameInfo.field_0x88 = param1[1];
     m_gameInfo.field_0x8c = param1[2];
@@ -282,25 +282,25 @@ void CGameInfo::FUN_00405fa0(DWORD *param1, WORD param2, DWORD param3)
 }
 
 // FUNCTION: CMR2 0x00405fd0
-void CGameInfo::FUN_00405fd0(unsigned int param1)
+void CGameInfo::SetGameInfoField98(unsigned int param1)
 {
     *(unsigned int *)&m_gameInfo.field_0x98 = param1;
 }
 
 // FUNCTION: CMR2 0x00405db0
-unsigned int *CGameInfo::FUN_00405db0(void)
+unsigned int *CGameInfo::GetGameInfoField9CAddress(void)
 {
     return &m_gameInfo.field_0x9c;
 }
 
 // FUNCTION: CMR2 0x00405fe0
-GameInfo0xa4 *CGameInfo::FUN_00405fe0(void)
+GameInfo0xa4 *CGameInfo::GetGameInfoFieldA4Address(void)
 {
     return &m_gameInfo.field_0xa4;
 }
 
 // FUNCTION: CMR2 0x00405ff0
-GameInfo0xa4 *CGameInfo::FUN_00405ff0(int param1)
+GameInfo0xa4 *CGameInfo::GetPlayerRecordTable(int param1)
 {
     return param1 != 0 ? &m_gameInfo.field_0x1368 : &m_gameInfo.field_0x262c;
 }
@@ -312,133 +312,133 @@ void CGameInfo::SetFullscreen(BYTE fullscreen)
 }
 
 // FUNCTION: CMR2 0x00405b50
-unsigned int CGameInfo::FUN_00405b50(void)
+unsigned int CGameInfo::GetGraphicsOptionBits1To2(void)
 {
     return m_gameInfo.unknownGraphicsOptions >> 1 & 3;
 }
 
 // FUNCTION: CMR2 0x00405b60
-void CGameInfo::FUN_00405b60(unsigned int param1)
+void CGameInfo::SetGraphicsOptionBits1To2(unsigned int param1)
 {
     m_gameInfo.unknownGraphicsOptions = ((param1 & 3) << 1) | (m_gameInfo.unknownGraphicsOptions & 0xfffffff9U);
 }
 
 // FUNCTION: CMR2 0x00405b80
-void CGameInfo::FUN_00405b80(BYTE param1)
+void CGameInfo::SetGraphicsOptionBit3(BYTE param1)
 {
     m_gameInfo.unknownGraphicsOptions = ((param1 & 1) << 3) | (m_gameInfo.unknownGraphicsOptions & 0xfffffff7U);
 }
 
 // FUNCTION: CMR2 0x00405ba0
-unsigned int CGameInfo::FUN_00405ba0(void)
+unsigned int CGameInfo::GetGraphicsOptionBit4(void)
 {
     return m_gameInfo.unknownGraphicsOptions >> 4 & 1;
 }
 
 // FUNCTION: CMR2 0x00405bb0
-void CGameInfo::FUN_00405bb0(BYTE param1)
+void CGameInfo::SetGraphicsOptionBit4(BYTE param1)
 {
     m_gameInfo.unknownGraphicsOptions = ((param1 & 1) << 4) | (m_gameInfo.unknownGraphicsOptions & 0xffffffefU);
 }
 
 // FUNCTION: CMR2 0x00405be0
-void CGameInfo::FUN_00405be0(unsigned int param1)
+void CGameInfo::SetGraphicsOptionBits5To8(unsigned int param1)
 {
     m_gameInfo.unknownGraphicsOptions = ((param1 & 0xf) << 5) | (m_gameInfo.unknownGraphicsOptions & 0xfffffe1fU);
 }
 
 // FUNCTION: CMR2 0x00405c70
-unsigned int CGameInfo::FUN_00405c70(void)
+unsigned int CGameInfo::GetGraphicsOptionBits18To19(void)
 {
     return m_gameInfo.unknownGraphicsOptions >> 18 & 3;
 }
 
 // FUNCTION: CMR2 0x00405c80
-void CGameInfo::FUN_00405c80(unsigned int param1)
+void CGameInfo::SetGraphicsOptionBits18To19(unsigned int param1)
 {
     m_gameInfo.unknownGraphicsOptions = ((param1 & 3) << 18) | (m_gameInfo.unknownGraphicsOptions & 0xfff3ffffU);
 }
 
 // FUNCTION: CMR2 0x00405cb0
-void CGameInfo::FUN_00405cb0(unsigned int param1)
+void CGameInfo::SetGraphicsOptionBits21To24(unsigned int param1)
 {
     m_gameInfo.unknownGraphicsOptions = ((param1 & 0xf) << 21) | (m_gameInfo.unknownGraphicsOptions & 0xfe1fffffU);
 }
 
 // FUNCTION: CMR2 0x00405cd0
-unsigned int CGameInfo::FUN_00405cd0(void)
+unsigned int CGameInfo::GetGraphicsOptionBits25To26(void)
 {
     return m_gameInfo.unknownGraphicsOptions >> 25 & 3;
 }
 
 // FUNCTION: CMR2 0x00405ce0
-void CGameInfo::FUN_00405ce0(unsigned int param1)
+void CGameInfo::SetGraphicsOptionBits25To26(unsigned int param1)
 {
     m_gameInfo.unknownGraphicsOptions = ((param1 & 3) << 25) | (m_gameInfo.unknownGraphicsOptions & 0xf9ffffffU);
 }
 
 // FUNCTION: CMR2 0x00405d00
-unsigned int CGameInfo::FUN_00405d00(void)
+unsigned int CGameInfo::GetGraphicsOptionBits27To28(void)
 {
     return m_gameInfo.unknownGraphicsOptions >> 27 & 3;
 }
 
 // FUNCTION: CMR2 0x00405d20
-void CGameInfo::FUN_00405d20(unsigned int param1)
+void CGameInfo::SetGraphicsOptionBits27To28(unsigned int param1)
 {
     m_gameInfo.unknownGraphicsOptions = ((param1 & 3) << 27) | (m_gameInfo.unknownGraphicsOptions & 0xe7ffffffU);
 }
 
 // FUNCTION: CMR2 0x00405d60
-unsigned int CGameInfo::FUN_00405d60(void)
+unsigned int CGameInfo::GetGraphicsOptionBit29(void)
 {
     return m_gameInfo.unknownGraphicsOptions >> 29 & 1;
 }
 
 // FUNCTION: CMR2 0x00405d10
-unsigned int CGameInfo::FUN_00405d10(void)
+unsigned int CGameInfo::GetPreviewMode(void)
 {
     return m_gameInfo.field_0x34 & 3;
 }
 
 // FUNCTION: CMR2 0x00405d40
-void CGameInfo::FUN_00405d40(unsigned int param1)
+void CGameInfo::SetPreviewMode(unsigned int param1)
 {
     m_gameInfo.field_0x34 = m_gameInfo.field_0x34 ^ (m_gameInfo.field_0x34 ^ param1) & 3;
 }
 
 // FUNCTION: CMR2 0x00406310
-unsigned char CGameInfo::FUN_00406310(void)
+unsigned char CGameInfo::GetSoundOptionBit30(void)
 {
     return m_gameInfo.field_0x18 >> 30 & 1;
 }
 
 // FUNCTION: CMR2 0x00406320
-BYTE CGameInfo::FUN_00406320(void)
+BYTE CGameInfo::GetGameInfoSessionFlag(void)
 {
     return m_unk0x0052ea52;
 }
 
 // FUNCTION: CMR2 0x00406330
-void CGameInfo::FUN_00406330(BYTE param1)
+void CGameInfo::SetGameInfoSessionFlag(BYTE param1)
 {
     m_unk0x0052ea52 = param1;
 }
 
 // FUNCTION: CMR2 0x00406340
-void CGameInfo::FUN_00406340(BYTE param1)
+void CGameInfo::SetSplitBarEnabled(BYTE param1)
 {
     m_gameInfo.field_0x14 = ((param1 & 1) << 18) | (m_gameInfo.field_0x14 & 0xfffbffffU);
 }
 
 // FUNCTION: CMR2 0x00406360
-unsigned int CGameInfo::FUN_00406360(int param1)
+unsigned int CGameInfo::GetUnlockFlagMask(int param1)
 {
     return (BYTE)(1 << param1) & m_gameInfo.field_0x20;
 }
 
 // FUNCTION: CMR2 0x00406380
-void CGameInfo::FUN_00406380(int param1, int param2)
+void CGameInfo::SetUnlockFlag(int param1, int param2)
 {
     BYTE mask;
 
@@ -451,31 +451,31 @@ void CGameInfo::FUN_00406380(int param1, int param2)
 }
 
 // FUNCTION: CMR2 0x004063d0
-int CGameInfo::FUN_004063d0(int param1)
+int CGameInfo::IsConfiguredCheatEnabled(int param1)
 {
     return ((BYTE)(m_gameInfo.field_0x20 >> 8) & (BYTE)(1 << param1)) != 0;
 }
 
 // FUNCTION: CMR2 0x004063f0
-int CGameInfo::FUN_004063f0(int param1)
+int CGameInfo::IsActiveCheatEnabled(int param1)
 {
     return ((BYTE)(m_gameInfo.field_0x20 >> 16) & (BYTE)(1 << param1)) != 0;
 }
 
 // FUNCTION: CMR2 0x00406430
-unsigned int CGameInfo::FUN_00406430(void)
+unsigned int CGameInfo::GetActiveCheatMask(void)
 {
     return ((BYTE *)&m_gameInfo.field_0x20)[2];
 }
 
 // FUNCTION: CMR2 0x00406440
-unsigned int CGameInfo::FUN_00406440(void)
+unsigned int CGameInfo::GetNetworkOptionBit11(void)
 {
     return m_gameInfo.field_0x1c >> 11 & 1;
 }
 
 // FUNCTION: CMR2 0x00406450
-unsigned int CGameInfo::FUN_00406450(unsigned int **param1)
+unsigned int CGameInfo::GetRecordFlagsWord(unsigned int **param1)
 {
     if (param1 != NULL)
         *param1 = &m_gameInfo.field_0x38f4;
@@ -483,15 +483,15 @@ unsigned int CGameInfo::FUN_00406450(unsigned int **param1)
 }
 
 // FUNCTION: CMR2 0x00406470
-void CGameInfo::FUN_00406470(void)
+void CGameInfo::SaveFrontendOptionSettings(void)
 {
-    m_unk0x0052af94 = FUN_00405d80();
-    m_unk0x0052ea44 = FUN_00405d70();
-    m_unk0x0052af9c = FUN_00405d90();
-    m_unk0x0052af80 = RallyData_FUN_004069a0();
-    m_unk0x0052af84 = (BYTE)RallyData_FUN_00406940();
-    m_unk0x0052af8c = (BYTE)RallyData_FUN_00406950();
-    m_unk0x0052e93c = (BYTE)RallyData_FUN_00406990();
+    m_unk0x0052af94 = GetConfiguredGameMode();
+    m_unk0x0052ea44 = GetConfiguredPlayerCount();
+    m_unk0x0052af9c = GetConfiguredDifficulty();
+    m_unk0x0052af80 = RallyData_GetSecondarySelectionNibble();
+    m_unk0x0052af84 = (BYTE)RallyData_GetSelectionBits10To11();
+    m_unk0x0052af8c = (BYTE)RallyData_GetSelectionBits12To13();
+    m_unk0x0052e93c = (BYTE)RallyData_GetSelectionBits16To19();
     m_unk0x0052ea48 = (BYTE)RallyDataStageIndex();
     m_unk0x0052e940 = (BYTE)RallyDataCountryIndex();
     m_unk0x0052af98 = m_gameInfo.field_0x14 >> 23 & 0xf;
@@ -499,47 +499,47 @@ void CGameInfo::FUN_00406470(void)
 }
 
 // FUNCTION: CMR2 0x00406520
-BYTE CGameInfo::FUN_00406520(int param1, int param2)
+BYTE CGameInfo::GetStageOptionState(int param1, int param2)
 {
     return m_gameInfo.field_0x38f8[param1 * 11 + param2];
 }
 
 // FUNCTION: CMR2 0x00406540
-void CGameInfo::FUN_00406540(int param1, int param2, BYTE param3)
+void CGameInfo::SetStageOptionState(int param1, int param2, BYTE param3)
 {
     m_gameInfo.field_0x38f8[param1 * 11 + param2] = param3;
 }
 
 // FUNCTION: CMR2 0x00406690
-char *CGameInfo::FUN_00406690(void)
+char *CGameInfo::GetSessionName(void)
 {
     return m_gameInfo.field_0x3950;
 }
 
 // FUNCTION: CMR2 0x004066a0
-void CGameInfo::FUN_004066a0(char *name)
+void CGameInfo::SetSessionName(char *name)
 {
     strcpy(m_gameInfo.field_0x3950, name);
 }
 
 // FUNCTION: CMR2 0x004066d0
-char *CGameInfo::FUN_004066d0(void)
+char *CGameInfo::GetSessionPassword(void)
 {
     return m_gameInfo.field_0x3965;
 }
 
 // FUNCTION: CMR2 0x004066e0
-void CGameInfo::FUN_004066e0(char *name)
+void CGameInfo::SetSessionPassword(char *name)
 {
     strcpy(m_gameInfo.field_0x3965, name);
 }
 
-void FUN_0040bad0(void);
-void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
-void FUN_004a2fe0(void);
-IDirectSound *FUN_004a1d00(void);
-BOOL FUN_00510120(BYTE skipOnSpace);
-void FUN_005103d0(void);
+void Input_TranslatePedalsToMenuKeys(void);
+void Input_MergeAssignedJoystickButtons(unsigned short slot, DeviceInfo *pOut);
+void Sound_UpdateMusicStreaming(void);
+IDirectSound *Sound_GetSampleTableState(void);
+BOOL OptionMovie_PlayFrame(BYTE skipOnSpace);
+void OptionMovie_Close(void);
 
 #include "../third_party/bink-sdk-1.0p/include/bink.h"
 
@@ -578,7 +578,7 @@ IDirectDrawSurface7 *g_pUnk0x00831c6c;
 // returned while frames are left; otherwise it plays to the end. Returns 1 when
 // it is done, or when the movie could not be opened.
 // FUNCTION: CMR2 0x0050fdf0
-int FUN_0050fdf0(char *path, Texture *pTexture, short *pRect, unsigned int flags, unsigned int track)
+int OptionMovie_StartPlayback(char *path, Texture *pTexture, short *pRect, unsigned int flags, unsigned int track)
 {
     RECT windowRect;
 
@@ -609,18 +609,18 @@ int FUN_0050fdf0(char *path, Texture *pTexture, short *pRect, unsigned int flags
             g_pUnk0x00831c54 = pTexture->pSurface;
         else
             g_pUnk0x00831c54 = g_pGraphics->pPrimarySurface;
-        if (FUN_0050ff90(path, track) == 0)
+        if (OptionMovie_Open(path, track) == 0)
             return 1;
         g_unk0x00831c68 = 1;
     }
     if (flags & 4) {
-        if (FUN_00510120((BYTE)flags) != 0)
+        if (OptionMovie_PlayFrame((BYTE)flags) != 0)
             return 2;
     } else {
-        while (FUN_00510120((BYTE)flags) != 0) {
+        while (OptionMovie_PlayFrame((BYTE)flags) != 0) {
         }
     }
-    FUN_005103d0();
+    OptionMovie_Close();
     return 1;
 }
 
@@ -628,11 +628,11 @@ int FUN_0050fdf0(char *path, Texture *pTexture, short *pRect, unsigned int flags
 // copied to and opens a Bink buffer on the game window. Returns 0 if the CD is
 // missing.
 // FUNCTION: CMR2 0x0050ff90
-int FUN_0050ff90(char *fileName, unsigned int trackIndex)
+int OptionMovie_Open(char *fileName, unsigned int trackIndex)
 {
     DDSURFACEDESC2 desc;
 
-    BinkSoundUseDirectSound(FUN_004a1d00());
+    BinkSoundUseDirectSound(Sound_GetSampleTableState());
     BinkSetSoundTrack(trackIndex);
     g_pUnk0x00831ad0 = BinkOpen(fileName, BINKNOTHREADEDIO | BINKSNDTRACK);
     while (g_pUnk0x00831ad0 == NULL) {
@@ -650,7 +650,7 @@ int FUN_0050ff90(char *fileName, unsigned int trackIndex)
     desc.dwWidth = g_pUnk0x00831ad0->Width;
     desc.dwHeight = g_pUnk0x00831ad0->Height;
     desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
-    if (CGraphics::FUN_004a8d60() == 1 || CGraphics::FUN_004a8d60() == 2)
+    if (CGraphics::GetSelectedRenderDeviceSurfaceCaps() == 1 || CGraphics::GetSelectedRenderDeviceSurfaceCaps() == 2)
         desc.ddsCaps.dwCaps2 = DDSCAPS2_DONOTPERSIST | DDSCAPS2_TEXTUREMANAGE;
     else
         desc.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
@@ -677,7 +677,7 @@ double g_unk0x005113b8 = 0.5;
 // the game window, copies the frame into it and blits it to the screen.
 // Returns whether the movie has more frames left.
 // FUNCTION: CMR2 0x00510120
-BOOL FUN_00510120(BYTE skipOnSpace)
+BOOL OptionMovie_PlayFrame(BYTE skipOnSpace)
 {
     DeviceInfo *pDevice;
     RECT clientRect;
@@ -686,9 +686,9 @@ BOOL FUN_00510120(BYTE skipOnSpace)
     int scaleHeight;
     int waitResult;
 
-    CInput::FUN_0049eab0();
-    pDevice = CInput::FUN_0049ead0(0);
-    FUN_0040bd60(0, pDevice);
+    CInput::UpdateAllAvailableDevices();
+    pDevice = CInput::GetAvailableDeviceRecord(0);
+    Input_MergeAssignedJoystickButtons(0, pDevice);
     if (pDevice->field_0x8 & 0x10)
         return FALSE;
     if (skipOnSpace & 1) {
@@ -703,7 +703,7 @@ BOOL FUN_00510120(BYTE skipOnSpace)
         BinkBufferSetScale(g_pUnk0x00831ad4, clientRect.right - clientRect.left,
                            clientRect.bottom - clientRect.top);
     } else {
-        if (CGraphics::FUN_004a96d0(CGraphics::FUN_004a8bc0()) != 0) {
+        if (CGraphics::GetTextureFormatCap200(CGraphics::GetSelectedDisplayDriverIndex()) != 0) {
             if (CGameInfo::GetScreenWidth() >= 0x640) {
                 scaleWidth = 0x500;
                 scaleHeight = 0x3c0;
@@ -722,7 +722,7 @@ BOOL FUN_00510120(BYTE skipOnSpace)
             BinkBufferSetOffset(g_pUnk0x00831ad4, (int)(__int64)((g_pGraphics->resX - 0x280) * g_unk0x005113b8),
                                 (int)(__int64)((g_pGraphics->resY - 0x1e0) * g_unk0x005113b8));
         }
-        if (CGraphics::FUN_004a96e0(CGraphics::FUN_004a8bc0()) == 0)
+        if (CGraphics::GetTextureFormatCap80000(CGraphics::GetSelectedDisplayDriverIndex()) == 0)
             BinkBufferSetOffset(g_pUnk0x00831ad4,
                                 (int)(__int64)((int)(g_pGraphics->screenResX - 0x280) * g_unk0x005113b8),
                                 (int)(__int64)((int)(g_pGraphics->screenResY - 0x1e0) * g_unk0x005113b8));
@@ -745,7 +745,7 @@ BOOL FUN_00510120(BYTE skipOnSpace)
 // Releases the DirectDraw surface the movie frames are converted to and closes
 // the open movie.
 // FUNCTION: CMR2 0x005103d0
-void FUN_005103d0(void)
+void OptionMovie_Close(void)
 {
     ULONG refCount;
 
@@ -781,7 +781,7 @@ void CGameInfo::FUN_00510410(void)
     m_gameInfo.field_0x3988 = 3;
     m_gameInfo.field_0x398c = 0x1e;
 
-    FUN_00510570();
+    ResetDefaultCameraParameters();
 
     m_gameInfo.field_0x98 = 4;
     m_gameInfo.field_0x9a = 0;
@@ -795,7 +795,7 @@ void CGameInfo::FUN_00510410(void)
 }
 
 // FUNCTION: CMR2 0x00510570
-void CGameInfo::FUN_00510570(void)
+void CGameInfo::ResetDefaultCameraParameters(void)
 {
     m_gameInfo.field_0x88 = 0x18000;
     m_gameInfo.field_0x8c = 0x68000;
@@ -912,7 +912,7 @@ void CGameInfo::FUN_00406010(GameInfo0xa4 *pInfo)
 }
 
 // FUNCTION: CMR2 0x00406560
-void CGameInfo::FUN_00406560(void)
+void CGameInfo::ResetStageOptionStates(void)
 {
     memset(m_gameInfo.field_0x38f8, 0x03, sizeof(m_gameInfo.field_0x38f8));
 }
@@ -1075,13 +1075,13 @@ bool CGameInfo::LoadGameInfo(void) {
         g_pGraphics->field913_0x3bc &= 0xfffffffd;
     }
 
-    g_pGraphics->field917_0x3c0 = FUN_00405ca0();
+    g_pGraphics->field917_0x3c0 = GetGraphicsOptionBits21To24();
     g_pGraphics->field913_0x3bc = (m_gameInfo.unknownGraphicsOptions >> 0x1b & 4) | g_pGraphics->field913_0x3bc & 0xfffffffb;
 
-    if (FUN_00406410(0x11) != 0)
-        FUN_004eac50(0x11);
+    if (IsRecordFlagSet(0x11) != 0)
+        ToggleRecordFlag(0x11);
 
-    FUN_004d0590(0);
+    SetFrontendSessionFlag(0);
     CFileBuffer::FreeGenericFileBuffer(fileBuffer);
 
     return true;
@@ -1093,20 +1093,20 @@ unsigned int CGameInfo::IsFullscreen(void) {
 }
 
 // FUNCTION: CMR2 0x00405ca0
-int CGameInfo::FUN_00405ca0(void)
+int CGameInfo::GetGraphicsOptionBits21To24(void)
 {
   return (int)(m_gameInfo.unknownGraphicsOptions >> 0x15 & 0xf);
 }
 
 // FUNCTION: CMR2 0x00406410
-bool CGameInfo::FUN_00406410(int param1) {
+bool CGameInfo::IsRecordFlagSet(int param1) {
     bool response = m_gameInfo.field_0x38f0 & (1 << param1);
     return response;
 }
 
 // FUNCTION: CMR2 0x004eac50
-bool CGameInfo::FUN_004eac50(int param1) {
-    bool response = FUN_00406410(param1);
+bool CGameInfo::ToggleRecordFlag(int param1) {
+    bool response = IsRecordFlagSet(param1);
     m_gameInfo.field_0x38f0 = m_gameInfo.field_0x38f0 ^ 1 << param1;
     return !response;
 }
@@ -1119,7 +1119,7 @@ char g_unk0x00817784[5][256];
 char *g_unk0x00817c84[5];
 
 // FUNCTION: CMR2 0x004d05f0
-void FUN_004d05f0(void)
+void NetworkChat_ClearLog(void)
 {
     char **pp = g_unk0x00817c84;
     char *p = g_unk0x00817784[0];
@@ -1134,9 +1134,9 @@ void FUN_004d05f0(void)
     g_unk0x00817780 = -1;
 }
 
-int FUN_004a19c0(DPID *pId, char *pIndex);
-Unk0x005a1820 *FUN_004a1b30(BYTE index);
-char FUN_004a1c50(int to, int guaranteed, int data, int size);
+int Network_FindSessionPlayerIndex(DPID *pId, char *pIndex);
+Unk0x005a1820 *Network_GetActiveSessionPlayerRecord(BYTE index);
+char Network_SendPlayerMessage(int to, int guaranteed, int data, int size);
 
 // GLOBAL: CMR2 0x00523bbc
 char g_chatLineFormat[] = "%s > %s";
@@ -1144,7 +1144,7 @@ char g_chatLineFormat[] = "%s > %s";
 // Adds a chat line "name > text" to the ring of the last five lines and
 // rebuilds g_unk0x00817c84 newest first.
 // FUNCTION: CMR2 0x004d0620
-void FUN_004d0620(DPID *pFrom, char *text, char local)
+void NetworkChat_AppendLine(DPID *pFrom, char *text, char local)
 {
     int line;
     char **pp;
@@ -1155,11 +1155,11 @@ void FUN_004d0620(DPID *pFrom, char *text, char local)
             g_unk0x00817780 = 0;
         sprintf(g_unk0x00817784[g_unk0x00817780], g_chatLineFormat, (char *)RallyData_GetRecord(0), text);
     } else {
-        if (!FUN_004a19c0(pFrom, &local))
+        if (!Network_FindSessionPlayerIndex(pFrom, &local))
             return;
         if (++g_unk0x00817780 >= 5)
             g_unk0x00817780 = 0;
-        sprintf(g_unk0x00817784[g_unk0x00817780], g_chatLineFormat, FUN_004a1b30(local)->field_0x0, text);
+        sprintf(g_unk0x00817784[g_unk0x00817780], g_chatLineFormat, Network_GetActiveSessionPlayerRecord(local)->field_0x0, text);
     }
     line = g_unk0x00817780 + 5;
     pp = g_unk0x00817c84;
@@ -1172,106 +1172,106 @@ void FUN_004d0620(DPID *pFrom, char *text, char local)
 
 // Sends a chat line to every player and adds it to the local log.
 // FUNCTION: CMR2 0x004d0700
-void FUN_004d0700(char *text)
+void NetworkChat_SendLine(char *text)
 {
     char message[0x101];
 
     message[0] = 0;
     strcpy(message + 1, text);
-    FUN_004a1c50(0, 0, (int)message, 0x101);
-    FUN_004d0620(NULL, text, 1);
+    Network_SendPlayerMessage(0, 0, (int)message, 0x101);
+    NetworkChat_AppendLine(NULL, text, 1);
 }
 
 // FUNCTION: CMR2 0x00406710
-int FUN_00406710(void)
+int GameInfo_GetSessionField397C(void)
 {
     return CGameInfo::m_gameInfo.field_0x397c;
 }
 
 // FUNCTION: CMR2 0x00406730
-int FUN_00406730(void)
+int GameInfo_GetSessionField3984(void)
 {
     return CGameInfo::m_gameInfo.field_0x3984;
 }
 
 // FUNCTION: CMR2 0x00406720
-void FUN_00406720(int param1)
+void GameInfo_SetSessionField397C(int param1)
 {
     CGameInfo::m_gameInfo.field_0x397c = param1;
 }
 
 // FUNCTION: CMR2 0x00406740
-void FUN_00406740(int param1)
+void GameInfo_SetSessionField3984(int param1)
 {
     CGameInfo::m_gameInfo.field_0x3984 = param1;
 }
 
 // FUNCTION: CMR2 0x00406750
-int FUN_00406750(void)
+int GameInfo_GetSessionField3988(void)
 {
     return CGameInfo::m_gameInfo.field_0x3988;
 }
 
 // FUNCTION: CMR2 0x00406760
-void FUN_00406760(int param1)
+void GameInfo_SetSessionField3988(int param1)
 {
     CGameInfo::m_gameInfo.field_0x3988 = param1;
 }
 
 // FUNCTION: CMR2 0x00406770
-int FUN_00406770(void)
+int GameInfo_GetSessionField398C(void)
 {
     return CGameInfo::m_gameInfo.field_0x398c;
 }
 
 // FUNCTION: CMR2 0x00406790
-int FUN_00406790(void)
+int GameInfo_GetSessionField3990(void)
 {
     return CGameInfo::m_gameInfo.field_0x3990;
 }
 
 // FUNCTION: CMR2 0x004067a0
-void FUN_004067a0(int param1)
+void GameInfo_SetSessionField3990(int param1)
 {
     CGameInfo::m_gameInfo.field_0x3990 = param1;
 }
 
 // FUNCTION: CMR2 0x00406780
-void FUN_00406780(int param1)
+void GameInfo_SetSessionField398C(int param1)
 {
     CGameInfo::m_gameInfo.field_0x398c = param1;
 }
 
 // FUNCTION: CMR2 0x004d0580
-unsigned char FUN_004d0580(void) {
+unsigned char GameInfo_GetFrontendSessionFlag(void) {
     return CGameInfo::m_unk0x00817574;
 }
 
 // FUNCTION: CMR2 0x004d0590
-void CGameInfo::FUN_004d0590(BYTE param1) {
+void CGameInfo::SetFrontendSessionFlag(BYTE param1) {
     m_unk0x00817574 = param1;
 }
 
 // FUNCTION: CMR2 0x0049ea90
-void CGameInfo::FUN_0049ea90(unsigned int param1) {
-    FUN_0049e930(param1);
+void CGameInfo::SetInputAndGamePaused(unsigned int param1) {
+    SetInputPausedFlag(param1);
     m_unk0x0059f8d0 = param1;
 }
 
 // FUNCTION: CMR2 0x0049e930
-void CGameInfo::FUN_0049e930(unsigned int param1) {
+void CGameInfo::SetInputPausedFlag(unsigned int param1) {
     m_unk0x00520870 = param1;
 }
 
 // FUNCTION: CMR2 0x004d05d0
-void CGameInfo::FUN_004d05d0(void) {
+void CGameInfo::InitFrontendSessionBuffer(void) {
     m_unk0x0081777c = 0;
     m_unk0x00817678 = FALSE;
-    CGame::RegisterCallback(FUN_004d05a0, NULL);
+    CGame::RegisterCallback(ReleaseFrontendSessionBuffer, NULL);
 }
 
 // FUNCTION: CMR2 0x004d05a0
-bool CGameInfo::FUN_004d05a0(void) {
+bool CGameInfo::ReleaseFrontendSessionBuffer(void) {
     if (m_unk0x0081777c != NULL) {
         CFileBuffer::FreeGenericFileBuffer(m_unk0x0081777c);
         m_unk0x0081777c = NULL;
@@ -1282,7 +1282,7 @@ bool CGameInfo::FUN_004d05a0(void) {
 }
 
 // FUNCTION: CMR2 0x004a0c60
-void CGameInfo::FUN_004a0c60(void) {
+void CGameInfo::ResetNetworkSessionState(void) {
     g_sessionNamePtr = (LPVOID *)m_unk0x005a00b8;
     g_sessionPasswordPtr = (LPVOID *)m_unk0x005a02c0;
     m_unk0x005a0060 = FALSE;
@@ -1292,12 +1292,12 @@ void CGameInfo::FUN_004a0c60(void) {
 }
 
 // FUNCTION: CMR2 0x00405bd0
-unsigned int CGameInfo::FUN_00405bd0(void) {
+unsigned int CGameInfo::GetGraphicsOptionBits5To8(void) {
   return m_gameInfo.unknownGraphicsOptions >> 5 & 0xf;
 }
 
 // FUNCTION: CMR2 0x00405c00
-unsigned int CGameInfo::FUN_00405c00(void) {
+unsigned int CGameInfo::GetGraphicsOptionBits9To12(void) {
   return m_gameInfo.unknownGraphicsOptions >> 9 & 0xf;
 }
 
@@ -1428,19 +1428,19 @@ int g_unk0x00831aa0[4];
 int g_unk0x00831ab0[4];
 
 // FUNCTION: CMR2 0x004ff4b0
-int FUN_004ff4b0(int index)
+int OptionMenu_GetColumnLabelId(int index)
 {
     return g_unk0x00526f54[index];
 }
 
 // FUNCTION: CMR2 0x004ff4c0
-int FUN_004ff4c0(int index)
+int OptionMenu_GetColumnUnitId(int index)
 {
     return g_unk0x00526f70[index];
 }
 
 // FUNCTION: CMR2 0x004ff4d0
-int FUN_004ff4d0(int index)
+int OptionMenu_GetColumnWeight(int index)
 {
     return g_unk0x00526f8c[index];
 }
@@ -1454,11 +1454,11 @@ int g_unk0x00526f4c = -1;
 // GLOBAL: CMR2 0x00526f50
 int g_unk0x00526f50 = -1;
 
-void FUN_00501d20(int count);
+void OptionMenu_ResetRecordTransitions(int count);
 
 // Clears the option menu counters and rebuilds the eight option records.
 // FUNCTION: CMR2 0x004ff4e0
-void FUN_004ff4e0(void)
+void OptionMenu_ResetRecords(void)
 {
     g_unk0x00526f48 = 0;
     g_unk0x00526f4c = 0;
@@ -1473,45 +1473,45 @@ void FUN_004ff4e0(void)
     g_unk0x0082a90c[3] = 3;
     g_unk0x0082a90c[4] = 3;
     g_unk0x0082a90c[5] = 3;
-    FUN_00501d20(8);
+    OptionMenu_ResetRecordTransitions(8);
 }
 
 // FUNCTION: CMR2 0x004ff540
-int FUN_004ff540(void)
+int OptionMenu_GetScrollDistance(void)
 {
     return g_unk0x0082a928 - g_unk0x0082a930;
 }
 
 // FUNCTION: CMR2 0x004ff5a0
-int FUN_004ff5a0(int index)
+int OptionMenu_GetSlotType(int index)
 {
     return g_unk0x0082a90c[index];
 }
 
 // FUNCTION: CMR2 0x005004a0
-int FUN_005004a0(void)
+int OptionMenu_GetSharedValue(void)
 {
     return g_unk0x0082a92c;
 }
 
 // FUNCTION: CMR2 0x005004b0
-void FUN_005004b0(int value)
+void OptionMenu_SetSharedValue(int value)
 {
     g_unk0x0082a92c = value;
 }
 
 // FUNCTION: CMR2 0x00500520
-void FUN_00500520(void)
+void OptionMenu_ClearTimeout(void)
 {
     g_unk0x0082ac58 = 0;
     g_unk0x0082ac5c = 0;
 }
 
 // FUNCTION: CMR2 0x00500530
-void FUN_00500530(void)
+void OptionMenu_UpdateTimeout(void)
 {
     if (g_unk0x0082ac58 != 0 && (unsigned int)(CMain::GetFrameDelta() - g_unk0x0082ac5c) >= 30)
-        FUN_00500520();
+        OptionMenu_ClearTimeout();
 }
 
 // The option menu's interpolation base (0x82acf0) and the eight bytes at
@@ -1537,16 +1537,16 @@ struct Unk0x0082ac68Row {
     int v[4][2];
 };
 
-int FUN_005021c0(int index);
+int OptionMenu_GetRecordTransitionMode(int index);
 
-void FUN_004a15b0(BOOL param1);
-void FUN_004a1940(DWORD *pId);
-void FUN_00409c80(int *pId);
+void Network_SetSessionStateFlag(BOOL param1);
+void Network_RemoveSessionPlayerByID(DWORD *pId);
+void NetPlayers_RemovePlayerByID(int *pId);
 
 // Recomputes the four layout pairs of option record param1; param2 selects a
 // straight copy of the target pairs instead of the param3 percent blend.
 // FUNCTION: CMR2 0x00500920
-void FUN_00500920(int param1, int param2, int param3)
+void OptionMenu_InterpolateLayoutPairs(int param1, int param2, int param3)
 {
     int i;
 
@@ -1566,7 +1566,7 @@ void FUN_00500920(int param1, int param2, int param3)
 // Stores a new target pair per layout slot of option record param1 and rebuilds
 // the deltas; param3 also warps the current pairs to the target.
 // FUNCTION: CMR2 0x005009c0
-void FUN_005009c0(int param1, int *param2, int param3)
+void OptionMenu_SetTargetLayoutPairs(int param1, int *param2, int param3)
 {
     int i;
 
@@ -1592,68 +1592,68 @@ void FUN_005009c0(int param1, int *param2, int param3)
 // Option menu item notification: refreshes the player list of a network device
 // entry when it changes, or opens the advanced options on the select action.
 // FUNCTION: CMR2 0x00500a70
-void FUN_00500a70(int unused, int *param2)
+void OptionMenu_HandleItemNotification(int unused, int *param2)
 {
     if (*param2 != 5) {
         if (*param2 == 0x101)
-            FUN_004a15b0(1);
+            Network_SetSessionStateFlag(1);
         return;
     }
-    FUN_004a1940((DWORD *)(param2 + 2));
-    FUN_00409c80(param2 + 2);
+    Network_RemoveSessionPlayerByID((DWORD *)(param2 + 2));
+    NetPlayers_RemovePlayerByID(param2 + 2);
 }
 
-void FUN_00409d50(DPID *pId, NetStats *pStats);
-void FUN_00409e90(DPID *pId);
-void FUN_00409f00(DPID *pId, unsigned int time, int value);
-void FUN_00409f80(DPID *pId);
+void NetPlayers_ReceiveStatistics(DPID *pId, NetStats *pStats);
+void NetPlayers_MarkPlayerReadyByID(DPID *pId);
+void NetPlayers_RecordPlayerFinishTime(DPID *pId, unsigned int time, int value);
+void NetPlayers_MarkPlayerFinishedByID(DPID *pId);
 void FUN_00409fd0(DPID *pId, int split, unsigned int time);
-void FUN_0040ac70(DPID *pId, unsigned int carClass);
-void FUN_0040ad20(void);
-void FUN_0040afb0(char valid, BYTE *p);
-void FUN_005001c0(char param1);
-Unk0049c2c0 *FUN_004ff440(void);
+void NetPlayers_SetRemoteCarClass(DPID *pId, unsigned int carClass);
+void NetPlayers_BuildFinalClassification(void);
+void NetPlayers_ReceivePublishedLeaderboard(char valid, BYTE *p);
+void OptionMenu_Start(char param1);
+Unk0049c2c0 *Game_GetSecondaryCallbackMachine(void);
 
 // Handles an option menu notification of a network player: the first byte of the
 // record selects the operation, the following ones carry its arguments.
 // FUNCTION: CMR2 0x00500aa0
-void FUN_00500aa0(DPID *pId, BYTE *pData)
+void OptionMenu_HandleNetworkNotification(DPID *pId, BYTE *pData)
 {
     // the case order mirrors the original's jump table layout
     switch (pData[0]) {
     case 11:
-        FUN_00409d50(pId, (NetStats *)(pData + 2));
+        NetPlayers_ReceiveStatistics(pId, (NetStats *)(pData + 2));
         break;
     case 7:
-        FUN_00409e90(pId);
+        NetPlayers_MarkPlayerReadyByID(pId);
         break;
     case 8:
         FUN_00409fd0(pId, pData[1], *(unsigned int *)(pData + 4));
         break;
     case 10:
-        FUN_00409f80(pId);
-        FUN_00409f00(pId, *(unsigned int *)(pData + 4), *(int *)(pData + 8));
+        NetPlayers_MarkPlayerFinishedByID(pId);
+        NetPlayers_RecordPlayerFinishTime(pId, *(unsigned int *)(pData + 4), *(int *)(pData + 8));
         break;
     case 12:
-        FUN_005001c0(1);
-        FUN_0040ad20();
+        OptionMenu_Start(1);
+        NetPlayers_BuildFinalClassification();
         break;
     case 6:
-        FUN_0040ac70(pId, pData[1]);
+        NetPlayers_SetRemoteCarClass(pId, pData[1]);
         break;
     case 16:
         g_unk0x0082b0ac = 1;
-        CGame::FUN_0049c1c0(FUN_004ff440(), 0, 0, 2);
-        FUN_0040ad20();
+        CGame::FUN_0049c1c0(Game_GetSecondaryCallbackMachine(), 0, 0, 2);
+        NetPlayers_BuildFinalClassification();
         break;
     case 17:
-        FUN_0040afb0(pData[1], pData + 4);
-        FUN_0040ad20();
+        NetPlayers_ReceivePublishedLeaderboard(pData[1], pData + 4);
+        NetPlayers_BuildFinalClassification();
         break;
     }
 }
 
-int FUN_004a1b90(int param1, void **param2);
+int Network_PollReceivedMessageBuffer(int param1, void **param2);
 
 // Drains the pending network messages: those coming from the system id (0) go to
 // the player-list handler, the rest to the option notification handler.
@@ -1663,63 +1663,63 @@ void GameInfo_ProcessNetworkMessages(void)
     int senderId;
     void *pMessage;
 
-    while (FUN_004a1b90((int)&senderId, &pMessage) != 0) {
+    while (Network_PollReceivedMessageBuffer((int)&senderId, &pMessage) != 0) {
         if (senderId == 0)
-            FUN_00500a70((int)&senderId, (int *)pMessage);
+            OptionMenu_HandleItemNotification((int)&senderId, (int *)pMessage);
         else
-            FUN_00500aa0((DPID *)&senderId, (BYTE *)pMessage);
+            OptionMenu_HandleNetworkNotification((DPID *)&senderId, (BYTE *)pMessage);
     }
 }
 
 // Arms the countdown of every option record that has not been started yet.
 // FUNCTION: CMR2 0x00500ec0
-void FUN_00500ec0(void)
+void OptionMenu_ArmRecordCountdowns(void)
 {
-    if (FUN_005021c0(2) == 0)
-        CGameInfo::FUN_00501cc0(2, 0x28, 0);
-    if (FUN_005021c0(6) == 0)
-        CGameInfo::FUN_00501cc0(6, 0xf, 0);
-    if (FUN_005021c0(7) == 0)
-        CGameInfo::FUN_00501cc0(7, 0xf, 0);
-    if (FUN_005021c0(4) == 0)
-        CGameInfo::FUN_00501cc0(4, 0x1e, 0);
-    if (FUN_005021c0(5) == 0)
-        CGameInfo::FUN_00501cc0(5, 0x1e, 1);
-    if (FUN_005021c0(0) == 0) {
-        CGameInfo::FUN_00501cc0(0, 0x14, 1);
+    if (OptionMenu_GetRecordTransitionMode(2) == 0)
+        CGameInfo::StartOptionRecordTransition(2, 0x28, 0);
+    if (OptionMenu_GetRecordTransitionMode(6) == 0)
+        CGameInfo::StartOptionRecordTransition(6, 0xf, 0);
+    if (OptionMenu_GetRecordTransitionMode(7) == 0)
+        CGameInfo::StartOptionRecordTransition(7, 0xf, 0);
+    if (OptionMenu_GetRecordTransitionMode(4) == 0)
+        CGameInfo::StartOptionRecordTransition(4, 0x1e, 0);
+    if (OptionMenu_GetRecordTransitionMode(5) == 0)
+        CGameInfo::StartOptionRecordTransition(5, 0x1e, 1);
+    if (OptionMenu_GetRecordTransitionMode(0) == 0) {
+        CGameInfo::StartOptionRecordTransition(0, 0x14, 1);
         return;
     }
-    if (FUN_005021c0(0) == 2) {
-        if (FUN_005021c0(1) == 0)
-            CGameInfo::FUN_00501cc0(1, 0x14, 0);
-        if (FUN_005021c0(3) == 0)
-            CGameInfo::FUN_00501cc0(3, 0x14, 0);
+    if (OptionMenu_GetRecordTransitionMode(0) == 2) {
+        if (OptionMenu_GetRecordTransitionMode(1) == 0)
+            CGameInfo::StartOptionRecordTransition(1, 0x14, 0);
+        if (OptionMenu_GetRecordTransitionMode(3) == 0)
+            CGameInfo::StartOptionRecordTransition(3, 0x14, 0);
     }
 }
 
-void FUN_00502520(void);
+void OptionMenu_ResetModeCursor(void);
 extern FixAngles g_unk0x005273c0[12];
 extern int g_unk0x008313c8[96];
-void FUN_00506b20(int index, char visible);
+void OptionPreview_SetWheelNodesVisible(int index, char visible);
 void FUN_00506930(int param1, short *param2, int param3);
 
 // Boot state of the country menus: marks the item of the selected country and
 // points its two record tables at the matching entry.
 // FUNCTION: CMR2 0x00500df0
-void FUN_00500df0(Unk0049c2c0 *p1, BYTE p2)
+void OptionMenu_EnterCountryState(Unk0049c2c0 *p1, BYTE p2)
 {
     int i;
 
-    FUN_00502520();
-    for (i = 0; i < (int)(CGameInfo::FUN_00405d70() & 0xff); i = i + 1) {
-        if (i == CGameInfo::FUN_005011b0()) {
-            FUN_00506b20(i, 1);
-            FUN_00506930(i, (short *)&g_unk0x005273c0[FUN_004ff4d0(
-                             FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14])], 0);
-            FUN_005009c0(i, &g_unk0x008313c8[FUN_004ff4d0(
-                             FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14]) * 8], 1);
+    OptionMenu_ResetModeCursor();
+    for (i = 0; i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff); i = i + 1) {
+        if (i == CGameInfo::GetActiveOptionSlot()) {
+            OptionPreview_SetWheelNodesVisible(i, 1);
+            FUN_00506930(i, (short *)&g_unk0x005273c0[OptionMenu_GetColumnWeight(
+                             OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14])], 0);
+            OptionMenu_SetTargetLayoutPairs(i, &g_unk0x008313c8[OptionMenu_GetColumnWeight(
+                             OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14]) * 8], 1);
         } else {
-            FUN_00506b20(i, 0);
+            OptionPreview_SetWheelNodesVisible(i, 0);
         }
     }
     CGame::FUN_0049c1c0(p1, p2, 0, 2);
@@ -1727,49 +1727,49 @@ void FUN_00500df0(Unk0049c2c0 *p1, BYTE p2)
 }
 
 // FUNCTION: CMR2 0x005011d0
-int FUN_005011d0(void)
+int OptionMenu_GetPlayerSlotOffset(void)
 {
     return g_unk0x0082b0a8;
 }
 
 // FUNCTION: CMR2 0x005011e0
-void FUN_005011e0(int value)
+void OptionMenu_SetPlayerSlotOffset(int value)
 {
     g_unk0x0082b0a8 = value;
 }
 
 // FUNCTION: CMR2 0x005011f0
-int FUN_005011f0(int index)
+int OptionMenu_GetSlotSelector(int index)
 {
     return g_unk0x0082af90[index];
 }
 
 // FUNCTION: CMR2 0x00501200
-int FUN_00501200(int index)
+int OptionMenu_GetSlotBaseSelector(int index)
 {
     return g_unk0x0082af78[index];
 }
 
 // FUNCTION: CMR2 0x00501210
-void FUN_00501210(int index, int value)
+void OptionMenu_SetSlotSelector(int index, int value)
 {
     g_unk0x0082af90[index] = value;
 }
 
 // FUNCTION: CMR2 0x00501510
-int FUN_00501510(void)
+int OptionMenu_GetBackgroundRoot(void)
 {
     return g_unk0x0082b1b4;
 }
 
-void FUN_005013a0(void);
-void FUN_0050f4f0(void);
-void FUN_00505e70(void);
-void FUN_00503ea0(void);
+void OptionMenu_CreateBackgroundWorld(void);
+void OptionMenu_LoadArchives(void);
+void OptionPreview_FillTextureSetIndices(void);
+void RallyData_LoadCurrentRallyWeatherTextures(void);
 void FUN_005040f0(void);
-int *FUN_0050f620(void);
+int *OptionMenu_GetCommonArchive(void);
 void FUN_004b1150(void);
-void FUN_004b2970(int value);
+void Graphics_SetShadowGeometryState(int value);
 
 // Format of the environment texture of the track. The %s is the install
 // directory returned by the setup.
@@ -1784,28 +1784,28 @@ char g_str0x00527070[] = "%s\\textures\\environment\\environment.tga";
 // <OFFSETn>: 0x4b1150, 0x503ea0, 0x5040f0 and the two 0x4b23c0 calls go to
 // functions that are still annotated TODO, so reccmp cannot name them.
 // FUNCTION: CMR2 0x00501520
-void FUN_00501520(void)
+void OptionMenu_InitBackground(void)
 {
     CGraphics::SetClearColour(1, 0x8d, 0x97, 0x9f);
     Font_SetBlendMode(1);
-    CGameInfo::FUN_005011a0();
-    FUN_005013a0();
-    FUN_0050f4f0();
+    CGameInfo::SaveOptionMenuCallbackCount();
+    OptionMenu_CreateBackgroundWorld();
+    OptionMenu_LoadArchives();
     FUN_004b1150();
-    CGame::FUN_0049dca0(3);
-    FUN_00503ea0();
+    CGame::SetSectorDrawState(3);
+    RallyData_LoadCurrentRallyWeatherTextures();
     FUN_005040f0();
-    FUN_00505e70();
+    OptionPreview_FillTextureSetIndices();
     sprintf(CFrontend::m_stringDest, g_str0x00527070, CInstallInfo::GetSetupRepDir());
-    FUN_004b2970(!CGameInfo::FUN_00406410(0xf));
-    if (CGameInfo::FUN_00406410(0x10))
-        FUN_004b23c0(CFrontend::m_stringDest, 0, (GenericFile *)FUN_0050f620(), 0x80);
+    Graphics_SetShadowGeometryState(!CGameInfo::IsRecordFlagSet(0xf));
+    if (CGameInfo::IsRecordFlagSet(0x10))
+        Graphics_ReserveCubeMapsAndLoadEnvironment(CFrontend::m_stringDest, 0, (GenericFile *)OptionMenu_GetCommonArchive(), 0x80);
     else
-        FUN_004b23c0(CFrontend::m_stringDest, 0, (GenericFile *)FUN_0050f620(), 0x40);
+        Graphics_ReserveCubeMapsAndLoadEnvironment(CFrontend::m_stringDest, 0, (GenericFile *)OptionMenu_GetCommonArchive(), 0x40);
 }
 
 // FUNCTION: CMR2 0x00501d00
-void FUN_00501d00(int index)
+void OptionMenu_ClearRecordTransition(int index)
 {
     Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
 
@@ -1816,23 +1816,23 @@ void FUN_00501d00(int index)
 }
 
 // FUNCTION: CMR2 0x00501d20
-void FUN_00501d20(int count)
+void OptionMenu_ResetRecordTransitions(int count)
 {
     int i;
 
     g_unk0x0082b1bc = count;
     for (i = 0; i < g_unk0x0082b1bc; i++)
-        FUN_00501d00(i);
+        OptionMenu_ClearRecordTransition(i);
 }
 
 // FUNCTION: CMR2 0x005021c0
-int FUN_005021c0(int index)
+int OptionMenu_GetRecordTransitionMode(int index)
 {
     return g_unk0x0082b2c0[index].field_0xc;
 }
 
 // FUNCTION: CMR2 0x005021e0
-void FUN_005021e0(void)
+void OptionMenu_FinishRecordTransitions(void)
 {
     int i;
     Unk0x0082b2c0 *p;
@@ -1849,37 +1849,37 @@ void FUN_005021e0(void)
 }
 
 // FUNCTION: CMR2 0x00502210
-BYTE *FUN_00502210(void)
+BYTE *OptionMenu_GetStatusMenu(void)
 {
     return g_unk0x0082ba28;
 }
 
 // FUNCTION: CMR2 0x00502220
-BYTE *FUN_00502220(void)
+BYTE *OptionMenu_GetAdvancedOptionsMenu(void)
 {
     return g_unk0x0082b488;
 }
 
 // FUNCTION: CMR2 0x00502990
-BYTE FUN_00502990(int i, int j)
+BYTE OptionMenu_GetColumnDirtyFlag(int i, int j)
 {
     return g_unk0x0082bf20[i][j];
 }
 
 // Option menu builders and loaders that live in the cascade scaffold.
-void FUN_00500c00(void);
-void FUN_00502d50(void);
+void OptionMenu_RefreshStageSetup(void);
+void OptionMenu_LoadRallyRecords(void);
 void FUN_00502570(void);
-void FUN_00501520(void);
-BYTE FUN_0050f3c0(void);
-void FUN_0050f420(void);
-void FUN_0050f370(void);
-BYTE FUN_0050f240(void);
-void FUN_0050f180(void);
-void FUN_004f4ef0(void);
-bool FUN_004f4e80(void);
-void FUN_0040ac40(BYTE carClass);
-HRESULT FUN_004a2bd0(int param1);
+void OptionMenu_InitBackground(void);
+BYTE OptionMenu_LoadSounds(void);
+void OptionMenu_ConfigureSoundHandles(void);
+void OptionMenu_LoadFonts(void);
+BYTE OptionMenu_LoadRegionalText(void);
+void OptionMenu_BuildAndActivatePages(void);
+void SavedGames_LoadRecords(void);
+bool SavedGames_ReleaseRecords(void);
+void NetPlayers_SendCarClass(BYTE carClass);
+HRESULT Sound_StartLoopingMusicStream(int param1);
 
 // Starts the option menu state: rebuilds the option records, starts the menu
 // music and asks for the next state (level 2) of the grouped callback machine.
@@ -1890,26 +1890,26 @@ void FUN_00500c80(Unk0049c2c0 *p1, BYTE state)
     int i;
 
     g_unk0x0082b0ac = 0;
-    CGameInfo::FUN_0049ea90(1);
-    if (CGameInfo::FUN_00405e00() != 0)
-        FUN_0040ac40(1);
-    FUN_004a0c40(0);
-    CInput::FUN_0049ff80(0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff);
-    g_unk0x0082b0a8 = CGameInfo::FUN_00405d70() & 0xff;
-    FUN_00500c00();
-    FUN_00502d50();
+    CGameInfo::SetInputAndGamePaused(1);
+    if (CGameInfo::GetGameModeOptionBit19() != 0)
+        NetPlayers_SendCarClass(1);
+    Menu_SetInputStateFlag(0);
+    CInput::SetInputRepeatTimingParameters(0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff);
+    g_unk0x0082b0a8 = CGameInfo::GetConfiguredPlayerCount() & 0xff;
+    OptionMenu_RefreshStageSetup();
+    OptionMenu_LoadRallyRecords();
     FUN_00502570();
-    FUN_00501520();
-    FUN_004f4ef0();
-    CGame::RegisterCallback(FUN_004f4e80, NULL);
+    OptionMenu_InitBackground();
+    SavedGames_LoadRecords();
+    CGame::RegisterCallback(SavedGames_ReleaseRecords, NULL);
     Sound_Init(0x5622, 2, 0x10, 0);
-    FUN_0050f3c0();
-    FUN_0050f420();
-    FUN_0050f370();
-    FUN_0050f240();
-    FUN_0050f180();
+    OptionMenu_LoadSounds();
+    OptionMenu_ConfigureSoundHandles();
+    OptionMenu_LoadFonts();
+    OptionMenu_LoadRegionalText();
+    OptionMenu_BuildAndActivatePages();
 
-    if (!(CGameInfo::FUN_00405d80() == 0 || CGameInfo::FUN_00405d80() == 1)) {
+    if (!(CGameInfo::GetConfiguredGameMode() == 0 || CGameInfo::GetConfiguredGameMode() == 1)) {
         g_unk0x00527000 = 1;
     } else {
         g_unk0x00527000 = 0;
@@ -1920,7 +1920,7 @@ void FUN_00500c80(Unk0049c2c0 *p1, BYTE state)
     // The original re-reads the flag before each pair of stores: both arms of
     // the conditional hold the same value, so the branch is gone from the
     // binary but the load and its test are still there.
-    for (i = 0; i < (int)(CGameInfo::FUN_00405d70() & 0xff); i = i + 1) {
+    for (i = 0; i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff); i = i + 1) {
         if (g_unk0x00527000) {
             g_unk0x0082af90[i] = 360000;
             g_unk0x0082af78[i] = 0x3c;
@@ -1932,24 +1932,24 @@ void FUN_00500c80(Unk0049c2c0 *p1, BYTE state)
 
     sprintf(path, g_str0x0052703c, CInstallInfo::GetMusicDir());
     CSound::FUN_004a28d0(path);
-    CSound::FUN_004a31f0(CGameInfo::FUN_00405e40());
-    FUN_004a2bd0(1);
+    CSound::SetMusicStreamVolume(CGameInfo::GetMasterSoundVolume());
+    Sound_StartLoopingMusicStream(1);
     CGame::FUN_0049c1c0(p1, state, 0, 2);
     g_unk0x0082af8c = 1;
 }
 
 // FUNCTION: CMR2 0x00502d40
-int FUN_00502d40(int index)
+int OptionMenu_GetColumnBaseWeight(int index)
 {
     return g_unk0x00527098[index];
 }
 
-struct Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
+struct Unk0x0052ebc0 *RallyData_GetDriverGroupRecord(int index);
 
 // Copies every option record from the rally data into the working table and
 // clears the per-record dirty words.
 // FUNCTION: CMR2 0x00502d50
-void FUN_00502d50(void)
+void OptionMenu_LoadRallyRecords(void)
 {
     int i;
     int j;
@@ -1958,29 +1958,29 @@ void FUN_00502d50(void)
     int *pSrc;
 
     i = 0;
-    if (CGameInfo::FUN_00405d70() > 0) {
+    if (CGameInfo::GetConfiguredPlayerCount() > 0) {
         pDirty = (int *)g_unk0x0082c040;
         pDst = (int *)g_unk0x0082c070;
         do {
-            pSrc = (int *)RallyData_FUN_00407610(i);
+            pSrc = (int *)RallyData_GetDriverGroupRecord(i);
             i++;
             memcpy(pDst, pSrc, 0x148);
             for (j = 0; j < 3; j++)
                 pDirty[j] = 0;
             pDst += 0x52;
             pDirty += 3;
-        } while (i < (int)(CGameInfo::FUN_00405d70() & 0xff));
+        } while (i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff));
     }
 }
 
 // FUNCTION: CMR2 0x00503930
-int FUN_00503930(int index)
+int OptionMenu_GetRecordGroupWeight(int index)
 {
     return g_unk0x005270b4[index];
 }
 
 // FUNCTION: CMR2 0x00503940
-BYTE FUN_00503940(int i, int j)
+BYTE OptionMenu_GetRecordGroupAppliedFlag(int i, int j)
 {
     return g_unk0x0082c040[i][j];
 }
@@ -2010,7 +2010,7 @@ void FUN_00509d90(int index)
 }
 
 // FUNCTION: CMR2 0x0050a020
-int FUN_0050a020(int mode, int type)
+int OptionPreview_UsesWheelVariantSix(int mode, int type)
 {
     if (type == 6 && mode != 11 && mode != 8 && mode != 10 && mode != 13)
         return 1;
@@ -2018,7 +2018,7 @@ int FUN_0050a020(int mode, int type)
 }
 
 // FUNCTION: CMR2 0x0050a050
-int FUN_0050a050(int mode, int type)
+int OptionPreview_UsesLowWheelVariant(int mode, int type)
 {
     if (type <= 1 && mode != 11 && mode != 8 && mode != 10 && mode != 13)
         return 1;
@@ -2382,14 +2382,14 @@ FixVector g_unk0x00527420[672] = {
 // GLOBAL: CMR2 0x008313c8
 int g_unk0x008313c8[96];
 
-void FUN_005068b0(int param1, FixVector *param2, FixVector *param3, FixAngles *param4);
-void FUN_00501690(int *param1, FixVector *param2);
+void OptionPreview_RotateSlotVector(int param1, FixVector *param2, FixVector *param3, FixAngles *param4);
+void Game_ProjectMenuBackgroundPoint(int *param1, FixVector *param2);
 
 // Projects the wheel vertices of one car's option menu preview: every part's
 // 4 vertices are rotated by the part angles and the projected points are
 // stored in the shared preview buffer.
 // FUNCTION: CMR2 0x0050f120
-void FUN_0050f120(int param1)
+void OptionPreview_ProjectWheelVertices(int param1)
 {
     FixVector *pVec;
     int *pOut;
@@ -2402,8 +2402,8 @@ void FUN_0050f120(int param1)
     pVec = &g_unk0x00527420[param1 * 48];
     do {
         for (k = 0; k < 4; k++) {
-            FUN_005068b0(0, pVec, &local, pAngles);
-            FUN_00501690(pOut, &local);
+            OptionPreview_RotateSlotVector(0, pVec, &local, pAngles);
+            Game_ProjectMenuBackgroundPoint(pOut, &local);
             pVec++;
             pOut += 2;
         }
@@ -2412,7 +2412,7 @@ void FUN_0050f120(int param1)
 }
 
 // FUNCTION: CMR2 0x0050f1c0
-void FUN_0050f1c0(void)
+void OptionMenu_ResetActivePage(void)
 {
     g_pMenu0x00831778 = g_pMenu0x0083177c;
 }
@@ -2420,30 +2420,30 @@ void FUN_0050f1c0(void)
 // Per-frame update of the option menu: refreshes the active menu, polls the
 // input device and forwards its state to Menu_Update.
 // FUNCTION: CMR2 0x0050f1d0
-void FUN_0050f1d0(void)
+void OptionMenu_UpdateActivePage(void)
 {
     int input;
     DeviceInfo *pDevice;
     Menu *pNextMenu;
 
-    FUN_0050f1c0();
-    FUN_004a2fe0();
-    CInput::FUN_0049eab0();
+    OptionMenu_ResetActivePage();
+    Sound_UpdateMusicStreaming();
+    CInput::UpdateAllAvailableDevices();
     input = 0;
-    if (CGameInfo::FUN_005011b0() == 1) {
-        if (CGameInfo::FUN_00405da0() == 0)
+    if (CGameInfo::GetActiveOptionSlot() == 1) {
+        if (CGameInfo::IsConfiguredMultiplayer() == 0)
             input = 1;
     }
-    FUN_0040bad0();
-    pDevice = CInput::FUN_0049ead0(input);
-    FUN_0040bd60((unsigned short)input, pDevice);
+    Input_TranslatePedalsToMenuKeys();
+    pDevice = CInput::GetAvailableDeviceRecord(input);
+    Input_MergeAssignedJoystickButtons((unsigned short)input, pDevice);
     pNextMenu = (Menu *)Menu_Update(g_pMenu0x00831778, pDevice->field_0x8);
     if (pNextMenu != NULL)
         g_pMenu0x0083177c = pNextMenu;
 }
 
 // FUNCTION: CMR2 0x0050f230
-void FUN_0050f230(void)
+void OptionMenu_DrawActivePage(void)
 {
     Menu_CallCallback2(g_pMenu0x00831778);
 }
@@ -2467,16 +2467,16 @@ char g_str0x00529664[12] = "senglish";
 extern char g_strTxtFormat[];
 extern int g_unk0x00831880;
 extern BYTE g_unk0x00831884;
-int *FUN_0050f620(void);
-int *FUN_0050f630(void);
-int *FUN_0050f640(void);
-bool FUN_0050f340(void);
-int FUN_0050f480(void);
+int *OptionMenu_GetCommonArchive(void);
+int *OptionMenu_GetLanguageArchive(void);
+int *OptionMenu_GetStageArchive(void);
+bool OptionMenu_ReleaseSoundBuffer(void);
+int OptionMenu_ReleaseTextures(void);
 
 // Loads the option menu text file of the current region and language and
 // registers it with the frontend.
 // FUNCTION: CMR2 0x0050f240
-BYTE FUN_0050f240(void)
+BYTE OptionMenu_LoadRegionalText(void)
 {
     char *europe[5];
     char *usa[3];
@@ -2511,45 +2511,45 @@ BYTE FUN_0050f240(void)
     }
 
     sprintf(CFrontend::m_stringDest, g_strTxtFormat, names[CGameInfo::GetGameLanguage()]);
-    g_unk0x00831880 = (int)CGenericFileLoader::FindFile((GenericFile *)FUN_0050f630(),
+    g_unk0x00831880 = (int)CGenericFileLoader::FindFile((GenericFile *)OptionMenu_GetLanguageArchive(),
                                                        CFrontend::m_stringDest, &g_unk0x00831884, NULL, 0);
     // the original tests the address of the buffer, so this is always true
     if (&g_unk0x00831880 != NULL) {
-        CFrontend::FUN_004a3c90(1, 0x146, (BYTE **)&g_unk0x00831880);
-        CGame::RegisterCallback(FUN_0050f340, NULL);
+        CFrontend::BuildLocalizedTextStringTable(1, 0x146, (BYTE **)&g_unk0x00831880);
+        CGame::RegisterCallback(OptionMenu_ReleaseSoundBuffer, NULL);
         return 1;
     }
     return 0;
 }
 
 // FUNCTION: CMR2 0x0050f620
-int *FUN_0050f620(void)
+int *OptionMenu_GetCommonArchive(void)
 {
     return g_unk0x00831a90;
 }
 
 // FUNCTION: CMR2 0x0050f630
-int *FUN_0050f630(void)
+int *OptionMenu_GetLanguageArchive(void)
 {
     return g_unk0x00831ab0;
 }
 
 // FUNCTION: CMR2 0x0050f640
-int *FUN_0050f640(void)
+int *OptionMenu_GetStageArchive(void)
 {
     return g_unk0x00831aa0;
 }
 
-unsigned char FUN_004d0580(void);
-void FUN_00500ec0(void);
-void FUN_00501b90(void);
-void FUN_0050f1d0(void);
+unsigned char GameInfo_GetFrontendSessionFlag(void);
+void OptionMenu_ArmRecordCountdowns(void);
+void OptionMenu_UpdateRecordTransitions(void);
+void OptionMenu_UpdateActivePage(void);
 void FUN_00506720(void);
 void GameInfo_ProcessNetworkMessages(void);
-int FUN_0040af30(void);
-void FUN_0040af40(void);
-BOOL FUN_004a15a0(void);
-void FUN_0041b3a0(void);
+int NetPlayers_GetInputFrameDelta(void);
+void NetPlayers_SendType16Notification(void);
+BOOL Network_GetSessionStateFlag(void);
+void StageUI_PublishNetworkRaceWins(void);
 extern int g_unk0x0082b0a4;
 
 // Set when the option menu has finished fading; drawn by the boot state 0x500c80.
@@ -2558,63 +2558,63 @@ extern int g_unk0x0082b0a4;
 // (or the menu is not the options one) it keeps the option menu alive,
 // otherwise it lets the state machine advance.
 // FUNCTION: CMR2 0x00500f80
-void FUN_00500f80(Unk0049c2c0 *p1, BYTE state)
+void OptionMenu_UpdateFadeState(Unk0049c2c0 *p1, BYTE state)
 {
-    if (FUN_004d0580() == 0) {
+    if (GameInfo_GetFrontendSessionFlag() == 0) {
         if ((unsigned int)(CMain::GetFrameDelta() - g_unk0x0082b0a0) > 0x17d4
-            && CGameInfo::FUN_00405e00() != 0 && CGameInfo::FUN_00405d80() != 0xa)
+            && CGameInfo::GetGameModeOptionBit19() != 0 && CGameInfo::GetConfiguredGameMode() != 0xa)
             goto other;
-        if (CMain::GetFrameDelta() - FUN_0040af30() > FUN_00406710() * 6000
-            && CGameInfo::FUN_00405e00() != 0 && CGameInfo::FUN_00405d80() == 0xa
-            && FUN_004a15a0() != 0 && FUN_00406710() != 0)
+        if (CMain::GetFrameDelta() - NetPlayers_GetInputFrameDelta() > GameInfo_GetSessionField397C() * 6000
+            && CGameInfo::GetGameModeOptionBit19() != 0 && CGameInfo::GetConfiguredGameMode() == 0xa
+            && Network_GetSessionStateFlag() != 0 && GameInfo_GetSessionField397C() != 0)
             goto other;
-        FUN_00500ec0();
-        FUN_00501b90();
-        FUN_0050f1d0();
+        OptionMenu_ArmRecordCountdowns();
+        OptionMenu_UpdateRecordTransitions();
+        OptionMenu_UpdateActivePage();
         FUN_00506720();
         goto tail;
     }
 other:
-    if (CMain::GetFrameDelta() - FUN_0040af30() > FUN_00406710() * 6000
-        && CGameInfo::FUN_00405d80() == 0xa && FUN_004a15a0() != 0 && FUN_00406710() != 0) {
+    if (CMain::GetFrameDelta() - NetPlayers_GetInputFrameDelta() > GameInfo_GetSessionField397C() * 6000
+        && CGameInfo::GetConfiguredGameMode() == 0xa && Network_GetSessionStateFlag() != 0 && GameInfo_GetSessionField397C() != 0) {
         g_unk0x0082b0ac = 1;
-        FUN_0041b3a0();
-        FUN_0040af40();
+        StageUI_PublishNetworkRaceWins();
+        NetPlayers_SendType16Notification();
     }
     CGame::FUN_0049c1c0(p1, state, 0, 2);
     g_unk0x0082b0a4 = CMain::GetFrameDelta();
 tail:
-    if (CGameInfo::FUN_00405e00() != 0)
+    if (CGameInfo::GetGameModeOptionBit19() != 0)
         GameInfo_ProcessNetworkMessages();
 }
 
 // FUNCTION: CMR2 0x005011a0
-void CGameInfo::FUN_005011a0(void)
+void CGameInfo::SaveOptionMenuCallbackCount(void)
 {
     g_unk0x0082af88 = CGame::GetCallbackCount();
 }
 
 // FUNCTION: CMR2 0x004f8a70
-char *CGameInfo::FUN_004f8a70(int index)
+char *CGameInfo::GetCodeEntryText(int index)
 {
     return CFrontend::GetTextString(index + 0x1f1);
 }
 
 // FUNCTION: CMR2 0x005011b0
-int CGameInfo::FUN_005011b0(void)
+int CGameInfo::GetActiveOptionSlot(void)
 {
-    return FUN_00405d70() - g_unk0x0082b0a8;
+    return GetConfiguredPlayerCount() - g_unk0x0082b0a8;
 }
 
 // FUNCTION: CMR2 0x00500500
-void CGameInfo::FUN_00500500(void)
+void CGameInfo::StartOptionMenuTimeout(void)
 {
     g_unk0x0082ac58 = 1;
     g_unk0x0082ac5c = CMain::GetFrameDelta();
 }
 
 // FUNCTION: CMR2 0x005012c0
-int CGameInfo::FUN_005012c0(void)
+int CGameInfo::GetOptionMenuRemainingTime(void)
 {
     int result;
 
@@ -2625,15 +2625,15 @@ int CGameInfo::FUN_005012c0(void)
 }
 
 // FUNCTION: CMR2 0x0040a420
-int CGameInfo::FUN_0040a420(int index)
+int CGameInfo::GetNetworkStageBestTime(int index)
 {
-    if (FUN_00405d80() == 0xc)
+    if (GetConfiguredGameMode() == 0xc)
         return g_netStageBest[0];
     return g_netTables.words[0x51c / 4 + index];
 }
 
 // FUNCTION: CMR2 0x00501cc0
-void CGameInfo::FUN_00501cc0(int index, int param2, int param3)
+void CGameInfo::StartOptionRecordTransition(int index, int param2, int param3)
 {
     Unk0x0082b2c0 *pEntry;
 
@@ -2659,14 +2659,14 @@ int CGameInfo::FUN_005004c0(void)
 }
 
 // FUNCTION: CMR2 0x00501230
-int CGameInfo::FUN_00501230(void)
+int CGameInfo::GetPreviewLayoutMode(void)
 {
     if (RallyDataStageIndex() == 0xa ||
-        FUN_00405d80() == 2 ||
-        FUN_00405d80() == 3 ||
-        FUN_00405d80() == 8 ||
-        FUN_00405d80() == 9 ||
-        FUN_00405d80() == 0xa)
+        GetConfiguredGameMode() == 2 ||
+        GetConfiguredGameMode() == 3 ||
+        GetConfiguredGameMode() == 8 ||
+        GetConfiguredGameMode() == 9 ||
+        GetConfiguredGameMode() == 0xa)
         return 1;
     return 2;
 }
@@ -2788,13 +2788,13 @@ void FUN_00507290(SceneNode *pNode, Unk0x0082d220 *pRecord)
     }
 }
 
-void FUN_00508fa0(int index, int param2, BYTE param3);
+void OptionPreview_SetMeshRenderFlags(int index, int param2, BYTE param3);
 
 // Converts the source vertex data of every mesh of a stage mesh record back into
 // its 0x30-byte mesh vertices, rebuilds the meshes, marks the option state of
 // each slot and resets the 8 option meshes of the record.
 // FUNCTION: CMR2 0x005074d0
-void FUN_005074d0(int index)
+void OptionPreview_RebuildStageMeshes(int index)
 {
     Unk0x0082d220 *pRecord;
     FixVector position;
@@ -2828,14 +2828,14 @@ void FUN_005074d0(int index)
         pRecord->field_0x26c[i] = 1;
     }
     for (i = 0; i < 8; i++)
-        FUN_00508fa0(index, 0, i);
+        OptionPreview_SetMeshRenderFlags(index, 0, i);
 }
 
-void FUN_00507710(BYTE *pColour);
-void FUN_005078e0(int index);
-void FUN_00508ee0(int index);
-void FUN_00509be0(int index);
-void FUN_00509d30(int index);
+void OptionPreview_LoadSkyColourRecord(BYTE *pColour);
+void OptionPreview_UpdateStageSkyColours(int index);
+void StageTiming_SelectRecordMeshBrightness(int index);
+void OptionPreview_UpdateSkyFadeShape(int index);
+void OptionPreview_UnpackColourFractions(int index);
 
 // Mesh slot of the stage mesh record (g_unk0x0082d220) each of the four deform
 // options deforms.
@@ -2846,7 +2846,7 @@ BYTE g_unk0x00527364[4] = { 4, 5, 6, 7 };
 // record, rebuilds the stage sky with the colours of the record's linked list of
 // 13-byte entries and clears the option state of the meshes it marks as applied.
 // FUNCTION: CMR2 0x00507650
-void FUN_00507650(int index)
+void OptionPreview_ApplyStageDeformations(int index)
 {
     Unk0x0082d220 *pRecord;
     BYTE *pRally;
@@ -2855,26 +2855,26 @@ void FUN_00507650(int index)
     int i;
 
     pRecord = &g_unk0x0082d220[index];
-    FUN_005074d0(index);
-    pRally = (BYTE *)RallyData_FUN_00407610(index);
+    OptionPreview_RebuildStageMeshes(index);
+    pRally = (BYTE *)RallyData_GetDriverGroupRecord(index);
     pEntry = pRally + pRally[0x105] * 13;
     if (pRally[0x104] != 0) {
         while (pEntry != NULL) {
-            FUN_00507710(pEntry);
-            FUN_005078e0(index);
+            OptionPreview_LoadSkyColourRecord(pEntry);
+            OptionPreview_UpdateStageSkyColours(index);
             next = (char)pEntry[0xc];
             if (next == -1)
                 break;
             pEntry = pRally + next * 13;
         }
     }
-    FUN_00508ee0(index);
+    StageTiming_SelectRecordMeshBrightness(index);
     for (i = 0; i < 4; i++) {
         if (((int *)(pRally + 0x12c))[i] != 0)
             pRecord->field_0x26c[g_unk0x00527364[i]] = 0;
     }
-    FUN_00509be0(index);
-    FUN_00509d30(index);
+    OptionPreview_UpdateSkyFadeShape(index);
+    OptionPreview_UnpackColourFractions(index);
 }
 
 // GLOBAL: CMR2 0x0082d120
@@ -2893,7 +2893,7 @@ BYTE g_unk0x0082d14c;
 // Loads a 13-byte car colour record into the globals the stage sky uses: three
 // 16.16 vectors scaled by 10/127 and 1/127 and two 16.16 scalars.
 // FUNCTION: CMR2 0x00507710
-void FUN_00507710(BYTE *pColour)
+void OptionPreview_LoadSkyColourRecord(BYTE *pColour)
 {
     g_unk0x0082d120.x = (int)(signed char)pColour[9] << 16;
     g_unk0x0082d120.y = (int)(signed char)pColour[10] << 16;
@@ -2952,13 +2952,13 @@ char g_strCreditsFrench[16] = "credits_french";
 // GLOBAL: CMR2 0x00525b48
 char g_strCreditsEnglish[16] = "credits_english";
 
-bool FUN_004f48b0(void);
+bool FrontendCredits_ReleaseText(void);
 
 // Loads the credits text of the current language and splits it into
 // entries of two quoted strings ("role", "name"); each quote-delimited
 // string is terminated in place. Optionally registers the release callback.
 // FUNCTION: CMR2 0x004f4910
-void FUN_004f4910(char registerRelease)
+void FrontendCredits_LoadText(char registerRelease)
 {
     char *europe[5];
     char *usa[3];
@@ -3032,28 +3032,28 @@ void FUN_004f4910(char registerRelease)
     }
 
     if (registerRelease)
-        CGame::RegisterCallback(FUN_004f48b0, NULL);
+        CGame::RegisterCallback(FrontendCredits_ReleaseText, NULL);
 }
 
 // FUNCTION: CMR2 0x004f4b10
-void *FUN_004f4b10(void)
+void *FrontendCredits_GetNameTable(void)
 {
     return g_unk0x0081a734;
 }
 
 // FUNCTION: CMR2 0x004f4b20
-int FUN_004f4b20(void)
+int FrontendCredits_GetEntryCount(void)
 {
     return g_unk0x0081a728;
 }
 
 // FUNCTION: CMR2 0x004f4b30
-void *FUN_004f4b30(void)
+void *FrontendCredits_GetRoleTable(void)
 {
     return g_unk0x0081a72c;
 }
 
-// Frontend text files per region (index = language, see CGameInfo::FUN_004f4b40)
+// Frontend text files per region (index = language, see CGameInfo::InitRegionLanguageCount)
 // GLOBAL: CMR2 0x00525b58
 char g_strTextPolish[8] = "fpolish";
 // GLOBAL: CMR2 0x00525b60
@@ -3069,7 +3069,7 @@ char g_strTextFrench[8] = "ffrench";
 // GLOBAL: CMR2 0x00525b90
 char g_strTextEnglish[12] = "fenglish";
 
-// Frontend fonts (Fonts\<name>.tga + .pcf); FUN_004f4d80 walks them as one array
+// Frontend fonts (Fonts\<name>.tga + .pcf); FrontendText_ReloadFonts walks them as one array
 // GLOBAL: CMR2 0x00525b9c
 char g_frontendFontNames[4][20] = { "general\\hel_12pt", "general\\hel_15pt", "general\\hel_36pt", "general\\dot" };
 #define g_strFontHel12 g_frontendFontNames[0]
@@ -3086,9 +3086,9 @@ BYTE g_languageTextInArchive[5];
 
 extern char g_strTxtFormat[];
 
-// Release callback of FUN_004f4b90.
+// Release callback of FrontendText_LoadRegionLanguages.
 // FUNCTION: CMR2 0x004f4cc0
-BYTE FUN_004f4cc0(void)
+BYTE FrontendText_ReleaseRegionLanguages(void)
 {
     BYTE i;
 
@@ -3099,14 +3099,14 @@ BYTE FUN_004f4cc0(void)
         }
         g_languageTexts[i] = NULL;
     }
-    CFrontend::FUN_004a3d80();
+    CFrontend::FreeLocalizedTextStrings();
     return 1;
 }
 
 // Loads the text file of every frontend language of this region from its
 // language archive and hands them to the frontend text tables.
 // FUNCTION: CMR2 0x004f4b90
-BYTE FUN_004f4b90(void)
+BYTE FrontendText_LoadRegionLanguages(void)
 {
     char *japan[1];
     char *poland[1];
@@ -3144,12 +3144,12 @@ BYTE FUN_004f4b90(void)
     for (i = 0; i < CGameInfo::m_unk0x0081a754; i++) {
         g_languageTexts[i] = NULL;
         sprintf(CFrontend::m_stringDest, g_strTxtFormat, names[i]);
-        g_languageTexts[i] = CGenericFileLoader::FindFile(CFrontend::FUN_004d21c0(i), CFrontend::m_stringDest,
+        g_languageTexts[i] = CGenericFileLoader::FindFile(CFrontend::GetLocalizedFrontendArchive(i), CFrontend::m_stringDest,
                                                         &g_languageTextInArchive[i], NULL, 0);
     }
     if (g_languageTexts[0] != NULL) {
-        CFrontend::FUN_004a3c90(CGameInfo::m_unk0x0081a754, 0x215, (BYTE **)g_languageTexts);
-        CGame::RegisterCallback(FUN_004f4cc0, NULL);
+        CFrontend::BuildLocalizedTextStringTable(CGameInfo::m_unk0x0081a754, 0x215, (BYTE **)g_languageTexts);
+        CGame::RegisterCallback(FrontendText_ReleaseRegionLanguages, NULL);
         return 1;
     }
     return 0;
@@ -3157,7 +3157,7 @@ BYTE FUN_004f4b90(void)
 
 // Loads the four frontend fonts from the frontend archive.
 // FUNCTION: CMR2 0x004f4d20
-BYTE FUN_004f4d20(void)
+BYTE FrontendText_LoadFonts(void)
 {
     if (Font_InitTable(4) != -1) {
         Font_Load(g_strFontHel12, CGenericFileLoader::GetGenericFile(), 0);
@@ -3171,7 +3171,7 @@ BYTE FUN_004f4d20(void)
 
 // Reloads the four frontend fonts (after the display was re-created).
 // FUNCTION: CMR2 0x004f4d80
-void FUN_004f4d80(void)
+void FrontendText_ReloadFonts(void)
 {
     char *pName;
     int i;
@@ -3186,7 +3186,7 @@ void FUN_004f4d80(void)
 }
 
 // FUNCTION: CMR2 0x004f48b0
-bool FUN_004f48b0(void)
+bool FrontendCredits_ReleaseText(void)
 {
     if (g_unk0x0081a730 != NULL) {
         CFileBuffer::FreeGenericFileBuffer(g_unk0x0081a730);
@@ -3209,7 +3209,7 @@ bool FUN_004f48b0(void)
 int g_unk0x00819128;
 
 // FUNCTION: CMR2 0x004f2360
-void FUN_004f2360(BYTE *p, int param2)
+void FrontendMenu_EnterDisplayMode(BYTE *p, int param2)
 {
     g_unk0x00819128 = CGraphics::GetSelectedDisplayDeviceIx();
     if (g_unk0x00819128 + 10 > (int)CGraphics::GetDisplayCount()) {
@@ -3219,17 +3219,17 @@ void FUN_004f2360(BYTE *p, int param2)
     }
     p[0x1e] = (BYTE)CGraphics::GetDisplayCount();
     p[0x1f] = (BYTE)CGraphics::GetSelectedDisplayDeviceIx();
-    CGame::FUN_004a9b10(0);
+    CGame::SetGameInputFocusState(0);
 }
 
 // FUNCTION: CMR2 0x004f2b00
-void FUN_004f2b00(BYTE *p)
+void FrontendMenu_UpdateSoundOptions(BYTE *p)
 {
-    CGameInfo::FUN_00405e10(p[0x1f] * 10);
-    CGameInfo::FUN_00405e50(p[0x33] * 10);
-    CGameInfo::FUN_00405e80(p[0x47] * 10);
-    CInput::FUN_0049ffc0((int)(CGameInfo::FUN_00405e70() << 16) / 100 / 4);
-    CSound::FUN_004a28c0();
+    CGameInfo::SetMasterSoundVolume(p[0x1f] * 10);
+    CGameInfo::SetEffectsSoundVolume(p[0x33] * 10);
+    CGameInfo::SetCoDriverSoundVolume(p[0x47] * 10);
+    CInput::SetInputRepeatTimingState((int)(CGameInfo::GetEffectsSoundVolume() << 16) / 100 / 4);
+    CSound::NoOpSoundDeviceCallback();
 }
 
 // GLOBAL: CMR2 0x0081b14c
@@ -3240,50 +3240,50 @@ void **g_unk0x0081b150;
 int g_unk0x0081b154;
 
 // FUNCTION: CMR2 0x004f4db0
-int FUN_004f4db0(void)
+int SavedGames_GetCount(void)
 {
     return g_unk0x0081b154;
 }
 
 // Saved games list: records of 0x7f4 bytes
 // FUNCTION: CMR2 0x004f4dc0
-BYTE *FUN_004f4dc0(int index)
+BYTE *SavedGames_GetRecordData(int index)
 {
     return (BYTE *)g_unk0x0081b14c + 0x10 + index * 0x7f4;
 }
 
 // FUNCTION: CMR2 0x004f4de0
-unsigned int FUN_004f4de0(int index)
+unsigned int SavedGames_GetDifficulty(int index)
 {
     return *(unsigned int *)((BYTE *)g_unk0x0081b14c + 0x30 + index * 0x7f4) >> 10 & 0xf;
 }
 
 // FUNCTION: CMR2 0x004f4e00
-unsigned int FUN_004f4e00(int index)
+unsigned int SavedGames_GetDateLowBits(int index)
 {
     return *(unsigned int *)((BYTE *)g_unk0x0081b14c + 0x7d8 + index * 0x7f4) & 0x1f;
 }
 
 // FUNCTION: CMR2 0x004f4e20
-unsigned int FUN_004f4e20(int index)
+unsigned int SavedGames_GetDateMiddleBits(int index)
 {
     return *(unsigned int *)((BYTE *)g_unk0x0081b14c + 0x7d8 + index * 0x7f4) >> 5 & 0x1f;
 }
 
 // FUNCTION: CMR2 0x004f4e50
-BYTE *FUN_004f4e50(int index)
+BYTE *SavedGames_GetRecord(int index)
 {
     return (BYTE *)g_unk0x0081b14c + index * 0x7f4;
 }
 
 // FUNCTION: CMR2 0x004f4e70
-void *FUN_004f4e70(int index)
+void *SavedGames_GetFileName(int index)
 {
     return g_unk0x0081b150[index];
 }
 
 // FUNCTION: CMR2 0x004f4e80
-bool FUN_004f4e80(void)
+bool SavedGames_ReleaseRecords(void)
 {
     int i;
 
@@ -3317,7 +3317,7 @@ char g_strSaveGameFileFormat[28] = "%s\\gamesave\\game%.5d.rcs";
 // Formats into the buffer the first save game file name that does not exist
 // yet (<install>\gamesave\gameNNNNN.rcs), starting from index 0.
 // FUNCTION: CMR2 0x004f5150
-void FUN_004f5150(char *pName)
+void SavedGames_MakeUnusedFileName(char *pName)
 {
     bool exists = true;
     int i;
@@ -3333,7 +3333,7 @@ void FUN_004f5150(char *pName)
 // buffer in groups of four characters, one space between groups (the last
 // character is dropped).
 // FUNCTION: CMR2 0x004f8a90
-void FUN_004f8a90(char *pText)
+void FrontendText_FormatCodeGroups(char *pText)
 {
     int out = 0;
     strcpy(CFrontend::m_stringDest, pText);
@@ -3353,7 +3353,7 @@ void FUN_004f8a90(char *pText)
 // Reads every saved game (<install>\gamesave\*.rcs) into the saved games
 // list: one 0x7f4-byte record per file plus its file name.
 // FUNCTION: CMR2 0x004f4ef0
-void FUN_004f4ef0(void)
+void SavedGames_LoadRecords(void)
 {
     WIN32_FIND_DATAA find;
     char saveDir[260];
@@ -3361,7 +3361,7 @@ void FUN_004f4ef0(void)
     HANDLE hFind;
     void *pRecord;
 
-    FUN_004f4e80();
+    SavedGames_ReleaseRecords();
     g_unk0x0081b154 = 0;
     GetCurrentDirectoryA(sizeof(oldDir), oldDir);
     sprintf(saveDir, g_strSaveGameDirFormat, CInstallInfo::GetGameHDPath());
@@ -3398,22 +3398,22 @@ void FUN_004f4ef0(void)
 int g_unk0x00818ac8;
 
 // FUNCTION: CMR2 0x004ea480
-void FUN_004ea480(int param1)
+void Frontend_SetOverlayMode(int param1)
 {
     // Any other value (and every refused case) clears the mode.
     if (param1 == 1) {
-        if (!CGameInfo::FUN_00405da0() && CGameInfo::FUN_00405d80() != 4) {
+        if (!CGameInfo::IsConfiguredMultiplayer() && CGameInfo::GetConfiguredGameMode() != 4) {
             g_unk0x00818ac8 = 1;
             return;
         }
     } else if (param1 == 2) {
-        if (!CGameInfo::FUN_00405da0() && CGameInfo::FUN_00405d80() != 4) {
+        if (!CGameInfo::IsConfiguredMultiplayer() && CGameInfo::GetConfiguredGameMode() != 4) {
             g_unk0x00818ac8 = 2;
             return;
         }
     } else if (param1 == 3) {
-        if (!CGameInfo::FUN_00405da0()) {
-            if (CGameInfo::FUN_00405d80() != 4) {
+        if (!CGameInfo::IsConfiguredMultiplayer()) {
+            if (CGameInfo::GetConfiguredGameMode() != 4) {
                 g_unk0x00818ac8 = 3;
                 return;
             }
@@ -3424,13 +3424,13 @@ void FUN_004ea480(int param1)
 }
 
 // FUNCTION: CMR2 0x004ea500
-int FUN_004ea500(void)
+int Frontend_GetOverlayMode(void)
 {
     return g_unk0x00818ac8;
 }
 
 // FUNCTION: CMR2 0x004ea8e0
-void FUN_004ea8e0(BYTE param1)
+void GameInfo_SetConfiguredGameMode(BYTE param1)
 {
     CGameInfo::m_gameInfo.field_0x14 = ((param1 & 0x7f) << 3) | (CGameInfo::m_gameInfo.field_0x14 & 0xfffffc07);
     if (param1 >= 8)
@@ -3438,50 +3438,50 @@ void FUN_004ea8e0(BYTE param1)
 }
 
 // FUNCTION: CMR2 0x004ea970
-void FUN_004ea970(BYTE param1)
+void GameInfo_SetGameModeOptionBits20To22(BYTE param1)
 {
     CGameInfo::m_gameInfo.field_0x14 = ((param1 & 7) << 20) | (CGameInfo::m_gameInfo.field_0x14 & 0xff8fffff);
 }
 
 // FUNCTION: CMR2 0x004ea990
-void FUN_004ea990(int *pOut1, int *pOut2)
+void GameInfo_GetPlayerOptionNibbles(int *pOut1, int *pOut2)
 {
     *pOut1 = CGameInfo::m_gameInfo.field_0x14 >> 23 & 0xf;
     *pOut2 = CGameInfo::m_gameInfo.field_0x14 >> 27 & 0xf;
 }
 
 // FUNCTION: CMR2 0x004ea8a0
-void FUN_004ea8a0(BYTE param1)
+void GameInfo_SetGameModeBits0To2(BYTE param1)
 {
     CGameInfo::m_gameInfo.field_0x14 = ((param1 & 7)) | (CGameInfo::m_gameInfo.field_0x14 & 0xfffffff8U);
 }
 
 // FUNCTION: CMR2 0x004ea8c0
-void FUN_004ea8c0(BYTE param1)
+void GameInfo_SetConfiguredPlayerCount(BYTE param1)
 {
     CGameInfo::m_gameInfo.field_0x14 = ((param1 & 0xf) << 13) | (CGameInfo::m_gameInfo.field_0x14 & 0xfffe1fffU);
 }
 
 // FUNCTION: CMR2 0x004ea920
-BYTE FUN_004ea920(void)
+BYTE GameInfo_GetLastNetworkGameMode(void)
 {
     return CGameInfo::m_gameInfo.field_0x3980;
 }
 
 // FUNCTION: CMR2 0x004ea930
-void FUN_004ea930(BYTE param1)
+void GameInfo_SetConfiguredDifficulty(BYTE param1)
 {
     CGameInfo::m_gameInfo.field_0x14 = ((param1 & 7) << 10) | (CGameInfo::m_gameInfo.field_0x14 & 0xffffe3ffU);
 }
 
 // FUNCTION: CMR2 0x004ea950
-void FUN_004ea950(BYTE param1)
+void GameInfo_SetConfiguredMultiplayer(BYTE param1)
 {
     CGameInfo::m_gameInfo.field_0x14 = ((param1 & 1) << 17) | (CGameInfo::m_gameInfo.field_0x14 & 0xfffdffffU);
 }
 
 // FUNCTION: CMR2 0x004ea9c0
-void FUN_004ea9c0(unsigned int param1, unsigned int param2)
+void GameInfo_SetPlayerOptionNibbles(unsigned int param1, unsigned int param2)
 {
     CGameInfo::m_gameInfo.field_0x14 = (((param2 & 0xf) << 4 | param1 & 0xf) << 23) | (CGameInfo::m_gameInfo.field_0x14 & 0x807fffffU);
 }
@@ -3490,62 +3490,62 @@ void FUN_004ea9c0(unsigned int param1, unsigned int param2)
 DWORD g_unk0x0052af90;
 
 // FUNCTION: CMR2 0x004ea9f0
-void FUN_004ea9f0(void)
+void GameInfo_ResetSessionTimestamp(void)
 {
     g_unk0x0052af90 = timeGetTime();
 }
 
 // FUNCTION: CMR2 0x004eaa00
-DWORD FUN_004eaa00(void)
+DWORD GameInfo_GetSessionTimestamp(void)
 {
     return g_unk0x0052af90;
 }
 
 // FUNCTION: CMR2 0x004eaa10
-void FUN_004eaa10(BYTE param1)
+void GameInfo_SetSoundOptionBit22(BYTE param1)
 {
     CGameInfo::m_gameInfo.field_0x18 = ((param1 & 1) << 22) | (CGameInfo::m_gameInfo.field_0x18 & 0xffbfffffU);
 }
 
 // FUNCTION: CMR2 0x004eaa30
-char FUN_004eaa30(void)
+char GameInfo_AreOptionsAvailable(void)
 {
     return 1;
 }
 
 // FUNCTION: CMR2 0x004eaa40
-void FUN_004eaa40(unsigned int param1)
+void GameInfo_SetNetworkOptionBits1To2(unsigned int param1)
 {
     CGameInfo::m_gameInfo.field_0x1c = ((param1 & 3) << 1) | (CGameInfo::m_gameInfo.field_0x1c & 0xfffffff9U);
 }
 
 // FUNCTION: CMR2 0x004eaa60
-void FUN_004eaa60(unsigned int param1)
+void GameInfo_SetNetworkOptionBits8To10(unsigned int param1)
 {
     CGameInfo::m_gameInfo.field_0x1c = ((param1 & 7) << 8) | (CGameInfo::m_gameInfo.field_0x1c & 0xfffff8ffU);
 }
 
 // FUNCTION: CMR2 0x004eaa80
-unsigned int FUN_004eaa80(void)
+unsigned int GameInfo_GetNetworkOptionBits8To10(void)
 {
     return CGameInfo::m_gameInfo.field_0x1c >> 8 & 7;
 }
 
 // FUNCTION: CMR2 0x004eaa90
-void FUN_004eaa90(unsigned int param1)
+void GameInfo_SetNetworkOptionBits3To7(unsigned int param1)
 {
     CGameInfo::m_gameInfo.field_0x1c = ((param1 & 0x1f) << 3) | (CGameInfo::m_gameInfo.field_0x1c & 0xffffff07U);
 }
 
 // FUNCTION: CMR2 0x004eaab0
-unsigned int FUN_004eaab0(void)
+unsigned int GameInfo_GetNetworkOptionBits3To7(void)
 {
     return CGameInfo::m_gameInfo.field_0x1c >> 3 & 0x1f;
 }
 
 // Number of bits set.
 // FUNCTION: CMR2 0x004eaac0
-int FUN_004eaac0(unsigned int value)
+int GameInfo_CountSetBits(unsigned int value)
 {
     int count = 0;
     int i = 32;
@@ -3563,7 +3563,7 @@ int FUN_004eaac0(unsigned int value)
 // Reads back the current camera defaults: fills a 3 dword vector out of
 // 0x52b028/0x52b02c, a short out of 0x52b034 and an int out of 0x52b030.
 // FUNCTION: CMR2 0x004eaae0
-void FUN_004eaae0(int *param_1, short *param_2, int *param_3)
+void GameInfo_GetDefaultCameraParameters(int *param_1, short *param_2, int *param_3)
 {
     param_1[0] = 0;
     param_1[1] = CGameInfo::m_gameInfo.field_0x88;
@@ -3573,14 +3573,14 @@ void FUN_004eaae0(int *param_1, short *param_2, int *param_3)
 }
 
 // FUNCTION: CMR2 0x004eab20
-void FUN_004eab20(BYTE param1)
+void GameInfo_SetSoundOptionBit30(BYTE param1)
 {
     CGameInfo::m_gameInfo.field_0x18 = ((param1 & 1) << 30) | (CGameInfo::m_gameInfo.field_0x18 & 0xbfffffffU);
 }
 
 // Turns cheat `bit` on or off in the game options.
 // FUNCTION: CMR2 0x004eab40
-void FUN_004eab40(int bit, int value)
+void GameInfo_SetConfiguredCheat(int bit, int value)
 {
     BYTE mask = 1 << bit;
 
@@ -3592,82 +3592,82 @@ void FUN_004eab40(int bit, int value)
 }
 
 // FUNCTION: CMR2 0x004eab80
-void FUN_004eab80(void)
+void GameInfo_SaveConfiguredCheats(void)
 {
     CGameInfo::m_gameInfo.field_0x20 = ((CGameInfo::m_gameInfo.field_0x20 & 0xff00) << 16) | (CGameInfo::m_gameInfo.field_0x20 & 0xffffff);
 }
 
 // FUNCTION: CMR2 0x004eaba0
-void FUN_004eaba0(void)
+void GameInfo_RestoreConfiguredCheats(void)
 {
     CGameInfo::m_gameInfo.field_0x20 = (CGameInfo::m_gameInfo.field_0x20 >> 24) << 8 | (CGameInfo::m_gameInfo.field_0x20 & 0xffff00ffU);
 }
 
 // FUNCTION: CMR2 0x004eac80
-void FUN_004eac80(BYTE param1)
+void GameInfo_SetNetworkOptionBit11(BYTE param1)
 {
     CGameInfo::m_gameInfo.field_0x1c = ((param1 & 1) << 11) | (CGameInfo::m_gameInfo.field_0x1c & 0xfffff7ffU);
 }
 
 // FUNCTION: CMR2 0x004eaca0
-int FUN_004eaca0(void)
+int GameInfo_GetField98(void)
 {
     return *(int *)&CGameInfo::m_gameInfo.field_0x98;
 }
 
 // FUNCTION: CMR2 0x004eacb0
-void FUN_004eacb0(unsigned int param1)
+void GameInfo_SetNetworkOptionBits12To15(unsigned int param1)
 {
     CGameInfo::m_gameInfo.field_0x1c = ((param1 & 0xf) << 12) | (CGameInfo::m_gameInfo.field_0x1c & 0xffff0fffU);
 }
 
 // FUNCTION: CMR2 0x004eacd0
-void FUN_004eacd0(unsigned int param1)
+void GameInfo_SetNetworkOptionBits16To19(unsigned int param1)
 {
     CGameInfo::m_gameInfo.field_0x1c = ((param1 & 0xf) << 16) | (CGameInfo::m_gameInfo.field_0x1c & 0xfff0ffffU);
 }
 
 // FUNCTION: CMR2 0x004eacf0
-unsigned int FUN_004eacf0(void)
+unsigned int GameInfo_GetNetworkOptionBits12To15(void)
 {
     return CGameInfo::m_gameInfo.field_0x1c >> 12 & 0xf;
 }
 
 // FUNCTION: CMR2 0x004ead00
-unsigned int FUN_004ead00(void)
+unsigned int GameInfo_GetNetworkOptionBits16To19(void)
 {
     return CGameInfo::m_gameInfo.field_0x1c >> 16 & 0xf;
 }
 
-void RallyData_FUN_00406960(BYTE param1);
-void RallyData_FUN_004068e0(BYTE param1);
-void RallyData_FUN_004068b0(BYTE param1);
+void RallyData_SetSelectionBits12To13(BYTE param1);
+void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
+void RallyData_SetCountrySelectionBits(BYTE param1);
 
 // Pushes the frontend option settings to the modules that use them.
 // FUNCTION: CMR2 0x004ead10
-void FUN_004ead10(void)
+void GameInfo_RestoreFrontendOptionSettings(void)
 {
-    FUN_004ea8e0((BYTE)CGameInfo::m_unk0x0052af94);
-    FUN_004ea8c0((BYTE)CGameInfo::m_unk0x0052ea44);
-    FUN_004ea930((BYTE)CGameInfo::m_unk0x0052af9c);
-    RallyData_FUN_0040d640((BYTE)CGameInfo::m_unk0x0052af80);
-    RallyData_FUN_0040d600((BYTE)CGameInfo::m_unk0x0052af84);
-    RallyData_FUN_00406960((BYTE)CGameInfo::m_unk0x0052af8c);
-    RallyData_FUN_0040d620((BYTE)CGameInfo::m_unk0x0052e93c);
-    RallyData_FUN_004068e0((BYTE)CGameInfo::m_unk0x0052ea48);
-    RallyData_FUN_004068b0((BYTE)CGameInfo::m_unk0x0052e940);
+    GameInfo_SetConfiguredGameMode((BYTE)CGameInfo::m_unk0x0052af94);
+    GameInfo_SetConfiguredPlayerCount((BYTE)CGameInfo::m_unk0x0052ea44);
+    GameInfo_SetConfiguredDifficulty((BYTE)CGameInfo::m_unk0x0052af9c);
+    RallyData_SetSecondarySelectionNibble((BYTE)CGameInfo::m_unk0x0052af80);
+    RallyData_SetSelectionBits10To11((BYTE)CGameInfo::m_unk0x0052af84);
+    RallyData_SetSelectionBits12To13((BYTE)CGameInfo::m_unk0x0052af8c);
+    RallyData_SetSelectionBits16To19((BYTE)CGameInfo::m_unk0x0052e93c);
+    RallyData_SetStageSelectionAndRefreshFlags((BYTE)CGameInfo::m_unk0x0052ea48);
+    RallyData_SetCountrySelectionBits((BYTE)CGameInfo::m_unk0x0052e940);
     CGameInfo::m_gameInfo.field_0x14 = ((CGameInfo::m_unk0x0052af88 & 0xf) << 4 | CGameInfo::m_unk0x0052af98 & 0xf) << 0x17
         | CGameInfo::m_gameInfo.field_0x14 & 0x807fffff;
 }
 
 // FUNCTION: CMR2 0x004eabc0
-void FUN_004eabc0(void)
+void GameInfo_ApplyCheatsForGameMode(void)
 {
-    if (CGameInfo::FUN_00406320() || CGameInfo::FUN_00405d80() == 0 ||
-        CGameInfo::FUN_00405d80() == 4) {
+    if (CGameInfo::GetGameInfoSessionFlag() || CGameInfo::GetConfiguredGameMode() == 0 ||
+        CGameInfo::GetConfiguredGameMode() == 4) {
         CGameInfo::m_gameInfo.field_0x20 = (CGameInfo::m_gameInfo.field_0x20 & 0xff00ffff) |
                           ((CGameInfo::m_gameInfo.field_0x20 & 0x400) << 8);
-    } else if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6) {
+    } else if (CGameInfo::GetConfiguredGameMode() == 5 || CGameInfo::GetConfiguredGameMode() == 6) {
         CGameInfo::m_gameInfo.field_0x20 = (CGameInfo::m_gameInfo.field_0x20 & 0xff00ffff) |
                           ((CGameInfo::m_gameInfo.field_0x20 & 0xd00) << 8);
     } else {
@@ -3678,7 +3678,7 @@ void FUN_004eabc0(void)
 
 // GLOBAL: CMR2 0x00511300
 double g_unk0x00511300 = 4096.0 / (360.0 * 65536.0);   // 16.16 degrees -> sine table index
-// One RGBA colour: FUN_00501ab0 returns all four bytes, which callers
+// One RGBA colour: OptionMenu_GetStateByteAddress returns all four bytes, which callers
 // read as a dword. Independent globals do not preserve this layout.
 // GLOBAL: CMR2 0x0082b1b8
 BYTE g_unk0x0082b1b8[4];
@@ -3733,7 +3733,7 @@ int CGameInfo::FUN_004a13b0(void)
 
     if (m_unk0x005a1814 != 0)
         return 0;
-    FUN_004a0c60();
+    ResetNetworkSessionState();
     memset(g_unk0x005a0068, 0, 0x50);
     *(int *)(g_unk0x005a0068 + 0x18) = g_unk0x00511cd8[0];
     *(int *)(g_unk0x005a0068 + 0x30) = (int)&m_unk0x005a00b8;
@@ -3773,7 +3773,7 @@ int CGameInfo::FUN_004a12d0(int param1)
 
     if (m_unk0x005a1814 != 0)
         return 0;
-    FUN_004a0c60();
+    ResetNetworkSessionState();
     memset(g_unk0x005a0068, 0, 0x50);
     *(int *)(g_unk0x005a0068 + 0x34) = param1;
     *(int *)(g_unk0x005a0068 + 0x18) = g_unk0x00511cd8[0];
@@ -3807,7 +3807,7 @@ int CGameInfo::FUN_004a12d0(int param1)
 // Cambia el modo activo 0x82ca1c (intercambiando 0x3c con el modo anterior) y
 // reinicia el temporizador.
 // FUNCTION: CMR2 0x00505a60
-void CGameInfo::FUN_00505a60(int param1)
+void CGameInfo::SwitchOptionPreviewMode(int param1)
 {
     int current;
     int *pNew;
@@ -3888,7 +3888,7 @@ void FixInterp_StartToZero(FixInterp *p)
 BYTE g_unk0x0082b668[sizeof(Menu)];
 
 // FUNCTION: CMR2 0x00502500
-BYTE *FUN_00502500(void)
+BYTE *OptionMenu_GetControlSetupMenu(void)
 {
     return g_unk0x0082b668;
 }
@@ -3897,12 +3897,12 @@ BYTE *FUN_00502500(void)
 BYTE g_unk0x0082b848[sizeof(Menu)];
 
 // FUNCTION: CMR2 0x00502510
-BYTE *FUN_00502510(void)
+BYTE *OptionMenu_GetValueSliderMenu(void)
 {
     return g_unk0x0082b848;
 }
 
-BYTE *RallyData_FUN_00407630(int index);
+BYTE *RallyData_GetDriverSkillRecord(int index);
 
 // Copies the seven option bytes of every rally data record into rows 4..7 of
 // the default table, mirrors them into rows 0..3 and clears the option flags.
@@ -3913,7 +3913,7 @@ void FUN_00502570(void)
     int i;
 
     for (i = 0; i < 4; i++) {
-        BYTE *p = RallyData_FUN_00407630(i);
+        BYTE *p = RallyData_GetDriverSkillRecord(i);
 
         g_unk0x0082bee8[i + 4][4] = p[4];
         g_unk0x0082bee8[i + 4][5] = p[5];
@@ -3933,16 +3933,16 @@ void FUN_00502570(void)
     }
 }
 
-void FUN_004ff4e0(void);
+void OptionMenu_ResetRecords(void);
 
 // Resets the mode menu cursor and the value byte of its first two items.
 // FUNCTION: CMR2 0x00502520
-void FUN_00502520(void)
+void OptionMenu_ResetModeCursor(void)
 {
     ((Menu *)g_unk0x0082b668)->cursor = 0;
-    ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 1)].max = 0;
-    ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 2)].max = 0;
-    FUN_004ff4e0();
+    ((Menu *)OptionMenu_GetControlSetupMenu())->items[Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1)].max = 0;
+    ((Menu *)OptionMenu_GetControlSetupMenu())->items[Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2)].max = 0;
+    OptionMenu_ResetRecords();
 }
 
 // GLOBAL: CMR2 0x0052aa60
@@ -3989,23 +3989,23 @@ Menu *g_pMenu0x0052af48;
 // GLOBAL: CMR2 0x0052af6c
 int g_unk0x0052af6c;
 
-void FUN_00404ef0(void);
-void FUN_004a0ba0(void);
-void FUN_004a3180(void);
-unsigned char RallyData_FUN_00407e70(void);
-unsigned char RallyData_FUN_00407ea0(void);
-int RallyData_FUN_00411880(void);
+void InRaceMenu_Close(void);
+void Menu_QueueDefaultAction(void);
+void Sound_ClearMusicPauseFlag(void);
+unsigned char RallyData_GetSelectionFlag26(void);
+unsigned char RallyData_GetSelectionFlag28(void);
+int RallyData_IsHeadToHeadRaceMode(void);
 
 // FUNCTION: CMR2 0x00401850
-void FUN_00401850(Menu *pMenu, int param)
+void InRaceMenu_ResumeWithSound(Menu *pMenu, int param)
 {
-    if ((BYTE)RallyData_FUN_00407e70())
-        FUN_004a3180();
-    FUN_00404ef0();
+    if ((BYTE)RallyData_GetSelectionFlag26())
+        Sound_ClearMusicPauseFlag();
+    InRaceMenu_Close();
 }
 
 // FUNCTION: CMR2 0x00402bb0
-void FUN_00402bb0(Menu *pMenu, char param)
+void InRaceMenu_RememberOptionCursor(Menu *pMenu, char param)
 {
     if (param == 0) {
         pMenu->cursor = (char)Menu_FindItem(pMenu, 7);
@@ -4016,7 +4016,7 @@ void FUN_00402bb0(Menu *pMenu, char param)
 }
 
 // FUNCTION: CMR2 0x00402bf0
-void FUN_00402bf0(Menu *pMenu)
+void InRaceMenu_SkipBlankOptionRow(Menu *pMenu)
 {
     if (pMenu->cursor == 2)
         pMenu->cursor = g_unk0x0052af6c < 2 ? 3 : 1;
@@ -4024,29 +4024,29 @@ void FUN_00402bf0(Menu *pMenu)
 }
 
 // FUNCTION: CMR2 0x00402c30
-void FUN_00402c30(Menu *pMenu)
+void InRaceMenu_ResumeDrawCallback(Menu *pMenu)
 {
-    FUN_00404ef0();
+    InRaceMenu_Close();
 }
 
 // FUNCTION: CMR2 0x00402c40
-void FUN_00402c40(void)
+void InRaceMenu_BuildResumePage(void)
 {
     Menu_Init(&g_menu0x00529ce8, 0, 0, 0, NULL, NULL, 1, 0, 1);
     Menu_AddItemType4(&g_menu0x00529ce8, 0, -1, 0, -1);
-    Menu_SetCallbacks(&g_menu0x00529ce8, NULL, NULL, (MenuCallback)FUN_00402c30, NULL);
+    Menu_SetCallbacks(&g_menu0x00529ce8, NULL, NULL, (MenuCallback)InRaceMenu_ResumeDrawCallback, NULL);
 }
 
 // Callback 0 of the network options menu: loads the two switches.
 // FUNCTION: CMR2 0x00402eb0
-void FUN_00402eb0(Menu *pMenu, char param)
+void InRaceMenu_EnterNetworkOptions(Menu *pMenu, char param)
 {
     if (param == 0) {
-        if (CGameInfo::FUN_00405dc0() != 0)
+        if (CGameInfo::IsSplitBarEnabled() != 0)
             pMenu->items[Menu_FindItem(pMenu, 2)].max = 1;
         else
             pMenu->items[Menu_FindItem(pMenu, 2)].max = 0;
-        if ((BYTE)CGameInfo::FUN_00405eb0()) {
+        if ((BYTE)CGameInfo::IsDashOptionEnabled()) {
             pMenu->items[Menu_FindItem(pMenu, 4)].max = 1;
             return;
         }
@@ -4055,30 +4055,30 @@ void FUN_00402eb0(Menu *pMenu, char param)
 }
 
 // FUNCTION: CMR2 0x00402f70
-void FUN_00402f70(Menu *pMenu, int param)
+void InRaceMenu_ReturnToPauseItem(Menu *pMenu, int param)
 {
     Menu_SetNextAction((int)&g_menu0x0052ad60);
 }
 
 // FUNCTION: CMR2 0x00402f80
-void FUN_00402f80(Menu *pMenu)
+void InRaceMenu_ReturnToPauseUpdate(Menu *pMenu)
 {
     Menu_SetNextAction((int)&g_menu0x0052ad60);
 }
 
-void FUN_00402f20(Menu *pMenu, int param);
+void InRaceMenu_ApplyNetworkOptions(Menu *pMenu, int param);
 void FUN_00402000(Menu *pMenu);
 void FUN_00403890(Menu *pMenu);
 void FUN_004041e0(Menu *pMenu);
 
 // Builds the network options menu and disables the two-state entries when
 // the current rally mode does not support them.
-void FUN_00402f20(Menu *pMenu, int param);
+void InRaceMenu_ApplyNetworkOptions(Menu *pMenu, int param);
 void FUN_00402000(Menu *pMenu);
 void FUN_00403890(Menu *pMenu);
 void FUN_004041e0(Menu *pMenu);
 // FUNCTION: CMR2 0x00402f90
-void FUN_00402f90(void)
+void InRaceMenu_BuildNetworkOptions(void)
 {
     int i;
 
@@ -4091,11 +4091,11 @@ void FUN_00402f90(void)
     Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x35, 2, 0, 0, 0, 0, 2);
     Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x39, 2, 0, 0, 0, 0, 4);
     Menu_AddItemType2(&g_menu0x00529ed8, 0, 0x3b, &g_menu0x0052ad60,
-                      (int)(MenuCallback)FUN_00402f20, -1);
-    Menu_SetCallbacks(&g_menu0x00529ed8, (MenuCallback)FUN_00402eb0, NULL,
+                      (int)(MenuCallback)InRaceMenu_ApplyNetworkOptions, -1);
+    Menu_SetCallbacks(&g_menu0x00529ed8, (MenuCallback)InRaceMenu_EnterNetworkOptions, NULL,
                       (MenuCallback)FUN_00402000, NULL);
     Menu_ValidateCursor(&g_menu0x00529ed8, 0);
-    if (RallyData_FUN_00411880() == 0) {
+    if (RallyData_IsHeadToHeadRaceMode() == 0) {
         for (i = 0; i < g_menu0x00529ed8.itemCount; i++) {
             if (g_menu0x00529ed8.items[i].value == 2) {
                 g_menu0x00529ed8.items[i].enabled = 0;
@@ -4106,50 +4106,50 @@ void FUN_00402f90(void)
 }
 
 // FUNCTION: CMR2 0x00403360
-void FUN_00403360(Menu *pMenu, int param)
+void InRaceMenu_SelectLastItem(Menu *pMenu, int param)
 {
     pMenu->cursor = pMenu->itemCount - 1;
 }
 
 // FUNCTION: CMR2 0x004035d0
-void FUN_004035d0(Menu *pMenu, int param)
+void InRaceMenu_SelectPlayer(Menu *pMenu, int param)
 {
     g_unk0x0052af58[1] = pMenu->cursor;
 }
 
-void FUN_004036c0(Menu *pMenu, char unused);
-void FUN_00403700(Menu *pMenu, char unused);
-void FUN_004037c0(Menu *pMenu, char cancel);
-void FUN_00403880(Menu *pMenu);
+void InRaceMenu_ResetCameraDefaults(Menu *pMenu, char unused);
+void InRaceMenu_EnterCameraOffsetOptions(Menu *pMenu, char unused);
+void InRaceMenu_LeaveCameraOffsetOptions(Menu *pMenu, char cancel);
+void InRaceMenu_UpdateCameraOffsets(Menu *pMenu);
 
 // Builds the four-slider camera options menu.
 // FUNCTION: CMR2 0x004035e0
-void FUN_004035e0(void)
+void InRaceMenu_BuildCameraOffsetOptions(void)
 {
     Menu_Init(&g_menu0x0052a870, 0, 0, 0, &g_menu0x00529ed8, NULL, 1, 0, 1);
     Menu_AddItemType3(&g_menu0x0052a870, 0, 0x5e, 0x15, 10, 0, 0, 0, 0);
     Menu_AddItemType3(&g_menu0x0052a870, 0, 0x5f, 0x15, 10, 0, 0, 0, 1);
     Menu_AddItemType3(&g_menu0x0052a870, 0, 0x60, 0x15, 10, 0, 0, 0, 2);
     Menu_AddItemType3(&g_menu0x0052a870, 0, 0x61, 0x15, 10, 0, 0, 0, 3);
-    Menu_AddItemType4(&g_menu0x0052a870, 0, 0x62, (int)FUN_004036c0, 4);
+    Menu_AddItemType4(&g_menu0x0052a870, 0, 0x62, (int)InRaceMenu_ResetCameraDefaults, 4);
     Menu_AddItemType2(&g_menu0x0052a870, 0, 0x3b, &g_menu0x00529ed8, 0, 5);
-    Menu_SetCallbacks(&g_menu0x0052a870, (MenuCallback)FUN_00403700,
-                      (MenuCallback)FUN_00403880, (MenuCallback)FUN_00403890,
-                      (MenuCallback)FUN_004037c0);
+    Menu_SetCallbacks(&g_menu0x0052a870, (MenuCallback)InRaceMenu_EnterCameraOffsetOptions,
+                      (MenuCallback)InRaceMenu_UpdateCameraOffsets, (MenuCallback)FUN_00403890,
+                      (MenuCallback)InRaceMenu_LeaveCameraOffsetOptions);
     Menu_ValidateCursor(&g_menu0x0052a870, 0);
 }
 
 // GLOBAL: CMR2 0x0052a0b8
 short g_unk0x0052a0b8;
 
-unsigned short FUN_0040bbc0(unsigned short slot);
+unsigned short Input_GetControllerSlotMapping(unsigned short slot);
 
 // Returns 1 when the slot's device pressed "back" (button 0x400, or the
 // joystick button mapped to action 9, which is then remembered).
 // FUNCTION: CMR2 0x00404e10
-int FUN_00404e10(unsigned short slot)
+int InRaceMenu_IsBackPressed(unsigned short slot)
 {
-    DeviceInfo *pDev = CInput::FUN_0049ead0(FUN_0040bbc0(slot));
+    DeviceInfo *pDev = CInput::GetAvailableDeviceRecord(Input_GetControllerSlotMapping(slot));
 
     if (pDev->field_0x0 == 1 || pDev->field_0x0 == 2) {
         if ((pDev->field_0x8 & 0x400) != 0)
@@ -4159,7 +4159,7 @@ int FUN_00404e10(unsigned short slot)
             g_unk0x0052a0b8 = CInput::GetButtonMapping(slot, 9);
             return 1;
         }
-        if ((CInput::FUN_0049ead0(0)->field_0x8 & 0x400) != 0)
+        if ((CInput::GetAvailableDeviceRecord(0)->field_0x8 & 0x400) != 0)
             return 1;
     }
     return 0;
@@ -4178,7 +4178,7 @@ int g_unk0x0052aa5c;
 
 // Callback of the camera options menu: turns the four sliders into values.
 // FUNCTION: CMR2 0x00403200
-void FUN_00403200(Menu *pMenu)
+void InRaceMenu_ReadCameraOffsetSliders(Menu *pMenu)
 {
     g_unk0x0052aa5c = (int)(pMenu->items[2].max << 19) / (pMenu->items[2].min - 1) + 0x80000;
     g_unk0x0052a86c = (short)((int)(pMenu->items[3].max * 0x11c) / (pMenu->items[3].min - 1));
@@ -4186,19 +4186,19 @@ void FUN_00403200(Menu *pMenu)
     g_unk0x0052aa58 = (int)(pMenu->items[1].max * 0x50000) / (pMenu->items[1].min - 1) + 0x50000;
 }
 
-int FUN_004174d0(void);
+int Race_IsFlag24Clear(void);
 
 // Callback of the sound options menu: applies the three volumes.
 // FUNCTION: CMR2 0x00401380
-void FUN_00401380(Menu *pMenu)
+void InRaceMenu_ApplySoundVolumes(Menu *pMenu)
 {
     int rate;
 
-    CGameInfo::FUN_00405e10(pMenu->items[Menu_FindItem(pMenu, 0)].max * 10);
-    CGameInfo::FUN_00405e50(pMenu->items[Menu_FindItem(pMenu, 1)].max * 10);
-    if (FUN_004174d0())
-        CGameInfo::FUN_00405e80(pMenu->items[Menu_FindItem(pMenu, 2)].max * 10);
-    CInput::FUN_0049ffc0(((int)(CGameInfo::FUN_00405e70() << 16) / 100) / 4);
+    CGameInfo::SetMasterSoundVolume(pMenu->items[Menu_FindItem(pMenu, 0)].max * 10);
+    CGameInfo::SetEffectsSoundVolume(pMenu->items[Menu_FindItem(pMenu, 1)].max * 10);
+    if (Race_IsFlag24Clear())
+        CGameInfo::SetCoDriverSoundVolume(pMenu->items[Menu_FindItem(pMenu, 2)].max * 10);
+    CInput::SetInputRepeatTimingState(((int)(CGameInfo::GetEffectsSoundVolume() << 16) / 100) / 4);
 }
 
 // Values the in-race option menus started with (restored on cancel).
@@ -4213,12 +4213,12 @@ BYTE g_unk0x0052a850;
 // GLOBAL: CMR2 0x0052ad50
 int g_unk0x0052ad50;
 
-BYTE FUN_0041b370(void);
-BYTE *FUN_0041b390(void);
+BYTE StageUI_GetRaceEndEventCount(void);
+BYTE *StageUI_GetRaceResultTable(void);
 void FUN_0041c5a0(BYTE, int);
-void RallyData_FUN_00408990(BYTE index, BYTE *pValue);
+void RallyData_SetDriverByteSetting(BYTE index, BYTE *pValue);
 void RallyData_MarkTyresChanged(int index);
-int RallyData_FUN_00411880(void);
+int RallyData_IsHeadToHeadRaceMode(void);
 
 /* --------------------------------------------------------------------------
    Stage entry / exit transitions of the frontend cascades (0x401000..0x405470).
@@ -4226,16 +4226,16 @@ int RallyData_FUN_00411880(void);
 
 unsigned char Race_LoadSelectedStage(void);
 unsigned char Race_LoadStageGeometry(void);
-void FUN_0041b300(void);
-void FUN_00411120(void);
-void RallyData_FUN_004207f0(void);
+void StageUI_ClearRaceEndLatch(void);
+void RallyData_LoadNavigationSounds(void);
+void RallyData_RestoreAllCarRaceRecords(void);
 void FUN_00418ff0(void);
-void FUN_004188c0(void);
-void FUN_00416710(void);
-void FUN_0041e670(void);
+void Race_LoadCollisionSoundBanks(void);
+void Race_InitCoDriverSamples(void);
+void Race_ReleaseFrameResources(void);
 void FUN_0040fec0(int progress, char drawScene, BYTE alpha);
-void FUN_00410ea0(BYTE *, unsigned int);
-BYTE FUN_0040eef0(void);
+void RallyData_GrowEntryAndNotifyCompletion(BYTE *, unsigned int);
+BYTE RallyData_FreeChallengeSceneObjects(void);
 
 // GLOBAL: CMR2 0x005297f0
 int g_unk0x005297f0;
@@ -4246,7 +4246,7 @@ BYTE g_unk0x00536ac8;
 // entry) or runs the fade-in sequence of the next group, then forwards the
 // event to the stage-list object.
 // FUNCTION: CMR2 0x00401000
-void FUN_00401000(BYTE *param1, int param2)
+void GameInfo_EnterStageGroup(BYTE *param1, int param2)
 {
     int i;
 
@@ -4259,17 +4259,17 @@ void FUN_00401000(BYTE *param1, int param2)
                     i++;
                 } while (i < (int)*param1);
             }
-            CGame::FUN_004057e0(0);
-            FUN_0041e670();
-            FUN_0041b300();
+            CGame::SetFrontendResourceMode(0);
+            Race_ReleaseFrameResources();
+            StageUI_ClearRaceEndLatch();
             return;
         }
         FUN_0040fec0(0x46, 1, 0xff);
         FUN_00418ff0();
-        FUN_004188c0();
-        FUN_00416710();
-        FUN_00411120();
-        CGame::RegisterCallback((void *)FUN_0040eef0, 0);
+        Race_LoadCollisionSoundBanks();
+        Race_InitCoDriverSamples();
+        RallyData_LoadNavigationSounds();
+        CGame::RegisterCallback((void *)RallyData_FreeChallengeSceneObjects, 0);
         FUN_0040fec0(0x55, 1, 0xff);
     }
     CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
@@ -4278,12 +4278,12 @@ void FUN_00401000(BYTE *param1, int param2)
 // Leaves a stage group: tears the stage list down or runs the fade-out
 // sequence, then forwards the event to the stage-list object.
 // FUNCTION: CMR2 0x004010a0
-void FUN_004010a0(BYTE *param1, int param2)
+void GameInfo_LeaveStageGroup(BYTE *param1, int param2)
 {
     int i;
 
     if ((char)param2 == 0) {
-        RallyData_FUN_004207f0();
+        RallyData_RestoreAllCarRaceRecords();
         if ((BYTE)Race_LoadStageGeometry() == 0) {
             i = 0;
             if (*param1 > 0) {
@@ -4292,13 +4292,13 @@ void FUN_004010a0(BYTE *param1, int param2)
                     i++;
                 } while (i < (int)*param1);
             }
-            CGame::FUN_004057e0(0);
-            FUN_0041e670();
-            FUN_0041b300();
+            CGame::SetFrontendResourceMode(0);
+            Race_ReleaseFrameResources();
+            StageUI_ClearRaceEndLatch();
             return;
         }
         FUN_0040fec0(0x64, 1, 0xff);
-        if (CGameInfo::FUN_00405da0())
+        if (CGameInfo::IsConfiguredMultiplayer())
             CGraphics::SetClearColour(0, 0, 0, 0);
         else
             CGraphics::SetClearColour(0, 0x9c, 0xb4, 0xac);
@@ -4308,19 +4308,19 @@ void FUN_004010a0(BYTE *param1, int param2)
     CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
 }
 
-void FUN_0040ac40(BYTE);
-void FUN_00427640(BYTE);
-void FUN_00427650(void);
-void FUN_0041e210(void);
-void FUN_00424ed0(void);
-void FUN_00424c50(void);
+void NetPlayers_SendCarClass(BYTE);
+void NetRace_SetRaceControlFlag(BYTE);
+void NetRace_ResetType8And9PlayerIndices(void);
+void Race_SetFlag37F08(void);
+void NetRace_ResetStateAndTriangleTable(void);
+void StageTiming_RestoreDeviceStageResources(void);
 void ForceFeedback_ActivateIdleSlots(void);
 void View_SetCameraType(int, int, BYTE, int);
-BYTE FUN_0041b370(void);
-int RallyData_FUN_00408800(BYTE);
+BYTE StageUI_GetRaceEndEventCount(void);
+int RallyData_GetDriverCarSelection(BYTE);
 int RallyData_IsChampionshipFinalStage(void);
 void FUN_00406820(void);
-void RallyData_FUN_00408290(void);
+void RallyData_ClearDriverGroupRecords(void);
 int View_IsModeAvailable(BYTE, int);
 extern BYTE g_unk0x00537fd4;
 // GLOBAL: CMR2 0x0053811d
@@ -4331,34 +4331,34 @@ int g_unk0x005298f4;
 // Advances the in-race menu cascade one step: refreshes the per-player window
 // entries and moves to the next state when the race is over.
 // FUNCTION: CMR2 0x00401150
-void FUN_00401150(int param1, int param2)
+void InRaceMenu_AdvanceCascade(int param1, int param2)
 {
     int i;
 
-    if (CGameInfo::FUN_00405e00() != 0)
-        FUN_0040ac40(2);
-    FUN_00427640(0);
+    if (CGameInfo::GetGameModeOptionBit19() != 0)
+        NetPlayers_SendCarClass(2);
+    NetRace_SetRaceControlFlag(0);
     g_unk0x0053811d = 0;
-    FUN_00427650();
-    CSound::FUN_004a28c0();
+    NetRace_ResetType8And9PlayerIndices();
+    CSound::NoOpSoundDeviceCallback();
     g_unk0x00537fd4 = 0;
-    FUN_0041e210();
+    Race_SetFlag37F08();
     if ((char)param2 == 0) {
         if (g_unk0x005297f0 != 0) {
-            FUN_00424ed0();
-            FUN_00424c50();
+            NetRace_ResetStateAndTriangleTable();
+            StageTiming_RestoreDeviceStageResources();
             g_unk0x005298f4 = 1;
             g_unk0x005297f0 = 0;
-            if (**(char **)(FUN_0041b390() + 4) != '\r')
+            if (**(char **)(StageUI_GetRaceResultTable() + 4) != '\r')
                 ForceFeedback_ActivateIdleSlots();
         }
         i = 0;
         if ((BYTE)RallyDataState() > 0) {
             do {
-                if ((BYTE)CGameInfo::FUN_00406320() != 0 || (BYTE)RallyData_IsChampionshipFinalStage() != 0) {
+                if ((BYTE)CGameInfo::GetGameInfoSessionFlag() != 0 || (BYTE)RallyData_IsChampionshipFinalStage() != 0) {
                     View_SetCameraType(i, 7, i, 0);
-                } else if (View_IsModeAvailable(i, RallyData_FUN_00408800(FUN_0041b370() + i)) != 0) {
-                    View_SetCameraType(i, RallyData_FUN_00408800(FUN_0041b370() + i), i, 0);
+                } else if (View_IsModeAvailable(i, RallyData_GetDriverCarSelection(StageUI_GetRaceEndEventCount() + i)) != 0) {
+                    View_SetCameraType(i, RallyData_GetDriverCarSelection(StageUI_GetRaceEndEventCount() + i), i, 0);
                 } else {
                     View_SetCameraType(i, 4, i, 0);
                 }
@@ -4369,18 +4369,18 @@ void FUN_00401150(int param1, int param2)
         FUN_0041c5a0(**(BYTE **)(param1 + 4), 0);
     }
     if (g_unk0x005298f4 <= 0) {
-        if ((BYTE)CGameInfo::FUN_00406320() != 0) {
+        if ((BYTE)CGameInfo::GetGameInfoSessionFlag() != 0) {
             CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 6, 2);
             return;
         }
-        if (CGameInfo::FUN_00405d80() == 4) {
-            CGameInfo::FUN_0049ea90(1);
+        if (CGameInfo::GetConfiguredGameMode() == 4) {
+            CGameInfo::SetInputAndGamePaused(1);
             CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 5, 2);
             return;
         }
         if ((BYTE)RallyData_IsChampionshipFinalStage() != 0) {
             FUN_00406820();
-            RallyData_FUN_00408290();
+            RallyData_ClearDriverGroupRecords();
             CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 1, 2);
             return;
         }
@@ -4390,22 +4390,22 @@ void FUN_00401150(int param1, int param2)
 
 // Callback 0 of the sound options menu: loads the three volumes.
 // FUNCTION: CMR2 0x004012d0
-void FUN_004012d0(Menu *pMenu, int param)
+void InRaceMenu_EnterSoundOptions(Menu *pMenu, int param)
 {
-    g_unk0x00529ecc = CGameInfo::FUN_00405e40();
-    g_unk0x0052a488 = CGameInfo::FUN_00405e70();
-    g_unk0x0052ad50 = CGameInfo::FUN_00405ea0();
+    g_unk0x00529ecc = CGameInfo::GetMasterSoundVolume();
+    g_unk0x0052a488 = CGameInfo::GetEffectsSoundVolume();
+    g_unk0x0052ad50 = CGameInfo::GetCoDriverSoundVolume();
     pMenu->items[Menu_FindItem(pMenu, 0)].max = g_unk0x00529ecc / 10;
     pMenu->items[Menu_FindItem(pMenu, 1)].max = g_unk0x0052a488 / 10;
-    if (FUN_004174d0())
+    if (Race_IsFlag24Clear())
         pMenu->items[Menu_FindItem(pMenu, 2)].max = g_unk0x0052ad50 / 10;
 }
 
 // Callback 0 of the car setup menu: loads the four switches from the driver's
 // setting byte (resetting them to on).
-void FUN_00404b80(Menu *pMenu, int param);
-void FUN_00404c50(Menu *pMenu, char cancel);
-void FUN_00404d00(Menu *pMenu);
+void InRaceMenu_EnterCarSetup(Menu *pMenu, int param);
+void InRaceMenu_LeaveCarSetup(Menu *pMenu, char cancel);
+void InRaceMenu_EncodeCarSetup(Menu *pMenu);
 
 // Builds the car-setup menu used from the in-race network menu.
 // match 80%: below the 90% bar; kept as FUNCTION so reccmp measures it.
@@ -4415,7 +4415,7 @@ void FUN_00404000(void)
     int settingId;
 
     Menu_Init(&g_menu0x0052aa70, 0, 0, 0, &g_menu0x00529ed8, NULL, 1, 0, 1);
-    if ((BYTE)RallyData_GetFlag24() == 0 && (BYTE)RallyData_FUN_00407ea0() == 0)
+    if ((BYTE)RallyData_GetFlag24() == 0 && (BYTE)RallyData_GetSelectionFlag28() == 0)
         settingId = 0x64;
     else
         settingId = 0x30;
@@ -4423,36 +4423,36 @@ void FUN_00404000(void)
     Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x65, 2, 0, 0, 0, 1, 0);
     Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x66, 2, 0, 0, 0, 2, 0);
     Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x67, 2, 0, 0, 0, 3, 0);
-    if (FUN_004174d0()) {
-        if (RallyData_FUN_00411880() == 0)
+    if (Race_IsFlag24Clear()) {
+        if (RallyData_IsHeadToHeadRaceMode() == 0)
             settingId = 3;
         else
             settingId = 2;
         Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x68, (BYTE)settingId, 0, 0, 0, 4, 0);
     }
-void FUN_00404130(Menu *pMenu, int param);
+void InRaceMenu_ApplyDefaultCarSetup(Menu *pMenu, int param);
 
-    Menu_AddItemType4(&g_menu0x0052aa70, 0, 0x62, (int)FUN_00404130, 5);
+    Menu_AddItemType4(&g_menu0x0052aa70, 0, 0x62, (int)InRaceMenu_ApplyDefaultCarSetup, 5);
     Menu_AddItemType2(&g_menu0x0052aa70, 0, 0x3b, &g_menu0x00529ed8, 0, 6);
-    Menu_SetCallbacks(&g_menu0x0052aa70, (MenuCallback)FUN_00404b80,
-                      (MenuCallback)FUN_00404d00, (MenuCallback)FUN_004041e0,
-                      (MenuCallback)FUN_00404c50);
+    Menu_SetCallbacks(&g_menu0x0052aa70, (MenuCallback)InRaceMenu_EnterCarSetup,
+                      (MenuCallback)InRaceMenu_EncodeCarSetup, (MenuCallback)FUN_004041e0,
+                      (MenuCallback)InRaceMenu_LeaveCarSetup);
     Menu_ValidateCursor(&g_menu0x0052aa70, 0);
 }
 
 // FUNCTION: CMR2 0x00404130
-void FUN_00404130(Menu *pMenu, int param)
+void InRaceMenu_ApplyDefaultCarSetup(Menu *pMenu, int param)
 {
     g_unk0x005298f8 = (g_unk0x005298f8 & 0xfc) | 0x3c;
-    RallyData_FUN_00408990(FUN_0041b370() + g_unk0x0052af58[1], &g_unk0x005298f8);
+    RallyData_SetDriverByteSetting(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1], &g_unk0x005298f8);
     pMenu->items[0].max = (g_unk0x005298f8 >> 2) & 1;
     pMenu->items[1].max = (g_unk0x005298f8 >> 3) & 1;
     pMenu->items[2].max = (g_unk0x005298f8 >> 4) & 1;
     pMenu->items[3].max = (g_unk0x005298f8 >> 5) & 1;
-    if (RallyData_FUN_00411880() != 0) {
-        if (FUN_004174d0())
+    if (RallyData_IsHeadToHeadRaceMode() != 0) {
+        if (Race_IsFlag24Clear())
             pMenu->items[Menu_FindItem(pMenu, 4)].max = 1;
-    } else if (FUN_004174d0()) {
+    } else if (Race_IsFlag24Clear()) {
         pMenu->items[Menu_FindItem(pMenu, 4)].max = 2;
     }
 }
@@ -4460,14 +4460,14 @@ void FUN_00404130(Menu *pMenu, int param)
 // Callback of the car setup menu: encodes the selected switches and tyres.
 // match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00404d00
-void FUN_00404d00(Menu *pMenu)
+void InRaceMenu_EncodeCarSetup(Menu *pMenu)
 {
     g_unk0x005298f8 = (g_unk0x005298f8 & ~4) | ((pMenu->items[0].max & 1) << 2);
     g_unk0x005298f8 = (g_unk0x005298f8 & ~8) | ((pMenu->items[1].max & 1) << 3);
     g_unk0x005298f8 = (g_unk0x005298f8 & ~0x20) | ((pMenu->items[3].max & 1) << 5);
 
-    if (FUN_004174d0()) {
-        if (RallyData_FUN_00411880()) {
+    if (Race_IsFlag24Clear()) {
+        if (RallyData_IsHeadToHeadRaceMode()) {
             if (pMenu->items[Menu_FindItem(pMenu, 4)].max == 0)
                 g_unk0x005298f8 = (g_unk0x005298f8 & ~1) | 2;
             else
@@ -4477,7 +4477,7 @@ void FUN_00404d00(Menu *pMenu)
         }
     }
 
-    if (RallyData_FUN_00411880()) {
+    if (RallyData_IsHeadToHeadRaceMode()) {
         if (pMenu->items[Menu_FindItem(pMenu, 2)].max == 0)
             g_unk0x005298f8 &= ~0x10;
         else
@@ -4488,71 +4488,71 @@ void FUN_00404d00(Menu *pMenu)
         else
             g_unk0x005298f8 |= 0x10;
     }
-    RallyData_FUN_00408990(FUN_0041b370() + g_unk0x0052af58[1], &g_unk0x005298f8);
+    RallyData_SetDriverByteSetting(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1], &g_unk0x005298f8);
 }
 
 // Callback 1 of the car setup menu: stores the setting byte (or the other
 // one when cancelling) and applies the switches.
 // FUNCTION: CMR2 0x00404c50
-void FUN_00404c50(Menu *pMenu, char cancel)
+void InRaceMenu_LeaveCarSetup(Menu *pMenu, char cancel)
 {
     if (cancel != 0) {
-        RallyData_FUN_00408990(FUN_0041b370() + g_unk0x0052af58[1], &g_unk0x0052a850);
+        RallyData_SetDriverByteSetting(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1], &g_unk0x0052a850);
         return;
     }
-    RallyData_FUN_00408990(FUN_0041b370() + g_unk0x0052af58[1], &g_unk0x005298f8);
-    CGameInfo::FUN_00405f40((g_unk0x005298f8 >> 2) & 1);
-    CGameInfo::FUN_00405f20((g_unk0x005298f8 >> 3) & 1);
-    CGameInfo::FUN_00405f60((g_unk0x005298f8 >> 4) & 1);
-    CGameInfo::FUN_00405f80((g_unk0x005298f8 >> 5) & 1);
-    CGameInfo::FUN_00405f00(g_unk0x005298f8 & 3);
-    RallyData_MarkTyresChanged((FUN_0041b370() & 0xff) + g_unk0x0052af58[1]);
+    RallyData_SetDriverByteSetting(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1], &g_unk0x005298f8);
+    CGameInfo::SetSoundOptionBit26((g_unk0x005298f8 >> 2) & 1);
+    CGameInfo::SetSoundOptionBit27((g_unk0x005298f8 >> 3) & 1);
+    CGameInfo::SetSoundOptionBit28((g_unk0x005298f8 >> 4) & 1);
+    CGameInfo::SetSoundOptionBit29((g_unk0x005298f8 >> 5) & 1);
+    CGameInfo::SetSoundOptionBits24To25(g_unk0x005298f8 & 3);
+    RallyData_MarkTyresChanged((StageUI_GetRaceEndEventCount() & 0xff) + g_unk0x0052af58[1]);
 }
 
 // Callback 2 of the network options menu.
 // FUNCTION: CMR2 0x00403880
-void FUN_00403880(Menu *pMenu)
+void InRaceMenu_UpdateCameraOffsets(Menu *pMenu)
 {
-    FUN_00403200(pMenu);
+    InRaceMenu_ReadCameraOffsetSliders(pMenu);
 }
 
-void FUN_00427c10(void);
+void NetRace_InitializeRaceSoundVolumes(void);
 
 // Callback 1 of the sound options menu: applies the volumes (or restores the
 // ones the menu started with when cancelled).
 // match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00401420
-void FUN_00401420(Menu *pMenu, char cancel)
+void InRaceMenu_LeaveSoundOptions(Menu *pMenu, char cancel)
 {
     if (cancel != 0) {
-        CGameInfo::FUN_00405e10(g_unk0x00529ecc);
-        CGameInfo::FUN_00405e50(g_unk0x0052a488);
-        CGameInfo::FUN_00405e80(g_unk0x0052ad50);
+        CGameInfo::SetMasterSoundVolume(g_unk0x00529ecc);
+        CGameInfo::SetEffectsSoundVolume(g_unk0x0052a488);
+        CGameInfo::SetCoDriverSoundVolume(g_unk0x0052ad50);
     } else {
-        CGameInfo::FUN_00405e10(pMenu->items[Menu_FindItem(pMenu, 0)].max * 10);
-        CGameInfo::FUN_00405e50(pMenu->items[Menu_FindItem(pMenu, 1)].max * 10);
-        if (FUN_004174d0())
-            CGameInfo::FUN_00405e80(pMenu->items[Menu_FindItem(pMenu, 2)].max * 10);
+        CGameInfo::SetMasterSoundVolume(pMenu->items[Menu_FindItem(pMenu, 0)].max * 10);
+        CGameInfo::SetEffectsSoundVolume(pMenu->items[Menu_FindItem(pMenu, 1)].max * 10);
+        if (Race_IsFlag24Clear())
+            CGameInfo::SetCoDriverSoundVolume(pMenu->items[Menu_FindItem(pMenu, 2)].max * 10);
     }
-    CInput::FUN_0049ffc0((int)(CGameInfo::FUN_00405e70() << 16) / 100 / 4);
-    FUN_00427c10();
+    CInput::SetInputRepeatTimingState((int)(CGameInfo::GetEffectsSoundVolume() << 16) / 100 / 4);
+    NetRace_InitializeRaceSoundVolumes();
 }
 
-BYTE *RallyData_FUN_00408a00(BYTE index);
+BYTE *RallyData_GetDriverKnockoutOrTeamRecord(BYTE index);
 
 // Callback 0 of the car setup menu: loads the switches from the driver's
 // setting byte (keeping a copy to restore on cancel).
 // FUNCTION: CMR2 0x00404b80
-void FUN_00404b80(Menu *pMenu, int param)
+void InRaceMenu_EnterCarSetup(Menu *pMenu, int param)
 {
-    g_unk0x0052a850 = *RallyData_FUN_00408a00(FUN_0041b370() + g_unk0x0052af58[1]);
-    g_unk0x005298f8 = *RallyData_FUN_00408a00(FUN_0041b370() + g_unk0x0052af58[1]);
+    g_unk0x0052a850 = *RallyData_GetDriverKnockoutOrTeamRecord(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1]);
+    g_unk0x005298f8 = *RallyData_GetDriverKnockoutOrTeamRecord(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1]);
     pMenu->items[0].max = (g_unk0x005298f8 >> 2) & 1;
     pMenu->items[1].max = (g_unk0x005298f8 >> 3) & 1;
     pMenu->items[2].max = (g_unk0x005298f8 >> 4) & 1;
     pMenu->items[3].max = (g_unk0x005298f8 >> 5) & 1;
-    if (FUN_004174d0()) {
-        if (RallyData_FUN_00411880()) {
+    if (Race_IsFlag24Clear()) {
+        if (RallyData_IsHeadToHeadRaceMode()) {
             if ((g_unk0x005298f8 & 3) == 2) {
                 pMenu->items[Menu_FindItem(pMenu, 4)].max = 0;
                 return;
@@ -4572,58 +4572,58 @@ int g_unk0x00529914;
 // GLOBAL: CMR2 0x0052a48c
 short g_unk0x0052a48c;
 
-void FUN_00447d20(BYTE index, FixVector *pOffset);
-void FUN_00447e20(BYTE index, short value);
-void FUN_00447ec0(BYTE index, int value);
-void RallyData_FUN_00408bd0(int *pPos, short heading, int value, int index);
+void HudDash_SetCameraOffset(BYTE index, FixVector *pOffset);
+void HudDash_SetGaugeTarget(BYTE index, short value);
+void HudDash_SetPlayerGaugeValue(BYTE index, int value);
+void RallyData_SetDriverCameraOffsets(int *pPos, short heading, int value, int index);
 
 // Callback 1 of the camera options menu: applies the chosen offset (and
 // stores it for the driver), or restores the old one when cancelled.
 // FUNCTION: CMR2 0x004037c0
-void FUN_004037c0(Menu *pMenu, char cancel)
+void InRaceMenu_LeaveCameraOffsetOptions(Menu *pMenu, char cancel)
 {
     if (cancel != 0) {
-        FUN_00447d20(g_unk0x0052af58[1], &g_unk0x0052af60);
-        FUN_00447ec0(g_unk0x0052af58[1], g_unk0x00529914);
-        FUN_00447e20(g_unk0x0052af58[1], g_unk0x0052a48c);
+        HudDash_SetCameraOffset(g_unk0x0052af58[1], &g_unk0x0052af60);
+        HudDash_SetPlayerGaugeValue(g_unk0x0052af58[1], g_unk0x00529914);
+        HudDash_SetGaugeTarget(g_unk0x0052af58[1], g_unk0x0052a48c);
         return;
     }
-    FUN_00447ec0(g_unk0x0052af58[1], g_unk0x0052aa5c);
-    FUN_00447d20(g_unk0x0052af58[1], &g_unk0x0052aa50);
-    FUN_00447e20(g_unk0x0052af58[1], g_unk0x0052a86c);
-    CGameInfo::FUN_00405fa0((DWORD *)&g_unk0x0052aa50, g_unk0x0052a86c, g_unk0x0052aa5c);
-    int id = (FUN_0041b370() & 0xff) + g_unk0x0052af58[1];
+    HudDash_SetPlayerGaugeValue(g_unk0x0052af58[1], g_unk0x0052aa5c);
+    HudDash_SetCameraOffset(g_unk0x0052af58[1], &g_unk0x0052aa50);
+    HudDash_SetGaugeTarget(g_unk0x0052af58[1], g_unk0x0052a86c);
+    CGameInfo::SetDefaultCameraParameters((DWORD *)&g_unk0x0052aa50, g_unk0x0052a86c, g_unk0x0052aa5c);
+    int id = (StageUI_GetRaceEndEventCount() & 0xff) + g_unk0x0052af58[1];
 
-    RallyData_FUN_00408bd0((int *)&g_unk0x0052aa50, g_unk0x0052a86c, g_unk0x0052aa5c, id);
+    RallyData_SetDriverCameraOffsets((int *)&g_unk0x0052aa50, g_unk0x0052a86c, g_unk0x0052aa5c, id);
 }
 
 // FUNCTION: CMR2 0x00404ea0
-void FUN_00404ea0(BYTE param1)
+void InRaceMenu_Open(BYTE param1)
 {
     g_unk0x0052af58[0] = param1;
     CGameInfo::m_unk0x0052af40 = 1;
     g_unk0x0052ad54 = 0;
-    CGameInfo::FUN_0049ea90(1);
+    CGameInfo::SetInputAndGamePaused(1);
     g_unk0x0052af41 = 1;
     g_pMenu0x0052af44 = NULL;
     g_pMenu0x0052af48 = &g_menu0x0052ad60;
-    FUN_004a0ba0();
+    Menu_QueueDefaultAction();
 }
 
 // FUNCTION: CMR2 0x00404f10
-void FUN_00404f10(void)
+void InRaceMenu_ClearOpeningFlag(void)
 {
     g_unk0x0052af41 = 0;
 }
 
 // FUNCTION: CMR2 0x00404f20
-unsigned char CGameInfo::FUN_00404f20(void)
+unsigned char CGameInfo::IsInRaceMenuOpen(void)
 {
     return m_unk0x0052af40;
 }
 
 // FUNCTION: CMR2 0x00404f30
-BYTE FUN_00404f30(void)
+BYTE InRaceMenu_IsOpening(void)
 {
     return g_unk0x0052af41;
 }
@@ -4655,36 +4655,36 @@ extern BYTE g_unk0x00538100;
 extern int g_unk0x00537f30;
 extern int g_unk0x00516090;
 
-void FUN_0040af00(unsigned int time);
-void FUN_0040ac40(BYTE carClass);
-unsigned int FUN_00409cb0(int index);
-unsigned int FUN_0040a450(int index);
+void NetPlayers_UpdateBestRaceTime(unsigned int time);
+void NetPlayers_SendCarClass(BYTE carClass);
+unsigned int NetPlayers_IsPlayerPresent(int index);
+unsigned int NetPlayers_HasPlayerFinished(int index);
 void View_SnapCameras(BYTE index);
 void View_BlendCameraStates(BYTE index, int param);
 void View_SwitchCamera(BYTE index, int a, int b, BYTE c, int d);
 void ForceFeedback_StopSlotForces(void);
 int FUN_00448550(void);
-int FUN_004483c0(int index);
-void FUN_00427950(int time);
-void FUN_004284d0(unsigned int player, int check);
-void FUN_004285b0(unsigned int player, int t, int check);
+int StageTiming_GetValidStartTime(int index);
+void NetRace_SendStageAndOverallTimes(int time);
+void NetRace_UpdatePlayerFlashTimer(unsigned int player, int check);
+void NetRace_SetPlayerFlashIntensity(unsigned int player, int t, int check);
 short Car_GetOrderCount(void);
-int FUN_0041f270(void);
-int FUN_00422f50(BYTE index);
-BYTE FUN_00422fb0(BYTE index);
-int FUN_00447ea0(BYTE index);
-void FUN_00447cf0(FixVector *pOut, BYTE index);
-short FUN_00447e00(BYTE index);
-void FUN_00447d20(BYTE index, FixVector *pOffset);
-void FUN_00447e20(BYTE index, short value);
-void FUN_00447ec0(BYTE index, int value);
-int FUN_0041b380(void);
-BYTE FUN_0041b370(void);
-void FUN_00449090(BYTE index);
+int Race_ReadState37F60(void);
+int View_GetActiveCameraMode(BYTE index);
+BYTE View_GetActiveCameraFlags(BYTE index);
+int HudDash_GetPlayerGaugeValue(BYTE index);
+void HudDash_GetCameraUpVector(FixVector *pOut, BYTE index);
+short HudDash_GetGaugeTarget(BYTE index);
+void HudDash_SetCameraOffset(BYTE index, FixVector *pOffset);
+void HudDash_SetGaugeTarget(BYTE index, short value);
+void HudDash_SetPlayerGaugeValue(BYTE index, int value);
+int StageUI_GetRaceResultValue(void);
+BYTE StageUI_GetRaceEndEventCount(void);
+void GameMenu_FinishNetworkResultsQuitFade(BYTE index);
 typedef void (*FadeCallback)(BYTE index);
-void FUN_004283e0(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force);
+void NetRace_FadeOutPlayerScreen(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force);
 void View_SetShake(int view, int start);
-void RallyData_FUN_00408760(BYTE index, int value);
+void RallyData_SetDriverCarSelection(BYTE index, int value);
 
 // One frame of the in-race state machine: while the race menu is up it pushes
 // the camera settings and the driver names of the active player, then updates
@@ -4702,14 +4702,14 @@ void FUN_00404f40(Unk0049c2c0 *param1)
     if (g_pMenu0x0052af44 != &g_menu0x0052a870)
         goto updateMenus;
 
-    result = FUN_00422f50(g_unk0x0052af58[1]);
+    result = View_GetActiveCameraMode(g_unk0x0052af58[1]);
     if (result == 5 || result == 8)
         goto pushCamera;
 
-    View_SwitchCamera(g_unk0x0052af58[1], 5, 0xffff, FUN_00422fb0(g_unk0x0052af58[1]), 1);
-    switch (FUN_0041b380()) {
+    View_SwitchCamera(g_unk0x0052af58[1], 5, 0xffff, View_GetActiveCameraFlags(g_unk0x0052af58[1]), 1);
+    switch (StageUI_GetRaceResultValue()) {
     case 4:
-        first = (FUN_0041b370() & 0xff) + *(BYTE *)&g_unk0x0052af58[1];
+        first = (StageUI_GetRaceEndEventCount() & 0xff) + *(BYTE *)&g_unk0x0052af58[1];
         break;
     case 0:
     case 1:
@@ -4725,12 +4725,12 @@ void FUN_00404f40(Unk0049c2c0 *param1)
             RallyData_GetRoundDrivers((unsigned int *)&second, (unsigned int *)&first);
         break;
     }
-    RallyData_FUN_00408760(first, 5);
+    RallyData_SetDriverCarSelection(first, 5);
 
 pushCamera:
-    g_unk0x00529ed0 = FUN_00447ea0(g_unk0x0052af58[1]);
-    FUN_00447cf0(&g_unk0x00529cd8, g_unk0x0052af58[1]);
-    g_unk0x0052a2a0 = FUN_00447e00(g_unk0x0052af58[1]);
+    g_unk0x00529ed0 = HudDash_GetPlayerGaugeValue(g_unk0x0052af58[1]);
+    HudDash_GetCameraUpVector(&g_unk0x00529cd8, g_unk0x0052af58[1]);
+    g_unk0x0052a2a0 = HudDash_GetGaugeTarget(g_unk0x0052af58[1]);
     g_unk0x0052aa64 = g_unk0x0052aa5c - g_unk0x00529ed0;
     g_unk0x00529ec8 = g_unk0x0052aa54 - g_unk0x00529cdc;
     g_unk0x0052aa6c = g_unk0x0052a86c - g_unk0x0052a2a0;
@@ -4739,13 +4739,13 @@ pushCamera:
     g_unk0x0052a86c = g_unk0x0052a2a0 + FixMul(g_unk0x0052aa6c, 0x1999);
     g_unk0x0052aa54 = g_unk0x00529cdc + FixMul(g_unk0x00529ec8, 0x1999);
     g_unk0x0052aa58 = g_unk0x00529ce0 + FixMul(g_unk0x0052a0bc, 0x1999);
-    FUN_00447ec0(g_unk0x0052af58[1], g_unk0x0052aa5c);
-    FUN_00447d20(g_unk0x0052af58[1], &g_unk0x0052aa50);
-    FUN_00447e20(g_unk0x0052af58[1], g_unk0x0052a86c);
+    HudDash_SetPlayerGaugeValue(g_unk0x0052af58[1], g_unk0x0052aa5c);
+    HudDash_SetCameraOffset(g_unk0x0052af58[1], &g_unk0x0052aa50);
+    HudDash_SetGaugeTarget(g_unk0x0052af58[1], g_unk0x0052a86c);
 
     if (g_unk0x0052ad54 != 0) {
         View_SnapCameras(g_unk0x0052af58[1]);
-        result = FUN_0041f270();
+        result = Race_ReadState37F60();
         View_BlendCameraStates(g_unk0x0052af58[1], result);
         result = g_pMenu0x0052af44 == &g_menu0x0052a870 &&
                  g_pMenu0x0052af44->cursor == 2 ? 1 : 0;
@@ -4756,21 +4756,21 @@ updateMenus:
     i = 0;
     if (Car_GetOrderCount() > 0) {
         do {
-            FUN_004284d0(i, 1);
-            FUN_004285b0(i, FUN_0041f270(), 1);
+            NetRace_UpdatePlayerFlashTimer(i, 1);
+            NetRace_SetPlayerFlashIntensity(i, Race_ReadState37F60(), 1);
             i++;
         } while (i < Car_GetOrderCount());
     }
     g_pMenu0x0052af44 = g_pMenu0x0052af48;
-    CInput::FUN_0049eab0();
-    FUN_0040bad0();
-    pDev = CInput::FUN_0049ead0(g_unk0x0052af58[0]);
-    FUN_0040bd60(*(unsigned int *)&g_unk0x0052af58[0] & 0xff, pDev);
+    CInput::UpdateAllAvailableDevices();
+    Input_TranslatePedalsToMenuKeys();
+    pDev = CInput::GetAvailableDeviceRecord(g_unk0x0052af58[0]);
+    Input_MergeAssignedJoystickButtons(*(unsigned int *)&g_unk0x0052af58[0] & 0xff, pDev);
     if ((pDev->field_0x8 & (unsigned short)g_unk0x0052a0b8) != 0) {
         g_unk0x0052a0b8 = 0;
         if (g_pMenu0x0052af44 != NULL)
             Menu_CallCallback3(g_pMenu0x0052af44);
-        FUN_00404ef0();
+        InRaceMenu_Close();
     } else {
         if (g_pMenu0x0052af44 != NULL)
             Menu_SetFlags(g_pMenu0x0052af44, 1, 1, 1, 1);
@@ -4779,19 +4779,19 @@ updateMenus:
             g_pMenu0x0052af48 = (Menu *)result;
     }
 
-    if (CGameInfo::FUN_00405e00() == 0)
+    if (CGameInfo::GetGameModeOptionBit19() == 0)
         return;
     g_unk0x0053811e = 0;
     g_unk0x0053811f = 0;
-    if (FUN_00406770() > -1 && CGameInfo::FUN_00405d80() != 0xa && CGameInfo::FUN_00405d80() != 0xc) {
+    if (GameInfo_GetSessionField398C() > -1 && CGameInfo::GetConfiguredGameMode() != 0xa && CGameInfo::GetConfiguredGameMode() != 0xc) {
         if (g_unk0x0053811d != 0) {
             if ((unsigned int)(CMain::GetFrameDelta() - g_unk0x00537f30) >
-                (unsigned int)(FUN_00406770() * 100))
+                (unsigned int)(GameInfo_GetSessionField398C() * 100))
                 g_unk0x0053811e = 1;
         } else {
             i = 0;
             do {
-                if ((char)FUN_00409cb0(i) != 0 && (char)FUN_0040a450(i) != 0) {
+                if ((char)NetPlayers_IsPlayerPresent(i) != 0 && (char)NetPlayers_HasPlayerFinished(i) != 0) {
                     g_unk0x0053811d = 1;
                     if (g_unk0x00538120 == 0) {
                         g_unk0x00538120 = 1;
@@ -4802,19 +4802,19 @@ updateMenus:
             } while (i < 7);
         }
     }
-    if (CGameInfo::FUN_00405d80() == 0xa || CGameInfo::FUN_00405d80() == 0xc) {
-        CGameInfo::FUN_00405d80();
+    if (CGameInfo::GetConfiguredGameMode() == 0xa || CGameInfo::GetConfiguredGameMode() == 0xc) {
+        CGameInfo::GetConfiguredGameMode();
         i = CMain::GetFrameDelta();
-        result = FUN_0040af30();
+        result = NetPlayers_GetInputFrameDelta();
         if ((unsigned int)(i - result) >
-                (unsigned int)(FUN_00406710() * 6000) &&
-            FUN_004a15a0() != 0) {
+                (unsigned int)(GameInfo_GetSessionField397C() * 6000) &&
+            Network_GetSessionStateFlag() != 0) {
             if (g_unk0x00538100 != 0)
                 goto playerExit;
             g_unk0x0053811f = 1;
-            FUN_0040af40();
+            NetPlayers_SendType16Notification();
             g_unk0x00538100 = 1;
-            FUN_004283e0(0, FUN_00449090, 1, 0, g_unk0x00516090, 1);
+            NetRace_FadeOutPlayerScreen(0, GameMenu_FinishNetworkResultsQuitFade, 1, 0, g_unk0x00516090, 1);
         }
         if (g_unk0x00538100 != 0) {
 playerExit:
@@ -4823,39 +4823,39 @@ playerExit:
         }
     }
     if (g_unk0x0053811e != 0 || g_unk0x0053811f != 0) {
-        if (CGameInfo::FUN_00405e00() != 0)
-            FUN_0040ac40(3);
+        if (CGameInfo::GetGameModeOptionBit19() != 0)
+            NetPlayers_SendCarClass(3);
         g_unk0x00537f34[0] = CMain::GetFrameDelta();
     }
-    CGameInfo::FUN_00405d80();
+    CGameInfo::GetConfiguredGameMode();
     FUN_0041c5a0(*(BYTE *)param1->unk, 0);
     if (g_unk0x0053811e != 0) {
-        View_SwitchCamera(0, 7, 0xffff, FUN_00422fb0(0), 0);
+        View_SwitchCamera(0, 7, 0xffff, View_GetActiveCameraFlags(0), 0);
         if (g_unk0x0053811f == 0) {
             if (g_unk0x0053811e != 0)
                 result = FUN_00448550();
             else
-                result = FUN_004483c0(0);
-            FUN_00427950(result);
-            if (g_unk0x00538120 == 0 && FUN_00406770() > -1) {
+                result = StageTiming_GetValidStartTime(0);
+            NetRace_SendStageAndOverallTimes(result);
+            if (g_unk0x00538120 == 0 && GameInfo_GetSessionField398C() > -1) {
                 g_unk0x00538120 = 1;
                 g_unk0x00537f30 = CMain::GetFrameDelta();
             }
-            result = FUN_004483c0(0);
-            FUN_0040af00(result);
+            result = StageTiming_GetValidStartTime(0);
+            NetPlayers_UpdateBestRaceTime(result);
         }
         if (g_unk0x0053811e != 0) {
-            FUN_00404ef0();
+            InRaceMenu_Close();
             CGame::FUN_0049c1c0(param1, 0, 0, 2);
         }
     }
 }
 
-void FUN_00410ea0(BYTE *, unsigned int);
+void RallyData_GrowEntryAndNotifyCompletion(BYTE *, unsigned int);
 
 // Advances every entry of a menu screen one step.
 // FUNCTION: CMR2 0x00405470
-void FUN_00405470(BYTE *param1)
+void InRaceMenu_AdvanceScreenEntries(BYTE *param1)
 {
     BYTE i;
 
@@ -4864,46 +4864,46 @@ void FUN_00405470(BYTE *param1)
         do {
             // the original passes the byte counter as a full dword (the callee
             // keeps only its low byte)
-            FUN_00410ea0(param1, *(unsigned int *)&i);
+            RallyData_GrowEntryAndNotifyCompletion(param1, *(unsigned int *)&i);
             i++;
         } while (i < *param1);
     }
 }
 
 // FUNCTION: CMR2 0x004054a0
-void FUN_004054a0(void)
+void InRaceMenu_DrawActivePage(void)
 {
     Menu_CallCallback2(g_pMenu0x0052af44);
 }
 
 // FUNCTION: CMR2 0x004054b0
-int FUN_004054b0(unsigned int param1)
+int InRaceMenu_IsPlayerEditingCarSetup(unsigned int param1)
 {
-    if (CGameInfo::FUN_00404f20() && g_unk0x0052af58[1] == param1 && g_pMenu0x0052af44 == &g_menu0x0052aa70)
+    if (CGameInfo::IsInRaceMenuOpen() && g_unk0x0052af58[1] == param1 && g_pMenu0x0052af44 == &g_menu0x0052aa70)
         return 1;
     return 0;
 }
 
 // FUNCTION: CMR2 0x004055e0
-int FUN_004055e0(void)
+int InRaceMenu_GetUpArrowTexture(void)
 {
     return g_unk0x0052aa60;
 }
 
 // FUNCTION: CMR2 0x004055f0
-int FUN_004055f0(void)
+int InRaceMenu_GetDownArrowTexture(void)
 {
     return g_unk0x0052aa68;
 }
 
 // FUNCTION: CMR2 0x00405600
-int FUN_00405600(void)
+int InRaceMenu_GetRoundBoxTexture(void)
 {
     return g_unk0x0052af4c;
 }
 
 // FUNCTION: CMR2 0x00405610
-int FUN_00405610(void)
+int InRaceMenu_GetCurtainTexture(void)
 {
     return g_unk0x0052af50;
 }
@@ -4915,7 +4915,7 @@ char g_unk0x0082b1c0[0x100];
 // Draws the record's text; in mode 1 it truncates the string at the 16.16
 // fraction of its length and draws the remainder separately.
 // FUNCTION: CMR2 0x00501f80
-void FUN_00501f80(int index, int font1, int font2, char *text, short x, short y,
+void OptionMenu_DrawTransitionTextShortCoords(int index, int font1, int font2, char *text, short x, short y,
                   int *pColour1, int *pColour2, unsigned int flags)
 {
     Unk0x0082b2c0 *pRec;
@@ -4992,35 +4992,35 @@ int g_unk0x00516084 = 0x80fafafa;
 // GLOBAL: CMR2 0x0051608c
 int g_unk0x0051608c = 0xbfae8072;
 
-void FUN_00401590(Menu *pMenu, int param);
-void FUN_00401630(Menu *pMenu, int param);
-void FUN_00401780(Menu *pMenu, int param);
-void FUN_004017e0(Menu *pMenu, int param);
+void GameMenu_RequestStageRestart(Menu *pMenu, int param);
+void GameMenu_RequestNetworkRestart(Menu *pMenu, int param);
+void GameMenu_RequestNetworkQuit(Menu *pMenu, int param);
+void GameMenu_RequestNetworkLeave(Menu *pMenu, int param);
 void FUN_00401d20(Menu *pMenu);
-void FUN_004028d0(Menu *pMenu);
+void InRaceMenu_DrawPlayerClassRows(Menu *pMenu);
 void FUN_00402460(Menu *pMenu);
 // Scratch rectangle the in-race menu draws reuse (0x52ad58, right below the main
 // menu at 0x52ad60).
 // GLOBAL: CMR2 0x0052ad58
 short g_unk0x0052ad58[4];
 extern char g_classRowHeaderFormat[];
-void FUN_004ffa70(int unused, int unused2);
+void OptionMenu_ConsumeRefreshRequest(int unused, int unused2);
 void FUN_004ffab0(Menu *);
-void FUN_004ffed0(Menu *, MenuItem *);
-void FUN_004fffe0(Menu *, MenuItem *);
-void FUN_005000b0(int unused, int unused2);
-void FUN_00500100(int param1, int param2);
-void FUN_00500110(int unused, int unused2);
-void FUN_00500190(BYTE *pItem, int unused);
-void FUN_00500210(Menu *pMenu, char param);
-void FUN_00502240(void);
-void FUN_005022a0(void);
-void FUN_00502440(void);
-void FUN_005024a0(void);
-void FUN_0050a080(void);
-void FUN_0050a3c0(void);
-void FUN_0050eba0(unsigned int);
-void FUN_00502310(void);
+void OptionMenu_LoadGameItem(Menu *, MenuItem *);
+void OptionMenu_ApplyHighlightedValue(Menu *, MenuItem *);
+void OptionMenu_AdvanceSelectedOption(int unused, int unused2);
+void OptionMenu_ResetValueAnimation(int param1, int param2);
+void OptionMenu_RestartCountdown(int unused, int unused2);
+void OptionMenu_RestartEmptyItemRecords(BYTE *pItem, int unused);
+void OptionMenu_IncrementSharedValue(Menu *pMenu, char param);
+void OptionMenu_BuildStatusMenu(void);
+void OptionMenu_BuildAdvancedOptions(void);
+void OptionMenu_BuildControlSetup(void);
+void OptionMenu_BuildValueSliders(void);
+void OptionMenu_LoadPartTextures(void);
+void OptionPreview_UpdateAllSlots(void);
+void OptionMenu_DispatchRecordEditState(unsigned int);
+void OptionMenu_RebuildOptions(void);
 
 // Draws the header of the in-race menu bar: the car count above the bar and
 // the bar itself.
@@ -5033,7 +5033,7 @@ void FUN_00401b60(void)
     int count;
 
     x = (int)(g_pGraphics->resX * 0x1f) / 0x280;
-    count = (FUN_0041b370() & 0xff) + (*(int *)g_unk0x0052af58 & 0xff) + 1;
+    count = (StageUI_GetRaceEndEventCount() & 0xff) + (*(int *)g_unk0x0052af58 & 0xff) + 1;
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x98), count);
     Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 0x45) / 0x1e0,
                   &g_unk0x00516074, 0x11);
@@ -5053,7 +5053,7 @@ void FUN_00401b60(void)
 // Draws the list of an in-race menu (0x402c90) with the selected row in a
 // brighter colour; the third row is left blank.
 // FUNCTION: CMR2 0x00401870
-void FUN_00401870(Menu *pMenu)
+void InRaceMenu_DrawOptionList(Menu *pMenu)
 {
     MenuItem *pItem;
     short rect[4];
@@ -5256,7 +5256,7 @@ void FUN_00402460(Menu *pMenu)
 // Draws the player/class rows of the option menu: the class header (name plus
 // its percentage) and the sprite behind each row.
 // FUNCTION: CMR2 0x004028d0
-void FUN_004028d0(Menu *pMenu)
+void InRaceMenu_DrawPlayerClassRows(Menu *pMenu)
 {
     MenuItem *pItem;
     short rect[4];
@@ -5319,7 +5319,7 @@ void FUN_00402c90(int param)
     int index;
     short id;
 
-    FUN_00402c40();
+    InRaceMenu_BuildResumePage();
     g_unk0x0052a0b8 = 0;
     if ((BYTE)param != 0)
         value = (int)g_menu0x0052ad60.items[g_menu0x0052ad60.cursor].value;
@@ -5332,24 +5332,24 @@ void FUN_00402c90(int param)
         Menu_AddItemType2(&g_menu0x0052ad60, 0, 9, &g_menu0x00529918, 0, 0);
     Menu_AddItemType2(&g_menu0x0052ad60, 0, 0xb, &g_menu0x0052a670, 0, 1);
     Menu_AddItemType2(&g_menu0x0052ad60, 0, 0xd, &g_menu0x0052a490, 0, 2);
-    if (CGameInfo::FUN_00405e00() != 0) {
-        if ((FUN_004a15a0() != 0 && CGameInfo::FUN_00405d80() != 0xc) ||
-            (FUN_004a15a0() == 0 && CGameInfo::FUN_00405d80() == 0xa))
+    if (CGameInfo::GetGameModeOptionBit19() != 0) {
+        if ((Network_GetSessionStateFlag() != 0 && CGameInfo::GetConfiguredGameMode() != 0xc) ||
+            (Network_GetSessionStateFlag() == 0 && CGameInfo::GetConfiguredGameMode() == 0xa))
             Menu_AddItemType2(&g_menu0x0052ad60, 0, 0xf, &g_menu0x00529af8, 0, 3);
-        if (FUN_004a15a0() != 0)
+        if (Network_GetSessionStateFlag() != 0)
             Menu_AddItemType2(&g_menu0x0052ad60, 0, 0xf6, &g_menu0x0052a2a8, 0, 5);
     } else {
         Menu_AddItemType2(&g_menu0x0052ad60, 0, 0xf, &g_menu0x00529af8, 0, 3);
     }
     Menu_AddItemType2(&g_menu0x0052ad60, 0, 0x11, &g_menu0x0052a0c0, 0, 6);
-    Menu_AddItemType4(&g_menu0x0052ad60, 0, 0x13, (int)FUN_00401850, 7);
-    Menu_SetCallbacks(&g_menu0x0052ad60, (MenuCallback)FUN_00402bb0, (MenuCallback)FUN_00402bf0,
-                      (MenuCallback)FUN_00401870, NULL);
+    Menu_AddItemType4(&g_menu0x0052ad60, 0, 0x13, (int)InRaceMenu_ResumeWithSound, 7);
+    Menu_SetCallbacks(&g_menu0x0052ad60, (MenuCallback)InRaceMenu_RememberOptionCursor, (MenuCallback)InRaceMenu_SkipBlankOptionRow,
+                      (MenuCallback)InRaceMenu_DrawOptionList, NULL);
     if ((BYTE)param != 0)
         Menu_SelectItem(&g_menu0x0052ad60, value);
     else
         Menu_ValidateCursor(&g_menu0x0052ad60, 0);
-    switch (CGameInfo::FUN_00405d80()) {
+    switch (CGameInfo::GetConfiguredGameMode()) {
     case 0:
     case 1:
     case 8:
@@ -5385,99 +5385,99 @@ void FUN_00402c90(int param)
 
 // Builds the camera options submenu of the in-race menu.
 // FUNCTION: CMR2 0x00403090
-void FUN_00403090(void)
+void InRaceMenu_BuildCameraModeOptions(void)
 {
     Menu_Init(&g_menu0x0052a490, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
     Menu_AddItemType3(&g_menu0x0052a490, 0, 0x3c, 2, 0, 0, 0, 0, 0);;
-    Menu_AddItemType4(&g_menu0x0052a490, 0, 0x3b, (int)FUN_00402f70, -1);
-    Menu_SetCallbacks(&g_menu0x0052a490, (MenuCallback)CGame::FUN_00501680,
-                      (MenuCallback)FUN_00402f80, (MenuCallback)FUN_00402460, NULL);
+    Menu_AddItemType4(&g_menu0x0052a490, 0, 0x3b, (int)InRaceMenu_ReturnToPauseItem, -1);
+    Menu_SetCallbacks(&g_menu0x0052a490, (MenuCallback)CGame::NoOpSecondaryStateCallback,
+                      (MenuCallback)InRaceMenu_ReturnToPauseUpdate, (MenuCallback)FUN_00402460, NULL);
     Menu_ValidateCursor(&g_menu0x0052a490, 0);
 }
 
 // Builds the sound options submenu (the three volume sliders).
 // FUNCTION: CMR2 0x004032a0
-void FUN_004032a0(void)
+void InRaceMenu_BuildSoundOptions(void)
 {
     Menu_Init(&g_menu0x0052a670, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
     Menu_AddItemType3(&g_menu0x0052a670, 0, 0x19, 0xb, 10, 0, 0, 0, 0);;
     Menu_AddItemType3(&g_menu0x0052a670, 0, 0x1a, 0xb, 10, 0, 0, 0, 1);;
-    if (FUN_004174d0())
+    if (Race_IsFlag24Clear())
         Menu_AddItemType3(&g_menu0x0052a670, 0, 0x1b, 0xb, 10, 0, 0, 0, 2);;
     Menu_AddItemType2(&g_menu0x0052a670, 0, 0x3b, &g_menu0x0052ad60, 0, 4);
-    Menu_SetCallbacks(&g_menu0x0052a670, (MenuCallback)FUN_004012d0, (MenuCallback)FUN_00401380,
-                      (MenuCallback)FUN_004028d0, (MenuCallback)FUN_00401420);
+    Menu_SetCallbacks(&g_menu0x0052a670, (MenuCallback)InRaceMenu_EnterSoundOptions, (MenuCallback)InRaceMenu_ApplySoundVolumes,
+                      (MenuCallback)InRaceMenu_DrawPlayerClassRows, (MenuCallback)InRaceMenu_LeaveSoundOptions);
     Menu_ValidateCursor(&g_menu0x0052a670, 0);
 }
 
 // Builds the in-race pause menu.
 // FUNCTION: CMR2 0x00403370
-void FUN_00403370(void)
+void InRaceMenu_BuildPausePage(void)
 {
     Menu_Init(&g_menu0x00529af8, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
-    Menu_AddItemType4(&g_menu0x00529af8, 0, 0xf, (int)FUN_00401590, 3);
-    if (CGameInfo::FUN_00405d80() == 2 || CGameInfo::FUN_00405d80() == 3 ||
-        CGameInfo::FUN_00405d80() == 0xa || CGameInfo::FUN_00405d80() == 9)
-        Menu_AddItemType4(&g_menu0x00529af8, 0, 0x8b, (int)FUN_00401630, 4);
+    Menu_AddItemType4(&g_menu0x00529af8, 0, 0xf, (int)GameMenu_RequestStageRestart, 3);
+    if (CGameInfo::GetConfiguredGameMode() == 2 || CGameInfo::GetConfiguredGameMode() == 3 ||
+        CGameInfo::GetConfiguredGameMode() == 0xa || CGameInfo::GetConfiguredGameMode() == 9)
+        Menu_AddItemType4(&g_menu0x00529af8, 0, 0x8b, (int)GameMenu_RequestNetworkRestart, 4);
     Menu_AddItemType1(&g_menu0x00529af8, 0, 0xa6, 0, -1);
-    Menu_SetCallbacks(&g_menu0x00529af8, (MenuCallback)FUN_00403360, NULL, (MenuCallback)FUN_00401d20,
+    Menu_SetCallbacks(&g_menu0x00529af8, (MenuCallback)InRaceMenu_SelectLastItem, NULL, (MenuCallback)FUN_00401d20,
                       NULL);
     Menu_ValidateCursor(&g_menu0x00529af8, 0);
 }
 
 // Builds the "quit" submenu of the pause menu.
 // FUNCTION: CMR2 0x00403420
-void FUN_00403420(void)
+void InRaceMenu_BuildQuitPage(void)
 {
     Menu_Init(&g_menu0x0052a2a8, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
-    Menu_AddItemType4(&g_menu0x0052a2a8, 0, 0xf6, (int)FUN_004017e0, 3);
+    Menu_AddItemType4(&g_menu0x0052a2a8, 0, 0xf6, (int)GameMenu_RequestNetworkLeave, 3);
     Menu_AddItemType1(&g_menu0x0052a2a8, 0, 0xa6, 0, -1);
-    Menu_SetCallbacks(&g_menu0x0052a2a8, (MenuCallback)FUN_00403360, NULL, (MenuCallback)FUN_00401d20,
+    Menu_SetCallbacks(&g_menu0x0052a2a8, (MenuCallback)InRaceMenu_SelectLastItem, NULL, (MenuCallback)FUN_00401d20,
                       NULL);
     Menu_ValidateCursor(&g_menu0x0052a2a8, 0);
 }
 
 // Builds the "leave" submenu of the pause menu.
 // FUNCTION: CMR2 0x00403490
-void FUN_00403490(void)
+void InRaceMenu_BuildLeavePage(void)
 {
     Menu_Init(&g_menu0x0052a0c0, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
-    Menu_AddItemType4(&g_menu0x0052a0c0, 0, 0xa8, (int)FUN_00401780, 3);
+    Menu_AddItemType4(&g_menu0x0052a0c0, 0, 0xa8, (int)GameMenu_RequestNetworkQuit, 3);
     Menu_AddItemType1(&g_menu0x0052a0c0, 0, 0xaa, 0, -1);
-    Menu_SetCallbacks(&g_menu0x0052a0c0, (MenuCallback)FUN_00403360, NULL, (MenuCallback)FUN_00401d20,
+    Menu_SetCallbacks(&g_menu0x0052a0c0, (MenuCallback)InRaceMenu_SelectLastItem, NULL, (MenuCallback)FUN_00401d20,
                       NULL);
     Menu_ValidateCursor(&g_menu0x0052a0c0, 0);
 }
 
-void FUN_00403550(void);
+void InRaceMenu_BuildPlayerOptions(void);
 
 // Resets the pause-menu state and rebuilds all of its menus.
 // FUNCTION: CMR2 0x00403500
-void FUN_00403500(void)
+void InRaceMenu_ResetAndBuildPages(void)
 {
     CGameInfo::m_unk0x0052af40 = 0;
     g_unk0x0052af58[0] = 0;
     g_unk0x0052af58[1] = 0;
-    FUN_00403370();
-    FUN_00403420();
-    FUN_00403490();
+    InRaceMenu_BuildPausePage();
+    InRaceMenu_BuildQuitPage();
+    InRaceMenu_BuildLeavePage();
     FUN_00402c90(0);
-    FUN_00402f90();
-    FUN_00403550();
-    FUN_004035e0();
+    InRaceMenu_BuildNetworkOptions();
+    InRaceMenu_BuildPlayerOptions();
+    InRaceMenu_BuildCameraOffsetOptions();
     FUN_00404000();
-    FUN_004032a0();
-    FUN_00403090();
+    InRaceMenu_BuildSoundOptions();
+    InRaceMenu_BuildCameraModeOptions();
 }
 
 // Builds the options submenu of the pause menu.
 // FUNCTION: CMR2 0x00403550
-void FUN_00403550(void)
+void InRaceMenu_BuildPlayerOptions(void)
 {
     Menu_Init(&g_menu0x00529918, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x00529918, 0, 0x58, &g_menu0x00529ed8, (int)FUN_004035d0, 0);
-    Menu_AddItemType2(&g_menu0x00529918, 0, 0x5a, &g_menu0x00529ed8, (int)FUN_004035d0, 1);
-    Menu_SetCallbacks(&g_menu0x00529918, NULL, NULL, (MenuCallback)FUN_00401870, NULL);
+    Menu_AddItemType2(&g_menu0x00529918, 0, 0x58, &g_menu0x00529ed8, (int)InRaceMenu_SelectPlayer, 0);
+    Menu_AddItemType2(&g_menu0x00529918, 0, 0x5a, &g_menu0x00529ed8, (int)InRaceMenu_SelectPlayer, 1);
+    Menu_SetCallbacks(&g_menu0x00529918, NULL, NULL, (MenuCallback)InRaceMenu_DrawOptionList, NULL);
     Menu_ValidateCursor(&g_menu0x00529918, 0);
 }
 
@@ -5486,74 +5486,74 @@ void FUN_00403550(void)
 char g_strNeedReinitWeather[] = "Need to re-initialise weather, damage and car setup\n";
 
 void FUN_00406820(void);
-BYTE RallyData_FUN_00406920(void);
-void RallyData_FUN_004068d0(char param1);
-void RallyData_FUN_00408290(void);
+BYTE RallyData_GetSelectionStateByte(void);
+void RallyData_SetSelectionStateByte(char param1);
+void RallyData_ClearDriverGroupRecords(void);
 void FUN_0040dc30(void);
 
 // Re-initialises the weather/damage/car setup when the country or stage index
 // changed, unless the race is already running.
 // FUNCTION: CMR2 0x00500c00
-void FUN_00500c00(void)
+void OptionMenu_RefreshStageSetup(void)
 {
     short b;
     short c;
 
     b = (BYTE)RallyDataCountryIndex();
-    c = (char)RallyData_FUN_00406920();
+    c = (char)RallyData_GetSelectionStateByte();
     if (b != c) {
         puts(g_strNeedReinitWeather);
-        if (CGameInfo::FUN_00405d80() != 2 && CGameInfo::FUN_00405d80() != 8 &&
-            CGameInfo::FUN_00405d80() != 9 && CGameInfo::FUN_00405d80() != 0xa &&
-            CGameInfo::FUN_00405d80() != 0xb && CGameInfo::FUN_00405d80() != 0xc)
+        if (CGameInfo::GetConfiguredGameMode() != 2 && CGameInfo::GetConfiguredGameMode() != 8 &&
+            CGameInfo::GetConfiguredGameMode() != 9 && CGameInfo::GetConfiguredGameMode() != 0xa &&
+            CGameInfo::GetConfiguredGameMode() != 0xb && CGameInfo::GetConfiguredGameMode() != 0xc)
             FUN_0040dc30();
         FUN_00406820();
-        RallyData_FUN_00408290();
-        RallyData_FUN_004068d0((char)b);
+        RallyData_ClearDriverGroupRecords();
+        RallyData_SetSelectionStateByte((char)b);
     }
 }
 
 // Rebuilds the options menu (record list plus the owner's help text).
 // FUNCTION: CMR2 0x00502310
-void FUN_00502310(void)
+void OptionMenu_RebuildOptions(void)
 {
     Menu_Init((Menu *)g_unk0x0082b668, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 0);
-    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x48, (BYTE)CGameInfo::FUN_00501230(), 0, 0, 0,
-                      (int)FUN_00500100, 0);;
-    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x47, 7, 0, 1, 0, (int)FUN_005000b0, 1);;
-    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x46, 0xb, 0, 1, 0, (int)FUN_004fffe0, 2);;
-    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x3c, 1, 0, 0, 0, (int)FUN_00500110, 3);;
-    if (CGameInfo::FUN_00405d80() == 0)
-        Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0xd3, 2, 0, 0, 0, (int)FUN_004ffed0, 4);;
-    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x88, 2, 1, 1, 0, (int)FUN_00500190, 5);;
-    Menu_SetCallbacks((Menu *)g_unk0x0082b668, (MenuCallback)FUN_004ffa70, (MenuCallback)FUN_004ffab0,
-                      (MenuCallback)FUN_0050eba0, (MenuCallback)FUN_00500210);
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x48, (BYTE)CGameInfo::GetPreviewLayoutMode(), 0, 0, 0,
+                      (int)OptionMenu_ResetValueAnimation, 0);;
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x47, 7, 0, 1, 0, (int)OptionMenu_AdvanceSelectedOption, 1);;
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x46, 0xb, 0, 1, 0, (int)OptionMenu_ApplyHighlightedValue, 2);;
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x3c, 1, 0, 0, 0, (int)OptionMenu_RestartCountdown, 3);;
+    if (CGameInfo::GetConfiguredGameMode() == 0)
+        Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0xd3, 2, 0, 0, 0, (int)OptionMenu_LoadGameItem, 4);;
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x88, 2, 1, 1, 0, (int)OptionMenu_RestartEmptyItemRecords, 5);;
+    Menu_SetCallbacks((Menu *)g_unk0x0082b668, (MenuCallback)OptionMenu_ConsumeRefreshRequest, (MenuCallback)FUN_004ffab0,
+                      (MenuCallback)OptionMenu_DispatchRecordEditState, (MenuCallback)OptionMenu_IncrementSharedValue);
     Menu_ValidateCursor((Menu *)g_unk0x0082b668, 0);
-    FUN_004ff4e0();
-    FUN_0050a080();
-    FUN_0050a3c0();
+    OptionMenu_ResetRecords();
+    OptionMenu_LoadPartTextures();
+    OptionPreview_UpdateAllSlots();
     Menu_SetFlags((Menu *)g_unk0x0082b668, 0, 0, 0, 0);
 }
 
 // Builds the in-race option menus and switches the active menu to the first one.
 // FUNCTION: CMR2 0x0050f180
-void FUN_0050f180(void)
+void OptionMenu_BuildAndActivatePages(void)
 {
-    FUN_004a0ba0();
-    FUN_00502310();
-    FUN_005024a0();
-    FUN_00502440();
-    FUN_00502240();
-    FUN_005022a0();
+    Menu_QueueDefaultAction();
+    OptionMenu_RebuildOptions();
+    OptionMenu_BuildValueSliders();
+    OptionMenu_BuildControlSetup();
+    OptionMenu_BuildStatusMenu();
+    OptionMenu_BuildAdvancedOptions();
     g_pMenu0x00831778 = NULL;
-    g_pMenu0x0083177c = (Menu *)FUN_00502500();
+    g_pMenu0x0083177c = (Menu *)OptionMenu_GetControlSetupMenu();
 }
 
 
 // FUNCTION: CMR2 0x00404ef0
-void FUN_00404ef0(void)
+void InRaceMenu_Close(void)
 {
-    CGameInfo::FUN_0049ea90(0);
+    CGameInfo::SetInputAndGamePaused(0);
     View_SetShake(g_unk0x0052af58[1], 0);
     CGameInfo::m_unk0x0052af40 = 0;
 }
@@ -5561,7 +5561,7 @@ void FUN_00404ef0(void)
 // Callback 0 of the camera options menu: turns the current values into the
 // four slider positions.
 // FUNCTION: CMR2 0x00403110
-void FUN_00403110(Menu *pMenu)
+void InRaceMenu_FillCameraOffsetSliders(Menu *pMenu)
 {
     int distance = FixDiv((pMenu->items[2].min - 1) * (g_unk0x0052aa5c - 0x80000), 0x80000);
     int angle = FixDiv((pMenu->items[3].min - 1) * g_unk0x0052a86c, 0x11c);
@@ -5585,12 +5585,12 @@ char g_strAr640ATga[] = "%s\\game\\menus\\Ar_640A.tga";
 #include "Texture.h"
 #include "StageTiming.h"
 
-void FUN_00404130(Menu *pMenu, int param);
+void InRaceMenu_ApplyDefaultCarSetup(Menu *pMenu, int param);
 
 // Loads the in-race menu textures (arrows, curtain and, in championships,
 // the round box).
 // FUNCTION: CMR2 0x004054f0
-void FUN_004054f0(void)
+void InRaceMenu_LoadTextures(void)
 {
     bool loaded;
 
@@ -5600,7 +5600,7 @@ void FUN_004054f0(void)
     sprintf(CFrontend::m_stringDest, g_strAr640DTga, CInstallInfo::GetGameCDPath());
     g_unk0x0052aa68 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), CFrontend::m_stringDest,
                                                      &loaded, 0, 0, 0);
-    if (CGameInfo::FUN_00405d80() == 4) {
+    if (CGameInfo::GetConfiguredGameMode() == 4) {
         sprintf(CFrontend::m_stringDest, g_strRoCxTga, CInstallInfo::GetGameCDPath());
         g_unk0x0052af4c = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
                                                          CFrontend::m_stringDest, &loaded, 0, 0, 0);
@@ -5616,54 +5616,54 @@ int g_unk0x00529900[5];
 // GLOBAL: CMR2 0x0052a858
 int g_unk0x0052a858[5];
 
-void FUN_00447cf0(FixVector *pOut, BYTE index);
-int FUN_00447ea0(BYTE index);
-short FUN_00447e00(BYTE index);
-BYTE *RallyData_FUN_00408930(BYTE index);
+void HudDash_GetCameraUpVector(FixVector *pOut, BYTE index);
+int HudDash_GetPlayerGaugeValue(BYTE index);
+short HudDash_GetGaugeTarget(BYTE index);
+BYTE *RallyData_GetDriverTyreChoiceRecord(BYTE index);
 
 // Callback 0 of the camera options menu: remembers the current camera and
 // shows it on the sliders.
 // FUNCTION: CMR2 0x00403700
-void FUN_00403700(Menu *pMenu, char unused)
+void InRaceMenu_EnterCameraOffsetOptions(Menu *pMenu, char unused)
 {
     BYTE index;
 
-    memcpy(g_unk0x00529900, RallyData_FUN_00408930(FUN_0041b370() + g_unk0x0052af58[1]), sizeof(g_unk0x00529900));
+    memcpy(g_unk0x00529900, RallyData_GetDriverTyreChoiceRecord(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1]), sizeof(g_unk0x00529900));
     index = g_unk0x0052af58[1];
     memcpy(g_unk0x0052a858, g_unk0x00529900, sizeof(g_unk0x0052a858));
-    FUN_00447cf0(&g_unk0x0052af60, index);
-    g_unk0x00529914 = FUN_00447ea0(g_unk0x0052af58[1]);
-    g_unk0x0052a48c = FUN_00447e00(g_unk0x0052af58[1]);
+    HudDash_GetCameraUpVector(&g_unk0x0052af60, index);
+    g_unk0x00529914 = HudDash_GetPlayerGaugeValue(g_unk0x0052af58[1]);
+    g_unk0x0052a48c = HudDash_GetGaugeTarget(g_unk0x0052af58[1]);
     g_unk0x0052aa50.x = g_unk0x0052af60.x;
     g_unk0x0052aa54 = g_unk0x0052af60.y;
     g_unk0x0052aa58 = g_unk0x0052af60.z;
     g_unk0x0052aa5c = g_unk0x00529914;
     g_unk0x0052a86c = g_unk0x0052a48c;
-    FUN_00403110(pMenu);
+    InRaceMenu_FillCameraOffsetSliders(pMenu);
     g_unk0x0052ad54 = 1;
 }
 
 // Item callback of the camera menu "default" item.
 // FUNCTION: CMR2 0x004036c0
-void FUN_004036c0(Menu *pMenu, char unused)
+void InRaceMenu_ResetCameraDefaults(Menu *pMenu, char unused)
 {
     g_unk0x0052aa5c = 0xe0000;
     g_unk0x0052a86c = 0x2d;
     g_unk0x0052aa54 = 0x18000;
     g_unk0x0052aa58 = 0x68000;
-    FUN_00403110(pMenu);
+    InRaceMenu_FillCameraOffsetSliders(pMenu);
 }
 
 // ===== Agent3 batch 1: GameInfo option records (>= 0x4f0000) =====
 
 struct Unk0x0052ebc0;
-extern struct Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
+extern struct Unk0x0052ebc0 *RallyData_GetDriverGroupRecord(int index);
 
 // Draws the four one pixel edges of the option record's box (x, y, w, h);
 // the vertical edges start one pixel inside the horizontal ones.
 // match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0050cb30
-void FUN_0050cb30(short *pRect, BYTE *pColour)
+void OptionMenu_DrawBoxEdges(short *pRect, BYTE *pColour)
 {
     short edge[4];
 
@@ -5686,7 +5686,7 @@ void FUN_0050cb30(short *pRect, BYTE *pColour)
 // Returns the byte at column type of the 7-byte option record index,
 // sign extended; 0 for an unknown column.
 // FUNCTION: CMR2 0x00502c60
-int FUN_00502c60(int index, int type)
+int OptionMenu_GetRawWorkingValue(int index, int type)
 {
     switch (type) {
     case 0: return g_unk0x0082bf04[index * 7];
@@ -5704,7 +5704,7 @@ int FUN_00502c60(int index, int type)
 // out (mode 0) both bar sizes are cleared; in mode 1 the current fraction is
 // scaled by field_0x0 when direction is set, otherwise the remaining distance.
 // FUNCTION: CMR2 0x00501d50
-void FUN_00501d50(int index, short *pBar, int direction, int unused)
+void OptionMenu_EaseRecordBar(int index, short *pBar, int direction, int unused)
 {
     Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
 
@@ -5725,7 +5725,7 @@ void FUN_00501d50(int index, short *pBar, int direction, int unused)
 // Returns the byte at column type of the 7-byte option record index; the
 // signed columns are divided by 10.
 // FUNCTION: CMR2 0x005028a0
-BYTE FUN_005028a0(int index, int type)
+BYTE OptionMenu_GetScaledWorkingValue(int index, int type)
 {
     switch (type) {
     case 0: return (BYTE)g_unk0x0082bee8[index][0];
@@ -5742,20 +5742,20 @@ BYTE FUN_005028a0(int index, int type)
 // Index of the first option slot that is not a plain list entry, or 5 when
 // the slot at index 4 holds one; 0 when there is none.
 // FUNCTION: CMR2 0x004ff550
-int FUN_004ff550(void)
+int OptionMenu_FindFirstDetailedSlot(void)
 {
     int i;
     int found;
 
     found = 0;
-    for (i = 0; i < (char)FUN_00502500()[6]; i++) {
+    for (i = 0; i < (char)OptionMenu_GetControlSetupMenu()[6]; i++) {
         if (g_unk0x0082a90c[i] != 3) {
             found = 1;
             break;
         }
     }
     if (found) {
-        if (CGameInfo::FUN_00405d80() != 0) {
+        if (CGameInfo::GetConfiguredGameMode() != 0) {
             if (i == 4)
                 i = 5;
         }
@@ -5769,7 +5769,7 @@ int FUN_004ff550(void)
 // the remainder with the second one, at that width.
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005020a0
-void FUN_005020a0(int index, int font1, int font2, char *text, int x, int y,
+void OptionMenu_DrawTransitionText(int index, int font1, int font2, char *text, int x, int y,
                   int *pColour1, int *pColour2, unsigned int flags)
 {
     Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
@@ -5804,7 +5804,7 @@ void FUN_005020a0(int index, int font1, int font2, char *text, int x, int y,
 // type, letting a byte that follows it win when it is larger, and a later
 // byte win when the value is still smaller.
 // FUNCTION: CMR2 0x00502df0
-unsigned int FUN_00502df0(int index, int type, int dynamic)
+unsigned int OptionMenu_GetRecordPercentage(int index, int type, int dynamic)
 {
     BYTE *p;
     int value;
@@ -5812,7 +5812,7 @@ unsigned int FUN_00502df0(int index, int type, int dynamic)
 
     value = 0;
     if (dynamic != 0)
-        p = (BYTE *)RallyData_FUN_00407610(index);
+        p = (BYTE *)RallyData_GetDriverGroupRecord(index);
     else
         p = g_unk0x0082c070 + index * 0x148;
     switch (type) {
@@ -5887,7 +5887,7 @@ unsigned int FUN_00502df0(int index, int type, int dynamic)
 // Scales both bar sizes of the option record by field_0x0 while it fades in
 // (mode 1), or clears them when it is fully out (mode 0).
 // FUNCTION: CMR2 0x00501f00
-void FUN_00501f00(int index, short *pBar)
+void OptionMenu_ScaleRecordBar(int index, short *pBar)
 {
     Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
 
@@ -5904,7 +5904,7 @@ void FUN_00501f00(int index, short *pBar)
 
 // Address of the byte set by the option menu (0x82b1b8).
 // FUNCTION: CMR2 0x00501ab0
-BYTE *FUN_00501ab0(void)
+BYTE *OptionMenu_GetStateByteAddress(void)
 {
     return g_unk0x0082b1b8;
 }
@@ -5912,7 +5912,7 @@ BYTE *FUN_00501ab0(void)
 // Advances the option menu's overlay pulse: a sine running over a minute is
 // mapped to a grey level and stored in the fade colour bytes.
 // FUNCTION: CMR2 0x00501ac0
-void FUN_00501ac0(void)
+void OptionMenu_UpdateOverlayPulse(void)
 {
     int value;
     BYTE shade;
@@ -5937,7 +5937,7 @@ void FUN_00501ac0(void)
 // passed their duration switch to mode 2 at full scale, the rest receive the
 // proportion of the elapsed time squared in mode 1 or square-rooted in mode 2.
 // FUNCTION: CMR2 0x00501b90
-void FUN_00501b90(void)
+void OptionMenu_UpdateRecordTransitions(void)
 {
     int i;
 
@@ -5965,21 +5965,21 @@ void FUN_00501b90(void)
             }
         }
     }
-    FUN_00501ac0();
+    OptionMenu_UpdateOverlayPulse();
 }
 
 // True when the option slot is enabled: mode 2/4 are checked against their
 // selectors, everything else is accepted.
 // FUNCTION: CMR2 0x00501280
-int FUN_00501280(int mode, int index)
+int OptionMenu_IsSlotEnabled(int mode, int index)
 {
     int result = 1;
 
     if (mode == 2) {
-        if (CFrontend::FUN_0040ee80(index) == 0)
+        if (CFrontend::GetArchiveSecondaryFlagEntry(index) == 0)
             result = 0;
     } else if (mode == 4) {
-        if (CFrontend::FUN_0040ee70(index) == 0)
+        if (CFrontend::GetArchivePrimaryFlagEntry(index) == 0)
             result = 0;
     }
     return result;
@@ -5987,11 +5987,11 @@ int FUN_00501280(int mode, int index)
 
 // Whether the option slot has been raised above its base value.
 // FUNCTION: CMR2 0x00502630
-int FUN_00502630(int index, int type)
+int OptionMenu_IsSlotValueAboveBase(int index, int type)
 {
     int value;
 
-    value = FUN_005011f0(index);
+    value = OptionMenu_GetSlotSelector(index);
     if (g_unk0x00527098[type] <= value)
         return 1;
     return g_unk0x0082bf20[index][type] != 0;
@@ -5999,7 +5999,7 @@ int FUN_00502630(int index, int type)
 
 // Whether the option slot value equals its default, per column.
 // FUNCTION: CMR2 0x00502b10
-BYTE FUN_00502b10(int index, int type)
+BYTE OptionMenu_IsValueDefault(int index, int type)
 {
     switch (type) {
     case 0: return g_unk0x0082bf04[index * 7] == (char)g_unk0x0082bee8[index][0];
@@ -6015,19 +6015,19 @@ BYTE FUN_00502b10(int index, int type)
 
 // Whether the option slot value has risen above its base value.
 // FUNCTION: CMR2 0x00502fc0
-int FUN_00502fc0(int index, int type)
+int OptionMenu_IsRecordPercentageAboveBase(int index, int type)
 {
     int value;
 
-    value = FUN_005011f0(index);
+    value = OptionMenu_GetSlotSelector(index);
     if (g_unk0x005270b4[type] <= value)
-        return FUN_00502df0(index, type, 1) != 0;
+        return OptionMenu_GetRecordPercentage(index, type, 1) != 0;
     return g_unk0x0082c040[index][type] != 0;
 }
 
 // Finds the index of the entry with the given id in the list at 0x3c, or -1.
 // FUNCTION: CMR2 0x00508f60
-int FUN_00508f60(unsigned int id, int param2)
+int OptionPreview_FindMeshId(unsigned int id, int param2)
 {
     int *pEntry;
     int count;
@@ -6066,7 +6066,7 @@ int FUN_00503b70(Unk0x0082c6c8 *p, short *pX, short *pY)
 
 // Re-runs the option-menu callback stored in the global (0x82b1b4).
 // FUNCTION: CMR2 0x00501390
-BYTE FUN_00501390(void)
+BYTE OptionMenu_UpdateBackgroundRoot(void)
 {
     SceneNode_Destroy((SceneNode *)g_unk0x0082b1b4);
     return 1;
@@ -6085,7 +6085,7 @@ int g_unk0x0083188c;
 
 // Loads the five option menu sounds. Returns 0 if any of them failed to load.
 // FUNCTION: CMR2 0x0050f3c0
-BYTE FUN_0050f3c0(void)
+BYTE OptionMenu_LoadSounds(void)
 {
     BYTE result;
     char *name;
@@ -6097,7 +6097,7 @@ BYTE FUN_0050f3c0(void)
     nameEnd = (int)g_unk0x005296c4 + sizeof(g_unk0x005296c4);
     do {
         sprintf(CFrontend::m_stringDest, g_str0x005296e8, CInstallInfo::GetSoundsDir(), name);
-        if (Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)FUN_0050f620()) == 0)
+        if (Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)OptionMenu_GetCommonArchive()) == 0)
             result = 0;
         name += 7;
     } while ((int)name < nameEnd);
@@ -6107,14 +6107,14 @@ BYTE FUN_0050f3c0(void)
 // Sets the option menu volume and hands the menu sound handles to the input
 // system.
 // FUNCTION: CMR2 0x0050f420
-void FUN_0050f420(void)
+void OptionMenu_ConfigureSoundHandles(void)
 {
     g_unk0x0083188c = -1;
     // option menu volume: the stored 0..0x7f setting scaled to 16.16 and quartered
-    CInput::FUN_0049ffc0((((int)CGameInfo::FUN_00405e70() << 16) / 100) / 4);
-    CInput::FUN_0049ff80(g_unk0x00831888, g_unk0x00831888 + 1, g_unk0x00831888 + 2,
+    CInput::SetInputRepeatTimingState((((int)CGameInfo::GetEffectsSoundVolume() << 16) / 100) / 4);
+    CInput::SetInputRepeatTimingParameters(g_unk0x00831888, g_unk0x00831888 + 1, g_unk0x00831888 + 2,
                          g_unk0x00831888 + 3, g_unk0x00831888 + 4);
-    FUN_004a0c40(1);
+    Menu_SetInputStateFlag(1);
 }
 
 // Option menu archives: every region uses the language directories of its own
@@ -6176,36 +6176,36 @@ char *g_unk0x0052971c[20] = {
 // Loads the three option menu archives: the common one, the day file of the
 // stage and the region/language file.
 // FUNCTION: CMR2 0x0050f4f0
-void FUN_0050f4f0(void)
+void OptionMenu_LoadArchives(void)
 {
     int resolution;
     int stage;
 
     stage = RallyDataStageIndex() >> 2;
-    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
-        CFrontend::FUN_004b7590(0x400))
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) &&
+        CFrontend::IsTextureHeightSupported(0x400))
         resolution = 0x400;
     else
         resolution = 0x280;
 
     sprintf(CFrontend::m_stringDest, g_str0x00529794, CInstallInfo::GetSetupRepDir(), resolution);
-    CGenericFileLoader::FUN_004a9d70((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest);
+    CGenericFileLoader::LoadIntoFileRecord((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest);
 
-    if (CFrontend::FUN_004a9700()) {
+    if (CFrontend::HasDXT1TextureSupport()) {
         sprintf(CFrontend::m_stringDest, g_str0x00529780, CInstallInfo::GetSetupRepDir(), resolution,
                 g_unk0x005296f8[RallyDataCountryIndex() & 0xff], stage + 1);
     } else {
         sprintf(CFrontend::m_stringDest, g_str0x0052976c, CInstallInfo::GetSetupRepDir(), resolution,
                 g_unk0x005296f8[RallyDataCountryIndex() & 0xff], stage + 1);
     }
-    CGenericFileLoader::FUN_004a9d70((GenericFile *)FUN_0050f640(), CFrontend::m_stringDest);
+    CGenericFileLoader::LoadIntoFileRecord((GenericFile *)OptionMenu_GetStageArchive(), CFrontend::m_stringDest);
 
     sprintf(CFrontend::m_stringDest, g_str0x0051a100, CInstallInfo::GetCountrySpecificDir(),
             CGameInfo::GetGameRegionDirectory(),
             g_unk0x0052971c[CGameInfo::GetGameRegion() * 5 + CGameInfo::GetGameLanguage()]);
-    CGenericFileLoader::FUN_004a9d70((GenericFile *)FUN_0050f630(), CFrontend::m_stringDest);
+    CGenericFileLoader::LoadIntoFileRecord((GenericFile *)OptionMenu_GetLanguageArchive(), CFrontend::m_stringDest);
 
-    CGame::RegisterCallback(FUN_0050f480, NULL);
+    CGame::RegisterCallback(OptionMenu_ReleaseTextures, NULL);
 }
 
 // Format string printed when the option menu's background world is created.
@@ -6222,7 +6222,7 @@ int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int para
 // Builds the option menu's background world: root node, camera, ambient and key
 // light, then registers the release callback.
 // FUNCTION: CMR2 0x005013a0
-void FUN_005013a0(void)
+void OptionMenu_CreateBackgroundWorld(void)
 {
     SceneNode *pNode;
     BYTE colour[4];
@@ -6260,11 +6260,11 @@ void FUN_005013a0(void)
     Scene_CreateLight(2, 0x10000, 0x10000, 0x10000, &lightPosition, &angles, (SceneNode *)g_unk0x0082b1b4);
     CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
     Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)view, 0);
-    CGame::RegisterCallback(FUN_00501390, NULL);
+    CGame::RegisterCallback(OptionMenu_UpdateBackgroundRoot, NULL);
 }
 // Releases the three option menu textures and clears their handles.
 // FUNCTION: CMR2 0x0050f480
-int FUN_0050f480(void)
+int OptionMenu_ReleaseTextures(void)
 {
     if (g_unk0x00831a90[0] != 0) {
         CFileBuffer::FreeGenericFileBuffer((void *)g_unk0x00831a90[0]);
@@ -6291,14 +6291,14 @@ int FUN_0050f480(void)
 // four bytes at +0x108.
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00509d30
-void FUN_00509d30(int index)
+void OptionPreview_UnpackColourFractions(int index)
 {
     Unk0x0082d220 *pRec;
     BYTE *p;
     int i;
 
     pRec = &g_unk0x0082d220[index];
-    p = (BYTE *)RallyData_FUN_00407610(index);
+    p = (BYTE *)RallyData_GetDriverGroupRecord(index);
     for (i = 0; i < 4; i++)
         pRec->field_0x23c.v[i] = FixDiv(p[0x108 + i] << 16, 0xff0000);
 }
@@ -6306,14 +6306,14 @@ void FUN_00509d30(int index)
 // Sets the fade/shape values of the option record's sky colours (field_0x22c).
 // match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00509be0
-void FUN_00509be0(int index)
+void OptionPreview_UpdateSkyFadeShape(int index)
 {
     Unk0x0082d220 *pRec;
     BYTE *p;
     int i;
 
     pRec = &g_unk0x0082d220[index];
-    p = (BYTE *)RallyData_FUN_00407610(index);
+    p = (BYTE *)RallyData_GetDriverGroupRecord(index);
     for (i = 0; i < 4; i++)
         pRec->field_0x22c.v[i] = FixDiv(p[0x10e + i] << 16, 0xff0000);
     pRec->field_0x22c.v[0] = FixMul(pRec->field_0x22c.v[0], FixMul(0x3333, 0xffff0000));
@@ -6324,10 +6324,10 @@ void FUN_00509be0(int index)
 
 // Applies the option menu's fade to the stage meshes of the given category:
 // each mesh in the record's list takes the target value for its bit.
-void FUN_0049c440(Mesh *pMesh, int mask, int value);
-void FUN_0049c4b0(Mesh *pMesh, int mask, int value);
+void Game_SetTriangleField2CByGroup(Mesh *pMesh, int mask, int value);
+void Game_SetTriangleField30ByGroup(Mesh *pMesh, int mask, int value);
 // FUNCTION: CMR2 0x00508fa0
-void FUN_00508fa0(int index, int param2, BYTE param3){
+void OptionPreview_SetMeshRenderFlags(int index, int param2, BYTE param3){
     BYTE *pRecord = (BYTE *)&g_unk0x0082d220[index];
     int target;
     int mask;
@@ -6354,60 +6354,60 @@ void FUN_00508fa0(int index, int param2, BYTE param3){
     }
     switch (param3) {
     case 0:
-        i = FUN_00508f60(7, (int)pRecord);
+        i = OptionPreview_FindMeshId(7, (int)pRecord);
         if (i >= 0) {
-            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 0x100, target);
-            FUN_0049c4b0(*(Mesh **)(pRecord + i * 4), 0x100, mask);
+            Game_SetTriangleField2CByGroup(*(Mesh **)(pRecord + i * 4), 0x100, target);
+            Game_SetTriangleField30ByGroup(*(Mesh **)(pRecord + i * 4), 0x100, mask);
             return;
         }
         break;
     case 1:
-        i = FUN_00508f60(0xc, (int)pRecord);
+        i = OptionPreview_FindMeshId(0xc, (int)pRecord);
         if (i >= 0) {
-            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 0x20, target);
-            FUN_0049c4b0(*(Mesh **)(pRecord + i * 4), 0x20, mask);
+            Game_SetTriangleField2CByGroup(*(Mesh **)(pRecord + i * 4), 0x20, target);
+            Game_SetTriangleField30ByGroup(*(Mesh **)(pRecord + i * 4), 0x20, mask);
         }
-        i = FUN_00508f60(7, (int)pRecord);
+        i = OptionPreview_FindMeshId(7, (int)pRecord);
         if (i >= 0) {
-            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 0x20, target);
-            FUN_0049c4b0(*(Mesh **)(pRecord + i * 4), 0x20, mask);
+            Game_SetTriangleField2CByGroup(*(Mesh **)(pRecord + i * 4), 0x20, target);
+            Game_SetTriangleField30ByGroup(*(Mesh **)(pRecord + i * 4), 0x20, mask);
             return;
         }
         break;
     case 2:
-        i = FUN_00508f60(7, (int)pRecord);
+        i = OptionPreview_FindMeshId(7, (int)pRecord);
         if (i >= 0) {
-            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 0x40, target);
-            FUN_0049c4b0(*(Mesh **)(pRecord + i * 4), 0x40, mask);
+            Game_SetTriangleField2CByGroup(*(Mesh **)(pRecord + i * 4), 0x40, target);
+            Game_SetTriangleField30ByGroup(*(Mesh **)(pRecord + i * 4), 0x40, mask);
             return;
         }
         break;
     case 3:
-        i = FUN_00508f60(7, (int)pRecord);
+        i = OptionPreview_FindMeshId(7, (int)pRecord);
         if (i >= 0) {
-            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 0x80, target);
-            FUN_0049c4b0(*(Mesh **)(pRecord + i * 4), 0x80, mask);
+            Game_SetTriangleField2CByGroup(*(Mesh **)(pRecord + i * 4), 0x80, target);
+            Game_SetTriangleField30ByGroup(*(Mesh **)(pRecord + i * 4), 0x80, mask);
             return;
         }
         break;
     case 4:
-        i = FUN_00508f60(0xe, (int)pRecord);
+        i = OptionPreview_FindMeshId(0xe, (int)pRecord);
         if (i >= 0) {
-            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 4, target);
+            Game_SetTriangleField2CByGroup(*(Mesh **)(pRecord + i * 4), 4, target);
             return;
         }
         break;
     case 5:
-        i = FUN_00508f60(0xe, (int)pRecord);
+        i = OptionPreview_FindMeshId(0xe, (int)pRecord);
         if (i >= 0)
-            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 8, target);
+            Game_SetTriangleField2CByGroup(*(Mesh **)(pRecord + i * 4), 8, target);
         break;
     }
 }
 
 // Chooses the highlight value for the selected option item and stores it at
 // +0x1e, together with the option's current value at +0x1f.
-// (CFrontend::FUN_004a3d80)
+// (CFrontend::FreeLocalizedTextStrings)
 
 // GLOBAL: CMR2 0x00831880
 int g_unk0x00831880;
@@ -6415,44 +6415,44 @@ int g_unk0x00831880;
 BYTE g_unk0x00831884;
 
 // FUNCTION: CMR2 0x004ff5b0
-void FUN_004ff5b0(void)
+void OptionMenu_FillValueSlider(void)
 {
     BYTE *pMode;
     int index;
     unsigned int value;
 
-    index = Menu_FindItem((Menu *)FUN_00502500(), 1);
+    index = Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1);
     index *= 5;
-    pMode = FUN_00502500();
+    pMode = OptionMenu_GetControlSetupMenu();
     value = pMode[0x1f + index * 4];
     switch (value) {
     case 0:
-        FUN_00502510()[0x1e] = 7;
+        OptionMenu_GetValueSliderMenu()[0x1e] = 7;
         break;
     case 1:
-        FUN_00502510()[0x1e] = 5;
+        OptionMenu_GetValueSliderMenu()[0x1e] = 5;
         break;
     case 2:
     case 3:
     case 4:
     case 5:
     case 6:
-        FUN_00502510()[0x1e] = 0xb;
+        OptionMenu_GetValueSliderMenu()[0x1e] = 0xb;
         break;
     }
-    FUN_00502510()[0x1f] = (BYTE)FUN_005028a0(CGameInfo::FUN_005011b0(), value);
+    OptionMenu_GetValueSliderMenu()[0x1f] = (BYTE)OptionMenu_GetScaledWorkingValue(CGameInfo::GetActiveOptionSlot(), value);
 }
 
 // Frees the option menu sound buffer and stops the streaming sound.
 // FUNCTION: CMR2 0x0050f340
-bool FUN_0050f340(void)
+bool OptionMenu_ReleaseSoundBuffer(void)
 {
     if (&g_unk0x00831880 != NULL) {
         if (g_unk0x00831884 == 0)
             CFileBuffer::FreeGenericFileBuffer((void *)g_unk0x00831880);
         g_unk0x00831880 = 0;
     }
-    CFrontend::FUN_004a3d80();
+    CFrontend::FreeLocalizedTextStrings();
     return 1;
 }
 
@@ -6479,7 +6479,7 @@ char g_unk0x0082a93c[0x100];
 
 // Requests a refresh of the option records.
 // FUNCTION: CMR2 0x00502230
-void FUN_00502230(int unused, int unused2)
+void OptionMenu_RequestRefresh(int unused, int unused2)
 {
     g_unk0x0082ac60 = 1;
 }
@@ -6487,62 +6487,62 @@ void FUN_00502230(int unused, int unused2)
 // GLOBAL: CMR2 0x0082bc08
 BYTE g_unk0x0082bc08[0x1e0];
 
-void FUN_0050e740(int unused);
-void FUN_004ffa50(char *pItem, int unused);
-void FUN_00500020(unsigned int, unsigned int);
-void FUN_0050e780(unsigned int);
-void FUN_0050edf0(unsigned int);
-void FUN_00500210(Menu *pMenu, char param);
-void FUN_005003d0(Menu *pMenu, int param);
-void FUN_0050ee10(unsigned int);
+void OptionMenu_DrawStatusLine(int unused);
+void OptionMenu_SelectItemAndRefresh(char *pItem, int unused);
+void OptionMenu_LoadSelectedSavedGame(unsigned int, unsigned int);
+void OptionMenu_DrawValueSelectionRows(unsigned int);
+void OptionMenu_DrawRaisedRallyInfo(unsigned int);
+void OptionMenu_IncrementSharedValue(Menu *pMenu, char param);
+void OptionMenu_ApplyFirstModeItem(Menu *pMenu, int param);
+void OptionMenu_DrawRallyInfoScreen(unsigned int);
 
 // Builds the option menu's status line: the record-list refresh callback and
 // the owner's help-text draw.
 // FUNCTION: CMR2 0x00502240
-void FUN_00502240(void)
+void OptionMenu_BuildStatusMenu(void)
 {
     Menu_Init((Menu *)g_unk0x0082ba28, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 0);
     Menu_AddItemType1((Menu *)g_unk0x0082ba28, 0, -1, 0, -1);
-    Menu_SetCallbacks((Menu *)g_unk0x0082ba28, (MenuCallback)FUN_00502230, NULL, (MenuCallback)FUN_0050e740, NULL);
+    Menu_SetCallbacks((Menu *)g_unk0x0082ba28, (MenuCallback)OptionMenu_RequestRefresh, NULL, (MenuCallback)OptionMenu_DrawStatusLine, NULL);
     Menu_ValidateCursor((Menu *)g_unk0x0082ba28, 0);
 }
 
 // Builds the option menu's advanced-options list with its device and accept
 // entries.
 // FUNCTION: CMR2 0x005022a0
-void FUN_005022a0(void)
+void OptionMenu_BuildAdvancedOptions(void)
 {
     Menu_Init((Menu *)g_unk0x0082b488, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 0, 0, 1);
-    Menu_AddItemType1((Menu *)g_unk0x0082b488, 0, 0x100, (int)FUN_00500020, -1);
+    Menu_AddItemType1((Menu *)g_unk0x0082b488, 0, 0x100, (int)OptionMenu_LoadSelectedSavedGame, -1);
     Menu_AddItemType1((Menu *)g_unk0x0082b488, 0, 0x101, 0, -1);
-    Menu_SetCallbacks((Menu *)g_unk0x0082b488, (MenuCallback)FUN_004ffa50, NULL, (MenuCallback)FUN_0050e780, NULL);
+    Menu_SetCallbacks((Menu *)g_unk0x0082b488, (MenuCallback)OptionMenu_SelectItemAndRefresh, NULL, (MenuCallback)OptionMenu_DrawValueSelectionRows, NULL);
     Menu_ValidateCursor((Menu *)g_unk0x0082b488, 0);
 }
 
 // Builds the option menu's control-setup screen.
 // FUNCTION: CMR2 0x00502440
-void FUN_00502440(void)
+void OptionMenu_BuildControlSetup(void)
 {
     Menu_Init((Menu *)g_unk0x0082bc08, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 0);
-    Menu_SetCallbacks((Menu *)g_unk0x0082bc08, NULL, (MenuCallback)RallyData_ValidateIndex, (MenuCallback)FUN_0050edf0,
-                      (MenuCallback)FUN_00500210);
+    Menu_SetCallbacks((Menu *)g_unk0x0082bc08, NULL, (MenuCallback)RallyData_ValidateIndex, (MenuCallback)OptionMenu_DrawRaisedRallyInfo,
+                      (MenuCallback)OptionMenu_IncrementSharedValue);
     Menu_ValidateCursor((Menu *)g_unk0x0082bc08, 0);
     Menu_SetFlags((Menu *)g_unk0x0082bc08, 0, 0, 0, 1);
 }
 
 // Builds the option menu's slider screen.
 // FUNCTION: CMR2 0x005024a0
-void FUN_005024a0(void)
+void OptionMenu_BuildValueSliders(void)
 {
     Menu_Init((Menu *)g_unk0x0082b848, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 1);
-    Menu_AddItemType3((Menu *)g_unk0x0082b848, 0, -1, 0x65, 0, 0, 0, (int)FUN_005003d0, 0);;
-    Menu_SetCallbacks((Menu *)g_unk0x0082b848, NULL, (MenuCallback)RallyData_ValidateIndex, (MenuCallback)FUN_0050ee10, NULL);
+    Menu_AddItemType3((Menu *)g_unk0x0082b848, 0, -1, 0x65, 0, 0, 0, (int)OptionMenu_ApplyFirstModeItem, 0);;
+    Menu_SetCallbacks((Menu *)g_unk0x0082b848, NULL, (MenuCallback)RallyData_ValidateIndex, (MenuCallback)OptionMenu_DrawRallyInfoScreen, NULL);
     Menu_ValidateCursor((Menu *)g_unk0x0082b848, 0);
 }
 
 // Marks the given item selected and requests a refresh.
 // FUNCTION: CMR2 0x004ffa50
-void FUN_004ffa50(char *pItem, int unused)
+void OptionMenu_SelectItemAndRefresh(char *pItem, int unused)
 {
     pItem[7] = 1;
     g_unk0x0082ac60 = 1;
@@ -6550,17 +6550,17 @@ void FUN_004ffa50(char *pItem, int unused)
 
 // Restarts the option records and arms their countdown.
 // FUNCTION: CMR2 0x00500110
-void FUN_00500110(int unused, int unused2)
+void OptionMenu_RestartCountdown(int unused, int unused2)
 {
-    FUN_005021e0();
+    OptionMenu_FinishRecordTransitions();
     g_unk0x0082ac4c = 1;
 }
 
 // Rebuilds the option records once the refresh request is consumed.
 // FUNCTION: CMR2 0x004ffa70
-void FUN_004ffa70(int unused, int unused2)
+void OptionMenu_ConsumeRefreshRequest(int unused, int unused2)
 {
-    g_unk0x0082aa40 = FUN_004f4db0();
+    g_unk0x0082aa40 = SavedGames_GetCount();
     if (g_unk0x0082ac60 == 0) {
         g_unk0x0082ab44 = 0;
         g_unk0x0082a924 = 0;
@@ -6573,22 +6573,22 @@ void FUN_004ffa70(int unused, int unused2)
 
 // Restarts the option records when the selected item has no value.
 // FUNCTION: CMR2 0x00500190
-void FUN_00500190(BYTE *pItem, int unused)
+void OptionMenu_RestartEmptyItemRecords(BYTE *pItem, int unused)
 {
     int index;
 
     index = Menu_FindItem((Menu *)pItem, 5);
     if (pItem[index * 0x14 + 0x1f] == 0) {
-        FUN_005021e0();
+        OptionMenu_FinishRecordTransitions();
         g_unk0x0082ac50 = 1;
     }
 }
 
 // Draws the option menu's status line centred on the screen.
 // FUNCTION: CMR2 0x0050e740
-void FUN_0050e740(int unused)
+void OptionMenu_DrawStatusLine(int unused)
 {
-    FUN_00501f80(4, 0, 0, g_unk0x0082a93c, (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 2,
+    OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, g_unk0x0082a93c, (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 2,
                  g_unk0x00527380, g_unk0x0052738c, 0x12);
 }
 
@@ -6676,7 +6676,7 @@ int g_unk0x0082b0a4;
 // GLOBAL: CMR2 0x0082a938
 BYTE g_unk0x0082a938;
 
-BYTE *RallyData_FUN_00407630(int index);
+BYTE *RallyData_GetDriverSkillRecord(int index);
 
 // GLOBAL: CMR2 0x00529670
 char g_strFontGeneralHel15pt[17] = "general\\hel_15pt";
@@ -6687,34 +6687,34 @@ char g_strFontGeneralDot[12] = "general\\dot";
 // GLOBAL: CMR2 0x005296ac
 char g_strFontGeneralHandel[15] = "general\\handel";
 
-void FUN_004cf260(void);
-Unk0049c2c0 *FUN_004ff440(void);
-int FUN_004a1280(void);
-void FUN_004067d0(void);
+void Frontend_AccumulateDeviceKeyCounters(void);
+Unk0049c2c0 *Game_GetSecondaryCallbackMachine(void);
+int Network_CloseSession(void);
+void Game_RequestOptionRefresh(void);
 
 // Starts the option menu: rebuilds the frontend, flags the option state, arms
 // the fade timer and switches the grouped callback machine to level 2; when the
 // menu is active and this is not the "restart" path it runs the transitions.
 // FUNCTION: CMR2 0x005001c0
-void FUN_005001c0(char param1)
+void OptionMenu_Start(char param1)
 {
     Unk0049c2c0 *p;
 
-    FUN_004cf260();
-    p = FUN_004ff440();
+    Frontend_AccumulateDeviceKeyCounters();
+    p = Game_GetSecondaryCallbackMachine();
     g_unk0x0082a938 = 1;
     g_unk0x0082b0a4 = CMain::GetFrameDelta();
     CGame::FUN_0049c1c0(p, 0, 0, 2);
-    if (CGameInfo::FUN_00405e00() != '\0' && param1 == '\0') {
-        CGame::FUN_004a1a90();
-        FUN_004a1280();
-        FUN_004067d0();
+    if (CGameInfo::GetGameModeOptionBit19() != '\0' && param1 == '\0') {
+        CGame::DestroyLocalNetworkPlayer();
+        Network_CloseSession();
+        Game_RequestOptionRefresh();
     }
 }
 
 // Starts the fade of the option menu once more than 50 frames have passed.
 // FUNCTION: CMR2 0x00501350
-void FUN_00501350(int param1, int unused)
+void OptionMenu_StartDelayedFade(int param1, int unused)
 {
     unsigned int delta = CMain::GetFrameDelta() - g_unk0x0082b0a4;
 
@@ -6732,66 +6732,66 @@ void FUN_00501350(int param1, int unused)
 int g_unk0x0052704c = 0x00acb49c;
 
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
-int FUN_0049d3f0(int, int, void *, int, BYTE);
-void FUN_0049de40(void);
+int Game_DrawSceneViewport(int, int, void *, int, BYTE);
+void Graphics_PresentFrameAndResetCounters(void);
 
 // Clears the screen to a colour fading from the stored menu colour to grey over
 // 50 frames, then draws the option menu scene.
 // Option menu states 0x5010a0/0x501130/0x5012e0/0x5015d0 (cascade seed batch 1, verified 94-97%).
-void FUN_00502db0(void);
-void FUN_005029b0(void);
+void OptionMenu_CommitRallyRecords(void);
+void OptionMenu_CopyDefaultValues(void);
 /* ===== cascade: menu states (drafts, iterated against the scaffold) ===== */
-void FUN_00501710(void);
-void FUN_0049de40(void);
-void FUN_00506b20(int index, char visible);
+void OptionMenu_SetBackgroundViewport(void);
+void Graphics_PresentFrameAndResetCounters(void);
+void OptionPreview_SetWheelNodesVisible(int index, char visible);
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
-void FUN_0050f230(void);
-int FUN_0049d3f0(int a, int b, void *c, int d, BYTE e);
+void OptionMenu_DrawActivePage(void);
+int Game_DrawSceneViewport(int a, int b, void *c, int d, BYTE e);
 
 
 // FUNCTION: CMR2 0x005010a0
-void FUN_005010a0(Unk0049c2c0 *p1, BYTE state)
+void OptionMenu_LeaveAndCommitState(Unk0049c2c0 *p1, BYTE state)
 {
-    CSound::FUN_004a2b50(0);
+    CSound::CloseMusicStreamAndClearPath(0);
     CGraphics::SetClearColour(1, 0x9c, 0xb4, 0xac);
     CGraphics::ClearTarget();
     CGraphics::ClearZBuffer();
-    FUN_00501710();
-    FUN_0049de40();
-    FUN_00502db0();
-    FUN_005029b0();
+    OptionMenu_SetBackgroundViewport();
+    Graphics_PresentFrameAndResetCounters();
+    OptionMenu_CommitRallyRecords();
+    OptionMenu_CopyDefaultValues();
     CGame::UnwindCallbacks(g_unk0x0082af88);
     CGraphics::FUN_004a5be0();
     CGraphics::FreeTextureBuffers();
     CGame::FUN_0049c1c0(p1, state, 0, 2);
     if (g_unk0x0082b0ac != 0) {
-        CGame::FUN_004057e0(0);
-        CGameInfo::FUN_0049ea90(0);
+        CGame::SetFrontendResourceMode(0);
+        CGameInfo::SetInputAndGamePaused(0);
         return;
     }
-    CGame::FUN_004057e0(3);
-    CGameInfo::FUN_0049ea90(0);
+    CGame::SetFrontendResourceMode(3);
+    CGameInfo::SetInputAndGamePaused(0);
 }
 
 // FUNCTION: CMR2 0x00501130
-void FUN_00501130(Unk0049c2c0 *p1, BYTE state)
+void OptionMenu_LeaveWithoutCommitState(Unk0049c2c0 *p1, BYTE state)
 {
-    CSound::FUN_004a2b50(0);
+    CSound::CloseMusicStreamAndClearPath(0);
     CGraphics::SetClearColour(1, 0x9c, 0xb4, 0xac);
     CGraphics::ClearTarget();
     CGraphics::ClearZBuffer();
-    FUN_00501710();
-    FUN_0049de40();
+    OptionMenu_SetBackgroundViewport();
+    Graphics_PresentFrameAndResetCounters();
     CGame::UnwindCallbacks(g_unk0x0082af88);
     CGraphics::FUN_004a5be0();
     CGraphics::FreeTextureBuffers();
     CGame::FUN_0049c1c0(p1, state, 0, 2);
-    CGame::FUN_004057e0(0);
-    CGameInfo::FUN_0049ea90(0);
+    CGame::SetFrontendResourceMode(0);
+    CGameInfo::SetInputAndGamePaused(0);
 }
 
 // FUNCTION: CMR2 0x005012e0
-void FUN_005012e0(Unk0049c2c0 *p1, BYTE state)
+void OptionMenu_UpdateHiddenPreviewState(Unk0049c2c0 *p1, BYTE state)
 {
     int i;
 
@@ -6800,15 +6800,15 @@ void FUN_005012e0(Unk0049c2c0 *p1, BYTE state)
         g_unk0x0082b0a4 = CMain::GetFrameDelta();
         g_unk0x0082af8c = 0;
     }
-    for (i = 0; i < (int)(CGameInfo::FUN_00405d70() & 0xff); i = i + 1) {
-        FUN_00506b20(i, 0);
+    for (i = 0; i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff); i = i + 1) {
+        OptionPreview_SetWheelNodesVisible(i, 0);
     }
     if (0x32 < (unsigned int)(CMain::GetFrameDelta() - g_unk0x0082b0a4))
         CGame::FUN_0049c1c0(p1, 0, 0, 2);
 }
 
 // FUNCTION: CMR2 0x005015d0
-void FUN_005015d0(Unk0049c2c0 *p1, BYTE state)
+void OptionMenu_DrawBackgroundState(Unk0049c2c0 *p1, BYTE state)
 {
     short rect[4];
 
@@ -6819,10 +6819,10 @@ void FUN_005015d0(Unk0049c2c0 *p1, BYTE state)
     CGraphics::ClearTarget();
     CGraphics::ClearZBuffer();
     CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
-    FUN_0050f230();
+    OptionMenu_DrawActivePage();
     Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)&rect[0], 0);
-    FUN_0049d3f0(g_unk0x0082b1b4, g_unk0x0082b1b0, &rect[0], 0, 1);
-    FUN_0049de40();
+    Game_DrawSceneViewport(g_unk0x0082b1b4, g_unk0x0082b1b0, &rect[0], 0, 1);
+    Graphics_PresentFrameAndResetCounters();
 }
 
 // FUNCTION: CMR2 0x00501780
@@ -6840,7 +6840,7 @@ void FUN_00501780(int param1, int unused)
     t = (CMain::GetFrameDelta() * 1000 - g_unk0x0082b0a4 * 1000) / 50;
     inv = 1000 - t;
     // Fades between the menu colour and the grey (141, 151, 159) used by
-    // FUN_00501520 while the level is built.
+    // OptionMenu_InitBackground while the level is built.
     colour[0] = (BYTE)(((g_unk0x0052704c & 0xff) * inv + 141 * t) / 1000);
     colour[1] = (BYTE)(((g_unk0x0052704c >> 8 & 0xff) * inv + 151 * t) / 1000);
     colour[2] = (BYTE)(((g_unk0x0052704c >> 16 & 0xff) * inv + 159 * t) / 1000);
@@ -6851,14 +6851,14 @@ void FUN_00501780(int param1, int unused)
     // The globals are the root and camera scene nodes; the third argument is a
     // temporary 4-short rectangle covering the middle of the screen.
     Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)rect, 0);
-    FUN_0049d3f0(g_unk0x0082b1b4, g_unk0x0082b1b0, rect, 0, 1);
-    FUN_0049de40();
+    Game_DrawSceneViewport(g_unk0x0082b1b4, g_unk0x0082b1b0, rect, 0, 1);
+    Graphics_PresentFrameAndResetCounters();
 }
 
 // Same as FUN_00501780 but the colour fades from grey to the stored menu colour.
 // The extra GetFrameDelta() result is discarded by the original.
 // FUNCTION: CMR2 0x00501920
-void FUN_00501920(int param1, int unused)
+void OptionMenu_FadeToStoredColour(int param1, int unused)
 {
     short rect[4];
     BYTE colour[4];
@@ -6878,13 +6878,13 @@ void FUN_00501920(int param1, int unused)
     CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
     CMain::GetFrameDelta();
     Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)rect, 0);
-    FUN_0049d3f0(g_unk0x0082b1b4, g_unk0x0082b1b0, rect, 0, 1);
-    FUN_0049de40();
+    Game_DrawSceneViewport(g_unk0x0082b1b4, g_unk0x0082b1b0, rect, 0, 1);
+    Graphics_PresentFrameAndResetCounters();
 }
 
-// Copies the option records back into the rally data (undo of FUN_00502d50).
+// Copies the option records back into the rally data (undo of OptionMenu_LoadRallyRecords).
 // FUNCTION: CMR2 0x00502db0
-void FUN_00502db0(void)
+void OptionMenu_CommitRallyRecords(void)
 {
     int *pSrc;
     int *pDst;
@@ -6892,25 +6892,25 @@ void FUN_00502db0(void)
     int j;
 
     i = 0;
-    if ((BYTE)CGameInfo::FUN_00405d70() > 0) {
+    if ((BYTE)CGameInfo::GetConfiguredPlayerCount() > 0) {
         pSrc = (int *)g_unk0x0082c070;
         do {
-            pDst = (int *)RallyData_FUN_00407610(i);
+            pDst = (int *)RallyData_GetDriverGroupRecord(i);
             i++;
             memcpy(pDst, pSrc, 0x148);
             pSrc += 0x52;
-        } while (i < (int)(CGameInfo::FUN_00405d70() & 0xff));
+        } while (i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff));
     }
 }
 
 // Copies the default option values from the global table into each record.
 // FUNCTION: CMR2 0x005029b0
-void FUN_005029b0(void)
+void OptionMenu_CopyDefaultValues(void)
 {
     int i;
     BYTE *pDst;
     for (i = 0; i < 4; i++) {
-        pDst = RallyData_FUN_00407630(i);
+        pDst = RallyData_GetDriverSkillRecord(i);
         pDst[4] = g_unk0x0082bee8[i][4];
         pDst[5] = g_unk0x0082bee8[i][5];
         pDst[1] = g_unk0x0082bee8[i][1];
@@ -6924,37 +6924,37 @@ void FUN_005029b0(void)
 // Applies the selected option: advances the menu when its value is set, or
 // starts the fade otherwise.
 // FUNCTION: CMR2 0x005000b0
-void FUN_005000b0(int unused, int unused2)
+void OptionMenu_AdvanceSelectedOption(int unused, int unused2)
 {
     BYTE *pMode;
     int index;
 
-    FUN_004ff5b0();
-    index = Menu_FindItem((Menu *)FUN_00502500(), 1);
+    OptionMenu_FillValueSlider();
+    index = Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1);
     index *= 5;
-    pMode = FUN_00502500();
-    if (FUN_00502630(CGameInfo::FUN_005011b0(), pMode[0x1f + index * 4]) != 0) {
-        Menu_SetNextAction((int)FUN_00502510());
+    pMode = OptionMenu_GetControlSetupMenu();
+    if (OptionMenu_IsSlotValueAboveBase(CGameInfo::GetActiveOptionSlot(), pMode[0x1f + index * 4]) != 0) {
+        Menu_SetNextAction((int)OptionMenu_GetValueSliderMenu());
         return;
     }
-    CGameInfo::FUN_00500500();
+    CGameInfo::StartOptionMenuTimeout();
 }
 
 // Loads the four option menu fonts.
 // FUNCTION: CMR2 0x0050f370
-void FUN_0050f370(void)
+void OptionMenu_LoadFonts(void)
 {
     Font_InitTable(4);
-    Font_Load(g_strFontGeneralHel15pt, (GenericFile *)FUN_0050f620(), 0);
-    Font_Load(g_strFontGeneralHel12pt, (GenericFile *)FUN_0050f620(), 1);
-    Font_Load(g_strFontGeneralDot, (GenericFile *)FUN_0050f620(), 2);
-    Font_Load(g_strFontGeneralHandel, (GenericFile *)FUN_0050f620(), 3);
+    Font_Load(g_strFontGeneralHel15pt, (GenericFile *)OptionMenu_GetCommonArchive(), 0);
+    Font_Load(g_strFontGeneralHel12pt, (GenericFile *)OptionMenu_GetCommonArchive(), 1);
+    Font_Load(g_strFontGeneralDot, (GenericFile *)OptionMenu_GetCommonArchive(), 2);
+    Font_Load(g_strFontGeneralHandel, (GenericFile *)OptionMenu_GetCommonArchive(), 3);
 }
 
 // Sets the whole mesh list of the record to opaque when the record has content
 // and the per-mesh flag is set, to fully transparent otherwise.
 // FUNCTION: CMR2 0x00509150
-void FUN_00509150(int index)
+void OptionPreview_SetMeshOpacity(int index)
 {
     BYTE *pRecord = (BYTE *)&g_unk0x0082d220[index];
     int i;
@@ -7045,7 +7045,7 @@ char g_str0x00529434[] = "%s\\Textures\\Parts\\%d\\%s.tga";
 // banner, the 640 arrows, the tick/cross/box/circle symbols and one texture
 // per car part.
 // FUNCTION: CMR2 0x0050a080
-void FUN_0050a080(void)
+void OptionMenu_LoadPartTextures(void)
 {
     char *pBanners[8] = { g_str0x00519280, g_str0x0051927c, g_str0x00519278, g_str0x00519274,
                           g_str0x00519270, g_str0x0051926c, g_str0x00519268, CFrontend::m_strUK };
@@ -7055,29 +7055,29 @@ void FUN_0050a080(void)
     int i;
 
     sprintf(CFrontend::m_stringDest, g_str0x0052956c, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831360 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831360 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529548, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831364 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831364 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529524, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831368 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831368 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529508, CInstallInfo::GetSetupRepDir(),
             pBanners[RallyDataCountryIndex() & 0xff]);
-    g_unk0x00831668 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f640(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831668 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetStageArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x005294f0, CInstallInfo::GetFrontendDir());
-    g_unk0x0083166c = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x0083166c = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x005294d8, CInstallInfo::GetFrontendDir());
-    g_unk0x00831670 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831670 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x005294b8, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x008313ac = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x008313ac = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529494, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831648 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831648 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529474, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x008313b0 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x008313b0 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529450, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831674 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831674 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     for (i = 0; i < 12; i++) {
         sprintf(CFrontend::m_stringDest, g_str0x00529434, CInstallInfo::GetSetupRepDir(), 0x280, pParts[i]);
-        g_unk0x0083137c[i] = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest,
+        g_unk0x0083137c[i] = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest,
                                                             0, 0, 0, 0);
     }
 }
@@ -7085,7 +7085,7 @@ void FUN_0050a080(void)
 // Per-index block of the option menu's 3D preview (0x138 bytes each).
 // Geometry of the option menu preview deform (0x138 bytes per record, 8 records).
 struct Unk0x0082cb78 {
-    // The deform code (FUN_00507a10/0x507fe0) reads the first 0x14 bytes as ints and the
+    // The deform code (OptionPreview_BuildDeformGeometry/0x507fe0) reads the first 0x14 bytes as ints and the
     // 0x14/0x24/0x34/0x44 slots as int[4]; both spellings are the same memory.
     union {
         struct { BYTE field_0x0; BYTE field_0x1[3]; SceneNode *pNode5; }; // 0x4 fifth child
@@ -7105,7 +7105,7 @@ struct Unk0x0082cb78 {
 // GLOBAL: CMR2 0x0082cb78
 Unk0x0082cb78 g_unk0x0082cb78[16];
 
-void FUN_00506fc0(int param1, int param2, int param3);
+void OptionPreview_AssignConvertedVertexBuffers(int param1, int param2, int param3);
 
 // Rebuilds the stage mesh record of the option menu preview entry: clears the
 // record, adds the mesh of every node of the entry's node tree, compacts the
@@ -7165,7 +7165,7 @@ void FUN_00507080(int index)
                 i--;
         }
     }
-    FUN_00506fc0(index, (int)pEntry->pNode5, (int)pRecord);
+    OptionPreview_AssignConvertedVertexBuffers(index, (int)pEntry->pNode5, (int)pRecord);
 }
 
 struct Unk0x0082fd00 {
@@ -7248,8 +7248,8 @@ void FUN_00509dc0(int index)
             FixMatrix_SetUp(&mirror.up, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
             FixMatrix_SetForward(&mirror.forward, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
         }
-        if ((FUN_0050a020(*(BYTE *)pList[0], (char)FUN_005028a0(index, 0)) != 0 && CGameInfo::FUN_00405d10() == 2) ||
-            CGameInfo::FUN_00405d70() > 1) {
+        if ((OptionPreview_UsesWheelVariantSix(*(BYTE *)pList[0], (char)OptionMenu_GetScaledWorkingValue(index, 0)) != 0 && CGameInfo::GetPreviewMode() == 2) ||
+            CGameInfo::GetConfiguredPlayerCount() > 1) {
             FixMatrix_GetForward(&v, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
             FixVecScale(&v, &v, 0x9999);
             FixMatrix_SetForward(&v, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
@@ -7296,11 +7296,11 @@ void FUN_005091c0(int index)
 
     pRec = &g_unk0x0082d220[index];
     pList = (int *)&g_unk0x0082fd00[index];
-    if (FUN_004ff550() == 1 && FUN_00502500()[Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14 + 0x1f] == 2) {
-        t = (unsigned char)FUN_00502510()[0x1f] << 16;
+    if (OptionMenu_FindFirstDetailedSlot() == 1 && OptionMenu_GetControlSetupMenu()[Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14 + 0x1f] == 2) {
+        t = (unsigned char)OptionMenu_GetValueSliderMenu()[0x1f] << 16;
         t = FixMul(t, 0x1999);
     } else {
-        t = (int)(char)FUN_005028a0(index, 2) << 16;
+        t = (int)(char)OptionMenu_GetScaledWorkingValue(index, 2) << 16;
         t = FixMul(t, 0x1999);
     }
     t = FixMul(0x10000 - t, 0x1999);
@@ -7367,7 +7367,7 @@ void FUN_005091c0(int index)
 // timing data of each slot.
 // ---------------------------------------------------------------------------
 
-// Number of filled slots (1 or 2), from CGameInfo::FUN_00501230.
+// Number of filled slots (1 or 2), from CGameInfo::GetPreviewLayoutMode.
 // GLOBAL: CMR2 0x0082c694
 int g_unk0x0082c694;
 // Active slot read from the current mode entry's field 0x48.
@@ -7417,10 +7417,10 @@ BYTE **g_unk0x00831198[2];
 // GLOBAL: CMR2 0x0082d1dc
 BYTE *g_unk0x0082d1dc[2];
 
-int *RallyData_FUN_004075e0(int index);
-int *FUN_00407520(int index);
-int *RallyData_FUN_004075c0(int index);
-BYTE FUN_005028a0(int index, int type);
+int *RallyData_GetDriverPrimaryPairRecord(int index);
+int *RallyData_GetDriverSettingPair(int index);
+int *RallyData_GetDriverSecondaryPairRecord(int index);
+BYTE OptionMenu_GetScaledWorkingValue(int index, int type);
 extern char g_strWheelVariantL[4];
 extern char g_strWheelVariantN[4];
 extern double g_unk0x00511300;
@@ -7429,7 +7429,7 @@ extern double g_unk0x00511300;
 // g_unk0x0082ca18) from the rally tables of the active slot; entries without
 // a table value are marked 100.
 // FUNCTION: CMR2 0x00505e70
-void FUN_00505e70(void)
+void OptionPreview_FillTextureSetIndices(void)
 {
     int *pStages;
     BYTE *pPairs;
@@ -7439,14 +7439,14 @@ void FUN_00505e70(void)
     int i;
     int *pEntry;
 
-    pStages = RallyData_FUN_004075e0(0);
-    pPairs = (BYTE *)FUN_00407520(0);
+    pStages = RallyData_GetDriverPrimaryPairRecord(0);
+    pPairs = (BYTE *)RallyData_GetDriverSettingPair(0);
     // The original reads [index * 0x50 + 0x82c6c0]: byte 0x48 of the previous
     // 0x50-byte entry of the table at 0x82c6c8 (index is 1-based).
     count = ((BYTE *)g_unk0x0082c6c8)[g_unk0x0082c694 * 0x50 - 8];
     slot = g_unk0x0082c710 & 0xff;
     g_unk0x0082ca18 = count - slot + 2;
-    pEntry = RallyData_FUN_004075c0(slot);
+    pEntry = RallyData_GetDriverSecondaryPairRecord(slot);
     if (*pEntry != 0)
         g_unk0x0082ca04[0] = 100;
     else
@@ -7455,7 +7455,7 @@ void FUN_00505e70(void)
         i = slot;
         pDest = &g_unk0x0082ca04[1];
         do {
-            pEntry = RallyData_FUN_004075c0(slot);
+            pEntry = RallyData_GetDriverSecondaryPairRecord(slot);
             if (*pEntry != 0)
                 *pDest = 100;
             else
@@ -7476,7 +7476,7 @@ void FUN_00505e70(void)
 #define CB78_MESH(o) (*(Mesh **)((BYTE *)&g_unk0x0082cb78 + (o)))
 
 // FUNCTION: CMR2 0x00506080
-void FUN_00506080(int param1)
+void OptionPreview_UpdateWheelMeshVariants(int param1)
 {
     int off;
     int i;
@@ -7486,18 +7486,18 @@ void FUN_00506080(int param1)
     Texture *pTex;
 
     off = param1 * 0x54;
-    if (CGameInfo::FUN_00405d10() == 0) {
-        if (g_unk0x0082d15c[param1] != (int)(char)FUN_005028a0(param1, 0)) {
+    if (CGameInfo::GetPreviewMode() == 0) {
+        if (g_unk0x0082d15c[param1] != (int)(char)OptionMenu_GetScaledWorkingValue(param1, 0)) {
             int *pVal = &g_unk0x0082d15c[param1];
-            *pVal = (int)(char)FUN_005028a0(param1, 0);
-            if (FUN_0050a020(CB78_BYTE(off), *pVal) != 0) {
+            *pVal = (int)(char)OptionMenu_GetScaledWorkingValue(param1, 0);
+            if (OptionPreview_UsesWheelVariantSix(CB78_BYTE(off), *pVal) != 0) {
                 for (i = 0; i < 4; i++) {
                     if (CB78_MESH(off + 0x44 + i * 4) != 0)
                         *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x44 + i * 4);
                 }
                 return;
             }
-            if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
+            if (OptionPreview_UsesLowWheelVariant(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
                 for (i = 0; i < 4; i++) {
                     if (CB78_MESH(off + 0x34 + i * 4) != 0)
                         *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x34 + i * 4);
@@ -7511,13 +7511,13 @@ void FUN_00506080(int param1)
             return;
         }
     } else {
-        if (g_unk0x0082d15c[param1] != (int)(char)FUN_005028a0(param1, 0)) {
-            g_unk0x0082d15c[param1] = (int)(char)FUN_005028a0(param1, 0);
+        if (g_unk0x0082d15c[param1] != (int)(char)OptionMenu_GetScaledWorkingValue(param1, 0)) {
+            g_unk0x0082d15c[param1] = (int)(char)OptionMenu_GetScaledWorkingValue(param1, 0);
             for (w = 0; w < 4; w++) {
                 pMesh = *(Mesh **)((BYTE *)CB78_NODE(off + 0x14) + 0xc);
                 for (k = 0; k < pMesh->triangleCount; k++) {
                     pTex = CGraphics::m_pTextureManager->textureBuffer[((int *)&pMesh->pTriangles[k])[1]];
-                    if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
+                    if (OptionPreview_UsesLowWheelVariant(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
                         if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
                             strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
                             Graphics_ReloadTexture(pTex);
@@ -7544,7 +7544,7 @@ void FUN_00506720(void)
 
     time = CMain::GetFrameDelta();
     i = 0;
-    if (CGameInfo::FUN_00405d70() > 0) {
+    if (CGameInfo::GetConfiguredPlayerCount() > 0) {
         do {
             unsigned int duration;
             short *pAngles;
@@ -7560,18 +7560,18 @@ void FUN_00506720(void)
                 pAngles[0] = (short)(g_unk0x0082d0d8[i].field_0x0 * k / 100 + g_unk0x0082d0f8[i].field_0x0);
                 pAngles[1] = (short)(g_unk0x0082d0d8[i].field_0x2 * k / 100 + g_unk0x0082d0f8[i].field_0x2);
                 pAngles[2] = (short)(g_unk0x0082d0d8[i].field_0x4 * k / 100 + g_unk0x0082d0f8[i].field_0x4);
-                FUN_00500920(i, 0, k);
+                OptionMenu_InterpolateLayoutPairs(i, 0, k);
             } else {
                 pAngles[0] = g_unk0x0082fce0[i].field_0x0;
                 pAngles[1] = g_unk0x0082fce0[i].field_0x2;
                 pAngles[2] = g_unk0x0082fce0[i].field_0x4;
-                FUN_00500920(i, 1, 0);
+                OptionMenu_InterpolateLayoutPairs(i, 1, 0);
             }
             SceneNode_SetRotation(g_unk0x0082cb78[i].pNode, (FixAngles *)pAngles);
             FUN_00509dc0(i);
             FUN_005091c0(i);
             i++;
-        } while (i < (CGameInfo::FUN_00405d70() & 0xff));
+        } while (i < (CGameInfo::GetConfiguredPlayerCount() & 0xff));
     }
 }
 
@@ -7579,7 +7579,7 @@ void FUN_00506720(void)
 // given angles, rotates param2 by the new matrix into param3 and puts the old
 // rotation matrix back.
 // FUNCTION: CMR2 0x005068b0
-void FUN_005068b0(int param1, FixVector *param2, FixVector *param3, FixAngles *param4)
+void OptionPreview_RotateSlotVector(int param1, FixVector *param2, FixVector *param3, FixAngles *param4)
 {
     SceneNode *pNode;
     FixMatrix saved;
@@ -7665,13 +7665,13 @@ void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask);
 // bounding-box child receive the visibility mask, and showing them also
 // re-applies the option state and the wheel mesh variants.
 // FUNCTION: CMR2 0x00506b20
-void FUN_00506b20(int index, char visible)
+void OptionPreview_SetWheelNodesVisible(int index, char visible)
 {
     if (visible != '\0') {
         SceneNode_SetViewMaskTree(g_unk0x0082cb78[index].pNode, 0xff);
         SceneNode_SetViewMaskTree(g_unk0x0082cb78[index].pNode5, 0xff);
-        FUN_00509150(index);
-        FUN_00506080(index);
+        OptionPreview_SetMeshOpacity(index);
+        OptionPreview_UpdateWheelMeshVariants(index);
         return;
     }
     SceneNode_SetViewMaskTree(g_unk0x0082cb78[index].pNode, 0);
@@ -7786,19 +7786,19 @@ void FUN_00506bb0(int param1, int param2, int param3)
 /* ===== integrated from casc/s4 ===== */
 
 // Provisional copy of the globals the stage deform code shares with the other
-// GameInfo lots (they are declared next to FUN_00507710 as well).
+// GameInfo lots (they are declared next to OptionPreview_LoadSkyColourRecord as well).
 extern float g_oneOverRandMax;
 
 // Per-entry stage data loaded from the entry's .c3d file (0x54 bytes): the four
 // anchor matrices and the handles of the entry's meshes.
 
 
-// Deform geometry of one stage entry (0x138 bytes): the box FUN_00507a10 builds
+// Deform geometry of one stage entry (0x138 bytes): the box OptionPreview_BuildDeformGeometry builds
 // around it, the twelve vertices FUN_00507fe0 deforms and the position of the
 // entry's four anchor matrices.
 
 // Planar influence of the camera on the stage (all 16.16): inner radius, width
-// of the falloff band and the scale of the falloff, set by FUN_005078e0.
+// of the falloff band and the scale of the falloff, set by OptionPreview_UpdateStageSkyColours.
 extern int g_unk0x0082d150;  // defined in StageTiming.cpp
 extern int g_unk0x0082d154;  // defined in StageTiming.cpp
 extern int g_unk0x0082d158;  // defined in StageTiming.cpp
@@ -7809,11 +7809,11 @@ void FUN_00508890(int *pRecord);
 void FUN_00507fe0(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom);
 
 // Recomputes the three sky colours of the stage from the colour loaded by
-// FUN_00507710: the raw weights when the sky type is 0, a single clamped value
+// OptionPreview_LoadSkyColourRecord: the raw weights when the sky type is 0, a single clamped value
 // for type 1 and two interpolated values for the rest. It only touches stages
 // whose mesh record is filled in.
 // FUNCTION: CMR2 0x005078e0
-void FUN_005078e0(int index)
+void OptionPreview_UpdateStageSkyColours(int index)
 {
     int scale;
 
@@ -7855,7 +7855,7 @@ void FUN_005078e0(int index)
 // the four anchor matrices. The box extents depend on the rally the entry
 // belongs to.
 // FUNCTION: CMR2 0x00507a10
-void FUN_00507a10(Unk0x0082d220 *pObject, int index)
+void OptionPreview_BuildDeformGeometry(Unk0x0082d220 *pObject, int index)
 {
     Unk0x0082fd00 *pGeom;
     FixVector sizes;
@@ -7878,7 +7878,7 @@ void FUN_00507a10(Unk0x0082d220 *pObject, int index)
         pGeom->field_0x128[i] =
             FixMul((int)(__int64)((float)value * g_oneOverRandMax * CGraphics::m_65536), 0x1680000);
     }
-    switch ((int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0((BYTE)index))) {
+    switch ((int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)index))) {
     case 3:
         sizes.x = 0x44560;
         sizes.y = 0x15eb8;
@@ -8084,7 +8084,7 @@ void FUN_00507a10(Unk0x0082d220 *pObject, int index)
 }
 
 // Rebuilds the deformed geometry of the stage entry <pObject> refers to: the
-// twelve vertices FUN_00507a10 generated are used to find the vertex closest to
+// twelve vertices OptionPreview_BuildDeformGeometry generated are used to find the vertex closest to
 // the camera on either side of the camera plane, the camera is pushed onto that
 // plane and then every vertex of the entry's meshes is moved along its stored
 // limit normal (clamped by StageDeform_ClampVertex) with three times the
@@ -8229,7 +8229,7 @@ void FUN_00507fe0(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom)
 // array: for every source mesh it finds the first buffer whose stored flag
 // matches the mesh's flag and points the mesh entry at it.
 // FUNCTION: CMR2 0x00506fc0
-void FUN_00506fc0(int param1, int param2, int param3)
+void OptionPreview_AssignConvertedVertexBuffers(int param1, int param2, int param3)
 {
     int i;
     int j;
@@ -8255,7 +8255,7 @@ void FUN_00506fc0(int param1, int param2, int param3)
 
 // Returns one entry of the pointer table used by the mode selection screens.
 // FUNCTION: CMR2 0x004d06f0
-char *FUN_004d06f0(int index)
+char *NetworkChat_GetLine(int index)
 {
     return g_unk0x00817c84[index];
 }
@@ -8266,24 +8266,24 @@ char *FUN_004d06f0(int index)
 // FUNCTION: CMR2 0x00500130
 void FUN_00500130(void)
 {
-    Unk0049c2c0 *p = FUN_004ff440();
-    int value = FUN_005011d0() - 1;
+    Unk0049c2c0 *p = Game_GetSecondaryCallbackMachine();
+    int value = OptionMenu_GetPlayerSlotOffset() - 1;
 
     if (value != 0) {
         CGame::FUN_0049c1c0(p, 0, 1, 2);
-        FUN_005011e0(value);
+        OptionMenu_SetPlayerSlotOffset(value);
         return;
     }
     CGame::FUN_0049c1c0(p, 0, 0, 2);
     g_unk0x0082a938 = 0;
     g_unk0x0082b0a4 = CMain::GetFrameDelta();
-    FUN_005011e0(1);
+    OptionMenu_SetPlayerSlotOffset(1);
 }
 
 // Starts the animation of the shared value towards one (or towards zero when it
 // is already at one).
 // FUNCTION: CMR2 0x00503960
-void FUN_00503960(int param_1, int param_2)
+void OptionMenu_ToggleValueAnimation(int param_1, int param_2)
 {
     FixInterp *p;
 
@@ -8313,7 +8313,7 @@ void FUN_00503960(int param_1, int param_2)
 // Stores one option value of a slot into the working table and, the first time
 // the slot is touched, adds the option's weight to its interpolation distance.
 // FUNCTION: CMR2 0x00502670
-void FUN_00502670(int param_1, int param_2, char param_3)
+void OptionMenu_SetWorkingValue(int param_1, int param_2, char param_3)
 {
     int distance;
 
@@ -8341,8 +8341,8 @@ void FUN_00502670(int param_1, int param_2, char param_3)
         break;
     }
     if (g_unk0x0082bf20[param_1][param_2] == 0) {
-        distance = FUN_005011f0(param_1);
-        FUN_00501210(param_1, distance - g_unk0x00527098[param_2]);
+        distance = OptionMenu_GetSlotSelector(param_1);
+        OptionMenu_SetSlotSelector(param_1, distance - g_unk0x00527098[param_2]);
         g_unk0x0082bf20[param_1][param_2] = 1;
     }
 }
@@ -8350,7 +8350,7 @@ void FUN_00502670(int param_1, int param_2, char param_3)
 // Restores one option value of a slot from the default table and subtracts the
 // option's weight from its interpolation distance.
 // FUNCTION: CMR2 0x00502790
-void FUN_00502790(int param_1, int param_2)
+void OptionMenu_RestoreDefaultValue(int param_1, int param_2)
 {
     int distance;
 
@@ -8377,14 +8377,14 @@ void FUN_00502790(int param_1, int param_2)
         g_unk0x0082bee8[param_1][5] = g_unk0x0082bf04[param_1 * 7 + 5];
         break;
     }
-    FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x00527098[param_2]);
+    OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x00527098[param_2]);
     g_unk0x0082bf20[param_1][param_2] = 0;
 }
 
 // Tells whether a slot option still holds the given value (options 2..6 store
 // the value multiplied by ten).
 // FUNCTION: CMR2 0x00502a00
-BYTE FUN_00502a00(int param_1, int param_2, int param_3)
+BYTE OptionMenu_DoesValueMatch(int param_1, int param_2, int param_3)
 {
     switch (param_2) {
     case 0:
@@ -8410,15 +8410,15 @@ BYTE FUN_00502a00(int param_1, int param_2, int param_3)
 void FUN_005062d0(unsigned int);
 
 // FUNCTION: CMR2 0x0050a3c0
-void FUN_0050a3c0(void)
+void OptionPreview_UpdateAllSlots(void)
 {
     int i = 0;
 
-    if ((unsigned int)CGameInfo::FUN_00405d70() > 0) {
+    if ((unsigned int)CGameInfo::GetConfiguredPlayerCount() > 0) {
         do {
             FUN_005062d0(i);
             i++;
-        } while (i < CGameInfo::FUN_00405d70());
+        } while (i < CGameInfo::GetConfiguredPlayerCount());
     }
 }
 
@@ -8464,7 +8464,7 @@ void FUN_00501de0(int param_1, short *param_2)
 // Records the viewport of the active menu background (top-left origin and two
 // thirds of the current resolution) in the shared rectangle.
 // FUNCTION: CMR2 0x00501710
-void FUN_00501710(void)
+void OptionMenu_SetBackgroundViewport(void)
 {
     short view[4];
 
@@ -8472,14 +8472,14 @@ void FUN_00501710(void)
     view[1] = 0;
     view[2] = (short)((int)g_pGraphics->resX * 2 / 3);
     view[3] = (short)((int)g_pGraphics->resY * 2 / 3);
-    FUN_0049d3f0(g_unk0x0082b1b4, g_unk0x0082b1b0, view, 0, 0);
+    Game_DrawSceneViewport(g_unk0x0082b1b4, g_unk0x0082b1b0, view, 0, 0);
 }
 
 // Restarts the shared value animation from zero (unused callback parameters).
 // FUNCTION: CMR2 0x00500100
-void FUN_00500100(int param1, int param2)
+void OptionMenu_ResetValueAnimation(int param1, int param2)
 {
-    FUN_00503960(0, 0);
+    OptionMenu_ToggleValueAnimation(0, 0);
 }
 
 // Colour pairs of the results screen: the second pointer (0x5297b4) starts two
@@ -8492,7 +8492,7 @@ char g_str0x005297c4[] = "%s: %.2d.00";
 // Draws the four result rows of the screen: the X coordinate and the viewport
 // are fixed, the rows advance 14 units each.
 // FUNCTION: CMR2 0x0050fd30
-void FUN_0050fd30(int param_1)
+void OptionMenu_DrawResultRows(int param_1)
 {
     int x = (int)g_pGraphics->resX * 0x1c / 0x280;
     int y = 0x19a;
@@ -8500,7 +8500,7 @@ void FUN_0050fd30(int param_1)
     int count = 4;
 
     do {
-        FUN_00501f80(5, 1, 1, CFrontend::GetTextString(index), x,
+        OptionMenu_DrawTransitionTextShortCoords(5, 1, 1, CFrontend::GetTextString(index), x,
                      (int)g_pGraphics->resY * y / 0x1e0, g_unk0x005297ac,
                      g_unk0x005297ac + 2, 0x11);
         y += 0xe;
@@ -8511,7 +8511,7 @@ void FUN_0050fd30(int param_1)
 // Startup (.CRT$XCU) initializer: caches the render resolution in the globals
 // the 2D drawing code reads.
 // FUNCTION: CMR2 0x0050fdd0
-void __cdecl FUN_0050fdd0(void)
+void __cdecl OptionMovie_InitResolution(void)
 {
     g_unk0x00831c60 = g_pGraphics->resX;
     g_unk0x00831c64 = g_pGraphics->resY;
@@ -8520,73 +8520,73 @@ void __cdecl FUN_0050fdd0(void)
 // Startup (.CRT$XCU) initializer registered in the startup table. The linker
 // folds it into a jump to the identical initializer above (both are reached).
 // FUNCTION: CMR2 0x0050fdc0
-void __cdecl FUN_0050fdc0(void)
+void __cdecl OptionMovie_InitResolutionAlias(void)
 {
-    FUN_0050fdd0();
+    OptionMovie_InitResolution();
 }
 
 #pragma data_seg(".CRT$XCU")
-static void (__cdecl *s_resolutionInit)(void) = FUN_0050fdc0;
+static void (__cdecl *s_resolutionInit)(void) = OptionMovie_InitResolutionAlias;
 #pragma data_seg()
 
 // Draws the title of the screen: the text table string is formatted into the
 // shared buffer, right aligned at 0x140/0x280 of the resolution.
 // FUNCTION: CMR2 0x0050e1c0
-void FUN_0050e1c0(void)
+void OptionMenu_DrawScreenTitle(void)
 {
     int flag = 0;
     int width;
 
-    if (CGameInfo::FUN_005011b0() == 1) {
-        if (CGameInfo::FUN_00405da0() == 0)
+    if (CGameInfo::GetActiveOptionSlot() == 1) {
+        if (CGameInfo::IsConfiguredMultiplayer() == 0)
             flag = 1;
     }
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x131));
     Font_Unused((int)CFrontend::m_stringDest, flag);
     width = Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
-    FUN_00501f80(4, 0, 0, CFrontend::m_stringDest,
+    OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::m_stringDest,
                  (int)g_pGraphics->resX * 0x140 / 0x280 - width / 2,
                  (int)g_pGraphics->resY * 0xf0 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
 }
 
 // Moves the shared value one position up; clamps it to the option count.
 // FUNCTION: CMR2 0x00500210
-void FUN_00500210(Menu *pMenu, char param)
+void OptionMenu_IncrementSharedValue(Menu *pMenu, char param)
 {
     Unk0049c2c0 *p;
     int value;
 
     if (param == 0)
         return;
-    p = FUN_004ff440();
-    value = FUN_005011d0() + 1;
-    if (value > CGameInfo::FUN_00405d70())
-        value = CGameInfo::FUN_00405d70();
+    p = Game_GetSecondaryCallbackMachine();
+    value = OptionMenu_GetPlayerSlotOffset() + 1;
+    if (value > CGameInfo::GetConfiguredPlayerCount())
+        value = CGameInfo::GetConfiguredPlayerCount();
     else
         CGame::FUN_0049c1c0(p, 0, 1, 2);
-    FUN_005011e0(value);
+    OptionMenu_SetPlayerSlotOffset(value);
 }
 
 // Applies the option selected in the first item of the mode menu: restores the
 // old value when it still matches, otherwise stores the new one.
 // FUNCTION: CMR2 0x005003d0
-void FUN_005003d0(Menu *pMenu, int param)
+void OptionMenu_ApplyFirstModeItem(Menu *pMenu, int param)
 {
-    int index = Menu_FindItem((Menu *)FUN_00502500(), 1);
-    int value = FUN_004ff4c0(((Menu *)FUN_00502500())->items[index].max);
+    int index = Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1);
+    int value = OptionMenu_GetColumnUnitId(((Menu *)OptionMenu_GetControlSetupMenu())->items[index].max);
     int option = pMenu->items[0].max;
 
-    if (FUN_00502990(CGameInfo::FUN_005011b0(), value) &&
-        FUN_00502a00(CGameInfo::FUN_005011b0(), value, option)) {
-        FUN_00502790(CGameInfo::FUN_005011b0(), value);
+    if (OptionMenu_GetColumnDirtyFlag(CGameInfo::GetActiveOptionSlot(), value) &&
+        OptionMenu_DoesValueMatch(CGameInfo::GetActiveOptionSlot(), value, option)) {
+        OptionMenu_RestoreDefaultValue(CGameInfo::GetActiveOptionSlot(), value);
         Menu_SetNextAction((int)pMenu->pParent);
         return;
     }
-    if (!FUN_00502a00(CGameInfo::FUN_005011b0(), value, option)) {
-        if (FUN_005011f0(CGameInfo::FUN_005011b0()) - FUN_00502d40(value) < 0 &&
-            !FUN_00502990(CGameInfo::FUN_005011b0(), value))
+    if (!OptionMenu_DoesValueMatch(CGameInfo::GetActiveOptionSlot(), value, option)) {
+        if (OptionMenu_GetSlotSelector(CGameInfo::GetActiveOptionSlot()) - OptionMenu_GetColumnBaseWeight(value) < 0 &&
+            !OptionMenu_GetColumnDirtyFlag(CGameInfo::GetActiveOptionSlot(), value))
             return;
-        FUN_00502670(CGameInfo::FUN_005011b0(), value, option);
+        OptionMenu_SetWorkingValue(CGameInfo::GetActiveOptionSlot(), value, option);
     }
     Menu_SetNextAction((int)pMenu->pParent);
 }
@@ -8603,26 +8603,26 @@ int g_unk0x005293a0 = 0x1c2;
 // Draws the four option rows of the menu's right column: the first one uses the
 // normal font, the other three the highlighted one.
 // FUNCTION: CMR2 0x0050a680
-void FUN_0050a680(void)
+void OptionMenu_DrawRightColumn(void)
 {
-    FUN_00501f80(3, 0, 0,
-                 CFrontend::GetTextString((int)CFrontend::FUN_0040ee90(
-                     RallyData_FUN_004086b0(CGameInfo::FUN_005011b0())) * 4 + 0x4c),
+    OptionMenu_DrawTransitionTextShortCoords(3, 0, 0,
+                 CFrontend::GetTextString((int)CFrontend::GetArchivePrimaryIDEntry(
+                     RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot())) * 4 + 0x4c),
                  g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                  (int)g_pGraphics->resY * 0xb4 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
-    FUN_00501f80(3, 1, 0,
-                 CFrontend::GetTextString((int)CFrontend::FUN_0040ee90(
-                     RallyData_FUN_004086b0(CGameInfo::FUN_005011b0())) * 4 + 0x4d),
+    OptionMenu_DrawTransitionTextShortCoords(3, 1, 0,
+                 CFrontend::GetTextString((int)CFrontend::GetArchivePrimaryIDEntry(
+                     RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot())) * 4 + 0x4d),
                  g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                  (int)g_pGraphics->resY * 0xc2 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
-    FUN_00501f80(3, 1, 0,
-                 CFrontend::GetTextString((int)CFrontend::FUN_0040ee90(
-                     RallyData_FUN_004086b0(CGameInfo::FUN_005011b0())) * 4 + 0x4e),
+    OptionMenu_DrawTransitionTextShortCoords(3, 1, 0,
+                 CFrontend::GetTextString((int)CFrontend::GetArchivePrimaryIDEntry(
+                     RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot())) * 4 + 0x4e),
                  g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                  (int)g_pGraphics->resY * 0xd0 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
-    FUN_00501f80(3, 1, 0,
-                 CFrontend::GetTextString((int)CFrontend::FUN_0040ee90(
-                     RallyData_FUN_004086b0(CGameInfo::FUN_005011b0())) * 4 + 0x4f),
+    OptionMenu_DrawTransitionTextShortCoords(3, 1, 0,
+                 CFrontend::GetTextString((int)CFrontend::GetArchivePrimaryIDEntry(
+                     RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot())) * 4 + 0x4f),
                  g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                  (int)g_pGraphics->resY * 0xde / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
 }
@@ -8638,8 +8638,8 @@ char g_str0x005295f0[] = " (mins)";
 // FUNCTION: CMR2 0x0050a3f0
 void FUN_0050a3f0(void)
 {
-    int value = FUN_005011f0(CGameInfo::FUN_005011b0());
-    int target = FUN_005004a0();
+    int value = OptionMenu_GetSlotSelector(CGameInfo::GetActiveOptionSlot());
+    int target = OptionMenu_GetSharedValue();
     int shown;
     int width;
     int x;
@@ -8655,23 +8655,23 @@ void FUN_0050a3f0(void)
     } else {
         shown = value;
     }
-    FUN_00501f80(4, 0, 0, CFrontend::GetTextString(0x90),
+    OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::GetTextString(0x90),
                  g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                  (int)g_pGraphics->resY * 0x5d / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x91),
-            FUN_00501200(CGameInfo::FUN_005011b0()));
-    FUN_00501f80(4, 1, 0, CFrontend::m_stringDest,
+            OptionMenu_GetSlotBaseSelector(CGameInfo::GetActiveOptionSlot()));
+    OptionMenu_DrawTransitionTextShortCoords(4, 1, 0, CFrontend::m_stringDest,
                  g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                  (int)g_pGraphics->resY * 0x6d / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
-    FUN_005004b0(shown);
+    OptionMenu_SetSharedValue(shown);
     sprintf(CFrontend::m_stringDest, g_str0x0051a904, (shown / 100) / 0x3c, (shown / 100) % 0x3c);
     if (CGameInfo::FUN_005004c0() != 0)
-        FUN_00501f80(4, 3, 3, CFrontend::m_stringDest,
+        OptionMenu_DrawTransitionTextShortCoords(4, 3, 3, CFrontend::m_stringDest,
                      g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                      (int)g_pGraphics->resY * 0x96 / 0x1e0,
                      &g_unk0x00527378, &g_unk0x00527378, 0x11);
     else
-        FUN_00501f80(4, 3, 3, CFrontend::m_stringDest,
+        OptionMenu_DrawTransitionTextShortCoords(4, 3, 3, CFrontend::m_stringDest,
                      g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                      (int)g_pGraphics->resY * 0x96 / 0x1e0,
                      &g_unk0x0052737c, &g_unk0x0052738c[1], 0x11);
@@ -8679,11 +8679,11 @@ void FUN_0050a3f0(void)
     x = g_unk0x005293a0 * (int)g_pGraphics->resX;
     sprintf(CFrontend::m_stringDest, g_str0x005295f0);
     if (CGameInfo::FUN_005004c0() != 0)
-        FUN_00501f80(4, 0, 0, CFrontend::m_stringDest, x / 0x280 + width,
+        OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::m_stringDest, x / 0x280 + width,
                      (int)g_pGraphics->resY * 0x90 / 0x1e0,
                      &g_unk0x00527378, &g_unk0x00527378, 0x11);
     else
-        FUN_00501f80(4, 0, 0, CFrontend::m_stringDest, x / 0x280 + width,
+        OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::m_stringDest, x / 0x280 + width,
                      (int)g_pGraphics->resY * 0x90 / 0x1e0,
                      &g_unk0x0052737c, &g_unk0x0052738c[1], 0x11);
 }
@@ -8702,22 +8702,22 @@ int g_unk0x005270b8[11] = { 0x17700, 0xbb80, 0xbb80, 0x11940, 0xea60, 0xea60,
 // group's "already applied" flag.
 // match 39%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005034f0
-void FUN_005034f0(int param_1, int param_2)
+void OptionMenu_ApplyRallyRecordGroup(int param_1, int param_2)
 {
     BYTE *pDest = g_unk0x0082c070 + param_1 * 0x148;
-    BYTE *pSrc = (BYTE *)RallyData_FUN_00407610(param_1);
+    BYTE *pSrc = (BYTE *)RallyData_GetDriverGroupRecord(param_1);
     int value;
     int i;
 
     switch (param_2) {
     case 1:
         pDest[0x116] = pSrc[0x116];
-        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[0]);
+        OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[0]);
         g_unk0x0082c040[param_1][1] = 0;
         return;
     case 2:
         pDest[0x117] = pSrc[0x117];
-        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[1]);
+        OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[1]);
         g_unk0x0082c040[param_1][2] = 0;
         return;
     case 3:
@@ -8725,13 +8725,13 @@ void FUN_005034f0(int param_1, int param_2)
         pDest[0x10f] = pSrc[0x10f];
         pDest[0x110] = pSrc[0x110];
         pDest[0x111] = pSrc[0x111];
-        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[2]);
-        FUN_00509be0(param_1);
+        OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[2]);
+        OptionPreview_UpdateSkyFadeShape(param_1);
         g_unk0x0082c040[param_1][3] = 0;
         return;
     case 4:
         pDest[0x118] = pSrc[0x118];
-        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[3]);
+        OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[3]);
         g_unk0x0082c040[param_1][4] = 0;
         return;
     case 5:
@@ -8739,7 +8739,7 @@ void FUN_005034f0(int param_1, int param_2)
         pDest[0x113] = pSrc[0x113];
         pDest[0x114] = pSrc[0x114];
         pDest[0x115] = pSrc[0x115];
-        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[4]);
+        OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[4]);
         g_unk0x0082c040[param_1][5] = 0;
         return;
     case 6:
@@ -8778,29 +8778,29 @@ void FUN_005034f0(int param_1, int param_2)
             ((Unk0x0082c070Item *)pDest)[i].field_0x0[11] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[11];
             ((Unk0x0082c070Item *)pDest)[i].field_0x0[12] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[12];
         }
-        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[5]);
+        OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[5]);
         g_unk0x0082c040[param_1][6] = 0;
-        FUN_00507650(param_1);
+        OptionPreview_ApplyStageDeformations(param_1);
         return;
     case 7:
         pDest[0x10c] = pSrc[0x10c];
         pDest[0x10d] = pSrc[0x10d];
-        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[6]);
+        OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[6]);
         g_unk0x0082c040[param_1][7] = 0;
         return;
     case 8:
         pDest[0x11f] = pSrc[0x11f];
-        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[7]);
+        OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[7]);
         g_unk0x0082c040[param_1][8] = 0;
         return;
     case 9:
         pDest[0x120] = pSrc[0x120];
-        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[8]);
+        OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[8]);
         g_unk0x0082c040[param_1][9] = 0;
         return;
     case 10:
         pDest[0x121] = pSrc[0x121];
-        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[9]);
+        OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[9]);
         g_unk0x0082c040[param_1][10] = 0;
         return;
     case 11:
@@ -8808,8 +8808,8 @@ void FUN_005034f0(int param_1, int param_2)
         pDest[0x109] = pSrc[0x109];
         pDest[0x10a] = pSrc[0x10a];
         pDest[0x10b] = pSrc[0x10b];
-        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[10]);
-        FUN_00509d30(param_1);
+        OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[10]);
+        OptionPreview_UnpackColourFractions(param_1);
         g_unk0x0082c040[param_1][11] = 0;
     }
 }
@@ -8817,14 +8817,14 @@ void FUN_005034f0(int param_1, int param_2)
 // Applies the second item of the mode menu when its value still differs from the
 // stored option; the parent menu is always left as the next action.
 // FUNCTION: CMR2 0x00500360
-void FUN_00500360(Menu *pMenu, int param)
+void OptionMenu_ApplySecondModeItem(Menu *pMenu, int param)
 {
-    int index = Menu_FindItem((Menu *)FUN_00502500(), 2);
+    int index = Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2);
 
-    if (FUN_00503940(CGameInfo::FUN_005011b0(),
-                     FUN_004ff4d0(((Menu *)FUN_00502500())->items[index].max))) {
-        FUN_005034f0(CGameInfo::FUN_005011b0(),
-                     FUN_004ff4d0(((Menu *)FUN_00502500())->items[index].max));
+    if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(),
+                     OptionMenu_GetColumnWeight(((Menu *)OptionMenu_GetControlSetupMenu())->items[index].max))) {
+        OptionMenu_ApplyRallyRecordGroup(CGameInfo::GetActiveOptionSlot(),
+                     OptionMenu_GetColumnWeight(((Menu *)OptionMenu_GetControlSetupMenu())->items[index].max));
     }
     Menu_SetNextAction((int)pMenu->pParent);
 }
@@ -8832,34 +8832,34 @@ void FUN_00500360(Menu *pMenu, int param)
 // Callback of the option menu: applies the highlighted item when the confirm
 // button was pressed this frame.
 // FUNCTION: CMR2 0x004ff630
-void FUN_004ff630(Menu *pMenu)
+void OptionMenu_ConfirmHighlightedItem(Menu *pMenu)
 {
     int slot = 0;
     int index;
     int value;
     int option;
 
-    if (CGameInfo::FUN_005011b0() == 1) {
-        if (CGameInfo::FUN_00405da0() == 0)
+    if (CGameInfo::GetActiveOptionSlot() == 1) {
+        if (CGameInfo::IsConfiguredMultiplayer() == 0)
             slot = 1;
     }
-    if ((CInput::FUN_0049ead0(slot)->field_0x8 & 0x20) == 0)
+    if ((CInput::GetAvailableDeviceRecord(slot)->field_0x8 & 0x20) == 0)
         return;
     if (pMenu->cursor == Menu_FindItem(pMenu, 0)) {
-        FUN_00503960(0, 1);
+        OptionMenu_ToggleValueAnimation(0, 1);
         return;
     }
     if (pMenu->cursor == Menu_FindItem(pMenu, 2)) {
         index = Menu_FindItem(pMenu, 2);
         option = pMenu->items[index].max;
-        if (FUN_00503940(CGameInfo::FUN_005011b0(), FUN_004ff4d0(option)))
-            FUN_005034f0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(option));
+        if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(option)))
+            OptionMenu_ApplyRallyRecordGroup(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(option));
     } else if (pMenu->cursor == Menu_FindItem(pMenu, 1)) {
         index = Menu_FindItem(pMenu, 1);
         value = pMenu->items[index].max;
-        value = FUN_004ff4c0(value);
-        if (FUN_00502990(CGameInfo::FUN_005011b0(), value))
-            FUN_00502790(CGameInfo::FUN_005011b0(), value);
+        value = OptionMenu_GetColumnUnitId(value);
+        if (OptionMenu_GetColumnDirtyFlag(CGameInfo::GetActiveOptionSlot(), value))
+            OptionMenu_RestoreDefaultValue(CGameInfo::GetActiveOptionSlot(), value);
     }
 }
 
@@ -8872,7 +8872,7 @@ extern BYTE g_unk0x005270e4[8];
 extern int g_unk0x005270fc;
 extern int g_unk0x00527100;
 extern int g_unk0x005270b8[11];
-void FUN_00501f80(int index, int font1, int font2, char *text, short x, short y, int *pColour1,
+void OptionMenu_DrawTransitionTextShortCoords(int index, int font1, int font2, char *text, short x, short y, int *pColour1,
                   int *pColour2, unsigned int flags);
 
 // Vertical offsets subtracted from the flag row when the screen is either too
@@ -8886,7 +8886,7 @@ BYTE g_unk0x00527260[9] = { 0x3a, 0x3a, 0x3b, 0x39, 0x39, 0x39, 0x3a, 0x3b, 0x3c
 // whose width depends on the language and the selected country, holding the
 // country name and clipped to the screen.
 // FUNCTION: CMR2 0x005057e0
-void FUN_005057e0(void)
+void OptionMenu_DrawCountryFlags(void)
 {
     SpriteRect dest;
     Texture *pTexture;
@@ -8911,12 +8911,12 @@ void FUN_005057e0(void)
         int num = 0xea0000;
         int scale = FixDiv(num, g_unk0x0082c6bc * 0x10000 - 0x10000);
         int rowY = (FixMul(i << 16, scale) >> 16) + 0x93;
-        FUN_00501f80(3, 1, 1, CFrontend::GetTextString(g_unk0x0082c698[i] + 0x9d), width,
+        OptionMenu_DrawTransitionTextShortCoords(3, 1, 1, CFrontend::GetTextString(g_unk0x0082c698[i] + 0x9d), width,
                      (int)g_pGraphics->resY * rowY / 0x1e0, &g_unk0x005270fc,
                      &g_unk0x00527100, 0x22);
         dest.y = (short)((int)g_pGraphics->resY * (rowY - 0x12) / 0x1e0);
-        if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
-            !CFrontend::FUN_004b7590(0x400))
+        if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::IsTextureWidthSupported(0x400) ||
+            !CFrontend::IsTextureHeightSupported(0x400))
             dest.y = dest.y - g_unk0x00527254[g_unk0x0082c698[i]];
         else
             dest.y = dest.y - g_unk0x00527260[g_unk0x0082c698[i]];
@@ -9247,7 +9247,7 @@ void FUN_004041e0(Menu *pMenu)
                         pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
                         x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
                         strcpy(CFrontend::m_stringDest,
-                               CFrontend::GetTextString(RallyData_FUN_00411880() != 0 ? j + 0x9c : k));
+                               CFrontend::GetTextString(RallyData_IsHeadToHeadRaceMode() != 0 ? j + 0x9c : k));
                         Font_DrawText(1, CFrontend::m_stringDest, x, MENU_ITEM_Y(i), pSubColour, 0x11);
                         j++;
                         k--;
@@ -9298,15 +9298,15 @@ BYTE g_unk0x00526ffc[4] = { 0xff, 0xff, 0xff, 0xff };
 // Applies the two switches of the network options menu back to the game info,
 // rebuilds the split bar and refreshes the dash of the selected player.
 // FUNCTION: CMR2 0x00402f20
-void FUN_00402f20(Menu *pMenu, int param)
+void InRaceMenu_ApplyNetworkOptions(Menu *pMenu, int param)
 {
     int index;
 
     index = Menu_FindItem(pMenu, 2);
-    CGameInfo::FUN_00406340(pMenu->items[index].max);
+    CGameInfo::SetSplitBarEnabled(pMenu->items[index].max);
     FUN_00411b20();
     index = Menu_FindItem(pMenu, 4);
-    CGameInfo::FUN_00405ec0(pMenu->items[index].max);
+    CGameInfo::SetDashOptionEnabled(pMenu->items[index].max);
     Dash_Update(*(BYTE *)&g_unk0x0052af58[1]);
 }
 
@@ -9316,7 +9316,7 @@ void FUN_00402f20(Menu *pMenu, int param)
 // then the horizontal line that closes the option area and, under its centre,
 // the lower separator of the option screen.
 // FUNCTION: CMR2 0x00500550
-void FUN_00500550(int param1)
+void OptionMenu_DrawSeparators(int param1)
 {
     short rect[4];
     int minX;
@@ -9352,8 +9352,8 @@ void FUN_00500550(int param1)
             maxX = g_controlsLine[0];
         }
         if (g_unk0x00831674 != 0) {
-            if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
-                CFrontend::FUN_004b7590(0x400)) {
+            if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) &&
+                CFrontend::IsTextureHeightSupported(0x400)) {
                 rect[0] = g_controlsLine[0] - 6;
                 rect[1] = g_controlsLine[1] - 6;
             } else {
@@ -9507,21 +9507,21 @@ void FUN_00505b40(void)
 // activated and the flags of the menu panes are set accordingly; otherwise the
 // flags are cleared. Always ends by refreshing the mode animation.
 // FUNCTION: CMR2 0x005059d0
-void FUN_005059d0(int param_1)
+void OptionMenu_SelectDisplaySlot(int param_1)
 {
     if (g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c].field_0x4c == 0) {
         if ((signed char)g_unk0x0082ca1c != param_1) {
             param_1 = param_1 % g_unk0x0082c694;
-            CGameInfo::FUN_00505a60(param_1);
+            CGameInfo::SwitchOptionPreviewMode(param_1);
         }
-        Menu_SetFlags((Menu *)FUN_00502500(), 1, 1, 1, 1);
+        Menu_SetFlags((Menu *)OptionMenu_GetControlSetupMenu(), 1, 1, 1, 1);
         if ((signed char)g_unk0x0082ca1c != param_1) {
             CGameInfo::FUN_00505e10((BYTE)(param_1 % g_unk0x0082c694));
             FUN_00505b40();
             return;
         }
     } else {
-        Menu_SetFlags((Menu *)FUN_00502500(), 0, 0, 0, 0);
+        Menu_SetFlags((Menu *)OptionMenu_GetControlSetupMenu(), 0, 0, 0, 0);
     }
     FUN_00505b40();
 }
@@ -9531,69 +9531,69 @@ void FUN_005059d0(int param_1)
 // ---------------------------------------------------------------------------
 void FUN_005043b0(void);
 void FUN_0050b1c0(short param1, short param2, short param3, short param4, short param5, int param6);
-void FUN_0050c130(int param1);
+void OptionMenu_DrawStageSelectionPanel(int param1);
 void FUN_0050c420(int param1);
-void FUN_0050cc10(int param1, int param2);
+void OptionMenu_DrawGameInfoLayout(int param1, int param2);
 void FUN_0050a920(int param1);
 
 // Switches the active display slot of the current menu to param_1 and then
 // refreshes the slot animation.
 // FUNCTION: CMR2 0x0050a880
-void FUN_0050a880(int param_1, int param_2)
+void OptionMenu_SelectAndAnimateSlot(int param_1, int param_2)
 {
-    FUN_005059d0(param_1);
+    OptionMenu_SelectDisplaySlot(param_1);
     FUN_005043b0();
 }
 
 // Draws the recalled rally entry of the mode panel: option row 7 with the
 // "used car" colour 0xf2.
 // FUNCTION: CMR2 0x0050a8a0
-void FUN_0050a8a0(int param_1, int param_2)
+void OptionMenu_DrawRecalledRallyEntry(int param_1, int param_2)
 {
-    int value = FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14];
+    int value = OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14];
     FUN_0050b1c0(7, value, 2, g_unk0x005293a0, 0xf2, param_2);
 }
 
 // Draws the stage list of the mode panel: option row 0xb with colour 0xaa.
 // FUNCTION: CMR2 0x0050a8e0
-void FUN_0050a8e0(int param_1)
+void OptionMenu_DrawModeStageList(int param_1)
 {
-    int value = FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14];
+    int value = OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2) * 0x14];
     FUN_0050b1c0(0xb, value, 1, g_unk0x005293a0, 0xaa, 0);
 }
 
 // Draws the game-info title string and the current option of the mode panel.
 // FUNCTION: CMR2 0x0050e6a0
-void FUN_0050e6a0(void)
+void OptionMenu_DrawModeTitle(void)
 {
-    FUN_00501f80(4, 0, 0, CFrontend::GetTextString(0x133),
+    OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::GetTextString(0x133),
                  (int)g_pGraphics->resX * 0xf0 / 0x280, (int)g_pGraphics->resY * 200 / 0x1e0,
                  g_unk0x00527380, g_unk0x0052738c, 0x11);
-    int value = FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 5) * 0x14];
+    int value = OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 5) * 0x14];
     FUN_0050b1c0(2, value, 3, 0xf0, 0xd7, 0);
 }
 
 // Clears the live slots and then re-renders the mode panel with the raised
 // entry selected (menu action callback of the rally-info pane).
 // FUNCTION: CMR2 0x0050edf0
-void FUN_0050edf0(unsigned int param_1)
+void OptionMenu_DrawRaisedRallyInfo(unsigned int param_1)
 {
     FUN_0050c420(0);
-    FUN_0050c130(param_1);
+    OptionMenu_DrawStageSelectionPanel(param_1);
 }
 
 // Renders the whole rally-info screen for param_1: the option panes, the
 // recalled entry, the game-info layout and the rally preview text.
 // FUNCTION: CMR2 0x0050ee10
-void FUN_0050ee10(unsigned int param_1)
+void OptionMenu_DrawRallyInfoScreen(unsigned int param_1)
 {
     FUN_0050c420(1);
     FUN_0050a3f0();
-    FUN_0050a680();
-    FUN_0050a8a0(param_1, 1);
-    FUN_0050cc10(param_1, 1);
+    OptionMenu_DrawRightColumn();
+    OptionMenu_DrawRecalledRallyEntry(param_1, 1);
+    OptionMenu_DrawGameInfoLayout(param_1, 1);
     FUN_0050a920(0);
-    FUN_00500550(CGameInfo::FUN_005011b0());
+    OptionMenu_DrawSeparators(CGameInfo::GetActiveOptionSlot());
 }
 
 // The PE entry point of CMR2.exe is the CRT's WinMainCRTStartup (crt0): it
@@ -9640,7 +9640,7 @@ int g_unk0x005273b8 = -2832441;
 // option type, the title and the value strings of the option list; the rows of
 // the list screen (case 0) are laid out in pairs around their centred bar.
 // FUNCTION: CMR2 0x0050cc10
-void FUN_0050cc10(int param_1, int param_2)
+void OptionMenu_DrawGameInfoLayout(int param_1, int param_2)
 {
     int *pColour;
     int index;
@@ -9651,7 +9651,7 @@ void FUN_0050cc10(int param_1, int param_2)
     int i;
     int width;
 
-    index = FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14];
+    index = OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14];
     pColour = &g_unk0x0052737c;
     g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x1c / 0x280);
     g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0);
@@ -9670,9 +9670,9 @@ void FUN_0050cc10(int param_1, int param_2)
         else
             g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x181 / 0x1e0) -
                                  g_unk0x00831660[1];
-        FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x0052737c);
+        OptionMenu_DrawBoxEdges(g_unk0x00831660, (BYTE *)&g_unk0x0052737c);
     }
-    count = FUN_00502c60(CGameInfo::FUN_005011b0(), index);
+    count = OptionMenu_GetRawWorkingValue(CGameInfo::GetActiveOptionSlot(), index);
     switch (index) {
     case 0:
         if (count == 6)
@@ -9684,11 +9684,11 @@ void FUN_0050cc10(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
-        if (FUN_00502510()[0x1f] == 6)
+            OptionMenu_DrawBoxEdges(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        if (OptionMenu_GetValueSliderMenu()[0x1f] == 6)
             g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x151 / 0x280);
         else
-            g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x1824 / 0x78 + 0x1c) *
+            g_unk0x00831660[0] = (short)((OptionMenu_GetValueSliderMenu()[0x1f] * 0x1824 / 0x78 + 0x1c) *
                                          (int)g_pGraphics->resX / 0x280);
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
@@ -9747,11 +9747,11 @@ void FUN_0050cc10(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
-        if (FUN_00502510()[0x1f] == 4)
+            OptionMenu_DrawBoxEdges(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        if (OptionMenu_GetValueSliderMenu()[0x1f] == 4)
             g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x151 / 0x280);
         else
-            g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x1e2d / 100 + 0x1c) *
+            g_unk0x00831660[0] = (short)((OptionMenu_GetValueSliderMenu()[0x1f] * 0x1e2d / 100 + 0x1c) *
                                          (int)g_pGraphics->resX / 0x280);
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
@@ -9772,8 +9772,8 @@ void FUN_0050cc10(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
-        g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x135 / 10 + 0x1c) *
+            OptionMenu_DrawBoxEdges(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        g_unk0x00831660[0] = (short)((OptionMenu_GetValueSliderMenu()[0x1f] * 0x135 / 10 + 0x1c) *
                                      (int)g_pGraphics->resX / 0x280);
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
@@ -9794,8 +9794,8 @@ void FUN_0050cc10(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
-        g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x135 / 10 + 0x1c) *
+            OptionMenu_DrawBoxEdges(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        g_unk0x00831660[0] = (short)((OptionMenu_GetValueSliderMenu()[0x1f] * 0x135 / 10 + 0x1c) *
                                      (int)g_pGraphics->resX / 0x280);
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
@@ -9816,8 +9816,8 @@ void FUN_0050cc10(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
-        g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x135 / 10 + 0x1c) *
+            OptionMenu_DrawBoxEdges(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        g_unk0x00831660[0] = (short)((OptionMenu_GetValueSliderMenu()[0x1f] * 0x135 / 10 + 0x1c) *
                                      (int)g_pGraphics->resX / 0x280);
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
@@ -9838,8 +9838,8 @@ void FUN_0050cc10(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
-        g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x135 / 10 + 0x1c) *
+            OptionMenu_DrawBoxEdges(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        g_unk0x00831660[0] = (short)((OptionMenu_GetValueSliderMenu()[0x1f] * 0x135 / 10 + 0x1c) *
                                      (int)g_pGraphics->resX / 0x280);
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
@@ -9860,8 +9860,8 @@ void FUN_0050cc10(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
-        g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x135 / 10 + 0x1c) *
+            OptionMenu_DrawBoxEdges(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        g_unk0x00831660[0] = (short)((OptionMenu_GetValueSliderMenu()[0x1f] * 0x135 / 10 + 0x1c) *
                                      (int)g_pGraphics->resX / 0x280);
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
@@ -9896,15 +9896,15 @@ extern char g_strNum10[4];
 extern char g_strFlagSS[4];
 
 // Undocumented batch functions of the option/boot subsystem.
-void FUN_0050a8a0(int, int);
-void FUN_0050a8e0(int);
+void OptionMenu_DrawRecalledRallyEntry(int, int);
+void OptionMenu_DrawModeStageList(int);
 void FUN_0050a920(int);
-void FUN_0050bfd0(int);
+void OptionMenu_DrawSlotStripPanel(int);
 void FUN_0050c420(int);
-void FUN_0050cc10(int, int);
-void FUN_0050e6a0(void);
+void OptionMenu_DrawGameInfoLayout(int, int);
+void OptionMenu_DrawModeTitle(void);
 void FUN_0050b1c0(short, short, short, short, short, int);
-void FUN_0050e280(unsigned int);
+void OptionMenu_DrawRecordValues(unsigned int);
 
 // GLOBAL: CMR2 0x00529430
 int g_unk0x00529430 = -1;
@@ -9913,7 +9913,7 @@ int g_unk0x00529430 = -1;
 // its value, its unit label and its sub-label, highlights the row currently
 // being edited and finally lays out the value bar of the selected item.
 // FUNCTION: CMR2 0x0050e280
-void FUN_0050e280(unsigned int param_1)
+void OptionMenu_DrawRecordValues(unsigned int param_1)
 {
     char *pLabels[11] = { g_strNum1,  g_keypad2, g_keypad3, g_keypad4, g_strNum5, g_keypad6,
                           g_keypad7, g_keypad8, g_keypad9, g_strNum10, g_strFlagSS };
@@ -9931,37 +9931,37 @@ void FUN_0050e280(unsigned int param_1)
     if (g_unk0x0082ac48 > 0) {
         for (i = 0; i < g_unk0x0082ac48; i++) {
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x145),
-                    FUN_004f4de0(g_unk0x0082aa3c + i),
-                    CFrontend::GetTextString(FUN_004f4e00(g_unk0x0082aa3c + i) + 0x93),
-                    pLabels[FUN_004f4e20(g_unk0x0082aa3c + i)]);
+                    SavedGames_GetDifficulty(g_unk0x0082aa3c + i),
+                    CFrontend::GetTextString(SavedGames_GetDateLowBits(g_unk0x0082aa3c + i) + 0x93),
+                    pLabels[SavedGames_GetDateMiddleBits(g_unk0x0082aa3c + i)]);
             if (g_unk0x0082a924 == g_unk0x0082aa3c + i) {
-                FUN_00501f80(4, 1, 1, (char *)FUN_004f4e70(g_unk0x0082aa3c + i),
+                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, (char *)SavedGames_GetFileName(g_unk0x0082aa3c + i),
                              (int)g_pGraphics->resX * 0x32 / 0x280,
                              (int)g_pGraphics->resY * 100 / 0x1e0 +
                                  ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
                              pSel, g_unk0x0052738c, 0x11);
-                FUN_00501f80(4, 1, 1, CFrontend::m_stringDest,
+                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, CFrontend::m_stringDest,
                              (int)g_pGraphics->resX * 0x9b / 0x280,
                              (int)g_pGraphics->resY * 100 / 0x1e0 +
                                  ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
                              pSel, g_unk0x0052738c, 0x11);
-                FUN_00501f80(4, 1, 1, (char *)FUN_004f4dc0(g_unk0x0082aa3c + i),
+                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, (char *)SavedGames_GetRecordData(g_unk0x0082aa3c + i),
                              (int)g_pGraphics->resX * 0xff / 0x280,
                              (int)g_pGraphics->resY * 100 / 0x1e0 +
                                  ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
                              pSel, g_unk0x0052738c, 0x11);
             } else {
-                FUN_00501f80(4, 1, 1, (char *)FUN_004f4e70(g_unk0x0082aa3c + i),
+                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, (char *)SavedGames_GetFileName(g_unk0x0082aa3c + i),
                              (int)g_pGraphics->resX * 0x32 / 0x280,
                              (int)g_pGraphics->resY * 100 / 0x1e0 +
                                  ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
                              pUnsel, g_unk0x0052738c, 0x11);
-                FUN_00501f80(4, 1, 1, CFrontend::m_stringDest,
+                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, CFrontend::m_stringDest,
                              (int)g_pGraphics->resX * 0x9b / 0x280,
                              (int)g_pGraphics->resY * 100 / 0x1e0 +
                                  ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
                              pUnsel, g_unk0x0052738c, 0x11);
-                FUN_00501f80(4, 1, 1, (char *)FUN_004f4dc0(g_unk0x0082aa3c + i),
+                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, (char *)SavedGames_GetRecordData(g_unk0x0082aa3c + i),
                              (int)g_pGraphics->resX * 0xff / 0x280,
                              (int)g_pGraphics->resY * 100 / 0x1e0 +
                                  ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
@@ -9969,18 +9969,18 @@ void FUN_0050e280(unsigned int param_1)
             }
         }
     } else {
-        FUN_00501f80(4, 0, 0, CFrontend::GetTextString(0x140), (int)g_pGraphics->resX / 2,
+        OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::GetTextString(0x140), (int)g_pGraphics->resX / 2,
                      (int)g_pGraphics->resY / 2, pUnsel, g_unk0x0052738c, 0x12);
     }
     FUN_0050b1c0(2, *(unsigned char *)(param_1 + 0x1f +
                                        Menu_FindItem((Menu *)param_1, 4) * 0x14),
                  4, 0x32, 0x17c, 1);
-    if (CGameInfo::FUN_005011b0() == 1)
-        CGameInfo::FUN_00405da0();
+    if (CGameInfo::GetActiveOptionSlot() == 1)
+        CGameInfo::IsConfiguredMultiplayer();
 }
 
 // FUNCTION: CMR2 0x0050e780
-void FUN_0050e780(unsigned int param_1)
+void OptionMenu_DrawValueSelectionRows(unsigned int param_1)
 {
     short destRect[4];
     int i;
@@ -9997,22 +9997,22 @@ void FUN_0050e780(unsigned int param_1)
     destRect[1] = 0;
     destRect[2] = 0;
     destRect[3] = 0;
-    FUN_00501f80(4, 0, 0, CFrontend::GetTextString(0x13f),
+    OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::GetTextString(0x13f),
                  (int)g_pGraphics->resX * 0xf0 / 0x280, (int)g_pGraphics->resY * 200 / 0x1e0,
                  g_unk0x00527380, g_unk0x0052738c, 0x11);
     g_unk0x00831660[0] = (short)x0;
     g_unk0x00831660[1] = (short)yBase;
     g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xa2 / 0x280);
     g_unk0x00831660[3] = 1;
-    FUN_00501d50(0, g_unk0x00831660, 1, 1);
+    OptionMenu_EaseRecordBar(0, g_unk0x00831660, 1, 1);
     if (sel == 0)
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&colour, 1);
     else
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
     for (i = 0; i < (int)*(signed char *)(param_1 + 6); i++) {
         if (g_unk0x0083166c != 0) {
-            if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
-                !CFrontend::FUN_004b7590(0x400))
+            if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::IsTextureWidthSupported(0x400) ||
+                !CFrontend::IsTextureHeightSupported(0x400))
                 destRect[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2) +
                               g_unk0x00831660[1] - 6;
             else
@@ -10022,7 +10022,7 @@ void FUN_0050e780(unsigned int param_1)
         sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                 CFrontend::GetTextString(i + 0x100));
         if (i == sel) {
-            ((void (__stdcall *)(int, int, int, char *, int, short, int *, int *, unsigned int))FUN_005020a0)(7, 0, 0, CFrontend::m_stringDest,
+            ((void (__stdcall *)(int, int, int, char *, int, short, int *, int *, unsigned int))OptionMenu_DrawTransitionText)(7, 0, 0, CFrontend::m_stringDest,
                          (int)g_pGraphics->resX * 0x14 / 0x280 + x0,
                          (short)((int)g_pGraphics->resY * 0x12 / 0x1e0) + g_unk0x00831660[1],
                          &colour, g_unk0x00527380, 0x11);
@@ -10030,7 +10030,7 @@ void FUN_0050e780(unsigned int param_1)
                 Sprite_Queue((SpriteRect *)(g_unk0x0083166c + 0x11c), (SpriteRect *)destRect,
                              (Texture *)g_unk0x0083166c, 1, 0, 0, 0, (BYTE *)&colour, 8);
         } else {
-            FUN_00501f80(3, 0, 0, CFrontend::m_stringDest,
+            OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                          (int)g_pGraphics->resX * 0x14 / 0x280 + x0,
                          (short)((int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1]),
                          g_unk0x00527380, g_unk0x0052738c, 0x11);
@@ -10054,33 +10054,33 @@ void FUN_0050e780(unsigned int param_1)
 // Boot/state subsystem entry point: dispatches on the frontend state and
 // updates the record tables of the option record being edited.
 // FUNCTION: CMR2 0x0050eba0
-void FUN_0050eba0(unsigned int param_1)
+void OptionMenu_DispatchRecordEditState(unsigned int param_1)
 {
     FUN_0050c420(0);
-    switch (FUN_004ff550()) {
+    switch (OptionMenu_FindFirstDetailedSlot()) {
     case 1:
         FUN_0050a3f0();
-        FUN_0050a680();
-        FUN_0050a8a0(param_1, 0);
-        FUN_0050cc10((int)FUN_00502510(), 0);
+        OptionMenu_DrawRightColumn();
+        OptionMenu_DrawRecalledRallyEntry(param_1, 0);
+        OptionMenu_DrawGameInfoLayout((int)OptionMenu_GetValueSliderMenu(), 0);
         FUN_0050a920(0);
-        FUN_00500550(CGameInfo::FUN_005011b0());
+        OptionMenu_DrawSeparators(CGameInfo::GetActiveOptionSlot());
         if (g_unk0x00529430 !=
-            FUN_004ff4b0(FUN_00502500()[0x1f +
-                                        Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14])) {
-            FUN_00506930(CGameInfo::FUN_005011b0(),
-                         (short *)&g_unk0x005273c0[FUN_004ff4b0(
-                             FUN_00502500()[0x1f +
-                                            Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14])],
+            OptionMenu_GetColumnLabelId(OptionMenu_GetControlSetupMenu()[0x1f +
+                                        Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14])) {
+            FUN_00506930(CGameInfo::GetActiveOptionSlot(),
+                         (short *)&g_unk0x005273c0[OptionMenu_GetColumnLabelId(
+                             OptionMenu_GetControlSetupMenu()[0x1f +
+                                            Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14])],
                          0);
-            FUN_005009c0(CGameInfo::FUN_005011b0(),
-                         &g_unk0x008313c8[FUN_004ff4b0(
-                             FUN_00502500()[0x1f +
-                                            Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14]) *
+            OptionMenu_SetTargetLayoutPairs(CGameInfo::GetActiveOptionSlot(),
+                         &g_unk0x008313c8[OptionMenu_GetColumnLabelId(
+                             OptionMenu_GetControlSetupMenu()[0x1f +
+                                            Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14]) *
                                           8],
                          0);
-            g_unk0x00529430 = FUN_004ff4b0(FUN_00502500()[0x1f +
-                                                           Menu_FindItem((Menu *)FUN_00502500(),
+            g_unk0x00529430 = OptionMenu_GetColumnLabelId(OptionMenu_GetControlSetupMenu()[0x1f +
+                                                           Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(),
                                                                          1) *
                                                                0x14]);
             return;
@@ -10088,41 +10088,41 @@ void FUN_0050eba0(unsigned int param_1)
         break;
     case 2:
         FUN_0050a3f0();
-        FUN_0050a8e0(param_1);
+        OptionMenu_DrawModeStageList(param_1);
         FUN_0050a920(1);
-        FUN_00500550(CGameInfo::FUN_005011b0());
+        OptionMenu_DrawSeparators(CGameInfo::GetActiveOptionSlot());
         if (g_unk0x00529430 !=
-            FUN_004ff4d0(FUN_00502500()[0x1f +
-                                        Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14])) {
-            FUN_00506930(CGameInfo::FUN_005011b0(),
-                         (short *)&g_unk0x005273c0[FUN_004ff4d0(
-                             FUN_00502500()[0x1f +
-                                            Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14])],
+            OptionMenu_GetColumnWeight(OptionMenu_GetControlSetupMenu()[0x1f +
+                                        Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2) * 0x14])) {
+            FUN_00506930(CGameInfo::GetActiveOptionSlot(),
+                         (short *)&g_unk0x005273c0[OptionMenu_GetColumnWeight(
+                             OptionMenu_GetControlSetupMenu()[0x1f +
+                                            Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2) * 0x14])],
                          0);
-            FUN_005009c0(CGameInfo::FUN_005011b0(),
-                         &g_unk0x008313c8[FUN_004ff4d0(
-                             FUN_00502500()[0x1f +
-                                            Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14]) *
+            OptionMenu_SetTargetLayoutPairs(CGameInfo::GetActiveOptionSlot(),
+                         &g_unk0x008313c8[OptionMenu_GetColumnWeight(
+                             OptionMenu_GetControlSetupMenu()[0x1f +
+                                            Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2) * 0x14]) *
                                           8],
                          0);
-            g_unk0x00529430 = FUN_004ff4d0(FUN_00502500()[0x1f +
-                                                           Menu_FindItem((Menu *)FUN_00502500(),
+            g_unk0x00529430 = OptionMenu_GetColumnWeight(OptionMenu_GetControlSetupMenu()[0x1f +
+                                                           Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(),
                                                                          2) *
                                                                0x14]);
             return;
         }
         break;
     case 0:
-        FUN_0050bfd0(param_1);
+        OptionMenu_DrawSlotStripPanel(param_1);
         return;
     case 3:
-        FUN_0050e1c0();
+        OptionMenu_DrawScreenTitle();
         return;
     case 4:
-        FUN_0050e280(param_1);
+        OptionMenu_DrawRecordValues(param_1);
         return;
     case 5:
-        FUN_0050e6a0();
+        OptionMenu_DrawModeTitle();
     }
 }
 
@@ -10150,7 +10150,7 @@ extern char g_str0x00519fb0[];
 
 // stdcall callees that are not implemented yet (ret 8 / ret 0x18).
 void FUN_0050b1c0(short, short, short, short, short, int);
-void FUN_0050a880(int, int);
+void OptionMenu_SelectAndAnimateSlot(int, int);
 
 // Draws the rally information panel of the results screen: the two shaded
 // bars, the stage name, the stage thumbnail and (second mode only) the time
@@ -10193,11 +10193,11 @@ void FUN_0050a920(int param_1)
     x = x - Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest) / 2;
     Font_DrawText(1, CFrontend::m_stringDest, x, y, g_unk0x00527380, 0x11);
     if (param_1 != 0) {
-        tex = (Texture *)g_unk0x0083137c[FUN_004ff4d0(
-            FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14])];
+        tex = (Texture *)g_unk0x0083137c[OptionMenu_GetColumnWeight(
+            OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2) * 0x14])];
     } else {
-        tex = (Texture *)g_unk0x0083137c[FUN_004ff4b0(
-            FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14])];
+        tex = (Texture *)g_unk0x0083137c[OptionMenu_GetColumnLabelId(
+            OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14])];
     }
     if (tex != NULL) {
         g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x2c / 0x280);
@@ -10224,8 +10224,8 @@ void FUN_0050a920(int param_1)
         Font_DrawText(1, CFrontend::GetTextString(0xf9),
                       g_unk0x00831660[2] / 2 + *(int *)&g_unk0x00831660[0],
                       (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x12);
-        int idx = FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14];
-        t = FixDiv(FUN_00502df0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(idx), 1) << 16,
+        int idx = OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2) * 0x14];
+        t = FixDiv(OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(idx), 1) << 16,
                    0x640000);
         if (t < 0)
             t = 0;
@@ -10236,8 +10236,8 @@ void FUN_0050a920(int param_1)
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
-        FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
-        t = FixDiv(FUN_00502df0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(idx), 0) << 16,
+        OptionMenu_DrawBoxEdges(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        t = FixDiv(OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(idx), 0) << 16,
                    0x640000);
         if (t < 0)
             t = 0;
@@ -10251,11 +10251,11 @@ void FUN_0050a920(int param_1)
         if ((CMain::GetFrameDelta() / 0x14 & 1) == 0)
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
                             (BYTE *)&g_unk0x0052737c, 3);
-        w = FUN_004ff4d0(idx);
-        t = FUN_00503930(w);
+        w = OptionMenu_GetColumnWeight(idx);
+        t = OptionMenu_GetRecordGroupWeight(w);
         base = 0xc + w * 4;
     } else {
-        int idx = FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14];
+        int idx = OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14];
         base = 0xad + idx * 4;
         t = g_unk0x005293c0[idx] * 6000;
     }
@@ -10268,7 +10268,7 @@ void FUN_0050a920(int param_1)
                   (int)g_pGraphics->resY * 0x150 / 0x1e0, pCol, 0x12);
     x = (int)g_pGraphics->resX * 0x1c / 0x280;
     for (i = 0; i < 4; i++) {
-        FUN_00501f80(5, 1, 1, CFrontend::GetTextString(base + i), x,
+        OptionMenu_DrawTransitionTextShortCoords(5, 1, 1, CFrontend::GetTextString(base + i), x,
                      (int)g_pGraphics->resY * (0x19a + i * 0xe) / 0x1e0,
                      g_unk0x00527380, g_unk0x0052738c, 0x11);
     }
@@ -10278,7 +10278,7 @@ void FUN_0050a920(int param_1)
 // current stage highlighted) and the weather forecast, then selects the mode
 // of the active slot.
 // FUNCTION: CMR2 0x0050c130
-void FUN_0050c130(int param_1)
+void OptionMenu_DrawStageSelectionPanel(int param_1)
 {
     int i;
     int *pRec;
@@ -10295,10 +10295,10 @@ void FUN_0050c130(int param_1)
     Font_DrawText(0, CFrontend::m_stringDest,
                   (int)g_pGraphics->resX * 0x25f / 0x280,
                   (int)g_pGraphics->resY * 0xa0 / 0x1e0, &g_unk0x0052737c, 0xc);
-    for (i = 0; i < CGameInfo::FUN_00501230(); i++) {
+    for (i = 0; i < CGameInfo::GetPreviewLayoutMode(); i++) {
         sprintf(CFrontend::m_stringDest, g_stageNumberFormat,
                 (RallyDataStageIndex() & 0xff) + 1 + i);
-        if (i == FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14]) {
+        if (i == OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 0) * 0x14]) {
             Font_DrawText(0, CFrontend::m_stringDest,
                           (int)g_pGraphics->resX * 0x25f / 0x280,
                           (int)g_pGraphics->resY * 0xb4 / 0x1e0 +
@@ -10312,25 +10312,25 @@ void FUN_0050c130(int param_1)
                           g_unk0x00527380, 0xc);
         }
     }
-    pRec = FUN_00407520(FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14]);
+    pRec = RallyData_GetDriverSettingPair(OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 0) * 0x14]);
     sprintf(CFrontend::m_stringDest, g_str0x0052960c,
             CFrontend::GetTextString(*pRec + 0x9d));
     Font_DrawText(0, CFrontend::m_stringDest,
                   (int)g_pGraphics->resX * 100 / 0x280,
                   (int)g_pGraphics->resY * 400 / 0x1e0, g_unk0x00527380, 9);
-    FUN_0050a880(FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14], 1);
+    OptionMenu_SelectAndAnimateSlot(OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 0) * 0x14], 1);
 }
 
 // Draws the bottom panel of the options screen: the animated strip of all the
 // slots and, when the panel texture is loaded, its background sprite with the
 // current slot texture; selects the mode of the active slot afterwards.
 // FUNCTION: CMR2 0x0050bfd0
-void FUN_0050bfd0(int param_1)
+void OptionMenu_DrawSlotStripPanel(int param_1)
 {
     SpriteRect local;
 
-    FUN_0050b1c0((short)CGameInfo::FUN_00501230(),
-                 FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14],
+    FUN_0050b1c0((short)CGameInfo::GetPreviewLayoutMode(),
+                 OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 0) * 0x14],
                  0, g_unk0x005293a0, 0x124, 0);
     if (g_unk0x00831668 != 0) {
         g_unk0x00831660[0] = (short)(g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280);
@@ -10344,7 +10344,7 @@ void FUN_0050bfd0(int param_1)
         Sprite_Queue(&local, (SpriteRect *)g_unk0x00831660, (Texture *)g_unk0x00831668,
                      1, 0, NULL, NULL, g_colour0x005273a8, 8);
     }
-    FUN_0050a880(FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14],
+    OptionMenu_SelectAndAnimateSlot(OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 0) * 0x14],
                  0);
 }
 
@@ -10355,11 +10355,11 @@ extern char g_classRowHeaderFormat[];  // 0x00516098 "%s %d" (GameMenus.cpp)
 extern char g_keypadFormat[];          // 0x00516940 "%s %s" (Input.cpp)
 extern char g_strLabelText[];          // 0x00524d38 "%s: %s" (FrontendScreens.cpp)
 
-BYTE FUN_004f89b0(BYTE **out, int row, int column);
-const char *FUN_004f89e0(int row, int column);
-BYTE *FUN_004f8a00(int row, int column);
-BYTE FUN_00407150(BYTE param1, char param2);
-int RallyData_FUN_004077d0(int row, int column, int variant);
+BYTE FrontendRecords_GetStageEntryPayload(BYTE **out, int row, int column);
+const char *FrontendRecords_GetStageName(int row, int column);
+BYTE *FrontendRecords_GetStageEntry(int row, int column);
+BYTE RallyData_GetDriverGridRow(BYTE param1, char param2);
+int RallyData_GetIndexedStageScoreScale(int row, int column, int variant);
 
 // Space width of the menu font (0x00516870, inside the rally text table below);
 // the original has no separate symbol for it, so it is a view into the table.
@@ -10411,12 +10411,12 @@ void FUN_0050c420(int param_1)
     if (param_1 != 0)
         colour = g_unk0x0052737c;
     else
-        colour = *(int *)FUN_00501ab0();
-    mode = FUN_004ff5a0(FUN_004ff550());
+        colour = *(int *)OptionMenu_GetStateByteAddress();
+    mode = OptionMenu_GetSlotType(OptionMenu_FindFirstDetailedSlot());
     g_unk0x00831660[2] = 1;
     g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0);
     g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x1c / 0x1e0);
-    frames = FUN_004ff540();
+    frames = OptionMenu_GetScrollDistance();
     i = 0;
     switch (mode) {
     case 0:
@@ -10440,26 +10440,26 @@ void FUN_0050c420(int param_1)
         FixMul(0x10000 - f, (int)(__int64)((double)(colour >> 16 & 0xff) * CGraphics::m_65536));
         break;
     }
-    while (i < (signed char)FUN_00502500()[6]) {
-        a = FUN_004ff550();
-        b = FUN_004ff550();
-        if (CGameInfo::FUN_00405d80() != 0 && i == 4)
+    while (i < (signed char)OptionMenu_GetControlSetupMenu()[6]) {
+        a = OptionMenu_FindFirstDetailedSlot();
+        b = OptionMenu_FindFirstDetailedSlot();
+        if (CGameInfo::GetConfiguredGameMode() != 0 && i == 4)
             a--;
-        if (CGameInfo::FUN_00405d80() != 0 && i == 3)
+        if (CGameInfo::GetConfiguredGameMode() != 0 && i == 3)
             b--;
         if (a == i)
-            FUN_005020a0(6, 0, 0,
-                         CFrontend::GetTextString(*(short *)(FUN_00502500() + i * 0x14 + 0x18)),
+            OptionMenu_DrawTransitionText(6, 0, 0,
+                         CFrontend::GetTextString(*(short *)(OptionMenu_GetControlSetupMenu() + i * 0x14 + 0x18)),
                          x, (int)g_pGraphics->resY * 0x2c / 0x1e0, &colour, g_unk0x00527380, 0x11);
         else
             Font_DrawText(0,
-                          CFrontend::GetTextString(*(short *)(FUN_00502500() + i * 0x14 + 0x18)),
+                          CFrontend::GetTextString(*(short *)(OptionMenu_GetControlSetupMenu() + i * 0x14 + 0x18)),
                           x, (int)g_pGraphics->resY * 0x2c / 0x1e0, g_unk0x00527380, 0x11);
         x += Font_GetTextWidth(0, (BYTE *)CFrontend::GetTextString(
-                                      *(short *)(FUN_00502500() + i * 0x14 + 0x18)));
+                                      *(short *)(OptionMenu_GetControlSetupMenu() + i * 0x14 + 0x18)));
         x += Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
         g_unk0x00831660[0] = (short)x;
-        if (i != (signed char)FUN_00502500()[6] - 1) {
+        if (i != (signed char)OptionMenu_GetControlSetupMenu()[6] - 1) {
             if (a == i || b == i + 1)
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&colour, 3);
             else
@@ -10471,7 +10471,7 @@ void FUN_0050c420(int param_1)
     }
     x = g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280;
     sprintf(CFrontend::m_stringDest, g_classRowHeaderFormat, CFrontend::GetTextString(0x4a),
-            CGameInfo::FUN_005011b0() + 1);
+            CGameInfo::GetActiveOptionSlot() + 1);
     Font_DrawText(0, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0x2c / 0x1e0,
                   g_unk0x00527380, 0x11);
     x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
@@ -10479,26 +10479,26 @@ void FUN_0050c420(int param_1)
     g_unk0x00831660[0] = (short)x;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)(g_unk0x00527380 + 2), 3);
     x += 2 + Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
-    Font_DrawText(0, (char *)RallyData_GetRecord((BYTE)CGameInfo::FUN_005011b0()), x,
+    Font_DrawText(0, (char *)RallyData_GetRecord((BYTE)CGameInfo::GetActiveOptionSlot()), x,
                   (int)g_pGraphics->resY * 0x2c / 0x1e0, g_unk0x00527380, 0x11);
-    if (CGameInfo::FUN_00405e00() == 0)
+    if (CGameInfo::GetGameModeOptionBit19() == 0)
         return;
     x = (int)g_pGraphics->resX * 0x1e / 0x280 + x +
-        Font_GetTextWidth(0, (BYTE *)RallyData_GetRecord((BYTE)CGameInfo::FUN_005011b0()));
-    if (CGameInfo::FUN_00405d80() == '\n') {
+        Font_GetTextWidth(0, (BYTE *)RallyData_GetRecord((BYTE)CGameInfo::GetActiveOptionSlot()));
+    if (CGameInfo::GetConfiguredGameMode() == '\n') {
         unsigned int limit;
         unsigned int delta;
 
-        if (FUN_00406710() == 0)
+        if (GameInfo_GetSessionField397C() == 0)
             return;
-        delta = CMain::GetFrameDelta() - FUN_0040af30();
-        limit = (unsigned int)(FUN_00406710() * 6000);
+        delta = CMain::GetFrameDelta() - NetPlayers_GetInputFrameDelta();
+        limit = (unsigned int)(GameInfo_GetSessionField397C() * 6000);
         if (delta >= limit)
             remaining = 0;
         else
             remaining = limit - delta;
     } else {
-        remaining = (unsigned int)CGameInfo::FUN_005012c0();
+        remaining = (unsigned int)CGameInfo::GetOptionMenuRemainingTime();
     }
     sprintf(CFrontend::m_stringDest, g_str0x0051a904, (remaining / 100) / 0x3c,
             (remaining / 100) % 0x3c);
@@ -10535,21 +10535,21 @@ void FUN_0050f650(int param_1, int param_2)
     x = (int)g_pGraphics->resX * 0x1c2 / 0x280;
     bar[3] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0);
     bar[1] = (short)((int)g_pGraphics->resY * 0xac / 0x1e0);
-    FUN_00501d50(0, bar, 0, 1);
-    if (CGameInfo::FUN_00405d80() != 0 && CGameInfo::FUN_00405d80() != 1) {
+    OptionMenu_EaseRecordBar(0, bar, 0, 1);
+    if (CGameInfo::GetConfiguredGameMode() != 0 && CGameInfo::GetConfiguredGameMode() != 1) {
         if (param_2 == 10)
             sprintf(CFrontend::m_stringDest, g_keypadFormat, CFrontend::GetTextString(0x9b),
                     CFrontend::GetTextString(0x13d));
         else
             sprintf(CFrontend::m_stringDest, g_classRowHeaderFormat, CFrontend::GetTextString(0x9b),
                     param_2 + 1);
-        FUN_00501f80(3, 0, 0, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xbe / 0x1e0,
+        OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xbe / 0x1e0,
                      g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
     } else {
         int value;
 
         if (param_2 == 10) {
-            switch (CGameInfo::FUN_00405d90()) {
+            switch (CGameInfo::GetConfiguredDifficulty()) {
             case 0:
                 value = 2;
                 break;
@@ -10565,7 +10565,7 @@ void FUN_0050f650(int param_1, int param_2)
         }
         sprintf(CFrontend::m_stringDest, g_classRowHeaderFormat, CFrontend::GetTextString(0xfa),
                 value);
-        FUN_00501f80(3, 0, 0, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xbe / 0x1e0,
+        OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xbe / 0x1e0,
                      g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
         x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
         x += Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
@@ -10574,35 +10574,35 @@ void FUN_0050f650(int param_1, int param_2)
         x += 2 + Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
         if (param_2 == 10)
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x13c),
-                    FUN_00407150(RallyDataCountryIndex(), CGameInfo::FUN_00405d90()) & 0xff,
-                    FUN_00407150(RallyDataCountryIndex(), CGameInfo::FUN_00405d90()) & 0xff);
+                    RallyData_GetDriverGridRow(RallyDataCountryIndex(), CGameInfo::GetConfiguredDifficulty()) & 0xff,
+                    RallyData_GetDriverGridRow(RallyDataCountryIndex(), CGameInfo::GetConfiguredDifficulty()) & 0xff);
         else
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x13c), param_2 + 1,
-                    FUN_00407150(RallyDataCountryIndex(), CGameInfo::FUN_00405d90()) & 0xff);
-        FUN_00501f80(3, 0, 0, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xbe / 0x1e0,
+                    RallyData_GetDriverGridRow(RallyDataCountryIndex(), CGameInfo::GetConfiguredDifficulty()) & 0xff);
+        OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xbe / 0x1e0,
                      g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
     }
     sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0xff),
-            FUN_004f89e0(param_1, param_2));
-    FUN_00501f80(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xd2 / 0x1e0,
+            FrontendRecords_GetStageName(param_1, param_2));
+    OptionMenu_DrawTransitionTextShortCoords(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xd2 / 0x1e0,
                  g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
     sprintf(CFrontend::m_stringDest, g_str0x005297c4, CFrontend::GetTextString(0xfb),
-            RallyData_FUN_004077d0(param_1, param_2, 0) / 100);
-    FUN_00501f80(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xe0 / 0x1e0,
+            RallyData_GetIndexedStageScoreScale(param_1, param_2, 0) / 100);
+    OptionMenu_DrawTransitionTextShortCoords(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xe0 / 0x1e0,
                  g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
-    v0 = FUN_004f8a00(param_1, param_2)[0];
-    v1 = FUN_004f8a00(param_1, param_2)[1];
+    v0 = FrontendRecords_GetStageEntry(param_1, param_2)[0];
+    v1 = FrontendRecords_GetStageEntry(param_1, param_2)[1];
     if (v1 == 0)
         sprintf(CFrontend::m_stringDest, g_str0x00524d2c, CFrontend::GetTextString(0xfc), v0);
     else
         sprintf(CFrontend::m_stringDest, g_str0x00524d20, CFrontend::GetTextString(0xfc), v0, v1);
     strcat(CFrontend::m_stringDest, g_str0x00524d1c);
-    FUN_00501f80(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xee / 0x1e0,
+    OptionMenu_DrawTransitionTextShortCoords(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xee / 0x1e0,
                  g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
     sprintf(CFrontend::m_stringDest, g_str0x00524d14, CFrontend::GetTextString(0xfd));
-    FUN_00501f80(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xfc / 0x1e0,
+    OptionMenu_DrawTransitionTextShortCoords(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xfc / 0x1e0,
                  g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
-    count = FUN_004f89b0(&table, param_1, param_2) & 0xff;
+    count = FrontendRecords_GetStageEntryPayload(&table, param_1, param_2) & 0xff;
     limit = count;
     if (limit > 1)
         limit = 2;
@@ -10611,7 +10611,7 @@ void FUN_0050f650(int param_1, int param_2)
     for (i = 0; i < limit; i++) {
         sprintf(CFrontend::m_stringDest, g_str0x00524d0c, table[i * 8 + 4],
                 CFrontend::GetTextString(*(int *)(table + i * 8) + 0xd4));
-        FUN_00501f80(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * y / 0x1e0,
+        OptionMenu_DrawTransitionTextShortCoords(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * y / 0x1e0,
                      g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
         y += 0xe;
         w2 = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
@@ -10623,17 +10623,17 @@ void FUN_0050f650(int param_1, int param_2)
     for (i = limit; i < count; i++) {
         sprintf(CFrontend::m_stringDest, g_str0x00524d0c, table[i * 8 + 4],
                 CFrontend::GetTextString(*(int *)(table + i * 8) + 0xd4));
-        FUN_00501f80(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * y / 0x1e0,
+        OptionMenu_DrawTransitionTextShortCoords(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * y / 0x1e0,
                      g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
         y += 0xe;
     }
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x13e));
-    FUN_00501f80(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0x17d / 0x1e0,
+    OptionMenu_DrawTransitionTextShortCoords(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0x17d / 0x1e0,
                  g_unk0x005297ac, g_unk0x005297ac + 2, 0x21);
 }
 
 /* ===== integrated from w171/GiB ===== */
-BYTE FUN_00407150(BYTE param1, char param2);
+BYTE RallyData_GetDriverGridRow(BYTE param1, char param2);
 extern char g_keypadFormat[];
 extern char g_strLabelText[];
 
@@ -10659,11 +10659,11 @@ char g_str0x00529600[] = "%s %d (%s)";
 // match 72%: faithful reconstruction of every block (per-mode text, colours, sprite
 // queues, bar easing); the residual diff is MSVC6 register allocation and block
 // placement the compiler will not reproduce from source: it keeps the param5 load in
-// EDI across the three FUN_00501f00 calls, merges the Sprite_Queue/colour-select tails
+// EDI across the three OptionMenu_ScaleRecordBar calls, merges the Sprite_Queue/colour-select tails
 // at different points (push offset vs mov+push) and lays the switch bodies out with a
-// different instruction schedule. FUN_00502df0 is declared unsigned in the tree
+// different instruction schedule. OptionMenu_GetRecordPercentage is declared unsigned in the tree
 // while the original compares it signed; the call site casts to int for jg.
-// FUN_00502b10 returns BYTE, matching the original test al.
+// OptionMenu_IsValueDefault returns BYTE, matching the original test al.
 // FUNCTION: CMR2 0x0050b1c0
 void FUN_0050b1c0(short param1, short param2, short param3, short param4, short param5, int param6)
 {
@@ -10690,24 +10690,24 @@ void FUN_0050b1c0(short param1, short param2, short param3, short param4, short 
     if (param6 != 0)
         param6 = g_unk0x0052737c;
     else
-        param6 = *(int *)FUN_00501ab0();
+        param6 = *(int *)OptionMenu_GetStateByteAddress();
 
     barX = (int)param4 * (int)g_pGraphics->resX / 0x280;
 
     if (g_unk0x0083166c != 0) {
         rectQ[2] = *(short *)(g_unk0x0083166c + 0x120);
         rectQ[3] = *(short *)(g_unk0x0083166c + 0x122);
-        FUN_00501f00(1, rectQ);
+        OptionMenu_ScaleRecordBar(1, rectQ);
     }
     if (g_unk0x00831360 != 0) {
         rectR[2] = *(short *)(g_unk0x00831360 + 0x120);
         rectR[3] = *(short *)(g_unk0x00831360 + 0x122);
-        FUN_00501f00(1, rectR);
+        OptionMenu_ScaleRecordBar(1, rectR);
     }
     if (g_unk0x008313ac != 0) {
         rectP[2] = *(short *)(g_unk0x008313ac + 0x120);
         rectP[3] = *(short *)(g_unk0x008313ac + 0x122);
-        FUN_00501f00(1, rectP);
+        OptionMenu_ScaleRecordBar(1, rectP);
     }
 
     g_unk0x00831660[0] = (short)barX;
@@ -10717,7 +10717,7 @@ void FUN_0050b1c0(short param1, short param2, short param3, short param4, short 
     if (param3 == 4)
         g_unk0x00831660[2] += (short)((int)g_pGraphics->resX * 200 / 0x280);
 
-    FUN_00501d50(0, g_unk0x00831660, 1, 1);
+    OptionMenu_EaseRecordBar(0, g_unk0x00831660, 1, 1);
 
     if (param2 == 0) {
                 if (CGameInfo::FUN_005004c0() != 0)
@@ -10730,8 +10730,8 @@ Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527
 
     for (i = 0; i < param1; i++) {
         if (g_unk0x0083166c != 0) {
-            if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) != 0 &&
-                CFrontend::FUN_004b7590(0x400) != 0) {
+            if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) != 0 &&
+                CFrontend::IsTextureHeightSupported(0x400) != 0) {
                 rectQ[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_unk0x00831660[1] - 0xa);
                 rectP[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_unk0x00831660[1] - 0xe);
                 rectR[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_unk0x00831660[1] - 0xd);
@@ -10745,12 +10745,12 @@ Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527
         switch (param3) {
         case 1:
             sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
-                    CFrontend::GetTextString(FUN_004ff4d0(i)));
-            flag = FUN_00501280(FUN_004ff4d0(i),
-                                (int)CFrontend::FUN_0040ee90(
-                                    RallyData_FUN_004086b0(CGameInfo::FUN_005011b0()) & 0xff)) == 0;
-            if ((int)FUN_00502df0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i), 0) > 0 ||
-                FUN_00503940(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i)) != 0) {
+                    CFrontend::GetTextString(OptionMenu_GetColumnWeight(i)));
+            flag = OptionMenu_IsSlotEnabled(OptionMenu_GetColumnWeight(i),
+                                (int)CFrontend::GetArchivePrimaryIDEntry(
+                                    RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot()) & 0xff)) == 0;
+            if ((int)OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(i), 0) > 0 ||
+                OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(i)) != 0) {
                 if (i != param2) {                    Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                  (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
                                  (BYTE *)&g_unk0x00527380[1], 8);
@@ -10762,7 +10762,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                         Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL, (BYTE *)&param6, 8);
                             }
-                if (FUN_00503940(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i)) != 0) {
+                if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(i)) != 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
                                      (BYTE *)&g_unk0x00527380[1], 8);
@@ -10774,7 +10774,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                             Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL, (BYTE *)&param6, 8);
                                 }
-                } else if (FUN_00502fc0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i)) == 0) {
+                } else if (OptionMenu_IsRecordPercentageAboveBase(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(i)) == 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
                                      (BYTE *)&g_unk0x00527380[1], 8);
@@ -10788,22 +10788,22 @@ Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                 }
                 }
             }
-            if ((int)FUN_00502df0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i), 0) > 0x42) {
+            if ((int)OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(i), 0) > 0x42) {
                 Sprite_Queue((SpriteRect *)(g_unk0x00831360 + 0x11c), (SpriteRect *)rectR,
                              (Texture *)g_unk0x00831360, 1, 0, NULL, NULL, (BYTE *)&g_colour0x005273a8, 8);
-            } else if ((int)FUN_00502df0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i), 0) > 0x21) {
+            } else if ((int)OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(i), 0) > 0x21) {
                 Sprite_Queue((SpriteRect *)(g_unk0x00831360 + 0x11c), (SpriteRect *)rectR,
                              (Texture *)g_unk0x00831364, 1, 0, NULL, NULL, (BYTE *)&g_colour0x005273a8, 8);
-            } else if ((int)FUN_00502df0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i), 0) > 0) {
+            } else if ((int)OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(i), 0) > 0) {
                 Sprite_Queue((SpriteRect *)(g_unk0x00831360 + 0x11c), (SpriteRect *)rectR,
                              (Texture *)g_unk0x00831368, 1, 0, NULL, NULL, (BYTE *)&g_colour0x005273a8, 8);
             }
             break;
         case 0:
-            if ((CGameInfo::FUN_00405d80() == 0 || CGameInfo::FUN_00405d80() == 1) &&
+            if ((CGameInfo::GetConfiguredGameMode() == 0 || CGameInfo::GetConfiguredGameMode() == 1) &&
                 (RallyDataStageIndex() & 0xff) + i == 10) {
                 sprintf(CFrontend::m_stringDest, g_str0x00529600, CFrontend::GetTextString(0x9b),
-                        FUN_00407150((BYTE)RallyDataCountryIndex(), (char)CGameInfo::FUN_00405d90()),
+                        RallyData_GetDriverGridRow((BYTE)RallyDataCountryIndex(), (char)CGameInfo::GetConfiguredDifficulty()),
                         CFrontend::GetTextString(0x13d));
             } else if ((RallyDataStageIndex() & 0xff) + i == 10) {
                 sprintf(CFrontend::m_stringDest, g_keypadFormat, CFrontend::GetTextString(0x9b),
@@ -10831,9 +10831,9 @@ Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
         case 2:
             sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                     CFrontend::GetTextString(i + 0xa6));
-            flag = FUN_00501280(FUN_004ff4b0(i),
-                                (int)CFrontend::FUN_0040ee90(
-                                    RallyData_FUN_004086b0(CGameInfo::FUN_005011b0()) & 0xff)) == 0;
+            flag = OptionMenu_IsSlotEnabled(OptionMenu_GetColumnLabelId(i),
+                                (int)CFrontend::GetArchivePrimaryIDEntry(
+                                    RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot()) & 0xff)) == 0;
             if (!flag) {
                 if (i != param2) {                    Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                  (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
@@ -10846,7 +10846,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                         Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL, (BYTE *)&param6, 8);
                             }
-                if ((BYTE)FUN_00502b10(CGameInfo::FUN_005011b0(), i) == 0) {
+                if ((BYTE)OptionMenu_IsValueDefault(CGameInfo::GetActiveOptionSlot(), i) == 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
                                      (BYTE *)&g_unk0x00527380[1], 8);
@@ -10858,7 +10858,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                             Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL, (BYTE *)&param6, 8);
                                 }
-                } else if (FUN_00502630(CGameInfo::FUN_005011b0(), FUN_004ff4c0(i)) == 0) {
+                } else if (OptionMenu_IsSlotValueAboveBase(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnUnitId(i)) == 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
                                      (BYTE *)&g_unk0x00527380[1], 8);
@@ -10879,14 +10879,14 @@ Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
         }
         if (i == param2) {
             if (CGameInfo::FUN_005004c0() != 0) {
-                                if (FUN_005021c0(3) != 2)
-FUN_00501f80(3, 0, 0, CFrontend::m_stringDest,
+                                if (OptionMenu_GetRecordTransitionMode(3) != 2)
+OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                                  (int)g_pGraphics->resX * 0x14 / 0x280 +
                                      (int)g_pGraphics->resX * param4 / 0x280,
                                  (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1],
                                  &g_unk0x00527378, &g_unk0x00527378, 0x11);
                 else
-FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
+OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
                                  (int)g_pGraphics->resX * 0x14 / 0x280 +
                                      (int)g_pGraphics->resX * param4 / 0x280,
                                  (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1],
@@ -10896,14 +10896,14 @@ FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
                                  (Texture *)g_unk0x0083166c, 1, 0, NULL, NULL,
                                  (BYTE *)&g_unk0x00527378, 8);
             } else {
-                                if (FUN_005021c0(3) != 2)
-FUN_00501f80(3, 0, 0, CFrontend::m_stringDest,
+                                if (OptionMenu_GetRecordTransitionMode(3) != 2)
+OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                                  (int)g_pGraphics->resX * 0x14 / 0x280 +
                                      (int)g_pGraphics->resX * param4 / 0x280,
                                  (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1],
                                  &param6, &g_unk0x0052738c[1], 0x11);
                 else
-FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
+OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
                                  (int)g_pGraphics->resX * 0x14 / 0x280 +
                                      (int)g_pGraphics->resX * param4 / 0x280,
                                  (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1],
@@ -10914,7 +10914,7 @@ FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
             }
         } else {
             if (flag != 0) {
-                FUN_00501f80(3, 0, 0, CFrontend::m_stringDest,
+                OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                              (int)g_pGraphics->resX * 0x14 / 0x280 +
                                  (int)g_pGraphics->resX * param4 / 0x280,
                              (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1],
@@ -10924,7 +10924,7 @@ FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
                                  (Texture *)g_unk0x0083166c, 1, 0, NULL, NULL,
                                  (BYTE *)&g_unk0x00527398, 8);
             } else {
-                FUN_00501f80(3, 0, 0, CFrontend::m_stringDest,
+                OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                              (int)g_pGraphics->resX * 0x14 / 0x280 +
                                  (int)g_pGraphics->resX * param4 / 0x280,
                              (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1],
@@ -10949,36 +10949,36 @@ FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
 }
 /* ===== W194: saved-game image + option menu callbacks (0x4f5190-0x5004xx) ===== */
 
-extern void RallyData_FUN_00408d80(void);
-extern BYTE FUN_004086f0(BYTE param1);
-extern BYTE *RallyData_FUN_00408d60(int index);
-extern int FUN_0040cfe0(int index);
-extern BYTE *RallyData_FUN_00408860(int index);
-extern BYTE *RallyData_FUN_00407630(int index);
-extern int *FUN_00407520(int index);
-extern int *RallyData_FUN_004075e0(int index);
-extern BYTE *RallyData_FUN_004075d0(int index);
-extern int *RallyData_FUN_004075b0(int index);
-extern int *RallyData_FUN_004075c0(int index);
+extern void RallyData_CopyDriverStageTimesToRecords(void);
+extern BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
+extern BYTE *RallyData_GetDriverEntryRecord(int index);
+extern int RallyTiming_GetStageTieBreak(int index);
+extern BYTE *RallyData_GetDriverCategoryProfile(int index);
+extern BYTE *RallyData_GetDriverSkillRecord(int index);
+extern int *RallyData_GetDriverSettingPair(int index);
+extern int *RallyData_GetDriverPrimaryPairRecord(int index);
+extern BYTE *RallyData_GetDriverSelectionFlagRecord(int index);
+extern int *RallyData_GetDriverPairRecord(int index);
+extern int *RallyData_GetDriverSecondaryPairRecord(int index);
 extern unsigned char RallyDataCountryIndex(void);
 extern unsigned char RallyDataStageIndex(void);
-extern BYTE RallyData_FUN_00406920(void);
+extern BYTE RallyData_GetSelectionStateByte(void);
 extern void FUN_00500270(Menu *, MenuItem *);
 extern void FUN_00503010(int param_1, int param_2);
 extern void FUN_00500130(void);
-extern void FUN_005001c0(char param1);
-extern void FUN_00501d00(int index);
-extern void FUN_00500520(void);
-extern void FUN_00500530(void);
-extern void FUN_00506b20(int index, char visible);
-extern void FUN_004ff5b0(void);
-extern void FUN_004ff630(Menu *pMenu);
-extern int FUN_00501280(int mode, int index);
-extern int FUN_004ff4b0(int index);
-extern int FUN_005011f0(int index);
-extern void FUN_00501210(int index, int value);
-extern unsigned int FUN_00502df0(int index, int type, int dynamic);
-extern void FUN_005074d0(int index);
+extern void OptionMenu_Start(char param1);
+extern void OptionMenu_ClearRecordTransition(int index);
+extern void OptionMenu_ClearTimeout(void);
+extern void OptionMenu_UpdateTimeout(void);
+extern void OptionPreview_SetWheelNodesVisible(int index, char visible);
+extern void OptionMenu_FillValueSlider(void);
+extern void OptionMenu_ConfirmHighlightedItem(Menu *pMenu);
+extern int OptionMenu_IsSlotEnabled(int mode, int index);
+extern int OptionMenu_GetColumnLabelId(int index);
+extern int OptionMenu_GetSlotSelector(int index);
+extern void OptionMenu_SetSlotSelector(int index, int value);
+extern unsigned int OptionMenu_GetRecordPercentage(int index, int type, int dynamic);
+extern void OptionPreview_RebuildStageMeshes(int index);
 extern int g_unk0x005270b8[11];
 
 // Session image rebuilt before a game is saved. The bytes also form the 0x7f4
@@ -11022,7 +11022,7 @@ char g_str0x00525c20[] = "%s\\gamesave\\%s";
 // string is given it is used for the file name; otherwise the name of the
 // saved game selected by index is read back from the loaded records.
 // FUNCTION: CMR2 0x004f5190
-BYTE FUN_004f5190(int index, char *fmt)
+BYTE SavedGames_WriteSessionImage(int index, char *fmt)
 {
     int i;
     BYTE *pCar;
@@ -11031,72 +11031,72 @@ BYTE FUN_004f5190(int index, char *fmt)
     BYTE *p3;
     int *pRec;
 
-    RallyData_FUN_00408d80();
+    RallyData_CopyDriverStageTimesToRecords();
 
-    g_unk0x0081a888 = (g_unk0x0081a888 & 0xffffff80) | (CGameInfo::FUN_00405d80() & 0x7f);
-    g_unk0x0081a888 = (g_unk0x0081a888 & 0xfffffc7f) | ((CGameInfo::FUN_00405d90() & 7) << 7);
-    g_unk0x0081a888 = (g_unk0x0081a888 & 0xffffc3ff) | ((CGameInfo::FUN_00405d70() & 0xf) << 0xa);
-    g_unk0x0081a888 = (g_unk0x0081a888 & 0xffffbfff) | ((CGameInfo::FUN_00405da0() & 1) << 0xe);
+    g_unk0x0081a888 = (g_unk0x0081a888 & 0xffffff80) | (CGameInfo::GetConfiguredGameMode() & 0x7f);
+    g_unk0x0081a888 = (g_unk0x0081a888 & 0xfffffc7f) | ((CGameInfo::GetConfiguredDifficulty() & 7) << 7);
+    g_unk0x0081a888 = (g_unk0x0081a888 & 0xffffc3ff) | ((CGameInfo::GetConfiguredPlayerCount() & 0xf) << 0xa);
+    g_unk0x0081a888 = (g_unk0x0081a888 & 0xffffbfff) | ((CGameInfo::IsConfiguredMultiplayer() & 1) << 0xe);
 
-    for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++)
+    for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++)
         g_unk0x0081a88c[i * 2] = (g_unk0x0081a88c[i * 2] & 0xffffffbf) |
-                                 ((FUN_004086f0((BYTE)i) & 1) << 6);
+                                 ((RallyData_GetDriverOrCategoryFlag((BYTE)i) & 1) << 6);
 
     for (i = 0; i < 16; i++) {
-        pCar = RallyData_FUN_00408d60(i);
+        pCar = RallyData_GetDriverEntryRecord(i);
         g_unk0x0081a88c[i * 2] = (g_unk0x0081a88c[i * 2] & 0xffffffc0) | (*(int *)pCar & 0x3f);
-        pCar = RallyData_FUN_00408d60(i);
+        pCar = RallyData_GetDriverEntryRecord(i);
         g_unk0x0081a88c[i * 2] = (g_unk0x0081a88c[i * 2] & 0xffffc07f) |
                                  ((*(int *)pCar & 0x1fc0) << 1);
-        pCar = RallyData_FUN_00408d60(i);
+        pCar = RallyData_GetDriverEntryRecord(i);
         g_unk0x0081a88c[i * 2 + 1] = *(int *)(pCar + 4);
     }
 
     for (i = 0; i < 16; i++)
-        g_unk0x0081b034[i] = (BYTE)FUN_0040cfe0(i);
+        g_unk0x0081b034[i] = (BYTE)RallyTiming_GetStageTieBreak(i);
 
     i = 0;
-    if ((BYTE)CGameInfo::FUN_00405d70() > 0) {
+    if ((BYTE)CGameInfo::GetConfiguredPlayerCount() > 0) {
         p3 = g_unk0x0081ae6c;
         p2 = g_unk0x0081a94c;
         p1 = g_unk0x0081a91c;
         pRec = g_unk0x0081a90c;
         do {
-            BYTE *p = RallyData_FUN_00408860(i);
+            BYTE *p = RallyData_GetDriverCategoryProfile(i);
             *pRec = (*pRec & 0xfffffcff) | (*(int *)(p + 0x5c) & 0x300);
-            p = RallyData_FUN_00408860(i);
+            p = RallyData_GetDriverCategoryProfile(i);
             *pRec = (*pRec & 0xffffffc7) | (*(int *)(p + 0x5c) & 0x38);
-            p = RallyData_FUN_00408860(i);
+            p = RallyData_GetDriverCategoryProfile(i);
             *pRec = (*pRec & 0xffffe3ff) | (*(int *)(p + 0x5c) & 0x1c00);
-            p = RallyData_FUN_00408860(i);
+            p = RallyData_GetDriverCategoryProfile(i);
             *pRec = (*pRec & 0xffffff3f) | (*(int *)(p + 0x5c) & 0xc0);
-            p = RallyData_FUN_00408860(i);
+            p = RallyData_GetDriverCategoryProfile(i);
             *pRec = (*pRec & 0xfffffff8) | (*(int *)(p + 0x5c) & 7);
-            p = RallyData_FUN_00408860(i);
+            p = RallyData_GetDriverCategoryProfile(i);
             *(FixVector *)p1 = *(FixVector *)(p + 0x10);
-            memcpy(p2, RallyData_FUN_00407610(i), 0x148);
-            memcpy(p3, RallyData_FUN_00407630(i), 7);
+            memcpy(p2, RallyData_GetDriverGroupRecord(i), 0x148);
+            memcpy(p3, RallyData_GetDriverSkillRecord(i), 7);
             i++;
             pRec++;
             p1 += 0xc;
             p2 += 0x148;
             p3 += 7;
-        } while (i < (BYTE)CGameInfo::FUN_00405d70());
+        } while (i < (BYTE)CGameInfo::GetConfiguredPlayerCount());
     }
 
-    memcpy(g_unk0x0081ae88, FUN_00407520(0), 0xa0);
-    memcpy(g_unk0x0081af28, RallyData_FUN_004075e0(0), 0x50);
-    memcpy(g_unk0x0081af78, RallyData_FUN_004075d0(0), 0x14);
-    memcpy(g_unk0x0081af8c, RallyData_FUN_004075b0(0), 0x50);
-    memcpy(g_unk0x0081afdc, RallyData_FUN_004075c0(0), 0x50);
+    memcpy(g_unk0x0081ae88, RallyData_GetDriverSettingPair(0), 0xa0);
+    memcpy(g_unk0x0081af28, RallyData_GetDriverPrimaryPairRecord(0), 0x50);
+    memcpy(g_unk0x0081af78, RallyData_GetDriverSelectionFlagRecord(0), 0x14);
+    memcpy(g_unk0x0081af8c, RallyData_GetDriverPairRecord(0), 0x50);
+    memcpy(g_unk0x0081afdc, RallyData_GetDriverSecondaryPairRecord(0), 0x50);
 
     g_unk0x0081b030 = (g_unk0x0081b030 & 0xffffffe0) | (RallyDataCountryIndex() & 0x1f);
     g_unk0x0081b030 = (g_unk0x0081b030 & 0xfffffc1f) | ((RallyDataStageIndex() & 0x1f) << 5);
-    g_unk0x0081b02c = RallyData_FUN_00406920();
+    g_unk0x0081b02c = RallyData_GetSelectionStateByte();
 
     if (fmt != NULL) {
         sprintf(g_unk0x0081a868, fmt);
-        FUN_004f5150(CFrontend::m_stringDest);
+        SavedGames_MakeUnusedFileName(CFrontend::m_stringDest);
     } else if (index > -1) {
         strcpy(g_unk0x0081a868, (char *)((BYTE *)g_unk0x0081b14c + index * 0x7f4 + 0x10));
         sprintf(CFrontend::m_stringDest, g_str0x00525c20, CInstallInfo::GetGameHDPath(),
@@ -11111,42 +11111,42 @@ BYTE FUN_004f5190(int index, char *fmt)
 // Loads the highlighted saved game into the frontend and moves to the game
 // screen; if the slot is empty it only reports the failure.
 // FUNCTION: CMR2 0x00500020
-void FUN_00500020(unsigned int param1, unsigned int param2)
+void OptionMenu_LoadSelectedSavedGame(unsigned int param1, unsigned int param2)
 {
-    if (FUN_004f5190(g_unk0x0082a924, NULL)) {
+    if (SavedGames_WriteSessionImage(g_unk0x0082a924, NULL)) {
         strcpy(g_unk0x0082a93c, CFrontend::GetTextString(0x143));
-        Menu_SetNextAction((int)FUN_00502210());
-        FUN_004f4ef0();
+        Menu_SetNextAction((int)OptionMenu_GetStatusMenu());
+        SavedGames_LoadRecords();
     } else {
         strcpy(g_unk0x0082a93c, CFrontend::GetTextString(0x144));
-        Menu_SetNextAction((int)FUN_00502210());
+        Menu_SetNextAction((int)OptionMenu_GetStatusMenu());
     }
 }
 
 // "Load game" entry of the option menu: arms the load request and, once the
 // records were re-read, starts the frontend on the selected saved game.
 // FUNCTION: CMR2 0x004ffed0
-void FUN_004ffed0(Menu *pMenu, MenuItem *pItem)
+void OptionMenu_LoadGameItem(Menu *pMenu, MenuItem *pItem)
 {
     if (g_unk0x0082ab44 != 0) {
-        Menu_SetNextAction((int)FUN_00502220());
+        Menu_SetNextAction((int)OptionMenu_GetAdvancedOptionsMenu());
         return;
     }
-    if (pMenu->items[4].max == 0 && FUN_004f4db0() > 0) {
+    if (pMenu->items[4].max == 0 && SavedGames_GetCount() > 0) {
         g_unk0x0082ab44 = 1;
         Menu_SetFlags(pMenu, 0, 0, 0, 0);
         return;
     }
     if (pMenu->items[4].max == 1) {
-        if (FUN_004f5190(-1, g_unk0x0082aa44) != 0) {
+        if (SavedGames_WriteSessionImage(-1, g_unk0x0082aa44) != 0) {
             strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
             strcpy(g_unk0x0082a93c, CFrontend::GetTextString(0x143));
-            Menu_SetNextAction((int)FUN_00502210());
-            FUN_004f4ef0();
-            g_unk0x0082a924 = FUN_004f4db0() - 1;
+            Menu_SetNextAction((int)OptionMenu_GetStatusMenu());
+            SavedGames_LoadRecords();
+            g_unk0x0082a924 = SavedGames_GetCount() - 1;
         } else {
             strcpy(g_unk0x0082a93c, CFrontend::GetTextString(0x144));
-            Menu_SetNextAction((int)FUN_00502210());
+            Menu_SetNextAction((int)OptionMenu_GetStatusMenu());
         }
     }
 }
@@ -11154,10 +11154,10 @@ void FUN_004ffed0(Menu *pMenu, MenuItem *pItem)
 // Applies the value of the highlighted entry of the option menu when it was
 // confirmed: only stores it when it is a valid change for this slot.
 // FUNCTION: CMR2 0x004fffe0
-void FUN_004fffe0(Menu *pMenu, MenuItem *pItem)
+void OptionMenu_ApplyHighlightedValue(Menu *pMenu, MenuItem *pItem)
 {
-    if (FUN_00503940(CGameInfo::FUN_005011b0(), FUN_004ff4d0(pItem->max)) != 0)
-        FUN_00500360(pMenu, (int)pItem);
+    if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(pItem->max)) != 0)
+        OptionMenu_ApplySecondModeItem(pMenu, (int)pItem);
     else
         FUN_00500270(pMenu, pItem);
 }
@@ -11170,25 +11170,25 @@ void FUN_00500270(Menu *pMenu, MenuItem *pItem)
     int index;
     int value;
 
-    index = Menu_FindItem((Menu *)FUN_00502500(), 2);
-    value = FUN_004ff4d0(((Menu *)FUN_00502500())->items[index].max);
-    if (FUN_005011f0(CGameInfo::FUN_005011b0()) - FUN_00503930(value) < 0) {
-        if (FUN_00503940(CGameInfo::FUN_005011b0(), value) == 0) {
-            if (FUN_00502df0(CGameInfo::FUN_005011b0(), value, 0) > 0) {
-                CGameInfo::FUN_00500500();
+    index = Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2);
+    value = OptionMenu_GetColumnWeight(((Menu *)OptionMenu_GetControlSetupMenu())->items[index].max);
+    if (OptionMenu_GetSlotSelector(CGameInfo::GetActiveOptionSlot()) - OptionMenu_GetRecordGroupWeight(value) < 0) {
+        if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), value) == 0) {
+            if (OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), value, 0) > 0) {
+                CGameInfo::StartOptionMenuTimeout();
                 return;
             }
             return;
         }
     }
-    if (FUN_00503940(CGameInfo::FUN_005011b0(), value) == 0)
-        FUN_00503010(CGameInfo::FUN_005011b0(), value);
+    if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), value) == 0)
+        FUN_00503010(CGameInfo::GetActiveOptionSlot(), value);
     Menu_SetNextAction((int)pMenu->pParent);
 }
 
 // Reverts one option group of the current slot: clears the group's "changed"
 // flags and subtracts the group's weight from the slot value.
-// (Not listed in functions.tsv; it is the counter part of FUN_005034f0.)
+// (Not listed in functions.tsv; it is the counter part of OptionMenu_ApplyRallyRecordGroup.)
 // match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00503010
 void FUN_00503010(int param_1, int param_2)
@@ -11202,16 +11202,16 @@ void FUN_00503010(int param_1, int param_2)
         if (pDest[0x116] == 0)
             return;
         pDest[0x116] = 0;
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value - g_unk0x005270b8[0]);
+        value = OptionMenu_GetSlotSelector(param_1);
+        OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[0]);
         g_unk0x0082c040[param_1][1] = 1;
         return;
     case 2:
         if (pDest[0x117] == 0)
             return;
         pDest[0x117] = 0;
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value - g_unk0x005270b8[1]);
+        value = OptionMenu_GetSlotSelector(param_1);
+        OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[1]);
         g_unk0x0082c040[param_1][2] = 1;
         return;
     case 3:
@@ -11221,8 +11221,8 @@ void FUN_00503010(int param_1, int param_2)
         pDest[0x10f] = 0;
         pDest[0x110] = 0;
         pDest[0x111] = 0;
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value - g_unk0x005270b8[2]);
+        value = OptionMenu_GetSlotSelector(param_1);
+        OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[2]);
         FUN_00509d00(param_1);
         g_unk0x0082c040[param_1][3] = 1;
         return;
@@ -11230,8 +11230,8 @@ void FUN_00503010(int param_1, int param_2)
         if (pDest[0x118] == 0)
             return;
         pDest[0x118] = 0;
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value - g_unk0x005270b8[3]);
+        value = OptionMenu_GetSlotSelector(param_1);
+        OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[3]);
         g_unk0x0082c040[param_1][4] = 1;
         return;
     case 5:
@@ -11241,8 +11241,8 @@ void FUN_00503010(int param_1, int param_2)
         pDest[0x113] = 0;
         pDest[0x114] = 0;
         pDest[0x115] = 0;
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value - g_unk0x005270b8[4]);
+        value = OptionMenu_GetSlotSelector(param_1);
+        OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[4]);
         g_unk0x0082c040[param_1][5] = 1;
         return;
     case 6:
@@ -11303,11 +11303,11 @@ void FUN_00503010(int param_1, int param_2)
                     ((Unk0x0082c070Item *)pDest)[i].field_0x0[11] = 0;
                     ((Unk0x0082c070Item *)pDest)[i].field_0x0[12] = 0xff;
                 }
-                value = FUN_005011f0(param_1);
-                FUN_00501210(param_1, value - g_unk0x005270b8[5]);
+                value = OptionMenu_GetSlotSelector(param_1);
+                OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[5]);
                 g_unk0x0082c040[param_1][6] = 1;
             }
-            FUN_005074d0(param_1);
+            OptionPreview_RebuildStageMeshes(param_1);
             return;
         }
     case 7:
@@ -11315,32 +11315,32 @@ void FUN_00503010(int param_1, int param_2)
             return;
         pDest[0x10c] = 0;
         pDest[0x10d] = 0;
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value - g_unk0x005270b8[6]);
+        value = OptionMenu_GetSlotSelector(param_1);
+        OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[6]);
         g_unk0x0082c040[param_1][7] = 1;
         return;
     case 8:
         if (pDest[0x11f] == 0)
             return;
         pDest[0x11f] = 0;
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value - g_unk0x005270b8[7]);
+        value = OptionMenu_GetSlotSelector(param_1);
+        OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[7]);
         g_unk0x0082c040[param_1][8] = 1;
         return;
     case 9:
         if (pDest[0x120] == 0)
             return;
         pDest[0x120] = 0;
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value - g_unk0x005270b8[8]);
+        value = OptionMenu_GetSlotSelector(param_1);
+        OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[8]);
         g_unk0x0082c040[param_1][9] = 1;
         return;
     case 10:
         if (pDest[0x121] == 0)
             return;
         pDest[0x121] = 0;
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value - g_unk0x005270b8[9]);
+        value = OptionMenu_GetSlotSelector(param_1);
+        OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[9]);
         g_unk0x0082c040[param_1][10] = 1;
         return;
     case 11:
@@ -11350,18 +11350,18 @@ void FUN_00503010(int param_1, int param_2)
         pDest[0x109] = 0;
         pDest[0x10a] = 0;
         pDest[0x10b] = 0;
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value - g_unk0x005270b8[10]);
+        value = OptionMenu_GetSlotSelector(param_1);
+        OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[10]);
         FUN_00509d90(param_1);
         g_unk0x0082c040[param_1][11] = 1;
         return;
     }
 }
 
-extern void FUN_004ff720(Menu *pMenu);
+extern void OptionMenu_UpdateLoadGameAndNameEntry(Menu *pMenu);
 extern void FUN_004ffab0(unsigned int param1);
-extern bool FUN_004b7cd0(int *pOut);
-extern void FUN_004b7c80(void);
+extern bool Input_PopQueuedCharacter(int *pOut);
+extern void Input_ClearCharacterQueue(void);
 
 // Name of a saved game being edited (0x526fb8 is the accepted character set).
 // GLOBAL: CMR2 0x00526fb8
@@ -11377,17 +11377,17 @@ BYTE g_unk0x00526f40 = 1;
 // list while it is armed, and feeds the name editor (append/backspace, width and
 // character-set checks) while the highlighted row is being edited.
 // FUNCTION: CMR2 0x004ff720
-void FUN_004ff720(Menu *pMenu)
+void OptionMenu_UpdateLoadGameAndNameEntry(Menu *pMenu)
 {
     int value;
     DeviceInfo *pDevice;
     int index;
     int length;
 
-    g_unk0x0082aa40 = FUN_004f4db0();
+    g_unk0x0082aa40 = SavedGames_GetCount();
     if (g_unk0x0082ab44 != 0) {
         Menu_SetFlags(pMenu, 0, 0, 1, 1);
-        pDevice = CInput::FUN_0049ead0(0);
+        pDevice = CInput::GetAvailableDeviceRecord(0);
         if (g_unk0x0082aa40 > 0) {
             if (g_unk0x0082a924 == -1) {
                 g_unk0x0082a924 = 0;
@@ -11433,7 +11433,7 @@ void FUN_004ff720(Menu *pMenu)
     index = Menu_FindItem(pMenu, 4);
     if (pMenu->items[index].max == 1) {
         Menu_SetFlags(pMenu, 0, 0, 1, 0);
-        pDevice = CInput::FUN_0049ead0(0);
+        pDevice = CInput::GetAvailableDeviceRecord(0);
         if (pDevice->field_0x8 == 0) {
             g_unk0x00526f40 = 1;
         } else if (g_unk0x00526f40 == 0) {
@@ -11453,7 +11453,7 @@ void FUN_004ff720(Menu *pMenu)
     editor:
         g_unk0x0082a934 = g_unk0x0082aa44;
         strcpy(CFrontend::m_stringDest, g_unk0x0082aa44);
-        if (FUN_004b7cd0(&value)) {
+        if (Input_PopQueuedCharacter(&value)) {
             if (value != 8) {
                 length = strlen(CFrontend::m_stringDest);
                 if (length < 0x1e && strchr(g_str0x00526fb8, (char)value) != NULL &&
@@ -11472,7 +11472,7 @@ void FUN_004ff720(Menu *pMenu)
             strcpy(g_unk0x0082a934, CFrontend::m_stringDest);
         }
     } else {
-        FUN_004b7c80();
+        Input_ClearCharacterQueue();
         strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
         g_unk0x00526f40 = 0;
         Menu_SetFlags(pMenu, 1, 1, 1, 1);
@@ -11504,12 +11504,12 @@ BYTE g_unk0x00831318;
 // mesh buffers of every slot, its textures and scene nodes, and clears the
 // session flag.
 // FUNCTION: CMR2 0x00505f10
-BYTE FUN_00505f10(void)
+BYTE OptionPreview_ReleaseSessionResources(void)
 {
     int i;
     int j;
 
-    if (CGameInfo::FUN_00405d10() == 0) {
+    if (CGameInfo::GetPreviewMode() == 0) {
         for (i = 0; i < 16; i++) {
             for (j = 0; j < 4; j++) {
                 if (g_unk0x0082cb78[i].field_0x24[j] != 0)
@@ -11545,7 +11545,7 @@ BYTE FUN_00505f10(void)
         g_unk0x00831088[i].pUnk0x8 = NULL;
         g_unk0x00831088[i].pUnk0x4 = NULL;
     }
-    for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++) {
+    for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++) {
         if (g_unk0x0082cb78[i].pNode != NULL)
             SceneNode_Destroy(g_unk0x0082cb78[i].pNode);
         if (g_unk0x0082cb78[i].field_0x0c != 0)
@@ -11587,24 +11587,24 @@ void FUN_004ffab0(Menu *pMenu)
     if (g_unk0x0082ac50 > 0) {
         g_unk0x0082ac50--;
         if (g_unk0x0082ac50 == 0)
-            FUN_005001c0(0);
+            OptionMenu_Start(0);
     }
     g_unk0x0082a928 = CMain::GetFrameDelta();
     if (pMenu->cursor != g_unk0x00526f44) {
-        FUN_00501d00(0);
-        FUN_00501d00(1);
-        FUN_00501d00(3);
-        FUN_00501d00(2);
-        FUN_00501d00(5);
-        FUN_00501d00(6);
-        FUN_00501d00(7);
+        OptionMenu_ClearRecordTransition(0);
+        OptionMenu_ClearRecordTransition(1);
+        OptionMenu_ClearRecordTransition(3);
+        OptionMenu_ClearRecordTransition(2);
+        OptionMenu_ClearRecordTransition(5);
+        OptionMenu_ClearRecordTransition(6);
+        OptionMenu_ClearRecordTransition(7);
         if ((pMenu->cursor != 2 || g_unk0x00526f44 != 1) &&
             (pMenu->cursor != 1 || g_unk0x00526f44 != 2))
-            FUN_00501d00(4);
+            OptionMenu_ClearRecordTransition(4);
         g_unk0x0082a90c[g_unk0x00526f44] = 2;
         g_unk0x0082a930 = g_unk0x0082a928;
         g_unk0x00526f44 = pMenu->cursor;
-        FUN_00500520();
+        OptionMenu_ClearTimeout();
     }
     for (i = 0; i < 6; i++) {
         switch (g_unk0x0082a90c[i]) {
@@ -11634,55 +11634,55 @@ void FUN_004ffab0(Menu *pMenu)
         }
     }
     if (pMenu->cursor != Menu_FindItem(pMenu, 2) && pMenu->cursor != Menu_FindItem(pMenu, 1)) {
-        for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++)
-            FUN_00506b20(i, 0);
+        for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++)
+            OptionPreview_SetWheelNodesVisible(i, 0);
     } else {
-        for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++)
-            FUN_00506b20(i, i == CGameInfo::FUN_005011b0());
+        for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++)
+            OptionPreview_SetWheelNodesVisible(i, i == CGameInfo::GetActiveOptionSlot());
     }
     if (pMenu->cursor != Menu_FindItem(pMenu, 5))
-        ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 5)].max = 1;
-    FUN_004ff630(pMenu);
-    value = ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 1)].max;
-    while (FUN_00501280(FUN_004ff4b0(value),
-                        (int)CFrontend::FUN_0040ee90(
-                            RallyData_FUN_004086b0(CGameInfo::FUN_005011b0()) & 0xff)) == 0) {
+        ((Menu *)OptionMenu_GetControlSetupMenu())->items[Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 5)].max = 1;
+    OptionMenu_ConfirmHighlightedItem(pMenu);
+    value = ((Menu *)OptionMenu_GetControlSetupMenu())->items[Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1)].max;
+    while (OptionMenu_IsSlotEnabled(OptionMenu_GetColumnLabelId(value),
+                        (int)CFrontend::GetArchivePrimaryIDEntry(
+                            RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot()) & 0xff)) == 0) {
         if (g_unk0x00526f48 < value)
             value++;
         else
             value--;
     }
-    ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 1)].max = (BYTE)value;
+    ((Menu *)OptionMenu_GetControlSetupMenu())->items[Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1)].max = (BYTE)value;
     if (g_unk0x00526f48 != value) {
-        FUN_00500520();
-        FUN_00501d00(5);
-        FUN_00501d00(7);
+        OptionMenu_ClearTimeout();
+        OptionMenu_ClearRecordTransition(5);
+        OptionMenu_ClearRecordTransition(7);
     }
     g_unk0x00526f48 = value;
-    value = ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 2)].max;
-    while (FUN_00501280(FUN_004ff4d0(value),
-                        (int)CFrontend::FUN_0040ee90(
-                            RallyData_FUN_004086b0(CGameInfo::FUN_005011b0()) & 0xff)) == 0) {
+    value = ((Menu *)OptionMenu_GetControlSetupMenu())->items[Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2)].max;
+    while (OptionMenu_IsSlotEnabled(OptionMenu_GetColumnWeight(value),
+                        (int)CFrontend::GetArchivePrimaryIDEntry(
+                            RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot()) & 0xff)) == 0) {
         if (g_unk0x00526f4c < value)
             value++;
         else
             value--;
     }
-    ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 2)].max = (BYTE)value;
+    ((Menu *)OptionMenu_GetControlSetupMenu())->items[Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2)].max = (BYTE)value;
     if (g_unk0x00526f4c != value) {
-        FUN_00500520();
-        FUN_00501d00(5);
-        FUN_00501d00(7);
+        OptionMenu_ClearTimeout();
+        OptionMenu_ClearRecordTransition(5);
+        OptionMenu_ClearRecordTransition(7);
     }
     g_unk0x00526f4c = value;
-    old = ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 0)].max;
+    old = ((Menu *)OptionMenu_GetControlSetupMenu())->items[Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 0)].max;
     if (g_unk0x00526f50 != old)
-        FUN_00501d00(7);
+        OptionMenu_ClearRecordTransition(7);
     g_unk0x00526f50 = old;
-    FUN_00500530();
-    FUN_004ff5b0();
+    OptionMenu_UpdateTimeout();
+    OptionMenu_FillValueSlider();
     if (pMenu->cursor == Menu_FindItem(pMenu, 4))
-        FUN_004ff720(pMenu);
+        OptionMenu_UpdateLoadGameAndNameEntry(pMenu);
     else
         g_unk0x00526f40 = 0;
 }
@@ -11695,13 +11695,13 @@ SceneNode *SceneNode_FindByType(SceneNode *, unsigned int);
 #include "Graphics.h"
 #include "FileBuffer.h"
 #include "SceneNode.h"
-int  FUN_004b9380(unsigned int, unsigned int, unsigned int);
+int  Sector_BuildC3DModelScene(unsigned int, unsigned int, unsigned int);
 char *Car_GetTextureSetPath(int, int, int);
-int  FUN_0050a020(int, int);
-int  FUN_0050a050(int, int);
-void FUN_00507a10(Unk0x0082d220 *, int);
-void FUN_0050f120(int);
-int  FUN_00501510(void);
+int  OptionPreview_UsesWheelVariantSix(int, int);
+int  OptionPreview_UsesLowWheelVariant(int, int);
+void OptionPreview_BuildDeformGeometry(Unk0x0082d220 *, int);
+void OptionPreview_ProjectWheelVertices(int);
+int  OptionMenu_GetBackgroundRoot(void);
 
 
 // Compone el nombre de la geometria del stage (base .c3d con los sufijos A1N/L/S y su .bfl), registra y
@@ -11723,10 +11723,10 @@ int FUN_005062d0(int index)
     int nodeS;
     int i;
 
-    stage = FUN_00501510();
-    CGameInfo::FUN_00405d80();
+    stage = OptionMenu_GetBackgroundRoot();
+    CGameInfo::GetConfiguredGameMode();
     if (g_unk0x00831318 == 0) {
-        CGame::RegisterCallback((void *)FUN_00505f10, 0);
+        CGame::RegisterCallback((void *)OptionPreview_ReleaseSessionResources, 0);
         g_unk0x00831318 = 1;
         for (i = 0; i < 16; i++) {
             g_unk0x00831088[i].pUnk0x0 = NULL;
@@ -11734,19 +11734,19 @@ int FUN_005062d0(int index)
             g_unk0x00831088[i].pUnk0x4 = NULL;
         }
     }
-    model = (BYTE)(int)RallyData_FUN_004086b0(index);
-    variant = (BYTE)(int)CFrontend::FUN_0040ee90(model);
+    model = (BYTE)(int)RallyData_GetDriverRecordSelectionValue(index);
+    variant = (BYTE)(int)CFrontend::GetArchivePrimaryIDEntry(model);
     sprintf(g_unk0x00663b60, "%s.c3d", Car_GetTextureSetPath(model, 0, 0));
-    if (CGameInfo::FUN_00405d10() == 0) {
+    if (CGameInfo::GetPreviewMode() == 0) {
         strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1N.c3d", 8);
         hC3D = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
-        if (FUN_0050a050(variant, 1) == 0) {
+        if (OptionPreview_UsesLowWheelVariant(variant, 1) == 0) {
             hL = 0;
         } else {
             strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 5, "L.c3d", 5);
             hL = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
         }
-        if (FUN_0050a020(variant, 6) != 0) {
+        if (OptionPreview_UsesWheelVariantSix(variant, 6) != 0) {
             strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 5, "S.c3d", 5);
             hS = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
         } else {
@@ -11762,34 +11762,34 @@ int FUN_005062d0(int index)
     g_unk0x00831158[index] = (BYTE *)hS;
 
     sprintf(g_unk0x00663b60, "%s.bfl", Car_GetTextureSetPath(model, 0, 0));
-    if (CGameInfo::FUN_00405d10() == 0)
+    if (CGameInfo::GetPreviewMode() == 0)
         strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1.bfl", 6);
 
     pEntry = &g_unk0x0082cb78[index];
     // the .bfl and the geometry relocations go to the 12-byte loader record of
     // this entry (0x831088, cleared on the first call above), not to pEntry
     pRecord = (int *)&g_unk0x00831088[index];
-    CGenericFileLoader::FUN_004a9d70((GenericFile *)pRecord, g_unk0x00663b60);
+    CGenericFileLoader::LoadIntoFileRecord((GenericFile *)pRecord, g_unk0x00663b60);
     if (hC3D == 0)
         return 0;
 
     nodeL = 0;
     nodeS = 0;
-    root = FUN_004b9380(hC3D, stage, (unsigned int)pRecord);
-    if (CGameInfo::FUN_00405d10() == 0) {
+    root = Sector_BuildC3DModelScene(hC3D, stage, (unsigned int)pRecord);
+    if (CGameInfo::GetPreviewMode() == 0) {
         int *p = (int *)&pEntry->field_0x24[0];
         for (i = 1; i <= 4; i++)
             *p++ = *(int *)((int)SceneNode_FindByType((SceneNode *)root, (unsigned int)i) + 0xc);
         if (hL != 0) {
             int *q = (int *)&pEntry->field_0x34[0];
-            nodeL = FUN_004b9380(hL, stage, (unsigned int)pRecord);
+            nodeL = Sector_BuildC3DModelScene(hL, stage, (unsigned int)pRecord);
             for (i = 1; i <= 4; i++)
                 *q++ = *(int *)((int)SceneNode_FindByType((SceneNode *)nodeL, (unsigned int)i) + 0xc);
             SceneNode_SetViewMaskTree((SceneNode *)nodeL, 0);
         }
         if (hS != 0) {
             int *q = (int *)&pEntry->field_0x44[0];
-            nodeS = FUN_004b9380(hS, stage, (unsigned int)pRecord);
+            nodeS = Sector_BuildC3DModelScene(hS, stage, (unsigned int)pRecord);
             for (i = 1; i <= 4; i++)
                 *q++ = *(int *)((int)SceneNode_FindByType((SceneNode *)nodeS, (unsigned int)i) + 0xc);
             SceneNode_SetViewMaskTree((SceneNode *)nodeS, 0);
@@ -11805,7 +11805,7 @@ int FUN_005062d0(int index)
     *(int *)((BYTE *)pEntry + 0xc) = nodeL;
     *(int *)((BYTE *)pEntry + 0x10) = nodeS;
     FUN_00507080(index);
-    FUN_00507a10(&g_unk0x0082d220[index], index);
+    OptionPreview_BuildDeformGeometry(&g_unk0x0082d220[index], index);
     {
         int h = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)0xe);
         if (h != 0) {
@@ -11815,9 +11815,9 @@ int FUN_005062d0(int index)
         }
     }
     g_unk0x0082d118 = 0;
-    FUN_00507650(index);
+    OptionPreview_ApplyStageDeformations(index);
     g_unk0x0082d15c[index] = -1;
-    FUN_0050f120(variant);
+    OptionPreview_ProjectWheelVertices(variant);
     return 1;
 }
 
@@ -11830,11 +11830,11 @@ extern BYTE g_unk0x0082547c[0x898];
 extern BYTE g_unk0x00825d14[0x258];
 extern BYTE g_unk0x00825f6c[0x1cc];
 
-BYTE *RallyData_FUN_00408cb0(int index);
+BYTE *RallyData_GetAvailableCategorySaveRecord(int index);
 void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char *pOut);
 
 // Rewrites every best-time record of the selected rally as a scrambled
-// identifier string (see FUN_004fb8d0/FUN_004f8a90) into the five tables the
+// identifier string (see FUN_004fb8d0/FrontendText_FormatCodeGroups) into the five tables the
 // profile screens display.
 // residue is the local-variable slot assignment (MSVC 6 picked a different
 // variable -> frame offset mapping, so every instruction with a stack operand
@@ -11870,8 +11870,8 @@ void FUN_004f8b30(void)
         local_1c = local_14;
         for (uVar8 = 0; (int)uVar8 < local_c; uVar8++) {
             {
-                puVar7 = (unsigned int *)(RallyData_FUN_00408cb0(0) + 4 + local_1c);
-                puVar10 = (unsigned int *)(RallyData_FUN_00408cb0(0) + local_1c);
+                puVar7 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 4 + local_1c);
+                puVar10 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + local_1c);
                 if (((*puVar10 & 0x80) == 0) || (0xf < *puVar7 / 6000)) {
                     g_unk0x0082547c[((int)local_10 * 11 + uVar8) * 0x19] = 0;
                 } else {
@@ -11894,7 +11894,7 @@ void FUN_004f8b30(void)
                     } while (iVar2 != 0);
                     FUN_004fb8d0(0, &local_8, (char *)&local_4,
                                  (char *)&g_unk0x0082547c[((int)local_10 * 11 + uVar8) * 0x19]);
-                    FUN_004f8a90((char *)&g_unk0x0082547c[((int)local_10 * 11 + uVar8) * 0x19]);
+                    FrontendText_FormatCodeGroups((char *)&g_unk0x0082547c[((int)local_10 * 11 + uVar8) * 0x19]);
                 }
                 local_1c += 8;
             }
@@ -11911,8 +11911,8 @@ void FUN_004f8b30(void)
         local_18 = local_10;
         local_c = local_14;
         do {
-            iVar3 = (int)(RallyData_FUN_00408cb0(0) + 0x34 + local_c);
-            iVar4 = (int)(RallyData_FUN_00408cb0(0) + 0x30 + local_c);
+            iVar3 = (int)(RallyData_GetAvailableCategorySaveRecord(0) + 0x34 + local_c);
+            iVar4 = (int)(RallyData_GetAvailableCategorySaveRecord(0) + 0x30 + local_c);
             puVar7 = (unsigned int *)iVar4;
             if (((*(BYTE *)iVar4 & 0x80) == 0) || (0x3f < *(unsigned int *)(iVar3 + 4) / 6000)) {
                 *local_18 = 0;
@@ -11936,7 +11936,7 @@ void FUN_004f8b30(void)
                     iVar3--;
                 } while (iVar3 != 0);
                 FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)local_18);
-                FUN_004f8a90((char *)local_18);
+                FrontendText_FormatCodeGroups((char *)local_18);
             }
             uVar5++;
             local_c += 0x24;
@@ -11951,8 +11951,8 @@ void FUN_004f8b30(void)
     local_c = 0;
     puVar9 = g_unk0x00825398;
     do {
-        puVar7 = (unsigned int *)(RallyData_FUN_00408cb0(0) + 4 + local_c);
-        puVar10 = (unsigned int *)(RallyData_FUN_00408cb0(0) + local_c);
+        puVar7 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 4 + local_c);
+        puVar10 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + local_c);
         if ((*(BYTE *)puVar10 & 0x80) != 0) {
             local_8 = (local_8 & 0xfff83fff) | (*puVar7 & 0xf) << 0xe;
             local_8 = (local_8 & 0xffe7c07f) |
@@ -11970,7 +11970,7 @@ void FUN_004f8b30(void)
                 iVar2--;
             } while (iVar2 != 0);
             FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)puVar9);
-            FUN_004f8a90((char *)puVar9);
+            FrontendText_FormatCodeGroups((char *)puVar9);
         } else {
             *puVar9 = 0;
         }
@@ -11987,8 +11987,8 @@ void FUN_004f8b30(void)
         local_10 = (BYTE *)local_14;
         local_c = (int)local_18;
         do {
-            RallyData_FUN_00408cb0(0);
-            iVar2 = (int)RallyData_FUN_00408cb0(0);
+            RallyData_GetAvailableCategorySaveRecord(0);
+            iVar2 = (int)RallyData_GetAvailableCategorySaveRecord(0);
             puVar10 = (unsigned int *)(iVar2 + (int)local_10);
             if ((*puVar10 & 0x80) != 0) {
                 local_8 = (local_8 & 0xffff8fff) | (*puVar7 & 7) << 0xc;
@@ -12007,7 +12007,7 @@ void FUN_004f8b30(void)
                     iVar2--;
                 } while (iVar2 != 0);
                 FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)local_c);
-                FUN_004f8a90((char *)local_c);
+                FrontendText_FormatCodeGroups((char *)local_c);
             } else {
                 *(BYTE *)local_c = 0;
             }
@@ -12024,8 +12024,8 @@ void FUN_004f8b30(void)
     local_10 = g_unk0x00825f6c;
     do {
         iVar2 = ((int)uVar5 / 3) * 3 + (int)uVar5 % 3;
-        puVar7 = (unsigned int *)(RallyData_FUN_00408cb0(0) + 0x4c0 + iVar2 * 8);
-        iVar3 = (int)(RallyData_FUN_00408cb0(0) + 0x4bc + iVar2 * 8);
+        puVar7 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 0x4c0 + iVar2 * 8);
+        iVar3 = (int)(RallyData_GetAvailableCategorySaveRecord(0) + 0x4bc + iVar2 * 8);
         uVar8 = *(unsigned int *)iVar3;
         puVar10 = (unsigned int *)iVar3;
         if (((uVar8 & 0x80) == 0) || (0x3f < *puVar7 / 6000)) {
@@ -12047,7 +12047,7 @@ void FUN_004f8b30(void)
                 iVar2--;
             } while (iVar2 != 0);
             FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)local_10);
-            FUN_004f8a90((char *)local_10);
+            FrontendText_FormatCodeGroups((char *)local_10);
         }
         local_10 += 0x19;
         uVar5++;
