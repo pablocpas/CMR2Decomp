@@ -5654,7 +5654,7 @@ void FUN_004036c0(Menu *pMenu, char unused)
     FUN_00403110(pMenu);
 }
 
-// ===== GameInfo option records (>= 0x4f0000) =====
+// ===== Agent3 batch 1: GameInfo option records (>= 0x4f0000) =====
 
 struct Unk0x0052ebc0;
 extern struct Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
