@@ -15969,8 +15969,8 @@
   },
   "0x427d50": {
     "n": "FUN_00427d50",
-    "s": 0.9230769230769231,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_00427d50"
@@ -15993,8 +15993,8 @@
   },
   "0x4285b0": {
     "n": "FUN_004285b0",
-    "s": 0.784,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_004285b0"
@@ -16041,16 +16041,16 @@
   },
   "0x427ad0": {
     "n": "FUN_00427ad0",
-    "s": 0.7941176470588235,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_00427ad0"
   },
   "0x427b70": {
     "n": "FUN_00427b70",
-    "s": 0.8235294117647058,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_00427b70"
@@ -16121,8 +16121,8 @@
   },
   "0x427e20": {
     "n": "FUN_00427e20",
-    "s": 0.8015794669299111,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_00427e20"
@@ -20009,7 +20009,7 @@
     "s": 0.6981132075471698,
     "x": false,
     "unknown": [
-      "$L56065",
+      "$L56069",
       "__except_list"
     ],
     "f": "Sound.cpp",
@@ -20121,8 +20121,8 @@
   },
   "0x4bd520": {
     "n": "ReadMMIO",
-    "s": 0.852589641434263,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Sound.cpp",
     "symbol_name": "ReadMMIO"
@@ -20305,8 +20305,8 @@
   },
   "0x4a3050": {
     "n": "FUN_004a3050",
-    "s": 0.9080459770114943,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Sound.cpp",
     "symbol_name": "FUN_004a3050"
@@ -20665,8 +20665,8 @@
   },
   "0x4bb650": {
     "n": "Tri2D_Queue",
-    "s": 0.8692307692307693,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Sprite.cpp",
     "symbol_name": "Tri2D_Queue"
@@ -20745,8 +20745,8 @@
   },
   "0x4bbd80": {
     "n": "Quad2D_DrawLayer",
-    "s": 0.8258064516129032,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Sprite.cpp",
     "symbol_name": "Quad2D_DrawLayer"
@@ -25747,8 +25747,8 @@
   },
   "0x419200": {
     "n": "StageUI_ApplySoundState",
-    "s": 0.4247517188693659,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageUI.cpp",
     "symbol_name": "StageUI_ApplySoundState"
@@ -25875,7 +25875,7 @@
   },
   "0x477f70": {
     "n": "StageUI_DrawStageGrid",
-    "s": 0.6480836236933798,
+    "s": 0.6736842105263158,
     "x": false,
     "unknown": [],
     "f": "StageUI.cpp",
@@ -26387,7 +26387,7 @@
   },
   "0x48f470": {
     "n": "CarPhysics_ApplyImpulse",
-    "s": 0.8493392070484581,
+    "s": 0.8546255506607929,
     "x": false,
     "unknown": [],
     "f": "VehiclePhysics.cpp",
@@ -26411,7 +26411,7 @@
   },
   "0x490720": {
     "n": "Collision_ClassifyFaceVertices",
-    "s": 0.8095872170439414,
+    "s": 0.8906666666666667,
     "x": false,
     "unknown": [],
     "f": "VehiclePhysics.cpp",
@@ -26427,8 +26427,8 @@
   },
   "0x490b90": {
     "n": "FUN_00490b90",
-    "s": 0.5714285714285714,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "VehiclePhysics.cpp",
     "symbol_name": "FUN_00490b90"
@@ -26443,7 +26443,7 @@
   },
   "0x48fb80": {
     "n": "FUN_0048fb80",
-    "s": 0.7615526802218114,
+    "s": 0.7788697788697788,
     "x": false,
     "unknown": [],
     "f": "VehiclePhysics.cpp",

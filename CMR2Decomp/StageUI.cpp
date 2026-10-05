@@ -183,18 +183,15 @@ int CarSound_PickDifferentSampleIndex(int exclude, int count);
 BYTE FUN_00427aa0(void);
 
 #define STAGE_PLAY_PRIMARY(slot) do { \
-    unsigned int selected = (BYTE)g_unk0x005375f4[channel]; \
-    CarSound_PlaySlot(channel, pPattern->base[selected] + \
-                 CarSound_PickDifferentSampleIndex(-1, (int)pPattern->choices[selected]), slot, 0, 0); \
+    CarSound_PlaySlot(channel, pPattern->base[(BYTE)g_unk0x005375f4[channel]] + \
+                 CarSound_PickDifferentSampleIndex(-1, (int)pPattern->choices[(BYTE)g_unk0x005375f4[channel]]), slot, 0, 0); \
 } while (0)
 #define STAGE_PLAY_SECONDARY(slot) do { \
-    unsigned int selected = (BYTE)g_unk0x005375f4[channel]; \
-    CarSound_PlaySlot(channel, pPattern->base[selected + 2] + \
-                 CarSound_PickDifferentSampleIndex(-1, (int)pPattern->choices[selected + 2]), slot, 0, 0); \
+    CarSound_PlaySlot(channel, pPattern->base[(BYTE)g_unk0x005375f4[channel] + 2] + \
+                 CarSound_PickDifferentSampleIndex(-1, (int)pPattern->choices[(BYTE)g_unk0x005375f4[channel] + 2]), slot, 0, 0); \
 } while (0)
 #define STAGE_PLAY_DIRECT(slot) do { \
-    unsigned int selected = (BYTE)g_unk0x005375f4[channel]; \
-    CarSound_PlaySlot(channel, pPattern->base[selected], slot, 0, 0); \
+    CarSound_PlaySlot(channel, pPattern->base[(BYTE)g_unk0x005375f4[channel]], slot, 0, 0); \
 } while (0)
 #define STAGE_STOP(slot) CarSound_StopSlot(channel, slot, 1)
 #define STAGE_PLAY_EXTRA() do { STAGE_PLAY_SECONDARY(1); STAGE_PLAY_SECONDARY(2); STAGE_PLAY_SECONDARY(3); } while (0)
@@ -281,23 +278,35 @@ void StageUI_ApplySoundState(int channel, BYTE *pState)
     RaceCarSoundState *pRaceCarSoundState = (RaceCarSoundState *)pState;
     StageSoundPattern *pPattern = NULL;
     short pattern = pRaceCarSoundState->state;
-    int state = pRaceCarSoundState->pattern;
 
     if (pattern != -1)
         pPattern = &g_stageSoundPatterns[(int)g_stageSoundPatterns[pattern].redirect];
 
-    switch (state) {
+    switch (pRaceCarSoundState->pattern) {
     case 1:
-        if (pPattern != NULL) goto play_primary;
+        if (pPattern != NULL) {
+            STAGE_PLAY_PRIMARY(5);
+        }
         return;
     case 2:
-        if (pPattern != NULL) goto play_primary_and_seventh;
+        if (pPattern != NULL) {
+            STAGE_PLAY_PRIMARY(5);
+            STAGE_PLAY_SECONDARY(7);
+        }
         return;
     case 3:
-        if (pPattern != NULL) goto play_direct_and_secondary_extra;
+        if (pPattern != NULL) {
+            STAGE_PLAY_DIRECT(4);
+            STAGE_PLAY_SECONDARY(0);
+            if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+        }
         return;
     case 4:
-        if (pPattern != NULL) goto play_primary_and_secondary_extra;
+        if (pPattern != NULL) {
+            STAGE_PLAY_PRIMARY(5);
+            STAGE_PLAY_SECONDARY(0);
+            if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+        }
         return;
     case 5:
         STAGE_STOP(4);
@@ -305,114 +314,120 @@ void StageUI_ApplySoundState(int channel, BYTE *pState)
     case 6:
         if (pPattern != NULL) {
             if (FUN_00427aa0() != 0) STAGE_STOP(4);
-            goto play_primary;
+            STAGE_PLAY_PRIMARY(5);
         }
         return;
     case 7:
         if (pPattern != NULL) {
             if (FUN_00427aa0() != 0) STAGE_STOP(4);
-            goto play_primary_and_seventh;
+            STAGE_PLAY_PRIMARY(5);
+            STAGE_PLAY_SECONDARY(7);
         }
         return;
     case 8:
         STAGE_STOP(4);
         if (pPattern == NULL) return;
         if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
-        goto play_direct_and_secondary;
+        STAGE_PLAY_DIRECT(4);
+        STAGE_PLAY_SECONDARY(0);
+        return;
     case 9:
         STAGE_STOP(4);
         if (pPattern == NULL) return;
         if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
-        goto play_primary_and_secondary;
+        STAGE_PLAY_PRIMARY(5);
+        STAGE_PLAY_SECONDARY(0);
+        return;
     case 10:
-        STAGE_STOP(4); STAGE_STOP(6);
+        STAGE_STOP(4);
+        STAGE_STOP(6);
         return;
     case 11:
         if (pPattern == NULL) return;
-        if (FUN_00427aa0() != 0) { STAGE_STOP(4); STAGE_STOP(6); }
-        goto play_primary;
+        if (FUN_00427aa0() != 0) {
+            STAGE_STOP(4);
+            STAGE_STOP(6);
+        }
+        STAGE_PLAY_PRIMARY(5);
+        return;
     case 12:
         if (pPattern == NULL) return;
-        if (FUN_00427aa0() != 0) { STAGE_STOP(4); STAGE_STOP(6); }
-        goto play_primary_and_seventh;
+        if (FUN_00427aa0() != 0) {
+            STAGE_STOP(4);
+            STAGE_STOP(6);
+        }
+        STAGE_PLAY_PRIMARY(5);
+        STAGE_PLAY_SECONDARY(7);
+        return;
     case 13:
-        STAGE_STOP(4); STAGE_STOP(6);
-        if (pPattern != NULL) goto play_direct_and_secondary_extra;
+        STAGE_STOP(4);
+        STAGE_STOP(6);
+        if (pPattern != NULL) {
+            STAGE_PLAY_DIRECT(4);
+            STAGE_PLAY_SECONDARY(0);
+            if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+        }
         return;
     case 14:
-        STAGE_STOP(4); STAGE_STOP(6);
-        if (pPattern != NULL) goto play_primary_and_secondary_extra;
-        return;
-    case 15:
-    case 20:
-        STAGE_STOP(4); STAGE_STOP(0);
-        if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
+        STAGE_STOP(4);
+        STAGE_STOP(6);
+        if (pPattern != NULL) {
+            STAGE_PLAY_PRIMARY(5);
+            STAGE_PLAY_SECONDARY(0);
+            if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+        }
         return;
     case 16:
-        STAGE_STOP(4); STAGE_STOP(0);
+        STAGE_STOP(4);
+        STAGE_STOP(0);
         if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
-        if (pPattern != NULL) goto play_primary;
+        if (pPattern != NULL) STAGE_PLAY_PRIMARY(5);
         return;
     case 17:
-        STAGE_STOP(4); STAGE_STOP(0);
+        STAGE_STOP(4);
+        STAGE_STOP(0);
         if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
-        if (pPattern != NULL) goto play_primary_and_seventh;
+        if (pPattern != NULL) {
+            STAGE_PLAY_PRIMARY(5);
+            STAGE_PLAY_SECONDARY(7);
+        }
         return;
     case 19:
         STAGE_STOP(4);
-        if (pPattern != NULL) goto play_primary;
+        if (pPattern != NULL) STAGE_PLAY_PRIMARY(5);
+        return;
+    case 15:
+    case 20:
+        STAGE_STOP(4);
+        STAGE_STOP(0);
+        if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
         return;
     case 21:
         STAGE_STOP(0);
         if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
         else STAGE_STOP(4);
-        if (pPattern != NULL) goto play_primary;
+        if (pPattern != NULL) STAGE_PLAY_PRIMARY(5);
         return;
     case 22:
-        STAGE_STOP(4); STAGE_STOP(0);
+        STAGE_STOP(4);
+        STAGE_STOP(0);
         if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
-        if (pPattern != NULL) goto play_primary_and_seventh;
+        if (pPattern != NULL) {
+            STAGE_PLAY_PRIMARY(5);
+            STAGE_PLAY_SECONDARY(7);
+        }
         return;
     case 23:
         STAGE_STOP(4);
-        if (pPattern != NULL) goto play_direct;
+        if (pPattern != NULL) STAGE_PLAY_DIRECT(4);
         return;
     case 24:
         STAGE_STOP(4);
-        if (pPattern != NULL) goto play_primary;
+        if (pPattern != NULL) STAGE_PLAY_PRIMARY(5);
         return;
     }
     return;
-
-play_primary_and_secondary_extra:
-    STAGE_PLAY_PRIMARY(5);
-    goto play_secondary_extra;
-play_direct_and_secondary_extra:
-    STAGE_PLAY_DIRECT(4);
-play_secondary_extra:
-    STAGE_PLAY_SECONDARY(0);
-    if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
-    return;
-play_primary_and_secondary:
-    STAGE_PLAY_PRIMARY(5);
-    goto play_secondary;
-play_direct_and_secondary:
-    STAGE_PLAY_DIRECT(4);
-play_secondary:
-    STAGE_PLAY_SECONDARY(0);
-    return;
-play_primary_and_seventh:
-    STAGE_PLAY_PRIMARY(5);
-    STAGE_PLAY_SECONDARY(7);
-    return;
-play_primary:
-    STAGE_PLAY_PRIMARY(5);
-    return;
-play_direct:
-    STAGE_PLAY_DIRECT(4);
-    return;
 }
-
 #undef STAGE_PLAY_PRIMARY
 #undef STAGE_PLAY_SECONDARY
 #undef STAGE_PLAY_DIRECT
@@ -863,11 +878,11 @@ void StageUI_DrawStageGrid(int unused, int set)
         top = (short)((int)(g_pGraphics->resY << 0xc) >> 0x10);
     }
     cellW = (short)resX;
-    rect[2] = cellW * 0x14;
     cellH = (short)cell;
+    rect[1] = top;
+    rect[2] = cellW * 0x14;
     rect[3] = cellH * 0x15 - 1;
     rect[0] = left + cellW * -9;
-    rect[1] = top;
     Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_gridBackColour, 3);
 
     rect[2] = (short)((int)(g_pGraphics->resX * 4) / 0x280);

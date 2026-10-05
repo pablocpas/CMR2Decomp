@@ -150,31 +150,31 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
 
     FixMatrix_InverseRotateVector(&g_collisionCar->field_0x5dc, &offset, g_collisionCar->pWorld);
 
+    limit = g_collisionCar->halfExtents.x;
     component = g_collisionCar->field_0x5dc.x;
     absoluteComponent = component;
     if (absoluteComponent < 0)
         absoluteComponent = -absoluteComponent;
-    limit = g_collisionCar->halfExtents.x;
     if (absoluteComponent > limit) {
         if (component < 0)
             limit = -limit;
         g_collisionCar->field_0x5dc.x = limit;
     }
+    limit = g_collisionCar->halfExtents.y;
     component = g_collisionCar->field_0x5dc.y;
     absoluteComponent = component;
     if (absoluteComponent < 0)
         absoluteComponent = -absoluteComponent;
-    limit = g_collisionCar->halfExtents.y;
     if (absoluteComponent > limit) {
         if (component < 0)
             limit = -limit;
         g_collisionCar->field_0x5dc.y = limit;
     }
+    limit = g_collisionCar->halfExtents.z;
     component = g_collisionCar->field_0x5dc.z;
     absoluteComponent = component;
     if (absoluteComponent < 0)
         absoluteComponent = -absoluteComponent;
-    limit = g_collisionCar->halfExtents.z;
     if (absoluteComponent > limit) {
         if (component < 0)
             limit = -limit;
@@ -304,7 +304,7 @@ int FUN_00490640(void)
 }
 
 // Classifies face vertices by signed distance from the active collision plane.
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00490720
 void Collision_ClassifyFaceVertices(void)
 {
@@ -399,14 +399,10 @@ checkSecondary:
         }
 
 addVertex:
-        if (*pDistance >= 0) {
-            BYTE candidateIndex = g_collisionPositiveCandidateCount;
-            BYTE vertex = (BYTE)vertexIndex;
-            *(volatile BYTE *)&g_collisionPositiveCandidateCount = (BYTE)(candidateIndex + 1);
-            ((volatile BYTE *)g_collisionPositiveCandidates)[candidateIndex] = vertex;
-        } else {
+        if (*pDistance >= 0)
+            g_collisionPositiveCandidates[g_collisionPositiveCandidateCount++] = (BYTE)vertexIndex;
+        else
             g_collisionNegativeCandidates[g_collisionNegativeCandidateCount++] = (BYTE)vertexIndex;
-        }
 
 nextVertex:
         vertexOffset += sizeof(FixVector);
@@ -480,8 +476,7 @@ void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
 
 // Selects a candidate face, transforms and classifies its vertices, then uses
 // candidate and side counts to decide whether it participates in car collision.
-// Matching remains pending; differential_collision_face_decision.py checks
-// the decision and provider ABI with controlled geometry helpers.
+// Byte-exact against the original (fastcmp EXACT).
 // FUNCTION: CMR2 0x00490b90
 int FUN_00490b90(int param_1)
 {
@@ -497,11 +492,14 @@ int FUN_00490b90(int param_1)
                      &g_collisionCar->position.x,
                      &g_collisionCar->corners[0]);
         Collision_ClassifyFaceVertices();
+        result = 0;
         if (g_collisionPositiveCandidateCount > 0 && g_collisionNegativeCandidateCount > 0)
             result = 1;
         else if (g_collisionPositiveCandidateCount > 0 || g_collisionNegativeCandidateCount > 0) {
-            if (g_collisionPositiveVertexCount != 4 || g_collisionSelectBackSide != 0)
-                result = g_collisionNegativeVertexCount == 4 && g_collisionSelectBackSide != 0;
+            if (g_collisionPositiveVertexCount != 4 || g_collisionSelectBackSide != 0) {
+                if (g_collisionNegativeVertexCount == 4 && g_collisionSelectBackSide != 0)
+                    result = 1;
+            }
         }
     }
     return result;
@@ -561,7 +559,6 @@ int FUN_0048fb80(char type, int param)
     int result;
     int dot;
     int *pDistance;
-    FixVector *pVertex;
 
     result = 0;
     if ((*(BYTE *)((BYTE *)g_unk0x0059190c + 0x2d) & 1) != 0)
@@ -655,11 +652,10 @@ int FUN_0048fb80(char type, int param)
             g_collisionCar->corners[i].y += scaled.y;
             g_collisionCar->corners[i].z += scaled.z;
         }
-        pVertex = &g_collisionFace->primaryVertices[0];
         for (i = 0; i < 4; i++) {
-            pVertex[i].x += scaled.x;
-            pVertex[i].y += scaled.y;
-            pVertex[i].z += scaled.z;
+            g_collisionFace->primaryVertices[i].x += scaled.x;
+            g_collisionFace->primaryVertices[i].y += scaled.y;
+            g_collisionFace->primaryVertices[i].z += scaled.z;
         }
         FUN_0048c870(*(BYTE *)((BYTE *)g_collisionCar + 0xb1a), -1, (int *)&scaled, 0);
     }

@@ -1,5 +1,7 @@
 # CMR2Decomp
 
+[![Build](https://github.com/pablocpas/CMR2Decomp/actions/workflows/build-and-report.yml/badge.svg)](https://github.com/pablocpas/CMR2Decomp/actions/workflows/build-and-report.yml)
+
 A matching decompilation of **Colin McRae Rally 2.0** for PC (Win32), rebuilt
 with Microsoft Visual C++ 6.0 and checked against the original executable with
 [reccmp](https://github.com/isledecomp/reccmp). The reference SHA-256 is

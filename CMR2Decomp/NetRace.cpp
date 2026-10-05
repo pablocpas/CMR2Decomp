@@ -355,10 +355,12 @@ extern BYTE g_unk0x00538d2c[0xc8];
 // FUNCTION: CMR2 0x00427d50
 int FUN_00427d50(unsigned int view, int listener)
 {
-    int index = 1;
+    int index;
     int distance;
 
-    if (FUN_0041f3a0() == 0)
+    if (FUN_0041f3a0() != 0)
+        index = 1;
+    else
         index = listener;
     FixMatrix_GetPosition(&g_unk0x00539f00, FUN_00423d70(view));
     FixMatrix_GetPosition(&g_unk0x00539ee0, (FixMatrix *)(g_unk0x00538d2c + 4 + index * 100));
@@ -370,7 +372,9 @@ int FUN_00427d50(unsigned int view, int listener)
         return 0x10000;
     if (distance > 0x640000)
         return 0;
-    return 0x10000 - FixDiv(distance - 0x20000, 0x620000);
+    view = distance - 0x20000;
+    listener = 0x620000;
+    return 0x10000 - FixDiv(view, listener);
 }
 
 // FUNCTION: CMR2 0x004283b0
@@ -435,14 +439,13 @@ void FUN_004285b0(unsigned int player, int t, int check)
     int value;
 
     if (FUN_00428740((BYTE)player) != 0) {
-        player &= 0xff;
-        if (g_unk0x0053a0cc[player] == 0 || check == 0) {
-            value = FixMul(g_unk0x0053a04c[player], t) + FixMul(0x10000 - t, g_unk0x0053a02c[player]);
+        if (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0) {
+            value = FixMul(t, g_unk0x0053a04c[player & 0xff]) + FixMul(0x10000 - t, g_unk0x0053a02c[player & 0xff]);
             if (value < 0) {
-                g_unk0x0053a06c[player] = FixDiv(-value, g_unk0x0053a0ec[player]);
+                g_unk0x0053a06c[player & 0xff] = FixDiv(-value, g_unk0x0053a0ec[player & 0xff]);
                 return;
             }
-            g_unk0x0053a06c[player] = FixDiv(value, g_unk0x0053a0ec[player]);
+            g_unk0x0053a06c[player & 0xff] = FixDiv(value, g_unk0x0053a0ec[player & 0xff]);
         }
     }
 }
@@ -528,15 +531,13 @@ void FUN_00418d20(int value);
 unsigned int FUN_00427ad0(int value, int *pCurve)
 {
     int range = pCurve[2] - pCurve[1];
-    int index;
-    int step;
+    int i = value - pCurve[1];
+    int index = (pCurve[0] * i) / range;
+    int step = range / pCurve[0];
     int frac;
 
-    value -= pCurve[1];
-    index = (pCurve[0] * value) / range;
-    step = range / pCurve[0];
     if (step > 0) {
-        frac = ((value % step) * 100) / step;
+        frac = ((i % step) * 100) / step;
         return (int)((100 - frac) * ((BYTE *)pCurve[4])[index]) / 100 +
                (int)(((BYTE *)pCurve[4])[index + 1] * frac) / 100;
     }
@@ -548,17 +549,14 @@ unsigned int FUN_00427ad0(int value, int *pCurve)
 // FUNCTION: CMR2 0x00427b70
 unsigned int FUN_00427b70(int value, int *pCurve)
 {
-    int range;
-    int index;
-    int step;
+    int range = pCurve[2] - pCurve[1];
+    int i = value - pCurve[1];
+    int index = (pCurve[0] * i) / range;
+    int step = range / pCurve[0];
     int frac;
 
-    value -= pCurve[1];
-    range = pCurve[2] - pCurve[1];
-    index = (pCurve[0] * value) / range;
-    step = range / pCurve[0];
     if (step > 0) {
-        frac = ((value % step) * 100) / step;
+        frac = ((i % step) * 100) / step;
         return (int)(((unsigned short *)pCurve[3])[index + 1] * frac) / 100 +
                (int)(((unsigned short *)pCurve[3])[index] * (100 - frac)) / 100;
     }
@@ -1002,8 +1000,8 @@ void Car_GetViewPositionDelta(FixVector *pOut, unsigned int view);
 // FUNCTION: CMR2 0x00427e20
 unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3)
 {
-    FixVector pos;
-    FixVector view;
+    FixVector carPos;
+    FixVector camView;
     FixVector delta;
     FixVector dir;
     FixVector other;
@@ -1017,29 +1015,29 @@ unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3)
     index = param_1;
     if (FUN_0041f3a0() != 0)
         index = 1;
-    FixMatrix_GetPosition(&pos, (FixMatrix *)(g_unk0x00538d2c + 4 + index * 100));
-    delta.x = pos.x - *(int *)((BYTE *)Car_Get(param_2) + 0x2d0);
-    delta.y = pos.y - *(int *)((BYTE *)Car_Get(param_2) + 0x2d4);
-    delta.z = pos.z - *(int *)((BYTE *)Car_Get(param_2) + 0x2d8);
+    FixMatrix_GetPosition(&carPos, (FixMatrix *)(g_unk0x00538d2c + 4 + index * 100));
+    delta.x = carPos.x - *(int *)((BYTE *)Car_Get(param_2) + 0x2d0);
+    delta.y = carPos.y - *(int *)((BYTE *)Car_Get(param_2) + 0x2d4);
+    delta.z = carPos.z - *(int *)((BYTE *)Car_Get(param_2) + 0x2d8);
     dist = FixVec_Length(&delta);
     if (dist < 0x640000) {
-        Car_GetViewPositionDelta(&view, param_1);
-        view.x -= *(int *)((BYTE *)Car_Get(param_2) + 0x408);
-        view.y -= *(int *)((BYTE *)Car_Get(param_2) + 0x40c);
-        view.z -= *(int *)((BYTE *)Car_Get(param_2) + 0x410);
-        dist = FixVec_Length(&view);
+        Car_GetViewPositionDelta(&camView, param_1);
+        dir.x = camView.x - *(int *)((BYTE *)Car_Get(param_2) + 0x408);
+        dir.y = camView.y - *(int *)((BYTE *)Car_Get(param_2) + 0x40c);
+        dir.z = camView.z - *(int *)((BYTE *)Car_Get(param_2) + 0x410);
+        dist = FixVec_Length(&dir);
         if (dist > 0x320000) {
-            len = FixVecLength(&view);
+            len = FixVecLength(&dir);
             if (len == 0) {
-                view.x = 0;
-                view.y = 0;
-                view.z = 0;
+                dir.x = 0;
+                dir.y = 0;
+                dir.z = 0;
             } else {
-                FixVecScaleRecip(&view, &view, len);
+                FixVecScaleRecip(&dir, &dir, len);
             }
-            FixVecScale(&view, &view, 0x320000);
+            FixVecScale(&dir, &dir, 0x320000);
         }
-        other = view;
+        other = dir;
         len = FixVecLength(&delta);
         if (len == 0) {
             delta.x = 0;
@@ -1048,29 +1046,31 @@ unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3)
         } else {
             FixVecScaleRecip(&delta, &delta, len);
         }
-        len = FixVecLength(&view);
+        len = FixVecLength(&dir);
         if (len == 0) {
             other.x = 0;
             other.y = 0;
             other.z = 0;
         } else {
-            FixVecScaleRecip(&other, &view, len);
+            FixVecScaleRecip(&other, &dir, len);
         }
         dot = FixVecDot(&other, &delta);
-        FixVecScale(&view, &view, dot);
+        FixVecScale(&dir, &dir, dot);
         if (dot > 0) {
-            t = FixDiv(FixVec_Length(&view), 0xd3d70) + 0x10000;
+            t = FixDiv(FixVec_Length(&dir), 0xd3d70);
+            t += 0x10000;
             value = (int)(__int64)((double)(param_3 >> 1) * CGraphics::m_65536);
-            if (t <= 0x8000)
-                return (value >> 16) << 1;
-            return (FixDiv(value, t) >> 16) << 1;
+            if (t > 0x8000)
+                return (FixDiv(value, t) >> 16) * 2;
+            return (value >> 16) * 2;
         }
         if (dot < 0) {
-            t = 0x10000 - FixDiv(FixVec_Length(&view), 0xd3d70);
+            t = FixDiv(FixVec_Length(&dir), 0xd3d70);
+            t = 0x10000 - t;
             value = (int)(__int64)((double)(param_3 >> 1) * CGraphics::m_65536);
             if (t > 0x8000)
                 value = FixDiv(value, t);
-            return (value >> 16) << 1;
+            return (value >> 16) * 2;
         }
     }
     return param_3;

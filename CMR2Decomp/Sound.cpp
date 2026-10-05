@@ -309,7 +309,6 @@ WAVEFORMATEX *AcmGetDriverFormat(HACMDRIVERID hadid, WORD wFormatTag)
     return NULL;
 }
 
-// TODO: 86% - identical code, only the block layout of the two cleanup paths differs
 // FUNCTION: CMR2 0x004bd520
 HRESULT ReadMMIO(HMMIO hmmioIn, MMCKINFO *pckInRIFF, WAVEFORMATEX **ppwfxInfo)
 {
@@ -359,8 +358,12 @@ HRESULT ReadMMIO(HMMIO hmmioIn, MMCKINFO *pckInRIFF, WAVEFORMATEX **ppwfxInfo)
             goto fail;
     }
 
-    if (0 == mmioAscend(hmmioIn, &ckIn, 0))
-        return S_OK;
+    if (0 != mmioAscend(hmmioIn, &ckIn, 0)) {
+        delete *ppwfxInfo;
+        *ppwfxInfo = NULL;
+        return E_FAIL;
+    }
+    return S_OK;
 
 fail:
     delete *ppwfxInfo;
@@ -778,10 +781,14 @@ HRESULT FUN_004a3050(int unused)
     if (g_unk0x005a2718 > 0) {
         if (CSound::m_pDirectSoundBuffer->Lock(g_unk0x005a2714 * 0xfe80, g_unk0x005a2718 * 0xfe80,
                                                &pAudio1, &bytes1, &pAudio2, &bytes2, 0) == 0) {
-            if (pAudio1 != NULL)
-                CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio1, (UINT)(bytes1 * g_unk0x00511420)));
-            if (pAudio2 != NULL)
-                CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio2, (UINT)(bytes2 * g_unk0x00511420)));
+            if (pAudio1 != NULL) {
+                UINT n1 = (UINT)(bytes1 * g_unk0x00511420);
+                CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio1, n1));
+            }
+            if (pAudio2 != NULL) {
+                UINT n2 = (UINT)(bytes2 * g_unk0x00511420);
+                CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio2, n2));
+            }
             CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Unlock(pAudio1, bytes1, pAudio2, bytes2));
         }
     }

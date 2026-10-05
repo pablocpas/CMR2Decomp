@@ -244,35 +244,40 @@ void Tri2D_SetVertex(D3DTLVERTEX *pVertex, int *pPos, BYTE *pColour)
 void Tri2D_Queue(int *pA, int *pB, int *pC, BYTE *pColour, int layer)
 {
     unsigned int n;
+    unsigned int i3;
 
     if (g_tri2DEnabled != 0 && g_tri2DCount4 < TRI2D_LAYER_MAX && g_tri2DCount2 < TRI2D_LAYER_MAX && g_tri2DCount1 < TRI2D_LAYER_MAX) {
         switch (layer) {
         case 2:
             n = g_tri2DCount2;
-            Tri2D_SetVertex(&g_tri2DLayer2[n].v[0], pA, pColour);
-            Tri2D_SetVertex(&g_tri2DLayer2[n].v[1], pB, pColour);
-            Tri2D_SetVertex(&g_tri2DLayer2[n].v[2], pC, pColour);
+            i3 = n * 3;
+            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer2)[i3 + 0], pA, pColour);
+            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer2)[i3 + 1], pB, pColour);
+            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer2)[i3 + 2], pC, pColour);
             g_tri2DCount2++;
             break;
         case 3:
             n = g_tri2DCount3;
-            Tri2D_SetVertex(&g_tri2DLayer3[n].v[0], pA, pColour);
-            Tri2D_SetVertex(&g_tri2DLayer3[n].v[1], pB, pColour);
-            Tri2D_SetVertex(&g_tri2DLayer3[n].v[2], pC, pColour);
+            i3 = n * 3;
+            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer3)[i3 + 0], pA, pColour);
+            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer3)[i3 + 1], pB, pColour);
+            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer3)[i3 + 2], pC, pColour);
             g_tri2DCount3++;
             break;
         case 4:
             n = g_tri2DCount4;
-            Tri2D_SetVertex(&g_tri2DLayer4[n].v[0], pA, pColour);
-            Tri2D_SetVertex(&g_tri2DLayer4[n].v[1], pB, pColour);
-            Tri2D_SetVertex(&g_tri2DLayer4[n].v[2], pC, pColour);
+            i3 = n * 3;
+            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer4)[i3 + 0], pA, pColour);
+            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer4)[i3 + 1], pB, pColour);
+            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer4)[i3 + 2], pC, pColour);
             g_tri2DCount4++;
             break;
         default:
             n = g_tri2DCount1;
-            Tri2D_SetVertex(&g_tri2DLayer1[n].v[0], pA, pColour);
-            Tri2D_SetVertex(&g_tri2DLayer1[n].v[1], pB, pColour);
-            Tri2D_SetVertex(&g_tri2DLayer1[n].v[2], pC, pColour);
+            i3 = n * 3;
+            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer1)[i3 + 0], pA, pColour);
+            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer1)[i3 + 1], pB, pColour);
+            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer1)[i3 + 2], pC, pColour);
             g_tri2DCount1++;
             break;
         }
@@ -698,9 +703,18 @@ void FUN_004a3dd0(void);
     }
 
 #define QUAD2D_SET_FLAGS(q)                                                          \
-    CGraphics::SetZEnable(((q)->flags & 1) ? 0 : 1);                                \
-    CGraphics::SetZWriteEnable(((q)->flags & 2) ? 0 : 1);                           \
-    CGraphics::SetCullMode(((q)->flags & 4) ? 1 : CGame::FUN_0049dcb0());
+    if ((q)->flags & 1)                                                              \
+        CGraphics::SetZEnable(0);                                                    \
+    else                                                                             \
+        CGraphics::SetZEnable(1);                                                    \
+    if ((q)->flags & 2)                                                              \
+        CGraphics::SetZWriteEnable(0);                                               \
+    else                                                                             \
+        CGraphics::SetZWriteEnable(1);                                               \
+    if ((q)->flags & 4)                                                              \
+        CGraphics::SetCullMode(1);                                                   \
+    else                                                                             \
+        CGraphics::SetCullMode(CGame::FUN_0049dcb0());
 
 // Copies one queued layer (8, 0x10, 0x20 or other) into the shared vertex
 // buffer and draws it, flushing whenever the texture or flags change.
@@ -718,6 +732,7 @@ void Quad2D_DrawLayer(unsigned int layer)
     unsigned int n;
     BYTE *pData;
 
+    count = 0;
     n = 0;
     pLastTexture = (Texture *)1;
     lastFlags = 0xffffffff;
@@ -755,8 +770,8 @@ void Quad2D_DrawLayer(unsigned int layer)
             if (lastFlags != pQuad->flags) {
                 QUAD2D_SET_FLAGS(pQuad);
             }
-            lastFlags = pQuad->flags;
             pLastTexture = pQuad->pTexture;
+            lastFlags = pQuad->flags;
         }
         *(Quad2DVertices *)(pData + n * 0x30) = pQuad->verts;
         n += 3;
