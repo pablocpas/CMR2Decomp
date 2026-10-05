@@ -1525,7 +1525,7 @@ int FUN_00427d50(unsigned int view, int listener);
 void FUN_004b79a0(unsigned int handle, int volume);
 BYTE FUN_00460bf0(int index);
 int FUN_00460c10(int index);
-void Sound_SetPan(unsigned int handle, unsigned short pan);
+void Sound_SetPan(unsigned int handle, int pan);
 extern int g_unk0x005374c0;
 extern int g_carSlotVolumes[8][4];
 extern int g_carMaxVolume[8];

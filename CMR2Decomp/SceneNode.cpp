@@ -49,22 +49,26 @@ int g_rotAxisYZ;
 
 inline void SceneNode_NormalizeInto(FixVector *out, FixVector *v)
 {
+    FixVector *dest = out;
     int len = FixVecLength(v);
 
     if (len == 0) {
-        out->x = 0;
-        out->y = 0;
-        out->z = 0;
+        dest->x = 0;
+        dest->y = 0;
+        dest->z = 0;
     } else {
-        FixVecScaleRecip(out, v, len);
+        FixVecScaleRecip(dest, v, len);
     }
 }
+
+#define SCENENODE_NORMALIZE(out, src) SceneNode_NormalizeInto(&(out), &(src))
 
 // Rotates vectors A and B about the unit axis K by angle (Rodrigues) and
 // renormalises them. The original expands this three times over locals, so
 // it is a macro rather than a function; the rotation is built as a full
-// 4x4 matrix.
-#define ROTATE_ABOUT_AXIS(kx, ky, kz, a, b, angle)                                    \
+// 4x4 matrix. The right-axis expansion uses the pointer normalizer for both
+// output vectors; the other two expand the first normalization directly.
+#define ROTATE_ABOUT_AXIS(kx, ky, kz, a, b, angle, normalize_a)                       \
     {                                                                                 \
         g_rotSin = FixSin(-(angle));                                                  \
         g_rotCos = FixCos(angle);                                                     \
@@ -94,7 +98,7 @@ inline void SceneNode_NormalizeInto(FixVector *out, FixVector *v)
         v.x = FixMul(m.right.x, a.x) + FixMul(m.up.x, a.y) + FixMul(m.forward.x, a.z); \
         v.y = FixMul(m.right.y, a.x) + FixMul(m.up.y, a.y) + FixMul(m.forward.y, a.z); \
         v.z = FixMul(m.right.z, a.x) + FixMul(m.up.z, a.y) + FixMul(m.forward.z, a.z); \
-        FIX_NORMALIZE_INTO(a, v);                                                     \
+        normalize_a(a, v);                                                           \
         v.x = FixMul(m.right.x, b.x) + FixMul(m.up.x, b.y) + FixMul(m.forward.x, b.z); \
         v.y = FixMul(m.right.y, b.x) + FixMul(m.up.y, b.y) + FixMul(m.forward.y, b.z); \
         v.z = FixMul(m.right.z, b.x) + FixMul(m.up.z, b.y) + FixMul(m.forward.z, b.z); \
@@ -112,26 +116,32 @@ void SceneNode_Rotate(SceneNode *pNode, FixVector *pTranslation, FixAngles *pAng
     FixVector v;
     SceneNode *p;
 
-    basis.right.y = pNode->current.right.y;
     basis.right.x = pNode->current.right.x;
+    basis.right.y = pNode->current.right.y;
     basis.right.z = pNode->current.right.z;
-    basis.up.y = pNode->current.up.y;
     basis.up.x = pNode->current.up.x;
-    basis.forward.y = pNode->current.forward.y;
-    basis.forward.x = pNode->current.forward.x;
+    basis.up.y = pNode->current.up.y;
     basis.up.z = pNode->current.up.z;
+    basis.forward.x = pNode->current.forward.x;
+    basis.forward.y = pNode->current.forward.y;
     basis.forward.z = pNode->current.forward.z;
 
     if (pAngles->y != 0)
-        ROTATE_ABOUT_AXIS(basis.up.x, basis.up.y, basis.up.z, basis.right, basis.forward, pAngles->y)
+        ROTATE_ABOUT_AXIS(basis.up.x, basis.up.y, basis.up.z, basis.right, basis.forward, pAngles->y, FIX_NORMALIZE_INTO)
     if (pAngles->z != 0)
-        ROTATE_ABOUT_AXIS(basis.forward.x, basis.forward.y, basis.forward.z, basis.right, basis.up, pAngles->z)
+        ROTATE_ABOUT_AXIS(basis.forward.x, basis.forward.y, basis.forward.z, basis.right, basis.up, pAngles->z, FIX_NORMALIZE_INTO)
     if (pAngles->x != 0)
-        ROTATE_ABOUT_AXIS(basis.right.x, basis.right.y, basis.right.z, basis.up, basis.forward, pAngles->x)
+        ROTATE_ABOUT_AXIS(basis.right.x, basis.right.y, basis.right.z, basis.up, basis.forward, pAngles->x, SCENENODE_NORMALIZE)
 
-    pNode->current.right = basis.right;
-    pNode->current.up = basis.up;
-    pNode->current.forward = basis.forward;
+    pNode->current.right.x = basis.right.x;
+    pNode->current.right.y = basis.right.y;
+    pNode->current.right.z = basis.right.z;
+    pNode->current.up.x = basis.up.x;
+    pNode->current.up.y = basis.up.y;
+    pNode->current.up.z = basis.up.z;
+    pNode->current.forward.x = basis.forward.x;
+    pNode->current.forward.y = basis.forward.y;
+    pNode->current.forward.z = basis.forward.z;
     pNode->current.position.x += pTranslation->x;
     pNode->current.position.y += pTranslation->y;
     pNode->current.position.z += pTranslation->z;
@@ -184,16 +194,11 @@ int SceneNode_Unused(SceneNode *pNode)
 void SceneNode_Attach(SceneNode *pNode, SceneNode *pParent)
 {
     SceneNode *p;
-    SceneNode *pNext;
 
     if (pParent != NULL) {
-        p = pParent->pFirstChild;
-        if (p != NULL) {
-            pNext = p->pNext;
-            while (pNext != NULL) {
-                p = pNext;
-                pNext = p->pNext;
-            }
+        if (pParent->pFirstChild != NULL) {
+            for (p = pParent->pFirstChild; p->pNext != NULL; p = p->pNext)
+                ;
             p->pNext = pNode;
             pNode->pParent = pParent;
             return;
@@ -532,7 +537,6 @@ SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition
     FixVector dir;
     SceneLight *pLight;
 
-    pNode = NULL;
     if (g_sceneLightCallbackSet == 0) {
         CGame::RegisterCallback(Scene_FreeAllLights, NULL);
         g_sceneLightCallbackSet = 1;
@@ -547,11 +551,11 @@ found:
 
     pLight = (SceneLight *)CFileBuffer::AllocateLockedBuffer(sizeof(SceneLight));
     g_sceneType1Objects[index] = pLight;
-    memset(pLight, 0, sizeof(D3DLIGHT7));
     fr = (float)r * CGraphics::m_oneOver65536;
+    memset(pLight, 0, sizeof(D3DLIGHT7));
     fg = (float)g * CGraphics::m_oneOver65536;
-    fb = (float)b * CGraphics::m_oneOver65536;
     ((SceneLight *)g_sceneType1Objects[index])->index = index;
+    fb = (float)b * CGraphics::m_oneOver65536;
     ((SceneLight *)g_sceneType1Objects[index])->light.dcvDiffuse.r = fr;
     ((SceneLight *)g_sceneType1Objects[index])->light.dcvDiffuse.g = fg;
     ((SceneLight *)g_sceneType1Objects[index])->light.dcvDiffuse.b = fb;
@@ -620,6 +624,7 @@ found:
 
     CGraphics::m_pTextureManager->pD3D->SetLight(index, &((SceneLight *)g_sceneType1Objects[index])->light);
     CGraphics::m_pTextureManager->pD3D->LightEnable(index, TRUE);
+    pNode = NULL;
     if (pParent != NULL) {
         pNode = SceneNode_Create(pParent);
         SceneNode_SetObject(pNode, 1, g_sceneType1Objects[index]);

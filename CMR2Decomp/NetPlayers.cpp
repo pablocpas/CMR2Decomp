@@ -832,8 +832,7 @@ void FUN_0040ad20(void)
     g_netClassification[g_netClassCount].time = g_netBestTime;
     strcpy(g_netClassification[g_netClassCount].name, (char *)RallyData_GetRecord(0));
     g_netClassification[g_netClassCount].id = FUN_004a1a00();
-    count = g_netClassCount + 1;
-    g_netClassCount = count;
+    count = ++g_netClassCount;
     for (i = count; i < 7; i++) {
         g_netClassification[i].carClass = 0;
         g_netClassification[i].time = -1;

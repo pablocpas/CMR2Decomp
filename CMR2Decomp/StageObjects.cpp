@@ -2394,29 +2394,23 @@ int *RallyData_FUN_00407f20(int index);
 // FUNCTION: CMR2 0x004736b0
 char *Knockout_GetDriverNameForSide(KnockoutMatch *pMatch, int side)
 {
-    unsigned int driver;
-
     if (side == 0) {
         if ((pMatch->flags & 0x1f) == 0x1f)
             return CMain::m_logFileBlankLine;
         if (RallyData_FUN_00408500(pMatch->flags & 0x1f) != -1) {
             sprintf(CFrontend::m_stringDest, CAIHelper::GetNameForID(RallyData_FUN_00408500(pMatch->flags & 0x1f)));
-            return CFrontend::m_stringDest;
+        } else {
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord(pMatch->flags & 0x1f));
         }
-        driver = pMatch->flags;
-    } else {
-        if (side != 1)
-            return CFrontend::m_stringDest;
+    } else if (side == 1) {
         if ((pMatch->flags & 0x3e0) == 0x3e0)
             return CMain::m_logFileBlankLine;
         if (RallyData_FUN_00408500((pMatch->flags >> 5) & 0x1f) != -1) {
-            sprintf(CFrontend::m_stringDest,
-                    CAIHelper::GetNameForID(RallyData_FUN_00408500((pMatch->flags >> 5) & 0x1f)));
-            return CFrontend::m_stringDest;
+            sprintf(CFrontend::m_stringDest, CAIHelper::GetNameForID(RallyData_FUN_00408500((pMatch->flags >> 5) & 0x1f)));
+        } else {
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord((pMatch->flags >> 5) & 0x1f));
         }
-        driver = pMatch->flags >> 5;
     }
-    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord(driver & 0x1f));
     return CFrontend::m_stringDest;
 }
 
@@ -2453,29 +2447,23 @@ int Knockout_SelectDisplaySide(KnockoutMatch *pMatch, int param2)
 // FUNCTION: CMR2 0x00473810
 char *Knockout_GetCarNameForSide(KnockoutMatch *pMatch, int side)
 {
-    unsigned int driver;
-
     if (side == 0) {
         if ((pMatch->flags & 0x1f) == 0x1f)
             return CMain::m_logFileBlankLine;
         if (RallyData_FUN_00408500(pMatch->flags & 0x1f) != -1) {
             sprintf(CFrontend::m_stringDest, (char *)RallyData_FUN_00407f20(RallyData_FUN_00408500(pMatch->flags & 0x1f)));
-            return CFrontend::m_stringDest;
+        } else {
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord(pMatch->flags & 0x1f));
         }
-        driver = pMatch->flags;
-    } else {
-        if (side != 1)
-            return CFrontend::m_stringDest;
+    } else if (side == 1) {
         if ((pMatch->flags & 0x3e0) == 0x3e0)
             return CMain::m_logFileBlankLine;
         if (RallyData_FUN_00408500((pMatch->flags >> 5) & 0x1f) != -1) {
-            sprintf(CFrontend::m_stringDest,
-                    (char *)RallyData_FUN_00407f20(RallyData_FUN_00408500((pMatch->flags >> 5) & 0x1f)));
-            return CFrontend::m_stringDest;
+            sprintf(CFrontend::m_stringDest, (char *)RallyData_FUN_00407f20(RallyData_FUN_00408500((pMatch->flags >> 5) & 0x1f)));
+        } else {
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord((pMatch->flags >> 5) & 0x1f));
         }
-        driver = pMatch->flags >> 5;
     }
-    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord(driver & 0x1f));
     return CFrontend::m_stringDest;
 }
 
@@ -12294,7 +12282,7 @@ unsigned int FUN_00427b70(int value, int *pCurve);
 unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3);
 int Sound_IsPlaying(unsigned int handle);
 void FUN_004b79a0(unsigned int handle, int volume);
-void Sound_SetPan(unsigned int handle, unsigned short pan);
+void Sound_SetPan(unsigned int handle, int pan);
 void FUN_00484f40(unsigned int param_1);
 struct SoundCurve;
 extern struct SoundCurve g_curve0x0051ec50;
@@ -12992,14 +12980,14 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
     FixVector base;
     FixVector end;
     FixVector delta;
-    FixVector pos;
+    FixVector matrixPos;
     FixVector dir;
     FixVector side;
     FixVector back;
     FixVector right;
     FixVector axis;
     FixVector start;
-    int car;
+    char car;
     int fade;
     int len;
     int i;
@@ -13021,7 +13009,7 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
         if (fade <= 0)
             return;
         i = FixMulShift32(colour[3] << 16, fade);
-        if (i >= 0x100)
+        if (i > 0xff)
             i = 0xff;
         else if (i < 0)
             i = 0;
@@ -13065,11 +13053,11 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
     dir = *(FixVector *)(pEntry + 6);
     pAxis = (FixVector *)(pDesc + 0xc);
     // Contact point: the record's local offset rotated into the matrix frame.
-    FixMatrix_GetPosition(&pos, pMatrix);
+    FixMatrix_GetPosition(&matrixPos, pMatrix);
     FixMatrix_RotateVector(&base, (FixVector *)pDesc, pMatrix);
-    base.x += pos.x;
-    base.y += pos.y;
-    base.z += pos.z;
+    base.x += matrixPos.x;
+    base.y += matrixPos.y;
+    base.z += matrixPos.z;
     delta.x = base.x - pTarget[0];
     delta.y = base.y - pTarget[1];
     delta.z = base.z - pTarget[2];
@@ -13077,7 +13065,7 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
     if (fade <= 0)
         return;
     i = FixMulShift32(colour[3] << 16, fade);
-    if (i >= 0x100)
+    if (i > 0xff)
         i = 0xff;
     else if (i < 0)
         i = 0;
@@ -16007,12 +15995,12 @@ void FUN_00484310(void)
             t = -FixMul(cross.z, g_partState->stiffness.z);
             t = FixMul(t, g_physicsTimeStep);
             g_partState->angularVelocity.z += t;
-            angles[0] = 0;
-            angles[1] = 0;
             angles[2] = (short)((double)(FixMul(g_partState->angularVelocity.z,
                                                 g_physicsTimeStep) -
                                           FixMul(t, g_physicsTimeStep / 2)) *
                                 g_unk0x00511380);
+            angles[0] = 0;
+            angles[1] = 0;
             FixBasis_Rotate(&g_partState->basis, angles);
             modified = 0;
             if (g_partCar->type == 8) {
@@ -16024,12 +16012,12 @@ void FUN_00484310(void)
                             g_partState->angularVelocity.z =
                                 -FixMul(0x9999, g_partState->angularVelocity.z);
                         else {
-                            g_partState->angularVelocity.z = 0;
                             g_partState->flags &= 0xf7;
+                            g_partState->angularVelocity.z = 0;
                         }
                     }
                 }
-                if (g_partState->basis.right.x <= 0x6665) {
+                if (g_partState->basis.right.x < 0x6666) {
                     g_partState->basis.right.x = 0x6666;
                     if (g_partState->angularVelocity.z > 0)
                         g_partState->angularVelocity.z = 0;
@@ -16072,7 +16060,7 @@ void FUN_00484310(void)
                                (g_partState->basis.forward));
             FixVecCross(&scratch, &g_partState->basis.forward,
                         &g_partState->basis.right);
-            FIX_NORMALIZE_INTO((g_partState->basis.up), scratch);
+            StageObj_NormalizeInto(&g_partState->basis.up, &scratch);
         }
     anglesZ:
         angles[0] = 0;
@@ -16080,15 +16068,15 @@ void FUN_00484310(void)
         angles[2] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000) *
                             g_unk0x00511308);
     } else {
-        if (g_partCar->type != 9) {
-            angles[1] = 0;
-            angles[2] = 0;
-            angles[0] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x30000) *
-                                g_unk0x00511308);
-        } else {
+        if (g_partCar->type == 9) {
             angles[0] = 0;
             angles[2] = 0;
             angles[1] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000) *
+                                g_unk0x00511308);
+        } else {
+            angles[1] = 0;
+            angles[2] = 0;
+            angles[0] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x30000) *
                                 g_unk0x00511308);
         }
     }

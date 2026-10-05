@@ -1184,7 +1184,7 @@ void FUN_004a26f0(SoundSlot *pSlot)
 int Sound_FindFreeSlot(void);
 unsigned int Sound_MakeHandle(unsigned int index, unsigned short serial);
 int Sound_FindHandle(unsigned int handle);
-void Sound_SetPan(unsigned int handle, unsigned short pan);
+void Sound_SetPan(unsigned int handle, int pan);
 
 // Whether the system is Windows 98 / NT 5 or later.
 // FUNCTION: CMR2 0x004b75c0
@@ -1375,7 +1375,7 @@ int Sound_GetMasterVolume(void)
 }
 
 // FUNCTION: CMR2 0x004b79e0
-void Sound_SetPan(unsigned int handle, unsigned short pan)
+void Sound_SetPan(unsigned int handle, int pan)
 {
     int index = Sound_FindHandle(handle);
     if (index != -1) {

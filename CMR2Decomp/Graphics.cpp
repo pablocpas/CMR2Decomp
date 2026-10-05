@@ -2804,7 +2804,6 @@ int FUN_0049e1f0(SceneNode *pNode, int bit)
     int cubeIndex;
     D3DMATRIX view;
     D3DMATRIX projection;
-    FixMatrix face;
     FixMatrix inverse;
     D3DMATRIX floatMatrix;
     FixVector forward;
@@ -2823,6 +2822,7 @@ int FUN_0049e1f0(SceneNode *pNode, int bit)
     rect.x2 = CGraphics::m_cubeMapSize;
     rect.y2 = CGraphics::m_cubeMapSize;
     farPlane = CGraphics::m_farPlaneFixed;
+    pCurrent = &pNode->current;
     pNodeMesh = (Mesh *)pNode->pObject;
     cubeIndex = (pNodeMesh->flags >> 15) & 7;
     if (CGraphics::m_pTextureManager->textureBuffer2[cubeIndex] == NULL)
@@ -2842,8 +2842,8 @@ int FUN_0049e1f0(SceneNode *pNode, int bit)
     CGraphics::m_pTextureManager->pD3D->GetTransform(D3DTRANSFORMSTATE_VIEW, &view);
     CGraphics::m_pTextureManager->pD3D->GetTransform(D3DTRANSFORMSTATE_PROJECTION, &projection);
 
-    pCurrent = &pNode->current;
     for (i = 0; i < 6; i++) {
+        FixMatrix face;
         switch (i) {
         case 0:
             face = *pCurrent;
@@ -3739,11 +3739,11 @@ void FUN_004bc290(BYTE *pSlot, int shape, int length, int param4, int start, int
         return;
     }
     rec[0] = (BYTE)shape;
-    *(signed char *)(rec + 1) = *(int *)(rec + 0x1c) < 0 ? -1 : 1;
     *(int *)(rec + 4) = length;
+    *(signed char *)(rec + 1) = *(int *)(rec + 0x1c) < 0 ? -1 : 1;
     rec[0x14] = param7;
-    *(int *)(rec + 0x10) = start;
     *(int *)(rec + 0x24) = param4;
+    *(int *)(rec + 0x10) = start;
     *(int *)(rec + 0xc) = end;
     *(BYTE **)(rec + 0x20) = pSlot;
     *(int *)(rec + 0x28) = 0;
@@ -4041,13 +4041,15 @@ void SceneNode_SetMeshFlagBits(SceneNode *pNode, unsigned int value)
         return;
     if (pNode->type == SCENE_NODE_MESH && (pMesh = (Mesh *)pNode->pObject) != NULL)
         pMesh->flags = (value & 7) << 15 | pMesh->flags & 0xfffc7fff;
-    pChild = pNode->pFirstChild;
-    while (pChild != NULL) {
-        for (p = pChild; p != NULL; p = p->pFirstChild) {
+    p = pNode->pFirstChild;
+    while (p != NULL) {
+        pChild = p;
+        while (p != NULL) {
             if (p->type == SCENE_NODE_MESH && (pMesh = (Mesh *)p->pObject) != NULL)
                 pMesh->flags = (value & 7) << 15 | pMesh->flags & 0xfffc7fff;
+            p = p->pFirstChild;
         }
-        pChild = pChild->pNext;
+        p = pChild->pNext;
     }
 }
 
@@ -4356,12 +4358,10 @@ void FUN_004b1150(void)
     int remaining = 800;
     do {
         int previous = vertex - 2;
-        WORD first = vertex - 3;
-        pIndex[-1] = first;
+        pIndex[-1] = (WORD)(vertex - 3);
         pIndex[0] = vertex;
-        int second = previous + 1;
-        pIndex[1] = second;
-        pIndex[2] = first;
+        pIndex[1] = previous + 1;
+        pIndex[2] = vertex - 3;
         pIndex[3] = previous;
         pIndex[4] = vertex;
         pIndex += 6;
@@ -5961,7 +5961,7 @@ void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition,
     int dot;
     int i;
     int best;
-    short selected;
+    int selected;
     Particle *pParticle;
     int randomX;
     int randomY;
@@ -6040,26 +6040,23 @@ void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition,
     best = 0;
     selected = g_nextParticle;
     pParticle = &g_particles[g_nextParticle];
-    i = 0;
-    if (g_particleCount > 0) {
-        do {
-            if (g_nextParticle >= g_particleCount) {
-                g_nextParticle = 0;
-                pParticle = g_particles;
-            }
-            if (pParticle->active == 0) {
-                if (pParticle != NULL)
-                    goto particleFound;
-                break;
-            }
-            if (best < pParticle->pType->lifetime - pParticle->age) {
-                best = pParticle->pType->lifetime - pParticle->age;
-                selected = g_nextParticle;
-            }
-            i++;
-            pParticle++;
-            g_nextParticle++;
-        } while (i < g_particleCount);
+    for (i = 0; i < g_particleCount; ) {
+        if (g_nextParticle >= g_particleCount) {
+            g_nextParticle = 0;
+            pParticle = g_particles;
+        }
+        if (pParticle->active == 0) {
+            if (pParticle != NULL)
+                goto particleFound;
+            break;
+        }
+        if (pParticle->pType->lifetime - pParticle->age > best) {
+            selected = g_nextParticle;
+            best = pParticle->pType->lifetime - pParticle->age;
+        }
+        i++;
+        pParticle++;
+        g_nextParticle++;
     }
     pParticle = &g_particles[selected];
 
@@ -6072,13 +6069,12 @@ particleFound:
     pParticle->position.x = pPosition->x;
     pParticle->position.y = pPosition->y;
     pParticle->position.z = pPosition->z;
-    {
-        FixVector *pVector = &pParticle->sourceVector;
-        *pVector = *pSource;
-        pParticle->vector0x10 = *pVector;
-        pParticle->vector0x1c = *pVector;
-        pParticle->vector0x28 = *pVector;
-    }
+    pParticle->sourceVector.x = pSource->x;
+    pParticle->sourceVector.y = pSource->y;
+    pParticle->sourceVector.z = pSource->z;
+    pParticle->vector0x10 = pParticle->sourceVector;
+    pParticle->vector0x1c = pParticle->sourceVector;
+    pParticle->vector0x28 = pParticle->sourceVector;
     pParticle->field0x48 = field0x48;
     pParticle->field0x40 = field0x40;
 
@@ -6160,8 +6156,8 @@ int Graphics_GetTriangleHeight(unsigned short *pHeightIndices, FixVector *pVerti
 {
     if (g_triangleVertexHeights != 0) {
         FixVector vertices[3];
-        FixVector edge1;
-        FixVector edge2;
+        FixVector edgeB;  // vertices[1] - vertices[0]
+        FixVector edgeA;  // vertices[2] - vertices[0]
         FixVector normal;
 
         vertices[0] = pVertices[0];
@@ -6171,32 +6167,32 @@ int Graphics_GetTriangleHeight(unsigned short *pHeightIndices, FixVector *pVerti
         vertices[1].y = g_triangleVertexHeights[pHeightIndices[1]];
         vertices[2].y = g_triangleVertexHeights[pHeightIndices[2]];
 
-        edge1.x = vertices[1].x - vertices[0].x;
-        edge1.y = vertices[1].y - vertices[0].y;
-        edge1.z = vertices[1].z - vertices[0].z;
-        edge2.x = vertices[2].x - vertices[0].x;
-        edge2.y = vertices[2].y - vertices[0].y;
-        edge2.z = vertices[2].z - vertices[0].z;
+        edgeB.x = vertices[1].x - vertices[0].x;
+        edgeB.y = vertices[1].y - vertices[0].y;
+        edgeB.z = vertices[1].z - vertices[0].z;
+        edgeA.x = vertices[2].x - vertices[0].x;
+        edgeA.y = vertices[2].y - vertices[0].y;
+        edgeA.z = vertices[2].z - vertices[0].z;
 
-        int length = FixVecLength(&edge1);
+        int length = FixVecLength(&edgeB);
         if (length == 0) {
-            edge1.x = 0;
-            edge1.y = 0;
-            edge1.z = 0;
+            edgeB.x = 0;
+            edgeB.y = 0;
+            edgeB.z = 0;
         } else {
-            FixVecScaleRecip(&edge1, &edge1, length);
+            FixVecScaleRecip(&edgeB, &edgeB, length);
         }
 
-        length = FixVecLength(&edge2);
+        length = FixVecLength(&edgeA);
         if (length == 0) {
-            edge2.x = 0;
-            edge2.y = 0;
-            edge2.z = 0;
+            edgeA.x = 0;
+            edgeA.y = 0;
+            edgeA.z = 0;
         } else {
-            FixVecScaleRecip(&edge2, &edge2, length);
+            FixVecScaleRecip(&edgeA, &edgeA, length);
         }
 
-        FixVecCross(&normal, &edge1, &edge2);
+        FixVecCross(&normal, &edgeB, &edgeA);
         length = FixVecLength(&normal);
         if (length == 0) {
             normal.x = 0;

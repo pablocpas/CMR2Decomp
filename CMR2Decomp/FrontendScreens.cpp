@@ -11834,7 +11834,6 @@ void FUN_004d8ed0(Menu *pMenu)
     char label[4];
     char *names[2];
     MenuItem *pItem;
-    BYTE *pColour;
     BYTE *pLineColour;
     BYTE *pLineShadow;
     int y;
@@ -11876,27 +11875,27 @@ void FUN_004d8ed0(Menu *pMenu)
             rect.y = (int)(g_pGraphics->resY * 20) / 480 + y +
                      ((int)(g_pGraphics->resY * 36) / 480 * i - CFrontend::m_pAr640ATexture->height / 2);
             if (pMenu->cursor == i) {
-                pColour = g_colourWhite0x00524968;
+                pLineColour = g_colourWhite0x00524968;
                 Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, &rect,
-                             CFrontend::m_pAr640ATexture, 1, 0, 0, NULL, pColour, 8);
+                             CFrontend::m_pAr640ATexture, 1, 0, 0, NULL, pLineColour, 8);
             } else {
-                pColour = g_colourText0x0052496c;
+                pLineColour = g_colourText0x0052496c;
                 Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, &rect,
-                             CFrontend::m_pAr640DTexture, 1, 0, 0, NULL, pColour, 8);
+                             CFrontend::m_pAr640DTexture, 1, 0, 0, NULL, pLineColour, 8);
             }
             if (pItem->value == 0x88) {
                 strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
                 x = (int)(g_pGraphics->resX * 0x7a) / 0x280;
                 Font_DrawText(1, CFrontend::m_stringDest, x,
-                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pLineColour, 0x11);
                 for (j = 0; j < pItem->min; j++) {
                     if (pItem->max == j)
-                        pColour = g_colourWhite0x00524968;
+                        pLineColour = g_colourWhite0x00524968;
                     else
-                        pColour = g_colourText0x0052496c;
+                        pLineColour = g_colourText0x0052496c;
                     x += (int)(g_pGraphics->resX * 10) / 640 + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
                     Font_DrawText(1, CFrontend::GetTextString(j + 0x131), x,
-                                  (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+                                  (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pLineColour, 0x11);
                     strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x131));
                 }
             }

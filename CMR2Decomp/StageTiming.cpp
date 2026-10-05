@@ -1720,11 +1720,12 @@ void FUN_00490d50(BYTE *pData)
     g_unk0x00591af0 = (int)p;
     i = *(unsigned short *)g_unk0x00591afc;
     p = p + i * 8;
-    g_unk0x00591b34 = (int)p;
+    BYTE *pCount = p;
     p += 4;
+    g_unk0x00591b34 = (int)pCount;
     g_unk0x00591b18 = (int)p;
-    i = *(int *)g_unk0x00591b34;
-    p = (BYTE *)g_unk0x00591b18 + i * 2;
+    i = *(int *)pCount;
+    p = p + i * 2;
     g_unk0x00591b20 = (int)p;
     p += 2;
     g_unk0x00591b1c = (int)p;
@@ -5437,10 +5438,10 @@ int g_unk0x00527344[8] = { 0x1999, 0x1999, 0x1999, 0x1999,
 // FUNCTION: CMR2 0x00508ee0
 void FUN_00508ee0(int index)
 {
-    BYTE *pValue = (BYTE *)((BYTE *)RallyData_FUN_00407610(index) + 0x122);
+    BYTE *pValue = (BYTE *)RallyData_FUN_00407610(index);
     BYTE level = 0;
     do {
-        int value = FixDiv((int)pValue[level] << 16, 0xff0000);
+        int value = FixDiv((int)pValue[0x122 + level] << 16, 0xff0000);
         if (value > g_unk0x00527324[level])
             FUN_00508fa0(index, 2, level);
         else if (value > g_unk0x00527344[level])

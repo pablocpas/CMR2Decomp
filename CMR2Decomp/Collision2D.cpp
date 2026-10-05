@@ -52,16 +52,14 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
             t = FixMul(recip, FixMul(d3.z, ax) + FixMul(d3.x, az));
             if (t >= 0 && t <= 0x10000) {
                 cross = FixMul(d3.x, pDir->z) - FixMul(d3.z, pDir->x);
-                if (FIX_ABS(cross) < 0x290) {
-                    result = 0x7d000000;
-                } else {
+                if (FIX_ABS(cross) > 0x28f) {
                     recip = FixDiv(0x10000, cross);
                     t = FixMul(recip, FixMul(pDir->z, ax) + FixMul(pDir->x, az));
                     if (t < 0 || t > 0x10000) {
                         result = 0x7d000000;
                     } else {
                         t = -FixMul(recip, FixMul(ax, d3.z) + FixMul(az, d3.x));
-                        if (t < 0 || t > 0x7cffffff) {
+                        if (t < 0 || t >= 0x7d000000) {
                             result = 0x7d000000;
                         } else {
                             *pEdge = 0;
@@ -78,10 +76,12 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
                             result = u;
                         }
                     }
+                } else {
+                    result = 0x7d000000;
                 }
 
                 cross = FixMul(pDir->x, d0.z) - FixMul(d0.x, pDir->z);
-                if (FIX_ABS(cross) < 0x290) {
+                if (FIX_ABS(cross) <= 0x28f) {
                     return result;
                 }
                 recip = FixDiv(0x10000, cross);
@@ -425,7 +425,7 @@ int Collision_CarVsBox(int car, int *pBox, int scale)
     int dy;
     int dz;
     int i;
-    int j;
+    short j;
     char side;
     CollisionBox *pB = (CollisionBox *)pBox;
 
@@ -658,8 +658,8 @@ void FUN_0048a1f0(int param_1, short *param_2, short param_3)
         p2 = param_2 + n;
         j = n + 1;
         do {
-            g_pContacts0x005915e0 = (FixVector *)&g_unk0x00590ed0[p2[0]];
             carA = param_1 + p2[0] * 0xc24;
+            g_pContacts0x005915e0 = (FixVector *)&g_unk0x00590ed0[p2[0]];
             FUN_00486c30((int *)g_pContacts0x005915e0, (int *)(carA + 0x360),
                          (int *)(carA + 0x2d0), (FixVector *)(carA + 0x270));
             FUN_0047d850((Car *)carA, (int *)g_pContacts0x005915e0);
@@ -682,7 +682,7 @@ int FUN_0048a5f0(int param_1, int param_2)
     FixVector sum;
     FixVector delta;
     FixVector tmp;
-    int result;
+    unsigned short result;
     int countA;
     int countB;
     int total;
@@ -880,7 +880,6 @@ void FUN_0048ae90(int param_1, int param_2)
     int len;
     int size;
     int bSepA;
-    int bSepB;
 
     FUN_0048c6e0((int *)(param_1 + 0x5dc), (int *)(param_1 + 0x204), 0);
     FUN_0048c6e0((int *)(param_2 + 0x5dc), (int *)(param_2 + 0x204), 0);
@@ -928,7 +927,7 @@ void FUN_0048ae90(int param_1, int param_2)
     FixVecScale(&impB, &g_unk0x005915e8, dB);
     if (*(int *)(param_2 + 0xc00) == 0 && FIX_ABS(dB) > 0x9999 &&
         (*(int *)(param_1 + 0xb64) == 0 || *(int *)(param_2 + 0xb64) == 0)) {
-        bSepB = 1;
+        dB = 1;
         tmp.x = -*(int *)(param_2 + 0x364);
         tmp.y = -*(int *)(param_2 + 0x370);
         tmp.z = -*(int *)(param_2 + 0x37c);
@@ -937,7 +936,7 @@ void FUN_0048ae90(int param_1, int param_2)
         *(int *)(param_2 + 0x5e0) += tmp.y;
         *(int *)(param_2 + 0x5e4) += tmp.z;
     } else {
-        bSepB = 0;
+        dB = 0;
     }
 
     if (*(char *)(param_1 + 0xb35) != 1 && impA.y < 0) {
@@ -973,7 +972,7 @@ void FUN_0048ae90(int param_1, int param_2)
     *(int *)(param_2 + 0x5c8) += impB.y;
     *(int *)(param_2 + 0x5cc) += impB.z;
     FixVecCross(&axis, &tmp, (FixVector *)(param_2 + 0x5dc));
-    if (bSepB) {
+    if (dB) {
         FixVecScale(&axis, &axis, 0x40000);
         *(int *)(param_2 + 0xc00) = 1;
         *(int *)(param_2 + 0x96c) = 0x10000;

@@ -1909,12 +1909,12 @@ void FUN_00500c80(Unk0049c2c0 *p1, BYTE state)
     FUN_0050f240();
     FUN_0050f180();
 
-    if (CGameInfo::FUN_00405d80() == 0 || CGameInfo::FUN_00405d80() == 1) {
+    if (!(CGameInfo::FUN_00405d80() == 0 || CGameInfo::FUN_00405d80() == 1)) {
+        g_unk0x00527000 = 1;
+    } else {
         g_unk0x00527000 = 0;
         if ((int)RallyDataStageIndex() % 4 == 0)
             g_unk0x00527000 = 1;
-    } else {
-        g_unk0x00527000 = 1;
     }
 
     // The original re-reads the flag before each pair of stores: both arms of
@@ -5668,16 +5668,16 @@ void FUN_0050cb30(short *pRect, BYTE *pColour)
     short edge[4];
 
     edge[0] = pRect[0];
-    edge[1] = pRect[1];
     edge[2] = pRect[2];
     edge[3] = 1;
+    edge[1] = pRect[1];
     Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 3);
     edge[1] = pRect[3] + pRect[1] - 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 3);
-    edge[3] = pRect[3];
     edge[1] = pRect[1];
-    edge[0] = pRect[0];
+    edge[3] = pRect[3];
     edge[2] = 1;
+    edge[0] = pRect[0];
     Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 3);
     edge[0] = pRect[2] + pRect[0] - 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 3);
@@ -6236,11 +6236,11 @@ void FUN_005013a0(void)
     view[1] = 0;
     view[2] = (short)((int)g_pGraphics->resX * 2 / 3);
     view[3] = (short)((int)g_pGraphics->resY * 2 / 3);
-    lightPosition.x = 0x50000;
-    lightPosition.y = 0x50000;
     translation.x = 0x23d7;
     translation.y = 0xffffe8f6;
     translation.z = 0xfffb0000;
+    lightPosition.x = 0x50000;
+    lightPosition.y = 0x50000;
     lightPosition.z = 0xfffb0000;
     angles.x = 0;
     angles.y = 0;

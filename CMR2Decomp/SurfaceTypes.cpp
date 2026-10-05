@@ -699,7 +699,7 @@ void FUN_00478f50(void)
         opponent = 1;
     else
         opponent = 0;
-    for (i = 0, pFile = g_unk0x0058df48[0]; i < (int)(BYTE)RallyDataState() + opponent; i++, pFile += 12) {
+    for (i = 0; i < (int)(BYTE)RallyDataState() + opponent; i++) {
         if (opponent != 0 && i > 0)
             team = (int)CFrontend::FUN_0040ee90(FUN_00407fc0(StageTiming_FUN_00455ab0(FUN_0041b370())));
         else
@@ -707,34 +707,34 @@ void FUN_00478f50(void)
         g_unk0x0058ddb4[i] = FUN_004b7940();
         pCarName = g_carSoundDir[team];
         sprintf(archive, g_strCarSoundBfl, CInstallInfo::GetSoundsDir(), pCarName);
-        CGenericFileLoader::FUN_004a9d70((GenericFile *)pFile, archive);
+        CGenericFileLoader::FUN_004a9d70((GenericFile *)&g_unk0x0058df48[i], archive);
         pShortName = g_carSoundShort[team];
         sprintf(name, g_strCarFrontSlowWav, pDir, pCarName, pShortName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarRearSlowWav, pDir, pCarName, pShortName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarFrontMidWav, pDir, pCarName, pShortName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarRearMidWav, pDir, pCarName, pShortName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarWhineWav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarFrontTurboWav, pDir, pCarName, pShortName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarRearTurboWav, pDir, pCarName, pShortName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarChatterWav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarDet1Wav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarDet2Wav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarDet3Wav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarDet4Wav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         sprintf(name, g_strCarDetIdleWav, pDir, pCarName);
-        FUN_004792a0(name, (GenericFile *)pFile);
+        FUN_004792a0(name, (GenericFile *)&g_unk0x0058df48[i]);
         if (CGameInfo::FUN_00406410(0x13)) {
             sprintf(name, g_strRadioInsideWav);
             FUN_004792a0(name, (GenericFile *)StageTiming_GetStageFile0());
@@ -816,7 +816,7 @@ unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3);
 int FUN_0041f3d0(BYTE index);
 int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
 void FUN_004b79a0(unsigned int handle, int volume);
-void Sound_SetPan(unsigned int handle, unsigned short pan);
+void Sound_SetPan(unsigned int handle, int pan);
 void FUN_0045b550(int car, int surface);
 void FUN_0047a380(int target, int player);
 void FUN_00479310(int player);
@@ -839,7 +839,7 @@ void FUN_00479360(int *pState, int player, int listener)
     unsigned int now;
     int backfire;
     int hi;
-    short lo;
+    int lo;
     int volume;
     int pct;
 
@@ -877,12 +877,12 @@ void FUN_00479360(int *pState, int player, int listener)
         if (Sound_IsPlaying(g_unk0x0058ddac[player]) == 0)
             g_unk0x0058ddac[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 1), 0, 0x5622, 0, 1, 0);
         if (Sound_IsPlaying(g_unk0x0058dde8[player])) {
-            Sound_SetPan(g_unk0x0058dde8[player], (unsigned short)FUN_00427b70(pitch, g_unk0x0051ea60));
+            Sound_SetPan(g_unk0x0058dde8[player], FUN_00427b70(pitch, g_unk0x0051ea60));
             FUN_004b79a0(g_unk0x0058dde8[player],
                          CAR_VOLUME((int)(FUN_00427ad0(pitch, g_unk0x0051ea60) << 16) / 100, g_unk0x0058df38));
         }
         if (Sound_IsPlaying(g_unk0x0058ddac[player])) {
-            Sound_SetPan(g_unk0x0058ddac[player], (unsigned short)FUN_00427b70(pitch, g_unk0x0051ea60));
+            Sound_SetPan(g_unk0x0058ddac[player], FUN_00427b70(pitch, g_unk0x0051ea60));
             FUN_004b79a0(g_unk0x0058ddac[player],
                          CAR_VOLUME((int)(FUN_00427ad0(pitch, g_unk0x0051ea60) << 16) / 100, g_unk0x0051f274));
         }
@@ -904,10 +904,10 @@ void FUN_00479360(int *pState, int player, int listener)
             if (FUN_0041f3d0((BYTE)player))
                 Sound_SetPan(g_unk0x0058ddf0[player],
                              FUN_00427e20(player, player,
-                                          (unsigned short)FUN_00427b70(pitch, (int *)&g_curve0x0051eab8)));
+                                          FUN_00427b70(pitch, (int *)&g_curve0x0051eab8)));
             else
                 Sound_SetPan(g_unk0x0058ddf0[player],
-                             (unsigned short)FUN_00427b70(pitch, (int *)&g_curve0x0051eab8));
+                             FUN_00427b70(pitch, (int *)&g_curve0x0051eab8));
             FUN_004b79a0(g_unk0x0058ddf0[player], volume);
         }
         if (Sound_IsPlaying(g_unk0x0058dde0[player])) {
@@ -917,10 +917,10 @@ void FUN_00479360(int *pState, int player, int listener)
             if (FUN_0041f3d0((BYTE)player))
                 Sound_SetPan(g_unk0x0058dde0[player],
                              FUN_00427e20(player, player,
-                                          (unsigned short)FUN_00427b70(pitch, (int *)&g_curve0x0051eab8)));
+                                          FUN_00427b70(pitch, (int *)&g_curve0x0051eab8)));
             else
                 Sound_SetPan(g_unk0x0058dde0[player],
-                             (unsigned short)FUN_00427b70(pitch, (int *)&g_curve0x0051eab8));
+                             FUN_00427b70(pitch, (int *)&g_curve0x0051eab8));
             FUN_004b79a0(g_unk0x0058dde0[player], volume);
         }
     }
@@ -936,14 +936,16 @@ void FUN_00479360(int *pState, int player, int listener)
                 g_unk0x0058dd60[player] = now;
                 g_unk0x0058df28[player] = rand() % 10 + 5;
             } else if (pState[1] < 4000) {
+                int v;
                 g_unk0x0058dd98[player] = 1;
                 g_unk0x0058dd60[player] = now;
                 if (pState[1] <= 3000)
-                    g_unk0x0058df28[player] = 10;
-                else if (pState[1] < 5000)
-                    g_unk0x0058df28[player] = (3000 - pState[1]) * 10 / 2000 + 10;
+                    v = 10;
+                else if (pState[1] >= 5000)
+                    v = 0;
                 else
-                    g_unk0x0058df28[player] = 0;
+                    v = (3000 - pState[1]) * 10 / 2000 + 10;
+                g_unk0x0058df28[player] = v;
             } else {
                 g_unk0x0058dd60[player] = now;
                 g_unk0x0058df28[player] = rand() % 10 + 5;
@@ -988,14 +990,16 @@ void FUN_00479360(int *pState, int player, int listener)
         if (g_unk0x0058df78[player] != 0) {
             if (pState[1] < lo || pState[4] != 0)
                 g_unk0x0058df78[player] = 0;
-        } else if (CFrontend::FUN_0040ee80(pCar->type) == NULL) {
+        } else if (CFrontend::FUN_0040ee80(pCar->type) != NULL) {
+            if (pState[4] == 0 && pState[1] > hi) {
+                g_unk0x0058df78[player] = 1;
+                g_unk0x0058dd60[player] = now;
+                g_unk0x0058dda0[player] = now;
+                g_unk0x0058df28[player] = rand() % 10 + 10;
+                g_unk0x0058dd98[player] = 0;
+            }
+        } else {
             g_unk0x0058df78[player] = 0;
-        } else if (pState[4] == 0 && pState[1] > hi) {
-            g_unk0x0058df78[player] = 1;
-            g_unk0x0058dd60[player] = now;
-            g_unk0x0058dda0[player] = now;
-            g_unk0x0058dd98[player] = 0;
-            g_unk0x0058df28[player] = rand() % 10 + 10;
         }
         if (g_unk0x0058df78[player] != 0 || backfire) {
             FUN_004792c0(player);
@@ -1067,7 +1071,8 @@ void FUN_00479360(int *pState, int player, int listener)
             g_unk0x0058df70[player] = 0;
         }
     } else {
-        volume = g_unk0x0058de08[player] * (int)FUN_00427ad0(pitch, (int *)&g_curve0x0051ec50) / 100;
+        volume = (int)FUN_00427ad0(pitch, (int *)&g_curve0x0051ec50);
+        volume = g_unk0x0058de08[player] * volume / 100;
         if (g_unk0x0058de10[player] != -1)
             FUN_004781c0(player);
         g_unk0x0058df60[player] = 0;
@@ -1079,11 +1084,10 @@ void FUN_00479360(int *pState, int player, int listener)
         if (FUN_0041f3d0((BYTE)player))
             Sound_SetPan(g_unk0x0058dd90[player],
                          FUN_00427e20(player, player,
-                                      (unsigned short)FUN_00427b70(pitch, (int *)&g_curve0x0051ec50)));
+                                      FUN_00427b70(pitch, (int *)&g_curve0x0051ec50)));
         else
-            Sound_SetPan(g_unk0x0058dd90[player], (unsigned short)FUN_00427b70(pitch, (int *)&g_curve0x0051ec50));
-        volume = (volume << 16) / 100;
-        FUN_004b79a0(g_unk0x0058dd90[player], CAR_VOLUME(volume, g_unk0x0058df40));
+            Sound_SetPan(g_unk0x0058dd90[player], FUN_00427b70(pitch, (int *)&g_curve0x0051ec50));
+        FUN_004b79a0(g_unk0x0058dd90[player], CAR_VOLUME((volume << 16) / 100, g_unk0x0058df40));
         if (Sound_IsPlaying(g_unk0x0058ddd0[player]) == 0)
             g_unk0x0058ddd0[player] = FUN_004b7790(
                 (unsigned short)(g_unk0x0058ddb4[player] + 6), 0, 0x5622,
@@ -1092,14 +1096,14 @@ void FUN_00479360(int *pState, int player, int listener)
         if (FUN_0041f3d0((BYTE)player))
             Sound_SetPan(g_unk0x0058ddd0[player],
                          FUN_00427e20(player, player,
-                                      (unsigned short)FUN_00427b70(pitch, (int *)&g_curve0x0051ec50)));
+                                      FUN_00427b70(pitch, (int *)&g_curve0x0051ec50)));
         else
-            Sound_SetPan(g_unk0x0058ddd0[player], (unsigned short)FUN_00427b70(pitch, (int *)&g_curve0x0051ec50));
-        FUN_004b79a0(g_unk0x0058ddd0[player], CAR_VOLUME(volume, g_unk0x0051f27c));
+            Sound_SetPan(g_unk0x0058ddd0[player], FUN_00427b70(pitch, (int *)&g_curve0x0051ec50));
+        FUN_004b79a0(g_unk0x0058ddd0[player], CAR_VOLUME((volume << 16) / 100, g_unk0x0051f27c));
     }
     FUN_0047a3d0(player, pState, listener);
-    g_unk0x0058dd68[player] = g_unk0x0058df88[player];
     g_unk0x0058df80[player] = ((BYTE *)pCar)[0x1d2];
+    g_unk0x0058dd68[player] = g_unk0x0058df88[player];
     if (CGameInfo::FUN_00406410(0x13)) {
         if (Sound_IsPlaying(g_unk0x0058ddd8[player]))
             FUN_004b79a0(g_unk0x0058ddd8[player], CAR_VOLUME(0x10000, g_unk0x0051f298));
@@ -1131,7 +1135,7 @@ int FUN_00427d50(unsigned int view, int listener);
 unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3);
 int FUN_0041f3d0(BYTE index);
 void FUN_004b79a0(unsigned int handle, int volume);
-void Sound_SetPan(unsigned int handle, unsigned short pan);
+void Sound_SetPan(unsigned int handle, int pan);
 extern int g_unk0x0058dda8;
 
 // Master scale of the skid loop volume.
@@ -1217,12 +1221,11 @@ void FUN_0047a710(int player, int listener)
             g_unk0x0058df30[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 0xe), 0x10000, 0x2b11, 0, 1, 0);
     }
     pitch = FixMul(FixMul(pCar->field_0x7ac, pCar->field_0x798), 0x19640000) >> 16;
-    if (pitch < 2000)
+    state[1] = pitch;
+    if (state[1] < 2000)
         state[1] = 2000;
-    else if (pitch > 0x2134)
+    else if (state[1] > 0x2134)
         state[1] = 0x2134;
-    else
-        state[1] = pitch;
     pitch += 2000;
     if (pitch < 2000)
         pitch = 2000;
@@ -1298,35 +1301,41 @@ void FUN_0047a3d0(int player, int *pState, int listener)
         } else {
             g_unk0x0058dd78[player] = 0;
         }
-        if (!FUN_00427aa0() && (inRange = FUN_00427ab0(speed, (int *)&g_curve0x0051ede8)) != 0) {
-            pHandle = &g_unk0x0058dd80[player];
-            if (Sound_IsPlaying(g_unk0x0058dd80[player]) == 0)
+        if (!FUN_00427aa0()) {
+            inRange = FUN_00427ab0(speed, (int *)&g_curve0x0051ede8);
+            if (inRange != 0) {
+                pHandle = &g_unk0x0058dd80[player];
+                if (Sound_IsPlaying(g_unk0x0058dd80[player]) == 0)
+                    return;
+                if (FUN_0041f3d0((BYTE)player))
+                    Sound_SetPan(*pHandle, FUN_00427e20(player, player,
+                                 FUN_00427b70(speed, (int *)&g_curve0x0051ede8)));
+                else
+                    Sound_SetPan(*pHandle, FUN_00427b70(speed, (int *)&g_curve0x0051ede8));
+                volume = FUN_00427ad0(speed, (int *)&g_curve0x0051ede8);
+                if (locked)
+                    return;
+                if (level >= 1 && level <= 3)
+                    volume -= dip;
+                if (volume < 0)
+                    volume = 10;
+                volume = g_unk0x0058dd78[player] * volume / 100;
+                if (inRange && g_unk0x0058de10[player] != -1)
+                    FUN_004781c0(player);
+                if (volume < 0)
+                    volume = 0;
+                else if (volume > 100)
+                    volume = 100;
+                FUN_004b79a0(*pHandle, FixMul(FUN_00427d50(player, listener),
+                                              FixMul(g_unk0x0058dda8, FixMul((volume << 16) / 100, g_unk0x0051f280))));
                 return;
-            if (FUN_0041f3d0((BYTE)player))
-                Sound_SetPan(*pHandle, FUN_00427e20(player, player,
-                             (unsigned short)FUN_00427b70(speed, (int *)&g_curve0x0051ede8)));
-            else
-                Sound_SetPan(*pHandle, (unsigned short)FUN_00427b70(speed, (int *)&g_curve0x0051ede8));
-            volume = FUN_00427ad0(speed, (int *)&g_curve0x0051ede8);
-            if (locked)
-                return;
-            if (level >= 1 && level <= 3)
-                volume -= dip;
-            if (volume < 0)
-                volume = 10;
-            volume = g_unk0x0058dd78[player] * volume / 100;
-            if (g_unk0x0058de10[player] != -1)
-                FUN_004781c0(player);
-            if (volume < 0)
-                volume = 0;
-            else if (volume > 100)
-                volume = 100;
-            FUN_004b79a0(*pHandle, FixMul(FUN_00427d50(player, listener),
-                                          FixMul(g_unk0x0058dda8, FixMul((volume << 16) / 100, g_unk0x0051f280))));
-            return;
+            }
         }
-    }
-    if (Sound_IsPlaying(g_unk0x0058dd80[player])) {
+        if (Sound_IsPlaying(g_unk0x0058dd80[player])) {
+            FUN_004b79a0(g_unk0x0058dd80[player], 0);
+            Sound_SetPan(g_unk0x0058dd80[player], 0x2b11);
+        }
+    } else if (Sound_IsPlaying(g_unk0x0058dd80[player])) {
         FUN_004b79a0(g_unk0x0058dd80[player], 0);
         Sound_SetPan(g_unk0x0058dd80[player], 0x2b11);
     }
@@ -1450,15 +1459,15 @@ BYTE FUN_00478a20(void)
 // FUNCTION: CMR2 0x004786b0
 void FUN_004786b0(BYTE *pWheel, int unused)
 {
+    int v;
+    int total;
+    int i;
     int *pMix;
     short *pId;
     int *pOut;
     int *pOut2;
-    int total;
-    int i;
     int id;
     int blend;
-    int v;
 
     pMix = (int *)(pWheel + 0x8ac);
     pId = (short *)(pWheel + 0xab4);
@@ -1467,8 +1476,8 @@ void FUN_004786b0(BYTE *pWheel, int unused)
     i = 2;
     do {
         id = *pId;
-        blend = pMix[-4];
-        if (blend != 0) {
+        if (pMix[-4] != 0) {
+            blend = pMix[-4];
             if (blend > 0x10000)
                 blend = 0x10000;
             v = FixMul(blend, g_surfaceSoftness[id][0]);
@@ -1482,8 +1491,8 @@ void FUN_004786b0(BYTE *pWheel, int unused)
             pOut[-2] = g_surfaceGrip[id][1];
             pOut[0] = g_surfaceGrip2[id][1];
         }
-        blend = *pMix;
-        if (blend != 0) {
+        if (*pMix != 0) {
+            blend = *pMix;
             if (blend > 0x10000)
                 blend = 0x10000;
             v = FixMul(blend, g_surfaceSoftness[id][1]);
@@ -1517,7 +1526,7 @@ void FUN_004786b0(BYTE *pWheel, int unused)
         ((BYTE *)pOut2)[-1] = g_surfaceEffect[id][0];
         ((BYTE *)pOut2)[0] = g_surfaceEffect[id][1];
         *(int *)((BYTE *)pOut2 + 3) =
-            FixMul(0x51e, g_surfaceDrag[g_surfaceDragIndex[id] + *(BYTE *)(pWheel + 0xb29) * 9]);
+            FixMul(g_surfaceDrag[g_surfaceDragIndex[id] + *(BYTE *)(pWheel + 0xb29) * 9], 0x51e);
         *(int *)((BYTE *)pOut2 + 7) = 0;
         total += g_surfaceNoise[id] * 2;
         ((BYTE *)pOut2)[-0xd] = ((BYTE *)pOut2)[-1];

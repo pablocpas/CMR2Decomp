@@ -1319,6 +1319,7 @@ void FUN_004fd080(Menu *pMenu)
     line[0] = resX * 99 / 640;
     line[3] = 1;
     line[2] = resX * 282 / 640;
+    line[1] = y0;
     if (pMenu->cursor == 0) {
         pColour = g_colourWhite0x00524968;
         pShadow = g_colourShadowWhite0x00524974;
@@ -1329,7 +1330,6 @@ void FUN_004fd080(Menu *pMenu)
         pColour = g_colourText0x0052496c;
         pShadow = g_colourShadowText0x00524978;
     }
-    line[1] = y0;
     Sprite_FillRect((int)g_pGraphics + 0x150, line, pShadow, 1);
     line[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, line, pColour, 1);
@@ -1440,6 +1440,7 @@ void FUN_004fd480(Menu *pMenu)
     text[0] = CFrontend::m_stringDest;
     text[1] = CFrontend::GetTextString(pMenu->field_0x4);
     FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, text, 2);
+    y0 = (int)(g_pGraphics->resY * 75) / 480;
     if (pMenu->cursor == 0) {
         pColour = g_colourWhite0x00524968;
         pShadow = g_colourShadowWhite0x00524974;
@@ -1447,11 +1448,10 @@ void FUN_004fd480(Menu *pMenu)
         pColour = g_colourText0x0052496c;
         pShadow = g_colourShadowText0x00524978;
     }
-    y0 = (int)(g_pGraphics->resY * 75) / 480;
     g_controlsLine[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_controlsLine[3] = 1;
-    g_controlsLine[2] = (int)(g_pGraphics->resX * 282) / 640;
     g_controlsLine[1] = y0;
+    g_controlsLine[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_controlsLine[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pShadow, 1);
     g_controlsLine[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pColour, 1);
@@ -1510,25 +1510,29 @@ void FUN_004fd480(Menu *pMenu)
     }
 }
 
-// Picks the colours of row i of a settings page: icon/label, active choice,
-// inactive choice; disabled rows are all dim.
-#define CONTROLS_ROW_COLOURS(pMenu, i, pLabel, pBright, pDim, pTexture)       \
-    if ((pMenu)->cursor == (i)) {                                             \
-        pLabel = g_colourWhite0x00524968;                                     \
-        pBright = g_colourWhite0x00524968;                                    \
-        pDim = g_colourText0x0052496c;                                        \
-        pTexture = CFrontend::m_pAr640ATexture;                               \
-    } else {                                                                  \
-        pTexture = CFrontend::m_pAr640DTexture;                               \
-        if (!(pMenu)->items[i].enabled) {                                     \
-            pLabel = g_colourDim0x00524970;                                   \
-            pBright = g_colourDim0x00524970;                                  \
-            pDim = g_colourDim0x00524970;                                     \
-        } else {                                                              \
-            pLabel = g_colourText0x0052496c;                                  \
-            pBright = g_colourWhite0x00524968;                                \
-            pDim = g_colourText0x0052496c;                                    \
-        }                                                                     \
+// Draws row i of a settings page: picks the icon/label, the active and the
+// inactive choice colours (disabled rows are all dim) and queues the row icon.
+#define CONTROLS_ROW_DRAW(pMenu, i, pLabel, pBright, pDim, pTexture)                   \
+    if ((pMenu)->cursor == (i)) {                                                      \
+        pLabel = g_colourWhite0x00524968;                                              \
+        pBright = g_colourWhite0x00524968;                                             \
+        pDim = g_colourText0x0052496c;                                                 \
+        pTexture = CFrontend::m_pAr640ATexture;                                        \
+        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon,         \
+                     pTexture, 1, 0, NULL, NULL, pLabel, 8);                           \
+    } else {                                                                           \
+        if ((pMenu)->items[i].enabled) {                                               \
+            pLabel = g_colourText0x0052496c;                                           \
+            pBright = g_colourWhite0x00524968;                                         \
+            pDim = g_colourText0x0052496c;                                             \
+        } else {                                                                       \
+            pLabel = g_colourDim0x00524970;                                            \
+            pBright = g_colourDim0x00524970;                                           \
+            pDim = g_colourDim0x00524970;                                              \
+        }                                                                              \
+        pTexture = CFrontend::m_pAr640DTexture;                                        \
+        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon,         \
+                     pTexture, 1, 0, NULL, NULL, pLabel, 8);                           \
     }
 
 // Draw callback of the pad page: the two sensitivities (%), the vibration
@@ -1548,7 +1552,6 @@ void FUN_004fdb10(Menu *pMenu)
     MenuItem *pItem;
     short y0;
     int x;
-    int y;
     int i;
 
     icon[0] = (int)(g_pGraphics->resX * 100) / 640;
@@ -1570,9 +1573,9 @@ void FUN_004fdb10(Menu *pMenu)
         pShadow = g_colourShadowText0x00524978;
     }
     g_controlsLine[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_controlsLine[3] = 1;
-    g_controlsLine[2] = (int)(g_pGraphics->resX * 282) / 640;
     g_controlsLine[1] = y0;
+    g_controlsLine[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_controlsLine[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pShadow, 1);
     g_controlsLine[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pColour, 1);
@@ -1580,22 +1583,28 @@ void FUN_004fdb10(Menu *pMenu)
         pItem = &pMenu->items[i];
         icon[1] = (int)(g_pGraphics->resY * 2) / 480 + (int)(g_pGraphics->resY * 18) / 480 + y0
                   + ((short)((int)(g_pGraphics->resY * 36) / 480) * (short)i - CFrontend::m_pAr640ATexture->height / 2);
-        CONTROLS_ROW_COLOURS(pMenu, i, pLabel, pBright, pDim, pTexture)
-        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pLabel, 8);
-        y = (short)((int)(g_pGraphics->resY * 24) / 480 + g_controlsLine[1]);
-        x = (int)(g_pGraphics->resX * 0x7a) / 640;
+        CONTROLS_ROW_DRAW(pMenu, i, pLabel, pBright, pDim, pTexture)
         switch (pItem->value) {
         case 0:
         case 1:
             sprintf(CFrontend::m_stringDest, g_strPercentFormat, CFrontend::GetTextString(pItem->id), pItem->max * 10);
-            Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)pLabel, 0x11);
+            Font_DrawText(1, CFrontend::m_stringDest, FM_SX(0x7a), FM_SY(24) + g_controlsLine[1], (int *)pLabel, 0x11);
             break;
         case 2:
-            x = FrontendMenus_DrawLabel(CFrontend::GetTextString(pItem->id), x, y, pLabel);
-            FrontendMenus_DrawChoice(x, y, pItem->max, 0x134, 0x133, pBright, pDim);
+            Font_DrawText(1, CFrontend::GetTextString(pItem->id), FM_SX(0x7a), FM_SY(24) + g_controlsLine[1], (int *)pLabel, 0x11);
+            x = Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(pItem->id)) + FM_SX(10) + FM_SX(0x7a);
+            if (pItem->max == 0) {
+                Font_DrawText(1, CFrontend::GetTextString(0x134), x, FM_SY(24) + g_controlsLine[1], (int *)pBright, 0x11);
+                x = FM_SX(10) + x + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x134));
+                Font_DrawText(1, CFrontend::GetTextString(0x133), x, FM_SY(24) + g_controlsLine[1], (int *)pDim, 0x11);
+            } else {
+                Font_DrawText(1, CFrontend::GetTextString(0x134), x, FM_SY(24) + g_controlsLine[1], (int *)pDim, 0x11);
+                x = FM_SX(10) + x + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x134));
+                Font_DrawText(1, CFrontend::GetTextString(0x133), x, FM_SY(24) + g_controlsLine[1], (int *)pBright, 0x11);
+            }
             break;
         case 3:
-            Font_DrawText(1, CFrontend::GetTextString(pItem->id), x, y, (int *)pLabel, 0x11);
+            Font_DrawText(1, CFrontend::GetTextString(pItem->id), FM_SX(0x7a), FM_SY(24) + g_controlsLine[1], (int *)pLabel, 0x11);
             break;
         }
         if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
@@ -1664,8 +1673,7 @@ void FUN_004fe240(Menu *pMenu)
         pItem = &pMenu->items[i];
         icon[1] = (int)(g_pGraphics->resY * 20) / 480 + y0 + (int)(g_pGraphics->resY * 36) / 480 * (short)i
                   - CFrontend::m_pAr640ATexture->height / 2;
-        CONTROLS_ROW_COLOURS(pMenu, i, pLabel, pBright, pDim, pTexture)
-        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pLabel, 8);
+        CONTROLS_ROW_DRAW(pMenu, i, pLabel, pBright, pDim, pTexture)
         switch (pItem->value) {
         case 0:
             sprintf(CFrontend::m_stringDest, g_strAngleFormat, FUN_004fbab0());

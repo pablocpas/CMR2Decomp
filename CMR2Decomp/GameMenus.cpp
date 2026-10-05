@@ -996,9 +996,12 @@ void FUN_0044d960(Menu *pMenu)
             row++;
             pos = (pMenu->items[0].max - 1) + row;
         } else {
-            if (g_unk0x005413f8 != 0)
+            if (g_unk0x005413f8 != 0) {
                 row++;
-            pos = pMenu->items[0].max + row;
+                pos = pMenu->items[0].max + row;
+            } else {
+                pos = pMenu->items[0].max + row;
+            }
         }
         id = StageTiming_GetDriverIDForPosition(pos);
         time = StageTiming_GetTimeForPosition(pos);
@@ -1078,14 +1081,15 @@ void FUN_0044e130(Menu *pMenu)
                               CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x44),
                                                    (RallyDataStageIndex() >> 2) + 1),
                               stage, 0);
+    } else if (RallyDataStageIndex() == 10) {
+        GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
+                              CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
+                              CFrontend::GetTextString(0xba), 0);
     } else {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
                               CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
-                              RallyDataStageIndex() == 10
-                                  ? CFrontend::GetTextString(0xba)
-                                  : CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x40),
-                                                         RallyDataStageIndex() + 1),
-                              0);
+                              CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x40),
+                                                   RallyDataStageIndex() + 1), 0);
     }
     i = 0;
     if (FUN_0040ab10() > 0) {
@@ -2842,7 +2846,10 @@ void FUN_00449ce0(Menu *pMenu)
         if (strchr(g_chatChars0x00519ee8, (char)key) == NULL)
             break;
         len = Font_GetTextWidth(0, (BYTE *)g_chatLine);
-        maxLen = (int)g_pGraphics->resX >= 0x400 ? 0x210 : 0x14a;
+        if (g_pGraphics->resX >= 0x400)
+            maxLen = 0x210;
+        else
+            maxLen = 0x14a;
         if (g_chatLineLength < 0xff && len < maxLen) {
             g_chatLine[g_chatLineLength] = (char)key;
             g_chatLine[g_chatLineLength + 1] = 0;
@@ -2931,7 +2938,7 @@ void FUN_004541c0(Menu *pMenu)
                       (int)(g_pGraphics->resY * 10) / 0x1e0 + (int)(g_pGraphics->resY * 100) / 0x1e0,
                       (int *)g_menuFrameColour, 0x12);
         if (pEntries != NULL) {
-            for (p = (char *)pEntries + 4, i = 0; i < 10; i++, p += 8) {
+            for (i = 0, p = (char *)pEntries + 4; i < 10; i++, p += 8) {
                 if (*p != 0) {
                     Font_DrawText(0, p, (int)(g_pGraphics->resX * 0x1fe) / 0x280,
                                   (int)(g_pGraphics->resY * 100) / 0x1e0 +

@@ -21,16 +21,13 @@ void Mesh_Free(void *pMesh)
 {
     int i;
     int j;
-    Mesh **pp;
 
-    i = 0;
-    pp = g_meshes;
-    while (*pp == NULL || *pp != pMesh) {
-        pp++;
-        i++;
-        if (pp > &g_meshes[4095])
-            return;
+    for (i = 0; i < 4096; i++) {
+        if (g_meshes[i] != NULL && g_meshes[i] == pMesh)
+            goto found;
     }
+    return;
+found:
     g_meshTotalSize -= ((Mesh *)pMesh)->sizeUnits;
     for (j = 0; j < g_meshes[i]->partCount; j++) {
         CFileBuffer::FreeGenericFileBuffer(g_meshes[i]->pParts[j]->pData);
@@ -147,7 +144,7 @@ void Mesh_BuildParts(Mesh *pMesh)
     int k;
     int off;
     int n;
-    unsigned int lo;
+    int lo;
     int hi;
     unsigned short *pIndex;
 
@@ -208,35 +205,34 @@ void Mesh_BuildParts(Mesh *pMesh)
             (*ppPart)->indexCount = 0;
             last = n;
         }
-        pIndex = (unsigned short *)((BYTE *)pMesh->pTriangles + off + 0x40);
-        for (k = 3; k != 0; k--) {
-            (*ppPart)->pData[(*ppPart)->indexCount] = *pIndex++;
-            (*ppPart)->indexCount++;
+        {
+            int po = off + 0x40;
+            for (k = 3; k != 0; k--) {
+                (*ppPart)->pData[(*ppPart)->indexCount] = *(unsigned short *)((BYTE *)pMesh->pTriangles + po);
+                (*ppPart)->indexCount++;
+                po += 2;
+            }
         }
         off += 0x4c;
     }
     if (count > 0) {
-        ppPart = pMesh->pParts;
-        for (i = count; i != 0; i--) {
+        for (i = 0; i < count; i++) {
             hi = -1;
             lo = 999;
-            for (k = 0; k < (*ppPart)->indexCount; k++) {
-                if ((*ppPart)->pData[k] < lo) {
-                    lo = (*ppPart)->pData[k];
-                    (*ppPart)->minIndex = lo;
+            for (k = 0; k < pMesh->pParts[i]->indexCount; k++) {
+                if (pMesh->pParts[i]->pData[k] < lo) {
+                    lo = pMesh->pParts[i]->pData[k];
+                    pMesh->pParts[i]->minIndex = lo;
                 }
-                if (hi < (int)(*ppPart)->pData[k]) {
-                    hi = (*ppPart)->pData[k];
-                    (*ppPart)->maxIndex = hi;
+                if ((int)pMesh->pParts[i]->pData[k] > hi) {
+                    hi = pMesh->pParts[i]->pData[k];
+                    pMesh->pParts[i]->maxIndex = hi;
                 }
             }
-            ppPart++;
         }
-        ppPart = pMesh->pParts;
-        for (i = count; i != 0; i--) {
-            for (k = 0; k < (*ppPart)->indexCount; k++)
-                (*ppPart)->pData[k] -= (short)(*ppPart)->minIndex;
-            ppPart++;
+        for (i = 0; i < count; i++) {
+            for (k = 0; k < pMesh->pParts[i]->indexCount; k++)
+                pMesh->pParts[i]->pData[k] -= (short)pMesh->pParts[i]->minIndex;
         }
     }
 }
@@ -323,7 +319,8 @@ Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource)
     FixVector v;
     FixVector d;
     FixVector r;
-    FixMatrix *pM;
+    FixVector dn;
+    FixVector rn;
     Mesh *pMesh;
     int i;
     int off;
@@ -360,37 +357,34 @@ Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource)
         (*(int **)((BYTE *)pMesh + 0x34))[i] = (*(int **)((BYTE *)pSrc + 0x34))[i];
     ((BYTE *)pMesh)[0x104] = ((BYTE *)pSrc)[0x104];
     *(int *)((BYTE *)pMesh + 0x30) = *(int *)((BYTE *)pSrc + 0x30);
-    pM = (FixMatrix *)(pSource + 0x18);
     *(int *)((BYTE *)pMesh + 0x2c) = *(int *)((BYTE *)pSrc + 0x2c);
 
-    FixMatrix_GetRight(&v, pM);
+    FixMatrix_GetRight(&v, (FixMatrix *)(pSource + 0x18));
     FIX_NORMALIZE_INTO(v, v);
     FixMatrix_SetRight(&v, &m);
-    FixMatrix_GetUp(&v, pM);
+    FixMatrix_GetUp(&v, (FixMatrix *)(pSource + 0x18));
     FIX_NORMALIZE_INTO(v, v);
     FixMatrix_SetUp(&v, &m);
-    FixMatrix_GetForward(&v, pM);
+    FixMatrix_GetForward(&v, (FixMatrix *)(pSource + 0x18));
     FIX_NORMALIZE_INTO(v, v);
     FixMatrix_SetForward(&v, &m);
-    FixMatrix_GetPosition(&v, pM);
+    FixMatrix_GetPosition(&v, (FixMatrix *)(pSource + 0x18));
     FixMatrix_SetPosition(&v, &m);
     for (i = 0, off = 0; i < pMesh->field_0x10; i++, off += 0x30) {
-        float *pF = (float *)((BYTE *)pMesh->pVertexData + off);
-
-        d.x = (int)(__int64)(pF[0] * CGraphics::m_65536) - v.x;
-        d.y = (int)(__int64)(pF[1] * CGraphics::m_65536) - v.y;
-        d.z = (int)(__int64)(pF[2] * CGraphics::m_65536) - v.z;
+        d.x = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData + off + 0) * CGraphics::m_65536) - v.x;
+        d.y = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData + off + 4) * CGraphics::m_65536) - v.y;
+        d.z = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData + off + 8) * CGraphics::m_65536) - v.z;
         FixMatrix_InverseRotateVector(&r, &d, &m);
-        pF[0] = (float)r.x * CGraphics::m_oneOver65536;
-        pF[1] = (float)r.y * CGraphics::m_oneOver65536;
-        pF[2] = (float)r.z * CGraphics::m_oneOver65536;
-        d.x = (int)(__int64)(pF[3] * CGraphics::m_65536);
-        d.y = (int)(__int64)(pF[4] * CGraphics::m_65536);
-        d.z = (int)(__int64)(pF[5] * CGraphics::m_65536);
-        FixMatrix_InverseRotateVector(&r, &d, &m);
-        pF[3] = (float)r.x * CGraphics::m_oneOver65536;
-        pF[4] = (float)r.y * CGraphics::m_oneOver65536;
-        pF[5] = (float)r.z * CGraphics::m_oneOver65536;
+        *(float *)((BYTE *)pMesh->pVertexData + off + 0) = (float)r.x * CGraphics::m_oneOver65536;
+        *(float *)((BYTE *)pMesh->pVertexData + off + 4) = (float)r.y * CGraphics::m_oneOver65536;
+        *(float *)((BYTE *)pMesh->pVertexData + off + 8) = (float)r.z * CGraphics::m_oneOver65536;
+        dn.x = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData + off + 0xc) * CGraphics::m_65536);
+        dn.y = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData + off + 0x10) * CGraphics::m_65536);
+        dn.z = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData + off + 0x14) * CGraphics::m_65536);
+        FixMatrix_InverseRotateVector(&rn, &dn, &m);
+        *(float *)((BYTE *)pMesh->pVertexData + off + 0xc) = (float)rn.x * CGraphics::m_oneOver65536;
+        *(float *)((BYTE *)pMesh->pVertexData + off + 0x10) = (float)rn.y * CGraphics::m_oneOver65536;
+        *(float *)((BYTE *)pMesh->pVertexData + off + 0x14) = (float)rn.z * CGraphics::m_oneOver65536;
     }
     Mesh_BuildParts(pMesh);
     Mesh_UploadVertices(pMesh);

@@ -2605,12 +2605,12 @@ int FUN_0049d3f0(int param1, int param2, void *param3, int bit, BYTE flag)
     if (CGraphics::m_pTextureManager->pD3D->BeginScene() != D3D_OK)
         return 1;
     memset(&viewport, 0, sizeof(viewport));
-    viewport.dvMinZ = 0.0f;
-    viewport.dvMaxZ = 1.0f;
     viewport.dwX = ((short *)param3)[0];
     viewport.dwY = ((short *)param3)[1];
     viewport.dwWidth = ((short *)param3)[2];
     viewport.dwHeight = ((short *)param3)[3];
+    viewport.dvMinZ = 0.0f;
+    viewport.dvMaxZ = 1.0f;
     CGraphics::m_pTextureManager->pD3D->SetViewport(&viewport);
     FUN_0049dcc0(1);
     CGraphics::SetCullMode(3);
@@ -2623,9 +2623,8 @@ int FUN_0049d3f0(int param1, int param2, void *param3, int bit, BYTE flag)
             CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
                                                              &g_unk0x005207b8);
             FUN_004b7de0((SceneNode *)param2, (int)param3);
-            pIndex = (unsigned short *)g_unk0x006ed5f0;
-            for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++, pIndex++)
-                Scene_RelightSector(*pIndex);
+            for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++)
+                Scene_RelightSector(((unsigned short *)g_unk0x006ed5f0)[i]);
         }
         CGraphics::SetCullMode(CGame::FUN_0049dcb0());
         FixMatrix_GetPosition(&cameraPosition, &((SceneNode *)param2)->world);
@@ -2961,25 +2960,24 @@ int FUN_004a0ec0(char *pSessionName, char *pPassword, DWORD user1, DWORD user2,
         return 0;
     hr = ((DPMethod2)(*(void ***)pDP)[0x60 / 4])(pDP, g_unk0x005a0068, DPOPEN_CREATE);
     switch (hr) {
-    case DPERR_INVALIDPARAM:
-    case DPERR_ALREADYINITIALIZED:
-    case DPERR_ACCESSDENIED:
-    case DPERR_INVALIDFLAGS:
-    case DPERR_NOCONNECTION:
-    case DPERR_TIMEOUT:
-    case DPERR_USERCANCEL:
-    case DPERR_UNINITIALIZED:
-    case DPERR_NONEWPLAYERS:
-    case DPERR_INVALIDPASSWORD:
-    case DPERR_CONNECTING:
-    case DPERR_AUTHENTICATIONFAILED:
-    case DPERR_CANTLOADSSPI:
-    case DPERR_ENCRYPTIONFAILED:
-    case DPERR_SIGNFAILED:
-    case DPERR_CANTLOADSECURITYPACKAGE:
-    case DPERR_CANTLOADCAPI:
-    case DPERR_LOGONDENIED:
-        return 0;
+    case DPERR_INVALIDPARAM: return 0;
+    case DPERR_ALREADYINITIALIZED: return 0;
+    case DPERR_ACCESSDENIED: return 0;
+    case DPERR_INVALIDFLAGS: return 0;
+    case DPERR_NOCONNECTION: return 0;
+    case DPERR_TIMEOUT: return 0;
+    case DPERR_USERCANCEL: return 0;
+    case DPERR_UNINITIALIZED: return 0;
+    case DPERR_NONEWPLAYERS: return 0;
+    case DPERR_INVALIDPASSWORD: return 0;
+    case DPERR_CONNECTING: return 0;
+    case DPERR_AUTHENTICATIONFAILED: return 0;
+    case DPERR_CANTLOADSSPI: return 0;
+    case DPERR_ENCRYPTIONFAILED: return 0;
+    case DPERR_SIGNFAILED: return 0;
+    case DPERR_CANTLOADSECURITYPACKAGE: return 0;
+    case DPERR_CANTLOADCAPI: return 0;
+    case DPERR_LOGONDENIED: return 0;
     case DP_OK:
         CGameInfo::m_unk0x005a0060 = 1;
         CGameInfo::m_unk0x005a1814 = 1;

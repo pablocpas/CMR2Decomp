@@ -6,6 +6,7 @@ The reference SHA-256 is recorded in `reccmp-project.yml`.
 
 `main` contains the consolidated decompilation and matching reviews. See
 [INTEGRATION.md](INTEGRATION.md) for the integration history and validation.
+See [ROADMAP.md](ROADMAP.md) for the proposed next batches and validation priorities.
 
 ## Build
 

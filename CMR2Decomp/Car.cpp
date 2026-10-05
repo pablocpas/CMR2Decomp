@@ -2126,7 +2126,6 @@ void Car_ApplyCornerFriction(int grip)
                 if (sliding[i] != 0) {
                     int along;
                     int len;
-                    int s;
 
                     along = FixVecDot(&g_pCurrentCar->cornerAxis[i], &g_pCurrentCar->cornerNormal[i]);
                     FixVecScale(&dir, &g_pCurrentCar->cornerNormal[i], along);
@@ -2152,12 +2151,11 @@ void Car_ApplyCornerFriction(int grip)
                         FixVecScale(&dir, &dir, along);
                     }
                     strength[i] = strength[i] - 0xa0000;
-                    s = FixMul(strength[i], 0x51e);
-                    if (s > 0x10000) {
-                        s = 0x10000;
+                    along = FixMul(strength[i], 0x51e);
+                    if (along > 0x10000) {
+                        along = 0x10000;
                     }
-                    s = -FixMul(s, FixMul(grip, share));
-                    FixVecScale(&dir, &dir, s);
+                    FixVecScale(&dir, &dir, (-FixMul(along, FixMul(grip, share))));
                     g_pCurrentCar->cornerForce[i].x += dir.x;
                     g_pCurrentCar->cornerForce[i].y += dir.y;
                     g_pCurrentCar->cornerForce[i].z += dir.z;
@@ -2300,8 +2298,8 @@ void Car_UpdateTyreForces(void)
     FixVector v;
     FixVector t;
     FixVector *pNormal;
-    int dirValid[4];
-    int axisValid[4];
+    int dirValid[4] = {1, 1, 1, 1};
+    int axisValid[4] = {1, 1, 1, 1};
     int rollSpeed[4];
     int brakeFront;
     int brakeRear;
@@ -2317,9 +2315,9 @@ void Car_UpdateTyreForces(void)
     int mag;
     int limA;
     int limB;
-    int a;
     int b;
     int d;
+    int d_2;
     int e;
     int s;
     int old;
@@ -2328,14 +2326,6 @@ void Car_UpdateTyreForces(void)
     short angle;
     int i;
 
-    dirValid[0] = 1;
-    dirValid[1] = 1;
-    dirValid[2] = 1;
-    dirValid[3] = 1;
-    axisValid[0] = 1;
-    axisValid[1] = 1;
-    axisValid[2] = 1;
-    axisValid[3] = 1;
     pNormal = &g_pCurrentCar->groundNormal;
     latForce = 0;
     longForce = 0;
@@ -2343,12 +2333,12 @@ void Car_UpdateTyreForces(void)
     longAssist = 0;
     if (g_pCurrentCar->flag0x1d0[2] == 0 && g_pCurrentCar->flag0x1d0[3] == 0 &&
         g_pCurrentCar->gear != 0) {
-        if (g_pCurrentCar->speed < 0x1999) {
-            brakeFront = FixMul(0x1999, g_pCurrentCar->brakeBias);
-            brakeRear = FixMul(0x1999, 0x10000 - g_pCurrentCar->brakeBias);
-        } else {
+        if (g_pCurrentCar->speed >= 0x1999) {
             brakeFront = 0;
             brakeRear = 0;
+        } else {
+            brakeFront = FixMul(0x1999, g_pCurrentCar->brakeBias);
+            brakeRear = FixMul(0x1999, 0x10000 - g_pCurrentCar->brakeBias);
         }
     } else {
         brakeFront = FixMul(FixMul(g_pCurrentCar->brakeInput, *(int *)(g_pCarSetup + 0x3fc)),
@@ -2383,8 +2373,8 @@ void Car_UpdateTyreForces(void)
         dirValid[1] = 0;
         dirValid[0] = 0;
     }
-    d = -FixVecDot(pNormal, &g_pCurrentCar->frontWheelAxis);
-    FixVecScale(&t, pNormal, d);
+    d_2 = -FixVecDot(pNormal, &g_pCurrentCar->frontWheelAxis);
+    FixVecScale(&t, pNormal, d_2);
     v.x = g_pCurrentCar->frontWheelAxis.x + t.x;
     v.y = g_pCurrentCar->frontWheelAxis.y + t.y;
     v.z = g_pCurrentCar->frontWheelAxis.z + t.z;
@@ -2394,8 +2384,8 @@ void Car_UpdateTyreForces(void)
         axisValid[1] = 0;
         axisValid[0] = 0;
     }
-    d = -FixVecDot(pNormal, &g_pCurrentCar->rearWheelDir);
-    FixVecScale(&t, pNormal, d);
+    d_2 = -FixVecDot(pNormal, &g_pCurrentCar->rearWheelDir);
+    FixVecScale(&t, pNormal, d_2);
     v.x = g_pCurrentCar->rearWheelDir.x + t.x;
     v.y = g_pCurrentCar->rearWheelDir.y + t.y;
     v.z = g_pCurrentCar->rearWheelDir.z + t.z;
@@ -2406,8 +2396,8 @@ void Car_UpdateTyreForces(void)
         dirValid[2] = 0;
     }
     FixVecCross(&g_tyreForce, &g_pCurrentCar->rearWheelDir, &g_pCurrentCar->up);
-    d = -FixVecDot(pNormal, &g_tyreForce);
-    FixVecScale(&t, pNormal, d);
+    d_2 = -FixVecDot(pNormal, &g_tyreForce);
+    FixVecScale(&t, pNormal, d_2);
     v.x = g_tyreForce.x + t.x;
     v.y = g_tyreForce.y + t.y;
     v.z = g_tyreForce.z + t.z;
@@ -2417,10 +2407,10 @@ void Car_UpdateTyreForces(void)
         axisValid[3] = 0;
         axisValid[2] = 0;
     }
-    g_pCurrentCar->groundDir[0] = dir[0];
     g_pCurrentCar->groundDir[1] = dir[2];
     g_pCurrentCar->groundAxis[0] = axis[0];
     g_pCurrentCar->groundAxis[1] = axis[2];
+    g_pCurrentCar->groundDir[0] = dir[0];
 
     g_tyreGripScale = FixMul(g_pCurrentCar->tyreGrip, g_physicsScale);
     g_tyreSlipScale = FixMul(g_physicsScale, 0xf000);
@@ -2439,16 +2429,13 @@ void Car_UpdateTyreForces(void)
                 if ((speed > 0 && slip < 0) || (speed < 0 && slip > 0))
                     crossing = TRUE;
                 g_pCurrentCar->wheelSlipping[i] = 0;
-                if (speed * 4 < 1) {
-                    if (g_pCurrentCar->wheelLoad[i] < speed * 4 || g_pCurrentCar->wheelLoad[i] > 0x1999)
+                if (speed * 4 > 0) {
+                    if (g_pCurrentCar->wheelLoad[i] > speed * 4 || g_pCurrentCar->wheelLoad[i] < -0x1999)
                         g_pCurrentCar->wheelSlipping[i] = 1;
-                } else if (speed * 4 < g_pCurrentCar->wheelLoad[i] || g_pCurrentCar->wheelLoad[i] < -0x1999) {
+                } else if (g_pCurrentCar->wheelLoad[i] < speed * 4 || g_pCurrentCar->wheelLoad[i] > 0x1999) {
                     g_pCurrentCar->wheelSlipping[i] = 1;
                 }
-                if (i >= 2 && g_pCurrentCar->handbrake != 0 && !crossing) {
-                    g_pCurrentCar->wheelTorque[i] = 0;
-                    WHEEL_BRAKE(i, resist);
-                } else {
+                if (!(i > 1 && g_pCurrentCar->handbrake != 0 && !crossing)) {
                     longForce = FixMul(slip, g_tyreSlipScale) * 4;
                     if (g_pCurrentCar->flag0x1d0[2] == 0 && g_pCurrentCar->flag0x1d0[3] == 0) {
                         grip = g_pCurrentCar->field_0xa5c[i];
@@ -2456,16 +2443,16 @@ void Car_UpdateTyreForces(void)
                         if (slip < 0)
                             slip = -slip;
                         if (FixVecDot(&axis[i], &g_pCurrentCar->cornerVelocity[i]) < 0)
-                            d = -FixVecDot(&axis[i], &g_pCurrentCar->cornerVelocity[i]);
+                            d_2 = -FixVecDot(&axis[i], &g_pCurrentCar->cornerVelocity[i]);
                         else
-                            d = FixVecDot(&axis[i], &g_pCurrentCar->cornerVelocity[i]);
-                        a = FixMul(slip, 0x4000) - d;
-                        if (a < 0)
-                            a = 0;
-                        a = FixMul(a, 0xccc) + 0x51e;
+                            d_2 = FixVecDot(&axis[i], &g_pCurrentCar->cornerVelocity[i]);
+                        brakeFront = FixMul(slip, 0x4000) - d_2;
+                        if (brakeFront < 0)
+                            brakeFront = 0;
+                        brakeFront = FixMul(brakeFront, 0xccc) + 0x51e;
                         if (g_pCurrentCar->cornerGrip[i].drag != 0)
-                            a += FixMul(0xe666, g_pCurrentCar->cornerGrip[i].drag);
-                        grip = FixMul(g_pCurrentCar->field_0xa5c[i], a);
+                            brakeFront += FixMul(0xe666, g_pCurrentCar->cornerGrip[i].drag);
+                        grip = FixMul(g_pCurrentCar->field_0xa5c[i], brakeFront);
                     }
                     if (grip < longForce || (grip = -grip, longForce < grip))
                         longForce = grip;
@@ -2476,6 +2463,9 @@ void Car_UpdateTyreForces(void)
                     if (g_pCurrentCar->field_0xb1f != 0)
                         slip = FixMul(slip, 0x1999);
                     g_pCurrentCar->wheelTorque[i] += slip;
+                } else {
+                    g_pCurrentCar->wheelTorque[i] = 0;
+                    WHEEL_BRAKE(i, resist);
                 }
             }
         }
@@ -2491,17 +2481,17 @@ void Car_UpdateTyreForces(void)
             slip = rollSpeed[i] * 4 - g_pCurrentCar->wheelLoad[i];
             g_pCurrentCar->wheelSlip[i] = slip;
             if (FIX_ABS(slip) < 0x10000) {
-                d = FixVecDot(&dir[i], &g_carStepAccel);
-                longAssist = -d;
+                d_2 = FixVecDot(&dir[i], &g_carStepAccel);
+                longAssist = -d_2;
                 e = FixMul(rollSpeed[i], g_tyreGripScale);
-                if ((longAssist > 0 && e >= 1) || (longAssist < 0 && e < 0)) {
-                    if (FIX_ABS(e) < FIX_ABS(longAssist))
+                if ((longAssist > 0 && e > 0) || (longAssist < 0 && e < 0)) {
+                    if (FIX_ABS(longAssist) > FIX_ABS(e))
                         longAssist -= e;
                     else
                         longAssist = 0;
                 }
                 gear = g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear];
-                if (((gear > 0 && longAssist < 0) || (gear < 0 && longAssist > 0) || gear == 0) &&
+                if (((gear > 0 && longAssist < 0) || (gear < 0 && longAssist >= 1) || gear == 0) &&
                     g_pCurrentCar->brakeInput == 0)
                     longAssist = 0;
             }
@@ -2539,29 +2529,29 @@ void Car_UpdateTyreForces(void)
         if (latForce < 0)
             latForce = -latForce;
         if (!(i >= 2)) {
-            a = g_pCurrentCar->cornerGrip[i].gripB + g_pCurrentCar->wheelSurfaceFx[i].extraGrip;
+            brakeFront = g_pCurrentCar->cornerGrip[i].gripB + g_pCurrentCar->wheelSurfaceFx[i].extraGrip;
             b = g_pCurrentCar->cornerGrip[i].grip2B + g_pCurrentCar->wheelSurfaceFx[i].extraGrip;
         } else {
-            a = g_pCurrentCar->cornerGrip[i].gripB - 0x4ccc + g_pCurrentCar->wheelSurfaceFx[i].extraGrip;
+            brakeFront = g_pCurrentCar->cornerGrip[i].gripB - 0x4ccc + g_pCurrentCar->wheelSurfaceFx[i].extraGrip;
             b = g_pCurrentCar->cornerGrip[i].grip2B - 0x4ccc + g_pCurrentCar->wheelSurfaceFx[i].extraGrip;
         }
         if (longForce < 0x6666) {
             limB = FixMul(g_pCurrentCar->field_0xa5c[i], b);
-            limA = FixMul(a, g_pCurrentCar->field_0xa4c[i]);
+            limA = FixMul(brakeFront, g_pCurrentCar->field_0xa4c[i]);
         } else if (latForce < 0x6666) {
             limB = g_pCurrentCar->field_0xa5c[i];
             limA = g_pCurrentCar->field_0xa4c[i];
         } else {
-            angle = FixAtan2(FixMul(longForce, a), latForce);
-            a = FixMul(g_sinTable[(angle + 0x400) & 0xfff], a);
+            angle = FixAtan2(FixMul(longForce, brakeFront), latForce);
+            brakeFront = FixMul(g_sinTable[(angle + 0x400) & 0xfff], brakeFront);
             s = g_sinTable[angle & 0xfff];
-            limA = FixMul(s, s) + FixMul(a, a);
+            limA = FixMul(s, s) + FixMul(brakeFront, brakeFront);
             limA = FixSqrt(limA);
-            limA = FixMul(limA, g_pCurrentCar->field_0xa4c[i]);
             angle = FixAtan2(FixMul(longForce, b), latForce);
-            b = FixMul(b, g_sinTable[(angle + 0x400) & 0xfff]);
-            s = g_sinTable[angle & 0xfff];
             limB = FixMul(FixSqrt(FixMul(s, s) + FixMul(b, b)), g_pCurrentCar->field_0xa5c[i]);
+            b = FixMul(b, g_sinTable[(angle + 0x400) & 0xfff]);
+            limA = FixMul(limA, g_pCurrentCar->field_0xa4c[i]);
+            s = g_sinTable[angle & 0xfff];
             brakeRear = limA;
         }
         if (limA < mag)
@@ -2570,9 +2560,9 @@ void Car_UpdateTyreForces(void)
 
         // Rolling resistance of the tyre.
         if (g_pCurrentCar->cornerGrip[i].drag != 0) {
-            d = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &dir[i]);
-            if (d != 0) {
-                e = -FixMul(d / 4, FixMul(g_pCurrentCar->tyreGrip, g_pCurrentCar->cornerGrip[i].drag));
+            d_2 = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &dir[i]);
+            if (d_2 != 0) {
+                e = -FixMul(d_2 / 4, FixMul(g_pCurrentCar->tyreGrip, g_pCurrentCar->cornerGrip[i].drag));
                 FixVecScale(&g_tyreForce, &dir[i], e);
                 g_pCurrentCar->cornerForce[i].x += g_tyreForce.x;
                 g_pCurrentCar->cornerForce[i].y += g_tyreForce.y;
@@ -2829,9 +2819,10 @@ void Car_UpdateWheelTorques(void)
         if (rate > 0x10000) {
             rate = 0x10000;
         }
-        for (i = 0; i < 4; i++) {
-            int target = i < 2 ? (g_pCurrentCar->field_0x75c / 2) : 0;
-            g_pCurrentCar->field_0x8b8[i] += FixMul(rate, target - g_pCurrentCar->field_0x8b8[i]);
+        int half = g_pCurrentCar->field_0x75c / 2;
+        for (i = 0x8b8; i < 0x8c8; i += 4) {
+            int target = i < 0x8c0 ? half : 0;
+            *(int *)((BYTE *)g_pCurrentCar + i) += FixMul(rate, target - *(int *)((BYTE *)g_pCurrentCar + i));
         }
     }
 }
@@ -3504,12 +3495,11 @@ void Car_BuildRaceOrder(int count)
         g_unk0x0053a314[i] = i;
         g_unk0x0053bd6c[i] = i;
     }
-    *(int *)&g_unk0x0053acc8[0] = 0;
     g_carOrderCount = count;
     g_unk0x0053c9a0 = count;
     g_carOrder[44] = count;
     g_carOrder[25] = count;
-    *(int *)&g_unk0x0053acc8[4] = 0;
+    memset(g_unk0x0053acc8, 0, 8);
     for (j = 0; j < 2; j++) {
         g_unk0x0053acc8[j] = FUN_0040bbc0(j);
         if (!CGameInfo::FUN_00405e00() && j >= (int)(BYTE)RallyDataState())
@@ -4097,11 +4087,11 @@ void Car_SetRideHeight(int param_1)
     g_pCurrentCar->field_0x9c0 = FixDiv(0x10000, n1);
     g_pCurrentCar->field_0x9c4 = FixDiv(0x10000, n0);
     inv = 0x10000 - param_1;
-    for (off = 0x9f8; off < 0xa08; off += 4) {
-        *(int *)((BYTE *)g_pCurrentCar + off - 0x10) = 0x4ccc;
-        *(int *)((BYTE *)g_pCurrentCar + off) = FixMul(param_1, 0x5999) + 0x4000;
-        *(int *)((BYTE *)g_pCurrentCar + off - 0x70) = FixMul(0x1999, inv);
-        *(int *)((BYTE *)g_pCurrentCar + off - 0x80) = FixMul(param_1, 0x8000) + 0x8000;
+    for (off = 0; off < 4; off++) {
+        ((int *)g_pCurrentCar->field_0x9e8)[off] = 0x4ccc;
+        ((int *)g_pCurrentCar->field_0x9e8)[off + 4] = FixMul(param_1, 0x5999) + 0x4000;
+        g_pCurrentCar->wheel0x988[off] = FixMul(0x1999, inv);
+        g_pCurrentCar->field_0x978[off] = FixMul(param_1, 0x8000) + 0x8000;
     }
     g_pCurrentCar->field_0xa08 = -0x1999;
 }
@@ -4347,15 +4337,11 @@ void Car_UpdateSuspensionPass(int param_1, short *param_2, short param_3)
         Car_FollowGround();
         Car_RebuildBodyAxes();
         g_pCurrentCar->field_0x960 = 0x3e80000;
-        j = 0;
-        i = 0x8dc;
-        do {
-            v = *(int *)((BYTE *)g_pCurrentCar + j + 0x274) - *(int *)((BYTE *)g_pCurrentCar + i);
+        for (i = 0; i < 8; i++) {
+            v = g_pCurrentCar->corners[i].y - g_pCurrentCar->cornerHeight[i];
             if (v < g_pCurrentCar->field_0x960)
                 g_pCurrentCar->field_0x960 = v;
-            i += 4;
-            j += 0xc;
-        } while (i < 0x8fc);
+        }
         g_pCurrentCar->field_0x960 += g_pCurrentCar->field_0x958;
         p--;
     } while (--n);
@@ -4910,7 +4896,8 @@ void Car_UpdateSteering(void)
     t.x = right.x - g_pCurrentCar->rearWheelDir.x;
     t.y = right.y - g_pCurrentCar->rearWheelDir.y;
     t.z = right.z - g_pCurrentCar->rearWheelDir.z;
-    w = FixMul(FixVecLength(&t), 0x13333);
+    w = FixVecLength(&t);
+    w = FixMul(w, 0x13333);
     w = FixMul(w, FixMul(FixMul(0xcccd, g_pCurrentCar->steerFollowRate) + 0x3333, g_physicsTimeStep));
     if (w >= 0x10000) {
         g_pCurrentCar->rearWheelDir = right;
@@ -4924,7 +4911,7 @@ void Car_UpdateSteering(void)
     if (angle == 0) {
         g_pCurrentCar->frontWheelDir = g_pCurrentCar->rearWheelDir;
     } else {
-        FixMatrix_FromAxisAngle(&m, &g_pCurrentCar->up, angle);
+        ((void (__stdcall *)(FixMatrix *, FixVector *, short))FixMatrix_FromAxisAngle)(&m, &g_pCurrentCar->up, angle);
         FixMatrix_RotateVector(&t, &g_pCurrentCar->rearWheelDir, &m);
         FixVecNormalizeLen(&g_pCurrentCar->frontWheelDir, &t);
     }
@@ -5889,10 +5876,10 @@ int SceneNode_Destroy(SceneNode *pNode);
 
 // Releases both players' view nodes and resets their view state (callback).
 // match 62%: revisada. El original direcciona los arrays de ints con un
-// desplazamiento EN BYTES sobre el símbolo ([esi + g_viewNodes],
-// [esi + g_unk0x005391b0], ...), no con índice escalado; reproducido con
-// ((BYTE *)array + off). Lo que queda es asignación de registros: el contador
-// en AL (no EAX) y qué arrays strength-reduce MSVC (g_unk0x00538e0c).
+// desplazamiento EN BYTES sobre el sÃ­mbolo ([esi + g_viewNodes],
+// [esi + g_unk0x005391b0], ...), no con Ã­ndice escalado; reproducido con
+// ((BYTE *)array + off). Lo que queda es asignaciÃ³n de registros: el contador
+// en AL (no EAX) y quÃ© arrays strength-reduce MSVC (g_unk0x00538e0c).
 // match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00421590
 BYTE View_ReleaseNodes(void)
@@ -6734,11 +6721,11 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     }
     g_pCurrentCar->position = *(FixVector *)param_4;
     g_pCurrentCar->gear = 0;
-    param_2 += 0x98;
+    FixMatrix *pBasis = (FixMatrix *)(param_2 + 0x98);
     g_pCurrentCar->pWorld = &g_pCurrentCar->field_0x0;
-    FixMatrix_GetRight(&g_pCurrentCar->right, (FixMatrix *)param_2);
-    FixMatrix_GetUp(&g_pCurrentCar->up, (FixMatrix *)param_2);
-    FixMatrix_GetForward(&g_pCurrentCar->forward, (FixMatrix *)param_2);
+    FixMatrix_GetRight(&g_pCurrentCar->right, pBasis);
+    FixMatrix_GetUp(&g_pCurrentCar->up, pBasis);
+    FixMatrix_GetForward(&g_pCurrentCar->forward, pBasis);
     g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
     g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
     g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
@@ -6963,7 +6950,7 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     g_pCurrentCar->gearSpeed[7] = -FixDiv(0xc0000, 0x240000);
     g_pCurrentCar->field_0x788 += -0x51e;
     if (CGameInfo::FUN_004063f0(7) != 0) {
-        g_pCurrentCar->field_0x788 <<= 1;
+        g_pCurrentCar->field_0x788 *= 2;
         g_pCurrentCar->field_0x794 = FixMul(g_pCurrentCar->field_0x794, 0x14ccc);
     }
     limit += 0x780000;
@@ -7599,10 +7586,12 @@ void Car_SolveUpright(void)
     flipRoll = 0;
     flipPitch = 0;
     flipYaw = 0;
-    mag = FixMul(FixVecLength(&g_pCurrentCar->angularVelocity), 0x50000);
+    dot = FixVecLength(&g_pCurrentCar->angularVelocity);
+    mag = FixMul(dot, 0x50000);
     if (mag > 0xcccc)
         mag = 0xcccc;
-    damp = FixMul(0x8000, 0x10000 - mag);
+    dot = 0x10000 - mag;
+    damp = FixMul(0x8000, dot);
     dot = FIX_ABS(FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->velocity));
     if (g_pCurrentCar->speed - dot < 0x8000)
         damp = 0x8000;

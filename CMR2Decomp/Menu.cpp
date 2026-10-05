@@ -217,14 +217,13 @@ void Menu_ValidateCursor(Menu *pMenu, int unused)
     char def;
     int count;
     int tries;
-    int i;
 
     def = pMenu->defaultCursor;
     if (def >= 0 && def < pMenu->itemCount)
         pMenu->cursor = def;
     count = pMenu->itemCount;
-    i = pMenu->cursor;
-    for (tries = 0; tries < count; tries++, i++) {
+    for (tries = 0; tries < count; tries++) {
+        int i = pMenu->cursor + tries;
         int idx = i % count;
         if (pMenu->items[idx].enabled && pMenu->items[idx].visible) {
             pMenu->cursor = (char)idx;
