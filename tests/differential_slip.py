@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run original and rebuilt 0x48df50 machine code against the same car records.
 
-Usage: python3 tests/differential_slip.py /tmp/cmr2-review-fixed.json
+Usage: python3 tests/differential_slip.py CMR2PROGRESS/summary.json
 Requires a current MSVC6 build, reccmp JSON, capstone, pefile and Wine.
 Only the function's absolute global references are redirected. Relative branches
 and arithmetic execute unchanged. The test also mutates the rebuilt damping

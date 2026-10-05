@@ -7,11 +7,16 @@ format (objdiff-core/protos/report.proto, version 2). reccmp has no such
 output, so this builds one from:
 
   * CMR2PROGRESS/summary.json  - reccmp ``--json`` output (match ratio per function)
+  * CMR2PROGRESS/bytes.json    - relocated byte audit from scripts/measure.py
   * scripts/functions.tsv      - original function sizes
   * CMR2Decomp/*.cpp           - ``// FUNCTION: CMR2 0x...`` annotations, giving
                                  the translation unit each function belongs to
 
-A function counts as matched only when reccmp reports a ratio of exactly 1.0.
+When bytes.json is present it is authoritative: only the source functions it
+audits are reported (statically linked LIBRARY entries are left out) and a
+function counts as matched when it is byte-exact. reccmp alone misses
+byte-identical functions whose operands resolve to a neighbouring symbol.
+Without it, a reccmp ratio of exactly 1.0 counts as matched.
 """
 
 import argparse
@@ -69,11 +74,13 @@ def measures(funcs):
     }
 
 
-def build_report(summary, sizes, units):
+def build_report(summary, sizes, units, audit):
     starts = sorted(set(sizes) | {int(f["address"], 16) for f in summary})
     by_unit = {}
     for entry in summary:
         addr = int(entry["address"], 16)
+        if audit is not None and addr not in audit:
+            continue
         size = sizes.get(addr)
         if size is None:
             # Not in the function list: assume it runs up to the next known start.
@@ -82,7 +89,7 @@ def build_report(summary, sizes, units):
         by_unit.setdefault(units.get(addr, "unassigned"), []).append({
             "name": entry["name"],
             "size": size,
-            "fuzzy_match_percent": float(entry["matching"]) * 100.0,
+            "fuzzy_match_percent": 100.0 if audit and audit[addr] else float(entry["matching"]) * 100.0,
             "address": addr,
         })
 
@@ -118,6 +125,7 @@ def build_report(summary, sizes, units):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--summary", type=Path, default=ROOT / "CMR2PROGRESS/summary.json")
+    parser.add_argument("--bytes", type=Path, default=ROOT / "CMR2PROGRESS/bytes.json")
     parser.add_argument("--functions", type=Path, default=ROOT / "scripts/functions.tsv")
     parser.add_argument("--src", type=Path, default=ROOT / "CMR2Decomp")
     parser.add_argument("-o", "--output", type=Path, default=ROOT / "build/report.json")
@@ -125,7 +133,11 @@ def main():
 
     with open(args.summary) as f:
         summary = json.load(f)["data"]
-    report = build_report(summary, load_sizes(args.functions), load_units(args.src))
+    audit = None
+    if args.bytes.exists():
+        with open(args.bytes) as f:
+            audit = {int(a, 16): bool(v.get("x")) for a, v in json.load(f).items()}
+    report = build_report(summary, load_sizes(args.functions), load_units(args.src), audit)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with open(args.output, "w") as f:

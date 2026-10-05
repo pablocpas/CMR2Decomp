@@ -18,7 +18,7 @@ class CompileTests(unittest.TestCase):
             obj.write_bytes(b'stale')
             result = subprocess.CompletedProcess([], -31, '', 'Wine failed')
             with patch.object(fastcmp.subprocess, 'run', return_value=result):
-                with self.assertRaisesRegex(RuntimeError, 'Wine failed'):
+                with self.assertRaisesRegex(RuntimeError, 'status -31; no fresh object'):
                     fastcmp.compile_tu('StageObjects.cpp', str(obj))
             self.assertFalse(obj.exists())
 
@@ -31,7 +31,7 @@ class CompileTests(unittest.TestCase):
                 return subprocess.CompletedProcess([], 1, '', 'compiler failed')
 
             with patch.object(fastcmp.subprocess, 'run', side_effect=run):
-                with self.assertRaisesRegex(RuntimeError, 'compiler failed'):
+                with self.assertRaisesRegex(RuntimeError, 'status 1; no fresh object'):
                     fastcmp.compile_tu('StageObjects.cpp', str(obj))
 
     def test_success_requires_a_new_object(self):

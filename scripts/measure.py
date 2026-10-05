@@ -52,7 +52,7 @@ def main():
     match = re.search(r"Variables:\s*(\d+)\.\s*Issues:\s*(\d+)", data.stdout)
     if match is None or int(match[2]) != 0:
         raise RuntimeError("Global data comparison failed; see " + str(out / "datacmp.log"))
-    subprocess.run([sys.executable, str(ROOT / "audit_byte_matching.py"),
+    subprocess.run([sys.executable, str(ROOT / "scripts/audit_byte_matching.py"),
                     str(out / "summary.json"), str(out / "entities.json"),
                     str(ROOT / "build"), str(out / "bytes.json")], cwd=ROOT, check=True)
     report = json.loads((out / "summary.json").read_text())

@@ -7,7 +7,7 @@ several functions simultaneously. Results stay in --output; changes.patch is
 for review and is never applied to the main source tree by this command.
 
 Example:
-    python3 scripts/permute_batch.py --output /tmp/cmr2-search --limit 140
+    python3 scripts/permute_batch.py --output scripts/work/search --limit 140
 """
 import argparse
 import collections

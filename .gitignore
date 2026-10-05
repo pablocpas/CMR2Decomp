@@ -445,3 +445,6 @@ CMR2PROGRESS/confidence-reviews.json
 CMR2PROGRESS/validation*
 CMR2PROGRESS/matching-*.json
 CMR2PROGRESS/merge-*.json
+
+# reccmp HTML report (CI uploads it as an artifact)
+index.html

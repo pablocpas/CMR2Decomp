@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 
 jobs:
@@ -91,7 +91,7 @@ jobs:
       - name: Compare Accuracy to main
         shell: bash
         env:
-          RELEASE_URL: https://raw.githubusercontent.com/CMR2Decomp/CMR2Decomp/refs/heads/main/CMR2PROGRESS/
+          RELEASE_URL: https://raw.githubusercontent.com/${{ github.repository }}/refs/heads/main/CMR2PROGRESS/
         run: |
           # Download the current main state
           curl -fLSs -o summary-old.json $RELEASE_URL/summary.json || echo "" >summary-old.json
@@ -110,6 +110,12 @@ jobs:
         with:
           name: CMR2_report
           path: build/report.json
+
+      - name: Upload HTML accuracy report
+        uses: actions/upload-artifact@v4
+        with:
+          name: accuracy-html
+          path: index.html
 
       - name: Test Exports
         shell: bash
@@ -373,20 +379,3 @@ jobs:
             } else {
               await github.rest.issues.createComment({ owner, repo, issue_number, body });
             }
-
-      - name: Commit Accuracy Reports
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        shell: bash
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          git add index.html CMR2PROGRESS/summary.json
-
-          if git diff --cached --quiet; then
-            echo "No accuracy report changes to commit"
-            exit 0
-          fi
-
-          git commit -m "chore: update accuracy reports [skip ci]"
-          git push
