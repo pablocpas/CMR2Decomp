@@ -1,16 +1,18 @@
 # CMR2Decomp
 
 [![Build](https://github.com/pablocpas/CMR2Decomp/actions/workflows/build-and-report.yml/badge.svg)](https://github.com/pablocpas/CMR2Decomp/actions/workflows/build-and-report.yml)
+[![Code](https://decomp.dev/pablocpas/CMR2Decomp.svg?mode=shield&label=Code)](https://decomp.dev/pablocpas/CMR2Decomp)
 
 A matching decompilation of **Colin McRae Rally 2.0** for PC (Win32), rebuilt
 with Microsoft Visual C++ 6.0 and checked against the original executable with
 [reccmp](https://github.com/isledecomp/reccmp). The reference SHA-256 is
 recorded in `reccmp-project.yml`.
 
-All **3363** game functions identified in the executable have C++ source.
-**2758** of them compile to byte-identical code; the rest still differ from the
-original, mostly in instruction scheduling and register allocation. CI
-publishes progress to [decomp.dev](https://decomp.dev).
+All 3363 game functions identified in the executable have C++ source. Most
+compile to byte-identical code; the rest still differ from the original, mostly
+in instruction scheduling and register allocation. Live progress, counted as
+the share of code bytes that match exactly, is on
+[decomp.dev](https://decomp.dev/pablocpas/CMR2Decomp).
 
 ## Layout
 

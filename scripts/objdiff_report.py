@@ -68,13 +68,16 @@ def measures(funcs):
         "total_functions": len(funcs),
         "matched_functions": len(matched),
         "matched_functions_percent": pct(len(matched), len(funcs)),
-        # The game is relinked as a whole, so "complete" means byte-exact.
-        "complete_code": str(matched_code),
-        "complete_code_percent": pct(matched_code, total_code),
     }
 
 
-def build_report(summary, sizes, units, audit):
+def complete(unit_measures, total_code):
+    """objdiff's "complete" (linked) code: units whose every function is exact."""
+    code = int(unit_measures["total_code"]) if unit_measures["complete_units"] else 0
+    return {"complete_code": str(code), "complete_code_percent": code * 100.0 / total_code if total_code else 0.0}
+
+
+def build_report(summary, sizes, units, audit, per_function=False):
     starts = sorted(set(sizes) | {int(f["address"], 16) for f in summary})
     by_unit = {}
     for entry in summary:
@@ -86,7 +89,12 @@ def build_report(summary, sizes, units, audit):
             # Not in the function list: assume it runs up to the next known start.
             i = bisect.bisect_right(starts, addr)
             size = starts[i] - addr if i < len(starts) else 0
-        by_unit.setdefault(units.get(addr, "unassigned"), []).append({
+        unit = units.get(addr, "unassigned")
+        if per_function:
+            unit = f"{unit}/{entry['name']}"
+            if unit in by_unit:  # overloads share a name
+                unit += f"@{addr:x}"
+        by_unit.setdefault(unit, []).append({
             "name": entry["name"],
             "size": size,
             "fuzzy_match_percent": 100.0 if audit and audit[addr] else float(entry["matching"]) * 100.0,
@@ -101,9 +109,11 @@ def build_report(summary, sizes, units, audit):
         unit_measures = measures(funcs)
         unit_measures["total_units"] = 1
         unit_measures["complete_units"] = int(unit_measures["matched_functions"] == len(funcs))
+        unit_measures.update(complete(unit_measures, int(unit_measures["total_code"])))
         metadata = {"complete": unit_measures["complete_units"] == 1}
-        if name != "unassigned":
-            metadata["source_path"] = f"CMR2Decomp/{name}.cpp"
+        source = name.split("/")[0]
+        if source != "unassigned":
+            metadata["source_path"] = f"CMR2Decomp/{source}.cpp"
         report_units.append({
             "name": name,
             "measures": unit_measures,
@@ -119,6 +129,9 @@ def build_report(summary, sizes, units, audit):
     total = measures(all_funcs)
     total["total_units"] = len(report_units)
     total["complete_units"] = sum(u["measures"]["complete_units"] for u in report_units)
+    complete_code = sum(int(u["measures"]["complete_code"]) for u in report_units)
+    total["complete_code"] = str(complete_code)
+    total["complete_code_percent"] = complete_code * 100.0 / int(total["total_code"]) if int(total["total_code"]) else 0.0
     return {"measures": total, "units": report_units, "version": REPORT_VERSION, "categories": []}
 
 
@@ -128,6 +141,8 @@ def main():
     parser.add_argument("--bytes", type=Path, default=ROOT / "CMR2PROGRESS/bytes.json")
     parser.add_argument("--functions", type=Path, default=ROOT / "scripts/functions.tsv")
     parser.add_argument("--src", type=Path, default=ROOT / "CMR2Decomp")
+    parser.add_argument("--units", choices=["file", "function"], default="file",
+                        help="one report unit per source file, or per function")
     parser.add_argument("-o", "--output", type=Path, default=ROOT / "build/report.json")
     args = parser.parse_args()
 
@@ -137,14 +152,16 @@ def main():
     if args.bytes.exists():
         with open(args.bytes) as f:
             audit = {int(a, 16): bool(v.get("x")) for a, v in json.load(f).items()}
-    report = build_report(summary, load_sizes(args.functions), load_units(args.src), audit)
+    report = build_report(summary, load_sizes(args.functions), load_units(args.src), audit,
+                          per_function=args.units == "function")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with open(args.output, "w") as f:
         json.dump(report, f, indent=1)
     m = report["measures"]
-    print(f"{args.output}: {m['matched_functions']}/{m['total_functions']} functions, "
-          f"{m['matched_code_percent']:.2f}% code matched, {m['fuzzy_match_percent']:.2f}% fuzzy")
+    print(f"{args.output}: {m['total_units']} units, {m['matched_functions']}/{m['total_functions']} functions, "
+          f"{m['matched_code_percent']:.2f}% code matched, {m['complete_code_percent']:.2f}% complete, "
+          f"{m['fuzzy_match_percent']:.2f}% fuzzy")
 
 
 if __name__ == "__main__":
