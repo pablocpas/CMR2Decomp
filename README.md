@@ -8,6 +8,15 @@ with Microsoft Visual C++ 6.0 and checked against the original executable with
 [reccmp](https://github.com/isledecomp/reccmp). The reference SHA-256 is
 recorded in `reccmp-project.yml`.
 
+> [!NOTE]
+> **This project is heavily AI-assisted.** Most of the decompiled source,
+> tooling and documentation was written by AI coding agents (Anthropic's Claude
+> and OpenAI's Codex) under human direction. Correctness rests on automated
+> checks, not on manual review of every line: each function is compared
+> byte-for-byte against the original executable, and differential tests run
+> original and rebuilt code side by side. Names, types and comments are
+> best-effort reconstructions and may be wrong.
+
 All 3363 game functions identified in the executable have C++ source. Most
 compile to byte-identical code; the rest still differ from the original, mostly
 in instruction scheduling and register allocation. Live progress, counted as

@@ -104,7 +104,7 @@ jobs:
       - name: Generate objdiff report
         shell: bash
         run: |
-          python scripts/objdiff_report.py -o build/report.json
+          python scripts/objdiff_report.py --units function -o build/report.json
 
       - name: Upload objdiff report
         uses: actions/upload-artifact@v4
