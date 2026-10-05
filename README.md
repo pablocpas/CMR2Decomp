@@ -23,6 +23,32 @@ in instruction scheduling and register allocation. Live progress, counted as
 the share of code bytes that match exactly, is on
 [decomp.dev](https://decomp.dev/pablocpas/CMR2Decomp).
 
+<p align="center">
+  <img src="docs/screenshots/rally-sunset.jpg" width="49%" alt="Rally stage at sunset">
+  <img src="docs/screenshots/arcade-italy.jpg" width="49%" alt="Arcade race in Italy">
+  <img src="docs/screenshots/rally-forest.jpg" width="49%" alt="Rally stage through a forest">
+  <img src="docs/screenshots/main-menu.jpg" width="49%" alt="Main menu">
+</p>
+<p align="center"><sub>The rebuilt executable running under Wine on Linux.</sub></p>
+
+## Status
+
+The rebuilt executable is playable for the most part: it boots, runs the menus
+and drives rallies on top of the original game data. There are still bugs and
+some behaviour that needs fixing, so expect rough edges.
+
+## Goals
+
+1. **Finish matching** the remaining functions against the original executable.
+2. **Port to SDL3**, replacing DirectDraw/Direct3D 7, DirectInput and the
+   Windows-only audio and window code with SDL3 and the SDL GPU API (Vulkan,
+   Direct3D 12 and Metal), so the game runs natively on modern Windows, Linux
+   and macOS.
+3. **Modernise it while preserving it**: widescreen and arbitrary resolutions,
+   modern controller support, an updated renderer with better lighting and
+   image quality, and quality-of-life improvements. Every upgrade stays
+   optional, and the original look and behaviour remain one toggle away.
+
 ## Layout
 
 | Path | Contents |
