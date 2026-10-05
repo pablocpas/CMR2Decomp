@@ -43,7 +43,7 @@ HRESULT Sound_StartLoopingMusicStream(int param1);
 // music is stopped again. The name is remembered in m_unk0x005a2738.
 // match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a28d0
-void CSound::FUN_004a28d0(char *path) {
+void CSound::OpenStreamingMusicFile(char *path) {
     if (m_unk0x006e0eec == 0)
         return;
 
@@ -617,7 +617,7 @@ int g_unk0x005a2718;
 typedef HRESULT (__stdcall *DPSoundMethod2)(void *pThis, void *a1, void *a2);
 
 // FUNCTION: CMR2 0x004a2d30
-void FUN_004a2d30(void)
+void Sound_UpdateMusicRingBufferCursor(void)
 {
     int lo, hi;
     unsigned int v;
@@ -691,7 +691,7 @@ HRESULT Sound_RewindAndFillMusicBuffer(int unused)
         return E_FAIL;
     CSound::m_pMMIO->StartDataRead();
     CSound::m_pDirectSoundBuffer->SetCurrentPosition(0);
-    FUN_004a2d30();
+    Sound_UpdateMusicRingBufferCursor();
     CSound::IsSoundCallSuccessful(CSound::m_pDirectSoundBuffer->Lock(0, g_unk0x005a271c, &pAudio1, &bytes1, &pAudio2, &bytes2, 0));
     CSound::IsSoundCallSuccessful(Sound_DecodeMusicBlocks((BYTE *)pAudio1, 8));
     CSound::IsSoundCallSuccessful(CSound::m_pDirectSoundBuffer->Unlock(pAudio1, bytes1, pAudio2, bytes2));
@@ -777,7 +777,7 @@ HRESULT Sound_RefillMusicBufferRegions(int unused)
     DWORD bytes2;
     DWORD bytes1;
 
-    FUN_004a2d30();
+    Sound_UpdateMusicRingBufferCursor();
     if (g_unk0x005a2718 > 0) {
         if (CSound::m_pDirectSoundBuffer->Lock(g_unk0x005a2714 * 0xfe80, g_unk0x005a2718 * 0xfe80,
                                                &pAudio1, &bytes1, &pAudio2, &bytes2, 0) == 0) {
@@ -925,7 +925,7 @@ BOOL Sound_InitDevice(int sampleRate, int channels, int bits, int unused)
 char g_strWave[8] = "WAVE";
 
 int Sound_GetLoadedSampleCount(void);
-BOOL FUN_004a20c0(IDirectSound *pDS, IDirectSoundBuffer **ppBuffer, DWORD rate, int bits, int channels, int is3D,
+BOOL Sound_CreatePcmSampleBuffer(IDirectSound *pDS, IDirectSoundBuffer **ppBuffer, DWORD rate, int bits, int channels, int is3D,
                   DWORD size);
 BOOL Sound_CopyBufferData(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData, DWORD size);
 
@@ -952,12 +952,12 @@ BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
         bits = *(WORD *)(pWave + 0x22);
         pData = pWave + 0x2c;
         if ((flags & 1) == 0 || !g_sound3DEnabled) {
-            if (!FUN_004a20c0(g_unk0x005a2844, &g_soundBuffers[Sound_GetLoadedSampleCount()], rate, bits, channels, 0,
+            if (!Sound_CreatePcmSampleBuffer(g_unk0x005a2844, &g_soundBuffers[Sound_GetLoadedSampleCount()], rate, bits, channels, 0,
                               *(DWORD *)(pWave + 0x28)))
                 return FALSE;
             Sound_CopyBufferData(g_soundBuffers[Sound_GetLoadedSampleCount()], 0, pData, *(DWORD *)(pWave + 0x28));
         } else {
-            if (!FUN_004a20c0(g_unk0x005a2844, &g_soundBuffers[Sound_GetLoadedSampleCount()], rate, bits, channels, 1,
+            if (!Sound_CreatePcmSampleBuffer(g_unk0x005a2844, &g_soundBuffers[Sound_GetLoadedSampleCount()], rate, bits, channels, 1,
                               *(DWORD *)(pWave + 0x28)))
                 return FALSE;
             if (CSound::IsSoundCallSuccessful(g_soundBuffers[Sound_GetLoadedSampleCount()]->QueryInterface(IID_IDirectSound3DBuffer,
@@ -984,7 +984,7 @@ BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
 // GUID_NULL
 
 // FUNCTION: CMR2 0x004a20c0
-BOOL FUN_004a20c0(IDirectSound *pDS, IDirectSoundBuffer **ppBuffer, DWORD rate, int bits, int channels, int is3D,
+BOOL Sound_CreatePcmSampleBuffer(IDirectSound *pDS, IDirectSoundBuffer **ppBuffer, DWORD rate, int bits, int channels, int is3D,
                   DWORD size)
 {
     PCMWAVEFORMAT format = {0};
@@ -1040,7 +1040,7 @@ BOOL Sound_CopyBufferData(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData
 // the loop start.
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a24a0
-void FUN_004a24a0(SoundSlot *pSlot)
+void Sound_BuildSlotLoopBuffer(SoundSlot *pSlot)
 {
     DSBCAPS caps = {0};
     WAVEFORMATEX format = {0};
@@ -1053,7 +1053,7 @@ void FUN_004a24a0(SoundSlot *pSlot)
     CSound::IsSoundCallSuccessful(pSlot->pBuffer->GetCaps(&caps));
     CSound::IsSoundCallSuccessful(pSlot->pBuffer->GetFormat(&format, sizeof(format), NULL));
     CSound::IsSoundCallSuccessful(pSlot->pBuffer->Lock(0, caps.dwBufferBytes, &p1, &n1, &p2, &n2, 0));
-    if (FUN_004a20c0(g_unk0x005a2844, &pSlot->pLoopBuffer, format.nSamplesPerSec, format.wBitsPerSample,
+    if (Sound_CreatePcmSampleBuffer(g_unk0x005a2844, &pSlot->pLoopBuffer, format.nSamplesPerSec, format.wBitsPerSample,
                      format.nChannels, pSlot->field_0x14, n1 - pSlot->field_0x18))
         Sound_CopyBufferData(pSlot->pLoopBuffer, 0, (BYTE *)p1 + pSlot->field_0x18, n1 - pSlot->field_0x18);
     CSound::IsSoundCallSuccessful(pSlot->pBuffer->Unlock(p1, n1, p2, n2));
@@ -1128,7 +1128,7 @@ int Sound_StartSlotBuffer(SoundSlot *pSlot)
             pSlot->field_0x20 = (IDirectSoundBuffer *)g_sound3DBuffers[pSlot->sampleId];
     }
     if (pSlot->field_0x10 != 0 && pSlot->field_0x18 != 0)
-        FUN_004a24a0(pSlot);
+        Sound_BuildSlotLoopBuffer(pSlot);
     Sound_ApplySlotVolumeAttenuation(pSlot);
     Sound_ApplySlotFrequency(pSlot);
     CSound::EnsureBufferPlaying(pSlot->pBuffer, flags);
@@ -1546,7 +1546,7 @@ int Sound_ShutdownSystem(void)
 void Sound_RestartMusicAfterDeviceCreation(void)
 {
     if (CSound::m_unk0x005a2734) {
-        CSound::FUN_004a28d0(CSound::m_unk0x005a2738);
+        CSound::OpenStreamingMusicFile(CSound::m_unk0x005a2738);
         CSound::SetMusicStreamVolume(CGameInfo::GetMasterSoundVolume());
         Sound_StartLoopingMusicStream(1);
     }

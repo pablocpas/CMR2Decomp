@@ -109,7 +109,7 @@ int g_unk0x00539ed4;
 
 void NetPlayers_SetRemoteCarClass(DWORD *pId, unsigned int carClass);
 void NetPlayers_MarkPlayerReadyByID(DWORD *pId);
-void FUN_00409fd0(DWORD *pId, int split, unsigned int time);
+void NetPlayers_RecordRemoteSplitTime(DWORD *pId, int split, unsigned int time);
 void NetPlayers_RecordRemoteStageTime(DWORD *pId, int stage, unsigned int time);
 void NetPlayers_MarkPlayerFinishedByID(DWORD *pId);
 void NetPlayers_RecordPlayerFinishTime(DWORD *pId, unsigned int time, int value);
@@ -142,7 +142,7 @@ void NetRace_DispatchRacePacket(DWORD *pId, BYTE *pPacket)
         NetPlayers_MarkPlayerReadyByID(pId);
         return;
     case 8:
-        FUN_00409fd0(pId, pPacket[1], *(unsigned int *)(pPacket + 4));
+        NetPlayers_RecordRemoteSplitTime(pId, pPacket[1], *(unsigned int *)(pPacket + 4));
         return;
     case 9:
         NetPlayers_RecordRemoteStageTime(pId, pPacket[1], *(unsigned int *)(pPacket + 4));
@@ -965,8 +965,8 @@ void NetRace_AdvanceRemoteCarAccumulator(CarNetRecord *p)
 }
 
 void Network_SetSessionStateFlag(BOOL param1);
-void FUN_00402c90(int param);
-void FUN_0044a1b0(int param);
+void InRaceMenu_RebuildMainPage(int param);
+void GameMenu_SetupStageResults(int param);
 void Network_RemoveSessionPlayerByID(DWORD *pId);
 void NetPlayers_RemovePlayerByID(int *pId);
 
@@ -978,8 +978,8 @@ void NetRace_HandleDeviceNotification(int param_1, int *param_2)
     if (*param_2 != 5) {
         if (*param_2 == 0x101) {
             Network_SetSessionStateFlag(1);
-            FUN_00402c90(1);
-            FUN_0044a1b0(1);
+            InRaceMenu_RebuildMainPage(1);
+            GameMenu_SetupStageResults(1);
         }
         return;
     }
@@ -1135,7 +1135,7 @@ extern double g_unk0x00511300;
 // the steering angle in *pOut. The packed axis angles are 16.16 degrees and go
 // through g_unk0x00511300 (4096/360/65536) to sine-table units.
 // FUNCTION: CMR2 0x00425c40
-int FUN_00425c40(CarNetRecord *pRec, int *pOut)
+int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
 {
     BYTE *packet = (BYTE *)&g_localCarStats;
     float offX;
@@ -1250,7 +1250,7 @@ extern BYTE NetPlayers_HasNewStatistics(int index);
 extern void NetPlayers_ClearNewStatisticsFlag(int index);
 extern NetStats *NetPlayers_GetStatisticsRecord(int index);
 extern double g_unk0x00511300;
-extern void FUN_0040a580(int param1, int param2, int param3);
+extern void NetPlayers_RebuildStageResults(int param1, int param2, int param3);
 extern void NetRace_PollPlayerStatisticsPackets(BYTE *pCars);
 extern void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc);
 
@@ -1274,12 +1274,12 @@ void NetRace_ReceiveAndIntegrateListedCars(Car *pCars, short *pIndices, short co
 
     if (g_unk0x00539cc8 == 0) {
         progress = (RallyData_GetCarRaceRecordField10((BYTE *)Car_Get(0)) * 100) >> 16;
-        FUN_0040a580(StageTiming_GetCheckpointField0(0), progress, StageTiming_GetCheckpointField2(0));
+        NetPlayers_RebuildStageResults(StageTiming_GetCheckpointField0(0), progress, StageTiming_GetCheckpointField2(0));
         return;
     }
     NetRace_PollPlayerStatisticsPackets((BYTE *)pCars);
     progress = (RallyData_GetCarRaceRecordField10((BYTE *)Car_Get(0)) * 100) >> 16;
-    FUN_0040a580(StageTiming_GetCheckpointField0(0), progress, StageTiming_GetCheckpointField2(0));
+    NetPlayers_RebuildStageResults(StageTiming_GetCheckpointField0(0), progress, StageTiming_GetCheckpointField2(0));
 
     for (i = (int)count - 1; i >= 0; i--) {
         int idx = pIndices[i];
@@ -1321,7 +1321,7 @@ void NetRace_PollPlayerStatisticsPackets(BYTE *pCars)
             g_localCarStats = *pStats;
             pEntry = &g_unk0x005393d8 + NetPlayers_GetPlayerField8(i);
             pCar = pCars + NetPlayers_GetPlayerField8(i) * 0xc24;
-            if (FUN_00425c40(pEntry, &local) != 0) {
+            if (NetRace_DecodeReceivedCarState(pEntry, &local) != 0) {
                 value = FixMul(local, *(short *)(pCar + 0xb16) * 0x1680);
                 pEntry->heading =
                     (unsigned short)(__int64)((double)value * g_unk0x00511300);

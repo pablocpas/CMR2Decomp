@@ -213,7 +213,7 @@ void CGraphics::SetDefaults(void) {
 void CGraphics::RecreateGraphicsDeviceAndResources(unsigned int screenWidth, unsigned int screenHeight, unsigned int colourDepth, unsigned int param4, unsigned int param5) {
     if (m_unk0x00520b7c == 0) {
         CSound::CloseMusicStreamAndClearPath(TRUE);
-        FUN_004a5be0(); // TODO: UNFINISHED
+        EvictManagedTextureResources(); // TODO: UNFINISHED
         ReleaseDirect3D();
         ReleaseSurfaces();
     }
@@ -221,7 +221,7 @@ void CGraphics::RecreateGraphicsDeviceAndResources(unsigned int screenWidth, uns
     SetSelectedDisplayDriverIndex(param4);
     SetSelectedRenderDeviceIndex(param5);
 
-    if (FUN_004a7910(screenWidth, screenHeight, colourDepth) != 0) {
+    if (CreateSelectedDisplayAndRenderDevice(screenWidth, screenHeight, colourDepth) != 0) {
         if (CreateDirect3DDevice(screenWidth, screenHeight, colourDepth) != 0) {
             Mesh_ReuploadAll();
             Scene_RestoreLights();
@@ -231,7 +231,7 @@ void CGraphics::RecreateGraphicsDeviceAndResources(unsigned int screenWidth, uns
 }
 
 // FUNCTION: CMR2 0x004a5be0
-BYTE CGraphics::FUN_004a5be0(void) {
+BYTE CGraphics::EvictManagedTextureResources(void) {
     unsigned int index, textureID;
     int face;
 
@@ -372,7 +372,7 @@ struct GraphicsStack
 };
 
 // FUNCTION: CMR2 0x004a7910
-BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth) {
+BOOL CGraphics::CreateSelectedDisplayAndRenderDevice(int screenWidth, int screenHeight, int colourDepth) {
     BOOL findMatchingDevice = FALSE;
     DWORD tier = 0;
     HDC hdc = 0;
@@ -465,7 +465,7 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
 
     DirectDrawEnumerateExA(&EnumerateDisplayDriverDescriptions, NULL, DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES | DDENUM_NONDISPLAYDEVICES);
 
-    m_pTextureManager->pDD->EnumDevices(FUN_004a8c30_DDEnumCallback, NULL);
+    m_pTextureManager->pDD->EnumDevices(EnumeratePreferredHalDevices, NULL);
 
     m_displayCount = 0;
     g_pGraphics->pDD7->EnumDisplayModes(0, NULL, NULL, EnumerateCompatibleDisplayModes);
@@ -604,7 +604,7 @@ BOOL CGraphics::EnumerateAndProbeDisplayDevices(DDDeviceEnumBuffer* param1, HWND
                 pDirectDraw->QueryInterface(IID_IDirectDraw7, (LPVOID*)&pDirectDrawConfirm);
 
                 pDirectDrawConfirm->SetCooperativeLevel(hWnd, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_ALLOWMODEX);
-                FUN_004bdd30(pEntry, pDirectDrawConfirm);
+                ProbeDisplayDriverCapabilities(pEntry, pDirectDrawConfirm);
 
                 pDirectDrawConfirm->SetCooperativeLevel(hWnd, DDSCL_NORMAL);
 
@@ -654,7 +654,7 @@ BOOL CGraphics::EnumerateDisplayDeviceGUIDCallback(GUID* lpGUID, LPSTR lpDriverD
 }
 
 // FUNCTION: CMR2 0x004bdd30
-BOOL CGraphics::FUN_004bdd30(DDEnumDeviceBufferEntry *pEnumDevice,IDirectDraw7 *pDevice) {
+BOOL CGraphics::ProbeDisplayDriverCapabilities(DDEnumDeviceBufferEntry *pEnumDevice,IDirectDraw7 *pDevice) {
     HDC hdc;
     int hRes, vRes, bpp;
     LPDDCAPS pDriverCaps;
@@ -849,7 +849,7 @@ DWORD CGraphics::GetSelectedRenderDeviceSurfaceCaps(void) {
 }
 
 // FUNCTION: CMR2 0x004a8c30
-HRESULT CGraphics::FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg) {
+HRESULT CGraphics::EnumeratePreferredHalDevices(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg) {
     if (!strcmp(lpDeviceName, m_direct3DHAL) && m_unk0x00660040[0].surfaceCap != 2) {
         m_unk0x0065ff90[0].guid = lpD3DDeviceDesc->deviceGUID;
         m_unk0x00660040[0].surfaceCap = 1;
@@ -1938,7 +1938,7 @@ BOOL CGraphics::CreateDirect3DDevice(int param1, int param2, int param3)
         m_unk0x0072d56c = 0;
         CGame::RegisterCallback(ReleaseDirect3D, NULL);
         CGame::RegisterCallback(FreeTextureBuffers, NULL);
-        CGame::RegisterCallback(FUN_004a5be0, NULL);
+        CGame::RegisterCallback(EvictManagedTextureResources, NULL);
     }
     m_unk0x00660bfc = TRUE;
 
@@ -1995,7 +1995,7 @@ BOOL CGraphics::CreateDirect3DDevice(int param1, int param2, int param3)
     if (GetSelectedRenderDeviceSurfaceCaps() == 3)
         m_pTextureManager->pDD->CreateDevice(IID_IDirect3DRefDevice, g_pGraphics->pBackBufferSurface, &m_pTextureManager->pD3D);
 
-    FUN_004b7210();
+    CacheRenderDeviceCapabilities();
     SelectTextureFormats();
     ConfigureDefaultRenderStates(m_unk0x00520b7c, 1);
     AllocateSharedVertexBuffers();
@@ -2321,7 +2321,7 @@ DWORD Graphics_GetDeviceCapsA4(void)
 }
 
 // FUNCTION: CMR2 0x004b7210
-void CGraphics::FUN_004b7210(void) {
+void CGraphics::CacheRenderDeviceCapabilities(void) {
     D3DDEVICEDESC7 d3ddesc;
 
     memset(&m_d3dDeviceDesc7, 0, sizeof(Unk0x006e0bb0));
@@ -4073,7 +4073,7 @@ char g_str0x00521118[4] = "B2";
 // skipped when the record type is 6.
 // match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b9910
-void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int param5)
+void Graphics_LoadTextureRecordList(int param1, int param2, unsigned int param3, int param4, int param5)
 {
     unsigned short *pEntry;
     unsigned int remaining;
@@ -4349,7 +4349,7 @@ void Billboard_Reset(void);
 // Builds the 800-entry triangle-strip index table.
 // match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b1150
-void FUN_004b1150(void)
+void Particle_BuildTriangleStripIndices(void)
 {
     g_unk0x006dd784 = 0;
     g_unk0x006dd788 = 0;
@@ -5343,7 +5343,7 @@ unsigned short g_unk0x006dd9bc[2000];
 // Frame timing: average fps after a 3 s warm-up, fps of the last second and
 // the time scale of the current frame (1000 / frame time in ms).
 // FUNCTION: CMR2 0x004b21e0
-void FUN_004b21e0(void)
+void Graphics_UpdateFrameStatistics(void)
 {
     static unsigned int s_start = CMain::GetFrameTime();
     static unsigned int s_now = CMain::GetFrameTime();
@@ -7191,9 +7191,9 @@ void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markT
         else
             Graphics_DrawMeshPartsByTexture(pLod);
     } else if (clampTexture != 0) {
-        FUN_0049c510(pLod);
+        Game_DrawMeshTextureRuns(pLod);
     } else {
-        FUN_0049c680(pLod);
+        Graphics_DrawMeshTextureBatches(pLod);
     }
 
     if ((pLod->flags & 0x200) != 0 && (pLod->flags & 0x40000) == 0 &&
@@ -7266,7 +7266,7 @@ unsigned short g_unk0x0059be74[2000];
 // Draws a mesh's triangles in contiguous texture runs.
 // match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049c680
-void FUN_0049c680(Mesh *pMesh)
+void Graphics_DrawMeshTextureBatches(Mesh *pMesh)
 {
     MeshTriangle *pTri = pMesh->pTriangles;
     int total = pMesh->triangleCount;

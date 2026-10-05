@@ -2024,7 +2024,7 @@ char g_keyCloseBracket[] = "]";
 // Fills controller slot index from a detected device: its name, type flags,
 // the default bindings and the texts shown for them in the controls menu.
 // FUNCTION: CMR2 0x0040c610
-void CInput::FUN_0040c610(DeviceInfo *pDevice, int index)
+void CInput::InitDetectedControllerSlot(DeviceInfo *pDevice, int index)
 {
     ControllerData *pController;
 
@@ -2159,7 +2159,7 @@ void CInput::RefreshControllerConfigurations(void)
     for (i = 0; i < m_controllerCount; i++) {
         pDevice = UpdateDevice(i);
         if (m_hasLoadedControllerInfo == 0 || strcmp(m_controllerInfo[i].name, pDevice->deviceInstanceName) != 0)
-            FUN_0040c610(pDevice, i);
+            InitDetectedControllerSlot(pDevice, i);
     }
     if (m_controllerCount < 6)
         memset(&m_controllerInfo[m_controllerCount], 0, (6 - m_controllerCount) * sizeof(ControllerData));
@@ -2264,7 +2264,7 @@ void CInput::UpdateAllAvailableDevices(void)
 
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040bc90
-void CInput::FUN_0040bc90(unsigned short param1, DWORD param2)
+void CInput::SetControllerForceFeedbackValue(unsigned short param1, DWORD param2)
 {
     unsigned short index;
 

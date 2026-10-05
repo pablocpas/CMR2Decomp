@@ -149,7 +149,7 @@ int g_unk0x00541cd4;
 // Promotes every car of the race table one level (end of stage).
 #define PROMOTE_CARS()                                                                  \
     for (i = 0; i < *StageUI_GetRaceResultTable(); i++)                                               \
-        CGame::FUN_0049c1c0((Unk0049c2c0 *)StageUI_GetRaceResultTable(), i, 1, 3)
+        CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)StageUI_GetRaceResultTable(), i, 1, 3)
 
 void Race_SetFlag3810C(void);
 void Race_SetFlag37FFA(void);
@@ -487,7 +487,7 @@ void GameMenu_LeaveStageAndAdvanceChampionship(void)
     for (i = 0; i < (BYTE)RallyDataState(); i++)
         StageTiming_CopyCarTimesToRallyRecord(i);
     for (i = 0; i < *(BYTE *)g_unk0x00537f0c[5]; i++) {
-        CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x00537f0c[5], i, 0, 2);
+        CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)g_unk0x00537f0c[5], i, 0, 2);
         Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[i]);
     }
     if ((BYTE)RallyData_GetSelectionFlag28() && (BYTE)CGameInfo::GetSoundOptionBit30())
@@ -687,7 +687,7 @@ int g_ghostSplits[10];
 // GameMenu_DrawKnockoutSplitComparison draws the two drivers of the match.
 // match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0044bcd0
-void FUN_0044bcd0(Menu *pMenu)
+void GameMenu_DrawSplitTimes(Menu *pMenu)
 {
     short rect[4];
     Texture *pFlag;
@@ -922,7 +922,7 @@ int GameMenu_FindCarStagePosition(int car)
 
 // Draw callback of the stage winner screen.
 // FUNCTION: CMR2 0x0044d790
-void FUN_0044d790(Menu *pMenu)
+void GameMenu_DrawStageWinner(Menu *pMenu)
 {
     int winner;
     int best;
@@ -958,7 +958,7 @@ void FUN_0044d790(Menu *pMenu)
 // Draw callback of the scrolling stage split table: driver, split time, car
 // and position ("=" when the time equals the previous row's).
 // FUNCTION: CMR2 0x0044d960
-void FUN_0044d960(Menu *pMenu)
+void GameMenu_DrawScrollingStageSplits(Menu *pMenu)
 {
     char stage[80];
     bool isPlayer;
@@ -1176,7 +1176,7 @@ int g_unk0x005413f8;
 // position; rows of the human drivers are highlighted and the top five are
 // separated from the rest.
 // FUNCTION: CMR2 0x0044efa0
-void FUN_0044efa0(Menu *pMenu)
+void GameMenu_DrawScrollingChampionshipPoints(Menu *pMenu)
 {
     bool isPlayer;
     int rows;
@@ -1264,9 +1264,9 @@ void FUN_0044efa0(Menu *pMenu)
     Font_SetBlendMode(2);
 }
 
-// Same as FUN_0044efa0 for the overall rally times table.
+// Same as GameMenu_DrawScrollingChampionshipPoints for the overall rally times table.
 // FUNCTION: CMR2 0x0044fea0
-void FUN_0044fea0(Menu *pMenu)
+void GameMenu_DrawScrollingRallyTimes(Menu *pMenu)
 {
     bool isPlayer;
     int x;
@@ -1445,7 +1445,7 @@ void GameMenu_DrawChampionshipTimeStandings(Menu *pMenu)
 // position decides between the "champion" and "rally over" headers.
 // match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00450c10
-void FUN_00450c10(Menu *pMenu)
+void GameMenu_DrawChampionshipOutcome(Menu *pMenu)
 {
     char position[100];
     char *pPosition;
@@ -1538,7 +1538,7 @@ BYTE g_unk0x005418c4[0x10];
 // position; tied drivers get the tie-break note (count-back) and "=" instead
 // of their position.
 // FUNCTION: CMR2 0x00450ef0
-void FUN_00450ef0(Menu *pMenu)
+void GameMenu_DrawScrollingStagePoints(Menu *pMenu)
 {
     bool isPlayer;
     int x;
@@ -1648,7 +1648,7 @@ void FUN_00450ef0(Menu *pMenu)
 // Draw callback of the final championship standings (header menu) screen.
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00451690
-void FUN_00451690(Menu *pMenu)
+void GameMenu_DrawFinalChampionshipStandings(Menu *pMenu)
 {
     char position[100];
     char *pPosition;
@@ -1713,7 +1713,7 @@ unsigned int RallyData_GetSetupFlag11(void);
 // with its name, time (or target time, or points) and car, the players'
 // rows highlighted, and the position number on the left ("=" for a tie).
 // FUNCTION: CMR2 0x00451df0
-void FUN_00451df0(Menu *pMenu)
+void GameMenu_DrawStageClassification(Menu *pMenu)
 {
     char diff[12];
     bool isPlayer;
@@ -1852,7 +1852,7 @@ int Race_ReadPlayerState37F0C(int index);
 // disqualification or retirement reason, jump start / speeding penalties
 // and car damage notes, one line each.
 // FUNCTION: CMR2 0x00452be0
-void FUN_00452be0(Menu *pMenu)
+void GameMenu_DrawStagePenalties(Menu *pMenu)
 {
     int x;
     int y;
@@ -2093,7 +2093,7 @@ void GameMenus_Build(void)
     Menu_ValidateCursor(&g_menu0x0053ff38, 0);
     Menu_Init(&g_menu0x00541218, 0, 0, 0, &g_menu0x0053ea68, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x00541218, 0, 0, &g_menu0x0053f5b0, NULL, 0);
-    Menu_SetCallbacks(&g_menu0x00541218, NULL, NULL, (MenuCallback)FUN_0044bcd0, NULL);
+    Menu_SetCallbacks(&g_menu0x00541218, NULL, NULL, (MenuCallback)GameMenu_DrawSplitTimes, NULL);
     Menu_ValidateCursor(&g_menu0x00541218, 0);
     Menu_Init(&g_menu0x0053f3c8, 0, 0, 0, &g_menu0x0053ea68, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x0053f3c8, 0, 0, &g_menu0x00541400, NULL, 0);
@@ -2101,11 +2101,11 @@ void GameMenus_Build(void)
     Menu_ValidateCursor(&g_menu0x0053f3c8, 0);
     Menu_Init(&g_menu0x0053f5b0, 0, 0, 0, &g_menu0x00541218, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x0053f5b0, 0, 0, &g_menu0x0053e4b8, NULL, 0);
-    Menu_SetCallbacks(&g_menu0x0053f5b0, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)FUN_0044d790, NULL);
+    Menu_SetCallbacks(&g_menu0x0053f5b0, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)GameMenu_DrawStageWinner, NULL);
     Menu_ValidateCursor(&g_menu0x0053f5b0, 0);
     Menu_Init(&g_menu0x0053e4b8, 0, 0, 0, NULL, NULL, 1, 0, 0);
     Menu_AddItemType3(&g_menu0x0053e4b8, 0, 0, 0xb, 0, 0, 0, (int)GameMenu_OpenFirstItemSubmenu, 0);
-    Menu_SetCallbacks(&g_menu0x0053e4b8, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)FUN_0044d960, NULL);
+    Menu_SetCallbacks(&g_menu0x0053e4b8, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)GameMenu_DrawScrollingStageSplits, NULL);
     Menu_ValidateCursor(&g_menu0x0053e4b8, 0);
     Menu_Init(&g_menu0x00540c68, 0, 0, 0, NULL, NULL, 1, 0, 0);
     Menu_AddItemType3(&g_menu0x00540c68, 0, 0, 8, 0, 0, 0, (int)GameMenu_OpenFirstItemSubmenu, 0);
@@ -2117,7 +2117,7 @@ void GameMenus_Build(void)
     Menu_ValidateCursor(&g_menu0x005406b8, 0);
     Menu_Init(&g_menu0x0053f008, 0, 0, 0, &g_menu0x0053e4b8, NULL, 1, 0, 0);
     Menu_AddItemType3(&g_menu0x0053f008, 0, 0, 0xb, 0, 0, 0, (int)GameMenu_OpenFirstItemSubmenu, 0);
-    Menu_SetCallbacks(&g_menu0x0053f008, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)FUN_0044fea0, NULL);
+    Menu_SetCallbacks(&g_menu0x0053f008, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)GameMenu_DrawScrollingRallyTimes, NULL);
     Menu_ValidateCursor(&g_menu0x0053f008, 0);
     Menu_Init(&g_menu0x0053fd58, 0, 0, 0, &g_menu0x00540c68, NULL, 1, 0, 0);
     Menu_AddItemType3(&g_menu0x0053fd58, 0, 0, 0xb, 0, 0, 0, (int)GameMenu_OpenFirstItemSubmenu, 0);
@@ -2125,11 +2125,11 @@ void GameMenus_Build(void)
     Menu_ValidateCursor(&g_menu0x0053fd58, 0);
     Menu_Init(&g_menu0x0053e6a0, 0, 0, 0, &g_menu0x0053f008, NULL, 1, 0, 0);
     Menu_AddItemType3(&g_menu0x0053e6a0, 0, 0, 0xb, 0, 0, 0, (int)GameMenu_OpenFirstItemSubmenu, 0);
-    Menu_SetCallbacks(&g_menu0x0053e6a0, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)FUN_0044efa0, NULL);
+    Menu_SetCallbacks(&g_menu0x0053e6a0, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)GameMenu_DrawScrollingChampionshipPoints, NULL);
     Menu_ValidateCursor(&g_menu0x0053e6a0, 0);
     Menu_Init(&g_menu0x00540118, 0, 0, 0, &g_menu0x0053e6a0, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x00540118, 0, 0, NULL, NULL, 0);
-    Menu_SetCallbacks(&g_menu0x00540118, NULL, NULL, (MenuCallback)FUN_00450c10, NULL);
+    Menu_SetCallbacks(&g_menu0x00540118, NULL, NULL, (MenuCallback)GameMenu_DrawChampionshipOutcome, NULL);
     Menu_ValidateCursor(&g_menu0x00540118, 0);
     Menu_Init(&g_menu0x00540a80, 0, 0, 0, &g_menu0x00541030, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x00540a80, 0, 0, NULL, NULL, 0);
@@ -2141,19 +2141,19 @@ void GameMenus_Build(void)
     Menu_ValidateCursor(&g_menu0x00541030, 0);
     Menu_Init(&g_menu0x00541ae0, 0, 0, 0, &g_menu0x00540118, NULL, 1, 0, 0);
     Menu_AddItemType3(&g_menu0x00541ae0, 0, 0, 0xb, 0, 0, 0, (int)GameMenu_OpenFirstItemSubmenu, 0);
-    Menu_SetCallbacks(&g_menu0x00541ae0, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)FUN_00450ef0, NULL);
+    Menu_SetCallbacks(&g_menu0x00541ae0, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)GameMenu_DrawScrollingStagePoints, NULL);
     Menu_ValidateCursor(&g_menu0x00541ae0, 0);
     Menu_Init(&g_menu0x0053f790, 0, 0, 0, &g_menu0x00541ae0, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x0053f790, 0, 0, &g_menu0x0053f970, NULL, 0);
-    Menu_SetCallbacks(&g_menu0x0053f790, NULL, NULL, (MenuCallback)FUN_00451690, NULL);
+    Menu_SetCallbacks(&g_menu0x0053f790, NULL, NULL, (MenuCallback)GameMenu_DrawFinalChampionshipStandings, NULL);
     Menu_ValidateCursor(&g_menu0x0053f790, 0);
     Menu_Init(&g_menu0x0053f970, 0, 0, 0, &g_menu0x0053f790, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x0053f970, 0, 0, NULL, (int)GameMenu_RequestResultsContinue, 0);
-    Menu_SetCallbacks(&g_menu0x0053f970, (MenuCallback)GameMenu_ContinueWithDefaultMode, NULL, (MenuCallback)FUN_00451690, NULL);
+    Menu_SetCallbacks(&g_menu0x0053f970, (MenuCallback)GameMenu_ContinueWithDefaultMode, NULL, (MenuCallback)GameMenu_DrawFinalChampionshipStandings, NULL);
     Menu_ValidateCursor(&g_menu0x0053f970, 0);
     Menu_Init(&g_menu0x0053fb70, 0, 0, 0, NULL, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x0053fb70, 0, 0, NULL, NULL, 0);
-    Menu_SetCallbacks(&g_menu0x0053fb70, NULL, NULL, (MenuCallback)FUN_00451df0, NULL);
+    Menu_SetCallbacks(&g_menu0x0053fb70, NULL, NULL, (MenuCallback)GameMenu_DrawStageClassification, NULL);
     Menu_ValidateCursor(&g_menu0x0053fb70, 0);
     Menu_Init(&g_menu0x0053e2d8, 0, 0, 0, NULL, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x0053e2d8, 0, 0, NULL, NULL, 0);
@@ -2161,7 +2161,7 @@ void GameMenus_Build(void)
     Menu_ValidateCursor(&g_menu0x0053e2d8, 0);
     Menu_Init(&g_menu0x0053ec48, 0, 0, 0, &g_menu0x0053fb70, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x0053ec48, 0, 0, NULL, NULL, 0);
-    Menu_SetCallbacks(&g_menu0x0053ec48, NULL, NULL, (MenuCallback)FUN_00451df0, NULL);
+    Menu_SetCallbacks(&g_menu0x0053ec48, NULL, NULL, (MenuCallback)GameMenu_DrawStageClassification, NULL);
     Menu_ValidateCursor(&g_menu0x0053ec48, 0);
     Menu_Init(&g_menu0x0053e888, 0, 0, 0, &g_menu0x0053ec48, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x0053e888, 0, 0, NULL, NULL, 0);
@@ -2179,7 +2179,7 @@ void GameMenus_Build(void)
     }
     Menu_Init(&g_menu0x00540e50, 0, 0, 0, NULL, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x00540e50, 0, 0, &g_menu0x00541400, NULL, 0);
-    Menu_SetCallbacks(&g_menu0x00540e50, NULL, NULL, (MenuCallback)FUN_00452be0, NULL);
+    Menu_SetCallbacks(&g_menu0x00540e50, NULL, NULL, (MenuCallback)GameMenu_DrawStagePenalties, NULL);
     Menu_ValidateCursor(&g_menu0x00540e50, 0);
     if (CGameInfo::GetGameModeOptionBit19() != 0)
         Menu_Init(&g_menu0x005402f8, 0, 0, 0, &g_menu0x005416e0, NULL, 1, 0, 1);
@@ -3028,7 +3028,7 @@ int RallyTiming_GetStagePositionOfDriver(int iDriver);
 void Replay_SetControlStateByte(BYTE value);
 void Frontend_ClearDeviceKeyFields(int index);
 void Frontend_AdvanceDeviceOptionNibble(int index, int mode);
-void FUN_004cf3f0(int index);
+void FrontendRecords_ResetDeviceStats(int index);
 void Frontend_AddDeviceValueAndStatistic(int index, int amount, int stat);
 void Frontend_SetDeviceOptionBlockValue(int index, int arg, int value);
 void Frontend_SetDeviceSetupOptionFields(int index, int value, unsigned int option, unsigned int field);
@@ -3040,9 +3040,9 @@ BYTE Frontend_MergeBestPlayerStageOption(int index, int pBlock);
 BYTE Frontend_MergeBestSecondaryPlayerOption(int index, int pBlock);
 int Frontend_AccumulateMinimumDeviceOption(int param_1, int param_2);
 int Frontend_CopyImprovedStageRecordAndSplits(int param_1, int param_2, char *pName);
-char FUN_004cfb30(int param1, int index, char *pName);
-int FUN_004cfc90(int param1, int index, char *pName);
-char FUN_004cfff0(int param1, int index, char *pName);
+char FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName);
+int FrontendRecords_InsertStageCategoryRecord(int param1, int index, char *pName);
+char FrontendRecords_InsertArcadeDeviceRecord(int param1, int index, char *pName);
 unsigned char GameInfo_GetFrontendSessionFlag(void);
 void GameMenu_BuildStageResultsMenu(char param1, Menu *pParent);
 BYTE *RallyData_GetAvailableCategorySaveRecord(int index);
@@ -3062,7 +3062,7 @@ extern Menu *g_pSavedHeaderMenu;
 // the `and eax,0xff` after Frontend_CopyImprovedStageRecordAndSplits (our prototype returns BYTE, the
 // original used a 32-bit return) and one hoisted store to g_unk0x00540898.
 // FUNCTION: CMR2 0x0044a1b0
-void FUN_0044a1b0(int param_1)
+void GameMenu_SetupStageResults(int param_1)
 {
     char bVar1;
     char stageFlag;
@@ -3127,7 +3127,7 @@ void FUN_0044a1b0(int param_1)
                     if ((BYTE)RallyData_GetSelectionBits12To13() == 2) {
                         Frontend_SetSecondaryRecordOptionFields(car, RallyTiming_GetChampionshipPointsByPosition(i), RallyTiming_GetChampionshipTimeSeconds(i), RallyTiming_GetChampionshipStagePoints(i));
                         Frontend_MergeBestSecondaryPlayerOption(car, (int)RallyData_GetAvailableCategorySaveRecord(car));
-                        FUN_004cfff0(i, car, (char *)RallyData_GetRecord(car));
+                        FrontendRecords_InsertArcadeDeviceRecord(i, car, (char *)RallyData_GetRecord(car));
                     }
                     if ((Race_ReadPlayerState37F68(i) & 0x80) != 0 || (Race_ReadPlayerState37F68(i) & 0x2000) != 0 ||
                         (Race_ReadPlayerState37F68(i) & 0x1800) != 0 || (Race_ReadPlayerState37F68(i) & 0x300) != 0 ||
@@ -3147,12 +3147,12 @@ void FUN_0044a1b0(int param_1)
                                      RallyTiming_GetStageTimeSeconds(driver));
                         if (CGameInfo::GetConfiguredGameMode() == 0) {
                             if ((BYTE)RallyDataCountryIndex() == 0)
-                                FUN_004cf3f0(j);
+                                FrontendRecords_ResetDeviceStats(j);
                             Frontend_AddDeviceValueAndStatistic(j, RallyTiming_GetOverallTimeCentiseconds(driver),
                                          RallyTiming_GetOverallPositionOfDriver(driver));
                         }
                         Frontend_MergeBestDeviceButtonOption(j, (int)RallyData_GetAvailableCategorySaveRecord(j));
-                        FUN_004cfb30(j, j, (char *)RallyData_GetRecord(j));
+                        FrontendRecords_InsertStageDeviceRecord(j, j, (char *)RallyData_GetRecord(j));
                         if ((Race_ReadPlayerState37F68(j) & 0x80) != 0 || (Race_ReadPlayerState37F68(j) & 0x2000) != 0)
                             bVar1 = 1;
                     }
@@ -3164,7 +3164,7 @@ void FUN_0044a1b0(int param_1)
                     Frontend_SetDeviceRecordOptionFields(j, RallyTiming_GetStagePositionOfDriver(driver),
                                  RallyTiming_GetStageTimeSeconds(driver));
                     Frontend_MergeBestPlayerStageOption(j, (int)RallyData_GetAvailableCategorySaveRecord(j));
-                    FUN_004cfc90(j, j, (char *)RallyData_GetRecord(j));
+                    FrontendRecords_InsertStageCategoryRecord(j, j, (char *)RallyData_GetRecord(j));
                     if ((Race_ReadPlayerState37F68(j) & 0x80) != 0 || (Race_ReadPlayerState37F68(j) & 0x2000) != 0)
                         bVar1 = 1;
                 }

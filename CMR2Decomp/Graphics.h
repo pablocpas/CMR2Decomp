@@ -1107,16 +1107,16 @@ public:
     static void SetDefaults(void);
     static void RecreateGraphicsDeviceAndResources(unsigned int screenWidth, unsigned int screenHeight, unsigned int colourDepth, unsigned int param4, unsigned int param5);
     static void ReleaseCachedTextureSurfaces(void);
-    static BYTE FUN_004a5be0(void);
+    static BYTE EvictManagedTextureResources(void);
     static BOOL ReleaseDirect3D(void);
     static void ReleaseVertexBuffers(void);
     static int ReleaseSurfaces(void);
     static void SetSelectedDisplayDriverIndex(int param1);
     static void SetSelectedRenderDeviceIndex(int param1);
-    static BOOL FUN_004a7910(int screenWidth, int screenHeight, int colourDepth);
+    static BOOL CreateSelectedDisplayAndRenderDevice(int screenWidth, int screenHeight, int colourDepth);
     static BOOL EnumerateAndProbeDisplayDevices(DDDeviceEnumBuffer* param1, HWND hWnd);
     static BOOL EnumerateDisplayDeviceGUIDCallback(GUID* lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName,  LPVOID lpContext, HMONITOR hMonitor);
-    static BOOL FUN_004bdd30(DDEnumDeviceBufferEntry *device,IDirectDraw7 *pDD);
+    static BOOL ProbeDisplayDriverCapabilities(DDEnumDeviceBufferEntry *device,IDirectDraw7 *pDD);
     static void EnumerateRenderDeviceCapabilities(DDEnumDeviceBufferEntry *device,IDirectDraw7 *pDD);
     static HRESULT CollectRenderDeviceCapabilitiesCallback(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg);
     static DWORD GetTextureFormatCap1(int param1);
@@ -1129,7 +1129,7 @@ public:
     static BOOL IsDisplayModeEnumerated(int width, int height, int colourDepth);
     static void SelectMatchingDisplayMode(int width, int height, int colourDepth);
     static DWORD GetSelectedRenderDeviceSurfaceCaps(void);
-    static HRESULT FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg);
+    static HRESULT EnumeratePreferredHalDevices(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg);
     static void BltTexture(Texture *pTexture, int surfaceIndex);
     static void UnlockTexture(Texture *pTexture);
     static unsigned int GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y);
@@ -1171,7 +1171,7 @@ public:
     static BOOL CreateDirect3DDevice(int param1, int param2, int param3);
     static BOOL GetRasterCapabilityField84(void);
     static void AllocateSharedVertexBuffers(void);
-    static void FUN_004b7210(void);
+    static void CacheRenderDeviceCapabilities(void);
     static void ConfigureDefaultRenderStates(BOOL param1, int param2);
 
     static void SetProjection(int fovX, int fovY, int farPlane, int nearPlane);
@@ -1339,7 +1339,7 @@ private:
     friend void Graphics_DrawCubeMappedShadowTriangles(Mesh *pMesh);
     // Mesh_DrawEnvMapped sets the texture transform of the projected cube map.
     friend void Mesh_DrawEnvMapped(Mesh *pMesh);
-    friend void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3);
+    friend void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_3);
     friend void OptionPreview_UpdateWheelMeshVariants(int param1);
     friend Texture *Graphics_FindAndEnsureResidentTexture(char *name);
     friend void Events_Init(int unused, int slot, char animate);
@@ -1370,14 +1370,14 @@ private:
     friend void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour);
     friend void Billboard_Draw(SceneNode *pCamera);
     friend SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles, SceneNode *pParent);
-    // Note: this friend shifts the register allocation of FUN_004a7910 (87.0% -> 85.8%).
+    // Note: this friend shifts the register allocation of CreateSelectedDisplayAndRenderDevice (87.0% -> 85.8%).
     friend void Mesh_UploadVertices(Mesh *pMesh);
-    friend void FUN_00477340(int player);
-    friend void FUN_0049c680(Mesh *pMesh);
+    friend void StageObject_FindPlayerRevTextures(int player);
+    friend void Graphics_DrawMeshTextureBatches(Mesh *pMesh);
     friend int OptionMovie_Open(char *fileName, unsigned int trackIndex);
-    friend void FUN_0049c510(Mesh *pMesh);
+    friend void Game_DrawMeshTextureRuns(Mesh *pMesh);
     friend void StageTiming_RestoreDeviceStageResources(void);
-    friend int FUN_005062d0(int);
+    friend int OptionPreview_LoadStageGeometryRecord(int);
 
     // GLOBAL: CMR2 0x00520b78
     static D3DTextureManager* m_pTextureManager;
@@ -1490,7 +1490,7 @@ private:
     static Unk0x00660040 m_unk0x00660040[10];
 
     // Declared after the data members: a friend name added before them shifts
-    // the register allocation of FUN_004a7910 (87.9% -> 86.8%).
+    // the register allocation of CreateSelectedDisplayAndRenderDevice (87.9% -> 86.8%).
     friend void Game_DrawWorldMeshNodesAnd2DLayer(void);
     friend void Game_DrawCulledSectorMeshes(void);
     friend void Game_DrawCulledSectorShadows(void);

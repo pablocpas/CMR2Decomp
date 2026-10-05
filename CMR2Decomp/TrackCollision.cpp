@@ -861,7 +861,7 @@ void Graphics_SetFog(int start, int end, int a, int b, DWORD colour);
 // distance reaches into the fog.
 // match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00492fe0
-void FUN_00492fe0(DWORD *pColour, int start, int end)
+void Track_SetFogAndSkyAlpha(DWORD *pColour, int start, int end)
 {
     int distance;
     int t;
@@ -1046,7 +1046,7 @@ extern int g_unk0x00592130;
 
 // Shifts stage mesh heights and moves the ambient light with the stage.
 // FUNCTION: CMR2 0x004925c0
-void FUN_004925c0(int oldHeight, int newHeight, int mode)
+void Track_ShiftMeshAndAmbientHeights(int oldHeight, int newHeight, int mode)
 {
     int height = g_stageHeightTarget - oldHeight + newHeight;
     int i;
@@ -1079,7 +1079,7 @@ unsigned int RallyData_GetSelectionFlag27(void);
 BYTE *StageUI_GetRaceResultTable(void);
 int Race_GetPlayerRecordField4(BYTE index);
 BYTE *Race_GetPlayerRecordPointer(int index);
-void FUN_0047d5a0(BYTE car);
+void StageObject_SpawnCarHeadlightGlow(BYTE car);
 
 // Applies the automatic gearbox's mid-shift body nudge: while a shift is in
 // progress the body is pushed along its right axis by an amount derived from
@@ -1126,7 +1126,7 @@ void AutoGear_ApplyShiftBodyNudge(void)
             if (((char)RallyData_IsChampionshipFinalStage() != 0 || (char)RallyData_GetFlag24() != 0 ||
                  (char)RallyData_GetSelectionFlag27() != 0) &&
                 (g_pAutoGearCar->field_0xb9c != 0 && g_pAutoGearCar->handbrake != 0))
-                FUN_0047d5a0(g_pAutoGearCar->index);
+                StageObject_SpawnCarHeadlightGlow(g_pAutoGearCar->index);
             g_pAutoGearCar->handbrake = 0;
         }
     }
@@ -1139,7 +1139,7 @@ extern double g_unk0x00511300;
 // match 87%: implemented; MSVC keeps the two scale factors in different registers and
 // reorders the fixpoint intermediates
 // FUNCTION: CMR2 0x00493ed0
-void FUN_00493ed0(void)
+void CarPhysics_DampSurfaceSteeringAngle(void)
 {
     int scaleRight;
     int scaleLeft;
@@ -1344,7 +1344,7 @@ void AutoGear_UpdateCarGearState(Car *pCar)
         }
     }
     if (g_pAutoGearCar->field_0xb88 != 0)
-        FUN_00493ed0();
+        CarPhysics_DampSurfaceSteeringAngle();
     else
         AutoGear_IntegrateSteeringAccumulator();
     if (g_pAutoGearCar->field_0xb90 != 0) {

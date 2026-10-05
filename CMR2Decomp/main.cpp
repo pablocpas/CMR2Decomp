@@ -83,7 +83,7 @@ unsigned int CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPS
 			if (!CGame::m_isActive)
 			{
 				CGame::UpdateActiveSoundSlots();
-				CGame::FUN_004d0780();
+				CGame::DispatchFrontendResourceState();
 			}
 		}
 		else

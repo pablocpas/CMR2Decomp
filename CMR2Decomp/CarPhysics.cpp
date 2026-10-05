@@ -19,7 +19,7 @@ extern int g_unk0x00592738;
 extern double g_unk0x00511300;
 extern double g_unk0x00511308;
 
-int FUN_00457e10(BYTE *pCar, int offset);
+int StageTiming_GetStartArchiveRelativeEntry(BYTE *pCar, int offset);
 int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass,
                                  unsigned short *pSurface, int defaultY);
 int RallyData_GetChallengeRenderState(void);
@@ -29,7 +29,7 @@ void CarShadow_OffsetPointsTowardsCamera(int view, CarContact *pContact);
 CarTransforms *Car_GetTransforms(int index);
 FixMatrix *Car_GetWheelTransforms(int index);
 BYTE *Car_GetRendererRecord(int index);
-void FUN_00497db0(Car *pCar);
+void CarPhysics_UpdateWheelContactPatches(Car *pCar);
 void Graphics_SetLayerQuadColour(BYTE *pColour);
 void Graphics_SetTextureFactorAlpha(BYTE *pColour);
 void CarContact_BuildBodyPatch(Car *pCar, CarContact *pContact);
@@ -129,7 +129,7 @@ void CarContact_InitStageRecords(void)
         }
     }
     for (i = 0; i < g_unk0x00592738; i++) {
-        data = (BYTE *)FUN_00457e10((BYTE *)Car_Get(i), 1);
+        data = (BYTE *)StageTiming_GetStartArchiveRelativeEntry((BYTE *)Car_Get(i), 1);
         g_physSkidCount[i] = data;
         data++;
         g_physSkidRange[i] = data;
@@ -162,7 +162,7 @@ int CarContact_IsSkidPointVisible(Car *pCar, CarContact *pContact, int index)
 // four corners of the patch, flattened onto the ground plane.
 // match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00497db0
-void FUN_00497db0(Car *pCar)
+void CarPhysics_UpdateWheelContactPatches(Car *pCar)
 {
     CarContact *pContact;
     FixVector offset;
@@ -448,7 +448,7 @@ void CarContact_BuildBodyPatch(Car *pCar, CarContact *pContact)
 // trail. Each is a solid core fading out to a transparent rim.
 // match 33%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00494db0
-void FUN_00494db0(Car *pCar, int view)
+void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
 {
     Quad2DInputVertex v0;
     Quad2DInputVertex v1;
@@ -639,7 +639,7 @@ void CarShadow_OffsetPointsTowardsCamera(int view, CarContact *pContact)
 // eased towards the ground height under it.
 // match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00496e00
-void FUN_00496e00(Car *pCar)
+void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
 {
     CarContact *pContact;
     int *pProfile;
@@ -699,7 +699,7 @@ void FUN_00496e00(Car *pCar)
     g_physGroundPos.y += g_physPos.y;
     g_physGroundPos.z += g_physPos.z;
     if (pContact->field_0x298 != 0)
-        FUN_00497db0(pCar);
+        CarPhysics_UpdateWheelContactPatches(pCar);
     CarContact_BuildBodyPatch(pCar, pContact);
     if (pContact->field_0x294 != 0 || (g_pGraphics->field913_0x3bc & 0x20)) {
         pContact->pointCount = 4;

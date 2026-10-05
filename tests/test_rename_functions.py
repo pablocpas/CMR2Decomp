@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -94,6 +95,25 @@ void Game_FUN_00401020();
         for row, error in cases:
             with self.subTest(row=row), self.assertRaisesRegex(ValueError, error):
                 self.plan([row])
+
+    def test_partial_matches_require_explicit_selection(self):
+        row = dict(address=0x401010, old_name="FUN_00401010", new_name="Game_ReadSelectedCar")
+        with self.assertRaisesRegex(ValueError, "not byte-exact"):
+            self.plan([row])
+        changes, names = rename.make_plan(self.root, [row], include_nonexact=True)
+        self.assertEqual(names, {"FUN_00401010": "Game_ReadSelectedCar"})
+        self.assertIn(b"void Game_ReadSelectedCar()", changes[self.cpp][1])
+        with self.assertRaisesRegex(ValueError, "lower byte scores"):
+            rename.check_audit({0x401010: {"x": False, "s": 0.9}},
+                               {0x401010: {"x": False, "s": 0.8}})
+
+    def test_export_can_explicitly_include_partial_matches(self):
+        output = self.root / "all.tsv"
+        with patch.object(rename, "require_fresh"):
+            rename.export_map(self.root, output, include_nonexact=True)
+        rows = list(csv.DictReader(io.StringIO(output.read_text()), delimiter="\t"))
+        self.assertEqual([r["address"] for r in rows],
+                         ["0x00401000", "0x00401010", "0x00401020"])
 
     def test_rejects_scope_moves_keywords_and_collisions(self):
         for name, error in [("Other::GetSelectedCar", "between scopes"),
@@ -248,6 +268,42 @@ __declspec(noinline) int Next() { return 1; }
         self.assertEqual(len(run.call_args_list), 1)
         for path, (old, _) in changes.items():
             self.assertEqual(path.read_bytes(), old)
+
+    def test_bss_reordering_preserves_named_targets_but_not_alias_or_code_changes(self):
+        self.write(self.root / "build/Game.obj", b"mock COFF")
+
+        def obj(values=(0, 4, 4), target=0, code=b"instructions", section_target=0):
+            return SimpleNamespace(secs=[
+                {"name": ".text", "data": code, "rels": [(0, target, 6), (4, 3, 6)]},
+                {"name": ".bss", "data": b"", "rels": []}], syms=[
+                {"name": name, "val": value, "sec": 2, "typ": 0, "cls": 3}
+                for name, value in zip(("_a", "_b", "_b_alias", ".bss"),
+                                       (*values, section_target))])
+
+        def snapshot(coff):
+            with patch("fastcmp.COFF", return_value=coff):
+                return rename.object_code(self.root)
+
+        baseline = snapshot(obj())
+        self.assertEqual(baseline, snapshot(obj(values=(12, 0, 0))))
+        for changed in (obj(values=(0, 4, 8)), obj(target=1),
+                        obj(code=b"changed"), obj(section_target=4)):
+            self.assertNotEqual(baseline, snapshot(changed))
+
+    def test_generated_label_numbers_can_change_but_target_offsets_cannot(self):
+        self.write(self.root / "build/Game.obj", b"mock COFF")
+
+        def snapshot(name, offset):
+            obj = SimpleNamespace(
+                secs=[{"name": ".text", "data": b"code", "rels": [(0, 0, 6)]}],
+                syms=[{"name": name, "val": offset, "sec": 1, "typ": 0, "cls": 6}])
+            with patch("fastcmp.COFF", return_value=obj):
+                return rename.object_code(self.root)
+
+        baseline = snapshot("$L100", 4)
+        self.assertEqual(baseline, snapshot("$L200", 4))
+        self.assertNotEqual(baseline, snapshot("$L200", 8))
+        self.assertNotEqual(baseline, snapshot("UserLabel", 4))
 
     def test_late_suite_failure_restores_new_measurements_and_metadata(self):
         changes, names = self.plan()

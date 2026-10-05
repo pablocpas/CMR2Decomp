@@ -8,7 +8,7 @@
 class CFrontend
 {
 public:
-    static void FUN_004d21e0(void);
+    static void LoadFrontendResourceArchives(void);
     static char *GetTextString(int index);
     static void SaveFrontendCallbackDepth(void);
     static void CacheCarClassTextLabels(void);

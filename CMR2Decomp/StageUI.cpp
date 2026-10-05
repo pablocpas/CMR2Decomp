@@ -94,7 +94,7 @@ void PrepareFormatGapToLeader(int iLeaderGap, unsigned char param_2, unsigned in
 // GLOBAL: CMR2 0x00537dcc
 BYTE g_unk0x00537dcc;
 
-// Release callback of FUN_00418f20.
+// Release callback of StageSound_ResetRecordsAndRegisterCleanup.
 // FUNCTION: CMR2 0x00418fe0
 int StageUI_ReleaseHUDResources(void)
 {
@@ -109,7 +109,7 @@ int StageUI_ReleaseHUDResources(void)
 // pays an extra `lea ecx,[eax-0xa4]; cmp ecx,0x537d48; jl`, so the body matches
 // but the compare + register names differ.
 // FUNCTION: CMR2 0x00418f20
-void FUN_00418f20(void)
+void StageSound_ResetRecordsAndRegisterCleanup(void)
 {
     int i;
 
@@ -219,7 +219,7 @@ void StageTiming_FreeStageFile5(void);
 // rolling (inside/outside) and skidding (inside/outside) variations, recording
 // where each set starts; then the two fallback samples.
 // FUNCTION: CMR2 0x00418ff0
-void FUN_00418ff0(void)
+void StageSound_LoadSurfaceVariations(void)
 {
     char *pDir;
     StageSoundPattern *pPattern;
@@ -266,7 +266,7 @@ void FUN_00418ff0(void)
     Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)StageTiming_GetStageFile5());
     g_stageSoundLoaded++;
     StageTiming_FreeStageFile5();
-    FUN_00418f20();
+    StageSound_ResetRecordsAndRegisterCleanup();
 }
 
 // Applies one stage sound state to its active channel.  The switch mirrors
@@ -566,8 +566,8 @@ struct Menu;
 
 void StageUI_NoOpPauseItemEvent(Menu *pMenu, int param);
 void StageUI_RequestPauseMenuExit(Menu *pMenu, int param);
-void FUN_00473d60(Menu *pMenu);
-void FUN_004738f0(Menu *pMenu);
+void StageObject_DrawInRacePauseMenu(Menu *pMenu);
+void StageObject_DrawPauseStageDataPanel(Menu *pMenu);
 extern int g_unk0x0058cf6c;
 
 // Builds the two menus of the in-race pause screen: the first one holds the
@@ -580,12 +580,12 @@ void StageUI_BuildPauseMenus(void)
     Menu_Init((Menu *)g_unk0x0058ca90, 0, 0, 0, NULL, NULL, 1, 0, 1);
     Menu_AddItemType4((Menu *)g_unk0x0058ca90, 0, 0x13, (int)StageUI_NoOpPauseItemEvent, 0);
     Menu_AddItemType2((Menu *)g_unk0x0058ca90, 0, 0x63, (Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 1);
-    Menu_SetCallbacks((Menu *)g_unk0x0058ca90, NULL, NULL, (MenuCallback)FUN_00473d60, NULL);
+    Menu_SetCallbacks((Menu *)g_unk0x0058ca90, NULL, NULL, (MenuCallback)StageObject_DrawInRacePauseMenu, NULL);
     Menu_ValidateCursor((Menu *)g_unk0x0058ca90, 0);
     Menu_Init((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0, 0, NULL, NULL, 1, 0, 1);
     Menu_AddItemType4((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0x72, (int)StageUI_RequestPauseMenuExit, 0);
     Menu_AddItemType2((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0x73, (Menu *)g_unk0x0058ca90, 0, 1);
-    Menu_SetCallbacks((Menu *)(g_unk0x0058ca90 + 0x1e8), NULL, NULL, (MenuCallback)FUN_004738f0, NULL);
+    Menu_SetCallbacks((Menu *)(g_unk0x0058ca90 + 0x1e8), NULL, NULL, (MenuCallback)StageObject_DrawPauseStageDataPanel, NULL);
     Menu_ValidateCursor((Menu *)(g_unk0x0058ca90 + 0x1e8), 0);
     g_unk0x0058cf6c = 1;
 }
@@ -926,7 +926,7 @@ void StageUI_RetireFromRace(Menu *pMenu)
     g_unk0x0058cf6c = 0;
     Race_SetFlag3810D();
     for (i = 0; i < *g_unk0x0058ca88; i++)
-        CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x0058ca88, i, 1, 2);
+        CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)g_unk0x0058ca88, i, 1, 2);
 }
 
 extern int g_unk0x0058cf7c;
@@ -943,7 +943,7 @@ void StageUI_ReleaseSceneAndFadeStage(BYTE index)
     i = 0;
     if (*g_unk0x0058ca88 > 0) {
         do {
-            CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x0058ca88, i, 0, 2);
+            CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)g_unk0x0058ca88, i, 0, 2);
             i++;
         } while (i < (int)*g_unk0x0058ca88);
     }
@@ -1112,7 +1112,7 @@ char g_strMapNumber[] = "%d";
 // Stage map of the HUD: the route thumbnail, a dot per car (network players,
 // or every car in race order) and the number of each local player.
 // FUNCTION: CMR2 0x00415f50
-void FUN_00415f50(int car, short *pRect)
+void StageUI_DrawHudRouteMap(int car, short *pRect)
 {
     int point[3];
     FixVector d;
@@ -1244,7 +1244,7 @@ int g_unk0x00519198[12] = {
 // counter in edi (ours lands in ebx), which shifts many operand encodings.
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0041b460
-void FUN_0041b460(void)
+void StageUI_UpdateDriverEventAwards(void)
 {
     unsigned int *pFlags;
     BYTE flag;

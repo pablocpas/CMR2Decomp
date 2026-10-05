@@ -148,7 +148,7 @@ void CGame::UpdateActiveSoundSlots(void)
 
 // match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d0780
-BOOL CGame::FUN_004d0780(void)
+BOOL CGame::DispatchFrontendResourceState(void)
 {
     m_unk0x00523c5c = GetFrontendResourceMode();
     if (m_unk0x00523c5c != m_unk0x00523c58)
@@ -157,7 +157,7 @@ BOOL CGame::FUN_004d0780(void)
     switch (m_unk0x00523c5c)
     {
     case 3:
-        return FUN_0041b060();
+        return UpdateInRaceCallbackMachine();
 
     case 2:
         return UpdateSecondaryCallbackMachine();
@@ -365,7 +365,7 @@ void Game_DrawLogoAndLoadingSprites(Unk0049c2c0 *p1, BYTE p2)
         Graphics_PresentFrameAndResetCounters();
 }
 
-int FUN_004d0d30(int, int, char *, char);
+int Game_DrawFadingBootLabel(int, int, char *, char);
 unsigned char RallyDataCountryIndex(void);
 
 // Boot render state shown while the country data loads: draws the country name
@@ -399,12 +399,12 @@ void Game_DrawCountryLoadingScreen(Unk0049c2c0 *p1, BYTE p2)
         CGraphics::ClearTarget();
         CGraphics::ClearZBuffer();
         x = (int)(g_pGraphics->resX * 0x1e) / 0x280;
-        y = FUN_004d0d30(x, (int)g_pGraphics->resY / 2, CFrontend::GetTextString(0x1bd), 0);
+        y = Game_DrawFadingBootLabel(x, (int)g_pGraphics->resY / 2, CFrontend::GetTextString(0x1bd), 0);
         // the original copies the country text with sprintf("%s").
         sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                 CFrontend::GetTextString((RallyDataCountryIndex() & 0xff) + 0x27));
         CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
-        FUN_004d0d30(y, (int)g_pGraphics->resY / 2, CFrontend::m_stringDest, 1);
+        Game_DrawFadingBootLabel(y, (int)g_pGraphics->resY / 2, CFrontend::m_stringDest, 1);
         Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)rect, 0);
         Game_DrawSceneViewport((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, rect, 0, 1);
         if (g_unk0x00817fcc == 0)
@@ -480,13 +480,13 @@ int g_unk0x00819744;
 BYTE g_unk0x00818ce4;
 
 // Signatures follow the original's `ret N` (stdcall: N/4 arguments).
-void FUN_004e9f70(BYTE param1, BYTE param2);
+void FrontendMenu_BuildPagesAndSelectInitial(BYTE param1, BYTE param2);
 void SavedGames_LoadRecords(void);
 BYTE FrontendAudio_LoadSounds(void);
 BYTE FrontendText_LoadFonts(void);
 BYTE FrontendText_LoadRegionLanguages(void);
 void FrontendCredits_LoadText(char registerRelease);
-void FUN_004eadb0(void);
+void RallyData_ResetSavedPlayerRecords(void);
 void FrontendScroller_ResetAll(void);
 void FrontendNetwork_SendPlayerDescription(void);
 void GameInfo_RestoreFrontendOptionSettings(void);
@@ -502,7 +502,7 @@ void FrontendMap_FindStageFiles(void);
 // GLOBAL: CMR2 0x00523d70
 char g_strMusicSelect1Adp[16] = "%s\\select1.adp";
 
-void FUN_004ea510(void);
+void FrontendMenu_UpdateAndSwitchActive(void);
 
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
 float Graphics_GetFrameScale(void);
@@ -582,10 +582,10 @@ void Game_WaitForButtonOrSplashTimeout(Unk0049c2c0 *p1, BYTE p2)
     if ((pDevice->field_0x8 & 0x10) != 0 || (unsigned int)(g_unk0x00817fe4 - GameInfo_GetSessionTimestamp()) > 0x1388) {
         GameInfo_ResetSessionTimestamp();
         sprintf(path, g_strMusicSelect1Adp, CInstallInfo::GetMusicDir());
-        CSound::FUN_004a28d0(path);
+        CSound::OpenStreamingMusicFile(path);
         CSound::SetMusicStreamVolume(CGameInfo::GetMasterSoundVolume());
         Sound_StartLoopingMusicStream(1);
-        CGame::FUN_0049c1c0(p1, p2, 0, 2);
+        CGame::PromoteCallbackEntryByRule(p1, p2, 0, 2);
     }
 }
 
@@ -599,7 +599,7 @@ void Game_WaitForSplashTimeout(Unk0049c2c0 *p1, BYTE p2)
     Input_MergeAssignedJoystickButtons(0, CInput::GetAvailableDeviceRecord(0));
     if ((unsigned int)(g_unk0x00817fe4 - GameInfo_GetSessionTimestamp()) > 0x1388) {
         GameInfo_ResetSessionTimestamp();
-        CGame::FUN_0049c1c0(p1, p2, 0, 2);
+        CGame::PromoteCallbackEntryByRule(p1, p2, 0, 2);
     }
 }
 
@@ -609,7 +609,7 @@ void Game_RunFrontendBootFrame(Unk0049c2c0 *p1, BYTE p2)
 {
     g_unk0x00817fe4 = timeGetTime();
     g_unk0x00817ff4 = g_unk0x00817fe4 - GameInfo_GetSessionTimestamp();
-    FUN_004ea510();
+    FrontendMenu_UpdateAndSwitchActive();
 }
 
 // Fade step of the boot/HUD colour: 1/1500 per elapsed millisecond.
@@ -623,7 +623,7 @@ int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
 // bar that follows the text. Returns the x after the bar.
 // match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d0d30
-int FUN_004d0d30(int x, int y, char *pText, char flag)
+int Game_DrawFadingBootLabel(int x, int y, char *pText, char flag)
 {
     int elapsed;
     int alpha;
@@ -721,16 +721,16 @@ void Game_PlayCountryIntroAfterFrontendDelay(Unk0049c2c0 *p1, BYTE p2)
         if ((pDevice->field_0x8 & 0x10) == 0 && !queuedVideo)
             return;
     }
-    CGame::FUN_0049c1c0(p1, p2, 0, 2);
+    CGame::PromoteCallbackEntryByRule(p1, p2, 0, 2);
 }
 
 // Boot pieces called by the exit path of the game state that live in other
 // modules.
 void GameInfo_ApplyCheatsForGameMode(void);
 void GameInfo_SetPlayerOptionNibbles(unsigned int param1, unsigned int param2);
-void FUN_00406820(void);
+void RallyData_CopyCountryPlayerDefaults(void);
 void RallyData_SetSelectionStateByte(char param1);
-void FUN_0040dc30(void);
+void RallyData_PickOpponentLineups(void);
 bool Profile_SaveEditedNames(void);
 void RallyData_IncrementSelectedCategoryCounters(void);
 unsigned char RallyDataCountryIndex(void);
@@ -762,11 +762,11 @@ void Game_FinishRaceAndAdvanceBootState(Unk0049c2c0 *p1, BYTE unused)
         if (CGameInfo::GetConfiguredGameMode() != 8 && CGameInfo::GetConfiguredGameMode() != 9 &&
             CGameInfo::GetConfiguredGameMode() != 10 && CGameInfo::GetConfiguredGameMode() != 11 &&
             CGameInfo::GetConfiguredGameMode() != 12)
-            FUN_0040dc30();
+            RallyData_PickOpponentLineups();
 
-        FUN_00406820();
+        RallyData_CopyCountryPlayerDefaults();
         RallyData_SetSelectionStateByte(-1);
-        CGameInfo::FUN_00406580();
+        CGameInfo::ApplyStageOptionUnlockFlags();
 
         if (CGameInfo::GetGameInfoSessionFlag() == 0) {
             if (CGame::m_unk0x00523d68 != 0 || CGame::m_unk0x008180f9 != 0 || g_unk0x008180fa != 0)
@@ -780,13 +780,13 @@ void Game_FinishRaceAndAdvanceBootState(Unk0049c2c0 *p1, BYTE unused)
     }
 
     CGame::UnwindCallbacks(g_unk0x00817fe8);
-    CGraphics::FUN_004a5be0();
+    CGraphics::EvictManagedTextureResources();
     CGraphics::FreeTextureBuffers();
     if (CGameInfo::GetConfiguredGameMode() != 4)
         RallyData_IncrementSelectedCategoryCounters();
 
     if (CGame::m_unk0x00523d68 != 0) {
-        CGame::FUN_0049c1c0(p1, 0, 0, 2);
+        CGame::PromoteCallbackEntryByRule(p1, 0, 0, 2);
         if (CGameInfo::GetConfiguredGameMode() == 0 || CGameInfo::GetConfiguredGameMode() == 1) {
             GameInfo_ResetSessionTimestamp();
             CGame::SetFrontendResourceMode(2);
@@ -805,16 +805,16 @@ void Game_FinishRaceAndAdvanceBootState(Unk0049c2c0 *p1, BYTE unused)
     }
 
     if (CGame::m_unk0x008180f9 != 0) {
-        CGame::FUN_0049c1c0(p1, 0, 0, 2);
+        CGame::PromoteCallbackEntryByRule(p1, 0, 0, 2);
         CGame::SetFrontendResourceMode(2);
         return;
     }
     if (g_unk0x008180fa != 0) {
-        CGame::FUN_0049c1c0(p1, 0, 0, 2);
+        CGame::PromoteCallbackEntryByRule(p1, 0, 0, 2);
         CGame::SetFrontendResourceMode(3);
         return;
     }
-    CGame::FUN_0049c1c0(p1, 0, 0, 2);
+    CGame::PromoteCallbackEntryByRule(p1, 0, 0, 2);
     CGame::SetShouldExit();
 }
 
@@ -910,7 +910,7 @@ void Game_PlayCodemastersBootVideo(Unk0049c2c0 *p1, BYTE state)
     sprintf(path, g_strCmBik, CInstallInfo::GetVideosDir());
     OptionMovie_StartPlayback(path, NULL, NULL, 2, 0);
     GameInfo_ResetSessionTimestamp();
-    CGame::FUN_0049c1c0(p1, state, 0, 2);
+    CGame::PromoteCallbackEntryByRule(p1, state, 0, 2);
 }
 
 // FUNCTION: CMR2 0x004d1c30
@@ -921,7 +921,7 @@ void Game_PlayIntroBootVideo(Unk0049c2c0 *p1, BYTE state)
     sprintf(path, g_strIntroBik, CInstallInfo::GetVideosDir());
     OptionMovie_StartPlayback(path, NULL, NULL, 2, 0);
     GameInfo_ResetSessionTimestamp();
-    CGame::FUN_0049c1c0(p1, state, 0, 2);
+    CGame::PromoteCallbackEntryByRule(p1, state, 0, 2);
 }
 
 // FUNCTION: CMR2 0x004d1e10
@@ -940,7 +940,7 @@ void Game_UpdateBootInputDelay(Unk0049c2c0 *p1, BYTE state)
             g_unk0x00523d6c = g_unk0x00523d6c + 1;
             return;
         }
-        CGame::FUN_0049c1c0(p1, state, 0, 2);
+        CGame::PromoteCallbackEntryByRule(p1, state, 0, 2);
     }
 }
 
@@ -997,12 +997,12 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
         SetSecondaryOptionStateByte(0);
         ConsumeOptionRefreshRequest();
         CGameInfo::SetGameModeOptionBit19(0);
-        if ((BYTE)CInstallInfo::FUN_0040e8d0() == 0)
+        if ((BYTE)CInstallInfo::LoadInstallPathsFromRegistry() == 0)
             goto exit;
 
-        CGameInfo::FUN_00510410();
+        CGameInfo::InitDefaultGameInfo();
         CGameInfo::ResetStageOptionStates();
-        CGameInfo::FUN_00406580();
+        CGameInfo::ApplyStageOptionUnlockFlags();
         CGameInfo::SetupInputs(2);
         didLoadGameInfo = CGameInfo::LoadGameInfo();
         CNetworkLeaderboards::Reset();
@@ -1030,15 +1030,15 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
             goto exit;
         FrontendCredits_LoadText(1);
         RallyData_ResetSelection();
-        FUN_004eadb0();
+        RallyData_ResetSavedPlayerRecords();
         FrontendScroller_ResetAll();
-        FUN_004e9f70(didLoadGameInfo == false, 1);
+        FrontendMenu_BuildPagesAndSelectInitial(didLoadGameInfo == false, 1);
         FrontendAnimation_LoadDotTextures();
         FrontendAudio_ConfigureMenuSounds();
         Game_SetConfigurationStateByte(0);
         RallyData_ClearDriverGroupRecords();
         RallyData_ClearDriverSkillFlags();
-        CGame::FUN_0049c1c0(p1, p2, 1, 2);
+        CGame::PromoteCallbackEntryByRule(p1, p2, 1, 2);
         GameInfo_ResetSessionTimestamp();
         FrontendMap_FindStageFiles();
         return;
@@ -1065,7 +1065,7 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
         GameInfo_RestoreFrontendOptionSettings();
         CGameInfo::SetGameInfoSessionFlag(0);
     }
-    CGameInfo::FUN_00406580();
+    CGameInfo::ApplyStageOptionUnlockFlags();
     Game_SaveConfigurationPreservingFullscreen();
     CNetworkLeaderboards::SaveLeaderboards();
     CInput::SaveControllerInfo();
@@ -1087,11 +1087,11 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
         goto exit;
     FrontendCredits_LoadText(1);
     FrontendScroller_ResetAll();
-    FUN_004e9f70(0, 0);
+    FrontendMenu_BuildPagesAndSelectInitial(0, 0);
     FrontendAnimation_LoadDotTextures();
     FrontendAudio_ConfigureMenuSounds();
     sprintf(CFrontend::m_stringDest, g_strMusicSelect1Adp, CInstallInfo::GetMusicDir());
-    CSound::FUN_004a28d0(CFrontend::m_stringDest);
+    CSound::OpenStreamingMusicFile(CFrontend::m_stringDest);
     CSound::SetMusicStreamVolume(CGameInfo::GetMasterSoundVolume());
     Sound_StartLoopingMusicStream(1);
     Profile_SaveDirtyRecords();
@@ -1102,9 +1102,9 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
     GameInfo_ResetSessionTimestamp();
     if (Game_GetOptionStateByte() == 1) {
         Game_SetOptionStateByte(0);
-        CGame::FUN_0049c1c0(p1, p2, 6, 2);
+        CGame::PromoteCallbackEntryByRule(p1, p2, 6, 2);
     } else {
-        CGame::FUN_0049c1c0(p1, p2, 0, 2);
+        CGame::PromoteCallbackEntryByRule(p1, p2, 0, 2);
     }
     FrontendMap_FindStageFiles();
     return;
@@ -1216,7 +1216,7 @@ void CGame::InitializeCallbackStateMachine(Unk0049c2c0 *p1, BYTE count, Unk00817
 // with the given value; the rule's top byte becomes the entry's third byte.
 // match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049c1c0
-int CGame::FUN_0049c1c0(Unk0049c2c0 *p, BYTE index, BYTE value, int level)
+int CGame::PromoteCallbackEntryByRule(Unk0049c2c0 *p, BYTE index, BYTE value, int level)
 {
     unsigned int *pEntry;
     unsigned int *pRule;
@@ -1258,16 +1258,16 @@ BYTE g_unk0x0082a908;
 void OptionMenu_EnterCountryState(Unk0049c2c0 *p1, BYTE p2);
 
 // State of the option menu machine (GameInfo.cpp).
-void FUN_00500c80(Unk0049c2c0 *p1, BYTE state);
+void OptionMenu_EnterStartState(Unk0049c2c0 *p1, BYTE state);
 
 void OptionMenu_UpdateFadeState(Unk0049c2c0 *p1, BYTE state);
-void FUN_00501780(int param1, int unused);
+void OptionMenu_FadeBackgroundToGrey(int param1, int unused);
 void OptionMenu_FadeToStoredColour(int param1, int unused);
 
 // GLOBAL: CMR2 0x00526ee0
 FuncTableGroup g_unk0x00526ee0[7] = {
-    {FUN_00500c80, NULL},
-    {OptionMenu_UpdateHiddenPreviewState, (OtherFuncTableEntry)FUN_00501780},
+    {OptionMenu_EnterStartState, NULL},
+    {OptionMenu_UpdateHiddenPreviewState, (OtherFuncTableEntry)OptionMenu_FadeBackgroundToGrey},
     {OptionMenu_EnterCountryState, NULL},
     {OptionMenu_UpdateFadeState, OptionMenu_DrawBackgroundState},
     {(FuncTableEntry)OptionMenu_StartDelayedFade, (OtherFuncTableEntry)OptionMenu_FadeToStoredColour},
@@ -1302,7 +1302,7 @@ extern int g_unk0x00537ef8;
 extern int g_unk0x00537efc;
 extern int g_unk0x00537df0;
 
-void FUN_00404f40(Unk0049c2c0 *param1);
+void InRaceMenu_UpdateStateMachineFrame(Unk0049c2c0 *param1);
 void InRaceMenu_AdvanceScreenEntries(BYTE *param1);
 void StageUI_ResetRaceEndEventCount(void);
 unsigned int *RallyData_GetChampionshipState(void);
@@ -1324,8 +1324,8 @@ void Knockout_UpdateRaceStateAndFades(BYTE *param_1, unsigned int param_2);
 void StageObject_ClearAndDrawSplitPositions(int unused1, int unused2);
 void Race_UpdateDriverPreRaceScene(BYTE *param1, unsigned int param2);
 void Race_UpdateDriverCountdown(int param1, unsigned int param2);
-void FUN_0041db10(BYTE *param1, unsigned int param2);
-void FUN_0041e8d0(BYTE *param1, unsigned int param2);
+void Race_UpdateDriverReadyAndRecordState(BYTE *param1, unsigned int param2);
+void Race_HandleStageReplayViewTransitions(BYTE *param1, unsigned int param2);
 void Race_UpdateInterStageFadeJobs(int param1, unsigned int param2);
 void Race_UpdateState12(Unk0049c2c0 *p, BYTE index);
 void Race_LeaveAndFadeOut(int param1, char param2);
@@ -1348,9 +1348,9 @@ FuncTableGroup g_unk0x005190b0[14] = {
     {(FuncTableEntry)Knockout_UpdateRaceStateAndFades, (OtherFuncTableEntry)StageObject_ClearAndDrawSplitPositions},
     {(FuncTableEntry)Race_UpdateDriverPreRaceScene, (OtherFuncTableEntry)RallyData_GrowEntryAndRefreshRecords},
     {(FuncTableEntry)Race_UpdateDriverCountdown, (OtherFuncTableEntry)RallyData_GrowEntryPanel},
-    {(FuncTableEntry)FUN_0041db10, (OtherFuncTableEntry)RallyData_UpdateUnavailableEntryText},
+    {(FuncTableEntry)Race_UpdateDriverReadyAndRecordState, (OtherFuncTableEntry)RallyData_UpdateUnavailableEntryText},
     {(FuncTableEntry)Race_UpdateInterStageFadeJobs, (OtherFuncTableEntry)RallyData_ShrinkEntryAndNotifyCompletion},
-    {(FuncTableEntry)FUN_0041e8d0, (OtherFuncTableEntry)CGame::NoOpSecondaryStateCallback},
+    {(FuncTableEntry)Race_HandleStageReplayViewTransitions, (OtherFuncTableEntry)CGame::NoOpSecondaryStateCallback},
     {(FuncTableEntry)Race_UpdateState12, NULL},
     {(FuncTableEntry)Race_LeaveAndFadeOut, (OtherFuncTableEntry)RallyData_ShrinkEntryAndDrawStageStarted},
 };
@@ -1391,7 +1391,7 @@ unsigned int g_unk0x00519120[25] = {
 //     keeping the unmasked value in edi for the call argument; ours masks edi.
 // match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0041b060
-BOOL CGame::FUN_0041b060(void)
+BOOL CGame::UpdateInRaceCallbackMachine(void)
 {
     unsigned int *pState;
     Unk00817d98 *pSlot;
@@ -1402,7 +1402,7 @@ BOOL CGame::FUN_0041b060(void)
 
     if (g_unk0x00537ef4 != 0 && g_unk0x00537ef5 == 0 && g_unk0x00537ef8 == 0) {
         if (CGameInfo::IsInRaceMenuOpen() != 0) {
-            FUN_00404f40((Unk0049c2c0 *)g_unk0x00537dd0);
+            InRaceMenu_UpdateStateMachineFrame((Unk0049c2c0 *)g_unk0x00537dd0);
             InRaceMenu_AdvanceScreenEntries(g_unk0x00537dd0);
             AdvanceCallbackStateTimers((Unk0049c2c0 *)g_unk0x00537dd0);
             return FALSE;
@@ -1745,7 +1745,7 @@ bool CGame::LoadAndInitializeSplashScreens(bool param1) {
     didLoadSplashScreens = CFrontend::LoadSplashScreens(param1);
     if (didLoadSplashScreens != FALSE) {
         Font_SetBlendMode(TRUE);
-        FUN_004e2e50();
+        LoadFrontendCommonAndCountryTextures();
         
         return true;
     }
@@ -1755,7 +1755,7 @@ bool CGame::LoadAndInitializeSplashScreens(bool param1) {
 
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e2e50
-void CGame::FUN_004e2e50(void) {
+void CGame::LoadFrontendCommonAndCountryTextures(void) {
     char countryCodes[8][10];
     char countryNames[8][10];
     BOOL bZero = false;
@@ -2103,7 +2103,7 @@ extern unsigned short g_unk0x0059be74[];
 // addressing for the material groups that need it.
 // match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049c510
-void FUN_0049c510(Mesh *pMesh)
+void Game_DrawMeshTextureRuns(Mesh *pMesh)
 {
     int i;
     int texture;
@@ -2278,7 +2278,7 @@ void Game_DrawDeferredObjects(void)
 // last, type 5 sorts after type 0 at equal depth, else farthest first.
 // match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049cbc0
-int __cdecl FUN_0049cbc0(const void *a, const void *b)
+int __cdecl Game_CompareTransparentDrawEntries(const void *a, const void *b)
 {
     BYTE *pA = *(BYTE **)a;
     BYTE *pB = *(BYTE **)b;
@@ -2390,7 +2390,7 @@ void Game_DrawSortedNodes(int bit)
 
     if ((unsigned int)CGame::m_unk0x0059ce2c >= 1) {
         if (g_unk0x005207b4 != 0)
-            qsort(CGame::m_unk0x00597d04, CGame::m_unk0x0059ce2c, 4, FUN_0049cbc0);
+            qsort(CGame::m_unk0x00597d04, CGame::m_unk0x0059ce2c, 4, Game_CompareTransparentDrawEntries);
         for (i = 0; i < (unsigned int)CGame::m_unk0x0059ce2c; i++)
             Game_DrawViewMaskNode((SceneNode *)CGame::m_unk0x00597d04[i], bit);
         CGame::m_unk0x0059ce2c = 0;
@@ -2568,8 +2568,8 @@ void Particle_DrawAll(int param, BYTE view);
 void Scene_DrawShadowBatches(unsigned int view);
 void Scene_RelightSector(int sector);
 BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance);
-void FUN_004b7de0(SceneNode *pNode, int unused);
-void FUN_004b21e0(void);
+void Sector_CullGridAroundViewNode(SceneNode *pNode, int unused);
+void Graphics_UpdateFrameStatistics(void);
 int Graphics_GetFlareStateValue(void);
 void Graphics_SwitchAlphaBlendAndTest(int enable);
 void Game_DrawStaticStageObjects(void);
@@ -2622,7 +2622,7 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
         if (CGraphics::m_unk0x0072d56c != 0) {
             CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
                                                              &g_unk0x005207b8);
-            FUN_004b7de0((SceneNode *)param2, (int)param3);
+            Sector_CullGridAroundViewNode((SceneNode *)param2, (int)param3);
             for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++)
                 Scene_RelightSector(((unsigned short *)g_unk0x006ed5f0)[i]);
         }
@@ -2730,7 +2730,7 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
     Tri2D_DrawLayer(1);
     Sprite_DrawLayer(1);
     CGraphics::SetCullMode(CGame::GetSectorDrawState());
-    FUN_004b21e0();
+    Graphics_UpdateFrameStatistics();
     CGraphics::m_pTextureManager->pD3D->EndScene();
     return 1;
 }
@@ -2818,7 +2818,7 @@ void StageObject_ResetRightAngleContactEffect(BYTE *pCar, BYTE *pInfo);
 // Dispatches by the object type stored at +4.
 // match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423900
-void FUN_00423900(BYTE *pObject, BYTE *pInfo)
+void Game_DispatchObjectContactReset(BYTE *pObject, BYTE *pInfo)
 {
     switch (*(int *)(pObject + 4)) {
     case 3:
@@ -2936,7 +2936,7 @@ extern int g_unk0x00511cd8[4];
 // values. Returns 1 when the session was created.
 // match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a0ec0
-int FUN_004a0ec0(char *pSessionName, char *pPassword, DWORD user1, DWORD user2,
+int Network_HostNamedSession(char *pSessionName, char *pPassword, DWORD user1, DWORD user2,
                  DWORD user3, DWORD user4, DWORD maxPlayers)
 {
     IDirectPlay4A *pDP;

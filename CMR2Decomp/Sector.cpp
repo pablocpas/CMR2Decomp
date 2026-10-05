@@ -53,7 +53,7 @@ extern int g_unk0x0067f228;
 extern StageObject *g_stageObjects[6000];
 
 void Graphics_AccumulateCounterOrInitialize(int *p, int value);
-void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int param5);
+void Graphics_LoadTextureRecordList(int param1, int param2, unsigned int param3, int param4, int param5);
 void Mesh_UploadVertices(Mesh *pMesh);
 void Mesh_BuildParts(Mesh *pMesh);
 
@@ -61,7 +61,7 @@ void Mesh_BuildParts(Mesh *pMesh);
 // GLOBAL: CMR2 0x0052110c
 char g_strC3dMagic[] = "PP_F";
 
-void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3);
+void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_3);
 
 // Builds the scene of a C3D model file, if the data really is one.
 // FUNCTION: CMR2 0x004b9380
@@ -70,7 +70,7 @@ int Sector_BuildC3DModelScene(unsigned int data, unsigned int parent, unsigned i
     int result = 0;
 
     if (strncmp((char *)data, g_strC3dMagic, 4) == 0)
-        result = (int)FUN_004b93c0((BYTE *)data, parent, textures);
+        result = (int)Sector_RelocateStageMeshFile((BYTE *)data, parent, textures);
     return result;
 }
 
@@ -80,7 +80,7 @@ int Sector_BuildC3DModelScene(unsigned int data, unsigned int parent, unsigned i
 // vertex buffers of every mesh.
 // match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b93c0
-void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
+void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_3)
 {
     int count = 0;
     BYTE *pNodes;
@@ -126,7 +126,7 @@ void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
             pField += 0x13 - 10; // Ten of the triangle's 19 dwords were consumed above.
         } while (count < *(unsigned int *)(pData + 0x20));
     }
-    FUN_004b9910((int)(pRecords + recordSize * 0x5c), textureRecords,
+    Graphics_LoadTextureRecordList((int)(pRecords + recordSize * 0x5c), textureRecords,
                  *(unsigned short *)(pData + 0x24), *(int *)(pData + 4), param_3);
     savedNodeCount = g_sceneNodeCount;
     if (*(unsigned short *)(pData + 0x18) != 0) {
@@ -613,7 +613,7 @@ int Tri2D_Contains(int *pPoint, int *pTri);
 // distance), storing the squared distance of each marked sector.
 // match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7de0
-void FUN_004b7de0(SceneNode *pNode, int unused)
+void Sector_CullGridAroundViewNode(SceneNode *pNode, int unused)
 {
     FixVector pos;
     FixVector dir;
@@ -731,7 +731,7 @@ extern BYTE *g_finData;
 // is register renaming
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b8270
-void FUN_004b8270(void)
+void Sector_RebuildStageGrid(void)
 {
     int i;
     int n;

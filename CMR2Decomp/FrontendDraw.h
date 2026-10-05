@@ -16,7 +16,7 @@ extern short g_unk0x008189a8[4];
 
 void FrontendDraw_ScrollerRow(MenuScroller *p, char active);
 void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int first, int active);
-void FUN_004d39a0(BYTE *pList, char *pTitle, int index, char **ppStrings);
+void FrontendDraw_RallyEntryList(BYTE *pList, char *pTitle, int index, char **ppStrings);
 int FrontendDraw_BreadcrumbItem(int x, int y, BYTE *pColour, char last, char *text);
 void FrontendDraw_Breadcrumb(int x, int y, char **ppText, int count);
 void FrontendDraw_MenuTitle(Menu *pMenu);

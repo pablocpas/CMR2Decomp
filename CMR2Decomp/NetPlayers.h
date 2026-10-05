@@ -145,7 +145,7 @@ extern NetStandingsTables g_netStandingsTables;
 
 void NetPlayers_ResetAllTables(void);
 void NetPlayers_ResetStageState(char keepReady, char resetTotal);
-void FUN_00409b60(void);
+void NetPlayers_ResetBestTimes(void);
 void NetPlayers_ClearReadyFlags(void);
 unsigned int NetPlayers_IsPlayerPresent(int index);
 char *NetPlayers_GetPlayerName(int index);

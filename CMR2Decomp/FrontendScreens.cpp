@@ -281,7 +281,7 @@ BYTE g_palette0x00524b90[4][4] = { { 0x64, 0x7c, 0xa1, 0xff },
 // the cell value in BL/param_1 while this build uses EBP/ESI (register
 // allocation), so the body is instruction-for-instruction different.
 // FUNCTION: CMR2 0x004d5de0
-void FUN_004d5de0(unsigned int param_1, BYTE param_2)
+void FrontendMap_DrawStageCellGrid(unsigned int param_1, BYTE param_2)
 {
     BYTE *pMap;
     unsigned int which;
@@ -400,7 +400,7 @@ char g_unk0x00818554[32];
 // "event: date" lines and the list of stages, all scaled to the screen.
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d65c0
-void FUN_004d65c0(void)
+void FrontendDraw_RallyInfoHeader(void)
 {
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0x3c) / 640;
     g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 0x4c) / 480;
@@ -426,7 +426,7 @@ void FUN_004d65c0(void)
 // underline of the highlighted row.
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d9450
-void FUN_004d9450(Menu *pMenu)
+void FrontendMenu_DrawTimeAttackOptions(Menu *pMenu)
 {
     short rect[4];
     int y;
@@ -500,7 +500,7 @@ void FrontendMenu_DrawAlternateRallyStageSelection(Menu *pMenu)
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
 
-void FUN_004d28c0(short x0, short y0, char *pMap);
+void FrontendDraw_AnimatedMatrixBackground(short x0, short y0, char *pMap);
 extern char g_matrixMaps[11][0xd8];
 
 // Rally/route selection screen: the two breadcrumb lines depend on the mode,
@@ -529,7 +529,7 @@ void FrontendMenu_DrawRallySelection(Menu *pMenu)
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, text, 2);
     FrontendDraw_ScrollerRow(FrontendScroller_GetRallySelectionScroller(), 1);
     cellW = (int)(g_pGraphics->resX * 18) / 640;
-    FUN_004d28c0((cellW - (int)(g_pGraphics->resX * 11) / 640) / 2 - cellW * 18 / 2 + (int)g_pGraphics->resX / 2,
+    FrontendDraw_AnimatedMatrixBackground((cellW - (int)(g_pGraphics->resX * 11) / 640) / 2 - cellW * 18 / 2 + (int)g_pGraphics->resX / 2,
                  (int)(g_pGraphics->resY * 100) / 480, g_matrixMaps[pMenu->cursor]);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
@@ -563,7 +563,7 @@ void FrontendMenu_DrawNetworkConnection(Menu *pMenu)
 // current value) with a separator line under each, coloured by the cursor.
 // match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e0770
-void FUN_004e0770(Menu *pMenu)
+void FrontendMenu_DrawAdvancedGraphicsOptions(Menu *pMenu)
 {
     short rect[4];
     MenuItem *pItem;
@@ -921,7 +921,7 @@ char g_matrixMaps[11][0xd8] = {
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
 };
 
-void FUN_004d28c0(short x0, short y0, char *pMap);
+void FrontendDraw_AnimatedMatrixBackground(short x0, short y0, char *pMap);
 
 // Text of the network waiting-room screen (0x4e2b40).
 // GLOBAL: CMR2 0x00524e10
@@ -957,7 +957,7 @@ char g_str0x00524ee8[24] = "LeeM : Wheeeeeeeeeeeeee";
 // GLOBAL: CMR2 0x00524f00
 char g_str0x00524f00[16] = "JamieL: Bananas";
 
-// Parameter block of FUN_004d39a0: two flag bytes, the entry count, the
+// Parameter block of FrontendDraw_RallyEntryList: two flag bytes, the entry count, the
 // selected entry and the string pointer array at +0x14.
 struct Unk0x4e2b40 {
     BYTE field_0x0[6];
@@ -1016,7 +1016,7 @@ void FrontendMenu_DrawNetworkWaitingRoom(Menu *pMenu)
     list.strings[3] = g_str0x00524e18;
     list.strings[4] = g_str0x00524e78;
     list.strings[5] = g_str0x00524e10;
-    FUN_004d39a0((BYTE *)&list, NULL, 0x172, list.strings);
+    FrontendDraw_RallyEntryList((BYTE *)&list, NULL, 0x172, list.strings);
     Font_DrawText(1, g_str0x00524e70, 0x1b8, 0x46, (int *)g_colourWhite0x00524968, 9);
     Font_DrawText(1, g_str0x00524e58, 0x1b8, 0x5a, (int *)g_colourWhite0x00524968, 9);
     Font_DrawText(1, g_str0x00524e50, 0x1b8, 0x78, (int *)g_colourWhite0x00524968, 9);
@@ -1032,7 +1032,7 @@ void FrontendMenu_DrawLanguage(Menu *pMenu)
 
     FrontendDraw_ScrollerRow(FrontendScroller_GetLanguageScroller(), 1);
     cellW = (int)(g_pGraphics->resX * 18) / 640;
-    FUN_004d28c0((cellW - (int)(g_pGraphics->resX * 11) / 640) / 2 - cellW * 18 / 2 + (int)g_pGraphics->resX / 2,
+    FrontendDraw_AnimatedMatrixBackground((cellW - (int)(g_pGraphics->resX * 11) / 640) / 2 - cellW * 18 / 2 + (int)g_pGraphics->resX / 2,
                  (int)(g_pGraphics->resY * 100) / 480, g_matrixMaps[g_matrixMapIndex[pMenu->cursor]]);
 }
 
@@ -1296,14 +1296,14 @@ int g_unk0x0052f3d8;
 // GLOBAL: CMR2 0x00519ec4
 char g_strDemoName0x00519ec4[4] = "DEM";
 
-void FUN_004eb860(int index, int profile);
+void Profile_AssignAvailableCategory(int index, int profile);
 void Profile_ResetCategoryData(int index);
-void FUN_004eb000(BYTE index, char set);
+void RallyData_SetPlayerProfileInUse(BYTE index, char set);
 void RallyData_SetEditedDriverOrCategoryName(unsigned int slot, char *pName);
 void RallyData_SetSetupFlag11(char param1);
 void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
-void FUN_0040dfa0(void);
-void RallyData_FUN_00408600(BYTE index, BYTE value);
+void RallyData_FillEventSlotSelections(void);
+void RallyData_SetDriverCategoryOption(BYTE index, BYTE value);
 void FrontendChampionship_SetDriverEntryFlag(BYTE index, BYTE flag);
 void GameInfo_SetConfiguredPlayerCount(BYTE param1);
 void GameInfo_SetConfiguredDifficulty(BYTE param1);
@@ -1319,11 +1319,11 @@ void FrontendSession_InitFreshRace(void)
 
     index = g_unk0x0052f3d8;
     g_unk0x0052f3d8 = (g_unk0x0052f3d8 + 1) % 4;
-    FUN_004eb860(0, -1);
+    Profile_AssignAvailableCategory(0, -1);
     Profile_ResetCategoryData(0);
-    FUN_004eb000(0, 1);
+    RallyData_SetPlayerProfileInUse(0, 1);
     RallyData_SetEditedDriverOrCategoryName(0, g_strDemoName0x00519ec4);
-    RallyData_FUN_00408600(0, 0);
+    RallyData_SetDriverCategoryOption(0, 0);
     FrontendChampionship_SetDriverEntryFlag(0, 1);
     CGameInfo::SaveFrontendOptionSettings();
     if (index == 3) {
@@ -1335,7 +1335,7 @@ void FrontendSession_InitFreshRace(void)
         RallyData_SetSelectionBits10To11(0);
         RallyData_SetSelectionBits12To13(0);
         RallyData_SetSelectionBits16To19(1);
-        FUN_0040dfa0();
+        RallyData_FillEventSlotSelections();
         RallyData_SetCountrySelectionBits(5);
         RallyData_SetStageSelectionAndRefreshFlags(2);
         return;
@@ -1355,7 +1355,7 @@ void FrontendSession_InitFreshRace(void)
 // menu, and when coming back from a race (`back`) the menus of the game
 // mode that was played, with their cursors.
 // FUNCTION: CMR2 0x004e9f70
-void FUN_004e9f70(BYTE param1, BYTE back)
+void FrontendMenu_BuildPagesAndSelectInitial(BYTE param1, BYTE back)
 {
     Menu *pMenu;
     unsigned int region;
@@ -1573,7 +1573,7 @@ int g_menuEnterTime;
 // Frontend per-frame update: reads the input, keeps the music streaming and
 // runs the current menu, switching to the menu it returns.
 // FUNCTION: CMR2 0x004ea510
-void FUN_004ea510(void)
+void FrontendMenu_UpdateAndSwitchActive(void)
 {
     DeviceInfo *pDevice;
     unsigned int input;
@@ -1638,7 +1638,7 @@ void FrontendNetwork_SendPlayerDescription(void)
     NetPlayers_SetNotificationMask((int)&info);
 }
 
-void FUN_0040dc30(void);
+void RallyData_PickOpponentLineups(void);
 struct Unk0x0052ebc0;
 struct Unk0x0052ebc0 *RallyData_GetDriverGroupTable(void);
 BYTE *RallyData_GetStageAvailabilityFlags(void);
@@ -1661,10 +1661,10 @@ int Network_PollReceivedMessageBuffer(int param1, void **param2);
 char Network_SendPlayerMessage(int to, int guaranteed, int data, int size);
 void NetworkChat_AppendLine(DPID *pFrom, char *text, char local);
 void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
-void RallyData_FUN_00408600(BYTE index, BYTE value);
+void RallyData_SetDriverCategoryOption(BYTE index, BYTE value);
 void FrontendChampionship_SetDriverEntryFlag(BYTE index, BYTE flag);
 void FrontendMenu_EnablePlayerSetupItems(void);
-void FUN_0040dfa0(void);
+void RallyData_FillEventSlotSelections(void);
 void GameInfo_SetSessionField3990(int param1);
 unsigned int Network_GetEnumeratedSessionCount(void);
 int Network_JoinEnumeratedSession(BYTE index, char *pPassword, BYTE *pInvalidPassword);
@@ -1687,7 +1687,7 @@ void FrontendNetwork_WriteSetupPacket(BYTE *pPacket)
     BYTE *pState;
     int i;
 
-    FUN_0040dc30();
+    RallyData_PickOpponentLineups();
     pState = (BYTE *)RallyData_GetDriverGroupTable();
     for (i = 0; i < NET_SETUP_COUNT; i++) {
         *(unsigned int *)(pPacket + 0x18 + i * 8) = *(unsigned int *)(pState + 0x540 + i * 8);
@@ -1868,7 +1868,7 @@ void FrontendNetwork_HandleHostMessage(DPID *pFrom, BYTE *pMsg)
         }
         GameInfo_SetSessionField397C(*(unsigned int *)(pMsg + 0x14));
         pItem = Menu_GetItem(FrontendMenu_GetNetworkSessionSetup(), 1);
-        RallyData_FUN_00408600(0, g_unk0x00818d18[pItem->max]);
+        RallyData_SetDriverCategoryOption(0, g_unk0x00818d18[pItem->max]);
         pItem = Menu_GetItem(FrontendMenu_GetNetworkSessionSetup(), 2);
         FrontendChampionship_SetDriverEntryFlag(0, pItem->max);
         FrontendNetwork_ReadSetupPacket((BYTE *)pMsg);
@@ -1877,7 +1877,7 @@ void FrontendNetwork_HandleHostMessage(DPID *pFrom, BYTE *pMsg)
         if (pMsg[0] == 2) {
             Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
             NetPlayers_ResetRaceReadyAndTimeState(1, 1);
-            FUN_00409b60();
+            NetPlayers_ResetBestTimes();
             NetPlayers_RebuildSortedPlayerIDs();
             return;
         }
@@ -1971,7 +1971,7 @@ void FrontendMenu_UpdateNetworkSessionBrowser(Menu *pMenu)
         g_pGraphics->pDD7->FlipToGDISurface();
         ShowCursor(1);
     }
-    status = CGameInfo::FUN_004a12d0((int)&g_unk0x00818ef8);
+    status = CGameInfo::EnumerateNetworkSessionsWithUserData((int)&g_unk0x00818ef8);
     if (g_unk0x00818d04 == 0) {
         ShowCursor(0);
         ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
@@ -2003,7 +2003,7 @@ void FrontendMenu_UpdateNetworkSessionBrowser(Menu *pMenu)
                     g_unk0x00819014 = 0;
                     g_unk0x00525288 = -1;
                     g_unk0x00819024 = 0;
-                    CGameInfo::FUN_004a13b0();
+                    CGameInfo::EnumerateNetworkSessions();
                     g_unk0x00818ef4 = 0;
                 } else {
                     Menu_SetFlags(pMenu, 0, 0, 1, 0);
@@ -2119,7 +2119,7 @@ void FrontendNetwork_JoinSelectedSession(Menu *pMenu, int param)
 }
 
 BYTE GameInfo_GetLastNetworkGameMode(void);
-int FUN_004a0ec0(char *pSessionName, char *pPassword, DWORD user1, DWORD user2, DWORD user3,
+int Network_HostNamedSession(char *pSessionName, char *pPassword, DWORD user1, DWORD user2, DWORD user3,
                  DWORD user4, DWORD maxPlayers);
 
 // Item action of the network session menu: refreshes the session data and
@@ -2137,7 +2137,7 @@ void FrontendNetwork_CreateSelectedSession(Menu *pMenu, int param)
         g_pGraphics->pDD7->FlipToGDISurface();
         ShowCursor(1);
     }
-    if (FUN_004a0ec0(CGameInfo::GetSessionName(), CGameInfo::GetSessionPassword(),
+    if (Network_HostNamedSession(CGameInfo::GetSessionName(), CGameInfo::GetSessionPassword(),
                      CGameInfo::GetConfiguredGameMode() & 0xff, 0, 0, 0, 8) != 0) {
         if (g_unk0x00818d04 == 0) {
             ShowCursor(0);
@@ -2335,7 +2335,7 @@ void FrontendNetwork_StartHostRace(Menu *pMenu, int param)
                 }
             }
         }
-        RallyData_FUN_00408600(0, g_unk0x00818d18[Menu_GetItem(pMenu, 1)->max]);
+        RallyData_SetDriverCategoryOption(0, g_unk0x00818d18[Menu_GetItem(pMenu, 1)->max]);
         FrontendChampionship_SetDriverEntryFlag(0, Menu_GetItem(pMenu, 2)->max);
         packet.type = 2;
         packet.gameMode = CGameInfo::GetConfiguredGameMode();
@@ -2357,7 +2357,7 @@ void FrontendNetwork_StartHostRace(Menu *pMenu, int param)
         FrontendNetwork_WriteSetupPacket((BYTE *)&packet);
         Network_SendPlayerMessage(0, 1, (int)&packet, 0x1c4);
         NetPlayers_ResetRaceReadyAndTimeState(1, 1);
-        FUN_00409b60();
+        NetPlayers_ResetBestTimes();
         NetPlayers_ResetStageState(0, 1);
         CGame::SetProfileSelectionState(1);
         Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
@@ -2535,7 +2535,7 @@ void FrontendMenu_EnterNetworkCarSetup(Menu *pMenu, int param)
     if ((char)param == 0)
         Menu_GetItem(pMenu, 2)->max = 0;
     g_unk0x00818d70 = values[0];
-    FUN_004ee170(pMenu);
+    FrontendMenu_UpdateNetworkCarSetup(pMenu);
 }
 
 // Item action of the "join" screen: applies the selected rally/route and
@@ -2964,7 +2964,7 @@ void FrontendScroller_ResetAll(void)
 // width of each item's text.
 // match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ef190
-void FUN_004ef190(void)
+void FrontendScroller_RecomputeAllAttached(void)
 {
     MenuScroller *p;
     int k;
@@ -3154,19 +3154,19 @@ void FrontendMenu_SelectMultiplayerClass(Menu *pMenu, int param)
 void FrontendMenu_UpdateRallySelection(Menu *pMenu)
 {
     RallyData_SetCountrySelectionBits(pMenu->cursor);
-    FUN_004f37c0(FrontendScroller_GetRallySelectionScroller());
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetRallySelectionScroller());
 }
 
 // FUNCTION: CMR2 0x004efdc0
 void FrontendMenu_UpdateRallyStageSelection(Menu *pMenu)
 {
-    FUN_004f37c0(FrontendScroller_GetDisplayDeviceScroller());
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetDisplayDeviceScroller());
 }
 
 // FUNCTION: CMR2 0x004efdd0
 void FrontendMenu_UpdateAlternateRallyStageSelection(Menu *pMenu)
 {
-    FUN_004f37c0(FrontendScroller_GetAlternateStageScroller());
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetAlternateStageScroller());
 }
 
 // FUNCTION: CMR2 0x004f0050
@@ -3214,7 +3214,7 @@ void FrontendMenu_EnterProfileNameEntry(Menu *pMenu, char param)
 // the new row (the shortest way round) and eases back to the middle.
 // match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f0620
-void FUN_004f0620(Menu *pMenu)
+void FrontendMenu_UpdateMultiplayerStageSelection(Menu *pMenu)
 {
     int index;
     int old;
@@ -3292,7 +3292,7 @@ char g_nameRow0x0052538c[12] = "uvwxyz. <_";
 // accepts the name.
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f1040
-void FUN_004f1040(Menu *pMenu, int param)
+void FrontendProfile_PickNameCharacter(Menu *pMenu, int param)
 {
     char *chars;
     int len;
@@ -3440,7 +3440,7 @@ BYTE Profile_LoadAndLinkSavedRecord(int param_1, int param_2);
 void FrontendProfile_SetCategoryColour(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4);
 BYTE RallyData_IsDriverRecordUsable(BYTE param1);
 BYTE *SavedGames_GetRecord(int index);
-unsigned int FUN_004fb400(BYTE *pBlock);
+unsigned int FrontendProfile_ApplyDriverProfileBlock(BYTE *pBlock);
 
 extern BYTE g_unk0x00819879;
 
@@ -3453,7 +3453,7 @@ extern BYTE g_unk0x00819879;
 // extra callee-saved register and materialises the sound id with two pushes instead of a branchless
 // select) and MSVC resolving `m_stringDest - 2` to a different symbol on our side.
 // FUNCTION: CMR2 0x004f13c0
-void FUN_004f13c0(Menu *pMenu, int param)
+void FrontendProfile_PickRenameCharacterOrCheat(Menu *pMenu, int param)
 {
     char *chars;
     char key;
@@ -3471,7 +3471,7 @@ void FUN_004f13c0(Menu *pMenu, int param)
             Menu_PlaySoundId(key != 0 ? 0 : 3);
             if (RallyData_IsDriverRecordUsable((BYTE)FrontendProfile_GetCurrentPlayer())) {
                 g_unk0x00819744--;
-                FUN_004eb000(FrontendProfile_GetCurrentPlayer(), 0);
+                RallyData_SetPlayerProfileInUse(FrontendProfile_GetCurrentPlayer(), 0);
             }
             Profile_ResetCategoryData(FrontendProfile_GetCurrentPlayer());
             Profile_ResetRecordCategory(FrontendProfile_GetCurrentPlayer());
@@ -3526,7 +3526,7 @@ void FrontendProfile_ApplyDateEntry(Menu *pMenu, int param)
         Menu_SetNextAction((int)FrontendProfile_GetCompletionMenu());
         g_unk0x00819879 = 0;
         if (FrontendRecords_GetProfileMode()) {
-            FUN_004eb000(FrontendProfile_GetCurrentPlayer(), 0);
+            RallyData_SetPlayerProfileInUse(FrontendProfile_GetCurrentPlayer(), 0);
             Profile_ResetRecordCategory(FrontendProfile_GetCurrentPlayer());
         }
     }
@@ -3569,7 +3569,7 @@ void FrontendMenu_UpdateProfileDateEntry(Menu *pMenu)
 
 
 // Maps a screen index to its palette/colour id and stores it for the current mode.
-void RallyData_FUN_00408600(BYTE index, BYTE value);
+void RallyData_SetDriverCategoryOption(BYTE index, BYTE value);
 
 // Update callback of the palette menu: shows the colour of the palette the
 // profile uses and resets the scrolled list.
@@ -3579,7 +3579,7 @@ void FrontendMenu_EnterPaletteSelection(Menu *pMenu, char param)
     pMenu->items[0].max = RallyData_GetDriverOrCategoryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048));
     Frontend_SetOverlayMode((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
     if (param != 0 && CGameInfo::GetConfiguredGameMode() != 4)
-        FUN_004f17d0(FrontendScroller_GetRouteEntryScroller()->pMenu, 0);
+        FrontendScroller_InitRallyStageSelection(FrontendScroller_GetRouteEntryScroller()->pMenu, 0);
 }
 
 // Keeps the palette screen's OK item disabled while the palette id is invalid.
@@ -3597,7 +3597,7 @@ void RallyData_GetDriverCategoryColour(int index, unsigned int *pHue, unsigned i
 // and reflects it onto the colour picker items.
 // match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f16f0
-void FUN_004f16f0(Menu *pMenu, int param)
+void FrontendProfile_FillColourPicker(Menu *pMenu, int param)
 {
     int shade;
     int value;
@@ -3642,7 +3642,7 @@ void FUN_004f16f0(Menu *pMenu, int param)
 // rally data and measures them for the scroller.
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f17d0
-void FUN_004f17d0(Menu *pMenu, int param)
+void FrontendScroller_InitRallyStageSelection(Menu *pMenu, int param)
 {
     MenuScroller *pScroller;
     MenuItem *pItem;
@@ -3732,7 +3732,7 @@ void FrontendProfile_OpenPaletteEditor(Menu *pMenu, int param)
 // FUNCTION: CMR2 0x004f1a10
 void FrontendProfile_SelectPalette(Menu *pMenu, int unused)
 {
-    RallyData_FUN_00408600(
+    RallyData_SetDriverCategoryOption(
         CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048),
         (unsigned char)g_unk0x008196e8[pMenu->cursor]);
 }
@@ -4010,10 +4010,10 @@ void FrontendMenu_ApplyDisplayMode(Menu *pMenu, int param)
     CGameInfo::SetScreenWidth(g_pGraphics->resX);
     CGameInfo::SetScreenHeight(g_pGraphics->resY);
     CGameInfo::SetColourDepth(g_pGraphics->depth);
-    CFrontend::FUN_004d21e0();
+    CFrontend::LoadFrontendResourceArchives();
     Graphics_ReloadAllTextures();
     FrontendText_ReloadFonts();
-    FUN_004ef190();
+    FrontendScroller_RecomputeAllAttached();
     CMain::SetGameActiveState(0);
     Menu_SetNextAction((int)pMenu->pParent);
 }
@@ -4351,7 +4351,7 @@ void FrontendMenu_EnterRallySelection(Menu *pMenu, int param)
 // Slides the scroller towards the menu cursor, the short way round, in 250 ms
 // match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f37c0
-void FUN_004f37c0(MenuScroller *p)
+void FrontendScroller_UpdateCursorSlide(MenuScroller *p)
 {
     Menu *pMenu = p->pMenu;
     int target;
@@ -4426,13 +4426,13 @@ void FUN_004f37c0(MenuScroller *p)
 // FUNCTION: CMR2 0x004f3970
 void FrontendScroller_UpdateStageRecords(Menu *pMenu)
 {
-    FUN_004f37c0(FrontendScroller_GetStageRecordsScroller());
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetStageRecordsScroller());
 }
 
 // FUNCTION: CMR2 0x004f3980
 void FrontendScroller_UpdateBestStageTimes(Menu *pMenu)
 {
-    FUN_004f37c0(FrontendScroller_GetBestStageTimesScroller());
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetBestStageTimesScroller());
 }
 
 // FUNCTION: CMR2 0x004f3990
@@ -4444,13 +4444,13 @@ void FrontendScroller_UpdateTransmissionRecords(Menu *pMenu)
     } else {
         pMenu->items[1].enabled = 1;
     }
-    FUN_004f37c0(FrontendScroller_GetTransmissionRecordsScroller());
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetTransmissionRecordsScroller());
 }
 
 // FUNCTION: CMR2 0x004f39d0
 void FrontendScroller_UpdateChampionshipEntry(Menu *pMenu)
 {
-    FUN_004f37c0(FrontendScroller_GetRouteEntryScroller());
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetRouteEntryScroller());
 }
 
 // Applying the 3D car preview screen: when the preview is up, the block of the
@@ -4461,7 +4461,7 @@ void FrontendCar_ApplyPreviewSelection(Menu *pMenu, int param)
     char ok;
 
     if (g_unk0x0082aa40 > 0) {
-        ok = FUN_004fb400(SavedGames_GetRecord(g_unk0x0082a924));
+        ok = FrontendProfile_ApplyDriverProfileBlock(SavedGames_GetRecord(g_unk0x0082a924));
         if (ok != 0)
             Frontend_SetDebugOverlayChannels(0, 1, 0);
     }
@@ -4504,7 +4504,7 @@ void FrontendMenu_EnterProfileActions(Menu *pMenu, char param)
 // FUNCTION: CMR2 0x004f3ae0
 void FrontendScroller_UpdateMain(Menu *pMenu)
 {
-    FUN_004f37c0(FrontendScroller_GetMainScroller());
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetMainScroller());
 }
 
 // FUNCTION: CMR2 0x004f3af0
@@ -4654,7 +4654,7 @@ short g_menuDotRect[4];
 // control points 1..17 with Catmull-Rom style tangents.
 // match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f3c10
-void FUN_004f3c10(int *pPoints, int t, int *pOut)
+void FrontendAnimation_EvaluatePathSpline(int *pPoints, int t, int *pOut)
 {
     int *p;
     int seg;
@@ -4778,7 +4778,7 @@ void FrontendAnimation_GetFrameDistance(int *pOut, int speed)
 // along the path and picks (or morphs) the path of the entry under the cursor.
 // match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f4050
-void FUN_004f4050(void)
+void FrontendAnimation_UpdateMainPath(void)
 {
     int *pPos;
     int *pSpeed;
@@ -4926,7 +4926,7 @@ void FrontendAnimation_DrawLetters(void)
     i = 0;
     pPos = g_menuLetterPos;
     do {
-        FUN_004f3c10(g_pMenuPath, *pPos, point);
+        FrontendAnimation_EvaluatePathSpline(g_pMenuPath, *pPos, point);
         Font_DrawChar(g_strColinMcrae[i % strlen(g_strColinMcrae)], (int)(g_pGraphics->resX * point[0]) / 640,
                       (int)(g_pGraphics->resY * point[1]) / 480);
         pPos++;
@@ -4951,7 +4951,7 @@ void FrontendAnimation_DrawDotTrail(void)
     fade = 14 * 0xff;
     do {
         colour[3] = 0xff - fade / 15;
-        FUN_004f3c10(g_pMenuPath, *(int *)((BYTE *)g_menuTrailPos + k), point);
+        FrontendAnimation_EvaluatePathSpline(g_pMenuPath, *(int *)((BYTE *)g_menuTrailPos + k), point);
         g_menuDotRect[0] = (int)(g_pGraphics->resX * point[0]) / 640 - 2;
         g_menuDotRect[1] = (int)(g_pGraphics->resY * point[1]) / 480 + 3;
         pTexture = g_menuDotTextures[k / 15];
@@ -4986,7 +4986,7 @@ void FrontendAnimation_DrawDotStreams(void)
         fade = 9 * 0xff;
         do {
             colour[3] = 0xff - fade / 10;
-            FUN_004f3c10(g_pMenuPath, *pPos, pPoint - 1);
+            FrontendAnimation_EvaluatePathSpline(g_pMenuPath, *pPos, pPoint - 1);
             g_menuDotRect[0] = (int)(pPoint[-1] * g_pGraphics->resX) / 640 - 2;
             g_menuDotRect[1] = (int)(g_pGraphics->resY * pPoint[0]) / 480 + 3;
             pTexture = g_menuDotTextures[(int)k / 10];
@@ -5040,7 +5040,7 @@ void FrontendMenu_LeaveLanguage(Menu *pMenu, char back)
         else
             CGameInfo::SetDashOptionEnabled(0);
         CFrontend::CacheCarClassTextLabels();
-        FUN_004ef190();
+        FrontendScroller_RecomputeAllAttached();
         if (pMenu->pParent == NULL)
             FrontendMenu_BuildAllControlsPages();
         Menu_SetParent(pMenu, FrontendMenu_GetOptions());
@@ -5085,8 +5085,8 @@ void FrontendMenu_UpdateMain(Menu *pMenu)
 {
     DWORD now;
 
-    FUN_004f37c0(FrontendScroller_GetMainScroller());
-    FUN_004f4050();
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetMainScroller());
+    FrontendAnimation_UpdateMainPath();
     now = timeGetTime();
     if (StageObject_GetAnyDeviceHeldButtons() != 0)
         g_mainMenuInputTime = timeGetTime();
@@ -5181,7 +5181,7 @@ void FrontendMenu_EnterLanguage(Menu *pMenu, int param)
 // FUNCTION: CMR2 0x004f39e0
 void FrontendMenu_UpdateLanguage(Menu *pMenu)
 {
-    FUN_004f37c0(FrontendScroller_GetLanguageScroller());
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetLanguageScroller());
 }
 
 // Set when the new-profile entry created a profile that "back" must undo.
@@ -5191,9 +5191,9 @@ BYTE g_unk0x00819879;
 // GLOBAL: CMR2 0x00819054
 char g_profileEntryTexts[4][40];
 
-void FUN_004eb860(int index, int profile);
+void Profile_AssignAvailableCategory(int index, int profile);
 void Profile_ResetCategoryData(int index);
-void FUN_004eb000(BYTE index, char set);
+void RallyData_SetPlayerProfileInUse(BYTE index, char set);
 void Profile_ResetRecordCategory(int index);
 int SaveProfiles_CountAvailableProfiles(void);
 int SaveProfiles_GetAvailableProfileIndex(int n);
@@ -5217,9 +5217,9 @@ void FrontendProfile_SelectPlayerSlot(Menu *pMenu, int param)
     char ok;
 
     FrontendProfile_SetCurrentPlayer(0);
-    FUN_004eb860(0, -1);
+    Profile_AssignAvailableCategory(0, -1);
     Profile_ResetCategoryData(0);
-    FUN_004eb000(0, 0);
+    RallyData_SetPlayerProfileInUse(0, 0);
     index = pMenu->items[0].max;
     count = Profile_GetFileCount();
     if ((int)index < count) {
@@ -5240,9 +5240,9 @@ void FrontendProfile_CreateNewProfile(Menu *pMenu, int param)
 {
     g_unk0x00819879 = 1;
     FrontendProfile_SetCurrentPlayer(0);
-    FUN_004eb860(FrontendProfile_GetCurrentPlayer(), -1);
+    Profile_AssignAvailableCategory(FrontendProfile_GetCurrentPlayer(), -1);
     Profile_ResetCategoryData(FrontendProfile_GetCurrentPlayer());
-    FUN_004eb000(FrontendProfile_GetCurrentPlayer(), 0);
+    RallyData_SetPlayerProfileInUse(FrontendProfile_GetCurrentPlayer(), 0);
     Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
     FrontendProfile_SetRenameMenu((int)FrontendMenu_GetProfileRenameEntry());
     FrontendProfile_SetCompletionMenu((int)pMenu);
@@ -5259,8 +5259,8 @@ void FrontendProfile_LoadSelectedProfile(Menu *pMenu, int param)
 
     profile = SaveProfiles_GetAvailableProfileIndex(pMenu->cursor - 2);
     FrontendProfile_SetCurrentPlayer(0);
-    FUN_004eb860((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), profile);
-    FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
+    Profile_AssignAvailableCategory((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), profile);
+    RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
     Menu_SetNextAction((int)FrontendMenu_GetProfileActions());
     g_unk0x00819048--;
 }
@@ -5277,7 +5277,7 @@ void FrontendMenu_EnterRallyProfile(Menu *pMenu, char back)
 
     if (back != 0) {
         if (g_unk0x00819879 != 0) {
-            FUN_004eb000(0, 0);
+            RallyData_SetPlayerProfileInUse(0, 0);
             Profile_ResetCategoryData(0);
             Profile_ResetRecordCategory(0);
         } else {
@@ -5367,7 +5367,7 @@ void GameInfo_SetConfiguredCheat(int bit, int value);
 // Entering the cheats menu: each of the 8 entries is available when its
 // extra is unlocked or its cheat code was typed, and shows its state.
 // FUNCTION: CMR2 0x004f28c0
-void FUN_004f28c0(Menu *pMenu, int param)
+void FrontendMenu_EnterCheats(Menu *pMenu, int param)
 {
     MenuItem *pItem;
     bool cheat;
@@ -5429,7 +5429,7 @@ char g_strLockedCheat[4] = "...";
 // for the ones not available yet.
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ded80
-void FUN_004ded80(Menu *pMenu)
+void FrontendMenu_DrawCheats(Menu *pMenu)
 {
     short icon[4];
     BYTE *pShadow;
@@ -5562,10 +5562,10 @@ void FrontendMenu_SelectDisplayDevice(Menu *pMenu, int param)
     CGameInfo::SetScreenWidth(g_pGraphics->resX);
     CGameInfo::SetScreenHeight(g_pGraphics->resY);
     CGameInfo::SetColourDepth(g_pGraphics->depth);
-    CFrontend::FUN_004d21e0();
+    CFrontend::LoadFrontendResourceArchives();
     Graphics_ReloadAllTextures();
     FrontendText_ReloadFonts();
-    FUN_004ef190();
+    FrontendScroller_RecomputeAllAttached();
     CMain::SetGameActiveState(0);
     CGameInfo::SetGraphicsOptionBits1To2(0);
     g_pGraphics->field913_0x3bc &= ~8;
@@ -5757,7 +5757,7 @@ BYTE *FrontendRecords_GetStageRecordText(int row, int column);
 // or 11 for every second rally) the record car, gearbox, time and holder.
 // match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e5630
-void FUN_004e5630(Menu *pMenu)
+void FrontendMenu_DrawProfileBestStageTimes(Menu *pMenu)
 {
     unsigned int *pRecord;
     unsigned int time;
@@ -5823,7 +5823,7 @@ extern BYTE g_saveSlots[16 * 0x30];
 int GameInfo_GetField98(void);
 void RallyData_SetPlayerDefaultCarSetup(int player);
 
-// 7x15 dot icon drawn by FUN_004d5ad0 (the rest of the block is unused).
+// 7x15 dot icon drawn by FrontendDraw_RipplingDotIcon (the rest of the block is unused).
 // GLOBAL: CMR2 0x00523f30
 char g_dotIconMap[216] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00,
@@ -5839,15 +5839,15 @@ short g_dotIconPhase;
 
 void FrontendChampionship_InitEntries(void);
 int Frontend_ComputeRippleHeight(int *pCentre, int x, int y, int phase, int wavelength);
-void FUN_004eb860(int index, int profile);
+void Profile_AssignAvailableCategory(int index, int profile);
 void Profile_ResetCategoryData(int index);
-void FUN_004eb000(BYTE index, char set);
+void RallyData_SetPlayerProfileInUse(BYTE index, char set);
 void RallyData_MarkAllDriverRecordsUnassigned(void);
 
 // Draws one 7x15 dot icon at (x, y), each dot shaded by the ripple.
 // match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d5ad0
-void FUN_004d5ad0(int x, int y, short phase)
+void FrontendDraw_RipplingDotIcon(int x, int y, short phase)
 {
     BYTE colour[4];
     int centre[2];
@@ -5897,7 +5897,7 @@ void FUN_004d5ad0(int x, int y, short phase)
 // scroller and one dot icon per difficulty level up to the selected one.
 // match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d5fb0
-void FUN_004d5fb0(Menu *pMenu)
+void FrontendMenu_DrawDifficulty(Menu *pMenu)
 {
     char *text[2];
     int x;
@@ -5948,7 +5948,7 @@ void FUN_004d5fb0(Menu *pMenu)
         - (((int)(g_pGraphics->resX * 6) / 640 + (int)(g_pGraphics->resX * 8) / 640 * 6) * (pMenu->cursor + 1)
            + (int)(g_pGraphics->resX * 10) / 640 * pMenu->cursor) / 2;
     for (i = 0; i < pMenu->cursor + 1; i++) {
-        FUN_004d5ad0(x, y, g_dotIconPhase);
+        FrontendDraw_RipplingDotIcon(x, y, g_dotIconPhase);
         x += (int)(g_pGraphics->resX * 10) / 640 + (int)(g_pGraphics->resX * 6) / 640 + (int)(g_pGraphics->resX * 8) / 640 * 6;
     }
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
@@ -6241,11 +6241,11 @@ void FrontendProfile_SetupNextPlayer(Menu *pMenu, int param)
             pNext = FrontendMenu_GetCarSetup();
             break;
         }
-        FUN_004eb860((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), -1);
+        Profile_AssignAvailableCategory((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), -1);
         Profile_ResetCategoryData((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff));
-        FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
+        RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
         Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
-        FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 1);
+        RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 1);
         if (CGameInfo::GetGameModeOptionBit19() != 0) {
             FrontendProfile_SetRenameMenu((int)FrontendMenu_GetNetworkConnection());
         } else {
@@ -6335,7 +6335,7 @@ void FrontendScroller_InitDifficulty(Menu *pMenu, int param)
 // FUNCTION: CMR2 0x004f39f0
 void FrontendScroller_UpdateDifficulty(Menu *pMenu)
 {
-    FUN_004f37c0(FrontendScroller_GetDifficultyScroller());
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetDifficultyScroller());
 }
 
 // Entering the 8-level difficulty page: sets up its scroller with all 8
@@ -6560,7 +6560,7 @@ void FrontendMenu_EnablePlayerSetupItems(void)
 // profile). Lists the free saved profiles.
 // match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f03f0
-void FUN_004f03f0(Menu *pMenu, char back)
+void FrontendMenu_EnterMultiplayerProfile(Menu *pMenu, char back)
 {
     MenuItem *pItem;
     char *pText;
@@ -6570,7 +6570,7 @@ void FUN_004f03f0(Menu *pMenu, char back)
         if (RallyData_IsDriverRecordUsable(CGameInfo::GetConfiguredPlayerCount() + (-1 - g_unk0x00819048)) || g_unk0x00819879 != 0) {
             if (RallyData_IsDriverRecordUsable(CGameInfo::GetConfiguredPlayerCount() + (-1 - g_unk0x00819048))) {
                 g_unk0x00819744--;
-                FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() + (-1 - g_unk0x00819048), 0);
+                RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() + (-1 - g_unk0x00819048), 0);
             }
             Profile_ResetCategoryData((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
         }
@@ -6602,7 +6602,7 @@ void FUN_004f03f0(Menu *pMenu, char back)
 // Item callback of "new profile" in the player profile menu.
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f0960
-void FUN_004f0960(Menu *pMenu, int param)
+void FrontendProfile_CreateNewPlayerProfile(Menu *pMenu, int param)
 {
     Menu *pNext;
     Menu *pAfter;
@@ -6610,9 +6610,9 @@ void FUN_004f0960(Menu *pMenu, int param)
     g_unk0x00819879 = 1;
     FRONTEND_MODE_NEXT_MENU(pNext)
     FrontendProfile_SetCurrentPlayer((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff));
-    FUN_004eb860((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), -1);
+    Profile_AssignAvailableCategory((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), -1);
     Profile_ResetCategoryData((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff));
-    FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
+    RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
     Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
     FrontendProfile_SetRenameMenu((int)FrontendMenu_GetProfileRenameEntry());
     pAfter = pNext;
@@ -6636,8 +6636,8 @@ void FrontendProfile_SelectSavedPlayerProfile(Menu *pMenu, int param)
 
     profile = SaveProfiles_GetAvailableProfileIndex(pMenu->cursor - 3);
     FRONTEND_MODE_NEXT_MENU(pNext)
-    FUN_004eb860((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), profile);
-    FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
+    Profile_AssignAvailableCategory((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), profile);
+    RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
     g_unk0x00819048--;
     if (CGameInfo::GetGameModeOptionBit19() != 0) {
         Menu_SetParent(FrontendMenu_GetNetworkConnection(), pMenu);
@@ -6970,7 +6970,7 @@ void FrontendMenu_DrawGameOptions(Menu *pMenu)
 // Draw callback of the multiplayer race settings page.
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e1230
-void FUN_004e1230(Menu *pMenu)
+void FrontendMenu_DrawMultiplayerRaceSettings(Menu *pMenu)
 {
     short icon[4];
     char *text[3];
@@ -7282,7 +7282,7 @@ MenuScroller *FrontendScroller_GetArcadeRallyScroller(void);
 // Draw callback of the first quick race page (stages, cars, ...).
 // match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004da710
-void FUN_004da710(Menu *pMenu)
+void FrontendMenu_DrawQuickRaceSettings(Menu *pMenu)
 {
     short icon[4];
     char *text[2];
@@ -7326,7 +7326,7 @@ void FUN_004da710(Menu *pMenu)
 // Draw callback of the second quick race page (game type and its settings).
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004daf90
-void FUN_004daf90(Menu *pMenu)
+void FrontendMenu_DrawQuickRaceAdvancedSettings(Menu *pMenu)
 {
     short icon[4];
     char *text[2];
@@ -7503,7 +7503,7 @@ void FrontendMenu_UpdateQuickRaceAdvancedSettings(Menu *pMenu)
         GameInfo_SetNetworkOptionBits16To19(pMenu->items[1].max + 1);
         break;
     }
-    FUN_004f37c0(FrontendScroller_GetArcadeRallyScroller());
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetArcadeRallyScroller());
 }
 
 // Draw callback of the display device menu: one row per device name.
@@ -7606,10 +7606,10 @@ void FrontendMenu_EnterArcadeCarClass(Menu *pMenu, int param)
 // FUNCTION: CMR2 0x004facd0
 void FrontendChampionship_SelectRouteEntry(Menu *pMenu, int param)
 {
-    RallyData_FUN_00408600(
+    RallyData_SetDriverCategoryOption(
         CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048),
         (unsigned char)g_unk0x008196e8[pMenu->cursor]);
-    FUN_0040dfa0();
+    RallyData_FillEventSlotSelections();
     if (g_unk0x00819048 == 0) {
         Menu_SetNextAction((int)FrontendMenu_GetArcadeChampionshipTransmission());
         return;
@@ -7637,10 +7637,10 @@ void FrontendChampionship_ToggleRouteEntry(Menu *pMenu, int param)
 void FrontendChampionship_UpdateAlternateRouteEntry(Menu *pMenu, int param)
 {
     Frontend_SetOverlayMode(0);
-    RallyData_FUN_00408600(
+    RallyData_SetDriverCategoryOption(
         CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048),
         (unsigned char)g_unk0x008196e8[pMenu->cursor]);
-    FUN_0040dfa0();
+    RallyData_FillEventSlotSelections();
 }
 
 // Item callback of the shared entry screens: applies the value of the
@@ -7671,10 +7671,10 @@ void FrontendChampionship_ApplySharedRouteEntry(Menu *pMenu, int param)
 // FUNCTION: CMR2 0x004fae70
 void FrontendChampionship_UpdateArcadeRouteEntry(Menu *pMenu, int param)
 {
-    RallyData_FUN_00408600(
+    RallyData_SetDriverCategoryOption(
         CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048),
         (unsigned char)g_unk0x008196e8[pMenu->cursor]);
-    FUN_0040dfa0();
+    RallyData_FillEventSlotSelections();
 }
 
 // Item callback of the second championship value screens: toggles the entry's
@@ -7836,7 +7836,7 @@ void FrontendScroller_InitArcadeRally(Menu *pMenu, int param)
 // FUNCTION: CMR2 0x004fb360
 void FrontendScroller_UpdateArcadeRally(Menu *pMenu)
 {
-    FUN_004f37c0(FrontendScroller_GetArcadeRallyScroller());
+    FrontendScroller_UpdateCursorSlide(FrontendScroller_GetArcadeRallyScroller());
 }
 
 
@@ -7864,9 +7864,9 @@ void FrontendMenu_SelectArcadeRallyRow(int param_1, int unused)
 void GameInfo_SetConfiguredDifficulty(BYTE param1);
 void GameInfo_SetConfiguredPlayerCount(BYTE param1);
 void GameInfo_SetConfiguredMultiplayer(BYTE param1);
-void FUN_004eadb0(void);
-void FUN_004eb000(BYTE index, char set);
-void FUN_004eb860(int index, int profile);
+void RallyData_ResetSavedPlayerRecords(void);
+void RallyData_SetPlayerProfileInUse(BYTE index, char set);
+void Profile_AssignAvailableCategory(int index, int profile);
 void Profile_ResetCategoryData(int index);
 char *Profile_BuildSavePath(char *pName);
 void *Profile_ReadLocalFile(char *param1, int param2);
@@ -7896,7 +7896,7 @@ void RallyData_SetSetupFlag11(char param1);
 // logic verified against the dump; the remaining diff is instruction selection
 // in the bit-field inserts and MSVC's basic-block order.
 // FUNCTION: CMR2 0x004fb400
-unsigned int FUN_004fb400(BYTE *pBlock)
+unsigned int FrontendProfile_ApplyDriverProfileBlock(BYTE *pBlock)
 {
     BYTE *pName;
     BYTE *pSetup;
@@ -7915,7 +7915,7 @@ unsigned int FUN_004fb400(BYTE *pBlock)
     GameInfo_SetConfiguredDifficulty((*(unsigned int *)(pBlock + 0x30) >> 7) & 7);
     GameInfo_SetConfiguredPlayerCount((*(unsigned int *)(pBlock + 0x30) >> 0xa) & 0xf);
     GameInfo_SetConfiguredMultiplayer((*(unsigned int *)(pBlock + 0x30) >> 0xe) & 1);
-    FUN_004eadb0();
+    RallyData_ResetSavedPlayerRecords();
     i = 0;
     if (CGameInfo::GetConfiguredPlayerCount() != 0) {
         pDest = pBlock + 0xf4;
@@ -7923,9 +7923,9 @@ unsigned int FUN_004fb400(BYTE *pBlock)
         pSetup = pBlock + 0x614;
         pSrc = pBlock + 0xb4;
         do {
-            FUN_004eb860(i, -1);
+            Profile_AssignAvailableCategory(i, -1);
             Profile_ResetCategoryData(i);
-            FUN_004eb000((BYTE)i, 0);
+            RallyData_SetPlayerProfileInUse((BYTE)i, 0);
             pRecord = RallyData_GetDriverCategoryProfile(i);
             *(unsigned int *)(pRecord + 0x5c) =
                 (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0x300 ^
@@ -7965,7 +7965,7 @@ unsigned int FUN_004fb400(BYTE *pBlock)
                     *(unsigned int *)(pRecord + 0x18) = *((unsigned int *)pName + 2);
                     CFileBuffer::FreeGenericFileBuffer(pBuffer);
                 } else {
-                    FUN_004eb000((BYTE)i, 0);
+                    RallyData_SetPlayerProfileInUse((BYTE)i, 0);
                 }
             }
             pDest += 0x148;
@@ -8045,7 +8045,7 @@ unsigned int FUN_004fb400(BYTE *pBlock)
 
 void FrontendProfile_BuildGuestIdentifier(unsigned int param_1, unsigned int param_2, BYTE param_3, char *param_4);
 
-// Three 12-byte keyboard-style tables scrambled by FUN_004fb8d0.
+// Three 12-byte keyboard-style tables scrambled by FrontendProfile_ScrambleIdentifier.
 // GLOBAL: CMR2 0x00526ea4
 char g_unk0x00526ea4[12] = "qaz2wsx3e";
 // GLOBAL: CMR2 0x00526eb0
@@ -8061,7 +8061,7 @@ char g_unk0x00526ebc[12] = "\\`!QAZ@WSX";
 // order of the byte sums and the register/stack split (the original keeps the
 // loop pointer in EDI descending to &g_unk0x00526ea4[6]).
 // FUNCTION: CMR2 0x004fb8d0
-void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char *pOut)
+void FrontendProfile_ScrambleIdentifier(unsigned int param_1, unsigned int *pNumber, char *pByte, char *pOut)
 {
     BYTE bytes[4];
     char *p;
@@ -8125,7 +8125,7 @@ int Session_GetListedUserValue(unsigned int session, BYTE index);
 DWORD Network_GetSessionPlayerCount(int index);
 DWORD Network_GetSessionMaxPlayers(BYTE index);
 BYTE *Profile_GetFileDateRecord(int index);
-void RallyData_FUN_00408600(BYTE index, BYTE value);
+void RallyData_SetDriverCategoryOption(BYTE index, BYTE value);
 unsigned int NetPlayers_GetPlayerFlag6(int index);
 int Font_GetTextWidth(BYTE index, BYTE *text);
 void NetworkChat_SendLine(char *text);
@@ -8144,7 +8144,7 @@ extern char g_stageNumberFormat[];
 // match 69%: reparto de bloques y ranuras (nuestro no reserva marco; el original usa sub esp,0x10)
 // match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dc930
-void FUN_004dc930(Menu *pMenu)
+void FrontendMenu_DrawNetworkSessionBrowser(Menu *pMenu)
 {
     char *names[2];
     int *pColour;
@@ -8243,7 +8243,7 @@ BYTE *RallyData_GetDistinctValueList(void);
 // icon; when there is no session it shows the waiting message.
 // match 69%: asignacion de registros en el bucle y orden del sprintf
 // FUNCTION: CMR2 0x004e20e0
-void FUN_004e20e0(Menu *pMenu)
+void FrontendMenu_DrawSingleRallySelection(Menu *pMenu)
 {
     char *names[11];
     char *pText[3];
@@ -8371,7 +8371,7 @@ void FrontendMenu_UpdateNetworkRallySetup(Menu *pMenu)
 // range and the list of available gearbox types.
 // match 57%: asignacion de registros en el recuento y en la tabla de niveles
 // FUNCTION: CMR2 0x004ee170
-void FUN_004ee170(Menu *pMenu)
+void FrontendMenu_UpdateNetworkCarSetup(Menu *pMenu)
 {
     unsigned int *pFlags;
     int max;
@@ -8466,7 +8466,7 @@ void FUN_004ee170(Menu *pMenu)
 // inside the screen.
 // match 27%: el original carga los colores como dword y los parte en bytes; nosotros byte a byte
 // FUNCTION: CMR2 0x004d6870
-BYTE FUN_004d6870(int param_1, unsigned int param_2)
+BYTE FrontendDraw_ChampionshipEntryRow(int param_1, unsigned int param_2)
 {
     BYTE colourText[4];
     BYTE colourShadow[4];
@@ -8527,7 +8527,7 @@ BYTE FUN_004d6870(int param_1, unsigned int param_2)
 // match 52%: asignacion de registros en los porcentajes y el bucle de modos
 // match 35%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e1d70
-void FUN_004e1d70(Menu *pMenu)
+void FrontendMenu_DrawDisplayMode(Menu *pMenu)
 {
     BYTE colourTop[4];
     BYTE colourBottom[4];
@@ -8584,7 +8584,7 @@ void FUN_004e1d70(Menu *pMenu)
 // sync with the devices, and handles the "player name" text entry.
 // match 43%: asignacion de registros; mismo flujo (texto, cursores y dispositivos)
 // FUNCTION: CMR2 0x004ed840
-void FUN_004ed840(Menu *pMenu)
+void FrontendMenu_UpdateNetworkSessionSetup(Menu *pMenu)
 {
     int key;
     BYTE b;
@@ -8605,7 +8605,7 @@ void FUN_004ed840(Menu *pMenu)
         }
     }
     if (g_unk0x00818ce8 != Menu_GetItem(pMenu, 1)->max) {
-        RallyData_FUN_00408600(0, ((BYTE *)g_unk0x00818d18)[Menu_GetItem(pMenu, 1)->max]);
+        RallyData_SetDriverCategoryOption(0, ((BYTE *)g_unk0x00818d18)[Menu_GetItem(pMenu, 1)->max]);
         FrontendNetwork_SendPlayerDescription();
         g_unk0x00818ce8 = Menu_GetItem(pMenu, 1)->max;
     }
@@ -8696,7 +8696,7 @@ LAB_004edb02:
 // edited name string back into the menu entry.
 // match 65%: los strcpy/strlen del original se expanden inline; los nuestros llaman a la CRT
 // FUNCTION: CMR2 0x004ed100
-void FUN_004ed100(Menu *pMenu)
+void FrontendMenu_UpdateNetworkSessionDetails(Menu *pMenu)
 {
     int key;
     char c;
@@ -8787,7 +8787,7 @@ char g_strClassRowFormat[20] = "%s  (%s, %s, %s)";
 // match 56%: asignacion de registros en el bucle de filas y en los sprintf de la fila 0/1
 // match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004db850
-void FUN_004db850(Menu *pMenu)
+void FrontendMenu_DrawArcadeChampionshipTransmission(Menu *pMenu)
 {
     short rect[4];
     char *pTexts[2];
@@ -8884,7 +8884,7 @@ BYTE *FrontendRecords_GetCarClassRecordText(int row, int column);
 // match 58%: asignacion de registros en el bucle de filas
 // match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e2610
-void FUN_004e2610(Menu *pMenu)
+void FrontendMenu_DrawSoundOptions(Menu *pMenu)
 {
     short rect[4];
     MenuItem *pItem;
@@ -9388,7 +9388,7 @@ void FrontendMenu_DrawChampionshipRecords(Menu *pMenu)
 // match 85%: ranuras de pila del marco (sub esp) y de los temporales
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e7120
-void FUN_004e7120(Menu *pMenu)
+void FrontendMenu_DrawProfileChampionshipRecords(Menu *pMenu)
 {
     int order[8] = {6, 3, 1, 4, 0, 2, 5, 7};
     BYTE *pBase;
@@ -9467,7 +9467,7 @@ void FUN_004e7120(Menu *pMenu)
 // match 59%: asignacion de registros en el switch y en el bucle de filas
 // match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e7ed0
-void FUN_004e7ed0(Menu *pMenu)
+void FrontendMenu_DrawNetworkCarSetup(Menu *pMenu)
 {
     short rect[4];
     char *pTexts[3];
@@ -9577,7 +9577,7 @@ void FUN_004e7ed0(Menu *pMenu)
 }
 
 // FUNCTION: CMR2 0x004f0820
-void FUN_004f0820(Menu *pMenu, int param)
+void FrontendProfile_ApplyStageSelectionAndAdvance(Menu *pMenu, int param)
 {
     Menu *pScreen;
     unsigned int index;
@@ -9607,7 +9607,7 @@ void FUN_004f0820(Menu *pMenu, int param)
     index = pMenu->items[0].max;
     if ((int)index < Profile_GetFileCount() && !FrontendProfile_IsAlreadyInChampionship(index)) {
         result = (BYTE)Profile_LoadAndLinkSavedRecord((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), index);
-        FUN_004eb000(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
+        RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
         if (result != 0) {
             if (CGameInfo::GetGameModeOptionBit19() != 0) {
                 Menu_SetNextAction((int)FrontendMenu_GetNetworkConnection());
@@ -9629,8 +9629,8 @@ void FUN_004f0820(Menu *pMenu, int param)
 // Rally and championship screens (cascade pass). Appended at the end of the
 // file so the file:line of the functions above does not move.
 
-void FUN_004dbd80(Menu *pMenu);
-void FUN_004f8b30(void);
+void FrontendMenu_DrawRallyReport(Menu *pMenu);
+void FrontendRecords_BuildScrambledBestTimeTables(void);
 
 // GLOBAL: CMR2 0x00524c78
 char g_strDate[16] = "%.2d.%.2d.%.4d";
@@ -9683,7 +9683,7 @@ void FrontendMenu_DrawArcadeRallySelection(Menu *pMenu)
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, text, 2);
     FrontendDraw_PlayTime();
     FrontendDraw_ScrollerRow(FrontendScroller_GetArcadeRallyScroller(), 1);
-    FUN_004dbd80(pMenu);
+    FrontendMenu_DrawRallyReport(pMenu);
 }
 
 // Clears the selected carousel entry and refreshes the owning screen when the
@@ -9693,7 +9693,7 @@ void FrontendRecords_ResetCarouselSelection(Menu *pMenu, int param)
 {
     g_unk0x008196e0 = 0;
     if (FrontendRecords_GetProfileMode())
-        FUN_004f8b30();
+        FrontendRecords_BuildScrambledBestTimeTables();
 }
 
 // Character tables of the name entry keyboard: every key it accepts and the
@@ -9885,7 +9885,7 @@ char g_strCharFormat0x00524d08[3] = "%c";
 // match 59%: reparto de registros y ranuras de pila del bucle 3x10
 // match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d6f10
-void FUN_004d6f10(Menu *pMenu)
+void FrontendMenu_DrawProfileNameEntry(Menu *pMenu)
 {
     char name[4];
     char text[2];
@@ -10044,12 +10044,12 @@ void FrontendMenu_DrawMultiplayerStageSelection(Menu *pMenu)
     if (count > 0) {
         // the two counts are kept in the original but the result is discarded
         value = pMenu->items[0].max;
-        FUN_004d6870(value, 0);
+        FrontendDraw_ChampionshipEntryRow(value, 0);
         i = 1;
-        while (FUN_004d6870(value, i))
+        while (FrontendDraw_ChampionshipEntryRow(value, i))
             i++;
         i = -1;
-        while (FUN_004d6870(value, i))
+        while (FrontendDraw_ChampionshipEntryRow(value, i))
             i--;
     } else {
         Font_DrawText(2, CFrontend::GetTextString(0x1be), g_pGraphics->resX / 2,
@@ -10070,7 +10070,7 @@ void FrontendMenu_DrawMultiplayerStageSelection(Menu *pMenu)
             } else {
                 sprintf(g_unk0x00818368, CFrontend::GetTextString(0x13b));
                 Font_Unused((int)g_unk0x00818368, Frontend_GetOverlayMode());
-                FUN_004d65c0();
+                FrontendDraw_RallyInfoHeader();
                 FrontendDraw_HelpText(CFrontend::GetTextString(0xf9), 1);
                 return;
             }
@@ -10084,7 +10084,7 @@ void FrontendMenu_DrawMultiplayerStageSelection(Menu *pMenu)
         strcpy(g_unk0x00818554, CMain::m_logFileBlankLine);
         strcpy(g_unk0x00818368, CMain::m_logFileBlankLine);
     }
-    FUN_004d65c0();
+    FrontendDraw_RallyInfoHeader();
     FrontendDraw_HelpText(CFrontend::GetTextString(0xf9), 1);
 }
 
@@ -10093,7 +10093,7 @@ void FrontendMenu_DrawMultiplayerStageSelection(Menu *pMenu)
 // match 59%: reparto de registros y ranuras de pila del bucle 3x10
 // match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d7380
-void FUN_004d7380(Menu *pMenu)
+void FrontendMenu_DrawProfileRenameEntry(Menu *pMenu)
 {
     char *text[2];
     char ch[2];
@@ -10164,7 +10164,7 @@ void FUN_004d7380(Menu *pMenu)
 // the selected stage and the list of the stages of the rally.
 // match 90%: reparto de registros en el bucle de los nombres de etapa
 // FUNCTION: CMR2 0x004d8480
-void FUN_004d8480(Menu *pMenu)
+void FrontendMenu_DrawSavedStageSelection(Menu *pMenu)
 {
     short rect[4];
     char name[4];
@@ -10312,7 +10312,7 @@ extern unsigned int RallyData_GetCategoryFourthFifthBlockSetting(int param_1, in
 // y reparto de registros, con las mismas llamadas y constantes.
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d50a0
-void FUN_004d50a0(Menu *pMenu)
+void FrontendMenu_DrawProfileRecordsSummary(Menu *pMenu)
 {
     SpriteRect src;
     char *text[4];
@@ -10450,7 +10450,7 @@ void FUN_004d50a0(Menu *pMenu)
         }
     }
 }
-void FUN_004efe60(int param_1, int param_2, char param_3);
+void RallyData_FillStageSplitEditorRows(int param_1, int param_2, char param_3);
 
 // Item action of the stage-split list: opens the split editor of the selected
 // row, or the next screen of the current game mode.
@@ -10460,7 +10460,7 @@ void FrontendMenu_SelectRallyStage(Menu *pMenu, int param)
     RallyData_SetStageSelectionAndRefreshFlags(pMenu->cursor);
     if (g_unk0x00819130[pMenu->cursor] == 1) {
         if (CGameInfo::GetConfiguredGameMode() == 2) {
-            FUN_004efe60((int)pMenu, param, 1);
+            RallyData_FillStageSplitEditorRows((int)pMenu, param, 1);
             return;
         }
         if (CGameInfo::GetConfiguredGameMode() == 6) {
@@ -10478,14 +10478,14 @@ void FrontendMenu_SelectRallyStage(Menu *pMenu, int param)
 // Enables the rally rows of the stage list from the current session flags and
 // selects the first enabled row.
 // FUNCTION: CMR2 0x004efb70
-void FUN_004efb70(Menu *pMenu, int param)
+void FrontendMenu_EnableRallyStageRows(Menu *pMenu, int param)
 {
     unsigned int *pInfo;
     int limit;
 
     RallyData_SetCountrySelectionBits(pMenu->cursor);
     if (CGameInfo::GetConfiguredGameMode() == 2)
-        FUN_004efe60((int)pMenu, param, 0);
+        RallyData_FillStageSplitEditorRows((int)pMenu, param, 0);
     if (CGameInfo::GetConfiguredGameMode() == 1) {
         RallyData_SetStageSelectionAndRefreshFlags(0);
         Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
@@ -10607,7 +10607,7 @@ short g_unk0x00524ad8[22][4] = {
 // EDI en vez de EBX, y la textura al reves) y el orden de algunas cargas; la
 // logica y todos los operandos coinciden.
 // FUNCTION: CMR2 0x004d7db0
-void FUN_004d7db0(Menu *pMenu)
+void FrontendMenu_DrawCarSetup(Menu *pMenu)
 {
     short (*pRects)[4];
     char label[4];
@@ -10684,7 +10684,7 @@ void FUN_004d7db0(Menu *pMenu)
 
 // match 88%: identica a 0x4d7db0 (en el original son byte a byte iguales).
 // FUNCTION: CMR2 0x004d8950
-void FUN_004d8950(Menu *pMenu)
+void FrontendMenu_DrawPaletteSelection(Menu *pMenu)
 {
     short (*pRects)[4];
     char label[4];
@@ -10874,7 +10874,7 @@ extern char g_str0x00524d1c[];
 // stage name with its distance, surface and severity, the record time of the
 // selected stage and one row per stage of the rally with its record time.
 // FUNCTION: CMR2 0x004d9c40
-void FUN_004d9c40(Menu *pMenu)
+void FrontendMenu_DrawRallySummary(Menu *pMenu)
 {
     char *text[2];
     BYTE *table;
@@ -10916,7 +10916,7 @@ void FUN_004d9c40(Menu *pMenu)
                      CFrontend::m_pSetupRepBanners[RallyDataCountryIndex() & 0xff],
                      1, 0, NULL, NULL, g_colourWhite0x00524968, 8);
     }
-    FUN_004d5de0(pMenu->cursor, 0);
+    FrontendMap_DrawStageCellGrid(pMenu->cursor, 0);
     x = (int)(g_pGraphics->resX * 0x19f) / 0x280;
     y = (int)(g_pGraphics->resY * 0x4b) / 0x1e0 + (int)(g_pGraphics->resY * 0x50) / 0x1e0;
     sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x18b),
@@ -11026,7 +11026,7 @@ extern char g_noTimeText[];
 // selected stage, the class rows of the event and the times of every drawn
 // driver.
 // FUNCTION: CMR2 0x004dbd80
-void FUN_004dbd80(Menu *pMenu)
+void FrontendMenu_DrawRallyReport(Menu *pMenu)
 {
     int order[8] = { 6, 3, 1, 4, 0, 2, 5, 7 };
     BYTE *table;
@@ -11049,7 +11049,7 @@ void FUN_004dbd80(Menu *pMenu)
     Sprite_Queue((SpriteRect *)&CFrontend::m_pSetupRepBanners[order[pMenu->cursor]]->field_0x11c,
                  (SpriteRect *)g_unk0x008189a8, CFrontend::m_pSetupRepBanners[order[pMenu->cursor]], 1, 0, NULL, NULL,
                  (BYTE *)g_colourWhite0x00524968, 8);
-    FUN_004d5de0(pMenu->cursor, 1);
+    FrontendMap_DrawStageCellGrid(pMenu->cursor, 1);
     x = (int)(g_pGraphics->resX * 0x19f) / 0x280;
     y = (int)(g_pGraphics->resY * 0x4b) / 0x1e0 + (int)(g_pGraphics->resY * 0x50) / 0x1e0;
     sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x18b), FrontendRecords_GetEventName(pMenu->cursor));
@@ -11148,7 +11148,7 @@ char g_strEllipsisFormat[8] = "%s...";
 // each row depending on the item value (driver list, resolution, device...).
 // match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dfe20
-void FUN_004dfe20(Menu *pMenu)
+void FrontendMenu_DrawGraphicsOptions(Menu *pMenu)
 {
     char description[80];
     char name[80];
@@ -11336,7 +11336,7 @@ char g_strItemTextFmt[12] = "%s < %s >";
 // under the row.
 // match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dce00
-void FUN_004dce00(Menu *pMenu)
+void FrontendMenu_DrawNetworkSessionDetails(Menu *pMenu)
 {
     SpriteRect rect;
     MenuItem *pItem;
@@ -11478,7 +11478,7 @@ char g_strSessionPlayers10[4] = "10 ";
 // highlight strip, one row per item (its label, plus for the player count the
 // allowed player numbers) and the carousel.
 // FUNCTION: CMR2 0x004e77c0
-void FUN_004e77c0(Menu *pMenu)
+void FrontendMenu_DrawNetworkPlayerSetup(Menu *pMenu)
 {
     SpriteRect rect;
     char *names[11];
@@ -11617,7 +11617,7 @@ void FUN_004e77c0(Menu *pMenu)
 
 // match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e8500
-void FUN_004e8500(Menu *pMenu)
+void FrontendMenu_DrawNetworkRallySetup(Menu *pMenu)
 {
     short rect[4];
     int i;
@@ -11728,7 +11728,7 @@ void FUN_004e8500(Menu *pMenu)
 // (row sprite plus its label/value) and the carousel arrows.
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e90f0
-void FUN_004e90f0(Menu *pMenu)
+void FrontendMenu_DrawNetworkExtendedStageSetup(Menu *pMenu)
 {
     SpriteRect rect;
     char *text[3];
@@ -11937,7 +11937,7 @@ char g_str0x00524da8[12] = "%s\n%s, %s";
 
 // match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dd4b0
-void FUN_004dd4b0(Menu *pMenu)
+void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
 {
     BYTE colour[4];
     BYTE *pColour;

@@ -4,7 +4,7 @@
 #include "FixedPoint.h"
 #include "Mesh.h"
 
-// Packed 16.16 copy of one part vertex (built by FUN_0046afe0).
+// Packed 16.16 copy of one part vertex (built by CarDamage_BuildPartVertexBuffer).
 struct CarPartVertex {
     FixVector pos;               // 0x00
     FixVector normal;            // 0x0c
@@ -89,7 +89,7 @@ struct SceneNode;
 struct Car;
 
 // Moving part of a car (bonnet, boot, doors...): one 0x1a0-byte record per car
-// in each of the four slot tables g_unk0x00590d7c[slot]. FUN_00480e50 installs
+// in each of the four slot tables g_unk0x00590d7c[slot]. CarPart_InitWheelHubSlot installs
 // the slot's integrator at +0x110; g_partState points at the record being
 // simulated, g_partCar / g_partSet at its car and the car's part set.
 struct PartState {

@@ -8,7 +8,7 @@
 
 
 
-// --- scaffolding for the FUN_0041b060 entry chain (0x401000-0x472e00) -------
+// --- scaffolding for the UpdateInRaceCallbackMachine entry chain (0x401000-0x472e00) -------
 // Same idea as above: the game-state machine and its callees are written before
 // their own dependencies exist. Argument counts come from the call sites /
 // the original's `ret N`.
@@ -33,7 +33,7 @@ struct Menu;
 struct Menu;
 
 // Scaffolding for the FrontendScreens batch: callees that do not exist yet.
-// FUN_004dbd80 (0x004dbd80) is implemented in FrontendScreens.cpp.
+// FrontendMenu_DrawRallyReport (0x004dbd80) is implemented in FrontendScreens.cpp.
 
 
 

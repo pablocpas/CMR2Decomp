@@ -825,7 +825,7 @@ void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef);
 // 12 bytes en vez de 16, asi que todos los desplazamientos de pila difieren; la logica y el
 // orden de llamadas coinciden.
 // FUNCTION: CMR2 0x00447530
-void FUN_00447530(BYTE *param_1, BYTE *param_2, int param_3)
+void Dash_UpdateCameraModeOffset(BYTE *param_1, BYTE *param_2, int param_3)
 {
     FixVector offset;
     BYTE index;
@@ -856,7 +856,7 @@ void FixMatrix_RebuildBasis(FixMatrix *pOut);
 // match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // Implementada; MSVC6 reparte los locales al reves (marco 0xa8 en vez de 0xb0, ESI/EDI invertidos); la logica y el orden de llamadas son exactos.
 // FUNCTION: CMR2 0x004475f0
-void FUN_004475f0(BYTE *param_1, FixMatrix *param_2, int param_3)
+void Dash_BuildInterpolatedCockpitMatrix(BYTE *param_1, FixMatrix *param_2, int param_3)
 {
     FixVector *pUp;
     FixVector *pRight;
@@ -967,7 +967,7 @@ extern int Stage_GetDriverCount(void);
 // match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // Implementada; el original guarda el contador en el slot salvado de EDI (3 pushes), nosotros usamos 4 y otro reparto de registros.
 // FUNCTION: CMR2 0x00447f70
-void FUN_00447f70(void)
+void StageTiming_ResetRaceDriverTimes(void)
 {
     int count;
     int i;

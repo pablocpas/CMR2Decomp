@@ -17,7 +17,7 @@
 // Not ported/declared elsewhere yet.
 void Scene_SetAmbient(BYTE *pColour, int boost);
 void Glow_ResetEntries(void);
-void FUN_004b1150(void);
+void Particle_BuildTriangleStripIndices(void);
 void Scene_InitFixedMathTables(void);
 void Game_CreateSplashScene(void);
 
@@ -49,9 +49,9 @@ void Frontend_MergeNamedRecordFourBitFields(int *pDest, int *pSource);
 void Frontend_MergeNamedRecordSevenBitFields(int *pDest, int *pSource);
 void Frontend_MergeNamedRecordSixBitFields(int *pDest, int *pSource);
 
-char FUN_004cfb30(int param1, int index, char *pName);
-int FUN_004cfc90(int param1, int index, char *pName);
-char FUN_004cfff0(int param1, int index, char *pName);
+char FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName);
+int FrontendRecords_InsertStageCategoryRecord(int param1, int index, char *pName);
+char FrontendRecords_InsertArcadeDeviceRecord(int param1, int index, char *pName);
 
 char CFrontend::m_stringDest[MAX_PATH];
 
@@ -171,7 +171,7 @@ DWORD CFrontend::GetDeviceCapabilityFieldA8(void)
 }
 
 // FUNCTION: CMR2 0x004d21e0
-void CFrontend::FUN_004d21e0(void)
+void CFrontend::LoadFrontendResourceArchives(void)
 {
     unsigned int regionID;
     char regionKey;
@@ -365,7 +365,7 @@ GenericFile* CFrontend::GetCommonFrontendArchive(void) {
 }
 
 // Returns the archive the copyright screens are loaded from (the one
-// FUN_004d21e0 opens).
+// LoadFrontendResourceArchives opens).
 // FUNCTION: CMR2 0x004d21b0
 GenericFile* CFrontend::GetCopyrightFrontendArchive(void) {
     return &m_unk0x00818260;
@@ -410,7 +410,7 @@ bool CFrontend::LoadSplashScreens(bool param1) {
 
     Game_CreateSplashScene();
     CGame::SetSectorDrawState(3);
-    FUN_004b1150();
+    Particle_BuildTriangleStripIndices();
     Scene_SetAmbient((BYTE *)&colour, 0);
 
     sprintf(m_stringDest, m_strFrontEndTexturesCmr2TGA, CInstallInfo::GetGameCDPath());
@@ -468,7 +468,7 @@ void CFrontend::LoadLanguageFiles(void)
 
     sprintf(m_stringDest, m_strCommonBfl, CInstallInfo::GetFrontendDir());
     CGenericFileLoader::LoadIntoFileRecord(&m_commonFile, m_stringDest);
-    FUN_004d21e0();
+    LoadFrontendResourceArchives();
 
     switch (CGameInfo::GetGameRegion()) {
     case 0:
@@ -659,7 +659,7 @@ void Frontend_DrawRectangleOutline(short *pRect, BYTE *pColour)
 // and the array slots are identical. Reordering the declarations does not move
 // it (MSVC6 assigns slots by first use), so this is an allocation ceiling.
 // FUNCTION: CMR2 0x004d28c0
-void FUN_004d28c0(short x0, short y0, char *pMap)
+void FrontendDraw_AnimatedMatrixBackground(short x0, short y0, char *pMap)
 {
     int centre2[2];
     int centre1[2];
@@ -1031,7 +1031,7 @@ int g_unk0x00817448[10];
 // Lowest split value seen so far, reset to a whole stage length.
 // GLOBAL: CMR2 0x00817570
 int g_unk0x00817570;
-// Placeholder string copied (and discarded) by FUN_004cfe80.
+// Placeholder string copied (and discarded) by FrontendRecords_CopyArcadeSplitMirror.
 // GLOBAL: CMR2 0x00523bb4
 char g_str0x00523bb4[8] = "ABCDEFG";
 
@@ -1092,7 +1092,7 @@ void Frontend_AdvanceDeviceOptionNibble(int index, int mode)
 // Resets the value and the three stat counters of a device record.
 // match 91%: the address increment and zero-register initialization are reversed.
 // FUNCTION: CMR2 0x004cf3f0
-void FUN_004cf3f0(int index)
+void FrontendRecords_ResetDeviceStats(int index)
 {
     BYTE *pDevice = RallyData_GetCategoryOptionRecord(index);
 
@@ -1441,7 +1441,7 @@ int Frontend_CopyImprovedStageRecordAndSplits(int param_1, int param_2, char *pN
 // MSVC keeps them in registers here, so the code differs only in allocation.
 // match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cfb30
-char FUN_004cfb30(int param1, int index, char *pName)
+char FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName)
 {
     unsigned char *pInfo;
     unsigned int *pDevice;
@@ -1506,7 +1506,7 @@ struct RecordLevelBits {
 #define LEVEL_BITS(pRecord) (*(RecordLevelBits *)&(pRecord)->flags)
 
 // FUNCTION: CMR2 0x004cfc90
-int FUN_004cfc90(int param1, int index, char *pName)
+int FrontendRecords_InsertStageCategoryRecord(int param1, int index, char *pName)
 {
     unsigned int *pDevice;
     GameInfo0xa4SubStruct12 *pRecords;
@@ -1570,7 +1570,7 @@ int Frontend_AccumulateMinimumArcadeOption(int param_1, int param_2)
 // same.
 // match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cfe80
-int FUN_004cfe80(int param_1, int param_2)
+int FrontendRecords_CopyArcadeSplitMirror(int param_1, int param_2)
 {
     GameInfo0xa4 *pInfo;
     GameInfo0xa4SubStruct8 *pRecord;
@@ -1619,7 +1619,7 @@ int FUN_004cfe80(int param_1, int param_2)
 // base and `better` to different places.
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cfff0
-char FUN_004cfff0(int param1, int index, char *pName)
+char FrontendRecords_InsertArcadeDeviceRecord(int param1, int index, char *pName)
 {
     unsigned char *pInfo;
     unsigned int *pWords;
@@ -1847,7 +1847,7 @@ void Frontend_SetDebugOverlayChannels(BYTE param1, BYTE param2, BYTE param3)
     CGame::m_unk0x008180f9 = param2;
     g_unk0x008180fa = param3;
     if (param1 == 0 && param2 == 0 && param3 == 0)
-        CGame::FUN_0049c1c0(p, 0, 7, 2);
+        CGame::PromoteCallbackEntryByRule(p, 0, 7, 2);
     else
-        CGame::FUN_0049c1c0(p, 0, 0, 2);
+        CGame::PromoteCallbackEntryByRule(p, 0, 0, 2);
 }

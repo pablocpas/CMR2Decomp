@@ -1127,7 +1127,7 @@ struct ShadowCaster {
     int field_0x10;
 };
 
-int FUN_004b50b0(SceneNode *pNode, int param_2);
+int Scene_ApplyGroundLightToMeshTree(SceneNode *pNode, int param_2);
 
 // Steps the red channel of the ambient colour of every sector light around
 // 0xf0 and relights the node list of each sector.
@@ -1149,7 +1149,7 @@ void Scene_AnimateAmbientRedChannel(void)
                 ((BYTE *)g_sceneSectorLights)[sector * 4] = (BYTE)(g_sceneAmbientColour[0] - 10);
             for (pNode = g_sectors[sector]->pFirstNode; pNode != NULL;
                  pNode = pNode->pNextInSector)
-                FUN_004b50b0(pNode, 0xffff0000);
+                Scene_ApplyGroundLightToMeshTree(pNode, 0xffff0000);
             Scene_RelightSector(sector);
         }
     }
@@ -1608,7 +1608,7 @@ int g_shadowLastFlags = -1;
 // GLOBAL: CMR2 0x006dfdd8
 FixVector g_sceneShadowDir;
 
-// Light zone vertices near the current car, collected by FUN_004b5f90 and
+// Light zone vertices near the current car, collected by Scene_CollectNearbyLightZones and
 // consumed by Scene_EmitNodeShadowGeometry (99 entries max).
 // GLOBAL: CMR2 0x006dfe14
 void *g_sceneZoneList[99];
@@ -1628,7 +1628,7 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel);
 // abs() of the level difference, which MSVC compiles with a branch here
 // match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b50b0
-int FUN_004b50b0(SceneNode *pNode, int param_2)
+int Scene_ApplyGroundLightToMeshTree(SceneNode *pNode, int param_2)
 {
     SceneNode *p;
     Mesh *pMesh;
@@ -1714,7 +1714,7 @@ void Scene_EndShadowBatch(void)
     }
 }
 
-void FUN_004b5770(void *pItem, void *pCaster, BYTE param3);
+void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3);
 
 // GLOBAL: CMR2 0x00511cf0
 extern const double g_unk0x00511cf0 = 0.009999999776482582;
@@ -1737,9 +1737,9 @@ struct ShadowVertex {
 // dwords here, frame 0xac against our 0x94) and the rest only in the register
 // number or the FPU scheduling. Renaming/reordering the locals, folding the
 // intermediates into the expressions do not move MSVC 6's choice (same ceiling
-// as FUN_004b4490 / FUN_004b4180).
+// as Scene_ProjectDirtyShadowParts / Scene_EmitProjectedShadowMesh).
 // FUNCTION: CMR2 0x004b5770
-void FUN_004b5770(void *pItem, void *pCaster, BYTE param3)
+void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
 {
     int *pLand;
     int *pZone;
@@ -1941,7 +1941,7 @@ void FUN_004b5770(void *pItem, void *pCaster, BYTE param3)
     }
 }
 void Sector_GetGridDimensions(int *columns, int *rows);
-void FUN_004b4180(float *param_1, int param_2);
+void Scene_EmitProjectedShadowMesh(float *param_1, int param_2);
 
 // Scale of the normal added to the vertex position when a shadow part is
 // projected (0x00511cec, 0.005f).
@@ -1962,7 +1962,7 @@ extern const float g_unk0x00511cec = 0.005f;
 // (separate float temps, an array, a pointer loop, i/offset pairs) does not move
 // MSVC 6's choice.
 // FUNCTION: CMR2 0x004b4490
-void FUN_004b4490(ShadowCaster *pCaster, int param2)
+void Scene_ProjectDirtyShadowParts(ShadowCaster *pCaster, int param2)
 {
     ShadowPart *pPart;
     int i;
@@ -2003,13 +2003,13 @@ void FUN_004b4490(ShadowCaster *pCaster, int param2)
     pCaster->field_0xc = 0;
     if (pCaster->field_0x10 != 0) {
         for (i = 0; i < pCaster->partCount; i++)
-            FUN_004b4180((float *)(pCaster->pParts + i), param2);
+            Scene_EmitProjectedShadowMesh((float *)(pCaster->pParts + i), param2);
     }
     pCaster->field_0x10 = 0;
 }
 
 // Marks the node's shadow caster and emits every light zone vertex collected by
-// FUN_004b5f90 through the shadow geometry builder.
+// Scene_CollectNearbyLightZones through the shadow geometry builder.
 // FUNCTION: CMR2 0x004b5ee0
 void Scene_EmitNodeShadowGeometry(SceneNode *pNode, int param2, BYTE param3)
 {
@@ -2036,8 +2036,8 @@ void Scene_EmitNodeShadowGeometry(SceneNode *pNode, int param2, BYTE param3)
                 pCaster->field_0x10 = 1;
                 if ((unsigned short)g_sceneZoneCount > 0) {
                     do {
-                        FUN_004b4490(pCaster, param2);
-                        FUN_004b5770(g_sceneZoneList[i], pCaster, param3);
+                        Scene_ProjectDirtyShadowParts(pCaster, param2);
+                        Scene_ProjectCasterIntoLightZone(g_sceneZoneList[i], pCaster, param3);
                         ++i;
                     } while (i < (g_sceneZoneCount & 0xffff));
                 }
@@ -2069,7 +2069,7 @@ struct LightZoneVertex {
 // g_sceneZoneList.
 // match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b5f90
-void FUN_004b5f90(SceneNode *pNode, int radius, short *pSector)
+void Scene_CollectNearbyLightZones(SceneNode *pNode, int radius, short *pSector)
 {
     ShadowCaster *pCaster;
     int i;
@@ -2695,7 +2695,7 @@ unsigned short g_unk0x006e0354[0x3f0];
 // and the vertices of the others are emitted once with their lit position and
 // their colour, sharing the emitted vertex of duplicated vertices.
 // FUNCTION: CMR2 0x004b4180
-void FUN_004b4180(float *param_1, int param_2)
+void Scene_EmitProjectedShadowMesh(float *param_1, int param_2)
 {
     BYTE *p = (BYTE *)param_1;
     int *pi;

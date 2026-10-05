@@ -190,7 +190,7 @@ BOOL CInstallInfo::ShowNoCDErrorMessage(void)
 }
 
 // FUNCTION: CMR2 0x040e8d0
-int CInstallInfo::FUN_0040e8d0(void)
+int CInstallInfo::LoadInstallPathsFromRegistry(void)
 {
     char *regKeyValue;
     char hdPath[MAX_PATH], cdPath[MAX_PATH], installVersion[16], *bigFileLocation;

@@ -473,7 +473,7 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
 // logic verified against the dump; remaining diff is the local layout of the
 // per-row rect and register allocation.
 // FUNCTION: CMR2 0x004d39a0
-void FUN_004d39a0(BYTE *pList, char *pTitle, int index, char **ppStrings)
+void FrontendDraw_RallyEntryList(BYTE *pList, char *pTitle, int index, char **ppStrings)
 {
     short rect[4];
     int hasTitle;

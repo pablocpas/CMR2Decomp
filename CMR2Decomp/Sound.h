@@ -74,7 +74,7 @@ public:
     static void ReleaseSoundSlotData(int index);
 
     static BOOL __fastcall CloseMusicStreamResources(void);
-    static void FUN_004a28d0(char *path);
+    static void OpenStreamingMusicFile(char *path);
     static void CloseMusicStreamAndClearPath(BOOL param1);
     static bool CloseADPCMDecoder(void);
     static HRESULT StopDirectSoundBuffer(void);

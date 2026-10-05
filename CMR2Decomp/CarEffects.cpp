@@ -11,7 +11,7 @@
 
 void Scene_GetLightColour(DWORD *pColour, int level);
 unsigned char RallyData_GetSelectionFlag26(void);
-int FUN_00457e10(BYTE *pCar, int offset);
+int StageTiming_GetStartArchiveRelativeEntry(BYTE *pCar, int offset);
 short *Car_GetOrder(void);
 short Car_GetOrderCount(void);
 extern float g_oneOverRandMax;
@@ -124,7 +124,7 @@ void CarEffects_Init(void)
     pOrder = Car_GetOrder();
     while (--n >= 0) {
         car = pOrder[n];
-        g_carDamageData[car] = (BYTE *)FUN_00457e10((BYTE *)Car_Get(car), 2);
+        g_carDamageData[car] = (BYTE *)StageTiming_GetStartArchiveRelativeEntry((BYTE *)Car_Get(car), 2);
         g_carWindowVerts[car] = (FixVector *)(g_carDamageData[car] + 0xc);
     }
 }
@@ -1192,7 +1192,7 @@ int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 // (alternating) in world space.
 // match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045d2d0
-void FUN_0045d2d0(void *pParticle, ParticleType *pType, int param)
+void CarEffect_SpawnExhaustParticle(void *pParticle, ParticleType *pType, int param)
 {
     Particle *p = (Particle *)pParticle;
     int car = p->field0x64;
@@ -1529,7 +1529,7 @@ void CarEffects_EmitWheelDustParticle(int car, int wheel, FixVector *pPos, FixVe
 // stage's country pick the colours and kinds; the faster the wheel spins, the
 // more particles.
 // FUNCTION: CMR2 0x0045d540
-void FUN_0045d540(int car)
+void CarEffect_UpdateWheelSurfaceParticles(int car)
 {
     BYTE *pCar;
     BYTE colour[4];

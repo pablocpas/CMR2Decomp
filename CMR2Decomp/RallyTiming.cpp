@@ -38,7 +38,7 @@ ChampionshipTables g_championshipTables;
 
 // match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040cc60
-void FUN_0040cc60(void)
+void RallyTiming_ResetDriverSplitState(void)
 {
     int i;
     int *p;

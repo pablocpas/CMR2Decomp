@@ -762,7 +762,7 @@ void OptionMovie_Close(void)
 
 // match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00510410
-void CGameInfo::FUN_00510410(void)
+void CGameInfo::InitDefaultGameInfo(void)
 {
     memset(&m_gameInfo, 0, sizeof(m_gameInfo));
     m_gameInfo.magicNumber = 0x11;
@@ -787,9 +787,9 @@ void CGameInfo::FUN_00510410(void)
     m_gameInfo.field_0x9a = 0;
     m_gameInfo.field_0x18 = (m_gameInfo.field_0x18 & 0xfff93264) | 0x40393264;
 
-    FUN_00406010(&m_gameInfo.field_0xa4);
-    FUN_00406010(&m_gameInfo.field_0x1368);
-    FUN_00406010(&m_gameInfo.field_0x262c);
+    InitProfileRecordDefaults(&m_gameInfo.field_0xa4);
+    InitProfileRecordDefaults(&m_gameInfo.field_0x1368);
+    InitProfileRecordDefaults(&m_gameInfo.field_0x262c);
 
     m_gameInfo.field_0x14 = m_gameInfo.field_0x14 & 0x7fffffff;
 }
@@ -805,7 +805,7 @@ void CGameInfo::ResetDefaultCameraParameters(void)
 
 // Initializes profile record labels, flags, default times and split tables.
 // FUNCTION: CMR2 0x00406010
-void CGameInfo::FUN_00406010(GameInfo0xa4 *pInfo)
+void CGameInfo::InitProfileRecordDefaults(GameInfo0xa4 *pInfo)
 {
     unsigned int *pFlags = &pInfo->firstLoop[0].flags;
     int group = 3;
@@ -919,7 +919,7 @@ void CGameInfo::ResetStageOptionStates(void)
 
 // match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00406580
-void CGameInfo::FUN_00406580(void) {
+void CGameInfo::ApplyStageOptionUnlockFlags(void) {
     char bVar1;
     int uVar5 = 0;
     int uVar2 = 0;
@@ -1380,7 +1380,7 @@ struct Unk0x0082d220Vec3 {
 };
 
 // Source copy of one vertex of a stage mesh (0x20 bytes): position and normal in
-// 16.16, then the packed normal bytes. Filled by FUN_00506bb0.
+// 16.16, then the packed normal bytes. Filled by OptionPreview_AllocateConvertedWheelVertices.
 struct Unk0x0082d220VertexFixed {
     FixVector position; // 0x0
     FixVector normal;   // 0xc
@@ -1607,7 +1607,7 @@ void NetPlayers_ReceiveStatistics(DPID *pId, NetStats *pStats);
 void NetPlayers_MarkPlayerReadyByID(DPID *pId);
 void NetPlayers_RecordPlayerFinishTime(DPID *pId, unsigned int time, int value);
 void NetPlayers_MarkPlayerFinishedByID(DPID *pId);
-void FUN_00409fd0(DPID *pId, int split, unsigned int time);
+void NetPlayers_RecordRemoteSplitTime(DPID *pId, int split, unsigned int time);
 void NetPlayers_SetRemoteCarClass(DPID *pId, unsigned int carClass);
 void NetPlayers_BuildFinalClassification(void);
 void NetPlayers_ReceivePublishedLeaderboard(char valid, BYTE *p);
@@ -1628,7 +1628,7 @@ void OptionMenu_HandleNetworkNotification(DPID *pId, BYTE *pData)
         NetPlayers_MarkPlayerReadyByID(pId);
         break;
     case 8:
-        FUN_00409fd0(pId, pData[1], *(unsigned int *)(pData + 4));
+        NetPlayers_RecordRemoteSplitTime(pId, pData[1], *(unsigned int *)(pData + 4));
         break;
     case 10:
         NetPlayers_MarkPlayerFinishedByID(pId);
@@ -1643,7 +1643,7 @@ void OptionMenu_HandleNetworkNotification(DPID *pId, BYTE *pData)
         break;
     case 16:
         g_unk0x0082b0ac = 1;
-        CGame::FUN_0049c1c0(Game_GetSecondaryCallbackMachine(), 0, 0, 2);
+        CGame::PromoteCallbackEntryByRule(Game_GetSecondaryCallbackMachine(), 0, 0, 2);
         NetPlayers_BuildFinalClassification();
         break;
     case 17:
@@ -1701,7 +1701,7 @@ void OptionMenu_ResetModeCursor(void);
 extern FixAngles g_unk0x005273c0[12];
 extern int g_unk0x008313c8[96];
 void OptionPreview_SetWheelNodesVisible(int index, char visible);
-void FUN_00506930(int param1, short *param2, int param3);
+void OptionPreview_SetTargetWheelAngles(int param1, short *param2, int param3);
 
 // Boot state of the country menus: marks the item of the selected country and
 // points its two record tables at the matching entry.
@@ -1714,7 +1714,7 @@ void OptionMenu_EnterCountryState(Unk0049c2c0 *p1, BYTE p2)
     for (i = 0; i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff); i = i + 1) {
         if (i == CGameInfo::GetActiveOptionSlot()) {
             OptionPreview_SetWheelNodesVisible(i, 1);
-            FUN_00506930(i, (short *)&g_unk0x005273c0[OptionMenu_GetColumnWeight(
+            OptionPreview_SetTargetWheelAngles(i, (short *)&g_unk0x005273c0[OptionMenu_GetColumnWeight(
                              OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14])], 0);
             OptionMenu_SetTargetLayoutPairs(i, &g_unk0x008313c8[OptionMenu_GetColumnWeight(
                              OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14]) * 8], 1);
@@ -1722,7 +1722,7 @@ void OptionMenu_EnterCountryState(Unk0049c2c0 *p1, BYTE p2)
             OptionPreview_SetWheelNodesVisible(i, 0);
         }
     }
-    CGame::FUN_0049c1c0(p1, p2, 0, 2);
+    CGame::PromoteCallbackEntryByRule(p1, p2, 0, 2);
     g_unk0x0082b0a0 = CMain::GetFrameDelta();
 }
 
@@ -1766,9 +1766,9 @@ void OptionMenu_CreateBackgroundWorld(void);
 void OptionMenu_LoadArchives(void);
 void OptionPreview_FillTextureSetIndices(void);
 void RallyData_LoadCurrentRallyWeatherTextures(void);
-void FUN_005040f0(void);
+void RallyData_SetupWeatherTextureEntries(void);
 int *OptionMenu_GetCommonArchive(void);
-void FUN_004b1150(void);
+void Particle_BuildTriangleStripIndices(void);
 void Graphics_SetShadowGeometryState(int value);
 
 // Format of the environment texture of the track. The %s is the install
@@ -1791,10 +1791,10 @@ void OptionMenu_InitBackground(void)
     CGameInfo::SaveOptionMenuCallbackCount();
     OptionMenu_CreateBackgroundWorld();
     OptionMenu_LoadArchives();
-    FUN_004b1150();
+    Particle_BuildTriangleStripIndices();
     CGame::SetSectorDrawState(3);
     RallyData_LoadCurrentRallyWeatherTextures();
-    FUN_005040f0();
+    RallyData_SetupWeatherTextureEntries();
     OptionPreview_FillTextureSetIndices();
     sprintf(CFrontend::m_stringDest, g_str0x00527070, CInstallInfo::GetSetupRepDir());
     Graphics_SetShadowGeometryState(!CGameInfo::IsRecordFlagSet(0xf));
@@ -1869,7 +1869,7 @@ BYTE OptionMenu_GetColumnDirtyFlag(int i, int j)
 // Option menu builders and loaders that live in the cascade scaffold.
 void OptionMenu_RefreshStageSetup(void);
 void OptionMenu_LoadRallyRecords(void);
-void FUN_00502570(void);
+void OptionMenu_InitDefaultRecordTables(void);
 void OptionMenu_InitBackground(void);
 BYTE OptionMenu_LoadSounds(void);
 void OptionMenu_ConfigureSoundHandles(void);
@@ -1884,7 +1884,7 @@ HRESULT Sound_StartLoopingMusicStream(int param1);
 // Starts the option menu state: rebuilds the option records, starts the menu
 // music and asks for the next state (level 2) of the grouped callback machine.
 // FUNCTION: CMR2 0x00500c80
-void FUN_00500c80(Unk0049c2c0 *p1, BYTE state)
+void OptionMenu_EnterStartState(Unk0049c2c0 *p1, BYTE state)
 {
     char path[MAX_PATH];
     int i;
@@ -1898,7 +1898,7 @@ void FUN_00500c80(Unk0049c2c0 *p1, BYTE state)
     g_unk0x0082b0a8 = CGameInfo::GetConfiguredPlayerCount() & 0xff;
     OptionMenu_RefreshStageSetup();
     OptionMenu_LoadRallyRecords();
-    FUN_00502570();
+    OptionMenu_InitDefaultRecordTables();
     OptionMenu_InitBackground();
     SavedGames_LoadRecords();
     CGame::RegisterCallback(SavedGames_ReleaseRecords, NULL);
@@ -1931,10 +1931,10 @@ void FUN_00500c80(Unk0049c2c0 *p1, BYTE state)
     }
 
     sprintf(path, g_str0x0052703c, CInstallInfo::GetMusicDir());
-    CSound::FUN_004a28d0(path);
+    CSound::OpenStreamingMusicFile(path);
     CSound::SetMusicStreamVolume(CGameInfo::GetMasterSoundVolume());
     Sound_StartLoopingMusicStream(1);
-    CGame::FUN_0049c1c0(p1, state, 0, 2);
+    CGame::PromoteCallbackEntryByRule(p1, state, 0, 2);
     g_unk0x0082af8c = 1;
 }
 
@@ -1987,7 +1987,7 @@ BYTE OptionMenu_GetRecordGroupAppliedFlag(int i, int j)
 
 // match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00509d00
-void FUN_00509d00(int index)
+void OptionPreview_ClearSkyFadeShape(int index)
 {
     Unk0x0082d220Vec *p = &g_unk0x0082d220[index].field_0x22c;
 
@@ -1999,7 +1999,7 @@ void FUN_00509d00(int index)
 
 // match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00509d90
-void FUN_00509d90(int index)
+void OptionPreview_ClearColourFractions(int index)
 {
     Unk0x0082d220Vec *p = &g_unk0x0082d220[index].field_0x23c;
 
@@ -2544,7 +2544,7 @@ unsigned char GameInfo_GetFrontendSessionFlag(void);
 void OptionMenu_ArmRecordCountdowns(void);
 void OptionMenu_UpdateRecordTransitions(void);
 void OptionMenu_UpdateActivePage(void);
-void FUN_00506720(void);
+void OptionPreview_AnimateWheelRotations(void);
 void GameInfo_ProcessNetworkMessages(void);
 int NetPlayers_GetInputFrameDelta(void);
 void NetPlayers_SendType16Notification(void);
@@ -2571,7 +2571,7 @@ void OptionMenu_UpdateFadeState(Unk0049c2c0 *p1, BYTE state)
         OptionMenu_ArmRecordCountdowns();
         OptionMenu_UpdateRecordTransitions();
         OptionMenu_UpdateActivePage();
-        FUN_00506720();
+        OptionPreview_AnimateWheelRotations();
         goto tail;
     }
 other:
@@ -2581,7 +2581,7 @@ other:
         StageUI_PublishNetworkRaceWins();
         NetPlayers_SendType16Notification();
     }
-    CGame::FUN_0049c1c0(p1, state, 0, 2);
+    CGame::PromoteCallbackEntryByRule(p1, state, 0, 2);
     g_unk0x0082b0a4 = CMain::GetFrameDelta();
 tail:
     if (CGameInfo::GetGameModeOptionBit19() != 0)
@@ -2647,7 +2647,7 @@ void CGameInfo::StartOptionRecordTransition(int index, int param2, int param3)
 
 // match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005004c0
-int CGameInfo::FUN_005004c0(void)
+int CGameInfo::IsOptionMenuTimeoutPulseOn(void)
 {
     unsigned int delta;
 
@@ -2694,7 +2694,7 @@ int g_unk0x0082cb44;
 // register into the taken branch and computes the return value one store early
 // (identical byte count, different scheduling).
 // FUNCTION: CMR2 0x00505e10
-int CGameInfo::FUN_00505e10(BYTE param1)
+int CGameInfo::SelectIdleOptionPreviewEntry(BYTE param1)
 {
     int result = 0;
     Unk0x0082c6c8 *pEntry;
@@ -2714,7 +2714,7 @@ int CGameInfo::FUN_00505e10(BYTE param1)
 // expands the +/-100 bounding box with every vertex and stores the centre and
 // the half size of the slot. Bumps the counter of used slots.
 // FUNCTION: CMR2 0x00507290
-void FUN_00507290(SceneNode *pNode, Unk0x0082d220 *pRecord)
+void OptionPreview_AddNodeMeshToRecord(SceneNode *pNode, Unk0x0082d220 *pRecord)
 {
     Unk0x0082d220VertexF *pVertex;
     FixVector halfSize;
@@ -3727,7 +3727,7 @@ BOOL FAR PASCAL Session_EnumCallback(LPCDPSESSIONDESC2 pDesc, LPDWORD pTimeOut, 
 // sessions. Returns 1 on DP_OK, -1 and -2 for two DirectPlay errors (the
 // caller reports them), 0 otherwise.
 // FUNCTION: CMR2 0x004a13b0
-int CGameInfo::FUN_004a13b0(void)
+int CGameInfo::EnumerateNetworkSessions(void)
 {
     IDirectPlay4A *pDP;
 
@@ -3764,10 +3764,10 @@ int CGameInfo::FUN_004a13b0(void)
     return 0;
 }
 
-// Same as FUN_004a13b0, but also stores param1 in the descriptor (0x5a009c)
+// Same as EnumerateNetworkSessions, but also stores param1 in the descriptor (0x5a009c)
 // and enumerates with flags 0x51.
 // FUNCTION: CMR2 0x004a12d0
-int CGameInfo::FUN_004a12d0(int param1)
+int CGameInfo::EnumerateNetworkSessionsWithUserData(int param1)
 {
     IDirectPlay4A *pDP;
 
@@ -3908,7 +3908,7 @@ BYTE *RallyData_GetDriverSkillRecord(int index);
 // the default table, mirrors them into rows 0..3 and clears the option flags.
 // match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00502570
-void FUN_00502570(void)
+void OptionMenu_InitDefaultRecordTables(void)
 {
     int i;
 
@@ -4067,16 +4067,16 @@ void InRaceMenu_ReturnToPauseUpdate(Menu *pMenu)
 }
 
 void InRaceMenu_ApplyNetworkOptions(Menu *pMenu, int param);
-void FUN_00402000(Menu *pMenu);
-void FUN_00403890(Menu *pMenu);
-void FUN_004041e0(Menu *pMenu);
+void InRaceMenu_DrawLabelAndValueRows(Menu *pMenu);
+void InRaceMenu_DrawSliderRows(Menu *pMenu);
+void InRaceMenu_DrawCarSetupChoices(Menu *pMenu);
 
 // Builds the network options menu and disables the two-state entries when
 // the current rally mode does not support them.
 void InRaceMenu_ApplyNetworkOptions(Menu *pMenu, int param);
-void FUN_00402000(Menu *pMenu);
-void FUN_00403890(Menu *pMenu);
-void FUN_004041e0(Menu *pMenu);
+void InRaceMenu_DrawLabelAndValueRows(Menu *pMenu);
+void InRaceMenu_DrawSliderRows(Menu *pMenu);
+void InRaceMenu_DrawCarSetupChoices(Menu *pMenu);
 // FUNCTION: CMR2 0x00402f90
 void InRaceMenu_BuildNetworkOptions(void)
 {
@@ -4093,7 +4093,7 @@ void InRaceMenu_BuildNetworkOptions(void)
     Menu_AddItemType2(&g_menu0x00529ed8, 0, 0x3b, &g_menu0x0052ad60,
                       (int)(MenuCallback)InRaceMenu_ApplyNetworkOptions, -1);
     Menu_SetCallbacks(&g_menu0x00529ed8, (MenuCallback)InRaceMenu_EnterNetworkOptions, NULL,
-                      (MenuCallback)FUN_00402000, NULL);
+                      (MenuCallback)InRaceMenu_DrawLabelAndValueRows, NULL);
     Menu_ValidateCursor(&g_menu0x00529ed8, 0);
     if (RallyData_IsHeadToHeadRaceMode() == 0) {
         for (i = 0; i < g_menu0x00529ed8.itemCount; i++) {
@@ -4134,7 +4134,7 @@ void InRaceMenu_BuildCameraOffsetOptions(void)
     Menu_AddItemType4(&g_menu0x0052a870, 0, 0x62, (int)InRaceMenu_ResetCameraDefaults, 4);
     Menu_AddItemType2(&g_menu0x0052a870, 0, 0x3b, &g_menu0x00529ed8, 0, 5);
     Menu_SetCallbacks(&g_menu0x0052a870, (MenuCallback)InRaceMenu_EnterCameraOffsetOptions,
-                      (MenuCallback)InRaceMenu_UpdateCameraOffsets, (MenuCallback)FUN_00403890,
+                      (MenuCallback)InRaceMenu_UpdateCameraOffsets, (MenuCallback)InRaceMenu_DrawSliderRows,
                       (MenuCallback)InRaceMenu_LeaveCameraOffsetOptions);
     Menu_ValidateCursor(&g_menu0x0052a870, 0);
 }
@@ -4215,7 +4215,7 @@ int g_unk0x0052ad50;
 
 BYTE StageUI_GetRaceEndEventCount(void);
 BYTE *StageUI_GetRaceResultTable(void);
-void FUN_0041c5a0(BYTE, int);
+void Race_UpdatePlayerViewAndDrivenCars(BYTE, int);
 void RallyData_SetDriverByteSetting(BYTE index, BYTE *pValue);
 void RallyData_MarkTyresChanged(int index);
 int RallyData_IsHeadToHeadRaceMode(void);
@@ -4229,11 +4229,11 @@ unsigned char Race_LoadStageGeometry(void);
 void StageUI_ClearRaceEndLatch(void);
 void RallyData_LoadNavigationSounds(void);
 void RallyData_RestoreAllCarRaceRecords(void);
-void FUN_00418ff0(void);
+void StageSound_LoadSurfaceVariations(void);
 void Race_LoadCollisionSoundBanks(void);
 void Race_InitCoDriverSamples(void);
 void Race_ReleaseFrameResources(void);
-void FUN_0040fec0(int progress, char drawScene, BYTE alpha);
+void RallyData_DrawLoadingProgress(int progress, char drawScene, BYTE alpha);
 void RallyData_GrowEntryAndNotifyCompletion(BYTE *, unsigned int);
 BYTE RallyData_FreeChallengeSceneObjects(void);
 
@@ -4255,7 +4255,7 @@ void GameInfo_EnterStageGroup(BYTE *param1, int param2)
             i = 0;
             if (*param1 > 0) {
                 do {
-                    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 1, 3);
+                    CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)param1, i, 1, 3);
                     i++;
                 } while (i < (int)*param1);
             }
@@ -4264,15 +4264,15 @@ void GameInfo_EnterStageGroup(BYTE *param1, int param2)
             StageUI_ClearRaceEndLatch();
             return;
         }
-        FUN_0040fec0(0x46, 1, 0xff);
-        FUN_00418ff0();
+        RallyData_DrawLoadingProgress(0x46, 1, 0xff);
+        StageSound_LoadSurfaceVariations();
         Race_LoadCollisionSoundBanks();
         Race_InitCoDriverSamples();
         RallyData_LoadNavigationSounds();
         CGame::RegisterCallback((void *)RallyData_FreeChallengeSceneObjects, 0);
-        FUN_0040fec0(0x55, 1, 0xff);
+        RallyData_DrawLoadingProgress(0x55, 1, 0xff);
     }
-    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
+    CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)param1, param2, 0, 2);
 }
 
 // Leaves a stage group: tears the stage list down or runs the fade-out
@@ -4288,7 +4288,7 @@ void GameInfo_LeaveStageGroup(BYTE *param1, int param2)
             i = 0;
             if (*param1 > 0) {
                 do {
-                    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 1, 3);
+                    CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)param1, i, 1, 3);
                     i++;
                 } while (i < (int)*param1);
             }
@@ -4297,7 +4297,7 @@ void GameInfo_LeaveStageGroup(BYTE *param1, int param2)
             StageUI_ClearRaceEndLatch();
             return;
         }
-        FUN_0040fec0(0x64, 1, 0xff);
+        RallyData_DrawLoadingProgress(0x64, 1, 0xff);
         if (CGameInfo::IsConfiguredMultiplayer())
             CGraphics::SetClearColour(0, 0, 0, 0);
         else
@@ -4305,7 +4305,7 @@ void GameInfo_LeaveStageGroup(BYTE *param1, int param2)
     }
     g_unk0x005297f0 = 1;
     g_unk0x00536ac8 = 1;
-    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
+    CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)param1, param2, 0, 2);
 }
 
 void NetPlayers_SendCarClass(BYTE);
@@ -4319,7 +4319,7 @@ void View_SetCameraType(int, int, BYTE, int);
 BYTE StageUI_GetRaceEndEventCount(void);
 int RallyData_GetDriverCarSelection(BYTE);
 int RallyData_IsChampionshipFinalStage(void);
-void FUN_00406820(void);
+void RallyData_CopyCountryPlayerDefaults(void);
 void RallyData_ClearDriverGroupRecords(void);
 int View_IsModeAvailable(BYTE, int);
 extern BYTE g_unk0x00537fd4;
@@ -4366,25 +4366,25 @@ void InRaceMenu_AdvanceCascade(int param1, int param2)
             } while (i < (BYTE)RallyDataState());
         }
         g_unk0x005298f4--;
-        FUN_0041c5a0(**(BYTE **)(param1 + 4), 0);
+        Race_UpdatePlayerViewAndDrivenCars(**(BYTE **)(param1 + 4), 0);
     }
     if (g_unk0x005298f4 <= 0) {
         if ((BYTE)CGameInfo::GetGameInfoSessionFlag() != 0) {
-            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 6, 2);
+            CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)param1, param2, 6, 2);
             return;
         }
         if (CGameInfo::GetConfiguredGameMode() == 4) {
             CGameInfo::SetInputAndGamePaused(1);
-            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 5, 2);
+            CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)param1, param2, 5, 2);
             return;
         }
         if ((BYTE)RallyData_IsChampionshipFinalStage() != 0) {
-            FUN_00406820();
+            RallyData_CopyCountryPlayerDefaults();
             RallyData_ClearDriverGroupRecords();
-            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 1, 2);
+            CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)param1, param2, 1, 2);
             return;
         }
-        CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
+        CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)param1, param2, 0, 2);
     }
 }
 
@@ -4410,7 +4410,7 @@ void InRaceMenu_EncodeCarSetup(Menu *pMenu);
 // Builds the car-setup menu used from the in-race network menu.
 // match 80%: below the 90% bar; kept as FUNCTION so reccmp measures it.
 // FUNCTION: CMR2 0x00404000
-void FUN_00404000(void)
+void InRaceMenu_BuildCarSetup(void)
 {
     int settingId;
 
@@ -4435,7 +4435,7 @@ void InRaceMenu_ApplyDefaultCarSetup(Menu *pMenu, int param);
     Menu_AddItemType4(&g_menu0x0052aa70, 0, 0x62, (int)InRaceMenu_ApplyDefaultCarSetup, 5);
     Menu_AddItemType2(&g_menu0x0052aa70, 0, 0x3b, &g_menu0x00529ed8, 0, 6);
     Menu_SetCallbacks(&g_menu0x0052aa70, (MenuCallback)InRaceMenu_EnterCarSetup,
-                      (MenuCallback)InRaceMenu_EncodeCarSetup, (MenuCallback)FUN_004041e0,
+                      (MenuCallback)InRaceMenu_EncodeCarSetup, (MenuCallback)InRaceMenu_DrawCarSetupChoices,
                       (MenuCallback)InRaceMenu_LeaveCarSetup);
     Menu_ValidateCursor(&g_menu0x0052aa70, 0);
 }
@@ -4663,7 +4663,7 @@ void View_SnapCameras(BYTE index);
 void View_BlendCameraStates(BYTE index, int param);
 void View_SwitchCamera(BYTE index, int a, int b, BYTE c, int d);
 void ForceFeedback_StopSlotForces(void);
-int FUN_00448550(void);
+int StageTiming_EstimateElapsedStageTime(void);
 int StageTiming_GetValidStartTime(int index);
 void NetRace_SendStageAndOverallTimes(int time);
 void NetRace_UpdatePlayerFlashTimer(unsigned int player, int check);
@@ -4690,7 +4690,7 @@ void RallyData_SetDriverCarSelection(BYTE index, int value);
 // the camera settings and the driver names of the active player, then updates
 // the car order, the input menu and the race-start/restart transitions.
 // FUNCTION: CMR2 0x00404f40
-void FUN_00404f40(Unk0049c2c0 *param1)
+void InRaceMenu_UpdateStateMachineFrame(Unk0049c2c0 *param1)
 {
     int first;
     int second;
@@ -4818,7 +4818,7 @@ updateMenus:
         }
         if (g_unk0x00538100 != 0) {
 playerExit:
-            FUN_0041c5a0(*(BYTE *)param1->unk, 1);
+            Race_UpdatePlayerViewAndDrivenCars(*(BYTE *)param1->unk, 1);
             return;
         }
     }
@@ -4828,12 +4828,12 @@ playerExit:
         g_unk0x00537f34[0] = CMain::GetFrameDelta();
     }
     CGameInfo::GetConfiguredGameMode();
-    FUN_0041c5a0(*(BYTE *)param1->unk, 0);
+    Race_UpdatePlayerViewAndDrivenCars(*(BYTE *)param1->unk, 0);
     if (g_unk0x0053811e != 0) {
         View_SwitchCamera(0, 7, 0xffff, View_GetActiveCameraFlags(0), 0);
         if (g_unk0x0053811f == 0) {
             if (g_unk0x0053811e != 0)
-                result = FUN_00448550();
+                result = StageTiming_EstimateElapsedStageTime();
             else
                 result = StageTiming_GetValidStartTime(0);
             NetRace_SendStageAndOverallTimes(result);
@@ -4846,7 +4846,7 @@ playerExit:
         }
         if (g_unk0x0053811e != 0) {
             InRaceMenu_Close();
-            CGame::FUN_0049c1c0(param1, 0, 0, 2);
+            CGame::PromoteCallbackEntryByRule(param1, 0, 0, 2);
         }
     }
 }
@@ -4996,16 +4996,16 @@ void GameMenu_RequestStageRestart(Menu *pMenu, int param);
 void GameMenu_RequestNetworkRestart(Menu *pMenu, int param);
 void GameMenu_RequestNetworkQuit(Menu *pMenu, int param);
 void GameMenu_RequestNetworkLeave(Menu *pMenu, int param);
-void FUN_00401d20(Menu *pMenu);
+void InRaceMenu_DrawMenuRows(Menu *pMenu);
 void InRaceMenu_DrawPlayerClassRows(Menu *pMenu);
-void FUN_00402460(Menu *pMenu);
+void InRaceMenu_DrawNetworkPlayerList(Menu *pMenu);
 // Scratch rectangle the in-race menu draws reuse (0x52ad58, right below the main
 // menu at 0x52ad60).
 // GLOBAL: CMR2 0x0052ad58
 short g_unk0x0052ad58[4];
 extern char g_classRowHeaderFormat[];
 void OptionMenu_ConsumeRefreshRequest(int unused, int unused2);
-void FUN_004ffab0(Menu *);
+void OptionMenu_UpdateMessagesAndRecordStates(Menu *);
 void OptionMenu_LoadGameItem(Menu *, MenuItem *);
 void OptionMenu_ApplyHighlightedValue(Menu *, MenuItem *);
 void OptionMenu_AdvanceSelectedOption(int unused, int unused2);
@@ -5025,7 +5025,7 @@ void OptionMenu_RebuildOptions(void);
 // Draws the header of the in-race menu bar: the car count above the bar and
 // the bar itself.
 // FUNCTION: CMR2 0x00401b60
-void FUN_00401b60(void)
+void InRaceMenu_DrawHeaderBar(void)
 {
     short rect[4];
     int x;
@@ -5068,7 +5068,7 @@ void InRaceMenu_DrawOptionList(Menu *pMenu)
     rect[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
     Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
-    FUN_00401b60();
+    InRaceMenu_DrawHeaderBar();
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
     rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
@@ -5112,7 +5112,7 @@ void InRaceMenu_DrawOptionList(Menu *pMenu)
 
 // Draws every row of an in-race menu (no blank row), selected row brighter.
 // FUNCTION: CMR2 0x00401d20
-void FUN_00401d20(Menu *pMenu)
+void InRaceMenu_DrawMenuRows(Menu *pMenu)
 {
     MenuItem *pItem;
     short rect[4];
@@ -5129,7 +5129,7 @@ void FUN_00401d20(Menu *pMenu)
     rect[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
     Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
-    FUN_00401b60();
+    InRaceMenu_DrawHeaderBar();
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
     rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
@@ -5170,7 +5170,7 @@ void FUN_00401d20(Menu *pMenu)
 // match 67%: the original reads an uninitialised local in the value != 0 path
 // and keeps the item pointer in a register; kept as FUNCTION so reccmp measures it.
 // FUNCTION: CMR2 0x00402460
-void FUN_00402460(Menu *pMenu)
+void InRaceMenu_DrawNetworkPlayerList(Menu *pMenu)
 {
     int i;
     int j;
@@ -5192,7 +5192,7 @@ void FUN_00402460(Menu *pMenu)
     g_unk0x0052ad58[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0052ad58, (BYTE *)&g_unk0x0051608c, 2);
-    FUN_00401b60();
+    InRaceMenu_DrawHeaderBar();
     g_unk0x0052ad58[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     g_unk0x0052ad58[2] = *(short *)(g_unk0x0052aa60 + 0x120);
     g_unk0x0052ad58[3] = *(short *)(g_unk0x0052aa60 + 0x122);
@@ -5270,7 +5270,7 @@ void InRaceMenu_DrawPlayerClassRows(Menu *pMenu)
     rect[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
     Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
-    FUN_00401b60();
+    InRaceMenu_DrawHeaderBar();
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
     rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
@@ -5313,7 +5313,7 @@ void InRaceMenu_DrawPlayerClassRows(Menu *pMenu)
 // Rebuilds the main in-race menu. When param is non-zero it keeps the value of
 // the item currently under the cursor and re-selects it.
 // FUNCTION: CMR2 0x00402c90
-void FUN_00402c90(int param)
+void InRaceMenu_RebuildMainPage(int param)
 {
     int value;
     int index;
@@ -5391,7 +5391,7 @@ void InRaceMenu_BuildCameraModeOptions(void)
     Menu_AddItemType3(&g_menu0x0052a490, 0, 0x3c, 2, 0, 0, 0, 0, 0);;
     Menu_AddItemType4(&g_menu0x0052a490, 0, 0x3b, (int)InRaceMenu_ReturnToPauseItem, -1);
     Menu_SetCallbacks(&g_menu0x0052a490, (MenuCallback)CGame::NoOpSecondaryStateCallback,
-                      (MenuCallback)InRaceMenu_ReturnToPauseUpdate, (MenuCallback)FUN_00402460, NULL);
+                      (MenuCallback)InRaceMenu_ReturnToPauseUpdate, (MenuCallback)InRaceMenu_DrawNetworkPlayerList, NULL);
     Menu_ValidateCursor(&g_menu0x0052a490, 0);
 }
 
@@ -5420,7 +5420,7 @@ void InRaceMenu_BuildPausePage(void)
         CGameInfo::GetConfiguredGameMode() == 0xa || CGameInfo::GetConfiguredGameMode() == 9)
         Menu_AddItemType4(&g_menu0x00529af8, 0, 0x8b, (int)GameMenu_RequestNetworkRestart, 4);
     Menu_AddItemType1(&g_menu0x00529af8, 0, 0xa6, 0, -1);
-    Menu_SetCallbacks(&g_menu0x00529af8, (MenuCallback)InRaceMenu_SelectLastItem, NULL, (MenuCallback)FUN_00401d20,
+    Menu_SetCallbacks(&g_menu0x00529af8, (MenuCallback)InRaceMenu_SelectLastItem, NULL, (MenuCallback)InRaceMenu_DrawMenuRows,
                       NULL);
     Menu_ValidateCursor(&g_menu0x00529af8, 0);
 }
@@ -5432,7 +5432,7 @@ void InRaceMenu_BuildQuitPage(void)
     Menu_Init(&g_menu0x0052a2a8, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
     Menu_AddItemType4(&g_menu0x0052a2a8, 0, 0xf6, (int)GameMenu_RequestNetworkLeave, 3);
     Menu_AddItemType1(&g_menu0x0052a2a8, 0, 0xa6, 0, -1);
-    Menu_SetCallbacks(&g_menu0x0052a2a8, (MenuCallback)InRaceMenu_SelectLastItem, NULL, (MenuCallback)FUN_00401d20,
+    Menu_SetCallbacks(&g_menu0x0052a2a8, (MenuCallback)InRaceMenu_SelectLastItem, NULL, (MenuCallback)InRaceMenu_DrawMenuRows,
                       NULL);
     Menu_ValidateCursor(&g_menu0x0052a2a8, 0);
 }
@@ -5444,7 +5444,7 @@ void InRaceMenu_BuildLeavePage(void)
     Menu_Init(&g_menu0x0052a0c0, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
     Menu_AddItemType4(&g_menu0x0052a0c0, 0, 0xa8, (int)GameMenu_RequestNetworkQuit, 3);
     Menu_AddItemType1(&g_menu0x0052a0c0, 0, 0xaa, 0, -1);
-    Menu_SetCallbacks(&g_menu0x0052a0c0, (MenuCallback)InRaceMenu_SelectLastItem, NULL, (MenuCallback)FUN_00401d20,
+    Menu_SetCallbacks(&g_menu0x0052a0c0, (MenuCallback)InRaceMenu_SelectLastItem, NULL, (MenuCallback)InRaceMenu_DrawMenuRows,
                       NULL);
     Menu_ValidateCursor(&g_menu0x0052a0c0, 0);
 }
@@ -5461,11 +5461,11 @@ void InRaceMenu_ResetAndBuildPages(void)
     InRaceMenu_BuildPausePage();
     InRaceMenu_BuildQuitPage();
     InRaceMenu_BuildLeavePage();
-    FUN_00402c90(0);
+    InRaceMenu_RebuildMainPage(0);
     InRaceMenu_BuildNetworkOptions();
     InRaceMenu_BuildPlayerOptions();
     InRaceMenu_BuildCameraOffsetOptions();
-    FUN_00404000();
+    InRaceMenu_BuildCarSetup();
     InRaceMenu_BuildSoundOptions();
     InRaceMenu_BuildCameraModeOptions();
 }
@@ -5485,11 +5485,11 @@ void InRaceMenu_BuildPlayerOptions(void)
 // GLOBAL: CMR2 0x00527004
 char g_strNeedReinitWeather[] = "Need to re-initialise weather, damage and car setup\n";
 
-void FUN_00406820(void);
+void RallyData_CopyCountryPlayerDefaults(void);
 BYTE RallyData_GetSelectionStateByte(void);
 void RallyData_SetSelectionStateByte(char param1);
 void RallyData_ClearDriverGroupRecords(void);
-void FUN_0040dc30(void);
+void RallyData_PickOpponentLineups(void);
 
 // Re-initialises the weather/damage/car setup when the country or stage index
 // changed, unless the race is already running.
@@ -5506,8 +5506,8 @@ void OptionMenu_RefreshStageSetup(void)
         if (CGameInfo::GetConfiguredGameMode() != 2 && CGameInfo::GetConfiguredGameMode() != 8 &&
             CGameInfo::GetConfiguredGameMode() != 9 && CGameInfo::GetConfiguredGameMode() != 0xa &&
             CGameInfo::GetConfiguredGameMode() != 0xb && CGameInfo::GetConfiguredGameMode() != 0xc)
-            FUN_0040dc30();
-        FUN_00406820();
+            RallyData_PickOpponentLineups();
+        RallyData_CopyCountryPlayerDefaults();
         RallyData_ClearDriverGroupRecords();
         RallyData_SetSelectionStateByte((char)b);
     }
@@ -5526,7 +5526,7 @@ void OptionMenu_RebuildOptions(void)
     if (CGameInfo::GetConfiguredGameMode() == 0)
         Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0xd3, 2, 0, 0, 0, (int)OptionMenu_LoadGameItem, 4);;
     Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x88, 2, 1, 1, 0, (int)OptionMenu_RestartEmptyItemRecords, 5);;
-    Menu_SetCallbacks((Menu *)g_unk0x0082b668, (MenuCallback)OptionMenu_ConsumeRefreshRequest, (MenuCallback)FUN_004ffab0,
+    Menu_SetCallbacks((Menu *)g_unk0x0082b668, (MenuCallback)OptionMenu_ConsumeRefreshRequest, (MenuCallback)OptionMenu_UpdateMessagesAndRecordStates,
                       (MenuCallback)OptionMenu_DispatchRecordEditState, (MenuCallback)OptionMenu_IncrementSharedValue);
     Menu_ValidateCursor((Menu *)g_unk0x0082b668, 0);
     OptionMenu_ResetRecords();
@@ -6052,7 +6052,7 @@ short g_unk0x0082c9ec[4];
 // 640x480 reference to the current resolution.
 // match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00503b70
-int FUN_00503b70(Unk0x0082c6c8 *p, short *pX, short *pY)
+int OptionMenu_TransformHudPointToScreen(Unk0x0082c6c8 *p, short *pX, short *pY)
 {
     if (p->field_0x1c != 0x10000) {
         *pX = FixMulShift32(FixDiv((*pX - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16),
@@ -6598,7 +6598,7 @@ void OptionMenu_DrawStatusLine(int unused)
 // are rounded so that together they cover the rectangle exactly.
 // match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0050ee50
-void FUN_0050ee50(short *pRect, int unused, unsigned int count, BYTE *pColours)
+void OptionMenu_DrawThreeColourGradientStrips(short *pRect, int unused, unsigned int count, BYTE *pColours)
 {
     BYTE colour[4];
     short strip[4];
@@ -6704,7 +6704,7 @@ void OptionMenu_Start(char param1)
     p = Game_GetSecondaryCallbackMachine();
     g_unk0x0082a938 = 1;
     g_unk0x0082b0a4 = CMain::GetFrameDelta();
-    CGame::FUN_0049c1c0(p, 0, 0, 2);
+    CGame::PromoteCallbackEntryByRule(p, 0, 0, 2);
     if (CGameInfo::GetGameModeOptionBit19() != '\0' && param1 == '\0') {
         CGame::DestroyLocalNetworkPlayer();
         Network_CloseSession();
@@ -6720,10 +6720,10 @@ void OptionMenu_StartDelayedFade(int param1, int unused)
 
     if (delta > 0x32) {
         if (g_unk0x0082a938 != 0) {
-            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, 0, 2, 2);
+            CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)param1, 0, 2, 2);
             return;
         }
-        CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, 0, 0, 2);
+        CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)param1, 0, 0, 2);
     }
 }
 
@@ -6761,9 +6761,9 @@ void OptionMenu_LeaveAndCommitState(Unk0049c2c0 *p1, BYTE state)
     OptionMenu_CommitRallyRecords();
     OptionMenu_CopyDefaultValues();
     CGame::UnwindCallbacks(g_unk0x0082af88);
-    CGraphics::FUN_004a5be0();
+    CGraphics::EvictManagedTextureResources();
     CGraphics::FreeTextureBuffers();
-    CGame::FUN_0049c1c0(p1, state, 0, 2);
+    CGame::PromoteCallbackEntryByRule(p1, state, 0, 2);
     if (g_unk0x0082b0ac != 0) {
         CGame::SetFrontendResourceMode(0);
         CGameInfo::SetInputAndGamePaused(0);
@@ -6783,9 +6783,9 @@ void OptionMenu_LeaveWithoutCommitState(Unk0049c2c0 *p1, BYTE state)
     OptionMenu_SetBackgroundViewport();
     Graphics_PresentFrameAndResetCounters();
     CGame::UnwindCallbacks(g_unk0x0082af88);
-    CGraphics::FUN_004a5be0();
+    CGraphics::EvictManagedTextureResources();
     CGraphics::FreeTextureBuffers();
-    CGame::FUN_0049c1c0(p1, state, 0, 2);
+    CGame::PromoteCallbackEntryByRule(p1, state, 0, 2);
     CGame::SetFrontendResourceMode(0);
     CGameInfo::SetInputAndGamePaused(0);
 }
@@ -6804,7 +6804,7 @@ void OptionMenu_UpdateHiddenPreviewState(Unk0049c2c0 *p1, BYTE state)
         OptionPreview_SetWheelNodesVisible(i, 0);
     }
     if (0x32 < (unsigned int)(CMain::GetFrameDelta() - g_unk0x0082b0a4))
-        CGame::FUN_0049c1c0(p1, 0, 0, 2);
+        CGame::PromoteCallbackEntryByRule(p1, 0, 0, 2);
 }
 
 // FUNCTION: CMR2 0x005015d0
@@ -6826,7 +6826,7 @@ void OptionMenu_DrawBackgroundState(Unk0049c2c0 *p1, BYTE state)
 }
 
 // FUNCTION: CMR2 0x00501780
-void FUN_00501780(int param1, int unused)
+void OptionMenu_FadeBackgroundToGrey(int param1, int unused)
 {
     short rect[4];
     BYTE colour[4];
@@ -6855,7 +6855,7 @@ void FUN_00501780(int param1, int unused)
     Graphics_PresentFrameAndResetCounters();
 }
 
-// Same as FUN_00501780 but the colour fades from grey to the stored menu colour.
+// Same as OptionMenu_FadeBackgroundToGrey but the colour fades from grey to the stored menu colour.
 // The extra GetFrameDelta() result is discarded by the original.
 // FUNCTION: CMR2 0x00501920
 void OptionMenu_FadeToStoredColour(int param1, int unused)
@@ -7112,7 +7112,7 @@ void OptionPreview_AssignConvertedVertexBuffers(int param1, int param2, int para
 // empty slots and matches the converted vertex buffers.
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00507080
-void FUN_00507080(int index)
+void OptionPreview_RebuildStageMeshRecord(int index)
 {
     Unk0x0082d220 *pRecord;
     Unk0x0082cb78 *pEntry;
@@ -7132,14 +7132,14 @@ void FUN_00507080(int index)
     pRecord->field_0x224 = 0;
     pRecord->field_0x220 = 0;
     pRecord->field_0x21c = 0;
-    FUN_00507290(pEntry->pNode5, pRecord);
+    OptionPreview_AddNodeMeshToRecord(pEntry->pNode5, pRecord);
     pNode = pEntry->pNode5->pFirstChild;
     if (pNode != 0) {
         do {
             pSibling = pNode;
             if ((BYTE)pNode->flags != 0x14 && pNode != 0) {
                 do {
-                    FUN_00507290(pNode, pRecord);
+                    OptionPreview_AddNodeMeshToRecord(pNode, pRecord);
                     pNode = pNode->pFirstChild;
                 } while (pNode != 0);
             }
@@ -7189,7 +7189,7 @@ unsigned int g_unk0x0082d118;
 // identity (or mirrored) basis, and while the menu is fading the forward
 // vector is shrunk to 0x9999.
 // FUNCTION: CMR2 0x00509dc0
-void FUN_00509dc0(int index)
+void OptionPreview_AnimatePreviewNodeTransforms(int index)
 {
     int *pList;
     Unk0x0082d220 *pRec;
@@ -7278,7 +7278,7 @@ void FUN_00509dc0(int index)
 // average height.
 // match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005091c0
-void FUN_005091c0(int index)
+void OptionPreview_BuildCornerHeightTransform(int index)
 {
     Unk0x0082d220 *pRec;
     int *pList;
@@ -7537,7 +7537,7 @@ void OptionPreview_UpdateWheelMeshVariants(int param1)
 // rest write the animated angles scaled by the squared proportion of the
 // elapsed time and hand them to the slot's scene node.
 // FUNCTION: CMR2 0x00506720
-void FUN_00506720(void)
+void OptionPreview_AnimateWheelRotations(void)
 {
     unsigned int time;
     int i;
@@ -7568,8 +7568,8 @@ void FUN_00506720(void)
                 OptionMenu_InterpolateLayoutPairs(i, 1, 0);
             }
             SceneNode_SetRotation(g_unk0x0082cb78[i].pNode, (FixAngles *)pAngles);
-            FUN_00509dc0(i);
-            FUN_005091c0(i);
+            OptionPreview_AnimatePreviewNodeTransforms(i);
+            OptionPreview_BuildCornerHeightTransform(i);
             i++;
         } while (i < (CGameInfo::GetConfiguredPlayerCount() & 0xff));
     }
@@ -7596,7 +7596,7 @@ void OptionPreview_RotateSlotVector(int param1, FixVector *param2, FixVector *pa
 // the three wrapped deltas as 12-bit angles in the animated table.
 // match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00506930
-void FUN_00506930(int param1, short *param2, int param3)
+void OptionPreview_SetTargetWheelAngles(int param1, short *param2, int param3)
 {
     unsigned int time;
     short tX, tY, tZ;
@@ -7684,7 +7684,7 @@ void OptionPreview_SetWheelNodesVisible(int index, char visible)
 // length.
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00506bb0
-void FUN_00506bb0(int param1, int param2, int param3)
+void OptionPreview_AllocateConvertedWheelVertices(int param1, int param2, int param3)
 {
     BYTE ***ppBlock;
     BYTE **ppFlags;
@@ -7794,7 +7794,7 @@ extern float g_oneOverRandMax;
 
 
 // Deform geometry of one stage entry (0x138 bytes): the box OptionPreview_BuildDeformGeometry builds
-// around it, the twelve vertices FUN_00507fe0 deforms and the position of the
+// around it, the twelve vertices OptionPreview_RebuildDeformedGeometry deforms and the position of the
 // entry's four anchor matrices.
 
 // Planar influence of the camera on the stage (all 16.16): inner radius, width
@@ -7805,8 +7805,8 @@ extern int g_unk0x0082d158;  // defined in StageTiming.cpp
 
 void StageDeform_ClampVertex(int *pPosition, int meshIndex, int vertexIndex, int *pRecord);
 
-void FUN_00508890(int *pRecord);
-void FUN_00507fe0(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom);
+void CarDamage_ApplyCameraSpaceMeshDent(int *pRecord);
+void OptionPreview_RebuildDeformedGeometry(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom);
 
 // Recomputes the three sky colours of the stage from the colour loaded by
 // OptionPreview_LoadSkyColourRecord: the raw weights when the sky type is 0, a single clamped value
@@ -7826,7 +7826,7 @@ void OptionPreview_UpdateStageSkyColours(int index)
         g_unk0x0082d150 = FixMul(g_unk0x0082d148, 0x5999);
         g_unk0x0082d154 = FixMul(g_unk0x0082d148, 0x9999);
         g_unk0x0082d158 = FixMul(g_unk0x0082d148, 0xb333);
-        FUN_00507fe0(&g_unk0x0082d220[index], &g_unk0x0082fd00[index]);
+        OptionPreview_RebuildDeformedGeometry(&g_unk0x0082d220[index], &g_unk0x0082fd00[index]);
         return;
     case 1:
         scale = FixMul(g_unk0x0082d148, 0x8000);
@@ -7835,7 +7835,7 @@ void OptionPreview_UpdateStageSkyColours(int index)
         g_unk0x0082d150 = scale;
         g_unk0x0082d154 = scale;
         g_unk0x0082d158 = scale;
-        FUN_00508890((int *)&g_unk0x0082d220[index]);
+        CarDamage_ApplyCameraSpaceMeshDent((int *)&g_unk0x0082d220[index]);
         return;
     default:
         g_unk0x0082d144 = 0x4000;
@@ -7845,13 +7845,13 @@ void OptionPreview_UpdateStageSkyColours(int index)
         g_unk0x0082d150 = scale;
         g_unk0x0082d154 = scale;
         g_unk0x0082d158 = scale;
-        FUN_00508890((int *)&g_unk0x0082d220[index]);
+        CarDamage_ApplyCameraSpaceMeshDent((int *)&g_unk0x0082d220[index]);
         return;
     }
 }
 
 // Builds the deform geometry of stage entry <index>: the eight corners of the
-// box around it, the twelve vertices FUN_00507fe0 deforms and the position of
+// box around it, the twelve vertices OptionPreview_RebuildDeformedGeometry deforms and the position of
 // the four anchor matrices. The box extents depend on the rally the entry
 // belongs to.
 // FUNCTION: CMR2 0x00507a10
@@ -8090,7 +8090,7 @@ void OptionPreview_BuildDeformGeometry(Unk0x0082d220 *pObject, int index)
 // limit normal (clamped by StageDeform_ClampVertex) with three times the
 // displacement the clamp applied.
 // FUNCTION: CMR2 0x00507fe0
-void FUN_00507fe0(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom)
+void OptionPreview_RebuildDeformedGeometry(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom)
 {
     FixVector d;
     FixVector dv;
@@ -8236,7 +8236,7 @@ void OptionPreview_AssignConvertedVertexBuffers(int param1, int param2, int para
     int match;
     int target;
 
-    FUN_00506bb0(param1, param2, param3);
+    OptionPreview_AllocateConvertedWheelVertices(param1, param2, param3);
     for (i = 0; i < *(BYTE *)(param3 + 0x26a); i++) {
         j = 0;
         match = -1;
@@ -8264,17 +8264,17 @@ char *NetworkChat_GetLine(int index)
 // the frame time instead and flags the fade as finished.
 // match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00500130
-void FUN_00500130(void)
+void OptionMenu_AdvanceSharedModeValue(void)
 {
     Unk0049c2c0 *p = Game_GetSecondaryCallbackMachine();
     int value = OptionMenu_GetPlayerSlotOffset() - 1;
 
     if (value != 0) {
-        CGame::FUN_0049c1c0(p, 0, 1, 2);
+        CGame::PromoteCallbackEntryByRule(p, 0, 1, 2);
         OptionMenu_SetPlayerSlotOffset(value);
         return;
     }
-    CGame::FUN_0049c1c0(p, 0, 0, 2);
+    CGame::PromoteCallbackEntryByRule(p, 0, 0, 2);
     g_unk0x0082a938 = 0;
     g_unk0x0082b0a4 = CMain::GetFrameDelta();
     OptionMenu_SetPlayerSlotOffset(1);
@@ -8407,7 +8407,7 @@ BYTE OptionMenu_DoesValueMatch(int param_1, int param_2, int param_3)
 
 // Runs the callback of every enabled slot: the table is 0x14 bytes per slot and
 // each slot owns 8 of them.
-void FUN_005062d0(unsigned int);
+void OptionPreview_LoadStageGeometryRecord(unsigned int);
 
 // FUNCTION: CMR2 0x0050a3c0
 void OptionPreview_UpdateAllSlots(void)
@@ -8416,7 +8416,7 @@ void OptionPreview_UpdateAllSlots(void)
 
     if ((unsigned int)CGameInfo::GetConfiguredPlayerCount() > 0) {
         do {
-            FUN_005062d0(i);
+            OptionPreview_LoadStageGeometryRecord(i);
             i++;
         } while (i < CGameInfo::GetConfiguredPlayerCount());
     }
@@ -8425,7 +8425,7 @@ void OptionPreview_UpdateAllSlots(void)
 // Moves the left or the right edge of the slot's layout rectangle towards the
 // centre while its interpolation is running.
 // FUNCTION: CMR2 0x00501de0
-void FUN_00501de0(int param_1, short *param_2)
+void OptionMenu_AnimateLayoutRectangleEdge(int param_1, short *param_2)
 {
     Unk0x0082b2c0 *p;
     int mid;
@@ -8563,7 +8563,7 @@ void OptionMenu_IncrementSharedValue(Menu *pMenu, char param)
     if (value > CGameInfo::GetConfiguredPlayerCount())
         value = CGameInfo::GetConfiguredPlayerCount();
     else
-        CGame::FUN_0049c1c0(p, 0, 1, 2);
+        CGame::PromoteCallbackEntryByRule(p, 0, 1, 2);
     OptionMenu_SetPlayerSlotOffset(value);
 }
 
@@ -8636,7 +8636,7 @@ char g_str0x005295f0[] = " (mins)";
 // minute around the target, the time of the target and the "(mins)" suffix.
 // match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0050a3f0
-void FUN_0050a3f0(void)
+void OptionMenu_DrawClampedStageTime(void)
 {
     int value = OptionMenu_GetSlotSelector(CGameInfo::GetActiveOptionSlot());
     int target = OptionMenu_GetSharedValue();
@@ -8665,7 +8665,7 @@ void FUN_0050a3f0(void)
                  (int)g_pGraphics->resY * 0x6d / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
     OptionMenu_SetSharedValue(shown);
     sprintf(CFrontend::m_stringDest, g_str0x0051a904, (shown / 100) / 0x3c, (shown / 100) % 0x3c);
-    if (CGameInfo::FUN_005004c0() != 0)
+    if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
         OptionMenu_DrawTransitionTextShortCoords(4, 3, 3, CFrontend::m_stringDest,
                      g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                      (int)g_pGraphics->resY * 0x96 / 0x1e0,
@@ -8678,7 +8678,7 @@ void FUN_0050a3f0(void)
     width = Font_GetTextWidth(3, (BYTE *)CFrontend::m_stringDest);
     x = g_unk0x005293a0 * (int)g_pGraphics->resX;
     sprintf(CFrontend::m_stringDest, g_str0x005295f0);
-    if (CGameInfo::FUN_005004c0() != 0)
+    if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
         OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::m_stringDest, x / 0x280 + width,
                      (int)g_pGraphics->resY * 0x90 / 0x1e0,
                      &g_unk0x00527378, &g_unk0x00527378, 0x11);
@@ -8932,7 +8932,7 @@ void OptionMenu_DrawCountryFlags(void)
 // match 75%: implementada; misma lógica, MSVC elige &item+0xa como base del
 // item (la original usa &item->id) y reordena el prólogo del rect.
 // FUNCTION: CMR2 0x00402000
-void FUN_00402000(Menu *pMenu)
+void InRaceMenu_DrawLabelAndValueRows(Menu *pMenu)
 {
     MenuItem *pItem;
     int i;
@@ -8957,7 +8957,7 @@ void FUN_00402000(Menu *pMenu)
     g_unk0x0052ad58[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0052ad58, (BYTE *)&g_unk0x0051608c, 2);
-    FUN_00401b60();
+    InRaceMenu_DrawHeaderBar();
     g_unk0x0052ad58[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     g_unk0x0052ad58[2] = *(short *)(g_unk0x0052aa60 + 0x120);
     g_unk0x0052ad58[3] = *(short *)(g_unk0x0052aa60 + 0x122);
@@ -9035,7 +9035,7 @@ int g_unk0x0051607c = 0x80dbaca7;
 // el maximo de anchos y las divisiones del slider (los dos rects en registros).
 // match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00403890
-void FUN_00403890(Menu *pMenu)
+void InRaceMenu_DrawSliderRows(Menu *pMenu)
 {
     MenuItem *pItem;
     short rect[4];
@@ -9060,7 +9060,7 @@ void FUN_00403890(Menu *pMenu)
     *(DWORD *)fade = g_unk0x0051608c;
     fade[3] = 0x73;
     Sprite_FillRect((int)g_pGraphics + 0x150, rect, fade, 2);
-    FUN_00401b60();
+    InRaceMenu_DrawHeaderBar();
     maxWidth = 0;
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
@@ -9151,7 +9151,7 @@ void FUN_00403890(Menu *pMenu)
 }
 
 
-// Draws the rows of the car-setup menu (FUN_00404000): each row paints the
+// Draws the rows of the car-setup menu (InRaceMenu_BuildCarSetup): each row paints the
 // item's own label and then, for every value placed in the item's min/max
 // bytes, the matching sub-string; the entry equal to max is highlighted and the
 // selected row is drawn brighter with the highlighted row sprite.
@@ -9159,7 +9159,7 @@ void FUN_00403890(Menu *pMenu)
 #define MENU_ITEM_Y(i) (((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * (i) + (int)(g_pGraphics->resY * 0xaa) / 0x1e0)
 
 // FUNCTION: CMR2 0x004041e0
-void FUN_004041e0(Menu *pMenu)
+void InRaceMenu_DrawCarSetupChoices(Menu *pMenu)
 {
     MenuItem *pItem;
     short rect[4];
@@ -9285,7 +9285,7 @@ void FUN_004041e0(Menu *pMenu)
 // ---------------------------------------------------------------------------
 // Network options and the option screen separators.
 
-void FUN_00411b20(void);
+void RallyData_LayoutPlayerSplitBars(void);
 void Dash_Update(int player);
 // Screen separator scratch rect of the option screens (x, y, width, height),
 // also used by the controls pages; defined in FrontendMenus.cpp.
@@ -9304,7 +9304,7 @@ void InRaceMenu_ApplyNetworkOptions(Menu *pMenu, int param)
 
     index = Menu_FindItem(pMenu, 2);
     CGameInfo::SetSplitBarEnabled(pMenu->items[index].max);
-    FUN_00411b20();
+    RallyData_LayoutPlayerSplitBars();
     index = Menu_FindItem(pMenu, 4);
     CGameInfo::SetDashOptionEnabled(pMenu->items[index].max);
     Dash_Update(*(BYTE *)&g_unk0x0052af58[1]);
@@ -9431,7 +9431,7 @@ struct Unk0x0082c6c8Anim {
 // mismo contador de saltos (bl) que nosotros, pero guarda los 16.16 en EBP-4/EBP-8 y reutiliza
 // EAX/EDX en otro orden, asi que las cuatro interpolaciones de borde salen desplazadas.
 // FUNCTION: CMR2 0x00505b40
-void FUN_00505b40(void)
+void OptionMenu_AnimateSelectedPanel(void)
 {
     Unk0x0082c6c8Anim *pEntry;
     unsigned int now;
@@ -9516,25 +9516,25 @@ void OptionMenu_SelectDisplaySlot(int param_1)
         }
         Menu_SetFlags((Menu *)OptionMenu_GetControlSetupMenu(), 1, 1, 1, 1);
         if ((signed char)g_unk0x0082ca1c != param_1) {
-            CGameInfo::FUN_00505e10((BYTE)(param_1 % g_unk0x0082c694));
-            FUN_00505b40();
+            CGameInfo::SelectIdleOptionPreviewEntry((BYTE)(param_1 % g_unk0x0082c694));
+            OptionMenu_AnimateSelectedPanel();
             return;
         }
     } else {
         Menu_SetFlags((Menu *)OptionMenu_GetControlSetupMenu(), 0, 0, 0, 0);
     }
-    FUN_00505b40();
+    OptionMenu_AnimateSelectedPanel();
 }
 
 // ---------------------------------------------------------------------------
 // W171 batch: game-info state/menu functions (0x50a880-0x50ee10)
 // ---------------------------------------------------------------------------
-void FUN_005043b0(void);
-void FUN_0050b1c0(short param1, short param2, short param3, short param4, short param5, int param6);
+void RallyData_EnterSelectedOptionPanel(void);
+void OptionMenu_DrawAnimatedScreenRows(short param1, short param2, short param3, short param4, short param5, int param6);
 void OptionMenu_DrawStageSelectionPanel(int param1);
-void FUN_0050c420(int param1);
+void OptionMenu_DrawResultsOptions(int param1);
 void OptionMenu_DrawGameInfoLayout(int param1, int param2);
-void FUN_0050a920(int param1);
+void OptionMenu_DrawResultsRallyInfo(int param1);
 
 // Switches the active display slot of the current menu to param_1 and then
 // refreshes the slot animation.
@@ -9542,7 +9542,7 @@ void FUN_0050a920(int param1);
 void OptionMenu_SelectAndAnimateSlot(int param_1, int param_2)
 {
     OptionMenu_SelectDisplaySlot(param_1);
-    FUN_005043b0();
+    RallyData_EnterSelectedOptionPanel();
 }
 
 // Draws the recalled rally entry of the mode panel: option row 7 with the
@@ -9551,7 +9551,7 @@ void OptionMenu_SelectAndAnimateSlot(int param_1, int param_2)
 void OptionMenu_DrawRecalledRallyEntry(int param_1, int param_2)
 {
     int value = OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14];
-    FUN_0050b1c0(7, value, 2, g_unk0x005293a0, 0xf2, param_2);
+    OptionMenu_DrawAnimatedScreenRows(7, value, 2, g_unk0x005293a0, 0xf2, param_2);
 }
 
 // Draws the stage list of the mode panel: option row 0xb with colour 0xaa.
@@ -9559,7 +9559,7 @@ void OptionMenu_DrawRecalledRallyEntry(int param_1, int param_2)
 void OptionMenu_DrawModeStageList(int param_1)
 {
     int value = OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2) * 0x14];
-    FUN_0050b1c0(0xb, value, 1, g_unk0x005293a0, 0xaa, 0);
+    OptionMenu_DrawAnimatedScreenRows(0xb, value, 1, g_unk0x005293a0, 0xaa, 0);
 }
 
 // Draws the game-info title string and the current option of the mode panel.
@@ -9570,7 +9570,7 @@ void OptionMenu_DrawModeTitle(void)
                  (int)g_pGraphics->resX * 0xf0 / 0x280, (int)g_pGraphics->resY * 200 / 0x1e0,
                  g_unk0x00527380, g_unk0x0052738c, 0x11);
     int value = OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 5) * 0x14];
-    FUN_0050b1c0(2, value, 3, 0xf0, 0xd7, 0);
+    OptionMenu_DrawAnimatedScreenRows(2, value, 3, 0xf0, 0xd7, 0);
 }
 
 // Clears the live slots and then re-renders the mode panel with the raised
@@ -9578,7 +9578,7 @@ void OptionMenu_DrawModeTitle(void)
 // FUNCTION: CMR2 0x0050edf0
 void OptionMenu_DrawRaisedRallyInfo(unsigned int param_1)
 {
-    FUN_0050c420(0);
+    OptionMenu_DrawResultsOptions(0);
     OptionMenu_DrawStageSelectionPanel(param_1);
 }
 
@@ -9587,12 +9587,12 @@ void OptionMenu_DrawRaisedRallyInfo(unsigned int param_1)
 // FUNCTION: CMR2 0x0050ee10
 void OptionMenu_DrawRallyInfoScreen(unsigned int param_1)
 {
-    FUN_0050c420(1);
-    FUN_0050a3f0();
+    OptionMenu_DrawResultsOptions(1);
+    OptionMenu_DrawClampedStageTime();
     OptionMenu_DrawRightColumn();
     OptionMenu_DrawRecalledRallyEntry(param_1, 1);
     OptionMenu_DrawGameInfoLayout(param_1, 1);
-    FUN_0050a920(0);
+    OptionMenu_DrawResultsRallyInfo(0);
     OptionMenu_DrawSeparators(CGameInfo::GetActiveOptionSlot());
 }
 
@@ -9611,7 +9611,7 @@ class type_info
 {
 public:
     virtual ~type_info();
-    void *FUN_005105a0(BYTE param_1);
+    void *DeleteWithFlags(BYTE param_1);
 };
 
 // match 82%: the original's CRT copy of this deleting destructor cleans the
@@ -9620,7 +9620,7 @@ public:
 // virtual destructor, and the two imported call targets already resolve to the
 // same symbols. Only that single instruction differs.
 // FUNCTION: CMR2 0x005105a0
-void *type_info::FUN_005105a0(BYTE param_1)
+void *type_info::DeleteWithFlags(BYTE param_1)
 {
     this->type_info::~type_info();
     if (param_1 & 1)
@@ -9898,12 +9898,12 @@ extern char g_strFlagSS[4];
 // Undocumented batch functions of the option/boot subsystem.
 void OptionMenu_DrawRecalledRallyEntry(int, int);
 void OptionMenu_DrawModeStageList(int);
-void FUN_0050a920(int);
+void OptionMenu_DrawResultsRallyInfo(int);
 void OptionMenu_DrawSlotStripPanel(int);
-void FUN_0050c420(int);
+void OptionMenu_DrawResultsOptions(int);
 void OptionMenu_DrawGameInfoLayout(int, int);
 void OptionMenu_DrawModeTitle(void);
-void FUN_0050b1c0(short, short, short, short, short, int);
+void OptionMenu_DrawAnimatedScreenRows(short, short, short, short, short, int);
 void OptionMenu_DrawRecordValues(unsigned int);
 
 // GLOBAL: CMR2 0x00529430
@@ -9972,7 +9972,7 @@ void OptionMenu_DrawRecordValues(unsigned int param_1)
         OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::GetTextString(0x140), (int)g_pGraphics->resX / 2,
                      (int)g_pGraphics->resY / 2, pUnsel, g_unk0x0052738c, 0x12);
     }
-    FUN_0050b1c0(2, *(unsigned char *)(param_1 + 0x1f +
+    OptionMenu_DrawAnimatedScreenRows(2, *(unsigned char *)(param_1 + 0x1f +
                                        Menu_FindItem((Menu *)param_1, 4) * 0x14),
                  4, 0x32, 0x17c, 1);
     if (CGameInfo::GetActiveOptionSlot() == 1)
@@ -10041,7 +10041,7 @@ void OptionMenu_DrawValueSelectionRows(unsigned int param_1)
         g_unk0x00831660[1] =
             (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1) + yBase);
         if (i == sel || i + 1 == sel) {
-            if (CGameInfo::FUN_005004c0() != 0)
+            if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
             else
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&colour, 1);
@@ -10056,19 +10056,19 @@ void OptionMenu_DrawValueSelectionRows(unsigned int param_1)
 // FUNCTION: CMR2 0x0050eba0
 void OptionMenu_DispatchRecordEditState(unsigned int param_1)
 {
-    FUN_0050c420(0);
+    OptionMenu_DrawResultsOptions(0);
     switch (OptionMenu_FindFirstDetailedSlot()) {
     case 1:
-        FUN_0050a3f0();
+        OptionMenu_DrawClampedStageTime();
         OptionMenu_DrawRightColumn();
         OptionMenu_DrawRecalledRallyEntry(param_1, 0);
         OptionMenu_DrawGameInfoLayout((int)OptionMenu_GetValueSliderMenu(), 0);
-        FUN_0050a920(0);
+        OptionMenu_DrawResultsRallyInfo(0);
         OptionMenu_DrawSeparators(CGameInfo::GetActiveOptionSlot());
         if (g_unk0x00529430 !=
             OptionMenu_GetColumnLabelId(OptionMenu_GetControlSetupMenu()[0x1f +
                                         Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14])) {
-            FUN_00506930(CGameInfo::GetActiveOptionSlot(),
+            OptionPreview_SetTargetWheelAngles(CGameInfo::GetActiveOptionSlot(),
                          (short *)&g_unk0x005273c0[OptionMenu_GetColumnLabelId(
                              OptionMenu_GetControlSetupMenu()[0x1f +
                                             Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14])],
@@ -10087,14 +10087,14 @@ void OptionMenu_DispatchRecordEditState(unsigned int param_1)
         }
         break;
     case 2:
-        FUN_0050a3f0();
+        OptionMenu_DrawClampedStageTime();
         OptionMenu_DrawModeStageList(param_1);
-        FUN_0050a920(1);
+        OptionMenu_DrawResultsRallyInfo(1);
         OptionMenu_DrawSeparators(CGameInfo::GetActiveOptionSlot());
         if (g_unk0x00529430 !=
             OptionMenu_GetColumnWeight(OptionMenu_GetControlSetupMenu()[0x1f +
                                         Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2) * 0x14])) {
-            FUN_00506930(CGameInfo::GetActiveOptionSlot(),
+            OptionPreview_SetTargetWheelAngles(CGameInfo::GetActiveOptionSlot(),
                          (short *)&g_unk0x005273c0[OptionMenu_GetColumnWeight(
                              OptionMenu_GetControlSetupMenu()[0x1f +
                                             Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2) * 0x14])],
@@ -10149,7 +10149,7 @@ extern char g_str0x00519fb0[];
 
 
 // stdcall callees that are not implemented yet (ret 8 / ret 0x18).
-void FUN_0050b1c0(short, short, short, short, short, int);
+void OptionMenu_DrawAnimatedScreenRows(short, short, short, short, short, int);
 void OptionMenu_SelectAndAnimateSlot(int, int);
 
 // Draws the rally information panel of the results screen: the two shaded
@@ -10158,7 +10158,7 @@ void OptionMenu_SelectAndAnimateSlot(int, int);
 // match 88%: register allocation / block placement only (676 vs 675 instrs, all relocations and magic-division blocks match); MSVC picks different registers across the menu byte loads and the option-row loop, and if-converts the two ternaries where the original branches.
 // match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0050a920
-void FUN_0050a920(int param_1)
+void OptionMenu_DrawResultsRallyInfo(int param_1)
 {
     BYTE col[12] = { 0xae, 0xc9, 0x65, 0xff, 0x57, 0x94, 0xc4, 0xff,
                      0xc1, 0x61, 0xa0, 0xff };
@@ -10213,7 +10213,7 @@ void FUN_0050a920(int param_1)
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0);
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x147 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0);
-        FUN_0050ee50(g_unk0x00831660, 1, 0x15, col);
+        OptionMenu_DrawThreeColourGradientStrips(g_unk0x00831660, 1, 0x15, col);
         sprintf(CFrontend::m_stringDest, g_str0x00519fb0);
         Font_DrawText(0, CFrontend::m_stringDest, g_unk0x00831660[0],
                       (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x11);
@@ -10260,7 +10260,7 @@ void FUN_0050a920(int param_1)
         t = g_unk0x005293c0[idx] * 6000;
     }
     sprintf(CFrontend::m_stringDest, g_str0x0051a904, (t / 100) / 60, (t / 100) % 60);
-    if (CGameInfo::FUN_005004c0() != 0)
+    if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
         pCol = &g_unk0x00527378;
     else
         pCol = &g_unk0x0052737c;
@@ -10329,7 +10329,7 @@ void OptionMenu_DrawSlotStripPanel(int param_1)
 {
     SpriteRect local;
 
-    FUN_0050b1c0((short)CGameInfo::GetPreviewLayoutMode(),
+    OptionMenu_DrawAnimatedScreenRows((short)CGameInfo::GetPreviewLayoutMode(),
                  OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 0) * 0x14],
                  0, g_unk0x005293a0, 0x124, 0);
     if (g_unk0x00831668 != 0) {
@@ -10340,7 +10340,7 @@ void OptionMenu_DrawSlotStripPanel(int param_1)
         local = *(SpriteRect *)g_unk0x00831660;
         local.y = 0;
         local.x = 0;
-        FUN_00501de0(2, g_unk0x00831660);
+        OptionMenu_AnimateLayoutRectangleEdge(2, g_unk0x00831660);
         Sprite_Queue(&local, (SpriteRect *)g_unk0x00831660, (Texture *)g_unk0x00831668,
                      1, 0, NULL, NULL, g_colour0x005273a8, 8);
     }
@@ -10395,7 +10395,7 @@ char g_str0x00524d2c[] = "%s: %d.0";
 // [ebp-4]. Every mismatch in the two blend blocks is that slot swap; the block
 // ordering and the switch lowering are identical.
 // FUNCTION: CMR2 0x0050c420
-void FUN_0050c420(int param_1)
+void OptionMenu_DrawResultsOptions(int param_1)
 {
     int colour;
     int frames;
@@ -10517,7 +10517,7 @@ void FUN_0050c420(int param_1)
 // scheduling of `bar[2] = 1` differ. Source-level reordering (declaration order,
 // separate pointer/second-column variables) does not move MSVC 6's slots.
 // FUNCTION: CMR2 0x0050f650
-void FUN_0050f650(int param_1, int param_2)
+void OptionMenu_DrawStageSummaryPanel(int param_1, int param_2)
 {
     short bar[4];
     BYTE *table;
@@ -10665,7 +10665,7 @@ char g_str0x00529600[] = "%s %d (%s)";
 // while the original compares it signed; the call site casts to int for jg.
 // OptionMenu_IsValueDefault returns BYTE, matching the original test al.
 // FUNCTION: CMR2 0x0050b1c0
-void FUN_0050b1c0(short param1, short param2, short param3, short param4, short param5, int param6)
+void OptionMenu_DrawAnimatedScreenRows(short param1, short param2, short param3, short param4, short param5, int param6)
 {
     short rectP[4];
     short rectQ[4];
@@ -10720,7 +10720,7 @@ void FUN_0050b1c0(short param1, short param2, short param3, short param4, short 
     OptionMenu_EaseRecordBar(0, g_unk0x00831660, 1, 1);
 
     if (param2 == 0) {
-                if (CGameInfo::FUN_005004c0() != 0)
+                if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
         else
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&param6, 1);
@@ -10754,7 +10754,7 @@ Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527
                 if (i != param2) {                    Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                  (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
                                  (BYTE *)&g_unk0x00527380[1], 8);
-                            } else {                                        if (CGameInfo::FUN_005004c0() != 0)
+                            } else {                                        if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
                                      (BYTE *)&g_unk0x00527378, 8);
@@ -10766,7 +10766,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
                                      (BYTE *)&g_unk0x00527380[1], 8);
-                                } else {                                                if (CGameInfo::FUN_005004c0() != 0)
+                                } else {                                                if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
                                          (BYTE *)&g_unk0x00527378, 8);
@@ -10778,7 +10778,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
                                      (BYTE *)&g_unk0x00527380[1], 8);
-                                } else {                                                if (CGameInfo::FUN_005004c0() != 0)
+                                } else {                                                if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
                                          (BYTE *)&g_unk0x00527378, 8);
@@ -10838,7 +10838,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                 if (i != param2) {                    Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                  (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
                                  (BYTE *)&g_unk0x00527380[1], 8);
-                            } else {                                        if (CGameInfo::FUN_005004c0() != 0)
+                            } else {                                        if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
                                      (BYTE *)&g_unk0x00527378, 8);
@@ -10850,7 +10850,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
                                      (BYTE *)&g_unk0x00527380[1], 8);
-                                } else {                                                if (CGameInfo::FUN_005004c0() != 0)
+                                } else {                                                if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
                                          (BYTE *)&g_unk0x00527378, 8);
@@ -10862,7 +10862,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
                                      (BYTE *)&g_unk0x00527380[1], 8);
-                                } else {                                                if (CGameInfo::FUN_005004c0() != 0)
+                                } else {                                                if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
                                          (BYTE *)&g_unk0x00527378, 8);
@@ -10878,7 +10878,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
             break;
         }
         if (i == param2) {
-            if (CGameInfo::FUN_005004c0() != 0) {
+            if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0) {
                                 if (OptionMenu_GetRecordTransitionMode(3) != 2)
 OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                                  (int)g_pGraphics->resX * 0x14 / 0x280 +
@@ -10938,7 +10938,7 @@ OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * param5 / 0x1e0 +
                                      (int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1));
         if (i == param2 || i + 1 == param2) {
-            if (!(!(CGameInfo::FUN_005004c0() != 0)))
+            if (!(!(CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)))
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
             else
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&param6, 1);
@@ -10963,9 +10963,9 @@ extern int *RallyData_GetDriverSecondaryPairRecord(int index);
 extern unsigned char RallyDataCountryIndex(void);
 extern unsigned char RallyDataStageIndex(void);
 extern BYTE RallyData_GetSelectionStateByte(void);
-extern void FUN_00500270(Menu *, MenuItem *);
-extern void FUN_00503010(int param_1, int param_2);
-extern void FUN_00500130(void);
+extern void OptionMenu_ConfirmOrRevertHighlightedValue(Menu *, MenuItem *);
+extern void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2);
+extern void OptionMenu_AdvanceSharedModeValue(void);
 extern void OptionMenu_Start(char param1);
 extern void OptionMenu_ClearRecordTransition(int index);
 extern void OptionMenu_ClearTimeout(void);
@@ -11159,13 +11159,13 @@ void OptionMenu_ApplyHighlightedValue(Menu *pMenu, MenuItem *pItem)
     if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(pItem->max)) != 0)
         OptionMenu_ApplySecondModeItem(pMenu, (int)pItem);
     else
-        FUN_00500270(pMenu, pItem);
+        OptionMenu_ConfirmOrRevertHighlightedValue(pMenu, pItem);
 }
 
 // Confirms the value of the highlighted entry of the option menu: applies it
 // when the slot still had a different one, or reverts the highlighted row.
 // FUNCTION: CMR2 0x00500270
-void FUN_00500270(Menu *pMenu, MenuItem *pItem)
+void OptionMenu_ConfirmOrRevertHighlightedValue(Menu *pMenu, MenuItem *pItem)
 {
     int index;
     int value;
@@ -11182,7 +11182,7 @@ void FUN_00500270(Menu *pMenu, MenuItem *pItem)
         }
     }
     if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), value) == 0)
-        FUN_00503010(CGameInfo::GetActiveOptionSlot(), value);
+        OptionMenu_RevertRallyRecordGroup(CGameInfo::GetActiveOptionSlot(), value);
     Menu_SetNextAction((int)pMenu->pParent);
 }
 
@@ -11191,7 +11191,7 @@ void FUN_00500270(Menu *pMenu, MenuItem *pItem)
 // (Not listed in functions.tsv; it is the counter part of OptionMenu_ApplyRallyRecordGroup.)
 // match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00503010
-void FUN_00503010(int param_1, int param_2)
+void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
 {
     BYTE *pDest = g_unk0x0082c070 + param_1 * 0x148;
     int value;
@@ -11223,7 +11223,7 @@ void FUN_00503010(int param_1, int param_2)
         pDest[0x111] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[2]);
-        FUN_00509d00(param_1);
+        OptionPreview_ClearSkyFadeShape(param_1);
         g_unk0x0082c040[param_1][3] = 1;
         return;
     case 4:
@@ -11352,14 +11352,14 @@ void FUN_00503010(int param_1, int param_2)
         pDest[0x10b] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[10]);
-        FUN_00509d90(param_1);
+        OptionPreview_ClearColourFractions(param_1);
         g_unk0x0082c040[param_1][11] = 1;
         return;
     }
 }
 
 extern void OptionMenu_UpdateLoadGameAndNameEntry(Menu *pMenu);
-extern void FUN_004ffab0(unsigned int param1);
+extern void OptionMenu_UpdateMessagesAndRecordStates(unsigned int param1);
 extern bool Input_PopQueuedCharacter(int *pOut);
 extern void Input_ClearCharacterQueue(void);
 
@@ -11573,7 +11573,7 @@ BYTE OptionPreview_ReleaseSessionResources(void)
 // option rows when the highlighted entry changes, animates the row states and
 // normalises the country and stage selections of the session.
 // FUNCTION: CMR2 0x004ffab0
-void FUN_004ffab0(Menu *pMenu)
+void OptionMenu_UpdateMessagesAndRecordStates(Menu *pMenu)
 {
     int i;
     int value;
@@ -11582,7 +11582,7 @@ void FUN_004ffab0(Menu *pMenu)
     if (g_unk0x0082ac4c > 0) {
         g_unk0x0082ac4c--;
         if (g_unk0x0082ac4c == 0)
-            FUN_00500130();
+            OptionMenu_AdvanceSharedModeValue();
     }
     if (g_unk0x0082ac50 > 0) {
         g_unk0x0082ac50--;
@@ -11690,7 +11690,7 @@ void FUN_004ffab0(Menu *pMenu)
 // The frontend and geometry loader use the same scratch buffer in the original.
 #define g_unk0x00663b60 CFrontend::m_stringDest
 SceneNode *SceneNode_FindByType(SceneNode *, unsigned int);
-// Dependencias de FUN_005062d0: las funciones de clase se toman de sus cabeceras.
+// Dependencias de OptionPreview_LoadStageGeometryRecord: las funciones de clase se toman de sus cabeceras.
 #include "Game.h"
 #include "Graphics.h"
 #include "FileBuffer.h"
@@ -11708,7 +11708,7 @@ int  OptionMenu_GetBackgroundRoot(void);
 // carga los recursos, rellena el registro del stage (matrices de las ruedas, mallas y contadores) y libera
 // lo temporal. Devuelve 1 si el stage se cargo.
 // FUNCTION: CMR2 0x005062d0
-int FUN_005062d0(int index)
+int OptionPreview_LoadStageGeometryRecord(int index)
 {
     Unk0x0082cb78 *pEntry;
     int hC3D;
@@ -11804,7 +11804,7 @@ int FUN_005062d0(int index)
     *(int *)((BYTE *)pEntry + 0x4) = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)5);
     *(int *)((BYTE *)pEntry + 0xc) = nodeL;
     *(int *)((BYTE *)pEntry + 0x10) = nodeS;
-    FUN_00507080(index);
+    OptionPreview_RebuildStageMeshRecord(index);
     OptionPreview_BuildDeformGeometry(&g_unk0x0082d220[index], index);
     {
         int h = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)0xe);
@@ -11831,10 +11831,10 @@ extern BYTE g_unk0x00825d14[0x258];
 extern BYTE g_unk0x00825f6c[0x1cc];
 
 BYTE *RallyData_GetAvailableCategorySaveRecord(int index);
-void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char *pOut);
+void FrontendProfile_ScrambleIdentifier(unsigned int param_1, unsigned int *pNumber, char *pByte, char *pOut);
 
 // Rewrites every best-time record of the selected rally as a scrambled
-// identifier string (see FUN_004fb8d0/FrontendText_FormatCodeGroups) into the five tables the
+// identifier string (see FrontendProfile_ScrambleIdentifier/FrontendText_FormatCodeGroups) into the five tables the
 // profile screens display.
 // residue is the local-variable slot assignment (MSVC 6 picked a different
 // variable -> frame offset mapping, so every instruction with a stack operand
@@ -11842,7 +11842,7 @@ void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char
 // its slot where we keep it in a register.
 // match 61%: below the 90% bar; kept as FUNCTION so reccmp measures it.
 // FUNCTION: CMR2 0x004f8b30
-void FUN_004f8b30(void)
+void FrontendRecords_BuildScrambledBestTimeTables(void)
 {
     BYTE bVar1;
     int iVar2;
@@ -11892,7 +11892,7 @@ void FUN_004f8b30(void)
                         puVar7 = (unsigned int *)((int)puVar7 + 1);
                         iVar2--;
                     } while (iVar2 != 0);
-                    FUN_004fb8d0(0, &local_8, (char *)&local_4,
+                    FrontendProfile_ScrambleIdentifier(0, &local_8, (char *)&local_4,
                                  (char *)&g_unk0x0082547c[((int)local_10 * 11 + uVar8) * 0x19]);
                     FrontendText_FormatCodeGroups((char *)&g_unk0x0082547c[((int)local_10 * 11 + uVar8) * 0x19]);
                 }
@@ -11935,7 +11935,7 @@ void FUN_004f8b30(void)
                     puVar7 = (unsigned int *)((int)puVar7 + 1);
                     iVar3--;
                 } while (iVar3 != 0);
-                FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)local_18);
+                FrontendProfile_ScrambleIdentifier(0, &local_8, (char *)&local_4, (char *)local_18);
                 FrontendText_FormatCodeGroups((char *)local_18);
             }
             uVar5++;
@@ -11969,7 +11969,7 @@ void FUN_004f8b30(void)
                 puVar10 = (unsigned int *)((int)puVar10 + 1);
                 iVar2--;
             } while (iVar2 != 0);
-            FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)puVar9);
+            FrontendProfile_ScrambleIdentifier(0, &local_8, (char *)&local_4, (char *)puVar9);
             FrontendText_FormatCodeGroups((char *)puVar9);
         } else {
             *puVar9 = 0;
@@ -12006,7 +12006,7 @@ void FUN_004f8b30(void)
                     puVar10 = (unsigned int *)((int)puVar10 + 1);
                     iVar2--;
                 } while (iVar2 != 0);
-                FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)local_c);
+                FrontendProfile_ScrambleIdentifier(0, &local_8, (char *)&local_4, (char *)local_c);
                 FrontendText_FormatCodeGroups((char *)local_c);
             } else {
                 *(BYTE *)local_c = 0;
@@ -12046,7 +12046,7 @@ void FUN_004f8b30(void)
                 puVar7 = (unsigned int *)((int)puVar7 + 1);
                 iVar2--;
             } while (iVar2 != 0);
-            FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)local_10);
+            FrontendProfile_ScrambleIdentifier(0, &local_8, (char *)&local_4, (char *)local_10);
             FrontendText_FormatCodeGroups((char *)local_10);
         }
         local_10 += 0x19;

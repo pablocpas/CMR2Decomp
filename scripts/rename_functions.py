@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Plan and apply batches of descriptive names to byte-exact functions.
+"""Plan and apply batches of descriptive function names.
 
 export writes an editable TSV; fill new_name and evidence, leaving other rows
 blank. show displays a body and its references. preview emits a unified diff.
 apply rebuilds, measures, checks object code and runs the differential suite;
 on failure it restores edited files, build artifacts and measurement reports.
-No names are inferred automatically. Only the relocated byte audit is used.
+No names are inferred automatically. The relocated byte audit selects exact
+functions by default; --include-nonexact explicitly includes partial matches.
 """
 import argparse
 from collections import Counter
@@ -158,7 +159,7 @@ def require_fresh(root):
         raise ValueError("Original executable changed since measurement.")
 
 
-def export_map(root, output, file_filter=None, include_named=False):
+def export_map(root, output, file_filter=None, include_named=False, include_nonexact=False):
     require_fresh(root)
     audit = load_audit(root)
     stream = io.StringIO(newline="")
@@ -166,7 +167,7 @@ def export_map(root, output, file_filter=None, include_named=False):
     writer.writeheader()
     count = 0
     for address, fn in sorted(functions(root).items()):
-        if not audit.get(address, {}).get("x"):
+        if not audit.get(address, {}).get("x") and not include_nonexact:
             continue
         if file_filter and fn.path.name not in file_filter:
             continue
@@ -182,7 +183,8 @@ def export_map(root, output, file_filter=None, include_named=False):
         # Never overwrite a map that may already contain reviewed names.
         with output.open("xb") as handle:
             handle.write(encode(stream.getvalue()))
-        print(f"{count} byte-exact functions exported to {output}")
+        selection = "audited" if include_nonexact else "byte-exact"
+        print(f"{count} {selection} functions exported to {output}")
 
 
 def read_map(path):
@@ -221,7 +223,7 @@ def replace_cpp(text, renames):
     return "".join(output)
 
 
-def make_plan(root, rows):
+def make_plan(root, rows, include_nonexact=False):
     known = functions(root)
     audit = load_audit(root)
     basenames = Counter(fn.name.rsplit("::", 1)[-1] for fn in known.values())
@@ -237,7 +239,9 @@ def make_plan(root, rows):
         fn = known.get(address)
         if fn is None or old != fn.name:
             raise ValueError(f"Stale map at {address:#x}: current name is {fn.name if fn else 'missing'}")
-        if not audit.get(address, {}).get("x"):
+        if address not in audit:
+            raise ValueError(f"Function is not audited: {address:#x}")
+        if not audit[address].get("x") and not include_nonexact:
             raise ValueError(f"Function is not byte-exact: {address:#x}")
         if address in addresses:
             raise ValueError(f"Duplicate map address: {address:#x}")
@@ -314,7 +318,7 @@ def object_code(root, reverse=None):
     # Use the existing COFF reader. Symbol table indices and debug data may
     # change with names; normalize relocation targets, preserving their meaning.
     from fastcmp import COFF
-    def symbol(sym):
+    def symbol(sym, bss=()):
         if sym is None:
             raise ValueError("Invalid COFF relocation target")
         name = sym["name"]
@@ -323,16 +327,37 @@ def object_code(root, reverse=None):
             name = name.replace("_" + new + "@", "_" + old + "@")
             if name == "_" + new:
                 name = "_" + old
-        return (name, sym["val"], sym["sec"], sym["typ"], sym["cls"])
+        # Removing obsolete prototypes renumbers VC6's generated switch/jump
+        # labels. Their exact section and byte offset still identify the target.
+        if sym["cls"] == 6 and re.fullmatch(r"\$L\d+", name):
+            name = "$compiler-label"
+        # VC6 hashes static-local names when allocating .bss. Renaming their
+        # containing function can reorder zero-initialized storage. A named
+        # relocation still addresses the same variable; instruction addends
+        # remain compared verbatim. Anonymous section+offset targets stay strict.
+        named_bss = (sym["sec"] in bss and sym["cls"] in (2, 3)
+                     and not name.startswith(".bss"))
+        return (name, None if named_bss else sym["val"],
+                sym["sec"], sym["typ"], sym["cls"])
     result = {}
     for path in sorted((root / "build").glob("*.obj")):
         obj = COFF(str(path))
+        bss = {i + 1 for i, section in enumerate(obj.secs)
+               if section["name"] == ".bss"}
+        # Preserve all storage identities and aliases, including unreferenced
+        # variables. Only their physical ordering may change.
+        aliases = {}
+        for sym in obj.syms:
+            if sym is not None and symbol(sym, bss)[1] is None:
+                aliases.setdefault((sym["sec"], sym["val"]), []).append(symbol(sym, bss))
         result[path.name] = [
             (section["name"], section["data"],
-             [(offset, kind, symbol(obj.syms[index]))
+             [(offset, kind, symbol(obj.syms[index], bss))
               for offset, index, kind in section["rels"]])
             for section in obj.secs if not section["name"].startswith(".debug")
         ]
+        result[path.name].append(("bss-symbol-aliases",
+                                 sorted(sorted(group) for group in aliases.values())))
     if not result:
         raise ValueError("No baseline build/*.obj files; rebuild before applying names.")
     return result
@@ -422,7 +447,7 @@ def apply_plan(root, changes, renames, jobs):
                     path.unlink()
             print("Rename failed; restored sources, tests, inventory, build and reports.", file=sys.stderr)
             raise
-    print(f"Applied {len(renames)} names across {len(changes)} files; object code identical, matching preserved.")
+    print(f"Applied {len(renames)} names across {len(changes)} files; instructions, initialized data and symbolic targets preserved; matching preserved.")
 
 
 def main(argv=None):
@@ -432,22 +457,25 @@ def main(argv=None):
     export.add_argument("--output", type=Path, help="New file to create; defaults to stdout")
     export.add_argument("--file", action="append", help="Filter by source basename, e.g. Car.cpp")
     export.add_argument("--include-named", action="store_true")
+    export.add_argument("--include-nonexact", action="store_true", help="Also export partial matches")
     show = sub.add_parser("show", help="Read a function body and all source references")
     show.add_argument("address", type=lambda a: int(a, 16))
     preview = sub.add_parser("preview", help="Validate the map and print a diff without editing")
     preview.add_argument("map", type=Path)
+    preview.add_argument("--include-nonexact", action="store_true", help="Allow partial matches in this batch")
     apply = sub.add_parser("apply", help="Apply a map, validate and restore on failure")
     apply.add_argument("map", type=Path)
+    apply.add_argument("--include-nonexact", action="store_true", help="Allow partial matches; preserve all byte scores")
     apply.add_argument("--jobs", type=int, default=3, help="Differential suite workers")
     args = parser.parse_args(argv)
     try:
         if args.command == "export":
-            export_map(ROOT, args.output, args.file, args.include_named)
+            export_map(ROOT, args.output, args.file, args.include_named, args.include_nonexact)
         elif args.command == "show":
             show_function(ROOT, args.address)
         else:
             require_fresh(ROOT)
-            changes, renames = make_plan(ROOT, read_map(args.map))
+            changes, renames = make_plan(ROOT, read_map(args.map), args.include_nonexact)
             if args.command == "preview":
                 for path, (old, new) in sorted(changes.items()):
                     relative = str(path.relative_to(ROOT))

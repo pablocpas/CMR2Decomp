@@ -727,7 +727,7 @@ int RallyData_IsHeadToHeadRaceMode(void);
 // Sets the camera projection for the selected player's view.
 // match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00422d40
-void FUN_00422d40(unsigned int player)
+void View_SetPlayerProjection(unsigned int player)
 {
     int i = player & 0xff;
     int base = FixMul(g_unk0x005391cc[i], 0x275c2);
@@ -1004,7 +1004,7 @@ void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc)
 // travel (0x9c8) and its rate (0x9d8).
 // match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0042e8e0
-void FUN_0042e8e0(void)
+void CarPhysics_IntegrateWheelSuspension(void)
 {
     FixVector d;
     FixVector mid;
@@ -1117,7 +1117,7 @@ int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, un
 // point and returns the signed distance from the point to the ground plane.
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004702f0
-int FUN_004702f0(BYTE *pObj, FixVector *pPoint)
+int StageObject_ProbeGroundDistance(BYTE *pObj, FixVector *pPoint)
 {
     unsigned short surface;
     FixVector neg;
@@ -1168,7 +1168,7 @@ extern double g_unk0x00511300;
 // the object's split axis and applies the car's tilt rotation.
 // Differential coverage: affine axes, tilt and split positioning with real helpers.
 // FUNCTION: CMR2 0x00486910
-void FUN_00486910(BYTE *pObj, int *pSrc)
+void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc)
 {
     FixMatrix *pMat = (FixMatrix *)(pObj + 8);
     FixMatrix *pRef = (FixMatrix *)pSrc;
@@ -1258,7 +1258,7 @@ void NetRace_AdvanceRemoteCarAccumulator(CarNetRecord *p);
 // 28 imul / 1 idiv, como el original) generan las mismas instrucciones, pero MSVC6 mantiene la
 // base del registro en EDI con otro reparto de temporales.
 // FUNCTION: CMR2 0x00426fc0
-void FUN_00426fc0(Car *pCars, short *pOrder, short count)
+void NetRace_ExtrapolateOrderedCarPoses(Car *pCars, short *pOrder, short count)
 {
     FixVector saved;
     FixVector v;
@@ -1394,7 +1394,7 @@ extern const double g_unk0x00511380;
 #define FIX_ANGLE(v) ((short)(__int64)((double)(v) * g_unk0x00511380))
 
 // The eight ground-probe vectors of an object: its reference axes at 0x104 (x),
-// 0x108 (y) and 0x10c (z) with the sign pattern FUN_004702f0 selects with its
+// 0x108 (y) and 0x10c (z) with the sign pattern StageObject_ProbeGroundDistance selects with its
 // octant index (y >= 0 -> +4, x < 0 -> +2, z < 0 -> +1).
 #define FILL_PROBE_TABLE(pObj)                                                          \
     {                                                                                   \
@@ -1445,7 +1445,7 @@ extern const double g_unk0x00511380;
 // resto de los diffs son reparto de registros/slots y el orden de los bloques.
 // inlines (18 shrd / 96 shld / 8 idiv) y las mismas 6 conversiones fild/fmul/fistp.
 // FUNCTION: CMR2 0x00470580
-void FUN_00470580(void)
+void StageObject_UpdateMovingTransforms(void)
 {
     FixBasis basis;
     FixVector vecD4;
@@ -1542,7 +1542,7 @@ void FUN_00470580(void)
             world.y += pos.y;
             world.z += pos.z;
 
-            pMatrix->position.y += FUN_004702f0(pObj, &world);
+            pMatrix->position.y += StageObject_ProbeGroundDistance(pObj, &world);
             FixMatrix_SetRight(&basis.right, pMatrix);
             FixMatrix_SetUp(&basis.up, pMatrix);
             FixMatrix_SetForward(&basis.forward, pMatrix);
@@ -1602,7 +1602,7 @@ void FUN_00470580(void)
                 FixMatrix_SetForward(&basis.forward, pMatrix);
 
                 if (*(int *)(pObj + 4) < 0) {
-                    height = FUN_004702f0(pObj, &world);
+                    height = StageObject_ProbeGroundDistance(pObj, &world);
                     if (height > -0xccc) {
                         *(int *)(pObj + 0xcc) = 1;
                         world.y += height;
@@ -1681,7 +1681,7 @@ void FUN_00470580(void)
                 FixMatrix_SetRight(&basis.right, pMatrix);
                 FixMatrix_SetUp(&basis.up, pMatrix);
                 FixMatrix_SetForward(&basis.forward, pMatrix);
-                world.y += FUN_004702f0(pObj, &world);
+                world.y += StageObject_ProbeGroundDistance(pObj, &world);
             }
 
             FixMatrix_RotateVector(&pos, (FixVector *)(pObj + 0xf8), pMatrix);

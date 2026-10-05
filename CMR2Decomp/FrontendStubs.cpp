@@ -5,18 +5,18 @@
 // yet, so that the menu builders have something to point at.
 
 // FrontendMenu_DrawProfileSettings (0x004d4cf0) is implemented in FrontendScreens.cpp.
-// FUN_004d50a0 (0x004d50a0) is implemented in FrontendScreens.cpp.
+// FrontendMenu_DrawProfileRecordsSummary (0x004d50a0) is implemented in FrontendScreens.cpp.
 //
 
 // FrontendMenu_DrawMultiplayerStageSelection (0x004d6a60) is implemented in FrontendScreens.cpp.
 //
 //
 
-// FUN_004d6f10 (0x004d6f10) is implemented in FrontendScreens.cpp.
+// FrontendMenu_DrawProfileNameEntry (0x004d6f10) is implemented in FrontendScreens.cpp.
 //
 //
 
-// FUN_004d7380 (0x004d7380) is implemented in FrontendScreens.cpp.
+// FrontendMenu_DrawProfileRenameEntry (0x004d7380) is implemented in FrontendScreens.cpp.
 //
 //
 
@@ -24,7 +24,7 @@
 //
 //
 
-// FUN_004d8480 (0x004d8480) is implemented in FrontendScreens.cpp.
+// FrontendMenu_DrawSavedStageSelection (0x004d8480) is implemented in FrontendScreens.cpp.
 //
 //
 

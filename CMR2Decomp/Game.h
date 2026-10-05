@@ -129,7 +129,7 @@ public:
     // GLOBAL: CMR2 0x00665119
     static BYTE m_connectionCount;
     static void SetShouldExit(void);
-    static BOOL FUN_004d0780(void);
+    static BOOL DispatchFrontendResourceState(void);
     static int GetFrontendResourceMode(void);
     static void RunStateUpdateCallbacks(Unk0049c2c0 *param1);
     static void RunStateRenderCallbacks(Unk0049c2c0 *param1);
@@ -138,9 +138,9 @@ public:
     static void InitializeCallbackStateMachine(Unk0049c2c0 *p1, BYTE count, Unk00817d98 *unk, FuncTableGroup *funcLookupTable, void *unk2);
     static void InitializeGame(Unk0049c2c0 *p1, BYTE p2);
     static BOOL UpdateSecondaryCallbackMachine();
-    static BOOL FUN_0041b060();
+    static BOOL UpdateInRaceCallbackMachine();
     static void NoOpSecondaryStateCallback(struct Unk0049c2c0 *, BYTE);
-    static int FUN_0049c1c0(Unk0049c2c0 *p, BYTE index, BYTE value, int level);
+    static int PromoteCallbackEntryByRule(Unk0049c2c0 *p, BYTE index, BYTE value, int level);
     static BYTE GetConfigurationStateByte(void);
     static void SetProfileSelectionState(BYTE param1);
     static void SetSecondaryOptionStateByte(BYTE param1);
@@ -160,7 +160,7 @@ public:
     static IDirectPlay4A *GetDirectPlay(void);
     static bool LoadAndInitializeSplashScreens(bool param1);
     static bool InitializeNetworkSubsystem(void);
-    static void FUN_004e2e50(void);
+    static void LoadFrontendCommonAndCountryTextures(void);
     static void SetStartupFlag(void);
     static void SetFrontendResourceMode(int param1);
     
@@ -183,7 +183,7 @@ public:
     static Unk0049c2c0 m_unk0x00817da0;
     // GLOBAL: CMR2 0x00817d98
     static Unk00817d98 m_unk0x00817d98;
-    // State transition rules of the grouped callback machine (FUN_0049c1c0):
+    // State transition rules of the grouped callback machine (PromoteCallbackEntryByRule):
     // byte 0 = current state, byte 1 = match (0xff = any), byte 2 = next
     // state, byte 3 = level. Terminated by 0xffffffff.
     // GLOBAL: CMR2 0x00523c18

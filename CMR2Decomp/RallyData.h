@@ -39,8 +39,8 @@ struct KnockoutTable {
 };
 
 struct Car;
-void FUN_004129d0(int car, short *pRect);
-void FUN_004147f0(int car, short *position);
+void RallyData_DrawCarStageGapPanel(int car, short *pRect);
+void RallyData_DrawStageResultRows(int car, short *position);
 void RallyData_UpdateCarRoute(Car *pCar);
 
 extern KnockoutTable g_knockout;

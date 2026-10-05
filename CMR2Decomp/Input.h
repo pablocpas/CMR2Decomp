@@ -300,7 +300,7 @@ public:
     static void QueueVirtualKeyPress(unsigned int param1);
     static void UpdateInputFrameDelta(void);
     static void UpdateAllAvailableDevices(void);
-    static void FUN_0040bc90(unsigned short param1, DWORD param2);
+    static void SetControllerForceFeedbackValue(unsigned short param1, DWORD param2);
     static void ReadKeyboardState(void);
     static int GetButtonIndexFromMask(unsigned int mask);
     static void SetInputRepeatTimingParameters(DWORD p1, DWORD p2, DWORD p3, DWORD p4, DWORD p5);
@@ -329,7 +329,7 @@ public:
     static HRESULT SetConditionCoefficient(int effectIndex, LONG coefficient, int deviceIndex);
     static void SaveControllerInfo(void);
     static void RefreshControllerConfigurations(void);
-    static void FUN_0040c610(DeviceInfo *pDevice, int index);
+    static void InitDetectedControllerSlot(DeviceInfo *pDevice, int index);
 
     // GLOBAL: CMR2 0x00516904
     static unsigned short m_controllerCount;

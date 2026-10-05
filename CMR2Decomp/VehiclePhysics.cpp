@@ -472,7 +472,7 @@ void Vehicle_UpdateMotion(FixVector *pInput)
     g_partState->flags &= (BYTE)~2;
 }
 
-void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
+void StageObject_QueueViewLensFlare(int *pObj, int *param2, int *param3, FixVector *pVerts);
 
 // Selects a candidate face, transforms and classifies its vertices, then uses
 // candidate and side counts to decide whether it participates in car collision.
@@ -488,7 +488,7 @@ int VehiclePhysics_ClassifyCandidateFace(int param_1)
     else
         found = VehiclePhysics_TestBehindFaceCollision();
     if (found != 0) {
-        FUN_00486c30((int *)g_collisionFace, &g_collisionCar->right.x,
+        StageObject_QueueViewLensFlare((int *)g_collisionFace, &g_collisionCar->right.x,
                      &g_collisionCar->position.x,
                      &g_collisionCar->corners[0]);
         Collision_ClassifyFaceVertices();
@@ -522,8 +522,8 @@ int VehiclePhysics_TestMotionCorrectionCollision(void)
     return 0;
 }
 
-void FUN_0048c870(BYTE index, char other, int *pDelta, int flag);
-int FUN_0048e580(char type);
+void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, int flag);
+int Collision_TestSectorEdgeEndpoints(char type);
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
 
 extern int *g_unk0x0059190c;
@@ -541,7 +541,7 @@ extern int g_unk0x0051fb00[52];
 // car, its eight corners and the face's four vertices out of the surface,
 // applies the impact impulse and spawns the impact debris.
 // FUNCTION: CMR2 0x0048fb80
-int FUN_0048fb80(char type, int param)
+int Collision_ResolveSectorEdgeContact(char type, int param)
 {
     FixVector debrisAxes[3];
     FixVector perp;
@@ -569,9 +569,9 @@ int FUN_0048fb80(char type, int param)
         goto finish;
 
     if ((*(BYTE *)((BYTE *)g_unk0x0059190c + 0x2d) & 1) == 0)
-        result = FUN_0048e580(type);
+        result = Collision_TestSectorEdgeEndpoints(type);
 
-    FUN_00486c30((int *)g_collisionFace, &g_collisionCar->right.x,
+    StageObject_QueueViewLensFlare((int *)g_collisionFace, &g_collisionCar->right.x,
                  &g_collisionCar->position.x,
                  &g_collisionCar->corners[0]);
     Collision_ClassifyFaceVertices();
@@ -657,7 +657,7 @@ int FUN_0048fb80(char type, int param)
             g_collisionFace->primaryVertices[i].y += scaled.y;
             g_collisionFace->primaryVertices[i].z += scaled.z;
         }
-        FUN_0048c870(*(BYTE *)((BYTE *)g_collisionCar + 0xb1a), -1, (int *)&scaled, 0);
+        StageObject_ApplyRecursiveFrameDelta(*(BYTE *)((BYTE *)g_collisionCar + 0xb1a), -1, (int *)&scaled, 0);
     }
 
 noSlide:

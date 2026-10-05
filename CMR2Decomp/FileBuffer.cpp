@@ -165,7 +165,7 @@ void CFileBuffer::FreeGenericFileBuffer(void *param1)
 
 // GLOBAL: CMR2 0x00531650
 int g_unk0x00531650;
-// One value per player, cleared by FUN_004eadb0
+// One value per player, cleared by RallyData_ResetSavedPlayerRecords
 // GLOBAL: CMR2 0x00531654
 int g_unk0x00531654[4];
 // GLOBAL: CMR2 0x00531764
@@ -281,7 +281,7 @@ void *Profile_ReadLocalFile(char *param1, int param2)
 }
 
 void RallyData_ValidateIndex(int index);
-void FUN_004eb860(int index, int profile);
+void Profile_AssignAvailableCategory(int index, int profile);
 void Profile_ResetCategoryData(int index);
 
 // Loads the .pps profile named by slot `param_2` and, when its name and id
@@ -310,7 +310,7 @@ BYTE Profile_LoadAndLinkSavedRecord(int param_1, int param_2)
         }
 notfound:
         SLOT(param_1).category = 0xf;
-        FUN_004eb860(param_1, -1);
+        Profile_AssignAvailableCategory(param_1, -1);
         Profile_ResetCategoryData(param_1);
 found:
         memcpy(g_saveProfiles + SLOT(param_1).category * 0x650, pBuffer, 0x650);
@@ -366,7 +366,7 @@ void RallyData_SetPlayerDefaultCarSetup(int player);
 // the one unused for longest.
 // match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004eb860
-void FUN_004eb860(int index, int profile)
+void Profile_AssignAvailableCategory(int index, int profile)
 {
     unsigned int *pRecord;
     unsigned int flags;

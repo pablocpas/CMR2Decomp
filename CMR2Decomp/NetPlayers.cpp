@@ -80,14 +80,14 @@ void NetPlayers_ResetStageState(char keepReady, char resetTotal)
     if (resetTotal != 0)
         g_netTotal = 0;
     if (CGameInfo::GetConfiguredGameMode() == 8 || CGameInfo::GetConfiguredGameMode() == 9 || CGameInfo::GetConfiguredGameMode() == 11)
-        FUN_00409b60();
+        NetPlayers_ResetBestTimes();
     NetworkLeaderboard_ClearPublishedBoard();
     RallyData_UpdateFlags();
 }
 
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00409b60
-void FUN_00409b60(void)
+void NetPlayers_ResetBestTimes(void)
 {
     memset(g_netSplitBest, 0, sizeof(g_netSplitBest));
     memset(g_netStageBest, 0, sizeof(g_netStageBest));
@@ -299,7 +299,7 @@ void NetPlayers_MarkPlayerFinishedByID(DPID *pId)
 
 // match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00409fd0
-void FUN_00409fd0(DPID *pId, int split, unsigned int time)
+void NetPlayers_RecordRemoteSplitTime(DPID *pId, int split, unsigned int time)
 {
     int i;
     char *name;
@@ -518,7 +518,7 @@ int StageTiming_GetValidStartTime(int index);
 // at the end, then sorts it with NetPlayers_CompareResultRecords.
 // match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a580
-void FUN_0040a580(int param1, int param2, int param3)
+void NetPlayers_RebuildStageResults(int param1, int param2, int param3)
 {
     int i;
 
@@ -667,7 +667,7 @@ void NetPlayers_BuildStageStandings(unsigned int localTime)
 
 // Overall standings: accumulates the local time and awards 3 points to the leaders.
 // FUNCTION: CMR2 0x0040a980
-void FUN_0040a980(unsigned int localTime)
+void NetPlayers_UpdateOverallStandings(unsigned int localTime)
 {
     int rank;
     int i;

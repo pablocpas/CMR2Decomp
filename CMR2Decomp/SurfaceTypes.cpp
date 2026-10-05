@@ -573,7 +573,7 @@ int Surface_ReleaseStageSounds(void);
 // Resets the per-player surface sound state and installs the sound parameter
 // tables; registered as the stage cleanup callback.
 // FUNCTION: CMR2 0x00478dc0
-void FUN_00478dc0(void)
+void SurfaceSound_ResetPlayerParameters(void)
 {
     int flag;
     int i;
@@ -750,7 +750,7 @@ void Surface_LoadCarEngineSounds(void)
         *(int *)(pFile + 4) = 0;
         *(int *)(pFile + 8) = 0;
     }
-    FUN_00478dc0();
+    SurfaceSound_ResetPlayerParameters();
 }
 
 // Stops the player's surface sound started by flag g_unk0x0058dd70.
@@ -1176,7 +1176,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener);
 // loops are playing, then hands the engine pitch, speed, surface level and
 // wheel-slip state to Surface_UpdatePlayerEngineSounds.
 // FUNCTION: CMR2 0x0047a710
-void FUN_0047a710(int player, int listener)
+void SurfaceSound_UpdatePlayerLoops(int player, int listener)
 {
     Car *pCar;
     int pitch;
@@ -1409,7 +1409,7 @@ BYTE Surface_FreeTextureData(void);
 // string table (release callback Surface_FreeTextureData).
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00478a20
-BYTE FUN_00478a20(void)
+BYTE SurfaceText_LoadRegionalStringTable(void)
 {
     char *names[10];
     char **pList;
@@ -1457,7 +1457,7 @@ BYTE FUN_00478a20(void)
 // the per-wheel block (grip, noise, effect bytes and the drag-derived value).
 // match 63%: implemented; the two pointer walks use different index registers here
 // FUNCTION: CMR2 0x004786b0
-void FUN_004786b0(BYTE *pWheel, int unused)
+void Surface_BlendWheelContactParameters(BYTE *pWheel, int unused)
 {
     int v;
     int total;

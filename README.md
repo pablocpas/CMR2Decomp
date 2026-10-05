@@ -163,12 +163,21 @@ python3 scripts/rename_functions.py apply /tmp/names.tsv
 
 Preview only prints a diff. Apply updates source declarations, definitions,
 calls, callbacks, test symbol references and `scripts/functions.tsv` together.
-It rejects stale maps, duplicate names, collisions, ambiguous identifiers and
-functions that are not byte-exact. Runtime C++ string literals are preserved.
+It rejects stale maps, duplicate names, collisions, ambiguous identifiers and,
+by default, functions that are not byte-exact. Runtime C++ string literals are preserved.
 The command inherits the build's `CMR2_MSVC_ROOT` and Wine environment.
 
+To name functions whose implementation still has a partial byte match, pass
+`--include-nonexact` to both `export` and `preview`/`apply`. This changes the
+selection only: the object-code comparison, regression checks and differential
+suite still run, and every function's existing byte score must be preserved.
+
 Apply rebuilds and compares every object's non-debug sections and relocation
-targets, normalizing only the renamed symbols. It then measures the build,
+targets, normalizing renamed symbols, compiler-generated label numbers and the
+physical placement of named `.bss` variables. Local label target offsets stay
+fixed. VC6 can reorder zero-initialized static locals when their function
+name changes; target identity, aliases, instruction bytes and initialized data
+remain checked. It then measures the build,
 checks that no byte-exact function or byte-audit score regresses, runs the full
 differential suite, and refreshes fastcmp metadata. A failure restores the edited
 files, previous build and reports, including pre-existing local changes.
@@ -180,10 +189,13 @@ export a fresh map for the next batch. Reapplying a completed map is rejected
 because its old names no longer match the source. The tool coordinates edits
 within one invocation; avoid concurrent builds or edits while apply is running.
 
-The completed maps `001-exact.tsv` and `002-all-exact.tsv` record 2,106 recovered
-names and their source evidence. The working byte audit has 2,770 exact functions
-and no remaining `FUN_...` names among them. Names describe observed behaviour;
+The completed maps `001-exact.tsv`, `002-all-exact.tsv` and `003-remaining.tsv`
+record 2,514 recovered names and their source evidence. All 3,363 annotated
+function definitions have names; none retains a `FUN_...` identifier. The working
+byte audit still has 2,770 exact functions. Names describe observed behaviour;
 field and bit positions remain explicit where their domain meaning is unknown.
+The original binary inventory also contains records without annotated source
+definitions; those retain their original inventory labels.
 
 ## Credits
 

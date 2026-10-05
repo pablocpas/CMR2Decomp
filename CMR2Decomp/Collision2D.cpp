@@ -132,7 +132,7 @@ FixVector g_unk0x005915e8;
 // The instruction sequence is the original's; only the register numbering of
 // the induction variables and the base/index order of the two 0x60 loops differ.
 // FUNCTION: CMR2 0x004894b0
-void FUN_004894b0(int *pA, int *pB, int *pDir, int amount, int scale)
+void Collision_SplitBoxSeparationMovement(int *pA, int *pB, int *pDir, int amount, int scale)
 {
     FixVector v;
     int t;
@@ -405,7 +405,7 @@ int g_unk0x005915dc;
 // GLOBAL: CMR2 0x00591468
 int g_unk0x00591468;
 
-void FUN_0048c870(BYTE index, char other, int *pDelta, int flag);
+void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, int flag);
 
 // Resolves the collision of `car` against the oriented box `pBox`: builds the
 // correction vector from the two box axes and the two factors the sphere test
@@ -476,7 +476,7 @@ int Collision_CarVsBox(int car, int *pBox, int scale)
             }
         }
 
-        FUN_0048c870(*(BYTE *)(car + 0xb1a), -1, (int *)&along, 1);
+        StageObject_ApplyRecursiveFrameDelta(*(BYTE *)(car + 0xb1a), -1, (int *)&along, 1);
         g_unk0x005915dc = 0x8000;
         g_unk0x00591468 = 0x1578d;
         return 1;
@@ -508,13 +508,13 @@ public:
 };
 
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
-void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4, unsigned char param_5, int param_6);
+void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *param_3, int param_4, unsigned char param_5, int param_6);
 
 // Collision box of a car while a contact is resolved (0x98 bytes): the two body
-// axes from 0x10, the eight contact points built by FUN_00486c30 and the two
+// axes from 0x10, the eight contact points built by StageObject_QueueViewLensFlare and the two
 // pointers at 0x90/0x94 to the point array and to the box vertex.
 
-extern int FUN_00488640(CollisionBox *pBoxA, CollisionBox *pBoxB, FixVector *pOffset, int scale);
+extern int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pBoxB, FixVector *pOffset, int scale);
 
 // Collision bookkeeping shared with the stage object collision code
 // (defined in StageObjects.cpp): the per-car contact list and its length, the
@@ -533,11 +533,11 @@ extern int g_physicsTimeStep;
 int RallyData_IsChampionshipFinalStage(void);
 unsigned char RallyData_GetFlag24(void);
 unsigned int RallyData_GetSelectionFlag27(void);
-int FUN_00487b80(int r1, int r2, int *pA, int *pB);
-void FUN_0047d850(Car *pCar, int *param_2);
-void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
-int FUN_0048a5f0(int param_1, int param_2);
-void FUN_0048ae90(int param_1, int param_2);
+int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB);
+void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, int *param_2);
+void StageObject_QueueViewLensFlare(int *pObj, int *param2, int *param3, FixVector *pVerts);
+int Collision_SeparateCarBoxes(int param_1, int param_2);
+void Collision_ResolveCarContactImpulse(int param_1, int param_2);
 
 // The four corner sector words of a car, copied as a single eight byte block.
 struct CarCornerWords {
@@ -546,14 +546,14 @@ struct CarCornerWords {
 
 // Tests every pair of cars of the given order for contact: pairs whose corner
 // sector words share an index are run through the 2D box overlap test
-// (FUN_00487b80) and, for cars that are not locked, through the box collision
-// response (FUN_0048a5f0); the two cars are then linked in each other's contact
+// (Collision_DoSpheresOverlap) and, for cars that are not locked, through the box collision
+// response (Collision_SeparateCarBoxes); the two cars are then linked in each other's contact
 // list and the impact is resolved. Finally the separation timers of every car
 // are decayed and, while the race is being verified, the collision box of each
 // car is rebuilt.
 // match 78%: same logic, calls and constants; MSVC6 countdowns our outer pair loop with induction variables (the original increments the counters), which also shifts the stack slots of the pair count and the pattern index, and copies the four sector words as two dwords where the original used word/dword/word.
 // FUNCTION: CMR2 0x0048a1f0
-void FUN_0048a1f0(int param_1, short *param_2, short param_3)
+void Collision_TestOrderedCarPairs(int param_1, short *param_2, short param_3)
 {
     short *p1;
     short *p2;
@@ -590,7 +590,7 @@ void FUN_0048a1f0(int param_1, short *param_2, short param_3)
                     for (m = 0; m < 4; m++) {
                         if (idsA.w[m] == idsB.w[i]) {
                             found = 1;
-                            if (FUN_00487b80(*(int *)(carA + 0x758), *(int *)(carB + 0x758),
+                            if (Collision_DoSpheresOverlap(*(int *)(carA + 0x758), *(int *)(carB + 0x758),
                                              (int *)(carA + 0x2d0), (int *)(carB + 0x2d0))) {
                                 flags[*(char *)(carB + 0xb1a)] = 1;
                                 flags[*(char *)(carA + 0xb1a)] = 1;
@@ -599,11 +599,11 @@ void FUN_0048a1f0(int param_1, short *param_2, short param_3)
                                     (*(int *)(carA + 0xc18) == 0 || *(int *)(carB + 0xc18) == 0)) {
                                     g_pContacts0x005915e0 = (FixVector *)&g_unk0x00590ed0[p1[0]];
                                     g_pContacts0x00591394 = (FixVector *)&g_unk0x00590ed0[p2[0]];
-                                    FUN_00486c30((int *)g_pContacts0x005915e0, (int *)(carA + 0x360),
+                                    StageObject_QueueViewLensFlare((int *)g_pContacts0x005915e0, (int *)(carA + 0x360),
                                                  (int *)(carA + 0x2d0), (FixVector *)(carA + 0x270));
-                                    FUN_00486c30((int *)g_pContacts0x00591394, (int *)(carB + 0x360),
+                                    StageObject_QueueViewLensFlare((int *)g_pContacts0x00591394, (int *)(carB + 0x360),
                                                  (int *)(carB + 0x2d0), (FixVector *)(carB + 0x270));
-                                    found = FUN_0048a5f0(carA, carB);
+                                    found = Collision_SeparateCarBoxes(carA, carB);
                                     g_unk0x00591390 = 0;
                                     if (found != 0) {
                                         g_unk0x005913f8[*(char *)(carA + 0xb1a)]
@@ -614,7 +614,7 @@ void FUN_0048a1f0(int param_1, short *param_2, short param_3)
                                                        [g_unk0x005913dc[*(char *)(carB + 0xb1a)]] =
                                             *(char *)(carA + 0xb1a);
                                         g_unk0x005913dc[*(char *)(carB + 0xb1a)]++;
-                                        FUN_0048ae90(carA, carB);
+                                        Collision_ResolveCarContactImpulse(carA, carB);
                                         g_unk0x00591390 = 1;
                                     }
                                 }
@@ -660,9 +660,9 @@ void FUN_0048a1f0(int param_1, short *param_2, short param_3)
         do {
             carA = param_1 + p2[0] * 0xc24;
             g_pContacts0x005915e0 = (FixVector *)&g_unk0x00590ed0[p2[0]];
-            FUN_00486c30((int *)g_pContacts0x005915e0, (int *)(carA + 0x360),
+            StageObject_QueueViewLensFlare((int *)g_pContacts0x005915e0, (int *)(carA + 0x360),
                          (int *)(carA + 0x2d0), (FixVector *)(carA + 0x270));
-            FUN_0047d850((Car *)carA, (int *)g_pContacts0x005915e0);
+            StageObject_TestHeadlightGlowsAgainstCarBox((Car *)carA, (int *)g_pContacts0x005915e0);
             p2--;
         } while (--j);
     }
@@ -676,7 +676,7 @@ void FUN_0048a1f0(int param_1, short *param_2, short param_3)
 // offset. When both cars do have corners the boxes are handed to the
 // deformation solver instead.
 // FUNCTION: CMR2 0x0048a5f0
-int FUN_0048a5f0(int param_1, int param_2)
+int Collision_SeparateCarBoxes(int param_1, int param_2)
 {
     FixVector normal;
     FixVector sum;
@@ -692,7 +692,7 @@ int FUN_0048a5f0(int param_1, int param_2)
     int dz;
     int i;
 
-    result = FUN_00488640((CollisionBox *)g_pContacts0x005915e0, (CollisionBox *)g_pContacts0x00591394,
+    result = Collision_TestOrientedBoxCornerOverlap((CollisionBox *)g_pContacts0x005915e0, (CollisionBox *)g_pContacts0x00591394,
                           (FixVector *)(param_1 + 0x2e8), 0x8000);
     if (result != 0) {
     sum.x = 0;
@@ -804,7 +804,7 @@ int FUN_0048a5f0(int param_1, int param_2)
                 *(int *)((BYTE *)g_pContacts0x005915e0 + i + 0x38) += dz;
             }
         }
-        FUN_0048c870(*(char *)(param_1 + 0xb1a), *(char *)(param_2 + 0xb1a), (int *)&delta, 1);
+        StageObject_ApplyRecursiveFrameDelta(*(char *)(param_1 + 0xb1a), *(char *)(param_2 + 0xb1a), (int *)&delta, 1);
         FixVecScale(&delta, &normal, FixVecDot(&g_unk0x005914b8, &normal));
         dx = delta.x - g_unk0x005914b8.x;
         dy = delta.y - g_unk0x005914b8.y;
@@ -825,7 +825,7 @@ int FUN_0048a5f0(int param_1, int param_2)
                 *(int *)((BYTE *)g_pContacts0x00591394 + i + 0x38) += dz;
             }
         }
-        FUN_0048c870(*(char *)(param_2 + 0xb1a), *(char *)(param_1 + 0xb1a), (int *)&delta, 1);
+        StageObject_ApplyRecursiveFrameDelta(*(char *)(param_2 + 0xb1a), *(char *)(param_1 + 0xb1a), (int *)&delta, 1);
     }
     g_unk0x005915e8.x = normal.x;
     g_unk0x005915e8.y = normal.y;
@@ -860,7 +860,7 @@ int FUN_0048a5f0(int param_1, int param_2)
 // restitution term, FixVecScale impulses). The rest is the frame-slot packing
 // of the inline-asm temporaries.
 // FUNCTION: CMR2 0x0048ae90
-void FUN_0048ae90(int param_1, int param_2)
+void Collision_ResolveCarContactImpulse(int param_1, int param_2)
 {
     FixVector tmp;
     FixVector vA;
@@ -985,14 +985,14 @@ void FUN_0048ae90(int param_1, int param_2)
     Collision_ClampAngularCorrection((int *)(param_2 + 0x5d0));
 
     if (g_unk0x005915f4 != 0) {
-        FUN_00466ef0((Car *)param_1, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
+        CarDamage_ApplyCollisionDeformImpulse((Car *)param_1, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
                      &g_unk0x005915e8, 0, 0, 0);
-        FUN_00466ef0((Car *)param_2, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
+        CarDamage_ApplyCollisionDeformImpulse((Car *)param_2, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
                      &g_unk0x005915e8, 0, 2, 0);
     } else if (g_unk0x005914d4 != 0) {
-        FUN_00466ef0((Car *)param_1, (int *)&g_pContacts0x00591394[g_unk0x00590ecc[0] + 4],
+        CarDamage_ApplyCollisionDeformImpulse((Car *)param_1, (int *)&g_pContacts0x00591394[g_unk0x00590ecc[0] + 4],
                      &g_unk0x005915e8, 0, 2, 0);
-        FUN_00466ef0((Car *)param_2, (int *)&g_pContacts0x00591394[g_unk0x00590ecc[0] + 4],
+        CarDamage_ApplyCollisionDeformImpulse((Car *)param_2, (int *)&g_pContacts0x00591394[g_unk0x00590ecc[0] + 4],
                      &g_unk0x005915e8, 0, 0, 0);
     }
 
@@ -1155,16 +1155,16 @@ int Collision_ResolveStaticObstacleContact(int param_1, int *param_2, int param_
     }
     if (g_unk0x005914d8 != 0) {
         if (g_unk0x005915f4 != 0) {
-            FUN_00466ef0((Car *)param_1,
+            CarDamage_ApplyCollisionDeformImpulse((Car *)param_1,
                          (int *)(param_1 + (g_unk0x005914c4[0] + 0x34) * 0xc),
                          &g_unk0x005915e8, 0, 0, 0);
         } else if (g_unk0x005914d4 != 0) {
-            FUN_00466ef0((Car *)param_1,
+            CarDamage_ApplyCollisionDeformImpulse((Car *)param_1,
                          (int *)&g_unk0x00591628[g_unk0x00590ecc[0]],
                          &g_unk0x005915e8, 0, 2, 0);
         }
     } else {
-        FUN_00466ef0((Car *)param_1, (int *)&g_collisionSphereCentre, &g_unk0x005915e8,
+        CarDamage_ApplyCollisionDeformImpulse((Car *)param_1, (int *)&g_collisionSphereCentre, &g_unk0x005915e8,
                      g_collisionSphereRadius, 1, 0);
     }
 known:
