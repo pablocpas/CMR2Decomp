@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "ce97bee591cf14439a96eb57042835e570f177a0",
+    "commit": "0497d9888bb685fc7c2f23a3311c9fbde8e0feb1",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -51,7 +51,7 @@
       "CMR2Decomp/Car.h": "1d9130c79f57de423673cff28501382b248d64c58f4840b2d07359528feb716a",
       "CMR2Decomp/CarEffects.cpp": "541f1b0e775c43306cfdc91bd799a2345cfe3e8ff4799e526af3990cdd0168d5",
       "CMR2Decomp/CarParts.h": "32abbbb165e36262e995e93ece9e236ea34277ec9d5c8557c1578a6355b946e3",
-      "CMR2Decomp/CarPhysics.cpp": "2523e0b88142c286f1841d6ec07df66436d2319fba7278be48ead64a2ed9a062",
+      "CMR2Decomp/CarPhysics.cpp": "b6f0c2037e41a74f0c177fb9618c3a56b3813dc2ab95ae92536d51f29b224431",
       "CMR2Decomp/CarPhysics.h": "ba9b46c2e404dc48274c432e95abdcd7033fdbdfb81d632db233c8880a7229a4",
       "CMR2Decomp/CascadeCallbacks.cpp": "a14e3a3405f956dd001d4f8e11eb1a9aa8963c12f8a713d995a81fe21db4cfd8",
       "CMR2Decomp/CascadeSeedDeps.cpp": "bfa2c3ab6259ca648c47a9b64e8be6e6660cd0eac0e4c1ca2ba25bc44812603f",
@@ -125,11 +125,11 @@
       "CMR2Decomp/StageObjects.cpp": "06336f91cea4c316a621897592eadbc6fd038ddf745189bf0aa6cf4917bd42bb",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
-      "CMR2Decomp/StageTiming.cpp": "fff88d52e4a90e06f0f50235d82c9ecaed4790e37f8e9dca93e58e999a688711",
+      "CMR2Decomp/StageTiming.cpp": "d1bea3348201bff8f699735864987dcfe09ba3c8396f40e6a578e99492bca894",
       "CMR2Decomp/StageTiming.h": "511fcff7f23a65341a6700c4f34832b52f14846c3e2c2e229b3162c9f5eaf871",
       "CMR2Decomp/StageUI.cpp": "e4dc489533e56d5ccb418ac1c804a4f5676c044be7e66bd50ef08bcf2157bd07",
       "CMR2Decomp/StageUI.h": "bb3d7892b358157cc71102c5a35283ce837fede4d8c9aa4c8199833066c6f694",
-      "CMR2Decomp/SurfaceTypes.cpp": "f603b1b68f673c73c18bdd0db466eb2d40133318a65efb997523c8d4a72e53fa",
+      "CMR2Decomp/SurfaceTypes.cpp": "20edff6f938370efd2335ad587e8e4b9a232da93c45a33c7383962543b7cf779",
       "CMR2Decomp/SurfaceTypes.h": "1c81086631cfd2493e9c5a4af7da66e1d02417ed38b7628c7a1e1a986d52e8e7",
       "CMR2Decomp/Texture.cpp": "2ca3a6fa0da96446aadf924346f349f7cad42fafeaf06e60c006cc79b82aeea0",
       "CMR2Decomp/Texture.h": "00635eccfb6ed1ce010106ad790747185ef79856fd27d6e49605484db7a02263",
@@ -167,8 +167,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "cab31b8864039b025eaa540d6e07fb75c96f8597562ad98252dfc93d5c31e5ab",
-    "pdb_sha256": "1d7a4b6659df9df65b27b629b080aa99a80cc5b014e52166d129e79dbbc2bd40"
+    "exe_sha256": "756b88b7a94f6c76b637e95992dbdd9aa459a668dcb442aaba2b6c5dde1bb8bf",
+    "pdb_sha256": "29f2edd117df271e76a489bfb25c5ec5329d349ab84d3b064bb9cb4175b1e037"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,

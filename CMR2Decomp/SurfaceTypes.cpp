@@ -189,7 +189,7 @@ void Car_UpdateSurfaceParams(Car *pCar, int blend)
     short s0;
     unsigned short next;
     int s1;
-    short gripA;
+    int gripA;
     int gripB;
     int grip2A;
     int grip2B;

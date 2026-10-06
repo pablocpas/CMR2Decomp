@@ -666,7 +666,6 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
     int c;
     int k;
     int first;
-    short extra;
     short angle;
     int skip;
 
@@ -790,10 +789,9 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
         }
         // Closing point, just outside the body patch.
         if (side < 0)
-            extra = FixMul(g_physPatchWidth, 0x20000);
+            firstLat += FixMul(g_physPatchWidth, 0x20000);
         else
-            extra = -FixMul(g_physPatchWidth, 0x20000);
-        firstLat += extra;
+            firstLat -= FixMul(g_physPatchWidth, 0x20000);
         FixVecScale(&v, &g_physPatchSide, firstLat);
         p.y = FixMul(g_physPatchDir.y, firstAlong) + v.y;
         p.z = FixMul(g_physPatchDir.z, firstAlong) + v.z;

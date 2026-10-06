@@ -2229,24 +2229,24 @@ void StageDeform_ApplyRadialDent(void)
 {
     Car *pCar = g_stageDeformCar;
     int *pRecord = (int *)(g_unk0x00588b94 + pCar->index * 0x4d0);
-    FixVector *pHull;
     int nearest = 0;
     int deepest = 0;
     FixVector scaled;
     FixVecScale(&scaled, &g_stageDeformOffset, -0x10000);
-    int sign = FixVecDot(&g_stageDeformNormal, &scaled) < 0;
+    int facing = FixVecDot(&g_stageDeformNormal, &scaled) >= 0;
+    int hull;
 
-    for (pHull = g_stageDeformHull; pHull < g_stageDeformHull + 12; ++pHull) {
+    for (hull = 0; hull < 12; hull++) {
         FixVector distance;
-        distance.x = pHull->x - g_stageDeformOffset.x;
-        distance.y = pHull->y - g_stageDeformOffset.y;
-        distance.z = pHull->z - g_stageDeformOffset.z;
+        distance.x = g_stageDeformHull[hull].x - g_stageDeformOffset.x;
+        distance.y = g_stageDeformHull[hull].y - g_stageDeformOffset.y;
+        distance.z = g_stageDeformHull[hull].z - g_stageDeformOffset.z;
         int projection = FixVecDot(&g_stageDeformNormal, &distance);
-        if (sign) projection = -projection;
+        if (!facing) projection = -projection;
         if (projection < deepest) deepest = projection;
         if (projection > 0 && (nearest == 0 || projection < nearest)) nearest = projection;
     }
-    if (sign) {
+    if (!facing) {
         deepest = -deepest;
         nearest = -nearest;
     }
@@ -2278,13 +2278,12 @@ void StageDeform_ApplyRadialDent(void)
     int vertexIndex;
     int changed;
     int *pSlot;
-    short projection;
-    unsigned int phase;
+    int depth;
+    int phase;
     FixVector pos;
     FixVector saved;
     FixVector dir;
     FixVector limit;
-    signed char *pLimits;
 
     pSlot = pRecord;
     for (meshIndex = 0; meshIndex < pRecord[0x117]; meshIndex++) {
@@ -2296,15 +2295,15 @@ void StageDeform_ApplyRadialDent(void)
             dir.x = g_stageDeformOffset.x - pos.x;
             dir.y = g_stageDeformOffset.y - pos.y;
             dir.z = g_stageDeformOffset.z - pos.z;
-            projection = FixVecDot(&dir, &g_stageDeformNormal);
-            projection = FixMul(projection, projection);
-            if (projection > outerSquare)
+            depth = FixVecDot(&dir, &g_stageDeformNormal);
+            depth = FixMul(depth, depth);
+            if (depth > outerSquare)
                 continue;
             saved = pos;
-            if (projection <= innerSquare) {
+            if (depth <= innerSquare) {
                 // Inside the dent: pushed along the impact normal.
-                projection = g_stageDeformRadius - FixMul(reciprocalInner, projection);
-                FixVecScale(&dir, &g_stageDeformNormal, projection);
+                depth = g_stageDeformRadius - FixMul(reciprocalInner, depth);
+                FixVecScale(&dir, &g_stageDeformNormal, depth);
                 if (normalSide != 0) {
                     pos.x -= dir.x;
                     pos.y -= dir.y;
@@ -2317,20 +2316,19 @@ void StageDeform_ApplyRadialDent(void)
             } else {
                 // In the falloff shell: a small ripple along the vertex's own
                 // limit direction.
-                projection = FixMul(FixSqrt(projection) - g_stageDeformRadius, reciprocalFalloff);
-                projection = FixMul(projection, shellScale);
+                depth = FixMul(FixSqrt(depth) - g_stageDeformRadius, reciprocalFalloff);
+                depth = FixMul(depth, shellScale);
                 phase = dir.z + dir.x;
                 if (phase < 0)
                     phase = -phase;
                 phase = (phase & ~0x7f) % 0x400 * 0x40;
                 if (phase < 0x8000)
                     phase -= 0x10000;
-                projection = FixMul(projection, phase);
-                pLimits = (signed char *)(pSlot[0x1e] + vertexIndex * 0x20);
-                limit.x = (int)pLimits[0x18] << 9;
-                limit.y = (int)pLimits[0x19] << 9;
-                limit.z = (int)pLimits[0x1a] << 9;
-                FixVecScale(&dir, &limit, projection);
+                depth = FixMul(depth, phase);
+                limit.x = (int)((signed char *)pSlot[0x1e])[vertexIndex * 0x20 + 0x18] << 9;
+                limit.y = (int)((signed char *)pSlot[0x1e])[vertexIndex * 0x20 + 0x19] << 9;
+                limit.z = (int)((signed char *)pSlot[0x1e])[vertexIndex * 0x20 + 0x1a] << 9;
+                FixVecScale(&dir, &limit, depth);
                 pos.x += dir.x;
                 pos.y += dir.y;
                 pos.z += dir.z;
@@ -5908,7 +5906,7 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
     int slot;
     int n;
     int t;
-    short x;
+    int x;
     unsigned int z;
     int sinA;
     int cosA;
@@ -6406,7 +6404,7 @@ void CarPart_IntegrateHubGroundContact(void)
     FixVector v24;
     unsigned short angles[3];
     int idx;
-    unsigned int dot;
+    int dot;
     int scale;
     int flip;
     int t;

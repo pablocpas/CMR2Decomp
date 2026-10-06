@@ -1433,7 +1433,7 @@
   },
   "0x496e00": {
     "n": "CarPhysics_UpdateBodyContactAndSkidTrail",
-    "s": 0.6728221597751907,
+    "s": 0.6709470304975923,
     "x": false,
     "unknown": [
       "__real@8@c00afff0000000000000"
@@ -24567,7 +24567,7 @@
   },
   "0x467700": {
     "n": "StageDeform_ApplyRadialDent",
-    "s": 0.5865384615384616,
+    "s": 0.6055335968379446,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25417,7 +25417,7 @@
   },
   "0x4584d0": {
     "n": "StageTiming_PlaceEventStartingGrid",
-    "s": 0.7285886610373945,
+    "s": 0.6973365617433414,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25433,7 +25433,7 @@
   },
   "0x4816f0": {
     "n": "CarPart_IntegrateHubGroundContact",
-    "s": 0.7471600129827978,
+    "s": 0.7448453608247423,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25945,7 +25945,7 @@
   },
   "0x4781d0": {
     "n": "Car_UpdateSurfaceParams",
-    "s": 0.6102150537634409,
+    "s": 0.5546448087431693,
     "x": false,
     "unknown": [],
     "f": "SurfaceTypes.cpp",
