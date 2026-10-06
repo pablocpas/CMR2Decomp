@@ -10854,117 +10854,108 @@ extern double g_minus65536;
 // Chooses the wall-collision response of a car part from its lateral/forward
 // offsets and the wall distances stored in the reference record; returns the
 // facing side (1..4) or a slanted-response code (5/6), 0 when clear.
-// match 54%: implementada, MSVC6 reparte distinto los locales y el modo del muro
 // FUNCTION: CMR2 0x0047c5e0
 unsigned int AI_SelectWallCollisionResponse(int param_1)
 {
-    int mode;
-    int off;
-    int limit;
-    int blocked;
-    int local10;
-    unsigned int isStackC;
-    short iVar4;
-    int iVar7;
-    int iVar8;
-    int iVar5;
-    unsigned int u;
+    int side;
+    int lateral;
+    int nearGap;
+    int farGap;
+    int gap;
+    int forward;
+    int index;
+    char farLimit;
 
-    mode = 0;
-    if (*(int *)(param_1 + 0x5c) < -0xa0000)
-        mode = 1;
-    if (0xa0000 < *(int *)(param_1 + 0x5c))
-        mode = 2;
+#define WALL_FIELD(off) (*(int *)(param_1 + (off)))
+#define WALL_DISTANCE(i) ((int)(__int64)((double)(int)(signed char)g_unk0x0058e4a4[index + (i)] * g_minus65536))
 
-    iVar7 = *(int *)(param_1 + 0x34);
-    if (iVar7 < 0) {
-        iVar4 = *(int *)(param_1 + 0x54) * 0x10;
-        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xd) * g_minus65536);
-        iVar8 = iVar7 - local10;
-        {
-            char cVar1 = *(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xe);
-            local10 = (int)(__int64)((double)(int)cVar1 * g_minus65536);
-            iVar5 = 0;
-            if ((iVar7 - local10 < 0x40000) && (cVar1 < 0x11))
-                iVar5 = iVar7 - local10;
-        }
-        if ((0 < iVar8) && (iVar8 < 0x40000))
-            iVar5 = iVar8;
-        if (0 < iVar5) {
-            if (0x5a0000 < *(int *)(param_1 + 0x38))
+    side = 0;
+    if (WALL_FIELD(0x5c) < -0xa0000)
+        side = 1;
+    if (WALL_FIELD(0x5c) > 0xa0000)
+        side = 2;
+
+    lateral = WALL_FIELD(0x34);
+    if (lateral < 0) {
+        index = WALL_FIELD(0x54) * 0x10;
+        nearGap = lateral - WALL_DISTANCE(0xd);
+        farLimit = g_unk0x0058e4a4[index + 0xe];
+        farGap = lateral - WALL_DISTANCE(0xe);
+        gap = 0;
+        if (farGap < 0x40000 && farLimit <= 0x10)
+            gap = farGap;
+        if (nearGap > 0 && nearGap < 0x40000)
+            gap = nearGap;
+        if (gap > 0) {
+            if (WALL_FIELD(0x38) > 0x5a0000)
                 return 1;
-            if (*(int *)(param_1 + 0x38) - FixMul(0xf0000, -iVar5) + 0x3c0000 < 0)
+            if (WALL_FIELD(0x38) - FixMul(0xf0000, -gap) + 0x3c0000 < 0)
                 return 2;
         }
-        if (iVar8 < 0) {
-            iVar7 = *(int *)(param_1 + 0x38);
-            if (iVar7 < 1) {
-                if (iVar7 < -0x6e0000)
-                    return 2;
-                return ((iVar7 < -0x45ffff) - 1 & 0xfffffffe) + 6;
+        if (nearGap < 0) {
+            forward = WALL_FIELD(0x38);
+            if (forward > 0) {
+                if (forward > 0x6e0000)
+                    return 1;
+                return forward < 0x460000 ? 3 : 5;
             }
-            if (0x6e0000 < iVar7)
-                return 1;
-            return ((0x45ffff < iVar7) - 1 & 0xfffffffe) + 5;
-        }
-        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xc) * g_minus65536);
-        local10 = *(int *)(param_1 + 0x34) - local10;
-        if ((local10 < 0) && (mode != 2)) {
-            if (0x3c0000 < *(int *)(param_1 + 0x38))
-                return 1;
-            if (*(int *)(param_1 + 0x38) < -0x2d0000)
+            if (forward < -0x6e0000)
                 return 2;
-            if (*(int *)(param_1 + 0x38) - FixMul(0x50000, -local10) < 0)
+            return forward > -0x460000 ? 4 : 6;
+        }
+        gap = WALL_FIELD(0x34) - WALL_DISTANCE(0xc);
+        if (gap < 0 && side != 2) {
+            if (WALL_FIELD(0x38) > 0x3c0000)
+                return 1;
+            if (WALL_FIELD(0x38) < -0x2d0000)
+                return 2;
+            if (WALL_FIELD(0x38) - FixMul(0x50000, -gap) < 0)
                 return 3;
         }
     } else {
-        iVar5 = *(int *)(param_1 + 0x54) * 0x10;
-        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar5 + 9) * g_minus65536);
-        iVar4 = -iVar7 - local10;
-        {
-            char cVar1 = *(signed char *)(g_unk0x0058e4a4 + iVar5 + 10);
-            local10 = (int)(__int64)((double)(int)cVar1 * g_minus65536);
-            local10 = -iVar7 - local10;
-            isStackC = 0;
-            if ((local10 < 0x40000) && (cVar1 < 0x11))
-                isStackC = local10;
-        }
-        if ((0 < iVar4) && (iVar4 < 0x40000))
-            isStackC = iVar4;
-        if (0 < isStackC) {
-            if (*(int *)(param_1 + 0x38) < -0x5a0000)
+        index = WALL_FIELD(0x54) * 0x10;
+        lateral = -lateral;
+        nearGap = lateral - WALL_DISTANCE(9);
+        farLimit = g_unk0x0058e4a4[index + 10];
+        farGap = lateral - WALL_DISTANCE(10);
+        gap = 0;
+        if (farGap < 0x40000 && farLimit <= 0x10)
+            gap = farGap;
+        if (nearGap > 0 && nearGap < 0x40000)
+            gap = nearGap;
+        if (gap > 0) {
+            if (WALL_FIELD(0x38) < -0x5a0000)
                 return 3;
-            iVar7 = *(int *)(param_1 + 0x38) - FixMul(0xf0000, isStackC);
-            if (iVar7 != 0x3c0000 && -1 < iVar7 + -0x3c0000)
+            if (WALL_FIELD(0x38) - FixMul(0xf0000, gap) - 0x3c0000 > 0)
                 return 4;
         }
-        if (iVar4 < 0) {
-            iVar7 = *(int *)(param_1 + 0x38);
-            if (iVar7 < 1) {
-                if (iVar7 < -0x6e0000)
-                    return 3;
-                return ((iVar7 < -0x45ffff) - 1 & 0xfffffffc) + 5;
+        if (nearGap < 0) {
+            forward = WALL_FIELD(0x38);
+            if (forward > 0) {
+                if (forward > 0x6e0000)
+                    return 4;
+                return forward < 0x460000 ? 2 : 6;
             }
-            if (0x6e0000 < iVar7)
-                return 4;
-            return ((0x45ffff < iVar7) - 1 & 0xfffffffc) + 6;
-        }
-        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar5 + 8) * g_minus65536);
-        iVar7 = -local10 - *(int *)(param_1 + 0x34);
-        if ((iVar7 < 0) && (mode != 1)) {
-            if (0x2d0000 < *(int *)(param_1 + 0x38))
-                return 4;
-            if (*(int *)(param_1 + 0x38) < -0x3c0000)
+            if (forward < -0x6e0000)
                 return 3;
-            u = FixMul(0x50000, iVar7);
-            if (*(unsigned int *)(param_1 + 0x38) != u &&
-                -1 < (int)(*(unsigned int *)(param_1 + 0x38) - u))
+            return forward > -0x460000 ? 1 : 5;
+        }
+        gap = -WALL_FIELD(0x34) - WALL_DISTANCE(8);
+        if (gap < 0 && side != 1) {
+            if (WALL_FIELD(0x38) > 0x2d0000)
+                return 4;
+            if (WALL_FIELD(0x38) < -0x3c0000)
+                return 3;
+            if (WALL_FIELD(0x38) - FixMul(0x50000, gap) > 0)
                 return 1;
         }
     }
-    if (0x780000 < *(int *)(param_1 + 0x38))
+    if (WALL_FIELD(0x38) > 0x780000)
         return 4;
-    return (-0x780001 < *(int *)(param_1 + 0x38)) - 1 & 2;
+    return WALL_FIELD(0x38) < -0x780000 ? 2 : 0;
+
+#undef WALL_FIELD
+#undef WALL_DISTANCE
 }
 
 int RallyData_GetRouteAvailabilityState(void);

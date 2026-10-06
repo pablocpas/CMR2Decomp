@@ -23151,7 +23151,7 @@
   },
   "0x47c5e0": {
     "n": "AI_SelectWallCollisionResponse",
-    "s": 0.580110497237569,
+    "s": 0.6522988505747126,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
