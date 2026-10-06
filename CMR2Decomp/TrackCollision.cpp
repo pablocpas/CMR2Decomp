@@ -355,7 +355,6 @@ void AutoGear_RequestAdjacentGear(void)
 
 // Selects the automatic gearbox's next gear from engine speed and road load.
 // It also chooses reverse when the car stops against the driving direction.
-// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00493b30
 void Car_UpdateAutomaticGear(void)
 {
@@ -388,7 +387,7 @@ void Car_UpdateAutomaticGear(void)
         engine = FixMul(g_pAutoGearCar->field_0x7a4, g_pAutoGearCar->gearSpeed[g_pAutoGearCar->gear]);
         selected = 0;
         for (i = 1; i < 7; i++) {
-            candidate = FixMul(g_pAutoGearCar->field_0x7bc[i], engine);
+            candidate = FixMul(engine, g_pAutoGearCar->field_0x7bc[i]);
             if (candidate > best &&
                 (candidate < FixMul(g_pAutoGearCar->field_0x794, 0xfae1) || i == 6)) {
                 best = candidate;
@@ -409,7 +408,8 @@ void Car_UpdateAutomaticGear(void)
                 g_pAutoGearCar->field_0xb21 = 10;
 
                 if (selected > g_pAutoGearCar->gear && *(int *)(g_pAutoGearSetup + 0x278) > 0xb333) {
-                    chance = FixMul(*(int *)(g_pAutoGearSetup + 0x278) - 0xb333, 0x3553f);
+                    chance = *(int *)(g_pAutoGearSetup + 0x278) - 0xb333;
+                    chance = FixMul(chance, 0x3553f);
                     if (chance > 0x10000)
                         chance = 0x10000;
                     else if (chance < 0)
