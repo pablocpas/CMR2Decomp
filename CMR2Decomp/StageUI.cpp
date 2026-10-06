@@ -229,9 +229,8 @@ void StageSound_LoadSurfaceVariations(void)
     pDir = CInstallInfo::GetSoundsDir();
     g_stageSoundLoaded = 0;
     g_stageSoundFirst = Sound_GetSampleCount();
-    for (group = 0, pPattern = g_stageSoundPatterns; group < 31; group++, pPattern++) {
-        if (g_stageSoundUsed[group] == 0)
-            continue;
+    for (group = 0, pPattern = g_stageSoundPatterns; group < 31; pPattern++, group++) {
+        if (g_stageSoundUsed[group] != 0) {
         pPattern->base[0] = g_stageSoundLoaded + g_stageSoundFirst;
         pPattern->base[1] = pPattern->base[0] + pPattern->choices[0];
         pPattern->base[2] = pPattern->base[1] + pPattern->choices[1];
@@ -255,6 +254,7 @@ void StageSound_LoadSurfaceVariations(void)
             sprintf(CFrontend::m_stringDest, g_strSurfSndSkidOut, pDir, group, i);
             Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)StageTiming_GetStageFile5());
             g_stageSoundLoaded++;
+        }
         }
     }
     g_unk0x00537564 = Sound_GetSampleCount();

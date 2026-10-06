@@ -220,10 +220,20 @@ void CFrontend::LoadFrontendResourceArchives(void)
     // almost certainly not how this was written but this gets us better instruction matching
     // this is basically (if regionID is 3, then use poland)
     regionID = CGameInfo::GetGameRegion();
-    if (regionID && --regionID && --regionID)
-        regionKey = 0x50; // P
-    else
+    switch (regionID) {
+    case 0:
         regionKey = 0x45; // E
+        break;
+    case 1:
+        regionKey = 0x45; // E
+        break;
+    case 2:
+        regionKey = 0x45; // E
+        break;
+    default:
+        regionKey = 0x50; // P
+        break;
+    }
 
     if (CGameInfo::GetScreenWidth() >= 1024U)
     {

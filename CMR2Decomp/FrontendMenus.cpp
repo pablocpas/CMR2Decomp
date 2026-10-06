@@ -1126,7 +1126,7 @@ char g_bindingText[64];
 char *FrontendControls_GetBindingDisplayText(int index)
 {
     DeviceInfo *pDevice;
-    unsigned short button;
+    unsigned int button;
     unsigned int dev;
     int i;
 
