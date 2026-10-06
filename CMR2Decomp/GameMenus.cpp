@@ -1443,12 +1443,10 @@ void GameMenu_DrawChampionshipTimeStandings(Menu *pMenu)
 
 // Draw callback of the championship standings screen: the best driver's
 // position decides between the "champion" and "rally over" headers.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00450c10
 void GameMenu_DrawChampionshipOutcome(Menu *pMenu)
 {
     char position[100];
-    char *pPosition;
     int x;
     int y;
     int best;
@@ -1483,20 +1481,19 @@ void GameMenu_DrawChampionshipOutcome(Menu *pMenu)
         place = RallyTiming_GetOverallPositionOfDriver(StageTiming_GetDriverSlot(i));
         switch (place) {
         case 0:
-            pPosition = CFrontend::GetTextString(0x51);
+            sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), CFrontend::GetTextString(0x51));
             break;
         case 1:
-            pPosition = CFrontend::GetTextString(0x52);
+            sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), CFrontend::GetTextString(0x52));
             break;
         case 2:
-            pPosition = CFrontend::GetTextString(0x53);
+            sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), CFrontend::GetTextString(0x53));
             break;
         default:
             sprintf(position, CFrontend::GetTextString(0x54), place + 1);
-            pPosition = position;
+            sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), position);
             break;
         }
-        sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), pPosition);
         CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
         resY = g_pGraphics->resY;
         Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 30) / 640,
