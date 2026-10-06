@@ -5817,14 +5817,13 @@ void StageTiming_RecordAndReorderSplitTime(int car)
         group = 0;
         index = split;
     }
-    index = index + group * 9;
-    char prev = g_unk0x0053ddb0[index];
+    char prev = ((char (*)[9])g_unk0x0053ddb0)[group][index];
     int old = prev;
     g_carStageTiming[car].field_0x82 = old;
-    g_unk0x0053ddb0[index] = prev + 1;
-    g_unk0x0053de1c[index][old] = (char)car;
+    ((char (*)[9])g_unk0x0053ddb0)[group][index] = prev + 1;
+    ((char (*)[9][8])g_unk0x0053de1c)[group][index][old] = (char)car;
     if (old > 0) {
-        char other = g_unk0x0053de1c[index][old - 1];
+        char other = ((char (*)[9][8])g_unk0x0053de1c)[group][index][old - 1];
 
         g_carStageTiming[other].field_0x80 = (char)car;
         g_carStageTiming[other].field_0x83 = 1;

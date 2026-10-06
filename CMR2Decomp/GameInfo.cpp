@@ -8427,7 +8427,6 @@ void OptionPreview_UpdateAllSlots(void)
 void OptionMenu_AnimateLayoutRectangleEdge(int param_1, short *param_2)
 {
     Unk0x0082b2c0 *p;
-    int mid;
     int lo;
     int hi;
     int a;
@@ -8435,9 +8434,9 @@ void OptionMenu_AnimateLayoutRectangleEdge(int param_1, short *param_2)
 
     p = &g_unk0x0082b2c0[param_1];
     if (p->field_0xc == 1) {
-        mid = param_2[2] / 2 + param_2[0];
-        lo = mid - 1;
-        hi = mid + 1;
+        lo = param_2[2] / 2 + param_2[0];
+        hi = lo + 1;
+        lo--;
         if (p->field_0x0 < 0x8000) {
             param_2[0] = lo;
             param_2[2] = hi - lo;
@@ -10220,7 +10219,7 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
                       (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x11);
         sprintf(CFrontend::m_stringDest, g_str0x00524e20);
         Font_DrawText(0, CFrontend::m_stringDest,
-                      *(int *)&g_unk0x00831660[0] + *(int *)&g_unk0x00831660[2],
+                      *(int *)&g_unk0x00831660[2] + *(int *)&g_unk0x00831660[0],
                       (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x14);
         Font_DrawText(1, CFrontend::GetTextString(0xf9),
                       g_unk0x00831660[2] / 2 + *(int *)&g_unk0x00831660[0],

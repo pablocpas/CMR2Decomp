@@ -2763,7 +2763,7 @@
   },
   "0x4d3e80": {
     "n": "FrontendDraw_BreadcrumbItem",
-    "s": 0.9473684210526315,
+    "s": 0.9523809523809523,
     "x": false,
     "unknown": [],
     "f": "FrontendDraw.cpp",
@@ -11171,8 +11171,8 @@
   },
   "0x501de0": {
     "n": "OptionMenu_AnimateLayoutRectangleEdge",
-    "s": 0.9514563106796117,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_AnimateLayoutRectangleEdge"
@@ -25387,7 +25387,7 @@
   },
   "0x4487a0": {
     "n": "StageTiming_RecordAndReorderSplitTime",
-    "s": 0.9565217391304348,
+    "s": 0.9739130434782609,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",

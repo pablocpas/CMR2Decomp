@@ -457,14 +457,12 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4bcc60	Pulse_Update	Graphics.cpp	534	0.9391304347826087	0.9391304347826087
 0x482ac0	Vehicle_UpdateMotion	VehiclePhysics.cpp	1126	0.9401709401709402	0.9034090909090909
 0x429810	Car_UpdateViewNodes	Car.cpp	1797	0.9405204460966543	0.8775510204081632
-0x501de0	OptionMenu_AnimateLayoutRectangleEdge	GameInfo.cpp	288	0.941747572815534	0.9514563106796117
 0x4430b0	Car_UpdateRideHeight	Car.cpp	369	0.9423076923076923	0.9423076923076923
 0x421470	RallyData_GetCarRecordValueRatio	RallyData.cpp	144	0.9425287356321839	0.8275862068965517
 0x460a30	StageObject_DeriveLoadedScaleVector	StageObjects.cpp	302	0.9433962264150944	0.9433962264150944
 0x4e77c0	FrontendMenu_DrawNetworkPlayerSetup	FrontendScreens.cpp	1788	0.9441984056687334	0.9239033124440466
 0x4d39a0	FrontendDraw_RallyEntryList	FrontendDraw.cpp	1246	0.9449423815620999	0.9480354879594424
-0x4d3e80	FrontendDraw_BreadcrumbItem	FrontendDraw.cpp	282	0.9473684210526315	0.9473684210526315
-0x4487a0	StageTiming_RecordAndReorderSplitTime	StageTiming.cpp	381	0.9478260869565217	0.9565217391304348
+0x4d3e80	FrontendDraw_BreadcrumbItem	FrontendDraw.cpp	282	0.9468085106382979	0.9523809523809523
 0x4877a0	Collision_UpdateOrderedCars	StageObjects.cpp	241	0.9493670886075949	0.8427672955974843
 0x44d790	GameMenu_DrawStageWinner	GameMenus.cpp	464	0.9506172839506173	0.9506172839506173
 0x4af120	Glow_Draw	Graphics.cpp	2078	0.9510290986515259	0.9590395480225988
@@ -478,6 +476,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4fb8d0	FrontendProfile_ScrambleIdentifier	FrontendScreens.cpp	232	0.9594594594594594	0.9594594594594594
 0x4e1230	FrontendMenu_DrawMultiplayerRaceSettings	FrontendScreens.cpp	1584	0.9645669291338582	0.9637826961770624
 0x46fe70	StageObject_QueueOrEvictMovingObject	StageObjects.cpp	969	0.964968152866242	0.964968152866242
+0x4487a0	StageTiming_RecordAndReorderSplitTime	StageTiming.cpp	381	0.9652173913043478	0.9739130434782609
 0x4e90f0	FrontendMenu_DrawNetworkExtendedStageSetup	FrontendScreens.cpp	1487	0.9655172413793104	0.9525816649104321
 0x48cae0	View_PlaceTracksideCameraAtSpot	StageObjects.cpp	329	0.9658119658119658	0.9743589743589743
 0x443a20	Car_UpdateCornerVelocityPair	Car.cpp	451	0.9661538461538461	0.9693251533742331
