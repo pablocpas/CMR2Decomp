@@ -13332,7 +13332,7 @@
   },
   "0x4ae470": {
     "n": "Graphics_DrawLayerQuad",
-    "s": 0.5179856115107914,
+    "s": 0.8447058823529412,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",

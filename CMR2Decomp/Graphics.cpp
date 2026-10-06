@@ -4654,10 +4654,11 @@ Quad2DInputVertex g_projectedQuad[4] = {
     { 0, 0, 0, { 0xff, 0xff, 0xff, 0xff }, 0xfff9, 0xfff9 },
     { 0, 0, 0, { 0xff, 0xff, 0xff, 0xff }, 0, 0xfff9 },
 };
-// GLOBAL: CMR2 0x00521004
-FixVector g_quadBasisA = {0, 0x10000, 0};
-// GLOBAL: CMR2 0x00521010
-FixVector g_quadBasisB = {0, 0, 0x10000};
+// Glow basis: [0] the horizontal camera forward (normalised), [1] and [2] the
+// axes of the projected layer quad ([2] follows the camera).
+// GLOBAL: CMR2 0x00520ff8
+FixVector g_glowBasis[3] = {{0x10000, 0, 0}, {0, 0x10000, 0}, {0, 0, 0x10000}};
+#define g_glowForward (g_glowBasis[0])
 
 // FUNCTION: CMR2 0x004ae140
 void Graphics_SetLayerQuadColour(BYTE *pColour)
@@ -4823,77 +4824,73 @@ BillboardDef g_glowDef;
 // FUNCTION: CMR2 0x004ae470
 void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
 {
-    FixVector *pPlanePoint = (FixVector *)(pSurface + 0x1c);
-    FixVector *pNormal = (FixVector *)(pSurface + 0x28);
-    FixVector displacement;
-    FixVector projected;
-    FixVector offset;
+    FixVector quad[4];
     FixVector axisA;
+    FixVector toTarget;
     FixVector axisB;
     int depth;
-    short length;
     int extension;
-    int residual;
-    int opacity;
-    int fade;
-    short colour;
+    int t;
+    BYTE colour[4];
     int i;
-    BYTE intensity;
 
-    displacement.x = g_glowDef.pos.x - pPlanePoint->x;
-    displacement.y = g_glowDef.pos.y - pPlanePoint->y;
-    displacement.z = g_glowDef.pos.z - pPlanePoint->z;
-    depth = FixVecDot(pNormal, &displacement);
-    FixVecScale(&offset, pNormal, depth);
-    projected.x = g_glowDef.pos.x - offset.x;
-    projected.y = g_glowDef.pos.y - offset.y;
-    projected.z = g_glowDef.pos.z - offset.z;
-    fade = FixMul(depth, 0x20000);
-    opacity = FixMul(g_glowDef.top, 0x9999);
+    // quad[0] holds the glow position projected onto the layer plane.
+    quad[0].x = g_glowDef.pos.x - ((FixVector *)(pSurface + 0x1c))->x;
+    quad[0].y = g_glowDef.pos.y - ((FixVector *)(pSurface + 0x1c))->y;
+    quad[0].z = g_glowDef.pos.z - ((FixVector *)(pSurface + 0x1c))->z;
+    depth = FixVecDot((FixVector *)(pSurface + 0x28), &quad[0]);
+    FixVecScale(&quad[0], (FixVector *)(pSurface + 0x28), depth);
+    quad[0].x = g_glowDef.pos.x - quad[0].x;
+    quad[0].y = g_glowDef.pos.y - quad[0].y;
+    quad[0].z = g_glowDef.pos.z - quad[0].z;
+    FixVecScale(&axisA, &g_glowBasis[1], FixMul(depth, 0x20000));
+    FixVecScale(&axisB, &g_glowBasis[2], FixMul(g_glowDef.top, 0x9999));
 
-    displacement.x = pTarget->x - projected.x;
-    displacement.y = pTarget->y - projected.y;
-    displacement.z = pTarget->z - projected.z;
-    length = FixVecLength(&displacement);
-    extension = length - 0x30000;
+    // Pull it towards the target, by at most 10 units.
+    toTarget.x = pTarget->x - quad[0].x;
+    toTarget.y = pTarget->y - quad[0].y;
+    toTarget.z = pTarget->z - quad[0].z;
+    t = FixVecLength(&toTarget);
+    FixVecScaleRecip(&toTarget, &toTarget, t);
+    extension = t - 0x30000;
     if (extension > 0xa0000)
         extension = 0xa0000;
-    FixVecScaleRecip(&displacement, &displacement, length);
-    FixVecScale(&displacement, &displacement, extension);
-    projected.x += displacement.x;
-    projected.y += displacement.y;
-    projected.z += displacement.z;
+    FixVecScale(&toTarget, &toTarget, extension);
+    quad[0].x += toTarget.x;
+    quad[0].y += toTarget.y;
+    quad[0].z += toTarget.z;
 
-    residual = 0x10000 - FixDiv(extension, length);
-    FixVecScale(&axisA, &g_quadBasisA, fade);
-    FixVecScale(&axisA, &axisA, residual);
-    FixVecScale(&axisB, &g_quadBasisB, opacity);
-    FixVecScale(&axisB, &axisB, residual);
+    t = 0x10000 - FixDiv(extension, t);
+    FixVecScale(&axisA, &axisA, t);
+    FixVecScale(&axisB, &axisB, t);
 
-    g_layerQuad[0].x = projected.x - axisB.x;
-    g_layerQuad[0].y = projected.y - axisB.y;
-    g_layerQuad[0].z = projected.z - axisB.z;
-    g_layerQuad[1].x = projected.x + axisB.x;
-    g_layerQuad[1].y = projected.y + axisB.y;
-    g_layerQuad[1].z = projected.z + axisB.z;
-    g_layerQuad[2].x = projected.x - axisA.x + axisB.x;
-    g_layerQuad[2].y = projected.y - axisA.y + axisB.y;
-    g_layerQuad[2].z = projected.z - axisA.z + axisB.z;
-    g_layerQuad[3].x = projected.x - axisA.x - axisB.x;
-    g_layerQuad[3].y = projected.y - axisA.y - axisB.y;
-    g_layerQuad[3].z = projected.z - axisA.z - axisB.z;
+    quad[3].x = quad[0].x - axisA.x - axisB.x;
+    quad[3].y = quad[0].y - axisA.y - axisB.y;
+    quad[3].z = quad[0].z - axisA.z - axisB.z;
+    quad[2].x = quad[0].x - axisA.x + axisB.x;
+    quad[2].y = quad[0].y - axisA.y + axisB.y;
+    quad[2].z = quad[0].z - axisA.z + axisB.z;
+    quad[1].x = quad[0].x + axisB.x;
+    quad[1].y = quad[0].y + axisB.y;
+    quad[1].z = quad[0].z + axisB.z;
+    quad[0].x = quad[0].x - axisB.x;
+    quad[0].y = quad[0].y - axisB.y;
+    quad[0].z = quad[0].z - axisB.z;
 
-    fade = depth - 0x20000;
-    if (fade < 0)
-        fade = 0;
-    fade = FixMul(fade, 0x20000);
-    if (fade > 0x10000)
-        fade = 0x10000;
-    intensity = (BYTE)FixMulShift32(FixMul(*(int *)(pSurface + 0x44), 0x10000 - fade),
-                                    (int)g_glowDef.r << 16);
-    colour = 0xff000000 | ((int)intensity << 16) | ((int)intensity << 8) | intensity;
-    for (i = 0; i < 4; i++)
-        *(int *)g_layerQuad[i].colour = colour;
+    t = depth - 0x20000;
+    if (t < 0)
+        t = 0;
+    t = FixMul(t, 0x20000);
+    if (t > 0x10000)
+        t = 0x10000;
+    colour[0] = (BYTE)(FixMul(FixMul(0x10000 - t, *(int *)(pSurface + 0x44)), (int)g_glowDef.r << 16) >> 16);
+    colour[1] = colour[0];
+    colour[2] = colour[0];
+    colour[3] = 0xff;
+    for (i = 0; i < 4; i++) {
+        *(FixVector *)&g_layerQuad[i] = quad[i];
+        *(DWORD *)g_layerQuad[i].colour = *(DWORD *)colour;
+    }
     Quad2D_QueueFixedTriangle(0, &g_layerQuad[0], &g_layerQuad[1], &g_layerQuad[2],
                               *(Texture **)(pSurface + 0x4c), (Quad2D *)0x16);
     Quad2D_QueueFixedTriangle(0, &g_layerQuad[0], &g_layerQuad[2], &g_layerQuad[3],
@@ -4988,9 +4985,6 @@ void Glow_SetLayerPlane(GlowLight *pLight, FixVector *pPoint, FixVector *pNormal
 
 // GLOBAL: CMR2 0x006a2aa0
 BillboardDef g_glowBillboard;
-// Horizontal camera forward (normalised) used by the glow quads.
-// GLOBAL: CMR2 0x00520ff8
-FixVector g_glowForward = { 0x10000, 0, 0 };
 
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 void FixMatrix_GetPosition(FixVector *pOut, FixMatrix *pM);
@@ -5028,9 +5022,9 @@ void Glow_Draw(SceneNode *pCamera, BYTE view)
     FixMatrix_GetForward(&g_glowForward, pCamMatrix);
     g_glowForward.y = 0;
     FIX_NORMALIZE_INTO(g_glowForward, g_glowForward);
-    g_quadBasisB.x = -g_glowForward.z;
-    g_quadBasisB.y = 0;
-    g_quadBasisB.z = g_glowForward.x;
+    g_glowBasis[2].x = -g_glowForward.z;
+    g_glowBasis[2].y = 0;
+    g_glowBasis[2].z = g_glowForward.x;
 
     for (i = 0; i < g_unk0x006a2bcc; i++) {
         pLight = &((GlowLight *)g_unk0x006a2a98)[i];

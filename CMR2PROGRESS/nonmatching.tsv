@@ -55,7 +55,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x455f00	StageTiming_BlendCarPaintDecalRows	StageTiming.cpp	527	0.5263157894736842	0.5348837209302325
 0x461830	StageObject_BlendTimeOfDayRecord	StageObjects.cpp	498	0.5286103542234333	0.5040650406504065
 0x42e450	Car_IntegrateWheelTravel	Car.cpp	1165	0.5300859598853869	0.48450704225352115
-0x4ae470	Graphics_DrawLayerQuad	Graphics.cpp	1239	0.5368802902055623	0.5179856115107914
 0x4147f0	RallyData_DrawStageResultRows	RallyData.cpp	1749	0.5391304347826087	0.5257836198179979
 0x4675c0	CarDamage_BuildRelativeVelocityHull	StageObjects.cpp	316	0.5393258426966292	0.5
 0x463410	StageLights_Create	StageObjects.cpp	1983	0.5404556166535742	0.5998433829287392
@@ -332,6 +331,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x456110	StageTiming_RandomizeComputerTimes	StageTiming.cpp	204	0.8413793103448276	0.8794326241134752
 0x454df0	GameMenus_DrawTextRow	GameMenus.cpp	296	0.8421052631578947	0.8571428571428571
 0x464cb0	StageObject_UpdateSkidTrails	StageObjects.cpp	2172	0.8424242424242424	0.831306990881459
+0x4ae470	Graphics_DrawLayerQuad	Graphics.cpp	1239	0.8424737456242707	0.8447058823529412
 0x45f530	StageObject_ScaleViewValueByRoute	StageTiming.cpp	154	0.8440366972477065	0.8518518518518519
 0x4abaf0	Mesh_CloneInto	Mesh.cpp	1616	0.8452488687782805	0.7692307692307693
 0x468520	CarDamage_AllocateImpactDeformRecord	StageTiming.cpp	908	0.8455008488964346	0.7269681742043551
