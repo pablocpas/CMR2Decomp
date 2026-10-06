@@ -49,6 +49,14 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
   only matches in a different neighbourhood can move to its own TU with
   `scripts/split_tu.py` (OptionMenuRows.cpp).
 
+## Slot tools
+
+- `match.py` prints a third score that also ignores stack offsets: near 100%
+  means the code is right and only the frame layout differs.
+- `scripts/slots.py 0xADDR` maps each of our frame slots to the original's.
+- `scripts/rename_search.py 0xADDR [--merge] [--apply]` tries local/parameter
+  renames (slot ties) and, with --merge, merging two locals (check lifetimes).
+
 ## Reading MSVC6 output
 
 - Stack slots: ordered by reference count, most-referenced nearest the frame

@@ -123,10 +123,16 @@ REGS = re.compile(r"\b(?:e?[abcd]x|[abcd][lh]|e?[sd]i|e?[bs]p|[sd]il|[bs]pl)\b")
 JUMP = re.compile(r"^(j\w+|call|loop\w*) 0x[0-9a-f]+$")
 
 
-def shape_score(oi, ri):
+FRAME = re.compile(r"\[(?:ebp|esp)(?: [+-] (?:0x[0-9a-f]+|\d+))?\]")
+
+
+def shape_score(oi, ri, frame=False):
     """Similarity with register names and branch targets blanked out: close to
-    100% means only register allocation / branch offsets differ."""
+    100% means only register allocation / branch offsets differ. With frame,
+    stack-slot offsets are blanked too (only slot assignment differs)."""
     def norm(t):
+        if frame:
+            t = FRAME.sub("[S]", t)
         t = REGS.sub("R", t)
         return JUMP.sub(lambda m: m.group(1) + " L", t)
     a = [norm(t) for _, _, t in oi]
@@ -168,7 +174,8 @@ def report(src, results, base, focus, args):
             continue
         b = base[hex(addr)]
         oi, ri, sm = r["detail"]
-        hdr = "EXACT" if r["x"] else f"{100 * r['s']:.2f}%  (ignoring registers {100 * shape_score(oi, ri):.2f}%)"
+        hdr = "EXACT" if r["x"] else (f"{100 * r['s']:.2f}%  (ignoring registers {100 * shape_score(oi, ri):.2f}%,"
+                                      f" and stack slots {100 * shape_score(oi, ri, True):.2f}%)")
         print(f"\n{B}{addr:#x} {b['n']}{X}  orig {len(oi)}i / ours {len(ri)}i  {hdr}")
         if r["unknown"]:
             print(f"  {Y}unmapped symbols:{X}", ", ".join(sorted(r["unknown"])))
