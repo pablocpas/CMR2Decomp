@@ -3231,7 +3231,7 @@ void FrontendMenu_UpdateMultiplayerStageSelection(Menu *pMenu)
                 other = pMenu->items[0].min - old + index;
             }
             if (steps < other) {
-                while (steps >= 1) {
+                while (steps + 1 > 1) {
                     g_unk0x00819868 += (int)(g_pGraphics->resX * -0x50) / 640;
                     steps--;
                 }
