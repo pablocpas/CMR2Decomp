@@ -3287,7 +3287,6 @@ char g_nameRow0x0052538c[12] = "uvwxyz. <_";
 // Item picker of the name entry screens: appends the character of the picked
 // column to the name; the '<' entry deletes the last character and '_'
 // accepts the name.
-// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f1040
 void FrontendProfile_PickNameCharacter(Menu *pMenu, int param)
 {
@@ -3307,18 +3306,14 @@ void FrontendProfile_PickNameCharacter(Menu *pMenu, int param)
         return;
     } else if (len < 3) {
         switch (pMenu->items[pMenu->cursor].value) {
-        case 0:
-            chars = g_nameRow0x00525374;
+        case 2:
+            chars = g_nameRow0x0052538c;
             break;
         case 1:
             chars = g_nameRow0x00525380;
             break;
-        case 2:
-            chars = g_nameRow0x0052538c;
-            break;
-        default:
-            // the original uses the menu pointer as the character table
-            chars = (char *)pMenu;
+        case 0:
+            chars = g_nameRow0x00525374;
             break;
         }
         CFrontend::m_stringDest[len] = chars[pMenu->items[pMenu->cursor].max];
