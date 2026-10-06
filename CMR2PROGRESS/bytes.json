@@ -313,7 +313,7 @@
   },
   "0x4387a0": {
     "n": "Car_UpdateTyreForces",
-    "s": 0.779843808107103,
+    "s": 0.8628912071535022,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",

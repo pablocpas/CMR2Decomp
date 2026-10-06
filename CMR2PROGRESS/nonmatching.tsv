@@ -390,7 +390,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4ef190	FrontendScroller_RecomputeAllAttached	FrontendScreens.cpp	222	0.8774193548387097	0.8888888888888888
 0x492fe0	Track_SetFogAndSkyAlpha	TrackCollision.cpp	205	0.8774193548387097	0.8366013071895425
 0x40d820	RallyData_UpdateStageWetShares	RallyData.cpp	439	0.8786885245901639	0.8963210702341137
-0x4387a0	Car_UpdateTyreForces	Car.cpp	8567	0.8794933879679643	0.779843808107103
 0x4b4040	Mesh_GetCornerLight	SceneNode.cpp	190	0.8805970149253731	0.8805970149253731
 0x455e60	StageTiming_Reset	StageTiming.cpp	99	0.8813559322033898	0.9666666666666667
 0x4bbc60	Quad2D_Queue	Sprite.cpp	283	0.8819875776397516	0.8888888888888888
@@ -498,6 +497,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x423780	Camera_SnapTo	Car.cpp	104	0.9574468085106383	0.9444444444444444
 0x4b2090	Mesh_SetColourAndRefresh	Mesh.cpp	128	0.9591836734693877	0.9795918367346939
 0x4fb8d0	FrontendProfile_ScrambleIdentifier	FrontendScreens.cpp	232	0.9594594594594594	0.9594594594594594
+0x4387a0	Car_UpdateTyreForces	Car.cpp	8567	0.9603278077854349	0.8628912071535022
 0x4e1230	FrontendMenu_DrawMultiplayerRaceSettings	FrontendScreens.cpp	1584	0.9645669291338582	0.9637826961770624
 0x46fe70	StageObject_QueueOrEvictMovingObject	StageObjects.cpp	969	0.964968152866242	0.964968152866242
 0x4e90f0	FrontendMenu_DrawNetworkExtendedStageSetup	FrontendScreens.cpp	1487	0.9655172413793104	0.9525816649104321
