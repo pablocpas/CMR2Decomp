@@ -911,7 +911,7 @@ int StageObject_GetWheelSlip(int carIndex, int wheelIndex)
         else
             lateral = Car_Get(carIndex)->wheelSlip[wheelIndex];
         lateral -= 0x2666;
-        if (lateral < 0) lateral = 0;
+        if (lateral <= 0) lateral = 0;
         if (lateral > slip) slip = lateral;
         if (slip < 0) slip = -slip;
         if (slip > 0) {
@@ -2497,14 +2497,17 @@ char *StageObject_FormatAnimatedLapTime(int *p, int index, int mode)
         else
             current1 = time1;
         g_unk0x0058cf74 = current1;
+        time2 = p[2];
         current2 = g_unk0x0058cf78;
         if (current2 <= (unsigned)(time2 - 0x27))
             current2 += 0x27;
         else
             current2 = time2;
         g_unk0x0058cf78 = current2;
-        if (current1 == (unsigned)time1 && current2 == (unsigned)time2)
+        if (current1 == (unsigned)p[1] && current2 == (unsigned)p[2])
             g_unk0x0058cf64 = 1;
+        time1 = current1;
+        time2 = current2;
     }
     if (index == 0) {
         if ((p[0] & 0x1f) == 0x1f)
@@ -2515,7 +2518,7 @@ char *StageObject_FormatAnimatedLapTime(int *p, int index, int mode)
     } else if (index == 1) {
         if ((p[0] & 0x3e0) == 0x3e0)
             return CMain::m_logFileBlankLine;
-        RallyData_GetUsableRecordCategory((BYTE)((p[0] >> 5) & 0x1f));
+        RallyData_GetUsableRecordCategory((BYTE)(((unsigned int)p[0] >> 5) & 0x1f));
         sprintf(CFrontend::m_stringDest, g_minSecMSECFormatString, time2 / 6000, (time2 % 6000) / 100,
                 time2 % 100);
     }
