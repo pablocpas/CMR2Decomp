@@ -313,7 +313,7 @@
   },
   "0x4387a0": {
     "n": "Car_UpdateTyreForces",
-    "s": 0.7635147687163292,
+    "s": 0.8628912071535022,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -337,7 +337,7 @@
   },
   "0x43b100": {
     "n": "Car_UpdateSuspension",
-    "s": 0.7242128121606949,
+    "s": 0.9989023051591658,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -361,7 +361,7 @@
   },
   "0x441500": {
     "n": "Car_UpdateWheelForces",
-    "s": 0.5995169082125604,
+    "s": 0.969377990430622,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",

@@ -100,7 +100,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x455af0	StageTiming_InsertDriverSplitRanking	StageTiming.cpp	207	0.5982905982905983	0.5365853658536586
 0x406010	CGameInfo::InitProfileRecordDefaults	GameInfo.cpp	759	0.5991902834008097	0.5853658536585366
 0x429f20	FixBasis_Rotate	FixedPoint.cpp	4129	0.6026629292221444	0.5667932343803935
-0x441500	Car_UpdateWheelForces	Car.cpp	6536	0.6029411764705882	0.5995169082125604
 0x492910	StageObject_FindClosestMeshVertex	StageObjects.cpp	565	0.6038781163434903	0.5283018867924528
 0x424af0	ForceFeedback_ComputeRoadNoise	StageTiming.cpp	268	0.6052631578947368	0.5882352941176471
 0x467700	StageDeform_ApplyRadialDent	StageTiming.cpp	1933	0.6072874493927125	0.5865384615384616
@@ -299,7 +298,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47cc50	StageObject_UpdateApproachingCar	StageObjects.cpp	169	0.8181818181818182	0.8181818181818182
 0x5105a0	type_info::DeleteWithFlags	GameInfo.cpp	28	0.8181818181818182	0.8181818181818182
 0x478a20	SurfaceText_LoadRegionalStringTable	SurfaceTypes.cpp	228	0.8217054263565892	0.8403361344537815
-0x43b100	Car_UpdateSuspension	Car.cpp	5428	0.8217605248769819	0.7242128121606949
 0x47f740	Fireworks_Draw	StageObjects.cpp	1380	0.8223350253807107	0.8274111675126904
 0x48d0f0	View_BuildTracksideCameraMatrix	StageObjects.cpp	1719	0.8230240549828178	0.779777206512425
 0x4a0570	Menu_Update	Menu.cpp	1363	0.8231578947368421	0.7169811320754716
@@ -314,7 +312,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x48df50	CarPhysics_UpdateWheelSlipAndVelocityDamping	StageObjects.cpp	335	0.8333333333333334	0.803921568627451
 0x4b9f20	FixMatrix_Multiply	FixedPoint.cpp	205	0.8333333333333334	0.8421052631578947
 0x505b40	OptionMenu_AnimateSelectedPanel	GameInfo.cpp	713	0.8340425531914893	0.7295597484276729
-0x4387a0	Car_UpdateTyreForces	Car.cpp	8567	0.8344173945363316	0.7635147687163292
 0x401b60	InRaceMenu_DrawHeaderBar	GameInfo.cpp	436	0.8356164383561644	0.8413793103448276
 0x466ef0	CarDamage_ApplyCollisionDeformImpulse	StageTiming.cpp	1743	0.8361581920903954	0.7840593141797961
 0x413330	RallyData_RecordPassedSplit	RallyData.cpp	490	0.837037037037037	0.7867647058823529
@@ -462,6 +459,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4af120	Glow_Draw	Graphics.cpp	2078	0.9567068843151171	0.9646892655367232
 0x423780	Camera_SnapTo	Car.cpp	104	0.9574468085106383	0.9444444444444444
 0x4fb8d0	FrontendProfile_ScrambleIdentifier	FrontendScreens.cpp	232	0.9594594594594594	0.9594594594594594
+0x4387a0	Car_UpdateTyreForces	Car.cpp	8567	0.9603278077854349	0.8628912071535022
 0x4e1230	FrontendMenu_DrawMultiplayerRaceSettings	FrontendScreens.cpp	1584	0.9645669291338582	0.9637826961770624
 0x46fe70	StageObject_QueueOrEvictMovingObject	StageObjects.cpp	969	0.964968152866242	0.964968152866242
 0x4487a0	StageTiming_RecordAndReorderSplitTime	StageTiming.cpp	381	0.9652173913043478	0.9739130434782609
@@ -470,6 +468,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x443a20	Car_UpdateCornerVelocityPair	Car.cpp	451	0.9661538461538461	0.9693251533742331
 0x46f330	StageObject_PositionSplitViewNodes	StageObjects.cpp	353	0.9674418604651163	0.9014084507042254
 0x49f0e0	CInput::SetupKeyboard	Input.cpp	517	0.968503937007874	0.9669421487603306
+0x441500	Car_UpdateWheelForces	Car.cpp	6536	0.969377990430622	0.969377990430622
 0x4bd970	CGraphics::SetMipMapCount	Graphics.cpp	92	0.9696969696969697	0.9696969696969697
 0x4d15e0	CGame::InitializeGame	Game.cpp	1191	0.97054698457223	0.9526462395543176
 0x456960	StageTiming_AccumulateSplitDeltas	StageTiming.cpp	90	0.972972972972973	0.972972972972973
@@ -508,3 +507,4 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x44d960	GameMenu_DrawScrollingStageSplits	GameMenus.cpp	2000	0.9970972423802612	0.9970972423802612
 0x44efa0	GameMenu_DrawScrollingChampionshipPoints	GameMenus.cpp	1753	0.9983277591973244	0.9983277591973244
 0x44fea0	GameMenu_DrawScrollingRallyTimes	GameMenus.cpp	1795	0.9983739837398374	0.9983739837398374
+0x43b100	Car_UpdateSuspension	Car.cpp	5428	0.9989023051591658	0.9989023051591658

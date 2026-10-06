@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "79b742d21f18ebfa97d2186aa807a06cb02f6110",
+    "commit": "af96a2c77c78b9d2a470f6021935ee1f760dfa4d",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -47,7 +47,7 @@
       "CMR2Decomp/AIHelper.cpp": "19671c5c51ff79d525928b0be4c3fb378774605984fdfc9151729d7a26618f2d",
       "CMR2Decomp/AIHelper.h": "bab8d194d555cb12c67813998a76874490d63165d0b535b5005e222045cc8b55",
       "CMR2Decomp/BFL.h": "950defe875ffe734f13dce73dda42d7bc1b5369a7def6a53f9e0ba27ed047a7d",
-      "CMR2Decomp/Car.cpp": "a176d8c70cb7d27632d8decd05d847e2f683bc896686fcd42d9d8637416849eb",
+      "CMR2Decomp/Car.cpp": "cd7652b3005163a72992a6e9e970edc27c8293a57da726e51154b43cfc85f3d3",
       "CMR2Decomp/Car.h": "1d9130c79f57de423673cff28501382b248d64c58f4840b2d07359528feb716a",
       "CMR2Decomp/CarEffects.cpp": "541f1b0e775c43306cfdc91bd799a2345cfe3e8ff4799e526af3990cdd0168d5",
       "CMR2Decomp/CarParts.h": "32abbbb165e36262e995e93ece9e236ea34277ec9d5c8557c1578a6355b946e3",
@@ -167,8 +167,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "9956e2744b11073fe8921ed1e6e8eb199f1bf69585a1089469b0a214fe19924d",
-    "pdb_sha256": "3da94a306c465ce7790ed80716f30b48cc30d97cb041430d6e55add786b65b49"
+    "exe_sha256": "46c0a3dad589a5d041604c369ea574daf49ce7b51dff356c79662c3a65aa2eb6",
+    "pdb_sha256": "7b9bd0ce65aafefc08ed532887837621ff10b2d8bd9a0acc2180cee247443860"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
