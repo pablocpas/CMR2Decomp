@@ -24,15 +24,14 @@ unsigned int g_menuLastInput;
 // GLOBAL: CMR2 0x0059fa17
 char g_unk0x0059fa17;
 
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049ffd0
 void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, Menu *pParent, MenuItemCallbacks *pItemCallbacks, BYTE flag4, BYTE defaultCursor, BYTE layout)
 {
     pMenu->stringId = stringId;
     pMenu->field_0x4 = param3;
-    pMenu->cursor = defaultCursor;
     pMenu->pParent = pParent == (Menu *)-1 ? NULL : pParent;
     pMenu->itemCount = 0;
+    pMenu->cursor = defaultCursor;
     pMenu->layout = layout;
     pMenu->defaultCursor = -1;
     pMenu->pfnCallback0 = NULL;
