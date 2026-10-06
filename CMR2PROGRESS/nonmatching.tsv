@@ -415,7 +415,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x414ed0	RallyData_DrawSplitStandingsPanel	RallyData.cpp	1452	0.9081419624217119	0.86875
 0x463fe0	StageObject_RebuildCarLightMeshes	StageObjects.cpp	1026	0.9084967320261438	0.9084967320261438
 0x48a5f0	Collision_SeparateCarBoxes	Collision2D.cpp	2193	0.9085631349782293	0.9016751638747269
-0x45e8b0	StageObject_UpdateThirdRouteRamp	StageTiming.cpp	230	0.9090909090909091	0.9090909090909091
 0x4cf3f0	FrontendRecords_ResetDeviceStats	Frontend.cpp	35	0.9090909090909091	0.9090909090909091
 0x4dfe20	FrontendMenu_DrawGraphicsOptions	FrontendScreens.cpp	2321	0.9113428943937418	0.9186281102891728
 0x4db850	FrontendMenu_DrawArcadeChampionshipTransmission	FrontendScreens.cpp	1322	0.9130434782608695	0.8894230769230769
@@ -464,7 +463,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x460a30	StageObject_DeriveLoadedScaleVector	StageObjects.cpp	302	0.9433962264150944	0.9433962264150944
 0x4e77c0	FrontendMenu_DrawNetworkPlayerSetup	FrontendScreens.cpp	1788	0.9441984056687334	0.9239033124440466
 0x4d39a0	FrontendDraw_RallyEntryList	FrontendDraw.cpp	1246	0.9449423815620999	0.9480354879594424
-0x48db00	StageObject_StepVectorToTarget	StageObjects.cpp	304	0.9456521739130435	0.9347826086956522
 0x4d3e80	FrontendDraw_BreadcrumbItem	FrontendDraw.cpp	282	0.9473684210526315	0.9473684210526315
 0x4487a0	StageTiming_RecordAndReorderSplitTime	StageTiming.cpp	381	0.9478260869565217	0.9565217391304348
 0x4877a0	Collision_UpdateOrderedCars	StageObjects.cpp	241	0.9493670886075949	0.8427672955974843
@@ -474,7 +472,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4ba440	FixMatrix_Invert	FixedPoint.cpp	1062	0.952	0.952
 0x48ae90	Collision_ResolveCarContactImpulse	Collision2D.cpp	3970	0.9530309112806102	0.9199359487590072
 0x476640	StageObject_BlendCarMountTransform	StageObjects.cpp	513	0.9538461538461539	0.9538461538461539
-0x438460	Car_UpdateCornerFriction	Car.cpp	822	0.954225352112676	0.954225352112676
 0x487f60	Collision_ResolveCarTurnedObjectContact	StageObjects.cpp	1752	0.9554794520547946	0.8879384088964928
 0x480af0	StageObject_AssignMatchingCarClassSlots	StageObjects.cpp	79	0.9565217391304348	0.9565217391304348
 0x423780	Camera_SnapTo	Car.cpp	104	0.9574468085106383	0.9444444444444444
@@ -488,13 +485,12 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x49f0e0	CInput::SetupKeyboard	Input.cpp	517	0.968503937007874	0.9669421487603306
 0x4bd970	CGraphics::SetMipMapCount	Graphics.cpp	92	0.9696969696969697	0.9696969696969697
 0x4d15e0	CGame::InitializeGame	Game.cpp	1191	0.97054698457223	0.9526462395543176
-0x465d70	StageObject_GetWheelSlip	StageObjects.cpp	206	0.9714285714285714	0.9714285714285714
 0x456960	StageTiming_AccumulateSplitDeltas	StageTiming.cpp	90	0.972972972972973	0.972972972972973
-0x45eed0	StageWeather_DistributeViewParticles	StageTiming.cpp	870	0.9735849056603774	0.9735849056603774
 0x484f40	CarPart_ResolveLocalPointGroundContact	StageTiming.cpp	1142	0.9737827715355806	0.9027431421446384
 0x40f050	RallyData_GetViewScreenRectangle	RallyData.cpp	99	0.9743589743589743	0.9743589743589743
 0x40a980	NetPlayers_UpdateOverallStandings	NetPlayers.cpp	386	0.9754098360655737	0.9754098360655737
 0x434140	Car_UpdateSteering	Car.cpp	1911	0.9767441860465116	0.9767441860465116
+0x45eed0	StageWeather_DistributeViewParticles	StageTiming.cpp	870	0.9773584905660377	0.9773584905660377
 0x4669f0	CarDamage_SetupOrderedCarParts	StageTiming.cpp	1169	0.977491961414791	0.977491961414791
 0x4d5de0	FrontendMap_DrawStageCellGrid	FrontendScreens.cpp	445	0.9781021897810219	0.9847328244274809
 0x5040f0	RallyData_SetupWeatherTextureEntries	RallyData.cpp	699	0.9782608695652174	0.9782608695652174

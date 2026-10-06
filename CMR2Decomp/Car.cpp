@@ -2234,7 +2234,6 @@ inline int FixVecNormalizeLen(FixVector *pOut, FixVector *pV)
 void Car_UpdateCornerFriction(void)
 {
     int i;
-    int d;
     int len;
     int force;
     FixVector tangent;
@@ -2245,8 +2244,8 @@ void Car_UpdateCornerFriction(void)
     for (i = 7; i >= 0; i--) {
         if (g_pCurrentCar->cornerFlags[i] != 0)
             continue;
-        d = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->cornerVelocity[i]);
-        FixVecScale(&tangent, &g_pCurrentCar->groundNormal, d);
+        len = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->cornerVelocity[i]);
+        FixVecScale(&tangent, &g_pCurrentCar->groundNormal, len);
         tangent.x = g_pCurrentCar->cornerVelocity[i].x - tangent.x;
         tangent.y = g_pCurrentCar->cornerVelocity[i].y - tangent.y;
         tangent.z = g_pCurrentCar->cornerVelocity[i].z - tangent.z;

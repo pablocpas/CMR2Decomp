@@ -4559,11 +4559,10 @@ void StageObject_UpdateThirdRouteRamp(unsigned int *pRecord, int view)
         if (pRecord[0] < (unsigned int)g_unk0x00543d98 && pRecord[0] >= (unsigned int)g_unk0x00543d94) {
             t = RallyData_GetCarRaceRecordField10((BYTE *)pCar);
             pRecord[3] = FixMul(g_unk0x00543d90, t);
-            pRecord[4] = pRecord[2] + pRecord[3];
-            return;
+        } else {
+            pRecord[3] = 0;
         }
-        pRecord[3] = 0;
-        pRecord[4] = pRecord[2] + *(volatile unsigned int *)&pRecord[3];
+        pRecord[4] = pRecord[2] + pRecord[3];
     }
 }
 
@@ -9184,7 +9183,7 @@ void StageWeather_DistributeViewParticles(void)
         share = (short)(400 / views);
         *(short *)(pView + 0x74) = share;
         *(short *)(pView + 0x76) = (short)view * share;
-        *(int *)(pView + 0x5c) = *(int *)(pView + 0x58) =
+        *(int *)(pView + 0x58) = *(int *)(pView + 0x5c) =
             FixMul(FixMul(g_unk0x00543d50, *(int *)(pView + 0x54)), *(short *)(pView + 0x74) << 16);
         *(int *)(pView + 0x174) = 0;
         *(int *)(pView + 0x60) = 0x10000;

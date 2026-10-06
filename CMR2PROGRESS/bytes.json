@@ -305,8 +305,8 @@
   },
   "0x438460": {
     "n": "Car_UpdateCornerFriction",
-    "s": 0.954225352112676,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateCornerFriction"
@@ -20849,8 +20849,8 @@
   },
   "0x465d70": {
     "n": "StageObject_GetWheelSlip",
-    "s": 0.9714285714285714,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_GetWheelSlip"
@@ -22265,8 +22265,8 @@
   },
   "0x48db00": {
     "n": "StageObject_StepVectorToTarget",
-    "s": 0.9347826086956522,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_StepVectorToTarget"
@@ -25163,8 +25163,8 @@
   },
   "0x45e8b0": {
     "n": "StageObject_UpdateThirdRouteRamp",
-    "s": 0.9090909090909091,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageObject_UpdateThirdRouteRamp"
@@ -25635,7 +25635,7 @@
   },
   "0x45eed0": {
     "n": "StageWeather_DistributeViewParticles",
-    "s": 0.9735849056603774,
+    "s": 0.9773584905660377,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",

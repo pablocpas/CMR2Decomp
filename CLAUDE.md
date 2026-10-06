@@ -92,6 +92,14 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
   the shared tail mean two calls in the source). Two calls of one function
   with different arguments in an if/else are often one call with the
   differing arguments computed into locals first.
+- `push ebx/edi` inside a branch instead of in the prologue (or the reverse)
+  is MSVC6 placing callee-saved pushes: decompiled `if (!flag) return;`
+  before a shared tail often matches as `if (flag) tail;` with no return.
+- A `volatile` that forces a reload is usually covering for tail duplication:
+  `if (c) { a = f(); } else { a = 0; } b = x + a;` gives the reload of `a` in
+  the copied tail (StageObject_UpdateThirdRouteRamp).
+- `add r, -k` where `sub r, k` was expected: the subtraction is part of a
+  larger expression (`v = (s < 0 ? -s : s) - k;`).
 - Decompiled block-scoped temporaries (`int d = ...; int s = ...;`) are
   often one reused variable in the original (`step = FixVecDot(...)`): the
   inline-asm homes then land in that variable's slot. A pointer to a member

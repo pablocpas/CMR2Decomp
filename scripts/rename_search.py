@@ -17,6 +17,7 @@ import itertools
 import os
 from pathlib import Path
 import re
+import signal
 import subprocess
 import sys
 
@@ -73,6 +74,8 @@ def score(addr, src):
             nums = re.findall(r"([\d.]+)%", line)
             if nums:
                 return float(nums[-1]) / 100
+    if "compile failed" in out:
+        return 0.0
     raise RuntimeError(out)
 
 
@@ -92,14 +95,40 @@ def candidates_for(text, b, names):
     return out
 
 
+def merges_for(names):
+    """Merging x into y (same type): the same program only if their lifetimes
+    do not overlap, so these are reported for review, never taken blindly."""
+    out = []
+    by_type = {}
+    for typ, name in names:
+        by_type.setdefault(typ, []).append(name)
+    for typ, group in by_type.items():
+        for x, y in itertools.permutations(group, 2):
+            out.append({x: y, "__merge__": x})
+    return out
+
+
+def merged(body, mapping):
+    x = mapping["__merge__"]
+    decl = re.compile(r"^[ \t]*[\w\s*]+?\b" + re.escape(x) + r"\s*;[ \t]*\n", re.M)
+    if not decl.search(body):
+        return None
+    body = decl.sub("", body, count=1)
+    return rename(body, {k: v for k, v in mapping.items() if k != "__merge__"})
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("address")
     ap.add_argument("--limit", type=int, default=400, help="candidates per round")
     ap.add_argument("--rounds", type=int, default=3, help="keep the best rename and search again")
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--merge", action="store_true",
+                    help="also try merging two same-type locals (check lifetimes before keeping one)")
     args = ap.parse_args()
     addr = int(args.address, 16)
+    # a kill must still restore the source (the finally below)
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(1))
     path = Path(F.src_for(addr))
     original = text = path.read_text(encoding="latin1")
     base = best = score(addr, path)
@@ -112,16 +141,22 @@ def main():
             b = text.rfind("\n", 0, text.rindex("(", 0, text.rindex(")", 0, b))) + 1
             body = text[b:e]
             cands = candidates_for(text, b, names)
+            if args.merge:
+                cands += merges_for(locals_of(text[text.index("{", b):e]))
             if rnd == 0:
                 print(f"{len(names)} locals and parameters, {len(cands)} candidates, baseline {100 * base:.2f}%")
             round_best, round_text, round_map = best, None, None
             for mapping in cands[:args.limit]:
-                trial = text[:b] + rename(body, mapping) + text[e:]
+                new_body = merged(body, mapping) if "__merge__" in mapping else rename(body, mapping)
+                if new_body is None:
+                    continue
+                trial = text[:b] + new_body + text[e:]
                 path.write_text(trial, encoding="latin1")
                 s = score(addr, path)
                 if s > round_best + 1e-9:
                     round_best, round_text, round_map = s, trial, mapping
-                    print(f"  round {rnd + 1}: {100 * s:.2f}%  {mapping}")
+                    print(f"  round {rnd + 1}: {100 * s:.2f}%  {mapping}"
+                          + ("  <- merge: check the lifetimes" if "__merge__" in mapping else ""))
                     if s >= 1.0:
                         break
             if round_text is None:

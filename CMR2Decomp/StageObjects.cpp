@@ -905,13 +905,10 @@ int StageObject_GetWheelSlip(int carIndex, int wheelIndex)
         slip -= 0xccc;
         if (slip < 0) slip = 0;
 
-        int lateral = Car_Get(carIndex)->wheelSlip[wheelIndex];
-        if (lateral < 0)
-            lateral = -Car_Get(carIndex)->wheelSlip[wheelIndex];
-        else
-            lateral = Car_Get(carIndex)->wheelSlip[wheelIndex];
-        lateral -= 0x2666;
-        if (lateral <= 0) lateral = 0;
+        int lateral = (Car_Get(carIndex)->wheelSlip[wheelIndex] < 0
+                           ? -Car_Get(carIndex)->wheelSlip[wheelIndex]
+                           : Car_Get(carIndex)->wheelSlip[wheelIndex]) - 0x2666;
+        if (lateral < 0) lateral = 0;
         if (lateral > slip) slip = lateral;
         if (slip < 0) slip = -slip;
         if (slip > 0) {
@@ -6131,10 +6128,9 @@ void StageObject_StepVectorToTarget(BYTE *p, int step)
             g_unk0x00591898[index].y += delta.y;
             g_unk0x00591898[index].z += delta.z;
         }
-        if (g_unk0x005916f0[index] == 0)
-            return;
     }
-    g_unk0x00591898[index] = g_unk0x005916a0[index];
+    if (g_unk0x005916f0[index] != 0)
+        g_unk0x00591898[index] = g_unk0x005916a0[index];
 }
 
 // FUNCTION: CMR2 0x0048dc30
