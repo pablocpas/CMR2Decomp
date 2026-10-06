@@ -14308,7 +14308,7 @@ void Replay_PlayStreamFrame(int *pState)
             // The original indexes from the last event examined by the first
             // loop; for the second table that pointer is stale.
             found--;
-            if (found >= 0)
+            if (found > -1)
                 p->field_0x10c = pEvent[found].value;
         }
         if (p->frame == p->pLaneSamples[p->lane]) {

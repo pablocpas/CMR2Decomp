@@ -9045,11 +9045,9 @@ void InRaceMenu_DrawSliderRows(Menu *pMenu)
     int maxWidth;
     int width;
     int *pColour;
-    int texture;
     char *text;
     BYTE fade[4];
 
-    k = 0;
     rect[0] = 0;
     rect[1] = 0;
     rect[2] = (short)g_pGraphics->resX;
@@ -9063,48 +9061,33 @@ void InRaceMenu_DrawSliderRows(Menu *pMenu)
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
     rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
-    if (pMenu->itemCount > 0) {
-        pItem = pMenu->items;
-        do {
-            if (pItem->id == 0x62)
-                break;
-            text = CFrontend::GetTextString(pItem->id);
-            width = Font_GetTextWidth(1, (BYTE *)text);
-            if (width > maxWidth) {
-                text = CFrontend::GetTextString(pItem->id);
-                maxWidth = Font_GetTextWidth(1, (BYTE *)text);
-            }
-            k++;
-            pItem++;
-        } while (k < pMenu->itemCount);
+    for (k = 0; k < pMenu->itemCount; k++) {
+        if (pMenu->items[k].id == 0x62)
+            break;
+        text = CFrontend::GetTextString(pMenu->items[k].id);
+        width = Font_GetTextWidth(1, (BYTE *)text);
+        if (width > maxWidth) {
+            text = CFrontend::GetTextString(pMenu->items[k].id);
+            maxWidth = Font_GetTextWidth(1, (BYTE *)text);
+        }
     }
     i = 0;
     if (pMenu->itemCount > 0) {
         pItem = pMenu->items;
         do {
-            pColour = &g_unk0x00516074;
-            if (pMenu->cursor != i)
-                pColour = &g_unk0x00516078;
-            if (pItem->value < 0) {
+            pColour = pMenu->cursor == i ? &g_unk0x00516074 : &g_unk0x00516078;
+            switch (pItem->value) {
+            case 4:
                 y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
                     + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;
-                Font_DrawText(1, CFrontend::GetTextString(pItem->id),
-                              (int)(g_pGraphics->resX * 0x86) / 0x280, y, pColour, 0x11);
-            } else if (pItem->value > 3) {
-                if (pItem->value != 4) {
-                    y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
-                        + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;
-                    Font_DrawText(1, CFrontend::GetTextString(pItem->id),
-                                  (int)(g_pGraphics->resX * 0x86) / 0x280, y, pColour, 0x11);
-                } else {
-                    if (pItem->max != 0)
-                        pColour = &g_unk0x0051607c;
-                    y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
-                        + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;
-                    Font_DrawText(1, CFrontend::GetTextString(0x62),
-                                  (int)(g_pGraphics->resX * 0x86) / 0x280, y, pColour, 0x11);
-                }
-            } else {
+                Font_DrawText(1, CFrontend::GetTextString(0x62),
+                              (int)(g_pGraphics->resX * 0x86) / 0x280, y,
+                              pItem->max != 0 ? &g_unk0x0051607c : pColour, 0x11);
+                break;
+            case 0:
+            case 1:
+            case 2:
+            case 3:
                 y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
                     + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;
                 Font_DrawText(1, CFrontend::GetTextString(pItem->id),
@@ -9115,32 +9098,36 @@ void InRaceMenu_DrawSliderRows(Menu *pMenu)
                                  + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i
                                  - (int)(g_pGraphics->resY * 0xe) / 0x1e0);
                 bar[2] = (short)((int)(g_pGraphics->resX * 0xe) / 0x280
-                                 + ((unsigned int)pItem->min * (unsigned int)g_pGraphics->resX * 10) / 0x280);
+                                 + (int)(pItem->min * g_pGraphics->resX * 10) / 0x280);
                 bar[3] = (short)((int)(g_pGraphics->resY * 0x10) / 0x1e0);
                 DrawRectOutline(bar, (BYTE *)pColour);
                 bar[0] = (short)((int)(g_pGraphics->resX * 2) / 0x280
                                  + (int)(g_pGraphics->resX * 5) / 0x280 + maxWidth
                                  + (int)(g_pGraphics->resX * 0x86) / 0x280
-                                 + ((unsigned int)pItem->max * (unsigned int)g_pGraphics->resX * 10) / 0x280);
+                                 + (int)(pItem->max * g_pGraphics->resX * 10) / 0x280);
                 bar[1] = (short)((int)(g_pGraphics->resY * 0xaa) / 0x1e0
                                  + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i
                                  - (int)(g_pGraphics->resY * 0xc) / 0x1e0);
                 bar[2] = (short)((int)(g_pGraphics->resX * 0x17) / 0x280);
                 bar[3] = (short)((int)(g_pGraphics->resY * 0xe) / 0x1e0);
                 Sprite_FillRect((int)g_pGraphics + 0x150, bar, (BYTE *)pColour, 2);
+                break;
+            default:
+                y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                    + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;
+                Font_DrawText(1, CFrontend::GetTextString(pItem->id),
+                              (int)(g_pGraphics->resX * 0x86) / 0x280, y, pColour, 0x11);
+                break;
             }
             rect[1] = (short)((int)(g_pGraphics->resY * 0xaa) / 0x1e0
                               + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i
                               - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
-            if (pMenu->cursor == i) {
-                pColour = &g_unk0x00516074;
-                texture = g_unk0x0052aa60;
-            } else {
-                pColour = &g_unk0x00516078;
-                texture = g_unk0x0052aa68;
-            }
-            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect,
-                         (Texture *)texture, 2, 0, NULL, NULL, (BYTE *)pColour, 8);
+            if (pMenu->cursor == i)
+                Sprite_Queue((SpriteRect *)(g_unk0x0052aa60 + 0x11c), (SpriteRect *)rect,
+                             (Texture *)g_unk0x0052aa60, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516074, 8);
+            else
+                Sprite_Queue((SpriteRect *)(g_unk0x0052aa68 + 0x11c), (SpriteRect *)rect,
+                             (Texture *)g_unk0x0052aa68, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516078, 8);
             i++;
             pItem++;
         } while (i < pMenu->itemCount);

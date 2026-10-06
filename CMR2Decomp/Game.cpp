@@ -2302,7 +2302,7 @@ int __cdecl Game_CompareTransparentDrawEntries(const void *a, const void *b)
     depthA = *(int *)(pA + 0x16c);
     depthB = *(int *)(pB + 0x16c);
     diff = depthA - depthB;
-    if (diff < 0)
+    if (diff <= -1)
         diff = depthB - depthA;
     if (diff < 0x10000) {
         if (typeA == 5 && typeB == 0)

@@ -1740,8 +1740,8 @@ void FrontendControls_DrawAxisCalibrationBar(short x, short y, DWORD colour, Axi
     short half;
     int v;
 
-    bar[0] = x - (short)((int)(g_pGraphics->resX * 200) / 1280);
-    bar[1] = y - (short)((int)(g_pGraphics->resY * 10) / 960);
+    bar[0] = x - (short)((int)(g_pGraphics->resX * 200) / 640 / 2);
+    bar[1] = y - (short)((int)(g_pGraphics->resY * 10) / 480 / 2);
     bar[2] = (int)(g_pGraphics->resX * 200) / 640;
     bar[3] = (int)(g_pGraphics->resY * 10) / 480;
     Sprite_FillRect((int)g_pGraphics + 0x150, bar, (BYTE *)&colour, 1);
@@ -1749,24 +1749,22 @@ void FrontendControls_DrawAxisCalibrationBar(short x, short y, DWORD colour, Axi
         half = (short)(FrontendControls_MultiplyScaledPercent(pAxis->deadzone, (int)(g_pGraphics->resX * 200) / 640) / 2);
         deadzone[0] = x - half;
         deadzone[2] = 2;
-        deadzone[1] = y - (short)((int)(g_pGraphics->resY * 10) / 960) - 2;
+        deadzone[1] = y - (short)((int)(g_pGraphics->resY * 10) / 480 / 2) - 2;
         deadzone[3] = (int)(g_pGraphics->resY * 10) / 480 + 4;
         Sprite_FillRect((int)g_pGraphics + 0x150, deadzone, g_colourWhite0x00524968, 1);
         v = FrontendControls_MultiplyScaledPercent(pAxis->saturation, (int)(g_pGraphics->resX * 200) / 640);
-        deadzone[0] = half + x;
         saturation[2] = deadzone[2];
-        half = (short)(v / 2);
-        saturation[0] = x - half;
         saturation[1] = deadzone[1];
+        saturation[0] = x - (short)(v / 2);
         saturation[3] = deadzone[3];
+        deadzone[0] = half + x;
         position[3] = deadzone[3];
-        v = (int)(g_pGraphics->resX * 200) / 640 * pAxis->position / 2;
-        position[0] = (short)(v / 0x10000) + x;
+        position[0] = (short)((int)(g_pGraphics->resX * 200) / 640 * pAxis->position / 2 / 0x10000) + x;
         position[1] = deadzone[1];
         position[2] = deadzone[2];
         Sprite_FillRect((int)g_pGraphics + 0x150, deadzone, g_colourWhite0x00524968, 1);
         Sprite_FillRect((int)g_pGraphics + 0x150, saturation, g_colourWhite0x00524968, 1);
-        saturation[0] = half + x;
+        saturation[0] = (short)(v / 2) + x;
         Sprite_FillRect((int)g_pGraphics + 0x150, saturation, g_colourWhite0x00524968, 1);
         Sprite_FillRect((int)g_pGraphics + 0x150, position, g_colourWhite0x00524968, 1);
     }

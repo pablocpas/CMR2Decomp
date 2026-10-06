@@ -1257,21 +1257,22 @@ extern int g_unk0x0052f0fc;
 
 // Copies the country's default 7-byte settings into the four player records;
 // in some championship stages the first value is bumped to the next odd one.
-// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The 7-byte per-country record copied as a whole.
+struct CountryPlayerDefaults {
+    BYTE values[7];
+};
+
 // FUNCTION: CMR2 0x00406820
 void RallyData_CopyCountryPlayerDefaults(void)
 {
     int i;
     BYTE *p;
-    BYTE *pRow;
     char c;
 
     for (i = 0; i < 4; i++) {
         p = RallyData_GetDriverSkillRecord(i);
-        pRow = g_unk0x0051682c + (RallyDataCountryIndex() & 0xff) * 7;
-        *(int *)p = *(int *)pRow;
-        *(short *)(p + 4) = *(short *)(pRow + 4);
-        p[6] = pRow[6];
+        *(CountryPlayerDefaults *)p =
+            *(CountryPlayerDefaults *)(g_unk0x0051682c + (RallyDataCountryIndex() & 0xff) * 7);
         if (g_unk0x0052f290 != 0 && g_unk0x0052f0fc > 2) {
             c = p[0];
             if (c % 2 == 0 && c != 6)
@@ -3306,15 +3307,16 @@ void RallyData_DrawStageResultRows(int car, short *position)
     int rows;
     int row;
     int shownRow;
-    unsigned int fade;
-    int highlight = 0;
-    short offset;
+    int fade;
+    int highlight;
+    int offset;
     int shiftedOffset;
     int currentOffset;
     int textY;
     int pixelFixed;
     int dimensionFixed;
-    unsigned int panelColour;
+    BYTE colour[4];
+    BYTE base[4];
     int index;
 
     if (CGameInfo::GetConfiguredGameMode() == 3) {
@@ -3339,11 +3341,13 @@ void RallyData_DrawStageResultRows(int car, short *position)
         sprintf(recordName, (char *)(gameInfo + 0x1210 + index * 8));
     }
 
-    rect[1] = (short)(((int)g_pGraphics->resY << 12 >> 16) + position[1]);
     baseHeight = (int)g_pGraphics->resY * 0xccc >> 16;
+    rect[1] = (short)(((int)g_pGraphics->resY << 12 >> 16) + position[1]);
     if (CGameInfo::GetConfiguredGameMode() == 5 || CGameInfo::GetConfiguredGameMode() == 6 ||
         CGameInfo::GetConfiguredGameMode() == 7) {
-        rows = (BYTE)CGameInfo::GetNetworkOptionBit11() ? 2 : 4;
+        rows = 4;
+        if ((BYTE)CGameInfo::GetNetworkOptionBit11())
+            rows = 2;
     } else {
         rows = 3;
     }
@@ -3368,7 +3372,7 @@ void RallyData_DrawStageResultRows(int car, short *position)
             } else if (RallyData_IsDriverRecordUsable((BYTE)(StageUI_GetRaceEndEventCount() + car))) {
                 if (row == 1)
                     continue;
-                if (row > 1)
+                if (row >= 2)
                     currentOffset = shiftedOffset;
             }
         }
@@ -3382,59 +3386,88 @@ void RallyData_DrawStageResultRows(int car, short *position)
                         CFrontend::GetTextString(0x69), recordName);
                 time = recordTime;
             }
-            highlight = g_unk0x00536c00[car] != 0 && fade != 0;
+            if (g_unk0x00536c00[car] != 0 && fade != 0)
+                highlight = 1;
+            else
+                highlight = 0;
         } else if (shownRow == 1) {
             if (CGameInfo::GetConfiguredGameMode() == 10 || CGameInfo::GetConfiguredGameMode() == 12) {
                 sprintf(CFrontend::m_stringDest, g_standingsRowFormat,
                         CFrontend::GetTextString(0x84), NetPlayers_GetRecordHolderName());
                 if (CGameInfo::GetConfiguredGameMode() == 10) {
-                    time = RallyData_GetFlag25() ? NetPlayers_GetSplitRecordTime(2) : NetPlayers_GetSplitRecordTime(8);
                     // The original keeps the previous row's highlight here.
+                    if (RallyData_GetFlag25())
+                        time = NetPlayers_GetSplitRecordTime(2);
+                    else
+                        time = NetPlayers_GetSplitRecordTime(8);
                 } else {
                     time = CGameInfo::GetNetworkStageBestTime(0);
-                    highlight = g_unk0x00536c28[car] != 0 && fade != 0;
+                    if (g_unk0x00536c28[car] != 0 && fade != 0)
+                        highlight = 1;
+                    else
+                        highlight = 0;
                 }
             } else {
                 sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                         RallyData_GetRecord((BYTE)(StageUI_GetRaceEndEventCount() + car)));
-                highlight = g_unk0x00536e88[car] != 0 && fade != 0;
                 time = carTime;
+                if (g_unk0x00536e88[car] != 0 && fade != 0)
+                    highlight = 1;
+                else
+                    highlight = 0;
             }
         } else if (shownRow == 2) {
             sprintf(CFrontend::m_stringDest, g_standingsRowFormat,
                     CFrontend::GetTextString(0x84), g_unk0x00536ed0);
             time = g_unk0x0053706c;
-            highlight = g_unk0x00536c28[car] != 0 && fade != 0;
-        } else {
+            if (g_unk0x00536c28[car] != 0 && fade != 0)
+                highlight = 1;
+            else
+                highlight = 0;
+        } else if (shownRow == 3) {
             sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                     CFrontend::GetTextString(0xa5));
             time = StageTiming_GetCarSplitTime(car, StageTiming_GetCheckpointGroupIndex(car));
-            highlight = g_unk0x00536ec4[car] != 0 && fade != 0;
+            if (g_unk0x00536ec4[car] != 0 && fade != 0)
+                highlight = 1;
+            else
+                highlight = 0;
         }
 
-        panelColour = g_stageResultPanelColour;
+        *(unsigned int *)base = g_stageResultPanelColour;
         if (highlight) {
-            if (fade >= 4) {
-                panelColour = (g_gapTextColour[3] << 24) | 0x00ffffff;
+            if (fade > 3) {
+                colour[0] = 0xff;
+                colour[1] = 0xff;
+                colour[2] = 0xff;
+                colour[3] = g_gapTextColour[3];
             } else {
-                BYTE *from = (BYTE *)&g_stageResultPanelColour;
-                BYTE *to = (BYTE *)&panelColour;
-                for (int channel = 0; channel < 4; channel++) {
-                    int target = channel == 3 ? g_gapTextColour[3] : 0xff;
-                    to[channel] = (BYTE)(from[channel] + ((target - from[channel]) * fade) / 3);
-                }
+                colour[0] = base[0] + (0xff - base[0]) * fade / 3;
+                colour[1] = base[1] + (0xff - base[1]) * fade / 3;
+                colour[2] = base[2] + (0xff - base[2]) * fade / 3;
+                colour[3] = base[3] + (g_gapTextColour[3] - base[3]) * fade / 3;
             }
+        } else {
+            *(unsigned int *)colour = *(unsigned int *)base;
         }
-        Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&panelColour, 2);
+        Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 2);
         textY = position[1] + currentOffset + 1 + ((int)g_pGraphics->resY * 0x1b32 >> 16);
         Font_DrawText(0, CFrontend::m_stringDest,
                       (short)((int)g_pGraphics->resX * 0xf95 >> 16) + position[0],
                       textY, (int *)&g_stageResultTextColour, 0x21);
-        pixelFixed = (int)(__int64)((double)(textY - 1) * CGraphics::m_65536);
-        dimensionFixed = (int)(__int64)((double)g_pGraphics->resY * CGraphics::m_65536);
-        FormatGapToLeader(time == 0 ? -1 : time, 5, 5,
-                          0x51e4 - (int)(__int64)((double)position[0] * g_minus65536),
-                          FixDiv(pixelFixed, dimensionFixed), &g_stageResultTextColour, 0x24, NULL, 0);
+        if (time != 0) {
+            pixelFixed = (int)(__int64)((double)(textY - 1) * CGraphics::m_65536);
+            dimensionFixed = (int)(__int64)((double)g_pGraphics->resY * CGraphics::m_65536);
+            FormatGapToLeader(time, 5, 5,
+                              0x51e4 - (int)(__int64)((double)position[0] * g_minus65536),
+                              FixDiv(pixelFixed, dimensionFixed), &g_stageResultTextColour, 0x24, NULL, 0);
+        } else {
+            pixelFixed = (int)(__int64)((double)(textY - 1) * CGraphics::m_65536);
+            dimensionFixed = (int)(__int64)((double)g_pGraphics->resY * CGraphics::m_65536);
+            FormatGapToLeader(-1, 5, 5,
+                              0x51e4 - (int)(__int64)((double)position[0] * g_minus65536),
+                              FixDiv(pixelFixed, dimensionFixed), &g_stageResultTextColour, 0x24, NULL, 0);
+        }
         rect[1] += (short)baseHeight;
     }
 }

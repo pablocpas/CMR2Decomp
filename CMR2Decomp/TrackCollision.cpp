@@ -574,8 +574,8 @@ void Stage_InitLightMeshes(void)
     g_stageMesh6Copy = NULL;
     g_stageMesh6Count = 0;
 
-    g_stageMesh0 = *(Mesh **)(object0 + 0xc);
     g_stageLightRoot = (SceneNode *)child;
+    g_stageMesh0 = *(Mesh **)(object0 + 0xc);
     g_stageMesh0Copy = g_stageMesh0;
     g_stageMesh0Count = (short)Mesh_GetField0x10(g_stageMesh0);
     g_stageMesh1 = *(Mesh **)(object1 + 0xc);

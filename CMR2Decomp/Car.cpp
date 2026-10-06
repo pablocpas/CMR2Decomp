@@ -6530,7 +6530,7 @@ void Car_IntegrateWheelTravel(void)
             } else {
                 t = g_pCurrentCar->speed - FixVecDot((FixVector *)((int)g_pCurrentCar + 0x48c),
                                             (FixVector *)((int)g_pCurrentCar + 0x42c + i * 0xc));
-                if (t >= 0x10001)
+                if (t > 0x10000)
                     t = 0x10000;
                 else if (t < 0xccc)
                     t = 0;

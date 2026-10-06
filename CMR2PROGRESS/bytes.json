@@ -1009,7 +1009,7 @@
   },
   "0x42e450": {
     "n": "Car_IntegrateWheelTravel",
-    "s": 0.48450704225352115,
+    "s": 0.48732394366197185,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -3187,7 +3187,7 @@
   },
   "0x4ff0f0": {
     "n": "FrontendControls_DrawAxisCalibrationBar",
-    "s": 0.6335403726708074,
+    "s": 0.7070707070707071,
     "x": false,
     "unknown": [],
     "f": "FrontendMenus.cpp",
@@ -7699,7 +7699,7 @@
   },
   "0x49cbc0": {
     "n": "Game_CompareTransparentDrawEntries",
-    "s": 0.4424778761061947,
+    "s": 0.5087719298245614,
     "x": false,
     "unknown": [],
     "f": "Game.cpp",
@@ -11307,7 +11307,7 @@
   },
   "0x403890": {
     "n": "InRaceMenu_DrawSliderRows",
-    "s": 0.4977293369663942,
+    "s": 0.6455122393472348,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -17430,8 +17430,8 @@
   },
   "0x406820": {
     "n": "RallyData_CopyCountryPlayerDefaults",
-    "s": 0.4878048780487805,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_CopyCountryPlayerDefaults"
@@ -18006,7 +18006,7 @@
   },
   "0x4147f0": {
     "n": "RallyData_DrawStageResultRows",
-    "s": 0.5257836198179979,
+    "s": 0.6711281070745698,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -23457,7 +23457,7 @@
   },
   "0x46cfa0": {
     "n": "Replay_PlayStreamFrame",
-    "s": 0.3888888888888889,
+    "s": 0.43119266055045874,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -26219,7 +26219,7 @@
   },
   "0x4919a0": {
     "n": "Stage_InitLightMeshes",
-    "s": 0.4763779527559055,
+    "s": 0.48031496062992124,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",
