@@ -292,7 +292,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x475a50	StageUI_DrawChampionshipBar	StageUI.cpp	1179	0.792156862745098	0.7894039735099337
 0x500130	OptionMenu_AdvanceSharedModeValue	GameInfo.cpp	83	0.7931034482758621	0.9032258064516129
 0x46ef50	StageObject_BuildCloudTexturePath	StageObjects.cpp	215	0.7950310559006211	0.7950310559006211
-0x441500	Car_UpdateWheelForces	Car.cpp	6536	0.7961904761904762	0.7548065511511987
 0x4d3fa0	FrontendDraw_Breadcrumb	FrontendDraw.cpp	146	0.7966101694915254	0.7543859649122807
 0x448550	StageTiming_EstimateElapsedStageTime	StageTiming.cpp	202	0.796875	0.796875
 0x4cfc90	FrontendRecords_InsertStageCategoryRecord	Frontend.cpp	386	0.7971014492753623	0.7971014492753623
@@ -507,6 +506,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x43a920	Car_ApplyCornerFriction	Car.cpp	1604	0.9671814671814671	0.9691119691119691
 0x46f330	StageObject_PositionSplitViewNodes	StageObjects.cpp	353	0.9674418604651163	0.9014084507042254
 0x49f0e0	CInput::SetupKeyboard	Input.cpp	517	0.968503937007874	0.9669421487603306
+0x441500	Car_UpdateWheelForces	Car.cpp	6536	0.969377990430622	0.969377990430622
 0x4bd970	CGraphics::SetMipMapCount	Graphics.cpp	92	0.9696969696969697	0.9696969696969697
 0x4d15e0	CGame::InitializeGame	Game.cpp	1191	0.97054698457223	0.9526462395543176
 0x465d70	StageObject_GetWheelSlip	StageObjects.cpp	206	0.9714285714285714	0.9714285714285714

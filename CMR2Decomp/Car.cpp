@@ -3084,8 +3084,8 @@ void Car_UpdateWheelForces(void)
     FixVector axis[2];
     FixVector lateralAxis;
     FixVector longVec;
-    FixVector latVec;
-    FixVector dir;
+    FixVector latForceVec;
+    FixVector direction;
     FixVector force;
     int dot[4];
     int brakeA;
@@ -3106,7 +3106,7 @@ void Car_UpdateWheelForces(void)
     int sine;
     int limA;
     int limB;
-    short angle;
+    union { short angle; int raw; } trig;
 
     if (g_pCurrentCar->flag0x1d0[2] == 0 && g_pCurrentCar->flag0x1d0[3] == 0 &&
         g_pCurrentCar->gear != 0) {
@@ -3142,43 +3142,43 @@ void Car_UpdateWheelForces(void)
         int limit;
         int crossing;
 
-        dir = i < 2 ? wheelDir[0] : wheelDir[1];
-        load = g_pCurrentCar->wheelLoad[i];
+        direction = i < 2 ? wheelDir[0] : wheelDir[1];
+        load = g_pCurrentCar->wheelLoad[(unsigned int)i];
         combined = *(int *)(g_pCarSetup + 0x3ec + i * 4);
         if (load > 0) {
             brake = i < 2 ? brakeA : brakeB;
-            g_pCurrentCar->wheelTorque[i] = g_pCurrentCar->wheelTorque[i] - brake;
-            g_pCurrentCar->wheelTorque[i] = g_pCurrentCar->wheelTorque[i] - combined;
+            g_pCurrentCar->wheelTorque[(unsigned int)i] = g_pCurrentCar->wheelTorque[(unsigned int)i] - brake;
+            g_pCurrentCar->wheelTorque[(unsigned int)i] = g_pCurrentCar->wheelTorque[(unsigned int)i] - combined;
         } else if (load < 0) {
             brake = i < 2 ? brakeA : brakeB;
-            g_pCurrentCar->wheelTorque[i] = g_pCurrentCar->wheelTorque[i] + brake;
-            g_pCurrentCar->wheelTorque[i] = g_pCurrentCar->wheelTorque[i] + combined;
+            g_pCurrentCar->wheelTorque[(unsigned int)i] = g_pCurrentCar->wheelTorque[(unsigned int)i] + brake;
+            g_pCurrentCar->wheelTorque[(unsigned int)i] = g_pCurrentCar->wheelTorque[(unsigned int)i] + combined;
         }
 
-        slip = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &dir);
-        load = g_pCurrentCar->wheelLoad[i];
+        slip = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &direction);
+        load = g_pCurrentCar->wheelLoad[(unsigned int)i];
         dot[i] = slip;
         fLat = slip * 4 - load;
         crossing = 0;
         if ((slip > 0 && fLat < 0) || (slip < 0 && fLat > 0)) crossing = 1;
         if (i > 1 && g_pCurrentCar->handbrake != 0 && crossing == 0) {
-            g_pCurrentCar->wheelTorque[i] = 0;
-            load = g_pCurrentCar->wheelLoad[i];
+            g_pCurrentCar->wheelTorque[(unsigned int)i] = 0;
+            load = g_pCurrentCar->wheelLoad[(unsigned int)i];
             if (load > 0) {
                 brake = i < 2 ? brakeA : brakeB;
-                g_pCurrentCar->wheelTorque[i] = g_pCurrentCar->wheelTorque[i] - brake;
-                g_pCurrentCar->wheelTorque[i] = g_pCurrentCar->wheelTorque[i] - combined;
+                g_pCurrentCar->wheelTorque[(unsigned int)i] = g_pCurrentCar->wheelTorque[(unsigned int)i] - brake;
+                g_pCurrentCar->wheelTorque[(unsigned int)i] = g_pCurrentCar->wheelTorque[(unsigned int)i] - combined;
             } else if (load < 0) {
                 brake = i < 2 ? brakeA : brakeB;
-                g_pCurrentCar->wheelTorque[i] = g_pCurrentCar->wheelTorque[i] + brake;
-                g_pCurrentCar->wheelTorque[i] = g_pCurrentCar->wheelTorque[i] + combined;
+                g_pCurrentCar->wheelTorque[(unsigned int)i] = g_pCurrentCar->wheelTorque[(unsigned int)i] + brake;
+                g_pCurrentCar->wheelTorque[(unsigned int)i] = g_pCurrentCar->wheelTorque[(unsigned int)i] + combined;
             }
         } else {
             int grip;
             fLong = FixMul(fLat, loadScale) * 4;
 
             if (g_pCurrentCar->flag0x1d0[2] == 0 && g_pCurrentCar->flag0x1d0[3] == 0) {
-                grip = g_pCurrentCar->field_0xa5c[i];
+                grip = g_pCurrentCar->field_0xa5c[(unsigned int)i];
             } else {
                 if (fLat < 0) fLat = -fLat;
                 combined = FixMul(fLat, 0x4000);
@@ -3193,7 +3193,7 @@ void Car_UpdateWheelForces(void)
                 if (g_pCurrentCar->cornerGrip[i].drag != 0) {
                     combined = combined + FixMul(0xe666, g_pCurrentCar->cornerGrip[i].drag);
                 }
-                grip = FixMul(g_pCurrentCar->field_0xa5c[i], combined);
+                grip = FixMul(g_pCurrentCar->field_0xa5c[(unsigned int)i], combined);
             }
             if (fLong > grip || (grip = -grip, fLong < grip)) {
                 fLong = grip;
@@ -3203,29 +3203,28 @@ void Car_UpdateWheelForces(void)
             } else {
                 fLong = fLong / 8;
             }
-            g_pCurrentCar->wheelTorque[i] = g_pCurrentCar->wheelTorque[i] + fLong;
+            g_pCurrentCar->wheelTorque[(unsigned int)i] = g_pCurrentCar->wheelTorque[(unsigned int)i] + fLong;
         }
 
-        load = g_pCurrentCar->wheelLoad[i];
-        g_pCurrentCar->wheelLoad[i] = g_pCurrentCar->wheelLoad[i] +
-                                      FixMul(g_pCurrentCar->wheelTorque[i], torqueScale);
-        limit = torqueLimit;
-        if (g_pCurrentCar->wheelLoad[i] > limit ||
-            (limit = -limit, g_pCurrentCar->wheelLoad[i] < limit)) {
-            g_pCurrentCar->wheelLoad[i] = limit;
-        }
+        load = g_pCurrentCar->wheelLoad[(unsigned int)i];
+        g_pCurrentCar->wheelLoad[(unsigned int)i] = g_pCurrentCar->wheelLoad[(unsigned int)i] +
+                                      FixMul(g_pCurrentCar->wheelTorque[(unsigned int)i], torqueScale);
+        if (g_pCurrentCar->wheelLoad[(unsigned int)i] > torqueLimit)
+            g_pCurrentCar->wheelLoad[(unsigned int)i] = torqueLimit;
+        else if (g_pCurrentCar->wheelLoad[(unsigned int)i] < -torqueLimit)
+            g_pCurrentCar->wheelLoad[(unsigned int)i] = -torqueLimit;
         if (g_pCurrentCar->gear != 0 && g_pCurrentCar->field_0xb84 == 0 &&
             g_pCurrentCar->driveSplit != (i < 2 ? 0 : 0x10000)) {
             int gear = g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear];
 
-            if ((gear > 0 && g_pCurrentCar->wheelLoad[i] < 0) ||
-                (gear < 0 && g_pCurrentCar->wheelLoad[i] > 0)) {
-                g_pCurrentCar->wheelLoad[i] = 0;
+            if ((gear > 0 && g_pCurrentCar->wheelLoad[(unsigned int)i] < 0) ||
+                (gear < 0 && g_pCurrentCar->wheelLoad[(unsigned int)i] > 0)) {
+                g_pCurrentCar->wheelLoad[(unsigned int)i] = 0;
             }
         } else {
-            if ((load > 0 && g_pCurrentCar->wheelLoad[i] < 0) ||
-                (load < 0 && g_pCurrentCar->wheelLoad[i] > 0)) {
-                g_pCurrentCar->wheelLoad[i] = 0;
+            if ((load > 0 && g_pCurrentCar->wheelLoad[(unsigned int)i] < 0) ||
+                (load < 0 && g_pCurrentCar->wheelLoad[(unsigned int)i] > 0)) {
+                g_pCurrentCar->wheelLoad[(unsigned int)i] = 0;
             }
         }
         i -= 2;
@@ -3243,40 +3242,40 @@ void Car_UpdateWheelForces(void)
         int susp;
         int len;
 
-        dir = i < 2 ? wheelDir[0] : wheelDir[1];
+        direction = i < 2 ? wheelDir[0] : wheelDir[1];
         lateralAxis = i < 2 ? axis[0] : axis[1];
-        susp = dot[i] * 4 - g_pCurrentCar->wheelLoad[i];
+        susp = dot[i] * 4 - g_pCurrentCar->wheelLoad[(unsigned int)i];
         g_pCurrentCar->wheelSlip[i] = susp;
         fLong = -FixMul(FixMul(susp, 0x4000), scale);
         fLat = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &lateralAxis);
         g_pCurrentCar->wheelSlipLateral[i] = fLat;
         fLat = -FixMul(fLat, scale);
 
-        if (FIX_ABS(fLong) > 0x10000 && FIX_ABS(fLat) <= FIX_ABS(fLong)) {
-            recip = FixDiv(0x10000, FIX_ABS(fLong));
-            FixVecScale(&longVec, &dir, FixMul(fLong, recip));
-            FixVecScale(&latVec, &lateralAxis, FixMul(fLat, recip));
-            force.x = longVec.x + latVec.x;
-            force.y = longVec.y + latVec.y;
-            force.z = longVec.z + latVec.z;
-            recip = FIX_SQR(FixVecNormalizeLen(&g_pCurrentCar->cornerForce[i], &force));
-            recip = FixMul(recip, FIX_ABS(fLong));
+        if (FIX_ABS(fLong) > 0x10000 && FIX_ABS(fLong) >= FIX_ABS(fLat)) {
+            combined = FIX_ABS(fLong);
+            recip = FixDiv(0x10000, combined);
+            FixVecScale(&longVec, &direction, FixMul(fLong, recip));
+            FixVecScale(&latForceVec, &lateralAxis, FixMul(fLat, recip));
+            force.x = longVec.x + latForceVec.x;
+            force.y = longVec.y + latForceVec.y;
+            force.z = longVec.z + latForceVec.z;
+            combined = FixMul(FIX_SQR(FixVecNormalizeLen(&g_pCurrentCar->cornerForce[i], &force)), combined);
         } else if (FIX_ABS(fLat) > 0x10000 && FIX_ABS(fLat) >= FIX_ABS(fLong)) {
-            recip = FixDiv(0x10000, FIX_ABS(fLat));
-            FixVecScale(&longVec, &dir, FixMul(fLong, recip));
-            FixVecScale(&latVec, &lateralAxis, FixMul(fLat, recip));
-            force.x = longVec.x + latVec.x;
-            force.y = longVec.y + latVec.y;
-            force.z = longVec.z + latVec.z;
-            recip = FIX_SQR(FixVecNormalizeLen(&g_pCurrentCar->cornerForce[i], &force));
-            recip = FixMul(recip, FIX_ABS(fLat));
+            combined = FIX_ABS(fLat);
+            recip = FixDiv(0x10000, combined);
+            FixVecScale(&longVec, &direction, FixMul(fLong, recip));
+            FixVecScale(&latForceVec, &lateralAxis, FixMul(fLat, recip));
+            force.x = longVec.x + latForceVec.x;
+            force.y = longVec.y + latForceVec.y;
+            force.z = longVec.z + latForceVec.z;
+            combined = FixMul(FIX_SQR(FixVecNormalizeLen(&g_pCurrentCar->cornerForce[i], &force)), combined);
         } else {
-            FixVecScale(&longVec, &dir, fLong);
-            FixVecScale(&latVec, &lateralAxis, fLat);
-            force.x = longVec.x + latVec.x;
-            force.y = longVec.y + latVec.y;
-            force.z = longVec.z + latVec.z;
-            recip = FIX_SQR(FixVecNormalizeLen(&g_pCurrentCar->cornerForce[i], &force));
+            FixVecScale(&longVec, &direction, fLong);
+            FixVecScale(&latForceVec, &lateralAxis, fLat);
+            force.x = longVec.x + latForceVec.x;
+            force.y = longVec.y + latForceVec.y;
+            force.z = longVec.z + latForceVec.z;
+            combined = FIX_SQR(FixVecNormalizeLen(&g_pCurrentCar->cornerForce[i], &force));
         }
 
         // Friction ellipse of the tyre, wider on the easier grip settings.
@@ -3301,36 +3300,36 @@ void Car_UpdateWheelForces(void)
                 }
             }
             if (fLong < 0x6666) {
-                limB = FixMul(g_pCurrentCar->field_0xa5c[i], b);
+                limB = FixMul(g_pCurrentCar->field_0xa5c[(unsigned int)i], b);
                 limA = FixMul(g_pCurrentCar->field_0xa4c[i], a);
             } else if (fLat < 0x6666) {
-                limB = g_pCurrentCar->field_0xa5c[i];
+                limB = g_pCurrentCar->field_0xa5c[(unsigned int)i];
                 limA = g_pCurrentCar->field_0xa4c[i];
             } else {
-                angle = FixAtan2(FixMul(fLong, a), fLat);
-                a = FixMul(a, g_sinTable[(angle + 0x400) & 0xfff]);
-                sine = g_sinTable[angle & 0xfff];
+                trig.angle = FixAtan2(FixMul(fLong, a), fLat);
+                a = FixMul(a, g_sinTable[(trig.raw + 0x400) & 0xfff]);
+                sine = g_sinTable[trig.raw & 0xfff];
                 limA = FixMul(FixSqrt(FixMul(a, a) + FixMul(sine, sine)), g_pCurrentCar->field_0xa4c[i]);
-                angle = FixAtan2(FixMul(fLong, b), fLat);
-                c = FixMul(b, g_sinTable[(angle + 0x400) & 0xfff]);
-                sine = g_sinTable[angle & 0xfff];
-                limB = FixMul(FixSqrt(FixMul(c, c) + FixMul(sine, sine)), g_pCurrentCar->field_0xa5c[i]);
+                trig.angle = FixAtan2(FixMul(fLong, b), fLat);
+                c = FixMul(b, g_sinTable[(trig.raw + 0x400) & 0xfff]);
+                sine = g_sinTable[trig.raw & 0xfff];
+                limB = FixMul(FixSqrt(FixMul(c, c) + FixMul(sine, sine)), g_pCurrentCar->field_0xa5c[(unsigned int)i]);
             }
-            if (limA < recip) {
-                recip = limB;
+            if (combined > limA) {
+                combined = limB;
             }
-            FixVecScale(&g_pCurrentCar->cornerForce[i], &g_pCurrentCar->cornerForce[i], recip);
+            FixVecScale(&g_pCurrentCar->cornerForce[i], &g_pCurrentCar->cornerForce[i], combined);
         }
 
         if (g_pCurrentCar->cornerGrip[i].drag != 0) {
-            int along = FixVecDot(&dir, &g_pCurrentCar->cornerVelocity[i]);
+            int along = FixVecDot(&direction, &g_pCurrentCar->cornerVelocity[i]);
 
             if (along != 0) {
-                int drag = -FixMul(along / 4,
+                fLong = -FixMul(along / 4,
                                    FixMul(g_pCurrentCar->tyreGrip,
                                           g_pCurrentCar->cornerGrip[i].drag));
 
-                FixVecScale(&force, &dir, drag);
+                FixVecScale(&force, &direction, fLong);
                 g_pCurrentCar->cornerForce[i].x += force.x;
                 g_pCurrentCar->cornerForce[i].y += force.y;
                 g_pCurrentCar->cornerForce[i].z += force.z;
