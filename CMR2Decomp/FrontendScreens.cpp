@@ -8242,23 +8242,13 @@ BYTE *RallyData_GetDistinctValueList(void);
 // Draws the network "waiting room" player list: a line per session built from
 // the player name, the car and the control assignment, plus the controller
 // icon; when there is no session it shows the waiting message.
-// match 69%: asignacion de registros en el bucle y orden del sprintf
 // FUNCTION: CMR2 0x004e20e0
 void FrontendMenu_DrawSingleRallySelection(Menu *pMenu)
 {
     char *names[11];
     char *pText[3];
-    char *pName;
-    char *pCar;
-    char *pFormat;
     int index;
     int row;
-    int x;
-    int y;
-    int *pColour;
-    unsigned int car;
-    unsigned int pad;
-    unsigned int player;
 
     names[0] = g_strNum1;
     names[1] = g_keypad2;
@@ -8279,35 +8269,29 @@ void FrontendMenu_DrawSingleRallySelection(Menu *pMenu)
                             (int)(g_pGraphics->resY * 0x26) / 0x1e0, pText, 3);
     if (g_unk0x0082ac48 > 0) {
         for (index = 0; index < g_unk0x0082ac48; index++) {
-            pad = SavedGames_GetDateMiddleBits(g_unk0x0082aa3c + index);
-            pColour = (int *)names[pad];
-            player = SavedGames_GetDateLowBits(g_unk0x0082aa3c + index);
-            pName = CFrontend::GetTextString(player + 0x27);
-            car = SavedGames_GetDifficulty(g_unk0x0082aa3c + index);
-            pFormat = CFrontend::GetTextString(0x210);
-            sprintf(CFrontend::m_stringDest, pFormat, car, pName, pColour);
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x210),
+                    SavedGames_GetDifficulty(g_unk0x0082aa3c + index),
+                    CFrontend::GetTextString(SavedGames_GetDateLowBits(g_unk0x0082aa3c + index) + 0x27),
+                    names[SavedGames_GetDateMiddleBits(g_unk0x0082aa3c + index)]);
             if (g_unk0x0082a924 == g_unk0x0082aa3c + index) {
-                y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
-                x = (int)(g_pGraphics->resX * 0x32) / 0x280;
-                Font_DrawText(0, (char *)SavedGames_GetFileName(g_unk0x0082aa3c + index), x, y,
+                Font_DrawText(0, (char *)SavedGames_GetFileName(g_unk0x0082aa3c + index), (int)(g_pGraphics->resX * 0x32) / 0x280, (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
                               (int *)g_colourWhite0x00524968, 0x11);
                 Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x9b) / 0x280,
                               (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
                               (int *)g_colourWhite0x00524968, 0x11);
-                pColour = (int *)g_colourWhite0x00524968;
+                Font_DrawText(0, (char *)SavedGames_GetRecordData(g_unk0x0082aa3c + index), (int)(g_pGraphics->resX * 0xff) / 0x280,
+                              (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
+                              (int *)g_colourWhite0x00524968, 0x11);
             } else {
-                y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
-                x = (int)(g_pGraphics->resX * 0x32) / 0x280;
-                Font_DrawText(0, (char *)SavedGames_GetFileName(g_unk0x0082aa3c + index), x, y,
+                Font_DrawText(0, (char *)SavedGames_GetFileName(g_unk0x0082aa3c + index), (int)(g_pGraphics->resX * 0x32) / 0x280, (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
                               (int *)g_colourText0x0052496c, 0x11);
                 Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x9b) / 0x280,
                               (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
                               (int *)g_colourText0x0052496c, 0x11);
-                pColour = (int *)g_colourText0x0052496c;
+                Font_DrawText(0, (char *)SavedGames_GetRecordData(g_unk0x0082aa3c + index), (int)(g_pGraphics->resX * 0xff) / 0x280,
+                              (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
+                              (int *)g_colourText0x0052496c, 0x11);
             }
-            y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
-            x = (int)(g_pGraphics->resX * 0xff) / 0x280;
-            Font_DrawText(0, (char *)SavedGames_GetRecordData(g_unk0x0082aa3c + index), x, y, pColour, 0x11);
         }
     } else {
         Font_DrawText(0, CFrontend::GetTextString(0x20d), (int)g_pGraphics->resX / 2,
