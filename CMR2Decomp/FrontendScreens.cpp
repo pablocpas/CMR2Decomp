@@ -5808,7 +5808,7 @@ void FrontendMenu_DrawProfileBestStageTimes(Menu *pMenu)
         g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 90) / 480) + (short)((int)(g_pGraphics->resY * 25) / 480) * ((short)i + 1);
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
         i++;
-    } while (i < (odd) + 10);
+    } while (i < (odd != 0) + 10);
     FrontendDraw_ScrollerRow(FrontendScroller_GetBestStageTimesScroller(), 1);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x172), 1);
 }

@@ -289,6 +289,20 @@ def _shift_spots(body):
 IDIOMS["fixmul>>16"] = _shift_spots
 
 
+def _in_directive(body, pos):
+    """pos lies in a #define (or other directive), including continuation lines."""
+    start = body.rfind("\n", 0, pos) + 1
+    while True:
+        if body[start:].lstrip(" \t").startswith("#"):
+            return True
+        if start == 0:
+            return False
+        prev = body.rfind("\n", 0, start - 1) + 1
+        if not body[prev:start - 1].rstrip().endswith("\\"):
+            return False
+        start = prev
+
+
 def idioms(lines):
     body = "\n".join(lines)
     out = []
@@ -296,8 +310,14 @@ def idioms(lines):
     for kind, finder in IDIOMS.items():
         if only and kind not in only:
             continue
-        spots = finder(body)
-        variants = [[s] for s in spots] + ([spots] if len(spots) > 1 else [])
+        spots = [sp for sp in finder(body) if not _in_directive(body, sp[0])]
+        # "all" rewrites only non-overlapping spots: nested ones would be
+        # applied with stale offsets.
+        disjoint = []
+        for sp in sorted(spots):
+            if not disjoint or sp[0] >= disjoint[-1][1]:
+                disjoint.append(sp)
+        variants = [[s] for s in spots] + ([disjoint] if len(disjoint) > 1 else [])
         for i, chosen in enumerate(variants):
             new = _apply(body, chosen)
             if new != body:
@@ -305,9 +325,18 @@ def idioms(lines):
     return out
 
 
+PURE_CALLS = {"FixMul", "FixMulShift32", "FixDiv", "FixVecDot", "FixVecLength", "FixSqrt", "sizeof"}
+
+
+def _has_call(text):
+    return any(m.group(1) not in PURE_CALLS for m in re.finditer(r"\b([A-Za-z_]\w*)\s*\(", text))
+
+
 def _swap_args(name):
+    # Swapping changes evaluation order, so only for arguments without calls.
     return lambda body: _rewrite_calls(
-        body, name, lambda a: f"{name}({a[1]}, {a[0]})" if len(a) == 2 and a[0] != a[1] else None)
+        body, name, lambda a: f"{name}({a[1]}, {a[0]})"
+        if len(a) == 2 and a[0] != a[1] and not _has_call(a[0]) and not _has_call(a[1]) else None)
 
 
 IDIOMS["fixmul-swap"] = _swap_args("FixMul")
@@ -316,15 +345,26 @@ IDIOMS["fixmulshift32-swap"] = _swap_args("FixMulShift32")
 _OPERAND = r"[A-Za-z_][\w]*(?:(?:->|\.)[A-Za-z_]\w*|\[[^\[\]()]+\])*"
 
 
-def _cond_operand(pre, post):
-    """A whole operand of the condition: after '(' of a grouping (not a call),
-    '&&' or '||', and before ')', '&&' or '||'."""
-    if pre.endswith("("):
-        if re.search(r"[\w\])]\s*\($", pre):
-            return False
-    elif not (pre == "" or pre.endswith(("&&", "||"))):
-        return False
-    return post == "" or post.startswith((")", "&&", "||"))
+def _cond_operand(cond, start, end):
+    """cond[start:end] is used only as a truth value: after stripping grouping
+    parentheses around it, it is the whole condition or an operand of &&, ||
+    or !. Anything else ((t) >= k, (x) + 1, a ? b : c, call arguments) is not."""
+    while True:
+        pre = cond[:start].rstrip()
+        post = cond[end:].lstrip()
+        if pre.endswith("(") and post.startswith(")") and not re.search(r"[\w\])]\s*\($", pre):
+            start, end = len(pre) - 1, len(cond) - len(post) + 1
+            continue
+        break
+    if pre == "" and post == "":
+        return True
+    left = pre.endswith(("&&", "||")) or (pre.endswith("!") and not pre.endswith("!="))
+    right = post.startswith(("&&", "||"))
+    if left and (post == "" or post.startswith((")", "&&", "||", "?"))):
+        return not post.startswith("?") or pre.endswith(("&&", "||"))
+    if right and (pre == "" or pre.endswith(("(", "&&", "||"))):
+        return not re.search(r"[\w\])]\s*\($", pre)
+    return False
 
 
 def _condition_spots(body):
@@ -337,15 +377,11 @@ def _condition_spots(body):
         start = m.end()
         cond = args[0]
         for c in re.finditer(rf"(?<![\w>.\]!])({_OPERAND})\s*(!=|==)\s*(?:0|NULL)\b(?!\s*[\w(.\[])", cond):
-            pre = cond[:c.start()].rstrip()
-            post = cond[c.end():].lstrip()
-            if _cond_operand(pre, post):
+            if _cond_operand(cond, c.start(), c.end()):
                 new = c.group(1) if c.group(2) == "!=" else "!" + c.group(1)
                 spots.append((start + c.start(), start + c.end(), new))
         for c in re.finditer(rf"(?<![\w>.\]])(!?)({_OPERAND})(?![\w(.\[]|->|\s*[=!<>+\-*/%&|^?])", cond):
-            pre = cond[:c.start()].rstrip()
-            post = cond[c.end():].lstrip()
-            if _cond_operand(pre, post):
+            if _cond_operand(cond, c.start(), c.end()):
                 new = f"{c.group(2)} == 0" if c.group(1) else f"{c.group(2)} != 0"
                 spots.append((start + c.start(), start + c.end(), new))
     return spots

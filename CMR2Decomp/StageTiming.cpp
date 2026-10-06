@@ -7554,7 +7554,7 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
         (dst) = (t);                    \
     }
 #define WRAP(t)                         \
-    if ((t != 0) >= 0xb40000)                \
+    if ((t) >= 0xb40000)                \
         (t) -= 0x1680000;               \
     else if ((t) < -0xb40000)           \
         (t) += 0x1680000;

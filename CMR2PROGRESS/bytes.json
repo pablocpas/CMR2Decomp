@@ -305,7 +305,7 @@
   },
   "0x438460": {
     "n": "Car_UpdateCornerFriction",
-    "s": 0.7495621716287215,
+    "s": 0.7464788732394366,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -6139,7 +6139,7 @@
   },
   "0x4e5630": {
     "n": "FrontendMenu_DrawProfileBestStageTimes",
-    "s": 0.6987060998151571,
+    "s": 0.6967741935483871,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -25507,7 +25507,7 @@
   },
   "0x498620": {
     "n": "StageTiming_RecomputeCarSplitBarSamples",
-    "s": 0.475103734439834,
+    "s": 0.45925925925925926,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",

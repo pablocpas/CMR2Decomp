@@ -2261,7 +2261,7 @@ void Car_UpdateCornerFriction(void)
             force = -FixMul(len, g_pCurrentCar->cornerMass);
             if (len < 0x10000)
                 force -= FixVecLength(&g_carStepAccel);
-            if (((force != 0) < 0 ? -(force) : (force)) > g_pCurrentCar->cornerGripB[i]) {
+            if (((force) < 0 ? -(force) : (force)) > g_pCurrentCar->cornerGripB[i]) {
                 if (force <= 0)
                     force = -g_pCurrentCar->cornerGripA[i];
                 else
