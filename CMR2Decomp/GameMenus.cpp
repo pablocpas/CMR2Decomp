@@ -3040,7 +3040,7 @@ BYTE Frontend_MergeBestPlayerStageOption(int index, int pBlock);
 BYTE Frontend_MergeBestSecondaryPlayerOption(int index, int pBlock);
 int Frontend_AccumulateMinimumDeviceOption(int param_1, int param_2);
 int Frontend_CopyImprovedStageRecordAndSplits(int param_1, int param_2, char *pName);
-char FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName);
+int FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName);
 int FrontendRecords_InsertStageCategoryRecord(int param1, int index, char *pName);
 char FrontendRecords_InsertArcadeDeviceRecord(int param1, int index, char *pName);
 unsigned char GameInfo_GetFrontendSessionFlag(void);
