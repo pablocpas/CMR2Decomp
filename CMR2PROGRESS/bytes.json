@@ -1947,7 +1947,7 @@
   },
   "0x422d40": {
     "n": "View_SetPlayerProjection",
-    "s": 0.77,
+    "s": 0.78,
     "x": false,
     "unknown": [],
     "f": "FixedPoint.cpp",
@@ -6667,7 +6667,7 @@
   },
   "0x4ed840": {
     "n": "FrontendMenu_UpdateNetworkSessionSetup",
-    "s": 0.4782608695652174,
+    "s": 0.4826086956521739,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6915,7 +6915,7 @@
   },
   "0x4dfe20": {
     "n": "FrontendMenu_DrawGraphicsOptions",
-    "s": 0.9126344086021505,
+    "s": 0.9186281102891728,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6963,7 +6963,7 @@
   },
   "0x4dd4b0": {
     "n": "FrontendMenu_DrawNetworkSessionSetup",
-    "s": 0.8446215139442231,
+    "s": 0.8466135458167331,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -10235,7 +10235,7 @@
   },
   "0x404000": {
     "n": "InRaceMenu_BuildCarSetup",
-    "s": 0.8177339901477833,
+    "s": 0.9333333333333333,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11435,7 +11435,7 @@
   },
   "0x50a920": {
     "n": "OptionMenu_DrawResultsRallyInfo",
-    "s": 0.8857566765578635,
+    "s": 0.9176470588235294,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11802,7 +11802,7 @@
   },
   "0x44bcd0": {
     "n": "GameMenu_DrawSplitTimes",
-    "s": 0.7045373347624152,
+    "s": 0.7121428571428572,
     "x": false,
     "unknown": [],
     "f": "GameMenus.cpp",
@@ -11866,8 +11866,8 @@
   },
   "0x450c10": {
     "n": "GameMenu_DrawChampionshipOutcome",
-    "s": 0.9426751592356688,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenu_DrawChampionshipOutcome"
@@ -11890,15 +11890,15 @@
   },
   "0x451690": {
     "n": "GameMenu_DrawFinalChampionshipStandings",
-    "s": 0.8831168831168831,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenu_DrawFinalChampionshipStandings"
   },
   "0x451df0": {
     "n": "GameMenu_DrawStageClassification",
-    "s": 0.9482439926062847,
+    "s": 0.9944649446494465,
     "x": false,
     "unknown": [],
     "f": "GameMenus.cpp",
@@ -13700,7 +13700,7 @@
   },
   "0x4a6710": {
     "n": "CGraphics::LoadTGATexture",
-    "s": 0.5439856373429084,
+    "s": 0.5878136200716846,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13868,7 +13868,7 @@
   },
   "0x446270": {
     "n": "Dash_DrawBar",
-    "s": 0.7905759162303665,
+    "s": 0.7918848167539267,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -13892,7 +13892,7 @@
   },
   "0x446bf0": {
     "n": "Dash_DrawDial",
-    "s": 0.7,
+    "s": 0.7024390243902439,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -17118,7 +17118,7 @@
   },
   "0x41c5a0": {
     "n": "Race_UpdatePlayerViewAndDrivenCars",
-    "s": 0.6333122229259025,
+    "s": 0.6345788473717543,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -17966,7 +17966,7 @@
   },
   "0x4129d0": {
     "n": "RallyData_DrawCarStageGapPanel",
-    "s": 0.6699588477366255,
+    "s": 0.671604938271605,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -17998,7 +17998,7 @@
   },
   "0x4147f0": {
     "n": "RallyData_DrawStageResultRows",
-    "s": 0.5237613751263903,
+    "s": 0.5257836198179979,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18174,7 +18174,7 @@
   },
   "0x420a30": {
     "n": "RallyData_UpdateCarRoute",
-    "s": 0.6143790849673203,
+    "s": 0.615831517792302,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18990,7 +18990,7 @@
   },
   "0x411f70": {
     "n": "RallyData_UpdateCarSplitBar",
-    "s": 0.697841726618705,
+    "s": 0.7014388489208633,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -22057,7 +22057,7 @@
   },
   "0x4675c0": {
     "n": "CarDamage_BuildRelativeVelocityHull",
-    "s": 0.45054945054945056,
+    "s": 0.5,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22553,7 +22553,7 @@
   },
   "0x46f330": {
     "n": "StageObject_PositionSplitViewNodes",
-    "s": 0.8173076923076923,
+    "s": 0.8356807511737089,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23297,7 +23297,7 @@
   },
   "0x47ad20": {
     "n": "SurfaceSound_UpdateNearestNetworkCarEngines",
-    "s": 0.5634408602150538,
+    "s": 0.567741935483871,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -25531,7 +25531,7 @@
   },
   "0x457000": {
     "n": "StageTiming_LoadSelectedCarModel",
-    "s": 0.6996317727511836,
+    "s": 0.7017359284587059,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
