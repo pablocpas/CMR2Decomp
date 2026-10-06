@@ -6607,12 +6607,10 @@ void FrontendMenu_EnterMultiplayerProfile(Menu *pMenu, char back)
 }
 
 // Item callback of "new profile" in the player profile menu.
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f0960
 void FrontendProfile_CreateNewPlayerProfile(Menu *pMenu, int param)
 {
     Menu *pNext;
-    Menu *pAfter;
 
     g_unk0x00819879 = 1;
     FRONTEND_MODE_NEXT_MENU(pNext)
@@ -6622,10 +6620,10 @@ void FrontendProfile_CreateNewPlayerProfile(Menu *pMenu, int param)
     RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
     Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
     FrontendProfile_SetRenameMenu((int)FrontendMenu_GetProfileRenameEntry());
-    pAfter = pNext;
     if (CGameInfo::GetGameModeOptionBit19() != 0)
-        pAfter = FrontendMenu_GetNetworkConnection();
-    FrontendProfile_SetCompletionMenu((int)pAfter);
+        FrontendProfile_SetCompletionMenu((int)FrontendMenu_GetNetworkConnection());
+    else
+        FrontendProfile_SetCompletionMenu((int)pNext);
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc),
             (CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) + 1);
     FrontendProfile_SetHeaderText(CFrontend::m_stringDest);
