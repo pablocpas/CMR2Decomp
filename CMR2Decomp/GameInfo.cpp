@@ -8270,13 +8270,13 @@ void OptionMenu_AdvanceSharedModeValue(void)
 
     if (value != 0) {
         CGame::PromoteCallbackEntryByRule(p, 0, 1, 2);
-        OptionMenu_SetPlayerSlotOffset(value);
-        return;
+    } else {
+        value = 1;
+        CGame::PromoteCallbackEntryByRule(p, 0, 0, 2);
+        g_unk0x0082a938 = 0;
+        g_unk0x0082b0a4 = CMain::GetFrameDelta();
     }
-    CGame::PromoteCallbackEntryByRule(p, 0, 0, 2);
-    g_unk0x0082a938 = 0;
-    g_unk0x0082b0a4 = CMain::GetFrameDelta();
-    OptionMenu_SetPlayerSlotOffset(1);
+    OptionMenu_SetPlayerSlotOffset(value);
 }
 
 // Starts the animation of the shared value towards one (or towards zero when it

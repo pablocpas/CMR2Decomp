@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "4b3e76c4ce41ae45291a6112b34658209105314b",
+    "commit": "1e1f015edaf32d04a101ab2994b22140e4b6506b",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -72,7 +72,7 @@
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
       "CMR2Decomp/Game.cpp": "5aa73d77bc6838ebfbdd4c1eeac26a31c14bcd02c60c9c3aef38c66dbc297353",
       "CMR2Decomp/Game.h": "104a08f486edc3388d68e49ffce6f7ccc3f3b336e7d0dd97aa2f3806b014ae8a",
-      "CMR2Decomp/GameInfo.cpp": "84c4fe1e7d9b8ecdf0e537a87c9e23202952fcac1a18337196ab6fc73dfaa567",
+      "CMR2Decomp/GameInfo.cpp": "bb919b80cb1a8d8106b948d44f6bc51350f5e5fb5c63eeec99ad0c560811e716",
       "CMR2Decomp/GameInfo.h": "191777cd7d1cc6c81276e22879fd745d02fc9fa7b29ac05f0bff3761ae5b8bb7",
       "CMR2Decomp/GameMenus.cpp": "a3df202b1b473a418017f9b9d1a9137e9c7adcb4e7baf0da9b655f579dbecc31",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
@@ -164,16 +164,16 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "aa8ffadd7cf3e592e93a0411e20bd8aaca296c2ed5ce2baf70817b7893c5432e",
-    "pdb_sha256": "90f8896650a92abd44ab1e6c6efb9115585f1065312bac2c9b90c7d248f49dd8"
+    "exe_sha256": "57a6a06adb2701b0b89e3edda513897784e881c411104f86a0f324fbcff8f97f",
+    "pdb_sha256": "6433959e23de52d11851e3b21f7e1460973fd37e8439b7032d2e1f344dc1a158"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3646,
   "measured_functions": 3367,
-  "reccmp_exact": 2661,
+  "reccmp_exact": 2662,
   "audited_source_functions": 3363,
-  "relocated_byte_exact": 2817,
-  "nonmatching_source_functions": 546,
+  "relocated_byte_exact": 2818,
+  "nonmatching_source_functions": 545,
   "unresolved_source_functions": [
     "0x496e00",
     "0x5062d0",

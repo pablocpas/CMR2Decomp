@@ -11123,8 +11123,8 @@
   },
   "0x500130": {
     "n": "OptionMenu_AdvanceSharedModeValue",
-    "s": 0.9032258064516129,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_AdvanceSharedModeValue"
