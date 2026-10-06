@@ -273,7 +273,7 @@
   },
   "0x42de20": {
     "n": "Car_UpdateGroundNormal",
-    "s": 0.9230769230769231,
+    "s": 0.9249304911955515,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -345,7 +345,7 @@
   },
   "0x43c640": {
     "n": "Car_UpdateWheelTorques",
-    "s": 0.8638132295719845,
+    "s": 0.8984375,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -641,7 +641,7 @@
   },
   "0x443a20": {
     "n": "Car_UpdateCornerVelocityPair",
-    "s": 0.8297213622291022,
+    "s": 0.9693251533742331,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -713,7 +713,7 @@
   },
   "0x434140": {
     "n": "Car_UpdateSteering",
-    "s": 0.9736434108527132,
+    "s": 0.9767441860465116,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1001,7 +1001,7 @@
   },
   "0x43e680": {
     "n": "Car_ResetBodyBasis",
-    "s": 0.7736220472440944,
+    "s": 0.9369918699186992,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -2003,7 +2003,7 @@
   },
   "0x42e8e0": {
     "n": "CarPhysics_IntegrateWheelSuspension",
-    "s": 0.6148148148148148,
+    "s": 0.7352941176470589,
     "x": false,
     "unknown": [],
     "f": "FixedPoint.cpp",
@@ -2179,8 +2179,8 @@
   },
   "0x4d21e0": {
     "n": "CFrontend::LoadFrontendResourceArchives",
-    "s": 0.8825910931174089,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Frontend.cpp",
     "symbol_name": "CFrontend::LoadFrontendResourceArchives"
@@ -2763,7 +2763,7 @@
   },
   "0x4d3e80": {
     "n": "FrontendDraw_BreadcrumbItem",
-    "s": 0.9157894736842105,
+    "s": 0.9473684210526315,
     "x": false,
     "unknown": [],
     "f": "FrontendDraw.cpp",
@@ -3027,7 +3027,7 @@
   },
   "0x4fc500": {
     "n": "FrontendControls_EnterCalibration",
-    "s": 0.6463414634146342,
+    "s": 0.7073170731707317,
     "x": false,
     "unknown": [],
     "f": "FrontendMenus.cpp",
@@ -3115,7 +3115,7 @@
   },
   "0x4fbae0": {
     "n": "FrontendControls_GetBindingDisplayText",
-    "s": 0.8085808580858086,
+    "s": 0.9105960264900662,
     "x": false,
     "unknown": [],
     "f": "FrontendMenus.cpp",
@@ -4499,7 +4499,7 @@
   },
   "0x4d5de0": {
     "n": "FrontendMap_DrawStageCellGrid",
-    "s": 0.49612403100775193,
+    "s": 0.9847328244274809,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -5235,7 +5235,7 @@
   },
   "0x4f0620": {
     "n": "FrontendMenu_UpdateMultiplayerStageSelection",
-    "s": 0.8263888888888888,
+    "s": 0.8650519031141869,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -5251,8 +5251,8 @@
   },
   "0x4f1040": {
     "n": "FrontendProfile_PickNameCharacter",
-    "s": 0.7628865979381443,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendProfile_PickNameCharacter"
@@ -5275,7 +5275,7 @@
   },
   "0x4f13c0": {
     "n": "FrontendProfile_PickRenameCharacterOrCheat",
-    "s": 0.7734138972809668,
+    "s": 0.875,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6147,7 +6147,7 @@
   },
   "0x4d5ad0": {
     "n": "FrontendDraw_RipplingDotIcon",
-    "s": 0.7766323024054983,
+    "s": 0.8571428571428571,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6899,7 +6899,7 @@
   },
   "0x4d9c40": {
     "n": "FrontendMenu_DrawRallySummary",
-    "s": 0.9843260188087775,
+    "s": 0.9855799373040752,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -8779,7 +8779,7 @@
   },
   "0x510410": {
     "n": "CGameInfo::InitDefaultGameInfo",
-    "s": 0.7792207792207793,
+    "s": 0.7973856209150327,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -8811,7 +8811,7 @@
   },
   "0x406580": {
     "n": "CGameInfo::ApplyStageOptionUnlockFlags",
-    "s": 0.821256038647343,
+    "s": 0.8599033816425121,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11435,7 +11435,7 @@
   },
   "0x50a920": {
     "n": "OptionMenu_DrawResultsRallyInfo",
-    "s": 0.9176470588235294,
+    "s": 0.9236471460340994,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11914,7 +11914,7 @@
   },
   "0x452be0": {
     "n": "GameMenu_DrawStagePenalties",
-    "s": 0.9168704156479217,
+    "s": 0.9339853300733496,
     "x": false,
     "unknown": [],
     "f": "GameMenus.cpp",
@@ -13052,7 +13052,7 @@
   },
   "0x4bc110": {
     "n": "Timer_GetValue",
-    "s": 0.8353413654618473,
+    "s": 0.984,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13980,7 +13980,7 @@
   },
   "0x447530": {
     "n": "Dash_UpdateCameraModeOffset",
-    "s": 0.6551724137931034,
+    "s": 0.72,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -14836,8 +14836,8 @@
   },
   "0x49ffd0": {
     "n": "Menu_Init",
-    "s": 0.8636363636363636,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Menu.cpp",
     "symbol_name": "Menu_Init"
@@ -16564,7 +16564,7 @@
   },
   "0x4174e0": {
     "n": "Race_QueuePlayerCallout",
-    "s": 0.6932270916334662,
+    "s": 0.746031746031746,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -17054,8 +17054,8 @@
   },
   "0x41d0c0": {
     "n": "Race_UpdatePlayerSelectionCursor",
-    "s": 0.7443365695792881,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "Race_UpdatePlayerSelectionCursor"
@@ -17190,8 +17190,8 @@
   },
   "0x411550": {
     "n": "RallyData_BuildStageRouteDistanceColumn",
-    "s": 0.8527918781725888,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_BuildStageRouteDistanceColumn"
@@ -18126,7 +18126,7 @@
   },
   "0x5040f0": {
     "n": "RallyData_SetupWeatherTextureEntries",
-    "s": 0.9293478260869565,
+    "s": 0.9782608695652174,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18830,8 +18830,8 @@
   },
   "0x415750": {
     "n": "RallyData_FormatResultDriverName",
-    "s": 0.6878306878306878,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_FormatResultDriverName"
@@ -21641,8 +21641,8 @@
   },
   "0x48c870": {
     "n": "StageObject_ApplyRecursiveFrameDelta",
-    "s": 0.9487179487179487,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_ApplyRecursiveFrameDelta"
@@ -21841,7 +21841,7 @@
   },
   "0x466570": {
     "n": "CarDamage_UpdateOrderedCarsOffRoadState",
-    "s": 0.7153284671532847,
+    "s": 0.8985507246376812,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22017,7 +22017,7 @@
   },
   "0x487b80": {
     "n": "Collision_DoSpheresOverlap",
-    "s": 0.8121212121212121,
+    "s": 0.9879518072289156,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22553,7 +22553,7 @@
   },
   "0x46f330": {
     "n": "StageObject_PositionSplitViewNodes",
-    "s": 0.8356807511737089,
+    "s": 0.9014084507042254,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22705,7 +22705,7 @@
   },
   "0x4657d0": {
     "n": "StageObject_RebuildCarExhaustPoints",
-    "s": 0.6632124352331606,
+    "s": 0.7216494845360825,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22889,7 +22889,7 @@
   },
   "0x46bb40": {
     "n": "StageObject_RebuildOrderedWheelVisibility",
-    "s": 0.5228758169934641,
+    "s": 0.5555555555555556,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22897,7 +22897,7 @@
   },
   "0x476a40": {
     "n": "StageObject_ApplyCarFadeRoll",
-    "s": 0.4669260700389105,
+    "s": 0.816793893129771,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22929,7 +22929,7 @@
   },
   "0x46ed80": {
     "n": "CarSkid_SpawnWheelDustPuff",
-    "s": 0.6572769953051644,
+    "s": 0.822429906542056,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23545,8 +23545,8 @@
   },
   "0x48e580": {
     "n": "Collision_TestSectorEdgeEndpoints",
-    "s": 0.7464788732394366,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Collision_TestSectorEdgeEndpoints"
@@ -23873,7 +23873,7 @@
   },
   "0x455e60": {
     "n": "StageTiming_Reset",
-    "s": 0.9333333333333333,
+    "s": 0.9666666666666667,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -24923,7 +24923,7 @@
   },
   "0x4814d0": {
     "n": "CarPart_IntegrateVerticalAxisTurn",
-    "s": 0.7887323943661971,
+    "s": 0.8888888888888888,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -24931,7 +24931,7 @@
   },
   "0x498590": {
     "n": "StageTiming_RelocateCarRecordRoutePoints",
-    "s": 0.6530612244897959,
+    "s": 0.7755102040816326,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -24987,7 +24987,7 @@
   },
   "0x45c610": {
     "n": "CarTyres_CommitPlayerWear",
-    "s": 0.7540983606557377,
+    "s": 0.85,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25219,7 +25219,7 @@
   },
   "0x424360": {
     "n": "ForceFeedback_ComputeSteeringForce",
-    "s": 0.6586826347305389,
+    "s": 0.8323353293413174,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25227,7 +25227,7 @@
   },
   "0x4247a0": {
     "n": "ForceFeedback_ComputeAxleRumble",
-    "s": 0.7971014492753623,
+    "s": 0.8368794326241135,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25283,7 +25283,7 @@
   },
   "0x480cb0": {
     "n": "CarPart_SmoothSteeringOffset",
-    "s": 0.8415300546448088,
+    "s": 0.9239130434782609,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25387,7 +25387,7 @@
   },
   "0x4487a0": {
     "n": "StageTiming_RecordAndReorderSplitTime",
-    "s": 0.9217391304347826,
+    "s": 0.9565217391304348,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25539,7 +25539,7 @@
   },
   "0x4669f0": {
     "n": "CarDamage_SetupOrderedCarParts",
-    "s": 0.8778135048231511,
+    "s": 0.977491961414791,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25635,7 +25635,7 @@
   },
   "0x45eed0": {
     "n": "StageWeather_DistributeViewParticles",
-    "s": 0.8825757575757576,
+    "s": 0.9735849056603774,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25723,7 +25723,7 @@
   },
   "0x418ff0": {
     "n": "StageSound_LoadSurfaceVariations",
-    "s": 0.9617834394904459,
+    "s": 0.9681528662420382,
     "x": false,
     "unknown": [],
     "f": "StageUI.cpp",
@@ -26051,7 +26051,7 @@
   },
   "0x478a20": {
     "n": "SurfaceText_LoadRegionalStringTable",
-    "s": 0.7899159663865546,
+    "s": 0.8403361344537815,
     "x": false,
     "unknown": [],
     "f": "SurfaceTypes.cpp",
@@ -26259,7 +26259,7 @@
   },
   "0x492fe0": {
     "n": "Track_SetFogAndSkyAlpha",
-    "s": 0.8,
+    "s": 0.8366013071895425,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",
@@ -26843,11 +26843,9 @@
   },
   "0x4a98b0": {
     "n": "CMain::MessageHandler",
-    "s": 0.6197183098591549,
+    "s": 0.9351851851851852,
     "x": false,
-    "unknown": [
-      "??_C@_0BE@HKJM@QueryCancelAutoPlay?$AA@"
-    ],
+    "unknown": [],
     "f": "main.cpp",
     "symbol_name": "CMain::MessageHandler"
   },
