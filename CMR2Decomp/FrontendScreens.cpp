@@ -8146,8 +8146,6 @@ extern char g_stageNumberFormat[];
 // Draws the "stage select" screen: breadcrumb title, the four column headers
 // and, when the entry list is open, one row per entry (name, opponent, stage,
 // number and time).
-// match 69%: reparto de bloques y ranuras (nuestro no reserva marco; el original usa sub esp,0x10)
-// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dc930
 void FrontendMenu_DrawNetworkSessionBrowser(Menu *pMenu)
 {
@@ -8158,7 +8156,6 @@ void FrontendMenu_DrawNetworkSessionBrowser(Menu *pMenu)
     int row;
     int index;
     int x;
-    int y;
 
     FrontendDraw_PlayTime();
     names[0] = CFrontend::GetTextString(0x12);
@@ -8189,14 +8186,13 @@ void FrontendMenu_DrawNetworkSessionBrowser(Menu *pMenu)
             pColour = pSelColour;
             if (g_unk0x00525288 != index)
                 pColour = pUnselColour;
-            y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * row;
-            Font_DrawText(1, Network_GetEnumeratedSessionName(index), (int)(g_pGraphics->resX * 100) / 0x280, y, pColour, 10);
+            Font_DrawText(1, Network_GetEnumeratedSessionName(index), (int)(g_pGraphics->resX * 100) / 0x280, (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * row, pColour, 10);
             Font_DrawText(1, CGameInfo::GetCodeEntryText(Session_GetListedUserValue(index, 0) - 8),
-                          (int)(g_pGraphics->resX * 300) / 0x280, y, pColour, 10);
+                          (int)(g_pGraphics->resX * 300) / 0x280, (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * row, pColour, 10);
             sprintf(CFrontend::m_stringDest, g_stageNumberFormat, Network_GetSessionPlayerCount(index));
-            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1c2) / 0x280, y, pColour, 10);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1c2) / 0x280, (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * row, pColour, 10);
             sprintf(CFrontend::m_stringDest, g_stageNumberFormat, Network_GetSessionMaxPlayers(index));
-            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x226) / 0x280, y, pColour, 10);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x226) / 0x280, (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * row, pColour, 10);
             row++;
             index++;
         } while (index < g_unk0x00819020 + g_unk0x0081901c);
