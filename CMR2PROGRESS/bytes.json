@@ -23359,7 +23359,7 @@
   },
   "0x48e730": {
     "n": "Collision_ResolveSectorFaceContact",
-    "s": 0.41855774079677255,
+    "s": 0.877,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",

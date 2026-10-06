@@ -13306,6 +13306,8 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
     int haveX;
     int haveY;
     int len;
+    int posDot0;
+    int posDot1;
     int dot0;
     int dot1;
     int dot;
@@ -13324,140 +13326,137 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
     g_unk0x00591968.y = param_1[1] - g_collisionCar->position.y;
     g_unk0x00591968.z = param_1[2] - g_collisionCar->position.z;
     g_unk0x00591968.y = 0;
-    dot0 = FixVecDot(&g_unk0x00591968, (FixVector *)(((int *)g_collisionFace) + 4));
-    dot1 = FixVecDot(&g_unk0x00591968, (FixVector *)(((int *)g_collisionFace) + 7));
-    if (((int *)g_collisionFace)[0] < FIX_ABS(dot0))
-        return 0;
-    if (((int *)g_collisionFace)[1] < FIX_ABS(dot1))
-        return 0;
-    g_unk0x00591950.x = param_1[0] - g_collisionCar->positionPrev.x;
-    g_unk0x00591950.y = param_1[1] - g_collisionCar->positionPrev.y;
-    g_unk0x00591950.z = param_1[2] - g_collisionCar->positionPrev.z;
-    g_unk0x00591950.y = 0;
-    len = FixVecLength(&g_unk0x00591950);
-    if (len <= 0)
-        return 0;
-    FixVecScaleRecip(&g_unk0x00591920, &g_unk0x00591950, len);
-    // Fraction of the move left before the car's box leaves each face axis; the
-    // smallest of the two is the axis the car is pushed back along.
-    dot0 = FixVecDot(&g_unk0x00591920, (FixVector *)(((int *)g_collisionFace) + 4));
-    dot1 = FixVecDot(&g_unk0x00591920, (FixVector *)(((int *)g_collisionFace) + 7));
-    haveX = 0;
-    haveY = 0;
-    bestRatio = 0x7d000000;
-    if (dot0 > 0x41) {
-        xRatio = FixDiv(((int *)g_collisionFace)[0] - dot0, dot0);
-        haveX = 1;
-    } else if (dot0 < -0x40) {
-        xRatio = FixDiv(FIX_ABS(((int *)g_collisionFace)[0] + dot0), -dot0);
-        haveX = 1;
+    posDot0 = FixVecDot(&g_unk0x00591968, (FixVector *)(((int *)g_collisionFace) + 4));
+    posDot1 = FixVecDot(&g_unk0x00591968, (FixVector *)(((int *)g_collisionFace) + 7));
+    if (FIX_ABS(posDot0) <= ((int *)g_collisionFace)[0] && FIX_ABS(posDot1) <= ((int *)g_collisionFace)[1]) {
+        g_unk0x00591950.x = param_1[0] - g_collisionCar->positionPrev.x;
+        g_unk0x00591950.y = param_1[1] - g_collisionCar->positionPrev.y;
+        g_unk0x00591950.z = param_1[2] - g_collisionCar->positionPrev.z;
+        g_unk0x00591950.y = 0;
+        len = FixVecLength(&g_unk0x00591950);
+        if (len > 0) {
+            FixVecScaleRecip(&g_unk0x00591920, &g_unk0x00591950, len);
+            // Fraction of the move left before the car's box leaves each face axis; the
+            // smallest of the two is the axis the car is pushed back along.
+            dot0 = FixVecDot(&g_unk0x00591920, (FixVector *)(((int *)g_collisionFace) + 4));
+            dot1 = FixVecDot(&g_unk0x00591920, (FixVector *)(((int *)g_collisionFace) + 7));
+            haveX = 0;
+            haveY = 0;
+            bestRatio = 0x7d000000;
+            if (dot0 > 0x41) {
+                xRatio = FixDiv(((int *)g_collisionFace)[0] - posDot0, dot0);
+                haveX = 1;
+            } else if (dot0 < -0x41) {
+                xRatio = FixDiv(FIX_ABS(((int *)g_collisionFace)[0] + posDot0), -dot0);
+                haveX = 1;
+            }
+            if (dot1 > 0x41) {
+                yRatio = FixDiv(((int *)g_collisionFace)[1] - posDot1, dot1);
+                haveY = 1;
+            } else if (dot1 < -0x41) {
+                yRatio = FixDiv(FIX_ABS(((int *)g_collisionFace)[1] + posDot1), -dot1);
+                haveY = 1;
+            }
+            if (haveX && xRatio < bestRatio) {
+                axis = 0;
+                bestRatio = xRatio;
+            }
+            if (haveY && yRatio < bestRatio) {
+                axis = 1;
+                bestRatio = yRatio;
+            }
+            FixVecScale(&g_unk0x00591920, &g_unk0x00591920, -0x10000);
+            FixVecScale(&g_unk0x00591900, &g_unk0x00591920, bestRatio);
+            g_collisionCar->position.x += g_unk0x00591900.x;
+            g_collisionCar->position.y += g_unk0x00591900.y;
+            g_collisionCar->position.z += g_unk0x00591900.z;
+            for (i = 0; i < 8; i++) {
+                g_collisionCar->corners[i].x += g_unk0x00591900.x;
+                g_collisionCar->corners[i].y += g_unk0x00591900.y;
+                g_collisionCar->corners[i].z += g_unk0x00591900.z;
+            }
+            for (i = 0; i < 4; i++) {
+                ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].x += g_unk0x00591900.x;
+                ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].y += g_unk0x00591900.y;
+                ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].z += g_unk0x00591900.z;
+            }
+            StageObject_ApplyRecursiveFrameDelta(*(BYTE *)((BYTE *)g_collisionCar + 0xb1a), -1, (int *)&g_unk0x00591900, 0);
+            // Surface descriptor of the tracked point: 0xff means there is no contact
+            // surface, in which case the second tracked point decides the direction.
+            surface = *(BYTE *)((BYTE *)g_unk0x0059190c + 0x2e + (param_3 != 0));
+            if (surface != 0xff) {
+                // Impact direction from the surface angle (12-bit angle into the sine
+                // table, with the +0x400 entry as the perpendicular component).
+                angle = (unsigned short)(__int64)((double)FixMul((int)surface << 16, 0x1cccc) * g_unk0x00511300);
+                g_unk0x00591990.x = g_sinTable[angle & 0xfff];
+                g_unk0x00591990.y = 0;
+                g_unk0x00591990.z = g_sinTable[(angle + 0x400) & 0xfff];
+                // Only a surface the car is moving into produces a bounce.
+                dot = FixVecDot(&g_collisionCar->velocity, &g_unk0x00591990);
+                if (dot < 0) {
+                    impulse = -FixMul(dot, g_unk0x0051fb00[param_4] + 0x4ccc);
+                    FixVecScale(&g_unk0x005918f0, &g_unk0x00591990, impulse);
+                    g_unk0x00591978 = *(FixVector *)param_1;
+                    g_unk0x00591978.y = g_collisionCar->position.y;
+                    CarPhysics_ApplyImpulse(&g_unk0x005918f0, &g_unk0x00591978, 1);
+                    len = FixVecLength(&g_unk0x005918f0);
+                    if (g_unk0x00591930 == 0 || g_unk0x005919a0 < len) {
+                        g_unk0x005919a0 = len;
+                        g_unk0x005918e0 = g_unk0x005918f0;
+                        g_unk0x00591ad0 = g_unk0x00591978;
+                        g_unk0x00591930 = 1;
+                        g_unk0x0059199c = 2;
+                        g_unk0x00591938 = g_unk0x00591990;
+                        return 1;
+                    }
+                }
+            } else if (axis != -1) {
+                g_unk0x00591990.x = param_2[0] - param_1[0];
+                g_unk0x00591990.y = param_2[1] - param_1[1];
+                g_unk0x00591990.z = param_2[2] - param_1[2];
+                if (FIX_ABS(g_unk0x00591990.x) > FIX_ABS(g_unk0x00591990.y) &&
+                    FIX_ABS(g_unk0x00591990.x) > FIX_ABS(g_unk0x00591990.z))
+                    FixVecScaleRecip(&g_unk0x00591990, &g_unk0x00591990, FIX_ABS(g_unk0x00591990.x));
+                else if (FIX_ABS(g_unk0x00591990.y) > FIX_ABS(g_unk0x00591990.x) &&
+                         FIX_ABS(g_unk0x00591990.y) > FIX_ABS(g_unk0x00591990.z))
+                    FixVecScaleRecip(&g_unk0x00591990, &g_unk0x00591990, FIX_ABS(g_unk0x00591990.y));
+                else
+                    FixVecScaleRecip(&g_unk0x00591990, &g_unk0x00591990, FIX_ABS(g_unk0x00591990.z));
+                len = FixVecLength(&g_unk0x00591990);
+                if (len == 0) {
+                    g_unk0x00591990.x = 0;
+                    g_unk0x00591990.y = 0;
+                    g_unk0x00591990.z = 0;
+                } else {
+                    FixVecScaleRecip(&g_unk0x00591990, &g_unk0x00591990, len);
+                }
+                if (FixVecDot(&g_unk0x00591990, &g_collisionCar->velocity) > 0) {
+                    // The contact axis picked above doubles as the bounce direction.
+                    if (axis == 0)
+                        g_unk0x00591990 = *(FixVector *)((BYTE *)g_collisionFace + 0x10);
+                    else
+                        g_unk0x00591990 = *(FixVector *)((BYTE *)g_collisionFace + 0x1c);
+                    dot = FixVecDot(&g_collisionCar->velocity, &g_unk0x00591990);
+                    impulse = -FixMul(dot, g_unk0x0051fb00[param_4] + 0x10000);
+                    FixVecScale(&g_unk0x005918f0, &g_unk0x00591990, impulse);
+                    g_unk0x00591978 = *(FixVector *)param_1;
+                    g_unk0x00591978.y = g_collisionCar->position.y;
+                    CarPhysics_ApplyImpulse(&g_unk0x005918f0, &g_unk0x00591978, 1);
+                    len = FixVecLength(&g_unk0x005918f0);
+                    if (g_unk0x00591930 == 0 || g_unk0x005919a0 < len) {
+                        g_unk0x005919a0 = len;
+                        g_unk0x005918e0 = g_unk0x005918f0;
+                        g_unk0x00591ad0 = g_unk0x00591978;
+                        g_unk0x00591930 = 1;
+                        g_unk0x0059199c = 2;
+                        g_unk0x00591938 = g_unk0x00591990;
+                    }
+                }
+            }
+            return 1;
+        }
     }
-    if (dot1 > 0x41) {
-        yRatio = FixDiv(((int *)g_collisionFace)[1] - dot1, dot1);
-        haveY = 1;
-    } else if (dot1 < -0x40) {
-        yRatio = FixDiv(FIX_ABS(((int *)g_collisionFace)[1] + dot1), -dot1);
-        haveY = 1;
-    }
-    if (haveX && xRatio < bestRatio) {
-        axis = 0;
-        bestRatio = xRatio;
-    }
-    if (haveY && yRatio < bestRatio) {
-        axis = 1;
-        bestRatio = yRatio;
-    }
-    FixVecScale(&g_unk0x00591920, &g_unk0x00591920, -0x10000);
-    FixVecScale(&g_unk0x00591900, &g_unk0x00591920, bestRatio);
-    g_collisionCar->position.x += g_unk0x00591900.x;
-    g_collisionCar->position.y += g_unk0x00591900.y;
-    g_collisionCar->position.z += g_unk0x00591900.z;
-    for (i = 0; i < 8; i++) {
-        g_collisionCar->corners[i].x += g_unk0x00591900.x;
-        g_collisionCar->corners[i].y += g_unk0x00591900.y;
-        g_collisionCar->corners[i].z += g_unk0x00591900.z;
-    }
-    for (i = 0; i < 4; i++) {
-        ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].x += g_unk0x00591900.x;
-        ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].y += g_unk0x00591900.y;
-        ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].z += g_unk0x00591900.z;
-    }
-    StageObject_ApplyRecursiveFrameDelta(*(BYTE *)((BYTE *)g_collisionCar + 0xb1a), -1, (int *)&g_unk0x00591900, 0);
-    // Surface descriptor of the tracked point: 0xff means there is no contact
-    // surface, in which case the second tracked point decides the direction.
-    surface = *(BYTE *)((BYTE *)g_unk0x0059190c + 0x2e + (param_3 != 0));
-    if (surface == 0xff)
-        goto noSurface;
-    // Impact direction from the surface angle (12-bit angle into the sine
-    // table, with the +0x400 entry as the perpendicular component).
-    angle = (unsigned short)(__int64)((double)FixMul((int)surface << 16, 0x1cccc) * g_unk0x00511300);
-    g_unk0x00591990.x = g_sinTable[angle & 0xfff];
-    g_unk0x00591990.y = 0;
-    g_unk0x00591990.z = g_sinTable[(angle + 0x400) & 0xfff];
-    // Only a surface the car is moving into produces a bounce.
-    dot = FixVecDot(&g_collisionCar->velocity, &g_unk0x00591990);
-    if (dot >= 0)
-        return 1;
-    impulse = -FixMul(dot, g_unk0x0051fb00[param_4] + 0x4ccc);
-    FixVecScale(&g_unk0x005918f0, &g_unk0x00591990, impulse);
-    g_unk0x00591978 = *(FixVector *)param_1;
-    g_unk0x00591978.y = g_collisionCar->position.y;
-    CarPhysics_ApplyImpulse(&g_unk0x005918f0, &g_unk0x00591978, 1);
-    len = FixVecLength(&g_unk0x005918f0);
-    if (g_unk0x00591930 != 0 && g_unk0x005919a0 >= len)
-        return 1;
-    g_unk0x005919a0 = len;
-    g_unk0x005918e0 = g_unk0x005918f0;
-    g_unk0x00591ad0 = g_unk0x00591978;
-    g_unk0x00591938 = g_unk0x00591990;
-    g_unk0x00591930 = 1;
-    g_unk0x0059199c = 2;
-    return 1;
-noSurface:
-    if (axis == -1)
-        return 1;
-    g_unk0x00591990.x = param_2[0] - param_1[0];
-    g_unk0x00591990.y = param_2[1] - param_1[1];
-    g_unk0x00591990.z = param_2[2] - param_1[2];
-    if (FIX_ABS(g_unk0x00591990.x) > FIX_ABS(g_unk0x00591990.y) &&
-        FIX_ABS(g_unk0x00591990.x) > FIX_ABS(g_unk0x00591990.z))
-        FixVecScaleRecip(&g_unk0x00591990, &g_unk0x00591990, FIX_ABS(g_unk0x00591990.x));
-    else if (FIX_ABS(g_unk0x00591990.y) > FIX_ABS(g_unk0x00591990.x) &&
-             FIX_ABS(g_unk0x00591990.y) > FIX_ABS(g_unk0x00591990.z))
-        FixVecScaleRecip(&g_unk0x00591990, &g_unk0x00591990, FIX_ABS(g_unk0x00591990.y));
-    else
-        FixVecScaleRecip(&g_unk0x00591990, &g_unk0x00591990, FIX_ABS(g_unk0x00591990.z));
-    len = FixVecLength(&g_unk0x00591990);
-    if (len == 0) {
-        g_unk0x00591990.x = 0;
-        g_unk0x00591990.y = 0;
-        g_unk0x00591990.z = 0;
-    } else {
-        FixVecScaleRecip(&g_unk0x00591990, &g_unk0x00591990, len);
-    }
-    if (FixVecDot(&g_unk0x00591990, &g_collisionCar->velocity) <= 0)
-        return 1;
-    // The contact axis picked above doubles as the bounce direction.
-    if (axis == 0)
-        g_unk0x00591990 = *(FixVector *)((BYTE *)g_collisionFace + 0x10);
-    else
-        g_unk0x00591990 = *(FixVector *)((BYTE *)g_collisionFace + 0x1c);
-    dot = FixVecDot(&g_collisionCar->velocity, &g_unk0x00591990);
-    impulse = -FixMul(dot, g_unk0x0051fb00[param_4] + 0x10000);
-    FixVecScale(&g_unk0x005918f0, &g_unk0x00591990, impulse);
-    g_unk0x00591978 = *(FixVector *)param_1;
-    g_unk0x00591978.y = g_collisionCar->position.y;
-    CarPhysics_ApplyImpulse(&g_unk0x005918f0, &g_unk0x00591978, 1);
-    len = FixVecLength(&g_unk0x005918f0);
-    if (g_unk0x00591930 != 0 && g_unk0x005919a0 >= len)
-        return 1;
-    g_unk0x005919a0 = len;
-    g_unk0x005918e0 = g_unk0x005918f0;
-    g_unk0x00591ad0 = g_unk0x00591978;
-    g_unk0x00591938 = g_unk0x00591990;
-    g_unk0x00591930 = 1;
-    g_unk0x0059199c = 2;
-    return 1;
+    return 0;
 }
 
 // --- trackside cameras (camera type 7) --------------------------------------
