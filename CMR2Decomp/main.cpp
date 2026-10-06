@@ -190,8 +190,12 @@ LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	switch (msg)
 	{
-	case WM_DESTROY:
-		PostQuitMessage(0);
+	case WM_KILLFOCUS:
+		CSound::StopSharedMusicBuffer();
+		break;
+
+	case WM_SETFOCUS:
+		CSound::NoOpSoundDeviceCallback();
 		break;
 
 	case WM_SIZE: // minimised (SIZE_MINIMIZED) or hidden (SIZE_MAXHIDE) pauses the game
@@ -201,14 +205,6 @@ LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			SetGameActiveState(0);
 		break;
 
-	case WM_SETFOCUS:
-		CSound::NoOpSoundDeviceCallback();
-		break;
-
-	case WM_KILLFOCUS:
-		CSound::StopSharedMusicBuffer();
-		break;
-
 	case WM_CLOSE:
 		if (g_pGraphics->isFullscreen != 0)
 			return 0;
@@ -216,6 +212,17 @@ LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		msg = WM_KEYDOWN;
 		wParam = VK_ESCAPE;
 		PostQuitMessage(0);
+		break;
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+
+	case WM_SYSKEYUP:
+	case 0x218:
+		return 0;
+
+	case WM_PAINT:
 		break;
 
 	case WM_ACTIVATEAPP:
@@ -241,10 +248,6 @@ LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (wParam == 0xf140 || wParam == 0xf170)
 			return 1;
 		break;
-
-	case WM_SYSKEYUP:
-	case 0x218:
-		return 0;
 
 	default:
 		if (msg != 0 && msg == RegisterWindowMessageA("QueryCancelAutoPlay"))
