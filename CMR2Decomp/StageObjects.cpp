@@ -10966,120 +10966,103 @@ extern double g_unk0x00511300;
 // Picks the closest car ahead of the reference angle among the active cars,
 // rejecting those out of range or outside the angular window, and writes the
 // chosen one's relative state code to *param_2.
-// match 54%: implementada, difiere el reparto de locales/registros y la fusion de bloques
 // FUNCTION: CMR2 0x0047cd10
 int AI_FindClosestCarInAngleWindow(int param_1, int *param_2, int param_3, int *param_4)
 {
     Car *cars[6];
     int flags[6];
-    int maxAng[6];
-    int angles[6];
-    int i, n;
-    int wrap, base, refX, refZ;
-    int outA[3], outB[3];
-    int outIdx;
-    int iVar7, iVar8, iVar9, iVar10;
-    unsigned int uVar2, length;
+    int maxAhead[6];
+    int routePos[6];
+    int i;
+    int wrap;
+    int base;
+    int refX;
+    int refZ;
+    int node[3];
+    int dx;
+    int dz;
+    int length;
+    int limit;
+    int angle;
+    int carHeading;
+    int nodeHeading;
+    int ahead;
 
     *param_2 = 0;
-    for (i = 0; i < 6; i++) {
-        flags[i] = 0;
+    memset(flags, 0, sizeof(flags));
+    for (i = 0; i < 6; i++)
         cars[i] = Car_Get(i);
-    }
     wrap = RallyData_GetRouteAvailabilityState();
-    refX = *(int *)((BYTE *)cars[param_1] + 0x2d8);
-    refZ = *(int *)((BYTE *)cars[param_1] + 0x2d0);
+    refX = cars[param_1]->position.z;
+    refZ = cars[param_1]->position.x;
     base = param_4[4];
-    n = (int)(signed char)g_unk0x0058e0b0[0];
 
-    if (0 < n) {
-        for (i = 0; i < n; i++) {
-            if ((i != param_1) && (*(int *)((BYTE *)cars[i] + 0x778) < 0xc800))
-                flags[i] = 1;
+    for (i = 0; i < (signed char)g_unk0x0058e0b0[0]; i++) {
+        if (i != param_1 && cars[i]->speed < 0xc800)
+            flags[i] = 1;
+    }
+    for (i = 0; i < (signed char)g_unk0x0058e0b0[0]; i++) {
+        if (flags[i] != 0) {
+            angle = StageObject_WrapFixedDegreeAngle(
+                base - StageObject_Atan2Degrees(*(int *)((BYTE *)cars[i] + 0x368),
+                                                *(int *)((BYTE *)cars[i] + 0x360)));
+            if (angle >= -0x5a0000 && angle <= 0x5a0000)
+                maxAhead[i] = 5;
+            else
+                maxAhead[i] = 10;
         }
     }
-    if (0 < n) {
-        for (i = 0; i < n; i++) {
-            if (flags[i] != 0) {
-                iVar8 = StageObject_Atan2Degrees(*(int *)((BYTE *)cars[i] + 0x368),
-                                                 *(int *)((BYTE *)cars[i] + 0x360));
-                iVar8 = StageObject_WrapFixedDegreeAngle(base - iVar8);
-                if ((iVar8 < -0x5a0000) || (0x5a0000 < iVar8))
-                    maxAng[i] = 10;
-                else
-                    maxAng[i] = 5;
-            }
+    for (i = 0; i < (signed char)g_unk0x0058e0b0[0]; i++) {
+        if (flags[i] != 0) {
+            routePos[i] = RallyData_GetActiveCarRaceRecordField0((BYTE *)cars[i]);
+            ahead = routePos[i] - param_3;
+            if (ahead < -100)
+                ahead += wrap;
+            if (ahead < 0 || ahead > maxAhead[i])
+                flags[i] = 0;
         }
     }
-    if (0 < n) {
-        for (i = 0; i < n; i++) {
-            if (flags[i] != 0) {
-                iVar8 = RallyData_GetActiveCarRaceRecordField0((BYTE *)cars[i]);
-                angles[i] = iVar8;
-                iVar8 = iVar8 - param_3;
-                if (iVar8 < -100)
-                    iVar8 = iVar8 + wrap;
-                if ((iVar8 < 0) || (maxAng[i] < iVar8))
-                    flags[i] = 0;
-            }
+    for (param_1 = 0; param_1 < (signed char)g_unk0x0058e0b0[0]; param_1++) {
+        if (flags[param_1] == 0)
+            continue;
+        dx = cars[param_1]->position.z - refX;
+        dz = cars[param_1]->position.x - refZ;
+        length = FixSqrt(FixMul(dx, dx) + FixMul(dz, dz));
+        carHeading = StageObject_Atan2Degrees(dx, dz);
+        angle = StageObject_WrapFixedDegreeAngle(base - carHeading);
+        if (angle > 0x2d0000 || angle < -0x2d0000) {
+            flags[param_1] = 0;
+            continue;
         }
-    }
-    outIdx = 0;
-    if (0 < (signed char)g_unk0x0058e0b0[0]) {
-        do {
-            if (flags[outIdx] != 0) {
-                int dx = *(int *)((BYTE *)cars[outIdx] + 0x2d8) - refX;
-                int dz = *(int *)((BYTE *)cars[outIdx] + 0x2d0) - refZ;
-
-                uVar2 = (unsigned int)FixSqrt(FixMul(dx, dx) + FixMul(dz, dz));
-                length = uVar2;
-                iVar7 = StageObject_Atan2Degrees(dx, dz);
-                iVar8 = StageObject_WrapFixedDegreeAngle(base - iVar7);
-                if ((iVar8 < 0x2d0001) && (-0x2d0001 < iVar8)) {
-                    iVar10 = FixDiv(uVar2 - 0x70000, 0x70000) + 0x20000;
-                    if (iVar10 >= 0x50001) {
-                        iVar10 = 0x50000;
-                    } else {
-                        if (iVar10 < 0)
-                            iVar10 = 0;
-                    }
-                    length = (unsigned int)FixMul((int)length,
-                        g_sinTable[(int)(__int64)((double)iVar8 * g_unk0x00511300) & 0xfff]);
-                    iVar7 = param_3 + 5;
-                    iVar9 = (param_3 + 5) - wrap;
-                    if (-1 < iVar9)
-                        iVar7 = iVar9;
-                    RallyData_GetRouteNodeGroundPosition(iVar7, outB);
-                    iVar7 = StageObject_Atan2Degrees(outB[2] - refX, outB[0] - refZ);
-                    StageObject_WrapFixedDegreeAngle(base - iVar7);
-                    if (((int)length <= iVar10) && (-iVar10 <= (int)length)) {
-                        iVar8 = StageObject_WrapFixedDegreeAngle(iVar8 - iVar7);
-                        if (iVar8 < 0) {
-                            if (0x320000 < *param_4) {
-                                flags[outIdx] = 4;
-                                *param_2 = flags[outIdx];
-                                return outIdx;
-                            }
-                            flags[outIdx] = 2;
-                            *param_2 = flags[outIdx];
-                            return outIdx;
-                        }
-                        if (0x320000 < *param_4) {
-                            flags[outIdx] = 3;
-                            *param_2 = flags[outIdx];
-                            return outIdx;
-                        }
-                        flags[outIdx] = 1;
-                        *param_2 = flags[outIdx];
-                        return outIdx;
-                    }
-                    flags[outIdx] = 0;
-                } else {
-                    flags[outIdx] = 0;
-                }
-            }
-            outIdx++;
-        } while (outIdx < (signed char)g_unk0x0058e0b0[0]);
+        limit = FixDiv(length - 0x70000, 0x70000) + 0x20000;
+        if (limit > 0x50000)
+            limit = 0x50000;
+        else if (limit < 0)
+            limit = 0;
+        length = FixMul(length, g_sinTable[(short)(__int64)((double)angle * g_unk0x00511300) & 0xfff]);
+        i = param_3 + 5;
+        if (i - wrap >= 0)
+            i -= wrap;
+        RallyData_GetRouteNodeGroundPosition(i, node);
+        nodeHeading = StageObject_Atan2Degrees(node[2] - refX, node[0] - refZ);
+        StageObject_WrapFixedDegreeAngle(base - nodeHeading);
+        if (length > limit || length < -limit) {
+            flags[param_1] = 0;
+            continue;
+        }
+        if (StageObject_WrapFixedDegreeAngle(carHeading - nodeHeading) < 0) {
+            if (*param_4 > 0x320000)
+                flags[param_1] = 4;
+            else
+                flags[param_1] = 2;
+        } else {
+            if (*param_4 > 0x320000)
+                flags[param_1] = 3;
+            else
+                flags[param_1] = 1;
+        }
+        *param_2 = flags[param_1];
+        return param_1;
     }
     return -1;
 }

@@ -52,7 +52,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x488640	Collision_TestOrientedBoxCornerOverlap	StageObjects.cpp	1948	0.55	0.5110635260528195
 0x40b5b0	Font_GetTextWidth	Font.cpp	376	0.5546875	0.5645161290322581
 0x4b45d0	Scene_AddShadowCaster	SceneNode.cpp	825	0.5579567779960707	0.5369649805447471
-0x47cd10	AI_FindClosestCarInAngleWindow	StageObjects.cpp	965	0.56	0.4889589905362776
 0x4aa930	CGame::AddConnection	Game.cpp	219	0.5620915032679739	0.5584415584415584
 0x4a6e30	CGraphics::LoadDDSTexture	Graphics.cpp	1494	0.5631517960602549	0.5630630630630631
 0x464960	StageObject_PositionRearViewLightNodes	StageObjects.cpp	391	0.5637065637065637	0.5317460317460317
@@ -380,6 +379,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4fe240	FrontendControls_DrawDeviceConfiguration	FrontendMenus.cpp	3582	0.8984689766317486	0.8896999188969992
 0x466570	CarDamage_UpdateOrderedCarsOffRoadState	StageObjects.cpp	190	0.8985507246376812	0.8985507246376812
 0x500270	OptionMenu_ConfirmOrRevertHighlightedValue	GameInfo.cpp	224	0.8993288590604027	0.9019607843137255
+0x47cd10	AI_FindClosestCarInAngleWindow	StageObjects.cpp	965	0.9003021148036254	0.7872340425531915
 0x443250	Car_UpdateBodyLean	Car.cpp	2000	0.9009009009009009	0.8870703764320785
 0x4d45b0	FrontendDraw_Carousel	FrontendDraw.cpp	1511	0.9020021074815595	0.8740740740740741
 0x458fd0	StageTiming_AdvanceTimedLapCheckpoint	StageTiming.cpp	203	0.9024390243902439	0.9024390243902439

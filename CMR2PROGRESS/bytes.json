@@ -23159,7 +23159,7 @@
   },
   "0x47cd10": {
     "n": "AI_FindClosestCarInAngleWindow",
-    "s": 0.4889589905362776,
+    "s": 0.7872340425531915,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",

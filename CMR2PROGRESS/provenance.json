@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "9930ea86ebb49bf7aa11b04de41e935c7bc34084",
+    "commit": "1b823e077aabbba4c71b2fe119d6da06d5760f0b",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -122,7 +122,7 @@
       "CMR2Decomp/Stage.h": "b88a2c030bd24c19ae7bdf8b42ff62a7f1d772b5ef2c85ca88d504622be84a84",
       "CMR2Decomp/StageBlock.h": "f4891437fb2f09962048a220796091acc5431172a654aada4990f16c19ed270b",
       "CMR2Decomp/StageObjectCount.h": "541514d4da5e984bc83597c9b0839bebc67ac87ef78d2fe76fc2f3841c08010e",
-      "CMR2Decomp/StageObjects.cpp": "955cd42506d82bfc608042506db50e4759abfd2beff99fc9d8aeb139b96fcf50",
+      "CMR2Decomp/StageObjects.cpp": "a944684b69fefec545cc2c7d1d4490eec620b8347de9fea96107bffa1e16a310",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
       "CMR2Decomp/StageTiming.cpp": "fff88d52e4a90e06f0f50235d82c9ecaed4790e37f8e9dca93e58e999a688711",
@@ -167,8 +167,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "7c5471449edc3f417ae75e07c0cbec07d43318312f0fca703ee868e4c6140f9c",
-    "pdb_sha256": "d04904fe64fc93e9efc2f0eff567e5264f6a35bde5a460c8d9e9bbe7a19770a6"
+    "exe_sha256": "45f7003e4d205d7bb510b61414817b9415ee366283130f58a18e1e72d5b74ed7",
+    "pdb_sha256": "9b21e4d9cdb2759feebce0c9af312fe28ea3c35ed560900e499692ebaea2a8a3"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
