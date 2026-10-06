@@ -419,7 +419,8 @@
     "arguments": "entities",
     "targets": [
       "0x502310",
-      "0x5024a0"
+      "0x5024a0",
+      "0x404000"
     ]
   },
   "differential_session_enumeration.py": {

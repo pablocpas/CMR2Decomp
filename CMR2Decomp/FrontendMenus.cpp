@@ -1426,7 +1426,6 @@ void FrontendControls_DrawCalibration(Menu *pMenu)
     char *text[2];
     BYTE *pShadow;
     BYTE *pColour;
-    int resX;
     int maxWidth;
     int width;
     short y0;
@@ -1460,10 +1459,10 @@ void FrontendControls_DrawCalibration(Menu *pMenu)
     for (i = 0; i < pMenu->itemCount; i++) {
         sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x77), i);
         width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-        if (maxWidth < width)
+        if (width > maxWidth)
             maxWidth = width;
     }
-    resX = g_pGraphics->resX;
+    maxWidth += (int)(g_pGraphics->resX * 5) / 640;
     for (i = 0; i < pMenu->itemCount; i++) {
         icon[1] = (int)(g_pGraphics->resY * 2) / 480 + (int)(g_pGraphics->resY * 18) / 480 + y0
                   + ((short)((int)(g_pGraphics->resY * 36) / 480) * (short)i - CFrontend::m_pAr640ATexture->height / 2);
@@ -1480,7 +1479,7 @@ void FrontendControls_DrawCalibration(Menu *pMenu)
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x77), i);
             Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
                           (short)((int)(g_pGraphics->resY * 24) / 480 + g_controlsLine[1]), (int *)pColour, 0x11);
-            FrontendControls_DrawCalibrationAxisRow((int)(g_pGraphics->resX * 0x7a) / 640 + maxWidth + resX * 5 / 640 + (int)(g_pGraphics->resX * 200) / 1280,
+            FrontendControls_DrawCalibrationAxisRow((int)(g_pGraphics->resX * 0x7a) / 640 + maxWidth + ((int)(g_pGraphics->resX * 200) / 640) / 2,
                          (int)(g_pGraphics->resY * 10) / 480 + icon[1], pMenu, i);
         } else {
             Font_DrawText(1, CFrontend::GetTextString(pMenu->items[i].id), (int)(g_pGraphics->resX * 0x7a) / 640,
