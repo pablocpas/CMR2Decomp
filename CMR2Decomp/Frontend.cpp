@@ -185,23 +185,15 @@ void CFrontend::LoadFrontendResourceArchives(void)
     CGenericFileLoader::m_genericFile.didFileLoad = 0;
     CGenericFileLoader::m_genericFile.fileSize = 0;
 
-    if (CGameInfo::GetScreenWidth() >= 1024U)
+    if (CGameInfo::GetScreenWidth() >= 1024U && IsTextureWidthSupported(1024) != 0 && IsTextureHeightSupported(1024) != 0)
     {
-        if (IsTextureWidthSupported(1024) != 0)
-        {
-            if (IsTextureHeightSupported(1024) != 0)
-            {
-                if (HasDXT1TextureSupport() != FALSE)
-                    sprintf(m_stringDest, m_feRes1024C, CInstallInfo::GetFrontendDir());
-
-                else
-                    sprintf(m_stringDest, m_feRes1024, CInstallInfo::GetFrontendDir());
-            }
-        }
+        if (HasDXT1TextureSupport() != FALSE)
+            sprintf(m_stringDest, m_feRes1024C, CInstallInfo::GetFrontendDir());
+        else
+            sprintf(m_stringDest, m_feRes1024, CInstallInfo::GetFrontendDir());
     }
     else
     {
-
         if (HasDXT1TextureSupport() != FALSE)
             sprintf(m_stringDest, m_feRes640C, CInstallInfo::GetFrontendDir());
         else
@@ -235,18 +227,12 @@ void CFrontend::LoadFrontendResourceArchives(void)
         break;
     }
 
-    if (CGameInfo::GetScreenWidth() >= 1024U)
+    if (CGameInfo::GetScreenWidth() >= 1024U && IsTextureWidthSupported(1024) != FALSE && IsTextureHeightSupported(1024) != FALSE)
     {
-        if (IsTextureWidthSupported(1024) != FALSE)
-        {
-            if (IsTextureHeightSupported(1024) != FALSE)
-            {
-                if (HasDXT1TextureSupport())
-                    sprintf(m_stringDest, m_feRes1024CCountrySpecific, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory(), regionKey);
-                else
-                    sprintf(m_stringDest, m_feRes1024CountrySpecific, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory(), regionKey);
-            }
-        }
+        if (HasDXT1TextureSupport())
+            sprintf(m_stringDest, m_feRes1024CCountrySpecific, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory(), regionKey);
+        else
+            sprintf(m_stringDest, m_feRes1024CountrySpecific, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory(), regionKey);
     }
     else
     {
