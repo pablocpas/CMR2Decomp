@@ -1022,12 +1022,12 @@ void CarPhysics_IntegrateWheelSuspension(void)
                 ((&g_pCurrentCar->cornerPrev2[0])[w].x != 0 ||
                  (&g_pCurrentCar->cornerPrev2[0])[w].y != 0 ||
                  (&g_pCurrentCar->cornerPrev2[0])[w].z != 0)) {
-                d.x = (g_pCurrentCar->corners[w].x - (&g_pCurrentCar->cornerPrev[0])[w].x) -
-                      ((&g_pCurrentCar->cornerPrev[0])[w].x - (&g_pCurrentCar->cornerPrev2[0])[w].x);
-                d.y = (g_pCurrentCar->corners[w].y - (&g_pCurrentCar->cornerPrev[0])[w].y) -
-                      ((&g_pCurrentCar->cornerPrev[0])[w].y - (&g_pCurrentCar->cornerPrev2[0])[w].y);
-                d.z = (g_pCurrentCar->corners[w].z - (&g_pCurrentCar->cornerPrev[0])[w].z) -
-                      ((&g_pCurrentCar->cornerPrev[0])[w].z - (&g_pCurrentCar->cornerPrev2[0])[w].z);
+                mid.x = (&g_pCurrentCar->cornerPrev[0])[w].x - (&g_pCurrentCar->cornerPrev2[0])[w].x;
+                d.x = (g_pCurrentCar->corners[w].x - (&g_pCurrentCar->cornerPrev[0])[w].x) - mid.x;
+                mid.y = (&g_pCurrentCar->cornerPrev[0])[w].y - (&g_pCurrentCar->cornerPrev2[0])[w].y;
+                d.y = (g_pCurrentCar->corners[w].y - (&g_pCurrentCar->cornerPrev[0])[w].y) - mid.y;
+                mid.z = (&g_pCurrentCar->cornerPrev[0])[w].z - (&g_pCurrentCar->cornerPrev2[0])[w].z;
+                d.z = (g_pCurrentCar->corners[w].z - (&g_pCurrentCar->cornerPrev[0])[w].z) - mid.z;
                 FixMatrix_InverseRotateVector(&v, &d, g_pCurrentCar->pWorld);
                 // vertical (car-space y) speed of the corner over the last two steps
                 f = FixMul(v.y, FixMul(0x9c28, g_physicsScale));
