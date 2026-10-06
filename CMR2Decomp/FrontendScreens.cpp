@@ -289,7 +289,7 @@ void FrontendMap_DrawStageCellGrid(unsigned int param_1, BYTE param_2)
     int cols;
     int rows;
     BYTE pixel;
-    unsigned int index;
+    BYTE index;
 
     g_unk0x008189a8[2] = CFrontend::m_pSmMatrixTexture->width;
     g_unk0x008189a8[3] = CFrontend::m_pSmMatrixTexture->height;
