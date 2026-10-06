@@ -15810,7 +15810,7 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
         rect[1] = (short)((int)(g_pGraphics->resY * 0x24) / 0x1e0 * i +
                           (int)(g_pGraphics->resY * 0x14) / 0x1e0 - halfHeight + y0);
         y = (int)(g_pGraphics->resY * 0x24) / 0x1e0 * i
-            - (int)(g_pGraphics->resY * halfHeight) / 0x1e0
+            - (int)(g_pGraphics->resY * (*(short *)(InRaceMenu_GetUpArrowTexture() + 0x122) / 2)) / 0x1e0
             + (int)(g_pGraphics->resY * 0x14) / 0x1e0 + y0
             + (int)(g_pGraphics->resY * 0xe) / 0x1e0;
         if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) &&
