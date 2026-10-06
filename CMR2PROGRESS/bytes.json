@@ -23313,8 +23313,8 @@
   },
   "0x47d850": {
     "n": "StageObject_TestHeadlightGlowsAgainstCarBox",
-    "s": 0.7917146144994246,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_TestHeadlightGlowsAgainstCarBox"
@@ -26547,8 +26547,8 @@
   },
   "0x4be160": {
     "n": "check_header",
-    "s": 0.8931750741839762,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "ZlibGzio.cpp",
     "symbol_name": "check_header"

@@ -12806,10 +12806,10 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
 // FUNCTION: CMR2 0x0047d850
 void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, int *param_2)
 {
-    FixVector delta;
+    FixVector offset;
     FixVector dir;
     FixVector localDelta;
-    FixVector localDir;
+    FixVector localDirection;
     FixVector cross;
     FixVector *pAnchor;
     int *pRec;
@@ -12821,23 +12821,25 @@ void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, int *param_2)
     do {
         if (pRec[0x15] != 0 && *(BYTE *)(pRec + 0x16) != pCar->index) {
             pAnchor = (FixVector *)param_2[0x25];
-            delta.x = *(int *)(pRec + 3) - pAnchor->x;
-            delta.y = *(int *)(pRec + 4) - pAnchor->y;
-            delta.z = *(int *)(pRec + 5) - pAnchor->z;
-            if (FIX_ABS(delta.x) < 0x640000) {
-                if (FIX_ABS(delta.y) < 0x640000) {
-                    if (FIX_ABS(delta.z) < 0x640000 && *(int *)(pRec + 4) >= param_2[3] &&
+            offset.x = *(int *)(pRec + 3) - pAnchor->x;
+            offset.y = *(int *)(pRec + 4) - pAnchor->y;
+            offset.z = *(int *)(pRec + 5) - pAnchor->z;
+            if (FIX_ABS(offset.x) < 0x640000) {
+                if (FIX_ABS(offset.y) < 0x640000) {
+                    if (FIX_ABS(offset.z) < 0x640000 && *(int *)(pRec + 4) >= param_2[3] &&
                         *(int *)(pRec + 4) <= param_2[2]) {
-                        dot1 = FixVecDot(&delta, (FixVector *)(param_2 + 4));
-                        dot2 = FixVecDot(&delta, (FixVector *)(param_2 + 7));
+                        dot1 = FixVecDot(&offset, (FixVector *)(param_2 + 4));
+                        dot2 = FixVecDot(&offset, (FixVector *)(param_2 + 7));
                         if (FIX_ABS(dot1) <= param_2[0] && FIX_ABS(dot2) <= param_2[1]) {
                             FixVecScale(&dir, (FixVector *)pRec, 0x20000);
-                            FIX_NORMALIZE_INTO(dir, dir);
-                            delta.y -= 0x38000;
+                            FixVecScaleRecip(&dir, &dir, FixVecLength(&dir));
+                            dir.y += 0x6666;
+                            FixVecScale(&dir, &dir, 0x60000);
+                            offset.y -= 0x38000;
                             pCar->velocity.y += 0x4000;
-                            FixMatrix_InverseRotateVector(&localDelta, &delta, pCar->pWorld);
-                            FixMatrix_InverseRotateVector(&localDir, &dir, pCar->pWorld);
-                            FixVecCross(&cross, &localDir, &localDelta);
+                            FixMatrix_InverseRotateVector(&localDelta, &offset, pCar->pWorld);
+                            FixMatrix_InverseRotateVector(&localDirection, &dir, pCar->pWorld);
+                            FixVecCross(&cross, &localDirection, &localDelta);
                             pCar->field_0x5c4.x += dir.x;
                             pCar->field_0x5c4.y += dir.y;
                             pCar->field_0x5c4.z += dir.z;

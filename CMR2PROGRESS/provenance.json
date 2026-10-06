@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "4de7ab1dacb7f5040a561e72e129266c18ac2978",
+    "commit": "38219b4c90410cf162e92a198318a6de57382e2d",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -39,7 +39,8 @@
       "TrackCollision.cpp"
     ],
     "zlib_flags": [
-      "/Ob2"
+      "/Ob2",
+      "/TC"
     ],
     "compiler_sha256": "1bf99f206271ecdbd13da2829192ea2c02e2a44c740b8d72935d5d9cb753b156",
     "source_sha256": {
@@ -121,7 +122,7 @@
       "CMR2Decomp/Stage.h": "b88a2c030bd24c19ae7bdf8b42ff62a7f1d772b5ef2c85ca88d504622be84a84",
       "CMR2Decomp/StageBlock.h": "f4891437fb2f09962048a220796091acc5431172a654aada4990f16c19ed270b",
       "CMR2Decomp/StageObjectCount.h": "541514d4da5e984bc83597c9b0839bebc67ac87ef78d2fe76fc2f3841c08010e",
-      "CMR2Decomp/StageObjects.cpp": "01ab7bb9abc6a3abd46934e037270bbf8d1d49c89b38ce008d9b0d1270263df5",
+      "CMR2Decomp/StageObjects.cpp": "ee01bbdfd231de809cdcafaebf235d30f8f08a1f9447890618ea65347320c871",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
       "CMR2Decomp/StageTiming.cpp": "5efefb42f843afd930d45a86118d303a0a599e87e24fe356ede52f0eb1cd082a",
@@ -142,7 +143,7 @@
       "CMR2Decomp/ZlibAdler32.cpp": "4234d939bd3183d75788304e5eaee1adfa51eea158fc9586697e70512748bfb7",
       "CMR2Decomp/ZlibCrc32.cpp": "e02caafa34eb671ecffbfc51816405061448524a3186c786255ed9fa3e8dbd3b",
       "CMR2Decomp/ZlibDeflate.cpp": "56b5619571851bf20ce917db0afcdd9e44a65ac4bec6245d3c7a014bbf89e5e2",
-      "CMR2Decomp/ZlibGzio.cpp": "ae70bfd84360f42b0435831dde6c518689614eaae4ea0ce2fb731eacda7e9351",
+      "CMR2Decomp/ZlibGzio.cpp": "071d668276cd7261bd57b478951a355d0865e0e637fa38249f2e33dfbf2eb706",
       "CMR2Decomp/ZlibInfblock.cpp": "1668a222f7aa920a37573a8b74a56c1fb5a8f28788feb249f908fd850b6d8c23",
       "CMR2Decomp/ZlibInfcodes.cpp": "de491ecd6c31f57ed25c687ca385f4a1fd4e289552765883e925975f1efa399a",
       "CMR2Decomp/ZlibInffast.cpp": "6ec13a6ee45f20c5926c7b192cc32447078ce57eeb6b6d8767659bc2ceb35b87",
@@ -150,7 +151,7 @@
       "CMR2Decomp/ZlibInftrees.cpp": "94c137217aa5c2dab5212d54eb10a6f52334455c993c3e88469955aea001f4e3",
       "CMR2Decomp/ZlibInfutil.cpp": "ec68b0c804b6b2351313254bd547c89c1b8cdb714ab1b274cace6a31017d64ae",
       "CMR2Decomp/ZlibTrees.cpp": "7fd229c333828e149ad2c355f2cc9d06a4946bf1f7864f0e8c0e379d5cea7587",
-      "CMR2Decomp/ZlibZutil.cpp": "0d55474c0fe884fd09aa35bea295fe668fb8f9068594381bd211686583b9458b",
+      "CMR2Decomp/ZlibZutil.cpp": "7f2faff86e1cfbca73fc71b8c80a247641abc51e9d3d502ba4b1d6b75aba4e6d",
       "CMR2Decomp/main.cpp": "bcaa689a79c151b0c6c9e5e062b48b2579662e6a53d664328ed1d9e2280d6e68",
       "CMR2Decomp/main.h": "59939fda95add831e9cb6efda96252de839d53bb259dd4bd59a1c1892c88b60a",
       "CMR2Decomp/temp.h": "a8b4567967c12c06874c2e5b422ee5163d2814b2bab28869cfde9ca7bcb576a5",
@@ -166,16 +167,16 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "1a59be2283d14f8a17b95f304669e7782eb0efa5578731860903375a65000eeb",
-    "pdb_sha256": "b9df11a5a2691678aca7b5d117380aed7b8fe929c87150c831e9bd65a51097ce"
+    "exe_sha256": "b322049f2e62174a0e711846d41ed03180d076f5fce12a2c1250b67a25863d34",
+    "pdb_sha256": "26d459177ba29a055886d01699ab85944f4005b302aa5fd7b93c76b9b695ceb1"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3646,
   "measured_functions": 3367,
   "reccmp_exact": 2681,
   "audited_source_functions": 3363,
-  "relocated_byte_exact": 2840,
-  "nonmatching_source_functions": 523,
+  "relocated_byte_exact": 2842,
+  "nonmatching_source_functions": 521,
   "unresolved_source_functions": [
     "0x496e00",
     "0x5062d0",
@@ -186,5 +187,5 @@
   ],
   "data_variables": 3215,
   "data_issues": 0,
-  "byte_auditor_sha256": "46d46c68f7b868cd41b7214ad158c440431b3d9db68c3ac60e261cb916f56f14"
+  "byte_auditor_sha256": "bfc4fd421a968e75452df809bfd2ab83c0658dac5547fed6efcf519ff5c02183"
 }

@@ -275,7 +275,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x498dd0	CarEffects_Init	CarEffects.cpp	591	0.7889447236180904	0.7869674185463659
 0x42f820	Car_FlagAirborneCorners	Car.cpp	152	0.7894736842105263	0.7894736842105263
 0x4ed100	FrontendMenu_UpdateNetworkSessionDetails	FrontendScreens.cpp	561	0.7904509283819628	0.7905759162303665
-0x47d850	StageObject_TestHeadlightGlowsAgainstCarBox	StageObjects.cpp	1302	0.7910271546635183	0.7917146144994246
 0x4f03f0	FrontendMenu_EnterMultiplayerProfile	FrontendScreens.cpp	386	0.7916666666666666	0.8
 0x505e10	CGameInfo::SelectIdleOptionPreviewEntry	GameInfo.cpp	83	0.7916666666666666	0.75
 0x475a50	StageUI_DrawChampionshipBar	StageUI.cpp	1179	0.792156862745098	0.7894039735099337
@@ -357,7 +356,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47e1e0	StageObject_InterpolateHeadlightGlows	StageObjects.cpp	681	0.857707509881423	0.857707509881423
 0x4b8270	Sector_RebuildStageGrid	Sector.cpp	480	0.8590604026845637	0.8160535117056856
 0x406580	CGameInfo::ApplyStageOptionUnlockFlags	GameInfo.cpp	257	0.8598130841121495	0.8599033816425121
-0x4be160	check_header	ZlibGzio.cpp	958	0.8607198748043818	0.8931750741839762
 0x41db10	Race_UpdateDriverReadyAndRecordState	Race.cpp	1792	0.8608294930875576	0.8215919487648673
 0x4f17d0	FrontendScroller_InitRallyStageSelection	FrontendScreens.cpp	395	0.8615384615384616	0.8571428571428571
 0x402c90	InRaceMenu_RebuildMainPage	GameInfo.cpp	487	0.8626198083067093	0.8450704225352113

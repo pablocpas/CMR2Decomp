@@ -174,6 +174,7 @@ def compile_tu(src, objout):
     if os.environ.get('FASTCMP_TOGGLE_QIFIST'): qifist = not qifist   # flag experiments
     if qifist: fl.append('/QIfist')
     if b.startswith('Zlib'): fl.append('/Ob2')
+    if b.startswith('Zlib') and b != 'ZlibZutil.cpp': fl.append('/TC')   # zlib was built as C (Rich header: C objects)
     fl += os.environ.get('FASTCMP_EXTRA', '').split()
     fl.append('/Zi'); fl.append('/Fd' + W(objout[:-4] + '.pdb'))
     fl.append('/I' + W(REPO + '/CMR2Decomp'))   # temp copies live outside the tree

@@ -114,6 +114,17 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
   (`pUp = &car->right`) taken just before its first use, with the arithmetic
   before it spelled `car->right.x`, matches where the decompiler hoisted it.
 
+## Missing code
+
+A function far from the original with more original instructions than ours
+(`scripts/helper_hints.py`, or comparing instruction counts) may have lost
+statements in decompilation: StageObject_TestHeadlightGlowsAgainstCarBox had
+dropped `dir.y += 0x6666; FixVecScale(&dir, &dir, 0x60000);`. Read the
+original disassembly and restore them; that fixes behaviour as well.
+
+zlib (Zlib*.cpp) is compiled as C (`/TC`, as in the original's Rich header),
+except ZlibZutil.cpp, which needs a C++ static member and uses extern "C".
+
 ## Before committing a batch
 
     python3 scripts/build.py && python3 scripts/measure.py && python3 scripts/prepare_fastcmp.py
