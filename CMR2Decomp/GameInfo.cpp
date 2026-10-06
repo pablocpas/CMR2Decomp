@@ -10259,11 +10259,12 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
                             (BYTE *)&g_unk0x0052737c, 3);
         w = OptionMenu_GetColumnWeight(idx);
         t = OptionMenu_GetRecordGroupWeight(w);
-        base = 0xc + w * 4;
+        base = 0xc;
     } else {
         int idx = OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14];
-        base = 0xad + idx * 4;
+        base = 0xad;
         t = g_unk0x005293c0[idx] * 6000;
+        w = idx;
     }
     sprintf(CFrontend::m_stringDest, g_str0x0051a904, (t / 100) / 60, (t / 100) % 60);
     if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
@@ -10274,7 +10275,7 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
                           (int)g_pGraphics->resY * 0x150 / 0x1e0, &g_unk0x0052737c, 0x12);
     x = (int)g_pGraphics->resX * 0x1c / 0x280;
     for (i = 0; i < 4; i++) {
-        OptionMenu_DrawTransitionTextShortCoords(5, 1, 1, CFrontend::GetTextString(base + i), x,
+        OptionMenu_DrawTransitionTextShortCoords(5, 1, 1, CFrontend::GetTextString(base + w * 4 + i), x,
                      (int)g_pGraphics->resY * (0x19a + i * 0xe) / 0x1e0,
                      g_unk0x00527380, g_unk0x0052738c, 0x11);
     }
