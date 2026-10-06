@@ -11029,8 +11029,7 @@ void FrontendMenu_DrawRallyReport(Menu *pMenu)
     int i;
     int count;
     int w;
-    BYTE v0;
-    BYTE v1;
+    BYTE entry[2];
     unsigned int time;
 
     RallyDataCountryIndex();
@@ -11047,12 +11046,12 @@ void FrontendMenu_DrawRallyReport(Menu *pMenu)
     sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x18b), FrontendRecords_GetEventName(pMenu->cursor));
     Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
-    v0 = FrontendRecords_GetEventEntry(pMenu->cursor)[0];
-    v1 = FrontendRecords_GetEventEntry(pMenu->cursor)[1];
-    if (v1 == 0)
-        sprintf(CFrontend::m_stringDest, g_str0x00524d2c, CFrontend::GetTextString(0x18c), v0);
+    entry[0] = FrontendRecords_GetEventEntry(pMenu->cursor)[0];
+    entry[1] = FrontendRecords_GetEventEntry(pMenu->cursor)[1];
+    if (entry[1] == 0)
+        sprintf(CFrontend::m_stringDest, g_str0x00524d2c, CFrontend::GetTextString(0x18c), entry[0]);
     else
-        sprintf(CFrontend::m_stringDest, g_str0x00524d20, CFrontend::GetTextString(0x18c), v0, v1);
+        sprintf(CFrontend::m_stringDest, g_str0x00524d20, CFrontend::GetTextString(0x18c), entry[0], entry[1]);
     strcat(CFrontend::m_stringDest, g_str0x00524d1c);
     Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
