@@ -4067,9 +4067,8 @@ void Glow_NoOpEntryCallback(BYTE a, BYTE b, int c, int d);
 // Advances one player's "menu" cursor when the device that owns it (arg = the
 // player's input slot) pressed the up/down/left/right buttons: the odd modes
 // scroll the mode list, the even ones step the stage index, and the shared
-// tail replays the two beeper sounds.
-// match 66.87%: implementada; MSVC6 genera la guarda del tamano (`test edi,edi`) una sola vez
-// donde el original la repite, y usa setne en vez de sub/neg/sbb para el `x != 7`.
+// tail replays the two beeper sounds. Both multiplayer branches carry their own
+// copy of the two beeper calls (the original's tail merge keeps the first copy).
 // FUNCTION: CMR2 0x0041d0c0
 void Race_UpdatePlayerSelectionCursor(int param_1)
 {
@@ -4090,11 +4089,11 @@ void Race_UpdatePlayerSelectionCursor(int param_1)
             View_SwitchCamera(1, (View_GetActiveCameraMode(1) == 7 ? 4 : 7), 0xffff, View_GetActiveCameraFlags(1), 0);
             Glow_NoOpEntryCallback(0, 1, 1, 1);
             Glow_NoOpEntryCallback(1, 1, 1, 1);
-            return;
-        }
-        if ((flags & 0x2000) != 0) {
+        } else {
+            if ((flags & 0x2000) == 0)
+                return;
             value = (BYTE)(View_GetActiveCameraFlags(1) + 1);
-            if ((BYTE)Race_GetBaseCarCount() <= value)
+            if (value >= (BYTE)Race_GetBaseCarCount())
                 value = 0;
             View_SetCameraType(1, 0, value, 0);
             Glow_NoOpEntryCallback(0, 1, 1, 1);
@@ -4110,7 +4109,7 @@ void Race_UpdatePlayerSelectionCursor(int param_1)
                 i++;
             } while (i < (int)((BYTE)Race_GetBaseCarCount()));
         }
-        View_SwitchCamera((BYTE)param_1, (-(View_GetActiveCameraMode((BYTE)param_1) != 7) & 3) + 4, 0xffff,
+        View_SwitchCamera((BYTE)param_1, (View_GetActiveCameraMode((BYTE)param_1) == 7 ? 4 : 7), 0xffff,
                      View_GetActiveCameraFlags((BYTE)param_1), 0);
         return;
     }
@@ -4118,8 +4117,8 @@ void Race_UpdatePlayerSelectionCursor(int param_1)
         value = (BYTE)(View_GetActiveCameraFlags(0) + 1);
         if (value >= (BYTE)Race_GetBaseCarCount())
             value = 0;
-        i = 0;
         View_SetCameraType(0, 0, value, 0);
+        i = 0;
         if ((BYTE)Race_GetBaseCarCount() > 0) {
             do {
                 Glow_NoOpEntryCallback((BYTE)i, 0, 1, 1);
