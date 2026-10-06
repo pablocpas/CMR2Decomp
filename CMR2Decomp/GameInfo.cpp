@@ -11176,21 +11176,19 @@ void OptionMenu_ApplyHighlightedValue(Menu *pMenu, MenuItem *pItem)
 void OptionMenu_ConfirmOrRevertHighlightedValue(Menu *pMenu, MenuItem *pItem)
 {
     int index;
-    int value;
 
     index = Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2);
-    value = OptionMenu_GetColumnWeight(((Menu *)OptionMenu_GetControlSetupMenu())->items[index].max);
-    if (OptionMenu_GetSlotSelector(CGameInfo::GetActiveOptionSlot()) - OptionMenu_GetRecordGroupWeight(value) < 0) {
-        if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), value) == 0) {
-            if (OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), value, 0) > 0) {
+    if (OptionMenu_GetSlotSelector(CGameInfo::GetActiveOptionSlot()) - OptionMenu_GetRecordGroupWeight(OptionMenu_GetColumnWeight(((Menu *)OptionMenu_GetControlSetupMenu())->items[index].max)) < 0) {
+        if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(((Menu *)OptionMenu_GetControlSetupMenu())->items[index].max)) == 0) {
+            if ((int)OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(((Menu *)OptionMenu_GetControlSetupMenu())->items[index].max), 0) > 0) {
                 CGameInfo::StartOptionMenuTimeout();
                 return;
             }
             return;
         }
     }
-    if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), value) == 0)
-        OptionMenu_RevertRallyRecordGroup(CGameInfo::GetActiveOptionSlot(), value);
+    if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(((Menu *)OptionMenu_GetControlSetupMenu())->items[index].max)) == 0)
+        OptionMenu_RevertRallyRecordGroup(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(((Menu *)OptionMenu_GetControlSetupMenu())->items[index].max));
     Menu_SetNextAction((int)pMenu->pParent);
 }
 

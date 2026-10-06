@@ -214,8 +214,8 @@ void FrontendDraw_HelpText(char *text, int reset)
                     g_helpPulseUp0x00524b8c = 1;
                 }
             }
-            g_helpColour0x00524b88[1] = g_colourText0x0052496c[1] + g_helpPulse0x00818270;
             g_helpColour0x00524b88[0] = g_colourText0x0052496c[0] + g_helpPulse0x00818270;
+            g_helpColour0x00524b88[1] = g_colourText0x0052496c[1] + g_helpPulse0x00818270;
             g_helpColour0x00524b88[3] = g_colourText0x0052496c[3];
             g_helpColour0x00524b88[2] = g_colourText0x0052496c[2] + g_helpPulse0x00818270;
         } else {
