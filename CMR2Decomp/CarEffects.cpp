@@ -755,7 +755,7 @@ BYTE g_sprayLife;
 // FUNCTION: CMR2 0x0049af20
 int WheelSpray_Init(int spread, int range)
 {
-    FixVector v;
+    int result;
     int i;
     int *p;
 
@@ -763,17 +763,17 @@ int WheelSpray_Init(int spread, int range)
     g_sprayStep = FixDiv(FixMul(0x40000, spread), g_sprayRange);
     g_sprayHalf = FixMul(g_sprayStep, 0x8000);
     g_sprayThird = FixMul(g_sprayStep, 0x5553);
-    v.x = g_sprayThird;
-    v.y = g_sprayStep;
-    v.z = g_sprayStep;
-    g_sprayRecip = FixDiv(0x10000, FixVecLength(&v));
+    g_sprayRecip = FixDiv(0x10000, FixSqrt(FixMul(g_sprayStep, g_sprayStep) +
+                                            FixMul(g_sprayStep, g_sprayStep) +
+                                            FixMul(g_sprayThird, g_sprayThird)));
+    result = FixDiv(FixMul(0x80000, spread), FixMul(g_sprayRange, g_sprayRange));
     g_sprayLife = (BYTE)(FixDiv(range, 0xc0000) >> 16);
     p = (int *)g_sprayCountdown;
     for (i = 8; i != 0; i--)
         *p++ = 0;
     g_sprayEffect = -1;
     g_spraySurface = -1;
-    return FixDiv(FixMul(spread, 0x80000), FixMul(g_sprayRange, g_sprayRange));
+    return result;
 }
 
 // Spray effect thrown on a surface in the current country (-1 for none).
