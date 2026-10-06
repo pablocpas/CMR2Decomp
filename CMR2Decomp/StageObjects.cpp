@@ -4609,7 +4609,7 @@ int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB)
 
     if ((delta.x < 0 ? -delta.x : delta.x) <= r && (delta.y < 0 ? -delta.y : delta.y) <= r &&
         (delta.z < 0 ? -delta.z : delta.z) <= r)
-        return FixVecDot(&delta, &delta) < FixMul(r, r);
+        return FixVecDot(&delta, &delta) < FixMul(r1 + r2, r1 + r2);
     return 0;
 }
 
