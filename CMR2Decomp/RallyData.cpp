@@ -658,23 +658,24 @@ int g_unk0x00536ff0[24];
 // Builds the distance column of the stage classification table: walks the route
 // nodes accumulating the length between consecutive nodes, and for every entry
 // stores the node it reaches and the distance to it.
-// match 78%: same logic and calls; the original reuses EDI/ESI for the totals
-// where we use separate slots, so the loop bodies differ in registers.
+// The three vectors live in one aggregate: the original keeps a, b and diff in
+// consecutive slots (-0x30, -0x24, -0x18), which MSVC6 only does for an aggregate.
 // FUNCTION: CMR2 0x00411550
 int RallyData_BuildStageRouteDistanceColumn(void)
 {
-    FixVector a;
-    FixVector diff;
-    FixVector b;
-    int *p;
+    struct {
+        FixVector a;
+        FixVector b;
+        FixVector diff;
+    } v;
     int totalA;
     int totalB;
     int start;
     int i;
     int j;
 
-    totalB = 0;
     g_unk0x00536c90 = 0;
+    totalB = 0;
     totalA = 0;
     if ((char)RallyData_GetSelectionBits16To19() != 1) {
         g_unk0x00536c90 = Stage_GetSplitPositionCount();
@@ -688,22 +689,22 @@ int RallyData_BuildStageRouteDistanceColumn(void)
     }
     for (i = 0; i < RallyData_GetRouteAvailabilityState(); i++) {
         if (i > 0) {
-            RallyData_GetRouteNodeGroundPosition(i - 1, (int *)&a);
-            RallyData_GetRouteNodeGroundPosition(i, (int *)&b);
-            diff.x = b.x - a.x;
-            diff.y = b.y - a.y;
-            diff.z = b.z - a.z;
-            totalA += FixVecLength(&diff) / 100;
+            RallyData_GetRouteNodeGroundPosition(i - 1, (int *)&v.a);
+            RallyData_GetRouteNodeGroundPosition(i, (int *)&v.b);
+            v.diff.x = v.b.x - v.a.x;
+            v.diff.y = v.b.y - v.a.y;
+            v.diff.z = v.b.z - v.a.z;
+            totalA += FixVecLength(&v.diff) / 100;
         }
     }
     for (i = 0; i < RallyData_GetRouteAvailabilityState(); i++) {
         if (i > 0) {
-            RallyData_GetRouteNodeGroundPosition(i - 1, (int *)&a);
-            RallyData_GetRouteNodeGroundPosition(i, (int *)&b);
-            diff.x = b.x - a.x;
-            diff.y = b.y - a.y;
-            diff.z = b.z - a.z;
-            totalB += FixVecLength(&diff) / 100;
+            RallyData_GetRouteNodeGroundPosition(i - 1, (int *)&v.a);
+            RallyData_GetRouteNodeGroundPosition(i, (int *)&v.b);
+            v.diff.x = v.b.x - v.a.x;
+            v.diff.y = v.b.y - v.a.y;
+            v.diff.z = v.b.z - v.a.z;
+            totalB += FixVecLength(&v.diff) / 100;
         }
         for (j = 0; j < g_unk0x00536c90; j++) {
             if ((Stage_GetSplitPositionFixed(j) >> 0x10) == i) {
@@ -715,20 +716,16 @@ int RallyData_BuildStageRouteDistanceColumn(void)
     if ((BYTE)RallyData_GetFlag25() != 0) {
         start = g_unk0x00536c90 - 1;
         if (start < 0xc) {
-            p = &g_unk0x00536ff0[start * 2];
-            do {
-                p[1] = totalB;
-                p[0] = RallyData_GetRouteAvailabilityState() - 1;
-                p += 2;
-            } while ((int)p < (int)(g_unk0x00536ff0 + 24));
+            for (; start < 0xc; start++) {
+                g_unk0x00536ff0[start * 2 + 1] = totalB;
+                g_unk0x00536ff0[start * 2] = RallyData_GetRouteAvailabilityState() - 1;
+            }
         }
     } else if (g_unk0x00536c90 < 0xc) {
-        p = &g_unk0x00536ff0[g_unk0x00536c90 * 2];
-        do {
-            p[1] = totalB;
-            p[0] = RallyData_GetRouteAvailabilityState() - 1;
-            p += 2;
-        } while ((int)p < (int)(g_unk0x00536ff0 + 24));
+        for (start = g_unk0x00536c90; start < 0xc; start++) {
+            g_unk0x00536ff0[start * 2 + 1] = totalB;
+            g_unk0x00536ff0[start * 2] = RallyData_GetRouteAvailabilityState() - 1;
+        }
     }
     return totalB;
 }
