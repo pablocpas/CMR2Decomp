@@ -305,7 +305,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b9f20	FixMatrix_Multiply	FixedPoint.cpp	205	0.8333333333333334	0.8421052631578947
 0x505b40	OptionMenu_AnimateSelectedPanel	GameInfo.cpp	713	0.8340425531914893	0.7295597484276729
 0x401b60	InRaceMenu_DrawHeaderBar	GameInfo.cpp	436	0.8356164383561644	0.8413793103448276
-0x466ef0	CarDamage_ApplyCollisionDeformImpulse	StageTiming.cpp	1743	0.8361581920903954	0.7840593141797961
 0x413330	RallyData_RecordPassedSplit	RallyData.cpp	490	0.837037037037037	0.7867647058823529
 0x472cb0	Knockout_ApplyCarGroundMaterials	StageObjects.cpp	317	0.8376068376068376	0.8017241379310345
 0x4bdd30	CGraphics::ProbeDisplayDriverCapabilities	Graphics.cpp	239	0.8378378378378378	0.8378378378378378

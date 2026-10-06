@@ -7142,14 +7142,12 @@ int g_unk0x0051bfa0[3] = { 0x10000, 0x10000, 0x10000 };
 // impact strength from the body displacement, resolves the impact point and
 // normal into the car's deformation frame (mode 0/1/2 choose the projection)
 // and refreshes the deformation radius, falloff and scale.
-// match 74.95% (auditado W165): logica y constantes identicas; el unico diff de forma era el clamp
-// del modo 2 (se compara contra g_stageDeformSpeed, no contra el literal); el resto es reparto de
-// registros y de slots de pila (param_6 se recarga en eax en vez de vivir en esi)
+// The strength compared against the per-mode threshold is the raw length; only
+// the scaled value is clamped to 1.0.
 // FUNCTION: CMR2 0x00466ef0
 void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *param_3, int param_4,
                   unsigned char param_5, int param_6)
 {
-    BYTE *pc = (BYTE *)pCar;
     int vecA[3];
     int V[3];
     int len;
@@ -7159,42 +7157,39 @@ void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *p
     int i;
 
     if (param_6 == 0) {
-        len = FixVecLength((FixVector *)(pc + 0x5c4));
+        len = FixVecLength(&pCar->field_0x5c4);
         if (len > 0x10000)
             len = 0x10000;
         else if (len < 0)
             len = 0;
-        carIdx = *(char *)(pc + 0xb1a);
+        carIdx = pCar->index;
         if (carIdx < (int)(RallyDataState() & 0xff)) {
-            if (*(int *)(pc + 0xb74) == 0) {
+            if (pCar->field_0xb74 != 0) {
+                if ((unsigned int)(CMain::GetFrameDelta() -
+                                   (unsigned int)g_deformPulseTicks[pCar->index]) > 10) {
+                    Race_PlayScrapeAndShakeCar(pCar->index, len, pCar->index);
+                    g_deformPulseTicks[pCar->index] = (int)CMain::GetFrameDelta();
+                }
+            } else {
                 Race_PlayImpactAndShakeCar(carIdx, len, 0, carIdx);
-            } else if ((unsigned int)(CMain::GetFrameDelta() -
-                                      (unsigned int)g_deformPulseTicks[carIdx]) > 10) {
-                Race_PlayScrapeAndShakeCar(carIdx, len, carIdx);
-                g_deformPulseTicks[carIdx] = (int)CMain::GetFrameDelta();
             }
         }
-        ForceFeedback_UpdateSlot(pc, (FixVector *)(pc + 0x5c4), 1);
+        ForceFeedback_UpdateSlot((BYTE *)pCar, &pCar->field_0x5c4, 1);
     }
-    carIdx = *(char *)(pc + 0xb1a);
-    if (*(int *)(g_unk0x00588b94 + carIdx * 0x4d0 + 0x45c) != 0 &&
+    carIdx = pCar->index;
+    if (((CarPartSet *)(g_unk0x00588b94 + carIdx * 0x4d0))->count != 0 &&
         g_unk0x00588970[carIdx] != 0) {
         if (param_6 == 0) {
-            len = FixVecLength((FixVector *)(pc + 0x5c4));
-            if (len > 0x10000)
-                len = 0x10000;
-            else if (len < 0)
-                len = 0;
-            g_stageDeformStrength = len;
+            g_stageDeformStrength = FixVecLength(&pCar->field_0x5c4);
             if (g_stageDeformStrength <= g_unk0x0051bf94[param_5 & 0xff])
                 return;
             g_stageDeformStrength = FixMul(g_stageDeformStrength, g_unk0x0051bfa0[param_5 & 0xff]);
             if (g_stageDeformStrength > 0x10000)
                 g_stageDeformStrength = 0x10000;
             *(BYTE *)&g_stageDeformMode = param_5;
-            g_stageDeformImpact.x = *(int *)(*(int *)(pc + 0x750) + 4);
-            g_stageDeformImpact.y = *(int *)(*(int *)(pc + 0x750) + 0x14);
-            g_stageDeformImpact.z = *(int *)(*(int *)(pc + 0x750) + 0x24);
+            g_stageDeformImpact.x = pCar->pWorld->right.y;
+            g_stageDeformImpact.y = pCar->pWorld->up.y;
+            g_stageDeformImpact.z = pCar->pWorld->forward.y;
             saved = g_stageDeformStrength;
         }
         g_stageDeformCar = pCar;
@@ -7202,20 +7197,20 @@ void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *p
         case 0:
             if (param_6 == 0) {
                 FixMatrix_InverseRotateVector(&g_stageDeformNormal, param_3,
-                                              *(FixMatrix **)(pc + 0x750));
-                V[0] = param_2[0] - *(int *)(pc + 0x2d0);
-                V[1] = param_2[1] - *(int *)(pc + 0x2d4);
-                V[2] = param_2[2] - *(int *)(pc + 0x2d8);
+                                              pCar->pWorld);
+                V[0] = param_2[0] - pCar->position.x;
+                V[1] = param_2[1] - pCar->position.y;
+                V[2] = param_2[2] - pCar->position.z;
                 dot = FixVecDot((FixVector *)V, param_3);
                 FixVecScale((FixVector *)V, param_3, dot);
                 FixMatrix_InverseRotateVector(&g_stageDeformOffset, (FixVector *)V,
-                                              *(FixMatrix **)(pc + 0x750));
+                                              pCar->pWorld);
                 CarDamage_AllocateImpactDeformRecord();
             }
             g_stageDeformRadius = FixMul(g_stageDeformStrength, 0x5999);
             g_stageDeformFalloff = FixMul(g_stageDeformStrength, 0x9999);
             g_stageDeformScale = FixMul(g_stageDeformStrength, 0xb333);
-            CarDamage_BuildRelativeVelocityHull(pCar, (Car *)(g_unk0x00588b94 + carIdx * 0x4d0));
+            CarDamage_BuildRelativeVelocityHull(pCar, (Car *)(g_unk0x00588b94 + pCar->index * 0x4d0));
             StageDeform_ApplyRadialDent();
             break;
         case 1:
@@ -7223,13 +7218,13 @@ void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *p
                 param_4 = 0x4000;
             if (param_6 == 0) {
                 g_stageDeformSpeed = param_4;
-                V[0] = param_2[0] - *(int *)(pc + 0x2d0);
-                V[1] = param_2[1] - *(int *)(pc + 0x2d4);
-                V[2] = param_2[2] - *(int *)(pc + 0x2d8);
+                V[0] = param_2[0] - pCar->position.x;
+                V[1] = param_2[1] - pCar->position.y;
+                V[2] = param_2[2] - pCar->position.z;
                 FixMatrix_InverseRotateVector(&g_stageDeformOffset, (FixVector *)V,
-                                              *(FixMatrix **)(pc + 0x750));
+                                              pCar->pWorld);
                 FixMatrix_InverseRotateVector(&g_stageDeformNormal, param_3,
-                                              *(FixMatrix **)(pc + 0x750));
+                                              pCar->pWorld);
                 CarDamage_AllocateImpactDeformRecord();
             }
             dot = FixMul(g_stageDeformStrength, 0x8000);
@@ -7238,14 +7233,14 @@ void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *p
             g_stageDeformRadius = dot;
             g_stageDeformFalloff = dot;
             g_stageDeformScale = dot;
-            CarDamage_BuildRelativeVelocityHull(pCar, (Car *)(g_unk0x00588b94 + carIdx * 0x4d0));
+            CarDamage_BuildRelativeVelocityHull(pCar, (Car *)(g_unk0x00588b94 + pCar->index * 0x4d0));
             StageDeform_ApplyPlanarDent();
             break;
         default:
             if (param_6 == 0) {
-                vecA[0] = *(int *)(pc + 0x2d0) - param_2[0];
+                vecA[0] = pCar->position.x - param_2[0];
                 vecA[1] = 0;
-                vecA[2] = *(int *)(pc + 0x2d8) - param_2[2];
+                vecA[2] = pCar->position.z - param_2[2];
                 len = FixVecLength((FixVector *)vecA);
                 if (len == 0) {
                     vecA[0] = 0;
@@ -7254,13 +7249,13 @@ void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *p
                 } else {
                     FixVecScaleRecip((FixVector *)vecA, (FixVector *)vecA, len);
                 }
-                V[0] = param_2[0] - *(int *)(pc + 0x2d0);
-                V[1] = param_2[1] - *(int *)(pc + 0x2d4);
-                V[2] = param_2[2] - *(int *)(pc + 0x2d8);
+                V[0] = param_2[0] - pCar->position.x;
+                V[1] = param_2[1] - pCar->position.y;
+                V[2] = param_2[2] - pCar->position.z;
                 FixMatrix_InverseRotateVector(&g_stageDeformOffset, (FixVector *)V,
-                                              *(FixMatrix **)(pc + 0x750));
+                                              pCar->pWorld);
                 FixMatrix_InverseRotateVector(&g_stageDeformNormal, (FixVector *)vecA,
-                                              *(FixMatrix **)(pc + 0x750));
+                                              pCar->pWorld);
                 CarDamage_AllocateImpactDeformRecord();
             }
             g_stageDeformSpeed = 0x4000;
@@ -7270,7 +7265,7 @@ void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *p
             g_stageDeformRadius = dot;
             g_stageDeformFalloff = dot;
             g_stageDeformScale = dot;
-            CarDamage_BuildRelativeVelocityHull(pCar, (Car *)(g_unk0x00588b94 + carIdx * 0x4d0));
+            CarDamage_BuildRelativeVelocityHull(pCar, (Car *)(g_unk0x00588b94 + pCar->index * 0x4d0));
             StageDeform_ApplyPlanarDent();
             break;
         }

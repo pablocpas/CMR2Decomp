@@ -25481,8 +25481,8 @@
   },
   "0x466ef0": {
     "n": "CarDamage_ApplyCollisionDeformImpulse",
-    "s": 0.7840593141797961,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "CarDamage_ApplyCollisionDeformImpulse"
