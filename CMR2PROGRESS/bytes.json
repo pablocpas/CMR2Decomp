@@ -1081,7 +1081,7 @@
   },
   "0x423460": {
     "n": "Camera_Update",
-    "s": 0.6834170854271356,
+    "s": 0.700507614213198,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -2619,7 +2619,7 @@
   },
   "0x4cfb30": {
     "n": "FrontendRecords_InsertStageDeviceRecord",
-    "s": 0.6984126984126984,
+    "s": 0.792,
     "x": false,
     "unknown": [],
     "f": "Frontend.cpp",
@@ -2819,7 +2819,7 @@
   },
   "0x4d4460": {
     "n": "FrontendDraw_HelpText",
-    "s": 0.8461538461538461,
+    "s": 0.8720379146919431,
     "x": false,
     "unknown": [],
     "f": "FrontendDraw.cpp",
@@ -5275,7 +5275,7 @@
   },
   "0x4f13c0": {
     "n": "FrontendProfile_PickRenameCharacterOrCheat",
-    "s": 0.7613293051359517,
+    "s": 0.7734138972809668,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6099,8 +6099,8 @@
   },
   "0x4ded80": {
     "n": "FrontendMenu_DrawCheats",
-    "s": 0.6411582213029989,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawCheats"
@@ -6139,7 +6139,7 @@
   },
   "0x4e5630": {
     "n": "FrontendMenu_DrawProfileBestStageTimes",
-    "s": 0.6790697674418604,
+    "s": 0.6967741935483871,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6371,7 +6371,7 @@
   },
   "0x4e1230": {
     "n": "FrontendMenu_DrawMultiplayerRaceSettings",
-    "s": 0.8780487804878049,
+    "s": 0.9637826961770624,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6411,16 +6411,16 @@
   },
   "0x4da710": {
     "n": "FrontendMenu_DrawQuickRaceSettings",
-    "s": 0.7418856259659969,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawQuickRaceSettings"
   },
   "0x4daf90": {
     "n": "FrontendMenu_DrawQuickRaceAdvancedSettings",
-    "s": 0.5701149425287356,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawQuickRaceAdvancedSettings"
@@ -6659,7 +6659,7 @@
   },
   "0x4e1d70": {
     "n": "FrontendMenu_DrawDisplayMode",
-    "s": 0.46537396121883656,
+    "s": 0.4808743169398907,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6691,7 +6691,7 @@
   },
   "0x4db850": {
     "n": "FrontendMenu_DrawArcadeChampionshipTransmission",
-    "s": 0.6871165644171779,
+    "s": 0.8894230769230769,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6699,8 +6699,8 @@
   },
   "0x4e2610": {
     "n": "FrontendMenu_DrawSoundOptions",
-    "s": 0.6893617021276596,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawSoundOptions"
@@ -6755,8 +6755,8 @@
   },
   "0x4e7ed0": {
     "n": "FrontendMenu_DrawNetworkCarSetup",
-    "s": 0.6666666666666666,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawNetworkCarSetup"
@@ -6811,8 +6811,8 @@
   },
   "0x4d6f10": {
     "n": "FrontendMenu_DrawProfileNameEntry",
-    "s": 0.8100929614873837,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawProfileNameEntry"
@@ -6941,8 +6941,8 @@
   },
   "0x4e8500": {
     "n": "FrontendMenu_DrawNetworkRallySetup",
-    "s": 0.665943600867679,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawNetworkRallySetup"
@@ -6965,7 +6965,7 @@
   },
   "0x4dd4b0": {
     "n": "FrontendMenu_DrawNetworkSessionSetup",
-    "s": 0.674724119810825,
+    "s": 0.6855643044619423,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -10437,7 +10437,7 @@
   },
   "0x402460": {
     "n": "InRaceMenu_DrawNetworkPlayerList",
-    "s": 0.707774798927614,
+    "s": 0.8817204301075269,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11309,7 +11309,7 @@
   },
   "0x4041e0": {
     "n": "InRaceMenu_DrawCarSetupChoices",
-    "s": 0.7521058965102286,
+    "s": 0.7548076923076923,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11517,7 +11517,7 @@
   },
   "0x500270": {
     "n": "OptionMenu_ConfirmOrRevertHighlightedValue",
-    "s": 0.44036697247706424,
+    "s": 0.8859060402684564,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -13870,7 +13870,7 @@
   },
   "0x446270": {
     "n": "Dash_DrawBar",
-    "s": 0.7659016393442623,
+    "s": 0.7905759162303665,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -13894,7 +13894,7 @@
   },
   "0x446bf0": {
     "n": "Dash_DrawDial",
-    "s": 0.6788321167883211,
+    "s": 0.7,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -16864,7 +16864,7 @@
   },
   "0x41db10": {
     "n": "Race_UpdateDriverReadyAndRecordState",
-    "s": 0.8190127970749543,
+    "s": 0.8215919487648673,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -16904,7 +16904,7 @@
   },
   "0x41e8d0": {
     "n": "Race_HandleStageReplayViewTransitions",
-    "s": 0.6118251928020566,
+    "s": 0.6140012845215157,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -23539,7 +23539,7 @@
   },
   "0x4878a0": {
     "n": "Collision_TestCarAgainstSectorObjects",
-    "s": 0.7662337662337663,
+    "s": 0.7850877192982456,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -25533,7 +25533,7 @@
   },
   "0x457000": {
     "n": "StageTiming_LoadSelectedCarModel",
-    "s": 0.6829787234042554,
+    "s": 0.6996317727511836,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
