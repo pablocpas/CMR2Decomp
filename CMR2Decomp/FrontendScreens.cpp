@@ -5950,10 +5950,11 @@ void FrontendMenu_DrawDifficulty(Menu *pMenu)
     FrontendDraw_ScrollerRow(FrontendScroller_GetDifficultyScroller(), 1);
     y = ((int)(g_pGraphics->resY * 8) / 480 - (int)(g_pGraphics->resY * 6) / 480) / 2
         - (int)(g_pGraphics->resY * 8) / 480 * 15 / 2 + (int)g_pGraphics->resY / 2;
+    i = 0;
     x = (int)g_pGraphics->resX / 2
         - (((int)(g_pGraphics->resX * 6) / 640 + (int)(g_pGraphics->resX * 8) / 640 * 6) * (pMenu->cursor + 1)
            + (int)(g_pGraphics->resX * 10) / 640 * pMenu->cursor) / 2;
-    for (i = 0; i < pMenu->cursor + 1; i++) {
+    for (; i < pMenu->cursor + 1; i++) {
         FrontendDraw_RipplingDotIcon(x, y, g_dotIconPhase);
         x += (int)(g_pGraphics->resX * 10) / 640 + (int)(g_pGraphics->resX * 6) / 640 + (int)(g_pGraphics->resX * 8) / 640 * 6;
     }
@@ -8571,7 +8572,7 @@ void FrontendMenu_DrawDisplayMode(Menu *pMenu)
 void FrontendMenu_UpdateNetworkSessionSetup(Menu *pMenu)
 {
     int key;
-    BYTE b;
+    int b;
     char c;
     int i;
     unsigned int len;
@@ -8589,7 +8590,7 @@ void FrontendMenu_UpdateNetworkSessionSetup(Menu *pMenu)
         }
     }
     if (g_unk0x00818ce8 != Menu_GetItem(pMenu, 1)->max) {
-        RallyData_SetDriverCategoryOption(0, ((BYTE *)g_unk0x00818d18)[Menu_GetItem(pMenu, 1)->max]);
+        RallyData_SetDriverCategoryOption(0, (BYTE)g_unk0x00818d18[Menu_GetItem(pMenu, 1)->max]);
         FrontendNetwork_SendPlayerDescription();
         g_unk0x00818ce8 = Menu_GetItem(pMenu, 1)->max;
     }
@@ -8617,34 +8618,39 @@ void FrontendMenu_UpdateNetworkSessionSetup(Menu *pMenu)
     }
     Network_RebuildSessionPlayerList();
     if (g_unk0x00818ed0 != 0 && Input_PopQueuedCharacter(&key)) {
-        if (key == 8) {
-            len = strlen((char *)g_unk0x00818f14);
-            if (0 < (int)len) {
-                g_unk0x00818f14[len - 1] = 0;
-                g_unk0x00819028--;
-            }
-        } else if (key == 0xd) {
-            if (g_unk0x00818f14[0] != 0) {
-                NetworkChat_SendLine((char *)g_unk0x00818f14);
-                g_unk0x00819028 = 0;
-                g_unk0x00818f14[0] = 0;
-            }
-        } else if (key == 0x1b) {
-            g_unk0x00818ed0 = 0;
-            FrontendMenu_SetInputState(0);
-            Menu_SetFlags(pMenu, 1, 1, 1, 1);
-            pMenu->cursor = 1;
-        } else {
-            pc = strchr(g_strValidChars, key);
+        switch (key) {
+        default:
+            pc = strchr(g_strValidChars, (char)key);
             if (pc != NULL) {
                 i = Font_GetTextWidth(1, g_unk0x00818f14);
-                if (g_unk0x00819028 < 0xff &&
-                    i < (int)(((g_pGraphics->resX < 0x400) - 1 & 0xc6) + 0x14a)) {
+                int maxWidth = (int)(((g_pGraphics->resX < 0x400) - 1 & 0xc6) + 0x14a);
+                if (g_unk0x00819028 < 0xff && i < maxWidth) {
                     g_unk0x00818f14[g_unk0x00819028] = key;
                     g_unk0x00818f14[g_unk0x00819028 + 1] = 0;
                     g_unk0x00819028++;
                 }
             }
+            break;
+        case 0x1b:
+            g_unk0x00818ed0 = 0;
+            FrontendMenu_SetInputState(0);
+            Menu_SetFlags(pMenu, 1, 1, 1, 1);
+            pMenu->cursor = 1;
+            break;
+        case 0xd:
+            if (g_unk0x00818f14[0] != 0) {
+                NetworkChat_SendLine((char *)g_unk0x00818f14);
+                g_unk0x00819028 = 0;
+                g_unk0x00818f14[0] = 0;
+            }
+            break;
+        case 8:
+            len = strlen((char *)g_unk0x00818f14);
+            if (0 < (int)len) {
+                g_unk0x00818f14[len - 1] = 0;
+                g_unk0x00819028--;
+            }
+            break;
         }
     }
     if (Network_GetSessionStateFlag() != 0) {

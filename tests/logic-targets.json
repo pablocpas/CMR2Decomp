@@ -272,6 +272,12 @@
       "0x40a490"
     ]
   },
+  "differential_network_session_setup.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4ed840"
+    ]
+  },
   "differential_network_tables.py": {
     "arguments": "both",
     "targets": [
