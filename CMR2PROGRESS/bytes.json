@@ -1939,8 +1939,8 @@
   },
   "0x441430": {
     "n": "FixBasis_Integrate",
-    "s": 0.75,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FixedPoint.cpp",
     "symbol_name": "FixBasis_Integrate"
@@ -22665,7 +22665,7 @@
   },
   "0x46ec40": {
     "n": "StageObject_QueueTimedEventDraw",
-    "s": 0.5333333333333333,
+    "s": 0.8,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -25187,8 +25187,8 @@
   },
   "0x45ea70": {
     "n": "StageWeather_SetupSettingTransition",
-    "s": 0.6861313868613139,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageWeather_SetupSettingTransition"

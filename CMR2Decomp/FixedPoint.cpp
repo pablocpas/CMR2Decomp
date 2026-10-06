@@ -703,17 +703,14 @@ void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tR
 void FixBasis_Integrate(FixVector *pRows, FixVector *pW)
 {
     FixVector delta;
-    int i = 3;
+    int i;
 
-    do {
-        FixVector *pRow = pRows;
-        FixVecCross(&delta, pW, pRow);
-        pRow->x = pRow->x + delta.x;
-        pRow->y = pRow->y + delta.y;
-        pRow->z = pRow->z + delta.z;
-        pRows++;
-        i--;
-    } while (i != 0);
+    for (i = 0; i < 3; i++) {
+        FixVecCross(&delta, pW, &pRows[i]);
+        pRows[i].x += delta.x;
+        pRows[i].y += delta.y;
+        pRows[i].z += delta.z;
+    }
 }
 
 extern BYTE g_unk0x00538d2c[0xcc];

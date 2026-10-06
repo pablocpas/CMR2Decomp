@@ -128,6 +128,25 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
   inline-asm homes then land in that variable's slot. A pointer to a member
   (`pUp = &car->right`) taken just before its first use, with the arithmetic
   before it spelled `car->right.x`, matches where the decompiler hoisted it.
+- A decompiled `do { p = pRows; ...; pRows++; } while (--i);` whose
+  original keeps the pointer biased (`[ebp+8]` = row + 8, fields at `-4`,
+  `-8`) is an indexed loop: `for (i = 0; i < 3; i++) f(&pRows[i]);
+  pRows[i].x += ...` (FixBasis_Integrate). Likewise `rec[player * 5 + i]`
+  rather than a pointer walk when the induction pointer is at a field.
+- A value the original keeps in a register across stores to globals (and
+  writes to its global only after the branches) is a local:
+  `type = g_a[i]; ... if (type == 0) type = other; g_type = type;`. A load
+  reused after stores (`movsx edi, [esi+6]` then `sub eax, edi`) means the
+  expression using it came before those stores in the source.
+- Calls with constant arguments pushed per branch (`push 4; push edi; jmp
+  call` / `push 3; ...`) are separate calls in an if/else; a ternary argument
+  becomes `setcc` arithmetic instead. A condition the original tests twice
+  (`cmp eax, 1` again after a branch on it) is written twice in the source,
+  on a value the compiler cannot prove (`flags[i] == 1 && ...` then
+  `else if (flags[i] == 1 && ...)`).
+- A tail jump past alignment padding (`jmp X` then `nop`s, X a 16-aligned
+  address inside the inventory size) means the original has two functions;
+  split it and fix `scripts/functions.tsv` (CGame::UpdateFrontendCallbackMachine).
 
 ## Missing code
 

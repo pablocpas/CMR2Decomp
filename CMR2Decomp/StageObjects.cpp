@@ -8275,9 +8275,9 @@ void StageObject_QueueTimedEventDraw(int index, int x, int y)
 
     if (index < g_eventCount && g_eventRecords[index].active != 0 && Events_Tick(index) && x >= 0 &&
         y >= 0 && x < p->a * 4 - 4 && y < p->b && g_unk0x00589318 < 0x40 && p != NULL) {
+        over = y - p->b + 4;
         g_eventDraws[g_unk0x00589318].pEvent = p;
         g_eventDraws[g_unk0x00589318].x = (char)x;
-        over = y - p->b + 4;
         g_eventDraws[g_unk0x00589318].y = (char)y;
         if (over > 0)
             g_eventDraws[g_unk0x00589318].rows = 4 - (char)over;

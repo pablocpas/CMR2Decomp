@@ -4619,21 +4619,22 @@ int g_unk0x00543fa8;
 void StageWeather_SetupSettingTransition(void)
 {
     int *pPair = RallyData_GetDriverSettingPair(RallyDataStageIndex());
+    int type = g_weatherType[pPair[0]];
     int other = g_weatherType[pPair[1]];
 
-    g_unk0x00543d54 = g_weatherType[pPair[0]];
     g_unk0x00543e9c = g_weatherBlendA[pPair[0]];
     g_unk0x00543fa8 = g_weatherBlendA[pPair[1]];
     g_unk0x00543e88 = g_weatherBlendB[pPair[0]];
     g_unk0x00543d9c = g_weatherBlendB[pPair[1]];
-    if (g_unk0x00543d54 == 0) {
+    if (type == 0) {
         if (other != 0) {
             g_unk0x00543e9c = 0;
-            g_unk0x00543d54 = other;
+            type = other;
         }
     } else if (other == 0) {
         g_unk0x00543fa8 = 0;
     }
+    g_unk0x00543d54 = type;
     if (g_unk0x00543e9c != g_unk0x00543fa8) {
         g_unk0x00543e8c = (unsigned int)RallyData_GetRouteAvailabilityState() / 5;
         g_unk0x00543e94 = RallyData_GetRouteAvailabilityState() - g_unk0x00543e8c / 5;
