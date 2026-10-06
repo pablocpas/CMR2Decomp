@@ -5423,7 +5423,6 @@ char g_strLockedCheat[4] = "...";
 
 // Draw callback of the cheats menu: name and on/off of each cheat, "..."
 // for the ones not available yet.
-// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ded80
 void FrontendMenu_DrawCheats(Menu *pMenu)
 {
@@ -5436,14 +5435,12 @@ void FrontendMenu_DrawCheats(Menu *pMenu)
     int width;
     int count;
     int x0;
-    short x;
     short y0;
-    int y;
     int i;
 
-    icon[1] = 0;
     maxWidth = 0;
     icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[1] = 0;
     icon[2] = CFrontend::m_pAr640ATexture->width;
     icon[3] = CFrontend::m_pAr640ATexture->height;
     for (i = 0; i < 8; i++) {
@@ -5464,12 +5461,12 @@ void FrontendMenu_DrawCheats(Menu *pMenu)
     if (pMenu->cursor == 0) {
         pColour = g_colourWhite0x00524968;
         pShadow = g_colourShadowWhite0x00524974;
-    } else if (!pMenu->items[0].enabled) {
-        pColour = g_colourDim0x00524970;
-        pShadow = g_colourShadowDim0x0052497c;
-    } else {
+    } else if (pMenu->items[0].enabled) {
         pColour = g_colourText0x0052496c;
         pShadow = g_colourShadowText0x00524978;
+    } else {
+        pColour = g_colourDim0x00524970;
+        pShadow = g_colourShadowDim0x0052497c;
     }
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
     g_unk0x008189a8[1] = y0;
@@ -5491,17 +5488,23 @@ void FrontendMenu_DrawCheats(Menu *pMenu)
                 pRow = g_colourDim0x00524970;
             Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, (SpriteRect *)icon, CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, pRow, 8);
         }
-        y = (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]);
-        if (!(!pItem->enabled)) {
-            Font_DrawText(1, CFrontend::GetTextString(pItem->id), x0, y, (int *)pRow, 0x11);
-            x = (int)(g_pGraphics->resX * 15) / 640 + maxWidth + x0;
-            Font_DrawText(1, CFrontend::GetTextString(0x133), x, y,
-                          (int *)(pItem->max == 0 ? g_colourWhite0x00524968 : g_colourText0x0052496c), 0x11);
-            x = (int)(g_pGraphics->resX * 25) / 640 + maxWidth + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x133)) + x0;
-            Font_DrawText(1, CFrontend::GetTextString(0x134), x, y,
-                          (int *)(pItem->max == 0 ? g_colourText0x0052496c : g_colourWhite0x00524968), 0x11);
+        if (pItem->enabled) {
+            Font_DrawText(1, CFrontend::GetTextString(pItem->id), x0, (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]), (int *)pRow, 0x11);
+            if (pItem->max != 0) {
+                Font_DrawText(1, CFrontend::GetTextString(0x133), (int)(g_pGraphics->resX * 15) / 640 + maxWidth + x0, (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]),
+                              (int *)g_colourText0x0052496c, 0x11);
+                Font_DrawText(1, CFrontend::GetTextString(0x134),
+                              (int)(g_pGraphics->resX * 25) / 640 + maxWidth + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x133)) + x0,
+                              (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]), (int *)g_colourWhite0x00524968, 0x11);
+            } else {
+                Font_DrawText(1, CFrontend::GetTextString(0x133), (int)(g_pGraphics->resX * 15) / 640 + maxWidth + x0, (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]),
+                              (int *)g_colourWhite0x00524968, 0x11);
+                Font_DrawText(1, CFrontend::GetTextString(0x134),
+                              (int)(g_pGraphics->resX * 25) / 640 + maxWidth + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x133)) + x0,
+                              (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]), (int *)g_colourText0x0052496c, 0x11);
+            }
         } else {
-            Font_DrawText(1, g_strLockedCheat, x0, y, (int *)pRow, 0x11);
+            Font_DrawText(1, g_strLockedCheat, x0, (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]), (int *)pRow, 0x11);
         }
         if (pMenu->cursor == i || pMenu->cursor == i + 1) {
             pColour = g_colourWhite0x00524968;
@@ -7202,15 +7205,15 @@ void RallyData_SetSetupLowNibble(unsigned int param1);
 MenuScroller *FrontendScroller_GetArcadeRallyScroller(void);
 
 // Draws the on/off choice of a settings row after the text in m_stringDest.
-#define QUICKRACE_DRAW_CHOICE(value, y)                                                                     \
-    x0 = (int)(g_pGraphics->resX * 0x7a) / 640;                                                             \
-    Font_DrawText(1, CFrontend::GetTextString(0x133),                                                        \
-                  (int)(g_pGraphics->resX * 10) / 640 + x0 + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest), y, \
-                  (int *)((value) == 0 ? g_colourWhite0x00524968 : g_colourText0x0052496c), 0x11);         \
-    Font_DrawText(1, CFrontend::GetTextString(0x134),                                                        \
-                  (int)(g_pGraphics->resX * 20) / 640 + x0 + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x133)) \
-                      + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest), y,                            \
-                  (int *)((value) == 0 ? g_colourText0x0052496c : g_colourWhite0x00524968), 0x11);
+// Draws the yes/no pair of a boolean row, the current choice in white.
+#define QUICKRACE_DRAW_CHOICE(value, y) \
+    if ((value) != 0) { \
+        Font_DrawText(1, CFrontend::GetTextString(0x133), (int)(g_pGraphics->resX * 10) / 640 + (int)(g_pGraphics->resX * 0x7a) / 640 + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest), y, (int *)g_colourText0x0052496c, 0x11); \
+        Font_DrawText(1, CFrontend::GetTextString(0x134), (int)(g_pGraphics->resX * 20) / 640 + (int)(g_pGraphics->resX * 0x7a) / 640 + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x133)) + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest), y, (int *)g_colourWhite0x00524968, 0x11); \
+    } else { \
+        Font_DrawText(1, CFrontend::GetTextString(0x133), (int)(g_pGraphics->resX * 10) / 640 + (int)(g_pGraphics->resX * 0x7a) / 640 + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest), y, (int *)g_colourWhite0x00524968, 0x11); \
+        Font_DrawText(1, CFrontend::GetTextString(0x134), (int)(g_pGraphics->resX * 20) / 640 + (int)(g_pGraphics->resX * 0x7a) / 640 + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x133)) + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest), y, (int *)g_colourText0x0052496c, 0x11); \
+    }
 
 // Draws the frame of a quick race page: path, help, header line; returns the
 // y of the first row.
@@ -7238,10 +7241,10 @@ MenuScroller *FrontendScroller_GetArcadeRallyScroller(void);
         pColour = g_colourText0x0052496c;                                                                   \
         pShadow = g_colourShadowText0x00524978;                                                             \
     }                                                                                                       \
-    g_unk0x008189a8[1] = y0;                                                                                \
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;                                               \
-    g_unk0x008189a8[3] = 1;                                                                                 \
+    g_unk0x008189a8[1] = y0;                                                                                \
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;                                              \
+    g_unk0x008189a8[3] = 1;                                                                                 \
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);                                 \
     g_unk0x008189a8[1]++;                                                                                   \
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
@@ -7252,14 +7255,13 @@ MenuScroller *FrontendScroller_GetArcadeRallyScroller(void);
               - CFrontend::m_pAr640ATexture->height / 2;                                                    \
     if (pMenu->cursor == (i)) {                                                                             \
         pColour = g_colourWhite0x00524968;                                                                  \
-        pTexture = CFrontend::m_pAr640ATexture;                                                             \
+        Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, (SpriteRect *)icon, CFrontend::m_pAr640ATexture, 1, 0, NULL, NULL, pColour, 8); \
     } else {                                                                                                \
         pColour = g_colourText0x0052496c;                                                                   \
-        pTexture = CFrontend::m_pAr640DTexture;                                                             \
         if (!pMenu->items[i].enabled)                                                                       \
             pColour = g_colourDim0x00524970;                                                                \
-    }                                                                                                       \
-    Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pColour, 8);
+        Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, (SpriteRect *)icon, CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, pColour, 8); \
+    }
 
 // Separator under row i of a quick race page.
 #define QUICKRACE_ROW_LINE(i)                                                                               \
@@ -7276,7 +7278,6 @@ MenuScroller *FrontendScroller_GetArcadeRallyScroller(void);
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
 
 // Draw callback of the first quick race page (stages, cars, ...).
-// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004da710
 void FrontendMenu_DrawQuickRaceSettings(Menu *pMenu)
 {
@@ -7320,7 +7321,6 @@ void FrontendMenu_DrawQuickRaceSettings(Menu *pMenu)
 }
 
 // Draw callback of the second quick race page (game type and its settings).
-// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004daf90
 void FrontendMenu_DrawQuickRaceAdvancedSettings(Menu *pMenu)
 {
@@ -7338,31 +7338,34 @@ void FrontendMenu_DrawQuickRaceAdvancedSettings(Menu *pMenu)
     for (i = 0; i < pMenu->itemCount; i++) {
         QUICKRACE_ROW_ICON(i)
         switch (pMenu->items[i].value) {
+        case 3:
+            sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x1a3),
+                    CFrontend::GetTextString(pMenu->items[i].max + 0x1a4));
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            break;
+        case 4:
+            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x195), pMenu->items[i].max + 1);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            break;
+        case 6:
+            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x1a1), pMenu->items[i].max + 1);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            break;
+        case 5:
+            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x1a2), pMenu->items[i].max + 1);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            break;
         case 2:
             sprintf(CFrontend::m_stringDest, g_strLabelColon, CFrontend::GetTextString(0x19e));
             Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
             QUICKRACE_DRAW_CHOICE(pMenu->items[i].max, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1])
-            goto line;
-        case 3:
-            sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x1a3),
-                    CFrontend::GetTextString(pMenu->items[i].max + 0x1a4));
-            break;
-        case 4:
-            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x195), pMenu->items[i].max + 1);
-            break;
-        case 5:
-            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x1a2), pMenu->items[i].max + 1);
-            break;
-        case 6:
-            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x1a1), pMenu->items[i].max + 1);
             break;
         default:
             sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(pMenu->items[i].id),
                     pMenu->items[1].max + 1);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
             break;
         }
-        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
-    line:
         QUICKRACE_ROW_LINE(i)
     }
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
@@ -8793,7 +8796,6 @@ void FrontendMenu_DrawArcadeChampionshipTransmission(Menu *pMenu)
     int *pShadow;
     int count;
     int baseY;
-    int y;
 
     rect[0] = (short)((int)(g_pGraphics->resX * 100) / 0x280);
     rect[1] = 0;
@@ -8824,9 +8826,9 @@ void FrontendMenu_DrawArcadeChampionshipTransmission(Menu *pMenu)
     if (0 < pMenu->itemCount) {
         for (count = 0; count < pMenu->itemCount; count++) {
             pItem = &pMenu->items[count];
-            y = (int)(g_pGraphics->resY * 0x14) / 0x1e0 + baseY +
+            rect[1] = (short)((int)(g_pGraphics->resY * 0x14) / 0x1e0 + baseY +
                 ((int)(g_pGraphics->resY * 0x24) / 0x1e0) * count -
-                CFrontend::m_pAr640ATexture->height / 2;
+                CFrontend::m_pAr640ATexture->height / 2);
             if (pMenu->cursor == count) {
                 pColour = (int *)g_colourWhite0x00524968;
                 Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, (SpriteRect *)rect, CFrontend::m_pAr640ATexture, 1, 0, NULL, NULL,
@@ -8890,7 +8892,6 @@ void FrontendMenu_DrawSoundOptions(Menu *pMenu)
     int *pShadow;
     int count;
     int baseY;
-    int y;
 
     rect[0] = (short)((int)(g_pGraphics->resX * 100) / 0x280);
     rect[1] = 0;
@@ -8920,9 +8921,9 @@ void FrontendMenu_DrawSoundOptions(Menu *pMenu)
     if (0 < pMenu->itemCount) {
         for (count = 0; count < pMenu->itemCount; count++) {
             pItem = &pMenu->items[count];
-            y = (int)(g_pGraphics->resY * 2) / 0x1e0 + (int)(g_pGraphics->resY * 0x12) / 0x1e0 + baseY +
+            rect[1] = (short)((int)(g_pGraphics->resY * 2) / 0x1e0 + (int)(g_pGraphics->resY * 0x12) / 0x1e0 + baseY +
                 ((int)(g_pGraphics->resY * 0x24) / 0x1e0) * count -
-                CFrontend::m_pAr640ATexture->height / 2;
+                CFrontend::m_pAr640ATexture->height / 2);
             if (pMenu->cursor == count) {
                 pColour = (int *)g_colourWhite0x00524968;
                 pTexture = CFrontend::m_pAr640ATexture;
@@ -9475,7 +9476,6 @@ void FrontendMenu_DrawNetworkCarSetup(Menu *pMenu)
     unsigned int value;
     int count;
     int baseY;
-    int y;
 
     rect[0] = (short)((int)(g_pGraphics->resX * 100) / 0x280);
     rect[1] = 0;
@@ -9508,9 +9508,9 @@ void FrontendMenu_DrawNetworkCarSetup(Menu *pMenu)
     if (0 < pMenu->itemCount) {
         for (count = 0; count < pMenu->itemCount; count++) {
             pItem = &pMenu->items[count];
-            y = (int)(g_pGraphics->resY * 2) / 0x1e0 + (int)(g_pGraphics->resY * 0x12) / 0x1e0 + baseY +
+            rect[1] = (short)((int)(g_pGraphics->resY * 2) / 0x1e0 + (int)(g_pGraphics->resY * 0x12) / 0x1e0 + baseY +
                 ((int)(g_pGraphics->resY * 0x24) / 0x1e0) * count -
-                CFrontend::m_pAr640ATexture->height / 2;
+                CFrontend::m_pAr640ATexture->height / 2);
             if (pMenu->cursor == count) {
                 pColour = (int *)g_colourWhite0x00524968;
                 pTexture = CFrontend::m_pAr640ATexture;
@@ -9526,9 +9526,6 @@ void FrontendMenu_DrawNetworkCarSetup(Menu *pMenu)
             }
             switch (pItem->value) {
             case 0:
-                pColour = (int *)g_colourWhite0x00524968;
-                if (pMenu->cursor != count)
-                    pColour = (int *)g_colourText0x0052496c;
                 sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x30),
                         CFrontend::GetTextString(Menu_GetItem(pMenu, 0)->max + 0x27));
                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,

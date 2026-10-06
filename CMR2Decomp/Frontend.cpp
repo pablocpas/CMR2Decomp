@@ -49,7 +49,7 @@ void Frontend_MergeNamedRecordFourBitFields(int *pDest, int *pSource);
 void Frontend_MergeNamedRecordSevenBitFields(int *pDest, int *pSource);
 void Frontend_MergeNamedRecordSixBitFields(int *pDest, int *pSource);
 
-char FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName);
+int FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName);
 int FrontendRecords_InsertStageCategoryRecord(int param1, int index, char *pName);
 char FrontendRecords_InsertArcadeDeviceRecord(int param1, int index, char *pName);
 
@@ -1441,7 +1441,7 @@ int Frontend_CopyImprovedStageRecordAndSplits(int param_1, int param_2, char *pN
 // MSVC keeps them in registers here, so the code differs only in allocation.
 // match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cfb30
-char FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName)
+int FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName)
 {
     unsigned char *pInfo;
     unsigned int *pDevice;
@@ -1471,10 +1471,11 @@ char FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName)
                     // move every call copies the same entry onto itself.
                     GameInfo0xa4SubStruct12 *pPrev = p - 1;
 
-                    for (i = 4 - slot; i != 0; i--) {
+                    i = 4 - slot;
+                    do {
                         Frontend_MergeNamedRecordFourBitFields((int *)p, (int *)pPrev);
                         p = pPrev;
-                    }
+                    } while (--i);
                 }
                 strcpy(pRecord->ident, pName);
                 pRecord->bits.car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
