@@ -1779,12 +1779,13 @@ void GameMenu_DrawStageClassification(Menu *pMenu)
                       (int)(g_pGraphics->resY * 0xa3) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * i,
                       (int *)g_menuFrameColour, 0x21);
         if (RallyData_GetSetupModeBits() == 1 || RallyData_GetSetupModeBits() == 2 ||
-            StageTiming_GetValidStartTime(StageTiming_GetBoundedFinishOrderEntry(i)) != StageTiming_GetValidStartTime(StageTiming_GetBoundedFinishOrderEntry(i - 1)))
-            pFormat = g_stageNumberFormat;
-        else
-            pFormat = g_stageResultSameTime;
-        next = i + 1;
-        sprintf(CFrontend::m_stringDest, pFormat, next);
+            StageTiming_GetValidStartTime(StageTiming_GetBoundedFinishOrderEntry(i)) != StageTiming_GetValidStartTime(StageTiming_GetBoundedFinishOrderEntry(i - 1))) {
+            next = i + 1;
+            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, next);
+        } else {
+            next = i + 1;
+            sprintf(CFrontend::m_stringDest, g_stageResultSameTime, next);
+        }
         Font_DrawText(1, CFrontend::m_stringDest,
                       ((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640) / 2 +
                           (int)(g_pGraphics->resX * 0x20) / 640,
