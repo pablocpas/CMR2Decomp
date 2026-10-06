@@ -42,9 +42,11 @@ def main():
     parser.add_argument("--cases", type=int, default=300, help="Differential cases per function")
     parser.add_argument("--stack-pattern", choices=("uniform", "mixed", "both"), default="both",
                         help="Stack inputs for --test; both exposes misplaced uninitialised reads")
-    parser.add_argument("--vectors", choices=("identity", "rotated", "both"), default="both",
+    parser.add_argument("--vectors", choices=("identity", "rotated", "degenerate", "both", "all"), default="both",
                         help="Vector inputs for --test")
     args = parser.parse_args()
+    if args.cases < 1:
+        parser.error("--cases must be positive")
     if not set(args.test_functions.split(",")).issubset({"tyre", "suspension", "wheel"}):
         parser.error("--test-functions must contain tyre, suspension or wheel, separated by commas")
     args.output.mkdir(parents=True, exist_ok=True)
@@ -91,7 +93,8 @@ def main():
     (args.output / "scores.json").write_text(json.dumps(rows, indent=2) + "\n")
     if args.test:
         patterns = ("uniform", "mixed") if args.stack_pattern == "both" else (args.stack_pattern,)
-        vectors = ("identity", "rotated") if args.vectors == "both" else (args.vectors,)
+        vectors = (("identity", "rotated", "degenerate") if args.vectors == "all" else
+                   ("identity", "rotated") if args.vectors == "both" else (args.vectors,))
         for pattern in patterns:
             for basis in vectors:
                 subprocess.run([sys.executable, str(Path(F.REPO) / "tests/differential_car_forces.py"),

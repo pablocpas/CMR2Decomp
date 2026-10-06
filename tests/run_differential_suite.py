@@ -48,6 +48,7 @@ def main():
             "entities": [entities],
             "report": [report],
             "both": [report, entities],
+            "object": [ROOT / "build" / entry.get("object", "")],
         }[entry["arguments"]]
         command = [sys.executable, str(ROOT / "tests" / name), *map(str, paths)]
         try:

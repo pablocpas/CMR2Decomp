@@ -25,3 +25,16 @@ A passing harness only establishes the tested cases; it does not replace
 playing a full race, championship, replay, save/load or network session.
 
 The `test_*.py` files are unit tests for the matching tools and need no Wine.
+
+For the three car force functions, compile once, save byte scores and assembly
+diffs, and execute each body with both stack patterns and all vector modes:
+
+```bash
+python3 scripts/match_car_forces.py --blocks --test --vectors all --cases 300
+```
+
+`differential_car_forces.py` also accepts a candidate `Car.obj` directly. It
+compares guarded memory, physics scratch globals and provider calls. Identity,
+rotated and degenerate vectors exercise the carried-force and uninitialised
+stack behavior of the original. The suite runs the measured build's `Car.obj`;
+math helpers execute from the original image.

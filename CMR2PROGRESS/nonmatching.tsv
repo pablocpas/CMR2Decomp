@@ -459,8 +459,8 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4af120	Glow_Draw	Graphics.cpp	2078	0.9567068843151171	0.9646892655367232
 0x423780	Camera_SnapTo	Car.cpp	104	0.9574468085106383	0.9444444444444444
 0x4fb8d0	FrontendProfile_ScrambleIdentifier	FrontendScreens.cpp	232	0.9594594594594594	0.9594594594594594
-0x4387a0	Car_UpdateTyreForces	Car.cpp	8567	0.9603278077854349	0.8628912071535022
 0x4e1230	FrontendMenu_DrawMultiplayerRaceSettings	FrontendScreens.cpp	1584	0.9645669291338582	0.9637826961770624
+0x4387a0	Car_UpdateTyreForces	Car.cpp	8567	0.9646050670640834	0.9646050670640834
 0x46fe70	StageObject_QueueOrEvictMovingObject	StageObjects.cpp	969	0.964968152866242	0.964968152866242
 0x4487a0	StageTiming_RecordAndReorderSplitTime	StageTiming.cpp	381	0.9652173913043478	0.9739130434782609
 0x4e90f0	FrontendMenu_DrawNetworkExtendedStageSetup	FrontendScreens.cpp	1487	0.9655172413793104	0.9525816649104321
@@ -468,7 +468,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x443a20	Car_UpdateCornerVelocityPair	Car.cpp	451	0.9661538461538461	0.9693251533742331
 0x46f330	StageObject_PositionSplitViewNodes	StageObjects.cpp	353	0.9674418604651163	0.9014084507042254
 0x49f0e0	CInput::SetupKeyboard	Input.cpp	517	0.968503937007874	0.9669421487603306
-0x441500	Car_UpdateWheelForces	Car.cpp	6536	0.969377990430622	0.969377990430622
 0x4bd970	CGraphics::SetMipMapCount	Graphics.cpp	92	0.9696969696969697	0.9696969696969697
 0x4d15e0	CGame::InitializeGame	Game.cpp	1191	0.97054698457223	0.9526462395543176
 0x456960	StageTiming_AccumulateSplitDeltas	StageTiming.cpp	90	0.972972972972973	0.972972972972973
@@ -502,6 +501,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x40c610	CInput::InitDetectedControllerSlot	Input.cpp	1604	0.9920424403183024	0.9920424403183024
 0x451df0	GameMenu_DrawStageClassification	GameMenus.cpp	1585	0.9944649446494465	0.9944649446494465
 0x4d9c40	FrontendMenu_DrawRallySummary	FrontendScreens.cpp	2529	0.9956167814652473	0.9855799373040752
+0x441500	Car_UpdateWheelForces	Car.cpp	6536	0.9966507177033492	0.9966507177033492
 0x4556f0	StageTiming_PairPlayerOpponentSlots	StageTiming.cpp	898	0.9966666666666667	0.9964664310954063
 0x46afe0	CarDamage_BuildPartVertexBuffer	StageObjects.cpp	1055	0.9970238095238095	0.9970238095238095
 0x44d960	GameMenu_DrawScrollingStageSplits	GameMenus.cpp	2000	0.9970972423802612	0.9970972423802612

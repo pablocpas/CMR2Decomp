@@ -2383,9 +2383,9 @@ void Car_UpdateTyreForces(void)
         FixVecCross(&g_tyreForce, &g_pCurrentCar->rearWheelDir, &g_pCurrentCar->up);
                 d_2 = -FixVecDot(pNormal, &g_tyreForce);
         FixVecScale(&t, pNormal, d_2);
-                v.x = g_tyreForce.x + t.x;
-                v.y = g_tyreForce.y + t.y;
                 v.z = g_tyreForce.z + t.z;
+                v.y = g_tyreForce.y + t.y;
+                v.x = g_tyreForce.x + t.x;
         len = FixVecNormalizeLen(&axis[2], &v);
         axis[3] = axis[2];
         if (len == 0) {
@@ -2428,9 +2428,7 @@ void Car_UpdateTyreForces(void)
                         if (g_pCurrentCar->flag0x1d0[2] == 0 && g_pCurrentCar->flag0x1d0[3] == 0) {
                             grip = g_pCurrentCar->field_0xa5c[i];
                         } else {
-                            if (spinSlip < 0)
-                                spinSlip = -spinSlip;
-                            resist = FixMul(spinSlip, 0x4000);
+                            resist = FixMul(FIX_ABS(spinSlip), 0x4000);
                             resist -= FIX_ABS(FixVecDot(&g_pCurrentCar->cornerVelocity[i], &axis[i]));
                             if (resist < 0)
                                 resist = 0;
@@ -3092,7 +3090,6 @@ void Car_UpdateWheelForces(void)
     int recip;
     int a;
     int b;
-    int c;
     int sine;
     int limA;
     int limB;
@@ -3170,8 +3167,7 @@ void Car_UpdateWheelForces(void)
             if (g_pCurrentCar->flag0x1d0[2] == 0 && g_pCurrentCar->flag0x1d0[3] == 0) {
                 grip = g_pCurrentCar->field_0xa5c[(unsigned int)i];
             } else {
-                if (fLat < 0) fLat = -fLat;
-                combined = FixMul(fLat, 0x4000);
+                combined = FixMul(FIX_ABS(fLat), 0x4000);
                 // The original indexes axes 3 and 1. The first read overruns
                 // the two-axis array into uninitialised lateral scratch.
                 combined -= FIX_ABS(FixVecDot(&g_pCurrentCar->cornerVelocity[i], &axis[i]));
@@ -3229,14 +3225,14 @@ void Car_UpdateWheelForces(void)
 
     i = 3;
     do {
-        int susp;
         int len;
 
         direction = i < 2 ? wheelDir[0] : wheelDir[1];
         lateralAxis = i < 2 ? axis[0] : axis[1];
-        susp = dot[i] * 4 - g_pCurrentCar->wheelLoad[(unsigned int)i];
-        g_pCurrentCar->wheelSlip[i] = susp;
-        fLong = -FixMul(FixMul(susp, 0x4000), scale);
+        // Slip and lateral force share the original's scalar scratch slot.
+        fLat = dot[i] * 4 - g_pCurrentCar->wheelLoad[(unsigned int)i];
+        g_pCurrentCar->wheelSlip[i] = fLat;
+        fLong = -FixMul(FixMul(fLat, 0x4000), scale);
         fLat = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &lateralAxis);
         g_pCurrentCar->wheelSlipLateral[i] = fLat;
         fLat = -FixMul(fLat, scale);
@@ -3301,9 +3297,10 @@ void Car_UpdateWheelForces(void)
                 sine = g_sinTable[trig.raw & 0xfff];
                 limA = FixMul(FixSqrt(FixMul(a, a) + FixMul(sine, sine)), g_pCurrentCar->field_0xa4c[i]);
                 trig.angle = FixAtan2(FixMul(fLong, b), fLat);
-                c = FixMul(b, g_sinTable[(trig.raw + 0x400) & 0xfff]);
+                // The longitudinal coefficient is dead after the first limit.
+                a = FixMul(b, g_sinTable[(trig.raw + 0x400) & 0xfff]);
                 sine = g_sinTable[trig.raw & 0xfff];
-                limB = FixMul(FixSqrt(FixMul(c, c) + FixMul(sine, sine)), g_pCurrentCar->field_0xa5c[(unsigned int)i]);
+                limB = FixMul(FixSqrt(FixMul(a, a) + FixMul(sine, sine)), g_pCurrentCar->field_0xa5c[(unsigned int)i]);
             }
             if (combined > limA) {
                 combined = limB;

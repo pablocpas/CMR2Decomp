@@ -66,6 +66,15 @@
       "0x48a1f0"
     ]
   },
+  "differential_car_forces.py": {
+    "arguments": "object",
+    "object": "Car.obj",
+    "targets": [
+      "0x4387a0",
+      "0x43b100",
+      "0x441500"
+    ]
+  },
   "differential_car_corners.py": {
     "arguments": "entities",
     "targets": [
