@@ -836,10 +836,10 @@ void FrontendControls_EnterCalibration(Menu *pMenu, int param)
     int j;
 
     dev = CONTROLS_SEL;
+    pItem = pMenu->items;
     pFlag = (int *)((BYTE *)CInput::GetAvailableDeviceRecord(dev) + 0x46c);
     axis = 0;
     pBinding = g_axisBindings;
-    pItem = pMenu->items;
     do {
         if (*pFlag != 0) {
             pData = &Input_GetControllerTable()[dev];
