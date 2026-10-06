@@ -7026,44 +7026,43 @@ void FrontendMenu_DrawMultiplayerRaceSettings(Menu *pMenu)
             if (FrontendChampionship_GetRouteSelectionFlag() != 0) {
                 switch (pMenu->items[0].max) {
                 case 0:
-                    id = 0x43;
+                    sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x142), CFrontend::GetTextString(0x43));
                     break;
                 case 1:
-                    id = 0x44;
+                    sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x142), CFrontend::GetTextString(0x44));
                     break;
                 case 2:
-                    id = 0x45;
+                    sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x142), CFrontend::GetTextString(0x45));
                     break;
-                default:
-                    goto draw;
                 }
             } else {
                 switch (pMenu->items[0].max) {
                 case 0:
-                    id = 0x133;
+                    sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x142), CFrontend::GetTextString(0x133));
                     break;
                 case 1:
-                    id = 0x43;
+                    sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x142), CFrontend::GetTextString(0x43));
                     break;
                 case 2:
-                    id = 0x44;
+                    sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x142), CFrontend::GetTextString(0x44));
                     break;
                 case 3:
-                    id = 0x45;
+                    sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x142), CFrontend::GetTextString(0x45));
                     break;
-                default:
-                    goto draw;
                 }
             }
-            sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x142), CFrontend::GetTextString(id));
-            break;
+            goto draw;
         case 1:
             sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x143),
                     FrontendChampionship_GetRouteIndexOffset() + pMenu->items[1].max + 1);
             break;
         case 2:
-            sprintf(CFrontend::m_stringDest, g_strLabelSpacedText, CFrontend::GetTextString(0x31),
-                    CFrontend::GetTextString(pMenu->items[2].max == 0 ? 0x2f : pMenu->items[2].max * 2 + 0x26));
+            if (pMenu->items[2].max == 0)
+                sprintf(CFrontend::m_stringDest, g_strLabelSpacedText, CFrontend::GetTextString(0x31),
+                        CFrontend::GetTextString(0x2f));
+            else
+                sprintf(CFrontend::m_stringDest, g_strLabelSpacedText, CFrontend::GetTextString(0x31),
+                        CFrontend::GetTextString(pMenu->items[2].max * 2 + 0x26));
             break;
         case 3:
             strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x67));
