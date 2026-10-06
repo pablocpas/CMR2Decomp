@@ -8525,8 +8525,6 @@ BYTE FrontendDraw_ChampionshipEntryRow(int param_1, unsigned int param_2)
 
 // Draws the display-setup screen: title, the two percentage bars (display and
 // mode) and the list of available modes.
-// match 52%: asignacion de registros en los porcentajes y el bucle de modos
-// match 35%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e1d70
 void FrontendMenu_DrawDisplayMode(Menu *pMenu)
 {
@@ -8535,7 +8533,8 @@ void FrontendMenu_DrawDisplayMode(Menu *pMenu)
     short rect[4];
     int count;
     int mode;
-    int value;
+    int barHeight;
+    int barTop;
     int i;
     DWORD width;
     DWORD height;
@@ -8556,29 +8555,27 @@ void FrontendMenu_DrawDisplayMode(Menu *pMenu)
     if (count > 10)
         count = 10;
     mode = FrontendMenu_GetFirstVisibleDisplayDevice();
-    value = (int)CGraphics::GetDisplayCount();
-    i = (int)CGraphics::GetDisplayCount();
+    barHeight = (DWORD)(count * 100) / CGraphics::GetDisplayCount();
+    barTop = (DWORD)(mode * 100) / CGraphics::GetDisplayCount();
     rect[2] = 0x14;
     rect[3] = 0xd2;
     rect[0] = (short)((int)g_pGraphics->resX / 2) + 0x50;
     rect[1] = 0x5f;
     Sprite_FillRect((int)g_pGraphics + 0x150, rect, colourTop, 1);
     rect[2] = 10;
-    rect[3] = (short)(count * 100 / value * 200 / 100);
+    rect[3] = (short)(barHeight * 200 / 100);
     rect[0] = (short)((int)g_pGraphics->resX / 2) + 0x55;
-    rect[1] = (short)(mode * 100 / i * 200 / 100 + 100);
+    rect[1] = (short)(barTop * 200 / 100 + 100);
     Sprite_FillRect((int)g_pGraphics + 0x150, rect, colourBottom, 1);
-    if (0 < count) {
-        for (i = 0; i < count; i++) {
-            CGraphics::GetDisplayMode(i + mode, &width, &height, &depth);
-            sprintf(CFrontend::m_stringDest, g_strDisplayModeFormat, width, height, depth);
-            if (i + mode != pMenu->items[0].max)
-                Font_DrawText(1, CFrontend::m_stringDest, (int)g_pGraphics->resX / 2,
-                              (i * 5 + 0x19) * 4, (int *)g_colourText0x0052496c, 10);
-            else
-                Font_DrawText(1, CFrontend::m_stringDest, (int)g_pGraphics->resX / 2,
-                              (i * 5 + 0x19) * 4, (int *)g_colourWhite0x00524968, 10);
-        }
+    for (i = 0; i < count; i++) {
+        CGraphics::GetDisplayMode(i + mode, &width, &height, &depth);
+        sprintf(CFrontend::m_stringDest, g_strDisplayModeFormat, width, height, depth);
+        if (i + mode == pMenu->items[0].max)
+            Font_DrawText(1, CFrontend::m_stringDest, (int)g_pGraphics->resX / 2, (i * 5 + 0x19) * 4,
+                          (int *)g_colourWhite0x00524968, 10);
+        else
+            Font_DrawText(1, CFrontend::m_stringDest, (int)g_pGraphics->resX / 2, (i * 5 + 0x19) * 4,
+                          (int *)g_colourText0x0052496c, 10);
     }
     FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
