@@ -62,7 +62,14 @@ some behaviour that needs fixing, so expect rough edges.
 ## Build
 
 Initialize the SDK submodules and provide MSVC6 (`msvc600/VC98`), for example
-from [itsmattkc/msvc600](https://github.com/itsmattkc/msvc600).
+from [itsmattkc/msvc600](https://github.com/itsmattkc/msvc600). The original
+executable was built with the **Visual C++ 6.0 SP3** compiler (its Rich header
+records build 8447), so install the SP3 compiler passes on top; this needs
+7-Zip or `cabextract`:
+
+```bash
+python3 scripts/fetch_vc6sp3.py --msvc-root msvc600/VC98
+```
 
 Windows:
 

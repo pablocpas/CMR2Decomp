@@ -6811,7 +6811,7 @@
   },
   "0x4d6f10": {
     "n": "FrontendMenu_DrawProfileNameEntry",
-    "s": 0.8037135278514589,
+    "s": 0.8100929614873837,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6915,7 +6915,7 @@
   },
   "0x4dfe20": {
     "n": "FrontendMenu_DrawGraphicsOptions",
-    "s": 0.5043830074173972,
+    "s": 0.50472334682861,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -9589,8 +9589,8 @@
   },
   "0x4f4b90": {
     "n": "FrontendText_LoadRegionLanguages",
-    "s": 1.0,
-    "x": true,
+    "s": 0.8176100628930818,
+    "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FrontendText_LoadRegionLanguages"
@@ -13870,7 +13870,7 @@
   },
   "0x446270": {
     "n": "Dash_DrawBar",
-    "s": 0.765399737876802,
+    "s": 0.7659016393442623,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -13894,7 +13894,7 @@
   },
   "0x446bf0": {
     "n": "Dash_DrawDial",
-    "s": 0.6699029126213593,
+    "s": 0.6788321167883211,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -16470,7 +16470,7 @@
   },
   "0x41f560": {
     "n": "Race_BuildSelectionPaths",
-    "s": 0.9650924024640657,
+    "s": 0.9772256728778468,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -19995,7 +19995,7 @@
     "s": 0.7358490566037735,
     "x": false,
     "unknown": [
-      "$L56069",
+      "$L56018",
       "__except_list"
     ],
     "f": "Sound.cpp",
@@ -25533,7 +25533,7 @@
   },
   "0x457000": {
     "n": "StageTiming_LoadSelectedCarModel",
-    "s": 0.6801275239107333,
+    "s": 0.6829787234042554,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
