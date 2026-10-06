@@ -345,7 +345,8 @@ void StageObject_GetCurrentObjectValues(int *pOut1, int *pOut2);
 int StageObjects_ReleaseObjectFiles(void);
 void StageObject_LoadAndClassifyMeshes(void);
 void StageObject_ResetMovingObjectCountsAndPhases(void);
-void StageObject_InitMovingObject(int *pState, int carIndex);
+struct StageObjectEntry0x128;
+void StageObject_InitMovingObject(StageObjectEntry0x128 *pState, int carIndex);
 void StageObject_QueueOrEvictMovingObject(int *param_1, int param_2, int param_3);
 void StageObject_InterpolateAllObjectMatrices(int t);
 void StageObject_ApplyInterpolatedNodeMatrices(int param_1);
@@ -1035,7 +1036,28 @@ void StageObject_ClearNodeTreeValuesBelowThreshold(SceneNode *pNode, BYTE thresh
     }
 }
 
-struct StageObjectEntry0x128 { int field_0x0; int *pObject; BYTE rest[0x120]; };
+struct StageObjectEntry0x128 {
+    int field_0x0;              // 0x000 route element of the object
+    int *pObject;               // 0x004 scene node (head of the object's node chain)
+    FixMatrix keyB;             // 0x008 previous key
+    FixMatrix keyA;             // 0x048 next key
+    FixMatrix current;          // 0x088 interpolated matrix
+    FixMatrix *pMatrix;         // 0x0c8 matrix the motion integrates (keyB)
+    int mode;                   // 0x0cc 1 = sliding on the ground, 2 = airborne
+    int objectType;             // 0x0d0
+    FixVector groundNormal;     // 0x0d4
+    FixVector spin;             // 0x0e0 angular step
+    FixVector velocity;         // 0x0ec
+    FixVector field_0xf8;       // 0x0f8
+    FixVector probe;            // 0x104 ground-probe half extents (x, y, z)
+    int field_0x110;            // 0x110
+    int actionState;            // 0x114 node action / sound callback state
+    int field_0x118;            // 0x118
+    short field_0x11c;          // 0x11c
+    short field_0x11e;
+    int field_0x120;            // 0x120
+    int moved;                  // 0x124 the interpolated matrix changed this frame
+};
 // Moving stage objects (debris and the like): one object in the original, so a
 // store into entries[] makes MSVC re-read count.
 // GLOBAL: CMR2 0x005894b8
@@ -1065,113 +1087,113 @@ void StageObject_ResetMovingObjectCountsAndPhases(void)
 }
 
 // Initializes a moving stage object from its route entry and the car's motion.
-// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046f810
-void StageObject_InitMovingObject(int *pState, int carIndex)
+void StageObject_InitMovingObject(StageObjectEntry0x128 *pState, int carIndex)
 {
+    int triangle = -1;
+    int surfaceIndex = 0;
     Car *pCar = Car_Get(carIndex);
-    BYTE *pEntries = NULL;
+    BYTE *pEntries;
     int count = StageObject_GetLoadedVariantDataAndState(&pEntries);
-    SceneNode *pNode = (SceneNode *)pState[1];
     int entryIndex = -1;
     int i;
-    for (i = 0; i < count; ++i) {
-        if ((int)(pEntries + i * 8) == pState[0]) {
+    int ground;
+    int airborne;
+    FixVector position;
+    FixVector velocity;
+    FixVector local;
+    FixVector axis;
+
+    for (i = 0; i < count; i++) {
+        if ((int)(pEntries + i * 8) == pState->field_0x0) {
             entryIndex = i;
-            break;
+            i = count;
         }
     }
-    if (entryIndex < 0) {
-        pNode->type = SCENE_NODE_EMPTY;
-        return;
-    }
+    if (entryIndex >= 0) {
+        pState->objectType = ((int *)g_unk0x0058c930)[((BYTE *)g_unk0x0058c928)[entryIndex]];
+        ((SceneNode *)pState->pObject)->type = SCENE_NODE_MESH;
+        ((SceneNode *)pState->pObject)->pObject = (void *)((int *)g_unk0x0058c92c)[((BYTE *)g_unk0x0058c928)[entryIndex]];
+        ((SceneNode *)pState->pObject)->field_0x17c = (BYTE)(1 << carIndex);
+        pState->actionState = -0x10000;
 
-    BYTE mappedIndex = ((BYTE *)g_unk0x0058c928)[entryIndex];
-    pState[0x34] = ((int *)g_unk0x0058c930)[mappedIndex];
-    pNode->type = SCENE_NODE_MESH;
-    pNode->pObject = (void *)((int *)g_unk0x0058c92c)[mappedIndex];
-    pNode->field_0x17c = (BYTE)(1 << (carIndex & 31));
-    pState[0x45] = -0x10000;
+        RallyData_CopyRaisedElementVector((int *)&position, (void **)pState);
+        FixMatrix_SetPosition(&position, &((SceneNode *)pState->pObject)->current);
+        FixMatrix_GetRight(&local, (FixMatrix *)(*(BYTE **)pState->field_0x0 + 0x18));
+        FixMatrix_SetRight(&local, &((SceneNode *)pState->pObject)->current);
+        FixMatrix_GetUp(&local, (FixMatrix *)(*(BYTE **)pState->field_0x0 + 0x18));
+        FixMatrix_SetUp(&local, &((SceneNode *)pState->pObject)->current);
+        FixMatrix_GetForward(&local, (FixMatrix *)(*(BYTE **)pState->field_0x0 + 0x18));
+        FixMatrix_SetForward(&local, &((SceneNode *)pState->pObject)->current);
 
-    FixVector position;
-    RallyData_CopyRaisedElementVector((int *)&position, (void **)pState);
-    FixMatrix *pNodeMatrix = &pNode->current;
-    FixMatrix_SetPosition(&position, pNodeMatrix);
+        pState->pMatrix = &pState->keyB;
+        pState->keyB = ((SceneNode *)pState->pObject)->current;
+        pState->current = ((SceneNode *)pState->pObject)->current;
+        pState->keyA = ((SceneNode *)pState->pObject)->current;
 
-    BYTE *pObject = *(BYTE **)pState[0];
-    FixMatrix *pObjectMatrix = (FixMatrix *)(pObject + 0x18);
-    FixVector basis;
-    FixMatrix_GetRight(&basis, pObjectMatrix);
-    FixMatrix_SetRight(&basis, pNodeMatrix);
-    FixMatrix_GetUp(&basis, pObjectMatrix);
-    FixMatrix_SetUp(&basis, pNodeMatrix);
-    FixMatrix_GetForward(&basis, pObjectMatrix);
-    FixMatrix_SetForward(&basis, pNodeMatrix);
+        airborne = 0;
+        ground = 0;
+        if (pState->objectType == 1) {
+            ground = 1;
+        } else if (pState->objectType == 0) {
+            if (pCar->speed > 0xc000)
+                airborne = 1;
+            else
+                ground = 1;
+        }
+        pState->field_0x110 = 0;
+        pState->field_0x11c = -1;
 
-    pState[0x32] = (int)(pState + 2);
-    memcpy(pState + 2, pNodeMatrix, 0x40);
-    memcpy(pState + 0x22, pNodeMatrix, 0x40);
-    memcpy(pState + 0x12, pNodeMatrix, 0x40);
-
-    int objectType = pState[0x34];
-    int groundPath = objectType == 1 || (objectType == 0 && pCar->speed <= 0xc000);
-    int airbornePath = objectType == 0 && pCar->speed > 0xc000;
-    pState[0x44] = 0;
-    *(short *)(pState + 0x47) = -1;
-
-    if (groundPath || airbornePath) {
-        FixVector velocity = pCar->velocity;
-        FixVector localVelocity;
-        FixVector axis;
-        BYTE *pParams = *(BYTE **)(*(BYTE **)(pObject + 0xc) + 0x10c);
-        if (groundPath) {
-            int triangle = -1;
-            int surface = 0;
-            Track_GetGroundHeight(&position, (FixVector *)(pState + 0x35),
-                                  (short *)&triangle, (unsigned short *)&surface, 0);
+        if (ground) {
+            Track_GetGroundHeight(&position, &pState->groundNormal, (short *)&triangle, (unsigned short *)&surfaceIndex, 0);
+            velocity = pCar->velocity;
             if (pCar->speed > 0x8000) {
                 FixVecScaleRecip(&velocity, &velocity, pCar->speed);
                 FixVecScale(&velocity, &velocity, 0x8000);
             }
-            FixMatrix_InverseRotateVector(&localVelocity, &velocity, (FixMatrix *)pState[0x32]);
-            axis.x = FixMul(localVelocity.z, 0x10000);
+            FixMatrix_InverseRotateVector(&local, &velocity, pState->pMatrix);
+            axis.x = FixMul(local.z, 0x10000);
             axis.y = 0;
-            axis.z = -FixMul(localVelocity.x, 0x10000);
-            if (pState[0x34] == 0)
+            axis.z = -FixMul(local.x, 0x10000);
+            if (pState->objectType == 0)
                 axis.z = 0;
-            pState[0x41] = FixMul(0x8000, *(int *)(pParams + 0x44));
-            pState[0x42] = FixMul(0x8000, *(int *)(pParams + 0x4c));
-            pState[0x43] = FixMul(0x8000, *(int *)(pParams + 0x48));
-            pState[0x3e] = 0;
-            pState[0x3f] = pState[0x42];
-            pState[0x40] = 0;
-            FixVecScale((FixVector *)(pState + 0x38), &axis, g_physicsTimeStep);
-            pState[0x33] = 1;
-        } else {
-            FixMatrix_InverseRotateVector(&localVelocity, &velocity, (FixMatrix *)(pState + 2));
-            axis.x = -FixMul(localVelocity.z, 0x6666);
+            pState->probe.x = FixMul(0x8000, *(int *)(*(BYTE **)(*(BYTE **)(*(BYTE **)pState->field_0x0 + 0xc) + 0x10c) + 0x44));
+            pState->probe.y = FixMul(0x8000, *(int *)(*(BYTE **)(*(BYTE **)(*(BYTE **)pState->field_0x0 + 0xc) + 0x10c) + 0x4c));
+            pState->probe.z = FixMul(0x8000, *(int *)(*(BYTE **)(*(BYTE **)(*(BYTE **)pState->field_0x0 + 0xc) + 0x10c) + 0x48));
+            pState->field_0xf8.x = 0;
+            pState->field_0xf8.y = pState->probe.y;
+            pState->field_0xf8.z = 0;
+            FixVecScale(&pState->spin, &axis, g_physicsTimeStep);
+            pState->mode = 1;
+        } else if (airborne) {
+            velocity = pCar->velocity;
+            FixMatrix_InverseRotateVector(&local, &velocity, &pState->keyB);
+            axis.x = -FixMul(local.z, 0x6666);
             axis.y = 0;
-            axis.z = FixMul(localVelocity.x, 0x6666);
-            FixVecScale((FixVector *)(pState + 0x38), &axis, g_physicsTimeStep);
-            FixVecScale((FixVector *)(pState + 0x3b), &velocity, 0xcccc);
-            pState[0x3c] = FixMul(FixVecLength(&velocity), 0x4ccc);
-            pState[0x41] = FixMul(0x8000, *(int *)(pParams + 0x44));
-            pState[0x42] = FixMul(0x8000, *(int *)(pParams + 0x4c));
-            pState[0x43] = FixMul(0x8000, *(int *)(pParams + 0x48));
-            pState[0x3e] = 0;
-            pState[0x3f] = pState[0x42];
-            pState[0x40] = 0;
-            pState[0x48] = 0;
-            pState[0x33] = 2;
-            pState[0x49] = 1;
+            axis.z = FixMul(local.x, 0x6666);
+            FixVecScale(&pState->spin, &axis, g_physicsTimeStep);
+            FixVecScale(&pState->velocity, &velocity, 0xcccc);
+            pState->velocity.y = FixVecLength(&velocity);
+            pState->velocity.y = FixMul(pState->velocity.y, 0x4ccc);
+            pState->probe.x = FixMul(0x8000, *(int *)(*(BYTE **)(*(BYTE **)(*(BYTE **)pState->field_0x0 + 0xc) + 0x10c) + 0x44));
+            pState->probe.y = FixMul(0x8000, *(int *)(*(BYTE **)(*(BYTE **)(*(BYTE **)pState->field_0x0 + 0xc) + 0x10c) + 0x4c));
+            pState->probe.z = FixMul(0x8000, *(int *)(*(BYTE **)(*(BYTE **)(*(BYTE **)pState->field_0x0 + 0xc) + 0x10c) + 0x48));
+            pState->field_0xf8.y = pState->probe.y;
+            pState->field_0xf8.x = 0;
+            pState->field_0xf8.z = 0;
+            pState->field_0x120 = 0;
+            pState->mode = 2;
+            pState->moved = 1;
         }
-    }
 
-    memcpy(&pNode->world, pNodeMatrix, sizeof(FixMatrix));
-    if (pNode->sector != -1)
-        Sector_RemoveNode(pNode);
-    if (pNode->sector == -1)
-        Sector_InsertNodeByPosition(pNode);
+        ((SceneNode *)pState->pObject)->world = ((SceneNode *)pState->pObject)->current;
+        if (((SceneNode *)pState->pObject)->sector != -1)
+            Sector_RemoveNode((SceneNode *)pState->pObject);
+        if (((SceneNode *)pState->pObject)->sector == -1)
+            Sector_InsertNodeByPosition((SceneNode *)pState->pObject);
+    } else {
+        ((SceneNode *)pState->pObject)->type = SCENE_NODE_EMPTY;
+    }
 }
 
 // Derives the stage's object scale from the loaded records: the average of
@@ -8330,25 +8352,22 @@ void StageObject_InitScreenRectangles(void)
 
 // Interpolates every stage object's matrix between its two keys and flags
 // the ones that moved.
-// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00471950
 void StageObject_InterpolateAllObjectMatrices(int t)
 {
     int i;
-    BYTE *p;
     FixMatrix old;
-    FixMatrix *pCurrent;
+    StageObjectEntry0x128 *pEntry;
 
     for (i = 0; i < g_movingObjects.count; i++) {
-        p = (BYTE *)&g_movingObjects.entries[i];
-        pCurrent = (FixMatrix *)(p + 0x88);
-        old = *pCurrent;
-        FixMatrix_Interpolate(pCurrent, (FixMatrix *)(p + 0x48), (FixMatrix *)(p + 8), t, t, t, 1);
-        if (FIXVEC_EQ(old.right, pCurrent->right) && FIXVEC_EQ(old.up, pCurrent->up) &&
-            FIXVEC_EQ(old.forward, pCurrent->forward) && FIXVEC_EQ(old.position, pCurrent->position))
-            *(int *)(p + 0x124) = 0;
+        pEntry = &g_movingObjects.entries[i];
+        old = pEntry->current;
+        FixMatrix_Interpolate(&pEntry->current, &pEntry->keyA, &pEntry->keyB, t, t, t, 1);
+        if (FIXVEC_EQ(old.right, pEntry->current.right) && FIXVEC_EQ(old.up, pEntry->current.up) &&
+            FIXVEC_EQ(old.forward, pEntry->current.forward) && FIXVEC_EQ(old.position, pEntry->current.position))
+            pEntry->moved = 0;
         else
-            *(int *)(p + 0x124) = 1;
+            pEntry->moved = 1;
     }
 }
 
@@ -10535,7 +10554,7 @@ void StageObject_QueueOrEvictMovingObject(int *param_1, int param_2, int param_3
     if (g_movingObjects.count < 0x28) {
         g_movingObjects.entries[g_movingObjects.count].field_0x0 = (int)param_1;
         *(int *)((BYTE *)&g_movingObjects.entries[g_movingObjects.count] + 0x118) = param_2;
-        StageObject_InitMovingObject((int *)&g_movingObjects.entries[g_movingObjects.count], param_3);
+        StageObject_InitMovingObject(&g_movingObjects.entries[g_movingObjects.count], param_3);
         g_movingObjects.count++;
         return;
     }
@@ -10588,7 +10607,7 @@ void StageObject_QueueOrEvictMovingObject(int *param_1, int param_2, int param_3
         RallyData_MarkElementReachedByCar((BYTE **)entry->field_0x0, j);
     entry->field_0x0 = (int)param_1;
     *(int *)((BYTE *)entry + 0x118) = param_2;
-    StageObject_InitMovingObject((int *)entry, param_3);
+    StageObject_InitMovingObject(entry, param_3);
 }
 
 extern int *g_unk0x00588b9c;

@@ -1369,9 +1369,26 @@ void NetRace_ExtrapolateOrderedCarPoses(Car *pCars, short *pOrder, short count)
 // 0x128-byte record per object (defined in StageObjects.cpp, which owns the
 // GLOBAL annotations of the table and of the active count).
 struct StageObjectEntry0x128 {
-    int field_0x0;              // 0x00
-    int *pObject;               // 0x04  head of the object's node chain
-    BYTE rest[0x120];           // 0x08
+    int field_0x0;              // 0x000 route element of the object
+    int *pObject;               // 0x004 scene node (head of the object's node chain)
+    FixMatrix keyB;             // 0x008 previous key
+    FixMatrix keyA;             // 0x048 next key
+    FixMatrix current;          // 0x088 interpolated matrix
+    FixMatrix *pMatrix;         // 0x0c8 matrix the motion integrates (keyB)
+    int mode;                   // 0x0cc 1 = sliding on the ground, 2 = airborne
+    int objectType;             // 0x0d0
+    FixVector groundNormal;     // 0x0d4
+    FixVector spin;             // 0x0e0 angular step
+    FixVector velocity;         // 0x0ec
+    FixVector field_0xf8;       // 0x0f8
+    FixVector probe;            // 0x104 ground-probe half extents (x, y, z)
+    int field_0x110;            // 0x110
+    int actionState;            // 0x114 node action / sound callback state
+    int field_0x118;            // 0x118
+    short field_0x11c;          // 0x11c
+    short field_0x11e;
+    int field_0x120;            // 0x120
+    int moved;                  // 0x124 the interpolated matrix changed this frame
 };
 struct MovingObjects {
     StageObjectEntry0x128 entries[40];
@@ -1454,7 +1471,7 @@ void StageObject_UpdateMovingTransforms(void)
     FixVector v;
     FixAngles angles;
     FixMatrix *pMatrix;
-    BYTE *pObj;
+    StageObjectEntry0x128 *pObj;
     int *pNode;
     int len;
     int len2;
@@ -1465,20 +1482,20 @@ void StageObject_UpdateMovingTransforms(void)
     if (g_movingObjects.count == 0)
         return;
 
-    pObj = (BYTE *)g_movingObjects.entries;
+    pObj = g_movingObjects.entries;
 
     for (i = 0; i < (int)(g_movingObjects.count & 0xff); i++) {
-        pMatrix = *(FixMatrix **)(pObj + 0xc8);
-        vecD4 = *(FixVector *)(pObj + 0xd4);
+        pMatrix = pObj->pMatrix;
+        vecD4 = pObj->groundNormal;
 
-        *(FixMatrix *)(pObj + 0x48) = *(FixMatrix *)(pObj + 8);
+        pObj->keyA = pObj->keyB;
 
-        switch (*(int *)(pObj + 0xcc)) {
+        switch (pObj->mode) {
         case 1:
             // Turn rate (scaled first) becomes this step's rotation of the object basis.
-            vecE0 = *(FixVector *)(pObj + 0xe0);
+            vecE0 = pObj->spin;
             FixVecScale(&vecE0, &vecE0, 0x11999);
-            *(FixVector *)(pObj + 0xe0) = vecE0;
+            pObj->spin = vecE0;
 
             FixMatrix_GetRight(&basis.right, pMatrix);
             FixMatrix_GetUp(&basis.up, pMatrix);
@@ -1529,40 +1546,40 @@ void StageObject_UpdateMovingTransforms(void)
                 } else {
                     FixVecScaleRecip(&basis.forward, &pos, len);
                 }
-                *(int *)(pObj + 0xcc) = 0;
+                pObj->mode = 0;
             }
 
             FILL_PROBE_TABLE(pObj)
-            FixMatrix_RotateVector(&world, (FixVector *)(pObj + 0xf8), pMatrix);
+            FixMatrix_RotateVector(&world, &pObj->field_0xf8, pMatrix);
             FixMatrix_GetPosition(&pos, pMatrix);
             world.x += pos.x;
             world.y += pos.y;
             world.z += pos.z;
 
-            pMatrix->position.y += StageObject_ProbeGroundDistance(pObj, &world);
+            pMatrix->position.y += StageObject_ProbeGroundDistance((BYTE *)pObj, &world);
             FixMatrix_SetRight(&basis.right, pMatrix);
             FixMatrix_SetUp(&basis.up, pMatrix);
             FixMatrix_SetForward(&basis.forward, pMatrix);
 
-            for (pNode = *(int **)(pObj + 4); pNode != NULL; pNode = *(int **)((BYTE *)pNode + 8))
+            for (pNode = pObj->pObject; pNode != NULL; pNode = *(int **)((BYTE *)pNode + 8))
                 *(int *)((BYTE *)pNode + 0x174) = 1;
 
-            if (*(int *)(pObj + 0xcc) == 0)
-                *(FixMatrix *)(pObj + 0x48) = *(FixMatrix *)(pObj + 8);
+            if (pObj->mode == 0)
+                pObj->keyA = pObj->keyB;
             break;
 
         case 2:
             FixMatrix_GetRight(&basis.right, pMatrix);
             FixMatrix_GetUp(&basis.up, pMatrix);
             FixMatrix_GetForward(&basis.forward, pMatrix);
-            FixMatrix_RotateVector(&world, (FixVector *)(pObj + 0xf8), pMatrix);
+            FixMatrix_RotateVector(&world, &pObj->field_0xf8, pMatrix);
             FixMatrix_GetPosition(&pos, pMatrix);
             world.x += pos.x;
             world.y += pos.y;
             world.z += pos.z;
 
             FILL_PROBE_TABLE(pObj)
-            vecE0 = *(FixVector *)(pObj + 0xe0);
+            vecE0 = pObj->spin;
             angles.x = FIX_ANGLE(FixMul(vecE0.x, g_physicsTimeStep));
             angles.y = FIX_ANGLE(FixMul(vecE0.y, g_physicsTimeStep));
             angles.z = FIX_ANGLE(FixMul(vecE0.z, g_physicsTimeStep));
@@ -1574,17 +1591,17 @@ void StageObject_UpdateMovingTransforms(void)
             grav.x = 0;
             grav.y = 0;
             grav.z = 0;
-            if (*(int *)(pObj + 0x120) == 0)
+            if (pObj->field_0x120 == 0)
                 grav.y = -0xa3d;
             if (CGameInfo::IsActiveCheatEnabled(1) != 0)
                 FixVecScale(&grav, &grav, 0x8000);
             FixVecScale(&grav, &grav, g_physicsTimeStep);
 
-            ((FixVector *)(pObj + 0xec))->x += grav.x;
-            ((FixVector *)(pObj + 0xec))->y += grav.y;
-            ((FixVector *)(pObj + 0xec))->z += grav.z;
+            pObj->velocity.x += grav.x;
+            pObj->velocity.y += grav.y;
+            pObj->velocity.z += grav.z;
 
-            FixVecScale(&step, (FixVector *)(pObj + 0xec), g_physicsTimeStep);
+            FixVecScale(&step, &pObj->velocity, g_physicsTimeStep);
             FixVecScale(&grav, &grav, g_physicsTimeStep / 2);
             step.x -= grav.x;
             step.y -= grav.y;
@@ -1593,15 +1610,15 @@ void StageObject_UpdateMovingTransforms(void)
             world.y += step.y;
             world.z += step.z;
 
-            if (*(int *)(pObj + 0x120) == 0) {
+            if (pObj->field_0x120 == 0) {
                 FixMatrix_SetRight(&basis.right, pMatrix);
                 FixMatrix_SetUp(&basis.up, pMatrix);
                 FixMatrix_SetForward(&basis.forward, pMatrix);
 
-                if (*(int *)(pObj + 4) < 0) {
-                    height = StageObject_ProbeGroundDistance(pObj, &world);
+                if (pObj->velocity.y < 0) {
+                    height = StageObject_ProbeGroundDistance((BYTE *)pObj, &world);
                     if (height > -0xccc) {
-                        *(int *)(pObj + 0xcc) = 1;
+                        pObj->mode = 1;
                         world.y += height;
                     }
                 }
@@ -1614,12 +1631,12 @@ void StageObject_UpdateMovingTransforms(void)
                 len2 = FixVecLength(&vecE0);
 
                 if (len < 0x28f && len2 < 0x28f) {
-                    *(int *)(pObj + 0xe0) = 0;
-                    *(int *)(pObj + 0xe4) = 0;
-                    *(int *)(pObj + 0xe8) = 0;
-                    *(int *)(pObj + 0xec) = 0;
-                    *(int *)(pObj + 0xf0) = 0;
-                    *(int *)(pObj + 0xf4) = 0;
+                    pObj->spin.x = 0;
+                    pObj->spin.y = 0;
+                    pObj->spin.z = 0;
+                    pObj->velocity.x = 0;
+                    pObj->velocity.y = 0;
+                    pObj->velocity.z = 0;
 
                     if (FixVecDot(&basis.forward, &vecD4) >= 0) {
                         v = vecD4;
@@ -1633,7 +1650,7 @@ void StageObject_UpdateMovingTransforms(void)
                     len = FixVecLength(&pos);
                     if (!(len > 0x1999)) {
                         basis.forward = v;
-                        *(int *)(pObj + 0xcc) = 0;
+                        pObj->mode = 0;
                     } else {
                         FixVecScaleRecip(&pos, &pos, len);
                         FixVecScale(&pos, &pos, 0x1999);
@@ -1678,23 +1695,23 @@ void StageObject_UpdateMovingTransforms(void)
                 FixMatrix_SetRight(&basis.right, pMatrix);
                 FixMatrix_SetUp(&basis.up, pMatrix);
                 FixMatrix_SetForward(&basis.forward, pMatrix);
-                world.y += StageObject_ProbeGroundDistance(pObj, &world);
+                world.y += StageObject_ProbeGroundDistance((BYTE *)pObj, &world);
             }
 
-            FixMatrix_RotateVector(&pos, (FixVector *)(pObj + 0xf8), pMatrix);
+            FixMatrix_RotateVector(&pos, &pObj->field_0xf8, pMatrix);
             pos.x = world.x - pos.x;
             pos.y = world.y - pos.y;
             pos.z = world.z - pos.z;
             FixMatrix_SetPosition(&pos, pMatrix);
 
-            for (pNode = *(int **)(pObj + 4); pNode != NULL; pNode = *(int **)((BYTE *)pNode + 8))
+            for (pNode = pObj->pObject; pNode != NULL; pNode = *(int **)((BYTE *)pNode + 8))
                 *(int *)((BYTE *)pNode + 0x174) = 1;
 
-            if (*(int *)(pObj + 0xcc) == 0)
-                *(FixMatrix *)(pObj + 0x48) = *(FixMatrix *)(pObj + 8);
+            if (pObj->mode == 0)
+                pObj->keyA = pObj->keyB;
             break;
         }
 
-        pObj += 0x128;
+        pObj++;
     }
 }

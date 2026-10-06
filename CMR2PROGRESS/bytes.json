@@ -2051,7 +2051,7 @@
   },
   "0x470580": {
     "n": "StageObject_UpdateMovingTransforms",
-    "s": 0.5409556313993175,
+    "s": 0.5411095305832148,
     "x": false,
     "unknown": [],
     "f": "FixedPoint.cpp",
@@ -16580,7 +16580,7 @@
   },
   "0x416670": {
     "n": "Race_ResetPlayerCallState",
-    "s": 0.5617977528089888,
+    "s": 0.6,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -16588,11 +16588,9 @@
   },
   "0x4177d0": {
     "n": "Race_DrawPlayerCallSlots",
-    "s": 0.5600739371534196,
+    "s": 0.5637707948243993,
     "x": false,
-    "unknown": [
-      "__real@8@400f8000000000000000"
-    ],
+    "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "Race_DrawPlayerCallSlots"
   },
@@ -20969,8 +20967,8 @@
   },
   "0x46f810": {
     "n": "StageObject_InitMovingObject",
-    "s": 0.514047866805411,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_InitMovingObject"
@@ -22681,8 +22679,8 @@
   },
   "0x471950": {
     "n": "StageObject_InterpolateAllObjectMatrices",
-    "s": 0.4175824175824176,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_InterpolateAllObjectMatrices"

@@ -946,7 +946,6 @@ void Race_ResetPlayerCallState(void)
 {
     int i;
     RaceCallRecord *p;
-    RaceCallRecord *q;
 
     g_unk0x00537198[0] = 9999;
     g_raceWrongWayFlags[0] = 0;
@@ -955,19 +954,14 @@ void Race_ResetPlayerCallState(void)
     g_unk0x0053708c[0] = -1;
     g_unk0x0053708c[1] = -1;
     memset(g_unk0x005371a4, 0, sizeof(g_unk0x005371a4));
-    p = g_raceCallRecords;
-    do {
-        q = p;
-        i = 5;
-        do {
-            q->flags &= 0xfffffc00;
-            q->field_0x4 = 0;
-            q->field_0x0 = 0;
-            q++;
-        } while (--i);
+    for (p = g_raceCallRecords; p < &g_raceCallRecords[10]; p += 5) {
+        for (i = 0; i < 5; i++) {
+            p[i].flags &= 0xfffffc00;
+            p[i].field_0x4 = 0;
+            p[i].field_0x0 = 0;
+        }
         g_unk0x005371a0 = 0;
-        p = q;
-    } while ((int)p < (int)(g_raceCallRecords + 10));
+    }
     for (i = 0; i < 5; i++) {
         g_raceSlotState[i].flags &= 0xfc;
         g_raceSlotState[i].pending = -1;
@@ -1172,14 +1166,14 @@ void Race_DrawPlayerCallSlots(unsigned int player, int param2)
         rectMain.y = (short)(rectMain.y + (short)yOff);
 
         if (value != 0) {
-            r = FixMul((int)(__int64)(((int)rectMain.w / 2) * 65536.0), g_sinTable[(value + 0x400) & 0xfff]);
+            r = FixMul((int)(__int64)(((int)rectMain.w / 2) * CGraphics::m_65536), g_sinTable[(value + 0x400) & 0xfff]);
             rectMain.w = (short)(r * 2 >> 16);
         }
         if (found == 0)
             rectMain.w = 0;
 
         if (bVar2) {
-            r = FixMul((int)(__int64)(((int)rectSecond.w / 2) * 65536.0), g_sinTable[(curveB + 0x400) & 0xfff]);
+            r = FixMul((int)(__int64)(((int)rectSecond.w / 2) * CGraphics::m_65536), g_sinTable[(curveB + 0x400) & 0xfff]);
             r = r * 2 >> 16;
             rectSecond.w = (short)r;
             rectMain.x = (short)((((int)g_pGraphics->resX << 15) >> 16) - (r + (int)rectMain.w) / 2 + xOff);
