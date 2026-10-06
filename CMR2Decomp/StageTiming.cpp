@@ -8300,7 +8300,7 @@ classes:
     *(int *)(pRecord + 0x1c) = 0;
 wheelsDone:
     *(void **)(g_unk0x00542630 + 0x2d4 + car * 4) = pWheelData;
-    if (CGameInfo::GetGraphicsOptionBit4()) {
+    if ((BYTE)CGameInfo::GetGraphicsOptionBit4()) {
         if (pRecord[0x20] == 'A') {
             Scene_AddShadowCaster(*(SceneNode **)(pRecord + 4), 1);
             Scene_AddShadowCaster(*(SceneNode **)(pRecord + 8), 1);
@@ -8357,7 +8357,7 @@ wheelsDone:
     pCar->pExtraNodes[1] = SceneNode_FindByType(pNodes, 2);
     pCar->pExtraNodes[2] = SceneNode_FindByType(pNodes, 3);
     pCar->pExtraNodes[3] = SceneNode_FindByType(pNodes, 4);
-    if (CGameInfo::GetGraphicsOptionBit4())
+    if ((BYTE)CGameInfo::GetGraphicsOptionBit4())
         Scene_AddShadowCaster(pCar->pNode0x724, 0);
     SceneNode_SetMeshFlagBits(pCar->pNode0x724, car);
     if (pCar->pNode0x724 != NULL)

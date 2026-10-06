@@ -12580,7 +12580,7 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
     int pitch;
     count = 0;
     for (i = 0; i < 7; i++) {
-        if (NetPlayers_IsPlayerPresent(i) != 0)
+        if ((BYTE)NetPlayers_IsPlayerPresent(i) != 0)
             carIds[count++] = NetPlayers_GetPlayerField8(i);
     }
     if (count == 0)

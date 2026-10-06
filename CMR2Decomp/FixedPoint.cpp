@@ -745,7 +745,7 @@ void View_SetPlayerProjection(unsigned int player)
         CGraphics::SetProjection(-fovX, fovY, g_unk0x00538e04[i], g_unk0x00538df0[i]);
         return;
     }
-    if (RallyData_IsChampionshipFinalStage() && g_unk0x00538e04[i] < 0x960000) {
+    if ((BYTE)RallyData_IsChampionshipFinalStage() && g_unk0x00538e04[i] < 0x960000) {
         CGraphics::SetProjection(fovX, fovY, 0x960000, g_unk0x00538df0[i]);
         return;
     }

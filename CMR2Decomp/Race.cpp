@@ -5376,7 +5376,7 @@ void Race_UpdatePlayerViewAndDrivenCars(BYTE param1, int param2)
             }
         }
         if (CGameInfo::IsInRaceMenuOpen() == 0 && param1 >= 7) {
-            if (RallyData_IsChampionshipFinalStage() != 0 && Race_GetPlayerRecordField4(0) == 0) {
+            if ((BYTE)RallyData_IsChampionshipFinalStage() != 0 && Race_GetPlayerRecordField4(0) == 0) {
                 if (g_unk0x00537f2c == 0) {
                     Sound_FreeAll();
                     g_unk0x00537f2c = 1;

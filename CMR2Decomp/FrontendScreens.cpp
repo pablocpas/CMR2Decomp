@@ -8651,7 +8651,7 @@ void FrontendMenu_UpdateNetworkSessionSetup(Menu *pMenu)
         i = 0;
         do {
             c = (char)NetPlayers_IsPlayerPresent(i);
-            if (c != 0 && NetPlayers_GetPlayerFlag6(i) == 0) {
+            if (c != 0 && (BYTE)NetPlayers_GetPlayerFlag6(i) == 0) {
                 b = 0;
                 break;
             }
@@ -12048,11 +12048,11 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
             if (pName != NULL)
                 sprintf(CFrontend::m_stringDest, g_str0x00524da8, pName,
                         CFrontend::GetModeSpecificStageText(NetPlayers_GetCarSelection(j)),
-                        NetPlayers_GetPlayerFlag5(j) != 0 ? g_strGearboxAuto : g_strGearboxManual);
+                        (BYTE)NetPlayers_GetPlayerFlag5(j) != 0 ? g_strGearboxAuto : g_strGearboxManual);
             else
                 sprintf(CFrontend::m_stringDest, g_str0x00524da8, CMain::m_logFileBlankLine,
                         CFrontend::GetModeSpecificStageText(NetPlayers_GetCarSelection(j)),
-                        NetPlayers_GetPlayerFlag5(j) != 0 ? g_strGearboxAuto : g_strGearboxManual);
+                        (BYTE)NetPlayers_GetPlayerFlag5(j) != 0 ? g_strGearboxAuto : g_strGearboxManual);
             if (NetPlayers_GetPlayerFlag6(j) != 0)
                 Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX - (g_pGraphics->resX * 20) / 640,
                               (g_pGraphics->resY * 50) / 480 + ((g_pGraphics->resY * 40) / 480) * i, (int *)g_colourWhite0x00524968, 0xc);

@@ -2993,7 +2993,7 @@ void RallyData_DrawCarStageGapPanel(int car, short *pRect)
             sprintf(CFrontend::m_stringDest, g_stageNumberFormat, (stage + 1) % 100);
             Font_DrawText(5, CFrontend::m_stringDest, x, rect[1] + topMarginY,
                           (int *)&g_stageHudTextColour, 9);
-        } else if (!RallyData_GetSelectionFlag27()) {
+        } else if (!(BYTE)RallyData_GetSelectionFlag27()) {
             if (stage < 0)
                 stage = 0;
             if (stage < count)
@@ -3360,7 +3360,7 @@ void RallyData_DrawStageResultRows(int car, short *position)
     baseHeight = (int)g_pGraphics->resY * 0xccc >> 16;
     if (CGameInfo::GetConfiguredGameMode() == 5 || CGameInfo::GetConfiguredGameMode() == 6 ||
         CGameInfo::GetConfiguredGameMode() == 7) {
-        rows = CGameInfo::GetNetworkOptionBit11() ? 2 : 4;
+        rows = (BYTE)CGameInfo::GetNetworkOptionBit11() ? 2 : 4;
     } else {
         rows = 3;
     }
@@ -3380,7 +3380,7 @@ void RallyData_DrawStageResultRows(int car, short *position)
             fade = 0;
 
         if (CGameInfo::GetConfiguredGameMode() != 10 && CGameInfo::GetConfiguredGameMode() != 12) {
-            if (CGameInfo::GetNetworkOptionBit11()) {
+            if ((BYTE)CGameInfo::GetNetworkOptionBit11()) {
                 shownRow = row + 2;
             } else if (RallyData_IsDriverRecordUsable((BYTE)(StageUI_GetRaceEndEventCount() + car))) {
                 if (row == 1)
@@ -4424,7 +4424,7 @@ void RallyData_UpdateCarRoute(Car *pCar)
             record->field_0x8++;
         }
         record->field_0xc = 0;
-        if (slot < (int)(RallyDataState() & 0xff) && RallyData_GetSelectionFlag27() == 0)
+        if (slot < (int)(RallyDataState() & 0xff) && (BYTE)RallyData_GetSelectionFlag27() == 0)
             g_routeProbeCycles[slot] = 0;
         RallyData_ProjectCarRouteSegmentProgress(pCar, (int *)record);
         return;
@@ -7764,7 +7764,7 @@ bar:
     pBar[6] = marker - (short)fallback;
     pBar[7] = pBar[3];
     RallyData_DispatchActiveGameModeState(param_1);
-    if (RallyData_GetSelectionFlag26() != 0 && RallyData_GetSetupFlag11() != 0)
+    if (RallyData_GetSelectionFlag26() != 0 && (BYTE)RallyData_GetSetupFlag11() != 0)
         RallyData_UpdateCountdownAndFinishSounds(param_1);
     if (CGameInfo::GetConfiguredGameMode() == 5 || CGameInfo::GetConfiguredGameMode() == 6 ||
         CGameInfo::GetConfiguredGameMode() == 7 || RallyData_GetFlag25() != 0)

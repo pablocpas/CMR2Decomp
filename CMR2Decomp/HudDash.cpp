@@ -457,7 +457,7 @@ void Dash_DrawBar(int player, int layer)
     Font_DrawText(6, text, rect[0], rect[1], (int *)g_dashWhite, 0x24);
     rect[0] = rect[0] + (short)((g_pGraphics->resX * -0x67) / 640);
     rect[1] = rect[1] + (short)((g_pGraphics->resY * 3) / 480);
-    if (CGameInfo::IsDashOptionEnabled() != 0)
+    if ((BYTE)CGameInfo::IsDashOptionEnabled() != 0)
         sprintf(text, g_strDashMph);
     else
         sprintf(text, g_strDashKmh);
@@ -642,7 +642,7 @@ void Dash_DrawDial(int player, int layer)
     // Speed unit plate.
     src.x = 0;
     src.y = 0;
-    pTexture = CGameInfo::IsDashOptionEnabled() == 0 ? g_dashKphTexture : g_dashMphTexture;
+    pTexture = (BYTE)CGameInfo::IsDashOptionEnabled() == 0 ? g_dashKphTexture : g_dashMphTexture;
     src.w = pTexture->width;
     src.h = pTexture->height;
     dst.x = DASH_X(0xf78d);
@@ -656,7 +656,7 @@ void Dash_DrawDial(int player, int layer)
         dst.x = dst.x - src.w / 2;
         dst.y = dst.y - 0xc;
     }
-    if (CGameInfo::IsDashOptionEnabled() == 0)
+    if ((BYTE)CGameInfo::IsDashOptionEnabled() == 0)
         Sprite_Queue(&src, &dst, g_dashKphTexture, 2, 0, NULL, NULL,
                      g_dashWhite, 8);
     else
