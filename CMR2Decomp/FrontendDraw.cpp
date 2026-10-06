@@ -486,10 +486,13 @@ void FrontendDraw_RallyEntryList(BYTE *pList, char *pTitle, int index, char **pp
     BYTE *pLine;
     BYTE *pLineShadow;
 
-    hasTitle = (pTitle != NULL);
+    rect[1] = 0;
     rect[0] = (int)(g_pGraphics->resX * 0x50) / 640 - (int)(g_pGraphics->resX * 0x14) / 640;
     rect[2] = CFrontend::m_pAr640ATexture->width;
     rect[3] = CFrontend::m_pAr640ATexture->height;
+    hasTitle = 0;
+    if (pTitle != NULL)
+        hasTitle = 1;
     if (index == -1)
         index = ((int)(g_pGraphics->resY * 8) / 480 + (int)(g_pGraphics->resY * 0x26) / 480 +
                  (int)(g_pGraphics->resY * 0x180) / 480) / 2;
