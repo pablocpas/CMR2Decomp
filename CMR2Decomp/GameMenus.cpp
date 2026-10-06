@@ -1680,7 +1680,7 @@ void GameMenu_DrawFinalChampionshipStandings(Menu *pMenu)
                           (int *)g_menuFrameColour, 0x11);
         }
     } else {
-        if (!RallyData_IsChampionshipFinalStage())
+        if (!(BYTE)RallyData_IsChampionshipFinalStage())
             GameMenu_ClearMenuListWithHighlight();
     }
 }
