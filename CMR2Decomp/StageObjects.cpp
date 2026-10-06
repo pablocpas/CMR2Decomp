@@ -3187,9 +3187,10 @@ extern FixVector g_unk0x00590b50;
 // FUNCTION: CMR2 0x004854a0
 void StageObject_IntegrateCarMotionRecord(int index)
 {
-    int car = g_partCar->index;
-    FixVector *pAxis = (FixVector *)(g_unk0x00590c00[car] + (index & 0xff) * 0x20 + 0xc);
-    int *pRecord = (int *)((BYTE *)g_unk0x00590c6c[car] + (index & 0xff) * 0x3c);
+    signed char car = g_partCar->index;
+    BYTE i = (BYTE)index;
+    int *pRecord = (int *)((BYTE *)g_unk0x00590c6c[car] + i * 0x3c);
+    FixVector *pAxis = (FixVector *)(g_unk0x00590c00[car] + i * 0x20 + 0xc);
     FixVector velocity;
     FixVector projected;
     int dot;
@@ -3197,9 +3198,7 @@ void StageObject_IntegrateCarMotionRecord(int index)
     if (pRecord[0xe] != 0)
         return;
 
-    pRecord[3] = pRecord[0];
-    pRecord[4] = pRecord[1];
-    pRecord[5] = pRecord[2];
+    *(FixVector *)&pRecord[3] = *(FixVector *)&pRecord[0];
 
     velocity = g_unk0x00590b50;
     dot = FixVecDot(&velocity, pAxis);

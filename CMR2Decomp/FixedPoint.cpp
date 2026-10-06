@@ -729,11 +729,11 @@ int RallyData_IsHeadToHeadRaceMode(void);
 // FUNCTION: CMR2 0x00422d40
 void View_SetPlayerProjection(unsigned int player)
 {
-    int i = player & 0xff;
-    int base = FixMul(g_unk0x005391cc[i], 0x275c2);
-    int ratio = (int)(__int64)(((double)g_pGraphics->resX / (double)g_pGraphics->resY) * CGraphics::m_65536);
-    int fovX = FixMul(0x123d7, FixMul(base, ratio));
-    int fovY = FixMul(0x2147a, base);
+    BYTE i = (BYTE)player;
+    int zoom = g_unk0x005391cc[i];
+    int fovX = FixMul(0x123d7, FixMul(FixMul(zoom, 0x275c2),
+        (int)(__int64)(((double)g_pGraphics->resX / (double)g_pGraphics->resY) * CGraphics::m_65536)));
+    int fovY = FixMul(0x2147a, FixMul(zoom, 0x275c2));
 
     if (Race_IsMultiplayerRecordMode10() == 0 && RallyData_IsHeadToHeadRaceMode()) {
         if (CGameInfo::IsSplitBarEnabled())

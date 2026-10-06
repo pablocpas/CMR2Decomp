@@ -1947,8 +1947,8 @@
   },
   "0x422d40": {
     "n": "View_SetPlayerProjection",
-    "s": 0.78,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FixedPoint.cpp",
     "symbol_name": "View_SetPlayerProjection"
@@ -21601,8 +21601,8 @@
   },
   "0x4854a0": {
     "n": "StageObject_IntegrateCarMotionRecord",
-    "s": 0.8703703703703703,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_IntegrateCarMotionRecord"
@@ -26427,7 +26427,7 @@
   },
   "0x48fb80": {
     "n": "Collision_ResolveSectorEdgeContact",
-    "s": 0.7788697788697788,
+    "s": 0.7808471454880295,
     "x": false,
     "unknown": [],
     "f": "VehiclePhysics.cpp",

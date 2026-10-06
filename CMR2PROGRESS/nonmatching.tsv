@@ -264,7 +264,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x498590	StageTiming_RelocateCarRecordRoutePoints	StageTiming.cpp	138	0.7755102040816326	0.7755102040816326
 0x4cfb30	FrontendRecords_InsertStageDeviceRecord	Frontend.cpp	344	0.776	0.792
 0x457000	StageTiming_LoadSelectedCarModel	StageTiming.cpp	3073	0.7761658031088083	0.7017359284587059
-0x422d40	View_SetPlayerProjection	FixedPoint.cpp	291	0.7772020725388601	0.78
 0x4702f0	StageObject_ProbeGroundDistance	FixedPoint.cpp	641	0.7777777777777778	0.7318181818181818
 0x4d40d0	FrontendDraw_MenuPath	FrontendDraw.cpp	267	0.7792207792207793	0.75
 0x411450	RallyData_ResetStageClockAndRecords	RallyData.cpp	244	0.7796610169491526	0.6554621848739496
@@ -344,8 +343,8 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x426fc0	NetRace_ExtrapolateOrderedCarPoses	FixedPoint.cpp	1466	0.8459915611814346	0.821917808219178
 0x4a57e0	CGraphics::GetPixelAlpha	Graphics.cpp	156	0.8461538461538461	0.8153846153846154
 0x444c10	Car_PrepareStep	Car.cpp	3256	0.8477777777777777	0.8138766519823789
-0x48fb80	Collision_ResolveSectorEdgeContact	VehiclePhysics.cpp	2536	0.8481481481481481	0.7788697788697788
 0x432cc0	Car_UpdateBodyMatrix	Car.cpp	2599	0.8482797518330514	0.7776536312849162
+0x48fb80	Collision_ResolveSectorEdgeContact	VehiclePhysics.cpp	2536	0.8488587291795188	0.7808471454880295
 0x4744f0	Knockout_DrawCurrentRoundBracket	StageObjects.cpp	2774	0.8493723849372385	0.7820177731312076
 0x45c610	CarTyres_CommitPlayerWear	StageTiming.cpp	145	0.85	0.85
 0x463070	StageLights_UpdateDirection	StageObjects.cpp	512	0.850632911392405	0.7182044887780549
@@ -368,7 +367,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x402c90	InRaceMenu_RebuildMainPage	GameInfo.cpp	487	0.8626198083067093	0.8450704225352113
 0x40e210	RallyData_PickUnexcludedGroupEvent	RallyData.cpp	276	0.863013698630137	0.863013698630137
 0x4efb70	FrontendMenu_EnableRallyStageRows	FrontendScreens.cpp	585	0.8641304347826086	0.8509485094850948
-0x4854a0	StageObject_IntegrateCarMotionRecord	StageObjects.cpp	486	0.8650306748466258	0.8703703703703703
 0x4f0620	FrontendMenu_UpdateMultiplayerStageSelection	FrontendScreens.cpp	444	0.8650519031141869	0.8650519031141869
 0x462d80	StageObject_DrawProjectedViewIcon	StageObjects.cpp	744	0.8652173913043478	0.8652173913043478
 0x40dc30	RallyData_PickOpponentLineups	RallyData.cpp	765	0.8653061224489796	0.8600405679513184

@@ -64,6 +64,10 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
 - `c ? 0xff : 0` gives `setcc/dec/and`; `x -= k; f(x)` gives `sub` where
   `f(x - k)` gives `add x, -k`; a `return` inside an `if` duplicates the
   epilogue where `if/else` shares it.
+- `shl r, 2` once, then `[r + table]` addressing: the index is a `char` or
+  `BYTE` local (`BYTE i = (BYTE)player;`, `char car = g_partCar->index;`); an
+  `int` index gives `[r*4 + table]` at each use instead. A value loaded once and used by two helper calls is
+  a local (`int zoom = table[i];`), not two reads of the table.
 
 ## Before committing a batch
 

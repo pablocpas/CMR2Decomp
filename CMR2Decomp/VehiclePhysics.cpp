@@ -674,10 +674,9 @@ noSlide:
         velDiff.x = g_collisionCar->velocity.x - slide.x;
         velDiff.y = g_collisionCar->velocity.y - slide.y;
         velDiff.z = g_collisionCar->velocity.z - slide.z;
-        index = type;
         FixVecScale(&velDiff, &velDiff,
-                    -FixMul(g_physicsTimeStep, g_unk0x0051fb00[26 + index]));
-        FixVecScale(&perp, &slide, -g_unk0x0051fb00[index]);
+                    -FixMul(g_physicsTimeStep, g_unk0x0051fb00[26 + type]));
+        FixVecScale(&perp, &slide, -g_unk0x0051fb00[type]);
         slide.x = perp.x - slide.x + velDiff.x;
         slide.y = perp.y - slide.y + velDiff.y;
         slide.z = perp.z - slide.z + velDiff.z;
