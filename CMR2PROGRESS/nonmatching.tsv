@@ -51,11 +51,11 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x463410	StageLights_Create	StageObjects.cpp	1983	0.5404556166535742	0.5998433829287392
 0x488640	Collision_TestOrientedBoxCornerOverlap	StageObjects.cpp	1948	0.55	0.5110635260528195
 0x40b5b0	Font_GetTextWidth	Font.cpp	376	0.5546875	0.5645161290322581
-0x464960	StageObject_PositionRearViewLightNodes	StageObjects.cpp	391	0.555984555984556	0.5317460317460317
 0x4b45d0	Scene_AddShadowCaster	SceneNode.cpp	825	0.5579567779960707	0.5369649805447471
 0x47cd10	AI_FindClosestCarInAngleWindow	StageObjects.cpp	965	0.56	0.4889589905362776
 0x4aa930	CGame::AddConnection	Game.cpp	219	0.5620915032679739	0.5584415584415584
 0x4a6e30	CGraphics::LoadDDSTexture	Graphics.cpp	1494	0.5631517960602549	0.5630630630630631
+0x464960	StageObject_PositionRearViewLightNodes	StageObjects.cpp	391	0.5637065637065637	0.5317460317460317
 0x49c680	Graphics_DrawMeshTextureBatches	Graphics.cpp	299	0.5638297872340425	0.6051282051282051
 0x411b20	RallyData_LayoutPlayerSplitBars	RallyData.cpp	786	0.5646630236794171	0.5316455696202531
 0x47ad20	SurfaceSound_UpdateNearestNetworkCarEngines	StageObjects.cpp	732	0.5657015590200446	0.5763440860215053
@@ -243,7 +243,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x498590	StageTiming_RelocateCarRecordRoutePoints	StageTiming.cpp	138	0.7755102040816326	0.7755102040816326
 0x4cfb30	FrontendRecords_InsertStageDeviceRecord	Frontend.cpp	344	0.776	0.792
 0x457000	StageTiming_LoadSelectedCarModel	StageTiming.cpp	3073	0.7761658031088083	0.7017359284587059
-0x4702f0	StageObject_ProbeGroundDistance	FixedPoint.cpp	641	0.7777777777777778	0.7318181818181818
 0x4d40d0	FrontendDraw_MenuPath	FrontendDraw.cpp	267	0.7792207792207793	0.75
 0x411450	RallyData_ResetStageClockAndRecords	RallyData.cpp	244	0.7796610169491526	0.6554621848739496
 0x484e00	CarDamage_StepClimbingCarRecords	StageObjects.cpp	316	0.780952380952381	0.7358490566037735
@@ -495,6 +494,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x500c80	OptionMenu_EnterStartState	GameInfo.cpp	363	0.99	0.98
 0x4b2f80	Scene_CreateLight	SceneNode.cpp	1201	0.990909090909091	0.9938271604938271
 0x4b50b0	Scene_ApplyGroundLightToMeshTree	SceneNode.cpp	613	0.990990990990991	0.990990990990991
+0x4702f0	StageObject_ProbeGroundDistance	FixedPoint.cpp	641	0.9910313901345291	0.9910313901345291
 0x40c610	CInput::InitDetectedControllerSlot	Input.cpp	1604	0.9920424403183024	0.9920424403183024
 0x451df0	GameMenu_DrawStageClassification	GameMenus.cpp	1585	0.9944649446494465	0.9944649446494465
 0x4d9c40	FrontendMenu_DrawRallySummary	FrontendScreens.cpp	2529	0.9956167814652473	0.9855799373040752

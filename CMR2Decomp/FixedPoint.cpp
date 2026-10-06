@@ -1110,38 +1110,69 @@ FixVector g_unk0x00589458[8];
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface,
                           int defaultY);
 
+struct StageObjectEntry0x128 {
+    int field_0x0;              // 0x000 route element of the object
+    int *pObject;               // 0x004 scene node (head of the object's node chain)
+    FixMatrix keyB;             // 0x008 previous key
+    FixMatrix keyA;             // 0x048 next key
+    FixMatrix current;          // 0x088 interpolated matrix
+    FixMatrix *pMatrix;         // 0x0c8 matrix the motion integrates (keyB)
+    int mode;                   // 0x0cc 1 = sliding on the ground, 2 = airborne
+    int objectType;             // 0x0d0
+    FixVector groundNormal;     // 0x0d4
+    FixVector spin;             // 0x0e0 angular step
+    FixVector velocity;         // 0x0ec
+    FixVector field_0xf8;       // 0x0f8
+    FixVector probe;            // 0x104 ground-probe half extents (x, y, z)
+    int groundHeight;           // 0x110 last ground height under the probe
+    int actionState;            // 0x114 node action / sound callback state
+    int field_0x118;            // 0x118
+    short groundTriangle;       // 0x11c last ground triangle (-1 = none)
+    short field_0x11e;
+    int field_0x120;            // 0x120
+    int moved;                  // 0x124 the interpolated matrix changed this frame
+};
+
+// Normalises pV into pOut (zero when pV is zero) and returns its length.
+inline int FixVecNormalizeLen(FixVector *pOut, FixVector *pV)
+{
+    int len;
+
+    len = FixVecLength(pV);
+    if (len == 0) {
+        pOut->x = 0;
+        pOut->y = 0;
+        pOut->z = 0;
+    } else {
+        FixVecScaleRecip(pOut, pV, len);
+    }
+    return len;
+}
+
 // Probes the ground under a stage object: casts the ground normal at the given
 // point and returns the signed distance from the point to the ground plane.
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004702f0
-int StageObject_ProbeGroundDistance(BYTE *pObj, FixVector *pPoint)
+int StageObject_ProbeGroundDistance(StageObjectEntry0x128 *pObj, FixVector *pPoint)
 {
     unsigned short surface;
     FixVector neg;
     FixVector rot;
     FixVector v;
+    FixVector ground;
     int idx;
-    int len;
 
-    *(int *)(pObj + 0x110) = Track_GetGroundHeight(pPoint, (FixVector *)(pObj + 0xd4),
-                                                   (short *)(pObj + 0x11c), &surface,
-                                                   *(int *)(pObj + 0x110));
-    if (*(short *)(pObj + 0x11c) == -1) {
-        *(int *)(pObj + 0xd4) = 0;
-        *(int *)(pObj + 0xd8) = 0x10000;
-        *(int *)(pObj + 0xdc) = 0;
-        *(int *)(pObj + 0x110) = pPoint->y - 0xa0000;
+    pObj->groundHeight = Track_GetGroundHeight(pPoint, &pObj->groundNormal, &pObj->groundTriangle, &surface,
+                                               pObj->groundHeight);
+    if (pObj->groundTriangle == -1) {
+        pObj->groundNormal.x = 0;
+        pObj->groundNormal.y = 0x10000;
+        pObj->groundNormal.z = 0;
+        pObj->groundHeight = pPoint->y - 0xa0000;
     }
-    len = FixVecLength((FixVector *)(pObj + 0xd4));
-    if (len == 0) {
-        *(int *)(pObj + 0xd4) = 0;
-        *(int *)(pObj + 0xd8) = 0;
-        *(int *)(pObj + 0xdc) = 0;
-    } else {
-        FixVecScaleRecip((FixVector *)(pObj + 0xd4), (FixVector *)(pObj + 0xd4), len);
-    }
-    FixVecScale(&neg, (FixVector *)(pObj + 0xd4), -0x10000);
-    FixMatrix_InverseRotateVector(&rot, &neg, *(FixMatrix **)(pObj + 0xc8));
+    FixVecNormalizeLen(&pObj->groundNormal, &pObj->groundNormal);
+    FixVecScale(&neg, &pObj->groundNormal, -0x10000);
+    FixMatrix_InverseRotateVector(&rot, &neg, pObj->pMatrix);
     idx = 0;
     if (rot.y >= 0)
         idx = 4;
@@ -1149,14 +1180,16 @@ int StageObject_ProbeGroundDistance(BYTE *pObj, FixVector *pPoint)
         idx += 2;
     if (rot.z < 0)
         idx += 1;
-    FixMatrix_RotateVector(&v, &g_unk0x00589458[idx], *(FixMatrix **)(pObj + 0xc8));
+    ground = *pPoint;
+    ground.y = pObj->groundHeight;
+    FixMatrix_RotateVector(&v, &g_unk0x00589458[idx], pObj->pMatrix);
     v.x += pPoint->x;
     v.y += pPoint->y;
     v.z += pPoint->z;
-    v.x = pPoint->x - v.x;
-    v.y = *(int *)(pObj + 0x110) - v.y;
-    v.z = pPoint->z - v.z;
-    return FixDiv(FixVecDot(&v, (FixVector *)(pObj + 0xd4)), *(int *)(pObj + 0xd8));
+    v.x = ground.x - v.x;
+    v.y = ground.y - v.y;
+    v.z = ground.z - v.z;
+    return FixDiv(FixVecDot(&v, &pObj->groundNormal), pObj->groundNormal.y);
 }
 
 extern double g_unk0x00511300;
@@ -1368,28 +1401,6 @@ void NetRace_ExtrapolateOrderedCarPoses(Car *pCars, short *pOrder, short count)
 // Moving stage objects: the table walked by the per-frame update below, one
 // 0x128-byte record per object (defined in StageObjects.cpp, which owns the
 // GLOBAL annotations of the table and of the active count).
-struct StageObjectEntry0x128 {
-    int field_0x0;              // 0x000 route element of the object
-    int *pObject;               // 0x004 scene node (head of the object's node chain)
-    FixMatrix keyB;             // 0x008 previous key
-    FixMatrix keyA;             // 0x048 next key
-    FixMatrix current;          // 0x088 interpolated matrix
-    FixMatrix *pMatrix;         // 0x0c8 matrix the motion integrates (keyB)
-    int mode;                   // 0x0cc 1 = sliding on the ground, 2 = airborne
-    int objectType;             // 0x0d0
-    FixVector groundNormal;     // 0x0d4
-    FixVector spin;             // 0x0e0 angular step
-    FixVector velocity;         // 0x0ec
-    FixVector field_0xf8;       // 0x0f8
-    FixVector probe;            // 0x104 ground-probe half extents (x, y, z)
-    int field_0x110;            // 0x110
-    int actionState;            // 0x114 node action / sound callback state
-    int field_0x118;            // 0x118
-    short field_0x11c;          // 0x11c
-    short field_0x11e;
-    int field_0x120;            // 0x120
-    int moved;                  // 0x124 the interpolated matrix changed this frame
-};
 struct MovingObjects {
     StageObjectEntry0x128 entries[40];
     BYTE meshCount;
@@ -1556,7 +1567,7 @@ void StageObject_UpdateMovingTransforms(void)
             world.y += pos.y;
             world.z += pos.z;
 
-            pMatrix->position.y += StageObject_ProbeGroundDistance((BYTE *)pObj, &world);
+            pMatrix->position.y += StageObject_ProbeGroundDistance(pObj, &world);
             FixMatrix_SetRight(&basis.right, pMatrix);
             FixMatrix_SetUp(&basis.up, pMatrix);
             FixMatrix_SetForward(&basis.forward, pMatrix);
@@ -1616,7 +1627,7 @@ void StageObject_UpdateMovingTransforms(void)
                 FixMatrix_SetForward(&basis.forward, pMatrix);
 
                 if (pObj->velocity.y < 0) {
-                    height = StageObject_ProbeGroundDistance((BYTE *)pObj, &world);
+                    height = StageObject_ProbeGroundDistance(pObj, &world);
                     if (height > -0xccc) {
                         pObj->mode = 1;
                         world.y += height;
@@ -1695,7 +1706,7 @@ void StageObject_UpdateMovingTransforms(void)
                 FixMatrix_SetRight(&basis.right, pMatrix);
                 FixMatrix_SetUp(&basis.up, pMatrix);
                 FixMatrix_SetForward(&basis.forward, pMatrix);
-                world.y += StageObject_ProbeGroundDistance((BYTE *)pObj, &world);
+                world.y += StageObject_ProbeGroundDistance(pObj, &world);
             }
 
             FixMatrix_RotateVector(&pos, &pObj->field_0xf8, pMatrix);

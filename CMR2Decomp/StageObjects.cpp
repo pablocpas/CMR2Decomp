@@ -1050,10 +1050,10 @@ struct StageObjectEntry0x128 {
     FixVector velocity;         // 0x0ec
     FixVector field_0xf8;       // 0x0f8
     FixVector probe;            // 0x104 ground-probe half extents (x, y, z)
-    int field_0x110;            // 0x110
+    int groundHeight;           // 0x110 last ground height under the probe
     int actionState;            // 0x114 node action / sound callback state
     int field_0x118;            // 0x118
-    short field_0x11c;          // 0x11c
+    short groundTriangle;       // 0x11c last ground triangle (-1 = none)
     short field_0x11e;
     int field_0x120;            // 0x120
     int moved;                  // 0x124 the interpolated matrix changed this frame
@@ -1141,8 +1141,8 @@ void StageObject_InitMovingObject(StageObjectEntry0x128 *pState, int carIndex)
             else
                 ground = 1;
         }
-        pState->field_0x110 = 0;
-        pState->field_0x11c = -1;
+        pState->groundHeight = 0;
+        pState->groundTriangle = -1;
 
         if (ground) {
             Track_GetGroundHeight(&position, &pState->groundNormal, (short *)&triangle, (unsigned short *)&surfaceIndex, 0);
