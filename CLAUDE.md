@@ -42,7 +42,28 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
 - `c ? 0xff : 0` for the `setcc/dec/and` pattern, case order and shared tails
   in switches, statement order for stores.
 - Editing one function can shift register allocation in later functions of the
-  same TU; `match.py` reports every function of the TU for that reason.
+  same TU; `match.py` reports every function of the TU for that reason. Any
+  floating-point code earlier in a TU changes some later integer functions, and
+  even declaring an unused inline function in a shared header moved code in
+  other TUs. The original has ~193 C++ objects (Rich header); a function that
+  only matches in a different neighbourhood can move to its own TU with
+  `scripts/split_tu.py` (OptionMenuRows.cpp).
+
+## Reading MSVC6 output
+
+- Stack slots: ordered by reference count, most-referenced nearest the frame
+  base (`ebp`, or `esp` without a frame), ties by first use. Declaration order
+  is ignored; variables with disjoint lifetimes can share a slot. A slot
+  mismatch means a variable is used a different number of times, or the
+  original reuses one variable where we have two (or the reverse).
+- Inline-asm helpers (`FixMul`, `FixVecScale`, ...) need their arguments in
+  memory: a plain variable is used in place, any other expression gets a
+  temporary home (often a dead parameter's slot). `FIX_ABS(FixMul(...))`
+  expands the call three times. A helper call whose result is unused is still
+  emitted.
+- `c ? 0xff : 0` gives `setcc/dec/and`; `x -= k; f(x)` gives `sub` where
+  `f(x - k)` gives `add x, -k`; a `return` inside an `if` duplicates the
+  epilogue where `if/else` shares it.
 
 ## Before committing a batch
 

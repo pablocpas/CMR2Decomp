@@ -9478,19 +9478,20 @@ void CarSkid_SpawnWheelDustPuff(int param_1, int param_2, int param_3, int param
 {
     short s;
     int x1, x2, a, b, c;
+    int amp;
 
     s = (short)(rand() % (param_8 / 2));
     param_4 = (s * param_4) / (param_8 / 2);
     rand();
-    if (s <= 0x400) {
-        unsigned int idx = (int)s & 0xfff;
-        int conv = (int)(__int64)((double)param_5 * CGraphics::m_65536);
-        int v = FixMul(conv, g_sinTable[idx]);
-        if (v < 0)
-            v = -v;
-        param_5 = v >> 0x10;
+    if (s > 0x400) {
+        amp = param_5;
+    } else {
+        // param_5 and param_8 are dead here; the original reuses their slots.
+        param_5 = (int)(__int64)((double)param_5 * CGraphics::m_65536);
+        param_8 = g_sinTable[s & 0xfff];
+        amp = FIX_ABS(FixMul(param_5, param_8)) >> 0x10;
     }
-    a = rand() % (param_5 + 1);
+    a = rand() % (amp + 1);
     x2 = a * param_7 + param_3;
     b = (rand() % 0x11 - 8) / (rand() % 3 + 1);
     x1 = (param_4 - 0x10) * param_6 + param_2 + b;

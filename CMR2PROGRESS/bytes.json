@@ -22929,7 +22929,7 @@
   },
   "0x46ed80": {
     "n": "CarSkid_SpawnWheelDustPuff",
-    "s": 0.822429906542056,
+    "s": 0.852017937219731,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
