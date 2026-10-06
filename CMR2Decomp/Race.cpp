@@ -4118,8 +4118,8 @@ void Race_UpdatePlayerSelectionCursor(int param_1)
         value = (BYTE)(View_GetActiveCameraFlags(0) + 1);
         if (value >= (BYTE)Race_GetBaseCarCount())
             value = 0;
-        View_SetCameraType(0, 0, value, 0);
         i = 0;
+        View_SetCameraType(0, 0, value, 0);
         if ((BYTE)Race_GetBaseCarCount() > 0) {
             do {
                 Glow_NoOpEntryCallback((BYTE)i, 0, 1, 1);

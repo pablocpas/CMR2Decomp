@@ -720,7 +720,7 @@ int RallyData_BuildStageRouteDistanceColumn(void)
                 p[1] = totalB;
                 p[0] = RallyData_GetRouteAvailabilityState() - 1;
                 p += 2;
-            } while (p < g_unk0x00536ff0 + 24);
+            } while ((int)p < (int)(g_unk0x00536ff0 + 24));
         }
     } else if (g_unk0x00536c90 < 0xc) {
         p = &g_unk0x00536ff0[g_unk0x00536c90 * 2];
@@ -728,7 +728,7 @@ int RallyData_BuildStageRouteDistanceColumn(void)
             p[1] = totalB;
             p[0] = RallyData_GetRouteAvailabilityState() - 1;
             p += 2;
-        } while (p < g_unk0x00536ff0 + 24);
+        } while ((int)p < (int)(g_unk0x00536ff0 + 24));
     }
     return totalB;
 }
@@ -4183,7 +4183,8 @@ void RallyData_SetupWeatherTextureEntries(void)
         pEntry->texture = (void *)g_weatherMaps.maps[index];
         pEntry->field_0x48 = g_weatherMaps.slots[index];
         pEntry->srcX1 = g_weatherMaps.rects[index * 2] + g_unk0x0082c9ec[0];
-        pEntry->srcY1 = g_weatherMaps.rects[index * 2 + 1] + g_unk0x0082c9ec[1];
+        pEntry->srcY1 = g_weatherMaps.rects[index * 2 + 1];
+        pEntry->srcY1 += g_unk0x0082c9ec[1];
         pEntry->srcX2 = 10;
         pEntry->srcY2 = 9;
         pEntry->u0 = (g_mapSrcRect[0] << 16) +
@@ -5849,7 +5850,6 @@ int StageTiming_GetSplitPositionOfDriver(int driver, int split);
 unsigned int Knockout_GetCurrentDriverField(unsigned int *pHigh);
 
 // Formats the name shown for a driver in the current result list.
-// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00415750
 void RallyData_FormatResultDriverName(int driver, int split, int useLongName, int useSplit)
 {
@@ -5866,24 +5866,28 @@ void RallyData_FormatResultDriverName(int driver, int split, int useLongName, in
         sprintf(CFrontend::m_stringDest, CMain::m_logFileBlankLine);
         return;
     }
-    for (row = 0; row < CGameInfo::GetConfiguredPlayerCount(); row++) {
-        int candidate = useSplit == 0 ? StageTiming_GetCarTimingByte81(row) : StageTiming_GetSplitPositionOfDriver(row, split);
+    for (row = 0; row < (BYTE)CGameInfo::GetConfiguredPlayerCount(); row++) {
+        int candidate = useSplit != 0 ? StageTiming_GetSplitPositionOfDriver(row, split) : StageTiming_GetCarTimingByte81(row);
         if (candidate == driver) {
-            if (!(CGameInfo::GetConfiguredGameMode() == 4))
+            if (CGameInfo::GetConfiguredGameMode() != 4)
                 name = (char *)RallyData_GetRecord((BYTE)row);
             else
                 name = (char *)RallyData_GetRecord((BYTE)Knockout_GetCurrentDriverField((unsigned int *)entry));
-            sprintf(CFrontend::m_stringDest, name);
-            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
-            return;
+            goto done;
         }
     }
-    if (CGameInfo::GetConfiguredGameMode() == 4)
-        entry = Knockout_GetCurrentDriverField((unsigned int *)entry);
-    if (useLongName)
-        name = (char *)RallyData_GetDriverNameIndexRecord(entry);
-    else
-        name = CAIHelper::GetNameForID(entry);
+    if (CGameInfo::GetConfiguredGameMode() != 4) {
+        if (useLongName != 0)
+            name = (char *)RallyData_GetDriverNameIndexRecord(entry);
+        else
+            name = CAIHelper::GetNameForID(entry);
+    } else {
+        if (useLongName != 0)
+            name = (char *)RallyData_GetDriverNameIndexRecord(Knockout_GetCurrentDriverField((unsigned int *)entry));
+        else
+            name = CAIHelper::GetNameForID(Knockout_GetCurrentDriverField((unsigned int *)entry));
+    }
+done:
     sprintf(CFrontend::m_stringDest, name);
     CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
 }
