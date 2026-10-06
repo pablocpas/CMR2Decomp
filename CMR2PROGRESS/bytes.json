@@ -11473,14 +11473,6 @@
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_DrawStageSummaryPanel"
   },
-  "0x50b1c0": {
-    "n": "OptionMenu_DrawAnimatedScreenRows",
-    "s": 0.9367965367965368,
-    "x": false,
-    "unknown": [],
-    "f": "GameInfo.cpp",
-    "symbol_name": "OptionMenu_DrawAnimatedScreenRows"
-  },
   "0x4f5190": {
     "n": "SavedGames_WriteSessionImage",
     "s": 1.0,
@@ -16257,6 +16249,14 @@
     "unknown": [],
     "f": "NetworkLeaderboards.cpp",
     "symbol_name": "NetworkLeaderboard_GetPublishedBoard"
+  },
+  "0x50b1c0": {
+    "n": "OptionMenu_DrawAnimatedScreenRows",
+    "s": 1.0,
+    "x": true,
+    "unknown": [],
+    "f": "OptionMenuRows.cpp",
+    "symbol_name": "OptionMenu_DrawAnimatedScreenRows"
   },
   "0x417660": {
     "n": "Race_AssignUnusedSlot",

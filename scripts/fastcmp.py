@@ -255,6 +255,8 @@ def symmap_for(src):
     b = os.path.basename(src)[:-4]
     cp = HERE + f'/symcache/{b}.pkl'
     objp = REPO + f'/build/{b}.obj'
+    if not os.path.exists(objp):   # a TU added since the last full build
+        return {}
     st = (os.path.getmtime(objp), os.path.getmtime(REPO + '/build/CMR2.exe'), os.path.getmtime(HERE + '/ent.json'))
     if os.path.exists(cp):
         d = pickle.load(open(cp, 'rb'))

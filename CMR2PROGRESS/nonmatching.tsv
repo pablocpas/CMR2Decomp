@@ -483,7 +483,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4d3e80	FrontendDraw_BreadcrumbItem	FrontendDraw.cpp	282	0.9473684210526315	0.9473684210526315
 0x4487a0	StageTiming_RecordAndReorderSplitTime	StageTiming.cpp	381	0.9478260869565217	0.9565217391304348
 0x4af120	Glow_Draw	Graphics.cpp	2078	0.9481902058197303	0.9548022598870056
-0x50b1c0	OptionMenu_DrawAnimatedScreenRows	GameInfo.cpp	3566	0.9490940465918896	0.9367965367965368
 0x4877a0	Collision_UpdateOrderedCars	StageObjects.cpp	241	0.9493670886075949	0.8427672955974843
 0x44d790	GameMenu_DrawStageWinner	GameMenus.cpp	464	0.9506172839506173	0.9506172839506173
 0x418ff0	StageSound_LoadSurfaceVariations	StageUI.cpp	513	0.9517684887459807	0.9681528662420382
