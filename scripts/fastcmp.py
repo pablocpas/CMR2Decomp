@@ -170,7 +170,9 @@ def compile_tu(src, objout):
     env['WINEPATH'] = W(MSVC + '/Bin') + ';' + W(os.path.dirname(MSVC) + '/Common/MSDev98/Bin')
     b = os.path.basename(src)
     fl = ['/nologo', '/c', '/O2', '/DNDEBUG', '/D_CRTIMP=', '/Gz', '/MD', '/GX']
-    if b in QIFIST or (os.environ.get('FASTCMP_QIFIST_ALL') and not b.startswith('Zlib')): fl.append('/QIfist')
+    qifist = b in QIFIST or (os.environ.get('FASTCMP_QIFIST_ALL') and not b.startswith('Zlib'))
+    if os.environ.get('FASTCMP_TOGGLE_QIFIST'): qifist = not qifist   # flag experiments
+    if qifist: fl.append('/QIfist')
     if b.startswith('Zlib'): fl.append('/Ob2')
     fl += os.environ.get('FASTCMP_EXTRA', '').split()
     fl.append('/Zi'); fl.append('/Fd' + W(objout[:-4] + '.pdb'))
@@ -267,6 +269,24 @@ ORIG = None
 # FASTCMP_SYMS="g_name=0x5894b8,..." maps data symbols that the last full build does not have yet
 EXTRA_SYMS = {k: int(v, 0) for k, v in (e.split('=') for e in os.environ.get('FASTCMP_SYMS', '').split(',') if e)}
 
+_ANNOT = None
+def annotated_globals():
+    """name -> original address from the `// GLOBAL: CMR2 0x...` annotations, so a
+    global added or renamed since the last full build still resolves."""
+    global _ANNOT
+    if _ANNOT is None:
+        _ANNOT = {}
+        pat = re.compile(r'//\s*GLOBAL:\s*CMR2\s+(0x[0-9a-fA-F]+)[^\n]*\n((?:[ \t]*//[^\n]*\n)*)([^\n]*)')
+        for fn in sorted(os.listdir(REPO + '/CMR2Decomp')):
+            if not fn.endswith(('.cpp', '.h')): continue
+            text = open(REPO + '/CMR2Decomp/' + fn, encoding='latin1').read()
+            for m in pat.finditer(text):
+                decl = re.split(r'[\[=;(]', m.group(3))[0]
+                ids = re.findall(r'[A-Za-z_][\w:]*', decl)
+                if ids and ids[-1] not in ('extern', 'static', 'const'):
+                    _ANNOT.setdefault(ids[-1], int(m.group(1), 16))
+    return _ANNOT
+
 def real_bytes(nm):
     """__real@<size>@<80-bit hex>  ->  the float/double bytes of the constant"""
     m = re.match(r'__real@(4|8)@([0-9a-f]{20})$', nm)
@@ -331,6 +351,9 @@ def compare(addr, obj, src, name, osize, verbose=False, coff=None):
             tgt = smap[nm] + field if typ == 6 else smap[nm]
         elif plain(nm) in name_maps():
             o_ = name_maps()[plain(nm)][0]
+            tgt = o_ + field if typ == 6 else o_
+        elif plain(nm) in annotated_globals():
+            o_ = annotated_globals()[plain(nm)]
             tgt = o_ + field if typ == 6 else o_
         else:
             tgt = resolve_extra(nm, typ, code, o, addr)

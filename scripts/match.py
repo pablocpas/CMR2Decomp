@@ -17,10 +17,12 @@ Needs a full build + measure + prepare_fastcmp.py first (for the symbol maps).
 """
 import argparse
 import concurrent.futures
+import difflib
 import json
 import os
 from pathlib import Path
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -117,6 +119,21 @@ def check_tu(src, base, sizes, workdir):
     return src, results, None, time.time() - t0
 
 
+REGS = re.compile(r"\b(?:e?[abcd]x|[abcd][lh]|e?[sd]i|e?[bs]p|[sd]il|[bs]pl)\b")
+JUMP = re.compile(r"^(j\w+|call|loop\w*) 0x[0-9a-f]+$")
+
+
+def shape_score(oi, ri):
+    """Similarity with register names and branch targets blanked out: close to
+    100% means only register allocation / branch offsets differ."""
+    def norm(t):
+        t = REGS.sub("R", t)
+        return JUMP.sub(lambda m: m.group(1) + " L", t)
+    a = [norm(t) for _, _, t in oi]
+    b = [norm(t) for _, _, t in ri]
+    return difflib.SequenceMatcher(None, a, b, autojunk=False).ratio()
+
+
 def report(src, results, base, focus, args):
     regress = 0
     old_x = sum(base[hex(a)]["x"] for a in results)
@@ -151,7 +168,7 @@ def report(src, results, base, focus, args):
             continue
         b = base[hex(addr)]
         oi, ri, sm = r["detail"]
-        hdr = "EXACT" if r["x"] else f"{100 * r['s']:.2f}%"
+        hdr = "EXACT" if r["x"] else f"{100 * r['s']:.2f}%  (ignoring registers {100 * shape_score(oi, ri):.2f}%)"
         print(f"\n{B}{addr:#x} {b['n']}{X}  orig {len(oi)}i / ours {len(ri)}i  {hdr}")
         if r["unknown"]:
             print(f"  {Y}unmapped symbols:{X}", ", ".join(sorted(r["unknown"])))
@@ -166,16 +183,38 @@ def list_candidates(args):
         next(handle)
         for line in handle:
             addr, name, file, size, rscore, bscore = line.rstrip("\n").split("\t")
-            if args.file and file != Path(args.file).name and file != args.file + ".cpp":
+            if args.file and file not in (Path(args.file).name, args.file + ".cpp"):
                 continue
             if args.max_size and int(size) > args.max_size:
                 continue
-            rows.append((float(bscore), int(size), addr, name, file))
-    rows.sort(key=lambda r: (-r[0], r[1]))
-    print(f"{'score':>7} {'bytes':>6}  {'address':10} {'file':22} name")
-    for score, size, addr, name, file in rows[:args.n]:
-        print(f"{100 * score:6.2f}% {size:6}  {addr:10} {file:22} {name}")
-    print(f"{D}{len(rows)} non-exact functions match the filter{X}")
+            rows.append([float(bscore), int(size), addr, name, file, None, None])
+    if args.shape:
+        # From the full build's objects: no compile, a few ms per function.
+        base = json.loads(BASE.read_text())
+        coffs = {}
+        for row in rows:
+            b = base.get(row[2])
+            if not b or b.get("unknown"):
+                continue
+            obj = str(ROOT / "build" / (row[4][:-4] + ".obj"))
+            coff = coffs.setdefault(obj, F.COFF(obj))
+            try:
+                _, _, (oi, ri, sm), _ = compare(int(row[2], 16), obj, str(SRC / row[4]),
+                                                b["symbol_name"], row[1], coff)
+            except Exception:
+                continue
+            row[5] = shape_score(oi, ri)
+            row[6] = sum(max(i2 - i1, j2 - j1) for t, i1, i2, j1, j2 in sm.get_opcodes() if t != "equal")
+        rows.sort(key=lambda r: (-(r[5] or 0), -r[0], r[1]))
+    else:
+        rows.sort(key=lambda r: (-r[0], r[1]))
+    print(f"{'score':>7} {'shape':>7} {'diff':>5} {'bytes':>6}  {'address':10} {'file':22} name")
+    for score, size, addr, name, file, shape, changed in rows[:args.n]:
+        sh = f"{100 * shape:6.2f}%" if shape is not None else "      -"
+        ch = f"{changed:5}" if changed is not None else "    -"
+        print(f"{100 * score:6.2f}% {sh} {ch} {size:6}  {addr:10} {file:22} {name}")
+    print(f"{D}{len(rows)} non-exact functions match the filter"
+          f"{'; shape = similarity ignoring registers, diff = differing instructions' if args.shape else ''}{X}")
 
 
 def main():
@@ -184,6 +223,8 @@ def main():
     ap.add_argument("--changed", action="store_true", help="check TUs modified since HEAD")
     ap.add_argument("--list", action="store_true", help="list best candidates to match")
     ap.add_argument("--file", help="with --list: only this TU")
+    ap.add_argument("--shape", action="store_true",
+                    help="with --list: rank by similarity ignoring registers (regalloc-only first)")
     ap.add_argument("--max-size", type=int, help="with --list: only functions up to N bytes")
     ap.add_argument("-n", type=int, default=30, help="with --list: rows to show")
     ap.add_argument("--all", action="store_true", help="also list unchanged functions")
@@ -193,6 +234,8 @@ def main():
     ap.add_argument("-j", "--jobs", type=int, default=os.cpu_count() or 4)
     ap.add_argument("--no-color", action="store_true")
     args = ap.parse_args()
+    if hasattr(signal, "SIGPIPE"):
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # quiet when piped into head
     color(sys.stdout.isatty() and not args.no_color)
     if args.list:
         return list_candidates(args)

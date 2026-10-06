@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Search equivalent source variants on an isolated snapshot of a matching build.
 
-Requires the existing tools/fastcmp/permute.py mutator (or --mutator PATH),
+Uses the mutators in scripts/permute_mutators.py (or --mutator PATH),
 MSVC6/Wine and the current build/CMR2PROGRESS reports. Compilers run across
 several functions simultaneously. Results stay in --output; changes.patch is
 for review and is never applied to the main source tree by this command.
@@ -742,7 +742,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=pathlib.Path, required=True)
     parser.add_argument(
-        "--mutator", type=pathlib.Path, default=ROOT.parent / "tools/fastcmp/permute.py"
+        "--mutator", type=pathlib.Path, default=ROOT / "scripts/permute_mutators.py"
     )
     parser.add_argument("--min-score", type=float, default=0.88)
     parser.add_argument(
@@ -758,7 +758,7 @@ def main():
         "--addresses",
         help="Only search these comma-separated original addresses, e.g. 0x46b440,0x48ce80.",
     )
-    parser.add_argument("--jobs", type=int, default=12)
+    parser.add_argument("--jobs", type=int, default=os.cpu_count() or 4)
     parser.add_argument("--functions", type=int, default=4)
     parser.add_argument("--rounds", type=int, default=5)
     parser.add_argument("--packed", action="store_true", help="Test one variant per function together in each translation-unit compilation.")
