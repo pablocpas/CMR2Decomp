@@ -9,7 +9,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4d6870	FrontendDraw_ChampionshipEntryRow	FrontendScreens.cpp	482	0.35014836795252224	0.3460410557184751
 0x4a4d30	CGraphics::RemapTextureAlpha	Graphics.cpp	833	0.36538461538461536	0.4072398190045249
 0x475f80	StageObject_InitCarSceneTables	StageTiming.cpp	277	0.3660130718954248	0.3815789473684211
-0x421610	View_SetupCameras	Car.cpp	265	0.3916083916083916	0.42038216560509556
 0x46ec40	StageObject_QueueTimedEventDraw	StageObjects.cpp	246	0.40298507462686567	0.5333333333333333
 0x46cfa0	Replay_PlayStreamFrame	StageObjects.cpp	717	0.4056603773584906	0.3888888888888889
 0x4bc490	Flare_SampleVisibility	Graphics.cpp	1496	0.40963855421686746	0.39211136890951276
@@ -114,7 +113,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x45d2d0	CarEffect_SpawnExhaustParticle	CarEffects.cpp	206	0.6141732283464567	0.6564885496183206
 0x4b5f90	Scene_CollectNearbyLightZones	SceneNode.cpp	688	0.6142857142857143	0.5714285714285714
 0x46f550	StageObject_LoadAndClassifyMeshes	StageObjects.cpp	655	0.6145833333333334	0.5989583333333334
-0x421590	View_ReleaseNodes	Car.cpp	123	0.6153846153846154	0.625
 0x4cfff0	FrontendRecords_InsertArcadeDeviceRecord	Frontend.cpp	385	0.6165413533834586	0.6268656716417911
 0x4ff0f0	FrontendControls_DrawAxisCalibrationBar	FrontendMenus.cpp	802	0.6202247191011236	0.6335403726708074
 0x45af90	CarEffect_UpdateExhaustSmokeAndBackfire	StageTiming.cpp	1438	0.6205305651672434	0.586483390607102
@@ -490,7 +488,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x40a580	NetPlayers_RebuildStageResults	NetPlayers.cpp	372	0.956140350877193	0.956140350877193
 0x480af0	StageObject_AssignMatchingCarClassSlots	StageObjects.cpp	79	0.9565217391304348	0.9565217391304348
 0x423780	Camera_SnapTo	Car.cpp	104	0.9574468085106383	0.9444444444444444
-0x4b2090	Mesh_SetColourAndRefresh	Mesh.cpp	128	0.9591836734693877	0.9795918367346939
 0x4fb8d0	FrontendProfile_ScrambleIdentifier	FrontendScreens.cpp	232	0.9594594594594594	0.9594594594594594
 0x4e1230	FrontendMenu_DrawMultiplayerRaceSettings	FrontendScreens.cpp	1584	0.9645669291338582	0.9637826961770624
 0x46fe70	StageObject_QueueOrEvictMovingObject	StageObjects.cpp	969	0.964968152866242	0.964968152866242

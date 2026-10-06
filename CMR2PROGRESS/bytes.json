@@ -945,8 +945,8 @@
   },
   "0x421590": {
     "n": "View_ReleaseNodes",
-    "s": 0.625,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "View_ReleaseNodes"
@@ -1105,8 +1105,8 @@
   },
   "0x421610": {
     "n": "View_SetupCameras",
-    "s": 0.42038216560509556,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "View_SetupCameras"
@@ -15116,8 +15116,8 @@
   },
   "0x4b2090": {
     "n": "Mesh_SetColourAndRefresh",
-    "s": 0.9795918367346939,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Mesh.cpp",
     "symbol_name": "Mesh_SetColourAndRefresh"

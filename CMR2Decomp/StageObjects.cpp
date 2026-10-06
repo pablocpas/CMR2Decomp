@@ -383,7 +383,7 @@ int StageObject_FillWidthScaledRectangle(int scale, int unused, short *pRect, BY
 void StageObject_ClearAndDrawSplitPositions(int unused1, int unused2);
 void StageObject_BuildInRaceActionMenu(void);
 BYTE *StageObject_GetInRaceActionMenu(void);
-void StageObject_LoadAndAttachCarInterior(int record, BYTE car);
+void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car);
 void StageObject_SyncStateAndSceneMatrix(BYTE *p, int *src, int unused, BYTE value);
 void StageObject_SetCarSlotActiveFlag(BYTE *p);
 int StageObject_GetCarNodeSlotValue(BYTE index);
@@ -13806,7 +13806,7 @@ int Sector_BuildC3DModelScene(unsigned int, unsigned int, unsigned int);
 // Loads the interior (cockpit) model of a player's car and hooks its nodes
 // (steering wheel, dash, driver) into the car's scene graph.
 // FUNCTION: CMR2 0x004760a0
-void StageObject_LoadAndAttachCarInterior(int record, BYTE car)
+void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car)
 {
     Car *pCar;
     int ok;

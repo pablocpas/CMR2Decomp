@@ -810,7 +810,7 @@ void HudDash_SetCameraOffset(BYTE index, FixVector *pOffset)
 
 // Resets a player's camera to the default offset, height and distance.
 // FUNCTION: CMR2 0x00447ca0
-void HudDash_ResetPlayerCamera(unsigned int index)
+void HudDash_ResetPlayerCamera(BYTE index)
 {
     FixVector offset;
 

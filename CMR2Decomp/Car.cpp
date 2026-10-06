@@ -5877,7 +5877,7 @@ int g_unk0x005391b0[2];
 // GLOBAL: CMR2 0x005391c4
 int g_unk0x005391c4[2];
 
-void HudDash_ResetPlayerCamera(unsigned int index);
+void HudDash_ResetPlayerCamera(BYTE index);
 int SceneNode_Destroy(SceneNode *pNode);
 
 // Releases both players' view nodes and resets their view state (callback).
@@ -7853,7 +7853,7 @@ void StageObject_DispatchActiveCarObjectUpdate(BYTE *pObj, int a, int b);
 void Dash_BuildInterpolatedCockpitMatrix(BYTE *param_1, FixMatrix *param_2, int param_3);
 void View_UpdateTracksideZoomAndShake(BYTE *pRecord, FixMatrix *pRef);
 int Track_GetGroundHeight5(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass, int defaultY);
-void StageObject_LoadAndAttachCarInterior(int record, BYTE car);
+void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car);
 unsigned short RallyData_GetPrimaryStageScoreScale(void);
 unsigned short RallyData_GetSecondaryStageScoreScale(void);
 void StageObject_InitCarSceneTables(void);
