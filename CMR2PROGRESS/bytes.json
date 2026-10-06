@@ -12034,7 +12034,7 @@
   },
   "0x44a1b0": {
     "n": "GameMenu_SetupStageResults",
-    "s": 0.6802952867688813,
+    "s": 0.7123287671232876,
     "x": false,
     "unknown": [],
     "f": "GameMenus.cpp",
@@ -25579,7 +25579,7 @@
   },
   "0x448920": {
     "n": "StageTiming_HandleCarSplitCrossing",
-    "s": 0.6253101736972705,
+    "s": 0.9701492537313433,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",

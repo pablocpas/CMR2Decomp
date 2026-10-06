@@ -8678,31 +8678,30 @@ void StageTiming_HandleCarSplitCrossing(int car)
     if (StageTiming_GetCheckpointField19(car) == 0)
         return;
     if ((char)RallyData_GetSelectionFlag27() == 0) {
-        pRecord = g_unk0x0053d1e8[car][group];
-        pRecord[0] = g_unk0x0053d1b0;
-        if (!((char)RallyData_GetSelectionFlag28() == 0 && CGameInfo::GetConfiguredGameMode() != 12)) {
+        g_unk0x0053d1e8[car][group][0] = g_unk0x0053d1b0;
+        if ((char)RallyData_GetSelectionFlag28() == 0 && CGameInfo::GetConfiguredGameMode() != 12) {
+            base = g_unk0x0053d1e8[car][group - 1][0];
+            pPrev = g_unk0x0053d1e8[car][group - 1];
             pTime = &g_carStageTiming[car].splitTimes[group];
-            *pTime = g_unk0x0053d1b0 - g_carStageTiming[car].lastTime;
-            if (*pTime > 359999)
+            *pTime = g_unk0x0053d1e8[car][group][0] - base;
+            for (i = 0; i < 5; i++)
+                g_carStageTiming[car].splits[i] = pPrev[i] - base;
+        } else {
+            base = g_unk0x0053d1b0 - g_carStageTiming[car].lastTime;
+            pTime = &g_carStageTiming[car].splitTimes[group];
+            *pTime = base;
+            if (base >= 360000)
                 *pTime = 359999;
             g_carStageTiming[car].splits[0] = 0;
             pOut = &g_carStageTiming[car].splits[1];
-            pPrev = pRecord + 1;
+            pPrev = &g_unk0x0053d1e8[car][group][1];
             for (i = 4; i != 0; i--) {
                 *pOut = *pPrev - g_carStageTiming[car].lastTime;
-                if (*pPrev - g_carStageTiming[car].lastTime > 359999)
+                if (*pOut >= 360000)
                     *pOut = 359999;
                 pPrev++;
                 pOut++;
             }
-        } else {
-            pPrev = pRecord - 5;
-            base = pPrev[0];
-            pTime = &g_carStageTiming[car].splitTimes[group];
-            *pTime = pRecord[0] - base;
-            pOut = g_carStageTiming[car].splits;
-            for (i = 5; i != 0; i--)
-                *pOut++ = *pPrev++ - base;
         }
         if (CGameInfo::GetConfiguredGameMode() == 12) {
             NetPlayers_UpdateBestLapTime(*pTime);

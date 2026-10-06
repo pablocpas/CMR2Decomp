@@ -3067,7 +3067,9 @@ void GameMenu_SetupStageResults(int param_1)
     int i;
     int j;
     int car;
-    short count;
+    int count;
+    int time;
+    int position;
     int driver;
     int minPos;
     int k;
@@ -3121,7 +3123,9 @@ void GameMenu_SetupStageResults(int param_1)
                 }
                 if (CGameInfo::GetConfiguredGameMode() == 5) {
                     if ((BYTE)RallyData_GetSelectionBits12To13() == 2) {
-                        Frontend_SetSecondaryRecordOptionFields(car, RallyTiming_GetChampionshipPointsByPosition(i), RallyTiming_GetChampionshipTimeSeconds(i), RallyTiming_GetChampionshipStagePoints(i));
+                        time = RallyTiming_GetChampionshipTimeSeconds(i);
+                        position = RallyTiming_GetChampionshipPointsByPosition(i);
+                        Frontend_SetSecondaryRecordOptionFields(car, position, time, RallyTiming_GetChampionshipStagePoints(i));
                         Frontend_MergeBestSecondaryPlayerOption(car, (int)RallyData_GetAvailableCategorySaveRecord(car));
                         FrontendRecords_InsertArcadeDeviceRecord(i, car, (char *)RallyData_GetRecord(car));
                     }
@@ -3138,14 +3142,13 @@ void GameMenu_SetupStageResults(int param_1)
                     if (RallyDataStageIndex() ==
                         RallyData_GetModeStageGroup(RallyDataCountryIndex(), CGameInfo::GetConfiguredDifficulty())) {
                         driver = StageTiming_GetDriverSlot(j);
-                        Frontend_SetDeviceSetupOptionFields(j, RallyTiming_GetOverallTimeCentiseconds(driver),
-                                     RallyTiming_GetOverallPositionOfDriver(driver),
-                                     RallyTiming_GetStageTimeSeconds(driver));
+                        time = RallyTiming_GetOverallTimeCentiseconds(driver);
+                        position = RallyTiming_GetOverallPositionOfDriver(driver);
+                        Frontend_SetDeviceSetupOptionFields(j, time, position, RallyTiming_GetStageTimeSeconds(driver));
                         if (CGameInfo::GetConfiguredGameMode() == 0) {
                             if ((BYTE)RallyDataCountryIndex() == 0)
                                 FrontendRecords_ResetDeviceStats(j);
-                            Frontend_AddDeviceValueAndStatistic(j, RallyTiming_GetOverallTimeCentiseconds(driver),
-                                         RallyTiming_GetOverallPositionOfDriver(driver));
+                            Frontend_AddDeviceValueAndStatistic(j, time, position);
                         }
                         Frontend_MergeBestDeviceButtonOption(j, (int)RallyData_GetAvailableCategorySaveRecord(j));
                         FrontendRecords_InsertStageDeviceRecord(j, j, (char *)RallyData_GetRecord(j));
@@ -3157,12 +3160,11 @@ void GameMenu_SetupStageResults(int param_1)
                     RallyDataStageIndex() ==
                         RallyData_GetModeStageGroup(RallyDataCountryIndex(), CGameInfo::GetConfiguredDifficulty())) {
                     driver = StageTiming_GetDriverSlot(j);
-                    Frontend_SetDeviceRecordOptionFields(j, RallyTiming_GetStagePositionOfDriver(driver),
-                                 RallyTiming_GetStageTimeSeconds(driver));
+                    time = RallyTiming_GetStageTimeSeconds(driver);
+                    position = RallyTiming_GetStagePositionOfDriver(driver);
+                    Frontend_SetDeviceRecordOptionFields(j, position, time);
                     Frontend_MergeBestPlayerStageOption(j, (int)RallyData_GetAvailableCategorySaveRecord(j));
                     FrontendRecords_InsertStageCategoryRecord(j, j, (char *)RallyData_GetRecord(j));
-                    if ((Race_ReadPlayerState37F68(j) & 0x80) != 0 || (Race_ReadPlayerState37F68(j) & 0x2000) != 0)
-                        bVar1 = 1;
                 }
             }
         }
