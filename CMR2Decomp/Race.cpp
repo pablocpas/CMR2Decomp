@@ -2909,8 +2909,10 @@ label4:
                 if (CGameInfo::GetConfiguredGameMode() == 8 && (char)RallyData_IsLastAvailableStageSelected() != 0) {
                     NetworkLeaderboard_AddWins(CNetworkLeaderboards::GetLeaderboardId(), NetPlayers_GetStandingName(0, 1), 3);
                     for (i = 1; i < NetPlayers_GetStandingCount(); i++)
-                        NetworkLeaderboard_AddWins(CNetworkLeaderboards::GetLeaderboardId(), NetPlayers_GetStandingName(i, 1),
-                                     NetPlayers_GetStandingTime(i, 1) == NetPlayers_GetStandingTime(0, 1) ? 3 : 0);
+                        if (NetPlayers_GetStandingTime(i, 1) == NetPlayers_GetStandingTime(0, 1))
+                            NetworkLeaderboard_AddWins(CNetworkLeaderboards::GetLeaderboardId(), NetPlayers_GetStandingName(i, 1), 3);
+                        else
+                            NetworkLeaderboard_AddWins(CNetworkLeaderboards::GetLeaderboardId(), NetPlayers_GetStandingName(i, 1), 0);
                 }
             }
         }

@@ -5240,10 +5240,14 @@ void InRaceMenu_DrawNetworkPlayerList(Menu *pMenu)
                 text = single == 0 ? (char *)*pA : (char *)*pB;
                 x = (int)(g_pGraphics->resX * 10) / 0x280 + x
                     + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-                Font_DrawText(1, text, x,
-                              (int)(g_pGraphics->resY * 0xaa) / 0x1e0
-                                  + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,
-                              pItem->max != j ? &g_unk0x00516078 : &g_unk0x00516074, 0x11);
+                if (pItem->max != j)
+                    Font_DrawText(1, text, x,
+                                  (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                                      + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i, &g_unk0x00516078, 0x11);
+                else
+                    Font_DrawText(1, text, x,
+                                  (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                                      + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i, &g_unk0x00516074, 0x11);
                 strcpy(CFrontend::m_stringDest, text);
                 pB--;
                 pA++;
@@ -9246,8 +9250,12 @@ void InRaceMenu_DrawCarSetupChoices(Menu *pMenu)
                         width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
                         pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
                         x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
-                        strcpy(CFrontend::m_stringDest,
-                               CFrontend::GetTextString(RallyData_IsHeadToHeadRaceMode() != 0 ? j + 0x9c : k));
+                        if (RallyData_IsHeadToHeadRaceMode() != 0)
+                            strcpy(CFrontend::m_stringDest,
+                                   CFrontend::GetTextString(j + 0x9c));
+                        else
+                            strcpy(CFrontend::m_stringDest,
+                                   CFrontend::GetTextString(k));
                         Font_DrawText(1, CFrontend::m_stringDest, x, MENU_ITEM_Y(i), pSubColour, 0x11);
                         j++;
                         k--;

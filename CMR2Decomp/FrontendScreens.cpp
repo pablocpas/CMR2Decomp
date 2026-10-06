@@ -8576,10 +8576,12 @@ void FrontendMenu_DrawDisplayMode(Menu *pMenu)
         for (i = 0; i < count; i++) {
             CGraphics::GetDisplayMode(i + mode, &width, &height, &depth);
             sprintf(CFrontend::m_stringDest, g_strDisplayModeFormat, width, height, depth);
-            Font_DrawText(1, CFrontend::m_stringDest, (int)g_pGraphics->resX / 2,
-                          (i * 5 + 0x19) * 4,
-                          i + mode == pMenu->items[0].max ? (int *)g_colourWhite0x00524968
-                                                         : (int *)g_colourText0x0052496c, 10);
+            if (i + mode != pMenu->items[0].max)
+                Font_DrawText(1, CFrontend::m_stringDest, (int)g_pGraphics->resX / 2,
+                              (i * 5 + 0x19) * 4, (int *)g_colourText0x0052496c, 10);
+            else
+                Font_DrawText(1, CFrontend::m_stringDest, (int)g_pGraphics->resX / 2,
+                              (i * 5 + 0x19) * 4, (int *)g_colourWhite0x00524968, 10);
         }
     }
     FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
@@ -12076,10 +12078,12 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
                       ((count + 3) * g_pGraphics->resY * 20) / 480, (int *)pColour, 9);
     }
     if (g_unk0x00818ed0 != 0) {
-        sprintf(CFrontend::m_stringDest,
-                (unsigned int)CFrontend::GetFrontendTimestamp() % 20 <= 9 ? CRegKey::m_regKeyPathFormatValue
-                                                                 : g_str0x00519fb8,
-                (char *)FrontendNetwork_GetSessionState());
+        if (!((unsigned int)CFrontend::GetFrontendTimestamp() % 20 <= 9))
+            sprintf(CFrontend::m_stringDest, g_str0x00519fb8,
+                    (char *)FrontendNetwork_GetSessionState());
+        else
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                    (char *)FrontendNetwork_GetSessionState());
         Font_DrawText(1, CFrontend::m_stringDest, (g_pGraphics->resX * 35) / 640,
                       ((count + 4) * g_pGraphics->resY * 20) / 480, (int *)g_colourWhite0x00524968, 9);
     }
