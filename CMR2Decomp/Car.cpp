@@ -4263,7 +4263,6 @@ int g_gravityScale;
 void Car_UpdateCornerVelocityPair(void)
 {
     FixMatrix *pWorld;
-    FixVector *pAngVel;
     FixVector *pVel;
     FixVector *pCorner;
     int a;
@@ -4271,11 +4270,11 @@ void Car_UpdateCornerVelocityPair(void)
 
     pVel = &g_pCurrentCar->velocity;
     pWorld = g_pCurrentCar->pWorld;
-    pAngVel = &g_pCurrentCar->angularVelocity;
     pCorner = g_pCurrentCar->cornerVelocity;
-    a = FixMul(pAngVel->z, g_pCurrentCar->halfExtents.x);
-    b = FixMul(pAngVel->y, g_pCurrentCar->halfExtents.x);
-    pCorner[0].x = FixMul(pWorld->up.x, a) - FixMul(pWorld->forward.x, b);
+    a = FixMul(g_pCurrentCar->halfExtents.x, g_pCurrentCar->angularVelocity.z);
+    b = FixMul(g_pCurrentCar->angularVelocity.y, g_pCurrentCar->halfExtents.x);
+    pCorner[0].x = FixMul(pWorld->up.x, a);
+    pCorner[0].x -= FixMul(pWorld->forward.x, b);
     pCorner[0].y = FixMul(pWorld->up.y, a) - FixMul(pWorld->forward.y, b);
     pCorner[0].z = FixMul(pWorld->up.z, a) - FixMul(pWorld->forward.z, b);
     pCorner[2].x = -pCorner[0].x;
@@ -4871,7 +4870,8 @@ void Car_UpdateSteering(void)
             w = FixMul(0x20000, (w % 0x401 - 0x200) * 0x40);
             if (g_pCurrentCar->speed < 0x10000)
                 w = FixMul(w, g_pCurrentCar->speed);
-            angle += (short)(__int64)((double)FixMul(w, *(int *)(g_pCarSetup + 0x3d8)) * g_unk0x00511300);
+            w = FixMul(w, *(int *)(g_pCarSetup + 0x3d8));
+            angle += (short)(__int64)((double)w * g_unk0x00511300);
         }
     }
     right = g_pCurrentCar->right;
