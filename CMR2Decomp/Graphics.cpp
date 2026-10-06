@@ -3607,14 +3607,14 @@ signed char g_timerWobble[24] = { 3, 6, 6, 3, 0, 2, 4, 4, 2, 0, 1, 2, 2, 1, 0, 1
 // Current value of a timer (32 slots of 0x30 bytes): base + scale * shape(step)
 // / 4096, stepping once every 16 ms; once finished the slot goes to shape 5
 // and returns its end value.
-// match 46%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 98%: 2 instr left (case 4: `sub edx,0x11`+`lea eax,[edx+1]` vs `lea eax,[edx-0x11]`+`add edx,-0x10`)
 // FUNCTION: CMR2 0x004bc110
 int Timer_GetValue(BYTE index)
 {
     BYTE *t;
     unsigned int pos;
     unsigned int dur;
-    unsigned int v;
+    int v;
     BYTE step;
     int now;
 
@@ -3634,7 +3634,7 @@ int Timer_GetValue(BYTE index)
         v = step;
         break;
     case 1:
-        if (dur - 0x11 < step)
+        if (step > dur - 0x11)
             goto wobble;
         v = dur - step - 0x11;
         break;
@@ -3650,7 +3650,7 @@ int Timer_GetValue(BYTE index)
             v = (int)g_timerWobble[16 + step - dur] * (int)(signed char)t[1];
             *(int *)(t + 0x1c) = 0x1000;
         } else {
-            v = (int)((dur - step - 0x11) * (dur - step - 0x11 + 1)) / 2;
+            v = (int)((dur - step - 0x11 + 1) * (dur - step - 0x11)) / 2;
         }
         break;
     case 5:
