@@ -32,8 +32,9 @@ void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, Menu *pParen
     pMenu->field_0x4 = param3;
     pMenu->cursor = defaultCursor;
     pMenu->pParent = pParent == (Menu *)-1 ? NULL : pParent;
-    pMenu->flag6 = pParent == (Menu *)-1;
     pMenu->itemCount = 0;
+    pMenu->layout = layout;
+    pMenu->defaultCursor = -1;
     pMenu->pfnCallback0 = NULL;
     pMenu->pfnCallback1 = NULL;
     pMenu->pfnCallback2 = NULL;
@@ -42,10 +43,9 @@ void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, Menu *pParen
     pMenu->flag1 = 1;
     pMenu->flag2 = 1;
     pMenu->flag3 = 1;
-    pMenu->flag5 = 1;
     pMenu->flag4 = flag4;
-    pMenu->layout = layout;
-    pMenu->defaultCursor = -1;
+    pMenu->flag5 = 1;
+    pMenu->flag6 = pParent == (Menu *)-1;
     pMenu->value &= 0x80;
     pMenu->pItemCallbacks = pItemCallbacks;
 }
@@ -353,8 +353,8 @@ int Menu_Update(Menu *pMenu, unsigned int input)
             if (bPrev && bNext)
                 bPrev = 0;
         } else {
-            bNext = 0;
             bPrev = 0;
+            bNext = 0;
         }
 
         count = pMenu->itemCount;
@@ -465,8 +465,8 @@ int Menu_Update(Menu *pMenu, unsigned int input)
         if (bSelect == 0) {
             if (bBack) {
 back:
-                g_menuNextAction = (int)pMenu->pParent;
                 g_unk0x0059f8fc = 1;
+                g_menuNextAction = (int)pMenu->pParent;
                 if (pMenu->pItemCallbacks != NULL && pMenu->pItemCallbacks->pfnBack != NULL)
                     pMenu->pItemCallbacks->pfnBack(pMenu, ITEM_AT(pMenu, pMenu->cursor), 1);
                 if (g_unk0x0059fa14 != 0)
@@ -529,28 +529,29 @@ void Menu_QueueDefaultAction(void)
     g_menuNextAction = 0;
 }
 
-// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a0bc0
 void Menu_PlaySoundId(int id)
 {
+    int snd;
+
     switch (id) {
     case 0:
-        id = CInput::m_unk0x0059f8f8;
+        snd = CInput::m_unk0x0059f8f8;
         break;
     case 1:
-        id = CInput::m_unk0x0059f910;
+        snd = CInput::m_unk0x0059f910;
         break;
     case 2:
-        id = CInput::m_unk0x0059f8f4;
+        snd = CInput::m_unk0x0059f8f4;
         break;
     case 3:
-        id = CInput::m_unk0x0059f8f0;
+        snd = CInput::m_unk0x0059f8f0;
         break;
     case 4:
-        id = CInput::m_unk0x0059f90c;
+        snd = CInput::m_unk0x0059f90c;
         break;
     }
-    Menu_PlaySound(id);
+    Menu_PlaySound(snd);
 }
 
 // FUNCTION: CMR2 0x004a0c40

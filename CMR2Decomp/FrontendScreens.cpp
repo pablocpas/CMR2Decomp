@@ -424,7 +424,6 @@ void FrontendDraw_RallyInfoHeader(void)
 // Time-attack style screen: menu path, the title taken from the id of the
 // first item and the list of strings selected by that item, plus the
 // underline of the highlighted row.
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d9450
 void FrontendMenu_DrawTimeAttackOptions(Menu *pMenu)
 {
@@ -432,7 +431,6 @@ void FrontendMenu_DrawTimeAttackOptions(Menu *pMenu)
     int y;
     int i;
     int x;
-    int w;
     BYTE *pColour;
 
     rect[0] = (int)(g_pGraphics->resX * 100) / 640;
@@ -460,10 +458,9 @@ void FrontendMenu_DrawTimeAttackOptions(Menu *pMenu)
                   (int *)g_colourWhite0x00524968, 0x11);
     for (i = 0; i < pMenu->items[0].min; i++) {
         pColour = g_colourWhite0x00524968;
-        if (i != pMenu->items[0].max)
+        if (pMenu->items[0].max != i)
             pColour = g_colourText0x0052496c;
-        w = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-        x = (int)(g_pGraphics->resX * 10) / 640 + x + w;
+        x = (int)(g_pGraphics->resX * 10) / 640 + x + (Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest));
         Font_DrawText(1, CFrontend::GetTextString(i + 0x131), x,
                       (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1],
                       (int *)pColour, 0x11);
@@ -3595,7 +3592,6 @@ void RallyData_GetDriverCategoryColour(int index, unsigned int *pHue, unsigned i
 
 // Callback of the car colour menu: reads the current driver's category colour
 // and reflects it onto the colour picker items.
-// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f16f0
 void FrontendProfile_FillColourPicker(Menu *pMenu, int param)
 {
@@ -3608,9 +3604,9 @@ void FrontendProfile_FillColourPicker(Menu *pMenu, int param)
     RallyData_GetDriverCategoryColour(FrontendProfile_GetCurrentPlayer(), (unsigned int *)&hue, (unsigned int *)&shade, (unsigned int *)&value);
     pMenu->items[2].max = 0;
     pMenu->cursor = 0;
+    pMenu->items[1].max = (BYTE)shade - 1;
     pMenu->items[0].max = value;
-    idx = (BYTE)shade - 1;
-    pMenu->items[1].max = idx;
+    idx = pMenu->items[1].max;
     switch (idx) {
     case 3:
     case 5:

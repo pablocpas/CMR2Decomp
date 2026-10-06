@@ -52,9 +52,9 @@ void CSound::OpenStreamingMusicFile(char *path) {
     m_unk0x005a2730 = FALSE;
     if (m_pMMIO != NULL) {
         CloseMMIO(m_pMMIO);
-        MMIOData *pMMIO = m_pMMIO;
-        if (pMMIO != NULL) {
-            CloseAndCleanupMMIO(pMMIO);
+        if (m_pMMIO != NULL) {
+            MMIOData *pMMIO = m_pMMIO;
+            CloseAndCleanupMMIO(m_pMMIO);
             delete pMMIO;
             m_pMMIO = NULL;
         }
@@ -65,9 +65,7 @@ void CSound::OpenStreamingMusicFile(char *path) {
         Sound_NoOpMusicCallback((int)g_strCouldNotOpenMusicFile);
     } else {
         m_unk0x005a2728 = TRUE;
-        if (IsSoundCallSuccessful(Sound_CreateMusicStreamingBuffer()) == 0) {
-            Sound_NoOpMusicCallback((int)g_strCouldNotCreateStreamingBuffer);
-        } else {
+        if (IsSoundCallSuccessful(Sound_CreateMusicStreamingBuffer()) != 0) {
             m_unk0x005a272c = TRUE;
             if (m_unk0x005a2734 == FALSE)
                 CGame::RegisterCallback((void *)CloseMusicStreamResources, NULL);
@@ -78,12 +76,13 @@ void CSound::OpenStreamingMusicFile(char *path) {
             } else {
                 Sound_NoOpMusicCallback((int)g_strCouldNotOpenAdpcm);
             }
+        } else {
+            Sound_NoOpMusicCallback((int)g_strCouldNotCreateStreamingBuffer);
         }
     }
     if (m_unk0x005a2730 == FALSE)
         CloseMusicStreamAndClearPath(FALSE);
 }
-
 // FUNCTION: CMR2 0x004a2b50
 void CSound::CloseMusicStreamAndClearPath(BOOL param1) {
     CloseMusicStreamResources();
@@ -628,9 +627,10 @@ void Sound_UpdateMusicRingBufferCursor(void)
     g_unk0x005a2710 = (int)v;
     v -= g_unk0x005a2714;
     if ((int)v > 0)
-        g_unk0x005a2718 = (int)v - 1;
+        g_unk0x005a2718 = (int)v;
     else
-        g_unk0x005a2718 = (int)v + 7;
+        g_unk0x005a2718 = (int)v + 8;
+    g_unk0x005a2718--;
 }
 
 extern int g_unk0x005a271c;

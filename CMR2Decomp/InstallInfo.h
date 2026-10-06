@@ -11,7 +11,7 @@ public:
     static char *GetCountrySpecificDir();
     static BOOL ShowNoCDErrorMessage(void);
     static int WriteFileToDisk(char *name, int mode, LPCVOID data, DWORD size);
-    static int LoadInstallPathsFromRegistry(void);
+    static char LoadInstallPathsFromRegistry(void);
     static void SetGameHDPath(char *filePath);
     static void SetGameCDPath(char *filePath);
     static char *GetGameHDPath(void);

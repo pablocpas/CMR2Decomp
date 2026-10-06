@@ -129,73 +129,15 @@ See [tests/README.md](tests/README.md) for details.
   stable identity.
 - Use descriptive names once callers and behaviour establish the role
   (`Subsystem_Action` for free functions, the existing class style for
-  methods). Unknown functions stay `FUN_...` and unknown fields `field_0x...`.
-  Recovered names describe behaviour; they are not claimed to be the original
-  developers' names.
+  methods). Unknown fields stay `field_0x...`. Recovered names describe
+  behaviour; they are not claimed to be the original developers' names.
+  `scripts/rename_functions.py` renames in validated batches (see its
+  `--help`); `scripts/renames/` keeps the applied maps with their evidence.
 - Preserve types, struct offsets, declaration order and expression order when
   renaming. Build, measure and run the differential suite for each batch, and
   check that no exact function or score regresses.
 - `scripts/permute_batch.py` searches source variants for non-exact functions
   on an isolated snapshot and writes a reviewable patch; see its `--help`.
-
-### Naming byte-exact functions
-
-`scripts/rename_functions.py` handles batches of names without changing function
-bodies, types or address annotations. Start with a freshly built and measured
-default executable, then export the unnamed functions whose byte audit is exact:
-
-```bash
-python3 scripts/rename_functions.py export --output /tmp/names.tsv
-python3 scripts/rename_functions.py show 0x00407f80
-```
-
-Fill the TSV's `new_name` column for functions whose behaviour you understand;
-blank rows are ignored. Use `evidence` to record the relevant behaviour or
-callers. Keep `address` and `old_name` unchanged. Methods accept either a bare
-new name or the same class qualifier. Use `--file Car.cpp` to export a single
-module, or `--include-named` to include functions that already have descriptive
-names. Export refuses to overwrite an existing map.
-
-```bash
-python3 scripts/rename_functions.py preview /tmp/names.tsv
-python3 scripts/rename_functions.py apply /tmp/names.tsv
-```
-
-Preview only prints a diff. Apply updates source declarations, definitions,
-calls, callbacks, test symbol references and `scripts/functions.tsv` together.
-It rejects stale maps, duplicate names, collisions, ambiguous identifiers and,
-by default, functions that are not byte-exact. Runtime C++ string literals are preserved.
-The command inherits the build's `CMR2_MSVC_ROOT` and Wine environment.
-
-To name functions whose implementation still has a partial byte match, pass
-`--include-nonexact` to both `export` and `preview`/`apply`. This changes the
-selection only: the object-code comparison, regression checks and differential
-suite still run, and every function's existing byte score must be preserved.
-
-Apply rebuilds and compares every object's non-debug sections and relocation
-targets, normalizing renamed symbols, compiler-generated label numbers and the
-physical placement of named `.bss` variables. Local label target offsets stay
-fixed. VC6 can reorder zero-initialized static locals when their function
-name changes; target identity, aliases, instruction bytes and initialized data
-remain checked. It then measures the build,
-checks that no byte-exact function or byte-audit score regresses, runs the full
-differential suite, and refreshes fastcmp metadata. A failure restores the edited
-files, previous build and reports, including pre-existing local changes.
-Use `--jobs N` to set differential-suite concurrency. Review many names in one
-batch to share the cost of these checks.
-
-Keep completed maps in `scripts/renames/` as a record of recovered names;
-export a fresh map for the next batch. Reapplying a completed map is rejected
-because its old names no longer match the source. The tool coordinates edits
-within one invocation; avoid concurrent builds or edits while apply is running.
-
-The completed maps `001-exact.tsv`, `002-all-exact.tsv` and `003-remaining.tsv`
-record 2,514 recovered names and their source evidence. All 3,363 annotated
-function definitions have names; none retains a `FUN_...` identifier. The working
-byte audit still has 2,770 exact functions. Names describe observed behaviour;
-field and bit positions remain explicit where their domain meaning is unknown.
-The original binary inventory also contains records without annotated source
-definitions; those retain their original inventory labels.
 
 ## Credits
 

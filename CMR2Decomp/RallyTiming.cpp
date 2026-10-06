@@ -36,32 +36,27 @@ ChampionshipTables g_championshipTables;
 #define g_unk0x00533620 (g_championshipTables.tieBreak)
 #define g_unk0x00533628 (g_championshipTables.wins)
 
-// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040cc60
 void RallyTiming_ResetDriverSplitState(void)
 {
     int i;
-    int *p;
     Unk0x005335d8 *q;
     Unk0x005335d8 *r;
 
     i = 0;
     q = g_unk0x005335d8;
-    p = g_unk0x005335f0;
     do {
         g_unk0x005335b8[i] = 0;
-        *p = 0;
+        g_unk0x005335f0[i] = 0;
         g_unk0x00533628[i] = 0;
         g_unk0x00533610[i] = i;
         r = q;
         g_unk0x00533618[i] = i;
         g_unk0x00533620[i] = i;
-        r->field_0x0 = 0;
-        p++;
+        memset(r, 0, 3);
         i++;
         q++;
-        r->field_0x2 = 0;
-    } while ((int)p < (int)(g_unk0x005335f0 + 8));
+    } while (i < 8);
 }
 
 // FUNCTION: CMR2 0x0040ccb0

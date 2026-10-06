@@ -269,12 +269,13 @@ def main():
             raw = extract(pes[side], address)
             code[model, original] = relocate(raw, address, low, high, destination)
         if model == 1:
-            # A one-DWORD error in the first column must affect a buffer or its
-            # guard. The old gap-based mutation equals the correct address now
-            # that these fields belong to one contiguous ChampionshipTables.
+            # A one-DWORD error in the first columns must affect a buffer or its
+            # guard. Like the original, the reset walks the 0x38-offset column
+            # with one pointer and reaches the first column as [ptr - 0x38], so
+            # shift that pointer's start by one DWORD.
             code['reset_bad'] = mutate(code[model, 0x40cc60], entities['0x40cc60'][0],
-                                      destination + addresses[0] - low,
-                                      destination + addresses[0] - low + 4)
+                                      destination + addresses[0] - low + 0x38,
+                                      destination + addresses[0] - low + 0x38 + 4)
         if model == 3:
             code['queue_bad'] = mutate(code[model, 0x4b7ca0], entities['0x4b7ca0'][0],
                                       destination + addresses[0] - low + 120,

@@ -100,6 +100,7 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_
     int k;
     int *pField;
     BYTE *p;
+    BYTE *pEnd;
 
     pNodes = pData + 0x30;
     pMeshArray = pNodes + *(unsigned short *)(pData + 0x18) * 0x18c;
@@ -109,9 +110,10 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_
     pVertexData = pTriangles + *(int *)(pData + 0x20) * 0x4c;
     pLightLevels = pVertexData + *(int *)(pData + 0x14) * 0x30;
     pVertexFlags = pLightLevels + *(int *)(pData + 0x14) * 4;
-    textureRecords = *(int *)(pData + 0xc) + (int)pData;
-    recordSize = *(unsigned short *)(pData + 0x26);
     pRecords = pVertexFlags + *(int *)(pData + 0x10) * 0x14;
+    recordSize = *(unsigned short *)(pData + 0x26);
+    pEnd = pRecords + recordSize * 0x5c;
+    textureRecords = *(int *)(pData + 0xc) + (int)pData;
     if (*(int *)(pData + 0x20) != 0) {
         pField = (int *)(pTriangles + 4);
         do {
@@ -123,21 +125,21 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_
                 k--;
             } while (k != 0);
             count++;
-            pField += 0x13 - 10; // Ten of the triangle's 19 dwords were consumed above.
+            pField += 0x13;
         } while (count < *(unsigned int *)(pData + 0x20));
     }
-    Graphics_LoadTextureRecordList((int)(pRecords + recordSize * 0x5c), textureRecords,
+    Graphics_LoadTextureRecordList((int)pEnd, textureRecords,
                  *(unsigned short *)(pData + 0x24), *(int *)(pData + 4), param_3);
     savedNodeCount = g_sceneNodeCount;
     if (*(unsigned short *)(pData + 0x18) != 0) {
         for (i = 0, p = pNodes; i < *(unsigned short *)(pData + 0x18); i++, p += 0x18c) {
             Graphics_AccumulateCounterOrInitialize((int *)p, (int)pNodes);
             Graphics_AccumulateCounterOrInitialize((int *)(p + 4), (int)pNodes);
-            if (param_2 == 0 || *(short *)(p + 0x24) != -1) {
+            if (param_2 != 0 && *(short *)(p + 0x24) == -1) {
+                SceneNode_Attach((SceneNode *)p, (SceneNode *)param_2);
+            } else {
                 Graphics_AccumulateCounterOrInitialize((int *)(p + 8), (int)pNodes);
                 *(short *)(p + 0x24) = -1;
-            } else {
-                SceneNode_Attach((SceneNode *)p, (SceneNode *)param_2);
             }
             Graphics_AccumulateCounterOrInitialize((int *)(p + 0x170), (int)pNodes);
             Graphics_AccumulateCounterOrInitialize((int *)(p + 0xc), (int)pMeshArray);
@@ -353,13 +355,13 @@ void SceneNode_UpdateSector(SceneNode *pNode)
         bLeft = 1;
         pNode->neighbourSectors[0] = iSector - 1;
         n = 1;
-    } else if (pNode->world.position.x + 0x48000 > c + g_sectorHalfSize) {
+    } else if (pNode->world.position.x + 0x48000 > pSector->x + g_sectorHalfSize) {
         bRight = 1;
         pNode->neighbourSectors[0] = iSector + 1;
         n = 1;
     }
     c = pSector->z;
-    if (pNode->world.position.z + 0x48000 > g_sectorHalfSize + c) {
+    if (pNode->world.position.z + 0x48000 > pSector->z + g_sectorHalfSize) {
         pNode->neighbourSectors[n++] = iSector - (short)g_sectorsPerRow;
         if (bLeft)
             pNode->neighbourSectors[n] = iSector - (short)g_sectorsPerRow - 1;
@@ -442,22 +444,22 @@ int Sector_NearestCornerHeight(unsigned int side, int index)
         cz = g_sectors[index]->z - g_sectorHalfSize;
         break;
     }
-    height = 0;
     best.x = g_sectors[index]->corners[side].x - cx;
-    best.y = 0;
     best.z = g_sectors[index]->corners[side].z - cz;
+    best.y = 0;
     pMesh = &((SectorMesh *)g_sectors[index]->pMesh)[g_sectors[index]->pMesh->lodIndex];
     pVert = pMesh->pVertices;
+    height = 0;
     best.x = -cx - (int)(__int64)(pVert[0] * -65536.0);
     best.y = 0;
     best.z = -cz - (int)(__int64)(pVert[2] * -65536.0);
     for (i = 1; i < ((SectorMesh *)g_sectors[index]->pMesh)[g_sectors[index]->pMesh->lodIndex].vertexCount; i++) {
         d.x = -cx - (int)(__int64)(pVert[0] * -65536.0);
-        d.y = 0;
         d.z = -cz - (int)(__int64)(pVert[2] * -65536.0);
+        d.y = 0;
         if (FixVecLength(&d) < FixVecLength(&best)) {
-            height = (int)(__int64)(pVert[1] * 65536.0);
             best = d;
+            height = (int)(__int64)(pVert[1] * CGraphics::m_65536);
         }
         pVert += 12;
     }
@@ -896,7 +898,6 @@ short Sector_GetNeighbours(FixVector *pPos, short *pOut)
 // FUNCTION: CMR2 0x004b9170
 void Sector_ComputeBounds(void)
 {
-    Sector **ppSector;
     Sector *pSector;
     SectorMesh *pMesh;
     float *pVertex;
@@ -904,18 +905,17 @@ void Sector_ComputeBounds(void)
     int n;
     int i;
 
-    ppSector = g_sectors;
-    for (i = 0; i < g_sectorCount; i++, ppSector++) {
-        pSector = *ppSector;
+    for (i = 0; i < g_sectorCount; i++) {
+        pSector = g_sectors[i];
         if (pSector->pMesh == NULL) {
             pSector->bounds[0][0] = pSector->x - g_sectorHalfSize;
-            (*ppSector)->bounds[0][1] = (*ppSector)->z - g_sectorHalfSize;
-            (*ppSector)->bounds[1][0] = g_sectorHalfSize + (*ppSector)->x;
-            (*ppSector)->bounds[1][1] = (*ppSector)->z - g_sectorHalfSize;
-            (*ppSector)->bounds[3][0] = (*ppSector)->x - g_sectorHalfSize;
-            (*ppSector)->bounds[3][1] = (*ppSector)->z + g_sectorHalfSize;
-            (*ppSector)->bounds[2][0] = g_sectorHalfSize + (*ppSector)->x;
-            (*ppSector)->bounds[2][1] = (*ppSector)->z + g_sectorHalfSize;
+            g_sectors[i]->bounds[0][1] = g_sectors[i]->z - g_sectorHalfSize;
+            g_sectors[i]->bounds[1][0] = g_sectorHalfSize + g_sectors[i]->x;
+            g_sectors[i]->bounds[1][1] = g_sectors[i]->z - g_sectorHalfSize;
+            g_sectors[i]->bounds[3][0] = g_sectors[i]->x - g_sectorHalfSize;
+            g_sectors[i]->bounds[3][1] = g_sectors[i]->z + g_sectorHalfSize;
+            g_sectors[i]->bounds[2][0] = g_sectorHalfSize + g_sectors[i]->x;
+            g_sectors[i]->bounds[2][1] = g_sectors[i]->z + g_sectorHalfSize;
         } else {
             pMesh = &((SectorMesh *)pSector->pMesh)[pSector->pMesh->lodIndex];
             pVertex = pMesh->pVertices;
@@ -928,23 +928,23 @@ void Sector_ComputeBounds(void)
                     minX = (int)(__int64)pVertex[0];
                 if ((float)maxX < pVertex[0])
                     maxX = (int)(__int64)pVertex[0];
-                if ((float)maxZ < pVertex[2])
+                if (pVertex[2] < (float)maxZ)
                     maxZ = (int)(__int64)pVertex[2];
-                if (pVertex[2] < (float)minZ)
+                if ((float)minZ < pVertex[2])
                     minZ = (int)(__int64)pVertex[2];
             }
             minX = (int)(__int64)((double)minX * CGraphics::m_65536);
             pSector->bounds[0][0] = minX;
             minZ = (int)(__int64)((double)minZ * CGraphics::m_65536);
-            (*ppSector)->bounds[0][1] = minZ;
+            g_sectors[i]->bounds[0][1] = minZ;
             maxX = (int)(__int64)((double)maxX * CGraphics::m_65536);
-            (*ppSector)->bounds[1][0] = maxX;
-            (*ppSector)->bounds[1][1] = minZ;
-            (*ppSector)->bounds[3][0] = minX;
+            g_sectors[i]->bounds[1][0] = maxX;
+            g_sectors[i]->bounds[1][1] = minZ;
+            g_sectors[i]->bounds[3][0] = minX;
             maxZ = (int)(__int64)((double)maxZ * CGraphics::m_65536);
-            (*ppSector)->bounds[3][1] = maxZ;
-            (*ppSector)->bounds[2][0] = maxX;
-            (*ppSector)->bounds[2][1] = maxZ;
+            g_sectors[i]->bounds[3][1] = maxZ;
+            g_sectors[i]->bounds[2][0] = maxX;
+            g_sectors[i]->bounds[2][1] = maxZ;
         }
     }
 }

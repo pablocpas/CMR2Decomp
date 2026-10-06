@@ -62,11 +62,6 @@ BYTE *NetworkLeaderboard_GetPublishedBoard(void);
 // Draws the stage-times screen: the two header bars, the three column titles,
 // the split table of the drivers in the race and the leaderboard rows of the
 // current stage.
-// match 76%: MSVC6 allocates a 0x28 frame where the original has 0x2c: the
-// original spills the leaderboard-row pointer (E-0x28) and our build keeps it in
-// a register, so every local access shifts by 4 (all the other differences are
-// that shift; the call sequence, constants and branches are identical).
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004de1d0
 void FrontendDraw_DrawStageTimes(int unused)
 {
@@ -116,8 +111,9 @@ void FrontendDraw_DrawStageTimes(int unused)
     i = 0;
     if (NetPlayers_GetClassificationCount() > 0) {
         do {
-            pColour = (int *)g_colourWhite0x00524968;
-            if (NetPlayers_FindLocalClassificationPosition() != i)
+            if (i == NetPlayers_FindLocalClassificationPosition())
+                pColour = (int *)g_colourWhite0x00524968;
+            else
                 pColour = (int *)g_colourText0x0052496c;
             Font_DrawText(0, (char *)NetPlayers_GetClassificationRecord(i), (int)(g_pGraphics->resX * 0x96) / 0x280, (int)(g_pGraphics->resY * 0x14) / 0x1e0 * i + (int)(g_pGraphics->resY * 0x82) / 0x1e0, pColour, 10);
             if (NetPlayers_GetClassificationTime(i) == -1)
@@ -145,25 +141,25 @@ void FrontendDraw_DrawStageTimes(int unused)
     pBoard = NetworkLeaderboard_GetPublishedBoard();
     Font_DrawText(1, CFrontend::GetTextString(0x201), (int)rectB[2] / 2 + *(int *)rectB,
                   (int)(g_pGraphics->resY * 100) / 0x1e0, (int *)g_colourText0x0052496c, 10);
-    if (pBoard == NULL) {
+    if (pBoard != NULL) {
+        for (i = 0, p = (char *)(pBoard + 4); i < 10; i++, p += 8) {
+            if (*p != '\0') {
+                Font_DrawText(0, p, (int)(g_pGraphics->resX * 0x1c2) / 0x280, (int)(g_pGraphics->resY * 0x14) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x82) / 0x1e0,
+                              (int *)g_colourText0x0052496c, 10);
+                sprintf(CFrontend::m_stringDest, g_stageNumberFormat, *(int *)(p + 4));
+                Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1fe) / 0x280, (int)(g_pGraphics->resY * 0x14) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x82) / 0x1e0,
+                              (int *)g_colourText0x0052496c, 10);
+            } else {
+                Font_DrawText(0, g_str0x00519fb4, (int)(g_pGraphics->resX * 0x1c2) / 0x280, (int)(g_pGraphics->resY * 0x14) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x82) / 0x1e0,
+                              (int *)g_colourText0x0052496c, 10);
+                Font_DrawText(0, g_str0x00519fb0, (int)(g_pGraphics->resX * 0x1fe) / 0x280, (int)(g_pGraphics->resY * 0x14) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x82) / 0x1e0,
+                              (int *)g_colourText0x0052496c, 10);
+            }
+        }
+    } else {
         Font_DrawText(0, CFrontend::GetTextString(0x202), (int)rectB[2] / 2 + *(int *)rectB,
                       (int)(g_pGraphics->resY * 0x14) / 0x1e0 + (int)(g_pGraphics->resY * 0x82) / 0x1e0,
                       (int *)g_colourText0x0052496c, 10);
         return;
-    }
-    p = (char *)(pBoard + 4);
-    for (i = 0; i < 10; i++, p += 8) {
-        if (*p != '\0') {
-            Font_DrawText(0, p, (int)(g_pGraphics->resX * 0x1c2) / 0x280, (int)(g_pGraphics->resY * 0x82) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x14) / 0x1e0,
-                          (int *)g_colourText0x0052496c, 10);
-            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, *(int *)(p + 4));
-            Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1fe) / 0x280, (int)(g_pGraphics->resY * 0x82) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x14) / 0x1e0,
-                          (int *)g_colourText0x0052496c, 10);
-        } else {
-            Font_DrawText(0, g_str0x00519fb4, (int)(g_pGraphics->resX * 0x1c2) / 0x280, (int)(g_pGraphics->resY * 0x82) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x14) / 0x1e0,
-                          (int *)g_colourText0x0052496c, 10);
-            Font_DrawText(0, g_str0x00519fb0, (int)(g_pGraphics->resX * 0x1fe) / 0x280, (int)(g_pGraphics->resY * 0x82) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x14) / 0x1e0,
-                          (int *)g_colourText0x0052496c, 10);
-        }
     }
 }

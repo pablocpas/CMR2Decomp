@@ -189,11 +189,11 @@ BOOL CInstallInfo::ShowNoCDErrorMessage(void)
     return FALSE;
 }
 
-// FUNCTION: CMR2 0x040e8d0
-int CInstallInfo::LoadInstallPathsFromRegistry(void)
+// FUNCTION: CMR2 0x0040e8d0
+char CInstallInfo::LoadInstallPathsFromRegistry(void)
 {
     char *regKeyValue;
-    char hdPath[MAX_PATH], cdPath[MAX_PATH], installVersion[16], *bigFileLocation;
+    char hdPath[MAX_PATH], cdPath[MAX_PATH], installVersion[MAX_PATH];
 
     // if the game is on the HD
     regKeyValue = CRegKey::GetValueFromKey(CRegKey::m_rkv_gameHDPath);
@@ -223,51 +223,51 @@ int CInstallInfo::LoadInstallPathsFromRegistry(void)
     // if its the minimum version
     if (_stricmp(installVersion, CRegKey::m_rkv_installMinimum) == 0)
     {
-        sprintf(m_tracksDir, m_tracksSubDir, cdPath);
-        sprintf(m_carsDir, m_carsSubDir, cdPath);
-        sprintf(m_soundsDir, m_soundsSubDir, cdPath);
-        sprintf(m_savesDir, m_savesSubDir, hdPath);
-        sprintf(m_musicDir, m_musicSubDir, cdPath);
-        sprintf(m_videosDir, m_videosSubDir, cdPath);
-        sprintf(m_frontendDir, m_frontendSubDir, cdPath);
-        sprintf(m_countrySpecificDir, m_countrySpecificSubDir, cdPath);
-        sprintf(m_countrySpecificOtherDir, m_countrySpecificSubDir, cdPath);
-        sprintf(m_setupRepDir, m_setupRepSubDir, cdPath);
-        bigFileLocation = cdPath;
+        ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_tracksDir, m_tracksSubDir, cdPath);
+        ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_carsDir, m_carsSubDir, cdPath);
+        ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_soundsDir, m_soundsSubDir, cdPath);
+        ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_savesDir, m_savesSubDir, hdPath);
+        ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_musicDir, m_musicSubDir, cdPath);
+        ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_videosDir, m_videosSubDir, cdPath);
+        ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_frontendDir, m_frontendSubDir, cdPath);
+        ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_countrySpecificDir, m_countrySpecificSubDir, cdPath);
+        ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_countrySpecificOtherDir, m_countrySpecificSubDir, cdPath);
+        ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_setupRepDir, m_setupRepSubDir, cdPath);
+        ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_bigFilesDir, m_bigFilesSubDir, cdPath);
     }
     else
     {
         // medium
         if (_stricmp(installVersion, CRegKey::m_rkv_installMedium) == 0)
         {
-            sprintf(m_tracksDir, m_tracksSubDir, hdPath);
-            sprintf(m_carsDir, m_carsSubDir, hdPath);
-            sprintf(m_soundsDir, m_soundsSubDir, hdPath);
-            sprintf(m_savesDir, m_savesSubDir, hdPath);
-            sprintf(m_musicDir, m_musicSubDir, cdPath);
-            sprintf(m_videosDir, m_videosSubDir, cdPath);
-            sprintf(m_frontendDir, m_frontendSubDir, hdPath);
-            sprintf(m_countrySpecificDir, m_countrySpecificSubDir, hdPath);
-            sprintf(m_countrySpecificOtherDir, m_countrySpecificSubDir, cdPath);
-            sprintf(m_setupRepDir, m_setupRepSubDir, hdPath);
-            bigFileLocation = hdPath;
+            ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_tracksDir, m_tracksSubDir, hdPath);
+            ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_carsDir, m_carsSubDir, hdPath);
+            ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_soundsDir, m_soundsSubDir, hdPath);
+            ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_savesDir, m_savesSubDir, hdPath);
+            ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_musicDir, m_musicSubDir, cdPath);
+            ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_videosDir, m_videosSubDir, cdPath);
+            ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_frontendDir, m_frontendSubDir, hdPath);
+            ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_countrySpecificDir, m_countrySpecificSubDir, hdPath);
+            ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_countrySpecificOtherDir, m_countrySpecificSubDir, cdPath);
+            ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_setupRepDir, m_setupRepSubDir, hdPath);
+            ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_bigFilesDir, m_bigFilesSubDir, hdPath);
         }
         else
         {
             // full/network
             if (_stricmp(installVersion, CRegKey::m_rkv_installFull) == 0 || _stricmp(installVersion, CRegKey::m_rkv_installNetworkOnly) == 0)
             {
-                sprintf(m_tracksDir, m_tracksSubDir, hdPath);
-                sprintf(m_carsDir, m_carsSubDir, hdPath);
-                sprintf(m_soundsDir, m_soundsSubDir, hdPath);
-                sprintf(m_savesDir, m_savesSubDir, hdPath);
-                sprintf(m_musicDir, m_musicSubDir, cdPath);
-                sprintf(m_videosDir, m_videosSubDir, hdPath);
-                sprintf(m_frontendDir, m_frontendSubDir, hdPath);
-                sprintf(m_countrySpecificDir, m_countrySpecificSubDir, hdPath);
-                sprintf(m_countrySpecificOtherDir, m_countrySpecificSubDir, hdPath);
-                sprintf(m_setupRepDir, m_setupRepSubDir, hdPath);
-                bigFileLocation = hdPath;
+                ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_tracksDir, m_tracksSubDir, hdPath);
+                ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_carsDir, m_carsSubDir, hdPath);
+                ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_soundsDir, m_soundsSubDir, hdPath);
+                ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_savesDir, m_savesSubDir, hdPath);
+                ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_musicDir, m_musicSubDir, hdPath);
+                ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_videosDir, m_videosSubDir, hdPath);
+                ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_frontendDir, m_frontendSubDir, hdPath);
+                ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_countrySpecificDir, m_countrySpecificSubDir, hdPath);
+                ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_countrySpecificOtherDir, m_countrySpecificSubDir, hdPath);
+                ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_setupRepDir, m_setupRepSubDir, hdPath);
+                ((int (__cdecl *)(char *, const char *, char *))sprintf)(m_bigFilesDir, m_bigFilesSubDir, hdPath);
             }
             else
                 return 0;
@@ -275,11 +275,11 @@ int CInstallInfo::LoadInstallPathsFromRegistry(void)
     }
 
     // install dependant locations
-    sprintf(m_bigFilesDir, m_bigFilesSubDir, bigFileLocation);
-    sprintf(m_texturesDir, m_texturesSubDir);
-    sprintf(m_fontsDir, m_fontsSubDir);
+    ((int (__cdecl *)(char *, const char *))sprintf)(m_texturesDir, m_texturesSubDir);
+    ((int (__cdecl *)(char *, const char *))sprintf)(m_fontsDir, m_fontsSubDir);
+    ((int (__cdecl *)(char *, const char *))sprintf)(m_surprisedDir, m_surprisedSubDir);
 
-    return sprintf(m_surprisedDir, m_surprisedSubDir);
+    return 1;
 }
 
 // FUNCTION: CMR2 0x004aa6c0

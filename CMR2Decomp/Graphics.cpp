@@ -963,8 +963,12 @@ void CGraphics::BltTexture(Texture *pTexture, int surfaceIndex)
 // Moves an 8-bit channel value into a 16-bit pixel channel whose top bit is
 // `depth` bits above bit 7 (negative: below).
 #define PACK_CHANNEL(mask, depth, v)                                                \
-    ((depth) < 0 ? (((mask) << abs(depth)) & (v)) >> abs(depth)                     \
-                 : (((mask) >> abs(depth)) & (v)) << abs(depth))
+    ((depth) >= 0 ? (((mask) >> abs(depth)) & (v)) << abs(depth)                    \
+                  : (((mask) << abs(depth)) & (v)) >> abs(depth))
+
+extern const float g_netOne;
+extern const float g_netZero;
+extern const float g_unk0x00511364;
 
 // Blends pColour (r, g, b, a) into pixel (x, y) of a locked texture.
 // match 24%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -999,8 +1003,8 @@ void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BY
             dst[0] = (BYTE)((BYTE)m_lockedTextures[i].masks[0] & px) >> (BYTE)m_lockedTextures[i].depths[0];
             dst[1] = (BYTE)((BYTE)m_lockedTextures[i].masks[1] & px) << (BYTE)m_lockedTextures[i].depths[1];
             dst[2] = (BYTE)((BYTE)m_lockedTextures[i].masks[2] & px) << (BYTE)-m_lockedTextures[i].depths[2];
-            f = (float)pColour[3] * (1.0f / 255.0f);
-            inv = 1.0f - f;
+            f = (float)pColour[3] * g_unk0x00511364;
+            inv = g_netOne - f;
             r = (int)(__int64)((float)r * f + (float)dst[0] * inv);
             g = (int)(__int64)((float)g * f + (float)dst[1] * inv);
             b = (int)(__int64)((float)b * f + (float)dst[2] * inv);
@@ -1015,10 +1019,10 @@ void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BY
             dst[0] = 0;
             dst[1] = 0;
             dst[2] = *(BYTE *)p32;
-            f = (float)pColour[3] * (1.0f / 255.0f);
-            inv = 1.0f - f;
-            r = (int)(__int64)((float)r * f + (float)dst[0] * inv);
-            g = (int)(__int64)((float)g * f + (float)dst[1] * inv);
+            f = (float)pColour[3] * g_unk0x00511364;
+            inv = g_netOne - f;
+            r = (int)(__int64)((float)r * f + g_netZero * inv);
+            g = (int)(__int64)((float)g * f + g_netZero * inv);
             b = (int)(__int64)((float)b * f + (float)dst[2] * inv);
         }
         *p32 = RGBA_MAKE(r, g, b, 0xff);
@@ -5339,44 +5343,76 @@ int g_framesThisSecond;
 unsigned int g_lastSecond;
 // GLOBAL: CMR2 0x006dd9bc
 unsigned short g_unk0x006dd9bc[2000];
+extern const float g_netFontInverseScale;
+
+// The four timestamps are guarded function statics in the original; modelled
+// here as real globals so the initialisation guard and its addresses are explicit.
+// GLOBAL: CMR2 0x006dd894
+static BYTE g_unk0x006dd894;
+// GLOBAL: CMR2 0x006dd8a0
+static unsigned int g_unk0x006dd8a0;
+// GLOBAL: CMR2 0x006dd8a4
+static unsigned int g_unk0x006dd8a4;
+// GLOBAL: CMR2 0x006dd898
+static unsigned int g_unk0x006dd898;
+// GLOBAL: CMR2 0x006dd89c
+static unsigned int g_unk0x006dd89c;
 
 // Frame timing: average fps after a 3 s warm-up, fps of the last second and
 // the time scale of the current frame (1000 / frame time in ms).
 // FUNCTION: CMR2 0x004b21e0
 void Graphics_UpdateFrameStatistics(void)
 {
-    static unsigned int s_start = CMain::GetFrameTime();
-    static unsigned int s_now = CMain::GetFrameTime();
-    static unsigned int s_prev = CMain::GetFrameTime() - 40;
-    static unsigned int s_secondStart = CMain::GetFrameTime();
-    unsigned int elapsed;
+    double elapsed;
 
-    s_prev = s_now;
-    s_now = CMain::GetFrameTime();
+    if ((g_unk0x006dd894 & 1) == 0) {
+        g_unk0x006dd894 |= 1;
+        g_unk0x006dd8a0 = CMain::GetFrameTime();
+    }
+    if ((g_unk0x006dd894 & 2) == 0) {
+        g_unk0x006dd894 |= 2;
+        g_unk0x006dd8a4 = CMain::GetFrameTime();
+    }
+    if ((g_unk0x006dd894 & 4) == 0) {
+        g_unk0x006dd894 |= 4;
+        g_unk0x006dd898 = CMain::GetFrameTime() - 40;
+    }
+    if ((g_unk0x006dd894 & 8) == 0) {
+        g_unk0x006dd894 |= 8;
+        g_unk0x006dd89c = CMain::GetFrameTime();
+    }
+
+    g_unk0x006dd898 = g_unk0x006dd8a4;
+    g_unk0x006dd8a4 = CMain::GetFrameTime();
     g_frameCount++;
     g_framesThisSecond++;
     if (g_fpsWarmup != 0) {
-        if (s_now - s_start > 3000) {
+        if (g_unk0x006dd8a4 - g_unk0x006dd8a0 > 3000) {
             g_fpsWarmup = 0;
             g_averageFpsDone = 0;
-            s_start = s_now;
+            g_unk0x006dd8a0 = g_unk0x006dd8a4;
             g_frameCount = 0;
             g_averageFps = 0.0f;
         }
     } else {
-        if (g_averageFpsDone == 0 && s_now - s_start > 3000) {
+        if (g_averageFpsDone == 0 && g_unk0x006dd8a4 - g_unk0x006dd8a0 > 3000) {
             g_averageFpsDone = 1;
-            g_averageFps = (float)g_frameCount * 1000.0f / (float)(s_now - s_start);
+            g_averageFps = (float)g_frameCount * g_netFontInverseScale / (double)(g_unk0x006dd8a4 - g_unk0x006dd8a0);
         }
-        if (g_lastSecond != s_now / 1000) {
-            g_lastSecond = s_now / 1000;
-            elapsed = s_now - s_secondStart;
-            s_secondStart = s_now;
-            g_fps = (float)g_framesThisSecond * 1000.0f / (float)elapsed;
+        if (g_lastSecond != g_unk0x006dd8a4 / 1000) {
+            g_lastSecond = g_unk0x006dd8a4 / 1000;
+            elapsed = (double)(g_unk0x006dd8a4 - g_unk0x006dd89c);
+            g_unk0x006dd89c = g_unk0x006dd8a4;
+            g_fps = (float)g_framesThisSecond * g_netFontInverseScale / elapsed;
             g_framesThisSecond = 0;
         }
     }
-    g_frameScale = g_frameScale2 = 1000.0f / (float)(s_now - s_prev);
+    {
+        double dt = (double)(g_unk0x006dd8a4 - g_unk0x006dd898);
+
+        g_frameScale2 = g_netFontInverseScale / dt;
+        g_frameScale = g_netFontInverseScale / dt;
+    }
 }
 
 // FUNCTION: CMR2 0x004b23a0

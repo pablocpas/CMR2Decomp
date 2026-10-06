@@ -91,8 +91,8 @@ void NetPlayers_ResetBestTimes(void)
 {
     memset(g_netSplitBest, 0, sizeof(g_netSplitBest));
     memset(g_netStageBest, 0, sizeof(g_netStageBest));
-    strcpy(g_netRecordName, CMain::m_logFileBlankLine);
     g_netLapBest = 0;
+    strcpy(g_netRecordName, CMain::m_logFileBlankLine);
     g_netPrevBest = 0;
     g_netNewRecord = 0;
 }
@@ -313,15 +313,22 @@ void NetPlayers_RecordRemoteSplitTime(DPID *pId, int split, unsigned int time)
                 if ((char)RallyData_GetFlag25()) {
                     if (split != 2)
                         return;
+                    name = NetPlayers_GetPlayerName(i);
+                    if (name != NULL)
+                        strcpy(g_netRecordName, name);
+                    else
+                        strcpy(g_netRecordName, CMain::m_logFileBlankLine);
+                    return;
                 } else {
                     if (split != 8)
                         return;
+                    name = NetPlayers_GetPlayerName(i);
+                    if (name != NULL)
+                        strcpy(g_netRecordName, name);
+                    else
+                        strcpy(g_netRecordName, CMain::m_logFileBlankLine);
+                    return;
                 }
-                name = NetPlayers_GetPlayerName(i);
-                if (name != NULL)
-                    strcpy(g_netRecordName, name);
-                else
-                    strcpy(g_netRecordName, CMain::m_logFileBlankLine);
             }
             return;
         }

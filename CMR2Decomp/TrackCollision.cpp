@@ -360,15 +360,14 @@ void AutoGear_RequestAdjacentGear(void)
 void Car_UpdateAutomaticGear(void)
 {
     int i;
-    int gear;
     int selected;
     int best;
     int candidate;
     int engine;
     int load;
-    int threshold;
-    unsigned int chance;
+    int chance;
     int difference;
+    int limit;
     int dot;
     BOOL wheelAvailable = FALSE;
 
@@ -386,9 +385,8 @@ void Car_UpdateAutomaticGear(void)
 
     if (g_pAutoGearCar->field_0xb94 == 0 && wheelAvailable) {
         best = (int)0xd8f00000;
+        engine = FixMul(g_pAutoGearCar->field_0x7a4, g_pAutoGearCar->gearSpeed[g_pAutoGearCar->gear]);
         selected = 0;
-        gear = g_pAutoGearCar->gear;
-        engine = FixMul(g_pAutoGearCar->gearSpeed[gear], g_pAutoGearCar->field_0x7a4);
         for (i = 1; i < 7; i++) {
             candidate = FixMul(g_pAutoGearCar->field_0x7bc[i], engine);
             if (candidate > best &&
@@ -397,28 +395,29 @@ void Car_UpdateAutomaticGear(void)
                 selected = i;
             }
         }
-        if (selected != gear) {
+        if (selected != g_pAutoGearCar->gear) {
             load = FIX_ABS(g_pAutoGearCar->wheelSlip[0]);
-            if ((load < 0x8000 || selected < gear || g_pAutoGearCar->flag0x1d0[2] == 0) &&
+            if ((load < 0x8000 || selected < g_pAutoGearCar->gear || g_pAutoGearCar->flag0x1d0[2] == 0) &&
                 (g_pAutoGearCar->field_0xb21 == 0 ||
-                 ((g_pAutoGearCar->field_0xb22 != 2 || gear <= selected) &&
-                  (g_pAutoGearCar->field_0xb22 != 1 || selected <= gear)))) {
+                 ((g_pAutoGearCar->field_0xb22 != 2 || selected >= g_pAutoGearCar->gear) &&
+                  (g_pAutoGearCar->field_0xb22 != 1 || selected <= g_pAutoGearCar->gear)))) {
                 g_pAutoGearCar->field_0xb84 = 1;
-                if (gear < selected)
+                if (selected > g_pAutoGearCar->gear)
                     g_pAutoGearCar->field_0xb22 = 2;
                 else
                     g_pAutoGearCar->field_0xb22 = 1;
                 g_pAutoGearCar->field_0xb21 = 10;
 
-                if (gear < selected && *(int *)(g_pAutoGearSetup + 0x278) > 0xb333) {
+                if (selected > g_pAutoGearCar->gear && *(int *)(g_pAutoGearSetup + 0x278) > 0xb333) {
                     chance = FixMul(*(int *)(g_pAutoGearSetup + 0x278) - 0xb333, 0x3553f);
-                    if (chance < 0)
-                        chance = 0;
-                    else if (chance > 0x10000)
+                    if (chance > 0x10000)
                         chance = 0x10000;
+                    else if (chance < 0)
+                        chance = 0;
+                    limit = FixMul(chance, 0x4ccc);
                     difference = FIX_ABS(FIX_ABS(g_pAutoGearCar->corners[0].x) -
                                          FIX_ABS(g_pAutoGearCar->corners[0].z));
-                    if ((difference % 0x401) * 0x40 < FixMul(chance, 0x4ccc) && selected < 6)
+                    if ((difference % 0x401) * 0x40 < limit && selected < 6)
                         selected++;
                 }
                 g_pAutoGearCar->field_0xb20 = (char)selected;
@@ -705,13 +704,18 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
     refColour[0] = (BYTE)(colour.x >> 16);
     refColour[1] = (BYTE)(colour.y >> 16);
     refColour[2] = (BYTE)(colour.z >> 16);
+
     volatile BYTE *pAlpha = &g_stageColourAlpha;
 
     for (i = g_stageMesh0Count - 1; i >= 0; i--) {
-        height = (int)(__int64)((double)((float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30))[1] * CGraphics::m_65536);
+        float *vertex = (float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30);
+        float vy = vertex[1];
+        height = (int)(__int64)((double)vy * CGraphics::m_65536);
+        float vx = vertex[0];
+        float vz = vertex[2];
         if (height == g_unk0x00592114.y &&
-            g_unk0x00592114.x == (int)(__int64)((double)((float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30))[0] * CGraphics::m_65536) &&
-            g_unk0x00592114.z == (int)(__int64)((double)((float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30))[2] * CGraphics::m_65536)) {
+            g_unk0x00592114.x == (int)(__int64)((double)vx * CGraphics::m_65536) &&
+            g_unk0x00592114.z == (int)(__int64)((double)vz * CGraphics::m_65536)) {
             *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x18) = ((0xffffff00 | refColour[0]) << 8 | refColour[1]) << 8 | refColour[2];
             *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)*pAlpha << 24;
         } else {
@@ -863,32 +867,41 @@ void Graphics_SetFog(int start, int end, int a, int b, DWORD colour);
 // FUNCTION: CMR2 0x00492fe0
 void Track_SetFogAndSkyAlpha(DWORD *pColour, int start, int end)
 {
+    BYTE rgb[3];
     int distance;
     int t;
     int alpha;
+    int range;
 
-    Graphics_SetFog(start, end, start, end, *pColour);
+    rgb[0] = ((BYTE *)pColour)[0];
+    rgb[1] = ((BYTE *)pColour)[1];
+    rgb[2] = ((BYTE *)pColour)[2];
+    Graphics_SetFog(start, end, start, end, *(DWORD *)rgb);
     distance = (CGameInfo::GetGraphicsOptionBits21To24() + 2) * 0x320000;
     if (distance < start) {
         g_unk0x00592146 = 0xff;
         g_stageColourAlpha = 0xff;
         return;
     }
-    if (distance <= end) {
-        t = distance - start;
-        if (end - start != 0)
-            t = FixDiv(t, end - start);
-        alpha = FixMul(t, 0xff0000) >> 16;
-        if (alpha > 0xff)
-            alpha = 0xff;
-        else if (alpha < 0)
-            alpha = 0;
-        g_unk0x00592146 = (BYTE)(-1 - alpha);
-        g_stageColourAlpha = g_unk0x00592146;
+    if (distance > end) {
+        g_unk0x00592146 = 0;
+        g_stageColourAlpha = 0;
         return;
     }
-    g_unk0x00592146 = 0;
-    g_stageColourAlpha = 0;
+    t = distance - start;
+    range = end - start;
+    if (range == 0)
+        g_unk0x00592146 = 0;
+    else
+        t = FixDiv(t, range);
+    alpha = FixMul(t, 0xff0000) >> 16;
+    if (alpha > 0xff)
+        alpha = 0xff;
+    else if (alpha < 0)
+        alpha = 0;
+    alpha = -1 - alpha;
+    g_unk0x00592146 = (BYTE)alpha;
+    g_stageColourAlpha = (BYTE)alpha;
 }
 
 // Tracks how fast the rolling direction of the auto-gear car follows its
@@ -1056,9 +1069,12 @@ void Track_ShiftMeshAndAmbientHeights(int oldHeight, int newHeight, int mode)
     for (i = g_stageMesh0Count - 1; i >= 0; i--) {
         if (g_stageHeightSamples[i] < height) {
             float *vertex = (float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30);
-            if (g_unk0x00592114.x != (int)(__int64)((double)vertex[0] * CGraphics::m_65536) ||
-                g_unk0x00592114.y != (int)(__int64)((double)vertex[1] * CGraphics::m_65536) ||
-                g_unk0x00592114.z != (int)(__int64)((double)vertex[2] * CGraphics::m_65536))
+            float vx = vertex[0];
+            float vy = vertex[1];
+            float vz = vertex[2];
+            if (g_unk0x00592114.x != (int)(__int64)((double)vx * CGraphics::m_65536) ||
+                g_unk0x00592114.y != (int)(__int64)((double)vy * CGraphics::m_65536) ||
+                g_unk0x00592114.z != (int)(__int64)((double)vz * CGraphics::m_65536))
                 vertex[1] = (float)((double)height * CGraphics::m_oneOver65536);
         }
     }
@@ -1151,13 +1167,14 @@ void CarPhysics_DampSurfaceSteeringAngle(void)
 
     scaleRight = g_pAutoGearCar->field_0x7fc;
     scaleLeft = g_pAutoGearCar->field_0x800;
-    value = FixMul(*(BYTE *)&g_pAutoGearCar->flag0x1d0[1] << 16, 0x410);
-    if (value > 0x10000)
-        value = 0x10000;
-    other = FixMul(*(BYTE *)&g_pAutoGearCar->flag0x1d0[0] << 16, 0x410);
+    other = FixMul(*(BYTE *)&g_pAutoGearCar->flag0x1d0[1] << 16, 0x410);
     if (other > 0x10000)
         other = 0x10000;
-    value -= other;
+    value = FixMul(*(BYTE *)&g_pAutoGearCar->flag0x1d0[0] << 16, 0x410);
+    if (value > 0x10000)
+        value = 0x10000;
+    other = other - value;
+    value = other;
     AutoGear_UpdateSteeringScale();
 
     if (value < -0x10000)
@@ -1179,18 +1196,20 @@ void CarPhysics_DampSurfaceSteeringAngle(void)
     delta = current - target;
     if (delta > 0x800)
         delta = 0x1000 - delta;
-    if (delta > 0x1f || delta < -0x1f) {
+    if (delta >= 0x20 || delta <= -0x20) {
         if (current == 0)
             delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
-        else if (current <= 0) {
-            if (delta < 1)
-                delta = (short)(__int64)((double)FixMul(scaleLeft, delta * 0x1680) * g_unk0x00511300);
+        else if (current > 0) {
+            if (delta < 0)
+                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
             else
-                delta = (short)(__int64)((double)FixMul(scaleRight, delta * 0x1680) * g_unk0x00511300);
-        } else if (delta < 0)
-            delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
-        else
-            delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleLeft) * g_unk0x00511300);
+                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleLeft) * g_unk0x00511300);
+        } else {
+            if (delta > 0)
+                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
+            else
+                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleLeft) * g_unk0x00511300);
+        }
     }
     *(short *)&g_pAutoGearCar->heading -= delta;
     g_pAutoGearCar->field_0xb12 = *(short *)&g_pAutoGearCar->heading;

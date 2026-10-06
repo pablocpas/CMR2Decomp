@@ -20,21 +20,16 @@ FixVector g_trailDelta[8][4];
 // Moves each wheel's dust emitter to its new world position, remembers how far
 // the wheel has travelled since the last trail mark and counts the wheels that
 // are currently laying one.
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045def0
 void WheelTrail_Update(int carIndex)
 {
     if (carIndex < 8) {
         Car *pCar = Car_Get(carIndex);
-        int *pCount = &g_trailCount[carIndex];
-        int *pState = pCar->cornerOnGround;
-        short *pSurface = pCar->wheelSurface;
-        FixVector *pEmitter = pCar->wheelEmitter;
-        char *pLevel = g_trailLevel[carIndex];
+        g_trailCount[carIndex] = 0;
         int i = 0;
         FixVector delta;
+        int px;
 
-        *pCount = 0;
         do {
             if (g_trailReset[carIndex][i] != 0) {
                 g_trailLastPos[carIndex][i].x = g_trailPos[carIndex][i].x;
@@ -65,40 +60,36 @@ void WheelTrail_Update(int carIndex)
                 }
             }
 
+            g_trailState[carIndex][i] = pCar->cornerOnGround[i];
             g_trailPrevState[carIndex][i] = g_unk0x00543708[carIndex][i];
-            g_trailState[carIndex][i] = *pState;
-            g_trailSurface[carIndex][i] = *pSurface;
-            if (*pState == 1) {
+            g_trailSurface[carIndex][i] = pCar->wheelSurface[i];
+            if (pCar->cornerOnGround[i] == 1) {
                 g_trailTimer[carIndex][i]++;
-                (*pCount)++;
+                g_trailCount[carIndex]++;
             } else {
                 g_trailTimer[carIndex][i] = 0;
             }
 
+            delta = pCar->wheelEmitter[i];
+            delta.y -= 0x5999;
+            FixMatrix_RotateVector(&g_trailOffset[carIndex][i], &delta, pCar->pWorld);
+            px = pCar->position.x;
+            g_trailPos[carIndex][i].x = g_trailOffset[carIndex][i].x + px;
+            g_trailPos[carIndex][i].y = g_trailOffset[carIndex][i].y + pCar->position.y;
+            g_trailPos[carIndex][i].z = g_trailOffset[carIndex][i].z + pCar->position.z;
             {
-                FixVector local;
                 int level;
 
-                local.x = pEmitter->x;
-                local.y = pEmitter->y - 0x5999;
-                local.z = pEmitter->z;
-                FixMatrix_RotateVector(&g_trailOffset[carIndex][i], &local, pCar->pWorld);
-                g_trailPos[carIndex][i].x = g_trailOffset[carIndex][i].x + pCar->position.x;
-                g_trailPos[carIndex][i].y = g_trailOffset[carIndex][i].y + pCar->position.y;
-                g_trailPos[carIndex][i].z = g_trailOffset[carIndex][i].z + pCar->position.z;
                 level = 0xff00 - pCar->field_0xa70;
-                if (level >= 0xff01) {
+                if (level > 0xff00) {
                     level = 0xff00;
                 } else {
                     if (level < 0) {
                         level = 0;
                     }
                 }
-                pLevel[i] = (char)(level / 256);
+                g_trailLevel[carIndex][i] = (char)(level / 256);
             }
-            pState++;
-            pSurface++;
-            pEmitter++;
             i++;
         } while (i < 4);
     }
