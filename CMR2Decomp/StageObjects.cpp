@@ -3766,23 +3766,20 @@ void CarDamage_UpdateOrderedCarsOffRoadState(short *param_1, short param_2, int 
     int i;
 
     i = 0;
-    if ((int)param_2 > 0) {
-        p = param_1;
-        do {
-            pCar = Car_Get(*p);
-            if (pCar->field_0xc0c == 0 &&
-                *(int *)((BYTE *)pCar + 0xb68 + param_4 * 4) == 0) {
-                if (Race_IsMultiplayerRecordMode10() != 0) {
-                    if ((char)RallyData_GetSelectionFlag27() || (char)RallyData_GetSelectionFlag26() ||
-                        (unsigned int)i == (View_GetActiveCameraFlags(1) & 0xff))
-                        CarPhysics_DrawBodyWheelAndSkidShadows(pCar, 1);
-                } else if (StageObject_GetPairedCarValue(pCar->index, param_4) != 7) {
-                    CarPhysics_DrawBodyWheelAndSkidShadows(pCar, param_4);
-                }
+    while (i < (int)param_2) {
+        p = param_1 + i;
+        pCar = Car_Get(*p);
+        if (pCar->field_0xc0c == 0 &&
+            *(int *)((BYTE *)pCar + 0xb68 + param_4 * 4) == 0) {
+            if (Race_IsMultiplayerRecordMode10() != 0) {
+                if ((char)RallyData_GetSelectionFlag27() || (char)RallyData_GetSelectionFlag26() ||
+                    (unsigned int)i == (View_GetActiveCameraFlags(1) & 0xff))
+                    CarPhysics_DrawBodyWheelAndSkidShadows(pCar, 1);
+            } else if (StageObject_GetPairedCarValue(pCar->index, param_4) != 7) {
+                CarPhysics_DrawBodyWheelAndSkidShadows(pCar, param_4);
             }
-            i = i + 1;
-            p = p + 1;
-        } while (i < (int)param_2);
+        }
+        i = i + 1;
     }
     StageObject_DrawListedCarLightBeams(param_1, param_2, param_4);
     StageObject_DrawViewPrecipitationAndObjects(param_3, param_4);
@@ -7802,11 +7799,11 @@ void StageObject_PositionSplitViewNodes(int param_1)
         FixMatrix_GetPosition(&pos, (FixMatrix *)((int)Car_Get(car)->pNode0x720 + 0x98));
     else
         FixMatrix_GetPosition(&pos, (FixMatrix *)((int)g_viewNodes[car] + 0x98));
+    pos.y = pos.y - 0xf0000;
     vecC.x = pos.x;
     vecC.z = pos.z;
     vecB.x = pos.x;
     vecB.z = pos.z;
-    pos.y = pos.y - 0xf0000;
     vecC.y = pos.y;
     vecB.y = pos.y;
     StageObject_GetStageLightValues(&offset.x, &offset.y, &offset.z);
@@ -8486,7 +8483,8 @@ void StageObject_RebuildCarExhaustPoints(int car)
         for (off = 0x1c8; off < 0x1f8; off += 0xc) {
             pA = (int *)(StageObject_GetMotionRecord(car) - 0x30 + off);
             pB = (int *)(StageObject_GetMotionRecord(car) + off);
-            d.x = pA[0] - pB[0];
+            d.x = pA[0];
+            d.x -= pB[0];
             d.y = pA[1] - pB[1];
             d.z = pA[2] - pB[2];
             FixVecScale(&d, &d, 0x8000);
@@ -9173,9 +9171,10 @@ void StageObject_RebuildOrderedWheelVisibility(void)
         }
         i++;
     } while (i < 2);
+    pOrder = Car_GetOrder();
     count = Car_GetOrderCount() - 1;
-    if (-1 < (short)count) {
-        pOrder = Car_GetOrder() + (short)count;
+    if (count >= 0) {
+        pOrder += (short)count;
         count = (short)count + 1;
         do {
             pCar = Car_Get(*pOrder);
@@ -9473,8 +9472,8 @@ void CarSkid_SpawnWheelDustPuff(int param_1, int param_2, int param_3, int param
     int x1, x2, a, b, c;
 
     s = (short)(rand() % (param_8 / 2));
-    rand();
     param_4 = (s * param_4) / (param_8 / 2);
+    rand();
     if (s <= 0x400) {
         unsigned int idx = (int)s & 0xfff;
         int conv = (int)(__int64)((double)param_5 * CGraphics::m_65536);
