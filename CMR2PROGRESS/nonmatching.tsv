@@ -407,7 +407,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x500270	OptionMenu_ConfirmOrRevertHighlightedValue	GameInfo.cpp	0	0.8993288590604027	0.8859060402684564
 0x4d45b0	FrontendDraw_Carousel	FrontendDraw.cpp	1511	0.9020021074815595	0.8740740740740741
 0x458fd0	StageTiming_AdvanceTimedLapCheckpoint	StageTiming.cpp	203	0.9024390243902439	0.9024390243902439
-0x448d50	StageTiming_BubbleRunningOrder	StageTiming.cpp	132	0.9024390243902439	0.9512195121951219
 0x499070	Spark_Draw	CarEffects.cpp	1117	0.9027237354085603	0.9097938144329897
 0x46a500	CarDamage_UpdateSuspensionImpactContacts	StageObjects.cpp	1963	0.9032258064516129	0.8266068759342302
 0x4bba00	Quad2D_QueueFixedTriangle	Sprite.cpp	596	0.9050632911392406	0.8867924528301887
@@ -448,7 +447,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4564d0	StageTiming_InterpolateCarFixedSampleRows	StageTiming.cpp	564	0.9281767955801105	0.9337016574585635
 0x4a20c0	Sound_CreatePcmSampleBuffer	Sound.cpp	321	0.9281767955801105	0.8666666666666667
 0x4752f0	StageObject_FormatAnimatedLapTime	StageObjects.cpp	319	0.9285714285714286	0.9026548672566371
-0x409b60	NetPlayers_ResetBestTimes	NetPlayers.cpp	86	0.9310344827586207	0.9310344827586207
 0x47eab0	Fireworks_Update	StageObjects.cpp	2651	0.9312581063553826	0.9189889825016202
 0x421230	RallyData_ProjectCarRouteSegmentProgress	RallyData.cpp	316	0.9316239316239316	0.919831223628692
 0x43e680	Car_ResetBodyBasis	Car.cpp	1602	0.9322548028311426	0.9369918699186992
@@ -485,7 +483,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x476640	StageObject_BlendCarMountTransform	StageObjects.cpp	513	0.9538461538461539	0.9538461538461539
 0x438460	Car_UpdateCornerFriction	Car.cpp	822	0.954225352112676	0.954225352112676
 0x487f60	Collision_ResolveCarTurnedObjectContact	StageObjects.cpp	1752	0.9554794520547946	0.8879384088964928
-0x40a580	NetPlayers_RebuildStageResults	NetPlayers.cpp	372	0.956140350877193	0.956140350877193
 0x480af0	StageObject_AssignMatchingCarClassSlots	StageObjects.cpp	79	0.9565217391304348	0.9565217391304348
 0x423780	Camera_SnapTo	Car.cpp	104	0.9574468085106383	0.9444444444444444
 0x4fb8d0	FrontendProfile_ScrambleIdentifier	FrontendScreens.cpp	232	0.9594594594594594	0.9594594594594594

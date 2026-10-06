@@ -3854,12 +3854,12 @@ void StageTiming_BubbleRunningOrder(void)
     for (i = 1; i < count; i++) {
         p = &g_unk0x0053dda8[i];
         if (StageTiming_CompareCheckpointAndStartOrder(p[0], p[-1]) == 1) {
-            a = p[-1];
+            a = g_unk0x0053dda8[i - 1];
             g_carStageTiming[a].field_0x81++;
-            b = p[0];
+            b = g_unk0x0053dda8[i];
             g_carStageTiming[b].field_0x81--;
-            p[0] = a;
-            p[-1] = b;
+            g_unk0x0053dda8[i] = a;
+            g_unk0x0053dda8[i - 1] = b;
         }
     }
 }

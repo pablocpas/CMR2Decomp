@@ -4465,6 +4465,14 @@
     "f": "FrontendMenus.cpp",
     "symbol_name": "FrontendMenu_BuildAllControlsPages"
   },
+  "0x4ee6e0": {
+    "n": "FrontendMenu_UpdateNetworkRallySetup",
+    "s": 1.0,
+    "x": true,
+    "unknown": [],
+    "f": "FrontendNetworkRally.cpp",
+    "symbol_name": "FrontendMenu_UpdateNetworkRallySetup"
+  },
   "0x4d27c0": {
     "n": "FrontendRecords_SetProfileMode",
     "s": 1.0,
@@ -6632,14 +6640,6 @@
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawSingleRallySelection"
-  },
-  "0x4ee6e0": {
-    "n": "FrontendMenu_UpdateNetworkRallySetup",
-    "s": 1.0,
-    "x": true,
-    "unknown": [],
-    "f": "FrontendScreens.cpp",
-    "symbol_name": "FrontendMenu_UpdateNetworkRallySetup"
   },
   "0x4ee170": {
     "n": "FrontendMenu_UpdateNetworkCarSetup",
@@ -15188,8 +15188,8 @@
   },
   "0x409b60": {
     "n": "NetPlayers_ResetBestTimes",
-    "s": 0.9310344827586207,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetPlayers.cpp",
     "symbol_name": "NetPlayers_ResetBestTimes"
@@ -15452,8 +15452,8 @@
   },
   "0x40a580": {
     "n": "NetPlayers_RebuildStageResults",
-    "s": 0.956140350877193,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetPlayers.cpp",
     "symbol_name": "NetPlayers_RebuildStageResults"
@@ -25003,8 +25003,8 @@
   },
   "0x448d50": {
     "n": "StageTiming_BubbleRunningOrder",
-    "s": 0.9512195121951219,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageTiming_BubbleRunningOrder"

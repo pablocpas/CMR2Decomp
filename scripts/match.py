@@ -248,7 +248,10 @@ def main():
             addr = int(t, 16)
             focus.append(addr)
             row = base.get(hex(addr))
-            tus.append(SRC / row["f"] if row else Path(F.src_for(addr)))
+            src = SRC / row["f"] if row else None
+            if src is None or f"CMR2 0x{addr:08x}" not in src.read_text(encoding="latin1"):
+                src = Path(F.src_for(addr))  # new function, or moved to another TU
+            tus.append(src)
         else:
             tus.append(resolve_tu(t))
     if args.changed:

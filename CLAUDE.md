@@ -68,6 +68,20 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
   `BYTE` local (`BYTE i = (BYTE)player;`, `char car = g_partCar->index;`); an
   `int` index gives `[r*4 + table]` at each use instead. A value loaded once and used by two helper calls is
   a local (`int zoom = table[i];`), not two reads of the table.
+- A caller that pushes a narrow local as a raw dword (no `movzx`/`and`) is
+  calling a function whose parameter is `BYTE`/`char` too; fix the prototype
+  (and the definition, so the mangled names agree).
+- A load placed above a loop's own guard (`mov` before `test n; jle`) comes
+  from a plain `for (i = 0; i < n; i++) p[i * k] = ...` loop; an explicit
+  `if (n > 0)` around a pointer loop keeps the load inside.
+- Stores through a pointer cannot move past loads of other globals; stores to
+  a global by name can. When the original schedules a store early, write it
+  to the global directly (`g_order[i] = a;`, not `p[0] = a;`), and keep
+  globals that live in one struct/blob in the repo as separate globals.
+- Splitting a blob into separate globals: uninitialised C++ globals are
+  communal and the linker scatters them. If code reads across a neighbour
+  (`g_netStageBest[stage - 1]`), initialise them (`= { 0 }`) so they stay in
+  definition order in `.data`.
 
 ## Before committing a batch
 
