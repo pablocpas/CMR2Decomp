@@ -4419,14 +4419,14 @@ void InRaceMenu_BuildCarSetup(void)
         Menu_AddItemType3(&g_menu0x0052aa70, 0, (short)0x64, 2, 0, 0, 0, 0, 0);
     else
         Menu_AddItemType3(&g_menu0x0052aa70, 0, (short)0x30, 2, 0, 0, 0, 0, 0);
-    Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x65, 2, 0, 0, 0, 1, 0);
-    Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x66, 2, 0, 0, 0, 2, 0);
-    Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x67, 2, 0, 0, 0, 3, 0);
+    Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x65, 2, 0, 0, 0, 0, 1);
+    Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x66, 2, 0, 0, 0, 0, 2);
+    Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x67, 2, 0, 0, 0, 0, 3);
     if (Race_IsFlag24Clear()) {
-        if (RallyData_IsHeadToHeadRaceMode() == 0)
-            Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x68, (BYTE)3, 0, 0, 0, 4, 0);
+        if (RallyData_IsHeadToHeadRaceMode() != 0)
+            Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x68, (BYTE)2, 0, 0, 0, 0, 4);
         else
-            Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x68, (BYTE)2, 0, 0, 0, 4, 0);
+            Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x68, (BYTE)3, 0, 0, 0, 0, 4);
     }
 void InRaceMenu_ApplyDefaultCarSetup(Menu *pMenu, int param);
 
