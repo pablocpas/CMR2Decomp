@@ -1852,14 +1852,14 @@ void GameMenu_DrawStagePenalties(Menu *pMenu)
 {
     int x;
     int y;
-    int lines;
+    short lines;
     int i;
 
     x = (int)(g_pGraphics->resX * 30) / 640;
-    lines = 0;
     y = (int)(g_pGraphics->resY * 242) / 480;
     GameMenu_ClearMenuListWithHighlight();
     Font_DrawText(2, CFrontend::GetTextString(0x49), x, y, (int *)g_menuFrameColour, 0x11);
+    lines = 0;
     for (i = 0; i < (int)(RallyDataState() & 0xff); i++) {
         if (Race_ReadPlayerState37F68(i) & 0x80) {
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x7f), CFrontend::GetModeSpecificCountryText(Race_ReadPlayerState37F78(i)));

@@ -929,11 +929,11 @@ void CGameInfo::ApplyStageOptionUnlockFlags(void) {
     bool bVar6 = false;
 
     do {
-        if ((piVar4 < (m_gameInfo.field_0x38f8 + 44)) && (*piVar4 & 2) != 0) {
+        if (((int)piVar4 < (int)(m_gameInfo.field_0x38f8 + 44)) && (*piVar4 & 2) != 0) {
             *piVar4 = *piVar4 & 0xfd;
         }
 
-        if (uVar5 < (m_gameInfo.field_0x9c >> 8 & 0xf)) {
+        if (uVar5 < (int)(m_gameInfo.field_0x9c >> 8 & 0xf)) {
             iVar3 = 0;
             do {
                 if ((piVar4[iVar3] & 2) != 0) {
@@ -942,7 +942,7 @@ void CGameInfo::ApplyStageOptionUnlockFlags(void) {
                 iVar3 ++;
             } while (iVar3 < 4);
 
-            if (uVar5 < (m_gameInfo.field_0x9c >> 0xc & 0xf)) {
+            if (uVar5 < (int)(m_gameInfo.field_0x9c >> 0xc & 0xf)) {
                 iVar3 = 4;
                 do {
                     if ((piVar4[iVar3] & 2) != 0) {
@@ -951,7 +951,7 @@ void CGameInfo::ApplyStageOptionUnlockFlags(void) {
                     iVar3 ++;
                 } while (iVar3 < 8);
             
-                if ((uVar5 < (m_gameInfo.field_0x9c >> 0x10 & 0xf)) && (m_gameInfo.field_0x9c & 1) != 0) {
+                if ((uVar5 < (int)(m_gameInfo.field_0x9c >> 0x10 & 0xf)) && (m_gameInfo.field_0x9c & 1) != 0) {
                     iVar3 = 8;
                     do {
                         if ((piVar4[iVar3] & 2) != 0) {
