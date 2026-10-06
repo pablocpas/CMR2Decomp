@@ -219,7 +219,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4738f0	StageObject_DrawPauseStageDataPanel	StageObjects.cpp	1131	0.733229329173167	0.7696709585121603
 0x45ea70	StageWeather_SetupSettingTransition	StageTiming.cpp	220	0.7352941176470589	0.6861313868613139
 0x401d20	InRaceMenu_DrawMenuRows	GameInfo.cpp	733	0.7355371900826446	0.7443762781186094
-0x41a5c0	Race_ComputeWheelSurfaceSoundVolumes	Race.cpp	2227	0.7366818873668188	0.6784343821949348
 0x47b0e0	StageObject_UpdatePlayerControlIndicators	StageObjects.cpp	1344	0.7372654155495979	0.7238605898123325
 0x486910	StageObject_RebuildMirroredTiltMatrix	FixedPoint.cpp	206	0.738255033557047	0.7516778523489933
 0x4fc620	FrontendControls_UpdateAxisCalibration	FrontendMenus.cpp	548	0.7388535031847133	0.7290322580645161
@@ -235,6 +234,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x41e6b0	Race_TeardownStage	Race.cpp	544	0.7507163323782235	0.6498599439775911
 0x402000	InRaceMenu_DrawLabelAndValueRows	GameInfo.cpp	1090	0.7527777777777778	0.7393767705382436
 0x4a8c30	CGraphics::EnumeratePreferredHalDevices	Graphics.cpp	298	0.7528089887640449	0.6923076923076923
+0x41a5c0	Race_ComputeWheelSurfaceSoundVolumes	Race.cpp	2227	0.7542503863987635	0.6897613548883756
 0x4fc500	FrontendControls_EnterCalibration	FrontendMenus.cpp	265	0.7544910179640718	0.7073170731707317
 0x433890	Car_StepAll	Car.cpp	1507	0.7555555555555555	0.7326266195524146
 0x4584d0	StageTiming_PlaceEventStartingGrid	StageTiming.cpp	142	0.7556615017878426	0.7189384800965019
@@ -385,7 +385,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x502570	OptionMenu_InitDefaultRecordTables	GameInfo.cpp	191	0.8695652173913043	0.8695652173913043
 0x45d540	CarEffect_UpdateWheelSurfaceParticles	CarEffects.cpp	1677	0.8708815672306323	0.7676950998185118
 0x413fe0	RallyData_DrawStageTimePanel	RallyData.cpp	1036	0.8714069591527988	0.8700906344410876
-0x419b90	Race_MoveCarSoundBank	Race.cpp	224	0.8723404255319149	0.9428571428571428
 0x47d0e0	AI_SelectCarsWithinOvertakeWindow	StageObjects.cpp	578	0.8733850129198967	0.8144329896907216
 0x508740	StageDeform_ClampVertex	StageTiming.cpp	330	0.8734693877551021	0.6829268292682927
 0x40d6c0	RallyData_SelectOpponentSkillClasses	RallyData.cpp	340	0.875	0.8188976377952756
@@ -458,7 +457,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4a20c0	Sound_CreatePcmSampleBuffer	Sound.cpp	321	0.9281767955801105	0.8666666666666667
 0x4752f0	StageObject_FormatAnimatedLapTime	StageObjects.cpp	319	0.9285714285714286	0.9026548672566371
 0x476640	StageObject_BlendCarMountTransform	StageObjects.cpp	513	0.9307692307692308	0.9307692307692308
-0x41afe0	Race_MarkUsedSurfaceSoundGroups	Race.cpp	91	0.9310344827586207	0.9310344827586207
 0x409b60	NetPlayers_ResetBestTimes	NetPlayers.cpp	86	0.9310344827586207	0.9310344827586207
 0x47eab0	Fireworks_Update	StageObjects.cpp	2651	0.9312581063553826	0.9189889825016202
 0x421230	RallyData_ProjectCarRouteSegmentProgress	RallyData.cpp	316	0.9316239316239316	0.919831223628692
@@ -523,7 +521,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4a5be0	CGraphics::EvictManagedTextureResources	Graphics.cpp	289	0.979381443298969	0.979381443298969
 0x501780	OptionMenu_FadeBackgroundToGrey	GameInfo.cpp	401	0.9800796812749004	0.9879518072289156
 0x46acb0	CarDamage_RebuildPartBounds	StageObjects.cpp	801	0.9803921568627451	0.984313725490196
-0x418d30	CarSound_PlaySlot	Race.cpp	146	0.9803921568627451	0.9803921568627451
 0x48ce80	View_RestartTracksideCameraDolly	StageObjects.cpp	617	0.9848484848484849	0.98989898989899
 0x4bc110	Timer_GetValue	Graphics.cpp	357	0.9849624060150376	0.984
 0x4f28c0	FrontendMenu_EnterCheats	FrontendScreens.cpp	168	0.9855072463768116	0.9855072463768116

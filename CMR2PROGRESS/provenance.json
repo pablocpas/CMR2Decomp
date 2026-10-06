@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "c5c1639142d4e0d68c8cc80f11513d5c8f7afb57",
+    "commit": "aab2c72ba605169b70b2b13122499eb947626204",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -98,7 +98,7 @@
       "CMR2Decomp/NetworkLeaderboards.cpp": "9898276e406ba257d805bebc1308b2a0a17b099e9dbfbf411a9a1665ccf56e5d",
       "CMR2Decomp/NetworkLeaderboards.h": "a969a489a37b53194c8e4831df13fa3217ae6ee475cb82b08887bebfe57237fb",
       "CMR2Decomp/Particle.h": "b85a46208a644e2bf8128006838a31443be3039578664fe5aa764d018dbc6d92",
-      "CMR2Decomp/Race.cpp": "34854c8619021473d90f214568028b0d653cce0aa3b9fe036185f55f2df74b4e",
+      "CMR2Decomp/Race.cpp": "365797b80beac54c4998f3334b61388160f4f1f83655cb057d466e0168150200",
       "CMR2Decomp/RallyData.cpp": "4710c78db1557fc63b24983651e8155cfbee3cee3a896e7bc9c80c228c8b6a73",
       "CMR2Decomp/RallyData.h": "e987810c2165585326e910e8d05c1dc1cb71d1ea758238d1c98b7347b1bc2470",
       "CMR2Decomp/RallyRoute.cpp": "994b5ec20055ca0a56941ad464450f265ae9e2889ab9da4bb53d24aa422f74b9",
@@ -124,8 +124,8 @@
       "CMR2Decomp/StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
       "CMR2Decomp/StageTiming.cpp": "b6f03a078e9319b2eba2b390b10fe037091acaddcb0c8f5359a39efecf8e373c",
       "CMR2Decomp/StageTiming.h": "511fcff7f23a65341a6700c4f34832b52f14846c3e2c2e229b3162c9f5eaf871",
-      "CMR2Decomp/StageUI.cpp": "0383a39e5542c6b77b422d674f06079d64bd013ddc37c272aa5161533bae2689",
-      "CMR2Decomp/StageUI.h": "e097a539c4ce1f35ccf506af4d0a6915d05f8590d571ef4d735b5468fcaa4acb",
+      "CMR2Decomp/StageUI.cpp": "3f73cc72c1a86b5c1a4f5b5def80629b4439622ad05c35509aeb5d0e86cd7429",
+      "CMR2Decomp/StageUI.h": "bb3d7892b358157cc71102c5a35283ce837fede4d8c9aa4c8199833066c6f694",
       "CMR2Decomp/SurfaceTypes.cpp": "61ba8cda8e4f2b2d1afc193f0e331534aa89d3c3d555ff033d07d53a6177562e",
       "CMR2Decomp/SurfaceTypes.h": "1c81086631cfd2493e9c5a4af7da66e1d02417ed38b7628c7a1e1a986d52e8e7",
       "CMR2Decomp/Texture.cpp": "2ca3a6fa0da96446aadf924346f349f7cad42fafeaf06e60c006cc79b82aeea0",
@@ -164,16 +164,16 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "b40cb2781c0a030ce252c37c4b5ed4033d92361624e7f1f621454e4c5e304c96",
-    "pdb_sha256": "e9f5353033fbab601cd480c95742e6b8f13f5878c7a09419d9a98795fde80a47"
+    "exe_sha256": "371b6fcc1fbb4bc84182396be169c864a14e369feb1df3b04db8470fbe03ca8f",
+    "pdb_sha256": "0badff7ac239c02a07bf664ca53a1d4c339b3a0b24b61ddabc8db2843a4128cf"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3646,
   "measured_functions": 3367,
-  "reccmp_exact": 2657,
+  "reccmp_exact": 2659,
   "audited_source_functions": 3363,
-  "relocated_byte_exact": 2812,
-  "nonmatching_source_functions": 551,
+  "relocated_byte_exact": 2815,
+  "nonmatching_source_functions": 548,
   "unresolved_source_functions": [
     "0x496e00",
     "0x5062d0",
@@ -182,7 +182,7 @@
     "0x4a28d0",
     "0x459630"
   ],
-  "data_variables": 3183,
+  "data_variables": 3200,
   "data_issues": 0,
-  "byte_auditor_sha256": "508ceec4da770a7b2d38261700d68fd8a748134a3b429ff7c16b66b43397d99c"
+  "byte_auditor_sha256": "7e94ec5b28e79ed2c047ac0d96e74b2fecbb9ea37d9982ee327f4a8afad5d37c"
 }

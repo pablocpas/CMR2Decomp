@@ -16654,8 +16654,8 @@
   },
   "0x418d30": {
     "n": "CarSound_PlaySlot",
-    "s": 0.9803921568627451,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "CarSound_PlaySlot"
@@ -16678,8 +16678,8 @@
   },
   "0x419b90": {
     "n": "Race_MoveCarSoundBank",
-    "s": 0.9428571428571428,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "Race_MoveCarSoundBank"
@@ -16726,8 +16726,8 @@
   },
   "0x41afe0": {
     "n": "Race_MarkUsedSurfaceSoundGroups",
-    "s": 0.9310344827586207,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "Race_MarkUsedSurfaceSoundGroups"
@@ -17086,7 +17086,7 @@
   },
   "0x41a5c0": {
     "n": "Race_ComputeWheelSurfaceSoundVolumes",
-    "s": 0.6784343821949348,
+    "s": 0.6897613548883756,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",

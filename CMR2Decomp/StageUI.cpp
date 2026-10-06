@@ -114,10 +114,10 @@ void StageSound_ResetRecordsAndRegisterCleanup(void)
     int i;
 
     g_unk0x00537660 = 0;
-    memset(g_raceBlock + 0x48, 0, 0x20);       // 0x5375b0
-    memset(g_raceBlock + 0x94, 0, 0x20);       // 0x5375fc
-    memset(g_raceBlock + 0x220, 0, 0x20);      // 0x537788
-    memset(g_raceBlock + 0x0, 0, 0x20);        // 0x537568
+    memset(g_surfacePrevB, 0, sizeof(g_surfacePrevB));
+    memset(g_surfacePrevA, 0, sizeof(g_surfacePrevA));
+    memset(g_surfacePrevC, 0, sizeof(g_surfacePrevC));
+    memset(g_surfacePrevD, 0, sizeof(g_surfacePrevD));
     // The original walks the eight per-car sound states (0xb4 bytes each) with
     // a cursor on the countOld field, keeping the loop cursor in a single
     // register.
