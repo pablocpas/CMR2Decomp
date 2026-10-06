@@ -55,8 +55,8 @@ int FrontendDraw_BreadcrumbItem(int x, int y, BYTE *pColour, char last, char *te
     if (last == 0) {
         next = x + Font_GetTextWidth(1, (BYTE *)text) + (int)(g_pGraphics->resX * 5) / 640;
         g_unk0x008189a8[0] = next;
-        g_unk0x008189a8[2] = 1;
         g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 38) / 480 - (int)(g_pGraphics->resY * 15) / 480;
+        g_unk0x008189a8[2] = 1;
         g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 23) / 480;
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
         return next + (int)(g_pGraphics->resX * 5) / 640;
