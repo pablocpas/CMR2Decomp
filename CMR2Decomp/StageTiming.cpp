@@ -2232,14 +2232,14 @@ void StageDeform_ApplyRadialDent(void)
     int deepest = 0;
     FixVector scaled;
     FixVecScale(&scaled, &g_stageDeformOffset, -0x10000);
-    int sign = FixVecDot(&scaled, &g_stageDeformNormal) < 0;
+    int sign = FixVecDot(&g_stageDeformNormal, &scaled) < 0;
 
     for (pHull = g_stageDeformHull; pHull < g_stageDeformHull + 12; ++pHull) {
         FixVector distance;
         distance.x = pHull->x - g_stageDeformOffset.x;
         distance.y = pHull->y - g_stageDeformOffset.y;
         distance.z = pHull->z - g_stageDeformOffset.z;
-        int projection = FixVecDot(&distance, &g_stageDeformNormal);
+        int projection = FixVecDot(&g_stageDeformNormal, &distance);
         if (sign) projection = -projection;
         if (projection < deepest) deepest = projection;
         if (projection > 0 && (nearest == 0 || projection < nearest)) nearest = projection;
@@ -2262,7 +2262,7 @@ void StageDeform_ApplyRadialDent(void)
         }
     }
 
-    int normalSide = FixVecDot(&g_stageDeformOffset, &g_stageDeformNormal) >= 0;
+    int normalSide = FixVecDot(&g_stageDeformNormal, &g_stageDeformOffset) >= 0;
     int innerSquare = FixMul(g_stageDeformRadius, g_stageDeformRadius);
     int reciprocalInner = FixDiv(0x10000, g_stageDeformRadius);
     int outer = g_stageDeformFalloff + g_stageDeformRadius;
@@ -2369,7 +2369,7 @@ void StageDeform_ApplyRadialDent(void)
 void StageDeform_ApplyPlanarDent(void)
 {
     int *pRecord = (int *)(g_unk0x00588b94 + ((Car *)g_stageDeformCar)->index * 0x4d0);
-    if (FixVecDot(&g_stageDeformNormal, &g_stageDeformOffset) >= 0)
+    if (FixVecDot(&g_stageDeformOffset, &g_stageDeformNormal) >= 0)
         FixVecScale(&g_stageDeformNormal, &g_stageDeformNormal, -0x10000);
 
     FixVector delta;
@@ -2402,7 +2402,7 @@ void StageDeform_ApplyPlanarDent(void)
             distance.x = g_stageDeformOffset.x - originalX;
             distance.y = g_stageDeformOffset.y - originalY;
             distance.z = g_stageDeformOffset.z - originalZ;
-            int axialDistance = FixVecDot(&g_stageDeformImpact, &distance);
+            int axialDistance = FixVecDot(&distance, &g_stageDeformImpact);
             FixVector axial;
             FixVecScale(&axial, &g_stageDeformImpact, axialDistance);
             distance.x -= axial.x;

@@ -450,3 +450,6 @@ def _vecdot_spots(body):
 
 IDIOMS["vecscale"] = _vecscale_spots
 IDIOMS["vecdot"] = _vecdot_spots
+
+# a . b == b . a; the inline asm loads a first, so the order shows in the code.
+IDIOMS["vecdot-swap"] = _swap_args("FixVecDot")

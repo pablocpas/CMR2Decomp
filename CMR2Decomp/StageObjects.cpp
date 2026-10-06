@@ -4276,7 +4276,7 @@ void StageObject_SpawnCarHeadlightGlow(BYTE car)
                 pRec[0] += pCar->velocity.x;
                 pRec[1] += pCar->velocity.y;
                 pRec[2] += pCar->velocity.z;
-                FixVecScale((FixVector *)pRec, &pCar->right, FixVecDot((FixVector *)pRec, &pCar->right));
+                FixVecScale((FixVector *)pRec, &pCar->right, FixVecDot(&pCar->right, (FixVector *)pRec));
                 pRec[0x12] = 0x320000;
                 pRec[9] = 0x10000;
                 pRec[0x15] = 1;
@@ -10838,7 +10838,7 @@ void Collision_BuildObjectPointBounds(int *param_1, int param_2, int param_3)
     do {
         pt = *(FixVector *)(p - 2);
         right = FixVecDot(&pt, &dir);
-        left = FixVecDot(&pt, &perp);
+        left = FixVecDot(&perp, &pt);
         if (right > 0 && right > maxRight)
             maxRight = right;
         if (left > 0 && left > maxLeft)
@@ -12832,8 +12832,8 @@ void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, int *param_2)
                 if (FIX_ABS(delta.y) < 0x640000) {
                     if (FIX_ABS(delta.z) < 0x640000 && *(int *)(pRec + 4) >= param_2[3] &&
                         *(int *)(pRec + 4) <= param_2[2]) {
-                        dot1 = FixVecDot((FixVector *)(param_2 + 4), &delta);
-                        dot2 = FixVecDot((FixVector *)(param_2 + 7), &delta);
+                        dot1 = FixVecDot(&delta, (FixVector *)(param_2 + 4));
+                        dot2 = FixVecDot(&delta, (FixVector *)(param_2 + 7));
                         if (FIX_ABS(dot1) <= param_2[0] && FIX_ABS(dot2) <= param_2[1]) {
                             FixVecScale(&dir, (FixVector *)pRec, 0x20000);
                             FIX_NORMALIZE_INTO(dir, dir);
@@ -13209,8 +13209,8 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
     delta.y = 0;
     FIX_NORMALIZE_INTO(dir, delta);
     // Projections of box A's two axes on the direction.
-    projAxis0 = FixVecDot(&dir, &pBoxA->axisA);
-    projAxis1 = FixVecDot(&dir, &pBoxA->axisB);
+    projAxis0 = FixVecDot(&pBoxA->axisA, &dir);
+    projAxis1 = FixVecDot(&pBoxA->axisB, &dir);
     hit = 0;
     passHit = 0;
     maxDist = 0;
@@ -13220,8 +13220,8 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
         delta.y = pBoxB->points[i].y - ((FixVector *)pBoxA->pVertex)->y;
         delta.z = pBoxB->points[i].z - ((FixVector *)pBoxA->pVertex)->z;
         delta.y = 0;
-        projCorner0 = FixVecDot(&delta, &pBoxA->axisA);
-        projCorner1 = FixVecDot(&delta, &pBoxA->axisB);
+        projCorner0 = FixVecDot(&pBoxA->axisA, &delta);
+        projCorner1 = FixVecDot(&pBoxA->axisB, &delta);
         if (FIX_ABS(projCorner0) > pBoxA->halfWidth || FIX_ABS(projCorner1) > pBoxA->halfLength)
             continue;
         hit0 = 0;
@@ -13265,8 +13265,8 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
         Collision_SplitBoxSeparationMovement((int *)pBoxA, (int *)pBoxB, (int *)&dir, maxDist, scale);
     // Pass 2: box A's corners tested in box B's frame, with the direction negated.
     FixVecScale(&negDir, &dir, -0x10000);
-    projAxis0 = FixVecDot(&negDir, &pBoxB->axisA);
-    projAxis1 = FixVecDot(&negDir, &pBoxB->axisB);
+    projAxis0 = FixVecDot(&pBoxB->axisA, &negDir);
+    projAxis1 = FixVecDot(&pBoxB->axisB, &negDir);
     passHit = 0;
     maxDist = 0;
     for (i = 0; i < 4; i++) {
@@ -13275,7 +13275,7 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
         delta.z = pBoxA->points[i].z - ((FixVector *)pBoxB->pVertex)->z;
         delta.y = 0;
         projCorner0 = FixVecDot(&delta, &pBoxB->axisA);
-        projCorner1 = FixVecDot(&delta, &pBoxB->axisB);
+        projCorner1 = FixVecDot(&pBoxB->axisB, &delta);
         if (FIX_ABS(projCorner0) > pBoxB->halfWidth || FIX_ABS(projCorner1) > pBoxB->halfLength)
             continue;
         hit0 = 0;
@@ -13355,8 +13355,8 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
     g_unk0x00591968.y = param_1[1] - g_collisionCar->position.y;
     g_unk0x00591968.z = param_1[2] - g_collisionCar->position.z;
     g_unk0x00591968.y = 0;
-    dot0 = FixVecDot((FixVector *)(((int *)g_collisionFace) + 4), &g_unk0x00591968);
-    dot1 = FixVecDot((FixVector *)(((int *)g_collisionFace) + 7), &g_unk0x00591968);
+    dot0 = FixVecDot(&g_unk0x00591968, (FixVector *)(((int *)g_collisionFace) + 4));
+    dot1 = FixVecDot(&g_unk0x00591968, (FixVector *)(((int *)g_collisionFace) + 7));
     if (((int *)g_collisionFace)[0] < FIX_ABS(dot0))
         return 0;
     if (((int *)g_collisionFace)[1] < FIX_ABS(dot1))

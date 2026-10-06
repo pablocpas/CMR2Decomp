@@ -218,7 +218,7 @@ void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
     d.y = 0;
     FixMatrix_RotateVector(&e, &d, pCar->pWorld);
     FIX_NORMALIZE_INTO(n, e);
-    facing = FixMul(0x6666, FixMul(FIX_ABS(FixVecDot(&n, pDir)), FixDiv(0x10000, 0x20000))) + 0x9999;
+    facing = FixMul(0x6666, FixMul(FIX_ABS(FixVecDot(pDir, &n)), FixDiv(0x10000, 0x20000))) + 0x9999;
     if (facing > 0x10000)
         facing = 0x10000;
 
@@ -1350,7 +1350,7 @@ void WheelSplash_Update(int player)
             emitting = 1;
             colour[3] = 0xff;
             FixMatrix_GetForward(&fwd, (FixMatrix *)(g_unk0x00538d2c + 4 + player * 100));
-            if (FixVecDot(&fwd, &pCar->right) < 0)
+            if (FixVecDot(&pCar->right, &fwd) < 0)
                 type = front == 0 ? 0xe : 0xf;
             else
                 type = front != 0 ? 0xe : 0xf;

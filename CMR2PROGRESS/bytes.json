@@ -177,7 +177,7 @@
   },
   "0x436630": {
     "n": "Car_UpdateBodyAxes",
-    "s": 0.8423795049934868,
+    "s": 0.8580112896222318,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -209,7 +209,7 @@
   },
   "0x43fcc0": {
     "n": "Car_UpdateBodyAxesNoDamping",
-    "s": 0.8790983606557377,
+    "s": 0.8811475409836066,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -305,7 +305,7 @@
   },
   "0x438460": {
     "n": "Car_UpdateCornerFriction",
-    "s": 0.7464788732394366,
+    "s": 0.954225352112676,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -313,7 +313,7 @@
   },
   "0x4387a0": {
     "n": "Car_UpdateTyreForces",
-    "s": 0.7447714232833611,
+    "s": 0.7635147687163292,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -353,7 +353,7 @@
   },
   "0x440840": {
     "n": "Car_Integrate",
-    "s": 0.71397616468039,
+    "s": 0.7161430119176598,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -361,7 +361,7 @@
   },
   "0x441500": {
     "n": "Car_UpdateWheelForces",
-    "s": 0.5972457115245229,
+    "s": 0.5995169082125604,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -657,7 +657,7 @@
   },
   "0x443d10": {
     "n": "Car_FollowGround",
-    "s": 0.8264058679706602,
+    "s": 0.8293398533007335,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -665,7 +665,7 @@
   },
   "0x4373c0": {
     "n": "Car_UpdateRollover",
-    "s": 0.7623497997329773,
+    "s": 0.7676902536715621,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -721,7 +721,7 @@
   },
   "0x4348c0": {
     "n": "Car_UpdateCornerLoads",
-    "s": 0.7812817904374364,
+    "s": 0.7894201424211598,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1017,7 +1017,7 @@
   },
   "0x431ff0": {
     "n": "Car_PlaceAtStart",
-    "s": 0.7451471509079524,
+    "s": 0.7476518472135254,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1049,7 +1049,7 @@
   },
   "0x42ce60": {
     "n": "Car_StepGroundContact",
-    "s": 0.7319587628865979,
+    "s": 0.7406819984139572,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1169,7 +1169,7 @@
   },
   "0x499de0": {
     "n": "Car_ShatterWindow",
-    "s": 0.6315234580917237,
+    "s": 0.6378492356352135,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1353,7 +1353,7 @@
   },
   "0x45c820": {
     "n": "WheelSplash_Update",
-    "s": 0.4616393442622951,
+    "s": 0.46295081967213114,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -13364,7 +13364,7 @@
   },
   "0x4af120": {
     "n": "Glow_Draw",
-    "s": 0.9548022598870056,
+    "s": 0.9590395480225988,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -21921,7 +21921,7 @@
   },
   "0x47d5a0": {
     "n": "StageObject_SpawnCarHeadlightGlow",
-    "s": 0.8658823529411764,
+    "s": 0.8752941176470588,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23137,7 +23137,7 @@
   },
   "0x4873f0": {
     "n": "Collision_BuildObjectPointBounds",
-    "s": 0.750373692077728,
+    "s": 0.7563527653213752,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23313,7 +23313,7 @@
   },
   "0x47d850": {
     "n": "StageObject_TestHeadlightGlowsAgainstCarBox",
-    "s": 0.7779056386651323,
+    "s": 0.7917146144994246,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23345,7 +23345,7 @@
   },
   "0x488640": {
     "n": "Collision_TestOrientedBoxCornerOverlap",
-    "s": 0.4825124910778016,
+    "s": 0.5110635260528195,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23353,7 +23353,7 @@
   },
   "0x48e730": {
     "n": "Collision_ResolveSectorFaceContact",
-    "s": 0.41654059505799296,
+    "s": 0.41855774079677255,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -24561,7 +24561,7 @@
   },
   "0x467700": {
     "n": "StageDeform_ApplyRadialDent",
-    "s": 0.5801282051282052,
+    "s": 0.5865384615384616,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -24569,7 +24569,7 @@
   },
   "0x467e90": {
     "n": "StageDeform_ApplyPlanarDent",
-    "s": 0.4899135446685879,
+    "s": 0.4956772334293948,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",

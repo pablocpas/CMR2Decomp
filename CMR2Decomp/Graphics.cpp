@@ -5070,7 +5070,7 @@ void Glow_Draw(SceneNode *pCamera, BYTE view)
             if (toLight.x == 0 && toLight.y == 0 && toLight.z == 0)
                 toLight.x = 0x10000;
             FIX_NORMALIZE_INTO(toLight, toLight);
-            d = FixVecDot(&dir, &toLight);
+            d = FixVecDot(&toLight, &dir);
             if (FIX_ABS(d) >= 0xfd70) {
                 if (d > 0)
                     degrees = 0;
@@ -5081,7 +5081,8 @@ void Glow_Draw(SceneNode *pCamera, BYTE view)
                 degrees = (0x400 - a) * 0x1680;
             }
             if (degrees > 0x5a0000) {
-                fade = FixMul(degrees - 0x5a0000, 0x3d7);
+                degrees -= 0x5a0000;
+                fade = FixMul(degrees, 0x3d7);
             } else {
                 if (degrees >= 0x5a0000 || pLight->type != 3)
                     goto projected;

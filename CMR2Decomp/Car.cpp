@@ -918,7 +918,7 @@ void Car_UpdateBodyAxes(void)
         }
 
         {
-            int d = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->velocity);
+            int d = FixVecDot(&g_pCurrentCar->velocity, &g_pCurrentCar->up);
             FixVecScale(&localUp, &g_pCurrentCar->up, d);
             localUp.x = g_pCurrentCar->velocity.x - localUp.x;
             localUp.y = g_pCurrentCar->velocity.y - localUp.y;
@@ -946,7 +946,7 @@ void Car_UpdateBodyAxes(void)
             if (len > 0) {
                 int d;
                 FixVecScaleRecip(&localUp, &localUp, len);
-                d = FixVecDot(&g_pCurrentCar->normal0x498, &localUp) - FixVecDot(&g_pCurrentCar->groundNormal, &localUp);
+                d = FixVecDot(&g_pCurrentCar->normal0x498, &localUp) - FixVecDot(&localUp, &g_pCurrentCar->groundNormal);
                 if (d > 0x41) {
                     int s = FixMul(d, g_pCurrentCar->field_0x9c4);
                     if (s > 0x10000)
@@ -1104,7 +1104,7 @@ void Car_UpdateBodyAxesNoDamping(void)
         }
 
         {
-            int d = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->velocity);
+            int d = FixVecDot(&g_pCurrentCar->velocity, &g_pCurrentCar->up);
             FixVecScale(&localUp, &g_pCurrentCar->up, d);
             localUp.x = g_pCurrentCar->velocity.x - localUp.x;
             localUp.y = g_pCurrentCar->velocity.y - localUp.y;
@@ -2250,7 +2250,7 @@ void Car_UpdateCornerFriction(void)
     for (i = 7; i >= 0; i--) {
         if (g_pCurrentCar->cornerFlags[i] != 0)
             continue;
-        d = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &g_pCurrentCar->groundNormal);
+        d = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->cornerVelocity[i]);
         FixVecScale(&tangent, &g_pCurrentCar->groundNormal, d);
         tangent.x = g_pCurrentCar->cornerVelocity[i].x - tangent.x;
         tangent.y = g_pCurrentCar->cornerVelocity[i].y - tangent.y;
@@ -2262,10 +2262,10 @@ void Car_UpdateCornerFriction(void)
             if (len < 0x10000)
                 force -= FixVecLength(&g_carStepAccel);
             if (((force) < 0 ? -(force) : (force)) > g_pCurrentCar->cornerGripB[i]) {
-                if (force <= 0)
-                    force = -g_pCurrentCar->cornerGripA[i];
-                else
+                if (force > 0)
                     force = g_pCurrentCar->cornerGripA[i];
+                else
+                    force = -g_pCurrentCar->cornerGripA[i];
             }
             FixVecScale(&g_pCurrentCar->cornerForce[i], &dir, force);
         }
@@ -2384,7 +2384,7 @@ void Car_UpdateTyreForces(void)
         dirValid[2] = 0;
     }
     FixVecCross(&g_tyreForce, &g_pCurrentCar->rearWheelDir, &g_pCurrentCar->up);
-    d_2 = -FixVecDot(pNormal, &g_tyreForce);
+    d_2 = -FixVecDot(&g_tyreForce, pNormal);
     FixVecScale(&t, pNormal, d_2);
     v.x = g_tyreForce.x + t.x;
     v.y = g_tyreForce.y + t.y;
@@ -2410,7 +2410,7 @@ void Car_UpdateTyreForces(void)
             resist = *(int *)(g_pCarSetup + 0x3ec + i * 4);
             WHEEL_BRAKE(i, resist);
             if (dirValid[i] != 0) {
-                speed = FixVecDot(&dir[i], &g_pCurrentCar->cornerVelocity[i]);
+                speed = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &dir[i]);
                 rollSpeed[i] = speed;
                 slip = speed * 4 - g_pCurrentCar->wheelLoad[i];
                 crossing = FALSE;
@@ -2430,10 +2430,10 @@ void Car_UpdateTyreForces(void)
                     } else {
                         if (slip < 0)
                             slip = -slip;
-                        if (FixVecDot(&axis[i], &g_pCurrentCar->cornerVelocity[i]) < 0)
-                            d_2 = -FixVecDot(&axis[i], &g_pCurrentCar->cornerVelocity[i]);
+                        if (FixVecDot(&g_pCurrentCar->cornerVelocity[i], &axis[i]) < 0)
+                            d_2 = -FixVecDot(&g_pCurrentCar->cornerVelocity[i], &axis[i]);
                         else
-                            d_2 = FixVecDot(&axis[i], &g_pCurrentCar->cornerVelocity[i]);
+                            d_2 = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &axis[i]);
                         brakeFront = FixMul(slip, 0x4000) - d_2;
                         if (brakeFront < 0)
                             brakeFront = 0;
@@ -2469,7 +2469,7 @@ void Car_UpdateTyreForces(void)
             slip = rollSpeed[i] * 4 - g_pCurrentCar->wheelLoad[i];
             g_pCurrentCar->wheelSlip[i] = slip;
             if (FIX_ABS(slip) < 0x10000) {
-                d_2 = FixVecDot(&dir[i], &g_carStepAccel);
+                d_2 = FixVecDot(&g_carStepAccel, &dir[i]);
                 longAssist = -d_2;
                 e = FixMul(rollSpeed[i], g_tyreGripScale);
                 if ((longAssist > 0 && e > 0) || (longAssist < 0 && e < 0)) {
@@ -2486,10 +2486,10 @@ void Car_UpdateTyreForces(void)
             longForce = -FixMul(FixMul(slip, 0x4000), g_tyreGripScale);
         }
         if (axisValid[i] != 0) {
-            speed = FixVecDot(&axis[i], &g_pCurrentCar->cornerVelocity[i]);
+            speed = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &axis[i]);
             g_pCurrentCar->wheelSlipLateral[i] = speed;
             if (FIX_ABS(speed) < 0x10000)
-                latAssist = -FixVecDot(&axis[i], &g_carStepAccel);
+                latAssist = -FixVecDot(&g_carStepAccel, &axis[i]);
             latForce = -FixMul(speed, g_tyreGripScale);
         }
         longForce += longAssist;
@@ -2548,7 +2548,7 @@ void Car_UpdateTyreForces(void)
 
         // Rolling resistance of the tyre.
         if (g_pCurrentCar->cornerGrip[i].drag != 0) {
-            d_2 = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &dir[i]);
+            d_2 = FixVecDot(&dir[i], &g_pCurrentCar->cornerVelocity[i]);
             if (d_2 != 0) {
                 e = -FixMul(d_2 / 4, FixMul(g_pCurrentCar->tyreGrip, g_pCurrentCar->cornerGrip[i].drag));
                 FixVecScale(&g_tyreForce, &dir[i], e);
@@ -2948,7 +2948,7 @@ void Car_Integrate(void)
     }
 
     if (g_pCurrentCar->field_0xb34 > 0) {
-        int upDot = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->up);
+        int upDot = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
         if (FIX_ABS(angStep.x) < 6 && FIX_ABS(upDot) > 0xcccc) {
             angStep.x = 0;
         }
@@ -3085,7 +3085,7 @@ void Car_UpdateWheelForces(void)
             g_pCurrentCar->wheelTorque[i] = g_pCurrentCar->wheelTorque[i] + limited;
         }
 
-        slip = FixVecDot(&dir, &g_pCurrentCar->cornerVelocity[i]);
+        slip = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &dir);
         load = g_pCurrentCar->wheelLoad[i];
         dot[i] = slip;
         target = slip * 4 - load;
@@ -3097,7 +3097,7 @@ void Car_UpdateWheelForces(void)
             if (g_pCurrentCar->flag0x1d0[2] == 0 && g_pCurrentCar->flag0x1d0[3] == 0) {
                 grip = g_pCurrentCar->field_0xa5c[i];
             } else {
-                int slide = FIX_ABS(FixVecDot(&axis[i], &g_pCurrentCar->cornerVelocity[i]));
+                int slide = FIX_ABS(FixVecDot(&g_pCurrentCar->cornerVelocity[i], &axis[i]));
                 int room = FixMul(FIX_ABS(target), 0x4000) - slide;
 
                 if (room < 0) {
@@ -3178,7 +3178,7 @@ void Car_UpdateWheelForces(void)
         susp = dot[i] * 4 - g_pCurrentCar->wheelLoad[i];
         g_pCurrentCar->wheelSlip[i] = susp;
         fLong = -FixMul(FixMul(susp, 0x4000), scale);
-        lateral = FixVecDot(&axis[3], &g_pCurrentCar->cornerVelocity[i]);
+        lateral = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &axis[3]);
         g_pCurrentCar->wheelSlipLateral[i] = lateral;
         fLat = -FixMul(lateral, scale);
 
@@ -3264,7 +3264,7 @@ void Car_UpdateWheelForces(void)
         }
 
         if (g_pCurrentCar->cornerGrip[i].drag != 0) {
-            int along = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &dir);
+            int along = FixVecDot(&dir, &g_pCurrentCar->cornerVelocity[i]);
 
             if (along != 0) {
                 int drag = -FixMul(along / 4,
@@ -4444,7 +4444,7 @@ void Car_FollowGround(void)
     d.x = g_pCurrentCar->position.x - p.x;
     d.y = g_pCurrentCar->cornerHeight[0] - p.y;
     d.z = g_pCurrentCar->position.z - p.z;
-    h = FixDiv(FixVecDot(&d, &g_pCurrentCar->groundNormal), g_pCurrentCar->groundNormal.y);
+    h = FixDiv(FixVecDot(&g_pCurrentCar->groundNormal, &d), g_pCurrentCar->groundNormal.y);
     for (i = 0; i < 8; i++) {
         g_pCurrentCar->cornerAxis[i].x = 0;
         g_pCurrentCar->cornerAxis[i].y = 0x10000;
@@ -4580,12 +4580,12 @@ void Car_UpdateRollover(void)
     for (i = 0; i < 4; i++)
         sum += *((BYTE *)g_pCurrentCar + 0x1a0 + i * 0xc) << 16;
     limit = FixMul(0x3d1, FixDiv(sum, 0x40000));
-    FixVecScale(&t, &g_pCurrentCar->groundNormal, FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->forward));
+    FixVecScale(&t, &g_pCurrentCar->groundNormal, FixVecDot(&g_pCurrentCar->forward, &g_pCurrentCar->groundNormal));
     t.x = g_pCurrentCar->forward.x - t.x;
     t.y = g_pCurrentCar->forward.y - t.y;
     t.z = g_pCurrentCar->forward.z - t.z;
     FIX_NORMALIZE_INTO(dir, t);
-    slide = FixVecDot(&g_pCurrentCar->velocity, &dir);
+    slide = FixVecDot(&dir, &g_pCurrentCar->velocity);
     tip = 0;
     if (FIX_ABS(slide) > limit) {
         sum = 0;
@@ -4961,7 +4961,7 @@ void Car_UpdateCornerLoads(void)
         g_pCurrentCar->cornerMass = load;
     }
     n0 = g_pCurrentCar->groundNormal;
-    load = -FixMul(g_pCurrentCar->cornerMass + 0x1e0000, FixVecDot(&g_gravityDir, &n0));
+    load = -FixMul(g_pCurrentCar->cornerMass + 0x1e0000, FixVecDot(&n0, &g_gravityDir));
     FixVecScale(&f, &n0, FixMul(load, 0x10000));
     grip = FixMul(g_pCurrentCar->speed, FixMul(0x1cccc, 0x10000));
     if (grip > 0x1cccc)
@@ -5002,7 +5002,7 @@ void Car_UpdateCornerLoads(void)
     if (g_pCurrentCar->field_0xb34 > 0 || g_pCurrentCar->field_0xb28 != 0) {
         // The base force without its push into the ground, shared by the
         // touching corners.
-        FixVecScale(&f, &n0, FixVecDot(&n0, &g_pCurrentCar->baseForce));
+        FixVecScale(&f, &n0, FixVecDot(&g_pCurrentCar->baseForce, &n0));
         f.x = g_pCurrentCar->baseForce.x - f.x;
         f.y = g_pCurrentCar->baseForce.y - f.y;
         f.z = g_pCurrentCar->baseForce.z - f.z;
@@ -6561,7 +6561,7 @@ void Car_PlaceAtStart(int *param_1, int *param_2)
     StageObject_UpdateCarCornerGroundHeights(g_pCurrentCar, 8);
     Car_UpdateGroundNormal();
     g_pCurrentCar->up = g_pCurrentCar->groundNormal;
-    dot = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->up);
+    dot = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->right);
     FixVecScale(&v, &g_pCurrentCar->up, dot);
     v.x = g_pCurrentCar->right.x - v.x;
     v.y = g_pCurrentCar->right.y - v.y;
@@ -7315,7 +7315,7 @@ void Car_StepGroundContact(void)
     if (g_pCurrentCar->field_0xb35[0] == 0) {
         prevNormal = g_pCurrentCar->groundNormal;
         Car_UpdateGroundNormal();
-        groundSpeed = FixVecDot(&g_pCurrentCar->velocity, &g_pCurrentCar->groundNormal);
+        groundSpeed = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->velocity);
 
         t = g_pCurrentCar->speed;
         if (t > 0x1570a)
@@ -7326,7 +7326,7 @@ void Car_StepGroundContact(void)
 
         if (groundSpeed <= FixMul(0x10000 - t, 0x1999)) {
             // Slow: re-orthogonalise the body axes against the ground normal.
-            dot = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->up);
+            dot = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
             if (dot < 0xb334) {
                 g_pCurrentCar->field_0xc00 = 1;
                 g_pCurrentCar->field_0x96c = 0x10000;
@@ -7345,7 +7345,7 @@ void Car_StepGroundContact(void)
                     FIX_NORMALIZE_INTO(g_pCurrentCar->up, delta)
                 }
                 gotNormal = 1;
-                dot = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->up);
+                dot = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->right);
                 FixVecScale(&delta, &g_pCurrentCar->up, dot);
                 delta.x = g_pCurrentCar->right.x - delta.x;
                 delta.y = g_pCurrentCar->right.y - delta.y;
@@ -7356,9 +7356,9 @@ void Car_StepGroundContact(void)
             } else {
                 memcpy(&g_pCurrentCar->right, g_pCurrentCar->field_0x384, 0x24);
             }
-            g_pCurrentCar->field_0x91c = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->right);
-            g_pCurrentCar->field_0x920 = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->up);
-            g_pCurrentCar->field_0x924 = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->forward);
+            g_pCurrentCar->field_0x91c = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->groundNormal);
+            g_pCurrentCar->field_0x920 = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
+            g_pCurrentCar->field_0x924 = FixVecDot(&g_pCurrentCar->forward, &g_pCurrentCar->groundNormal);
             g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
             g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
             g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
