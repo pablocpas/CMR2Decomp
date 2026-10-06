@@ -14,6 +14,7 @@ generators here only produce syntactically valid, locally equivalent forms.
   obo      x < 10  ->  x <= 9   (integer constants only)
   unnest   v = f(g(x));  ->  v = g(x); v = f(v);
 """
+import os
 import re
 
 SAFE = True
@@ -291,7 +292,10 @@ IDIOMS["fixmul>>16"] = _shift_spots
 def idioms(lines):
     body = "\n".join(lines)
     out = []
+    only = set(filter(None, os.environ.get("PERMUTE_IDIOMS", "").split(",")))
     for kind, finder in IDIOMS.items():
+        if only and kind not in only:
+            continue
         spots = finder(body)
         variants = [[s] for s in spots] + ([spots] if len(spots) > 1 else [])
         for i, chosen in enumerate(variants):
@@ -348,3 +352,65 @@ def _condition_spots(body):
 
 
 IDIOMS["condition"] = _condition_spots
+
+
+# Vector helpers spelled out per component. FixVecScale/FixVecDot compute the
+# same bits as three FixMul calls (shld/shrd of the same product), and the
+# compiler rejects the helper call when the operands are not FixVectors.
+_VEC = r"[A-Za-z_]\w*(?:(?:->|\.)[A-Za-z_]\w*|\[[^\[\]]+\])*?"
+
+
+def _vec_ref(base, sep):
+    return base if sep == "->" else "&" + base
+
+
+def _vecscale_spots(body):
+    spots = []
+    line = (r"(?P<ind>[ \t]*)(?P<d>{v})(?P<ds>->|\.)(?P<c>x|y|z) = FixMul\((?:(?P<s>{v})(?P<ss>->|\.)(?P=c), (?P<t>[^;\n]+?)|(?P<t2>[^;\n]+?), (?P<s2>{v})(?P<ss2>->|\.)(?P=c))\);[ \t]*\n").format(v=_VEC)
+    pat = re.compile(line)
+    for m1 in re.finditer(r"(?m)^", body):
+        m1 = pat.match(body, m1.start())
+        if not m1:
+            continue
+        if m1.group("c") != "x":
+            continue
+        m2 = pat.match(body, m1.end())
+        m3 = m2 and pat.match(body, m2.end())
+        if not (m2 and m3) or (m2.group("c"), m3.group("c")) != ("y", "z"):
+            continue
+        keys = []
+        for m in (m1, m2, m3):
+            src, ss, t = (m.group("s"), m.group("ss"), m.group("t")) if m.group("s") else \
+                         (m.group("s2"), m.group("ss2"), m.group("t2"))
+            keys.append((m.group("d"), m.group("ds"), src, ss, t.strip()))
+        if len(set(keys)) != 1:
+            continue
+        d, ds, src, ss, t = keys[0]
+        root = re.match(r"[A-Za-z_]\w*", d).group(0)
+        if re.search(r"\b" + root + r"\b", t):
+            continue
+        new = f"{m1.group('ind')}FixVecScale({_vec_ref(d, ds)}, {_vec_ref(src, ss)}, {t});\n\n\n"
+        spots.append((m1.start(), m3.end(), new))
+    return spots
+
+
+def _vecdot_spots(body):
+    term = r"FixMul\(\s*(?P<a{n}>{v})(?P<as{n}>->|\.){c}\s*,\s*(?P<b{n}>{v})(?P<bs{n}>->|\.){c}\s*\)"
+    pat = re.compile(r"\s*\+\s*".join(term.format(n=i, v=_VEC, c=c) for i, c in enumerate("xyz")))
+    spots = []
+    for m in pat.finditer(body):
+        a = {(m.group(f"a{i}"), m.group(f"as{i}")) for i in range(3)}
+        b = {(m.group(f"b{i}"), m.group(f"bs{i}")) for i in range(3)}
+        if len(a) != 1 or len(b) != 1:
+            continue
+        (av, asep), (bv, bsep) = a.pop(), b.pop()
+        before = body[:m.start()].rstrip()
+        after = body[m.end():].lstrip()
+        if before.endswith(("*", "/", "%", "-", "<<", ">>")) or after.startswith(("*", "/", "%", "[", "<<", ">>")):
+            continue
+        spots.append((m.start(), m.end(), f"FixVecDot({_vec_ref(av, asep)}, {_vec_ref(bv, bsep)})"))
+    return spots
+
+
+IDIOMS["vecscale"] = _vecscale_spots
+IDIOMS["vecdot"] = _vecdot_spots

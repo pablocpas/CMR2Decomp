@@ -117,6 +117,21 @@ symbol. Exactness includes embedded switch tables.
 After measuring, run `python3 scripts/prepare_fastcmp.py` to refresh the
 metadata used by `scripts/fastcmp.py`, the single-function comparator.
 
+On Linux, `scripts/setup_linux.sh` does all of the above in one go (Wine,
+MSVC6 + SP3 next to the repository, the original executable, reccmp, a first
+build and measurement).
+
+### Matching loop
+
+```bash
+python3 scripts/match.py --list --shape   # remaining functions, register-only diffs first
+python3 scripts/match.py 0x4a5e40         # compile its TU, diff it, check the whole TU (~1 s)
+python3 scripts/match.py --changed        # every TU edited since HEAD; exit 1 on any regression
+python3 scripts/helper_hints.py           # where FixedPoint.h helper usage differs from the original
+```
+
+`CLAUDE.md` describes the workflow and the fixes that have worked so far.
+
 ## Differential tests
 
 The harnesses in `tests/` execute original and rebuilt code under Unicorn with

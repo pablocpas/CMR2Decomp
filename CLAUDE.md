@@ -15,13 +15,34 @@ the repo: reccmp scans the whole tree as source and the results change.
 
 ## Matching loop
 
-    python3 scripts/match.py --list [--file X.cpp] [--max-size N]   # pick targets
-    python3 scripts/match.py 0xADDR                                 # ~1 s
-    python3 scripts/match.py --changed                              # gate before commit
+    python3 scripts/match.py --list --shape [--file X.cpp] [--max-size N]  # pick targets (~5 s)
+    python3 scripts/match.py 0xADDR                                        # compile + diff, ~1 s
+    python3 scripts/match.py --changed                                     # gate before commit
+    python3 scripts/helper_hints.py [--file X.cpp]                         # inline-helper mismatches
 
 `match.py` compiles the TU once, byte-compares every function in it against the
 baseline and prints new exact matches, score changes, regressions (exit 1) and the
-side-by-side diff (original | ours) of the requested functions.
+side-by-side diff (original | ours) of the requested functions. The header also
+gives the score with registers ignored: 100% there means only register
+allocation differs. New or renamed globals resolve through their `// GLOBAL:`
+annotation, so no full build is needed to try them.
+
+Automated search (on a snapshot, writes a patch to review and `patch -p1`):
+
+    python3 scripts/permute_batch.py --output /tmp/x --min-score 0 --max-bytes 100000 \
+        --limit 1000 --mutation-kinds idiom          # PERMUTE_IDIOMS=a,b to restrict
+
+## What has worked on the remaining functions
+
+- Separate globals instead of one blob addressed through offset macros: MSVC6
+  must assume a store into one view may change another and reloads it.
+- The original's inline helper rather than equivalent C: `FixMul(a, b) >> 16`
+  vs `FixMulShift32`, `FixVecLength`, `FixVecDot`, `FixVecScaleRecip`, and
+  `FixMul` operand order. `helper_hints.py` lists where the counts differ.
+- `c ? 0xff : 0` for the `setcc/dec/and` pattern, case order and shared tails
+  in switches, statement order for stores.
+- Editing one function can shift register allocation in later functions of the
+  same TU; `match.py` reports every function of the TU for that reason.
 
 ## Before committing a batch
 
