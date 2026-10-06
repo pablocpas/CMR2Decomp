@@ -107,7 +107,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x455af0	StageTiming_InsertDriverSplitRanking	StageTiming.cpp	207	0.5982905982905983	0.5365853658536586
 0x4380c0	Car_UpdateEngineSpeed	Car.cpp	924	0.5991189427312775	0.6017316017316018
 0x406010	CGameInfo::InitProfileRecordDefaults	GameInfo.cpp	759	0.5991902834008097	0.5853658536585366
-0x441500	Car_UpdateWheelForces	Car.cpp	6536	0.5999509443218053	0.5957960860111138
 0x467700	StageDeform_ApplyRadialDent	StageTiming.cpp	1933	0.6008097165991902	0.5801282051282052
 0x429f20	FixBasis_Rotate	FixedPoint.cpp	4129	0.6026629292221444	0.5667932343803935
 0x424af0	ForceFeedback_ComputeRoadNoise	StageTiming.cpp	268	0.6052631578947368	0.5882352941176471
@@ -293,6 +292,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x475a50	StageUI_DrawChampionshipBar	StageUI.cpp	1179	0.792156862745098	0.7894039735099337
 0x500130	OptionMenu_AdvanceSharedModeValue	GameInfo.cpp	83	0.7931034482758621	0.9032258064516129
 0x46ef50	StageObject_BuildCloudTexturePath	StageObjects.cpp	215	0.7950310559006211	0.7950310559006211
+0x441500	Car_UpdateWheelForces	Car.cpp	6536	0.7961904761904762	0.7548065511511987
 0x4d3fa0	FrontendDraw_Breadcrumb	FrontendDraw.cpp	146	0.7966101694915254	0.7543859649122807
 0x448550	StageTiming_EstimateElapsedStageTime	StageTiming.cpp	202	0.796875	0.796875
 0x4cfc90	FrontendRecords_InsertStageCategoryRecord	Frontend.cpp	386	0.7971014492753623	0.7971014492753623
@@ -312,7 +312,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x455300	StageTiming_LoadSelectedTeamArchive	StageTiming.cpp	341	0.8097560975609757	0.7843137254901961
 0x47e4d0	Fireworks_Init	StageObjects.cpp	1348	0.8122392211404729	0.8183079056865464
 0x48a1f0	Collision_TestOrderedCarPairs	Collision2D.cpp	1017	0.8127208480565371	0.7491289198606271
-0x4387a0	Car_UpdateTyreForces	Car.cpp	8567	0.8127667470773798	0.7425504349435499
 0x4d7380	FrontendMenu_DrawProfileRenameEntry	FrontendScreens.cpp	967	0.8150470219435737	0.7949921752738655
 0x4201d0	RallyRoute_GetNodeDirection	RallyRoute.cpp	1120	0.8160200250312891	0.7173100871731009
 0x486c30	StageObject_QueueViewLensFlare	StageObjects.cpp	907	0.8173652694610778	0.7289156626506024
@@ -320,7 +319,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x5105a0	type_info::DeleteWithFlags	GameInfo.cpp	28	0.8181818181818182	0.8181818181818182
 0x4786b0	Surface_BlendWheelContactParameters	SurfaceTypes.cpp	764	0.8202764976958525	0.8200455580865603
 0x478a20	SurfaceText_LoadRegionalStringTable	SurfaceTypes.cpp	228	0.8217054263565892	0.8403361344537815
-0x43b100	Car_UpdateSuspension	Car.cpp	5428	0.8217605248769819	0.7242128121606949
 0x47f740	Fireworks_Draw	StageObjects.cpp	1380	0.8223350253807107	0.8274111675126904
 0x48d0f0	View_BuildTracksideCameraMatrix	StageObjects.cpp	1719	0.8230240549828178	0.779777206512425
 0x4a0570	Menu_Update	Menu.cpp	1363	0.8231578947368421	0.7169811320754716
@@ -393,6 +391,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4ef190	FrontendScroller_RecomputeAllAttached	FrontendScreens.cpp	222	0.8774193548387097	0.8888888888888888
 0x492fe0	Track_SetFogAndSkyAlpha	TrackCollision.cpp	205	0.8774193548387097	0.8366013071895425
 0x40d820	RallyData_UpdateStageWetShares	RallyData.cpp	439	0.8786885245901639	0.8963210702341137
+0x4387a0	Car_UpdateTyreForces	Car.cpp	8567	0.8794933879679643	0.779843808107103
 0x4b4040	Mesh_GetCornerLight	SceneNode.cpp	190	0.8805970149253731	0.8805970149253731
 0x455e60	StageTiming_Reset	StageTiming.cpp	99	0.8813559322033898	0.9666666666666667
 0x4bbc60	Quad2D_Queue	Sprite.cpp	283	0.8819875776397516	0.8888888888888888
@@ -550,3 +549,4 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x46afe0	CarDamage_BuildPartVertexBuffer	StageObjects.cpp	1055	0.9970238095238095	0.9970238095238095
 0x44d960	GameMenu_DrawScrollingStageSplits	GameMenus.cpp	2000	0.9970972423802612	0.9970972423802612
 0x44efa0	GameMenu_DrawScrollingChampionshipPoints	GameMenus.cpp	1753	0.9983277591973244	0.9983277591973244
+0x43b100	Car_UpdateSuspension	Car.cpp	5428	0.9989023051591658	0.9989023051591658
