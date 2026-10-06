@@ -4336,6 +4336,20 @@ void Car_UpdateSuspensionPass(int param_1, short *param_2, short param_3)
     } while (--n);
 }
 
+// out = v / |v|, or zero when v is zero: FIX_NORMALIZE_INTO with the output
+// passed by pointer (computed once, the zero case stores through it).
+static inline void FixVecNormalizeInto(FixVector *out, FixVector *v)
+{
+    int len = FixVecLength(v);
+    if (len == 0) {
+        out->x = 0;
+        out->y = 0;
+        out->z = 0;
+    } else {
+        FixVecScaleRecip(out, v, len);
+    }
+}
+
 // FUNCTION: CMR2 0x00443d10
 void Car_FollowGround(void)
 {
@@ -4347,6 +4361,7 @@ void Car_FollowGround(void)
     FixVector p;
     FixVector d;
     FixVector t;
+    FixVector step;
     unsigned short surface;
     int ease;
     int along;
@@ -4355,6 +4370,7 @@ void Car_FollowGround(void)
     int len;
     int k;
     int i;
+    int damping;
 
     g_pCurrentCar->cornerHeight[0] =
         Track_GetGroundHeightSurface(&g_pCurrentCar->position, &n, &g_pCurrentCar->cornerTriangle[0],
@@ -4369,21 +4385,21 @@ void Car_FollowGround(void)
 
     // Ease the ground normal towards the new one.
     oldNormal = g_pCurrentCar->groundNormal;
-    n.x -= g_pCurrentCar->groundNormal.x;
-    n.y -= g_pCurrentCar->groundNormal.y;
-    n.z -= g_pCurrentCar->groundNormal.z;
+    dn.x = n.x - g_pCurrentCar->groundNormal.x;
+    dn.y = n.y - g_pCurrentCar->groundNormal.y;
+    dn.z = n.z - g_pCurrentCar->groundNormal.z;
     ease = FixMul(0x8000, g_physicsTimeStep);
     if (ease > 0x8000)
         ease = 0x8000;
-    FixVecScale(&dn, &n, ease);
-    dn.x = n.x - dn.x;
-    dn.y = n.y - dn.y;
-    dn.z = n.z - dn.z;
+    FixVecScale(&step, &dn, ease);
+    dn.x -= step.x;
+    dn.y -= step.y;
+    dn.z -= step.z;
     n.x = g_pCurrentCar->groundNormal.x + dn.x;
     n.y = g_pCurrentCar->groundNormal.y + dn.y;
     n.z = g_pCurrentCar->groundNormal.z + dn.z;
-    FIX_NORMALIZE_INTO(g_pCurrentCar->groundNormal, n);
-    along = FixVecDot(&g_pCurrentCar->velocity, &g_pCurrentCar->groundNormal);
+    FixVecNormalizeInto(&g_pCurrentCar->groundNormal, &n);
+    along = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->velocity);
     slow = FixMul(g_pCurrentCar->speed, 0x8000);
     if (slow > 0x10000)
         slow = 0x10000;
@@ -4391,13 +4407,13 @@ void Car_FollowGround(void)
     if (g_pCurrentCar->field_0xb74 != 0) {
         if (along <= slow) {
             g_pCurrentCar->up = g_pCurrentCar->groundNormal;
-            FixVecScale(&t, &g_pCurrentCar->up, FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->up));
+            FixVecScale(&t, &g_pCurrentCar->up, FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->right));
             t.x = g_pCurrentCar->right.x - t.x;
             t.y = g_pCurrentCar->right.y - t.y;
             t.z = g_pCurrentCar->right.z - t.z;
-            FIX_NORMALIZE_INTO(g_pCurrentCar->right, t);
+            FixVecNormalizeInto(&g_pCurrentCar->right, &t);
             FixVecCross(&t, &g_pCurrentCar->right, &g_pCurrentCar->up);
-            FIX_NORMALIZE_INTO(g_pCurrentCar->forward, t);
+            FixVecNormalizeInto(&g_pCurrentCar->forward, &t);
         } else {
             g_pCurrentCar->groundNormal = oldNormal;
         }
@@ -4412,23 +4428,23 @@ void Car_FollowGround(void)
     t.y = -g_pCurrentCar->groundNormal.y;
     t.z = -g_pCurrentCar->groundNormal.z;
     FixMatrix_InverseRotateVector(&rel, &t, g_pCurrentCar->pWorld);
-    corner.x = g_pCurrentCar->halfExtents.x;
-    corner.y = -g_pCurrentCar->halfExtents.y;
-    corner.z = g_pCurrentCar->halfExtents.z;
+    t.x = g_pCurrentCar->halfExtents.x;
+    t.y = -g_pCurrentCar->halfExtents.y;
+    t.z = g_pCurrentCar->halfExtents.z;
     if (rel.y >= 0)
-        corner.y = g_pCurrentCar->halfExtents.y;
+        t.y = g_pCurrentCar->halfExtents.y;
     if (rel.x < 0)
-        corner.x = -g_pCurrentCar->halfExtents.x;
+        t.x = -g_pCurrentCar->halfExtents.x;
     if (rel.z < 0)
-        corner.z = -g_pCurrentCar->halfExtents.z;
-    FixMatrix_RotateVector(&p, &corner, g_pCurrentCar->pWorld);
+        t.z = -g_pCurrentCar->halfExtents.z;
+    FixMatrix_RotateVector(&p, &t, g_pCurrentCar->pWorld);
     p.x += g_pCurrentCar->position.x;
     p.y += g_pCurrentCar->position.y;
     p.z += g_pCurrentCar->position.z;
     d.x = g_pCurrentCar->position.x - p.x;
     d.y = g_pCurrentCar->cornerHeight[0] - p.y;
     d.z = g_pCurrentCar->position.z - p.z;
-    h = FixDiv(FixVecDot(&g_pCurrentCar->groundNormal, &d), g_pCurrentCar->groundNormal.y);
+    h = FixDiv(FixVecDot(&d, &g_pCurrentCar->groundNormal), g_pCurrentCar->groundNormal.y);
     for (i = 0; i < 8; i++) {
         g_pCurrentCar->cornerAxis[i].x = 0;
         g_pCurrentCar->cornerAxis[i].y = 0x10000;
@@ -4463,6 +4479,8 @@ void Car_FollowGround(void)
             g_pCurrentCar->field_0x958 = h;
         else
             g_pCurrentCar->field_0x958 = 0;
+        // Computed and never used (the asm helper is not optimised away).
+        damping = FixMul(0x1eb8, g_physicsTimeStep);
         if (along < 0) {
             FixVecScale(&t, &g_pCurrentCar->groundNormal, along);
             g_pCurrentCar->velocity.x -= t.x;
@@ -4483,14 +4501,14 @@ void Car_FollowGround(void)
     if (h < -0xcccc) {
         if (g_pCurrentCar->field_0xb74 != 0) {
             // Tip over with the change of the ground normal.
-            FixMatrix_InverseRotateVector(&t, &dn, g_pCurrentCar->pWorld);
-            t.y = 0;
-            len = FixVecLength(&t);
+            FixMatrix_InverseRotateVector(&corner, &dn, g_pCurrentCar->pWorld);
+            corner.y = 0;
+            len = FixVecLength(&corner);
             if (len > 10000)
-                FixVecScale(&t, &t, FixDiv(10000, len));
+                FixVecScale(&corner, &corner, FixDiv(10000, len));
             k = -FixMul(g_pCurrentCar->halfExtents.y, FixMul(0x4ccc, g_physicsTimeStep));
-            g_pCurrentCar->angularVelocity.x -= FixMul(t.z, k);
-            g_pCurrentCar->angularVelocity.z += FixMul(t.x, k);
+            g_pCurrentCar->angularVelocity.x -= FixMul(corner.z, k);
+            g_pCurrentCar->angularVelocity.z += FixMul(corner.x, k);
         }
         g_pCurrentCar->field_0xb74 = 0;
         return;
