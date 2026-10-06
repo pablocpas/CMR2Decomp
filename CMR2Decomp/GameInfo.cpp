@@ -6056,10 +6056,8 @@ short g_unk0x0082c9ec[4];
 int OptionMenu_TransformHudPointToScreen(Unk0x0082c6c8 *p, short *pX, short *pY)
 {
     if (p->field_0x1c != 0x10000) {
-        *pX = FixMulShift32(FixDiv((*pX - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16),
-                            *(short *)((BYTE *)p + 0x10) << 16) + *(short *)((BYTE *)p + 0xc);
-        *pY = FixMulShift32(FixDiv((*pY - g_unk0x0082c9ec[1]) << 16, g_unk0x0082c9ec[3] << 16),
-                            *(short *)((BYTE *)p + 0x12) << 16) + *(short *)((BYTE *)p + 0xe);
+        *pX = (FixMul(FixDiv((*pX - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16), *(short *)((BYTE *)p + 0x10) << 16) >> 16) + *(short *)((BYTE *)p + 0xc);
+        *pY = (FixMul(FixDiv((*pY - g_unk0x0082c9ec[1]) << 16, g_unk0x0082c9ec[3] << 16), *(short *)((BYTE *)p + 0x12) << 16) >> 16) + *(short *)((BYTE *)p + 0xe);
     }
     *pX = (short)((*pX * (int)g_pGraphics->resX) / 0x280);
     *pY = (short)((*pY * (int)g_pGraphics->resY) / 0x1e0);
@@ -6637,7 +6635,7 @@ void OptionMenu_DrawThreeColourGradientStrips(short *pRect, int unused, unsigned
     d12.z = (pColours[10] << 16) - c1.z;
     half = (count & 0xff) >> 1;
     for (i = 0, t = 0; i < n; i++, t += 0x10000) {
-        strip[2] = FixMulShift32(t + 0x10000, FixDiv(pRect[2] << 16, n << 16)) + pRect[0] - strip[0];
+        strip[2] = (FixMul(t + 0x10000, FixDiv(pRect[2] << 16, n << 16)) >> 16) + pRect[0] - strip[0];
         if (i > half) {
             FixVecScale(&c, &d12, FixDiv(t - (half << 16), half << 16));
             c.x += c1.x;
@@ -9489,10 +9487,8 @@ void OptionMenu_AnimateSelectedPanel(void)
             pEntry->phase2 = 0;
         }
     } else {
-        pEntry->dstX1 = (short)(FixMulShift32((g_unk0x0082c9ec[0] - pEntry->srcX1) << 16,
-                                              pEntry->current) + pEntry->srcX1);
-        pEntry->dstY1 = (short)(FixMulShift32((g_unk0x0082c9ec[1] - pEntry->srcY1) << 16,
-                                              pEntry->current) + pEntry->srcY1);
+        pEntry->dstX1 = (short)((FixMul((g_unk0x0082c9ec[0] - pEntry->srcX1) << 16, pEntry->current) >> 16) + pEntry->srcX1);
+        pEntry->dstY1 = (short)((FixMul((g_unk0x0082c9ec[1] - pEntry->srcY1) << 16, pEntry->current) >> 16) + pEntry->srcY1);
         pEntry->dstX2 = (short)(FixMulShift32((g_unk0x0082c9ec[2] - pEntry->srcX2) << 16,
                                               pEntry->current) + pEntry->srcX2);
         pEntry->dstY2 = (short)(FixMulShift32((g_unk0x0082c9ec[3] - pEntry->srcY2) << 16,

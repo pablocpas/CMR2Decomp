@@ -6908,7 +6908,7 @@ void RallyData_LayoutPlayerSplitBars(void)
                     }
                 }
                 uTime = FixDiv(uTime, total);
-                pGeo[-1] = (short)(FixMulShift32(uTime, span) + barStart + xOff);
+                pGeo[-1] = (short)((FixMul(uTime, span) >> 16) + barStart + xOff);
                 if (CGameInfo::GetConfiguredGameMode() == 8 || CGameInfo::GetConfiguredGameMode() == 9 ||
                     CGameInfo::GetConfiguredGameMode() == 0xb)
                     yPos = (int)g_pGraphics->resY * 0x554 >> 16;
@@ -7017,7 +7017,7 @@ void RallyData_DrawCarSplitTimePanels(void)
     *(int *)&colour[4] = g_unk0x005270f0;
     colour[11] = (BYTE)(alpha >> 16);
     colour[3] = (BYTE)(alpha >> 16);
-    colour[7] = (BYTE)FixMulShift32(alpha, 0x4000);
+    colour[7] = (BYTE)(FixMul(alpha, 0x4000) >> 16);
     if (alpha == 0)
         return;
     scaleX = FixDiv((int)p->dstX2 << 16, (int)p->srcX2 << 16);
@@ -7026,10 +7026,10 @@ void RallyData_DrawCarSplitTimePanels(void)
         pEntry = (Unk0x0082c6c8Src *)g_unk0x0082c6c8 + i;
         if (i == (signed char)g_unk0x0082ca1c)
             continue;
-        rect[0] = (short)(p->dstX1 + FixMulShift32((pEntry->srcX1 - p->srcX1) << 16, scaleX));
-        rect[1] = (short)(p->dstY1 + FixMulShift32((pEntry->srcY1 - p->srcY1) << 16, scaleY));
-        rect[2] = (short)FixMulShift32(pEntry->srcX2 << 16, scaleX);
-        rect[3] = (short)FixMulShift32(pEntry->srcY2 << 16, scaleY);
+        rect[0] = (short)(p->dstX1 + (FixMul((pEntry->srcX1 - p->srcX1) << 16, scaleX) >> 16));
+        rect[1] = (short)(p->dstY1 + (FixMul((pEntry->srcY1 - p->srcY1) << 16, scaleY) >> 16));
+        rect[2] = (short)(FixMul(pEntry->srcX2 << 16, scaleX) >> 16);
+        rect[3] = (short)(FixMul(pEntry->srcY2 << 16, scaleY) >> 16);
         rect[0] = (short)((int)rect[0] * (int)g_pGraphics->resX / 0x280);
         rect[1] = (short)((int)rect[1] * (int)g_pGraphics->resY / 0x1e0);
         rect[2] = (short)((int)rect[2] * (int)g_pGraphics->resX / 0x280);
@@ -7044,7 +7044,7 @@ void RallyData_DrawCarSplitTimePanels(void)
     RallyData_DrawClippedHudRectangleEdges(rect, &colour[8], 0);
     *(int *)&rect[0] = *(int *)&p->dstX1;
     *(int *)&rect[2] = *(int *)&p->dstX2;
-    grow = FixMulShift32(g_unk0x0082cb44, 0x80000);
+    grow = (FixMul(g_unk0x0082cb44, 0x80000) >> 16);
     rect[0] = (short)(rect[0] - grow);
     rect[1] = (short)(rect[1] - grow);
     rect[2] = (short)(rect[2] + grow * 2);
@@ -7053,7 +7053,7 @@ void RallyData_DrawCarSplitTimePanels(void)
     rect[1] = (short)((int)rect[1] * (int)g_pGraphics->resY / 0x1e0);
     rect[2] = (short)((int)rect[2] * (int)g_pGraphics->resX / 0x280);
     rect[3] = (short)((int)rect[3] * (int)g_pGraphics->resY / 0x1e0);
-    colour[11] = (BYTE)FixMulShift32(alpha, 0x10000 - g_unk0x0082cb44);
+    colour[11] = (BYTE)(FixMul(alpha, 0x10000 - g_unk0x0082cb44) >> 16);
     RallyData_DrawClippedHudRectangleEdges(rect, &colour[8], 0);
 }
 

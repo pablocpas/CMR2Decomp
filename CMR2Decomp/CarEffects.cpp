@@ -616,7 +616,7 @@ void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
     shape = p->field0x64 >> 8;
     colour = p->field0x64 - shape * 0x100;
     EFFECT_LIT_COLOUR(light, p->size, NULL);
-    light[2] = (BYTE)FixMulShift32(lb, g_debrisColours[colour][2] << 16);
+    light[2] = (BYTE)(FixMul(lb, g_debrisColours[colour][2] << 16) >> 16);
     light[0] = (BYTE)FixMulShift32(lr, g_debrisColours[colour][0] << 16);
     light[1] = (BYTE)FixMulShift32(lg, g_debrisColours[colour][1] << 16);
     light[3] = 0xaa;

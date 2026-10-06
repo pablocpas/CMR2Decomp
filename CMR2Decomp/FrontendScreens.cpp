@@ -4863,8 +4863,8 @@ void FrontendAnimation_UpdateMainPath(void)
             do {
                 dy = g_menuPaths[g_menuPathMode][j][1] - g_menuPaths[g_menuPathPrevMode][j][1];
                 dx = g_menuPaths[g_menuPathMode][j][0] - g_menuPaths[g_menuPathPrevMode][j][0];
-                pPoint[0] = g_menuPaths[g_menuPathPrevMode][j][0] + FixMulShift32((int)(__int64)(dx * CGraphics::m_65536), f);
-                pPoint[1] = g_menuPaths[g_menuPathPrevMode][j][1] + FixMulShift32((int)(__int64)(dy * CGraphics::m_65536), f);
+                pPoint[0] = g_menuPaths[g_menuPathPrevMode][j][0] + (FixMul((int)(__int64)(dx * CGraphics::m_65536), f) >> 16);
+                pPoint[1] = g_menuPaths[g_menuPathPrevMode][j][1] + (FixMul((int)(__int64)(dy * CGraphics::m_65536), f) >> 16);
                 pPoint += 2;
                 j++;
             } while (pPoint < g_menuPathMorph[19]);

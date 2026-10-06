@@ -2048,7 +2048,7 @@ void CarDamage_AllocateImpactDeformRecord(void)
     pRec = NULL;
     pPrev = NULL;
     pBase = g_unk0x00588b98 + g_stageDeformCar->index * 0x290 + 0x106;
-    limit = FixMulShift32(g_stageDeformStrength, 0xff0000);
+    limit = (FixMul(g_stageDeformStrength, 0xff0000) >> 16);
     if (limit > 0xff)
         limit = 0xff;
     if (*(int *)(g_unk0x00588b98 + g_stageDeformCar->index * 0x290 + 0x28c) == 0) {
@@ -5130,7 +5130,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
         if (spray && TRAIL_RANDOM(CGraphics::m_65536) > 0x8000) spray = 0;
         RallyDataCountryIndex();
         int dust = ((BYTE)RallyDataCountryIndex() != 0 && (spray || loose || gravel)) || slipping;
-        if (StageObject_GetViewWeatherStateByte(carIndex) == 1 && (FixMul(StageObject_GetViewWeatherField54(carIndex), 0xff0000) >> 16) > 1) {
+        if (StageObject_GetViewWeatherStateByte(carIndex) == 1 && (FixMulShift32(StageObject_GetViewWeatherField54(carIndex), 0xff0000)) > 1) {
             dust = 0;
         } else if (dust) {
             int speed = FIX_ABS(Car_GetWheelSpeed(car, 0, 0));
@@ -5172,7 +5172,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
         }
         if ((leading && Race_GetPlayerRecordField4((BYTE)carIndex)) ||
             (water && leading && StageObject_GetViewWeatherStateByte(carIndex) == 2 &&
-             (FixMul(StageObject_GetViewWeatherField54(carIndex), 0xff0000) >> 16) > 100)) water = 0;
+             (FixMulShift32(StageObject_GetViewWeatherField54(carIndex), 0xff0000)) > 100)) water = 0;
         int emit = dust || water;
         if (!car->cornerOnGround[wheel]) emit = 0;
         int speedLimit = leading ? 0x320000 : 0x230000;

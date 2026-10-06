@@ -241,7 +241,7 @@
   },
   "0x42eae0": {
     "n": "Car_UpdateGroundContact",
-    "s": 0.8753525098702764,
+    "s": 0.8787366046249295,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -729,7 +729,7 @@
   },
   "0x4380c0": {
     "n": "Car_UpdateEngineSpeed",
-    "s": 0.6017316017316018,
+    "s": 0.6060606060606061,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1249,7 +1249,7 @@
   },
   "0x499ac0": {
     "n": "Debris_Draw",
-    "s": 0.5437616387337058,
+    "s": 0.5586592178770949,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -2339,7 +2339,7 @@
   },
   "0x4d28c0": {
     "n": "FrontendDraw_AnimatedMatrixBackground",
-    "s": 0.8083333333333333,
+    "s": 0.8125,
     "x": false,
     "unknown": [],
     "f": "Frontend.cpp",
@@ -5907,7 +5907,7 @@
   },
   "0x4f4050": {
     "n": "FrontendAnimation_UpdateMainPath",
-    "s": 0.7184466019417476,
+    "s": 0.7295423023578363,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -10707,7 +10707,7 @@
   },
   "0x503b70": {
     "n": "OptionMenu_TransformHudPointToScreen",
-    "s": 0.6593406593406593,
+    "s": 0.8160919540229885,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -10883,7 +10883,7 @@
   },
   "0x50ee50": {
     "n": "OptionMenu_DrawThreeColourGradientStrips",
-    "s": 0.5988023952095808,
+    "s": 0.626746506986028,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11331,7 +11331,7 @@
   },
   "0x505b40": {
     "n": "OptionMenu_AnimateSelectedPanel",
-    "s": 0.6058091286307054,
+    "s": 0.7211740041928721,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -16060,7 +16060,7 @@
   },
   "0x424f20": {
     "n": "NetRace_PackCarState",
-    "s": 0.49133383571966843,
+    "s": 0.4939759036144578,
     "x": false,
     "unknown": [],
     "f": "NetRace.cpp",
@@ -18950,7 +18950,7 @@
   },
   "0x411b20": {
     "n": "RallyData_LayoutPlayerSplitBars",
-    "s": 0.5244122965641953,
+    "s": 0.5316455696202531,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18958,7 +18958,7 @@
   },
   "0x5051c0": {
     "n": "RallyData_DrawCarSplitTimePanels",
-    "s": 0.5911330049261084,
+    "s": 0.6831683168316832,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -21473,7 +21473,7 @@
   },
   "0x476640": {
     "n": "StageObject_BlendCarMountTransform",
-    "s": 0.9307692307692308,
+    "s": 0.9538461538461539,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21889,8 +21889,8 @@
   },
   "0x477460": {
     "n": "StageObject_UpdateRevCounterTextures",
-    "s": 0.8838951310861424,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_UpdateRevCounterTextures"
@@ -21945,8 +21945,8 @@
   },
   "0x480220": {
     "n": "StageObject_FadeAmbientColourToBase",
-    "s": 0.7787610619469026,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_FadeAmbientColourToBase"
@@ -23105,7 +23105,7 @@
   },
   "0x462d80": {
     "n": "StageObject_DrawProjectedViewIcon",
-    "s": 0.8391304347826087,
+    "s": 0.8652173913043478,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23305,7 +23305,7 @@
   },
   "0x47b0e0": {
     "n": "StageObject_UpdatePlayerControlIndicators",
-    "s": 0.7238605898123325,
+    "s": 0.7265415549597856,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -24537,7 +24537,7 @@
   },
   "0x468520": {
     "n": "CarDamage_AllocateImpactDeformRecord",
-    "s": 0.6254180602006689,
+    "s": 0.7269681742043551,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25299,7 +25299,7 @@
   },
   "0x45b580": {
     "n": "StageTiming_SpawnWheelParticles",
-    "s": 0.3739021329987453,
+    "s": 0.37975742367210374,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",

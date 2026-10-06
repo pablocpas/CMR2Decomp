@@ -1360,7 +1360,7 @@ void Car_UpdateGroundContact(void)
 
     if (g_pCurrentCar->field_0xbfc != 0) {
         if (g_pCurrentCar->field_0xbdc != 0) {
-            BYTE step = (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
+            BYTE step = (BYTE)(FixMul(0xa0000, g_physicsTimeStep) >> 16);
             if (step > g_pCurrentCar->field_0xb25)
                 g_pCurrentCar->field_0xb25 = 0;
             else
@@ -1368,7 +1368,7 @@ void Car_UpdateGroundContact(void)
             if (g_pCurrentCar->field_0xb25 <= 0)
                 g_pCurrentCar->field_0xbfc = 0;
         } else if (g_pCurrentCar->field_0xbe0 != 0) {
-            BYTE step = (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
+            BYTE step = (BYTE)(FixMul(0xa0000, g_physicsTimeStep) >> 16);
             if (step > g_pCurrentCar->field_0xb26)
                 g_pCurrentCar->field_0xb26 = 0;
             else
@@ -1376,7 +1376,7 @@ void Car_UpdateGroundContact(void)
             if (g_pCurrentCar->field_0xb26 <= 0)
                 g_pCurrentCar->field_0xbfc = 0;
         } else {
-            BYTE step = (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
+            BYTE step = (BYTE)(FixMul(0xa0000, g_physicsTimeStep) >> 16);
             if (step > g_pCurrentCar->field_0xb27)
                 g_pCurrentCar->field_0xb27 = 0;
             else
@@ -5029,7 +5029,7 @@ void Car_UpdateEngineSpeed(void)
                 angle = (short)(__int64)((double)FixMul(FixMul(0x190000 - FixMul(0x41, g_pCurrentCar->field_0xafe << 16), 0xa3d),
                                                              0x8c0000) * g_unk0x00511300);
                 g_pCurrentCar->field_0x7a4 = FixMul(FixMul(g_sinTable[(unsigned short)angle & 0xfff], 0x10000), g_pCurrentCar->field_0x794);
-                g_pCurrentCar->field_0xafe -= (short)FixMulShift32(g_physicsTimeStep, 0x3e80000);
+                g_pCurrentCar->field_0xafe -= (short)(FixMul(g_physicsTimeStep, 0x3e80000) >> 16);
                 if (g_pCurrentCar->field_0xafe < 0)
                     g_pCurrentCar->field_0xafe = 0;
                 if (angle < 0x400)

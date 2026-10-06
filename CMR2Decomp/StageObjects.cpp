@@ -2713,7 +2713,7 @@ void StageObject_BlendCarMountTransform(int car)
 
     fade = StageObject_UpdateCarBodyFade(car, (int)pCar);
     FixMatrix_Interpolate(&CAR_NODE(car, 0x4)->current, &combined, &original, 0, 0,
-                          fadeCurve[FixMulShift32(0xC0000, fade)], 1);
+                          fadeCurve[(FixMul(0xC0000, fade) >> 16)], 1);
 }
 #undef CAR_NODE
 #undef CAR_ANGLES
@@ -3962,9 +3962,9 @@ void StageObject_UpdateRevCounterTextures(int index)
     int slot;
     int i;
 
-    limit = FixMulShift32(StageTiming_GetDashRevValue(index), 0xb0000);
+    limit = FixMul(StageTiming_GetDashRevValue(index), 0xb0000) >> 16;
     for (i = 0; i <= 0xa; i++)
-        pNew[i] = ((i >= limit) - 1) & 0xff;
+        pNew[i] = i < limit ? 0xff : 0;
     if (g_unk0x0058d4c4[index * 2] != 0)
         StageObject_UpdateBodyTextureAlphaValues((Texture *)g_unk0x0058d4c4[index * 2], (int)Car_Get(index)->gear, 2, index);
     if (g_unk0x0058d4c0[index * 2] != 0) {
@@ -4391,17 +4391,17 @@ void StageObject_FadeAmbientColourToBase(void)
 
     length = FixSqrt(g_unk0x005909b8);
     scale = (g_unk0x005909c4[0] & 0xff) << 16;
-    scale = FixMulShift32(scale, length) + (g_unk0x005909c0[0] & 0xff);
+    scale = (FixMul(scale, length) >> 16) + (g_unk0x005909c0[0] & 0xff);
     if (scale > 0xff)
         scale = 0xff;
     colour[0] = scale;
     scale_2 = (g_unk0x005909c4[1] & 0xff) << 16;
-    scale_2 = FixMulShift32(scale_2, length) + (g_unk0x005909c0[1] & 0xff);
+    scale_2 = (FixMul(scale_2, length) >> 16) + (g_unk0x005909c0[1] & 0xff);
     if (scale_2 > 0xff)
         scale_2 = 0xff;
     colour[1] = scale_2;
     scale_2 = (g_unk0x005909c4[2] & 0xff) << 16;
-    scale_2 = FixMulShift32(scale_2, length) + (g_unk0x005909c0[2] & 0xff);
+    scale_2 = (FixMul(scale_2, length) >> 16) + (g_unk0x005909c0[2] & 0xff);
     if (scale_2 > 0xff)
         scale_2 = 0xff;
     colour[2] = scale_2;
@@ -10510,12 +10510,12 @@ void StageObject_DrawProjectedViewIcon(int param_1, int param_2)
     scale = FixMul(0x10000 - ramp, 0x30000);
     if (scale > 0x10000)
         scale = 0x10000;
-    colour[0] = (BYTE)FixMulShift32(g_unk0x00543eb4[0] << 16, scale);
-    colour[1] = (BYTE)FixMulShift32(g_unk0x00543eb4[1] << 16, scale);
-    colour[2] = (BYTE)FixMulShift32(g_unk0x00543eb4[2] << 16, scale);
+    colour[0] = (BYTE)(FixMul(g_unk0x00543eb4[0] << 16, scale) >> 16);
+    colour[1] = (BYTE)(FixMul(g_unk0x00543eb4[1] << 16, scale) >> 16);
+    colour[2] = (BYTE)(FixMul(g_unk0x00543eb4[2] << 16, scale) >> 16);
     colour[3] = 0xff;
-    dst.w = (short)FixMulShift32(g_unk0x00543d58, *(int *)g_pGraphics << 16);
-    dst.h = (short)FixMulShift32(g_unk0x00543d5c, *((int *)g_pGraphics + 1) << 16);
+    dst.w = (short)(FixMul(g_unk0x00543d58, *(int *)g_pGraphics << 16) >> 16);
+    dst.h = (short)(FixMul(g_unk0x00543d5c, *((int *)g_pGraphics + 1) << 16) >> 16);
     dst.x = (short)(vOut.x - dst.w / 2);
     dst.y = (short)(vOut.y - dst.h / 2);
     Sprite_Queue(&uv, &dst, (Texture *)g_unk0x00547ad0, 2, 0, 0, 0, colour, 8);
@@ -12748,7 +12748,7 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
                     idx = half + 0x8000;
                     if (idx < 0)
                         idx = -0x8000 - half;
-                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = (char)(0x3f - FixMulShift32(idx, 0x3f0000));
+                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = (char)(0x3f - (FixMul(idx, 0x3f0000) >> 16));
                 }
             } else {
                 *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb8c) = 0;
