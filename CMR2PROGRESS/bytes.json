@@ -1523,7 +1523,7 @@
   },
   "0x48ae90": {
     "n": "Collision_ResolveCarContactImpulse",
-    "s": 0.9023218574859888,
+    "s": 0.9199359487590072,
     "x": false,
     "unknown": [],
     "f": "Collision2D.cpp",

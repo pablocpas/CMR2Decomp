@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "1d471377d59bb0093e0c4494e796fa476d70f4d7",
+    "commit": "5fb5acba65f289951c36e974f01927c754155018",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -54,7 +54,7 @@
       "CMR2Decomp/CarPhysics.h": "ba9b46c2e404dc48274c432e95abdcd7033fdbdfb81d632db233c8880a7229a4",
       "CMR2Decomp/CascadeCallbacks.cpp": "a14e3a3405f956dd001d4f8e11eb1a9aa8963c12f8a713d995a81fe21db4cfd8",
       "CMR2Decomp/CascadeSeedDeps.cpp": "bfa2c3ab6259ca648c47a9b64e8be6e6660cd0eac0e4c1ca2ba25bc44812603f",
-      "CMR2Decomp/Collision2D.cpp": "36d0bfb2a47766b2bd25a24b18a652a3b719831c4045208022edfb5a5d7801d3",
+      "CMR2Decomp/Collision2D.cpp": "49cc11fadf9456e106d0aec002d8fbfa66cfdc66e01342bfc260a61f4786da81",
       "CMR2Decomp/Collision2D.h": "6eedd09d731eed8519479030202ff14b86ed9cf89bb26fc7e83f68aa9a4b0aac",
       "CMR2Decomp/FileBuffer.cpp": "996560b1438f94d2b34ad9bfc20a260871486f481b556c694297de6e2f7adcb3",
       "CMR2Decomp/FileBuffer.h": "38afa99a1ea6bc78ef37511f715e61e494639a6e711308824858aefe2198eeee",
@@ -166,8 +166,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "0507ba18670ade2f324d4b36e2cf11f1c4d36389430231a9277231fc5358261f",
-    "pdb_sha256": "8ac15ddad4b3ffbb0a8054193fa7c1e8a2e13a8753da03c04571db87c074991a"
+    "exe_sha256": "5ace2562f4b94e6c32be21a887298d983805af822bdd94f755a811c93859d587",
+    "pdb_sha256": "7611a1f133f135f26d90c5ff0eb9526c5b7f984e2b174b29c62e5ea4ddcfbd52"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3646,

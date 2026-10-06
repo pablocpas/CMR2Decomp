@@ -5,9 +5,10 @@
 
 MSVC6 orders stack slots by reference count, but variables used equally often
 are ordered by something that depends on their names (declaration order does
-not matter). When a diff only swaps two equally used slots, renaming the
-locals can fix it. The candidates are swaps of two locals declared with the
-same type, and then renames of single locals to name+"2", name+"_", ...;
+not matter); the same goes for which dead parameter slot an inline-asm
+argument is homed in. When a diff only swaps two equally used slots, renaming the
+locals can fix it. The candidates are swaps of two locals (or parameters)
+declared with the same type, and then renames of single locals to name+"2", name+"_", ...;
 both keep the program the same. The best variant is printed (and written
 with --apply). Struct members (after "." or "->") are never touched.
 """
@@ -45,6 +46,18 @@ def locals_of(body):
     return out
 
 
+def params_of(before):
+    """(type, name) of the parameters in the signature that ends the text
+    before the function's body."""
+    inner = before[before.rindex("(", 0, before.rindex(")")) + 1:before.rindex(")")]
+    out = []
+    for part in inner.split(","):
+        m = re.match(r"\s*(.*?)\s*\b([A-Za-z_]\w*)\s*$", part.replace("*", " * "))
+        if m and m.group(1) and m.group(1).strip() not in ("", "void"):
+            out.append((re.sub(r"\s+", "", m.group(1)), m.group(2)))
+    return out
+
+
 def rename(body, mapping):
     pat = re.compile(r"(?<![\w.>])(" + "|".join(map(re.escape, mapping)) + r")\b")
     return pat.sub(lambda m: mapping[m.group(1)], body)
@@ -63,50 +76,69 @@ def score(addr, src):
     raise RuntimeError(out)
 
 
-def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("address")
-    ap.add_argument("--limit", type=int, default=200)
-    ap.add_argument("--apply", action="store_true")
-    args = ap.parse_args()
-    addr = int(args.address, 16)
-    path = Path(F.src_for(addr))
-    text = path.read_text(encoding="latin1")
-    b, e = func_region(text, addr)
-    body = text[b:e]
-    names = locals_of(body)
+def candidates_for(text, b, names):
     taken = set(re.findall(r"\b[A-Za-z_]\w*\b", text))
-    candidates = []
+    out = []
     by_type = {}
     for typ, name in names:
         by_type.setdefault(typ, []).append(name)
     for typ, group in by_type.items():
         for x, y in itertools.combinations(group, 2):
-            candidates.append({x: y, y: x})
+            out.append({x: y, y: x})
     for _, name in names:
         for suffix in ("2", "_", "0", "1", "Value", "Tmp"):
-            new = name + suffix
-            if new not in taken:
-                candidates.append({name: new})
-    base = score(addr, path)
-    print(f"{len(names)} locals, {len(candidates)} candidates, baseline {100 * base:.2f}%")
-    best, best_map = base, None
+            if name + suffix not in taken:
+                out.append({name: name + suffix})
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("address")
+    ap.add_argument("--limit", type=int, default=400, help="candidates per round")
+    ap.add_argument("--rounds", type=int, default=3, help="keep the best rename and search again")
+    ap.add_argument("--apply", action="store_true")
+    args = ap.parse_args()
+    addr = int(args.address, 16)
+    path = Path(F.src_for(addr))
+    original = text = path.read_text(encoding="latin1")
+    base = best = score(addr, path)
+    applied = []
     try:
-        for mapping in candidates[:args.limit]:
-            path.write_text(text[:b] + rename(body, mapping) + text[e:], encoding="latin1")
-            s = score(addr, path)
-            if s > best + 1e-9:
-                best, best_map = s, mapping
-                print(f"  {100 * s:.2f}%  {mapping}")
-                if s >= 1.0:
-                    break
+        for rnd in range(args.rounds):
+            b, e = func_region(text, addr)
+            names = params_of(text[:b]) + locals_of(text[b:e])
+            # rename from the signature's line on, so parameters change everywhere
+            b = text.rfind("\n", 0, text.rindex("(", 0, text.rindex(")", 0, b))) + 1
+            body = text[b:e]
+            cands = candidates_for(text, b, names)
+            if rnd == 0:
+                print(f"{len(names)} locals and parameters, {len(cands)} candidates, baseline {100 * base:.2f}%")
+            round_best, round_text, round_map = best, None, None
+            for mapping in cands[:args.limit]:
+                trial = text[:b] + rename(body, mapping) + text[e:]
+                path.write_text(trial, encoding="latin1")
+                s = score(addr, path)
+                if s > round_best + 1e-9:
+                    round_best, round_text, round_map = s, trial, mapping
+                    print(f"  round {rnd + 1}: {100 * s:.2f}%  {mapping}")
+                    if s >= 1.0:
+                        break
+            if round_text is None:
+                break
+            best, text = round_best, round_text
+            applied.append(round_map)
+            if best >= 1.0:
+                break
     finally:
+        path.write_text(original, encoding="latin1")
+    if applied and args.apply:
         path.write_text(text, encoding="latin1")
-    if best_map and args.apply:
-        path.write_text(text[:b] + rename(body, best_map) + text[e:], encoding="latin1")
-        print(f"applied {best_map}")
-    elif not best_map:
+        print(f"applied {applied}: {100 * base:.2f}% -> {100 * best:.2f}%")
+    elif not applied:
         print("no rename helps")
+    else:
+        print(f"best {applied}: {100 * base:.2f}% -> {100 * best:.2f}% (use --apply)")
 
 
 if __name__ == "__main__":

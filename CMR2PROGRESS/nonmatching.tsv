@@ -450,7 +450,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x480b40	StageObject_ResetAttachedCarNodes	StageObjects.cpp	97	0.9333333333333333	0.9333333333333333
 0x506720	OptionPreview_AnimateWheelRotations	GameInfo.cpp	397	0.9344978165938864	0.9170305676855895
 0x46f060	StageObjects_LoadSkyAndGround	StageObjects.cpp	714	0.9351669941060904	0.8976377952755905
-0x48ae90	Collision_ResolveCarContactImpulse	Collision2D.cpp	3970	0.9353673223604978	0.9023218574859888
 0x404f40	InRaceMenu_UpdateStateMachineFrame	GameInfo.cpp	1294	0.9356110381077529	0.8326639892904953
 0x50a920	OptionMenu_DrawResultsRallyInfo	GameInfo.cpp	2201	0.9363905325443787	0.9236471460340994
 0x465530	CarSkid_ClearWheelTrails	StageObjects.cpp	204	0.9365079365079365	0.967741935483871
@@ -473,6 +472,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4af120	Glow_Draw	Graphics.cpp	2078	0.9510290986515259	0.9590395480225988
 0x418ff0	StageSound_LoadSurfaceVariations	StageUI.cpp	513	0.9517684887459807	0.9681528662420382
 0x4ba440	FixMatrix_Invert	FixedPoint.cpp	1062	0.952	0.952
+0x48ae90	Collision_ResolveCarContactImpulse	Collision2D.cpp	3970	0.9530309112806102	0.9199359487590072
 0x476640	StageObject_BlendCarMountTransform	StageObjects.cpp	513	0.9538461538461539	0.9538461538461539
 0x438460	Car_UpdateCornerFriction	Car.cpp	822	0.954225352112676	0.954225352112676
 0x487f60	Collision_ResolveCarTurnedObjectContact	StageObjects.cpp	1752	0.9554794520547946	0.8879384088964928
