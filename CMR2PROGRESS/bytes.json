@@ -6155,7 +6155,7 @@
   },
   "0x4d5fb0": {
     "n": "FrontendMenu_DrawDifficulty",
-    "s": 0.6752688172043011,
+    "s": 0.8068669527896996,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6667,7 +6667,7 @@
   },
   "0x4ed840": {
     "n": "FrontendMenu_UpdateNetworkSessionSetup",
-    "s": 0.4826086956521739,
+    "s": 0.5986984815618221,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
