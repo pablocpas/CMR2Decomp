@@ -3433,7 +3433,10 @@ L_teardown:
         case 8:
             for (i = 0; i < *pPlayers; i++)
                 CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)pPlayers, i, 0, 2);
-            CGame::SetFrontendResourceMode((char)RallyData_AdvanceSelectedStage() == 0 ? 0 : 2);
+            if ((char)RallyData_AdvanceSelectedStage() != 0)
+                CGame::SetFrontendResourceMode(2);
+            else
+                CGame::SetFrontendResourceMode(0);
             NetPlayers_ResetStageState(0, 0);
             Race_ReleaseFrameResources();
             StageUI_ClearRaceEndLatch();

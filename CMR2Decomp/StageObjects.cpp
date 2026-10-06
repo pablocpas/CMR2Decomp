@@ -14906,7 +14906,10 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                             StageObject_UpdateCarBoxShadowLighting((int *)pBox, pCar);
                         continue;
                     }
-                    result = Collision_CarVsBox((int)pCar, (int *)pBox, (pObject[4] & 0x2001000) != 0 ? 0 : 0x10000);
+                    if ((pObject[4] & 0x2001000) != 0)
+                        result = Collision_CarVsBox((int)pCar, (int *)pBox, 0);
+                    else
+                        result = Collision_CarVsBox((int)pCar, (int *)pBox, 0x10000);
                 }
                 if (result != 0 && Collision_ResolveStaticObstacleContact((int)pCar, pEntry, (int)&position, 0) != 0)
                     StageObject_QueueOrEvictMovingObject(pEntry, sector, pCar->index);

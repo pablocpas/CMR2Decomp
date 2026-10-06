@@ -7901,7 +7901,10 @@ void Camera_Update(CameraRecord *pRecord)
         Dash_BuildInterpolatedCockpitMatrix((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car), onCar);
         break;
     case 3:
-        StageObject_DispatchActiveCarObjectUpdate((BYTE *)pRecord, (int)Car_GetCameraReferenceMatrix(car), (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
+        if (onCar == 0 && pCar->field_0xb60 == 0)
+            StageObject_DispatchActiveCarObjectUpdate((BYTE *)pRecord, (int)Car_GetCameraReferenceMatrix(car), 0);
+        else
+            StageObject_DispatchActiveCarObjectUpdate((BYTE *)pRecord, (int)Car_GetCameraReferenceMatrix(car), 1);
         break;
     case 2:
         StageObject_InterpolateReferenceMatrix((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);

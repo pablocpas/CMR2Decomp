@@ -3465,7 +3465,10 @@ void FrontendProfile_PickRenameCharacterOrCheat(Menu *pMenu, int param)
         }
     } else if (pMenu->items[pMenu->cursor].value == 2 && g_nameRow0x0052538c[pMenu->items[2].max] == '_') {
         if (RallyData_FindCheatNameIndex(FrontendProfile_GetCurrentPlayer(), (BYTE *)&key) != 0) {
-            Menu_PlaySoundId(key != 0 ? 0 : 3);
+            if (key != 0)
+                Menu_PlaySoundId(0);
+            else
+                Menu_PlaySoundId(3);
             if (RallyData_IsDriverRecordUsable((BYTE)FrontendProfile_GetCurrentPlayer())) {
                 g_unk0x00819744--;
                 RallyData_SetPlayerProfileInUse(FrontendProfile_GetCurrentPlayer(), 0);
@@ -5797,8 +5800,12 @@ void FrontendMenu_DrawProfileBestStageTimes(Menu *pMenu)
         if ((*pRecord & 0x80) != 0) {
             Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*pRecord & 0x3f), (int)(g_pGraphics->resX * 230) / 640, y,
                           (int *)g_colourWhite0x00524968, 0x12);
-            Font_DrawText(1, (*pRecord & 0x40) == 0 ? g_strGearboxManual : g_strGearboxAuto,
-                          (int)(g_pGraphics->resX * 355) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+            if ((*pRecord & 0x40) != 0)
+                Font_DrawText(1, g_strGearboxAuto,
+                              (int)(g_pGraphics->resX * 355) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+            else
+                Font_DrawText(1, g_strGearboxManual,
+                              (int)(g_pGraphics->resX * 355) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
             time = *(unsigned int *)(pRecords + 0x154 + (i + rally * 12) * 8);
             sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000, time / 100 % 60, time % 100);
             Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 415) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
@@ -9901,7 +9908,10 @@ void FrontendMenu_DrawProfileNameEntry(Menu *pMenu)
 
     g_unk0x0081854c = g_unk0x00818274;
     if (g_unk0x008189a4 != 0)
-        g_unk0x00818550 = CFrontend::GetTextString(RallyData_IsDriverRecordUsable((BYTE)FrontendProfile_GetCurrentPlayer()) ? 0xe5 : 0x17b);
+        if (RallyData_IsDriverRecordUsable((BYTE)FrontendProfile_GetCurrentPlayer()))
+            g_unk0x00818550 = CFrontend::GetTextString(0xe5);
+        else
+            g_unk0x00818550 = CFrontend::GetTextString(0x17b);
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, g_nameEntryPath0x0081854c, 2);
     FrontendDraw_PlayTime();
     for (row = 0; row < 3; row++) {
@@ -12009,7 +12019,10 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
         break;
     }
     texts[2] = buf;
-    texts[3] = CFrontend::GetTextString(Network_GetSessionStateFlag() != 0 ? 0x3d : 0x1c5);
+    if (Network_GetSessionStateFlag() != 0)
+        texts[3] = CFrontend::GetTextString(0x3d);
+    else
+        texts[3] = CFrontend::GetTextString(0x1c5);
     FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), texts, 4);
     if (g_unk0x00818ed0 != 0) {
         colour[3] = 0x20;

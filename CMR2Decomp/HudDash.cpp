@@ -457,7 +457,10 @@ void Dash_DrawBar(int player, int layer)
     Font_DrawText(6, text, rect[0], rect[1], (int *)g_dashWhite, 0x24);
     rect[0] = rect[0] + (short)((g_pGraphics->resX * -0x67) / 640);
     rect[1] = rect[1] + (short)((g_pGraphics->resY * 3) / 480);
-    sprintf(text, CGameInfo::IsDashOptionEnabled() == 0 ? g_strDashKmh : g_strDashMph);
+    if (CGameInfo::IsDashOptionEnabled() != 0)
+        sprintf(text, g_strDashMph);
+    else
+        sprintf(text, g_strDashKmh);
     sprintf(CFrontend::m_stringDest, g_strDashSpeedFormat, text, g_dashSpeedNext[player] >> 16);
     rect[1] = rect[1] + (short)((g_pGraphics->resY * -4) / 480);
     Font_DrawText(5, CFrontend::m_stringDest, rect[0] + 1, rect[1] + 1, (int *)g_dashShadow, 0x21);
@@ -653,8 +656,12 @@ void Dash_DrawDial(int player, int layer)
         dst.x = dst.x - src.w / 2;
         dst.y = dst.y - 0xc;
     }
-    Sprite_Queue(&src, &dst, CGameInfo::IsDashOptionEnabled() == 0 ? g_dashKphTexture : g_dashMphTexture, 2, 0, NULL, NULL,
-                 g_dashWhite, 8);
+    if (CGameInfo::IsDashOptionEnabled() == 0)
+        Sprite_Queue(&src, &dst, g_dashKphTexture, 2, 0, NULL, NULL,
+                     g_dashWhite, 8);
+    else
+        Sprite_Queue(&src, &dst, g_dashMphTexture, 2, 0, NULL, NULL,
+                     g_dashWhite, 8);
 
     // Gear letters down the side of the dial.
     i = 0;
