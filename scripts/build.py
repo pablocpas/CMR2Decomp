@@ -23,8 +23,10 @@ def sha256(path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    default_msvc = next((p for p in (ROOT / "msvc600/VC98", ROOT.parent / "msvc600/VC98")
+                         if p.is_dir()), ROOT / "msvc600/VC98")
     parser.add_argument("--msvc-root", type=Path, default=Path(
-        os.environ.get("CMR2_MSVC_ROOT", ROOT / "msvc600/VC98")))
+        os.environ.get("CMR2_MSVC_ROOT", default_msvc)))
     parser.add_argument("--windowed", action="store_true")
     args = parser.parse_args()
     msvc = args.msvc_root.resolve()

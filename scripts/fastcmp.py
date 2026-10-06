@@ -17,7 +17,9 @@ from capstone import Cs, CS_ARCH_X86, CS_MODE_32
 REPO = os.environ.get('CMR2_REPO', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 HERE = os.environ.get('FASTCMP_WORK', os.path.dirname(os.path.abspath(__file__)) + '/work')
-MSVC = os.environ.get('CMR2_MSVC_ROOT', REPO + '/msvc600/VC98')
+MSVC = os.environ.get('CMR2_MSVC_ROOT') or next(
+    (p for p in (REPO + '/msvc600/VC98', os.path.dirname(REPO) + '/msvc600/VC98') if os.path.isdir(p)),
+    REPO + '/msvc600/VC98')
 QIFIST = set("Race.cpp StageUI.cpp TimingUtils.cpp Frontend.cpp FrontendScreens.cpp Game.cpp GameInfo.cpp Graphics.cpp Sprite.cpp Car.cpp Sound.cpp CarPhysics.cpp HudDash.cpp CarEffects.cpp TrackCollision.cpp RallyData.cpp Mesh.cpp Sector.cpp StageTiming.cpp StageObjects.cpp SceneNode.cpp FixedPoint.cpp RallyTiming.cpp NetRace.cpp".split())
 IMGBASE = 0x400000
 
