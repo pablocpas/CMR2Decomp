@@ -11956,6 +11956,7 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
 {
     BYTE colour[4];
     BYTE *pColour;
+    BYTE *pChatColour;
     int i;
     int j;
     MenuItem *pItem;
@@ -11969,7 +11970,9 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
     int top;
     BYTE *pLineColour;
     BYTE *pLineShadow;
-    int width;
+    int next;
+    BYTE *pYes;
+    BYTE *pNo;
 
     colour[0] = 0xff;
     colour[1] = 0xff;
@@ -12031,10 +12034,10 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
     FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), texts, 4);
     if (g_unk0x00818ed0 != 0) {
         colour[3] = 0x20;
-        pColour = g_colourWhite0x00524968;
+        pChatColour = g_colourWhite0x00524968;
     } else {
         colour[3] = 0x10;
-        pColour = g_colourText0x0052496c;
+        pChatColour = g_colourText0x0052496c;
     }
     FrontendDraw_PlayTime();
     Sprite_FillRect((int)g_pGraphics + 0x150, panel, colour, 1);
@@ -12046,40 +12049,42 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
             CFrontend::GetModeSpecificStageText(RallyData_GetDriverRecordSelectionValue(0)),
             RallyData_GetDriverOrCategoryFlag(0) != 0 ? g_strGearboxAuto : g_strGearboxManual);
     if (Network_GetSessionStateFlag() != 0) {
-        pColour = g_colourWhite0x00524968;
-    } else if (g_unk0x00818ce4 != 0) {
-        pColour = g_colourWhite0x00524968;
+        Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX - (g_pGraphics->resX * 20) / 640, (g_pGraphics->resY * 100) / 480, (int *)g_colourWhite0x00524968, 0xc);
     } else {
-        pColour = g_colourText0x0052496c;
+        if (g_unk0x00818ce4 != 0)
+            Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX - (g_pGraphics->resX * 20) / 640, (g_pGraphics->resY * 100) / 480, (int *)g_colourWhite0x00524968, 0xc);
+        else
+            Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX - (g_pGraphics->resX * 20) / 640, (g_pGraphics->resY * 100) / 480, (int *)g_colourText0x0052496c, 0xc);
     }
-    Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX - (g_pGraphics->resX * 20) / 640,
-                  (g_pGraphics->resY * 100) / 480, (int *)pColour, 0xc);
 
     i = 1;
     for (j = 0, count = 7; count != 0; count--, j++) {
         if (i < 8 && NetPlayers_IsPlayerPresent(j) != 0) {
             char *pName = NetPlayers_GetPlayerName(j);
-            if (pName == NULL)
-                pName = CMain::m_logFileBlankLine;
-            sprintf(CFrontend::m_stringDest, g_str0x00524da8, pName,
-                    CFrontend::GetModeSpecificStageText(NetPlayers_GetCarSelection(j)),
-                    NetPlayers_GetPlayerFlag5(j) != 0 ? g_strGearboxAuto : g_strGearboxManual);
-            if (NetPlayers_GetPlayerFlag6(j) != 0)
-                pColour = g_colourWhite0x00524968;
+            if (pName != NULL)
+                sprintf(CFrontend::m_stringDest, g_str0x00524da8, pName,
+                        CFrontend::GetModeSpecificStageText(NetPlayers_GetCarSelection(j)),
+                        NetPlayers_GetPlayerFlag5(j) != 0 ? g_strGearboxAuto : g_strGearboxManual);
             else
-                pColour = g_colourText0x0052496c;
-            Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX - (g_pGraphics->resX * 20) / 640,
-                          (g_pGraphics->resY * 50) / 480 + ((g_pGraphics->resY * 40) / 480) * i, (int *)pColour, 0xc);
+                sprintf(CFrontend::m_stringDest, g_str0x00524da8, CMain::m_logFileBlankLine,
+                        CFrontend::GetModeSpecificStageText(NetPlayers_GetCarSelection(j)),
+                        NetPlayers_GetPlayerFlag5(j) != 0 ? g_strGearboxAuto : g_strGearboxManual);
+            if (NetPlayers_GetPlayerFlag6(j) != 0)
+                Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX - (g_pGraphics->resX * 20) / 640,
+                              (g_pGraphics->resY * 50) / 480 + ((g_pGraphics->resY * 40) / 480) * i, (int *)g_colourWhite0x00524968, 0xc);
+            else
+                Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX - (g_pGraphics->resX * 20) / 640,
+                              (g_pGraphics->resY * 50) / 480 + ((g_pGraphics->resY * 40) / 480) * i, (int *)g_colourText0x0052496c, 0xc);
             i++;
         }
     }
 
     for (j = 4, count = 0; j >= 0; j--, count++) {
         Font_DrawText(1, NetworkChat_GetLine(j), (g_pGraphics->resX * 35) / 640,
-                      ((count + 3) * g_pGraphics->resY * 20) / 480, (int *)pColour, 9);
+                      ((count + 3) * g_pGraphics->resY * 20) / 480, (int *)pChatColour, 9);
     }
     if (g_unk0x00818ed0 != 0) {
-        if (!((unsigned int)CFrontend::GetFrontendTimestamp() % 20 <= 9))
+        if ((unsigned int)CFrontend::GetFrontendTimestamp() % 20 > 9)
             sprintf(CFrontend::m_stringDest, g_str0x00519fb8,
                     (char *)FrontendNetwork_GetSessionState());
         else
@@ -12112,13 +12117,15 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
         rect.y = (short)((g_pGraphics->resY * 2) / 0x1e0 + (g_pGraphics->resY * 0x12) / 0x1e0 + top +
                          (g_pGraphics->resY * 0x24) / 0x1e0 * i -
                          CFrontend::m_pAr640ATexture->height / 2);
-        i++;
-        if (pMenu->cursor == i) {
+        next = i + 1;
+        if (pMenu->cursor == next) {
             pColour = g_colourWhite0x00524968;
             Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, &rect,
                          CFrontend::m_pAr640ATexture, 1, 0, 0, NULL, pColour, 8);
         } else {
-            pColour = pItem->enabled != 0 ? g_colourText0x0052496c : g_colourDim0x00524970;
+            pColour = g_colourText0x0052496c;
+            if (pItem->enabled == 0)
+                pColour = g_colourDim0x00524970;
             Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, &rect,
                          CFrontend::m_pAr640DTexture, 1, 0, 0, NULL, pColour, 8);
         }
@@ -12139,44 +12146,45 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
                 strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x3f));
                 break;
             }
+            // the yes/no pair: the current choice is drawn in white
             if (g_unk0x00818ce4 != 0) {
-                pLineColour = g_colourWhite0x00524968;
-                pLineShadow = g_colourText0x0052496c;
+                pYes = g_colourWhite0x00524968;
+                pNo = g_colourText0x0052496c;
             } else {
-                pLineColour = g_colourText0x0052496c;
-                pLineShadow = g_colourWhite0x00524968;
+                pYes = g_colourText0x0052496c;
+                pNo = g_colourWhite0x00524968;
             }
-            i = (g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1];
-            j = (g_pGraphics->resX * 0x7a) / 0x280;
-            Font_DrawText(1, CFrontend::GetTextString(0x1c7), j, i, (int *)pColour, 0x11);
-            width = Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x1c7));
-            Font_DrawText(1, CFrontend::GetTextString(5), j + width + (g_pGraphics->resX * 10) / 0x280, i,
-                          (int *)pLineColour, 0x11);
-            width += Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(5));
-            Font_DrawText(1, CFrontend::GetTextString(4), j + width + (g_pGraphics->resX * 0x14) / 0x280, i,
-                          (int *)pLineShadow, 0x11);
-            goto next;
+            Font_DrawText(1, CFrontend::GetTextString(0x1c7), (g_pGraphics->resX * 0x7a) / 0x280, (g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            Font_DrawText(1, CFrontend::GetTextString(5),
+                          (g_pGraphics->resX * 10) / 0x280 + (g_pGraphics->resX * 0x7a) / 0x280 +
+                              Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x1c7)),
+                          (g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pYes, 0x11);
+            Font_DrawText(1, CFrontend::GetTextString(4),
+                          (g_pGraphics->resX * 0x14) / 0x280 + (g_pGraphics->resX * 0x7a) / 0x280 +
+                              Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x1c7)) +
+                              Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(5)),
+                          (g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pNo, 0x11);
+            goto line;
         case 4:
-            Font_DrawText(1, CFrontend::GetTextString(pItem->id), (g_pGraphics->resX * 0x7a) / 0x280,
-                          (g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
-            goto next;
+            Font_DrawText(1, CFrontend::GetTextString(pItem->id), (g_pGraphics->resX * 0x7a) / 0x280, (g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            goto line;
         default:
-            goto next;
+            goto line;
         }
-        Font_DrawText(1, CFrontend::m_stringDest, (g_pGraphics->resX * 0x7a) / 0x280,
-                      (g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
-    next:
-        if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
-            pLineShadow = g_colourShadowWhite0x00524974;
+        Font_DrawText(1, CFrontend::m_stringDest, (g_pGraphics->resX * 0x7a) / 0x280, (g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+    line:
+        if (pMenu->cursor == next + 1 || pMenu->cursor == next) {
             pLineColour = g_colourWhite0x00524968;
+            pLineShadow = g_colourShadowWhite0x00524974;
         } else {
             pLineColour = g_colourText0x0052496c;
             pLineShadow = g_colourShadowText0x00524978;
         }
-        g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0x24) / 0x1e0 * i + top);
+        g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0x24) / 0x1e0 * (i + 1) + top);
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
         g_unk0x008189a8[1]++;
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
+        i = next;
         pItem++;
     }
     FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
