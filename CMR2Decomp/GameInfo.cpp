@@ -783,8 +783,7 @@ void CGameInfo::InitDefaultGameInfo(void)
 
     ResetDefaultCameraParameters();
 
-    m_gameInfo.field_0x98 = 4;
-    m_gameInfo.field_0x9a = 0;
+    *(int *)&m_gameInfo.field_0x98 = 4;
     m_gameInfo.field_0x18 = (m_gameInfo.field_0x18 & 0xfff93264) | 0x40393264;
 
     InitProfileRecordDefaults(&m_gameInfo.field_0xa4);
