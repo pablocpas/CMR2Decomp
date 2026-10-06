@@ -182,7 +182,6 @@ void RallyData_SelectOpponentSkillClasses(int slot, int *pClasses, char *pRating
     int classes[4];
     int total;
     int opponent;
-    int *pClass;
     int bestClass;
     int lo;
     int hi;
@@ -192,22 +191,18 @@ void RallyData_SelectOpponentSkillClasses(int slot, int *pClasses, char *pRating
     int j;
     int *pDest;
 
-    pClass = classes;
-    pRatings++;
-    opponent = 4;
-    do {
+    for (opponent = 0; opponent < 4; opponent++) {
         memset(counts, 0, sizeof(counts));
-        lo = *pRatings - rand() % 20 - 1;
-        hi = rand() % 20 + *pRatings + 1;
+        lo = pRatings[opponent * 2 + 1] - rand() % 20 - 1;
+        hi = rand() % 20 + pRatings[opponent * 2 + 1] + 1;
         if (lo < 0)
             lo = 0;
         else if (hi > 100)
             hi = 100;
         range = 0;
-        if (hi > lo) {
-            range = hi - lo;
-            for (j = lo; j < hi; j++)
-                counts[pClasses[j / 10]]++;
+        for (j = lo; j < hi; j++) {
+            range++;
+            counts[pClasses[j / 10]]++;
         }
         best = -100;
         total = range << 16;
@@ -219,15 +214,15 @@ void RallyData_SelectOpponentSkillClasses(int slot, int *pClasses, char *pRating
                 bestClass = i;
             }
         }
-        pRatings += 2;
-        *pClass++ = bestClass;
-    } while (--opponent);
+        classes[opponent] = bestClass;
+    }
     pDest = &g_unk0x0052f1a0[slot * 4];
     for (i = 0; i < 4; i++) {
         if (slot == 2 && i > 1)
-            pDest[i] = 0;
+            *pDest = 0;
         else
-            pDest[i] = classes[i];
+            *pDest = classes[i];
+        pDest++;
     }
 }
 

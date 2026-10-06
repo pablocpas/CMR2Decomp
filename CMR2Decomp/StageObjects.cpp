@@ -15097,41 +15097,27 @@ int StageObject_GetCarSlotStateValue(int index);
 // FUNCTION: CMR2 0x004877a0
 void Collision_UpdateOrderedCars(BYTE *pCars, short *pOrder, short count)
 {
-    int n;
     int i;
-    short *pIndex;
     BYTE *pCar;
     BYTE *pBox;
     int car;
 
-    n = count;
-    i = n - 1;
-    if (i >= 0) {
-        pIndex = pOrder + i;
-        do {
-            *(int *)&g_unk0x00590ed0[*pIndex][0x28] = 0;
-            pIndex--;
-        } while (--n);
-    }
+    for (i = count - 1; i >= 0; i--)
+        *(int *)&g_unk0x00590ed0[pOrder[i]][0x28] = 0;
     if (StageObject_UsesExtendedMode())
         Collision_TestOrderedCarPairs((int)pCars, pOrder, count);
-    if (i >= 0) {
-        pIndex = pOrder + i;
-        n = i + 1;
-        do {
-            car = *pIndex;
-            pCar = pCars + car * 0xc24;
-            pBox = g_unk0x00590ed0[car];
-            if (*(int *)(pCar + 0xb64) == 0)
-                Collision_TestCarAgainstSectorObjects((Car *)pCar);
-            if (*(int *)(pCar + 0xc18) == 0 &&
-                (*(int *)(pCar + 0xb64) == 0 || StageObject_GetCarSlotStateValue(((Car *)pCar)->index) < 0x20000))
-                Collision_TestCarAgainstSectorEdges((Car *)pCar, car);
-            *(int *)(pBox + 0x2c) = *(int *)(pBox + 0x28);
-            if (*(int *)(pBox + 0x28) != 0)
-                memcpy(pBox + 0x60, pBox + 0x30, 0x30);
-            pIndex--;
-        } while (--n);
+    for (i = count - 1; i >= 0; i--) {
+        car = pOrder[i];
+        pCar = pCars + car * 0xc24;
+        pBox = g_unk0x00590ed0[car];
+        if (*(int *)(pCar + 0xb64) == 0)
+            Collision_TestCarAgainstSectorObjects((Car *)pCar);
+        if (*(int *)(pCar + 0xc18) == 0 &&
+            (*(int *)(pCar + 0xb64) == 0 || StageObject_GetCarSlotStateValue(((Car *)pCar)->index) < 0x20000))
+            Collision_TestCarAgainstSectorEdges((Car *)pCar, car);
+        *(int *)(pBox + 0x2c) = *(int *)(pBox + 0x28);
+        if (*(int *)(pBox + 0x28) != 0)
+            memcpy(pBox + 0x60, pBox + 0x30, 0x30);
     }
 }
 

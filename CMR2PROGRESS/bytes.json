@@ -17134,7 +17134,7 @@
   },
   "0x40d6c0": {
     "n": "RallyData_SelectOpponentSkillClasses",
-    "s": 0.8188976377952756,
+    "s": 0.9523809523809523,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -19966,7 +19966,7 @@
   },
   "0x4b8270": {
     "n": "Sector_RebuildStageGrid",
-    "s": 0.8160535117056856,
+    "s": 0.8338983050847457,
     "x": false,
     "unknown": [],
     "f": "Sector.cpp",
@@ -23569,8 +23569,8 @@
   },
   "0x4877a0": {
     "n": "Collision_UpdateOrderedCars",
-    "s": 0.8427672955974843,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Collision_UpdateOrderedCars"
