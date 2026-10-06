@@ -1806,10 +1806,10 @@ void Car_UpdateGroundNormal(void)
     FixVector b;
     FixVector c;
     FixVector d;
-    FixVector ab;
-    FixVector cb;
-    FixVector cd;
-    FixVector ad;
+    FixVector edge1;
+    FixVector edge3;
+    FixVector edge4;
+    FixVector edge2;
     FixVector n;
 
     if (absUp >= absRight && absUp >= absForward) {
@@ -1853,13 +1853,13 @@ void Car_UpdateGroundNormal(void)
         d.z = g_pCurrentCar->corners[6].z;
     }
 
-    ab.x = a.x - b.x;
-    ab.y = a.y - b.y;
-    ab.z = a.z - b.z;
-    cb.x = c.x - b.x;
-    cb.y = c.y - b.y;
-    cb.z = c.z - b.z;
-    FixVecCross(&n, &cb, &ab);
+    edge1.x = a.x - b.x;
+    edge1.y = a.y - b.y;
+    edge1.z = a.z - b.z;
+    edge3.x = c.x - b.x;
+    edge3.y = c.y - b.y;
+    edge3.z = c.z - b.z;
+    FixVecCross(&n, &edge3, &edge1);
     if (n.y < 0) {
         n.x = -n.x;
         n.y = -n.y;
@@ -1877,13 +1877,13 @@ void Car_UpdateGroundNormal(void)
         }
     }
 
-    ad.x = a.x - d.x;
-    ad.y = a.y - d.y;
-    ad.z = a.z - d.z;
-    cd.x = c.x - d.x;
-    cd.y = c.y - d.y;
-    cd.z = c.z - d.z;
-    FixVecCross(&n, &cd, &ad);
+    edge2.x = a.x - d.x;
+    edge2.y = a.y - d.y;
+    edge2.z = a.z - d.z;
+    edge4.x = c.x - d.x;
+    edge4.y = c.y - d.y;
+    edge4.z = c.z - d.z;
+    FixVecCross(&n, &edge4, &edge2);
     if (n.y < 0) {
         n.x = -n.x;
         n.y = -n.y;
@@ -1892,10 +1892,11 @@ void Car_UpdateGroundNormal(void)
     FIX_NORMALIZE_INTO(n, n);
 
     {
-        FixVector *pOut = &g_pCurrentCar->groundNormal;
-        n.y += pOut->y;
-        n.x += pOut->x;
-        n.z += pOut->z;
+        FixVector *pOut;
+        n.x += g_pCurrentCar->groundNormal.x;
+        n.y += g_pCurrentCar->groundNormal.y;
+        n.z += g_pCurrentCar->groundNormal.z;
+        pOut = &g_pCurrentCar->groundNormal;
         {
             int len = FixVecLength(&n);
             if (len == 0) {
@@ -1925,7 +1926,7 @@ void Car_UpdateBodyLean(void)
 {
     int len;
     int maxStep;
-    int angleZ;
+    short angleZ;
     int angleX;
     int sinZ;
     int cosZ;
@@ -1983,10 +1984,11 @@ void Car_UpdateBodyLean(void)
     if (FIX_ABS(z) > 0x170a) {
         if (z > 0) {
             z = 0x170a;
+            g_leanAccel.z = z;
         } else {
             z = -0x170a;
+            g_leanAccel.z = z;
         }
-        g_leanAccel.z = z;
     }
     if (z < 0) {
         z = -z;
@@ -2062,6 +2064,7 @@ void Car_ApplyCornerFriction(int grip)
     int count = 0;
     int cornerCount;
     int i;
+    int along;
 
     if (g_pCurrentCar->field_0xc00 == 0) {
         cornerCount = 4;
@@ -2078,15 +2081,15 @@ void Car_ApplyCornerFriction(int grip)
             sliding[i] = 0;
             if ((g_pCurrentCar->field_0xc00 == 0 && g_pCurrentCar->cornerOnGround[i] != 0) ||
                 (g_pCurrentCar->field_0xc00 != 0 && g_pCurrentCar->cornerFlags[i] == 0)) {
-                int d = FixVecDot(&g_pCurrentCar->cornerAxis[i], &g_pCurrentCar->cornerNormal[i]);
-                if (d >= 0x10000) {
+                along = FixVecDot(&g_pCurrentCar->cornerAxis[i], &g_pCurrentCar->cornerNormal[i]);
+                if (along >= 0x10000) {
                     strength[i] = 0;
                 } else {
-                    strength[i] = (0x400 - FixAcos(d)) * 0x1680;
+                    strength[i] = (0x400 - FixAcos(along)) * 0x1680;
                 }
                 if (strength[i] > 0xa0000 &&
                     g_pCurrentCar->cornerAxis[i].y < g_pCurrentCar->cornerNormal[i].y) {
-                    int along = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &g_pCurrentCar->cornerNormal[i]);
+                    along = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &g_pCurrentCar->cornerNormal[i]);
                     FixVecScale(&dir, &g_pCurrentCar->cornerNormal[i], along);
                     dir.x = g_pCurrentCar->cornerVelocity[i].x - dir.x;
                     dir.y = g_pCurrentCar->cornerVelocity[i].y - dir.y;
@@ -2105,7 +2108,6 @@ void Car_ApplyCornerFriction(int grip)
             i = 0;
             do {
                 if (sliding[i] != 0) {
-                    int along;
                     int len;
 
                     along = FixVecDot(&g_pCurrentCar->cornerAxis[i], &g_pCurrentCar->cornerNormal[i]);
@@ -6374,12 +6376,12 @@ void Car_ResetBodyBasis(int param_1)
     g_pCurrentCar->rearWheelDir = g_pCurrentCar->right;
     Car_UpdateSurfaceParams(g_pCurrentCar, StageObject_GetCarWeatherRampValue((BYTE *)g_pCurrentCar));
     StageObject_CopyCarSurfaceNoiseTarget((BYTE *)g_pCurrentCar);
-    for (i = 0x300; i < 0x330; i += 0xc) {
-        *(FixVector *)((int)g_pCurrentCar + i) = *(FixVector *)((int)g_pCurrentCar + i - 0x90);
-        *(FixVector *)((int)g_pCurrentCar + i + 0x30) = *(FixVector *)((int)g_pCurrentCar + i);
+    for (i = 0; i < 4; i++) {
+        g_pCurrentCar->cornerPrev[i] = g_pCurrentCar->corners[i];
+        g_pCurrentCar->cornerPrev2[i] = g_pCurrentCar->cornerPrev[i];
     }
-    for (i = 0x504; i < 0x564; i += 0xc)
-        *(FixVector *)((int)g_pCurrentCar + i) = *(FixVector *)((int)g_pCurrentCar + i - 0x60);
+    for (i = 0; i < 8; i++)
+        g_pCurrentCar->cornerNormal[i] = g_pCurrentCar->cornerAxis[i];
     g_pCurrentCar->normal0x498 = g_pCurrentCar->groundNormal;
     g_pCurrentCar->positionPrev = g_pCurrentCar->position;
     g_pCurrentCar->positionPrev2 = g_pCurrentCar->position;

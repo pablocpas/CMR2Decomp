@@ -132,6 +132,8 @@ python3 scripts/helper_hints.py           # where FixedPoint.h helper usage diff
 
 `CLAUDE.md` describes the workflow and the fixes that have worked so far.
 
+- `scripts/rename_search.py 0xADDR [--apply]`: MSVC6 breaks ties between equally used stack slots by variable name; this tries semantics-preserving renames of the function's locals.
+
 ## Differential tests
 
 The harnesses in `tests/` execute original and rebuilt code under Unicorn with

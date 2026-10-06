@@ -52,8 +52,10 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
 ## Reading MSVC6 output
 
 - Stack slots: ordered by reference count, most-referenced nearest the frame
-  base (`ebp`, or `esp` without a frame), ties by first use. Declaration order
-  is ignored; variables with disjoint lifetimes can share a slot. A slot
+  base (`ebp`, or `esp` without a frame). Declaration order is ignored, but
+  ties depend on the variables' names (renaming `ab, cb, cd, ad` to
+  `edge1, edge3, edge4, edge2` fixed Car_UpdateGroundNormal), so when only
+  equal-use slots are swapped, try other names; variables with disjoint lifetimes can share a slot. A slot
   mismatch means a variable is used a different number of times, or the
   original reuses one variable where we have two (or the reverse).
 - Inline-asm helpers (`FixMul`, `FixVecScale`, ...) need their arguments in

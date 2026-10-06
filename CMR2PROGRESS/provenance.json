@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "325a3ff1908b43bf1d70d0f9767f42cfedaaa7a6",
+    "commit": "1d471377d59bb0093e0c4494e796fa476d70f4d7",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -46,7 +46,7 @@
       "CMR2Decomp/AIHelper.cpp": "19671c5c51ff79d525928b0be4c3fb378774605984fdfc9151729d7a26618f2d",
       "CMR2Decomp/AIHelper.h": "bab8d194d555cb12c67813998a76874490d63165d0b535b5005e222045cc8b55",
       "CMR2Decomp/BFL.h": "950defe875ffe734f13dce73dda42d7bc1b5369a7def6a53f9e0ba27ed047a7d",
-      "CMR2Decomp/Car.cpp": "c6bf993b4d9431bd9022338d1a3b6eda9bcafa08c53dbf4ee9e8c2d5e1cb3e74",
+      "CMR2Decomp/Car.cpp": "aba092d13aa169a104be1700851dadf98ce06a058d85e2f1dfa96a63933d560e",
       "CMR2Decomp/Car.h": "1d9130c79f57de423673cff28501382b248d64c58f4840b2d07359528feb716a",
       "CMR2Decomp/CarEffects.cpp": "541f1b0e775c43306cfdc91bd799a2345cfe3e8ff4799e526af3990cdd0168d5",
       "CMR2Decomp/CarParts.h": "32abbbb165e36262e995e93ece9e236ea34277ec9d5c8557c1578a6355b946e3",
@@ -166,16 +166,16 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "71302a288d9a9def2b1425db1ae9006b774a17aaa924d82f791d50b2bfad6cf2",
-    "pdb_sha256": "40870e4672f55c688c9339f47d9e78be7a770235cc01ef336726988c12108dce"
+    "exe_sha256": "0507ba18670ade2f324d4b36e2cf11f1c4d36389430231a9277231fc5358261f",
+    "pdb_sha256": "8ac15ddad4b3ffbb0a8054193fa7c1e8a2e13a8753da03c04571db87c074991a"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3646,
   "measured_functions": 3367,
-  "reccmp_exact": 2674,
+  "reccmp_exact": 2676,
   "audited_source_functions": 3363,
-  "relocated_byte_exact": 2832,
-  "nonmatching_source_functions": 531,
+  "relocated_byte_exact": 2835,
+  "nonmatching_source_functions": 528,
   "unresolved_source_functions": [
     "0x496e00",
     "0x5062d0",

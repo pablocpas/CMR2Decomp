@@ -273,15 +273,15 @@
   },
   "0x42de20": {
     "n": "Car_UpdateGroundNormal",
-    "s": 0.9249304911955515,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateGroundNormal"
   },
   "0x443250": {
     "n": "Car_UpdateBodyLean",
-    "s": 0.8240131578947368,
+    "s": 0.8870703764320785,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -297,8 +297,8 @@
   },
   "0x43a920": {
     "n": "Car_ApplyCornerFriction",
-    "s": 0.9691119691119691,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_ApplyCornerFriction"
@@ -1001,8 +1001,8 @@
   },
   "0x43e680": {
     "n": "Car_ResetBodyBasis",
-    "s": 0.9369918699186992,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_ResetBodyBasis"
