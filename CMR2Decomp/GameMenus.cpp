@@ -1303,8 +1303,8 @@ void GameMenu_DrawScrollingRallyTimes(Menu *pMenu)
         id = RallyTiming_GetOverallPositionDriverID(pos);
         time = RallyTiming_GetOverallTimeForPosition(pos);
         isPlayer = FALSE;
-        for (player = 0, slot = 0xf; player < CGameInfo::GetConfiguredPlayerCount(); player++, slot--) {
-            if (RallyTiming_GetOverallPositionOfDriver(slot) == pos) {
+        for (player = 0; player < CGameInfo::GetConfiguredPlayerCount(); player++) {
+            if (RallyTiming_GetOverallPositionOfDriver(0xf - player) == pos) {
                 isPlayer = TRUE;
                 strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(player));
                 goto found;

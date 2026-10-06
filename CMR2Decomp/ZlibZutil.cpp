@@ -7,8 +7,14 @@
 
 /* @(#) $Id$ */
 
+// The rest of zlib is compiled as C; this file stays C++ for the shared empty
+// string below (CMain::m_logFileBlankLine), so its zlib symbols use C linkage.
+extern "C" {
 #include "zlib/zutil.h"
+}
 #include "main.h"
+
+extern "C" {
 
 // GLOBAL: CMR2 0x005217bc
 const char z_msg_unknown_compression_method[] = "unknown compression method";
@@ -271,3 +277,5 @@ void  zcfree(voidpf opaque, voidpf ptr)
 }
 
 #endif /* MY_ZCALLOC */
+
+} // extern "C"

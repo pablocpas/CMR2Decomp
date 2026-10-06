@@ -359,14 +359,10 @@ unsigned int CMain::GetFrameDelta(void)
     step = now - m_frameDeltaLast;
     if (step != 0) {
         m_frameDelta += step;
-        if (m_frameDelta < m_frameDeltaMax) {
+        if (m_frameDelta < m_frameDeltaMax)
             m_frameDelta = m_frameDeltaMax;
-            m_frameDeltaLast = now;
-            return m_frameDeltaMax;
-        }
-        m_frameDeltaLast = now;
-        m_frameDeltaMax = m_frameDelta;
-        return m_frameDelta;
+        else
+            m_frameDeltaMax = m_frameDelta;
     }
     m_frameDeltaLast = now;
     return m_frameDelta;

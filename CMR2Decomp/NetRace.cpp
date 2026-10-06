@@ -782,7 +782,7 @@ void NetRace_PackCarState(Car *car)
     } else g_localCarStats.field_0x1a &= 0x7fff;
     if (stage > 15) stage = 15;
     g_localCarStats.field_0x1a = (g_localCarStats.field_0x1a & 0x87ff) | ((stage & 15) << 11);
-    int progress = FixMul(RallyData_GetCarRaceRecordField10(raw), 0x400000) >> 16;
+    int progress = FixMulShift32(RallyData_GetCarRaceRecordField10(raw), 0x400000);
     if (progress < 0) progress = 0;
     else if (progress > 63) progress = 63;
     g_localCarStats.speed = (g_localCarStats.speed & 0x3ff) | (progress << 10);

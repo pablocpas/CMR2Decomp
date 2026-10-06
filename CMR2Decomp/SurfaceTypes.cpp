@@ -209,7 +209,7 @@ void Car_UpdateSurfaceParams(Car *pCar, int blend)
         diff = g_surfaceGrip[s1][0] - g_surfaceGrip[s0][0];
         gripA = FixMul(diff, blend) + g_surfaceGrip[s0][0];
         diff = g_surfaceGrip[s1][1] - g_surfaceGrip[s0][1];
-        gripB = FixMul(blend, diff) + g_surfaceGrip[s0][1];
+        gripB = FixMul(diff, blend) + g_surfaceGrip[s0][1];
         diff = g_surfaceGrip2[s1][0] - g_surfaceGrip2[s0][0];
         grip2A = FixMul(diff, blend) + g_surfaceGrip2[s0][0];
         diff = g_surfaceGrip2[s1][1] - g_surfaceGrip2[s0][1];
@@ -1527,7 +1527,7 @@ void Surface_BlendWheelContactParameters(BYTE *pWheel, int unused)
         ((BYTE *)pOut2)[-1] = g_surfaceEffect[id][0];
         ((BYTE *)pOut2)[0] = g_surfaceEffect[id][1];
         *(int *)((BYTE *)pOut2 + 3) =
-            FixMul(g_surfaceDrag[g_surfaceDragIndex[id] + *(BYTE *)(pWheel + 0xb29) * 9], 0x51e);
+            FixMul(0x51e, g_surfaceDrag[g_surfaceDragIndex[id] + *(BYTE *)(pWheel + 0xb29) * 9]);
         *(int *)((BYTE *)pOut2 + 7) = 0;
         total += g_surfaceNoise[id] * 2;
         ((BYTE *)pOut2)[-0xd] = ((BYTE *)pOut2)[-1];

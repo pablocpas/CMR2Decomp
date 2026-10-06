@@ -1659,7 +1659,42 @@ void Race_SetCarSoundSelectionState(int value)
     g_unk0x00537394 = value;
 }
 
-BYTE g_raceBlock[0x864];
+// GLOBAL: CMR2 0x00537568
+int g_surfacePrevD[8];
+// GLOBAL: CMR2 0x00537588
+int g_surfaceVolA[8];
+// GLOBAL: CMR2 0x005375a8
+StageSoundBank g_stageSoundBank;
+// GLOBAL: CMR2 0x005375b0
+int g_surfacePrevB[8];
+// GLOBAL: CMR2 0x005375d0
+unsigned int g_stageSoundCount;
+// GLOBAL: CMR2 0x005375d4
+BYTE g_stageSoundUsed[0x1f];
+// GLOBAL: CMR2 0x005375f4
+BYTE g_unk0x005375f4[8];
+// GLOBAL: CMR2 0x005375fc
+int g_surfacePrevA[8];
+// GLOBAL: CMR2 0x0053761c
+int g_surfaceSlotMax;
+// GLOBAL: CMR2 0x00537620
+int g_surfaceVolB[8];
+// GLOBAL: CMR2 0x00537640
+int g_surfaceVolC[8];
+// GLOBAL: CMR2 0x00537660
+int g_unk0x00537660;
+// GLOBAL: CMR2 0x00537664
+int g_unk0x00537664;
+// GLOBAL: CMR2 0x00537668
+int g_surfaceVolD[8];
+// GLOBAL: CMR2 0x00537788
+int g_surfacePrevC[8];
+// GLOBAL: CMR2 0x005377a8
+RaceCarSoundState g_carSoundStates[8];
+// GLOBAL: CMR2 0x00537d48
+int g_wheelSlipVolume[8][4];
+// GLOBAL: CMR2 0x00537dc8
+int g_unk0x00537dc8;
 
 // Starts the sound of one entry of the stage table and stores its handle, the
 // random pitch and the id of the sound.
@@ -1764,17 +1799,17 @@ void Race_MoveCarSoundBank(int car, BYTE *pInfo)
         goto tail;
     }
 tail:
-    *(int *)(g_raceBlock + 0x94 + car * 4) = *(int *)(g_raceBlock + 0x48 + car * 4);
-    *(int *)(g_raceBlock + car * 4) = *(int *)(g_raceBlock + 0x220 + car * 4);
-    *(int *)(g_raceBlock + 0x48 + car * 4) = 0;
-    *(int *)(g_raceBlock + 0x220 + car * 4) = 0;
+    g_surfacePrevA[car] = g_surfacePrevB[car];
+    g_surfacePrevD[car] = g_surfacePrevC[car];
+    g_surfacePrevB[car] = 0;
+    g_surfacePrevC[car] = 0;
 }
 
 // Restarts the stage sound of the slots whose surface changed while their
 // sound is still playing; the new sound reuses the slot's id and volume.
 // The per-car sound ids are addressed through the flat block index (car*45+i),
 // as in the original.
-#define g_carSoundIds ((int *)(g_raceBlock + 0x284))   // 0x5377ec
+#define g_carSoundIds ((int *)((BYTE *)g_carSoundStates + 0x44))   // 0x5377ec
 // FUNCTION: CMR2 0x00419cd0
 void Race_RerollCarSoundSlotsByPitch(int car, int unused)
 {
@@ -1896,7 +1931,7 @@ void Race_RestartChangedSurfaceSounds(int car, int unused)
 // FUNCTION: CMR2 0x0041a0a0
 void Race_UpdateIndependentEngineSound(int car, int param2)
 {
-    BYTE *pRow = g_raceBlock + 0x240 + car * 0xb4;
+    BYTE *pRow = (BYTE *)g_carSoundStates + car * 0xb4;
     int volume;
     int engSpeed;
     int speedVol;
@@ -1954,7 +1989,7 @@ void Race_UpdateIndependentEngineSound(int car, int param2)
 void Race_UpdateCarSurfaceSoundState(int car, int unused)
 {
     int offset = car * 0xb4;
-    RaceCarSoundState *pState = (RaceCarSoundState *)(g_raceBlock + 0x240 + offset);
+    RaceCarSoundState *pState = (RaceCarSoundState *)((BYTE *)g_carSoundStates + offset);
     Car *pCar;
     short value;
     short v;
@@ -2037,7 +2072,7 @@ void Race_UpdateCarSurfaceSoundState(int car, int unused)
         pState->state = (short)chosen;
         pState->count = newCount;
         pState->time = StageObject_GetCarSoundElapsedTime(car);
-        pState->pattern = *(int *)(g_raceBlock + 0x2e0 + offset) + pState->countOld * 5;
+        pState->pattern = *(int *)((BYTE *)g_carSoundStates + 0xa0 + offset) + pState->countOld * 5;
         StageUI_ApplySoundState(car, (BYTE *)pState);
         pState->countOld = pState->count;
         pState->stateOld = pState->state;
@@ -2054,7 +2089,7 @@ void Race_UpdateCarSurfaceSoundState(int car, int unused)
 // FUNCTION: CMR2 0x0041ae80
 void Race_SwitchEngineSampleByRollingDirection(int car, int unused)
 {
-    BYTE *pSet = g_raceBlock + 0x240 + car * 0xb4;
+    BYTE *pSet = (BYTE *)g_carSoundStates + car * 0xb4;
     int *pHandle = (int *)(pSet + 0x2c);
 
     if (*(short *)(pSet + 0x18) == 0x19) {
@@ -4594,24 +4629,13 @@ int StageObject_GetNormalizedWheelSlip(int car, int wheel);
 // Recomputes one car's stage sound levels. The four wheel-slip values are read
 // and scaled, the level of each of the four stage sound slots is derived from
 // the engine volume and the largest slip and then eased towards the value of
-// the previous frame (the 0x05xxx4xx volume/previous tables live inside
-// g_raceBlock), and the result is pushed into the slot handles. The shared
+// the previous frame (the 0x05xxx4xx volume/previous tables), and the result is pushed into the slot handles. The shared
 // engine sample gets its pan from the engine speed when the current pattern has
 // run out, and the slot levels are muted, faded out or restored depending on
 // the surface the wheels are on.
 // The volumes live in the per-car tables below: the original updates them in
 // place, so other readers see the muted/clamped values of this frame.
-// Per-car surface sound volumes (8 cars each) inside g_raceBlock.
-#define g_surfacePrevD ((int *)(g_raceBlock + 0x000))  // 0x537568
-#define g_surfaceVolA ((int *)(g_raceBlock + 0x020))   // 0x537588
-#define g_surfacePrevB ((int *)(g_raceBlock + 0x048))  // 0x5375b0
-#define g_surfacePrevA ((int *)(g_raceBlock + 0x094))  // 0x5375fc
-#define g_surfaceSlotMax (*(int *)(g_raceBlock + 0x0b4)) // 0x53761c
-#define g_surfaceVolB ((int *)(g_raceBlock + 0x0b8))   // 0x537620
-#define g_surfaceVolC ((int *)(g_raceBlock + 0x0d8))   // 0x537640
-#define g_surfaceVolD ((int *)(g_raceBlock + 0x100))   // 0x537668
-#define g_surfacePrevC ((int *)(g_raceBlock + 0x220))  // 0x537788
-#define g_wheelSlipVolume ((int (*)[4])(g_raceBlock + 0x7e0)) // 0x537d48
+// Per-car surface sound volumes (8 cars each): see StageUI.h.
 
 // FUNCTION: CMR2 0x0041a5c0
 void Race_ComputeWheelSurfaceSoundVolumes(int param_1, int param_2)
@@ -4734,16 +4758,16 @@ void Race_ComputeWheelSurfaceSoundVolumes(int param_1, int param_2)
         g_surfaceVolB[param_1] = 0x10000;
     if (Sound_IsPlaying(pSet->handle[4]))
         Sound_SetPlayingSlotVolume(pSet->handle[4],
-                     FixMul(NetRace_GetListenerDistanceAttenuation(param_1, param_2), FixMul(g_unk0x00537664, g_surfaceVolA[param_1])));
+                     FixMul(FixMul(g_unk0x00537664, g_surfaceVolA[param_1]), NetRace_GetListenerDistanceAttenuation(param_1, param_2)));
     if (Sound_IsPlaying(pSet->handle[5]))
         Sound_SetPlayingSlotVolume(pSet->handle[5],
-                     FixMul(NetRace_GetListenerDistanceAttenuation(param_1, param_2), FixMul(g_unk0x00537664, g_surfaceVolB[param_1])));
+                     FixMul(FixMul(g_unk0x00537664, g_surfaceVolB[param_1]), NetRace_GetListenerDistanceAttenuation(param_1, param_2)));
     if (Sound_IsPlaying(pSet->handle[6]))
         Sound_SetPlayingSlotVolume(pSet->handle[6],
-                     FixMul(NetRace_GetListenerDistanceAttenuation(param_1, param_2), FixMul(g_unk0x00537664, g_surfaceVolD[param_1])));
+                     FixMul(FixMul(g_unk0x00537664, g_surfaceVolD[param_1]), NetRace_GetListenerDistanceAttenuation(param_1, param_2)));
     if (Sound_IsPlaying(pSet->handle[7]))
         Sound_SetPlayingSlotVolume(pSet->handle[7],
-                     FixMul(NetRace_GetListenerDistanceAttenuation(param_1, param_2), FixMul(g_unk0x00537664, g_surfaceVolC[param_1])));
+                     FixMul(FixMul(g_unk0x00537664, g_surfaceVolC[param_1]), NetRace_GetListenerDistanceAttenuation(param_1, param_2)));
     if (NetRace_GetRaceSoundMode()) {
         total = 0;
         for (i = 0; i < 4; i++)

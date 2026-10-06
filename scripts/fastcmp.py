@@ -17,7 +17,9 @@ from capstone import Cs, CS_ARCH_X86, CS_MODE_32
 REPO = os.environ.get('CMR2_REPO', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 HERE = os.environ.get('FASTCMP_WORK', os.path.dirname(os.path.abspath(__file__)) + '/work')
-MSVC = os.environ.get('CMR2_MSVC_ROOT', REPO + '/msvc600/VC98')
+MSVC = os.environ.get('CMR2_MSVC_ROOT') or next(
+    (p for p in (REPO + '/msvc600/VC98', os.path.dirname(REPO) + '/msvc600/VC98') if os.path.isdir(p)),
+    REPO + '/msvc600/VC98')
 QIFIST = set("Race.cpp StageUI.cpp TimingUtils.cpp Frontend.cpp FrontendScreens.cpp Game.cpp GameInfo.cpp Graphics.cpp Sprite.cpp Car.cpp Sound.cpp CarPhysics.cpp HudDash.cpp CarEffects.cpp TrackCollision.cpp RallyData.cpp Mesh.cpp Sector.cpp StageTiming.cpp StageObjects.cpp SceneNode.cpp FixedPoint.cpp RallyTiming.cpp NetRace.cpp".split())
 IMGBASE = 0x400000
 
@@ -168,8 +170,11 @@ def compile_tu(src, objout):
     env['WINEPATH'] = W(MSVC + '/Bin') + ';' + W(os.path.dirname(MSVC) + '/Common/MSDev98/Bin')
     b = os.path.basename(src)
     fl = ['/nologo', '/c', '/O2', '/DNDEBUG', '/D_CRTIMP=', '/Gz', '/MD', '/GX']
-    if b in QIFIST or (os.environ.get('FASTCMP_QIFIST_ALL') and not b.startswith('Zlib')): fl.append('/QIfist')
+    qifist = b in QIFIST or (os.environ.get('FASTCMP_QIFIST_ALL') and not b.startswith('Zlib'))
+    if os.environ.get('FASTCMP_TOGGLE_QIFIST'): qifist = not qifist   # flag experiments
+    if qifist: fl.append('/QIfist')
     if b.startswith('Zlib'): fl.append('/Ob2')
+    if b.startswith('Zlib') and b != 'ZlibZutil.cpp': fl.append('/TC')   # zlib was built as C (Rich header: C objects)
     fl += os.environ.get('FASTCMP_EXTRA', '').split()
     fl.append('/Zi'); fl.append('/Fd' + W(objout[:-4] + '.pdb'))
     fl.append('/I' + W(REPO + '/CMR2Decomp'))   # temp copies live outside the tree
@@ -251,6 +256,8 @@ def symmap_for(src):
     b = os.path.basename(src)[:-4]
     cp = HERE + f'/symcache/{b}.pkl'
     objp = REPO + f'/build/{b}.obj'
+    if not os.path.exists(objp):   # a TU added since the last full build
+        return {}
     st = (os.path.getmtime(objp), os.path.getmtime(REPO + '/build/CMR2.exe'), os.path.getmtime(HERE + '/ent.json'))
     if os.path.exists(cp):
         d = pickle.load(open(cp, 'rb'))
@@ -264,6 +271,24 @@ def symmap_for(src):
 ORIG = None
 # FASTCMP_SYMS="g_name=0x5894b8,..." maps data symbols that the last full build does not have yet
 EXTRA_SYMS = {k: int(v, 0) for k, v in (e.split('=') for e in os.environ.get('FASTCMP_SYMS', '').split(',') if e)}
+
+_ANNOT = None
+def annotated_globals():
+    """name -> original address from the `// GLOBAL: CMR2 0x...` annotations, so a
+    global added or renamed since the last full build still resolves."""
+    global _ANNOT
+    if _ANNOT is None:
+        _ANNOT = {}
+        pat = re.compile(r'//\s*GLOBAL:\s*CMR2\s+(0x[0-9a-fA-F]+)[^\n]*\n((?:[ \t]*//[^\n]*\n)*)([^\n]*)')
+        for fn in sorted(os.listdir(REPO + '/CMR2Decomp')):
+            if not fn.endswith(('.cpp', '.h')): continue
+            text = open(REPO + '/CMR2Decomp/' + fn, encoding='latin1').read()
+            for m in pat.finditer(text):
+                decl = re.split(r'[\[=;(]', m.group(3))[0]
+                ids = re.findall(r'[A-Za-z_][\w:]*', decl)
+                if ids and ids[-1] not in ('extern', 'static', 'const'):
+                    _ANNOT.setdefault(ids[-1], int(m.group(1), 16))
+    return _ANNOT
 
 def real_bytes(nm):
     """__real@<size>@<80-bit hex>  ->  the float/double bytes of the constant"""
@@ -329,6 +354,9 @@ def compare(addr, obj, src, name, osize, verbose=False, coff=None):
             tgt = smap[nm] + field if typ == 6 else smap[nm]
         elif plain(nm) in name_maps():
             o_ = name_maps()[plain(nm)][0]
+            tgt = o_ + field if typ == 6 else o_
+        elif plain(nm) in annotated_globals():
+            o_ = annotated_globals()[plain(nm)]
             tgt = o_ + field if typ == 6 else o_
         else:
             tgt = resolve_extra(nm, typ, code, o, addr)

@@ -668,7 +668,7 @@ void Dash_DrawDial(int player, int layer)
     k = 0xc553;
     do {
         sprintf(letter, g_strDashChar, gears.c[i]);
-        Font_DrawText(0, letter, (FixMul(0xf78d, g_pGraphics->resX << 16) >> 16) - 5,
+        Font_DrawText(0, letter, (FixMul(g_pGraphics->resX << 16, 0xf78d) >> 16) - 5,
                       FixMul(g_pGraphics->resY << 16, k) >> 16, (int *)g_dashWhite, 0x12);
         k -= 0xae1;
         i++;
@@ -810,7 +810,7 @@ void HudDash_SetCameraOffset(BYTE index, FixVector *pOffset)
 
 // Resets a player's camera to the default offset, height and distance.
 // FUNCTION: CMR2 0x00447ca0
-void HudDash_ResetPlayerCamera(unsigned int index)
+void HudDash_ResetPlayerCamera(BYTE index)
 {
     FixVector offset;
 
@@ -843,13 +843,15 @@ void Dash_UpdateCameraModeOffset(BYTE *param_1, BYTE *param_2, int param_3)
     if (pSettings[2] >= (BYTE)RallyDataState()) {
         RallyData_GetDriverCameraOffsets((int *)&offset, (short *)&param_1, &param_3, 0);
         HudDash_SetCameraOffset(index, &offset);
+        HudDash_SetPlayerGaugeValue(index, param_3);
+        HudDash_SetGaugeTarget(index, *(short *)&param_1);
     } else {
         RallyData_GetDriverCameraOffsets((int *)&offset, (short *)&param_1, &param_3,
                                (int)(BYTE)StageUI_GetRaceEndEventCount() + pSettings[2]);
         HudDash_SetCameraOffset(index, &offset);
+        HudDash_SetPlayerGaugeValue(index, param_3);
+        HudDash_SetGaugeTarget(index, *(short *)&param_1);
     }
-    HudDash_SetPlayerGaugeValue(index, param_3);
-    HudDash_SetGaugeTarget(index, *(short *)&param_1);
     View_BuildMatrixFromCameraBasis(pSettings, (FixMatrix *)param_2);
 }
 

@@ -297,8 +297,8 @@ void FrontendMap_DrawStageCellGrid(unsigned int param_1, BYTE param_2)
         which = 8;
     else
         which = RallyDataCountryIndex() & 0xff;
-    pMap = (BYTE *)g_dmdFiles[which][param_1];
-    if (pMap != NULL) {
+    if (g_dmdFiles[which][param_1] != NULL) {
+        pMap = (BYTE *)g_dmdFiles[which][param_1];
         rows = 0x24;
         g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 0x4b) / 480;
         do {
@@ -4672,7 +4672,7 @@ void FrontendAnimation_EvaluatePathSpline(int *pPoints, int t, int *pOut)
     seg = ((t << 4) >> 16) + 1;
     u = (((seg << 16) - 0x10000) / 16 - t + 0x1000) << 4;
     u2 = FixMul(u, u);
-    u3 = FixMul(u, u2);
+    u3 = FixMul(u2, u);
     h01 = u2 * 3 - u3 * 2;
     h10 = u3 - u2 * 2 + u;
     h00 = u3 * 2 + 0x10000 - u2 * 3;
@@ -4863,8 +4863,8 @@ void FrontendAnimation_UpdateMainPath(void)
             do {
                 dy = g_menuPaths[g_menuPathMode][j][1] - g_menuPaths[g_menuPathPrevMode][j][1];
                 dx = g_menuPaths[g_menuPathMode][j][0] - g_menuPaths[g_menuPathPrevMode][j][0];
-                pPoint[0] = g_menuPaths[g_menuPathPrevMode][j][0] + FixMulShift32((int)(__int64)(dx * CGraphics::m_65536), f);
-                pPoint[1] = g_menuPaths[g_menuPathPrevMode][j][1] + FixMulShift32((int)(__int64)(dy * CGraphics::m_65536), f);
+                pPoint[0] = g_menuPaths[g_menuPathPrevMode][j][0] + (FixMul((int)(__int64)(dx * CGraphics::m_65536), f) >> 16);
+                pPoint[1] = g_menuPaths[g_menuPathPrevMode][j][1] + (FixMul((int)(__int64)(dy * CGraphics::m_65536), f) >> 16);
                 pPoint += 2;
                 j++;
             } while (pPoint < g_menuPathMorph[19]);
@@ -5877,7 +5877,7 @@ void FrontendDraw_RipplingDotIcon(int x, int y, short phase)
                                  (int)(__int64)(((int)(g_pGraphics->resY * 18) / 480 * row + y) * CGraphics::m_65536)
                                      / (int)g_pGraphics->resX,
                                  phase, 0x140000) / 4 + 0xc000;
-                colour[0] = FixMulShift32(b, 0xff0000);
+                colour[0] = FixMulShift32(0xff0000, b);
                 colour[1] = colour[0];
                 colour[2] = colour[0];
                 Sprite_Queue((SpriteRect *)&CFrontend::m_pSmMatrixTexture->field_0x11c, (SpriteRect *)g_unk0x008189a8,
@@ -8290,58 +8290,6 @@ void FrontendMenu_DrawSingleRallySelection(Menu *pMenu)
                       (int)g_pGraphics->resY / 2, (int *)g_colourText0x0052496c, 0x12);
     }
     FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
-}
-
-// Clamps the stage-selection item of a network setup menu to the number of
-// stages available for the current car, and builds the "1..N SS" label.
-// FUNCTION: CMR2 0x004ee6e0
-void FrontendMenu_UpdateNetworkRallySetup(Menu *pMenu)
-{
-    unsigned int *pFlags;
-    unsigned int mask;
-    int max;
-    int count;
-    int i;
-    char *pDest;
-
-    pFlags = CGameInfo::GetGameInfoField9CAddress();
-    max = Menu_GetItem(pMenu, 0)->max;
-    if (CGameInfo::IsRecordFlagSet(0xd) == 0) {
-        count = 1;
-        if ((int)(*pFlags >> 8 & 0xf) >= max + 1)
-            count = 4;
-        if ((int)(*pFlags >> 0xc & 0xf) >= max + 1)
-            count = 8;
-        if ((*pFlags & 1) != 0 && (int)(*pFlags >> 0x10 & 0xf) >= max + 1)
-            count = 10;
-    } else {
-        count = 10;
-    }
-    i = 0;
-    if (0 < count) {
-        pDest = g_unk0x00818d84;
-        do {
-            sprintf(pDest, g_stageNumberFormat, i + 1);
-            pDest += 3;
-            i++;
-        } while (i < count);
-    }
-    sprintf(&g_unk0x00818d84[i * 3], g_strFlagSS);
-    if (CGameInfo::IsRecordFlagSet(0xd) != 0) {
-        count = ((max % 2) != 0) + 10;
-    } else {
-        if ((max % 2) != 0) {
-            mask = 1 << ((max + 1) / 2 - 1);
-            if ((pFlags[1] & mask & 0x1f) != 0 ||
-                ((short)((pFlags[1] >> 5) & 0x1f) & mask) != 0 ||
-                ((short)((pFlags[1] >> 10) & 0x1f) & mask) != 0)
-                count++;
-        }
-    }
-    Menu_GetItem(pMenu, 1)->min = (char)count;
-    if (Menu_GetItem(pMenu, 1)->max >= Menu_GetItem(pMenu, 1)->min)
-        Menu_GetItem(pMenu, 1)->max = Menu_GetItem(pMenu, 1)->min - 1;
-    FrontendNetwork_DrainMessageQueue();
 }
 
 // Refreshes the "car setup" network menu: rebuilds the transmission item, its

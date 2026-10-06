@@ -213,7 +213,7 @@ void CarPhysics_UpdateWheelContactPatches(Car *pCar)
             travel = pos.y - t;
             pos.y = t;
             if (travel > 0) {
-                t = FixMul(FixDiv(0x10000, 0x4000), travel);
+                t = FixMul(travel, FixDiv(0x10000, 0x4000));
                 if (t > 0x10000)
                     t = 0x10000;
                 pContact->wheelGrip[wheel] = 0x10000 - t;

@@ -108,8 +108,19 @@ def main():
         def entity(a):
             return entity_address(entities, a) if image else a
 
-        regions = [(0x537568, 0x864, 4096), (0x537dcc, 1, 4096+0x864),
-                   (0x537dd0, 0x20, 4096+0x868)]
+        # The 0x537568..0x537dcc tables are separate globals (see StageUI.h);
+        # each one is placed at its original offset in the arena.
+        tables = [(0x537568, 0x20), (0x537588, 0x20), (0x5375a8, 8), (0x5375b0, 0x20),
+                  (0x5375d0, 4), (0x5375d4, 0x1f), (0x5375f4, 8), (0x5375fc, 0x20),
+                  (0x53761c, 4), (0x537620, 0x20), (0x537640, 0x20), (0x537660, 4),
+                  (0x537664, 4), (0x537668, 0x20), (0x537788, 0x20), (0x5377a8, 0x5a0),
+                  (0x537d48, 0x80), (0x537dc8, 4)]
+        # The record loop ends on g_carSoundStates + 8: keep that one-past-the-end
+        # address on the records (first match wins), wherever the rebuilt
+        # linker put the next global.
+        regions = [(0x5377a8, 0x5a1, 4096 + 0x240)]
+        regions += [(a, size, 4096 + a - 0x537568) for a, size in tables]
+        regions += [(0x537dcc, 1, 4096+0x864), (0x537dd0, 0x20, 4096+0x868)]
         globals_ = [(entity(a), size, 0x2e000000+offset) for a, size, offset in regions]
         globals_.append((entity(0x418fe0), 1, 0x418fe0))
         code, calls = extract(pe, address if image else 0x418f20,

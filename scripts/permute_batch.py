@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Search equivalent source variants on an isolated snapshot of a matching build.
 
-Requires the existing tools/fastcmp/permute.py mutator (or --mutator PATH),
+Uses the mutators in scripts/permute_mutators.py (or --mutator PATH),
 MSVC6/Wine and the current build/CMR2PROGRESS reports. Compilers run across
 several functions simultaneously. Results stay in --output; changes.patch is
 for review and is never applied to the main source tree by this command.
@@ -100,7 +100,7 @@ def mutations(body, signature=""):
     )
     lines = body.split("\n")
     floating = bool(re.search(r"\b(float|double)\b|\b(g_net|g_oneOver|RAND_)", body))
-    result = P.moves(lines) + P.ifswaps(lines)
+    result = P.moves(lines) + P.ifswaps(lines) + getattr(P, "idioms", lambda _: [])(lines)
     if not floating:
         result += P.swaps(lines) + P.obos(lines)
     safe = []
@@ -742,7 +742,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=pathlib.Path, required=True)
     parser.add_argument(
-        "--mutator", type=pathlib.Path, default=ROOT.parent / "tools/fastcmp/permute.py"
+        "--mutator", type=pathlib.Path, default=ROOT / "scripts/permute_mutators.py"
     )
     parser.add_argument("--min-score", type=float, default=0.88)
     parser.add_argument(
@@ -758,7 +758,7 @@ def main():
         "--addresses",
         help="Only search these comma-separated original addresses, e.g. 0x46b440,0x48ce80.",
     )
-    parser.add_argument("--jobs", type=int, default=12)
+    parser.add_argument("--jobs", type=int, default=os.cpu_count() or 4)
     parser.add_argument("--functions", type=int, default=4)
     parser.add_argument("--rounds", type=int, default=5)
     parser.add_argument("--packed", action="store_true", help="Test one variant per function together in each translation-unit compilation.")
@@ -773,7 +773,7 @@ def main():
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
     enabled_kinds = set(args.mutation_kinds.split(",")) if args.mutation_kinds else set()
-    known_kinds = {"move", "swap", "flip", "ifswap", "obo", "unnest", "init", "loop-init", "selector", "ifswap-multiline", "local-layout"}
+    known_kinds = {"idiom", "move", "swap", "flip", "ifswap", "obo", "unnest", "init", "loop-init", "selector", "ifswap-multiline", "local-layout"}
     if enabled_kinds - known_kinds:
         parser.error("Unknown mutation families: " + str(enabled_kinds - known_kinds))
     if (

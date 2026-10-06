@@ -17,10 +17,42 @@ BYTE g_netColours[8][4] = {
 BYTE g_netRandomColour[4] = { 0xff, 0xff, 0xff, 0xff };
 // GLOBAL: CMR2 0x00531770
 int g_netIdCount;
+// Initialised so that they stay in this order (the stage and split getters
+// read one element before g_netStageBest and g_netSplitBest).
 // GLOBAL: CMR2 0x00531778
-NetTables g_netTables;
+NetPlayer g_netPlayers[8] = { 0 };
+// GLOBAL: CMR2 0x00531b78
+int g_netRanks[8] = { 0 };
+// GLOBAL: CMR2 0x00531b98
+int g_netIdsUnsorted[8] = { 0 };
+// GLOBAL: CMR2 0x00531bb8
+NetResult g_netResults[8] = { 0 };
+// GLOBAL: CMR2 0x00531c98
+unsigned int g_netStageBest[10] = { 0 };
+// GLOBAL: CMR2 0x00531cc0
+int g_netIds[8] = { 0 };
+// GLOBAL: CMR2 0x00531ce0
+unsigned int g_netPrevBest = 0;
+// GLOBAL: CMR2 0x00531ce4
+int g_netNewRecord = 0;
+// GLOBAL: CMR2 0x00531ce8
+int g_netTotal = 0;
+// GLOBAL: CMR2 0x00531cec
+int g_netStandingCount = 0;
+// GLOBAL: CMR2 0x00531cf0
+char g_netRecordName[0xe8] = { 0 };
+// GLOBAL: CMR2 0x00531dd8
+int g_netRanks2[8] = { 0 };
+// GLOBAL: CMR2 0x00531df8
+unsigned int g_netBestTime = 0;
 // GLOBAL: CMR2 0x00531e00
-NetStandingsTables g_netStandingsTables;
+NetStanding g_netStandings[8] = { 0 };
+// GLOBAL: CMR2 0x00531ec0
+NetStanding g_netStandings2[8] = { 0 };
+// GLOBAL: CMR2 0x00531f80
+int g_netClassCount = 0;
+// GLOBAL: CMR2 0x00531f84
+unsigned int g_netSplitBest[8] = { 0 };
 
 // GLOBAL: CMR2 0x005320a8
 unsigned int g_netLapBest;
@@ -424,8 +456,8 @@ void NetPlayers_RecordLocalStageTime(unsigned int time, int stage)
         g_netNewRecord = 0;
         return;
     }
-    if (time < g_netTables.words[0x51c / 4 + stage] || g_netTables.words[0x51c / 4 + stage] == 0)
-        g_netTables.words[0x51c / 4 + stage] = time;
+    if (time < g_netStageBest[stage - 1] || g_netStageBest[stage - 1] == 0)
+        g_netStageBest[stage - 1] = time;
 }
 
 // FUNCTION: CMR2 0x0040a3c0
@@ -456,7 +488,7 @@ char *NetPlayers_GetRecordHolderName(void)
 // FUNCTION: CMR2 0x0040a410
 unsigned int NetPlayers_GetSplitRecordTime(int split)
 {
-    return g_netSplitRecords.words[split];
+    return g_netSplitBest[split - 1];
 }
 
 // FUNCTION: CMR2 0x0040a440

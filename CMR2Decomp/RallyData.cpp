@@ -182,7 +182,6 @@ void RallyData_SelectOpponentSkillClasses(int slot, int *pClasses, char *pRating
     int classes[4];
     int total;
     int opponent;
-    int *pClass;
     int bestClass;
     int lo;
     int hi;
@@ -192,22 +191,18 @@ void RallyData_SelectOpponentSkillClasses(int slot, int *pClasses, char *pRating
     int j;
     int *pDest;
 
-    pClass = classes;
-    pRatings++;
-    opponent = 4;
-    do {
+    for (opponent = 0; opponent < 4; opponent++) {
         memset(counts, 0, sizeof(counts));
-        lo = *pRatings - rand() % 20 - 1;
-        hi = rand() % 20 + *pRatings + 1;
+        lo = pRatings[opponent * 2 + 1] - rand() % 20 - 1;
+        hi = rand() % 20 + pRatings[opponent * 2 + 1] + 1;
         if (lo < 0)
             lo = 0;
         else if (hi > 100)
             hi = 100;
         range = 0;
-        if (hi > lo) {
-            range = hi - lo;
-            for (j = lo; j < hi; j++)
-                counts[pClasses[j / 10]]++;
+        for (j = lo; j < hi; j++) {
+            range++;
+            counts[pClasses[j / 10]]++;
         }
         best = -100;
         total = range << 16;
@@ -219,15 +214,15 @@ void RallyData_SelectOpponentSkillClasses(int slot, int *pClasses, char *pRating
                 bestClass = i;
             }
         }
-        pRatings += 2;
-        *pClass++ = bestClass;
-    } while (--opponent);
+        classes[opponent] = bestClass;
+    }
     pDest = &g_unk0x0052f1a0[slot * 4];
     for (i = 0; i < 4; i++) {
         if (slot == 2 && i > 1)
-            pDest[i] = 0;
+            *pDest = 0;
         else
-            pDest[i] = classes[i];
+            *pDest = classes[i];
+        pDest++;
     }
 }
 
@@ -2276,7 +2271,6 @@ extern float g_oneOverRandMax;
 // Draws the wet/dry share of every stage of the current rally: the flag of a
 // stage is set when its track value passes 80 and the share of the range above
 // 80 is stored per stage.
-// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040d820
 void RallyData_UpdateStageWetShares(void)
 {
@@ -2289,8 +2283,6 @@ void RallyData_UpdateStageWetShares(void)
     int lo;
     int hi;
     int count;
-    int above;
-    int below;
     int total;
     unsigned int counts[2];
     unsigned int *pCount;
@@ -2321,20 +2313,14 @@ void RallyData_UpdateStageWetShares(void)
                     else if (hi > 100)
                         hi = 100;
                     count = 0;
-                    below = 0;
-                    above = 0;
                     counts[1] = 0;
                     counts[0] = 0;
-                    if (hi > lo) {
-                        count = hi - lo;
-                        for (i = lo; i < hi; i++) {
-                            if (i > 0x50)
-                                above++;
-                            else
-                                below++;
-                        }
-                        counts[1] = below;
-                        counts[0] = above;
+                    for (i = lo; i < hi; i++) {
+                        count++;
+                        if (i > 0x50)
+                            counts[0]++;
+                        else
+                            counts[1]++;
                     }
                     total = count << 16;
                     pCount = counts;
@@ -6908,7 +6894,7 @@ void RallyData_LayoutPlayerSplitBars(void)
                     }
                 }
                 uTime = FixDiv(uTime, total);
-                pGeo[-1] = (short)(FixMulShift32(uTime, span) + barStart + xOff);
+                pGeo[-1] = (short)((FixMul(uTime, span) >> 16) + barStart + xOff);
                 if (CGameInfo::GetConfiguredGameMode() == 8 || CGameInfo::GetConfiguredGameMode() == 9 ||
                     CGameInfo::GetConfiguredGameMode() == 0xb)
                     yPos = (int)g_pGraphics->resY * 0x554 >> 16;
@@ -7017,7 +7003,7 @@ void RallyData_DrawCarSplitTimePanels(void)
     *(int *)&colour[4] = g_unk0x005270f0;
     colour[11] = (BYTE)(alpha >> 16);
     colour[3] = (BYTE)(alpha >> 16);
-    colour[7] = (BYTE)FixMulShift32(alpha, 0x4000);
+    colour[7] = (BYTE)(FixMul(alpha, 0x4000) >> 16);
     if (alpha == 0)
         return;
     scaleX = FixDiv((int)p->dstX2 << 16, (int)p->srcX2 << 16);
@@ -7026,10 +7012,10 @@ void RallyData_DrawCarSplitTimePanels(void)
         pEntry = (Unk0x0082c6c8Src *)g_unk0x0082c6c8 + i;
         if (i == (signed char)g_unk0x0082ca1c)
             continue;
-        rect[0] = (short)(p->dstX1 + FixMulShift32((pEntry->srcX1 - p->srcX1) << 16, scaleX));
-        rect[1] = (short)(p->dstY1 + FixMulShift32((pEntry->srcY1 - p->srcY1) << 16, scaleY));
-        rect[2] = (short)FixMulShift32(pEntry->srcX2 << 16, scaleX);
-        rect[3] = (short)FixMulShift32(pEntry->srcY2 << 16, scaleY);
+        rect[0] = (short)(p->dstX1 + (FixMul((pEntry->srcX1 - p->srcX1) << 16, scaleX) >> 16));
+        rect[1] = (short)(p->dstY1 + (FixMul(scaleY, (pEntry->srcY1 - p->srcY1) << 16) >> 16));
+        rect[2] = (short)(FixMul(pEntry->srcX2 << 16, scaleX) >> 16);
+        rect[3] = (short)(FixMul(scaleY, pEntry->srcY2 << 16) >> 16);
         rect[0] = (short)((int)rect[0] * (int)g_pGraphics->resX / 0x280);
         rect[1] = (short)((int)rect[1] * (int)g_pGraphics->resY / 0x1e0);
         rect[2] = (short)((int)rect[2] * (int)g_pGraphics->resX / 0x280);
@@ -7044,7 +7030,7 @@ void RallyData_DrawCarSplitTimePanels(void)
     RallyData_DrawClippedHudRectangleEdges(rect, &colour[8], 0);
     *(int *)&rect[0] = *(int *)&p->dstX1;
     *(int *)&rect[2] = *(int *)&p->dstX2;
-    grow = FixMulShift32(g_unk0x0082cb44, 0x80000);
+    grow = (FixMul(g_unk0x0082cb44, 0x80000) >> 16);
     rect[0] = (short)(rect[0] - grow);
     rect[1] = (short)(rect[1] - grow);
     rect[2] = (short)(rect[2] + grow * 2);
@@ -7053,7 +7039,7 @@ void RallyData_DrawCarSplitTimePanels(void)
     rect[1] = (short)((int)rect[1] * (int)g_pGraphics->resY / 0x1e0);
     rect[2] = (short)((int)rect[2] * (int)g_pGraphics->resX / 0x280);
     rect[3] = (short)((int)rect[3] * (int)g_pGraphics->resY / 0x1e0);
-    colour[11] = (BYTE)FixMulShift32(alpha, 0x10000 - g_unk0x0082cb44);
+    colour[11] = (BYTE)(FixMul(alpha, 0x10000 - g_unk0x0082cb44) >> 16);
     RallyData_DrawClippedHudRectangleEdges(rect, &colour[8], 0);
 }
 

@@ -17,7 +17,7 @@ recorded in `reccmp-project.yml`.
 > original and rebuilt code side by side. Names, types and comments are
 > best-effort reconstructions and may be wrong.
 
-All 3363 game functions identified in the executable have C++ source. Most
+All 3364 game functions identified in the executable have C++ source. Most
 compile to byte-identical code; the rest still differ from the original, mostly
 in instruction scheduling and register allocation. Live progress, counted as
 the share of code bytes that match exactly, is on
@@ -116,6 +116,23 @@ symbol. Exactness includes embedded switch tables.
 
 After measuring, run `python3 scripts/prepare_fastcmp.py` to refresh the
 metadata used by `scripts/fastcmp.py`, the single-function comparator.
+
+On Linux, `scripts/setup_linux.sh` does all of the above in one go (Wine,
+MSVC6 + SP3 next to the repository, the original executable, reccmp, a first
+build and measurement).
+
+### Matching loop
+
+```bash
+python3 scripts/match.py --list --shape   # remaining functions, register-only diffs first
+python3 scripts/match.py 0x4a5e40         # compile its TU, diff it, check the whole TU (~1 s)
+python3 scripts/match.py --changed        # every TU edited since HEAD; exit 1 on any regression
+python3 scripts/helper_hints.py           # where FixedPoint.h helper usage differs from the original
+```
+
+`CLAUDE.md` describes the workflow and the fixes that have worked so far.
+
+- `scripts/rename_search.py 0xADDR [--apply]`: MSVC6 breaks ties between equally used stack slots by variable name; this tries semantics-preserving renames of the function's locals.
 
 ## Differential tests
 

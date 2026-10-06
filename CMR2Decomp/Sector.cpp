@@ -770,12 +770,15 @@ void Sector_RebuildStageGrid(void)
     g_unk0x006ed5ec = halfSize + maxZ;
     g_sectorsPerRow = 1;
     if (g_sectors[0]->z == g_sectors[1]->z) {
-        i = 1;
-        while (i < g_sectorCount - 1) {
-            g_sectorsPerRow = i + 1;
-            if (g_sectors[i]->z != g_sectors[i + 1]->z)
+        Sector *pA;
+        Sector *pB;
+
+        while (g_sectorsPerRow < g_sectorCount - 1) {
+            pA = g_sectors[g_sectorsPerRow];
+            pB = g_sectors[g_sectorsPerRow + 1];
+            g_sectorsPerRow++;
+            if (pA->z != pB->z)
                 break;
-            i++;
         }
     }
     g_sectorRows = (unsigned int)g_sectorCount / (unsigned int)g_sectorsPerRow;

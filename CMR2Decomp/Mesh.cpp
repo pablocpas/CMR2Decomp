@@ -282,13 +282,9 @@ void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour)
     void *pVertices;
 
     count = pMesh->field_0x10;
-    if (count > 0) {
-        p = pMesh->pVertexData + 6;
-        for (i = count; i != 0; i--) {
-            *p = colour;
-            p += 12;
-        }
-    }
+    p = pMesh->pVertexData;
+    for (i = 0; i < count; i++)
+        p[i * 12 + 6] = colour;
     CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Lock(0x821, &pVertices, NULL);
     memcpy((BYTE *)pVertices + pMesh->vertexOffset * 0x30, pMesh->pVertexData, count * 0x30);
     CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Unlock();

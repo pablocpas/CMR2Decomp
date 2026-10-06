@@ -693,7 +693,7 @@ void FrontendDraw_AnimatedMatrixBackground(short x0, short y0, char *pMap)
             wave1 = Frontend_ComputeRippleHeight(centre1, u, v, g_matrixPhase1, 0x20000);
             wave = (Frontend_ComputeRippleHeight(centre2, u, v, g_matrixPhase2, 0x140000) + wave1) / 2;
             g_unk0x008189a8[0] -= FixMulShift32(0x30000, wave);
-            g_unk0x008189a8[1] -= FixMulShift32(0x30000, wave);
+            g_unk0x008189a8[1] -= (FixMul(0x30000, wave) >> 16);
             *(unsigned int *)colour = g_matrixColours[*pCell];
             brightness = wave / 4 + 0xc000;
             colour[0] = FixMulShift32((int)(__int64)(colour[0] * CGraphics::m_65536), brightness);

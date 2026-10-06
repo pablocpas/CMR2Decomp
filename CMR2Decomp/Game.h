@@ -139,6 +139,7 @@ public:
     static void InitializeGame(Unk0049c2c0 *p1, BYTE p2);
     static BOOL UpdateSecondaryCallbackMachine();
     static BOOL UpdateInRaceCallbackMachine();
+    static BOOL UpdateFrontendCallbackMachine(void);
     static void NoOpSecondaryStateCallback(struct Unk0049c2c0 *, BYTE);
     static int PromoteCallbackEntryByRule(Unk0049c2c0 *p, BYTE index, BYTE value, int level);
     static BYTE GetConfigurationStateByte(void);

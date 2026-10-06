@@ -703,17 +703,14 @@ void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tR
 void FixBasis_Integrate(FixVector *pRows, FixVector *pW)
 {
     FixVector delta;
-    int i = 3;
+    int i;
 
-    do {
-        FixVector *pRow = pRows;
-        FixVecCross(&delta, pW, pRow);
-        pRow->x = pRow->x + delta.x;
-        pRow->y = pRow->y + delta.y;
-        pRow->z = pRow->z + delta.z;
-        pRows++;
-        i--;
-    } while (i != 0);
+    for (i = 0; i < 3; i++) {
+        FixVecCross(&delta, pW, &pRows[i]);
+        pRows[i].x += delta.x;
+        pRows[i].y += delta.y;
+        pRows[i].z += delta.z;
+    }
 }
 
 extern BYTE g_unk0x00538d2c[0xcc];
@@ -729,11 +726,11 @@ int RallyData_IsHeadToHeadRaceMode(void);
 // FUNCTION: CMR2 0x00422d40
 void View_SetPlayerProjection(unsigned int player)
 {
-    int i = player & 0xff;
-    int base = FixMul(g_unk0x005391cc[i], 0x275c2);
-    int ratio = (int)(__int64)(((double)g_pGraphics->resX / (double)g_pGraphics->resY) * CGraphics::m_65536);
-    int fovX = FixMul(0x123d7, FixMul(base, ratio));
-    int fovY = FixMul(0x2147a, base);
+    BYTE i = (BYTE)player;
+    int zoom = g_unk0x005391cc[i];
+    int fovX = FixMul(0x123d7, FixMul(FixMul(zoom, 0x275c2),
+        (int)(__int64)(((double)g_pGraphics->resX / (double)g_pGraphics->resY) * CGraphics::m_65536)));
+    int fovY = FixMul(0x2147a, FixMul(zoom, 0x275c2));
 
     if (Race_IsMultiplayerRecordMode10() == 0 && RallyData_IsHeadToHeadRaceMode()) {
         if (CGameInfo::IsSplitBarEnabled())
@@ -1302,7 +1299,7 @@ void NetRace_ExtrapolateOrderedCarPoses(Car *pCars, short *pOrder, short count)
 
         pRec->angularVelocity = pCar->angularVelocity;
         v.x = FixMul(pCar->field_0x5d0.x, -FixMul(pCar->inertia.x, pCar->field_0x75c));
-        v.y = FixMul(pCar->field_0x5d0.y, -FixMul(pCar->inertia.y, pCar->field_0x75c));
+        v.y = FixMul(-FixMul(pCar->field_0x75c, pCar->inertia.y), pCar->field_0x5d0.y);
         v.z = FixMul(pCar->field_0x5d0.z, -FixMul(pCar->inertia.z, pCar->field_0x75c));
         pRec->angularVelocity.x += v.x;
         pRec->angularVelocity.y += v.y;

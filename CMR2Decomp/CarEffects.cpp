@@ -218,7 +218,7 @@ void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
     d.y = 0;
     FixMatrix_RotateVector(&e, &d, pCar->pWorld);
     FIX_NORMALIZE_INTO(n, e);
-    facing = FixMul(FixMul(FIX_ABS(FixVecDot(&n, pDir)), FixDiv(0x10000, 0x20000)), 0x6666) + 0x9999;
+    facing = FixMul(0x6666, FixMul(FIX_ABS(FixVecDot(pDir, &n)), FixDiv(0x10000, 0x20000))) + 0x9999;
     if (facing > 0x10000)
         facing = 0x10000;
 
@@ -378,39 +378,37 @@ void Spark_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
     FixVector cam;
     FixVector d;
     FixVector side;
-    FixVector dir;
     int len;
 
     if (p->age >= 0x130000)
         return;
     PARTICLE_POS(pos, p);
     FixMatrix_GetPosition(&cam, &pView->current);
-    d.x = cam.x - pos.x;
-    d.y = cam.y - pos.y;
-    d.z = cam.z - pos.z;
-    FixVecCross(&side, &d, &p->position);
+    cam.y -= pos.y;
+    cam.x -= pos.x;
+    cam.z -= pos.z;
+    FixVecCross(&side, &cam, &p->position);
     FIX_NORMALIZE_INTO(side, side);
     len = FixVecLength(&p->position);
     if (len > 0x5999) {
-        FixVecScaleRecip(&dir, &p->position, len);
-        FixVecScale(&dir, &dir, 0x5999);
+        FixVecScaleRecip(&cam, &p->position, len);
+        FixVecScale(&cam, &cam, 0x5999);
         len = 0x5999;
     } else {
-        dir = p->position;
+        cam = p->position;
     }
     FixVecScale(&side, &side, FixMul(len, 0x4000));
-    g_sparkTri[0].x = FixMul(dir.x, 0x20000) + pos.x;
-    g_sparkTri[0].y = FixMul(dir.y, 0x20000) + pos.y;
-    g_sparkTri[0].z = FixMul(dir.z, 0x20000) + pos.z;
+    FixVecScale(&d, &cam, 0x20000);
+    g_sparkTri[0].x = d.x + pos.x;
+    g_sparkTri[0].y = d.y + pos.y;
+    g_sparkTri[0].z = d.z + pos.z;
     g_sparkTri[2].x = side.x + pos.x;
     g_sparkTri[1].x = pos.x - side.x;
     g_sparkTri[2].y = side.y + pos.y;
     g_sparkTri[2].z = side.z + pos.z;
     g_sparkTri[1].z = pos.z - side.z;
     g_sparkTri[1].y = pos.y - side.y;
-    g_sparkTri[0].colour[3] = p->type0x53;
-    g_sparkTri[1].colour[3] = g_sparkTri[0].colour[3];
-    g_sparkTri[2].colour[3] = g_sparkTri[0].colour[3];
+    g_sparkTri[0].colour[3] = g_sparkTri[1].colour[3] = g_sparkTri[2].colour[3] = p->type0x53;
     Quad2D_QueueFixedTriangle(0, &g_sparkTri[0], &g_sparkTri[1], &g_sparkTri[2], (Texture *)pType->field0x38,
                               (Quad2D *)0x14);
 }
@@ -616,7 +614,7 @@ void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
     shape = p->field0x64 >> 8;
     colour = p->field0x64 - shape * 0x100;
     EFFECT_LIT_COLOUR(light, p->size, NULL);
-    light[2] = (BYTE)FixMulShift32(lb, g_debrisColours[colour][2] << 16);
+    light[2] = (BYTE)(FixMul(g_debrisColours[colour][2] << 16, lb) >> 16);
     light[0] = (BYTE)FixMulShift32(lr, g_debrisColours[colour][0] << 16);
     light[1] = (BYTE)FixMulShift32(lg, g_debrisColours[colour][1] << 16);
     light[3] = 0xaa;
@@ -998,7 +996,7 @@ void WheelSpray_Update(int player)
                         basis[0].z = FixMul(slip, -sn);
                         v.x = FixMul(lat, sn);
                         v.y = 0;
-                        v.z = FixMul(lat, cs);
+                        v.z = FixMul(cs, lat);
                         if (*pDust != 0) {
                             FixVecScale(&basis[0], &basis[0], 0x20000);
                             FixVecScale(&v, &v, 0x8000);
@@ -1045,7 +1043,7 @@ void WheelSpray_Update(int player)
                         s = 0x10000;
                     along = FixMul(along, s);
                     up = FixMul(up, s);
-                    across = FixMul(across, s);
+                    across = FixMul(s, across);
                     if (*pDust != 0) {
                         along = FixMul(along, 0x20000);
                         up = FixMul(up, 0x8000);
@@ -1350,7 +1348,7 @@ void WheelSplash_Update(int player)
             emitting = 1;
             colour[3] = 0xff;
             FixMatrix_GetForward(&fwd, (FixMatrix *)(g_unk0x00538d2c + 4 + player * 100));
-            if (FixVecDot(&fwd, &pCar->right) < 0)
+            if (FixVecDot(&pCar->right, &fwd) < 0)
                 type = front == 0 ? 0xe : 0xf;
             else
                 type = front != 0 ? 0xe : 0xf;

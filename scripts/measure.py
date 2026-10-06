@@ -36,9 +36,12 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     html = ROOT / "index.html" if out == ROOT / "CMR2PROGRESS" else out / "index.html"
     subprocess.run([sys.executable, str(ROOT / "scripts/check_dupes.py"), str(ROOT)], check=True)
-    subprocess.run(["reccmp-reccmp", "--target", "CMR2", "--no-color", "--silent",
+    compat = str(ROOT / "scripts/reccmp_compat.py")
+    subprocess.run([sys.executable, compat, "reccmp", "--target", "CMR2", "--no-color", "--silent",
                     "--json", str(out / "summary.json"), "--json-diet",
                     "--html", str(html)], cwd=ROOT, check=True)
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import reccmp_compat  # noqa: F401  (import thunks in images without .reloc)
     from reccmp.compare import Compare
     from reccmp.project.detect import argparse_parse_project_target
 
@@ -46,7 +49,7 @@ def main():
     entities = {hex(e.orig_addr): [e.recomp_addr, e.name] for e in comparison.get_all()
                 if e.orig_addr is not None and e.recomp_addr is not None}
     (out / "entities.json").write_text(json.dumps(entities, indent=2) + "\n")
-    data = subprocess.run(["reccmp-datacmp", "--target", "CMR2"], cwd=ROOT,
+    data = subprocess.run([sys.executable, compat, "datacmp", "--target", "CMR2"], cwd=ROOT,
                           capture_output=True, text=True, check=True)
     (out / "datacmp.log").write_text(data.stdout + data.stderr)
     match = re.search(r"Variables:\s*(\d+)\.\s*Issues:\s*(\d+)", data.stdout)

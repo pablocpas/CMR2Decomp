@@ -862,8 +862,8 @@ int Collision_SeparateCarBoxes(int param_1, int param_2)
 // FUNCTION: CMR2 0x0048ae90
 void Collision_ResolveCarContactImpulse(int param_1, int param_2)
 {
-    FixVector tmp;
     FixVector vA;
+    FixVector tmp;
     FixVector vB;
     FixVector impA;
     FixVector impB;
@@ -884,21 +884,21 @@ void Collision_ResolveCarContactImpulse(int param_1, int param_2)
     Collision_ClampContactOffset((int *)(param_1 + 0x5dc), (int *)(param_1 + 0x204), 0);
     Collision_ClampContactOffset((int *)(param_2 + 0x5dc), (int *)(param_2 + 0x204), 0);
 
-    FixVecCross(&tmp, (FixVector *)(param_1 + 0x420), (FixVector *)(param_1 + 0x5dc));
-    FixMatrix_RotateVector(&vA, &tmp, *(FixMatrix **)(param_1 + 0x750));
-    vA.x += *(int *)(param_1 + 0x408);
-    vA.y += *(int *)(param_1 + 0x40c);
-    vA.z += *(int *)(param_1 + 0x410);
+    FixVecCross(&vA, (FixVector *)(param_1 + 0x420), (FixVector *)(param_1 + 0x5dc));
+    FixMatrix_RotateVector(&tmp, &vA, *(FixMatrix **)(param_1 + 0x750));
+    tmp.x += *(int *)(param_1 + 0x408);
+    tmp.y += *(int *)(param_1 + 0x40c);
+    tmp.z += *(int *)(param_1 + 0x410);
 
-    FixVecCross(&tmp, (FixVector *)(param_2 + 0x420), (FixVector *)(param_2 + 0x5dc));
-    FixMatrix_RotateVector(&vB, &tmp, *(FixMatrix **)(param_2 + 0x750));
+    FixVecCross(&vA, (FixVector *)(param_2 + 0x420), (FixVector *)(param_2 + 0x5dc));
+    FixMatrix_RotateVector(&vB, &vA, *(FixMatrix **)(param_2 + 0x750));
     vB.x += *(int *)(param_2 + 0x408);
     vB.y += *(int *)(param_2 + 0x40c);
     vB.z += *(int *)(param_2 + 0x410);
 
     // Mass-weighted common velocity along the debrisAxes[2]; the restitution term
     // is zero in the shipped game.
-    dotA = FixVecDot(&vA, &g_unk0x005915e8);
+    dotA = FixVecDot(&tmp, &g_unk0x005915e8);
     dotB = FixVecDot(&vB, &g_unk0x005915e8);
     bounce = FixMul(dotA - dotB, 0);
     x = FixDiv(FixMul(dotA, *(int *)(param_1 + 0x75c)) +
@@ -912,13 +912,13 @@ void Collision_ResolveCarContactImpulse(int param_1, int param_2)
     if (*(int *)(param_1 + 0xc00) == 0 && FIX_ABS(dA) > 0x9999 &&
         (*(int *)(param_1 + 0xb64) == 0 || *(int *)(param_2 + 0xb64) == 0)) {
         bSepA = 1;
-        tmp.x = -*(int *)(param_1 + 0x364);
-        tmp.y = -*(int *)(param_1 + 0x370);
-        tmp.z = -*(int *)(param_1 + 0x37c);
-        FixVecScale(&tmp, &tmp, 0x40000);
-        *(int *)(param_1 + 0x5dc) += tmp.x;
-        *(int *)(param_1 + 0x5e0) += tmp.y;
-        *(int *)(param_1 + 0x5e4) += tmp.z;
+        vA.x = -*(int *)(param_1 + 0x364);
+        vA.y = -*(int *)(param_1 + 0x370);
+        vA.z = -*(int *)(param_1 + 0x37c);
+        FixVecScale(&vA, &vA, 0x40000);
+        *(int *)(param_1 + 0x5dc) += vA.x;
+        *(int *)(param_1 + 0x5e0) += vA.y;
+        *(int *)(param_1 + 0x5e4) += vA.z;
     } else {
         bSepA = 0;
     }
@@ -928,13 +928,13 @@ void Collision_ResolveCarContactImpulse(int param_1, int param_2)
     if (*(int *)(param_2 + 0xc00) == 0 && FIX_ABS(dB) > 0x9999 &&
         (*(int *)(param_1 + 0xb64) == 0 || *(int *)(param_2 + 0xb64) == 0)) {
         dB = 1;
-        tmp.x = -*(int *)(param_2 + 0x364);
-        tmp.y = -*(int *)(param_2 + 0x370);
-        tmp.z = -*(int *)(param_2 + 0x37c);
-        FixVecScale(&tmp, &tmp, 0x40000);
-        *(int *)(param_2 + 0x5dc) += tmp.x;
-        *(int *)(param_2 + 0x5e0) += tmp.y;
-        *(int *)(param_2 + 0x5e4) += tmp.z;
+        vA.x = -*(int *)(param_2 + 0x364);
+        vA.y = -*(int *)(param_2 + 0x370);
+        vA.z = -*(int *)(param_2 + 0x37c);
+        FixVecScale(&vA, &vA, 0x40000);
+        *(int *)(param_2 + 0x5dc) += vA.x;
+        *(int *)(param_2 + 0x5e0) += vA.y;
+        *(int *)(param_2 + 0x5e4) += vA.z;
     } else {
         dB = 0;
     }
@@ -949,11 +949,11 @@ void Collision_ResolveCarContactImpulse(int param_1, int param_2)
     }
 
     FixVecScale(&impA, &impA, g_physicsScale);
-    FixMatrix_InverseRotateVector(&tmp, &impA, *(FixMatrix **)(param_1 + 0x750));
+    FixMatrix_InverseRotateVector(&vA, &impA, *(FixMatrix **)(param_1 + 0x750));
     *(int *)(param_1 + 0x5c4) += impA.x;
     *(int *)(param_1 + 0x5c8) += impA.y;
     *(int *)(param_1 + 0x5cc) += impA.z;
-    FixVecCross(&axis, &tmp, (FixVector *)(param_1 + 0x5dc));
+    FixVecCross(&axis, &vA, (FixVector *)(param_1 + 0x5dc));
     if (bSepA) {
         FixVecScale(&axis, &axis, 0x40000);
         *(int *)(param_1 + 0xc00) = 1;
@@ -967,11 +967,11 @@ void Collision_ResolveCarContactImpulse(int param_1, int param_2)
     Collision_ClampAngularCorrection((int *)(param_1 + 0x5d0));
 
     FixVecScale(&impB, &impB, g_physicsScale);
-    FixMatrix_InverseRotateVector(&tmp, &impB, *(FixMatrix **)(param_2 + 0x750));
+    FixMatrix_InverseRotateVector(&vA, &impB, *(FixMatrix **)(param_2 + 0x750));
     *(int *)(param_2 + 0x5c4) += impB.x;
     *(int *)(param_2 + 0x5c8) += impB.y;
     *(int *)(param_2 + 0x5cc) += impB.z;
-    FixVecCross(&axis, &tmp, (FixVector *)(param_2 + 0x5dc));
+    FixVecCross(&axis, &vA, (FixVector *)(param_2 + 0x5dc));
     if (dB) {
         FixVecScale(&axis, &axis, 0x40000);
         *(int *)(param_2 + 0xc00) = 1;
@@ -997,14 +997,14 @@ void Collision_ResolveCarContactImpulse(int param_1, int param_2)
     }
 
     // Tangential relative velocity.
-    tmp.x = vA.x - vB.x;
-    tmp.y = vA.y - vB.y;
-    tmp.z = vA.z - vB.z;
-    d = FixVecDot(&tmp, &g_unk0x005915e8);
+    vA.x = tmp.x - vB.x;
+    vA.y = tmp.y - vB.y;
+    vA.z = tmp.z - vB.z;
+    d = FixVecDot(&vA, &g_unk0x005915e8);
     FixVecScale(&debrisAxes[0], &g_unk0x005915e8, d);
-    debrisAxes[0].x = tmp.x - debrisAxes[0].x;
-    debrisAxes[0].y = tmp.y - debrisAxes[0].y;
-    debrisAxes[0].z = tmp.z - debrisAxes[0].z;
+    debrisAxes[0].x = vA.x - debrisAxes[0].x;
+    debrisAxes[0].y = vA.y - debrisAxes[0].y;
+    debrisAxes[0].z = vA.z - debrisAxes[0].z;
 
     if (CGameInfo::IsActiveCheatEnabled(4) != 0) {
         *(int *)(param_1 + 0x5c4) -= impA.x;

@@ -743,23 +743,20 @@ StageArchiveTables g_stageArchiveTables;
 // FUNCTION: CMR2 0x00456b70
 bool StageTiming_ReleaseStartArchiveBuffers(void)
 {
-    Unk0x542ae8 *p;
+    int i;
     int j;
 
-    p = g_unk0x00542ae8;
-    do {
-        j = 2;
-        do {
-            if (p->pBuffer != NULL) {
-                CFileBuffer::FreeGenericFileBuffer(p->pBuffer);
-                p->pBuffer = NULL;
+    for (i = 0; i < 16; i++) {
+        for (j = 0; j < 2; j++) {
+            if (g_unk0x00542ae8[i * 2 + j].pBuffer != NULL) {
+                CFileBuffer::FreeGenericFileBuffer(g_unk0x00542ae8[i * 2 + j].pBuffer);
+                g_unk0x00542ae8[i * 2 + j].pBuffer = NULL;
             }
-            p->pBuffer = NULL;
-            p->field_0x4 = NULL;
-            p->field_0x8 = NULL;
-            p++;
-        } while (--j != 0);
-    } while ((int)p < (int)&g_unk0x00542c68);
+            g_unk0x00542ae8[i * 2 + j].pBuffer = NULL;
+            g_unk0x00542ae8[i * 2 + j].field_0x4 = NULL;
+            g_unk0x00542ae8[i * 2 + j].field_0x8 = NULL;
+        }
+    }
     return true;
 }
 
@@ -1381,12 +1378,17 @@ void ForceFeedback_ApplyStoredForces(void)
         CInput::SetConditionCoefficient(0, g_unk0x00539278->field_0xc,
                                         g_unk0x00539278->field_0x2c);
     if (g_unk0x00539278->field_0x14 != g_unk0x00539278->field_0x8) {
-        if (g_unk0x00539278->field_0x14 < 0)
-            CInput::SetEffectGainAndDirection(2, -g_unk0x00539278->field_0x14, 0x2328,
-                                              g_unk0x00539278->field_0x2c);
-        else
-            CInput::SetEffectGainAndDirection(2, g_unk0x00539278->field_0x14, 0x6978,
-                                              g_unk0x00539278->field_0x2c);
+        int gain;
+        int direction;
+
+        gain = g_unk0x00539278->field_0x14;
+        if (gain < 0) {
+            gain = -gain;
+            direction = 0x2328;
+        } else {
+            direction = 0x6978;
+        }
+        CInput::SetEffectGainAndDirection(2, gain, direction, g_unk0x00539278->field_0x2c);
     }
 }
 
@@ -2048,7 +2050,7 @@ void CarDamage_AllocateImpactDeformRecord(void)
     pRec = NULL;
     pPrev = NULL;
     pBase = g_unk0x00588b98 + g_stageDeformCar->index * 0x290 + 0x106;
-    limit = FixMulShift32(g_stageDeformStrength, 0xff0000);
+    limit = (FixMul(g_stageDeformStrength, 0xff0000) >> 16);
     if (limit > 0xff)
         limit = 0xff;
     if (*(int *)(g_unk0x00588b98 + g_stageDeformCar->index * 0x290 + 0x28c) == 0) {
@@ -2232,14 +2234,14 @@ void StageDeform_ApplyRadialDent(void)
     int deepest = 0;
     FixVector scaled;
     FixVecScale(&scaled, &g_stageDeformOffset, -0x10000);
-    int sign = FixVecDot(&scaled, &g_stageDeformNormal) < 0;
+    int sign = FixVecDot(&g_stageDeformNormal, &scaled) < 0;
 
     for (pHull = g_stageDeformHull; pHull < g_stageDeformHull + 12; ++pHull) {
         FixVector distance;
         distance.x = pHull->x - g_stageDeformOffset.x;
         distance.y = pHull->y - g_stageDeformOffset.y;
         distance.z = pHull->z - g_stageDeformOffset.z;
-        int projection = FixVecDot(&distance, &g_stageDeformNormal);
+        int projection = FixVecDot(&g_stageDeformNormal, &distance);
         if (sign) projection = -projection;
         if (projection < deepest) deepest = projection;
         if (projection > 0 && (nearest == 0 || projection < nearest)) nearest = projection;
@@ -2262,7 +2264,7 @@ void StageDeform_ApplyRadialDent(void)
         }
     }
 
-    int normalSide = FixVecDot(&g_stageDeformOffset, &g_stageDeformNormal) >= 0;
+    int normalSide = FixVecDot(&g_stageDeformNormal, &g_stageDeformOffset) >= 0;
     int innerSquare = FixMul(g_stageDeformRadius, g_stageDeformRadius);
     int reciprocalInner = FixDiv(0x10000, g_stageDeformRadius);
     int outer = g_stageDeformFalloff + g_stageDeformRadius;
@@ -2369,7 +2371,7 @@ void StageDeform_ApplyRadialDent(void)
 void StageDeform_ApplyPlanarDent(void)
 {
     int *pRecord = (int *)(g_unk0x00588b94 + ((Car *)g_stageDeformCar)->index * 0x4d0);
-    if (FixVecDot(&g_stageDeformNormal, &g_stageDeformOffset) >= 0)
+    if (FixVecDot(&g_stageDeformOffset, &g_stageDeformNormal) >= 0)
         FixVecScale(&g_stageDeformNormal, &g_stageDeformNormal, -0x10000);
 
     FixVector delta;
@@ -2402,7 +2404,7 @@ void StageDeform_ApplyPlanarDent(void)
             distance.x = g_stageDeformOffset.x - originalX;
             distance.y = g_stageDeformOffset.y - originalY;
             distance.z = g_stageDeformOffset.z - originalZ;
-            int axialDistance = FixVecDot(&g_stageDeformImpact, &distance);
+            int axialDistance = FixVecDot(&distance, &g_stageDeformImpact);
             FixVector axial;
             FixVecScale(&axial, &g_stageDeformImpact, axialDistance);
             distance.x -= axial.x;
@@ -3854,12 +3856,12 @@ void StageTiming_BubbleRunningOrder(void)
     for (i = 1; i < count; i++) {
         p = &g_unk0x0053dda8[i];
         if (StageTiming_CompareCheckpointAndStartOrder(p[0], p[-1]) == 1) {
-            a = p[-1];
+            a = g_unk0x0053dda8[i - 1];
             g_carStageTiming[a].field_0x81++;
-            b = p[0];
+            b = g_unk0x0053dda8[i];
             g_carStageTiming[b].field_0x81--;
-            p[0] = a;
-            p[-1] = b;
+            g_unk0x0053dda8[i] = a;
+            g_unk0x0053dda8[i - 1] = b;
         }
     }
 }
@@ -4554,11 +4556,10 @@ void StageObject_UpdateThirdRouteRamp(unsigned int *pRecord, int view)
         if (pRecord[0] < (unsigned int)g_unk0x00543d98 && pRecord[0] >= (unsigned int)g_unk0x00543d94) {
             t = RallyData_GetCarRaceRecordField10((BYTE *)pCar);
             pRecord[3] = FixMul(g_unk0x00543d90, t);
-            pRecord[4] = pRecord[2] + pRecord[3];
-            return;
+        } else {
+            pRecord[3] = 0;
         }
-        pRecord[3] = 0;
-        pRecord[4] = pRecord[2] + *(volatile unsigned int *)&pRecord[3];
+        pRecord[4] = pRecord[2] + pRecord[3];
     }
 }
 
@@ -4615,21 +4616,22 @@ int g_unk0x00543fa8;
 void StageWeather_SetupSettingTransition(void)
 {
     int *pPair = RallyData_GetDriverSettingPair(RallyDataStageIndex());
+    int type = g_weatherType[pPair[0]];
     int other = g_weatherType[pPair[1]];
 
-    g_unk0x00543d54 = g_weatherType[pPair[0]];
     g_unk0x00543e9c = g_weatherBlendA[pPair[0]];
     g_unk0x00543fa8 = g_weatherBlendA[pPair[1]];
     g_unk0x00543e88 = g_weatherBlendB[pPair[0]];
     g_unk0x00543d9c = g_weatherBlendB[pPair[1]];
-    if (g_unk0x00543d54 == 0) {
+    if (type == 0) {
         if (other != 0) {
             g_unk0x00543e9c = 0;
-            g_unk0x00543d54 = other;
+            type = other;
         }
     } else if (other == 0) {
         g_unk0x00543fa8 = 0;
     }
+    g_unk0x00543d54 = type;
     if (g_unk0x00543e9c != g_unk0x00543fa8) {
         g_unk0x00543e8c = (unsigned int)RallyData_GetRouteAvailabilityState() / 5;
         g_unk0x00543e94 = RallyData_GetRouteAvailabilityState() - g_unk0x00543e8c / 5;
@@ -5130,7 +5132,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
         if (spray && TRAIL_RANDOM(CGraphics::m_65536) > 0x8000) spray = 0;
         RallyDataCountryIndex();
         int dust = ((BYTE)RallyDataCountryIndex() != 0 && (spray || loose || gravel)) || slipping;
-        if (StageObject_GetViewWeatherStateByte(carIndex) == 1 && (FixMul(StageObject_GetViewWeatherField54(carIndex), 0xff0000) >> 16) > 1) {
+        if (StageObject_GetViewWeatherStateByte(carIndex) == 1 && (FixMulShift32(StageObject_GetViewWeatherField54(carIndex), 0xff0000)) > 1) {
             dust = 0;
         } else if (dust) {
             int speed = FIX_ABS(Car_GetWheelSpeed(car, 0, 0));
@@ -5172,7 +5174,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
         }
         if ((leading && Race_GetPlayerRecordField4((BYTE)carIndex)) ||
             (water && leading && StageObject_GetViewWeatherStateByte(carIndex) == 2 &&
-             (FixMul(StageObject_GetViewWeatherField54(carIndex), 0xff0000) >> 16) > 100)) water = 0;
+             (FixMulShift32(StageObject_GetViewWeatherField54(carIndex), 0xff0000)) > 100)) water = 0;
         int emit = dust || water;
         if (!car->cornerOnGround[wheel]) emit = 0;
         int speedLimit = leading ? 0x320000 : 0x230000;
@@ -5813,14 +5815,13 @@ void StageTiming_RecordAndReorderSplitTime(int car)
         group = 0;
         index = split;
     }
-    index = index + group * 9;
-    char prev = g_unk0x0053ddb0[index];
+    char prev = ((char (*)[9])g_unk0x0053ddb0)[group][index];
     int old = prev;
     g_carStageTiming[car].field_0x82 = old;
-    g_unk0x0053ddb0[index] = prev + 1;
-    g_unk0x0053de1c[index][old] = (char)car;
+    ((char (*)[9])g_unk0x0053ddb0)[group][index] = prev + 1;
+    ((char (*)[9][8])g_unk0x0053de1c)[group][index][old] = (char)car;
     if (old > 0) {
-        char other = g_unk0x0053de1c[index][old - 1];
+        char other = ((char (*)[9][8])g_unk0x0053de1c)[group][index][old - 1];
 
         g_carStageTiming[other].field_0x80 = (char)car;
         g_carStageTiming[other].field_0x83 = 1;
@@ -5938,8 +5939,8 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
         RallyData_GetRouteNodeGroundPosition(0, p1);
         a = (short)(int)(__int64)((double)StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]) * g_unk0x00511300);
         n = 1;
-        sinA = FixMul(0x40000, g_sinTable[a & 0xfff]);
-        cosA = FixMul(0x40000, g_sinTable[(a + 0x400) & 0xfff]);
+        sinA = FixMul(g_sinTable[a & 0xfff], 0x40000);
+        cosA = FixMul(g_sinTable[(a + 0x400) & 0xfff], 0x40000);
         for (i = 0; i < g_unk0x00542c68; i++, n--) {
             slot = i;
             if (CGameInfo::GetConfiguredGameMode() == 5 && g_unk0x00542c68 > 2)
@@ -5990,8 +5991,8 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
     case 2:
         RallyData_GetRouteNodeGroundPosition(RallyData_GetRouteAvailabilityState() - 1, p0);
         a = (short)(int)(__int64)((double)StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]) * g_unk0x00511300);
-        sinA = FixMul(0x40000, g_sinTable[a & 0xfff]);
-        cosA = FixMul(0x40000, g_sinTable[(a + 0x400) & 0xfff]);
+        sinA = FixMul(g_sinTable[a & 0xfff], 0x40000);
+        cosA = FixMul(g_sinTable[(a + 0x400) & 0xfff], 0x40000);
         RallyData_GetRouteNodeGroundPosition(0, p1);
         count = (char)NetPlayers_GetPlayerIDCount();
         for (i = 0; i < count; i++) {
@@ -7382,7 +7383,7 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, int *rec, int param_3
         wheelScale = FixMul(rec[0x16], g_unk0x00543da0);
         if (wheelScale > 0x10000)
             wheelScale = 0x10000;
-        wheelScale = FixMul(wheelScale, g_unk0x0051bd3c);
+        wheelScale = FixMul(g_unk0x0051bd3c, wheelScale);
     }
     if (rec[0] == 1) {
         x0 = rec[2] - FixMul(0x4cccc, 0x8000) + 0xc0000;
@@ -9179,7 +9180,7 @@ void StageWeather_DistributeViewParticles(void)
         share = (short)(400 / views);
         *(short *)(pView + 0x74) = share;
         *(short *)(pView + 0x76) = (short)view * share;
-        *(int *)(pView + 0x5c) = *(int *)(pView + 0x58) =
+        *(int *)(pView + 0x58) = *(int *)(pView + 0x5c) =
             FixMul(FixMul(g_unk0x00543d50, *(int *)(pView + 0x54)), *(short *)(pView + 0x74) << 16);
         *(int *)(pView + 0x174) = 0;
         *(int *)(pView + 0x60) = 0x10000;
