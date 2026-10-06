@@ -8360,10 +8360,16 @@ wheelsDone:
     if (CGameInfo::GetGraphicsOptionBit4())
         Scene_AddShadowCaster(pCar->pNode0x724, 0);
     SceneNode_SetMeshFlagBits(pCar->pNode0x724, car);
-    for (i = 0x724; i <= 0x734; i += 4) {
-        if (*(SceneNode **)((BYTE *)pCar + i) != NULL)
-            SceneNode_Reparent(*(SceneNode **)((BYTE *)pCar + i), pCar->pNode0x71c);
-    }
+    if (pCar->pNode0x724 != NULL)
+        SceneNode_Reparent(pCar->pNode0x724, pCar->pNode0x71c);
+    if (pCar->pExtraNodes[0] != NULL)
+        SceneNode_Reparent(pCar->pExtraNodes[0], pCar->pNode0x71c);
+    if (pCar->pExtraNodes[1] != NULL)
+        SceneNode_Reparent(pCar->pExtraNodes[1], pCar->pNode0x71c);
+    if (pCar->pExtraNodes[2] != NULL)
+        SceneNode_Reparent(pCar->pExtraNodes[2], pCar->pNode0x71c);
+    if (pCar->pExtraNodes[3] != NULL)
+        SceneNode_Reparent(pCar->pExtraNodes[3], pCar->pNode0x71c);
     Car_SwapWheelTextures(pRecord[0x21], &pCar->pExtraNodes[0]);
     return 1;
 }

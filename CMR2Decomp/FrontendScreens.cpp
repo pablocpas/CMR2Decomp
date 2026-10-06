@@ -9890,15 +9890,12 @@ char g_strCharFormat0x00524d08[3] = "%c";
 
 // Draws the name entry keyboard: the three rows of keys with the selected one
 // highlighted and the name typed so far centred under them.
-// match 59%: reparto de registros y ranuras de pila del bucle 3x10
-// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d6f10
 void FrontendMenu_DrawProfileNameEntry(Menu *pMenu)
 {
     char name[4];
     char text[2];
     char *pText;
-    MenuItem *pItem;
     int *pColour;
     unsigned char font;
     int len;
@@ -9907,21 +9904,25 @@ void FrontendMenu_DrawProfileNameEntry(Menu *pMenu)
     int i;
 
     g_unk0x0081854c = g_unk0x00818274;
-    if (g_unk0x008189a4 != 0)
+    if (g_unk0x008189a4 != 0) {
         if (RallyData_IsDriverRecordUsable((BYTE)FrontendProfile_GetCurrentPlayer()))
             g_unk0x00818550 = CFrontend::GetTextString(0xe5);
         else
             g_unk0x00818550 = CFrontend::GetTextString(0x17b);
+    }
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, g_nameEntryPath0x0081854c, 2);
     FrontendDraw_PlayTime();
     for (row = 0; row < 3; row++) {
         for (col = 0; col < 10; col++) {
             font = 2;
-            if (row == 0) {
+            switch (row) {
+            case 0:
                 sprintf(CFrontend::m_stringDest, g_strCharFormat0x00524d08, g_strNameRow0x005249a8[col]);
-            } else if (row == 1) {
+                break;
+            case 1:
                 sprintf(CFrontend::m_stringDest, g_strCharFormat0x00524d08, g_strNameRow0x005249b4[col]);
-            } else {
+                break;
+            case 2:
                 if (g_strNameRow0x005249c0[col] == '<') {
                     font = 1;
                     strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x13f));
@@ -9931,10 +9932,11 @@ void FrontendMenu_DrawProfileNameEntry(Menu *pMenu)
                 } else {
                     sprintf(CFrontend::m_stringDest, g_strCharFormat0x00524d08, g_strNameRow0x005249c0[col]);
                 }
+                break;
             }
-            pItem = &pMenu->items[pMenu->cursor];
-            pColour = (int *)g_colourWhite0x00524968;
-            if (col != pItem->max || row != pItem->value)
+            if (col == pMenu->items[pMenu->cursor].max && pMenu->items[pMenu->cursor].value == row)
+                pColour = (int *)g_colourWhite0x00524968;
+            else
                 pColour = (int *)g_colourText0x0052496c;
             if (g_strNameRow0x005249c0[col] == ' ' && row == 2) {
                 g_unk0x008189a8[0] = (short)(((col + 2) * g_pGraphics->resX) / 0xe);
@@ -9960,15 +9962,15 @@ void FrontendMenu_DrawProfileNameEntry(Menu *pMenu)
         CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) + 1] = 0;
         CFrontend::m_stringDest[strlen(CFrontend::m_stringDest)] = (char)(rand() % 0x1a) + 'a';
     }
-    for (i = -1; i <= 1; i++) {
-        text[0] = CFrontend::m_stringDest[i + 1];
+    for (i = 0; i < 3; i++) {
+        text[0] = CFrontend::m_stringDest[i];
         text[1] = 0;
         len = (int)strlen(name);
-        if (i + 1 < len)
+        if (i < len)
             pColour = (int *)g_colourWhite0x00524968;
         else
             pColour = (int *)g_colourText0x0052496c;
-        Font_DrawText(2, text, (i * g_pGraphics->resX) / 0xe + g_pGraphics->resX / 2,
+        Font_DrawText(2, text, ((i - 1) * g_pGraphics->resX) / 0xe + g_pGraphics->resX / 2,
                       (int)(g_pGraphics->resY * 2) / 8, pColour, 0x12);
     }
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
