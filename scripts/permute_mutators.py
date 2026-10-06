@@ -216,3 +216,135 @@ _swaps = swaps
 
 def swaps(lines):  # noqa: F811  (operand swaps and relational flips share the filter)
     return _swaps(lines) + flips(lines)
+
+
+# ---------------------------------------------------------------- idioms
+# Rewrites that keep the generated instructions but change how MSVC6 numbers
+# its temporaries, which decides register allocation ties. Each candidate
+# changes one occurrence, plus one candidate that changes all of them.
+
+def _call_args(text, open_paren):
+    """(end index after ')', [top-level argument strings]) for text[open_paren] == '('."""
+    depth, start, args = 0, open_paren + 1, []
+    for k in range(open_paren, len(text)):
+        ch = text[k]
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                args.append(text[start:k])
+                return k + 1, args
+        elif ch == "," and depth == 1:
+            args.append(text[start:k])
+            start = k + 1
+    return None, None
+
+
+def _rewrite_calls(body, name, build):
+    """Candidates rewriting calls of `name` with build(args) -> text or None."""
+    spots = []
+    for m in re.finditer(r"\b" + name + r"\s*\(", body):
+        end, args = _call_args(body, m.end() - 1)
+        if end is None:
+            continue
+        new = build([a.strip() for a in args])
+        if new is not None:
+            spots.append((m.start(), end, new))
+    return spots
+
+
+def _apply(body, spots):
+    for a, b, new in sorted(spots, reverse=True):
+        body = body[:a] + new + body[b:]
+    return body
+
+
+IDIOMS = {
+    # (a * b) >> 32 through the asm helper, or FixMul and a C shift
+    "fixmulshift32": lambda body: _rewrite_calls(
+        body, "FixMulShift32",
+        lambda a: f"(FixMul({a[0]}, {a[1]}) >> 16)" if len(a) == 2 else None),
+}
+
+
+def _shift_spots(body):
+    spots = []
+    for m in re.finditer(r"\bFixMul\s*\(", body):
+        end, args = _call_args(body, m.end() - 1)
+        if end is None or len(args) != 2:
+            continue
+        tail = re.match(r"\s*>>\s*16\b", body[end:])
+        before = body[:m.start()].rstrip()
+        # "a + FixMul(..) >> 16" shifts the sum: only rewrite a whole shift operand.
+        if before.endswith(("+", "-", "*", "/", "%")) and not before.endswith(("++", "--")):
+            continue
+        if tail and not re.match(r"\s*[-+*/%]", body[end + tail.end():]):
+            spots.append((m.start(), end + tail.end(),
+                          f"FixMulShift32({args[0].strip()}, {args[1].strip()})"))
+    return spots
+
+
+IDIOMS["fixmul>>16"] = _shift_spots
+
+
+def idioms(lines):
+    body = "\n".join(lines)
+    out = []
+    for kind, finder in IDIOMS.items():
+        spots = finder(body)
+        variants = [[s] for s in spots] + ([spots] if len(spots) > 1 else [])
+        for i, chosen in enumerate(variants):
+            new = _apply(body, chosen)
+            if new != body:
+                out.append(("idiom", f"{kind}:{i}", new.split("\n")))
+    return out
+
+
+def _swap_args(name):
+    return lambda body: _rewrite_calls(
+        body, name, lambda a: f"{name}({a[1]}, {a[0]})" if len(a) == 2 and a[0] != a[1] else None)
+
+
+IDIOMS["fixmul-swap"] = _swap_args("FixMul")
+IDIOMS["fixmulshift32-swap"] = _swap_args("FixMulShift32")
+
+_OPERAND = r"[A-Za-z_][\w]*(?:(?:->|\.)[A-Za-z_]\w*|\[[^\[\]()]+\])*"
+
+
+def _cond_operand(pre, post):
+    """A whole operand of the condition: after '(' of a grouping (not a call),
+    '&&' or '||', and before ')', '&&' or '||'."""
+    if pre.endswith("("):
+        if re.search(r"[\w\])]\s*\($", pre):
+            return False
+    elif not (pre == "" or pre.endswith(("&&", "||"))):
+        return False
+    return post == "" or post.startswith((")", "&&", "||"))
+
+
+def _condition_spots(body):
+    """Inside if/while conditions: x != 0 <-> x, x == 0 <-> !x (whole operands only)."""
+    spots = []
+    for m in re.finditer(r"\b(?:if|while)\s*\(", body):
+        end, args = _call_args(body, m.end() - 1)
+        if end is None or len(args) != 1:
+            continue
+        start = m.end()
+        cond = args[0]
+        for c in re.finditer(rf"(?<![\w>.\]!])({_OPERAND})\s*(!=|==)\s*(?:0|NULL)\b(?!\s*[\w(.\[])", cond):
+            pre = cond[:c.start()].rstrip()
+            post = cond[c.end():].lstrip()
+            if _cond_operand(pre, post):
+                new = c.group(1) if c.group(2) == "!=" else "!" + c.group(1)
+                spots.append((start + c.start(), start + c.end(), new))
+        for c in re.finditer(rf"(?<![\w>.\]])(!?)({_OPERAND})(?![\w(.\[]|->|\s*[=!<>+\-*/%&|^?])", cond):
+            pre = cond[:c.start()].rstrip()
+            post = cond[c.end():].lstrip()
+            if _cond_operand(pre, post):
+                new = f"{c.group(2)} == 0" if c.group(1) else f"{c.group(2)} != 0"
+                spots.append((start + c.start(), start + c.end(), new))
+    return spots
+
+
+IDIOMS["condition"] = _condition_spots

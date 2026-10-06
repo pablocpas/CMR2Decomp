@@ -100,7 +100,7 @@ def mutations(body, signature=""):
     )
     lines = body.split("\n")
     floating = bool(re.search(r"\b(float|double)\b|\b(g_net|g_oneOver|RAND_)", body))
-    result = P.moves(lines) + P.ifswaps(lines)
+    result = P.moves(lines) + P.ifswaps(lines) + getattr(P, "idioms", lambda _: [])(lines)
     if not floating:
         result += P.swaps(lines) + P.obos(lines)
     safe = []
@@ -773,7 +773,7 @@ def main():
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
     enabled_kinds = set(args.mutation_kinds.split(",")) if args.mutation_kinds else set()
-    known_kinds = {"move", "swap", "flip", "ifswap", "obo", "unnest", "init", "loop-init", "selector", "ifswap-multiline", "local-layout"}
+    known_kinds = {"idiom", "move", "swap", "flip", "ifswap", "obo", "unnest", "init", "loop-init", "selector", "ifswap-multiline", "local-layout"}
     if enabled_kinds - known_kinds:
         parser.error("Unknown mutation families: " + str(enabled_kinds - known_kinds))
     if (
