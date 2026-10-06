@@ -2276,7 +2276,6 @@ extern float g_oneOverRandMax;
 // Draws the wet/dry share of every stage of the current rally: the flag of a
 // stage is set when its track value passes 80 and the share of the range above
 // 80 is stored per stage.
-// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040d820
 void RallyData_UpdateStageWetShares(void)
 {
@@ -2289,8 +2288,6 @@ void RallyData_UpdateStageWetShares(void)
     int lo;
     int hi;
     int count;
-    int above;
-    int below;
     int total;
     unsigned int counts[2];
     unsigned int *pCount;
@@ -2321,20 +2318,14 @@ void RallyData_UpdateStageWetShares(void)
                     else if (hi > 100)
                         hi = 100;
                     count = 0;
-                    below = 0;
-                    above = 0;
                     counts[1] = 0;
                     counts[0] = 0;
-                    if (hi > lo) {
-                        count = hi - lo;
-                        for (i = lo; i < hi; i++) {
-                            if (i > 0x50)
-                                above++;
-                            else
-                                below++;
-                        }
-                        counts[1] = below;
-                        counts[0] = above;
+                    for (i = lo; i < hi; i++) {
+                        count++;
+                        if (i > 0x50)
+                            counts[0]++;
+                        else
+                            counts[1]++;
                     }
                     total = count << 16;
                     pCount = counts;

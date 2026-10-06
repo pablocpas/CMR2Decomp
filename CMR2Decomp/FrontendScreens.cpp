@@ -297,8 +297,8 @@ void FrontendMap_DrawStageCellGrid(unsigned int param_1, BYTE param_2)
         which = 8;
     else
         which = RallyDataCountryIndex() & 0xff;
-    pMap = (BYTE *)g_dmdFiles[which][param_1];
-    if (pMap != NULL) {
+    if (g_dmdFiles[which][param_1] != NULL) {
+        pMap = (BYTE *)g_dmdFiles[which][param_1];
         rows = 0x24;
         g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 0x4b) / 480;
         do {

@@ -4507,8 +4507,8 @@
   },
   "0x4d5de0": {
     "n": "FrontendMap_DrawStageCellGrid",
-    "s": 0.9847328244274809,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMap_DrawStageCellGrid"
@@ -11515,7 +11515,7 @@
   },
   "0x500270": {
     "n": "OptionMenu_ConfirmOrRevertHighlightedValue",
-    "s": 0.8859060402684564,
+    "s": 0.9019607843137255,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11523,7 +11523,7 @@
   },
   "0x503010": {
     "n": "OptionMenu_RevertRallyRecordGroup",
-    "s": 0.7387944358578052,
+    "s": 0.7177177177177178,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -17830,8 +17830,8 @@
   },
   "0x40d820": {
     "n": "RallyData_UpdateStageWetShares",
-    "s": 0.8963210702341137,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_UpdateStageWetShares"
@@ -22497,8 +22497,8 @@
   },
   "0x46e6a0": {
     "n": "Events_ComputeSteps",
-    "s": 0.9873417721518988,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Events_ComputeSteps"
@@ -23953,8 +23953,8 @@
   },
   "0x456b70": {
     "n": "StageTiming_ReleaseStartArchiveBuffers",
-    "s": 0.68,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageTiming_ReleaseStartArchiveBuffers"

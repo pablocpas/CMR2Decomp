@@ -7524,15 +7524,10 @@ void Events_ComputeSteps(void)
         p->field_0x16 = 0;
         p->paused = 0;
     }
-    if (g_eventCount > 2) {
-        i = g_eventCount - 2;
-        p = &g_eventRecords[2];
-        do {
-            p->step >>= 1;
-            if (p->step == 0)
-                p->step = 1;
-            p++;
-        } while (--i);
+    for (i = 2; i < g_eventCount; i++) {
+        g_eventRecords[i].step >>= 1;
+        if (g_eventRecords[i].step == 0)
+            g_eventRecords[i].step = 1;
     }
 }
 

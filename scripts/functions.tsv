@@ -3434,6 +3434,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 00500190	43	OptionMenu_RestartEmptyItemRecords	0	2	0	false	false
 005001c0	78	OptionMenu_Start	1	8	0	false	false
 00500210	85	OptionMenu_IncrementSharedValue	0	5	0	false	false
+00500270	224	OptionMenu_ConfirmOrRevertHighlightedValue	0	0	0	false	false
 00500360	99	OptionMenu_ApplySecondModeItem	0	7	0	false	false
 005003d0	197	OptionMenu_ApplyFirstModeItem	0	11	0	false	false
 005004a0	6	OptionMenu_GetSharedValue	1	0	0	false	false
@@ -3517,6 +3518,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 00502db0	63	OptionMenu_CommitRallyRecords	0	2	0	false	false
 00502df0	408	OptionMenu_GetRecordPercentage	3	1	0	false	false
 00502fc0	68	OptionMenu_IsRecordPercentageAboveBase	1	2	0	false	false
+00503010	1248	OptionMenu_RevertRallyRecordGroup	0	0	0	false	false
 005034f0	1032	OptionMenu_ApplyRallyRecordGroup	2	6	0	false	false
 00503930	14	OptionMenu_GetRecordGroupWeight	1	0	0	false	false
 00503940	21	OptionMenu_GetRecordGroupAppliedFlag	4	0	0	false	false

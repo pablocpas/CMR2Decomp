@@ -743,23 +743,20 @@ StageArchiveTables g_stageArchiveTables;
 // FUNCTION: CMR2 0x00456b70
 bool StageTiming_ReleaseStartArchiveBuffers(void)
 {
-    Unk0x542ae8 *p;
+    int i;
     int j;
 
-    p = g_unk0x00542ae8;
-    do {
-        j = 2;
-        do {
-            if (p->pBuffer != NULL) {
-                CFileBuffer::FreeGenericFileBuffer(p->pBuffer);
-                p->pBuffer = NULL;
+    for (i = 0; i < 16; i++) {
+        for (j = 0; j < 2; j++) {
+            if (g_unk0x00542ae8[i * 2 + j].pBuffer != NULL) {
+                CFileBuffer::FreeGenericFileBuffer(g_unk0x00542ae8[i * 2 + j].pBuffer);
+                g_unk0x00542ae8[i * 2 + j].pBuffer = NULL;
             }
-            p->pBuffer = NULL;
-            p->field_0x4 = NULL;
-            p->field_0x8 = NULL;
-            p++;
-        } while (--j != 0);
-    } while ((int)p < (int)&g_unk0x00542c68);
+            g_unk0x00542ae8[i * 2 + j].pBuffer = NULL;
+            g_unk0x00542ae8[i * 2 + j].field_0x4 = NULL;
+            g_unk0x00542ae8[i * 2 + j].field_0x8 = NULL;
+        }
+    }
     return true;
 }
 
