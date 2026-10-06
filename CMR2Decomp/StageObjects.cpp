@@ -3291,9 +3291,7 @@ void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, i
 {
     int i;
 
-    g_unk0x005914c8.x = pDelta[0];
-    g_unk0x005914c8.y = pDelta[1];
-    g_unk0x005914c8.z = pDelta[2];
+    g_unk0x005914c8 = *(FixVector *)pDelta;
     g_unk0x005913d8 = flag;
     memset(g_unk0x0059146c, 0, sizeof(g_unk0x0059146c));
     g_unk0x0059146c[index] = 1;
@@ -4611,7 +4609,7 @@ int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB)
 
     if ((delta.x < 0 ? -delta.x : delta.x) <= r && (delta.y < 0 ? -delta.y : delta.y) <= r &&
         (delta.z < 0 ? -delta.z : delta.z) <= r)
-        return FixVecDot(&delta, &delta) < FixMul(r, r);
+        return FixVecDot(&delta, &delta) < FixMul(r1 + r2, r1 + r2);
     return 0;
 }
 
@@ -14962,18 +14960,19 @@ int Collision_TestSectorEdgeEndpoints(char type)
     hitB = 0;
     hitA = 0;
     radius = g_collisionCar->field_0x758;
-    radius2 = FixMul(radius, radius);
+    int r = radius;
+    radius2 = FixMul(r, radius);
     d.x = g_collisionTarget.x - g_collisionCar->position.x;
     d.y = g_collisionTarget.y - g_collisionCar->position.y;
-    d.y = 0;
     d.z = g_collisionTarget.z - g_collisionCar->position.z;
+    d.y = 0;
     if ((d.x < 0 ? -d.x : d.x) <= radius && radius >= 0 && (d.z < 0 ? -d.z : d.z) <= radius &&
         FixVecDot(&d, &d) < radius2)
         hitA = Collision_ResolveSectorFaceContact((int *)&g_collisionTarget, (int *)&g_collisionLineStart, 0, type);
     d.x = g_collisionLineStart.x - g_collisionCar->position.x;
     d.y = g_collisionLineStart.y - g_collisionCar->position.y;
-    d.y = 0;
     d.z = g_collisionLineStart.z - g_collisionCar->position.z;
+    d.y = 0;
     if ((d.x < 0 ? -d.x : d.x) <= radius && radius >= 0 && (d.z < 0 ? -d.z : d.z) <= radius &&
         FixVecDot(&d, &d) < radius2)
         hitB = Collision_ResolveSectorFaceContact((int *)&g_collisionLineStart, (int *)&g_collisionTarget, 1, type);
