@@ -925,8 +925,8 @@ void Race_QueuePlayerCallout(unsigned int player, BYTE callId, BYTE prevCallId, 
 
     for (i = 0; i < 5; i++) {
         if ((g_raceCallRecords[player * 5 + i].flags & 0x100) == 0) {
-            g_raceCallRecords[player * 5 + i].flags = (g_raceCallRecords[player * 5 + i].flags & 0xfffffd32) | 0x132;
             g_raceCallRecords[player * 5 + i].field_0x0 = id;
+            g_raceCallRecords[player * 5 + i].flags = (g_raceCallRecords[player * 5 + i].flags & 0xfffffd32) | 0x132;
             if (prev != 0) {
                 g_raceCallRecords[player * 5 + i].field_0x4 = prev;
                 if (Race_DecodeCallSlotIcon(prev, &texture, &rect, &flag, colour) != 0)
@@ -4118,8 +4118,8 @@ void Race_UpdatePlayerSelectionCursor(int param_1)
         value = (BYTE)(View_GetActiveCameraFlags(0) + 1);
         if (value >= (BYTE)Race_GetBaseCarCount())
             value = 0;
-        View_SetCameraType(0, 0, value, 0);
         i = 0;
+        View_SetCameraType(0, 0, value, 0);
         if ((BYTE)Race_GetBaseCarCount() > 0) {
             do {
                 Glow_NoOpEntryCallback((BYTE)i, 0, 1, 1);
