@@ -1281,7 +1281,8 @@ void StageTiming_AccumulateSplitDeltas(int *pDeltas)
     }
 
     for (i = 1; i <= count; i++) {
-        int *pIn = &pDeltas[(i - 1) * 16];
+        int *pIn = pDeltas;
+        pDeltas += 16;
         for (j = 0; j < 16; j++)
             g_stageSplitTimesRaw[i][j] = g_stageSplitTimesRaw[i - 1][j] + pIn[j];
     }
