@@ -1204,7 +1204,6 @@ int FrontendControls_GetCalibrationState(void)
 
 // Draw callback of the controls menu: title, one row (icon + name) per
 // visible entry, separators around the selected row, and the carousel.
-// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fccb0
 void FrontendControls_DrawDeviceList(Menu *pMenu)
 {
@@ -1215,25 +1214,25 @@ void FrontendControls_DrawDeviceList(Menu *pMenu)
     BYTE *pShadow;
     BYTE *pColour;
     MenuItem *pItem;
-    Texture *pTexture;
-    int resX;
+    int textX;
     short y0;
-    short row;
+    int row;
     int i;
 
-    icon[1] = 0;
     row = 0;
     icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[1] = 0;
     icon[2] = CFrontend::m_pAr640ATexture->width;
     icon[3] = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();
     FrontendDraw_BreadcrumbItem((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480,
                                 g_colourWhite0x00524968, 1, CFrontend::GetTextString(pMenu->field_0x4));
-    resX = g_pGraphics->resX;
+    textX = (int)(g_pGraphics->resX * 122) / 640;
     y0 = (int)(g_pGraphics->resY * 170) / 480;
-    line[0] = resX * 99 / 640;
+    line[0] = (int)(g_pGraphics->resX * 99) / 640;
+    line[1] = y0;
+    line[2] = (int)(g_pGraphics->resX * 282) / 640;
     line[3] = 1;
-    line[2] = resX * 282 / 640;
     if (pMenu->cursor == 0) {
         pColour = g_colourWhite0x00524968;
         pShadow = g_colourShadowWhite0x00524974;
@@ -1241,7 +1240,6 @@ void FrontendControls_DrawDeviceList(Menu *pMenu)
         pColour = g_colourText0x0052496c;
         pShadow = g_colourShadowText0x00524978;
     }
-    line[1] = y0;
     Sprite_FillRect((int)g_pGraphics + 0x150, line, pShadow, 1);
     line[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, line, pColour, 1);
@@ -1252,19 +1250,18 @@ void FrontendControls_DrawDeviceList(Menu *pMenu)
                       - CFrontend::m_pAr640ATexture->height / 2;
             if (pMenu->cursor == i) {
                 pShadow = g_colourWhite0x00524968;
-                pColour = g_colourWhite0x00524968;
-                pTexture = CFrontend::m_pAr640ATexture;
+                Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, (SpriteRect *)icon,
+                             CFrontend::m_pAr640ATexture, 1, 0, NULL, NULL, g_colourWhite0x00524968, 8);
             } else {
                 pShadow = g_colourText0x0052496c;
-                pColour = g_colourText0x0052496c;
-                pTexture = CFrontend::m_pAr640DTexture;
+                Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, (SpriteRect *)icon,
+                             CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, g_colourText0x0052496c, 8);
             }
-            Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pColour, 8);
             if (i < 2)
                 sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(100), i + 1);
             else
                 sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x67));
-            Font_DrawText(1, CFrontend::m_stringDest, resX * 0x7a / 640, (int)(g_pGraphics->resY * 24) / 480 + line[1],
+            Font_DrawText(1, CFrontend::m_stringDest, textX, (int)(g_pGraphics->resY * 24) / 480 + line[1],
                           (int *)pShadow, 0x11);
             if (pMenu->cursor == i || pMenu->cursor == i + 1) {
                 pLineColour = g_colourWhite0x00524968;
@@ -1288,7 +1285,6 @@ extern BYTE g_colourShadowDim0x0052497c[4];
 
 // Draw callback of the device page: "Controller N | <device>" title and one
 // row per visible binding with its current assignment.
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fd080
 void FrontendControls_DrawDeviceBindings(Menu *pMenu)
 {
@@ -1300,9 +1296,9 @@ void FrontendControls_DrawDeviceBindings(Menu *pMenu)
     BYTE *pShadow;
     BYTE *pColour;
     MenuItem *pItem;
-    int resX;
+    int textX;
     short y0;
-    short row;
+    int row;
     int i;
 
     icon[0] = (int)(g_pGraphics->resX * 100) / 640;
@@ -1314,21 +1310,21 @@ void FrontendControls_DrawDeviceBindings(Menu *pMenu)
     text[0] = CFrontend::m_stringDest;
     text[1] = CFrontend::GetTextString(pMenu->field_0x4);
     FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, text, 2);
-    resX = g_pGraphics->resX;
+    textX = (int)(g_pGraphics->resX * 122) / 640;
     y0 = (int)(g_pGraphics->resY * 65) / 480;
-    line[0] = resX * 99 / 640;
-    line[3] = 1;
-    line[2] = resX * 282 / 640;
+    line[0] = (int)(g_pGraphics->resX * 99) / 640;
     line[1] = y0;
+    line[2] = (int)(g_pGraphics->resX * 282) / 640;
+    line[3] = 1;
     if (pMenu->cursor == 0) {
         pColour = g_colourWhite0x00524968;
         pShadow = g_colourShadowWhite0x00524974;
-    } else if (!pMenu->items[0].enabled) {
-        pColour = g_colourDim0x00524970;
-        pShadow = g_colourShadowDim0x0052497c;
-    } else {
+    } else if (pMenu->items[0].enabled) {
         pColour = g_colourText0x0052496c;
         pShadow = g_colourShadowText0x00524978;
+    } else {
+        pColour = g_colourDim0x00524970;
+        pShadow = g_colourShadowDim0x0052497c;
     }
     Sprite_FillRect((int)g_pGraphics + 0x150, line, pShadow, 1);
     line[1]++;
@@ -1348,11 +1344,16 @@ void FrontendControls_DrawDeviceBindings(Menu *pMenu)
                 pColour = g_colourText0x0052496c;
                 Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, (SpriteRect *)icon, CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, pColour, 8);
             }
-            if (i < 10 && (FrontendControls_GetBindingCaptureState() == 0 || pMenu->cursor != i))
-                sprintf(CFrontend::m_stringDest, g_standingsRowFormat, CFrontend::GetTextString(pItem->id), FrontendControls_GetBindingDisplayText(i));
-            else
+            if (i >= 10) {
                 sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
-            Font_DrawText(1, CFrontend::m_stringDest, resX * 0x7a / 640, (int)(g_pGraphics->resY * 24) / 480 + line[1],
+            } else {
+                if (FrontendControls_GetBindingCaptureState() != 0 && pMenu->cursor == i) {
+                    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
+                } else {
+                    sprintf(CFrontend::m_stringDest, g_standingsRowFormat, CFrontend::GetTextString(pItem->id), FrontendControls_GetBindingDisplayText(i));
+                }
+            }
+            Font_DrawText(1, CFrontend::m_stringDest, textX, (int)(g_pGraphics->resY * 24) / 480 + line[1],
                           (int *)pShadow, 0x11);
             if (pMenu->cursor == i || pMenu->cursor == i + 1) {
                 pLineColour = g_colourWhite0x00524968;
