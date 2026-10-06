@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "7daa385cd71e8b90618b208876da58272c21560f",
+    "commit": "6caf44fb6a399ded75dbbd8e65fce0d4b2692a36",
     "source_changed": false,
     "windowed": false,
     "flags": [
@@ -64,11 +64,11 @@
       "CMR2Decomp/Font.h": "d7caa2f5f9ffd1be17c85ca150c0c30d679988718a4c1f23bbbce3bfd24a5cb1",
       "CMR2Decomp/Frontend.cpp": "a306f6c5bd3dde62313b3677a9e9f3f1288a6a6b0459e2e2ab3f7e89973e8d4d",
       "CMR2Decomp/Frontend.h": "1ddbe423195e524addbeabf1d0d574b8e6fd0b392af5f182debe2d4cb34788d8",
-      "CMR2Decomp/FrontendDraw.cpp": "58cb5f701f338ee7eb297325ef68f0d18412a7b897f0df3fa21e96dcfb47f85d",
+      "CMR2Decomp/FrontendDraw.cpp": "676c796566757b02c1dfa294aeedafc53f44bb435f135d2eff205da828513d29",
       "CMR2Decomp/FrontendDraw.h": "c55e09d37aaeb9698e2052a12a1e6437971d64fe98a3ac82995f97164e1c964e",
       "CMR2Decomp/FrontendMenus.cpp": "e0fc4116aed12507130010196785a33ccab756696a60e3cd91fd6e2fb8f9aafc",
       "CMR2Decomp/FrontendMenus.h": "cdbe32e65867864d13950fad5dbf93442018ac0c99a1a4a7c97cff7b98393cb7",
-      "CMR2Decomp/FrontendScreens.cpp": "bda3bf8387c9e36420aeddddce91ee8c5d707bc872d262115ae3eeacd1044842",
+      "CMR2Decomp/FrontendScreens.cpp": "6d55037dd2338a6457e72e2606e6d4e5bb334cef5c3b1ce83fc736f34a842458",
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
       "CMR2Decomp/Game.cpp": "3ddfee63f28365fbfe19d7703d7c5a64774e16b3ba756561a4f3ef9cc016bd28",
       "CMR2Decomp/Game.h": "104a08f486edc3388d68e49ffce6f7ccc3f3b336e7d0dd97aa2f3806b014ae8a",
@@ -164,19 +164,18 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "ba015f811a5fb1f8dc50d853ce530bc7cff1721b5a5cc283d784a24ab159598d",
-    "pdb_sha256": "79b84c42a82aa96dca82229664c562c0e006b54eff921ab279b596d531527cff"
+    "exe_sha256": "b5dea041ecd778d3123befcd7497d074725ab1fd2e4e0a9e6ee802221552f61f",
+    "pdb_sha256": "a8f78dc479659575706d169fea70eedb0853a694db7fa5ea0049dc4b599d44e9"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3646,
   "measured_functions": 3367,
-  "reccmp_exact": 2637,
+  "reccmp_exact": 2641,
   "audited_source_functions": 3363,
-  "relocated_byte_exact": 2790,
-  "nonmatching_source_functions": 573,
+  "relocated_byte_exact": 2794,
+  "nonmatching_source_functions": 569,
   "unresolved_source_functions": [
     "0x496e00",
-    "0x4dce00",
     "0x5062d0",
     "0x4b67f0",
     "0x4177d0",

@@ -2843,7 +2843,7 @@
   },
   "0x4d39a0": {
     "n": "FrontendDraw_RallyEntryList",
-    "s": 0.9072426937738246,
+    "s": 0.9480354879594424,
     "x": false,
     "unknown": [],
     "f": "FrontendDraw.cpp",
@@ -6619,16 +6619,16 @@
   },
   "0x4dc930": {
     "n": "FrontendMenu_DrawNetworkSessionBrowser",
-    "s": 0.7474226804123711,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawNetworkSessionBrowser"
   },
   "0x4e20e0": {
     "n": "FrontendMenu_DrawSingleRallySelection",
-    "s": 0.85,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawSingleRallySelection"
@@ -6659,8 +6659,8 @@
   },
   "0x4e1d70": {
     "n": "FrontendMenu_DrawDisplayMode",
-    "s": 0.4808743169398907,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawDisplayMode"
@@ -6907,7 +6907,7 @@
   },
   "0x4dbd80": {
     "n": "FrontendMenu_DrawRallyReport",
-    "s": 0.9396495781959766,
+    "s": 0.9850746268656716,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6915,7 +6915,7 @@
   },
   "0x4dfe20": {
     "n": "FrontendMenu_DrawGraphicsOptions",
-    "s": 0.50472334682861,
+    "s": 0.9126344086021505,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6923,11 +6923,9 @@
   },
   "0x4dce00": {
     "n": "FrontendMenu_DrawNetworkSessionDetails",
-    "s": 0.5963488843813387,
-    "x": false,
-    "unknown": [
-      "??_C@_01NON@_?$AA@"
-    ],
+    "s": 1.0,
+    "x": true,
+    "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawNetworkSessionDetails"
   },
@@ -6965,7 +6963,7 @@
   },
   "0x4dd4b0": {
     "n": "FrontendMenu_DrawNetworkSessionSetup",
-    "s": 0.6855643044619423,
+    "s": 0.8446215139442231,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
