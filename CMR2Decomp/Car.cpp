@@ -5498,14 +5498,14 @@ int View_IsNegativeRightAngleCameraSpot(int view)
     return StageObject_IsNegativeRightAngleCameraSpot(VIEW_MODE_RECORD(view));
 }
 
-int RallyData_IsDriverViewModeAllowed(unsigned int index, int mode);
+int RallyData_IsDriverViewModeAllowed(unsigned char index, int mode);
 void View_SwitchCamera(unsigned char index, int a, int b, unsigned char c, int d);
 unsigned int StageObject_FindNearestCameraSpot(FixVector *pPos);
 int View_GetCameraSpotIndex(unsigned int view);
 
 // Next free view-mode slot (0..0xa) of a player's view record.
 // FUNCTION: CMR2 0x004218d0
-int View_FindFreeModeSlot(unsigned int view)
+int View_FindFreeModeSlot(unsigned char view)
 {
     int mode;
     int found;

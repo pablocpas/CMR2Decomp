@@ -1269,13 +1269,13 @@ void StageUI_UpdateDriverEventAwards(void)
                     RallyTiming_GetStagePositionOfDriver(pos) <= 2)
                     RallyData_RecordBestFinishingPlace(i, RallyTiming_GetStagePositionOfDriver(pos));
                 if (CGameInfo::GetConfiguredDifficulty() == 1 && (BYTE)RallyDataCountryIndex() == 7 &&
-                    RallyDataStageIndex() == 0xa && pos == 0 && (pFlags[0] & 1) == 0) {
+                    RallyDataStageIndex() == 0xa && RallyTiming_GetStagePositionOfDriver(pos) == 0 && (pFlags[0] & 1) == 0) {
                     pFlags[0] |= 1;
                     g_unk0x00537f68[i] |= 1;
                     CGame::SetStartupFlag();
                 }
                 if (CGameInfo::GetConfiguredDifficulty() == 0 && (BYTE)RallyDataCountryIndex() == 7 &&
-                    RallyDataStageIndex() == 0xa && pos == 0 && bAward == 0 &&
+                    RallyDataStageIndex() == 0xa && RallyTiming_GetStagePositionOfDriver(pos) == 0 && bAward == 0 &&
                     RallyData_SetCategoryAwardBit(i, 0x15)) {
                     g_unk0x00537f78[i] = 0x15;
                     g_unk0x00537f68[i] |= 0x80;
@@ -1310,7 +1310,7 @@ void StageUI_UpdateDriverEventAwards(void)
                                 CGame::SetStartupFlag();
                             }
                         }
-                        if (pos != 0)
+                        if (RallyTiming_GetOverallPositionOfDriver(pos) != 0)
                             break;
                         if ((BYTE)RallyDataCountryIndex() % 2 == 0)
                             goto setflag;
@@ -1344,7 +1344,7 @@ void StageUI_UpdateDriverEventAwards(void)
                                 CGame::SetStartupFlag();
                             }
                         }
-                        if (pos != 0)
+                        if (RallyTiming_GetOverallPositionOfDriver(pos) != 0)
                             break;
                         if ((BYTE)RallyDataCountryIndex() % 2 != 0)
                             goto award;
@@ -1386,22 +1386,22 @@ void StageUI_UpdateDriverEventAwards(void)
                     switch (CGameInfo::GetConfiguredDifficulty()) {
                     case 2:
                         if ((pFlags[0] & 0xc0) == 0x40) {
-                            pFlags[0] = (pFlags[0] & 0xffffff3f) | 0x40;
+                            pFlags[0] = ((pFlags[0] & 0xffffffc0) + 0x40 ^ pFlags[0]) & 0xc0 ^ pFlags[0]; // field++
                             g_unk0x00537f68[i] |= 0x200;
                             CGame::SetStartupFlag();
                         }
-                        if (stage == 0 && RallyData_SetCategoryAwardBit(i, 2)) {
+                        if (bAward == 0 && RallyData_SetCategoryAwardBit(i, 2)) {
                             g_unk0x00537f78[i] = 2;
                             g_unk0x00537f68[i] |= 0x80;
                         }
                         break;
                     case 1:
                         if ((pFlags[0] & 0x30) == 0x10) {
-                            pFlags[0] = (pFlags[0] & 0xffffffcf) | 0x10;
+                            pFlags[0] = ((pFlags[0] & 0xfffffff0) + 0x10 ^ pFlags[0]) & 0x30 ^ pFlags[0]; // field++
                             g_unk0x00537f68[i] |= 0x100;
                             CGame::SetStartupFlag();
                         }
-                        if (stage == 0 && RallyData_SetCategoryAwardBit(i, 5)) {
+                        if (bAward == 0 && RallyData_SetCategoryAwardBit(i, 5)) {
                             g_unk0x00537f78[i] = 5;
                             g_unk0x00537f68[i] |= 0x80;
                         }
@@ -1410,7 +1410,7 @@ void StageUI_UpdateDriverEventAwards(void)
                 } else {
                     switch (CGameInfo::GetConfiguredDifficulty()) {
                     case 2:
-                        if (stage == 0 && RallyData_SetCategoryAwardBit(i, 3)) {
+                        if (bAward == 0 && RallyData_SetCategoryAwardBit(i, 3)) {
                             g_unk0x00537f78[i] = 3;
                             g_unk0x00537f68[i] |= 0x80;
                         }
@@ -1421,7 +1421,7 @@ void StageUI_UpdateDriverEventAwards(void)
                         break;
                     case 1:
                         if ((pFlags[0] & 2) == 0) {
-                            pFlags[0] |= 2;
+                            pFlags[0] = ((pFlags[0] & 0xfffffffe) - 1 ^ pFlags[0]) & 2 ^ pFlags[0]; // 1-bit field--
                             g_unk0x00537f68[i] |= 0x400;
                             CGame::SetStartupFlag();
                         }
@@ -1430,7 +1430,7 @@ void StageUI_UpdateDriverEventAwards(void)
                             g_unk0x00537f68[i] |= 0x800;
                             CGame::SetStartupFlag();
                         }
-                        if (stage == 0 && RallyData_SetCategoryAwardBit(i, 6)) {
+                        if (bAward == 0 && RallyData_SetCategoryAwardBit(i, 6)) {
                             g_unk0x00537f78[i] = 6;
                             g_unk0x00537f68[i] |= 0x80;
                         }
@@ -1440,7 +1440,7 @@ void StageUI_UpdateDriverEventAwards(void)
             }
             break;
         case 6:
-            if (RallyData_GetDriverRecordSelectionValue((BYTE)i) < 0xc && stage == 0 &&
+            if (RallyData_GetDriverRecordSelectionValue((BYTE)i) < 0xc && bAward == 0 &&
                 (BYTE)RallyData_GetSelectionBits10To11() == 2 && StageTiming_GetFinishOrderSecondaryEntry(i) == 0) {
                 if ((BYTE)RallyData_GetSelectionBits12To13() == 0) {
                     if (RallyData_HasCategoryAward(i, 0xc, 0) && RallyData_SetCategoryAwardBit(i, 0xd)) {

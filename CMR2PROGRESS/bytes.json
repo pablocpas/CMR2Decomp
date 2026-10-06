@@ -18998,7 +18998,7 @@
   },
   "0x411f70": {
     "n": "RallyData_UpdateCarSplitBar",
-    "s": 0.7014388489208633,
+    "s": 0.8330404217926186,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -21361,7 +21361,7 @@
   },
   "0x472cb0": {
     "n": "Knockout_ApplyCarGroundMaterials",
-    "s": 0.6190476190476191,
+    "s": 0.8017241379310345,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23017,7 +23017,7 @@
   },
   "0x4926f0": {
     "n": "StageObject_YawMainAndSunNodes",
-    "s": 0.4954954954954955,
+    "s": 0.8859649122807017,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23137,7 +23137,7 @@
   },
   "0x47b970": {
     "n": "View_UpdateDriverCameraCycle",
-    "s": 0.4777777777777778,
+    "s": 0.550561797752809,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -25923,7 +25923,7 @@
   },
   "0x41b460": {
     "n": "StageUI_UpdateDriverEventAwards",
-    "s": 0.5899665551839465,
+    "s": 0.6124338624338624,
     "x": false,
     "unknown": [],
     "f": "StageUI.cpp",

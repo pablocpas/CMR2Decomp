@@ -2112,26 +2112,24 @@ void Knockout_ApplyCarGroundMaterials(void)
         if (RallyData_GetUsableRecordCategory((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] & 0x1f) == -1 &&
             RallyData_GetUsableRecordCategory((BYTE)(pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] >> 5) & 0x1f) == -1)
             goto fail;
-        value = 1;
-        break;
+        goto ok;
     case 2:
         if (RallyData_GetUsableRecordCategory((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 10] & 0x1f) == -1 &&
             RallyData_GetUsableRecordCategory((BYTE)(pState[((*pState >> 0xc) & 0xf) * 3 + 10] >> 5) & 0x1f) == -1)
             goto fail;
+    ok:
         value = 1;
         break;
     case 3:
         if (RallyData_GetUsableRecordCategory((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 4] & 0x1f) == -1 &&
             RallyData_GetUsableRecordCategory((BYTE)(pState[((*pState >> 0xc) & 0xf) * 3 + 4] >> 5) & 0x1f) == -1)
             goto fail;
-        value = 1;
-        break;
+        goto ok;
     case 4:
         if (RallyData_GetUsableRecordCategory((BYTE)pState[1] & 0x1f) == -1 &&
             RallyData_GetUsableRecordCategory((BYTE)(pState[1] >> 5) & 0x1f) == -1)
             goto fail;
-        value = 1;
-        break;
+        goto ok;
     default:
     fail:
         value = 2;
@@ -9892,15 +9890,7 @@ void StageObject_YawMainAndSunNodes(int angle, int unused, int sunAngle)
     double radians;
 
     StageObject_GetCurrentObjectPointer(&pObject);
-    if (angle == -999 << 16) {
-        right.x = 0x10000;
-        forward.z = 0x10000;
-        right.y = 0;
-        right.z = 0;
-        forward.x = 0;
-        forward.y = 0;
-        FixMatrix_SetRight(&right, (FixMatrix *)(pObject + 0x98));
-    } else {
+    if (angle != -999 << 16) {
         right.y = 0;
         forward.y = 0;
         radians = angle * g_oneOver180 * g_pi * CGraphics::m_oneOver65536;
@@ -9908,8 +9898,17 @@ void StageObject_YawMainAndSunNodes(int angle, int unused, int sunAngle)
         right.z = (int)(__int64)(sin(radians) * CGraphics::m_65536);
         forward.x = -right.z;
         FixMatrix_SetRight(&right, (FixMatrix *)(pObject + 0x98));
+        FixMatrix_SetForward(&forward, (FixMatrix *)(pObject + 0x98));
+    } else {
+        right.x = 0x10000;
+        forward.z = 0x10000;
+        right.y = 0;
+        right.z = 0;
+        forward.x = 0;
+        forward.y = 0;
+        FixMatrix_SetRight(&right, (FixMatrix *)(pObject + 0x98));
+        FixMatrix_SetForward(&forward, (FixMatrix *)(pObject + 0x98));
     }
-    FixMatrix_SetForward(&forward, (FixMatrix *)(pObject + 0x98));
     StageObject_GetCurrentObjectValues(&pSun, &pSun2);
     right.y = 0;
     forward.y = 0;
@@ -10695,7 +10694,7 @@ void CarDamage_BuildPartVertexBuffer(int param_1, int param_2, CarPartSet *set)
     }
 }
 
-int View_FindFreeModeSlot(unsigned int view);
+int View_FindFreeModeSlot(unsigned char view);
 void RallyData_SetDriverCarSelection(BYTE index, int value);
 
 // Applies the driver-camera cycle: while the cycle key is held it picks the
@@ -10711,13 +10710,13 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
 
     p = StageUI_GetRaceResultTable();
     if (**(char **)(p + 4) == 10) {
-        if (Race_IsMultiplayerRecordMode10() == 0) {
-            uVar4 = View_FindFreeModeSlot(0);
-        } else {
-            if (CGameInfo::GetConfiguredGameMode() == 2)
-                uVar4 = param_1;
-            else
+        if (Race_IsMultiplayerRecordMode10() != 0) {
+            if (CGameInfo::GetConfiguredGameMode() != 2)
                 uVar4 = View_FindFreeModeSlot(1);
+            else
+                uVar4 = param_1;
+        } else {
+            uVar4 = View_FindFreeModeSlot(0);
         }
     } else {
         uVar4 = View_FindFreeModeSlot(*(BYTE *)((BYTE *)g_unk0x0058e0a0 + 0xb1a));
@@ -10727,16 +10726,19 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
     if ((**(char **)(p + 4) == 8) || (p = StageUI_GetRaceResultTable(), **(char **)(p + 4) == 7)) {
         uVar5 = StageUI_GetRaceResultValue();
         switch (uVar5) {
+        case 4:
+            g_unk0x0058e0a4 = (StageUI_GetRaceEndEventCount() & 0xff) + param_1;
+            break;
         case 0:
         case 1:
             g_unk0x0058e0a4 = param_1;
             break;
         case 2:
             RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058df9c);
-            if (RallyData_GetUsableRecordCategory(g_unk0x0058df98 & 0xff) != -1)
-                g_unk0x0058e0a4 = g_unk0x0058df9c;
-            else
+            if (RallyData_GetUsableRecordCategory(g_unk0x0058df98 & 0xff) == -1)
                 g_unk0x0058e0a4 = g_unk0x0058df98;
+            else
+                g_unk0x0058e0a4 = g_unk0x0058df9c;
             break;
         case 3:
             if (param_1 == 0)
@@ -10744,16 +10746,10 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
             else
                 RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058e0a4);
             break;
-        case 4:
-            g_unk0x0058e0a4 = (StageUI_GetRaceEndEventCount() & 0xff) + param_1;
-            break;
         }
-        {
-            BYTE bVar2 = CGameInfo::GetConfiguredPlayerCount();
-            if ((int)g_unk0x0058e0a4 < (int)(unsigned int)bVar2 &&
-                (uVar4 == 1 || uVar4 == 2 || uVar4 == 3 || uVar4 == 5 || uVar4 == 4)) {
-                RallyData_SetDriverCarSelection((BYTE)g_unk0x0058e0a4, uVar4);
-            }
+        if ((int)g_unk0x0058e0a4 < (int)(unsigned int)CGameInfo::GetConfiguredPlayerCount() &&
+            (uVar4 == 1 || uVar4 == 2 || uVar4 == 3 || uVar4 == 5 || uVar4 == 4)) {
+            RallyData_SetDriverCarSelection((BYTE)g_unk0x0058e0a4, uVar4);
         }
     }
 }
