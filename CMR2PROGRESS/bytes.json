@@ -11842,7 +11842,7 @@
   },
   "0x44fea0": {
     "n": "GameMenu_DrawScrollingRallyTimes",
-    "s": 0.9951219512195122,
+    "s": 0.9983739837398374,
     "x": false,
     "unknown": [],
     "f": "GameMenus.cpp",
@@ -24297,8 +24297,8 @@
   },
   "0x424560": {
     "n": "ForceFeedback_ApplyStoredForces",
-    "s": 0.8604651162790697,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "ForceFeedback_ApplyStoredForces"
@@ -26915,8 +26915,8 @@
   },
   "0x4a9b80": {
     "n": "CMain::GetFrameDelta",
-    "s": 0.9047619047619048,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "main.cpp",
     "symbol_name": "CMain::GetFrameDelta"

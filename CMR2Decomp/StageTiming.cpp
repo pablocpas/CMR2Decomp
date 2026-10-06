@@ -1381,12 +1381,17 @@ void ForceFeedback_ApplyStoredForces(void)
         CInput::SetConditionCoefficient(0, g_unk0x00539278->field_0xc,
                                         g_unk0x00539278->field_0x2c);
     if (g_unk0x00539278->field_0x14 != g_unk0x00539278->field_0x8) {
-        if (g_unk0x00539278->field_0x14 < 0)
-            CInput::SetEffectGainAndDirection(2, -g_unk0x00539278->field_0x14, 0x2328,
-                                              g_unk0x00539278->field_0x2c);
-        else
-            CInput::SetEffectGainAndDirection(2, g_unk0x00539278->field_0x14, 0x6978,
-                                              g_unk0x00539278->field_0x2c);
+        int gain;
+        int direction;
+
+        gain = g_unk0x00539278->field_0x14;
+        if (gain < 0) {
+            gain = -gain;
+            direction = 0x2328;
+        } else {
+            direction = 0x6978;
+        }
+        CInput::SetEffectGainAndDirection(2, gain, direction, g_unk0x00539278->field_0x2c);
     }
 }
 

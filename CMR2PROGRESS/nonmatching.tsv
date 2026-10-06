@@ -323,7 +323,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x476850	StageObject_UpdateCarBodyFade	StageObjects.cpp	491	0.8333333333333334	0.7764705882352941
 0x48df50	CarPhysics_UpdateWheelSlipAndVelocityDamping	StageObjects.cpp	335	0.8333333333333334	0.803921568627451
 0x4b9f20	FixMatrix_Multiply	FixedPoint.cpp	205	0.8333333333333334	0.8421052631578947
-0x424560	ForceFeedback_ApplyStoredForces	StageTiming.cpp	116	0.8333333333333334	0.8604651162790697
 0x505b40	OptionMenu_AnimateSelectedPanel	GameInfo.cpp	713	0.8340425531914893	0.7295597484276729
 0x4387a0	Car_UpdateTyreForces	Car.cpp	8567	0.8344173945363316	0.7635147687163292
 0x401b60	InRaceMenu_DrawHeaderBar	GameInfo.cpp	436	0.8356164383561644	0.8413793103448276
@@ -401,7 +400,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4d4460	FrontendDraw_HelpText	FrontendDraw.cpp	335	0.8932038834951457	0.8720379146919431
 0x4e7120	FrontendMenu_DrawProfileChampionshipRecords	FrontendScreens.cpp	1602	0.8940955951265229	0.9013282732447818
 0x4a4c40	Graphics_ReloadAllTextures	Graphics.cpp	233	0.8941176470588236	0.8823529411764706
-0x4a9b80	CMain::GetFrameDelta	main.cpp	149	0.8941176470588236	0.9047619047619048
 0x4fe240	FrontendControls_DrawDeviceConfiguration	FrontendMenus.cpp	3582	0.8984689766317486	0.8896999188969992
 0x466570	CarDamage_UpdateOrderedCarsOffRoadState	StageObjects.cpp	190	0.8985507246376812	0.8985507246376812
 0x500270	OptionMenu_ConfirmOrRevertHighlightedValue	GameInfo.cpp	0	0.8993288590604027	0.8859060402684564
@@ -528,10 +526,10 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b2f80	Scene_CreateLight	SceneNode.cpp	1201	0.990909090909091	0.9938271604938271
 0x4b50b0	Scene_ApplyGroundLightToMeshTree	SceneNode.cpp	613	0.990990990990991	0.990990990990991
 0x40c610	CInput::InitDetectedControllerSlot	Input.cpp	1604	0.9920424403183024	0.9920424403183024
-0x44fea0	GameMenu_DrawScrollingRallyTimes	GameMenus.cpp	1795	0.9934959349593496	0.9951219512195122
 0x451df0	GameMenu_DrawStageClassification	GameMenus.cpp	1585	0.9944649446494465	0.9944649446494465
 0x4d9c40	FrontendMenu_DrawRallySummary	FrontendScreens.cpp	2529	0.9956167814652473	0.9855799373040752
 0x4556f0	StageTiming_PairPlayerOpponentSlots	StageTiming.cpp	898	0.9966666666666667	0.9964664310954063
 0x46afe0	CarDamage_BuildPartVertexBuffer	StageObjects.cpp	1055	0.9970238095238095	0.9970238095238095
 0x44d960	GameMenu_DrawScrollingStageSplits	GameMenus.cpp	2000	0.9970972423802612	0.9970972423802612
 0x44efa0	GameMenu_DrawScrollingChampionshipPoints	GameMenus.cpp	1753	0.9983277591973244	0.9983277591973244
+0x44fea0	GameMenu_DrawScrollingRallyTimes	GameMenus.cpp	1795	0.9983739837398374	0.9983739837398374

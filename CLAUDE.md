@@ -82,6 +82,9 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
   communal and the linker scatters them. If code reads across a neighbour
   (`g_netStageBest[stage - 1]`), initialise them (`= { 0 }`) so they stay in
   definition order in `.data`.
+- MSVC6 duplicates a short common tail (`last = now; return x;`) into each
+  branch. Decompiled code with the same statements repeated before several
+  returns usually matches as one if/else followed by a single tail.
 
 ## Before committing a batch
 
