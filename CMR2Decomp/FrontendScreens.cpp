@@ -11345,17 +11345,16 @@ char g_strItemTextFmt[12] = "%s < %s >";
 // Draws a settings list page: the menu path, the framed title and one row per
 // menu item with the label built from the item value and the separator line
 // under the row.
-// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dce00
 void FrontendMenu_DrawNetworkSessionDetails(Menu *pMenu)
 {
     SpriteRect rect;
     MenuItem *pItem;
-    char *pText;
     BYTE *pColour;
     BYTE *pLineColour;
     BYTE *pLineShadow;
     int top;
+    int blink;
     int i;
 
     rect.x = (int)(g_pGraphics->resX * 100) / 640;
@@ -11375,10 +11374,9 @@ void FrontendMenu_DrawNetworkSessionDetails(Menu *pMenu)
         pLineShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
-
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[1] = top;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
@@ -11404,14 +11402,17 @@ void FrontendMenu_DrawNetworkSessionDetails(Menu *pMenu)
             case 0:
                 sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x1bf),
                         g_unk0x00818ebc);
-                if (pMenu->cursor == i && (int)CMain::GetFrameDelta() % 20 > 9)
-                    strcat(CFrontend::m_stringDest, "_");
-                pText = CFrontend::m_stringDest;
+                blink = (int)CMain::GetFrameDelta() % 20;
+                if (pMenu->cursor == i && blink > 9)
+                    strcat(CFrontend::m_stringDest, g_strTextCursor);
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 1:
                 sprintf(CFrontend::m_stringDest, g_strItemTextFmt, CFrontend::GetTextString(0x1c0),
                         CGameInfo::GetCodeEntryText(Menu_GetItem(pMenu, 1)->max));
-                pText = CFrontend::m_stringDest;
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 2:
                 if (Menu_GetItem(pMenu, 2)->max > 0) {
@@ -11420,29 +11421,33 @@ void FrontendMenu_DrawNetworkSessionDetails(Menu *pMenu)
                 } else {
                     sprintf(CFrontend::m_stringDest, g_strItemOffFmt, CFrontend::GetTextString(0x1c1));
                 }
-                pText = CFrontend::m_stringDest;
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 3:
                 sprintf(CFrontend::m_stringDest, g_strItemValueFmt, CFrontend::GetTextString(0x1c2),
                         Menu_GetItem(pMenu, 3)->max + 2);
-                pText = CFrontend::m_stringDest;
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 4:
                 sprintf(CFrontend::m_stringDest, g_strLabelSpacedText, CFrontend::GetTextString(0x1c3),
                         g_unk0x00818ef8);
-                if (pMenu->cursor == i && (int)CMain::GetFrameDelta() % 20 > 9)
-                    strcat(CFrontend::m_stringDest, "_");
-                pText = CFrontend::m_stringDest;
+                blink = (int)CMain::GetFrameDelta() % 20;
+                if (pMenu->cursor == i && blink > 9)
+                    strcat(CFrontend::m_stringDest, g_strTextCursor);
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 5:
-                pText = CFrontend::GetTextString(0x1c4);
+                Font_DrawText(1, CFrontend::GetTextString(0x1c4), (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             default:
-                pText = CFrontend::GetTextString(pItem->id);
+                Font_DrawText(1, CFrontend::GetTextString(pItem->id), (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             }
-            Font_DrawText(1, pText, (int)(g_pGraphics->resX * 0x7a) / 0x280,
-                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
             if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
                 pLineColour = g_colourWhite0x00524968;
                 pLineShadow = g_colourShadowWhite0x00524974;
@@ -11454,8 +11459,8 @@ void FrontendMenu_DrawNetworkSessionDetails(Menu *pMenu)
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
             g_unk0x008189a8[1]++;
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
-            pItem++;
             i++;
+            pItem++;
         } while (i < pMenu->itemCount);
     }
     FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
