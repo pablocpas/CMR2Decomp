@@ -43,17 +43,21 @@ def sha256(path):
 
 
 def extractor():
+    """Return run(archive, out, *names): extract everything, or only the named files.
+
+    The exit status is not checked: the fourth cabinet's last folder continues
+    into cabinets we do not download, so tools report errors for files we never
+    asked for. The SHA-256 checks below decide whether extraction worked."""
     for name in ["7z", "7za", r"C:\Program Files\7-Zip\7z.exe"]:
         found = shutil.which(name) or (Path(name).is_file() and name)
         if found:
-            return lambda archive, out, *members: subprocess.run(
-                [found, "x", "-y", "-o" + str(out), str(archive), *members],
-                check=True, stdout=subprocess.DEVNULL)
+            return lambda archive, out, *names: subprocess.run(
+                [found, "x", "-y", "-o" + str(out), str(archive), *names] + (["-r"] if names else []),
+                stdout=subprocess.DEVNULL)
     found = shutil.which("cabextract")
     if found:
-        return lambda archive, out, *members: subprocess.run(
-            [found, "-q", "-d", str(out), *sum((["-F", m] for m in members), []), str(archive)],
-            check=True)
+        return lambda archive, out, *names: subprocess.run(
+            [found, "-q", "-d", str(out), *sum((["-F", "*" + n] for n in names), []), str(archive)])
     sys.exit("fetch_vc6sp3: install 7-Zip (7z) or cabextract to unpack the SP3 cabinets")
 
 
@@ -91,7 +95,7 @@ def unpack(cache):
         shutil.copyfile(find(tmp / "p1", "msvcep.dll"), out / "C2.DLL")
         # Part 5 wraps the fourth cabinet of the set, which holds the front ends.
         run(cache / "VS6SP3_5.EXE", tmp / "p5")
-        run(find(tmp / "p5", "VS6sp3_4.cab"), tmp / "cab4")
+        run(find(tmp / "p5", "VS6sp3_4.cab"), tmp / "cab4", "c1.dll", "c1xx.dll")
         shutil.copyfile(find(tmp / "cab4", "c1.dll"), out / "C1.DLL")
         shutil.copyfile(find(tmp / "cab4", "c1xx.dll"), out / "C1XX.DLL")
     for name, digest in PASSES.items():
