@@ -3485,18 +3485,14 @@ void FrontendProfile_PickRenameCharacterOrCheat(Menu *pMenu, int param)
         return;
     } else if (len < 0x2b) {
         switch (pMenu->items[pMenu->cursor].value) {
-        case 0:
-            chars = g_nameRow0x00525374;
+        case 2:
+            chars = g_nameRow0x0052538c;
             break;
         case 1:
             chars = g_nameRow0x00525380;
             break;
-        case 2:
-            chars = g_nameRow0x0052538c;
-            break;
-        default:
-            // the original uses the menu pointer as the character table
-            chars = (char *)pMenu;
+        case 0:
+            chars = g_nameRow0x00525374;
             break;
         }
         CFrontend::m_stringDest[len] = chars[pMenu->items[pMenu->cursor].max];
