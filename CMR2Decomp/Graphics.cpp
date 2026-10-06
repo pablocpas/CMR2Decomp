@@ -5109,16 +5109,16 @@ void Glow_Draw(SceneNode *pCamera, BYTE view)
         toCamera.z = camPos.z - pos.z;
         len = FixVecLength(&toCamera);
         if (len >= 0x10000) {
-            inv = FixDiv(0x10000, len);
-            FixVecScale(&toCamera, &toCamera, inv);
+            len = FixDiv(0x10000, len);
+            FixVecScale(&toCamera, &toCamera, len);
             g_glowBillboard.pos.x += toCamera.x;
             g_glowBillboard.pos.y += toCamera.y;
             g_glowBillboard.pos.z += toCamera.z;
-            scale = 0x10000 - inv;
-            g_glowBillboard.bottom = FixMul(g_glowBillboard.bottom, scale);
-            g_glowBillboard.right = FixMul(g_glowBillboard.right, scale);
-            g_glowBillboard.top = FixMul(g_glowBillboard.top, scale);
-            g_glowBillboard.left = FixMul(g_glowBillboard.left, scale);
+            len = 0x10000 - len;
+            g_glowBillboard.bottom = FixMul(g_glowBillboard.bottom, len);
+            g_glowBillboard.right = FixMul(g_glowBillboard.right, len);
+            g_glowBillboard.top = FixMul(g_glowBillboard.top, len);
+            g_glowBillboard.left = FixMul(g_glowBillboard.left, len);
         }
         Billboard_Add(&g_glowBillboard, pLight->pTexture);
         if (pLight->layerIntensity != 0)

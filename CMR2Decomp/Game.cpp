@@ -146,7 +146,6 @@ void CGame::UpdateActiveSoundSlots(void)
     }
 }
 
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d0780
 BOOL CGame::DispatchFrontendResourceState(void)
 {
@@ -163,22 +162,30 @@ BOOL CGame::DispatchFrontendResourceState(void)
         return UpdateSecondaryCallbackMachine();
 
     case 0:
-        if (m_unk0x00817eb0)
-        {
-            RunStateUpdateCallbacks(&m_unk0x00817da0);
-            RunStateRenderCallbacks(&m_unk0x00817da0);
-            AdvanceCallbackStateTimers(&m_unk0x00817da0);
-            return FALSE;
-        }
-
-        InitializeCallbackStateRecord(&m_unk0x00817d98, 0, 0xFF);
-        InitializeCallbackStateMachine(&m_unk0x00817da0, 1, &m_unk0x00817d98, m_initializeGameGroupedFuncTable, &m_unk0x00523c18);
-        m_unk0x00817eb0 = true;
-        return FALSE;
+        return UpdateFrontendCallbackMachine();
 
     default:
         return FALSE;
     }
+}
+
+// Frontend callback group of the game state machine: built on the first call,
+// then runs one update/render/timer step per frame.
+// FUNCTION: CMR2 0x004d07c0
+BOOL CGame::UpdateFrontendCallbackMachine(void)
+{
+    if (m_unk0x00817eb0)
+    {
+        RunStateUpdateCallbacks(&m_unk0x00817da0);
+        RunStateRenderCallbacks(&m_unk0x00817da0);
+        AdvanceCallbackStateTimers(&m_unk0x00817da0);
+        return FALSE;
+    }
+
+    InitializeCallbackStateRecord(&m_unk0x00817d98, 0, 0xFF);
+    InitializeCallbackStateMachine(&m_unk0x00817da0, 1, &m_unk0x00817d98, m_initializeGameGroupedFuncTable, &m_unk0x00523c18);
+    m_unk0x00817eb0 = true;
+    return FALSE;
 }
 
 // Splash screen scene, created while the frontend resources load.

@@ -2741,7 +2741,8 @@ addr	size	name	callers	callees	fpu	thunk	external
 004d06f0	14	NetworkChat_GetLine	2	0	0	false	false
 004d0700	97	NetworkChat_SendLine	2	2	0	false	false
 004d0770	6	Frontend_GetOverlayCallbackState	1	0	0	false	false
-004d0780	152	CGame::DispatchFrontendResourceState	1	8	0	false	false
+004d0780	64	CGame::DispatchFrontendResourceState	1	3	0	false	false
+004d07c0	96	CGame::UpdateFrontendCallbackMachine	1	5	0	false	false
 004d0820	18	Game_DestroySplashScene	0	1	0	false	false
 004d0840	142	Game_CreateSplashScene	1	4	0	false	false
 004d08d0	375	CFrontend::LoadSplashScreens	1	25	0	false	false

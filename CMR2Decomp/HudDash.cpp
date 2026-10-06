@@ -843,13 +843,15 @@ void Dash_UpdateCameraModeOffset(BYTE *param_1, BYTE *param_2, int param_3)
     if (pSettings[2] >= (BYTE)RallyDataState()) {
         RallyData_GetDriverCameraOffsets((int *)&offset, (short *)&param_1, &param_3, 0);
         HudDash_SetCameraOffset(index, &offset);
+        HudDash_SetPlayerGaugeValue(index, param_3);
+        HudDash_SetGaugeTarget(index, *(short *)&param_1);
     } else {
         RallyData_GetDriverCameraOffsets((int *)&offset, (short *)&param_1, &param_3,
                                (int)(BYTE)StageUI_GetRaceEndEventCount() + pSettings[2]);
         HudDash_SetCameraOffset(index, &offset);
+        HudDash_SetPlayerGaugeValue(index, param_3);
+        HudDash_SetGaugeTarget(index, *(short *)&param_1);
     }
-    HudDash_SetPlayerGaugeValue(index, param_3);
-    HudDash_SetGaugeTarget(index, *(short *)&param_1);
     View_BuildMatrixFromCameraBasis(pSettings, (FixMatrix *)param_2);
 }
 

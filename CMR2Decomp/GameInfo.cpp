@@ -10219,7 +10219,7 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
                       (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x11);
         sprintf(CFrontend::m_stringDest, g_str0x00524e20);
         Font_DrawText(0, CFrontend::m_stringDest,
-                      *(int *)&g_unk0x00831660[2] + *(int *)&g_unk0x00831660[0],
+                      *(int *)&g_unk0x00831660[0] + *(int *)&g_unk0x00831660[2],
                       (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x14);
         Font_DrawText(1, CFrontend::GetTextString(0xf9),
                       g_unk0x00831660[2] / 2 + *(int *)&g_unk0x00831660[0],

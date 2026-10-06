@@ -7421,28 +7421,26 @@ int Replay_Save(BYTE *pBuffer, char *pName)
 // FUNCTION: CMR2 0x0046d470
 void Replay_SetupPointers(ReplayStream *p, int unused)
 {
-    BYTE *pData;
     int recordSize;
     int extraSize;
 
-    pData = (BYTE *)p + 0x110;
     if (p->type == 0) {
-        p->pInputs = pData;
+        p->pInputs = (BYTE *)p + 0x110;
         p->pStates = NULL;
         recordSize = 0x114c;
     } else {
-        p->pStates = pData;
+        p->pStates = (BYTE *)p + 0x110;
         p->pInputs = NULL;
         recordSize = 0x5c;
     }
     if (p->type == 2) {
+        p->pSamples = (BYTE *)p + p->laneCapacity * recordSize + 0x110;
         p->pFrames = NULL;
         extraSize = 0x10;
-        p->pSamples = (BYTE *)p + p->laneCapacity * recordSize + 0x110;
     } else {
+        p->pFrames = (BYTE *)p + p->laneCapacity * recordSize + 0x110;
         p->pSamples = NULL;
         extraSize = 4;
-        p->pFrames = (BYTE *)p + p->laneCapacity * recordSize + 0x110;
     }
     p->pLaneSamples = (short *)((BYTE *)p + (p->samplesPerLane * extraSize + recordSize) * p->laneCapacity + 0x110);
 }
@@ -9142,8 +9140,8 @@ void StageObject_RebuildOrderedWheelVisibility(void)
     short *pOrder;
     Car *pCar;
     int i;
-    int v;
-    int count;
+    short n;
+    int index;
     unsigned int swap;
 
     i = 0;
@@ -9173,50 +9171,35 @@ void StageObject_RebuildOrderedWheelVisibility(void)
         i++;
     } while (i < 2);
     pOrder = Car_GetOrder();
-    count = Car_GetOrderCount() - 1;
-    if (count >= 0) {
-        pOrder += (short)count;
-        count = (short)count + 1;
-        do {
-            pCar = Car_Get(*pOrder);
-            swap = (*(unsigned int *)(*(int *)(*(int *)&pCar->pNode0x720 + 0xc) + 0x30) >>
-                    0x12) & 1;
-            i = 0;
-            do {
-                if ((View_GetActiveCameraFlags(i) & 0xff) == (unsigned int)pCar->index) {
-                    v = flags[i];
-                    if (v == 1) {
-                        if (g_unk0x00588bb4[pCar->index] == 0) {
-                            if (swap != 0)
-                                v = 2;
-                        } else if (swap == 0) {
-                            v = 3;
-                        } else {
-                            v = 4;
-                        }
-                    }
-                } else {
-                    if ((BYTE)RallyDataState() <= 1 || StageObject_UsesExtendedMode() != 0) {
-                        if (g_unk0x00588bb4[pCar->index] == 0) {
-                            if (swap == 0)
-                                v = 1;
-                            else
-                                v = 2;
-                        } else if (swap == 0) {
-                            v = 3;
-                        } else {
-                            v = 4;
-                        }
-                    } else {
-                        v = 7;
-                    }
-                }
-                StageObject_SetPairedCarValue(pCar->index, v, i);
-                i++;
-            } while (i < 2);
-            pOrder--;
-            count--;
-        } while (count != 0);
+    for (n = Car_GetOrderCount() - 1; n >= 0; n--) {
+        pCar = Car_Get(pOrder[n]);
+        swap = (*(unsigned int *)(*(int *)(*(int *)&pCar->pNode0x720 + 0xc) + 0x30) >> 0x12) & 1;
+        for (i = 0; i < 2; i++) {
+            index = pCar->index;
+            if ((View_GetActiveCameraFlags(i) & 0xff) == index) {
+                if (flags[i] == 1 && g_unk0x00588bb4[index] != 0) {
+                    if (swap)
+                        StageObject_SetPairedCarValue(index, 4, i);
+                    else
+                        StageObject_SetPairedCarValue(index, 3, i);
+                } else if (flags[i] == 1 && swap)
+                    StageObject_SetPairedCarValue(index, 2, i);
+                else
+                    StageObject_SetPairedCarValue(index, flags[i], i);
+            } else if ((BYTE)RallyDataState() > 1 && StageObject_UsesExtendedMode() == 0) {
+                StageObject_SetPairedCarValue(pCar->index, 7, i);
+            } else if (g_unk0x00588bb4[pCar->index] == 0) {
+                if (swap)
+                    StageObject_SetPairedCarValue(pCar->index, 2, i);
+                else
+                    StageObject_SetPairedCarValue(pCar->index, 1, i);
+            } else {
+                if (swap)
+                    StageObject_SetPairedCarValue(pCar->index, 4, i);
+                else
+                    StageObject_SetPairedCarValue(pCar->index, 3, i);
+            }
+        }
     }
     if ((char)CGameInfo::GetGameModeOptionBit19() != 0) {
         for (i = 0; i < 7; i++) {

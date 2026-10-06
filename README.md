@@ -17,7 +17,7 @@ recorded in `reccmp-project.yml`.
 > original and rebuilt code side by side. Names, types and comments are
 > best-effort reconstructions and may be wrong.
 
-All 3363 game functions identified in the executable have C++ source. Most
+All 3364 game functions identified in the executable have C++ source. Most
 compile to byte-identical code; the rest still differ from the original, mostly
 in instruction scheduling and register allocation. Live progress, counted as
 the share of code bytes that match exactly, is on

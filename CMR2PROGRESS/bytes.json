@@ -6995,11 +6995,19 @@
   },
   "0x4d0780": {
     "n": "CGame::DispatchFrontendResourceState",
-    "s": 0.7380952380952381,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "CGame::DispatchFrontendResourceState"
+  },
+  "0x4d07c0": {
+    "n": "CGame::UpdateFrontendCallbackMachine",
+    "s": 1.0,
+    "x": true,
+    "unknown": [],
+    "f": "Game.cpp",
+    "symbol_name": "CGame::UpdateFrontendCallbackMachine"
   },
   "0x4d0820": {
     "n": "Game_DestroySplashScene",
@@ -13364,7 +13372,7 @@
   },
   "0x4af120": {
     "n": "Glow_Draw",
-    "s": 0.9590395480225988,
+    "s": 0.9646892655367232,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13972,7 +13980,7 @@
   },
   "0x447530": {
     "n": "Dash_UpdateCameraModeOffset",
-    "s": 0.72,
+    "s": 0.7910447761194029,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -19993,7 +20001,7 @@
     "s": 0.7358490566037735,
     "x": false,
     "unknown": [
-      "$L56018",
+      "$L56020",
       "__except_list"
     ],
     "f": "Sound.cpp",
@@ -22473,8 +22481,8 @@
   },
   "0x46d470": {
     "n": "Replay_SetupPointers",
-    "s": 0.6363636363636364,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Replay_SetupPointers"
@@ -22889,7 +22897,7 @@
   },
   "0x46bb40": {
     "n": "StageObject_RebuildOrderedWheelVisibility",
-    "s": 0.5555555555555556,
+    "s": 0.9447852760736196,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
