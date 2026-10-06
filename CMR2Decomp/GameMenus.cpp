@@ -849,10 +849,9 @@ void GameMenu_DrawSplitTimes(Menu *pMenu)
             if (!CGameInfo::GetGameModeOptionBit19() || isGhost) {
                 for (split = 0; split < GetStageSplitCount(); split++) {
                     if (isGhost)
-                        total = g_ghostSplits[split + 1] - g_ghostSplits[split];
+                        FormatCentisecondsAsMinSecMSec(g_ghostSplits[split + 1] - g_ghostSplits[split], CFrontend::m_stringDest);
                     else
-                        total = StageTiming_GetDriverSplitClock(car, split + 1) - StageTiming_GetDriverSplitClock(car, split);
-                    FormatCentisecondsAsMinSecMSec(total, CFrontend::m_stringDest);
+                        FormatCentisecondsAsMinSecMSec(StageTiming_GetDriverSplitClock(car, split + 1) - StageTiming_GetDriverSplitClock(car, split), CFrontend::m_stringDest);
                     Font_DrawText(1, CFrontend::m_stringDest, x,
                                   (int)(g_pGraphics->resY * 0x91) / 480 + header +
                                       ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
@@ -1661,20 +1660,19 @@ void GameMenu_DrawFinalChampionshipStandings(Menu *pMenu)
             place = RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i));
             switch (place) {
             case 0:
-                pPosition = CFrontend::GetTextString(0x51);
+                sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), CFrontend::GetTextString(0x51));
                 break;
             case 1:
-                pPosition = CFrontend::GetTextString(0x52);
+                sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), CFrontend::GetTextString(0x52));
                 break;
             case 2:
-                pPosition = CFrontend::GetTextString(0x53);
+                sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), CFrontend::GetTextString(0x53));
                 break;
             default:
                 sprintf(position, CFrontend::GetTextString(0x54), place + 1);
-                pPosition = position;
+                sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), position);
                 break;
             }
-            sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), pPosition);
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
             resY = g_pGraphics->resY;
             Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 30) / 640,

@@ -4416,19 +4416,17 @@ void InRaceMenu_BuildCarSetup(void)
 
     Menu_Init(&g_menu0x0052aa70, 0, 0, 0, &g_menu0x00529ed8, NULL, 1, 0, 1);
     if ((BYTE)RallyData_GetFlag24() == 0 && (BYTE)RallyData_GetSelectionFlag28() == 0)
-        settingId = 0x64;
+        Menu_AddItemType3(&g_menu0x0052aa70, 0, (short)0x64, 2, 0, 0, 0, 0, 0);
     else
-        settingId = 0x30;
-    Menu_AddItemType3(&g_menu0x0052aa70, 0, (short)settingId, 2, 0, 0, 0, 0, 0);
+        Menu_AddItemType3(&g_menu0x0052aa70, 0, (short)0x30, 2, 0, 0, 0, 0, 0);
     Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x65, 2, 0, 0, 0, 1, 0);
     Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x66, 2, 0, 0, 0, 2, 0);
     Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x67, 2, 0, 0, 0, 3, 0);
     if (Race_IsFlag24Clear()) {
         if (RallyData_IsHeadToHeadRaceMode() == 0)
-            settingId = 3;
+            Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x68, (BYTE)3, 0, 0, 0, 4, 0);
         else
-            settingId = 2;
-        Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x68, (BYTE)settingId, 0, 0, 0, 4, 0);
+            Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x68, (BYTE)2, 0, 0, 0, 4, 0);
     }
 void InRaceMenu_ApplyDefaultCarSetup(Menu *pMenu, int param);
 
@@ -10193,11 +10191,11 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
     x = g_unk0x00831660[2] / 2 + g_unk0x00831660[0];
     y = (int)g_pGraphics->resY * 0x124 / 0x1e0;
     if (param_1 != 0)
-        w = 0x134;
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                    CFrontend::GetTextString(0x134));
     else
-        w = 0x135;
-    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
-            CFrontend::GetTextString(w));
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                    CFrontend::GetTextString(0x135));
     x = x - Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest) / 2;
     Font_DrawText(1, CFrontend::m_stringDest, x, y, g_unk0x00527380, 0x11);
     if (param_1 != 0) {
@@ -10269,11 +10267,11 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
     }
     sprintf(CFrontend::m_stringDest, g_str0x0051a904, (t / 100) / 60, (t / 100) % 60);
     if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
-        pCol = &g_unk0x00527378;
+        Font_DrawText(3, CFrontend::m_stringDest, (int)g_pGraphics->resX * 0x124 / 0x280,
+                          (int)g_pGraphics->resY * 0x150 / 0x1e0, &g_unk0x00527378, 0x12);
     else
-        pCol = &g_unk0x0052737c;
-    Font_DrawText(3, CFrontend::m_stringDest, (int)g_pGraphics->resX * 0x124 / 0x280,
-                  (int)g_pGraphics->resY * 0x150 / 0x1e0, pCol, 0x12);
+        Font_DrawText(3, CFrontend::m_stringDest, (int)g_pGraphics->resX * 0x124 / 0x280,
+                          (int)g_pGraphics->resY * 0x150 / 0x1e0, &g_unk0x0052737c, 0x12);
     x = (int)g_pGraphics->resX * 0x1c / 0x280;
     for (i = 0; i < 4; i++) {
         OptionMenu_DrawTransitionTextShortCoords(5, 1, 1, CFrontend::GetTextString(base + i), x,

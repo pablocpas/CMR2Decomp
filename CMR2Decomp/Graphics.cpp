@@ -6432,10 +6432,9 @@ Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
     createDesc.dwHeight = height;
     createDesc.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_SYSTEMMEMORY;
     if ((pTexture->flags & 1) && m_pTextureManager->textureInfo2 != NULL)
-        pFormat = m_pTextureManager->textureInfo2;
+        createDesc.ddpfPixelFormat = m_pTextureManager->textureInfo2->desc.ddpfPixelFormat;
     else
-        pFormat = m_pTextureManager->textureInfo1;
-    createDesc.ddpfPixelFormat = pFormat->desc.ddpfPixelFormat;
+        createDesc.ddpfPixelFormat = m_pTextureManager->textureInfo1->desc.ddpfPixelFormat;
     g_pGraphics->pDD7->CreateSurface(&createDesc, &tmpTexture.pSurface, NULL);
     memset(&lockDesc, 0, sizeof(lockDesc));
     lockDesc.dwSize = sizeof(lockDesc);

@@ -11209,19 +11209,18 @@ void FrontendMenu_DrawGraphicsOptions(Menu *pMenu)
             case 0:
                 switch (CGameInfo::GetGraphicsOptionBits1To2()) {
                 case 1:
-                    textId = 0x1cd;
+                    sprintf(CFrontend::m_stringDest, g_strEllipsisFormat, CFrontend::GetTextString(0x1cd));
                     break;
                 case 2:
-                    textId = 0x1cc;
+                    sprintf(CFrontend::m_stringDest, g_strEllipsisFormat, CFrontend::GetTextString(0x1cc));
                     break;
                 case 3:
-                    textId = 0x1cb;
+                    sprintf(CFrontend::m_stringDest, g_strEllipsisFormat, CFrontend::GetTextString(0x1cb));
                     break;
                 default:
-                    textId = 0x1ce;
+                    sprintf(CFrontend::m_stringDest, g_strEllipsisFormat, CFrontend::GetTextString(0x1ce));
                     break;
                 }
-                sprintf(CFrontend::m_stringDest, g_strEllipsisFormat, CFrontend::GetTextString(textId));
                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
                               (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;

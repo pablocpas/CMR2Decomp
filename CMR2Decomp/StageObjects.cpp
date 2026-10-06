@@ -4815,10 +4815,9 @@ void CarDamage_BuildRelativeVelocityHull(Car *pCar, Car *pOther)
     do {
         pOut[-4] = pOut[-8];
         if ((int)pOut < (int)&g_stageDeformHull[10])
-            v = pCar->field_0x770[0];
+            pOut[-4].y += pCar->field_0x770[0];
         else
-            v = pCar->field_0x770[1];
-        pOut[-4].y += v;
+            pOut[-4].y += pCar->field_0x770[1];
         *pOut = *pIn;
         if (pOut->x > 0)
             pOut->x -= pCar->scale0x764;
@@ -7800,10 +7799,9 @@ void StageObject_PositionSplitViewNodes(int param_1)
     car = param_1;
     node = View_GetActiveCameraMode(car);
     if (node == 3)
-        node = (int)Car_Get(car)->pNode0x720;
+        FixMatrix_GetPosition(&pos, (FixMatrix *)((int)Car_Get(car)->pNode0x720 + 0x98));
     else
-        node = (int)g_viewNodes[car];
-    FixMatrix_GetPosition(&pos, (FixMatrix *)(node + 0x98));
+        FixMatrix_GetPosition(&pos, (FixMatrix *)((int)g_viewNodes[car] + 0x98));
     vecC.x = pos.x;
     vecC.z = pos.z;
     vecB.x = pos.x;
