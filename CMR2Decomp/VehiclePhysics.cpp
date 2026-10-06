@@ -132,6 +132,7 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
     int component;
     int absoluteComponent;
     int limit;
+    int len;
 
     collisionMode = 0;
     if (usePoint == 0) {
@@ -142,44 +143,26 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
             FixVecScale(&offset, &g_collisionDirection, 0x20000);
         else
             FixVecScale(&offset, &g_collisionDirection, -0x20000);
+        FixMatrix_InverseRotateVector(&g_collisionCar->field_0x5dc, &offset, g_collisionCar->pWorld);
     } else {
         offset.x = pPoint->x - g_collisionCar->position.x;
         offset.y = pPoint->y - g_collisionCar->position.y;
         offset.z = pPoint->z - g_collisionCar->position.z;
+        FixMatrix_InverseRotateVector(&g_collisionCar->field_0x5dc, &offset, g_collisionCar->pWorld);
     }
 
-    FixMatrix_InverseRotateVector(&g_collisionCar->field_0x5dc, &offset, g_collisionCar->pWorld);
-
-    limit = g_collisionCar->halfExtents.x;
     component = g_collisionCar->field_0x5dc.x;
-    absoluteComponent = component;
-    if (absoluteComponent < 0)
-        absoluteComponent = -absoluteComponent;
-    if (absoluteComponent > limit) {
-        if (component < 0)
-            limit = -limit;
-        g_collisionCar->field_0x5dc.x = limit;
-    }
-    limit = g_collisionCar->halfExtents.y;
+    absoluteComponent = component < 0 ? -component : component;
+    if (absoluteComponent > g_collisionCar->halfExtents.x)
+        g_collisionCar->field_0x5dc.x = component < 0 ? -g_collisionCar->halfExtents.x : g_collisionCar->halfExtents.x;
     component = g_collisionCar->field_0x5dc.y;
-    absoluteComponent = component;
-    if (absoluteComponent < 0)
-        absoluteComponent = -absoluteComponent;
-    if (absoluteComponent > limit) {
-        if (component < 0)
-            limit = -limit;
-        g_collisionCar->field_0x5dc.y = limit;
-    }
-    limit = g_collisionCar->halfExtents.z;
+    absoluteComponent = component < 0 ? -component : component;
+    if (absoluteComponent > g_collisionCar->halfExtents.y)
+        g_collisionCar->field_0x5dc.y = component < 0 ? -g_collisionCar->halfExtents.y : g_collisionCar->halfExtents.y;
     component = g_collisionCar->field_0x5dc.z;
-    absoluteComponent = component;
-    if (absoluteComponent < 0)
-        absoluteComponent = -absoluteComponent;
-    if (absoluteComponent > limit) {
-        if (component < 0)
-            limit = -limit;
-        g_collisionCar->field_0x5dc.z = limit;
-    }
+    absoluteComponent = component < 0 ? -component : component;
+    if (absoluteComponent > g_collisionCar->halfExtents.z)
+        g_collisionCar->field_0x5dc.z = component < 0 ? -g_collisionCar->halfExtents.z : g_collisionCar->halfExtents.z;
 
     g_collisionCar->velocity.x += pImpulse->x;
     g_collisionCar->velocity.y += pImpulse->y;
@@ -192,18 +175,18 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
     if (g_collisionCar->field_0xc00 != 0)
         return;
 
-    usePoint = FixVecLength(pImpulse);
+    len = FixVecLength(pImpulse);
     if (g_collisionCar->field_0xb64 == 0) {
-        if (usePoint > 0x13333)
+        if (len > 0x13333)
             collisionMode = 1;
-        else if (usePoint > 0xe666)
+        else if (len > 0xe666)
             collisionMode = 2;
     }
 
     FixVecScale(&scaledImpulse, pImpulse, 0x28000);
-    usePoint = FixMul(usePoint, 0x28000);
-    if (usePoint > 0x34ccc) {
-        FixVecScaleRecip(&scaledImpulse, &scaledImpulse, usePoint);
+    len = FixMul(len, 0x28000);
+    if (len > 0x34ccc) {
+        FixVecScaleRecip(&scaledImpulse, &scaledImpulse, len);
         FixVecScale(&scaledImpulse, &scaledImpulse, 0x34ccc);
     }
     FixMatrix_InverseRotateVector(&localImpulse, &scaledImpulse, g_collisionCar->pWorld);
@@ -242,8 +225,7 @@ apply_torque:
     if ((torque.z < 0 ? -torque.z : torque.z) > 0x80000)
         torque.z = torque.z > 0 ? 0x80000 : -0x80000;
 
-    usePoint = g_physicsScale;
-    FixVecScale(&torque, &torque, usePoint);
+    FixVecScale(&torque, &torque, g_physicsScale);
     g_collisionCar->field_0x5d0.x += torque.x;
     g_collisionCar->field_0x5d0.y += torque.y;
     g_collisionCar->field_0x5d0.z += torque.z;

@@ -85,6 +85,16 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
 - MSVC6 duplicates a short common tail (`last = now; return x;`) into each
   branch. Decompiled code with the same statements repeated before several
   returns usually matches as one if/else followed by a single tail.
+  The reverse also happens: MSVC6 cross-jumps identical ends of two branches,
+  so the original may have a call in each branch (different registers before
+  the shared tail mean two calls in the source). Two calls of one function
+  with different arguments in an if/else are often one call with the
+  differing arguments computed into locals first.
+- Decompiled block-scoped temporaries (`int d = ...; int s = ...;`) are
+  often one reused variable in the original (`step = FixVecDot(...)`): the
+  inline-asm homes then land in that variable's slot. A pointer to a member
+  (`pUp = &car->right`) taken just before its first use, with the arithmetic
+  before it spelled `car->right.x`, matches where the decompiler hoisted it.
 
 ## Before committing a batch
 

@@ -177,8 +177,8 @@
   },
   "0x436630": {
     "n": "Car_UpdateBodyAxes",
-    "s": 0.8580112896222318,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateBodyAxes"
@@ -209,8 +209,8 @@
   },
   "0x43fcc0": {
     "n": "Car_UpdateBodyAxesNoDamping",
-    "s": 0.8811475409836066,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateBodyAxesNoDamping"
@@ -26371,8 +26371,8 @@
   },
   "0x48f470": {
     "n": "CarPhysics_ApplyImpulse",
-    "s": 0.8546255506607929,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "VehiclePhysics.cpp",
     "symbol_name": "CarPhysics_ApplyImpulse"
