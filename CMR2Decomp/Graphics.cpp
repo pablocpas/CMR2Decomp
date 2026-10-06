@@ -5956,8 +5956,8 @@ void Particle_DrawAll(int param, BYTE view)
             def.bottom = pType->field0x44;
             def.right = pType->field0x48;
         } else {
-            def.top = FixMul(*(int *)(pb - 9), pType->field0x3c);
-            def.left = FixMul(pType->field0x40, *(int *)(pb - 9));
+            def.top = FixMul(pType->field0x3c, *(int *)(pb - 9));
+            def.left = FixMul(*(int *)(pb - 9), pType->field0x40);
             def.bottom = FixMul(pType->field0x44, *(int *)(pb - 9));
             def.right = FixMul(pType->field0x48, *(int *)(pb - 9));
         }

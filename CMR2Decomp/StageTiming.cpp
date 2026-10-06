@@ -5938,8 +5938,8 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
         RallyData_GetRouteNodeGroundPosition(0, p1);
         a = (short)(int)(__int64)((double)StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]) * g_unk0x00511300);
         n = 1;
-        sinA = FixMul(0x40000, g_sinTable[a & 0xfff]);
-        cosA = FixMul(0x40000, g_sinTable[(a + 0x400) & 0xfff]);
+        sinA = FixMul(g_sinTable[a & 0xfff], 0x40000);
+        cosA = FixMul(g_sinTable[(a + 0x400) & 0xfff], 0x40000);
         for (i = 0; i < g_unk0x00542c68; i++, n--) {
             slot = i;
             if (CGameInfo::GetConfiguredGameMode() == 5 && g_unk0x00542c68 > 2)
@@ -5990,8 +5990,8 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
     case 2:
         RallyData_GetRouteNodeGroundPosition(RallyData_GetRouteAvailabilityState() - 1, p0);
         a = (short)(int)(__int64)((double)StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]) * g_unk0x00511300);
-        sinA = FixMul(0x40000, g_sinTable[a & 0xfff]);
-        cosA = FixMul(0x40000, g_sinTable[(a + 0x400) & 0xfff]);
+        sinA = FixMul(g_sinTable[a & 0xfff], 0x40000);
+        cosA = FixMul(g_sinTable[(a + 0x400) & 0xfff], 0x40000);
         RallyData_GetRouteNodeGroundPosition(0, p1);
         count = (char)NetPlayers_GetPlayerIDCount();
         for (i = 0; i < count; i++) {
@@ -7382,7 +7382,7 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, int *rec, int param_3
         wheelScale = FixMul(rec[0x16], g_unk0x00543da0);
         if (wheelScale > 0x10000)
             wheelScale = 0x10000;
-        wheelScale = FixMul(wheelScale, g_unk0x0051bd3c);
+        wheelScale = FixMul(g_unk0x0051bd3c, wheelScale);
     }
     if (rec[0] == 1) {
         x0 = rec[2] - FixMul(0x4cccc, 0x8000) + 0xc0000;
@@ -7554,7 +7554,7 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
         (dst) = (t);                    \
     }
 #define WRAP(t)                         \
-    if ((t) >= 0xb40000)                \
+    if ((t != 0) >= 0xb40000)                \
         (t) -= 0x1680000;               \
     else if ((t) < -0xb40000)           \
         (t) += 0x1680000;

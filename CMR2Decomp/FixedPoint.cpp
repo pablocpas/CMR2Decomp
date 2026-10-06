@@ -1302,7 +1302,7 @@ void NetRace_ExtrapolateOrderedCarPoses(Car *pCars, short *pOrder, short count)
 
         pRec->angularVelocity = pCar->angularVelocity;
         v.x = FixMul(pCar->field_0x5d0.x, -FixMul(pCar->inertia.x, pCar->field_0x75c));
-        v.y = FixMul(pCar->field_0x5d0.y, -FixMul(pCar->inertia.y, pCar->field_0x75c));
+        v.y = FixMul(-FixMul(pCar->field_0x75c, pCar->inertia.y), pCar->field_0x5d0.y);
         v.z = FixMul(pCar->field_0x5d0.z, -FixMul(pCar->inertia.z, pCar->field_0x75c));
         pRec->angularVelocity.x += v.x;
         pRec->angularVelocity.y += v.y;

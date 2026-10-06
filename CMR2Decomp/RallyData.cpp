@@ -7027,9 +7027,9 @@ void RallyData_DrawCarSplitTimePanels(void)
         if (i == (signed char)g_unk0x0082ca1c)
             continue;
         rect[0] = (short)(p->dstX1 + (FixMul((pEntry->srcX1 - p->srcX1) << 16, scaleX) >> 16));
-        rect[1] = (short)(p->dstY1 + (FixMul((pEntry->srcY1 - p->srcY1) << 16, scaleY) >> 16));
+        rect[1] = (short)(p->dstY1 + (FixMul(scaleY, (pEntry->srcY1 - p->srcY1) << 16) >> 16));
         rect[2] = (short)(FixMul(pEntry->srcX2 << 16, scaleX) >> 16);
-        rect[3] = (short)(FixMul(pEntry->srcY2 << 16, scaleY) >> 16);
+        rect[3] = (short)(FixMul(scaleY, pEntry->srcY2 << 16) >> 16);
         rect[0] = (short)((int)rect[0] * (int)g_pGraphics->resX / 0x280);
         rect[1] = (short)((int)rect[1] * (int)g_pGraphics->resY / 0x1e0);
         rect[2] = (short)((int)rect[2] * (int)g_pGraphics->resX / 0x280);

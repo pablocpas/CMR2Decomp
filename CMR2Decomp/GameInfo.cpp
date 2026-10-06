@@ -9454,7 +9454,7 @@ void OptionMenu_AnimateSelectedPanel(void)
             pEntry->current = pEntry->end;
             pEntry->startTime2 = CMain::GetFrameDelta();
         } else {
-            pEntry->current = FixMul(ratio, pEntry->end - pEntry->start) + pEntry->start;
+            pEntry->current = FixMul(pEntry->end - pEntry->start, ratio) + pEntry->start;
         }
     }
     if (pEntry->current == 0) {

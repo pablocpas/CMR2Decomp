@@ -3489,6 +3489,7 @@ int StageObject_FindClosestMeshVertex(void)
     int obj[2];
     FixVector delta;
     FixVector vert;
+    FixVector d;
     int dx;
     int dy;
     int dz;
@@ -3509,11 +3510,11 @@ int StageObject_FindClosestMeshVertex(void)
         vert.x = (int)(__int64)(*(float *)(pVertices + i * 0x30) * CGraphics::m_65536);
         vert.y = (int)(__int64)(*(float *)(pVertices + i * 0x30 + 4) * CGraphics::m_65536);
         vert.z = (int)(__int64)(*(float *)(pVertices + i * 0x30 + 8) * CGraphics::m_65536);
-        dx = delta.x - vert.x;
-        dz = delta.z - vert.z;
-        dy = delta.y - vert.y;
-        if (FIX_ABS(dx) <= limit && FIX_ABS(dy) <= limit && FIX_ABS(dz) <= limit) {
-            dist = FixMul(dx, dx) + FixMul(dy, dy) + FixMul(dz, dz);
+        d.x = delta.x - vert.x;
+        d.y = delta.y - vert.y;
+        d.z = delta.z - vert.z;
+        if (FIX_ABS(d.x) <= limit && FIX_ABS(d.y) <= limit && FIX_ABS(d.z) <= limit) {
+            dist = FixVecDot(&d, &d);
             if (dist <= 0x27100000) {
                 limit = FixSqrt(dist);
                 best = i;
@@ -7283,8 +7284,8 @@ void StageLights_Create(void)
     FixMatrix_GetRight(&pair, &g_stageLightMatrix);
     FixVecScale(&pair, &pair, g_stageLightDouble[g_stageLightKind]);
     for (i = 0; i < g_stageLightCount; i++) {
-        v.x = FixMul(g_stageLightOffsets[g_stageLightKind][i][0], lenX);
-        v.y = FixMul(g_stageLightOffsets[g_stageLightKind][i][1], lenY);
+        v.x = FixMul(lenX, g_stageLightOffsets[g_stageLightKind][i][0]);
+        v.y = FixMul(lenY, g_stageLightOffsets[g_stageLightKind][i][1]);
         v.z = FixMul(g_stageLightDepth[g_stageLightKind], lenZ);
         FixMatrix_RotateVector(&pos[i], &v, &g_stageLightBasis);
         pos[i].x += origin.x;
@@ -12530,7 +12531,7 @@ void SurfaceSound_UpdateNearestLocalCarEngines(void)
         {
             Car *pCar = Car_Get(chosen);
             int car798 = pCar->field_0x798;
-            scale = FixMul(pCar->field_0x7ac, car798);
+            scale = FixMul(car798, pCar->field_0x7ac);
             pitch = FixMulShift32(scale, 0x19640000);
             if (pitch < 2000)
                 pitch = 2000;
@@ -12651,7 +12652,7 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
             int volScale;
             int dist2;
             Sound_SetPan((unsigned int)*pHandle, pan2);
-            volScale = FixMul(FixMul(dist, g_unk0x0051f27c), g_unk0x0058dda8);
+            volScale = FixMul(g_unk0x0058dda8, FixMul(dist, g_unk0x0051f27c));
             dist2 = NetRace_GetListenerDistanceAttenuation(chosen, 0);
             Sound_SetPlayingSlotVolume((unsigned int)*pHandle, FixMul(dist2, volScale));
         }

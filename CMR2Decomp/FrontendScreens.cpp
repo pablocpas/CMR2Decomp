@@ -4672,7 +4672,7 @@ void FrontendAnimation_EvaluatePathSpline(int *pPoints, int t, int *pOut)
     seg = ((t << 4) >> 16) + 1;
     u = (((seg << 16) - 0x10000) / 16 - t + 0x1000) << 4;
     u2 = FixMul(u, u);
-    u3 = FixMul(u, u2);
+    u3 = FixMul(u2, u);
     h01 = u2 * 3 - u3 * 2;
     h10 = u3 - u2 * 2 + u;
     h00 = u3 * 2 + 0x10000 - u2 * 3;
@@ -5808,7 +5808,7 @@ void FrontendMenu_DrawProfileBestStageTimes(Menu *pMenu)
         g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 90) / 480) + (short)((int)(g_pGraphics->resY * 25) / 480) * ((short)i + 1);
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
         i++;
-    } while (i < (odd != 0) + 10);
+    } while (i < (odd) + 10);
     FrontendDraw_ScrollerRow(FrontendScroller_GetBestStageTimesScroller(), 1);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x172), 1);
 }
@@ -5877,7 +5877,7 @@ void FrontendDraw_RipplingDotIcon(int x, int y, short phase)
                                  (int)(__int64)(((int)(g_pGraphics->resY * 18) / 480 * row + y) * CGraphics::m_65536)
                                      / (int)g_pGraphics->resX,
                                  phase, 0x140000) / 4 + 0xc000;
-                colour[0] = FixMulShift32(b, 0xff0000);
+                colour[0] = FixMulShift32(0xff0000, b);
                 colour[1] = colour[0];
                 colour[2] = colour[0];
                 Sprite_Queue((SpriteRect *)&CFrontend::m_pSmMatrixTexture->field_0x11c, (SpriteRect *)g_unk0x008189a8,

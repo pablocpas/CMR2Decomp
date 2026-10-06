@@ -218,7 +218,7 @@ void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
     d.y = 0;
     FixMatrix_RotateVector(&e, &d, pCar->pWorld);
     FIX_NORMALIZE_INTO(n, e);
-    facing = FixMul(FixMul(FIX_ABS(FixVecDot(&n, pDir)), FixDiv(0x10000, 0x20000)), 0x6666) + 0x9999;
+    facing = FixMul(0x6666, FixMul(FIX_ABS(FixVecDot(&n, pDir)), FixDiv(0x10000, 0x20000))) + 0x9999;
     if (facing > 0x10000)
         facing = 0x10000;
 
@@ -616,7 +616,7 @@ void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
     shape = p->field0x64 >> 8;
     colour = p->field0x64 - shape * 0x100;
     EFFECT_LIT_COLOUR(light, p->size, NULL);
-    light[2] = (BYTE)(FixMul(lb, g_debrisColours[colour][2] << 16) >> 16);
+    light[2] = (BYTE)(FixMul(g_debrisColours[colour][2] << 16, lb) >> 16);
     light[0] = (BYTE)FixMulShift32(lr, g_debrisColours[colour][0] << 16);
     light[1] = (BYTE)FixMulShift32(lg, g_debrisColours[colour][1] << 16);
     light[3] = 0xaa;
@@ -998,7 +998,7 @@ void WheelSpray_Update(int player)
                         basis[0].z = FixMul(slip, -sn);
                         v.x = FixMul(lat, sn);
                         v.y = 0;
-                        v.z = FixMul(lat, cs);
+                        v.z = FixMul(cs, lat);
                         if (*pDust != 0) {
                             FixVecScale(&basis[0], &basis[0], 0x20000);
                             FixVecScale(&v, &v, 0x8000);
@@ -1045,7 +1045,7 @@ void WheelSpray_Update(int player)
                         s = 0x10000;
                     along = FixMul(along, s);
                     up = FixMul(up, s);
-                    across = FixMul(across, s);
+                    across = FixMul(s, across);
                     if (*pDust != 0) {
                         along = FixMul(along, 0x20000);
                         up = FixMul(up, 0x8000);

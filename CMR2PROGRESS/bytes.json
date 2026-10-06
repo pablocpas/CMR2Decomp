@@ -305,7 +305,7 @@
   },
   "0x438460": {
     "n": "Car_UpdateCornerFriction",
-    "s": 0.7464788732394366,
+    "s": 0.7495621716287215,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -313,7 +313,7 @@
   },
   "0x4387a0": {
     "n": "Car_UpdateTyreForces",
-    "s": 0.7425504349435499,
+    "s": 0.7447714232833611,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -361,7 +361,7 @@
   },
   "0x441500": {
     "n": "Car_UpdateWheelForces",
-    "s": 0.5957960860111138,
+    "s": 0.5972457115245229,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -729,7 +729,7 @@
   },
   "0x4380c0": {
     "n": "Car_UpdateEngineSpeed",
-    "s": 0.6060606060606061,
+    "s": 0.6304347826086957,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1017,7 +1017,7 @@
   },
   "0x431ff0": {
     "n": "Car_PlaceAtStart",
-    "s": 0.7198492462311558,
+    "s": 0.7451471509079524,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1169,7 +1169,7 @@
   },
   "0x499de0": {
     "n": "Car_ShatterWindow",
-    "s": 0.6294148655772273,
+    "s": 0.6315234580917237,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1249,7 +1249,7 @@
   },
   "0x499ac0": {
     "n": "Debris_Draw",
-    "s": 0.5586592178770949,
+    "s": 0.5623836126629422,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1289,7 +1289,7 @@
   },
   "0x49b3e0": {
     "n": "WheelSpray_Update",
-    "s": 0.7501769285208776,
+    "s": 0.7558386411889597,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1401,7 +1401,7 @@
   },
   "0x497db0": {
     "n": "CarPhysics_UpdateWheelContactPatches",
-    "s": 0.6538071065989848,
+    "s": 0.6558375634517767,
     "x": false,
     "unknown": [],
     "f": "CarPhysics.cpp",
@@ -2043,7 +2043,7 @@
   },
   "0x426fc0": {
     "n": "NetRace_ExtrapolateOrderedCarPoses",
-    "s": 0.80927291886196,
+    "s": 0.821917808219178,
     "x": false,
     "unknown": [],
     "f": "FixedPoint.cpp",
@@ -5883,7 +5883,7 @@
   },
   "0x4f3c10": {
     "n": "FrontendAnimation_EvaluatePathSpline",
-    "s": 0.6439628482972136,
+    "s": 0.6501547987616099,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6139,7 +6139,7 @@
   },
   "0x4e5630": {
     "n": "FrontendMenu_DrawProfileBestStageTimes",
-    "s": 0.6967741935483871,
+    "s": 0.6987060998151571,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6147,7 +6147,7 @@
   },
   "0x4d5ad0": {
     "n": "FrontendDraw_RipplingDotIcon",
-    "s": 0.8571428571428571,
+    "s": 0.8707482993197279,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -11331,7 +11331,7 @@
   },
   "0x505b40": {
     "n": "OptionMenu_AnimateSelectedPanel",
-    "s": 0.7211740041928721,
+    "s": 0.7295597484276729,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -13628,7 +13628,7 @@
   },
   "0x4b0480": {
     "n": "Particle_DrawAll",
-    "s": 0.5363408521303258,
+    "s": 0.5463659147869674,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13892,7 +13892,7 @@
   },
   "0x446bf0": {
     "n": "Dash_DrawDial",
-    "s": 0.7024390243902439,
+    "s": 0.7073170731707317,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -17086,7 +17086,7 @@
   },
   "0x41a5c0": {
     "n": "Race_ComputeWheelSurfaceSoundVolumes",
-    "s": 0.6897613548883756,
+    "s": 0.6959199384141648,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -18958,7 +18958,7 @@
   },
   "0x5051c0": {
     "n": "RallyData_DrawCarSplitTimePanels",
-    "s": 0.6831683168316832,
+    "s": 0.6897689768976898,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -21737,7 +21737,7 @@
   },
   "0x492910": {
     "n": "StageObject_FindClosestMeshVertex",
-    "s": 0.4462809917355372,
+    "s": 0.5283018867924528,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22433,7 +22433,7 @@
   },
   "0x463410": {
     "n": "StageLights_Create",
-    "s": 0.5967110415035238,
+    "s": 0.5998433829287392,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23289,7 +23289,7 @@
   },
   "0x47aa70": {
     "n": "SurfaceSound_UpdateNearestLocalCarEngines",
-    "s": 0.5633802816901409,
+    "s": 0.5727699530516432,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23297,7 +23297,7 @@
   },
   "0x47ad20": {
     "n": "SurfaceSound_UpdateNearestNetworkCarEngines",
-    "s": 0.567741935483871,
+    "s": 0.5763440860215053,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -25411,7 +25411,7 @@
   },
   "0x4584d0": {
     "n": "StageTiming_PlaceEventStartingGrid",
-    "s": 0.7189384800965019,
+    "s": 0.7285886610373945,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25483,7 +25483,7 @@
   },
   "0x45f9d0": {
     "n": "StageObject_IntegrateViewDeformationGrid",
-    "s": 0.7039660056657224,
+    "s": 0.7280453257790368,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25507,7 +25507,7 @@
   },
   "0x498620": {
     "n": "StageTiming_RecomputeCarSplitBarSamples",
-    "s": 0.45925925925925926,
+    "s": 0.475103734439834,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25939,7 +25939,7 @@
   },
   "0x4781d0": {
     "n": "Car_UpdateSurfaceParams",
-    "s": 0.6048387096774194,
+    "s": 0.6102150537634409,
     "x": false,
     "unknown": [],
     "f": "SurfaceTypes.cpp",
@@ -26059,7 +26059,7 @@
   },
   "0x4786b0": {
     "n": "Surface_BlendWheelContactParameters",
-    "s": 0.8200455580865603,
+    "s": 0.8246013667425968,
     "x": false,
     "unknown": [],
     "f": "SurfaceTypes.cpp",

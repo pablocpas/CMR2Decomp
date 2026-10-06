@@ -4758,16 +4758,16 @@ void Race_ComputeWheelSurfaceSoundVolumes(int param_1, int param_2)
         g_surfaceVolB[param_1] = 0x10000;
     if (Sound_IsPlaying(pSet->handle[4]))
         Sound_SetPlayingSlotVolume(pSet->handle[4],
-                     FixMul(NetRace_GetListenerDistanceAttenuation(param_1, param_2), FixMul(g_unk0x00537664, g_surfaceVolA[param_1])));
+                     FixMul(FixMul(g_unk0x00537664, g_surfaceVolA[param_1]), NetRace_GetListenerDistanceAttenuation(param_1, param_2)));
     if (Sound_IsPlaying(pSet->handle[5]))
         Sound_SetPlayingSlotVolume(pSet->handle[5],
-                     FixMul(NetRace_GetListenerDistanceAttenuation(param_1, param_2), FixMul(g_unk0x00537664, g_surfaceVolB[param_1])));
+                     FixMul(FixMul(g_unk0x00537664, g_surfaceVolB[param_1]), NetRace_GetListenerDistanceAttenuation(param_1, param_2)));
     if (Sound_IsPlaying(pSet->handle[6]))
         Sound_SetPlayingSlotVolume(pSet->handle[6],
-                     FixMul(NetRace_GetListenerDistanceAttenuation(param_1, param_2), FixMul(g_unk0x00537664, g_surfaceVolD[param_1])));
+                     FixMul(FixMul(g_unk0x00537664, g_surfaceVolD[param_1]), NetRace_GetListenerDistanceAttenuation(param_1, param_2)));
     if (Sound_IsPlaying(pSet->handle[7]))
         Sound_SetPlayingSlotVolume(pSet->handle[7],
-                     FixMul(NetRace_GetListenerDistanceAttenuation(param_1, param_2), FixMul(g_unk0x00537664, g_surfaceVolC[param_1])));
+                     FixMul(FixMul(g_unk0x00537664, g_surfaceVolC[param_1]), NetRace_GetListenerDistanceAttenuation(param_1, param_2)));
     if (NetRace_GetRaceSoundMode()) {
         total = 0;
         for (i = 0; i < 4; i++)
