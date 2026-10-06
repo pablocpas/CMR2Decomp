@@ -208,7 +208,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x423460	Camera_Update	Car.cpp	546	0.7320574162679426	0.700507614213198
 0x477340	StageObject_FindPlayerRevTextures	StageObjects.cpp	280	0.73224043715847	0.6304347826086957
 0x459790	StageTiming_DrawProjectedCarMarker	StageTiming.cpp	1256	0.7323162274618585	0.7027777777777777
-0x4738f0	StageObject_DrawPauseStageDataPanel	StageObjects.cpp	1131	0.733229329173167	0.7696709585121603
 0x4f4050	FrontendAnimation_UpdateMainPath	FrontendScreens.cpp	1299	0.7347480106100795	0.7295423023578363
 0x45ea70	StageWeather_SetupSettingTransition	StageTiming.cpp	220	0.7352941176470589	0.6861313868613139
 0x401d20	InRaceMenu_DrawMenuRows	GameInfo.cpp	733	0.7355371900826446	0.7443762781186094

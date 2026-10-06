@@ -22201,8 +22201,8 @@
   },
   "0x4738f0": {
     "n": "StageObject_DrawPauseStageDataPanel",
-    "s": 0.7696709585121603,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_DrawPauseStageDataPanel"

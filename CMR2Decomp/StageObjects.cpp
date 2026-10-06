@@ -5694,13 +5694,17 @@ void StageObject_DrawPauseStageDataPanel(Menu *pMenu)
         Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect2, (Texture *)texture,
                      2, 0, NULL, NULL, pColour, 8);
         if (i == 0 || pMenu->cursor == i) {
+            rect[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
             rect[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0
                               + (int)(g_pGraphics->resY * 0xc6) / 0x1e0);
+            rect[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
             rect[3] = 1;
             Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 1);
         }
+        rect[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
         rect[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0
                           + (int)(g_pGraphics->resY * 0xea) / 0x1e0);
+        rect[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
         rect[3] = 1;
         Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 1);
     }
