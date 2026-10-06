@@ -5858,12 +5858,14 @@ void FrontendDraw_RipplingDotIcon(int x, int y, short phase)
     colour[1] = 0xff;
     colour[2] = 0xff;
     colour[3] = 0xff;
+    centre[0] = 0;
+    centre[1] = 0;
     g_unk0x008189a8[2] = CFrontend::m_pSmMatrixTexture->width;
-    col = 0;
     g_unk0x008189a8[3] = CFrontend::m_pSmMatrixTexture->height;
     centre[0] = 0;
     centre[1] = 0;
     g_unk0x008189a8[0] = x;
+    col = 0;
     do {
         row = 0;
         u = (int)(__int64)(((int)(g_pGraphics->resX * 18) / 640 * col + x) * CGraphics::m_65536) / (int)g_pGraphics->resX;

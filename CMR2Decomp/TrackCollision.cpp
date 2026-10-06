@@ -895,7 +895,7 @@ void Track_SetFogAndSkyAlpha(DWORD *pColour, int start, int end)
     else
         t = FixDiv(t, range);
     alpha = FixMul(t, 0xff0000) >> 16;
-    if (alpha > 0xff)
+    if (alpha >= 0x100)
         alpha = 0xff;
     else if (alpha < 0)
         alpha = 0;

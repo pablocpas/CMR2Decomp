@@ -1445,11 +1445,12 @@ BYTE SurfaceText_LoadRegionalStringTable(void)
     sprintf(CFrontend::m_stringDest, g_strTxtFormat, pList[CGameInfo::GetGameLanguage()]);
     g_unk0x0058dc54 = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile6(), CFrontend::m_stringDest,
                                                    (BYTE *)g_unk0x0058db50, 0, 0);
-    if (g_unk0x0058dc54 == NULL)
-        return 0;
-    CFrontend::BuildLocalizedTextStringTable(1, 0x104, (BYTE **)&g_unk0x0058dc54);
-    CGame::RegisterCallback(Surface_FreeTextureData, 0);
-    return 1;
+    if (g_unk0x0058dc54 != NULL) {
+        CFrontend::BuildLocalizedTextStringTable(1, 0x104, (BYTE **)&g_unk0x0058dc54);
+        CGame::RegisterCallback(Surface_FreeTextureData, 0);
+        return 1;
+    }
+    return 0;
 }
 
 
