@@ -284,12 +284,11 @@ void Font_DrawText(BYTE index, char *text, short x, short y, int *pColour, unsig
     int length;
     int i;
     int k;
-    int penX;
-    short advance;
+    short penX;
+    int width;
+    int advance;
     short glyph;
-    BYTE ch;
     FontGlyph *pGlyph;
-    FontKernPair *pKern;
 
     pFont = &g_fonts[index & 0xff];
     rand();
@@ -299,10 +298,10 @@ void Font_DrawText(BYTE index, char *text, short x, short y, int *pColour, unsig
         length = strlen(text);
         penX = x;
         if (flags & (FONT_ALIGN_CENTRE | FONT_ALIGN_RIGHT)) {
-            penX = Font_GetTextWidth(index, (BYTE *)text);
+            width = Font_GetTextWidth(index, (BYTE *)text);
             if (flags & FONT_ALIGN_CENTRE)
-                penX /= 2;
-            penX = x - penX;
+                width /= 2;
+            penX = x - width;
         }
         if (flags & FONT_ORIGIN_MIDDLE)
             y -= pFont->pGlyphs->field_0xa[0];
@@ -310,36 +309,29 @@ void Font_DrawText(BYTE index, char *text, short x, short y, int *pColour, unsig
             y = (unsigned short)((short)y - (short)pFont->pHeader->lineHeight);
         Font_Select(index, pColour);
         for (i = 0; i < length; i++) {
-            ch = text[i];
-            if (ch == ' ') {
+            if (text[i] == ' ') {
                 penX += (short)pFont->pHeader->spaceWidth;
-            } else if (ch == '\n' || ch == '^') {
+            } else if (text[i] == '\n' || text[i] == '^') {
                 penX = x;
                 if (flags & (FONT_ALIGN_CENTRE | FONT_ALIGN_RIGHT)) {
-                    penX = Font_GetTextWidth(index, (BYTE *)text + i + 1);
+                    width = Font_GetTextWidth(index, (BYTE *)text + i + 1);
                     if (flags & FONT_ALIGN_CENTRE)
-                        penX /= 2;
-                    penX = x - penX;
+                        width /= 2;
+                    penX = x - width;
                 }
                 y += (short)(pFont->pHeader->lineGap + pFont->pHeader->lineHeight);
             } else {
-                glyph = pFont->pCharMap[ch];
+                glyph = pFont->pCharMap[(BYTE)text[i]];
                 if (glyph != -1) {
-                    advance = (short)pFont->pHeader->charSpacing;
+                    advance = pFont->pHeader->charSpacing;
                     pGlyph = &pFont->pGlyphs[glyph];
                     if (i < length - 1 && pFont->pCharMap[(BYTE)text[i + 1]] != -1) {
-                        k = 0;
-                        if (pGlyph->kernCount != 0) {
-                            pKern = pGlyph->pKern;
-                            do {
-                                if (pKern->ch >= (BYTE)text[i + 1]) {
-                                    if (pGlyph->pKern[k].ch == (BYTE)text[i + 1])
-                                        advance += pGlyph->pKern[k].offset;
-                                    break;
-                                }
-                                k++;
-                                pKern++;
-                            } while (k < pGlyph->kernCount);
+                        for (k = 0; k < pGlyph->kernCount; k++) {
+                            if (pGlyph->pKern[k].ch >= (BYTE)text[i + 1]) {
+                                if (pGlyph->pKern[k].ch == (BYTE)text[i + 1])
+                                    advance += pGlyph->pKern[k].offset;
+                                break;
+                            }
                         }
                     }
                     Font_DrawChar(text[i], (short)penX, (short)y);

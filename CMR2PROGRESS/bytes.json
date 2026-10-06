@@ -2147,7 +2147,7 @@
   },
   "0x40b880": {
     "n": "Font_DrawText",
-    "s": 0.2808988764044944,
+    "s": 0.7065527065527065,
     "x": false,
     "unknown": [],
     "f": "Font.cpp",
@@ -6651,7 +6651,7 @@
   },
   "0x4d6870": {
     "n": "FrontendDraw_ChampionshipEntryRow",
-    "s": 0.3460410557184751,
+    "s": 0.718562874251497,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",

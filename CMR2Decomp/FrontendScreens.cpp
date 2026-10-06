@@ -8389,59 +8389,47 @@ void FrontendMenu_UpdateNetworkCarSetup(Menu *pMenu)
 // Draws one row of the championship standings: the entry name placed at
 // (param_1 + param_2), faded by the distance; returns whether the row lands
 // inside the screen.
-// match 27%: el original carga los colores como dword y los parte en bytes; nosotros byte a byte
 // FUNCTION: CMR2 0x004d6870
-BYTE FrontendDraw_ChampionshipEntryRow(int param_1, unsigned int param_2)
+BYTE FrontendDraw_ChampionshipEntryRow(int param_1, int param_2)
 {
     BYTE colourText[4];
     BYTE colourShadow[4];
-    char *pName;
-    int *pColour;
     int count;
     int index;
     int offset;
-    int x;
-    int y;
     int alpha;
 
     colourText[0] = g_colourText0x0052496c[0];
     colourText[1] = g_colourText0x0052496c[1];
     colourText[2] = g_colourText0x0052496c[2];
+    colourText[3] = g_colourText0x0052496c[3];
     colourShadow[0] = g_colourShadowText0x00524978[0];
     colourShadow[1] = g_colourShadowText0x00524978[1];
     colourShadow[2] = g_colourShadowText0x00524978[2];
-    offset = (int)param_2;
-    if (offset < 0)
-        offset = -offset;
-    alpha = (int)g_colourText0x0052496c[3] - offset * 0x32;
-    colourText[3] = alpha < 0 ? 0 : (BYTE)alpha;
-    colourShadow[3] = (BYTE)(offset * 0x32);
-    count = Profile_GetFileCount();
-    index = (param_1 + (int)param_2) % count;
+    offset = abs(param_2);
+    alpha = colourText[3] - offset * 0x32;
+    colourText[3] = alpha < 0 ? 0 : alpha;
+    colourShadow[3] = (BYTE)offset * 0x32;
+    alpha = colourShadow[3];
+    colourShadow[3] = alpha < 0 ? 0 : alpha;
+    index = (param_1 + param_2) % Profile_GetFileCount();
     if (index < 0)
         index += Profile_GetFileCount();
-    pName = (char *)Profile_GetFileDateRecord(index);
-    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, pName);
-    if (!(!FrontendProfile_IsAlreadyInChampionship(index))) {
-        pColour = (int *)colourShadow;
-        x = (int)g_pGraphics->resX;
-        x = x / 2 + g_unk0x00819868 + ((x * 0x50) / 0x280) * (int)param_2;
-        y = (int)g_pGraphics->resY;
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)Profile_GetFileDateRecord(index));
+    if (FrontendProfile_IsAlreadyInChampionship(index)) {
+        Font_DrawText(2, CFrontend::m_stringDest,
+                      g_pGraphics->resX / 2 + g_unk0x00819868 + ((int)(g_pGraphics->resX * 0x50) / 0x280) * param_2,
+                      (int)(g_pGraphics->resY * 0x118) / 0x1e0, (int *)colourShadow, 0x12);
+    } else if (param_2 == 0) {
+        Font_DrawText(2, CFrontend::m_stringDest, g_pGraphics->resX / 2 + g_unk0x00819868,
+                      (int)(g_pGraphics->resY * 0x118) / 0x1e0, (int *)g_colourWhite0x00524968, 0x12);
     } else {
-        if (param_2 == 0) {
-            pColour = (int *)g_colourWhite0x00524968;
-            y = (int)g_pGraphics->resY;
-            x = (int)g_pGraphics->resX / 2 + g_unk0x00819868;
-        } else {
-            pColour = (int *)colourText;
-            x = (int)g_pGraphics->resX;
-            y = (int)g_pGraphics->resY;
-            x = x / 2 + g_unk0x00819868 + ((x * 0x50) / 0x280) * (int)param_2;
-        }
+        Font_DrawText(2, CFrontend::m_stringDest,
+                      g_pGraphics->resX / 2 + g_unk0x00819868 + ((int)(g_pGraphics->resX * 0x50) / 0x280) * param_2,
+                      (int)(g_pGraphics->resY * 0x118) / 0x1e0, (int *)colourText, 0x12);
     }
-    Font_DrawText(2, CFrontend::m_stringDest, x, (y * 0x118) / 0x1e0, pColour, 0x12);
     count = (int)g_pGraphics->resX;
-    index = ((count * 0x50) / 0x280) * (int)param_2 + count / 2;
+    index = ((count * 0x50) / 0x280) * param_2 + count / 2;
     if (0 < index && index < (count * 0x280) / 0x280)
         return 1;
     return 0;
