@@ -378,39 +378,37 @@ void Spark_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
     FixVector cam;
     FixVector d;
     FixVector side;
-    FixVector dir;
     int len;
 
     if (p->age >= 0x130000)
         return;
     PARTICLE_POS(pos, p);
     FixMatrix_GetPosition(&cam, &pView->current);
-    d.x = cam.x - pos.x;
-    d.y = cam.y - pos.y;
-    d.z = cam.z - pos.z;
-    FixVecCross(&side, &d, &p->position);
+    cam.y -= pos.y;
+    cam.x -= pos.x;
+    cam.z -= pos.z;
+    FixVecCross(&side, &cam, &p->position);
     FIX_NORMALIZE_INTO(side, side);
     len = FixVecLength(&p->position);
     if (len > 0x5999) {
-        FixVecScaleRecip(&dir, &p->position, len);
-        FixVecScale(&dir, &dir, 0x5999);
+        FixVecScaleRecip(&cam, &p->position, len);
+        FixVecScale(&cam, &cam, 0x5999);
         len = 0x5999;
     } else {
-        dir = p->position;
+        cam = p->position;
     }
     FixVecScale(&side, &side, FixMul(len, 0x4000));
-    g_sparkTri[0].x = FixMul(dir.x, 0x20000) + pos.x;
-    g_sparkTri[0].y = FixMul(dir.y, 0x20000) + pos.y;
-    g_sparkTri[0].z = FixMul(dir.z, 0x20000) + pos.z;
+    FixVecScale(&d, &cam, 0x20000);
+    g_sparkTri[0].x = d.x + pos.x;
+    g_sparkTri[0].y = d.y + pos.y;
+    g_sparkTri[0].z = d.z + pos.z;
     g_sparkTri[2].x = side.x + pos.x;
     g_sparkTri[1].x = pos.x - side.x;
     g_sparkTri[2].y = side.y + pos.y;
     g_sparkTri[2].z = side.z + pos.z;
     g_sparkTri[1].z = pos.z - side.z;
     g_sparkTri[1].y = pos.y - side.y;
-    g_sparkTri[0].colour[3] = p->type0x53;
-    g_sparkTri[1].colour[3] = g_sparkTri[0].colour[3];
-    g_sparkTri[2].colour[3] = g_sparkTri[0].colour[3];
+    g_sparkTri[0].colour[3] = g_sparkTri[1].colour[3] = g_sparkTri[2].colour[3] = p->type0x53;
     Quad2D_QueueFixedTriangle(0, &g_sparkTri[0], &g_sparkTri[1], &g_sparkTri[2], (Texture *)pType->field0x38,
                               (Quad2D *)0x14);
 }
