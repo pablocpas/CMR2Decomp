@@ -11189,8 +11189,8 @@ void FrontendMenu_DrawGraphicsOptions(Menu *pMenu)
         pColour = g_colourWhite0x00524968;
         pShadow = g_colourShadowWhite0x00524974;
     } else {
-        pShadow = g_colourShadowText0x00524978;
         pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
@@ -11249,17 +11249,20 @@ void FrontendMenu_DrawGraphicsOptions(Menu *pMenu)
                 strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x1cf));
                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
                               (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
-                textId = 0x134;
-                for (j = 0; j < pItem->min; j++) {
-                    pShadow = pSelected;
-                    if (j != pItem->max)
-                        pShadow = pUnselected;
-                    width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-                    x += (int)(g_pGraphics->resX * 10) / 640 + width;
-                    Font_DrawText(1, CFrontend::GetTextString(textId), x,
-                                  (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pShadow, 0x11);
-                    strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(textId));
-                    textId--;
+                j = 0;
+                if (pItem->min != 0) {
+                    textId = 0x134;
+                    do {
+                        pColour = pSelected;
+                        if (pItem->max != j)
+                            pColour = pUnselected;
+                        x = (int)(g_pGraphics->resX * 10) / 640 + x + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                        Font_DrawText(1, CFrontend::GetTextString(textId), x,
+                                      (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+                        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(textId));
+                        j++;
+                        textId--;
+                    } while (j < pItem->min);
                 }
                 break;
             case 2:
@@ -11279,22 +11282,24 @@ void FrontendMenu_DrawGraphicsOptions(Menu *pMenu)
                 strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x1d2));
                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
                               (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
-                for (j = 0; j < pItem->min; j++) {
-                    if (j == pItem->max)
-                        pShadow = pSelected;
-                    else
-                        pShadow = pUnselected;
-                    width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-                    x += (int)(g_pGraphics->resX * 10) / 640 + width;
-                    if (j == 0)
-                        textId = 0x1d6;
-                    else if (j == 1)
-                        textId = 0x1d5;
-                    else
-                        textId = 0x133;
-                    Font_DrawText(1, CFrontend::GetTextString(textId), x,
-                                  (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pShadow, 0x11);
-                    strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(textId));
+                j = 0;
+                if (pItem->min != 0) {
+                    do {
+                        pColour = pSelected;
+                        if (pItem->max != j)
+                            pColour = pUnselected;
+                        x = (int)(g_pGraphics->resX * 10) / 640 + x + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                        if (j == 0)
+                            textId = 0x1d6;
+                        else if (j == 1)
+                            textId = 0x1d5;
+                        else
+                            textId = 0x133;
+                        Font_DrawText(1, CFrontend::GetTextString(textId), x,
+                                      (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+                        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(textId));
+                        j++;
+                    } while (j < pItem->min);
                 }
                 break;
             case 5:
@@ -11313,8 +11318,8 @@ void FrontendMenu_DrawGraphicsOptions(Menu *pMenu)
                 break;
             }
             if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
-                pShadow = g_colourShadowWhite0x00524974;
                 pColour = g_colourWhite0x00524968;
+                pShadow = g_colourShadowWhite0x00524974;
             } else {
                 pColour = g_colourText0x0052496c;
                 pShadow = g_colourShadowText0x00524978;
