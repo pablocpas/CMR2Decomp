@@ -2797,7 +2797,8 @@ void Car_UpdateWheelTorques(void)
     }
 
     for (i = 0; i < 4; i++) {
-        int load = FixMul(g_pCurrentCar->field_0x998[i], 0x40000) + g_pCurrentCar->field_0x808[i];
+        int load = FixMul(g_pCurrentCar->field_0x998[i], 0x40000);
+        load += g_pCurrentCar->field_0x808[i];
         g_pCurrentCar->field_0x8b8[i] = quarter - FixMul(load, g_pCurrentCar->field_0x8d8);
     }
 
