@@ -1265,8 +1265,8 @@
   },
   "0x49af20": {
     "n": "WheelSpray_Init",
-    "s": 0.6308243727598566,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "CarEffects.cpp",
     "symbol_name": "WheelSpray_Init"
@@ -3147,23 +3147,23 @@
   },
   "0x4fccb0": {
     "n": "FrontendControls_DrawDeviceList",
-    "s": 0.5718954248366013,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendMenus.cpp",
     "symbol_name": "FrontendControls_DrawDeviceList"
   },
   "0x4fd080": {
     "n": "FrontendControls_DrawDeviceBindings",
-    "s": 0.6393939393939394,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendMenus.cpp",
     "symbol_name": "FrontendControls_DrawDeviceBindings"
   },
   "0x4fd480": {
     "n": "FrontendControls_DrawCalibration",
-    "s": 0.9000916590284143,
+    "s": 0.979890310786106,
     "x": false,
     "unknown": [],
     "f": "FrontendMenus.cpp",
@@ -6315,8 +6315,8 @@
   },
   "0x4f0960": {
     "n": "FrontendProfile_CreateNewPlayerProfile",
-    "s": 0.8222222222222222,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendProfile_CreateNewPlayerProfile"
@@ -6899,7 +6899,7 @@
   },
   "0x4d9c40": {
     "n": "FrontendMenu_DrawRallySummary",
-    "s": 0.9855799373040752,
+    "s": 0.9843260188087775,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6907,7 +6907,7 @@
   },
   "0x4dbd80": {
     "n": "FrontendMenu_DrawRallyReport",
-    "s": 0.9850746268656716,
+    "s": 0.9889682024659312,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -7227,8 +7227,8 @@
   },
   "0x49c1c0": {
     "n": "CGame::PromoteCallbackEntryByRule",
-    "s": 0.9634146341463414,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "CGame::PromoteCallbackEntryByRule"
@@ -10235,8 +10235,8 @@
   },
   "0x404000": {
     "n": "InRaceMenu_BuildCarSetup",
-    "s": 0.9333333333333333,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "InRaceMenu_BuildCarSetup"
@@ -14404,8 +14404,8 @@
   },
   "0x40c2a0": {
     "n": "CInput::GetButtonMapping",
-    "s": 0.88,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Input.cpp",
     "symbol_name": "CInput::GetButtonMapping"
@@ -20849,7 +20849,7 @@
   },
   "0x465d70": {
     "n": "StageObject_GetWheelSlip",
-    "s": 0.8920863309352518,
+    "s": 0.9714285714285714,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21409,7 +21409,7 @@
   },
   "0x4752f0": {
     "n": "StageObject_FormatAnimatedLapTime",
-    "s": 0.6666666666666666,
+    "s": 0.9026548672566371,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -24265,7 +24265,7 @@
   },
   "0x456960": {
     "n": "StageTiming_AccumulateSplitDeltas",
-    "s": 0.918918918918919,
+    "s": 0.972972972972973,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -26203,8 +26203,8 @@
   },
   "0x493b30": {
     "n": "Car_UpdateAutomaticGear",
-    "s": 0.9763779527559056,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "TrackCollision.cpp",
     "symbol_name": "Car_UpdateAutomaticGear"
