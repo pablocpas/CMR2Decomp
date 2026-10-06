@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "35eacb874b1f92dd96c80622f7a3dcbbc5c3af50",
+    "commit": "4e57bd6d6f9fd2531e6bb4e469adb2a810e660b8",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -81,7 +81,7 @@
       "CMR2Decomp/GameNetwork.cpp": "e4162b9288f4fd3b48d47ecbf7b79328455dafbd04afb997b4e2f427a22f3b57",
       "CMR2Decomp/GenericFileLoader.cpp": "eba2ddfd0571387fcb1bc7c23202b10d552442c4270cfeccb41d4742e522abb1",
       "CMR2Decomp/GenericFileLoader.h": "5d6070c8817d1be15f3b0c6bfb2a7932e47ede28dc7a6ee8e0f8120691152e01",
-      "CMR2Decomp/Graphics.cpp": "8d6a3261a444fe0ef8a22787cbdb8ddf2e0228111a9e9c048fc8e49113f32952",
+      "CMR2Decomp/Graphics.cpp": "81b54ed5419b9f2b61649d93abbc43f73fd1137f832f2fd1405db813ee4cd401",
       "CMR2Decomp/Graphics.h": "4dd6474ea59f0523717ed50e3a3cfc9a574522b0e019282aac4b5a8b417d4e75",
       "CMR2Decomp/HudDash.cpp": "46fd32fbb59cd7d87595fa50de81d75a912e9374290119772292c9ac30732ab2",
       "CMR2Decomp/Input.cpp": "1a379d210ca7f5d0eb77588de00df5d3f373ee350baed24d61c2ac31882aeae0",
@@ -167,16 +167,16 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "aba3a9dc998b0fe4debe96072028d7fca7a933f3ece69ef35539ee992aeaa1a1",
-    "pdb_sha256": "a3e070aca36c04844198c637b932661d5e395e07b9e4c80514f89d01204e1550"
+    "exe_sha256": "fc71f7188b8ce2ab4e4b2a0a3312e6047fe4cc4cbca06a4c051f419fa9224c1e",
+    "pdb_sha256": "968a91a6eee60e2a4de8bd1fc3245cebebdb673a9e53d493fdba0ee0e3d0f9dc"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3646,
   "measured_functions": 3367,
-  "reccmp_exact": 2682,
+  "reccmp_exact": 2683,
   "audited_source_functions": 3363,
-  "relocated_byte_exact": 2843,
-  "nonmatching_source_functions": 520,
+  "relocated_byte_exact": 2845,
+  "nonmatching_source_functions": 518,
   "unresolved_source_functions": [
     "0x496e00",
     "0x5062d0",

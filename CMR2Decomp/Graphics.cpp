@@ -4709,98 +4709,101 @@ void Glow_NoOpEntryCallback(BYTE a, BYTE b, int c, int d)
 
 // Draws a fading rectangle around a point projected onto the given plane.
 // The corners and colours use the fixed-point triangle queue's shared scratch.
-// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ae950
 void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pTarget, FixVector *pUnused)
 {
-    FixVector *pPlanePoint = (FixVector *)(pSurface + 0x1c);
-    FixVector *pNormal = (FixVector *)(pSurface + 0x28);
-    FixVector displacement;
     FixVector projected;
-    FixVector offset;
     FixVector axisA;
     FixVector axisB;
-    FixVector step;
-    unsigned int depth;
+    FixVector toTarget;
+    int depth;
     int fade;
-    int size;
-    int length;
-    int reciprocal;
-    short colour;
+    BYTE colour[4];
     int i;
-    BYTE intensity;
 
-    displacement.x = pPoint->x - pPlanePoint->x;
-    displacement.y = pPoint->y - pPlanePoint->y;
-    displacement.z = pPoint->z - pPlanePoint->z;
-    depth = FixVecDot(pNormal, &displacement);
-    FixVecScale(&offset, pNormal, depth);
-    projected.x = pPoint->x - offset.x;
-    projected.y = pPoint->y - offset.y;
-    projected.z = pPoint->z - offset.z;
-    if (depth < 0)
-        depth = -depth;
-    fade = FixMul(depth - 0x6666, 0x1aaac);
+    projected.x = pPoint->x - ((FixVector *)(pSurface + 0x1c))->x;
+    projected.y = pPoint->y - ((FixVector *)(pSurface + 0x1c))->y;
+    projected.z = pPoint->z - ((FixVector *)(pSurface + 0x1c))->z;
+    depth = FixVecDot(&projected, (FixVector *)(pSurface + 0x28));
+    FixVecScale(&projected, (FixVector *)(pSurface + 0x28), depth);
+    projected.x = pPoint->x - projected.x;
+    projected.y = pPoint->y - projected.y;
+    projected.z = pPoint->z - projected.z;
+    fade = depth;
     if (fade < 0)
-        fade = 0;
-    else if (fade > 0x10000)
+        fade = -fade;
+    fade -= 0x6666;
+    fade = FixMul(fade, 0x1aaac);
+    if (fade > 0x10000)
         fade = 0x10000;
+    else if (fade < 0)
+        fade = 0;
     fade = 0x10000 - fade;
 
-    depth = FixMul(pNormal->x, 0x10000);
-    axisA.x = 0x10000 - FixMul(pNormal->x, depth);
-    axisA.y = -FixMul(pNormal->y, depth);
-    axisA.z = -FixMul(pNormal->z, depth);
-    length = FixVecLength(&axisA);
-    if (length == 0) {
+    axisA.x = 0x10000;
+    axisA.y = 0;
+    axisA.z = 0;
+    depth = FixVecDot(&axisA, (FixVector *)(pSurface + 0x28));
+    FixVecScale(&toTarget, (FixVector *)(pSurface + 0x28), depth);
+    axisA.x -= toTarget.x;
+    axisA.y -= toTarget.y;
+    axisA.z -= toTarget.z;
+    depth = FixVecLength(&axisA);
+    if (depth == 0) {
         axisA.x = 0; axisA.y = 0; axisA.z = 0;
     } else {
-        FixVecScaleRecip(&axisA, &axisA, length);
+        FixVecScaleRecip(&axisA, &axisA, depth);
     }
-    FixVecCross(&axisB, &axisA, pNormal);
-    length = FixVecLength(&axisB);
-    if (length == 0) {
+    FixVecCross(&axisB, &axisA, (FixVector *)(pSurface + 0x28));
+    depth = FixVecLength(&axisB);
+    if (depth == 0) {
         axisB.x = 0; axisB.y = 0; axisB.z = 0;
     } else {
-        FixVecScaleRecip(&axisB, &axisB, length);
+        FixVecScaleRecip(&axisB, &axisB, depth);
     }
-    size = FixMul(*(int *)(pSurface + 0x40), *(int *)(pSurface + 0x34));
-    FixVecScale(&axisA, &axisA, size);
-    size = FixMul(*(int *)(pSurface + 0x40), *(int *)(pSurface + 0x34));
-    FixVecScale(&axisB, &axisB, size);
+    FixVecScale(&axisA, &axisA, FixMul(*(int *)(pSurface + 0x40), *(int *)(pSurface + 0x34)));
+    FixVecScale(&axisB, &axisB, FixMul(*(int *)(pSurface + 0x40), *(int *)(pSurface + 0x34)));
 
-    displacement.x = pTarget->x - projected.x;
-    displacement.y = pTarget->y - projected.y;
-    displacement.z = pTarget->z - projected.z;
-    length = FixVecLength(&displacement);
-    if (length > 0x10000) {
-        reciprocal = FixDiv(0x10000, length);
-        FixVecScale(&step, &displacement, reciprocal);
-        projected.x += step.x;
-        projected.y += step.y;
-        projected.z += step.z;
-        reciprocal = 0x10000 - reciprocal;
-        FixVecScale(&axisA, &axisA, reciprocal);
-        FixVecScale(&axisB, &axisB, reciprocal);
+    toTarget.x = pTarget->x - projected.x;
+    toTarget.y = pTarget->y - projected.y;
+    toTarget.z = pTarget->z - projected.z;
+    depth = FixVecLength(&toTarget);
+    if (depth >= 0x10000) {
+        depth = FixDiv(0x10000, depth);
+        FixVecScale(&toTarget, &toTarget, depth);
+        projected.x += toTarget.x;
+        projected.y += toTarget.y;
+        projected.z += toTarget.z;
+        depth = 0x10000 - depth;
+        FixVecScale(&axisA, &axisA, depth);
+        FixVecScale(&axisB, &axisB, depth);
     }
 
-    g_projectedQuad[0].x = projected.x + axisA.x - axisB.x;
-    g_projectedQuad[0].y = projected.y + axisA.y - axisB.y;
-    g_projectedQuad[0].z = projected.z + axisA.z - axisB.z;
-    g_projectedQuad[1].x = projected.x + axisA.x + axisB.x;
-    g_projectedQuad[1].y = projected.y + axisA.y + axisB.y;
-    g_projectedQuad[1].z = projected.z + axisA.z + axisB.z;
-    g_projectedQuad[2].x = projected.x - axisA.x + axisB.x;
-    g_projectedQuad[2].y = projected.y - axisA.y + axisB.y;
-    g_projectedQuad[2].z = projected.z - axisA.z + axisB.z;
-    g_projectedQuad[3].x = projected.x - axisA.x - axisB.x;
-    g_projectedQuad[3].y = projected.y - axisA.y - axisB.y;
-    g_projectedQuad[3].z = projected.z - axisA.z - axisB.z;
+    g_projectedQuad[0].x = projected.x + axisA.x;
+    g_projectedQuad[0].y = projected.y + axisA.y;
+    g_projectedQuad[0].z = projected.z + axisA.z;
+    g_projectedQuad[2].x = projected.x - axisA.x;
+    g_projectedQuad[2].y = projected.y - axisA.y;
+    g_projectedQuad[2].z = projected.z - axisA.z;
+    g_projectedQuad[1].x = g_projectedQuad[0].x + axisB.x;
+    g_projectedQuad[1].y = g_projectedQuad[0].y + axisB.y;
+    g_projectedQuad[1].z = g_projectedQuad[0].z + axisB.z;
+    g_projectedQuad[0].x -= axisB.x;
+    g_projectedQuad[0].y -= axisB.y;
+    g_projectedQuad[0].z -= axisB.z;
+    g_projectedQuad[3].x = g_projectedQuad[2].x - axisB.x;
+    g_projectedQuad[3].y = g_projectedQuad[2].y - axisB.y;
+    g_projectedQuad[3].z = g_projectedQuad[2].z - axisB.z;
+    g_projectedQuad[2].x += axisB.x;
+    g_projectedQuad[2].y += axisB.y;
+    g_projectedQuad[2].z += axisB.z;
 
-    intensity = (BYTE)(((unsigned int)pSurface[0x51] * FixMul(fade, *(int *)(pSurface + 0x3c))) >> 16);
-    colour = 0xff000000 | ((int)intensity << 16) | ((int)intensity << 8) | intensity;
+    colour[0] = (BYTE)((pSurface[0x51] * FixMul(fade, *(int *)(pSurface + 0x3c))) >> 16);
+    colour[1] = colour[0];
+    colour[2] = colour[0];
+    colour[3] = 0xff;
     for (i = 0; i < 4; i++)
-        *(int *)g_projectedQuad[i].colour = colour;
+        *(DWORD *)g_projectedQuad[i].colour = *(DWORD *)colour;
     Quad2D_QueueFixedTriangle(0, &g_projectedQuad[0], &g_projectedQuad[1], &g_projectedQuad[2],
                               *(Texture **)(pSurface + 0x48), (Quad2D *)0xe);
     Quad2D_QueueFixedTriangle(0, &g_projectedQuad[0], &g_projectedQuad[2], &g_projectedQuad[3],
@@ -4820,7 +4823,6 @@ BillboardDef g_glowDef;
 
 // Projects the layer anchor onto a plane, stretches it toward a target and
 // draws a four-vertex strip with distance-based greyscale opacity.
-// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ae470
 void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
 {
@@ -4838,7 +4840,7 @@ void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
     quad[0].x = g_glowDef.pos.x - ((FixVector *)(pSurface + 0x1c))->x;
     quad[0].y = g_glowDef.pos.y - ((FixVector *)(pSurface + 0x1c))->y;
     quad[0].z = g_glowDef.pos.z - ((FixVector *)(pSurface + 0x1c))->z;
-    depth = FixVecDot((FixVector *)(pSurface + 0x28), &quad[0]);
+    depth = FixVecDot(&quad[0], (FixVector *)(pSurface + 0x28));
     FixVecScale(&quad[0], (FixVector *)(pSurface + 0x28), depth);
     quad[0].x = g_glowDef.pos.x - quad[0].x;
     quad[0].y = g_glowDef.pos.y - quad[0].y;
@@ -4864,18 +4866,21 @@ void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
     FixVecScale(&axisA, &axisA, t);
     FixVecScale(&axisB, &axisB, t);
 
-    quad[3].x = quad[0].x - axisA.x - axisB.x;
-    quad[3].y = quad[0].y - axisA.y - axisB.y;
-    quad[3].z = quad[0].z - axisA.z - axisB.z;
-    quad[2].x = quad[0].x - axisA.x + axisB.x;
-    quad[2].y = quad[0].y - axisA.y + axisB.y;
-    quad[2].z = quad[0].z - axisA.z + axisB.z;
+    quad[2].x = quad[0].x - axisA.x;
+    quad[2].y = quad[0].y - axisA.y;
+    quad[2].z = quad[0].z - axisA.z;
     quad[1].x = quad[0].x + axisB.x;
     quad[1].y = quad[0].y + axisB.y;
     quad[1].z = quad[0].z + axisB.z;
-    quad[0].x = quad[0].x - axisB.x;
-    quad[0].y = quad[0].y - axisB.y;
-    quad[0].z = quad[0].z - axisB.z;
+    quad[0].x -= axisB.x;
+    quad[0].y -= axisB.y;
+    quad[0].z -= axisB.z;
+    quad[3].x = quad[2].x - axisB.x;
+    quad[3].y = quad[2].y - axisB.y;
+    quad[3].z = quad[2].z - axisB.z;
+    quad[2].x += axisB.x;
+    quad[2].y += axisB.y;
+    quad[2].z += axisB.z;
 
     t = depth - 0x20000;
     if (t < 0)
@@ -4883,7 +4888,8 @@ void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
     t = FixMul(t, 0x20000);
     if (t > 0x10000)
         t = 0x10000;
-    colour[0] = (BYTE)(FixMul(FixMul(0x10000 - t, *(int *)(pSurface + 0x44)), (int)g_glowDef.r << 16) >> 16);
+    t = FixMul(0x10000 - t, *(int *)(pSurface + 0x44));
+    colour[0] = (BYTE)(FixMul(t, (int)g_glowDef.r << 16) >> 16);
     colour[1] = colour[0];
     colour[2] = colour[0];
     colour[3] = 0xff;

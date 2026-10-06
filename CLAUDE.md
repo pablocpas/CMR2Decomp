@@ -71,6 +71,21 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
   temporary home (often a dead parameter's slot). `FIX_ABS(FixMul(...))`
   expands the call three times. A helper call whose result is unused is still
   emitted.
+- `&global` as an inline-asm argument is used in place (`mov esi, imm`), but
+  `&global[1]` / a member at a non-zero offset gets a home first
+  (`mov [ebp-x], imm`). A homed constant address means the vector is part of
+  a larger object (Graphics_DrawLayerQuad: g_glowBasis[3]).
+- A local that MSVC6 can keep in a dead parameter's slot (depth in `[ebp+0xc]`)
+  is how `x = e; x = FixMul(x, k)` shows up: the asm operand is the variable's
+  own slot (`mov [ebp-4], eax; mov eax, [ebp-4]`), where `FixMul(e, k)` homes
+  `e` in a temp slot. Likewise a value stored in a variable before being
+  passed (`d = FixVecDot(..); FixVecScale(.., d)`) is homed in that variable's
+  slot. The order of the two homes of `FixVecDot(a, b)` shows which argument
+  is which, so swap them when only those two stores differ.
+- Corner/vertex blocks: `q2 = q0 - A; q1 = q0 + B; q0 -= B; q3 = q2 - B;
+  q2 += B` (the first q2 store is dead and vanishes, its value stays in
+  registers) rather than each corner written out from q0
+  (Graphics_DrawProjectedQuad, Graphics_DrawLayerQuad).
 - `c ? 0xff : 0` gives `setcc/dec/and`; `x -= k; f(x)` gives `sub` where
   `f(x - k)` gives `add x, -k`; a `return` inside an `if` duplicates the
   epilogue where `if/else` shares it.

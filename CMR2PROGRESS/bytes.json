@@ -13316,8 +13316,8 @@
   },
   "0x4ae950": {
     "n": "Graphics_DrawProjectedQuad",
-    "s": 0.6001478196600147,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "Graphics_DrawProjectedQuad"
@@ -13332,8 +13332,8 @@
   },
   "0x4ae470": {
     "n": "Graphics_DrawLayerQuad",
-    "s": 0.8447058823529412,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "Graphics_DrawLayerQuad"
