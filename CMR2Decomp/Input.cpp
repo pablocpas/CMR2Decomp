@@ -1804,7 +1804,6 @@ int CInput::CreateDamperEffect(DWORD duration, LONG coefficient, LONG offset, in
     return CreateForceFeedbackEffect(0xd, duration, coefficient, offset, triggerButton, deviceIndex);
 }
 
-// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040c2a0
 short CInput::GetButtonMapping(unsigned short controller, int button)
 {
@@ -1813,19 +1812,18 @@ short CInput::GetButtonMapping(unsigned short controller, int button)
     short mapping;
 
     mapping = 0;
-    index = m_unk0x005168f4[controller];
-    pController = &m_controllerInfo[index];
+    index = m_unk0x005168f4[controller] * sizeof(ControllerData);
     switch (button) {
-    case 0: mapping = m_controllerInfo[index].field_0x128; break;
-    case 1: mapping = m_controllerInfo[index].field_0x12a; break;
-    case 2: mapping = m_controllerInfo[index].field_0x12c; break;
-    case 3: mapping = m_controllerInfo[index].field_0x12e; break;
-    case 4: mapping = m_controllerInfo[index].field_0x130; break;
-    case 5: mapping = m_controllerInfo[index].field_0x132; break;
-    case 6: mapping = m_controllerInfo[index].field_0x134; break;
-    case 7: mapping = m_controllerInfo[index].field_0x136; break;
-    case 8: mapping = m_controllerInfo[index].field_0x138; break;
-    case 9: mapping = m_controllerInfo[index].field_0x13a; break;
+    case 0: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x128 + index); break;
+    case 1: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x12a + index); break;
+    case 2: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x12c + index); break;
+    case 3: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x12e + index); break;
+    case 4: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x130 + index); break;
+    case 5: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x132 + index); break;
+    case 6: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x134 + index); break;
+    case 7: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x136 + index); break;
+    case 8: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x138 + index); break;
+    case 9: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x13a + index); break;
     default: goto defaults;
     }
 
@@ -1835,6 +1833,7 @@ defaults:
             goto fixed;
     }
 
+    pController = (ControllerData *)((BYTE *)m_controllerInfo + index);
     if (!IsControllerActionBound(button, pController))
         return mapping;
 

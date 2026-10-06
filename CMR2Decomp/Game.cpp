@@ -1214,7 +1214,6 @@ void CGame::InitializeCallbackStateMachine(Unk0049c2c0 *p1, BYTE count, Unk00817
 // Promotes entry index of the table to the given level when a rule of
 // p->unk2 (terminated by 0xffffffff, 0xff bytes are wildcards) matches it
 // with the given value; the rule's top byte becomes the entry's third byte.
-// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049c1c0
 int CGame::PromoteCallbackEntryByRule(Unk0049c2c0 *p, BYTE index, BYTE value, int level)
 {
@@ -1233,9 +1232,8 @@ int CGame::PromoteCallbackEntryByRule(Unk0049c2c0 *p, BYTE index, BYTE value, in
                 break;
             if ((((rule ^ entry) & 0xff) == 0 || (rule & 0xff) == 0xff) &&
                 (((rule ^ entry) & 0xff00) == 0 || (rule & 0xff00) == 0xff00) && ((rule >> 16) & 0xff) == value) {
-                entry = ((level & 3) << 24) | (entry & 0xfcffffff);
-                *pEntry = entry;
-                *pEntry = ((*pRule >> 8) & 0xff0000) | (entry & 0xff00ffff);
+                ((Unk00817d98 *)pEntry)->bits.level = level;
+                ((Unk00817d98 *)pEntry)->bits.rule = *pRule >> 24;
                 return 1;
             }
         }
