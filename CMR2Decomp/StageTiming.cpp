@@ -5422,9 +5422,9 @@ void CarDamage_ApplyCameraSpaceMeshDent(int *pRecord)
             limit.x += scaled.x;
             limit.y += scaled.y;
             limit.z += scaled.z;
-            DENT_VERTEX(3) = (float)((double)limit.x * CGraphics::m_oneOver65536);
-            DENT_VERTEX(4) = (float)((double)limit.y * CGraphics::m_oneOver65536);
-            DENT_VERTEX(5) = (float)((double)limit.z * CGraphics::m_oneOver65536);
+            DENT_VERTEX(3) = limit.x * CGraphics::m_oneOver65536;
+            DENT_VERTEX(4) = limit.y * CGraphics::m_oneOver65536;
+            DENT_VERTEX(5) = limit.z * CGraphics::m_oneOver65536;
             changed = 1;
         }
         if (changed) {

@@ -25318,7 +25318,7 @@
   },
   "0x508890": {
     "n": "CarDamage_ApplyCameraSpaceMeshDent",
-    "s": 0.9924098671726755,
+    "s": 0.9962049335863378,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",

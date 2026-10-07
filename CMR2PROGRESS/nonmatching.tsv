@@ -490,9 +490,9 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b2f80	Scene_CreateLight	SceneNode.cpp	1201	0.990909090909091	0.9938271604938271
 0x4b50b0	Scene_ApplyGroundLightToMeshTree	SceneNode.cpp	613	0.990990990990991	0.990990990990991
 0x40c610	CInput::InitDetectedControllerSlot	Input.cpp	1604	0.9920424403183024	0.9920424403183024
-0x508890	CarDamage_ApplyCameraSpaceMeshDent	StageTiming.cpp	1614	0.9924098671726755	0.9924098671726755
 0x451df0	GameMenu_DrawStageClassification	GameMenus.cpp	1585	0.9944649446494465	0.9944649446494465
 0x4d9c40	FrontendMenu_DrawRallySummary	FrontendScreens.cpp	2529	0.9956167814652473	0.9855799373040752
+0x508890	CarDamage_ApplyCameraSpaceMeshDent	StageTiming.cpp	1614	0.9962049335863378	0.9962049335863378
 0x441500	Car_UpdateWheelForces	Car.cpp	6536	0.9966507177033492	0.9966507177033492
 0x4556f0	StageTiming_PairPlayerOpponentSlots	StageTiming.cpp	898	0.9966666666666667	0.9964664310954063
 0x46afe0	CarDamage_BuildPartVertexBuffer	StageObjects.cpp	1055	0.9970238095238095	0.9970238095238095
