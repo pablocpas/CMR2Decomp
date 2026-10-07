@@ -2706,8 +2706,7 @@ void Scene_EmitProjectedShadowMesh(float *param_1, int param_2)
     int k;
     unsigned short *pFace;
     int i;
-    DWORD shadowColour;
-    BYTE colour;
+    BYTE colour[4];
     BYTE baseColour;
     float light[3];
     int index[3];
@@ -2718,7 +2717,7 @@ void Scene_EmitProjectedShadowMesh(float *param_1, int param_2)
     float *pPos;
     float *pDst;
 
-    shadowColour = g_shadowColour;
+    *(DWORD *)colour = g_shadowColour;
     if (param_2 > 0x10000)
         param_2 = 0x10000;
     param_2 = FixMul(g_shadowLevel, param_2);
@@ -2783,16 +2782,14 @@ void Scene_EmitProjectedShadowMesh(float *param_1, int param_2)
                         g_unk0x006e0354[v] = *(short *)(p + 0x52);
                         {
                             float vy = (*(float **)(p + 0x40))[v];
-                            colour = baseColour;
+                            colour[3] = baseColour;
                             if (vy < g_netZero)
-                                colour = 0;
+                                colour[3] = 0;
                             else if (vy < g_unk0x00511ce8)
-                                colour = (BYTE)(__int64)(vy * g_unk0x00511360 * scale);
+                                colour[3] = (BYTE)(__int64)(vy * g_unk0x00511360 * scale);
                         }
-                        *(DWORD *)(pVtx + 0x18) = ((DWORD)colour << 24) |
-                                                  ((shadowColour & 0xff) << 16) |
-                                                  (((shadowColour >> 8) & 0xff) << 8) |
-                                                  ((shadowColour >> 16) & 0xff);
+                        *(DWORD *)(pVtx + 0x18) =
+                            ((((DWORD)colour[3] << 8 | colour[0]) << 8 | colour[1]) << 8) | colour[2];
                         FloatMatrix_RotateVector(light, (float *)pOut,
                                                  (float *)(*(int *)(p + 0x34) + 0x118));
                         light[0] = light[0] + lightOffset[0];
