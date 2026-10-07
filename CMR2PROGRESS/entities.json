@@ -280,23 +280,23 @@
     "InRaceMenu_GetCurtainTexture"
   ],
   "0x405620": [
-    5268466,
+    5268530,
     "MSVCRT.dll::sprintf"
   ],
   "0x405626": [
-    5268900,
+    5268964,
     "_WinMainCRTStartup"
   ],
   "0x405784": [
-    5269256,
+    5269320,
     "MSVCRT.dll::_XcptFilter"
   ],
   "0x40578a": [
-    5268816,
+    5268880,
     "MSVCRT.dll::exit"
   ],
   "0x405790": [
-    5269268,
+    5269332,
     "MSVCRT.dll::_initterm"
   ],
   "0x405796": [
@@ -312,11 +312,11 @@
     "Game_NoOpInitializationCallback"
   ],
   "0x4057b0": [
-    5269382,
+    5269446,
     "MSVCRT.dll::_except_handler3"
   ],
   "0x4057b6": [
-    5268478,
+    5268542,
     "MSVCRT.dll::_controlfp"
   ],
   "0x4057c0": [
@@ -1748,7 +1748,7 @@
     "RallyTiming_GetOverallTimeCentiseconds"
   ],
   "0x40d3f0": [
-    5211040,
+    5211072,
     "RallyTiming_SetOverallTimeRaw"
   ],
   "0x40d410": [
@@ -1760,11 +1760,11 @@
     "RallyTiming_GetPointsForPosition"
   ],
   "0x40d480": [
-    5210992,
+    5211024,
     "ConvertRawTimeToCentiseconds"
   ],
   "0x40d4b0": [
-    5211072,
+    5211104,
     "Timing_CentisecondsToFixedSeconds"
   ],
   "0x40d520": [
@@ -2248,31 +2248,31 @@
     "RallyData_SetFinishLineResultMessages"
   ],
   "0x415bc0": [
-    5189136,
+    5189168,
     "StageUI_NoOpMapEvent"
   ],
   "0x415bd0": [
-    5189168,
+    5189200,
     "FormatGapToLeader"
   ],
   "0x415db0": [
-    5189648,
+    5189680,
     "PrepareFormatGapToLeader"
   ],
   "0x415e30": [
-    5195616,
+    5195648,
     "StageUI_FitMapToRoute"
   ],
   "0x415f40": [
-    5189152,
+    5189184,
     "StageUI_NoOpMapRelease"
   ],
   "0x415f50": [
-    5195888,
+    5195920,
     "StageUI_DrawHudRouteMap"
   ],
   "0x4165e0": [
-    5195344,
+    5195376,
     "StageUI_LoadCoDriverArrows"
   ],
   "0x416670": [
@@ -2412,19 +2412,19 @@
     "Race_StopAllStageSounds"
   ],
   "0x418f20": [
-    5189792,
+    5189824,
     "StageSound_ResetRecordsAndRegisterCleanup"
   ],
   "0x418fe0": [
-    5189776,
+    5189808,
     "StageUI_ReleaseHUDResources"
   ],
   "0x418ff0": [
-    5189984,
+    5190016,
     "StageSound_LoadSurfaceVariations"
   ],
   "0x419200": [
-    5190496,
+    5190528,
     "StageUI_ApplySoundState"
   ],
   "0x419b50": [
@@ -2476,47 +2476,47 @@
     "CGame::UpdateInRaceCallbackMachine"
   ],
   "0x41b300": [
-    5192880,
+    5192912,
     "StageUI_ClearRaceEndLatch"
   ],
   "0x41b310": [
-    5192896,
+    5192928,
     "StageUI_SetRaceEndPending"
   ],
   "0x41b320": [
-    5192912,
+    5192944,
     "StageUI_GetRaceEndState"
   ],
   "0x41b330": [
-    5192928,
+    5192960,
     "StageUI_ClearRaceEndState"
   ],
   "0x41b340": [
-    5192944,
+    5192976,
     "StageUI_RecordRaceEndEvent"
   ],
   "0x41b360": [
-    5192976,
+    5193008,
     "StageUI_ResetRaceEndEventCount"
   ],
   "0x41b370": [
-    5192992,
+    5193024,
     "StageUI_GetRaceEndEventCount"
   ],
   "0x41b380": [
-    5193008,
+    5193040,
     "StageUI_GetRaceResultValue"
   ],
   "0x41b390": [
-    5193024,
+    5193056,
     "StageUI_GetRaceResultTable"
   ],
   "0x41b3a0": [
-    5193040,
+    5193072,
     "StageUI_PublishNetworkRaceWins"
   ],
   "0x41b460": [
-    5197584,
+    5197616,
     "StageUI_UpdateDriverEventAwards"
   ],
   "0x41bf50": [
@@ -3032,11 +3032,11 @@
     "View_IsNegativeRightAngleCameraSpot"
   ],
   "0x423ff0": [
-    5144256,
+    5144288,
     "StageTiming_InitForceFeedbackSlots"
   ],
   "0x424120": [
-    5122128,
+    5122160,
     "ForceFeedback_CreateEffects"
   ],
   "0x4241d0": [
@@ -3044,55 +3044,55 @@
     "ForceFeedback_UpdateSlot"
   ],
   "0x424360": [
-    5141344,
+    5141376,
     "ForceFeedback_ComputeSteeringForce"
   ],
   "0x424560": [
-    5120960,
+    5120992,
     "ForceFeedback_ApplyStoredForces"
   ],
   "0x4245e0": [
-    5121088,
+    5121120,
     "ForceFeedback_ActivateIdleSlots"
   ],
   "0x424640": [
-    5121184,
+    5121216,
     "ForceFeedback_DeactivateSlots"
   ],
   "0x4246a0": [
-    5120928,
+    5120960,
     "ForceFeedback_CacheAppliedForces"
   ],
   "0x4246c0": [
-    5121280,
+    5121312,
     "ForceFeedback_StopSlotForces"
   ],
   "0x424710": [
-    5121360,
+    5121392,
     "ForceFeedback_UpdatePlayerSlot"
   ],
   "0x4247a0": [
-    5141856,
+    5141888,
     "ForceFeedback_ComputeAxleRumble"
   ],
   "0x4248a0": [
-    5142112,
+    5142144,
     "ForceFeedback_ComputeConditionCoefficients"
   ],
   "0x424af0": [
-    5143088,
+    5143120,
     "ForceFeedback_ComputeRoadNoise"
   ],
   "0x424c00": [
-    5121504,
+    5121536,
     "ForceFeedback_FadeImpulseForces"
   ],
   "0x424c50": [
-    5188000,
+    5188032,
     "StageTiming_RestoreDeviceStageResources"
   ],
   "0x424dc0": [
-    5150400,
+    5150432,
     "StageTiming_SnapshotCarNetworkPose"
   ],
   "0x424ed0": [
@@ -3732,7 +3732,7 @@
     "View_IsPlaybackCameraActive"
   ],
   "0x445a40": [
-    5122592,
+    5122624,
     "StageTiming_ConsumeDashRefreshLatch"
   ],
   "0x445a60": [
@@ -3748,11 +3748,11 @@
     "Dash_InitStyle"
   ],
   "0x445db0": [
-    5122624,
+    5122656,
     "StageTiming_ResetDashGearMarkers"
   ],
   "0x445dd0": [
-    5122656,
+    5122688,
     "StageTiming_GetDashRevValue"
   ],
   "0x445df0": [
@@ -3840,163 +3840,163 @@
     "StageTiming_ResetRaceDriverTimes"
   ],
   "0x448100": [
-    5118304,
+    5118336,
     "StageTiming_ResetClockAndPreviousTime"
   ],
   "0x448110": [
-    5118320,
+    5118352,
     "StageTiming_GetClockTime"
   ],
   "0x448120": [
-    5183904,
+    5183936,
     "StageTiming_UpdateAllCarLineCrossings"
   ],
   "0x4481b0": [
-    5118336,
+    5118368,
     "StageTiming_GetStageClockState"
   ],
   "0x4481c0": [
-    5118352,
+    5118384,
     "StageTiming_GetCarTimingByte81"
   ],
   "0x4481e0": [
-    5118384,
+    5118416,
     "StageTiming_GetSplitIndexValue"
   ],
   "0x4481f0": [
-    5118400,
+    5118432,
     "StageTiming_GetCarSplitTime"
   ],
   "0x448210": [
-    5118432,
+    5118464,
     "StageTiming_GetClampedElapsedCarTime"
   ],
   "0x448240": [
-    5118480,
+    5118512,
     "StageTiming_GetCarSplitMarker"
   ],
   "0x448260": [
-    5118512,
+    5118544,
     "StageTiming_GetSplitLeaderTime"
   ],
   "0x4482d0": [
-    5118624,
+    5118656,
     "StageTiming_GetGroupedCheckpointValue"
   ],
   "0x448330": [
-    5118720,
+    5118752,
     "StageTiming_GetCarTimingByte82"
   ],
   "0x448350": [
-    5118752,
+    5118784,
     "StageTiming_GetCarTimingByte80"
   ],
   "0x448370": [
-    5118784,
+    5118816,
     "StageTiming_GetCarTimingByte83"
   ],
   "0x448390": [
-    5118816,
+    5118848,
     "StageTiming_GetBoundedFinishOrderEntry"
   ],
   "0x4483b0": [
-    5118848,
+    5118880,
     "StageTiming_GetFinishOrderSecondaryEntry"
   ],
   "0x4483c0": [
-    5119392,
+    5119424,
     "StageTiming_GetValidStartTime"
   ],
   "0x4483e0": [
-    5151456,
+    5151488,
     "StageTiming_EstimateRemainingDriverTimes"
   ],
   "0x448550": [
-    5137408,
+    5137440,
     "StageTiming_EstimateElapsedStageTime"
   ],
   "0x448620": [
-    5118864,
+    5118896,
     "StageTiming_CommitChampionshipPoints"
   ],
   "0x448630": [
-    5119328,
+    5119360,
     "StageTiming_RecordDriverTimeoutFinish"
   ],
   "0x448670": [
-    5118880,
+    5118912,
     "StageTiming_GetFinishedDriverCount"
   ],
   "0x448680": [
-    5119424,
+    5119456,
     "StageTiming_GetDriverSplitClock"
   ],
   "0x4486a0": [
-    5118896,
+    5118928,
     "StageTiming_CompareCheckpointAndStartOrder"
   ],
   "0x448730": [
-    5183824,
+    5183856,
     "StageTiming_UpdateCarLineCrossings"
   ],
   "0x448780": [
-    5119040,
+    5119072,
     "StageTiming_SetCarStartClock"
   ],
   "0x4487a0": [
-    5152544,
+    5152576,
     "StageTiming_RecordAndReorderSplitTime"
   ],
   "0x448920": [
-    5183104,
+    5183136,
     "StageTiming_HandleCarSplitCrossing"
   ],
   "0x448bf0": [
-    5119072,
+    5119104,
     "StageTiming_QueueSplitRaceDriversByGap"
   ],
   "0x448c60": [
-    5119184,
+    5119216,
     "StageTiming_GetPendingDriverEntry"
   ],
   "0x448c70": [
-    5119200,
+    5119232,
     "StageTiming_GetPendingDriverCount"
   ],
   "0x448c80": [
-    5119216,
+    5119248,
     "StageTiming_GetPendingDriverState"
   ],
   "0x448c90": [
-    5119232,
+    5119264,
     "StageTiming_GetPendingDriverByteA6"
   ],
   "0x448ca0": [
-    5119248,
+    5119280,
     "StageTiming_GetPendingDriverByteA7"
   ],
   "0x448cb0": [
-    5119264,
+    5119296,
     "StageTiming_GetFinishStateEntry"
   ],
   "0x448cc0": [
-    5119280,
+    5119312,
     "StageTiming_GetFinishStateByte"
   ],
   "0x448cd0": [
-    5119296,
+    5119328,
     "StageTiming_GetCarTimingByte84"
   ],
   "0x448cf0": [
-    5118208,
+    5118240,
     "StageTiming_QueueDriverSlot"
   ],
   "0x448d50": [
-    5136096,
+    5136128,
     "StageTiming_BubbleRunningOrder"
   ],
   "0x448de0": [
-    5135056,
+    5135088,
     "StageTiming_AdvanceJitteredClock"
   ],
   "0x448e60": [
@@ -4252,271 +4252,271 @@
     "GameMenus_DrawTextRow"
   ],
   "0x454f20": [
-    5142704,
+    5142736,
     "StageTiming_ReleaseStageArchives"
   ],
   "0x455020": [
-    5115168,
+    5115200,
     "StageTiming_FreeStageFile5"
   ],
   "0x455050": [
-    5115216,
+    5115248,
     "StageTiming_FreeStageFile2"
   ],
   "0x455080": [
-    5188656,
+    5188688,
     "StageTiming_OpenRegionalStageArchives"
   ],
   "0x455260": [
-    5132560,
+    5132592,
     "StageTiming_LoadStageBFLArchive"
   ],
   "0x455290": [
-    5115264,
+    5115296,
     "StageTiming_GetStageFile0"
   ],
   "0x4552a0": [
-    5115280,
+    5115312,
     "StageTiming_GetStageFile1"
   ],
   "0x4552b0": [
-    5115296,
+    5115328,
     "StageTiming_GetStageFile2"
   ],
   "0x4552c0": [
-    5115312,
+    5115344,
     "StageTiming_GetStageFile3"
   ],
   "0x4552d0": [
-    5115328,
+    5115360,
     "StageTiming_GetStageFile4"
   ],
   "0x4552e0": [
-    5115344,
+    5115376,
     "StageTiming_GetStageFile5"
   ],
   "0x4552f0": [
-    5115360,
+    5115392,
     "StageTiming_GetStageFile6"
   ],
   "0x455300": [
-    5151104,
+    5151136,
     "StageTiming_LoadSelectedTeamArchive"
   ],
   "0x455460": [
-    5115376,
+    5115408,
     "StageTiming_GetStageArchiveState"
   ],
   "0x455470": [
-    5188368,
+    5188400,
     "StageTiming_InitRaceDriverRecords"
   ],
   "0x455590": [
-    5142960,
+    5142992,
     "StageTiming_RecordSplitGroupTimes"
   ],
   "0x455610": [
-    5115392,
+    5115424,
     "StageTiming_ClearSplitDisplayFlags"
   ],
   "0x455620": [
-    5135184,
+    5135216,
     "StageTiming_RebuildSplitDisplaySlots"
   ],
   "0x4556a0": [
-    5115408,
+    5115440,
     "StageTiming_AssignReservedDriverSlots"
   ],
   "0x4556f0": [
-    5115488,
+    5115520,
     "StageTiming_PairPlayerOpponentSlots"
   ],
   "0x455ab0": [
-    5116448,
+    5116480,
     "StageTiming_GetSplitSecondaryEntry"
   ],
   "0x455ac0": [
-    5116464,
+    5116496,
     "StageTiming_GetSplitTableEntry"
   ],
   "0x455ae0": [
-    5116496,
+    5116528,
     "StageTiming_GetSplitDisplayState"
   ],
   "0x455af0": [
-    5138752,
+    5138784,
     "StageTiming_InsertDriverSplitRanking"
   ],
   "0x455bc0": [
-    5116512,
+    5116544,
     "StageTiming_RemoveDriverFromSplitRankings"
   ],
   "0x455c70": [
-    5116688,
+    5116720,
     "StageTiming_GetSplitDriverCount"
   ],
   "0x455c80": [
-    5116704,
+    5116736,
     "StageTiming_GetSplitPositionOfDriver"
   ],
   "0x455ca0": [
-    5116736,
+    5116768,
     "StageTiming_GetCurrentSplitPositionOfDriver"
   ],
   "0x455cc0": [
-    5116768,
+    5116800,
     "StageTiming_GetSplitDriverIDForPosition"
   ],
   "0x455cf0": [
-    5115072,
+    5115104,
     "StageTiming_GetDriverIDForPosition"
   ],
   "0x455d10": [
-    5117040,
+    5117072,
     "StageTiming_AddToOverall"
   ],
   "0x455d40": [
-    5116816,
+    5116848,
     "StageTiming_GetSplitTimeForPosition"
   ],
   "0x455d70": [
-    5115104,
+    5115136,
     "StageTiming_GetTimeForPosition"
   ],
   "0x455db0": [
-    5116864,
+    5116896,
     "StageTiming_GetCurrentSplitTimeForDriver"
   ],
   "0x455de0": [
-    5116912,
+    5116944,
     "StageTiming_GetDriverSlot"
   ],
   "0x455df0": [
-    5117088,
+    5117120,
     "StageTiming_GetSplitTimesForPositions"
   ],
   "0x455e60": [
-    5116928,
+    5116960,
     "StageTiming_Reset"
   ],
   "0x455ed0": [
-    5152928,
+    5152960,
     "StageTiming_RefreshPaintSamplesAndTimeSpread"
   ],
   "0x455f00": [
-    5138992,
+    5139024,
     "StageTiming_BlendCarPaintDecalRows"
   ],
   "0x456110": [
-    5139520,
+    5139552,
     "StageTiming_RandomizeComputerTimes"
   ],
   "0x4561e0": [
-    5184656,
+    5184688,
     "StageTiming_BuildAndSortCPUSplitTimes"
   ],
   "0x456250": [
-    5117200,
+    5117232,
     "StageTiming_RebuildSplitPositions"
   ],
   "0x456330": [
-    5117424,
+    5117456,
     "StageTiming_BuildSplitInterpolationFactors"
   ],
   "0x4564d0": [
-    5119984,
+    5120016,
     "StageTiming_InterpolateCarFixedSampleRows"
   ],
   "0x456710": [
-    5184048,
+    5184080,
     "StageTiming_PerturbComputerSplitDeltas"
   ],
   "0x456960": [
-    5120560,
+    5120592,
     "StageTiming_AccumulateSplitDeltas"
   ],
   "0x4569c0": [
-    5141280,
+    5141312,
     "StageTiming_RecordPassedCarSplit"
   ],
   "0x456a00": [
-    5141056,
+    5141088,
     "StageTiming_InsertCarSplitRanking"
   ],
   "0x456a30": [
-    5115056,
+    5115088,
     "StageTiming_SetSplitDisplayFlag"
   ],
   "0x456a40": [
-    5123008,
+    5123040,
     "StageTiming_UpdateSplitRatesForSlot"
   ],
   "0x456ae0": [
-    5122768,
+    5122800,
     "StageTiming_GetSelectedStartTableFloat"
   ],
   "0x456b00": [
-    5122688,
+    5122720,
     "StageTiming_SetStartSelectionIndex"
   ],
   "0x456b10": [
-    5122704,
+    5122736,
     "StageTiming_GetCurrentStartSelection"
   ],
   "0x456b40": [
-    5122736,
+    5122768,
     "$CRT_CPP_Initializer"
   ],
   "0x456b60": [
-    5122752,
+    5122784,
     "$CRT_CPP_Initializer"
   ],
   "0x456b70": [
-    5118144,
+    5118176,
     "StageTiming_ReleaseStartArchiveBuffers"
   ],
   "0x456bb0": [
-    5128800,
+    5128832,
     "StageTiming_InitStageFileTable"
   ],
   "0x456be0": [
-    5128848,
+    5128880,
     "StageTiming_GetStartTableRecord"
   ],
   "0x456c00": [
-    5122800,
+    5122832,
     "StageTiming_GetStartSlotIndex"
   ],
   "0x456c10": [
-    5122816,
+    5122848,
     "StageTiming_LoadCspData"
   ],
   "0x456c70": [
-    5137824,
+    5137856,
     "StageTiming_GetCarStartPosition"
   ],
   "0x456c90": [
-    5122912,
+    5122944,
     "StageTiming_GetStartTableField244"
   ],
   "0x456ca0": [
-    5117840,
+    5117872,
     "StageTiming_GetTotalCarCount"
   ],
   "0x456d20": [
-    5117968,
+    5118000,
     "StageTiming_SetNodeVertexGrey"
   ],
   "0x456d60": [
-    5118032,
+    5118064,
     "StageTiming_SetNodeTreeVertexGrey"
   ],
   "0x456d90": [
-    5177280,
+    5177312,
     "StageTiming_LoadStageCarsAndEffects"
   ],
   "0x457000": [
-    5177904,
+    5177936,
     "StageTiming_LoadSelectedCarModel"
   ],
   "0x457c50": [
@@ -4524,231 +4524,231 @@
     "Graphics_RaiseSupportedDetailLevels"
   ],
   "0x457e00": [
-    5122928,
+    5122960,
     "StageTiming_GetStartTableField398"
   ],
   "0x457e10": [
-    5122944,
+    5122976,
     "StageTiming_GetStartArchiveRelativeEntry"
   ],
   "0x457e50": [
-    5163056,
+    5163088,
     "StageTiming_PlaceCarViewNodesAndBody"
   ],
   "0x457ed0": [
-    5131600,
+    5131632,
     "StageTiming_FreeSceneAndFinishResources"
   ],
   "0x458040": [
-    5131968,
+    5132000,
     "StageTiming_NoOpResourceRelease"
   ],
   "0x458050": [
-    5136736,
+    5136768,
     "StageTiming_InitStageTypeEvents"
   ],
   "0x458090": [
-    5152176,
+    5152208,
     "StageTiming_RebuildSplitsAndCheckpoints"
   ],
   "0x458100": [
-    5152976,
+    5153008,
     "StageTiming_ResetParticipatingDriverRecords"
   ],
   "0x4581d0": [
-    5150672,
+    5150704,
     "StageTiming_ResetOrderedCarRoadBooks"
   ],
   "0x458230": [
-    5131984,
+    5132016,
     "StageTiming_GetCheckpointField16"
   ],
   "0x458250": [
-    5132016,
+    5132048,
     "StageTiming_GetCheckpointField17"
   ],
   "0x458270": [
-    5132048,
+    5132080,
     "StageTiming_GetCheckpointField18"
   ],
   "0x458290": [
-    5132080,
+    5132112,
     "StageTiming_GetCheckpointField19"
   ],
   "0x4582b0": [
-    5132112,
+    5132144,
     "StageTiming_GetCheckpointField1A"
   ],
   "0x4582d0": [
-    5132144,
+    5132176,
     "StageTiming_GetCheckpointField2"
   ],
   "0x4582f0": [
-    5132176,
+    5132208,
     "StageTiming_GetCheckpointField0"
   ],
   "0x458310": [
-    5132208,
+    5132240,
     "StageTiming_GetCheckpointField12"
   ],
   "0x458330": [
-    5132240,
+    5132272,
     "StageTiming_GetCheckpointGroupIndex"
   ],
   "0x458350": [
-    5132272,
+    5132304,
     "StageTiming_GetCheckpointSplitIndex"
   ],
   "0x458370": [
-    5132304,
+    5132336,
     "StageTiming_GetCheckpointField14"
   ],
   "0x458390": [
-    4982240,
+    4982272,
     "Stage_GetDriverCount"
   ],
   "0x4583a0": [
-    4982256,
+    4982288,
     "Stage_GetSplitPositionCount"
   ],
   "0x4583b0": [
-    4982272,
+    4982304,
     "Stage_GetSplitPositionFixed"
   ],
   "0x4583c0": [
-    4982224,
+    4982256,
     "GetStageSplitCount"
   ],
   "0x4583d0": [
-    4982288,
+    4982320,
     "Stage_GetCarStartXZ"
   ],
   "0x458480": [
-    4982464,
+    4982496,
     "Stage_RestoreCarsToRoutePositions"
   ],
   "0x4584c0": [
-    4982528,
+    4982560,
     "Stage_GetPrimaryStartDriver"
   ],
   "0x4584d0": [
-    5153184,
+    5153216,
     "StageTiming_PlaceEventStartingGrid"
   ],
   "0x4589e0": [
-    5132336,
+    5132368,
     "StageTiming_GetCheckpointField10"
   ],
   "0x458a00": [
-    5151792,
+    5151824,
     "StageTiming_BuildCheckpointSplitPositions"
   ],
   "0x458b80": [
-    5133376,
+    5133408,
     "StageTiming_StorePreviousCarCheckpoints"
   ],
   "0x458bd0": [
-    5133456,
+    5133488,
     "StageTiming_ResetPlayerLapRecord"
   ],
   "0x458e00": [
-    5143664,
+    5143696,
     "StageTiming_AdvanceCrossedCheckpoints"
   ],
   "0x458f30": [
-    5135312,
+    5135344,
     "StageTiming_CountLapCrossings"
   ],
   "0x458fd0": [
-    5139728,
+    5139760,
     "StageTiming_AdvanceTimedLapCheckpoint"
   ],
   "0x4590a0": [
-    5140832,
+    5140864,
     "StageTiming_AdvanceLoopedCarCheckpoint"
   ],
   "0x459180": [
-    5134016,
+    5134048,
     "StageTiming_FlagCoincidentCheckpointPositions"
   ],
   "0x4591e0": [
-    5134320,
+    5134352,
     "StageTiming_AdvancePlayerHalfLapCounter"
   ],
   "0x459250": [
-    5137616,
+    5137648,
     "StageTiming_SetViewRouteDistanceLimit"
   ],
   "0x459320": [
-    4982544,
+    4982576,
     "Stage_GetPreviousCheckpoint"
   ],
   "0x459350": [
-    4982592,
+    4982624,
     "Stage_GetNextCheckpoint"
   ],
   "0x459370": [
-    5129280,
+    5129312,
     "StageTiming_ResetCheckpointSlotStates"
   ],
   "0x459390": [
-    5129312,
+    5129344,
     "StageTiming_IsClockOverlayActive"
   ],
   "0x4593a0": [
-    5129328,
+    5129360,
     "StageTiming_DrawClockAndCountdown"
   ],
   "0x459630": [
-    5131248,
+    5131280,
     "StageTiming_ProjectPointToTenUnitRadius"
   ],
   "0x459790": [
-    5129984,
+    5130016,
     "StageTiming_DrawProjectedCarMarker"
   ],
   "0x459c80": [
-    5176048,
+    5176080,
     "StageTiming_LoadEffectParticleTextures"
   ],
   "0x45a150": [
-    5132400,
+    5132432,
     "StageTiming_SetPrimaryWheelTrailTexture"
   ],
   "0x45a170": [
-    5154480,
+    5154512,
     "StageTiming_InitEffectParticleTypes"
   ],
   "0x45af00": [
-    5186240,
+    5186272,
     "StageTiming_UpdateCarWheelAndExhaustEffects"
   ],
   "0x45af90": [
-    5184768,
+    5184800,
     "CarEffect_UpdateExhaustSmokeAndBackfire"
   ],
   "0x45b530": [
-    5132432,
+    5132464,
     "StageTiming_SetSecondaryWheelTrailTexture"
   ],
   "0x45b550": [
-    5132464,
+    5132496,
     "StageTiming_ForceWheelTrailSurface"
   ],
   "0x45b580": [
-    5144560,
+    5144592,
     "StageTiming_SpawnWheelParticles"
   ],
   "0x45c610": [
-    5135792,
+    5135824,
     "CarTyres_CommitPlayerWear"
   ],
   "0x45c6b0": [
-    5134432,
+    5134464,
     "StageTiming_ResetWheelWearRecord"
   ],
   "0x45c720": [
-    5132512,
+    5132544,
     "StageTiming_GetRelativeTyreRecordValue"
   ],
   "0x45c750": [
@@ -4796,827 +4796,827 @@
     "CarEffects_UpdateParticleAtCarPosition"
   ],
   "0x45def0": [
-    5233280,
+    5233344,
     "WheelTrail_Update"
   ],
   "0x45e560": [
-    5119712,
+    5119744,
     "StageTiming_FreeViewWeatherRecords"
   ],
   "0x45e5b0": [
-    5119792,
+    5119824,
     "StageTiming_AllocateViewWeatherRecords"
   ],
   "0x45e610": [
-    5135632,
+    5135664,
     "StageTiming_ResetScaledViewObjectStates"
   ],
   "0x45e6b0": [
-    5123168,
+    5123200,
     "StageTiming_GetObjectRampParameters"
   ],
   "0x45e710": [
-    5140384,
+    5140416,
     "StageTiming_SetThirdObjectRamp"
   ],
   "0x45e7f0": [
-    5137216,
+    5137248,
     "StageTiming_UpdateThirdObjectRampValues"
   ],
   "0x45e8b0": [
-    5140144,
+    5140176,
     "StageObject_UpdateThirdRouteRamp"
   ],
   "0x45e9a0": [
-    5123264,
+    5123296,
     "StageTiming_MarkSpecialStageNodeDirty"
   ],
   "0x45ea70": [
-    5140608,
+    5140640,
     "StageWeather_SetupSettingTransition"
   ],
   "0x45eb50": [
-    5150768,
+    5150800,
     "StageTiming_LoadWeatherParticleTextures"
   ],
   "0x45eca0": [
-    5187520,
+    5187552,
     "StageWeather_InitParticleAndLightState"
   ],
   "0x45eea0": [
-    5132608,
+    5132640,
     "StageTiming_ResetSkyLightVectors"
   ],
   "0x45eed0": [
-    5186640,
+    5186672,
     "StageWeather_DistributeViewParticles"
   ],
   "0x45f240": [
-    5132368,
+    5132400,
     "StageTiming_ResetWeatherSelectionState"
   ],
   "0x45f260": [
-    5141104,
+    5141136,
     "StageObject_SetupWeatherRamps"
   ],
   "0x45f300": [
-    5136800,
+    5136832,
     "StageTiming_SetPrimaryObjectRamp"
   ],
   "0x45f3d0": [
-    5137008,
+    5137040,
     "StageTiming_SetSecondaryObjectRamp"
   ],
   "0x45f4a0": [
-    5182960,
+    5182992,
     "StageTiming_UpdateAllViewWeather"
   ],
   "0x45f530": [
-    5135472,
+    5135504,
     "StageObject_ScaleViewValueByRoute"
   ],
   "0x45f5d0": [
-    5152288,
+    5152320,
     "StageTiming_IntegrateTerrainBodyPitch"
   ],
   "0x45f6d0": [
-    5182192,
+    5182224,
     "StageTiming_UpdateWindStrength"
   ],
   "0x45f890": [
-    5182640,
+    5182672,
     "StageTiming_UpdateLightningFlash"
   ],
   "0x45f9d0": [
-    5172064,
+    5172096,
     "StageObject_IntegrateViewDeformationGrid"
   ],
   "0x460270": [
-    5114864,
+    5114896,
     "StageTiming_UpdateEventDisplacement"
   ],
   "0x460330": [
-    5097504,
+    5097536,
     "StageObject_DrawViewPrecipitationAndObjects"
   ],
   "0x460390": [
-    5095808,
+    5095840,
     "StageWeather_DrawViewPrecipitation"
   ],
   "0x460a30": [
-    4985952,
+    4985984,
     "StageObject_DeriveLoadedScaleVector"
   ],
   "0x460b60": [
-    5072064,
+    5072096,
     "StageObject_AdvanceAnimatedRecordState"
   ],
   "0x460bf0": [
-    4986256,
+    4986288,
     "StageObject_GetViewWeatherStateByte"
   ],
   "0x460c10": [
-    4986288,
+    4986320,
     "StageObject_GetViewWeatherField54"
   ],
   "0x460c30": [
-    4986320,
+    4986352,
     "StageObject_SetScaledValue"
   ],
   "0x460c80": [
-    4986400,
+    4986432,
     "StageObject_GetCarWeatherRampValue"
   ],
   "0x460ca0": [
-    5097600,
+    5097632,
     "CarDamage_EmitBodySparkBillboards"
   ],
   "0x460da0": [
-    5012624,
+    5012656,
     "StageObject_SetLighting"
   ],
   "0x4616c0": [
-    5014688,
+    5014720,
     "StageObject_BlendClampedByteValues"
   ],
   "0x461710": [
-    5040112,
+    5040144,
     "StageObject_InterpolateFrameRecord"
   ],
   "0x461830": [
-    5023968,
+    5024000,
     "StageObject_BlendTimeOfDayRecord"
   ],
   "0x461a30": [
-    5024496,
+    5024528,
     "StageObject_BlendSettingPairRecords"
   ],
   "0x461a70": [
-    5024560,
+    5024592,
     "StageObject_SetPairSpeedLimits"
   ],
   "0x461b30": [
-    5023840,
+    5023872,
     "StageObject_SetTypeDifficultySpeedLimit"
   ],
   "0x461bb0": [
-    5025280,
+    5025312,
     "StageObject_InterpolateSecondaryRampRecords"
   ],
   "0x461c30": [
-    5025408,
+    5025440,
     "StageObject_RebuildViewWeatherLighting"
   ],
   "0x462aa0": [
-    5024752,
+    5024784,
     "StageObject_AverageWheelGroundLighting"
   ],
   "0x462cb0": [
-    5029056,
+    5029088,
     "StageObject_UpdateSceneAmbientColour"
   ],
   "0x462d10": [
-    5029152,
+    5029184,
     "StageObject_UpdateSunVisibility"
   ],
   "0x462d80": [
-    5055200,
+    5055232,
     "StageObject_DrawProjectedViewIcon"
   ],
   "0x463070": [
-    5030656,
+    5030688,
     "StageLights_UpdateDirection"
   ],
   "0x463270": [
-    4986432,
+    4986464,
     "StageObject_GetViewWeatherSlot"
   ],
   "0x463290": [
-    5029264,
+    5029296,
     "StageLights_SetTransform"
   ],
   "0x463360": [
-    5029472,
+    5029504,
     "StageLights_LoadTextures"
   ],
   "0x463410": [
-    5031168,
+    5031200,
     "StageLights_Create"
   ],
   "0x463bd0": [
-    5029648,
+    5029680,
     "StageLights_Update"
   ],
   "0x463ce0": [
-    4986464,
+    4986496,
     "StageObject_SetBoundedWeatherKind"
   ],
   "0x463d00": [
-    5029920,
+    5029952,
     "StageLights_Off"
   ],
   "0x463d60": [
-    5030016,
+    5030048,
     "CarLights_LoadTextures"
   ],
   "0x463fe0": [
-    5068336,
+    5068368,
     "StageObject_RebuildCarLightMeshes"
   ],
   "0x4643f0": [
-    5069376,
+    5069408,
     "StageObject_UpdateCarLightFlagsAndGlows"
   ],
   "0x4648f0": [
-    5022336,
+    5022368,
     "StageObject_GetSceneLightBrightness"
   ],
   "0x464960": [
-    5022448,
+    5022480,
     "StageObject_PositionRearViewLightNodes"
   ],
   "0x464af0": [
-    4986496,
+    4986528,
     "StageObject_GetViewRectangleIndex"
   ],
   "0x464b00": [
-    4984160,
+    4984192,
     "StageObject_GetScreenRectangleEntry"
   ],
   "0x464b10": [
-    5039856,
+    5039888,
     "StageObject_GetPlayerViewRectangle"
   ],
   "0x464b60": [
-    5038448,
+    5038480,
     "StageObject_InitScreenRectangles"
   ],
   "0x464c60": [
-    5014768,
+    5014800,
     "StageObject_AdvanceFlaggedCarSlotCounters"
   ],
   "0x464cb0": [
-    5014848,
+    5014880,
     "StageObject_UpdateSkidTrails"
   ],
   "0x465530": [
-    5035680,
+    5035712,
     "CarSkid_ClearWheelTrails"
   ],
   "0x465600": [
-    5035888,
+    5035920,
     "StageObject_LoadSkidTrailTextures"
   ],
   "0x465780": [
-    5039392,
+    5039424,
     "StageObject_UpdateRaceSkidTrails"
   ],
   "0x4657d0": [
-    5039472,
+    5039504,
     "StageObject_RebuildCarExhaustPoints"
   ],
   "0x4658e0": [
-    4986512,
+    4986544,
     "CarEffects_DrawTyreMarks"
   ],
   "0x465d70": [
-    4983616,
+    4983648,
     "StageObject_GetWheelSlip"
   ],
   "0x465e40": [
-    5022240,
+    5022272,
     "StageObject_GetNormalizedWheelSlip"
   ],
   "0x465ea0": [
-    4987664,
+    4987696,
     "StageObject_ClampByteRange"
   ],
   "0x465ec0": [
-    5119888,
+    5119920,
     "StageTiming_SetNodeMeshAlpha"
   ],
   "0x465f20": [
-    5132656,
+    5132688,
     "StageTiming_SetNodeTreeMeshAlpha"
   ],
   "0x465f60": [
-    5041600,
+    5041632,
     "Replay_ReplaceActiveBuffer"
   ],
   "0x465f80": [
-    4987696,
+    4987728,
     "Replay_ResetSelectionIndices"
   ],
   "0x465f90": [
-    5041632,
+    5041664,
     "Replay_LoadPathOrDefaultBuffer"
   ],
   "0x465fc0": [
-    4987712,
+    4987744,
     "CarEffects_MakeGhost"
   ],
   "0x466030": [
-    5095200,
+    5095232,
     "Replay_RestartGhostCar"
   ],
   "0x466080": [
-    4987824,
+    4987856,
     "Replay_ResetActiveBufferState"
   ],
   "0x466090": [
-    4987840,
+    4987872,
     "Replay_GetActiveBufferState"
   ],
   "0x4660a0": [
-    5003568,
+    5003600,
     "Replay_SwapPendingSlotValue"
   ],
   "0x4660e0": [
-    4987856,
+    4987888,
     "Replay_SetControlStateByte"
   ],
   "0x4660f0": [
-    4987872,
+    4987904,
     "Replay_GetSelectionStateByte"
   ],
   "0x466100": [
-    5002960,
+    5002992,
     "StageObject_UpdateProjectedDistanceFade"
   ],
   "0x466360": [
-    5108176,
+    5108208,
     "StageObjects_Init"
   ],
   "0x466490": [
-    5002720,
+    5002752,
     "StageObject_UpdateDeviceEffectSupportFlag"
   ],
   "0x4664c0": [
-    5095280,
+    5095312,
     "StageObject_UpdateListedCarPhysicsAndWeather"
   ],
   "0x466520": [
-    5108480,
+    5108512,
     "StageObjects_Update"
   ],
   "0x466570": [
-    5002768,
+    5002800,
     "CarDamage_UpdateOrderedCarsOffRoadState"
   ],
   "0x466630": [
-    5009664,
+    5009696,
     "StageObject_SetPhysicsScaleAndReciprocal"
   ],
   "0x466680": [
-    5121632,
+    5121664,
     "StageTiming_FreeCarReplayRecordTables"
   ],
   "0x4667c0": [
-    5121952,
+    5121984,
     "StageTiming_AllocateCarReplayRecordTables"
   ],
   "0x466870": [
-    5133216,
+    5133248,
     "StageTiming_ReadCarReplayTailValues"
   ],
   "0x4668d0": [
-    5136656,
+    5136688,
     "StageTiming_ResetAllCarReplayRecords"
   ],
   "0x466920": [
-    5135952,
+    5135984,
     "StageTiming_ResetCarReplayRecord"
   ],
   "0x4669b0": [
-    5133312,
+    5133344,
     "StageTiming_ClearCarReplayRecordRange"
   ],
   "0x4669f0": [
-    5181008,
+    5181040,
     "CarDamage_SetupOrderedCarParts"
   ],
   "0x466e90": [
-    5119456,
+    5119488,
     "StageTiming_RegisterSlotMeshNode"
   ],
   "0x466ef0": [
-    5170320,
+    5170352,
     "CarDamage_ApplyCollisionDeformImpulse"
   ],
   "0x4675c0": [
-    5009744,
+    5009776,
     "CarDamage_BuildRelativeVelocityHull"
   ],
   "0x467700": [
-    5125056,
+    5125088,
     "StageDeform_ApplyRadialDent"
   ],
   "0x467e90": [
-    5127008,
+    5127040,
     "StageDeform_ApplyPlanarDent"
   ],
   "0x468520": [
-    5123760,
+    5123792,
     "CarDamage_AllocateImpactDeformRecord"
   ],
   "0x4688b0": [
-    5010080,
+    5010112,
     "StageObject_BuildDeformationVectors"
   ],
   "0x468a80": [
-    5011808,
+    5011840,
     "StageObject_ApplyWeightedContactDamage"
   ],
   "0x468c10": [
-    5010544,
+    5010576,
     "StageObject_RebuildDamagePartValues"
   ],
   "0x469100": [
-    5012208,
+    5012240,
     "CarDamage_AverageVertexDisplacement"
   ],
   "0x4692b0": [
-    5133152,
+    5133184,
     "StageTiming_FindModelPartByNodeType"
   ],
   "0x4692f0": [
-    5132720,
+    5132752,
     "StageTiming_FlagCarPartBreaks"
   ],
   "0x4694a0": [
-    4982736,
+    4982768,
     "StageObject_SetModelSubmeshVisibility"
   ],
   "0x469680": [
-    5124704,
+    5124736,
     "StageTiming_GetCarReplayRecord"
   ],
   "0x469690": [
-    5070640,
+    5070672,
     "StageObject_ResetCarObjectState"
   ],
   "0x4698a0": [
-    5138064,
+    5138096,
     "StageTiming_RebuildDamagedPartMeshes"
   ],
   "0x469a80": [
-    5138544,
+    5138576,
     "StageTiming_SnapshotStageReplayColours"
   ],
   "0x469b50": [
-    5128688,
+    5128720,
     "StageTiming_CopyCarTimesToRallyRecord"
   ],
   "0x469bc0": [
-    5121584,
+    5121616,
     "StageTiming_GetCarReplayTailEntry"
   ],
   "0x469bf0": [
-    5051120,
+    5051152,
     "StageObject_SetReplayEntryHitFlag"
   ],
   "0x469c30": [
-    5095376,
+    5095408,
     "CarDamage_PickRandomTriangleEdgePoint"
   ],
   "0x469de0": [
-    4983216,
+    4983248,
     "StageObject_IsEligibleType"
   ],
   "0x469e40": [
-    5072208,
+    5072240,
     "StageObject_UpdateEnabledCornerContactFrames"
   ],
   "0x46a500": [
-    5062896,
+    5062928,
     "CarDamage_UpdateSuspensionImpactContacts"
   ],
   "0x46acb0": [
-    5064864,
+    5064896,
     "CarDamage_RebuildPartBounds"
   ],
   "0x46afe0": [
-    5056928,
+    5056960,
     "CarDamage_BuildPartVertexBuffer"
   ],
   "0x46b400": [
-    4987888,
+    4987920,
     "StageObject_SetCarStateSlot"
   ],
   "0x46b420": [
-    4987920,
+    4987952,
     "StageObject_ClearCarStateSlots"
   ],
   "0x46b440": [
-    4987952,
+    4987984,
     "Mesh_ReadVertexFixed"
   ],
   "0x46b4c0": [
-    4988480,
+    4988512,
     "StageObject_GetCarStateSlot"
   ],
   "0x46b4e0": [
-    4988080,
+    4988112,
     "CarEffects_UpdateBrokenLightFlicker"
   ],
   "0x46b670": [
-    5003632,
+    5003664,
     "StageObject_ResetCarPartNodeValues"
   ],
   "0x46b6b0": [
-    4984176,
+    4984208,
     "StageObject_ClearNodeValueBelowThreshold"
   ],
   "0x46b6e0": [
-    4984224,
+    4984256,
     "StageObject_ClearNodeTreeValuesBelowThreshold"
   ],
   "0x46b710": [
-    4988512,
+    4988544,
     "StageObject_ResetPairedCarValues"
   ],
   "0x46b740": [
-    4988560,
+    4988592,
     "StageObject_SetPairedCarValue"
   ],
   "0x46b760": [
-    4988592,
+    4988624,
     "StageObject_SetCarValuePendingFlag"
   ],
   "0x46b790": [
-    5043408,
+    5043440,
     "StageObject_SetCarVisibilityBits"
   ],
   "0x46b8f0": [
-    5043760,
+    5043792,
     "StageObject_ResetCarNodeViewFlags"
   ],
   "0x46bb40": [
-    5044352,
+    5044384,
     "StageObject_RebuildOrderedWheelVisibility"
   ],
   "0x46bd20": [
-    4988640,
+    4988672,
     "StageObject_GetPairedCarValue"
   ],
   "0x46bd40": [
-    4988672,
+    4988704,
     "StageObject_GetCarRecordState"
   ],
   "0x46bd50": [
-    4982624,
+    4982656,
     "StageObject_UsesExtendedMode"
   ],
   "0x46bdc0": [
-    5037296,
+    5037328,
     "Replay_EncodeControlPacket"
   ],
   "0x46bec0": [
-    4988688,
+    4988720,
     "Replay_DecodeInputPacket"
   ],
   "0x46bfb0": [
-    4988928,
+    4988960,
     "Replay_CopyBlock309"
   ],
   "0x46bfd0": [
-    4988960,
+    4988992,
     "Replay_RestoreCarState"
   ],
   "0x46c180": [
-    4989392,
+    4989424,
     "Replay_CopyAuxState"
   ],
   "0x46c1a0": [
-    4989424,
+    4989456,
     "Replay_RestoreAuxState"
   ],
   "0x46c220": [
-    4989552,
+    4989584,
     "Replay_CopyBlock6"
   ],
   "0x46c240": [
-    4989584,
+    4989616,
     "Replay_CaptureCarSnapshot"
   ],
   "0x46c2a0": [
-    5071168,
+    5071200,
     "Replay_InitObjectListCarState"
   ],
   "0x46c320": [
-    5051184,
+    5051216,
     "Replay_SaveCarTorqueAndRecordState"
   ],
   "0x46c390": [
-    5051296,
+    5051328,
     "Replay_RestoreCarTorqueAndRecordState"
   ],
   "0x46c410": [
-    5071296,
+    5071328,
     "Replay_InitMeshListCarState"
   ],
   "0x46c450": [
-    5039760,
+    5039792,
     "Replay_EncodeCarControls"
   ],
   "0x46c4b0": [
-    5036736,
+    5036768,
     "Replay_DecodeCarControls"
   ],
   "0x46c4e0": [
-    5174272,
+    5174304,
     "StageTiming_InstallCarPartModelGeometry"
   ],
   "0x46c500": [
-    5118080,
+    5118112,
     "Replay_ReleaseStageBuffers"
   ],
   "0x46c540": [
-    5033152,
+    5033184,
     "Replay_InitSlots"
   ],
   "0x46c5a0": [
-    5040720,
+    5040752,
     "Replay_AllocateStreamBuffer"
   ],
   "0x46c6d0": [
-    5033248,
+    5033280,
     "Replay_FreeBuffers"
   ],
   "0x46c750": [
-    5061152,
+    5061184,
     "Replay_InitCarStreamState"
   ],
   "0x46c8e0": [
-    5054432,
+    5054464,
     "Replay_AdvanceLiveRecordingStreams"
   ],
   "0x46cbe0": [
-    5039984,
+    5040016,
     "Replay_CanExtendControlPacketRun"
   ],
   "0x46cc60": [
-    5033376,
+    5033408,
     "Replay_StopRecording"
   ],
   "0x46cce0": [
-    5071360,
+    5071392,
     "Replay_SelectAndInitializeLane"
   ],
   "0x46cfa0": [
-    5094384,
+    5094416,
     "Replay_PlayStreamFrame"
   ],
   "0x46d270": [
-    5095104,
+    5095136,
     "Replay_PlaybackAllStreamFrames"
   ],
   "0x46d2a0": [
-    4989680,
+    4989712,
     "Replay_ResetBufferIfActive"
   ],
   "0x46d2d0": [
-    5041024,
+    5041056,
     "Replay_LoadValidatedBuffer"
   ],
   "0x46d3f0": [
-    5033504,
+    5033536,
     "Replay_Save"
   ],
   "0x46d470": [
-    5033632,
+    5033664,
     "Replay_SetupPointers"
   ],
   "0x46d500": [
-    4989728,
+    4989760,
     "Replay_GetStreamFrameState"
   ],
   "0x46d510": [
-    5097888,
+    5097920,
     "Replay_RecordPeriodicCarSamples"
   ],
   "0x46d5e0": [
-    5095152,
+    5095184,
     "Replay_RecordAllStreamFrames"
   ],
   "0x46d610": [
-    5073936,
+    5073968,
     "Replay_InterpolatePoseStream"
   ],
   "0x46d8d0": [
-    5065680,
+    5065712,
     "Replay_EncodeCarPoseSample"
   ],
   "0x46de20": [
-    5067040,
+    5067072,
     "Replay_DecodeCarPoseSample"
   ],
   "0x46e340": [
-    5033776,
+    5033808,
     "Replay_ComputePoseVelocityCorrection"
   ],
   "0x46e440": [
-    5036496,
+    5036528,
     "Replay_HideFinishedGhostCarNodes"
   ],
   "0x46e530": [
-    5034544,
+    5034576,
     "Events_Reset"
   ],
   "0x46e580": [
-    5034256,
+    5034288,
     "Events_Init"
   ],
   "0x46e620": [
-    5034416,
+    5034448,
     "Events_Add"
   ],
   "0x46e6a0": [
-    5034032,
+    5034064,
     "Events_ComputeSteps"
   ],
   "0x46e780": [
-    5037552,
+    5037584,
     "StageObject_StampPendingEventDraws"
   ],
   "0x46ea10": [
-    5047520,
+    5047552,
     "StageObject_SpawnCarWheelSkidEffects"
   ],
   "0x46ea80": [
-    5047088,
+    5047120,
     "CarSkid_EmitSlippingWheelEffects"
   ],
   "0x46ec40": [
-    5038192,
+    5038224,
     "StageObject_QueueTimedEventDraw"
   ],
   "0x46ed40": [
-    5034624,
+    5034656,
     "Events_Tick"
   ],
   "0x46ed80": [
-    5046800,
+    5046832,
     "CarSkid_SpawnWheelDustPuff"
   ],
   "0x46eeb0": [
-    5007328,
+    5007360,
     "StageObject_IsWheelOnActiveEffectSurface"
   ],
   "0x46ef20": [
-    5034688,
+    5034720,
     "Events_Flush"
   ],
   "0x46ef50": [
-    5034736,
+    5034768,
     "StageObject_BuildCloudTexturePath"
   ],
   "0x46f030": [
-    5034960,
+    5034992,
     "StageObject_ReleaseLoadedObjectFile"
   ],
   "0x46f060": [
-    4989888,
+    4989920,
     "StageObjects_LoadSkyAndGround"
   ],
   "0x46f330": [
-    5035008,
+    5035040,
     "StageObject_PositionSplitViewNodes"
   ],
   "0x46f4a0": [
-    5002544,
+    5002576,
     "StageObject_GetCurrentObjectPosition"
   ],
   "0x46f4c0": [
-    4989744,
+    4989776,
     "StageObject_GetCurrentObjectPointer"
   ],
   "0x46f4d0": [
-    4989760,
+    4989792,
     "StageObject_GetCurrentObjectContext"
   ],
   "0x46f4e0": [
-    4989856,
+    4989888,
     "StageObject_GetCurrentObjectValues"
   ],
   "0x46f500": [
-    4989776,
+    4989808,
     "StageObjects_ReleaseObjectFiles"
   ],
   "0x46f550": [
-    4990608,
+    4990640,
     "StageObject_LoadAndClassifyMeshes"
   ],
   "0x46f7e0": [
-    4984272,
+    4984304,
     "StageObject_ResetMovingObjectCountsAndPhases"
   ],
   "0x46f810": [
-    4984320,
+    4984352,
     "StageObject_InitMovingObject"
   ],
   "0x46fe70": [
-    5055952,
+    5055984,
     "StageObject_QueueOrEvictMovingObject"
   ],
   "0x470240": [
@@ -5636,15 +5636,15 @@
     "StageObject_UpdateMovingTransforms"
   ],
   "0x471950": [
-    5038704,
+    5038736,
     "StageObject_InterpolateAllObjectMatrices"
   ],
   "0x471a60": [
-    5038976,
+    5039008,
     "StageObject_ApplyInterpolatedNodeMatrices"
   ],
   "0x471af0": [
-    5051424,
+    5051456,
     "StageObject_LoadModelVariantsAndSaveCounts"
   ],
   "0x471b30": [
@@ -5656,7 +5656,7 @@
     "Sector_GetListB"
   ],
   "0x471bd0": [
-    4991264,
+    4991296,
     "StageObject_GetLoadedVariantDataAndState"
   ],
   "0x471bf0": [
@@ -5684,87 +5684,87 @@
     "RallyData_FreeSectorElementTables"
   ],
   "0x472830": [
-    5041680,
+    5041712,
     "StageObject_LoadTempObjectModel"
   ],
   "0x472870": [
-    5041744,
+    5041776,
     "StageObject_LoadTempShadowModel"
   ],
   "0x4728b0": [
-    4991296,
+    4991328,
     "Knockout_SetRoundActiveFlag"
   ],
   "0x4728c0": [
-    4991312,
+    4991344,
     "Knockout_ClearRoundActiveFlag"
   ],
   "0x4728d0": [
-    4991328,
+    4991360,
     "Knockout_GetRoundActiveFlag"
   ],
   "0x4728e0": [
-    4991344,
+    4991376,
     "Knockout_HasPendingOrUnknownRoundMatch"
   ],
   "0x472990": [
-    4991520,
+    4991552,
     "Knockout_HasHumanLostMatch"
   ],
   "0x4729f0": [
-    5003760,
+    5003792,
     "Knockout_ClearChampionshipPendingFlag"
   ],
   "0x472a30": [
-    5108560,
+    5108592,
     "Knockout_RecordCurrentMatchResults"
   ],
   "0x472ca0": [
-    4991616,
+    4991648,
     "Knockout_ResetRaceStateMachine"
   ],
   "0x472cb0": [
-    4991632,
+    4991664,
     "Knockout_ApplyCarGroundMaterials"
   ],
   "0x472e00": [
-    4992000,
+    4992032,
     "Knockout_UpdateRaceStateAndFades"
   ],
   "0x473290": [
-    5008208,
+    5008240,
     "Knockout_HasUndecidedRoundMatch"
   ],
   "0x473310": [
-    5008336,
+    5008368,
     "Knockout_AreCurrentDriversKnown"
   ],
   "0x473360": [
-    5193248,
+    5193280,
     "StageUI_BuildPauseMenus"
   ],
   "0x473450": [
-    5193488,
+    5193520,
     "StageUI_NoOpPauseItemEvent"
   ],
   "0x473460": [
-    5193504,
+    5193536,
     "StageUI_RequestPauseMenuExit"
   ],
   "0x473470": [
-    5195488,
+    5195520,
     "StageUI_UpdatePauseMenu"
   ],
   "0x4734f0": [
-    5195168,
+    5195200,
     "StageUI_RetireFromRace"
   ],
   "0x473540": [
-    5195248,
+    5195280,
     "StageUI_ReleaseSceneAndFadeStage"
   ],
   "0x4735a0": [
-    5023376,
+    5023408,
     "Knockout_GetCurrentDriverField"
   ],
   "0x473620": [
@@ -5772,91 +5772,91 @@
     "RallyData_GetRoundEntry"
   ],
   "0x473680": [
-    4993168,
+    4993200,
     "Knockout_HasUnknownMatchDriver"
   ],
   "0x4736b0": [
-    4993216,
+    4993248,
     "Knockout_GetDriverNameForSide"
   ],
   "0x473790": [
-    4993440,
+    4993472,
     "Knockout_IsHumanMatchSide"
   ],
   "0x4737d0": [
-    4993504,
+    4993536,
     "Knockout_SelectDisplaySide"
   ],
   "0x473810": [
-    4993568,
+    4993600,
     "Knockout_GetCarNameForSide"
   ],
   "0x4738f0": [
-    5018032,
+    5018064,
     "StageObject_DrawPauseStageDataPanel"
   ],
   "0x473d60": [
-    5109184,
+    5109216,
     "StageObject_DrawInRacePauseMenu"
   ],
   "0x474420": [
-    5021936,
+    5021968,
     "StageObject_DrawTypingTextFraction"
   ],
   "0x4744f0": [
-    5019168,
+    5019200,
     "Knockout_DrawCurrentRoundBracket"
   ],
   "0x474fe0": [
-    5052864,
+    5052896,
     "Knockout_DrawAnimatedMatchHeader"
   ],
   "0x4752f0": [
-    4993792,
+    4993824,
     "StageObject_FormatAnimatedLapTime"
   ],
   "0x475430": [
-    5053648,
+    5053680,
     "StageObject_DrawAnimatedTextPair"
   ],
   "0x475740": [
-    4994640,
+    4994672,
     "StageObject_DrawOutlinedStageBox"
   ],
   "0x475970": [
-    5022144,
+    5022176,
     "StageObject_FillWidthScaledRectangle"
   ],
   "0x4759d0": [
-    5041808,
+    5041840,
     "StageObject_ClearAndDrawSplitPositions"
   ],
   "0x475a40": [
-    5193232,
+    5193264,
     "StageUI_GetStageOverlayNode"
   ],
   "0x475a50": [
-    5193520,
+    5193552,
     "StageUI_DrawChampionshipBar"
   ],
   "0x475f00": [
-    4994112,
+    4994144,
     "StageObject_BuildInRaceActionMenu"
   ],
   "0x475f70": [
-    4994224,
+    4994256,
     "StageObject_GetInRaceActionMenu"
   ],
   "0x475f80": [
-    5123472,
+    5123504,
     "StageObject_InitCarSceneTables"
   ],
   "0x4760a0": [
-    5091024,
+    5091056,
     "StageObject_LoadAndAttachCarInterior"
   ],
   "0x476410": [
-    4994240,
+    4994272,
     "StageObject_SyncStateAndSceneMatrix"
   ],
   "0x4764c0": [
@@ -5864,7 +5864,7 @@
     "Game_SetObjectRenderModeZero"
   ],
   "0x4764e0": [
-    4994416,
+    4994448,
     "StageObject_SetCarSlotActiveFlag"
   ],
   "0x476500": [
@@ -5872,55 +5872,55 @@
     "Game_SetObjectRenderModeOne"
   ],
   "0x476520": [
-    4994448,
+    4994480,
     "StageObject_GetCarNodeSlotValue"
   ],
   "0x476540": [
-    4994480,
+    4994512,
     "StageObject_CacheCarClassAndTimingPointers"
   ],
   "0x4765e0": [
-    5074640,
+    5074672,
     "StageObject_DispatchActiveCarObjectUpdate"
   ],
   "0x476640": [
-    4995200,
+    4995232,
     "StageObject_BlendCarMountTransform"
   ],
   "0x476850": [
-    5048592,
+    5048624,
     "StageObject_UpdateCarBodyFade"
   ],
   "0x476a40": [
-    5044832,
+    5044864,
     "StageObject_ApplyCarFadeRoll"
   ],
   "0x476c70": [
-    5045376,
+    5045408,
     "StageObject_UpdateObjectFadeOffset"
   ],
   "0x476e00": [
-    5061552,
+    5061584,
     "StageObject_IntegrateFilteredObjectPose"
   ],
   "0x477340": [
-    5040400,
+    5040432,
     "StageObject_FindPlayerRevTextures"
   ],
   "0x477460": [
-    5003824,
+    5003856,
     "StageObject_UpdateRevCounterTextures"
   ],
   "0x4775f0": [
-    5004224,
+    5004256,
     "StageObject_UpdateBodyTextureAlphaValues"
   ],
   "0x477850": [
-    5041920,
+    5041952,
     "StageObject_BuildCarNodeOrientation"
   ],
   "0x4778b0": [
-    5041296,
+    5041328,
     "StageObject_BuildCarMountWorldMatrix"
   ],
   "0x4779e0": [
@@ -5928,483 +5928,483 @@
     "Game_ReleaseSceneResourceBlocks"
   ],
   "0x477a90": [
-    4995728,
+    4995760,
     "StageObject_ResetBodyTextureCaches"
   ],
   "0x477ac0": [
-    5017104,
+    5017136,
     "StageObject_ClearDamageRecord"
   ],
   "0x477b60": [
-    5017264,
+    5017296,
     "StageObject_InitCarBodyDamageTextures"
   ],
   "0x477c20": [
-    5017456,
+    5017488,
     "StageObject_ModifyDamageRecordFlagBytes"
   ],
   "0x477c80": [
-    5017840,
+    5017872,
     "StageObject_GetScaledLaneShortValues"
   ],
   "0x477ce0": [
-    5004832,
+    5004864,
     "StageObject_AnimateCarLightLevels"
   ],
   "0x477f30": [
-    5005424,
+    5005456,
     "StageObject_ResetDamageRecordIndices"
   ],
   "0x477f70": [
-    5194720,
+    5194752,
     "StageUI_DrawStageGrid"
   ],
   "0x478130": [
-    4983872,
+    4983904,
     "StageObject_StartCarSoundTimer"
   ],
   "0x478150": [
-    4983904,
+    4983936,
     "StageObject_UpdateCarSoundElapsedTime"
   ],
   "0x478170": [
-    4995776,
+    4995808,
     "StageObject_ResetCarSoundElapsedTime"
   ],
   "0x478190": [
-    4995808,
+    4995840,
     "StageObject_AddCarSoundTimeSeconds"
   ],
   "0x4781c0": [
-    4995856,
+    4995888,
     "StageObject_GetCarSoundElapsedTime"
   ],
   "0x4781d0": [
-    5200432,
+    5200464,
     "Car_UpdateSurfaceParams"
   ],
   "0x4786b0": [
-    5209440,
+    5209472,
     "Surface_BlendWheelContactParameters"
   ],
   "0x4789b0": [
-    4995872,
+    4995904,
     "StageObject_CopyCarSurfaceNoiseTarget"
   ],
   "0x4789d0": [
-    5201728,
+    5201760,
     "Surface_GetTransitionBlend"
   ],
   "0x478a10": [
-    5200368,
+    5200400,
     "Surface_GetMappedIndex"
   ],
   "0x478a20": [
-    5209200,
+    5209232,
     "SurfaceText_LoadRegionalStringTable"
   ],
   "0x478b20": [
-    5200384,
+    5200416,
     "Surface_FreeTextureData"
   ],
   "0x478b50": [
-    5201680,
+    5201712,
     "Surface_LoadStageFonts"
   ],
   "0x478b80": [
-    4995904,
+    4995936,
     "StageObject_LoadStageMenuSounds"
   ],
   "0x478be0": [
-    5209104,
+    5209136,
     "Surface_ConfigureMenuInput"
   ],
   "0x478c40": [
-    5210208,
+    5210240,
     "Surface_StopAndFreeSounds"
   ],
   "0x478dc0": [
-    5201792,
+    5201824,
     "SurfaceSound_ResetPlayerParameters"
   ],
   "0x478f30": [
-    5202160,
+    5202192,
     "Surface_ReleaseStageSounds"
   ],
   "0x478f50": [
-    5202224,
+    5202256,
     "Surface_LoadCarEngineSounds"
   ],
   "0x4792a0": [
-    5202192,
+    5202224,
     "Surface_LoadArchiveSample"
   ],
   "0x4792c0": [
-    5203072,
+    5203104,
     "Surface_StopFirstOneShotSound"
   ],
   "0x479310": [
-    5207280,
+    5207312,
     "Surface_StopSecondOneShotSound"
   ],
   "0x479360": [
-    5203152,
+    5203184,
     "Surface_UpdatePlayerEngineSounds"
   ],
   "0x47a380": [
-    5209024,
+    5209056,
     "Surface_SmoothPlayerSoundLevel"
   ],
   "0x47a3d0": [
-    5208192,
+    5208224,
     "Surface_UpdatePlayerSkidSound"
   ],
   "0x47a710": [
-    5207360,
+    5207392,
     "SurfaceSound_UpdatePlayerLoops"
   ],
   "0x47aa60": [
-    4983936,
+    4983968,
     "StageObject_SetSoundStateValue"
   ],
   "0x47aa70": [
-    5074736,
+    5074768,
     "SurfaceSound_UpdateNearestLocalCarEngines"
   ],
   "0x47ad20": [
-    5075392,
+    5075424,
     "SurfaceSound_UpdateNearestNetworkCarEngines"
   ],
   "0x47b000": [
-    5092896,
+    5092928,
     "CarInput_UpdateRaceOrderSlot"
   ],
   "0x47b0e0": [
-    5076096,
+    5076128,
     "StageObject_UpdatePlayerControlIndicators"
   ],
   "0x47b620": [
-    5092864,
+    5092896,
     "StageObject_DriveCPUOrderSlot"
   ],
   "0x47b640": [
-    5093120,
+    5093152,
     "CarInput_UpdateWaitingStartSlot"
   ],
   "0x47b7b0": [
-    5093488,
+    5093520,
     "StageObject_BrakeFinishedCarSlot"
   ],
   "0x47b870": [
-    5036784,
+    5036816,
     "StageObject_ResetCarStartControls"
   ],
   "0x47b970": [
-    5057984,
+    5058016,
     "View_UpdateDriverCameraCycle"
   ],
   "0x47bad0": [
-    5051488,
+    5051520,
     "StageObject_CycleDriverCameraSelection"
   ],
   "0x47bca0": [
-    5037040,
+    5037072,
     "StageObject_ReadCarControllerMapping"
   ],
   "0x47bda0": [
-    5039936,
+    5039968,
     "StageObject_StartFreshSession"
   ],
   "0x47bdc0": [
-    5039968,
+    5040000,
     "StageObject_StartReplaySession"
   ],
   "0x47bdd0": [
-    5091904,
+    5091936,
     "AI_UpdateRouteDrivingControls"
   ],
   "0x47c1b0": [
-    5002672,
+    5002704,
     "StageObject_ClearUnusedCarSlotValues"
   ],
   "0x47c1e0": [
-    5039120,
+    5039152,
     "StageObject_SeedRaceRandomAndCPURevs"
   ],
   "0x47c2f0": [
-    5093680,
+    5093712,
     "AI_LoadStageRouteTables"
   ],
   "0x47c5b0": [
-    4983952,
+    4983984,
     "StageObject_GetCarSlotStateValue"
   ],
   "0x47c5c0": [
-    4983968,
+    4984000,
     "StageObject_ResetObjectValuesToUnity"
   ],
   "0x47c5e0": [
-    5059232,
+    5059264,
     "AI_SelectWallCollisionResponse"
   ],
   "0x47c9a0": [
-    5047984,
+    5048016,
     "StageObject_BuildTypeTableRowOutput"
   ],
   "0x47ca30": [
-    5047632,
+    5047664,
     "StageObject_ProjectRotationTableRows"
   ],
   "0x47cbc0": [
-    4984000,
+    4984032,
     "StageObject_LookupKeyedValuePair"
   ],
   "0x47cc30": [
-    4984112,
+    4984144,
     "StageObject_SetBaseCarCountAndState"
   ],
   "0x47cc50": [
-    5001728,
+    5001760,
     "StageObject_UpdateApproachingCar"
   ],
   "0x47cd00": [
-    4984144,
+    4984176,
     "StageObject_GetTypeTableIndexValue"
   ],
   "0x47cd10": [
-    5060176,
+    5060208,
     "AI_FindClosestCarInAngleWindow"
   ],
   "0x47d0e0": [
-    5001936,
+    5001968,
     "AI_SelectCarsWithinOvertakeWindow"
   ],
   "0x47d330": [
-    5103952,
+    5103984,
     "AI_UpdateAttractDrivingControls"
   ],
   "0x47d510": [
-    5035536,
+    5035568,
     "StageObject_CreateRecordGlows"
   ],
   "0x47d5a0": [
-    5005488,
+    5005520,
     "StageObject_SpawnCarHeadlightGlow"
   ],
   "0x47d850": [
-    5077456,
+    5077488,
     "StageObject_TestHeadlightGlowsAgainstCarBox"
   ],
   "0x47dd70": [
-    5104400,
+    5104432,
     "CarDamage_UpdateFlyingDebris"
   ],
   "0x47e1e0": [
-    5006160,
+    5006192,
     "StageObject_InterpolateHeadlightGlows"
   ],
   "0x47e490": [
-    5006848,
+    5006880,
     "StageObject_SetVehicleEffectColour"
   ],
   "0x47e4d0": [
-    5102576,
+    5102608,
     "Fireworks_Init"
   ],
   "0x47ea20": [
-    4996000,
+    4996032,
     "StageObject_ReleaseVehicleModelFiles"
   ],
   "0x47eab0": [
-    5105520,
+    5105552,
     "Fireworks_Update"
   ],
   "0x47f510": [
-    5042832,
+    5042864,
     "Firework_InterpolateRocketColours"
   ],
   "0x47f740": [
-    5113472,
+    5113504,
     "Fireworks_Draw"
   ],
   "0x47fcb0": [
-    4996144,
+    4996176,
     "StageObject_SpawnDebris"
   ],
   "0x480220": [
-    5006912,
+    5006944,
     "StageObject_FadeAmbientColourToBase"
   ],
   "0x480380": [
-    4997536,
+    4997568,
     "StageObject_SpawnRandomDebrisBurst"
   ],
   "0x4805f0": [
-    4998160,
+    4998192,
     "StageObject_SetVehicleEffectState"
   ],
   "0x480600": [
-    4998176,
+    4998208,
     "StageObject_UpdateDebris"
   ],
   "0x480870": [
-    5120656,
+    5120688,
     "StageTiming_FreeCarPartNodeTables"
   ],
   "0x480900": [
-    5120800,
+    5120832,
     "StageTiming_AllocateCarPartNodeTables"
   ],
   "0x480980": [
-    5134112,
+    5134144,
     "StageTiming_ResetCarPartRecordsAndSlots"
   ],
   "0x4809e0": [
-    5134208,
+    5134240,
     "StageTiming_CacheListedCarTimingPointers"
   ],
   "0x480a50": [
-    4998784,
+    4998816,
     "StageObject_ClearPartTuningState"
   ],
   "0x480a60": [
-    5017936,
+    5017968,
     "StageObject_ResetPartTuningAndRandomSeed"
   ],
   "0x480ac0": [
-    4998800,
+    4998832,
     "StageObject_ResetCarPartNodeValue"
   ],
   "0x480af0": [
-    5017024,
+    5017056,
     "StageObject_AssignMatchingCarClassSlots"
   ],
   "0x480b40": [
-    5022848,
+    5022880,
     "StageObject_ResetAttachedCarNodes"
   ],
   "0x480bb0": [
-    5186384,
+    5186416,
     "StageTiming_UpdateAttachedCarParts"
   ],
   "0x480cb0": [
-    5143952,
+    5143984,
     "CarPart_SmoothSteeringOffset"
   ],
   "0x480de0": [
-    5174304,
+    5174336,
     "StageTiming_WakeUnloadedWheelSlots"
   ],
   "0x480e50": [
-    5163184,
+    5163216,
     "CarPart_InitWheelHubSlot"
   ],
   "0x4813b0": [
-    5143376,
+    5143408,
     "StageTiming_AttachObjectToCurrentCar"
   ],
   "0x4814d0": [
-    5134544,
+    5134576,
     "CarPart_IntegrateVerticalAxisTurn"
   ],
   "0x481560": [
-    5128880,
+    5128912,
     "StageTiming_RotatePartBasisFromAngles"
   ],
   "0x4815e0": [
-    5129008,
+    5129040,
     "VehicleMotion_UpdateWorldPosition"
   ],
   "0x4816f0": [
-    5157952,
+    5157984,
     "CarPart_IntegrateHubGroundContact"
   ],
   "0x482ac0": [
-    5229184,
+    5229248,
     "Vehicle_UpdateMotion"
   ],
   "0x482f30": [
-    5230480,
+    5230544,
     "VehiclePhysics_TestMotionCorrectionCollision"
   ],
   "0x483010": [
-    5136416,
+    5136448,
     "StageTiming_ClearPartFlagAndReselectIndex"
   ],
   "0x483050": [
-    5136480,
+    5136512,
     "StageTiming_StartLoadedPartSwing"
   ],
   "0x483100": [
-    5164544,
+    5164576,
     "StageTiming_FireCarPartDebris"
   ],
   "0x483570": [
-    5166832,
+    5166864,
     "StageTiming_IntegratePartSpringMotion"
   ],
   "0x484310": [
-    5110848,
+    5110880,
     "CarPart_IntegrateDetachedMotion"
   ],
   "0x484d10": [
-    4998848,
+    4998880,
     "StageObject_GetCarPartTableValue"
   ],
   "0x484d30": [
-    5136240,
+    5136272,
     "StageTiming_InterpolateMovingPartMatrices"
   ],
   "0x484de0": [
-    4998880,
+    4998912,
     "StageObject_GetCarPartNode"
   ],
   "0x484e00": [
-    5078768,
+    5078800,
     "CarDamage_StepClimbingCarRecords"
   ],
   "0x484f40": [
-    5165680,
+    5165712,
     "CarPart_ResolveLocalPointGroundContact"
   ],
   "0x4853c0": [
-    5036272,
+    5036304,
     "StageObject_ApplyRandomizedBodyImpulse"
   ],
   "0x4854a0": [
-    4998912,
+    4998944,
     "StageObject_IntegrateCarMotionRecord"
   ],
   "0x485690": [
-    5079104,
+    5079136,
     "StageObject_DrawListedCarLightBeams"
   ],
   "0x485860": [
-    5079568,
+    5079600,
     "StageObject_DrawObjectDustTrail"
   ],
   "0x4863d0": [
-    4983312,
+    4983344,
     "StageObject_DistanceFade"
   ],
   "0x486500": [
-    4999408,
+    4999440,
     "StageObject_InterpolateOrderedMotionRecords"
   ],
   "0x486630": [
-    5023728,
+    5023760,
     "StageObject_ResetVectorListRecord"
   ],
   "0x4866a0": [
-    5017648,
+    5017680,
     "StageObject_DestroyStageKindCarNodes"
   ],
   "0x486700": [
-    5003696,
+    5003728,
     "StageObject_CacheCarSplitVectorPointers"
   ],
   "0x486740": [
-    5050912,
+    5050944,
     "StageObject_SelectAndCopyCarNodePayload"
   ],
   "0x486810": [
@@ -6420,75 +6420,75 @@
     "StageObject_SetPositionFromSplitVector"
   ],
   "0x486b20": [
-    5023616,
+    5023648,
     "StageObject_DispatchContactAndSetLevel"
   ],
   "0x486b90": [
-    5008128,
+    5008160,
     "StageObject_SetLevelFromContactType"
   ],
   "0x486be0": [
-    4999728,
+    4999760,
     "StageObject_SetContactLevelToUnity"
   ],
   "0x486c00": [
-    4999760,
+    4999792,
     "StageObject_ResetContactEffectAndSetLevel"
   ],
   "0x486c30": [
-    5051952,
+    5051984,
     "StageObject_QueueViewLensFlare"
   ],
   "0x486fc0": [
-    5042016,
+    5042048,
     "CarPart_BuildScaledWheelOrientation"
   ],
   "0x487130": [
-    4999808,
+    4999840,
     "StageObject_GetCollisionRecordState"
   ],
   "0x487140": [
-    5046112,
+    5046144,
     "Collision_BuildOrientedBoxWorldCorners"
   ],
   "0x4873f0": [
-    5058304,
+    5058336,
     "Collision_BuildObjectPointBounds"
   ],
   "0x4877a0": [
-    5102320,
+    5102352,
     "Collision_UpdateOrderedCars"
   ],
   "0x4878a0": [
-    5099856,
+    5099888,
     "Collision_TestCarAgainstSectorObjects"
   ],
   "0x487b80": [
-    5008416,
+    5008448,
     "Collision_DoSpheresOverlap"
   ],
   "0x487c40": [
-    5042384,
+    5042416,
     "StageObject_BuildSpriteExtentOrientation"
   ],
   "0x487e00": [
-    5008608,
+    5008640,
     "StageObject_SetCollisionSphereAndMaterial"
   ],
   "0x487e50": [
-    5008688,
+    5008720,
     "StageObject_UpdateCarBoxShadowLighting"
   ],
   "0x487f60": [
-    5098096,
+    5098128,
     "Collision_ResolveCarTurnedObjectContact"
   ],
   "0x488640": [
-    5082496,
+    5082528,
     "Collision_TestOrientedBoxCornerOverlap"
   ],
   "0x488de0": [
-    5008960,
+    5008992,
     "Collision_FindQuadEdgeOverlap"
   ],
   "0x489060": [
@@ -6532,335 +6532,335 @@
     "Collision_ClampAngularCorrection"
   ],
   "0x48c870": [
-    4999824,
+    4999856,
     "StageObject_ApplyRecursiveFrameDelta"
   ],
   "0x48c900": [
-    4999968,
+    5000000,
     "StageObject_MoveRecursiveBoxCorners"
   ],
   "0x48ca40": [
-    5000288,
+    5000320,
     "StageObject_GetCarCameraSelectionValue"
   ],
   "0x48ca60": [
-    5000320,
+    5000352,
     "StageObject_ForwardSessionUpdate"
   ],
   "0x48ca70": [
-    5040688,
+    5040720,
     "StageObject_StartAndRegisterFrameCallback"
   ],
   "0x48ca90": [
-    5000336,
+    5000368,
     "StageObject_GetSelectedRecordListState"
   ],
   "0x48caa0": [
-    5007264,
+    5007296,
     "StageObject_SelectNonemptyRecordList"
   ],
   "0x48cae0": [
-    5087728,
+    5087760,
     "View_PlaceTracksideCameraAtSpot"
   ],
   "0x48cc30": [
-    5088064,
+    5088096,
     "View_UpdateTracksideZoomAndShake"
   ],
   "0x48ce80": [
-    5088656,
+    5088688,
     "View_RestartTracksideCameraDolly"
   ],
   "0x48d0f0": [
-    5089280,
+    5089312,
     "View_BuildTracksideCameraMatrix"
   ],
   "0x48d7b0": [
-    5035376,
+    5035408,
     "StageObject_DispatchNearRightAngleContact"
   ],
   "0x48d800": [
-    5035456,
+    5035488,
     "StageObject_UpdateNearRightAngleContactLevel"
   ],
   "0x48d850": [
-    5017744,
+    5017776,
     "StageObject_ResetRightAngleContactEffect"
   ],
   "0x48d8b0": [
-    5000352,
+    5000384,
     "StageObject_FindNearestCameraSpot"
   ],
   "0x48d930": [
-    5000480,
+    5000512,
     "StageObject_GetCarCameraSpotIndex"
   ],
   "0x48d950": [
-    5000512,
+    5000544,
     "StageObject_ApplySmoothedSurfaceImpact"
   ],
   "0x48db00": [
-    5022960,
+    5022992,
     "StageObject_StepVectorToTarget"
   ],
   "0x48dc30": [
-    5023264,
+    5023296,
     "StageObject_ApproachCarLevelTarget"
   ],
   "0x48dca0": [
-    5007440,
+    5007472,
     "StageObject_AddClampedCarLevel"
   ],
   "0x48dce0": [
-    5007504,
+    5007536,
     "StageObject_BuildSurfaceImpactDisplacement"
   ],
   "0x48df10": [
-    5008064,
+    5008096,
     "StageObject_IsNegativeRightAngleCameraSpot"
   ],
   "0x48df50": [
-    5045776,
+    5045808,
     "CarPhysics_UpdateWheelSlipAndVelocityDamping"
   ],
   "0x48e0a0": [
-    5101024,
+    5101056,
     "Collision_TestCarAgainstSectorEdges"
   ],
   "0x48e580": [
-    5100592,
+    5100624,
     "Collision_TestSectorEdgeEndpoints"
   ],
   "0x48e730": [
-    5084448,
+    5084480,
     "Collision_ResolveSectorFaceContact"
   ],
   "0x48f400": [
-    5023504,
+    5023536,
     "StageObject_IsCarOutsideCollisionHeightInterval"
   ],
   "0x48f470": [
-    5225792,
+    5225856,
     "CarPhysics_ApplyImpulse"
   ],
   "0x48fb80": [
-    5230704,
+    5230768,
     "Collision_ResolveSectorEdgeContact"
   ],
   "0x490570": [
-    5227600,
+    5227664,
     "VehiclePhysics_SelectParallelCollisionSide"
   ],
   "0x490640": [
-    5227808,
+    5227872,
     "VehiclePhysics_TestBehindFaceCollision"
   ],
   "0x490720": [
-    5228032,
+    5228096,
     "Collision_ClassifyFaceVertices"
   ],
   "0x490b90": [
-    5230320,
+    5230384,
     "VehiclePhysics_ClassifyCandidateFace"
   ],
   "0x490c30": [
-    5216288,
+    5216320,
     "TrackCollision_LoadFinishRecords"
   ],
   "0x490c90": [
-    5216384,
+    5216416,
     "Track_GetGroundHeight"
   ],
   "0x490d50": [
-    5122416,
+    5122448,
     "StageTiming_IndexSerializedStageTables"
   ],
   "0x490e00": [
-    5213840,
+    5213872,
     "Track_GetTriangle"
   ],
   "0x490f20": [
-    5214128,
+    5214160,
     "Track_PointInTriangle"
   ],
   "0x4910f0": [
-    5214592,
+    5214624,
     "Track_GetHeight"
   ],
   "0x491550": [
-    5215952,
+    5215984,
     "Track_FindTriangle"
   ],
   "0x4916a0": [
-    5215712,
+    5215744,
     "Track_FindNearestTriangle"
   ],
   "0x491790": [
-    5122304,
+    5122336,
     "StageTiming_ReadStageFaceRecord"
   ],
   "0x4917f0": [
-    5139936,
+    5139968,
     "StageTiming_CopyTriangleVertices"
   ],
   "0x4918c0": [
-    5122400,
+    5122432,
     "StageTiming_NoOpLightRelease"
   ],
   "0x4918d0": [
-    5137856,
+    5137888,
     "StageTiming_CreateWhiteStageLight"
   ],
   "0x4919a0": [
-    5218000,
+    5218032,
     "Stage_InitLightMeshes"
   ],
   "0x491d40": [
-    5218896,
+    5218960,
     "Stage_SetHeightColours"
   ],
   "0x4920d0": [
-    5049120,
+    5049152,
     "StageObject_ColourGroundMeshReferencePoint"
   ],
   "0x492220": [
-    5049456,
+    5049488,
     "StageObject_ColourObjectMeshReferencePoint"
   ],
   "0x4923d0": [
-    5225296,
+    5225360,
     "TrackLighting_SetLightMeshDiffuseColour"
   ],
   "0x492470": [
-    5225456,
+    5225520,
     "TrackLighting_SetMesh5DiffuseColour"
   ],
   "0x492520": [
-    5225632,
+    5225696,
     "TrackLighting_SetSkyDiffuseColour"
   ],
   "0x4925c0": [
-    5222272,
+    5222336,
     "Track_ShiftMeshAndAmbientHeights"
   ],
   "0x4926f0": [
-    5049888,
+    5049920,
     "StageObject_YawMainAndSunNodes"
   ],
   "0x492890": [
-    5000928,
+    5000960,
     "StageObject_GetRotatedStageLightVector"
   ],
   "0x4928c0": [
-    5000976,
+    5001008,
     "StageObject_GetStageLightValues"
   ],
   "0x4928f0": [
-    5001024,
+    5001056,
     "StageObject_GetStageLightState"
   ],
   "0x492900": [
-    5001040,
+    5001072,
     "StageObject_SetStageLightState"
   ],
   "0x492910": [
-    5001056,
+    5001088,
     "StageObject_FindClosestMeshVertex"
   ],
   "0x492b50": [
-    5017552,
+    5017584,
     "StageObject_RandomizeStageTriangleTextures"
   ],
   "0x492bb0": [
-    5001632,
+    5001664,
     "StageObject_GetGroundReferenceColour"
   ],
   "0x492bd0": [
-    5050304,
+    5050336,
     "StageObject_OrientLightNodesToView"
   ],
   "0x492e30": [
-    5002624,
+    5002656,
     "StageObject_SetUnboostedStageLight"
   ],
   "0x492e60": [
-    5219952,
+    5220016,
     "TrackLighting_SetAmbientRGB"
   ],
   "0x492f10": [
-    5220128,
+    5220192,
     "TrackLighting_PushRecolouredMeshVertices"
   ],
   "0x492fd0": [
-    5002528,
+    5002560,
     "StageObject_SetForwardedFlareState"
   ],
   "0x492fe0": [
-    5220544,
+    5220608,
     "Track_SetFogAndSkyAlpha"
   ],
   "0x4930b0": [
-    5002576,
+    5002608,
     "Track_GetGroundHeight5"
   ],
   "0x4930e0": [
-    5048128,
+    5048160,
     "StageObject_UpdateCarCornerGroundHeights"
   ],
   "0x4932b0": [
-    5216576,
+    5216608,
     "Track_GetGroundHeightSurface"
   ],
   "0x4932f0": [
-    5222576,
+    5222640,
     "AutoGear_ApplyShiftBodyNudge"
   ],
   "0x493520": [
-    5224416,
+    5224480,
     "AutoGear_UpdateCarGearState"
   ],
   "0x493890": [
-    5216640,
+    5216672,
     "AutoGear_RequestAdjacentGear"
   ],
   "0x493a40": [
-    5221424,
+    5221488,
     "AutoGear_UpdateBestGearFlag"
   ],
   "0x493b30": [
-    5217072,
+    5217104,
     "Car_UpdateAutomaticGear"
   ],
   "0x493ed0": [
-    5223136,
+    5223200,
     "CarPhysics_DampSurfaceSteeringAngle"
   ],
   "0x494110": [
-    5223712,
+    5223776,
     "AutoGear_IntegrateSteeringAccumulator"
   ],
   "0x4943d0": [
-    5221664,
+    5221728,
     "AutoGear_UpdateSteeringScale"
   ],
   "0x494540": [
-    5219808,
+    5219872,
     "AutoGear_RampDirectionState"
   ],
   "0x4945d0": [
-    5222032,
+    5222096,
     "AutoGear_ComputeSteeringTorque"
   ],
   "0x4946c0": [
-    5220752,
+    5220816,
     "AutoGear_UpdateRollingFollowRate"
   ],
   "0x494880": [
-    5221200,
+    5221264,
     "AutoGear_UpdateSteeringSwing"
   ],
   "0x494960": [
-    5220320,
+    5220384,
     "AutoGear_UpdateSecondarySwing"
   ],
   "0x494a40": [
@@ -6872,11 +6872,11 @@
     "RallyData_GetCountrySettingSevenByteRecord"
   ],
   "0x494b10": [
-    5119552,
+    5119584,
     "StageTiming_FreeMotionRecordTable"
   ],
   "0x494b50": [
-    5119616,
+    5119648,
     "StageTiming_AllocateMotionRecordTable"
   ],
   "0x494bb0": [
@@ -6916,27 +6916,27 @@
     "CarShadow_SetLevel"
   ],
   "0x498570": [
-    5001664,
+    5001696,
     "StageObject_GetMotionRecord"
   ],
   "0x498590": [
-    5134688,
+    5134720,
     "StageTiming_RelocateCarRecordRoutePoints"
   ],
   "0x498620": [
-    5174416,
+    5174448,
     "StageTiming_RecomputeCarSplitBarSamples"
   ],
   "0x498ca0": [
-    5134832,
+    5134864,
     "StageTiming_CollectDescriptorCarValues"
   ],
   "0x498d80": [
-    4983824,
+    4983856,
     "StageObject_Atan2Degrees"
   ],
   "0x498db0": [
-    5001696,
+    5001728,
     "StageObject_WrapFixedDegreeAngle"
   ],
   "0x498dd0": [
@@ -7032,7 +7032,7 @@
     "CGame::UnwindCallbacks"
   ],
   "0x49c130": [
-    5267696,
+    5267760,
     "CMain::UnwindGameCallbacks"
   ],
   "0x49c140": [
@@ -7236,7 +7236,7 @@
     "CGameInfo::SetInputPausedFlag"
   ],
   "0x49e940": [
-    5001904,
+    5001936,
     "StageObject_GetAnyDeviceHeldButtons"
   ],
   "0x49e960": [
@@ -7656,163 +7656,163 @@
     "Network_SetLocalPlayerData"
   ],
   "0x4a1d00": [
-    4975056,
+    4975088,
     "Sound_GetSampleTableState"
   ],
   "0x4a1d10": [
-    4975184,
+    4975216,
     "Sound_ReleaseSampleBuffers"
   ],
   "0x4a1d60": [
-    4971440,
+    4971472,
     "Sound_InitDevice"
   ],
   "0x4a1f50": [
-    4971920,
+    4971952,
     "Sound_LoadWave"
   ],
   "0x4a20c0": [
-    4972288,
+    4972320,
     "Sound_CreatePcmSampleBuffer"
   ],
   "0x4a2210": [
-    4972624,
+    4972656,
     "Sound_CopyBufferData"
   ],
   "0x4a22c0": [
-    4973296,
+    4973328,
     "Sound_StartSlotBuffer"
   ],
   "0x4a23f0": [
-    4969488,
+    4969520,
     "CSound::EnsureBufferPlaying"
   ],
   "0x4a2430": [
-    4971328,
+    4971360,
     "Sound_IsSlotPlayingOrPending"
   ],
   "0x4a24a0": [
-    4972800,
+    4972832,
     "Sound_BuildSlotLoopBuffer"
   ],
   "0x4a25f0": [
-    4973136,
+    4973168,
     "Sound_ApplySlotVolumeAttenuation"
   ],
   "0x4a2690": [
-    4973600,
+    4973632,
     "Sound_ApplySlotFrequency"
   ],
   "0x4a26f0": [
-    4973696,
+    4973728,
     "Sound_StopSlotBuffers"
   ],
   "0x4a27c0": [
-    4969552,
+    4969584,
     "CSound::UpdateFinishedSoundSlot"
   ],
   "0x4a2830": [
-    4975264,
+    4975296,
     "Sound_ReleaseDirectSoundResources"
   ],
   "0x4a28c0": [
-    4969664,
+    4969696,
     "CSound::NoOpSoundDeviceCallback"
   ],
   "0x4a28d0": [
-    4966688,
+    4966720,
     "CSound::OpenStreamingMusicFile"
   ],
   "0x4a2a20": [
-    4975408,
+    4975440,
     "Sound_CreateMusicStreamingBuffer"
   ],
   "0x4a2ac0": [
-    4967136,
+    4967168,
     "CSound::CloseMusicStreamResources"
   ],
   "0x4a2b50": [
-    4967056,
+    4967088,
     "CSound::CloseMusicStreamAndClearPath"
   ],
   "0x4a2ba0": [
-    4975616,
+    4975648,
     "Sound_RestartMusicAfterDeviceCreation"
   ],
   "0x4a2bd0": [
-    4970784,
+    4970816,
     "Sound_StartLoopingMusicStream"
   ],
   "0x4a2c70": [
-    4970448,
+    4970480,
     "Sound_RewindAndFillMusicBuffer"
   ],
   "0x4a2d30": [
-    4969984,
+    4970016,
     "Sound_UpdateMusicRingBufferCursor"
   ],
   "0x4a2d90": [
-    4970080,
+    4970112,
     "Sound_DecodeMusicBlocks"
   ],
   "0x4a2f00": [
-    4967440,
+    4967472,
     "CSound::StopDirectSoundBuffer"
   ],
   "0x4a2f50": [
-    4970640,
+    4970672,
     "Sound_RestartOpenedMusicStream"
   ],
   "0x4a2f70": [
-    4970672,
+    4970704,
     "Sound_RestoreLostMusicBuffer"
   ],
   "0x4a2fe0": [
-    4971216,
+    4971248,
     "Sound_UpdateMusicStreaming"
   ],
   "0x4a3050": [
-    4970944,
+    4970976,
     "Sound_RefillMusicBufferRegions"
   ],
   "0x4a3160": [
-    4969952,
+    4969984,
     "CSound::PauseMusicStreaming"
   ],
   "0x4a3180": [
-    4975072,
+    4975104,
     "Sound_ClearMusicPauseFlag"
   ],
   "0x4a31a0": [
-    4969696,
+    4969728,
     "CSound::StopSharedMusicBuffer"
   ],
   "0x4a31f0": [
-    4967584,
+    4967616,
     "CSound::SetMusicStreamVolume"
   ],
   "0x4a3240": [
-    4975104,
+    4975136,
     "Sound_NoOpMusicCallback"
   ],
   "0x4a3250": [
-    4967520,
+    4967552,
     "CSound::IsSoundCallSuccessful"
   ],
   "0x4a3260": [
-    4977200,
+    4977232,
     "Sprite_Init"
   ],
   "0x4a3290": [
-    4977872,
+    4977904,
     "Sprite_Queue"
   ],
   "0x4a3640": [
-    4977184,
+    4977216,
     "Sprite_Shutdown"
   ],
   "0x4a3650": [
-    4975664,
+    4975696,
     "Sprite_DrawLayer"
   ],
   "0x4a3c30": [
@@ -7936,7 +7936,7 @@
     "Graphics_ReloadTexture"
   ],
   "0x4a5e40": [
-    4978816,
+    4978848,
     "Sprite_FillRect"
   ],
   "0x4a5fe0": [
@@ -8008,11 +8008,11 @@
     "CGraphics::ReleaseSurfaces"
   ],
   "0x4a8140": [
-    5266800,
+    5266864,
     "CMain::CreateGameWindow"
   ],
   "0x4a8270": [
-    5266720,
+    5266784,
     "Main_DestroyGameWindow"
   ],
   "0x4a82c0": [
@@ -8124,11 +8124,11 @@
     "CFrontend::HasDXT1TextureSupport"
   ],
   "0x4a9720": [
-    5266320,
+    5266384,
     "CMain::Initialize"
   ],
   "0x4a98b0": [
-    5267104,
+    5267168,
     "CMain::MessageHandler"
   ],
   "0x4a9a40": [
@@ -8136,7 +8136,7 @@
     "CGame::SetShouldExit"
   ],
   "0x4a9a50": [
-    5267504,
+    5267568,
     "CMain::SetGameActiveState"
   ],
   "0x4a9b00": [
@@ -8152,27 +8152,27 @@
     "CGame::GetGameInputFocusState"
   ],
   "0x4a9b30": [
-    5267728,
+    5267792,
     "Main_InitD3DX"
   ],
   "0x4a9b50": [
-    5267712,
+    5267776,
     "Main_ShutdownD3DX"
   ],
   "0x4a9b60": [
-    5267760,
+    5267824,
     "CMain::GetFrameTime"
   ],
   "0x4a9b70": [
-    5267776,
+    5267840,
     "CMain::UpdateFrameTime"
   ],
   "0x4a9b80": [
-    5267808,
+    5267872,
     "CMain::GetFrameDelta"
   ],
   "0x4a9c20": [
-    5267792,
+    5267856,
     "CMain::ResetFrameDelta"
   ],
   "0x4a9c30": [
@@ -8196,11 +8196,11 @@
     "CGenericFileLoader::FindFile"
   ],
   "0x4a9e60": [
-    5210656,
+    5210688,
     "CTexture::FindLoadTexture"
   ],
   "0x4a9f50": [
-    5210592,
+    5210624,
     "Texture_GetPathStem"
   ],
   "0x4a9f90": [
@@ -8760,7 +8760,7 @@
     "Graphics_UpdateFrameStatistics"
   ],
   "0x4b2390": [
-    5267680,
+    5267744,
     "CMain::ResetFpsWarmup"
   ],
   "0x4b23a0": [
@@ -8916,7 +8916,7 @@
     "Scene_ApplyGroundLightToMeshTree"
   ],
   "0x4b5320": [
-    5049088,
+    5049120,
     "StageObject_RunNodeActionAndSoundCallback"
   ],
   "0x4b5340": [
@@ -9044,71 +9044,71 @@
     "CFrontend::IsTextureHeightSupported"
   ],
   "0x4b75c0": [
-    4973904,
+    4973936,
     "Sound_IsModernWindowsVersion"
   ],
   "0x4b7610": [
-    4974320,
+    4974352,
     "Sound_GetSlot"
   ],
   "0x4b7620": [
-    4969440,
+    4969472,
     "CSound::ReleaseSoundSlotData"
   ],
   "0x4b7650": [
-    4974336,
+    4974368,
     "Sound_Init"
   ],
   "0x4b76c0": [
-    4974448,
+    4974480,
     "Sound_LoadSample"
   ],
   "0x4b7740": [
-    4974576,
+    4974608,
     "Sound_FreeSamplesFromIndex"
   ],
   "0x4b7780": [
-    4974640,
+    4974672,
     "Sound_GetLoadedSampleCount"
   ],
   "0x4b7790": [
-    4974048,
+    4974080,
     "Sound_PlaySampleWithParameters"
   ],
   "0x4b78a0": [
-    4974656,
+    4974688,
     "Sound_IsPlaying"
   ],
   "0x4b78d0": [
-    4974704,
+    4974736,
     "Sound_Free"
   ],
   "0x4b7910": [
-    4974768,
+    4974800,
     "Sound_FreeAll"
   ],
   "0x4b7940": [
-    4974816,
+    4974848,
     "Sound_GetSampleCount"
   ],
   "0x4b7950": [
-    4975120,
+    4975152,
     "Sound_SetMasterVolume"
   ],
   "0x4b7990": [
-    4974832,
+    4974864,
     "Sound_GetMasterVolume"
   ],
   "0x4b79a0": [
-    4973984,
+    4974016,
     "Sound_SetPlayingSlotVolume"
   ],
   "0x4b79e0": [
-    4974848,
+    4974880,
     "Sound_SetPan"
   ],
   "0x4b7a10": [
-    4974896,
+    4974928,
     "Sound_GetVolume"
   ],
   "0x4b7a40": [
@@ -9116,23 +9116,23 @@
     "CGame::UpdateActiveSoundSlots"
   ],
   "0x4b7a70": [
-    4974944,
+    4974976,
     "Sound_FindFreeSlot"
   ],
   "0x4b7a90": [
-    4974976,
+    4975008,
     "Sound_MakeHandle"
   ],
   "0x4b7ab0": [
-    4975008,
+    4975040,
     "Sound_FindHandle"
   ],
   "0x4b7ae0": [
-    4975568,
+    4975600,
     "Sound_ShutdownSystem"
   ],
   "0x4b7b10": [
-    4969680,
+    4969712,
     "CSound::RunSoundDeviceCallback"
   ],
   "0x4b7b20": [
@@ -9164,67 +9164,67 @@
     "Input_PopQueuedKeyPress"
   ],
   "0x4b7da0": [
-    4961232,
+    4961264,
     "Sector_IsVisible"
   ],
   "0x4b7de0": [
-    4963904,
+    4963936,
     "Sector_CullGridAroundViewNode"
   ],
   "0x4b8270": [
-    4965056,
+    4965088,
     "Sector_RebuildStageGrid"
   ],
   "0x4b8450": [
-    4965552,
+    4965584,
     "Sector_RebuildNodeLists"
   ],
   "0x4b8540": [
-    4961296,
+    4961328,
     "Sector_FreeMeshPartLists"
   ],
   "0x4b85f0": [
-    4961472,
+    4961504,
     "Sector_FromPosition"
   ],
   "0x4b8690": [
-    4961632,
+    4961664,
     "SceneNode_UpdateSector"
   ],
   "0x4b8910": [
-    4965792,
+    4965824,
     "Sector_GetNeighbours"
   ],
   "0x4b8aa0": [
-    4961120,
+    4961152,
     "Sector_RemoveNode"
   ],
   "0x4b8b10": [
-    4963776,
+    4963808,
     "Sector_InsertNodeByPosition"
   ],
   "0x4b8b90": [
-    4963104,
+    4963136,
     "Sector_BuildCorners"
   ],
   "0x4b8e30": [
-    4962272,
+    4962304,
     "Sector_NearestCornerHeight"
   ],
   "0x4b9170": [
-    4966192,
+    4966224,
     "Sector_ComputeBounds"
   ],
   "0x4b9360": [
-    4959632,
+    4959664,
     "Sector_GetGridDimensions"
   ],
   "0x4b9380": [
-    4959664,
+    4959696,
     "Sector_BuildC3DModelScene"
   ],
   "0x4b93c0": [
-    4959728,
+    4959760,
     "Sector_RelocateStageMeshFile"
   ],
   "0x4b98f0": [
@@ -9352,55 +9352,55 @@
     "FixVec_Length"
   ],
   "0x4bb280": [
-    4979248,
+    4979280,
     "Line2D_Init"
   ],
   "0x4bb2b0": [
-    4979440,
+    4979472,
     "ScreenLine2D_Draw"
   ],
   "0x4bb430": [
-    4979296,
+    4979328,
     "Line2D_Queue"
   ],
   "0x4bb4c0": [
-    4979824,
+    4979856,
     "Line2D_Draw"
   ],
   "0x4bb5f0": [
-    4979216,
+    4979248,
     "Line2D_Shutdown"
   ],
   "0x4bb610": [
-    4977296,
+    4977328,
     "Tri2D_Init"
   ],
   "0x4bb650": [
-    4977440,
+    4977472,
     "Tri2D_Queue"
   ],
   "0x4bb800": [
-    4977360,
+    4977392,
     "Tri2D_SetVertex"
   ],
   "0x4bb850": [
-    4980128,
+    4980160,
     "Tri2D_DrawLayer"
   ],
   "0x4bba00": [
-    4981632,
+    4981664,
     "Quad2D_QueueFixedTriangle"
   ],
   "0x4bbc60": [
-    4980560,
+    4980592,
     "Quad2D_Queue"
   ],
   "0x4bbd80": [
-    4980848,
+    4980880,
     "Quad2D_DrawLayer"
   ],
   "0x4bc090": [
-    4977248,
+    4977280,
     "Tri2D_Shutdown"
   ],
   "0x4bc0c0": [
@@ -9484,75 +9484,75 @@
     "Args_Has"
   ],
   "0x4bd100": [
-    4969776,
+    4969808,
     "Sound_FindADPCMDriver"
   ],
   "0x4bd120": [
-    4969808,
+    4969840,
     "Sound_OpenADPCMDecoder"
   ],
   "0x4bd1b0": [
-    4967280,
+    4967312,
     "Sound_DecodeADPCMBlock"
   ],
   "0x4bd230": [
-    4967408,
+    4967440,
     "CSound::CloseADPCMDecoder"
   ],
   "0x4bd250": [
-    4967664,
+    4967696,
     "AcmFormatEnumCallback"
   ],
   "0x4bd2b0": [
-    4967760,
+    4967792,
     "AcmDriverEnumCallback"
   ],
   "0x4bd3c0": [
-    4968032,
+    4968064,
     "AcmFindDriver"
   ],
   "0x4bd400": [
-    4968096,
+    4968128,
     "AcmGetDriverFormat"
   ],
   "0x4bd520": [
-    4968384,
+    4968416,
     "ReadMMIO"
   ],
   "0x4bd6b0": [
-    4968784,
+    4968816,
     "WaveOpenFile"
   ],
   "0x4bd740": [
-    4968928,
+    4968960,
     "WaveStartDataRead"
   ],
   "0x4bd7b0": [
-    4969040,
+    4969072,
     "WaveReadFile"
   ],
   "0x4bd8b0": [
-    4969296,
+    4969328,
     "MMIOData::MMIOData"
   ],
   "0x4bd8c0": [
-    4967552,
+    4967584,
     "CSound::CloseAndCleanupMMIO"
   ],
   "0x4bd8e0": [
-    4969312,
+    4969344,
     "MMIOData::Open"
   ],
   "0x4bd920": [
-    4969376,
+    4969408,
     "MMIOData::StartDataRead"
   ],
   "0x4bd940": [
-    4969408,
+    4969440,
     "MMIOData::Read"
   ],
   "0x4bd960": [
-    4967536,
+    4967568,
     "CSound::CloseMMIO"
   ],
   "0x4bd970": [
@@ -9600,199 +9600,199 @@
     "CGraphics::CollectRenderDeviceCapabilitiesCallback"
   ],
   "0x4bdee0": [
-    5242784,
+    5242848,
     "gzopen"
   ],
   "0x4bdf00": [
-    5242816,
+    5242880,
     "gz_open"
   ],
   "0x4be160": [
-    5243600,
+    5243664,
     "check_header"
   ],
   "0x4be520": [
-    5244560,
+    5244624,
     "get_byte"
   ],
   "0x4be5a0": [
-    5244688,
+    5244752,
     "destroy"
   ],
   "0x4be660": [
-    5244880,
+    5244944,
     "gzread"
   ],
   "0x4bebb0": [
-    5246768,
+    5246832,
     "do_flush"
   ],
   "0x4bec70": [
-    5247568,
+    5247632,
     "gzclose"
   ],
   "0x4becf0": [
-    5254768,
+    5254832,
     "inflateReset"
   ],
   "0x4bed40": [
-    5254848,
+    5254912,
     "inflateEnd"
   ],
   "0x4bed90": [
-    5254928,
+    5254992,
     "inflateInit2_"
   ],
   "0x4bef00": [
-    5255328,
+    5255392,
     "inflate"
   ],
   "0x4bf340": [
-    5235632,
+    5235696,
     "deflateInit2_"
   ],
   "0x4bf640": [
-    5237136,
+    5237200,
     "deflate"
   ],
   "0x4bfab0": [
-    5238272,
+    5238336,
     "deflateEnd"
   ],
   "0x4bfb50": [
-    5238864,
+    5238928,
     "deflate_stored"
   ],
   "0x4bfdf0": [
-    5239536,
+    5239600,
     "fill_window"
   ],
   "0x4bff90": [
-    5239952,
+    5240016,
     "deflate_fast"
   ],
   "0x4c03b0": [
-    5241008,
+    5241072,
     "longest_match"
   ],
   "0x4c0530": [
-    5241392,
+    5241456,
     "deflate_slow"
   ],
   "0x4c0aa0": [
-    5235264,
+    5235328,
     "crc32"
   ],
   "0x4c0be0": [
-    5266240,
+    5266304,
     "zcalloc"
   ],
   "0x4c0c00": [
-    5266272,
+    5266336,
     "zcfree"
   ],
   "0x4c0c10": [
-    5247984,
+    5248048,
     "inflate_blocks_reset"
   ],
   "0x4c0c90": [
-    5248112,
+    5248176,
     "inflate_blocks_new"
   ],
   "0x4c0d50": [
-    5248304,
+    5248368,
     "inflate_blocks"
   ],
   "0x4c1a20": [
-    5251584,
+    5251648,
     "inflate_blocks_free"
   ],
   "0x4c1aa0": [
-    5234928,
+    5234992,
     "adler32"
   ],
   "0x4c1be0": [
-    5258976,
+    5259040,
     "_tr_init"
   ],
   "0x4c1ca0": [
-    5259168,
+    5259232,
     "_tr_stored_block"
   ],
   "0x4c1e00": [
-    5259520,
+    5259584,
     "_tr_align"
   ],
   "0x4c2160": [
-    5260384,
+    5260448,
     "_tr_flush_block"
   ],
   "0x4c26c0": [
-    5261760,
+    5261824,
     "build_tree"
   ],
   "0x4c2b50": [
-    5262928,
+    5262992,
     "pqdownheap"
   ],
   "0x4c2c30": [
-    5263152,
+    5263216,
     "scan_tree"
   ],
   "0x4c2d20": [
-    5263392,
+    5263456,
     "send_tree"
   ],
   "0x4c32a0": [
-    5264976,
+    5265040,
     "compress_block"
   ],
   "0x4c36e0": [
-    5266064,
+    5266128,
     "bi_windup"
   ],
   "0x4c3760": [
-    5251792,
+    5251856,
     "inflate_codes_new"
   ],
   "0x4c37a0": [
-    5251856,
+    5251920,
     "inflate_codes"
   ],
   "0x4c3f40": [
-    5253808,
+    5253872,
     "inflate_codes_free"
   ],
   "0x4c3f60": [
-    5256832,
+    5256896,
     "inflate_trees_bits"
   ],
   "0x4c4000": [
-    5256992,
+    5257056,
     "huft_build"
   ],
   "0x4c44e0": [
-    5258240,
+    5258304,
     "inflate_trees_dynamic"
   ],
   "0x4c4660": [
-    5258624,
+    5258688,
     "inflate_trees_fixed"
   ],
   "0x4c4690": [
-    5258672,
+    5258736,
     "inflate_flush"
   ],
   "0x4c47c0": [
-    5253840,
+    5253904,
     "inflate_fast"
   ],
   "0x4c4b60": [
-    5268334,
+    5268398,
     "DDRAW.dll::DirectDrawCreateEx"
   ],
   "0x4c4b66": [
-    5268340,
+    5268404,
     "DDRAW.dll::DirectDrawEnumerateExA"
   ],
   "0x4c4b80": [
@@ -9808,159 +9808,159 @@
     "g_dataFormatJoystick2"
   ],
   "0x4c6670": [
-    5268328,
+    5268392,
     "DINPUT.dll::DirectInputCreateEx"
   ],
   "0x4c6676": [
-    5268460,
+    5268524,
     "MSVCRT.dll::rand"
   ],
   "0x4c667c": [
-    5268496,
+    5268560,
     "MSVCRT.dll::qsort"
   ],
   "0x4c6682": [
-    5268484,
+    5268548,
     "MSVCRT.dll::srand"
   ],
   "0x4c6688": [
-    5268514,
+    5268578,
     "MSVCRT.dll::puts"
   ],
   "0x4c668e": [
-    5268728,
+    5268792,
     "MSVCRT.dll::_stricmp"
   ],
   "0x4c6694": [
-    5268448,
+    5268512,
     "MSVCRT.dll::strncpy"
   ],
   "0x4c669a": [
-    5268454,
+    5268518,
     "MSVCRT.dll::strncmp"
   ],
   "0x4c66a0": [
-    5268858,
+    5268922,
     "MSVCRT.dll::fclose"
   ],
   "0x4c66a6": [
-    5268840,
+    5268904,
     "MSVCRT.dll::fopen"
   ],
   "0x4c66ac": [
-    5268846,
+    5268910,
     "MSVCRT.dll::fwrite"
   ],
   "0x4c66b2": [
-    5268472,
+    5268536,
     "MSVCRT.dll::strchr"
   ],
   "0x4c66b8": [
-    5268722,
+    5268786,
     "MSVCRT.dll::_splitpath"
   ],
   "0x4c66be": [
-    5268502,
+    5268566,
     "MSVCRT.dll::free"
   ],
   "0x4c66c4": [
-    5268740,
+    5268804,
     "MSVCRT.dll::??2@YAPAXI@Z"
   ],
   "0x4c66ca": [
-    5268698,
+    5268762,
     "MSVCRT.dll::??3@YAXPAX@Z"
   ],
   "0x4c66d0": [
-    5268746,
+    5268810,
     "MSVCRT.dll::__CxxFrameHandler"
   ],
   "0x4c6710": [
-    5268710,
+    5268774,
     "MSVCRT.dll::_strlwr"
   ],
   "0x4c6716": [
-    5268716,
+    5268780,
     "MSVCRT.dll::strrchr"
   ],
   "0x4c671c": [
-    5268734,
+    5268798,
     "MSVCRT.dll::_CIasin"
   ],
   "0x4c6722": [
-    5268752,
+    5268816,
     "MSVCRT.dll::malloc"
   ],
   "0x4c6728": [
-    5268822,
+    5268886,
     "MSVCRT.dll::ftell"
   ],
   "0x4c672e": [
-    5268828,
+    5268892,
     "MSVCRT.dll::fprintf"
   ],
   "0x4c6734": [
-    5268834,
+    5268898,
     "MSVCRT.dll::_fdopen"
   ],
   "0x4c673a": [
-    5268852,
+    5268916,
     "MSVCRT.dll::fread"
   ],
   "0x4c6740": [
-    5268888,
+    5268952,
     "MSVCRT.dll::fputc"
   ],
   "0x4c6746": [
-    5268894,
+    5268958,
     "MSVCRT.dll::calloc"
   ],
   "0x4c674c": [
-    5280529,
+    5280593,
     "_D3DXColorAdjustContrast@12"
   ],
   "0x4c6794": [
-    5280758,
+    5280822,
     "_D3DXInitialize@0"
   ],
   "0x4c686d": [
-    5280975,
+    5281039,
     "_D3DXUninitialize@0"
   ],
   "0x4cf026": [
-    5268256,
+    5268320,
     "MSACM32.dll::acmStreamOpen"
   ],
   "0x4cf02c": [
-    5268244,
+    5268308,
     "MSACM32.dll::acmDriverOpen"
   ],
   "0x4cf032": [
-    5268208,
+    5268272,
     "MSACM32.dll::acmStreamConvert"
   ],
   "0x4cf038": [
-    5268214,
+    5268278,
     "MSACM32.dll::acmStreamPrepareHeader"
   ],
   "0x4cf03e": [
-    5268220,
+    5268284,
     "MSACM32.dll::acmStreamClose"
   ],
   "0x4cf044": [
-    5268226,
+    5268290,
     "MSACM32.dll::acmDriverClose"
   ],
   "0x4cf04a": [
-    5268232,
+    5268296,
     "MSACM32.dll::acmFormatEnumA"
   ],
   "0x4cf050": [
-    5268238,
+    5268302,
     "MSACM32.dll::acmMetrics"
   ],
   "0x4cf056": [
-    5268250,
+    5268314,
     "MSACM32.dll::acmDriverEnum"
   ],
   "0x4cf060": [
@@ -10516,11 +10516,11 @@
     "FrontendMenu_DrawNetworkSessionSetup"
   ],
   "0x4de170": [
-    5210896,
+    5210928,
     "FormatCentisecondsAsMinSecMSec"
   ],
   "0x4de1d0": [
-    5211184,
+    5211216,
     "FrontendDraw_DrawStageTimes"
   ],
   "0x4dec30": [
@@ -13408,15 +13408,15 @@
     "OptionPreview_RebuildDeformedGeometry"
   ],
   "0x508740": [
-    5124720,
+    5124752,
     "StageDeform_ClampVertex"
   ],
   "0x508890": [
-    5148656,
+    5148688,
     "CarDamage_ApplyCameraSpaceMeshDent"
   ],
   "0x508ee0": [
-    5150272,
+    5150304,
     "StageTiming_SelectRecordMeshBrightness"
   ],
   "0x508f60": [
@@ -13660,35 +13660,35 @@
     "type_info::DeleteWithFlags"
   ],
   "0x5105bc": [
-    5348212,
+    5348276,
     "MSVCRT.dll::_CxxThrowException"
   ],
   "0x5105c8": [
-    5348258,
+    5348322,
     "MSVCRT.dll::realloc"
   ],
   "0x5105ce": [
-    5348264,
+    5348328,
     "MSVCRT.dll::_ftol"
   ],
   "0x5105d4": [
-    5348270,
+    5348334,
     "MSVCRT.dll::floor"
   ],
   "0x5105da": [
-    5348276,
+    5348340,
     "MSVCRT.dll::memmove"
   ],
   "0x5105e0": [
-    5268490,
+    5268554,
     "MSVCRT.dll::time"
   ],
   "0x5105e6": [
-    5268508,
+    5268572,
     "MSVCRT.dll::_access"
   ],
   "0x5105ec": [
-    5268704,
+    5268768,
     "MSVCRT.dll::??1type_info@@UAE@XZ"
   ],
   "0x511000": [

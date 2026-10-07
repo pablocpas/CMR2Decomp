@@ -2,6 +2,7 @@
 #include "FixedPoint.h"
 #include "Car.h"
 #include "Mesh.h"
+#include "CarParts.h"
 #include <stdio.h>
 #include "Frontend.h"
 #include "GenericFileLoader.h"
@@ -527,12 +528,11 @@ int g_stageLightReady;
 
 // Loads the stage's light meshes and their height samples.  The samples are
 // fixed point values converted from the first mesh's floating point vertices.
-// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004919a0
 void Stage_InitLightMeshes(void)
 {
     int object0;
-    int object1;
+    int context;
     int object2;
     int object3;
     int *node;
@@ -545,7 +545,7 @@ void Stage_InitLightMeshes(void)
     float *vertices;
 
     StageObject_GetCurrentObjectPointer(&object0);
-    StageObject_GetCurrentObjectContext(&object1);
+    StageObject_GetCurrentObjectContext(&context);
     StageObject_GetCurrentObjectValues(&object2, &object3);
     node = NULL;
     root = NULL;
@@ -560,6 +560,8 @@ void Stage_InitLightMeshes(void)
     g_stageLightNode = (SceneNode *)node;
     g_stageLightObject = SceneType2_Create((FixVector *)(node + 4), (FixAngles *)(node + 7), NULL,
                                            (SceneNode *)node);
+    g_stageLightRoot = (SceneNode *)child;
+    g_stageMesh0Copy = NULL;
     g_stageMesh0Count = 0;
     g_stageMesh1Copy = NULL;
     g_stageMesh1Count = 0;
@@ -574,11 +576,10 @@ void Stage_InitLightMeshes(void)
     g_stageMesh6Copy = NULL;
     g_stageMesh6Count = 0;
 
-    g_stageLightRoot = (SceneNode *)child;
     g_stageMesh0 = *(Mesh **)(object0 + 0xc);
     g_stageMesh0Copy = g_stageMesh0;
     g_stageMesh0Count = (short)Mesh_GetField0x10(g_stageMesh0);
-    g_stageMesh1 = *(Mesh **)(object1 + 0xc);
+    g_stageMesh1 = *(Mesh **)(context + 0xc);
     g_stageMesh1Copy = g_stageMesh1;
     g_stageMesh1Count = (short)Mesh_GetField0x10(g_stageMesh1);
     g_stageMesh2 = *(Mesh **)(object2 + 0xc);
@@ -604,27 +605,27 @@ void Stage_InitLightMeshes(void)
     g_stageColourMode = 0;
     g_stageColourValue = 0;
     g_stageColourStep = 0;
+    g_stageLightReady = 0;
     g_stageColourState = 0;
 
     if (g_stageMesh0Count != 0) {
         maximum = 0;
         minimum = 0;
         for (i = g_stageMesh0Count - 1; i >= 0; i--) {
-            vertices = (float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30);
-            value = (int)(__int64)((double)vertices[1] * CGraphics::m_65536);
+            value = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh0Copy->pVertexData)[i].pos[1] * CGraphics::m_65536);
             if (i == g_stageMesh0Count - 1) {
-                maximum = value;
                 minimum = value;
+                maximum = value;
             } else {
-                if (maximum < value)
+                if (value > maximum)
                     maximum = value;
                 if (value < minimum)
                     minimum = value;
             }
             if (i == 0x68) {
                 g_unk0x00592114.y = value;
-                g_unk0x00592114.x = (int)(__int64)((double)vertices[0] * CGraphics::m_65536);
-                g_unk0x00592114.z = (int)(__int64)((double)vertices[2] * CGraphics::m_65536);
+                g_unk0x00592114.x = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh0Copy->pVertexData)[i].pos[0] * CGraphics::m_65536);
+                g_unk0x00592114.z = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh0Copy->pVertexData)[i].pos[2] * CGraphics::m_65536);
             }
             g_stageHeightSamples[i] = value;
         }
@@ -634,14 +635,13 @@ void Stage_InitLightMeshes(void)
         }
     }
     if (g_stageMesh1Count != 0) {
-        vertices = (float *)g_stageMesh1Copy->pVertexData;
-        g_stageRangeOrigin.x = (int)(__int64)((double)*(float *)((BYTE *)vertices + 0x960) * CGraphics::m_65536);
-        g_stageRangeOrigin.y = (int)(__int64)((double)*(float *)((BYTE *)vertices + 0x964) * CGraphics::m_65536);
-        g_stageRangeOrigin.z = (int)(__int64)((double)*(float *)((BYTE *)vertices + 0x968) * CGraphics::m_65536);
-        minimum = (int)(__int64)((double)vertices[1] * CGraphics::m_65536);
+        g_stageRangeOrigin.x = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh1Copy->pVertexData)[0x32].pos[0] * CGraphics::m_65536);
+        g_stageRangeOrigin.y = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh1Copy->pVertexData)[0x32].pos[1] * CGraphics::m_65536);
+        g_stageRangeOrigin.z = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh1Copy->pVertexData)[0x32].pos[2] * CGraphics::m_65536);
+        minimum = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh1Copy->pVertexData)[0].pos[1] * CGraphics::m_65536);
         maximum = minimum;
         for (i = g_stageMesh1Count - 1; i >= 0; i--) {
-            value = (int)(__int64)((double)*(float *)((BYTE *)vertices + i * 0x30 + 4) * CGraphics::m_65536);
+            value = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh1Copy->pVertexData)[i].pos[1] * CGraphics::m_65536);
             if (maximum < value)
                 maximum = value;
             if (value < minimum)
@@ -650,7 +650,7 @@ void Stage_InitLightMeshes(void)
         g_stageHeightTarget = minimum + FixMul(maximum - minimum, 0xc000);
     }
     for (i = g_stageMesh4Count - 1; i >= 0; i--)
-        *(int *)((BYTE *)g_stageMesh4Copy->pVertexData + i * 0x30 + 0x18) = 0;
+        ((CarPartFloatVertex *)g_stageMesh4Copy->pVertexData)[i].colour = 0;
     g_stageLightReady = 1;
 }
 

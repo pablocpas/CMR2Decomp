@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "786b0ffcde3d6190b04e123392a9588818689cc2",
+    "commit": "029016f4ce943c377ad8a5a422e45f15c7898561",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -110,7 +110,7 @@
       "CMR2Decomp/RallyTiming.h": "c15751de9c35f2de0f95e00df23bfd5cad6223bfe46e277a248d86beb4d13629",
       "CMR2Decomp/RegKey.cpp": "80d7d2b84d958f007807a48186dbbe67190b231fd21b059eb9dbea4f26a8b80c",
       "CMR2Decomp/RegKey.h": "cb2934244f3e58e032b9644f58ea83230965ed366c7000fb4690ef50d5bb62c4",
-      "CMR2Decomp/SceneNode.cpp": "fbb12043d7b2008f4c9e4cabc8ba6d8626026d6d75d6e471c55d2d32cb4c0230",
+      "CMR2Decomp/SceneNode.cpp": "3b7c8f7ddc6d22e78d02da768cd76a9c1a807a43b3fc9a1100129680ee4e96e3",
       "CMR2Decomp/SceneNode.h": "787adc304582568790e9a3985d1a47df79f88cd344b36e8b7a19e11419a41ef5",
       "CMR2Decomp/Sector.cpp": "e535bb37589ff71cf3fe2d69cdd240dcdf3221ebe79e97565036efee4b60c57f",
       "CMR2Decomp/Sector.h": "a2289419006caae16b3a6690c115af713ae03e7383e898727cd9f6ca1a3018f1",
@@ -135,7 +135,7 @@
       "CMR2Decomp/Texture.h": "00635eccfb6ed1ce010106ad790747185ef79856fd27d6e49605484db7a02263",
       "CMR2Decomp/TimingUtils.cpp": "bf53e55a3a7e7847fed5ae89829dc4958502e48426e0ef704b30275e6a0dcc5a",
       "CMR2Decomp/TimingUtils.h": "88a323a639040f96349e78fe47382a677cb87591e10de4110ae64b80f4960f6b",
-      "CMR2Decomp/TrackCollision.cpp": "a7c7ce868f32969cc24ebb630381aa934fdb7373028031091ab139e4b1bc426b",
+      "CMR2Decomp/TrackCollision.cpp": "19c982d3533e03210cf70a2b5904048c46cdb63f7030853a5fcf39e6eac7e710",
       "CMR2Decomp/TrackLighting.cpp": "2bd30f439e2a0f185c178eaa9760440b1bf1949b55d23e068466a47e9a8f7344",
       "CMR2Decomp/VehiclePhysics.cpp": "f6a7f5c489439000fa843011c8bc583e548ba5fae7eeea8814f228b4bd1fda31",
       "CMR2Decomp/WheelTrail.cpp": "dfe77badcde6ea688b606ce78a5d3c1b3ea4ac3934cc4b318764934f446461cf",
@@ -167,13 +167,13 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "d2e8123404e470e0cffec0663b5dc34640d47ae749f0f3272825e9560bdc0414",
-    "pdb_sha256": "383044c319d49307f488b460d759440efe1233a39cbbea4ebc66e3e65ca98809"
+    "exe_sha256": "dd9400d66726536b98ea9e41ec091e4f746b130d81aef2a899dd44012518d9af",
+    "pdb_sha256": "622c26e55fb2397ac485a16252677571d5b5c6f7f5e7b6113d49f65f454a0178"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
   "measured_functions": 3368,
-  "reccmp_exact": 2704,
+  "reccmp_exact": 2703,
   "audited_source_functions": 3364,
   "relocated_byte_exact": 2863,
   "nonmatching_source_functions": 501,

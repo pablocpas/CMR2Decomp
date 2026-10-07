@@ -28,7 +28,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b06a0	Particle_Interpolate	Graphics.cpp	247	0.47398843930635837	0.4827586206896552
 0x46d2d0	Replay_LoadValidatedBuffer	StageObjects.cpp	284	0.4745762711864407	0.4787234042553192
 0x491550	Track_FindTriangle	TrackCollision.cpp	323	0.47572815533980584	0.48756218905472637
-0x4919a0	Stage_InitLightMeshes	TrackCollision.cpp	918	0.4767676767676768	0.48031496062992124
 0x4483e0	StageTiming_EstimateRemainingDriverTimes	StageTiming.cpp	358	0.47761194029850745	0.460093896713615
 0x4a91b0	CGraphics::EnumTextureFormatsCallback	Graphics.cpp	1294	0.48313090418353577	0.4372574385510996
 0x488de0	Collision_FindQuadEdgeOverlap	StageObjects.cpp	615	0.48514851485148514	0.47959183673469385
@@ -45,6 +44,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4eb860	Profile_AssignAvailableCategory	FileBuffer.cpp	500	0.5227963525835866	0.5209580838323353
 0x455f00	StageTiming_BlendCarPaintDecalRows	StageTiming.cpp	527	0.5263157894736842	0.5348837209302325
 0x461830	StageObject_BlendTimeOfDayRecord	StageObjects.cpp	498	0.5286103542234333	0.5040650406504065
+0x4919a0	Stage_InitLightMeshes	TrackCollision.cpp	918	0.5307692307692308	0.5029239766081871
 0x42e450	Car_IntegrateWheelTravel	Car.cpp	1165	0.5358166189111748	0.48732394366197185
 0x4675c0	CarDamage_BuildRelativeVelocityHull	StageObjects.cpp	316	0.5393258426966292	0.5
 0x463410	StageLights_Create	StageObjects.cpp	1983	0.5404556166535742	0.5998433829287392
@@ -107,7 +107,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4f3c10	FrontendAnimation_EvaluatePathSpline	FrontendScreens.cpp	434	0.6325301204819277	0.6501547987616099
 0x4a6370	CGraphics::LoadTGABumpMap	Graphics.cpp	768	0.6325411334552102	0.6361974405850092
 0x5062d0	OptionPreview_LoadStageGeometryRecord	GameInfo.cpp	1100	0.6341463414634146	0.6379821958456974
-0x4b4180	Scene_EmitProjectedShadowMesh	SceneNode.cpp	781	0.6342494714587738	0.6666666666666666
 0x47dd70	CarDamage_UpdateFlyingDebris	StageObjects.cpp	1122	0.6348387096774194	0.5982028241335045
 0x41b460	StageUI_UpdateDriverEventAwards	StageUI.cpp	2709	0.6366559485530546	0.6124338624338624
 0x428bf0	View_SelectVisibleCars	Car.cpp	1734	0.6371681415929203	0.5651793525809273
@@ -156,6 +155,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4475f0	Dash_BuildInterpolatedCockpitMatrix	HudDash.cpp	1036	0.7040498442367601	0.6889226100151745
 0x418000	Race_AssignSlotsFromCallRecord	Race.cpp	1170	0.7043189368770764	0.6410891089108911
 0x435470	Car_IntegrateContacts	Car.cpp	4530	0.7063829787234043	0.6679403897592663
+0x4b4180	Scene_EmitProjectedShadowMesh	SceneNode.cpp	781	0.7075664621676891	0.7151515151515152
 0x4b11c0	Billboard_Add	Graphics.cpp	825	0.7078891257995735	0.7166666666666667
 0x42ce60	Car_StepGroundContact	Car.cpp	4017	0.7102877414268821	0.7406819984139572
 0x4b1ac0	Mesh_BuildParts	Mesh.cpp	561	0.7103274559193955	0.665
@@ -342,11 +342,11 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4f0820	FrontendProfile_ApplyStageSelectionAndAdvance	FrontendScreens.cpp	297	0.8673469387755102	0.7914438502673797
 0x4dd4b0	FrontendMenu_DrawNetworkSessionSetup	FrontendScreens.cpp	3221	0.8675889328063241	0.8466135458167331
 0x47d5a0	StageObject_SpawnCarHeadlightGlow	StageObjects.cpp	673	0.8679245283018868	0.8752941176470588
+0x47d0e0	AI_SelectCarsWithinOvertakeWindow	StageObjects.cpp	578	0.8682170542635659	0.8144329896907216
 0x40fec0	RallyData_DrawLoadingProgress	RallyData.cpp	479	0.8695652173913043	0.8322147651006712
 0x502570	OptionMenu_InitDefaultRecordTables	GameInfo.cpp	191	0.8695652173913043	0.8695652173913043
 0x45d540	CarEffect_UpdateWheelSurfaceParticles	CarEffects.cpp	1677	0.8708815672306323	0.7676950998185118
 0x413fe0	RallyData_DrawStageTimePanel	RallyData.cpp	1036	0.8714069591527988	0.8700906344410876
-0x47d0e0	AI_SelectCarsWithinOvertakeWindow	StageObjects.cpp	578	0.8733850129198967	0.8144329896907216
 0x508740	StageDeform_ClampVertex	StageTiming.cpp	330	0.8734693877551021	0.6829268292682927
 0x402460	InRaceMenu_DrawNetworkPlayerList	GameInfo.cpp	1124	0.8751677852348994	0.8817204301075269
 0x4ef190	FrontendScroller_RecomputeAllAttached	FrontendScreens.cpp	222	0.8774193548387097	0.8888888888888888

@@ -19860,7 +19860,7 @@
   },
   "0x4b4180": {
     "n": "Scene_EmitProjectedShadowMesh",
-    "s": 0.6666666666666666,
+    "s": 0.7151515151515152,
     "x": false,
     "unknown": [],
     "f": "SceneNode.cpp",
@@ -26217,7 +26217,7 @@
   },
   "0x4919a0": {
     "n": "Stage_InitLightMeshes",
-    "s": 0.48031496062992124,
+    "s": 0.5029239766081871,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",
