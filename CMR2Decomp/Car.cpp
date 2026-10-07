@@ -4798,9 +4798,9 @@ void Car_StepAll(int base, short *pList, short count)
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);
         g_pCurrentCar->sector =
             Sector_GetNeighbours(&g_pCurrentCar->position, out);
-        g_pCurrentCar->field_0xb02 = out[0];
-        g_pCurrentCar->field_0xb04 = out[1];
-        g_pCurrentCar->field_0xb06 = out[2];
+        g_pCurrentCar->neighbours.s[0] = out[0];
+        g_pCurrentCar->neighbours.s[1] = out[1];
+        g_pCurrentCar->neighbours.s[2] = out[2];
         g_pCurrentCar->field_0x2dc = g_pCurrentCar->position;
     }
 }
@@ -5351,9 +5351,9 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
             Car_StoreBodyMatrix();
             g_pCurrentCar->sector =
                 Sector_GetNeighbours(&g_pCurrentCar->position, nb);
-            g_pCurrentCar->field_0xb02 = nb[0];
-            g_pCurrentCar->field_0xb04 = nb[1];
-            g_pCurrentCar->field_0xb06 = nb[2];
+            g_pCurrentCar->neighbours.s[0] = nb[0];
+            g_pCurrentCar->neighbours.s[1] = nb[1];
+            g_pCurrentCar->neighbours.s[2] = nb[2];
             p--;
         } while (--n != 0);
     }
@@ -7609,9 +7609,9 @@ void Car_RunStepPasses(int carBase, short *pOrder, short count)
         g_pCurrentCar = (Car *)(carBase + pOrder[i] * 0xc24);
         g_pCurrentCar->sector =
             Sector_GetNeighbours(&g_pCurrentCar->position, nb);
-        g_pCurrentCar->field_0xb02 = nb[0];
-        g_pCurrentCar->field_0xb04 = nb[1];
-        g_pCurrentCar->field_0xb06 = nb[2];
+        g_pCurrentCar->neighbours.s[0] = nb[0];
+        g_pCurrentCar->neighbours.s[1] = nb[1];
+        g_pCurrentCar->neighbours.s[2] = nb[2];
         g_pCurrentCar->field_0x2dc = g_pCurrentCar->position;
     }
 }

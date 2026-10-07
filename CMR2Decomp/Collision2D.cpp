@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "Collision2D.h"
+#include "Car.h"
 
 // GLOBAL: CMR2 0x00591438
 FixVector g_collisionQuad[4];
@@ -497,8 +498,6 @@ FixVector *g_pContacts0x005915e0;
 // GLOBAL: CMR2 0x00591394
 FixVector *g_pContacts0x00591394;
 
-struct Car;
-
 // Minimal declaration of the game-info singleton (the real one lives in
 // GameInfo.h; keeping it local avoids perturbing the line table of this file).
 class CGameInfo
@@ -539,132 +538,107 @@ void StageObject_QueueViewLensFlare(int *pObj, int *param2, int *param3, FixVect
 int Collision_SeparateCarBoxes(int param_1, int param_2);
 void Collision_ResolveCarContactImpulse(int param_1, int param_2);
 
-// The four corner sector words of a car, copied as a single eight byte block.
-struct CarCornerWords {
-    short w[4];
-};
-
-// Tests every pair of cars of the given order for contact: pairs whose corner
-// sector words share an index are run through the 2D box overlap test
+// Tests every pair of cars of the given order for contact: pairs whose
+// sectors (each car's own plus its three neighbours) share one are run through the 2D box overlap test
 // (Collision_DoSpheresOverlap) and, for cars that are not locked, through the box collision
 // response (Collision_SeparateCarBoxes); the two cars are then linked in each other's contact
 // list and the impact is resolved. Finally the separation timers of every car
 // are decayed and, while the race is being verified, the collision box of each
 // car is rebuilt.
-// match 78%: same logic, calls and constants; MSVC6 countdowns our outer pair loop with induction variables (the original increments the counters), which also shifts the stack slots of the pair count and the pattern index, and copies the four sector words as two dwords where the original used word/dword/word.
 // FUNCTION: CMR2 0x0048a1f0
-void Collision_TestOrderedCarPairs(int param_1, short *param_2, short param_3)
+void Collision_TestOrderedCarPairs(Car *pCars, short *pOrder, short count)
 {
-    short *p1;
-    short *p2;
-    int found;
+    Car *pCarA;
+    Car *pCarB;
+    int result;
     int i;
     int j;
     int k;
-    int n;
     int m;
-    int carA;
-    int carB;
-    CarCornerWords idsB;
-    CarCornerWords idsA;
+    int n;
+    short idsB[4];
+    short idsA[4];
     int flags[8];
 
     for (i = 0; i < 8; i++)
         flags[i] = 0;
-    *(int *)g_unk0x005913dc = 0;
-    *(int *)(g_unk0x005913dc + 4) = 0;
-    n = (int)param_3 - 1;
-    if (n > 0) {
-        k = 1;
-        p1 = param_2;
-        for (; k < param_3; k++) {
-            j = param_3 - k;
-            p2 = p1 + 1;
-            do {
-                carA = param_1 + p1[0] * 0xc24;
-                carB = param_1 + p2[0] * 0xc24;
-                idsA = *(CarCornerWords *)(carA + 0xb00);
-                idsB = *(CarCornerWords *)(carB + 0xb00);
-                found = 0;
-                for (i = 0; i < 4; i++) {
-                    for (m = 0; m < 4; m++) {
-                        if (idsA.w[m] == idsB.w[i]) {
-                            found = 1;
-                            if (Collision_DoSpheresOverlap(*(int *)(carA + 0x758), *(int *)(carB + 0x758),
-                                             (int *)(carA + 0x2d0), (int *)(carB + 0x2d0))) {
-                                flags[*(char *)(carB + 0xb1a)] = 1;
-                                flags[*(char *)(carA + 0xb1a)] = 1;
-                                if (*(int *)(carA + 0xc08) == 0 && *(int *)(carB + 0xc08) == 0 &&
-                                    *(int *)(carA + 0xc0c) == 0 && *(int *)(carB + 0xc0c) == 0 &&
-                                    (*(int *)(carA + 0xc18) == 0 || *(int *)(carB + 0xc18) == 0)) {
-                                    g_pContacts0x005915e0 = (FixVector *)&g_unk0x00590ed0[p1[0]];
-                                    g_pContacts0x00591394 = (FixVector *)&g_unk0x00590ed0[p2[0]];
-                                    StageObject_QueueViewLensFlare((int *)g_pContacts0x005915e0, (int *)(carA + 0x360),
-                                                 (int *)(carA + 0x2d0), (FixVector *)(carA + 0x270));
-                                    StageObject_QueueViewLensFlare((int *)g_pContacts0x00591394, (int *)(carB + 0x360),
-                                                 (int *)(carB + 0x2d0), (FixVector *)(carB + 0x270));
-                                    found = Collision_SeparateCarBoxes(carA, carB);
-                                    g_unk0x00591390 = 0;
-                                    if (found != 0) {
-                                        g_unk0x005913f8[*(char *)(carA + 0xb1a)]
-                                                       [g_unk0x005913dc[*(char *)(carA + 0xb1a)]] =
-                                            *(char *)(carB + 0xb1a);
-                                        g_unk0x005913dc[*(char *)(carA + 0xb1a)]++;
-                                        g_unk0x005913f8[*(char *)(carB + 0xb1a)]
-                                                       [g_unk0x005913dc[*(char *)(carB + 0xb1a)]] =
-                                            *(char *)(carA + 0xb1a);
-                                        g_unk0x005913dc[*(char *)(carB + 0xb1a)]++;
-                                        Collision_ResolveCarContactImpulse(carA, carB);
-                                        g_unk0x00591390 = 1;
-                                    }
-                                }
-                            }
-                            goto pair_done;
-                        }
+    memset(g_unk0x005913dc, 0, 8);
+    n = count - 1;
+    for (i = 0; i < n; i++) {
+        for (j = i + 1; j < count; j++) {
+            pCarA = &pCars[pOrder[i]];
+            pCarB = &pCars[pOrder[j]];
+            idsA[0] = pCarA->sector;
+            memcpy(&idsA[1], &pCarA->neighbours, 6);
+            idsB[0] = pCarB->sector;
+            memcpy(&idsB[1], &pCarB->neighbours, 6);
+            result = 0;
+            k = 0;
+            for (;;) {
+                for (m = 0; m < 4; m++) {
+                    if (idsA[m] == idsB[k])
+                        goto found;
+                }
+                if (++k >= 4)
+                    goto pair_done;
+            }
+        found:
+            result = 1;
+            if (Collision_DoSpheresOverlap(pCarA->field_0x758, pCarB->field_0x758,
+                                           (int *)&pCarA->position, (int *)&pCarB->position)) {
+                flags[pCarB->index] = 1;
+                flags[pCarA->index] = 1;
+                if (pCarA->field_0xc04[1] == 0 && pCarB->field_0xc04[1] == 0 &&
+                    pCarA->field_0xc0c == 0 && pCarB->field_0xc0c == 0 &&
+                    (pCarA->field_0xc18 == 0 || pCarB->field_0xc18 == 0)) {
+                    g_pContacts0x005915e0 = (FixVector *)&g_unk0x00590ed0[pOrder[i]];
+                    g_pContacts0x00591394 = (FixVector *)&g_unk0x00590ed0[pOrder[j]];
+                    StageObject_QueueViewLensFlare((int *)g_pContacts0x005915e0, (int *)&pCarA->right,
+                                                   (int *)&pCarA->position, pCarA->corners);
+                    StageObject_QueueViewLensFlare((int *)g_pContacts0x00591394, (int *)&pCarB->right,
+                                                   (int *)&pCarB->position, pCarB->corners);
+                    result = Collision_SeparateCarBoxes((int)pCarA, (int)pCarB);
+                    g_unk0x00591390 = 0;
+                    if (result != 0) {
+                        g_unk0x005913f8[pCarA->index][g_unk0x005913dc[pCarA->index]] = pCarB->index;
+                        g_unk0x005913dc[pCarA->index]++;
+                        g_unk0x005913f8[pCarB->index][g_unk0x005913dc[pCarB->index]] = pCarA->index;
+                        g_unk0x005913dc[pCarB->index]++;
+                        Collision_ResolveCarContactImpulse((int)pCarA, (int)pCarB);
+                        g_unk0x00591390 = 1;
                     }
                 }
-            pair_done:
-                g_unk0x005913f4 = found;
-                p2++;
-            } while (--j);
-            p1++;
+            }
+        pair_done:
+            g_unk0x005913f4 = result;
         }
     }
-    if (n >= 0) {
-        p2 = param_2 + n;
-        j = n + 1;
-        do {
-            carA = param_1 + p2[0] * 0xc24;
-            if (*(int *)(carA + 0xc08) != 0) {
-                if (*(int *)(carA + 0x970) == 0) {
-                    if (flags[*(char *)(carA + 0xb1a)] == 0)
-                        *(int *)(carA + 0xc08) = 0;
-                } else {
-                    i = *(int *)(carA + 0x970) - g_physicsTimeStep;
-                    *(int *)(carA + 0x970) = i;
-                    if (i < 0)
-                        *(int *)(carA + 0x970) = 0;
-                }
-                *(int *)(carA + 0x974) += FixMul(g_physicsTimeStep, 0x4000);
+    for (i = n; i >= 0; i--) {
+        pCarA = &pCars[pOrder[i]];
+        if (pCarA->field_0xc04[1] != 0) {
+            if (pCarA->field_0x970[0] == 0) {
+                if (flags[pCarA->index] == 0)
+                    pCarA->field_0xc04[1] = 0;
             } else {
-                *(int *)(carA + 0x974) = 0;
+                pCarA->field_0x970[0] -= g_physicsTimeStep;
+                if (pCarA->field_0x970[0] < 0)
+                    pCarA->field_0x970[0] = 0;
             }
-            p2--;
-        } while (--j);
+            pCarA->field_0x970[1] += FixMul(g_physicsTimeStep, 0x4000);
+        } else {
+            pCarA->field_0x970[1] = 0;
+        }
     }
     if (((BYTE)RallyData_IsChampionshipFinalStage() != 0 || (BYTE)RallyData_GetFlag24() != 0 ||
          (BYTE)RallyData_GetSelectionFlag27() != 0) &&
-        CGameInfo::IsActiveCheatEnabled(0) != 0 && n >= 0) {
-        p2 = param_2 + n;
-        j = n + 1;
-        do {
-            carA = param_1 + p2[0] * 0xc24;
-            g_pContacts0x005915e0 = (FixVector *)&g_unk0x00590ed0[p2[0]];
-            StageObject_QueueViewLensFlare((int *)g_pContacts0x005915e0, (int *)(carA + 0x360),
-                         (int *)(carA + 0x2d0), (FixVector *)(carA + 0x270));
-            StageObject_TestHeadlightGlowsAgainstCarBox((Car *)carA, (int *)g_pContacts0x005915e0);
-            p2--;
-        } while (--j);
+        CGameInfo::IsActiveCheatEnabled(0) != 0) {
+        for (i = n; i >= 0; i--) {
+            pCarA = &pCars[pOrder[i]];
+            g_pContacts0x005915e0 = (FixVector *)&g_unk0x00590ed0[pOrder[i]];
+            StageObject_QueueViewLensFlare((int *)g_pContacts0x005915e0, (int *)&pCarA->right,
+                                           (int *)&pCarA->position, pCarA->corners);
+            StageObject_TestHeadlightGlowsAgainstCarBox(pCarA, (int *)g_pContacts0x005915e0);
+        }
     }
 }
 

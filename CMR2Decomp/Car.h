@@ -29,6 +29,11 @@ struct CarWheelSurface {
     int extraGrip;      // 0x08
 };
 
+// The three sectors around the one a car is in, copied as one block.
+struct SectorNeighbours {
+    short s[3];
+};
+
 struct Car {
     FixMatrix field_0x0;              // 0x00
     FixMatrix field_0x40;             // 0x40
@@ -195,9 +200,7 @@ struct Car {
     BYTE field_0xad6[0x28];
     short field_0xafe;                // 0xafe  engine startup countdown
     short sector;                     // 0xb00  stage sector the car is in
-    short field_0xb02;
-    short field_0xb04;
-    short field_0xb06;
+    SectorNeighbours neighbours;      // 0xb02  the sectors around it (Sector_GetNeighbours)
     unsigned short wheelPhase[4];     // 0xb08  wobble angle of each wheel (12-bit)
     unsigned short heading;           // 0xb10  12-bit angle
     short field_0xb12;

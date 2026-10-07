@@ -15075,7 +15075,7 @@ void Collision_TestCarAgainstSectorEdges(Car *pCar, int param)
 }
 
 int StageObject_UsesExtendedMode(void);
-void Collision_TestOrderedCarPairs(int param_1, short *param_2, short param_3);
+void Collision_TestOrderedCarPairs(Car *pCars, short *pOrder, short count);
 int StageObject_GetCarSlotStateValue(int index);
 
 // Collisions of the cars in `pOrder` for the frame: car against car (when the
@@ -15092,7 +15092,7 @@ void Collision_UpdateOrderedCars(BYTE *pCars, short *pOrder, short count)
     for (i = count - 1; i >= 0; i--)
         *(int *)&g_unk0x00590ed0[pOrder[i]][0x28] = 0;
     if (StageObject_UsesExtendedMode())
-        Collision_TestOrderedCarPairs((int)pCars, pOrder, count);
+        Collision_TestOrderedCarPairs((Car *)pCars, pOrder, count);
     for (i = count - 1; i >= 0; i--) {
         car = pOrder[i];
         pCar = pCars + car * 0xc24;
