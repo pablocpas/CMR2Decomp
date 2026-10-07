@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "32b721e8d547723644c93cc11ae310cad727c91d",
+    "commit": "29a99902ae004a46da1ce2a6a40da9efce5b1459",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -74,7 +74,7 @@
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
       "CMR2Decomp/Game.cpp": "1a9343c2424aa24979631381c04dbcf2de3e02e7c6b2507e79e662d8052c69fb",
       "CMR2Decomp/Game.h": "3ac93fd8707b75dea487ba1a23170a63a0099477a95f0c5a0c7d98c31726bf03",
-      "CMR2Decomp/GameInfo.cpp": "b451c1f9f4058780f706f8c09054e52c73aa9fbc05f281a4b404d176a8337f4c",
+      "CMR2Decomp/GameInfo.cpp": "78e8323353fd32ca7232870188980620a5335f8f2b98fb2fa5d696d67cdc9e04",
       "CMR2Decomp/GameInfo.h": "191777cd7d1cc6c81276e22879fd745d02fc9fa7b29ac05f0bff3761ae5b8bb7",
       "CMR2Decomp/GameMenus.cpp": "a7f133dc104f844f4d3426b44aea9e883a80539039aa185a1230c89887336eea",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
@@ -167,13 +167,13 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "0d77935366553dfffecb30b2f063900e4f3cb4269d98109d67a26de00cef907a",
-    "pdb_sha256": "dd69a42fa3ab4e9fbd626e041b50414341bae3775ccdc6a9ad53ca08809732a8"
+    "exe_sha256": "5d1a0957d6ac5a3b40bd05eb9506dbbeea6537d7fd3b5b61871411232943d366",
+    "pdb_sha256": "6f70a2a3a7f9495b65d0e91b6a6e3df2c3d9ad5e5a02ecfcb6aa10cc753b5296"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
   "measured_functions": 3368,
-  "reccmp_exact": 2696,
+  "reccmp_exact": 2699,
   "audited_source_functions": 3364,
   "relocated_byte_exact": 2859,
   "nonmatching_source_functions": 505,
@@ -184,7 +184,7 @@
     "0x4a28d0",
     "0x459630"
   ],
-  "data_variables": 3211,
+  "data_variables": 3210,
   "data_issues": 0,
   "byte_auditor_sha256": "bfc4fd421a968e75452df809bfd2ab83c0658dac5547fed6efcf519ff5c02183"
 }

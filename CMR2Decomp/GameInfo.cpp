@@ -1414,7 +1414,7 @@ struct Unk0x0082d220 {
 };
 
 // GLOBAL: CMR2 0x0082d220
-Unk0x0082d220 g_unk0x0082d220[8];
+Unk0x0082d220 g_unk0x0082d220[16];
 // GLOBAL: CMR2 0x00831778
 Menu *g_pMenu0x00831778;
 // GLOBAL: CMR2 0x0083177c
@@ -11172,8 +11172,9 @@ void OptionMenu_UpdateLoadGameAndNameEntry(Menu *pMenu)
 }
 
 // Per-slot number of converted mesh blocks in g_unk0x00831198 (stride 0x2ac).
-// GLOBAL: CMR2 0x0082d48a
-BYTE g_unk0x0082d48a[16 * 0x2ac];
+// This is meshCount at +0x26a in the same records the converter fills.
+// Keeping a separate array here makes session cleanup skip the vertex buffers.
+#define g_unk0x0082d48a ((BYTE *)g_unk0x0082d220 + 0x26a)
 // GLOBAL: CMR2 0x0082d19c
 BYTE *g_unk0x0082d19c[16];
 // GLOBAL: CMR2 0x008311d8

@@ -564,5 +564,12 @@
       "0x47dd70",
       "0x47e1e0"
     ]
+  },
+  "differential_preview_vertex_lifetime.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x506bb0",
+      "0x505f10"
+    ]
   }
 }
