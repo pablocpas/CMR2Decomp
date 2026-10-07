@@ -2986,8 +2986,6 @@ void GameMenu_DrawNetworkTimeTrialResults(Menu *pMenu)
     Font_SetBlendMode(2);
 }
 
-// GLOBAL: CMR2 0x00541adc
-int g_unk0x00541adc;
 // GLOBAL: CMR2 0x00541cd8
 int g_unk0x00541cd8;
 extern char g_strDemoName0x00519ec4[4];
@@ -3085,7 +3083,9 @@ void GameMenu_SetupStageResults(int param_1)
     CGenericFileLoader::StrLowerPolish(g_ghostName);
     for (i = 0; i < 10; i++)
         g_ghostSplits[i] = Frontend_StoreSelectedDeviceOption(i);
-    g_unk0x00541adc = *(unsigned int *)((char *)CGameInfo::GetGameInfoFieldA4Address() + 0x658 +
+    // The tenth split slot is the ghost's total from the stage record
+    // (0x541adc lies inside g_ghostSplits).
+    g_ghostSplits[9] = *(unsigned int *)((char *)CGameInfo::GetGameInfoFieldA4Address() + 0x658 +
                                         ((RallyDataCountryIndex() & 0xff) * 0xb +
                                          (RallyDataStageIndex() & 0xff)) * 8) >> 7 & 0xffff;
     if ((char)param_1 == 0)

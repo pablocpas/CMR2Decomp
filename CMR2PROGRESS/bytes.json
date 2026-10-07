@@ -559,9 +559,9 @@
   },
   "0x42c890": {
     "n": "Car_UpdateEngineNoteFalloff",
-    "s": 0.6201550387596899,
+    "s": 0.5891472868217055,
     "x": false,
-    "fz": 0.7441860465116279,
+    "fz": 0.7596899224806202,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateEngineNoteFalloff"
@@ -12909,9 +12909,9 @@
   },
   "0x50f650": {
     "n": "OptionMenu_DrawStageSummaryPanel",
-    "s": 0.8746618575293057,
+    "s": 0.895870736086176,
     "x": false,
-    "fz": 0.939585211902615,
+    "fz": 0.9371633752244165,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_DrawStageSummaryPanel"
@@ -25490,9 +25490,9 @@
   },
   "0x46e780": {
     "n": "StageObject_StampPendingEventDraws",
-    "s": 0.4961636828644501,
+    "s": 0.5128205128205128,
     "x": false,
-    "fz": 0.6445012787723785,
+    "fz": 0.6666666666666666,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_StampPendingEventDraws"

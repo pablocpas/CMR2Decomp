@@ -8203,9 +8203,9 @@ void StageObject_StampPendingEventDraws(int unused)
     short i;
     int j;
     int k;
-    int x, y;
+    short x, y;
     int n;
-    int idx;
+    short idx;
     BYTE c;
     BYTE colour[4];
 

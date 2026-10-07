@@ -34,12 +34,12 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b5380	Scene_FreeShadowCasters	SceneNode.cpp	400	0.49070631970260226	0.5018181818181818
 0x46ea80	CarSkid_EmitSlippingWheelEffects	StageObjects.cpp	438	0.4934210526315789	0.5048543689320388
 0x4b6ca0	Scene_AttenuateSectorLight	Graphics.cpp	589	0.4958217270194986	0.4528301886792453
-0x46e780	StageObject_StampPendingEventDraws	StageObjects.cpp	637	0.5038560411311054	0.4961636828644501
 0x45eca0	StageWeather_InitParticleAndLightState	StageTiming.cpp	512	0.5082872928176796	0.5257731958762887
 0x504eb0	RallyData_DrawClippedHudRectangleEdges	RallyData.cpp	776	0.511340206185567	0.5051334702258727
 0x47b640	CarInput_UpdateWaitingStartSlot	StageObjects.cpp	354	0.5119047619047619	0.5207100591715976
 0x456710	StageTiming_PerturbComputerSplitDeltas	StageTiming.cpp	592	0.5172413793103449	0.508557457212714
 0x4eb860	Profile_AssignAvailableCategory	FileBuffer.cpp	500	0.5227963525835866	0.5209580838323353
+0x46e780	StageObject_StampPendingEventDraws	StageObjects.cpp	637	0.5230769230769231	0.5128205128205128
 0x455f00	StageTiming_BlendCarPaintDecalRows	StageTiming.cpp	527	0.5263157894736842	0.5348837209302325
 0x461830	StageObject_BlendTimeOfDayRecord	StageObjects.cpp	498	0.5286103542234333	0.5040650406504065
 0x4919a0	Stage_InitLightMeshes	TrackCollision.cpp	918	0.5307692307692308	0.5029239766081871
@@ -98,11 +98,11 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4cfff0	FrontendRecords_InsertArcadeDeviceRecord	Frontend.cpp	385	0.6165413533834586	0.6268656716417911
 0x45af90	CarEffect_UpdateExhaustSmokeAndBackfire	StageTiming.cpp	1438	0.6205305651672434	0.586483390607102
 0x470580	StageObject_UpdateMovingTransforms	FixedPoint.cpp	5072	0.6206095791001451	0.5411095305832148
+0x42c890	Car_UpdateEngineNoteFalloff	Car.cpp	471	0.6206896551724138	0.5891472868217055
 0x4380c0	Car_UpdateEngineSpeed	Car.cpp	924	0.6238938053097345	0.6304347826086957
 0x416670	Race_ResetPlayerCallState	Race.cpp	148	0.6292134831460674	0.6
 0x461710	StageObject_InterpolateFrameRecord	StageObjects.cpp	282	0.6301369863013698	0.6306306306306306
 0x499750	Car_SpawnDebris	CarEffects.cpp	814	0.6305609284332688	0.6091954022988506
-0x42c890	Car_UpdateEngineNoteFalloff	Car.cpp	471	0.631578947368421	0.6201550387596899
 0x4f3c10	FrontendAnimation_EvaluatePathSpline	FrontendScreens.cpp	434	0.6325301204819277	0.6501547987616099
 0x4a6370	CGraphics::LoadTGABumpMap	Graphics.cpp	768	0.6325411334552102	0.6361974405850092
 0x5062d0	OptionPreview_LoadStageGeometryRecord	GameInfo.cpp	1100	0.6341463414634146	0.6379821958456974
@@ -363,7 +363,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4926f0	StageObject_YawMainAndSunNodes	StageObjects.cpp	410	0.8859649122807017	0.8859649122807017
 0x43c640	Car_UpdateWheelTorques	Car.cpp	417	0.8862745098039215	0.8984375
 0x50a3f0	OptionMenu_DrawClampedStageTime	GameInfo.cpp	656	0.8868360277136259	0.8767123287671232
-0x50f650	OptionMenu_DrawStageSummaryPanel	GameInfo.cpp	1758	0.8874773139745916	0.8746618575293057
 0x5043b0	RallyData_EnterSelectedOptionPanel	RallyData.cpp	278	0.8875	0.9012345679012346
 0x480e50	CarPart_InitWheelHubSlot	StageTiming.cpp	1345	0.8885542168674698	0.8632218844984803
 0x443d10	Car_FollowGround	Car.cpp	3415	0.8887795275590551	0.8293398533007335
@@ -373,6 +372,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4a4c40	Graphics_ReloadAllTextures	Graphics.cpp	233	0.8941176470588236	0.8823529411764706
 0x4fe240	FrontendControls_DrawDeviceConfiguration	FrontendMenus.cpp	3582	0.8984689766317486	0.8896999188969992
 0x466570	CarDamage_UpdateOrderedCarsOffRoadState	StageObjects.cpp	190	0.8985507246376812	0.8985507246376812
+0x50f650	OptionMenu_DrawStageSummaryPanel	GameInfo.cpp	1758	0.8986547085201794	0.895870736086176
 0x500270	OptionMenu_ConfirmOrRevertHighlightedValue	GameInfo.cpp	224	0.8993288590604027	0.9019607843137255
 0x47cd10	AI_FindClosestCarInAngleWindow	StageObjects.cpp	965	0.9003021148036254	0.7872340425531915
 0x443250	Car_UpdateBodyLean	Car.cpp	2000	0.9009009009009009	0.8870703764320785

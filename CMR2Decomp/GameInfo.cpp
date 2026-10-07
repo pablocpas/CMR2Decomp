@@ -10521,6 +10521,7 @@ void OptionMenu_DrawStageSummaryPanel(int param_1, int param_2)
     int y;
     int w;
     int w2;
+    int column;
     BYTE v0;
     BYTE v1;
 
@@ -10540,6 +10541,7 @@ void OptionMenu_DrawStageSummaryPanel(int param_1, int param_2)
                      g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
     } else {
         int value;
+        int right;
 
         if (param_2 == 10) {
             switch (CGameInfo::GetConfiguredDifficulty()) {
@@ -10560,11 +10562,11 @@ void OptionMenu_DrawStageSummaryPanel(int param_1, int param_2)
                 value);
         OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xbe / 0x1e0,
                      g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
-        x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
-        x += Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
-        bar[0] = (short)x;
+        right = Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest) + x;
+        right += Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
+        bar[0] = (short)right;
         Sprite_FillRect((int)g_pGraphics + 0x150, bar, (BYTE *)(g_unk0x005297ac + 3), 3);
-        x += 2 + Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
+        right += 2 + Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
         if (param_2 == 10)
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x13c),
                     RallyData_GetDriverGridRow(RallyDataCountryIndex(), CGameInfo::GetConfiguredDifficulty()) & 0xff,
@@ -10572,7 +10574,7 @@ void OptionMenu_DrawStageSummaryPanel(int param_1, int param_2)
         else
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x13c), param_2 + 1,
                     RallyData_GetDriverGridRow(RallyDataCountryIndex(), CGameInfo::GetConfiguredDifficulty()) & 0xff);
-        OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xbe / 0x1e0,
+        OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest, right, (int)g_pGraphics->resY * 0xbe / 0x1e0,
                      g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
     }
     sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0xff),
@@ -10611,12 +10613,12 @@ void OptionMenu_DrawStageSummaryPanel(int param_1, int param_2)
         if (w < w2)
             w = w2;
     }
-    x = Font_GetTextWidth(1, (BYTE *)g_str0x005297bc) + w + x;
+    column = Font_GetTextWidth(1, (BYTE *)g_str0x005297bc) + w + x;
     y = 0x10a;
     for (i = limit; i < count; i++) {
         sprintf(CFrontend::m_stringDest, g_str0x00524d0c, table[i * 8 + 4],
                 CFrontend::GetTextString(*(int *)(table + i * 8) + 0xd4));
-        OptionMenu_DrawTransitionTextShortCoords(3, 1, 1, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * y / 0x1e0,
+        OptionMenu_DrawTransitionTextShortCoords(3, 1, 1, CFrontend::m_stringDest, column, (int)g_pGraphics->resY * y / 0x1e0,
                      g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
         y += 0xe;
     }

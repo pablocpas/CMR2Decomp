@@ -4010,8 +4010,8 @@ int Car_UpdateEngineNoteFalloff(int *pOut)
 {
     int i;
     int max;
-    short offset;
-    unsigned int mid;
+    int offset;
+    int mid;
     float fromStart;
     float toEnd;
     float frac;
