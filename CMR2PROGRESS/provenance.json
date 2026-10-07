@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "029016f4ce943c377ad8a5a422e45f15c7898561",
+    "commit": "47a2104d4d2c7968e724282e6ec9119250e4a682",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -96,7 +96,7 @@
       "CMR2Decomp/Mesh.h": "d01a2b3b92427b79d1b49996d1ef66d3055c8aa476bd9f76f06bd69357d3198a",
       "CMR2Decomp/NetPlayers.cpp": "f755b91b0604fb126fa6c7814028ac53e1af793e2b9332661d9992b5ee5c9c1d",
       "CMR2Decomp/NetPlayers.h": "59c4392fc374f9b9f8352e6494550d4489b5f9e65a00349db3d7da368e9f9cff",
-      "CMR2Decomp/NetRace.cpp": "1189b5727db2d3e5019e5c0776ce989f0bb74aff5d8fe8cb292a5905e1b50779",
+      "CMR2Decomp/NetRace.cpp": "fbb375d70863d9654a85119ffee8bc909ce95781d5668d694060ddf424aca843",
       "CMR2Decomp/NetworkLeaderboards.cpp": "9898276e406ba257d805bebc1308b2a0a17b099e9dbfbf411a9a1665ccf56e5d",
       "CMR2Decomp/NetworkLeaderboards.h": "a969a489a37b53194c8e4831df13fa3217ae6ee475cb82b08887bebfe57237fb",
       "CMR2Decomp/OptionMenuRows.cpp": "2f2ab483cf9d7f07f3fc9a8065e3e8df2c76a23e152fc9af6b2dbc61497ecaa9",
@@ -167,13 +167,13 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "dd9400d66726536b98ea9e41ec091e4f746b130d81aef2a899dd44012518d9af",
-    "pdb_sha256": "622c26e55fb2397ac485a16252677571d5b5c6f7f5e7b6113d49f65f454a0178"
+    "exe_sha256": "b15a40a91fc89b7c49a32a1e6f17da1b9eac52dfee69fcfc78e1bf4115e9df38",
+    "pdb_sha256": "98486c36a04c4c6b51708976633eafd9e221428fc03a71294bd969da2685c167"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
   "measured_functions": 3368,
-  "reccmp_exact": 2703,
+  "reccmp_exact": 2704,
   "audited_source_functions": 3364,
   "relocated_byte_exact": 2863,
   "nonmatching_source_functions": 501,
@@ -181,6 +181,7 @@
     "0x496e00",
     "0x5062d0",
     "0x4b67f0",
+    "0x424f20",
     "0x4a28d0",
     "0x459630"
   ],

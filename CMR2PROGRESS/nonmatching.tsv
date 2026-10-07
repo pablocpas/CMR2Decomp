@@ -31,7 +31,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4483e0	StageTiming_EstimateRemainingDriverTimes	StageTiming.cpp	358	0.47761194029850745	0.460093896713615
 0x4a91b0	CGraphics::EnumTextureFormatsCallback	Graphics.cpp	1294	0.48313090418353577	0.4372574385510996
 0x488de0	Collision_FindQuadEdgeOverlap	StageObjects.cpp	615	0.48514851485148514	0.47959183673469385
-0x424f20	NetRace_PackCarState	NetRace.cpp	2496	0.4878048780487805	0.4939759036144578
 0x4b5380	Scene_FreeShadowCasters	SceneNode.cpp	400	0.49070631970260226	0.5018181818181818
 0x46ea80	CarSkid_EmitSlippingWheelEffects	StageObjects.cpp	438	0.4934210526315789	0.5048543689320388
 0x4b6ca0	Scene_AttenuateSectorLight	Graphics.cpp	589	0.4958217270194986	0.4528301886792453
@@ -71,12 +70,12 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4bd9d0	CGraphics::GetMipMapSurfaces	Graphics.cpp	139	0.575	0.5609756097560976
 0x47aa70	SurfaceSound_UpdateNearestLocalCarEngines	StageObjects.cpp	676	0.576271186440678	0.5727699530516432
 0x49cbc0	Game_CompareTransparentDrawEntries	Game.cpp	137	0.5789473684210527	0.5087719298245614
+0x424f20	NetRace_PackCarState	NetRace.cpp	2496	0.5813097866077999	0.5519765739385066
 0x4b0110	Particle_UpdateAll	Graphics.cpp	878	0.5815126050420169	0.5289256198347108
 0x4581d0	StageTiming_ResetOrderedCarRoadBooks	StageTiming.cpp	84	0.5833333333333334	0.5833333333333334
 0x417090	Race_UpdateCarRouteAndWrongWayState	Race.cpp	1081	0.5835866261398176	0.5449101796407185
 0x477ce0	StageObject_AnimateCarLightLevels	StageObjects.cpp	584	0.583756345177665	0.5408163265306123
 0x4b1530	Billboard_Draw	Graphics.cpp	1078	0.584717607973422	0.5862646566164154
-0x425c40	NetRace_DecodeReceivedCarState	NetRace.cpp	1922	0.5881294964028777	0.5556544968833482
 0x4177d0	Race_DrawPlayerCallSlots	Race.cpp	1665	0.5883495145631068	0.5637707948243993
 0x4471b0	Dash_DrawNeedle	HudDash.cpp	882	0.5884353741496599	0.6013513513513513
 0x471bf0	RallyData_ApplyPlayerFlagsToObjects	RallyData.cpp	204	0.5904761904761905	0.616822429906542
@@ -116,6 +115,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x50ee50	OptionMenu_DrawThreeColourGradientStrips	GameInfo.cpp	715	0.6406570841889117	0.626746506986028
 0x467700	StageDeform_ApplyRadialDent	StageTiming.cpp	1933	0.6408227848101266	0.6055335968379446
 0x403890	InRaceMenu_DrawSliderRows	GameInfo.cpp	1625	0.6416819012797075	0.6455122393472348
+0x425c40	NetRace_DecodeReceivedCarState	NetRace.cpp	1922	0.6417112299465241	0.6134751773049646
 0x4bb2b0	ScreenLine2D_Draw	Sprite.cpp	373	0.6451612903225806	0.6572769953051644
 0x469c30	CarDamage_PickRandomTriangleEdgePoint	StageObjects.cpp	420	0.6462585034013606	0.6305084745762712
 0x4f37c0	FrontendScroller_UpdateCursorSlide	FrontendScreens.cpp	428	0.6465256797583081	0.6126126126126126
@@ -342,11 +342,11 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4f0820	FrontendProfile_ApplyStageSelectionAndAdvance	FrontendScreens.cpp	297	0.8673469387755102	0.7914438502673797
 0x4dd4b0	FrontendMenu_DrawNetworkSessionSetup	FrontendScreens.cpp	3221	0.8675889328063241	0.8466135458167331
 0x47d5a0	StageObject_SpawnCarHeadlightGlow	StageObjects.cpp	673	0.8679245283018868	0.8752941176470588
-0x47d0e0	AI_SelectCarsWithinOvertakeWindow	StageObjects.cpp	578	0.8682170542635659	0.8144329896907216
 0x40fec0	RallyData_DrawLoadingProgress	RallyData.cpp	479	0.8695652173913043	0.8322147651006712
 0x502570	OptionMenu_InitDefaultRecordTables	GameInfo.cpp	191	0.8695652173913043	0.8695652173913043
 0x45d540	CarEffect_UpdateWheelSurfaceParticles	CarEffects.cpp	1677	0.8708815672306323	0.7676950998185118
 0x413fe0	RallyData_DrawStageTimePanel	RallyData.cpp	1036	0.8714069591527988	0.8700906344410876
+0x47d0e0	AI_SelectCarsWithinOvertakeWindow	StageObjects.cpp	578	0.8733850129198967	0.8144329896907216
 0x508740	StageDeform_ClampVertex	StageTiming.cpp	330	0.8734693877551021	0.6829268292682927
 0x402460	InRaceMenu_DrawNetworkPlayerList	GameInfo.cpp	1124	0.8751677852348994	0.8817204301075269
 0x4ef190	FrontendScroller_RecomputeAllAttached	FrontendScreens.cpp	222	0.8774193548387097	0.8888888888888888

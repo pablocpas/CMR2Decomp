@@ -16060,9 +16060,14 @@
   },
   "0x424f20": {
     "n": "NetRace_PackCarState",
-    "s": 0.4939759036144578,
+    "s": 0.5519765739385066,
     "x": false,
-    "unknown": [],
+    "unknown": [
+      "__real@4@4005fe00000000000000",
+      "__real@4@4006ff00000000000000",
+      "__real@4@400dfffa000000000000",
+      "__real@8@400efffa000000000000"
+    ],
     "f": "NetRace.cpp",
     "symbol_name": "NetRace_PackCarState"
   },
@@ -16116,7 +16121,7 @@
   },
   "0x425c40": {
     "n": "NetRace_DecodeReceivedCarState",
-    "s": 0.5556544968833482,
+    "s": 0.6134751773049646,
     "x": false,
     "unknown": [],
     "f": "NetRace.cpp",

@@ -658,17 +658,47 @@ extern const float g_netFontInverseScale = 1000.0f;
 // GLOBAL: CMR2 0x00511390
 extern const float g_netFontMaximumScale = 30.0f;
 
+// The car state packet (g_localCarStats, 0x1e bytes) as the original's
+// bitfields: every flag and byte value is stored into its 16-bit word.
+struct NetCarPacket {
+    unsigned short seq;            // 0x00 packet sequence
+    unsigned short dispX;          // 0x02 movement of the last step
+    unsigned short dispZ;          // 0x04
+    unsigned short wheelSpread;    // 0x06 product of the averaged wheel offsets
+    unsigned short posX;           // 0x08 position in its sector
+    unsigned short posZ;           // 0x0a
+    short sector;                  // 0x0c
+    unsigned short height : 8;     // 0x0e suspension height
+    unsigned short heightDelta : 8;
+    unsigned short axes[2];        // 0x10 right and forward axes: heading | elevation << 8
+    unsigned short angVelX : 8;    // 0x14 angular velocity, signed bytes
+    unsigned short angVelY : 8;
+    unsigned short angVelZ : 8;    // 0x16
+    unsigned short flagB35 : 1;
+    unsigned short flagB54 : 1;
+    unsigned short progress : 6;
+    unsigned short node : 10;      // 0x18 route node
+    unsigned short pad18 : 6;
+    unsigned short steer : 7;      // 0x1a
+    unsigned short steerFollow : 1;
+    unsigned short flagC00 : 1;
+    unsigned short shaking : 1;
+    unsigned short menuOpen : 1;
+    unsigned short stage : 4;
+    unsigned short stageBehind : 1;
+    unsigned short field_0x1c;     // 0x1c
+};
+#define g_localCarPacket (*(NetCarPacket *)&g_localCarStats)
+
 // Packs the local car into the network state, preserving unrelated flag bits.
-// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00424f20
 void NetRace_PackCarState(Car *car)
 {
-    BYTE *packet = (BYTE *)&g_localCarStats;
     BYTE *raw = (BYTE *)car;
     FixVector average, displacement, relative, axes[2];
     float value, z;
     int i;
-    g_localCarStats.seq = (unsigned short)Race_ReadState37F24();
+    g_localCarPacket.seq = (unsigned short)Race_ReadState37F24();
     displacement.x = *(int *)(raw + 0x2dc) - *(int *)(raw + 0x2e8);
     displacement.z = *(int *)(raw + 0x2e4) - *(int *)(raw + 0x2f0);
     average.x = average.y = average.z = 0;
@@ -677,32 +707,32 @@ void NetRace_PackCarState(Car *car)
         average.z += *(int *)(raw + 0x1a8 + i * 12) + *(int *)(raw + 0x8c + i * 36);
     }
     FixVecScaleRecip(&average, &average, 0x40000);
-    value = (float)((double)displacement.x * CGraphics::m_oneOver65536 * g_netDeltaScale);
-    if (value >= g_netOne) *(short *)(packet + 2) = 0x7ffd;
-    else if (value <= g_netMinusOne) *(short *)(packet + 2) = (short)0x8003;
-    else *(short *)(packet + 2) = (short)(int)(__int64)((double)value * g_netSignedShortScale);
-    value = (float)((double)displacement.z * CGraphics::m_oneOver65536 * g_netDeltaScale);
-    if (value >= g_netOne) *(short *)(packet + 4) = 0x7ffd;
-    else if (value <= g_netMinusOne) *(short *)(packet + 4) = (short)0x8003;
-    else *(short *)(packet + 4) = (short)(int)(__int64)((double)value * g_netSignedShortScale);
+    value = (float)(displacement.x * CGraphics::m_oneOver65536) * g_netDeltaScale;
+    if (value >= g_netOne) g_localCarPacket.dispX = 0x7ffd;
+    else if (value <= g_netMinusOne) g_localCarPacket.dispX = 0x8003;
+    else g_localCarPacket.dispX = (short)(int)(__int64)(value * 32765.0f);
+    value = (float)(displacement.z * CGraphics::m_oneOver65536) * g_netDeltaScale;
+    if (value >= g_netOne) g_localCarPacket.dispZ = 0x7ffd;
+    else if (value <= g_netMinusOne) g_localCarPacket.dispZ = 0x8003;
+    else g_localCarPacket.dispZ = (short)(int)(__int64)(value * 32765.0f);
     double product = (double)FixMul(average.z, average.x) * CGraphics::m_oneOver65536;
-    if (product >= g_netOne) *(unsigned short *)(packet + 6) = 0xfffa;
-    else *(unsigned short *)(packet + 6) = (unsigned short)(int)(__int64)(product * g_netUnsignedShortScale);
-    value = (float)((double)car->angularVelocity.x * CGraphics::m_oneOver65536 * g_netAngularScale);
-    if (value >= g_netOne) packet[20] = 0x7f;
-    else if (value <= g_netMinusOne) packet[20] = 0x81;
-    else packet[20] = (BYTE)(int)(__int64)((double)value * g_netSignedByteScale);
-    value = (float)((double)car->angularVelocity.y * CGraphics::m_oneOver65536 * g_netAngularScale);
-    if (value >= g_netOne) packet[21] = 0x7f;
-    else if (value <= g_netMinusOne) packet[21] = 0x81;
-    else packet[21] = (BYTE)(int)(__int64)((double)value * g_netSignedByteScale);
-    value = (float)((double)car->angularVelocity.z * CGraphics::m_oneOver65536 * g_netAngularScale);
-    if (value >= g_netOne) packet[22] = 0x7f;
-    else if (value <= g_netMinusOne) packet[22] = 0x81;
-    else packet[22] = (BYTE)(int)(__int64)((double)value * g_netSignedByteScale);
-    g_localCarStats.speed = (g_localCarStats.speed & 0xfeff) | ((raw[0xb35] & 1) << 8);
-    g_localCarStats.field_0x1a = (g_localCarStats.field_0x1a & 0xfeff) | ((raw[0xc00] & 1) << 8);
-    *(short *)(packet + 12) = *(short *)(raw + 0xb00);
+    if (product >= g_netOne) g_localCarPacket.wheelSpread = 0xfffa;
+    else g_localCarPacket.wheelSpread = (unsigned short)(int)(__int64)(product * 65530.0f);
+    value = (float)(car->angularVelocity.x * CGraphics::m_oneOver65536) * g_netAngularScale;
+    if (value >= g_netOne) g_localCarPacket.angVelX = 0x7f;
+    else if (value <= g_netMinusOne) g_localCarPacket.angVelX = 0x81;
+    else g_localCarPacket.angVelX = (int)(__int64)(value * 127.0f);
+    value = (float)(car->angularVelocity.y * CGraphics::m_oneOver65536) * g_netAngularScale;
+    if (value >= g_netOne) g_localCarPacket.angVelY = 0x7f;
+    else if (value <= g_netMinusOne) g_localCarPacket.angVelY = 0x81;
+    else g_localCarPacket.angVelY = (int)(__int64)(value * 127.0f);
+    value = (float)(car->angularVelocity.z * CGraphics::m_oneOver65536) * g_netAngularScale;
+    if (value >= g_netOne) g_localCarPacket.angVelZ = 0x7f;
+    else if (value <= g_netMinusOne) g_localCarPacket.angVelZ = 0x81;
+    else g_localCarPacket.angVelZ = (int)(__int64)(value * 127.0f);
+    g_localCarPacket.flagB35 = raw[0xb35];
+    g_localCarPacket.flagC00 = raw[0xc00];
+    g_localCarPacket.sector = *(short *)(raw + 0xb00);
     FixMatrix_GetPosition(&relative, car->pWorld);
     Sector *sector = g_sectors[*(short *)(raw + 0xb00)];
     relative.x -= sector->x;
@@ -710,12 +740,12 @@ void NetRace_PackCarState(Car *car)
     relative.y -= sector->y;
     value = (float)((double)relative.x * CGraphics::m_oneOver65536 * CGraphics::m_oneOver128);
     z = (float)((double)relative.z * CGraphics::m_oneOver65536 * CGraphics::m_oneOver128);
-    if (value >= g_netOne) *(short *)(packet + 8) = 0x7ffd;
-    else if (value <= g_netMinusOne) *(short *)(packet + 8) = (short)0x8003;
-    else *(short *)(packet + 8) = (short)(int)(__int64)((double)value * g_netSignedShortScale);
-    if (z >= g_netOne) *(short *)(packet + 10) = 0x7ffd;
-    else if (z <= g_netMinusOne) *(short *)(packet + 10) = (short)0x8003;
-    else *(short *)(packet + 10) = (short)(int)(__int64)((double)z * g_netSignedShortScale);
+    if (value >= g_netOne) g_localCarPacket.posX = 0x7ffd;
+    else if (value <= g_netMinusOne) g_localCarPacket.posX = 0x8003;
+    else g_localCarPacket.posX = (short)(int)(__int64)(value * 32765.0f);
+    if (z >= g_netOne) g_localCarPacket.posZ = 0x7ffd;
+    else if (z <= g_netMinusOne) g_localCarPacket.posZ = 0x8003;
+    else g_localCarPacket.posZ = (short)(int)(__int64)(z * 32765.0f);
     FixMatrix_GetRight(&axes[0], car->pWorld);
     FixMatrix_GetForward(&axes[1], car->pWorld);
     for (i = 0; i < 2; i++) {
@@ -741,51 +771,54 @@ void NetRace_PackCarState(Car *car)
         }
         if (axis->y <= 0) elevation = 0xb40000 - elevation;
         value = (float)((double)heading * CGraphics::m_oneOver65536 * g_netHeadingScale * g_netByteScale);
-        double vertical = (double)elevation * CGraphics::m_oneOver65536 * g_netElevationScale * g_netByteScale;
-        if (value < g_netZero) value = g_netZero;
-        else if (value > g_netByteScale) value = g_netByteScale;
+        float vertical = (float)(double)elevation * CGraphics::m_oneOver65536 * g_netElevationScale * g_netByteScale;
+        if (value < g_netZero) value = 0.0f;
+        else if (value > g_netByteScale) value = 255.0f;
         if (vertical < g_netZero) vertical = g_netZero;
         else if (vertical > g_netByteScale) vertical = g_netByteScale;
         BYTE high = (BYTE)(int)(__int64)(vertical);
         BYTE low = (BYTE)(int)(__int64)(value);
-        *(unsigned short *)(packet + 16 + i * 2) = (high << 8) | low;
+        if (i == 0)
+            g_localCarPacket.axes[0] = (high << 8) | low;
+        else
+            g_localCarPacket.axes[1] = (high << 8) | low;
     }
     int steer = FixMul(FixDiv((int)*(short *)(raw + 0xb10) * 0x1680,
                              (int)*(short *)(raw + 0xb16) * 0x1680) + 0x10000, 0x3f0000) + 0x1999;
     if (steer > 0x7e8000) steer = 0x7e8000;
-    g_localCarStats.field_0x1a = (g_localCarStats.field_0x1a & 0xff80) | ((steer >> 16) & 0x7f);
-    if (car->steerFollowRate) g_localCarStats.field_0x1a |= 0x80;
-    else g_localCarStats.field_0x1a &= 0xff7f;
-    g_localCarStats.speed = (g_localCarStats.speed & 0xfdff) | ((raw[0xb54] & 1) << 9);
+    g_localCarPacket.steer = steer >> 16;
+    if (car->steerFollowRate) g_localCarPacket.steerFollow = 1;
+    else g_localCarPacket.steerFollow = 0;
+    g_localCarPacket.flagB54 = raw[0xb54];
     value = (float)((double)*(int *)(raw + 0x960) * CGraphics::m_oneOver65536 * g_netHeightScale);
-    if (value >= g_netOne) packet[14] = 255;
-    else if (value <= g_netZero) packet[14] = 0;
-    else packet[14] = (BYTE)(int)(__int64)((double)value * g_netByteScale);
+    if (value >= g_netOne) g_localCarPacket.height = 255;
+    else if (value <= g_netZero) g_localCarPacket.height = 0;
+    else g_localCarPacket.height = (int)(__int64)(value * 255.0f);
     value = (float)((double)(*(int *)(raw + 0x960) - *(int *)(raw + 0x964)) * CGraphics::m_oneOver65536 * g_netDeltaScale);
-    if (value >= g_netOne) packet[15] = 0x7f;
-    else if (value <= g_netMinusOne) packet[15] = 0x81;
-    else packet[15] = (BYTE)(int)(__int64)((double)value * g_netSignedByteScale);
+    if (value >= g_netOne) g_localCarPacket.heightDelta = 0x7f;
+    else if (value <= g_netMinusOne) g_localCarPacket.heightDelta = 0x81;
+    else g_localCarPacket.heightDelta = (int)(__int64)(value * 127.0f);
     if (raw[0xb45]) {
-        g_localCarStats.field_0x1a |= 0x200;
+        g_localCarPacket.shaking = 1;
         --raw[0xb45];
-    } else g_localCarStats.field_0x1a &= 0xfdff;
-    if (CGameInfo::IsInRaceMenuOpen()) g_localCarStats.field_0x1a |= 0x400;
-    else g_localCarStats.field_0x1a &= 0xfbff;
+    } else g_localCarPacket.shaking = 0;
+    if (CGameInfo::IsInRaceMenuOpen()) g_localCarPacket.menuOpen = 1;
+    else g_localCarPacket.menuOpen = 0;
     int node = StageTiming_GetCheckpointField0(car->index);
     if (node < 0) node = 0;
     else if (node > 0x400) node = 0x400;
-    g_localCarStats.field_0x18 = (g_localCarStats.field_0x18 & 0xfc00) | (node & 0x3ff);
+    g_localCarPacket.node = node;
     int stage = StageTiming_GetCheckpointField2(car->index);
     if (stage < 0) {
         stage = -stage;
-        g_localCarStats.field_0x1a |= 0x8000;
-    } else g_localCarStats.field_0x1a &= 0x7fff;
+        g_localCarPacket.stageBehind = 1;
+    } else g_localCarPacket.stageBehind = 0;
     if (stage > 15) stage = 15;
-    g_localCarStats.field_0x1a = (g_localCarStats.field_0x1a & 0x87ff) | ((stage & 15) << 11);
+    g_localCarPacket.stage = stage;
     int progress = FixMulShift32(RallyData_GetCarRaceRecordField10(raw), 0x400000);
     if (progress < 0) progress = 0;
     else if (progress > 63) progress = 63;
-    g_localCarStats.speed = (g_localCarStats.speed & 0x3ff) | (progress << 10);
+    g_localCarPacket.progress = progress;
 }
 
 // Packs the state of every car listed in pIndices, from the highest index down.
@@ -1137,7 +1170,6 @@ extern double g_unk0x00511300;
 // FUNCTION: CMR2 0x00425c40
 int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
 {
-    BYTE *packet = (BYTE *)&g_localCarStats;
     float offX;
     float offZ;
     float axisA[2];
@@ -1153,42 +1185,42 @@ int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
 
     diff = (int)(unsigned short)g_localCarStats.seq - (int)pRec->lastSeq;
     if (diff > 0 && g_unk0x00539cc8 != 0 && diff < 100 &&
-        *(unsigned short *)(packet + 0xc) < (unsigned int)g_sectorCount) {
+        (unsigned short)g_localCarPacket.sector < (unsigned int)g_sectorCount) {
         pRec->updated = 1;
         pRec->seq = g_localCarStats.seq;
         pRec->lastSeq = g_localCarStats.seq;
 
-        pRec->velocity.x = NetRace_FloatToFix((float)(short)*(unsigned short *)(packet + 2) * g_unk0x00511378 * g_unk0x0051137c);
+        pRec->velocity.x = NetRace_FloatToFix((float)(short)g_localCarPacket.dispX * g_unk0x00511378 * g_unk0x0051137c);
         pRec->velocity.y = 0;
-        pRec->velocity.z = NetRace_FloatToFix((float)(short)*(unsigned short *)(packet + 4) * g_unk0x00511378 * g_unk0x0051137c);
-        engine = NetRace_FloatToFix((float)*(unsigned short *)(packet + 6) * g_unk0x00511374);
+        pRec->velocity.z = NetRace_FloatToFix((float)(short)g_localCarPacket.dispZ * g_unk0x00511378 * g_unk0x0051137c);
+        engine = NetRace_FloatToFix((float)g_localCarPacket.wheelSpread * g_unk0x00511374);
         pRec->engineSpeed = engine;
         if (engine != 0)
             pRec->engineSpeedInv = FixDiv(0x10000, engine);
         else
             pRec->engineSpeedInv = 0;
-        pRec->angularVelocity.x = NetRace_FloatToFix((float)(signed char)packet[0x14] * g_unk0x0051136c * g_unk0x00511370);
-        pRec->angularVelocity.y = NetRace_FloatToFix((float)(signed char)packet[0x15] * g_unk0x0051136c * g_unk0x00511370);
-        pRec->angularVelocity.z = NetRace_FloatToFix((float)(signed char)packet[0x16] * g_unk0x0051136c * g_unk0x00511370);
-        pRec->flag_0xcc = packet[0x17] & 1;
-        pRec->field_0xd4 = (*(unsigned short *)(packet + 0x1a) >> 8) & 1;
-        offX = (float)(short)*(unsigned short *)(packet + 8) * g_unk0x00511368 * g_unk0x0051137c;
-        offZ = (float)(short)*(unsigned short *)(packet + 0xa) * g_unk0x00511368 * g_unk0x0051137c;
+        pRec->angularVelocity.x = NetRace_FloatToFix((float)(signed char)g_localCarPacket.angVelX * g_unk0x0051136c * g_unk0x00511370);
+        pRec->angularVelocity.y = NetRace_FloatToFix((float)(signed char)g_localCarPacket.angVelY * g_unk0x0051136c * g_unk0x00511370);
+        pRec->angularVelocity.z = NetRace_FloatToFix((float)(signed char)g_localCarPacket.angVelZ * g_unk0x0051136c * g_unk0x00511370);
+        pRec->flag_0xcc = g_localCarPacket.flagB35;
+        pRec->field_0xd4 = g_localCarPacket.flagC00;
+        offX = (float)(short)g_localCarPacket.posX * g_unk0x00511368 * g_unk0x0051137c;
+        offZ = (float)(short)g_localCarPacket.posZ * g_unk0x00511368 * g_unk0x0051137c;
         pRec->position.x = NetRace_FloatToFix(offX);
         pRec->position.y = 0;
         pRec->position.z = NetRace_FloatToFix(offZ);
-        pSector = g_sectors[*(short *)(packet + 0xc)];
+        pSector = g_sectors[g_localCarPacket.sector];
         pRec->position.x += pSector->x;
         pRec->position.y += pSector->y;
         pRec->position.z += pSector->z;
-        pRec->field_0xbc = NetRace_FloatToFix((float)packet[0xe] * g_unk0x00511360 * g_unk0x00511364);
-        pRec->field_0xc0 = NetRace_FloatToFix((float)(signed char)packet[0xf] * g_unk0x00511378 * g_unk0x00511370);
+        pRec->field_0xbc = NetRace_FloatToFix((float)g_localCarPacket.height * g_unk0x00511360 * g_unk0x00511364);
+        pRec->field_0xc0 = NetRace_FloatToFix((float)(signed char)g_localCarPacket.heightDelta * g_unk0x00511378 * g_unk0x00511370);
 
         // Two body axes: each packed pair of bytes is an angle in 1/17th of a unit.
-        axisA[0] = (float)(*(unsigned short *)(packet + 0x10) & 0xff);
-        axisB[0] = (float)(*(unsigned short *)(packet + 0x10) >> 8);
-        axisA[1] = (float)(*(unsigned short *)(packet + 0x12) & 0xff);
-        axisB[1] = (float)(*(unsigned short *)(packet + 0x12) >> 8);
+        axisA[0] = (float)(g_localCarPacket.axes[0] & 0xff);
+        axisB[0] = (float)(g_localCarPacket.axes[0] >> 8);
+        axisA[1] = (float)(g_localCarPacket.axes[1] & 0xff);
+        axisB[1] = (float)(g_localCarPacket.axes[1] >> 8);
         pRow = &pRec->right;
         for (i = 0; i < 2; i++, pRow += 2) {
             float valueA = (axisA[i] *= g_unk0x0051135c);
@@ -1216,24 +1248,24 @@ int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
             }
         }
 
-        steer = packet[0x1a] & 0x7f;
+        steer = g_localCarPacket.steer;
         if (steer == 0)
             *pOut = -0x10000;
         else if (steer == 0x7f)
             *pOut = 0x10000;
         else
             *pOut = FixMul(steer << 16, 0x418) - 0x10000;
-        if (packet[0x1a] & 0x80)
+        if (g_localCarPacket.steerFollow)
             pRec->field_0xb8 = 0x10000;
         else
             pRec->field_0xb8 = 0;
-        pRec->field_0xd0 = (*(unsigned short *)(packet + 0x16) & 0x200) >> 9;
-        if ((*(unsigned short *)(packet + 0x1a) & 0x200) != 0 &&
+        pRec->field_0xd0 = g_localCarPacket.flagB54;
+        if (g_localCarPacket.shaking &&
             pRec->holdTicks == 0) {
             pRec->resetPose = 1;
             pRec->holdTicks = 100;
         }
-        pRec->field_0xe4 = (*(unsigned short *)(packet + 0x1a) >> 10) & 1;
+        pRec->field_0xe4 = g_localCarPacket.menuOpen;
         NetRace_AdvanceRemoteCarAccumulator(pRec);
         return 1;
     }
