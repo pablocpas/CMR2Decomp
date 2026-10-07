@@ -13743,7 +13743,8 @@ void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef)
     pCameraRecord->matrix.position.z = 0;
     FixMatrix_Identity(&turn);
     turn.forward.z = 0x10000;
-    turn.right.x = FixCos((unsigned short)pSpot->heading);
+    // The original indexes the sine table at heading + 90 degrees here.
+    turn.right.x = g_sinTable[(unsigned short)(pSpot->heading + 0x400) & 0xfff];
     turn.up.y = turn.right.x;
     turn.right.y = -FixSin((unsigned short)pSpot->heading);
     turn.right.z = 0;

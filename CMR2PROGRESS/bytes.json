@@ -26320,7 +26320,7 @@
     "n": "View_BuildTracksideCameraMatrix",
     "s": 0.779777206512425,
     "x": false,
-    "fz": 0.8277634961439588,
+    "fz": 0.829477292202228,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "View_BuildTracksideCameraMatrix"
