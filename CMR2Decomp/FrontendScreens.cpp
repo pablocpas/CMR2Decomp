@@ -1559,7 +1559,7 @@ void FrontendMenu_ResetActiveMenu(void)
 
 extern int g_unk0x00818ac8;
 void Input_TranslatePedalsToMenuKeys(void);
-void Input_MergeAssignedJoystickButtons(unsigned short slot, DeviceInfo *pOut);
+void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut);
 unsigned short Input_GetControllerSlotMapping(unsigned short slot);
 void Sound_UpdateMusicStreaming(void);
 
@@ -8300,7 +8300,7 @@ void FrontendMenu_UpdateNetworkCarSetup(Menu *pMenu)
 {
     unsigned int *pFlags;
     int max;
-    unsigned int level;
+    int level;
     unsigned int mask;
     BYTE bits;
     int count;
@@ -8318,11 +8318,11 @@ void FrontendMenu_UpdateNetworkCarSetup(Menu *pMenu)
     if (CGameInfo::IsRecordFlagSet(0xd) == 0) {
         level = max + 1;
         count = 1;
-        if (level <= (*pFlags >> 8 & 0xf))
+        if ((int)(*pFlags >> 8 & 0xf) >= level)
             count = 4;
-        if (level <= (*pFlags >> 0xc & 0xf))
+        if ((int)(*pFlags >> 0xc & 0xf) >= level)
             count = 8;
-        if ((*pFlags & 1) != 0 && (*pFlags >> 0x10 & 0xf) >= level)
+        if ((*pFlags & 1) != 0 && (int)(*pFlags >> 0x10 & 0xf) >= level)
             count = 10;
     } else {
         count = 10;

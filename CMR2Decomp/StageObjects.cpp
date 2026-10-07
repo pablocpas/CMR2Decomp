@@ -1944,7 +1944,7 @@ void StageObject_LoadAndClassifyMeshes(void)
     BYTE *pEntry;
     int maxX;
     int maxY;
-    short maxZ;
+    int maxZ;
     int mesh;
     float *pFloats;
 
@@ -1997,7 +1997,7 @@ void StageObject_LoadAndClassifyMeshes(void)
     if (g_movingObjects.meshCount > 0) {
         do {
             int pObject = ((int *)g_unk0x0058c92c)[i];
-            short n;
+            int n;
             int x;
             int y;
             int z;

@@ -994,7 +994,7 @@ void StageUI_LoadCoDriverArrows(void)
 BYTE g_unk0x0058ca8c[4];
 
 void Input_TranslatePedalsToMenuKeys(void);
-void Input_MergeAssignedJoystickButtons(unsigned short slot, DeviceInfo *pOut);
+void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut);
 BYTE Graphics_IsRegisteredTimerRunning(BYTE *p);
 
 // Runs the current in-race menu for one frame (with no input while one of

@@ -469,7 +469,7 @@ void RallyData_ClearDriverSkillFlags(void);
 void GameInfo_ResetSessionTimestamp(void);
 DWORD GameInfo_GetSessionTimestamp(void);
 void Input_TranslatePedalsToMenuKeys(void);
-void Input_MergeAssignedJoystickButtons(unsigned short slot, DeviceInfo *pOut);
+void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut);
 extern int g_unk0x00817fe4;
 extern unsigned int g_unk0x00817ff4;
 

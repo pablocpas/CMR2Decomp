@@ -7922,7 +7922,7 @@ void RallyData_PickOpponentLineups(void)
         return;
     }
     srand(timeGetTime());
-    if ((BYTE)RallyDataState() > 1 && CGameInfo::IsConfiguredMultiplayer() != 0)
+    if ((BYTE)RallyDataState() > 1 && CGameInfo::IsConfiguredMultiplayer() == 0)
         split = 1;
     else
         split = 0;

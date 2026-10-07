@@ -2405,7 +2405,7 @@ DWORD Input_GetControllerField118(unsigned short slot)
 
 // Merges the buttons of the joystick assigned to the slot into pOut.
 // FUNCTION: CMR2 0x0040bd60
-void Input_MergeAssignedJoystickButtons(unsigned short slot, DeviceInfo *pOut)
+void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut)
 {
     DeviceInfo *pDev;
 

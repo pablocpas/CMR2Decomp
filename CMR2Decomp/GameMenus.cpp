@@ -3838,7 +3838,7 @@ int NetRace_IsPlayerFadeActive(BYTE index);
 int Stage_GetDriverCount(void);
 int StageObject_GetCarSoundElapsedTime(int index);
 void Input_TranslatePedalsToMenuKeys(void);
-void Input_MergeAssignedJoystickButtons(unsigned short slot, DeviceInfo *pOut);
+void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut);
 void Graphics_StartShapedInterpolationTimer(BYTE *pSlot, int shape, int length, int param4, int start, int end, BYTE param7);
 int Timer_GetValue(BYTE index);
 

@@ -5295,9 +5295,9 @@
   },
   "0x4ea510": {
     "n": "FrontendMenu_UpdateAndSwitchActive",
-    "s": 0.8837209302325582,
-    "x": false,
-    "fz": 0.9767441860465116,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_UpdateAndSwitchActive"
@@ -7473,9 +7473,9 @@
   },
   "0x4ee170": {
     "n": "FrontendMenu_UpdateNetworkCarSetup",
-    "s": 0.7301587301587301,
+    "s": 0.7380952380952381,
     "x": false,
-    "fz": 0.876984126984127,
+    "fz": 0.8888888888888888,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_UpdateNetworkCarSetup"
@@ -11631,9 +11631,9 @@
   },
   "0x404f40": {
     "n": "InRaceMenu_UpdateStateMachineFrame",
-    "s": 0.8326639892904953,
+    "s": 0.8353413654618473,
     "x": false,
-    "fz": 0.9665327978580991,
+    "fz": 0.9692101740294511,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "InRaceMenu_UpdateStateMachineFrame"
@@ -21410,9 +21410,9 @@
   },
   "0x40dc30": {
     "n": "RallyData_PickOpponentLineups",
-    "s": 0.8600405679513184,
+    "s": 0.8640973630831643,
     "x": false,
-    "fz": 0.8803245436105477,
+    "fz": 0.8843813387423936,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_PickOpponentLineups"
@@ -23960,9 +23960,9 @@
   },
   "0x46f550": {
     "n": "StageObject_LoadAndClassifyMeshes",
-    "s": 0.5989583333333334,
+    "s": 0.5392670157068062,
     "x": false,
-    "fz": 0.8125,
+    "fz": 0.8219895287958116,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_LoadAndClassifyMeshes"

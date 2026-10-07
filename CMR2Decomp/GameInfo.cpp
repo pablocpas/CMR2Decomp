@@ -535,7 +535,7 @@ void CGameInfo::SetSessionPassword(char *name)
 }
 
 void Input_TranslatePedalsToMenuKeys(void);
-void Input_MergeAssignedJoystickButtons(unsigned short slot, DeviceInfo *pOut);
+void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut);
 void Sound_UpdateMusicStreaming(void);
 IDirectSound *Sound_GetSampleTableState(void);
 BOOL OptionMovie_PlayFrame(BYTE skipOnSpace);
@@ -2435,7 +2435,7 @@ void OptionMenu_UpdateActivePage(void)
     }
     Input_TranslatePedalsToMenuKeys();
     pDevice = CInput::GetAvailableDeviceRecord(input);
-    Input_MergeAssignedJoystickButtons((unsigned short)input, pDevice);
+    Input_MergeAssignedJoystickButtons(input, pDevice);
     pNextMenu = (Menu *)Menu_Update(g_pMenu0x00831778, pDevice->field_0x8);
     if (pNextMenu != NULL)
         g_pMenu0x0083177c = pNextMenu;

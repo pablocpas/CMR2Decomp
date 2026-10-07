@@ -3913,7 +3913,7 @@ void Race_UpdateCarSoundDistanceVolumes(Unk0049c2c0 *p, BYTE index)
 
 void Input_TranslatePedalsToMenuKeys(void);
 struct DeviceInfo;
-void Input_MergeAssignedJoystickButtons(unsigned short slot, DeviceInfo *pOut);
+void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut);
 BYTE *StageObject_GetInRaceActionMenu(void);
 int Race_AcceptStateTransition(void);
 
