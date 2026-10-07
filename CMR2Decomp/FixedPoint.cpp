@@ -389,8 +389,8 @@ void FixMatrix_SetForward(FixVector *pV, FixMatrix *pM)
 // for the version using globals).
 #define ROTATE_BASIS(k, a, b, angle)                                                  \
     {                                                                                 \
-        int s, c, omc, kxx, kyy, kzz, kxs, kys, kzs, kxy, kxz, kyz;                  \
-        int r00, r01, r02, r10, r11, r12, r20, r21, r22;                              \
+        int s, c, omc, kxx, kyy, kzz, kxs, kys, kzs, kxy, kxz, kyz;                   \
+        FixMatrix m;                                                                  \
         FixVector v;                                                                  \
         int len;                                                                      \
                                                                                       \
@@ -407,19 +407,22 @@ void FixMatrix_SetForward(FixVector *pV, FixMatrix *pM)
         kxz = FixMul(FixMul(k.x, k.z), omc);                                          \
         kyz = FixMul(FixMul(k.z, k.y), omc);                                          \
                                                                                       \
-        r00 = FixMul(c, 0x10000 - kxx) + kxx;                                         \
-        r01 = kxy - kzs;                                                              \
-        r02 = kys + kxz;                                                              \
-        r10 = kzs + kxy;                                                              \
-        r11 = FixMul(c, 0x10000 - kyy) + kyy;                                         \
-        r21 = kxs + kyz;                                                              \
-        r12 = kyz - kxs;                                                              \
-        r20 = kxz - kys;                                                              \
-        r22 = FixMul(c, 0x10000 - kzz) + kzz;                                         \
+        m.right.x = FixMul(c, 0x10000 - kxx) + kxx;                                   \
+        m.right.y = kxy - kzs;                                                        \
+        m.right.z = kys + kxz;                                                        \
+        m.up.x = kzs + kxy;                                                           \
+        m.up.y = FixMul(c, 0x10000 - kyy) + kyy;                                      \
+        m.forward.y = kxs + kyz;                                                      \
+        m.up.z = kyz - kxs;                                                           \
+        m.forward.x = kxz - kys;                                                      \
+        m.forward.z = FixMul(c, 0x10000 - kzz) + kzz;                                 \
+        m.position.x = 0;                                                             \
+        m.position.y = 0;                                                             \
+        m.position.z = 0;                                                             \
                                                                                       \
-        v.x = FixMul(r00, a.x) + FixMul(r10, a.y) + FixMul(r20, a.z);                 \
-        v.y = FixMul(r01, a.x) + FixMul(r11, a.y) + FixMul(r21, a.z);                 \
-        v.z = FixMul(r02, a.x) + FixMul(r12, a.y) + FixMul(r22, a.z);                 \
+        v.x = FixMul(m.right.x, a.x) + FixMul(m.up.x, a.y) + FixMul(m.forward.x, a.z); \
+        v.y = FixMul(m.right.y, a.x) + FixMul(m.up.y, a.y) + FixMul(m.forward.y, a.z); \
+        v.z = FixMul(m.right.z, a.x) + FixMul(m.up.z, a.y) + FixMul(m.forward.z, a.z); \
         len = FixVecLength(&v);                                                       \
         if (len == 0) {                                                               \
             a.x = 0;                                                                  \
@@ -429,9 +432,9 @@ void FixMatrix_SetForward(FixVector *pV, FixMatrix *pM)
             FixVecScaleRecip(&a, &v, len);                                            \
         }                                                                             \
                                                                                       \
-        v.x = FixMul(r00, b.x) + FixMul(r10, b.y) + FixMul(r20, b.z);                 \
-        v.y = FixMul(r01, b.x) + FixMul(r11, b.y) + FixMul(r21, b.z);                 \
-        v.z = FixMul(r02, b.x) + FixMul(r12, b.y) + FixMul(r22, b.z);                 \
+        v.x = FixMul(m.right.x, b.x) + FixMul(m.up.x, b.y) + FixMul(m.forward.x, b.z); \
+        v.y = FixMul(m.right.y, b.x) + FixMul(m.up.y, b.y) + FixMul(m.forward.y, b.z); \
+        v.z = FixMul(m.right.z, b.x) + FixMul(m.up.z, b.y) + FixMul(m.forward.z, b.z); \
         len = FixVecLength(&v);                                                       \
         if (len == 0) {                                                               \
             b.x = 0;                                                                  \

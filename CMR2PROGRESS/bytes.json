@@ -2091,9 +2091,9 @@
   },
   "0x429f20": {
     "n": "FixBasis_Rotate",
-    "s": 0.5667932343803935,
+    "s": 0.5678082191780822,
     "x": false,
-    "fz": 0.4680704176734553,
+    "fz": 0.576027397260274,
     "unknown": [],
     "f": "FixedPoint.cpp",
     "symbol_name": "FixBasis_Rotate"

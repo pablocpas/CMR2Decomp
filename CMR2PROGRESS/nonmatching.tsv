@@ -41,6 +41,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x456710	StageTiming_PerturbComputerSplitDeltas	StageTiming.cpp	592	0.5172413793103449	0.508557457212714
 0x4eb860	Profile_AssignAvailableCategory	FileBuffer.cpp	500	0.5227963525835866	0.5209580838323353
 0x46e780	StageObject_StampPendingEventDraws	StageObjects.cpp	637	0.5230769230769231	0.5128205128205128
+0x429f20	FixBasis_Rotate	FixedPoint.cpp	4129	0.5247252747252747	0.5678082191780822
 0x455f00	StageTiming_BlendCarPaintDecalRows	StageTiming.cpp	527	0.5263157894736842	0.5348837209302325
 0x461830	StageObject_BlendTimeOfDayRecord	StageObjects.cpp	498	0.5286103542234333	0.5040650406504065
 0x4919a0	Stage_InitLightMeshes	TrackCollision.cpp	918	0.5307692307692308	0.5029239766081871
@@ -87,7 +88,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b0480	Particle_DrawAll	Graphics.cpp	535	0.5974683544303797	0.5463659147869674
 0x455af0	StageTiming_InsertDriverSplitRanking	StageTiming.cpp	207	0.5982905982905983	0.5365853658536586
 0x406010	CGameInfo::InitProfileRecordDefaults	GameInfo.cpp	759	0.5991902834008097	0.5853658536585366
-0x429f20	FixBasis_Rotate	FixedPoint.cpp	4129	0.6026629292221444	0.5667932343803935
 0x47b970	View_UpdateDriverCameraCycle	StageObjects.cpp	317	0.6043956043956044	0.550561797752809
 0x424af0	ForceFeedback_ComputeRoadNoise	StageTiming.cpp	268	0.6052631578947368	0.5882352941176471
 0x473d60	StageObject_DrawInRacePauseMenu	StageObjects.cpp	1720	0.6079545454545454	0.6072423398328691
