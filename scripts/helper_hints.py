@@ -113,6 +113,10 @@ def main():
                                              v["symbol_name"], sizes.get(addr), coff)
         except Exception:
             continue
+        # compare() may read beyond the original's inventory extent when the
+        # rebuilt body is longer. Do not count helpers in the next function.
+        end = addr + sizes[addr]
+        oi = [ins for ins in oi if ins[0] + ins[1] <= end]
         so, sr = body(oi), body(ri)
         diffs = []
         for name in longest_first:

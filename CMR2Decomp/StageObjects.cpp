@@ -4255,8 +4255,7 @@ int g_unk0x0058e4a8[8];
 BYTE g_unk0x0058e4c8[100][0x5c];
 // Same records as 0x47d5a0 walks, seen from their position field (+0xc): the
 // pointer arithmetic of that view lives in 0x47e1e0.
-// GLOBAL: CMR2 0x0058e4d4
-BYTE g_unk0x0058e4d4[100][0x5c];
+#define g_unk0x0058e4d4 ((BYTE (*)[0x5c])((BYTE *)g_unk0x0058e4c8 + 0xc))
 
 // Spawns the headlight glow of one stage object: finds the first free record,
 // places it at the top corner of the car's bounding box, aims it along the
@@ -7868,9 +7867,9 @@ void StageObject_UpdateNearRightAngleContactLevel(BYTE *pInfo, BYTE *pCar)
         StageObject_SetLevelFromContactType(pCar, pInfo);
 }
 
-// Headlight glows of the stage objects (100 records of 0x5c bytes).
-// GLOBAL: CMR2 0x0058e4e0
-BYTE g_unk0x0058e4e0[100][0x5c];
+// Ground-normal view (+0x18) of the same 100 headlight-glow records. These
+// interior views must share storage with the spawn/collision record base.
+#define g_unk0x0058e4e0 ((BYTE (*)[0x5c])((BYTE *)g_unk0x0058e4c8 + 0x18))
 
 // Creates the glow of every record and resets the records.
 // match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)

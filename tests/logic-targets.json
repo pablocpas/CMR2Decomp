@@ -555,5 +555,14 @@
       "0x45b580",
       "0x45c820"
     ]
+  },
+  "differential_headlight_glow_records.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x47d510",
+      "0x47d5a0",
+      "0x47dd70",
+      "0x47e1e0"
+    ]
   }
 }
