@@ -2723,8 +2723,8 @@ void StageObject_BlendCarMountTransform(int car)
     SceneNode_SetRotation(CAR_NODE(car, 0x8), CAR_ANGLES(car));
     FixMatrix_Multiply(&combined, &CAR_NODE(car, 0x8)->current, &rot);
     combined.position.x += position.x;
-    combined.position.z += position.z;
     combined.position.y += position.y;
+    combined.position.z += position.z;
 
     original = CAR_NODE(car, 0x0)->current;
 

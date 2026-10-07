@@ -1189,7 +1189,8 @@ int StageObject_ProbeGroundDistance(StageObjectEntry0x128 *pObj, FixVector *pPoi
     v.x = ground.x - v.x;
     v.y = ground.y - v.y;
     v.z = ground.z - v.z;
-    return FixDiv(FixVecDot(&v, &pObj->groundNormal), pObj->groundNormal.y);
+    pPoint = &pObj->groundNormal;
+    return FixDiv(FixVecDot(&v, pPoint), pObj->groundNormal.y);
 }
 
 extern double g_unk0x00511300;

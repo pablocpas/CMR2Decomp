@@ -2019,8 +2019,8 @@
   },
   "0x4702f0": {
     "n": "StageObject_ProbeGroundDistance",
-    "s": 0.9910313901345291,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FixedPoint.cpp",
     "symbol_name": "StageObject_ProbeGroundDistance"
@@ -10715,8 +10715,8 @@
   },
   "0x503b70": {
     "n": "OptionMenu_TransformHudPointToScreen",
-    "s": 0.8160919540229885,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_TransformHudPointToScreen"
@@ -21479,8 +21479,8 @@
   },
   "0x476640": {
     "n": "StageObject_BlendCarMountTransform",
-    "s": 0.9538461538461539,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_BlendCarMountTransform"

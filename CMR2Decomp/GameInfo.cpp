@@ -6051,13 +6051,18 @@ short g_unk0x0082c9ec[4];
 // Maps a HUD point from viewport space to screen space; when the transform is
 // marked as already scaled (field_0x1c == 0x10000) it only resolves the
 // 640x480 reference to the current resolution.
-// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00503b70
 int OptionMenu_TransformHudPointToScreen(Unk0x0082c6c8 *p, short *pX, short *pY)
 {
+    int value;
+
     if (p->field_0x1c != 0x10000) {
-        *pX = (FixMul(FixDiv((*pX - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16), *(short *)((BYTE *)p + 0x10) << 16) >> 16) + *(short *)((BYTE *)p + 0xc);
-        *pY = (FixMul(FixDiv((*pY - g_unk0x0082c9ec[1]) << 16, g_unk0x0082c9ec[3] << 16), *(short *)((BYTE *)p + 0x12) << 16) >> 16) + *(short *)((BYTE *)p + 0xe);
+        value = (*pX - g_unk0x0082c9ec[0]) << 16;
+        value = FixDiv(value, g_unk0x0082c9ec[2] << 16);
+        *pX = (FixMul(value, *(short *)((BYTE *)p + 0x10) << 16) >> 16) + *(short *)((BYTE *)p + 0xc);
+        value = (*pY - g_unk0x0082c9ec[1]) << 16;
+        value = FixDiv(value, g_unk0x0082c9ec[3] << 16);
+        *pY = (FixMul(value, *(short *)((BYTE *)p + 0x12) << 16) >> 16) + *(short *)((BYTE *)p + 0xe);
     }
     *pX = (short)((*pX * (int)g_pGraphics->resX) / 0x280);
     *pY = (short)((*pY * (int)g_pGraphics->resY) / 0x1e0);

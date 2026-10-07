@@ -283,7 +283,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x48a1f0	Collision_TestOrderedCarPairs	Collision2D.cpp	1017	0.8127208480565371	0.7491289198606271
 0x4d7380	FrontendMenu_DrawProfileRenameEntry	FrontendScreens.cpp	967	0.8150470219435737	0.7949921752738655
 0x4201d0	RallyRoute_GetNodeDirection	RallyRoute.cpp	1120	0.8160200250312891	0.7173100871731009
-0x503b70	OptionMenu_TransformHudPointToScreen	GameInfo.cpp	267	0.8160919540229885	0.8160919540229885
 0x486c30	StageObject_QueueViewLensFlare	StageObjects.cpp	907	0.8173652694610778	0.7289156626506024
 0x47cc50	StageObject_UpdateApproachingCar	StageObjects.cpp	169	0.8181818181818182	0.8181818181818182
 0x5105a0	type_info::DeleteWithFlags	GameInfo.cpp	28	0.8181818181818182	0.8181818181818182
@@ -447,7 +446,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x418ff0	StageSound_LoadSurfaceVariations	StageUI.cpp	513	0.9517684887459807	0.9681528662420382
 0x4ba440	FixMatrix_Invert	FixedPoint.cpp	1062	0.952	0.952
 0x48ae90	Collision_ResolveCarContactImpulse	Collision2D.cpp	3970	0.9530309112806102	0.9199359487590072
-0x476640	StageObject_BlendCarMountTransform	StageObjects.cpp	513	0.9538461538461539	0.9538461538461539
 0x487f60	Collision_ResolveCarTurnedObjectContact	StageObjects.cpp	1752	0.9554794520547946	0.8879384088964928
 0x480af0	StageObject_AssignMatchingCarClassSlots	StageObjects.cpp	79	0.9565217391304348	0.9565217391304348
 0x4af120	Glow_Draw	Graphics.cpp	2078	0.9567068843151171	0.9646892655367232
@@ -493,7 +491,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x500c80	OptionMenu_EnterStartState	GameInfo.cpp	363	0.99	0.98
 0x4b2f80	Scene_CreateLight	SceneNode.cpp	1201	0.990909090909091	0.9938271604938271
 0x4b50b0	Scene_ApplyGroundLightToMeshTree	SceneNode.cpp	613	0.990990990990991	0.990990990990991
-0x4702f0	StageObject_ProbeGroundDistance	FixedPoint.cpp	641	0.9910313901345291	0.9910313901345291
 0x40c610	CInput::InitDetectedControllerSlot	Input.cpp	1604	0.9920424403183024	0.9920424403183024
 0x451df0	GameMenu_DrawStageClassification	GameMenus.cpp	1585	0.9944649446494465	0.9944649446494465
 0x4d9c40	FrontendMenu_DrawRallySummary	FrontendScreens.cpp	2529	0.9956167814652473	0.9855799373040752
