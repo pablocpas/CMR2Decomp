@@ -3496,53 +3496,47 @@ int g_unk0x00592104;
 // Finds the vertex of stage mesh 2 closest to g_unk0x00592114 within a radius
 // that shrinks to the best distance found so far, caches its stage-space
 // position in 0x5920fc/0x592100/0x592104 and returns its index (-1 if none).
-// match 53%: same logic; MSVC laid the locals out in different stack slots and
-// kept the delta in different registers (the pointer pair to the delta local
-// comes from the original's FixMul argument materialisation).
 // FUNCTION: CMR2 0x00492910
 int StageObject_FindClosestMeshVertex(void)
 {
-    int obj[2];
+    int object;
+    int unused;
     FixVector delta;
-    FixVector vert;
     FixVector d;
-    int dx;
-    int dy;
-    int dz;
     int dist;
     int limit;
     int best;
     int i;
-    BYTE *pVertices;
+    int v;
 
     limit = 0x640000;
     best = -1;
-    if (g_stageMesh2Count <= 0)
-        return -1;
-    StageObject_GetCurrentObjectValues(&obj[0], &obj[1]);
-    FixMatrix_InverseRotateVector(&delta, &g_unk0x00592114, (FixMatrix *)(obj[1] + 0x98));
-    for (i = 0; i < g_stageMesh2Count; i++) {
-        pVertices = (BYTE *)g_stageMesh2Copy->pVertexData;
-        vert.x = (int)(__int64)(*(float *)(pVertices + i * 0x30) * CGraphics::m_65536);
-        vert.y = (int)(__int64)(*(float *)(pVertices + i * 0x30 + 4) * CGraphics::m_65536);
-        vert.z = (int)(__int64)(*(float *)(pVertices + i * 0x30 + 8) * CGraphics::m_65536);
-        d.x = delta.x - vert.x;
-        d.y = delta.y - vert.y;
-        d.z = delta.z - vert.z;
-        if (FIX_ABS(d.x) <= limit && FIX_ABS(d.y) <= limit && FIX_ABS(d.z) <= limit) {
-            dist = FixVecDot(&d, &d);
-            if (dist <= 0x27100000) {
-                limit = FixSqrt(dist);
-                best = i;
+    if (g_stageMesh2Count > 0) {
+        // The point is taken into the space of the object that owns mesh 2.
+        StageObject_GetCurrentObjectValues(&object, &unused);
+        FixMatrix_InverseRotateVector(&delta, &g_unk0x00592114, (FixMatrix *)(object + 0x98));
+        for (i = 0; i < g_stageMesh2Count; i++) {
+            d.x = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh2Copy->pVertexData)[i].pos[0] * CGraphics::m_65536);
+            d.y = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh2Copy->pVertexData)[i].pos[1] * CGraphics::m_65536);
+            v = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh2Copy->pVertexData)[i].pos[2] * CGraphics::m_65536);
+            d.x = delta.x - d.x;
+            d.y = delta.y - d.y;
+            d.z = delta.z - v;
+            if (FIX_ABS(d.x) <= limit && FIX_ABS(d.y) <= limit && FIX_ABS(d.z) <= limit) {
+                dist = FixVecDot(&d, &d);
+                if (dist <= 0x27100000) {
+                    limit = FixSqrt(dist);
+                    best = i;
+                }
             }
         }
+        if (best != -1) {
+            g_unk0x005920fc = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[0] * CGraphics::m_65536);
+            g_unk0x00592100 = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[1] * CGraphics::m_65536);
+            g_unk0x00592104 = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[2] * CGraphics::m_65536);
+            return best;
+        }
     }
-    if (best == -1)
-        return -1;
-    pVertices = (BYTE *)g_stageMesh2Copy->pVertexData;
-    g_unk0x005920fc = (int)(__int64)(*(float *)(pVertices + best * 0x30) * CGraphics::m_65536);
-    g_unk0x00592100 = (int)(__int64)(*(float *)(pVertices + best * 0x30 + 4) * CGraphics::m_65536);
-    g_unk0x00592104 = (int)(__int64)(*(float *)(pVertices + best * 0x30 + 8) * CGraphics::m_65536);
     return best;
 }
 

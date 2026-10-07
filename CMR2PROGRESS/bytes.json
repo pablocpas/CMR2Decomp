@@ -21743,7 +21743,7 @@
   },
   "0x492910": {
     "n": "StageObject_FindClosestMeshVertex",
-    "s": 0.5283018867924528,
+    "s": 0.8203753351206434,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -24575,7 +24575,7 @@
   },
   "0x467e90": {
     "n": "StageDeform_ApplyPlanarDent",
-    "s": 0.4956772334293948,
+    "s": 0.8051948051948052,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25313,7 +25313,7 @@
   },
   "0x508890": {
     "n": "CarDamage_ApplyCameraSpaceMeshDent",
-    "s": 0.5338417540514776,
+    "s": 0.9924098671726755,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
