@@ -571,5 +571,12 @@
       "0x506bb0",
       "0x505f10"
     ]
+  },
+  "differential_camera_deformation.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4219b0",
+      "0x45f9d0"
+    ]
   }
 }

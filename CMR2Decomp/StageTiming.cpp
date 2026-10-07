@@ -7280,9 +7280,11 @@ BYTE View_GetActiveCameraFlags(BYTE index);
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri,
                           unsigned short *pSurface, int defaultY);
 
-// Per-view vertical offset table, 25 entries (5x5 contact grid) per view.
-// GLOBAL: CMR2 0x00538d7c
-int g_unk0x00538d7c[44];
+// CameraRecord::field_0x54 in the blended view state (100-byte stride).
+// This must share the records populated by View_UpdateCamera; it is not a
+// separate contact-grid array.
+extern BYTE g_unk0x00538d2c[];
+#define g_unk0x00538d7c ((int *)(g_unk0x00538d2c + 0x50))
 
 
 // GLOBAL: CMR2 0x00543fb0
