@@ -17633,7 +17633,7 @@
   },
   "0x4efe60": {
     "n": "RallyData_FillStageSplitEditorRows",
-    "s": 0.7092651757188498,
+    "s": 0.7476038338658147,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -25518,7 +25518,7 @@
   },
   "0x498620": {
     "n": "StageTiming_RecomputeCarSplitBarSamples",
-    "s": 0.45925925925925926,
+    "s": 0.49523809523809526,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",

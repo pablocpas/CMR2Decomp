@@ -7571,8 +7571,8 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
     BYTE *pc;
     int nodeZ[20];
     int nodeX[20];
-    int result[32];
-    int angles[6];
+    int result[18];
+    int angles[20];
     FixVector node;
     int idxCount;
     int frontAngle;
@@ -7594,8 +7594,8 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
     int i;
 
     pc = (BYTE *)pCar;
-    idxCount = RallyData_GetRouteStateValue();
     i = pOut[0x15];
+    idxCount = RallyData_GetRouteStateValue();
     angles[1] = i;
     angles[0] = i - 1;
     angles[4] = i + 2;

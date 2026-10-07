@@ -1834,67 +1834,65 @@ void RallyData_FillStageSplitEditorRows(int param_1, int param_2, char param_3)
         Menu_SetInputStateFlag(0);
         Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
         Menu_SetInputStateFlag(1);
-        return;
-    }
-    if (RallyDataStageIndex() == '\n') {
+    } else if (RallyDataStageIndex() == '\n') {
         RallyData_SetDriverPairingStateValues(1, 0);
         pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
         *(BYTE *)(pMenu + 6) = 0;
         Menu_SetInputStateFlag(0);
         Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
         Menu_SetInputStateFlag(1);
-        return;
-    }
-    Menu_SetInputStateFlag(param_3);
-    Menu_SetNextAction((int)FrontendMenu_GetAlternateRallyStageSelection());
-    Menu_SetInputStateFlag(1);
-    if (count <= 3) {
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(char *)(pMenu + 6) = (char)count + 1;
-        if (count > 0) {
-            i = 0;
-            do {
-                value = *pSplits;
-                pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-                *(short *)(pMenu + 0x2c + i) = value + 0x157;
-                pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-                *(short *)(pMenu + 0x30 + i) = *pSplits;
-                pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-                *(BYTE *)(pMenu + 0x2e + i) =
-                    (*(BYTE *)(pMenu + 0x2e + i) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x2e + i);
-                pSplits += 2;
-                count--;
-                i += 0x14;
-            } while (count != 0);
-        }
     } else {
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(BYTE *)(pMenu + 6) = 4;
-        value = *pSplits;
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(short *)(pMenu + 0x2c) = value + 0x157;
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(short *)(pMenu + 0x30) = *pSplits;
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(BYTE *)(pMenu + 0x2e) =
-            (*(BYTE *)(pMenu + 0x2e) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x2e);
-        half = count / 2;
-        value = pSplits[half * 2];
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(short *)(pMenu + 0x40) = value + 0x157;
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(BYTE *)(pMenu + 0x42) =
-            (*(BYTE *)(pMenu + 0x42) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x42);
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(short *)(pMenu + 0x44) = pSplits[half * 2];
-        value = pSplits[count * 2 - 2];
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(short *)(pMenu + 0x54) = value + 0x157;
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(short *)(pMenu + 0x58) = pSplits[count * 2 - 2];
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(BYTE *)(pMenu + 0x56) =
-            (*(BYTE *)(pMenu + 0x56) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x56);
+        Menu_SetInputStateFlag(param_3);
+        Menu_SetNextAction((int)FrontendMenu_GetAlternateRallyStageSelection());
+        Menu_SetInputStateFlag(1);
+        if (count <= 3) {
+            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+            *(char *)(pMenu + 6) = (char)count + 1;
+            if (count > 0) {
+                i = 0;
+                do {
+                    value = *pSplits;
+                    pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+                    *(short *)(pMenu + 0x2c + i) = value + 0x157;
+                    pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+                    *(short *)(pMenu + 0x30 + i) = *pSplits;
+                    pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+                    *(BYTE *)(pMenu + 0x2e + i) =
+                        (*(BYTE *)(pMenu + 0x2e + i) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x2e + i);
+                    pSplits += 2;
+                    count--;
+                    i += 0x14;
+                } while (count != 0);
+            }
+        } else {
+            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+            *(BYTE *)(pMenu + 6) = 4;
+            value = *pSplits;
+            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+            *(short *)(pMenu + 0x2c) = value + 0x157;
+            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+            *(short *)(pMenu + 0x30) = *pSplits;
+            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+            *(BYTE *)(pMenu + 0x2e) =
+                (*(BYTE *)(pMenu + 0x2e) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x2e);
+            half = count / 2;
+            value = pSplits[half * 2];
+            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+            *(short *)(pMenu + 0x40) = value + 0x157;
+            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+            *(BYTE *)(pMenu + 0x42) =
+                (*(BYTE *)(pMenu + 0x42) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x42);
+            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+            *(short *)(pMenu + 0x44) = pSplits[half * 2];
+            value = pSplits[count * 2 - 2];
+            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+            *(short *)(pMenu + 0x54) = value + 0x157;
+            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+            *(short *)(pMenu + 0x58) = pSplits[count * 2 - 2];
+            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
+            *(BYTE *)(pMenu + 0x56) =
+                (*(BYTE *)(pMenu + 0x56) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x56);
+        }
     }
 }
 
