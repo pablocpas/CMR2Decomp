@@ -1377,11 +1377,15 @@ void WheelSplash_Update(int player)
                 // wheel of the axle (a weights the other wheel).
                 if (!leading && wet) {
                     if (type != 0xe && type != 0xf) {
-                        a = FixDiv(EFFECT_RAND(), 0x1547a - EFFECT_RAND_NEG() * 9);
+                        a = EFFECT_RAND();
+                        k = EFFECT_RAND_NEG();
+                        a = FixDiv(a, 0x1547a - k * 9);
                         FixVecScale(&p, &g_trailPos[player][other], a);
                         FixVecScale(&q, &g_trailPos[player][wheel], 0x10000 - a);
                     } else {
-                        a = FixDiv(EFFECT_RAND(), 0x1547a - EFFECT_RAND_NEG() * 9);
+                        a = EFFECT_RAND();
+                        k = EFFECT_RAND_NEG();
+                        a = FixDiv(a, 0x1547a - k * 9);
                         a = FixDiv(a, 0x30000 - EFFECT_RAND_NEG() * 14);
                         FixVecScale(&p, &g_trailPos[player][other], a);
                         FixVecScale(&q, &g_trailPos[player][wheel], 0x10000 - a);
@@ -1390,7 +1394,12 @@ void WheelSplash_Update(int player)
                     p.y += q.y;
                     p.z += q.z;
                 } else {
-                    a = FixDiv(EFFECT_RAND(), 0x1547a - EFFECT_RAND_NEG() * 9);
+                    // The original generates the numerator first. Two rand()
+                    // calls in FixDiv's arguments run in the opposite order
+                    // under MSVC6 and change the particle's trail position.
+                    a = EFFECT_RAND();
+                    k = EFFECT_RAND_NEG();
+                    a = FixDiv(a, 0x1547a - k * 9);
                     a = FixDiv(a, 0x30000 - EFFECT_RAND_NEG() * 14);
                     FixVecScale(&p, &g_trailPos[player][other], a);
                     FixVecScale(&q, &g_trailPos[player][wheel], 0x10000 - a);

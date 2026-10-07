@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "ae0ef1326afcfc0ad9d8680fed578148d46ca2fc",
+    "commit": "88e984cfeeb25407c217db16c850da882895f1ad",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -49,7 +49,7 @@
       "CMR2Decomp/BFL.h": "950defe875ffe734f13dce73dda42d7bc1b5369a7def6a53f9e0ba27ed047a7d",
       "CMR2Decomp/Car.cpp": "5386a437b8f4c6155cc39dbe0c909accb7a6d627059adcbb55ea80dc13d17379",
       "CMR2Decomp/Car.h": "1d9130c79f57de423673cff28501382b248d64c58f4840b2d07359528feb716a",
-      "CMR2Decomp/CarEffects.cpp": "541f1b0e775c43306cfdc91bd799a2345cfe3e8ff4799e526af3990cdd0168d5",
+      "CMR2Decomp/CarEffects.cpp": "c2b1564613ddad8bf5df5d098a43e0911355cb4b7061f0d1ac82bd68bd94f98f",
       "CMR2Decomp/CarParts.h": "32abbbb165e36262e995e93ece9e236ea34277ec9d5c8557c1578a6355b946e3",
       "CMR2Decomp/CarPhysics.cpp": "b6f0c2037e41a74f0c177fb9618c3a56b3813dc2ab95ae92536d51f29b224431",
       "CMR2Decomp/CarPhysics.h": "ba9b46c2e404dc48274c432e95abdcd7033fdbdfb81d632db233c8880a7229a4",
@@ -167,8 +167,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "736ad6e4759c75096f1ea86cab0d5f34befa7e3b658f5d3fee215b7a8aa85e37",
-    "pdb_sha256": "d2c52e3b0d5f939de563ddde3cbceffc0dfe16d9a085af1aa3759aa576e661ed"
+    "exe_sha256": "a27b2a3253e6335f6d304fd53b0a5a6da4a8ec38fac939f36923d9a8813d7396",
+    "pdb_sha256": "7448470ed32d5232c3ddfb0e7246c5cf29366821fcf48ab16889d9ea78955664"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,

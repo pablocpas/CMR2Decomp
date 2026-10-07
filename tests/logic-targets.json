@@ -548,5 +548,12 @@
     "targets": [
       "0x406580"
     ]
+  },
+  "differential_wheel_emission.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x45b580",
+      "0x45c820"
+    ]
   }
 }
