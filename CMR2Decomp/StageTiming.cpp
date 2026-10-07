@@ -2364,111 +2364,120 @@ void StageDeform_ApplyRadialDent(void)
 }
 
 // Deforms the body mesh around an impact projected onto a plane.
-// match 46%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00467e90
 void StageDeform_ApplyPlanarDent(void)
 {
-    int *pRecord = (int *)(g_unk0x00588b94 + ((Car *)g_stageDeformCar)->index * 0x4d0);
+    Car *pCar = g_stageDeformCar;
+    int *pRecord = (int *)(g_unk0x00588b94 + pCar->index * 0x4d0);
+    int meshIndex;
+    int vertexIndex;
+    int changed;
+    int *pSlot;
+    int depth;
+    int phase;
+    int innerSquare;
+    int reciprocalInner;
+    int outer;
+    int outerSquare;
+    int reciprocalFalloff;
+    int shellScale;
+    FixVector pos;
+    FixVector saved;
+    FixVector dir;
+    FixVector limit;
+    FixVector scaled;
+
     if (FixVecDot(&g_stageDeformOffset, &g_stageDeformNormal) >= 0)
         FixVecScale(&g_stageDeformNormal, &g_stageDeformNormal, -0x10000);
+    FixVecScale(&scaled, &g_stageDeformNormal, g_stageDeformRadius);
+    g_stageDeformOffset.x += scaled.x;
+    g_stageDeformOffset.y += scaled.y;
+    g_stageDeformOffset.z += scaled.z;
 
-    FixVector delta;
-    FixVecScale(&delta, &g_stageDeformNormal, g_stageDeformRadius);
-    // 0x467f4a: the scaled normal is ADDED to the impact point
-    g_stageDeformOffset.x += delta.x;
-    g_stageDeformOffset.y += delta.y;
-    g_stageDeformOffset.z += delta.z;
+    innerSquare = FixMul(g_stageDeformSpeed, g_stageDeformSpeed);
+    reciprocalInner = FixDiv(0x10000, g_stageDeformSpeed);
+    outer = g_stageDeformFalloff + g_stageDeformSpeed;
+    outerSquare = FixMul(outer, outer);
+    reciprocalFalloff = FixDiv(0x10000, g_stageDeformFalloff);
+    shellScale = FixMul(g_stageDeformScale, 0x3333);
 
-    int radiusSquare = FixMul(g_stageDeformSpeed, g_stageDeformSpeed);
-    int reciprocalRadius = FixDiv(0x10000, g_stageDeformSpeed);
-    int outer = g_stageDeformFalloff + g_stageDeformSpeed;
-    int outerSquare = FixMul(outer, outer);
-    int reciprocalFalloff = FixDiv(0x10000, g_stageDeformFalloff);
-    int shellScale = FixMul(g_stageDeformScale, 0x3333);
-
-    int meshCount = pRecord[0x117];
-    for (int meshIndex = 0; meshIndex < meshCount; ++meshIndex) {
-        int *pMeshSlot = pRecord + meshIndex;
-        int vertexCount = pMeshSlot[0x108];
-        int changed = 0;
-        for (int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex) {
-            Mesh *pMesh = (Mesh *)*pMeshSlot;
-            float *pVertex = (float *)pMesh->pVertexData + vertexIndex * 12;
-            int originalX = (int)(__int64)(pVertex[0] * CGraphics::m_65536);
-            int originalY = (int)(__int64)(pVertex[1] * CGraphics::m_65536);
-            int originalZ = (int)(__int64)(pVertex[2] * CGraphics::m_65536);
-
-            FixVector distance;
-            distance.x = g_stageDeformOffset.x - originalX;
-            distance.y = g_stageDeformOffset.y - originalY;
-            distance.z = g_stageDeformOffset.z - originalZ;
-            int axialDistance = FixVecDot(&distance, &g_stageDeformImpact);
-            FixVector axial;
-            FixVecScale(&axial, &g_stageDeformImpact, axialDistance);
-            distance.x -= axial.x;
-            distance.y -= axial.y;
-            distance.z -= axial.z;
-            int distanceSquare = FixVecDot(&distance, &distance);
-            if (distanceSquare <= outerSquare) {
-                // Both branches leave the displacement in `distance` (one
-                // temporary in the original, ebp-0x18); the shell branch used
-                // to add an uninitialised vector to the vertex.
-                if (radiusSquare >= distanceSquare) {
-                    int penetration = g_stageDeformSpeed - FixMul(reciprocalRadius,
-                                                                  distanceSquare);
-                    FixVecScale(&distance, &g_stageDeformNormal, penetration);
-                } else {
-                    int length = FixSqrt(distanceSquare);
-                    int shellWeight = FixMul(FixMul(length - g_stageDeformSpeed,
-                                                    reciprocalFalloff), shellScale);
-                    int phase = distance.z + distance.x;
-                    if (phase < 0) phase = -phase;
-                    phase &= 0x80000380;
-                    if (phase < 0) phase = ((phase - 1) | 0xfffffc00) + 1;
-                    phase *= 0x40;
-                    if (phase < 0x8000) phase -= 0x10000;
-                    int push = FixMul(shellWeight, phase);
-                    signed char *pLimits = (signed char *)(pMeshSlot[0x1e] + vertexIndex * 0x20);
-                    FixVector direction;
-                    direction.x = (int)pLimits[0x18] << 9;
-                    direction.y = (int)pLimits[0x19] << 9;
-                    direction.z = (int)pLimits[0x1a] << 9;
-                    FixVecScale(&distance, &direction, push);
-                }
-
-                FixVector position;
-                position.x = originalX + distance.x;
-                position.y = originalY + distance.y;
-                position.z = originalZ + distance.z;
-                StageDeform_ClampVertex(&position.x, meshIndex, vertexIndex, pRecord);
-
-                int secondX = (int)(__int64)(pVertex[3] * CGraphics::m_65536);
-                int secondY = (int)(__int64)(pVertex[4] * CGraphics::m_65536);
-                int secondZ = (int)(__int64)(pVertex[5] * CGraphics::m_65536);
-                FixVector secondDelta;
-                secondDelta.x = position.x - originalX;
-                secondDelta.y = position.y - originalY;
-                secondDelta.z = position.z - originalZ;
-                FixVecScale(&secondDelta, &secondDelta, 0x30000);
-                secondX += secondDelta.x;
-                secondY += secondDelta.y;
-                secondZ += secondDelta.z;
-                pVertex[3] = (float)((double)secondX * CGraphics::m_oneOver65536);
-                pVertex[4] = (float)((double)secondY * CGraphics::m_oneOver65536);
-                pVertex[5] = (float)((double)secondZ * CGraphics::m_oneOver65536);
-                changed = 1;
+#define DENT_VERTEX(k) \
+    (((float *)((BYTE *)((Mesh *)*pSlot)->pVertexData + vertexIndex * 0x30))[k])
+    pSlot = pRecord;
+    for (meshIndex = 0; meshIndex < pRecord[0x117]; meshIndex++) {
+        changed = 0;
+        for (vertexIndex = 0; vertexIndex < pSlot[0x108]; vertexIndex++) {
+            pos.x = (int)(__int64)(DENT_VERTEX(0) * CGraphics::m_65536);
+            pos.y = (int)(__int64)(DENT_VERTEX(1) * CGraphics::m_65536);
+            pos.z = (int)(__int64)(DENT_VERTEX(2) * CGraphics::m_65536);
+            dir.x = g_stageDeformOffset.x - pos.x;
+            dir.y = g_stageDeformOffset.y - pos.y;
+            dir.z = g_stageDeformOffset.z - pos.z;
+            // Distance to the impact axis: the component along it is removed.
+            depth = FixVecDot(&dir, &g_stageDeformImpact);
+            FixVecScale(&scaled, &g_stageDeformImpact, depth);
+            dir.x -= scaled.x;
+            dir.y -= scaled.y;
+            dir.z -= scaled.z;
+            depth = FixVecDot(&dir, &dir);
+            if (depth > outerSquare)
+                continue;
+            saved = pos;
+            if (depth <= innerSquare) {
+                // Inside the dent: pushed along the impact normal.
+                depth = g_stageDeformSpeed - FixMul(reciprocalInner, depth);
+                FixVecScale(&dir, &g_stageDeformNormal, depth);
+                pos.x += dir.x;
+                pos.y += dir.y;
+                pos.z += dir.z;
+            } else {
+                // In the falloff shell: a small ripple along the vertex's own
+                // limit direction.
+                depth = FixMul(FixSqrt(depth) - g_stageDeformSpeed, reciprocalFalloff);
+                depth = FixMul(depth, shellScale);
+                phase = dir.z + dir.x;
+                if (phase < 0)
+                    phase = -phase;
+                phase = (phase & ~0x7f) % 0x400 * 0x40;
+                if (phase < 0x8000)
+                    phase -= 0x10000;
+                depth = FixMul(depth, phase);
+                limit.x = (int)((signed char *)pSlot[0x1e])[vertexIndex * 0x20 + 0x18] << 9;
+                limit.y = (int)((signed char *)pSlot[0x1e])[vertexIndex * 0x20 + 0x19] << 9;
+                limit.z = (int)((signed char *)pSlot[0x1e])[vertexIndex * 0x20 + 0x1a] << 9;
+                FixVecScale(&dir, &limit, depth);
+                pos.x += dir.x;
+                pos.y += dir.y;
+                pos.z += dir.z;
             }
+            StageDeform_ClampVertex(&pos.x, meshIndex, vertexIndex, pRecord);
+            // The second vertex position moves three times as far.
+            limit.x = (int)(__int64)(DENT_VERTEX(3) * CGraphics::m_65536);
+            limit.y = (int)(__int64)(DENT_VERTEX(4) * CGraphics::m_65536);
+            limit.z = (int)(__int64)(DENT_VERTEX(5) * CGraphics::m_65536);
+            scaled.x = pos.x - saved.x;
+            scaled.y = pos.y - saved.y;
+            scaled.z = pos.z - saved.z;
+            FixVecScale(&scaled, &scaled, 0x30000);
+            limit.x += scaled.x;
+            limit.y += scaled.y;
+            limit.z += scaled.z;
+            DENT_VERTEX(3) = (float)((double)limit.x * CGraphics::m_oneOver65536);
+            DENT_VERTEX(4) = (float)((double)limit.y * CGraphics::m_oneOver65536);
+            DENT_VERTEX(5) = (float)((double)limit.z * CGraphics::m_oneOver65536);
+            changed = 1;
         }
         if (changed) {
-            SceneNode *pNode = (SceneNode *)pMeshSlot[0xf];
-            Mesh *pMesh = (Mesh *)pNode->pObject;
+            Mesh *pMesh = (Mesh *)((SceneNode *)pSlot[0xf])->pObject;
             if (pMesh != NULL) {
                 Mesh_RefreshVertices(pMesh);
                 RallyData_ValidateIndex((int)pMesh);
-                Scene_MarkShadowPartDirty(((Car *)g_stageDeformCar)->pNode0x720, pMesh);
+                Scene_MarkShadowPartDirty(pCar->pNode0x720, pMesh);
             }
         }
+        pSlot++;
     }
+#undef DENT_VERTEX
 }
 
 struct Car *Car_Get(int index);
@@ -5318,109 +5327,113 @@ int g_unk0x0082d158;
 // Applies the record's camera-space dent to every mesh: vertices inside the
 // radius move along the dent direction, those in the falloff shell along their
 // per-vertex limit direction, and each touched mesh is rebuilt.
-// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00508890
 void CarDamage_ApplyCameraSpaceMeshDent(int *pRecord)
 {
+    int meshIndex;
+    int vertexIndex;
+    int changed;
+    int depth;
+    int phase;
+    int innerSquare;
+    int reciprocalInner;
+    int outer;
+    int outerSquare;
+    int reciprocalFalloff;
+    int shellScale;
+    FixVector pos;
+    FixVector saved;
+    FixVector dir;
+    FixVector limit;
+    FixVector scaled;
+
     if (FixVecDot(&g_unk0x0082d120, &g_unk0x0082d12c) >= 0)
         FixVecScale(&g_unk0x0082d12c, &g_unk0x0082d12c, -0x10000);
+    FixVecScale(&scaled, &g_unk0x0082d12c, g_unk0x0082d150);
+    g_unk0x0082d120.x += scaled.x;
+    g_unk0x0082d120.y += scaled.y;
+    g_unk0x0082d120.z += scaled.z;
 
-    FixVector offset;
-    FixVecScale(&offset, &g_unk0x0082d12c, g_unk0x0082d150);
-    g_unk0x0082d120.x += offset.x;
-    g_unk0x0082d120.y += offset.y;
-    g_unk0x0082d120.z += offset.z;
+    innerSquare = FixMul(g_unk0x0082d144, g_unk0x0082d144);
+    reciprocalInner = FixDiv(0x10000, g_unk0x0082d144);
+    outer = g_unk0x0082d154 + g_unk0x0082d144;
+    outerSquare = FixMul(outer, outer);
+    reciprocalFalloff = FixDiv(0x10000, g_unk0x0082d154);
+    shellScale = FixMul(g_unk0x0082d158, 0x3333);
 
-    int innerSquare = FixMul(g_unk0x0082d144, g_unk0x0082d144);
-    int reciprocalInner = FixDiv(0x10000, g_unk0x0082d144);
-    int outer = g_unk0x0082d154 + g_unk0x0082d144;
-    int outerSquare = FixMul(outer, outer);
-    int reciprocalFalloff = FixDiv(0x10000, g_unk0x0082d154);
-    int shellScale = FixMul(g_unk0x0082d158, 0x3333);
-
-    int meshIndex;
-    for (meshIndex = 0; meshIndex < *(BYTE *)((BYTE *)pRecord + 0x26a); ++meshIndex) {
-        int changed = 0;
-        int vertexIndex;
-        for (vertexIndex = 0;
-             vertexIndex < *(USHORT *)((BYTE *)pRecord + 0x24c + meshIndex * 2);
-             ++vertexIndex) {
-            Mesh *pMesh = (Mesh *)*(int *)((BYTE *)pRecord + meshIndex * 4);
-            FixVector position;
-            position.x = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
-                                                   + vertexIndex * 0x30 + 0x0) * CGraphics::m_65536);
-            position.y = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
-                                                   + vertexIndex * 0x30 + 0x4) * CGraphics::m_65536);
-            position.z = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
-                                                   + vertexIndex * 0x30 + 0x8) * CGraphics::m_65536);
-            FixVector distance;
-            distance.x = g_unk0x0082d120.x - position.x;
-            distance.y = g_unk0x0082d120.y - position.y;
-            distance.z = g_unk0x0082d120.z - position.z;
-            int projection = FixVecDot(&distance, &g_unk0x0082d138);
-            FixVecScale(&offset, &g_unk0x0082d138, projection);
-            distance.x -= offset.x;
-            distance.y -= offset.y;
-            distance.z -= offset.z;
-            int distanceSquare = FixVecDot(&distance, &distance);
-            if (distanceSquare <= outerSquare) {
-                FixVector original = position;
-                if (distanceSquare <= innerSquare) {
-                    int penetration = g_unk0x0082d144 - FixMul(reciprocalInner,
-                                                               distanceSquare);
-                    FixVecScale(&distance, &g_unk0x0082d12c, penetration);
-                } else {
-                    int length = FixSqrt(distanceSquare);
-                    int shellWeight = FixMul(FixMul(length - g_unk0x0082d144,
-                                                    reciprocalFalloff), shellScale);
-                    int phase = distance.z + distance.x;
-                    if (phase < 0) phase = -phase;
-                    phase &= 0xffffff80;
-                    phase %= 0x400;
-                    phase *= 0x40;
-                    if (phase < 0x8000) phase -= 0x10000;
-                    int push = FixMul(shellWeight, phase);
-                    signed char *pLimits =
-                        (signed char *)(*(int *)((BYTE *)pRecord + 0x78 + meshIndex * 4)
-                                        + vertexIndex * 0x20);
-                    FixVector direction;
-                    direction.x = (int)pLimits[0x18] << 9;
-                    direction.y = (int)pLimits[0x19] << 9;
-                    direction.z = (int)pLimits[0x1a] << 9;
-                    FixVecScale(&distance, &direction, push);
-                }
-                position.x += distance.x;
-                position.y += distance.y;
-                position.z += distance.z;
-                StageDeform_ClampVertex(&position.x, meshIndex, vertexIndex, pRecord);
-                int secondX = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
-                                                         + vertexIndex * 0x30 + 0xc) * CGraphics::m_65536);
-                int secondY = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
-                                                         + vertexIndex * 0x30 + 0x10) * CGraphics::m_65536);
-                int secondZ = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
-                                                         + vertexIndex * 0x30 + 0x14) * CGraphics::m_65536);
-                FixVector secondDelta;
-                secondDelta.x = position.x - original.x;
-                secondDelta.y = position.y - original.y;
-                secondDelta.z = position.z - original.z;
-                FixVecScale(&secondDelta, &secondDelta, 0x30000);
-                secondX += secondDelta.x;
-                secondY += secondDelta.y;
-                secondZ += secondDelta.z;
-                *(float *)((BYTE *)pMesh->pVertexData + vertexIndex * 0x30 + 0xc) =
-                    (float)((double)secondX * CGraphics::m_oneOver65536);
-                *(float *)((BYTE *)pMesh->pVertexData + vertexIndex * 0x30 + 0x10) =
-                    (float)((double)secondY * CGraphics::m_oneOver65536);
-                *(float *)((BYTE *)pMesh->pVertexData + vertexIndex * 0x30 + 0x14) =
-                    (float)((double)secondZ * CGraphics::m_oneOver65536);
-                changed = 1;
+#define DENT_VERTEX(k) \
+    (((float *)((BYTE *)((Mesh *)pRecord[meshIndex])->pVertexData + vertexIndex * 0x30))[k])
+    for (meshIndex = 0; meshIndex < *((BYTE *)pRecord + 0x26a); meshIndex++) {
+        changed = 0;
+        for (vertexIndex = 0; vertexIndex < ((unsigned short *)((BYTE *)pRecord + 0x24c))[meshIndex];
+             vertexIndex++) {
+            pos.x = (int)(__int64)(DENT_VERTEX(0) * CGraphics::m_65536);
+            pos.y = (int)(__int64)(DENT_VERTEX(1) * CGraphics::m_65536);
+            pos.z = (int)(__int64)(DENT_VERTEX(2) * CGraphics::m_65536);
+            dir.x = g_unk0x0082d120.x - pos.x;
+            dir.y = g_unk0x0082d120.y - pos.y;
+            dir.z = g_unk0x0082d120.z - pos.z;
+            // Distance to the dent axis: the component along it is removed.
+            depth = FixVecDot(&dir, &g_unk0x0082d138);
+            FixVecScale(&scaled, &g_unk0x0082d138, depth);
+            dir.x -= scaled.x;
+            dir.y -= scaled.y;
+            dir.z -= scaled.z;
+            depth = FixVecDot(&dir, &dir);
+            if (depth > outerSquare)
+                continue;
+            saved = pos;
+            if (depth <= innerSquare) {
+                // Inside the dent: pushed along the dent direction.
+                depth = g_unk0x0082d144 - FixMul(reciprocalInner, depth);
+                FixVecScale(&dir, &g_unk0x0082d12c, depth);
+                pos.x += dir.x;
+                pos.y += dir.y;
+                pos.z += dir.z;
+            } else {
+                // In the falloff shell: a small ripple along the vertex's own
+                // limit direction.
+                depth = FixMul(FixSqrt(depth) - g_unk0x0082d144, reciprocalFalloff);
+                depth = FixMul(depth, shellScale);
+                phase = dir.z + dir.x;
+                if (phase < 0)
+                    phase = -phase;
+                phase = (phase & ~0x7f) % 0x400 * 0x40;
+                if (phase < 0x8000)
+                    phase -= 0x10000;
+                depth = FixMul(depth, phase);
+                limit.x = (int)((signed char *)pRecord[0x1e + meshIndex])[vertexIndex * 0x20 + 0x18] << 9;
+                limit.y = (int)((signed char *)pRecord[0x1e + meshIndex])[vertexIndex * 0x20 + 0x19] << 9;
+                limit.z = (int)((signed char *)pRecord[0x1e + meshIndex])[vertexIndex * 0x20 + 0x1a] << 9;
+                FixVecScale(&dir, &limit, depth);
+                pos.x += dir.x;
+                pos.y += dir.y;
+                pos.z += dir.z;
             }
+            StageDeform_ClampVertex(&pos.x, meshIndex, vertexIndex, pRecord);
+            // The second vertex position moves three times as far.
+            limit.x = (int)(__int64)(DENT_VERTEX(3) * CGraphics::m_65536);
+            limit.y = (int)(__int64)(DENT_VERTEX(4) * CGraphics::m_65536);
+            limit.z = (int)(__int64)(DENT_VERTEX(5) * CGraphics::m_65536);
+            scaled.x = pos.x - saved.x;
+            scaled.y = pos.y - saved.y;
+            scaled.z = pos.z - saved.z;
+            FixVecScale(&scaled, &scaled, 0x30000);
+            limit.x += scaled.x;
+            limit.y += scaled.y;
+            limit.z += scaled.z;
+            DENT_VERTEX(3) = (float)((double)limit.x * CGraphics::m_oneOver65536);
+            DENT_VERTEX(4) = (float)((double)limit.y * CGraphics::m_oneOver65536);
+            DENT_VERTEX(5) = (float)((double)limit.z * CGraphics::m_oneOver65536);
+            changed = 1;
         }
         if (changed) {
-            int mesh = *(int *)(*(int *)((BYTE *)pRecord + 0x3c + meshIndex * 4) + 0xc);
-            if (mesh != 0) Mesh_Rebuild((Mesh *)mesh);
+            Mesh *pMesh = (Mesh *)((SceneNode *)pRecord[0xf + meshIndex])->pObject;
+            if (pMesh != NULL)
+                Mesh_Rebuild(pMesh);
         }
     }
+#undef DENT_VERTEX
 }
 
 // Per-level stage light thresholds (16.16), used to pick the brightness level
