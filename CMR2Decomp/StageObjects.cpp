@@ -4247,6 +4247,25 @@ int g_unk0x0058e4a8[8];
 // i.e. 0x18 bytes below the glow fields that 0x47d510 walks.
 // GLOBAL: CMR2 0x0058e4c8
 BYTE g_unk0x0058e4c8[100][0x5c];
+
+// One flying debris piece / headlight glow record (0x5c bytes, g_unk0x0058e4c8).
+struct DebrisRecord {
+    FixVector velocity;     // 0x00
+    FixVector position;     // 0x0c
+    FixVector normal;       // 0x18 ground normal under it
+    int fade;               // 0x24
+    FixVector prevPosition; // 0x28 values of the previous frame
+    FixVector prevNormal;   // 0x34
+    int prevFade;           // 0x40
+    int height;             // 0x44 ground height
+    int life;               // 0x48
+    short triangle;         // 0x4c ground triangle hint
+    short pad;
+    void *pGlow;           // 0x50
+    int active;             // 0x54
+    BYTE car;               // 0x58
+    BYTE pad2[3];
+};
 // Same records as 0x47d5a0 walks, seen from their position field (+0xc): the
 // pointer arithmetic of that view lives in 0x47e1e0.
 #define g_unk0x0058e4d4 ((BYTE (*)[0x5c])((BYTE *)g_unk0x0058e4c8 + 0xc))
@@ -4264,45 +4283,44 @@ void StageObject_SpawnCarHeadlightGlow(BYTE car)
     FixVector half;
     Car *pCar;
     short surface;
-    int *pRec;
+    DebrisRecord *pRec;
     int i;
 
     if (g_unk0x0058e4a8[car] <= 0) {
-        pRec = (int *)g_unk0x0058e4c8;
+        pRec = (DebrisRecord *)g_unk0x0058e4c8;
         i = 0;
         do {
-            if (pRec[0x15] == 0) {
+            if (pRec->active == 0) {
                 pCar = Car_Get(car);
                 FixVecScale(&dir, &pCar->up, pCar->field_0x770[1]);
                 half.x = pCar->corners[1].x - pCar->corners[0].x;
                 half.y = pCar->corners[1].y - pCar->corners[0].y;
                 half.z = pCar->corners[1].z - pCar->corners[0].z;
                 FixVecScale(&half, &half, 0x8000);
-                pRec[3] = half.x + pCar->corners[0].x + dir.x;
-                pRec[4] = half.y + pCar->corners[0].y + dir.y;
-                pRec[5] = half.z + pCar->corners[0].z + dir.z;
-                FixVecScale((FixVector *)pRec, &pCar->right, 0xcccc);
-                pRec[0] += pCar->velocity.x;
-                pRec[1] += pCar->velocity.y;
-                pRec[2] += pCar->velocity.z;
-                FixVecScale((FixVector *)pRec, &pCar->right, FixVecDot(&pCar->right, (FixVector *)pRec));
-                pRec[0x12] = 0x320000;
-                pRec[9] = 0x10000;
-                pRec[0x15] = 1;
-                *(BYTE *)(pRec + 0x16) = car;
-                pRec[0x11] = 0;
-                *(short *)(pRec + 0x13) = -1;
-                pRec[0x11] = Track_GetGroundHeightSurface((FixVector *)(pRec + 3), (FixVector *)(pRec + 6),
-                                                          (short *)(pRec + 0x13), &surface,
-                                                          (unsigned short *)&surface, 0);
-                pRec[4] = pRec[0x11] + 0x8000;
-                *(FixVector *)(pRec + 0xa) = *(FixVector *)(pRec + 3);
-                *(FixVector *)(pRec + 0xd) = *(FixVector *)(pRec + 6);
-                pRec[0x10] = pRec[9];
+                pRec->position.x = half.x + pCar->corners[0].x + dir.x;
+                pRec->position.y = half.y + pCar->corners[0].y + dir.y;
+                pRec->position.z = half.z + pCar->corners[0].z + dir.z;
+                FixVecScale(&pRec->velocity, &pCar->right, 0xcccc);
+                pRec->velocity.x += pCar->velocity.x;
+                pRec->velocity.y += pCar->velocity.y;
+                pRec->velocity.z += pCar->velocity.z;
+                FixVecScale(&pRec->velocity, &pCar->right, FixVecDot(&pCar->right, &pRec->velocity));
+                pRec->life = 0x320000;
+                pRec->fade = 0x10000;
+                pRec->active = 1;
+                pRec->car = car;
+                pRec->height = 0;
+                pRec->triangle = -1;
+                pRec->height = Track_GetGroundHeightSurface(&pRec->position, &pRec->normal, &pRec->triangle,
+                                                            &surface, (unsigned short *)&surface, 0);
+                pRec->position.y = pRec->height + 0x8000;
+                pRec->prevPosition = pRec->position;
+                pRec->prevNormal = pRec->normal;
+                pRec->prevFade = pRec->fade;
                 i = 100;
                 g_unk0x0058e4a8[car] = 0x100000;
             }
-            pRec += 0x17;
+            pRec++;
             i++;
         } while (i < 100);
     }
@@ -7866,7 +7884,6 @@ void StageObject_UpdateNearRightAngleContactLevel(BYTE *pInfo, BYTE *pCar)
 #define g_unk0x0058e4e0 ((BYTE (*)[0x5c])((BYTE *)g_unk0x0058e4c8 + 0x18))
 
 // Creates the glow of every record and resets the records.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0047d510
 void StageObject_CreateRecordGlows(void)
 {
@@ -15350,6 +15367,7 @@ void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition, int
                     BYTE *pColour, BYTE field0x54, int callbackParam, BYTE field0x55);
 #define RAND_FIX() ((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536))
 
+
 // Per-frame update of the flying debris (100 records of 0x5c bytes): ages
 // each piece, moves it along its velocity over the ground and trails a dust
 // particle off it, fading the last seconds; also counts down the 8 debris
@@ -15357,11 +15375,9 @@ void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition, int
 // FUNCTION: CMR2 0x0047dd70
 void CarDamage_UpdateFlyingDebris(void)
 {
-    int *pTimer;
-    BYTE *q;
-    int left;
+    DebrisRecord *pRec;
+    int i;
     short tri;
-    FixVector old;
     FixVector d;
     FixVector n;
     FixVector r;
@@ -15370,36 +15386,36 @@ void CarDamage_UpdateFlyingDebris(void)
     int fade;
     int ground;
 
-    for (pTimer = g_unk0x0058e4a8; pTimer < g_unk0x0058e4a8 + 8; pTimer++) {
-        if (*pTimer > 0) {
-            *pTimer -= g_physicsTimeStep;
-            if (*pTimer < 0)
-                *pTimer = 0;
+    for (i = 0; i < 8; i++) {
+        if (g_unk0x0058e4a8[i] > 0) {
+            g_unk0x0058e4a8[i] -= g_physicsTimeStep;
+            if (g_unk0x0058e4a8[i] < 0)
+                g_unk0x0058e4a8[i] = 0;
         }
     }
-    q = g_unk0x0058e4e0[0] + 0x1c;
-    for (left = 100; left != 0; left--, q += 0x5c) {
-        if (*(int *)(q + 0x20) == 0)
+    pRec = (DebrisRecord *)g_unk0x0058e4c8;
+    for (i = 100; i != 0; i--, pRec++) {
+        if (pRec->active == 0)
             continue;
-        *(FixVector *)(q - 0xc) = *(FixVector *)(q - 0x28);
-        *(FixVector *)q = *(FixVector *)(q - 0x1c);
-        *(int *)(q + 0xc) = *(int *)(q - 0x10);
-        *(int *)(q + 0x14) -= g_physicsTimeStep;
-        if (*(int *)(q + 0x14) <= 0) {
-            *(int *)(q + 0x20) = 0;
+        pRec->prevPosition = pRec->position;
+        pRec->prevNormal = pRec->normal;
+        pRec->prevFade = pRec->fade;
+        pRec->life -= g_physicsTimeStep;
+        if (pRec->life <= 0) {
+            pRec->active = 0;
             continue;
         }
-        old = *(FixVector *)(q - 0x28);
-        *(int *)(q - 0x28) += *(int *)(q - 0x34);
-        *(int *)(q - 0x24) += *(int *)(q - 0x30);
-        *(int *)(q - 0x20) += *(int *)(q - 0x2c);
-        ground = Track_GetGroundHeightSurface((FixVector *)(q - 0x28), (FixVector *)(q - 0x1c), (short *)(q + 0x18),
-                                              &tri, (unsigned short *)&tri, *(int *)(q + 0x10));
-        *(int *)(q + 0x10) = ground;
-        *(int *)(q - 0x24) = ground + 0x8000;
-        d.x = *(int *)(q - 0x28) - old.x;
-        d.y = *(int *)(q - 0x24) - old.y;
-        d.z = *(int *)(q - 0x20) - old.z;
+        d = pRec->position;
+        pRec->position.x += pRec->velocity.x;
+        pRec->position.y += pRec->velocity.y;
+        pRec->position.z += pRec->velocity.z;
+        ground = Track_GetGroundHeightSurface(&pRec->position, &pRec->normal, &pRec->triangle,
+                                              &tri, (unsigned short *)&tri, pRec->height);
+        pRec->height = ground;
+        pRec->position.y = ground + 0x8000;
+        d.x = pRec->position.x - d.x;
+        d.y = pRec->position.y - d.y;
+        d.z = pRec->position.z - d.z;
         FIX_NORMALIZE_INTO(n, d);
         r.x = 0x8000 - RAND_FIX();
         r.y = 0x8000 - RAND_FIX();
@@ -15417,20 +15433,20 @@ void CarDamage_UpdateFlyingDebris(void)
         r.x += d.x;
         r.y += d.y;
         r.z += d.z;
-        m.x = *(int *)(q - 0x28) - r.x;
-        m.y = *(int *)(q - 0x24) - r.y;
-        m.z = *(int *)(q - 0x20) - r.z;
-        Particle_Spawn(0x1f, &m, &r, *(int *)(q - 0x24) - 0x50000, 0, NULL, 0, 0,
-                       *(BYTE *)(*(BYTE **)((BYTE *)Car_Get(q[0x24]) + 0x720) + 0x17c));
-        if (*(int *)(q + 0x14) > 0x50000) {
-            *(int *)(q - 0x10) = 0x10000;
+        m.x = pRec->position.x - r.x;
+        m.y = pRec->position.y - r.y;
+        m.z = pRec->position.z - r.z;
+        Particle_Spawn(0x1f, &m, &r, pRec->position.y - 0x50000, 0, NULL, 0, 0,
+                       *(BYTE *)(*(BYTE **)((BYTE *)Car_Get(pRec->car) + 0x720) + 0x17c));
+        if (pRec->life > 0x50000) {
+            pRec->fade = 0x10000;
         } else {
-            fade = FixMul(*(int *)(q + 0x14), 0x3333);
+            fade = FixMul(pRec->life, 0x3333);
             if (fade > 0x10000)
                 fade = 0x10000;
             else if (fade < 0)
                 fade = 0;
-            *(int *)(q - 0x10) = fade;
+            pRec->fade = fade;
         }
     }
 }

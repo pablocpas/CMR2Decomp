@@ -23596,7 +23596,7 @@
   },
   "0x47dd70": {
     "n": "CarDamage_UpdateFlyingDebris",
-    "s": 0.5982028241335045,
+    "s": 0.9846547314578005,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",

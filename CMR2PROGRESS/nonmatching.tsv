@@ -106,7 +106,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4f3c10	FrontendAnimation_EvaluatePathSpline	FrontendScreens.cpp	434	0.6325301204819277	0.6501547987616099
 0x4a6370	CGraphics::LoadTGABumpMap	Graphics.cpp	768	0.6325411334552102	0.6361974405850092
 0x5062d0	OptionPreview_LoadStageGeometryRecord	GameInfo.cpp	1100	0.6341463414634146	0.6379821958456974
-0x47dd70	CarDamage_UpdateFlyingDebris	StageObjects.cpp	1122	0.6348387096774194	0.5982028241335045
 0x41b460	StageUI_UpdateDriverEventAwards	StageUI.cpp	2709	0.6366559485530546	0.6124338624338624
 0x428bf0	View_SelectVisibleCars	Car.cpp	1734	0.6371681415929203	0.5651793525809273
 0x41e8d0	Race_HandleStageReplayViewTransitions	Race.cpp	2267	0.637910085054678	0.6140012845215157
@@ -472,6 +471,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4a5be0	CGraphics::EvictManagedTextureResources	Graphics.cpp	289	0.979381443298969	0.979381443298969
 0x501780	OptionMenu_FadeBackgroundToGrey	GameInfo.cpp	401	0.9800796812749004	0.9879518072289156
 0x46acb0	CarDamage_RebuildPartBounds	StageObjects.cpp	801	0.9803921568627451	0.984313725490196
+0x47dd70	CarDamage_UpdateFlyingDebris	StageObjects.cpp	1122	0.9820971867007673	0.9846547314578005
 0x48ce80	View_RestartTracksideCameraDolly	StageObjects.cpp	617	0.9848484848484849	0.98989898989899
 0x4bc110	Timer_GetValue	Graphics.cpp	357	0.9849624060150376	0.984
 0x4f28c0	FrontendMenu_EnterCheats	FrontendScreens.cpp	168	0.9855072463768116	0.9855072463768116
