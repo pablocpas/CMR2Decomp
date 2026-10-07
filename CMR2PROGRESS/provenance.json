@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "a81a4b9b7551ec19cc20642af8400617ea7e3f40",
+    "commit": "ae0ef1326afcfc0ad9d8680fed578148d46ca2fc",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -110,7 +110,7 @@
       "CMR2Decomp/RallyTiming.h": "c15751de9c35f2de0f95e00df23bfd5cad6223bfe46e277a248d86beb4d13629",
       "CMR2Decomp/RegKey.cpp": "80d7d2b84d958f007807a48186dbbe67190b231fd21b059eb9dbea4f26a8b80c",
       "CMR2Decomp/RegKey.h": "cb2934244f3e58e032b9644f58ea83230965ed366c7000fb4690ef50d5bb62c4",
-      "CMR2Decomp/SceneNode.cpp": "7c03382ad8fddf7f88d4ef08ee896019afac70a9be18e9895b1fada2ccd60042",
+      "CMR2Decomp/SceneNode.cpp": "fbb12043d7b2008f4c9e4cabc8ba6d8626026d6d75d6e471c55d2d32cb4c0230",
       "CMR2Decomp/SceneNode.h": "787adc304582568790e9a3985d1a47df79f88cd344b36e8b7a19e11419a41ef5",
       "CMR2Decomp/Sector.cpp": "e535bb37589ff71cf3fe2d69cdd240dcdf3221ebe79e97565036efee4b60c57f",
       "CMR2Decomp/Sector.h": "a2289419006caae16b3a6690c115af713ae03e7383e898727cd9f6ca1a3018f1",
@@ -122,7 +122,7 @@
       "CMR2Decomp/Stage.h": "b88a2c030bd24c19ae7bdf8b42ff62a7f1d772b5ef2c85ca88d504622be84a84",
       "CMR2Decomp/StageBlock.h": "f4891437fb2f09962048a220796091acc5431172a654aada4990f16c19ed270b",
       "CMR2Decomp/StageObjectCount.h": "541514d4da5e984bc83597c9b0839bebc67ac87ef78d2fe76fc2f3841c08010e",
-      "CMR2Decomp/StageObjects.cpp": "e35054e80e4375cdd9b3d2805c0204ef27eda7d2bf6d17c75fe4e5f4ec90adc6",
+      "CMR2Decomp/StageObjects.cpp": "f3b476128740f2a6dea3c3ed0f6256694ef1541653f4a3f7cab4ef9aaf796fd3",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
       "CMR2Decomp/StageTiming.cpp": "d1bea3348201bff8f699735864987dcfe09ba3c8396f40e6a578e99492bca894",
@@ -167,8 +167,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "57bb224b4ba83eb4ae8e9211c163c20c47371b97df7121b015c1194ecca6d852",
-    "pdb_sha256": "ffc42e52c228b2ebfd812d35d7726dde1d948838a19a3035e6fdae1563ac25b9"
+    "exe_sha256": "736ad6e4759c75096f1ea86cab0d5f34befa7e3b658f5d3fee215b7a8aa85e37",
+    "pdb_sha256": "d2c52e3b0d5f939de563ddde3cbceffc0dfe16d9a085af1aa3759aa576e661ed"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,

@@ -12663,7 +12663,7 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
     if (*(char *)(*(int *)(p + 4) + player * 8) != '\n' || GameMenu_IsPauseHeaderActive() != 0) {
         p = StageUI_GetRaceResultTable();
         if (*(char *)(*(int *)(p + 4) + player * 8) == '\n') {
-            idx = Race_IsMultiplayerRecordMode10() ? -1 : 0;
+            idx = Race_IsMultiplayerRecordMode10() ? 1 : 0;
             if (View_GetActiveCameraMode((BYTE)idx) != 10 && View_GetActiveCameraMode((BYTE)idx) != 7) {
                 if ((pDev->field_0x8 & g_carButtonMasks[7]) != 0)
                     View_UpdateDriverCameraCycle(player);

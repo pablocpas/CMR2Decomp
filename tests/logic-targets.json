@@ -333,6 +333,18 @@
       "0x41e8d0"
     ]
   },
+  "differential_player_indicators.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x47b0e0"
+    ]
+  },
+  "differential_light_zone_offsets.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4b4aa0"
+    ]
+  },
   "differential_race_order.py": {
     "arguments": "entities",
     "targets": [

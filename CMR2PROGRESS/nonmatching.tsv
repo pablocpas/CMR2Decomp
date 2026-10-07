@@ -11,12 +11,12 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x489060	Collision_RayQuad	Collision2D.cpp	1098	0.4103225806451613	0.38783269961977185
 0x47bdd0	AI_UpdateRouteDrivingControls	StageObjects.cpp	940	0.4116504854368932	0.358148893360161
 0x45b580	StageTiming_SpawnWheelParticles	StageTiming.cpp	4195	0.41385135135135137	0.37975742367210374
+0x4b4aa0	Scene_LoadLighting	SceneNode.cpp	1538	0.42053789731051344	0.4028268551236749
 0x458e00	StageTiming_AdvanceCrossedCheckpoints	StageTiming.cpp	297	0.4293785310734463	0.40217391304347827
 0x46cfa0	Replay_PlayStreamFrame	StageObjects.cpp	717	0.4387990762124711	0.43119266055045874
 0x413e00	RallyData_DrawRacePositionMarker	RallyData.cpp	473	0.44375	0.4353312302839117
 0x4ade00	Scene_SetViewFromCamera	SceneNode.cpp	340	0.4444444444444444	0.4444444444444444
 0x4a52d0	CGraphics::BlendPixel	Graphics.cpp	1008	0.45269016697588127	0.4475043029259897
-0x4b4aa0	Scene_LoadLighting	SceneNode.cpp	1538	0.45575757575757575	0.4418331374853114
 0x47d330	AI_UpdateAttractDrivingControls	StageObjects.cpp	395	0.4573643410852713	0.39330543933054396
 0x4a5880	CGraphics::GenerateBumpMap	Graphics.cpp	786	0.4601113172541744	0.4424131627056673
 0x4137e0	RallyData_DrawTargetTimeGap	RallyData.cpp	1565	0.46184738955823296	0.452642073778664
@@ -193,7 +193,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x486910	StageObject_RebuildMirroredTiltMatrix	FixedPoint.cpp	206	0.738255033557047	0.7516778523489933
 0x4fc620	FrontendControls_UpdateAxisCalibration	FrontendMenus.cpp	548	0.7388535031847133	0.7290322580645161
 0x4147f0	RallyData_DrawStageResultRows	RallyData.cpp	1749	0.7389635316698656	0.6711281070745698
-0x47b0e0	StageObject_UpdatePlayerControlIndicators	StageObjects.cpp	1344	0.739946380697051	0.7265415549597856
 0x49c510	Game_DrawMeshTextureRuns	Game.cpp	354	0.7413793103448276	0.7224669603524229
 0x418580	Race_DecodeCallSlotIcon	Race.cpp	448	0.7453416149068323	0.749185667752443
 0x4a5730	CGraphics::GetPixelRed	Graphics.cpp	161	0.7480916030534351	0.7272727272727273
@@ -206,6 +205,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x402000	InRaceMenu_DrawLabelAndValueRows	GameInfo.cpp	1090	0.7527777777777778	0.7393767705382436
 0x4a8c30	CGraphics::EnumeratePreferredHalDevices	Graphics.cpp	298	0.7528089887640449	0.6923076923076923
 0x4fc500	FrontendControls_EnterCalibration	FrontendMenus.cpp	265	0.7544910179640718	0.7073170731707317
+0x47b0e0	StageObject_UpdatePlayerControlIndicators	StageObjects.cpp	1344	0.7550200803212851	0.6398929049531459
 0x433890	Car_StepAll	Car.cpp	1507	0.7555555555555555	0.7326266195524146
 0x40b880	Font_DrawText	Font.cpp	548	0.7558139534883721	0.7065527065527065
 0x421e20	View_SnapCameras	Car.cpp	433	0.7561837455830389	0.7730496453900709

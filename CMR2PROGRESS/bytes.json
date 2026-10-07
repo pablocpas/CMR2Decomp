@@ -19636,7 +19636,7 @@
   },
   "0x4b4aa0": {
     "n": "Scene_LoadLighting",
-    "s": 0.4418331374853114,
+    "s": 0.4028268551236749,
     "x": false,
     "unknown": [],
     "f": "SceneNode.cpp",
@@ -23311,7 +23311,7 @@
   },
   "0x47b0e0": {
     "n": "StageObject_UpdatePlayerControlIndicators",
-    "s": 0.7265415549597856,
+    "s": 0.6398929049531459,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
