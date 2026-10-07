@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "afa7ab0920f6f50bfae1d0427b098629fa32d283",
+    "commit": "7509803593d48cc3f4a8df083ab5e674b40c3d42",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -74,7 +74,7 @@
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
       "CMR2Decomp/Game.cpp": "1a9343c2424aa24979631381c04dbcf2de3e02e7c6b2507e79e662d8052c69fb",
       "CMR2Decomp/Game.h": "3ac93fd8707b75dea487ba1a23170a63a0099477a95f0c5a0c7d98c31726bf03",
-      "CMR2Decomp/GameInfo.cpp": "7ef297c393bfc1ca000f9c43a44156a49c9a36aa938b19a58d6dfda7c191c6b7",
+      "CMR2Decomp/GameInfo.cpp": "29bd15e14834dc31266b858a0d615618d40690483c77256c6842c13c987de245",
       "CMR2Decomp/GameInfo.h": "191777cd7d1cc6c81276e22879fd745d02fc9fa7b29ac05f0bff3761ae5b8bb7",
       "CMR2Decomp/GameMenus.cpp": "a7f133dc104f844f4d3426b44aea9e883a80539039aa185a1230c89887336eea",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
@@ -167,8 +167,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "bc366e069086454800b4d374589975d56aacf2b42811908f1d1357d34744f256",
-    "pdb_sha256": "1d4d4c5525eab642b7b3d868c88377324a82f2ac600de40073f87c9e0bbfe22e"
+    "exe_sha256": "e4896a44364b76de399748066d58f48a0bf2d03515be79d68957c7afd4d32b85",
+    "pdb_sha256": "b683b558973640dae4c4675540a24ee8159926801b9a3692e1ea09d8f3d6f58a"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,

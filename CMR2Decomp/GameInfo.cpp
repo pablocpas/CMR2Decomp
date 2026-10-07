@@ -11300,8 +11300,8 @@ void OptionMenu_UpdateMessagesAndRecordStates(Menu *pMenu)
             (pMenu->cursor != 1 || g_unk0x00526f44 != 2))
             OptionMenu_ClearRecordTransition(4);
         g_unk0x0082a90c[g_unk0x00526f44] = 2;
-        g_unk0x0082a930 = g_unk0x0082a928;
         g_unk0x00526f44 = pMenu->cursor;
+        g_unk0x0082a930 = g_unk0x0082a928;
         OptionMenu_ClearTimeout();
     }
     for (i = 0; i < 6; i++) {

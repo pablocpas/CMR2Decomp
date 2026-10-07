@@ -11547,7 +11547,7 @@
   },
   "0x4ffab0": {
     "n": "OptionMenu_UpdateMessagesAndRecordStates",
-    "s": 0.8492307692307692,
+    "s": 0.8553846153846154,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
