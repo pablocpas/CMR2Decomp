@@ -112,7 +112,10 @@ annotations and global data, writes `index.html`, and updates `CMR2PROGRESS/`:
 
 The byte audit is the authoritative metric: reccmp occasionally scores a
 byte-identical function below 100% when an operand resolves to a neighbouring
-symbol. Exactness includes embedded switch tables.
+symbol. Exactness includes embedded switch tables. Progress is reported as two
+size-weighted percentages (also in the decomp.dev report): perfect match, the
+code bytes of byte-exact functions, and fuzzy match, the similarity of every
+function with register names and branch targets ignored (`fz` in bytes.json).
 
 After measuring, run `python3 scripts/prepare_fastcmp.py` to refresh the
 metadata used by `scripts/fastcmp.py`, the single-function comparator.

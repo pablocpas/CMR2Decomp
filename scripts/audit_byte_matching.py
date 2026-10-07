@@ -8,6 +8,7 @@ identifiers disambiguate generic reccmp CRT names; constructors use their real
 MSVC symbol. This script uses private metadata and leaves shared reports and
 fastcmp code untouched. Supply the matching report/entities/build together.
 """
+import difflib
 import hashlib
 import importlib.util
 import json
@@ -19,6 +20,21 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parent.parent
 TOOLS = ROOT / "scripts"
+
+
+# Fuzzy score: the instruction texts with register names and branch targets
+# blanked out (the "ignoring registers" score of match.py), so a function that
+# differs only in register allocation scores 100%.
+REGS = re.compile(r"\b(?:e?[abcd]x|[abcd][lh]|e?[sd]i|e?[bs]p|[sd]il|[bs]pl)\b")
+JUMP = re.compile(r"^(j\w+|call|loop\w*) 0x[0-9a-f]+$")
+
+
+def fuzzy_score(oi, ri):
+    def norm(t):
+        return JUMP.sub(lambda m: m.group(1) + " L", REGS.sub("R", t))
+    a = [norm(t) for _, _, t in oi]
+    b = [norm(t) for _, _, t in ri]
+    return difflib.SequenceMatcher(None, a, b, autojunk=False).ratio()
 
 
 def source_identifier(source, marker):
@@ -89,10 +105,12 @@ def main():
                 try:
                     if find(f.COFF(obj), name)[1] is None:
                         symbol_name = source_identifier(source, marker)
-                    score, exact, _, unknown = f.compare(
+                    score, exact, detail, unknown = f.compare(
                         address, obj, str(path), symbol_name, sizes.get(address))
+                    oi, ri, _ = detail
+                    fuzzy = 1.0 if exact and not unknown else min(fuzzy_score(oi, ri), 0.9999)
                     results[hex(address)] = {
-                        "n": name, "s": score, "x": exact and not unknown,
+                        "n": name, "s": score, "x": exact and not unknown, "fz": fuzzy,
                         "unknown": sorted(unknown), "f": path.name,
                         "symbol_name": symbol_name,
                     }

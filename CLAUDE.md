@@ -1,8 +1,15 @@
 # Working on CMR2Decomp
 
 Matching decompilation: every `// FUNCTION: CMR2 0x...` must compile (MSVC6 SP3,
-`/O2 /Gz /MD /GX`, `/QIfist` per TU) to the original bytes. The metric is the
-relocated byte audit (`CMR2PROGRESS/bytes.json`), not the reccmp percentage.
+`/O2 /Gz /MD /GX`, `/QIfist` per TU) to the original bytes. Progress is measured
+by the relocated byte audit (`CMR2PROGRESS/bytes.json`), not the reccmp percentage,
+with two size-weighted metrics (`measure.py` prints both, `provenance.json` keeps them):
+
+- **Perfect match**: % of code bytes in byte-exact functions (the headline).
+- **Fuzzy match**: size-weighted similarity with registers and branch targets
+  ignored (`fz` per function), the one that steers the work: pick functions by
+  missing bytes, fix structure, verify behaviour. A function at 100% fuzzy that
+  is not exact differs only in register allocation; leave it parked.
 
 ## Setup (fresh Linux / cloud session)
 

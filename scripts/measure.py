@@ -1,6 +1,7 @@
 """Measure a successfully built source snapshot and save reproducible reports."""
 
 import argparse
+import bisect
 import csv
 import hashlib
 import json
@@ -76,7 +77,24 @@ def main():
             writer.writerow([address, result["n"], result["f"],
                              inventory.get(int(address, 16), {}).get("size", 0),
                              scores.get(address, 0), result["s"]])
-    progress = {"build": manifest, "original_sha256": sha256(ROOT / "cmr2bin/CMR2.exe"),
+    # The two headline metrics, both weighted by function size (decomp.dev /
+    # objdiff style): perfect match = bytes of byte-exact functions; fuzzy =
+    # size-weighted similarity with registers and branch targets ignored.
+    # Functions missing from the inventory run up to the next known start, as
+    # in objdiff_report.py.
+    starts = sorted(set(inventory) | {int(a, 16) for a in byte_results})
+
+    def size_of(address):
+        if address in inventory:
+            return int(inventory[address]["size"])
+        i = bisect.bisect_right(starts, address)
+        return starts[i] - address if i < len(starts) else 0
+    sized = [(size_of(int(a, 16)), v) for a, v in byte_results.items()]
+    total_bytes = sum(size for size, _ in sized) or 1
+    perfect = sum(size for size, v in sized if v["x"]) * 100.0 / total_bytes
+    fuzzy = sum(size * v.get("fz", v["s"]) for size, v in sized) * 100.0 / total_bytes
+    progress = {"build": manifest,
+                "perfect_match_percent": round(perfect, 2), "fuzzy_match_percent": round(fuzzy, 2), "original_sha256": sha256(ROOT / "cmr2bin/CMR2.exe"),
                 "inventory_entries": len(inventory), "measured_functions": len(functions),
                 "reccmp_exact": sum(f.get("matching") == 1 for f in functions),
                 "audited_source_functions": len(byte_results),
@@ -86,6 +104,7 @@ def main():
                 "data_variables": int(match[1]), "data_issues": int(match[2]),
                 "byte_auditor_sha256": sha256(ROOT / "scripts/fastcmp.py")}
     (out / "provenance.json").write_text(json.dumps(progress, indent=2) + "\n")
+    print(f"Perfect match: {perfect:.2f}%  Fuzzy match: {fuzzy:.2f}%")
     print("Source functions:", progress["audited_source_functions"],
           "relocated byte-exact:", progress["relocated_byte_exact"],
           "remaining:", len(pending))

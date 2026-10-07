@@ -97,7 +97,10 @@ def build_report(summary, sizes, units, audit, per_function=False):
         by_unit.setdefault(unit, []).append({
             "name": entry["name"],
             "size": size,
-            "fuzzy_match_percent": 100.0 if audit and audit[addr] else float(entry["matching"]) * 100.0,
+            # Byte audit: 100 when exact, else the similarity with registers
+            # ignored ("fz"); reccmp's score only when there is no audit.
+            "fuzzy_match_percent": (100.0 if audit[addr].get("x") else audit[addr].get("fz", audit[addr]["s"]) * 100.0)
+                                   if audit else float(entry["matching"]) * 100.0,
             "address": addr,
         })
 
@@ -151,7 +154,7 @@ def main():
     audit = None
     if args.bytes.exists():
         with open(args.bytes) as f:
-            audit = {int(a, 16): bool(v.get("x")) for a, v in json.load(f).items()}
+            audit = {int(a, 16): v for a, v in json.load(f).items()}
     report = build_report(summary, load_sizes(args.functions), load_units(args.src), audit,
                           per_function=args.units == "function")
 
