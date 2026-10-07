@@ -20222,9 +20222,9 @@
   },
   "0x4129d0": {
     "n": "RallyData_DrawCarStageGapPanel",
-    "s": 0.671604938271605,
+    "s": 0.6732510288065844,
     "x": false,
-    "fz": 0.8,
+    "fz": 0.8016460905349794,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_DrawCarStageGapPanel"

@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "6bda3082ec976c1d2e7968e3edfab5d933d33540",
+    "commit": "fd666511f9e76c45cb5bf415e667509ebde4493b",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -102,7 +102,7 @@
       "CMR2Decomp/OptionMenuRows.cpp": "2f2ab483cf9d7f07f3fc9a8065e3e8df2c76a23e152fc9af6b2dbc61497ecaa9",
       "CMR2Decomp/Particle.h": "b85a46208a644e2bf8128006838a31443be3039578664fe5aa764d018dbc6d92",
       "CMR2Decomp/Race.cpp": "9401006fb53e50af8d71fb671a5e4e148b2ed47eb3889f5d1613a1a9775359a2",
-      "CMR2Decomp/RallyData.cpp": "f8751fec0dbf833b85c0cad47f2cc2e5e4e8c8e6a258d40bba502973c4e8c62a",
+      "CMR2Decomp/RallyData.cpp": "6cca9b38f434130c8e11aeac84f9f64c7d484a1fbfdb991a7652bd60a27558ff",
       "CMR2Decomp/RallyData.h": "e987810c2165585326e910e8d05c1dc1cb71d1ea758238d1c98b7347b1bc2470",
       "CMR2Decomp/RallyRoute.cpp": "994b5ec20055ca0a56941ad464450f265ae9e2889ab9da4bb53d24aa422f74b9",
       "CMR2Decomp/RallyRoute.h": "5eda732597706920da93ca7181af9320dc4b3a85e19342aeb68b19e92e10ce43",
@@ -167,8 +167,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "c949ab8e5aca3b24bab897bc6d9ad727bdff63f49b2db8f4e35f92d84bd85a15",
-    "pdb_sha256": "f66dac9d8de16d9f91ba57a7f0dce9c5002f3bea6eda45a02519a1aa829e40d8"
+    "exe_sha256": "6b9c53f9a0ed4a99793c57f1865bcc0a51433f2e6078293f8ee7ffdb520667ca",
+    "pdb_sha256": "9da6844784b3546461e3d4d672130d5da81b3a2c23f41c9b7ea7a6a72be5e30e"
   },
   "perfect_match_percent": 52.3,
   "fuzzy_match_percent": 93.38,

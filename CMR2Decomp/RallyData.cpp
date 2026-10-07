@@ -2933,7 +2933,8 @@ void RallyData_DrawCarStageGapPanel(int car, short *pRect)
     pixelFixed = (int)(__int64)((double)(rect[0] + 16 + marginX) * CGraphics::m_65536);
     dimensionFixed = (int)(__int64)((double)g_pGraphics->resX * CGraphics::m_65536);
     x = FixDiv(pixelFixed, dimensionFixed);
-    FormatGapToLeader(g_stageSplitData[car].targetTime, 4, 4, x, y,
+    // The running time UpdateCarSplitBar stores at 0x536e0c (times[0]).
+    FormatGapToLeader(g_stageSplitData[car].times[0], 4, 4, x, y,
                       &g_stageHudTextColour, 0x21, NULL, 0);
 
     stage = StageTiming_GetCheckpointField2(car);

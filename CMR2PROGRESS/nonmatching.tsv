@@ -141,7 +141,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x5051c0	RallyData_DrawCarSplitTimePanels	RallyData.cpp	965	0.6755407653910149	0.6897689768976898
 0x49ab90	CarEffects_InitDebris	CarEffects.cpp	905	0.6784452296819788	0.6492146596858639
 0x415480	RallyData_DrawNetworkStandingsPanel	RallyData.cpp	711	0.6814159292035398	0.700218818380744
-0x4129d0	RallyData_DrawCarStageGapPanel	RallyData.cpp	1922	0.6818181818181818	0.671604938271605
+0x4129d0	RallyData_DrawCarStageGapPanel	RallyData.cpp	1922	0.6835016835016835	0.6732510288065844
 0x4f8b30	FrontendRecords_BuildScrambledBestTimeTables	GameInfo.cpp	1793	0.6868327402135231	0.6875
 0x4a12d0	CGameInfo::EnumerateNetworkSessionsWithUserData	GameInfo.cpp	218	0.6868686868686869	0.6915887850467289
 0x42bf70	Car_InterpolateRenderTransforms	Car.cpp	2108	0.6875	0.6519756838905775
