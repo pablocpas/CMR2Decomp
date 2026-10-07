@@ -11570,7 +11570,7 @@
   },
   "0x4f8b30": {
     "n": "FrontendRecords_BuildScrambledBestTimeTables",
-    "s": 0.6270566727605119,
+    "s": 0.6875,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -23631,7 +23631,7 @@
   },
   "0x473d60": {
     "n": "StageObject_DrawInRacePauseMenu",
-    "s": 0.5788982259570495,
+    "s": 0.6072423398328691,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",

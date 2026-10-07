@@ -30,6 +30,15 @@
       "0x4ff060"
     ]
   },
+  "differential_best_time_codes.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4f8b30",
+      "0x4f8a90",
+      "0x4fb8d0",
+      "0x4fb9c0"
+    ]
+  },
   "differential_billboard_init.py": {
     "arguments": "both",
     "targets": [
