@@ -4620,10 +4620,6 @@ FixVector g_collisionSphereCentre;
 // match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // True when two spheres (radii r1, r2) overlap. The 32-bit EAX result is
 // tested by the callers (0x48a1f0), so the helper returns int, not bool.
-// match 81%: identical instruction stream and stack layout except that the
-// original kept the radius sum in a register with no home slot (its FixMul
-// operands spill into the dead r1/r2 argument slots) while MSVC6 here homes
-// it at [ebp-4], shifting the frame by four bytes.
 // FUNCTION: CMR2 0x00487b80
 int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB)
 {
@@ -4636,8 +4632,12 @@ int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB)
     delta.z = pA[2] - pB[2];
 
     if ((delta.x < 0 ? -delta.x : delta.x) <= r && (delta.y < 0 ? -delta.y : delta.y) <= r &&
-        (delta.z < 0 ? -delta.z : delta.z) <= r)
-        return FixVecDot(&delta, &delta) < FixMul(r1 + r2, r1 + r2);
+        (delta.z < 0 ? -delta.z : delta.z) <= r) {
+        int dot = FixVecDot(&delta, &delta);
+        r2 = r;
+        r1 = r;
+        return dot < FixMul(r1, r2);
+    }
     return 0;
 }
 
