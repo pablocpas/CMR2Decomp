@@ -78,7 +78,6 @@ int Sector_BuildC3DModelScene(unsigned int data, unsigned int parent, unsigned i
 // object and sector records into pointers, registers them in the scene node,
 // mesh, stage object and sector tables, loads the textures and re-uploads the
 // vertex buffers of every mesh.
-// match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b93c0
 void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_3)
 {
@@ -95,10 +94,11 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_
     int textureRecords;
     unsigned short recordSize;
     int savedNodeCount;
-    int i;
-    int j;
+    unsigned int i;
+    unsigned int j;
     int k;
     int *pField;
+    int *pRow;
     BYTE *p;
     BYTE *pEnd;
 
@@ -115,9 +115,12 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_
     pEnd = pRecords + recordSize * 0x5c;
     textureRecords = *(int *)(pData + 0xc) + (int)pData;
     if (*(int *)(pData + 0x20) != 0) {
-        pField = (int *)(pTriangles + 4);
+        // Ten texture indices per triangle (0x4c bytes) are moved past the
+        // textures already loaded.
+        pRow = (int *)(pTriangles + 4);
         do {
             k = 10;
+            pField = pRow;
             do {
                 if (*pField != -1)
                     *pField += (int)CGraphics::m_textureCount;
@@ -125,7 +128,7 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_
                 k--;
             } while (k != 0);
             count++;
-            pField += 0x13;
+            pRow += 0x13;
         } while (count < *(unsigned int *)(pData + 0x20));
     }
     Graphics_LoadTextureRecordList((int)pEnd, textureRecords,

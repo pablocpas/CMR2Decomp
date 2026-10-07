@@ -34,7 +34,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b5380	Scene_FreeShadowCasters	SceneNode.cpp	400	0.49070631970260226	0.5018181818181818
 0x46ea80	CarSkid_EmitSlippingWheelEffects	StageObjects.cpp	438	0.4934210526315789	0.5048543689320388
 0x4b6ca0	Scene_AttenuateSectorLight	Graphics.cpp	589	0.4958217270194986	0.4528301886792453
-0x4b93c0	Sector_RelocateStageMeshFile	Sector.cpp	1320	0.501187648456057	0.4744186046511628
 0x46e780	StageObject_StampPendingEventDraws	StageObjects.cpp	637	0.5038560411311054	0.4961636828644501
 0x45eca0	StageWeather_InitParticleAndLightState	StageTiming.cpp	512	0.5082872928176796	0.5257731958762887
 0x504eb0	RallyData_DrawClippedHudRectangleEdges	RallyData.cpp	776	0.511340206185567	0.5051334702258727
@@ -78,6 +77,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b1530	Billboard_Draw	Graphics.cpp	1078	0.584717607973422	0.5862646566164154
 0x4177d0	Race_DrawPlayerCallSlots	Race.cpp	1665	0.5883495145631068	0.5637707948243993
 0x4471b0	Dash_DrawNeedle	HudDash.cpp	882	0.5884353741496599	0.6013513513513513
+0x4b93c0	Sector_RelocateStageMeshFile	Sector.cpp	1320	0.5893491124260355	0.558891454965358
 0x471bf0	RallyData_ApplyPlayerFlagsToObjects	RallyData.cpp	204	0.5904761904761905	0.616822429906542
 0x4a6710	CGraphics::LoadTGATexture	Graphics.cpp	1816	0.5941499085923218	0.5878136200716846
 0x499ac0	Debris_Draw	CarEffects.cpp	786	0.5951035781544256	0.5623836126629422
