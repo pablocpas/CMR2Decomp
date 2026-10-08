@@ -335,7 +335,7 @@ void Dash_Update(int player)
 // FUNCTION: CMR2 0x00446270
 void Dash_DrawBar(int player, int layer)
 {
-    DashGearNames gears;
+    char gears[] = "RN123456";
     char text[16];
     short rect[4];
     SpriteRect src;
@@ -353,7 +353,6 @@ void Dash_DrawBar(int player, int layer)
     int frac;
     int extra;
 
-    gears = g_dashGearNames;
     dx = 0;
     dy = 0;
     lit = 0;
@@ -452,7 +451,7 @@ void Dash_DrawBar(int player, int layer)
     // Gear and speed.
     rect[0] = DASH_X(0xfd70) + 1 + dx;
     rect[1] = DASH_Y(0xfd70) + 3 + dy;
-    sprintf(text, g_strDashChar, gears.c[g_dashGear[player]]);
+    sprintf(text, g_strDashChar, gears[g_dashGear[player]]);
     rect[1] = rect[1] + (short)((g_pGraphics->resY * -2) / 480);
     Font_DrawText(6, text, rect[0], rect[1], (int *)g_dashWhite, 0x24);
     rect[0] = rect[0] + (short)((g_pGraphics->resX * -0x67) / 640);
@@ -491,7 +490,6 @@ void Dash_DrawDialFace(int *pCentre, int unused, Texture *pTexture)
 
 // Draws the needle of the dial: a thin quad from the tail to the tip, with
 // its point, rotated by angle about pCentre.
-// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004471b0
 void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, int tip, unsigned int angle,
                      BYTE *pColour, int layer)
@@ -504,18 +502,15 @@ void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, i
     int c[2];
     int d[2];
     int e[2];
+    int w1[2];
+    int w2[2];
+    int tipV[2];
+    int midV[2];
+    int tailV[2];
     int sx;
     int sy;
     int cx;
     int cy;
-    int w1x;
-    int w1y;
-    int w2x;
-    int w2y;
-    int tailX;
-    int tailY;
-    int midX;
-    int midY;
 
     point[0] = 0xf6;
     point[1] = 0xf6;
@@ -536,28 +531,44 @@ void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, i
         sx = 0x2800000;
         sy = 0x1e00000;
     }
-    cx = FixMul(pCentre[0], g_pGraphics->resX << 16) + (g_dashDialSrc.w / 2) * -0x10000;
+    cx = FixMul(pCentre[0], g_pGraphics->resX << 16);
     cy = FixMul(pCentre[1], g_pGraphics->resY << 16);
-    w1x = FixMul(FixMul(width, g_sinTable[angle & 0xfff]), sx);
-    w1y = FixMul(FixMul(FixMul(width, g_sinTable[(angle + 0x400) & 0xfff]), sy), g_dashAspect);
-    w2x = FixMul(FixMul(tipWidth, g_sinTable[angle & 0xfff]), sx);
-    w2y = FixMul(FixMul(FixMul(tipWidth, g_sinTable[(angle + 0x400) & 0xfff]), sy), g_dashAspect);
-    e[0] = FixMul(-FixMul(tip, g_sinTable[(angle + 0x400) & 0xfff]), sx);
-    e[1] = FixMul(FixMul(FixMul(tip, g_sinTable[angle & 0xfff]), sy), g_dashAspect);
-    midX = FixMul(-FixMul(mid, g_sinTable[(angle + 0x400) & 0xfff]), sx);
-    midY = FixMul(FixMul(FixMul(mid, g_sinTable[angle & 0xfff]), sy), g_dashAspect);
-    tailX = FixMul(-FixMul(tail, g_sinTable[(angle + 0x400) & 0xfff]), sx);
-    tailY = FixMul(FixMul(FixMul(tail, g_sinTable[angle & 0xfff]), sy), g_dashAspect);
-    a[0] = tailX + w1x + cx;
-    b[0] = tailX - w1x + cx;
-    b[1] = tailY - w1y + cy;
-    a[1] = w1y + tailY + cy;
-    c[0] = midX + w2x + cx;
-    d[0] = midX - w2x + cx;
-    e[0] = e[0] + cx;
-    d[1] = midY - w2y + cy;
-    e[1] = e[1] + cy;
-    c[1] = w2y + midY + cy;
+    cx += -(g_dashDialSrc.w / 2) << 16;
+    w1[0] = FixMul(width, g_sinTable[angle & 0xfff]);
+    w1[1] = FixMul(width, g_sinTable[(angle + 0x400) & 0xfff]);
+    w1[0] = FixMul(w1[0], sx);
+    w1[1] = FixMul(w1[1], sy);
+    w1[1] = FixMul(w1[1], g_dashAspect);
+    w2[0] = FixMul(tipWidth, g_sinTable[angle & 0xfff]);
+    w2[1] = FixMul(tipWidth, g_sinTable[(angle + 0x400) & 0xfff]);
+    w2[0] = FixMul(w2[0], sx);
+    w2[1] = FixMul(w2[1], sy);
+    w2[1] = FixMul(w2[1], g_dashAspect);
+    tipV[0] = -FixMul(tip, g_sinTable[(angle + 0x400) & 0xfff]);
+    tipV[1] = FixMul(tip, g_sinTable[angle & 0xfff]);
+    tipV[0] = FixMul(tipV[0], sx);
+    tipV[1] = FixMul(tipV[1], sy);
+    tipV[1] = FixMul(tipV[1], g_dashAspect);
+    midV[0] = -FixMul(mid, g_sinTable[(angle + 0x400) & 0xfff]);
+    midV[1] = FixMul(mid, g_sinTable[angle & 0xfff]);
+    midV[0] = FixMul(midV[0], sx);
+    midV[1] = FixMul(midV[1], sy);
+    midV[1] = FixMul(midV[1], g_dashAspect);
+    tailV[0] = -FixMul(tail, g_sinTable[(angle + 0x400) & 0xfff]);
+    tailV[1] = FixMul(tail, g_sinTable[angle & 0xfff]);
+    tailV[0] = FixMul(tailV[0], sx);
+    tailV[1] = FixMul(tailV[1], sy);
+    tailV[1] = FixMul(tailV[1], g_dashAspect);
+    a[0] = tailV[0] + w1[0] + cx;
+    a[1] = w1[1] + tailV[1] + cy;
+    b[0] = tailV[0] - w1[0] + cx;
+    b[1] = tailV[1] - w1[1] + cy;
+    c[0] = midV[0] + w2[0] + cx;
+    c[1] = w2[1] + midV[1] + cy;
+    d[0] = midV[0] - w2[0] + cx;
+    d[1] = midV[1] - w2[1] + cy;
+    e[0] = tipV[0] + cx;
+    e[1] = tipV[1] + cy;
     Tri2D_Queue(a, c, e, point, 2);
     Tri2D_Queue(a, e, b, body, 2);
     Tri2D_Queue(d, b, e, edge, 2);
@@ -565,14 +576,14 @@ void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, i
 
 // Analogue rev counter: the dial with its needle, the gear marker beside
 // the gear letters, the speed and the MPH/KPH plate.
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 99.7%: only the order of two `and`s differs (100% ignoring registers).
 // FUNCTION: CMR2 0x00446bf0
 void Dash_DrawDial(int player, int layer)
 {
-    DashGearNames gears;
+    char gears[] = "RN123456";
     char speed[12];
     char unit[12];
-    char letter[4];
+    char letter[2];
     int dialCentre[2];
     int needleCentre[2];
     short rect[4];
@@ -581,13 +592,11 @@ void Dash_DrawDial(int player, int layer)
     BYTE colour[4];
     BYTE shadow[4];
     Texture *pTexture;
-    DWORD c;
     short angle;
     int flash;
-    short i;
+    int i;
     int k;
 
-    gears = g_dashGearNames;
     sprintf(speed, g_strDashSpeedDigits, g_dashSpeedNext[player] >> 16);
     sprintf(unit, g_strDashMph);
     g_dashAspect = 0x15553;
@@ -598,8 +607,8 @@ void Dash_DrawDial(int player, int layer)
     }
     k = FixMul(FixDiv(g_dashSpeedPrev[player] + g_dashSpeedNext[player], 0x640000), 0x9110000);
     dialCentre[0] = 0xf333;
-    needleCentre[0] = 0xf333;
     dialCentre[1] = 0xd113;
+    needleCentre[0] = 0xf333;
     needleCentre[1] = 0xd113;
     angle = (short)(0x732 - (short)(FixMul(g_dashRev[player] + 0x1eb8, 0xb330000) >> 16));
     Dash_DrawNeedle(needleCentre, 0x100, 0xcc, -0x8cc, 0x1799, 0x18cc, angle, g_dashNeedleColour, layer);
@@ -610,11 +619,13 @@ void Dash_DrawDial(int player, int layer)
     rect[3] = DASH_Y(0x886);
     rect[2] = DASH_X(0x666);
     rect[0] = DASH_X(0xf45a) - 5;
-    c = *(DWORD *)g_dashReverseColour;
-    if (g_dashGear[player] != 0 && (c = *(DWORD *)g_dashNeutralColour, g_dashGear[player] != 1))
-        c = *(DWORD *)g_dashGearColour;
+    if (g_dashGear[player] == 0)
+        *(DWORD *)colour = *(DWORD *)g_dashReverseColour;
+    else if (g_dashGear[player] == 1)
+        *(DWORD *)colour = *(DWORD *)g_dashNeutralColour;
+    else
+        *(DWORD *)colour = *(DWORD *)g_dashGearColour;
     flash = g_dashGearFlash[player];
-    *(DWORD *)colour = c;
     if (flash > 0) {
         if (flash > 3) {
             colour[0] = 0xff;
@@ -629,9 +640,7 @@ void Dash_DrawDial(int player, int layer)
         }
     }
     rect[1] = (short)g_dashGearMarkerY[player];
-    shadow[0] = colour[0];
-    shadow[1] = colour[1];
-    shadow[2] = colour[2];
+    *(DWORD *)shadow = *(DWORD *)colour;
     shadow[3] = colour[3] >> 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, rect, shadow, 3);
     rect[1] = (short)g_dashGearMarker[player];
@@ -642,11 +651,11 @@ void Dash_DrawDial(int player, int layer)
     // Speed unit plate.
     src.x = 0;
     src.y = 0;
-    pTexture = (BYTE)CGameInfo::IsDashOptionEnabled() == 0 ? g_dashKphTexture : g_dashMphTexture;
+    pTexture = (BYTE)CGameInfo::IsDashOptionEnabled() != 0 ? g_dashMphTexture : g_dashKphTexture;
     src.w = pTexture->width;
     src.h = pTexture->height;
     dst.x = DASH_X(0xf78d);
-    dst.y = (short)((unsigned int)(g_pGraphics->resY * 0xd113) >> 16);
+    dst.y = (short)((int)(g_pGraphics->resY * 0xd113) >> 16);
     dst.w = src.w;
     dst.h = src.h;
     if (DASH_HIRES()) {
@@ -656,23 +665,19 @@ void Dash_DrawDial(int player, int layer)
         dst.x = dst.x - src.w / 2;
         dst.y = dst.y - 0xc;
     }
-    if ((BYTE)CGameInfo::IsDashOptionEnabled() == 0)
-        Sprite_Queue(&src, &dst, g_dashKphTexture, 2, 0, NULL, NULL,
+    if ((BYTE)CGameInfo::IsDashOptionEnabled() != 0)
+        Sprite_Queue(&src, &dst, g_dashMphTexture, 2, 0, NULL, NULL,
                      g_dashWhite, 8);
     else
-        Sprite_Queue(&src, &dst, g_dashMphTexture, 2, 0, NULL, NULL,
+        Sprite_Queue(&src, &dst, g_dashKphTexture, 2, 0, NULL, NULL,
                      g_dashWhite, 8);
 
     // Gear letters down the side of the dial.
-    i = 0;
-    k = 0xc553;
-    do {
-        sprintf(letter, g_strDashChar, gears.c[i]);
+    for (i = 0; i < 8; i++) {
+        sprintf(letter, g_strDashChar, gears[i]);
         Font_DrawText(0, letter, (FixMul(g_pGraphics->resX << 16, 0xf78d) >> 16) - 5,
-                      FixMul(g_pGraphics->resY << 16, k) >> 16, (int *)g_dashWhite, 0x12);
-        k -= 0xae1;
-        i++;
-    } while (k > 0x6e4b);
+                      FixMul(g_pGraphics->resY << 16, 0xc553 - i * 0xae1) >> 16, (int *)g_dashWhite, 0x12);
+    }
 }
 
 // Draws the dashboard of a player whose car shows one.

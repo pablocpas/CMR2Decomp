@@ -1641,9 +1641,9 @@
   },
   "0x489060": {
     "n": "Collision_RayQuad",
-    "s": 0.5171102661596958,
-    "x": false,
-    "fz": 0.679340937896071,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Collision2D.cpp",
     "symbol_name": "Collision_RayQuad"
@@ -12405,9 +12405,9 @@
   },
   "0x5091c0": {
     "n": "OptionPreview_BuildCornerHeightTransform",
-    "s": 0.34869516935036093,
-    "x": false,
-    "fz": 0.7717934480843975,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionPreview_BuildCornerHeightTransform"
@@ -15600,9 +15600,9 @@
   },
   "0x446270": {
     "n": "Dash_DrawBar",
-    "s": 0.7918848167539267,
+    "s": 0.7931937172774869,
     "x": false,
-    "fz": 0.8337696335078534,
+    "fz": 0.8350785340314136,
     "unknown": [],
     "f": "HudDash.cpp",
     "symbol_name": "Dash_DrawBar"
@@ -15618,18 +15618,18 @@
   },
   "0x4471b0": {
     "n": "Dash_DrawNeedle",
-    "s": 0.6013513513513513,
-    "x": false,
-    "fz": 0.6858108108108109,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "HudDash.cpp",
     "symbol_name": "Dash_DrawNeedle"
   },
   "0x446bf0": {
     "n": "Dash_DrawDial",
-    "s": 0.7073170731707317,
+    "s": 0.9974424552429667,
     "x": false,
-    "fz": 0.824390243902439,
+    "fz": 0.9999,
     "unknown": [],
     "f": "HudDash.cpp",
     "symbol_name": "Dash_DrawDial"

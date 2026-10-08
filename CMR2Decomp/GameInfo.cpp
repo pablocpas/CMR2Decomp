@@ -7276,7 +7276,6 @@ void OptionPreview_AnimatePreviewNodeTransforms(int index)
 // the option record (field_0x22c): the up axis is the sum of the two edge
 // normals, the other axes come from Gram-Schmidt and the position from the
 // average height.
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005091c0
 void OptionPreview_BuildCornerHeightTransform(int index)
 {
@@ -7287,6 +7286,9 @@ void OptionPreview_BuildCornerHeightTransform(int index)
     FixVector v2;
     FixVector cross1;
     FixVector cross2;
+    FixVector c[3];
+    FixVector *p0;
+    FixVector *p2;
     FixBasis basis;
     int a;
     int b;
@@ -7309,27 +7311,33 @@ void OptionPreview_BuildCornerHeightTransform(int index)
         if (f[i] < -0x1999)
             f[i] = -0x1999;
     }
-    a = FixMul(0x8000, f[3] + f[2]);
-    b = FixMul(0x8000, f[1] + f[0]);
-    v.x = pList[4] - pList[1];
+    a = FixMul(0x8000, f[2] + f[3]);
+    b = FixMul(0x8000, f[0] + f[1]);
+    // The corners are copied whole (y included) before taking the differences.
+    p0 = (FixVector *)&pList[1];
+    c[0] = *p0;
+    c[1] = *(FixVector *)&pList[4];
+    p2 = (FixVector *)&pList[7];
+    c[2] = *p2;
+    v.x = c[1].x - c[0].x;
     v.y = f[1] - f[0];
-    v.z = pList[6] - pList[3];
-    v2.x = pList[7] - pList[1];
+    v.z = c[1].z - c[0].z;
+    v2.x = c[2].x - c[0].x;
     v2.y = a - f[0];
-    v2.z = -pList[3];
+    v2.z = -c[0].z;
     FixVecCross(&cross1, &v, &v2);
     OPTIONS_FIX_NORMALIZE_FLIP(cross1);
-    v.x = pList[10] - pList[7];
+    c[0] = *p2;
+    c[1] = *(FixVector *)&pList[10];
+    c[2] = *p0;
+    v.x = c[1].x - c[0].x;
     v.y = f[3] - f[2];
-    v.z = pList[12] - pList[9];
-    v2.x = pList[1] - pList[7];
+    v.z = c[1].z - c[0].z;
+    v2.x = c[2].x - c[0].x;
     v2.y = b - f[2];
-    v2.z = -pList[9];
+    v2.z = -c[0].z;
     FixVecCross(&cross2, &v, &v2);
     OPTIONS_FIX_NORMALIZE_FLIP(cross2);
-    v.x = cross1.x + cross2.x;
-    v.y = cross1.y + cross2.y;
-    v.z = cross1.z + cross2.z;
     basis.right.x = 0x10000;
     basis.right.y = 0;
     basis.right.z = 0;
@@ -7339,6 +7347,9 @@ void OptionPreview_BuildCornerHeightTransform(int index)
     basis.forward.x = 0;
     basis.forward.y = 0;
     basis.forward.z = 0x10000;
+    v.x = cross1.x + cross2.x;
+    v.y = cross1.y + cross2.y;
+    v.z = cross1.z + cross2.z;
     FIX_NORMALIZE_INTO(cross1, v)
     basis.up.x = cross1.x;
     basis.up.y = cross1.y;
@@ -7350,9 +7361,21 @@ void OptionPreview_BuildCornerHeightTransform(int index)
     v.z = basis.right.z - v.z;
     FIX_NORMALIZE_INTO(basis.right, v)
     FixVecCross(&v, &basis.right, &basis.up);
-    FIX_NORMALIZE_INTO(basis.forward, v)
+    {
+        FixVector *pForward = &basis.forward;
+
+        len = FixVecLength(&v);
+        if (len == 0) {
+            pForward->x = 0;
+            pForward->y = 0;
+            pForward->z = 0;
+        } else {
+            FixVecScaleRecip(pForward, &v, len);
+        }
+    }
+    t = FixMul(0x8000, b + a);
     v.x = 0;
-    v.y = FixMul(0x8000, a + b);
+    v.y = t;
     v.z = 0;
     (*(SceneNode **)(pList[0] + 4))->useParentWorld = 0;
     FixMatrix_SetRight(&basis.right, &(*(SceneNode **)(pList[0] + 4))->current);
