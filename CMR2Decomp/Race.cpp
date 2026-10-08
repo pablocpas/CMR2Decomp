@@ -3282,15 +3282,13 @@ void Race_HandleStageReplayViewTransitions(BYTE *param1, unsigned int param2)
     BYTE *pPlayers = param1;
 
     count = *pPlayers;
-    i = 0;
     if (count > 0) {
         p = *(BYTE **)(pPlayers + 4);
-        do {
+        for (i = 0; i < count; i++) {
             if (*p != 11)
                 return;
-            i++;
             p += 8;
-        } while (i < count);
+        }
     }
     if ((char)param2 != 0)
         return;
@@ -3399,7 +3397,10 @@ void Race_HandleStageReplayViewTransitions(BYTE *param1, unsigned int param2)
         StageTiming_CopyCarTimesToRallyRecord(0);
         if (CGameInfo::GetConfiguredGameMode() != 4)
             Frontend_AccumulateDeviceKeyCounters();
-        if (CGameInfo::GetConfiguredGameMode() == 4) {
+        if (CGameInfo::GetConfiguredGameMode() != 4) {
+            for (i = 0; i < *pPlayers; i++)
+                CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)pPlayers, i, 0, 2);
+        } else {
             if (Knockout_ClearChampionshipPendingFlag() != 0) {
                 for (i = 0; i < *pPlayers; i++)
                     CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)pPlayers, i, 0, 2);
@@ -3413,8 +3414,6 @@ void Race_HandleStageReplayViewTransitions(BYTE *param1, unsigned int param2)
             g_unk0x0053810d = 0;
             return;
         }
-        for (i = 0; i < *pPlayers; i++)
-            CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)pPlayers, i, 0, 2);
 L_teardown:
         CGame::SetFrontendResourceMode(0);
         Race_ReleaseFrameResources();
@@ -3435,6 +3434,18 @@ L_teardown:
                 Game_SetOptionStateByte(1);
             }
             goto L_teardown2;
+        case 8:
+            for (i = 0; i < *pPlayers; i++)
+                CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)pPlayers, i, 0, 2);
+            if ((char)RallyData_AdvanceSelectedStage() != 0)
+                CGame::SetFrontendResourceMode(2);
+            else
+                CGame::SetFrontendResourceMode(0);
+            NetPlayers_ResetStageState(0, 0);
+            Race_ReleaseFrameResources();
+            StageUI_ClearRaceEndLatch();
+            NetPlayers_ResetRaceReadyAndTimeState(0, 0);
+            return;
         case 2:
         case 9:
         case 10:
@@ -3461,18 +3472,6 @@ L_teardown:
             for (i = 0; i < *pPlayers; i++)
                 CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)pPlayers, i, 0, 2);
             goto L_teardown2;
-        case 8:
-            for (i = 0; i < *pPlayers; i++)
-                CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)pPlayers, i, 0, 2);
-            if ((char)RallyData_AdvanceSelectedStage() != 0)
-                CGame::SetFrontendResourceMode(2);
-            else
-                CGame::SetFrontendResourceMode(0);
-            NetPlayers_ResetStageState(0, 0);
-            Race_ReleaseFrameResources();
-            StageUI_ClearRaceEndLatch();
-            NetPlayers_ResetRaceReadyAndTimeState(0, 0);
-            return;
         }
         break;
     case 1:
@@ -3504,15 +3503,6 @@ L_teardown:
                 CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)pPlayers, i, 0, 2);
             goto L_teardown2;
         }
-        break;
-    case 2:
-    case 3:
-        for (i = 0; i < *pPlayers; i++) {
-            if (Knockout_GetRoundActiveFlag() == 0)
-                CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)pPlayers, i, 0, 2);
-        }
-        if (CGameInfo::GetConfiguredGameMode() == 4)
-            Knockout_ClearRoundActiveFlag();
         break;
     case 4:
         switch (CGameInfo::GetConfiguredGameMode()) {
@@ -3559,6 +3549,15 @@ L_teardown:
             break;
         }
         break;
+    case 2:
+    case 3:
+        for (i = 0; i < *pPlayers; i++) {
+            if (Knockout_GetRoundActiveFlag() == 0)
+                CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)pPlayers, i, 0, 2);
+        }
+        if (CGameInfo::GetConfiguredGameMode() == 4)
+            Knockout_ClearRoundActiveFlag();
+        break;
     }
     if (CGameInfo::GetConfiguredGameMode() == 4 || (char)RallyData_GetFlag25() != 0)
         n = 2;
@@ -3566,11 +3565,12 @@ L_teardown:
         n = RallyDataState() & 0xff;
     if (n > 0) {
         pp = g_unk0x00537f3c;
-        for (i = 0; i < n; i++) {
+        i = n;
+        do {
             Replay_ResetBufferIfActive((int *)*pp);
             Replay_StopRecording(*pp);
             pp++;
-        }
+        } while (--i);
     }
     if (CGameInfo::GetGameModeOptionBit19() != 0 && n < 8) {
         pp = g_unk0x00537f3c + n;
@@ -4046,7 +4046,7 @@ void Race_PlayHornSound(unsigned int view, int kind, int listener)
     Race_PlayDistanceScaledCarSound(view, (unsigned short)(g_unk0x005373a8 + sound), 0x10000, listener);
 }
 
-void StageObject_SetBoundedWeatherKind(BYTE value);
+void StageObject_SetBoundedWeatherKind(int value);
 
 // GLOBAL: CMR2 0x00537350
 int g_unk0x00537350;
@@ -4673,8 +4673,8 @@ void Race_ComputeWheelSurfaceSoundVolumes(int param_1, int param_2)
             g_surfaceSlotMax = slotVolume;
     }
     if (pState->pattern != 0x19) {
-        weightInv = FixDiv(StageObject_GetCarSoundElapsedTime(param_1) - pState->time, 0x320000);
-        weight = 0x10000 - weightInv;
+        weight = FixDiv(StageObject_GetCarSoundElapsedTime(param_1) - pState->time, 0x320000);
+        weightInv = 0x10000 - weight;
     } else {
         weight = 0x10000;
         weightInv = 0;

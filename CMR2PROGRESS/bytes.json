@@ -19025,9 +19025,9 @@
   },
   "0x41e8d0": {
     "n": "Race_HandleStageReplayViewTransitions",
-    "s": 0.6140012845215157,
+    "s": 0.6976144422952933,
     "x": false,
-    "fz": 0.8208092485549133,
+    "fz": 0.9052224371373307,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "Race_HandleStageReplayViewTransitions"
@@ -19187,9 +19187,9 @@
   },
   "0x416f70": {
     "n": "Race_AdvanceRouteCalloutBlock",
-    "s": 0.7085714285714285,
-    "x": false,
-    "fz": 0.9714285714285714,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "Race_AdvanceRouteCalloutBlock"
@@ -19232,9 +19232,9 @@
   },
   "0x41a5c0": {
     "n": "Race_ComputeWheelSurfaceSoundVolumes",
-    "s": 0.6959199384141648,
+    "s": 0.6943802925327175,
     "x": false,
-    "fz": 0.8344880677444187,
+    "fz": 0.8329484218629715,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "Race_ComputeWheelSurfaceSoundVolumes"
