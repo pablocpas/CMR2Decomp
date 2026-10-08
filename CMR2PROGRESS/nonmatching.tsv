@@ -333,7 +333,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4dd4b0	FrontendMenu_DrawNetworkSessionSetup	FrontendScreens.cpp	3221	0.8675889328063241	0.8466135458167331
 0x47d5a0	StageObject_SpawnCarHeadlightGlow	StageObjects.cpp	673	0.8679245283018868	0.8752941176470588
 0x40dc30	RallyData_PickOpponentLineups	RallyData.cpp	765	0.8693877551020408	0.8640973630831643
-0x40fec0	RallyData_DrawLoadingProgress	RallyData.cpp	479	0.8695652173913043	0.8322147651006712
 0x502570	OptionMenu_InitDefaultRecordTables	GameInfo.cpp	191	0.8695652173913043	0.8695652173913043
 0x45d540	CarEffect_UpdateWheelSurfaceParticles	CarEffects.cpp	1677	0.8708815672306323	0.7676950998185118
 0x413fe0	RallyData_DrawStageTimePanel	RallyData.cpp	1036	0.8714069591527988	0.8700906344410876

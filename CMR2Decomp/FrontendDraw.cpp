@@ -65,7 +65,6 @@ int FrontendDraw_BreadcrumbItem(int x, int y, BYTE *pColour, char last, char *te
     return next;
 }
 
-// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d3fa0
 void FrontendDraw_Breadcrumb(int x, int y, char **ppText, int count)
 {

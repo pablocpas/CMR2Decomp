@@ -20762,9 +20762,9 @@
   },
   "0x40fec0": {
     "n": "RallyData_DrawLoadingProgress",
-    "s": 0.8322147651006712,
-    "x": false,
-    "fz": 0.87248322147651,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_DrawLoadingProgress"

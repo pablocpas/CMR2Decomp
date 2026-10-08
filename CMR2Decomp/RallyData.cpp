@@ -4936,7 +4936,6 @@ void RallyData_CreateFrontendChallengeScene(void)
 
 // Draws one item of a horizontal list and, unless it is the last one, the thin
 // separator after it; returns the x the next item starts at.
-// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040fd30
 int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha)
 {
@@ -4973,15 +4972,14 @@ void RallyData_DrawLoadingProgress(int progress, char drawScene, BYTE alpha)
 {
     BYTE colour[4];
     BYTE colourLit[4];
-    short rect[4];
     int i;
     int limit;
     int wide;
     int narrow;
 
     colour[0] = g_loadBarColour[0];
-    colour[2] = g_loadBarColour[2];
     colour[1] = g_loadBarColour[1];
+    colour[2] = g_loadBarColour[2];
     colour[3] = alpha;
     colourLit[0] = g_loadBarColourLit[0];
     colourLit[1] = g_loadBarColourLit[1];
@@ -5006,6 +5004,8 @@ void RallyData_DrawLoadingProgress(int progress, char drawScene, BYTE alpha)
         limit += 100;
     } while (limit < 1200);
     if (drawScene) {
+        short rect[4];
+
         rect[0] = 0;
         rect[1] = 0;
         rect[2] = (short)g_pGraphics->resX;

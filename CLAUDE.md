@@ -162,6 +162,10 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
 - `T s = {0};` stores the first member and zero-fills the rest from its end;
   dword stores that cover the whole struct from offset 0 are `memset(&s, 0,
   sizeof(s))` (Sound_CreatePcmSampleBuffer).
+- A frame 4+ bytes larger than the original, where an array of the original
+  shares its slot with a spill temp of an earlier loop, means the array is
+  declared in the block that uses it (`if (drawScene) { short rect[4]; ... }`,
+  RallyData_DrawLoadingProgress).
 
 ## Missing code
 

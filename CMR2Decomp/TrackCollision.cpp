@@ -863,7 +863,6 @@ void Graphics_SetFog(int start, int end, int a, int b, DWORD colour);
 
 // Sets the fog and the matching sky alpha: the sky fades out as the draw
 // distance reaches into the fog.
-// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00492fe0
 void Track_SetFogAndSkyAlpha(DWORD *pColour, int start, int end)
 {

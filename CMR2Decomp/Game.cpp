@@ -628,7 +628,6 @@ int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
 // Draws a boot/HUD label at (x, y) in a colour that fades out 2.5 s after the
 // frame timer was last reset; unless flag is set it also fills the 2 pixel wide
 // bar that follows the text. Returns the x after the bar.
-// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d0d30
 int Game_DrawFadingBootLabel(int x, int y, char *pText, char flag)
 {
