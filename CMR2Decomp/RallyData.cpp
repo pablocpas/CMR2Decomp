@@ -5829,31 +5829,29 @@ int g_unk0x005337cc;
 // FUNCTION: CMR2 0x0040e210
 int RallyData_PickUnexcludedGroupEvent(int exclude1, int exclude2)
 {
-    int *choices = &g_unk0x00533758[17];
-
     if (exclude1 != 0x13 && exclude1 != 0x11 && exclude1 != 0x12) {
-        choices[0] = 0;
-        choices[1] = 0;
-        choices[2] = 0;
-        choices[3] = 0;
+        g_unk0x00533758[17] = 0;
+        g_unk0x00533758[18] = 0;
+        g_unk0x00533758[19] = 0;
+        g_unk0x00533758[20] = 0;
         if (exclude1 >= 0)
             g_unk0x00533758[5 + exclude1] = 1;
         if (exclude2 >= 0)
             g_unk0x00533758[5 + exclude2] = 1;
         g_unk0x005337cc = rand() % 4;
-        while (choices[g_unk0x005337cc] == 1)
+        while (g_unk0x00533758[17 + g_unk0x005337cc] == 1)
             g_unk0x005337cc = rand() % 4;
         return g_unk0x005337cc + 12;
     }
-    choices[0] = 0;
-    choices[1] = 0;
-    choices[2] = 0;
+    g_unk0x00533758[17] = 0;
+    g_unk0x00533758[18] = 0;
+    g_unk0x00533758[19] = 0;
     if (exclude1 >= 0)
         g_unk0x00533758[exclude1] = 1;
     if (exclude2 >= 0)
         g_unk0x00533758[exclude2] = 1;
     g_unk0x005337cc = rand() % 3;
-    while (choices[g_unk0x005337cc] == 1)
+    while (g_unk0x00533758[17 + g_unk0x005337cc] == 1)
         g_unk0x005337cc = rand() % 3;
     return g_unk0x005337cc + 0x11;
 }

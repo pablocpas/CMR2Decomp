@@ -8661,9 +8661,9 @@
   },
   "0x49cbc0": {
     "n": "Game_CompareTransparentDrawEntries",
-    "s": 0.5087719298245614,
+    "s": 0.4424778761061947,
     "x": false,
-    "fz": 0.9649122807017544,
+    "fz": 0.9911504424778761,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "Game_CompareTransparentDrawEntries"
@@ -21185,9 +21185,9 @@
   },
   "0x40e210": {
     "n": "RallyData_PickUnexcludedGroupEvent",
-    "s": 0.863013698630137,
+    "s": 0.8904109589041096,
     "x": false,
-    "fz": 0.9178082191780822,
+    "fz": 0.9452054794520548,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_PickUnexcludedGroupEvent"
@@ -22880,9 +22880,9 @@
   },
   "0x4a20c0": {
     "n": "Sound_CreatePcmSampleBuffer",
-    "s": 0.8666666666666667,
-    "x": false,
-    "fz": 0.9333333333333333,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Sound.cpp",
     "symbol_name": "Sound_CreatePcmSampleBuffer"
@@ -22898,9 +22898,9 @@
   },
   "0x4a24a0": {
     "n": "Sound_BuildSlotLoopBuffer",
-    "s": 0.8408163265306122,
+    "s": 0.9105691056910569,
     "x": false,
-    "fz": 0.8734693877551021,
+    "fz": 0.9186991869918699,
     "unknown": [],
     "f": "Sound.cpp",
     "symbol_name": "Sound_BuildSlotLoopBuffer"
@@ -28939,9 +28939,9 @@
   },
   "0x418f20": {
     "n": "StageSound_ResetRecordsAndRegisterCleanup",
-    "s": 0.5979381443298969,
+    "s": 0.6041666666666666,
     "x": false,
-    "fz": 0.9484536082474226,
+    "fz": 0.9999,
     "unknown": [],
     "f": "StageUI.cpp",
     "symbol_name": "StageSound_ResetRecordsAndRegisterCleanup"
@@ -29551,9 +29551,9 @@
   },
   "0x492fe0": {
     "n": "Track_SetFogAndSkyAlpha",
-    "s": 0.8366013071895425,
-    "x": false,
-    "fz": 0.9150326797385621,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "TrackCollision.cpp",
     "symbol_name": "Track_SetFogAndSkyAlpha"

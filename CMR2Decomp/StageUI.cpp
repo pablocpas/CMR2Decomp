@@ -111,6 +111,7 @@ int StageUI_ReleaseHUDResources(void)
 // FUNCTION: CMR2 0x00418f20
 void StageSound_ResetRecordsAndRegisterCleanup(void)
 {
+    int car;
     int i;
 
     g_unk0x00537660 = 0;
@@ -118,20 +119,17 @@ void StageSound_ResetRecordsAndRegisterCleanup(void)
     memset(g_surfacePrevA, 0, sizeof(g_surfacePrevA));
     memset(g_surfacePrevC, 0, sizeof(g_surfacePrevC));
     memset(g_surfacePrevD, 0, sizeof(g_surfacePrevD));
-    // The original walks the eight per-car sound states (0xb4 bytes each) with
-    // a cursor on the countOld field, keeping the loop cursor in a single
-    // register.
-    for (RaceCarSoundState *pState = g_carSoundStates; (int)pState < (int)(g_carSoundStates + 8); pState++) {
+    for (car = 0; car < 8; car++) {
         for (i = 0; i < 10; i++) {
-            pState->handle[i] = -1;
-            pState->id[i] = -1;
+            g_carSoundStates[car].handle[i] = -1;
+            g_carSoundStates[car].id[i] = -1;
         }
-        pState->countOld = 0;
-        pState->count = 0;
-        memset(pState->slotState, 0xff, sizeof(pState->slotState));
-        pState->stateOld = -1;
-        pState->state = -1;
-        pState->pattern = 0x19;
+        g_carSoundStates[car].countOld = 0;
+        g_carSoundStates[car].count = 0;
+        memset(g_carSoundStates[car].slotState, 0xff, sizeof(g_carSoundStates[car].slotState));
+        g_carSoundStates[car].stateOld = -1;
+        g_carSoundStates[car].state = -1;
+        g_carSoundStates[car].pattern = 0x19;
     }
     if (g_unk0x00537dcc == 0) {
         CGame::RegisterCallback(StageUI_ReleaseHUDResources, NULL);

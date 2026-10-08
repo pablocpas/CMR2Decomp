@@ -872,6 +872,7 @@ void Track_SetFogAndSkyAlpha(DWORD *pColour, int start, int end)
     int t;
     int alpha;
     int range;
+    char a;
 
     rgb[0] = ((BYTE *)pColour)[0];
     rgb[1] = ((BYTE *)pColour)[1];
@@ -879,29 +880,25 @@ void Track_SetFogAndSkyAlpha(DWORD *pColour, int start, int end)
     Graphics_SetFog(start, end, start, end, *(DWORD *)rgb);
     distance = (CGameInfo::GetGraphicsOptionBits21To24() + 2) * 0x320000;
     if (distance < start) {
-        g_unk0x00592146 = 0xff;
-        g_stageColourAlpha = 0xff;
-        return;
+        a = -1;
+    } else if (distance > end) {
+        a = 0;
+    } else {
+        t = distance - start;
+        range = end - start;
+        if (range == 0)
+            g_unk0x00592146 = 0;
+        else
+            t = FixDiv(t, range);
+        alpha = FixMul(t, 0xff0000) >> 16;
+        if (alpha > 0xff)
+            alpha = 0xff;
+        else if (alpha < 0)
+            alpha = 0;
+        a = -1 - alpha;
     }
-    if (distance > end) {
-        g_unk0x00592146 = 0;
-        g_stageColourAlpha = 0;
-        return;
-    }
-    t = distance - start;
-    range = end - start;
-    if (range == 0)
-        g_unk0x00592146 = 0;
-    else
-        t = FixDiv(t, range);
-    alpha = FixMul(t, 0xff0000) >> 16;
-    if (alpha >= 0x100)
-        alpha = 0xff;
-    else if (alpha < 0)
-        alpha = 0;
-    alpha = -1 - alpha;
-    g_unk0x00592146 = (BYTE)alpha;
-    g_stageColourAlpha = (BYTE)alpha;
+    g_unk0x00592146 = a;
+    g_stageColourAlpha = a;
 }
 
 // Tracks how fast the rolling direction of the auto-gear car follows its
