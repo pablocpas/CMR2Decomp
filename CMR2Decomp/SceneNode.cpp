@@ -2222,18 +2222,18 @@ void Scene_SetLightColour(SceneNode *pNode, int r, int g, int b)
 
 // Light level (0..1) of one corner of a mesh triangle for a light direction:
 // four times the dot product of its vertex normal with pDir, clamped.
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b4040
 int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int corner)
 {
-    float *pVertex;
     FixVector normal;
     int level;
 
-    pVertex = (float *)((BYTE *)pMesh->pVertexData + pTri->vertexIndex[corner] * 0x30);
-    normal.x = (int)(__int64)(pVertex[3] * CGraphics::m_65536);
-    normal.y = (int)(__int64)(pVertex[4] * CGraphics::m_65536);
-    normal.z = (int)(__int64)(pVertex[5] * CGraphics::m_65536);
+#define CORNER_NORMAL(i) \
+    ((float *)((BYTE *)pMesh->pVertexData + pTri->vertexIndex[corner] * 0x30))[3 + (i)]
+    normal.x = (int)(__int64)(CORNER_NORMAL(0) * CGraphics::m_65536);
+    normal.y = (int)(__int64)(CORNER_NORMAL(1) * CGraphics::m_65536);
+    normal.z = (int)(__int64)(CORNER_NORMAL(2) * CGraphics::m_65536);
+#undef CORNER_NORMAL
     level = FixMul(FixVecDot(pDir, &normal), 0x40000);
     if (level < 0)
         return 0;

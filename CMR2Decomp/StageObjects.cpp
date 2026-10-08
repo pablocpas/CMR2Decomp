@@ -5600,23 +5600,20 @@ int RallyData_GetChallengeRenderState(void);
 
 // Destroys, in the four node tables, the nodes of every car that belong to
 // the current stage kind.
-// match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004866a0
 void StageObject_DestroyStageKindCarNodes(void)
 {
     int car;
     int i;
-    SceneNode *pNode;
 
+#define CAR_NODE (*(SceneNode **)((BYTE *)g_unk0x00590d7c[i] + car * 0x1a0))
     for (car = 0; car < g_unk0x00590c64; car++) {
         for (i = 0; i < 4; i++) {
-            if (*(SceneNode **)((BYTE *)g_unk0x00590d7c[i] + car * 0x1a0) != NULL) {
-                pNode = *(SceneNode **)((BYTE *)g_unk0x00590d7c[i] + car * 0x1a0);
-                if ((int)pNode->pParent == RallyData_GetChallengeRenderState())
-                    SceneNode_Destroy(pNode);
-            }
+            if (CAR_NODE != NULL && (int)CAR_NODE->pParent == RallyData_GetChallengeRenderState())
+                SceneNode_Destroy(CAR_NODE);
         }
     }
+#undef CAR_NODE
 }
 
 // FUNCTION: CMR2 0x0048d850

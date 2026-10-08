@@ -1965,9 +1965,9 @@
   },
   "0x4b9f20": {
     "n": "FixMatrix_Multiply",
-    "s": 0.8571428571428571,
-    "x": false,
-    "fz": 0.9774436090225563,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FixedPoint.cpp",
     "symbol_name": "FixMatrix_Multiply"
@@ -10506,18 +10506,18 @@
   },
   "0x509d00": {
     "n": "OptionPreview_ClearSkyFadeShape",
-    "s": 0.8695652173913043,
-    "x": false,
-    "fz": 0.8695652173913043,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionPreview_ClearSkyFadeShape"
   },
   "0x509d90": {
     "n": "OptionPreview_ClearColourFractions",
-    "s": 0.8695652173913043,
-    "x": false,
-    "fz": 0.8695652173913043,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionPreview_ClearColourFractions"
@@ -12873,9 +12873,9 @@
   },
   "0x50a920": {
     "n": "OptionMenu_DrawResultsRallyInfo",
-    "s": 0.9236471460340994,
+    "s": 0.9177168272794662,
     "x": false,
-    "fz": 0.9770200148257969,
+    "fz": 0.9740548554484804,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_DrawResultsRallyInfo"
@@ -14050,18 +14050,18 @@
   },
   "0x4a5730": {
     "n": "CGraphics::GetPixelRed",
-    "s": 0.7272727272727273,
-    "x": false,
-    "fz": 0.8939393939393939,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::GetPixelRed"
   },
   "0x4a57e0": {
     "n": "CGraphics::GetPixelAlpha",
-    "s": 0.8153846153846154,
-    "x": false,
-    "fz": 0.9384615384615385,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::GetPixelAlpha"
@@ -14230,9 +14230,9 @@
   },
   "0x4bd970": {
     "n": "CGraphics::SetMipMapCount",
-    "s": 0.9696969696969697,
-    "x": false,
-    "fz": 0.9696969696969697,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::SetMipMapCount"
@@ -22238,9 +22238,9 @@
   },
   "0x4b4040": {
     "n": "Mesh_GetCornerLight",
-    "s": 0.8805970149253731,
-    "x": false,
-    "fz": 0.9701492537313433,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Mesh_GetCornerLight"
@@ -24950,9 +24950,9 @@
   },
   "0x4866a0": {
     "n": "StageObject_DestroyStageKindCarNodes",
-    "s": 0.8059701492537313,
-    "x": false,
-    "fz": 0.9253731343283582,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_DestroyStageKindCarNodes"

@@ -90,7 +90,7 @@ void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tR
 void FixMatrix_FromAxisAngle(FixMatrix *pOut, FixVector *pAxis, int angle);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
-void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB);
+FixMatrix *FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB);
 void FixMatrix_Identity(FixMatrix *pOut);
 void FixMatrix_RotationZ(FixMatrix *pOut, unsigned int angle);
 void FixMatrix_TransformAboutPivot(FixVector *pOut, FixVector *pIn, FixVector *pPivot, FixMatrix *pM);
