@@ -238,8 +238,8 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x411450	RallyData_ResetStageClockAndRecords	RallyData.cpp	244	0.7796610169491526	0.6554621848739496
 0x484e00	CarDamage_StepClimbingCarRecords	StageObjects.cpp	316	0.780952380952381	0.7358490566037735
 0x4373c0	Car_UpdateRollover	Car.cpp	2470	0.782312925170068	0.7676902536715621
+0x4b7de0	Sector_CullGridAroundViewNode	Sector.cpp	1164	0.7838541666666666	0.7896774193548387
 0x4fc070	FrontendControls_UpdateBindingCapture	FrontendMenus.cpp	1042	0.7855973813420621	0.7533333333333333
-0x4b7de0	Sector_CullGridAroundViewNode	Sector.cpp	1164	0.7859007832898173	0.7416020671834626
 0x48e0a0	Collision_TestCarAgainstSectorEdges	StageObjects.cpp	1173	0.7864214992927864	0.6645865834633385
 0x41b060	CGame::UpdateInRaceCallbackMachine	Game.cpp	643	0.7874396135265701	0.7860696517412935
 0x49a910	Car_QueueWindowBreak	CarEffects.cpp	522	0.7881040892193308	0.7601476014760148
@@ -348,7 +348,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x402460	InRaceMenu_DrawNetworkPlayerList	GameInfo.cpp	1124	0.8751677852348994	0.8817204301075269
 0x4ef190	FrontendScroller_RecomputeAllAttached	FrontendScreens.cpp	222	0.8774193548387097	0.8888888888888888
 0x492fe0	Track_SetFogAndSkyAlpha	TrackCollision.cpp	205	0.8774193548387097	0.8366013071895425
-0x4b8270	Sector_RebuildStageGrid	Sector.cpp	480	0.8775510204081632	0.8338983050847457
 0x4b4040	Mesh_GetCornerLight	SceneNode.cpp	190	0.8805970149253731	0.8805970149253731
 0x4bbc60	Quad2D_Queue	Sprite.cpp	283	0.8819875776397516	0.8888888888888888
 0x48e730	Collision_ResolveSectorFaceContact	StageObjects.cpp	3265	0.882	0.877
@@ -431,6 +430,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x460a30	StageObject_DeriveLoadedScaleVector	StageObjects.cpp	302	0.9433962264150944	0.9433962264150944
 0x4e77c0	FrontendMenu_DrawNetworkPlayerSetup	FrontendScreens.cpp	1788	0.9441984056687334	0.9239033124440466
 0x4d39a0	FrontendDraw_RallyEntryList	FrontendDraw.cpp	1246	0.9449423815620999	0.9480354879594424
+0x4b8270	Sector_RebuildStageGrid	Sector.cpp	480	0.9455782312925171	0.9016949152542373
 0x4d3e80	FrontendDraw_BreadcrumbItem	FrontendDraw.cpp	282	0.9468085106382979	0.9523809523809523
 0x46bb40	StageObject_RebuildOrderedWheelVisibility	StageObjects.cpp	452	0.9497206703910615	0.9447852760736196
 0x44d790	GameMenu_DrawStageWinner	GameMenus.cpp	464	0.9506172839506173	0.9506172839506173

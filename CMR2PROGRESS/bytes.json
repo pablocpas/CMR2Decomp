@@ -22454,18 +22454,18 @@
   },
   "0x4b7de0": {
     "n": "Sector_CullGridAroundViewNode",
-    "s": 0.7416020671834626,
+    "s": 0.7896774193548387,
     "x": false,
-    "fz": 0.8630490956072352,
+    "fz": 0.8593548387096774,
     "unknown": [],
     "f": "Sector.cpp",
     "symbol_name": "Sector_CullGridAroundViewNode"
   },
   "0x4b8270": {
     "n": "Sector_RebuildStageGrid",
-    "s": 0.8338983050847457,
+    "s": 0.9016949152542373,
     "x": false,
-    "fz": 0.976271186440678,
+    "fz": 0.9694915254237289,
     "unknown": [],
     "f": "Sector.cpp",
     "symbol_name": "Sector_RebuildStageGrid"

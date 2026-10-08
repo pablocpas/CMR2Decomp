@@ -657,7 +657,7 @@ void Sector_CullGridAroundViewNode(SceneNode *pNode, int unused)
     rem = iSector % g_sectorsPerRow;
     quo = iSector / g_sectorsPerRow;
     colStart = rem - spread - 1;
-    if (colStart < 0)
+    if (colStart <= -1)
         colStart = 0;
     colEnd = rem + spread + 2;
     if (colEnd > g_sectorsPerRow)
@@ -777,8 +777,8 @@ void Sector_RebuildStageGrid(void)
         Sector *pB;
 
         while (g_sectorsPerRow < g_sectorCount - 1) {
-            pA = g_sectors[g_sectorsPerRow];
             pB = g_sectors[g_sectorsPerRow + 1];
+            pA = g_sectors[g_sectorsPerRow];
             g_sectorsPerRow++;
             if (pA->z != pB->z)
                 break;

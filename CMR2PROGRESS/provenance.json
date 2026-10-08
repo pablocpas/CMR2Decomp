@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "beb5921d4d39d566df7a18754695d2abcb5f926b",
+    "commit": "420242812fe386f4477513e90939d0aab3fc3ae9",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -112,7 +112,7 @@
       "CMR2Decomp/RegKey.h": "cb2934244f3e58e032b9644f58ea83230965ed366c7000fb4690ef50d5bb62c4",
       "CMR2Decomp/SceneNode.cpp": "3b7c8f7ddc6d22e78d02da768cd76a9c1a807a43b3fc9a1100129680ee4e96e3",
       "CMR2Decomp/SceneNode.h": "787adc304582568790e9a3985d1a47df79f88cd344b36e8b7a19e11419a41ef5",
-      "CMR2Decomp/Sector.cpp": "345f4b7fa7490ed1a1abc7415592337a1e40de935c37542f4c74efd7eaa0c610",
+      "CMR2Decomp/Sector.cpp": "13b407fc6500210f07e815cef282af6dcd2b4d0abcb47a07124993708e1e4940",
       "CMR2Decomp/Sector.h": "a2289419006caae16b3a6690c115af713ae03e7383e898727cd9f6ca1a3018f1",
       "CMR2Decomp/Sound.cpp": "9cb5cd018ecba46c1769faed3d2b2fc9ecb74a45b02934545537c9ae03d9bb93",
       "CMR2Decomp/Sound.h": "5b972d156316f420fed6f54f55d219e8f2863df1219bb9c22e755fcbe474c015",
@@ -167,8 +167,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "2b6efadffe809218afa17635b7dbf81ea2b586536f4e305dafb627972e32ee33",
-    "pdb_sha256": "369c2d89e0aa856fbfa50b0e92583336debe0c8efd27a39aee7076403eac8730"
+    "exe_sha256": "042b71fe6e2955672ea1f84e3eef91cc012697914fc8a4cf3f95766179aa07aa",
+    "pdb_sha256": "5f911572aba7f51dbaa111c3a4f4112a245def403a7c89b882ada59bd4405bf7"
   },
   "perfect_match_percent": 52.72,
   "fuzzy_match_percent": 93.43,
