@@ -1,0 +1,42 @@
+diff --git a/CMR2Decomp/StageObjects.cpp b/CMR2Decomp/StageObjects.cpp
+index 70cd76b..f7fc136 100644
+--- a/CMR2Decomp/StageObjects.cpp
++++ b/CMR2Decomp/StageObjects.cpp
+@@ -7421,11 +7421,14 @@ int Replay_Save(BYTE *pBuffer, char *pName)
+ void Replay_SetupPointers(ReplayStream *p, int unused)
+ {
+     BYTE *pData;
++    int type;
+     int recordSize;
+     int extraSize;
++    int laneCapacity;
+ 
++    type = p->type;
+     pData = (BYTE *)p + 0x110;
+-    if (p->type == 0) {
++    if (type == 0) {
+         p->pInputs = pData;
+         p->pStates = NULL;
+         recordSize = 0x114c;
+@@ -7434,16 +7437,17 @@ void Replay_SetupPointers(ReplayStream *p, int unused)
+         p->pInputs = NULL;
+         recordSize = 0x5c;
+     }
+-    if (p->type == 2) {
++    laneCapacity = p->laneCapacity;
++    if (type == 2) {
+         p->pFrames = NULL;
+         extraSize = 0x10;
+-        p->pSamples = (BYTE *)p + p->laneCapacity * recordSize + 0x110;
++        p->pSamples = (BYTE *)p + laneCapacity * recordSize + 0x110;
+     } else {
+         p->pSamples = NULL;
+         extraSize = 4;
+-        p->pFrames = (BYTE *)p + p->laneCapacity * recordSize + 0x110;
++        p->pFrames = (BYTE *)p + laneCapacity * recordSize + 0x110;
+     }
+-    p->pLaneSamples = (short *)((BYTE *)p + (p->samplesPerLane * extraSize + recordSize) * p->laneCapacity + 0x110);
++    p->pLaneSamples = (short *)((BYTE *)p + (p->samplesPerLane * extraSize + recordSize) * laneCapacity + 0x110);
+ }
+ 
+ // Velocity between the two replay poses (from at +0, to at +0x40), minus three

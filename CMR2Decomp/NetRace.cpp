@@ -769,7 +769,7 @@ void NetRace_PackCarState(Car *car)
             if (axis->z >= 0) heading = 0xb40000 - heading;
             else heading += 0xb40000;
         }
-        if (axis->y <= 0) elevation = 0xb40000 - elevation;
+        if (axis->y < 1) elevation = 0xb40000 - elevation;
         value = (float)((double)heading * CGraphics::m_oneOver65536 * g_netHeadingScale * g_netByteScale);
         float vertical = (float)(double)elevation * CGraphics::m_oneOver65536 * g_netElevationScale * g_netByteScale;
         if (value < g_netZero) value = 0.0f;

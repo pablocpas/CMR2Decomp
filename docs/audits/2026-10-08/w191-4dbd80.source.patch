@@ -1,0 +1,52 @@
+diff --git a/CMR2Decomp/CascadeSeedDeps.cpp b/CMR2Decomp/CascadeSeedDeps.cpp
+index 0fd0b5d..2b27d13 100644
+--- a/CMR2Decomp/CascadeSeedDeps.cpp
++++ b/CMR2Decomp/CascadeSeedDeps.cpp
+@@ -56,8 +56,10 @@ void FUN_0049bcb0(Menu *pMenu) { }
+ void FUN_00473d60(Menu *pMenu) { }
+ 
+ // Scaffolding for the FrontendScreens batch: callees that do not exist yet.
+-// STUB: CMR2 0x004dbd80
++#if 0 // LOCAL ONLY
++// STUB CMR2 0x004dbd80 (real body in FrontendScreens.cpp)
+ void FUN_004dbd80(Menu *pMenu) { }
++#endif
+ 
+ // STUB: CMR2 0x004f8b30
+ void FUN_004f8b30(void) { }
+diff --git a/CMR2Decomp/FrontendScreens.cpp b/CMR2Decomp/FrontendScreens.cpp
+index c1cd865..aaa6f1f 100644
+--- a/CMR2Decomp/FrontendScreens.cpp
++++ b/CMR2Decomp/FrontendScreens.cpp
+@@ -5897,8 +5897,7 @@ void FUN_004d5ad0(int x, int y, short phase)
+ void FUN_004d5fb0(Menu *pMenu)
+ {
+     char *text[2];
+-    int x;
+-    int y;
++    int x, y;
+     int i;
+ 
+     g_dotIconPhase = (short)(((CMain::GetFrameDelta() + 1) * -0x2000) / 360);
+@@ -10905,17 +10904,17 @@ extern char g_noTimeText[];
+ // FUNCTION: CMR2 0x004dbd80
+ void FUN_004dbd80(Menu *pMenu)
+ {
+-    int order[8] = { 6, 3, 1, 4, 0, 2, 5, 7 };
+-    BYTE *table;
+     int x;
+     int y;
++    int order[8] = { 6, 3, 1, 4, 0, 2, 5, 7 };
++    BYTE v0;
++    BYTE v1;
+     int width;
++    BYTE *table;
+     int shown;
+     int i;
+     int count;
+     int w;
+-    BYTE v0;
+-    BYTE v1;
+     unsigned int time;
+ 
+     RallyDataCountryIndex();

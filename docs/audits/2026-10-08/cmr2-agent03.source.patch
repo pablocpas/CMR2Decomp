@@ -1,0 +1,132 @@
+diff --git a/CMR2Decomp/StageTiming.cpp b/CMR2Decomp/StageTiming.cpp
+index 024bc6d..e451a97 100644
+--- a/CMR2Decomp/StageTiming.cpp
++++ b/CMR2Decomp/StageTiming.cpp
+@@ -519,10 +519,10 @@ void StageTiming_Reset(void)
+     {
+         for (i = 0; i < 16; i++)
+         {
++            *(volatile int *)&g_stageSplitTimesRaw[iSplit][i] = 0;
+             g_stageSplitDriverIndices[iSplit][i] = i;
+             g_stageSplitPositions[iSplit][i] = i;
+             g_stageSplitTimesRawDriverIx[iSplit][i] = i;
+-            *(volatile int *)&g_stageSplitTimesRaw[iSplit][i] = 0;
+         }
+     }
+ }
+@@ -3534,8 +3534,8 @@ void CarPart_IntegrateVerticalAxisTurn(void)
+     unsigned short angles[3];
+ 
+     if ((g_partState->flags & 0xf0) == 0x20) {
+-        int direction = *(int *)&g_partState->basis;
+         angles[0] = 0;
++        int direction = *(int *)&g_partState->basis;
+         angles[1] = 0;
+         if (direction < 0)
+             angles[2] = (unsigned short)g_unk0x00590c68;
+@@ -3570,13 +3570,13 @@ int RallyData_GetRouteAvailabilityState(void);
+ BYTE *StageTiming_RelocateCarRecordRoutePoints(BYTE *p, int unused, int count)
+ {
+     int origin[3];
+-    int points;
++    short points;
+     int *pp;
+     int i;
+ 
+     RallyData_GetRouteNodeGroundPosition(0, origin);
+     points = RallyData_GetRouteAvailabilityState();
+-    for (pp = g_unk0x00592748; count >= 1; count--, pp++) {
++    for (pp = g_unk0x00592748; count > 0; count--, pp++) {
+         *pp = (int)p;
+         p += 0x1720;
+         for (i = 0; i < points; i++) {
+@@ -3805,16 +3805,13 @@ void CarTyres_CommitPlayerWear(int a, int b, int count)
+             for (j = 0; j < 4; j++, w++) {
+                 if (a == 0 && b == 0) {
+                     w[0] = w[-0xc];
+-                    if (w[-0x10] < w[-0x14])
+-                        w[-8] = w[-0x14];
+-                    else
+-                        w[-8] = w[-0x10];
++                    w[-8] = (w[-0x10] < w[-0x14]) ? w[-0x14] : w[-0x10];
+                     w[-4] = 0;
+                 }
+-                w[0xc] = w[0];
+                 w[4] = w[-4];
+                 w[8] = w[-8];
+                 RallyData_MarkTyresChanged((StageUI_GetRaceEndEventCount() & 0xff) + i);
++                w[0xc] = w[0];
+                 Tyre_AddWear(i, j, 0, 0);
+             }
+         }
+@@ -4765,7 +4762,8 @@ void ForceFeedback_ComputeSteeringForce(void)
+     else if (speed < 0)
+         speed = 0;
+     force = FixMul(speed, force);
+-    force = FixMul(force, 0x6666) + g_unk0x00539278->field_0x20;
++    force = FixMul(force, 0x6666);
++    force += g_unk0x00539278->field_0x20;
+     if (g_unk0x00539278->field_0x30 != 0)
+         force += g_unk0x00539278->field_0x24;
+     else
+@@ -4794,8 +4792,8 @@ void ForceFeedback_ComputeAxleRumble(void)
+         if (g_unk0x00539270[i] == 0) {
+             g_unk0x005391f8[i] = 0;
+         } else {
+-            v = *(int *)(p + 0x1a8 + i * 0xc) + *(int *)(p + 0x8c + i * 0x24);
+-            g_unk0x005391f8[i] = v;
++            g_unk0x005391f8[i] = *(int *)(p + 0x1a8 + i * 0xc) + *(int *)(p + 0x8c + i * 0x24);
++            v = g_unk0x005391f8[i];
+             v = FixMul(*(int *)(p + 0x1a4 + i * 0xc) + *(int *)(p + 0x88 + i * 0x24), v);
+             g_unk0x005391f8[i] = v;
+             v = FixMul(v, 0x16e14);
+@@ -5030,8 +5028,8 @@ void CarPart_SmoothSteeringOffset(void)
+     step = FixMul(FixMul(speed, g_physicsTimeStep), 0xf5c);
+     target = FixMul(FixMul(speed, g_physicsTimeStep), 0x3333);
+     phase = g_partCar->position.x + g_partCar->position.z;
+-    phase = FIX_ABS(phase);
+     phase %= 1024;
++    phase = FIX_ABS(phase);
+     target = FixMul(target, phase << 6);
+     index = (signed char)((BYTE *)g_partCar)[0xb1a];
+     delta = target - g_unk0x00590b10[index];
+@@ -5817,8 +5815,8 @@ void StageTiming_RecordAndReorderSplitTime(int car)
+     index = index + group * 9;
+     char prev = g_unk0x0053ddb0[index];
+     int old = prev;
+-    g_unk0x0053ddb0[index] = prev + 1;
+     g_carStageTiming[car].field_0x82 = old;
++    g_unk0x0053ddb0[index] = prev + 1;
+     g_unk0x0053de1c[index][old] = (char)car;
+     if (old > 0) {
+         char other = g_unk0x0053de1c[index][old - 1];
+@@ -8415,8 +8413,8 @@ void CarDamage_SetupOrderedCarParts(int lock, int keep, short *pOrder, short cou
+             pCar = (BYTE *)Car_Get(car);
+             StageObject_ResetAttachedCarNodes(pCar);
+             pParts = (int *)(g_unk0x00588b94 + car * 0x4d0);
+-            pParts[0x117] = 0;
+             pDamage = g_unk0x00588b98 + car * 0x290;
++            pParts[0x117] = 0;
+             if (*(SceneNode **)(pCar + 0x720) != NULL) {
+                 pParts[0x107] = 0;
+                 pParts[0x106] = 0;
+@@ -9154,7 +9152,7 @@ void StageWeather_DistributeViewParticles(void)
+     BYTE *pView;
+     short *pSlot;
+     int *pValue;
+-    int i;
++    unsigned int i;
+     int j;
+     int k;
+     short share;
+@@ -9195,9 +9193,9 @@ void StageWeather_DistributeViewParticles(void)
+         ((FixVector *)(pView + 8))->x += forward.x;
+         ((FixVector *)(pView + 8))->y += forward.y;
+         ((FixVector *)(pView + 8))->z += forward.z;
++        *(FixVector *)(pView + 0x14) = *(FixVector *)(pView + 8);
+         corner.x = ((FixVector *)(pView + 8))->x - 0xc0000;
+         corner.y = ((FixVector *)(pView + 8))->y - 0x60000;
+-        *(FixVector *)(pView + 0x14) = *(FixVector *)(pView + 8);
+         corner.z = ((FixVector *)(pView + 8))->z - 0xc0000;
+         for (k = 0; k < *(short *)(pView + 0x74); k++) {
+             pNode = &g_unk0x00543fb0[*(short *)(pView + 0x76) + k];

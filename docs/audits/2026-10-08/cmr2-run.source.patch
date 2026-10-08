@@ -1,0 +1,18 @@
+diff --git a/CMR2Decomp/StageObjects.cpp b/CMR2Decomp/StageObjects.cpp
+index 288a14c..b157e95 100644
+--- a/CMR2Decomp/StageObjects.cpp
++++ b/CMR2Decomp/StageObjects.cpp
+@@ -6765,10 +6765,10 @@ extern int g_unk0x00588d14;
+ extern void *g_unk0x00588e80[8];
+ 
+ // Second set of eight buffers and the per-slot pointers into both sets.
++// Two tables of 8 that the replay code also walks as one of 16.
+ // GLOBAL: CMR2 0x00588d40
+-void **g_unk0x00588d40[8];
+-// GLOBAL: CMR2 0x00588d60
+-void **g_unk0x00588d60[8];
++void **g_unk0x00588d40[16];
++#define g_unk0x00588d60 (g_unk0x00588d40 + 8)
+ // GLOBAL: CMR2 0x00588ea0
+ void *g_unk0x00588ea0[8];
+ 

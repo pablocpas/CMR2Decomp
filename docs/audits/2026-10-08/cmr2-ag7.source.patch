@@ -1,0 +1,47 @@
+diff --git a/CMR2Decomp/FixedPoint.cpp b/CMR2Decomp/FixedPoint.cpp
+index 6728907..7a50840 100644
+--- a/CMR2Decomp/FixedPoint.cpp
++++ b/CMR2Decomp/FixedPoint.cpp
+@@ -240,9 +240,9 @@ void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB)
+             pA2 = &a[i * 4];
+             pB2 = &b[4 - j];
+             for (k = 4; k != 0; k--) {
+-                ai = *pA2;
+                 bi = *pB2;
+-                *pR += FixMul(bi, ai);
++                ai = *pA2;
++                *pR += FixMul(ai, bi);
+                 pB2 += 4;
+                 pA2++;
+             }
+@@ -1008,6 +1008,7 @@ void CarPhysics_IntegrateWheelSuspension(void)
+ {
+     FixVector d;
+     FixVector mid;
++    FixVector t;
+     FixVector v;
+     int h;
+     int f;
+@@ -1023,14 +1024,18 @@ void CarPhysics_IntegrateWheelSuspension(void)
+                  (&g_pCurrentCar->cornerPrev2[0])[w].y != 0 ||
+                  (&g_pCurrentCar->cornerPrev2[0])[w].z != 0)) {
+                 mid.x = (&g_pCurrentCar->cornerPrev[0])[w].x - (&g_pCurrentCar->cornerPrev2[0])[w].x;
+-                d.x = (g_pCurrentCar->corners[w].x - (&g_pCurrentCar->cornerPrev[0])[w].x) - mid.x;
+                 mid.y = (&g_pCurrentCar->cornerPrev[0])[w].y - (&g_pCurrentCar->cornerPrev2[0])[w].y;
+-                d.y = (g_pCurrentCar->corners[w].y - (&g_pCurrentCar->cornerPrev[0])[w].y) - mid.y;
+                 mid.z = (&g_pCurrentCar->cornerPrev[0])[w].z - (&g_pCurrentCar->cornerPrev2[0])[w].z;
+-                d.z = (g_pCurrentCar->corners[w].z - (&g_pCurrentCar->cornerPrev[0])[w].z) - mid.z;
++                t.x = g_pCurrentCar->corners[w].x - (&g_pCurrentCar->cornerPrev[0])[w].x;
++                t.y = g_pCurrentCar->corners[w].y - (&g_pCurrentCar->cornerPrev[0])[w].y;
++                t.z = g_pCurrentCar->corners[w].z - (&g_pCurrentCar->cornerPrev[0])[w].z;
++                d.x = t.x - mid.x;
++                d.y = t.y - mid.y;
++                d.z = t.z - mid.z;
+                 FixMatrix_InverseRotateVector(&v, &d, g_pCurrentCar->pWorld);
+                 // vertical (car-space y) speed of the corner over the last two steps
+-                f = FixMul(v.y, FixMul(0x9c28, g_physicsScale));
++                f = v.y;
++                f = FixMul(f, FixMul(0x9c28, g_physicsScale));
+                 if (f > 0)
+                     (g_pCurrentCar->field_0x9c8)[w] -= f;
+             }

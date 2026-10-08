@@ -1,0 +1,346 @@
+[
+  {
+    "path": "/home/pablo/cmr2-ag1",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "address": "0x461c30",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag1",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "address": "0x465530",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag10",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "address": "0x4e0770",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag2",
+    "file": "CMR2Decomp/Car.cpp",
+    "address": "0x435470",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag3",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x459630",
+    "status": "rejected_regression",
+    "losses": [
+      "0x459630"
+    ],
+    "gains": [],
+    "error": null,
+    "scores": {
+      "before": 0.6039215686274509,
+      "after": 0.5813953488372093,
+      "before_exact": false,
+      "after_exact": false
+    }
+  },
+  {
+    "path": "/home/pablo/cmr2-ag3",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x424af0",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag4",
+    "file": "CMR2Decomp/Race.cpp",
+    "address": "0x41e8d0",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag5",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "address": "0x4af120",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag6",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "address": "0x506bb0",
+    "status": "integrated",
+    "losses": [],
+    "gains": [
+      "0x506bb0"
+    ],
+    "error": null,
+    "scores": {
+      "before": 0.549079754601227,
+      "after": 0.5723076923076923,
+      "before_exact": false,
+      "after_exact": false
+    }
+  },
+  {
+    "path": "/home/pablo/cmr2-ag7",
+    "file": "CMR2Decomp/FixedPoint.cpp",
+    "address": "0x4b9f20",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag7",
+    "file": "CMR2Decomp/FixedPoint.cpp",
+    "address": "0x42e8e0",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag8",
+    "file": "CMR2Decomp/CarEffects.cpp",
+    "address": "0x499750",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag8",
+    "file": "CMR2Decomp/CarEffects.cpp",
+    "address": "0x499ac0",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent01",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "address": "0x46d470",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent02",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "address": "0x476a40",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent03",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x455e60",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent03",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x4814d0",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent03",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x498590",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent03",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x45c610",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent03",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x424360",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent03",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x4247a0",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent03",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x480cb0",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent03",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x4487a0",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent03",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x4669f0",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent03",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x45eed0",
+    "status": "already_present_delta"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent04",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "address": "0x4d5ad0",
+    "status": "already_present_delta"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent06",
+    "file": "CMR2Decomp/Car.cpp",
+    "address": "0x42de20",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent06",
+    "file": "CMR2Decomp/Car.cpp",
+    "address": "0x43e680",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent07",
+    "file": "CMR2Decomp/Race.cpp",
+    "address": "0x4174e0",
+    "status": "rejected_regression",
+    "losses": [
+      "0x4174e0"
+    ],
+    "gains": [],
+    "error": null,
+    "scores": {
+      "before": 0.746031746031746,
+      "after": 0.6932270916334662,
+      "before_exact": false,
+      "after_exact": false
+    }
+  },
+  {
+    "path": "/home/pablo/cmr2-agent09",
+    "file": "CMR2Decomp/Input.cpp",
+    "address": "0x40bc90",
+    "status": "no_matching_gain",
+    "losses": [],
+    "gains": [],
+    "error": null,
+    "scores": {
+      "before": 0.6666666666666666,
+      "after": 0.6666666666666666,
+      "before_exact": false,
+      "after_exact": false
+    }
+  },
+  {
+    "path": "/home/pablo/cmr2-agent10",
+    "file": "CMR2Decomp/SurfaceTypes.cpp",
+    "address": "0x478a20",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent10",
+    "file": "CMR2Decomp/TrackCollision.cpp",
+    "address": "0x492fe0",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "path": "/home/pablo/cmr2-easy",
+    "file": "CMR2Decomp/main.cpp",
+    "address": "0x4a98b0",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/colin_mcrae_linux/matching-low-review",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "address": "0x462d10",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/colin_mcrae_linux/matching-low-review",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "address": "0x463290",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/colin_mcrae_linux/matching-low-review",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x480980",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/colin_mcrae_linux/matching-low-review",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x4591e0",
+    "status": "already_present"
+  },
+  {
+    "path": "/home/pablo/colin_mcrae_linux/matching-low-review",
+    "file": "CMR2Decomp/VehiclePhysics.cpp",
+    "address": "0x490570",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "path": "/home/pablo/colin_mcrae_linux/matching-review",
+    "file": "CMR2Decomp/FrontendDraw.cpp",
+    "address": "0x4d3360",
+    "status": "integrated",
+    "losses": [],
+    "gains": [
+      "0x4d3360"
+    ],
+    "error": null,
+    "scores": {
+      "before": 0.8305582761998042,
+      "after": 0.8325171400587659,
+      "before_exact": false,
+      "after_exact": false
+    }
+  },
+  {
+    "path": "/home/pablo/w191-4d9c40",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "address": "0x4d9c40",
+    "status": "already_present_delta"
+  },
+  {
+    "path": "/home/pablo/w191-4dbd80",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "address": "0x4d5fb0",
+    "status": "no_matching_gain",
+    "losses": [],
+    "gains": [],
+    "error": null,
+    "scores": {
+      "before": 0.8068669527896996,
+      "after": 0.8068669527896996,
+      "before_exact": false,
+      "after_exact": false
+    }
+  },
+  {
+    "path": "/home/pablo/w191-4dbd80",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "address": "0x4dbd80",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "path": "/home/pablo/w191-4dfe20",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "address": "0x4dfe20",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "path": "/home/pablo/w191-4e8500",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "address": "0x4e8500",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "path": "/home/pablo/w191-4e90f0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "address": "0x4e7ed0",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "path": "/home/pablo/w191-4e90f0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "address": "0x4e8b60",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "path": "/home/pablo/w191-4e90f0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "address": "0x4e90f0",
+    "status": "superseded_conflicting_draft"
+  }
+]

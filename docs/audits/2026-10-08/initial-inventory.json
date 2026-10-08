@@ -1,0 +1,1176 @@
+{
+  "branches_not_ancestors": [
+    [
+      "decomp/easy",
+      8,
+      "613bd79 Three functions byte-exact (2886 -> 2889, perfect 53.04% -> 53.11%)\n20a35a2 Eight functions byte-exact (2878 -> 2886, perfect 52.95% -> 53.04%)\n49825d1 Merge main into decomp/easy\n87a3fea RallyData_DrawLoadingProgress byte-exact (83.22% -> exact)\na3c356d RallyData_DrawListItem byte-exact (56.84% -> exact)\n40dcb27 Game_DrawFadingBootLabel, FrontendDraw_BreadcrumbItem and FrontendDraw_Breadcrumb byte-exact\neec435b Track_SetFogAndSkyAlpha and Sound_CreatePcmSampleBuffer byte-exact\n5d0b1d9 Sector_RebuildStageGrid 83.4% -> 90.2%, Sector_CullGridAroundViewNode 74.2% -> 79.0%\n"
+    ],
+    [
+      "decomp/frontend",
+      3,
+      "1c04355 FrontendScreens: settings list page 0x4e8b60 (WIP, 67%)\n1c7080d FrontendScreens: car page draw 0x4d7db0/0x4d8950 (88.6%, identical pair)\n2ed4a07 FrontendScreens: two callbacks real (0x4efde0 100%, 0x4efb70 83.7%); drop their stubs\n"
+    ],
+    [
+      "decomp/match3",
+      4,
+      "988b513 Merge branch 'main' into decomp/match3\nd8a758a Revert the local-type pattern pass (7c3576e)\n2c90500 Branch pattern pass, second run (11 more integer-comparison / if-order rewrites)\n8f78822 Pattern pass: branch / comparison shape (ifswap, obo, flip) on functions with crossed je/jne, jl/jge\n"
+    ],
+    [
+      "decomp/matching-review",
+      1,
+      "d1a24d6 Logic fixes found by semantic scans, plus an off-by-one compare sweep\n"
+    ],
+    [
+      "decomp/w191-4d8ed0",
+      3,
+      "71c5a2a FrontendScreens: 0x4d8ed0 FUN_004d8ed0 stage list screen (92.4%)\nf9f5345 FrontendScreens: 0x4d8ed0 FUN_004d8ed0 stage list screen (91.9%); dedupe g_str0x008188a4 (two arrays shared one original address)\n543ee18 FrontendScreens: 0x4d8ed0 FUN_004d8ed0 stage list screen (91%)\n"
+    ],
+    [
+      "decomp/w191-4d9c40",
+      1,
+      "633b5de FrontendScreens: 0x004d9c40 rally summary screen (88%)\n"
+    ],
+    [
+      "decomp/w191-4dbd80",
+      1,
+      "db89f9d FrontendScreens: 4dbd80 rally report (87.7%)\n"
+    ],
+    [
+      "decomp/w191-4dce00",
+      2,
+      "a057ecb FrontendScreens: 0x4dce00 settings list page (86%)\n97489eb FrontendScreens: 0x4dce00 settings list page (WIP)\n"
+    ],
+    [
+      "decomp/w191-4dd4b0",
+      1,
+      "6b46768 FrontendScreens: 004dd4b0 rally screen (WIP, first build)\n"
+    ],
+    [
+      "decomp/w191-4dfe20",
+      1,
+      "effe87b FrontendScreens: 4dfe20 FUN_004dfe20 (51%)\n"
+    ],
+    [
+      "decomp/w191-4e77c0",
+      2,
+      "5bc5c60 FrontendScreens: 0x4e77c0 session setup menu (92.5%)\nc040c9d FrontendScreens: 0x4e77c0 session setup screen (92.5%)\n"
+    ],
+    [
+      "decomp/w191-4e8500",
+      2,
+      "f9e7e3a FrontendScreens: 004e8500 FUN_004e8500 (79%)\n26cb4fe FrontendScreens: 004e8500 FUN_004e8500 (66%)\n"
+    ],
+    [
+      "decomp/w191-4e90f0",
+      2,
+      "ddf309e FrontendScreens: 4e90f0 FUN_004e90f0 (92%)\n4c72ee9 FrontendScreens: 4e90f0 FUN_004e90f0 (85%)\n"
+    ],
+    [
+      "decomp/w193a",
+      2,
+      "203a653 StageUI: FUN_0041b460 further WIP\nea79ca9 StageUI: FUN_0041b460 (stage award/flag dispatch) WIP checkpoint\n"
+    ],
+    [
+      "decomp/w193b",
+      3,
+      "b1b400f StageObjects: FUN_0047f740 fireworks draw (38.63% match)\n03c9e73 StageObjects: FUN_0047f740 nested spark loops, 35.35%\n8cdc3a0 StageObjects: implement FUN_0047f740 (fireworks draw), checkpoint 31.65%\n"
+    ],
+    [
+      "decomp/w193c",
+      3,
+      "190fac6 StageObjects: FUN_00484310 (slot-2 wheel integrator) 87.81%, residual register/temp-slot allocation\n4bd0182 StageObjects: FUN_00484310 WIP checkpoint\nbac9f25 StageObjects: FUN_00484310 (slot-2 wheel integrator) first pass, 82.36%\n"
+    ],
+    [
+      "decomp/w72",
+      1,
+      "6870ff2 Frontend.cpp tuning: 5 functions lifted (2 across the 90% bar, 2 to 100%)\n"
+    ],
+    [
+      "decomp/w73",
+      1,
+      "facaaf4 StageObjects: 15 new functions (4 >= 90%) + 0x47c1b0 to 100%\n"
+    ],
+    [
+      "decomp/w74",
+      1,
+      "f3ce292 Two more in-race menu functions (0x403090 100%, 0x402460) + 0x402c90 closer\n"
+    ],
+    [
+      "decomp/w75",
+      2,
+      "8737845 1 more function: split-time reordering (FUN_004487a0, 76%)\n4998d72 4 more functions (1 >= 90%): stage split table, checkpoint count, slope integration; 3 low-match kept as FUNCTION\n"
+    ],
+    [
+      "port/silentpatch-window",
+      3,
+      "4d59d62 Fix the crashes on the way into a race (Arcade now loads and shows the stage)\n61fc84a Merge branch 'decomp/callbacks' into port/silentpatch-window\n1a92cf1 Windowed build (CMR2_WINDOWED) that shows the game under Wine; fix two crashes and a missing present\n"
+    ]
+  ],
+  "worktrees": [
+    {
+      "path": "/home/pablo/colin_mcrae_linux/CMR2Decomp",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD de57991b489264636383b9362fb2cb6e1622476e",
+        "branch refs/heads/main"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-ag1",
+      "exists": true,
+      "status": " M CMR2Decomp/StageObjects.cpp\n M CMR2PROGRESS/bytes.json\n M CMR2PROGRESS/nonmatching.tsv\n M CMR2PROGRESS/provenance.json\n M CMR2PROGRESS/summary.json\n",
+      "error": "",
+      "meta": [
+        "HEAD beb5921d4d39d566df7a18754695d2abcb5f926b",
+        "branch refs/heads/decomp/ds1"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-ag10",
+      "exists": true,
+      "status": " M CMR2Decomp/FrontendScreens.cpp\n M CMR2PROGRESS/bytes.json\n M CMR2PROGRESS/nonmatching.tsv\n M CMR2PROGRESS/provenance.json\n M CMR2PROGRESS/summary.json\n",
+      "error": "",
+      "meta": [
+        "HEAD beb5921d4d39d566df7a18754695d2abcb5f926b",
+        "branch refs/heads/decomp/ds10"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-ag2",
+      "exists": true,
+      "status": " M CMR2Decomp/Car.cpp\n M CMR2PROGRESS/bytes.json\n M CMR2PROGRESS/entities.json\n M CMR2PROGRESS/nonmatching.tsv\n M CMR2PROGRESS/provenance.json\n M CMR2PROGRESS/summary.json\n",
+      "error": "",
+      "meta": [
+        "HEAD beb5921d4d39d566df7a18754695d2abcb5f926b",
+        "branch refs/heads/decomp/ds2"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-ag3",
+      "exists": true,
+      "status": " M CMR2Decomp/StageTiming.cpp\n M CMR2PROGRESS/bytes.json\n M CMR2PROGRESS/entities.json\n M CMR2PROGRESS/nonmatching.tsv\n M CMR2PROGRESS/provenance.json\n M CMR2PROGRESS/summary.json\n",
+      "error": "",
+      "meta": [
+        "HEAD beb5921d4d39d566df7a18754695d2abcb5f926b",
+        "branch refs/heads/decomp/ds3"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-ag4",
+      "exists": true,
+      "status": " M CMR2Decomp/Race.cpp\n M CMR2PROGRESS/bytes.json\n M CMR2PROGRESS/entities.json\n M CMR2PROGRESS/nonmatching.tsv\n M CMR2PROGRESS/provenance.json\n M CMR2PROGRESS/summary.json\n",
+      "error": "",
+      "meta": [
+        "HEAD beb5921d4d39d566df7a18754695d2abcb5f926b",
+        "branch refs/heads/decomp/ds4"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-ag5",
+      "exists": true,
+      "status": " M CMR2Decomp/Graphics.cpp\n M CMR2PROGRESS/bytes.json\n M CMR2PROGRESS/nonmatching.tsv\n M CMR2PROGRESS/provenance.json\n M CMR2PROGRESS/summary.json\n",
+      "error": "",
+      "meta": [
+        "HEAD beb5921d4d39d566df7a18754695d2abcb5f926b",
+        "branch refs/heads/decomp/ds5"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-ag6",
+      "exists": true,
+      "status": " M CMR2Decomp/GameInfo.cpp\n M CMR2PROGRESS/bytes.json\n M CMR2PROGRESS/entities.json\n M CMR2PROGRESS/nonmatching.tsv\n M CMR2PROGRESS/provenance.json\n M CMR2PROGRESS/summary.json\n",
+      "error": "",
+      "meta": [
+        "HEAD beb5921d4d39d566df7a18754695d2abcb5f926b",
+        "branch refs/heads/decomp/ds6"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-ag7",
+      "exists": true,
+      "status": " M CMR2Decomp/FixedPoint.cpp\n M CMR2PROGRESS/bytes.json\n M CMR2PROGRESS/entities.json\n M CMR2PROGRESS/nonmatching.tsv\n M CMR2PROGRESS/provenance.json\n M CMR2PROGRESS/summary.json\n",
+      "error": "",
+      "meta": [
+        "HEAD beb5921d4d39d566df7a18754695d2abcb5f926b",
+        "branch refs/heads/decomp/ds7"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-ag8",
+      "exists": true,
+      "status": " M CMR2Decomp/CarEffects.cpp\n M CMR2PROGRESS/bytes.json\n M CMR2PROGRESS/entities.json\n M CMR2PROGRESS/nonmatching.tsv\n M CMR2PROGRESS/provenance.json\n M CMR2PROGRESS/summary.json\n",
+      "error": "",
+      "meta": [
+        "HEAD beb5921d4d39d566df7a18754695d2abcb5f926b",
+        "branch refs/heads/decomp/ds8"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-ag9",
+      "exists": true,
+      "status": " M CMR2PROGRESS/provenance.json\n M CMR2PROGRESS/summary.json\n",
+      "error": "",
+      "meta": [
+        "HEAD beb5921d4d39d566df7a18754695d2abcb5f926b",
+        "branch refs/heads/decomp/ds9"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-agent01",
+      "exists": true,
+      "status": " M CMR2Decomp/StageObjects.cpp\n",
+      "error": "",
+      "meta": [
+        "HEAD a0bfc4b1c25cca45320a54d229a1ced5f52580c1",
+        "branch refs/heads/agent/agent01"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-agent02",
+      "exists": true,
+      "status": " M CMR2Decomp/StageObjects.cpp\n",
+      "error": "",
+      "meta": [
+        "HEAD ccfb2438a2d1572038eeada92b4d1f44a41ca641",
+        "branch refs/heads/agent/agent02"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-agent03",
+      "exists": true,
+      "status": " M CMR2Decomp/StageTiming.cpp\n",
+      "error": "",
+      "meta": [
+        "HEAD 76e3a6ed94b91fedc0d031820a120d7a64d2ae69",
+        "branch refs/heads/agent/agent03"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-agent04",
+      "exists": true,
+      "status": " M CMR2Decomp/FrontendScreens.cpp\n",
+      "error": "",
+      "meta": [
+        "HEAD d6b7436df8611589691e5edc627092a8c53c62da",
+        "branch refs/heads/agent/agent04"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-agent05",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD e5d3ed540643aa7d716c1c8385b7d56a5410ab4d",
+        "branch refs/heads/agent/agent05"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-agent06",
+      "exists": true,
+      "status": " M CMR2Decomp/Car.cpp\n",
+      "error": "",
+      "meta": [
+        "HEAD e1fdb83548e4ccbe23bf6c79c6fe4dd0ac94137e",
+        "branch refs/heads/agent/agent06"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-agent07",
+      "exists": true,
+      "status": " M CMR2Decomp/Race.cpp\n",
+      "error": "",
+      "meta": [
+        "HEAD ff300b9749660e8e29d82f8dec21bdea52071fca",
+        "branch refs/heads/agent/agent07"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-agent08",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD 07f16ab5766db03b24c02b284bcad9f4df8a1f35",
+        "branch refs/heads/agent/agent08"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-agent09",
+      "exists": true,
+      "status": " M CMR2Decomp/Input.cpp\n",
+      "error": "",
+      "meta": [
+        "HEAD 1ddeb7cec1de32f5ee801bed82d9386e71b26b82",
+        "branch refs/heads/agent/agent09"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-agent10",
+      "exists": true,
+      "status": " M CMR2Decomp/SurfaceTypes.cpp\n M CMR2Decomp/TrackCollision.cpp\n",
+      "error": "",
+      "meta": [
+        "HEAD f3325e74ddec3a2dc5b26ec67f9096c33735bb6d",
+        "branch refs/heads/agent/agent10"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-agtest",
+      "exists": true,
+      "status": " M CMR2PROGRESS/bytes.json\n M CMR2PROGRESS/entities.json\n M CMR2PROGRESS/nonmatching.tsv\n M CMR2PROGRESS/provenance.json\n M CMR2PROGRESS/summary.json\n M index.html\n M scripts/fastcmp.py\n?? scripts/prepare_fastcmp.py\n",
+      "error": "",
+      "meta": [
+        "HEAD bc34b1b51bf9f6589ecc6eecd17af3e5361e556a",
+        "branch refs/heads/tmp/agtest"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-callbacks",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD adfc56dfc7bc74a2145d5fe30963d4e190194685",
+        "branch refs/heads/decomp/callbacks"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-claude",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD 260ae1017913b222c536acef76560f95ffbee33a",
+        "branch refs/heads/decomp/claude-typed"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-close",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD 76e3a6ed94b91fedc0d031820a120d7a64d2ae69",
+        "branch refs/heads/decomp/close"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-datacmp/CMR2Decomp",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD 7d7e4e74753dd94e241154ead8e2ce8f7dbd03c3",
+        "branch refs/heads/decomp/datacmp"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-easy",
+      "exists": true,
+      "status": " M CMR2Decomp/main.cpp\n",
+      "error": "",
+      "meta": [
+        "HEAD 613bd7989c45dc791cdce9896bef5d2e8d36ff65",
+        "branch refs/heads/decomp/easy"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-harness01",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD b1cd99f93a7ca7c446727df41e19a82919c45823",
+        "branch refs/heads/agent/harness01"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-integrate",
+      "exists": true,
+      "status": " M CMR2PROGRESS/bytes.json\n M CMR2PROGRESS/entities.json\n M CMR2PROGRESS/nonmatching.tsv\n M CMR2PROGRESS/provenance.json\n M CMR2PROGRESS/summary.json\n M index.html\n",
+      "error": "",
+      "meta": [
+        "HEAD f482e2768acd3b7643ed9bfb290426aadcb76659",
+        "branch refs/heads/decomp/integration-agents"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-match3",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD 988b513293e9ca1adb8371971ac3bba51fee2854",
+        "branch refs/heads/decomp/match3"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-run",
+      "exists": true,
+      "status": " M CMR2Decomp/StageObjects.cpp\n",
+      "error": "",
+      "meta": [
+        "HEAD 4d59d62a3b48f8c092fa9001d29732008b5d8347",
+        "branch refs/heads/port/silentpatch-window"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-scratch",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD 5549e385e1c0eb345dab6eb45f55b6e79115f17a",
+        "branch refs/heads/agent/scratch"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-verify",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 2b935ede1df9a450784f46c10fc9bdf28d6d50db",
+        "branch refs/heads/tmp/verify"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w111",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD b0706fb52debf09142daf76fbe93f7ddf3c828a3",
+        "branch refs/heads/decomp/w111"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w112",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD b2f7e84d9166e69bf12e2bf061aad03b3b3f5e1d",
+        "branch refs/heads/decomp/w112"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w113",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 13dabbafac677e3245d883be2fc49ecb1e7e88c6",
+        "branch refs/heads/decomp/w113"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w113a",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD b4504d8942354fbc7292f316e0f8c3ec78260451",
+        "branch refs/heads/decomp/w113a"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w113b",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 01b47201c21c7620e72bf0e61d170cefb54f1da6",
+        "branch refs/heads/decomp/w113b"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w113c",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 4d1e9ec00d3fff8e61d3be42be65c9e1af1c8bee",
+        "branch refs/heads/decomp/w113c"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w114",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 42cd47e6457eb7800a5c0bf89d8d5d45eefe866d",
+        "branch refs/heads/decomp/w114"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w115",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD f60a6da46dc8729c22665777768b9d6057b5ecb3",
+        "branch refs/heads/decomp/w115"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w121",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 94217a7526f6aca3180b19d4b251999aed624168",
+        "branch refs/heads/decomp/w121"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w122",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD b78a1b357168f30a9deed54ff79c139a8751a0d6",
+        "branch refs/heads/decomp/w122"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w123",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 53b4a6a7b6ab26affb9298891ce374f3c25b4afa",
+        "branch refs/heads/decomp/w123"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w124",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD c952e4023611d0c304a23aaf36cf5c86faee9649",
+        "branch refs/heads/decomp/w124"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w125",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 3d116ea7ddfbdacbf58569210fecdaf816cb75f0",
+        "branch refs/heads/decomp/w125"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w131",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD de4dbd86953b772d4f585f107a44051f138cce0b",
+        "branch refs/heads/decomp/w131"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w132",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 752e49490c767a57701d475059c6b75d1fe1375c",
+        "branch refs/heads/decomp/w132"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w133",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 495759ce172df311f68d95772e8965a1b1644cf4",
+        "branch refs/heads/decomp/w133"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w134",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD d8f0b808a4b868144589fa4ba19966fc15b58158",
+        "branch refs/heads/decomp/w134"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w135",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD e14490871223e9abf9eda45ae4ddb62543f1658f",
+        "branch refs/heads/decomp/w135"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w136",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD a80b68ffaef0fdf127c477db496738ec0909dcec",
+        "branch refs/heads/decomp/w136"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w137",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 584b229ebfbf083fcf612aa7c558db89c66a0829",
+        "branch refs/heads/decomp/w137"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w138",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 594706d2244a57067a17ca8089f7accfa0aaacd0",
+        "branch refs/heads/decomp/w138"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w141",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD d08f499211440708384c54b871b0bdf3f2722373",
+        "branch refs/heads/decomp/w141"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w142",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 8dff1ee918b7b3cd431ebda8dbf3193772b6ee7c",
+        "branch refs/heads/decomp/w142"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w143",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 4b88568803b81e7e253b3ca08364607efceee8be",
+        "branch refs/heads/decomp/w143"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w144",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD a3dbedcae9bc1a8b99e984e67a0e9080f9eea21f",
+        "branch refs/heads/decomp/w144"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w145",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD ae16acfabc5071d0a2bd350baefc6dd32e21366c",
+        "branch refs/heads/decomp/w145"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w146",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 6ade990ed6ad5050773d3e35515664932ba4ed7b",
+        "branch refs/heads/decomp/w146"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w151",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 9bf707dd8de906a1431a764e5361aba5789e3369",
+        "branch refs/heads/decomp/w151"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w152",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD e11cc969c23fd72bbed7dea1c9782274822c287d",
+        "branch refs/heads/decomp/w152"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w153",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 3af7fd4850a35035a1e365082a091d736a4d48ef",
+        "branch refs/heads/decomp/w153"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w154",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 5bfca48f235f8104ff7df7a45b08a8fa2743ed2f",
+        "branch refs/heads/decomp/w154"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w164",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 3002ce970400df2bd151b53aaaf7d79d9e897eb7",
+        "branch refs/heads/decomp/w164"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w171",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 90a47a6166327d121f10e3f35ac72771889ca097",
+        "branch refs/heads/decomp/w171"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w172",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 078877fcb772ecb90f71a8414726df8292a78d59",
+        "branch refs/heads/decomp/w172"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w172m",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 8cfea93fffc5291576f0736e4d74f1387e643242",
+        "branch refs/heads/decomp/w172-merged"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w181",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 223f98d39d0f9741665bfc399b77400451c2900e",
+        "branch refs/heads/decomp/w181"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w182",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 2896b3606468d274aa9c61bae1d164b1bee58c1e",
+        "branch refs/heads/decomp/w182"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w182a",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD 67df91da518cee271467a8e6b420e083ac579c06",
+        "branch refs/heads/decomp/w182a"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w182b",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD f60a71fa3879e3d4906cb9909d4f6a09cd5a705b",
+        "branch refs/heads/decomp/w182b"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w182c",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD d969e8943d64b5a68e6e5b179703f8c9d9630914",
+        "branch refs/heads/decomp/w182c"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w182d",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 05554104009548acbe867dc4f02da1609e73ded9",
+        "branch refs/heads/decomp/w182d"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w182e",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD 9d271a0869798ee9141a0eb9bda35febbb6d041b",
+        "branch refs/heads/decomp/w182e"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w182g",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD 4af176fa744f0236cd8b810890c26d4b8e585497",
+        "branch refs/heads/decomp/w182g"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w183",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD d7abb369cf3de09fcf5618e0594f101233deba99",
+        "branch refs/heads/decomp/w183"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w191",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 197ef85d0696a67f25bad4de4c66fcd1b6f59782",
+        "branch refs/heads/decomp/w191"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w192",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD fe6fad2a07a9660e7e901da6e564c866a449e415",
+        "branch refs/heads/decomp/w192"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w193",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD ea5e2bbc3386b59efebd5a6b6fb516659c40f205",
+        "branch refs/heads/decomp/w193"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w193a",
+      "exists": true,
+      "status": "?? third_party/third_party\n?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 203a6532d7852868347308afb8036cda73cac2ca",
+        "branch refs/heads/decomp/w193a"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w193b",
+      "exists": true,
+      "status": "?? third_party/third_party\n?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD b1b400fb1d1108d35ec58224a4fccb675d0cce76",
+        "branch refs/heads/decomp/w193b"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w193c",
+      "exists": true,
+      "status": "?? third_party/third_party\n?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 190fac6217fd7a244768f46d9fc75a05833dd2af",
+        "branch refs/heads/decomp/w193c"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w194",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 25dca359f3bfe5636fc0f59c3a0da2ab6ba23b39",
+        "branch refs/heads/decomp/w194"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w194-c",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 1f6d3db3501cee3685f8e7fa60036c73ebdb4243",
+        "branch refs/heads/decomp/w194-c"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w194-g",
+      "exists": true,
+      "status": "?? tools\n?? w194_t1.cpp\n",
+      "error": "",
+      "meta": [
+        "HEAD 9f9f81b16680d54446d9c3c7918e64c15b3c63a2",
+        "branch refs/heads/decomp/w194-g"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w194-r",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 2ff082dd385957c157b3640bf9ebea7d9f03b3a8",
+        "branch refs/heads/decomp/w194-r"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w201",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 722d1dc88fb3f868aa886a7e0a37534e2b77c964",
+        "branch refs/heads/decomp/w201"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-w202",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD c05d3ba4b0cdfac44f8226bb70532279fe2a4663",
+        "branch refs/heads/decomp/w202"
+      ]
+    },
+    {
+      "path": "/home/pablo/cmr2-wip",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 1a0d1678ffa9e3a1d155f60c7cf9029616738812",
+        "branch refs/heads/wip/frontend-menus"
+      ]
+    },
+    {
+      "path": "/home/pablo/colin_mcrae_linux/matching-low-review",
+      "exists": true,
+      "status": " M CMR2Decomp/StageObjects.cpp\n M CMR2Decomp/StageTiming.cpp\n M CMR2Decomp/VehiclePhysics.cpp\n?? tests/differential_collision_checkpoint.py\n",
+      "error": "",
+      "meta": [
+        "HEAD ff9f68e9bd40b0351460a811bcb8e66dfd12f61e",
+        "branch refs/heads/decomp/matching-low-review"
+      ]
+    },
+    {
+      "path": "/home/pablo/colin_mcrae_linux/matching-review",
+      "exists": true,
+      "status": " M CMR2Decomp/FrontendDraw.cpp\n",
+      "error": "",
+      "meta": [
+        "HEAD d1a24d6471a786a5390bdc076dcadec80df8e02b",
+        "branch refs/heads/decomp/matching-review"
+      ]
+    },
+    {
+      "path": "/home/pablo/colin_mcrae_linux/tools/smoke/work/bisect",
+      "exists": true,
+      "status": "",
+      "error": "",
+      "meta": [
+        "HEAD c34da09aa4c0afe1fd4daac9f208be556821e1af",
+        "detached"
+      ]
+    },
+    {
+      "path": "/home/pablo/w191-4d8ed0",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 71c5a2a7140693e63944872bc66532bb5516b1ba",
+        "branch refs/heads/decomp/w191-4d8ed0"
+      ]
+    },
+    {
+      "path": "/home/pablo/w191-4d9c40",
+      "exists": true,
+      "status": " M CMR2Decomp/FrontendScreens.cpp\n?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 633b5deefa950dfd1d06415218cd855445763448",
+        "branch refs/heads/decomp/w191-4d9c40"
+      ]
+    },
+    {
+      "path": "/home/pablo/w191-4dbd80",
+      "exists": true,
+      "status": " M CMR2Decomp/CascadeSeedDeps.cpp\n M CMR2Decomp/FrontendScreens.cpp\n?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD db89f9df4edafa5007f1a3105901f892c07a0828",
+        "branch refs/heads/decomp/w191-4dbd80"
+      ]
+    },
+    {
+      "path": "/home/pablo/w191-4dce00",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD a057ecbdc8b1252f8b19360037e728cb72cd5505",
+        "branch refs/heads/decomp/w191-4dce00"
+      ]
+    },
+    {
+      "path": "/home/pablo/w191-4dd4b0",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 6b46768c3fbedcc7e3527edf92980095d7465d95",
+        "branch refs/heads/decomp/w191-4dd4b0"
+      ]
+    },
+    {
+      "path": "/home/pablo/w191-4dfe20",
+      "exists": true,
+      "status": " M CMR2Decomp/FrontendScreens.cpp\n?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD effe87b5a4624d42f258c53f4cf37e6245936879",
+        "branch refs/heads/decomp/w191-4dfe20"
+      ]
+    },
+    {
+      "path": "/home/pablo/w191-4e77c0",
+      "exists": true,
+      "status": "?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD 5bc5c60aa5a3da3f614b342d850df5eec0883c29",
+        "branch refs/heads/decomp/w191-4e77c0"
+      ]
+    },
+    {
+      "path": "/home/pablo/w191-4e8500",
+      "exists": true,
+      "status": " M CMR2Decomp/FrontendScreens.cpp\n?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD f9e7e3ad15d96d1894d00a64d6eda5a513e4de05",
+        "branch refs/heads/decomp/w191-4e8500"
+      ]
+    },
+    {
+      "path": "/home/pablo/w191-4e90f0",
+      "exists": true,
+      "status": " M CMR2Decomp/FrontendScreens.cpp\n?? tools\n",
+      "error": "",
+      "meta": [
+        "HEAD ddf309e75b8d21aca84c419442c1036df4b7ec8e",
+        "branch refs/heads/decomp/w191-4e90f0"
+      ]
+    },
+    {
+      "path": "/tmp/cmr2-codex-20261006",
+      "exists": false,
+      "status": null,
+      "error": null,
+      "meta": [
+        "HEAD c62d347009870e341ce88272915a62dd633d5db8",
+        "branch refs/heads/agent/codex-handoff-20261006",
+        "prunable gitdir file points to non-existent location"
+      ]
+    },
+    {
+      "path": "/tmp/cmr2-matching-a-20261006",
+      "exists": false,
+      "status": null,
+      "error": null,
+      "meta": [
+        "HEAD 9610530382a2050d5a3536643bc8553807ab7d37",
+        "branch refs/heads/agent/matching-a-20261006",
+        "prunable gitdir file points to non-existent location"
+      ]
+    },
+    {
+      "path": "/tmp/cmr2-matching-b-20261006",
+      "exists": false,
+      "status": null,
+      "error": null,
+      "meta": [
+        "HEAD 9c7b1f51a9e9d5cd0fbebe2e8e3e0ac4739d3d20",
+        "branch refs/heads/agent/matching-b-20261006",
+        "prunable gitdir file points to non-existent location"
+      ]
+    },
+    {
+      "path": "/tmp/cmr2-matching-c-20261006",
+      "exists": false,
+      "status": null,
+      "error": null,
+      "meta": [
+        "HEAD 3d8e3dff8b786da4b1a26168d5397150d65d87d2",
+        "branch refs/heads/agent/matching-c-20261006",
+        "prunable gitdir file points to non-existent location"
+      ]
+    }
+  ],
+  "stash": "stash@{0}: On main: Codex WIP Collision_DoSpheresOverlap (unfinished, stashed 2026-10-07)\n"
+}

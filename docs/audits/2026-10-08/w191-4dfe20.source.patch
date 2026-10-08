@@ -1,0 +1,147 @@
+diff --git a/CMR2Decomp/FrontendScreens.cpp b/CMR2Decomp/FrontendScreens.cpp
+index 152a423..1011bb7 100644
+--- a/CMR2Decomp/FrontendScreens.cpp
++++ b/CMR2Decomp/FrontendScreens.cpp
+@@ -10901,20 +10901,21 @@ char g_strEllipsisFormat[8] = "%s...";
+ // FUNCTION: CMR2 0x004dfe20
+ void FUN_004dfe20(Menu *pMenu)
+ {
+-    char description[80];
+-    char name[80];
+-    short icon[4];
+-    BYTE *pColour;
+-    BYTE *pSelected;
+-    BYTE *pUnselected;
+     BYTE *pShadow;
+     MenuItem *pItem;
+-    int textId;
+-    int width;
+-    int y0;
+-    int x;
+     int i;
++    BYTE *pUnselected;
++    BYTE *pSelected;
++    short icon[4];
++    int y0;
+     int j;
++    int x;
++    int width;
++    int textId;
++    int id;
++    BYTE *pColour;
++    char description[80];
++    char name[80];
+ 
+     icon[1] = 0;
+     icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+@@ -10968,35 +10969,35 @@ void FUN_004dfe20(Menu *pMenu)
+             case 0:
+                 switch (CGameInfo::FUN_00405b50()) {
+                 case 1:
+-                    textId = 0x1cd;
++                    id = 0x1cd;
+                     break;
+                 case 2:
+-                    textId = 0x1cc;
++                    id = 0x1cc;
+                     break;
+                 case 3:
+-                    textId = 0x1cb;
++                    id = 0x1cb;
+                     break;
+                 default:
+-                    textId = 0x1ce;
++                    id = 0x1ce;
+                     break;
+                 }
+-                sprintf(CFrontend::m_stringDest, g_strEllipsisFormat, CFrontend::GetTextString(textId));
++                sprintf(CFrontend::m_stringDest, g_strEllipsisFormat, CFrontend::GetTextString(id));
+                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
+-                              (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
++                              (short)((int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+                 break;
+             case 1:
+                 strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x1cf));
+                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
+-                              (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
++                              (short)((int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+                 textId = 0x134;
+                 for (j = 0; j < pItem->min; j++) {
+-                    pShadow = pSelected;
++                    pColour = pSelected;
+                     if (j != pItem->max)
+-                        pShadow = pUnselected;
++                        pColour = pUnselected;
+                     width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                     x += (int)(g_pGraphics->resX * 10) / 640 + width;
+                     Font_DrawText(1, CFrontend::GetTextString(textId), x,
+-                                  (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pShadow, 0x11);
++                                  (short)((int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+                     strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(textId));
+                     textId--;
+                 }
+@@ -11005,34 +11006,39 @@ void FUN_004dfe20(Menu *pMenu)
+                 CGraphics::GetDisplayDeviceNames(CGraphics::FUN_004a8bc0(), description, name);
+                 sprintf(CFrontend::m_stringDest, g_strDeviceOptionFormat, CFrontend::GetTextString(0x1d0), description);
+                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
+-                              (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
++                              (short)((int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+                 break;
+             case 3:
+                 sprintf(CFrontend::m_stringDest,
+                         CInput::FormatString(g_strResModeFormat, CFrontend::GetTextString(0x1d1), g_pGraphics->resX,
+                                              g_pGraphics->resY, g_pGraphics->depth));
+                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
+-                              (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
++                              (short)((int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+                 break;
+             case 4:
+                 strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x1d2));
+                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
+-                              (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
++                              (short)((int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+                 for (j = 0; j < pItem->min; j++) {
+                     if (j == pItem->max)
+-                        pShadow = pSelected;
++                        pColour = pSelected;
+                     else
+-                        pShadow = pUnselected;
++                        pColour = pUnselected;
+                     width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                     x += (int)(g_pGraphics->resX * 10) / 640 + width;
+-                    if (j == 0)
++                    switch (j) {
++                    case 0:
+                         textId = 0x1d6;
+-                    else if (j == 1)
++                        break;
++                    case 1:
+                         textId = 0x1d5;
+-                    else
++                        break;
++                    default:
+                         textId = 0x133;
++                        break;
++                    }
+                     Font_DrawText(1, CFrontend::GetTextString(textId), x,
+-                                  (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pShadow, 0x11);
++                                  (short)((int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+                     strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(textId));
+                 }
+                 break;
+@@ -11040,13 +11046,13 @@ void FUN_004dfe20(Menu *pMenu)
+                 sprintf(CFrontend::m_stringDest, g_strSwitchOptionFormat, CFrontend::GetTextString(0x1d3),
+                         Menu_GetItem(pMenu, 5)->max + 1);
+                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
+-                              (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
++                              (short)((int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+                 break;
+             case 6:
+             case 7:
+             case 0xe:
+                 Font_DrawText(1, CFrontend::GetTextString(pItem->id), (int)(g_pGraphics->resX * 0x7a) / 640,
+-                              (int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
++                              (short)((int)(g_pGraphics->resY * 0x18) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+                 break;
+             default:
+                 break;

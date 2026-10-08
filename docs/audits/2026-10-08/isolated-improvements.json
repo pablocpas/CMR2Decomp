@@ -1,0 +1,76 @@
+[
+  {
+    "path": "decomp/match3",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x45b580",
+    "status": "integrated",
+    "losses": [],
+    "gains": [
+      "0x45b580"
+    ],
+    "error": null,
+    "scores": {
+      "before": 0.37975742367210374,
+      "after": 0.3805938937682978,
+      "before_exact": false,
+      "after_exact": false
+    }
+  },
+  {
+    "path": "decomp/matching-review",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "address": "0x506930",
+    "status": "integrated",
+    "losses": [],
+    "gains": [
+      "0x506930"
+    ],
+    "error": null,
+    "scores": {
+      "before": 0.5714285714285714,
+      "after": 0.5803571428571429,
+      "before_exact": false,
+      "after_exact": false
+    }
+  },
+  {
+    "path": "decomp/matching-review",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "address": "0x506bb0",
+    "status": "integrated",
+    "losses": [],
+    "gains": [
+      "0x506bb0"
+    ],
+    "error": null,
+    "scores": {
+      "before": 0.5723076923076923,
+      "after": 0.5846153846153846,
+      "before_exact": false,
+      "after_exact": false
+    }
+  },
+  {
+    "path": "decomp/matching-review",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "address": "0x4b67f0",
+    "status": "integrated",
+    "losses": [],
+    "gains": [
+      "0x4b67f0"
+    ],
+    "error": null,
+    "scores": {
+      "before": 0.6352040816326531,
+      "after": 0.6377551020408163,
+      "before_exact": false,
+      "after_exact": false
+    }
+  },
+  {
+    "path": "decomp/matching-review",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x45b580",
+    "status": "candidate"
+  }
+]

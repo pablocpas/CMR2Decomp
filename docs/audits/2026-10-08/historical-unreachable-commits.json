@@ -1,0 +1,1458 @@
+[
+  {
+    "commit": "68809f0776b5696327f6f4f012be31d3321d00c6",
+    "parents": [
+      "1b4a1d9bb4902894a639211b36aaae507c983469",
+      "1c49d21ba2828542b86d0dab855e2ec4b1301fe4"
+    ],
+    "subject": "WIP on decomp/integration-agents: 1b4a1d9 Merge decomp/ag7 (pass 2)"
+  },
+  {
+    "commit": "a5800866980e7730a5af5ca81e59918185beadea",
+    "parents": [
+      "cf87d6619ad405051eb81639589f4448f7a1bac1",
+      "03c706a05d00bdb6b93bdfdd20378ba9e32a571b"
+    ],
+    "subject": "WIP on decomp/w194-r: cf87d66 Race: draft reconstruction of the per-frame race update 0x41c5a0"
+  },
+  {
+    "commit": "8b0125c7ba9fa918a5460dda615d515d176c19ff",
+    "parents": [
+      "131c88ad5ace113088b9d08a35ee877f39ebf645"
+    ],
+    "subject": "Merge decomp/w54: 3 critical-path functions (0x40eec0 100%, 0x4125f0 97.9%, 0x49e1f0 89.3%)"
+  },
+  {
+    "commit": "a301d6f8ae82c77e377f8a1e7cd8582e8b8cfcbe",
+    "parents": [
+      "d08a3c5fdb93c31cca18d954bae61f6362e0926c"
+    ],
+    "subject": "index on decomp/integration-agents: d08a3c5 Merge decomp/ag4 (pass 5)"
+  },
+  {
+    "commit": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "parents": [
+      "dd264bccd2fa27ebe29b2b1edd4795d49f5aa598",
+      "448b899a1a6a48aeb7e3246274e9d707da966812",
+      "73fd4b3109edf36e6f8ec9b57656fa593a9f78d5"
+    ],
+    "subject": "WIP on decomp/gameinfo-accessors: dd264bc Add SceneNode tree management and track-sector linking (21 functions, 10 at 100%)"
+  },
+  {
+    "commit": "580200e04f940a197d51b6537c5ce314f453ebf1",
+    "parents": [
+      "d01798d46bba196744da02665483a8e8df4efa10"
+    ],
+    "subject": "index on decomp/w64: d01798d Fix Graphics fidelity: 3 functions to 100%, plus 2 closer"
+  },
+  {
+    "commit": "3304a9a624474ce252363eb862a47b438158a295",
+    "parents": [
+      "786b0ffcde3d6190b04e123392a9588818689cc2",
+      "62e59313f4a0c5c4610dc2f2b3f7bb8ae6ecd0ce"
+    ],
+    "subject": "On main: autostash"
+  },
+  {
+    "commit": "79042506ba41a7392fe2e6788d2dd11169104c9c",
+    "parents": [
+      "45def3ec2b2163c853a8b08803cdaa46979d14e8",
+      "fd442378f4ee93568a29e5aa989392f256f3ed25"
+    ],
+    "subject": "WIP on decomp/integration-agents: 45def3e Merge decomp/ag9 (pass 3)"
+  },
+  {
+    "commit": "328526274b4897b1e1e07d21e374a6a23612d57c",
+    "parents": [
+      "701ec6be58f7384bbbc9fb169a22d5b3b577b419",
+      "615d3918064420039fb2b542b929277a9a8c1b9b"
+    ],
+    "subject": "Merge branch 'decomp/cb3' into decomp/callbacks"
+  },
+  {
+    "commit": "ff05e660067b6bddc80ae679a6ee9a96c9ea33a1",
+    "parents": [
+      "3002ce970400df2bd151b53aaaf7d79d9e897eb7",
+      "29a8f8e49f82dc12a0e9f666718822ebbee5a1fa"
+    ],
+    "subject": "On decomp/w163: w163tmp"
+  },
+  {
+    "commit": "a086e678496604a59c0ea7f64b32be016c9456c8",
+    "parents": [
+      "77d1ce03a6617497b803df2adcbb572b4e147836"
+    ],
+    "subject": "index on decomp/w94: 77d1ce0 2 more layer-0 functions: inter-car proximity and stage-mesh nearest vertex"
+  },
+  {
+    "commit": "af864307b535d0f50be6c23d7cee655142c6edce",
+    "parents": [
+      "965bc3edc8d91c2aa6e3373d3047e6ff0472d025",
+      "b1b400fb1d1108d35ec58224a4fccb675d0cce76"
+    ],
+    "subject": "Merge decomp/w193b: 0x47f740 (38.63%, register-allocation residual documented)"
+  },
+  {
+    "commit": "f386e26b3635e516644c17123c2c3dae75ecf7cd",
+    "parents": [
+      "b17d31cd6669b5b5c32c9abc40a35c0d8a5cb2a8",
+      "d519115a538698a45dc3b2ae2dbdcb3cb54a95e2"
+    ],
+    "subject": "WIP on main: b17d31c Stage lighting 0x461c30: interpolate the right end colour (logic fix)"
+  },
+  {
+    "commit": "bf0767e1b2a221ae092bab24ba3b5cd7632fef40",
+    "parents": [
+      "b14a3c08f3b954f20e16ce920e00ac44e61cbcea",
+      "66d3d531865aef719c24b73ed842270e6ed42a19"
+    ],
+    "subject": "WIP on decomp/integration-agents: b14a3c0 Merge decomp/ag6 (pass 2)"
+  },
+  {
+    "commit": "c4878829cbfa749079918d336b18e3c86f80c623",
+    "parents": [
+      "9bc65e554fb599bc5f6319dfdb9a0876d4030465",
+      "19caa9c9084229768f7ac2e09a6301f92fde53c6"
+    ],
+    "subject": "WIP on decomp/integration-agents: 9bc65e5 Merge decomp/ag8 (pass 4)"
+  },
+  {
+    "commit": "e4071b99dff899f89ac4129f8f05f4961994fc22",
+    "parents": [
+      "d08a3c5fdb93c31cca18d954bae61f6362e0926c",
+      "a301d6f8ae82c77e377f8a1e7cd8582e8b8cfcbe"
+    ],
+    "subject": "WIP on decomp/integration-agents: d08a3c5 Merge decomp/ag4 (pass 5)"
+  },
+  {
+    "commit": "d2882dccd3dda334a462441d073512adf400e842",
+    "parents": [
+      "306f77ab312cbe183b2dc9985ba6bed25c73042f",
+      "5c9365c0f06359b4e60fdae799d069543cab8ebd"
+    ],
+    "subject": "WIP on decomp/integration-agents: 306f77a Merge decomp/ag10 (pass 4)"
+  },
+  {
+    "commit": "5609ca02d51a60f3748cefd926a6a389e9fa3810",
+    "parents": [
+      "ecf328171d5929f523a5bd21acbe873270f88df9"
+    ],
+    "subject": "index on decomp/matching-review: ecf3281 Declaration order and statement order: four functions byte-exact"
+  },
+  {
+    "commit": "498a23858f03df1686f1188a223b447b88155499",
+    "parents": [
+      "9f65bd9787a4d0136b5c29a98a190a334d1ea837"
+    ],
+    "subject": "index on main: 9f65bd9 Merge branch 'agent/agent04'"
+  },
+  {
+    "commit": "678a4259fd63df3f8584d5d7d7089e035afa7b4b",
+    "parents": [
+      "50cb1f093a12b6ef6e22bde84860b98b8e2b8f38",
+      "6422bc18824a977f4fe576062145cb52381bc9a1"
+    ],
+    "subject": "WIP on main: 50cb1f0 Byte-matching batches: 2758/3363 exact (+38), 0 losses, 76/76 harnesses"
+  },
+  {
+    "commit": "448b899a1a6a48aeb7e3246274e9d707da966812",
+    "parents": [
+      "dd264bccd2fa27ebe29b2b1edd4795d49f5aa598"
+    ],
+    "subject": "index on decomp/gameinfo-accessors: dd264bc Add SceneNode tree management and track-sector linking (21 functions, 10 at 100%)"
+  },
+  {
+    "commit": "590b7f0cced9e04a011f260d94ccff5a3479bcb3",
+    "parents": [
+      "e525d9310c0761c37eae46fbaf99f31b0aad71b2"
+    ],
+    "subject": "index on decomp/datacmp: e525d93 Merge branch 'casc/s3' into decomp/datacmp"
+  },
+  {
+    "commit": "718fc86b184e862dea38b5e560b38e088e24bb9a",
+    "parents": [
+      "2783c6a034d987460826e96b217b3d8329b6ac98",
+      "d29c2b98790a8ce9cc9e5cc9d3d0d2c016312538"
+    ],
+    "subject": "WIP on main: 2783c6a Merge decomp/match3 through a82729d after full matching and regression checks"
+  },
+  {
+    "commit": "bf0f8dfdf62b544caccfe96fd38457ef70a8b6e5",
+    "parents": [
+      "d7726550ed6bf4b85fcd6c2507f0da9c0dcde302"
+    ],
+    "subject": "index on decomp/callbacks: d772655 GameInfo: g_unk0x00529430 is -1, not uninitialized"
+  },
+  {
+    "commit": "5c104f3cddee0e9f922928e9d794bfeb5f156a81",
+    "parents": [
+      "615d3918064420039fb2b542b929277a9a8c1b9b"
+    ],
+    "subject": "index on decomp/callbacks: 615d391 7 more functions (5 >= 90%, 2 TODO): frontend menu callbacks"
+  },
+  {
+    "commit": "66108faab7844b9a5517e363eb3dea42ff27fea6",
+    "parents": [
+      "26b0a8acf3bad6006d1385035ba09de7a3173372",
+      "dda2cfa43f221184df9cfe94efdae05b71880458"
+    ],
+    "subject": "WIP on main: 26b0a8a Merge branch 'agent/agent07'"
+  },
+  {
+    "commit": "2891277fe6d00e3c9ab326f00bafd760c8a0589a",
+    "parents": [
+      "7a06d56d23738b08a940a16b17a322cfebfbded4",
+      "c64566a48bea98997dad06b2ac138941c590d52a"
+    ],
+    "subject": "WIP on decomp/integration-agents: 7a06d56 Merge decomp/ag10 (pass 2)"
+  },
+  {
+    "commit": "70921a24c2d2479271924174a3312fa2bdb0e557",
+    "parents": [
+      "4110d89ee4c54371f16691abc6bd79d5704e10e4",
+      "d2a7a37ef8e80212ad5c1740230112e6d8018dad"
+    ],
+    "subject": "WIP on decomp/integration-agents: 4110d89 Merge decomp/ag5 (pass 4)"
+  },
+  {
+    "commit": "a2128d9f42df27824a2298bb12a1aebbd5a06c34",
+    "parents": [
+      "302529e685353bcda4163c21286b98e1fa485c73",
+      "a7c4cd2b34f2697ea2276768eb2456d8d15eccb3"
+    ],
+    "subject": "WIP on main: 302529e Integration report: 2632 byte-exact (+60), 731 pending, 0 losses"
+  },
+  {
+    "commit": "5c9365c0f06359b4e60fdae799d069543cab8ebd",
+    "parents": [
+      "306f77ab312cbe183b2dc9985ba6bed25c73042f"
+    ],
+    "subject": "index on decomp/integration-agents: 306f77a Merge decomp/ag10 (pass 4)"
+  },
+  {
+    "commit": "7c14c3a8fcd6598fd735e528a4919f2e4c3728da",
+    "parents": [
+      "d7e6151dc205116c591b7d39e76f04e1a5ef841a",
+      "5418deaa4a19e5fc3db54ff4ac22834873646615"
+    ],
+    "subject": "WIP on decomp/w182: d7e6151 Merge wip/w182e (Car.cpp: 0x431c50 100%, 0x42cd00 100%, 0x42b800 99%, 0x42baf0 91.49%, 0x433890 75.56%)"
+  },
+  {
+    "commit": "1715512d38acd29f76cc5dfe4d68240914843dac",
+    "parents": [
+      "032ec084c4fba93107043321e8703f9c26c3b747",
+      "ff1ebe855a50b71431c85657a293e2e40a4d4c1f"
+    ],
+    "subject": "WIP on decomp/integration-agents: 032ec08 Merge decomp/ag1 (pass 2)"
+  },
+  {
+    "commit": "1c15ad49b0d195e48f369b9f925eaf4889eb2895",
+    "parents": [
+      "f3422265afc63cf20e1d2cb4b958320cbbef3d99"
+    ],
+    "subject": "index on decomp/integration-agents: f342226 Merge decomp/ag9 (pass 4)"
+  },
+  {
+    "commit": "f3152283d3573333817e458a1a378fdf650eb4ce",
+    "parents": [
+      "d6072523144a347775fda9ff96d3f21e13fecc62"
+    ],
+    "subject": "14 more functions (9 >= 90%, 5 TODO): sound device init, menu sounds/input/dots, scrollers, option sync and config save"
+  },
+  {
+    "commit": "7396a4c01dde0367da82d7d969db1d19521d9bd7",
+    "parents": [
+      "125df8c33d2e52e6fe7d197ac7c747b8e6ee1a13"
+    ],
+    "subject": "FrontendScreens: car page draw 0x4d7db0/0x4d8950 (88.6%, identical pair)"
+  },
+  {
+    "commit": "cd966fa564a7bb8c19fc658c21707925c651b5b6",
+    "parents": [
+      "fd3737d45bac856efa31fd0e6ebdd9475aea3a2c",
+      "d1fb08b43d4fe51b45996cc83bbb67d712df60ca"
+    ],
+    "subject": "WIP on decomp/integration-agents: fd3737d Merge decomp/ag2 (pass 2)"
+  },
+  {
+    "commit": "60173b7e72a9480796357d0b5bde3462622a0089",
+    "parents": [
+      "51496ae6e058a17f2b63ee15af2fab8453fa040b",
+      "96f2e33f348b408556dffe9fbf05e64c9031aa0e"
+    ],
+    "subject": "WIP on decomp/datacmp: 51496ae Integrate casc/s5 (0x509150 100%, 0x508ee0 94%, 0x508890 56% TODO) and casc/s7 (8 Bink/menu helpers, 6 >=90%, 0x510120 68% TODO); fix two data tables the batches got wrong (g_unk0x00527324 values, g_unk0x005296f8/g_unk0x0052971c entries+size)"
+  },
+  {
+    "commit": "5418deaa4a19e5fc3db54ff4ac22834873646615",
+    "parents": [
+      "d7e6151dc205116c591b7d39e76f04e1a5ef841a"
+    ],
+    "subject": "index on decomp/w182: d7e6151 Merge wip/w182e (Car.cpp: 0x431c50 100%, 0x42cd00 100%, 0x42b800 99%, 0x42baf0 91.49%, 0x433890 75.56%)"
+  },
+  {
+    "commit": "c31941b43a86808b9c515c477bceffd7d329fc8d",
+    "parents": [
+      "5cd8d569867f578cf4a1474298fd5fc53d1a1c0c",
+      "aa4ac1d56b628f6e8d801ccf1f67e2f5ccd9a8b5"
+    ],
+    "subject": "WIP on decomp/gameinfo-accessors: 5cd8d56 Add CGraphics texture format enumeration (EnumTextureFormatsCallback, SelectTextureFormats)"
+  },
+  {
+    "commit": "d519115a538698a45dc3b2ae2dbdcb3cb54a95e2",
+    "parents": [
+      "b17d31cd6669b5b5c32c9abc40a35c0d8a5cb2a8"
+    ],
+    "subject": "index on main: b17d31c Stage lighting 0x461c30: interpolate the right end colour (logic fix)"
+  },
+  {
+    "commit": "de99ce501eae711be61d0cb338a4a8b2416d7638",
+    "parents": [
+      "863fd49509de366ceeb8c2ba60d1b6a6e1b4ca6c",
+      "3f36a0f4611a537dbf8b573a6f4ef8b8cacc7b57"
+    ],
+    "subject": "On decomp/agent3: wip3"
+  },
+  {
+    "commit": "4b9a111d5265a95a391a933ee32015ef001ab12c",
+    "parents": [
+      "fd4decb5b0e608d7f05354e159ef7426f649939e"
+    ],
+    "subject": "index on decomp/integration-agents: fd4decb Merge decomp/ag1: byte-exact matching batch"
+  },
+  {
+    "commit": "999af5ed7edf9f7059a10b073b3517a0a31b829c",
+    "parents": [
+      "5db6cf85e5add93ba72f69ff2758b8910f2381f9",
+      "b9430da97e07fff2e47e327483716d764ae406a6"
+    ],
+    "subject": "WIP on decomp/w125: 5db6cf8 Merge decomp/w113: 14 layer-0 functions (four >= 90%) + remove a stub whose real body just landed"
+  },
+  {
+    "commit": "f01a5af69411347a58884676f1eb73184a475615",
+    "parents": [
+      "d01798d46bba196744da02665483a8e8df4efa10",
+      "580200e04f940a197d51b6537c5ce314f453ebf1"
+    ],
+    "subject": "WIP on decomp/w64: d01798d Fix Graphics fidelity: 3 functions to 100%, plus 2 closer"
+  },
+  {
+    "commit": "0c1bceb259ca0206ed837aa5a300c4f2fc08f77c",
+    "parents": [
+      "bc8bf0e904dbfad97893c22b64b4eed8167cacf4"
+    ],
+    "subject": "index on decomp/datacmp: bc8bf0e Merge branch 'casc/s5' into decomp/datacmp"
+  },
+  {
+    "commit": "041ce9d7871708ca7296ed862fecbf7cbc2e170d",
+    "parents": [
+      "0533f56de807c465263423f10cdbc56c74d116bb",
+      "8dc62304d9f2b4e08a738616fa59884cc3da9971"
+    ],
+    "subject": "WIP on decomp/integration-agents: 0533f56 Merge decomp/ag3 (pass 5)"
+  },
+  {
+    "commit": "d29c2b98790a8ce9cc9e5cc9d3d0d2c016312538",
+    "parents": [
+      "2783c6a034d987460826e96b217b3d8329b6ac98"
+    ],
+    "subject": "index on main: 2783c6a Merge decomp/match3 through a82729d after full matching and regression checks"
+  },
+  {
+    "commit": "7e1da2bd66ac3b310337c618d1d4afbddb3c4e23",
+    "parents": [
+      "b0fb80a184e898d15c27b5edb827f0067d0b2934",
+      "5c18e6f6d4a279b161936fa3feaac51dd9163b17"
+    ],
+    "subject": "Merge branch 'decomp/cb2' into decomp/callbacks"
+  },
+  {
+    "commit": "a29d4312a5d0a640f20f97baf455cf2a26e1b9d9",
+    "parents": [
+      "8492fd2eb20417f4ad60df42d4fa2449b360676c"
+    ],
+    "subject": "index on decomp/datacmp: 8492fd2 5 more functions (5 >= 90%, 0 TODO): leaderboard/hud/menu rebuild blockers"
+  },
+  {
+    "commit": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "parents": [
+      "c34da09aa4c0afe1fd4daac9f208be556821e1af",
+      "e6f4f0853638d732f4619b772b981229bc99e04a"
+    ],
+    "subject": "WIP on fix/recover-window-fixes: c34da09 Branchless ternaries written as the original (cond ? 0 : X): wheel spin, lean clamp, engine sound"
+  },
+  {
+    "commit": "ff1ebe855a50b71431c85657a293e2e40a4d4c1f",
+    "parents": [
+      "032ec084c4fba93107043321e8703f9c26c3b747"
+    ],
+    "subject": "index on decomp/integration-agents: 032ec08 Merge decomp/ag1 (pass 2)"
+  },
+  {
+    "commit": "c99f53dba6008ad33579687ab85b4e6f302ca82a",
+    "parents": [
+      "6bf10401540859a804be749060b4d52d01e9f2c7",
+      "226ff21cb51f6418690b70cf2039704bb30170a8"
+    ],
+    "subject": "WIP on main: 6bf1040 Merge integration pass 5: 2678 byte-exact (+22), 0 losses, suite 71/0"
+  },
+  {
+    "commit": "4c204ca9c2dbfff315bf00776903f29368592dd5",
+    "parents": [
+      "7e33fd2baa56c43781befa448bf8698ee512cb1b",
+      "2548da65c7bd81d9fe66968c1e8c7dd868030c98"
+    ],
+    "subject": "WIP on main: 7e33fd2 Merge branch 'agent/matching-c-20261006'"
+  },
+  {
+    "commit": "2b22f6c05b4df69d66e26734a75708762af61fc7",
+    "parents": [
+      "784d39b8dbec3d60759fbbd39625e8eede9c34aa",
+      "78d6a93a1305997fb79b0a9b2ffad1e10d3a9000"
+    ],
+    "subject": "WIP on decomp/matching-review: 784d39b Moving stage objects as one global; save slot bitfields in FileBuffer"
+  },
+  {
+    "commit": "6422bc18824a977f4fe576062145cb52381bc9a1",
+    "parents": [
+      "50cb1f093a12b6ef6e22bde84860b98b8e2b8f38"
+    ],
+    "subject": "index on main: 50cb1f0 Byte-matching batches: 2758/3363 exact (+38), 0 losses, 76/76 harnesses"
+  },
+  {
+    "commit": "9e22e838ddf4dc4856d7b6fc4951e42b1ff21ba9",
+    "parents": [
+      "bc8bf0e904dbfad97893c22b64b4eed8167cacf4",
+      "0c1bceb259ca0206ed837aa5a300c4f2fc08f77c"
+    ],
+    "subject": "WIP on decomp/datacmp: bc8bf0e Merge branch 'casc/s5' into decomp/datacmp"
+  },
+  {
+    "commit": "dda2cfa43f221184df9cfe94efdae05b71880458",
+    "parents": [
+      "26b0a8acf3bad6006d1385035ba09de7a3173372"
+    ],
+    "subject": "index on main: 26b0a8a Merge branch 'agent/agent07'"
+  },
+  {
+    "commit": "b223c9448e6b2271da595a161663186b9739b4be",
+    "parents": [
+      "43083243a803c3d8f9a91128e2e22dda22aa4a87"
+    ],
+    "subject": "index on decomp/match3: 4308324 autotype: typed shadow pointers for Car / CameraRecord / RaceCarSoundState parameters (4 functions, same code)"
+  },
+  {
+    "commit": "2d2538559f13ac513f007f2a918a1116fd2dd549",
+    "parents": [
+      "313eb295a43af36d35cde5406466a4551341e50a",
+      "016d5e85e191823ef4c6acfd3a79b62bd7c5b885"
+    ],
+    "subject": "WIP on decomp/w193: 313eb29 StageObjects: rescue of the Claude agent's work when it hit its weekly limit (+149 lines)"
+  },
+  {
+    "commit": "ffa59f3445725944ffa6823a98944fb030b98451",
+    "parents": [
+      "afa7ab0920f6f50bfae1d0427b098629fa32d283"
+    ],
+    "subject": "index on main: afa7ab0 RecomputeCarSplitBarSamples 45.9% -> 49.5%, FillStageSplitEditorRows 70.9% -> 74.8%"
+  },
+  {
+    "commit": "59a7098c99cf452278ddfe2714c99fe579db2923",
+    "parents": [
+      "bffdfe74b198164eb99bbb3b02970ab1a6c3e013"
+    ],
+    "subject": "7 frontend menu callbacks (5 >= 90%, 2 TODO)"
+  },
+  {
+    "commit": "7ca754803654e92a89f370952ef02cef33cc7942",
+    "parents": [
+      "7a7736457def24ac008513326b19680dc5c1ee81",
+      "46bc5d90fc412b573513528b77c369e248ae0b30"
+    ],
+    "subject": "WIP on decomp/callbacks: 7a77364 NetRace.cpp: swap ang1/ang2 in the per-row body-axis build (real bug)"
+  },
+  {
+    "commit": "d2a7a37ef8e80212ad5c1740230112e6d8018dad",
+    "parents": [
+      "4110d89ee4c54371f16691abc6bd79d5704e10e4"
+    ],
+    "subject": "index on decomp/integration-agents: 4110d89 Merge decomp/ag5 (pass 4)"
+  },
+  {
+    "commit": "fc2746287fe16309cfb09b2d773031eeb00b496a",
+    "parents": [
+      "51496ae6e058a17f2b63ee15af2fab8453fa040b"
+    ],
+    "subject": "index on decomp/datacmp: 51496ae Integrate casc/s5 (0x509150 100%, 0x508ee0 94%, 0x508890 56% TODO) and casc/s7 (8 Bink/menu helpers, 6 >=90%, 0x510120 68% TODO); fix two data tables the batches got wrong (g_unk0x00527324 values, g_unk0x005296f8/g_unk0x0052971c entries+size)"
+  },
+  {
+    "commit": "29a8f8e49f82dc12a0e9f666718822ebbee5a1fa",
+    "parents": [
+      "3002ce970400df2bd151b53aaaf7d79d9e897eb7"
+    ],
+    "subject": "index on decomp/w163: 3002ce9 Merge decomp/w152: 7 StageTiming functions (0x457e50 at 100%, 0x466ef0 at 74%)"
+  },
+  {
+    "commit": "5fa99827afd8121db6ab94eb3b15fadfe569fae8",
+    "parents": [
+      "0aedb4ab088f383ac438e178020fd328822cdf2d"
+    ],
+    "subject": "index on decomp/callbacks: 0aedb4a Integrate decomp/w72 (fidelity): 5 Frontend.cpp functions raised, two to 100%"
+  },
+  {
+    "commit": "4daabd699cfb91bbd60c2dd30ea48c6a1eb12340",
+    "parents": [
+      "9f112a7c2a265a7b536c19396189b46ae999766b",
+      "525b779cb1dc8d67c6fc7cab2c0a24a23998b71e"
+    ],
+    "subject": "WIP on decomp/w114: 9f112a7 1 more function (<90%): per-mesh ground light application"
+  },
+  {
+    "commit": "d1abc829a37569c21ed3576510a8fab7dfd905df",
+    "parents": [
+      "15eef3f2e608617095bceece974fb3e59cd1ff45"
+    ],
+    "subject": "GameMenu_DrawFinalChampionshipStandings byte-exact (99.4% -> exact) [harness]"
+  },
+  {
+    "commit": "93ac905f2c1d8c7e83d3aaaf8bea5ecc62064e7a",
+    "parents": [
+      "af864307b535d0f50be6c23d7cee655142c6edce",
+      "190fac6217fd7a244768f46d9fc75a05833dd2af"
+    ],
+    "subject": "Merge decomp/w193c: 0x484310 at 87.81% (up from 82.36%) - unblocks 0x4816f0"
+  },
+  {
+    "commit": "742e308b138386ccf3d1b5c40df654866260af14",
+    "parents": [
+      "e525d9310c0761c37eae46fbaf99f31b0aad71b2"
+    ],
+    "subject": "index on decomp/datacmp: e525d93 Merge branch 'casc/s3' into decomp/datacmp"
+  },
+  {
+    "commit": "892e040a11d4a17020e2826f830da69b9213bd12",
+    "parents": [
+      "d08a3c5fdb93c31cca18d954bae61f6362e0926c",
+      "fcf9e9702fa5f17f57e6191010e28a76fd754c95"
+    ],
+    "subject": "WIP on decomp/integration-agents: d08a3c5 Merge decomp/ag4 (pass 5)"
+  },
+  {
+    "commit": "352f186e46f50e001e7239f0f09351927f2cb54b",
+    "parents": [
+      "02adf3f7721abd90d7dc1dea9a5feea1d99f4b6e",
+      "46ec84333f618a6d47fa777edb1a69c6ff870873"
+    ],
+    "subject": "WIP on decomp/integration-agents: 02adf3f Merge decomp/ag3 (pass 2)"
+  },
+  {
+    "commit": "44b1bff1d1e341db858febb9a276438024353718",
+    "parents": [
+      "991a8ceb5ce0e80181e73bfa323d9fea381d7e16"
+    ],
+    "subject": "index on main: 991a8ce Match ground probe, car mount transform and HUD projection byte-exact"
+  },
+  {
+    "commit": "48b12f499ce6589ca13ac6805e27b547d9866fae",
+    "parents": [
+      "a3bf84bbe287c725e0d167fd0393ba6b9f7d1719",
+      "1f7ecf6ccd3032e427d4bd4cd7bc11329d265bd2"
+    ],
+    "subject": "WIP on decomp/integration-agents: a3bf84b Merge decomp/ag3 (pass 4)"
+  },
+  {
+    "commit": "38b20ec74c371bd3eb2077e712bd060b9f0f6710",
+    "parents": [
+      "912ab5cb61aedba679380b12497abe69a8edddde"
+    ],
+    "subject": "5 more functions in RallyData.cpp (5 >= 90%, 0 TODO)"
+  },
+  {
+    "commit": "3632a315e0dba29b2a016909e7cea2fa5c358b59",
+    "parents": [
+      "9558dcf98d97dca01a5bd7fcf98e5d114b4238a4",
+      "bcc820f9d1061855e6e5c3911ff269c2df8d209f"
+    ],
+    "subject": "WIP on main: 9558dcf Integration note pass 7: 2689 byte-exact (+4), 0 losses"
+  },
+  {
+    "commit": "89b28bb513df59bbeb80c5df5a9daddc4ea569ad",
+    "parents": [
+      "edef49f5be41450c0ddf527d8fb085a2158d3c7a"
+    ],
+    "subject": "Collision_TestOrderedCarPairs byte-exact (74.9% -> exact): typed Car pair loop"
+  },
+  {
+    "commit": "a732f793d0f5fba1d3a370346da3a4720f8d635c",
+    "parents": [
+      "80f2520e74f530125ddb303bc2998b9b723c33fb",
+      "3cd73b38e73587ee59680fefabca9e9e74e27532"
+    ],
+    "subject": "On decomp/w94: w94-tmp"
+  },
+  {
+    "commit": "313360749ad8c5d9a1193ee4bdecebea16029ca3",
+    "parents": [
+      "707d3322dae2ea4e18c6e43aef19cc2eb85e034a",
+      "9dfabaf0684a59c261275e4c8c54e29fbe26250e"
+    ],
+    "subject": "WIP on decomp/callbacks: 707d332 StageObjects: ground/object mesh colourers 0x4920d0 (97.8%) and 0x492220 (98.4%); drop their stubs"
+  },
+  {
+    "commit": "e9339aa992244eb366d6a70c059380c414d464f8",
+    "parents": [
+      "9160a78106b0ab70c2f9db31c630d033bb57fa64"
+    ],
+    "subject": "index on main: 9160a78 Merge branch 'agent/agent05'"
+  },
+  {
+    "commit": "643499e187d76008f989c7f4e2edd7f7943b47c1",
+    "parents": [
+      "4b89b63622893c9fc43f2f6b75fc992a9c3fb421"
+    ],
+    "subject": "index on decomp/matching-review: 4b89b63 Three more byte-exact: small constant loops and abs() in the condition"
+  },
+  {
+    "commit": "04360ae93e95a407cd898400b764e80608157908",
+    "parents": [
+      "615d3918064420039fb2b542b929277a9a8c1b9b",
+      "701ec6be58f7384bbbc9fb169a22d5b3b577b419"
+    ],
+    "subject": "Merge decomp/cb1: 7 menu callbacks (4 at 100%, 2 below 90% with diagnosis) + 2 new globals"
+  },
+  {
+    "commit": "3f36a0f4611a537dbf8b573a6f4ef8b8cacc7b57",
+    "parents": [
+      "863fd49509de366ceeb8c2ba60d1b6a6e1b4ca6c"
+    ],
+    "subject": "index on decomp/agent3: 863fd49 6 more functions (4 >= 90%, 2 TODO): option menu fonts, record sync and fade"
+  },
+  {
+    "commit": "18b86e26c1f27237ad63a074364a23c83be48558",
+    "parents": [
+      "bffdfe74b198164eb99bbb3b02970ab1a6c3e013"
+    ],
+    "subject": "7 menu callbacks implemented (5 >= 90%, 2 TODO): route selection and records screens, name picker"
+  },
+  {
+    "commit": "55ba32286a2a46c9256d1909bfa19d2ef685cbb3",
+    "parents": [
+      "c27bfe295ebf5f592d24cb9bbaffbb9a846c6ded"
+    ],
+    "subject": "10 more functions (4 >= 90%, 5 TODO): GameInfo option records and save-game file names"
+  },
+  {
+    "commit": "7fba9cd9de21e0e6d28e9ed5d1b09b45f0a74aaa",
+    "parents": [
+      "152f84f8ce0616f3d31c838eb82f6e8727ad8be6",
+      "76fb07cdf26574a754b63bb529f7eed606835535"
+    ],
+    "subject": "WIP on decomp/integration-agents: 152f84f Merge decomp/ag2 (pass 4)"
+  },
+  {
+    "commit": "46bc5d90fc412b573513528b77c369e248ae0b30",
+    "parents": [
+      "7a7736457def24ac008513326b19680dc5c1ee81"
+    ],
+    "subject": "index on decomp/callbacks: 7a77364 NetRace.cpp: swap ang1/ang2 in the per-row body-axis build (real bug)"
+  },
+  {
+    "commit": "4bbd72c90dfbd4da7ae1f119776f2875aa505a21",
+    "parents": [
+      "e525d9310c0761c37eae46fbaf99f31b0aad71b2",
+      "742e308b138386ccf3d1b5c40df654866260af14"
+    ],
+    "subject": "WIP on decomp/datacmp: e525d93 Merge branch 'casc/s3' into decomp/datacmp"
+  },
+  {
+    "commit": "ef3d98e4cfce7ac8ec2be27640c281418541307e",
+    "parents": [
+      "8acf6a007436bafbb583be9d47fe55d01bfddb01"
+    ],
+    "subject": "index on decomp/w131: 8acf6a0 Merge decomp/w122: the 0x40-0x44 data blocks declared + 6 functions (one at 100%, one at 99%)"
+  },
+  {
+    "commit": "133e459141f471c0e39bf65485f6efb32b8fd38c",
+    "parents": [
+      "38b20ec74c371bd3eb2077e712bd060b9f0f6710"
+    ],
+    "subject": "4 more functions in RallyData.cpp (4 >= 90%, 0 TODO)"
+  },
+  {
+    "commit": "1d3fc2666f133d807405fb291cc498c3bafe7c74",
+    "parents": [
+      "180ad464af17fa48aa259b8a0c7aeda9afab1cb8"
+    ],
+    "subject": "index on decomp/callbacks: 180ad46 StageObjects: per-view precipitation draw 0x460390 (83.9%) and its caller 0x460330 (100%); StageDeformNode moved to StageTiming.h"
+  },
+  {
+    "commit": "84bfa35e93a3f067e54274e82f0e9685e7ac251f",
+    "parents": [
+      "702b8ab370074732fa90d4e4264f2bb7c9540416"
+    ],
+    "subject": "index on decomp/integration-agents: 702b8ab Merge decomp/ag1 (pass 4)"
+  },
+  {
+    "commit": "3bc0672b49259310780a3c2c025d9fec04a5e620",
+    "parents": [
+      "4b3037f821c36c6a030737e2d1ffae35542ca830",
+      "59d6369426d16ca4551b67b52515030792ad24a1"
+    ],
+    "subject": "On main: autostash"
+  },
+  {
+    "commit": "72c0a1286025f57fbe9f309c71daa6086a3df1d4",
+    "parents": [
+      "fb4ed9236ffc715c8671d428f01c1dc4eea3edc1",
+      "e75c4c4b4f0f336d9c928553d829468a938fc6ed"
+    ],
+    "subject": "WIP on main: fb4ed92 Merge integration pass 6: 2688 byte-exact (+3), 0 losses, suite 76/0"
+  },
+  {
+    "commit": "cc4027162221d93a6e19770552ea2fd666bfab18",
+    "parents": [
+      "67ca27be3ea9c5ced6ed38b1dbe578d14f105855"
+    ],
+    "subject": "index on decomp/integration-agents: 67ca27b Merge decomp/ag7 (pass 4)"
+  },
+  {
+    "commit": "d5c17eede35b60320f6ecd9c2a4feb19f697df46",
+    "parents": [
+      "7396a4c01dde0367da82d7d969db1d19521d9bd7"
+    ],
+    "subject": "FrontendScreens: two callbacks real (0x4efde0 100%, 0x4efb70 83.7%); drop their stubs"
+  },
+  {
+    "commit": "61c277d67a676424fc99dca1054e8a824b38d9c3",
+    "parents": [
+      "5db6cf85e5add93ba72f69ff2758b8910f2381f9"
+    ],
+    "subject": "index on decomp/w125: 5db6cf8 Merge decomp/w113: 14 layer-0 functions (four >= 90%) + remove a stub whose real body just landed"
+  },
+  {
+    "commit": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "parents": [
+      "dd264bccd2fa27ebe29b2b1edd4795d49f5aa598",
+      "ad7d292634d88d39426b2ba62766486f3a35c95e",
+      "8ffc2999c40caf78a2cfc06a44c799a55d3cb5df"
+    ],
+    "subject": "WIP on decomp/gameinfo-accessors: dd264bc Add SceneNode tree management and track-sector linking (21 functions, 10 at 100%)"
+  },
+  {
+    "commit": "0e4319f76d8f3643845c6ad347e4a1542d1533a0",
+    "parents": [
+      "67ca27be3ea9c5ced6ed38b1dbe578d14f105855",
+      "cc4027162221d93a6e19770552ea2fd666bfab18"
+    ],
+    "subject": "WIP on decomp/integration-agents: 67ca27b Merge decomp/ag7 (pass 4)"
+  },
+  {
+    "commit": "4ec3b7a46fa78429ac8d8b301046587d02799f71",
+    "parents": [
+      "ca202acb78a061627930db34f61a8204d359d60e"
+    ],
+    "subject": "3 more functions (2 >= 90%, 1 TODO): stage dent projection, mesh light level, option mesh alpha"
+  },
+  {
+    "commit": "8dc3dc306a3737607cdf4836a72569b9af41825b",
+    "parents": [
+      "e9388f8e8a326f004e07567460e77eb9db2f255d"
+    ],
+    "subject": "Write ternary call arguments as if/else with the call per branch"
+  },
+  {
+    "commit": "b9430da97e07fff2e47e327483716d764ae406a6",
+    "parents": [
+      "5db6cf85e5add93ba72f69ff2758b8910f2381f9"
+    ],
+    "subject": "index on decomp/w125: 5db6cf8 Merge decomp/w113: 14 layer-0 functions (four >= 90%) + remove a stub whose real body just landed"
+  },
+  {
+    "commit": "4f4442600f417b7c6176ffaea4ca1e48c2c57046",
+    "parents": [
+      "26dcb6cab5e41de19fa8d80a9739c28b11dfd2cf"
+    ],
+    "subject": "index on decomp/integration-agents: 26dcb6c Merge decomp/ag5 (pass 3)"
+  },
+  {
+    "commit": "a7c4cd2b34f2697ea2276768eb2456d8d15eccb3",
+    "parents": [
+      "302529e685353bcda4163c21286b98e1fa485c73"
+    ],
+    "subject": "index on main: 302529e Integration report: 2632 byte-exact (+60), 731 pending, 0 losses"
+  },
+  {
+    "commit": "fd442378f4ee93568a29e5aa989392f256f3ed25",
+    "parents": [
+      "45def3ec2b2163c853a8b08803cdaa46979d14e8"
+    ],
+    "subject": "index on decomp/integration-agents: 45def3e Merge decomp/ag9 (pass 3)"
+  },
+  {
+    "commit": "35c5d50f7979204486889f80fb04f27482a8d41d",
+    "parents": [
+      "4ca5548ae2e76bf1d5fc9f5023dcb41eb2b708cf"
+    ],
+    "subject": "Revert \"1 more function (0 >= 90%, 1 TODO): driver/category \"edited\" flag of a save record\""
+  },
+  {
+    "commit": "c64566a48bea98997dad06b2ac138941c590d52a",
+    "parents": [
+      "7a06d56d23738b08a940a16b17a322cfebfbded4"
+    ],
+    "subject": "index on decomp/integration-agents: 7a06d56 Merge decomp/ag10 (pass 2)"
+  },
+  {
+    "commit": "56465c5933d2f996bda2e4185992de7393c78a2f",
+    "parents": [
+      "80f2520e74f530125ddb303bc2998b9b723c33fb"
+    ],
+    "subject": "3 more FixedPoint functions (3 >= 90%): 0x423070 orthonormalise a matrix basis from its forward, 0x4241d0 force-feedback slot update, 0x447a40 view object matrix setup"
+  },
+  {
+    "commit": "8dc62304d9f2b4e08a738616fa59884cc3da9971",
+    "parents": [
+      "0533f56de807c465263423f10cdbc56c74d116bb"
+    ],
+    "subject": "index on decomp/integration-agents: 0533f56 Merge decomp/ag3 (pass 5)"
+  },
+  {
+    "commit": "8fc69c68f8a1a1eae23b7e78035ea902fb0838cb",
+    "parents": [
+      "246c924bffae364987c930eed2b7bf89cb59592f",
+      "d8db3ff98121959f3535e86f792926e619c013f2"
+    ],
+    "subject": "WIP on main: 246c924 Merge match3 through 67f6cc7 and fix contiguous debris frames"
+  },
+  {
+    "commit": "03c706a05d00bdb6b93bdfdd20378ba9e32a571b",
+    "parents": [
+      "cf87d6619ad405051eb81639589f4448f7a1bac1"
+    ],
+    "subject": "index on decomp/w194-r: cf87d66 Race: draft reconstruction of the per-frame race update 0x41c5a0"
+  },
+  {
+    "commit": "d047ea80d61e997b58c7aff41e8b241aee8953d6",
+    "parents": [
+      "2863a34a417150e0cc20a37467d228b271cf01a1",
+      "cbd0f05912e7d55b47ce37fa71ab6561167bcfac"
+    ],
+    "subject": "WIP on decomp/datacmp: 2863a34 Merge branch 'casc/l1a' into decomp/datacmp"
+  },
+  {
+    "commit": "2548da65c7bd81d9fe66968c1e8c7dd868030c98",
+    "parents": [
+      "7e33fd2baa56c43781befa448bf8698ee512cb1b"
+    ],
+    "subject": "index on main: 7e33fd2 Merge branch 'agent/matching-c-20261006'"
+  },
+  {
+    "commit": "bcc820f9d1061855e6e5c3911ff269c2df8d209f",
+    "parents": [
+      "9558dcf98d97dca01a5bd7fcf98e5d114b4238a4"
+    ],
+    "subject": "index on main: 9558dcf Integration note pass 7: 2689 byte-exact (+4), 0 losses"
+  },
+  {
+    "commit": "1c49d21ba2828542b86d0dab855e2ec4b1301fe4",
+    "parents": [
+      "1b4a1d9bb4902894a639211b36aaae507c983469"
+    ],
+    "subject": "index on decomp/integration-agents: 1b4a1d9 Merge decomp/ag7 (pass 2)"
+  },
+  {
+    "commit": "19caa9c9084229768f7ac2e09a6301f92fde53c6",
+    "parents": [
+      "9bc65e554fb599bc5f6319dfdb9a0876d4030465"
+    ],
+    "subject": "index on decomp/integration-agents: 9bc65e5 Merge decomp/ag8 (pass 4)"
+  },
+  {
+    "commit": "6e4af348ef07919369fad2bed662946df483dc59",
+    "parents": [
+      "0aedb4ab088f383ac438e178020fd328822cdf2d",
+      "5fa99827afd8121db6ab94eb3b15fadfe569fae8"
+    ],
+    "subject": "WIP on decomp/callbacks: 0aedb4a Integrate decomp/w72 (fidelity): 5 Frontend.cpp functions raised, two to 100%"
+  },
+  {
+    "commit": "aa4ac1d56b628f6e8d801ccf1f67e2f5ccd9a8b5",
+    "parents": [
+      "5cd8d569867f578cf4a1474298fd5fc53d1a1c0c"
+    ],
+    "subject": "index on decomp/gameinfo-accessors: 5cd8d56 Add CGraphics texture format enumeration (EnumTextureFormatsCallback, SelectTextureFormats)"
+  },
+  {
+    "commit": "004c53c850cb46d7bdbcebc2f8016536e82e41f9",
+    "parents": [
+      "180ad464af17fa48aa259b8a0c7aeda9afab1cb8",
+      "1d3fc2666f133d807405fb291cc498c3bafe7c74"
+    ],
+    "subject": "WIP on decomp/callbacks: 180ad46 StageObjects: per-view precipitation draw 0x460390 (83.9%) and its caller 0x460330 (100%); StageDeformNode moved to StageTiming.h"
+  },
+  {
+    "commit": "c54cd9d9acd3b20ab4580982afe7605170c4b689",
+    "parents": [
+      "90257d18c8d8d3e83333f54058ffde33fe0eb0b4"
+    ],
+    "subject": "3 more functions (2 >= 90%, 1 TODO): stage mesh loader, shadow mesh draw, frontend input reset"
+  },
+  {
+    "commit": "1d4df1274c4b061b316988a1d8902652b86154fc",
+    "parents": [
+      "4b89b63622893c9fc43f2f6b75fc992a9c3fb421",
+      "643499e187d76008f989c7f4e2edd7f7943b47c1"
+    ],
+    "subject": "WIP on decomp/matching-review: 4b89b63 Three more byte-exact: small constant loops and abs() in the condition"
+  },
+  {
+    "commit": "494d8a3f796b04c2bb8034b9ee54d72fd921c93c",
+    "parents": [
+      "8492fd2eb20417f4ad60df42d4fa2449b360676c",
+      "a29d4312a5d0a640f20f97baf455cf2a26e1b9d9"
+    ],
+    "subject": "On decomp/datacmp: datacmp-wip"
+  },
+  {
+    "commit": "53ce626e800394da978b7761201c38218469eda7",
+    "parents": [
+      "ca202acb78a061627930db34f61a8204d359d60e"
+    ],
+    "subject": "14 more functions (13 >= 90%, 1 TODO): option menu records, menu builders, background world"
+  },
+  {
+    "commit": "e9cfec320c004f8aa2d824b79fab28a523b0871e",
+    "parents": [
+      "bffdfe74b198164eb99bbb3b02970ab1a6c3e013"
+    ],
+    "subject": "7 frontend menu callbacks (5 >= 90%, 2 TODO)"
+  },
+  {
+    "commit": "cbd0f05912e7d55b47ce37fa71ab6561167bcfac",
+    "parents": [
+      "2863a34a417150e0cc20a37467d228b271cf01a1"
+    ],
+    "subject": "index on decomp/datacmp: 2863a34 Merge branch 'casc/l1a' into decomp/datacmp"
+  },
+  {
+    "commit": "7c51df1f209d51b110e19f71e40610bf417c3598",
+    "parents": [
+      "b1cd99f93a7ca7c446727df41e19a82919c45823"
+    ],
+    "subject": "TEST: un-close DrawFinalChampionshipStandings (harness e2e)"
+  },
+  {
+    "commit": "ee51f7c217afe7dadf377433748bf8d67ffd4c89",
+    "parents": [
+      "7daa385cd71e8b90618b208876da58272c21560f"
+    ],
+    "subject": "index on decomp/close: 7daa385 GameMenus: declare FrontendRecords_InsertStageDeviceRecord as int"
+  },
+  {
+    "commit": "8b52563b9f67c90f94917039638b78444aa8aff4",
+    "parents": [
+      "77d1ce03a6617497b803df2adcbb572b4e147836",
+      "a086e678496604a59c0ea7f64b32be016c9456c8"
+    ],
+    "subject": "On decomp/w94: w94-b3"
+  },
+  {
+    "commit": "66d3d531865aef719c24b73ed842270e6ed42a19",
+    "parents": [
+      "b14a3c08f3b954f20e16ce920e00ac44e61cbcea"
+    ],
+    "subject": "index on decomp/integration-agents: b14a3c0 Merge decomp/ag6 (pass 2)"
+  },
+  {
+    "commit": "4054956bfff9f3b53a89de69eef4319f80a18d30",
+    "parents": [
+      "615d3918064420039fb2b542b929277a9a8c1b9b",
+      "5c104f3cddee0e9f922928e9d794bfeb5f156a81"
+    ],
+    "subject": "WIP on decomp/callbacks: 615d391 7 more functions (5 >= 90%, 2 TODO): frontend menu callbacks"
+  },
+  {
+    "commit": "3d55441e05f3fe170a392284386bded69062e16a",
+    "parents": [
+      "7daa385cd71e8b90618b208876da58272c21560f",
+      "ee51f7c217afe7dadf377433748bf8d67ffd4c89"
+    ],
+    "subject": "WIP on decomp/close: 7daa385 GameMenus: declare FrontendRecords_InsertStageDeviceRecord as int"
+  },
+  {
+    "commit": "59d6369426d16ca4551b67b52515030792ad24a1",
+    "parents": [
+      "4b3037f821c36c6a030737e2d1ffae35542ca830"
+    ],
+    "subject": "index on main: 4b3037f Fix Sector_RelocateStageMeshFile triangle stride (47.4% -> 55.9%)"
+  },
+  {
+    "commit": "78d6a93a1305997fb79b0a9b2ffad1e10d3a9000",
+    "parents": [
+      "784d39b8dbec3d60759fbbd39625e8eede9c34aa"
+    ],
+    "subject": "index on decomp/matching-review: 784d39b Moving stage objects as one global; save slot bitfields in FileBuffer"
+  },
+  {
+    "commit": "b8562883d0e231fab305cd069a55e93ce4cacdd8",
+    "parents": [
+      "0a35b8425103f3fe709e9d4cf2bca8edf1ea02a8",
+      "ac65c7a1a0b3f259cd586212b642ee4767ed3450"
+    ],
+    "subject": "WIP on decomp/integration-agents: 0a35b84 Merge decomp/ag6 (pass 4)"
+  },
+  {
+    "commit": "3cd73b38e73587ee59680fefabca9e9e74e27532",
+    "parents": [
+      "80f2520e74f530125ddb303bc2998b9b723c33fb"
+    ],
+    "subject": "index on decomp/w94: 80f2520 Merge decomp/w86 (fidelity): 17 Graphics/FrontendScreens functions raised, 13 at 100%"
+  },
+  {
+    "commit": "7fd8be86ac9c61b49fc6663a01ec7b1a007fd74d",
+    "parents": [
+      "8acf6a007436bafbb583be9d47fe55d01bfddb01",
+      "ef3d98e4cfce7ac8ec2be27640c281418541307e"
+    ],
+    "subject": "WIP on decomp/w131: 8acf6a0 Merge decomp/w122: the 0x40-0x44 data blocks declared + 6 functions (one at 100%, one at 99%)"
+  },
+  {
+    "commit": "20d9ff263fcffdc49c2f369405bd107253b076d2",
+    "parents": [
+      "40dcb274fb8b285936a035995ada4e3ec9d545d1"
+    ],
+    "subject": "RallyData_DrawListItem byte-exact (56.84% -> exact)"
+  },
+  {
+    "commit": "5e5989101df4d665835c826b8774ed2d8c49692a",
+    "parents": [
+      "51496ae6e058a17f2b63ee15af2fab8453fa040b",
+      "fc2746287fe16309cfb09b2d773031eeb00b496a"
+    ],
+    "subject": "WIP on decomp/datacmp: 51496ae Integrate casc/s5 (0x509150 100%, 0x508ee0 94%, 0x508890 56% TODO) and casc/s7 (8 Bink/menu helpers, 6 >=90%, 0x510120 68% TODO); fix two data tables the batches got wrong (g_unk0x00527324 values, g_unk0x005296f8/g_unk0x0052971c entries+size)"
+  },
+  {
+    "commit": "d6d92c23c309eb072671dc36774124cb34031327",
+    "parents": [
+      "34b7c8f920d9f085654b8c1609022b85ea35a77c"
+    ],
+    "subject": "index on decomp/integration-agents: 34b7c8f Merge decomp/ag4 (pass 2)"
+  },
+  {
+    "commit": "525b779cb1dc8d67c6fc7cab2c0a24a23998b71e",
+    "parents": [
+      "9f112a7c2a265a7b536c19396189b46ae999766b"
+    ],
+    "subject": "index on decomp/w114: 9f112a7 1 more function (<90%): per-mesh ground light application"
+  },
+  {
+    "commit": "965bc3edc8d91c2aa6e3373d3047e6ff0472d025",
+    "parents": [
+      "5cbf01daee635ac888ef46cdbb3f24a97e4ee3b6",
+      "ea79ca9713599e8c6f8efc151acdd05dd2e1be00"
+    ],
+    "subject": "Merge branch 'decomp/w193a' into decomp/callbacks"
+  },
+  {
+    "commit": "d8db3ff98121959f3535e86f792926e619c013f2",
+    "parents": [
+      "246c924bffae364987c930eed2b7bf89cb59592f"
+    ],
+    "subject": "index on main: 246c924 Merge match3 through 67f6cc7 and fix contiguous debris frames"
+  },
+  {
+    "commit": "ce5ce6b9969eab69f587d853d8c440250c801a65",
+    "parents": [
+      "38b20ec74c371bd3eb2077e712bd060b9f0f6710"
+    ],
+    "subject": "1 more function in RallyData.cpp (100%) + measure Game_PrepareScene"
+  },
+  {
+    "commit": "e75c4c4b4f0f336d9c928553d829468a938fc6ed",
+    "parents": [
+      "fb4ed9236ffc715c8671d428f01c1dc4eea3edc1"
+    ],
+    "subject": "index on main: fb4ed92 Merge integration pass 6: 2688 byte-exact (+3), 0 losses, suite 76/0"
+  },
+  {
+    "commit": "125df8c33d2e52e6fe7d197ac7c747b8e6ee1a13",
+    "parents": [
+      "f23584d547cbc35a71858d45202ce030be904a9c"
+    ],
+    "subject": "FrontendScreens: settings list page 0x4e8b60 (WIP, 67%)"
+  },
+  {
+    "commit": "3b5dbd4ffb7b736ffd862c0719ee4836983e4922",
+    "parents": [
+      "223f98d39d0f9741665bfc399b77400451c2900e"
+    ],
+    "subject": "2 more functions (1 >= 90%): option panel enter/leave helper and the temperature label it draws"
+  },
+  {
+    "commit": "afddc87f17b502c9dc4f68b208ea979382c2e6be",
+    "parents": [
+      "8acf6a007436bafbb583be9d47fe55d01bfddb01"
+    ],
+    "subject": "index on decomp/w138: 8acf6a0 Merge decomp/w122: the 0x40-0x44 data blocks declared + 6 functions (one at 100%, one at 99%)"
+  },
+  {
+    "commit": "4de0fd789330bc64741ca17a517a31fed004e454",
+    "parents": [
+      "e6518d411025a66379f33a3ae0f2fcd83ed282c7",
+      "fae9294ecf0955437365dc9c72bad07b100dfbf1"
+    ],
+    "subject": "WIP on decomp/integration-agents: e6518d4 Merge decomp/ag8 (pass 3)"
+  },
+  {
+    "commit": "cd6081cd971b03a2a77edba6136d889733b8f1f1",
+    "parents": [
+      "fd4decb5b0e608d7f05354e159ef7426f649939e",
+      "4b9a111d5265a95a391a933ee32015ef001ab12c"
+    ],
+    "subject": "WIP on decomp/integration-agents: fd4decb Merge decomp/ag1: byte-exact matching batch"
+  },
+  {
+    "commit": "6fe2efbb2ff70ead6ee8f434e961b596ed604a19",
+    "parents": [
+      "43083243a803c3d8f9a91128e2e22dda22aa4a87",
+      "b223c9448e6b2271da595a161663186b9739b4be"
+    ],
+    "subject": "WIP on decomp/match3: 4308324 autotype: typed shadow pointers for Car / CameraRecord / RaceCarSoundState parameters (4 functions, same code)"
+  },
+  {
+    "commit": "ace2b57bcdce734fbef08fa6df01015f71a90d6a",
+    "parents": [
+      "ecf328171d5929f523a5bd21acbe873270f88df9",
+      "5609ca02d51a60f3748cefd926a6a389e9fa3810"
+    ],
+    "subject": "WIP on decomp/matching-review: ecf3281 Declaration order and statement order: four functions byte-exact"
+  },
+  {
+    "commit": "80e356aac3297bd454581f19aa701e58646b9cbd",
+    "parents": [
+      "f29ca908fc8475985a5b512a289ee2bd194f4bb1",
+      "26fb9bb0f455d3060f7b5644d18559d4837b1da5"
+    ],
+    "subject": "WIP on decomp/callbacks: f29ca90 Merge decomp/w172-merged: W171's 7 GameInfo functions, its handoff blocks and W172's audit"
+  },
+  {
+    "commit": "9ee4e4cd23c2800e9b3079e6225e4fb585d1604b",
+    "parents": [
+      "f3b38a7cc74b4c7a45b52de0f0c679752f26566d"
+    ],
+    "subject": "index on decomp/w151: f3b38a7 Merge decomp/w142: 6 functions (0x458100 at 100%, 0x45a170 at 99%)"
+  },
+  {
+    "commit": "ff64f2e823d3e927108df0de52af170fdedd28cb",
+    "parents": [
+      "50cb1f093a12b6ef6e22bde84860b98b8e2b8f38"
+    ],
+    "subject": "Clean up repository for publishing"
+  },
+  {
+    "commit": "4ce54757d112e36fae7298fe92c0c3e6947ddbe6",
+    "parents": [
+      "702b8ab370074732fa90d4e4264f2bb7c9540416",
+      "84bfa35e93a3f067e54274e82f0e9685e7ac251f"
+    ],
+    "subject": "WIP on decomp/integration-agents: 702b8ab Merge decomp/ag1 (pass 4)"
+  },
+  {
+    "commit": "62e59313f4a0c5c4610dc2f2b3f7bb8ae6ecd0ce",
+    "parents": [
+      "786b0ffcde3d6190b04e123392a9588818689cc2"
+    ],
+    "subject": "index on main: 786b0ff Collision_TestOrderedCarPairs byte-exact (74.9% -> exact): typed Car pair loop"
+  },
+  {
+    "commit": "ac65c7a1a0b3f259cd586212b642ee4767ed3450",
+    "parents": [
+      "0a35b8425103f3fe709e9d4cf2bca8edf1ea02a8"
+    ],
+    "subject": "index on decomp/integration-agents: 0a35b84 Merge decomp/ag6 (pass 4)"
+  },
+  {
+    "commit": "d5651d1d1dbedb47b6803f0e8dc33bfa6f580d5d",
+    "parents": [
+      "f3b38a7cc74b4c7a45b52de0f0c679752f26566d",
+      "9ee4e4cd23c2800e9b3079e6225e4fb585d1604b"
+    ],
+    "subject": "WIP on decomp/w151: f3b38a7 Merge decomp/w142: 6 functions (0x458100 at 100%, 0x45a170 at 99%)"
+  },
+  {
+    "commit": "486706e841321eac0633513bf4b6150a8d40ad19",
+    "parents": [
+      "9f65bd9787a4d0136b5c29a98a190a334d1ea837",
+      "498a23858f03df1686f1188a223b447b88155499"
+    ],
+    "subject": "WIP on main: 9f65bd9 Merge branch 'agent/agent04'"
+  },
+  {
+    "commit": "4a67803f8797ce83a78c50b8f26c80c6aca97f76",
+    "parents": [
+      "efe98cd3bd0d45e516e8cecafc00248e1392f305",
+      "2bf1871a88ea1c775adede934a922f071b825863"
+    ],
+    "subject": "WIP on decomp/integration-agents: efe98cd Merge decomp/ag9 (pass 2)"
+  },
+  {
+    "commit": "5b671a9eeee3ea2cc6eb5562013d6d965423f4fb",
+    "parents": [
+      "5db6cf85e5add93ba72f69ff2758b8910f2381f9",
+      "61c277d67a676424fc99dca1054e8a824b38d9c3"
+    ],
+    "subject": "WIP on decomp/w125: 5db6cf8 Merge decomp/w113: 14 layer-0 functions (four >= 90%) + remove a stub whose real body just landed"
+  },
+  {
+    "commit": "0fe82061cf6d9ca54082fa1ec5dfe23dab96fa9a",
+    "parents": [
+      "26dcb6cab5e41de19fa8d80a9739c28b11dfd2cf",
+      "4f4442600f417b7c6176ffaea4ca1e48c2c57046"
+    ],
+    "subject": "WIP on decomp/integration-agents: 26dcb6c Merge decomp/ag5 (pass 3)"
+  },
+  {
+    "commit": "c9e8f7d74163a25ab5df075e4e44ebe5cb6109f9",
+    "parents": [
+      "34b7c8f920d9f085654b8c1609022b85ea35a77c",
+      "d6d92c23c309eb072671dc36774124cb34031327"
+    ],
+    "subject": "WIP on decomp/integration-agents: 34b7c8f Merge decomp/ag4 (pass 2)"
+  },
+  {
+    "commit": "fae9294ecf0955437365dc9c72bad07b100dfbf1",
+    "parents": [
+      "e6518d411025a66379f33a3ae0f2fcd83ed282c7"
+    ],
+    "subject": "index on decomp/integration-agents: e6518d4 Merge decomp/ag8 (pass 3)"
+  },
+  {
+    "commit": "f96a324526a44ca4ac53876b0f27d11f8a42ac30",
+    "parents": [
+      "e3e72b622792582a5fe281ef8fea1411ac2acd0b"
+    ],
+    "subject": "2 more functions (2 >= 90%, 0 TODO): boot exit state 0x4d1e90 (95.8%) and option menu state 0x500c80 (95.0%)"
+  },
+  {
+    "commit": "46ec84333f618a6d47fa777edb1a69c6ff870873",
+    "parents": [
+      "02adf3f7721abd90d7dc1dea9a5feea1d99f4b6e"
+    ],
+    "subject": "index on decomp/integration-agents: 02adf3f Merge decomp/ag3 (pass 2)"
+  },
+  {
+    "commit": "ab6c9b1a8d1d663e9dd4c12e83cff620678a29d4",
+    "parents": [
+      "8acf6a007436bafbb583be9d47fe55d01bfddb01",
+      "afddc87f17b502c9dc4f68b208ea979382c2e6be"
+    ],
+    "subject": "WIP on decomp/w138: 8acf6a0 Merge decomp/w122: the 0x40-0x44 data blocks declared + 6 functions (one at 100%, one at 99%)"
+  },
+  {
+    "commit": "016d5e85e191823ef4c6acfd3a79b62bd7c5b885",
+    "parents": [
+      "313eb295a43af36d35cde5406466a4551341e50a"
+    ],
+    "subject": "index on decomp/w193: 313eb29 StageObjects: rescue of the Claude agent's work when it hit its weekly limit (+149 lines)"
+  },
+  {
+    "commit": "15eef3f2e608617095bceece974fb3e59cd1ff45",
+    "parents": [
+      "b1cd99f93a7ca7c446727df41e19a82919c45823"
+    ],
+    "subject": "TEST: un-close DrawFinalChampionshipStandings (harness e2e)"
+  },
+  {
+    "commit": "a96ed02553182313f2689d1daa1d17ee038cef59",
+    "parents": [
+      "bffdfe74b198164eb99bbb3b02970ab1a6c3e013"
+    ],
+    "subject": "7 menu callbacks implemented (5 >= 90%, 2 TODO): route selection and records screens, name picker"
+  },
+  {
+    "commit": "fceef3d513d875593b7d429554efc9a423432316",
+    "parents": [
+      "afa7ab0920f6f50bfae1d0427b098629fa32d283",
+      "ffa59f3445725944ffa6823a98944fb030b98451"
+    ],
+    "subject": "On main: autostash"
+  },
+  {
+    "commit": "226ff21cb51f6418690b70cf2039704bb30170a8",
+    "parents": [
+      "6bf10401540859a804be749060b4d52d01e9f2c7"
+    ],
+    "subject": "index on main: 6bf1040 Merge integration pass 5: 2678 byte-exact (+22), 0 losses, suite 71/0"
+  },
+  {
+    "commit": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "parents": [
+      "2c90500ccf8f37bdee9d0df0b6473628688cd965"
+    ],
+    "subject": "Revert \"Pattern pass: local variable types (short/int/BYTE/unsigned) on 44 functions\""
+  },
+  {
+    "commit": "2bf1871a88ea1c775adede934a922f071b825863",
+    "parents": [
+      "efe98cd3bd0d45e516e8cecafc00248e1392f305"
+    ],
+    "subject": "index on decomp/integration-agents: efe98cd Merge decomp/ag9 (pass 2)"
+  },
+  {
+    "commit": "58f12e390c28307ef426d0af781aff59302502fd",
+    "parents": [
+      "991a8ceb5ce0e80181e73bfa323d9fea381d7e16",
+      "44b1bff1d1e341db858febb9a276438024353718"
+    ],
+    "subject": "On main: autostash"
+  },
+  {
+    "commit": "96f2e33f348b408556dffe9fbf05e64c9031aa0e",
+    "parents": [
+      "51496ae6e058a17f2b63ee15af2fab8453fa040b"
+    ],
+    "subject": "index on decomp/datacmp: 51496ae Integrate casc/s5 (0x509150 100%, 0x508ee0 94%, 0x508890 56% TODO) and casc/s7 (8 Bink/menu helpers, 6 >=90%, 0x510120 68% TODO); fix two data tables the batches got wrong (g_unk0x00527324 values, g_unk0x005296f8/g_unk0x0052971c entries+size)"
+  },
+  {
+    "commit": "f4721249476ad7998a589b33ba9f923f022860af",
+    "parents": [
+      "f3422265afc63cf20e1d2cb4b958320cbbef3d99",
+      "1c15ad49b0d195e48f369b9f925eaf4889eb2895"
+    ],
+    "subject": "WIP on decomp/integration-agents: f342226 Merge decomp/ag9 (pass 4)"
+  },
+  {
+    "commit": "657357a216583cd9cfe8693911bac50b8e031567",
+    "parents": [
+      "af864307b535d0f50be6c23d7cee655142c6edce",
+      "190fac6217fd7a244768f46d9fc75a05833dd2af"
+    ],
+    "subject": "Merge decomp/w193c: 0x484310 at 87.81% (unblocks 0x4816f0)"
+  },
+  {
+    "commit": "e6f4f0853638d732f4619b772b981229bc99e04a",
+    "parents": [
+      "c34da09aa4c0afe1fd4daac9f208be556821e1af"
+    ],
+    "subject": "index on fix/recover-window-fixes: c34da09 Branchless ternaries written as the original (cond ? 0 : X): wheel spin, lean clamp, engine sound"
+  },
+  {
+    "commit": "1ff6b7551869a4d853ef4d740d2633d7cc40c636",
+    "parents": [
+      "9160a78106b0ab70c2f9db31c630d033bb57fa64",
+      "e9339aa992244eb366d6a70c059380c414d464f8"
+    ],
+    "subject": "WIP on main: 9160a78 Merge branch 'agent/agent05'"
+  },
+  {
+    "commit": "4776680799a4af599fc2ed2f8509fc8bf93f3645",
+    "parents": [
+      "bb0d451125bb885f429611f05360bd7575937474"
+    ],
+    "subject": "index on decomp/integration-agents: bb0d451 Merge decomp/ag10 (pass 3)"
+  },
+  {
+    "commit": "65f70999503ac41019d8c79b85153951752c1e8f",
+    "parents": [
+      "e525d9310c0761c37eae46fbaf99f31b0aad71b2",
+      "590b7f0cced9e04a011f260d94ccff5a3479bcb3"
+    ],
+    "subject": "WIP on decomp/datacmp: e525d93 Merge branch 'casc/s3' into decomp/datacmp"
+  },
+  {
+    "commit": "8a791a17d67cdeb6d18cfea4327e7af388fdc3d9",
+    "parents": [
+      "ca202acb78a061627930db34f61a8204d359d60e"
+    ],
+    "subject": "9 functions (7 >= 90%, 2 TODO): mesh draw/upload, sector depth queue, frame present, texture set loader, input key counters"
+  },
+  {
+    "commit": "fcf9e9702fa5f17f57e6191010e28a76fd754c95",
+    "parents": [
+      "d08a3c5fdb93c31cca18d954bae61f6362e0926c"
+    ],
+    "subject": "index on decomp/integration-agents: d08a3c5 Merge decomp/ag4 (pass 5)"
+  },
+  {
+    "commit": "9dfabaf0684a59c261275e4c8c54e29fbe26250e",
+    "parents": [
+      "707d3322dae2ea4e18c6e43aef19cc2eb85e034a"
+    ],
+    "subject": "index on decomp/callbacks: 707d332 StageObjects: ground/object mesh colourers 0x4920d0 (97.8%) and 0x492220 (98.4%); drop their stubs"
+  },
+  {
+    "commit": "f4faa0d78328b0bd14250146922804bfdf764708",
+    "parents": [
+      "d7726550ed6bf4b85fcd6c2507f0da9c0dcde302",
+      "bf0f8dfdf62b544caccfe96fd38457ef70a8b6e5"
+    ],
+    "subject": "WIP on decomp/callbacks: d772655 GameInfo: g_unk0x00529430 is -1, not uninitialized"
+  },
+  {
+    "commit": "26fb9bb0f455d3060f7b5644d18559d4837b1da5",
+    "parents": [
+      "f29ca908fc8475985a5b512a289ee2bd194f4bb1"
+    ],
+    "subject": "index on decomp/callbacks: f29ca90 Merge decomp/w172-merged: W171's 7 GameInfo functions, its handoff blocks and W172's audit"
+  },
+  {
+    "commit": "76fb07cdf26574a754b63bb529f7eed606835535",
+    "parents": [
+      "152f84f8ce0616f3d31c838eb82f6e8727ad8be6"
+    ],
+    "subject": "index on decomp/integration-agents: 152f84f Merge decomp/ag2 (pass 4)"
+  },
+  {
+    "commit": "b0fb80a184e898d15c27b5edb827f0067d0b2934",
+    "parents": [
+      "328526274b4897b1e1e07d21e374a6a23612d57c",
+      "333a2123e2a148931dc0db7a9dc9ce55286ee3cb"
+    ],
+    "subject": "Merge branch 'decomp/cb4' into decomp/callbacks"
+  },
+  {
+    "commit": "d1fb08b43d4fe51b45996cc83bbb67d712df60ca",
+    "parents": [
+      "fd3737d45bac856efa31fd0e6ebdd9475aea3a2c"
+    ],
+    "subject": "index on decomp/integration-agents: fd3737d Merge decomp/ag2 (pass 2)"
+  },
+  {
+    "commit": "8ffc2999c40caf78a2cfc06a44c799a55d3cb5df",
+    "parents": [],
+    "subject": "untracked files on decomp/gameinfo-accessors: dd264bc Add SceneNode tree management and track-sector linking (21 functions, 10 at 100%)"
+  },
+  {
+    "commit": "73fd4b3109edf36e6f8ec9b57656fa593a9f78d5",
+    "parents": [],
+    "subject": "untracked files on decomp/gameinfo-accessors: dd264bc Add SceneNode tree management and track-sector linking (21 functions, 10 at 100%)"
+  },
+  {
+    "commit": "ad7d292634d88d39426b2ba62766486f3a35c95e",
+    "parents": [
+      "dd264bccd2fa27ebe29b2b1edd4795d49f5aa598"
+    ],
+    "subject": "index on decomp/gameinfo-accessors: dd264bc Add SceneNode tree management and track-sector linking (21 functions, 10 at 100%)"
+  },
+  {
+    "commit": "1f7ecf6ccd3032e427d4bd4cd7bc11329d265bd2",
+    "parents": [
+      "a3bf84bbe287c725e0d167fd0393ba6b9f7d1719"
+    ],
+    "subject": "index on decomp/integration-agents: a3bf84b Merge decomp/ag3 (pass 4)"
+  },
+  {
+    "commit": "357f0cfec871da1be01c83afa383d139b1777bda",
+    "parents": [
+      "04360ae93e95a407cd898400b764e80608157908"
+    ],
+    "subject": "Merge decomp/cb1 + decomp/cb3: 14 menu callbacks (9 at 100%, 2 >=98%, 3 below 90% with diagnosis)"
+  },
+  {
+    "commit": "eaff6bc36efb29aaddbd7e7988818d282af827e0",
+    "parents": [
+      "bb0d451125bb885f429611f05360bd7575937474",
+      "4776680799a4af599fc2ed2f8509fc8bf93f3645"
+    ],
+    "subject": "WIP on decomp/integration-agents: bb0d451 Merge decomp/ag10 (pass 3)"
+  }
+]

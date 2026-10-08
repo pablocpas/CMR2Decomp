@@ -100,9 +100,9 @@
   },
   "0x428bf0": {
     "n": "View_SelectVisibleCars",
-    "s": 0.5651793525809273,
+    "s": 0.5681818181818182,
     "x": false,
-    "fz": 0.7699037620297463,
+    "fz": 0.7727272727272727,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "View_SelectVisibleCars"
@@ -811,18 +811,18 @@
   },
   "0x4348c0": {
     "n": "Car_UpdateCornerLoads",
-    "s": 0.7894201424211598,
+    "s": 0.789795918367347,
     "x": false,
-    "fz": 0.8891149542217701,
+    "fz": 0.8836734693877552,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateCornerLoads"
   },
   "0x4380c0": {
     "n": "Car_UpdateEngineSpeed",
-    "s": 0.6304347826086957,
+    "s": 0.6391304347826087,
     "x": false,
-    "fz": 0.8,
+    "fz": 0.8173913043478261,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateEngineSpeed"
@@ -1522,9 +1522,9 @@
   },
   "0x45c820": {
     "n": "WheelSplash_Update",
-    "s": 0.4681967213114754,
+    "s": 0.47182175622542594,
     "x": false,
-    "fz": 0.6085245901639345,
+    "fz": 0.6212319790301442,
     "unknown": [],
     "f": "CarEffects.cpp",
     "symbol_name": "WheelSplash_Update"
@@ -3189,9 +3189,9 @@
   },
   "0x4d3360": {
     "n": "FrontendDraw_MenuList",
-    "s": 0.8305582761998042,
+    "s": 0.8325171400587659,
     "x": false,
-    "fz": 0.8638589618021547,
+    "fz": 0.8658178256611165,
     "unknown": [],
     "f": "FrontendDraw.cpp",
     "symbol_name": "FrontendDraw_MenuList"
@@ -12450,9 +12450,9 @@
   },
   "0x506930": {
     "n": "OptionPreview_SetTargetWheelAngles",
-    "s": 0.5714285714285714,
+    "s": 0.5803571428571429,
     "x": false,
-    "fz": 0.8214285714285714,
+    "fz": 0.8035714285714286,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionPreview_SetTargetWheelAngles"
@@ -12468,9 +12468,9 @@
   },
   "0x506bb0": {
     "n": "OptionPreview_AllocateConvertedWheelVertices",
-    "s": 0.549079754601227,
+    "s": 0.5846153846153846,
     "x": false,
-    "fz": 0.7852760736196319,
+    "fz": 0.796923076923077,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionPreview_AllocateConvertedWheelVertices"
@@ -14626,7 +14626,7 @@
   },
   "0x4b67f0": {
     "n": "Mesh_GetShadowCylinder",
-    "s": 0.6352040816326531,
+    "s": 0.6377551020408163,
     "x": false,
     "fz": 0.9132653061224489,
     "unknown": [
@@ -18066,9 +18066,9 @@
   },
   "0x424f20": {
     "n": "NetRace_PackCarState",
-    "s": 0.5519765739385066,
+    "s": 0.5523809523809524,
     "x": false,
-    "fz": 0.890190336749634,
+    "fz": 0.8864468864468864,
     "unknown": [
       "__real@4@4005fe00000000000000",
       "__real@4@4006ff00000000000000",
@@ -23674,7 +23674,7 @@
     "n": "CarEffects_DrawTyreMarks",
     "s": 0.6438152011922503,
     "x": false,
-    "fz": 0.7779433681073026,
+    "fz": 0.7719821162444114,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "CarEffects_DrawTyreMarks"
@@ -24779,9 +24779,9 @@
   },
   "0x487b80": {
     "n": "Collision_DoSpheresOverlap",
-    "s": 0.9879518072289156,
-    "x": false,
-    "fz": 0.9879518072289156,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Collision_DoSpheresOverlap"
@@ -26336,9 +26336,9 @@
   },
   "0x47bdd0": {
     "n": "AI_UpdateRouteDrivingControls",
-    "s": 0.358148893360161,
+    "s": 0.4168336673346693,
     "x": false,
-    "fz": 0.7323943661971831,
+    "fz": 0.8617234468937875,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "AI_UpdateRouteDrivingControls"
@@ -28471,9 +28471,9 @@
   },
   "0x45b580": {
     "n": "StageTiming_SpawnWheelParticles",
-    "s": 0.37975742367210374,
+    "s": 0.3805938937682978,
     "x": false,
-    "fz": 0.6415725637808448,
+    "fz": 0.643245503973233,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageTiming_SpawnWheelParticles"
@@ -30208,9 +30208,9 @@
   },
   "0x4a98b0": {
     "n": "CMain::MessageHandler",
-    "s": 0.9351851851851852,
-    "x": false,
-    "fz": 0.9537037037037037,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "main.cpp",
     "symbol_name": "CMain::MessageHandler"

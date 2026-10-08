@@ -1,0 +1,144 @@
+diff --git a/CMR2Decomp/StageObjects.cpp b/CMR2Decomp/StageObjects.cpp
+index 3a53a6d..d0fa4e2 100644
+--- a/CMR2Decomp/StageObjects.cpp
++++ b/CMR2Decomp/StageObjects.cpp
+@@ -6714,17 +6714,16 @@ void FUN_00462cb0(BYTE *pColour)
+         FUN_0047e490(pColour);
+ }
+ 
+-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+ // FUNCTION: CMR2 0x00462d10
+ void FUN_00462d10(short *pRect)
+ {
+     BYTE colour[4];
+-    int c;
++    union { int value; BYTE bytes[4]; } c;
+ 
+-    FUN_00492bb0(&c);
+-    colour[0] = (BYTE)c;
+-    colour[1] = (BYTE)(c >> 8);
+-    colour[2] = (BYTE)(c >> 16);
++    FUN_00492bb0(&c.value);
++    colour[0] = c.bytes[0];
++    colour[1] = c.bytes[1];
++    colour[2] = c.bytes[2];
+     g_sunVisibility = 100 - Flare_SampleVisibility(pRect, colour, 0x28);
+     if (g_sunVisibility < 0) {
+         g_sunVisibility = 0;
+@@ -6861,24 +6860,26 @@ extern char g_strPathConcat[];
+ 
+ // Places the lights: rows of the given 4x3 vectors are the right, up,
+ // forward axes and the position (NULL: no transform).
+-// match 47%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+ // FUNCTION: CMR2 0x00463290
+ void StageLights_SetTransform(FixVector *pAxes)
+ {
+     FixVector v;
++    FixVector *pNext;
+ 
+     if (pAxes == NULL) {
+         g_stageLightHasMatrix = (int)pAxes;
+         return;
+     }
+     g_stageLightHasMatrix = 1;
+-    v = pAxes[0];
++    v = *pAxes;
++    pNext = pAxes + 1;
+     FixMatrix_SetRight(&v, &g_stageLightMatrix);
+-    v = pAxes[1];
++    v = *pNext++;
+     FixMatrix_SetUp(&v, &g_stageLightMatrix);
+-    v = pAxes[2];
++    v = *pNext;
+     FixMatrix_SetForward(&v, &g_stageLightMatrix);
+-    v = pAxes[3];
++    pNext++;
++    v = *pNext;
+     FixMatrix_SetPosition(&v, &g_stageLightMatrix);
+ }
+ 
+diff --git a/CMR2Decomp/StageTiming.cpp b/CMR2Decomp/StageTiming.cpp
+index 9b724b9..4e2c443 100644
+--- a/CMR2Decomp/StageTiming.cpp
++++ b/CMR2Decomp/StageTiming.cpp
+@@ -3419,16 +3419,24 @@ extern BYTE *g_unk0x00590b7c[4][8];
+ extern BYTE g_unk0x00590c24[4][8];
+ 
+ // Clears every car's four 0x1a0-byte record arrays and the slot tables.
+-// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+ // FUNCTION: CMR2 0x00480980
+ void FUN_00480980(void)
+ {
+     void **pp;
+     int i;
++    int offset;
+ 
+-    for (pp = g_unk0x00590d7c; (int)pp < (int)(g_unk0x00590d7c + 4); pp++)
+-        for (i = 0; i < g_unk0x00590c64; i++)
+-            memset((BYTE *)*pp + i * 0x1a0, 0, 0x1a0);
++    for (pp = g_unk0x00590d7c; (int)pp < (int)(g_unk0x00590d7c + 4); pp++) {
++        i = 0;
++        if (g_unk0x00590c64 > 0) {
++            offset = 0;
++            do {
++                memset((BYTE *)*pp + offset, 0, 0x1a0);
++                i++;
++                offset += 0x1a0;
++            } while (i < g_unk0x00590c64);
++        }
++    }
+     memset(g_unk0x00590b7c, 0, sizeof(g_unk0x00590b7c));
+     memset(g_unk0x00590c24, 0xff, sizeof(g_unk0x00590c24));
+ }
+@@ -3459,13 +3467,12 @@ extern double g_unk0x005113b8;
+ 
+ // Advances a player's lap counter by half the checkpoint count (with the
+ // fractional part kept in *pFrac), unless the player has finished.
+-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+ // FUNCTION: CMR2 0x004591e0
+ void FUN_004591e0(int player, int *pCount, int *pFrac)
+ {
+     int slot;
+     float count;
+-    double value;
++    float value;
+ 
+     if (player == -2)
+         slot = 0;
+diff --git a/CMR2Decomp/VehiclePhysics.cpp b/CMR2Decomp/VehiclePhysics.cpp
+index 7046662..402c569 100644
+--- a/CMR2Decomp/VehiclePhysics.cpp
++++ b/CMR2Decomp/VehiclePhysics.cpp
+@@ -280,22 +280,23 @@ int g_unk0x005919b8;
+ 
+ // Accepts the collision direction when it is nearly parallel to the face and
+ // picks the side of the car the target is on.
+-// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+ // FUNCTION: CMR2 0x00490570
+ int FUN_00490570(void)
+ {
+-    int d = FixMul(g_unk0x0059195c, g_collisionDirection.z) + FixMul(g_unk0x005918d0, g_collisionDirection.x);
+-    BYTE *pCar = (BYTE *)g_collisionCar;
++    int d = FixMul(g_unk0x005918d0, g_collisionDirection.x) + FixMul(g_unk0x0059195c, g_collisionDirection.z);
++    FixVector delta;
+ 
+     if (d < 0)
+         d = -d;
+-    if (g_unk0x005919b8 < d)
++    if (d > g_unk0x005919b8)
+         return 0;
+-    g_collisionSelectBackSide =
+-        FixMul(g_collisionTarget.z - *(int *)(pCar + 0x2f0), g_collisionDirection.z) +
+-        FixMul(g_collisionTarget.x - *(int *)(pCar + 0x2e8), g_collisionDirection.x) +
+-        FixMul(g_collisionTarget.y - *(int *)(pCar + 0x2ec), g_collisionDirection.y) >= 0;
+-    return 1;
++    {
++        delta.x = g_collisionTarget.x - COLLISION_VECTOR(0x2e8).x;
++        delta.y = g_collisionTarget.y - COLLISION_VECTOR(0x2e8).y;
++        delta.z = g_collisionTarget.z - COLLISION_VECTOR(0x2e8).z;
++        g_collisionSelectBackSide = FixVecDot(&g_collisionDirection, &delta) >= 0;
++        return 1;
++    }
+ }
+ 
+ // Accepts the collision when the target is behind the face and the direction

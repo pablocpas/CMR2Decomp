@@ -1,0 +1,35 @@
+diff --git a/CMR2Decomp/FrontendScreens.cpp b/CMR2Decomp/FrontendScreens.cpp
+index c9f0ffe..bc1eefe 100644
+--- a/CMR2Decomp/FrontendScreens.cpp
++++ b/CMR2Decomp/FrontendScreens.cpp
+@@ -9557,7 +9557,7 @@ void FUN_004e7ed0(Menu *pMenu, int param)
+                 Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)rect, pTexture, 1, 0, NULL,
+                              NULL, (BYTE *)pColour, 8);
+             }
+-            switch (pItem->value) {
++            switch (pMenu->items[i].value) {
+             case 0:
+                 pColour = (int *)g_colourWhite0x00524968;
+                 if (pMenu->cursor != count)
+@@ -10802,8 +10802,8 @@ void FUN_004e8b60(Menu *pMenu)
+     int top;
+     int i;
+ 
+-    rect.y = 0;
+     rect.x = (int)(g_pGraphics->resX * 100) / 640;
++    rect.y = 0;
+     rect.w = CFrontend::m_pAr640ATexture->width;
+     rect.h = CFrontend::m_pAr640ATexture->height;
+     text[0] = CFrontend::GetTextString(0x12);
+@@ -10918,10 +10918,10 @@ void FUN_004e90f0(Menu *pMenu)
+         pLineColour = g_colourText0x0052496c;
+         pLineShadow = g_colourShadowText0x00524978;
+     }
+-    g_unk0x008189a8[1] = top;
+     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+     g_unk0x008189a8[3] = 1;
+     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
++    g_unk0x008189a8[1] = top;
+     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
+     g_unk0x008189a8[1]++;
+     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);

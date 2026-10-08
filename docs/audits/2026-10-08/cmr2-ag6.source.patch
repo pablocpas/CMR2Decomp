@@ -1,0 +1,13 @@
+diff --git a/CMR2Decomp/GameInfo.cpp b/CMR2Decomp/GameInfo.cpp
+index 91d92f8..032a831 100644
+--- a/CMR2Decomp/GameInfo.cpp
++++ b/CMR2Decomp/GameInfo.cpp
+@@ -7759,7 +7759,7 @@ void OptionPreview_AllocateConvertedWheelVertices(int param1, int param2, int pa
+                     *(BYTE *)((BYTE *)pDest + 0x19) = 0;
+                     *(BYTE *)((BYTE *)pDest + 0x1a) = 0;
+                 } else {
+-                    FixVecScale(&normal, &normal, (int)(((__int64)0x10000 << 16) / length));
++                    FixVecScaleRecip(&normal, &normal, length);
+                     v = normal.x >> 9;
+                     if (v > 0x7f)
+                         v = 0x7f;

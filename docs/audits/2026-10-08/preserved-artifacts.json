@@ -1,0 +1,167 @@
+[
+  {
+    "path": "/home/pablo/cmr2-ag1",
+    "artifact": "build/integration-audit/cmr2-ag1.patch.gz",
+    "uncompressed_sha256": "3fbd5e0b15fc8b592f2dd91b27d3335f0439503883b09d9f01f3d6fa4b59f193"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag10",
+    "artifact": "build/integration-audit/cmr2-ag10.patch.gz",
+    "uncompressed_sha256": "5d90a4efa001e90bb35150fa7ba5c37283fcf0cd8407c7a6ad421e3c8b7dce43"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag2",
+    "artifact": "build/integration-audit/cmr2-ag2.patch.gz",
+    "uncompressed_sha256": "f3d22ab2d303e296aebac4d540adc49ffe747bd0dfa6db4ee0f9e94823aeb9ba"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag3",
+    "artifact": "build/integration-audit/cmr2-ag3.patch.gz",
+    "uncompressed_sha256": "67ca2049a8e5f001c5b50f2d6c4a63833ae17f91dc0582365b33d68b8985537f"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag4",
+    "artifact": "build/integration-audit/cmr2-ag4.patch.gz",
+    "uncompressed_sha256": "50fbf9363ddd78bbd36e4c80f2f560cc370028ee3eaf03f52a841f2958808f5d"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag5",
+    "artifact": "build/integration-audit/cmr2-ag5.patch.gz",
+    "uncompressed_sha256": "67d96d426aa87f662b212e3cd469a978af3dfa3666788bc5d0094cb4102e2499"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag6",
+    "artifact": "build/integration-audit/cmr2-ag6.patch.gz",
+    "uncompressed_sha256": "e913877d760a65d4665b0688f98e3116b21f24f143cd85315172bccc9b317938"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag7",
+    "artifact": "build/integration-audit/cmr2-ag7.patch.gz",
+    "uncompressed_sha256": "d82d550327bd158feb0e63329ec999895524e14249dc78be51227aed18fd738e"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag8",
+    "artifact": "build/integration-audit/cmr2-ag8.patch.gz",
+    "uncompressed_sha256": "1afc95462ea38dd2dd111cf3748426338048537bb1176c9d484b857a51574229"
+  },
+  {
+    "path": "/home/pablo/cmr2-ag9",
+    "artifact": "build/integration-audit/cmr2-ag9.patch.gz",
+    "uncompressed_sha256": "4582e68f61c9ed62774540d47c779f0eb6b77a06108438f884db052884d71d78"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent01",
+    "artifact": "build/integration-audit/cmr2-agent01.patch.gz",
+    "uncompressed_sha256": "4e13276cee7145209e3a370a1408820f4c6a4dd49197297a4e0b2fb417294297"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent02",
+    "artifact": "build/integration-audit/cmr2-agent02.patch.gz",
+    "uncompressed_sha256": "3bcc1d73be59923a383cba6159a8e981fd134cdb0d55c85041c9d07219f1510d"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent03",
+    "artifact": "build/integration-audit/cmr2-agent03.patch.gz",
+    "uncompressed_sha256": "cf52805ba9ead2191c6df325b0538955c276262dd12e3e8de01f35b78002c2cb"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent04",
+    "artifact": "build/integration-audit/cmr2-agent04.patch.gz",
+    "uncompressed_sha256": "0ae7ede21e7bc6ff68fed6ae13ab154335dc1e8d7639007a9b9910822bc70b70"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent06",
+    "artifact": "build/integration-audit/cmr2-agent06.patch.gz",
+    "uncompressed_sha256": "43868ecbffb452702e6da236d00c9d3dea4a56b07bd0261b4e4b710e634ff3ca"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent07",
+    "artifact": "build/integration-audit/cmr2-agent07.patch.gz",
+    "uncompressed_sha256": "e68dd40bc83834079229c64794a237b0048015b12e9a2a643fb98a969fbc3444"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent09",
+    "artifact": "build/integration-audit/cmr2-agent09.patch.gz",
+    "uncompressed_sha256": "92cfe72a32b1decc5f7005119be8222f318e8d6f8b18402c9268304bf6bbf7cf"
+  },
+  {
+    "path": "/home/pablo/cmr2-agent10",
+    "artifact": "build/integration-audit/cmr2-agent10.patch.gz",
+    "uncompressed_sha256": "ebf53761ec82d53a7500a71ddad6504841c0aec5eb4ad9d4389c3c666520f248"
+  },
+  {
+    "path": "/home/pablo/cmr2-agtest",
+    "artifact": "build/integration-audit/cmr2-agtest.patch.gz",
+    "uncompressed_sha256": "230d3dd5de318b8d01f026f8abd578a5a6710e5243d3871907db902facf056fe"
+  },
+  {
+    "path": "/home/pablo/cmr2-agtest/scripts/prepare_fastcmp.py",
+    "artifact": "cmr2-agtest__scripts__prepare_fastcmp.py.txt",
+    "sha256": "884f2362096dad06abafb49abddf7e08bf152bb1ffaba0afb12e127fd7b8ab08"
+  },
+  {
+    "path": "/home/pablo/cmr2-easy",
+    "artifact": "build/integration-audit/cmr2-easy.patch.gz",
+    "uncompressed_sha256": "767374aad1c15706aba91d32d4231c2c4cae43d837d530771859ea371cf01ed8"
+  },
+  {
+    "path": "/home/pablo/cmr2-integrate",
+    "artifact": "build/integration-audit/cmr2-integrate.patch.gz",
+    "uncompressed_sha256": "0cf5a834415e64b47b28e607647ed72c9d069f545ca9dcc20aa11947413c9825"
+  },
+  {
+    "path": "/home/pablo/cmr2-run",
+    "artifact": "build/integration-audit/cmr2-run.patch.gz",
+    "uncompressed_sha256": "64b7dcefd3bb397ecb05af01b0302344ee1102055316476a16ebfb68a8939b1b"
+  },
+  {
+    "path": "/home/pablo/cmr2-w194-g/w194_t1.cpp",
+    "artifact": "cmr2-w194-g__w194_t1.cpp.txt",
+    "sha256": "b79f34c6dd787e359833e8ba641dd3a051a05fcbf6a25c2986c9968bf3cd48a7"
+  },
+  {
+    "path": "/home/pablo/colin_mcrae_linux/matching-low-review",
+    "artifact": "build/integration-audit/colin_mcrae_linux__matching-low-review.patch.gz",
+    "uncompressed_sha256": "67ba6541694cfa5be7d62b0d770078489b5472f7222b62dd9078394a3a651267"
+  },
+  {
+    "path": "/home/pablo/colin_mcrae_linux/matching-low-review/tests/differential_collision_checkpoint.py",
+    "artifact": "colin_mcrae_linux__matching-low-review__tests__differential_collision_checkpoint.py.txt",
+    "sha256": "f4c96c73f447a43f5d65238e60437cc503bddd7537ec4a76f3a21b6ba11023e8"
+  },
+  {
+    "path": "/home/pablo/colin_mcrae_linux/matching-review",
+    "artifact": "build/integration-audit/colin_mcrae_linux__matching-review.patch.gz",
+    "uncompressed_sha256": "7c7856bec70039bb0a1281466db757bedd8474344afc0b454e5f9c4cbefffeff"
+  },
+  {
+    "path": "/home/pablo/w191-4d9c40",
+    "artifact": "build/integration-audit/w191-4d9c40.patch.gz",
+    "uncompressed_sha256": "3d8f122a0606669f0ae82092a28abff58943a812c1e5a3c0fd528a2020073486"
+  },
+  {
+    "path": "/home/pablo/w191-4dbd80",
+    "artifact": "build/integration-audit/w191-4dbd80.patch.gz",
+    "uncompressed_sha256": "b6449023d27d8c4ada38705184617fc94b26386426d386ce893652380967e7cf"
+  },
+  {
+    "path": "/home/pablo/w191-4dfe20",
+    "artifact": "build/integration-audit/w191-4dfe20.patch.gz",
+    "uncompressed_sha256": "64c0f70f96c040220ff034f2d8005370fe4a8c10a883e77183319d9e201b4965"
+  },
+  {
+    "path": "/home/pablo/w191-4e8500",
+    "artifact": "build/integration-audit/w191-4e8500.patch.gz",
+    "uncompressed_sha256": "6ce4b59cdf98acab46fb13cd6778d0a8866a1ed930d9df10a42023109927dc3e"
+  },
+  {
+    "path": "/home/pablo/w191-4e90f0",
+    "artifact": "build/integration-audit/w191-4e90f0.patch.gz",
+    "uncompressed_sha256": "a06f8852c5b443986e85a0aece5875d99d8f80ab54ac761dfb58822ff1af2324"
+  },
+  {
+    "stash": "78018e17cfead39573cb5df8068b84dcb9520439",
+    "artifact": "stash.source.patch",
+    "sha256": "cff649b3d94806072f99a8bffbde00ee1b165dd58ac16885c606628d0e638124"
+  }
+]

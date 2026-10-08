@@ -1,0 +1,56 @@
+diff --git a/CMR2Decomp/Car.cpp b/CMR2Decomp/Car.cpp
+index ef77115..654f1f7 100644
+--- a/CMR2Decomp/Car.cpp
++++ b/CMR2Decomp/Car.cpp
+@@ -1900,8 +1900,8 @@ void Car_UpdateGroundNormal(void)
+ 
+     {
+         FixVector *pOut = &g_pCurrentCar->groundNormal;
+-        n.x += pOut->x;
+         n.y += pOut->y;
++        n.x += pOut->x;
+         n.z += pOut->z;
+         {
+             int len = FixVecLength(&n);
+@@ -6328,9 +6328,29 @@ void Car_ResetBodyBasis(int param_1)
+     v.x = g_pCurrentCar->right.x - v.x;
+     v.y = g_pCurrentCar->right.y - v.y;
+     v.z = g_pCurrentCar->right.z - v.z;
+-    FIX_NORMALIZE_INTO(g_pCurrentCar->right, v);
++    {
++        FixVector *pT = &g_pCurrentCar->right;
++        int len = FixVecLength(&v);
++        if (len == 0) {
++            pT->x = 0;
++            pT->y = 0;
++            pT->z = 0;
++        } else {
++            FixVecScaleRecip(pT, &v, len);
++        }
++    }
+     FixVecCross(&v, &g_pCurrentCar->right, &g_pCurrentCar->up);
+-    FIX_NORMALIZE_INTO(g_pCurrentCar->forward, v);
++    {
++        FixVector *pT = &g_pCurrentCar->forward;
++        int len = FixVecLength(&v);
++        if (len == 0) {
++            pT->x = 0;
++            pT->y = 0;
++            pT->z = 0;
++        } else {
++            FixVecScaleRecip(pT, &v, len);
++        }
++    }
+     g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
+     g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
+     g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
+@@ -6353,8 +6373,7 @@ void Car_ResetBodyBasis(int param_1)
+     g_pCurrentCar->positionPrev = g_pCurrentCar->position;
+     g_pCurrentCar->positionPrev2 = g_pCurrentCar->position;
+     g_pCurrentCar->field_0x2dc = g_pCurrentCar->position;
+-    for (i = 0; i < 9; i++)
+-        *(int *)((int)g_pCurrentCar + 900 + i * 4) = *(int *)((int)g_pCurrentCar + 0x360 + i * 4);
++    memcpy((BYTE *)((int)g_pCurrentCar + 900), (BYTE *)((int)g_pCurrentCar + 0x360), 36);
+     g_pCurrentCar->field_0x960 = 0;
+     g_pCurrentCar->field_0x968 = g_pCurrentCar->field_0x960;
+     g_pCurrentCar->field_0x964 = g_pCurrentCar->field_0x960;

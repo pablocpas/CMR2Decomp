@@ -7631,7 +7631,7 @@ void OptionPreview_SetTargetWheelAngles(int param1, short *param2, int param3)
     if (a[0] < 0)
         abs = -a[0];
     if (abs > 0xb40000) {
-        if (a[0] > 0)
+        if (a[0] >= 1)
             a[0] = 0x1680000 - a[0];
         else
             a[0] += 0x1680000;
@@ -7755,9 +7755,9 @@ void OptionPreview_AllocateConvertedWheelVertices(int param1, int param2, int pa
                     *(BYTE *)((BYTE *)pDest + 0x19) = 0;
                     *(BYTE *)((BYTE *)pDest + 0x1a) = 0;
                 } else {
-                    FixVecScale(&normal, &normal, (int)(((__int64)0x10000 << 16) / length));
+                    FixVecScaleRecip(&normal, &normal, length);
                     v = normal.x >> 9;
-                    if (v > 0x7f)
+                    if (v >= 0x80)
                         v = 0x7f;
                     else if (v < -0x7f)
                         v = -0x7f;

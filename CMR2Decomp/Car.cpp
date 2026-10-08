@@ -379,7 +379,7 @@ void View_SelectVisibleCars(unsigned int view, short *pRect)
     for (k = 0; k < 3; k++) {
         bestIdx = -1;
         bestDist = 0x7fff0000;
-        if (g_carOrderCount > 0) {
+        if (g_carOrderCount >= 1) {
             for (i = 0; i < g_carOrderCount; i++) {
                 car = g_carOrder[i];
                 if (visible[car] == 0) {
@@ -5015,7 +5015,7 @@ void Car_UpdateCornerLoads(void)
     grip += 0x10000;
     for (i = 0; i < 8; i++) {
         pGripB = &g_pCurrentCar->cornerGripB[i];
-        if (g_pCurrentCar->cornerFlags[i] == 0 || (i < 4 && g_pCurrentCar->cornerOnGround[i] != 0)) {
+        if (g_pCurrentCar->cornerFlags[i] == 0 || (i <= 3 && g_pCurrentCar->cornerOnGround[i] != 0)) {
             if (n != 4) {
                 g_pCurrentCar->cornerLoad[i].x += f.x;
                 g_pCurrentCar->cornerLoad[i].y += f.y;
@@ -5121,14 +5121,14 @@ void Car_UpdateEngineSpeed(void)
         g_pCurrentCar->field_0x7a4 = 0;
     } else if (g_pCurrentCar->field_0x794 < excess) {
         excess = excess - g_pCurrentCar->field_0x794;
-        if (excess < 0xcccd) {
-            g_pCurrentCar->field_0xb78 = 0;
-        } else {
+        if (excess > 0xcccc) {
             excess = FixMul(excess - 0xcccc, 0x10000);
             if (excess > 0x10000)
                 excess = 0x10000;
             g_pCurrentCar->field_0x7b0 = FixMul(excess, 0x51eb);
             g_pCurrentCar->field_0xb78 = 1;
+        } else {
+            g_pCurrentCar->field_0xb78 = 0;
         }
         g_pCurrentCar->field_0x7a4 = g_pCurrentCar->field_0x794;
         return;

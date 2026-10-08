@@ -1,0 +1,282 @@
+[
+  {
+    "address": "0x428bf0",
+    "name": "View_SelectVisibleCars",
+    "before": 0.5651793525809273,
+    "after": 0.5681818181818182,
+    "exact": false
+  },
+  {
+    "address": "0x4348c0",
+    "name": "Car_UpdateCornerLoads",
+    "before": 0.7894201424211598,
+    "after": 0.789795918367347,
+    "exact": false
+  },
+  {
+    "address": "0x4380c0",
+    "name": "Car_UpdateEngineSpeed",
+    "before": 0.6304347826086957,
+    "after": 0.6391304347826087,
+    "exact": false
+  },
+  {
+    "address": "0x45c820",
+    "name": "WheelSplash_Update",
+    "before": 0.4681967213114754,
+    "after": 0.47182175622542594,
+    "exact": false
+  },
+  {
+    "address": "0x4b9f20",
+    "name": "FixMatrix_Multiply",
+    "before": 0.8571428571428571,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x4d3e80",
+    "name": "FrontendDraw_BreadcrumbItem",
+    "before": 0.9523809523809523,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x4d3fa0",
+    "name": "FrontendDraw_Breadcrumb",
+    "before": 0.7543859649122807,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x4d3360",
+    "name": "FrontendDraw_MenuList",
+    "before": 0.7871720116618076,
+    "after": 0.8325171400587659,
+    "exact": false
+  },
+  {
+    "address": "0x4d0d30",
+    "name": "Game_DrawFadingBootLabel",
+    "before": 0.6666666666666666,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x49c510",
+    "name": "Game_DrawMeshTextureRuns",
+    "before": 0.7224669603524229,
+    "after": 0.9469026548672567,
+    "exact": false
+  },
+  {
+    "address": "0x509d00",
+    "name": "OptionPreview_ClearSkyFadeShape",
+    "before": 0.8695652173913043,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x509d90",
+    "name": "OptionPreview_ClearColourFractions",
+    "before": 0.8695652173913043,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x506930",
+    "name": "OptionPreview_SetTargetWheelAngles",
+    "before": 0.5714285714285714,
+    "after": 0.5803571428571429,
+    "exact": false
+  },
+  {
+    "address": "0x506bb0",
+    "name": "OptionPreview_AllocateConvertedWheelVertices",
+    "before": 0.549079754601227,
+    "after": 0.5846153846153846,
+    "exact": false
+  },
+  {
+    "address": "0x4a5730",
+    "name": "CGraphics::GetPixelRed",
+    "before": 0.7272727272727273,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x4a57e0",
+    "name": "CGraphics::GetPixelAlpha",
+    "before": 0.8153846153846154,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x4bd970",
+    "name": "CGraphics::SetMipMapCount",
+    "before": 0.9696969696969697,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x4bd9d0",
+    "name": "CGraphics::GetMipMapSurfaces",
+    "before": 0.5609756097560976,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x4b67f0",
+    "name": "Mesh_GetShadowCylinder",
+    "before": 0.6352040816326531,
+    "after": 0.6377551020408163,
+    "exact": false
+  },
+  {
+    "address": "0x424f20",
+    "name": "NetRace_PackCarState",
+    "before": 0.5519765739385066,
+    "after": 0.5523809523809524,
+    "exact": false
+  },
+  {
+    "address": "0x4eadb0",
+    "name": "RallyData_ResetSavedPlayerRecords",
+    "before": 0.7894736842105263,
+    "after": 0.9473684210526315,
+    "exact": false
+  },
+  {
+    "address": "0x471bf0",
+    "name": "RallyData_ApplyPlayerFlagsToObjects",
+    "before": 0.616822429906542,
+    "after": 0.6851851851851852,
+    "exact": false
+  },
+  {
+    "address": "0x40fd30",
+    "name": "RallyData_DrawListItem",
+    "before": 0.5684210526315789,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x40fec0",
+    "name": "RallyData_DrawLoadingProgress",
+    "before": 0.8322147651006712,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x40e210",
+    "name": "RallyData_PickUnexcludedGroupEvent",
+    "before": 0.863013698630137,
+    "after": 0.8904109589041096,
+    "exact": false
+  },
+  {
+    "address": "0x4b4490",
+    "name": "Scene_ProjectDirtyShadowParts",
+    "before": 0.5953488372093023,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x4b4040",
+    "name": "Mesh_GetCornerLight",
+    "before": 0.8805970149253731,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x4b7de0",
+    "name": "Sector_CullGridAroundViewNode",
+    "before": 0.7416020671834626,
+    "after": 0.7896774193548387,
+    "exact": false
+  },
+  {
+    "address": "0x4b8270",
+    "name": "Sector_RebuildStageGrid",
+    "before": 0.8338983050847457,
+    "after": 0.9016949152542373,
+    "exact": false
+  },
+  {
+    "address": "0x4a20c0",
+    "name": "Sound_CreatePcmSampleBuffer",
+    "before": 0.8666666666666667,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x4a24a0",
+    "name": "Sound_BuildSlotLoopBuffer",
+    "before": 0.8408163265306122,
+    "after": 0.9105691056910569,
+    "exact": false
+  },
+  {
+    "address": "0x487b80",
+    "name": "Collision_DoSpheresOverlap",
+    "before": 0.9879518072289156,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x4866a0",
+    "name": "StageObject_DestroyStageKindCarNodes",
+    "before": 0.8059701492537313,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x477340",
+    "name": "StageObject_FindPlayerRevTextures",
+    "before": 0.6304347826086957,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x47bdd0",
+    "name": "AI_UpdateRouteDrivingControls",
+    "before": 0.358148893360161,
+    "after": 0.4168336673346693,
+    "exact": false
+  },
+  {
+    "address": "0x45b580",
+    "name": "StageTiming_SpawnWheelParticles",
+    "before": 0.37975742367210374,
+    "after": 0.3805938937682978,
+    "exact": false
+  },
+  {
+    "address": "0x418f20",
+    "name": "StageSound_ResetRecordsAndRegisterCleanup",
+    "before": 0.5979381443298969,
+    "after": 0.6041666666666666,
+    "exact": false
+  },
+  {
+    "address": "0x492fe0",
+    "name": "Track_SetFogAndSkyAlpha",
+    "before": 0.8366013071895425,
+    "after": 1.0,
+    "exact": true
+  },
+  {
+    "address": "0x482ac0",
+    "name": "Vehicle_UpdateMotion",
+    "before": 0.9034090909090909,
+    "after": 0.9090909090909091,
+    "exact": false
+  },
+  {
+    "address": "0x4a98b0",
+    "name": "CMain::MessageHandler",
+    "before": 0.9351851851851852,
+    "after": 1.0,
+    "exact": true
+  }
+]

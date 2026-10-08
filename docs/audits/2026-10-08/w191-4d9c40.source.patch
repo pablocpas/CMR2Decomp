@@ -1,0 +1,42 @@
+diff --git a/CMR2Decomp/FrontendScreens.cpp b/CMR2Decomp/FrontendScreens.cpp
+index 4433fe3..0d956cc 100644
+--- a/CMR2Decomp/FrontendScreens.cpp
++++ b/CMR2Decomp/FrontendScreens.cpp
+@@ -10893,16 +10893,24 @@ const char *FUN_004f89e0(int row, int column);
+ BYTE *FUN_004f8a00(int row, int column);
+ 
+ // Placeholder shown in the stage rows of the rally summary when the stage has
+-// no recorded time yet.
+-// GLOBAL: CMR2 0x00516e30
++// no recorded time yet (GameMenus.cpp).
+ extern char g_noTimeText[];
+-// Distance unit appended to the distance of the stage.
+-// GLOBAL: CMR2 0x00524d1c
++// Distance unit appended to the distance of the stage (GameInfo.cpp).
+ extern char g_str0x00524d1c[];
+ 
+ // Draws the rally summary screen: the event banner and the menu path, the
+ // stage name with its distance, surface and severity, the record time of the
+ // selected stage and one row per stage of the rally with its record time.
++// match 88%: same calls, constants and block structure as the original; only
++// MSVC 6's frame layout differs. The original keeps x/limit in [esp+0x10],
++// column/count in [esp+0x14], table in [esp+0x18], width/whole/frac/n in
++// [esp+0x1c] and country in [esp+0x24]; this build keeps whole/limit in
++// [esp+0x10], x/width in [esp+0x14], column/count/n in [esp+0x18], country in
++// [esp+0x1c], table in [esp+0x20] and frac in [esp+0x24], which is also why
++// count+2 lands in EBP here instead of being an `add ebx,2` in place, and why
++// the loop counter is not spilled. Reordering or renaming the locals does not
++// move the slots (the allocator derives them from the live ranges), so every
++// remaining mismatch is a frame slot or the register holding it.
+ // FUNCTION: CMR2 0x004d9c40
+ void FUN_004d9c40(Menu *pMenu)
+ {
+@@ -10968,7 +10976,7 @@ void FUN_004d9c40(Menu *pMenu)
+     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
+     width = 0;
+     limit = FUN_004f89b0(&table, country, column) & 0xff;
+-    if (limit > 1)
++    if (limit >= 2)
+         limit = 2;
+     for (i = 0; i < limit; i++) {
+         sprintf(CFrontend::m_stringDest, g_str0x00524d0c, table[i * 8 + 4],

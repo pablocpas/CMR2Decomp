@@ -1,0 +1,48 @@
+diff --git a/CMR2Decomp/StageTiming.cpp b/CMR2Decomp/StageTiming.cpp
+index a1a27c6..5bcd471 100644
+--- a/CMR2Decomp/StageTiming.cpp
++++ b/CMR2Decomp/StageTiming.cpp
+@@ -2862,6 +2862,7 @@ void StageTiming_DrawProjectedCarMarker(int param_1, int param_2)
+ // Vector helper of StageTiming_DrawProjectedCarMarker that is still to be decompiled. Empty body with
+ // the original stdcall argument count so the call sites can be measured.
+ extern const double g_zero0x005113c8;  // defined in StageObjects.cpp
++extern const double g_unk0x005113c0;   // shared 10.0, defined in Sound.cpp
+ extern float g_65536f;
+ 
+ // float -> 16.16 with a plain fistp (no _ftol).
+@@ -2908,9 +2909,9 @@ void StageTiming_ProjectPointToTenUnitRadius(int *pPoint, int *pOrigin, int *pOu
+         v[2] /= big;
+     }
+     length = sqrt(v[2] * v[2] + v[1] * v[1] + v[0] * v[0]);
+-    v[0] = v[0] * 10.0 / length;
+-    v[1] = v[1] * 10.0 / length;
+-    v[2] = v[2] * 10.0 / length;
++    v[0] = v[0] * g_unk0x005113c0 / length;
++    v[1] = v[1] * g_unk0x005113c0 / length;
++    v[2] = v[2] * g_unk0x005113c0 / length;
+     x = FloatToFix((float)v[0]);
+     y = FloatToFix((float)v[1]);
+     z = FloatToFix((float)v[2]);
+@@ -4931,15 +4932,17 @@ void ForceFeedback_ComputeRoadNoise(void)
+     int k;
+ 
+     if (g_unk0x00539278->field_0x20 == 0)
+-        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * (float)CGraphics::m_65536);
+-    else if (g_unk0x00539278->field_0x20 <= 0)
+-        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * (float)CGraphics::m_65536);
++        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * CGraphics::m_65536);
++    else if (g_unk0x00539278->field_0x20 > 0)
++        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * g_minus65536);
+     else
+-        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * (float)g_minus65536);
++        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * CGraphics::m_65536);
++    k = *(int *)(g_unk0x0053937c + 0xc0) + *(int *)(g_unk0x0053937c + 0x9c);
+     speed = FixMul(*(int *)(g_unk0x0053937c + 0x778), 0x10000);
+     if (speed > 0x10000)
+         speed = 0x10000;
+-    k = FixMul(speed, *(int *)(g_unk0x0053937c + 0xc0) + *(int *)(g_unk0x0053937c + 0x9c)) + g_unk0x00539278->field_0x28;
++    k = FixMul(k, speed);
++    k += g_unk0x00539278->field_0x28;
+     if (k > 0x10000)
+         k = 0x10000;
+     g_unk0x00539278->field_0x20 = FixMul(g_unk0x00539278->field_0x20, k);

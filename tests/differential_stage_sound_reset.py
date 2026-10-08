@@ -122,6 +122,14 @@ def main():
         regions += [(a, size, 4096 + a - 0x537568) for a, size in tables]
         regions += [(0x537dcc, 1, 4096+0x864), (0x537dd0, 0x20, 4096+0x868)]
         globals_ = [(entity(a), size, 0x2e000000+offset) for a, size, offset in regions]
+        # Indexed loops can compare the countOld cursor against records +
+        # sizeof(records) + offsetof(countOld). This address is outside the
+        # array and need not overlap the rebuilt globals following it.
+        # Relocate this exact sentinel separately, without extending the
+        # array's region across other globals.
+        cursor_end = 0x5a0 + 0xa4
+        globals_.insert(0, (entity(0x5377a8) + cursor_end, 1,
+                            0x2e000000 + 4096 + 0x240 + cursor_end))
         globals_.append((entity(0x418fe0), 1, 0x418fe0))
         code, calls = extract(pe, address if image else 0x418f20,
                               globals_, {entity(0x49c0a0): 0}, 0)

@@ -1,0 +1,5 @@
+#include <float.h>
+void f1(void) { _controlfp(_PC_53, _MCW_PC); }
+unsigned int f2(void) { return _controlfp(_PC_53, _MCW_PC); }
+void f3(int a, int b) { _controlfp(a, b); }
+void f4(void) { int r; r = _controlfp(_PC_53, _MCW_PC); if (r) f3(1,2); }

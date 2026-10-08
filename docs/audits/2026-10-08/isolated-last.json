@@ -1,0 +1,19 @@
+[
+  {
+    "path": "decomp/matching-review",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "address": "0x45b580",
+    "status": "rejected_regression",
+    "losses": [
+      "0x45b580"
+    ],
+    "gains": [],
+    "error": null,
+    "scores": {
+      "before": 0.3805938937682978,
+      "after": 0.3799163179916318,
+      "before_exact": false,
+      "after_exact": false
+    }
+  }
+]

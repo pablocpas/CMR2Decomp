@@ -1,0 +1,35 @@
+diff --git a/CMR2Decomp/SurfaceTypes.cpp b/CMR2Decomp/SurfaceTypes.cpp
+index 5726e66..5c2f173 100644
+--- a/CMR2Decomp/SurfaceTypes.cpp
++++ b/CMR2Decomp/SurfaceTypes.cpp
+@@ -1445,11 +1445,12 @@ BYTE SurfaceText_LoadRegionalStringTable(void)
+     sprintf(CFrontend::m_stringDest, g_strTxtFormat, pList[CGameInfo::GetGameLanguage()]);
+     g_unk0x0058dc54 = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile6(), CFrontend::m_stringDest,
+                                                    (BYTE *)g_unk0x0058db50, 0, 0);
+-    if (g_unk0x0058dc54 == NULL)
+-        return 0;
+-    CFrontend::BuildLocalizedTextStringTable(1, 0x104, (BYTE **)&g_unk0x0058dc54);
+-    CGame::RegisterCallback(Surface_FreeTextureData, 0);
+-    return 1;
++    if (g_unk0x0058dc54 != NULL) {
++        CFrontend::BuildLocalizedTextStringTable(1, 0x104, (BYTE **)&g_unk0x0058dc54);
++        CGame::RegisterCallback(Surface_FreeTextureData, 0);
++        return 1;
++    }
++    return 0;
+ }
+ 
+ 
+diff --git a/CMR2Decomp/TrackCollision.cpp b/CMR2Decomp/TrackCollision.cpp
+index d811960..a6f6cd2 100644
+--- a/CMR2Decomp/TrackCollision.cpp
++++ b/CMR2Decomp/TrackCollision.cpp
+@@ -895,7 +895,7 @@ void Track_SetFogAndSkyAlpha(DWORD *pColour, int start, int end)
+     else
+         t = FixDiv(t, range);
+     alpha = FixMul(t, 0xff0000) >> 16;
+-    if (alpha > 0xff)
++    if (alpha >= 0x100)
+         alpha = 0xff;
+     else if (alpha < 0)
+         alpha = 0;

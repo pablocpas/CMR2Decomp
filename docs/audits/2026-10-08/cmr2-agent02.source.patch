@@ -1,0 +1,73 @@
+diff --git a/CMR2Decomp/StageObjects.cpp b/CMR2Decomp/StageObjects.cpp
+index 3394f49..01a251c 100644
+--- a/CMR2Decomp/StageObjects.cpp
++++ b/CMR2Decomp/StageObjects.cpp
+@@ -9241,27 +9241,31 @@ void StageObject_ApplyCarFadeRoll(int index)
+     pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0xc);
+     if (pNode != NULL) {
+         SceneNode_SetRotation(pNode, *(FixAngles **)(g_unk0x0058d4f0 + off));
+-        pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0xc);
+-        axis = pNode->current.up;
++        axis.x = (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.up.x;
++        axis.y = (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.up.y;
++        axis.z = (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.up.z;
+         short angle = g_unk0x0058d4e0[index * 6];
+         if (g_unk0x0058d2f0[index] != 0)
+             angle = -angle;
+         FixMatrix_FromAxisAngle(&g_unk0x0058d260, &axis, angle);
+-        pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0xc);
+-        position = pNode->current.position;
+-        pNode->current.position.x = 0;
+-        pNode->current.position.y = 0;
+-        pNode->current.position.z = 0;
+-        FixMatrix_Multiply(&pNode->current, &pNode->current, &g_unk0x0058d260);
+-        pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0xc);
+-        pNode->current.position = position;
++        position.x = (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.x;
++        position.y = (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.y;
++        position.z = (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.z;
++        (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.x = 0;
++        (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.y = 0;
++        (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.z = 0;
++        FixMatrix_Multiply(&(*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current, &(*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current, &g_unk0x0058d260);
++        (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.x = position.x;
++        (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.y = position.y;
++        (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.z = position.z;
+     }
+     pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0x10);
+     if (pNode != NULL) {
+         SceneNode_SetRotation(pNode, *(FixAngles **)(g_unk0x0058d4f0 + off + 0x14));
+         short *pNum = *(short **)(g_unk0x0058d4f0 + off + 0x18);
+-        pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0x10);
+-        axis = pNode->current.up;
++        axis.x = (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.up.x;
++        axis.y = (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.up.y;
++        axis.z = (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.up.z;
+         short *pDen = *(short **)(g_unk0x0058d4f0 + off + 4);
+         int angle;
+         if (g_unk0x0058d2f0[index] != 0)
+@@ -9269,14 +9273,16 @@ void StageObject_ApplyCarFadeRoll(int index)
+         else
+             angle = *pNum * g_unk0x0058d4e0[index * 6] / *pDen;
+         FixMatrix_FromAxisAngle(&g_unk0x0058d260, &axis, angle);
+-        pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0x10);
+-        position = pNode->current.position;
+-        pNode->current.position.x = 0;
+-        pNode->current.position.y = 0;
+-        pNode->current.position.z = 0;
+-        FixMatrix_Multiply(&pNode->current, &pNode->current, &g_unk0x0058d260);
+-        pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0x10);
+-        pNode->current.position = position;
++        position.x = (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.x;
++        position.y = (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.y;
++        position.z = (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.z;
++        (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.x = 0;
++        (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.y = 0;
++        (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.z = 0;
++        FixMatrix_Multiply(&(*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current, &(*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current, &g_unk0x0058d260);
++        (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.x = position.x;
++        (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.y = position.y;
++        (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.z = position.z;
+     }
+     StageObject_UpdateObjectFadeOffset(index);
+ }

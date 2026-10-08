@@ -1,0 +1,52 @@
+diff --git a/CMR2Decomp/FrontendScreens.cpp b/CMR2Decomp/FrontendScreens.cpp
+index 68c47fd..bbca41f 100644
+--- a/CMR2Decomp/FrontendScreens.cpp
++++ b/CMR2Decomp/FrontendScreens.cpp
+@@ -10894,8 +10894,8 @@ void FUN_004e8500(Menu *pMenu)
+     char buffer[100];
+     MenuItem *pItem;
+     BYTE *pColour;
+-    BYTE *pLineColour;
+     BYTE *pLineShadow;
++    BYTE *pLineColour;
+     int textX;
+ 
+     rect[0] = (int)(g_pGraphics->resX * 100) / 640;
+@@ -10948,13 +10948,15 @@ void FUN_004e8500(Menu *pMenu)
+                 sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x31),
+                         &g_unk0x00818d84[Menu_GetItem(pMenu, 1)->max * 3]);
+                 Font_DrawText(1, CFrontend::m_stringDest, textX,
+-                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
++                              (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1]),
++                              (int *)pColour, 0x11);
+                 break;
+             case 0:
+                 sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x30),
+                         CFrontend::GetTextString(Menu_GetItem(pMenu, 0)->max + 0x27));
+                 Font_DrawText(1, CFrontend::m_stringDest, textX,
+-                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
++                              (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1]),
++                              (int *)pColour, 0x11);
+                 break;
+             case 2:
+                 if (Menu_GetItem(pMenu, 2)->max != 0) {
+@@ -10963,13 +10965,15 @@ void FUN_004e8500(Menu *pMenu)
+                 } else {
+                     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x1e1));
+                 }
+-                Font_DrawText(1, CFrontend::m_stringDest, textX,
+-                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
++                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
++                              (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1]),
++                              (int *)pColour, 0x11);
+                 break;
+             case 3:
+             case 4:
+-                Font_DrawText(1, CFrontend::GetTextString(pItem->id), textX,
+-                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
++                Font_DrawText(1, CFrontend::GetTextString(pItem->id), (int)(g_pGraphics->resX * 0x7a) / 0x280,
++                              (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1]),
++                              (int *)pColour, 0x11);
+                 break;
+             }
+         next:

@@ -1,0 +1,14 @@
+diff --git a/CMR2Decomp/Input.cpp b/CMR2Decomp/Input.cpp
+index 754b0bb..8c4acd2 100644
+--- a/CMR2Decomp/Input.cpp
++++ b/CMR2Decomp/Input.cpp
+@@ -2269,7 +2269,8 @@ void CInput::SetControllerForceFeedbackValue(unsigned short param1, DWORD param2
+     unsigned short index;
+ 
+     index = CInput::m_unk0x005168f4[param1];
+-    SetForceFeedbackDeviceValue(m_controllerInfo[index].field_0x11c = param2, index);
++    m_controllerInfo[index].field_0x11c = param2;
++    SetForceFeedbackDeviceValue(param2, index);
+ }
+ 
+ 

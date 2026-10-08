@@ -1,0 +1,19 @@
+[
+  {
+    "path": "stash@{0}",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "address": "0x487b80",
+    "status": "integrated",
+    "losses": [],
+    "gains": [
+      "0x487b80"
+    ],
+    "error": null,
+    "scores": {
+      "before": 0.9879518072289156,
+      "after": 1.0,
+      "before_exact": false,
+      "after_exact": true
+    }
+  }
+]

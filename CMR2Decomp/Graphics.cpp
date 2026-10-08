@@ -3371,7 +3371,7 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
         ((MeshVertexF *)pCyl->pVertexData)[0].x = 0.0f;
         ((MeshVertexF *)pCyl->pVertexData)[0].y = 0.0f;
         angle = 0;
-        for (i = 1; i < 11; i++) {
+        for (i = 1; i <= 10; i++) {
             idx = (unsigned short)(__int64)((double)angle * g_unk0x00511300);
             ((MeshVertexF *)pCyl->pVertexData)[i].x =
                 (float)g_sinTable[idx & 0xfff] * CGraphics::m_oneOver65536 * radius;

@@ -1,0 +1,1952 @@
+[
+  {
+    "branch": "a5800866980e7730a5af5ca81e59918185beadea",
+    "address": "0x41c260",
+    "file": "CMR2Decomp/Race.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "a5800866980e7730a5af5ca81e59918185beadea",
+    "address": "0x41c5a0",
+    "file": "CMR2Decomp/Race.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "8b0125c7ba9fa918a5460dda615d515d176c19ff",
+    "address": "0x49e1f0",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "8b0125c7ba9fa918a5460dda615d515d176c19ff",
+    "address": "0x4b1150",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "8b0125c7ba9fa918a5460dda615d515d176c19ff",
+    "address": "0x4125f0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "8b0125c7ba9fa918a5460dda615d515d176c19ff",
+    "address": "0x4129d0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "8b0125c7ba9fa918a5460dda615d515d176c19ff",
+    "address": "0x40eec0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x4a9a40",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x49c150",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x4ff450",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x4aacf0",
+    "file": "CMR2Decomp/GameNetwork.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x4aad30",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x4a5ba0",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x4b1980",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x49df90",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x4ac1f0",
+    "file": "CMR2Decomp/SceneNode.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x4b3480",
+    "file": "CMR2Decomp/SceneNode.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x4adf60",
+    "file": "CMR2Decomp/SceneNode.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x4a3250",
+    "file": "CMR2Decomp/Sound.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "470255daaa59e02c0dca6b3647487bef24e66c6c",
+    "address": "0x49c130",
+    "file": "CMR2Decomp/main.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "3304a9a624474ce252363eb862a47b438158a295",
+    "address": "0x487b80",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "328526274b4897b1e1e07d21e374a6a23612d57c",
+    "address": "0x4f6d70",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "328526274b4897b1e1e07d21e374a6a23612d57c",
+    "address": "0x4ec9a0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "328526274b4897b1e1e07d21e374a6a23612d57c",
+    "address": "0x4ee850",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "328526274b4897b1e1e07d21e374a6a23612d57c",
+    "address": "0x4ef600",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "328526274b4897b1e1e07d21e374a6a23612d57c",
+    "address": "0x4f1fa0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "328526274b4897b1e1e07d21e374a6a23612d57c",
+    "address": "0x4fb010",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "ff05e660067b6bddc80ae679a6ee9a96c9ea33a1",
+    "address": "0x48ae90",
+    "file": "CMR2Decomp/Collision2D.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "af864307b535d0f50be6c23d7cee655142c6edce",
+    "address": "0x47f740",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "f386e26b3635e516644c17123c2c3dae75ecf7cd",
+    "address": "0x43c7f0",
+    "file": "CMR2Decomp/Car.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "a2128d9f42df27824a2298bb12a1aebbd5a06c34",
+    "address": "0x480cb0",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "7c14c3a8fcd6598fd735e528a4919f2e4c3728da",
+    "address": "0x42baf0",
+    "file": "CMR2Decomp/Car.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f3152283d3573333817e458a1a378fdf650eb4ce",
+    "address": "0x4ef150",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f3152283d3573333817e458a1a378fdf650eb4ce",
+    "address": "0x4f3b50",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f3152283d3573333817e458a1a378fdf650eb4ce",
+    "address": "0x4f3f60",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f3152283d3573333817e458a1a378fdf650eb4ce",
+    "address": "0x4d15e0",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "f3152283d3573333817e458a1a378fdf650eb4ce",
+    "address": "0x501680",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f3152283d3573333817e458a1a378fdf650eb4ce",
+    "address": "0x4ea840",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f3152283d3573333817e458a1a378fdf650eb4ce",
+    "address": "0x4ead10",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f3152283d3573333817e458a1a378fdf650eb4ce",
+    "address": "0x4ec260",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f3152283d3573333817e458a1a378fdf650eb4ce",
+    "address": "0x4b7650",
+    "file": "CMR2Decomp/Sound.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f3152283d3573333817e458a1a378fdf650eb4ce",
+    "address": "0x4b76c0",
+    "file": "CMR2Decomp/Sound.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7396a4c01dde0367da82d7d969db1d19521d9bd7",
+    "address": "0x4f7a30",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7396a4c01dde0367da82d7d969db1d19521d9bd7",
+    "address": "0x4f9670",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7396a4c01dde0367da82d7d969db1d19521d9bd7",
+    "address": "0x4f99b0",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7396a4c01dde0367da82d7d969db1d19521d9bd7",
+    "address": "0x4f9cf0",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7396a4c01dde0367da82d7d969db1d19521d9bd7",
+    "address": "0x4d7db0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "7396a4c01dde0367da82d7d969db1d19521d9bd7",
+    "address": "0x4d8950",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "60173b7e72a9480796357d0b5bde3462622a0089",
+    "address": "0x49d940",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "c31941b43a86808b9c515c477bceffd7d329fc8d",
+    "address": "0x4a87c0",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "c31941b43a86808b9c515c477bceffd7d329fc8d",
+    "address": "0x4a8450",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "de99ce501eae711be61d0cb338a4a8b2416d7638",
+    "address": "0x4eb6d0",
+    "file": "CMR2Decomp/FileBuffer.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "de99ce501eae711be61d0cb338a4a8b2416d7638",
+    "address": "0x4eaae0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "de99ce501eae711be61d0cb338a4a8b2416d7638",
+    "address": "0x4eae90",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "999af5ed7edf9f7059a10b073b3517a0a31b829c",
+    "address": "0x465e40",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f01a5af69411347a58884676f1eb73184a475615",
+    "address": "0x4a4b10",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f01a5af69411347a58884676f1eb73184a475615",
+    "address": "0x4a60d0",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "7e1da2bd66ac3b310337c618d1d4afbddb3c4e23",
+    "address": "0x4f6740",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7e1da2bd66ac3b310337c618d1d4afbddb3c4e23",
+    "address": "0x4f7de0",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7e1da2bd66ac3b310337c618d1d4afbddb3c4e23",
+    "address": "0x4d9ad0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7e1da2bd66ac3b310337c618d1d4afbddb3c4e23",
+    "address": "0x4e4130",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "7e1da2bd66ac3b310337c618d1d4afbddb3c4e23",
+    "address": "0x4ed530",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7e1da2bd66ac3b310337c618d1d4afbddb3c4e23",
+    "address": "0x4ef000",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7e1da2bd66ac3b310337c618d1d4afbddb3c4e23",
+    "address": "0x4f1a10",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x4d6f10",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x505e70",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x5057e0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x50b1c0",
+    "file": "CMR2Decomp/OptionMenuRows.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x416f70",
+    "file": "CMR2Decomp/Race.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x503e00",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x463410",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x46e580",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x46b8f0",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x47aa70",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x47ad20",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x478b50",
+    "file": "CMR2Decomp/SurfaceTypes.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x478f50",
+    "file": "CMR2Decomp/SurfaceTypes.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x479360",
+    "file": "CMR2Decomp/SurfaceTypes.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f71e750f3c510ce9e83f727eec13411184f9a4ff",
+    "address": "0x47a3d0",
+    "file": "CMR2Decomp/SurfaceTypes.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "2b22f6c05b4df69d66e26734a75708762af61fc7",
+    "address": "0x4cfff0",
+    "file": "CMR2Decomp/Frontend.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "2d2538559f13ac513f007f2a918a1116fd2dd549",
+    "address": "0x478c40",
+    "file": "CMR2Decomp/SurfaceTypes.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "59a7098c99cf452278ddfe2714c99fe579db2923",
+    "address": "0x4f5c90",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "59a7098c99cf452278ddfe2714c99fe579db2923",
+    "address": "0x4f6240",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "59a7098c99cf452278ddfe2714c99fe579db2923",
+    "address": "0x4f7820",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "59a7098c99cf452278ddfe2714c99fe579db2923",
+    "address": "0x4f7d70",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "59a7098c99cf452278ddfe2714c99fe579db2923",
+    "address": "0x4ecfd0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "59a7098c99cf452278ddfe2714c99fe579db2923",
+    "address": "0x4eefe0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "59a7098c99cf452278ddfe2714c99fe579db2923",
+    "address": "0x4f0d30",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "59a7098c99cf452278ddfe2714c99fe579db2923",
+    "address": "0x4f19d0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "59a7098c99cf452278ddfe2714c99fe579db2923",
+    "address": "0x4f2d20",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "59a7098c99cf452278ddfe2714c99fe579db2923",
+    "address": "0x4086f0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7ca754803654e92a89f370952ef02cef33cc7942",
+    "address": "0x45dc00",
+    "file": "CMR2Decomp/CarEffects.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "7ca754803654e92a89f370952ef02cef33cc7942",
+    "address": "0x45d540",
+    "file": "CMR2Decomp/CarEffects.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "7ca754803654e92a89f370952ef02cef33cc7942",
+    "address": "0x45af90",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "7ca754803654e92a89f370952ef02cef33cc7942",
+    "address": "0x45af00",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "4daabd699cfb91bbd60c2dd30ea48c6a1eb12340",
+    "address": "0x5057e0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "d1abc829a37569c21ed3576510a8fab7dfd905df",
+    "address": "0x451690",
+    "file": "CMR2Decomp/GameMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "93ac905f2c1d8c7e83d3aaaf8bea5ecc62064e7a",
+    "address": "0x484310",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "38b20ec74c371bd3eb2077e712bd060b9f0f6710",
+    "address": "0x40eed0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "38b20ec74c371bd3eb2077e712bd060b9f0f6710",
+    "address": "0x413160",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "38b20ec74c371bd3eb2077e712bd060b9f0f6710",
+    "address": "0x409680",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "38b20ec74c371bd3eb2077e712bd060b9f0f6710",
+    "address": "0x411120",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "89b28bb513df59bbeb80c5df5a9daddc4ea569ad",
+    "address": "0x433890",
+    "file": "CMR2Decomp/Car.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "89b28bb513df59bbeb80c5df5a9daddc4ea569ad",
+    "address": "0x444c10",
+    "file": "CMR2Decomp/Car.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "89b28bb513df59bbeb80c5df5a9daddc4ea569ad",
+    "address": "0x43f630",
+    "file": "CMR2Decomp/Car.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "89b28bb513df59bbeb80c5df5a9daddc4ea569ad",
+    "address": "0x48a1f0",
+    "file": "CMR2Decomp/Collision2D.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "89b28bb513df59bbeb80c5df5a9daddc4ea569ad",
+    "address": "0x4877a0",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "a732f793d0f5fba1d3a370346da3a4720f8d635c",
+    "address": "0x43e1f0",
+    "file": "CMR2Decomp/Car.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "a732f793d0f5fba1d3a370346da3a4720f8d635c",
+    "address": "0x4336f0",
+    "file": "CMR2Decomp/Car.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "a732f793d0f5fba1d3a370346da3a4720f8d635c",
+    "address": "0x443a20",
+    "file": "CMR2Decomp/Car.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "a732f793d0f5fba1d3a370346da3a4720f8d635c",
+    "address": "0x468a80",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "313360749ad8c5d9a1193ee4bdecebea16029ca3",
+    "address": "0x4926f0",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "04360ae93e95a407cd898400b764e80608157908",
+    "address": "0x4f5c90",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "04360ae93e95a407cd898400b764e80608157908",
+    "address": "0x4f6240",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "04360ae93e95a407cd898400b764e80608157908",
+    "address": "0x4f7820",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "04360ae93e95a407cd898400b764e80608157908",
+    "address": "0x4f7d70",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "04360ae93e95a407cd898400b764e80608157908",
+    "address": "0x4d9450",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "04360ae93e95a407cd898400b764e80608157908",
+    "address": "0x4e0770",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "04360ae93e95a407cd898400b764e80608157908",
+    "address": "0x4ecfd0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "04360ae93e95a407cd898400b764e80608157908",
+    "address": "0x4eefe0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "04360ae93e95a407cd898400b764e80608157908",
+    "address": "0x4f0d30",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "04360ae93e95a407cd898400b764e80608157908",
+    "address": "0x4f19d0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "04360ae93e95a407cd898400b764e80608157908",
+    "address": "0x4f2d20",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "04360ae93e95a407cd898400b764e80608157908",
+    "address": "0x4086f0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "18b86e26c1f27237ad63a074364a23c83be48558",
+    "address": "0x4f6740",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "18b86e26c1f27237ad63a074364a23c83be48558",
+    "address": "0x4f7de0",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "18b86e26c1f27237ad63a074364a23c83be48558",
+    "address": "0x4d9ad0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "18b86e26c1f27237ad63a074364a23c83be48558",
+    "address": "0x4e4130",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "18b86e26c1f27237ad63a074364a23c83be48558",
+    "address": "0x4ed530",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "18b86e26c1f27237ad63a074364a23c83be48558",
+    "address": "0x4ef000",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "18b86e26c1f27237ad63a074364a23c83be48558",
+    "address": "0x4f1a10",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "55ba32286a2a46c9256d1909bfa19d2ef685cbb3",
+    "address": "0x4f5150",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "55ba32286a2a46c9256d1909bfa19d2ef685cbb3",
+    "address": "0x4f8a90",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "55ba32286a2a46c9256d1909bfa19d2ef685cbb3",
+    "address": "0x50cb30",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "55ba32286a2a46c9256d1909bfa19d2ef685cbb3",
+    "address": "0x502c60",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "55ba32286a2a46c9256d1909bfa19d2ef685cbb3",
+    "address": "0x501d50",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "55ba32286a2a46c9256d1909bfa19d2ef685cbb3",
+    "address": "0x5028a0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "55ba32286a2a46c9256d1909bfa19d2ef685cbb3",
+    "address": "0x4ff550",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "55ba32286a2a46c9256d1909bfa19d2ef685cbb3",
+    "address": "0x5020a0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "55ba32286a2a46c9256d1909bfa19d2ef685cbb3",
+    "address": "0x502df0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "4bbd72c90dfbd4da7ae1f119776f2875aa505a21",
+    "address": "0x50a080",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "4bbd72c90dfbd4da7ae1f119776f2875aa505a21",
+    "address": "0x509dc0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "4bbd72c90dfbd4da7ae1f119776f2875aa505a21",
+    "address": "0x49d940",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "133e459141f471c0e39bf65485f6efb32b8fd38c",
+    "address": "0x411070",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "3bc0672b49259310780a3c2c025d9fec04a5e620",
+    "address": "0x487b80",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "d5c17eede35b60320f6ecd9c2a4feb19f697df46",
+    "address": "0x4efde0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "d5c17eede35b60320f6ecd9c2a4feb19f697df46",
+    "address": "0x4efb70",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x4a9a40",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x49c150",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x4ff450",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x4aacf0",
+    "file": "CMR2Decomp/GameNetwork.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x4aad30",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x4a5ba0",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x4b1980",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x49df90",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x4ac1f0",
+    "file": "CMR2Decomp/SceneNode.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x4b3480",
+    "file": "CMR2Decomp/SceneNode.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x4adf60",
+    "file": "CMR2Decomp/SceneNode.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x4a3250",
+    "file": "CMR2Decomp/Sound.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "67426d33c8ad347fdc99183a4664f3f314fc67f5",
+    "address": "0x49c130",
+    "file": "CMR2Decomp/main.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "4ec3b7a46fa78429ac8d8b301046587d02799f71",
+    "address": "0x509150",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "4ec3b7a46fa78429ac8d8b301046587d02799f71",
+    "address": "0x508ee0",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "8dc3dc306a3737607cdf4836a72569b9af41825b",
+    "address": "0x423460",
+    "file": "CMR2Decomp/Car.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "8dc3dc306a3737607cdf4836a72569b9af41825b",
+    "address": "0x4f13c0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "8dc3dc306a3737607cdf4836a72569b9af41825b",
+    "address": "0x4e5630",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "8dc3dc306a3737607cdf4836a72569b9af41825b",
+    "address": "0x4d6f10",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "8dc3dc306a3737607cdf4836a72569b9af41825b",
+    "address": "0x4dd4b0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "8dc3dc306a3737607cdf4836a72569b9af41825b",
+    "address": "0x446270",
+    "file": "CMR2Decomp/HudDash.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "8dc3dc306a3737607cdf4836a72569b9af41825b",
+    "address": "0x446bf0",
+    "file": "CMR2Decomp/HudDash.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "8dc3dc306a3737607cdf4836a72569b9af41825b",
+    "address": "0x41e8d0",
+    "file": "CMR2Decomp/Race.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "8dc3dc306a3737607cdf4836a72569b9af41825b",
+    "address": "0x4878a0",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "56465c5933d2f996bda2e4185992de7393c78a2f",
+    "address": "0x423070",
+    "file": "CMR2Decomp/FixedPoint.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "56465c5933d2f996bda2e4185992de7393c78a2f",
+    "address": "0x4241d0",
+    "file": "CMR2Decomp/FixedPoint.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "56465c5933d2f996bda2e4185992de7393c78a2f",
+    "address": "0x447a40",
+    "file": "CMR2Decomp/FixedPoint.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "6e4af348ef07919369fad2bed662946df483dc59",
+    "address": "0x4a4c40",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "6e4af348ef07919369fad2bed662946df483dc59",
+    "address": "0x49dcc0",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "6e4af348ef07919369fad2bed662946df483dc59",
+    "address": "0x4bcc60",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "6e4af348ef07919369fad2bed662946df483dc59",
+    "address": "0x4b1500",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "6e4af348ef07919369fad2bed662946df483dc59",
+    "address": "0x4ae170",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "6e4af348ef07919369fad2bed662946df483dc59",
+    "address": "0x4a48c0",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "6e4af348ef07919369fad2bed662946df483dc59",
+    "address": "0x4a60d0",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "6e4af348ef07919369fad2bed662946df483dc59",
+    "address": "0x4a2d30",
+    "file": "CMR2Decomp/Sound.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "6e4af348ef07919369fad2bed662946df483dc59",
+    "address": "0x4a3050",
+    "file": "CMR2Decomp/Sound.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "6e4af348ef07919369fad2bed662946df483dc59",
+    "address": "0x4a25f0",
+    "file": "CMR2Decomp/Sound.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "004c53c850cb46d7bdbcebc2f8016536e82e41f9",
+    "address": "0x46b4e0",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "004c53c850cb46d7bdbcebc2f8016536e82e41f9",
+    "address": "0x4744f0",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "c54cd9d9acd3b20ab4580982afe7605170c4b689",
+    "address": "0x4cf060",
+    "file": "CMR2Decomp/Frontend.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "c54cd9d9acd3b20ab4580982afe7605170c4b689",
+    "address": "0x4b2610",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "1d4df1274c4b061b316988a1d8902652b86154fc",
+    "address": "0x4ec2b0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "494d8a3f796b04c2bb8034b9ee54d72fd921c93c",
+    "address": "0x40ee60",
+    "file": "CMR2Decomp/Frontend.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "494d8a3f796b04c2bb8034b9ee54d72fd921c93c",
+    "address": "0x40ee70",
+    "file": "CMR2Decomp/Frontend.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "494d8a3f796b04c2bb8034b9ee54d72fd921c93c",
+    "address": "0x40ee80",
+    "file": "CMR2Decomp/Frontend.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "494d8a3f796b04c2bb8034b9ee54d72fd921c93c",
+    "address": "0x40ee90",
+    "file": "CMR2Decomp/Frontend.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "494d8a3f796b04c2bb8034b9ee54d72fd921c93c",
+    "address": "0x40eea0",
+    "file": "CMR2Decomp/Frontend.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x501680",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x501690",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x4ff4e0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x500920",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x5009c0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x500a70",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x500ec0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x502d50",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x501ac0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x5013a0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x502240",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x5022a0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x502440",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "53ce626e800394da978b7761201c38218469eda7",
+    "address": "0x5024a0",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "e9cfec320c004f8aa2d824b79fab28a523b0871e",
+    "address": "0x4f5c90",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "e9cfec320c004f8aa2d824b79fab28a523b0871e",
+    "address": "0x4f6240",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "e9cfec320c004f8aa2d824b79fab28a523b0871e",
+    "address": "0x4f7820",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "e9cfec320c004f8aa2d824b79fab28a523b0871e",
+    "address": "0x4f7d70",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "e9cfec320c004f8aa2d824b79fab28a523b0871e",
+    "address": "0x4ecfd0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "e9cfec320c004f8aa2d824b79fab28a523b0871e",
+    "address": "0x4eefe0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "e9cfec320c004f8aa2d824b79fab28a523b0871e",
+    "address": "0x4f0d30",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "e9cfec320c004f8aa2d824b79fab28a523b0871e",
+    "address": "0x4f19d0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "e9cfec320c004f8aa2d824b79fab28a523b0871e",
+    "address": "0x4f2d20",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "e9cfec320c004f8aa2d824b79fab28a523b0871e",
+    "address": "0x4086f0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7c51df1f209d51b110e19f71e40610bf417c3598",
+    "address": "0x451690",
+    "file": "CMR2Decomp/GameMenus.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "8b52563b9f67c90f94917039638b78444aa8aff4",
+    "address": "0x468c10",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "3d55441e05f3fe170a392284386bded69062e16a",
+    "address": "0x4dc930",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7fd8be86ac9c61b49fc6663a01ec7b1a007fd74d",
+    "address": "0x447a00",
+    "file": "CMR2Decomp/FixedPoint.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "7fd8be86ac9c61b49fc6663a01ec7b1a007fd74d",
+    "address": "0x427680",
+    "file": "CMR2Decomp/NetRace.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "20d9ff263fcffdc49c2f369405bd107253b076d2",
+    "address": "0x40fd30",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "20d9ff263fcffdc49c2f369405bd107253b076d2",
+    "address": "0x482ac0",
+    "file": "CMR2Decomp/VehiclePhysics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "5e5989101df4d665835c826b8774ed2d8c49692a",
+    "address": "0x49d940",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "965bc3edc8d91c2aa6e3373d3047e6ff0472d025",
+    "address": "0x41b460",
+    "file": "CMR2Decomp/StageUI.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "ce5ce6b9969eab69f587d853d8c440250c801a65",
+    "address": "0x411070",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "125df8c33d2e52e6fe7d197ac7c747b8e6ee1a13",
+    "address": "0x4f8730",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "125df8c33d2e52e6fe7d197ac7c747b8e6ee1a13",
+    "address": "0x4e8b60",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "3b5dbd4ffb7b736ffd862c0719ee4836983e4922",
+    "address": "0x503c80",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "3b5dbd4ffb7b736ffd862c0719ee4836983e4922",
+    "address": "0x5043b0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "6fe2efbb2ff70ead6ee8f434e961b596ed604a19",
+    "address": "0x42e450",
+    "file": "CMR2Decomp/Car.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "6fe2efbb2ff70ead6ee8f434e961b596ed604a19",
+    "address": "0x447f70",
+    "file": "CMR2Decomp/HudDash.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "6fe2efbb2ff70ead6ee8f434e961b596ed604a19",
+    "address": "0x4916a0",
+    "file": "CMR2Decomp/TrackCollision.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "ace2b57bcdce734fbef08fa6df01015f71a90d6a",
+    "address": "0x4bae10",
+    "file": "CMR2Decomp/FixedPoint.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "80e356aac3297bd454581f19aa701e58646b9cbd",
+    "address": "0x45dc00",
+    "file": "CMR2Decomp/CarEffects.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "80e356aac3297bd454581f19aa701e58646b9cbd",
+    "address": "0x45d540",
+    "file": "CMR2Decomp/CarEffects.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "80e356aac3297bd454581f19aa701e58646b9cbd",
+    "address": "0x45af90",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "80e356aac3297bd454581f19aa701e58646b9cbd",
+    "address": "0x45af00",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "d5651d1d1dbedb47b6803f0e8dc33bfa6f580d5d",
+    "address": "0x47b970",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "d5651d1d1dbedb47b6803f0e8dc33bfa6f580d5d",
+    "address": "0x4873f0",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "d5651d1d1dbedb47b6803f0e8dc33bfa6f580d5d",
+    "address": "0x47c5e0",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "d5651d1d1dbedb47b6803f0e8dc33bfa6f580d5d",
+    "address": "0x47cd10",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "f96a324526a44ca4ac53876b0f27d11f8a42ac30",
+    "address": "0x4d1e90",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f96a324526a44ca4ac53876b0f27d11f8a42ac30",
+    "address": "0x405c00",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f96a324526a44ca4ac53876b0f27d11f8a42ac30",
+    "address": "0x500c80",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "f96a324526a44ca4ac53876b0f27d11f8a42ac30",
+    "address": "0x4068d0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "ab6c9b1a8d1d663e9dd4c12e83cff620678a29d4",
+    "address": "0x4143f0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "ab6c9b1a8d1d663e9dd4c12e83cff620678a29d4",
+    "address": "0x414550",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "ab6c9b1a8d1d663e9dd4c12e83cff620678a29d4",
+    "address": "0x504eb0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "15eef3f2e608617095bceece974fb3e59cd1ff45",
+    "address": "0x451690",
+    "file": "CMR2Decomp/GameMenus.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "a96ed02553182313f2689d1daa1d17ee038cef59",
+    "address": "0x4f6740",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "a96ed02553182313f2689d1daa1d17ee038cef59",
+    "address": "0x4f7de0",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "a96ed02553182313f2689d1daa1d17ee038cef59",
+    "address": "0x4d9ad0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "a96ed02553182313f2689d1daa1d17ee038cef59",
+    "address": "0x4e4130",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "a96ed02553182313f2689d1daa1d17ee038cef59",
+    "address": "0x4ed530",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "a96ed02553182313f2689d1daa1d17ee038cef59",
+    "address": "0x4ef000",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "a96ed02553182313f2689d1daa1d17ee038cef59",
+    "address": "0x4f1a10",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "fceef3d513d875593b7d429554efc9a423432316",
+    "address": "0x487b80",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x42c890",
+    "file": "CMR2Decomp/Car.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x434140",
+    "file": "CMR2Decomp/Car.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x45d540",
+    "file": "CMR2Decomp/CarEffects.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x496e00",
+    "file": "CMR2Decomp/CarPhysics.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4fc620",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4ded80",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4ee170",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x44a1b0",
+    "file": "CMR2Decomp/GameMenus.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4a5880",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4bc490",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4ae950",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4ae470",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4b07a0",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4a6710",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4a6370",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x446270",
+    "file": "CMR2Decomp/HudDash.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x446bf0",
+    "file": "CMR2Decomp/HudDash.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4a0570",
+    "file": "CMR2Decomp/Menu.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x41e8d0",
+    "file": "CMR2Decomp/Race.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x41c5a0",
+    "file": "CMR2Decomp/Race.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x40d9e0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4147f0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x40f0c0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x471dd0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x40f8d0",
+    "file": "CMR2Decomp/RallyData.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4b4aa0",
+    "file": "CMR2Decomp/SceneNode.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4a3650",
+    "file": "CMR2Decomp/Sprite.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x46f550",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x46e780",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x47ca30",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x47c5e0",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x46a500",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x47e4d0",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x467700",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4483e0",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4584d0",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4816f0",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "superseded_conflicting_draft"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x498620",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x457000",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4781d0",
+    "file": "CMR2Decomp/SurfaceTypes.cpp",
+    "status": "reverted_type_pass_preserve_validated_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x479360",
+    "file": "CMR2Decomp/SurfaceTypes.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x4916a0",
+    "file": "CMR2Decomp/TrackCollision.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x493b30",
+    "file": "CMR2Decomp/TrackCollision.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f6f0ab843dd7b221a38c5589a35ef67f09266fa6",
+    "address": "0x48fb80",
+    "file": "CMR2Decomp/VehiclePhysics.cpp",
+    "status": "already_present_delta"
+  },
+  {
+    "branch": "58f12e390c28307ef426d0af781aff59302502fd",
+    "address": "0x487b80",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "96f2e33f348b408556dffe9fbf05e64c9031aa0e",
+    "address": "0x49d940",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "657357a216583cd9cfe8693911bac50b8e031567",
+    "address": "0x484310",
+    "file": "CMR2Decomp/StageObjects.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "65f70999503ac41019d8c79b85153951752c1e8f",
+    "address": "0x49d940",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "8a791a17d67cdeb6d18cfea4327e7af388fdc3d9",
+    "address": "0x4d20f0",
+    "file": "CMR2Decomp/Frontend.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "8a791a17d67cdeb6d18cfea4327e7af388fdc3d9",
+    "address": "0x4cf260",
+    "file": "CMR2Decomp/Frontend.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "8a791a17d67cdeb6d18cfea4327e7af388fdc3d9",
+    "address": "0x4d0230",
+    "file": "CMR2Decomp/Frontend.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "8a791a17d67cdeb6d18cfea4327e7af388fdc3d9",
+    "address": "0x49d290",
+    "file": "CMR2Decomp/Game.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "8a791a17d67cdeb6d18cfea4327e7af388fdc3d9",
+    "address": "0x4d0580",
+    "file": "CMR2Decomp/GameInfo.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "8a791a17d67cdeb6d18cfea4327e7af388fdc3d9",
+    "address": "0x49de40",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "8a791a17d67cdeb6d18cfea4327e7af388fdc3d9",
+    "address": "0x4b2460",
+    "file": "CMR2Decomp/Graphics.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "f4faa0d78328b0bd14250146922804bfdf764708",
+    "address": "0x45dc00",
+    "file": "CMR2Decomp/CarEffects.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "f4faa0d78328b0bd14250146922804bfdf764708",
+    "address": "0x45d540",
+    "file": "CMR2Decomp/CarEffects.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "f4faa0d78328b0bd14250146922804bfdf764708",
+    "address": "0x45af90",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "recovered_and_refined_in_main"
+  },
+  {
+    "branch": "f4faa0d78328b0bd14250146922804bfdf764708",
+    "address": "0x45af00",
+    "file": "CMR2Decomp/StageTiming.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "b0fb80a184e898d15c27b5edb827f0067d0b2934",
+    "address": "0x4f5d90",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "b0fb80a184e898d15c27b5edb827f0067d0b2934",
+    "address": "0x4f6040",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "b0fb80a184e898d15c27b5edb827f0067d0b2934",
+    "address": "0x4f77a0",
+    "file": "CMR2Decomp/FrontendMenus.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "branch": "b0fb80a184e898d15c27b5edb827f0067d0b2934",
+    "address": "0x4ecf80",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "b0fb80a184e898d15c27b5edb827f0067d0b2934",
+    "address": "0x4eefb0",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  },
+  {
+    "branch": "b0fb80a184e898d15c27b5edb827f0067d0b2934",
+    "address": "0x4f2430",
+    "file": "CMR2Decomp/FrontendScreens.cpp",
+    "status": "already_present"
+  }
+]

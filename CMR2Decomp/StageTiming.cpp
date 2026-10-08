@@ -5194,7 +5194,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
         int speed = FIX_ABS(Car_GetWheelSpeed(car, 0, 0));
         if (speed < 0x1e0000) {
             int chance = FixDiv(speed, 0x1e0000);
-            if (chance < TRAIL_RANDOM(CGraphics::m_65536)) emit = 0;
+            if (TRAIL_RANDOM(CGraphics::m_65536) > chance) emit = 0;
         }
         if (leading) {
             type = 6;

@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+"""Execute original/rebuilt collision acceptance and checkpoint advance.
+
+Usage: differential_collision_checkpoint.py report.json entities.json [rebuilt.exe]
+Collision has no callees and is checked against a signed 16.16 wrap model.
+Checkpoint slot lookup is simulated; compare full memory and provider traces
+under all four x87 rounding modes, including aliased output pointers.
+"""
+import json
+import os
+from pathlib import Path
+import struct
+import subprocess
+import sys
+import tempfile
+import pefile
+from differential_com_outputs import extract
+
+ROOT = Path(__file__).resolve().parents[1]
+TOOLS = ROOT.parent / 'tools'
+BASE = 0x2e000000
+REGIONS = [(0x591910, 12, BASE+4096), (0x591ae0, 12, BASE+4112),
+           (0x5918dc, 4, BASE+4128), (0x5918d0, 4, BASE+4132),
+           (0x59195c, 4, BASE+4136), (0x5919b8, 4, BASE+4140),
+           (0x59192c, 4, BASE+4144), (0x542cb4, 32, BASE+4160),
+           (0x542c70, 4, BASE+4192), (0x5113b8, 8, BASE+4200)]
+
+DRIVER = r'''
+#include <windows.h>
+#include <stdio.h>
+#include <string.h>
+#include <float.h>
+#include <stdlib.h>
+typedef int (__stdcall *CollisionFn)(void);
+typedef void (__stdcall *CheckpointFn)(int,int *,int *);
+static BYTE *arena;
+static BYTE initial[65536],expected[65536],result[65536];
+static unsigned int seed;
+static int caseId,lookupCalls,lastPlayer,slot;
+static unsigned int next(void) {seed=seed*1664525u+1013904223u;return seed;}
+static int readInt(BYTE *p,int at) {int v;memcpy(&v,p+at,4);return v;}
+static void putInt(BYTE *p,int at,int v) {memcpy(p+at,&v,4);}
+static int wrap(unsigned int v) {int i;memcpy(&i,&v,4);return i;}
+static int multiply(int a,int b) {
+    __int64 product=(__int64)a*b;
+    return wrap((unsigned int)((unsigned __int64)product>>16));
+}
+static int __stdcall lookup(int player) {lookupCalls++;lastPlayer=player;return slot;}
+static void *makeCode(BYTE *bytes,unsigned int length,unsigned int *calls,int n) {
+    BYTE *p=(BYTE *)VirtualAlloc(0,length,MEM_RESERVE|MEM_COMMIT,PAGE_EXECUTE_READWRITE);
+    int i;if(!p)exit(2);memcpy(p,bytes,length);
+    for(i=0;i<n;i++){DWORD target=(DWORD)lookup-(DWORD)(p+calls[i]+4);memcpy(p+calls[i],&target,4);}
+    FlushInstructionCache(GetCurrentProcess(),p,length);return p;
+}
+static void equal(BYTE *a,BYTE *b,const char *name,int image) {
+    int j;for(j=0;j<65536;j++)if(a[j]!=b[j]){
+        printf("%s case=%d image=%d offset=%d\n",name,caseId,image,j);exit(3);
+    }
+}
+static int collisionModel(void) {
+    int d=wrap((unsigned int)multiply(readInt(initial,4132),readInt(initial,4096))+
+               (unsigned int)multiply(readInt(initial,4136),readInt(initial,4104)));
+    int dot=0,j;
+    if(d<0)d=wrap(0u-(unsigned int)d);
+    memcpy(expected,initial,65536);
+    if(d>readInt(initial,4140))return 0;
+    for(j=0;j<3;j++) {
+        int delta=wrap((unsigned int)readInt(initial,4112+j*4)-
+                       (unsigned int)readInt(initial,8192+0x2e8+j*4));
+        dot=wrap((unsigned int)dot+(unsigned int)multiply(readInt(initial,4096+j*4),delta));
+    }
+    putInt(expected,4144,dot>=0);return 1;
+}
+int main(void) {
+    CollisionFn collision[2];CheckpointFn checkpoint[2];
+    int i,j,image,returned,model,player,fracAt;
+    unsigned int previousControl,rounding[]={_RC_NEAR,_RC_DOWN,_RC_UP,_RC_CHOP};
+    static int limits[]={0,1,-1,65535,65536,-65536,0x7fffffff,(int)0x80000000u,0x40000000,-0x40000000};
+    static int counts[]={1,2,3,65535,16777215,16777216,16777217,-1,-16777217,0x7fffffff,(int)0x80000000u};
+    static double scales[]={0.0,0.01,0.5,1.0,-1.0,1.5,0.000001,-0.01};
+    arena=(BYTE *)VirtualAlloc((void *)0x2e000000,65536,MEM_RESERVE|MEM_COMMIT,PAGE_READWRITE);
+    if(arena!=(BYTE *)0x2e000000)return 2;
+    collision[0]=(CollisionFn)makeCode(collision_original,sizeof(collision_original),0,0);
+    collision[1]=(CollisionFn)makeCode(collision_rebuilt,sizeof(collision_rebuilt),0,0);
+    checkpoint[0]=(CheckpointFn)makeCode(checkpoint_original,sizeof(checkpoint_original),checkpoint_calls_original,sizeof(checkpoint_calls_original)/4);
+    checkpoint[1]=(CheckpointFn)makeCode(checkpoint_rebuilt,sizeof(checkpoint_rebuilt),checkpoint_calls_rebuilt,sizeof(checkpoint_calls_rebuilt)/4);
+    for(caseId=0;caseId<6000;caseId++) {
+        seed=123u+caseId;for(i=0;i<65536;i++)initial[i]=(BYTE)next();
+        putInt(initial,4128,(int)(arena+8192));
+        for(j=0;j<3;j++) {
+            putInt(initial,4096+j*4,caseId<1000?limits[(caseId/(j+1))%10]:wrap(next()));
+            putInt(initial,4112+j*4,wrap(next()));
+            putInt(initial,8192+0x2e8+j*4,wrap(next()));
+        }
+        putInt(initial,4132,caseId<1000?limits[caseId%10]:wrap(next()));
+        putInt(initial,4136,caseId<1000?limits[(caseId/10)%10]:wrap(next()));
+        putInt(initial,4140,caseId<1000?limits[(caseId/100)%10]:wrap(next()));
+        model=collisionModel();
+        for(image=0;image<2;image++) {
+            memcpy(arena,initial,65536);returned=collision[image]();
+            if(returned!=model){printf("collision return case=%d image=%d\n",caseId,image);return 3;}
+            equal(arena,expected,"collision model",image);
+        }
+    }
+    previousControl=_controlfp(0,0);
+    for(caseId=0;caseId<6000;caseId++) {
+        double scale;int callsA,playerA;
+        seed=caseId+777u;for(i=0;i<65536;i++)initial[i]=(BYTE)next();
+        slot=caseId%8;player=caseId%3?caseId%8:-2;fracAt=caseId%17?12292:12288;
+        for(i=0;i<8;i++)putInt(initial,4160+i*4,caseId%5?0:1);
+        putInt(initial,4192,counts[caseId%11]);scale=scales[(caseId/11)%8];memcpy(initial+4200,&scale,8);
+        putInt(initial,12288,caseId%1000-500);putInt(initial,fracAt,caseId<1000?limits[caseId%10]:wrap(next()));
+        for(image=0;image<2;image++) {
+            _controlfp(rounding[caseId%4],_MCW_RC);memcpy(arena,initial,65536);
+            lookupCalls=0;lastPlayer=-999;
+            checkpoint[image](player,(int *)(arena+12288),(int *)(arena+fracAt));
+            if(lookupCalls!=(player==-2?0:1)||(lookupCalls&&lastPlayer!=player))return 4;
+            if(!image){memcpy(result,arena,65536);callsA=lookupCalls;playerA=lastPlayer;}
+            else {equal(arena,result,"checkpoint differential",image);if(callsA!=lookupCalls||playerA!=lastPlayer)return 4;}
+            memcpy(expected,initial,65536);
+            if(readInt(initial,4160+(player==-2?0:slot)*4)==0) {
+                memcpy(expected+12288,arena+12288,4);
+                memcpy(expected+fracAt,arena+fracAt,4);
+            }
+            equal(arena,expected,"checkpoint guards",image);
+        }
+    }
+    _controlfp(previousControl,_MCW_RC);
+    printf("12000 native collision/checkpoint cases: 0 differences; fixed point wrap model, guards, lookup traces, aliases and four x87 rounding modes checked\n");
+    return 0;
+}
+'''
+
+
+def main():
+    report=json.loads(Path(sys.argv[1]).read_text())
+    entities=json.loads(Path(sys.argv[2]).read_text())
+    entries={int(e['address'],16):int(e['recomp'],16) for e in report['data'] if e.get('recomp')}
+    original=pefile.PE(str(ROOT/'cmr2bin/CMR2.exe'))
+    rebuilt=pefile.PE(str(Path(sys.argv[3]) if len(sys.argv)>3 else ROOT/'build/CMR2.exe'))
+    arrays=[]
+    for label,pe,recomp in [('original',original,False),('rebuilt',rebuilt,True)]:
+        regions=[(entities[hex(a)][0] if recomp else a,n,b) for a,n,b in REGIONS]
+        calls={entities['0x40b010'][0] if recomp else 0x40b010:'lookup'}
+        for tag,a,cleanup in [('collision',0x490570,0),('checkpoint',0x4591e0,12)]:
+            code,relocations=extract(pe,entries[a] if recomp else a,regions,calls,cleanup)
+            arrays.append('static BYTE %s_%s[]={%s};\n'%(tag,label,','.join(map(str,code))))
+            if tag=='checkpoint':
+                assert len(relocations)==1 and relocations[0][1]=='lookup'
+                arrays.append('static unsigned int checkpoint_calls_%s[]={%s};\n'%(label,','.join(str(off) for off,_ in relocations)))
+    env=dict(os.environ,WINEDEBUG='-all',WINEPREFIX=str(TOOLS/'wineprefix'))
+    def win(p):return subprocess.check_output(['winepath','-w',str(p)],env=env,text=True).strip()
+    env['INCLUDE']=win(TOOLS/'msvc600/VC98/Include');env['LIB']=win(TOOLS/'msvc600/VC98/Lib')
+    env['WINEPATH']=win(TOOLS/'msvc600/VC98/Bin')+';'+win(TOOLS/'msvc600/Common/MSDev98/Bin')
+    with tempfile.TemporaryDirectory(prefix='cmr2-collision-checkpoint-') as tmp:
+        (Path(tmp)/'driver.c').write_text('#include <windows.h>\n'+''.join(arrays)+DRIVER)
+        subprocess.run(['wine',str(TOOLS/'msvc600/VC98/Bin/CL.EXE'),'/nologo','/O2','/MD','driver.c','/Fedriver.exe'],cwd=tmp,env=env,check=True,stdout=subprocess.DEVNULL)
+        subprocess.run(['wine','driver.exe'],cwd=tmp,env=env,check=True)
+
+if __name__=='__main__':main()

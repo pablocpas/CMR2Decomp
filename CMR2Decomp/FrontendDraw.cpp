@@ -379,8 +379,8 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
     curFirst = first;
     count = 0;
     hasTitle = 0;
-    dst.y = 0;
     dst.x = (int)(g_pGraphics->resX * 100) / 640;
+    dst.y = 0;
     dst.w = CFrontend::m_pAr640ATexture->width;
     dst.h = CFrontend::m_pAr640ATexture->height;
     for (i = 0; i < pMenu->itemCount; i++) {

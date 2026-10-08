@@ -1,0 +1,43 @@
+diff --git a/scripts/fastcmp.py b/scripts/fastcmp.py
+index 18f80eb..a88ad25 100644
+--- a/scripts/fastcmp.py
++++ b/scripts/fastcmp.py
+@@ -11,7 +11,7 @@ compared with the original bytes: equal bytes == true byte-exact match.
+ Score = difflib ratio over the disassembled instruction texts.
+ """
+ from collections import Counter
+-import sys, os, re, json, struct, subprocess, difflib, pickle, argparse
++import sys, os, re, json, struct, subprocess, difflib, pickle, argparse, tempfile
+ from capstone import Cs, CS_ARCH_X86, CS_MODE_32
+ 
+ REPO = os.environ.get('CMR2_REPO', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+@@ -176,12 +176,23 @@ def compile_tu(src, objout):
+     # A failed compiler invocation must not reuse an object from an earlier run.
+     if os.path.exists(objout):
+         os.unlink(objout)
+-    r = subprocess.run(['wine', MSVC + '/Bin/CL.EXE'] + fl + ['/Fo' + W(objout), W(src)],
+-                       capture_output=True, text=True, env=env, cwd=REPO)
+-    errs = [l for l in r.stdout.splitlines() if ' error ' in l or 'fatal error' in l]
+-    if r.returncode or errs or not os.path.exists(objout):
+-        raise RuntimeError('\n'.join(errs[:10]) or (r.stdout + r.stderr)[-2000:] or
+-                           f'Compiler exited with status {r.returncode}; no fresh object produced.')
++    # Redirect to a file, not a pipe: the wineserver keeps inherited pipe ends
++    # open after CL.EXE exits, which deadlocks communicate() forever.
++    timeout = float(os.environ.get('FASTCMP_TIMEOUT', '180'))
++    with tempfile.TemporaryFile('w+') as log:
++        try:
++            r = subprocess.run(['wine', MSVC + '/Bin/CL.EXE'] + fl + ['/Fo' + W(objout), W(src)],
++                               stdout=log, stderr=subprocess.STDOUT, text=True, env=env,
++                               cwd=REPO, timeout=timeout)
++            status = r.returncode
++        except subprocess.TimeoutExpired:
++            status = f'timeout after {timeout:g}s'
++        log.seek(0)
++        out = log.read()
++    errs = [l for l in out.splitlines() if ' error ' in l or 'fatal error' in l]
++    if status or errs or not os.path.exists(objout):
++        raise RuntimeError('\n'.join(errs[:10]) or out[-2000:] or
++                           f'Compiler exited with status {status}; no fresh object produced.')
+ 
+ # ------------------------------------------------------------ function lookup
+ def mangled_candidates(name):
