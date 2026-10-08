@@ -1100,11 +1100,12 @@ BYTE g_stageMapCarColours[8][4] = {
 char g_strMapNumber[] = "%d";
 
 // Screen position of a route point on the stage map (map = x, y, w, h).
-#define MAP_X(d, map)                                                                              \
-    ((FixMul(FixMul((d).x, g_stageMapScale) + 0x8000, (int)(__int64)((double)(map)[2] * CGraphics::m_65536)) - \
+// t = FixMul(d.x or -d.z, g_stageMapScale) + 0x8000: the route point scaled to 0..1.
+#define MAP_X(t, map) \
+    ((FixMul(t, (int)(__int64)((double)(map)[2] * CGraphics::m_65536)) - \
       (int)(__int64)((double)(map)[0] * g_minus65536)) >> 16)
-#define MAP_Y(d, map)                                                                              \
-    ((FixMul(FixMul(-(d).z, g_stageMapScale) + 0x8000, (int)(__int64)((double)(map)[3] * CGraphics::m_65536)) - \
+#define MAP_Y(t, map) \
+    ((FixMul(t, (int)(__int64)((double)(map)[3] * CGraphics::m_65536)) - \
       (int)(__int64)((double)(map)[1] * g_minus65536)) >> 16)
 
 // Stage map of the HUD: the route thumbnail, a dot per car (network players,
@@ -1118,13 +1119,15 @@ void StageUI_DrawHudRouteMap(int car, short *pRect)
     short mapSrc[4];
     short dot[4];
     short map[4];
-    char number[8];
+    char number[6];
     BYTE colour[4];
     int netColour;
     int i;
     int id;
     int index;
-    BYTE *pCarColour;
+    int x;
+    int y;
+    int t;
 
     colour[0] = 0xff;
     colour[1] = 0xff;
@@ -1171,40 +1174,48 @@ void StageUI_DrawHudRouteMap(int car, short *pRect)
             d.x = point[0] - g_stageMapCentre.x;
             d.y = point[1] - g_stageMapCentre.y;
             d.z = point[2] - g_stageMapCentre.z;
-            dot[0] = (short)MAP_X(d, map) - (short)((int)(g_pGraphics->resX * 5) / 640);
-            dot[1] = (short)MAP_Y(d, map) - (short)((int)(g_pGraphics->resY * 5) / 480);
+            t = FixMul(d.x, g_stageMapScale) + 0x8000;
+            x = MAP_X(t, map);
+            t = FixMul(-d.z, g_stageMapScale) + 0x8000;
+            y = MAP_Y(t, map);
+            dot[0] = (short)x - (short)((int)(g_pGraphics->resX * 5) / 640);
+            dot[1] = (short)y - (short)((int)(g_pGraphics->resY * 5) / 480);
             dot[2] = (short)((int)(g_pGraphics->resX * 10) / 640);
             dot[3] = (short)((int)(g_pGraphics->resY * 10) / 480);
             Sprite_Queue((SpriteRect *)dotSrc, (SpriteRect *)dot, g_unk0x00537078, 2, 0, NULL, NULL,
                          (BYTE *)&netColour, 8);
         }
     } else {
-        i = Car_GetOrderCount() - 1;
-        if (i >= 0) {
-            pCarColour = g_stageMapCarColours[i];
-            do {
-                RallyData_GetRouteNodeGroundPosition(RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(i)), point);
-                d.x = point[0] - g_stageMapCentre.x;
-                d.y = point[1] - g_stageMapCentre.y;
-                d.z = point[2] - g_stageMapCentre.z;
-                dot[0] = (short)MAP_X(d, map) - (short)((int)(g_pGraphics->resX * 6) / 640);
-                dot[1] = (short)MAP_Y(d, map) - (short)((int)(g_pGraphics->resY * 6) / 480);
-                dot[2] = (short)((int)(g_pGraphics->resX * 12) / 640);
-                dot[3] = (short)((int)(g_pGraphics->resY * 12) / 480);
-                Sprite_Queue((SpriteRect *)dotSrc, (SpriteRect *)dot, g_unk0x00537078, 2, 0, NULL, NULL,
-                             pCarColour, 8);
-                pCarColour -= 4;
-                i--;
-            } while (i >= 0);
+        for (i = Car_GetOrderCount() - 1; i >= 0; i--) {
+            index = RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(i));
+            RallyData_GetRouteNodeGroundPosition(index, point);
+            d.x = point[0] - g_stageMapCentre.x;
+            d.y = point[1] - g_stageMapCentre.y;
+            d.z = point[2] - g_stageMapCentre.z;
+            t = FixMul(d.x, g_stageMapScale) + 0x8000;
+            x = MAP_X(t, map);
+            t = FixMul(-d.z, g_stageMapScale) + 0x8000;
+            y = MAP_Y(t, map);
+            dot[0] = (short)x - (short)((int)(g_pGraphics->resX * 6) / 640);
+            dot[1] = (short)y - (short)((int)(g_pGraphics->resY * 6) / 480);
+            dot[2] = (short)((int)(g_pGraphics->resX * 12) / 640);
+            dot[3] = (short)((int)(g_pGraphics->resY * 12) / 480);
+            Sprite_Queue((SpriteRect *)dotSrc, (SpriteRect *)dot, g_unk0x00537078, 2, 0, NULL, NULL,
+                         g_stageMapCarColours[i], 8);
         }
     }
     for (i = 0; i < (BYTE)RallyDataState(); i++) {
         sprintf(number, g_strMapNumber, i + 1);
-        RallyData_GetRouteNodeGroundPosition(Stage_GetNextCheckpoint(StageTiming_GetCheckpointField0(i)), point);
+        index = StageTiming_GetCheckpointField0(i);
+        RallyData_GetRouteNodeGroundPosition(Stage_GetNextCheckpoint(index), point);
         d.x = point[0] - g_stageMapCentre.x;
         d.y = point[1] - g_stageMapCentre.y;
         d.z = point[2] - g_stageMapCentre.z;
-        Font_DrawText(0, number, MAP_X(d, map), MAP_Y(d, map) + 7, (int *)g_gapTextColour, 0x12);
+        t = FixMul(d.x, g_stageMapScale) + 0x8000;
+        x = MAP_X(t, map);
+        t = FixMul(-d.z, g_stageMapScale) + 0x8000;
+        y = MAP_Y(t, map);
+        Font_DrawText(0, number, x, y + 7, (int *)g_gapTextColour, 0x12);
     }
 }
 #undef MAP_X

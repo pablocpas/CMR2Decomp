@@ -8391,9 +8391,9 @@
   },
   "0x4e2e50": {
     "n": "CGame::LoadFrontendCommonAndCountryTextures",
-    "s": 0.55078125,
-    "x": false,
-    "fz": 0.5625,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "CGame::LoadFrontendCommonAndCountryTextures"
@@ -23186,9 +23186,9 @@
   },
   "0x4a3650": {
     "n": "Sprite_DrawLayer",
-    "s": 0.4541387024608501,
+    "s": 0.9242761692650334,
     "x": false,
-    "fz": 0.5838926174496645,
+    "fz": 0.9866369710467706,
     "unknown": [],
     "f": "Sprite.cpp",
     "symbol_name": "Sprite_DrawLayer"
@@ -29155,9 +29155,9 @@
   },
   "0x415f50": {
     "n": "StageUI_DrawHudRouteMap",
-    "s": 0.5666041275797373,
-    "x": false,
-    "fz": 0.6397748592870544,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "StageUI.cpp",
     "symbol_name": "StageUI_DrawHudRouteMap"

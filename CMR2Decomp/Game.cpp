@@ -1761,30 +1761,11 @@ bool CGame::LoadAndInitializeSplashScreens(bool param1) {
     return false;
 }
 
-// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e2e50
 void CGame::LoadFrontendCommonAndCountryTextures(void) {
-    char countryCodes[8][10];
-    char countryNames[8][10];
+    char countryNames[8][10] = { "Finland", "Greece", "France", "Sweden", "Aus", "Kenya", "Italy", "UK" };
+    char countryCodes[8][10] = { "Fin", "Gre", "Fra", "Swe", "Aus", "Ken", "Ita", "UK" };
     BOOL bZero = false;
-
-    memcpy(countryCodes[0], CFrontend::m_strFin, sizeof(countryCodes[0]));
-    memcpy(countryCodes[1], CFrontend::m_strGre, sizeof(countryCodes[1]));
-    memcpy(countryCodes[2], CFrontend::m_strFra, sizeof(countryCodes[2]));
-    memcpy(countryCodes[3], CFrontend::m_strSwe, sizeof(countryCodes[3]));
-    memcpy(countryCodes[4], CFrontend::m_strAus, sizeof(countryCodes[4]));
-    memcpy(countryCodes[5], CFrontend::m_strKen, sizeof(countryCodes[5]));
-    memcpy(countryCodes[6], CFrontend::m_strIta, sizeof(countryCodes[6]));
-    memcpy(countryCodes[7], CFrontend::m_strUK, sizeof(countryCodes[7]));
-
-    memcpy(countryNames[0], CFrontend::m_strFinland, sizeof(countryNames[0]));
-    memcpy(countryNames[1], CFrontend::m_strGreece, sizeof(countryNames[1]));
-    memcpy(countryNames[2], CFrontend::m_strFrance, sizeof(countryNames[2]));
-    memcpy(countryNames[3], CFrontend::m_strSweden, sizeof(countryNames[3]));
-    memcpy(countryNames[4], CFrontend::m_strAus, sizeof(countryNames[4]));
-    memcpy(countryNames[5], CFrontend::m_strKenya, sizeof(countryNames[5]));
-    memcpy(countryNames[6], CFrontend::m_strItaly, sizeof(countryNames[6]));
-    memcpy(countryNames[7], CFrontend::m_strUK, sizeof(countryNames[7]));
 
     sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesAr640ATGA, CInstallInfo::GetGameCDPath());
     CFrontend::m_pAr640ATexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);

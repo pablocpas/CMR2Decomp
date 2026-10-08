@@ -61,7 +61,7 @@ void Graphics_InvalidateTextureStageCache(void);
 
 // Builds the quads of one sprite layer (1..4), rotating them about their
 // centre when needed, draws them with point filtering and empties the layer.
-// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 92%: remaining diff is register allocation and scheduling of the integer temporaries.
 // FUNCTION: CMR2 0x004a3650
 void Sprite_DrawLayer(int layer)
 {
@@ -74,7 +74,7 @@ void Sprite_DrawLayer(int layer)
     float t;
     D3DCOLOR colour;
     int centre[3];
-    int angle;
+    short angle;
     FixMatrix rotation;
     FixVector p;
     FixVector out;
@@ -106,7 +106,7 @@ void Sprite_DrawLayer(int layer)
         pSprite = g_spriteLayer1;
         break;
     }
-    for (n = count; n != 0; n--) {
+    for (n = 0; n < count; n++) {
         // A sprite without texture is skipped without advancing (as the original does).
         if (pSprite->pTexture == NULL)
             continue;
@@ -133,9 +133,7 @@ void Sprite_DrawLayer(int layer)
             v1 = t;
         }
         colour = RGBA_MAKE(pSprite->colour[0], pSprite->colour[1], pSprite->colour[2], pSprite->colour[3]);
-        centre[0] = pSprite->centre[0];
-        centre[1] = pSprite->centre[1];
-        centre[2] = pSprite->centre[2];
+        *(FixVector *)centre = *(FixVector *)pSprite->centre;
         if (centre[0] == -1 && centre[1] == -1 && centre[2] == -1) {
             centre[0] = pSprite->dst.w / 2 + pSprite->dst.x;
             centre[1] = pSprite->dst.h / 2 + pSprite->dst.y;
@@ -143,11 +141,14 @@ void Sprite_DrawLayer(int layer)
         angle = pSprite->angle;
         if (angle != 0)
             FixMatrix_RotationZ(&rotation, angle);
-        SPRITE_VERTEX(&pVert[0], pSprite->dst.x, pSprite->dst.y, u0, v0);
-        SPRITE_VERTEX(&pVert[1], pSprite->dst.x + pSprite->dst.w, pSprite->dst.y, u1, v0);
-        SPRITE_VERTEX(&pVert[2], pSprite->dst.x, pSprite->dst.y + pSprite->dst.h, u0, v1);
-        SPRITE_VERTEX(&pVert[3], pSprite->dst.x + pSprite->dst.w, pSprite->dst.y + pSprite->dst.h, u1, v1);
-        pVert += 4;
+        SPRITE_VERTEX(pVert, pSprite->dst.x, pSprite->dst.y, u0, v0);
+        pVert++;
+        SPRITE_VERTEX(pVert, pSprite->dst.x + pSprite->dst.w, pSprite->dst.y, u1, v0);
+        pVert++;
+        SPRITE_VERTEX(pVert, pSprite->dst.x, pSprite->dst.y + pSprite->dst.h, u0, v1);
+        pVert++;
+        SPRITE_VERTEX(pVert, pSprite->dst.x + pSprite->dst.w, pSprite->dst.y + pSprite->dst.h, u1, v1);
+        pVert++;
         pSprite++;
     }
 
@@ -169,17 +170,15 @@ void Sprite_DrawLayer(int layer)
         pSprite = g_spriteLayer1;
         break;
     }
-    CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT);
     CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_POINT);
-    for (n = count; n != 0; n--) {
-        CGraphics::ApplyTextureStageChange(0, (int)pSprite->pTexture);
-        CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, pVert, 4, 0);
-        pSprite++;
-        pVert += 4;
+    CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT);
+    for (n = 0; n < count; n++) {
+        CGraphics::ApplyTextureStageChange(0, (int)pSprite[n].pTexture);
+        CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, &pVert[n * 4], 4, 0);
         CGame::m_unk0x0059ce20 += 2;
     }
-    CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
     CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+    CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
     CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_CLIPPING, TRUE);
     Graphics_InvalidateTextureStageCache();
     CGraphics::InvalidateBlendStateCache();

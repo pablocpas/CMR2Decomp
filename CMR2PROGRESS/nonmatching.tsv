@@ -17,7 +17,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47d330	AI_UpdateAttractDrivingControls	StageObjects.cpp	395	0.4573643410852713	0.39330543933054396
 0x4a5880	CGraphics::GenerateBumpMap	Graphics.cpp	786	0.4601113172541744	0.4424131627056673
 0x4137e0	RallyData_DrawTargetTimeGap	RallyData.cpp	1565	0.46184738955823296	0.452642073778664
-0x4a3650	Sprite_DrawLayer	Sprite.cpp	1503	0.46860986547085204	0.4541387024608501
 0x4b5770	Scene_ProjectCasterIntoLightZone	SceneNode.cpp	1763	0.46993318485523383	0.40476190476190477
 0x420a30	RallyData_UpdateCarRoute	RallyData.cpp	2035	0.4699777613046701	0.615831517792302
 0x4b06a0	Particle_Interpolate	Graphics.cpp	247	0.47398843930635837	0.4827586206896552
@@ -56,13 +55,11 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x411b20	RallyData_LayoutPlayerSplitBars	RallyData.cpp	786	0.5646630236794171	0.5316455696202531
 0x494db0	CarPhysics_DrawBodyWheelAndSkidShadows	CarPhysics.cpp	4510	0.5661680092059839	0.5525709900230238
 0x46bfd0	Replay_RestoreCarState	StageObjects.cpp	428	0.5674418604651162	0.5545454545454546
-0x4e2e50	CGame::LoadFrontendCommonAndCountryTextures	Game.cpp	991	0.5714285714285714	0.55078125
 0x40bc90	CInput::SetControllerForceFeedbackValue	Input.cpp	61	0.5714285714285714	0.6666666666666666
 0x4219b0	View_UpdateCamera	Car.cpp	972	0.5724770642201835	0.5326278659611993
 0x413610	RallyData_RecordStageStartAndGhostSplit	RallyData.cpp	455	0.5737704918032787	0.576
 0x49c680	Graphics_DrawMeshTextureBatches	Graphics.cpp	299	0.574468085106383	0.6153846153846154
 0x418f20	StageSound_ResetRecordsAndRegisterCleanup	StageUI.cpp	185	0.574468085106383	0.6041666666666666
-0x415f50	StageUI_DrawHudRouteMap	StageUI.cpp	1678	0.5746478873239437	0.5666041275797373
 0x429f20	FixBasis_Rotate	FixedPoint.cpp	4129	0.5796703296703297	0.6013698630136987
 0x424f20	NetRace_PackCarState	NetRace.cpp	2496	0.5802650957290133	0.5523809523809524
 0x4b0110	Particle_UpdateAll	Graphics.cpp	878	0.5815126050420169	0.5289256198347108
@@ -367,6 +364,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x443250	Car_UpdateBodyLean	Car.cpp	2000	0.9141455437448897	0.8994276369582993
 0x4d65c0	FrontendDraw_RallyInfoHeader	FrontendScreens.cpp	683	0.9146608315098468	0.9197396963123644
 0x4d8480	FrontendMenu_DrawSavedStageSelection	FrontendScreens.cpp	1220	0.9153846153846154	0.9114249037227214
+0x4a3650	Sprite_DrawLayer	Sprite.cpp	1503	0.9163879598662207	0.9242761692650334
 0x4e9f70	FrontendMenu_BuildPagesAndSelectInitial	FrontendScreens.cpp	1226	0.9169139465875371	0.8768
 0x40dfa0	RallyData_FillEventSlotSelections	RallyData.cpp	472	0.9172413793103448	0.9172413793103448
 0x495f50	CarShadow_OffsetPointsTowardsCamera	CarPhysics.cpp	871	0.9173419773095624	0.8947368421052632

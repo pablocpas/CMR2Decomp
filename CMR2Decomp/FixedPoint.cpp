@@ -485,7 +485,7 @@ void FixMatrix_FromAxisAngle(FixMatrix *pOut, FixVector *pAxis, int angle)
 
 // Rotation about the Z axis by a 12-bit angle.
 // FUNCTION: CMR2 0x004ba320
-void FixMatrix_RotationZ(FixMatrix *pOut, unsigned int angle)
+void FixMatrix_RotationZ(FixMatrix *pOut, short angle)
 {
     int m[16] = { g_sinTable[(angle + 0x400) & 0xfff], FixSin(angle), 0, 0,
                   -FixSin(angle), g_sinTable[(angle + 0x400) & 0xfff], 0, 0,
