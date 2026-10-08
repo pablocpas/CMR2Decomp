@@ -13402,9 +13402,9 @@
   },
   "0x452be0": {
     "n": "GameMenu_DrawStagePenalties",
-    "s": 0.9339853300733496,
+    "s": 0.9853300733496333,
     "x": false,
-    "fz": 0.9853300733496333,
+    "fz": 0.9999,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenu_DrawStagePenalties"

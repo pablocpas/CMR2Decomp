@@ -1859,9 +1859,9 @@ void GameMenu_DrawStagePenalties(Menu *pMenu)
 
     x = (int)(g_pGraphics->resX * 30) / 640;
     y = (int)(g_pGraphics->resY * 242) / 480;
+    lines = 0;
     GameMenu_ClearMenuListWithHighlight();
     Font_DrawText(2, CFrontend::GetTextString(0x49), x, y, (int *)g_menuFrameColour, 0x11);
-    lines = 0;
     for (i = 0; i < (int)(RallyDataState() & 0xff); i++) {
         if (Race_ReadPlayerState37F68(i) & 0x80) {
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x7f), CFrontend::GetModeSpecificCountryText(Race_ReadPlayerState37F78(i)));
@@ -1883,7 +1883,7 @@ void GameMenu_DrawStagePenalties(Menu *pMenu)
         }
         if (Race_ReadPlayerState37F68(i) & 0x1800) {
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xbf),
-                    CFrontend::GetTextString((Race_ReadPlayerState37F68(i) & 0x800) ? 5 : 7));
+                    (Race_ReadPlayerState37F68(i) & 0x800) ? CFrontend::GetTextString(5) : CFrontend::GetTextString(7));
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
             Font_DrawText(0, CFrontend::m_stringDest, x,
                           (int)(g_pGraphics->resY * 5) / 480 + Font_GetLineHeight(0) + y +

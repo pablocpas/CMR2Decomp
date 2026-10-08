@@ -417,7 +417,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47eab0	Fireworks_Update	StageObjects.cpp	2651	0.9312581063553826	0.9189889825016202
 0x421230	RallyData_ProjectCarRouteSegmentProgress	RallyData.cpp	316	0.9316239316239316	0.919831223628692
 0x4cfe80	FrontendRecords_CopyArcadeSplitMirror	Frontend.cpp	356	0.9327731092436975	0.9327731092436975
-0x452be0	GameMenu_DrawStagePenalties	GameMenus.cpp	1265	0.9330085261875761	0.9339853300733496
 0x492910	StageObject_FindClosestMeshVertex	StageObjects.cpp	565	0.9333333333333333	0.8203753351206434
 0x480b40	StageObject_ResetAttachedCarNodes	StageObjects.cpp	97	0.9333333333333333	0.9333333333333333
 0x506720	OptionPreview_AnimateWheelRotations	GameInfo.cpp	397	0.9344978165938864	0.9170305676855895
@@ -473,6 +472,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47dd70	CarDamage_UpdateFlyingDebris	StageObjects.cpp	1122	0.9820971867007673	0.9846547314578005
 0x48ce80	View_RestartTracksideCameraDolly	StageObjects.cpp	617	0.9848484848484849	0.98989898989899
 0x4bc110	Timer_GetValue	Graphics.cpp	357	0.9849624060150376	0.984
+0x452be0	GameMenu_DrawStagePenalties	GameMenus.cpp	1265	0.9853300733496333	0.9853300733496333
 0x4f28c0	FrontendMenu_EnterCheats	FrontendScreens.cpp	168	0.9855072463768116	0.9855072463768116
 0x4b35b0	Scene_SetLightPosition	SceneNode.cpp	387	0.9858156028368794	0.9858156028368794
 0x491d40	Stage_SetHeightColours	TrackCollision.cpp	910	0.9863945578231292	0.9863945578231292
