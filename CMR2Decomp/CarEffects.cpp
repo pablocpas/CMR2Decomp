@@ -543,7 +543,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
         pExt = ext;
         pOff = off;
         for (k = 3; k != 0; k--) {
-            FixVecScale(pOff, &pAxes[pOff - off], FixMul(EFFECT_RAND(), *pExt));
+            FixVecScale(pOff, (FixVector *)((BYTE *)pAxes + ((BYTE *)pOff - (BYTE *)off)), FixMul(EFFECT_RAND(), *pExt));
             pExt++;
             pOff++;
         }
@@ -594,11 +594,9 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 // FUNCTION: CMR2 0x00499ac0
 void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
 {
-    int k_idx;
     FixVector pos;
     FixVector o;
     FixVector cam;
-    FixVector d;
     FixVector *pShape;
     Quad2DInputVertex *pV;
     BYTE light[4];
@@ -625,29 +623,34 @@ void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
     } while (pC < (DWORD *)g_debrisTri[3].colour);
     pos = p->vector0x1c;
     FixMatrix_GetPosition(&o, (FixMatrix *)p->field0x40);
+    pos.x += o.x;
+    pos.y += o.y;
+    pos.z += o.z;
     pV = g_debrisTri;
     pShape = g_debrisShapes[shape];
     do {
-        pV->x = pShape->x + o.x + pos.x;
-        pV->y = pShape->y + pos.y + o.y;
-        pV->z = pShape->z + pos.z + o.z;
+        pV->x = pShape->x + pos.x;
+        pV->y = pShape->y + pos.y;
+        pV->z = pShape->z + pos.z;
         pV++;
         pShape++;
-    } while (pV < &g_debrisTri[3]);
+    } while ((int)pV < (int)&g_debrisTri[3]);
     FixMatrix_GetPosition(&cam, &pView->current);
-    for (k_idx = 0; k_idx < 3; k_idx++) {
-        d.x = cam.x - g_debrisTri[k_idx].x;
-        d.z = cam.z - g_debrisTri[k_idx].z;
-        d.y = cam.y - g_debrisTri[k_idx].y;
-        len = FixVecLength(&d);
+    pV = g_debrisTri;
+    do {
+        o.x = cam.x - pV->x;
+        o.y = cam.y - pV->y;
+        o.z = cam.z - pV->z;
+        len = FixVecLength(&o);
         if (len > 0x18000) {
             k = FixDiv(0x18000, len);
-            FixVecScale(&d, &d, k);
+            FixVecScale(&o, &o, k);
         }
-        g_debrisTri[k_idx].x += d.x;
-        g_debrisTri[k_idx].y += d.y;
-        g_debrisTri[k_idx].z += d.z;
-    }
+        pV->x += o.x;
+        pV->y += o.y;
+        pV->z += o.z;
+        pV++;
+    } while ((int)pV < (int)&g_debrisTri[3]);
     Quad2D_QueueFixedTriangle(0, &g_debrisTri[0], &g_debrisTri[1], &g_debrisTri[2], (Texture *)pType->field0x38,
                               (Quad2D *)0x14);
 }

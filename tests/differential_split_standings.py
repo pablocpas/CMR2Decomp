@@ -14,7 +14,6 @@ import sys
 from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_ESP
 from differential_stage_lighting import Lighting
 from differential_menu_list import ROOT, HEAP, STACK
-from matching_entities import entity_address
 
 
 class SplitStandings(Lighting):
@@ -32,9 +31,6 @@ class SplitStandings(Lighting):
             self.addr(0x4a5e40): (16, self.fill),
             self.addr(0x415bd0): (36, self.time_text),
         }
-
-    def member(self, address, owner):
-        return address if self.entities is None else entity_address(self.entities, address, owner)
 
     def result(self, value):
         self.u.reg_write(UC_X86_REG_EAX, value)
@@ -96,7 +92,7 @@ class SplitStandings(Lighting):
         for position in range(16):
             self.put(ranks + 0x14 + split * 16 + position, '<b', 15 - position)
             self.put(ranks + 0x154 + split * 16 + position, '<b', position)
-            self.put(self.addr(0x542198) + (split * 16 + position) * 4,
+            self.put(self.member(0x542198, 0x541f98) + (split * 16 + position) * 4,
                      '<i', (30 + position + 7 * split) * 65536)
         immutable = [(runtime, 0x1ac), (ranks, 0x200), (HEAP + 0x1000, 8),
                      (HEAP + 0x2000, 8), (self.addr(0x536c94), 24)]

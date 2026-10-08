@@ -1117,9 +1117,9 @@
   },
   "0x435470": {
     "n": "Car_IntegrateContacts",
-    "s": 0.6679403897592663,
+    "s": 0.6709677419354839,
     "x": false,
-    "fz": 0.7688192586931601,
+    "fz": 0.7734345351043643,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_IntegrateContacts"
@@ -1396,18 +1396,18 @@
   },
   "0x499750": {
     "n": "Car_SpawnDebris",
-    "s": 0.6091954022988506,
+    "s": 0.6220472440944882,
     "x": false,
-    "fz": 0.735632183908046,
+    "fz": 0.7559055118110236,
     "unknown": [],
     "f": "CarEffects.cpp",
     "symbol_name": "Car_SpawnDebris"
   },
   "0x499ac0": {
     "n": "Debris_Draw",
-    "s": 0.5623836126629422,
+    "s": 0.5921787709497207,
     "x": false,
-    "fz": 0.6554934823091247,
+    "fz": 0.6815642458100558,
     "unknown": [],
     "f": "CarEffects.cpp",
     "symbol_name": "Debris_Draw"
@@ -1965,7 +1965,7 @@
   },
   "0x4b9f20": {
     "n": "FixMatrix_Multiply",
-    "s": 0.8421052631578947,
+    "s": 0.8571428571428571,
     "x": false,
     "fz": 0.9774436090225563,
     "unknown": [],
@@ -2253,9 +2253,9 @@
   },
   "0x42e8e0": {
     "n": "CarPhysics_IntegrateWheelSuspension",
-    "s": 0.7352941176470589,
-    "x": false,
-    "fz": 0.8308823529411765,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FixedPoint.cpp",
     "symbol_name": "CarPhysics_IntegrateWheelSuspension"
@@ -5142,9 +5142,9 @@
   },
   "0x4e0770": {
     "n": "FrontendMenu_DrawAdvancedGraphicsOptions",
-    "s": 0.7607361963190185,
+    "s": 0.7654596100278551,
     "x": false,
-    "fz": 0.7897378694924707,
+    "fz": 0.7988857938718663,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawAdvancedGraphicsOptions"
@@ -15042,9 +15042,9 @@
   },
   "0x4af120": {
     "n": "Glow_Draw",
-    "s": 0.9646892655367232,
+    "s": 0.9746478873239437,
     "x": false,
-    "fz": 0.9957627118644068,
+    "fz": 0.9774647887323944,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "Glow_Draw"
@@ -25166,9 +25166,9 @@
   },
   "0x461c30": {
     "n": "StageObject_RebuildViewWeatherLighting",
-    "s": 0.32383536861148804,
+    "s": 0.33921302578018997,
     "x": false,
-    "fz": 0.6458616010854816,
+    "fz": 0.6585255540479421,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_RebuildViewWeatherLighting"
@@ -25418,9 +25418,9 @@
   },
   "0x465530": {
     "n": "CarSkid_ClearWheelTrails",
-    "s": 0.967741935483871,
-    "x": false,
-    "fz": 0.9838709677419355,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "CarSkid_ClearWheelTrails"
@@ -26867,9 +26867,9 @@
   },
   "0x455e60": {
     "n": "StageTiming_Reset",
-    "s": 0.9666666666666667,
-    "x": false,
-    "fz": 0.9666666666666667,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageTiming_Reset"
@@ -28426,9 +28426,9 @@
   },
   "0x424af0": {
     "n": "ForceFeedback_ComputeRoadNoise",
-    "s": 0.5882352941176471,
-    "x": false,
-    "fz": 0.7189542483660131,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "ForceFeedback_ComputeRoadNoise"

@@ -44,7 +44,7 @@ class Times(Lighting):
         self.invoke(0x456710,[HEAP+0x5000])
         spread=self.read(HEAP+0x5000,640)
         self.invoke(0x456960,[HEAP+0x5000])
-        return [samples,factors,deltas,spread,self.read(self.addr(0x542198),640)]
+        return [samples,factors,deltas,spread,self.read(self.member(0x542198,0x541f98),640)]
 
 
 def main():

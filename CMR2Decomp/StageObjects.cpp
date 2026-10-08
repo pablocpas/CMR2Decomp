@@ -6654,6 +6654,8 @@ BillboardDef g_unk0x00543f00;
 // FUNCTION: CMR2 0x00461c30
 void StageObject_RebuildViewWeatherLighting(int index)
 {
+    int *pObject = (int *)((BYTE *)g_unk0x00543eb8 + index * 0x2c);
+    int *pView = (int *)((BYTE *)g_unk0x00547ac8 + index * 0x178);
     BYTE lowColour[4] = {0, 0, 0, 0xff};
     BYTE highColour[4] = {0, 0, 0, 0xff};
     BYTE rampColour[4] = {0, 0, 0, 0xff};
@@ -6673,11 +6675,7 @@ void StageObject_RebuildViewWeatherLighting(int index)
     int blend;
     int value;
     int flag;
-    int *pObject;
-    int *pView;
 
-    pObject = (int *)((BYTE *)g_unk0x00543eb8 + index * 0x2c);
-    pView = (int *)((BYTE *)g_unk0x00547ac8 + index * 0x178);
     // 0x461cfe/0x461d12 require both changes before this refresh;
     // the weather-word and dirty-flag tests are independent.
     if ((pObject[7] != g_stageLighting[0x5a] && g_unk0x00543d88 != g_unk0x00543d8c) ||
@@ -7924,6 +7922,8 @@ void CarSkid_ClearWheelTrails(void)
     int car;
     int point;
     int wheel;
+    int *p;
+    int *q;
 
     for (car = 0; car < 8; car++) {
         for (point = 0; point < 200; point++) {
@@ -7933,6 +7933,7 @@ void CarSkid_ClearWheelTrails(void)
             }
         }
     }
+    p = (int *)g_trailDelta + 1;
     memset(g_unk0x00549ba0, 0, sizeof(g_unk0x00549ba0));
     memset(g_trailState, 0, sizeof(g_trailState));
     memset(g_trailTimer, 0, sizeof(g_trailTimer));
@@ -7941,15 +7942,16 @@ void CarSkid_ClearWheelTrails(void)
     memset(g_unk0x00543708, 0, sizeof(g_unk0x00543708));
     for (wheel = 0; wheel < 8 * 4; wheel++)
         ((int *)g_trailReset)[wheel] = 1;
-    for (car = 0; car < 8; car++) {
-        int *p = (int *)g_trailDelta[car] + 1;
+    do {
+        q = p;
         for (wheel = 0; wheel < 4; wheel++) {
-            p[-1] = 0;
-            p[0] = 0;
-            p[1] = 0;
-            p += 3;
+            q[-1] = 0;
+            q[0] = 0;
+            q[1] = 0;
+            q += 3;
         }
-    }
+        p = q;
+    } while ((int)q < (int)((int *)g_trailDelta + 8 * 12 + 1));
 }
 
 // GLOBAL: CMR2 0x0051bce0

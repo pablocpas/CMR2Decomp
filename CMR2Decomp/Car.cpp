@@ -6193,7 +6193,7 @@ void Car_IntegrateContacts(void)
         FixVecScale(&force, &force, 0xcccc);
     }
     if (g_pCurrentCar->field_0xb34 > 0) {
-        scale = FixMul(g_pCurrentCar->speed, 0x13333);
+        scale = FixMul(g_pCurrentCar->speed, FixMul(0x10000, 0x13333));
         if (scale > 0x13333) scale = 0x13333;
         scale += 0x10000;
         for (i = g_pCurrentCar->field_0xb34 - 1; i >= 0; i--) {
@@ -6209,12 +6209,15 @@ void Car_IntegrateContacts(void)
             } else if (g_pCurrentCar->field_0xc00 != 0) {
                 if (g_pCurrentCar->field_0xb74 != 0) {
                     tmp = g_pCurrentCar->cornerForce[corner];
+                    tmp.x += g_pCurrentCar->cornerLoad[corner].x;
+                    tmp.y += g_pCurrentCar->cornerLoad[corner].y;
+                    tmp.z += g_pCurrentCar->cornerLoad[corner].z;
                 } else {
                     FixVecScale(&tmp, &g_pCurrentCar->cornerForce[corner], scale);
+                    tmp.x += g_pCurrentCar->cornerLoad[corner].x;
+                    tmp.y += g_pCurrentCar->cornerLoad[corner].y;
+                    tmp.z += g_pCurrentCar->cornerLoad[corner].z;
                 }
-                tmp.x += g_pCurrentCar->cornerLoad[corner].x;
-                tmp.y += g_pCurrentCar->cornerLoad[corner].y;
-                tmp.z += g_pCurrentCar->cornerLoad[corner].z;
             } else {
                 tmp.x = tmp.y = tmp.z = 0;
             }

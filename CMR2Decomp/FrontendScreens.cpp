@@ -691,12 +691,17 @@ void FrontendMenu_DrawAdvancedGraphicsOptions(Menu *pMenu)
                     pColour = pUnselColour;
                 x += (int)(g_pGraphics->resX * 10) / 640 +
                      Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-                if (j == 0)
+                switch (j) {
+                case 0:
                     index = 0x1d6;
-                else if (j == 1)
+                    break;
+                case 1:
                     index = 0x1d5;
-                else
+                    break;
+                default:
                     index = 0x133;
+                    break;
+                }
                 Font_DrawText(1, CFrontend::GetTextString(index), x,
                               (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(index));

@@ -16,6 +16,8 @@ import pefile
 from unicorn import Uc, UC_ARCH_X86, UC_MODE_32, UC_HOOK_CODE
 from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_EIP, UC_X86_REG_ESP
 
+from matching_entities import entity_address
+
 ROOT = Path(__file__).resolve().parents[1]
 HEAP, STACK, STOP = 0x10000000, 0x20000000, 0x30000000
 
@@ -42,6 +44,10 @@ class Drawing:
 
     def addr(self, original):
         return original if self.entities is None else self.entities[hex(original)][0]
+
+    def member(self, address, owner):
+        """Address of a member of a real block (view of `owner`'s entity)."""
+        return address if self.entities is None else entity_address(self.entities, address, owner)
 
     def read(self, address, size):
         return bytes(self.u.mem_read(address, size))

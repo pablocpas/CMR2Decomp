@@ -77,6 +77,7 @@ struct StageSplitState {
     char positions[10][16];    // 0x0b4
     char timeIndices[10][16];  // 0x154
     char count[12];            // 0x1f4
+    int timesRaw[10][16];      // 0x200
 };
 // GLOBAL: CMR2 0x00541f98
 StageSplitState g_stageSplit;
@@ -102,8 +103,10 @@ void StageTiming_SetSplitDisplayFlag(int offset, int unused)
 // GLOBAL: CMR2 0x00542604
 BYTE g_unk0x00542604;
 
-// GLOBAL: CMR2 0x00542198
-int g_stageSplitTimesRaw[10][16];
+// 0x542198: member of g_stageSplit. Aliasing across the split tables is what keeps
+// MSVC6 from folding StageTiming_Reset's nested zero fill into one rep stosd, as in
+// the original; the standalone global had to be written through volatile instead.
+#define g_stageSplitTimesRaw (g_stageSplit.timesRaw)
 
 
 // FUNCTION: CMR2 0x00455cf0
@@ -504,9 +507,9 @@ int StageTiming_GetDriverSlot(int iDriver)
     return g_stageDriverSlot[iDriver];
 }
 
-// match 93%: the volatile zero store keeps MSVC6 from folding the nested
-// zero-fill into one rep stosd (the original stores per iteration); only the
-// placement of the flat pointer increment differs from the original.
+// The nested zero fill must not fold into one rep stosd: the split times are a
+// member of the same object as the tables, so MSVC6 assumes the stores may alias
+// them (the original stores per iteration).
 // FUNCTION: CMR2 0x00455e60
 void StageTiming_Reset(void)
 {
@@ -519,10 +522,10 @@ void StageTiming_Reset(void)
     {
         for (i = 0; i < 16; i++)
         {
-            *(volatile int *)&g_stageSplitTimesRaw[iSplit][i] = 0;
             g_stageSplitDriverIndices[iSplit][i] = i;
             g_stageSplitPositions[iSplit][i] = i;
             g_stageSplitTimesRawDriverIx[iSplit][i] = i;
+            g_stageSplitTimesRaw[iSplit][i] = 0;
         }
     }
 }
@@ -4931,15 +4934,17 @@ void ForceFeedback_ComputeRoadNoise(void)
     int k;
 
     if (g_unk0x00539278->field_0x20 == 0)
-        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * (float)CGraphics::m_65536);
-    else if (g_unk0x00539278->field_0x20 <= 0)
-        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * (float)CGraphics::m_65536);
+        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * CGraphics::m_65536);
+    else if (g_unk0x00539278->field_0x20 > 0)
+        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * g_minus65536);
     else
-        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * (float)g_minus65536);
+        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * CGraphics::m_65536);
+    k = *(int *)(g_unk0x0053937c + 0xc0) + *(int *)(g_unk0x0053937c + 0x9c);
     speed = FixMul(*(int *)(g_unk0x0053937c + 0x778), 0x10000);
     if (speed > 0x10000)
         speed = 0x10000;
-    k = FixMul(speed, *(int *)(g_unk0x0053937c + 0xc0) + *(int *)(g_unk0x0053937c + 0x9c)) + g_unk0x00539278->field_0x28;
+    k = FixMul(k, speed);
+    k += g_unk0x00539278->field_0x28;
     if (k > 0x10000)
         k = 0x10000;
     g_unk0x00539278->field_0x20 = FixMul(g_unk0x00539278->field_0x20, k);
