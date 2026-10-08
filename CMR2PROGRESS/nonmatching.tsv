@@ -101,7 +101,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x5062d0	OptionPreview_LoadStageGeometryRecord	GameInfo.cpp	1100	0.6341463414634146	0.6379821958456974
 0x499750	Car_SpawnDebris	CarEffects.cpp	814	0.6351084812623274	0.6220472440944882
 0x41b460	StageUI_UpdateDriverEventAwards	StageUI.cpp	2709	0.6366559485530546	0.6124338624338624
-0x4380c0	Car_UpdateEngineSpeed	Car.cpp	924	0.6371681415929203	0.6391304347826087
 0x462aa0	StageObject_AverageWheelGroundLighting	StageObjects.cpp	518	0.6386554621848739	0.6267806267806267
 0x423900	Game_DispatchObjectContactReset	Game.cpp	71	0.6388888888888888	0.4583333333333333
 0x428bf0	View_SelectVisibleCars	Car.cpp	1734	0.6401414677276747	0.5681818181818182
@@ -462,6 +461,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b50b0	Scene_ApplyGroundLightToMeshTree	SceneNode.cpp	613	0.990990990990991	0.990990990990991
 0x40c610	CInput::InitDetectedControllerSlot	Input.cpp	1604	0.9920424403183024	0.9920424403183024
 0x4d9c40	FrontendMenu_DrawRallySummary	FrontendScreens.cpp	2529	0.9956167814652473	0.9855799373040752
+0x4380c0	Car_UpdateEngineSpeed	Car.cpp	924	0.9957264957264957	0.9957264957264957
 0x508890	CarDamage_ApplyCameraSpaceMeshDent	StageTiming.cpp	1614	0.9962049335863378	0.9962049335863378
 0x441500	Car_UpdateWheelForces	Car.cpp	6536	0.9966507177033492	0.9966507177033492
 0x4556f0	StageTiming_PairPlayerOpponentSlots	StageTiming.cpp	898	0.9966666666666667	0.9964664310954063

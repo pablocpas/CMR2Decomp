@@ -1,0 +1,23 @@
+{
+  "baseline": "e52435235450492be74fed907445be2a64cfcef7",
+  "target": "0x4380c0",
+  "name": "Car_UpdateEngineSpeed",
+  "raw_before": 0.6391304347826087,
+  "raw_after": 0.9957264957264957,
+  "fuzzy_before": 0.8173913043478261,
+  "fuzzy_after": 0.9957264957264957,
+  "byte_exact": false,
+  "remaining_difference": "ADD ECX, -0xcccc instead of SUB ECX, 0xcccc; identical behavior, distinct opcode/immediate bytes",
+  "byte_exact_functions": 2893,
+  "perfect_percent": 53.49,
+  "fuzzy_percent": 93.59,
+  "regressions": [],
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "differential_harnesses": 91,
+    "failures": 0,
+    "engine_cases": 600,
+    "negative_control_detected": true
+  }
+}

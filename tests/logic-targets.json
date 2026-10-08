@@ -610,5 +610,12 @@
     "targets": [
       "0x499ac0"
     ]
+  },
+  "differential_car_engine_speed.py": {
+    "arguments": "object",
+    "object": "Car.obj",
+    "targets": [
+      "0x4380c0"
+    ]
   }
 }

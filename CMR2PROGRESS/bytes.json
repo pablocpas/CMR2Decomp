@@ -820,9 +820,9 @@
   },
   "0x4380c0": {
     "n": "Car_UpdateEngineSpeed",
-    "s": 0.6391304347826087,
+    "s": 0.9957264957264957,
     "x": false,
-    "fz": 0.8173913043478261,
+    "fz": 0.9957264957264957,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateEngineSpeed"
