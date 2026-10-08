@@ -10133,18 +10133,14 @@ void FrontendMenu_DrawSavedStageSelection(Menu *pMenu)
     Font_DrawText(1, CFrontend::m_stringDest, x,
                   (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1],
                   (int *)g_colourWhite0x00524968, 0x11);
-    if (pMenu->items[0].min != 0) {
-        i = 0;
-        do {
-            pColour = (int *)g_colourWhite0x00524968;
-            if (i != pMenu->items[0].max)
-                pColour = (int *)g_colourText0x0052496c;
-            x = (int)(g_pGraphics->resX * 10) / 0x280 + x + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-            Font_DrawText(1, CFrontend::GetTextString(i + 0x131), x,
-                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
-            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(i + 0x131));
-            i++;
-        } while (i < pMenu->items[0].min);
+    for (i = 0; i < pMenu->items[0].min; i++) {
+        pColour = (int *)g_colourWhite0x00524968;
+        if (pMenu->items[0].max != i)
+            pColour = (int *)g_colourText0x0052496c;
+        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+        Font_DrawText(1, CFrontend::GetTextString(i + 0x131), x,
+                      (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(i + 0x131));
     }
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0x24) / 0x1e0) + (short)baseY;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)g_colourShadowWhite0x00524974, 1);
@@ -10575,8 +10571,9 @@ void FrontendMenu_DrawCarSetup(Menu *pMenu)
         src.h = height;
         dst.h = height;
         dst.x = (int)(g_pGraphics->resX * 0x8e) / 0x280;
-        dst.y = (int)(g_pGraphics->resY * 0x147) / 0x1e0 - height;
+        dst.y = (int)(g_pGraphics->resY * 0x147) / 0x1e0;
         dst.x -= dst.w / 2;
+        dst.y -= height;
         Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
     }
     pTexture = CFrontend::m_unk0x008182cc[g_unk0x008196e8[pMenu->cursor]];
@@ -10586,8 +10583,9 @@ void FrontendMenu_DrawCarSetup(Menu *pMenu)
         src.h = height;
         dst.h = height;
         dst.x = (int)(g_pGraphics->resX * 0x165) / 0x280;
-        dst.y = (int)(g_pGraphics->resY * 0x147) / 0x1e0 - height;
+        dst.y = (int)(g_pGraphics->resY * 0x147) / 0x1e0;
         dst.x -= dst.w / 2;
+        dst.y -= height;
         Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
     }
     pTexture = CFrontend::m_unk0x00818530[g_unk0x005249cc[g_unk0x008196e8[pMenu->cursor]]];
@@ -10612,7 +10610,7 @@ void FrontendMenu_DrawCarSetup(Menu *pMenu)
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
 
-// match 88%: identica a 0x4d7db0 (en el original son byte a byte iguales).
+// Byte for byte the same as FrontendMenu_DrawCarSetup in the original.
 // FUNCTION: CMR2 0x004d8950
 void FrontendMenu_DrawPaletteSelection(Menu *pMenu)
 {
@@ -10652,8 +10650,9 @@ void FrontendMenu_DrawPaletteSelection(Menu *pMenu)
         src.h = height;
         dst.h = height;
         dst.x = (int)(g_pGraphics->resX * 0x8e) / 0x280;
-        dst.y = (int)(g_pGraphics->resY * 0x147) / 0x1e0 - height;
+        dst.y = (int)(g_pGraphics->resY * 0x147) / 0x1e0;
         dst.x -= dst.w / 2;
+        dst.y -= height;
         Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
     }
     pTexture = CFrontend::m_unk0x008182cc[g_unk0x008196e8[pMenu->cursor]];
@@ -10663,8 +10662,9 @@ void FrontendMenu_DrawPaletteSelection(Menu *pMenu)
         src.h = height;
         dst.h = height;
         dst.x = (int)(g_pGraphics->resX * 0x165) / 0x280;
-        dst.y = (int)(g_pGraphics->resY * 0x147) / 0x1e0 - height;
+        dst.y = (int)(g_pGraphics->resY * 0x147) / 0x1e0;
         dst.x -= dst.w / 2;
+        dst.y -= height;
         Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
     }
     pTexture = CFrontend::m_unk0x00818530[g_unk0x005249cc[g_unk0x008196e8[pMenu->cursor]]];
@@ -11491,16 +11491,11 @@ void FrontendMenu_DrawNetworkPlayerSetup(Menu *pMenu)
             switch (pItem->value) {
             case 0:
             {
-                char **pName;
-
-                pColour = g_colourWhite0x00524968;
-                if (pMenu->cursor != i)
-                    pColour = g_colourText0x0052496c;
+                pColour = (pMenu->cursor == i) ? g_colourWhite0x00524968 : g_colourText0x0052496c;
                 Font_DrawText(1, CFrontend::GetTextString(0x1f7), x,
                               (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 x = x + (int)(g_pGraphics->resX * 10) / 0x280
                     + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x1f7));
-                pName = names;
                 for (j = 0; j < Menu_GetItem(pMenu, 0)->min; j++) {
                     index = j;
                     if ((Menu_GetItem(pMenu, 0)->min == 5 && j == 4) ||
@@ -11517,8 +11512,7 @@ void FrontendMenu_DrawNetworkPlayerSetup(Menu *pMenu)
                     }
                     Font_DrawText(1, names[index], x,
                                   (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
-                    x += Font_GetTextWidth(1, (BYTE *)*pName);
-                    pName++;
+                    x += Font_GetTextWidth(1, (BYTE *)names[j]);
                 }
                 break;
             }

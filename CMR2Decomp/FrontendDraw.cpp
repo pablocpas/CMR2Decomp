@@ -623,21 +623,21 @@ void FrontendDraw_ScrollerRow(MenuScroller *p, char active)
         if (i >= pMenu->itemCount)
             i = 0;
         SCROLLER_TEXT(i);
-        pColour = pSep;
-        if (!pMenu->items[i].enabled)
-            pColour = g_colourDim0x00524970;
-        Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)pColour, 0x11);
+        if (pMenu->items[i].enabled)
+            Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)pSep, 0x11);
+        else
+            Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)g_colourDim0x00524970, 0x11);
         if (pMenu->items[i].enabled) {
             g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSep, 1);
-            pColour = pShadow;
+            g_unk0x008189a8[0]++;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
         } else {
             g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourDim0x00524970, 1);
-            pColour = g_colourShadowDim0x0052497c;
+            g_unk0x008189a8[0]++;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowDim0x0052497c, 1);
         }
-        g_unk0x008189a8[0]++;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
         x += p->widths[i] + p->spacing;
     }
 
@@ -656,22 +656,24 @@ void FrontendDraw_ScrollerRow(MenuScroller *p, char active)
     }
     while (p->widths[i] + p->spacing + x > 0) {
         SCROLLER_TEXT(i);
-        if (!pMenu->items[i].enabled)
-            pColour = g_colourDim0x00524970;
-        Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)pColour, 0x11);
+        if (pMenu->items[i].enabled)
+            Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)pColour, 0x11);
+        else
+            Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)g_colourDim0x00524970, 0x11);
         next = i + 1;
         if (next >= pMenu->itemCount)
             next = 0;
         if (pMenu->items[next].enabled) {
             g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSep, 1);
+            g_unk0x008189a8[0]++;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
         } else {
             g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourDim0x00524970, 1);
-            pShadow = g_colourShadowDim0x0052497c;
+            g_unk0x008189a8[0]++;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowDim0x0052497c, 1);
         }
-        g_unk0x008189a8[0]++;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
         i--;
         if (i < 0)
             i = pMenu->itemCount - 1;
