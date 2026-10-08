@@ -12,7 +12,7 @@ struct JoystickBinding {
 };
 
 struct JoystickInfo {
-    DWORD controlCount; // or button count?
+    int controlCount; // or button count?
     DWORD field_0x4;
     JoystickBinding bindings[7];
 };

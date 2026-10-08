@@ -12468,9 +12468,9 @@
   },
   "0x506bb0": {
     "n": "OptionPreview_AllocateConvertedWheelVertices",
-    "s": 0.5846153846153846,
+    "s": 0.6311111111111111,
     "x": false,
-    "fz": 0.796923076923077,
+    "fz": 0.7822222222222223,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionPreview_AllocateConvertedWheelVertices"
@@ -15843,9 +15843,9 @@
   },
   "0x49f6d0": {
     "n": "CInput::SetupJoystick",
-    "s": 0.649624060150376,
+    "s": 0.862992125984252,
     "x": false,
-    "fz": 0.7639097744360902,
+    "fz": 0.9448818897637795,
     "unknown": [],
     "f": "Input.cpp",
     "symbol_name": "CInput::SetupJoystick"
@@ -18066,14 +18066,14 @@
   },
   "0x424f20": {
     "n": "NetRace_PackCarState",
-    "s": 0.5523809523809524,
+    "s": 0.5575935436537051,
     "x": false,
-    "fz": 0.8864468864468864,
+    "fz": 0.8892149669845928,
     "unknown": [
       "__real@4@4005fe00000000000000",
       "__real@4@4006ff00000000000000",
       "__real@4@400dfffa000000000000",
-      "__real@8@400efffa000000000000"
+      "__real@4@400efffa000000000000"
     ],
     "f": "NetRace.cpp",
     "symbol_name": "NetRace_PackCarState"
@@ -22373,9 +22373,9 @@
   },
   "0x4b93c0": {
     "n": "Sector_RelocateStageMeshFile",
-    "s": 0.558891454965358,
+    "s": 0.5870069605568445,
     "x": false,
-    "fz": 0.7644341801385681,
+    "fz": 0.7935034802784223,
     "unknown": [],
     "f": "Sector.cpp",
     "symbol_name": "Sector_RelocateStageMeshFile"

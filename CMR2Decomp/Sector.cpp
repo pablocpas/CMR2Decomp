@@ -114,7 +114,7 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_
     recordSize = *(unsigned short *)(pData + 0x26);
     pEnd = pRecords + recordSize * 0x5c;
     textureRecords = *(int *)(pData + 0xc) + (int)pData;
-    if (*(int *)(pData + 0x20) != 0) {
+    if (*(unsigned int *)(pData + 0x20) > 0) {
         // Ten texture indices per triangle (0x4c bytes) are moved past the
         // textures already loaded.
         pRow = (int *)(pTriangles + 4);
@@ -134,7 +134,7 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_
     Graphics_LoadTextureRecordList((int)pEnd, textureRecords,
                  *(unsigned short *)(pData + 0x24), *(int *)(pData + 4), param_3);
     savedNodeCount = g_sceneNodeCount;
-    if (*(unsigned short *)(pData + 0x18) != 0) {
+    if (*(unsigned short *)(pData + 0x18) > 0) {
         for (i = 0, p = pNodes; i < *(unsigned short *)(pData + 0x18); i++, p += 0x18c) {
             Graphics_AccumulateCounterOrInitialize((int *)p, (int)pNodes);
             Graphics_AccumulateCounterOrInitialize((int *)(p + 4), (int)pNodes);
@@ -151,29 +151,25 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_
         }
         g_sceneNodeCount += *(unsigned short *)(pData + 0x18);
     }
-    if (*(short *)(pData + 0x26) != 0) {
+    if (*(unsigned short *)(pData + 0x26) > 0) {
         for (j = 0, p = pRecords; j < *(unsigned short *)(pData + 0x26); j++, p += 0x5c) {
             Graphics_AccumulateCounterOrInitialize((int *)(p + 0x58), (int)pRecords);
             g_unk0x0066f124[g_meshTotalSize + j] = p;
         }
         g_meshTotalSize += *(unsigned short *)(pData + 0x26);
     }
-    if (*(short *)(pData + 0x1a) != 0) {
+    if (*(unsigned short *)(pData + 0x1a) > 0) {
         for (i = 0, p = pMeshArray + 0x113; i < *(unsigned short *)(pData + 0x1a); i++, p += 0x120) {
-            j = 0;
-            if (*p != 0) {
-                pField = (int *)(p - 0x107);
-                do {
-                    Graphics_AccumulateCounterOrInitialize(pField + 6, (int)pTriangles);
-                    Graphics_AccumulateCounterOrInitialize(pField, (int)pVertexData);
-                    Graphics_AccumulateCounterOrInitialize(pField + 10, (int)pLightLevels);
-                    Graphics_AccumulateCounterOrInitialize(pField + 5, (int)pVertexFlags);
-                    Mesh_UploadVertices((Mesh *)((BYTE *)pField - 0xc));
-                    Mesh_BuildParts((Mesh *)((BYTE *)pField - 0xc));
-                    *(unsigned int *)((BYTE *)pField + 0x24) &= 0xfffbffff;
-                    j++;
-                    pField += 0x42;
-                } while (j < *p);
+            pField = (int *)(p - 0x107);
+            for (j = 0; j < *p; j++) {
+                Graphics_AccumulateCounterOrInitialize(pField + 6, (int)pTriangles);
+                Graphics_AccumulateCounterOrInitialize(pField, (int)pVertexData);
+                Graphics_AccumulateCounterOrInitialize(pField + 10, (int)pLightLevels);
+                Graphics_AccumulateCounterOrInitialize(pField + 5, (int)pVertexFlags);
+                Mesh_UploadVertices((Mesh *)((BYTE *)pField - 0xc));
+                Mesh_BuildParts((Mesh *)((BYTE *)pField - 0xc));
+                *(unsigned int *)((BYTE *)pField + 0x24) &= 0xfffbffff;
+                pField += 0x42;
             }
             Graphics_AccumulateCounterOrInitialize((int *)(p - 7), (int)pRecords);
             if (*(short *)(pData + 0x1e) == 0)
@@ -182,29 +178,25 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_
         if (*(short *)(pData + 0x1e) == 0)
             g_meshCount += *(unsigned short *)(pData + 0x1a);
     }
-    if (*(unsigned short *)(pData + 0x1c) != 0) {
+    if (*(unsigned short *)(pData + 0x1c) > 0) {
         for (j = *(unsigned short *)(pData + 0x1a), p = pMeshArray + j * 0x120 + 0x113;
              j < *(unsigned short *)(pData + 0x1c) + *(unsigned short *)(pData + 0x1a);
              j++, p += 0x120) {
-            i = 0;
-            if (*p != 0) {
-                pField = (int *)(p - 0x107);
-                do {
-                    Graphics_AccumulateCounterOrInitialize(pField + 6, (int)pTriangles);
-                    Graphics_AccumulateCounterOrInitialize(pField, (int)pVertexData);
-                    Graphics_AccumulateCounterOrInitialize(pField + 10, (int)pLightLevels);
-                    Graphics_AccumulateCounterOrInitialize(pField + 5, (int)pVertexFlags);
-                    Mesh_UploadVertices((Mesh *)((BYTE *)pField - 0xc));
-                    Mesh_BuildParts((Mesh *)((BYTE *)pField - 0xc));
-                    *(unsigned int *)((BYTE *)pField + 0x24) &= 0xfffbffff;
-                    i++;
-                    pField += 0x42;
-                } while (i < *p);
+            pField = (int *)(p - 0x107);
+            for (i = 0; i < *p; i++) {
+                Graphics_AccumulateCounterOrInitialize(pField + 6, (int)pTriangles);
+                Graphics_AccumulateCounterOrInitialize(pField, (int)pVertexData);
+                Graphics_AccumulateCounterOrInitialize(pField + 10, (int)pLightLevels);
+                Graphics_AccumulateCounterOrInitialize(pField + 5, (int)pVertexFlags);
+                Mesh_UploadVertices((Mesh *)((BYTE *)pField - 0xc));
+                Mesh_BuildParts((Mesh *)((BYTE *)pField - 0xc));
+                *(unsigned int *)((BYTE *)pField + 0x24) &= 0xfffbffff;
+                pField += 0x42;
             }
             Graphics_AccumulateCounterOrInitialize((int *)(p - 7), (int)pRecords);
         }
         i = 0;
-        if (*(short *)(pData + 0x1c) != 0) {
+        if (*(unsigned short *)(pData + 0x1c) > 0) {
             for (p = pStageObjects + 0x98; i < *(unsigned short *)(pData + 0x1c); i++, p += 0xa0) {
                 Graphics_AccumulateCounterOrInitialize((int *)(p - 0x8c),
                              (int)(pMeshArray + *(unsigned short *)(pData + 0x1a) * 0x120));
@@ -214,7 +206,7 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_
         }
         g_unk0x0067f228 += *(unsigned short *)(pData + 0x1c);
     }
-    if (*(short *)(pData + 0x1e) != 0) {
+    if (*(unsigned short *)(pData + 0x1e) > 0) {
         for (i = 0, p = pSectors; i < *(unsigned short *)(pData + 0x1e); i++, p += 0x88) {
             Graphics_AccumulateCounterOrInitialize((int *)(p + 0x10), (int)pMeshArray);
             g_sectors[i] = (Sector *)p;

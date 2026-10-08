@@ -804,7 +804,10 @@ BOOL CInput::GetAttachedJoysticks(void) {
     return SUCCEEDED(hr);
 }
 
-// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// DirectInput enumeration callback for one joystick: creates the device, names
+// its buttons (DIJOFS_BUTTON) and the four directions of its first POV hat
+// (DIJOFS_POV(0)), and enables autocentre-off force feedback when present.
+// match 86%: the axis loop keeps two counters in the original (i, axisID).
 // FUNCTION: CMR2 0x0049f6d0
 BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
     HRESULT hr;
@@ -813,6 +816,8 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
     LPDIRECTINPUTDEVICEA pDevice;
     BYTE iVar6[4];
     int iVar10, axisID, iVar11;
+    int count;
+    int offset;
     JoystickBinding * joystickBinding;
     DIPROPDWORD dipd;
     DIDEVCAPS devCaps;
@@ -821,14 +826,21 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
     uVar2 = m_unk0x0059f8cc.field_0x0;
     pDeviceInfo = &m_availableDevices[m_unk0x0059f8cc.field_0x0];
     if (GET_DIDEVICE_TYPE(lpddi->dwDevType) == DIDEVTYPE_JOYSTICK) {
-        if (GET_DIDEVICE_SUBTYPE(lpddi->dwDevType) != DIDEVTYPE_MOUSE) pDeviceInfo->field_0x0 = 3;
+        switch (GET_DIDEVICE_SUBTYPE(lpddi->dwDevType)) {
+        case DIDEVTYPE_MOUSE:
+            pDeviceInfo->field_0x0 = 0;
+            break;
+        default:
+            pDeviceInfo->field_0x0 = 3;
+            break;
+        }
     
         pDevice = DInputCreateDevice(lpddi->guidInstance, &c_dfDIJoystick2);
         m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2] = pDevice;
 
         if (pDevice != NULL) {
-            strncpy(m_availableDevices[uVar2].deviceInstanceName, lpddi->tszInstanceName, sizeof(m_availableDevices[uVar2].deviceInstanceName));
-            strncpy(m_availableDevices[uVar2].deviceProductName, lpddi->tszProductName, sizeof(m_availableDevices[uVar2].deviceProductName));
+            strncpy(pDeviceInfo->deviceInstanceName, lpddi->tszInstanceName, sizeof(pDeviceInfo->deviceInstanceName));
+            strncpy(pDeviceInfo->deviceProductName, lpddi->tszProductName, sizeof(pDeviceInfo->deviceProductName));
         
             pDeviceInfo->field_0x18 = m_unk0x0059f8cc.field_0x2;
 
@@ -844,12 +856,12 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
                         SetJoystickAxisRange(m_unk0x0059f8cc.field_0x0, axisID, joystickBinding->range);
                         SetJoystickAxisDeadzone(m_unk0x0059f8cc.field_0x0, axisID, joystickBinding->deadzone);
                         SetJoystickAxisSaturation(m_unk0x0059f8cc.field_0x0, axisID, joystickBinding->saturation);
-                        iVar10++;
                     }
 
+                    iVar10++;
                     axisID++;
                     joystickBinding ++;
-                } while (axisID < pDeviceInfo->field_0x8);
+                } while (iVar10 < pDeviceInfo->joystick.controlCount);
             }
 
             devCaps.dwSize = 0x2c;
@@ -857,75 +869,67 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
             
             if (SUCCEEDED(hr)) {
                 if ((devCaps.dwFlags & DIDC_FORCEFEEDBACK)) {
-                    m_availableDevices[m_unk0x0059f8cc.field_0x2].unk_isJoystick = TRUE;
-                    
+                    pDeviceInfo->unk_isJoystick = TRUE;
+
                     dipd.diph.dwSize = 0x14;
                     dipd.diph.dwHeaderSize = 0x10;
+                    dipd.diph.dwObj = 0;
                     dipd.diph.dwHow = DIPH_DEVICE;
                     dipd.dwData = 0;
 
-                    
                     m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->SetProperty(DIPROP_AUTOCENTER, &dipd.diph);
                     InitializeForceFeedbackDevice(m_unk0x0059f8cc.field_0x0, (LPDIRECTINPUTDEVICE7)m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]);
-
                 } else {
-                    m_availableDevices[m_unk0x0059f8cc.field_0x2].unk_isJoystick = FALSE;
+                    pDeviceInfo->unk_isJoystick = FALSE;
                 }
 
-                iVar10 = 0;
+                // Button names (DIJOFS_BUTTON(i) = 0x30 + i).
+                count = devCaps.dwButtons;
                 didoi.dwSize = 0x13c;
-                m_availableDevices[uVar2].field_0x14 = 0;
-
-                if (devCaps.dwAxes > 0) {
-                    
-                    do {
-                        hr = m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->GetObjectInfo(&didoi, iVar10 + 0x30, DIPH_BYOFFSET);
-                        
-                        if (SUCCEEDED(hr)) {
-                            strncpy(m_availableDevices[uVar2].field_0x284[iVar10], didoi.tszName, 20);
-                            m_availableDevices[uVar2].field_0x14++;
-                        }
-                        iVar10++;
-                    } while (iVar10 < devCaps.dwAxes);
+                pDeviceInfo->field_0x14 = 0;
+                for (iVar10 = 0; iVar10 < count; iVar10++) {
+                    hr = m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->GetObjectInfo(&didoi, iVar10 + 0x30, DIPH_BYOFFSET);
+                    if (SUCCEEDED(hr)) {
+                        strncpy(pDeviceInfo->field_0x284[iVar10], didoi.tszName, 20);
+                        pDeviceInfo->field_0x14++;
+                    }
                 }
 
-                if (devCaps.dwAxes > 0) {
-                    iVar10 = 0;
-                    didoi.dwOfs = 0x20;
-
+                // The first POV hat (DIJOFS_POV(0) = 0x20) gives four direction names.
+                count = devCaps.dwPOVs;
+                iVar10 = 0;
+                if (count > 0) {
+                    offset = 0x20;
                     do {
-                        if (0x20 < didoi.dwOfs) break;
-                        
-                        hr = m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->GetObjectInfo(&didoi, didoi.dwOfs, DIPH_BYOFFSET);
+                        if (offset > 0x20)
+                            break;
+                        hr = m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->GetObjectInfo(&didoi, offset, DIPH_BYOFFSET);
                         if (SUCCEEDED(hr)) {
-                            strncpy(m_availableDevices[uVar2].field_0x414, didoi.tszName, 0x11);
-                            strcat(m_availableDevices[uVar2].field_0x414, m_strL);
-                            
-                            strncpy(m_availableDevices[uVar2].field_0x425, didoi.tszName, 0x11);
-                            strcat(m_availableDevices[uVar2].field_0x425, m_strR);
-                            
-                            strncpy(m_availableDevices[uVar2].field_0x436, didoi.tszName, 0x11);
-                            strcat(m_availableDevices[uVar2].field_0x436, m_strU);
-                            
-                            strncpy(m_availableDevices[uVar2].field_0x447, didoi.tszName, 0x11);
-                            strcat(m_availableDevices[uVar2].field_0x447, m_strD);
+                            strncpy(pDeviceInfo->field_0x414, didoi.tszName, 0x11);
+                            strcat(pDeviceInfo->field_0x414, m_strL);
 
-                            m_availableDevices[uVar2].field_0x14++;
+                            strncpy(pDeviceInfo->field_0x425, didoi.tszName, 0x11);
+                            strcat(pDeviceInfo->field_0x425, m_strR);
+
+                            strncpy(pDeviceInfo->field_0x436, didoi.tszName, 0x11);
+                            strcat(pDeviceInfo->field_0x436, m_strU);
+
+                            strncpy(pDeviceInfo->field_0x447, didoi.tszName, 0x11);
+                            strcat(pDeviceInfo->field_0x447, m_strD);
                         }
-
                         iVar10++;
-                        didoi.dwOfs++;
-                    } while (iVar10 < devCaps.dwAxes);
+                        offset += 4;
+                    } while (iVar10 < count);
                 }
 
                 iVar10 = 0;
 
-                if (m_availableDevices[uVar2].field_0x14 > 0) {
-                    int * pUnk0x1c = &m_availableDevices[uVar2].field_0x1c;
+                if (pDeviceInfo->field_0x14 > 0) {
+                    int * pUnk0x1c = &pDeviceInfo->field_0x1c;
                     do {
                         *pUnk0x1c++ = 1u << iVar10;
                         iVar10++;
-                    } while (iVar10 < m_availableDevices[uVar2].field_0x14);
+                    } while (iVar10 < pDeviceInfo->field_0x14);
                 }
 
                 m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->Acquire();

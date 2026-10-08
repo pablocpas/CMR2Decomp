@@ -715,9 +715,9 @@ void NetRace_PackCarState(Car *car)
     if (value >= g_netOne) g_localCarPacket.dispZ = 0x7ffd;
     else if (value <= g_netMinusOne) g_localCarPacket.dispZ = 0x8003;
     else g_localCarPacket.dispZ = (short)(int)(__int64)(value * 32765.0f);
-    double product = (double)FixMul(average.z, average.x) * CGraphics::m_oneOver65536;
-    if (product >= g_netOne) g_localCarPacket.wheelSpread = 0xfffa;
-    else g_localCarPacket.wheelSpread = (unsigned short)(int)(__int64)(product * 65530.0f);
+    value = (float)((double)FixMul(average.z, average.x) * CGraphics::m_oneOver65536);
+    if (value >= g_netOne) g_localCarPacket.wheelSpread = 0xfffa;
+    else g_localCarPacket.wheelSpread = (unsigned short)(int)(__int64)(value * 65530.0f);
     value = (float)(car->angularVelocity.x * CGraphics::m_oneOver65536) * g_netAngularScale;
     if (value >= g_netOne) g_localCarPacket.angVelX = 0x7f;
     else if (value <= g_netMinusOne) g_localCarPacket.angVelX = 0x81;

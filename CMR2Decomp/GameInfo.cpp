@@ -7723,7 +7723,8 @@ void OptionPreview_AllocateConvertedWheelVertices(int param1, int param2, int pa
     int *pDest;
     BYTE *pNormal;
     unsigned int n;
-    BYTE nb0, nb1, nb2;
+    BYTE nb[3];
+    FixVector pos;
 
     ppBlock = &g_unk0x00831198[param1];
     *ppBlock = (BYTE **)CFileBuffer::AllocateLockedBuffer((unsigned int)*(BYTE *)(param3 + 0x26a) << 2);
@@ -7746,24 +7747,37 @@ void OptionPreview_AllocateConvertedWheelVertices(int param1, int param2, int pa
                 pDest[3] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0xc) * CGraphics::m_65536);
                 pDest[4] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0x10) * CGraphics::m_65536);
                 pDest[5] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0x14) * CGraphics::m_65536);
+                pos = *(FixVector *)pDest;
+                if (pos.x >= 0)
+                    *(BYTE *)((BYTE *)pDest + 0x1b) = 0x81;
+                else
+                    *(BYTE *)((BYTE *)pDest + 0x1b) = 0x7f;
+                if (pos.y >= 0)
+                    *(BYTE *)((BYTE *)pDest + 0x1c) = 0x81;
+                else
+                    *(BYTE *)((BYTE *)pDest + 0x1c) = 0x7f;
+                if (pos.z >= 0)
+                    *(BYTE *)((BYTE *)pDest + 0x1d) = 0x81;
+                else
+                    *(BYTE *)((BYTE *)pDest + 0x1d) = 0x7f;
                 pNormal = (BYTE *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0x18);
                 n = *(unsigned int *)pNormal;
-                nb2 = (BYTE)(n >> 16);
-                nb0 = (BYTE)n;
-                nb1 = (BYTE)(n >> 8);
-                v = (nb2 & 0xff) - 0x80;
+                nb[0] = (BYTE)(n >> 16);
+                nb[2] = *pNormal;
+                nb[1] = (BYTE)(n >> 8);
+                v = (nb[0] & 0xff) - 0x80;
                 if (v < -0x7f)
                     v = -0x7f;
                 else if (v > 0x7f)
                     v = 0x7f;
                 *(BYTE *)((BYTE *)pDest + 0x1b) = (BYTE)v;
-                v = (nb1 & 0xff) - 0x80;
+                v = (nb[1] & 0xff) - 0x80;
                 if (v < -0x7f)
                     v = -0x7f;
                 else if (v > 0x7f)
                     v = 0x7f;
                 *(BYTE *)((BYTE *)pDest + 0x1c) = (BYTE)v;
-                v = (nb0 & 0xff) - 0x80;
+                v = (nb[2] & 0xff) - 0x80;
                 if (v < -0x7f)
                     v = -0x7f;
                 else if (v > 0x7f)
