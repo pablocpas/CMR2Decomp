@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "a4a27bf391bbb6daf0e3c3b7c251b539fd8ca0e0",
+    "commit": "00547240794573de2b22f6a1866fbb561e7da745",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -67,7 +67,7 @@
       "CMR2Decomp/Frontend.h": "1ddbe423195e524addbeabf1d0d574b8e6fd0b392af5f182debe2d4cb34788d8",
       "CMR2Decomp/FrontendDraw.cpp": "a017a89620ec33fc14fb76902f82435a338592c7fe01bd6c89511e7407ca2616",
       "CMR2Decomp/FrontendDraw.h": "c55e09d37aaeb9698e2052a12a1e6437971d64fe98a3ac82995f97164e1c964e",
-      "CMR2Decomp/FrontendMenus.cpp": "c3be8ab7f01373929c499715ba2b4264b1079b6a83eff25b2e34b8d3fd9eb96b",
+      "CMR2Decomp/FrontendMenus.cpp": "d339de3793dc46c3c12890337e688003faa5f1c3947c273b26be0b82d3069ad6",
       "CMR2Decomp/FrontendMenus.h": "cdbe32e65867864d13950fad5dbf93442018ac0c99a1a4a7c97cff7b98393cb7",
       "CMR2Decomp/FrontendNetworkRally.cpp": "04877e99bd48400fbbce1fcca1a48f7611af8e0e9d6992529062dd7537bfd635",
       "CMR2Decomp/FrontendScreens.cpp": "bf514e22bcac96c9d4ad56156c965a67e7f4824d5fc799a0eb7daa49bdb15247",
@@ -76,7 +76,7 @@
       "CMR2Decomp/Game.h": "3ac93fd8707b75dea487ba1a23170a63a0099477a95f0c5a0c7d98c31726bf03",
       "CMR2Decomp/GameInfo.cpp": "0166af853c33b2fac45a16486646b0b7434caae786b04c1c4c97b690769d5d08",
       "CMR2Decomp/GameInfo.h": "191777cd7d1cc6c81276e22879fd745d02fc9fa7b29ac05f0bff3761ae5b8bb7",
-      "CMR2Decomp/GameMenus.cpp": "9831cb47a0b346a40d4b52cb3738b78327b13e20ebb159477f91359890ed116d",
+      "CMR2Decomp/GameMenus.cpp": "5b898b592ec25649bc362c78843c03a11750f9b7fae7e7d9e736ac2d1e81f4c5",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
       "CMR2Decomp/GameNetwork.cpp": "e4162b9288f4fd3b48d47ecbf7b79328455dafbd04afb997b4e2f427a22f3b57",
       "CMR2Decomp/GenericFileLoader.cpp": "eba2ddfd0571387fcb1bc7c23202b10d552442c4270cfeccb41d4742e522abb1",
@@ -167,18 +167,18 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "9c7f946cb7aa76896384f6d0ed6dd7c1b296ac07189d00b8e8aa311056a6160b",
-    "pdb_sha256": "c57d169a5853fa123c8510e2f03b25bc5fc9a2838b63c7b3ee2560e2ba82dd6d"
+    "exe_sha256": "439c9d953bfd7fb489aa30c81a3b01b5a1aae2eff2df4016cee4308cbab858aa",
+    "pdb_sha256": "879cf7c8b54ebcc6fcff5816a980e20d46231ed3f41fddd4d29ecbbb8f674e9e"
   },
-  "perfect_match_percent": 52.3,
+  "perfect_match_percent": 52.61,
   "fuzzy_match_percent": 93.41,
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
   "measured_functions": 3368,
-  "reccmp_exact": 2705,
+  "reccmp_exact": 2707,
   "audited_source_functions": 3364,
-  "relocated_byte_exact": 2864,
-  "nonmatching_source_functions": 500,
+  "relocated_byte_exact": 2866,
+  "nonmatching_source_functions": 498,
   "unresolved_source_functions": [
     "0x496e00",
     "0x5062d0",

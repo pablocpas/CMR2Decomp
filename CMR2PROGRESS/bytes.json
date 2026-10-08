@@ -3558,9 +3558,9 @@
   },
   "0x4fd480": {
     "n": "FrontendControls_DrawCalibration",
-    "s": 0.979890310786106,
-    "x": false,
-    "fz": 0.9945155393053017,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FrontendMenus.cpp",
     "symbol_name": "FrontendControls_DrawCalibration"
@@ -13384,9 +13384,9 @@
   },
   "0x451df0": {
     "n": "GameMenu_DrawStageClassification",
-    "s": 0.9944649446494465,
-    "x": false,
-    "fz": 0.9944649446494465,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenu_DrawStageClassification"

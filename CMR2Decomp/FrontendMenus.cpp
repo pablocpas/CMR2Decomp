@@ -1371,7 +1371,7 @@ void FrontendControls_DrawDeviceBindings(Menu *pMenu)
     }
 }
 
-void FrontendControls_DrawCalibrationAxisRow(short x, short y, Menu *pMenu, int index);
+void FrontendControls_DrawCalibrationAxisRow(short x, int y, Menu *pMenu, int index);
 
 // GLOBAL: CMR2 0x00526ec8
 char g_strPercentFormat[8] = "%s %d%%";
@@ -1773,7 +1773,7 @@ void FrontendControls_DrawAxisCalibrationBar(short x, short y, DWORD colour, Axi
 // Draws row `index` of the calibration page: the axis bar in white when
 // selected (red while calibrating), dim when the entry is hidden.
 // FUNCTION: CMR2 0x004ff060
-void FrontendControls_DrawCalibrationAxisRow(short x, short y, Menu *pMenu, int index)
+void FrontendControls_DrawCalibrationAxisRow(short x, int y, Menu *pMenu, int index)
 {
     AxisBinding *pAxis;
     BYTE red[4];

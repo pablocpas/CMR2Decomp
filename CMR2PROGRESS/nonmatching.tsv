@@ -479,7 +479,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x478dc0	SurfaceSound_ResetPlayerParameters	SurfaceTypes.cpp	368	0.9868421052631579	0.9868421052631579
 0x507fe0	OptionPreview_RebuildDeformedGeometry	GameInfo.cpp	1880	0.9870967741935484	0.9870967741935484
 0x487b80	Collision_DoSpheresOverlap	StageObjects.cpp	192	0.9879518072289156	0.9879518072289156
-0x4fd480	FrontendControls_DrawCalibration	FrontendMenus.cpp	1669	0.9881061299176578	0.979890310786106
 0x507290	OptionPreview_AddNodeMeshToRecord	GameInfo.cpp	564	0.9884393063583815	0.9942196531791907
 0x4dbd80	FrontendMenu_DrawRallyReport	FrontendScreens.cpp	2436	0.9889682024659312	0.9889682024659312
 0x450ef0	GameMenu_DrawScrollingStagePoints	GameMenus.cpp	1938	0.9894894894894894	0.990990990990991
@@ -489,7 +488,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b2f80	Scene_CreateLight	SceneNode.cpp	1201	0.990909090909091	0.9938271604938271
 0x4b50b0	Scene_ApplyGroundLightToMeshTree	SceneNode.cpp	613	0.990990990990991	0.990990990990991
 0x40c610	CInput::InitDetectedControllerSlot	Input.cpp	1604	0.9920424403183024	0.9920424403183024
-0x451df0	GameMenu_DrawStageClassification	GameMenus.cpp	1585	0.9944649446494465	0.9944649446494465
 0x4d9c40	FrontendMenu_DrawRallySummary	FrontendScreens.cpp	2529	0.9956167814652473	0.9855799373040752
 0x508890	CarDamage_ApplyCameraSpaceMeshDent	StageTiming.cpp	1614	0.9962049335863378	0.9962049335863378
 0x441500	Car_UpdateWheelForces	Car.cpp	6536	0.9966507177033492	0.9966507177033492
