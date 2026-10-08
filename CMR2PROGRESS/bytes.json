@@ -757,9 +757,9 @@
   },
   "0x433890": {
     "n": "Car_StepAll",
-    "s": 0.7326266195524146,
+    "s": 0.7452830188679245,
     "x": false,
-    "fz": 0.866902237926973,
+    "fz": 0.8773584905660378,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_StepAll"
@@ -26390,9 +26390,9 @@
   },
   "0x46cfa0": {
     "n": "Replay_PlayStreamFrame",
-    "s": 0.43119266055045874,
+    "s": 0.39351851851851855,
     "x": false,
-    "fz": 0.8440366972477065,
+    "fz": 0.8425925925925926,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Replay_PlayStreamFrame"

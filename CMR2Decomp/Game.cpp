@@ -1279,10 +1279,13 @@ FuncTableGroup g_unk0x00526ee0[7] = {
     {OptionMenu_LeaveAndCommitState, CGame::NoOpSecondaryStateCallback},
     {OptionMenu_LeaveWithoutCommitState, CGame::NoOpSecondaryStateCallback},
 };
-// Magic value handed to the callback machine as opaque data (0x0100ff00), not
-// an address, so it must not be typed as a pointer.
+// Transition rules of the secondary (option/country menu) callback machine.
+// Keep the entire table and its terminator: the dispatcher scans its address.
 // GLOBAL: CMR2 0x00526f18
-unsigned int g_unk0x00526f18 = 0x0100ff00;
+unsigned int g_unk0x00526f18[10] = {
+    0x0100ff00, 0x0200ff01, 0x0300ff02, 0x0400ff03, 0x0201ff03,
+    0x0500ff04, 0x0602ff04, 0x0000ff05, 0x0000ff06, 0xffffffff,
+};
 
 // FUNCTION: CMR2 0x004ff450
 BOOL CGame::UpdateSecondaryCallbackMachine()
@@ -1364,12 +1367,12 @@ FuncTableGroup g_unk0x005190b0[14] = {
 // any; byte 1 = slot level, 0xff any; byte 2 = value; byte 3 = next state),
 // terminated by 0xffffffff.
 // GLOBAL: CMR2 0x00519120
-unsigned int g_unk0x00519120[25] = {
+unsigned int g_unk0x00519120[26] = {
     0x0100ff00, 0x0200ff01, 0x0c01ff01, 0x0300ff02, 0x0400ff03, 0x0500ff04,
     0x0700ff05, 0x0605ff05, 0x0d06ff05, 0x0a01ff05, 0x0700ff06, 0x0800ff07,
     0x0900ff08, 0x0a00ff09, 0x0b00000a, 0x0b00010a, 0x0b00040a, 0x0b00020a,
     0x0b00030a, 0x0000ff0b, 0x0407ff0b, 0x0403ff0b, 0x0000ff0c, 0x0504ffff,
-    0x0b01ffff
+    0x0b01ffff, 0xffffffff
 };
 
 // Entry point of the in-race state machine: on the first frame it builds the

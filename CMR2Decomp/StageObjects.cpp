@@ -14308,11 +14308,12 @@ void Replay_PlayStreamFrame(int *pState)
                 else
                     found = ((ReplayStateLane *)p->pStates)[p->lane].eventCount;
             }
-            // The original indexes from the last event examined by the first
-            // loop; for the second table that pointer is stale.
+            // Both formats index the event table from its base. In the original
+            // assembly the final load follows two pops, so its stack offset
+            // refers to pEvents, not to the last event examined by the loop.
             found--;
             if (found > -1)
-                p->field_0x10c = pEvent[found].value;
+                p->field_0x10c = pEvents[found].value;
         }
         if (p->frame == p->pLaneSamples[p->lane]) {
             p->playStarted = 0;

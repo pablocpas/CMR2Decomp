@@ -4735,9 +4735,9 @@ void Car_StepAll(int base, short *pList, short count)
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);
         AutoGear_UpdateCarGearState(g_pCurrentCar);
-        for (k = 0x888; k >= 0x880; k -= 4) {
-            *(int *)((BYTE *)g_pCurrentCar + k - 0xc) = 0;
-            *(int *)((BYTE *)g_pCurrentCar + k + 4) = 0;
+        for (k = 3; k >= 0; k--) {
+            g_pCurrentCar->wheelSlip[k] = 0;
+            g_pCurrentCar->wheelSlipLateral[k] = 0;
         }
     }
     for (i = count - 1; i >= 0; i--) {

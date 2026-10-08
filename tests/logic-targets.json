@@ -57,6 +57,12 @@
       "0x49c370"
     ]
   },
+  "differential_callback_tables.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x49c1c0"
+    ]
+  },
   "differential_camera_clip.py": {
     "arguments": "both",
     "targets": [
@@ -67,6 +73,12 @@
     "arguments": "entities",
     "targets": [
       "0x43e680"
+    ]
+  },
+  "differential_car_step.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x433890"
     ]
   },
   "differential_car_contacts.py": {
@@ -396,6 +408,12 @@
     "arguments": "entities",
     "targets": [
       "0x42af50"
+    ]
+  },
+  "differential_replay_controls.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x46cfa0"
     ]
   },
   "differential_replay_reset.py": {
