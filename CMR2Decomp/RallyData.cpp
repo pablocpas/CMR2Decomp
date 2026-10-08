@@ -4941,24 +4941,24 @@ void RallyData_CreateFrontendChallengeScene(void)
 int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha)
 {
     BYTE colour[4];
-    int width;
+    int px;
 
+    px = x;
     colour[0] = g_itemColour[0];
     colour[1] = g_itemColour[1];
     colour[2] = g_itemColour[2];
     colour[3] = alpha;
-    Font_DrawText(2, pText, x, y, (int *)colour, 0x11);
+    Font_DrawText(2, pText, px, y, (int *)colour, 0x11);
     if (last == 0) {
-        width = Font_GetTextWidth(2, (BYTE *)pText);
-        width = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
-        g_itemRect[0] = (short)width;
-        g_itemRect[2] = 2;
+        px += Font_GetTextWidth(2, (BYTE *)pText) + (int)(g_pGraphics->resX * 10) / 0x280;
+        g_itemRect[0] = (short)px;
         g_itemRect[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);
+        g_itemRect[2] = 2;
         g_itemRect[3] = (short)((int)(g_pGraphics->resY * 0x3c) / 0x1e0);
         Sprite_FillRect((int)g_pGraphics + 0x150, g_itemRect, colour, 1);
-        return width + (int)(g_pGraphics->resX * 10) / 0x280;
+        px += (int)(g_pGraphics->resX * 10) / 0x280;
     }
-    return x;
+    return px;
 }
 
 int RallyData_ShouldEndStageEarly(void);

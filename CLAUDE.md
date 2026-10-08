@@ -154,6 +154,14 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
 - A tail jump past alignment padding (`jmp X` then `nop`s, X a 16-aligned
   address inside the inventory size) means the original has two functions;
   split it and fix `scripts/functions.tsv` (CGame::UpdateFrontendCallbackMachine).
+- A parameter the function keeps updating (a running x position) that the
+  original loads into a register at entry, before any other work, is copied
+  into a local first (`px = x;`, then only `px` is used): the copy also frees
+  the parameter's stack slot, so a small local (`BYTE colour[4]`) lands there
+  (Game_DrawFadingBootLabel, FrontendDraw_BreadcrumbItem, RallyData_DrawListItem).
+- `T s = {0};` stores the first member and zero-fills the rest from its end;
+  dword stores that cover the whole struct from offset 0 are `memset(&s, 0,
+  sizeof(s))` (Sound_CreatePcmSampleBuffer).
 
 ## Missing code
 

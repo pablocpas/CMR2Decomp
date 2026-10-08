@@ -61,7 +61,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47ad20	SurfaceSound_UpdateNearestNetworkCarEngines	StageObjects.cpp	732	0.5657015590200446	0.5763440860215053
 0x494db0	CarPhysics_DrawBodyWheelAndSkidShadows	CarPhysics.cpp	4510	0.5661680092059839	0.5525709900230238
 0x46bfd0	Replay_RestoreCarState	StageObjects.cpp	428	0.5674418604651162	0.5545454545454546
-0x40fd30	RallyData_DrawListItem	RallyData.cpp	288	0.5684210526315789	0.5684210526315789
 0x4e2e50	CGame::LoadFrontendCommonAndCountryTextures	Game.cpp	991	0.5714285714285714	0.55078125
 0x40bc90	CInput::SetControllerForceFeedbackValue	Input.cpp	61	0.5714285714285714	0.6666666666666666
 0x4219b0	View_UpdateCamera	Car.cpp	972	0.5724770642201835	0.5326278659611993
@@ -418,7 +417,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x404f40	InRaceMenu_UpdateStateMachineFrame	GameInfo.cpp	1294	0.938239159001314	0.8353413654618473
 0x48d950	StageObject_ApplySmoothedSurfaceImpact	StageObjects.cpp	417	0.9383561643835616	0.9523809523809523
 0x4bcc60	Pulse_Update	Graphics.cpp	534	0.9391304347826087	0.9391304347826087
-0x482ac0	Vehicle_UpdateMotion	VehiclePhysics.cpp	1126	0.9401709401709402	0.9034090909090909
 0x429810	Car_UpdateViewNodes	Car.cpp	1797	0.9405204460966543	0.8775510204081632
 0x4430b0	Car_UpdateRideHeight	Car.cpp	369	0.9423076923076923	0.9423076923076923
 0x421470	RallyData_GetCarRecordValueRatio	RallyData.cpp	144	0.9425287356321839	0.8275862068965517
@@ -426,6 +424,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4e77c0	FrontendMenu_DrawNetworkPlayerSetup	FrontendScreens.cpp	1788	0.9441984056687334	0.9239033124440466
 0x4d39a0	FrontendDraw_RallyEntryList	FrontendDraw.cpp	1246	0.9449423815620999	0.9480354879594424
 0x4b8270	Sector_RebuildStageGrid	Sector.cpp	480	0.9455782312925171	0.9016949152542373
+0x482ac0	Vehicle_UpdateMotion	VehiclePhysics.cpp	1126	0.9458689458689459	0.9090909090909091
 0x49c510	Game_DrawMeshTextureRuns	Game.cpp	354	0.9469026548672567	0.9469026548672567
 0x46bb40	StageObject_RebuildOrderedWheelVisibility	StageObjects.cpp	452	0.9497206703910615	0.9447852760736196
 0x44d790	GameMenu_DrawStageWinner	GameMenus.cpp	464	0.9506172839506173	0.9506172839506173

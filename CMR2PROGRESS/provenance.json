@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "eec435b342a4c56ac5860b1d5ae3b1d419ea68dc",
+    "commit": "40dcb274fb8b285936a035995ada4e3ec9d545d1",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -102,7 +102,7 @@
       "CMR2Decomp/OptionMenuRows.cpp": "2f2ab483cf9d7f07f3fc9a8065e3e8df2c76a23e152fc9af6b2dbc61497ecaa9",
       "CMR2Decomp/Particle.h": "b85a46208a644e2bf8128006838a31443be3039578664fe5aa764d018dbc6d92",
       "CMR2Decomp/Race.cpp": "9401006fb53e50af8d71fb671a5e4e148b2ed47eb3889f5d1613a1a9775359a2",
-      "CMR2Decomp/RallyData.cpp": "753467119b6bfe36218ae1ebeecbfec7b7216ae3b9807658f10e218f6b930494",
+      "CMR2Decomp/RallyData.cpp": "5959bd9adf4dca1e807682c8ffb766c8fe3e158feaa015c71957b0782713f331",
       "CMR2Decomp/RallyData.h": "e987810c2165585326e910e8d05c1dc1cb71d1ea758238d1c98b7347b1bc2470",
       "CMR2Decomp/RallyRoute.cpp": "994b5ec20055ca0a56941ad464450f265ae9e2889ab9da4bb53d24aa422f74b9",
       "CMR2Decomp/RallyRoute.h": "5eda732597706920da93ca7181af9320dc4b3a85e19342aeb68b19e92e10ce43",
@@ -137,7 +137,7 @@
       "CMR2Decomp/TimingUtils.h": "88a323a639040f96349e78fe47382a677cb87591e10de4110ae64b80f4960f6b",
       "CMR2Decomp/TrackCollision.cpp": "fc352df29e710571b4960773b06e020b5b79e741afd5f75d5e9df6f2c926e086",
       "CMR2Decomp/TrackLighting.cpp": "2bd30f439e2a0f185c178eaa9760440b1bf1949b55d23e068466a47e9a8f7344",
-      "CMR2Decomp/VehiclePhysics.cpp": "f6a7f5c489439000fa843011c8bc583e548ba5fae7eeea8814f228b4bd1fda31",
+      "CMR2Decomp/VehiclePhysics.cpp": "d62c0656e540cd4499e1ffcd2075ef36f08bba01b9ef9cfdac583da01c0c6b42",
       "CMR2Decomp/WheelTrail.cpp": "dfe77badcde6ea688b606ce78a5d3c1b3ea4ac3934cc4b318764934f446461cf",
       "CMR2Decomp/WheelTrail.h": "1d9972aa866c7b133f0868ac11ef87ebd0e0010501b1c470e4a00373510e70d5",
       "CMR2Decomp/ZlibAdler32.cpp": "4234d939bd3183d75788304e5eaee1adfa51eea158fc9586697e70512748bfb7",
@@ -167,18 +167,18 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "23c49db8be8b24c96c9df3595f3c0f197bb541dde67f04ccd2834f381b55c909",
-    "pdb_sha256": "c256deab5bb78b2c17b3d722b2d0cdc11a78ab1611fd89df69e111c1a2a7c97f"
+    "exe_sha256": "fa66751db3f6082cafc6f2bbab1c427461fef280d42b2a667fcaa78ea1ccdcb7",
+    "pdb_sha256": "ce0efc0f21d43571a3eac53d5876cce9aaf3c4f609ca3a88b864959ddf4f7031"
   },
-  "perfect_match_percent": 52.84,
-  "fuzzy_match_percent": 93.45,
+  "perfect_match_percent": 52.87,
+  "fuzzy_match_percent": 93.46,
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
   "measured_functions": 3368,
-  "reccmp_exact": 2715,
+  "reccmp_exact": 2716,
   "audited_source_functions": 3364,
-  "relocated_byte_exact": 2875,
-  "nonmatching_source_functions": 489,
+  "relocated_byte_exact": 2876,
+  "nonmatching_source_functions": 488,
   "unresolved_source_functions": [
     "0x496e00",
     "0x5062d0",

@@ -20753,9 +20753,9 @@
   },
   "0x40fd30": {
     "n": "RallyData_DrawListItem",
-    "s": 0.5684210526315789,
-    "x": false,
-    "fz": 0.8315789473684211,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_DrawListItem"
@@ -29713,9 +29713,9 @@
   },
   "0x482ac0": {
     "n": "Vehicle_UpdateMotion",
-    "s": 0.9034090909090909,
+    "s": 0.9090909090909091,
     "x": false,
-    "fz": 0.9573863636363636,
+    "fz": 0.9630681818181818,
     "unknown": [],
     "f": "VehiclePhysics.cpp",
     "symbol_name": "Vehicle_UpdateMotion"
