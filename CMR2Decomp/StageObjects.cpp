@@ -72,7 +72,7 @@ void StageLights_SetTransform(FixVector *pAxes);
 void StageLights_LoadTextures(void);
 void StageLights_Create(void);
 void StageLights_Update(void);
-void StageObject_SetBoundedWeatherKind(BYTE value);
+void StageObject_SetBoundedWeatherKind(int value);
 void StageLights_Off(void);
 void CarLights_LoadTextures(void);
 void StageObject_RebuildCarLightMeshes(int param_1);
@@ -1281,10 +1281,10 @@ int *StageObject_GetViewWeatherSlot(int i, int j)
 }
 
 // FUNCTION: CMR2 0x00463ce0
-void StageObject_SetBoundedWeatherKind(BYTE value)
+void StageObject_SetBoundedWeatherKind(int value)
 {
     g_unk0x00547b80 = value;
-    if (value > 7)
+    if (g_unk0x00547b80 > 7)
         g_unk0x00547b80 = 6;
 }
 
