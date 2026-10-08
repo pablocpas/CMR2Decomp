@@ -1,0 +1,339 @@
+diff --git a/CMR2Decomp/Mesh.cpp b/CMR2Decomp/Mesh.cpp
+new file mode 100644
+index 0000000..f51a5a0
+--- /dev/null
++++ b/CMR2Decomp/Mesh.cpp
+@@ -0,0 +1,91 @@
++#include <windows.h>
++#include "Mesh.h"
++#include "FileBuffer.h"
++
++Mesh *g_meshes[4096];
++int g_meshCount;
++int g_meshTotalSize;
++
++// FUNCTION: CMR2 0x004ab710
++int Mesh_GetField0x10(Mesh *pMesh)
++{
++    return pMesh->field_0x10;
++}
++
++// FUNCTION: CMR2 0x004ab7e0
++void Mesh_Free(void *pMesh)
++{
++    int i;
++    int j;
++    Mesh **pp;
++
++    i = 0;
++    pp = g_meshes;
++    while (*pp == NULL || *pp != pMesh) {
++        pp++;
++        i++;
++        if (pp > &g_meshes[4095])
++            return;
++    }
++    g_meshTotalSize -= ((Mesh *)pMesh)->sizeUnits;
++    for (j = 0; j < g_meshes[i]->partCount; j++) {
++        CFileBuffer::FreeGenericFileBuffer(g_meshes[i]->pParts[j]->pData);
++        g_meshes[i]->pParts[j]->pData = NULL;
++        CFileBuffer::FreeGenericFileBuffer(g_meshes[i]->pParts[j]);
++        g_meshes[i]->pParts[j] = NULL;
++    }
++    g_meshes[i] = NULL;
++    g_meshCount--;
++}
++
++// FUNCTION: CMR2 0x004ab8a0
++Mesh *Mesh_Alloc(void)
++{
++    int i;
++
++    for (i = 0; i < 4096; i++) {
++        if (g_meshes[i] == NULL) {
++            g_meshes[i] = (Mesh *)CFileBuffer::AllocateLockedBuffer(sizeof(Mesh));
++            g_meshes[i]->field_0x118 = 0;
++            if (i != g_meshCount)
++                return NULL;
++            g_meshCount++;
++            return g_meshes[i];
++        }
++    }
++    return NULL;
++}
++
++// FUNCTION: CMR2 0x004ab8f0
++void Mesh_SetVertexColours(Mesh *pMesh, BYTE *pRGB)
++{
++    int i;
++    int v;
++
++    for (i = 0; i < pMesh->triangleCount; i++) {
++        for (v = 0; v < 3; v++) {
++            pMesh->pTriangles[i].colour[v][0] = pRGB[0];
++            pMesh->pTriangles[i].colour[v][1] = pRGB[1];
++            pMesh->pTriangles[i].colour[v][2] = pRGB[2];
++        }
++    }
++    Mesh_Rebuild(pMesh);
++}
++
++// FUNCTION: CMR2 0x004ab960
++void Mesh_SetVertexAlpha(Mesh *pMesh, BYTE alpha)
++{
++    int i;
++    int v;
++
++    for (i = 0; i < pMesh->triangleCount; i++) {
++        for (v = 0; v < 3; v++)
++            pMesh->pTriangles[i].colour[v][3] = alpha;
++    }
++    Mesh_Rebuild(pMesh);
++}
++
++// STUB: CMR2 0x004b1ea0
++void Mesh_Rebuild(Mesh *pMesh)
++{
++}
+diff --git a/CMR2Decomp/Mesh.h b/CMR2Decomp/Mesh.h
+new file mode 100644
+index 0000000..edffe13
+--- /dev/null
++++ b/CMR2Decomp/Mesh.h
+@@ -0,0 +1,47 @@
++#ifndef _MESH_H
++#define _MESH_H
++
++// Triangle of a Mesh (0x4c bytes); per-vertex colour bytes at 0x34/0x38/0x3c.
++struct MeshTriangle {
++    BYTE field_0x0[0x34];
++    BYTE colour[3][4];          // 0x34  r,g,b,a per vertex
++    BYTE field_0x40[0xc];
++};
++
++struct MeshPart {
++    BYTE field_0x0[0x14];
++    void *pData;                // 0x14
++};
++
++// Renderable mesh (0x120 bytes); only the fields used so far are named.
++struct Mesh {
++    BYTE field_0x0[0x10];
++    int field_0x10;
++    BYTE field_0x14[0x10];
++    MeshTriangle *pTriangles;   // 0x24
++    int triangleCount;          // 0x28
++    BYTE field_0x2c[0xc];
++    MeshPart *pParts[50];       // 0x38
++    int partCount;              // 0x100
++    BYTE field_0x104[0xc];
++    BYTE sizeUnits;             // 0x110
++    BYTE field_0x111[7];
++    int field_0x118;
++    int field_0x11c;
++};
++
++// GLOBAL: CMR2 0x0067b124
++extern Mesh *g_meshes[4096];
++// GLOBAL: CMR2 0x0067f224
++extern int g_meshCount;
++// GLOBAL: CMR2 0x0067f230
++extern int g_meshTotalSize;
++
++Mesh *Mesh_Alloc(void);
++void Mesh_Free(void *pMesh);
++void Mesh_SetVertexColours(Mesh *pMesh, BYTE *pRGB);
++void Mesh_SetVertexAlpha(Mesh *pMesh, BYTE alpha);
++void Mesh_Rebuild(Mesh *pMesh);
++int Mesh_GetField0x10(Mesh *pMesh);
++
++#endif
+diff --git a/CMR2Decomp/Sector.cpp b/CMR2Decomp/Sector.cpp
+new file mode 100644
+index 0000000..93a49b3
+--- /dev/null
++++ b/CMR2Decomp/Sector.cpp
+@@ -0,0 +1,134 @@
++#include <windows.h>
++#include "Sector.h"
++#include "SceneNode.h"
++
++int g_sectorsPerRow;
++Sector *g_sectors[14096];
++int g_sectorHalfSize;
++unsigned int g_sectorVisibleBits[198];
++int g_sectorScale;
++int g_sectorCount;
++int g_sectorCullEnabled;
++int g_sectorCullDisabled;
++int g_sectorOriginX;
++int g_sectorOriginZ;
++
++// FUNCTION: CMR2 0x004b7da0
++int Sector_IsVisible(int iSector)
++{
++    if (g_sectorCullDisabled == 0 &&
++        (g_sectorVisibleBits[iSector >> 5] & (1 << (iSector & 0x1f))) == 0 &&
++        g_sectorCullEnabled != 0)
++        return 0;
++    return 1;
++}
++
++// FUNCTION: CMR2 0x004b85f0
++int Sector_FromPosition(FixVector *pPos)
++{
++    int dz;
++    int dx;
++    int iSector;
++
++    dz = pPos->z - g_sectorHalfSize - g_sectorOriginZ;
++    if (dz < 0)
++        dz = g_sectorHalfSize - pPos->z + g_sectorOriginZ;
++    dx = pPos->x - g_sectorOriginX + g_sectorHalfSize;
++    if (dx < 0)
++        dx = g_sectorOriginX - pPos->x - g_sectorHalfSize;
++    iSector = g_sectorsPerRow * (FixMul(dz, g_sectorScale) >> 16) + (FixMul(dx, g_sectorScale) >> 16);
++    if ((short)iSector < 0 || (short)iSector >= (short)g_sectorCount)
++        iSector = 0;
++    return iSector;
++}
++
++// Re-evaluates which sector the node's world position falls in, records
++// the neighbouring sectors it overlaps (within 4.5 units) and moves the node
++// between the sector lists.
++// FUNCTION: CMR2 0x004b8690
++void SceneNode_UpdateSector(SceneNode *pNode)
++{
++    int n;
++    short iSector;
++    FixVector pos;
++    int bLeft;
++    int bRight;
++    Sector *pSector;
++    int c;
++    SceneNode *p;
++    SceneNode *pPrev;
++
++    n = 0;
++    iSector = pNode->sector;
++    pos.x = pNode->world.position.x;
++    bLeft = 0;
++    bRight = 0;
++    pSector = g_sectors[iSector];
++    pNode->neighbourSectors[0] = -1;
++    pNode->neighbourSectors[1] = -1;
++    pNode->neighbourSectors[2] = -1;
++    c = pSector->x;
++    if (pos.x < c - g_sectorHalfSize || c + g_sectorHalfSize < pos.x ||
++        (c = pSector->z, pNode->world.position.z < c - g_sectorHalfSize) ||
++        c + g_sectorHalfSize < pNode->world.position.z) {
++        pos.y = pNode->world.position.y;
++        pos.z = pNode->world.position.z;
++        iSector = (short)Sector_FromPosition(&pos);
++    }
++    pSector = g_sectors[iSector];
++    c = pSector->x;
++    if (pNode->world.position.x - 0x48000 < c - g_sectorHalfSize) {
++        bLeft = 1;
++        pNode->neighbourSectors[0] = iSector - 1;
++        n = 1;
++    } else if (c + g_sectorHalfSize < pNode->world.position.x + 0x48000) {
++        bRight = 1;
++        pNode->neighbourSectors[0] = iSector + 1;
++        n = 1;
++    }
++    c = pSector->z;
++    if (c + g_sectorHalfSize < pNode->world.position.z + 0x48000) {
++        pNode->neighbourSectors[n] = iSector - (short)g_sectorsPerRow;
++        if (bLeft)
++            pNode->neighbourSectors[n + 1] = iSector - (short)g_sectorsPerRow - 1;
++        else if (bRight)
++            pNode->neighbourSectors[n + 1] = iSector - (short)g_sectorsPerRow + 1;
++    } else if (pNode->world.position.z - 0x48000 < c - g_sectorHalfSize) {
++        pNode->neighbourSectors[n] = iSector + (short)g_sectorsPerRow;
++        if (bLeft)
++            pNode->neighbourSectors[n + 1] = iSector + (short)g_sectorsPerRow - 1;
++        else if (bRight)
++            pNode->neighbourSectors[n + 1] = iSector + (short)g_sectorsPerRow + 1;
++    }
++
++    if (iSector != pNode->sector && iSector >= 0 && iSector < g_sectorCount) {
++        pPrev = NULL;
++        p = g_sectors[pNode->sector]->pFirstNode;
++        if (p != NULL) {
++            while (p != pNode) {
++                if (p == NULL)
++                    break;
++                pPrev = p;
++                p = p->pNextInSector;
++            }
++            if (p != NULL) {
++                if (pPrev == NULL)
++                    g_sectors[pNode->sector]->pFirstNode = p->pNextInSector;
++                else
++                    pPrev->pNextInSector = p->pNextInSector;
++                p->pNextInSector = NULL;
++                g_sectors[pNode->sector]->nodeCount--;
++            }
++            p = g_sectors[iSector]->pFirstNode;
++            if (p == NULL) {
++                g_sectors[iSector]->pFirstNode = pNode;
++            } else {
++                for (pPrev = p->pNextInSector; pPrev != NULL; pPrev = pPrev->pNextInSector)
++                    p = pPrev;
++                p->pNextInSector = pNode;
++            }
++            g_sectors[iSector]->nodeCount++;
++            pNode->sector = iSector;
++        }
++    }
++}
+diff --git a/CMR2Decomp/Sector.h b/CMR2Decomp/Sector.h
+new file mode 100644
+index 0000000..55d4d96
+--- /dev/null
++++ b/CMR2Decomp/Sector.h
+@@ -0,0 +1,43 @@
++#ifndef _SECTOR_H
++#define _SECTOR_H
++
++#include "FixedPoint.h"
++
++struct SceneNode;
++
++// Track sector (grid cell); scene nodes are linked into the cell they sit in.
++struct Sector {
++    int x;                      // 0x0  centre, 16.16
++    int y;                      // 0x4
++    int z;                      // 0x8
++    BYTE field_0xc[0x10];
++    SceneNode *pFirstNode;      // 0x1c
++    int nodeCount;              // 0x20
++};
++
++// GLOBAL: CMR2 0x0071f600
++extern int g_sectorsPerRow;
++// GLOBAL: CMR2 0x0071f608
++extern Sector *g_sectors[14096];
++// GLOBAL: CMR2 0x0072d248
++extern int g_sectorHalfSize;
++// GLOBAL: CMR2 0x0072d258
++extern unsigned int g_sectorVisibleBits[198];
++// GLOBAL: CMR2 0x0072d55c
++extern int g_sectorScale;
++// GLOBAL: CMR2 0x0072d568
++extern int g_sectorCount;
++// GLOBAL: CMR2 0x0072d570
++extern int g_sectorCullEnabled;
++// GLOBAL: CMR2 0x0072d578
++extern int g_sectorCullDisabled;
++// GLOBAL: CMR2 0x006ef5f0
++extern int g_sectorOriginX;
++// GLOBAL: CMR2 0x006ef5f4
++extern int g_sectorOriginZ;
++
++int Sector_IsVisible(int iSector);
++int Sector_FromPosition(FixVector *pPos);
++void SceneNode_UpdateSector(SceneNode *pNode);
++
++#endif

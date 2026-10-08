@@ -1,0 +1,358 @@
+[
+  {
+    "path": "/home/pablo/cmr2-ag1",
+    "restored_tracked_files": 5
+  },
+  {
+    "path": "/home/pablo/cmr2-ag10",
+    "restored_tracked_files": 5
+  },
+  {
+    "path": "/home/pablo/cmr2-ag2",
+    "restored_tracked_files": 6
+  },
+  {
+    "path": "/home/pablo/cmr2-ag3",
+    "restored_tracked_files": 6
+  },
+  {
+    "path": "/home/pablo/cmr2-ag4",
+    "restored_tracked_files": 6
+  },
+  {
+    "path": "/home/pablo/cmr2-ag5",
+    "restored_tracked_files": 5
+  },
+  {
+    "path": "/home/pablo/cmr2-ag6",
+    "restored_tracked_files": 6
+  },
+  {
+    "path": "/home/pablo/cmr2-ag7",
+    "restored_tracked_files": 6
+  },
+  {
+    "path": "/home/pablo/cmr2-ag8",
+    "restored_tracked_files": 6
+  },
+  {
+    "path": "/home/pablo/cmr2-ag9",
+    "restored_tracked_files": 2
+  },
+  {
+    "path": "/home/pablo/cmr2-agent01",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/cmr2-agent02",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/cmr2-agent03",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/cmr2-agent04",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/cmr2-agent06",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/cmr2-agent07",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/cmr2-agent09",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/cmr2-agent10",
+    "restored_tracked_files": 2
+  },
+  {
+    "path": "/home/pablo/cmr2-agtest",
+    "restored_tracked_files": 7
+  },
+  {
+    "path": "/home/pablo/cmr2-callbacks",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-easy",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/cmr2-integrate",
+    "restored_tracked_files": 6
+  },
+  {
+    "path": "/home/pablo/cmr2-run",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/cmr2-verify",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w111",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w112",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w113",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w113a",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w113b",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w113c",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w114",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w115",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w121",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w122",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w123",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w124",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w125",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w131",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w132",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w133",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w134",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w135",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w136",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w137",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w138",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w141",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w142",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w143",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w144",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w145",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w146",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w151",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w152",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w153",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w154",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w164",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w171",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w172",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w172m",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w181",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w182",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w182b",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w182c",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w182d",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w183",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w191",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w192",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w193",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w193a",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w193b",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w193c",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w194",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w194-c",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w194-g",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w194-r",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w201",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-w202",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/cmr2-wip",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/colin_mcrae_linux/matching-low-review",
+    "restored_tracked_files": 3
+  },
+  {
+    "path": "/home/pablo/colin_mcrae_linux/matching-review",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/w191-4d8ed0",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/w191-4d9c40",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/w191-4dbd80",
+    "restored_tracked_files": 2
+  },
+  {
+    "path": "/home/pablo/w191-4dce00",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/w191-4dd4b0",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/w191-4dfe20",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/w191-4e77c0",
+    "restored_tracked_files": 0
+  },
+  {
+    "path": "/home/pablo/w191-4e8500",
+    "restored_tracked_files": 1
+  },
+  {
+    "path": "/home/pablo/w191-4e90f0",
+    "restored_tracked_files": 1
+  }
+]

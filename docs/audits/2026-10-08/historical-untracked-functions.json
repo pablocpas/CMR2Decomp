@@ -1,0 +1,42 @@
+[
+  {
+    "address": "0x4ab710",
+    "file": "CMR2Decomp/Mesh.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "address": "0x4ab7e0",
+    "file": "CMR2Decomp/Mesh.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "address": "0x4ab8a0",
+    "file": "CMR2Decomp/Mesh.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "address": "0x4ab8f0",
+    "file": "CMR2Decomp/Mesh.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "address": "0x4ab960",
+    "file": "CMR2Decomp/Mesh.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "address": "0x4b7da0",
+    "file": "CMR2Decomp/Sector.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "address": "0x4b85f0",
+    "file": "CMR2Decomp/Sector.cpp",
+    "status": "superseded_by_byte_exact_main"
+  },
+  {
+    "address": "0x4b8690",
+    "file": "CMR2Decomp/Sector.cpp",
+    "status": "recovered_and_refined_in_main"
+  }
+]

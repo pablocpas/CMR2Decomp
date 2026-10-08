@@ -1,0 +1,519 @@
+{
+  "local_branches": 206,
+  "local_branches_not_ancestors_of_main": [],
+  "existing_worktrees": 102,
+  "dirty_other_worktrees": [],
+  "stash": "",
+  "worktrees": [
+    {
+      "path": "/home/pablo/colin_mcrae_linux/CMR2Decomp",
+      "status": "?? docs/audits/2026-10-08/historical-untracked-functions.json\n?? docs/audits/2026-10-08/historical-untracked-mesh-sector.source.patch\n?? docs/audits/2026-10-08/worktree-cleanup.json\n",
+      "head": "6d249ea6324ee69bb8c54016bc2dd90b45543f1a"
+    },
+    {
+      "path": "/home/pablo/cmr2-ag1",
+      "status": "",
+      "head": "beb5921d4d39d566df7a18754695d2abcb5f926b"
+    },
+    {
+      "path": "/home/pablo/cmr2-ag10",
+      "status": "",
+      "head": "beb5921d4d39d566df7a18754695d2abcb5f926b"
+    },
+    {
+      "path": "/home/pablo/cmr2-ag2",
+      "status": "",
+      "head": "beb5921d4d39d566df7a18754695d2abcb5f926b"
+    },
+    {
+      "path": "/home/pablo/cmr2-ag3",
+      "status": "",
+      "head": "beb5921d4d39d566df7a18754695d2abcb5f926b"
+    },
+    {
+      "path": "/home/pablo/cmr2-ag4",
+      "status": "",
+      "head": "beb5921d4d39d566df7a18754695d2abcb5f926b"
+    },
+    {
+      "path": "/home/pablo/cmr2-ag5",
+      "status": "",
+      "head": "beb5921d4d39d566df7a18754695d2abcb5f926b"
+    },
+    {
+      "path": "/home/pablo/cmr2-ag6",
+      "status": "",
+      "head": "beb5921d4d39d566df7a18754695d2abcb5f926b"
+    },
+    {
+      "path": "/home/pablo/cmr2-ag7",
+      "status": "",
+      "head": "beb5921d4d39d566df7a18754695d2abcb5f926b"
+    },
+    {
+      "path": "/home/pablo/cmr2-ag8",
+      "status": "",
+      "head": "beb5921d4d39d566df7a18754695d2abcb5f926b"
+    },
+    {
+      "path": "/home/pablo/cmr2-ag9",
+      "status": "",
+      "head": "beb5921d4d39d566df7a18754695d2abcb5f926b"
+    },
+    {
+      "path": "/home/pablo/cmr2-agent01",
+      "status": "",
+      "head": "a0bfc4b1c25cca45320a54d229a1ced5f52580c1"
+    },
+    {
+      "path": "/home/pablo/cmr2-agent02",
+      "status": "",
+      "head": "ccfb2438a2d1572038eeada92b4d1f44a41ca641"
+    },
+    {
+      "path": "/home/pablo/cmr2-agent03",
+      "status": "",
+      "head": "76e3a6ed94b91fedc0d031820a120d7a64d2ae69"
+    },
+    {
+      "path": "/home/pablo/cmr2-agent04",
+      "status": "",
+      "head": "d6b7436df8611589691e5edc627092a8c53c62da"
+    },
+    {
+      "path": "/home/pablo/cmr2-agent05",
+      "status": "",
+      "head": "e5d3ed540643aa7d716c1c8385b7d56a5410ab4d"
+    },
+    {
+      "path": "/home/pablo/cmr2-agent06",
+      "status": "",
+      "head": "e1fdb83548e4ccbe23bf6c79c6fe4dd0ac94137e"
+    },
+    {
+      "path": "/home/pablo/cmr2-agent07",
+      "status": "",
+      "head": "ff300b9749660e8e29d82f8dec21bdea52071fca"
+    },
+    {
+      "path": "/home/pablo/cmr2-agent08",
+      "status": "",
+      "head": "07f16ab5766db03b24c02b284bcad9f4df8a1f35"
+    },
+    {
+      "path": "/home/pablo/cmr2-agent09",
+      "status": "",
+      "head": "1ddeb7cec1de32f5ee801bed82d9386e71b26b82"
+    },
+    {
+      "path": "/home/pablo/cmr2-agent10",
+      "status": "",
+      "head": "f3325e74ddec3a2dc5b26ec67f9096c33735bb6d"
+    },
+    {
+      "path": "/home/pablo/cmr2-agtest",
+      "status": "",
+      "head": "bc34b1b51bf9f6589ecc6eecd17af3e5361e556a"
+    },
+    {
+      "path": "/home/pablo/cmr2-callbacks",
+      "status": "",
+      "head": "adfc56dfc7bc74a2145d5fe30963d4e190194685"
+    },
+    {
+      "path": "/home/pablo/cmr2-claude",
+      "status": "",
+      "head": "260ae1017913b222c536acef76560f95ffbee33a"
+    },
+    {
+      "path": "/home/pablo/cmr2-close",
+      "status": "",
+      "head": "76e3a6ed94b91fedc0d031820a120d7a64d2ae69"
+    },
+    {
+      "path": "/home/pablo/cmr2-datacmp/CMR2Decomp",
+      "status": "",
+      "head": "7d7e4e74753dd94e241154ead8e2ce8f7dbd03c3"
+    },
+    {
+      "path": "/home/pablo/cmr2-easy",
+      "status": "",
+      "head": "613bd7989c45dc791cdce9896bef5d2e8d36ff65"
+    },
+    {
+      "path": "/home/pablo/cmr2-harness01",
+      "status": "",
+      "head": "b1cd99f93a7ca7c446727df41e19a82919c45823"
+    },
+    {
+      "path": "/home/pablo/cmr2-integrate",
+      "status": "",
+      "head": "f482e2768acd3b7643ed9bfb290426aadcb76659"
+    },
+    {
+      "path": "/home/pablo/cmr2-match3",
+      "status": "",
+      "head": "988b513293e9ca1adb8371971ac3bba51fee2854"
+    },
+    {
+      "path": "/home/pablo/cmr2-run",
+      "status": "",
+      "head": "4d59d62a3b48f8c092fa9001d29732008b5d8347"
+    },
+    {
+      "path": "/home/pablo/cmr2-scratch",
+      "status": "",
+      "head": "5549e385e1c0eb345dab6eb45f55b6e79115f17a"
+    },
+    {
+      "path": "/home/pablo/cmr2-verify",
+      "status": "",
+      "head": "2b935ede1df9a450784f46c10fc9bdf28d6d50db"
+    },
+    {
+      "path": "/home/pablo/cmr2-w111",
+      "status": "",
+      "head": "b0706fb52debf09142daf76fbe93f7ddf3c828a3"
+    },
+    {
+      "path": "/home/pablo/cmr2-w112",
+      "status": "",
+      "head": "b2f7e84d9166e69bf12e2bf061aad03b3b3f5e1d"
+    },
+    {
+      "path": "/home/pablo/cmr2-w113",
+      "status": "",
+      "head": "13dabbafac677e3245d883be2fc49ecb1e7e88c6"
+    },
+    {
+      "path": "/home/pablo/cmr2-w113a",
+      "status": "",
+      "head": "b4504d8942354fbc7292f316e0f8c3ec78260451"
+    },
+    {
+      "path": "/home/pablo/cmr2-w113b",
+      "status": "",
+      "head": "01b47201c21c7620e72bf0e61d170cefb54f1da6"
+    },
+    {
+      "path": "/home/pablo/cmr2-w113c",
+      "status": "",
+      "head": "4d1e9ec00d3fff8e61d3be42be65c9e1af1c8bee"
+    },
+    {
+      "path": "/home/pablo/cmr2-w114",
+      "status": "",
+      "head": "42cd47e6457eb7800a5c0bf89d8d5d45eefe866d"
+    },
+    {
+      "path": "/home/pablo/cmr2-w115",
+      "status": "",
+      "head": "f60a6da46dc8729c22665777768b9d6057b5ecb3"
+    },
+    {
+      "path": "/home/pablo/cmr2-w121",
+      "status": "",
+      "head": "94217a7526f6aca3180b19d4b251999aed624168"
+    },
+    {
+      "path": "/home/pablo/cmr2-w122",
+      "status": "",
+      "head": "b78a1b357168f30a9deed54ff79c139a8751a0d6"
+    },
+    {
+      "path": "/home/pablo/cmr2-w123",
+      "status": "",
+      "head": "53b4a6a7b6ab26affb9298891ce374f3c25b4afa"
+    },
+    {
+      "path": "/home/pablo/cmr2-w124",
+      "status": "",
+      "head": "c952e4023611d0c304a23aaf36cf5c86faee9649"
+    },
+    {
+      "path": "/home/pablo/cmr2-w125",
+      "status": "",
+      "head": "3d116ea7ddfbdacbf58569210fecdaf816cb75f0"
+    },
+    {
+      "path": "/home/pablo/cmr2-w131",
+      "status": "",
+      "head": "de4dbd86953b772d4f585f107a44051f138cce0b"
+    },
+    {
+      "path": "/home/pablo/cmr2-w132",
+      "status": "",
+      "head": "752e49490c767a57701d475059c6b75d1fe1375c"
+    },
+    {
+      "path": "/home/pablo/cmr2-w133",
+      "status": "",
+      "head": "495759ce172df311f68d95772e8965a1b1644cf4"
+    },
+    {
+      "path": "/home/pablo/cmr2-w134",
+      "status": "",
+      "head": "d8f0b808a4b868144589fa4ba19966fc15b58158"
+    },
+    {
+      "path": "/home/pablo/cmr2-w135",
+      "status": "",
+      "head": "e14490871223e9abf9eda45ae4ddb62543f1658f"
+    },
+    {
+      "path": "/home/pablo/cmr2-w136",
+      "status": "",
+      "head": "a80b68ffaef0fdf127c477db496738ec0909dcec"
+    },
+    {
+      "path": "/home/pablo/cmr2-w137",
+      "status": "",
+      "head": "584b229ebfbf083fcf612aa7c558db89c66a0829"
+    },
+    {
+      "path": "/home/pablo/cmr2-w138",
+      "status": "",
+      "head": "594706d2244a57067a17ca8089f7accfa0aaacd0"
+    },
+    {
+      "path": "/home/pablo/cmr2-w141",
+      "status": "",
+      "head": "d08f499211440708384c54b871b0bdf3f2722373"
+    },
+    {
+      "path": "/home/pablo/cmr2-w142",
+      "status": "",
+      "head": "8dff1ee918b7b3cd431ebda8dbf3193772b6ee7c"
+    },
+    {
+      "path": "/home/pablo/cmr2-w143",
+      "status": "",
+      "head": "4b88568803b81e7e253b3ca08364607efceee8be"
+    },
+    {
+      "path": "/home/pablo/cmr2-w144",
+      "status": "",
+      "head": "a3dbedcae9bc1a8b99e984e67a0e9080f9eea21f"
+    },
+    {
+      "path": "/home/pablo/cmr2-w145",
+      "status": "",
+      "head": "ae16acfabc5071d0a2bd350baefc6dd32e21366c"
+    },
+    {
+      "path": "/home/pablo/cmr2-w146",
+      "status": "",
+      "head": "6ade990ed6ad5050773d3e35515664932ba4ed7b"
+    },
+    {
+      "path": "/home/pablo/cmr2-w151",
+      "status": "",
+      "head": "9bf707dd8de906a1431a764e5361aba5789e3369"
+    },
+    {
+      "path": "/home/pablo/cmr2-w152",
+      "status": "",
+      "head": "e11cc969c23fd72bbed7dea1c9782274822c287d"
+    },
+    {
+      "path": "/home/pablo/cmr2-w153",
+      "status": "",
+      "head": "3af7fd4850a35035a1e365082a091d736a4d48ef"
+    },
+    {
+      "path": "/home/pablo/cmr2-w154",
+      "status": "",
+      "head": "5bfca48f235f8104ff7df7a45b08a8fa2743ed2f"
+    },
+    {
+      "path": "/home/pablo/cmr2-w164",
+      "status": "",
+      "head": "3002ce970400df2bd151b53aaaf7d79d9e897eb7"
+    },
+    {
+      "path": "/home/pablo/cmr2-w171",
+      "status": "",
+      "head": "90a47a6166327d121f10e3f35ac72771889ca097"
+    },
+    {
+      "path": "/home/pablo/cmr2-w172",
+      "status": "",
+      "head": "078877fcb772ecb90f71a8414726df8292a78d59"
+    },
+    {
+      "path": "/home/pablo/cmr2-w172m",
+      "status": "",
+      "head": "8cfea93fffc5291576f0736e4d74f1387e643242"
+    },
+    {
+      "path": "/home/pablo/cmr2-w181",
+      "status": "",
+      "head": "223f98d39d0f9741665bfc399b77400451c2900e"
+    },
+    {
+      "path": "/home/pablo/cmr2-w182",
+      "status": "",
+      "head": "2896b3606468d274aa9c61bae1d164b1bee58c1e"
+    },
+    {
+      "path": "/home/pablo/cmr2-w182a",
+      "status": "",
+      "head": "67df91da518cee271467a8e6b420e083ac579c06"
+    },
+    {
+      "path": "/home/pablo/cmr2-w182b",
+      "status": "",
+      "head": "f60a71fa3879e3d4906cb9909d4f6a09cd5a705b"
+    },
+    {
+      "path": "/home/pablo/cmr2-w182c",
+      "status": "",
+      "head": "d969e8943d64b5a68e6e5b179703f8c9d9630914"
+    },
+    {
+      "path": "/home/pablo/cmr2-w182d",
+      "status": "",
+      "head": "05554104009548acbe867dc4f02da1609e73ded9"
+    },
+    {
+      "path": "/home/pablo/cmr2-w182e",
+      "status": "",
+      "head": "9d271a0869798ee9141a0eb9bda35febbb6d041b"
+    },
+    {
+      "path": "/home/pablo/cmr2-w182g",
+      "status": "",
+      "head": "4af176fa744f0236cd8b810890c26d4b8e585497"
+    },
+    {
+      "path": "/home/pablo/cmr2-w183",
+      "status": "",
+      "head": "d7abb369cf3de09fcf5618e0594f101233deba99"
+    },
+    {
+      "path": "/home/pablo/cmr2-w191",
+      "status": "",
+      "head": "197ef85d0696a67f25bad4de4c66fcd1b6f59782"
+    },
+    {
+      "path": "/home/pablo/cmr2-w192",
+      "status": "",
+      "head": "fe6fad2a07a9660e7e901da6e564c866a449e415"
+    },
+    {
+      "path": "/home/pablo/cmr2-w193",
+      "status": "",
+      "head": "ea5e2bbc3386b59efebd5a6b6fb516659c40f205"
+    },
+    {
+      "path": "/home/pablo/cmr2-w193a",
+      "status": "",
+      "head": "203a6532d7852868347308afb8036cda73cac2ca"
+    },
+    {
+      "path": "/home/pablo/cmr2-w193b",
+      "status": "",
+      "head": "b1b400fb1d1108d35ec58224a4fccb675d0cce76"
+    },
+    {
+      "path": "/home/pablo/cmr2-w193c",
+      "status": "",
+      "head": "190fac6217fd7a244768f46d9fc75a05833dd2af"
+    },
+    {
+      "path": "/home/pablo/cmr2-w194",
+      "status": "",
+      "head": "25dca359f3bfe5636fc0f59c3a0da2ab6ba23b39"
+    },
+    {
+      "path": "/home/pablo/cmr2-w194-c",
+      "status": "",
+      "head": "1f6d3db3501cee3685f8e7fa60036c73ebdb4243"
+    },
+    {
+      "path": "/home/pablo/cmr2-w194-g",
+      "status": "",
+      "head": "9f9f81b16680d54446d9c3c7918e64c15b3c63a2"
+    },
+    {
+      "path": "/home/pablo/cmr2-w194-r",
+      "status": "",
+      "head": "2ff082dd385957c157b3640bf9ebea7d9f03b3a8"
+    },
+    {
+      "path": "/home/pablo/cmr2-w201",
+      "status": "",
+      "head": "722d1dc88fb3f868aa886a7e0a37534e2b77c964"
+    },
+    {
+      "path": "/home/pablo/cmr2-w202",
+      "status": "",
+      "head": "c05d3ba4b0cdfac44f8226bb70532279fe2a4663"
+    },
+    {
+      "path": "/home/pablo/cmr2-wip",
+      "status": "",
+      "head": "1a0d1678ffa9e3a1d155f60c7cf9029616738812"
+    },
+    {
+      "path": "/home/pablo/colin_mcrae_linux/matching-low-review",
+      "status": "",
+      "head": "ff9f68e9bd40b0351460a811bcb8e66dfd12f61e"
+    },
+    {
+      "path": "/home/pablo/colin_mcrae_linux/matching-review",
+      "status": "",
+      "head": "d1a24d6471a786a5390bdc076dcadec80df8e02b"
+    },
+    {
+      "path": "/home/pablo/colin_mcrae_linux/tools/smoke/work/bisect",
+      "status": "",
+      "head": "c34da09aa4c0afe1fd4daac9f208be556821e1af"
+    },
+    {
+      "path": "/home/pablo/w191-4d8ed0",
+      "status": "",
+      "head": "71c5a2a7140693e63944872bc66532bb5516b1ba"
+    },
+    {
+      "path": "/home/pablo/w191-4d9c40",
+      "status": "",
+      "head": "633b5deefa950dfd1d06415218cd855445763448"
+    },
+    {
+      "path": "/home/pablo/w191-4dbd80",
+      "status": "",
+      "head": "db89f9df4edafa5007f1a3105901f892c07a0828"
+    },
+    {
+      "path": "/home/pablo/w191-4dce00",
+      "status": "",
+      "head": "a057ecbdc8b1252f8b19360037e728cb72cd5505"
+    },
+    {
+      "path": "/home/pablo/w191-4dd4b0",
+      "status": "",
+      "head": "6b46768c3fbedcc7e3527edf92980095d7465d95"
+    },
+    {
+      "path": "/home/pablo/w191-4dfe20",
+      "status": "",
+      "head": "effe87b5a4624d42f258c53f4cf37e6245936879"
+    },
+    {
+      "path": "/home/pablo/w191-4e77c0",
+      "status": "",
+      "head": "5bc5c60aa5a3da3f614b342d850df5eec0883c29"
+    },
+    {
+      "path": "/home/pablo/w191-4e8500",
+      "status": "",
+      "head": "f9e7e3ad15d96d1894d00a64d6eda5a513e4de05"
+    },
+    {
+      "path": "/home/pablo/w191-4e90f0",
+      "status": "",
+      "head": "ddf309e75b8d21aca84c419442c1036df4b7ec8e"
+    }
+  ]
+}
