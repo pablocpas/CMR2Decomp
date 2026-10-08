@@ -12453,8 +12453,8 @@ void StageObject_DispatchActiveCarObjectUpdate(BYTE *pObj, int a, int b)
 void SurfaceSound_UpdateNearestLocalCarEngines(void)
 {
     int carIds[8];
-    int distances[8];
-    int used[16];
+    int distances[5];
+    int used[5];
     FixMatrix rot;
     FixVector pos;
     FixVector viewPos;
@@ -12469,11 +12469,13 @@ void SurfaceSound_UpdateNearestLocalCarEngines(void)
     int dist;
     int scale;
     int pitch;
-    count = (int)Car_GetOrderCount();
-    count -= (int)RallyDataState();
+    slots = 2;
+    count = (int)RallyDataState();
+    count = (int)Car_GetOrderCount() - count;
     if (count == 0)
         return;
-    slots = (count < 2) ? count : 2;
+    if (count < slots)
+        slots = count;
     if (0 < count) {
         for (i = 0; i < count; i++)
             used[i] = 1;
@@ -12505,10 +12507,11 @@ void SurfaceSound_UpdateNearestLocalCarEngines(void)
         }
         used[chosen - 1] = 0;
         dist = NetRace_GetListenerDistanceAttenuation(chosen, 0);
+        dist = FixMul(0x10000, dist);
         {
             Car *pCar = Car_Get(chosen);
-            int car798 = pCar->field_0x798;
-            scale = FixMul(car798, pCar->field_0x7ac);
+            int car7ac = pCar->field_0x7ac;
+            scale = FixMul(car7ac, pCar->field_0x798);
             pitch = FixMulShift32(scale, 0x19640000);
             if (pitch < 2000)
                 pitch = 2000;
@@ -12518,10 +12521,10 @@ void SurfaceSound_UpdateNearestLocalCarEngines(void)
         if (Sound_IsPlaying((unsigned int)*pHandle) == 0) {
             int volScale = FixMul(g_unk0x0058dda8, FixMul(dist, g_unk0x0051f27c));
             int dist2 = NetRace_GetListenerDistanceAttenuation(chosen, 0);
-            int idx = (int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0));
+            volScale = FixMul(dist2, volScale);
             *pHandle = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[0] + 6),
-                                    FixMul(dist2, volScale), 0x5622,
-                                    g_unk0x0051f2d8[idx], 1, 0);
+                                    volScale, 0x5622,
+                                    g_unk0x0051f2d8[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
         }
         if (NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051ec50)) {
             unsigned int pan = NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50);
@@ -12546,7 +12549,7 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
 {
     int carIds[8];
     int distances[8];
-    int used[16];
+    int used[8];
     FixMatrix rot;
     FixVector pos;
     FixVector viewPos;
@@ -12603,10 +12606,11 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
         }
         used[chosen] = 0;
         dist = NetRace_GetListenerDistanceAttenuation(chosen, 0);
+        dist = FixMul(0x10000, dist);
         {
             Car *pCar = Car_Get(chosen);
             int car798 = pCar->field_0x798;
-            scale = FixMul(car798, pCar->field_0x7ac);
+            scale = FixMul(pCar->field_0x7ac, car798);
             pitch = FixMulShift32(scale, 0x19640000);
             if (pitch < 2000)
                 pitch = 2000;
@@ -12616,10 +12620,10 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
         if (Sound_IsPlaying((unsigned int)*pHandle) == 0) {
             int volScale = FixMul(g_unk0x0058dda8, FixMul(dist, g_unk0x0051f27c));
             int dist2 = NetRace_GetListenerDistanceAttenuation(chosen, 0);
-            int idx = (int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0));
+            volScale = FixMul(dist2, volScale);
             *pHandle = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[0] + 6),
-                                    FixMul(dist2, volScale), 0x5622,
-                                    g_unk0x0051f2d8[idx], 1, 0);
+                                    volScale, 0x5622,
+                                    g_unk0x0051f2d8[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
         }
         if (!(NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051ec50))) {
             Sound_SetPlayingSlotVolume((unsigned int)*pHandle, 0);

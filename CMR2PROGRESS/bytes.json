@@ -21284,9 +21284,9 @@
   },
   "0x413e00": {
     "n": "RallyData_DrawRacePositionMarker",
-    "s": 0.4353312302839117,
+    "s": 0.8354430379746836,
     "x": false,
-    "fz": 0.9022082018927445,
+    "fz": 0.9873417721518988,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_DrawRacePositionMarker"
@@ -22022,9 +22022,9 @@
   },
   "0x4b3740": {
     "n": "Scene_SetAmbient",
-    "s": 0.723404255319149,
-    "x": false,
-    "fz": 0.7943262411347518,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Scene_SetAmbient"
@@ -26210,18 +26210,18 @@
   },
   "0x47aa70": {
     "n": "SurfaceSound_UpdateNearestLocalCarEngines",
-    "s": 0.5727699530516432,
+    "s": 0.7155963302752294,
     "x": false,
-    "fz": 0.7652582159624414,
+    "fz": 0.8486238532110092,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "SurfaceSound_UpdateNearestLocalCarEngines"
   },
   "0x47ad20": {
     "n": "SurfaceSound_UpdateNearestNetworkCarEngines",
-    "s": 0.5763440860215053,
+    "s": 0.6582809224318659,
     "x": false,
-    "fz": 0.6924731182795699,
+    "fz": 0.8134171907756813,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "SurfaceSound_UpdateNearestNetworkCarEngines"

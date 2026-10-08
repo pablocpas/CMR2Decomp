@@ -6532,16 +6532,17 @@ void RallyData_DrawRacePositionMarker(short *param_1, int param_2)
 
     pMarker = param_1 + g_unk0x00536c48[param_2][0] * 4;
     local_8 = (int)pMarker[2] << 16;
+    local_8 = FixMul(local_8, g_unk0x00536c48[param_2][1]) >> 16;
     pTexture = g_unk0x00537070;
-    dst.x = (short)(FixMulShift32(local_8, g_unk0x00536c48[param_2][1]) - pTexture->width / 2);
-    dst.x += pMarker[0];
+    dst.x = (short)(local_8 - pTexture->width / 2 + pMarker[0]);
     dst.y = pMarker[1];
     dst.w = pTexture->width;
     dst.h = pTexture->height;
     src = *(SpriteRect *)&pTexture->field_0x11c;
 
-    if (0 < (int)*param_1 - (int)dst.x) {
-        diff = (short)((int)*param_1 - (int)dst.x);
+    i = (int)*param_1 - (int)dst.x;
+    if (i > 0) {
+        diff = (short)i;
         src.x += diff;
         dst.x += diff;
         dst.w -= diff;

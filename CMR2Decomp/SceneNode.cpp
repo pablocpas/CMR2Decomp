@@ -886,7 +886,6 @@ void Scene_UpdateShadowColour(int boost)
 }
 
 // Sets the ambient colour of the scene (RGBA bytes).
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b3740
 void Scene_SetAmbient(BYTE *pColour, int boost)
 {
@@ -899,10 +898,10 @@ void Scene_SetAmbient(BYTE *pColour, int boost)
     g_sceneAmbientColour[2] = pColour[2];
     g_sceneAmbientColour[3] = pColour[3];
     g_sceneAmbient.x = g_sceneAmbientColour[0] << 16;
-    g_sceneLightColour.x = g_sceneLight.x - g_sceneAmbient.x;
     g_sceneAmbient.y = g_sceneAmbientColour[1] << 16;
-    g_sceneLightColour.y = g_sceneLight.y - g_sceneAmbient.y;
     g_sceneAmbient.z = g_sceneAmbientColour[2] << 16;
+    g_sceneLightColour.x = g_sceneLight.x - g_sceneAmbient.x;
+    g_sceneLightColour.y = g_sceneLight.y - g_sceneAmbient.y;
     g_sceneLightColour.z = g_sceneLight.z - g_sceneAmbient.z;
     Scene_UpdateShadowColour(boost);
     CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_AMBIENT, g_sceneAmbientD3D);

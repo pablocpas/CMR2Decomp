@@ -617,5 +617,27 @@
     "targets": [
       "0x4380c0"
     ]
+  },
+  "differential_nearest_car_engines.py": {
+    "arguments": "object",
+    "object": "StageObjects.obj",
+    "targets": [
+      "0x47aa70",
+      "0x47ad20"
+    ]
+  },
+  "differential_race_position_marker.py": {
+    "arguments": "object",
+    "object": "RallyData.obj",
+    "targets": [
+      "0x413e00"
+    ]
+  },
+  "differential_scene_ambient.py": {
+    "arguments": "object",
+    "object": "SceneNode.obj",
+    "targets": [
+      "0x4b3740"
+    ]
   }
 }

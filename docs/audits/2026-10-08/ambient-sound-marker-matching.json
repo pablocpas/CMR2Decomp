@@ -1,0 +1,75 @@
+{
+  "baseline": "c75d11db36fa78f0e957d12dcdee4013392c7ee5",
+  "targets": [
+    {
+      "address": "0x413e00",
+      "raw_before": 0.4353312302839117,
+      "raw_after": 0.8354430379746836,
+      "fuzzy_before": 0.9022082018927445,
+      "fuzzy_after": 0.9873417721518988,
+      "byte_exact": false,
+      "name": "RallyData_DrawRacePositionMarker"
+    },
+    {
+      "address": "0x47aa70",
+      "raw_before": 0.5727699530516432,
+      "raw_after": 0.7155963302752294,
+      "fuzzy_before": 0.7652582159624414,
+      "fuzzy_after": 0.8486238532110092,
+      "byte_exact": false,
+      "name": "SurfaceSound_UpdateNearestLocalCarEngines"
+    },
+    {
+      "address": "0x47ad20",
+      "raw_before": 0.5763440860215053,
+      "raw_after": 0.6582809224318659,
+      "fuzzy_before": 0.6924731182795699,
+      "fuzzy_after": 0.8134171907756813,
+      "byte_exact": false,
+      "name": "SurfaceSound_UpdateNearestNetworkCarEngines"
+    },
+    {
+      "address": "0x4b3740",
+      "name": "Scene_SetAmbient",
+      "raw_before": 0.723404255319149,
+      "raw_after": 1.0,
+      "fuzzy_before": 0.7943262411347518,
+      "fuzzy_after": 1.0,
+      "byte_exact": true
+    }
+  ],
+  "byte_exact_functions": 2894,
+  "perfect_percent": 53.51,
+  "fuzzy_percent": 93.62,
+  "regressions": [],
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "engine_cases": 800,
+    "marker_cases": 400,
+    "negative_controls_detected": true,
+    "ambient_cases": 1296,
+    "differential_harnesses": 94,
+    "failures": 0
+  },
+  "git_audit": {
+    "local_branches_integrated": 206,
+    "worktrees": 102,
+    "other_dirty_worktrees": 0,
+    "stashes": 0
+  },
+  "parked_probes": {
+    "lights": [
+      "0x4b50b0",
+      "0x4b2f80",
+      "0x4b35b0",
+      "0x492bd0"
+    ],
+    "other": [
+      "0x456250",
+      "0x4b1150",
+      "0x40bc90"
+    ],
+    "reason": "Focused isolated structural variants did not improve these functions without regressions. No corresponding source edits retained."
+  }
+}
