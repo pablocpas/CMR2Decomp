@@ -14239,9 +14239,9 @@
   },
   "0x4bd9d0": {
     "n": "CGraphics::GetMipMapSurfaces",
-    "s": 0.5609756097560976,
-    "x": false,
-    "fz": 0.9024390243902439,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::GetMipMapSurfaces"
@@ -19700,9 +19700,9 @@
   },
   "0x4eadb0": {
     "n": "RallyData_ResetSavedPlayerRecords",
-    "s": 0.7894736842105263,
+    "s": 0.9473684210526315,
     "x": false,
-    "fz": 0.7894736842105263,
+    "fz": 0.9473684210526315,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_ResetSavedPlayerRecords"
@@ -20348,9 +20348,9 @@
   },
   "0x471bf0": {
     "n": "RallyData_ApplyPlayerFlagsToObjects",
-    "s": 0.616822429906542,
+    "s": 0.6851851851851852,
     "x": false,
-    "fz": 0.7476635514018691,
+    "fz": 0.7777777777777778,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_ApplyPlayerFlagsToObjects"
@@ -22166,9 +22166,9 @@
   },
   "0x4b4490": {
     "n": "Scene_ProjectDirtyShadowParts",
-    "s": 0.5953488372093023,
-    "x": false,
-    "fz": 0.8744186046511628,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Scene_ProjectDirtyShadowParts"
@@ -25616,9 +25616,9 @@
   },
   "0x477340": {
     "n": "StageObject_FindPlayerRevTextures",
-    "s": 0.6304347826086957,
-    "x": false,
-    "fz": 0.8478260869565217,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_FindPlayerRevTextures"

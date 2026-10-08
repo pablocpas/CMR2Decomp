@@ -1953,31 +1953,22 @@ extern const float g_unk0x00511cec = 0.005f;
 // and the normal scaled by 0x511cec is added to the position, the flag is
 // cleared; then every part whose geometry was still pending is emitted with the
 // shadow mesh builder.
-// match 40%: implemented from the disassembly, instruction by instruction (same
-// constants, same calls, same order of the two stages); the diff is code motion:
-// MSVC rotates the inner-loop pointer increments to the top of the body and uses
-// ECX as the zero constant where the original uses EDI, and our `offset`
-// temporary gets a real stack slot where the original reuses the dead param1
-// slot, so the sequence alignment loses the inner loop. Source-level reordering
-// (separate float temps, an array, a pointer loop, i/offset pairs) does not move
-// MSVC 6's choice.
 // FUNCTION: CMR2 0x004b4490
 void Scene_ProjectDirtyShadowParts(ShadowCaster *pCaster, int param2)
 {
     ShadowPart *pPart;
     int i;
     int j;
-    int offset;
     float scaled[3];
 
     if (pCaster->field_0xc != 0) {
-        for (i = 0, offset = 0; i < pCaster->partCount; i++, offset += 0x58) {
-            pPart = (ShadowPart *)((char *)pCaster->pParts + offset);
+        for (i = 0; i < pCaster->partCount; i++) {
+            pPart = &pCaster->pParts[i];
             if (pPart->field_0x54 != 0) {
-                if (0 < pPart->pMesh->field_0x10) {
+                {
                     float *pSrc = (float *)pPart->pMesh->pVertexData;
-                    float *pWork = (float *)pPart->pVertexWork;
                     float *pWork2 = (float *)pPart->pVertexWork2;
+                    float *pWork = (float *)pPart->pVertexWork;
                     for (j = 0; j < pPart->pMesh->field_0x10; j++) {
                         pWork2[0] = pSrc[0];
                         pWork2[1] = pSrc[1];
@@ -1985,8 +1976,10 @@ void Scene_ProjectDirtyShadowParts(ShadowCaster *pCaster, int param2)
                         pWork[0] = pSrc[3];
                         pWork[1] = pSrc[4];
                         pWork[2] = pSrc[5];
-                        scaled[0] = pWork[0] * g_unk0x00511cec;
-                        scaled[1] = pWork[1] * g_unk0x00511cec;
+                        scaled[0] = pWork[0];
+                        scaled[0] *= g_unk0x00511cec;
+                        scaled[1] = pWork[1];
+                        scaled[1] *= g_unk0x00511cec;
                         scaled[2] = pWork[2] * g_unk0x00511cec;
                         pWork2[0] += scaled[0];
                         pWork2[1] += scaled[1];

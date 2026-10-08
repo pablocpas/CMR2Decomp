@@ -1324,12 +1324,13 @@ void CGraphics::SetMipMapCount(DDSURFACEDESC2 *pDesc)
 void CGraphics::GetMipMapSurfaces(Texture *pTexture)
 {
     IDirectDrawSurface7 *pSurface;
-    DDSCAPS2 caps = { 0 };
+    DDSCAPS2 caps;
     int i;
 
     pSurface = pTexture->pSurface;
-    m_mipMapSurfaces[0] = NULL;
-    m_mipMapSurfaces[1] = NULL;
+    for (i = 0; i < 2; i++)
+        m_mipMapSurfaces[i] = NULL;
+    memset(&caps, 0, sizeof(caps));
     caps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_MIPMAP;
     if (GetSelectedRenderDeviceSurfaceCaps() == 1 || GetSelectedRenderDeviceSurfaceCaps() == 2)
         caps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;

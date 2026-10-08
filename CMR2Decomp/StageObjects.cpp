@@ -8638,25 +8638,22 @@ struct Unk0x004a3e20;
 void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
 
 // Finds the rev counter and digit textures for a player.
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00477340
 void StageObject_FindPlayerRevTextures(int player)
 {
     char base[260];
-    unsigned int i;
-    Texture *texture;
+    int i;
 
-    for (i = 0; i < CGraphics::m_textureCount; i++) {
-        texture = CGraphics::m_pTextureManager->textureBuffer[i];
-        _splitpath(texture->name, CFrontend::m_stringDest, CFrontend::m_stringDest,
+    for (i = 0; i < (int)CGraphics::m_textureCount; i++) {
+        _splitpath(CGraphics::m_pTextureManager->textureBuffer[i]->name, CFrontend::m_stringDest, CFrontend::m_stringDest,
                    base, CFrontend::m_stringDest);
         sprintf(CFrontend::m_stringDest, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)base));
         if (strcmp(CFrontend::m_stringDest, CGraphics::m_strSuffixREVCT) == 0) {
-            *(Texture **)(g_stageBlock + 0x220 + player * 8) = texture;
-            Frontend_SetObjectField118((Unk0x004a3e20 *)texture, 2);
+            Frontend_SetObjectField118((Unk0x004a3e20 *)(*(Texture **)(g_stageBlock + 0x220 + player * 8) =
+                                                             CGraphics::m_pTextureManager->textureBuffer[i]), 2);
         }
         if (strcmp(CFrontend::m_stringDest, CGraphics::m_strSuffixDIGIT) == 0)
-            *(Texture **)(g_stageBlock + 0x224 + player * 8) = texture;
+            *(Texture **)(g_stageBlock + 0x224 + player * 8) = CGraphics::m_pTextureManager->textureBuffer[i];
     }
 }
 

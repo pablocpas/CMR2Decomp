@@ -1401,36 +1401,24 @@ void RallyData_SetPlayerDefaultCarSetup(int player);
 
 // Resets the four players' records in the save block (all cleared, then the
 // default flags, setup values and car position of each one).
-// match 79%: the pointer-driven loop and the 0x40-based row accesses reproduce the
-// original's instruction schedule; only the compiler's choice of base register for
-// the row pointer (ours p+0x40 vs the original's p) still differs.
-// kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 95%: only the schedule of the g_unk0x00531650 store against the two
+// loop pointers differs.
 // FUNCTION: CMR2 0x004eadb0
 void RallyData_ResetSavedPlayerRecords(void)
 {
-    BYTE *p;
-    int *q;
     int i;
 
     memset(g_saveProfiles, 0, 0x650 * 4);
     memset(g_unk0x00531350, 0, 0xc0 * 4);
-    // The redundant re-initialisation of i and q keeps the original's store
-    // order (zeroed counter, row base, g_unk0x00531650, then the q base).
-    i = 0;
-    p = g_saveProfiles + 0x14;
     g_unk0x00531650 = 0;
-    q = g_unk0x00531654;
-    for (q = g_unk0x00531654, i = 0; (int)q < (int)(g_unk0x00531654 + 4); q++) {
-        int *pSetup = (int *)(p + 0x40);
-        pSetup[1] = 4;
-        *(unsigned int *)p = (*(unsigned int *)p & 0xffe1f17e) | 0x1017e;
+    for (i = 0; i < 4; i++) {
+        *(int *)(g_saveProfiles + i * 0x650 + 0x58) = 4;
+        *(unsigned int *)(g_saveProfiles + i * 0x650 + 0x14) = (*(unsigned int *)(g_saveProfiles + i * 0x650 + 0x14) & 0xffe1f17e) | 0x1017e;
         g_saveDirty[i] = 0;
-        pSetup[0] |= 0x20;
-        *q = 0;
-        *(int *)(p + 0x38) = 0xf11;
+        *(int *)(g_saveProfiles + i * 0x650 + 0x54) |= 0x20;
+        g_unk0x00531654[i] = 0;
+        *(int *)(g_saveProfiles + i * 0x650 + 0x4c) = 0xf11;
         RallyData_SetPlayerDefaultCarSetup(i);
-        i++;
-        p += 0x650;
     }
     RallyData_MarkAllDriverRecordsUnassigned();
     g_unk0x00531764 = NULL;
@@ -3839,20 +3827,18 @@ unsigned int *RallyData_GetRoundEntry(void)
 void RallyData_ApplyPlayerFlagsToObjects(int car)
 {
     int i;
-    BYTE bit;
     BYTE mask;
     BYTE *pObject;
 
     if ((BYTE)RallyDataState() > 1) {
         mask = 1 << car;
         for (i = 0; i < (int)g_unk0x0058ca6c; i++) {
-            bit = g_unk0x0058c938[i] & mask;
-            if (bit != 0 && g_unk0x0058c958[i] == 0) {
+            if ((g_unk0x0058c938[i] & mask) > 0 && g_unk0x0058c958[i] == 0) {
                 pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
                 *(int *)(pObject + 4) += 0x3e80000;
                 (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0xff;
                 g_unk0x0058c958[i] = 1;
-            } else if (bit == 0 && g_unk0x0058c958[i] != 0) {
+            } else if ((g_unk0x0058c938[i] & mask) == 0 && g_unk0x0058c958[i] != 0) {
                 pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
                 *(int *)(pObject + 4) -= 0x3e80000;
                 (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0;
