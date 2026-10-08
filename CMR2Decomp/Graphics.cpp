@@ -3849,17 +3849,14 @@ void Pulse_Update(unsigned int dt)
     }
     if (g_pulseLevel >= g_pulseMax)
         g_pulseRising = 0;
-    if (g_pulseLevel <= g_pulseMin) {
-        if (g_pulseRising == 0) {
-            g_pulseLevel = (float)dt * g_pulseSpeed + g_pulseLevel;
-            g_pulseRising = 1;
-            return;
-        }
-    } else if (g_pulseRising == 0) {
+    if (g_pulseLevel <= g_pulseMin && g_pulseRising == 0) {
+        g_pulseLevel = (float)dt * g_pulseSpeed + g_pulseLevel;
+        g_pulseRising = 1;
+    } else if (g_pulseRising != 0) {
+        g_pulseLevel = (float)dt * g_pulseSpeed + g_pulseLevel;
+    } else {
         g_pulseLevel = g_pulseLevel - (float)dt * g_pulseSpeed;
-        return;
     }
-    g_pulseLevel = (float)dt * g_pulseSpeed + g_pulseLevel;
 }
 
 // FUNCTION: CMR2 0x004bcad0
@@ -6635,9 +6632,9 @@ BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pI
             out.g = 0.0f;
         if (out.b < g_netZero)
             out.b = 0.0f;
-        m_tgaPixel[0] = (BYTE)(int)(out.r * g_netByteScale);
-        m_tgaPixel[1] = (BYTE)(int)(out.g * g_netByteScale);
-        m_tgaPixel[2] = (BYTE)(int)(out.b * g_netByteScale);
+        m_tgaPixel[0] = (BYTE)(int)(out.r * 255.0f);
+        m_tgaPixel[1] = (BYTE)(int)(out.g * 255.0f);
+        m_tgaPixel[2] = (BYTE)(int)(out.b * 255.0f);
     }
     return m_tgaPixel;
 }

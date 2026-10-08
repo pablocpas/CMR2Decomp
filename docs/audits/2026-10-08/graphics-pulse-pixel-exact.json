@@ -1,0 +1,58 @@
+{
+  "baseline": "198d540fd7da86a732f5f1716030fd650c77a39c",
+  "targets": [
+    {
+      "address": "0x4bcc60",
+      "name": "Pulse_Update",
+      "raw_before": 0.9391304347826087,
+      "raw_after": 1.0,
+      "fuzzy_before": 0.9478260869565217,
+      "fuzzy_after": 1.0,
+      "byte_exact": true
+    },
+    {
+      "address": "0x4a60d0",
+      "name": "CGraphics::SampleTGAPixel",
+      "raw_before": 0.9470899470899471,
+      "raw_after": 1.0,
+      "fuzzy_before": 0.9682539682539683,
+      "fuzzy_after": 1.0,
+      "byte_exact": true
+    }
+  ],
+  "byte_exact_functions": 2896,
+  "perfect_percent": 53.57,
+  "fuzzy_percent": 93.67,
+  "regressions": [],
+  "notes": [
+    "Pulse_Update restores the shared minimum-level/rising condition and the original increasing/decreasing tails.",
+    "SampleTGAPixel uses literal 255.0f for each output channel, recovering the original x87 operand evaluation and stack cleanup.",
+    "Both complete relocated function bodies match original bytes; no inline assembly or pragma changes."
+  ],
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "differential_harnesses": 99,
+    "failures": 0
+  },
+  "git_audit": {
+    "local_branches_integrated": 206,
+    "worktrees": 102,
+    "other_dirty_worktrees": 0,
+    "stashes": 0
+  },
+  "parked_probes": {
+    "addresses": [
+      "0x507290",
+      "0x478dc0",
+      "0x4f28c0",
+      "0x5004c0",
+      "0x466030",
+      "0x4b50b0",
+      "0x4bc110",
+      "0x500c80",
+      "0x4b9910"
+    ],
+    "reason": "Isolated pointer, type, arithmetic and statement-order variants produced no exact gain without regressions. Their edits were not retained."
+  }
+}

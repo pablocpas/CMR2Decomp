@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "aaff7fcdcc094ca292550ac61f00a4a3759a5e6f",
+    "commit": "198d540fd7da86a732f5f1716030fd650c77a39c",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -81,7 +81,7 @@
       "CMR2Decomp/GameNetwork.cpp": "e4162b9288f4fd3b48d47ecbf7b79328455dafbd04afb997b4e2f427a22f3b57",
       "CMR2Decomp/GenericFileLoader.cpp": "eba2ddfd0571387fcb1bc7c23202b10d552442c4270cfeccb41d4742e522abb1",
       "CMR2Decomp/GenericFileLoader.h": "5d6070c8817d1be15f3b0c6bfb2a7932e47ede28dc7a6ee8e0f8120691152e01",
-      "CMR2Decomp/Graphics.cpp": "a89b269160c701358107accaf55d22f0533c09508770b85a16162b080308a396",
+      "CMR2Decomp/Graphics.cpp": "001aa4d4aaa8a1a85ffc7cb532b072081b04fdfa6f686fc2e7a6b6952c7a3886",
       "CMR2Decomp/Graphics.h": "4dd6474ea59f0523717ed50e3a3cfc9a574522b0e019282aac4b5a8b417d4e75",
       "CMR2Decomp/HudDash.cpp": "409e3cb00f5c09b0feeaf6fb5ca738f3107293338b8e69e199f427138c430d8b",
       "CMR2Decomp/Input.cpp": "c5d52f19f4052db159f5179ca6822f9addbeef1441146e18adbd475ff3a8f5b7",
@@ -167,18 +167,18 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "9e9410ceb1d31f5d1b99b31419b4af5d44e5ac9d85b16a314178380a15325b66",
-    "pdb_sha256": "df8a9b6742791e5116fa4f31f8b1cbdeaccfb5e5bf5e73a923d7ae4dc87fab65"
+    "exe_sha256": "0e0edd382ad7e34b638a89599c10bc0811bf44747c17a6d21c333def67de7d03",
+    "pdb_sha256": "f19e647614e2cc14771a67c642705025fb03250d0c53a16fc2e6f66df6b763eb"
   },
-  "perfect_match_percent": 53.45,
+  "perfect_match_percent": 53.57,
   "fuzzy_match_percent": 93.67,
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
   "measured_functions": 3368,
-  "reccmp_exact": 2730,
+  "reccmp_exact": 2731,
   "audited_source_functions": 3364,
-  "relocated_byte_exact": 2894,
-  "nonmatching_source_functions": 470,
+  "relocated_byte_exact": 2896,
+  "nonmatching_source_functions": 468,
   "unresolved_source_functions": [
     "0x496e00",
     "0x5062d0",

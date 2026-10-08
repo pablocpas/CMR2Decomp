@@ -14736,9 +14736,9 @@
   },
   "0x4bcc60": {
     "n": "Pulse_Update",
-    "s": 0.9391304347826087,
-    "x": false,
-    "fz": 0.9478260869565217,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "Pulse_Update"
@@ -15420,9 +15420,9 @@
   },
   "0x4a60d0": {
     "n": "CGraphics::SampleTGAPixel",
-    "s": 0.9470899470899471,
-    "x": false,
-    "fz": 0.9682539682539683,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::SampleTGAPixel"
