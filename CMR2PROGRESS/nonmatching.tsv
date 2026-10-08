@@ -9,7 +9,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x475f80	StageObject_InitCarSceneTables	StageTiming.cpp	277	0.3660130718954248	0.3815789473684211
 0x46cfa0	Replay_PlayStreamFrame	StageObjects.cpp	717	0.4009433962264151	0.39351851851851855
 0x4bc490	Flare_SampleVisibility	Graphics.cpp	1496	0.40963855421686746	0.39211136890951276
-0x489060	Collision_RayQuad	Collision2D.cpp	1098	0.4103225806451613	0.38783269961977185
 0x47bdd0	AI_UpdateRouteDrivingControls	StageObjects.cpp	940	0.4116504854368932	0.358148893360161
 0x45b580	StageTiming_SpawnWheelParticles	StageTiming.cpp	4195	0.41385135135135137	0.37975742367210374
 0x4b4aa0	Scene_LoadLighting	SceneNode.cpp	1538	0.42053789731051344	0.4028268551236749
@@ -50,6 +49,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x463410	StageLights_Create	StageObjects.cpp	1983	0.5404556166535742	0.5998433829287392
 0x488640	Collision_TestOrientedBoxCornerOverlap	StageObjects.cpp	1948	0.55	0.5110635260528195
 0x40b5b0	Font_GetTextWidth	Font.cpp	376	0.5546875	0.5645161290322581
+0x489060	Collision_RayQuad	Collision2D.cpp	1098	0.5548387096774193	0.5171102661596958
 0x4b45d0	Scene_AddShadowCaster	SceneNode.cpp	825	0.5579567779960707	0.5369649805447471
 0x4781d0	Car_UpdateSurfaceParams	SurfaceTypes.cpp	1243	0.560875512995896	0.5546448087431693
 0x4aa930	CGame::AddConnection	Game.cpp	219	0.5620915032679739	0.5584415584415584

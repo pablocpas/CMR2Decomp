@@ -1641,9 +1641,9 @@
   },
   "0x489060": {
     "n": "Collision_RayQuad",
-    "s": 0.38783269961977185,
+    "s": 0.5171102661596958,
     "x": false,
-    "fz": 0.49936628643852976,
+    "fz": 0.679340937896071,
     "unknown": [],
     "f": "Collision2D.cpp",
     "symbol_name": "Collision_RayQuad"

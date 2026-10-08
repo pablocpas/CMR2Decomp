@@ -10,7 +10,7 @@ FixVector g_collisionQuad[4];
 // Intersects the ray pDir with the four sides of the collision quad and returns
 // the distance to the closest side (0x7d000000 when it misses), along with the
 // side that was hit.
-// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES).
+// match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES).
 // Every expression and branch was traced against the disassembly; what does not
 // match is the frame layout: the original keeps the returned distance in a stack
 // slot (ebp-0x14) while MSVC keeps ours in edi, which shifts every other slot.
@@ -48,18 +48,22 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
     cross = FixMul(d3.x, d0.z) - FixMul(d0.x, d3.z);
     if (FIX_ABS(cross) > 0x28f) {
         recip = FixDiv(0x10000, cross);
-        t = FixMul(FixMul(d0.z, ax) + FixMul(d0.x, az), recip);
+        t = FixMul(d0.z, ax) + FixMul(d0.x, az);
+        t = FixMul(t, recip);
         if (t >= 0 && t <= 0x10000) {
-            t = FixMul(recip, FixMul(d3.z, ax) + FixMul(d3.x, az));
+            t = FixMul(d3.z, ax) + FixMul(d3.x, az);
+            t = FixMul(t, recip);
             if (t >= 0 && t <= 0x10000) {
                 cross = FixMul(d3.x, pDir->z) - FixMul(d3.z, pDir->x);
                 if (FIX_ABS(cross) > 0x28f) {
                     recip = FixDiv(0x10000, cross);
-                    t = FixMul(recip, FixMul(pDir->z, ax) + FixMul(pDir->x, az));
+                    t = FixMul(pDir->z, ax) + FixMul(pDir->x, az);
+                    t = FixMul(t, recip);
                     if (t < 0 || t > 0x10000) {
                         result = 0x7d000000;
                     } else {
-                        t = -FixMul(recip, FixMul(ax, d3.z) + FixMul(az, d3.x));
+                        t = FixMul(ax, d3.z) + FixMul(az, d3.x);
+                        t = -FixMul(t, recip);
                         if (t < 0 || t >= 0x7d000000) {
                             result = 0x7d000000;
                         } else {
@@ -68,9 +72,11 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
                             result = t;
                         }
                     }
-                    u = FixMul(recip, FixMul(pDir->z, cx) + FixMul(pDir->x, cz));
+                    u = FixMul(pDir->z, cx) + FixMul(pDir->x, cz);
+                    u = FixMul(u, recip);
                     if (u >= 0 && u <= 0x10000) {
-                        u = -FixMul(recip, FixMul(d3.z, cx) + FixMul(d3.x, cz));
+                        u = FixMul(d3.z, cx) + FixMul(d3.x, cz);
+                        u = -FixMul(u, recip);
                         if (u >= 0 && u < result) {
                             *pEdge = 0;
                             *pCorner = 1;
@@ -86,23 +92,27 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
                     return result;
                 }
                 recip = FixDiv(0x10000, cross);
-                u = FixMul(FixMul(pDir->z, ax) + FixMul(pDir->x, az), recip);
+                u = FixMul(pDir->z, ax) + FixMul(pDir->x, az);
+                u = FixMul(u, recip);
                 if (u >= 0 && u <= 0x10000) {
-                    u = FixMul(FixMul(d0.z, ax) + FixMul(d0.x, az), recip);
+                    u = FixMul(d0.z, ax) + FixMul(d0.x, az);
+                    u = FixMul(u, recip);
                     if (u >= 0 && u < result) {
                         *pEdge = 1;
                         *pCorner = 2;
                         result = u;
                     }
                 }
-                u = FixMul(FixMul(pDir->z, dx) + FixMul(pDir->x, bz), recip);
+                u = FixMul(pDir->z, dx) + FixMul(pDir->x, bz);
+                u = FixMul(u, recip);
                 if (u < 0) {
                     return result;
                 }
                 if (u > 0x10000) {
                     return result;
                 }
-                u = FixMul(FixMul(d0.z, dx) + FixMul(d0.x, bz), recip);
+                u = FixMul(d0.z, dx) + FixMul(d0.x, bz);
+                u = FixMul(u, recip);
                 if (u < 0) {
                     return result;
                 }
