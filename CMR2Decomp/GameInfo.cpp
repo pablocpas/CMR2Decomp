@@ -10979,8 +10979,9 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
         return;
     case 6:
         {
-            int changed = 0;
             int any = 0;
+            int changed = 0;
+            int has104 = 0;
 
             if (pDest[0x119] != 0 || pDest[0x11a] != 0 || pDest[0x11b] != 0 ||
                 pDest[0x11c] != 0 || pDest[0x11d] != 0 || pDest[0x11e] != 0 ||
@@ -10995,8 +10996,8 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
                 if (*(int *)(pDest + 0x12c + i * 4) != 0)
                     changed = 1;
             if (pDest[0x104] != 0)
-                changed = 1;
-            if (any != 0 || changed != 0) {
+                has104 = 1;
+            if (any != 0 || changed != 0 || has104 != 0) {
                 pDest[0x119] = 0;
                 pDest[0x11a] = 0;
                 pDest[0x11b] = 0;

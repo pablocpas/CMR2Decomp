@@ -166,6 +166,30 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
   shares its slot with a spill temp of an earlier loop, means the array is
   declared in the block that uses it (`if (drawScene) { short rect[4]; ... }`,
   RallyData_DrawLoadingProgress).
+- Bytes of a .data string copied into a stack array and the rest zeroed is a
+  literal initialiser: `char names[8][10] = { "Finland", ... }`, `char
+  gears[] = "RN123456"` (declaration order picks the copy order); not
+  `memcpy` from a global or a struct copy.
+- An array's size changes where it lands in the frame: `char number[6]`
+  matched where `[8]` did not (StageUI_DrawHudRouteMap). Struct copies that
+  keep three separate 12-byte slots are an array `FixVector c[3]`; separate
+  locals get packed with other variables.
+- A value computed before a call's left arguments (Font_DrawText(x, y)
+  pushes y first) is a local: `x = MAP_X; y = MAP_Y; f(x, y)`.
+- `dec r; je; dec r; jne` dispatch is a `switch` (cases emitted in reverse
+  source order); jump-table `switch`es emit their cases in source order, so
+  the table gives the original case order (Race_AssignSlotsFromCallRecord).
+- `sub cx, si` on a short field is `dst.y = ...; dst.y -= h;`, not `dst.y =
+  ... - h` (FrontendMenu_DrawCarSetup).
+- A constant kept in memory and reloaded on the else paths (`mov edi,
+  [ebp-0x14]`) is one variable that is only lowered inside nested ifs ending in
+  a single return (Collision_RayQuad).
+- An exit test on a derived value while the index still increments is
+  `for (i = 0; i < n; i++)` with `k0 - i * step` in the body (MSVC replaces
+  the test).
+- A narrow argument computed in 8 bits (`add dl, bl`) where the original
+  pushes a full register means the callee takes an int (Race_TeardownStage:
+  Replay_SwapPendingSlotValue's flag).
 
 ## Missing code
 
