@@ -2340,19 +2340,19 @@
     "Race_AssignSlotsFromCallRecord"
   ],
   "0x418550": [
-    4849072,
+    4849056,
     "Race_ReleaseCoDriverCallData"
   ],
   "0x418560": [
-    4849088,
+    4849072,
     "Race_SetCoDriverCallState"
   ],
   "0x418570": [
-    4849104,
+    4849088,
     "Race_GetCoDriverCallState"
   ],
   "0x418580": [
-    4849120,
+    4849104,
     "Race_DecodeCallSlotIcon"
   ],
   "0x418760": [
@@ -2388,15 +2388,15 @@
     "Race_PlayHornSound"
   ],
   "0x418d20": [
-    4849600,
+    4849584,
     "Race_SetCarSoundSelectionState"
   ],
   "0x418d30": [
-    4849616,
+    4849600,
     "CarSound_PlaySlot"
   ],
   "0x418dd0": [
-    4849776,
+    4849760,
     "CarSound_StopSlot"
   ],
   "0x418e20": [
@@ -2428,27 +2428,27 @@
     "StageUI_ApplySoundState"
   ],
   "0x419b50": [
-    4849856,
+    4849840,
     "CarSound_PickDifferentSampleIndex"
   ],
   "0x419b90": [
-    4849920,
+    4849904,
     "Race_MoveCarSoundBank"
   ],
   "0x419cd0": [
-    4850240,
+    4850224,
     "Race_RerollCarSoundSlotsByPitch"
   ],
   "0x419ed0": [
-    4850752,
+    4850736,
     "Race_RestartChangedSurfaceSounds"
   ],
   "0x41a0a0": [
-    4851216,
+    4851200,
     "Race_UpdateIndependentEngineSound"
   ],
   "0x41a340": [
-    4851888,
+    4851872,
     "Race_UpdateCarSurfaceSoundState"
   ],
   "0x41a5c0": [
@@ -2456,7 +2456,7 @@
     "Race_ComputeWheelSurfaceSoundVolumes"
   ],
   "0x41ae80": [
-    4852496,
+    4852480,
     "Race_SwitchEngineSampleByRollingDirection"
   ],
   "0x41af60": [
@@ -2464,11 +2464,11 @@
     "Race_SetPartSurfaceAndRefreshVisuals"
   ],
   "0x41afe0": [
-    4852720,
+    4852704,
     "Race_MarkUsedSurfaceSoundGroups"
   ],
   "0x41b040": [
-    4852816,
+    4852800,
     "Race_SetSurfaceSoundScale"
   ],
   "0x41b060": [
@@ -2520,23 +2520,23 @@
     "StageUI_UpdateDriverEventAwards"
   ],
   "0x41bf50": [
-    4852848,
+    4852832,
     "Race_ReadPlayerState37F68"
   ],
   "0x41bf60": [
-    4852864,
+    4852848,
     "Race_ReadPlayerState37F78"
   ],
   "0x41bf70": [
-    4852880,
+    4852864,
     "Race_ReadPlayerState37F0C"
   ],
   "0x41bf80": [
-    4853168,
+    4853152,
     "Race_EnterCurrentModeScene"
   ],
   "0x41c0e0": [
-    4853520,
+    4853504,
     "Race_StartArcadeScene"
   ],
   "0x41c1b0": [
@@ -2564,31 +2564,31 @@
     "Race_UpdatePlayerSelectionCursor"
   ],
   "0x41d290": [
-    4852896,
+    4852880,
     "Race_GetScaledState37F24"
   ],
   "0x41d2a0": [
-    4852912,
+    4852896,
     "Race_ReadState37F24"
   ],
   "0x41d2b0": [
-    4853904,
+    4853888,
     "Race_UpdateDriverPreRaceScene"
   ],
   "0x41d780": [
-    4852928,
+    4852912,
     "Race_GetClampedCountdownValue"
   ],
   "0x41d7a0": [
-    4855136,
+    4855120,
     "Race_UpdateDriverCountdown"
   ],
   "0x41db00": [
-    4852960,
+    4852944,
     "Race_ReadTransitionState3811C"
   ],
   "0x41db10": [
-    4856000,
+    4855984,
     "Race_UpdateDriverReadyAndRecordState"
   ],
   "0x41e210": [
@@ -2596,27 +2596,27 @@
     "Race_SetFlag37F08"
   ],
   "0x41e220": [
-    4857776,
+    4857760,
     "Race_StartPlayerAndOpponentReplays"
   ],
   "0x41e350": [
-    4858080,
+    4858064,
     "Race_UpdateInterStageFadeJobs"
   ],
   "0x41e5c0": [
-    4853728,
+    4853712,
     "Race_LeaveAndFadeOut"
   ],
   "0x41e670": [
-    4858704,
+    4858688,
     "Race_ReleaseFrameResources"
   ],
   "0x41e6b0": [
-    4858768,
+    4858752,
     "Race_TeardownStage"
   ],
   "0x41e8d0": [
-    4859328,
+    4859312,
     "Race_HandleStageReplayViewTransitions"
   ],
   "0x41f250": [
@@ -2756,15 +2756,15 @@
     "Race_LoadStageLightPlacement"
   ],
   "0x420060": [
-    4853008,
+    4852992,
     "Car_GetTextureSetPath"
   ],
   "0x4200d0": [
-    4853120,
+    4853104,
     "Car_GetDirectoryPath"
   ],
   "0x420100": [
-    4852976,
+    4852960,
     "Race_FreeSoundsAndUnwindCallbacks"
   ],
   "0x420120": [

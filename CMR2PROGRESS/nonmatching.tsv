@@ -128,11 +128,11 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4f8b30	FrontendRecords_BuildScrambledBestTimeTables	GameInfo.cpp	1793	0.6868327402135231	0.6875
 0x4a12d0	CGameInfo::EnumerateNetworkSessionsWithUserData	GameInfo.cpp	218	0.6868686868686869	0.6915887850467289
 0x42bf70	Car_InterpolateRenderTransforms	Car.cpp	2108	0.6875	0.6519756838905775
+0x41e8d0	Race_HandleStageReplayViewTransitions	Race.cpp	2267	0.6929133858267716	0.6892583120204604
 0x4ff0f0	FrontendControls_DrawAxisCalibrationBar	FrontendMenus.cpp	802	0.6954643628509719	0.7070707070707071
 0x4e5630	FrontendMenu_DrawProfileBestStageTimes	FrontendScreens.cpp	1632	0.7011070110701108	0.6967741935483871
 0x48c900	StageObject_MoveRecursiveBoxCorners	StageObjects.cpp	310	0.7023809523809523	0.7176470588235294
 0x4475f0	Dash_BuildInterpolatedCockpitMatrix	HudDash.cpp	1036	0.7040498442367601	0.6889226100151745
-0x418000	Race_AssignSlotsFromCallRecord	Race.cpp	1170	0.7043189368770764	0.6410891089108911
 0x4b4180	Scene_EmitProjectedShadowMesh	SceneNode.cpp	781	0.7075664621676891	0.7151515151515152
 0x4b11c0	Billboard_Add	Graphics.cpp	825	0.7078891257995735	0.7166666666666667
 0x42ce60	Car_StepGroundContact	Car.cpp	4017	0.7102877414268821	0.7406819984139572
@@ -158,7 +158,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4657d0	StageObject_RebuildCarExhaustPoints	StageObjects.cpp	264	0.7319587628865979	0.7216494845360825
 0x423460	Camera_Update	Car.cpp	546	0.7320574162679426	0.700507614213198
 0x459790	StageTiming_DrawProjectedCarMarker	StageTiming.cpp	1256	0.7323162274618585	0.7027777777777777
-0x41e8d0	Race_HandleStageReplayViewTransitions	Race.cpp	2267	0.7336191059399878	0.7014829142488717
 0x4f4050	FrontendAnimation_UpdateMainPath	FrontendScreens.cpp	1299	0.7347480106100795	0.7295423023578363
 0x42b4a0	Car_IntegrateWheelRotation	Car.cpp	258	0.7349397590361446	0.6419753086419753
 0x401d20	InRaceMenu_DrawMenuRows	GameInfo.cpp	733	0.7355371900826446	0.7443762781186094
@@ -172,7 +171,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x510410	CGameInfo::InitDefaultGameInfo	GameInfo.cpp	344	0.7482993197278912	0.7973856209150327
 0x466100	StageObject_UpdateProjectedDistanceFade	StageObjects.cpp	604	0.7493112947658402	0.7287671232876712
 0x448de0	StageTiming_AdvanceJitteredClock	StageTiming.cpp	125	0.75	0.75
-0x41e6b0	Race_TeardownStage	Race.cpp	544	0.7507163323782235	0.6498599439775911
 0x440840	Car_Integrate	Car.cpp	3053	0.7516411378555798	0.7161430119176598
 0x402000	InRaceMenu_DrawLabelAndValueRows	GameInfo.cpp	1090	0.7527777777777778	0.7393767705382436
 0x4a8c30	CGraphics::EnumeratePreferredHalDevices	Graphics.cpp	298	0.7528089887640449	0.6923076923076923
@@ -325,6 +323,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4a0ec0	Network_HostNamedSession	Game.cpp	396	0.8839506172839506	0.8036529680365296
 0x4b7210	CGraphics::CacheRenderDeviceCapabilities	Graphics.cpp	665	0.8858695652173914	0.6537396121883656
 0x4926f0	StageObject_YawMainAndSunNodes	StageObjects.cpp	410	0.8859649122807017	0.8859649122807017
+0x418000	Race_AssignSlotsFromCallRecord	Race.cpp	1170	0.8861878453038674	0.8267326732673267
 0x43c640	Car_UpdateWheelTorques	Car.cpp	417	0.8862745098039215	0.8984375
 0x50a3f0	OptionMenu_DrawClampedStageTime	GameInfo.cpp	656	0.8868360277136259	0.8767123287671232
 0x5043b0	RallyData_EnterSelectedOptionPanel	RallyData.cpp	278	0.8875	0.9012345679012346
@@ -412,6 +411,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4487a0	StageTiming_RecordAndReorderSplitTime	StageTiming.cpp	381	0.9652173913043478	0.9739130434782609
 0x4e90f0	FrontendMenu_DrawNetworkExtendedStageSetup	FrontendScreens.cpp	1487	0.9655172413793104	0.9525816649104321
 0x48cae0	View_PlaceTracksideCameraAtSpot	StageObjects.cpp	329	0.9658119658119658	0.9743589743589743
+0x41e6b0	Race_TeardownStage	Race.cpp	544	0.9659090909090909	0.9050279329608939
 0x443a20	Car_UpdateCornerVelocityPair	Car.cpp	451	0.9661538461538461	0.9693251533742331
 0x46f330	StageObject_PositionSplitViewNodes	StageObjects.cpp	353	0.9674418604651163	0.9014084507042254
 0x49f0e0	CInput::SetupKeyboard	Input.cpp	517	0.968503937007874	0.9669421487603306

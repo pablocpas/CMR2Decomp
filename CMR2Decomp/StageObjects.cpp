@@ -99,7 +99,7 @@ void CarEffects_MakeGhost(Car *pCar);
 void Replay_RestartGhostCar(int a, int b);
 void Replay_ResetActiveBufferState(void);
 int Replay_GetActiveBufferState(void);
-void Replay_SwapPendingSlotValue(int **pValue, int slot, char flag);
+void Replay_SwapPendingSlotValue(int **pValue, int slot, int flag);
 void Replay_SetControlStateByte(BYTE value);
 int Replay_GetSelectionStateByte(void);
 void StageObject_UpdateProjectedDistanceFade(int param_1);
@@ -3887,7 +3887,7 @@ void StageObject_UpdateProjectedDistanceFade(int param_1)
 
 // Swaps *pValue with the value stored for `slot` when that slot is pending.
 // FUNCTION: CMR2 0x004660a0
-void Replay_SwapPendingSlotValue(int **pValue, int slot, char flag)
+void Replay_SwapPendingSlotValue(int **pValue, int slot, int flag)
 {
     int *old;
 

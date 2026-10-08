@@ -1366,76 +1366,106 @@ void Race_AssignSlotsFromCallRecord(unsigned int id)
     }
 
 
-    if (f12 == 1)
-        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1a);
-    else if (f12 == 2)
-        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1b);
-    if (f9 == 1)
-        Race_AssignUnusedSlot(g_unk0x0053735c + 10);
-    else if (f9 == 2)
-        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1c);
-    if (f17 == 1)
-        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1d);
-
-    switch (f10) {
+    switch (f12) {
     case 1:
-        Race_AssignUnusedSlot(g_unk0x0053735c + 0x5);
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1a);
         break;
     case 2:
-        Race_AssignUnusedSlot(g_unk0x0053735c + 0x4);
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1b);
         break;
-    case 3:
-        Race_AssignUnusedSlot(g_unk0x0053735c + 0x3);
+    }
+    switch (f9) {
+    case 1:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 10);
         break;
-    case 4:
-        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2);
+    case 2:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1c);
+        break;
+    }
+    switch (f17) {
+    case 1:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1d);
+        break;
+    }
+
+    switch (f10) {
+    case 6:
+        Race_AssignUnusedSlot(g_unk0x0053735c);
         break;
     case 5:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x1);
         break;
-    case 6:
-        Race_AssignUnusedSlot(g_unk0x0053735c);
+    case 4:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2);
         break;
-    case 7:
-        Race_AssignUnusedSlot(g_unk0x0053735c + 0x6);
+    case 3:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x3);
+        break;
+    case 2:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x4);
+        break;
+    case 1:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x5);
         break;
     case 8:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x7);
         break;
+    case 7:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x6);
+        break;
     }
 
 
-    if (f3 == 1) {
-        if (CGameInfo::IsActiveCheatEnabled(2) == 0)
-            slot = g_unk0x0053735c + 8;
+    switch (f3) {
+    case 1:
+        if (CGameInfo::IsActiveCheatEnabled(2) != 0)
+            Race_AssignUnusedSlot(g_unk0x0053735c + 9);
         else
-            slot = g_unk0x0053735c + 9;
-        Race_AssignUnusedSlot(slot);
-    } else if (f3 == 2) {
-        if (!(CGameInfo::IsActiveCheatEnabled(2) != 0))
-            slot = g_unk0x0053735c + 9;
+            Race_AssignUnusedSlot(g_unk0x0053735c + 8);
+        break;
+    case 2:
+        if (CGameInfo::IsActiveCheatEnabled(2) != 0)
+            Race_AssignUnusedSlot(g_unk0x0053735c + 8);
         else
-            slot = g_unk0x0053735c + 8;
-        Race_AssignUnusedSlot(slot);
+            Race_AssignUnusedSlot(g_unk0x0053735c + 9);
+        break;
     }
 
-    if (f4 == 1)
+    switch (f4) {
+    case 1:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0xc);
-    else if (f4 == 2)
+        break;
+    case 2:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0xb);
-    else if (f4 == 3)
+        break;
+    case 3:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x1e);
-    if (f5 == 1)
+        break;
+    }
+    switch (f5) {
+    case 1:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x17);
-    else if (f5 == 2)
+        break;
+    case 2:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x1f);
+        break;
+    }
 
     switch (f6) {
     case 1:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x19);
         break;
+    case 14:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x36);
+        break;
     case 2:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x18);
+        break;
+    case 15:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x20);
+        break;
+    case 6:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x21);
         break;
     case 3:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x22);
@@ -1445,9 +1475,6 @@ void Race_AssignSlotsFromCallRecord(unsigned int id)
         break;
     case 5:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x24);
-        break;
-    case 6:
-        Race_AssignUnusedSlot(g_unk0x0053735c + 0x21);
         break;
     case 7:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x25);
@@ -1470,21 +1497,22 @@ void Race_AssignSlotsFromCallRecord(unsigned int id)
     case 13:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x2b);
         break;
-    case 14:
-        Race_AssignUnusedSlot(g_unk0x0053735c + 0x36);
-        break;
-    case 15:
-        Race_AssignUnusedSlot(g_unk0x0053735c + 0x20);
-        break;
     }
 
 
-    if (f7 == 1)
+    switch (f7) {
+    case 1:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x2c);
-    else if (f7 == 2)
+        break;
+    case 2:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x2d);
-    if (f8 == 1)
+        break;
+    }
+    switch (f8) {
+    case 1:
         Race_AssignUnusedSlot(g_unk0x0053735c + 0x2e);
+        break;
+    }
 
     switch (f1) {
     case 1:
@@ -3138,7 +3166,7 @@ int Knockout_GetRoundActiveFlag(void);
 void Knockout_ClearRoundActiveFlag(void);
 BYTE Knockout_ClearChampionshipPendingFlag(void);
 void NetPlayers_ResetStageState(char keepReady, char resetTotal);
-void Replay_SwapPendingSlotValue(int **pValue, int slot, char flag);
+void Replay_SwapPendingSlotValue(int **pValue, int slot, int flag);
 
 void NetRace_ResetStateAndTriangleTable(void);
 void NetPlayers_ResetStatisticsSequences(void);
@@ -3164,7 +3192,7 @@ void StageTiming_ResetRaceDriverTimes(void);
 int Replay_ResetBufferIfActive(int *p);
 int Replay_StopRecording(BYTE *pBuffer);
 void Replay_ResetActiveBufferState(void);
-void Replay_SwapPendingSlotValue(int **pValue, int slot, char flag);
+void Replay_SwapPendingSlotValue(int **pValue, int slot, int flag);
 void ForceFeedback_ActivateIdleSlots(void);
 void Frontend_MergeMenuKeysIntoPlayerState(void);
 void StageUI_ResetRaceEndEventCount(void);
@@ -3177,13 +3205,9 @@ extern int g_unk0x00537f5c;
 
 // Tears the current stage down: resets the race flags, stops the stage lights,
 // releases the view slots and replays of every car and refreshes the HUD.
-// match 65%: the code is the same but MSVC6's allocator does not materialise the
-// constant 0 in a callee-saved register here: the original keeps the zero in EBX
-// for all of its ~12 uses (so every loop counter lives in ESI/EDI/EBP), while ours
-// folds the zeros into immediates and needs EBX for the loop indices, which
-// renumbers the registers of the whole function. Verified by construction: a
-// variant without the Replay_SwapPendingSlotValue loop does get the EBX zero register (like
-// mini2.cpp: 0s separated by calls), so the trigger is that last loop.
+// match 90%: the original keeps the constant 0 in EBX for its ~12 uses; that
+// only happens once Replay_SwapPendingSlotValue takes an int flag (pushed as
+// a full register). What is left is the placement of the n = 2 block.
 // FUNCTION: CMR2 0x0041e6b0
 void Race_TeardownStage(int param1, int param2, char flag)
 {
