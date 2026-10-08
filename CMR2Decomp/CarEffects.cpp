@@ -533,7 +533,8 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
     pRecord = StageTiming_GetCarReplayRecord(pCar->index);
     if ((BYTE)RallyData_GetSelectionFlag26() != 0 || pCar->field_0xc0c != 0)
         return;
-    n = (FixMul(count, EFFECT_RAND()) >> 16) + 1;
+    n = EFFECT_RAND();
+    n = (FixMul(count, n) >> 16) + 1;
     ext[0] = FixMul(0x3333, size);
     ext[1] = FixMul(0x1999, size);
     ext[2] = FixMul(0xccc, size);
@@ -547,22 +548,22 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
             pExt++;
             pOff++;
         }
-        if (EFFECT_RAND() <= 0x7fff) {
-            off[0].y += off[1].y;
+        if (EFFECT_RAND() < 0x8000) {
             off[0].x += off[1].x;
+            off[0].y += off[1].y;
             off[0].z += off[1].z;
         } else {
-            off[0].y -= off[1].y;
             off[0].x -= off[1].x;
+            off[0].y -= off[1].y;
             off[0].z -= off[1].z;
         }
-        if (EFFECT_RAND() <= 0x7fff) {
-            vel.y = off[2].y + off[0].y;
+        if (EFFECT_RAND() < 0x8000) {
             vel.x = off[2].x + off[0].x;
+            vel.y = off[2].y + off[0].y;
             vel.z = off[2].z + off[0].z;
         } else {
-            vel.y = off[0].y - off[2].y;
             vel.x = off[0].x - off[2].x;
+            vel.y = off[0].y - off[2].y;
             vel.z = off[0].z - off[2].z;
         }
         if (EFFECT_RAND() < glassChance) {

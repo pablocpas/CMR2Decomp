@@ -639,5 +639,26 @@
     "targets": [
       "0x4b3740"
     ]
+  },
+  "differential_event_starting_grid.py": {
+    "arguments": "object",
+    "object": "StageTiming.obj",
+    "targets": [
+      "0x4584d0"
+    ]
+  },
+  "differential_relight_sector.py": {
+    "arguments": "object",
+    "object": "SceneNode.obj",
+    "targets": [
+      "0x4b3c00"
+    ]
+  },
+  "differential_spawn_debris.py": {
+    "arguments": "object",
+    "object": "CarEffects.obj",
+    "targets": [
+      "0x499750"
+    ]
   }
 }

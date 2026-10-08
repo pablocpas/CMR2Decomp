@@ -1396,9 +1396,9 @@
   },
   "0x499750": {
     "n": "Car_SpawnDebris",
-    "s": 0.6220472440944882,
+    "s": 0.7440944881889764,
     "x": false,
-    "fz": 0.7559055118110236,
+    "fz": 0.8740157480314961,
     "unknown": [],
     "f": "CarEffects.cpp",
     "symbol_name": "Car_SpawnDebris"
@@ -22058,9 +22058,9 @@
   },
   "0x4b3c00": {
     "n": "Scene_RelightSector",
-    "s": 0.4490566037735849,
+    "s": 0.7354596622889306,
     "x": false,
-    "fz": 0.7547169811320755,
+    "fz": 0.8667917448405253,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Scene_RelightSector"
@@ -28597,9 +28597,9 @@
   },
   "0x4584d0": {
     "n": "StageTiming_PlaceEventStartingGrid",
-    "s": 0.7193195625759417,
+    "s": 0.7557160048134778,
     "x": false,
-    "fz": 0.9331713244228432,
+    "fz": 0.9651022864019254,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageTiming_PlaceEventStartingGrid"

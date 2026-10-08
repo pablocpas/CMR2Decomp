@@ -17,7 +17,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47d330	AI_UpdateAttractDrivingControls	StageObjects.cpp	395	0.4573643410852713	0.39330543933054396
 0x4a5880	CGraphics::GenerateBumpMap	Graphics.cpp	786	0.4601113172541744	0.4424131627056673
 0x4137e0	RallyData_DrawTargetTimeGap	RallyData.cpp	1565	0.46184738955823296	0.452642073778664
-0x4b3c00	Scene_RelightSector	SceneNode.cpp	798	0.4662813102119461	0.4490566037735849
 0x4a3650	Sprite_DrawLayer	Sprite.cpp	1503	0.46860986547085204	0.4541387024608501
 0x4b5770	Scene_ProjectCasterIntoLightZone	SceneNode.cpp	1763	0.46993318485523383	0.40476190476190477
 0x420a30	RallyData_UpdateCarRoute	RallyData.cpp	2035	0.4699777613046701	0.615831517792302
@@ -96,7 +95,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4f3c10	FrontendAnimation_EvaluatePathSpline	FrontendScreens.cpp	434	0.6325301204819277	0.6501547987616099
 0x4a6370	CGraphics::LoadTGABumpMap	Graphics.cpp	768	0.6325411334552102	0.6361974405850092
 0x5062d0	OptionPreview_LoadStageGeometryRecord	GameInfo.cpp	1100	0.6341463414634146	0.6379821958456974
-0x499750	Car_SpawnDebris	CarEffects.cpp	814	0.6351084812623274	0.6220472440944882
 0x41b460	StageUI_UpdateDriverEventAwards	StageUI.cpp	2709	0.6366559485530546	0.6124338624338624
 0x462aa0	StageObject_AverageWheelGroundLighting	StageObjects.cpp	518	0.6386554621848739	0.6267806267806267
 0x423900	Game_DispatchObjectContactReset	Game.cpp	71	0.6388888888888888	0.4583333333333333
@@ -160,6 +158,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x496e00	CarPhysics_UpdateBodyContactAndSkidTrail	CarPhysics.cpp	4014	0.7256565656565657	0.6709470304975923
 0x4816f0	CarPart_IntegrateHubGroundContact	StageTiming.cpp	5064	0.7258637391023571	0.7448453608247423
 0x442e90	Car_SmoothForceFeedback	Car.cpp	301	0.7261904761904762	0.7058823529411765
+0x4b3c00	Scene_RelightSector	SceneNode.cpp	798	0.7269230769230769	0.7354596622889306
 0x45f260	StageObject_SetupWeatherRamps	StageTiming.cpp	158	0.7272727272727273	0.7027027027027027
 0x41c5a0	Race_UpdatePlayerViewAndDrivenCars	Race.cpp	2701	0.7286338116032439	0.6345788473717543
 0x446bf0	Dash_DrawDial	HudDash.cpp	1286	0.7306733167082294	0.7073170731707317
@@ -196,8 +195,8 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x486fc0	CarPart_BuildScaledWheelOrientation	StageObjects.cpp	365	0.7573529411764706	0.7527675276752768
 0x4b1150	Particle_BuildTriangleStripIndices	Graphics.cpp	105	0.7586206896551724	0.7586206896551724
 0x5004c0	CGameInfo::IsOptionMenuTimeoutPulseOn	GameInfo.cpp	50	0.7586206896551724	0.9090909090909091
-0x4584d0	StageTiming_PlaceEventStartingGrid	StageTiming.cpp	142	0.7601918465227818	0.7193195625759417
 0x41a5c0	Race_ComputeWheelSurfaceSoundVolumes	Race.cpp	2227	0.7604327666151468	0.6959199384141648
+0x499750	Car_SpawnDebris	CarEffects.cpp	814	0.7613412228796844	0.7440944881889764
 0x4aa220	CFileBuffer::GetGenericFileBuffer	FileBuffer.cpp	595	0.7625570776255708	0.7165532879818595
 0x47b000	CarInput_UpdateRaceOrderSlot	StageObjects.cpp	223	0.7652173913043478	0.7017543859649122
 0x458a00	StageTiming_BuildCheckpointSplitPositions	StageTiming.cpp	379	0.7659574468085106	0.7142857142857143
@@ -247,6 +246,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x446270	Dash_DrawBar	HudDash.cpp	2424	0.8026229508196722	0.7918848167539267
 0x503010	OptionMenu_RevertRallyRecordGroup	GameInfo.cpp	1248	0.8035714285714286	0.7177177177177178
 0x40f0c0	RallyData_UpdateViewFrameAndDebugOverlay	RallyData.cpp	2058	0.8042763157894737	0.7162489894907034
+0x4584d0	StageTiming_PlaceEventStartingGrid	StageTiming.cpp	1284	0.8042959427207638	0.7557160048134778
 0x49b3e0	WheelSpray_Update	CarEffects.cpp	2244	0.8048606147248034	0.7558386411889597
 0x4348c0	Car_UpdateCornerLoads	Car.cpp	1668	0.8057259713701431	0.789795918367347
 0x431ff0	Car_PlaceAtStart	Car.cpp	2874	0.8061029879211697	0.7476518472135254

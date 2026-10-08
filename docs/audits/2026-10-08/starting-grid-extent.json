@@ -1,0 +1,22 @@
+{
+  "function": "StageTiming_PlaceEventStartingGrid",
+  "address": "0x4584d0",
+  "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
+  "size_before": 142,
+  "size_after": 1284,
+  "end_exclusive": "0x4589d4",
+  "next_function": "0x4589e0",
+  "dispatch_address": "0x45854e",
+  "dispatch_bytes": "ff249dc4894500",
+  "table_address": "0x4589c4",
+  "table_bytes": 16,
+  "cases": [
+    "0x458555",
+    "0x458716",
+    "0x45878f",
+    "0x458944"
+  ],
+  "last_return_address": "0x4589bf",
+  "last_return_bytes": "c20400",
+  "reason": "Inventory stopped at the indirect switch. All four cases and the 16-byte jump table belong to this function; no inventory function begins inside the corrected extent."
+}

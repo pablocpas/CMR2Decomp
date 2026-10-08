@@ -1158,7 +1158,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 004583d0	164	Stage_GetCarStartXZ	1	4	0	false	false
 00458480	52	Stage_RestoreCarsToRoutePositions	3	2	0	false	false
 004584c0	6	Stage_GetPrimaryStartDriver	3	0	0	false	false
-004584d0	142	StageTiming_PlaceEventStartingGrid	3	6	0	false	false
+004584d0	1284	StageTiming_PlaceEventStartingGrid	3	6	0	false	false
 004589e0	24	StageTiming_GetCheckpointField10	3	0	0	false	false
 00458a00	379	StageTiming_BuildCheckpointSplitPositions	1	4	12	false	false
 00458b80	71	StageTiming_StorePreviousCarCheckpoints	1	3	0	false	false

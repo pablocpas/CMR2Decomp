@@ -1,0 +1,73 @@
+{
+  "baseline": "d763216cfea4fc65bb4c7fa2b792e72692e18f2d",
+  "targets": [
+    {
+      "address": "0x4584d0",
+      "name": "StageTiming_PlaceEventStartingGrid",
+      "raw_before": 0.7193195625759417,
+      "raw_after": 0.7557160048134778,
+      "fuzzy_before": 0.9331713244228432,
+      "fuzzy_after": 0.9651022864019254,
+      "byte_exact": false
+    },
+    {
+      "address": "0x499750",
+      "name": "Car_SpawnDebris",
+      "raw_before": 0.6220472440944882,
+      "raw_after": 0.7440944881889764,
+      "fuzzy_before": 0.7559055118110236,
+      "fuzzy_after": 0.8740157480314961,
+      "byte_exact": false
+    },
+    {
+      "address": "0x4b3c00",
+      "name": "Scene_RelightSector",
+      "raw_before": 0.4490566037735849,
+      "raw_after": 0.7354596622889306,
+      "fuzzy_before": 0.7547169811320755,
+      "fuzzy_after": 0.8667917448405253,
+      "byte_exact": false
+    }
+  ],
+  "byte_exact_functions": 2894,
+  "perfect_percent": 53.45,
+  "fuzzy_percent": 93.64,
+  "regressions": [],
+  "behaviour_fixes": [
+    "Network starting grid queries both route positions before computing its angle.",
+    "Stage-10 starting grid maps only remote player IDs through NetPlayers_GetPlayerField8; the local player keeps slot zero."
+  ],
+  "inventory_correction": {
+    "address": "0x4584d0",
+    "bytes_before": 142,
+    "bytes_after": 1284,
+    "evidence": "starting-grid-extent.json",
+    "note": "Denominator increased by 1142 bytes; perfect-match percentage changed without any exact-function loss."
+  },
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "starting_grid_cases": 700,
+    "debris_cases": 800,
+    "relight_cases": 1600,
+    "negative_controls_detected": true,
+    "differential_harnesses": 97,
+    "failures": 0
+  },
+  "git_audit": {
+    "local_branches_integrated": 206,
+    "worktrees": 102,
+    "other_dirty_worktrees": 0,
+    "stashes": 0
+  },
+  "parked_probes": {
+    "functions": [
+      "0x40a980",
+      "0x456960",
+      "0x4487a0",
+      "0x48cae0",
+      "0x4b35b0"
+    ],
+    "reason": "Focused isolated loop, store-order and float/negation variants did not improve these functions without regressions. No corresponding source edits retained."
+  }
+}

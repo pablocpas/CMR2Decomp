@@ -5930,7 +5930,7 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
     int cosA;
     int other;
     char count;
-    short a;
+    unsigned short a;
     int p0[3];
     int p1[3];
 
@@ -5953,10 +5953,11 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
     case 0:
         RallyData_GetRouteNodeGroundPosition(RallyData_GetRouteAvailabilityState() - 1, p0);
         RallyData_GetRouteNodeGroundPosition(0, p1);
-        a = (short)(int)(__int64)((double)StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]) * g_unk0x00511300);
+        a = (unsigned short)(int)(__int64)((double)StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]) * g_unk0x00511300);
+        value = 0x40000;
+        sinA = FixMul(value, g_sinTable[a & 0xfff]);
+        cosA = FixMul(value, g_sinTable[(a + 0x400) & 0xfff]);
         n = 1;
-        sinA = FixMul(g_sinTable[a & 0xfff], 0x40000);
-        cosA = FixMul(g_sinTable[(a + 0x400) & 0xfff], 0x40000);
         for (i = 0; i < g_unk0x00542c68; i++, n--) {
             slot = i;
             if (CGameInfo::GetConfiguredGameMode() == 5 && g_unk0x00542c68 > 2)
@@ -6006,10 +6007,11 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
         break;
     case 2:
         RallyData_GetRouteNodeGroundPosition(RallyData_GetRouteAvailabilityState() - 1, p0);
-        a = (short)(int)(__int64)((double)StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]) * g_unk0x00511300);
-        sinA = FixMul(g_sinTable[a & 0xfff], 0x40000);
-        cosA = FixMul(g_sinTable[(a + 0x400) & 0xfff], 0x40000);
         RallyData_GetRouteNodeGroundPosition(0, p1);
+        a = (unsigned short)(int)(__int64)((double)StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]) * g_unk0x00511300);
+        value = 0x40000;
+        sinA = FixMul(value, g_sinTable[a & 0xfff]);
+        cosA = FixMul(value, g_sinTable[(a + 0x400) & 0xfff]);
         count = (char)NetPlayers_GetPlayerIDCount();
         for (i = 0; i < count; i++) {
             if (NetPlayers_GetSortedPlayerID(i) == (int)Network_GetLocalPlayerID())
@@ -6022,8 +6024,8 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
                     (int)(__int64)((double)(count * 5) * CGraphics::m_65536);
             else
                 t = 0xfff60000;
-            z = FixMul(t, g_sinTable[a & 0xfff]);
             x = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]);
+            z = FixMul(t, g_sinTable[a & 0xfff]);
             if (i % 2 == 0) {
                 x += sinA;
                 z -= cosA;
@@ -6040,9 +6042,10 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
         for (i = 0; i < count; i++) {
             if (NetPlayers_GetSortedPlayerID(i) == (int)Network_GetLocalPlayerID())
                 slot = 0;
-            else
+            else {
                 slot = NetPlayers_FindPlayerIndexByID(NetPlayers_GetSortedPlayerID(i));
                 slot = NetPlayers_GetPlayerField8(slot);
+            }
             if (i % 2 == 0) {
                 g_unk0x00542d38[slot] = 0;
                 g_unk0x00542cb4[slot] = 0;

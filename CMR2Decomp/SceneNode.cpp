@@ -1038,17 +1038,29 @@ void Scene_RelightSector(int sector)
         if (pSector != NULL) {
             pMesh = (Mesh *)pSector->pMesh;
             if (pMesh != NULL) {
-                MESH_LIGHT_VERTICES(pMesh);
+                pLevel = pMesh->pLightLevels;
+                pVertex = (BYTE *)pMesh->pVertexData;
+                for (i = 0; i < pMesh->field_0x10; i++) {
+                    Scene_GetLightColourD3D((DWORD *)(pVertex + 0x18), *pLevel);
+                    pLevel++;
+                    pVertex += 0x30;
+                }
                 Mesh_RefreshVertices(pMesh);
             }
             for (pObject = pSector->pObjects; pObject != NULL; pObject = pObject->pNext) {
                 pMesh = pObject->pMesh;
-                if ((pMesh->flags & 0x80) != 0) {
-                    MESH_LIGHT_VERTICES(pMesh);
-                    Mesh_RefreshVertices(pMesh);
-                } else {
+                if ((pMesh->flags & 0x80) == 0) {
                     Scene_GetLightColourD3D(&colour, pObject->lightLevel);
                     Mesh_SetColourAndRefresh(pMesh, colour);
+                } else {
+                    pLevel = pMesh->pLightLevels;
+                    pVertex = (BYTE *)pMesh->pVertexData;
+                    for (i = 0; i < pMesh->field_0x10; i++) {
+                        Scene_GetLightColourD3D((DWORD *)(pVertex + 0x18), *pLevel);
+                        pLevel++;
+                        pVertex += 0x30;
+                    }
+                    Mesh_RefreshVertices(pMesh);
                 }
             }
             for (pNode = pSector->pFirstNode; pNode != NULL; pNode = pNode->pNextInSector)
@@ -1067,28 +1079,26 @@ void Scene_RelightSector(int sector)
         if (g_unk0x005210c0 != 0) {
             pZone = &((LightZone *)g_sceneLightZones)[g_sceneSectorZone[sector]];
             pVertex = (BYTE *)pShadow->pVertexData;
-            if (pZone->vertexCount != 0) {
-                pZoneVertex = (int *)(pZone->pVertices + 0x28);
-                for (k = 0; k < pZone->vertexCount; k++) {
-                    intensity = pZoneVertex[-2];
-                    if (intensity == 0x10000) {
-                        for (j = 0; j < *pZoneVertex; j++) {
-                            Scene_GetShadowColourD3D((DWORD *)(pVertex + 0x18), *pLevel);
-                            pLevel++;
-                            pVertex += 0x30;
-                        }
-                    } else {
-                        for (j = 0; j < *pZoneVertex; j++) {
-                            Scene_GetShadowColourD3D((DWORD *)(pVertex + 0x18), FixMul(intensity, *pLevel));
-                            pLevel++;
-                            pVertex += 0x30;
-                        }
+            pZoneVertex = (int *)(pZone->pVertices + 0x28);
+            for (k = 0; k < pZone->vertexCount; k++) {
+                intensity = pZoneVertex[-2];
+                if (intensity == 0x10000) {
+                    for (j = 0; j < *pZoneVertex; j++) {
+                        Scene_GetShadowColourD3D((DWORD *)(pVertex + 0x18), *pLevel);
+                        pLevel++;
+                        pVertex += 0x30;
                     }
-                    pZoneVertex += 12;
+                } else {
+                    for (j = 0; j < *pZoneVertex; j++) {
+                        Scene_GetShadowColourD3D((DWORD *)(pVertex + 0x18), FixMul(intensity, *pLevel));
+                        pLevel++;
+                        pVertex += 0x30;
+                    }
                 }
-                Mesh_RefreshVertices(pShadow);
-                return;
+                pZoneVertex += 12;
             }
+            Mesh_RefreshVertices(pShadow);
+            return;
         } else {
             pVertex = (BYTE *)pShadow->pVertexData + 0x18;
             for (i = 0; i < pShadow->field_0x10; i++) {
