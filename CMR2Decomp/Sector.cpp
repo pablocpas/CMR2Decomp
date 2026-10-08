@@ -621,7 +621,6 @@ int Tri2D_Contains(int *pPoint, int *pTri);
 void Sector_CullGridAroundViewNode(SceneNode *pNode, int unused)
 {
     FixVector pos;
-    FixVector dir;
     FixVector origin;
     FixVector forward;
     FixVector scaled;
@@ -643,8 +642,6 @@ void Sector_CullGridAroundViewNode(SceneNode *pNode, int unused)
     int ez;
     int fx;
     int fz;
-    int dx;
-    int dz;
 
     radius = CGraphics::m_farPlaneFixed;
     memset(g_sectorVisibleBits, 0, sizeof(g_sectorVisibleBits));
@@ -657,7 +654,7 @@ void Sector_CullGridAroundViewNode(SceneNode *pNode, int unused)
     rem = iSector % g_sectorsPerRow;
     quo = iSector / g_sectorsPerRow;
     colStart = rem - spread - 1;
-    if (colStart <= -1)
+    if (colStart < 0)
         colStart = 0;
     colEnd = rem + spread + 2;
     if (colEnd > g_sectorsPerRow)
@@ -668,23 +665,23 @@ void Sector_CullGridAroundViewNode(SceneNode *pNode, int unused)
     rowEnd = quo + spread + 2;
     if (rowEnd > g_sectorRows)
         rowEnd = g_sectorRows;
-    dir.x = pNode->world.forward.x;
-    dir.y = 0;
-    dir.z = pNode->world.forward.z;
-    len = FixVecLength(&dir);
+    pos.x = pNode->world.forward.x;
+    pos.y = 0;
+    pos.z = pNode->world.forward.z;
+    len = FixVecLength(&pos);
     if (len == 0) {
-        dir.x = 0;
-        dir.y = 0;
-        dir.z = 0;
+        pos.x = 0;
+        pos.y = 0;
+        pos.z = 0;
     } else {
-        FixVecScaleRecip(&dir, &dir, len);
+        FixVecScaleRecip(&pos, &pos, len);
     }
     tri[0] = pNode->world.position.x;
     tri[1] = pNode->world.position.z;
-    ex = FixMul(dir.x, radius);
-    ez = FixMul(dir.z, radius);
-    fz = FixMul(dir.z, FixMul(radius, 0x10000));
-    fx = -FixMul(dir.x, FixMul(radius, 0x10000));
+    ex = FixMul(pos.x, radius);
+    ez = FixMul(pos.z, radius);
+    fz = FixMul(pos.z, FixMul(radius, 0x10000));
+    fx = -FixMul(pos.x, FixMul(radius, 0x10000));
     tri[4] = tri[0] + fz + ex;
     tri[5] = tri[1] + fx + ez;
     tri[2] = tri[0] - fz + ex;
@@ -706,9 +703,9 @@ void Sector_CullGridAroundViewNode(SceneNode *pNode, int unused)
                 index == iSector - g_sectorsPerRow + 1 || index == iSector - 1 || index == iSector ||
                 index == iSector + 1 || index == iSector + g_sectorsPerRow - 1 ||
                 index == iSector + g_sectorsPerRow || index == iSector + g_sectorsPerRow + 1) {
-                dx = g_sectors[index]->x - tri[0];
-                dz = g_sectors[index]->z - tri[1];
-                *(int *)((BYTE *)g_sectors[index] + 0x7c) = FixMul(dx, dx) + FixMul(dz, dz);
+                *(int *)((BYTE *)g_sectors[index] + 0x7c) =
+                    FixMul(g_sectors[index]->x - tri[0], g_sectors[index]->x - tri[0]) +
+                    FixMul(g_sectors[index]->z - tri[1], g_sectors[index]->z - tri[1]);
                 if (index < g_sectorCount && index >= 0) {
                     g_unk0x006ed5f0[g_sectorCullEnabled] = (short)index;
                     g_sectorCullEnabled++;

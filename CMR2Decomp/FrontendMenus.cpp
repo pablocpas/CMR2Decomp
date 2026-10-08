@@ -1138,22 +1138,18 @@ char *FrontendControls_GetBindingDisplayText(int index)
     dev = CONTROLS_SEL;
     if (g_controlsCopy[dev].field_0x210[index].field_0x0 == 0 || pDevice->field_0x0 != 3) {
         button = (&g_controlsCopy[dev].field_0x128)[index];
-        if (pDevice->field_0x0 == 0) {
-            if (button == 1)
-                return CFrontend::GetTextString(0x1f9);
-            if (button == 2)
-                return CFrontend::GetTextString(0x1fa);
-            if (button == 4)
-                return CFrontend::GetTextString(0x1fb);
-            if (button == 8)
-                return CFrontend::GetTextString(0x1fc);
-        }
-        if (pDevice->field_0x0 == 2) {
-            if (index == 0)
-                return CFrontend::GetTextString(0x1f9);
-            if (index == 1)
-                return CFrontend::GetTextString(0x1fa);
-        }
+        if (pDevice->field_0x0 == 0 && button == 1)
+            return CFrontend::GetTextString(0x1f9);
+        if (pDevice->field_0x0 == 0 && button == 2)
+            return CFrontend::GetTextString(0x1fa);
+        if (pDevice->field_0x0 == 0 && button == 4)
+            return CFrontend::GetTextString(0x1fb);
+        if (pDevice->field_0x0 == 0 && button == 8)
+            return CFrontend::GetTextString(0x1fc);
+        if (pDevice->field_0x0 == 2 && index == 0)
+            return CFrontend::GetTextString(0x1f9);
+        if (pDevice->field_0x0 == 2 && index == 1)
+            return CFrontend::GetTextString(0x1fa);
         i = CInput::GetButtonIndexFromMask(button);
         if (i != -1)
             return pDevice->field_0x284[i];

@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "bb9bf36ad035d2501241f944ae94b6d43b333612",
+    "commit": "f1035d8c161ae03017fc9212c67a735a636e0cc1",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -67,14 +67,14 @@
       "CMR2Decomp/Frontend.h": "1ddbe423195e524addbeabf1d0d574b8e6fd0b392af5f182debe2d4cb34788d8",
       "CMR2Decomp/FrontendDraw.cpp": "4b343d5ed6705cd20adcc4e53a07ca4a5cd80eef87698a6f25261ca5c6bf0355",
       "CMR2Decomp/FrontendDraw.h": "c55e09d37aaeb9698e2052a12a1e6437971d64fe98a3ac82995f97164e1c964e",
-      "CMR2Decomp/FrontendMenus.cpp": "d339de3793dc46c3c12890337e688003faa5f1c3947c273b26be0b82d3069ad6",
+      "CMR2Decomp/FrontendMenus.cpp": "bfe92e4f60e5d5d4a43576409ebc7489033332e443bc22dc352c25bd55527b17",
       "CMR2Decomp/FrontendMenus.h": "cdbe32e65867864d13950fad5dbf93442018ac0c99a1a4a7c97cff7b98393cb7",
       "CMR2Decomp/FrontendNetworkRally.cpp": "04877e99bd48400fbbce1fcca1a48f7611af8e0e9d6992529062dd7537bfd635",
       "CMR2Decomp/FrontendScreens.cpp": "73155794a7055932701940112454f0ace7e1769bc420915d76c35146e137d6e4",
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
       "CMR2Decomp/Game.cpp": "86308b3429af58450860f8d908039fe7d630816ce1d3a559adf942db2bd43722",
       "CMR2Decomp/Game.h": "3ac93fd8707b75dea487ba1a23170a63a0099477a95f0c5a0c7d98c31726bf03",
-      "CMR2Decomp/GameInfo.cpp": "4e8e0cc08a87bd2eebcdcc7b6f7ff15c755a48973e24dec643020a11c8829d3c",
+      "CMR2Decomp/GameInfo.cpp": "e427edbbeba8410edde9e901f34681825f4a46305d33ebb806ba9f34960d573c",
       "CMR2Decomp/GameInfo.h": "191777cd7d1cc6c81276e22879fd745d02fc9fa7b29ac05f0bff3761ae5b8bb7",
       "CMR2Decomp/GameMenus.cpp": "4c67ecfeebcaeaf5852573a8e609a8a30b085907b093079789394f8d45df490a",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
@@ -112,7 +112,7 @@
       "CMR2Decomp/RegKey.h": "cb2934244f3e58e032b9644f58ea83230965ed366c7000fb4690ef50d5bb62c4",
       "CMR2Decomp/SceneNode.cpp": "5c2db8fb7bbb52f7a4823ea3e4799bdd0bb9f16df1ae2d30cc328b8d3ab0fe09",
       "CMR2Decomp/SceneNode.h": "787adc304582568790e9a3985d1a47df79f88cd344b36e8b7a19e11419a41ef5",
-      "CMR2Decomp/Sector.cpp": "13b407fc6500210f07e815cef282af6dcd2b4d0abcb47a07124993708e1e4940",
+      "CMR2Decomp/Sector.cpp": "a15bb948fe5976af1d61bdd253d614ca4e1b3c805153ccf3e1088e82d3c0bc60",
       "CMR2Decomp/Sector.h": "a2289419006caae16b3a6690c115af713ae03e7383e898727cd9f6ca1a3018f1",
       "CMR2Decomp/Sound.cpp": "1da33332f53ce5ccd94d4bb4ba661daf2f5e196bea307b627b6c07d3ee419681",
       "CMR2Decomp/Sound.h": "5b972d156316f420fed6f54f55d219e8f2863df1219bb9c22e755fcbe474c015",
@@ -167,18 +167,18 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "1a848e84a1892764e829ee1e061dd12cf1089e279ca4ae7c812f93b84e37a80e",
-    "pdb_sha256": "b0eb5b97d8aff0f99a16a8b3d3f29b921e64330dded0680bf981f580c2825a7b"
+    "exe_sha256": "4291c35b559374524a5be98dbee16f220071cd7d66049bfdfa72d97b22adcb47",
+    "pdb_sha256": "e0ef7c7751dcca30aa00bc14636de7a24ee4df9169b0e3eba4c4eaafc30f9203"
   },
-  "perfect_match_percent": 54.27,
+  "perfect_match_percent": 54.37,
   "fuzzy_match_percent": 93.97,
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
   "measured_functions": 3368,
   "reccmp_exact": 2735,
   "audited_source_functions": 3364,
-  "relocated_byte_exact": 2901,
-  "nonmatching_source_functions": 463,
+  "relocated_byte_exact": 2902,
+  "nonmatching_source_functions": 462,
   "unresolved_source_functions": [
     "0x496e00",
     "0x5062d0",

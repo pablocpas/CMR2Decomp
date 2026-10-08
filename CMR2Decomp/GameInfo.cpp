@@ -4728,8 +4728,8 @@ pushCamera:
     g_unk0x00529ec8 = g_unk0x0052aa54 - g_unk0x00529cdc;
     g_unk0x0052aa6c = g_unk0x0052a86c - g_unk0x0052a2a0;
     g_unk0x0052a0bc = g_unk0x0052aa58 - g_unk0x00529ce0;
-    g_unk0x0052aa50.x = 0;
     g_unk0x0052a86c = g_unk0x0052a2a0 + FixMul(g_unk0x0052aa6c, 0x1999);
+    g_unk0x0052aa50.x = 0;
     g_unk0x0052aa54 = g_unk0x00529cdc + FixMul(g_unk0x00529ec8, 0x1999);
     g_unk0x0052aa58 = g_unk0x00529ce0 + FixMul(g_unk0x0052a0bc, 0x1999);
     HudDash_SetPlayerGaugeValue(g_unk0x0052af58[1], g_unk0x0052aa5c);
@@ -11320,9 +11320,9 @@ void OptionMenu_UpdateMessagesAndRecordStates(Menu *pMenu)
         if ((pMenu->cursor != 2 || g_unk0x00526f44 != 1) &&
             (pMenu->cursor != 1 || g_unk0x00526f44 != 2))
             OptionMenu_ClearRecordTransition(4);
+        g_unk0x0082a930 = g_unk0x0082a928;
         g_unk0x0082a90c[g_unk0x00526f44] = 2;
         g_unk0x00526f44 = pMenu->cursor;
-        g_unk0x0082a930 = g_unk0x0082a928;
         OptionMenu_ClearTimeout();
     }
     for (i = 0; i < 6; i++) {
@@ -11356,8 +11356,12 @@ void OptionMenu_UpdateMessagesAndRecordStates(Menu *pMenu)
         for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++)
             OptionPreview_SetWheelNodesVisible(i, 0);
     } else {
-        for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++)
-            OptionPreview_SetWheelNodesVisible(i, i == CGameInfo::GetActiveOptionSlot());
+        for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++) {
+            if (i == CGameInfo::GetActiveOptionSlot())
+                OptionPreview_SetWheelNodesVisible(i, 1);
+            else
+                OptionPreview_SetWheelNodesVisible(i, 0);
+        }
     }
     if (pMenu->cursor != Menu_FindItem(pMenu, 5))
         ((Menu *)OptionMenu_GetControlSetupMenu())->items[Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 5)].max = 1;

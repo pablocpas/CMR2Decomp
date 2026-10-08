@@ -3504,9 +3504,9 @@
   },
   "0x4fbae0": {
     "n": "FrontendControls_GetBindingDisplayText",
-    "s": 0.9105960264900662,
+    "s": 0.7875816993464052,
     "x": false,
-    "fz": 0.9801324503311258,
+    "fz": 0.9803921568627451,
     "unknown": [],
     "f": "FrontendMenus.cpp",
     "symbol_name": "FrontendControls_GetBindingDisplayText"
@@ -11631,9 +11631,9 @@
   },
   "0x404f40": {
     "n": "InRaceMenu_UpdateStateMachineFrame",
-    "s": 0.8353413654618473,
+    "s": 0.8380187416331994,
     "x": false,
-    "fz": 0.9692101740294511,
+    "fz": 0.9718875502008032,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "InRaceMenu_UpdateStateMachineFrame"
@@ -12990,9 +12990,9 @@
   },
   "0x4ffab0": {
     "n": "OptionMenu_UpdateMessagesAndRecordStates",
-    "s": 0.8553846153846154,
-    "x": false,
-    "fz": 0.9846153846153847,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_UpdateMessagesAndRecordStates"
@@ -22454,9 +22454,9 @@
   },
   "0x4b7de0": {
     "n": "Sector_CullGridAroundViewNode",
-    "s": 0.7896774193548387,
+    "s": 0.7644787644787645,
     "x": false,
-    "fz": 0.8593548387096774,
+    "fz": 0.8803088803088803,
     "unknown": [],
     "f": "Sector.cpp",
     "symbol_name": "Sector_CullGridAroundViewNode"
