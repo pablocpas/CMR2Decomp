@@ -1522,9 +1522,9 @@
   },
   "0x45c820": {
     "n": "WheelSplash_Update",
-    "s": 0.47182175622542594,
+    "s": 0.48104575163398694,
     "x": false,
-    "fz": 0.6212319790301442,
+    "fz": 0.6300653594771242,
     "unknown": [],
     "f": "CarEffects.cpp",
     "symbol_name": "WheelSplash_Update"
@@ -2091,9 +2091,9 @@
   },
   "0x429f20": {
     "n": "FixBasis_Rotate",
-    "s": 0.5678082191780822,
+    "s": 0.6013698630136987,
     "x": false,
-    "fz": 0.576027397260274,
+    "fz": 0.626027397260274,
     "unknown": [],
     "f": "FixedPoint.cpp",
     "symbol_name": "FixBasis_Rotate"
@@ -16986,9 +16986,9 @@
   },
   "0x4b1ac0": {
     "n": "Mesh_BuildParts",
-    "s": 0.665,
+    "s": 0.8217821782178217,
     "x": false,
-    "fz": 0.865,
+    "fz": 0.9554455445544554,
     "unknown": [],
     "f": "Mesh.cpp",
     "symbol_name": "Mesh_BuildParts"

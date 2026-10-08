@@ -130,10 +130,8 @@ char g_strVertexBufferFull[] =
     "Requested Vertices : %d  Limit : %d";
 
 // Groups the triangles of a mesh by texture into index lists (once).
-// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures
-// it (see CONVENCIONES). The `last = n` order inside the second loop follows the
-// original (`inc ebp / add eax,4 / mov edi,edx` before zeroing indexCount);
-// remaining diff is the mid-function `push ebp` and the loop-1 entry test.
+// Capture each part's index count before scanning or rebasing its indices,
+// as in the original. Texture changes start a new contiguous group.
 // FUNCTION: CMR2 0x004b1ac0
 void Mesh_BuildParts(Mesh *pMesh)
 {
@@ -172,7 +170,7 @@ void Mesh_BuildParts(Mesh *pMesh)
     off = 0;
     last = -99;
     ppPart = pMesh->pParts - 1;
-    for (i = 0; i < pMesh->triangleCount; i++) {
+    for (i = 0; i < pMesh->triangleCount; i++, off += 0x4c) {
         n = *(int *)((BYTE *)pMesh->pTriangles + off + 4);
         if (last != n) {
             count++;
@@ -184,7 +182,6 @@ void Mesh_BuildParts(Mesh *pMesh)
         }
         for (k = 3; k != 0; k--)
             (*ppPart)->indexCount++;
-        off += 0x4c;
     }
     if (count > 0) {
         ppPart = pMesh->pParts;
@@ -197,13 +194,13 @@ void Mesh_BuildParts(Mesh *pMesh)
     last = -99;
     off = 0;
     ppPart = pMesh->pParts - 1;
-    for (i = 0; i < pMesh->triangleCount; i++) {
+    for (i = 0; i < pMesh->triangleCount; i++, off += 0x4c) {
         n = *(int *)((BYTE *)pMesh->pTriangles + off + 4);
         if (last != n) {
-            ppPart++;
-            count++;
-            (*ppPart)->indexCount = 0;
             last = n;
+            count++;
+            ppPart++;
+            (*ppPart)->indexCount = 0;
         }
         {
             int po = off + 0x40;
@@ -213,13 +210,13 @@ void Mesh_BuildParts(Mesh *pMesh)
                 po += 2;
             }
         }
-        off += 0x4c;
     }
     if (count > 0) {
         for (i = 0; i < count; i++) {
             hi = -1;
             lo = 999;
-            for (k = 0; k < pMesh->pParts[i]->indexCount; k++) {
+            n = pMesh->pParts[i]->indexCount;
+            for (k = 0; k < n; k++) {
                 if (pMesh->pParts[i]->pData[k] < lo) {
                     lo = pMesh->pParts[i]->pData[k];
                     pMesh->pParts[i]->minIndex = lo;
@@ -231,7 +228,8 @@ void Mesh_BuildParts(Mesh *pMesh)
             }
         }
         for (i = 0; i < count; i++) {
-            for (k = 0; k < pMesh->pParts[i]->indexCount; k++)
+            n = pMesh->pParts[i]->indexCount;
+            for (k = 0; k < n; k++)
                 pMesh->pParts[i]->pData[k] -= (short)pMesh->pParts[i]->minIndex;
         }
     }

@@ -1330,7 +1330,7 @@ void WheelSplash_Update(int player)
         seg.y = g_trailPos[player][wheel].y - g_trailLastPos[player][wheel].y;
         other = wheel ^ 1;
         seg.z = g_trailPos[player][wheel].z - g_trailLastPos[player][wheel].z;
-        if (pCar->gear == 7 ? (wheel & 2) != 0 : (wheel & 2) == 0)
+        if ((pCar->gear == 7 && (wheel & 2) != 0) || (pCar->gear != 7 && (wheel & 2) == 0))
             leading = 1;
         else
             leading = 0;

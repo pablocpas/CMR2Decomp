@@ -1,0 +1,58 @@
+{
+  "baseline": "aaff7fcdcc094ca292550ac61f00a4a3759a5e6f",
+  "targets": [
+    {
+      "address": "0x429f20",
+      "name": "FixBasis_Rotate",
+      "raw_before": 0.5678082191780822,
+      "raw_after": 0.6013698630136987,
+      "fuzzy_before": 0.576027397260274,
+      "fuzzy_after": 0.626027397260274,
+      "byte_exact": false
+    },
+    {
+      "address": "0x45c820",
+      "name": "WheelSplash_Update",
+      "raw_before": 0.47182175622542594,
+      "raw_after": 0.48104575163398694,
+      "fuzzy_before": 0.6212319790301442,
+      "fuzzy_after": 0.6300653594771242,
+      "byte_exact": false
+    },
+    {
+      "address": "0x4b1ac0",
+      "name": "Mesh_BuildParts",
+      "raw_before": 0.665,
+      "raw_after": 0.8217821782178217,
+      "fuzzy_before": 0.865,
+      "fuzzy_after": 0.9554455445544554,
+      "byte_exact": false
+    }
+  ],
+  "byte_exact_functions": 2894,
+  "perfect_percent": 53.45,
+  "fuzzy_percent": 93.67,
+  "regressions": [],
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "basis_rotation_cases": 1600,
+    "mesh_partition_cases": 600,
+    "wheel_splash_cases": 1501,
+    "negative_controls_detected": true,
+    "differential_harnesses": 99,
+    "failures": 0
+  },
+  "git_audit": {
+    "local_branches_integrated": 206,
+    "worktrees": 102,
+    "other_dirty_worktrees": 0,
+    "stashes": 0
+  },
+  "notes": [
+    "Basis rotation shares scalar temporaries across its three axes while matrices and vectors retain block scope.",
+    "Wheel splash leading-wheel condition uses separate forward/reverse gear branches.",
+    "Mesh partition loops capture each part index count and restore texture-group update order.",
+    "These are partial matching gains, not new exact functions."
+  ]
+}

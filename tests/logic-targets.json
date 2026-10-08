@@ -660,5 +660,19 @@
     "targets": [
       "0x499750"
     ]
+  },
+  "differential_basis_rotate.py": {
+    "arguments": "object",
+    "object": "FixedPoint.obj",
+    "targets": [
+      "0x429f20"
+    ]
+  },
+  "differential_mesh_parts.py": {
+    "arguments": "object",
+    "object": "Mesh.obj",
+    "targets": [
+      "0x4b1ac0"
+    ]
   }
 }

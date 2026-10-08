@@ -22,10 +22,10 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x420a30	RallyData_UpdateCarRoute	RallyData.cpp	2035	0.4699777613046701	0.615831517792302
 0x4b06a0	Particle_Interpolate	Graphics.cpp	247	0.47398843930635837	0.4827586206896552
 0x46d2d0	Replay_LoadValidatedBuffer	StageObjects.cpp	284	0.4745762711864407	0.4787234042553192
-0x45c820	WheelSplash_Update	CarEffects.cpp	2496	0.47493403693931396	0.47182175622542594
 0x491550	Track_FindTriangle	TrackCollision.cpp	323	0.47572815533980584	0.48756218905472637
 0x4483e0	StageTiming_EstimateRemainingDriverTimes	StageTiming.cpp	358	0.47761194029850745	0.460093896713615
 0x4a91b0	CGraphics::EnumTextureFormatsCallback	Graphics.cpp	1294	0.48313090418353577	0.4372574385510996
+0x45c820	WheelSplash_Update	CarEffects.cpp	2496	0.4838921761998685	0.48104575163398694
 0x488de0	Collision_FindQuadEdgeOverlap	StageObjects.cpp	615	0.48514851485148514	0.47959183673469385
 0x4b5380	Scene_FreeShadowCasters	SceneNode.cpp	400	0.49070631970260226	0.5018181818181818
 0x46ea80	CarSkid_EmitSlippingWheelEffects	StageObjects.cpp	438	0.4934210526315789	0.5048543689320388
@@ -39,7 +39,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47bdd0	AI_UpdateRouteDrivingControls	StageObjects.cpp	940	0.5227272727272727	0.4168336673346693
 0x4eb860	Profile_AssignAvailableCategory	FileBuffer.cpp	500	0.5227963525835866	0.5209580838323353
 0x46e780	StageObject_StampPendingEventDraws	StageObjects.cpp	637	0.5230769230769231	0.5128205128205128
-0x429f20	FixBasis_Rotate	FixedPoint.cpp	4129	0.5247252747252747	0.5678082191780822
 0x455f00	StageTiming_BlendCarPaintDecalRows	StageTiming.cpp	527	0.5263157894736842	0.5348837209302325
 0x461830	StageObject_BlendTimeOfDayRecord	StageObjects.cpp	498	0.5286103542234333	0.5040650406504065
 0x4919a0	Stage_InitLightMeshes	TrackCollision.cpp	918	0.5307692307692308	0.5029239766081871
@@ -64,6 +63,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x49c680	Graphics_DrawMeshTextureBatches	Graphics.cpp	299	0.574468085106383	0.6153846153846154
 0x418f20	StageSound_ResetRecordsAndRegisterCleanup	StageUI.cpp	185	0.574468085106383	0.6041666666666666
 0x415f50	StageUI_DrawHudRouteMap	StageUI.cpp	1678	0.5746478873239437	0.5666041275797373
+0x429f20	FixBasis_Rotate	FixedPoint.cpp	4129	0.5796703296703297	0.6013698630136987
 0x424f20	NetRace_PackCarState	NetRace.cpp	2496	0.5802650957290133	0.5523809523809524
 0x4b0110	Particle_UpdateAll	Graphics.cpp	878	0.5815126050420169	0.5289256198347108
 0x4581d0	StageTiming_ResetOrderedCarRoadBooks	StageTiming.cpp	84	0.5833333333333334	0.5833333333333334
@@ -142,7 +142,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b4180	Scene_EmitProjectedShadowMesh	SceneNode.cpp	781	0.7075664621676891	0.7151515151515152
 0x4b11c0	Billboard_Add	Graphics.cpp	825	0.7078891257995735	0.7166666666666667
 0x42ce60	Car_StepGroundContact	Car.cpp	4017	0.7102877414268821	0.7406819984139572
-0x4b1ac0	Mesh_BuildParts	Mesh.cpp	561	0.7103274559193955	0.665
 0x499de0	Car_ShatterWindow	CarEffects.cpp	2697	0.7103825136612022	0.6378492356352135
 0x46b8f0	StageObject_ResetCarNodeViewFlags	StageObjects.cpp	581	0.7156549520766773	0.6451612903225806
 0x46c5a0	Replay_AllocateStreamBuffer	StageObjects.cpp	299	0.7157894736842105	0.7165775401069518
@@ -343,6 +342,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4d4460	FrontendDraw_HelpText	FrontendDraw.cpp	335	0.8932038834951457	0.8720379146919431
 0x4e7120	FrontendMenu_DrawProfileChampionshipRecords	FrontendScreens.cpp	1602	0.8940955951265229	0.9013282732447818
 0x4a4c40	Graphics_ReloadAllTextures	Graphics.cpp	233	0.8941176470588236	0.8823529411764706
+0x4b1ac0	Mesh_BuildParts	Mesh.cpp	561	0.8980582524271845	0.8217821782178217
 0x4fe240	FrontendControls_DrawDeviceConfiguration	FrontendMenus.cpp	3582	0.8984689766317486	0.8896999188969992
 0x466570	CarDamage_UpdateOrderedCarsOffRoadState	StageObjects.cpp	190	0.8985507246376812	0.8985507246376812
 0x50f650	OptionMenu_DrawStageSummaryPanel	GameInfo.cpp	1758	0.8986547085201794	0.895870736086176

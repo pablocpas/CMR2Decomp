@@ -376,10 +376,8 @@ void FixMatrix_SetForward(FixVector *pV, FixMatrix *pM)
 // for the version using globals).
 #define ROTATE_BASIS(k, a, b, angle)                                                  \
     {                                                                                 \
-        int s, c, omc, kxx, kyy, kzz, kxs, kys, kzs, kxy, kxz, kyz;                   \
         FixMatrix m;                                                                  \
         FixVector v;                                                                  \
-        int len;                                                                      \
                                                                                       \
         s = FixSin(-(angle));                                                         \
         c = FixCos(angle);                                                            \
@@ -438,6 +436,9 @@ void FixMatrix_SetForward(FixVector *pV, FixMatrix *pM)
 // FUNCTION: CMR2 0x00429f20
 void FixBasis_Rotate(FixBasis *pBasis, unsigned short *pAngles)
 {
+    int s, c, omc, kxx, kyy, kzz, kxs, kys, kzs, kxy, kxz, kyz;
+    int len;
+
     if (pAngles[1] != 0)
         ROTATE_BASIS(pBasis->up, pBasis->right, pBasis->forward, pAngles[1])
     if (pAngles[2] != 0)
