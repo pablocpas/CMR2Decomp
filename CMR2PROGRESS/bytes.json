@@ -3108,18 +3108,18 @@
   },
   "0x4d3e80": {
     "n": "FrontendDraw_BreadcrumbItem",
-    "s": 0.9523809523809523,
-    "x": false,
-    "fz": 0.9629629629629629,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FrontendDraw.cpp",
     "symbol_name": "FrontendDraw_BreadcrumbItem"
   },
   "0x4d3fa0": {
     "n": "FrontendDraw_Breadcrumb",
-    "s": 0.7543859649122807,
-    "x": false,
-    "fz": 0.8245614035087719,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FrontendDraw.cpp",
     "symbol_name": "FrontendDraw_Breadcrumb"
@@ -3189,9 +3189,9 @@
   },
   "0x4d3360": {
     "n": "FrontendDraw_MenuList",
-    "s": 0.7871720116618076,
+    "s": 0.8305582761998042,
     "x": false,
-    "fz": 0.8571428571428571,
+    "fz": 0.8638589618021547,
     "unknown": [],
     "f": "FrontendDraw.cpp",
     "symbol_name": "FrontendDraw_MenuList"
@@ -8022,9 +8022,9 @@
   },
   "0x4d0d30": {
     "n": "Game_DrawFadingBootLabel",
-    "s": 0.6666666666666666,
-    "x": false,
-    "fz": 0.8157894736842105,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "Game_DrawFadingBootLabel"
@@ -8598,9 +8598,9 @@
   },
   "0x49c510": {
     "n": "Game_DrawMeshTextureRuns",
-    "s": 0.7224669603524229,
+    "s": 0.9469026548672567,
     "x": false,
-    "fz": 0.9074889867841409,
+    "fz": 0.9469026548672567,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "Game_DrawMeshTextureRuns"

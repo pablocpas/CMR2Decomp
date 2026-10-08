@@ -634,9 +634,11 @@ int Game_DrawFadingBootLabel(int x, int y, char *pText, char flag)
 {
     int elapsed;
     int alpha;
-    BYTE colour[8];
+    BYTE colour[4];
     short rect[4];
+    int px;
 
+    px = x;
     colour[0] = 0xff;
     colour[1] = 0xff;
     colour[2] = 0xff;
@@ -655,18 +657,17 @@ int Game_DrawFadingBootLabel(int x, int y, char *pText, char flag)
     colour[0] = alpha;
     colour[1] = alpha;
     colour[2] = alpha;
-    Font_DrawText(2, pText, x, y, (int *)colour, 0x11);
+    Font_DrawText(2, pText, px, y, (int *)colour, 0x11);
     if (flag == 0) {
-        x += Font_GetTextWidth(2, (BYTE *)pText);
-        x += (int)(g_pGraphics->resX * 10) / 0x280;
-        rect[0] = (short)x;
-        rect[2] = 2;
+        px += Font_GetTextWidth(2, (BYTE *)pText) + (int)(g_pGraphics->resX * 10) / 0x280;
+        rect[0] = (short)px;
         rect[1] = (int)(g_pGraphics->resY * 200) / 0x1e0;
+        rect[2] = 2;
         rect[3] = (int)(g_pGraphics->resY * 60) / 0x1e0;
-        Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour + 4, 1);
-        x += (int)(g_pGraphics->resX * 10) / 0x280;
+        Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 1);
+        px += (int)(g_pGraphics->resX * 10) / 0x280;
     }
-    return x;
+    return px;
 }
 
 // Prototypes for this boot state (defined in other modules or still stubs).
@@ -2129,9 +2130,9 @@ void Game_DrawMeshTextureRuns(Mesh *pMesh)
                     CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
                     pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
             }
+            prev = texture;
             count = 0;
             CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
-            prev = texture;
         }
         g_unk0x0059be74[count++] = pTri->vertexIndex[0];
         g_unk0x0059be74[count++] = pTri->vertexIndex[1];

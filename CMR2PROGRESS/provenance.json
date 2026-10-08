@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "5d0b1d9244cd203040a93495b363617e522fc1ff",
+    "commit": "eec435b342a4c56ac5860b1d5ae3b1d419ea68dc",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -65,14 +65,14 @@
       "CMR2Decomp/Font.h": "d7caa2f5f9ffd1be17c85ca150c0c30d679988718a4c1f23bbbce3bfd24a5cb1",
       "CMR2Decomp/Frontend.cpp": "2ad7c91c08b97071d048aab5617353bffd88874ea1935194120524ac844909c6",
       "CMR2Decomp/Frontend.h": "1ddbe423195e524addbeabf1d0d574b8e6fd0b392af5f182debe2d4cb34788d8",
-      "CMR2Decomp/FrontendDraw.cpp": "a017a89620ec33fc14fb76902f82435a338592c7fe01bd6c89511e7407ca2616",
+      "CMR2Decomp/FrontendDraw.cpp": "2187d5591b42b4c393a5e7e984b63eb69321c605942a8fa5d5d6a801acbeddac",
       "CMR2Decomp/FrontendDraw.h": "c55e09d37aaeb9698e2052a12a1e6437971d64fe98a3ac82995f97164e1c964e",
       "CMR2Decomp/FrontendMenus.cpp": "d339de3793dc46c3c12890337e688003faa5f1c3947c273b26be0b82d3069ad6",
       "CMR2Decomp/FrontendMenus.h": "cdbe32e65867864d13950fad5dbf93442018ac0c99a1a4a7c97cff7b98393cb7",
       "CMR2Decomp/FrontendNetworkRally.cpp": "04877e99bd48400fbbce1fcca1a48f7611af8e0e9d6992529062dd7537bfd635",
       "CMR2Decomp/FrontendScreens.cpp": "73155794a7055932701940112454f0ace7e1769bc420915d76c35146e137d6e4",
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
-      "CMR2Decomp/Game.cpp": "659b66efb1105c4561699d686a182a8d6d81cf1a58c6af599aaf48adcd71ce32",
+      "CMR2Decomp/Game.cpp": "d9d7fa5dfd98055d09262c2b9a000c181ab0610efad5390d656f673152467090",
       "CMR2Decomp/Game.h": "3ac93fd8707b75dea487ba1a23170a63a0099477a95f0c5a0c7d98c31726bf03",
       "CMR2Decomp/GameInfo.cpp": "0166af853c33b2fac45a16486646b0b7434caae786b04c1c4c97b690769d5d08",
       "CMR2Decomp/GameInfo.h": "191777cd7d1cc6c81276e22879fd745d02fc9fa7b29ac05f0bff3761ae5b8bb7",
@@ -167,18 +167,18 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "4c3b728c31e9b83b08afa573380e855793ae175d2a8d5e79c57e72cf521df5e2",
-    "pdb_sha256": "f35b2f55ebadc622db07403fc5eb5c6f47db44595579fe8730a0acc7b3a41dda"
+    "exe_sha256": "23c49db8be8b24c96c9df3595f3c0f197bb541dde67f04ccd2834f381b55c909",
+    "pdb_sha256": "c256deab5bb78b2c17b3d722b2d0cdc11a78ab1611fd89df69e111c1a2a7c97f"
   },
-  "perfect_match_percent": 52.77,
-  "fuzzy_match_percent": 93.44,
+  "perfect_match_percent": 52.84,
+  "fuzzy_match_percent": 93.45,
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
   "measured_functions": 3368,
-  "reccmp_exact": 2712,
+  "reccmp_exact": 2715,
   "audited_source_functions": 3364,
-  "relocated_byte_exact": 2872,
-  "nonmatching_source_functions": 492,
+  "relocated_byte_exact": 2875,
+  "nonmatching_source_functions": 489,
   "unresolved_source_functions": [
     "0x496e00",
     "0x5062d0",
