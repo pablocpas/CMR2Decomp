@@ -3282,7 +3282,7 @@ void Race_HandleStageReplayViewTransitions(BYTE *param1, unsigned int param2)
     BYTE *pPlayers = param1;
 
     count = *pPlayers;
-    if (count > 0) {
+    if (count >= 1) {
         p = *(BYTE **)(pPlayers + 4);
         for (i = 0; i < count; i++) {
             if (*p != 11)
@@ -4682,7 +4682,7 @@ void Race_ComputeWheelSurfaceSoundVolumes(int param_1, int param_2)
     g_surfaceVolA[param_1] = FixMul(weight, speedVolume);
     g_surfaceVolB[param_1] = FixMul(weightInv, speedVolume);
     g_surfaceVolD[param_1] = FixMul(weight, g_carMaxVolume[param_1]);
-    g_surfaceVolC[param_1] = FixMul(weightInv, g_carMaxVolume[param_1]);
+    g_surfaceVolC[param_1] = FixMul(g_carMaxVolume[param_1], weightInv);
     g_surfaceVolB[param_1] += g_carMaxVolume[param_1];
     g_surfaceVolA[param_1] += g_carMaxVolume[param_1];
     if (g_surfaceVolD[param_1] - g_surfacePrevD[param_1] > 0xc000)

@@ -596,5 +596,19 @@
       "0x4219b0",
       "0x45f9d0"
     ]
+  },
+  "differential_car_body_matrix.py": {
+    "arguments": "object",
+    "object": "Car.obj",
+    "targets": [
+      "0x432cc0"
+    ]
+  },
+  "differential_debris_draw.py": {
+    "arguments": "object",
+    "object": "CarEffects.obj",
+    "targets": [
+      "0x499ac0"
+    ]
   }
 }

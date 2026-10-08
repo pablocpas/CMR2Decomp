@@ -7297,8 +7297,8 @@ void Graphics_DrawMeshTextureBatches(Mesh *pMesh)
 {
     MeshTriangle *pTri = pMesh->pTriangles;
     int total = pMesh->triangleCount;
-    int currentTexture = -1;
     int count = 0;
+    int currentTexture = -1;
     int n;
 
     for (n = total; n > 0; n--) {

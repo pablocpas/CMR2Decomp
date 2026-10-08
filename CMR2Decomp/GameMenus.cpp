@@ -873,7 +873,7 @@ void GameMenu_DrawSplitTimes(Menu *pMenu)
                                   (int *)pColour, 0x11);
                 }
                 for (split = NetRace_GetType8PlayerIndex(); split < GetStageSplitCount(); split++) {
-                    if (split > -1) {
+                    if (split >= 0) {
                         sprintf(CFrontend::m_stringDest, g_noTimeText);
                         Font_DrawText(1, CFrontend::m_stringDest, x,
                                       (int)(g_pGraphics->resY * 0x91) / 480 + header +
@@ -3301,7 +3301,7 @@ void GameMenu_SetupStageResults(int param_1)
                 g_unk0x00541cf0 = 0;
                 g_menu0x00541ae0.items[0].pSubMenu = &g_menu0x0053f790;
                 GameMenu_BuildStageResultsMenu(0, &g_menu0x0053f790);
-            } else if (minPos < 6) {
+            } else if (minPos <= 5) {
                 g_menu0x00541ae0.items[0].pSubMenu = &g_menu0x00541400;
                 GameMenu_BuildStageResultsMenu(1, &g_menu0x00541ae0);
             } else {

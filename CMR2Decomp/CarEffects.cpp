@@ -590,67 +590,65 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 
 // Draw callback of a debris piece: a random triangle, lit, bulging
 // towards the view.
-// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00499ac0
 void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
 {
     FixVector pos;
     FixVector o;
     FixVector cam;
-    FixVector *pShape;
-    Quad2DInputVertex *pV;
     BYTE light[4];
     DWORD *pC;
     int shape;
     int colour;
-    int lr;
-    int lg;
-    int lb;
+    FixVector lighting;
     int len;
     int k;
 
     shape = p->field0x64 >> 8;
     colour = p->field0x64 - shape * 0x100;
-    EFFECT_LIT_COLOUR(light, p->size, NULL);
-    light[2] = (BYTE)(FixMul(g_debrisColours[colour][2] << 16, lb) >> 16);
-    light[0] = (BYTE)FixMulShift32(lr, g_debrisColours[colour][0] << 16);
-    light[1] = (BYTE)FixMulShift32(lg, g_debrisColours[colour][1] << 16);
+    Scene_GetLightColour((DWORD *)light, p->size);
+    lighting.x = FixMul(light[0] << 16, 0x106);
+    if (lighting.x > 0x10000) lighting.x = 0x10000;
+    lighting.y = FixMul(light[1] << 16, 0x106);
+    if (lighting.y > 0x10000) lighting.y = 0x10000;
+    lighting.z = FixMul(light[2] << 16, 0x106);
+    if (lighting.z > 0x10000) lighting.z = 0x10000;
+    lighting.x = FixMul(lighting.x, g_debrisColours[colour][0] << 16);
+    lighting.y = FixMul(lighting.y, g_debrisColours[colour][1] << 16);
+    lighting.z = FixMul(lighting.z, g_debrisColours[colour][2] << 16);
+    light[0] = (BYTE)(lighting.x >> 16);
+    light[1] = (BYTE)(lighting.y >> 16);
+    light[2] = (BYTE)(lighting.z >> 16);
     light[3] = 0xaa;
     pC = (DWORD *)g_debrisTri[0].colour;
     do {
         *pC = *(DWORD *)light;
         pC += 6;
-    } while (pC < (DWORD *)g_debrisTri[3].colour);
+    } while ((int)pC < (int)g_debrisTri[3].colour);
     pos = p->vector0x1c;
     FixMatrix_GetPosition(&o, (FixMatrix *)p->field0x40);
     pos.x += o.x;
     pos.y += o.y;
     pos.z += o.z;
-    pV = g_debrisTri;
-    pShape = g_debrisShapes[shape];
-    do {
-        pV->x = pShape->x + pos.x;
-        pV->y = pShape->y + pos.y;
-        pV->z = pShape->z + pos.z;
-        pV++;
-        pShape++;
-    } while ((int)pV < (int)&g_debrisTri[3]);
+    for (k = 0; k < 3; k++) {
+        g_debrisTri[k].x = g_debrisShapes[shape][k].x + pos.x;
+        g_debrisTri[k].y = g_debrisShapes[shape][k].y + pos.y;
+        g_debrisTri[k].z = g_debrisShapes[shape][k].z + pos.z;
+    }
     FixMatrix_GetPosition(&cam, &pView->current);
-    pV = g_debrisTri;
-    do {
-        o.x = cam.x - pV->x;
-        o.y = cam.y - pV->y;
-        o.z = cam.z - pV->z;
+    for (colour = 0; colour < 3; colour++) {
+        o.x = cam.x - g_debrisTri[colour].x;
+        o.y = cam.y - g_debrisTri[colour].y;
+        o.z = cam.z - g_debrisTri[colour].z;
         len = FixVecLength(&o);
         if (len > 0x18000) {
             k = FixDiv(0x18000, len);
             FixVecScale(&o, &o, k);
         }
-        pV->x += o.x;
-        pV->y += o.y;
-        pV->z += o.z;
-        pV++;
-    } while ((int)pV < (int)&g_debrisTri[3]);
+        g_debrisTri[colour].x += o.x;
+        g_debrisTri[colour].y += o.y;
+        g_debrisTri[colour].z += o.z;
+    }
     Quad2D_QueueFixedTriangle(0, &g_debrisTri[0], &g_debrisTri[1], &g_debrisTri[2], (Texture *)pType->field0x38,
                               (Quad2D *)0x14);
 }

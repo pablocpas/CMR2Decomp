@@ -5918,8 +5918,8 @@ unsigned long Network_GetLocalPlayerID(void);
 // FUNCTION: CMR2 0x004584d0
 void StageTiming_PlaceEventStartingGrid(char param_1)
 {
-    int value = 0;
     int state = 0;
+    int value = 0;
     int i;
     int slot;
     int n;
@@ -5972,8 +5972,8 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
             x = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]);
             z = FixMul(t, g_sinTable[a & 0xfff]);
             if (slot % 2 == 0) {
-                x += sinA;
                 z -= cosA;
+                x += sinA;
             } else {
                 x -= sinA;
                 z += cosA;
@@ -6028,8 +6028,8 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
                 x += sinA;
                 z -= cosA;
             } else {
-                z = cosA + z;
                 x -= sinA;
+                z = cosA + z;
             }
             g_unk0x00542cd8[slot][2] = z + p1[2];
             g_unk0x00542cd8[slot][0] = x + p1[0];

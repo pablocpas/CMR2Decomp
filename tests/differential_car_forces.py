@@ -26,7 +26,7 @@ SCRATCH = 0x31000000
 TARGETS = (0x4387a0, 0x43b100, 0x441500)
 
 
-def object_body(obj, address):
+def object_body(obj, address, source='Car.cpp'):
     """Capture the same resolved instructions used by the score/diff tool."""
     buffers = []
     dis = F.dis
@@ -36,7 +36,7 @@ def object_body(obj, address):
     F.dis = capture
     try:
         names, sizes = F.load_meta()
-        _, _, _, unknown = F.compare(address, str(obj), str(ROOT / 'CMR2Decomp/Car.cpp'),
+        _, _, _, unknown = F.compare(address, str(obj), str(ROOT / 'CMR2Decomp' / source),
                                      names[address], sizes[address])
         assert not unknown, unknown
     finally:

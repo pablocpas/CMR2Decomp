@@ -9493,7 +9493,7 @@ void CarSkid_SpawnWheelDustPuff(int param_1, int param_2, int param_3, int param
         // param_5 and param_8 are dead here; the original reuses their slots.
         param_5 = (int)(__int64)((double)param_5 * CGraphics::m_65536);
         param_8 = g_sinTable[s & 0xfff];
-        amp = FIX_ABS(FixMul(param_5, param_8)) >> 0x10;
+        amp = FIX_ABS(FixMul(param_8, param_5)) >> 0x10;
     }
     a = rand() % (amp + 1);
     x2 = a * param_7 + param_3;
@@ -11049,7 +11049,7 @@ int AI_FindClosestCarInAngleWindow(int param_1, int *param_2, int param_3, int *
             limit = 0x50000;
         else if (limit < 0)
             limit = 0;
-        length = FixMul(length, g_sinTable[(short)(__int64)((double)angle * g_unk0x00511300) & 0xfff]);
+        length = FixMul(g_sinTable[(short)(__int64)((double)angle * g_unk0x00511300) & 0xfff], length);
         i = param_3 + 5;
         if (i - wrap >= 0)
             i -= wrap;
@@ -12700,11 +12700,11 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
             if (axisSteer != -1) {
                 *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb88) = CInput::GetControllerField124((short)((Car *)g_unk0x0058e0a0)->index) ? 1 : 2;
                 raw = ((int *)pDev)[axisSteer * 5 + 0x11f];
-                half = raw < 0 ? -raw : raw;
+                half = raw <= -1 ? -raw : raw;
                 if (raw < 0)
                     ((Car *)g_unk0x0058e0a0)->flag0x1d0[0] = (char)FixMulShift32(half, 0x3f0000);
                 else
-                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[1] = (char)FixMulShift32(half, 0x3f0000);
+                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[1] = (char)FixMulShift32(0x3f0000, half);
             } else if ((pDev->field_0x4 & g_carButtonMasks[0]) != 0) {
                 ((Car *)g_unk0x0058e0a0)->flag0x1d0[0] = 0x3f;
             } else if ((pDev->field_0x4 & g_carButtonMasks[1]) != 0) {
@@ -12716,10 +12716,10 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
                 half = raw < 0 ? -raw : raw;
                 if (axisThrottle == axisBrake) {
                     if ((raw > 0) == (CInput::GetControllerField120(device) != 0)) {
-                        ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = (char)FixMulShift32(half, 0x3f0000);
+                        ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = (char)FixMulShift32(0x3f0000, half);
                     } else {
                         *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb90) = 1;
-                        ((Car *)g_unk0x0058e0a0)->flag0x1d0[3] = (char)FixMulShift32(half, 0x3f0000);
+                        ((Car *)g_unk0x0058e0a0)->flag0x1d0[3] = (char)FixMulShift32(0x3f0000, half);
                     }
                 } else {
                     half = raw / 2;

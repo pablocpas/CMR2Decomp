@@ -670,9 +670,9 @@ noSlide:
         g_unk0x005919a0 = len;
         g_unk0x005918e0 = slide;
         g_unk0x00591ad0 = g_collisionTarget;
-        g_unk0x00591938 = g_collisionDirection;
         g_unk0x00591930 = 1;
         g_unk0x0059199c = 0;
+        g_unk0x00591938 = g_collisionDirection;
     }
 
 skipReflect:

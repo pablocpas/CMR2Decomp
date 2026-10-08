@@ -464,8 +464,8 @@ int Menu_Update(Menu *pMenu, unsigned int input)
         if (bSelect == 0) {
             if (bBack) {
 back:
-                g_unk0x0059f8fc = 1;
                 g_menuNextAction = (int)pMenu->pParent;
+                g_unk0x0059f8fc = 1;
                 if (pMenu->pItemCallbacks != NULL && pMenu->pItemCallbacks->pfnBack != NULL)
                     pMenu->pItemCallbacks->pfnBack(pMenu, ITEM_AT(pMenu, pMenu->cursor), 1);
                 if (g_unk0x0059fa14 != 0)

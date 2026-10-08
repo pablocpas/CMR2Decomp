@@ -5227,8 +5227,8 @@ void InRaceMenu_DrawNetworkPlayerList(Menu *pMenu)
                                   + (int)(g_pGraphics->resY * 0xaa) / 0x1e0
                                   + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,
                               pColour, 0x11);
-            pA = (int *)sub;
             pB = (int *)sub + 1;
+            pA = (int *)sub;
             for (j = 0; j < (int)(BYTE)pItem->min; j++) {
                 text = single == 0 ? (char *)*pA : (char *)*pB;
                 x = (int)(g_pGraphics->resX * 10) / 0x280 + x
@@ -10215,7 +10215,7 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
         int idx = OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2) * 0x14];
         t = FixDiv(OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(idx), 1) << 16,
                    0x640000);
-        if (t < 0)
+        if (t <= -1)
             t = 0;
         else if (t > 0x10000)
             t = 0x10000;
