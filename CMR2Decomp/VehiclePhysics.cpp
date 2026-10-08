@@ -423,14 +423,14 @@ void Vehicle_UpdateMotion(FixVector *pInput)
             g_partState->velocity.y -= direction.y;
             g_partState->velocity.z -= direction.z;
 
-            FixVector *pVelocity = &g_partState->velocity;
-            int normalizedLength = FixVecLength(pVelocity);
+            pInput = &g_partState->velocity;
+            int normalizedLength = FixVecLength(pInput);
             if (normalizedLength == 0) {
-                pVelocity->x = 0;
-                pVelocity->y = 0;
-                pVelocity->z = 0;
+                pInput->x = 0;
+                pInput->y = 0;
+                pInput->z = 0;
             } else {
-                FixVecScaleRecip(pVelocity, pVelocity, normalizedLength);
+                FixVecScaleRecip(pInput, pInput, normalizedLength);
             }
 
             length = FixMul(length, 0x50000);

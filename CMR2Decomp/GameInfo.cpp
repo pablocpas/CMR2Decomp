@@ -1984,28 +1984,24 @@ BYTE OptionMenu_GetRecordGroupAppliedFlag(int i, int j)
     return g_unk0x0082c040[i][j];
 }
 
-// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00509d00
 void OptionPreview_ClearSkyFadeShape(int index)
 {
-    Unk0x0082d220Vec *p = &g_unk0x0082d220[index].field_0x22c;
+    Unk0x0082d220 *pRec = &g_unk0x0082d220[index];
+    int i;
 
-    p->v[0] = 0;
-    p->v[1] = 0;
-    p->v[2] = 0;
-    p->v[3] = 0;
+    for (i = 0; i < 4; i++)
+        pRec->field_0x22c.v[i] = 0;
 }
 
-// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00509d90
 void OptionPreview_ClearColourFractions(int index)
 {
-    Unk0x0082d220Vec *p = &g_unk0x0082d220[index].field_0x23c;
+    Unk0x0082d220 *pRec = &g_unk0x0082d220[index];
+    int i;
 
-    p->v[0] = 0;
-    p->v[1] = 0;
-    p->v[2] = 0;
-    p->v[3] = 0;
+    for (i = 0; i < 4; i++)
+        pRec->field_0x23c.v[i] = 0;
 }
 
 // FUNCTION: CMR2 0x0050a020

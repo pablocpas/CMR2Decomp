@@ -1965,9 +1965,9 @@
   },
   "0x4b9f20": {
     "n": "FixMatrix_Multiply",
-    "s": 0.8571428571428571,
-    "x": false,
-    "fz": 0.9774436090225563,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FixedPoint.cpp",
     "symbol_name": "FixMatrix_Multiply"
@@ -3108,18 +3108,18 @@
   },
   "0x4d3e80": {
     "n": "FrontendDraw_BreadcrumbItem",
-    "s": 0.9523809523809523,
-    "x": false,
-    "fz": 0.9629629629629629,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FrontendDraw.cpp",
     "symbol_name": "FrontendDraw_BreadcrumbItem"
   },
   "0x4d3fa0": {
     "n": "FrontendDraw_Breadcrumb",
-    "s": 0.7543859649122807,
-    "x": false,
-    "fz": 0.8245614035087719,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FrontendDraw.cpp",
     "symbol_name": "FrontendDraw_Breadcrumb"
@@ -3189,9 +3189,9 @@
   },
   "0x4d3360": {
     "n": "FrontendDraw_MenuList",
-    "s": 0.7871720116618076,
+    "s": 0.8305582761998042,
     "x": false,
-    "fz": 0.8571428571428571,
+    "fz": 0.8638589618021547,
     "unknown": [],
     "f": "FrontendDraw.cpp",
     "symbol_name": "FrontendDraw_MenuList"
@@ -8022,9 +8022,9 @@
   },
   "0x4d0d30": {
     "n": "Game_DrawFadingBootLabel",
-    "s": 0.6666666666666666,
-    "x": false,
-    "fz": 0.8157894736842105,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "Game_DrawFadingBootLabel"
@@ -8598,9 +8598,9 @@
   },
   "0x49c510": {
     "n": "Game_DrawMeshTextureRuns",
-    "s": 0.7224669603524229,
+    "s": 0.9469026548672567,
     "x": false,
-    "fz": 0.9074889867841409,
+    "fz": 0.9469026548672567,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "Game_DrawMeshTextureRuns"
@@ -8661,9 +8661,9 @@
   },
   "0x49cbc0": {
     "n": "Game_CompareTransparentDrawEntries",
-    "s": 0.5087719298245614,
+    "s": 0.4424778761061947,
     "x": false,
-    "fz": 0.9649122807017544,
+    "fz": 0.9911504424778761,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "Game_CompareTransparentDrawEntries"
@@ -10506,18 +10506,18 @@
   },
   "0x509d00": {
     "n": "OptionPreview_ClearSkyFadeShape",
-    "s": 0.8695652173913043,
-    "x": false,
-    "fz": 0.8695652173913043,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionPreview_ClearSkyFadeShape"
   },
   "0x509d90": {
     "n": "OptionPreview_ClearColourFractions",
-    "s": 0.8695652173913043,
-    "x": false,
-    "fz": 0.8695652173913043,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionPreview_ClearColourFractions"
@@ -12873,9 +12873,9 @@
   },
   "0x50a920": {
     "n": "OptionMenu_DrawResultsRallyInfo",
-    "s": 0.9236471460340994,
+    "s": 0.9177168272794662,
     "x": false,
-    "fz": 0.9770200148257969,
+    "fz": 0.9740548554484804,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_DrawResultsRallyInfo"
@@ -14050,18 +14050,18 @@
   },
   "0x4a5730": {
     "n": "CGraphics::GetPixelRed",
-    "s": 0.7272727272727273,
-    "x": false,
-    "fz": 0.8939393939393939,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::GetPixelRed"
   },
   "0x4a57e0": {
     "n": "CGraphics::GetPixelAlpha",
-    "s": 0.8153846153846154,
-    "x": false,
-    "fz": 0.9384615384615385,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::GetPixelAlpha"
@@ -14230,18 +14230,18 @@
   },
   "0x4bd970": {
     "n": "CGraphics::SetMipMapCount",
-    "s": 0.9696969696969697,
-    "x": false,
-    "fz": 0.9696969696969697,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::SetMipMapCount"
   },
   "0x4bd9d0": {
     "n": "CGraphics::GetMipMapSurfaces",
-    "s": 0.5609756097560976,
-    "x": false,
-    "fz": 0.9024390243902439,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::GetMipMapSurfaces"
@@ -19700,9 +19700,9 @@
   },
   "0x4eadb0": {
     "n": "RallyData_ResetSavedPlayerRecords",
-    "s": 0.7894736842105263,
+    "s": 0.9473684210526315,
     "x": false,
-    "fz": 0.7894736842105263,
+    "fz": 0.9473684210526315,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_ResetSavedPlayerRecords"
@@ -20348,9 +20348,9 @@
   },
   "0x471bf0": {
     "n": "RallyData_ApplyPlayerFlagsToObjects",
-    "s": 0.616822429906542,
+    "s": 0.6851851851851852,
     "x": false,
-    "fz": 0.7476635514018691,
+    "fz": 0.7777777777777778,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_ApplyPlayerFlagsToObjects"
@@ -20753,18 +20753,18 @@
   },
   "0x40fd30": {
     "n": "RallyData_DrawListItem",
-    "s": 0.5684210526315789,
-    "x": false,
-    "fz": 0.8315789473684211,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_DrawListItem"
   },
   "0x40fec0": {
     "n": "RallyData_DrawLoadingProgress",
-    "s": 0.8322147651006712,
-    "x": false,
-    "fz": 0.87248322147651,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_DrawLoadingProgress"
@@ -21185,9 +21185,9 @@
   },
   "0x40e210": {
     "n": "RallyData_PickUnexcludedGroupEvent",
-    "s": 0.863013698630137,
+    "s": 0.8904109589041096,
     "x": false,
-    "fz": 0.9178082191780822,
+    "fz": 0.9452054794520548,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_PickUnexcludedGroupEvent"
@@ -22166,9 +22166,9 @@
   },
   "0x4b4490": {
     "n": "Scene_ProjectDirtyShadowParts",
-    "s": 0.5953488372093023,
-    "x": false,
-    "fz": 0.8744186046511628,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Scene_ProjectDirtyShadowParts"
@@ -22238,9 +22238,9 @@
   },
   "0x4b4040": {
     "n": "Mesh_GetCornerLight",
-    "s": 0.8805970149253731,
-    "x": false,
-    "fz": 0.9701492537313433,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Mesh_GetCornerLight"
@@ -22454,18 +22454,18 @@
   },
   "0x4b7de0": {
     "n": "Sector_CullGridAroundViewNode",
-    "s": 0.7416020671834626,
+    "s": 0.7896774193548387,
     "x": false,
-    "fz": 0.8630490956072352,
+    "fz": 0.8593548387096774,
     "unknown": [],
     "f": "Sector.cpp",
     "symbol_name": "Sector_CullGridAroundViewNode"
   },
   "0x4b8270": {
     "n": "Sector_RebuildStageGrid",
-    "s": 0.8338983050847457,
+    "s": 0.9016949152542373,
     "x": false,
-    "fz": 0.976271186440678,
+    "fz": 0.9694915254237289,
     "unknown": [],
     "f": "Sector.cpp",
     "symbol_name": "Sector_RebuildStageGrid"
@@ -22880,9 +22880,9 @@
   },
   "0x4a20c0": {
     "n": "Sound_CreatePcmSampleBuffer",
-    "s": 0.8666666666666667,
-    "x": false,
-    "fz": 0.9333333333333333,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Sound.cpp",
     "symbol_name": "Sound_CreatePcmSampleBuffer"
@@ -22898,9 +22898,9 @@
   },
   "0x4a24a0": {
     "n": "Sound_BuildSlotLoopBuffer",
-    "s": 0.8408163265306122,
+    "s": 0.9105691056910569,
     "x": false,
-    "fz": 0.8734693877551021,
+    "fz": 0.9186991869918699,
     "unknown": [],
     "f": "Sound.cpp",
     "symbol_name": "Sound_BuildSlotLoopBuffer"
@@ -24950,9 +24950,9 @@
   },
   "0x4866a0": {
     "n": "StageObject_DestroyStageKindCarNodes",
-    "s": 0.8059701492537313,
-    "x": false,
-    "fz": 0.9253731343283582,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_DestroyStageKindCarNodes"
@@ -25616,9 +25616,9 @@
   },
   "0x477340": {
     "n": "StageObject_FindPlayerRevTextures",
-    "s": 0.6304347826086957,
-    "x": false,
-    "fz": 0.8478260869565217,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_FindPlayerRevTextures"
@@ -28939,9 +28939,9 @@
   },
   "0x418f20": {
     "n": "StageSound_ResetRecordsAndRegisterCleanup",
-    "s": 0.5979381443298969,
+    "s": 0.6041666666666666,
     "x": false,
-    "fz": 0.9484536082474226,
+    "fz": 0.9999,
     "unknown": [],
     "f": "StageUI.cpp",
     "symbol_name": "StageSound_ResetRecordsAndRegisterCleanup"
@@ -29551,9 +29551,9 @@
   },
   "0x492fe0": {
     "n": "Track_SetFogAndSkyAlpha",
-    "s": 0.8366013071895425,
-    "x": false,
-    "fz": 0.9150326797385621,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "TrackCollision.cpp",
     "symbol_name": "Track_SetFogAndSkyAlpha"
@@ -29713,9 +29713,9 @@
   },
   "0x482ac0": {
     "n": "Vehicle_UpdateMotion",
-    "s": 0.9034090909090909,
+    "s": 0.9090909090909091,
     "x": false,
-    "fz": 0.9573863636363636,
+    "fz": 0.9630681818181818,
     "unknown": [],
     "f": "VehiclePhysics.cpp",
     "symbol_name": "Vehicle_UpdateMotion"

@@ -1401,36 +1401,24 @@ void RallyData_SetPlayerDefaultCarSetup(int player);
 
 // Resets the four players' records in the save block (all cleared, then the
 // default flags, setup values and car position of each one).
-// match 79%: the pointer-driven loop and the 0x40-based row accesses reproduce the
-// original's instruction schedule; only the compiler's choice of base register for
-// the row pointer (ours p+0x40 vs the original's p) still differs.
-// kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 95%: only the schedule of the g_unk0x00531650 store against the two
+// loop pointers differs.
 // FUNCTION: CMR2 0x004eadb0
 void RallyData_ResetSavedPlayerRecords(void)
 {
-    BYTE *p;
-    int *q;
     int i;
 
     memset(g_saveProfiles, 0, 0x650 * 4);
     memset(g_unk0x00531350, 0, 0xc0 * 4);
-    // The redundant re-initialisation of i and q keeps the original's store
-    // order (zeroed counter, row base, g_unk0x00531650, then the q base).
-    i = 0;
-    p = g_saveProfiles + 0x14;
     g_unk0x00531650 = 0;
-    q = g_unk0x00531654;
-    for (q = g_unk0x00531654, i = 0; (int)q < (int)(g_unk0x00531654 + 4); q++) {
-        int *pSetup = (int *)(p + 0x40);
-        pSetup[1] = 4;
-        *(unsigned int *)p = (*(unsigned int *)p & 0xffe1f17e) | 0x1017e;
+    for (i = 0; i < 4; i++) {
+        *(int *)(g_saveProfiles + i * 0x650 + 0x58) = 4;
+        *(unsigned int *)(g_saveProfiles + i * 0x650 + 0x14) = (*(unsigned int *)(g_saveProfiles + i * 0x650 + 0x14) & 0xffe1f17e) | 0x1017e;
         g_saveDirty[i] = 0;
-        pSetup[0] |= 0x20;
-        *q = 0;
-        *(int *)(p + 0x38) = 0xf11;
+        *(int *)(g_saveProfiles + i * 0x650 + 0x54) |= 0x20;
+        g_unk0x00531654[i] = 0;
+        *(int *)(g_saveProfiles + i * 0x650 + 0x4c) = 0xf11;
         RallyData_SetPlayerDefaultCarSetup(i);
-        i++;
-        p += 0x650;
     }
     RallyData_MarkAllDriverRecordsUnassigned();
     g_unk0x00531764 = NULL;
@@ -3839,20 +3827,18 @@ unsigned int *RallyData_GetRoundEntry(void)
 void RallyData_ApplyPlayerFlagsToObjects(int car)
 {
     int i;
-    BYTE bit;
     BYTE mask;
     BYTE *pObject;
 
     if ((BYTE)RallyDataState() > 1) {
         mask = 1 << car;
         for (i = 0; i < (int)g_unk0x0058ca6c; i++) {
-            bit = g_unk0x0058c938[i] & mask;
-            if (bit != 0 && g_unk0x0058c958[i] == 0) {
+            if ((g_unk0x0058c938[i] & mask) > 0 && g_unk0x0058c958[i] == 0) {
                 pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
                 *(int *)(pObject + 4) += 0x3e80000;
                 (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0xff;
                 g_unk0x0058c958[i] = 1;
-            } else if (bit == 0 && g_unk0x0058c958[i] != 0) {
+            } else if ((g_unk0x0058c938[i] & mask) == 0 && g_unk0x0058c958[i] != 0) {
                 pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
                 *(int *)(pObject + 4) -= 0x3e80000;
                 (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0;
@@ -4936,29 +4922,28 @@ void RallyData_CreateFrontendChallengeScene(void)
 
 // Draws one item of a horizontal list and, unless it is the last one, the thin
 // separator after it; returns the x the next item starts at.
-// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040fd30
 int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha)
 {
     BYTE colour[4];
-    int width;
+    int px;
 
+    px = x;
     colour[0] = g_itemColour[0];
     colour[1] = g_itemColour[1];
     colour[2] = g_itemColour[2];
     colour[3] = alpha;
-    Font_DrawText(2, pText, x, y, (int *)colour, 0x11);
+    Font_DrawText(2, pText, px, y, (int *)colour, 0x11);
     if (last == 0) {
-        width = Font_GetTextWidth(2, (BYTE *)pText);
-        width = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
-        g_itemRect[0] = (short)width;
-        g_itemRect[2] = 2;
+        px += Font_GetTextWidth(2, (BYTE *)pText) + (int)(g_pGraphics->resX * 10) / 0x280;
+        g_itemRect[0] = (short)px;
         g_itemRect[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);
+        g_itemRect[2] = 2;
         g_itemRect[3] = (short)((int)(g_pGraphics->resY * 0x3c) / 0x1e0);
         Sprite_FillRect((int)g_pGraphics + 0x150, g_itemRect, colour, 1);
-        return width + (int)(g_pGraphics->resX * 10) / 0x280;
+        px += (int)(g_pGraphics->resX * 10) / 0x280;
     }
-    return x;
+    return px;
 }
 
 int RallyData_ShouldEndStageEarly(void);
@@ -4973,15 +4958,14 @@ void RallyData_DrawLoadingProgress(int progress, char drawScene, BYTE alpha)
 {
     BYTE colour[4];
     BYTE colourLit[4];
-    short rect[4];
     int i;
     int limit;
     int wide;
     int narrow;
 
     colour[0] = g_loadBarColour[0];
-    colour[2] = g_loadBarColour[2];
     colour[1] = g_loadBarColour[1];
+    colour[2] = g_loadBarColour[2];
     colour[3] = alpha;
     colourLit[0] = g_loadBarColourLit[0];
     colourLit[1] = g_loadBarColourLit[1];
@@ -5006,6 +4990,8 @@ void RallyData_DrawLoadingProgress(int progress, char drawScene, BYTE alpha)
         limit += 100;
     } while (limit < 1200);
     if (drawScene) {
+        short rect[4];
+
         rect[0] = 0;
         rect[1] = 0;
         rect[2] = (short)g_pGraphics->resX;
@@ -5829,31 +5815,29 @@ int g_unk0x005337cc;
 // FUNCTION: CMR2 0x0040e210
 int RallyData_PickUnexcludedGroupEvent(int exclude1, int exclude2)
 {
-    int *choices = &g_unk0x00533758[17];
-
     if (exclude1 != 0x13 && exclude1 != 0x11 && exclude1 != 0x12) {
-        choices[0] = 0;
-        choices[1] = 0;
-        choices[2] = 0;
-        choices[3] = 0;
+        g_unk0x00533758[17] = 0;
+        g_unk0x00533758[18] = 0;
+        g_unk0x00533758[19] = 0;
+        g_unk0x00533758[20] = 0;
         if (exclude1 >= 0)
             g_unk0x00533758[5 + exclude1] = 1;
         if (exclude2 >= 0)
             g_unk0x00533758[5 + exclude2] = 1;
         g_unk0x005337cc = rand() % 4;
-        while (choices[g_unk0x005337cc] == 1)
+        while (g_unk0x00533758[17 + g_unk0x005337cc] == 1)
             g_unk0x005337cc = rand() % 4;
         return g_unk0x005337cc + 12;
     }
-    choices[0] = 0;
-    choices[1] = 0;
-    choices[2] = 0;
+    g_unk0x00533758[17] = 0;
+    g_unk0x00533758[18] = 0;
+    g_unk0x00533758[19] = 0;
     if (exclude1 >= 0)
         g_unk0x00533758[exclude1] = 1;
     if (exclude2 >= 0)
         g_unk0x00533758[exclude2] = 1;
     g_unk0x005337cc = rand() % 3;
-    while (choices[g_unk0x005337cc] == 1)
+    while (g_unk0x00533758[17 + g_unk0x005337cc] == 1)
         g_unk0x005337cc = rand() % 3;
     return g_unk0x005337cc + 0x11;
 }

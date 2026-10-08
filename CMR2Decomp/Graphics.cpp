@@ -1045,38 +1045,46 @@ void CGraphics::UnlockTexture(Texture *pTexture)
     }
 }
 
+// Position of the lowest set bit of a channel mask.
+static inline BYTE Pixel_MaskShift(unsigned int mask)
+{
+    int shift;
+
+    for (shift = 0; shift < 32; shift++) {
+        if (mask & 1)
+            break;
+        mask >>= 1;
+    }
+    return shift;
+}
+
+// Number of bits set in a channel mask.
+static inline BYTE Pixel_MaskBits(unsigned int mask)
+{
+    int count = 0;
+    int i;
+
+    for (i = 32; i != 0; i--) {
+        if (mask & 1)
+            count++;
+        mask >>= 1;
+    }
+    return count;
+}
+
 // FUNCTION: CMR2 0x004a5730
 unsigned int CGraphics::GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y)
 {
     WORD *pPixel;
     int pad;
-    unsigned int mask;
-    unsigned int bits;
-    int shift;
-    int i;
 
     pad = pDesc->lPitch - (pDesc->dwWidth * pDesc->ddpfPixelFormat.dwRGBBitCount >> 3);
     if (pDesc->ddpfPixelFormat.dwRGBBitCount == 16) {
         pPixel = (WORD *)pDesc->lpSurface + (pDesc->dwWidth + pad) * y + x;
-        mask = pDesc->ddpfPixelFormat.dwRBitMask;
-        bits = mask;
-        for (shift = 0; shift < 32; shift++) {
-            if (bits & 1)
-                break;
-            bits >>= 1;
-        }
-
-        unsigned int count = 0;
-        bits = mask;
-        for (i = 32; i != 0; i--) {
-            if (bits & 1)
-                count++;
-            bits >>= 1;
-        }
-        return (((*pPixel & mask) >> shift) & 0xff) << (8 - count);
+        return (((*pPixel & pDesc->ddpfPixelFormat.dwRBitMask) >> Pixel_MaskShift(pDesc->ddpfPixelFormat.dwRBitMask)) & 0xff)
+               << (8 - Pixel_MaskBits(pDesc->ddpfPixelFormat.dwRBitMask));
     } else if (pDesc->ddpfPixelFormat.dwRGBBitCount == 32) {
-        DWORD pixel = ((DWORD *)pDesc->lpSurface)[(pDesc->dwWidth + pad) * y + x];
-        return pixel >> 16 & 0xff;
+        return (BYTE)(((DWORD *)pDesc->lpSurface)[(pDesc->dwWidth + pad) * y + x] >> 16);
     }
     return 0;
 }
@@ -1086,30 +1094,12 @@ unsigned int CGraphics::GetPixelAlpha(DDSURFACEDESC2 *pDesc, int x, int y)
 {
     WORD *pPixel;
     int pad;
-    unsigned int mask;
-    unsigned int bits;
-    int shift;
-    int i;
 
     pad = pDesc->lPitch - (pDesc->dwWidth * pDesc->ddpfPixelFormat.dwRGBBitCount >> 3);
     if (pDesc->ddpfPixelFormat.dwRGBBitCount == 16) {
         pPixel = (WORD *)pDesc->lpSurface + (pDesc->dwWidth + pad) * y + x;
-        mask = pDesc->ddpfPixelFormat.dwRGBAlphaBitMask;
-        bits = mask;
-        for (shift = 0; shift < 32; shift++) {
-            if (bits & 1)
-                break;
-            bits >>= 1;
-        }
-
-        unsigned int count = 0;
-        bits = mask;
-        for (i = 32; i != 0; i--) {
-            if (bits & 1)
-                count++;
-            bits >>= 1;
-        }
-        return (((*pPixel & mask) >> shift) & 0xff) << (8 - count);
+        return (((*pPixel & pDesc->ddpfPixelFormat.dwRGBAlphaBitMask) >> Pixel_MaskShift(pDesc->ddpfPixelFormat.dwRGBAlphaBitMask)) & 0xff)
+               << (8 - Pixel_MaskBits(pDesc->ddpfPixelFormat.dwRGBAlphaBitMask));
     } else if (pDesc->ddpfPixelFormat.dwRGBBitCount == 32) {
         return ((DWORD *)pDesc->lpSurface)[(pDesc->dwWidth + pad) * y + x] >> 24;
     }
@@ -1304,31 +1294,29 @@ void CGraphics::RestoreSurfaces(void)
     }
 }
 
+// Number of low zero bits of a texture dimension (its mip level count).
+static inline BYTE Mip_LowZeroBits(unsigned int dim)
+{
+    int count;
+
+    for (count = 0; count < 32; count++) {
+        if (dim & 1)
+            break;
+        dim >>= 1;
+    }
+    return count;
+}
+
 // FUNCTION: CMR2 0x004bd970
 void CGraphics::SetMipMapCount(DDSURFACEDESC2 *pDesc)
 {
-    unsigned int dim;
-    int count;
-
-    dim = pDesc->dwHeight;
     pDesc->dwFlags |= DDSD_MIPMAPCOUNT;
-    if (pDesc->dwWidth > dim) {
-        dim = pDesc->dwWidth;
-        for (count = 0; count < 32; count++) {
-            if (dim & 1)
-                break;
-            dim >>= 1;
-        }
-    } else {
-        for (count = 0; count < 32; count++) {
-            if (dim & 1)
-                break;
-            dim >>= 1;
-        }
-    }
-    *(volatile DWORD *)&pDesc->dwMipMapCount = count & 0xff;
-    if (*(volatile DWORD *)&pDesc->dwMipMapCount > 3)
-        *(volatile DWORD *)&pDesc->dwMipMapCount = 3;
+    if (pDesc->dwWidth > pDesc->dwHeight)
+        pDesc->dwMipMapCount = Mip_LowZeroBits(pDesc->dwWidth);
+    else
+        pDesc->dwMipMapCount = Mip_LowZeroBits(pDesc->dwHeight);
+    if (pDesc->dwMipMapCount > 3)
+        pDesc->dwMipMapCount = 3;
     pDesc->ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;
 }
 
@@ -1336,12 +1324,13 @@ void CGraphics::SetMipMapCount(DDSURFACEDESC2 *pDesc)
 void CGraphics::GetMipMapSurfaces(Texture *pTexture)
 {
     IDirectDrawSurface7 *pSurface;
-    DDSCAPS2 caps = { 0 };
+    DDSCAPS2 caps;
     int i;
 
     pSurface = pTexture->pSurface;
-    m_mipMapSurfaces[0] = NULL;
-    m_mipMapSurfaces[1] = NULL;
+    for (i = 0; i < 2; i++)
+        m_mipMapSurfaces[i] = NULL;
+    memset(&caps, 0, sizeof(caps));
     caps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_MIPMAP;
     if (GetSelectedRenderDeviceSurfaceCaps() == 1 || GetSelectedRenderDeviceSurfaceCaps() == 2)
         caps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;

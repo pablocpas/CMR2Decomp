@@ -987,15 +987,16 @@ BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
 BOOL Sound_CreatePcmSampleBuffer(IDirectSound *pDS, IDirectSoundBuffer **ppBuffer, DWORD rate, int bits, int channels, int is3D,
                   DWORD size)
 {
-    PCMWAVEFORMAT format = {0};
+    PCMWAVEFORMAT format;
     DSBUFFERDESC desc;
 
+    memset(&format, 0, sizeof(format));
     format.wf.nSamplesPerSec = rate;
     format.wf.nBlockAlign = (WORD)channels * bits / 8;
-    format.wf.nAvgBytesPerSec = format.wf.nBlockAlign * rate;
-    memset(&desc, 0, sizeof(desc));
     format.wf.wFormatTag = WAVE_FORMAT_PCM;
     format.wf.nChannels = channels;
+    format.wf.nAvgBytesPerSec = format.wf.nBlockAlign * rate;
+    memset(&desc, 0, sizeof(desc));
     format.wBitsPerSample = bits;
     desc.dwSize = sizeof(desc);
     if (g_unk0x005a283c && is3D)
@@ -1042,13 +1043,15 @@ BOOL Sound_CopyBufferData(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData
 // FUNCTION: CMR2 0x004a24a0
 void Sound_BuildSlotLoopBuffer(SoundSlot *pSlot)
 {
-    DSBCAPS caps = {0};
-    WAVEFORMATEX format = {0};
+    DSBCAPS caps;
+    WAVEFORMATEX format;
     void *p1;
     DWORD n1;
     void *p2;
     DWORD n2;
 
+    memset(&caps, 0, sizeof(caps));
+    memset(&format, 0, sizeof(format));
     caps.dwSize = sizeof(caps);
     CSound::IsSoundCallSuccessful(pSlot->pBuffer->GetCaps(&caps));
     CSound::IsSoundCallSuccessful(pSlot->pBuffer->GetFormat(&format, sizeof(format), NULL));

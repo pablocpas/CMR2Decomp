@@ -217,39 +217,26 @@ void FixMatrix_Invert(FixMatrix *pOut, FixMatrix *pIn)
     o[15] = 0x10000;
 }
 
-// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b9f20
-void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB)
+FixMatrix *FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB)
 {
     int b[16];
     int a[16];
     int result[16];
-    int ai, bi;
     int i, j, k;
-    int *pR;
-    int *pA2;
-    int *pB2;
 
     g_fixMatrixMultiplyCount++;
     *(FixMatrix *)a = *pA;
     *(FixMatrix *)b = *pB;
     for (i = 0; i < 4; i++) {
-        pR = &result[i * 4];
-        for (j = 4; j != 0; j--) {
-            *pR = 0;
-            pA2 = &a[i * 4];
-            pB2 = &b[4 - j];
-            for (k = 4; k != 0; k--) {
-                bi = *pB2;
-                ai = *pA2;
-                *pR += FixMul(ai, bi);
-                pB2 += 4;
-                pA2++;
-            }
-            pR++;
+        for (j = 0; j < 4; j++) {
+            result[i * 4 + j] = 0;
+            for (k = 0; k < 4; k++)
+                result[i * 4 + j] += FixMul(a[i * 4 + k], b[k * 4 + j]);
         }
     }
     *pOut = *(FixMatrix *)result;
+    return pOut;
 }
 
 // out = v.x * right + v.y * up + v.z * forward (local -> parent space).

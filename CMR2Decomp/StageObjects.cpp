@@ -5600,23 +5600,20 @@ int RallyData_GetChallengeRenderState(void);
 
 // Destroys, in the four node tables, the nodes of every car that belong to
 // the current stage kind.
-// match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004866a0
 void StageObject_DestroyStageKindCarNodes(void)
 {
     int car;
     int i;
-    SceneNode *pNode;
 
+#define CAR_NODE (*(SceneNode **)((BYTE *)g_unk0x00590d7c[i] + car * 0x1a0))
     for (car = 0; car < g_unk0x00590c64; car++) {
         for (i = 0; i < 4; i++) {
-            if (*(SceneNode **)((BYTE *)g_unk0x00590d7c[i] + car * 0x1a0) != NULL) {
-                pNode = *(SceneNode **)((BYTE *)g_unk0x00590d7c[i] + car * 0x1a0);
-                if ((int)pNode->pParent == RallyData_GetChallengeRenderState())
-                    SceneNode_Destroy(pNode);
-            }
+            if (CAR_NODE != NULL && (int)CAR_NODE->pParent == RallyData_GetChallengeRenderState())
+                SceneNode_Destroy(CAR_NODE);
         }
     }
+#undef CAR_NODE
 }
 
 // FUNCTION: CMR2 0x0048d850
@@ -8641,25 +8638,22 @@ struct Unk0x004a3e20;
 void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
 
 // Finds the rev counter and digit textures for a player.
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00477340
 void StageObject_FindPlayerRevTextures(int player)
 {
     char base[260];
-    unsigned int i;
-    Texture *texture;
+    int i;
 
-    for (i = 0; i < CGraphics::m_textureCount; i++) {
-        texture = CGraphics::m_pTextureManager->textureBuffer[i];
-        _splitpath(texture->name, CFrontend::m_stringDest, CFrontend::m_stringDest,
+    for (i = 0; i < (int)CGraphics::m_textureCount; i++) {
+        _splitpath(CGraphics::m_pTextureManager->textureBuffer[i]->name, CFrontend::m_stringDest, CFrontend::m_stringDest,
                    base, CFrontend::m_stringDest);
         sprintf(CFrontend::m_stringDest, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)base));
         if (strcmp(CFrontend::m_stringDest, CGraphics::m_strSuffixREVCT) == 0) {
-            *(Texture **)(g_stageBlock + 0x220 + player * 8) = texture;
-            Frontend_SetObjectField118((Unk0x004a3e20 *)texture, 2);
+            Frontend_SetObjectField118((Unk0x004a3e20 *)(*(Texture **)(g_stageBlock + 0x220 + player * 8) =
+                                                             CGraphics::m_pTextureManager->textureBuffer[i]), 2);
         }
         if (strcmp(CFrontend::m_stringDest, CGraphics::m_strSuffixDIGIT) == 0)
-            *(Texture **)(g_stageBlock + 0x224 + player * 8) = texture;
+            *(Texture **)(g_stageBlock + 0x224 + player * 8) = CGraphics::m_pTextureManager->textureBuffer[i];
     }
 }
 

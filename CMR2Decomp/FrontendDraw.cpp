@@ -51,27 +51,29 @@ int FrontendDraw_BreadcrumbItem(int x, int y, BYTE *pColour, char last, char *te
 {
     int next;
 
-    Font_DrawText(1, text, x, y, (int *)pColour, 0x11);
+    next = x;
+    Font_DrawText(1, text, next, y, (int *)pColour, 0x11);
     if (last == 0) {
-        x += Font_GetTextWidth(1, (BYTE *)text) + (int)(g_pGraphics->resX * 5) / 640;
-        g_unk0x008189a8[0] = x;
+        next += Font_GetTextWidth(1, (BYTE *)text) + (int)(g_pGraphics->resX * 5) / 640;
+        g_unk0x008189a8[0] = next;
         g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 38) / 480 - (int)(g_pGraphics->resY * 15) / 480;
         g_unk0x008189a8[2] = 1;
         g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 23) / 480;
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
-        x += (int)(g_pGraphics->resX * 5) / 640;
+        next += (int)(g_pGraphics->resX * 5) / 640;
     }
-    return x;
+    return next;
 }
 
-// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d3fa0
 void FrontendDraw_Breadcrumb(int x, int y, char **ppText, int count)
 {
     char last;
     BYTE *pColour;
     int i;
+    int cur;
 
+    cur = x;
     for (i = 0; i < count; i++) {
         if (ppText[i] != NULL) {
             if (i == count - 1) {
@@ -82,7 +84,7 @@ void FrontendDraw_Breadcrumb(int x, int y, char **ppText, int count)
                 pColour = g_colourText0x0052496c;
             }
             strcpy(g_unk0x00818430, ppText[i]);
-            x = FrontendDraw_BreadcrumbItem(x, y, pColour, last, g_unk0x00818430);
+            cur = FrontendDraw_BreadcrumbItem(cur, y, pColour, last, g_unk0x00818430);
         }
     }
 }
@@ -372,7 +374,9 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
     SpriteRect dst;
     BYTE *pColour;
     BYTE *pShadow;
+    int curFirst;
 
+    curFirst = first;
     count = 0;
     hasTitle = 0;
     dst.y = 0;
@@ -394,9 +398,9 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
     if (y == -1)
         y = ((int)(g_pGraphics->resY * 8) / 480 + (int)(g_pGraphics->resY * 38) / 480 +
              (int)(g_pGraphics->resY * 384) / 480) / 2;
-    hasTitle = count - first + hasTitle;
+    hasTitle = count - curFirst + hasTitle;
     top = y - ROW_H() * hasTitle / 2;
-    if (pMenu->cursor == first) {
+    if (pMenu->cursor == curFirst) {
         pColour = g_colourWhite0x00524968;
         pShadow = g_colourShadowWhite0x00524974;
     } else {
@@ -416,31 +420,31 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
     for (row = 0; row < hasTitle; row++) {
-        while (!pMenu->items[first].visible)
-            first++;
+        while (!pMenu->items[curFirst].visible)
+            curFirst++;
         dst.y = (int)(g_pGraphics->resY * 20) / 480 + top + ROW_H() * row - CFrontend::m_pAr640ATexture->height / 2;
         if (title == NULL || row != 0) {
-            if (pMenu->items[first].visible) {
-                if (pMenu->cursor == first && active != 0) {
+            if (pMenu->items[curFirst].visible) {
+                if (pMenu->cursor == curFirst && active != 0) {
                     pColour = g_colourWhite0x00524968;
                     Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, &dst, CFrontend::m_pAr640ATexture, 1, 0, NULL, NULL, pColour, 8);
                 } else {
-                    if (pMenu->items[first].enabled && active != 0)
+                    if (pMenu->items[curFirst].enabled && active != 0)
                         pColour = g_colourText0x0052496c;
                     else
                         pColour = g_colourDim0x00524970;
                     Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, &dst, CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, pColour, 8);
                 }
-                if (pMenu->items[first].id == -1)
-                    Font_DrawText(1, (char *)pMenu->items[first].stringId, x,
+                if (pMenu->items[curFirst].id == -1)
+                    Font_DrawText(1, (char *)pMenu->items[curFirst].stringId, x,
                                   (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
                 else
-                    Font_DrawText(1, CFrontend::GetTextString(pMenu->items[first].id), x,
+                    Font_DrawText(1, CFrontend::GetTextString(pMenu->items[curFirst].id), x,
                                   (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
-                if (pMenu->cursor == first || pMenu->cursor == first + 1) {
+                if (pMenu->cursor == curFirst || pMenu->cursor == curFirst + 1) {
                     pColour = g_colourWhite0x00524968;
                     pShadow = g_colourShadowWhite0x00524974;
-                } else if (!pMenu->items[first].enabled && !pMenu->items[first + 1].enabled) {
+                } else if (!pMenu->items[curFirst].enabled && !pMenu->items[curFirst + 1].enabled) {
                     pColour = g_colourDim0x00524970;
                     pShadow = g_colourShadowDim0x0052497c;
                 } else {
@@ -452,7 +456,7 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
                 g_unk0x008189a8[1]++;
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
             }
-            first++;
+            curFirst++;
         } else {
             g_unk0x008189a8[3] = ROW_H();
             g_unk0x008189a8[1] = top;
