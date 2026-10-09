@@ -29,13 +29,13 @@ unsigned int g_unk0x00816170;
 
 // Screen-space quads of each sprite layer, four vertices per sprite.
 // GLOBAL: CMR2 0x005a2858
-D3DTLVERTEX g_spriteVerts1[1024 * 4];
+GfxTLVertex g_spriteVerts1[1024 * 4];
 // GLOBAL: CMR2 0x005c2858
-D3DTLVERTEX g_spriteVerts2[1024 * 4];
+GfxTLVertex g_spriteVerts2[1024 * 4];
 // GLOBAL: CMR2 0x005fe858
-D3DTLVERTEX g_spriteVerts4[1024 * 4];
+GfxTLVertex g_spriteVerts4[1024 * 4];
 // GLOBAL: CMR2 0x0061e858
-D3DTLVERTEX g_spriteVerts3[1024 * 4];
+GfxTLVertex g_spriteVerts3[1024 * 4];
 
 void Graphics_InvalidateTextureStageCache(void);
 
@@ -64,21 +64,20 @@ void Graphics_InvalidateTextureStageCache(void);
 // FUNCTION: CMR2 0x004a3650
 void Sprite_DrawLayer(int layer)
 {
-    D3DTLVERTEX *pVert;
+    GfxTLVertex *pVert;
     Sprite *pSprite;
     unsigned int count;
     unsigned int n;
     float w, h;
     float u0, u1, v0, v1;
     float t;
-    D3DCOLOR colour;
+    DWORD colour;
     int centre[3];
     short angle;
     FixMatrix rotation;
     FixVector p;
     FixVector out;
 
-    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_CLIPPING, FALSE);
     switch (layer) {
     case 2:
         count = g_spriteCount2;
@@ -131,7 +130,7 @@ void Sprite_DrawLayer(int layer)
             v0 = v1;
             v1 = t;
         }
-        colour = RGBA_MAKE(pSprite->colour[0], pSprite->colour[1], pSprite->colour[2], pSprite->colour[3]);
+        colour = GFX_RGBA(pSprite->colour[0], pSprite->colour[1], pSprite->colour[2], pSprite->colour[3]);
         *(FixVector *)centre = *(FixVector *)pSprite->centre;
         if (centre[0] == -1 && centre[1] == -1 && centre[2] == -1) {
             centre[0] = pSprite->dst.w / 2 + pSprite->dst.x;
@@ -169,16 +168,15 @@ void Sprite_DrawLayer(int layer)
         pSprite = g_spriteLayer1;
         break;
     }
-    CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_POINT);
-    CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT);
+    Gfx_SetStageMinFilter(0, GFX_FILTER_POINT);
+    Gfx_SetStageMagFilter(0, GFX_FILTER_POINT);
     for (n = 0; n < count; n++) {
         CGraphics::ApplyTextureStageChange(0, (int)pSprite[n].pTexture);
-        CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, &pVert[n * 4], 4, 0);
+        Gfx_DrawPrimitiveTL(GFX_TRIANGLESTRIP, (GfxTLVertex *)&pVert[n * 4], 4);
         CGame::m_unk0x0059ce20 += 2;
     }
-    CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
-    CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
-    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_CLIPPING, TRUE);
+    Gfx_SetStageMinFilter(0, GFX_FILTER_LINEAR);
+    Gfx_SetStageMagFilter(0, GFX_FILTER_LINEAR);
     Graphics_InvalidateTextureStageCache();
     CGraphics::InvalidateBlendStateCache();
 }
@@ -230,11 +228,11 @@ void Tri2D_Init(void)
 
 // pPos is a 16.16 screen position; the colour bytes are r, g, b, a.
 // FUNCTION: CMR2 0x004bb800
-void Tri2D_SetVertex(D3DTLVERTEX *pVertex, int *pPos, BYTE *pColour)
+void Tri2D_SetVertex(GfxTLVertex *pVertex, int *pPos, BYTE *pColour)
 {
     pVertex->sx = (float)(pPos[0] * CGraphics::m_oneOver65536);
     pVertex->sy = (float)(pPos[1] * CGraphics::m_oneOver65536);
-    pVertex->color = RGBA_MAKE(pColour[0], pColour[1], pColour[2], pColour[3]);
+    pVertex->color = GFX_RGBA(pColour[0], pColour[1], pColour[2], pColour[3]);
 }
 
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -249,33 +247,33 @@ void Tri2D_Queue(int *pA, int *pB, int *pC, BYTE *pColour, int layer)
         case 2:
             n = g_tri2DCount2;
             i3 = n * 3;
-            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer2)[i3 + 0], pA, pColour);
-            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer2)[i3 + 1], pB, pColour);
-            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer2)[i3 + 2], pC, pColour);
+            Tri2D_SetVertex(&((GfxTLVertex *)g_tri2DLayer2)[i3 + 0], pA, pColour);
+            Tri2D_SetVertex(&((GfxTLVertex *)g_tri2DLayer2)[i3 + 1], pB, pColour);
+            Tri2D_SetVertex(&((GfxTLVertex *)g_tri2DLayer2)[i3 + 2], pC, pColour);
             g_tri2DCount2++;
             break;
         case 3:
             n = g_tri2DCount3;
             i3 = n * 3;
-            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer3)[i3 + 0], pA, pColour);
-            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer3)[i3 + 1], pB, pColour);
-            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer3)[i3 + 2], pC, pColour);
+            Tri2D_SetVertex(&((GfxTLVertex *)g_tri2DLayer3)[i3 + 0], pA, pColour);
+            Tri2D_SetVertex(&((GfxTLVertex *)g_tri2DLayer3)[i3 + 1], pB, pColour);
+            Tri2D_SetVertex(&((GfxTLVertex *)g_tri2DLayer3)[i3 + 2], pC, pColour);
             g_tri2DCount3++;
             break;
         case 4:
             n = g_tri2DCount4;
             i3 = n * 3;
-            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer4)[i3 + 0], pA, pColour);
-            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer4)[i3 + 1], pB, pColour);
-            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer4)[i3 + 2], pC, pColour);
+            Tri2D_SetVertex(&((GfxTLVertex *)g_tri2DLayer4)[i3 + 0], pA, pColour);
+            Tri2D_SetVertex(&((GfxTLVertex *)g_tri2DLayer4)[i3 + 1], pB, pColour);
+            Tri2D_SetVertex(&((GfxTLVertex *)g_tri2DLayer4)[i3 + 2], pC, pColour);
             g_tri2DCount4++;
             break;
         default:
             n = g_tri2DCount1;
             i3 = n * 3;
-            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer1)[i3 + 0], pA, pColour);
-            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer1)[i3 + 1], pB, pColour);
-            Tri2D_SetVertex(&((D3DTLVERTEX *)g_tri2DLayer1)[i3 + 2], pC, pColour);
+            Tri2D_SetVertex(&((GfxTLVertex *)g_tri2DLayer1)[i3 + 0], pA, pColour);
+            Tri2D_SetVertex(&((GfxTLVertex *)g_tri2DLayer1)[i3 + 1], pB, pColour);
+            Tri2D_SetVertex(&((GfxTLVertex *)g_tri2DLayer1)[i3 + 2], pC, pColour);
             g_tri2DCount1++;
             break;
         }
@@ -480,8 +478,8 @@ void Line2D_Queue(int *pA, int *pB, BYTE *pColourA, BYTE *pColourB)
 struct Line2DVertex {
     float x, y, z;
     float nx, ny, nz;
-    D3DCOLOR diffuse;
-    D3DCOLOR specular;
+    DWORD diffuse;
+    DWORD specular;
     float u, v;
     float u2, v2;
 };
@@ -492,37 +490,35 @@ struct Line2DVertex {
 // FUNCTION: CMR2 0x004bb2b0
 void ScreenLine2D_Draw(int layer)
 {
-    D3DTLVERTEX v[2];
+    GfxTLVertex v[2];
     ScreenLine2D *p;
     unsigned int i;
 
     if (g_unk0x0072f2a0 == 0 || layer == 4)
         return;
-    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_CLIPPING, FALSE);
     CGraphics::ApplyTextureStageChange(0, 0);
     for (i = 0, p = g_screenLine2D; i < (unsigned int)g_unk0x0072f2a0; i++, p++) {
         if (layer != p->layer)
             continue;
         v[0].sx = (float)p->a[0] * CGraphics::m_oneOver65536;
-        v[0].color = RGBA_MAKE(p->colourA[0], p->colourA[1], p->colourA[2], p->colourA[3]);
+        v[0].color = GFX_RGBA(p->colourA[0], p->colourA[1], p->colourA[2], p->colourA[3]);
         v[0].rhw = 1.0f;
         v[0].sy = (float)p->a[1] * CGraphics::m_oneOver65536;
-        v[0].specular = RGBA_MAKE(p->colourB[0], p->colourB[1], p->colourB[2], p->colourB[3]);
+        v[0].specular = GFX_RGBA(p->colourB[0], p->colourB[1], p->colourB[2], p->colourB[3]);
         v[0].sz = (float)p->a[2] * CGraphics::m_oneOver65536;
         v[0].tv = 0.0f;
         v[0].tu = 0.0f;
-        v[1].color = RGBA_MAKE(p->colourB[0], p->colourB[1], p->colourB[2], p->colourB[3]);
+        v[1].color = GFX_RGBA(p->colourB[0], p->colourB[1], p->colourB[2], p->colourB[3]);
         v[1].sx = (float)p->b[0] * CGraphics::m_oneOver65536;
         v[1].rhw = 1.0f;
         v[1].tv = 0.0f;
         v[1].tu = 0.0f;
         v[1].sy = (float)p->b[1] * CGraphics::m_oneOver65536;
         v[1].sz = (float)p->b[2] * CGraphics::m_oneOver65536;
-        CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_LINELIST, D3DFVF_TLVERTEX, v, 2, 0);
+        Gfx_DrawPrimitiveTL(GFX_LINELIST, (GfxTLVertex *)v, 2);
     }
     if (layer == 1)
         g_unk0x0072f2a0 = 0;
-    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_CLIPPING, TRUE);
 }
 
 // Draws and empties the queued 3D lines with alpha blending.
@@ -537,18 +533,18 @@ void Line2D_Draw(void)
     if (g_line2DCount == 0)
         return;
     CGraphics::ApplyTextureStageChange(0, 0);
-    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+    Gfx_SetSrcBlend(GFX_BLEND_SRCALPHA);
+    Gfx_SetDestBlend(GFX_BLEND_INVSRCALPHA);
     for (i = 0, p = g_line2D; i < g_line2DCount; i++, p++) {
         v[0].x = (float)p->a[0] * CGraphics::m_oneOver65536;
         v[0].y = (float)p->a[1] * CGraphics::m_oneOver65536;
-        v[0].diffuse = RGBA_MAKE(p->colourA[0], p->colourA[1], p->colourA[2], p->colourA[3]);
+        v[0].diffuse = GFX_RGBA(p->colourA[0], p->colourA[1], p->colourA[2], p->colourA[3]);
         v[0].z = (float)p->a[2] * CGraphics::m_oneOver65536;
-        v[1].diffuse = RGBA_MAKE(p->colourB[0], p->colourB[1], p->colourB[2], p->colourB[3]);
+        v[1].diffuse = GFX_RGBA(p->colourB[0], p->colourB[1], p->colourB[2], p->colourB[3]);
         v[1].x = (float)p->b[0] * CGraphics::m_oneOver65536;
         v[1].y = (float)p->b[1] * CGraphics::m_oneOver65536;
         v[1].z = (float)p->b[2] * CGraphics::m_oneOver65536;
-        CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_LINELIST, 0x2d2, v, 2, 0);
+        CGraphics::m_pTextureManager->pD3D->DrawPrimitive(GFX_LINELIST, 0x2d2, v, 2, 0);
     }
     g_line2DCount = 0;
 }
@@ -562,8 +558,7 @@ void Tri2D_DrawLayer(int layer)
     case 2:
         if (g_tri2DCount2 > 0u) {
             CGraphics::ApplyTextureStageChange(0, 0);
-            CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer2,
-                                                              g_tri2DCount2 * 3, 0);
+            Gfx_DrawPrimitiveTL(GFX_TRIANGLELIST, (GfxTLVertex *)g_tri2DLayer2, g_tri2DCount2 * 3);
             CGame::m_unk0x0059ce20 += g_tri2DCount2;
             g_tri2DCount2 = 0;
         }
@@ -571,8 +566,7 @@ void Tri2D_DrawLayer(int layer)
     case 3:
         if (g_tri2DCount3 > 0u) {
             CGraphics::ApplyTextureStageChange(0, 0);
-            CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer3,
-                                                              g_tri2DCount3 * 3, 0);
+            Gfx_DrawPrimitiveTL(GFX_TRIANGLELIST, (GfxTLVertex *)g_tri2DLayer3, g_tri2DCount3 * 3);
             CGame::m_unk0x0059ce20 += g_tri2DCount3;
             g_tri2DCount3 = 0;
         }
@@ -580,8 +574,7 @@ void Tri2D_DrawLayer(int layer)
     case 4:
         if (g_tri2DCount4 > 0u) {
             CGraphics::ApplyTextureStageChange(0, 0);
-            CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer4,
-                                                              g_tri2DCount4 * 3, 0);
+            Gfx_DrawPrimitiveTL(GFX_TRIANGLELIST, (GfxTLVertex *)g_tri2DLayer4, g_tri2DCount4 * 3);
             CGame::m_unk0x0059ce20 += g_tri2DCount4;
             g_tri2DCount4 = 0;
         }
@@ -589,8 +582,7 @@ void Tri2D_DrawLayer(int layer)
     default:
         if (g_tri2DCount1 > 0u) {
             CGraphics::ApplyTextureStageChange(0, 0);
-            CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer1,
-                                                              g_tri2DCount1 * 3, 0);
+            Gfx_DrawPrimitiveTL(GFX_TRIANGLELIST, (GfxTLVertex *)g_tri2DLayer1, g_tri2DCount1 * 3);
             CGame::m_unk0x0059ce20 += g_tri2DCount1;
             g_tri2DCount1 = 0;
         }
@@ -758,8 +750,7 @@ void Quad2D_DrawLayer(unsigned int layer)
             pVB = CGraphics::m_pTextureManager->pVertexBuffer1;
             pVB->Unlock();
             if (n > 0) {
-                CGraphics::m_pTextureManager->pD3D->DrawPrimitiveVB(D3DPT_TRIANGLELIST,
-                                                                    CGraphics::m_pTextureManager->pVertexBuffer1, 0, n, 0);
+                Gfx_DrawPrimitiveVB(GFX_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffer1, 0, n);
                 n = 0;
             }
             CGraphics::m_pTextureManager->pVertexBuffer1->Lock(DDLOCK_WAIT | DDLOCK_WRITEONLY, (LPVOID *)&pData, NULL);
@@ -789,8 +780,7 @@ void Quad2D_DrawLayer(unsigned int layer)
             pLast = &g_quad2DLayerD[count - 1];
         QUAD2D_SET_STATE(pLast);
         QUAD2D_SET_FLAGS(pLast);
-        CGraphics::m_pTextureManager->pD3D->DrawPrimitiveVB(D3DPT_TRIANGLELIST,
-                                                            CGraphics::m_pTextureManager->pVertexBuffer1, 0, n, 0);
+        Gfx_DrawPrimitiveVB(GFX_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffer1, 0, n);
     }
     CGraphics::ApplyTextureStageChange(0, 0);
     CGraphics::SetZEnable(1);
@@ -853,7 +843,7 @@ void Quad2D_QueueFixedTriangle(int, Quad2DInputVertex *pA,
     p->verts.v[0].z = (float)(pA->z * CGraphics::m_oneOver65536);
     p->verts.v[0].u = (float)(pA->u * CGraphics::m_oneOver65536);
     p->verts.v[0].v = (float)(pA->v * CGraphics::m_oneOver65536);
-    p->verts.v[0].colour = RGBA_MAKE(pA->colour[0], pA->colour[1],
+    p->verts.v[0].colour = GFX_RGBA(pA->colour[0], pA->colour[1],
                                       pA->colour[2], pA->colour[3]);
     p->verts.v[0].specular = 0xff000000;
 
@@ -862,7 +852,7 @@ void Quad2D_QueueFixedTriangle(int, Quad2DInputVertex *pA,
     p->verts.v[1].z = (float)(pB->z * CGraphics::m_oneOver65536);
     p->verts.v[1].u = (float)(pB->u * CGraphics::m_oneOver65536);
     p->verts.v[1].v = (float)(pB->v * CGraphics::m_oneOver65536);
-    p->verts.v[1].colour = RGBA_MAKE(pB->colour[0], pB->colour[1],
+    p->verts.v[1].colour = GFX_RGBA(pB->colour[0], pB->colour[1],
                                       pB->colour[2], pB->colour[3]);
     p->verts.v[1].specular = 0xff000000;
 
@@ -871,7 +861,7 @@ void Quad2D_QueueFixedTriangle(int, Quad2DInputVertex *pA,
     p->verts.v[2].z = (float)(pC->z * CGraphics::m_oneOver65536);
     p->verts.v[2].u = (float)(pC->u * CGraphics::m_oneOver65536);
     p->verts.v[2].v = (float)(pC->v * CGraphics::m_oneOver65536);
-    p->verts.v[2].colour = RGBA_MAKE(pC->colour[0], pC->colour[1],
+    p->verts.v[2].colour = GFX_RGBA(pC->colour[0], pC->colour[1],
                                       pC->colour[2], pC->colour[3]);
     p->verts.v[2].specular = 0xff000000;
 }

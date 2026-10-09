@@ -1,3 +1,4 @@
+#include "port/sys.h"
 #include "FileBuffer.h"
 #include "GenericFileLoader.h"
 #include "Game.h"
@@ -14,96 +15,63 @@ int CFileBuffer::m_unk0x0066461c;
 int CFileBuffer::m_unk0x00664620;
 
 // FUNCTION: CMR2 0x004aad70
+// PORT: GlobalAlloc(GHND) + GlobalLock: zero-filled heap memory.
 void *CFileBuffer::AllocateLockedBuffer(size_t iSize)
 {
-    HANDLE handle;
-    void *buffer;
-
-    handle = GlobalAlloc(0x42, iSize);
-    buffer = GlobalLock(handle);
-    return buffer;
+    return calloc(1, iSize);
 }
 
 // FUNCTION: CMR2 0x004aad90
+// PORT: GlobalReAlloc of the block (the grown part is not cleared).
 void *CFileBuffer::ReallocateLockedBuffer(void *buffer, size_t iSize)
 {
-    HGLOBAL handle;
-    UINT flags;
-
     if (buffer != NULL)
-    {
-        handle = GlobalHandle(buffer);
-        GlobalUnlock(handle);
-        flags = 0;
-        handle = GlobalReAlloc(GlobalHandle(buffer), iSize, flags);
-        return GlobalLock(handle);
-    }
-
-    handle = AllocateLockedBuffer(iSize);
-    return handle;
+        return realloc(buffer, iSize);
+    return AllocateLockedBuffer(iSize);
 }
 
 // match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aa220
+// PORT: files are found through Sys (game data or user directory, any case).
+// A missing install file asks to retry, as the original asked for the CD;
+// the original's retry recursion is gone.
 void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
 {
     // isLocalFile is basically is it on the HDD? this function is called by loadnetworkleaderboards,loadcontrollerconfig,etc. with param2 as 1
     void *unk0x004bdee0, *lpBuffer;
     BFLHeader pFileHeaderOut;
-    DWORD fileAttributes, fileSize, fileSizeRead;
+    DWORD fileSize, fileSizeRead;
     size_t iHeaderSize;
     bool bIsBFL;
-    HANDLE hFile;
+    SysFile *file;
     char _fileName[MAX_PATH];
-    // Graphics *pGraphics;
-    IDirectDraw7 *pDD7;
+    char hostPath[1024];
 
     lpBuffer = NULL;
     bIsBFL = FALSE;
-    sprintf(_fileName, fileName);
+    snprintf(_fileName, sizeof(_fileName), "%s", fileName);
 
-    unk0x004bdee0 = gzopen(_fileName, m_unk0x00520f1c);
+    unk0x004bdee0 = NULL;
+    if (Sys_ResolvePath(_fileName, FALSE, hostPath, sizeof(hostPath)))
+        unk0x004bdee0 = gzopen(hostPath, m_unk0x00520f1c);
     if (!unk0x004bdee0)
     {
-        if (!isLocalFile && g_pGraphics && g_pGraphics->pDD7 != NULL)
+        if (isLocalFile || !g_pGraphics)
+            return NULL;
+
+        // an install file: ask until it can be opened
+        do
         {
-            // an install/CD file: ask for the CD until it can be opened
-            g_pGraphics->pDD7->FlipToGDISurface();
-            ShowCursor(TRUE);
-
-            do
-            {
-                if (CInstallInfo::ShowNoCDErrorMessage())
-                    unk0x004bdee0 = gzopen(_fileName, m_unk0x00520f1c);
-            } while (!unk0x004bdee0);
-
-            ShowCursor(FALSE);
-            ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
-        }
-        else
-        {
-            if (g_pGraphics && g_pGraphics->pDD7)
-                g_pGraphics->pDD7->FlipToGDISurface();
-
-            // make sure file exists
-            fileAttributes = GetFileAttributesA(_fileName);
-            if (fileAttributes == -1)
-                return NULL;
-
-            // retry counter; the original discards the retry's result and
-            // carries on with the failed handle (gzread then fails and it
-            // falls back to CreateFileA below)
-            if (++m_unk0x0066461c >= 50)
-                return NULL;
-            GetGenericFileBuffer(fileName, isLocalFile);
-        }
+            if (CInstallInfo::ShowNoCDErrorMessage() && Sys_ResolvePath(_fileName, FALSE, hostPath, sizeof(hostPath)))
+                unk0x004bdee0 = gzopen(hostPath, m_unk0x00520f1c);
+        } while (!unk0x004bdee0);
     }
 
     // check if its a BFL
     iHeaderSize = gzread(unk0x004bdee0, &pFileHeaderOut, 8);
     if (iHeaderSize == 8U && pFileHeaderOut.ident[0] == 0x43 && pFileHeaderOut.ident[1] == 0x4d && pFileHeaderOut.ident[2] == 0x50 && pFileHeaderOut.ident[3] == 0x52)
     {
-        if (pFileHeaderOut.archiveSize == INVALID_FILE_SIZE)
+        if (pFileHeaderOut.archiveSize == 0xffffffff)
             return NULL;
 
         lpBuffer = AllocateLockedBuffer(pFileHeaderOut.archiveSize);
@@ -116,51 +84,33 @@ void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
 
     if (!bIsBFL)
     {
-        hFile = CreateFileA(_fileName, GENERIC_READ, 1, NULL, 3, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (hFile == INVALID_HANDLE_VALUE)
-        {
-            if (g_pGraphics && g_pGraphics->pDD7)
-                g_pGraphics->pDD7->FlipToGDISurface();
+        file = Sys_OpenFile(_fileName, SYS_FILE_READ);
+        if (file == NULL)
+            return NULL;
 
-            fileAttributes = GetFileAttributesA(_fileName);
-            if (fileAttributes == -1)
-                return NULL;
-
-            // another retry counter?
-            // i swear this needs to return but the original asm doesn't have a huge RET block here
-            // whereas the new ASM does if this returns. returning here makes way more sense though
-            if (50 > ++m_unk0x00664620)
-                return GetGenericFileBuffer(_fileName, isLocalFile);
-            else
-                return NULL;
-        }
-
-        fileSize = GetFileSize(hFile, NULL);
+        fileSize = Sys_GetFileSize(file);
         CGenericFileLoader::m_fileSize = fileSize;
 
-        if (fileSize == INVALID_FILE_SIZE)
+        if (fileSize == 0xffffffff) {
+            Sys_CloseFile(file);
             return NULL;
+        }
 
         lpBuffer = AllocateLockedBuffer(fileSize);
-        ReadFile(hFile, lpBuffer, fileSize, &fileSizeRead, NULL);
+        fileSizeRead = Sys_ReadFile(file, lpBuffer, fileSize);
+        Sys_CloseFile(file);
         if (fileSizeRead != fileSize)
             return NULL;
-
-        CloseHandle(hFile);
     }
 
     return lpBuffer;
 }
 
 // FUNCTION: CMR2 0x004aade0
+// PORT: GlobalUnlock + GlobalFree.
 void CFileBuffer::FreeGenericFileBuffer(void *param1)
 {
-    HANDLE handle;
-
-    handle = GlobalHandle(param1);
-    GlobalUnlock(handle);
-    handle = GlobalHandle(param1);
-    GlobalFree(handle);
+    free(param1);
 }
 
 // GLOBAL: CMR2 0x00531650
@@ -511,13 +461,25 @@ char g_strPpsDirFormat[8] = "%s\\pps\\";
 // Rebuilds the player-profile file list: enters <hd>\pps, scans *.pps and
 // appends one 12-byte date block per file (the buffer grows by 12 bytes each time).
 // FUNCTION: CMR2 0x004eb700
+// PORT: Sys_ListFiles instead of SetCurrentDirectory + FindFirstFile; each
+// profile is read by its full game path.
+static int Profile_AddListedFile(const char *name, void *pDir)
+{
+    char path[520];
+    char found;
+
+    sprintf(path, "%s%s", (const char *)pDir, name);
+    g_unk0x00531764 = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
+        g_unk0x00531764, (g_unk0x00531650 * 3 + 3) * 4);
+    found = Profile_ReadFileHeaderDate((Unk0x10Block *)(g_unk0x00531764 + g_unk0x00531650 * 0xc), path);
+    if (found != 0)
+        g_unk0x00531650++;
+    return 1;
+}
+
 void Profile_RebuildFileList(void)
 {
-    WIN32_FIND_DATAA find;
-    char oldDir[260];
     char ppsDir[260];
-    HANDLE hFind;
-    char found;
 
     if (g_unk0x00818cd0 == 0) {
         g_unk0x00818cd0 = 1;
@@ -528,25 +490,6 @@ void Profile_RebuildFileList(void)
         g_unk0x00531764 = NULL;
     }
     g_unk0x00531650 = 0;
-    GetCurrentDirectoryA(260, oldDir);
     sprintf(ppsDir, g_strPpsDirFormat, CInstallInfo::GetGameHDPath());
-    if (SetCurrentDirectoryA(ppsDir) != 0 &&
-        (hFind = FindFirstFileA(g_strPpsPattern, &find)) != INVALID_HANDLE_VALUE) {
-        g_unk0x00531764 = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
-            g_unk0x00531764, (g_unk0x00531650 * 3 + 3) * 4);
-        found = Profile_ReadFileHeaderDate((Unk0x10Block *)(g_unk0x00531764 + g_unk0x00531650 * 0xc),
-                             find.cFileName);
-        if (found != 0)
-            g_unk0x00531650++;
-        while (FindNextFileA(hFind, &find) != 0) {
-            g_unk0x00531764 = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
-                g_unk0x00531764, (g_unk0x00531650 * 3 + 3) * 4);
-            found = Profile_ReadFileHeaderDate((Unk0x10Block *)(g_unk0x00531764 + g_unk0x00531650 * 0xc),
-                                 find.cFileName);
-            if (found != 0)
-                g_unk0x00531650++;
-        }
-        FindClose(hFind);
-    }
-    SetCurrentDirectoryA(oldDir);
+    Sys_ListFiles(ppsDir, g_strPpsPattern, Profile_AddListedFile, ppsDir);
 }

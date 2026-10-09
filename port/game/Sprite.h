@@ -59,7 +59,7 @@ void Quad2D_QueueFixedTriangle(int, Quad2DInputVertex *pA, Quad2DInputVertex *pB
 
 // Queued 2D triangle (three transformed vertices); four layers of 0x400.
 struct Tri2D {
-    D3DTLVERTEX v[3];
+    GfxTLVertex v[3];
 };
 
 #define TRI2D_LAYER_MAX 0x400
@@ -92,7 +92,7 @@ void Line2D_Queue(int *pA, int *pB, BYTE *pColourA, BYTE *pColourB);
 int Line2D_Shutdown(void);
 void Tri2D_Init(void);
 void Tri2D_Queue(int *pA, int *pB, int *pC, BYTE *pColour, int layer);
-void Tri2D_SetVertex(D3DTLVERTEX *pVertex, int *pPos, BYTE *pColour);
+void Tri2D_SetVertex(GfxTLVertex *pVertex, int *pPos, BYTE *pColour);
 int Tri2D_Shutdown(void);
 
 #endif

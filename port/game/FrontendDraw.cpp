@@ -1,3 +1,4 @@
+#include "port/sys.h"
 #include <string.h>
 #include "FrontendDraw.h"
 #include "Frontend.h"
@@ -262,7 +263,7 @@ void FrontendDraw_Carousel(Menu *pMenu, char active, char *help)
     g_unk0x008189a8[2] = 1;
     g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 384) / 480;
     g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 45) / 480;
-    now = timeGetTime();
+    now = Sys_GetTicks();
     FrontendScroller_GetSelectionAndTimestamp(&state[1], &state[0]);
     now -= state[0];
     if (help == NULL)
@@ -587,7 +588,7 @@ void FrontendDraw_ScrollerRow(MenuScroller *p, char active)
     g_unk0x008189a8[2] = 1;
     g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 384) / 480;
     g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 45) / 480;
-    now = timeGetTime();
+    now = Sys_GetTicks();
     if (p->previous != -1 && now - p->startTime <= 250) {
         CFrontend::GetTextString(pMenu->items[pMenu->cursor].id);
         x0 = (int)(g_pGraphics->resX * 102) / 640 + p->offset;

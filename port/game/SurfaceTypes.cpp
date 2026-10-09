@@ -521,10 +521,9 @@ char g_carSoundShort[14][0x14] = {
     "focus", "lancer", "toy", "sub", "206", "seat", "delta", "cos", "mini", "met", "stratos", "205", "focus", "focus"
 };
 
-#pragma data_seg(".cmrzero")
 // Keeps .cmrzero file-backed (not a symbol from the original).
+// PORT: section placement only mattered for the matching build.
 int g_cmr2ZeroDataSeed = 1;
-#pragma data_seg()
 // GLOBAL: CMR2 0x0058dd68
 int g_unk0x0058dd68[2];
 // GLOBAL: CMR2 0x0058dd78
@@ -562,7 +561,6 @@ int g_unk0x0058df30[2];
 int g_unk0x0058ddc8Pair[2];
 #define g_unk0x0058ddc8 (g_unk0x0058ddc8Pair[0])
 #define g_unk0x0058ddcc (g_unk0x0058ddc8Pair[1])
-#pragma data_seg()
 
 void Sound_SetMasterVolume(int volume);
 unsigned char RallyDataState(void);

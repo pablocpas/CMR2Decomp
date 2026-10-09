@@ -1,3 +1,4 @@
+#include "port/sys.h"
 #include "GameInfo.h"
 #include "Menu.h"
 #include "Graphics.h"
@@ -3317,7 +3318,8 @@ void SavedGames_MakeUnusedFileName(char *pName)
 
     for (i = 0; exists; i++) {
         sprintf(pName, g_strSaveGameFileFormat, CInstallInfo::GetGameHDPath(), i);
-        if (_access(pName, 0) == -1)
+        // PORT: _access through Sys.
+        if (!Sys_FileExists(pName))
             exists = false;
     }
 }
@@ -3346,45 +3348,35 @@ void FrontendText_FormatCodeGroups(char *pText)
 // Reads every saved game (<install>\gamesave\*.rcs) into the saved games
 // list: one 0x7f4-byte record per file plus its file name.
 // FUNCTION: CMR2 0x004f4ef0
+// PORT: Sys_ListFiles instead of SetCurrentDirectory + FindFirstFile; each
+// save is read by its full game path, and the list keeps the file name.
+static int SavedGames_AddListedFile(const char *name, void *pDir)
+{
+    char path[520];
+    void *pRecord;
+
+    sprintf(path, "%s%s", (const char *)pDir, name);
+    pRecord = CFileBuffer::GetGenericFileBuffer(path, TRUE);
+    if (pRecord != NULL) {
+        g_unk0x0081b14c = CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b14c, (g_unk0x0081b154 + 1) * 0x7f4);
+        memcpy((BYTE *)g_unk0x0081b14c + g_unk0x0081b154 * 0x7f4, pRecord, 0x7f4);
+        g_unk0x0081b150 = (void **)CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b150, g_unk0x0081b154 * 4 + 4);
+        g_unk0x0081b150[g_unk0x0081b154] = CFileBuffer::AllocateLockedBuffer(0x100);
+        strcpy((char *)g_unk0x0081b150[g_unk0x0081b154], name);
+        g_unk0x0081b154++;
+        CFileBuffer::FreeGenericFileBuffer(pRecord);
+    }
+    return 1;
+}
+
 void SavedGames_LoadRecords(void)
 {
-    WIN32_FIND_DATAA find;
     char saveDir[260];
-    char oldDir[260];
-    HANDLE hFind;
-    void *pRecord;
 
     SavedGames_ReleaseRecords();
     g_unk0x0081b154 = 0;
-    GetCurrentDirectoryA(sizeof(oldDir), oldDir);
     sprintf(saveDir, g_strSaveGameDirFormat, CInstallInfo::GetGameHDPath());
-    if (SetCurrentDirectoryA(saveDir) != 0 &&
-        (hFind = FindFirstFileA(g_strSaveGamePattern, &find)) != INVALID_HANDLE_VALUE) {
-        pRecord = CFileBuffer::GetGenericFileBuffer(find.cFileName, TRUE);
-        if (pRecord != NULL) {
-            g_unk0x0081b14c = CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b14c, (g_unk0x0081b154 + 1) * 0x7f4);
-            memcpy((BYTE *)g_unk0x0081b14c + g_unk0x0081b154 * 0x7f4, pRecord, 0x7f4);
-            g_unk0x0081b150 = (void **)CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b150, g_unk0x0081b154 * 4 + 4);
-            g_unk0x0081b150[g_unk0x0081b154] = CFileBuffer::AllocateLockedBuffer(0x100);
-            strcpy((char *)g_unk0x0081b150[g_unk0x0081b154], find.cFileName);
-            g_unk0x0081b154++;
-            CFileBuffer::FreeGenericFileBuffer(pRecord);
-        }
-        while (FindNextFileA(hFind, &find) != 0) {
-            pRecord = CFileBuffer::GetGenericFileBuffer(find.cFileName, TRUE);
-            if (pRecord != NULL) {
-                g_unk0x0081b14c = CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b14c, (g_unk0x0081b154 + 1) * 0x7f4);
-                memcpy((BYTE *)g_unk0x0081b14c + g_unk0x0081b154 * 0x7f4, pRecord, 0x7f4);
-                g_unk0x0081b150 = (void **)CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b150, g_unk0x0081b154 * 4 + 4);
-                g_unk0x0081b150[g_unk0x0081b154] = CFileBuffer::AllocateLockedBuffer(0x100);
-                strcpy((char *)g_unk0x0081b150[g_unk0x0081b154], find.cFileName);
-                g_unk0x0081b154++;
-                CFileBuffer::FreeGenericFileBuffer(pRecord);
-            }
-        }
-        FindClose(hFind);
-    }
-    SetCurrentDirectoryA(oldDir);
+    Sys_ListFiles(saveDir, g_strSaveGamePattern, SavedGames_AddListedFile, saveDir);
 }
 
 // GLOBAL: CMR2 0x00818ac8
@@ -3485,7 +3477,7 @@ DWORD g_unk0x0052af90;
 // FUNCTION: CMR2 0x004ea9f0
 void GameInfo_ResetSessionTimestamp(void)
 {
-    g_unk0x0052af90 = timeGetTime();
+    g_unk0x0052af90 = Sys_GetTicks();
 }
 
 // FUNCTION: CMR2 0x004eaa00
@@ -7220,10 +7212,10 @@ void OptionPreview_AnimatePreviewNodeTransforms(int index)
     mirror.forward.y = 0;
     mirror.forward.z = -0x10000;
     if (g_unk0x0082d118 == 0) {
-        g_unk0x0082d118 = timeGetTime();
+        g_unk0x0082d118 = Sys_GetTicks();
         elapsed = 0;
     } else {
-        now = timeGetTime();
+        now = Sys_GetTicks();
         elapsed = now - g_unk0x0082d118;
         g_unk0x0082d118 = now;
         elapsed = FixDiv(elapsed << 16, 0x280000);
@@ -8559,9 +8551,9 @@ void __cdecl OptionMovie_InitResolutionAlias(void)
     OptionMovie_InitResolution();
 }
 
-#pragma data_seg(".CRT$XCU")
-static void (__cdecl *s_resolutionInit)(void) = OptionMovie_InitResolutionAlias;
-#pragma data_seg()
+// PORT: was a function pointer in MSVC's .CRT$XCU startup table; standard
+// C++ dynamic initialisation runs it at startup.
+static int s_resolutionInit = (OptionMovie_InitResolutionAlias(), 0);
 
 // Draws the title of the screen: the text table string is formatted into the
 // shared buffer, right aligned at 0x140/0x280 of the resolution.

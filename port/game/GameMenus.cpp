@@ -1,3 +1,4 @@
+#include "port/sys.h"
 #include "GameMenus.h"
 #include "GameInfo.h"
 #include "Frontend.h"
@@ -609,8 +610,9 @@ extern char g_minSecMSECFormatString[];
 void GameMenu_DrawKnockoutSplitComparison(void)
 {
     // This caller uses full DWORD coordinate slots. DrawText consumes their
-    // low signed WORDs; the x86 stdcall stack layout is identical.
-    typedef void (WINAPI *DrawText32)(BYTE, char *, int, unsigned int, int *, unsigned int);
+    // low signed WORDs.
+    // PORT: a direct call (the original called through a cast function
+    // pointer); converting to short keeps the low words.
     char names[2][20];
     int car;
     int x;
@@ -630,13 +632,13 @@ void GameMenu_DrawKnockoutSplitComparison(void)
     }
     for (car = 0; car < 2; car++) {
         x = (int)(g_pGraphics->resX * 30) / 640 + ((int)(g_pGraphics->resX * 0x166) / 640) * car;
-        ((DrawText32)Font_DrawText)(1, CFrontend::GetTextString(0x89), x, (int)(g_pGraphics->resY * 0xe6) / 480,
+        Font_DrawText(1, CFrontend::GetTextString(0x89), x, (int)(g_pGraphics->resY * 0xe6) / 480,
                       (int *)g_menuFrameColour, 0x11);
         sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x9b), names[car]);
-        ((DrawText32)Font_DrawText)(1, CFrontend::m_stringDest, x,
+        Font_DrawText(1, CFrontend::m_stringDest, x,
                       (int)(g_pGraphics->resY * 0xe6) / 480 - (int)(g_pGraphics->resY * 0x1e) / 480,
                       (int *)g_menuFrameColour, 0x11);
-        ((DrawText32)Font_DrawText)(1, CFrontend::GetTextString(0x8a), x,
+        Font_DrawText(1, CFrontend::GetTextString(0x8a), x,
                       (int)(g_pGraphics->resY * 0x19) / 480 + (int)(g_pGraphics->resY * 0xe6) / 480 +
                           (int)(GetStageSplitCount() * g_pGraphics->resY * 0x1e) / 480,
                       (int *)g_menuFrameColour, 0x11);
@@ -644,14 +646,14 @@ void GameMenu_DrawKnockoutSplitComparison(void)
         for (split = 0; split < GetStageSplitCount(); split++) {
             FormatCentisecondsAsMinSecMSec(StageTiming_GetDriverSplitClock(car, split + 1) - StageTiming_GetDriverSplitClock(car, split),
                                            CFrontend::m_stringDest);
-            ((DrawText32)Font_DrawText)(1, CFrontend::m_stringDest, x,
+            Font_DrawText(1, CFrontend::m_stringDest, x,
                           (int)(g_pGraphics->resY * 0xe6) / 480 + ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
                           (int *)g_menuFrameColour, 0x11);
         }
         time = StageTiming_GetValidStartTime(car);
         sprintf(CFrontend::m_stringDest, g_minSecMSECFormatString, StageTiming_GetValidStartTime(car) / 6000,
                 (StageTiming_GetValidStartTime(car) / 100) % 60, time % 100);
-        ((DrawText32)Font_DrawText)(1, CFrontend::m_stringDest, x,
+        Font_DrawText(1, CFrontend::m_stringDest, x,
                       (int)(g_pGraphics->resY * 0x19) / 480 + (int)(g_pGraphics->resY * 0xe6) / 480 +
                           ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
                       (int *)g_menuFrameColour, 0x11);
@@ -2080,7 +2082,7 @@ void GameMenu_DrawRallyResultsBanner(Menu *pMenu)
 // FUNCTION: CMR2 0x00449100
 void GameMenus_Build(void)
 {
-    g_menuBuildTime = timeGetTime();
+    g_menuBuildTime = Sys_GetTicks();
     Menu_Init(&g_menu0x0053ea68, 0, 0, 0, NULL, NULL, 1, 0, 0);
     Menu_AddItemType2(&g_menu0x0053ea68, 0, 0, &g_menu0x00541218, NULL, 0);
     Menu_SetCallbacks(&g_menu0x0053ea68, NULL, NULL, (MenuCallback)GameMenu_DrawPauseHeader, NULL);

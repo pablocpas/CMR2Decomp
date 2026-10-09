@@ -144,6 +144,14 @@ public:
     static void SetSecondaryOptionStateByte(BYTE param1);
     static bool ConsumeOptionRefreshRequest(void);
     static int RegisterCallback(void *param1, void *param2);
+    // PORT: MSVC converted function pointers to void * implicitly; this
+    // overload does it for any release callback (they return BYTE, BOOL,
+    // bool or int).
+    template <typename R>
+    static int RegisterCallback(R (*param1)(void), void *param2)
+    {
+        return RegisterCallback((void *)param1, param2);
+    }
     static void UpdateActiveSoundSlots(void);
     static void SaveRaceCallbackDepth(void);
     static void RegisterNetworkResourceRelease(void);

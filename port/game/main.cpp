@@ -1,3 +1,4 @@
+#include "port/sys.h"
 #include "main.h"
 #include "Graphics.h"
 #include "Logger.h"
@@ -9,15 +10,12 @@ void Main_InitD3DX(void);
 void Input_ClearKeyPressQueue(void);
 int Args_Parse(char *pCommandLine);
 
-HINSTANCE CMain::m_hInstance;
 int CMain::m_frameTime;
 BOOL CMain::m_frameDeltaInitialised;
 unsigned int CMain::m_frameDeltaStart;
 unsigned int CMain::m_frameDeltaLast;
 unsigned int CMain::m_frameDelta;
 unsigned int CMain::m_frameDeltaMax;
-HWND CMain::m_hWndList[1];
-int CMain::m_hWndIx = 0;
 int CMain::m_unk0x00663dbc;
 int CMain::m_unk0x00663dc0;
 
@@ -36,75 +34,61 @@ char CMain::m_logFileBlankLine[1] = "";
 char CMain::m_logFileFinishedNormally[30] = "* Program finished normally *";
 BOOL CMain::m_isShowingCursor = TRUE;
 
-MSG CMain::m_win32Msg;
+int CMain::m_exitCode;
 
-// GLOBAL: CMR2 0x00520b94
-char m_lpszMenuName[5] = "menu";
-
-int WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
-{
-	HINSTANCE hInstance = GetModuleHandleA(NULL);
-	return CMain::Initialize(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
-}
 
 // FUNCTION: CMR2 0x004a9720
-unsigned int CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+// PORT: WinMain's body. The Win32 message loop is an SDL event loop: all
+// pending events are handled, then a frame runs unless the game is inactive
+// (CGame::m_isActive is set while the window is in the background), in which
+// case it sleeps until the next event. The single-instance check is gone.
+unsigned int CMain::Initialize(const char *commandLine)
 {
-	HWND hWnd;
-	BOOL isMessageAvailable;
-
-	hWnd = FindWindowA(m_gameName, m_gameName);
-	if (hWnd != NULL)
-		return 0;
+	SysEvent event;
+	char commandLineCopy[1024];
 
 	CLogger::OpenLogFile(m_logFileLocation);
 	CLogger::LogToFile(m_logFileHeader1);
 	CLogger::LogToFile(m_logFileAsterisks);
 	CLogger::LogToFile(m_logFileBlankLine);
-	m_hInstance = hInstance;
 	Main_InitD3DX();
 	CGame::RegisterNetworkResourceRelease();
 	Input_ClearKeyPressQueue();
-	Args_Parse(lpCmdLine);
+	strncpy(commandLineCopy, commandLine, sizeof(commandLineCopy) - 1);
+	commandLineCopy[sizeof(commandLineCopy) - 1] = 0;
+	Args_Parse(commandLineCopy);
 
-	CreateGameWindow(hInstance, &m_hWndList[m_hWndIx], m_gameName, MessageHandler);
+	CreateGameWindow(m_gameName);
 
-	MSG msg;
 	while (!CGame::m_shouldExit)
 	{
-		if (!CGame::m_isActive)
-			isMessageAvailable = PeekMessageA(&m_win32Msg, NULL, 0, 0, 1);
-		else
-			isMessageAvailable = GetMessageA(&m_win32Msg, NULL, 0, 0);
-
-		if ((m_win32Msg.message == WM_ACTIVATEAPP) || (isMessageAvailable == 0))
+		if (CGame::m_isActive)
 		{
-			if (!CGame::m_isActive)
-			{
-				CGame::UpdateActiveSoundSlots();
-				CGame::DispatchFrontendResourceState();
-			}
+			if (Sys_WaitEvent(&event))
+				HandleEvent(&event);
 		}
-		else
-		{
-			if (m_win32Msg.message == WM_QUIT)
-				break;
+		while (!CGame::m_shouldExit && Sys_PollEvent(&event))
+			HandleEvent(&event);
+		if (CGame::m_shouldExit)
+			break;
 
-			TranslateMessage(&m_win32Msg);
-			DispatchMessageA(&m_win32Msg);
+		if (!CGame::m_isActive)
+		{
+			CGame::UpdateActiveSoundSlots();
+			CGame::DispatchFrontendResourceState();
 		}
 
 		if (g_pGraphics->isFullscreen != FALSE)
 		{
 			if (m_isShowingCursor != FALSE)
 			{
-				ShowCursor(0);
+				Sys_ShowCursor(0);
 				m_isShowingCursor = FALSE;
 			}
 		}
 		else if (m_isShowingCursor == FALSE)
 		{
-			ShowCursor(1);
+			Sys_ShowCursor(1);
 			m_isShowingCursor = TRUE;
 		}
 	}
@@ -116,152 +100,79 @@ unsigned int CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPS
 	CLogger::LogToFile(g_logFileFooterAsterisks);
 	CLogger::CloseLogFile();
 
-	return m_win32Msg.wParam;
+	return m_exitCode;
 }
 
 // Destroys the current game window.
 // FUNCTION: CMR2 0x004a8270
 BOOL Main_DestroyGameWindow(void)
 {
-	if (DestroyWindow(CMain::m_hWndList[CMain::m_hWndIx])) {
-		CMain::m_hWndList[CMain::m_hWndIx] = NULL;
-		return TRUE;
-	}
-	CMain::m_hWndList[CMain::m_hWndIx] = NULL;
-	return FALSE;
+	// PORT: one SDL window, owned by the platform layer.
+	Sys_DestroyWindow();
+	return TRUE;
 }
 
 // match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a8140
-BOOL CMain::CreateGameWindow(HINSTANCE hInstance, HWND *pHWND, LPCSTR sWindowName, WNDPROC wndProc)
+// PORT: the window class, icon and menu are gone; the platform layer creates
+// the SDL window (shown and sized by the renderer).
+BOOL CMain::CreateGameWindow(LPCSTR sWindowName)
 {
-	ATOM AVar1;
-	HWND hWnd;
-	DWORD dwStyle;
-	WNDCLASSA wndClass;
-
-	wndClass.lpfnWndProc = wndProc;
-	wndClass.cbClsExtra = 0;
-	wndClass.cbWndExtra = 0;
-	wndClass.hInstance = hInstance;
-	wndClass.hIcon = LoadIconA(hInstance, (const char *)0x6e);
-	wndClass.hbrBackground = (HBRUSH)GetStockObject(4);
-	wndClass.lpszMenuName = m_lpszMenuName;
-	wndClass.lpszClassName = sWindowName;
-	wndClass.style = 3;
-
-	if (!g_pGraphics->isFullscreen) {
-		wndClass.hCursor = LoadCursorA(NULL, (const char *)0x7f00);
-		dwStyle = 0x81cf0000;
-	} else {
-		wndClass.hCursor = NULL;
-		dwStyle = 0;
-	}
-
-	AVar1 = RegisterClassA(&wndClass);
-	if (AVar1 == 0)
+	if (!Sys_CreateWindow(sWindowName, g_pGraphics->isFullscreen))
 		return FALSE;
-
-	hWnd = CreateWindowExA((DWORD)0x40000, sWindowName, sWindowName, dwStyle, 0, 0,
-						   GetSystemMetrics(0), GetSystemMetrics(1), NULL, NULL, hInstance, NULL);
-
-	m_hWndList[m_hWndIx] = hWnd;
-	if (hWnd == NULL)
-		return FALSE;
-
-	if (!g_pGraphics->isFullscreen)
-		ShowWindow(hWnd, SW_HIDE);
-	else
-		ShowWindow(hWnd, SW_MAXIMIZE);
-
-	UpdateWindow(hWnd);
-	SetFocus(hWnd);
-	*pHWND = hWnd;
 	CGame::RegisterCallback(Main_DestroyGameWindow, NULL);
 	return TRUE;
 }
 
 // FUNCTION: CMR2 0x004a98b0
-LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+// PORT: the window procedure, on platform events. Focus changes stop and
+// restart the music like WM_KILLFOCUS/WM_SETFOCUS; minimising or losing the
+// focus deactivates the game like WM_SIZE/WM_ACTIVATEAPP (surfaces are never
+// lost with the SDL renderer, so there is nothing to restore); closing the
+// window quits.
+void CMain::HandleEvent(const SysEvent *event)
 {
-	int *pDD7;
-
-	switch (msg)
+	switch (event->type)
 	{
-	case WM_KILLFOCUS:
+	case SYS_EVENT_FOCUS_LOST:
 		CSound::StopSharedMusicBuffer();
+		SetGameActiveState(1);
 		break;
 
-	case WM_SETFOCUS:
+	case SYS_EVENT_FOCUS_GAINED:
 		CSound::NoOpSoundDeviceCallback();
+		SetGameActiveState(0);
 		break;
 
-	case WM_SYSKEYUP:
-	case 0x218:
-		return 0;
-
-	case WM_SIZE: // minimised (SIZE_MINIMIZED) or hidden (SIZE_MAXHIDE) pauses the game
-		if (wParam == 4 || wParam == 1)
-			SetGameActiveState(1);
-		else
-			SetGameActiveState(0);
+	case SYS_EVENT_MINIMIZED:
+		SetGameActiveState(1);
 		break;
 
-	case WM_CLOSE:
-		if (g_pGraphics->isFullscreen == 0) {
-			msg = WM_KEYDOWN;
-			wParam = VK_ESCAPE;
-			PostQuitMessage(0);
-			break;
-		}
-		return 0;
-
-	case WM_DESTROY:
-		PostQuitMessage(0);
+	case SYS_EVENT_RESTORED:
+		SetGameActiveState(0);
 		break;
 
-	case WM_PAINT:
+	case SYS_EVENT_QUIT:
+		m_exitCode = 0;
+		CGame::m_shouldExit = 1;
 		break;
 
-	case WM_ACTIVATEAPP:
-		SetGameActiveState(wParam == 0);
-		if (wParam != 0) {
-			CGraphics::RestoreSurfaces();
-			pDD7 = (int *)g_pGraphics->pDD7;
-			if (pDD7 != NULL)
-				((void (__stdcall *)(int *))*(int *)(*pDD7 + 0x64))(pDD7);
-		}
+	case SYS_EVENT_KEY_DOWN:
+		CInput::QueueVirtualKeyPress(event->key);
 		break;
 
-	case WM_KEYDOWN:
-	case WM_SYSKEYDOWN:
-		CInput::QueueVirtualKeyPress(lParam);
-		break;
-
-	case WM_CHAR:
-		CInput::QueueInputCharacter(wParam);
-		break;
-
-	case WM_SYSCOMMAND:
-		if (wParam == 0xf140 || wParam == 0xf170)
-			return 1;
-		break;
-
-	default:
-		if (msg != 0 && msg == RegisterWindowMessageA("QueryCancelAutoPlay"))
-			return 1;
+	case SYS_EVENT_TEXT:
+		CInput::QueueInputCharacter(event->character);
 		break;
 	}
-
-	return DefWindowProcA(hWnd, msg, wParam, lParam);
 }
 
 // Switches the game between active and inactive: input/mouse cooperative
 // level, the sound "hooked" flag and the menu bar, plus the inactive time.
 // FUNCTION: CMR2 0x004a9a50
+// PORT: the DirectDraw FlipToGDISurface and the menu bar redraw are gone.
 void CMain::SetGameActiveState(int param1)
 {
-	int *pDD7;
 	int frameTime;
 
 	if (param1 != 0) {
@@ -269,13 +180,6 @@ void CMain::SetGameActiveState(int param1)
 		CSound::RunSoundDeviceCallback();
 		m_unk0x00663dbc = GetFrameTime();
 		CGame::m_isActive = 1;
-
-		pDD7 = (int *)g_pGraphics->pDD7;
-		if (pDD7 != NULL)
-			((void (__stdcall *)(int *))*(int *)(*pDD7 + 0x28))(pDD7);
-
-		DrawMenuBar(m_hWndList[m_hWndIx]);
-		RedrawWindow(m_hWndList[m_hWndIx], NULL, NULL, 0x400);
 		return;
 	}
 
@@ -300,14 +204,12 @@ void CMain::UnwindGameCallbacks(void)
 	CGame::UnwindCallbacks(0);
 }
 
-extern "C" HRESULT WINAPI D3DXInitialize(void);
-extern "C" HRESULT WINAPI D3DXUninitialize(void);
-
 // Shuts D3DX down (registered as a callback by Main_InitD3DX).
+// PORT: there is no D3DX; the callback stays so the shutdown chain keeps its
+// shape.
 // FUNCTION: CMR2 0x004a9b50
 BYTE Main_ShutdownD3DX(void)
 {
-    D3DXUninitialize();
     return 1;
 }
 
@@ -315,7 +217,6 @@ BYTE Main_ShutdownD3DX(void)
 // FUNCTION: CMR2 0x004a9b30
 void Main_InitD3DX(void)
 {
-    D3DXInitialize();
     CGame::RegisterCallback(Main_ShutdownD3DX, NULL);
 }
 
@@ -328,7 +229,7 @@ int CMain::GetFrameTime(void)
 // FUNCTION: CMR2 0x004a9b70
 void CMain::UpdateFrameTime(void)
 {
-    m_frameTime = timeGetTime();
+    m_frameTime = Sys_GetTicks();
 }
 
 // FUNCTION: CMR2 0x004a9c20

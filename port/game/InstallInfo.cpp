@@ -1,3 +1,4 @@
+#include "port/sys.h"
 #include "InstallInfo.h"
 #include <string.h>
 #include "main.h"
@@ -138,7 +139,9 @@ BOOL CInstallInfo::ShowNoCDErrorMessage(void)
 {
     char *gameLanguage;
     int languageID;
-    int unknownLanguageID; // never initialised in the original
+    // PORT: never initialised in the original (undefined behaviour for an
+    // unknown language); English here.
+    int unknownLanguageID = 0;
 
     gameLanguage = CRegKey::GetValueFromKey(CRegKey::m_regKeyLanguage);
     languageID = _stricmp(gameLanguage, CRegKey::m_regKeyValueEnglish);
@@ -175,14 +178,15 @@ BOOL CInstallInfo::ShowNoCDErrorMessage(void)
         }
     }
 
-    int reply = MessageBoxA(CMain::m_hWndList[CMain::m_hWndIx], m_noCDMessages[languageID][0], m_noCDMessages[languageID][1], MB_RETRYCANCEL);
-    if (reply == IDCANCEL)
+    // PORT: there is no CD; the message means a game data file is missing.
+    int reply = Sys_MessageBox(m_noCDMessages[languageID][1], m_noCDMessages[languageID][0], SYS_MESSAGEBOX_RETRY_CANCEL);
+    if (reply == SYS_MESSAGEBOX_RESULT_CANCEL)
     {
         CMain::UnwindGameCallbacks();
         CLogger::CloseLogFile();
-        ExitProcess(CMain::m_win32Msg.wParam);
+        Sys_Exit(CMain::m_exitCode);
     }
-    else if (reply == IDRETRY)
+    else if (reply == SYS_MESSAGEBOX_RESULT_RETRY)
     {
         return TRUE;
     }
@@ -285,7 +289,7 @@ char CInstallInfo::LoadInstallPathsFromRegistry(void)
 // FUNCTION: CMR2 0x004aa6c0
 void CInstallInfo::SetGameHDPath(char *filePath)
 {
-    lstrcpyA(m_hdPath, filePath);
+    strcpy(m_hdPath, filePath);
     m_isHDInstall = TRUE;
     return;
 }
@@ -293,7 +297,7 @@ void CInstallInfo::SetGameHDPath(char *filePath)
 // FUNCTION: CMR2 0x004aa6e0
 void CInstallInfo::SetGameCDPath(char *filePath)
 {
-    lstrcpyA(m_cdPath, filePath);
+    strcpy(m_cdPath, filePath);
     m_isCDInstall = TRUE;
     return;
 }
@@ -310,12 +314,12 @@ char* CInstallInfo::GetGameCDPath(void) {
 }
 
 // FUNCTION: CMR2 0x004aa5a0
+// PORT: written through Sys (into the user directory).
 int CInstallInfo::WriteFileToDisk(char *name, int mode, LPCVOID data, DWORD size)
 {
     char path[MAX_PATH];
     DWORD bytesWritten;
-    HANDLE hFile;
-    BOOL result;
+    SysFile *file;
 
     if (mode == 1) {
         strcpy(path, m_hdPath);
@@ -324,16 +328,16 @@ int CInstallInfo::WriteFileToDisk(char *name, int mode, LPCVOID data, DWORD size
         strcpy(path, name);
     }
 
-    hFile = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (hFile == INVALID_HANDLE_VALUE) {
-        if (GetFileAttributesA(path) != 0xffffffff)
+    file = Sys_OpenFile(path, SYS_FILE_WRITE);
+    if (file == NULL) {
+        if (Sys_FileExists(path))
             return 2;
         return 0;
     }
 
-    result = WriteFile(hFile, data, size, &bytesWritten, NULL);
-    CloseHandle(hFile);
-    if (result && bytesWritten == size)
+    bytesWritten = Sys_WriteFile(file, data, size);
+    Sys_CloseFile(file);
+    if (bytesWritten == size)
         return 1;
     return 0;
 }

@@ -9,7 +9,7 @@ int g_fixMatrixMultiplyCount;
 
 // Converts a 16.16 matrix into a Direct3D float matrix.
 // FUNCTION: CMR2 0x004ba090
-D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn)
+GfxMatrix *FixMatrix_ToFloat(GfxMatrix *pOut, FixMatrix *pIn)
 {
     pOut->_11 = (float)pIn->right.x * CGraphics::m_oneOver65536;
     pOut->_12 = (float)pIn->right.y * CGraphics::m_oneOver65536;
@@ -32,15 +32,15 @@ D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn)
 
 // Float 4x4 matrix product out = a * b (row vectors), through local copies.
 // FUNCTION: CMR2 0x004b9ff0
-D3DMATRIX *FloatMatrix_Multiply(D3DMATRIX *pOut, D3DMATRIX *pA, D3DMATRIX *pB)
+GfxMatrix *FloatMatrix_Multiply(GfxMatrix *pOut, GfxMatrix *pA, GfxMatrix *pB)
 {
     float a[4][4];
     float b[4][4];
     float result[4][4];
     int i, j, k;
 
-    *(D3DMATRIX *)a = *pA;
-    *(D3DMATRIX *)b = *pB;
+    *(GfxMatrix *)a = *pA;
+    *(GfxMatrix *)b = *pB;
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 4; j++) {
             result[i][j] = 0.0f;
@@ -50,13 +50,13 @@ D3DMATRIX *FloatMatrix_Multiply(D3DMATRIX *pOut, D3DMATRIX *pA, D3DMATRIX *pB)
             }
         }
     }
-    *pOut = *(D3DMATRIX *)result;
+    *pOut = *(GfxMatrix *)result;
     return pOut;
 }
 
 // Converts a Direct3D float matrix into 16.16.
 // FUNCTION: CMR2 0x004ba160
-FixMatrix *FloatMatrix_ToFix(FixMatrix *pOut, D3DMATRIX *pIn)
+FixMatrix *FloatMatrix_ToFix(FixMatrix *pOut, GfxMatrix *pIn)
 {
     ((int *)pOut)[0] = (int)(__int64)(((float *)pIn)[0] * CGraphics::m_65536);
     ((int *)pOut)[1] = (int)(__int64)(((float *)pIn)[1] * CGraphics::m_65536);

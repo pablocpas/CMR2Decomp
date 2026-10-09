@@ -1814,9 +1814,9 @@ void __cdecl StageQuality_InitCode8(void)
     g_unk0x00542630[0x395] = g_stageQualityCodes[8];
 }
 
-#pragma data_seg(".CRT$XCU")
-static void (__cdecl *s_stageQualityInit[2])(void) = { StageQuality_InitCode7, StageQuality_InitCode8 };
-#pragma data_seg()
+// PORT: was a pair of function pointers in MSVC's .CRT$XCU startup table;
+// standard C++ dynamic initialisation runs them at startup, in order.
+static int s_stageQualityInit = (StageQuality_InitCode7(), StageQuality_InitCode8(), 0);
 
 // FUNCTION: CMR2 0x00456ae0
 float StageTiming_GetSelectedStartTableFloat(void)
@@ -9331,7 +9331,7 @@ void Race_ResetPlayerCallState(void);
 // FUNCTION: CMR2 0x00424c50
 void StageTiming_RestoreDeviceStageResources(void)
 {
-    D3DTLVERTEX verts[3];
+    GfxTLVertex verts[3];
     int i;
 
     Glow_ResetEntries();
@@ -9363,7 +9363,7 @@ void StageTiming_RestoreDeviceStageResources(void)
     RallyData_LayoutPlayerSplitBars();
     Race_ResetPlayerCallState();
 
-    CGraphics::m_pTextureManager->pD3D->BeginScene();
+    Gfx_BeginScene();
 
     verts[0].color = 0xff000000;
     verts[1].color = 0xff000000;
@@ -9379,11 +9379,11 @@ void StageTiming_RestoreDeviceStageResources(void)
         Texture *pTexture = CGraphics::m_pTextureManager->textureBuffer[i];
         if (pTexture != NULL && pTexture->pSurface != NULL) {
             CGraphics::ApplyTextureStageChange(0, (int)pTexture);
-            CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, 0x1c4, verts, 3, 0);
+            Gfx_DrawPrimitiveTL(GFX_TRIANGLELIST, (GfxTLVertex *)verts, 3);
         }
     }
 
-    CGraphics::m_pTextureManager->pD3D->EndScene();
+    Gfx_EndScene();
 }
 
 // Random seed for the stage timing shuffles.

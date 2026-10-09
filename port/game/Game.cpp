@@ -1,3 +1,4 @@
+#include "port/sys.h"
 #include "StageBlock.h"
 #include "Game.h"
 #include "Menu.h"
@@ -423,13 +424,12 @@ void Game_DrawCountryLoadingScreen(Unk0049c2c0 *p1, BYTE p2)
 // x87 unit before the game changes it). This is CRT startup code, which the
 // original built with /Os: the size optimisation is what turns the cdecl
 // cleanup into `pop ecx / pop ecx`.
-#pragma optimize("s", on)
 // FUNCTION: CMR2 0x00405796
 void Game_SetDoublePrecisionFPU(void)
 {
-    _controlfp(_PC_53, _MCW_PC);
+    // PORT: x87 precision control. The port computes with SSE (floats in
+    // single, doubles in double precision), so there is nothing to set.
 }
-#pragma optimize("s", off)
 
 // FUNCTION: CMR2 0x004057a8
 int Game_ReturnZeroInitializationResult(void)
@@ -581,7 +581,7 @@ void Game_WaitForButtonOrSplashTimeout(Unk0049c2c0 *p1, BYTE p2)
     char path[MAX_PATH];
     DeviceInfo *pDevice;
 
-    g_unk0x00817fe4 = timeGetTime();
+    g_unk0x00817fe4 = Sys_GetTicks();
     CInput::UpdateAllAvailableDevices();
     Input_TranslatePedalsToMenuKeys();
     pDevice = CInput::GetAvailableDeviceRecord(0);
@@ -600,7 +600,7 @@ void Game_WaitForButtonOrSplashTimeout(Unk0049c2c0 *p1, BYTE p2)
 // FUNCTION: CMR2 0x004d1b40
 void Game_WaitForSplashTimeout(Unk0049c2c0 *p1, BYTE p2)
 {
-    g_unk0x00817fe4 = timeGetTime();
+    g_unk0x00817fe4 = Sys_GetTicks();
     CInput::UpdateAllAvailableDevices();
     Input_TranslatePedalsToMenuKeys();
     Input_MergeAssignedJoystickButtons(0, CInput::GetAvailableDeviceRecord(0));
@@ -614,7 +614,7 @@ void Game_WaitForSplashTimeout(Unk0049c2c0 *p1, BYTE p2)
 // FUNCTION: CMR2 0x004d1c90
 void Game_RunFrontendBootFrame(Unk0049c2c0 *p1, BYTE p2)
 {
-    g_unk0x00817fe4 = timeGetTime();
+    g_unk0x00817fe4 = Sys_GetTicks();
     g_unk0x00817ff4 = g_unk0x00817fe4 - GameInfo_GetSessionTimestamp();
     FrontendMenu_UpdateAndSwitchActive();
 }
@@ -642,7 +642,7 @@ int Game_DrawFadingBootLabel(int x, int y, char *pText, char flag)
     colour[1] = 0xff;
     colour[2] = 0xff;
     colour[3] = 0xff;
-    elapsed = timeGetTime();
+    elapsed = Sys_GetTicks();
     elapsed = elapsed - GameInfo_GetSessionTimestamp();
     if (elapsed > 0x9c4) {
         if (elapsed > 0xfa0)
@@ -713,7 +713,7 @@ void Game_PlayCountryIntroAfterFrontendDelay(Unk0049c2c0 *p1, BYTE p2)
         RallyDataStageIndex() == 0) {
         g_unk0x00817fec = 1;
         CSound::CloseMusicStreamAndClearPath(0);
-        g_unk0x00817fe4 = timeGetTime();
+        g_unk0x00817fe4 = Sys_GetTicks();
         CInput::UpdateAllAvailableDevices();
         Input_TranslatePedalsToMenuKeys();
         pDevice = CInput::GetAvailableDeviceRecord(0);
@@ -2100,10 +2100,7 @@ void Game_DrawMeshTextureRuns(Mesh *pMesh)
         texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
         if (prev != texture) {
             if (count > 0) {
-                CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
-                    D3DPT_TRIANGLELIST,
-                    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
-                    pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
+                Gfx_DrawIndexedPrimitiveVB(GFX_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex], pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count);
             }
             prev = texture;
             count = 0;
@@ -2125,10 +2122,7 @@ void Game_DrawMeshTextureRuns(Mesh *pMesh)
         CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[
             *(int *)((BYTE *)&pMesh->pTriangles[total - 1] + 4 +
                      pMesh->pTriangles[total - 1].field_0x2c * 4)]);
-        CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
-            D3DPT_TRIANGLELIST,
-            CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
-            pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
+        Gfx_DrawIndexedPrimitiveVB(GFX_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex], pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count);
     }
 }
 
@@ -2145,7 +2139,7 @@ void Game_DrawViewMaskNodes(SceneNode *pNode, int bit)
             int mask = 1 << bit;
             if ((mask & pNode->field_0x17c) != 0) {
                 if (pMesh != NULL) {
-                    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pNode->worldF);
+                    Gfx_SetTransform(GFX_TRANSFORM_WORLD, (GfxMatrix *)pNode->worldF);
                     Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
                 }
                 if ((pNode->field_0x17c & mask) != 0 && pNode->pFirstChild != NULL)
@@ -2165,8 +2159,7 @@ void Game_DrawViewMaskNode(SceneNode *pNode, int bit)
         Mesh *pMesh = (Mesh *)pNode->pObject;
         if ((pNode->field_0x17c & (1 << bit)) != 0) {
             if (pMesh != NULL) {
-                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
-                    (D3DMATRIX *)pNode->worldF);
+                Gfx_SetTransform(GFX_TRANSFORM_WORLD, (GfxMatrix *)pNode->worldF);
                 Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
             }
         }
@@ -2246,8 +2239,7 @@ void Game_DrawDeferredObjects(void)
         for (i = 0; i < (unsigned int)CGame::m_unk0x0059ce28; i++) {
             Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[
                 ((int *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->pTriangles)[1]], 0);
-            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
-                (D3DMATRIX *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->matrix);
+            Gfx_SetTransform(GFX_TRANSFORM_WORLD, (GfxMatrix *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->matrix);
             if (*(int *)((BYTE *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh + 0x114) < 0xc80000)
                 ((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->flags |= 8;
             else
@@ -2288,7 +2280,7 @@ extern unsigned short g_unk0x006ed5f0[];
 // GLOBAL: CMR2 0x0059be6c
 SceneNode *g_unk0x0059be6c;
 // GLOBAL: CMR2 0x00597cc0
-D3DMATRIX g_unk0x00597cc0;
+GfxMatrix g_unk0x00597cc0;
 
 void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
 
@@ -2307,7 +2299,7 @@ void Game_DrawStaticStageObjects(void)
         while (pObject != NULL) {
             if (pObject->field_0x14 != 0) {
                 if ((pObject->pMesh->flags & 2) != 0) {
-                    *(D3DMATRIX *)pObject->matrix = g_unk0x00597cc0;
+                    *(GfxMatrix *)pObject->matrix = g_unk0x00597cc0;
                     if (pObject->scaleX != 0x10000 || pObject->scaleY != 0x10000 ||
                         pObject->scaleZ != 0x10000) {
                         float scale;
@@ -2346,7 +2338,7 @@ void Game_DrawStaticStageObjects(void)
 // Identity world transform: the deferred draw paths set it before drawing
 // geometry whose vertices are already in world space.
 // GLOBAL: CMR2 0x005207b8
-D3DMATRIX g_unk0x005207b8 = {
+GfxMatrix g_unk0x005207b8 = {
     1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
 };
@@ -2389,7 +2381,7 @@ void Game_DrawWorldMeshNodesAnd2DLayer(void)
         if (pNode != NULL && pNode->type == SCENE_NODE_MESH) {
             pMesh = (Mesh *)pNode->pObject;
             if (pNode->field_0x17c != 0 && pMesh != NULL) {
-                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pNode->worldF);
+                Gfx_SetTransform(GFX_TRANSFORM_WORLD, (GfxMatrix *)pNode->worldF);
                 Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
             }
         }
@@ -2452,7 +2444,7 @@ void Game_DrawCulledSectorMeshes(void)
     }
     Pulse_Update(CMain::GetFrameDelta() - g_sectorFramePrevious);
     g_sectorFramePrevious = CMain::GetFrameDelta();
-    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+    Gfx_SetTransform(GFX_TRANSFORM_WORLD, &g_unk0x005207b8);
     for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
         pMesh = (Mesh *)g_sectors[g_unk0x006ed5f0[i]]->pMesh;
         if (pMesh != NULL) {
@@ -2482,7 +2474,7 @@ void Game_DrawCulledSectorShadows(void)
     }
     Pulse_Update(CMain::GetFrameDelta() - g_shadowFramePrevious);
     g_shadowFramePrevious = CMain::GetFrameDelta();
-    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+    Gfx_SetTransform(GFX_TRANSFORM_WORLD, &g_unk0x005207b8);
     if (g_sceneShadowMeshes != NULL) {
         CGraphics::SetZWriteEnable(0);
         for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
@@ -2557,7 +2549,7 @@ void Game_DrawSortedNodes(int bit);
 void Game_QueueVisibleSectorNodes(int param1);
 void Game_DrawDeferredObjects(void);
 extern FixMatrix g_unk0x0059bd28;
-D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
+GfxMatrix *FixMatrix_ToFloat(GfxMatrix *pOut, FixMatrix *pIn);
 
 // match 94%: the residual diff is register allocation (the relight loop walks
 // the sector list from a register where the original keeps the pointer in the
@@ -2567,7 +2559,7 @@ D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
 // FUNCTION: CMR2 0x0049d3f0
 int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE flag)
 {
-    D3DVIEWPORT7 viewport;
+    GfxViewport viewport;
     FixVector cameraPosition;
     FixVector forward;
     int farPlane;
@@ -2578,16 +2570,16 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
     CGame::m_unk0x0059ce18 = 0;
     CGame::m_unk0x0059ce1c = 0;
     CGame::m_unk0x0059ce20 = 0;
-    if (CGraphics::m_pTextureManager->pD3D->BeginScene() != D3D_OK)
+    if (Gfx_BeginScene() != D3D_OK)
         return 1;
     memset(&viewport, 0, sizeof(viewport));
-    viewport.dwX = ((short *)param3)[0];
-    viewport.dwY = ((short *)param3)[1];
-    viewport.dwWidth = ((short *)param3)[2];
-    viewport.dwHeight = ((short *)param3)[3];
-    viewport.dvMinZ = 0.0f;
-    viewport.dvMaxZ = 1.0f;
-    CGraphics::m_pTextureManager->pD3D->SetViewport(&viewport);
+    viewport.x = ((short *)param3)[0];
+    viewport.y = ((short *)param3)[1];
+    viewport.width = ((short *)param3)[2];
+    viewport.height = ((short *)param3)[3];
+    viewport.minZ = 0.0f;
+    viewport.maxZ = 1.0f;
+    Gfx_SetViewport(&viewport);
     Graphics_SwitchAlphaBlendAndTest(1);
     CGraphics::SetCullMode(3);
     Graphics_SetLightingMode(5);
@@ -2596,8 +2588,7 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
     Sprite_DrawLayer(4);
     if (flag != 0) {
         if (CGraphics::m_unk0x0072d56c != 0) {
-            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
-                                                             &g_unk0x005207b8);
+            Gfx_SetTransform(GFX_TRANSFORM_WORLD, &g_unk0x005207b8);
             Sector_CullGridAroundViewNode((SceneNode *)param2, (int)param3);
             for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++)
                 Scene_RelightSector(((unsigned short *)g_unk0x006ed5f0)[i]);
@@ -2627,8 +2618,7 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
         g_unk0x0059bd28.pw = 0x10000;
         FixMatrix_ToFloat(&g_unk0x00597cc0, &g_unk0x0059bd28);
         if ((unsigned int)g_sectorCount > 0) {
-            CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c,
-                                                               Graphics_GetFlareStateValue());
+            Gfx_SetFog(Graphics_GetFlareStateValue());
             Graphics_DisableFog();
             Graphics_SetLightingMode(5);
             farPlane = CGraphics::m_farPlaneFixed;
@@ -2649,11 +2639,10 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
             if (CGame::m_unk0x0059ce14 != 0) {
                 Game_DrawStaticStageObjects();
                 Game_DrawDeferredObjects();
-                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
-                                                                 &g_unk0x005207b8);
+                Gfx_SetTransform(GFX_TRANSFORM_WORLD, &g_unk0x005207b8);
                 Graphics_SwitchAlphaBlendAndTest(1);
                 CGraphics::SetCachedSourceDestinationBlend(5, 6);
-                CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c, 0);
+                Gfx_SetFog(0);
                 Graphics_SetLightingMode(5);
                 Quad2D_DrawLayer(0x10);
                 Line2D_Draw();
@@ -2670,10 +2659,10 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
         } else {
             Game_DrawWorldMeshNodesAnd2DLayer();
         }
-        CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+        Gfx_SetTransform(GFX_TRANSFORM_WORLD, &g_unk0x005207b8);
         Graphics_SwitchAlphaBlendAndTest(1);
         CGraphics::SetCachedSourceDestinationBlend(5, 6);
-        CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c, 0);
+        Gfx_SetFog(0);
         Graphics_SetLightingMode(5);
         Quad2D_DrawLayer(0x10);
         Graphics_SetLightingMode(4);
@@ -2688,13 +2677,13 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
     CGraphics::SetZEnable(0);
     CGraphics::SetCachedSourceDestinationBlend(5, 6);
     memset(&viewport, 0, sizeof(viewport));
-    viewport.dwX = 0;
-    viewport.dwY = 0;
-    viewport.dwWidth = g_pGraphics->resX;
-    viewport.dwHeight = g_pGraphics->resY;
-    viewport.dvMinZ = 0.0f;
-    viewport.dvMaxZ = 1.0f;
-    CGraphics::m_pTextureManager->pD3D->SetViewport(&viewport);
+    viewport.x = 0;
+    viewport.y = 0;
+    viewport.width = g_pGraphics->resX;
+    viewport.height = g_pGraphics->resY;
+    viewport.minZ = 0.0f;
+    viewport.maxZ = 1.0f;
+    Gfx_SetViewport(&viewport);
     CGraphics::SetCullMode(3);
     ScreenLine2D_Draw(3);
     Tri2D_DrawLayer(3);
@@ -2707,7 +2696,7 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
     Sprite_DrawLayer(1);
     CGraphics::SetCullMode(CGame::GetSectorDrawState());
     Graphics_UpdateFrameStatistics();
-    CGraphics::m_pTextureManager->pD3D->EndScene();
+    Gfx_EndScene();
     return 1;
 }
 

@@ -1,3 +1,4 @@
+#include "port/sys.h"
 #include "RegKey.h"
 #include "Frontend.h"
 
@@ -38,34 +39,12 @@ char CRegKey::m_rkv_installFull[5] = "Full";
 char CRegKey::m_rkv_installNetworkOnly[13] = "Network Only";
 
 // FUNCTION: CMR2 0x004aa720
+// PORT: the install settings come from the platform layer instead of
+// HKLM\\Software\\Codemasters\\Colin McRae Rally 2.
 char *CRegKey::GetValueFromKey(char *key)
 {
-    HKEY regKeyResult;
-    HKEY regKeySoftwareResult;
-    HKEY regKeyCodemastersResult;
-    HKEY regKeyCMR2Result;
-    DWORD regKeyType;
-    DWORD regKeyFinalResult;
-    char regKeySubValue[100];
-
-    regKeyFinalResult = 100;
-
     strcpy(CFrontend::m_stringDest, key);
-    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, NULL, 0, KEY_EXECUTE, &regKeyResult) != ERROR_SUCCESS
-        || (sprintf(regKeySubValue, m_regKeyPathSoftware),
-            RegOpenKeyExA(regKeyResult, regKeySubValue, 0, KEY_EXECUTE, &regKeySoftwareResult) != ERROR_SUCCESS)
-        || (sprintf(regKeySubValue, m_regKeyPathCodemasters),
-            RegOpenKeyExA(regKeySoftwareResult, regKeySubValue, 0, KEY_EXECUTE, &regKeyCodemastersResult) != ERROR_SUCCESS)
-        || (sprintf(regKeySubValue, m_regKeyPathCMR2),
-            RegOpenKeyExA(regKeyCodemastersResult, regKeySubValue, 0, KEY_EXECUTE, &regKeyCMR2Result) != ERROR_SUCCESS)
-        || (sprintf(regKeySubValue, m_regKeyPathFormatValue, CFrontend::m_stringDest),
-            RegQueryValueExA(regKeyCMR2Result, regKeySubValue, NULL, &regKeyType, m_regKeyReadData, &regKeyFinalResult) != ERROR_SUCCESS))
-        m_regKeyReadData[0] = 0x0;
-
-    RegCloseKey(regKeyCMR2Result);
-    RegCloseKey(regKeyCodemastersResult);
-    RegCloseKey(regKeySoftwareResult);
-    RegCloseKey(regKeyResult);
-
+    strncpy((char *)m_regKeyReadData, Sys_GetInstallSetting(key), sizeof(m_regKeyReadData) - 1);
+    m_regKeyReadData[sizeof(m_regKeyReadData) - 1] = 0;
     return (char *)m_regKeyReadData;
 }

@@ -12,7 +12,7 @@ private:
     // GLOBAL: CMR2 0x00667348
     static unsigned int unk0x00667348;
     // GLOBAL: CMR2 0x0066734c
-    static HANDLE hLogFileHandle;
+    static struct SysFile *hLogFileHandle;
 
 public:
     static void OpenLogFile(LPCSTR file);

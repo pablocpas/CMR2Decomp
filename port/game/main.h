@@ -2,12 +2,14 @@
 #define _MAIN_H
 
 
+struct SysEvent;
+
 class CMain
 {
 public:
-    static unsigned int Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd);
-    static BOOL CreateGameWindow(HINSTANCE hInstance, HWND *pHWND, LPCSTR sWindowName, WNDPROC param_4);
-    static LRESULT MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+    static unsigned int Initialize(const char *commandLine);
+    static BOOL CreateGameWindow(LPCSTR sWindowName);
+    static void HandleEvent(const SysEvent *event);
     static void UnwindGameCallbacks(void);
     static void SetGameActiveState(int param1);
     static void ResetFpsWarmup(void);
@@ -35,16 +37,9 @@ public:
     // GLOBAL: CMR2 0x00663dc0
     static int m_unk0x00663dc0;
 
-    // GLOBAL: CMR2 0x00663db0
-    static HINSTANCE m_hInstance;    
-
-    // GLOBAL: CMR2 0x00663c84
-    static HWND m_hWndList[1];
-    // GLOBAL: CMR2 0x00663dac
-    static int m_hWndIx;
-
+    // Exit code of the main loop (the WM_QUIT wParam in the original).
     // GLOBAL: CMR2 0x00663c68
-    static MSG m_win32Msg;
+    static int m_exitCode;
 
     // GLOBAL: CMR2 0x0052ea5c
     static char m_logFileBlankLine[1]; // TODO: better name?

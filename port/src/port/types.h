@@ -34,6 +34,7 @@ typedef BYTE *PBYTE, *LPBYTE;
 typedef WORD *LPWORD;
 typedef DWORD *LPDWORD, *PDWORD;
 typedef LONG *PLONG;
+typedef LONG HRESULT;
 
 #ifndef FALSE
 #define FALSE 0
@@ -64,5 +65,7 @@ typedef struct tagPOINT {
 #define __stdcall
 #define __cdecl
 #endif
+#define WINAPI
+#define CALLBACK
 
 #endif

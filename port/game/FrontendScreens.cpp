@@ -1,3 +1,4 @@
+#include "port/sys.h"
 #include "Frontend.h"
 #include "Game.h"
 #include "GameInfo.h"
@@ -1403,7 +1404,7 @@ void FrontendMenu_BuildPagesAndSelectInitial(BYTE param1, BYTE back)
     }
     g_pMenu0x00818abc = NULL;
     g_pMenu0x00818ac0 = FrontendMenu_GetInitialMenu(param1);
-    g_menuEnterTime = timeGetTime();
+    g_menuEnterTime = Sys_GetTicks();
     if (GameInfo_AreOptionsAvailable() == 0 && CGameInfo::GetRecordFlagsWord(0) > 180000)
         GameInfo_SetSoundOptionBit22(1);
     Menu_QueueDefaultAction();
@@ -5055,7 +5056,7 @@ void FrontendMenu_EnterMain(Menu *pMenu, int param)
     MenuScroller *p;
     int k;
 
-    g_mainMenuInputTime = timeGetTime();
+    g_mainMenuInputTime = Sys_GetTicks();
     FrontendAnimation_ResetMainPath();
     p = FrontendScroller_GetMainScroller();
     p->offset = 0;
@@ -5085,9 +5086,9 @@ void FrontendMenu_UpdateMain(Menu *pMenu)
 
     FrontendScroller_UpdateCursorSlide(FrontendScroller_GetMainScroller());
     FrontendAnimation_UpdateMainPath();
-    now = timeGetTime();
+    now = Sys_GetTicks();
     if (StageObject_GetAnyDeviceHeldButtons() != 0)
-        g_mainMenuInputTime = timeGetTime();
+        g_mainMenuInputTime = Sys_GetTicks();
     if ((int)(now - g_mainMenuInputTime) > 30500) {
         CGameInfo::SetGameInfoSessionFlag(1);
         Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());

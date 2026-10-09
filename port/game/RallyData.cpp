@@ -1,3 +1,4 @@
+#include "port/sys.h"
 #include <stdio.h>
 
 void Race_DrawPlayerMessage(char *text, int *pColour, int car, int param4, int x, int y);
@@ -7907,7 +7908,7 @@ void RallyData_PickOpponentLineups(void)
         RallyData_ResetDriverPairingTables(g_unk0x0052f0fc);
         return;
     }
-    srand(timeGetTime());
+    srand(Sys_GetTicks());
     if ((BYTE)RallyDataState() > 1 && CGameInfo::IsConfiguredMultiplayer() == 0)
         split = 1;
     else

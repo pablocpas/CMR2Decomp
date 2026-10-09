@@ -1,0 +1,135 @@
+/*
+ * OpenCMR2 system services: time, events, window, message boxes, files and
+ * settings. Implemented in src/platform on SDL3.
+ *
+ * Game paths are the original's DOS-style paths ("Frontend\\menu.tga",
+ * "SaveGame\\x.sav", "c:\\error.txt"). Sys resolves them: drive letters are
+ * dropped, both separators are accepted, and names are matched without regard
+ * to case. Reads look in the user directory first, then in the game data
+ * directory; writes go to the user directory.
+ */
+#ifndef OPENCMR2_PORT_SYS_H
+#define OPENCMR2_PORT_SYS_H
+
+#include "port/types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* ---- time ---- */
+
+/* Milliseconds since an arbitrary start, wrapping at 2^32 (timeGetTime). */
+DWORD Sys_GetTicks(void);
+void Sys_Sleep(DWORD ms);
+
+/* ---- events ---- */
+
+enum SysEventType {
+    SYS_EVENT_QUIT = 1,      /* window closed or the OS asked the game to quit */
+    SYS_EVENT_FOCUS_LOST,    /* the game window lost the input focus */
+    SYS_EVENT_FOCUS_GAINED,
+    SYS_EVENT_MINIMIZED,
+    SYS_EVENT_RESTORED,
+    SYS_EVENT_KEY_DOWN,      /* key: DirectInput scan code (DIK_*), with repeats */
+    SYS_EVENT_TEXT           /* character: one character in Windows-1252 */
+};
+
+typedef struct SysEvent {
+    int type;
+    int key;
+    int character;
+} SysEvent;
+
+/* Takes the next pending event; returns 0 when there is none. */
+int Sys_PollEvent(SysEvent *event);
+/* Waits for the next event (the game idles like this while inactive). */
+int Sys_WaitEvent(SysEvent *event);
+
+/* ---- window ---- */
+
+/* One game window; the renderer presents into it. */
+BOOL Sys_CreateWindow(const char *title, BOOL fullscreen);
+void Sys_DestroyWindow(void);
+void Sys_ShowCursor(BOOL show);
+/* Size of the desktop the window is on (GetSystemMetrics(SM_C?SCREEN)). */
+void Sys_GetDesktopSize(int *width, int *height);
+
+/* ---- message boxes ---- */
+
+enum SysMessageBoxButtons {
+    SYS_MESSAGEBOX_OK,
+    SYS_MESSAGEBOX_RETRY_CANCEL
+};
+enum SysMessageBoxResult {
+    SYS_MESSAGEBOX_RESULT_OK = 1,
+    SYS_MESSAGEBOX_RESULT_CANCEL = 2,
+    SYS_MESSAGEBOX_RESULT_RETRY = 4
+};
+int Sys_MessageBox(const char *title, const char *text, int buttons);
+
+/* Logs a line to stderr and opencmr2.log in the user directory. */
+void Sys_Log(const char *format, ...);
+/* Shows the message and terminates the process. */
+void Sys_Fatal(const char *format, ...);
+/* Exits the process now with the given code (no game shutdown). */
+void Sys_Exit(int code);
+
+/* The command line after the options OpenCMR2 consumes, as one string of
+   space-separated words (what WinMain got). */
+const char *Sys_GetCommandLine(void);
+
+/* ---- files ---- */
+
+typedef struct SysFile SysFile;
+
+enum SysFileMode {
+    SYS_FILE_READ,           /* existing file, read only */
+    SYS_FILE_WRITE           /* created or truncated, write only */
+};
+enum SysSeekOrigin {
+    SYS_SEEK_SET,
+    SYS_SEEK_CUR,
+    SYS_SEEK_END
+};
+
+SysFile *Sys_OpenFile(const char *path, int mode);
+void Sys_CloseFile(SysFile *file);
+DWORD Sys_ReadFile(SysFile *file, void *buffer, DWORD size);
+DWORD Sys_WriteFile(SysFile *file, const void *buffer, DWORD size);
+/* Returns the new position, or 0xffffffff on failure. */
+DWORD Sys_SeekFile(SysFile *file, LONG offset, int origin);
+/* Returns the size in bytes, or 0xffffffff on failure. */
+DWORD Sys_GetFileSize(SysFile *file);
+void Sys_FlushFile(SysFile *file);
+
+BOOL Sys_FileExists(const char *path);
+BOOL Sys_DeleteFile(const char *path);
+
+/* Maps a game path to a host path for libraries that open files themselves
+   (zlib's gzopen). forWriting picks the user directory. Returns 0 if a file
+   to read does not exist. */
+BOOL Sys_ResolvePath(const char *path, BOOL forWriting, char *out, size_t outSize);
+
+/* Lists the files of a game directory that match a "*.ext" style pattern
+   (one '*'), user directory and game data merged. The callback gets each
+   name (without the directory) and returns 0 to stop. */
+typedef int (*SysListCallback)(const char *name, void *context);
+void Sys_ListFiles(const char *directory, const char *pattern, SysListCallback callback, void *context);
+
+/* ---- settings ---- */
+
+/* Install settings the original kept in the registry under
+   HKLM\Software\Codemasters\Colin McRae Rally 2: "Language", "Sku_Type",
+   "Game_HDPath", "Game_CDPath", "Install_Version". Both paths are "." (the
+   game data directory, through the path resolver). Returns "" when unset. */
+const char *Sys_GetInstallSetting(const char *name);
+
+/* OpenCMR2 options (opencmr2.ini, "section.key", e.g. "video.fullscreen"). */
+int Sys_GetOption(const char *name, int fallback);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

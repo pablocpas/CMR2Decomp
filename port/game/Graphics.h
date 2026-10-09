@@ -2,6 +2,8 @@
 #define _GRAPHICS_H
 
 
+#include "port/gfx.h"
+
 #include "Texture.h"
 #include "Mesh.h"
 #include "SceneNode.h"
@@ -298,7 +300,7 @@ struct Graphics
     unsigned char field287_0x131;
     unsigned char field288_0x132;
     unsigned char field289_0x133;
-    IDirectDrawSurface7 *pPrimarySurface;
+    void *pPrimarySurface;          // PORT: unused (DirectDraw primary surface)
     unsigned char field291_0x138;
     unsigned char field292_0x139;
     unsigned char field293_0x13a;
@@ -593,7 +595,7 @@ struct Graphics
     unsigned char field582_0x261;
     unsigned char field583_0x262;
     unsigned char field584_0x263;
-    IDirectDrawSurface7 *pBackBufferSurface;
+    void *pBackBufferSurface;       // PORT: unused (DirectDraw back buffer)
     unsigned char field586_0x268;
     unsigned char field587_0x269;
     unsigned char field588_0x26a;
@@ -890,7 +892,7 @@ struct Graphics
     unsigned char field879_0x391;
     unsigned char field880_0x392;
     unsigned char field881_0x393;
-    IDirectDrawSurface7 *pSurface3;
+    void *pSurface3;                // PORT: unused
     unsigned char field883_0x398;
     unsigned char field884_0x399;
     unsigned char field885_0x39a;
@@ -919,8 +921,8 @@ struct Graphics
     unsigned char field908_0x3b1;
     unsigned char field909_0x3b2;
     unsigned char field910_0x3b3;
-    LPDIRECTDRAW7 pDD;
-    LPDIRECTDRAW7 pDD7; 
+    void *pDD;                      // PORT: unused (DirectDraw)
+    void *pDD7;                     // PORT: unused (DirectDraw 7)
     unsigned int field913_0x3bc;
     unsigned int field917_0x3c0;
     unsigned char field921_0x3c4;
@@ -934,8 +936,10 @@ struct Graphics
 };
 
 // Texture format description filled in by CGraphics::EnumTextureFormatsCallback
+// PORT: the renderer's format and its layout instead of a DDSURFACEDESC2.
 struct TextureFormat {
-    DDSURFACEDESC2 desc;
+    int gfxFormat;              // GFX_FORMAT_*
+    GfxPixelFormat format;
     BYTE bits[4];   // bits per channel: R, B, G, A (bump: dU, dV, L)
     BYTE shifts[4]; // shift of each channel mask
 };
@@ -990,15 +994,16 @@ struct Unk0x006e0bb0 {
     DWORD maxTextureHeight;  // 0xb8
 };
 
+// PORT: the Direct3D objects are gone; vertex buffers are the renderer's.
 struct D3DTextureManager {
-    IDirect3D7* pDD;                              // 0x0
-    IDirect3DDevice7* pD3D;                       // 0x4
-    GUID deviceGUID;                             // 0x8
-    IDirect3DVertexBuffer7* pVertexBuffers[100];   // 0x18
+    void *pDD;                                   // 0x0  PORT: unused (IDirect3D7)
+    void *pD3D;                                  // 0x4  PORT: unused (IDirect3DDevice7)
+    BYTE deviceGUID[16];                         // 0x8  PORT: unused
+    GfxVertexBuffer* pVertexBuffers[100];          // 0x18
     int vertexBufferFill[100];                     // 0x1a8 vertices used in each buffer
-    IDirect3DVertexBuffer7* pVertexBuffer1;        // 0x338
-    IDirect3DVertexBuffer7* pVertexBuffer2;        // 0x33c
-    IDirect3DVertexBuffer7* pVertexBuffer3;        // 0x340
+    GfxVertexBuffer* pVertexBuffer1;               // 0x338
+    GfxVertexBuffer* pVertexBuffer2;               // 0x33c
+    GfxVertexBuffer* pVertexBuffer3;               // 0x340
     int field_0x344;                                // 0x344
     int field_0x348;                                // 0x348
     SceneNode *pRootNode;                           // 0x34c root of the scene graph
@@ -1007,7 +1012,7 @@ struct D3DTextureManager {
     TextureFormat* textureInfo3;         // 0x358 DXT1
     TextureFormat* textureInfo4;         // 0x35c DXT5
     TextureFormat* textureInfo5;         // 0x360 bump map format
-    DDPIXELFORMAT ddpfZBuffer;           // 0x364
+    BYTE ddpfZBuffer[32];                // 0x364 PORT: unused (z-buffer DDPIXELFORMAT)
     Texture* textureBuffer[2048];        // 0x384
     Texture* textureBuffer2[20];            // 0x2384
     BYTE field_0x23d4[0x10];             // 0x23d4
@@ -1022,13 +1027,13 @@ struct DDEnumDeviceBufferEntry
     {
         struct
         {
-            GUID* pGUID;        // +0x00
-            GUID  guid;         // +0x04
+            void* pGUID;        // +0x00 PORT: always NULL (primary device)
+            BYTE  guid[16];     // +0x04
         } device;
 
         struct
         {
-            DDSCAPS2 caps;      // +0x00
+            DWORD caps[4];      // +0x00 PORT: unused (DDSCAPS2 scratch)
             DWORD    unknown18; // +0x10
         } caps;
     };
@@ -1067,7 +1072,7 @@ struct DisplayMode
 };
 
 struct Unk0x0065ff90 {
-    GUID guid;
+    BYTE guid[16];          // PORT: unused
     CHAR deviceDesc[0x50];
     CHAR deviceName[0x50];
     DWORD field_0xb0;
@@ -1111,33 +1116,33 @@ public:
     static void SetSelectedDisplayDriverIndex(int param1);
     static void SetSelectedRenderDeviceIndex(int param1);
     static BOOL CreateSelectedDisplayAndRenderDevice(int screenWidth, int screenHeight, int colourDepth);
-    static BOOL EnumerateAndProbeDisplayDevices(DDDeviceEnumBuffer* param1, HWND hWnd);
-    static BOOL EnumerateDisplayDeviceGUIDCallback(GUID* lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName,  LPVOID lpContext, HMONITOR hMonitor);
-    static BOOL ProbeDisplayDriverCapabilities(DDEnumDeviceBufferEntry *device,IDirectDraw7 *pDD);
-    static void EnumerateRenderDeviceCapabilities(DDEnumDeviceBufferEntry *device,IDirectDraw7 *pDD);
-    static HRESULT CollectRenderDeviceCapabilitiesCallback(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg);
+    static BOOL EnumerateAndProbeDisplayDevices(DDDeviceEnumBuffer* param1);
+    static BOOL EnumerateDisplayDeviceGUIDCallback(DDDeviceEnumBuffer *pBuffer);
+    static BOOL ProbeDisplayDriverCapabilities(DDEnumDeviceBufferEntry *device);
+    static void EnumerateRenderDeviceCapabilities(DDEnumDeviceBufferEntry *device);
+    static int CollectRenderDeviceCapabilitiesCallback(DDEnumDeviceBufferEntry *pEntry);
     static DWORD GetTextureFormatCap1(int param1);
     static INT32 GetSelectedDisplayDriverIndex(void);
     static DWORD GetTextureFormatCap80000(int param_1);
-    static BOOL EnumerateDisplayDriverDescriptions(GUID* lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName,  LPVOID lpContext, HMONITOR hMonitor);
-    static HRESULT EnumerateCompatibleDisplayModes(DDSURFACEDESC2* lpDDSurfaceDesc2, void* lpContext);
+    static BOOL EnumerateDisplayDriverDescriptions(void);
+    static HRESULT EnumerateCompatibleDisplayModes(int width, int height, int bpp);
     static int DeviceCanRender16Bit(int param1);
     static DWORD QueryAvailableVideoMemoryForCaps(DWORD caps);
     static BOOL IsDisplayModeEnumerated(int width, int height, int colourDepth);
     static void SelectMatchingDisplayMode(int width, int height, int colourDepth);
     static DWORD GetSelectedRenderDeviceSurfaceCaps(void);
-    static HRESULT EnumeratePreferredHalDevices(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg);
+    static HRESULT EnumeratePreferredHalDevices(void);
     static void BltTexture(Texture *pTexture, int surfaceIndex);
     static void UnlockTexture(Texture *pTexture);
-    static unsigned int GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y);
-    static unsigned int GetPixelAlpha(DDSURFACEDESC2 *pDesc, int x, int y);
+    static unsigned int GetPixelRed(GfxLockedRect *pDesc, int x, int y);
+    static unsigned int GetPixelAlpha(GfxLockedRect *pDesc, int x, int y);
     static BOOL FreeTextureBuffers(void);
     static unsigned int GetTextureMemoryKilobytes(void);
     static void SetPrimaryColourByte(BYTE param1);
     static void SetPrimaryColourBias(BYTE param1);
     static void SetSecondaryColourByte(BYTE param1);
     static void SetSecondaryColourBias(BYTE param1);
-    static HRESULT CALLBACK CopyZBufferPixelFormat(DDPIXELFORMAT *pSrc, LPVOID lpContext);
+    static HRESULT CopyZBufferPixelFormat(void);
     static int GetDisplayDriverCount(void);
     static void GetDisplayDeviceNames(int index, LPSTR description, LPSTR name);
     static int GetSelectedRenderDeviceIndex(void);
@@ -1149,7 +1154,7 @@ public:
     static void SetSecondaryColourScale(BYTE param1);
     static TGAImageInfo *ParseTGAHeader(BYTE *pHeader);
     static void RestoreSurfaces(void);
-    static void SetMipMapCount(DDSURFACEDESC2 *pDesc);
+    static int SetMipMapCount(int width, int height);
     static void GetMipMapSurfaces(Texture *pTexture);
     static int GetMipMapDataSize(Texture *pTexture);
     static int GetMipMapPixelCount(Texture *pTexture);
@@ -1163,7 +1168,7 @@ public:
 public:
     static void InvalidateBlendStateCache(void);
     static int GetSharedVertexMemoryKilobytes(void);
-    static HRESULT CALLBACK EnumTextureFormatsCallback(DDPIXELFORMAT *pddpf, LPVOID lpContext);
+    static HRESULT EnumTextureFormatsCallback(int gfxFormat, GfxPixelFormat *pddpf);
     static void SelectTextureFormats(void);
     static BOOL CreateDirect3DDevice(int param1, int param2, int param3);
     static BOOL GetRasterCapabilityField84(void);
@@ -1430,7 +1435,7 @@ private:
     // GLOBAL: CMR2 0x00816a84
     static int m_unk0x00816a84;
     // GLOBAL: CMR2 0x00816ba8
-    static IDirectDrawSurface7 *m_mipMapSurfaces[2];
+    static int m_mipMapSurfaces[2];     // PORT: 1 when the mip level exists
 
     // GLOBAL: CMR2 0x0065fa28
     static unsigned int m_unk0x0065fa28;
