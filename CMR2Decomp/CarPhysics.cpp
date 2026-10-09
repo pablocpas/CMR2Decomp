@@ -714,7 +714,8 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
         w.y = 0;
         w.z = flat.x;
         sideDot = FixVecDot(&g_physTrailAxis, &w);
-        grip = FixVecDot(&g_physUp, &g_physBody->groundNormal) - 0xcccc;
+        grip = FixVecDot(&g_physUp, &g_physBody->groundNormal);
+        grip -= 0xcccc;
         if (grip < 0) {
             grip = 0;
         } else {

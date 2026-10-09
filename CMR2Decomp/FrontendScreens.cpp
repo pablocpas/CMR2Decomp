@@ -4686,7 +4686,8 @@ void FrontendAnimation_EvaluatePathSpline(int *pPoints, int t, int *pOut)
     p = &pPoints[seg * 2];
     tanB = (p[4] - p[0]) * (0x10000 - g_menuPathTension) / 2;
     tanA = (p[2] - p[-2]) * (0x10000 - g_menuPathTension) / 2;
-    x = p[2] * h00 + (FixMul(h11, tanA) + p[0] * h01) + FixMul(h10, tanB);
+    x = p[2] * h00 + (FixMul(h11, tanA) + p[0] * h01);
+    x += FixMul(h10, tanB);
     tanA = (p[3] - p[-1]) * (0x10000 - g_menuPathTension) / 2;
     tanB = (p[5] - p[1]) * (0x10000 - g_menuPathTension) / 2;
     pOut[0] = x >> 16;
@@ -4859,7 +4860,8 @@ void FrontendAnimation_UpdateMainPath(void)
         if (FrontendMenu_GetMain()->items[FrontendMenu_GetMain()->cursor].value == 4)
             elapsed = (unsigned int)(CFrontend::GetFrontendTimestamp() - FrontendScroller_GetSelectionTimestamp()) % 500;
         else
-            elapsed = CFrontend::GetFrontendTimestamp() - FrontendScroller_GetSelectionTimestamp();
+            elapsed = CFrontend::GetFrontendTimestamp();
+            elapsed -= FrontendScroller_GetSelectionTimestamp();
         if (elapsed > 250) {
             g_pMenuPath = g_menuPaths[g_menuPathMode][0];
         } else {

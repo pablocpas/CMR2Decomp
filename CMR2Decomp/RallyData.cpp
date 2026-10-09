@@ -2775,7 +2775,8 @@ void RallyData_DrawNetworkStandingsPanel(short *pRect)
         }
         square[2] = (short)((int)(g_pGraphics->resX * 10) / 640);
         square[3] = (short)((int)(g_pGraphics->resY * 10) / 480);
-        square[0] = panel[2] - (short)((int)(g_pGraphics->resX * 10) / 640) + panel[0] - square[2] / 2;
+        square[0] = panel[2] - (short)((int)(g_pGraphics->resX * 10) / 640) + panel[0];
+        square[0] -= square[2] / 2;
         square[1] = panel[3] / 2 + panel[1] - square[3] / 2;
         Sprite_FillRect((int)g_pGraphics + 0x150, square, pColour, 2);
         sprintf(number, g_strOneDigit, i + 1);
@@ -3319,7 +3320,8 @@ void RallyData_DrawStageResultRows(int car, short *position)
         record = RallyData_GetAvailableCategorySaveRecord((StageUI_GetRaceEndEventCount() & 0xff) + car);
         index = (RallyData_GetSelectionBits10To11() & 0xff) * 3 + (RallyData_GetSelectionBits12To13() & 0xff);
         carTime = *(unsigned int *)(record + 0x4c0 + index * 8);
-        index = (RallyData_GetSelectionBits10To11() & 0xff) * 3 + (RallyData_GetSelectionBits12To13() & 0xff);
+        index = (RallyData_GetSelectionBits10To11() & 0xff) * 3;
+        index += (RallyData_GetSelectionBits12To13() & 0xff);
         gameInfo = (BYTE *)CGameInfo::GetGameInfoFieldA4Address();
         recordTime = (*(unsigned int *)(gameInfo + 0x1214 + index * 8) >> 7) & 0xffff;
         index = (RallyData_GetSelectionBits10To11() & 0xff) * 3 + (RallyData_GetSelectionBits12To13() & 0xff);

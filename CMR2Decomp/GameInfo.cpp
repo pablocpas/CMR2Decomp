@@ -6635,7 +6635,8 @@ void OptionMenu_DrawThreeColourGradientStrips(short *pRect, int unused, unsigned
     d12.z = (pColours[10] << 16) - c1.z;
     half = (count & 0xff) >> 1;
     for (i = 0, t = 0; i < n; i++, t += 0x10000) {
-        strip[2] = (FixMul(t + 0x10000, FixDiv(pRect[2] << 16, n << 16)) >> 16) + pRect[0] - strip[0];
+        strip[2] = (FixMul(t + 0x10000, FixDiv(pRect[2] << 16, n << 16)) >> 16) + pRect[0];
+        strip[2] -= strip[0];
         if (i > half) {
             FixVecScale(&c, &d12, FixDiv(t - (half << 16), half << 16));
             c.x += c1.x;

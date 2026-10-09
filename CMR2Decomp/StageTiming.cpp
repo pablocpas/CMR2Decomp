@@ -2439,8 +2439,7 @@ void StageDeform_ApplyPlanarDent(void)
                 depth = FixMul(FixSqrt(depth) - g_stageDeformSpeed, reciprocalFalloff);
                 depth = FixMul(depth, shellScale);
                 phase = dir.z + dir.x;
-                if (phase < 0)
-                    phase = -phase;
+                phase = abs(phase);
                 phase = (phase & ~0x7f) % 0x400 * 0x40;
                 if (phase < 0x8000)
                     phase -= 0x10000;
@@ -5291,7 +5290,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
             particleVelocity.y = cornerVelocity->y / 10;
             particleVelocity.x = -(cornerVelocity->x / 4);
             particleVelocity.z = -(cornerVelocity->z / 4);
-            speed = FIX_ABS(Car_GetWheelSpeed(car, 2, 0));
+            speed = abs(Car_GetWheelSpeed(car, 2, 0));
             if (!(speed > speedLimit)) {
                 FixVector offset;
                 offset.x = velocity.x - cornerVelocity->x;
@@ -6636,24 +6635,24 @@ void CarPart_IntegrateHubGroundContact(void)
                     }
                 }
             } else {
-                if (g_partState->position.z > 0) {
-                    if (g_partState->basis.forward.x > 0) {
-                        g_partState->basis.forward.x = 0;
-                        flip = 1;
-                        g_partState->angularVelocity.x = 0;
-                    }
-                    if (g_partState->basis.forward.y < 0) {
-                        g_partState->basis.forward.y = 0;
-                        g_partState->angularVelocity.y = 0;
-                        goto renormalize;
-                    }
-                } else {
+                if (g_partState->position.z <= 0) {
                     if (g_partState->basis.forward.x < 0) {
                         g_partState->basis.forward.x = 0;
                         g_partState->angularVelocity.x = 0;
                         flip = 1;
                     }
                     if (g_partState->basis.forward.y > 0) {
+                        g_partState->basis.forward.y = 0;
+                        g_partState->angularVelocity.y = 0;
+                        goto renormalize;
+                    }
+                } else {
+                    if (g_partState->basis.forward.x > 0) {
+                        g_partState->basis.forward.x = 0;
+                        flip = 1;
+                        g_partState->angularVelocity.x = 0;
+                    }
+                    if (g_partState->basis.forward.y < 0) {
                         g_partState->basis.forward.y = 0;
                         g_partState->angularVelocity.y = 0;
                         goto renormalize;
@@ -7614,7 +7613,8 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
         if (angles[i] - idxCount >= 0)
             angles[i] -= idxCount;
         if (angles[i] < 0)
-            angles[i] = idxCount - 1;
+            angles[i] = idxCount;
+            angles[i] -= 1;
     }
     frontAngle = StageObject_Atan2Degrees(*(int *)(pc + 0x368), *(int *)(pc + 0x360));
     pOut[4] = frontAngle;

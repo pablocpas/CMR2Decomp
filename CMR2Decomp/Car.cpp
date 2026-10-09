@@ -326,7 +326,7 @@ void View_SelectVisibleCars(unsigned int view, short *pRect)
             delta.x = pos.x - otherPos.x;
             delta.y = pos.y - otherPos.y;
             delta.z = pos.z - otherPos.z;
-            if (FIX_ABS(delta.x) <= 0x960000 && FIX_ABS(delta.y) <= 0x960000 && FIX_ABS(delta.z) <= 0x960000)
+            if (abs(delta.x) <= 0x960000 && FIX_ABS(delta.y) <= 0x960000 && FIX_ABS(delta.z) <= 0x960000)
                 distTable[g_carOrder[i]] = FixVecDot(&delta, &delta);
             else
                 distTable[g_carOrder[i]] = 0x7fbc0000;
@@ -1740,7 +1740,8 @@ void Car_UpdateCornerVelocities(void)
     d = FixMul(pM->up.x, wxhz);
     e = FixMul(pM->forward.x, wxhy);
     f = FixMul(pM->forward.x, wyhx);
-    pCv[0].x = (((c - f) - e) - d) + b + a;
+    pCv[0].x = (((c - f) - e) - d) + b;
+    pCv[0].x += a;
     pCv[1].x = (((d - f) - e) - a) + c + b;
     pCv[2].x = (((f - e) - d) - c) + b + a;
     pCv[3].x = (((f - e) - c) - a) + d + b;
@@ -2004,7 +2005,7 @@ void Car_UpdateBodyLean(void)
         g_leanAccel.x = g_leanAccel.x > 0 ? 0x170a : -0x170a;
     }
     z = g_leanAccel.z;
-    if (FIX_ABS(z) > 0x170a) {
+    if (abs(z) > 0x170a) {
         if (z > 0) {
             z = 0x170a;
             g_leanAccel.z = z;
@@ -4770,7 +4771,7 @@ void Car_StepAll(int base, short *pList, short count)
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);
         g_pCurrentCar->field_0xb74 = 1;
         FixMatrix_InverseRotateVector(&v, &g_pCurrentCar->groundNormal, g_pCurrentCar->pWorld);
-        if (v.y <= 0x106 || FIX_ABS(v.x) > FixMul(FIX_ABS(v.y), 0x93cd) ||
+        if (v.y <= 0x106 || FIX_ABS(v.x) > FixMul(abs(v.y), 0x93cd) ||
             FIX_ABS(v.z) > FixMul(FIX_ABS(v.y), 0x10000))
             g_pCurrentCar->field_0xb74 = 0;
     }
@@ -6540,7 +6541,7 @@ void Car_IntegrateWheelTravel(void)
         for (i = 0; i < 4; i++) {
             t = FixMul(g_pCurrentCar->field_0x9c0, v[i] - avg);
             g_pCurrentCar->field_0x808[i] = t;
-            if (max < FIX_ABS(t))
+            if (max < abs(t))
                 max = FIX_ABS(t);
         }
         if (max > 0x10000) {

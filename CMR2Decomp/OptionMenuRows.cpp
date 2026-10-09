@@ -391,7 +391,7 @@ OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * param5 / 0x1e0 +
                                      (int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1));
         if (i == param2 || i + 1 == param2) {
-            if (!(!(CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)))
+            if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
             else
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&param6, 1);

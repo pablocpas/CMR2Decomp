@@ -1428,7 +1428,7 @@ void Scene_LoadLighting(int *pData)
                     if (done)
                         break;
                     d = pObj[0] - pItem[0];
-                    if (FIX_ABS(d) < 0x28f) {
+                    if (abs(d) < 0x28f) {
                         d = pObj[2] - pItem[1];
                         if (FIX_ABS(d) < 0x28f) {
                             pItem[0xb] = (int)pObj;

@@ -381,7 +381,8 @@ int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer)
             }
             y0 = y;
             if (h + y0 > (int)g_pGraphics->resY)
-                h = (short)g_pGraphics->resX - y - 1;
+                h = (short)g_pGraphics->resX - y;
+                h -= 1;
             a[0] = (int)(__int64)((double)x0 * CGraphics::m_65536);
             c[0] = a[0];
             a[1] = (int)(__int64)((double)y0 * CGraphics::m_65536);

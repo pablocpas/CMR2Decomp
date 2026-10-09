@@ -4249,7 +4249,8 @@ sample:
         y = 0;
     }
     if (x + w >= (int)resX)
-        w = resX - x;
+        w = resX;
+        w -= x;
     if (y + h >= (int)resY)
         h = resY - y;
     if (w == 0 || h == 0)
@@ -5865,7 +5866,8 @@ void Particle_Interpolate(int t)
             d.z = p->vector0x28.z - p->vector0x10.z;
             FixVecScale(&d, &d, t);
             p->vector0x1c.x = p->vector0x10.x + d.x;
-            p->vector0x1c.y = p->vector0x10.y + d.y;
+            p->vector0x1c.y = p->vector0x10.y;
+            p->vector0x1c.y += d.y;
             p->vector0x1c.z = p->vector0x10.z + d.z;
             p->type0x53 = (BYTE)((p->type0x52 * 0x10000 + FixMul((p->type0x56 - p->type0x52) * 0x10000, t)) >> 16);
         }
@@ -6461,7 +6463,7 @@ Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
                 if (aDepth >= 0)
                     a = ((aMask >> ((aDepth) < 0 ? -(aDepth) : (aDepth))) & a) << abs(aDepth);
                 else
-                    a = ((aMask << abs(aDepth)) & a) >> abs(aDepth);
+                    a = ((aMask << abs(aDepth)) & a) >> FIX_ABS(aDepth);
                 if (rDepth >= 0)
                     r = ((rMask >> abs(rDepth)) & r) << abs(rDepth);
                 else

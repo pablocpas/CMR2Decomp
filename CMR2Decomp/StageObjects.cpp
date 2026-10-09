@@ -3269,7 +3269,8 @@ void StageObject_InterpolateOrderedMotionRecords(int scale)
                         v.y = p[1] - p[4];
                         v.z = p[2] - p[5];
                         FixVecScale(&v, &v, scale);
-                        p[6] = p[3] + v.x;
+                        p[6] = p[3];
+                        p[6] += v.x;
                         p[7] = p[4] + v.y;
                         p[8] = p[5] + v.z;
                         offset -= 0x3c;
@@ -5110,7 +5111,8 @@ void StageObject_SetLighting(const StageLightPreset *pPrimary, const StageLightP
         g_stageLighting[0x2e] = (unsigned int)pSecondary->colour[1][1] << 0x10;
         g_stageLighting[0x2f] = (unsigned int)pSecondary->colour[1][2] << 0x10;
         g_stageLighting[0x30] = ((unsigned int)pSecondary->colour[0][0] << 0x10) - g_stageLighting[0x2d];
-        g_stageLighting[0x31] = ((unsigned int)pSecondary->colour[0][1] << 0x10) - g_stageLighting[0x2e];
+        g_stageLighting[0x31] = ((unsigned int)pSecondary->colour[0][1] << 0x10);
+        g_stageLighting[0x31] -= g_stageLighting[0x2e];
         g_stageLighting[0x32] = ((unsigned int)pSecondary->colour[0][2] << 0x10) - g_stageLighting[0x2f];
         g_stageLighting[0x6] = (unsigned int)pPrimary->colour[2][0] << 0x10;
         g_stageLighting[0x7] = (unsigned int)pPrimary->colour[2][1] << 0x10;
@@ -6876,7 +6878,9 @@ void StageObject_RebuildViewWeatherLighting(int index)
         colour.z += ambientMix.z;
 
         if (flag) {
-            objectRefColour[3] = (objectColour[3] <= 0xc8) ? (BYTE)(objectColour[3] + 0x32) : 0xfa;
+            objectRefColour[3] = 0xfa;
+            if (objectColour[3] <= 0xc8)
+                objectRefColour[3] = (BYTE)(objectColour[3] + 0x32);
             referenceColour[0] = 0xff;
             referenceColour[1] = 0xff;
             referenceColour[2] = 0xff;
@@ -9747,7 +9751,8 @@ int StageObject_UpdateCarBodyFade(int param_1, int param_2)
         result = FixDiv(local_c, 0x70000);
         g_unk0x0058d2d0[param_1] = pCar->field_0xb20;
         c = g_unk0x0058d478[param_1];
-        g_unk0x0058d478[param_1] = c + 1;
+        g_unk0x0058d478[param_1] = c;
+        g_unk0x0058d478[param_1] += 1;
         if ((BYTE)(c + 1) > 7) {
             g_unk0x0058d360[param_1] = 3;
             g_unk0x0058d478[param_1] = 0;
@@ -10730,10 +10735,9 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
     p = StageUI_GetRaceResultTable();
     if (**(char **)(p + 4) == 10) {
         if (Race_IsMultiplayerRecordMode10() != 0) {
+            uVar4 = param_1;
             if (CGameInfo::GetConfiguredGameMode() != 2)
                 uVar4 = View_FindFreeModeSlot(1);
-            else
-                uVar4 = param_1;
         } else {
             uVar4 = View_FindFreeModeSlot(0);
         }
@@ -11545,10 +11549,9 @@ void Replay_EncodeCarPoseSample(Car *pCar, ReplaySample *pSample)
             size.x = -pBasis->x;
         size.y = pBasis->y < 0 ? -pBasis->y : pBasis->y;
         size.z = pBasis->z < 0 ? -pBasis->z : pBasis->z;
+        angle = FixAtan2(size.z, size.x) * 0x1680;
         if (size.x == 0)
             angle = 0;
-        else
-            angle = FixAtan2(size.z, size.x) * 0x1680;
         pitch = (0x400 - Replay_Acos(size.y)) * 0x1680;
         if (pBasis->x >= 0 && pBasis->z <= 0)
             angle = 0x1680000 - angle;
@@ -11893,7 +11896,8 @@ void StageObject_UpdateCarLightFlagsAndGlows(int param_1)
     }
     if (pRec[0xa7] > 0x4ccc) {
         old = g_unk0x00547ce0[LIGHT_CAR];
-        g_unk0x00547ce0[LIGHT_CAR] = old + g_unk0x0051bd3c;
+        g_unk0x00547ce0[LIGHT_CAR] = old;
+        g_unk0x00547ce0[LIGHT_CAR] += g_unk0x0051bd3c;
         if (g_unk0x00547ce0[LIGHT_CAR] > 0x140000)
             g_unk0x00547ce0[LIGHT_CAR] = 0;
         if (g_unk0x00547ce0[LIGHT_CAR] == 0)
@@ -12616,9 +12620,7 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
                                     volScale, 0x5622,
                                     g_unk0x0051f2d8[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
         }
-        if (!(NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051ec50))) {
-            Sound_SetPlayingSlotVolume((unsigned int)*pHandle, 0);
-        } else {
+        if (NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051ec50)) {
             unsigned int pan = NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50);
             unsigned short pan2 = (unsigned short)NetRace_ScaleViewAngleByDistance(0, (int)chosen, (unsigned short)pan);
             int volScale;
@@ -12627,6 +12629,8 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
             volScale = FixMul(g_unk0x0058dda8, FixMul(dist, g_unk0x0051f27c));
             dist2 = NetRace_GetListenerDistanceAttenuation(chosen, 0);
             Sound_SetPlayingSlotVolume((unsigned int)*pHandle, FixMul(dist2, volScale));
+        } else {
+            Sound_SetPlayingSlotVolume((unsigned int)*pHandle, 0);
         }
         pHandle++;
     } while (--limit);
@@ -13250,7 +13254,7 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
         delta.y = 0;
         projCorner0 = FixVecDot(&delta, &pBoxB->axisA);
         projCorner1 = FixVecDot(&pBoxB->axisB, &delta);
-        if (FIX_ABS(projCorner0) > pBoxB->halfWidth || FIX_ABS(projCorner1) > pBoxB->halfLength)
+        if (FIX_ABS(projCorner0) > pBoxB->halfWidth || abs(projCorner1) > pBoxB->halfLength)
             continue;
         hit0 = 0;
         hit1 = 0;

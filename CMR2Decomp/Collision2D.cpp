@@ -317,7 +317,7 @@ int Collision_SphereVsBox(int *param_1, int *pAlong0, unsigned int *pAlong1, int
         // the box through each pair of faces.
         reach0 = pBox->halfWidth + g_collisionSphereRadius;
         reach1 = g_collisionSphereRadius + pBox->halfLength;
-        if (FIX_ABS(along0) > reach0)
+        if (abs(along0) > reach0)
             goto done;
         if (FIX_ABS(along1) > reach1)
             goto done;
