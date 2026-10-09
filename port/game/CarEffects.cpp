@@ -1,4 +1,3 @@
-#include <windows.h>
 #include <stdlib.h>
 #include "Car.h"
 #include "Graphics.h"

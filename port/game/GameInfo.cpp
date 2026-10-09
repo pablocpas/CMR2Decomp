@@ -541,7 +541,6 @@ IDirectSound *Sound_GetSampleTableState(void);
 BOOL OptionMovie_PlayFrame(BYTE skipOnSpace);
 void OptionMovie_Close(void);
 
-#include "../third_party/bink-sdk-1.0p/include/bink.h"
 
 // Bink movie state: the open movie and its dimensions, the Bink buffer the
 // frames are played on, the DirectDraw surface they are converted to, and the
@@ -3307,7 +3306,6 @@ char g_strSaveGameDirFormat[16] = "%s\\gamesave\\";
 // GLOBAL: CMR2 0x00525c04
 char g_strSaveGameFileFormat[28] = "%s\\gamesave\\game%.5d.rcs";
 
-#include <io.h>
 
 // Formats into the buffer the first save game file name that does not exist
 // yet (<install>\gamesave\gameNNNNN.rcs), starting from index 0.

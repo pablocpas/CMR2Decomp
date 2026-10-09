@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "FixedPoint.h"
 #include "Car.h"
 #include "Mesh.h"

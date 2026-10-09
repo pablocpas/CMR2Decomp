@@ -20,8 +20,6 @@
 #include "NetPlayers.h"
 #include <stdio.h>
 #include <string.h>
-#include "../third_party/bink-sdk-1.0p/include/bink.h"
-#include <io.h>
 #include "Sprite.h"
 #include "Texture.h"
 #include "StageTiming.h"

@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "Stage.h"
 #include "GameInfo.h"
 

@@ -1,7 +1,6 @@
 #ifndef _NETPLAYERS_H
 #define _NETPLAYERS_H
 
-#include <windows.h>
 
 // Players of a network game (0x409a30-0x40b1e0): one 0x80 byte record per
 // DirectPlay player plus the result and standings tables built from them.

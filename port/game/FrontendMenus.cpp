@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "FrontendMenus.h"
 #include "GameInfo.h"
 #include "Graphics.h"

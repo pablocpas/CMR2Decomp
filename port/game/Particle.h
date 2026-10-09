@@ -1,7 +1,6 @@
 #ifndef _PARTICLE_H
 #define _PARTICLE_H
 
-#include <windows.h>
 #include "FixedPoint.h"
 
 // Definition of one particle kind (0x70 bytes).

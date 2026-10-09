@@ -1,4 +1,3 @@
-#include <windows.h>
 
 // Globals defined apart from the code that reads them. The original reads
 // these bytes with byte loads, as code that only sees an extern declaration

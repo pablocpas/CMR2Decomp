@@ -1,7 +1,6 @@
 #ifndef _GENERIC_FILE_LOADER_H
 #define _GENERIC_FILE_LOADER_H
 
-#include <windows.h>
 
 struct GenericFile
 {

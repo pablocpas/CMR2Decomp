@@ -1,7 +1,6 @@
 #ifndef _STAGE_TIMING_H
 #define _STAGE_TIMING_H
 
-#include <windows.h>
 
 struct StageNodeTables {
     void *nodes[4];

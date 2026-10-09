@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <windows.h>
 
 // registry key path value
 char CRegKey::m_regKeyPathSoftware[9] = "SOFTWARE";

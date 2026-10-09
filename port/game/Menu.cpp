@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "Menu.h"
 #include "Input.h"
 #include "Sound.h"

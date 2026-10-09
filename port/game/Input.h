@@ -1,7 +1,6 @@
 #ifndef _INPUT_H
 #define _INPUT_H
 
-#include "../third_party/dx7sdk-7001/include/dinput.h"
 
 struct JoystickBinding {
     DWORD range;

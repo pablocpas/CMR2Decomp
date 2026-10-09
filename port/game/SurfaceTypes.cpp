@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "SurfaceTypes.h"
 #include "FixedPoint.h"
 #include "StageTiming.h"

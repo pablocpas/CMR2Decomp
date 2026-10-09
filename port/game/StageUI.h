@@ -1,7 +1,6 @@
 #ifndef _STAGE_UI_H
 #define _STAGE_UI_H
 
-#include <windows.h>
 
 void StageUI_ApplySoundState(int channel, BYTE *pState);
 

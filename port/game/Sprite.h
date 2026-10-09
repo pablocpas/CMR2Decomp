@@ -1,7 +1,6 @@
 #ifndef _SPRITE_H
 #define _SPRITE_H
 
-#include "../third_party/dx7sdk-7001/include/d3d.h"
 #include "Texture.h"
 
 struct SpriteRect {

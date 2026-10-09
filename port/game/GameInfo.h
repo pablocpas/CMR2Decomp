@@ -2,7 +2,6 @@
 #define _GAME_INFO_H
 
 #include "FixedPoint.h"
-#include <windows.h>
 
 // Record words as the original's bitfields (it merges adjacent field stores).
 struct RecordTimeBits {

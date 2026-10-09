@@ -2870,11 +2870,8 @@ extern float g_65536f;
 // float -> 16.16 with a plain fistp (no _ftol).
 inline int FloatToFix(float f)
 {
-    int i;
-    __asm fld f
-    __asm fmul dword ptr g_65536f
-    __asm fistp i
-    return i;
+    // PORT: fld/fmul/fistp: the product is exact, fistp rounds to nearest.
+    return (int)lrintf(f * g_65536f);
 }
 
 // Moves pPoint onto the line from pOrigin to it, 10 units from pOrigin

@@ -1,9 +1,6 @@
 #ifndef _GAME_H
 #define _GAME_H
 
-#include <windows.h>
-#include "../third_party/dx7sdk-7001/include/dplay.h"
-#include "../third_party/dx7sdk-7001/include/dplobby.h"
 
 typedef void (*FuncTableEntry)(struct Unk0049c2c0 *, BYTE);
 typedef void (*OtherFuncTableEntry)(struct Unk0049c2c0 *, BYTE);

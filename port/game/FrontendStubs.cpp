@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "FrontendMenus.h"
 
 // Empty bodies for the frontend screen callbacks that are not decompiled

@@ -2,7 +2,6 @@
 
 void Race_DrawPlayerMessage(char *text, int *pColour, int car, int param4, int x, int y);
 #include <string.h>
-#include <windows.h>
 #include "RallyData.h"
 #include "RallyRoute.h"
 #include "Car.h"

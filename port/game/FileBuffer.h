@@ -2,7 +2,6 @@
 #define _FILE_BUFFER_H
 
 #include "BFL.h"
-#include <windows.h>
 
 class CFileBuffer
 {

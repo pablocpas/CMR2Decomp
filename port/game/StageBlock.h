@@ -1,7 +1,6 @@
 #ifndef _STAGE_BLOCK_H
 #define _STAGE_BLOCK_H
 
-#include <windows.h>
 
 // Stage object tables 0x58d2a0..0x58d6d0. Several of the original loops walk
 // across neighbouring tables (rows of 12 bytes, pairs of pointers), so the

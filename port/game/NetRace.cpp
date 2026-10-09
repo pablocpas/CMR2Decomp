@@ -1,4 +1,4 @@
-#include <windows.h>
+#include <math.h>
 #include <string.h>
 #include "NetPlayers.h"
 #include "Sprite.h"
@@ -1140,11 +1140,8 @@ extern float g_65536f;
 
 inline int NetRace_FloatToFix(float f)
 {
-    int i;
-    __asm fld f
-    __asm fmul dword ptr g_65536f
-    __asm fistp i
-    __asm mov eax, i
+    // PORT: fld/fmul/fistp: the product is exact, fistp rounds to nearest.
+    return (int)lrintf(f * g_65536f);
 }
 
 inline void NetRace_NormalizeInto(FixVector *out, FixVector *v)

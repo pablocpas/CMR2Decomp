@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "Sprite.h"
 #include "Game.h"
 #include "Graphics.h"

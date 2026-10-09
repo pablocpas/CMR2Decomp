@@ -1,5 +1,4 @@
 #include "main.h"
-#include <mmsystem.h>
 #include "Graphics.h"
 #include "Logger.h"
 #include "Game.h"

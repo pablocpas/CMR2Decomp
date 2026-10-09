@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "Collision2D.h"
 #include "Car.h"
 

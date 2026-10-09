@@ -1,4 +1,4 @@
-#include <windows.h>
+#include <math.h>
 #include "Graphics.h"
 #include "Car.h"
 #include "FileBuffer.h"
@@ -5655,13 +5655,9 @@ void Physics_UpdateRateHold(void)
     }
     {
         float rate = Graphics_GetFrameScale();
-        int scaled;
+        // PORT: fld/fmul/fistp, rounding to nearest.
+        int scaled = (int)lrintf(rate * g_65536f);
 
-        __asm {
-            fld rate
-            fmul g_65536f
-            fistp scaled
-        }
         StageObject_SetPhysicsScaleAndReciprocal(scaled);
     }
 }

@@ -2,7 +2,6 @@
 #define _TEXTURE_H
 
 #include "GenericFileLoader.h"
-#include "../third_party/dx7sdk-7001/include/ddraw.h"
 
 struct Texture {
     USHORT                  textureId;

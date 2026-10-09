@@ -1,7 +1,6 @@
 #ifndef _LOGGER_H_
 #define _LOGGER_H
 
-#include <windows.h>
 
 class CLogger
 {

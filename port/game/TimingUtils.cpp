@@ -1,7 +1,6 @@
 #include "TimingUtils.h"
 #include "RallyTiming.h"
 #include "FixedPoint.h"
-#include <windows.h>
 #include "Graphics.h"
 
 #include <stdio.h>

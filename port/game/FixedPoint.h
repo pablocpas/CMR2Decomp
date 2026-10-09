@@ -3,34 +3,31 @@
 
 // 16.16 fixed point helpers. The original game used inline assembly for the
 // 64-bit intermediates (MSVC 6 would otherwise call _allmul/_allshr/_alldiv).
+// PORT: the helpers are portable C with the assembly's exact results: 64-bit
+// products, results truncated to their low 32 bits, wrapping sums.
+
+// Bits 16..47 of a * b (what "imul; shrd eax, edx, 16" and "shld edx, eax,
+// 16" leave in a register).
+inline int FixMulBits(int a, int b)
+{
+    return (int)(long long)(((long long)a * b) >> 16);
+}
 
 inline int FixMul(int a, int b)
 {
-    __asm mov eax, a
-    __asm mov edx, b
-    __asm imul edx
-    __asm shrd eax, edx, 16
+    return FixMulBits(a, b);
 }
 
 // (a * b) >> 32, mirroring the original's "imul edx / shrd eax, edx, 16 /
 // sar eax, 16" sequence.
 inline int FixMulShift32(int a, int b)
 {
-    __asm mov eax, a
-    __asm mov edx, b
-    __asm imul edx
-    __asm shrd eax, edx, 16
-    __asm sar eax, 16
+    return FixMulBits(a, b) >> 16;
 }
 
 inline int FixDiv(int a, int b)
 {
-    __asm mov eax, a
-    __asm mov ecx, b
-    __asm cdq
-    __asm shld edx, eax, 16
-    __asm shl eax, 16
-    __asm idiv ecx
+    return (int)((long long)a * 65536 / b);
 }
 
 
@@ -113,320 +110,113 @@ unsigned int FixVec_Length(FixVector *pV);
 #define FixSin(a) g_sinTable[(unsigned short)(a) & 0xfff]
 #define FixCos(a) g_sinTable[(unsigned short)(0x400 - (a)) & 0xfff]
 
+// Square root through g_sqrtTable of a non-zero unsigned 16.16 value: the
+// table is indexed by the top 11-12 bits, with an even exponent.
+inline int FixSqrtFromTable(unsigned int v)
+{
+    int top = 31 - __builtin_clz(v);
+    int exponent = top - 15;
+    unsigned int index;
+    unsigned int root;
+
+    if (exponent & 1)
+        exponent++;
+    index = exponent + 4 >= 0 ? v >> (exponent + 4) : v << -(exponent + 4);
+    root = g_sqrtTable[index];
+    exponent >>= 1;
+    return (int)(exponent >= 0 ? root << exponent : root >> -exponent);
+}
+
 // Length of a 16.16 vector via a 4096-entry square root table.
 inline int FixVecLength(FixVector *v)
 {
-    __asm {
-        mov ecx, v
-        mov eax, [ecx]
-        imul eax
-        shld edx, eax, 16
-        mov ebx, edx
-        mov eax, [ecx + 4]
-        imul eax
-        shld edx, eax, 16
-        add ebx, edx
-        mov eax, [ecx + 8]
-        imul eax
-        shld edx, eax, 16
-        add ebx, edx
-        or ebx, ebx
-        mov eax, ebx
-        jnz nonzero
-        mov eax, 0
-        jmp done
-    nonzero:
-        xor ecx, ecx
-        cmp eax, 0x10000
-        jb l1
-        shr eax, 16
-        add cl, 16
-    l1:
-        cmp eax, 0x100
-        jb l2
-        shr eax, 8
-        add cl, 8
-    l2:
-        cmp eax, 0x10
-        jb l3
-        shr eax, 4
-        add cl, 4
-    l3:
-        cmp eax, 4
-        jb l4
-        shr eax, 2
-        add cl, 2
-    l4:
-        cmp eax, 2
-        jb l5
-        inc ecx
-    l5:
-        mov eax, ebx
-        sub cl, 15
-        test cl, 1
-        jz l6
-        inc cl
-    l6:
-        mov bl, cl
-        add cl, 4
-        jns l7
-        neg cl
-        shl eax, cl
-        jmp l8
-    l7:
-        shr eax, cl
-    l8:
-        sar bl, 1
-        mov ax, word ptr [eax * 2 + g_sqrtTable]
-        or bl, bl
-        mov cl, bl
-        js l9
-        shl eax, cl
-        jmp done
-    l9:
-        neg cl
-        shr eax, cl
-    done:
-    }
+    unsigned int sum = (unsigned int)FixMulBits(v->x, v->x) + (unsigned int)FixMulBits(v->y, v->y) +
+                       (unsigned int)FixMulBits(v->z, v->z);
+
+    return sum == 0 ? 0 : FixSqrtFromTable(sum);
 }
 
 // Square root of a 16.16 value via the same table as FixVecLength.
 inline int FixSqrt(int v)
 {
-    __asm {
-        mov eax, v
-        or eax, eax
-        mov ebx, eax
-        jnz nonzero
-        mov eax, 0
-        jmp done
-    nonzero:
-        xor ecx, ecx
-        cmp eax, 0x10000
-        jb l1
-        shr eax, 16
-        add cl, 16
-    l1:
-        cmp eax, 0x100
-        jb l2
-        shr eax, 8
-        add cl, 8
-    l2:
-        cmp eax, 0x10
-        jb l3
-        shr eax, 4
-        add cl, 4
-    l3:
-        cmp eax, 4
-        jb l4
-        shr eax, 2
-        add cl, 2
-    l4:
-        cmp eax, 2
-        jb l5
-        inc ecx
-    l5:
-        mov eax, ebx
-        sub cl, 15
-        test cl, 1
-        jz l6
-        inc cl
-    l6:
-        mov bl, cl
-        add cl, 4
-        jns l7
-        neg cl
-        shl eax, cl
-        jmp l8
-    l7:
-        shr eax, cl
-    l8:
-        sar bl, 1
-        mov ax, word ptr [eax * 2 + g_sqrtTable]
-        or bl, bl
-        mov cl, bl
-        js l9
-        shl eax, cl
-        jmp done
-    l9:
-        neg cl
-        shr eax, cl
-    done:
-    }
+    return v == 0 ? 0 : FixSqrtFromTable((unsigned int)v);
 }
 
 // out = src * t
 inline void FixVecScale(FixVector *out, FixVector *src, int t)
 {
-    __asm {
-        mov esi, src
-        mov ebx, t
-        mov ecx, out
-        mov eax, [esi]
-        imul ebx
-        shld edx, eax, 16
-        mov [ecx], edx
-        mov eax, [esi + 4]
-        imul ebx
-        shld edx, eax, 16
-        mov [ecx + 4], edx
-        mov eax, [esi + 8]
-        imul ebx
-        shld edx, eax, 16
-        mov [ecx + 8], edx
-    }
+    out->x = FixMulBits(src->x, t);
+    out->y = FixMulBits(src->y, t);
+    out->z = FixMulBits(src->z, t);
 }
 
 // a . b
 inline int FixVecDot(FixVector *a, FixVector *b)
 {
-    __asm {
-        mov ecx, a
-        mov esi, b
-        mov eax, [esi]
-        mov edx, [ecx]
-        imul edx
-        shrd eax, edx, 16
-        mov ebx, eax
-        mov eax, [esi + 4]
-        mov edx, [ecx + 4]
-        imul edx
-        shrd eax, edx, 16
-        add ebx, eax
-        mov eax, [esi + 8]
-        mov edx, [ecx + 8]
-        imul edx
-        shrd eax, edx, 16
-        add eax, ebx
-    }
+    return (int)((unsigned int)FixMulBits(a->x, b->x) + (unsigned int)FixMulBits(a->y, b->y) +
+                 (unsigned int)FixMulBits(a->z, b->z));
 }
 
 // out = a x b
 inline void FixVecCross(FixVector *out, FixVector *a, FixVector *b)
 {
-    __asm {
-        mov edx, a
-        mov ecx, out
-        mov edi, b
-        mov eax, [edx + 4]
-        mov esi, edx
-        mov edx, [edi + 8]
-        imul edx
-        shld edx, eax, 16
-        mov ebx, edx
-        mov eax, [esi + 8]
-        mov edx, [edi + 4]
-        imul edx
-        shld edx, eax, 16
-        sub ebx, edx
-        mov [ecx], ebx
-        mov eax, [esi + 8]
-        mov edx, [edi]
-        imul edx
-        shld edx, eax, 16
-        mov ebx, edx
-        mov eax, [esi]
-        mov edx, [edi + 8]
-        imul edx
-        shld edx, eax, 16
-        sub ebx, edx
-        mov [ecx + 4], ebx
-        mov eax, [esi]
-        mov edx, [edi + 4]
-        imul edx
-        shld edx, eax, 16
-        mov ebx, edx
-        mov eax, [esi + 4]
-        mov edx, [edi]
-        imul edx
-        shld edx, eax, 16
-        sub ebx, edx
-        mov [ecx + 8], ebx
-    }
+    // Component by component, reading after each store as the original
+    // does (out may alias a or b).
+    out->x = FixMulBits(a->y, b->z) - FixMulBits(a->z, b->y);
+    out->y = FixMulBits(a->z, b->x) - FixMulBits(a->x, b->z);
+    out->z = FixMulBits(a->x, b->y) - FixMulBits(a->y, b->x);
 }
 
 // Angle of the vector (x, y) as a 12-bit angle (0x400 = 90 degrees).
 inline short FixAtan2(int y, int x)
 {
-    __asm {
-        mov ecx, x
-        mov edx, y
-        cmp edx, 0
-        jnz nonzero
-        xor eax, eax
-        jmp done
-    nonzero:
-        cmp ecx, 0
-        jnz quadrant
-        mov eax, 0x400
-        jmp done
-    quadrant:
-        xor ebx, ebx
-        test edx, 0x80000000
-        jz ypos
-        neg edx
-        xor ebx, 1
-    ypos:
-        test ecx, 0x80000000
-        jz xpos
-        neg ecx
-        xor ebx, 1
-    xpos:
-        cmp edx, ecx
-        jg steep
-        mov eax, edx
-        jmp divide
-    steep:
-        mov eax, ecx
-        mov ecx, edx
-        or ebx, 2
-    divide:
-        cdq
-        shld edx, eax, 16
-        shl eax, 16
-        idiv ecx
-        mov edx, offset g_atanTable
-        shr eax, 7
-        add edx, eax
-        add edx, eax
-        mov ax, word ptr [edx]
-        test ebx, 2
-        jz notsteep
-        mov dx, ax
-        mov ax, 0x400
-        sub ax, dx
-    notsteep:
-        test ebx, 1
-        jz done
-        neg ax
-    done:
+    int flags = 0;
+    int num;
+    int den;
+    unsigned int index;
+    unsigned short angle;
+
+    // As in the original, y == 0 gives 0 and x == 0 gives 0x400 whatever
+    // the other sign.
+    if (y == 0)
+        return 0;
+    if (x == 0)
+        return 0x400;
+    if (y < 0) {
+        y = -y;
+        flags ^= 1;
     }
+    if (x < 0) {
+        x = -x;
+        flags ^= 1;
+    }
+    if (y > x) {
+        num = x;
+        den = y;
+        flags |= 2;
+    } else {
+        num = y;
+        den = x;
+    }
+    index = (unsigned int)(int)((long long)num * 65536 / den) >> 7;
+    // |y| == |x| reads one entry past g_atanTable, the low word of
+    // g_tanTable[0] in the original's memory layout.
+    angle = index < 512 ? g_atanTable[index] : (unsigned short)g_tanTable[0];
+    if (flags & 2)
+        angle = (unsigned short)(0x400 - angle);
+    if (flags & 1)
+        angle = (unsigned short)-angle;
+    return (short)angle;
 }
 
 // out = in * (1 / len)
 inline void FixVecScaleRecip(FixVector *out, FixVector *src, int len)
 {
-    __asm {
-        mov ecx, out
-        mov esi, src
-        mov ebx, len
-        mov edx, 1
-        xor eax, eax
-        idiv ebx
-        mov ebx, eax
-        mov eax, [esi]
-        imul ebx
-        shld edx, eax, 16
-        mov [ecx], edx
-        mov eax, [esi + 4]
-        imul ebx
-        shld edx, eax, 16
-        mov [ecx + 4], edx
-        mov eax, [esi + 8]
-        imul ebx
-        shld edx, eax, 16
-        mov [ecx + 8], edx
-    }
+    int recip = (int)((1LL << 32) / len);
+
+    out->x = FixMulBits(src->x, recip);
+    out->y = FixMulBits(src->y, recip);
+    out->z = FixMulBits(src->z, recip);
 }
 
 #ifndef FIX_ABS

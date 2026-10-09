@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "RallyRoute.h"
 
 short g_routeDirKey[3];

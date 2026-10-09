@@ -851,7 +851,6 @@ SoundSlot *Sound_GetSlot(int index);
 
 // The original imported DirectSoundCreate from DSOUND.dll (the SilentPatch exe
 // routes it through SPCMR2.dll ordinal 1).
-#pragma comment(lib, "third_party/dx7sdk-7001/lib/dsound.lib")
 
 // 3D sound enabled (primary buffer with CTRL3D and a listener)
 // GLOBAL: CMR2 0x005a2838

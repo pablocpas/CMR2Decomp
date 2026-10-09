@@ -1,7 +1,6 @@
 #ifndef _CAR_PHYSICS_H
 #define _CAR_PHYSICS_H
 
-#include <windows.h>
 #include "FixedPoint.h"
 
 // Contact state of one car with the ground (0x2a4 bytes).

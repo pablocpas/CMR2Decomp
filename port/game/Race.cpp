@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "Game.h"
 #include "RallyData.h"
 #include "GameInfo.h"

@@ -1,5 +1,3 @@
-#include <windows.h>
-#include <mmsystem.h>
 #include "GameMenus.h"
 #include "GameInfo.h"
 #include "Frontend.h"

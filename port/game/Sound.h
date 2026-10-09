@@ -1,11 +1,6 @@
 #ifndef _SOUND_H
 #define _SOUND_H
 
-#include <windows.h>
-#include <MMREG.H>
-#include <MMSYSTEM.H>
-#include <MSACM.H>
-#include "../third_party/dx7sdk-7001/include/dsound.h"
 #include <stdlib.h>
 #include <string.h>
 

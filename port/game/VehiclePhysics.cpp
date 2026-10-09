@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "Car.h"
 #include "CarParts.h"
 #include "FixedPoint.h"
@@ -55,66 +54,8 @@ int g_collisionDirectionDirty;
 
 inline int Collision_FixSqrt(int value)
 {
-    __asm {
-        mov eax, value
-        or eax, eax
-        mov ebx, eax
-        jnz sqrt_nonzero
-        mov eax, 0
-        jmp sqrt_done
-    sqrt_nonzero:
-        xor ecx, ecx
-        cmp eax, 0x10000
-        jb sqrt_l1
-        shr eax, 16
-        add cl, 16
-    sqrt_l1:
-        cmp eax, 0x100
-        jb sqrt_l2
-        shr eax, 8
-        add cl, 8
-    sqrt_l2:
-        cmp eax, 0x10
-        jb sqrt_l3
-        shr eax, 4
-        add cl, 4
-    sqrt_l3:
-        cmp eax, 4
-        jb sqrt_l4
-        shr eax, 2
-        add cl, 2
-    sqrt_l4:
-        cmp eax, 2
-        jb sqrt_l5
-        inc ecx
-    sqrt_l5:
-        mov eax, ebx
-        sub cl, 15
-        test cl, 1
-        jz sqrt_l6
-        inc cl
-    sqrt_l6:
-        mov bl, cl
-        add cl, 4
-        jns sqrt_l7
-        neg cl
-        shl eax, cl
-        jmp sqrt_l8
-    sqrt_l7:
-        shr eax, cl
-    sqrt_l8:
-        sar bl, 1
-        mov ax, word ptr [eax * 2 + g_sqrtTable]
-        or bl, bl
-        mov cl, bl
-        js sqrt_l9
-        shl eax, cl
-        jmp sqrt_done
-    sqrt_l9:
-        neg cl
-        shr eax, cl
-    sqrt_done:
-    }
+    // PORT: the same table square root as FixSqrt, which is portable C.
+    return FixSqrt(value);
 }
 
 // Applies a world-space impulse and its resulting torque to the active car.

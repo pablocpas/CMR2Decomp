@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "CarPhysics.h"
 #include "Car.h"
 #include "GameInfo.h"

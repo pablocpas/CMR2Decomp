@@ -2,7 +2,6 @@
 // both, MSVC calls RallyDataState first.
 short Car_GetOrderCount(void);
 #include "StageObjectCount.h"
-#include <windows.h>
 #include <stdlib.h>
 #include "StageBlock.h"
 #include <string.h>
@@ -11611,11 +11610,8 @@ void Replay_EncodeCarPoseSample(Car *pCar, ReplaySample *pSample)
 // decoded into the six output pointers.
 inline int FloatToFix(float f)
 {
-    int i;
-    __asm fld f
-    __asm fmul dword ptr g_65536f
-    __asm fistp i
-    __asm mov eax, i
+    // PORT: fld/fmul/fistp: the product is exact, fistp rounds to nearest.
+    return (int)lrintf(f * g_65536f);
 }
 
 // FUNCTION: CMR2 0x0046de20

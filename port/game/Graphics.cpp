@@ -4,8 +4,6 @@
 #include "Graphics.h"
 #include "Car.h"
 #include "Sprite.h"
-#include "../third_party/dx7sdk-7001/include/d3dxmath.h"
-#pragma comment(lib, "third_party/dx7sdk-7001/lib/d3dx.lib")
 #include "Frontend.h"
 #include "GenericFileLoader.h"
 #include "FileBuffer.h"
@@ -15,13 +13,8 @@
 #include "main.h"
 #include "Sound.h"
 #include "Game.h"
-#include <basetsd.h>
 #include <cstring>
 #include <stdlib.h>
-#include <windef.h>
-#include <wingdi.h>
-#include <winnt.h>
-#include <winuser.h>
 
 // Not declared in Mesh.h yet; the other two are not analysed yet.
 void Mesh_ReuploadAll(void);

@@ -1,7 +1,6 @@
 #ifndef _INSTALL_INFO_H
 #define _INSTALL_INFO_H
 
-#include <windows.h>
 
 class CInstallInfo
 {

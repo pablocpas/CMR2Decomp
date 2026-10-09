@@ -1,9 +1,6 @@
 #ifndef _GRAPHICS_H
 #define _GRAPHICS_H
 
-#include <windows.h>
-#include <winnt.h>
-#include "../third_party/dx7sdk-7001/include/d3d.h"
 
 #include "Texture.h"
 #include "Mesh.h"

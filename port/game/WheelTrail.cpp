@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "WheelTrail.h"
 #include "Car.h"
 
