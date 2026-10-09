@@ -1146,7 +1146,7 @@
     "n": "Car_PlaceAtStart",
     "s": 0.7476518472135254,
     "x": false,
-    "fz": 0.9179711959924859,
+    "fz": 0.9204758922980588,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_PlaceAtStart"
@@ -1524,7 +1524,7 @@
     "n": "WheelSplash_Update",
     "s": 0.48104575163398694,
     "x": false,
-    "fz": 0.6300653594771242,
+    "fz": 0.6313725490196078,
     "unknown": [],
     "f": "CarEffects.cpp",
     "symbol_name": "WheelSplash_Update"
@@ -3207,7 +3207,7 @@
   },
   "0x4d39a0": {
     "n": "FrontendDraw_RallyEntryList",
-    "s": 0.8847117794486216,
+    "s": 0.9824561403508771,
     "x": false,
     "fz": 0.9824561403508771,
     "unknown": [],
@@ -3216,7 +3216,7 @@
   },
   "0x4d2cd0": {
     "n": "FrontendDraw_ScrollerRow",
-    "s": 0.7646474677259185,
+    "s": 0.7666335650446872,
     "x": false,
     "fz": 0.871896722939424,
     "unknown": [],
@@ -5153,7 +5153,7 @@
     "n": "FrontendMenu_DrawAdvancedGraphicsOptions",
     "s": 0.9113218070273285,
     "x": false,
-    "fz": 0.9481316229782487,
+    "fz": 0.9492470719464584,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawAdvancedGraphicsOptions"
@@ -7511,16 +7511,16 @@
     "n": "FrontendMenu_UpdateNetworkSessionSetup",
     "s": 0.5986984815618221,
     "x": false,
-    "fz": 0.702819956616052,
+    "fz": 0.7114967462039046,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_UpdateNetworkSessionSetup"
   },
   "0x4ed100": {
     "n": "FrontendMenu_UpdateNetworkSessionDetails",
-    "s": 0.7905759162303665,
+    "s": 0.8136482939632546,
     "x": false,
-    "fz": 0.8743455497382199,
+    "fz": 0.8976377952755905,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_UpdateNetworkSessionDetails"
@@ -8094,9 +8094,9 @@
   },
   "0x4d15e0": {
     "n": "CGame::InitializeGame",
-    "s": 0.9526462395543176,
-    "x": false,
-    "fz": 0.9860724233983287,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "CGame::InitializeGame"
@@ -12911,7 +12911,7 @@
     "n": "OptionMenu_DrawStageSummaryPanel",
     "s": 0.895870736086176,
     "x": false,
-    "fz": 0.9371633752244165,
+    "fz": 0.9389587073608617,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_DrawStageSummaryPanel"
@@ -13001,7 +13001,7 @@
     "n": "OptionPreview_LoadStageGeometryRecord",
     "s": 0.6379821958456974,
     "x": false,
-    "fz": 0.7952522255192879,
+    "fz": 0.8011869436201781,
     "unknown": [
       "??_C@_05DPOJ@L?4c3d?$AA@",
       "??_C@_05FMGM@S?4c3d?$AA@",
@@ -13303,9 +13303,9 @@
   },
   "0x44d960": {
     "n": "GameMenu_DrawScrollingStageSplits",
-    "s": 0.9970972423802612,
-    "x": false,
-    "fz": 0.9970972423802612,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenu_DrawScrollingStageSplits"
@@ -13321,18 +13321,18 @@
   },
   "0x44efa0": {
     "n": "GameMenu_DrawScrollingChampionshipPoints",
-    "s": 0.9983277591973244,
-    "x": false,
-    "fz": 0.9983277591973244,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenu_DrawScrollingChampionshipPoints"
   },
   "0x44fea0": {
     "n": "GameMenu_DrawScrollingRallyTimes",
-    "s": 0.9983739837398374,
-    "x": false,
-    "fz": 0.9983739837398374,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenu_DrawScrollingRallyTimes"
@@ -14918,7 +14918,7 @@
     "n": "Billboard_Draw",
     "s": 0.5886287625418061,
     "x": false,
-    "fz": 0.7090301003344481,
+    "fz": 0.7123745819397993,
     "unknown": [
       "__real@4@00000000000000000000",
       "__real@4@3fff8000000000000000"
@@ -15335,7 +15335,7 @@
     "n": "Particle_DrawAll",
     "s": 0.5463659147869674,
     "x": false,
-    "fz": 0.7869674185463659,
+    "fz": 0.7969924812030075,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "Particle_DrawAll"
@@ -15605,7 +15605,7 @@
     "n": "Dash_DrawBar",
     "s": 0.7931937172774869,
     "x": false,
-    "fz": 0.8350785340314136,
+    "fz": 0.8363874345549738,
     "unknown": [],
     "f": "HudDash.cpp",
     "symbol_name": "Dash_DrawBar"
@@ -19219,7 +19219,7 @@
     "n": "Race_UpdateCarRouteAndWrongWayState",
     "s": 0.5449101796407185,
     "x": false,
-    "fz": 0.8203592814371258,
+    "fz": 0.8383233532934131,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "Race_UpdateCarRouteAndWrongWayState"
@@ -20261,7 +20261,7 @@
   },
   "0x4147f0": {
     "n": "RallyData_DrawStageResultRows",
-    "s": 0.6978967495219885,
+    "s": 0.7782026768642447,
     "x": false,
     "fz": 0.8776290630975143,
     "unknown": [],
@@ -24829,7 +24829,7 @@
     "n": "CarDamage_BuildRelativeVelocityHull",
     "s": 0.5,
     "x": false,
-    "fz": 0.7333333333333333,
+    "fz": 0.7555555555555555,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "CarDamage_BuildRelativeVelocityHull"
@@ -25169,9 +25169,9 @@
   },
   "0x461c30": {
     "n": "StageObject_RebuildViewWeatherLighting",
-    "s": 0.3419267299864315,
+    "s": 0.3426763110307414,
     "x": false,
-    "fz": 0.6612392582541836,
+    "fz": 0.6636528028933092,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_RebuildViewWeatherLighting"
@@ -25862,9 +25862,9 @@
   },
   "0x476850": {
     "n": "StageObject_UpdateCarBodyFade",
-    "s": 0.8046875,
+    "s": 0.8326848249027238,
     "x": false,
-    "fz": 0.9765625,
+    "fz": 0.9883268482490273,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_UpdateCarBodyFade"
@@ -26062,7 +26062,7 @@
     "n": "AI_FindClosestCarInAngleWindow",
     "s": 0.790273556231003,
     "x": false,
-    "fz": 0.9148936170212766,
+    "fz": 0.9179331306990881,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "AI_FindClosestCarInAngleWindow"
@@ -26089,7 +26089,7 @@
     "n": "CarDamage_UpdateSuspensionImpactContacts",
     "s": 0.8266068759342302,
     "x": false,
-    "fz": 0.9461883408071748,
+    "fz": 0.9491778774289985,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "CarDamage_UpdateSuspensionImpactContacts"
@@ -26494,7 +26494,7 @@
     "n": "Collision_TestCarAgainstSectorObjects",
     "s": 0.7850877192982456,
     "x": false,
-    "fz": 0.9035087719298246,
+    "fz": 0.9122807017543859,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Collision_TestCarAgainstSectorObjects"
@@ -28539,7 +28539,7 @@
     "n": "StageTiming_EstimateRemainingDriverTimes",
     "s": 0.460093896713615,
     "x": false,
-    "fz": 0.8356807511737089,
+    "fz": 0.8450704225352113,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageTiming_EstimateRemainingDriverTimes"
@@ -28683,7 +28683,7 @@
     "n": "StageObject_IntegrateViewDeformationGrid",
     "s": 0.7280453257790368,
     "x": false,
-    "fz": 0.8328611898016998,
+    "fz": 0.8342776203966006,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageObject_IntegrateViewDeformationGrid"
@@ -29194,7 +29194,7 @@
   },
   "0x4781d0": {
     "n": "Car_UpdateSurfaceParams",
-    "s": 0.5803814713896458,
+    "s": 0.5940054495912807,
     "x": false,
     "fz": 0.7275204359673024,
     "unknown": [],
@@ -29500,9 +29500,9 @@
   },
   "0x4919a0": {
     "n": "Stage_InitLightMeshes",
-    "s": 0.5029239766081871,
+    "s": 0.50682261208577,
     "x": false,
-    "fz": 0.8187134502923976,
+    "fz": 0.8226120857699805,
     "unknown": [],
     "f": "TrackCollision.cpp",
     "symbol_name": "Stage_InitLightMeshes"
