@@ -5099,7 +5099,6 @@ void Car_UpdateCornerLoads(void)
 
 // Updates the engine speed from the selected gear or the startup animation,
 // then applies the rev limit and its excess-speed flag.
-// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004380c0
 void Car_UpdateEngineSpeed(void)
 {
@@ -5151,9 +5150,9 @@ void Car_UpdateEngineSpeed(void)
     if (excess < 0) {
         g_pCurrentCar->field_0x7a4 = 0;
     } else if (excess > g_pCurrentCar->field_0x794) {
-        excess = excess - g_pCurrentCar->field_0x794;
-        if (excess > 0xcccc) {
-            rear = excess - 0xcccc;
+        rear = excess - g_pCurrentCar->field_0x794;
+        if (rear > 0xcccc) {
+            rear -= 0xcccc;
             excess = FixMul(rear, 0x10000);
             if (excess > 0x10000)
                 excess = 0x10000;
