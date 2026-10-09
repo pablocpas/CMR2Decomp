@@ -3242,36 +3242,35 @@ void GameMenu_SetupStageResults(int param_1)
         if (RallyDataStageIndex() !=
             RallyData_GetModeStageGroup(RallyDataCountryIndex(), CGameInfo::GetConfiguredDifficulty())) {
             g_unk0x00541210 = 0;
-            goto label_4a840;
-        }
-        g_unk0x00541210 = 1;
-        if (g_unk0x00540898 == 0)
-            goto label_4a840;
-        if (CGameInfo::GetConfiguredGameMode() == 0) {
-            pMenu->items[0].pSubMenu = &g_menu0x0053e6a0;
-            g_menu0x0053e6a0.items[0].pSubMenu = &g_menu0x00540118;
-            goto label_4a8d9;
-        }
-        minPos = 99;
-        k = 0;
-        if (CGameInfo::GetConfiguredPlayerCount() != 0) {
-            for (i = 0xf; k < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i--) {
-                if (RallyTiming_GetOverallPositionOfDriver(i) < minPos)
-                    minPos = RallyTiming_GetOverallPositionOfDriver(i);
-                k++;
+        } else {
+            g_unk0x00541210 = 1;
+            if (g_unk0x00540898 != 0) {
+                if (CGameInfo::GetConfiguredGameMode() == 0) {
+                    pMenu->items[0].pSubMenu = &g_menu0x0053e6a0;
+                    g_menu0x0053e6a0.items[0].pSubMenu = &g_menu0x00540118;
+                } else {
+                    minPos = 99;
+                    k = 0;
+                    if (CGameInfo::GetConfiguredPlayerCount() != 0) {
+                        for (i = 0xf; k < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i--) {
+                            if (RallyTiming_GetOverallPositionOfDriver(i) < minPos)
+                                minPos = RallyTiming_GetOverallPositionOfDriver(i);
+                            k++;
+                        }
+                    }
+                    if (minPos > 5) {
+                        pMenu->items[0].pSubMenu = &g_menu0x00541400;
+                        g_menu0x00541400.pParent = pMenu;
+                    } else {
+                        pMenu->items[0].pSubMenu = &g_menu0x00540118;
+                        g_menu0x00540118.pParent = pMenu;
+                        g_menu0x00540118.items[0].pSubMenu = &g_menu0x00541400;
+                    }
+                    GameMenu_BuildStageResultsMenu(0, pMenu);
+                }
+                goto label_4a8d9;
             }
         }
-        if (minPos > 5) {
-            pMenu->items[0].pSubMenu = &g_menu0x00541400;
-            g_menu0x00541400.pParent = pMenu;
-        } else {
-            pMenu->items[0].pSubMenu = &g_menu0x00540118;
-            g_menu0x00540118.pParent = pMenu;
-            g_menu0x00540118.items[0].pSubMenu = &g_menu0x00541400;
-        }
-        GameMenu_BuildStageResultsMenu(0, pMenu);
-        goto label_4a8d9;
-    label_4a840:
         if (CGameInfo::IsConfiguredMultiplayer() == 0) {
             pMenu->items[0].pSubMenu = &g_menu0x00541400;
             GameMenu_BuildStageResultsMenu(1, pMenu);
