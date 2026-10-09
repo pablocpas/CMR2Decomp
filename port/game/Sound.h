@@ -3,17 +3,29 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "port/audio.h"
+#include "port/sys.h"
 
 // GLOBAL: CMR2 0x00511c38
 // IID_IDirectSound3DBuffer
 
+// PORT: a RIFF chunk position (the fields of MMCKINFO the reader uses).
+struct WaveChunk {
+    DWORD ckid;
+    DWORD cksize;
+    DWORD fccType;
+    DWORD dwDataOffset;
+    DWORD dwFlags;
+};
+
 // Wave file reader, modelled on wave.c / CWaveFile from the DirectX SDK samples
+// PORT: reads through Sys instead of mmio.
 struct MMIOData {
-    WAVEFORMATEX *pBuffer;  // Offset 0x0
-    HMMIO hmmio;            // Offset 0x4
-    MMCKINFO ck;            // Offset 0x8
-    MMCKINFO ckRiff;        // Offset 0x1c
-    DWORD dwSize;           // Offset 0x30
+    AudioWaveFormat *pBuffer;  // Offset 0x0
+    SysFile *hmmio;            // Offset 0x4
+    WaveChunk ck;              // Offset 0x8
+    WaveChunk ckRiff;          // Offset 0x1c
+    DWORD dwSize;              // Offset 0x30
 
     MMIOData();
     HRESULT Open(LPSTR strFileName);
@@ -21,21 +33,14 @@ struct MMIOData {
     HRESULT Read(UINT cbRead, BYTE *pbDest, UINT *pcbRead);
 };
 
-// Data passed through the ACM enumeration callbacks
-struct AcmFindData {
-    HACMDRIVERID hadid;
-    WORD wFormatTag;
-};
+HRESULT ReadMMIO(SysFile *hmmioIn, WaveChunk *pckInRIFF, AudioWaveFormat **ppwfxInfo);
+HRESULT WaveOpenFile(LPSTR strFileName, SysFile **phmmioIn, AudioWaveFormat **ppwfxInfo, WaveChunk *pckInRIFF);
+HRESULT WaveStartDataRead(SysFile **phmmioIn, WaveChunk *pckIn, WaveChunk *pckInRIFF, DWORD *pdwSize);
+HRESULT WaveReadFile(SysFile *hmmioIn, UINT cbRead, BYTE *pbDest, WaveChunk *pckIn, UINT *cbActualRead);
 
-HRESULT ReadMMIO(HMMIO hmmioIn, MMCKINFO *pckInRIFF, WAVEFORMATEX **ppwfxInfo);
-HRESULT WaveOpenFile(LPSTR strFileName, HMMIO *phmmioIn, WAVEFORMATEX **ppwfxInfo, MMCKINFO *pckInRIFF);
-HRESULT WaveStartDataRead(HMMIO *phmmioIn, MMCKINFO *pckIn, MMCKINFO *pckInRIFF, DWORD *pdwSize);
-HRESULT WaveReadFile(HMMIO hmmioIn, UINT cbRead, BYTE *pbDest, MMCKINFO *pckIn, UINT *cbActualRead);
-
-BOOL CALLBACK AcmFormatEnumCallback(HACMDRIVERID hadid, LPACMFORMATDETAILS pafd, DWORD dwInstance, DWORD fdwSupport);
-BOOL CALLBACK AcmDriverEnumCallback(HACMDRIVERID hadid, DWORD dwInstance, DWORD fdwSupport);
-HACMDRIVERID AcmFindDriver(WORD wFormatTag);
-WAVEFORMATEX *AcmGetDriverFormat(HACMDRIVERID hadid, WORD wFormatTag);
+// PORT: the ACM lookup functions; the decoder is built in.
+int AcmFindDriver(WORD wFormatTag);
+AudioWaveFormat *AcmGetDriverFormat(int hadid, WORD wFormatTag);
 
 
 // One sound slot; CSound::UpdateFinishedSoundSlot stops/releases it when its buffer has
@@ -50,17 +55,17 @@ struct SoundSlot {
     int field_0x10;                     // 0x10 loops
     int field_0x14;                     // 0x14 3D sound, released when the slot is reset
     int field_0x18;                     // 0x18 loop start offset in bytes
-    IDirectSoundBuffer *pBuffer;        // 0x1c
-    IDirectSoundBuffer *field_0x20;     // 0x20
-    IDirectSoundBuffer *pLoopBuffer;    // 0x24 restarted while field_0x30 is set
-    IDirectSoundBuffer *field_0x28;     // 0x28
+    AudioBuffer *pBuffer;               // 0x1c
+    AudioBuffer *field_0x20;            // 0x20 PORT: unused (3D interface of pBuffer)
+    AudioBuffer *pLoopBuffer;           // 0x24 restarted while field_0x30 is set
+    AudioBuffer *field_0x28;            // 0x28 PORT: unused (3D interface of pLoopBuffer)
     int field_0x2c;                     // 0x2c release pBuffer when set
     int field_0x30;                     // 0x30 looping
 };
 
 class CSound {
 public:
-    static void EnsureBufferPlaying(IDirectSoundBuffer *pBuffer, int flags);
+    static void EnsureBufferPlaying(AudioBuffer *pBuffer, int flags);
     static void NoOpSoundDeviceCallback(void);
     static void StopSharedMusicBuffer(void);
     static void RunSoundDeviceCallback(void);
@@ -74,7 +79,7 @@ public:
     static bool CloseADPCMDecoder(void);
     static HRESULT StopDirectSoundBuffer(void);
     static BOOL IsSoundCallSuccessful(HRESULT param1);
-    static MMRESULT __fastcall CloseMMIO(MMIOData* hhmio);
+    static UINT __fastcall CloseMMIO(MMIOData* hhmio);
     static void __fastcall CloseAndCleanupMMIO(MMIOData* pMMIO);
     static void SetMusicStreamVolume(int volume);
     
@@ -103,10 +108,10 @@ public:
     static char m_unk0x005a2738[256];    
 
     // GLOBAL: CMR2 0x005a2854
-    static IDirectSoundBuffer* m_pDirectSoundBuffer;
+    static AudioBuffer* m_pDirectSoundBuffer;
 
     // GLOBAL: CMR2 0x00816a7c
-    static HACMSTREAM m_unk0x00816a7c;
+    static int m_unk0x00816a7c;     // PORT: 1 while the music decoder is open
 
     // GLOBAL: CMR2 0x006e0d6c
     static SoundSlot *m_soundSlots[32];

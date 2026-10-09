@@ -1620,7 +1620,7 @@ Menu *FrontendMenu_GetActiveMenu(void)
 }
 
 extern BYTE g_unk0x00818ce4;
-DPID Network_GetLocalPlayerID(void);
+NetPlayerID Network_GetLocalPlayerID(void);
 BYTE RallyData_GetDriverRecordSelectionValue(BYTE index);
 BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
 void NetPlayers_SetNotificationMask(int param);
@@ -1647,7 +1647,7 @@ void RallyData_PickOpponentLineups(void);
 struct Unk0x0052ebc0;
 struct Unk0x0052ebc0 *RallyData_GetDriverGroupTable(void);
 BYTE *RallyData_GetStageAvailabilityFlags(void);
-void NetPlayers_AddOrUpdatePlayerInfo(DPID *pId, NetPlayerInfo *pInfo, char add);
+void NetPlayers_AddOrUpdatePlayerInfo(NetPlayerID *pId, NetPlayerInfo *pInfo, char add);
 void NetPlayers_RemovePlayerByID(int *pId);
 void NetPlayers_ResetRaceReadyAndTimeState(char resetTotal, char resetTimes);
 void NetPlayers_BuildFinalClassification(void);
@@ -1659,12 +1659,12 @@ LPVOID *Network_GetSessionPasswordPointer(void);
 void Network_SetSessionStateFlag(BOOL param1);
 void Session_SetOpen(char open);
 int Session_GetUserValue(BYTE index);
-void Network_SetSessionDescription(DPSESSIONDESC2 *pDesc);
-void Network_RemoveSessionPlayerByID(DPID *pId);
+void Network_SetSessionDescription(NetSessionDesc *pDesc);
+void Network_RemoveSessionPlayerByID(NetPlayerID *pId);
 int Network_CreateLocalPlayer(int param1, int param2, int param3, int param4);
 int Network_PollReceivedMessageBuffer(int param1, void **param2);
 char Network_SendPlayerMessage(int to, int guaranteed, int data, int size);
-void NetworkChat_AppendLine(DPID *pFrom, char *text, char local);
+void NetworkChat_AppendLine(NetPlayerID *pFrom, char *text, char local);
 void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
 void RallyData_SetDriverCategoryOption(BYTE index, BYTE value);
 void FrontendChampionship_SetDriverEntryFlag(BYTE index, BYTE flag);
@@ -1771,7 +1771,7 @@ void FrontendNetwork_SendSetupPacket(void)
 // Message handler of the joining side: session data, player info and the
 // setup packet of the host.
 // FUNCTION: CMR2 0x004ec560
-void FrontendNetwork_HandleJoinerMessage(DPID *pFrom, unsigned int *pData)
+void FrontendNetwork_HandleJoinerMessage(NetPlayerID *pFrom, unsigned int *pData)
 {
     char *pText;
     unsigned int type;
@@ -1779,11 +1779,11 @@ void FrontendNetwork_HandleJoinerMessage(DPID *pFrom, unsigned int *pData)
     type = pData[0];
     switch (type) {
     case 5:
-        Network_RemoveSessionPlayerByID((DPID *)(pData + 2));
+        Network_RemoveSessionPlayerByID((NetPlayerID *)(pData + 2));
         NetPlayers_RemovePlayerByID((int *)(pData + 2));
         return;
     case 3:
-        NetPlayers_AddOrUpdatePlayerInfo((DPID *)(pData + 2), (NetPlayerInfo *)pData[4], 1);
+        NetPlayers_AddOrUpdatePlayerInfo((NetPlayerID *)(pData + 2), (NetPlayerInfo *)pData[4], 1);
         FrontendNetwork_SendPlayerDescription();
         FrontendNetwork_SendSetupPacket();
         return;
@@ -1819,12 +1819,12 @@ void FrontendNetwork_HandleJoinerMessage(DPID *pFrom, unsigned int *pData)
         Session_SetOpen(0);
         return;
     case 0x104:
-        Network_SetSessionDescription((DPSESSIONDESC2 *)(pData + 1));
+        Network_SetSessionDescription((NetSessionDesc *)(pData + 1));
         GameInfo_SetConfiguredGameMode((BYTE)Session_GetUserValue(0));
         GameInfo_SetSessionField398C(Session_GetUserValue(2));
         return;
     case 0x102:
-        NetPlayers_AddOrUpdatePlayerInfo((DPID *)(pData + 2), (NetPlayerInfo *)pData[3], 1);
+        NetPlayers_AddOrUpdatePlayerInfo((NetPlayerID *)(pData + 2), (NetPlayerInfo *)pData[3], 1);
         return;
     }
 }
@@ -1832,7 +1832,7 @@ void FrontendNetwork_HandleJoinerMessage(DPID *pFrom, unsigned int *pData)
 // Message handler of the host side: applies the setup packet of a joining
 // player and starts the race for it.
 // FUNCTION: CMR2 0x004ec6f0
-void FrontendNetwork_HandleHostMessage(DPID *pFrom, BYTE *pMsg)
+void FrontendNetwork_HandleHostMessage(NetPlayerID *pFrom, BYTE *pMsg)
 {
     BYTE *pState = RallyData_GetStageAvailabilityFlags();
     MenuItem *pItem;
@@ -1899,7 +1899,7 @@ void FrontendNetwork_HandleHostMessage(DPID *pFrom, BYTE *pMsg)
 // FUNCTION: CMR2 0x004ec8d0
 void FrontendNetwork_DrainMessageQueue(void)
 {
-    DPID from;
+    NetPlayerID from;
     void *pData;
 
     while (Network_PollReceivedMessageBuffer((int)&from, &pData) != 0) {
@@ -1948,9 +1948,9 @@ char FrontendNetwork_SendLobbyPlayerDescription(void)
 }
 
 // The GUID of the session the browser list currently points at.
-int Network_CopyEnumeratedSessionGUID(BYTE index, GUID *pOut);
+int Network_CopyEnumeratedSessionGUID(BYTE index, NetGuid *pOut);
 // GLOBAL: CMR2 0x00818cf0
-GUID g_unk0x00818cf0;
+NetGuid g_unk0x00818cf0;
 // GLOBAL: CMR2 0x00819018
 int g_unk0x00819018;
 
@@ -1965,22 +1965,16 @@ int g_unk0x00819018;
 void FrontendMenu_UpdateNetworkSessionBrowser(Menu *pMenu)
 {
     DeviceInfo *pDevice;
-    GUID guid;
+    NetGuid guid;
     int status;
     int i;
 
     pDevice = CInput::GetAvailableDeviceRecord(0);
     if (g_unk0x00818ef4 == 0)
         return;
-    if (g_unk0x00818d04 == 0) {
-        g_pGraphics->pDD7->FlipToGDISurface();
-        ShowCursor(1);
-    }
-    status = CGameInfo::EnumerateNetworkSessionsWithUserData((int)&g_unk0x00818ef8);
-    if (g_unk0x00818d04 == 0) {
-        ShowCursor(0);
-        ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
-    }
+    // PORT: the original showed the cursor and the desktop for the DirectPlay
+    // dialogs around this call; the network layer shows none.
+    status = CGameInfo::EnumerateNetworkSessionsWithUserData((int)(intptr_t)&g_unk0x00818ef8);
     if (status == 1) {
         g_unk0x00818d04 = 1;
         g_unk0x00819018 = Network_GetEnumeratedSessionCount();
@@ -1990,7 +1984,7 @@ void FrontendMenu_UpdateNetworkSessionBrowser(Menu *pMenu)
                     if (g_unk0x00819024 != 0) {
                         for (i = 0; i < g_unk0x00819018; i++) {
                             Network_CopyEnumeratedSessionGUID((BYTE)i, &guid);
-                            if (IsEqualGUID(guid, g_unk0x00818cf0)) {
+                            if (memcmp(&guid, &g_unk0x00818cf0, sizeof(guid)) == 0) {
                                 g_unk0x00525288 = i;
                                 break;
                             }
@@ -2138,25 +2132,15 @@ void FrontendNetwork_CreateSelectedSession(Menu *pMenu, int param)
     NetPlayers_ResetAllTables();
     NetworkChat_ClearLog();
     GameInfo_SetConfiguredGameMode(GameInfo_GetLastNetworkGameMode());
-    if (g_unk0x00818d04 == 0) {
-        g_pGraphics->pDD7->FlipToGDISurface();
-        ShowCursor(1);
-    }
+    // PORT: no DirectPlay dialogs (the original showed the cursor and the
+    // desktop for them).
     if (Network_HostNamedSession(CGameInfo::GetSessionName(), CGameInfo::GetSessionPassword(),
                      CGameInfo::GetConfiguredGameMode() & 0xff, 0, 0, 0, 8) != 0) {
-        if (g_unk0x00818d04 == 0) {
-            ShowCursor(0);
-            ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
+        if (g_unk0x00818d04 == 0)
             g_unk0x00818d04 = 1;
-        }
         if (FrontendNetwork_SendLobbyPlayerDescription() != 0) {
             Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionDetails());
             return;
-        }
-    } else {
-        if (g_unk0x00818d04 == 0) {
-            ShowCursor(0);
-            ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
         }
     }
 }

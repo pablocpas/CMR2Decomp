@@ -544,7 +544,7 @@ void Line2D_Draw(void)
         v[1].x = (float)p->b[0] * CGraphics::m_oneOver65536;
         v[1].y = (float)p->b[1] * CGraphics::m_oneOver65536;
         v[1].z = (float)p->b[2] * CGraphics::m_oneOver65536;
-        CGraphics::m_pTextureManager->pD3D->DrawPrimitive(GFX_LINELIST, 0x2d2, v, 2, 0);
+        Gfx_DrawPrimitive(GFX_LINELIST, (GfxVertex *)v, 2);
     }
     g_line2DCount = 0;
 }
@@ -713,7 +713,7 @@ void Graphics_InvalidateTextureStageCache(void);
 // FUNCTION: CMR2 0x004bbd80
 void Quad2D_DrawLayer(unsigned int layer)
 {
-    IDirect3DVertexBuffer7 *pVB;
+    GfxVertexBuffer *pVB;
     Quad2D *pQuad;
     Quad2D *pLast;
     Texture *pLastTexture;
@@ -727,7 +727,7 @@ void Quad2D_DrawLayer(unsigned int layer)
     n = 0;
     pLastTexture = (Texture *)1;
     lastFlags = 0xffffffff;
-    CGraphics::m_pTextureManager->pVertexBuffer1->Lock(DDLOCK_WAIT | DDLOCK_WRITEONLY, (LPVOID *)&pData, NULL);
+    pData = (BYTE *)Gfx_LockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffer1);
     if (layer & 8) {
         count = g_unk0x0081616c;
         pQuad = g_quad2DLayerA;
@@ -748,12 +748,12 @@ void Quad2D_DrawLayer(unsigned int layer)
     for (i = count; i > 0; i--) {
         if (pLastTexture != pQuad->pTexture || lastFlags != pQuad->flags) {
             pVB = CGraphics::m_pTextureManager->pVertexBuffer1;
-            pVB->Unlock();
+            Gfx_UnlockVertexBuffer(pVB);
             if (n > 0) {
                 Gfx_DrawPrimitiveVB(GFX_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffer1, 0, n);
                 n = 0;
             }
-            CGraphics::m_pTextureManager->pVertexBuffer1->Lock(DDLOCK_WAIT | DDLOCK_WRITEONLY, (LPVOID *)&pData, NULL);
+            pData = (BYTE *)Gfx_LockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffer1);
             if (pLastTexture != pQuad->pTexture) {
                 QUAD2D_SET_STATE(pQuad);
             }
@@ -768,7 +768,7 @@ void Quad2D_DrawLayer(unsigned int layer)
         CGame::m_unk0x0059ce20++;
         pQuad++;
     }
-    CGraphics::m_pTextureManager->pVertexBuffer1->Unlock();
+    Gfx_UnlockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffer1);
     if (n > 0) {
         if (layer & 8)
             pLast = &g_quad2DLayerA[count - 1];

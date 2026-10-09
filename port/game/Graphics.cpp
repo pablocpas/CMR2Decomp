@@ -2964,14 +2964,14 @@ int Scene_AttenuateSectorLight(int sector, int light)
     pLight = (GfxLight *)g_sceneType1Objects[light];
     if (pLight == NULL)
         return changed;
-    range = (int)(__int64)(pLight->dvRange * CGraphics::m_65536);
-    att0 = (int)(__int64)(pLight->dvAttenuation0 * CGraphics::m_65536);
+    range = (int)(__int64)(pLight->range * CGraphics::m_65536);
+    att0 = (int)(__int64)(pLight->attenuation0 * CGraphics::m_65536);
     base = FixMul(0x20000, att0);
-    att2 = (int)(__int64)(pLight->dvAttenuation2 * CGraphics::m_65536);
+    att2 = (int)(__int64)(pLight->attenuation2 * CGraphics::m_65536);
     limit = g_sectorHalfSize + range + 0x140000;
-    lpos.x = (int)(__int64)(pLight->dvPosition.x * CGraphics::m_65536);
-    lpos.y = (int)(__int64)(pLight->dvPosition.y * CGraphics::m_65536);
-    lpos.z = (int)(__int64)(pLight->dvPosition.z * CGraphics::m_65536);
+    lpos.x = (int)(__int64)(pLight->position.x * CGraphics::m_65536);
+    lpos.y = (int)(__int64)(pLight->position.y * CGraphics::m_65536);
+    lpos.z = (int)(__int64)(pLight->position.z * CGraphics::m_65536);
     wasLit = g_sceneSectorFlags[sector];
     d.x = g_sectors[sector]->x - lpos.x;
     d.y = g_sectors[sector]->y - lpos.y;
@@ -6130,7 +6130,11 @@ BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pI
         in.r = m_tgaPixel[0] * g_unk0x00511364;
         in.g = m_tgaPixel[1] * g_unk0x00511364;
         in.b = m_tgaPixel[2] * g_unk0x00511364;
-        D3DXColorAdjustContrast(&out, &in, contrast);
+        // PORT: D3DXColorAdjustContrast: each channel scaled about 0.5.
+        out.r = 0.5f + contrast * (in.r - 0.5f);
+        out.g = 0.5f + contrast * (in.g - 0.5f);
+        out.b = 0.5f + contrast * (in.b - 0.5f);
+        out.a = in.a;
         if (out.r > g_netOne)
             out.r = 1.0f;
         if (out.g > g_netOne)
@@ -6428,7 +6432,7 @@ void CGraphics::ApplyTextureStageChange(int param1, int param2)
     m_unk0x0065fa38 = param2;
     m_unk0x00520b28 = param1;
     if (param2 != 0) {
-        Gfx_SetTexture((DWORD)param1, (IDirectDrawSurface7 *)*(int *)(param2 + 0x114));
+        Gfx_SetTexture((DWORD)param1, ((Texture *)(intptr_t)param2)->pSurface);
         ConfigureTextureStageBlendMode(param1, param2);
     } else {
         Gfx_SetTexture((DWORD)param1, NULL);
@@ -6463,8 +6467,10 @@ void Graphics_ReloadTexture(Texture *pTexture)
     for (i = 0; i < 2048; i++) {
         p = CGraphics::m_pTextureManager->textureBuffer[i];
         if (p == pTexture) {
-            if (p->pSurface != NULL && p->pSurface->Release() == 0)
+            if (p->pSurface != NULL) {
+                Gfx_DestroyTexture(p->pSurface);
                 p->pSurface = NULL;
+            }
             pData = (DWORD *)CGenericFileLoader::FindFile((GenericFile *)p->pArchive, p->name, NULL, NULL, 0);
             if (pData == NULL) {
                 sprintf(CFrontend::m_stringDest, g_strTextureNotFound, p->name);
@@ -6568,9 +6574,9 @@ void Graphics_ProjectMeshVertexMidpoints(Mesh *pMesh)
             pVertex[11] = (g_netOne - (z * m32 + y * m22 + x * m12)) * g_unk0x00511424;
         }
     }
-    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Lock(0x821, &pVertices, NULL);
+    pVertices = Gfx_LockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]);
     memcpy((BYTE *)pVertices + pMesh->vertexOffset * 0x30, pMesh->pVertexData, pMesh->field_0x10 * 0x30);
-    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Unlock();
+    Gfx_UnlockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]);
 }
 
 // Draws the triangles of a mesh in contiguous texture runs, setting the

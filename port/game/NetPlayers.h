@@ -39,7 +39,7 @@ struct NetPlayerInfo {
 };
 
 struct NetPlayer {
-    int id;                     // 0x00 DPID
+    int id;                     // 0x00 NetPlayerID
     unsigned int flags;         // 0x04 bits 0-4 car, 5, 6, 7 active, 8 ready, 9 finished,
                                 //      18-21 class, 22, 23
     int field_0x8;              // 0x08

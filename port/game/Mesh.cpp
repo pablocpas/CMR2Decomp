@@ -117,10 +117,10 @@ void Mesh_Rebuild(Mesh *pMesh)
         MESH_SET_VERTEX_COLOUR(2);
     }
 
-    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Lock(0x821, &pVertices, NULL);
+    pVertices = Gfx_LockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]);
     memcpy((char *)pVertices + pMesh->vertexOffset * 0x30, pMesh->pVertexData,
            vertexCount * 0x30);
-    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Unlock();
+    Gfx_UnlockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]);
 }
 
 // GLOBAL: CMR2 0x0052101c
@@ -244,10 +244,10 @@ void Mesh_UploadVertices(Mesh *pMesh)
 
     for (i = 0; i < 100; i++) {
         if ((unsigned int)(CGraphics::m_pTextureManager->vertexBufferFill[i] + pMesh->field_0x10) < 2000) {
-            CGraphics::m_pTextureManager->pVertexBuffers[i]->Lock(0x821, &pVertices, NULL);
+            pVertices = Gfx_LockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffers[i]);
             memcpy((BYTE *)pVertices + CGraphics::m_pTextureManager->vertexBufferFill[i] * 0x30, pMesh->pVertexData,
                    pMesh->field_0x10 * 0x30);
-            CGraphics::m_pTextureManager->pVertexBuffers[i]->Unlock();
+            Gfx_UnlockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffers[i]);
             pMesh->vertexBufferIndex = i;
             pMesh->vertexOffset = CGraphics::m_pTextureManager->vertexBufferFill[i];
             CGraphics::m_pTextureManager->vertexBufferFill[i] += pMesh->field_0x10;
@@ -264,9 +264,9 @@ void Mesh_RefreshVertices(Mesh *pMesh)
 {
     void *pVertices;
 
-    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Lock(0x821, &pVertices, NULL);
+    pVertices = Gfx_LockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]);
     memcpy((BYTE *)pVertices + pMesh->vertexOffset * 0x30, pMesh->pVertexData, pMesh->field_0x10 * 0x30);
-    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Unlock();
+    Gfx_UnlockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]);
 }
 
 // Sets the diffuse colour of every vertex of a mesh and refreshes its vertex buffer copy.
@@ -282,9 +282,9 @@ void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour)
     p = pMesh->pVertexData;
     for (i = 0; i < count; i++)
         p[i * 12 + 6] = colour;
-    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Lock(0x821, &pVertices, NULL);
+    pVertices = Gfx_LockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]);
     memcpy((BYTE *)pVertices + pMesh->vertexOffset * 0x30, pMesh->pVertexData, count * 0x30);
-    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Unlock();
+    Gfx_UnlockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]);
 }
 
 // Meshes cloned from others (see Mesh_CloneInto).

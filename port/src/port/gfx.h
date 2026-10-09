@@ -315,6 +315,7 @@ void Gfx_DrawPrimitiveVB(int primitive, GfxVertexBuffer *buffer, DWORD firstVert
 /* Indices are relative to firstVertex. */
 void Gfx_DrawIndexedPrimitiveVB(int primitive, GfxVertexBuffer *buffer, DWORD firstVertex, DWORD vertexCount,
                                 const WORD *indices, DWORD indexCount);
+void Gfx_DrawPrimitive(int primitive, const GfxVertex *vertices, DWORD vertexCount);
 void Gfx_DrawIndexedPrimitive(int primitive, const GfxVertex *vertices, DWORD vertexCount, const WORD *indices,
                               DWORD indexCount);
 void Gfx_DrawPrimitiveTL(int primitive, const GfxTLVertex *vertices, DWORD vertexCount);

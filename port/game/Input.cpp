@@ -11,478 +11,15 @@
 #include <stdarg.h>
 #include <string.h>
 
-// DirectInput 7 data formats, taken from the original's .rdata instead of
-// dinput.dll. rgodf points at the descriptor arrays below (0x4c4b80, 0x4c4c30
-// and 0x4c5c30 in the original), so they have to live in our binary too.
-
-// GLOBAL: CMR2 0x004c4b80
-const DIOBJECTDATAFORMAT g_dataFormatMouse2[11] = {
-    { &GUID_XAxis, 0x0000, 0x00ffff03, 0x00000000 },
-    { &GUID_YAxis, 0x0004, 0x00ffff03, 0x00000000 },
-    { &GUID_ZAxis, 0x0008, 0x80ffff03, 0x00000000 },
-    { NULL, 0x000c, 0x00ffff0c, 0x00000000 },
-    { NULL, 0x000d, 0x00ffff0c, 0x00000000 },
-    { NULL, 0x000e, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x000f, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0010, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0011, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0012, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0013, 0x80ffff0c, 0x00000000 },
-};
-
-// 256 entradas, no 1: el original tiene la tabla completa (0x4c4c30-0x4c5c30 = 4096 B = 256 x 16).
-// Con una sola entrada, c_dfDIKeyboard declara dwNumObjs=256 pero rgodf solo cubre 1 objeto: DirectInput
-// recorre 256 y acaba leyendo las tablas vecinas (joystick2 y c_dfDIMouse2) como si fueran descriptores,
-// y el dwSize de c_dfDIMouse2 (0x18) se usa como puntero -> page fault dentro de DINPUT. Verificado
-// ejecutando el binario bajo wine (W173): era el unico crash fatal. Patron tomado del original.
-// GLOBAL: CMR2 0x004c4c30
-const DIOBJECTDATAFORMAT g_dataFormatKeyboard[256] = {
-    { &GUID_Key, 0x0000, 0x8000000c, 0x00000000 },
-    { &GUID_Key, 0x0001, 0x8000010c, 0x00000000 },
-    { &GUID_Key, 0x0002, 0x8000020c, 0x00000000 },
-    { &GUID_Key, 0x0003, 0x8000030c, 0x00000000 },
-    { &GUID_Key, 0x0004, 0x8000040c, 0x00000000 },
-    { &GUID_Key, 0x0005, 0x8000050c, 0x00000000 },
-    { &GUID_Key, 0x0006, 0x8000060c, 0x00000000 },
-    { &GUID_Key, 0x0007, 0x8000070c, 0x00000000 },
-    { &GUID_Key, 0x0008, 0x8000080c, 0x00000000 },
-    { &GUID_Key, 0x0009, 0x8000090c, 0x00000000 },
-    { &GUID_Key, 0x000a, 0x80000a0c, 0x00000000 },
-    { &GUID_Key, 0x000b, 0x80000b0c, 0x00000000 },
-    { &GUID_Key, 0x000c, 0x80000c0c, 0x00000000 },
-    { &GUID_Key, 0x000d, 0x80000d0c, 0x00000000 },
-    { &GUID_Key, 0x000e, 0x80000e0c, 0x00000000 },
-    { &GUID_Key, 0x000f, 0x80000f0c, 0x00000000 },
-    { &GUID_Key, 0x0010, 0x8000100c, 0x00000000 },
-    { &GUID_Key, 0x0011, 0x8000110c, 0x00000000 },
-    { &GUID_Key, 0x0012, 0x8000120c, 0x00000000 },
-    { &GUID_Key, 0x0013, 0x8000130c, 0x00000000 },
-    { &GUID_Key, 0x0014, 0x8000140c, 0x00000000 },
-    { &GUID_Key, 0x0015, 0x8000150c, 0x00000000 },
-    { &GUID_Key, 0x0016, 0x8000160c, 0x00000000 },
-    { &GUID_Key, 0x0017, 0x8000170c, 0x00000000 },
-    { &GUID_Key, 0x0018, 0x8000180c, 0x00000000 },
-    { &GUID_Key, 0x0019, 0x8000190c, 0x00000000 },
-    { &GUID_Key, 0x001a, 0x80001a0c, 0x00000000 },
-    { &GUID_Key, 0x001b, 0x80001b0c, 0x00000000 },
-    { &GUID_Key, 0x001c, 0x80001c0c, 0x00000000 },
-    { &GUID_Key, 0x001d, 0x80001d0c, 0x00000000 },
-    { &GUID_Key, 0x001e, 0x80001e0c, 0x00000000 },
-    { &GUID_Key, 0x001f, 0x80001f0c, 0x00000000 },
-    { &GUID_Key, 0x0020, 0x8000200c, 0x00000000 },
-    { &GUID_Key, 0x0021, 0x8000210c, 0x00000000 },
-    { &GUID_Key, 0x0022, 0x8000220c, 0x00000000 },
-    { &GUID_Key, 0x0023, 0x8000230c, 0x00000000 },
-    { &GUID_Key, 0x0024, 0x8000240c, 0x00000000 },
-    { &GUID_Key, 0x0025, 0x8000250c, 0x00000000 },
-    { &GUID_Key, 0x0026, 0x8000260c, 0x00000000 },
-    { &GUID_Key, 0x0027, 0x8000270c, 0x00000000 },
-    { &GUID_Key, 0x0028, 0x8000280c, 0x00000000 },
-    { &GUID_Key, 0x0029, 0x8000290c, 0x00000000 },
-    { &GUID_Key, 0x002a, 0x80002a0c, 0x00000000 },
-    { &GUID_Key, 0x002b, 0x80002b0c, 0x00000000 },
-    { &GUID_Key, 0x002c, 0x80002c0c, 0x00000000 },
-    { &GUID_Key, 0x002d, 0x80002d0c, 0x00000000 },
-    { &GUID_Key, 0x002e, 0x80002e0c, 0x00000000 },
-    { &GUID_Key, 0x002f, 0x80002f0c, 0x00000000 },
-    { &GUID_Key, 0x0030, 0x8000300c, 0x00000000 },
-    { &GUID_Key, 0x0031, 0x8000310c, 0x00000000 },
-    { &GUID_Key, 0x0032, 0x8000320c, 0x00000000 },
-    { &GUID_Key, 0x0033, 0x8000330c, 0x00000000 },
-    { &GUID_Key, 0x0034, 0x8000340c, 0x00000000 },
-    { &GUID_Key, 0x0035, 0x8000350c, 0x00000000 },
-    { &GUID_Key, 0x0036, 0x8000360c, 0x00000000 },
-    { &GUID_Key, 0x0037, 0x8000370c, 0x00000000 },
-    { &GUID_Key, 0x0038, 0x8000380c, 0x00000000 },
-    { &GUID_Key, 0x0039, 0x8000390c, 0x00000000 },
-    { &GUID_Key, 0x003a, 0x80003a0c, 0x00000000 },
-    { &GUID_Key, 0x003b, 0x80003b0c, 0x00000000 },
-    { &GUID_Key, 0x003c, 0x80003c0c, 0x00000000 },
-    { &GUID_Key, 0x003d, 0x80003d0c, 0x00000000 },
-    { &GUID_Key, 0x003e, 0x80003e0c, 0x00000000 },
-    { &GUID_Key, 0x003f, 0x80003f0c, 0x00000000 },
-    { &GUID_Key, 0x0040, 0x8000400c, 0x00000000 },
-    { &GUID_Key, 0x0041, 0x8000410c, 0x00000000 },
-    { &GUID_Key, 0x0042, 0x8000420c, 0x00000000 },
-    { &GUID_Key, 0x0043, 0x8000430c, 0x00000000 },
-    { &GUID_Key, 0x0044, 0x8000440c, 0x00000000 },
-    { &GUID_Key, 0x0045, 0x8000450c, 0x00000000 },
-    { &GUID_Key, 0x0046, 0x8000460c, 0x00000000 },
-    { &GUID_Key, 0x0047, 0x8000470c, 0x00000000 },
-    { &GUID_Key, 0x0048, 0x8000480c, 0x00000000 },
-    { &GUID_Key, 0x0049, 0x8000490c, 0x00000000 },
-    { &GUID_Key, 0x004a, 0x80004a0c, 0x00000000 },
-    { &GUID_Key, 0x004b, 0x80004b0c, 0x00000000 },
-    { &GUID_Key, 0x004c, 0x80004c0c, 0x00000000 },
-    { &GUID_Key, 0x004d, 0x80004d0c, 0x00000000 },
-    { &GUID_Key, 0x004e, 0x80004e0c, 0x00000000 },
-    { &GUID_Key, 0x004f, 0x80004f0c, 0x00000000 },
-    { &GUID_Key, 0x0050, 0x8000500c, 0x00000000 },
-    { &GUID_Key, 0x0051, 0x8000510c, 0x00000000 },
-    { &GUID_Key, 0x0052, 0x8000520c, 0x00000000 },
-    { &GUID_Key, 0x0053, 0x8000530c, 0x00000000 },
-    { &GUID_Key, 0x0054, 0x8000540c, 0x00000000 },
-    { &GUID_Key, 0x0055, 0x8000550c, 0x00000000 },
-    { &GUID_Key, 0x0056, 0x8000560c, 0x00000000 },
-    { &GUID_Key, 0x0057, 0x8000570c, 0x00000000 },
-    { &GUID_Key, 0x0058, 0x8000580c, 0x00000000 },
-    { &GUID_Key, 0x0059, 0x8000590c, 0x00000000 },
-    { &GUID_Key, 0x005a, 0x80005a0c, 0x00000000 },
-    { &GUID_Key, 0x005b, 0x80005b0c, 0x00000000 },
-    { &GUID_Key, 0x005c, 0x80005c0c, 0x00000000 },
-    { &GUID_Key, 0x005d, 0x80005d0c, 0x00000000 },
-    { &GUID_Key, 0x005e, 0x80005e0c, 0x00000000 },
-    { &GUID_Key, 0x005f, 0x80005f0c, 0x00000000 },
-    { &GUID_Key, 0x0060, 0x8000600c, 0x00000000 },
-    { &GUID_Key, 0x0061, 0x8000610c, 0x00000000 },
-    { &GUID_Key, 0x0062, 0x8000620c, 0x00000000 },
-    { &GUID_Key, 0x0063, 0x8000630c, 0x00000000 },
-    { &GUID_Key, 0x0064, 0x8000640c, 0x00000000 },
-    { &GUID_Key, 0x0065, 0x8000650c, 0x00000000 },
-    { &GUID_Key, 0x0066, 0x8000660c, 0x00000000 },
-    { &GUID_Key, 0x0067, 0x8000670c, 0x00000000 },
-    { &GUID_Key, 0x0068, 0x8000680c, 0x00000000 },
-    { &GUID_Key, 0x0069, 0x8000690c, 0x00000000 },
-    { &GUID_Key, 0x006a, 0x80006a0c, 0x00000000 },
-    { &GUID_Key, 0x006b, 0x80006b0c, 0x00000000 },
-    { &GUID_Key, 0x006c, 0x80006c0c, 0x00000000 },
-    { &GUID_Key, 0x006d, 0x80006d0c, 0x00000000 },
-    { &GUID_Key, 0x006e, 0x80006e0c, 0x00000000 },
-    { &GUID_Key, 0x006f, 0x80006f0c, 0x00000000 },
-    { &GUID_Key, 0x0070, 0x8000700c, 0x00000000 },
-    { &GUID_Key, 0x0071, 0x8000710c, 0x00000000 },
-    { &GUID_Key, 0x0072, 0x8000720c, 0x00000000 },
-    { &GUID_Key, 0x0073, 0x8000730c, 0x00000000 },
-    { &GUID_Key, 0x0074, 0x8000740c, 0x00000000 },
-    { &GUID_Key, 0x0075, 0x8000750c, 0x00000000 },
-    { &GUID_Key, 0x0076, 0x8000760c, 0x00000000 },
-    { &GUID_Key, 0x0077, 0x8000770c, 0x00000000 },
-    { &GUID_Key, 0x0078, 0x8000780c, 0x00000000 },
-    { &GUID_Key, 0x0079, 0x8000790c, 0x00000000 },
-    { &GUID_Key, 0x007a, 0x80007a0c, 0x00000000 },
-    { &GUID_Key, 0x007b, 0x80007b0c, 0x00000000 },
-    { &GUID_Key, 0x007c, 0x80007c0c, 0x00000000 },
-    { &GUID_Key, 0x007d, 0x80007d0c, 0x00000000 },
-    { &GUID_Key, 0x007e, 0x80007e0c, 0x00000000 },
-    { &GUID_Key, 0x007f, 0x80007f0c, 0x00000000 },
-    { &GUID_Key, 0x0080, 0x8000800c, 0x00000000 },
-    { &GUID_Key, 0x0081, 0x8000810c, 0x00000000 },
-    { &GUID_Key, 0x0082, 0x8000820c, 0x00000000 },
-    { &GUID_Key, 0x0083, 0x8000830c, 0x00000000 },
-    { &GUID_Key, 0x0084, 0x8000840c, 0x00000000 },
-    { &GUID_Key, 0x0085, 0x8000850c, 0x00000000 },
-    { &GUID_Key, 0x0086, 0x8000860c, 0x00000000 },
-    { &GUID_Key, 0x0087, 0x8000870c, 0x00000000 },
-    { &GUID_Key, 0x0088, 0x8000880c, 0x00000000 },
-    { &GUID_Key, 0x0089, 0x8000890c, 0x00000000 },
-    { &GUID_Key, 0x008a, 0x80008a0c, 0x00000000 },
-    { &GUID_Key, 0x008b, 0x80008b0c, 0x00000000 },
-    { &GUID_Key, 0x008c, 0x80008c0c, 0x00000000 },
-    { &GUID_Key, 0x008d, 0x80008d0c, 0x00000000 },
-    { &GUID_Key, 0x008e, 0x80008e0c, 0x00000000 },
-    { &GUID_Key, 0x008f, 0x80008f0c, 0x00000000 },
-    { &GUID_Key, 0x0090, 0x8000900c, 0x00000000 },
-    { &GUID_Key, 0x0091, 0x8000910c, 0x00000000 },
-    { &GUID_Key, 0x0092, 0x8000920c, 0x00000000 },
-    { &GUID_Key, 0x0093, 0x8000930c, 0x00000000 },
-    { &GUID_Key, 0x0094, 0x8000940c, 0x00000000 },
-    { &GUID_Key, 0x0095, 0x8000950c, 0x00000000 },
-    { &GUID_Key, 0x0096, 0x8000960c, 0x00000000 },
-    { &GUID_Key, 0x0097, 0x8000970c, 0x00000000 },
-    { &GUID_Key, 0x0098, 0x8000980c, 0x00000000 },
-    { &GUID_Key, 0x0099, 0x8000990c, 0x00000000 },
-    { &GUID_Key, 0x009a, 0x80009a0c, 0x00000000 },
-    { &GUID_Key, 0x009b, 0x80009b0c, 0x00000000 },
-    { &GUID_Key, 0x009c, 0x80009c0c, 0x00000000 },
-    { &GUID_Key, 0x009d, 0x80009d0c, 0x00000000 },
-    { &GUID_Key, 0x009e, 0x80009e0c, 0x00000000 },
-    { &GUID_Key, 0x009f, 0x80009f0c, 0x00000000 },
-    { &GUID_Key, 0x00a0, 0x8000a00c, 0x00000000 },
-    { &GUID_Key, 0x00a1, 0x8000a10c, 0x00000000 },
-    { &GUID_Key, 0x00a2, 0x8000a20c, 0x00000000 },
-    { &GUID_Key, 0x00a3, 0x8000a30c, 0x00000000 },
-    { &GUID_Key, 0x00a4, 0x8000a40c, 0x00000000 },
-    { &GUID_Key, 0x00a5, 0x8000a50c, 0x00000000 },
-    { &GUID_Key, 0x00a6, 0x8000a60c, 0x00000000 },
-    { &GUID_Key, 0x00a7, 0x8000a70c, 0x00000000 },
-    { &GUID_Key, 0x00a8, 0x8000a80c, 0x00000000 },
-    { &GUID_Key, 0x00a9, 0x8000a90c, 0x00000000 },
-    { &GUID_Key, 0x00aa, 0x8000aa0c, 0x00000000 },
-    { &GUID_Key, 0x00ab, 0x8000ab0c, 0x00000000 },
-    { &GUID_Key, 0x00ac, 0x8000ac0c, 0x00000000 },
-    { &GUID_Key, 0x00ad, 0x8000ad0c, 0x00000000 },
-    { &GUID_Key, 0x00ae, 0x8000ae0c, 0x00000000 },
-    { &GUID_Key, 0x00af, 0x8000af0c, 0x00000000 },
-    { &GUID_Key, 0x00b0, 0x8000b00c, 0x00000000 },
-    { &GUID_Key, 0x00b1, 0x8000b10c, 0x00000000 },
-    { &GUID_Key, 0x00b2, 0x8000b20c, 0x00000000 },
-    { &GUID_Key, 0x00b3, 0x8000b30c, 0x00000000 },
-    { &GUID_Key, 0x00b4, 0x8000b40c, 0x00000000 },
-    { &GUID_Key, 0x00b5, 0x8000b50c, 0x00000000 },
-    { &GUID_Key, 0x00b6, 0x8000b60c, 0x00000000 },
-    { &GUID_Key, 0x00b7, 0x8000b70c, 0x00000000 },
-    { &GUID_Key, 0x00b8, 0x8000b80c, 0x00000000 },
-    { &GUID_Key, 0x00b9, 0x8000b90c, 0x00000000 },
-    { &GUID_Key, 0x00ba, 0x8000ba0c, 0x00000000 },
-    { &GUID_Key, 0x00bb, 0x8000bb0c, 0x00000000 },
-    { &GUID_Key, 0x00bc, 0x8000bc0c, 0x00000000 },
-    { &GUID_Key, 0x00bd, 0x8000bd0c, 0x00000000 },
-    { &GUID_Key, 0x00be, 0x8000be0c, 0x00000000 },
-    { &GUID_Key, 0x00bf, 0x8000bf0c, 0x00000000 },
-    { &GUID_Key, 0x00c0, 0x8000c00c, 0x00000000 },
-    { &GUID_Key, 0x00c1, 0x8000c10c, 0x00000000 },
-    { &GUID_Key, 0x00c2, 0x8000c20c, 0x00000000 },
-    { &GUID_Key, 0x00c3, 0x8000c30c, 0x00000000 },
-    { &GUID_Key, 0x00c4, 0x8000c40c, 0x00000000 },
-    { &GUID_Key, 0x00c5, 0x8000c50c, 0x00000000 },
-    { &GUID_Key, 0x00c6, 0x8000c60c, 0x00000000 },
-    { &GUID_Key, 0x00c7, 0x8000c70c, 0x00000000 },
-    { &GUID_Key, 0x00c8, 0x8000c80c, 0x00000000 },
-    { &GUID_Key, 0x00c9, 0x8000c90c, 0x00000000 },
-    { &GUID_Key, 0x00ca, 0x8000ca0c, 0x00000000 },
-    { &GUID_Key, 0x00cb, 0x8000cb0c, 0x00000000 },
-    { &GUID_Key, 0x00cc, 0x8000cc0c, 0x00000000 },
-    { &GUID_Key, 0x00cd, 0x8000cd0c, 0x00000000 },
-    { &GUID_Key, 0x00ce, 0x8000ce0c, 0x00000000 },
-    { &GUID_Key, 0x00cf, 0x8000cf0c, 0x00000000 },
-    { &GUID_Key, 0x00d0, 0x8000d00c, 0x00000000 },
-    { &GUID_Key, 0x00d1, 0x8000d10c, 0x00000000 },
-    { &GUID_Key, 0x00d2, 0x8000d20c, 0x00000000 },
-    { &GUID_Key, 0x00d3, 0x8000d30c, 0x00000000 },
-    { &GUID_Key, 0x00d4, 0x8000d40c, 0x00000000 },
-    { &GUID_Key, 0x00d5, 0x8000d50c, 0x00000000 },
-    { &GUID_Key, 0x00d6, 0x8000d60c, 0x00000000 },
-    { &GUID_Key, 0x00d7, 0x8000d70c, 0x00000000 },
-    { &GUID_Key, 0x00d8, 0x8000d80c, 0x00000000 },
-    { &GUID_Key, 0x00d9, 0x8000d90c, 0x00000000 },
-    { &GUID_Key, 0x00da, 0x8000da0c, 0x00000000 },
-    { &GUID_Key, 0x00db, 0x8000db0c, 0x00000000 },
-    { &GUID_Key, 0x00dc, 0x8000dc0c, 0x00000000 },
-    { &GUID_Key, 0x00dd, 0x8000dd0c, 0x00000000 },
-    { &GUID_Key, 0x00de, 0x8000de0c, 0x00000000 },
-    { &GUID_Key, 0x00df, 0x8000df0c, 0x00000000 },
-    { &GUID_Key, 0x00e0, 0x8000e00c, 0x00000000 },
-    { &GUID_Key, 0x00e1, 0x8000e10c, 0x00000000 },
-    { &GUID_Key, 0x00e2, 0x8000e20c, 0x00000000 },
-    { &GUID_Key, 0x00e3, 0x8000e30c, 0x00000000 },
-    { &GUID_Key, 0x00e4, 0x8000e40c, 0x00000000 },
-    { &GUID_Key, 0x00e5, 0x8000e50c, 0x00000000 },
-    { &GUID_Key, 0x00e6, 0x8000e60c, 0x00000000 },
-    { &GUID_Key, 0x00e7, 0x8000e70c, 0x00000000 },
-    { &GUID_Key, 0x00e8, 0x8000e80c, 0x00000000 },
-    { &GUID_Key, 0x00e9, 0x8000e90c, 0x00000000 },
-    { &GUID_Key, 0x00ea, 0x8000ea0c, 0x00000000 },
-    { &GUID_Key, 0x00eb, 0x8000eb0c, 0x00000000 },
-    { &GUID_Key, 0x00ec, 0x8000ec0c, 0x00000000 },
-    { &GUID_Key, 0x00ed, 0x8000ed0c, 0x00000000 },
-    { &GUID_Key, 0x00ee, 0x8000ee0c, 0x00000000 },
-    { &GUID_Key, 0x00ef, 0x8000ef0c, 0x00000000 },
-    { &GUID_Key, 0x00f0, 0x8000f00c, 0x00000000 },
-    { &GUID_Key, 0x00f1, 0x8000f10c, 0x00000000 },
-    { &GUID_Key, 0x00f2, 0x8000f20c, 0x00000000 },
-    { &GUID_Key, 0x00f3, 0x8000f30c, 0x00000000 },
-    { &GUID_Key, 0x00f4, 0x8000f40c, 0x00000000 },
-    { &GUID_Key, 0x00f5, 0x8000f50c, 0x00000000 },
-    { &GUID_Key, 0x00f6, 0x8000f60c, 0x00000000 },
-    { &GUID_Key, 0x00f7, 0x8000f70c, 0x00000000 },
-    { &GUID_Key, 0x00f8, 0x8000f80c, 0x00000000 },
-    { &GUID_Key, 0x00f9, 0x8000f90c, 0x00000000 },
-    { &GUID_Key, 0x00fa, 0x8000fa0c, 0x00000000 },
-    { &GUID_Key, 0x00fb, 0x8000fb0c, 0x00000000 },
-    { &GUID_Key, 0x00fc, 0x8000fc0c, 0x00000000 },
-    { &GUID_Key, 0x00fd, 0x8000fd0c, 0x00000000 },
-    { &GUID_Key, 0x00fe, 0x8000fe0c, 0x00000000 },
-    { &GUID_Key, 0x00ff, 0x8000ff0c, 0x00000000 },
-};
-
-// GLOBAL: CMR2 0x004c5c30
-const DIOBJECTDATAFORMAT g_dataFormatJoystick2[164] = {
-    { &GUID_XAxis, 0x0000, 0x80ffff03, 0x00000100 },
-    { &GUID_YAxis, 0x0004, 0x80ffff03, 0x00000100 },
-    { &GUID_ZAxis, 0x0008, 0x80ffff03, 0x00000100 },
-    { &GUID_RxAxis, 0x000c, 0x80ffff03, 0x00000100 },
-    { &GUID_RyAxis, 0x0010, 0x80ffff03, 0x00000100 },
-    { &GUID_RzAxis, 0x0014, 0x80ffff03, 0x00000100 },
-    { &GUID_Slider, 0x0018, 0x80ffff03, 0x00000100 },
-    { &GUID_Slider, 0x001c, 0x80ffff03, 0x00000100 },
-    { &GUID_POV, 0x0020, 0x80ffff10, 0x00000000 },
-    { &GUID_POV, 0x0024, 0x80ffff10, 0x00000000 },
-    { &GUID_POV, 0x0028, 0x80ffff10, 0x00000000 },
-    { &GUID_POV, 0x002c, 0x80ffff10, 0x00000000 },
-    { NULL, 0x0030, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0031, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0032, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0033, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0034, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0035, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0036, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0037, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0038, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0039, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x003a, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x003b, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x003c, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x003d, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x003e, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x003f, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0040, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0041, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0042, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0043, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0044, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0045, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0046, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0047, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0048, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0049, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x004a, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x004b, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x004c, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x004d, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x004e, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x004f, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0050, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0051, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0052, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0053, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0054, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0055, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0056, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0057, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0058, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0059, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x005a, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x005b, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x005c, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x005d, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x005e, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x005f, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0060, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0061, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0062, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0063, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0064, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0065, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0066, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0067, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0068, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0069, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x006a, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x006b, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x006c, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x006d, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x006e, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x006f, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0070, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0071, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0072, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0073, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0074, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0075, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0076, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0077, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0078, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0079, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x007a, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x007b, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x007c, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x007d, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x007e, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x007f, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0080, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0081, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0082, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0083, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0084, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0085, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0086, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0087, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0088, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0089, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x008a, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x008b, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x008c, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x008d, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x008e, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x008f, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0090, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0091, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0092, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0093, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0094, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0095, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0096, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0097, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0098, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x0099, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x009a, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x009b, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x009c, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x009d, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x009e, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x009f, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00a0, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00a1, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00a2, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00a3, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00a4, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00a5, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00a6, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00a7, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00a8, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00a9, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00aa, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00ab, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00ac, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00ad, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00ae, 0x80ffff0c, 0x00000000 },
-    { NULL, 0x00af, 0x80ffff0c, 0x00000000 },
-    { &GUID_XAxis, 0x00b0, 0x80ffff03, 0x00000200 },
-    { &GUID_YAxis, 0x00b4, 0x80ffff03, 0x00000200 },
-    { &GUID_ZAxis, 0x00b8, 0x80ffff03, 0x00000200 },
-    { &GUID_RxAxis, 0x00bc, 0x80ffff03, 0x00000200 },
-    { &GUID_RyAxis, 0x00c0, 0x80ffff03, 0x00000200 },
-    { &GUID_RzAxis, 0x00c4, 0x80ffff03, 0x00000200 },
-    { &GUID_Slider, 0x0018, 0x80ffff03, 0x00000200 },
-    { &GUID_Slider, 0x001c, 0x80ffff03, 0x00000200 },
-    { &GUID_XAxis, 0x00d0, 0x80ffff03, 0x00000300 },
-    { &GUID_YAxis, 0x00d4, 0x80ffff03, 0x00000300 },
-    { &GUID_ZAxis, 0x00d8, 0x80ffff03, 0x00000300 },
-    { &GUID_RxAxis, 0x00dc, 0x80ffff03, 0x00000300 },
-    { &GUID_RyAxis, 0x00e0, 0x80ffff03, 0x00000300 },
-    { &GUID_RzAxis, 0x00e4, 0x80ffff03, 0x00000300 },
-    { &GUID_Slider, 0x0018, 0x80ffff03, 0x00000300 },
-    { &GUID_Slider, 0x001c, 0x80ffff03, 0x00000300 },
-    { &GUID_XAxis, 0x00f0, 0x80ffff03, 0x00000400 },
-    { &GUID_YAxis, 0x00f4, 0x80ffff03, 0x00000400 },
-    { &GUID_ZAxis, 0x00f8, 0x80ffff03, 0x00000400 },
-    { &GUID_RxAxis, 0x00fc, 0x80ffff03, 0x00000400 },
-    { &GUID_RyAxis, 0x0100, 0x80ffff03, 0x00000400 },
-    { &GUID_RzAxis, 0x0104, 0x80ffff03, 0x00000400 },
-    { &GUID_Slider, 0x0018, 0x80ffff03, 0x00000400 },
-    { &GUID_Slider, 0x001c, 0x80ffff03, 0x00000400 },
-};
-
-extern "C" const DIDATAFORMAT c_dfDIMouse2 = {
-    sizeof(DIDATAFORMAT), sizeof(DIOBJECTDATAFORMAT), DIDF_RELAXIS, sizeof(DIMOUSESTATE2), 11,
-    (LPDIOBJECTDATAFORMAT)g_dataFormatMouse2
-};
-
-extern "C" const DIDATAFORMAT c_dfDIKeyboard = {
-    sizeof(DIDATAFORMAT), sizeof(DIOBJECTDATAFORMAT), DIDF_RELAXIS, 0x100, 0x100,
-    (LPDIOBJECTDATAFORMAT)g_dataFormatKeyboard
-};
-
-extern "C" const DIDATAFORMAT c_dfDIJoystick2 = {
-    sizeof(DIDATAFORMAT), sizeof(DIOBJECTDATAFORMAT), DIDF_ABSAXIS, sizeof(DIJOYSTATE2), 0xa4,
-    (LPDIOBJECTDATAFORMAT)g_dataFormatJoystick2
-};
+// PORT: the DirectInput 7 data formats (c_dfDIMouse2, c_dfDIKeyboard,
+// c_dfDIJoystick2 and their descriptor arrays) are gone: the input layer
+// returns the state structures directly.
 
 // GLOBAL: CMR2 0x00511758
 // IID_IDirectInput7A
 
 // GLOBAL: CMR2 0x0059f8c8
-IDirectInput7A* CInput::m_lpDirectInput7;
+void *CInput::m_lpDirectInput7;
 
 // GLOBAL: CMR2 0x00520874
 char CInput::m_strKeyboard[12] = "Keyboard";
@@ -504,13 +41,13 @@ PVOID CInput::m_keyboardSpeed;
 
 
 // GLOBAL: CMR2 0x0059f7c4
-LPDIRECTINPUTDEVICEA CInput::m_pDirectInputMouse = NULL;
+InputDevice *CInput::m_pDirectInputMouse = NULL;
 
 // GLOBAL: CMR2 0x00511400
 USHORT CInput::m_unk0x00511400[8] = {0, 4, 8, 12, 16, 20, 24, 28};
 
 // GLOBAL: CMR2 0x0059f6b0
-LPDIRECTINPUTDEVICEA CInput::m_unk0x0059f6b0[8];
+InputDevice *CInput::m_unk0x0059f6b0[8];
 
 // GLOBAL: CMR2 0x00520880
 CHAR CInput::m_strD[4] = " D";
@@ -535,8 +72,7 @@ DWORD CInput::m_buttonMasks[24] = {
 };
 unsigned int CInput::m_directionButtonMask = 0xf;
 BOOL CInput::m_unk0x0052086c = TRUE;
-DIEFFECT CInput::m_forceFeedbackEffects[80];
-DICONDITION CInput::m_forceFeedbackConditions[80];
+InputEffectParams CInput::m_forceFeedbackEffects[80];
 DWORD CInput::m_unk0x0059f8f0;
 DWORD CInput::m_unk0x0059f8f4;
 DWORD CInput::m_unk0x0059f8f8;
@@ -551,125 +87,74 @@ ControllerData CInput::m_controllerInfo[6];
 unsigned short CInput::m_unk0x005168f4[8] = {0, 1, 2, 3, 0, 0, 0, 0};
 
 // FUNCTION: CMR2 0x0049fd30
+// PORT: SDL is initialised by the platform layer.
 BOOL CInput::DInputCreate(void) {
-    DirectInputCreateEx(CMain::m_hInstance, 0x700, IID_IDirectInput7A, (LPVOID*)&CInput::m_lpDirectInput7, NULL);
     CGame::RegisterCallback(DInputRelease, NULL);
     return TRUE;
 }
 
 // FUNCTION: CMR2 0x0049fe30
-LPDIRECTINPUTDEVICEA CInput::DInputCreateDevice(REFGUID guid, LPCDIDATAFORMAT pDataFormat) {
-    LPDIRECTINPUTDEVICEA pDevice;
-    LPDIRECTINPUTDEVICE7A pOtherDevice = NULL;
-    HRESULT h1, h2, h3, h4;
-    ULONG refCount;
-    
-    h1 = m_lpDirectInput7->CreateDevice(guid, &pDevice, NULL);
-    if (SUCCEEDED(h1)) {
-        h2 = pDevice->QueryInterface(IID_IDirectInputDevice7A, (LPVOID*)&pOtherDevice);
-        if (pDevice != NULL) {
-            refCount = pDevice->Release();
-            if (refCount == 0)
-                pDevice = NULL;
-        }
-      
-        if (SUCCEEDED(h2)) {
-            h3 = pOtherDevice->SetDataFormat(pDataFormat);
-            if (FAILED(h3)) {
-                if (pOtherDevice != NULL) pOtherDevice->Release();
-                return NULL;
-            }
-            
-            if (IsEqualGUID(guid, GUID_SysKeyboard)) {
-                h4 = pOtherDevice->SetCooperativeLevel(CMain::m_hWndList[CMain::m_hWndIx], DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);  // 10
-            } else if (IsEqualGUID(guid, GUID_SysMouse)) {
-                if (g_pGraphics->isFullscreen) {
-                    h4 = pOtherDevice->SetCooperativeLevel(CMain::m_hWndList[CMain::m_hWndIx], DISCL_EXCLUSIVE | DISCL_FOREGROUND);  // 5
-                } else {
-                    h4 = pOtherDevice->SetCooperativeLevel(CMain::m_hWndList[CMain::m_hWndIx], DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);  // 6
-                }
-            } else {
-                h4 = pOtherDevice->SetCooperativeLevel(CMain::m_hWndList[CMain::m_hWndIx], 9);
-            }
-            
-            // if we got a cooplevel success, return it
-            if (FAILED(h4)) {
-                if (pOtherDevice != NULL) pOtherDevice->Release();
-                return NULL;
-            }
+// PORT: type 0 keyboard, 1 mouse, 2 joystick (index); the cooperative
+// levels become the mouse capture below.
+InputDevice *CInput::DInputCreateDevice(int type, int index) {
+    InputDevice *pDevice;
 
-            return pOtherDevice;
-        }
+    if (type == 0)
+        return Input_OpenKeyboard();
+    if (type == 1) {
+        pDevice = Input_OpenMouse();
+        if (pDevice != NULL)
+            Input_SetMouseExclusive(pDevice, g_pGraphics->isFullscreen);
+        return pDevice;
     }
-    return NULL;
+    return Input_OpenJoystick(index);
 }
 
 // FUNCTION: CMR2 0x0049fd60
 BOOL CInput::DInputRelease(void) {
     DInputReleaseDevices();
-
-    if (m_lpDirectInput7 != NULL) {
-        ULONG result = m_lpDirectInput7->Release();
-        if (result == 0)
-            m_lpDirectInput7 = NULL;
-    }
-
+    m_lpDirectInput7 = NULL;
     return TRUE;
 };
 
 // FUNCTION: CMR2 0x0049fd90
 void CInput::DInputReleaseDevices(void) {
-    HRESULT hr;
-    ULONG result;
-    int iVar2 = 0;
+    int i;
 
     if (m_pDirectInputKeyboard != NULL) {
-        m_pDirectInputKeyboard->Unacquire();
-        if (m_pDirectInputKeyboard != NULL) {
-            result = m_pDirectInputKeyboard->Release();
-            if (result == 0) m_pDirectInputKeyboard = NULL;
-        }
+        Input_CloseDevice(m_pDirectInputKeyboard);
+        m_pDirectInputKeyboard = NULL;
     }
 
     if (m_pDirectInputMouse != NULL) {
-        m_pDirectInputMouse->Unacquire();
-        if (m_pDirectInputMouse != NULL) {
-            result = m_pDirectInputMouse->Release();
-            if (result == 0) m_pDirectInputMouse = NULL;
-        }
+        Input_CloseDevice(m_pDirectInputMouse);
+        m_pDirectInputMouse = NULL;
     }
 
     CountAttachedInputDevices();
-    
-    iVar2 = 0;
-    LPDIRECTINPUTDEVICEA *pDevices = m_unk0x0059f6b0;
 
-    do {
-        if (*pDevices != NULL) {
-            hr = (*pDevices)->Unacquire();
-            if (SUCCEEDED(hr) && iVar2 < m_unk0x0059f8cc.field_0x3) {
-                if (*pDevices != NULL) {
-                    result = (*pDevices)->Release();
-                    if (result == 0)
-                        *pDevices = NULL;
-                }
-            }
+    for (i = 0; i < 4; i++) {
+        if (m_unk0x0059f6b0[i] != NULL && i < m_unk0x0059f8cc.field_0x3) {
+            Input_CloseDevice(m_unk0x0059f6b0[i]);
+            m_unk0x0059f6b0[i] = NULL;
         }
-
-        pDevices++;
-        iVar2++;
-    } while ((int)pDevices < (int)(m_unk0x0059f6b0 + 4));
+    }
 }
 
 // FUNCTION: CMR2 0x0049ef90
 int CInput::CountAttachedInputDevices(void) {
+  int i;
+  int count;
+
   m_unk0x0059f8cc.field_0x3 = 0;
-  m_lpDirectInput7->EnumDevices(DIDEVTYPE_JOYSTICK, CountJoystickEnumerationCallback, NULL, DIEDFL_ATTACHEDONLY);
+  count = Input_GetJoystickCount();
+  for (i = 0; i < count; i++)
+      CountJoystickEnumerationCallback();
   return m_unk0x0059f8cc.field_0x1 + m_unk0x0059f8cc.field_0x3;
 }
 
 // FUNCTION: CMR2 0x0049f6b0
-BOOL CInput::CountJoystickEnumerationCallback(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
+BOOL CInput::CountJoystickEnumerationCallback(void) {
     m_unk0x0059f8cc.field_0x3++;
     return TRUE;
 }
@@ -678,7 +163,6 @@ BOOL CInput::CountJoystickEnumerationCallback(LPCDIDEVICEINSTANCEA lpddi, LPVOID
 // FUNCTION: CMR2 0x0049f0e0
 BOOL CInput::SetupKeyboard(void) {
     unsigned int uVar1;
-    BOOL bVar2;
     int iVar3 = 0;
 
     do {
@@ -726,82 +210,45 @@ BOOL CInput::SetupKeyboard(void) {
         iVar3++;
     } while (iVar3 < 2);
 
-    bVar2 = SystemParametersInfoA(SPI_GETKEYBOARDDELAY, 0, &m_keyboardDelay, 0);
-    if (!bVar2) m_keyboardDelay = (PVOID)0x3e8;
-    else {
-        switch ((int)m_keyboardDelay) {
-            case 0:
-                m_keyboardDelay = (PVOID)0x1f4;
-            break;
+    // PORT: the system repeat delay and interval (SystemParametersInfo).
+    {
+        DWORD delay, interval;
 
-            case 1:
-                m_keyboardDelay = (PVOID)0x2ee;
-            break;
-
-            case 2:
-                m_keyboardDelay = (PVOID)0x3e8;
-            break;
-
-            case 3:
-                m_keyboardDelay = (PVOID)0x4e2;
-            break;
-        }
+        Input_GetKeyRepeat(&delay, &interval);
+        m_keyboardDelay = (PVOID)(uintptr_t)delay;
+        m_keyboardSpeed = (PVOID)(uintptr_t)interval;
     }
 
-    bVar2 = SystemParametersInfoA(SPI_GETKEYBOARDSPEED, 0, &m_keyboardSpeed, 0);
-    if (!bVar2) m_keyboardSpeed = (PVOID)0x1f4;
-    else m_keyboardSpeed = (PVOID)((int)m_keyboardSpeed * -0xd + 0x1f7);
-
-    m_pDirectInputKeyboard = DInputCreateDevice(GUID_SysKeyboard, &c_dfDIKeyboard);
+    m_pDirectInputKeyboard = DInputCreateDevice(0, 0);
     if (m_pDirectInputKeyboard != NULL)
-        if (SUCCEEDED(m_pDirectInputKeyboard->Acquire()))
-            return TRUE;
+        return TRUE;
 
     return FALSE;
 }
 
 // FUNCTION: CMR2 0x0049f060
+// PORT: no buffered data or granularity (it was 1 for every mouse).
 void CInput::SetupMouse(void) {
-    HRESULT hr;
-    DIPROPDWORD diPropDword;
-    m_pDirectInputMouse = DInputCreateDevice(GUID_SysMouse, &c_dfDIMouse2);
-
-    diPropDword.diph.dwSize = 0x14;
-    diPropDword.diph.dwHeaderSize = 0x10;
-    diPropDword.diph.dwObj = 0;
-    diPropDword.diph.dwHow = 0;
-    diPropDword.dwData = 0x10;
-
-    m_pDirectInputMouse->SetProperty(DIPROP_BUFFERSIZE, &diPropDword.diph);
-    m_pDirectInputMouse->Acquire();
-    hr = m_pDirectInputMouse->GetProperty(DIPROP_GRANULARITY, &diPropDword.diph);
-    if (SUCCEEDED(hr)) {
-        m_mouseGranularity = diPropDword.dwData;
-    }
-
+    m_pDirectInputMouse = DInputCreateDevice(1, 0);
+    m_mouseGranularity = 1;
     SetMouseCoopLevel(1);
 }
 
 // FUNCTION: CMR2 0x0049f000
 void CInput::SetMouseCoopLevel(BOOL param1) {
-    if (m_pDirectInputMouse != NULL) {
-        m_pDirectInputMouse->Unacquire();
-
-        if (param1 && g_pGraphics->isFullscreen) {
-            m_pDirectInputMouse->SetCooperativeLevel(CMain::m_hWndList[CMain::m_hWndIx],DISCL_EXCLUSIVE | DISCL_FOREGROUND); // 5
-        } else {
-            m_pDirectInputMouse->SetCooperativeLevel(CMain::m_hWndList[CMain::m_hWndIx], DISCL_NONEXCLUSIVE | DISCL_FOREGROUND); // 6
-        }
-
-        m_pDirectInputMouse->Acquire();
-    }
+    if (m_pDirectInputMouse != NULL)
+        Input_SetMouseExclusive(m_pDirectInputMouse, param1 && g_pGraphics->isFullscreen);
 }
 
 // FUNCTION: CMR2 0x0049f690
 BOOL CInput::GetAttachedJoysticks(void) {
-    HRESULT hr;
-    hr = m_lpDirectInput7->EnumDevices(DIDEVTYPE_JOYSTICK, SetupJoystick, m_lpDirectInput7, DIEDFL_ATTACHEDONLY);
-    return SUCCEEDED(hr);
+    int count;
+    int i;
+
+    count = Input_GetJoystickCount();
+    for (i = 0; i < count; i++)
+        SetupJoystick(i);
+    return TRUE;
 }
 
 // DirectInput enumeration callback for one joystick: creates the device, names
@@ -809,38 +256,29 @@ BOOL CInput::GetAttachedJoysticks(void) {
 // (DIJOFS_POV(0)), and enables autocentre-off force feedback when present.
 // match 86%: the axis loop keeps two counters in the original (i, axisID).
 // FUNCTION: CMR2 0x0049f6d0
-BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
-    HRESULT hr;
+// PORT: called for each joystick SDL reports.
+BOOL CInput::SetupJoystick(int joystickIndex) {
     unsigned int uVar2;
     DeviceInfo *pDeviceInfo;
-    LPDIRECTINPUTDEVICEA pDevice;
+    InputDevice *pDevice;
     BYTE iVar6[4];
     int iVar10, axisID, iVar11;
     int count;
     int offset;
     JoystickBinding * joystickBinding;
-    DIPROPDWORD dipd;
-    DIDEVCAPS devCaps;
-    DIDEVICEOBJECTINSTANCEA didoi;
+    InputCaps devCaps;
+    char objectName[260];
 
     uVar2 = m_unk0x0059f8cc.field_0x0;
     pDeviceInfo = &m_availableDevices[m_unk0x0059f8cc.field_0x0];
-    if (GET_DIDEVICE_TYPE(lpddi->dwDevType) == DIDEVTYPE_JOYSTICK) {
-        switch (GET_DIDEVICE_SUBTYPE(lpddi->dwDevType)) {
-        case DIDEVTYPE_MOUSE:
-            pDeviceInfo->field_0x0 = 0;
-            break;
-        default:
-            pDeviceInfo->field_0x0 = 3;
-            break;
-        }
-    
-        pDevice = DInputCreateDevice(lpddi->guidInstance, &c_dfDIJoystick2);
+    {
+        pDeviceInfo->field_0x0 = 3;
+        pDevice = DInputCreateDevice(2, joystickIndex);
         m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2] = pDevice;
 
         if (pDevice != NULL) {
-            strncpy(pDeviceInfo->deviceInstanceName, lpddi->tszInstanceName, sizeof(pDeviceInfo->deviceInstanceName));
-            strncpy(pDeviceInfo->deviceProductName, lpddi->tszProductName, sizeof(pDeviceInfo->deviceProductName));
+            strncpy(pDeviceInfo->deviceInstanceName, Input_GetInstanceName(pDevice), sizeof(pDeviceInfo->deviceInstanceName));
+            strncpy(pDeviceInfo->deviceProductName, Input_GetProductName(pDevice), sizeof(pDeviceInfo->deviceProductName));
         
             pDeviceInfo->field_0x18 = m_unk0x0059f8cc.field_0x2;
 
@@ -864,57 +302,47 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
                 } while (iVar10 < pDeviceInfo->joystick.controlCount);
             }
 
-            devCaps.dwSize = 0x2c;
-            hr = m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->GetCapabilities(&devCaps);
-            
-            if (SUCCEEDED(hr)) {
-                if ((devCaps.dwFlags & DIDC_FORCEFEEDBACK)) {
+            Input_GetCaps(m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2], &devCaps);
+
+            {
+                if (devCaps.forceFeedback) {
                     pDeviceInfo->unk_isJoystick = TRUE;
 
-                    dipd.diph.dwSize = 0x14;
-                    dipd.diph.dwHeaderSize = 0x10;
-                    dipd.diph.dwObj = 0;
-                    dipd.diph.dwHow = DIPH_DEVICE;
-                    dipd.dwData = 0;
-
-                    m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->SetProperty(DIPROP_AUTOCENTER, &dipd.diph);
-                    InitializeForceFeedbackDevice(m_unk0x0059f8cc.field_0x0, (LPDIRECTINPUTDEVICE7)m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]);
+                    Input_SetAutocenter(m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2], FALSE);
+                    InitializeForceFeedbackDevice(m_unk0x0059f8cc.field_0x0, m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]);
                 } else {
                     pDeviceInfo->unk_isJoystick = FALSE;
                 }
 
                 // Button names (DIJOFS_BUTTON(i) = 0x30 + i).
-                count = devCaps.dwButtons;
-                didoi.dwSize = 0x13c;
+                count = devCaps.buttons;
                 pDeviceInfo->field_0x14 = 0;
                 for (iVar10 = 0; iVar10 < count; iVar10++) {
-                    hr = m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->GetObjectInfo(&didoi, iVar10 + 0x30, DIPH_BYOFFSET);
-                    if (SUCCEEDED(hr)) {
-                        strncpy(pDeviceInfo->field_0x284[iVar10], didoi.tszName, 20);
+                    if (Input_GetObjectName(m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2], iVar10 + 0x30, objectName, sizeof(objectName))) {
+                        strncpy(pDeviceInfo->field_0x284[iVar10], objectName, 20);
                         pDeviceInfo->field_0x14++;
                     }
                 }
 
                 // The first POV hat (DIJOFS_POV(0) = 0x20) gives four direction names.
-                count = devCaps.dwPOVs;
+                count = devCaps.povs;
                 iVar10 = 0;
                 if (count > 0) {
                     offset = 0x20;
                     do {
                         if (offset > 0x20)
                             break;
-                        hr = m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->GetObjectInfo(&didoi, offset, DIPH_BYOFFSET);
-                        if (SUCCEEDED(hr)) {
-                            strncpy(pDeviceInfo->field_0x414, didoi.tszName, 0x11);
+                        if (Input_GetObjectName(m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2], offset, objectName, sizeof(objectName))) {
+                            strncpy(pDeviceInfo->field_0x414, objectName, 0x11);
                             strcat(pDeviceInfo->field_0x414, m_strL);
 
-                            strncpy(pDeviceInfo->field_0x425, didoi.tszName, 0x11);
+                            strncpy(pDeviceInfo->field_0x425, objectName, 0x11);
                             strcat(pDeviceInfo->field_0x425, m_strR);
 
-                            strncpy(pDeviceInfo->field_0x436, didoi.tszName, 0x11);
+                            strncpy(pDeviceInfo->field_0x436, objectName, 0x11);
                             strcat(pDeviceInfo->field_0x436, m_strU);
 
-                            strncpy(pDeviceInfo->field_0x447, didoi.tszName, 0x11);
+                            strncpy(pDeviceInfo->field_0x447, objectName, 0x11);
                             strcat(pDeviceInfo->field_0x447, m_strD);
                         }
                         iVar10++;
@@ -932,36 +360,27 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
                     } while (iVar10 < pDeviceInfo->field_0x14);
                 }
 
-                m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->Acquire();
                 m_unk0x0059f8cc.field_0x2++;
                 m_unk0x0059f8cc.field_0x0++;
             }
         }
     }
 
-    return DIENUM_CONTINUE;
+    return TRUE;
 }
 
 // FUNCTION: CMR2 0x0049fad0
 void CInput::SetupJoystickDeviceInfo(DeviceInfo *deviceInfo) {
-    HRESULT hr;
     USHORT * unk0x00511400;
     JoystickBinding * bindings;
-
-    DIPROPRANGE dipd;
-    dipd.diph.dwSize = 0x18;
-    dipd.diph.dwHeaderSize = sizeof(DIPROPHEADER);
-    dipd.diph.dwHow = DIPH_BYOFFSET;
 
     deviceInfo->joystick.controlCount = 0;
     unk0x00511400 = m_unk0x00511400;
     bindings = deviceInfo->joystick.bindings;
 
     do {
-        dipd.diph.dwObj = *unk0x00511400;
-        hr = m_unk0x0059f6b0[deviceInfo->field_0x18]->GetProperty(DIPROP_RANGE, &dipd.diph);
-
-        if (SUCCEEDED(hr)) {
+        // PORT: the axis exists when it has a range (DIPROP_RANGE succeeded).
+        if (Input_HasAxis(m_unk0x0059f6b0[deviceInfo->field_0x18], *unk0x00511400)) {
             bindings[-1].field_0x10 = TRUE; // esentially just deviceInfo->unk_isJoystick but it doesnt match
             bindings->deadzone = 0xc8;
             bindings->range = 0x10000;
@@ -975,70 +394,39 @@ void CInput::SetupJoystickDeviceInfo(DeviceInfo *deviceInfo) {
 
         unk0x00511400++;
         bindings++;
-    } while ((int)unk0x00511400 < (int)(m_unk0x00511400 + 8));
+    } while ((int)(intptr_t)unk0x00511400 < (int)(intptr_t)(m_unk0x00511400 + 8));
 }
 
 // FUNCTION: CMR2 0x0049ee10
 void CInput::SetJoystickAxisRange(int deviceID, int axisID, DWORD range) {
-    USHORT * unk0x00511400;
     DeviceInfo * pDeviceInfo = &m_availableDevices[deviceID];
 
-    DIPROPRANGE dipd;
-    dipd.diph.dwSize = 0x18;
-    dipd.diph.dwHeaderSize = 0x10;
-    dipd.diph.dwHow = DIPH_BYOFFSET;
-    dipd.lMax = range;
-    dipd.lMin = -range;
-    dipd.diph.dwObj = m_unk0x00511400[axisID];
-
-    m_unk0x0059f6b0[pDeviceInfo->field_0x18]->SetProperty(DIPROP_RANGE, &dipd.diph);
+    Input_SetAxisRange(m_unk0x0059f6b0[pDeviceInfo->field_0x18], m_unk0x00511400[axisID], -(LONG)range, range);
     pDeviceInfo->joystick.bindings[axisID].range = range;
 }
 
 // FUNCTION: CMR2 0x0049ee90
 void CInput::SetJoystickAxisDeadzone(int deviceID, int axisID, DWORD deadzone) {
-    USHORT * unk0x00511400;
     DeviceInfo * pDeviceInfo = &m_availableDevices[deviceID];
 
-    DIPROPDWORD dipd;
-    dipd.diph.dwSize = 0x14;
-    dipd.diph.dwHeaderSize = 0x10;
-    dipd.diph.dwHow = DIPH_BYOFFSET;
-    dipd.dwData = deadzone;
-    dipd.diph.dwObj = m_unk0x00511400[axisID];
-
-    m_unk0x0059f6b0[pDeviceInfo->field_0x18]->SetProperty(DIPROP_DEADZONE, &dipd.diph);
+    Input_SetAxisDeadzone(m_unk0x0059f6b0[pDeviceInfo->field_0x18], m_unk0x00511400[axisID], deadzone);
     pDeviceInfo->joystick.bindings[axisID].deadzone = deadzone;
 }
 
 // FUNCTION: CMR2 0x0049ef10
 void CInput::SetJoystickAxisSaturation(int deviceID, int axisID, DWORD saturation) {
-    USHORT * unk0x00511400;
     DeviceInfo * pDeviceInfo = &m_availableDevices[deviceID];
 
-    DIPROPDWORD dipd;
-    dipd.diph.dwSize = 0x14;
-    dipd.diph.dwHeaderSize = 0x10;
-    dipd.diph.dwHow = DIPH_BYOFFSET;
-    dipd.dwData = saturation;
-    dipd.diph.dwObj = m_unk0x00511400[axisID];
-
-    m_unk0x0059f6b0[pDeviceInfo->field_0x18]->SetProperty(DIPROP_SATURATION, &dipd.diph);
+    Input_SetAxisSaturation(m_unk0x0059f6b0[pDeviceInfo->field_0x18], m_unk0x00511400[axisID], saturation);
     pDeviceInfo->joystick.bindings[axisID].saturation = saturation;
 }
 
 // FUNCTION: CMR2 0x004aae20
-BOOL CInput::InitializeForceFeedbackDevice(int deviceID, LPDIRECTINPUTDEVICE7 pDevice) {
-    Graphics *pGraphics;
-    HRESULT hr;
-
-    pGraphics = g_pGraphics;
+BOOL CInput::InitializeForceFeedbackDevice(int deviceID, InputDevice *pDevice) {
     if (m_forceFeedbackDevices[deviceID].field_0x0 == 0) {
-        m_forceFeedbackDevices[deviceID].device = (LPDIRECTINPUTDEVICE7A)pDevice;
-        if (pGraphics->isFullscreen) {
-            hr = pDevice->SendForceFeedbackCommand(DISFFC_STOPALL);
-            IsForceFeedbackCallSuccessful(hr);
-        }
+        m_forceFeedbackDevices[deviceID].device = pDevice;
+        if (g_pGraphics->isFullscreen)
+            Input_StopAllEffects(pDevice);
 
         SetForceFeedbackAutocenter(0, deviceID);
         m_forceFeedbackDevices[deviceID].field_0x0 = TRUE;
@@ -1060,17 +448,8 @@ bool CInput::IsForceFeedbackCallSuccessful(HRESULT hr) {
 
 // FUNCTION: CMR2 0x004aafd0
 void CInput::SetForceFeedbackAutocenter(DWORD param1, int deviceID) {
-    DIPROPDWORD dipdw;
-
-    if (m_forceFeedbackDevices[deviceID].field_0x0 != FALSE) {
-        dipdw.dwData = param1;
-        dipdw.diph.dwSize = 0x14;
-        dipdw.diph.dwHeaderSize = 0x10;
-        dipdw.diph.dwObj = 0;
-        dipdw.diph.dwHow = 0;
-
-        m_forceFeedbackDevices[deviceID].device->SetProperty(DIPROP_AUTOCENTER, &dipdw.diph);
-    }
+    if (m_forceFeedbackDevices[deviceID].field_0x0 != FALSE)
+        Input_SetAutocenter(m_forceFeedbackDevices[deviceID].device, param1 != 0);
 }
 
 // 96.55% match, only concern is this
@@ -1078,31 +457,22 @@ void CInput::SetForceFeedbackAutocenter(DWORD param1, int deviceID) {
 //          +cmp edi, CInput::m_dinputRefGuidKeyboard (DATA) (Input.cpp:560) <-- why  are you that
 // FUNCTION: CMR2 0x004aaf00
 void CInput::ResetForceFeedbackEffects(void) {
-    LPDIRECTINPUTEFFECT* pEffects = m_forceFeedbackDevices[0].effects;
-    
-    do {
-        ForceFeedbackDevice* pDevice = (ForceFeedbackDevice*)((BYTE*)pEffects - 0xC);
-        
+    int device;
+    int i;
+
+    for (device = 0; device < 8; device++) {
+        ForceFeedbackDevice *pDevice = &m_forceFeedbackDevices[device];
+
         if (pDevice->field_0x0 != FALSE) {
-            LPDIRECTINPUTEFFECT* pEffect = pEffects;
-            int count = 10;
-            
-            do {
-                if (*pEffect != NULL) {
-                    ULONG refcount = (*pEffect)->Release();
-                    if (refcount == 0) {
-                        *pEffect = NULL;
-                    }
+            for (i = 0; i < 10; i++) {
+                if (pDevice->effects[i] != NULL) {
+                    Input_DestroyEffect(pDevice->effects[i]);
+                    pDevice->effects[i] = NULL;
                 }
-                pEffect++;
-                count--;
-            } while (count != 0);
-            
+            }
             pDevice->field_0x8 = 0;
         }
-        
-        pEffects = (LPDIRECTINPUTEFFECT*)((BYTE*)pEffects + 0x34);
-    } while ((int)pEffects < (int)m_forceFeedbackDevices[8].effects);
+    }
 }
 
 // 96.77% match, only concern is this
@@ -1110,29 +480,23 @@ void CInput::ResetForceFeedbackEffects(void) {
 // 	        +cmp edi, CInput::m_dinputRefGuidKeyboard (DATA) (Input.cpp:587)  <-- why  are you that
 // FUNCTION: CMR2 0x004aaea0
 BOOL CInput::ResetForceFeedbackEffectsAlt(void) {
-    ForceFeedbackDevice* pDevice = m_forceFeedbackDevices;
-    
-    do {
+    int device;
+    int i;
+
+    for (device = 0; device < 8; device++) {
+        ForceFeedbackDevice *pDevice = &m_forceFeedbackDevices[device];
+
         if (pDevice->field_0x0 != FALSE) {
-            LPDIRECTINPUTEFFECT* pEffect = pDevice->effects;
-            int count = 10;
-            
-            do {
-                if (*pEffect != NULL) {
-                    ULONG refcount = (*pEffect)->Release();
-                    if (refcount == 0) {
-                        *pEffect = NULL;
-                    }
+            for (i = 0; i < 10; i++) {
+                if (pDevice->effects[i] != NULL) {
+                    Input_DestroyEffect(pDevice->effects[i]);
+                    pDevice->effects[i] = NULL;
                 }
-                pEffect++;
-                count--;
-            } while (count != 0);
-            
+            }
             pDevice->field_0x8 = 0;
             pDevice->field_0x0 = 0;
         }
-        pDevice++;
-    } while ((int)pDevice < (int)&m_forceFeedbackDevices[8]);
+    }
     m_unk0x00666ee8 = FALSE;
     return TRUE;
 }
@@ -1346,7 +710,7 @@ int CInput::GetFirstPressedKey(void)
 // FUNCTION: CMR2 0x0049edf0
 BOOL CInput::IsShiftPressed(void)
 {
-    if ((m_keyboardState[DIK_LSHIFT] & 0x80) == 0 && (m_keyboardState[DIK_RSHIFT] & 0x80) == 0)
+    if ((m_keyboardState[INPUT_KEY_LSHIFT] & 0x80) == 0 && (m_keyboardState[INPUT_KEY_RSHIFT] & 0x80) == 0)
         return FALSE;
     return TRUE;
 }
@@ -1369,15 +733,8 @@ void CInput::ClearFirstJoystickControlBindings(void)
 // FUNCTION: CMR2 0x0049f300
 void CInput::ReadKeyboardState(void)
 {
-    HRESULT hr;
-    short retries;
-
-    retries = 0;
-    hr = m_pDirectInputKeyboard->GetDeviceState(sizeof(m_keyboardState), m_keyboardState);
-    while (hr == DIERR_INPUTLOST && retries <= 20 && SUCCEEDED(m_pDirectInputKeyboard->Acquire())) {
-        retries++;
-        hr = m_pDirectInputKeyboard->GetDeviceState(sizeof(m_keyboardState), m_keyboardState);
-    }
+    if (m_pDirectInputKeyboard != NULL)
+        Input_ReadKeyboard(m_pDirectInputKeyboard, m_keyboardState);
 }
 
 // FUNCTION: CMR2 0x0049fd00
@@ -1457,17 +814,13 @@ void CInput::SetForceFeedbackDeviceValue(DWORD param1, int index)
 void CInput::StartForceFeedbackEffect(int effectIndex, int deviceIndex)
 {
     ForceFeedbackDevice *pDevice;
-    LPDIRECTINPUTEFFECT pEffect;
-    DWORD status;
+    InputEffect *pEffect;
 
     pDevice = &m_forceFeedbackDevices[deviceIndex];
     if (pDevice->field_0x0 != 0) {
         pEffect = pDevice->effects[effectIndex];
-        if (pEffect != NULL) {
-            IsForceFeedbackCallSuccessful(pEffect->GetEffectStatus(&status));
-            if ((status & DIEGES_PLAYING) == 0)
-                pDevice->effects[effectIndex]->Start(1, 0);
-        }
+        if (pEffect != NULL && !Input_IsEffectPlaying(pEffect))
+            Input_StartEffect(pEffect);
     }
 }
 
@@ -1477,30 +830,19 @@ char *CInput::FormatString(LPCSTR format, ...)
     va_list args;
 
     va_start(args, format);
-    wvsprintfA(m_formatBuffer, format, args);
+    vsprintf(m_formatBuffer, format, args);
     return m_formatBuffer;
 }
 
 // FUNCTION: CMR2 0x0049f360
 void CInput::ReadMouse(DeviceInfo *pDevice)
 {
-    DIMOUSESTATE2 mouseState;
-    HRESULT hr;
-    int retries;
+    InputMouseState mouseState;
     int i;
 
-    retries = 0;
     pDevice->field_0x4 = 0;
-    ((LPDIRECTINPUTDEVICE7A)m_pDirectInputMouse)->Poll();
-    hr = m_pDirectInputMouse->GetDeviceState(sizeof(mouseState), &mouseState);
-    while (hr == DIERR_INPUTLOST) {
-        if (retries > 5)
-            return;
-        m_pDirectInputMouse->Acquire();
-        retries++;
-        ((LPDIRECTINPUTDEVICE7A)m_pDirectInputMouse)->Poll();
-        hr = m_pDirectInputMouse->GetDeviceState(sizeof(mouseState), &mouseState);
-    }
+    if (m_pDirectInputMouse == NULL || !Input_ReadMouse(m_pDirectInputMouse, &mouseState))
+        return;
 
     pDevice->joystick.bindings[0].field_0xc += mouseState.lX * 150;
     if (pDevice->joystick.bindings[0].field_0xc > 0x10000)
@@ -1521,21 +863,21 @@ void CInput::ReadKeyboardDevice(DeviceInfo *pDevice)
 {
     pDevice->field_0x4 = 0;
     if (CGameInfo::m_unk0x0059f8d0 != 0) {
-        if (m_keyboardState[DIK_LEFT] & 0x80)
+        if (m_keyboardState[INPUT_KEY_LEFT] & 0x80)
             pDevice->field_0x4 = 1;
-        if (m_keyboardState[DIK_RIGHT] & 0x80)
+        if (m_keyboardState[INPUT_KEY_RIGHT] & 0x80)
             pDevice->field_0x4 |= 0x2;
-        if (m_keyboardState[DIK_UP] & 0x80)
+        if (m_keyboardState[INPUT_KEY_UP] & 0x80)
             pDevice->field_0x4 |= 0x4;
-        if (m_keyboardState[DIK_DOWN] & 0x80)
+        if (m_keyboardState[INPUT_KEY_DOWN] & 0x80)
             pDevice->field_0x4 |= 0x8;
-        if (m_keyboardState[DIK_RETURN] & 0x80)
+        if (m_keyboardState[INPUT_KEY_RETURN] & 0x80)
             pDevice->field_0x4 |= 0x10;
-        if (m_keyboardState[DIK_ESCAPE] & 0x80)
+        if (m_keyboardState[INPUT_KEY_ESCAPE] & 0x80)
             pDevice->field_0x4 |= 0x20;
-        if (m_keyboardState[DIK_F1] & 0x80)
+        if (m_keyboardState[INPUT_KEY_F1] & 0x80)
             pDevice->field_0x4 |= 0x1000;
-        if (m_keyboardState[DIK_F2] & 0x80)
+        if (m_keyboardState[INPUT_KEY_F2] & 0x80)
             pDevice->field_0x4 |= 0x2000;
     } else {
         if (m_keyboardState[pDevice->keyboard.field_0x468] & 0x80)
@@ -1576,25 +918,14 @@ void CInput::ReadKeyboardDevice(DeviceInfo *pDevice)
 // FUNCTION: CMR2 0x0049fb70
 void CInput::ReadJoystick(DeviceInfo *pDevice)
 {
-    DIJOYSTATE2 joyState;
-    LPDIRECTINPUTDEVICE7A pJoystick;
-    HRESULT hr;
-    int retries;
+    InputJoystickState joyState;
+    InputDevice *pJoystick;
     int i;
 
-    retries = 0;
-    pJoystick = (LPDIRECTINPUTDEVICE7A)m_unk0x0059f6b0[pDevice->field_0x18];
+    pJoystick = m_unk0x0059f6b0[pDevice->field_0x18];
     pDevice->field_0x4 = 0;
-    pJoystick->Poll();
-    hr = pJoystick->GetDeviceState(sizeof(joyState), &joyState);
-    while (hr == DIERR_INPUTLOST) {
-        if (retries > 5)
-            return;
-        pJoystick->Acquire();
-        retries++;
-        pJoystick->Poll();
-        hr = pJoystick->GetDeviceState(sizeof(joyState), &joyState);
-    }
+    if (pJoystick == NULL || !Input_ReadJoystick(pJoystick, &joyState))
+        return;
 
     pDevice->joystick.bindings[0].field_0xc = joyState.lX;
     pDevice->joystick.bindings[1].field_0xc = joyState.lY;
@@ -1614,7 +945,7 @@ void CInput::ReadJoystick(DeviceInfo *pDevice)
     else if (joyState.lY > 39321)
         pDevice->field_0x4 |= 0x8;
 
-    if (LOWORD(joyState.rgdwPOV[0]) != 0xffff) {
+    if ((joyState.rgdwPOV[0] & 0xffff) != 0xffff) {
         if (joyState.rgdwPOV[0] >= 4500 && joyState.rgdwPOV[0] <= 13500)
             pDevice->field_0x4 |= 0x2;
         if (joyState.rgdwPOV[0] >= 13500 && joyState.rgdwPOV[0] <= 22500)
@@ -1727,12 +1058,11 @@ DeviceInfo *CInput::UpdateDevice(int index)
 }
 
 // FUNCTION: CMR2 0x004ab380
+// PORT: the condition parameters go into the effect's InputEffectParams.
 int CInput::CreateForceFeedbackEffect(int effectType, DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex)
 {
     ForceFeedbackDevice *pDevice;
-    GUID guid;
-    DWORD dwAxes[2];
-    LONG lDirection[2];
+    InputEffectParams *pParams;
     int slot;
     int i;
 
@@ -1747,52 +1077,32 @@ int CInput::CreateForceFeedbackEffect(int effectType, DWORD duration, LONG coeff
         i++;
     }
 
+    slot = deviceIndex * 10 + i;
+    pParams = &m_forceFeedbackEffects[slot];
+    memset(pParams, 0, sizeof(*pParams));
     switch (effectType) {
     case 0xb:
-        guid = GUID_Spring;
+        pParams->type = INPUT_EFFECT_SPRING;
         break;
     case 0xc:
-        guid = GUID_Inertia;
+        pParams->type = INPUT_EFFECT_INERTIA;
         break;
     case 0xd:
-        guid = GUID_Damper;
+        pParams->type = INPUT_EFFECT_DAMPER;
         break;
     case 0xe:
-        guid = GUID_Friction;
+        pParams->type = INPUT_EFFECT_FRICTION;
         break;
     }
+    pParams->offset = offset;
+    pParams->coefficient = coefficient;
+    pParams->saturation = 10000;
+    pParams->deadBand = 0;
+    pParams->duration = duration;
+    pParams->gain = 10000;
+    pParams->triggerButton = triggerButton == -1 ? INPUT_EFFECT_NO_TRIGGER : INPUT_OFFSET_BUTTON(triggerButton);
 
-    slot = deviceIndex * 10 + i;
-    dwAxes[0] = DIJOFS_X;
-    lDirection[0] = 0;
-    lDirection[1] = 0;
-
-    m_forceFeedbackConditions[slot].lOffset = offset;
-    m_forceFeedbackConditions[slot].lPositiveCoefficient = coefficient;
-    m_forceFeedbackConditions[slot].lNegativeCoefficient = coefficient;
-    m_forceFeedbackConditions[slot].dwPositiveSaturation = 10000;
-    m_forceFeedbackConditions[slot].dwNegativeSaturation = 10000;
-    m_forceFeedbackConditions[slot].lDeadBand = 0;
-
-    m_forceFeedbackEffects[slot].dwSize = sizeof(DIEFFECT);
-    m_forceFeedbackEffects[slot].dwFlags = DIEFF_CARTESIAN | DIEFF_OBJECTOFFSETS;
-    m_forceFeedbackEffects[slot].dwDuration = duration;
-    m_forceFeedbackEffects[slot].dwSamplePeriod = 10000;
-    m_forceFeedbackEffects[slot].dwGain = 10000;
-    if (triggerButton == -1)
-        triggerButton = DIEB_NOTRIGGER;
-    else
-        triggerButton = DIJOFS_BUTTON(triggerButton);
-    m_forceFeedbackEffects[slot].dwTriggerButton = triggerButton;
-    m_forceFeedbackEffects[slot].dwTriggerRepeatInterval = 0;
-    m_forceFeedbackEffects[slot].cAxes = 1;
-    m_forceFeedbackEffects[slot].rgdwAxes = dwAxes;
-    m_forceFeedbackEffects[slot].rglDirection = lDirection;
-    m_forceFeedbackEffects[slot].lpEnvelope = NULL;
-    m_forceFeedbackEffects[slot].cbTypeSpecificParams = sizeof(DICONDITION);
-    m_forceFeedbackEffects[slot].lpvTypeSpecificParams = &m_forceFeedbackConditions[slot];
-
-    pDevice->device->CreateEffect(guid, &m_forceFeedbackEffects[slot], &pDevice->effects[i], NULL);
+    pDevice->effects[i] = Input_CreateEffect(pDevice->device, pParams);
     return i;
 }
 
@@ -1861,56 +1171,41 @@ fixed:
 HRESULT CInput::SetEffectGain(int effectIndex, DWORD gain, int deviceIndex)
 {
     ForceFeedbackDevice *pDevice;
-    LPDIRECTINPUTEFFECT pEffect;
-    DWORD flags;
+    InputEffectParams *pParams;
 
     pDevice = &m_forceFeedbackDevices[deviceIndex];
-    flags = DIEP_GAIN;
-    if (m_unk0x00666ec8[deviceIndex] == 0)
-        flags = DIEP_GAIN | DIEP_NODOWNLOAD;
-
-    if (pDevice->field_0x0 != 0 && (pEffect = pDevice->effects[effectIndex]) != NULL) {
-        DIEFFECT effect = { sizeof(DIEFFECT) };
-        effect.dwGain = gain;
-        return pDevice->effects[effectIndex]->SetParameters(&effect, flags);
+    if (pDevice->field_0x0 != 0 && pDevice->effects[effectIndex] != NULL) {
+        pParams = &m_forceFeedbackEffects[deviceIndex * 10 + effectIndex];
+        pParams->gain = gain;
+        Input_UpdateEffect(pDevice->effects[effectIndex], pParams);
+        return 0;
     }
-    return E_INVALIDARG;
+    return -1;
 }
 
 // FUNCTION: CMR2 0x004ab0b0
 HRESULT CInput::SetEffectGainAndDirection(int effectIndex, DWORD gain, LONG direction, int deviceIndex)
 {
     ForceFeedbackDevice *pDevice;
-    LPDIRECTINPUTEFFECT pEffect;
-    DWORD flags;
+    InputEffectParams *pParams;
 
     pDevice = &m_forceFeedbackDevices[deviceIndex];
-    flags = DIEP_GAIN | DIEP_DIRECTION;
-    if (m_unk0x00666ec8[deviceIndex] == 0)
-        flags = DIEP_GAIN | DIEP_DIRECTION | DIEP_NODOWNLOAD;
-
-    if (pDevice->field_0x0 != 0 && (pEffect = pDevice->effects[effectIndex]) != NULL) {
-        DIEFFECT effect = { sizeof(DIEFFECT) };
-        LONG lDirection[2];
-        effect.dwFlags = DIEFF_POLAR | DIEFF_OBJECTOFFSETS;
-        effect.cAxes = 2;
-        effect.dwGain = gain;
-        effect.rgdwAxes = NULL;
-        effect.rglDirection = lDirection;
-        lDirection[0] = direction;
-        return pDevice->effects[effectIndex]->SetParameters(&effect, flags);
+    if (pDevice->field_0x0 != 0 && pDevice->effects[effectIndex] != NULL) {
+        pParams = &m_forceFeedbackEffects[deviceIndex * 10 + effectIndex];
+        pParams->gain = gain;
+        pParams->direction = direction;
+        Input_UpdateEffect(pDevice->effects[effectIndex], pParams);
+        return 0;
     }
-    return E_INVALIDARG;
+    return -1;
 }
 
 // FUNCTION: CMR2 0x004ab150
 int CInput::CreateConstantForceEffect(DWORD duration, LONG direction, LONG magnitude, DWORD attackTime, DWORD attackLevel, DWORD fadeTime, DWORD fadeLevel, int triggerButton, int deviceIndex)
 {
     ForceFeedbackDevice *pDevice;
+    InputEffectParams *pParams;
     int i;
-    LONG lDirection[2];
-    DWORD dwAxes[2];
-    DICONSTANTFORCE constantForce;
 
     i = 0;
     pDevice = &m_forceFeedbackDevices[deviceIndex];
@@ -1923,34 +1218,23 @@ int CInput::CreateConstantForceEffect(DWORD duration, LONG direction, LONG magni
         i++;
     }
 
-    constantForce.lMagnitude = magnitude;
-    DIENVELOPE envelope = { sizeof(DIENVELOPE) };
-    envelope.dwAttackTime = attackTime;
-    envelope.dwAttackLevel = attackLevel;
-    envelope.dwFadeTime = fadeTime;
-    envelope.dwFadeLevel = fadeLevel;
-    lDirection[0] = direction;
-    DIEFFECT effect = { sizeof(DIEFFECT) };
-    effect.dwSamplePeriod = 10000;
-    effect.dwGain = 10000;
-    dwAxes[0] = DIJOFS_X;
-    dwAxes[1] = DIJOFS_Y;
-    lDirection[1] = 0;
-    effect.dwFlags = DIEFF_POLAR | DIEFF_OBJECTOFFSETS;
-    effect.dwDuration = duration;
-    if (triggerButton == -1)
-        effect.dwTriggerButton = triggerButton;
-    else
-        effect.dwTriggerButton = DIJOFS_BUTTON(triggerButton);
-    effect.rgdwAxes = dwAxes;
-    effect.rglDirection = lDirection;
-    effect.lpEnvelope = &envelope;
-    effect.dwTriggerRepeatInterval = 0;
-    effect.cAxes = 2;
-    effect.cbTypeSpecificParams = sizeof(DICONSTANTFORCE);
-    effect.lpvTypeSpecificParams = &constantForce;
+    // PORT: the original built its DIEFFECT on the stack; the port keeps the
+    // parameters in the effect's slot so later gain/direction changes have
+    // them.
+    pParams = &m_forceFeedbackEffects[deviceIndex * 10 + i];
+    memset(pParams, 0, sizeof(*pParams));
+    pParams->type = INPUT_EFFECT_CONSTANT;
+    pParams->magnitude = magnitude;
+    pParams->attackTime = attackTime;
+    pParams->attackLevel = attackLevel;
+    pParams->fadeTime = fadeTime;
+    pParams->fadeLevel = fadeLevel;
+    pParams->direction = direction;
+    pParams->gain = 10000;
+    pParams->duration = duration;
+    pParams->triggerButton = triggerButton == -1 ? INPUT_EFFECT_NO_TRIGGER : INPUT_OFFSET_BUTTON(triggerButton);
 
-    IsForceFeedbackCallSuccessful(pDevice->device->CreateEffect(GUID_ConstantForce, &effect, &pDevice->effects[i], NULL));
+    pDevice->effects[i] = Input_CreateEffect(pDevice->device, pParams);
     return i;
 }
 
@@ -1958,27 +1242,19 @@ int CInput::CreateConstantForceEffect(DWORD duration, LONG direction, LONG magni
 HRESULT CInput::SetConditionCoefficient(int effectIndex, LONG coefficient, int deviceIndex)
 {
     ForceFeedbackDevice *pDevice;
-    DWORD flags;
-    int slot;
+    InputEffectParams *pParams;
 
     pDevice = &m_forceFeedbackDevices[deviceIndex];
-    flags = DIEP_TYPESPECIFICPARAMS;
-    if (m_unk0x00666ec8[deviceIndex] == 0)
-        flags = DIEP_TYPESPECIFICPARAMS | DIEP_NODOWNLOAD;
-
     if (pDevice->field_0x0 != 0 && pDevice->effects[effectIndex] != NULL) {
-        slot = deviceIndex * 10 + effectIndex;
-        m_forceFeedbackConditions[slot].lOffset = 0;
-        m_forceFeedbackConditions[slot].lPositiveCoefficient = coefficient;
-        m_forceFeedbackConditions[slot].lNegativeCoefficient = coefficient;
-        m_forceFeedbackConditions[slot].dwPositiveSaturation = 10000;
-        m_forceFeedbackConditions[slot].dwNegativeSaturation = 10000;
-        m_forceFeedbackConditions[slot].lDeadBand = 0;
-        m_forceFeedbackEffects[slot].cbTypeSpecificParams = sizeof(DICONDITION);
-        m_forceFeedbackEffects[slot].lpvTypeSpecificParams = &m_forceFeedbackConditions[slot];
-        return pDevice->effects[effectIndex]->SetParameters(&m_forceFeedbackEffects[slot], flags);
+        pParams = &m_forceFeedbackEffects[deviceIndex * 10 + effectIndex];
+        pParams->offset = 0;
+        pParams->coefficient = coefficient;
+        pParams->saturation = 10000;
+        pParams->deadBand = 0;
+        Input_UpdateEffect(pDevice->effects[effectIndex], pParams);
+        return 0;
     }
-    return E_INVALIDARG;
+    return -1;
 }
 
 // FUNCTION: CMR2 0x0040bff0
@@ -2233,10 +1509,12 @@ void CInput::QueueVirtualKeyPress(unsigned int param1)
     int *p;
     int i;
 
-    if ((param1 & 0xff0000) != 0) {
+    // PORT: param1 is the key code (the original got the WM_KEYDOWN lParam
+    // and required its scan code byte to be set).
+    if (param1 != 0) {
         i = 0;
         p = g_unk0x006ed46c;
-        while ((int)p < (int)(g_unk0x006ed46c + 30)) {
+        while (p < g_unk0x006ed46c + 30) {
             if (*p == 0) {
                 g_unk0x006ed46c[i] = param1;
                 return;
@@ -2441,5 +1719,8 @@ void Input_GetLastKeyName(LPSTR pName, unsigned int size)
     key = 0;
     while (Input_PopQueuedKeyPress((int *)&key) != 0)
         ;
-    GetKeyNameTextA(key, pName, size & 0xff);
+    // PORT: the queue holds key codes (DIK_*), named in the current layout.
+    strncpy(pName, key != 0 ? Input_GetKeyName(key) : "", size & 0xff);
+    if ((size & 0xff) != 0)
+        pName[(size & 0xff) - 1] = 0;
 }

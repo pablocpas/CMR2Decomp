@@ -75,10 +75,10 @@ BYTE CGame::m_unk0x005a1819;
 Unk0x005a1820 CGame::m_unk0x005a1820[7];
 int CGame::m_unk0x005a1e34;
 bool CGame::m_unk0x005a1fc0;
-IDirectPlay4A *CGame::m_pDirectPlay4A = NULL;
-DPID CGame::m_unk0x005a1ea0 = NULL;
+void *CGame::m_pDirectPlay4A = NULL;
+NetPlayerID CGame::m_unk0x005a1ea0 = NULL;
 
-IDirectPlayLobby3A *CGame::m_pDirectPlayLobby3A;
+void *CGame::m_pDirectPlayLobby3A;
 
 BOOL CGame::m_unk0x005a1fbc;
 void *CGame::m_unk0x005a1fb8;
@@ -913,7 +913,9 @@ void Game_PlayCodemastersBootVideo(Unk0049c2c0 *p1, BYTE state)
 
     CGraphics::SetClearColour(1, 0, 0, 0);
     CGraphics::ClearTarget();
-    g_pGraphics->pPrimarySurface->Blt(NULL, g_pGraphics->pBackBufferSurface, NULL, DDBLT_WAIT, NULL);
+    // PORT: shows the cleared back buffer (the original blitted it to the
+    // primary surface).
+    Gfx_Present(TRUE);
     sprintf(path, g_strCmBik, CInstallInfo::GetVideosDir());
     OptionMovie_StartPlayback(path, NULL, NULL, 2, 0);
     GameInfo_ResetSessionTimestamp();
@@ -1657,17 +1659,8 @@ void CGame::ResetSessionPlayerTable(bool param1) {
 
 // FUNCTION: CMR2 0x004a1a90
 BOOL CGame::DestroyLocalNetworkPlayer(void) {
-    IDirectPlay4A *pVar1;
-    HRESULT hr;
-    if (m_unk0x005a1fc0) {
-        pVar1 = GetDirectPlay();
-        if (pVar1 != NULL) {
-            hr = pVar1->DestroyPlayer(m_unk0x005a1ea0);
-            if (hr > DPERR_UNAVAILABLE && hr != DPERR_CONNECTIONLOST && hr == DP_OK)
-                return TRUE;
-        }
-    }
-
+    if (m_unk0x005a1fc0 && GetDirectPlay() != NULL)
+        return Net_DestroyPlayer(m_unk0x005a1ea0) == NET_OK;
     return FALSE;
 }
 
@@ -1691,28 +1684,25 @@ bool CGame::Cleanup(void)
   DestroyDirectPlay();
   FreeServiceProviderConnections();
   ReleaseNetworkReceiveBuffer();
-  CoUninitialize();
   return 1;
 }
 
 // FUNCTION: CMR2 0x004aab40
+// PORT: closes the session (the network layer itself stays).
 void CGame::DestroyDirectPlay(void) {
     if (m_pDirectPlay4A != NULL) {
-        m_pDirectPlay4A->Release();
+        Net_Close();
         m_pDirectPlay4A = NULL;
     }
 }
 
 // FUNCTION: CMR2 0x004aabb0
 void CGame::DestroyDirectPlayLobby(void) {
-    if (m_pDirectPlayLobby3A != NULL) {
-        m_pDirectPlayLobby3A->Release();
-        m_pDirectPlayLobby3A = NULL;
-    }
+    m_pDirectPlayLobby3A = NULL;
 }
 
 // FUNCTION: CMR2 0x004aad40
-IDirectPlay4A* CGame::GetDirectPlay(void) {
+void *CGame::GetDirectPlay(void) {
     return m_pDirectPlay4A;
 }
 
@@ -1733,7 +1723,6 @@ bool CGame::InitializeNetworkSubsystem(void) {
     }
 
     m_connectionCount = 0;
-    CoInitialize(NULL);
 
     RegisterCallback(Cleanup, NULL);
 
@@ -1763,35 +1752,35 @@ void CGame::LoadFrontendCommonAndCountryTextures(void) {
     BOOL bZero = false;
 
     sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesAr640ATGA, CInstallInfo::GetGameCDPath());
-    CFrontend::m_pAr640ATexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+    CFrontend::m_pAr640ATexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, NULL, NULL, bZero, bZero);
 
     sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesAr640DTGA, CInstallInfo::GetGameCDPath());
-    CFrontend::m_pAr640DTexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+    CFrontend::m_pAr640DTexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, NULL, NULL, bZero, bZero);
 
     sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesLgMatrixTGA, CInstallInfo::GetGameCDPath());
-    CFrontend::m_pLgMatrixTexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+    CFrontend::m_pLgMatrixTexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, NULL, NULL, bZero, bZero);
 
     sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesSmMatrixTGA, CInstallInfo::GetGameCDPath());
-    CFrontend::m_pSmMatrixTexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+    CFrontend::m_pSmMatrixTexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, NULL, NULL, bZero, bZero);
 
     // Load country banners and flags
     for (int i = 0; i < 8; i++) {
         sprintf(CFrontend::m_stringDest, CFrontend::m_strSetupRepTexturesBanners, CInstallInfo::GetGameCDPath(), countryCodes[i]);
-        CFrontend::m_pSetupRepBanners[i] = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+        CFrontend::m_pSetupRepBanners[i] = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, NULL, NULL, bZero, bZero);
         
         sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTinyFlags, CInstallInfo::GetGameCDPath(), countryNames[i]);
-        CFrontend::m_pTinyFlags[i] = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+        CFrontend::m_pTinyFlags[i] = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, NULL, NULL, bZero, bZero);
     }
 
     // Load medal textures
     sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesTGoldTGA, CInstallInfo::GetGameCDPath());
-    CFrontend::m_pTGold = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+    CFrontend::m_pTGold = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, NULL, NULL, bZero, bZero);
     
     sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesTSilverTGA, CInstallInfo::GetGameCDPath());
-    CFrontend::m_pTSilver = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+    CFrontend::m_pTSilver = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, NULL, NULL, bZero, bZero);
     
     sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesTBronzeTGA, CInstallInfo::GetGameCDPath());
-    CFrontend::m_pTBronze = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+    CFrontend::m_pTBronze = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, NULL, NULL, bZero, bZero);
     
     CFrontend::LoadFrontendCarPreviewTextures();
 }
@@ -1815,41 +1804,29 @@ int CGame::GetGameInputFocusState(void)
 }
 
 // FUNCTION: CMR2 0x004aaaf0
+// PORT: the network layer needs no object; a marker says it is in use.
 bool CGame::CreateDirectPlay(void)
 {
-    HRESULT hr;
-    LPVOID pInterface;
+    static int s_network;
 
-    pInterface = NULL;
-    hr = CoCreateInstance(CLSID_DirectPlay, NULL, CLSCTX_INPROC_SERVER, IID_IDirectPlay4A, &pInterface);
-    if (hr != CLASS_E_NOAGGREGATION && hr != REGDB_E_CLASSNOTREG && hr == S_OK) {
-        m_pDirectPlay4A = (IDirectPlay4A *)pInterface;
-        return true;
-    }
-    return false;
+    m_pDirectPlay4A = &s_network;
+    return true;
 }
 
 // FUNCTION: CMR2 0x004aab60
 bool CGame::CreateDirectPlayLobby(void)
 {
-    HRESULT hr;
-    LPVOID pInterface;
+    static int s_lobby;
 
-    pInterface = NULL;
-    hr = CoCreateInstance(CLSID_DirectPlayLobby, NULL, CLSCTX_INPROC_SERVER, IID_IDirectPlayLobby3A, &pInterface);
-    if (hr != CLASS_E_NOAGGREGATION && hr != REGDB_E_CLASSNOTREG && hr == S_OK) {
-        m_pDirectPlayLobby3A = (IDirectPlayLobby3A *)pInterface;
-        return true;
-    }
-    return false;
+    m_pDirectPlayLobby3A = &s_lobby;
+    return true;
 }
 
 // FUNCTION: CMR2 0x004aa8e0
+// PORT: there is no IPX provider, which the original sorted first.
 int __cdecl CGame::CompareConnections(const void *a, const void *b)
 {
-    if (((DPlayConnection *)a)->guidSP == DPSPGUID_IPX)
-        return -1;
-    return ((DPlayConnection *)b)->guidSP == DPSPGUID_IPX;
+    return 0;
 }
 
 // FUNCTION: CMR2 0x004aa880
@@ -1864,10 +1841,7 @@ void CGame::ClearConnections(void)
             m_connections[i].pConnection = NULL;
         }
         m_connections[i].pConnection = NULL;
-        m_connections[i].guidSP.Data1 = 0;
-        m_connections[i].guidSP.Data2 = 0;
-        m_connections[i].guidSP.Data3 = 0;
-        memset(m_connections[i].guidSP.Data4, 0, sizeof(m_connections[i].guidSP.Data4));
+        memset(&m_connections[i].guidSP, 0, sizeof(m_connections[i].guidSP));
     }
     m_connectionCount = 0;
     m_maxConnections = 10;
@@ -1875,7 +1849,7 @@ void CGame::ClearConnections(void)
 
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aa930
-void CGame::AddConnection(char *name, void *pConnection, unsigned int size, GUID *pGuidSP)
+void CGame::AddConnection(char *name, void *pConnection, unsigned int size, NetGuid *pGuidSP)
 {
     void *pCopy;
 
@@ -2570,8 +2544,8 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
     CGame::m_unk0x0059ce18 = 0;
     CGame::m_unk0x0059ce1c = 0;
     CGame::m_unk0x0059ce20 = 0;
-    if (Gfx_BeginScene() != D3D_OK)
-        return 1;
+    // PORT: the renderer has no lost device to fail BeginScene.
+    Gfx_BeginScene();
     memset(&viewport, 0, sizeof(viewport));
     viewport.x = ((short *)param3)[0];
     viewport.y = ((short *)param3)[1];
@@ -2837,17 +2811,13 @@ void Game_UpdateType3ObjectState(Unk004238e0 *param1, int param2)
         Game_SetObjectRenderModeZero(param1);
 }
 
-typedef HRESULT (__stdcall *DPMethod0)(void *pThis);
-typedef HRESULT (__stdcall *DPMethod2)(void *pThis, void *p1, DWORD p2);
-typedef HRESULT (__stdcall *DPSendFn)(void *pThis, DPID from, DPID to, DWORD flags, void *data, DWORD size);
-typedef HRESULT (__stdcall *DPMethod4)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4);
 
 // GLOBAL: CMR2 0x005a0068
 BYTE g_unk0x005a0068[0x50];
 
 // The current session description and the list of enumerated sessions
-#define SESSION (*(DPSESSIONDESC2 *)g_unk0x005a0068)
-#define SESSIONS ((DPSESSIONDESC2 *)CGameInfo::m_unk0x0059fa20)
+#define SESSION (*(NetSessionDesc *)g_unk0x005a0068)
+#define SESSIONS ((NetSessionDesc *)CGameInfo::m_unk0x0059fa20)
 
 // Reads the description of the joined session into SESSION (the session
 // name is copied to m_unk0x005a00b8).
@@ -2855,43 +2825,26 @@ BYTE g_unk0x005a0068[0x50];
 // FUNCTION: CMR2 0x004a0d60
 BOOL Network_ReadJoinedSessionDescription(void)
 {
-    IDirectPlay4A *pDP;
-    DPSESSIONDESC2 *pDesc;
-    DWORD size;
+    NetSessionDesc desc;
 
-    pDP = CGame::GetDirectPlay();
-    if (pDP == NULL)
+    if (CGame::GetDirectPlay() == NULL)
         return FALSE;
-    if (((DPMethod2)(*(void ***)pDP)[0x58 / 4])(pDP, NULL, (DWORD)&size) != DPERR_BUFFERTOOSMALL)
+    if (Net_GetSessionDesc(&desc) != NET_OK)
         return FALSE;
-    pDesc = (DPSESSIONDESC2 *)CFileBuffer::AllocateLockedBuffer(size);
-    if (pDesc == NULL)
-        return FALSE;
-    HRESULT hr = ((DPMethod2)(*(void ***)pDP)[0x58 / 4])(pDP, pDesc, (DWORD)&size);
-    if (hr <= (HRESULT)0x88770082) {
-        if (hr == DPERR_INVALIDOBJECT) {
-            free(pDesc);
-            return FALSE;
-        }
-    } else if (hr != DPERR_NOCONNECTION && hr == DP_OK) {
-        SESSION.dwSize = pDesc->dwSize;
-        SESSION.dwFlags = pDesc->dwFlags;
-        SESSION.guidInstance = pDesc->guidInstance;
-        SESSION.guidApplication = pDesc->guidApplication;
-        SESSION.dwMaxPlayers = pDesc->dwMaxPlayers;
-        SESSION.dwCurrentPlayers = pDesc->dwCurrentPlayers;
-        strcpy((char *)&CGameInfo::m_unk0x005a00b8, pDesc->lpszSessionNameA);
-        SESSION.dwReserved1 = pDesc->dwReserved1;
-        SESSION.dwReserved2 = pDesc->dwReserved2;
-        SESSION.dwUser1 = pDesc->dwUser1;
-        SESSION.dwUser2 = pDesc->dwUser2;
-        SESSION.dwUser3 = pDesc->dwUser3;
-        SESSION.dwUser4 = pDesc->dwUser4;
-        CFileBuffer::FreeGenericFileBuffer(pDesc);
-        return TRUE;
-    }
-    CFileBuffer::FreeGenericFileBuffer(pDesc);
-    return FALSE;
+    SESSION.dwSize = desc.dwSize;
+    SESSION.dwFlags = desc.dwFlags;
+    SESSION.guidInstance = desc.guidInstance;
+    SESSION.guidApplication = desc.guidApplication;
+    SESSION.dwMaxPlayers = desc.dwMaxPlayers;
+    SESSION.dwCurrentPlayers = desc.dwCurrentPlayers;
+    strcpy((char *)&CGameInfo::m_unk0x005a00b8, desc.lpszSessionNameA);
+    SESSION.dwReserved1 = desc.dwReserved1;
+    SESSION.dwReserved2 = desc.dwReserved2;
+    SESSION.dwUser1 = desc.dwUser1;
+    SESSION.dwUser2 = desc.dwUser2;
+    SESSION.dwUser3 = desc.dwUser3;
+    SESSION.dwUser4 = desc.dwUser4;
+    return TRUE;
 }
 
 // The GUID of the CMR2 DirectPlay application (shared with GameInfo.cpp).
@@ -2904,13 +2857,12 @@ extern int g_unk0x00511cd8[4];
 int Network_HostNamedSession(char *pSessionName, char *pPassword, DWORD user1, DWORD user2,
                  DWORD user3, DWORD user4, DWORD maxPlayers)
 {
-    IDirectPlay4A *pDP;
     HRESULT hr;
 
     memset(g_unk0x005a0068, 0, sizeof(g_unk0x005a0068));
-    SESSION.dwSize = sizeof(DPSESSIONDESC2);
+    SESSION.dwSize = sizeof(NetSessionDesc);
     SESSION.dwFlags = 0x2064;
-    SESSION.guidApplication = *(GUID *)g_unk0x00511cd8;
+    memcpy(&SESSION.guidApplication, g_unk0x00511cd8, sizeof(NetGuid));
     SESSION.dwMaxPlayers = maxPlayers;
     strcpy((char *)&CGameInfo::m_unk0x005a00b8, pSessionName);
     SESSION.lpszSessionNameA = (LPSTR)&CGameInfo::m_unk0x005a00b8;
@@ -2920,30 +2872,20 @@ int Network_HostNamedSession(char *pSessionName, char *pPassword, DWORD user1, D
     SESSION.dwUser2 = user2;
     SESSION.dwUser3 = user3;
     SESSION.dwUser4 = user4;
-    pDP = CGame::GetDirectPlay();
-    if (pDP == NULL)
+    if (CGame::GetDirectPlay() == NULL)
         return 0;
-    hr = ((DPMethod2)(*(void ***)pDP)[0x60 / 4])(pDP, g_unk0x005a0068, DPOPEN_CREATE);
+    hr = Net_Open(&SESSION, NET_OPEN_CREATE);
     switch (hr) {
-    case DPERR_INVALIDPARAM: return 0;
-    case DPERR_ALREADYINITIALIZED: return 0;
-    case DPERR_ACCESSDENIED: return 0;
-    case DPERR_INVALIDFLAGS: return 0;
-    case DPERR_NOCONNECTION: return 0;
-    case DPERR_TIMEOUT: return 0;
-    case DPERR_USERCANCEL: return 0;
-    case DPERR_UNINITIALIZED: return 0;
-    case DPERR_NONEWPLAYERS: return 0;
-    case DPERR_INVALIDPASSWORD: return 0;
-    case DPERR_CONNECTING: return 0;
-    case DPERR_AUTHENTICATIONFAILED: return 0;
-    case DPERR_CANTLOADSSPI: return 0;
-    case DPERR_ENCRYPTIONFAILED: return 0;
-    case DPERR_SIGNFAILED: return 0;
-    case DPERR_CANTLOADSECURITYPACKAGE: return 0;
-    case DPERR_CANTLOADCAPI: return 0;
-    case DPERR_LOGONDENIED: return 0;
-    case DP_OK:
+    case NET_ERR_ALREADYINITIALIZED: return 0;
+    case NET_ERR_ACCESSDENIED: return 0;
+    case NET_ERR_INVALIDFLAGS: return 0;
+    case NET_ERR_NOCONNECTION: return 0;
+    case NET_ERR_TIMEOUT: return 0;
+    case NET_ERR_USERCANCEL: return 0;
+    case NET_ERR_UNINITIALIZED: return 0;
+    case NET_ERR_NONEWPLAYERS: return 0;
+    case NET_ERR_INVALIDPASSWORD: return 0;
+    case NET_OK:
         CGameInfo::m_unk0x005a0060 = 1;
         CGameInfo::m_unk0x005a1814 = 1;
         return 1;
@@ -2957,60 +2899,40 @@ int Network_HostNamedSession(char *pSessionName, char *pPassword, DWORD user1, D
 // FUNCTION: CMR2 0x004a10b0
 int Network_JoinEnumeratedSession(BYTE index, char *pPassword, BYTE *pInvalidPassword)
 {
-    IDirectPlay4A *pDP;
     HRESULT hr;
 
     *pInvalidPassword = 0;
     if (index < CGameInfo::m_unk0x005a01bc) {
         memset(g_unk0x005a0068, 0, sizeof(g_unk0x005a0068));
-        SESSION.dwSize = sizeof(DPSESSIONDESC2);
+        SESSION.dwSize = sizeof(NetSessionDesc);
         SESSION.guidInstance = SESSIONS[index].guidInstance;
         SESSION.lpszSessionNameA = (LPSTR)&CGameInfo::m_unk0x005a00b8;
         SESSION.lpszPasswordA = pPassword;
-        pDP = CGame::GetDirectPlay();
-        if (pDP != NULL) {
-            hr = ((DPMethod2)(*(void ***)pDP)[0x60 / 4])(pDP, g_unk0x005a0068, DPOPEN_JOIN);
+        if (CGame::GetDirectPlay() != NULL) {
+            hr = Net_Open(&SESSION, NET_OPEN_JOIN);
             switch (hr) {
-            case DPERR_INVALIDPASSWORD:
+            case NET_ERR_INVALIDPASSWORD:
                 *pInvalidPassword = 1;
                 return 0;
-            case DPERR_ALREADYINITIALIZED:
+            case NET_ERR_ALREADYINITIALIZED:
                 return 0;
-            case DPERR_ACCESSDENIED:
+            case NET_ERR_ACCESSDENIED:
                 return 0;
-            case DPERR_INVALIDFLAGS:
+            case NET_ERR_INVALIDFLAGS:
                 return 0;
-            case DPERR_INVALIDPARAM:
+            case NET_ERR_NOCONNECTION:
                 return 0;
-            case DPERR_NOCONNECTION:
+            case NET_ERR_TIMEOUT:
                 return 0;
-            case DPERR_TIMEOUT:
+            case NET_ERR_USERCANCEL:
                 return 0;
-            case DPERR_USERCANCEL:
+            case NET_ERR_UNINITIALIZED:
                 return 0;
-            case DPERR_UNINITIALIZED:
-                return 0;
-            case DPERR_NONEWPLAYERS:
-                return 0;
-            case DPERR_CONNECTING:
-                return 0;
-            case DPERR_AUTHENTICATIONFAILED:
-                return 0;
-            case DPERR_CANTLOADSSPI:
-                return 0;
-            case DPERR_ENCRYPTIONFAILED:
-                return 0;
-            case DPERR_SIGNFAILED:
-                return 0;
-            case DPERR_CANTLOADSECURITYPACKAGE:
-                return 0;
-            case DPERR_CANTLOADCAPI:
-                return 0;
-            case DPERR_LOGONDENIED:
+            case NET_ERR_NONEWPLAYERS:
                 return 0;
             default:
                 return 1;
-            case DP_OK:
+            case NET_OK:
                 CGameInfo::m_unk0x005a1814 = TRUE;
                 Network_ReadJoinedSessionDescription();
                 return 1;
@@ -3024,32 +2946,24 @@ int Network_JoinEnumeratedSession(BYTE index, char *pPassword, BYTE *pInvalidPas
 // FUNCTION: CMR2 0x004a1280
 int Network_CloseSession(void)
 {
-    IDirectPlay4A *pDP;
     HRESULT hr;
 
-    pDP = CGame::GetDirectPlay();
-    if (pDP == NULL)
+    if (CGame::GetDirectPlay() == NULL)
         return 0;
-    hr = ((DPMethod0)(*(void ***)pDP)[0x10 / 4])(pDP);
-    if (hr <= (HRESULT)0x887700dc || hr != 0)
+    hr = Net_Close();
+    if (hr != 0)
         return 0;
     CGameInfo::m_unk0x005a1814 = hr;
     return 1;
 }
 
 // FUNCTION: CMR2 0x004a14e0
+// PORT: pushes SESSION to the other machines (SetSessionDesc).
 bool Network_TestLocalPlayerStatus(void)
 {
-    IDirectPlay4A *pDP;
-    HRESULT hr;
-
-    pDP = CGame::GetDirectPlay();
-    if (pDP == NULL)
-        return FALSE;
-    hr = ((DPMethod2)(*(void ***)pDP)[0x7c / 4])(pDP, g_unk0x005a0068, 0);
-    if (hr <= (HRESULT)0x887700dc || hr == (HRESULT)0x88770168 || hr != 0)
+    if (CGame::GetDirectPlay() == NULL)
         return false;
-    return true;
+    return Net_SetSessionDesc(&SESSION) == NET_OK;
 }
 
 // FUNCTION: CMR2 0x004a1480
@@ -3085,7 +2999,7 @@ void Network_SetSessionStateFlag(BOOL param1)
 }
 
 // FUNCTION: CMR2 0x004a15c0
-int Network_CopyEnumeratedSessionGUID(BYTE index, GUID *pOut)
+int Network_CopyEnumeratedSessionGUID(BYTE index, NetGuid *pOut)
 {
     if (index < CGameInfo::m_unk0x005a01bc) {
         *pOut = SESSIONS[index].guidInstance;
@@ -3132,7 +3046,7 @@ DWORD Network_GetSessionMaxPlayers(BYTE index)
 }
 
 // FUNCTION: CMR2 0x004a1760
-void Network_SetSessionDescription(DPSESSIONDESC2 *pDesc)
+void Network_SetSessionDescription(NetSessionDesc *pDesc)
 {
     SESSION = *pDesc;
     g_sessionNamePtr = (LPVOID *)&CGameInfo::m_unk0x005a00b8;
@@ -3150,7 +3064,7 @@ BYTE Network_IsSessionFlag10Set(BYTE index)
 // Adds a remote player to the session player table (at most 7 players,
 // ignoring the local player and players already listed).
 // FUNCTION: CMR2 0x004a1850
-void Network_AddRemoteSessionPlayer(char *shortName, char *longName, DPID dpId)
+void Network_AddRemoteSessionPlayer(char *shortName, char *longName, NetPlayerID dpId)
 {
     Unk0x005a1820 *pPlayer;
     int i;
@@ -3179,7 +3093,7 @@ void Network_AddRemoteSessionPlayer(char *shortName, char *longName, DPID dpId)
 
 // IDirectPlay4::EnumPlayers callback of Network_RebuildSessionPlayerList.
 // FUNCTION: CMR2 0x004a1ad0
-BOOL FAR PASCAL Network_EnumeratePlayerCallback(DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext)
+BOOL Network_EnumeratePlayerCallback(NetPlayerID dpId, const NetName *lpName, void *lpContext)
 {
     Network_AddRemoteSessionPlayer(lpName->lpszShortNameA, lpName->lpszLongNameA, dpId);
     return 1;
@@ -3188,55 +3102,38 @@ BOOL FAR PASCAL Network_EnumeratePlayerCallback(DPID dpId, DWORD dwPlayerType, L
 // FUNCTION: CMR2 0x004a1af0
 int Network_RebuildSessionPlayerList(void)
 {
-    IDirectPlay4A *pDP;
-    HRESULT hr;
-
     CGame::ResetSessionPlayerTable(0);
-    pDP = CGame::GetDirectPlay();
-    if (pDP == NULL)
+    if (CGame::GetDirectPlay() == NULL)
         return 0;
-    hr = ((DPMethod4)(*(void ***)pDP)[0x30 / 4])(pDP, 0, (DWORD)Network_EnumeratePlayerCallback, 0, 0);
-    if (hr <= (HRESULT)0x887700fa || hr != 0)
-        return 0;
-    return 1;
+    return Net_EnumPlayers(Network_EnumeratePlayerCallback, NULL) == NET_OK;
 }
 
 // EnumConnections callback: keeps every service provider connection.
 // FUNCTION: CMR2 0x004aabd0
-BOOL __stdcall Network_EnumerateConnectionCallback(LPCGUID lpguidSP, LPVOID lpConnection, DWORD dwConnectionSize, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext)
+// PORT: one connection per network provider; its data is the provider index.
+BOOL Network_EnumerateConnectionCallback(int provider, const char *name, void *lpContext)
 {
-    CGame::AddConnection(lpName->lpszShortNameA, lpConnection, dwConnectionSize, (GUID *)lpguidSP);
+    NetGuid guid;
+
+    memset(&guid, 0, sizeof(guid));
+    guid.bytes[0] = (BYTE)(provider + 1);
+    CGame::AddConnection((char *)name, &provider, sizeof(provider), &guid);
     return TRUE;
 }
 
 // FUNCTION: CMR2 0x004aac00
 bool Network_EnumerateServiceProviders(void)
 {
-    HRESULT hr;
-
     CGame::ClearConnections();
-    hr = ((DPMethod4)(*(void ***)CGame::m_pDirectPlay4A)[0x8c / 4])(CGame::m_pDirectPlay4A, 0, (DWORD)Network_EnumerateConnectionCallback, 0, 0);
-    if (hr == (HRESULT)0x80070057 || hr == (HRESULT)0x88770078)
-        return false;
-    if (hr == 0)
-        return true;
-    return false;
+    return Net_EnumProviders(Network_EnumerateConnectionCallback, NULL) == NET_OK;
 }
 
 // Sets the local player data (guaranteed).
 // FUNCTION: CMR2 0x004a1cb0
 char Network_SetLocalPlayerData(int data, int size)
 {
-    IDirectPlay4A *pDP;
-    HRESULT hr;
-
-    pDP = CGame::GetDirectPlay();
-    if (pDP != NULL) {
-        hr = ((DPMethod4)(*(void ***)pDP)[0x74 / 4])(pDP, CGame::m_unk0x005a1ea0, data, size, 2);
-        if (hr > (HRESULT)0x88770082 && hr != (HRESULT)0x88770096 &&
-            hr != (HRESULT)0x88770168 && hr == 0)
-            return 1;
-    }
+    if (CGame::GetDirectPlay() != NULL)
+        return Net_SetPlayerData(CGame::m_unk0x005a1ea0, (const void *)(intptr_t)data, size) == NET_OK;
     return 0;
 }
 
@@ -3245,44 +3142,24 @@ char Network_SetLocalPlayerData(int data, int size)
 // FUNCTION: CMR2 0x004a1c50
 char Network_SendPlayerMessage(int to, int guaranteed, int data, int size)
 {
-    BOOL flags;
-    IDirectPlay4A *pDP;
-    HRESULT hr;
-
-    if (guaranteed == 1)
-        flags = TRUE;
-    else
-        flags = FALSE;
-    pDP = CGame::GetDirectPlay();
-    if (pDP != NULL) {
-        hr = ((DPSendFn)(*(void ***)pDP)[0x68 / 4])(pDP, CGame::m_unk0x005a1ea0, to, flags, (void *)data, size);
-        if (hr > (HRESULT)0x8877010e && hr != (HRESULT)0x88770816 && hr == 0)
-            return 1;
-    }
+    if (CGame::GetDirectPlay() != NULL)
+        return Net_Send(CGame::m_unk0x005a1ea0, to, guaranteed == 1, (const void *)(intptr_t)data, size) == NET_OK;
     return 0;
 }
 
-typedef HRESULT (__stdcall *DPMethod5)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5);
-typedef HRESULT (__stdcall *DPMethod6)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5, DWORD a6);
 
 // GLOBAL: CMR2 0x005a1fa8
-DPNAME g_networkPlayerName;
+NetName g_networkPlayerName;
 // FUNCTION: CMR2 0x004a1a10
 int Network_CreateLocalPlayer(int param1, int param2, int param3, int param4)
 {
-    IDirectPlay4A *pDP;
-    HRESULT hr;
-
     memset(&g_networkPlayerName, 0, sizeof(g_networkPlayerName));
     g_networkPlayerName.dwSize = sizeof(g_networkPlayerName);
-    g_networkPlayerName.lpszShortNameA = (char *)param1;
-    g_networkPlayerName.lpszLongNameA = (char *)param2;
-    pDP = CGame::GetDirectPlay();
-    if (pDP == NULL)
+    g_networkPlayerName.lpszShortNameA = (char *)(intptr_t)param1;
+    g_networkPlayerName.lpszLongNameA = (char *)(intptr_t)param2;
+    if (CGame::GetDirectPlay() == NULL)
         return 0;
-    hr = pDP->CreatePlayer(&CGame::m_unk0x005a1ea0, &g_networkPlayerName, NULL,
-                          (void *)param3, param4, 0);
-    if (hr <= (HRESULT)0x88770078 || hr == (HRESULT)0x887700aa || hr != 0)
+    if (Net_CreatePlayer(&CGame::m_unk0x005a1ea0, &g_networkPlayerName, (const void *)(intptr_t)param3, param4) != NET_OK)
         return 0;
     CGame::m_unk0x005a1fc0 = 1;
     return 1;
@@ -3333,35 +3210,15 @@ BOOL Game_ReleaseSceneResourceBlocks(void)
 // Adds the player slot to the DirectPlay session.
 // match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aac40
+// PORT: initialises the chosen provider (InitializeConnection).
 bool Network_AddSessionPlayerSlot(BYTE param1)
 {
-    IDirectPlay4A *pDP;
-    HRESULT hr;
-    int playerId;
-    int unusedId;
-
     if ((BYTE)param1 >= CGame::m_connectionCount)
         return false;
-    if (CGame::RejectUnsupportedNetworkOperation(param1, (int)&playerId, (int)&unusedId)) {
-        pDP = CGame::m_pDirectPlay4A;
-        hr = ((DPMethod2)(*(void ***)pDP)[0x98 / 4])(pDP, (void *)playerId, 0);
-    } else {
-        pDP = CGame::m_pDirectPlay4A;
-        hr = ((DPMethod2)(*(void ***)pDP)[0x98 / 4])(pDP,
-            CGame::m_connections[param1 & 0xff].pConnection, 0);
-    }
-    if (hr <= (HRESULT)0x88770078) {
-        if (hr == (HRESULT)0x88770078 || hr == (HRESULT)0x80070057 ||
-            hr != (HRESULT)0x88770005)
-            return false;
-        CGame::m_maxConnections = (BYTE)param1;
-        return true;
-    } else {
-        if (hr == (HRESULT)0x887700fa || hr != 0)
-            return false;
-        CGame::m_maxConnections = (BYTE)param1;
-        return true;
-    }
+    if (Net_InitializeConnection(*(int *)CGame::m_connections[param1 & 0xff].pConnection) != NET_OK)
+        return false;
+    CGame::m_maxConnections = (BYTE)param1;
+    return true;
 }
 
 // Enumera las sesiones o vuelca el buffer recibido en *param2.
@@ -3369,16 +3226,15 @@ bool Network_AddSessionPlayerSlot(BYTE param1)
 int Network_PollReceivedMessageBuffer(int param1, void **param2)
 {
     DWORD bufferSize = CGame::m_unk0x005a1fbc;
-    DPID receiver;
-    IDirectPlay4A *pDP = CGame::GetDirectPlay();
-    if (pDP == NULL)
+    NetPlayerID receiver;
+    HRESULT hr;
+
+    if (CGame::GetDirectPlay() == NULL)
         return 0;
-    HRESULT hr = pDP->Receive((LPDPID)param1, &receiver, DPRECEIVE_ALL,
-                             CGame::m_unk0x005a1fb8, &bufferSize);
-    if (hr <= DPERR_INVALIDOBJECT) {
-        if (hr == DPERR_INVALIDOBJECT || hr == DPERR_GENERIC || hr == DPERR_INVALIDPARAMS ||
-            hr != DPERR_BUFFERTOOSMALL)
-            goto done;
+    hr = Net_Receive((NetPlayerID *)(intptr_t)param1, &receiver, CGame::m_unk0x005a1fb8, &bufferSize);
+    if (hr == NET_ERR_BUFFERTOOSMALL) {
+        // The original grows the buffer and returns: the message comes with
+        // the next poll.
         if (CGame::m_unk0x005a1fb8 != NULL) {
             CFileBuffer::FreeGenericFileBuffer(CGame::m_unk0x005a1fb8);
             CGame::m_unk0x005a1fb8 = NULL;
@@ -3386,21 +3242,19 @@ int Network_PollReceivedMessageBuffer(int param1, void **param2)
         CGame::m_unk0x005a1fb8 = CFileBuffer::AllocateLockedBuffer(bufferSize);
         if (CGame::m_unk0x005a1fb8 != NULL)
             CGame::m_unk0x005a1fbc = bufferSize;
-    } else {
-        if (hr == DPERR_INVALIDPLAYER || hr == DPERR_NOMESSAGES || hr != 0)
-            goto done;
-        *param2 = CGame::m_unk0x005a1fb8;
-        return 1;
+        return 0;
     }
-done:
-    return 0;
+    if (hr != NET_OK)
+        return 0;
+    *param2 = CGame::m_unk0x005a1fb8;
+    return 1;
 }
 
 
 // Removes a player (by DirectPlay id) from the session player table.
 // match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1940
-void Network_RemoveSessionPlayerByID(DPID *pId)
+void Network_RemoveSessionPlayerByID(NetPlayerID *pId)
 {
     int i;
 
@@ -3434,7 +3288,7 @@ int Session_GetListedUserValue(unsigned int session, BYTE index)
 }
 
 // FUNCTION: CMR2 0x004a19c0
-int Network_FindSessionPlayerIndex(DPID *pId, char *pIndex)
+int Network_FindSessionPlayerIndex(NetPlayerID *pId, char *pIndex)
 {
     int i;
 
@@ -3449,7 +3303,7 @@ int Network_FindSessionPlayerIndex(DPID *pId, char *pIndex)
 }
 
 // FUNCTION: CMR2 0x004a1a00
-DPID Network_GetLocalPlayerID(void)
+NetPlayerID Network_GetLocalPlayerID(void)
 {
     return CGame::m_unk0x005a1ea0;
 }

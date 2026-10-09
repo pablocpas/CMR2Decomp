@@ -1503,6 +1503,76 @@ private:
     friend int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE flag);
 };
 
+
+// PORT: the friends of CGraphics declared at namespace scope (MSVC 6 found
+// them through the friend declarations alone).
+void NetRace_PackCarState(struct Car *car);
+void Mesh_Rebuild(Mesh *pMesh);
+int Graphics_CopyIntoFreeTextureSlot(void *pSource, int param2);
+void Graphics_CreateSharedWriteOnlyVertexBuffer(void);
+RenderTexture *Graphics_AllocateCubeMapTextureSlot(void);
+SceneNode *SceneNode_CreateRoot(void);
+void Graphics_SetTextureFactorAlpha(BYTE *pColour);
+void Graphics_ReloadTexture(Texture *pTexture);
+void Car_SwapWheelTextures(char mode, SceneNode **pWheels);
+void Graphics_SwitchAlphaBlendAndTest(int enable);
+void Graphics_PresentFrameAndResetCounters(void);
+void Graphics_MarkTexturesAndDrawMeshParts(Mesh *pMesh);
+void StageObject_InitCarBodyDamageTextures(int car, int unused1, int unused2, BYTE flag);
+void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, BYTE *pView);
+void Graphics_DrawMeshPartsByTexture(Mesh *pMesh);
+void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
+int Graphics_ReserveCubeMapsAndLoadEnvironment(char *name, int count, GenericFile *pFile, DWORD size);
+void Graphics_ProjectMeshVertexMidpoints(Mesh *pMesh);
+void Graphics_DrawCubeMappedShadowTriangles(Mesh *pMesh);
+void Mesh_DrawEnvMapped(Mesh *pMesh);
+void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_3);
+void OptionPreview_UpdateWheelMeshVariants(int param1);
+Texture *Graphics_FindAndEnsureResidentTexture(char *name);
+void Events_Init(int unused, int slot, char animate);
+void Scene_SetAmbient(BYTE *pColour, int boost);
+void Sprite_DrawLayer(int layer);
+void Quad2D_DrawLayer(unsigned int layer);
+void Graphics_SetLightingMode(int mode);
+void Scene_BeginShadowBatch(void);
+void Scene_EndShadowBatch(void);
+void Scene_SetLightAttenuation(SceneNode *pNode, int attenuation);
+void Scene_SetLightColour(SceneNode *pNode, int r, int g, int b);
+void Scene_DrawShadowBatches(unsigned int view);
+void Graphics_SetFog(int start, int end, int a, int b, DWORD colour);
+void Graphics_EnableFog(void);
+void Graphics_DisableFog(void);
+void Graphics_SetRenderTarget(Texture *pTexture);
+void StageObject_FreeAll(void);
+void Sector_RebuildNodeLists(void);
+void ScreenLine2D_Draw(int layer);
+void Line2D_Draw(void);
+void Tri2D_DrawLayer(int layer);
+void Scene_RestoreLights(void);
+void Scene_SetViewFromCamera(SceneNode *pCamera);
+void Scene_SetLightPosition(SceneNode *pNode, int x, int y, int z);
+void SceneNode_FlushTransforms(SceneNode *pNode);
+void Graphics_ReloadAllTextures(void);
+void Mesh_RefreshVertices(Mesh *pMesh);
+void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour);
+void Billboard_Draw(SceneNode *pCamera);
+SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles, SceneNode *pParent);
+void Mesh_UploadVertices(Mesh *pMesh);
+void StageObject_FindPlayerRevTextures(int player);
+void Graphics_DrawMeshTextureBatches(Mesh *pMesh);
+int OptionMovie_Open(char *fileName, unsigned int trackIndex);
+void Game_DrawMeshTextureRuns(Mesh *pMesh);
+void StageTiming_RestoreDeviceStageResources(void);
+int OptionPreview_LoadStageGeometryRecord(int);
+void Game_DrawWorldMeshNodesAnd2DLayer(void);
+void Game_DrawCulledSectorMeshes(void);
+void Game_DrawCulledSectorShadows(void);
+void Game_DrawViewMaskNodes(SceneNode *pNode, int bit);
+void Game_DrawViewMaskNode(SceneNode *pNode, int bit);
+void Game_DrawDeferredObjects(void);
+int Graphics_RenderNodeCubeMapFaces(SceneNode *pNode, int bit);
+int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE flag);
+
 // A camera-facing sprite queued by Billboard_Add.
 struct BillboardDef {
     FixVector pos;              // 0x0

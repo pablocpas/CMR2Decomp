@@ -313,7 +313,7 @@ public:
 
 };
 
-// DPSESSIONDESC2 of the hosted/joined session (0x50 bytes, defined in Game.cpp);
+// NetSessionDesc of the hosted/joined session (0x50 bytes, defined in Game.cpp);
 // its lpszSessionName/lpszPassword fields are set to the name buffers below.
 extern BYTE g_unk0x005a0068[0x50];
 #define g_sessionNamePtr (*(LPVOID **)(g_unk0x005a0068 + 0x30))       // 0x5a0098

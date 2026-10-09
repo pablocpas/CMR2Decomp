@@ -1,6 +1,8 @@
 #ifndef _INPUT_H
 #define _INPUT_H
 
+#include "port/input.h"
+
 
 struct JoystickBinding {
     DWORD range;
@@ -70,10 +72,10 @@ struct Unk0x0059f8cc {
 
 struct ForceFeedbackDevice {
     BOOL field_0x0;              // +0x0 (active flag)
-    LPDIRECTINPUTDEVICE7A device; // +0x4
+    InputDevice *device;         // +0x4
     BYTE field_0x8;              // +0x8 (flag cleared at end)
     BYTE padding1[3];            // +0x9-0xB
-    LPDIRECTINPUTEFFECT effects[10];       // +0xC (10 effect pointers)
+    InputEffect *effects[10];    // +0xC (10 effect pointers)
 };
 
 struct ControllerDataUnk0x210 {
@@ -130,72 +132,11 @@ struct ControllerInfo {
     BYTE pad[4185];
 };
 
-// GUIDs referenced by the data-format descriptor arrays in Input.cpp. They are
-// data imports (copies live in our .data) but reccmp needs the markers to pair
-// them with the original's copies.
-// GLOBAL: CMR2 0x005117e8
-// GUID_XAxis
-
-// GLOBAL: CMR2 0x005117f8
-// GUID_YAxis
-
-// GLOBAL: CMR2 0x00511808
-// GUID_ZAxis
-
-// GLOBAL: CMR2 0x00511818
-// GUID_RxAxis
-
-// GLOBAL: CMR2 0x00511828
-// GUID_RyAxis
-
-// GLOBAL: CMR2 0x00511838
-// GUID_RzAxis
-
-// GLOBAL: CMR2 0x00511848
-// GUID_Slider
-
-// GLOBAL: CMR2 0x00511868
-// GUID_Key
-
-// GLOBAL: CMR2 0x00511878
-// GUID_POV
-
-// GLOBAL: CMR2 0x00511908
-// GUID_ConstantForce
-
-// GLOBAL: CMR2 0x00511978
-// GUID_Spring
-
-// GLOBAL: CMR2 0x00511988
-// GUID_Damper
-
-// GLOBAL: CMR2 0x00511998
-// GUID_Inertia
-
-// GLOBAL: CMR2 0x005119a8
-// GUID_Friction
-
-// GLOBAL: CMR2 0x00511898
-// GUID_SysMouse
-
-// GLOBAL: CMR2 0x005118a8
-// GUID_SysKeyboard
-
-// GLOBAL: CMR2 0x005117c8
-// IID_IDirectInputDevice7A
-
-// GLOBAL: CMR2 0x00512e70
-// c_dfDIMouse2
-
-// GLOBAL: CMR2 0x00512e88
-// c_dfDIKeyboard
-
-// GLOBAL: CMR2 0x00512ea0
-// c_dfDIJoystick2
+// PORT: the DirectInput GUIDs and data formats are gone.
 
 struct InputDeviceState {
     DeviceInfo availableDevices[8];
-    LPDIRECTINPUTDEVICEA keyboard;
+    InputDevice *keyboard;
 };
 typedef char InputDeviceStateSize[sizeof(InputDeviceState) == 0x2864 ? 1 : -1];
 
@@ -212,7 +153,7 @@ typedef char InputFeedbackStateSize[sizeof(InputFeedbackState) == 0x1c0 ? 1 : -1
 
 class CInput {
 public:
-    static IDirectInput7A *m_lpDirectInput7;
+    static void *m_lpDirectInput7;          // PORT: unused (IDirectInput7)
     static Unk0x0059f8cc m_unk0x0059f8cc;
     static char m_strKeyboard[12];
     static InputDeviceState m_deviceState;
@@ -221,12 +162,12 @@ public:
     static PVOID m_keyboardSpeed;
 
 
-    static LPDIRECTINPUTDEVICEA m_pDirectInputMouse;
+    static InputDevice *m_pDirectInputMouse;
     
 
     
     static USHORT m_unk0x00511400[8];
-    static LPDIRECTINPUTDEVICEA m_unk0x0059f6b0[8];
+    static InputDevice *m_unk0x0059f6b0[8];
     static CHAR m_strD[4];
     static CHAR m_strU[4];
     static CHAR m_strR[4];
@@ -266,20 +207,20 @@ public:
     static unsigned short m_unk0x005168f4[8];
 
     static BOOL DInputCreate(void);
-    static LPDIRECTINPUTDEVICEA DInputCreateDevice(REFGUID param1, LPCDIDATAFORMAT pDataFormat);
+    static InputDevice *DInputCreateDevice(int type, int index);
     static BOOL DInputRelease(void);
     static int CountAttachedInputDevices();
-    static BOOL CountJoystickEnumerationCallback(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef);
+    static BOOL CountJoystickEnumerationCallback(void);
     static BOOL SetupKeyboard(void);
     static void SetupMouse(void);
     static void SetMouseCoopLevel(BOOL param1);
     static BOOL GetAttachedJoysticks(void);
-    static BOOL SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef);
+    static BOOL SetupJoystick(int joystickIndex);
     static void SetupJoystickDeviceInfo(DeviceInfo *deviceStruct);
     static void SetJoystickAxisRange(int param1, int param2, DWORD range);
     static void SetJoystickAxisDeadzone(int deviceID, int axisID, DWORD deadzone);
     static void SetJoystickAxisSaturation(int deviceID, int axisID, DWORD saturation);
-    static BOOL InitializeForceFeedbackDevice(int deviceID, LPDIRECTINPUTDEVICE7 pDevice);
+    static BOOL InitializeForceFeedbackDevice(int deviceID, InputDevice *pDevice);
     static bool IsForceFeedbackCallSuccessful(HRESULT hr);
     static void SetForceFeedbackAutocenter(DWORD param1, int deviceID);
     static void ResetForceFeedbackEffects(void);
@@ -338,9 +279,8 @@ public:
     // GLOBAL: CMR2 0x0052086c
     static BOOL m_unk0x0052086c;
     // GLOBAL: CMR2 0x00665328
-    static DIEFFECT m_forceFeedbackEffects[80];
-    // GLOBAL: CMR2 0x006664a8
-    static DICONDITION m_forceFeedbackConditions[80];
+    // PORT: the parameters of each effect (DIEFFECT with its DICONDITION).
+    static InputEffectParams m_forceFeedbackEffects[80];
 };
 
 #endif

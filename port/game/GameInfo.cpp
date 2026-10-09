@@ -1,3 +1,4 @@
+#include "port/movie.h"
 #include "port/sys.h"
 #include "GameInfo.h"
 #include "Menu.h"
@@ -538,7 +539,7 @@ void CGameInfo::SetSessionPassword(char *name)
 void Input_TranslatePedalsToMenuKeys(void);
 void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut);
 void Sound_UpdateMusicStreaming(void);
-IDirectSound *Sound_GetSampleTableState(void);
+int Sound_GetSampleTableState(void);
 BOOL OptionMovie_PlayFrame(BYTE skipOnSpace);
 void OptionMovie_Close(void);
 
@@ -553,12 +554,14 @@ int g_unk0x005297d0 = -1;
 unsigned int g_unk0x00831ac8;
 // GLOBAL: CMR2 0x00831acc
 unsigned int g_unk0x00831acc;
+// PORT: the movie (our Bink decoder); the Bink buffer is gone, the movie
+// presents itself.
 // GLOBAL: CMR2 0x00831ad0
-HBINK g_pUnk0x00831ad0;
+Movie *g_pUnk0x00831ad0;
 // GLOBAL: CMR2 0x00831ad4
-HBINKBUFFER g_pUnk0x00831ad4;
+void *g_pUnk0x00831ad4;
 // GLOBAL: CMR2 0x00831c54
-IDirectDrawSurface7 *g_pUnk0x00831c54;
+GfxTexture *g_pUnk0x00831c54;
 // GLOBAL: CMR2 0x00831c58
 int g_unk0x00831c58;
 // GLOBAL: CMR2 0x00831c5c
@@ -570,7 +573,7 @@ int g_unk0x00831c64;
 // GLOBAL: CMR2 0x00831c68
 int g_unk0x00831c68;
 // GLOBAL: CMR2 0x00831c6c
-IDirectDrawSurface7 *g_pUnk0x00831c6c;
+void *g_pUnk0x00831c6c;          // PORT: unused (the DirectDraw surface frames were converted to)
 
 // Starts the movie in the file: remembers the rectangle it is played in (or
 // uses the whole screen when no rectangle is given) and the surface it is
@@ -580,8 +583,6 @@ IDirectDrawSurface7 *g_pUnk0x00831c6c;
 // FUNCTION: CMR2 0x0050fdf0
 int OptionMovie_StartPlayback(char *path, Texture *pTexture, short *pRect, unsigned int flags, unsigned int track)
 {
-    RECT windowRect;
-
     if (g_unk0x00831c68 == 0) {
         if (pRect != NULL) {
             g_unk0x00831c58 = pRect[0];
@@ -594,21 +595,12 @@ int OptionMovie_StartPlayback(char *path, Texture *pTexture, short *pRect, unsig
             g_unk0x00831c60 = g_pGraphics->resX;
             g_unk0x00831c64 = g_pGraphics->resY;
         }
-        if (!g_pGraphics->isFullscreen) {
-            int borderX = GetSystemMetrics(SM_CXEDGE) + GetSystemMetrics(SM_CXBORDER);
-            int borderY = GetSystemMetrics(SM_CYEDGE) + GetSystemMetrics(SM_CYBORDER) +
-                          GetSystemMetrics(SM_CYCAPTION);
-
-            GetWindowRect(CMain::m_hWndList[CMain::m_hWndIx], &windowRect);
-            g_unk0x00831c58 += windowRect.left + borderX;
-            g_unk0x00831c5c += windowRect.top + borderY;
-            g_unk0x00831c60 += windowRect.left + borderX;
-            g_unk0x00831c64 += windowRect.top + borderY;
-        }
+        // PORT: the rectangle stays in back buffer coordinates (the original
+        // moved it to the window's desktop position when windowed).
         if (pTexture != NULL)
             g_pUnk0x00831c54 = pTexture->pSurface;
         else
-            g_pUnk0x00831c54 = g_pGraphics->pPrimarySurface;
+            g_pUnk0x00831c54 = NULL;
         if (OptionMovie_Open(path, track) == 0)
             return 1;
         g_unk0x00831c68 = 1;
@@ -628,44 +620,19 @@ int OptionMovie_StartPlayback(char *path, Texture *pTexture, short *pRect, unsig
 // copied to and opens a Bink buffer on the game window. Returns 0 if the CD is
 // missing.
 // FUNCTION: CMR2 0x0050ff90
+// PORT: opens the movie with our decoder; there is no surface or Bink buffer
+// to create.
 int OptionMovie_Open(char *fileName, unsigned int trackIndex)
 {
-    DDSURFACEDESC2 desc;
-
-    BinkSoundUseDirectSound(Sound_GetSampleTableState());
-    BinkSetSoundTrack(trackIndex);
-    g_pUnk0x00831ad0 = BinkOpen(fileName, BINKNOTHREADEDIO | BINKSNDTRACK);
+    g_pUnk0x00831ad0 = Movie_Open(fileName, trackIndex);
     while (g_pUnk0x00831ad0 == NULL) {
         if (!CInstallInfo::ShowNoCDErrorMessage())
             return 0;
-        g_pUnk0x00831ad0 = BinkOpen(fileName, BINKNOTHREADEDIO | BINKSNDTRACK);
+        g_pUnk0x00831ad0 = Movie_Open(fileName, trackIndex);
     }
 
-    g_unk0x00831ac8 = g_pUnk0x00831ad0->Width;
-    g_unk0x00831acc = g_pUnk0x00831ad0->Height;
-
-    memset(&desc, 0, sizeof(desc));
-    desc.dwSize = sizeof(desc);
-    desc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
-    desc.dwWidth = g_pUnk0x00831ad0->Width;
-    desc.dwHeight = g_pUnk0x00831ad0->Height;
-    desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
-    if (CGraphics::GetSelectedRenderDeviceSurfaceCaps() == 1 || CGraphics::GetSelectedRenderDeviceSurfaceCaps() == 2)
-        desc.ddsCaps.dwCaps2 = DDSCAPS2_DONOTPERSIST | DDSCAPS2_TEXTUREMANAGE;
-    else
-        desc.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
-    desc.ddsCaps.dwCaps2 |= DDSCAPS2_HINTDYNAMIC;
-    desc.ddpfPixelFormat = CGraphics::m_pTextureManager->textureInfo1->desc.ddpfPixelFormat;
-    desc.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-    g_pGraphics->pDD7->CreateSurface(&desc, &g_pUnk0x00831c6c, NULL);
-
-    g_unk0x005297d0 = BinkDDSurfaceType(g_pUnk0x00831c6c);
-    if (g_pUnk0x00831c54 == g_pGraphics->pPrimarySurface && g_pGraphics->isFullscreen)
-        g_pGraphics->pDD7->FlipToGDISurface();
-
-    g_pUnk0x00831ad4 = BinkBufferOpen(CMain::m_hWndList[CMain::m_hWndIx], g_pUnk0x00831ad0->Width,
-                                      g_pUnk0x00831ad0->Height,
-                                      BINKBUFFERSTRETCHX | BINKBUFFERSTRETCHY);
+    g_unk0x00831ac8 = Movie_GetWidth(g_pUnk0x00831ad0);
+    g_unk0x00831acc = Movie_GetHeight(g_pUnk0x00831ad0);
     return 1;
 }
 
@@ -677,11 +644,13 @@ double g_unk0x005113b8 = 0.5;
 // the game window, copies the frame into it and blits it to the screen.
 // Returns whether the movie has more frames left.
 // FUNCTION: CMR2 0x00510120
+// PORT: the frame is drawn by the movie layer into the rectangle the
+// original's Bink buffer covered: the whole window when windowed, otherwise
+// 640x480 (or the larger 1024x768 / 1280x960 stretch on wide enough modes)
+// centred on the screen.
 BOOL OptionMovie_PlayFrame(BYTE skipOnSpace)
 {
     DeviceInfo *pDevice;
-    RECT clientRect;
-    BYTE keyByte;
     int scaleWidth;
     int scaleHeight;
     int waitResult;
@@ -692,54 +661,38 @@ BOOL OptionMovie_PlayFrame(BYTE skipOnSpace)
     if (pDevice->field_0x8 & 0x10)
         return FALSE;
     if (skipOnSpace & 1) {
-        keyByte = (BYTE)((USHORT)GetAsyncKeyState(VK_SPACE) >> 8);
-        if (keyByte != 0)
+        if (Input_IsKeyDown(INPUT_KEY_SPACE))
             return TRUE;
     }
 
-    BinkDoFrame(g_pUnk0x00831ad0);
+    Movie_DecodeFrame(g_pUnk0x00831ad0);
     if (!g_pGraphics->isFullscreen) {
-        GetClientRect(CMain::m_hWndList[CMain::m_hWndIx], &clientRect);
-        BinkBufferSetScale(g_pUnk0x00831ad4, clientRect.right - clientRect.left,
-                           clientRect.bottom - clientRect.top);
-    } else {
-        if (CGraphics::GetTextureFormatCap200(CGraphics::GetSelectedDisplayDriverIndex()) != 0) {
-            if (CGameInfo::GetScreenWidth() >= 0x640) {
-                scaleWidth = 0x500;
-                scaleHeight = 0x3c0;
-            } else if (CGameInfo::GetScreenWidth() >= 0x400) {
-                scaleWidth = 0x400;
-                scaleHeight = 0x300;
-            } else {
-                scaleWidth = 0x280;
-                scaleHeight = 0x1e0;
-            }
-            BinkBufferSetScale(g_pUnk0x00831ad4, scaleWidth, scaleHeight);
-            BinkBufferSetOffset(g_pUnk0x00831ad4,
-                                (int)(__int64)((g_pGraphics->resX - scaleWidth) * g_unk0x005113b8),
-                                (int)(__int64)((g_pGraphics->resY - scaleHeight) * g_unk0x005113b8));
+        scaleWidth = g_pGraphics->resX;
+        scaleHeight = g_pGraphics->resY;
+    } else if (CGraphics::GetTextureFormatCap200(CGraphics::GetSelectedDisplayDriverIndex()) != 0) {
+        if (CGameInfo::GetScreenWidth() >= 0x640) {
+            scaleWidth = 0x500;
+            scaleHeight = 0x3c0;
+        } else if (CGameInfo::GetScreenWidth() >= 0x400) {
+            scaleWidth = 0x400;
+            scaleHeight = 0x300;
         } else {
-            BinkBufferSetOffset(g_pUnk0x00831ad4, (int)(__int64)((g_pGraphics->resX - 0x280) * g_unk0x005113b8),
-                                (int)(__int64)((g_pGraphics->resY - 0x1e0) * g_unk0x005113b8));
+            scaleWidth = 0x280;
+            scaleHeight = 0x1e0;
         }
-        if (CGraphics::GetTextureFormatCap80000(CGraphics::GetSelectedDisplayDriverIndex()) == 0)
-            BinkBufferSetOffset(g_pUnk0x00831ad4,
-                                (int)(__int64)((int)(g_pGraphics->screenResX - 0x280) * g_unk0x005113b8),
-                                (int)(__int64)((int)(g_pGraphics->screenResY - 0x1e0) * g_unk0x005113b8));
+    } else {
+        scaleWidth = 0x280;
+        scaleHeight = 0x1e0;
     }
-
-    if (BinkBufferLock(g_pUnk0x00831ad4) != 0) {
-        BinkCopyToBuffer(g_pUnk0x00831ad0, g_pUnk0x00831ad4->Buffer, g_pUnk0x00831ad4->BufferPitch,
-                         g_pUnk0x00831ad4->Height, 0, 0, g_pUnk0x00831ad4->SurfaceType);
-        BinkBufferUnlock(g_pUnk0x00831ad4);
+    Movie_Present(g_pUnk0x00831ad0, (int)((g_pGraphics->resX - scaleWidth) * g_unk0x005113b8),
+                  (int)((g_pGraphics->resY - scaleHeight) * g_unk0x005113b8), scaleWidth, scaleHeight);
+    Movie_NextFrame(g_pUnk0x00831ad0);
+    waitResult = Movie_Wait(g_pUnk0x00831ad0);
+    while (waitResult != 0) {
+        Sys_Sleep(1);
+        waitResult = Movie_Wait(g_pUnk0x00831ad0);
     }
-    BinkBufferBlit(g_pUnk0x00831ad4, g_pUnk0x00831ad0->FrameRects,
-                   BinkGetRects(g_pUnk0x00831ad0, g_pUnk0x00831ad4->SurfaceType));
-    BinkNextFrame(g_pUnk0x00831ad0);
-    waitResult = BinkWait(g_pUnk0x00831ad0);
-    while (waitResult != 0)
-        waitResult = BinkWait(g_pUnk0x00831ad0);
-    return g_pUnk0x00831ad0->FrameNum < g_pUnk0x00831ad0->Frames;
+    return Movie_GetFrameNumber(g_pUnk0x00831ad0) < Movie_GetFrameCount(g_pUnk0x00831ad0);
 }
 
 // Releases the DirectDraw surface the movie frames are converted to and closes
@@ -747,17 +700,12 @@ BOOL OptionMovie_PlayFrame(BYTE skipOnSpace)
 // FUNCTION: CMR2 0x005103d0
 void OptionMovie_Close(void)
 {
-    ULONG refCount;
-
     g_unk0x00831c68 = 0;
     g_pUnk0x00831c54 = NULL;
-    if (g_pUnk0x00831c6c != NULL) {
-        refCount = g_pUnk0x00831c6c->Release();
-        if (refCount == 0)
-            g_pUnk0x00831c6c = NULL;
+    if (g_pUnk0x00831ad0 != NULL) {
+        Movie_Close(g_pUnk0x00831ad0);
+        g_pUnk0x00831ad0 = NULL;
     }
-    if (g_pUnk0x00831ad0 != NULL)
-        BinkClose(g_pUnk0x00831ad0);
 }
 
 // match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -1133,7 +1081,7 @@ void NetworkChat_ClearLog(void)
     g_unk0x00817780 = -1;
 }
 
-int Network_FindSessionPlayerIndex(DPID *pId, char *pIndex);
+int Network_FindSessionPlayerIndex(NetPlayerID *pId, char *pIndex);
 Unk0x005a1820 *Network_GetActiveSessionPlayerRecord(BYTE index);
 char Network_SendPlayerMessage(int to, int guaranteed, int data, int size);
 
@@ -1143,7 +1091,7 @@ char g_chatLineFormat[] = "%s > %s";
 // Adds a chat line "name > text" to the ring of the last five lines and
 // rebuilds g_unk0x00817c84 newest first.
 // FUNCTION: CMR2 0x004d0620
-void NetworkChat_AppendLine(DPID *pFrom, char *text, char local)
+void NetworkChat_AppendLine(NetPlayerID *pFrom, char *text, char local)
 {
     int line;
     char **pp;
@@ -1602,12 +1550,12 @@ void OptionMenu_HandleItemNotification(int unused, int *param2)
     NetPlayers_RemovePlayerByID(param2 + 2);
 }
 
-void NetPlayers_ReceiveStatistics(DPID *pId, NetStats *pStats);
-void NetPlayers_MarkPlayerReadyByID(DPID *pId);
-void NetPlayers_RecordPlayerFinishTime(DPID *pId, unsigned int time, int value);
-void NetPlayers_MarkPlayerFinishedByID(DPID *pId);
-void NetPlayers_RecordRemoteSplitTime(DPID *pId, int split, unsigned int time);
-void NetPlayers_SetRemoteCarClass(DPID *pId, unsigned int carClass);
+void NetPlayers_ReceiveStatistics(NetPlayerID *pId, NetStats *pStats);
+void NetPlayers_MarkPlayerReadyByID(NetPlayerID *pId);
+void NetPlayers_RecordPlayerFinishTime(NetPlayerID *pId, unsigned int time, int value);
+void NetPlayers_MarkPlayerFinishedByID(NetPlayerID *pId);
+void NetPlayers_RecordRemoteSplitTime(NetPlayerID *pId, int split, unsigned int time);
+void NetPlayers_SetRemoteCarClass(NetPlayerID *pId, unsigned int carClass);
 void NetPlayers_BuildFinalClassification(void);
 void NetPlayers_ReceivePublishedLeaderboard(char valid, BYTE *p);
 void OptionMenu_Start(char param1);
@@ -1616,7 +1564,7 @@ Unk0049c2c0 *Game_GetSecondaryCallbackMachine(void);
 // Handles an option menu notification of a network player: the first byte of the
 // record selects the operation, the following ones carry its arguments.
 // FUNCTION: CMR2 0x00500aa0
-void OptionMenu_HandleNetworkNotification(DPID *pId, BYTE *pData)
+void OptionMenu_HandleNetworkNotification(NetPlayerID *pId, BYTE *pData)
 {
     // the case order mirrors the original's jump table layout
     switch (pData[0]) {
@@ -1666,7 +1614,7 @@ void GameInfo_ProcessNetworkMessages(void)
         if (senderId == 0)
             OptionMenu_HandleItemNotification((int)&senderId, (int *)pMessage);
         else
-            OptionMenu_HandleNetworkNotification((DPID *)&senderId, (BYTE *)pMessage);
+            OptionMenu_HandleNetworkNotification((NetPlayerID *)&senderId, (BYTE *)pMessage);
     }
 }
 
@@ -3682,7 +3630,7 @@ typedef HRESULT (__stdcall *DPMethod5GI)(void *pThis, DWORD a1, DWORD a2, DWORD 
 // Adds a session found by DirectPlay to the list (at most 20, ignoring the
 // blank-named ones): a copy of its description with its own name buffer.
 // FUNCTION: CMR2 0x004a0ca0
-void Session_AddToList(DPSESSIONDESC2 *pDesc)
+void Session_AddToList(NetSessionDesc *pDesc)
 {
     unsigned int n;
 
@@ -3691,47 +3639,45 @@ void Session_AddToList(DPSESSIONDESC2 *pDesc)
     if (strcmp(CMain::m_logFileBlankLine, pDesc->lpszSessionNameA) == 0)
         return;
     n = CGameInfo::m_unk0x005a01bc;
-    ((DPSESSIONDESC2 *)CGameInfo::m_unk0x0059fa20)[n] = *pDesc;
+    ((NetSessionDesc *)CGameInfo::m_unk0x0059fa20)[n] = *pDesc;
     strcpy(CGameInfo::m_sessionNames[n], pDesc->lpszSessionNameA);
-    ((DPSESSIONDESC2 *)CGameInfo::m_unk0x0059fa20)[n].lpszSessionNameA = CGameInfo::m_sessionNames[n];
+    ((NetSessionDesc *)CGameInfo::m_unk0x0059fa20)[n].lpszSessionNameA = CGameInfo::m_sessionNames[n];
     CGameInfo::m_unk0x005a01bc++;
 }
 
 // DirectPlay EnumSessions callback: stops on time-out, otherwise lists the session.
 // FUNCTION: CMR2 0x004a12b0
-BOOL FAR PASCAL Session_EnumCallback(LPCDPSESSIONDESC2 pDesc, LPDWORD pTimeOut, DWORD flags, LPVOID pContext)
+BOOL Session_EnumCallback(const NetSessionDesc *pDesc, void *pContext)
 {
-    if (flags & DPESC_TIMEDOUT)
-        return FALSE;
-    Session_AddToList((DPSESSIONDESC2 *)pDesc);
+    Session_AddToList((NetSessionDesc *)pDesc);
     return TRUE;
 }
 
 
 // Fills the session descriptor at 0x5a0068 and enumerates the DirectPlay
-// sessions. Returns 1 on DP_OK, -1 and -2 for two DirectPlay errors (the
+// sessions. Returns 1 on NET_OK, -1 and -2 for two DirectPlay errors (the
 // caller reports them), 0 otherwise.
 // FUNCTION: CMR2 0x004a13b0
 int CGameInfo::EnumerateNetworkSessions(void)
 {
-    IDirectPlay4A *pDP;
+    NetGuid application;
 
     if (m_unk0x005a1814 != 0)
         return 0;
     ResetNetworkSessionState();
     memset(g_unk0x005a0068, 0, 0x50);
     *(int *)(g_unk0x005a0068 + 0x18) = g_unk0x00511cd8[0];
-    *(int *)(g_unk0x005a0068 + 0x30) = (int)&m_unk0x005a00b8;
+    *(char **)(g_unk0x005a0068 + 0x30) = (char *)&m_unk0x005a00b8;
     *(int *)(g_unk0x005a0068) = 0x50;
     *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[1];
     *(int *)(g_unk0x005a0068 + 0x20) = g_unk0x00511cd8[2];
     *(int *)(g_unk0x005a0068 + 0x24) = g_unk0x00511cd8[3];
-    pDP = CGame::GetDirectPlay();
-    if (pDP == NULL)
+    if (CGame::GetDirectPlay() == NULL)
         return 0;
-    switch (((DPMethod5GI)(*(void ***)pDP)[0x34 / 4])(pDP, (DWORD)g_unk0x005a0068, 0,
-                                                       (DWORD)Session_EnumCallback, 0, 0x20)) {
-    case DP_OK:
+    // PORT: synchronous enumeration with the session callback.
+    memcpy(&application, g_unk0x005a0068 + 0x18, sizeof(application));
+    switch (Net_EnumSessions(&application, 1000, Session_EnumCallback, NULL)) {
+    case NET_OK:
         return 1;
     case 0x8877015e:
         return -1;
@@ -3754,7 +3700,7 @@ int CGameInfo::EnumerateNetworkSessions(void)
 // FUNCTION: CMR2 0x004a12d0
 int CGameInfo::EnumerateNetworkSessionsWithUserData(int param1)
 {
-    IDirectPlay4A *pDP;
+    NetGuid application;
 
     if (m_unk0x005a1814 != 0)
         return 0;
@@ -3762,17 +3708,17 @@ int CGameInfo::EnumerateNetworkSessionsWithUserData(int param1)
     memset(g_unk0x005a0068, 0, 0x50);
     *(int *)(g_unk0x005a0068 + 0x34) = param1;
     *(int *)(g_unk0x005a0068 + 0x18) = g_unk0x00511cd8[0];
-    *(int *)(g_unk0x005a0068 + 0x30) = (int)&m_unk0x005a00b8;
+    *(char **)(g_unk0x005a0068 + 0x30) = (char *)&m_unk0x005a00b8;
     *(int *)(g_unk0x005a0068) = 0x50;
     *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[1];
     *(int *)(g_unk0x005a0068 + 0x20) = g_unk0x00511cd8[2];
     *(int *)(g_unk0x005a0068 + 0x24) = g_unk0x00511cd8[3];
-    pDP = CGame::GetDirectPlay();
-    if (pDP == NULL)
+    if (CGame::GetDirectPlay() == NULL)
         return 0;
-    switch (((DPMethod5GI)(*(void ***)pDP)[0x34 / 4])(pDP, (DWORD)g_unk0x005a0068, 0,
-                                                       (DWORD)Session_EnumCallback, 0, 0x51)) {
-    case DP_OK:
+    // PORT: synchronous enumeration with the session callback.
+    memcpy(&application, g_unk0x005a0068 + 0x18, sizeof(application));
+    switch (Net_EnumSessions(&application, 1000, Session_EnumCallback, NULL)) {
+    case NET_OK:
         return 1;
     case 0x8877015e:
         return -1;

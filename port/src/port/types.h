@@ -35,6 +35,8 @@ typedef WORD *LPWORD;
 typedef DWORD *LPDWORD, *PDWORD;
 typedef LONG *PLONG;
 typedef LONG HRESULT;
+#define SUCCEEDED(hr) (((HRESULT)(hr)) >= 0)
+#define FAILED(hr) (((HRESULT)(hr)) < 0)
 
 #ifndef FALSE
 #define FALSE 0

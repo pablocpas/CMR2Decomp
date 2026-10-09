@@ -1,6 +1,8 @@
 #ifndef _GAME_H
 #define _GAME_H
 
+#include "port/net.h"
+
 
 typedef void (*FuncTableEntry)(struct Unk0049c2c0 *, BYTE);
 typedef void (*OtherFuncTableEntry)(struct Unk0049c2c0 *, BYTE);
@@ -60,10 +62,11 @@ struct Unk0x005a1820 {
 // GLOBAL: CMR2 0x00511ad8
 // IID_IDirectPlayLobby3A
 
+// PORT: a network service provider (pConnection holds its index).
 struct DPlayConnection {
     char name[256];
     void *pConnection;
-    GUID guidSP;
+    NetGuid guidSP;
 };
 
 extern BYTE g_unk0x005a0068[0x50];
@@ -111,7 +114,7 @@ public:
     static bool CreateDirectPlay(void);
     static bool CreateDirectPlayLobby(void);
     static void ClearConnections(void);
-    static void AddConnection(char *name, void *pConnection, unsigned int size, GUID *pGuidSP);
+    static void AddConnection(char *name, void *pConnection, unsigned int size, NetGuid *pGuidSP);
     static int __cdecl CompareConnections(const void *a, const void *b);
     static unsigned int GetConnectionCount(void);
     static DPlayConnection *GetConnection(BYTE index);
@@ -163,7 +166,7 @@ public:
     static bool Cleanup(void);
     static void DestroyDirectPlay(void);
     static void DestroyDirectPlayLobby(void);
-    static IDirectPlay4A *GetDirectPlay(void);
+    static void *GetDirectPlay(void);
     static bool LoadAndInitializeSplashScreens(bool param1);
     static bool InitializeNetworkSubsystem(void);
     static void LoadFrontendCommonAndCountryTextures(void);
@@ -239,13 +242,13 @@ public:
     static bool m_unk0x005a1fc0;
 
     // GLOBAL: CMR2 0x0066521c
-    static IDirectPlay4A *m_pDirectPlay4A;
+    static void *m_pDirectPlay4A;        // PORT: non-NULL once the network layer is in use
 
     // GLOBAL: CMR2 0x005a1ea0
-    static DPID m_unk0x005a1ea0;
+    static NetPlayerID m_unk0x005a1ea0;
 
     // GLOBAL: CMR2 0x00665220
-    static IDirectPlayLobby3A *m_pDirectPlayLobby3A;
+    static void *m_pDirectPlayLobby3A;   // PORT: unused (DirectPlay lobby)
 
     // GLOBAL: CMR2 0x005a1fb8 
     static void *m_unk0x005a1fb8;    

@@ -1704,7 +1704,7 @@ void Scene_SetShadowDirection(FixVector *pLightDir)
 void Scene_BeginShadowBatch(void)
 {
     if (g_sceneSectorZone != NULL) {
-        CGraphics::m_pTextureManager->pVertexBuffer2->Lock(DDLOCK_WAIT | DDLOCK_WRITEONLY, &g_shadowVertexData, NULL);
+        g_shadowVertexData = Gfx_LockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffer2);
         g_shadowVertexCount = 0;
         g_shadowBatchCount = 0;
         g_shadowLastTexture = -1;
@@ -1719,7 +1719,7 @@ void Scene_EndShadowBatch(void)
 {
     if (g_sceneSectorZone != NULL) {
         g_shadowBatch[1] = g_shadowVertexCount - g_shadowBatch[0];
-        CGraphics::m_pTextureManager->pVertexBuffer2->Unlock();
+        Gfx_UnlockVertexBuffer(CGraphics::m_pTextureManager->pVertexBuffer2);
     }
 }
 

@@ -1357,7 +1357,7 @@ void NetRace_PollPlayerStatisticsPackets(BYTE *pCars)
                 pEntry->field_0xb8 =
                     FixMul(*(int *)(pCar + 0x788), pEntry->field_0xb8);
             }
-            if (abs(g_unk0x005393ac[i] - pStats->seq) > 0x32) {
+            if (abs((int)(g_unk0x005393ac[i] - pStats->seq)) > 0x32) {
                 g_unk0x005393ac[i] = pStats->seq;
                 pEntry->resync = 1;
             } else {

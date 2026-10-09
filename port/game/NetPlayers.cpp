@@ -63,9 +63,9 @@ extern int g_unk0x005320a4;
 void NetworkLeaderboard_ClearPublishedBoard(void);
 void NetworkLeaderboard_PublishBoard(BYTE *p);
 BYTE *NetworkLeaderboard_GetPublishedBoard(void);
-int Network_FindSessionPlayerIndex(DPID *pId, char *pIndex);
+int Network_FindSessionPlayerIndex(NetPlayerID *pId, char *pIndex);
 char *Network_GetActiveSessionPlayerLongName(BYTE index);
-DPID Network_GetLocalPlayerID(void);
+NetPlayerID Network_GetLocalPlayerID(void);
 char Network_SetLocalPlayerData(int data, int size);
 unsigned int StageTiming_GetDriverSplitClock(int index, int split);
 char Network_SendPlayerMessage(int to, int guaranteed, int data, int size);
@@ -146,9 +146,9 @@ void NetPlayers_SetNotificationMask(int param)
 }
 
 // FUNCTION: CMR2 0x00409bf0
-void NetPlayers_AddOrUpdatePlayerInfo(DPID *pId, NetPlayerInfo *pInfo, char add)
+void NetPlayers_AddOrUpdatePlayerInfo(NetPlayerID *pId, NetPlayerInfo *pInfo, char add)
 {
-    DPID id;
+    NetPlayerID id;
     int i;
 
     id = *pId;
@@ -192,7 +192,7 @@ char *NetPlayers_GetPlayerName(int index)
 {
     char i;
 
-    if (Network_FindSessionPlayerIndex((DPID *)&g_netPlayers[index].id, &i))
+    if (Network_FindSessionPlayerIndex((NetPlayerID *)&g_netPlayers[index].id, &i))
         return Network_GetActiveSessionPlayerLongName(i);
     return NULL;
 }
@@ -216,7 +216,7 @@ unsigned int NetPlayers_GetPlayerFlag5(int index)
 }
 
 // FUNCTION: CMR2 0x00409d50
-void NetPlayers_ReceiveStatistics(DPID *pId, NetStats *pStats)
+void NetPlayers_ReceiveStatistics(NetPlayerID *pId, NetStats *pStats)
 {
     int i;
 
@@ -280,7 +280,7 @@ void NetPlayers_ResetRaceReadyAndTimeState(char resetTotal, char resetTimes)
 }
 
 // FUNCTION: CMR2 0x00409e90
-void NetPlayers_MarkPlayerReadyByID(DPID *pId)
+void NetPlayers_MarkPlayerReadyByID(NetPlayerID *pId)
 {
     int i;
 
@@ -299,7 +299,7 @@ unsigned int NetPlayers_IsPlayerReady(int index)
 }
 
 // FUNCTION: CMR2 0x00409f00
-void NetPlayers_RecordPlayerFinishTime(DPID *pId, unsigned int time, int value)
+void NetPlayers_RecordPlayerFinishTime(NetPlayerID *pId, unsigned int time, int value)
 {
     int i;
 
@@ -316,7 +316,7 @@ void NetPlayers_RecordPlayerFinishTime(DPID *pId, unsigned int time, int value)
 }
 
 // FUNCTION: CMR2 0x00409f80
-void NetPlayers_MarkPlayerFinishedByID(DPID *pId)
+void NetPlayers_MarkPlayerFinishedByID(NetPlayerID *pId)
 {
     int i;
 
@@ -330,7 +330,7 @@ void NetPlayers_MarkPlayerFinishedByID(DPID *pId)
 
 // match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00409fd0
-void NetPlayers_RecordRemoteSplitTime(DPID *pId, int split, unsigned int time)
+void NetPlayers_RecordRemoteSplitTime(NetPlayerID *pId, int split, unsigned int time)
 {
     int i;
     char *name;
@@ -367,7 +367,7 @@ void NetPlayers_RecordRemoteSplitTime(DPID *pId, int split, unsigned int time)
 }
 
 // FUNCTION: CMR2 0x0040a0e0
-void NetPlayers_RecordRemoteStageTime(DPID *pId, int stage, unsigned int time)
+void NetPlayers_RecordRemoteStageTime(NetPlayerID *pId, int stage, unsigned int time)
 {
     int i;
     char *name;
@@ -811,9 +811,9 @@ void NetPlayers_SendCarClass(BYTE carClass)
 }
 
 // FUNCTION: CMR2 0x0040ac70
-void NetPlayers_SetRemoteCarClass(DPID *pId, unsigned int carClass)
+void NetPlayers_SetRemoteCarClass(NetPlayerID *pId, unsigned int carClass)
 {
-    DPID id;
+    NetPlayerID id;
     int i;
 
     id = *pId;
