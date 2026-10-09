@@ -12963,9 +12963,9 @@
   },
   "0x503010": {
     "n": "OptionMenu_RevertRallyRecordGroup",
-    "s": 0.7177177177177178,
+    "s": 0.7123695976154992,
     "x": false,
-    "fz": 0.9129129129129129,
+    "fz": 0.9150521609538003,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_RevertRallyRecordGroup"

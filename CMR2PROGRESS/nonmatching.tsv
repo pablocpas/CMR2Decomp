@@ -46,11 +46,11 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x463410	StageLights_Create	StageObjects.cpp	1983	0.5404556166535742	0.5998433829287392
 0x488640	Collision_TestOrientedBoxCornerOverlap	StageObjects.cpp	1948	0.55	0.5110635260528195
 0x40b5b0	Font_GetTextWidth	Font.cpp	376	0.5546875	0.5645161290322581
+0x464960	StageObject_PositionRearViewLightNodes	StageObjects.cpp	391	0.555984555984556	0.5317460317460317
 0x4b45d0	Scene_AddShadowCaster	SceneNode.cpp	825	0.5579567779960707	0.5369649805447471
 0x4781d0	Car_UpdateSurfaceParams	SurfaceTypes.cpp	1243	0.560875512995896	0.5546448087431693
 0x4aa930	CGame::AddConnection	Game.cpp	219	0.5620915032679739	0.5584415584415584
 0x4a6e30	CGraphics::LoadDDSTexture	Graphics.cpp	1494	0.5631517960602549	0.5630630630630631
-0x464960	StageObject_PositionRearViewLightNodes	StageObjects.cpp	391	0.5637065637065637	0.5317460317460317
 0x411b20	RallyData_LayoutPlayerSplitBars	RallyData.cpp	786	0.5646630236794171	0.5316455696202531
 0x494db0	CarPhysics_DrawBodyWheelAndSkidShadows	CarPhysics.cpp	4510	0.5661680092059839	0.5525709900230238
 0x46bfd0	Replay_RestoreCarState	StageObjects.cpp	428	0.5674418604651162	0.5545454545454546
@@ -232,7 +232,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x46ec40	StageObject_QueueTimedEventDraw	StageObjects.cpp	246	0.8	0.8
 0x4994f0	GlassShard_Draw	CarEffects.cpp	535	0.8011204481792717	0.7853107344632768
 0x4d50a0	FrontendMenu_DrawProfileRecordsSummary	FrontendScreens.cpp	2601	0.8021917808219178	0.7984665936473165
-0x503010	OptionMenu_RevertRallyRecordGroup	GameInfo.cpp	1248	0.8035714285714286	0.7177177177177178
+0x503010	OptionMenu_RevertRallyRecordGroup	GameInfo.cpp	1248	0.8023598820058997	0.7123695976154992
 0x40f0c0	RallyData_UpdateViewFrameAndDebugOverlay	RallyData.cpp	2058	0.8042763157894737	0.7162489894907034
 0x4584d0	StageTiming_PlaceEventStartingGrid	StageTiming.cpp	1284	0.8042959427207638	0.7557160048134778
 0x49b3e0	WheelSpray_Update	CarEffects.cpp	2244	0.8048606147248034	0.7558386411889597
