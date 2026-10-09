@@ -3384,34 +3384,28 @@ void StageTiming_ResetPlayerLapRecord(int param_1, int param_2, int param_3, cha
         goto end;
     }
     if (g_unk0x00542cad == 0) {
-        if (CGameInfo::GetGameModeOptionBit19() != 0) {
-            if (g_unk0x00542cb4[0] != 0 && CGameInfo::GetConfiguredGameMode() != 10)
-                goto d8e;
-        }
-        else {
-            if (param_1 != g_unk0x00542cb0 && CGameInfo::GetConfiguredGameMode() != 3)
-                goto d8e;
-        }
+        if (CGameInfo::GetGameModeOptionBit19() != 0 ? (g_unk0x00542cb4[0] == 0 || CGameInfo::GetConfiguredGameMode() == 10)
+                                                     : (param_1 == g_unk0x00542cb0 || CGameInfo::GetConfiguredGameMode() == 3)) {
         g_unk0x00542e78[param_1].field_0x2 = -1;
         g_unk0x00542e78[param_1].field_0x6 = 0;
         g_unk0x00542e78[param_1].field_0xa = 1;
         g_unk0x00542e78[param_1].field_0xc = 1;
-    }
-    else {
+        g_unk0x00542e78[param_1].field_0xe = 0;
+        } else {
+        g_unk0x00542e78[param_1].field_0x2 = 0;
+        g_unk0x00542e78[param_1].field_0x6 = 1;
+        g_unk0x00542e78[param_1].field_0xa = 0;
+        g_unk0x00542e78[param_1].field_0x8 = 1;
+        g_unk0x00542e78[param_1].field_0xc = 1;
+        g_unk0x00542e78[param_1].field_0xe = 1;
+        }
+    } else {
         g_unk0x00542e78[param_1].field_0x2 = -1;
         g_unk0x00542e78[param_1].field_0x6 = 0;
         g_unk0x00542e78[param_1].field_0xa = 0;
         g_unk0x00542e78[param_1].field_0xc = 1000;
+        g_unk0x00542e78[param_1].field_0xe = 0;
     }
-    g_unk0x00542e78[param_1].field_0xe = 0;
-    goto end;
-d8e:
-    g_unk0x00542e78[param_1].field_0x2 = 0;
-    g_unk0x00542e78[param_1].field_0x6 = 1;
-    g_unk0x00542e78[param_1].field_0xa = 0;
-    g_unk0x00542e78[param_1].field_0x8 = 1;
-    g_unk0x00542e78[param_1].field_0xc = 1;
-    g_unk0x00542e78[param_1].field_0xe = 1;
 end:
     StageTiming_SetViewRouteDistanceLimit((BYTE)param_1, (int)g_unk0x00542e78[param_1].field_0x0, 1);
 }
@@ -4370,20 +4364,23 @@ void StageTiming_SnapshotStageReplayColours(int car)
 void StageTiming_InsertDriverSplitRanking(int driver, int hundredths, int split)
 {
     int time = Timing_CentisecondsToFixedSeconds(hundredths);
-    int slot = driver;
+    int slot;
     int pos;
     int i;
     int c;
 
     if (driver < g_unk0x00541f98)
         slot = g_unk0x00541f90[StageUI_GetRaceEndEventCount() & 0xff];
+    else
+        slot = driver;
     g_stageSplitTimesRaw[split][slot] = time;
-    for (pos = 0; g_stageSplitTimesRaw[split][g_stageSplitTimesRawDriverIx[split][pos]] < time &&
-                  pos != g_stageSplitDriverCount[split];) {
-        pos++;
-        if (pos >= 16)
-            goto done;
+    for (pos = 0; pos < 16; pos++) {
+        if (time <= g_stageSplitTimesRaw[split][g_stageSplitTimesRawDriverIx[split][pos]] ||
+            pos == g_stageSplitDriverCount[split])
+            goto insert;
     }
+    goto done;
+insert:
     for (i = 15; pos < i; i--) {
         g_stageSplitTimesRawDriverIx[split][i] = g_stageSplitTimesRawDriverIx[split][i - 1];
         c = g_stageSplitDriverIndices[split][i - 1];
