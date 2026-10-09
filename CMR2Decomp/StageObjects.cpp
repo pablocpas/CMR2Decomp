@@ -14975,6 +14975,7 @@ void Collision_TestCarAgainstSectorEdges(Car *pCar, int param)
     int a;
     int b;
     FixVector saved;
+    int sector;
 
     g_collisionCar = pCar;
     g_collisionFace = (CollisionFaceVertices *)StageObject_GetCarCameraSelectionValue(pCar->index);
@@ -14982,9 +14983,10 @@ void Collision_TestCarAgainstSectorEdges(Car *pCar, int param)
     if (g_collisionCar->field_0xb42 < 0)
         g_collisionCar->field_0xb42 = 0;
     g_unk0x00591948 = 0;
-    if (g_collisionCar->sector == -1)
+    sector = g_collisionCar->sector;
+    if (sector == -1)
         return;
-    g_unk0x0059190c = *(int **)((BYTE *)g_sectors[g_collisionCar->sector] + 0x28);
+    g_unk0x0059190c = *(int **)((BYTE *)g_sectors[sector] + 0x28);
     g_unk0x005919b8 = FixMul(g_collisionCar->field_0x758, 0x13333);
     while (g_unk0x0059190c != NULL) {
         nearZ = 0;
@@ -14996,22 +14998,22 @@ void Collision_TestCarAgainstSectorEdges(Car *pCar, int param)
         g_unk0x0059195c = g_collisionTarget.z - g_collisionCar->position.z;
         g_unk0x005918d4 = g_collisionLineStart.x - g_collisionCar->position.x;
         g_unk0x00591960 = g_collisionLineStart.z - g_collisionCar->position.z;
-        if (g_unk0x005918d0 < 0 ? g_unk0x005918d4 < 0 : g_unk0x005918d4 >= 0)
+        if (g_unk0x005918d0 >= 0) {
+            if (g_unk0x005918d4 >= 0)
+                nearX = 1;
+        } else if (g_unk0x005918d4 < 0) {
             nearX = 1;
-        if (g_unk0x0059195c < 0 ? g_unk0x00591960 < 0 : g_unk0x00591960 >= 0)
+        }
+        if (g_unk0x0059195c >= 0) {
+            if (g_unk0x00591960 >= 0)
+                nearZ = 1;
+        } else if (g_unk0x00591960 < 0) {
             nearZ = 1;
-        if (nearX) {
-            a = g_unk0x005918d0 < 0 ? -g_unk0x005918d0 : g_unk0x005918d0;
-            b = g_unk0x005918d4 < 0 ? -g_unk0x005918d4 : g_unk0x005918d4;
-            if (a >= g_unk0x005919b8 && b >= g_unk0x005919b8)
-                goto next;
         }
-        if (nearZ) {
-            b = g_unk0x00591960 < 0 ? -g_unk0x00591960 : g_unk0x00591960;
-            a = g_unk0x0059195c < 0 ? -g_unk0x0059195c : g_unk0x0059195c;
-            if (a >= g_unk0x005919b8 && b >= g_unk0x005919b8)
-                goto next;
-        }
+        if (nearX && FIX_ABS(g_unk0x005918d0) >= g_unk0x005919b8 && FIX_ABS(g_unk0x005918d4) >= g_unk0x005919b8)
+            goto next;
+        if (nearZ && FIX_ABS(g_unk0x0059195c) >= g_unk0x005919b8 && FIX_ABS(g_unk0x00591960) >= g_unk0x005919b8)
+            goto next;
         g_collisionDirection = *(FixVector *)(g_unk0x0059190c + 6);
         g_collisionDirectionDirty = 0;
         switch (*(char *)((BYTE *)g_unk0x0059190c + 0x2c)) {
