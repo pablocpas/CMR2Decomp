@@ -11000,13 +11000,12 @@ void FrontendMenu_DrawRallyReport(Menu *pMenu)
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
     sprintf(CFrontend::m_stringDest, g_str0x00524d14, CFrontend::GetTextString(0x18d));
     Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
-    i = 0;
     width = 0;
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
     count = FrontendRecords_GetEventEntryPayload(&table, pMenu->cursor) & 0xff;
     if (count >= 2)
         count = 2;
-    for (; i < count; i++) {
+    for (i = 0; i < count; i++) {
         sprintf(CFrontend::m_stringDest, g_str0x00524d0c, table[i * 8 + 4],
                 CFrontend::GetTextString(*(int *)(table + i * 8) + 0x18e));
         Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
