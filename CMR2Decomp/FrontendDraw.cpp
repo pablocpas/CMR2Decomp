@@ -626,10 +626,11 @@ void FrontendDraw_ScrollerRow(MenuScroller *p, char active)
         if (i >= pMenu->itemCount)
             i = 0;
         SCROLLER_TEXT(i);
-        if (pMenu->items[i].enabled)
-            Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)pSep, 0x11);
-        else
+        if (!pMenu->items[i].enabled) {
             Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)g_colourDim0x00524970, 0x11);
+        } else {
+            Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)pSep, 0x11);
+        }
         if (pMenu->items[i].enabled) {
             g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSep, 1);

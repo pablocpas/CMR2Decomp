@@ -8121,11 +8121,12 @@ void RallyData_DrawViewEndFrameOverlay(BYTE *pKey, int view)
                                 sprintf(name, g_strName0x00516e2c, (char *)RallyData_GetRecord(i));
                             sprintf(CFrontend::m_stringDest, g_keypadFormat, CFrontend::GetTextString(0x94), name);
                         } else {
-                            if (CGameInfo::GetConfiguredGameMode() == 4)
+                            if (!(CGameInfo::GetConfiguredGameMode() == 4)) {
+                                sprintf(name, g_strName0x00516e2c, (char *)RallyData_GetRecord(other));
+                            } else {
                                 sprintf(name, g_strName0x00516e2c,
                                         Knockout_GetCarNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), other));
-                            else
-                                sprintf(name, g_strName0x00516e2c, (char *)RallyData_GetRecord(other));
+                            }
                             sprintf(CFrontend::m_stringDest, g_strVersusFormat, CFrontend::GetTextString(0x86),
                                     CFrontend::GetTextString(0x87), name);
                         }

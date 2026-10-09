@@ -758,10 +758,11 @@ void NetRace_PackCarState(Car *car)
         int negative = y < 0;
         if (negative) y = -y;
         short acos;
-        if (y > 0x10000) acos = g_acosTable[4095];
-        else {
+        if (y <= 0x10000) {
             int index = (int)(__int64)((double)y * CGraphics::m_oneOver65536 * g_netAcosScale);
             acos = negative ? -g_acosTable[-index] : g_acosTable[-index];
+        } else {
+            acos = g_acosTable[4095];
         }
         int elevation = (0x400 - acos) * 0x1680;
         if (axis->x >= 0 && axis->z <= 0) heading = 0x1680000 - heading;

@@ -725,10 +725,11 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
         fwd = FixMul(cosA, g_physTrailScale);
         side = FixMul(sideDot, g_physTrailScale);
         bend = FixMul(grip, side);
-        if (fwd >= 0)
-            sideDot = pProfile[1];
-        else
+        if (fwd < 0) {
             sideDot = pProfile[*g_physSkidCount[pCar->index] * 2 - 1];
+        } else {
+            sideDot = pProfile[1];
+        }
         base = FixMul(sideDot + *g_physSkidOffset[pCar->index], fwd);
         lateral = g_physPatchWidth;
         if (side < 0)
