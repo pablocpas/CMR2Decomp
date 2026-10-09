@@ -4710,7 +4710,6 @@ int g_unk0x005915f8[0x26];
 int Collision_FindQuadEdgeOverlap(FixVector *pVertsA, FixVector *pVertsB, FixVector *pDir, int *pDistance)
 {
     BYTE *pNext;
-    BYTE *pCur;
     BYTE corner;
     BYTE cornerVert;
     BYTE edge;
@@ -4718,7 +4717,6 @@ int Collision_FindQuadEdgeOverlap(FixVector *pVertsA, FixVector *pVertsB, FixVec
     int best;
     int found;
     int dist;
-    int diff;
     int i;
     int j;
 
@@ -4727,71 +4725,58 @@ int Collision_FindQuadEdgeOverlap(FixVector *pVertsA, FixVector *pVertsB, FixVec
     found = 0;
     best = -0x640000;
     for (i = 0; i < 4; i++) {
-        pNext = &g_unk0x0051fadc[(i + 1) % 4];
-        for (j = 1; j <= 4; j++) {
-            pCur = &g_unk0x0051fadc[j % 4];
+        for (j = 0; j < 4; j++) {
             g_collisionQuad[0] = pVertsA[g_unk0x0051fadc[i] + 4];
-            g_collisionQuad[1] = pVertsA[*pNext + 4];
-            g_collisionQuad[2] = pVertsB[g_unk0x0051fadc[j - 1] + 4];
-            g_collisionQuad[3] = pVertsB[*pCur + 4];
+            g_collisionQuad[1] = pVertsA[g_unk0x0051fadc[(i + 1) % 4] + 4];
+            g_collisionQuad[2] = pVertsB[g_unk0x0051fadc[j] + 4];
+            g_collisionQuad[3] = pVertsB[g_unk0x0051fadc[(j + 1) % 4] + 4];
             dist = Collision_RayQuad(pDir, &rayEdge, &corner);
             if (dist != 0x7d000000 && dist > best) {
                 best = dist;
                 switch (corner & 0xff) {
                 case 0:
-                    found = 1;
-                    diff = (int)g_unk0x0051fadc[j - 1] - (int)*pCur;
                     cornerVert = g_unk0x0051fadc[i];
-                    if (diff < 0)
-                        diff = -diff;
-                    edge = (diff == 1) ? 0 : 2;
+                    found = 1;
+                    edge = (abs(g_unk0x0051fadc[j] - g_unk0x0051fadc[(j + 1) % 4]) == 1) ? 0 : 2;
                     break;
                 case 1:
+                    cornerVert = g_unk0x0051fadc[(i + 1) % 4];
                     found = 1;
-                    diff = (int)g_unk0x0051fadc[j - 1] - (int)*pCur;
-                    cornerVert = *pNext;
-                    if (diff < 0)
-                        diff = -diff;
-                    edge = (diff == 1) ? 0 : 2;
+                    edge = (abs(g_unk0x0051fadc[j] - g_unk0x0051fadc[(j + 1) % 4]) == 1) ? 0 : 2;
                     break;
                 case 2:
-                    cornerVert = g_unk0x0051fadc[j - 1];
+                    cornerVert = g_unk0x0051fadc[j];
                     found = 0;
-                    diff = (int)g_unk0x0051fadc[i] - (int)*pNext;
-                    if (diff < 0)
-                        diff = -diff;
-                    edge = (diff == 1) ? 0 : 2;
+                    edge = (abs(g_unk0x0051fadc[i] - g_unk0x0051fadc[(i + 1) % 4]) == 1) ? 0 : 2;
                     break;
                 case 3:
-                    cornerVert = *pCur;
+                    cornerVert = g_unk0x0051fadc[(j + 1) % 4];
                     found = 0;
-                    diff = (int)g_unk0x0051fadc[i] - (int)*pNext;
-                    if (diff < 0)
-                        diff = -diff;
-                    edge = (diff == 1) ? 0 : 2;
+                    edge = (abs(g_unk0x0051fadc[i] - g_unk0x0051fadc[(i + 1) % 4]) == 1) ? 0 : 2;
                     break;
                 }
             }
         }
     }
-    if (best < 0)
-        return 0;
-    if (found != 0) {
-        int index = g_unk0x005915f4;
-        g_unk0x00590ec8[index] = edge;
-        g_unk0x005914c4[index] = cornerVert;
-        g_unk0x005915f4++;
-        *pDistance = best;
-        return 1;
+    if (best >= 0) {
+        if (found != 0) {
+            int index = g_unk0x005915f4;
+            g_unk0x00590ec8[index] = edge;
+            g_unk0x005914c4[index] = cornerVert;
+            g_unk0x005915f4++;
+            *pDistance = best;
+            return 1;
+        }
+        {
+            int index = g_unk0x005914d4;
+            g_unk0x005914a4[index] = edge;
+            g_unk0x00590ecc[index] = cornerVert;
+            g_unk0x005914d4++;
+            *pDistance = best;
+            return 1;
+        }
     }
-    {
-        int index = g_unk0x005914d4;
-        g_unk0x005914a4[index] = edge;
-        g_unk0x00590ecc[index] = cornerVert;
-        g_unk0x005914d4++;
-        *pDistance = best;
-        return 1;
-    }
+    return 0;
 }
 
 extern int g_unk0x0051bd40;

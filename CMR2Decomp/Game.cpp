@@ -2271,27 +2271,19 @@ int __cdecl Game_CompareTransparentDrawEntries(const void *a, const void *b)
 {
     BYTE *pA = *(BYTE **)a;
     BYTE *pB = *(BYTE **)b;
-    unsigned int typeA;
-    unsigned int typeB;
     int depthA;
     int depthB;
-    int diff;
 
-    typeA = *(unsigned int *)(pA + 0x30) & 0xff;
-    if (typeA == 0x14)
+    if ((*(unsigned int *)(pA + 0x30) & 0xff) == 0x14)
         return 1;
-    typeB = *(unsigned int *)(pB + 0x30) & 0xff;
-    if (typeB == 0x14)
+    if ((*(unsigned int *)(pB + 0x30) & 0xff) == 0x14)
         return 1;
     depthA = *(int *)(pA + 0x16c);
     depthB = *(int *)(pB + 0x16c);
-    diff = depthA - depthB;
-    if (diff < 0)
-        diff = depthB - depthA;
-    if (diff < 0x10000) {
-        if (typeA == 5 && typeB == 0)
+    if (FIX_ABS(depthA - depthB) < 0x10000) {
+        if ((*(unsigned int *)(pA + 0x30) & 0xff) == 5 && (*(unsigned int *)(pB + 0x30) & 0xff) == 0)
             return 1;
-        if (typeA == 0 && typeB == 5)
+        if ((*(unsigned int *)(pA + 0x30) & 0xff) == 0 && (*(unsigned int *)(pB + 0x30) & 0xff) == 5)
             return -1;
     }
     return depthA < depthB ? 1 : -1;
