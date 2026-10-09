@@ -1,0 +1,378 @@
+#include "main.h"
+#include <mmsystem.h>
+#include "Graphics.h"
+#include "Logger.h"
+#include "Game.h"
+#include "Input.h"
+#include "Sound.h"
+
+void Main_InitD3DX(void);
+void Input_ClearKeyPressQueue(void);
+int Args_Parse(char *pCommandLine);
+
+HINSTANCE CMain::m_hInstance;
+int CMain::m_frameTime;
+BOOL CMain::m_frameDeltaInitialised;
+unsigned int CMain::m_frameDeltaStart;
+unsigned int CMain::m_frameDeltaLast;
+unsigned int CMain::m_frameDelta;
+unsigned int CMain::m_frameDeltaMax;
+HWND CMain::m_hWndList[1];
+int CMain::m_hWndIx = 0;
+int CMain::m_unk0x00663dbc;
+int CMain::m_unk0x00663dc0;
+
+// GLOBAL: CMR2 0x005210ac
+int g_unk0x005210ac = 1;
+
+char CMain::m_logFileLocation[14] = "c:\\error.txt";
+char CMain::m_gameName[20] = "Colin McRae Rally 2";
+char CMain::m_logFileHeader1[29] = "FILE_PRINT DEBUG INFORMATION";
+char CMain::m_logFileAsterisks[29] = "****************************";
+// Second asterisk banner the log footer prints twice: a separate copy that
+// lives just before the header's one in the original .data.
+// GLOBAL: CMR2 0x00520c14
+char g_logFileFooterAsterisks[30] = "*****************************";
+char CMain::m_logFileBlankLine[1] = "";
+char CMain::m_logFileFinishedNormally[30] = "* Program finished normally *";
+BOOL CMain::m_isShowingCursor = TRUE;
+
+MSG CMain::m_win32Msg;
+
+// GLOBAL: CMR2 0x00520b94
+char m_lpszMenuName[5] = "menu";
+
+int WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+	HINSTANCE hInstance = GetModuleHandleA(NULL);
+	return CMain::Initialize(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
+}
+
+// FUNCTION: CMR2 0x004a9720
+unsigned int CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+	HWND hWnd;
+	BOOL isMessageAvailable;
+
+	hWnd = FindWindowA(m_gameName, m_gameName);
+	if (hWnd != NULL)
+		return 0;
+
+	CLogger::OpenLogFile(m_logFileLocation);
+	CLogger::LogToFile(m_logFileHeader1);
+	CLogger::LogToFile(m_logFileAsterisks);
+	CLogger::LogToFile(m_logFileBlankLine);
+	m_hInstance = hInstance;
+	Main_InitD3DX();
+	CGame::RegisterNetworkResourceRelease();
+	Input_ClearKeyPressQueue();
+	Args_Parse(lpCmdLine);
+
+	CreateGameWindow(hInstance, &m_hWndList[m_hWndIx], m_gameName, MessageHandler);
+
+	MSG msg;
+	while (!CGame::m_shouldExit)
+	{
+		if (!CGame::m_isActive)
+			isMessageAvailable = PeekMessageA(&m_win32Msg, NULL, 0, 0, 1);
+		else
+			isMessageAvailable = GetMessageA(&m_win32Msg, NULL, 0, 0);
+
+		if ((m_win32Msg.message == WM_ACTIVATEAPP) || (isMessageAvailable == 0))
+		{
+			if (!CGame::m_isActive)
+			{
+				CGame::UpdateActiveSoundSlots();
+				CGame::DispatchFrontendResourceState();
+			}
+		}
+		else
+		{
+			if (m_win32Msg.message == WM_QUIT)
+				break;
+
+			TranslateMessage(&m_win32Msg);
+			DispatchMessageA(&m_win32Msg);
+		}
+
+		if (g_pGraphics->isFullscreen != FALSE)
+		{
+			if (m_isShowingCursor != FALSE)
+			{
+				ShowCursor(0);
+				m_isShowingCursor = FALSE;
+			}
+		}
+		else if (m_isShowingCursor == FALSE)
+		{
+			ShowCursor(1);
+			m_isShowingCursor = TRUE;
+		}
+	}
+
+	UnwindGameCallbacks();
+	CLogger::LogToFile(m_logFileBlankLine);
+	CLogger::LogToFile(g_logFileFooterAsterisks);
+	CLogger::LogToFile(m_logFileFinishedNormally);
+	CLogger::LogToFile(g_logFileFooterAsterisks);
+	CLogger::CloseLogFile();
+
+	return m_win32Msg.wParam;
+}
+
+// Destroys the current game window.
+// FUNCTION: CMR2 0x004a8270
+BOOL Main_DestroyGameWindow(void)
+{
+	if (DestroyWindow(CMain::m_hWndList[CMain::m_hWndIx])) {
+		CMain::m_hWndList[CMain::m_hWndIx] = NULL;
+		return TRUE;
+	}
+	CMain::m_hWndList[CMain::m_hWndIx] = NULL;
+	return FALSE;
+}
+
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a8140
+BOOL CMain::CreateGameWindow(HINSTANCE hInstance, HWND *pHWND, LPCSTR sWindowName, WNDPROC wndProc)
+{
+	ATOM AVar1;
+	HWND hWnd;
+	DWORD dwStyle;
+	WNDCLASSA wndClass;
+
+	wndClass.lpfnWndProc = wndProc;
+	wndClass.cbClsExtra = 0;
+	wndClass.cbWndExtra = 0;
+	wndClass.hInstance = hInstance;
+	wndClass.hIcon = LoadIconA(hInstance, (const char *)0x6e);
+	wndClass.hbrBackground = (HBRUSH)GetStockObject(4);
+	wndClass.lpszMenuName = m_lpszMenuName;
+	wndClass.lpszClassName = sWindowName;
+	wndClass.style = 3;
+
+	if (!g_pGraphics->isFullscreen) {
+		wndClass.hCursor = LoadCursorA(NULL, (const char *)0x7f00);
+		dwStyle = 0x81cf0000;
+	} else {
+		wndClass.hCursor = NULL;
+		dwStyle = 0;
+	}
+
+	AVar1 = RegisterClassA(&wndClass);
+	if (AVar1 == 0)
+		return FALSE;
+
+	hWnd = CreateWindowExA((DWORD)0x40000, sWindowName, sWindowName, dwStyle, 0, 0,
+						   GetSystemMetrics(0), GetSystemMetrics(1), NULL, NULL, hInstance, NULL);
+
+	m_hWndList[m_hWndIx] = hWnd;
+	if (hWnd == NULL)
+		return FALSE;
+
+	if (!g_pGraphics->isFullscreen)
+		ShowWindow(hWnd, SW_HIDE);
+	else
+		ShowWindow(hWnd, SW_MAXIMIZE);
+
+	UpdateWindow(hWnd);
+	SetFocus(hWnd);
+	*pHWND = hWnd;
+	CGame::RegisterCallback(Main_DestroyGameWindow, NULL);
+	return TRUE;
+}
+
+// FUNCTION: CMR2 0x004a98b0
+LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	int *pDD7;
+
+	switch (msg)
+	{
+	case WM_KILLFOCUS:
+		CSound::StopSharedMusicBuffer();
+		break;
+
+	case WM_SETFOCUS:
+		CSound::NoOpSoundDeviceCallback();
+		break;
+
+	case WM_SYSKEYUP:
+	case 0x218:
+		return 0;
+
+	case WM_SIZE: // minimised (SIZE_MINIMIZED) or hidden (SIZE_MAXHIDE) pauses the game
+		if (wParam == 4 || wParam == 1)
+			SetGameActiveState(1);
+		else
+			SetGameActiveState(0);
+		break;
+
+	case WM_CLOSE:
+		if (g_pGraphics->isFullscreen == 0) {
+			msg = WM_KEYDOWN;
+			wParam = VK_ESCAPE;
+			PostQuitMessage(0);
+			break;
+		}
+		return 0;
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+
+	case WM_PAINT:
+		break;
+
+	case WM_ACTIVATEAPP:
+		SetGameActiveState(wParam == 0);
+		if (wParam != 0) {
+			CGraphics::RestoreSurfaces();
+			pDD7 = (int *)g_pGraphics->pDD7;
+			if (pDD7 != NULL)
+				((void (__stdcall *)(int *))*(int *)(*pDD7 + 0x64))(pDD7);
+		}
+		break;
+
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+		CInput::QueueVirtualKeyPress(lParam);
+		break;
+
+	case WM_CHAR:
+		CInput::QueueInputCharacter(wParam);
+		break;
+
+	case WM_SYSCOMMAND:
+		if (wParam == 0xf140 || wParam == 0xf170)
+			return 1;
+		break;
+
+	default:
+		if (msg != 0 && msg == RegisterWindowMessageA("QueryCancelAutoPlay"))
+			return 1;
+		break;
+	}
+
+	return DefWindowProcA(hWnd, msg, wParam, lParam);
+}
+
+// Switches the game between active and inactive: input/mouse cooperative
+// level, the sound "hooked" flag and the menu bar, plus the inactive time.
+// FUNCTION: CMR2 0x004a9a50
+void CMain::SetGameActiveState(int param1)
+{
+	int *pDD7;
+	int frameTime;
+
+	if (param1 != 0) {
+		CInput::SetMouseCoopLevel(0);
+		CSound::RunSoundDeviceCallback();
+		m_unk0x00663dbc = GetFrameTime();
+		CGame::m_isActive = 1;
+
+		pDD7 = (int *)g_pGraphics->pDD7;
+		if (pDD7 != NULL)
+			((void (__stdcall *)(int *))*(int *)(*pDD7 + 0x28))(pDD7);
+
+		DrawMenuBar(m_hWndList[m_hWndIx]);
+		RedrawWindow(m_hWndList[m_hWndIx], NULL, NULL, 0x400);
+		return;
+	}
+
+	CInput::SetMouseCoopLevel(1);
+	CSound::RunSoundDeviceCallback();
+	CInput::ClearFirstJoystickControlBindings();
+	ResetFpsWarmup();
+	frameTime = GetFrameTime();
+	CGame::m_isActive = 0;
+	m_unk0x00663dc0 = frameTime - m_unk0x00663dbc;
+}
+
+// FUNCTION: CMR2 0x004b2390
+void CMain::ResetFpsWarmup(void)
+{
+	g_unk0x005210ac = 1;
+}
+
+// FUNCTION: CMR2 0x0049c130
+void CMain::UnwindGameCallbacks(void)
+{
+	CGame::UnwindCallbacks(0);
+}
+
+extern "C" HRESULT WINAPI D3DXInitialize(void);
+extern "C" HRESULT WINAPI D3DXUninitialize(void);
+
+// Shuts D3DX down (registered as a callback by Main_InitD3DX).
+// FUNCTION: CMR2 0x004a9b50
+BYTE Main_ShutdownD3DX(void)
+{
+    D3DXUninitialize();
+    return 1;
+}
+
+// Starts D3DX and registers its shutdown.
+// FUNCTION: CMR2 0x004a9b30
+void Main_InitD3DX(void)
+{
+    D3DXInitialize();
+    CGame::RegisterCallback(Main_ShutdownD3DX, NULL);
+}
+
+// FUNCTION: CMR2 0x004a9b60
+int CMain::GetFrameTime(void)
+{
+    return m_frameTime;
+}
+
+// FUNCTION: CMR2 0x004a9b70
+void CMain::UpdateFrameTime(void)
+{
+    m_frameTime = timeGetTime();
+}
+
+// FUNCTION: CMR2 0x004a9c20
+bool CMain::ResetFrameDelta(void)
+{
+    m_frameDeltaInitialised = FALSE;
+    return true;
+}
+
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a9b80
+unsigned int CMain::GetFrameDelta(void)
+{
+    unsigned int now;
+    unsigned int step;
+
+    now = (unsigned int)GetFrameTime() / 10;
+    if (m_frameDeltaInitialised == 0) {
+        m_frameDeltaStart = now;
+        m_frameDeltaLast = now;
+        m_frameDelta = 0;
+        m_frameDeltaMax = 0;
+        m_frameDeltaInitialised = TRUE;
+        CGame::RegisterCallback(ResetFrameDelta, NULL);
+    }
+    step = now - m_frameDeltaLast;
+    if (step != 0) {
+        m_frameDelta += step;
+        if (m_frameDelta < m_frameDeltaMax)
+            m_frameDelta = m_frameDeltaMax;
+        else
+            m_frameDeltaMax = m_frameDelta;
+    }
+    m_frameDeltaLast = now;
+    return m_frameDelta;
+}
+
+// The game's statically linked CRT sprintf (ours comes from the import library).
+// LIBRARY: CMR2 0x00405620
+// _sprintf
+
+// Statically linked DirectX helpers called by the startup/shutdown callbacks.
+// LIBRARY: CMR2 0x004c6794
+// _D3DXInitialize@0
+// LIBRARY: CMR2 0x004c686d
+// _D3DXUninitialize@0

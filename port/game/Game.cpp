@@ -1,0 +1,3554 @@
+#include "StageBlock.h"
+#include "Game.h"
+#include "Menu.h"
+#include "main.h"
+#include "RegKey.h"
+#include "GameInfo.h"
+#include "InstallInfo.h"
+#include "NetworkLeaderboards.h"
+#include "Graphics.h"
+#include "Input.h"
+#include "FileBuffer.h"
+#include "Mesh.h"
+#include "Frontend.h"
+#include "Texture.h"
+#include "Sprite.h"
+#include "Sound.h"
+#include "Font.h"
+#include "Sprite.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <float.h>
+
+BOOL CGame::m_shouldExit = FALSE;
+BOOL CGame::m_isActive = FALSE;
+int CGame::m_unk0x0059ce14;
+int CGame::m_unk0x0059ce18;
+// GLOBAL: CMR2 0x0059ce1c
+int CGame::m_unk0x0059ce1c;
+int CGame::m_unk0x0059ce20;
+int CGame::m_unk0x0059ce28;
+int CGame::m_unk0x0059ce2c;
+void *CGame::m_unk0x00593cb0[4096];
+void *CGame::m_unk0x00597d04[4096];
+int CGame::m_unk0x005207f8 = 3;
+int CGame::m_unk0x00663dc4;
+DPlayConnection CGame::m_connections[10];
+BYTE CGame::m_maxConnections;
+
+int CGame::m_unk0x00523c58 = -1;
+int CGame::m_unk0x00523c5c = -1;
+Unk0049c2c0 CGame::m_unk0x00817da0;
+int CGame::m_unk0x0052ea4c;
+BYTE CGame::m_unk0x0052ea51;
+bool CGame::m_unk0x00817eb0 = false;
+Unk00817d98 CGame::m_unk0x00817d98;
+unsigned int CGame::m_unk0x00523c18[16] = {
+    0x0101ff00, 0x0600ff00, 0x0706ff00, 0x0200ff01, 0x0300ff02, 0x0400ff03,
+    0x0500ff04, 0x0600ff05, 0x0700ff06, 0x0902ff06, 0x0707ff06, 0x0807ff06,
+    0x0900ff08, 0x0900ff07, 0x0000ff09, 0xffffffff,
+};
+BYTE CGame::m_unk0x00593cac;
+CallbackIndex CGame::m_unk0x00593ba8;
+Unk00817d98 *CGame::m_unk0x00593ba4;
+
+BYTE CGame::m_unk0x00523d68 = 1;
+BYTE CGame::m_unk0x008180f9;
+BYTE CGame::m_unk0x008180fc;
+BYTE CGame::m_unk0x00516120 = 1;
+BYTE CGame::m_unk0x00531768;
+BYTE CGame::m_unk0x0052ea58;
+BYTE CGame::m_unk0x0052ea59;
+
+// GLOBAL: CMR2 0x00593ba0;
+int CGame::m_unk0x00593ba0;
+
+// GLOBAL: CMR2 0x005939a0
+void *CGame::m_callbacks[64];
+
+BYTE CGame::m_unk0x005a1818;
+BYTE CGame::m_unk0x005a1819;
+Unk0x005a1820 CGame::m_unk0x005a1820[7];
+int CGame::m_unk0x005a1e34;
+bool CGame::m_unk0x005a1fc0;
+IDirectPlay4A *CGame::m_pDirectPlay4A = NULL;
+DPID CGame::m_unk0x005a1ea0 = NULL;
+
+IDirectPlayLobby3A *CGame::m_pDirectPlayLobby3A;
+
+BOOL CGame::m_unk0x005a1fbc;
+void *CGame::m_unk0x005a1fb8;
+
+
+
+// Boot states of the grouped callback machine (functions next to
+// CGame::InitializeGame; the render halves are not written yet).
+void Game_DrawBootTextureScreen(Unk0049c2c0 *p1, BYTE p2);
+void Game_WaitForButtonOrSplashTimeout(Unk0049c2c0 *p1, BYTE p2);
+void Game_WaitForSplashTimeout(Unk0049c2c0 *p1, BYTE p2);
+void Game_RunFrontendBootFrame(Unk0049c2c0 *p1, BYTE p2);
+void Game_DrawBootCameraAndFPS(Unk0049c2c0 *p1, BYTE p2);
+void Game_DrawCountryLoadingScreen(Unk0049c2c0 *p1, BYTE p2);
+void Game_PlayCountryIntroAfterFrontendDelay(Unk0049c2c0 *p1, BYTE p2);
+void Game_PlayCodemastersBootVideo(Unk0049c2c0 *p1, BYTE state);
+void Game_PlayIntroBootVideo(Unk0049c2c0 *p1, BYTE state);
+void Game_UpdateBootInputDelay(Unk0049c2c0 *p1, BYTE state);
+void OptionMenu_UpdateHiddenPreviewState(Unk0049c2c0 *p1, BYTE state);
+void OptionMenu_DrawBackgroundState(Unk0049c2c0 *p1, BYTE state);
+void OptionMenu_LeaveAndCommitState(Unk0049c2c0 *p1, BYTE state);
+void OptionMenu_LeaveWithoutCommitState(Unk0049c2c0 *p1, BYTE state);
+void Game_FinishRaceAndAdvanceBootState(Unk0049c2c0 *p1, BYTE p2);
+void Game_DrawLogoAndLoadingSprites(Unk0049c2c0 *p1, BYTE p2);
+void OptionMenu_StartDelayedFade(int param1, int unused);
+void Game_DrawMovieFrameAndCredits(Unk0049c2c0 *p1, BYTE p2);
+
+FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
+    {InitializeGame,
+     NoOpSecondaryStateCallback},
+    {Game_WaitForSplashTimeout, Game_DrawLogoAndLoadingSprites},
+    {Game_WaitForSplashTimeout, Game_DrawMovieFrameAndCredits},
+    {Game_PlayCodemastersBootVideo, NoOpSecondaryStateCallback},
+    {Game_PlayIntroBootVideo, NoOpSecondaryStateCallback},
+    {Game_WaitForButtonOrSplashTimeout, Game_DrawBootTextureScreen},
+    {Game_RunFrontendBootFrame, Game_DrawBootCameraAndFPS},
+    {Game_PlayCountryIntroAfterFrontendDelay, Game_DrawCountryLoadingScreen},
+    {Game_UpdateBootInputDelay, NoOpSecondaryStateCallback},
+    {Game_FinishRaceAndAdvanceBootState, NoOpSecondaryStateCallback},
+};
+
+// FUNCTION: CMR2 0x004a15a0
+BOOL Network_GetSessionStateFlag(void)
+{
+    return CGameInfo::m_unk0x005a0060;
+}
+
+// FUNCTION: CMR2 0x004a9a40
+void CGame::SetShouldExit(void)
+{
+    m_shouldExit = TRUE;
+}
+
+// FUNCTION: CMR2 0x004b7a40
+void CGame::UpdateActiveSoundSlots(void)
+{
+    SoundSlot **ppSlot;
+
+    if (CSound::m_unk0x006e0eec != 0) {
+        ppSlot = CSound::m_soundSlots;
+        do {
+            if (*ppSlot != NULL)
+                CSound::UpdateFinishedSoundSlot(*ppSlot);
+            ppSlot++;
+        } while ((int)ppSlot < (int)(CSound::m_soundSlots + 32));
+    }
+}
+
+// FUNCTION: CMR2 0x004d0780
+BOOL CGame::DispatchFrontendResourceState(void)
+{
+    m_unk0x00523c5c = GetFrontendResourceMode();
+    if (m_unk0x00523c5c != m_unk0x00523c58)
+        m_unk0x00523c58 = m_unk0x00523c5c;
+
+    switch (m_unk0x00523c5c)
+    {
+    case 3:
+        return UpdateInRaceCallbackMachine();
+
+    case 2:
+        return UpdateSecondaryCallbackMachine();
+
+    case 0:
+        return UpdateFrontendCallbackMachine();
+
+    default:
+        return FALSE;
+    }
+}
+
+// Frontend callback group of the game state machine: built on the first call,
+// then runs one update/render/timer step per frame.
+// FUNCTION: CMR2 0x004d07c0
+BOOL CGame::UpdateFrontendCallbackMachine(void)
+{
+    if (m_unk0x00817eb0)
+    {
+        RunStateUpdateCallbacks(&m_unk0x00817da0);
+        RunStateRenderCallbacks(&m_unk0x00817da0);
+        AdvanceCallbackStateTimers(&m_unk0x00817da0);
+        return FALSE;
+    }
+
+    InitializeCallbackStateRecord(&m_unk0x00817d98, 0, 0xFF);
+    InitializeCallbackStateMachine(&m_unk0x00817da0, 1, &m_unk0x00817d98, m_initializeGameGroupedFuncTable, &m_unk0x00523c18);
+    m_unk0x00817eb0 = true;
+    return FALSE;
+}
+
+// Splash screen scene, created while the frontend resources load.
+// GLOBAL: CMR2 0x00817fc4
+SceneNode *g_unk0x00817fc4;
+// GLOBAL: CMR2 0x00817fc8
+SceneNode *g_unk0x00817fc8;
+
+// Destroys the splash screen scene (registered as a callback by Game_CreateSplashScene).
+// FUNCTION: CMR2 0x004d0820
+BYTE Game_DestroySplashScene(void)
+{
+    if (g_unk0x00817fc8 != NULL)
+        SceneNode_Destroy(g_unk0x00817fc8);
+
+    return TRUE;
+}
+
+// Creates the empty scene the frontend draws while it loads its textures.
+// FUNCTION: CMR2 0x004d0840
+void Game_CreateSplashScene(void)
+{
+    FixVector translation;
+    FixAngles angles;
+    SceneNode *pNode;
+
+    translation.x = 0;
+    translation.y = 0;
+    translation.z = 0xffec0000;
+    angles.x = 0;
+    angles.y = 0;
+    angles.z = 0;
+    angles.pad = 0;
+
+    g_unk0x00817fc8 = SceneNode_CreateRoot();
+    g_unk0x00817fc4 = SceneType2_Create(&translation, &angles, NULL, g_unk0x00817fc8);
+
+    for (pNode = g_unk0x00817fc8; pNode != NULL; pNode = pNode->pParent)
+        pNode->dirty = 1;
+
+    CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+    CGame::RegisterCallback(Game_DestroySplashScene, NULL);
+}
+
+// Set once the boot sequence has finished loading; the render states clear it.
+// GLOBAL: CMR2 0x00817fcc
+BYTE g_unk0x00817fcc;
+// Format of the debug FPS counter ("FPS: %.2f").
+// GLOBAL: CMR2 0x00516e14
+char g_strFpsFormat0x00516e14[10] = "FPS: %.2f";
+// Colour table of the debug FPS text; only the entry 0 is read.
+// GLOBAL: CMR2 0x00523c64
+int g_unk0x00523c64[5] = { -1, 120, 120, 120, 120 };
+
+void FrontendMenu_DrawActiveMenu(void);
+float Graphics_GetFrameScale(void);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+int Game_DrawSceneViewport(int, int, void *, int, BYTE);
+void Graphics_PresentFrameAndResetCounters(void);
+
+// Boot render state: places the splash-scene camera, clears the target and
+// prints the FPS counter while the graphics debug flag (bit 2) is set.
+// FUNCTION: CMR2 0x004d0a80
+void Game_DrawBootCameraAndFPS(Unk0049c2c0 *p1, BYTE p2)
+{
+    FixVector translation;
+    FixAngles angles;
+    short rect[4];
+
+    translation.x = 0;
+    translation.y = 0;
+    translation.z = 0xffec0000;
+    angles.x = 0;
+    angles.y = 0;
+    angles.z = 0;
+    angles.pad = 0;
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = (short)g_pGraphics->resX;
+    rect[3] = (short)g_pGraphics->resY;
+
+    SceneNode_SetPosition(g_unk0x00817fc4, &translation);
+    SceneNode_SetRotation(g_unk0x00817fc4, &angles);
+    CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+    FrontendMenu_DrawActiveMenu();
+    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)rect, 0);
+    if ((g_pGraphics->field913_0x3bc & 4) != 0) {
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
+        Font_DrawText(0, CFrontend::m_stringDest, 0, 0, g_unk0x00523c64, 9);
+    }
+    Game_DrawSceneViewport((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, rect, 0, 1);
+    if (g_unk0x00817fcc == 0)
+        Graphics_PresentFrameAndResetCounters();
+}
+
+// Shared with the other boot renders of Game.cpp (0x4d0a80, 0x4d1370).
+
+// Render half of boot state 1: draws the CMR2 logo and a row of up to four
+// loading sprites, prepares the splash scene and shows the FPS counter when the
+// debug flag of the graphics device is on.
+// FUNCTION: CMR2 0x004d1080
+void Game_DrawLogoAndLoadingSprites(Unk0049c2c0 *p1, BYTE p2)
+{
+    BYTE colour[4];
+    SpriteRect dst;
+    SpriteRect src;
+    SpriteRect screen;
+    int centre[3];
+    Texture *pTexture;
+    int count;
+    int i;
+
+    screen.x = 0;
+    screen.y = 0;
+    screen.w = g_pGraphics->resX;
+    screen.h = g_pGraphics->resY;
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    centre[0] = 0;
+    centre[1] = 0;
+    centre[2] = 0;
+
+    CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+
+    pTexture = CFrontend::m_unk0x00817fd0;
+    if (pTexture != NULL) {
+        // the texture size is reused for the source, the destination and the centre
+        src.x = pTexture->field_0x11c;
+        src.y = pTexture->field_0x11e;
+        short w = pTexture->width;
+        src.w = w;
+        short h = pTexture->height;
+        src.h = h;
+        dst.x = (int)(g_pGraphics->resX * 43) / 640;
+        dst.y = (int)(g_pGraphics->resY * 202) / 480;
+        dst.w = w;
+        dst.h = h;
+        centre[0] = w / 2;
+        centre[1] = h / 2;
+        Sprite_Queue(&src, &dst, pTexture, 1, 0, centre, NULL, colour, 8);
+    }
+
+    if (CGameInfo::GetScreenWidth() >= 0x400 &&
+        CFrontend::IsTextureWidthSupported(0x400) &&
+        CFrontend::IsTextureHeightSupported(0x400))
+        count = 4;
+    else
+        count = 3;
+
+    dst.x = (int)(g_pGraphics->resX * 43) / 640;
+    dst.y = (int)(g_pGraphics->resY * 260) / 480;
+
+    for (i = 0; i < count; i++) {
+        pTexture = CFrontend::m_unk0x00817fd4[i];
+        if (pTexture != NULL) {
+            src.x = pTexture->field_0x11c;
+            src.y = pTexture->field_0x11e;
+            short w = pTexture->width;
+            src.w = w;
+            short h = pTexture->height;
+            src.h = h;
+            dst.w = w;
+            dst.h = h;
+            centre[0] = w / 2;
+            centre[1] = h / 2;
+            Sprite_Queue(&src, &dst, pTexture, 1, 0, centre, NULL, colour, 8);
+            dst.x += dst.w;
+        }
+    }
+
+    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)&screen, 0);
+    if (g_pGraphics->field913_0x3bc & 4) {
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
+        Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
+    }
+    Game_DrawSceneViewport((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, &screen, 0, 1);
+    if (g_unk0x00817fcc == 0)
+        Graphics_PresentFrameAndResetCounters();
+}
+
+int Game_DrawFadingBootLabel(int, int, char *, char);
+unsigned char RallyDataCountryIndex(void);
+
+// Boot render state shown while the country data loads: draws the country name
+// with the current championship position, centred on the screen.
+// FUNCTION: CMR2 0x004d0ba0
+void Game_DrawCountryLoadingScreen(Unk0049c2c0 *p1, BYTE p2)
+{
+    FixVector translation;
+    FixAngles angles;
+    short rect[4];
+    int x;
+    int y;
+
+    translation.x = 0;
+    translation.y = 0;
+    translation.z = 0xffec0000;
+    angles.x = 0;
+    angles.y = 0;
+    angles.z = 0;
+    angles.pad = 0;
+
+    if (CFrontend::GetFrontendIntroFlag() == 1) {
+        rect[0] = 0;
+        rect[1] = 0;
+        rect[2] = (short)g_pGraphics->resX;
+        rect[3] = (short)g_pGraphics->resY;
+        SceneNode_SetPosition(g_unk0x00817fc4, &translation);
+        SceneNode_SetRotation(g_unk0x00817fc4, &angles);
+        CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+        CGraphics::SetClearColour(1, 0, 0, 0);
+        CGraphics::ClearTarget();
+        CGraphics::ClearZBuffer();
+        x = (int)(g_pGraphics->resX * 0x1e) / 0x280;
+        y = Game_DrawFadingBootLabel(x, (int)g_pGraphics->resY / 2, CFrontend::GetTextString(0x1bd), 0);
+        // the original copies the country text with sprintf("%s").
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                CFrontend::GetTextString((RallyDataCountryIndex() & 0xff) + 0x27));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        Game_DrawFadingBootLabel(y, (int)g_pGraphics->resY / 2, CFrontend::m_stringDest, 1);
+        Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)rect, 0);
+        Game_DrawSceneViewport((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, rect, 0, 1);
+        if (g_unk0x00817fcc == 0)
+            Graphics_PresentFrameAndResetCounters();
+    }
+}
+
+// Sets the FPU control word to 53-bit precision (the CRT's default for the
+// x87 unit before the game changes it). This is CRT startup code, which the
+// original built with /Os: the size optimisation is what turns the cdecl
+// cleanup into `pop ecx / pop ecx`.
+#pragma optimize("s", on)
+// FUNCTION: CMR2 0x00405796
+void Game_SetDoublePrecisionFPU(void)
+{
+    _controlfp(_PC_53, _MCW_PC);
+}
+#pragma optimize("s", off)
+
+// FUNCTION: CMR2 0x004057a8
+int Game_ReturnZeroInitializationResult(void)
+{
+    return 0;
+}
+
+// FUNCTION: CMR2 0x004057ab
+void Game_NoOpInitializationCallback(void)
+{
+}
+
+// FUNCTION: CMR2 0x004057d0
+int CGame::GetFrontendResourceMode(void)
+{
+    return m_unk0x0052ea4c;
+}
+
+// FUNCTION: CMR2 0x004057c0
+void CGame::SetStartupFlag(void)
+{
+    m_unk0x0052ea51 = 1;
+}
+
+// FUNCTION: CMR2 0x004057e0
+void CGame::SetFrontendResourceMode(int param1)
+{
+    m_unk0x0052ea4c = param1;
+}
+
+// --- Boot pieces called by CGame::InitializeGame that are not decompiled
+// yet. They are empty STUBs so the calls are in place; they do nothing yet.
+BYTE Game_GetOptionStateByte(void);
+void Game_SetOptionStateByte(BYTE param1);
+void RallyData_ClearDriverGroupRecords(void);
+void RallyData_ClearDriverSkillFlags(void);
+void GameInfo_ResetSessionTimestamp(void);
+DWORD GameInfo_GetSessionTimestamp(void);
+void Input_TranslatePedalsToMenuKeys(void);
+void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut);
+extern int g_unk0x00817fe4;
+extern unsigned int g_unk0x00817ff4;
+
+void RallyData_ResetSelection(void);
+BOOL Network_GetSessionStateFlag(void);
+void Session_SetOpen(char open);
+void Game_SetConfigurationStateByte(BYTE param1);
+bool SavedGames_ReleaseRecords(void);
+
+// Globals the return-to-frontend path of InitializeGame resets.
+// GLOBAL: CMR2 0x00819744
+int g_unk0x00819744;
+
+// GLOBAL: CMR2 0x00818ce4
+BYTE g_unk0x00818ce4;
+
+// Signatures follow the original's `ret N` (stdcall: N/4 arguments).
+void FrontendMenu_BuildPagesAndSelectInitial(BYTE param1, BYTE param2);
+void SavedGames_LoadRecords(void);
+BYTE FrontendAudio_LoadSounds(void);
+BYTE FrontendText_LoadFonts(void);
+BYTE FrontendText_LoadRegionLanguages(void);
+void FrontendCredits_LoadText(char registerRelease);
+void RallyData_ResetSavedPlayerRecords(void);
+void FrontendScroller_ResetAll(void);
+void FrontendNetwork_SendPlayerDescription(void);
+void GameInfo_RestoreFrontendOptionSettings(void);
+void Game_SaveConfigurationPreservingFullscreen(void);
+void FrontendAnimation_LoadDotTextures(void);
+void FrontendAudio_ConfigureMenuSounds(void);
+void Profile_SaveDirtyRecords(void);
+void Profile_ResetAllRecordCategories(void);
+HRESULT Sound_StartLoopingMusicStream(int param1);
+void FrontendMap_FindStageFiles(void);
+
+// Frontend music track ("%s\\select1.adp").
+// GLOBAL: CMR2 0x00523d70
+char g_strMusicSelect1Adp[16] = "%s\\select1.adp";
+
+void FrontendMenu_UpdateAndSwitchActive(void);
+
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+float Graphics_GetFrameScale(void);
+int Game_DrawSceneViewport(int, int, void *, int, BYTE);
+void Graphics_PresentFrameAndResetCounters(void);
+
+// FPS overlay format string ("FPS: %.2f").
+
+// Renders the state-5 boot screen: clears both targets, queues the loaded
+// frontend texture as a sprite centred over the screen and, when the debug
+// flag is on, draws the frame rate.
+// FUNCTION: CMR2 0x004d0ea0
+void Game_DrawBootTextureScreen(Unk0049c2c0 *p1, BYTE p2)
+{
+    SpriteRect screenRect;
+    BYTE colour[4];
+    int centre[3];
+    SpriteRect src;
+    SpriteRect dst;
+
+    screenRect.x = 0;
+    screenRect.y = 0;
+    screenRect.w = g_pGraphics->resX;
+    screenRect.h = g_pGraphics->resY;
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    centre[0] = 0;
+    centre[1] = 0;
+    centre[2] = 0;
+
+    CGraphics::SetClearColour(1, 0x9c, 0xb4, 0xac);
+    CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+
+    if (CFrontend::m_unk0x00817fd0 != NULL) {
+        src.x = CFrontend::m_unk0x00817fd0->field_0x11c;
+        src.y = CFrontend::m_unk0x00817fd0->field_0x11e;
+        src.w = CFrontend::m_unk0x00817fd0->width;
+        src.h = CFrontend::m_unk0x00817fd0->height;
+        dst.x = (int)(g_pGraphics->resX * 43) / 640;
+        dst.y = (int)(g_pGraphics->resY * 202) / 480;
+        dst.w = src.w;
+        dst.h = src.h;
+        centre[0] = src.w / 2;
+        centre[1] = src.h / 2;
+        Sprite_Queue(&src, &dst, CFrontend::m_unk0x00817fd0, 1, 0, centre, NULL, colour, 8);
+    }
+
+    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)&screenRect, 0);
+
+    if ((g_pGraphics->field913_0x3bc & 4) != 0) {
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
+        Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
+    }
+
+    Game_DrawSceneViewport((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, &screenRect, 0, 1);
+
+    if (g_unk0x00817fcc == 0)
+        Graphics_PresentFrameAndResetCounters();
+}
+
+// Waits for the pad button (or 5 s), then restarts the music and asks for state 0.
+// FUNCTION: CMR2 0x004d1a90
+void Game_WaitForButtonOrSplashTimeout(Unk0049c2c0 *p1, BYTE p2)
+{
+    char path[MAX_PATH];
+    DeviceInfo *pDevice;
+
+    g_unk0x00817fe4 = timeGetTime();
+    CInput::UpdateAllAvailableDevices();
+    Input_TranslatePedalsToMenuKeys();
+    pDevice = CInput::GetAvailableDeviceRecord(0);
+    Input_MergeAssignedJoystickButtons(0, pDevice);
+    if ((pDevice->field_0x8 & 0x10) != 0 || (unsigned int)(g_unk0x00817fe4 - GameInfo_GetSessionTimestamp()) > 0x1388) {
+        GameInfo_ResetSessionTimestamp();
+        sprintf(path, g_strMusicSelect1Adp, CInstallInfo::GetMusicDir());
+        CSound::OpenStreamingMusicFile(path);
+        CSound::SetMusicStreamVolume(CGameInfo::GetMasterSoundVolume());
+        Sound_StartLoopingMusicStream(1);
+        CGame::PromoteCallbackEntryByRule(p1, p2, 0, 2);
+    }
+}
+
+// Waits ~5 s, then asks for state 0.
+// FUNCTION: CMR2 0x004d1b40
+void Game_WaitForSplashTimeout(Unk0049c2c0 *p1, BYTE p2)
+{
+    g_unk0x00817fe4 = timeGetTime();
+    CInput::UpdateAllAvailableDevices();
+    Input_TranslatePedalsToMenuKeys();
+    Input_MergeAssignedJoystickButtons(0, CInput::GetAvailableDeviceRecord(0));
+    if ((unsigned int)(g_unk0x00817fe4 - GameInfo_GetSessionTimestamp()) > 0x1388) {
+        GameInfo_ResetSessionTimestamp();
+        CGame::PromoteCallbackEntryByRule(p1, p2, 0, 2);
+    }
+}
+
+// Stores the frame time and runs the frontend.
+// FUNCTION: CMR2 0x004d1c90
+void Game_RunFrontendBootFrame(Unk0049c2c0 *p1, BYTE p2)
+{
+    g_unk0x00817fe4 = timeGetTime();
+    g_unk0x00817ff4 = g_unk0x00817fe4 - GameInfo_GetSessionTimestamp();
+    FrontendMenu_UpdateAndSwitchActive();
+}
+
+// Fade step of the boot/HUD colour: 1/1500 per elapsed millisecond.
+// GLOBAL: CMR2 0x00513ec8
+float g_unk0x00513ec8 = 1.0f / 1500.0f;
+extern const float g_netByteScale;
+int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
+
+// Draws a boot/HUD label at (x, y) in a colour that fades out 2.5 s after the
+// frame timer was last reset; unless flag is set it also fills the 2 pixel wide
+// bar that follows the text. Returns the x after the bar.
+// FUNCTION: CMR2 0x004d0d30
+int Game_DrawFadingBootLabel(int x, int y, char *pText, char flag)
+{
+    int elapsed;
+    int alpha;
+    BYTE colour[4];
+    short rect[4];
+    int px;
+
+    px = x;
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    elapsed = timeGetTime();
+    elapsed = elapsed - GameInfo_GetSessionTimestamp();
+    if (elapsed > 0x9c4) {
+        if (elapsed > 0xfa0)
+            alpha = 0;
+        else
+            alpha = 0xff -
+                    (int)(__int64)((float)(elapsed - 0x9c4) * g_netByteScale * g_unk0x00513ec8);
+    } else {
+        alpha = 0xff;
+    }
+    colour[0] = alpha;
+    colour[1] = alpha;
+    colour[2] = alpha;
+    Font_DrawText(2, pText, px, y, (int *)colour, 0x11);
+    if (flag == 0) {
+        px += Font_GetTextWidth(2, (BYTE *)pText) + (int)(g_pGraphics->resX * 10) / 0x280;
+        rect[0] = (short)px;
+        rect[1] = (int)(g_pGraphics->resY * 200) / 0x1e0;
+        rect[2] = 2;
+        rect[3] = (int)(g_pGraphics->resY * 60) / 0x1e0;
+        Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 1);
+        px += (int)(g_pGraphics->resX * 10) / 0x280;
+    }
+    return px;
+}
+
+// Prototypes for this boot state (defined in other modules or still stubs).
+unsigned char RallyDataCountryIndex(void);
+unsigned char RallyDataStageIndex(void);
+int OptionMovie_StartPlayback(char *path, Texture *pTexture, short *pRect, unsigned int flags, unsigned int track);
+
+// Cleared on entry and set while the intro video of the boot sequence is
+// being shown.
+extern BYTE g_unk0x00817fec;
+
+// Uppercase country codes of the intro videos. They are four bytes apart,
+// 0x00519264..0x00519280; the last one is CFrontend::m_strUK (already
+// declared in Frontend.h).
+extern char g_str0x00519268[4];
+extern char g_str0x0051926c[4];
+extern char g_str0x00519270[4];
+extern char g_str0x00519274[4];
+extern char g_str0x00519278[4];
+extern char g_str0x0051927c[4];
+extern char g_str0x00519280[4];
+
+// Country intro video path template ("%s\\%s\\%s.bik").
+// GLOBAL: CMR2 0x00523dc0
+char g_str0x00523dc0[14] = "%s\\%s\\%s.bik";
+
+// Boot state 7: shows the frontend for four seconds and then plays the
+// country intro video before asking for state 0.
+// FUNCTION: CMR2 0x004d1cc0
+void Game_PlayCountryIntroAfterFrontendDelay(Unk0049c2c0 *p1, BYTE p2)
+{
+    char *codes[8] = {
+        g_str0x00519280, g_str0x0051927c, g_str0x00519278, g_str0x00519274,
+        g_str0x00519270, g_str0x0051926c, g_str0x00519268, CFrontend::m_strUK,
+    };
+    char path[MAX_PATH];
+    DeviceInfo *pDevice;
+    bool queuedVideo;
+
+    g_unk0x00817fec = 0;
+    queuedVideo = false;
+    if (CGame::m_unk0x00523d68 != 0 &&
+        (CGameInfo::GetConfiguredGameMode() == 0 || CGameInfo::GetConfiguredGameMode() == 1) &&
+        RallyDataStageIndex() == 0) {
+        g_unk0x00817fec = 1;
+        CSound::CloseMusicStreamAndClearPath(0);
+        g_unk0x00817fe4 = timeGetTime();
+        CInput::UpdateAllAvailableDevices();
+        Input_TranslatePedalsToMenuKeys();
+        pDevice = CInput::GetAvailableDeviceRecord(0);
+        Input_MergeAssignedJoystickButtons(0, pDevice);
+        if (g_unk0x00817fe4 - (int)GameInfo_GetSessionTimestamp() > 4000) {
+            int language = CGameInfo::GetGameLanguage();
+            sprintf(path, g_str0x00523dc0, CInstallInfo::GetCountrySpecificOtherDir(),
+                    CGameInfo::GetGameRegionDirectory(), codes[RallyDataCountryIndex() & 0xff]);
+            OptionMovie_StartPlayback(path, NULL, NULL, 2, language);
+            queuedVideo = true;
+        }
+        if ((pDevice->field_0x8 & 0x10) == 0 && !queuedVideo)
+            return;
+    }
+    CGame::PromoteCallbackEntryByRule(p1, p2, 0, 2);
+}
+
+// Boot pieces called by the exit path of the game state that live in other
+// modules.
+void GameInfo_ApplyCheatsForGameMode(void);
+void GameInfo_SetPlayerOptionNibbles(unsigned int param1, unsigned int param2);
+void RallyData_CopyCountryPlayerDefaults(void);
+void RallyData_SetSelectionStateByte(char param1);
+void RallyData_PickOpponentLineups(void);
+bool Profile_SaveEditedNames(void);
+void RallyData_IncrementSelectedCategoryCounters(void);
+unsigned char RallyDataCountryIndex(void);
+unsigned char RallyDataStageIndex(void);
+extern int g_unk0x00817fe8;
+
+// Byte flag the exit path of the boot states tests to pick the next game
+// state (also read by the function at 0x4d2070).
+// GLOBAL: CMR2 0x008180fa
+BYTE g_unk0x008180fa;
+
+// Unwinds the group of callbacks of the current state, saves the data of the
+// ending race and asks for the next state (level 2, state index 0).
+// FUNCTION: CMR2 0x004d1e90
+void Game_FinishRaceAndAdvanceBootState(Unk0049c2c0 *p1, BYTE unused)
+{
+    CGame::SetSecondaryOptionStateByte(0);
+    if (CGameInfo::IsRecordFlagSet(0x11))
+        CGameInfo::SetFrontendSessionFlag(1);
+    else
+        CGameInfo::SetFrontendSessionFlag(0);
+    if (CGameInfo::GetConfiguredGameMode() != 4)
+        CFrontend::ResetFrontendPlayerInputState();
+
+    CSound::CloseMusicStreamAndClearPath(0);
+    GameInfo_ApplyCheatsForGameMode();
+
+    if (CGame::m_unk0x008180f9 == 0) {
+        if (CGameInfo::GetConfiguredGameMode() != 8 && CGameInfo::GetConfiguredGameMode() != 9 &&
+            CGameInfo::GetConfiguredGameMode() != 10 && CGameInfo::GetConfiguredGameMode() != 11 &&
+            CGameInfo::GetConfiguredGameMode() != 12)
+            RallyData_PickOpponentLineups();
+
+        RallyData_CopyCountryPlayerDefaults();
+        RallyData_SetSelectionStateByte(-1);
+        CGameInfo::ApplyStageOptionUnlockFlags();
+
+        if (CGameInfo::GetGameInfoSessionFlag() == 0) {
+            if (CGame::m_unk0x00523d68 != 0 || CGame::m_unk0x008180f9 != 0 || g_unk0x008180fa != 0)
+                GameInfo_SetPlayerOptionNibbles(RallyDataCountryIndex() & 0xff, RallyDataStageIndex() & 0xff);
+
+            Game_SaveConfigurationPreservingFullscreen();
+            CNetworkLeaderboards::SaveLeaderboards();
+            CInput::SaveControllerInfo();
+            Profile_SaveEditedNames();
+        }
+    }
+
+    CGame::UnwindCallbacks(g_unk0x00817fe8);
+    CGraphics::EvictManagedTextureResources();
+    CGraphics::FreeTextureBuffers();
+    if (CGameInfo::GetConfiguredGameMode() != 4)
+        RallyData_IncrementSelectedCategoryCounters();
+
+    if (CGame::m_unk0x00523d68 != 0) {
+        CGame::PromoteCallbackEntryByRule(p1, 0, 0, 2);
+        if (CGameInfo::GetConfiguredGameMode() == 0 || CGameInfo::GetConfiguredGameMode() == 1) {
+            GameInfo_ResetSessionTimestamp();
+            CGame::SetFrontendResourceMode(2);
+            return;
+        }
+        if (CGameInfo::GetConfiguredGameMode() != 2 && CGameInfo::GetConfiguredGameMode() != 3 &&
+            CGameInfo::GetConfiguredGameMode() != 8 && CGameInfo::GetConfiguredGameMode() != 9 &&
+            CGameInfo::GetConfiguredGameMode() != 10) {
+            CGame::SetFrontendResourceMode(3);
+            CInput::UpdateInputFrameDelta();
+            return;
+        }
+        CGame::SetFrontendResourceMode(2);
+        CInput::UpdateInputFrameDelta();
+        return;
+    }
+
+    if (CGame::m_unk0x008180f9 != 0) {
+        CGame::PromoteCallbackEntryByRule(p1, 0, 0, 2);
+        CGame::SetFrontendResourceMode(2);
+        return;
+    }
+    if (g_unk0x008180fa != 0) {
+        CGame::PromoteCallbackEntryByRule(p1, 0, 0, 2);
+        CGame::SetFrontendResourceMode(3);
+        return;
+    }
+    CGame::PromoteCallbackEntryByRule(p1, 0, 0, 2);
+    CGame::SetShouldExit();
+}
+
+float Graphics_GetFrameScale(void);
+int Game_DrawSceneViewport(int, int, void *, int, BYTE);
+void Graphics_PresentFrameAndResetCounters(void);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+
+// Needed by every boot-screen render of this file (0x4d0a80 / 0x4d0ea0 /
+// 0x4d1080 / 0x4d1370); the duplicated definition is deduplicated on integration.
+
+// Bink Video credit line drawn at the bottom of the boot screens.
+// GLOBAL: CMR2 0x00523cd8
+char g_strBinkCredit0x00523cd8[65] = "Uses Bink Video. Copyright (C) 1997-1999 by RAD Game Tools, Inc.";
+// Bink Video credit line of the Polish build.
+// GLOBAL: CMR2 0x00523d1c
+char g_strBinkCreditPl0x00523d1c[73] = "Wykorzystuje Bink Video. Copyright (C) 1997-1999 by RAD Game Tools, Inc.";
+
+// Renders the boot screens: clears the target white, draws the frontend movie
+// frame centred, then the FPS counter and the Bink Video credit line.
+// FUNCTION: CMR2 0x004d1370
+void Game_DrawMovieFrameAndCredits(Unk0049c2c0 *p1, BYTE p2)
+{
+    SpriteRect dst;
+    SpriteRect viewport;
+    SpriteRect src;
+
+    viewport.x = 0;
+    viewport.y = 0;
+    viewport.w = (short)g_pGraphics->resX;
+    viewport.h = (short)g_pGraphics->resY;
+    BYTE white[4] = { 0xff, 0xff, 0xff, 0xff };
+    BYTE black[4] = { 0x00, 0x00, 0x00, 0xff };
+    int centre[3] = { 0, 0, 0 };
+
+    CGraphics::SetClearColour(1, 0xff, 0xff, 0xff);
+    CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+    if (CFrontend::m_unk0x00817ebc != NULL) {
+        short w;
+        short h;
+        src.x = CFrontend::m_unk0x00817ebc->field_0x11c;
+        src.y = CFrontend::m_unk0x00817ebc->field_0x11e;
+        w = CFrontend::m_unk0x00817ebc->width;
+        src.w = w;
+        h = CFrontend::m_unk0x00817ebc->height;
+        src.h = h;
+        dst.x = (short)((int)(g_pGraphics->resX * 0x140) / 0x280);
+        dst.y = (short)((int)(g_pGraphics->resY * 0xf0) / 0x1e0);
+        dst.w = w;
+        dst.h = h;
+        dst.x -= w / 2;
+        dst.y -= h / 2;
+        centre[0] = w / 2;
+        centre[1] = h / 2;
+        Sprite_Queue(&src, &dst, CFrontend::m_unk0x00817ebc, 1, 0, centre, NULL, white, 8);
+    }
+    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)&viewport, 0);
+    if ((g_pGraphics->field913_0x3bc & 4) != 0) {
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
+        Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)white, 9);
+    }
+    if (CGameInfo::GetGameRegion() == 3)
+        sprintf(CFrontend::m_stringDest, g_strBinkCreditPl0x00523d1c);
+    else
+        sprintf(CFrontend::m_stringDest, g_strBinkCredit0x00523cd8);
+    Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x140) / 0x280,
+                  (int)(g_pGraphics->resY * 0x15e) / 0x1e0, (int *)black, 10);
+    Game_DrawSceneViewport((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, &viewport, 0, 1);
+    if (g_unk0x00817fcc == 0)
+        Graphics_PresentFrameAndResetCounters();
+}
+
+// Boot states 0x4d1ba0/0x4d1c30/0x4d1e10 (cascade seed batch 1, verified 96-98%).
+// GLOBAL: CMR2 0x00523da4
+char g_strCmBik[] = "%s\\cm.bik";
+// GLOBAL: CMR2 0x00523db0
+char g_strIntroBik[] = "%s\\Intro.bik";
+// GLOBAL: CMR2 0x00523d6c
+int g_unk0x00523d6c = -1;
+// GLOBAL: CMR2 0x00817ff0
+unsigned int g_unk0x00817ff0;
+
+// FUNCTION: CMR2 0x004d1ba0
+void Game_PlayCodemastersBootVideo(Unk0049c2c0 *p1, BYTE state)
+{
+    char path[260];
+
+    CGraphics::SetClearColour(1, 0, 0, 0);
+    CGraphics::ClearTarget();
+    g_pGraphics->pPrimarySurface->Blt(NULL, g_pGraphics->pBackBufferSurface, NULL, DDBLT_WAIT, NULL);
+    sprintf(path, g_strCmBik, CInstallInfo::GetVideosDir());
+    OptionMovie_StartPlayback(path, NULL, NULL, 2, 0);
+    GameInfo_ResetSessionTimestamp();
+    CGame::PromoteCallbackEntryByRule(p1, state, 0, 2);
+}
+
+// FUNCTION: CMR2 0x004d1c30
+void Game_PlayIntroBootVideo(Unk0049c2c0 *p1, BYTE state)
+{
+    char path[260];
+
+    sprintf(path, g_strIntroBik, CInstallInfo::GetVideosDir());
+    OptionMovie_StartPlayback(path, NULL, NULL, 2, 0);
+    GameInfo_ResetSessionTimestamp();
+    CGame::PromoteCallbackEntryByRule(p1, state, 0, 2);
+}
+
+// FUNCTION: CMR2 0x004d1e10
+void Game_UpdateBootInputDelay(Unk0049c2c0 *p1, BYTE state)
+{
+    CInput::UpdateAllAvailableDevices();
+    Input_TranslatePedalsToMenuKeys();
+    CInput::GetAvailableDeviceRecord(0);
+    if (g_unk0x00523d6c == -1) {
+        g_unk0x00817ff0 = CMain::GetFrameDelta();
+        g_unk0x00523d6c = 0;
+    }
+    if (500 < (unsigned int)(CMain::GetFrameDelta() - g_unk0x00817ff0)) {
+        if (g_unk0x00523d6c < 2) {
+            g_unk0x00817ff0 = CMain::GetFrameDelta();
+            g_unk0x00523d6c = g_unk0x00523d6c + 1;
+            return;
+        }
+        CGame::PromoteCallbackEntryByRule(p1, state, 0, 2);
+    }
+}
+
+// FUNCTION: CMR2 0x004d15e0
+void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
+{
+    time_t srandSeed;
+    char *skuValue, *skuRegion;
+    bool didLoadGameInfo = false;
+
+    srandSeed = time(NULL);
+    srand(srandSeed);
+
+    // europe sku check
+    skuValue = CRegKey::GetValueFromKey(CRegKey::m_regKeySkuType);
+    skuRegion = CRegKey::m_skuEurope;
+    if (strcmp(skuRegion, skuValue) == 0)
+       CGameInfo::SetGameRegion(0);
+    else
+    {
+       // america sku check
+       skuValue = CRegKey::GetValueFromKey(CRegKey::m_regKeySkuType);
+       skuRegion = CRegKey::m_skuAmerica;
+       if (strcmp(skuRegion, skuValue) == 0)
+           CGameInfo::SetGameRegion(1);
+       else
+       {
+           // japan sku check
+           skuValue = CRegKey::GetValueFromKey(CRegKey::m_regKeySkuType);
+           skuRegion = CRegKey::m_skuJapan;
+           if (strcmp(skuRegion, skuValue) == 0)
+               CGameInfo::SetGameRegion(2);
+           else
+           {
+               // poland sku check
+               skuValue = CRegKey::GetValueFromKey(CRegKey::m_regKeySkuType);
+               skuRegion = CRegKey::m_skuPoland;
+               if (strcmp(skuRegion, skuValue) == 0)
+                   CGameInfo::SetGameRegion(3);
+               else // otherwise die
+                   CGame::SetShouldExit();
+           }
+       }
+    }
+
+    CGameInfo::InitRegionLanguageCount();
+    m_unk0x00523d68 = 1;
+    m_unk0x008180f9 = 0;
+    m_unk0x008180fc = GetConfigurationStateByte();
+    if (GetConfigurationStateByte() != 0)
+    {
+        // First boot: load the configuration, bring up DirectX, sound and the frontend.
+        SetProfileSelectionState(0);
+        SetSecondaryOptionStateByte(0);
+        ConsumeOptionRefreshRequest();
+        CGameInfo::SetGameModeOptionBit19(0);
+        if ((BYTE)CInstallInfo::LoadInstallPathsFromRegistry() == 0)
+            goto exit;
+
+        CGameInfo::InitDefaultGameInfo();
+        CGameInfo::ResetStageOptionStates();
+        CGameInfo::ApplyStageOptionUnlockFlags();
+        CGameInfo::SetupInputs(2);
+        didLoadGameInfo = CGameInfo::LoadGameInfo();
+        CNetworkLeaderboards::Reset();
+        CNetworkLeaderboards::LoadLeaderboards();
+        CGameInfo::SetGameModeOptionBit19(0);
+        if (CGraphics::InitializeDirectX())
+            CGraphics::SetDefaults();
+        CInput::LoadControllerInfo();
+        CGameInfo::SetInputAndGamePaused(1);
+        CGameInfo::InitFrontendSessionBuffer();
+        if (InitializeNetworkSubsystem() == false)
+            goto exit;
+        if (CGame::LoadAndInitializeSplashScreens(true) == false)
+            goto exit;
+
+        CGraphics::SetClearColour(1, 0, 0, 0);
+        SavedGames_LoadRecords();
+        CGame::RegisterCallback(SavedGames_ReleaseRecords, NULL);
+        Sound_Init(0x5622, 2, 0x10, 0);
+        CGraphics::SetClearColour(1, 0x9c, 0xb4, 0xac);
+        FrontendAudio_LoadSounds();
+        if (FrontendText_LoadFonts() == 0)
+            goto exit;
+        if (FrontendText_LoadRegionLanguages() == 0)
+            goto exit;
+        FrontendCredits_LoadText(1);
+        RallyData_ResetSelection();
+        RallyData_ResetSavedPlayerRecords();
+        FrontendScroller_ResetAll();
+        FrontendMenu_BuildPagesAndSelectInitial(didLoadGameInfo == false, 1);
+        FrontendAnimation_LoadDotTextures();
+        FrontendAudio_ConfigureMenuSounds();
+        Game_SetConfigurationStateByte(0);
+        RallyData_ClearDriverGroupRecords();
+        RallyData_ClearDriverSkillFlags();
+        CGame::PromoteCallbackEntryByRule(p1, p2, 1, 2);
+        GameInfo_ResetSessionTimestamp();
+        FrontendMap_FindStageFiles();
+        return;
+    }
+
+    // Back from a race: save state, reload the frontend and restart its music.
+    if (CGameInfo::GetConfiguredGameMode() == 4)
+        g_unk0x00819744 = 0;
+    SetSecondaryOptionStateByte(0);
+    if (ConsumeOptionRefreshRequest())
+        CGameInfo::SetGameModeOptionBit19(0);
+    else
+    {
+        if (CGameInfo::GetGameModeOptionBit19() != 0 &&
+            (CGameInfo::GetConfiguredGameMode() == 10 || CGameInfo::GetConfiguredGameMode() == 12))
+            SetSecondaryOptionStateByte(1);
+        if (Network_GetSessionStateFlag())
+            Session_SetOpen(1);
+        g_unk0x00818ce4 = 0;
+        FrontendNetwork_SendPlayerDescription();
+    }
+    if (CGameInfo::GetGameInfoSessionFlag())
+    {
+        GameInfo_RestoreFrontendOptionSettings();
+        CGameInfo::SetGameInfoSessionFlag(0);
+    }
+    CGameInfo::ApplyStageOptionUnlockFlags();
+    Game_SaveConfigurationPreservingFullscreen();
+    CNetworkLeaderboards::SaveLeaderboards();
+    CInput::SaveControllerInfo();
+    CGameInfo::SetInputAndGamePaused(1);
+    if (CGame::LoadAndInitializeSplashScreens(false) == false)
+        goto exit;
+
+    if (Game_GetOptionStateByte() == 0)
+        CGraphics::SetClearColour(1, 0x9c, 0xb4, 0xac);
+    else
+        CGraphics::SetClearColour(1, 0, 0, 0);
+    SavedGames_LoadRecords();
+    CGame::RegisterCallback(SavedGames_ReleaseRecords, NULL);
+    Sound_Init(0x5622, 2, 0x10, 0);
+    FrontendAudio_LoadSounds();
+    if (FrontendText_LoadFonts() == 0 || FrontendText_LoadRegionLanguages() == 0)
+        goto exit;
+    FrontendCredits_LoadText(1);
+    FrontendScroller_ResetAll();
+    FrontendMenu_BuildPagesAndSelectInitial(0, 0);
+    FrontendAnimation_LoadDotTextures();
+    FrontendAudio_ConfigureMenuSounds();
+    sprintf(CFrontend::m_stringDest, g_strMusicSelect1Adp, CInstallInfo::GetMusicDir());
+    CSound::OpenStreamingMusicFile(CFrontend::m_stringDest);
+    CSound::SetMusicStreamVolume(CGameInfo::GetMasterSoundVolume());
+    Sound_StartLoopingMusicStream(1);
+    Profile_SaveDirtyRecords();
+    if (CGameInfo::GetGameModeOptionBit19() == 0 && Game_GetOptionStateByte() == 0)
+        Profile_ResetAllRecordCategories();
+    RallyData_ClearDriverGroupRecords();
+    RallyData_ClearDriverSkillFlags();
+    GameInfo_ResetSessionTimestamp();
+    if (Game_GetOptionStateByte() == 1) {
+        Game_SetOptionStateByte(0);
+        CGame::PromoteCallbackEntryByRule(p1, p2, 6, 2);
+    } else {
+        CGame::PromoteCallbackEntryByRule(p1, p2, 0, 2);
+    }
+    FrontendMap_FindStageFiles();
+    return;
+
+exit:
+    CGame::SetShouldExit();
+}
+
+// FUNCTION: CMR2 0x0049c2c0
+void CGame::RunStateUpdateCallbacks(Unk0049c2c0 *param1)
+{
+    FuncTableEntry func;
+    BYTE counter;
+    BYTE unkIx;
+
+    counter = 0;
+    unkIx = 0;
+    if (param1->count > 0)
+    {
+        do
+        {
+            func = param1->funcLookupTable[param1->unk[unkIx].field0x1 & 0xFF].func1;
+            if (func != NULL)
+                (func)(param1, unkIx);
+
+            counter++;
+            unkIx = counter;
+        } while (counter < param1->count);
+    }
+}
+
+// FUNCTION: CMR2 0x0049c310
+void CGame::RunStateRenderCallbacks(Unk0049c2c0 *param1)
+{
+    OtherFuncTableEntry func;
+    BYTE counter;
+    BYTE unkIx;
+
+    if (m_unk0x00593cac == 0)
+    {
+
+        counter = 0;
+        unkIx = 0;
+        if (param1->count > 0)
+        {
+            do
+            {
+                func = param1->funcLookupTable[param1->unk[unkIx].field0x1 & 0xFF].func2;
+                if (func != NULL)
+                    (func)(param1, unkIx);
+
+                counter++;
+                unkIx = counter;
+            } while (counter < param1->count);
+        }
+    }
+    else
+        m_unk0x00593cac = 0;
+}
+
+// FUNCTION: CMR2 0x0049c370
+void CGame::AdvanceCallbackStateTimers(Unk0049c2c0 *param1)
+{
+    unsigned int tVar1;
+
+    m_unk0x00593ba8.index = 0;
+    if (param1->count > 0)
+    {
+        do
+        {
+            m_unk0x00593ba4 = &param1->unk[m_unk0x00593ba8.packed & 0xff];
+            tVar1 = m_unk0x00593ba4->field0x1;
+            if (tVar1 & 0x3000000)
+            {
+                m_unk0x00593ba4->field0x1 = ((tVar1 >> 0x10) & 0xff) | (tVar1 & 0xffffff00);
+                m_unk0x00593ba4->field0x1 = m_unk0x00593ba4->field0x1 & 0xff00ffff;
+                m_unk0x00593ba4->field0x1 = m_unk0x00593ba4->field0x1 & 0xfcffffff;
+                m_unk0x00593ba4->field0x2 = 0;
+            }
+            else
+                m_unk0x00593ba4->field0x2 = m_unk0x00593ba4->field0x2 + 1;
+
+            m_unk0x00593ba8.index++;
+        } while (m_unk0x00593ba8.index < param1->count);
+    }
+}
+
+// FUNCTION: CMR2 0x0049c150
+void CGame::InitializeCallbackStateRecord(Unk00817d98 *param1, int param2, int param3)
+{
+    param1->field0x2 = 0;
+    param1->bits.state = (BYTE)param2;
+    param1->bits.value = (BYTE)param3;
+    param1->bits.rule = 0;
+    param1->bits.level = 0;
+}
+
+// FUNCTION: CMR2 0x0049c190
+void CGame::InitializeCallbackStateMachine(Unk0049c2c0 *p1, BYTE count, Unk00817d98 *unk, FuncTableGroup *funcLookupTable, void *unk2)
+{
+    p1->count = count;
+    p1->unk = unk;
+    p1->funcLookupTable = funcLookupTable;
+    p1->unk2 = unk2;
+}
+
+// Promotes entry index of the table to the given level when a rule of
+// p->unk2 (terminated by 0xffffffff, 0xff bytes are wildcards) matches it
+// with the given value; the rule's top byte becomes the entry's third byte.
+// FUNCTION: CMR2 0x0049c1c0
+int CGame::PromoteCallbackEntryByRule(Unk0049c2c0 *p, BYTE index, BYTE value, int level)
+{
+    unsigned int *pEntry;
+    unsigned int *pRule;
+    unsigned int entry;
+    unsigned int rule;
+
+    pEntry = (unsigned int *)&p->unk[index];
+    entry = *pEntry;
+    if ((entry & 0x3000000) == 0x3000000 || (int)((entry >> 24) & 3) < level) {
+        for (pRule = (unsigned int *)p->unk2;; pRule++) {
+            rule = *pRule;
+            if ((rule & 0xff) == 0xff && (rule & 0xff00) == 0xff00 && (rule & 0xff0000) == 0xff0000 &&
+                (rule & 0xff000000) == 0xff000000)
+                break;
+            if ((((rule ^ entry) & 0xff) == 0 || (rule & 0xff) == 0xff) &&
+                (((rule ^ entry) & 0xff00) == 0 || (rule & 0xff00) == 0xff00) && ((rule >> 16) & 0xff) == value) {
+                ((Unk00817d98 *)pEntry)->bits.level = level;
+                ((Unk00817d98 *)pEntry)->bits.rule = *pRule >> 24;
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+// GLOBAL: CMR2 0x0082a7f0
+Unk0049c2c0 g_unk0x0082a7f0;
+
+// FUNCTION: CMR2 0x004ff440
+Unk0049c2c0 *Game_GetSecondaryCallbackMachine(void)
+{
+    return &g_unk0x0082a7f0;
+}
+// GLOBAL: CMR2 0x0082a800
+Unk00817d98 g_unk0x0082a800;
+// GLOBAL: CMR2 0x0082a908
+BYTE g_unk0x0082a908;
+// State 0x500df0 (country menus) is defined in GameInfo.cpp.
+void OptionMenu_EnterCountryState(Unk0049c2c0 *p1, BYTE p2);
+
+// State of the option menu machine (GameInfo.cpp).
+void OptionMenu_EnterStartState(Unk0049c2c0 *p1, BYTE state);
+
+void OptionMenu_UpdateFadeState(Unk0049c2c0 *p1, BYTE state);
+void OptionMenu_FadeBackgroundToGrey(int param1, int unused);
+void OptionMenu_FadeToStoredColour(int param1, int unused);
+
+// GLOBAL: CMR2 0x00526ee0
+FuncTableGroup g_unk0x00526ee0[7] = {
+    {OptionMenu_EnterStartState, NULL},
+    {OptionMenu_UpdateHiddenPreviewState, (OtherFuncTableEntry)OptionMenu_FadeBackgroundToGrey},
+    {OptionMenu_EnterCountryState, NULL},
+    {OptionMenu_UpdateFadeState, OptionMenu_DrawBackgroundState},
+    {(FuncTableEntry)OptionMenu_StartDelayedFade, (OtherFuncTableEntry)OptionMenu_FadeToStoredColour},
+    {OptionMenu_LeaveAndCommitState, CGame::NoOpSecondaryStateCallback},
+    {OptionMenu_LeaveWithoutCommitState, CGame::NoOpSecondaryStateCallback},
+};
+// Transition rules of the secondary (option/country menu) callback machine.
+// Keep the entire table and its terminator: the dispatcher scans its address.
+// GLOBAL: CMR2 0x00526f18
+unsigned int g_unk0x00526f18[10] = {
+    0x0100ff00, 0x0200ff01, 0x0300ff02, 0x0400ff03, 0x0201ff03,
+    0x0500ff04, 0x0602ff04, 0x0000ff05, 0x0000ff06, 0xffffffff,
+};
+
+// FUNCTION: CMR2 0x004ff450
+BOOL CGame::UpdateSecondaryCallbackMachine()
+{
+    if (g_unk0x0082a908 != 0) {
+        RunStateUpdateCallbacks(&g_unk0x0082a7f0);
+        RunStateRenderCallbacks(&g_unk0x0082a7f0);
+        AdvanceCallbackStateTimers(&g_unk0x0082a7f0);
+        return FALSE;
+    }
+    InitializeCallbackStateRecord(&g_unk0x0082a800, 0, 0xFF);
+    InitializeCallbackStateMachine(&g_unk0x0082a7f0, 1, &g_unk0x0082a800, g_unk0x00526ee0, &g_unk0x00526f18);
+    g_unk0x0082a908 = 1;
+    return FALSE;
+}
+// In-race callback group of the game state machine (0x0041b060), filled by
+// InitializeCallbackStateMachine; its slots live at 0x537de0.
+extern BYTE g_unk0x00537dd0[0x20];
+extern BYTE g_unk0x00537ef4;
+extern BYTE g_unk0x00537ef5;
+extern int g_unk0x00537ef8;
+extern int g_unk0x00537efc;
+extern int g_unk0x00537df0;
+
+void InRaceMenu_UpdateStateMachineFrame(Unk0049c2c0 *param1);
+void InRaceMenu_AdvanceScreenEntries(BYTE *param1);
+void StageUI_ResetRaceEndEventCount(void);
+unsigned int *RallyData_GetChampionshipState(void);
+char RallyData_GetUsableRecordCategory(BYTE param1);
+int RallyData_IsChampionshipFinalStage(void);
+void RallyData_SetSelectionBits14To15(BYTE param1);
+void Car_BuildRaceOrder(int count);
+void Dash_Reset(void);
+void Race_EnterCurrentModeScene(int param1, int param2);
+void Race_UpdatePauseState(Unk0049c2c0 *p, BYTE index);
+void RallyData_DrawProjectedChallengeScene(int param1, int param2);
+void Race_StartArcadeScene(int param1, int param2);
+void RallyData_RunChallengeLoadingScreen(int param1, char param2);
+void GameInfo_EnterStageGroup(BYTE *param1, int param2);
+void GameInfo_LeaveStageGroup(BYTE *param1, int param2);
+void InRaceMenu_AdvanceCascade(int param1, int param2);
+void RallyData_GrowEntryAndInvokeAction(BYTE *param1, unsigned int param2);
+void Knockout_UpdateRaceStateAndFades(BYTE *param_1, unsigned int param_2);
+void StageObject_ClearAndDrawSplitPositions(int unused1, int unused2);
+void Race_UpdateDriverPreRaceScene(BYTE *param1, unsigned int param2);
+void Race_UpdateDriverCountdown(int param1, unsigned int param2);
+void Race_UpdateDriverReadyAndRecordState(BYTE *param1, unsigned int param2);
+void Race_HandleStageReplayViewTransitions(BYTE *param1, unsigned int param2);
+void Race_UpdateInterStageFadeJobs(int param1, unsigned int param2);
+void Race_UpdateState12(Unk0049c2c0 *p, BYTE index);
+void Race_LeaveAndFadeOut(int param1, char param2);
+void RallyData_GrowEntryAndRefreshRecords(BYTE *param1, unsigned int param2);
+void RallyData_GrowEntryPanel(BYTE *param1, unsigned int param2);
+void RallyData_UpdateUnavailableEntryText(BYTE *param1, unsigned int param2);
+void RallyData_ShrinkEntryAndNotifyCompletion(BYTE *param1, unsigned int param2);
+void RallyData_ShrinkEntryAndDrawStageStarted(BYTE *param1, unsigned int param2);
+
+// In-race state table: pairs of (update, render) callbacks indexed by the state
+// of each slot of the callback group (0x537dd0).
+// GLOBAL: CMR2 0x005190b0
+FuncTableGroup g_unk0x005190b0[14] = {
+    {(FuncTableEntry)Race_EnterCurrentModeScene, NULL},
+    {(FuncTableEntry)Race_UpdatePauseState, (OtherFuncTableEntry)RallyData_DrawProjectedChallengeScene},
+    {(FuncTableEntry)Race_StartArcadeScene, (OtherFuncTableEntry)RallyData_RunChallengeLoadingScreen},
+    {(FuncTableEntry)GameInfo_EnterStageGroup, NULL},
+    {(FuncTableEntry)GameInfo_LeaveStageGroup, NULL},
+    {(FuncTableEntry)InRaceMenu_AdvanceCascade, (OtherFuncTableEntry)RallyData_GrowEntryAndInvokeAction},
+    {(FuncTableEntry)Knockout_UpdateRaceStateAndFades, (OtherFuncTableEntry)StageObject_ClearAndDrawSplitPositions},
+    {(FuncTableEntry)Race_UpdateDriverPreRaceScene, (OtherFuncTableEntry)RallyData_GrowEntryAndRefreshRecords},
+    {(FuncTableEntry)Race_UpdateDriverCountdown, (OtherFuncTableEntry)RallyData_GrowEntryPanel},
+    {(FuncTableEntry)Race_UpdateDriverReadyAndRecordState, (OtherFuncTableEntry)RallyData_UpdateUnavailableEntryText},
+    {(FuncTableEntry)Race_UpdateInterStageFadeJobs, (OtherFuncTableEntry)RallyData_ShrinkEntryAndNotifyCompletion},
+    {(FuncTableEntry)Race_HandleStageReplayViewTransitions, (OtherFuncTableEntry)CGame::NoOpSecondaryStateCallback},
+    {(FuncTableEntry)Race_UpdateState12, NULL},
+    {(FuncTableEntry)Race_LeaveAndFadeOut, (OtherFuncTableEntry)RallyData_ShrinkEntryAndDrawStageStarted},
+};
+
+// State transition rules of the in-race machine (byte 0 = current state, 0xff
+// any; byte 1 = slot level, 0xff any; byte 2 = value; byte 3 = next state),
+// terminated by 0xffffffff.
+// GLOBAL: CMR2 0x00519120
+unsigned int g_unk0x00519120[26] = {
+    0x0100ff00, 0x0200ff01, 0x0c01ff01, 0x0300ff02, 0x0400ff03, 0x0500ff04,
+    0x0700ff05, 0x0605ff05, 0x0d06ff05, 0x0a01ff05, 0x0700ff06, 0x0800ff07,
+    0x0900ff08, 0x0a00ff09, 0x0b00000a, 0x0b00010a, 0x0b00040a, 0x0b00020a,
+    0x0b00030a, 0x0000ff0b, 0x0407ff0b, 0x0403ff0b, 0x0000ff0c, 0x0504ffff,
+    0x0b01ffff, 0xffffffff
+};
+
+// Entry point of the in-race state machine: on the first frame it builds the
+// callback group of the current in-race mode, on later frames it only
+// dispatches the transition of the current state.
+//
+// The logic is faithful; the remaining gap is codegen shape. Exact differences
+// against the original (643 bytes):
+//  1. switch block layout (the bulk). The original puts the switch epilogue
+//     (`mov [esp+0x14],2; jmp state1`) right after case 1 (0x41b190), so every
+//     `break` reaches it with a short jump and case 2's second FUN_00408500 call
+//     is tail-merged into case 1's (`jmp 0x41b187`). MSVC6 12.00.8804 from any
+//     source shape probed instead keeps an epilogue copy after every case and
+//     duplicates case 2's call. Case 0 keeps its own copy of the epilogue in the
+//     original (0x41b14e), reproduced here with the explicit `goto state1`.
+//  2. stack slots are swapped: original has `state` at [esp+0x10] and `level` at
+//     [esp+0x14]; ours is the reverse (9 operand mismatches). Declaration order
+//     does not move them.
+//  3. the loop's else branch has a dead `mov al,[g_unk0x00537ef4]; test al,al`
+//     before `push 0` that no source form probed reproduces (2 instructions).
+//  4. the loop counter is a dword in the original (`mov ebx,ebp; and ebx,0xff;
+//     dec ebx`); the byte `i` here compiles to `dec bl`.
+//  5. `level` is masked into a copy in the original (`mov ecx,edi; and ecx,0xff`)
+//     keeping the unmasked value in edi for the call argument; ours masks edi.
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0041b060
+BOOL CGame::UpdateInRaceCallbackMachine(void)
+{
+    unsigned int *pState;
+    Unk00817d98 *pSlot;
+    BYTE level;
+    BYTE state;
+    BYTE i;
+    char c;
+
+    if (g_unk0x00537ef4 != 0 && g_unk0x00537ef5 == 0 && g_unk0x00537ef8 == 0) {
+        if (CGameInfo::IsInRaceMenuOpen() != 0) {
+            InRaceMenu_UpdateStateMachineFrame((Unk0049c2c0 *)g_unk0x00537dd0);
+            InRaceMenu_AdvanceScreenEntries(g_unk0x00537dd0);
+            AdvanceCallbackStateTimers((Unk0049c2c0 *)g_unk0x00537dd0);
+            return FALSE;
+        }
+        RunStateUpdateCallbacks((Unk0049c2c0 *)g_unk0x00537dd0);
+        RunStateRenderCallbacks((Unk0049c2c0 *)g_unk0x00537dd0);
+        AdvanceCallbackStateTimers((Unk0049c2c0 *)g_unk0x00537dd0);
+        return FALSE;
+    }
+    pState = RallyData_GetChampionshipState();
+    if (g_unk0x00537ef4 == 0)
+        StageUI_ResetRaceEndEventCount();
+    state = CGameInfo::GetConfiguredPlayerCount();
+    c = (char)CGameInfo::GetConfiguredGameMode();
+    if (c == 4) {
+        switch ((int)((*pState >> 3) & 7) - 1) {
+        case 0:
+            if (RallyData_GetUsableRecordCategory((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] & 0x1f) == -1 &&
+                RallyData_GetUsableRecordCategory((pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] >> 5) & 0x1f) == -1)
+                goto fail;
+            level = 2;
+            goto state1;
+        case 1:
+            if (RallyData_GetUsableRecordCategory((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 10] & 0x1f) == -1 &&
+                RallyData_GetUsableRecordCategory((pState[((*pState >> 0xc) & 0xf) * 3 + 10] >> 5) & 0x1f) == -1)
+                goto fail;
+            level = 2;
+            goto state1;
+        case 2:
+            if (RallyData_GetUsableRecordCategory((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 4] & 0x1f) == -1 &&
+                RallyData_GetUsableRecordCategory((pState[((*pState >> 0xc) & 0xf) * 3 + 4] >> 5) & 0x1f) == -1)
+                goto fail;
+            level = 2;
+            goto state1;
+        case 3:
+            if (RallyData_GetUsableRecordCategory((BYTE)pState[1] & 0x1f) == -1 &&
+                RallyData_GetUsableRecordCategory((pState[1] >> 5) & 0x1f) == -1)
+                goto fail;
+            level = 2;
+            goto state1;
+        default:
+fail:
+            level = 3;
+            state = 2;
+            goto done;
+        }
+    } else {
+        if ((BYTE)RallyData_IsChampionshipFinalStage() == 0 && state > 1) {
+            if (CGameInfo::GetConfiguredGameMode() != 3 && 2 >= state && CGameInfo::IsConfiguredMultiplayer() == 0) {
+                state = 2;
+                level = 1;
+                goto done;
+            }
+            level = 4;
+        } else {
+            level = 0;
+        }
+    }
+state1:
+    state = 1;
+done:
+    RallyData_SetSelectionBits14To15(state);
+    g_unk0x00537df0 = level;
+    if (state > 0) {
+        pSlot = (Unk00817d98 *)&g_unk0x00537dd0[0x10];
+        i = state;
+        do {
+            if (g_unk0x00537ef8 != 0) {
+                g_unk0x00537efc = 1;
+                InitializeCallbackStateRecord(pSlot, 5, level);
+            } else {
+                InitializeCallbackStateRecord(pSlot, 0, level);
+            }
+            pSlot++;
+            i--;
+        } while (i != 0);
+    }
+    InitializeCallbackStateMachine((Unk0049c2c0 *)g_unk0x00537dd0, state, (Unk00817d98 *)&g_unk0x00537dd0[0x10],
+                 g_unk0x005190b0, g_unk0x00519120);
+    if (g_unk0x00537ef8 != 0) {
+        Car_BuildRaceOrder(2);
+        Dash_Reset();
+    }
+    g_unk0x00537ef4 = 1;
+    g_unk0x00537ef5 = 0;
+    g_unk0x00537ef8 = 0;
+    return FALSE;
+}
+
+
+// FUNCTION: CMR2 0x00501680
+void CGame::NoOpSecondaryStateCallback(struct Unk0049c2c0 *, BYTE) { return; }
+
+extern int g_unk0x0082b1b0;
+
+void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, BYTE *pView);
+
+// Projects a 16.16 point through the option menu's background camera and scales
+// the result by 2/3.
+// FUNCTION: CMR2 0x00501690
+void Game_ProjectMenuBackgroundPoint(int *param1, FixVector *param2)
+{
+    FixMatrix_ProjectWorldPointToView(param1, param2, (BYTE *)g_unk0x0082b1b0);
+    param1[0] = FixMul(param1[0], FixDiv(0x20000, 0x30000));
+    param1[1] = FixMul(param1[1], FixDiv(0x20000, 0x30000));
+}
+
+// Saves the game configuration (Configuration\GameInfo.rcf), keeping the
+// current fullscreen setting.
+// FUNCTION: CMR2 0x004ea840
+void Game_SaveConfigurationPreservingFullscreen(void)
+{
+    CGameInfo::SetFullscreen((BYTE)g_pGraphics->isFullscreen);
+    sprintf(CFrontend::m_stringDest, CGameInfo::m_stringGameInfoRCF, CInstallInfo::GetGameHDPath());
+    CInstallInfo::WriteFileToDisk(CFrontend::m_stringDest, 0, &CGameInfo::m_gameInfo, sizeof(GameInfo));
+}
+
+// FUNCTION: CMR2 0x004ea880
+BYTE CGame::GetConfigurationStateByte(void) { return m_unk0x00516120; }
+
+// FUNCTION: CMR2 0x004ea890
+void Game_SetConfigurationStateByte(BYTE param1)
+{
+    CGame::m_unk0x00516120 = param1;
+}
+
+// FUNCTION: CMR2 0x004083e0
+void CGame::SetProfileSelectionState(BYTE param1)
+{
+    m_unk0x00531768 = param1;
+}
+
+// GLOBAL: CMR2 0x0052ea50
+BYTE g_unk0x0052ea50;
+
+// FUNCTION: CMR2 0x004067b0
+BYTE Game_GetOptionStateByte(void)
+{
+    return g_unk0x0052ea50;
+}
+
+// FUNCTION: CMR2 0x004067c0
+void Game_SetOptionStateByte(BYTE param1)
+{
+    g_unk0x0052ea50 = param1;
+}
+
+// FUNCTION: CMR2 0x004067d0
+void Game_RequestOptionRefresh(void)
+{
+    CGame::m_unk0x0052ea58 = 1;
+}
+
+// FUNCTION: CMR2 0x00406800
+BYTE Game_GetSecondaryOptionStateByte(void)
+{
+    return CGame::m_unk0x0052ea59;
+}
+
+// FUNCTION: CMR2 0x00406810
+void CGame::SetSecondaryOptionStateByte(BYTE param1)
+
+{
+    m_unk0x0052ea59 = param1;
+    return;
+}
+
+// FUNCTION: CMR2 0x004067e0
+bool CGame::ConsumeOptionRefreshRequest(void)
+{
+    if (m_unk0x0052ea58 != 0)
+    {
+        m_unk0x0052ea58 = 0;
+        return true;
+    }
+    return false;
+}
+
+// FUNCTION: CMR2 0x0049c0a0
+int CGame::RegisterCallback(void *param1, void *param2) {
+    int iVar2;
+    void **piVar3;
+
+    if (param1 == NULL)
+        return -1;
+
+    iVar2 = 0;
+    if (m_unk0x00593ba0 > 0) {
+        piVar3 = m_callbacks;
+        while (1) {
+            if (param1 == *piVar3)
+                return iVar2;
+    
+            iVar2++;
+            piVar3++;
+            
+            if (iVar2 >= m_unk0x00593ba0) break;
+        }
+    }
+
+    if (m_unk0x00593ba0 >= 0x40)
+        return -1;
+
+    m_callbacks[m_unk0x00593ba0] = param1;
+    return m_unk0x00593ba0++;
+}
+
+// FUNCTION: CMR2 0x004a17b0
+void CGame::FreeNetworkReceiveBuffer(void) {
+    m_unk0x005a1fbc = FALSE;
+    if (m_unk0x005a1fb8 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(m_unk0x005a1fb8);
+        m_unk0x005a1fb8 = NULL;
+    }    
+}
+
+// The original calls this wrapper instead of FreeNetworkReceiveBuffer from CGame::Cleanup;
+// it compiles to a five byte tail jump.
+// FUNCTION: CMR2 0x004a17e0
+void CGame::ReleaseNetworkReceiveBuffer(void) {
+    FreeNetworkReceiveBuffer();
+}
+
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a17f0
+void CGame::ResetSessionPlayerTable(bool param1) {
+    if (param1)
+        m_unk0x005a1fc0 = false;
+
+    // The original walks a pointer to field_0x64 and stops when it passes
+    // 0x5a1e34, which clears exactly the 7 entries (0x5a1820..0x5a1dd0).
+    Unk0x005a1820 *dest = m_unk0x005a1820;
+    do {
+        // The original calls sprintf through a fixed 2-argument prototype; the
+        // non-variadic call makes MSVC6 defer the stack cleanup across the pair
+        // (the merged `add esp,0x10` of the original).
+        ((int (__cdecl *)(char *, const char *))sprintf)(dest->field_0x0, CMain::m_logFileBlankLine);
+        ((int (__cdecl *)(char *, const char *))sprintf)(dest->field_0x64, CMain::m_logFileBlankLine);
+        dest->field_0xc8 = 0;
+        dest->field_0xcc = 0;
+        dest++;
+    } while ((int)dest->field_0x64 < (int)m_unk0x005a1820[7].field_0x64); // 0x5a1e34 in the original
+
+    m_unk0x005a1818 = 0;
+}
+
+// FUNCTION: CMR2 0x004a1a90
+BOOL CGame::DestroyLocalNetworkPlayer(void) {
+    IDirectPlay4A *pVar1;
+    HRESULT hr;
+    if (m_unk0x005a1fc0) {
+        pVar1 = GetDirectPlay();
+        if (pVar1 != NULL) {
+            hr = pVar1->DestroyPlayer(m_unk0x005a1ea0);
+            if (hr > DPERR_UNAVAILABLE && hr != DPERR_CONNECTIONLOST && hr == DP_OK)
+                return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+// FUNCTION: CMR2 0x004aaa10
+void CGame::FreeServiceProviderConnections(void) {
+    int i;
+
+    for (i = 0; i < 10; i++) {
+        if (m_connections[i].pConnection != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(m_connections[i].pConnection);
+            m_connections[i].pConnection = NULL;
+        }
+    }
+}
+
+// FUNCTION: CMR2 0x004aaac0
+bool CGame::Cleanup(void)
+{
+  DestroyLocalNetworkPlayer();
+  DestroyDirectPlayLobby();
+  DestroyDirectPlay();
+  FreeServiceProviderConnections();
+  ReleaseNetworkReceiveBuffer();
+  CoUninitialize();
+  return 1;
+}
+
+// FUNCTION: CMR2 0x004aab40
+void CGame::DestroyDirectPlay(void) {
+    if (m_pDirectPlay4A != NULL) {
+        m_pDirectPlay4A->Release();
+        m_pDirectPlay4A = NULL;
+    }
+}
+
+// FUNCTION: CMR2 0x004aabb0
+void CGame::DestroyDirectPlayLobby(void) {
+    if (m_pDirectPlayLobby3A != NULL) {
+        m_pDirectPlayLobby3A->Release();
+        m_pDirectPlayLobby3A = NULL;
+    }
+}
+
+// FUNCTION: CMR2 0x004aad40
+IDirectPlay4A* CGame::GetDirectPlay(void) {
+    return m_pDirectPlay4A;
+}
+
+// FUNCTION: CMR2 0x004aaa40
+bool CGame::InitializeNetworkSubsystem(void) {
+    int i;
+
+    m_pDirectPlay4A = NULL;
+    m_pDirectPlayLobby3A = NULL;
+
+    CGameInfo::ResetNetworkSessionState();
+    ResetSessionPlayerTable(true);
+    FreeNetworkReceiveBuffer();
+    
+    for (i = 0; i < 10; i++) {
+        sprintf(m_connections[i].name, CMain::m_logFileBlankLine);
+        m_connections[i].pConnection = NULL;
+    }
+
+    m_connectionCount = 0;
+    CoInitialize(NULL);
+
+    RegisterCallback(Cleanup, NULL);
+
+    return true;
+}
+
+// FUNCTION: CMR2 0x004d0a50
+bool CGame::LoadAndInitializeSplashScreens(bool param1) {
+    BOOL didLoadSplashScreens;
+    BOOL bVar2;
+
+    didLoadSplashScreens = CFrontend::LoadSplashScreens(param1);
+    if (didLoadSplashScreens != FALSE) {
+        Font_SetBlendMode(TRUE);
+        LoadFrontendCommonAndCountryTextures();
+        
+        return true;
+    }
+
+    return false;
+}
+
+// FUNCTION: CMR2 0x004e2e50
+void CGame::LoadFrontendCommonAndCountryTextures(void) {
+    char countryNames[8][10] = { "Finland", "Greece", "France", "Sweden", "Aus", "Kenya", "Italy", "UK" };
+    char countryCodes[8][10] = { "Fin", "Gre", "Fra", "Swe", "Aus", "Ken", "Ita", "UK" };
+    BOOL bZero = false;
+
+    sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesAr640ATGA, CInstallInfo::GetGameCDPath());
+    CFrontend::m_pAr640ATexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+
+    sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesAr640DTGA, CInstallInfo::GetGameCDPath());
+    CFrontend::m_pAr640DTexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+
+    sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesLgMatrixTGA, CInstallInfo::GetGameCDPath());
+    CFrontend::m_pLgMatrixTexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+
+    sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesSmMatrixTGA, CInstallInfo::GetGameCDPath());
+    CFrontend::m_pSmMatrixTexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+
+    // Load country banners and flags
+    for (int i = 0; i < 8; i++) {
+        sprintf(CFrontend::m_stringDest, CFrontend::m_strSetupRepTexturesBanners, CInstallInfo::GetGameCDPath(), countryCodes[i]);
+        CFrontend::m_pSetupRepBanners[i] = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+        
+        sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTinyFlags, CInstallInfo::GetGameCDPath(), countryNames[i]);
+        CFrontend::m_pTinyFlags[i] = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+    }
+
+    // Load medal textures
+    sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesTGoldTGA, CInstallInfo::GetGameCDPath());
+    CFrontend::m_pTGold = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+    
+    sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesTSilverTGA, CInstallInfo::GetGameCDPath());
+    CFrontend::m_pTSilver = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+    
+    sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesTBronzeTGA, CInstallInfo::GetGameCDPath());
+    CFrontend::m_pTBronze = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, false, NULL, bZero, bZero);
+    
+    CFrontend::LoadFrontendCarPreviewTextures();
+}
+
+// FUNCTION: CMR2 0x004a9b00
+BOOL CGame::IsActive(void)
+{
+    return m_isActive;
+}
+
+// FUNCTION: CMR2 0x004a9b10
+void CGame::SetGameInputFocusState(int param1)
+{
+    m_unk0x00663dc4 = param1;
+}
+
+// FUNCTION: CMR2 0x004a9b20
+int CGame::GetGameInputFocusState(void)
+{
+    return m_unk0x00663dc4;
+}
+
+// FUNCTION: CMR2 0x004aaaf0
+bool CGame::CreateDirectPlay(void)
+{
+    HRESULT hr;
+    LPVOID pInterface;
+
+    pInterface = NULL;
+    hr = CoCreateInstance(CLSID_DirectPlay, NULL, CLSCTX_INPROC_SERVER, IID_IDirectPlay4A, &pInterface);
+    if (hr != CLASS_E_NOAGGREGATION && hr != REGDB_E_CLASSNOTREG && hr == S_OK) {
+        m_pDirectPlay4A = (IDirectPlay4A *)pInterface;
+        return true;
+    }
+    return false;
+}
+
+// FUNCTION: CMR2 0x004aab60
+bool CGame::CreateDirectPlayLobby(void)
+{
+    HRESULT hr;
+    LPVOID pInterface;
+
+    pInterface = NULL;
+    hr = CoCreateInstance(CLSID_DirectPlayLobby, NULL, CLSCTX_INPROC_SERVER, IID_IDirectPlayLobby3A, &pInterface);
+    if (hr != CLASS_E_NOAGGREGATION && hr != REGDB_E_CLASSNOTREG && hr == S_OK) {
+        m_pDirectPlayLobby3A = (IDirectPlayLobby3A *)pInterface;
+        return true;
+    }
+    return false;
+}
+
+// FUNCTION: CMR2 0x004aa8e0
+int __cdecl CGame::CompareConnections(const void *a, const void *b)
+{
+    if (((DPlayConnection *)a)->guidSP == DPSPGUID_IPX)
+        return -1;
+    return ((DPlayConnection *)b)->guidSP == DPSPGUID_IPX;
+}
+
+// FUNCTION: CMR2 0x004aa880
+void CGame::ClearConnections(void)
+{
+    int i;
+
+    for (i = 0; i < 10; i++) {
+        sprintf(m_connections[i].name, CMain::m_logFileBlankLine);
+        if (m_connections[i].pConnection != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(m_connections[i].pConnection);
+            m_connections[i].pConnection = NULL;
+        }
+        m_connections[i].pConnection = NULL;
+        m_connections[i].guidSP.Data1 = 0;
+        m_connections[i].guidSP.Data2 = 0;
+        m_connections[i].guidSP.Data3 = 0;
+        memset(m_connections[i].guidSP.Data4, 0, sizeof(m_connections[i].guidSP.Data4));
+    }
+    m_connectionCount = 0;
+    m_maxConnections = 10;
+}
+
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004aa930
+void CGame::AddConnection(char *name, void *pConnection, unsigned int size, GUID *pGuidSP)
+{
+    void *pCopy;
+
+    if (m_connectionCount < 10) {
+        strcpy(m_connections[m_connectionCount].name, name);
+        m_connections[m_connectionCount].guidSP = *pGuidSP;
+        pCopy = CFileBuffer::AllocateLockedBuffer(size);
+        m_connections[m_connectionCount].pConnection = pCopy;
+        if (pCopy != NULL) {
+            memcpy(pCopy, pConnection, size);
+            m_connectionCount++;
+        }
+    }
+    qsort(m_connections, m_connectionCount, sizeof(DPlayConnection), CompareConnections);
+}
+
+// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+
+
+// FUNCTION: CMR2 0x004aad00
+DPlayConnection *CGame::GetConnection(BYTE index)
+{
+    if (index < m_connectionCount)
+        return &m_connections[index];
+    return NULL;
+}
+
+// FUNCTION: CMR2 0x004aad30
+bool CGame::RejectUnsupportedNetworkOperation(BYTE param1, int param2, int param3)
+{
+    return false;
+}
+
+struct Menu;
+void Race_SetFlag38108(void);
+void Race_SetFlag37F94(void);
+
+// Item callbacks of the menu built by 0x475f00.
+// FUNCTION: CMR2 0x0049c070
+void Game_NoOpInRaceMenuItemEvent(Menu *pMenu, int param)
+{
+    Race_SetFlag38108();
+}
+
+// FUNCTION: CMR2 0x0049c080
+void Game_SetRaceExitFlags(Menu *pMenu, int param)
+{
+    Race_SetFlag38108();
+    Race_SetFlag37F94();
+}
+
+int InRaceMenu_GetUpArrowTexture(void);
+int InRaceMenu_GetDownArrowTexture(void);
+
+// Draws the in-race menu built by 0x475f00: the title, then one row per item
+// with its banner sprite, the item text and the separator line above the list
+// and under every row. The selected row and the lines around it are drawn in
+// the bright colour, the rest in the dim one.
+// FUNCTION: CMR2 0x0049bcb0
+void Game_DrawInRaceActionMenu(Menu *pMenu)
+{
+    BYTE colourWhite[4];
+    BYTE colourText[4];
+    BYTE colourDim[4];
+    short line[4];
+    short rect[4];
+    MenuItem *pItem;
+    int cursor;
+    int x;
+    int i;
+
+    colourText[0] = 0x4f; colourText[1] = 0x4f; colourText[2] = 0x4f; colourText[3] = 0xff;
+    colourDim[0] = 0x4f; colourDim[1] = 0x4f; colourDim[2] = 0x4f; colourDim[3] = 0xff;
+    colourWhite[0] = 0xff; colourWhite[1] = 0xff; colourWhite[2] = 0xff; colourWhite[3] = 0xff;
+
+    cursor = pMenu->cursor;
+    Font_DrawText(0, CFrontend::GetTextString(0xf3), (int)(g_pGraphics->resX * 0xf0) / 0x280,
+                  (int)(g_pGraphics->resY * 0xc8) / 0x1e0, (int *)colourText, 0x11);
+    x = (int)(g_pGraphics->resX * 0xf0) / 0x280;
+    rect[1] = 0;
+    rect[0] = (short)x;
+    if (InRaceMenu_GetUpArrowTexture() != 0) {
+        rect[2] = ((SpriteRect *)(InRaceMenu_GetUpArrowTexture() + 0x11c))->w;
+        rect[3] = ((SpriteRect *)(InRaceMenu_GetUpArrowTexture() + 0x11c))->h;
+    }
+    line[0] = (short)x;
+    line[1] = (short)((int)(g_pGraphics->resY * 0xd7) / 0x1e0);
+    line[2] = (short)((int)(g_pGraphics->resX * 0xa2) / 0x280);
+    line[3] = 1;
+    if (cursor == 0)
+        Sprite_FillRect((int)g_pGraphics + 0x150, line, colourWhite, 1);
+    else
+        Sprite_FillRect((int)g_pGraphics + 0x150, line, colourDim, 1);
+    pItem = pMenu->items;
+    for (i = 0; i < 2; i++, pItem++) {
+        if (InRaceMenu_GetUpArrowTexture() != 0)
+            rect[1] = (short)(line[1] + (int)(g_pGraphics->resY * 0xe) / 0x1e0 -
+                              ((SpriteRect *)(InRaceMenu_GetUpArrowTexture() + 0x11c))->h / 2);
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                CFrontend::GetTextString(pItem->id));
+        if (i == cursor) {
+            Font_DrawText(0, CFrontend::m_stringDest,
+                          (int)(g_pGraphics->resX * 0xf0) / 0x280 +
+                              (int)(g_pGraphics->resX * 0x14) / 0x280,
+                          line[1] + (int)(g_pGraphics->resY * 0x12) / 0x1e0, (int *)colourWhite, 0x11);
+            if (InRaceMenu_GetDownArrowTexture() != 0)
+                Sprite_Queue((SpriteRect *)(InRaceMenu_GetDownArrowTexture() + 0x11c), (SpriteRect *)rect,
+                             (Texture *)InRaceMenu_GetDownArrowTexture(), 1, 0, NULL, NULL, colourWhite, 8);
+        } else {
+            Font_DrawText(0, CFrontend::m_stringDest,
+                          (int)(g_pGraphics->resX * 0xf0) / 0x280 +
+                              (int)(g_pGraphics->resX * 0x14) / 0x280,
+                          line[1] + (int)(g_pGraphics->resY * 0x12) / 0x1e0, (int *)colourText, 0x11);
+            if (InRaceMenu_GetDownArrowTexture() != 0)
+                Sprite_Queue((SpriteRect *)(InRaceMenu_GetDownArrowTexture() + 0x11c), (SpriteRect *)rect,
+                             (Texture *)InRaceMenu_GetDownArrowTexture(), 1, 0, NULL, NULL, colourText, 8);
+        }
+        line[1] = (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 * (i + 1) +
+                          (int)(g_pGraphics->resY * 0xd7) / 0x1e0);
+        if (i == cursor || i + 1 == cursor)
+            Sprite_FillRect((int)g_pGraphics + 0x150, line, colourWhite, 1);
+        else
+            Sprite_FillRect((int)g_pGraphics + 0x150, line, colourDim, 1);
+    }
+}
+
+// FUNCTION: CMR2 0x0049c090
+int CGame::GetCallbackCount(void)
+{
+    return m_unk0x00593ba0;
+}
+
+// FUNCTION: CMR2 0x0049c0f0
+void CGame::UnwindCallbacks(int count)
+{
+    while (m_unk0x00593ba0-- > count)
+        ((void (*)(void))m_callbacks[m_unk0x00593ba0])();
+    m_unk0x00593ba0 = count;
+}
+
+// FUNCTION: CMR2 0x0049c140
+void CGame::SkipNextCallbackRenderPass(void)
+{
+    m_unk0x00593cac = 1;
+}
+
+// FUNCTION: CMR2 0x0049c400
+int CGame::GetDrawnMeshTriangleCount(void)
+{
+    return m_unk0x0059ce18;
+}
+
+// FUNCTION: CMR2 0x0049c410
+int CGame::GetDrawnOverlayTriangleCount(void)
+{
+    return m_unk0x0059ce20;
+}
+
+// FUNCTION: CMR2 0x0049c420
+void CGame::SetObjectRenderMode(int param1)
+{
+    m_unk0x0059ce14 = param1;
+}
+
+// FUNCTION: CMR2 0x0049c430
+int CGame::GetObjectRenderMode(void)
+{
+    return m_unk0x0059ce14;
+}
+
+// Sets field 0x2c of the mesh triangles whose flags match the group mask
+// (bits 0..6 against flags 0..6, bits 7..13 against flags 9..15).
+// FUNCTION: CMR2 0x0049c440
+void Game_SetTriangleField2CByGroup(Mesh *pMesh, int mask, int value)
+{
+    MeshTriangle *pTri;
+    int low = mask & 0x7f;
+    int high = (mask >> 7) & 0x7f;
+    int i;
+
+    if (pMesh != NULL) {
+        for (i = 0; i < pMesh->triangleCount; i++) {
+            if ((pMesh->pTriangles[i].flags & low & 0x7f) != 0 ||
+                (high & (pMesh->pTriangles[i].flags >> 9)) != 0)
+                pMesh->pTriangles[i].field_0x2c = value;
+        }
+    }
+}
+
+// Same as Game_SetTriangleField2CByGroup for field 0x30 (the mesh must exist).
+// FUNCTION: CMR2 0x0049c4b0
+void Game_SetTriangleField30ByGroup(Mesh *pMesh, int mask, int value)
+{
+    int low = mask & 0x7f;
+    int high = (mask >> 7) & 0x7f;
+    int i;
+
+    for (i = 0; i < pMesh->triangleCount; i++) {
+        if ((pMesh->pTriangles[i].flags & low & 0x7f) != 0 ||
+            (high & (pMesh->pTriangles[i].flags >> 9)) != 0)
+            pMesh->pTriangles[i].field_0x30 = value;
+    }
+}
+
+extern unsigned short g_unk0x0059be74[];
+
+// Draws the triangles of a mesh in runs that share a texture, using the mesh
+// slot already reserved in the shared vertex buffer, and clamps texture
+// addressing for the material groups that need it.
+// match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0049c510
+void Game_DrawMeshTextureRuns(Mesh *pMesh)
+{
+    int i;
+    int texture;
+    int prev = -1;
+    int count = 0;
+    int total = pMesh->triangleCount;
+    MeshTriangle *pTri = pMesh->pTriangles;
+
+    for (i = total; i > 0; i--) {
+        texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
+        if (prev != texture) {
+            if (count > 0) {
+                CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
+                    D3DPT_TRIANGLELIST,
+                    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
+                    pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
+            }
+            prev = texture;
+            count = 0;
+            CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+        }
+        g_unk0x0059be74[count++] = pTri->vertexIndex[0];
+        g_unk0x0059be74[count++] = pTri->vertexIndex[1];
+        g_unk0x0059be74[count++] = pTri->vertexIndex[2];
+        CGame::m_unk0x0059ce18++;
+        if ((pTri->flags & 0x7f) == 0x70 || (pTri->flags & 0x7f) == 0x71 ||
+            (pTri->flags & 0x7f) == 0x73 || (pTri->flags & 0x7f) == 0x74) {
+            CGraphics::SetTextureAddressClamp(0);
+        } else {
+            CGraphics::SetTextureAddressClamp(1);
+        }
+        pTri++;
+    }
+    if (count != 0) {
+        CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[
+            *(int *)((BYTE *)&pMesh->pTriangles[total - 1] + 4 +
+                     pMesh->pTriangles[total - 1].field_0x2c * 4)]);
+        CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
+            D3DPT_TRIANGLELIST,
+            CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
+            pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
+    }
+}
+
+void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
+
+// Draws every mesh node of a node list whose view mask contains the given bit,
+// recursing into the children of the nodes that match.
+// FUNCTION: CMR2 0x0049ca50
+void Game_DrawViewMaskNodes(SceneNode *pNode, int bit)
+{
+    for (; pNode != NULL; pNode = pNode->pNext) {
+        if (pNode->type == SCENE_NODE_MESH) {
+            Mesh *pMesh = (Mesh *)pNode->pObject;
+            int mask = 1 << bit;
+            if ((mask & pNode->field_0x17c) != 0) {
+                if (pMesh != NULL) {
+                    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pNode->worldF);
+                    Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+                }
+                if ((pNode->field_0x17c & mask) != 0 && pNode->pFirstChild != NULL)
+                    Game_DrawViewMaskNodes(pNode->pFirstChild, bit);
+            }
+        }
+    }
+}
+
+// Draws a single node: if the node is a mesh whose view mask contains the
+// given bit it binds the node world matrix and draws its mesh, and then
+// recurses into the children that match the view mask as well.
+// FUNCTION: CMR2 0x0049cad0
+void Game_DrawViewMaskNode(SceneNode *pNode, int bit)
+{
+    if (pNode->type == SCENE_NODE_MESH) {
+        Mesh *pMesh = (Mesh *)pNode->pObject;
+        if ((pNode->field_0x17c & (1 << bit)) != 0) {
+            if (pMesh != NULL) {
+                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                    (D3DMATRIX *)pNode->worldF);
+                Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+            }
+        }
+    }
+    if ((pNode->field_0x17c & (1 << bit)) != 0 && pNode->pFirstChild != NULL)
+        Game_DrawViewMaskNodes(pNode->pFirstChild, bit);
+}
+
+// FUNCTION: CMR2 0x0049cb50
+void CGame::QueuePrimaryDrawObject(void *param1)
+{
+    m_unk0x00593cb0[m_unk0x0059ce28] = param1;
+    m_unk0x0059ce28++;
+}
+
+// FUNCTION: CMR2 0x0049cb70
+void CGame::QueueSecondaryDrawObject(void *param1)
+{
+    m_unk0x00597d04[m_unk0x0059ce2c] = param1;
+    m_unk0x0059ce2c++;
+}
+
+// qsort comparator of the deferred draw list (0x49cc50): sorts by the
+// depth at +0x114 of each entry's node, farthest first.
+// FUNCTION: CMR2 0x0049cb90
+int __cdecl Game_CompareDeferredDrawDepth(const void *a, const void *b)
+{
+    int depthA = *(int *)(*(BYTE **)(*(BYTE **)a + 0xc) + 0x114);
+    int depthB = *(int *)(*(BYTE **)(*(BYTE **)b + 0xc) + 0x114);
+    return depthA < depthB ? 1 : -1;
+}
+
+// Drawing view of a sector's stage objects (StageObject in Sector.h). It lives
+// here instead of in the shared header because touching Sector.h perturbs the
+// codegen of unrelated translation units.
+struct StageObjectDraw {
+    FixVector position;         // 0x0  world position (16.16)
+    Mesh *pMesh;                // 0xc
+    int field_0x10;
+    BYTE field_0x14;            // 0x14 non-zero while the object is drawn
+    BYTE field_0x15[3];
+    int scaleX;                 // 0x18 scale of the first world matrix row (16.16)
+    int field_0x1c[4];
+    int scaleY;                 // 0x2c scale of the second world matrix row (16.16)
+    int field_0x30[4];
+    int scaleZ;                 // 0x40 scale of the third world matrix row (16.16)
+    int field_0x44;
+    int offsetX;                // 0x48 world matrix translation (16.16)
+    int offsetY;                // 0x4c
+    int offsetZ;                // 0x50
+    int field_0x54;
+    float matrix[16];           // 0x58 world matrix, built from the camera matrix
+    StageObjectDraw *pNext;     // 0x98 next object of the sector
+    int lightLevel;             // 0x9c light level when not lit per vertex
+};
+typedef char StageObjectDraw_size[sizeof(StageObjectDraw) == 0xa0 ? 1 : -1];
+
+// Non-zero while the draw lists are depth sorted before being drawn
+// (defined in Graphics.cpp).
+extern int g_unk0x005207b4;
+
+struct Unk0x004a3e20;
+void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
+
+// Draws the objects the deferred pass of the static stage objects queued:
+// sorts them by view depth (farthest first) and, for each one, binds its
+// texture, sets its world matrix and marks the mesh for the culling test of
+// the next frame before drawing it.
+// FUNCTION: CMR2 0x0049cc50
+void Game_DrawDeferredObjects(void)
+{
+    unsigned int i;
+
+    if ((unsigned int)CGame::m_unk0x0059ce28 >= 1) {
+        if (g_unk0x005207b4 != 0)
+            qsort(CGame::m_unk0x00593cb0, CGame::m_unk0x0059ce28, 4, Game_CompareDeferredDrawDepth);
+        for (i = 0; i < (unsigned int)CGame::m_unk0x0059ce28; i++) {
+            Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[
+                ((int *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->pTriangles)[1]], 0);
+            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                (D3DMATRIX *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->matrix);
+            if (*(int *)((BYTE *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh + 0x114) < 0xc80000)
+                ((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->flags |= 8;
+            else
+                ((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->flags &= 0xfffffff7;
+            Graphics_DrawMeshLOD(((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh, 1, 0, 0);
+        }
+        CGame::m_unk0x0059ce28 = 0;
+    }
+}
+
+// qsort comparator of the transparent draw list (0x49cd20): type 0x14 goes
+// last, type 5 sorts after type 0 at equal depth, else farthest first.
+// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0049cbc0
+int __cdecl Game_CompareTransparentDrawEntries(const void *a, const void *b)
+{
+    BYTE *pA = *(BYTE **)a;
+    BYTE *pB = *(BYTE **)b;
+    int depthA;
+    int depthB;
+
+    if ((*(unsigned int *)(pA + 0x30) & 0xff) == 0x14)
+        return 1;
+    if ((*(unsigned int *)(pB + 0x30) & 0xff) == 0x14)
+        return 1;
+    depthA = *(int *)(pA + 0x16c);
+    depthB = *(int *)(pB + 0x16c);
+    if (FIX_ABS(depthA - depthB) < 0x10000) {
+        if ((*(unsigned int *)(pA + 0x30) & 0xff) == 5 && (*(unsigned int *)(pB + 0x30) & 0xff) == 0)
+            return 1;
+        if ((*(unsigned int *)(pA + 0x30) & 0xff) == 0 && (*(unsigned int *)(pB + 0x30) & 0xff) == 5)
+            return -1;
+    }
+    return depthA < depthB ? 1 : -1;
+}
+
+extern unsigned short g_unk0x006ed5f0[];
+// GLOBAL: CMR2 0x0059be6c
+SceneNode *g_unk0x0059be6c;
+// GLOBAL: CMR2 0x00597cc0
+D3DMATRIX g_unk0x00597cc0;
+
+void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
+
+// Draws the static stage objects of the culled sectors. Objects whose mesh is
+// flagged for the deferred pass (mesh flag 2) get their world matrix and view
+// depth updated and are queued; the rest are drawn right away.
+// FUNCTION: CMR2 0x0049d040
+void Game_DrawStaticStageObjects(void)
+{
+    StageObjectDraw *pObject;
+    unsigned int i;
+    FixVector delta;
+
+    for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
+        pObject = (StageObjectDraw *)g_sectors[g_unk0x006ed5f0[i]]->pObjects;
+        while (pObject != NULL) {
+            if (pObject->field_0x14 != 0) {
+                if ((pObject->pMesh->flags & 2) != 0) {
+                    *(D3DMATRIX *)pObject->matrix = g_unk0x00597cc0;
+                    if (pObject->scaleX != 0x10000 || pObject->scaleY != 0x10000 ||
+                        pObject->scaleZ != 0x10000) {
+                        float scale;
+                        scale = (float)pObject->scaleX * CGraphics::m_oneOver65536;
+                        pObject->matrix[0] = scale * pObject->matrix[0];
+                        pObject->matrix[1] = scale * pObject->matrix[1];
+                        pObject->matrix[2] = scale * pObject->matrix[2];
+                        scale = (float)pObject->scaleY * CGraphics::m_oneOver65536;
+                        pObject->matrix[4] = scale * pObject->matrix[4];
+                        pObject->matrix[5] = scale * pObject->matrix[5];
+                        pObject->matrix[6] = scale * pObject->matrix[6];
+                        scale = (float)pObject->scaleZ * CGraphics::m_oneOver65536;
+                        pObject->matrix[8] = scale * pObject->matrix[8];
+                        pObject->matrix[9] = scale * pObject->matrix[9];
+                        pObject->matrix[10] = scale * pObject->matrix[10];
+                    }
+                    pObject->matrix[12] = (float)pObject->offsetX * CGraphics::m_oneOver65536;
+                    pObject->matrix[13] = (float)pObject->offsetY * CGraphics::m_oneOver65536;
+                    pObject->matrix[14] = (float)pObject->offsetZ * CGraphics::m_oneOver65536;
+                }
+                if ((pObject->pMesh->flags & 2) != 0) {
+                    delta.x = g_unk0x0059be6c->world.position.x - pObject->position.x;
+                    delta.y = 0;
+                    delta.z = g_unk0x0059be6c->world.position.z - pObject->position.z;
+                    *(int *)((BYTE *)pObject->pMesh + 0x114) = FixVecLength(&delta);
+                    CGame::QueuePrimaryDrawObject(pObject);
+                } else {
+                    Graphics_DrawMeshLOD(pObject->pMesh, 1, 0, 0);
+                }
+            }
+            pObject = pObject->pNext;
+        }
+    }
+}
+
+// Identity world transform: the deferred draw paths set it before drawing
+// geometry whose vertices are already in world space.
+// GLOBAL: CMR2 0x005207b8
+D3DMATRIX g_unk0x005207b8 = {
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
+void Quad2D_DrawLayer(unsigned int layer);
+void Pulse_Update(unsigned int dt);
+extern Mesh **g_sceneShadowMeshes;
+
+// Draws the queue of scene nodes collected by 0x0049d290: depth sorts it
+// (farthest first) when depth sorting is enabled, draws every node of the
+// queue with the given view mask bit and empties it.
+// FUNCTION: CMR2 0x0049cd20
+void Game_DrawSortedNodes(int bit)
+{
+    unsigned int i;
+
+    if ((unsigned int)CGame::m_unk0x0059ce2c >= 1) {
+        if (g_unk0x005207b4 != 0)
+            qsort(CGame::m_unk0x00597d04, CGame::m_unk0x0059ce2c, 4, Game_CompareTransparentDrawEntries);
+        for (i = 0; i < (unsigned int)CGame::m_unk0x0059ce2c; i++)
+            Game_DrawViewMaskNode((SceneNode *)CGame::m_unk0x00597d04[i], bit);
+        CGame::m_unk0x0059ce2c = 0;
+    }
+}
+
+// Draws every mesh node of the scene in world space with Z test and write
+// enabled, then the 2D layer 0x10.
+// FUNCTION: CMR2 0x0049cd90
+void Game_DrawWorldMeshNodesAnd2DLayer(void)
+{
+    SceneNode *pNode;
+    Mesh *pMesh;
+    unsigned int i;
+
+    CGraphics::SetZEnable(1);
+    CGraphics::SetZWriteEnable(1);
+    for (i = 0; i < (unsigned int)g_sceneNodeCount; i++) {
+        pNode = g_sceneNodes[i];
+        if (pNode != NULL && pNode->type == SCENE_NODE_MESH) {
+            pMesh = (Mesh *)pNode->pObject;
+            if (pNode->field_0x17c != 0 && pMesh != NULL) {
+                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pNode->worldF);
+                Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+            }
+        }
+    }
+    Quad2D_DrawLayer(0x10);
+}
+
+// Draws the view-mask scene nodes of the culled sectors that were not queued
+// for depth sorting (visible == 0), with Z test and Z write disabled, then
+// restores them.
+// FUNCTION: CMR2 0x0049ce40
+void Game_DrawUnsortedNodes(int bit)
+{
+    SceneNode *pNode;
+    unsigned int i;
+
+    CGraphics::SetZEnable(0);
+    CGraphics::SetZWriteEnable(0);
+    for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
+        pNode = g_sectors[g_unk0x006ed5f0[i]]->pFirstNode;
+        while (pNode != NULL) {
+            if (pNode->visible == 0)
+                Game_DrawViewMaskNode(pNode, bit);
+            pNode = pNode->pNextInSector;
+        }
+    }
+    CGraphics::SetZEnable(1);
+    CGraphics::SetZWriteEnable(1);
+}
+
+// Advances the pulse effect by the frame delta and draws the ground mesh of
+// every culled sector in world space.
+// The two render passes have independent lazy frame stamps.
+// GLOBAL: CMR2 0x00597d00
+BYTE g_sectorFrameInit;
+// GLOBAL: CMR2 0x00597d01
+BYTE g_shadowFrameInit;
+// GLOBAL: CMR2 0x0059bd68
+unsigned int g_sectorFrameStart;
+// GLOBAL: CMR2 0x00597cb0
+unsigned int g_sectorFramePrevious;
+// GLOBAL: CMR2 0x00597cb4
+unsigned int g_shadowFrameStart;
+// GLOBAL: CMR2 0x0059be70
+unsigned int g_shadowFramePrevious;
+
+// FUNCTION: CMR2 0x0049cec0
+void Game_DrawCulledSectorMeshes(void)
+{
+    Mesh *pMesh;
+    unsigned int i;
+
+    if ((g_sectorFrameInit & 1) == 0) {
+        g_sectorFrameInit |= 1;
+        g_sectorFrameStart = CMain::GetFrameDelta();
+    }
+    if ((g_sectorFrameInit & 2) == 0) {
+        g_sectorFrameInit |= 2;
+        g_sectorFramePrevious = CMain::GetFrameDelta();
+    }
+    Pulse_Update(CMain::GetFrameDelta() - g_sectorFramePrevious);
+    g_sectorFramePrevious = CMain::GetFrameDelta();
+    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+    for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
+        pMesh = (Mesh *)g_sectors[g_unk0x006ed5f0[i]]->pMesh;
+        if (pMesh != NULL) {
+            if ((pMesh->flags & 0x1000) != 0)
+                Graphics_DrawMeshLOD(pMesh, 0, 1, 0);
+            else
+                Graphics_DrawMeshLOD(pMesh, 1, 0, 0);
+        }
+    }
+}
+
+// Advances the pulse effect by the frame delta and draws the shadow mesh of
+// every culled sector in world space, with Z writes disabled.
+// FUNCTION: CMR2 0x0049cf80
+void Game_DrawCulledSectorShadows(void)
+{
+    Mesh *pMesh;
+    unsigned int i;
+
+    if ((g_shadowFrameInit & 1) == 0) {
+        g_shadowFrameInit |= 1;
+        g_shadowFrameStart = CMain::GetFrameDelta();
+    }
+    if ((g_shadowFrameInit & 2) == 0) {
+        g_shadowFrameInit |= 2;
+        g_shadowFramePrevious = CMain::GetFrameDelta();
+    }
+    Pulse_Update(CMain::GetFrameDelta() - g_shadowFramePrevious);
+    g_shadowFramePrevious = CMain::GetFrameDelta();
+    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+    if (g_sceneShadowMeshes != NULL) {
+        CGraphics::SetZWriteEnable(0);
+        for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
+            pMesh = g_sceneShadowMeshes[g_unk0x006ed5f0[i]];
+            if (pMesh != NULL)
+                Graphics_DrawMeshLOD(pMesh, 1, 0, 1);
+        }
+        CGraphics::SetZWriteEnable(1);
+    }
+}
+
+// Computes the view depth of every visible node of the culled sectors and
+// queues them for drawing.
+// FUNCTION: CMR2 0x0049d290
+void Game_QueueVisibleSectorNodes(int param1)
+{
+    SceneNode *pNode;
+    FixVector delta;
+    unsigned short *pIndex;
+    unsigned int i;
+
+    i = 0;
+    if ((unsigned int)g_sectorCullEnabled > 0) {
+        pIndex = (unsigned short *)g_unk0x006ed5f0;
+        do {
+            pNode = g_sectors[*pIndex]->pFirstNode;
+            while (pNode != NULL) {
+                if (pNode->visible != 0) {
+                    delta.x = g_unk0x0059be6c->world.position.x - pNode->world.position.x;
+                    delta.y = 0;
+                    delta.z = g_unk0x0059be6c->world.position.z - pNode->world.position.z;
+                    *(int *)((BYTE *)pNode + 0x16c) = FixVecLength(&delta);
+                    CGame::QueueSecondaryDrawObject(pNode);
+                }
+                pNode = pNode->pNextInSector;
+            }
+            i++;
+            pIndex++;
+        } while (i < (unsigned int)g_sectorCullEnabled);
+    }
+}
+
+// Draws one frame of the race view: sets the viewport and the render states of
+// the 3D pass and of the 2D layers, draws the world (relit sectors, static and
+// deferred objects, ground and shadow meshes, view masked nodes) with the given
+// view bit, then restores the full screen viewport and flushes the remaining 2D
+// layers. Returns 1 (also when the device refuses to start a scene).
+void Graphics_SetLightingMode(int mode);
+void Graphics_EnableFog(void);
+void Graphics_DisableFog(void);
+void Graphics_SetRenderTarget(Texture *pTexture);
+void ScreenLine2D_Draw(int layer);
+void Tri2D_DrawLayer(int layer);
+void Line2D_Draw(void);
+void Quad2D_DrawLayer(unsigned int layer);
+void Billboard_Draw(SceneNode *pCamera);
+void Glow_Draw(SceneNode *pCamera, BYTE view);
+void Particle_DrawAll(int param, BYTE view);
+void Scene_DrawShadowBatches(unsigned int view);
+void Scene_RelightSector(int sector);
+BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance);
+void Sector_CullGridAroundViewNode(SceneNode *pNode, int unused);
+void Graphics_UpdateFrameStatistics(void);
+int Graphics_GetFlareStateValue(void);
+void Graphics_SwitchAlphaBlendAndTest(int enable);
+void Game_DrawStaticStageObjects(void);
+void Game_DrawWorldMeshNodesAnd2DLayer(void);
+void Game_DrawCulledSectorMeshes(void);
+void Game_DrawCulledSectorShadows(void);
+void Game_DrawUnsortedNodes(int bit);
+void Game_DrawSortedNodes(int bit);
+void Game_QueueVisibleSectorNodes(int param1);
+void Game_DrawDeferredObjects(void);
+extern FixMatrix g_unk0x0059bd28;
+D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
+
+// match 94%: the residual diff is register allocation (the relight loop walks
+// the sector list from a register where the original keeps the pointer in the
+// argument slot, and the inlined fixed point normalisation uses different
+// scratch slots), plus the 0.0f store which the original materialises as an
+// immediate.
+// FUNCTION: CMR2 0x0049d3f0
+int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE flag)
+{
+    D3DVIEWPORT7 viewport;
+    FixVector cameraPosition;
+    FixVector forward;
+    int farPlane;
+    unsigned int i;
+    unsigned short *pIndex;
+
+    g_unk0x0059be6c = (SceneNode *)param2;
+    CGame::m_unk0x0059ce18 = 0;
+    CGame::m_unk0x0059ce1c = 0;
+    CGame::m_unk0x0059ce20 = 0;
+    if (CGraphics::m_pTextureManager->pD3D->BeginScene() != D3D_OK)
+        return 1;
+    memset(&viewport, 0, sizeof(viewport));
+    viewport.dwX = ((short *)param3)[0];
+    viewport.dwY = ((short *)param3)[1];
+    viewport.dwWidth = ((short *)param3)[2];
+    viewport.dwHeight = ((short *)param3)[3];
+    viewport.dvMinZ = 0.0f;
+    viewport.dvMaxZ = 1.0f;
+    CGraphics::m_pTextureManager->pD3D->SetViewport(&viewport);
+    Graphics_SwitchAlphaBlendAndTest(1);
+    CGraphics::SetCullMode(3);
+    Graphics_SetLightingMode(5);
+    ScreenLine2D_Draw(4);
+    Tri2D_DrawLayer(4);
+    Sprite_DrawLayer(4);
+    if (flag != 0) {
+        if (CGraphics::m_unk0x0072d56c != 0) {
+            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                                                             &g_unk0x005207b8);
+            Sector_CullGridAroundViewNode((SceneNode *)param2, (int)param3);
+            for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++)
+                Scene_RelightSector(((unsigned short *)g_unk0x006ed5f0)[i]);
+        }
+        CGraphics::SetCullMode(CGame::GetSectorDrawState());
+        FixMatrix_GetPosition(&cameraPosition, &((SceneNode *)param2)->world);
+        Particle_DrawAll(param2, (BYTE)bit);
+        forward.x = g_unk0x0059be6c->world.forward.x;
+        forward.y = 0;
+        forward.z = g_unk0x0059be6c->world.forward.z;
+        FIX_NORMALIZE_INTO(forward, forward);
+        g_unk0x0059bd28.right.x = forward.z;
+        g_unk0x0059bd28.right.y = 0;
+        g_unk0x0059bd28.right.z = -forward.x;
+        g_unk0x0059bd28.rw = 0;
+        g_unk0x0059bd28.up.x = 0;
+        g_unk0x0059bd28.up.y = 0x10000;
+        g_unk0x0059bd28.up.z = 0;
+        g_unk0x0059bd28.uw = 0;
+        g_unk0x0059bd28.forward.x = forward.x;
+        g_unk0x0059bd28.forward.y = 0;
+        g_unk0x0059bd28.forward.z = forward.z;
+        g_unk0x0059bd28.fw = 0;
+        g_unk0x0059bd28.position.x = 0;
+        g_unk0x0059bd28.position.y = 0;
+        g_unk0x0059bd28.position.z = 0;
+        g_unk0x0059bd28.pw = 0x10000;
+        FixMatrix_ToFloat(&g_unk0x00597cc0, &g_unk0x0059bd28);
+        if ((unsigned int)g_sectorCount > 0) {
+            CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c,
+                                                               Graphics_GetFlareStateValue());
+            Graphics_DisableFog();
+            Graphics_SetLightingMode(5);
+            farPlane = CGraphics::m_farPlaneFixed;
+            CGraphics::SetProjection(0, 0, 0x960000, 0);
+            Game_DrawUnsortedNodes(bit);
+            CGraphics::SetProjection(0, 0, farPlane, 0);
+            Graphics_EnableFog();
+            Graphics_SetLightingMode(0);
+            Game_DrawCulledSectorMeshes();
+            Graphics_SetLightingMode(5);
+            Game_DrawCulledSectorShadows();
+            Graphics_SwitchAlphaBlendAndTest(1);
+            Glow_Draw((SceneNode *)param2, (BYTE)bit);
+            Quad2D_DrawLayer(8);
+            Graphics_SetLightingMode(4);
+            Quad2D_DrawLayer(0x20);
+            Graphics_SetLightingMode(1);
+            if (CGame::m_unk0x0059ce14 != 0) {
+                Game_DrawStaticStageObjects();
+                Game_DrawDeferredObjects();
+                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                                                                 &g_unk0x005207b8);
+                Graphics_SwitchAlphaBlendAndTest(1);
+                CGraphics::SetCachedSourceDestinationBlend(5, 6);
+                CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c, 0);
+                Graphics_SetLightingMode(5);
+                Quad2D_DrawLayer(0x10);
+                Line2D_Draw();
+                Billboard_Draw((SceneNode *)param2);
+                Graphics_SetLightingMode(1);
+                Game_QueueVisibleSectorNodes(bit);
+                Game_DrawSortedNodes(bit);
+            } else {
+                Game_DrawStaticStageObjects();
+                Game_QueueVisibleSectorNodes(bit);
+                Game_DrawSortedNodes(bit);
+                Game_DrawDeferredObjects();
+            }
+        } else {
+            Game_DrawWorldMeshNodesAnd2DLayer();
+        }
+        CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+        Graphics_SwitchAlphaBlendAndTest(1);
+        CGraphics::SetCachedSourceDestinationBlend(5, 6);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c, 0);
+        Graphics_SetLightingMode(5);
+        Quad2D_DrawLayer(0x10);
+        Graphics_SetLightingMode(4);
+        Quad2D_DrawLayer(0x40);
+        Graphics_SetLightingMode(5);
+        Line2D_Draw();
+        Billboard_Draw((SceneNode *)param2);
+        Scene_DrawShadowBatches(bit);
+    }
+    Flare_SampleVisibility(NULL, NULL, 0);
+    CGraphics::SetZWriteEnable(0);
+    CGraphics::SetZEnable(0);
+    CGraphics::SetCachedSourceDestinationBlend(5, 6);
+    memset(&viewport, 0, sizeof(viewport));
+    viewport.dwX = 0;
+    viewport.dwY = 0;
+    viewport.dwWidth = g_pGraphics->resX;
+    viewport.dwHeight = g_pGraphics->resY;
+    viewport.dvMinZ = 0.0f;
+    viewport.dvMaxZ = 1.0f;
+    CGraphics::m_pTextureManager->pD3D->SetViewport(&viewport);
+    CGraphics::SetCullMode(3);
+    ScreenLine2D_Draw(3);
+    Tri2D_DrawLayer(3);
+    Sprite_DrawLayer(3);
+    ScreenLine2D_Draw(2);
+    Tri2D_DrawLayer(2);
+    Sprite_DrawLayer(2);
+    ScreenLine2D_Draw(1);
+    Tri2D_DrawLayer(1);
+    Sprite_DrawLayer(1);
+    CGraphics::SetCullMode(CGame::GetSectorDrawState());
+    Graphics_UpdateFrameStatistics();
+    CGraphics::m_pTextureManager->pD3D->EndScene();
+    return 1;
+}
+
+// FUNCTION: CMR2 0x0049dca0
+void CGame::SetSectorDrawState(int param1)
+{
+    m_unk0x005207f8 = param1;
+}
+
+// FUNCTION: CMR2 0x0049dcb0
+int CGame::GetSectorDrawState(void)
+{
+    return m_unk0x005207f8;
+}
+
+// GLOBAL: CMR2 0x00537f5c
+int g_unk0x00537f5c;
+// GLOBAL: CMR2 0x00665324
+int g_unk0x00665324;
+
+// FUNCTION: CMR2 0x0041f260
+void CGame::SaveRaceCallbackDepth(void)
+{
+    g_unk0x00537f5c = GetCallbackCount();
+}
+
+// FUNCTION: CMR2 0x004aae10
+int Network_ClearResourceRegistrationFlag(void)
+{
+    g_unk0x00665324 = 0;
+    return 1;
+}
+
+// FUNCTION: CMR2 0x004aad50
+void CGame::RegisterNetworkResourceRelease(void)
+{
+    RegisterCallback(Network_ClearResourceRegistrationFlag, NULL);
+    g_unk0x00665324 = 1;
+}
+
+
+// FUNCTION: CMR2 0x004764c0
+void Game_SetObjectRenderModeZero(void *param1)
+{
+    if (g_unk0x0058d49c[*((BYTE *)param1 + 2)] != NULL)
+        CGame::SetObjectRenderMode(0);
+}
+
+// FUNCTION: CMR2 0x00476500
+void Game_SetObjectRenderModeOne(void *param1)
+{
+    if (g_unk0x0058d49c[*((BYTE *)param1 + 2)] != NULL)
+        CGame::SetObjectRenderMode(1);
+}
+
+void StageObject_DispatchContactAndSetLevel(BYTE *pCar, BYTE *pInfo);
+void StageObject_DispatchNearRightAngleContact(BYTE *pCar, BYTE *pInfo);
+
+// Dispatches by the object type stored at +4.
+// FUNCTION: CMR2 0x00423810
+void Game_DispatchObjectTypeEvent(BYTE *pObject, BYTE *pInfo)
+{
+    switch (*(int *)(pObject + 4)) {
+    case 1:
+    case 2:
+    case 10:
+        StageObject_DispatchContactAndSetLevel(pObject, pInfo);
+        return;
+    case 7:
+        StageObject_DispatchNearRightAngleContact(pObject, pInfo);
+    }
+}
+
+struct Unk004238e0 {
+    int field_0x0;
+    int field_0x4;
+};
+
+void StageObject_ResetContactEffectAndSetLevel(BYTE *p, BYTE *q);
+void StageObject_SetContactLevelToUnity(BYTE *p, int unused);
+void Game_SetObjectRenderModeOne(void *param1);
+void StageObject_ResetRightAngleContactEffect(BYTE *pCar, BYTE *pInfo);
+
+// Dispatches by the object type stored at +4.
+// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00423900
+void Game_DispatchObjectContactReset(BYTE *pObject, BYTE *pInfo)
+{
+    switch (*(int *)(pObject + 4)) {
+    case 3:
+        Game_SetObjectRenderModeOne(pObject);
+        return;
+    case 2:
+        StageObject_SetContactLevelToUnity(pObject, (int)pInfo);
+        return;
+    case 1:
+    case 10:
+        StageObject_ResetContactEffectAndSetLevel(pObject, pInfo);
+        return;
+    case 7:
+        StageObject_ResetRightAngleContactEffect(pObject, pInfo);
+    }
+}
+
+void StageObject_SetLevelFromContactType(BYTE *pCar, BYTE *pInfo);
+void StageObject_SetCarSlotActiveFlag(BYTE *p);
+FixMatrix *Car_GetCameraReferenceMatrix(BYTE index);
+void HudDash_UpdateCameraBasis(BYTE *pDst, BYTE *pSrc, FixMatrix *pM);
+void StageObject_UpdateNearRightAngleContactLevel(BYTE *pInfo, BYTE *pCar);
+
+// Dispatches by the object type stored at +4.
+// match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00423860
+void Game_DispatchObjectTypeUpdate(BYTE *pObject, BYTE *pInfo)
+{
+    switch (*(int *)(pObject + 4)) {
+    case 4:
+    case 5:
+        HudDash_UpdateCameraBasis(pObject, pInfo, Car_GetCameraReferenceMatrix(pObject[2]));
+        return;
+    case 3:
+        StageObject_SetCarSlotActiveFlag(pObject);
+        return;
+    case 1:
+    case 2:
+    case 10:
+        StageObject_SetLevelFromContactType(pObject, pInfo);
+        return;
+    case 7:
+        StageObject_UpdateNearRightAngleContactLevel(pObject, pInfo);
+    }
+}
+
+// FUNCTION: CMR2 0x004238e0
+void Game_UpdateType3ObjectState(Unk004238e0 *param1, int param2)
+{
+    if (param1->field_0x4 == 3)
+        Game_SetObjectRenderModeZero(param1);
+}
+
+typedef HRESULT (__stdcall *DPMethod0)(void *pThis);
+typedef HRESULT (__stdcall *DPMethod2)(void *pThis, void *p1, DWORD p2);
+typedef HRESULT (__stdcall *DPSendFn)(void *pThis, DPID from, DPID to, DWORD flags, void *data, DWORD size);
+typedef HRESULT (__stdcall *DPMethod4)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4);
+
+// GLOBAL: CMR2 0x005a0068
+BYTE g_unk0x005a0068[0x50];
+
+// The current session description and the list of enumerated sessions
+#define SESSION (*(DPSESSIONDESC2 *)g_unk0x005a0068)
+#define SESSIONS ((DPSESSIONDESC2 *)CGameInfo::m_unk0x0059fa20)
+
+// Reads the description of the joined session into SESSION (the session
+// name is copied to m_unk0x005a00b8).
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a0d60
+BOOL Network_ReadJoinedSessionDescription(void)
+{
+    IDirectPlay4A *pDP;
+    DPSESSIONDESC2 *pDesc;
+    DWORD size;
+
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return FALSE;
+    if (((DPMethod2)(*(void ***)pDP)[0x58 / 4])(pDP, NULL, (DWORD)&size) != DPERR_BUFFERTOOSMALL)
+        return FALSE;
+    pDesc = (DPSESSIONDESC2 *)CFileBuffer::AllocateLockedBuffer(size);
+    if (pDesc == NULL)
+        return FALSE;
+    HRESULT hr = ((DPMethod2)(*(void ***)pDP)[0x58 / 4])(pDP, pDesc, (DWORD)&size);
+    if (hr <= (HRESULT)0x88770082) {
+        if (hr == DPERR_INVALIDOBJECT) {
+            free(pDesc);
+            return FALSE;
+        }
+    } else if (hr != DPERR_NOCONNECTION && hr == DP_OK) {
+        SESSION.dwSize = pDesc->dwSize;
+        SESSION.dwFlags = pDesc->dwFlags;
+        SESSION.guidInstance = pDesc->guidInstance;
+        SESSION.guidApplication = pDesc->guidApplication;
+        SESSION.dwMaxPlayers = pDesc->dwMaxPlayers;
+        SESSION.dwCurrentPlayers = pDesc->dwCurrentPlayers;
+        strcpy((char *)&CGameInfo::m_unk0x005a00b8, pDesc->lpszSessionNameA);
+        SESSION.dwReserved1 = pDesc->dwReserved1;
+        SESSION.dwReserved2 = pDesc->dwReserved2;
+        SESSION.dwUser1 = pDesc->dwUser1;
+        SESSION.dwUser2 = pDesc->dwUser2;
+        SESSION.dwUser3 = pDesc->dwUser3;
+        SESSION.dwUser4 = pDesc->dwUser4;
+        CFileBuffer::FreeGenericFileBuffer(pDesc);
+        return TRUE;
+    }
+    CFileBuffer::FreeGenericFileBuffer(pDesc);
+    return FALSE;
+}
+
+// The GUID of the CMR2 DirectPlay application (shared with GameInfo.cpp).
+extern int g_unk0x00511cd8[4];
+
+// Creates (hosts) a DirectPlay session with the given name, password and user
+// values. Returns 1 when the session was created.
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a0ec0
+int Network_HostNamedSession(char *pSessionName, char *pPassword, DWORD user1, DWORD user2,
+                 DWORD user3, DWORD user4, DWORD maxPlayers)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    memset(g_unk0x005a0068, 0, sizeof(g_unk0x005a0068));
+    SESSION.dwSize = sizeof(DPSESSIONDESC2);
+    SESSION.dwFlags = 0x2064;
+    SESSION.guidApplication = *(GUID *)g_unk0x00511cd8;
+    SESSION.dwMaxPlayers = maxPlayers;
+    strcpy((char *)&CGameInfo::m_unk0x005a00b8, pSessionName);
+    SESSION.lpszSessionNameA = (LPSTR)&CGameInfo::m_unk0x005a00b8;
+    strcpy((char *)&CGameInfo::m_unk0x005a02c0, pPassword);
+    SESSION.lpszPasswordA = (LPSTR)&CGameInfo::m_unk0x005a02c0;
+    SESSION.dwUser1 = user1;
+    SESSION.dwUser2 = user2;
+    SESSION.dwUser3 = user3;
+    SESSION.dwUser4 = user4;
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return 0;
+    hr = ((DPMethod2)(*(void ***)pDP)[0x60 / 4])(pDP, g_unk0x005a0068, DPOPEN_CREATE);
+    switch (hr) {
+    case DPERR_INVALIDPARAM: return 0;
+    case DPERR_ALREADYINITIALIZED: return 0;
+    case DPERR_ACCESSDENIED: return 0;
+    case DPERR_INVALIDFLAGS: return 0;
+    case DPERR_NOCONNECTION: return 0;
+    case DPERR_TIMEOUT: return 0;
+    case DPERR_USERCANCEL: return 0;
+    case DPERR_UNINITIALIZED: return 0;
+    case DPERR_NONEWPLAYERS: return 0;
+    case DPERR_INVALIDPASSWORD: return 0;
+    case DPERR_CONNECTING: return 0;
+    case DPERR_AUTHENTICATIONFAILED: return 0;
+    case DPERR_CANTLOADSSPI: return 0;
+    case DPERR_ENCRYPTIONFAILED: return 0;
+    case DPERR_SIGNFAILED: return 0;
+    case DPERR_CANTLOADSECURITYPACKAGE: return 0;
+    case DPERR_CANTLOADCAPI: return 0;
+    case DPERR_LOGONDENIED: return 0;
+    case DP_OK:
+        CGameInfo::m_unk0x005a0060 = 1;
+        CGameInfo::m_unk0x005a1814 = 1;
+        return 1;
+    }
+    return 0;
+}
+
+// Opens (joins) the enumerated session at index into SESSION using the given
+// password and pushes it to DirectPlay. Returns 1 when the join is still in
+// progress, and sets *pInvalidPassword when DirectPlay rejects the password.
+// FUNCTION: CMR2 0x004a10b0
+int Network_JoinEnumeratedSession(BYTE index, char *pPassword, BYTE *pInvalidPassword)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    *pInvalidPassword = 0;
+    if (index < CGameInfo::m_unk0x005a01bc) {
+        memset(g_unk0x005a0068, 0, sizeof(g_unk0x005a0068));
+        SESSION.dwSize = sizeof(DPSESSIONDESC2);
+        SESSION.guidInstance = SESSIONS[index].guidInstance;
+        SESSION.lpszSessionNameA = (LPSTR)&CGameInfo::m_unk0x005a00b8;
+        SESSION.lpszPasswordA = pPassword;
+        pDP = CGame::GetDirectPlay();
+        if (pDP != NULL) {
+            hr = ((DPMethod2)(*(void ***)pDP)[0x60 / 4])(pDP, g_unk0x005a0068, DPOPEN_JOIN);
+            switch (hr) {
+            case DPERR_INVALIDPASSWORD:
+                *pInvalidPassword = 1;
+                return 0;
+            case DPERR_ALREADYINITIALIZED:
+                return 0;
+            case DPERR_ACCESSDENIED:
+                return 0;
+            case DPERR_INVALIDFLAGS:
+                return 0;
+            case DPERR_INVALIDPARAM:
+                return 0;
+            case DPERR_NOCONNECTION:
+                return 0;
+            case DPERR_TIMEOUT:
+                return 0;
+            case DPERR_USERCANCEL:
+                return 0;
+            case DPERR_UNINITIALIZED:
+                return 0;
+            case DPERR_NONEWPLAYERS:
+                return 0;
+            case DPERR_CONNECTING:
+                return 0;
+            case DPERR_AUTHENTICATIONFAILED:
+                return 0;
+            case DPERR_CANTLOADSSPI:
+                return 0;
+            case DPERR_ENCRYPTIONFAILED:
+                return 0;
+            case DPERR_SIGNFAILED:
+                return 0;
+            case DPERR_CANTLOADSECURITYPACKAGE:
+                return 0;
+            case DPERR_CANTLOADCAPI:
+                return 0;
+            case DPERR_LOGONDENIED:
+                return 0;
+            default:
+                return 1;
+            case DP_OK:
+                CGameInfo::m_unk0x005a1814 = TRUE;
+                Network_ReadJoinedSessionDescription();
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+// Closes the DirectPlay session object.
+// FUNCTION: CMR2 0x004a1280
+int Network_CloseSession(void)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return 0;
+    hr = ((DPMethod0)(*(void ***)pDP)[0x10 / 4])(pDP);
+    if (hr <= (HRESULT)0x887700dc || hr != 0)
+        return 0;
+    CGameInfo::m_unk0x005a1814 = hr;
+    return 1;
+}
+
+// FUNCTION: CMR2 0x004a14e0
+bool Network_TestLocalPlayerStatus(void)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return FALSE;
+    hr = ((DPMethod2)(*(void ***)pDP)[0x7c / 4])(pDP, g_unk0x005a0068, 0);
+    if (hr <= (HRESULT)0x887700dc || hr == (HRESULT)0x88770168 || hr != 0)
+        return false;
+    return true;
+}
+
+// FUNCTION: CMR2 0x004a1480
+unsigned int Network_GetEnumeratedSessionCount(void)
+{
+    return *(unsigned int *)&CGameInfo::m_unk0x005a01bc & 0xff;
+}
+
+// FUNCTION: CMR2 0x004a1490
+char *Network_GetEnumeratedSessionName(BYTE index)
+{
+    if (index < CGameInfo::m_unk0x005a01bc)
+        return SESSIONS[index].lpszSessionNameA;
+    return NULL;
+}
+
+// FUNCTION: CMR2 0x004a14c0
+LPVOID *Network_GetSessionNamePointer(void)
+{
+    return g_sessionNamePtr;
+}
+
+// FUNCTION: CMR2 0x004a14d0
+LPVOID *Network_GetSessionPasswordPointer(void)
+{
+    return g_sessionPasswordPtr;
+}
+
+// FUNCTION: CMR2 0x004a15b0
+void Network_SetSessionStateFlag(BOOL param1)
+{
+    CGameInfo::m_unk0x005a0060 = param1;
+}
+
+// FUNCTION: CMR2 0x004a15c0
+int Network_CopyEnumeratedSessionGUID(BYTE index, GUID *pOut)
+{
+    if (index < CGameInfo::m_unk0x005a01bc) {
+        *pOut = SESSIONS[index].guidInstance;
+        return 1;
+    }
+    return 0;
+}
+
+// Sets one of the four session user values and pushes the description.
+// FUNCTION: CMR2 0x004a16c0
+void Session_SetUserValue(BYTE index, int value)
+{
+    Network_ReadJoinedSessionDescription();
+    switch (index) {
+    case 0:
+        *(int *)(g_unk0x005a0068 + 0x40) = value;
+        Network_TestLocalPlayerStatus();
+        return;
+    case 1:
+        *(int *)(g_unk0x005a0068 + 0x44) = value;
+        Network_TestLocalPlayerStatus();
+        return;
+    case 2:
+        *(int *)(g_unk0x005a0068 + 0x48) = value;
+        Network_TestLocalPlayerStatus();
+        return;
+    }
+    *(int *)(g_unk0x005a0068 + 0x4c) = value;
+    Network_TestLocalPlayerStatus();
+}
+
+// FUNCTION: CMR2 0x004a1720
+DWORD Network_GetSessionPlayerCount(int index)
+{
+    if (index < 0)
+        return SESSION.dwCurrentPlayers;
+    return SESSIONS[index].dwCurrentPlayers;
+}
+
+// FUNCTION: CMR2 0x004a1740
+DWORD Network_GetSessionMaxPlayers(BYTE index)
+{
+    return SESSIONS[index].dwMaxPlayers;
+}
+
+// FUNCTION: CMR2 0x004a1760
+void Network_SetSessionDescription(DPSESSIONDESC2 *pDesc)
+{
+    SESSION = *pDesc;
+    g_sessionNamePtr = (LPVOID *)&CGameInfo::m_unk0x005a00b8;
+    g_sessionPasswordPtr = (LPVOID *)&CGameInfo::m_unk0x005a02c0;
+}
+
+// FUNCTION: CMR2 0x004a1790
+BYTE Network_IsSessionFlag10Set(BYTE index)
+{
+    BYTE r = (BYTE)(SESSIONS[index].dwFlags >> 10);
+    r &= 1;
+    return r;
+}
+
+// Adds a remote player to the session player table (at most 7 players,
+// ignoring the local player and players already listed).
+// FUNCTION: CMR2 0x004a1850
+void Network_AddRemoteSessionPlayer(char *shortName, char *longName, DPID dpId)
+{
+    Unk0x005a1820 *pPlayer;
+    int i;
+
+    if (CGame::m_unk0x005a1ea0 == dpId)
+        return;
+    for (i = 0; i < 7; i++) {
+        if (CGame::m_unk0x005a1820[i].field_0xc8 == dpId)
+            return;
+    }
+    if (CGame::m_unk0x005a1818 >= 7)
+        return;
+    for (i = 0; i < 7; i++) {
+        if (CGame::m_unk0x005a1820[i].field_0xcc == 0) {
+            if (shortName != NULL)
+                strcpy(CGame::m_unk0x005a1820[i].field_0x0, shortName);
+            if (longName != NULL)
+                strcpy(CGame::m_unk0x005a1820[i].field_0x64, longName);
+            CGame::m_unk0x005a1820[i].field_0xc8 = dpId;
+            CGame::m_unk0x005a1820[i].field_0xcc = 1;
+            CGame::m_unk0x005a1818++;
+            return;
+        }
+    }
+}
+
+// IDirectPlay4::EnumPlayers callback of Network_RebuildSessionPlayerList.
+// FUNCTION: CMR2 0x004a1ad0
+BOOL FAR PASCAL Network_EnumeratePlayerCallback(DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext)
+{
+    Network_AddRemoteSessionPlayer(lpName->lpszShortNameA, lpName->lpszLongNameA, dpId);
+    return 1;
+}
+
+// FUNCTION: CMR2 0x004a1af0
+int Network_RebuildSessionPlayerList(void)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    CGame::ResetSessionPlayerTable(0);
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return 0;
+    hr = ((DPMethod4)(*(void ***)pDP)[0x30 / 4])(pDP, 0, (DWORD)Network_EnumeratePlayerCallback, 0, 0);
+    if (hr <= (HRESULT)0x887700fa || hr != 0)
+        return 0;
+    return 1;
+}
+
+// EnumConnections callback: keeps every service provider connection.
+// FUNCTION: CMR2 0x004aabd0
+BOOL __stdcall Network_EnumerateConnectionCallback(LPCGUID lpguidSP, LPVOID lpConnection, DWORD dwConnectionSize, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext)
+{
+    CGame::AddConnection(lpName->lpszShortNameA, lpConnection, dwConnectionSize, (GUID *)lpguidSP);
+    return TRUE;
+}
+
+// FUNCTION: CMR2 0x004aac00
+bool Network_EnumerateServiceProviders(void)
+{
+    HRESULT hr;
+
+    CGame::ClearConnections();
+    hr = ((DPMethod4)(*(void ***)CGame::m_pDirectPlay4A)[0x8c / 4])(CGame::m_pDirectPlay4A, 0, (DWORD)Network_EnumerateConnectionCallback, 0, 0);
+    if (hr == (HRESULT)0x80070057 || hr == (HRESULT)0x88770078)
+        return false;
+    if (hr == 0)
+        return true;
+    return false;
+}
+
+// Sets the local player data (guaranteed).
+// FUNCTION: CMR2 0x004a1cb0
+char Network_SetLocalPlayerData(int data, int size)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    pDP = CGame::GetDirectPlay();
+    if (pDP != NULL) {
+        hr = ((DPMethod4)(*(void ***)pDP)[0x74 / 4])(pDP, CGame::m_unk0x005a1ea0, data, size, 2);
+        if (hr > (HRESULT)0x88770082 && hr != (HRESULT)0x88770096 &&
+            hr != (HRESULT)0x88770168 && hr == 0)
+            return 1;
+    }
+    return 0;
+}
+
+// Sends a message to a player (0 = all), guaranteed when requested.
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a1c50
+char Network_SendPlayerMessage(int to, int guaranteed, int data, int size)
+{
+    BOOL flags;
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    if (guaranteed == 1)
+        flags = TRUE;
+    else
+        flags = FALSE;
+    pDP = CGame::GetDirectPlay();
+    if (pDP != NULL) {
+        hr = ((DPSendFn)(*(void ***)pDP)[0x68 / 4])(pDP, CGame::m_unk0x005a1ea0, to, flags, (void *)data, size);
+        if (hr > (HRESULT)0x8877010e && hr != (HRESULT)0x88770816 && hr == 0)
+            return 1;
+    }
+    return 0;
+}
+
+typedef HRESULT (__stdcall *DPMethod5)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5);
+typedef HRESULT (__stdcall *DPMethod6)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5, DWORD a6);
+
+// GLOBAL: CMR2 0x005a1fa8
+DPNAME g_networkPlayerName;
+// FUNCTION: CMR2 0x004a1a10
+int Network_CreateLocalPlayer(int param1, int param2, int param3, int param4)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    memset(&g_networkPlayerName, 0, sizeof(g_networkPlayerName));
+    g_networkPlayerName.dwSize = sizeof(g_networkPlayerName);
+    g_networkPlayerName.lpszShortNameA = (char *)param1;
+    g_networkPlayerName.lpszLongNameA = (char *)param2;
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return 0;
+    hr = pDP->CreatePlayer(&CGame::m_unk0x005a1ea0, &g_networkPlayerName, NULL,
+                          (void *)param3, param4, 0);
+    if (hr <= (HRESULT)0x88770078 || hr == (HRESULT)0x887700aa || hr != 0)
+        return 0;
+    CGame::m_unk0x005a1fc0 = 1;
+    return 1;
+}
+
+
+// Releases the scene resources held by the 0x58d3xx/0x58d5xx/0x58d6xx blocks
+// (the 16 rows at 0x58d3b8 hold file buffers, not scene nodes).
+// FUNCTION: CMR2 0x004779e0
+BOOL Game_ReleaseSceneResourceBlocks(void)
+{
+    int i;
+
+    for (i = 0; i < 2; i++) {
+        if (g_unk0x0058d49c[i] != NULL) {
+            if (*(int *)(g_unk0x0058d530 + i * 0x1c) != 0)
+                SceneNode_Destroy((SceneNode *)*(int *)(g_unk0x0058d530 + i * 0x1c));
+            SceneNode_Destroy((SceneNode *)g_unk0x0058d49c[i]);
+            *(int *)(g_unk0x0058d530 + i * 0x1c + 0x0) = 0;
+            *(int *)(g_unk0x0058d530 + i * 0x1c + 0x4) = 0;
+            *(int *)(g_unk0x0058d530 + i * 0x1c + 0x8) = 0;
+            *(int *)(g_unk0x0058d530 + i * 0x1c + 0xc) = 0;
+            *(int *)(g_unk0x0058d530 + i * 0x1c + 0x10) = 0;
+        }
+    }
+    for (i = 0; i < 2; i++) {
+        if (g_unk0x0058d6a0[i] != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x0058d6a0[i]);
+            g_unk0x0058d6a0[i] = NULL;
+        }
+    }
+    for (i = 0; i < 2; i++) {
+        g_unk0x0058d4c0[i * 2] = 0;
+        g_unk0x0058d4c0[i * 2 + 1] = 0;
+    }
+    for (i = 0; i < 16; i++) {
+        if (*(void **)(g_unk0x0058d3b8 + i * 0xc) != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(*(void **)(g_unk0x0058d3b8 + i * 0xc));
+            *(void **)(g_unk0x0058d3b8 + i * 0xc) = NULL;
+        }
+        *(int *)(g_unk0x0058d3b8 + i * 0xc + 0x0) = 0;
+        *(int *)(g_unk0x0058d3b8 + i * 0xc + 0x4) = 0;
+        *(int *)(g_unk0x0058d3b8 + i * 0xc + 0x8) = 0;
+    }
+    return TRUE;
+}
+
+// Adds the player slot to the DirectPlay session.
+// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004aac40
+bool Network_AddSessionPlayerSlot(BYTE param1)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+    int playerId;
+    int unusedId;
+
+    if ((BYTE)param1 >= CGame::m_connectionCount)
+        return false;
+    if (CGame::RejectUnsupportedNetworkOperation(param1, (int)&playerId, (int)&unusedId)) {
+        pDP = CGame::m_pDirectPlay4A;
+        hr = ((DPMethod2)(*(void ***)pDP)[0x98 / 4])(pDP, (void *)playerId, 0);
+    } else {
+        pDP = CGame::m_pDirectPlay4A;
+        hr = ((DPMethod2)(*(void ***)pDP)[0x98 / 4])(pDP,
+            CGame::m_connections[param1 & 0xff].pConnection, 0);
+    }
+    if (hr <= (HRESULT)0x88770078) {
+        if (hr == (HRESULT)0x88770078 || hr == (HRESULT)0x80070057 ||
+            hr != (HRESULT)0x88770005)
+            return false;
+        CGame::m_maxConnections = (BYTE)param1;
+        return true;
+    } else {
+        if (hr == (HRESULT)0x887700fa || hr != 0)
+            return false;
+        CGame::m_maxConnections = (BYTE)param1;
+        return true;
+    }
+}
+
+// Enumera las sesiones o vuelca el buffer recibido en *param2.
+// FUNCTION: CMR2 0x004a1b90
+int Network_PollReceivedMessageBuffer(int param1, void **param2)
+{
+    DWORD bufferSize = CGame::m_unk0x005a1fbc;
+    DPID receiver;
+    IDirectPlay4A *pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return 0;
+    HRESULT hr = pDP->Receive((LPDPID)param1, &receiver, DPRECEIVE_ALL,
+                             CGame::m_unk0x005a1fb8, &bufferSize);
+    if (hr <= DPERR_INVALIDOBJECT) {
+        if (hr == DPERR_INVALIDOBJECT || hr == DPERR_GENERIC || hr == DPERR_INVALIDPARAMS ||
+            hr != DPERR_BUFFERTOOSMALL)
+            goto done;
+        if (CGame::m_unk0x005a1fb8 != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(CGame::m_unk0x005a1fb8);
+            CGame::m_unk0x005a1fb8 = NULL;
+        }
+        CGame::m_unk0x005a1fb8 = CFileBuffer::AllocateLockedBuffer(bufferSize);
+        if (CGame::m_unk0x005a1fb8 != NULL)
+            CGame::m_unk0x005a1fbc = bufferSize;
+    } else {
+        if (hr == DPERR_INVALIDPLAYER || hr == DPERR_NOMESSAGES || hr != 0)
+            goto done;
+        *param2 = CGame::m_unk0x005a1fb8;
+        return 1;
+    }
+done:
+    return 0;
+}
+
+
+// Removes a player (by DirectPlay id) from the session player table.
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a1940
+void Network_RemoveSessionPlayerByID(DPID *pId)
+{
+    int i;
+
+    for (i = 0; i < 7; i++) {
+        if (CGame::m_unk0x005a1820[i].field_0xc8 == *pId) {
+            // Non-variadic prototype: MSVC6 defers the pair's stack cleanup
+            // (merged `add esp,0x10` in the original).
+            ((int (__cdecl *)(char *, const char *))sprintf)(CGame::m_unk0x005a1820[i].field_0x0, CMain::m_logFileBlankLine);
+            ((int (__cdecl *)(char *, const char *))sprintf)(CGame::m_unk0x005a1820[i].field_0x64, CMain::m_logFileBlankLine);
+            CGame::m_unk0x005a1820[i].field_0xc8 = 0;
+            CGame::m_unk0x005a1820[i].field_0xcc = 0;
+            CGame::m_unk0x005a1818--;
+            return;
+        }
+    }
+}
+
+// One of the four user values of a listed session.
+// FUNCTION: CMR2 0x004a1610
+int Session_GetListedUserValue(unsigned int session, BYTE index)
+{
+    switch (index) {
+    case 0:
+        return (int)SESSIONS[session & 0xff].dwUser1;
+    case 1:
+        return (int)SESSIONS[session & 0xff].dwUser2;
+    case 2:
+        return (int)SESSIONS[session & 0xff].dwUser3;
+    }
+    return (int)SESSIONS[session & 0xff].dwUser4;
+}
+
+// FUNCTION: CMR2 0x004a19c0
+int Network_FindSessionPlayerIndex(DPID *pId, char *pIndex)
+{
+    int i;
+
+    for (i = 0; i < 7; i++) {
+        if (CGame::m_unk0x005a1820[i].field_0xc8 == *pId) {
+            *pIndex = i;
+            return 1;
+        }
+    }
+    *pIndex = 0;
+    return 0;
+}
+
+// FUNCTION: CMR2 0x004a1a00
+DPID Network_GetLocalPlayerID(void)
+{
+    return CGame::m_unk0x005a1ea0;
+}
+
+// FUNCTION: CMR2 0x004a1b60
+char *Network_GetActiveSessionPlayerLongName(BYTE index)
+{
+    if (CGame::m_unk0x005a1820[index].field_0xcc != 0)
+        return CGame::m_unk0x005a1820[index].field_0x64;
+    return NULL;
+}
+
+// FUNCTION: CMR2 0x004a1b30
+Unk0x005a1820 *Network_GetActiveSessionPlayerRecord(BYTE index)
+{
+    if (CGame::m_unk0x005a1820[index].field_0xcc != 0)
+        return &CGame::m_unk0x005a1820[index];
+    return NULL;
+}
+
+BOOL Network_ReadJoinedSessionDescription(void);
+bool Network_TestLocalPlayerStatus(void);
+
+// Session name, password and player limit of the network session description.
+// FUNCTION: CMR2 0x004a1510
+void Session_SetName(LPVOID pName)
+{
+    Network_ReadJoinedSessionDescription();
+    g_sessionNamePtr = (LPVOID *)pName;
+    Network_TestLocalPlayerStatus();
+}
+
+// FUNCTION: CMR2 0x004a1530
+void Session_SetPassword(LPVOID pPassword)
+{
+    Network_ReadJoinedSessionDescription();
+    g_sessionPasswordPtr = (LPVOID *)pPassword;
+    Network_TestLocalPlayerStatus();
+}
+
+// FUNCTION: CMR2 0x004a1550
+char Session_SetMaxPlayers(int count)
+{
+    Network_ReadJoinedSessionDescription();
+    *(int *)(g_unk0x005a0068 + 0x28) = count;
+    return Network_TestLocalPlayerStatus();
+}
+
+void SceneNode_UpdateTree(SceneNode *pNode, int unused);
+void SceneNode_FlushTransforms(SceneNode *pNode);
+void Scene_SetViewFromCamera(SceneNode *pCamera);
+
+// Updates a scene tree for drawing from a camera.
+// FUNCTION: CMR2 0x0049ce10
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param)
+{
+    SceneNode_UpdateTree(pRoot, param);
+    SceneNode_FlushTransforms(pRoot);
+    Scene_SetViewFromCamera(pCamera);
+    return 1;
+}
+
+// Network session flag 0x20 (set when `open` is 0).
+// FUNCTION: CMR2 0x004a1570
+void Session_SetOpen(char open)
+{
+    Network_ReadJoinedSessionDescription();
+    if (open != 0) {
+        *(DWORD *)(g_unk0x005a0068 + 4) &= 0xffffffdf;
+        Network_TestLocalPlayerStatus();
+        return;
+    }
+    *(DWORD *)(g_unk0x005a0068 + 4) |= 0x20;
+    Network_TestLocalPlayerStatus();
+}
+
+// One of the four session user values (0x40..0x4c of the description).
+// FUNCTION: CMR2 0x004a1680
+int Session_GetUserValue(BYTE index)
+{
+    Network_ReadJoinedSessionDescription();
+    switch (index) {
+    case 0:
+        return *(int *)(g_unk0x005a0068 + 0x40);
+    case 1:
+        return *(int *)(g_unk0x005a0068 + 0x44);
+    case 2:
+        return *(int *)(g_unk0x005a0068 + 0x48);
+    }
+    return *(int *)(g_unk0x005a0068 + 0x4c);
+}
