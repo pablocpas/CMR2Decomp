@@ -8175,9 +8175,9 @@
   },
   "0x41b060": {
     "n": "CGame::UpdateInRaceCallbackMachine",
-    "s": 0.7860696517412935,
+    "s": 0.7868020304568528,
     "x": false,
-    "fz": 0.9154228855721394,
+    "fz": 0.9187817258883249,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "CGame::UpdateInRaceCallbackMachine"
@@ -13537,9 +13537,9 @@
   },
   "0x44a1b0": {
     "n": "GameMenu_SetupStageResults",
-    "s": 0.726027397260274,
+    "s": 0.741290691033695,
     "x": false,
-    "fz": 0.8458904109589042,
+    "fz": 0.8692175899486008,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenu_SetupStageResults"

@@ -1,7 +1,7 @@
 {
   "build": {
-    "commit": "1ef671253335ded2d2bd469d584a39c2a9ba0224",
-    "source_changed": true,
+    "commit": "b7ee3cfd9216ce78356123693dfc2eb859de4f44",
+    "source_changed": false,
     "windowed": false,
     "flags": [
       "/O2",
@@ -76,11 +76,11 @@
       "CMR2Decomp/FrontendNetworkRally.cpp": "04877e99bd48400fbbce1fcca1a48f7611af8e0e9d6992529062dd7537bfd635",
       "CMR2Decomp/FrontendScreens.cpp": "f4d4580e2c4472fb512438d91225ff1295a6482f6ae75020e86ec29a0b03c946",
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
-      "CMR2Decomp/Game.cpp": "cf07a7ebe73534ea1e7a31507aadd3653436864869ce39c51a13a77eb9e75aae",
+      "CMR2Decomp/Game.cpp": "3112cf3cd931299f08d77f89cc045aed64794ac86eef2bb74fb42bcb06fec2a1",
       "CMR2Decomp/Game.h": "3ac93fd8707b75dea487ba1a23170a63a0099477a95f0c5a0c7d98c31726bf03",
       "CMR2Decomp/GameInfo.cpp": "07d137bfe0ad07ba996675758a5a7c9c3b43c2d67b89df8e729d59508ae8fa2b",
       "CMR2Decomp/GameInfo.h": "191777cd7d1cc6c81276e22879fd745d02fc9fa7b29ac05f0bff3761ae5b8bb7",
-      "CMR2Decomp/GameMenus.cpp": "166f2c2ebf3b6a7b28e9a2b92eaf7427324454cd62502a319ffe168155b8b67d",
+      "CMR2Decomp/GameMenus.cpp": "137fe7797062de80a21355b9ee83075d04d58a77f359cfdb95e55198668294fe",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
       "CMR2Decomp/GameNetwork.cpp": "e4162b9288f4fd3b48d47ecbf7b79328455dafbd04afb997b4e2f427a22f3b57",
       "CMR2Decomp/GenericFileLoader.cpp": "eba2ddfd0571387fcb1bc7c23202b10d552442c4270cfeccb41d4742e522abb1",
@@ -171,8 +171,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "16b79d7de918f46c76d2cc2dcc87981010295e6b21700892f2e4216fcd4ed6f2",
-    "pdb_sha256": "ca9e7e06e99082b9ca559cf1828360506e35212da0dd3d157ce31690f5feb710"
+    "exe_sha256": "d88da1e595eec7c01e286505a6e38a50b32fa27fb4f8d7ae0a5a4860612d56e4",
+    "pdb_sha256": "ee204cea9433d55033fd37c5da4f175d2b19e6346fc2d717e44652f2eb7a2e50"
   },
   "perfect_match_percent": 56.08,
   "fuzzy_match_percent": 94.48,
