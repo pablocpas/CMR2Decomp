@@ -2056,6 +2056,33 @@ void CGraphics::SetProjection(int fovX, int fovY, int farPlane, int nearPlane)
     m_farPlaneFixed = farPlane;
 }
 
+// Number of bits set in a bump-map channel mask.
+static inline BYTE Bump_CountBits(DWORD mask)
+{
+    int count = 0;
+    int i;
+
+    for (i = 32; i != 0; i--) {
+        if (mask & 1)
+            count++;
+        mask >>= 1;
+    }
+    return count;
+}
+
+// Bit position of a channel mask's lowest set bit (32 for an empty mask).
+static inline BYTE Bump_LowestSetBit(DWORD mask)
+{
+    int count;
+
+    for (count = 0; count < 32; count++) {
+        if (mask & 1)
+            break;
+        mask >>= 1;
+    }
+    return count;
+}
+
 // FUNCTION: CMR2 0x004a5880
 void CGraphics::GenerateBumpMap(Texture *pSrc, Texture *pDst)
 {
@@ -2064,22 +2091,17 @@ void CGraphics::GenerateBumpMap(Texture *pSrc, Texture *pDst)
     unsigned int duMask;
     unsigned int dvMask;
     unsigned int lumMask;
-    unsigned int bits;
-    int count;
-    int duDrop;
-    int dvDrop;
-    int lumDrop;
+    WORD duDrop;
+    WORD dvDrop;
+    WORD lumDrop;
     WORD duShift;
     WORD dvShift;
     WORD lumShift;
-    int i;
     int x;
     int y;
-    short xn;
-    int yn;
     int h;
     int h1;
-    short h2;
+    int h2;
     int du;
     int dv;
     int lum;
@@ -2101,80 +2123,42 @@ void CGraphics::GenerateBumpMap(Texture *pSrc, Texture *pDst)
     }
 
     duMask = dstDesc.ddpfPixelFormat.dwBumpDuBitMask;
-    count = 0;
-    bits = duMask;
-    for (i = 32; i != 0; i--) {
-        if (bits & 1)
-            count++;
-        bits >>= 1;
-    }
-    duDrop = 8 - (WORD)(BYTE)count;
     dvMask = dstDesc.ddpfPixelFormat.dwBumpDvBitMask;
-    count = 0;
-    bits = dvMask;
-    for (i = 32; i != 0; i--) {
-        if (bits & 1)
-            count++;
-        bits >>= 1;
-    }
-    dvDrop = 8 - (WORD)(BYTE)count;
     lumMask = dstDesc.ddpfPixelFormat.dwBumpLuminanceBitMask;
-    count = 0;
-    bits = lumMask;
-    for (i = 32; i != 0; i--) {
-        if (bits & 1)
-            count++;
-        bits >>= 1;
-    }
-    lumDrop = 8 - (WORD)(BYTE)count;
-
-    for (count = 0; count < 32; count++) {
-        if (duMask & 1)
-            break;
-        duMask >>= 1;
-    }
-    duShift = (BYTE)count;
-    for (count = 0; count < 32; count++) {
-        if (dvMask & 1)
-            break;
-        dvMask >>= 1;
-    }
-    dvShift = (BYTE)count;
-    for (count = 0; count < 32; count++) {
-        if (lumMask & 1)
-            break;
-        lumMask >>= 1;
-    }
-    lumShift = (BYTE)count;
+    duDrop = 8 - Bump_CountBits(duMask);
+    dvDrop = 8 - Bump_CountBits(dvMask);
+    lumDrop = 8 - Bump_CountBits(lumMask);
+    duShift = Bump_LowestSetBit(duMask);
+    dvShift = Bump_LowestSetBit(dvMask);
+    lumShift = Bump_LowestSetBit(lumMask);
 
     pOut = (BYTE *)dstDesc.lpSurface;
     pOut16 = (WORD *)dstDesc.lpSurface;
     for (y = 0; y < pDst->height; y++) {
         for (x = 0; x < pDst->width; x++) {
             h = GetPixelRed(&srcDesc, x, y);
-            xn = x;
-            if (xn < pSrc->width - 1)
-                xn++;
+            if (x < pDst->width - 1)
+                h1 = GetPixelRed(&srcDesc, x + 1, y);
             else
-                xn = 0;
-            h1 = GetPixelRed(&srcDesc, xn, y);
-            yn = y;
-            if (yn < pSrc->height - 1)
-                yn++;
+                h1 = GetPixelRed(&srcDesc, 0, y);
+            if (y < pDst->height - 1)
+                h2 = GetPixelRed(&srcDesc, x, y + 1);
             else
-                yn = 0;
-            h2 = GetPixelRed(&srcDesc, x, yn);
+                h2 = GetPixelRed(&srcDesc, x, 0);
             du = abs(h - h1);
-            dv = ((h - h2) < 0 ? -(h - h2) : (h - h2));
+            dv = abs(h - h2);
             lum = GetPixelAlpha(&srcDesc, x, y);
             if (dstDesc.ddpfPixelFormat.dwBumpBitCount == 16) {
-                *pOut16++ = (WORD)((lum >> lumDrop) << lumShift) | (WORD)((dv >> dvDrop) << dvShift) | (WORD)((du >> duDrop) << duShift);
+                *pOut16++ = (WORD)(((lum >> lumDrop) << lumShift) | ((dv >> dvDrop) << dvShift) | ((du >> duDrop) << duShift));
+            } else if (dstDesc.ddpfPixelFormat.dwBumpBitCount == 24) {
+                *pOut++ = (BYTE)du;
+                *pOut++ = (BYTE)dv;
+                *pOut++ = (BYTE)lum;
             } else {
                 *pOut++ = (BYTE)du;
                 *pOut++ = (BYTE)dv;
                 *pOut++ = (BYTE)lum;
-                if (dstDesc.ddpfPixelFormat.dwBumpBitCount != 24)
-                    *pOut++ = 0;
+                *pOut++ = 0;
             }
         }
     }
