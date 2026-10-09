@@ -4249,8 +4249,7 @@ sample:
         y = 0;
     }
     if (x + w >= (int)resX)
-        w = resX;
-        w -= x;
+        w = resX - x;
     if (y + h >= (int)resY)
         h = resY - y;
     if (w == 0 || h == 0)
@@ -6463,7 +6462,7 @@ Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
                 if (aDepth >= 0)
                     a = ((aMask >> ((aDepth) < 0 ? -(aDepth) : (aDepth))) & a) << abs(aDepth);
                 else
-                    a = ((aMask << abs(aDepth)) & a) >> FIX_ABS(aDepth);
+                    a = ((aMask << abs(aDepth)) & a) >> abs(aDepth);
                 if (rDepth >= 0)
                     r = ((rMask >> abs(rDepth)) & r) << abs(rDepth);
                 else

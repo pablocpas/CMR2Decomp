@@ -4860,8 +4860,7 @@ void FrontendAnimation_UpdateMainPath(void)
         if (FrontendMenu_GetMain()->items[FrontendMenu_GetMain()->cursor].value == 4)
             elapsed = (unsigned int)(CFrontend::GetFrontendTimestamp() - FrontendScroller_GetSelectionTimestamp()) % 500;
         else
-            elapsed = CFrontend::GetFrontendTimestamp();
-            elapsed -= FrontendScroller_GetSelectionTimestamp();
+            elapsed = CFrontend::GetFrontendTimestamp() - FrontendScroller_GetSelectionTimestamp();
         if (elapsed > 250) {
             g_pMenuPath = g_menuPaths[g_menuPathMode][0];
         } else {

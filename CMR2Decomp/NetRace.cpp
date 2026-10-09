@@ -752,7 +752,7 @@ void NetRace_PackCarState(Car *car)
         FixVector *axis = &axes[i];
         int x = FIX_ABS(axis->x);
         int y = FIX_ABS(axis->y);
-        int az = abs(axis->z);
+        int az = FIX_ABS(axis->z);
         int heading = x == 0 ? 0 : (int)FixAtan2(az, x) * 0x1680;
         // FixAcos uses /QIfist in the physics TUs; use FISTP explicitly here.
         int negative = y < 0;

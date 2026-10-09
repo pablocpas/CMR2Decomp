@@ -5111,8 +5111,7 @@ void StageObject_SetLighting(const StageLightPreset *pPrimary, const StageLightP
         g_stageLighting[0x2e] = (unsigned int)pSecondary->colour[1][1] << 0x10;
         g_stageLighting[0x2f] = (unsigned int)pSecondary->colour[1][2] << 0x10;
         g_stageLighting[0x30] = ((unsigned int)pSecondary->colour[0][0] << 0x10) - g_stageLighting[0x2d];
-        g_stageLighting[0x31] = ((unsigned int)pSecondary->colour[0][1] << 0x10);
-        g_stageLighting[0x31] -= g_stageLighting[0x2e];
+        g_stageLighting[0x31] = ((unsigned int)pSecondary->colour[0][1] << 0x10) - g_stageLighting[0x2e];
         g_stageLighting[0x32] = ((unsigned int)pSecondary->colour[0][2] << 0x10) - g_stageLighting[0x2f];
         g_stageLighting[0x6] = (unsigned int)pPrimary->colour[2][0] << 0x10;
         g_stageLighting[0x7] = (unsigned int)pPrimary->colour[2][1] << 0x10;
@@ -10735,9 +10734,10 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
     p = StageUI_GetRaceResultTable();
     if (**(char **)(p + 4) == 10) {
         if (Race_IsMultiplayerRecordMode10() != 0) {
-            uVar4 = param_1;
             if (CGameInfo::GetConfiguredGameMode() != 2)
                 uVar4 = View_FindFreeModeSlot(1);
+            else
+                uVar4 = param_1;
         } else {
             uVar4 = View_FindFreeModeSlot(0);
         }
@@ -11549,9 +11549,10 @@ void Replay_EncodeCarPoseSample(Car *pCar, ReplaySample *pSample)
             size.x = -pBasis->x;
         size.y = pBasis->y < 0 ? -pBasis->y : pBasis->y;
         size.z = pBasis->z < 0 ? -pBasis->z : pBasis->z;
-        angle = FixAtan2(size.z, size.x) * 0x1680;
         if (size.x == 0)
             angle = 0;
+        else
+            angle = FixAtan2(size.z, size.x) * 0x1680;
         pitch = (0x400 - Replay_Acos(size.y)) * 0x1680;
         if (pBasis->x >= 0 && pBasis->z <= 0)
             angle = 0x1680000 - angle;
@@ -13254,7 +13255,7 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
         delta.y = 0;
         projCorner0 = FixVecDot(&delta, &pBoxB->axisA);
         projCorner1 = FixVecDot(&pBoxB->axisB, &delta);
-        if (FIX_ABS(projCorner0) > pBoxB->halfWidth || abs(projCorner1) > pBoxB->halfLength)
+        if (FIX_ABS(projCorner0) > pBoxB->halfWidth || FIX_ABS(projCorner1) > pBoxB->halfLength)
             continue;
         hit0 = 0;
         hit1 = 0;

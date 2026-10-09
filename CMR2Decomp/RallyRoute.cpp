@@ -59,8 +59,7 @@ void RallyRoute_GetNodeDirection(FixVector *pOut, unsigned int nodeIndex)
     if (hasPrev != 0) {
         d.y = 0;
         d.x = pNode[0] - pPrev[0];
-        d.z = pNode[2];
-        d.z -= pPrev[2];
+        d.z = pNode[2] - pPrev[2];
         len = FixVecLength(&d);
         if (len == 0) {
             d.x = 0;

@@ -326,7 +326,7 @@ void View_SelectVisibleCars(unsigned int view, short *pRect)
             delta.x = pos.x - otherPos.x;
             delta.y = pos.y - otherPos.y;
             delta.z = pos.z - otherPos.z;
-            if (abs(delta.x) <= 0x960000 && FIX_ABS(delta.y) <= 0x960000 && FIX_ABS(delta.z) <= 0x960000)
+            if (FIX_ABS(delta.x) <= 0x960000 && FIX_ABS(delta.y) <= 0x960000 && FIX_ABS(delta.z) <= 0x960000)
                 distTable[g_carOrder[i]] = FixVecDot(&delta, &delta);
             else
                 distTable[g_carOrder[i]] = 0x7fbc0000;
@@ -2005,7 +2005,7 @@ void Car_UpdateBodyLean(void)
         g_leanAccel.x = g_leanAccel.x > 0 ? 0x170a : -0x170a;
     }
     z = g_leanAccel.z;
-    if (abs(z) > 0x170a) {
+    if (FIX_ABS(z) > 0x170a) {
         if (z > 0) {
             z = 0x170a;
             g_leanAccel.z = z;
@@ -6541,7 +6541,7 @@ void Car_IntegrateWheelTravel(void)
         for (i = 0; i < 4; i++) {
             t = FixMul(g_pCurrentCar->field_0x9c0, v[i] - avg);
             g_pCurrentCar->field_0x808[i] = t;
-            if (max < abs(t))
+            if (max < FIX_ABS(t))
                 max = FIX_ABS(t);
         }
         if (max > 0x10000) {

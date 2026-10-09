@@ -648,8 +648,7 @@ void FrontendDraw_ScrollerRow(MenuScroller *p, char active)
 
     i = pMenu->cursor - 1;
     if (i < 0)
-        i = pMenu->itemCount;
-        i -= 1;
+        i = pMenu->itemCount - 1;
     x = x0 - p->widths[i] - p->spacing;
     if (active != 0) {
         pColour = g_colourText0x0052496c;

@@ -2775,8 +2775,7 @@ void RallyData_DrawNetworkStandingsPanel(short *pRect)
         }
         square[2] = (short)((int)(g_pGraphics->resX * 10) / 640);
         square[3] = (short)((int)(g_pGraphics->resY * 10) / 480);
-        square[0] = panel[2] - (short)((int)(g_pGraphics->resX * 10) / 640) + panel[0];
-        square[0] -= square[2] / 2;
+        square[0] = panel[2] - (short)((int)(g_pGraphics->resX * 10) / 640) + panel[0] - square[2] / 2;
         square[1] = panel[3] / 2 + panel[1] - square[3] / 2;
         Sprite_FillRect((int)g_pGraphics + 0x150, square, pColour, 2);
         sprintf(number, g_strOneDigit, i + 1);
