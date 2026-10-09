@@ -669,9 +669,10 @@ void FrontendMenu_DrawAdvancedGraphicsOptions(Menu *pMenu)
                     else
                         pColour = pUnselColour;
                 } else {
-                    pColour = g_colourDim0x00524970;
                     if (j != 0)
                         pColour = g_colourWhite0x00524968;
+                    else
+                        pColour = g_colourDim0x00524970;
                 }
                 x += (int)(g_pGraphics->resX * 10) / 640 +
                      Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
@@ -7020,8 +7021,9 @@ void FrontendMenu_DrawMultiplayerRaceSettings(Menu *pMenu)
             pColour = g_colourWhite0x00524968;
             Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, (SpriteRect *)icon, CFrontend::m_pAr640ATexture, 1, 0, NULL, NULL, pColour, 8);
         } else {
-            pColour = g_colourText0x0052496c;
-            if (!pMenu->items[i].enabled)
+            if (pMenu->items[i].enabled)
+                pColour = g_colourText0x0052496c;
+            else
                 pColour = g_colourDim0x00524970;
             Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, (SpriteRect *)icon, CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, pColour, 8);
         }
@@ -10057,9 +10059,10 @@ void FrontendMenu_DrawProfileRenameEntry(Menu *pMenu)
                 }
             }
             pItem = &pMenu->items[pMenu->cursor];
-            pColour = (int *)g_colourWhite0x00524968;
             if (col != pItem->max || row != pItem->value)
                 pColour = (int *)g_colourText0x0052496c;
+            else
+                pColour = (int *)g_colourWhite0x00524968;
             if (g_strNameRow0x005249c0[col] == ' ' && row == 2) {
                 g_unk0x008189a8[0] = (short)(((col + 2) * g_pGraphics->resX) / 0xe);
                 g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 6) / 8) -
@@ -11202,8 +11205,9 @@ void FrontendMenu_DrawGraphicsOptions(Menu *pMenu)
                 j = 0;
                 if (pItem->min != 0) {
                     do {
-                        pColour = pSelected;
-                        if (pItem->max != j)
+                        if (pItem->max == j)
+                            pColour = pSelected;
+                        else
                             pColour = pUnselected;
                         x = (int)(g_pGraphics->resX * 10) / 640 + x + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
                         if (j == 0)
@@ -11707,8 +11711,9 @@ void FrontendMenu_DrawNetworkExtendedStageSetup(Menu *pMenu)
                 pColour = g_colourWhite0x00524968;
                 Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, &rect, CFrontend::m_pAr640ATexture, 1, 0, 0, NULL, pColour, 8);
             } else {
-                pColour = g_colourText0x0052496c;
-                if (pItem->enabled == 0)
+                if (pItem->enabled != 0)
+                    pColour = g_colourText0x0052496c;
+                else
                     pColour = g_colourDim0x00524970;
                 Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, &rect, CFrontend::m_pAr640DTexture, 1, 0, 0, NULL, pColour, 8);
             }
@@ -12039,8 +12044,9 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
             Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, &rect,
                          CFrontend::m_pAr640ATexture, 1, 0, 0, NULL, pColour, 8);
         } else {
-            pColour = g_colourText0x0052496c;
-            if (pItem->enabled == 0)
+            if (pItem->enabled != 0)
+                pColour = g_colourText0x0052496c;
+            else
                 pColour = g_colourDim0x00524970;
             Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, &rect,
                          CFrontend::m_pAr640DTexture, 1, 0, 0, NULL, pColour, 8);

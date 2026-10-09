@@ -6435,8 +6435,9 @@ BYTE *StageObject_BlendTimeOfDayRecord(unsigned short timeOfDay, int slot, BYTE 
     if (pFrom0 == NULL || pTo0 == NULL || pFrom1 == NULL || pTo1 == NULL)
         return NULL;
 
-    dest = g_stageObjectPrimary;
-    if (slot != 0)
+    if (slot == 0)
+        dest = g_stageObjectPrimary;
+    else
         dest = g_stageObjectSecondary;
 
     StageObject_InterpolateFrameRecord(buffer0, pFrom0, pTo0, rowFactor);
@@ -6676,9 +6677,10 @@ void StageObject_RebuildViewWeatherLighting(int index)
         pObject[10] = 0;
         if (g_stageLighting[0x5a] > 0x10000)
             g_stageLighting[0x5a] = 0x10000;
-        flag = 1;
         if (*(WORD *)&g_stageLighting[0x5c] == 0xffff || pView[0x15] <= 0xcccc || pView[0] != 1)
             flag = 0;
+        else
+            flag = 1;
         g_stageLighting[0x5b] = FixMul(g_stageLighting[0x59] - g_stageLighting[0x2c], g_stageLighting[0x5a]) +
                                 g_stageLighting[0x2c];
 
@@ -10882,9 +10884,10 @@ unsigned int AI_SelectWallCollisionResponse(int param_1)
         nearGap = lateral - WALL_DISTANCE(0xd);
         farLimit = g_unk0x0058e4a4[index + 0xe];
         farGap = lateral - WALL_DISTANCE(0xe);
-        gap = 0;
         if (farGap < 0x40000 && farLimit <= 0x10)
             gap = farGap;
+        else
+            gap = 0;
         if (nearGap > 0 && nearGap < 0x40000)
             gap = nearGap;
         if (gap > 0) {

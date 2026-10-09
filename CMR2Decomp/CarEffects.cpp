@@ -1731,9 +1731,10 @@ void CarEffect_UpdateWheelSurfaceParticles(int car)
         velY = *(int *)(pCar + 0x430 + wheel * 0xc);
         velX = -(*(int *)(pCar + 0x42c + wheel * 0xc) / 4);
         velZ = -(*(int *)(pCar + 0x434 + wheel * 0xc) / 4);
-        side = 0x10000;
         if (wheel == 0 || wheel == 2)
             side = -0x10000;
+        else
+            side = 0x10000;
         if (wheel != 3 && wheel != 2)
             side = FixMul(side, 0x3333);
         for (k = count; k > 0; k--) {

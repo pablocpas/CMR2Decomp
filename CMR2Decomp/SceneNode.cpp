@@ -1267,9 +1267,10 @@ void Scene_AddShadowCaster(SceneNode *pNode, int exactMeshes)
     for (pChild = pNode->pFirstChild; pChild != NULL; pChild = pChild->pNext) {
         for (p = pChild; p != NULL; p = p->pFirstChild) {
             if (CASTS_SHADOW(p)) {
-                pPart->pMesh = (Mesh *)p->pObject;
                 if (exactMeshes == 0 && (pNode->flags & 0xff) <= 4)
                     pPart->pMesh = Mesh_GetShadowCylinder((Mesh *)p->pObject);
+                else
+                    pPart->pMesh = (Mesh *)p->pObject;
                 ShadowPart_Init(pPart);
                 pPart->pNode = p;
                 pPart->field_0x50 = 0;
