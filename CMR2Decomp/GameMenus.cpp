@@ -1011,11 +1011,11 @@ void GameMenu_DrawScrollingStageSplits(Menu *pMenu)
             if (StageTiming_GetCurrentSplitPositionOfDriver(player) == pos) {
                 isPlayer = true;
                 strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(player));
-                goto found;
+                break;
             }
         }
-        strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
-    found:
+        if (!isPlayer)
+            strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
                        (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
