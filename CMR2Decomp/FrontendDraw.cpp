@@ -542,11 +542,12 @@ void FrontendDraw_RallyEntryList(BYTE *pList, char *pTitle, int index, char **pp
         if (pList[0xb] == u) {
             pTexture = CFrontend::m_pAr640ATexture;
             pColour = g_colourWhite0x00524968;
+            Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)rect, pTexture, 1, 0, NULL, NULL, pColour, 8);
         } else {
             pTexture = CFrontend::m_pAr640DTexture;
             pColour = g_colourText0x0052496c;
+            Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)rect, pTexture, 1, 0, NULL, NULL, pColour, 8);
         }
-        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)rect, pTexture, 1, 0, NULL, NULL, pColour, 8);
         Font_DrawText(1, ppStrings[u], (int)(g_pGraphics->resX * 0x50) / 640,
                       g_unk0x008189a8[1] + (int)(g_pGraphics->resY * 0x14) / 480, (int *)pColour, 0x11);
         if (pList[0xb] == u || pList[0xb] == u + 1) {
