@@ -4219,12 +4219,15 @@ void Car_UpdateRideHeight(void)
             return;
         }
     } else {
-        lo = (FixMul(g_pCurrentCar->wheelLoad[0], g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]) +
-              FixMul(g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear], g_pCurrentCar->wheelLoad[1])) / 2;
-        hi = (FixMul(g_pCurrentCar->wheelLoad[2], g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]) +
-              FixMul(g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear], g_pCurrentCar->wheelLoad[3])) / 2;
-        g_pCurrentCar->field_0x7a4 +=
-            FixMul(FixMul(g_pCurrentCar->driveSplit, lo - hi) - g_pCurrentCar->field_0x7a4 + hi, 0x10000);
+        lo = FixMul(g_pCurrentCar->wheelLoad[0], g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]);
+        lo += FixMul(g_pCurrentCar->wheelLoad[1], g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]);
+        hi = FixMul(g_pCurrentCar->wheelLoad[2], g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]);
+        hi += FixMul(g_pCurrentCar->wheelLoad[3], g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]);
+        hi /= 2;
+        lo /= 2;
+        lo = FixMul(lo - hi, g_pCurrentCar->driveSplit) - g_pCurrentCar->field_0x7a4;
+        lo += hi;
+        g_pCurrentCar->field_0x7a4 += FixMul(lo, 0x10000);
     }
 }
 
