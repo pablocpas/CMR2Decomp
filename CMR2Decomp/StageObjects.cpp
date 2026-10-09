@@ -6375,6 +6375,8 @@ BYTE *StageObject_BlendTimeOfDayRecord(unsigned short timeOfDay, int slot, BYTE 
     int length;
     int position;
     int factor;
+    int minutes;
+    int seconds;
     int rowFrom;
     int rowTo;
     int rowFactor;
@@ -6394,7 +6396,7 @@ BYTE *StageObject_BlendTimeOfDayRecord(unsigned short timeOfDay, int slot, BYTE 
     for (i = 0; i < 12; i++) {
         if (g_stageObjectTimeSteps[i] >= timeOfDay) {
             lower = i;
-            break;
+            i = 12;
         }
     }
     if (lower == -1)
@@ -6405,13 +6407,17 @@ BYTE *StageObject_BlendTimeOfDayRecord(unsigned short timeOfDay, int slot, BYTE 
         prev += 12;
         prevSeconds = 0;
     } else {
-        prevSeconds = (g_stageObjectTimeSteps[prev] / 100 * 60 + g_stageObjectTimeSteps[prev] % 100) << 16;
+        minutes = g_stageObjectTimeSteps[prev] / 100;
+        seconds = g_stageObjectTimeSteps[prev] - minutes * 100;
+        prevSeconds = (minutes * 60 << 16) + (seconds << 16);
     }
-    length = ((g_stageObjectTimeSteps[lower] / 100 * 60 + g_stageObjectTimeSteps[lower] % 100) << 16) - prevSeconds;
+    length = ((g_stageObjectTimeSteps[lower] / 100 * 60 + (g_stageObjectTimeSteps[lower] - g_stageObjectTimeSteps[lower] / 100 * 100)) << 16) - prevSeconds;
 
-    if (timeOfDay % 100 >= 60)
+    minutes = timeOfDay / 100;
+    seconds = timeOfDay - minutes * 100;
+    if (seconds >= 60)
         return NULL;
-    position = ((timeOfDay / 100 * 60 + timeOfDay % 100) << 16) - prevSeconds;
+    position = (minutes * 60 << 16) + (seconds << 16) - prevSeconds;
 
     factor = FixDiv(position, length);
     if (factor > 0x10000)
