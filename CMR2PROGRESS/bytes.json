@@ -667,9 +667,9 @@
   },
   "0x4430b0": {
     "n": "Car_UpdateRideHeight",
-    "s": 0.9423076923076923,
-    "x": false,
-    "fz": 0.9615384615384616,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateRideHeight"
@@ -820,9 +820,9 @@
   },
   "0x4380c0": {
     "n": "Car_UpdateEngineSpeed",
-    "s": 0.9957264957264957,
-    "x": false,
-    "fz": 0.9957264957264957,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateEngineSpeed"
@@ -8670,9 +8670,9 @@
   },
   "0x49cbc0": {
     "n": "Game_CompareTransparentDrawEntries",
-    "s": 0.4424778761061947,
-    "x": false,
-    "fz": 0.9911504424778761,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "Game_CompareTransparentDrawEntries"
@@ -14014,9 +14014,9 @@
   },
   "0x4a4d30": {
     "n": "CGraphics::RemapTextureAlpha",
-    "s": 0.4072398190045249,
+    "s": 0.5493562231759657,
     "x": false,
-    "fz": 0.6153846153846154,
+    "fz": 0.721030042918455,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::RemapTextureAlpha"
@@ -14347,9 +14347,9 @@
   },
   "0x4a5880": {
     "n": "CGraphics::GenerateBumpMap",
-    "s": 0.4424131627056673,
+    "s": 0.969811320754717,
     "x": false,
-    "fz": 0.6361974405850092,
+    "fz": 0.969811320754717,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::GenerateBumpMap"
@@ -24806,9 +24806,9 @@
   },
   "0x488de0": {
     "n": "Collision_FindQuadEdgeOverlap",
-    "s": 0.47959183673469385,
+    "s": 0.9301075268817204,
     "x": false,
-    "fz": 0.6122448979591837,
+    "fz": 0.9731182795698925,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Collision_FindQuadEdgeOverlap"
@@ -25121,9 +25121,9 @@
   },
   "0x461830": {
     "n": "StageObject_BlendTimeOfDayRecord",
-    "s": 0.5040650406504065,
+    "s": 0.6005830903790087,
     "x": false,
-    "fz": 0.5962059620596206,
+    "fz": 0.8513119533527697,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_BlendTimeOfDayRecord"
