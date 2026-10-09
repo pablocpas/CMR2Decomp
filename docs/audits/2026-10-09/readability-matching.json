@@ -1,0 +1,75 @@
+{
+  "before_commit": "a85e72666140faad8b32f4d357673770b081e790",
+  "raw_dereference_pattern": "\\*\\s*\\([^()\\n]+\\*\\s*\\)\\s*\\(",
+  "raw_dereferences_before": 2296,
+  "raw_dereferences_after": 2239,
+  "raw_dereferences_removed": 57,
+  "renames": {
+    "Unk0049c2c0": "CallbackStateMachine",
+    "Unk00817d98": "CallbackStateRecord",
+    "FuncTableEntry": "StateUpdateCallback",
+    "OtherFuncTableEntry": "StateRenderCallback",
+    "FuncTableGroup": "StateCallbackPair",
+    "m_unk0x00817da0": "m_frontendCallbackMachine",
+    "m_unk0x00817d98": "m_frontendCallbackRecord",
+    "m_unk0x00817eb0": "m_frontendCallbackInitialized",
+    "m_unk0x00523c18": "m_frontendStateRules",
+    "m_unk0x00593ba4": "m_currentCallbackRecord",
+    "m_unk0x00593ba8": "m_callbackIndex",
+    "m_unk0x00593cac": "m_skipRenderCallbacks",
+    "g_unk0x0082a7f0": "g_secondaryCallbackMachine",
+    "g_unk0x0082a800": "g_secondaryCallbackRecord",
+    "g_unk0x0082a908": "g_secondaryCallbackInitialized",
+    "g_unk0x00526ee0": "g_secondaryStateCallbacks",
+    "g_unk0x00526f18": "g_secondaryStateRules",
+    "g_unk0x005190b0": "g_raceStateCallbacks",
+    "g_unk0x00519120": "g_raceStateRules",
+    "Unk0x005a1820": "SessionPlayerRecord",
+    "m_unk0x005a1820": "m_sessionPlayers",
+    "m_unk0x005a1818": "m_sessionPlayerCount",
+    "m_unk0x005a1ea0": "m_localPlayerId",
+    "unknownGraphicsOptions": "graphicsOptions",
+    "unk_isJoystick": "supportsForceFeedback",
+    "unk0x00667204": "logFileName",
+    "unk0x00667348": "loggingDisabled",
+    "g_unk0x0053cc14": "g_stepCars",
+    "g_unk0x0053c9b0": "g_stepCarOrder",
+    "g_unk0x0053ca28": "g_stepCarCount",
+    "g_unk0x0053ac48": "g_wheelSpinning",
+    "g_unk0x0053a230": "g_wheelRotation"
+  },
+  "audited_functions": 3364,
+  "byte_exact_before": 2922,
+  "byte_exact_after": 2922,
+  "lost_exact": [],
+  "perfect_match_percent": 56.1,
+  "fuzzy_match_percent": 94.49,
+  "data_issues": 0,
+  "recorded_score_changes": [
+    {
+      "address": "0x4dbd80",
+      "function": "FrontendMenu_DrawRallyReport",
+      "before": 0.9889682024659312,
+      "after": 0.9850746268656716
+    }
+  ],
+  "fresh_original_comparison": {
+    "address": "0x4dbd80",
+    "original_score": 0.9850746268656716,
+    "cleaned_score": 0.9850746268656716,
+    "relocated_instructions_identical": true,
+    "unresolved_symbols": []
+  },
+  "differential_suite": {
+    "harnesses": 103,
+    "failures": 0
+  },
+  "validation_commands": [
+    "python3 scripts/build.py",
+    "python3 scripts/measure.py",
+    "python3 scripts/prepare_fastcmp.py",
+    "python3 tests/run_differential_suite.py --jobs 3",
+    "python3 scripts/check_dupes.py .",
+    "git diff --check"
+  ]
+}

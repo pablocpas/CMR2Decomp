@@ -3,6 +3,7 @@
 #include <string.h>
 #include "Graphics.h"
 #include "Car.h"
+#include "CarResources.h"
 #include "Sprite.h"
 #include "../third_party/dx7sdk-7001/include/d3dxmath.h"
 #pragma comment(lib, "third_party/dx7sdk-7001/lib/d3dx.lib")
@@ -175,36 +176,36 @@ bool CGraphics::InitializeDirectX(void) {
 
 // FUNCTION: CMR2 0x00405990
 void CGraphics::SetDefaults(void) {
-    CGameInfo::m_gameInfo.unknownGraphicsOptions |= 0x40000000;
+    CGameInfo::m_gameInfo.graphicsOptions |= 0x40000000;
     CGameInfo::m_gameInfo.screenWidth = 0x280;
     g_pGraphics->resX = 0x280;
     CGameInfo::m_gameInfo.screenHeight = 0x1e0;
     g_pGraphics->resY = 0x1e0;
     CGameInfo::m_gameInfo.screenColourDepth = 0x10;
     g_pGraphics->depth = 0x10;
-    CGameInfo::m_gameInfo.unknownGraphicsOptions |= 1;
+    CGameInfo::m_gameInfo.graphicsOptions |= 1;
     g_pGraphics->isFullscreen = 1;
-    CGameInfo::m_gameInfo.unknownGraphicsOptions &= 0xfffffff9;
+    CGameInfo::m_gameInfo.graphicsOptions &= 0xfffffff9;
     g_pGraphics->field913_0x3bc &= 0xfffffff7;
     g_pGraphics->field913_0x3bc &= 0xffffffef;
     g_pGraphics->field913_0x3bc &= 0xffffff7f;
-    CGameInfo::m_gameInfo.unknownGraphicsOptions &= 0xfffffff7;
+    CGameInfo::m_gameInfo.graphicsOptions &= 0xfffffff7;
     g_pGraphics->field913_0x3bc &= 0xffffffdf;
-    CGameInfo::m_gameInfo.unknownGraphicsOptions &= 0xffffffef;
+    CGameInfo::m_gameInfo.graphicsOptions &= 0xffffffef;
     g_pGraphics->field913_0x3bc &= 0xffffffbf;
-    CGameInfo::m_gameInfo.unknownGraphicsOptions &= 0xfff3e01f;
+    CGameInfo::m_gameInfo.graphicsOptions &= 0xfff3e01f;
     g_pGraphics->field913_0x3bc &= 0xfffffffe;
     g_pGraphics->field913_0x3bc &= 0xfffffffd;
 
-    CGameInfo::m_gameInfo.unknownGraphicsOptions =
-        (CGameInfo::m_gameInfo.unknownGraphicsOptions & 0xfe3fffff) | 0x200000;
+    CGameInfo::m_gameInfo.graphicsOptions =
+        (CGameInfo::m_gameInfo.graphicsOptions & 0xfe3fffff) | 0x200000;
 
     g_pGraphics->field917_0x3c0 = 1;
 
-    CGameInfo::m_gameInfo.unknownGraphicsOptions =
-        (CGameInfo::m_gameInfo.unknownGraphicsOptions & 0xebffffff) | 0xa000000;
+    CGameInfo::m_gameInfo.graphicsOptions =
+        (CGameInfo::m_gameInfo.graphicsOptions & 0xebffffff) | 0xa000000;
     CGameInfo::m_gameInfo.field_0x34 =  (CGameInfo::m_gameInfo.field_0x34 & 0xfffffffe) | 2;
-    CGameInfo::m_gameInfo.unknownGraphicsOptions &= 0xdfffffff;
+    CGameInfo::m_gameInfo.graphicsOptions &= 0xdfffffff;
 
     g_pGraphics->field913_0x3bc &= 0xfffffffb;
 }
@@ -5009,10 +5010,10 @@ void Glow_Draw(SceneNode *pCamera, BYTE view)
         pLight = &((GlowLight *)g_unk0x006a2a98)[i];
         if (pLight->type == 0 || pLight->enabled == 0 || pLight->intensity <= 0)
             continue;
-        if (pLight->pNode != NULL && (mask & pLight->pNode->field_0x17c) == 0)
+        if (pLight->pNode != NULL && (mask & pLight->pNode->viewMask) == 0)
             continue;
         if (pLight->pNode != NULL && pLight->pNode->pParent != NULL &&
-            (mask & pLight->pNode->pParent->field_0x17c) == 0)
+            (mask & pLight->pNode->pParent->viewMask) == 0)
             continue;
         if (pLight->pNode == NULL) {
             dir = pLight->dir;
@@ -5220,7 +5221,7 @@ char g_stageQualityCodes[24] = {
     0x43, 0x43, 0x43, 0x43, 0x44, 0x44, 0x44, 0x44, 0x44, 0x43, 0x44, 0x43, 0x44, 0x44, 0x44, 0x44,
     0x44, 0x44, 0x44, 0x44, 0x44, 0x44,
 };
-extern BYTE g_unk0x00542630[];
+
 
 // Raises the detail levels when the hardware allows it (texture memory, caps).
 // FUNCTION: CMR2 0x00457c50
@@ -5244,8 +5245,8 @@ void Graphics_RaiseSupportedDetailLevels(void)
         g_stageQualityCodes[17] = 'A';
         g_stageQualityCodes[18] = 'A';
         g_stageQualityCodes[19] = 'A';
-        g_unk0x00542630[0x394] = 'A';
-        g_unk0x00542630[0x395] = 'A';
+        g_knockoutPlayerCarDetail = 'A';
+        g_knockoutOpponentCarDetail = 'A';
         g_stageQualityCodes[11] = 'A';
         g_stageQualityCodes[12] = 'A';
         return;
@@ -5268,8 +5269,8 @@ void Graphics_RaiseSupportedDetailLevels(void)
         g_stageQualityCodes[17] = 'D';
         g_stageQualityCodes[18] = 'E';
         g_stageQualityCodes[19] = 'F';
-        g_unk0x00542630[0x394] = 'D';
-        g_unk0x00542630[0x395] = 'D';
+        g_knockoutPlayerCarDetail = 'D';
+        g_knockoutOpponentCarDetail = 'D';
         g_stageQualityCodes[11] = 'C';
         g_stageQualityCodes[12] = 'D';
         break;
@@ -5288,8 +5289,8 @@ void Graphics_RaiseSupportedDetailLevels(void)
         g_stageQualityCodes[17] = 'D';
         g_stageQualityCodes[18] = 'E';
         g_stageQualityCodes[19] = 'F';
-        g_unk0x00542630[0x394] = 'A';
-        g_unk0x00542630[0x395] = 'C';
+        g_knockoutPlayerCarDetail = 'A';
+        g_knockoutOpponentCarDetail = 'C';
         g_stageQualityCodes[11] = 'A';
         g_stageQualityCodes[12] = 'D';
         break;

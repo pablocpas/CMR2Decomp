@@ -924,7 +924,7 @@ void StageUI_RetireFromRace(Menu *pMenu)
     g_unk0x0058cf6c = 0;
     Race_SetFlag3810D();
     for (i = 0; i < *g_unk0x0058ca88; i++)
-        CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)g_unk0x0058ca88, i, 1, 2);
+        CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)g_unk0x0058ca88, i, 1, 2);
 }
 
 extern int g_unk0x0058cf7c;
@@ -941,7 +941,7 @@ void StageUI_ReleaseSceneAndFadeStage(BYTE index)
     i = 0;
     if (*g_unk0x0058ca88 > 0) {
         do {
-            CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)g_unk0x0058ca88, i, 0, 2);
+            CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)g_unk0x0058ca88, i, 0, 2);
             i++;
         } while (i < (int)*g_unk0x0058ca88);
     }

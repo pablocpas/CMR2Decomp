@@ -39,7 +39,7 @@ class ObjectMatrix(Lighting):
         if entities is not None:
             entities = dict(entities)
             entities['0x590d8c'] = [entity_address(entities, 0x590D8C, 0x590D7C),
-                                    'g_stageNodeTables.flags']
+                                    'g_carPartStateTables.modes']
         super().__init__(path, entities)
         self.callbacks = {}
         self.u.mem_write(self.base, bytes(self.memory))

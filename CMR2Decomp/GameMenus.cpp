@@ -149,7 +149,7 @@ int g_unk0x00541cd4;
 // Promotes every car of the race table one level (end of stage).
 #define PROMOTE_CARS()                                                                  \
     for (i = 0; i < *StageUI_GetRaceResultTable(); i++)                                               \
-        CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)StageUI_GetRaceResultTable(), i, 1, 3)
+        CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)StageUI_GetRaceResultTable(), i, 1, 3)
 
 void Race_SetFlag3810C(void);
 void Race_SetFlag37FFA(void);
@@ -487,7 +487,7 @@ void GameMenu_LeaveStageAndAdvanceChampionship(void)
     for (i = 0; i < (BYTE)RallyDataState(); i++)
         StageTiming_CopyCarTimesToRallyRecord(i);
     for (i = 0; i < *(BYTE *)g_unk0x00537f0c[5]; i++) {
-        CGame::PromoteCallbackEntryByRule((Unk0049c2c0 *)g_unk0x00537f0c[5], i, 0, 2);
+        CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)g_unk0x00537f0c[5], i, 0, 2);
         Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[i]);
     }
     if ((BYTE)RallyData_GetSelectionFlag28() && (BYTE)CGameInfo::GetSoundOptionBit30())

@@ -573,7 +573,7 @@ void Collision_TestOrderedCarPairs(Car *pCars, short *pOrder, short count)
             }
         found:
             result = 1;
-            if (Collision_DoSpheresOverlap(pCarA->field_0x758, pCarB->field_0x758,
+            if (Collision_DoSpheresOverlap(pCarA->collisionRadius, pCarB->collisionRadius,
                                            (int *)&pCarA->position, (int *)&pCarB->position)) {
                 flags[pCarB->index] = 1;
                 flags[pCarA->index] = 1;

@@ -138,6 +138,9 @@
     <ClCompile Include="InstallInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LayoutChecks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -150,6 +153,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CarPhysics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CarResources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="zlib\zlib.h">

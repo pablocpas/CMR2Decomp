@@ -3,14 +3,17 @@
 
 #include <windows.h>
 
-struct StageNodeTables {
-    void *nodes[4];
-    BYTE flags[4];
+struct PartState;
+struct CarSceneRecord;
+
+// Four moving-part slots, each owning one PartState array indexed by car.
+// The mode bytes at +0x10 are used by the corresponding object transforms.
+struct CarPartStateTables {
+    PartState *parts[4];
+    BYTE modes[4];
 };
-typedef char StageNodeTablesSize[sizeof(StageNodeTables) == 0x14 ? 1 : -1];
-extern StageNodeTables g_stageNodeTables;
-#define g_unk0x00590d7c (g_stageNodeTables.nodes)
-#define g_unk0x00590d8c (g_stageNodeTables.flags)
+typedef char CarPartStateTablesSize[sizeof(CarPartStateTables) == 0x14 ? 1 : -1];
+extern CarPartStateTables g_carPartStateTables;
 
 struct ReplayLevelState {
     int levels[16];
@@ -59,7 +62,7 @@ void StageTiming_GetSplitTimesForPositions(int iPosition1, int iPosition2, int *
 void StageTiming_Reset(void);
 void StageTiming_RebuildSplitPositions(void);
 
-BYTE *StageTiming_GetStartTableRecord(int index);
+CarSceneRecord *StageTiming_GetStartTableRecord(int index);
 void StageDeform_ApplyRadialDent(void);
 void StageDeform_ApplyPlanarDent(void);
 int StageTiming_FindModelPartByNodeType(unsigned int type, BYTE *pModel);

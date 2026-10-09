@@ -280,16 +280,20 @@ def annotated_globals():
     global added or renamed since the last full build still resolves."""
     global _ANNOT
     if _ANNOT is None:
-        _ANNOT = {}
+        annotations = {}
         pat = re.compile(r'//\s*GLOBAL:\s*CMR2\s+(0x[0-9a-fA-F]+)[^\n]*\n((?:[ \t]*//[^\n]*\n)*)([^\n]*)')
         for fn in sorted(os.listdir(REPO + '/CMR2Decomp')):
             if not fn.endswith(('.cpp', '.h')): continue
-            text = open(REPO + '/CMR2Decomp/' + fn, encoding='latin1').read()
+            with open(REPO + '/CMR2Decomp/' + fn, encoding='latin1') as source:
+                text = source.read()
             for m in pat.finditer(text):
                 decl = re.split(r'[\[=;(]', m.group(3))[0]
                 ids = re.findall(r'[A-Za-z_][\w:]*', decl)
                 if ids and ids[-1] not in ('extern', 'static', 'const'):
-                    _ANNOT.setdefault(ids[-1], int(m.group(1), 16))
+                    annotations.setdefault(ids[-1], int(m.group(1), 16))
+        # match.py compares TUs concurrently. Publish only the complete map:
+        # another worker must never resolve against a partially scanned tree.
+        _ANNOT = annotations
     return _ANNOT
 
 def real_bytes(nm):

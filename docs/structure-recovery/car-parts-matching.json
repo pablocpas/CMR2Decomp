@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "batch": "car-parts-02",
+  "inventory_before": {
+    "types": 287,
+    "raw_accesses": 2237,
+    "fixed_sizes": 129,
+    "hex_multipliers": 2381,
+    "unknown_identifiers": 12104,
+    "unnamed_field_declarations": 1605,
+    "unique_unknown_identifiers": 1457
+  },
+  "inventory_after": {
+    "types": 287,
+    "raw_accesses": 2196,
+    "fixed_sizes": 123,
+    "hex_multipliers": 2356,
+    "unknown_identifiers": 12050,
+    "unnamed_field_declarations": 1591,
+    "unique_unknown_identifiers": 1453
+  },
+  "source_sha256": {
+    "CMR2Decomp/Car.cpp": "f00143a599e2f862285a6c6e55889639592beef4c73d827049ec6d50b50794d7",
+    "CMR2Decomp/CarEffects.cpp": "0b3533ab15d7ac81873d4d82b34735d5753be793c5f5de1816d9324728c671f1",
+    "CMR2Decomp/CarParts.h": "2f407846aeb720759cd9dc1c13c27b332305a108eb366cb3dd811b6dc104f3dd",
+    "CMR2Decomp/FixedPoint.cpp": "5a04280cebb3f767b13249c84145ca7afb18eeb8859bdc5cdc52eb7ac27c7a0d",
+    "CMR2Decomp/LayoutChecks.cpp": "b6bff5ed8b0e75ae9df15700dd05b9e639ed183423fd84de39b831e82fdaa7b5",
+    "CMR2Decomp/StageObjects.cpp": "7136cc0e519907d87af8fa86e99ad9f383995bb22b6f5e45f0952fa997a4845a",
+    "CMR2Decomp/StageTiming.cpp": "7009980d8fcfaec03d919df000c9a1424ddf8359fd304978165db41269417cbb",
+    "CMR2Decomp/StageTiming.h": "11986b13c6f73e1917d1a0e678709d76b1c3613a75b30493a2b21a63280aaf43",
+    "CMR2Decomp/TrackCollision.cpp": "f3106658235f28bec58f7a084adf5252d049e2e8816242397baf52da5ba101bf"
+  },
+  "build_exe_sha256": "3d3b1f60f250c9d3a6a7d3348c9f7a4acaae2a4666a48e369c32b7518f8c2300",
+  "baseline_exact": 2922,
+  "final_exact": 2922,
+  "lost_exact": [],
+  "score_changes": [],
+  "data_issues": 0,
+  "perfect_match_percent": 56.1,
+  "fuzzy_match_percent": 94.49,
+  "differential_harnesses": 103,
+  "differential_failures": 0,
+  "annotation_publication_test": "passed"
+}

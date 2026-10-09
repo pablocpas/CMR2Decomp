@@ -57,7 +57,7 @@ class Initialize(Lighting):
             self.put(self.addr(0x53ABA8) + i * 4, "<I", car)
             self.put(car + 0xB1A, "<b", ids[i])
             data = HEAP + 0xC000 + i * 0x100
-            self.put(self.addr(0x542630) + 0x398 + i * 4, "<I", data)
+            self.put(self.addr(0x5429c8) + i * 4, "<I", data)
             offset = 0x20 + ((seed + i * 7) % 10) * 4
             self.put(data + 2, "<H", offset)
             offsets.append(data + offset)

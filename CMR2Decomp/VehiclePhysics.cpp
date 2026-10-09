@@ -170,7 +170,7 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
         g_collisionCar->velocity.y += pImpulse->y;
         g_collisionCar->velocity.z += pImpulse->z;
     }
-    if (g_collisionCar->field_0xc00 != 0)
+    if (g_collisionCar->useUpperCollisionCorners != 0)
         return;
 
     len = FixVecLength(pImpulse);
@@ -211,7 +211,7 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
             goto apply_torque;
     }
 
-    g_collisionCar->field_0xc00 = 1;
+    g_collisionCar->useUpperCollisionCorners = 1;
     g_collisionCar->field_0x96c = 0x10000;
     g_collisionCar->field_0xc04[0] = 1;
 
@@ -495,7 +495,7 @@ int VehiclePhysics_TestMotionCorrectionCollision(void)
     FixVector *pV = &g_partState->correction;
 
     if (FixVecLength(pV) >
-        g_partCar->field_0x758 + g_partState->field_0x15c) {
+        g_partCar->collisionRadius + g_partState->boundsRadius) {
         StageTiming_ClearPartFlagAndReselectIndex();
         return 1;
     }

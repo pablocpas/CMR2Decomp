@@ -32,7 +32,7 @@ struct SceneNode {
     SceneNode *pNextInSector;   // 0x170
     int dirty;                  // 0x174
     int type;                   // 0x178
-    BYTE field_0x17c;
+    BYTE viewMask;
     BYTE field_0x17d[3];
     int visible;                // 0x180
     int useParentWorld;         // 0x184 world = parent world (no multiply)

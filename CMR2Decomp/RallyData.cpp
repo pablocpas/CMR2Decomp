@@ -6,6 +6,7 @@ void Race_DrawPlayerMessage(char *text, int *pColour, int car, int param4, int x
 #include "RallyData.h"
 #include "RallyRoute.h"
 #include "Car.h"
+#include "CarResources.h"
 #include "GameInfo.h"
 #include "RallyTiming.h"
 #include "main.h"
@@ -6227,7 +6228,7 @@ void RallyData_UpdateViewFrameAndDebugOverlay(int param1, int param2, int param3
     StageObject_PositionSplitViewNodes(maskedView);
     if ((BYTE)view == 0 && (BYTE)RallyDataState() == 1 &&
         CGameInfo::IsInRaceMenuOpen() == 0 &&
-        (StageTiming_GetStartTableRecord(0)[0x20] == 'A' || StageTiming_GetStartTableRecord(0)[0x20] == 'C')) {
+        (StageTiming_GetStartTableRecord(0)->detailCode == 'A' || StageTiming_GetStartTableRecord(0)->detailCode == 'C')) {
         StageObject_SpawnCarWheelSkidEffects(0);
         StageObject_StampPendingEventDraws(0);
     }
@@ -6246,19 +6247,19 @@ void RallyData_UpdateViewFrameAndDebugOverlay(int param1, int param2, int param3
             pOrderEnd = &pOrder[orderCount - 1];
             do {
                 pCar = Car_Get(*pOrderEnd);
-                pNode = pCar->pNode0x724;
-                if (pNode != NULL && pNode->field_0x17c > 0)
-                    Scene_CollectNearbyLightZones(pCar->pNode0x724, pCar->field_0x758,
+                pNode = pCar->pAlternateBodyNode;
+                if (pNode != NULL && pNode->viewMask > 0)
+                    Scene_CollectNearbyLightZones(pCar->pAlternateBodyNode, pCar->collisionRadius,
                                  &pCar->sector);
                 else
-                    Scene_CollectNearbyLightZones(pCar->pNode0x71c, pCar->field_0x758,
+                    Scene_CollectNearbyLightZones(pCar->pSceneRoot, pCar->collisionRadius,
                                  &pCar->sector);
-                Scene_EmitNodeShadowGeometry(pCar->pNode0x720, pCar->field_0xa70,
+                Scene_EmitNodeShadowGeometry(pCar->pBodyNode, pCar->field_0xa70,
                              StageObject_GetCarRecordState(pCar->index));
-                Scene_EmitNodeShadowGeometry(pCar->pNode0x71c, pCar->field_0xa70,
+                Scene_EmitNodeShadowGeometry(pCar->pSceneRoot, pCar->field_0xa70,
                              StageObject_GetCarRecordState(pCar->index));
-                if (pCar->pNode0x724 != NULL)
-                    Scene_EmitNodeShadowGeometry(pCar->pNode0x724, pCar->field_0xa70,
+                if (pCar->pAlternateBodyNode != NULL)
+                    Scene_EmitNodeShadowGeometry(pCar->pAlternateBodyNode, pCar->field_0xa70,
                                  StageObject_GetCarRecordState(pCar->index));
                 pOrderEnd--;
             } while (--n != 0);
@@ -6279,41 +6280,41 @@ void RallyData_UpdateViewFrameAndDebugOverlay(int param1, int param2, int param3
             continue;
         }
         if ((g_pGraphics->field913_0x3bc & 0x80) != 0) {
-            pNode = pCar->pNode0x724;
-            if (pNode != NULL && pNode->field_0x17c > 0) {
-                SceneNode_SetViewMaskTree(pCar->pNode0x71c, 0);
-                SceneNode_SetViewMaskTree(pCar->pNode0x724, 0);
-                Graphics_RenderNodeCubeMapFaces(pCar->pNode0x724, maskedView);
+            pNode = pCar->pAlternateBodyNode;
+            if (pNode != NULL && pNode->viewMask > 0) {
+                SceneNode_SetViewMaskTree(pCar->pSceneRoot, 0);
+                SceneNode_SetViewMaskTree(pCar->pAlternateBodyNode, 0);
+                Graphics_RenderNodeCubeMapFaces(pCar->pAlternateBodyNode, maskedView);
             } else {
-                SceneNode_SetViewMaskTree(pCar->pNode0x71c, 0);
-                SceneNode_SetViewMaskTree(pCar->pNode0x720, 0);
-                Graphics_RenderNodeCubeMapFaces(pCar->pNode0x720, maskedView);
+                SceneNode_SetViewMaskTree(pCar->pSceneRoot, 0);
+                SceneNode_SetViewMaskTree(pCar->pBodyNode, 0);
+                Graphics_RenderNodeCubeMapFaces(pCar->pBodyNode, maskedView);
             }
         }
-        pNode = pCar->pNode0x724;
-        if (pNode != NULL && pNode->field_0x17c > 0) {
-            target = (int)SceneNode_FindByType(pCar->pNode0x724, 0x14);
+        pNode = pCar->pAlternateBodyNode;
+        if (pNode != NULL && pNode->viewMask > 0) {
+            target = (int)SceneNode_FindByType(pCar->pAlternateBodyNode, 0x14);
             if (CGame::GetObjectRenderMode() != 0) {
-                SceneNode_SetViewMaskTree(pCar->pNode0x71c, 0);
-                SceneNode_SetViewMaskTree(pCar->pNode0x724, 0);
+                SceneNode_SetViewMaskTree(pCar->pSceneRoot, 0);
+                SceneNode_SetViewMaskTree(pCar->pAlternateBodyNode, 0);
                 if (target != 0)
                     SceneNode_SetViewMaskTree((SceneNode *)target, 1);
             } else {
-                SceneNode_SetViewMaskTree(pCar->pNode0x71c, 1);
-                SceneNode_SetViewMaskTree(pCar->pNode0x724, 1);
+                SceneNode_SetViewMaskTree(pCar->pSceneRoot, 1);
+                SceneNode_SetViewMaskTree(pCar->pAlternateBodyNode, 1);
                 if (target != 0)
                     SceneNode_SetViewMaskTree((SceneNode *)target, 0);
             }
         } else {
-            target = (int)SceneNode_FindByType(pCar->pNode0x720, 0x14);
+            target = (int)SceneNode_FindByType(pCar->pBodyNode, 0x14);
             if (CGame::GetObjectRenderMode() != 0) {
-                SceneNode_SetViewMaskTree(pCar->pNode0x71c, 0);
-                SceneNode_SetViewMaskTree(pCar->pNode0x720, 0);
+                SceneNode_SetViewMaskTree(pCar->pSceneRoot, 0);
+                SceneNode_SetViewMaskTree(pCar->pBodyNode, 0);
                 if (target != 0)
                     SceneNode_SetViewMaskTree((SceneNode *)target, 1);
             } else {
-                SceneNode_SetViewMaskTree(pCar->pNode0x71c, 1);
-                SceneNode_SetViewMaskTree(pCar->pNode0x720, 1);
+                SceneNode_SetViewMaskTree(pCar->pSceneRoot, 1);
+                SceneNode_SetViewMaskTree(pCar->pBodyNode, 1);
                 if (target != 0)
                     SceneNode_SetViewMaskTree((SceneNode *)target, 0);
             }

@@ -167,6 +167,7 @@
     <ClCompile Include="GenericFileLoader.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="InstallInfo.cpp" />
+    <ClCompile Include="LayoutChecks.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="NetPlayers.cpp" />
@@ -187,6 +188,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CarPhysics.h" />
+    <ClInclude Include="CarResources.h" />
     <ClInclude Include="zlib\zlib.h" />
     <ClInclude Include="zlib\zconf.h" />
     <ClInclude Include="zlib\zutil.h" />

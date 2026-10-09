@@ -54,7 +54,7 @@ struct DeviceInfo {
     CHAR field_0x425[20];
     CHAR field_0x436[20];
     CHAR field_0x447[20];
-    BOOL unk_isJoystick; // not 100% sure on this
+    BOOL supportsForceFeedback; // GetCapabilities reports DIDC_FORCEFEEDBACK
     union {
         KeyboardInfo keyboard;
         JoystickInfo joystick;

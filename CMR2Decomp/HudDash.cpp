@@ -279,7 +279,7 @@ void Dash_Update(int player)
         g_dashSpeedNext[player] = FixMul(0x9999, Car_GetWheelSpeed(Car_Get(player), 0, 1)) +
                                   FixMul(0x6666, g_dashSpeedNext[player]);
     g_dashRevNext[player] =
-        FixMul(0x9999, FixDiv(Car_Get(player)->field_0x7ac, Car_Get(player)->field_0x794)) +
+        FixMul(0x9999, FixDiv(Car_Get(player)->field_0x7ac, Car_Get(player)->engineSpeedLimit)) +
         FixMul(0x6666, g_dashRevNext[player]);
     if (Car_Get(player)->field_0xb48 != 1) {
         if (g_dashSpeedNext[player] < 0x10000) {

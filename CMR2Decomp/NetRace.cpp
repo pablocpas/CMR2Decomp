@@ -788,7 +788,7 @@ void NetRace_PackCarState(Car *car)
                              (int)*(short *)(raw + 0xb16) * 0x1680) + 0x10000, 0x3f0000) + 0x1999;
     if (steer > 0x7e8000) steer = 0x7e8000;
     g_localCarPacket.steer = steer >> 16;
-    if (car->steerFollowRate) g_localCarPacket.steerFollow = 1;
+    if (car->throttleTorque) g_localCarPacket.steerFollow = 1;
     else g_localCarPacket.steerFollow = 0;
     g_localCarPacket.flagB54 = raw[0xb54];
     value = (float)((double)*(int *)(raw + 0x960) * CGraphics::m_oneOver65536 * g_netHeightScale);
@@ -824,13 +824,13 @@ void NetRace_PackCarState(Car *car)
 
 // Packs the state of every car listed in pIndices, from the highest index down.
 // FUNCTION: CMR2 0x004258e0
-void NetRace_PackListedCars(int base, short *pIndices, short count)
+void NetRace_PackListedCars(Car *base, short *pIndices, short count)
 {
     int i;
 
     if (g_unk0x00539cc8 != 0) {
         for (i = (int)count - 1; i >= 0; i--) {
-            Car *pCar = (Car *)(base + pIndices[i] * 0xc24);
+            Car *pCar = base + pIndices[i];
 
             if (pCar->field_0xc1c == 0 &&
                 (NetRace_PackCarState(pCar), g_unk0x00539cc8 != 0))
@@ -1204,7 +1204,7 @@ int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
         pRec->angularVelocity.y = NetRace_FloatToFix((float)(signed char)g_localCarPacket.angVelY * g_unk0x0051136c * g_unk0x00511370);
         pRec->angularVelocity.z = NetRace_FloatToFix((float)(signed char)g_localCarPacket.angVelZ * g_unk0x0051136c * g_unk0x00511370);
         pRec->flag_0xcc = g_localCarPacket.flagB35;
-        pRec->field_0xd4 = g_localCarPacket.flagC00;
+        pRec->useUpperCollisionCorners = g_localCarPacket.flagC00;
         offX = (float)(short)g_localCarPacket.posX * g_unk0x00511368 * g_unk0x0051137c;
         offZ = (float)(short)g_localCarPacket.posZ * g_unk0x00511368 * g_unk0x0051137c;
         pRec->position.x = NetRace_FloatToFix(offX);
@@ -1256,10 +1256,10 @@ int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
             *pOut = 0x10000;
         else
             *pOut = FixMul(steer << 16, 0x418) - 0x10000;
-        pRec->field_0xb8 = 0;
+        pRec->throttleTorque = 0;
         if (g_localCarPacket.steerFollow)
-            pRec->field_0xb8 = 0x10000;
-        pRec->field_0xd0 = g_localCarPacket.flagB54;
+            pRec->throttleTorque = 0x10000;
+        pRec->braking = g_localCarPacket.flagB54;
         if (g_localCarPacket.shaking &&
             pRec->holdTicks == 0) {
             pRec->resetPose = 1;
@@ -1283,7 +1283,7 @@ extern void NetPlayers_ClearNewStatisticsFlag(int index);
 extern NetStats *NetPlayers_GetStatisticsRecord(int index);
 extern double g_unk0x00511300;
 extern void NetPlayers_RebuildStageResults(int param1, int param2, int param3);
-extern void NetRace_PollPlayerStatisticsPackets(BYTE *pCars);
+extern void NetRace_PollPlayerStatisticsPackets(Car *pCars);
 extern void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc);
 
 extern CarNetRecord g_unk0x005393d8;
@@ -1309,20 +1309,20 @@ void NetRace_ReceiveAndIntegrateListedCars(Car *pCars, short *pIndices, short co
         NetPlayers_RebuildStageResults(StageTiming_GetCheckpointField0(0), progress, StageTiming_GetCheckpointField2(0));
         return;
     }
-    NetRace_PollPlayerStatisticsPackets((BYTE *)pCars);
+    NetRace_PollPlayerStatisticsPackets(pCars);
     progress = (RallyData_GetCarRaceRecordField10((BYTE *)Car_Get(0)) * 100) >> 16;
     NetPlayers_RebuildStageResults(StageTiming_GetCheckpointField0(0), progress, StageTiming_GetCheckpointField2(0));
 
     for (i = (int)count - 1; i >= 0; i--) {
         int idx = pIndices[i];
 
-        if (*(int *)((BYTE *)pCars + idx * 0xc24 + 0xc1c) != 0)
+        if (pCars[idx].field_0xc1c != 0)
             NetRace_IntegrateRemoteCarBody(&g_unk0x005393d8 + idx, g_unk0x005393ac[NetPlayers_FindPlayerByField8(idx)]);
     }
     for (i = (int)count - 1; i >= 0; i--) {
         int idx = pIndices[i];
 
-        if (*(int *)((BYTE *)pCars + idx * 0xc24 + 0xc1c) != 0)
+        if (pCars[idx].field_0xc1c != 0)
             Car_RestorePhysicsFromRecord(pCars + idx, &g_unk0x005393d8 + idx);
     }
 }
@@ -1336,11 +1336,11 @@ void NetRace_ReceiveAndIntegrateListedCars(Car *pCars, short *pIndices, short co
 // contador (el original carga CX y luego copia/enmascara a EDX) y los
 // desplazamientos de los saltos encadenados.
 // FUNCTION: CMR2 0x00425a90
-void NetRace_PollPlayerStatisticsPackets(BYTE *pCars)
+void NetRace_PollPlayerStatisticsPackets(Car *pCars)
 {
     NetStats *pStats;
     CarNetRecord *pEntry;
-    BYTE *pCar;
+    Car *pCar;
     int local;
     int value;
     int i;
@@ -1352,13 +1352,13 @@ void NetRace_PollPlayerStatisticsPackets(BYTE *pCars)
             pStats = NetPlayers_GetStatisticsRecord(i);
             g_localCarStats = *pStats;
             pEntry = &g_unk0x005393d8 + NetPlayers_GetPlayerField8(i);
-            pCar = pCars + NetPlayers_GetPlayerField8(i) * 0xc24;
+            pCar = pCars + NetPlayers_GetPlayerField8(i);
             if (NetRace_DecodeReceivedCarState(pEntry, &local) != 0) {
-                value = FixMul(local, *(short *)(pCar + 0xb16) * 0x1680);
-                pEntry->heading =
+                value = FixMul(local, pCar->maxSteeringAngleDegrees * 0x1680);
+                pEntry->wheelSteeringAngle =
                     (unsigned short)(__int64)((double)value * g_unk0x00511300);
-                pEntry->field_0xb8 =
-                    FixMul(*(int *)(pCar + 0x788), pEntry->field_0xb8);
+                pEntry->throttleTorque =
+                    FixMul(pCar->maxThrottleTorque, pEntry->throttleTorque);
             }
             if (abs(g_unk0x005393ac[i] - pStats->seq) > 0x32) {
                 g_unk0x005393ac[i] = pStats->seq;

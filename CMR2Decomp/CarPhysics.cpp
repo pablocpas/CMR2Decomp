@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "CarPhysics.h"
 #include "Car.h"
+#include "CarResources.h"
 #include "GameInfo.h"
 #include "RallyData.h"
 #include "StageTiming.h"
@@ -12,8 +13,8 @@
 // and wheel matrices); the contact patches, ground heights and grip of its
 // wheels are kept in its CarContact record.
 
-extern void *g_unk0x00592734;   // CarContact[g_unk0x00592738]
-extern int g_unk0x00592738;
+extern CarContact *g_carContacts;
+extern int g_carContactCount;
 
 // Skid-trail bend unit conversion (16.16 degree steps -> sine-table angle).
 extern double g_unk0x00511300;
@@ -28,14 +29,13 @@ void Scene_GetShadowColour(DWORD *pColour, int *pLevel);
 void CarShadow_OffsetPointsTowardsCamera(int view, CarContact *pContact);
 CarTransforms *Car_GetTransforms(int index);
 FixMatrix *Car_GetWheelTransforms(int index);
-BYTE *Car_GetRendererRecord(int index);
+FixVector *Car_GetRendererRecord(int index);
 void CarPhysics_UpdateWheelContactPatches(Car *pCar);
 void Graphics_SetLayerQuadColour(BYTE *pColour);
 void Graphics_SetTextureFactorAlpha(BYTE *pColour);
 void CarContact_BuildBodyPatch(Car *pCar, CarContact *pContact);
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface, int defaultY);
 
-#define CAR_CONTACT(i) ((CarContact *)g_unk0x00592734 + (i))
 
 // Per-car pointers into the car's handling data (see CarContact_InitStageRecords).
 // GLOBAL: CMR2 0x00592278
@@ -107,28 +107,28 @@ void CarContact_InitStageRecords(void)
     driven = (CGameInfo::GetConfiguredGameMode() == 5 || CGameInfo::GetConfiguredGameMode() == 6 ||
               CGameInfo::GetConfiguredGameMode() == 7);
     if (driven) {
-        for (i = 0; i < g_unk0x00592738; i++) {
-            CAR_CONTACT(i)->field_0x294 = 1;
-            CAR_CONTACT(i)->field_0x298 = 1;
+        for (i = 0; i < g_carContactCount; i++) {
+            g_carContacts[i].ghostContact = 1;
+            g_carContacts[i].wheelPatchesEnabled = 1;
             if (i == 0) {
-                CAR_CONTACT(0)->field_0x294 = 0;
+                g_carContacts[0].ghostContact = 0;
                 if ((BYTE)RallyDataState() == 1)
-                    CAR_CONTACT(0)->field_0x298 = 1;
+                    g_carContacts[0].wheelPatchesEnabled = 1;
             }
-            CAR_CONTACT(i)->field_0x250 = 0x9999;
+            g_carContacts[i].shadowLevel = 0x9999;
             for (j = 0; j < 4; j++)
-                CAR_CONTACT(i)->wheelGrip[j] = 0x10000;
+                g_carContacts[i].wheelGrip[j] = 0x10000;
         }
     } else {
-        for (i = 0; i < g_unk0x00592738; i++) {
-            CAR_CONTACT(i)->field_0x294 = 0;
-            CAR_CONTACT(i)->field_0x298 = 1;
-            CAR_CONTACT(i)->field_0x250 = 0x9999;
+        for (i = 0; i < g_carContactCount; i++) {
+            g_carContacts[i].ghostContact = 0;
+            g_carContacts[i].wheelPatchesEnabled = 1;
+            g_carContacts[i].shadowLevel = 0x9999;
             for (j = 0; j < 4; j++)
-                CAR_CONTACT(i)->wheelGrip[j] = 0x10000;
+                g_carContacts[i].wheelGrip[j] = 0x10000;
         }
     }
-    for (i = 0; i < g_unk0x00592738; i++) {
+    for (i = 0; i < g_carContactCount; i++) {
         data = (BYTE *)StageTiming_GetStartArchiveRelativeEntry((BYTE *)Car_Get(i), 1);
         g_physSkidCount[i] = data;
         data++;
@@ -143,13 +143,13 @@ void CarContact_InitStageRecords(void)
 }
 
 // Whether skid point index (counted from the front, or from the back when
-// field_0x2a0 is clear) falls in the car's visible skid range.
+// skidRangeAscending is clear) falls in the car's visible skid range.
 // FUNCTION: CMR2 0x00494d40
 int CarContact_IsSkidPointVisible(Car *pCar, CarContact *pContact, int index)
 {
-    if (pContact->field_0x29c != 0)
+    if (pContact->skidIndexOffset != 0)
         index--;
-    if (pContact->field_0x2a0 == 0)
+    if (pContact->skidRangeAscending == 0)
         index = (*g_physSkidCount[pCar->index] - index) - 1;
     index -= *g_physSkidRange[pCar->index];
     if (index >= 0 && index < g_physSkidRange[pCar->index][1])
@@ -181,7 +181,7 @@ void CarPhysics_UpdateWheelContactPatches(Car *pCar)
     short i;
     short surfaceClass;
 
-    pContact = CAR_CONTACT(pCar->index);
+    pContact = &g_carContacts[pCar->index];
     if (pCar->field_0xb64 != 0) {
         blend = 0x10000;
     } else {
@@ -286,10 +286,10 @@ void CarContact_BuildBodyPatch(Car *pCar, CarContact *pContact)
     int along;
     int i;
 
-    stage = *StageTiming_GetStartTableRecord(pCar->index);
+    stage = StageTiming_GetStartTableRecord(pCar->index)->modelClass;
     g_physPatchWidth = 0;
     g_physPatchLength = 0;
-    if (pContact->field_0x294 != 0 && pCar->field_0xc00 == 0) {
+    if (pContact->ghostContact != 0 && pCar->useUpperCollisionCorners == 0) {
         pContact->points[1] = g_physGroundPoint[0];
         pContact->points[0] = g_physGroundPoint[1];
         pContact->points[3] = g_physGroundPoint[3];
@@ -480,7 +480,7 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
     colour[3] = 0x32;
     *(DWORD *)clear = *(DWORD *)colour;
     clear[3] = 0;
-    g_physContactView = *CAR_CONTACT(pCar->index);
+    g_physContactView = g_carContacts[pCar->index];
     CarShadow_OffsetPointsTowardsCamera(view, &g_physContactView);
     vertices[0].u = 0;
     vertices[0].v = 0;
@@ -490,22 +490,22 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
     vertices[2].v = 0;
 
     // Wheels.
-    if (g_physContactView.field_0x298 != 0) {
+    if (g_physContactView.wheelPatchesEnabled != 0) {
         for (i = 0; i < 4; i++) {
             if (*(int *)((BYTE *)pCar->pWheelNodes[i] + 8) == RallyData_GetChallengeRenderState() ||
                 g_physContactView.wheelGrip[i] == 0)
                 continue;
             alpha = g_physContactView.wheelGrip[i];
             alpha = FixMul(0xe60000, alpha);
-            pSrc = CAR_CONTACT(pCar->index)->wheelCorners[i];
+            pSrc = g_carContacts[pCar->index].wheelCorners[i];
             FIX_MIDPOINT(d, pSrc[0], pSrc[2]);
             FIX_MIDPOINT(centre, pSrc[1], pSrc[3]);
-            CAR_CONTACT(pCar->index)->wheelFrontMid[i].x = d.x;
-            CAR_CONTACT(pCar->index)->wheelFrontMid[i].y = d.y;
-            CAR_CONTACT(pCar->index)->wheelFrontMid[i].z = d.z;
-            CAR_CONTACT(pCar->index)->wheelRearMid[i].x = centre.x;
-            CAR_CONTACT(pCar->index)->wheelRearMid[i].y = centre.y;
-            CAR_CONTACT(pCar->index)->wheelRearMid[i].z = centre.z;
+            g_carContacts[pCar->index].wheelFrontMid[i].x = d.x;
+            g_carContacts[pCar->index].wheelFrontMid[i].y = d.y;
+            g_carContacts[pCar->index].wheelFrontMid[i].z = d.z;
+            g_carContacts[pCar->index].wheelRearMid[i].x = centre.x;
+            g_carContacts[pCar->index].wheelRearMid[i].y = centre.y;
+            g_carContacts[pCar->index].wheelRearMid[i].z = centre.z;
             FIX_MIDPOINT(d, g_physContactView.wheelCorners[i][0], g_physContactView.wheelCorners[i][2]);
             FIX_MIDPOINT(centre, g_physContactView.wheelCorners[i][1], g_physContactView.wheelCorners[i][3]);
             colour[3] = (BYTE)(alpha >> 16);
@@ -519,7 +519,7 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
     FIX_MIDPOINT(centre, g_physContactView.points[0], g_physContactView.points[2]);
 
     // Skid trail: the trailing edge of the body followed by the skid points.
-    if (!(g_pGraphics->field913_0x3bc & 0x20) && g_physContactView.field_0x294 == 0) {
+    if (!(g_pGraphics->field913_0x3bc & 0x20) && g_physContactView.ghostContact == 0) {
         k = g_physContactView.trailEdge;
         outline[0] = g_physContactView.points[k];
         outline[1] = g_physContactView.points[(k + 1) % 4];
@@ -533,7 +533,7 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
         outline[count + 3] = g_physContactView.points[(k + 3) % 4];
         outline[count + 4] = g_physContactView.points[(k + 2) % 4];
         total = (short)(count + 4);
-        t = 0x10000 - g_physContactView.field_0x250;
+        t = 0x10000 - g_physContactView.shadowLevel;
         t = 0xfd70 - FixMul(t, 0x23d7);
         for (i = 0; i < total + 1; i++) {
             d.x = outline[i].x - centre.x;
@@ -546,7 +546,7 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
         }
         // This multiply is emitted by the original even though its result
         // is discarded before the shadow-level calculation.
-        t = g_physContactView.field_0x250;
+        t = g_physContactView.shadowLevel;
         FixMul(0xc80000, t);
         colour[3] = (BYTE)(FixMul(level, pCar->field_0xa70) >> 16);
         for (i = 1; i <= total; i++) {
@@ -558,7 +558,7 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
     }
 
     // Body: fades out as the car leaves the ground.
-    if (g_physContactView.field_0x294 != 0) {
+    if (g_physContactView.ghostContact != 0) {
         SHADOW_OCTAGON(g_physContactView.points, ring, outline, centre);
         colour[3] = 0xff;
     } else {
@@ -614,7 +614,7 @@ void CarShadow_OffsetPointsTowardsCamera(int view, CarContact *pContact)
             p->y += d.y;
         }
     }
-    if (pContact->field_0x298 != 0) {
+    if (pContact->wheelPatchesEnabled != 0) {
         p = pContact->wheelCorners[0];
         for (i = 16; i != 0; i--) {
             d.x = cam.x - p->x;
@@ -670,7 +670,7 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
     short angle;
     int skip;
 
-    pContact = CAR_CONTACT(pCar->index);
+    pContact = &g_carContacts[pCar->index];
     firstAlong = 0;
     firstLat = 0;
     acc = 0;
@@ -683,7 +683,7 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
     FixMatrix_GetUp(&g_physUp, &g_physBody->body);
     FixMatrix_GetForward(&g_physForward, &g_physBody->body);
     FixMatrix_GetPosition(&g_physPos, &g_physBody->body);
-    g_physGroundPoint = (FixVector *)Car_GetRendererRecord(pCar->index);
+    g_physGroundPoint = Car_GetRendererRecord(pCar->index);
     if (pCar->field_0xb64 != 0) {
         h = FixMul(g_physBody->groundNormal.y, g_physBody->cornerHeight[0] - g_physPos.y);
     } else {
@@ -698,10 +698,10 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
     g_physGroundPos.x += g_physPos.x;
     g_physGroundPos.y += g_physPos.y;
     g_physGroundPos.z += g_physPos.z;
-    if (pContact->field_0x298 != 0)
+    if (pContact->wheelPatchesEnabled != 0)
         CarPhysics_UpdateWheelContactPatches(pCar);
     CarContact_BuildBodyPatch(pCar, pContact);
-    if (pContact->field_0x294 != 0 || (g_pGraphics->field913_0x3bc & 0x20)) {
+    if (pContact->ghostContact != 0 || (g_pGraphics->field913_0x3bc & 0x20)) {
         pContact->pointCount = 4;
     } else {
         // Trail direction relative to the car, flattened onto the ground.
@@ -752,11 +752,11 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
             pContact->trailEdge = 3;
             skip = 1;
         }
-        pContact->field_0x29c = skip;
+        pContact->skidIndexOffset = skip;
         if (side < 0)
-            pContact->field_0x2a0 = 0;
+            pContact->skidRangeAscending = 0;
         else
-            pContact->field_0x2a0 = 1;
+            pContact->skidRangeAscending = 1;
         for (c = 0; c < *g_physSkidCount[pCar->index]; c++) {
             sideDot = pProfile[c * 2];
             h = FixMul(pProfile[c * 2 + 1], bend);
@@ -810,7 +810,7 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
         }
         pContact->pointCount = *g_physSkidCount[pCar->index] + 5;
     }
-    if (pContact->field_0x294 != 0)
+    if (pContact->ghostContact != 0)
         return;
     if (!(g_pGraphics->field913_0x3bc & 0x20)) {
         // Bend the trail: no point may turn away from the trail direction
@@ -891,10 +891,10 @@ void CarShadow_SetLevel(int car, int level)
     BYTE factor[4] = {0, 0, 0, 0x32};
     BYTE alpha;
 
-    CAR_CONTACT(car)->field_0x250 = level;
-    colour[3] = FixMul(0x4b0000, CAR_CONTACT(car)->field_0x250) >> 16;
+    g_carContacts[car].shadowLevel = level;
+    colour[3] = FixMul(0x4b0000, g_carContacts[car].shadowLevel) >> 16;
     Graphics_SetLayerQuadColour(colour);
-    alpha = FixMulShift32(0x4b0000, CAR_CONTACT(car)->field_0x250) + 100;
+    alpha = FixMulShift32(0x4b0000, g_carContacts[car].shadowLevel) + 100;
     factor[3] = alpha;
     if (alpha > 0xff)
         factor[3] = 0xff;

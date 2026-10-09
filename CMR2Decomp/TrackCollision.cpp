@@ -294,7 +294,7 @@ int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *p
 // GLOBAL: CMR2 0x0059226c
 Car *g_pAutoGearCar;
 // GLOBAL: CMR2 0x00592270
-BYTE *g_pAutoGearSetup;
+CarPartSet *g_autoGearPartSet;
 
 // Requests the adjacent automatic gear while the driver is shifting.  On an
 // up-shift, a little extra hysteresis is derived from the difference between
@@ -312,9 +312,9 @@ void AutoGear_RequestAdjacentGear(void)
             int amount;
             int difference;
 
-            g_pAutoGearCar->field_0xb20 = gear + 1;
-            g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
-            load = *(int *)(g_pAutoGearSetup + 0x278);
+            g_pAutoGearCar->requestedGear = gear + 1;
+            g_pAutoGearCar->damageShiftDelay = (char)g_autoGearPartSet->gearShiftDamage;
+            load = g_autoGearPartSet->damageValues[14];
             if (load > 0xb333) {
                 amount = FixMul(load - 0xb333, 0x3553f);
                 if (amount > 0x10000)
@@ -328,28 +328,28 @@ void AutoGear_RequestAdjacentGear(void)
                 else
                     difference = FIX_ABS(g_pAutoGearCar->corners[0].x) - FIX_ABS(g_pAutoGearCar->corners[0].z);
                 if ((difference % 0x401) * 0x40 < threshold) {
-                    if (g_pAutoGearCar->field_0xb20 < 6) {
-                        g_pAutoGearCar->field_0xb20++;
+                    if (g_pAutoGearCar->requestedGear < 6) {
+                        g_pAutoGearCar->requestedGear++;
                     }
                 }
             }
-            g_pAutoGearCar->field_0xb84 = 1;
+            g_pAutoGearCar->shiftInProgress = 1;
             return;
         }
         if (gear == 7) {
-            g_pAutoGearCar->field_0xb20 = 0;
-            g_pAutoGearCar->field_0xb84 = 1;
-            g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
+            g_pAutoGearCar->requestedGear = 0;
+            g_pAutoGearCar->shiftInProgress = 1;
+            g_pAutoGearCar->damageShiftDelay = (char)g_autoGearPartSet->gearShiftDamage;
             return;
         }
     } else if (g_pAutoGearCar->field_0x1d4[0] == 0xff) {
         gear = g_pAutoGearCar->gear;
         if (gear < 7) {
-            g_pAutoGearCar->field_0xb20 = gear - 1;
-            g_pAutoGearCar->field_0xb84 = 1;
-            g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
-            if (g_pAutoGearCar->field_0xb20 < 0)
-                g_pAutoGearCar->field_0xb20 = 7;
+            g_pAutoGearCar->requestedGear = gear - 1;
+            g_pAutoGearCar->shiftInProgress = 1;
+            g_pAutoGearCar->damageShiftDelay = (char)g_autoGearPartSet->gearShiftDamage;
+            if (g_pAutoGearCar->requestedGear < 0)
+                g_pAutoGearCar->requestedGear = 7;
         }
     }
 }
@@ -371,7 +371,7 @@ void Car_UpdateAutomaticGear(void)
     int dot;
     BOOL wheelAvailable = FALSE;
 
-    if (g_pAutoGearCar->field_0xb9c == 0)
+    if (g_pAutoGearCar->automaticGearbox == 0)
         return;
 
     for (i = 0; i < 4; i++) {
@@ -380,17 +380,17 @@ void Car_UpdateAutomaticGear(void)
             break;
         }
     }
-    if (g_pAutoGearCar->field_0xb21 > 0)
-        g_pAutoGearCar->field_0xb21--;
+    if (g_pAutoGearCar->autoShiftDelay > 0)
+        g_pAutoGearCar->autoShiftDelay--;
 
-    if (g_pAutoGearCar->field_0xb94 == 0 && wheelAvailable) {
+    if (g_pAutoGearCar->automaticReverse == 0 && wheelAvailable) {
         best = (int)0xd8f00000;
-        engine = FixMul(g_pAutoGearCar->field_0x7a4, g_pAutoGearCar->gearSpeed[g_pAutoGearCar->gear]);
+        engine = FixMul(g_pAutoGearCar->engineSpeed, g_pAutoGearCar->gearSpeed[g_pAutoGearCar->gear]);
         selected = 0;
         for (i = 1; i < 7; i++) {
-            candidate = FixMul(engine, g_pAutoGearCar->field_0x7bc[i]);
+            candidate = FixMul(engine, g_pAutoGearCar->gearRatio[i]);
             if (candidate > best &&
-                (candidate < FixMul(g_pAutoGearCar->field_0x794, 0xfae1) || i == 6)) {
+                (candidate < FixMul(g_pAutoGearCar->engineSpeedLimit, 0xfae1) || i == 6)) {
                 best = candidate;
                 selected = i;
             }
@@ -398,18 +398,18 @@ void Car_UpdateAutomaticGear(void)
         if (selected != g_pAutoGearCar->gear) {
             load = FIX_ABS(g_pAutoGearCar->wheelSlip[0]);
             if ((load < 0x8000 || selected < g_pAutoGearCar->gear || g_pAutoGearCar->flag0x1d0[2] == 0) &&
-                (g_pAutoGearCar->field_0xb21 == 0 ||
-                 ((g_pAutoGearCar->field_0xb22 != 2 || selected >= g_pAutoGearCar->gear) &&
-                  (g_pAutoGearCar->field_0xb22 != 1 || selected <= g_pAutoGearCar->gear)))) {
-                g_pAutoGearCar->field_0xb84 = 1;
+                (g_pAutoGearCar->autoShiftDelay == 0 ||
+                 ((g_pAutoGearCar->lastShiftDirection != 2 || selected >= g_pAutoGearCar->gear) &&
+                  (g_pAutoGearCar->lastShiftDirection != 1 || selected <= g_pAutoGearCar->gear)))) {
+                g_pAutoGearCar->shiftInProgress = 1;
                 if (selected > g_pAutoGearCar->gear)
-                    g_pAutoGearCar->field_0xb22 = 2;
+                    g_pAutoGearCar->lastShiftDirection = 2;
                 else
-                    g_pAutoGearCar->field_0xb22 = 1;
-                g_pAutoGearCar->field_0xb21 = 10;
+                    g_pAutoGearCar->lastShiftDirection = 1;
+                g_pAutoGearCar->autoShiftDelay = 10;
 
-                if (selected > g_pAutoGearCar->gear && *(int *)(g_pAutoGearSetup + 0x278) > 0xb333) {
-                    chance = *(int *)(g_pAutoGearSetup + 0x278) - 0xb333;
+                if (selected > g_pAutoGearCar->gear && g_autoGearPartSet->damageValues[14] > 0xb333) {
+                    chance = g_autoGearPartSet->damageValues[14] - 0xb333;
                     chance = FixMul(chance, 0x3553f);
                     if (chance > 0x10000)
                         chance = 0x10000;
@@ -421,27 +421,27 @@ void Car_UpdateAutomaticGear(void)
                     if ((difference % 0x401) * 0x40 < limit && selected < 6)
                         selected++;
                 }
-                g_pAutoGearCar->field_0xb20 = (char)selected;
-                g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
+                g_pAutoGearCar->requestedGear = (char)selected;
+                g_pAutoGearCar->damageShiftDelay = (char)g_autoGearPartSet->gearShiftDamage;
             }
         }
     }
 
     dot = FixVecDot(&g_pAutoGearCar->velocity, &g_pAutoGearCar->right);
     if (g_pAutoGearCar->flag0x1d0[3] != 0 && g_pAutoGearCar->gear == 1 &&
-        g_pAutoGearCar->flag0x1d0[2] == 0 && g_pAutoGearCar->field_0x7a4 < 0x1999 && dot < 0x1999) {
-        g_pAutoGearCar->field_0xb20 = 7;
-        g_pAutoGearCar->field_0xb84 = 1;
-        g_pAutoGearCar->field_0xb94 = 1;
-        g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
+        g_pAutoGearCar->flag0x1d0[2] == 0 && g_pAutoGearCar->engineSpeed < 0x1999 && dot < 0x1999) {
+        g_pAutoGearCar->requestedGear = 7;
+        g_pAutoGearCar->shiftInProgress = 1;
+        g_pAutoGearCar->automaticReverse = 1;
+        g_pAutoGearCar->damageShiftDelay = (char)g_autoGearPartSet->gearShiftDamage;
         return;
     }
     if (g_pAutoGearCar->flag0x1d0[2] != 0 && g_pAutoGearCar->flag0x1d0[3] == 0 &&
         g_pAutoGearCar->gear == 7) {
-        g_pAutoGearCar->field_0xb20 = 1;
-        g_pAutoGearCar->field_0xb84 = 1;
-        g_pAutoGearCar->field_0xb94 = 0;
-        g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
+        g_pAutoGearCar->requestedGear = 1;
+        g_pAutoGearCar->shiftInProgress = 1;
+        g_pAutoGearCar->automaticReverse = 0;
+        g_pAutoGearCar->damageShiftDelay = (char)g_autoGearPartSet->gearShiftDamage;
     }
 }
 
@@ -752,19 +752,19 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
 void AutoGear_RampDirectionState(void)
 {
     if (g_pAutoGearCar->flag0x1d0[0] != 0) {
-        if (g_pAutoGearCar->field_0x818 < 0)
-            g_pAutoGearCar->field_0x818 = 0;
-        g_pAutoGearCar->field_0x818 += 0x10000;
-        if (g_pAutoGearCar->field_0x818 > 0x10000)
-            g_pAutoGearCar->field_0x818 = 0x10000;
+        if (g_pAutoGearCar->steeringInput < 0)
+            g_pAutoGearCar->steeringInput = 0;
+        g_pAutoGearCar->steeringInput += 0x10000;
+        if (g_pAutoGearCar->steeringInput > 0x10000)
+            g_pAutoGearCar->steeringInput = 0x10000;
     } else if (g_pAutoGearCar->flag0x1d0[1] != 0) {
-        if (g_pAutoGearCar->field_0x818 > 0)
-            g_pAutoGearCar->field_0x818 = 0;
-        g_pAutoGearCar->field_0x818 -= 0x10000;
-        if (g_pAutoGearCar->field_0x818 < -0x10000)
-            g_pAutoGearCar->field_0x818 = -0x10000;
+        if (g_pAutoGearCar->steeringInput > 0)
+            g_pAutoGearCar->steeringInput = 0;
+        g_pAutoGearCar->steeringInput -= 0x10000;
+        if (g_pAutoGearCar->steeringInput < -0x10000)
+            g_pAutoGearCar->steeringInput = -0x10000;
     } else {
-        g_pAutoGearCar->field_0x818 = 0;
+        g_pAutoGearCar->steeringInput = 0;
     }
 }
 
@@ -845,16 +845,16 @@ void AutoGear_UpdateSecondarySwing(void)
     unsigned short angle;
 
     if (g_pAutoGearCar->handbrake != 0) {
-        g_pAutoGearCar->field_0x84c += g_pAutoGearCar->field_0x840;
-        if (g_pAutoGearCar->field_0x84c > 0x10000) {
-            g_pAutoGearCar->field_0x84c = 0x10000;
-            g_pAutoGearCar->handbrakeForce = g_pAutoGearCar->field_0x844;
+        g_pAutoGearCar->handbrakePhase += g_pAutoGearCar->handbrakeRampStep;
+        if (g_pAutoGearCar->handbrakePhase > 0x10000) {
+            g_pAutoGearCar->handbrakePhase = 0x10000;
+            g_pAutoGearCar->handbrakeForce = g_pAutoGearCar->maxHandbrakeForce;
             return;
         }
-        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->field_0x84c, 0x5a0000) * g_unk0x00511300);
-        g_pAutoGearCar->handbrakeForce = FixMul(g_pAutoGearCar->field_0x844, g_sinTable[angle & 0xfff]);
+        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->handbrakePhase, 0x5a0000) * g_unk0x00511300);
+        g_pAutoGearCar->handbrakeForce = FixMul(g_pAutoGearCar->maxHandbrakeForce, g_sinTable[angle & 0xfff]);
     } else {
-        g_pAutoGearCar->field_0x84c = 0;
+        g_pAutoGearCar->handbrakePhase = 0;
         g_pAutoGearCar->handbrakeForce = 0;
     }
 }
@@ -900,40 +900,40 @@ void Track_SetFogAndSkyAlpha(DWORD *pColour, int start, int end)
     g_stageColourAlpha = a;
 }
 
-// Tracks how fast the rolling direction of the auto-gear car follows its
-// body (field 0x79c) from the phase in field 0x7a0, and latches flag 2 when
-// the car starts rolling while the shift is unlocked.
+// Integrates the throttle phase and torque from the accelerator, or from
+// the brake pedal in automatic reverse. Latches accelerator input while
+// the forward throttle ramp is decaying.
 // FUNCTION: CMR2 0x004946c0
 void AutoGear_UpdateRollingFollowRate(void)
 {
     unsigned short angle;
 
     if (g_pAutoGearCar->flag0x1d0[2] == 0 &&
-        (g_pAutoGearCar->field_0xb94 == 0 || g_pAutoGearCar->flag0x1d0[3] == 0)) {
-        g_pAutoGearCar->field_0x7a0 =
-            g_pAutoGearCar->field_0x7a0 - FixMul(g_pAutoGearCar->field_0x790, 0x20000);
-        if (g_pAutoGearCar->field_0x7a0 < 0) {
-            g_pAutoGearCar->field_0x7a0 = 0;
-            g_pAutoGearCar->steerFollowRate = 0;
+        (g_pAutoGearCar->automaticReverse == 0 || g_pAutoGearCar->flag0x1d0[3] == 0)) {
+        g_pAutoGearCar->throttlePhase =
+            g_pAutoGearCar->throttlePhase - FixMul(g_pAutoGearCar->throttleRampStep, 0x20000);
+        if (g_pAutoGearCar->throttlePhase < 0) {
+            g_pAutoGearCar->throttlePhase = 0;
+            g_pAutoGearCar->throttleTorque = 0;
         } else {
-            angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->field_0x7a0, 0x5a0000) *
+            angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->throttlePhase, 0x5a0000) *
                                               g_unk0x00511300);
-            g_pAutoGearCar->steerFollowRate = FixMul(g_pAutoGearCar->field_0x788, g_sinTable[angle & 0xfff]);
+            g_pAutoGearCar->throttleTorque = FixMul(g_pAutoGearCar->maxThrottleTorque, g_sinTable[angle & 0xfff]);
         }
-        if (g_pAutoGearCar->steerFollowRate != 0 && g_pAutoGearCar->field_0xb94 == 0) {
+        if (g_pAutoGearCar->throttleTorque != 0 && g_pAutoGearCar->automaticReverse == 0) {
             g_pAutoGearCar->flag0x1d0[2] = 0x3f;
             return;
         }
     } else {
-        g_pAutoGearCar->field_0x7a0 = g_pAutoGearCar->field_0x7a0 + g_pAutoGearCar->field_0x790;
-        if (g_pAutoGearCar->field_0x7a0 > 0x10000) {
-            g_pAutoGearCar->field_0x7a0 = 0x10000;
-            g_pAutoGearCar->steerFollowRate = g_pAutoGearCar->field_0x788;
+        g_pAutoGearCar->throttlePhase = g_pAutoGearCar->throttlePhase + g_pAutoGearCar->throttleRampStep;
+        if (g_pAutoGearCar->throttlePhase > 0x10000) {
+            g_pAutoGearCar->throttlePhase = 0x10000;
+            g_pAutoGearCar->throttleTorque = g_pAutoGearCar->maxThrottleTorque;
             return;
         }
-        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->field_0x7a0, 0x5a0000) *
+        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->throttlePhase, 0x5a0000) *
                                           g_unk0x00511300);
-        g_pAutoGearCar->steerFollowRate = FixMul(g_pAutoGearCar->field_0x788, g_sinTable[angle & 0xfff]);
+        g_pAutoGearCar->throttleTorque = FixMul(g_pAutoGearCar->maxThrottleTorque, g_sinTable[angle & 0xfff]);
     }
 }
 
@@ -944,18 +944,18 @@ void AutoGear_UpdateSteeringSwing(void)
 {
     unsigned short angle;
 
-    if (g_pAutoGearCar->flag0x1d0[3] != 0 && g_pAutoGearCar->field_0xb94 == 0) {
-        g_pAutoGearCar->field_0x83c += g_pAutoGearCar->field_0x834;
-        if (g_pAutoGearCar->field_0x83c > 0x10000) {
-            g_pAutoGearCar->field_0x83c = 0x10000;
-            g_pAutoGearCar->brakeInput = g_pAutoGearCar->field_0x82c;
+    if (g_pAutoGearCar->flag0x1d0[3] != 0 && g_pAutoGearCar->automaticReverse == 0) {
+        g_pAutoGearCar->brakePhase += g_pAutoGearCar->brakeRampStep;
+        if (g_pAutoGearCar->brakePhase > 0x10000) {
+            g_pAutoGearCar->brakePhase = 0x10000;
+            g_pAutoGearCar->brakeInput = g_pAutoGearCar->maxBrakeForce;
             return;
         }
-        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->field_0x83c, 0x5a0000) * g_unk0x00511300);
-        g_pAutoGearCar->brakeInput = FixMul(g_pAutoGearCar->field_0x82c, g_sinTable[angle & 0xfff]);
+        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->brakePhase, 0x5a0000) * g_unk0x00511300);
+        g_pAutoGearCar->brakeInput = FixMul(g_pAutoGearCar->maxBrakeForce, g_sinTable[angle & 0xfff]);
         return;
     }
-    g_pAutoGearCar->field_0x83c = 0;
+    g_pAutoGearCar->brakePhase = 0;
     g_pAutoGearCar->brakeInput = 0;
 }
 
@@ -969,14 +969,14 @@ void AutoGear_UpdateBestGearFlag(void)
     int torque;
     int gear;
 
-    if (g_pAutoGearCar->field_0x7bc[g_pAutoGearCar->gear] > 0) {
+    if (g_pAutoGearCar->gearRatio[g_pAutoGearCar->gear] > 0) {
         int baseTorque;
         bestTorque = 0xd8f00000;
-        baseTorque = FixMul(g_pAutoGearCar->field_0x7a4, g_pAutoGearCar->gearSpeed[g_pAutoGearCar->gear]);
+        baseTorque = FixMul(g_pAutoGearCar->engineSpeed, g_pAutoGearCar->gearSpeed[g_pAutoGearCar->gear]);
         best = 0;
         for (gear = 1; gear < 7; gear++) {
-            torque = FixMul(baseTorque, g_pAutoGearCar->field_0x7bc[gear]);
-            if (torque > bestTorque && (torque < FixMul(g_pAutoGearCar->field_0x794, 0xfae1) || gear == 6)) {
+            torque = FixMul(baseTorque, g_pAutoGearCar->gearRatio[gear]);
+            if (torque > bestTorque && (torque < FixMul(g_pAutoGearCar->engineSpeedLimit, 0xfae1) || gear == 6)) {
                 bestTorque = torque;
                 best = gear;
             }
@@ -985,10 +985,10 @@ void AutoGear_UpdateBestGearFlag(void)
         best = 7;
     }
     if (g_pAutoGearCar->gear > best) {
-        g_pAutoGearCar->field_0xb98 = 0;
+        g_pAutoGearCar->gearAtOrBelowBest = 0;
         return;
     }
-    g_pAutoGearCar->field_0xb98 = 1;
+    g_pAutoGearCar->gearAtOrBelowBest = 1;
 }
 
 // GLOBAL: CMR2 0x00592164
@@ -1007,13 +1007,13 @@ void AutoGear_UpdateSteeringScale(void)
 
     if ((g_pAutoGearCar->flags & 1) != 0) {
         alignment = FIX_ABS(FixVecDot(&g_pAutoGearCar->velocity, &g_pAutoGearCar->right));
-        amount = FixMul(alignment, g_pAutoGearCar->field_0x828);
+        amount = FixMul(alignment, g_pAutoGearCar->steeringSpeedScale);
         if (amount >= 0xb333)
             amount = 0xb333;
-        g_unk0x00592160 = FixMul(0x10000 - amount, g_pAutoGearCar->field_0xb16) * 0x1680;
+        g_unk0x00592160 = FixMul(0x10000 - amount, g_pAutoGearCar->maxSteeringAngleDegrees) * 0x1680;
         return;
     }
-    g_unk0x00592160 = g_pAutoGearCar->field_0xb16 * 0x1680;
+    g_unk0x00592160 = g_pAutoGearCar->maxSteeringAngleDegrees * 0x1680;
 }
 
 void AutoGear_RampDirectionState(void);
@@ -1032,13 +1032,13 @@ void AutoGear_ComputeSteeringTorque(void)
         g_unk0x00592164 = 0;
         return;
     }
-    torque = FixMul(g_pAutoGearCar->field_0x824, g_physicsTimeStep);
+    torque = FixMul(g_pAutoGearCar->steeringTorqueScale, g_physicsTimeStep);
     if ((g_pAutoGearCar->flags & 2) != 0) {
         torque = FixMul(torque, FixMul(
-            (g_pAutoGearCar->field_0x81c < 0 ? -g_pAutoGearCar->field_0x81c : g_pAutoGearCar->field_0x81c) - 0x10000,
-            (g_pAutoGearCar->field_0x81c < 0 ? -g_pAutoGearCar->field_0x81c : g_pAutoGearCar->field_0x81c) - 0x10000));
+            (g_pAutoGearCar->steeringAccumulator < 0 ? -g_pAutoGearCar->steeringAccumulator : g_pAutoGearCar->steeringAccumulator) - 0x10000,
+            (g_pAutoGearCar->steeringAccumulator < 0 ? -g_pAutoGearCar->steeringAccumulator : g_pAutoGearCar->steeringAccumulator) - 0x10000));
     }
-    a = g_pAutoGearCar->field_0x818 < 0 ? -g_pAutoGearCar->field_0x818 : g_pAutoGearCar->field_0x818;
+    a = g_pAutoGearCar->steeringInput < 0 ? -g_pAutoGearCar->steeringInput : g_pAutoGearCar->steeringInput;
     r = FixMul(torque, a);
     if (g_pAutoGearCar->flag0x1d0[1] != 0) {
         g_unk0x00592164 = -r;
@@ -1137,7 +1137,7 @@ void AutoGear_ApplyShiftBodyNudge(void)
         if (CGameInfo::IsActiveCheatEnabled(0) != 0) {
             if (((char)RallyData_IsChampionshipFinalStage() != 0 || (char)RallyData_GetFlag24() != 0 ||
                  (char)RallyData_GetSelectionFlag27() != 0) &&
-                (g_pAutoGearCar->field_0xb9c != 0 && g_pAutoGearCar->handbrake != 0))
+                (g_pAutoGearCar->automaticGearbox != 0 && g_pAutoGearCar->handbrake != 0))
                 StageObject_SpawnCarHeadlightGlow(g_pAutoGearCar->index);
             g_pAutoGearCar->handbrake = 0;
         }
@@ -1183,12 +1183,12 @@ void CarPhysics_DampSurfaceSteeringAngle(void)
         target = (short)(__int64)((double)FixMul(g_unk0x00592160, value) * g_unk0x00511300);
 
     if (g_pAutoGearCar->field_0xb88 == 2) {
-        *(short *)&g_pAutoGearCar->heading = target;
-        g_pAutoGearCar->field_0xb12 = *(short *)&g_pAutoGearCar->heading;
+        *(short *)&g_pAutoGearCar->wheelSteeringAngle = target;
+        g_pAutoGearCar->targetSteeringAngle = *(short *)&g_pAutoGearCar->wheelSteeringAngle;
         return;
     }
 
-    current = *(short *)&g_pAutoGearCar->heading;
+    current = *(short *)&g_pAutoGearCar->wheelSteeringAngle;
     delta = current - target;
     if (delta > 0x800)
         delta = 0x1000 - delta;
@@ -1207,8 +1207,8 @@ void CarPhysics_DampSurfaceSteeringAngle(void)
                 delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleLeft) * g_unk0x00511300);
         }
     }
-    *(short *)&g_pAutoGearCar->heading -= delta;
-    g_pAutoGearCar->field_0xb12 = *(short *)&g_pAutoGearCar->heading;
+    *(short *)&g_pAutoGearCar->wheelSteeringAngle -= delta;
+    g_pAutoGearCar->targetSteeringAngle = *(short *)&g_pAutoGearCar->wheelSteeringAngle;
 }
 
 // GLOBAL: CMR2 0x00592168
@@ -1217,7 +1217,7 @@ int g_unk0x00592168;
 double g_unk0x00511308 = -4096.0 / (360.0 * 65536.0);
 
 // Integrates the auto-gear steering accumulator for the current surface and
-// eases the 16.16 angle in 0xb10/0xb12 towards the new target.
+// eases the signed 12-bit wheel angle towards the new target.
 // Keeps the original intermediate forces and materialized zero bounds.
 // Differential coverage: guarded car, signed limits, angles and real helpers.
 // FUNCTION: CMR2 0x00494110
@@ -1235,11 +1235,11 @@ void AutoGear_IntegrateSteeringAccumulator(void)
 
     AutoGear_UpdateSteeringScale();
     AutoGear_ComputeSteeringTorque();
-    g_unk0x00592168 = g_pAutoGearCar->field_0x820;
-    if (g_pAutoGearCar->field_0x81c == 0) {
+    g_unk0x00592168 = g_pAutoGearCar->steeringReturnRate;
+    if (g_pAutoGearCar->steeringAccumulator == 0) {
         g_unk0x00592168 = 0;
     } else {
-        if (FixMul(g_unk0x00592160, g_pAutoGearCar->field_0x81c) > 0)
+        if (FixMul(g_unk0x00592160, g_pAutoGearCar->steeringAccumulator) > 0)
             g_unk0x00592168 = -g_unk0x00592168;
     }
 
@@ -1255,49 +1255,49 @@ void AutoGear_IntegrateSteeringAccumulator(void)
         (g_pAutoGearCar->flag0x1d0[0] != 0 && g_unk0x00592168 > 0) ||
         (g_pAutoGearCar->flag0x1d0[1] != 0 && g_unk0x00592168 < 0)) {
         sum = g_unk0x00592164 + g_unk0x00592168;
-        cur = g_pAutoGearCar->field_0x81c;
+        cur = g_pAutoGearCar->steeringAccumulator;
         magCur = cur < 0 ? -cur : cur;
         magSum = sum < 0 ? -sum : sum;
         if (magCur <= magSum)
-            g_pAutoGearCar->field_0x81c = 0;
+            g_pAutoGearCar->steeringAccumulator = 0;
         else
-            g_pAutoGearCar->field_0x81c = cur + sum;
+            g_pAutoGearCar->steeringAccumulator = cur + sum;
         goto convert;
     } else if (g_pAutoGearCar->flag0x1d0[1] != 0) {
         deadZone = FixMul(0, v);
-        g_pAutoGearCar->field_0x81c += g_unk0x00592164;
-        if (g_pAutoGearCar->field_0x81c < -0x10000)
-            g_pAutoGearCar->field_0x81c = 0xffff0000;
-        else if (g_pAutoGearCar->field_0x81c > -deadZone)
-            g_pAutoGearCar->field_0x81c = -deadZone;
+        g_pAutoGearCar->steeringAccumulator += g_unk0x00592164;
+        if (g_pAutoGearCar->steeringAccumulator < -0x10000)
+            g_pAutoGearCar->steeringAccumulator = 0xffff0000;
+        else if (g_pAutoGearCar->steeringAccumulator > -deadZone)
+            g_pAutoGearCar->steeringAccumulator = -deadZone;
         goto convert;
     } else if (g_pAutoGearCar->flag0x1d0[0] != 0) {
         deadZone = FixMul(0, v);
-        g_pAutoGearCar->field_0x81c += g_unk0x00592164;
-        if (g_pAutoGearCar->field_0x81c > 0x10000)
-            g_pAutoGearCar->field_0x81c = 0x10000;
-        else if (g_pAutoGearCar->field_0x81c < deadZone)
-            g_pAutoGearCar->field_0x81c = deadZone;
+        g_pAutoGearCar->steeringAccumulator += g_unk0x00592164;
+        if (g_pAutoGearCar->steeringAccumulator > 0x10000)
+            g_pAutoGearCar->steeringAccumulator = 0x10000;
+        else if (g_pAutoGearCar->steeringAccumulator < deadZone)
+            g_pAutoGearCar->steeringAccumulator = deadZone;
     }
 convert:
     target = (short)(__int64)((double)FixMul(g_unk0x00592160,
-                                             g_pAutoGearCar->field_0x81c) *
+                                             g_pAutoGearCar->steeringAccumulator) *
                               g_unk0x00511308);
-    g_pAutoGearCar->field_0xb12 = target;
-    step = g_pAutoGearCar->field_0xb12 - *(short *)&g_pAutoGearCar->heading;
+    g_pAutoGearCar->targetSteeringAngle = target;
+    step = g_pAutoGearCar->targetSteeringAngle - *(short *)&g_pAutoGearCar->wheelSteeringAngle;
     limit = (short)(FixMul(0x22, 0x10000 - v) + 0x22);
     if (step < 0)
         cur = -step;
     else
         cur = step;
     if (cur < limit) {
-        *(short *)&g_pAutoGearCar->heading = g_pAutoGearCar->field_0xb12;
+        *(short *)&g_pAutoGearCar->wheelSteeringAngle = g_pAutoGearCar->targetSteeringAngle;
         return;
     }
     if (step > 0)
-        *(short *)&g_pAutoGearCar->heading += limit;
+        *(short *)&g_pAutoGearCar->wheelSteeringAngle += limit;
     else
-        *(short *)&g_pAutoGearCar->heading -= limit;
+        *(short *)&g_pAutoGearCar->wheelSteeringAngle -= limit;
 }
 
 int *StageTiming_GetCarReplayRecord(int index);
@@ -1316,40 +1316,40 @@ void AutoGear_UpdateCarGearState(Car *pCar)
     int v;
 
     g_pAutoGearCar = pCar;
-    g_pAutoGearSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)pCar->index);
+    g_autoGearPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)pCar->index);
     AutoGear_ApplyShiftBodyNudge();
     if (g_pAutoGearCar->field_0xb8c != 0) {
         if (*(BYTE *)&g_pAutoGearCar->flag0x1d0[2] != 0) {
             t = FixMul((int)((unsigned int)*(BYTE *)&g_pAutoGearCar->flag0x1d0[2] << 16), 0x410);
             if (t > 0x10000)
                 t = 0x10000;
-            g_pAutoGearCar->steerFollowRate = FixMul(g_pAutoGearCar->field_0x788, t);
+            g_pAutoGearCar->throttleTorque = FixMul(g_pAutoGearCar->maxThrottleTorque, t);
         } else {
-            g_pAutoGearCar->steerFollowRate = 0;
+            g_pAutoGearCar->throttleTorque = 0;
         }
     } else {
         AutoGear_UpdateRollingFollowRate();
     }
-    if (g_pAutoGearCar->field_0x7bc[g_pAutoGearCar->gear] < 0)
-        g_pAutoGearCar->field_0xb5c = 1;
+    if (g_pAutoGearCar->gearRatio[g_pAutoGearCar->gear] < 0)
+        g_pAutoGearCar->reversing = 1;
     else
-        g_pAutoGearCar->field_0xb5c = 0;
-    g_pAutoGearCar->field_0xb54 = 0;
-    if (g_pAutoGearCar->field_0xb94 != 0) {
+        g_pAutoGearCar->reversing = 0;
+    g_pAutoGearCar->braking = 0;
+    if (g_pAutoGearCar->automaticReverse != 0) {
         if (g_pAutoGearCar->flag0x1d0[2] != 0)
-            g_pAutoGearCar->field_0xb54 = 1;
+            g_pAutoGearCar->braking = 1;
     } else {
         if (g_pAutoGearCar->flag0x1d0[3] != 0)
-            g_pAutoGearCar->field_0xb54 = 1;
+            g_pAutoGearCar->braking = 1;
     }
     if (g_pAutoGearCar->field_0xb1f == 0) {
-        if (g_pAutoGearCar->field_0xb84 != 0) {
-            if (g_pAutoGearCar->field_0xb24 > 0) {
-                g_pAutoGearCar->field_0xb24 = g_pAutoGearCar->field_0xb24 - 1;
+        if (g_pAutoGearCar->shiftInProgress != 0) {
+            if (g_pAutoGearCar->damageShiftDelay > 0) {
+                g_pAutoGearCar->damageShiftDelay = g_pAutoGearCar->damageShiftDelay - 1;
                 *(BYTE *)&g_pAutoGearCar->gear = 0;
             } else {
-                g_pAutoGearCar->field_0xb84 = 0;
-                *(BYTE *)&g_pAutoGearCar->gear = *(BYTE *)&g_pAutoGearCar->field_0xb20;
+                g_pAutoGearCar->shiftInProgress = 0;
+                *(BYTE *)&g_pAutoGearCar->gear = *(BYTE *)&g_pAutoGearCar->requestedGear;
             }
         } else {
             if ((g_pAutoGearCar->field_0xb48 == 1) && (g_pAutoGearCar->field_0x1d4[0] != 0))
@@ -1367,14 +1367,14 @@ void AutoGear_UpdateCarGearState(Car *pCar)
             t = FixMul((int)((unsigned int)*(BYTE *)&g_pAutoGearCar->flag0x1d0[3] << 16), 0x410);
             if (t > 0x10000)
                 t = 0x10000;
-            if (g_pAutoGearCar->field_0xb94 != 0) {
-                g_pAutoGearCar->steerFollowRate = FixMul(g_pAutoGearCar->field_0x788, t);
+            if (g_pAutoGearCar->automaticReverse != 0) {
+                g_pAutoGearCar->throttleTorque = FixMul(g_pAutoGearCar->maxThrottleTorque, t);
                 g_pAutoGearCar->brakeInput = 0;
             } else {
-                int target = FixMul(g_pAutoGearCar->field_0x82c, t);
+                int target = FixMul(g_pAutoGearCar->maxBrakeForce, t);
                 int diff = target - g_pAutoGearCar->brakeInput;
                 int adiff = (diff < 0) ? -diff : diff;
-                if (adiff < FixMul(g_pAutoGearCar->field_0x82c, 0xccc))
+                if (adiff < FixMul(g_pAutoGearCar->maxBrakeForce, 0xccc))
                     g_pAutoGearCar->brakeInput = target;
                 else
                     g_pAutoGearCar->brakeInput = g_pAutoGearCar->brakeInput + FixMul(diff, 0x23d7);
@@ -1384,18 +1384,18 @@ void AutoGear_UpdateCarGearState(Car *pCar)
         }
     } else {
         AutoGear_UpdateSteeringSwing();
-        if ((g_pAutoGearCar->field_0xb8c != 0) && (g_pAutoGearCar->field_0xb94 != 0)) {
+        if ((g_pAutoGearCar->field_0xb8c != 0) && (g_pAutoGearCar->automaticReverse != 0)) {
             t = FixMul((int)((unsigned int)*(BYTE *)&g_pAutoGearCar->flag0x1d0[3] << 16), 0x410);
             if (t > 0x10000)
                 t = 0x10000;
-            g_pAutoGearCar->steerFollowRate = FixMul(g_pAutoGearCar->field_0x788, t);
+            g_pAutoGearCar->throttleTorque = FixMul(g_pAutoGearCar->maxThrottleTorque, t);
         }
     }
     AutoGear_UpdateSecondarySwing();
     if (g_pAutoGearCar->field_0xb48 == 1)
         AutoGear_UpdateBestGearFlag();
 
-    t = FixMul(*(short *)&g_pAutoGearCar->heading * 0x1680, 0x20000);
+    t = FixMul(*(short *)&g_pAutoGearCar->wheelSteeringAngle * 0x1680, 0x20000);
     u = t;
     if (u < 0)
         u = -u;
@@ -1405,5 +1405,5 @@ void AutoGear_UpdateCarGearState(Car *pCar)
         else
             t = -g_unk0x00592160;
     }
-    g_pAutoGearCar->field_0xb14 = (short)(__int64)((double)t * g_unk0x00511300);
+    g_pAutoGearCar->renderSteeringAngle = (short)(__int64)((double)t * g_unk0x00511300);
 }

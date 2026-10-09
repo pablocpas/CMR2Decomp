@@ -4,14 +4,16 @@
 unsigned int unk0x00667344;
 
 BOOL CLogger::bIsLogFileOpen;
-char CLogger::unk0x00667204[320];
-unsigned int CLogger::unk0x00667348;
+// GLOBAL: CMR2 0x00667204
+char CLogger::logFileName[320];
+// GLOBAL: CMR2 0x00667348
+unsigned int CLogger::loggingDisabled;
 HANDLE CLogger::hLogFileHandle;
 
 // FUNCTION: CMR2 0x004ab620
 void CLogger::OpenLogFile(LPCSTR file)
 {
-    lstrcpyA(unk0x00667204, file);
+    lstrcpyA(logFileName, file);
     unk0x00667344 = 0;
     hLogFileHandle = CreateFileA(file, GENERIC_WRITE, 0, NULL, 2, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hLogFileHandle != INVALID_HANDLE_VALUE)
@@ -27,7 +29,7 @@ void CLogger::LogToFile(LPCSTR str)
     const char n = 0xd;
     const char r = 0xa;
 
-    if (unk0x00667348 == 0 && bIsLogFileOpen != FALSE)
+    if (loggingDisabled == 0 && bIsLogFileOpen != FALSE)
     {
         lpBuffer = str;
         nSizeToWrite = lstrlenA(str);

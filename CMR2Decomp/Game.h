@@ -5,13 +5,15 @@
 #include "../third_party/dx7sdk-7001/include/dplay.h"
 #include "../third_party/dx7sdk-7001/include/dplobby.h"
 
-typedef void (*FuncTableEntry)(struct Unk0049c2c0 *, BYTE);
-typedef void (*OtherFuncTableEntry)(struct Unk0049c2c0 *, BYTE);
+typedef void (*StateUpdateCallback)(struct CallbackStateMachine *, BYTE);
+typedef void (*StateRenderCallback)(struct CallbackStateMachine *, BYTE);
 
-struct Unk00817d98
+// One callback slot: packed transition state and the number of timer steps
+// since its last transition (AdvanceCallbackStateTimers resets the timer).
+struct CallbackStateRecord
 {
     union {
-        int field0x1;
+        int packedState;             // 0x00  same storage as bits
         struct {
             unsigned int state : 8;
             unsigned int value : 8;
@@ -20,13 +22,13 @@ struct Unk00817d98
             unsigned int reserved : 6;
         } bits;
     };
-    int field0x2;
+    int elapsedTicks;                // 0x04
 };
 
-struct FuncTableGroup
+struct StateCallbackPair
 {
-    FuncTableEntry func1;
-    OtherFuncTableEntry func2;
+    StateUpdateCallback update;
+    StateRenderCallback render;
 };
 
 // The callback cursor is read as a DWORD and updated through its low byte.
@@ -35,20 +37,20 @@ union CallbackIndex {
     DWORD packed;
 };
 
-struct Unk0049c2c0
+struct CallbackStateMachine
 {
-    BYTE count;
-    BYTE pad[3];                     // is this meant to be something?
-    Unk00817d98 *unk;                // pointer to an 8 byte struct?
-    FuncTableGroup *funcLookupTable; // pointer to the function table which points to functions like initializegame
-    void *unk2;                      // pointer to something that is 64 bytes?
+    BYTE count;                      // 0x00  number of records
+    BYTE pad[3];
+    CallbackStateRecord *records;     // 0x04  mutable state of each slot
+    StateCallbackPair *callbacks;     // 0x08  indexed by the slot's state byte
+    unsigned int *rules;             // 0x0c  packed DWORD rules, terminated by 0xffffffff
 };
 
-struct Unk0x005a1820 {
-    char field_0x0[100];
-    char field_0x64[100];
-    unsigned int field_0xc8;
-    unsigned int field_0xcc;
+struct SessionPlayerRecord {
+    char shortName[100];              // 0x00
+    char longName[100];               // 0x64
+    unsigned int playerId;            // 0xc8  DirectPlay player id
+    unsigned int active;              // 0xcc  slot is occupied
 };
 
 // GLOBAL: CMR2 0x00511a28
@@ -131,17 +133,17 @@ public:
     static void SetShouldExit(void);
     static BOOL DispatchFrontendResourceState(void);
     static int GetFrontendResourceMode(void);
-    static void RunStateUpdateCallbacks(Unk0049c2c0 *param1);
-    static void RunStateRenderCallbacks(Unk0049c2c0 *param1);
-    static void AdvanceCallbackStateTimers(Unk0049c2c0 *param1);
-    static void InitializeCallbackStateRecord(Unk00817d98 *param1, int param2, int param3);
-    static void InitializeCallbackStateMachine(Unk0049c2c0 *p1, BYTE count, Unk00817d98 *unk, FuncTableGroup *funcLookupTable, void *unk2);
-    static void InitializeGame(Unk0049c2c0 *p1, BYTE p2);
+    static void RunStateUpdateCallbacks(CallbackStateMachine *param1);
+    static void RunStateRenderCallbacks(CallbackStateMachine *param1);
+    static void AdvanceCallbackStateTimers(CallbackStateMachine *param1);
+    static void InitializeCallbackStateRecord(CallbackStateRecord *param1, int param2, int param3);
+    static void InitializeCallbackStateMachine(CallbackStateMachine *p1, BYTE count, CallbackStateRecord *records, StateCallbackPair *callbacks, unsigned int *rules);
+    static void InitializeGame(CallbackStateMachine *p1, BYTE p2);
     static BOOL UpdateSecondaryCallbackMachine();
     static BOOL UpdateInRaceCallbackMachine();
     static BOOL UpdateFrontendCallbackMachine(void);
-    static void NoOpSecondaryStateCallback(struct Unk0049c2c0 *, BYTE);
-    static int PromoteCallbackEntryByRule(Unk0049c2c0 *p, BYTE index, BYTE value, int level);
+    static void NoOpSecondaryStateCallback(struct CallbackStateMachine *, BYTE);
+    static int PromoteCallbackEntryByRule(CallbackStateMachine *p, BYTE index, BYTE value, int level);
     static BYTE GetConfigurationStateByte(void);
     static void SetProfileSelectionState(BYTE param1);
     static void SetSecondaryOptionStateByte(BYTE param1);
@@ -179,26 +181,26 @@ public:
     // GLOBAL: CMR2 0x0052ea51
     static BYTE m_unk0x0052ea51;
     // GLOBAL: CMR2 0x00817eb0
-    static bool m_unk0x00817eb0;
+    static bool m_frontendCallbackInitialized;
     // GLOBAL: CMR2 0x00817da0
-    static Unk0049c2c0 m_unk0x00817da0;
+    static CallbackStateMachine m_frontendCallbackMachine;
     // GLOBAL: CMR2 0x00817d98
-    static Unk00817d98 m_unk0x00817d98;
+    static CallbackStateRecord m_frontendCallbackRecord;
     // State transition rules of the grouped callback machine (PromoteCallbackEntryByRule):
     // byte 0 = current state, byte 1 = match (0xff = any), byte 2 = next
     // state, byte 3 = level. Terminated by 0xffffffff.
     // GLOBAL: CMR2 0x00523c18
-    static unsigned int m_unk0x00523c18[16];
+    static unsigned int m_frontendStateRules[16];
     // GLOBAL: CMR2 0x00593cac
-    static BYTE m_unk0x00593cac;
+    static BYTE m_skipRenderCallbacks;
 
     // GLOBAL: CMR2 0x00593ba4
-    static Unk00817d98 *m_unk0x00593ba4;
+    static CallbackStateRecord *m_currentCallbackRecord;
     // GLOBAL: CMR2 0x00593ba8
-    static CallbackIndex m_unk0x00593ba8;
+    static CallbackIndex m_callbackIndex;
 
     // GLOBAL: CMR2 0x00523bc8
-    static FuncTableGroup m_initializeGameGroupedFuncTable[10];
+    static StateCallbackPair m_initializeGameGroupedFuncTable[10];
 
     // GLOBAL: CMR2 0x00523d68
     static BYTE m_unk0x00523d68;
@@ -219,13 +221,13 @@ public:
     static int m_unk0x00593ba0;
 
     // GLOBAL: CMR2 0x005a1818
-    static BYTE m_unk0x005a1818;
+    static BYTE m_sessionPlayerCount;
 
     // GLOBAL: CMR2 0x005a1819
     static BYTE m_unk0x005a1819;
 
     // GLOBAL: CMR2 0x005a1820
-    static Unk0x005a1820 m_unk0x005a1820[7];
+    static SessionPlayerRecord m_sessionPlayers[7];
     
     // GLOBAL: CMR2 0x005a1e34
     static int m_unk0x005a1e34;
@@ -237,7 +239,7 @@ public:
     static IDirectPlay4A *m_pDirectPlay4A;
 
     // GLOBAL: CMR2 0x005a1ea0
-    static DPID m_unk0x005a1ea0;
+    static DPID m_localPlayerId;
 
     // GLOBAL: CMR2 0x00665220
     static IDirectPlayLobby3A *m_pDirectPlayLobby3A;

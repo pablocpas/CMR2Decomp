@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <stdlib.h>
 #include "Car.h"
+#include "CarParts.h"
 #include "Graphics.h"
 #include "Particle.h"
 #include "Sprite.h"
@@ -262,8 +263,8 @@ void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
             vel.y += t.y;
             vel.z += t.z;
             param[1] = (window == 7 || window == 6 ? 1 : 0) << 16;
-            Particle_Spawn(0x1c, &pos, &vel, -0x40000, (int)&pCar->pNode0x71c->current, NULL, 0, (int)param,
-                           *((BYTE *)pCar->pNode0x720 + 0x17c));
+            Particle_Spawn(0x1c, &pos, &vel, -0x40000, (int)&pCar->pSceneRoot->current, NULL, 0, (int)param,
+                           *((BYTE *)pCar->pBodyNode + 0x17c));
             pP++;
         }
         pRow += 8;
@@ -296,17 +297,17 @@ int Car_BreakWindow(int window, FixVector *pDir, int unused, Car *pCar)
 // side part ids break two windows each.
 // match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049a910
-void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part)
+void Car_QueueWindowBreak(CarPartSet *pParts, Car *pCar, unsigned int part)
 {
 #define SMASH_SLOT (pCar->index * 10 + g_windowSmashCount[pCar->index])
-    if (part == pParts[0x462]) {
+    if (part == pParts->breakPartIndex[2]) {
         g_windowSmash[0][SMASH_SLOT] = 2;
         g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
         g_windowSmashCount[pCar->index]++;
         g_windowSmash[0][SMASH_SLOT] = 3;
         g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
         g_windowSmashCount[pCar->index]++;
-    } else if (part == pParts[0x463]) {
+    } else if (part == pParts->breakPartIndex[3]) {
         g_windowSmash[0][SMASH_SLOT] = 4;
         g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
         g_windowSmashCount[pCar->index]++;
@@ -314,9 +315,9 @@ void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part)
         g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
         g_windowSmashCount[pCar->index]++;
     } else {
-        if (part == pParts[0x460])
+        if (part == pParts->breakPartIndex[0])
             g_windowSmash[0][SMASH_SLOT] = 0;
-        else if (part == pParts[0x461])
+        else if (part == pParts->breakPartIndex[1])
             g_windowSmash[0][SMASH_SLOT] = 1;
         else
             return;
@@ -521,7 +522,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
     FixVector off[3];
     FixVector vel;
     int ext[3];
-    int *pRecord;
+    CarPartSet *pRecord;
     int *pExt;
     FixVector *pOff;
     int glass;
@@ -530,7 +531,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
     BYTE light;
 
     glass = 0;
-    pRecord = StageTiming_GetCarReplayRecord(pCar->index);
+    pRecord = (CarPartSet *)StageTiming_GetCarReplayRecord(pCar->index);
     if ((BYTE)RallyData_GetSelectionFlag26() != 0 || pCar->field_0xc0c != 0)
         return;
     n = EFFECT_RAND();
@@ -567,25 +568,25 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
             vel.z = off[0].z - off[2].z;
         }
         if (EFFECT_RAND() < glassChance) {
-            light = *((BYTE *)pCar->pNode0x720 + 0x17c);
-            if (*((BYTE *)pRecord + 0x469) < 8) {
-                Particle_Spawn(0x1b, pPos, &vel, pPos->y - 0x1999, (int)&pCar->pNode0x71c->current, NULL, 0,
+            light = *((BYTE *)pCar->pBodyNode + 0x17c);
+            if (pRecord->glassCooldown < 8) {
+                Particle_Spawn(0x1b, pPos, &vel, pPos->y - 0x1999, (int)&pCar->pSceneRoot->current, NULL, 0,
                                (int)pCar, light);
                 glass = 1;
             } else {
-                Particle_Spawn(0x1a, pPos, &vel, pPos->y - 0x1999, (int)&pCar->pNode0x71c->current, NULL, 0, 0,
+                Particle_Spawn(0x1a, pPos, &vel, pPos->y - 0x1999, (int)&pCar->pSceneRoot->current, NULL, 0, 0,
                                light);
                 glass = 1;
             }
         } else {
-            Particle_Spawn(0x1a, pPos, &vel, pPos->y - 0x1999, (int)&pCar->pNode0x71c->current, NULL, 0, 0,
-                           *((BYTE *)pCar->pNode0x720 + 0x17c));
+            Particle_Spawn(0x1a, pPos, &vel, pPos->y - 0x1999, (int)&pCar->pSceneRoot->current, NULL, 0, 0,
+                           *((BYTE *)pCar->pBodyNode + 0x17c));
         }
     } while (--n != 0);
     if (glass != 0) {
-        *(int *)((BYTE *)pRecord + 0x46c) = 1;
-        if (*((BYTE *)pRecord + 0x469) < 0xfe)
-            *((BYTE *)pRecord + 0x469) += 2;
+        pRecord->glassDebrisEmitted = 1;
+        if (pRecord->glassCooldown < 0xfe)
+            pRecord->glassCooldown += 2;
     }
 }
 
@@ -991,8 +992,8 @@ void WheelSpray_Update(int player)
                     // Direction of the spray on the ground: the front wheels
                     // throw it along the body, the rear ones as they slide.
                     if (wheel < 2) {
-                        cs = g_sinTable[(pCar->heading + 0x400) & 0xfff];
-                        sn = g_sinTable[pCar->heading & 0xfff];
+                        cs = g_sinTable[(pCar->wheelSteeringAngle + 0x400) & 0xfff];
+                        sn = g_sinTable[pCar->wheelSteeringAngle & 0xfff];
                         basis[0].x = FixMul(slip, cs);
                         basis[0].y = 0;
                         basis[0].z = FixMul(slip, -sn);
@@ -1085,11 +1086,11 @@ void WheelSpray_Update(int player)
                         FixMatrix_RotateVector(&v, &vel, pCar->pWorld);
                         colour = g_sprayColour[effect];
                         if (*pDust != 0)
-                            Particle_Spawn(0x1d, &world, &v, ground, (int)&pCar->pNode0x71c->current,
-                                           (BYTE *)&colour, level, 0, *((BYTE *)pCar->pNode0x720 + 0x17c));
+                            Particle_Spawn(0x1d, &world, &v, ground, (int)&pCar->pSceneRoot->current,
+                                           (BYTE *)&colour, level, 0, *((BYTE *)pCar->pBodyNode + 0x17c));
                         else
-                            Particle_Spawn(0x1e, &world, &v, ground, (int)&pCar->pNode0x71c->current,
-                                           (BYTE *)&colour, level, 0, *((BYTE *)pCar->pNode0x720 + 0x17c));
+                            Particle_Spawn(0x1e, &world, &v, ground, (int)&pCar->pSceneRoot->current,
+                                           (BYTE *)&colour, level, 0, *((BYTE *)pCar->pBodyNode + 0x17c));
                     }
                 }
             }
@@ -1442,7 +1443,7 @@ void WheelSplash_Update(int player)
                     f48 = p.y - 0x630000;
                 }
                 Particle_Spawn(type, pPos, &vel, f48, 0, colour, g_trailLevel[player][wheel], (int)&player,
-                               *((BYTE *)pCar->pNode0x720 + 0x17c));
+                               *((BYTE *)pCar->pBodyNode + 0x17c));
             } while (--count != 0);
             count = 0;
         }

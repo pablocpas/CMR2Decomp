@@ -30,6 +30,13 @@
       "0x4ff060"
     ]
   },
+  "differential_basis_rotate.py": {
+    "arguments": "object",
+    "object": "FixedPoint.obj",
+    "targets": [
+      "0x429f20"
+    ]
+  },
   "differential_best_time_codes.py": {
     "arguments": "entities",
     "targets": [
@@ -69,22 +76,59 @@
       "0x459250"
     ]
   },
+  "differential_camera_deformation.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4219b0",
+      "0x45f9d0"
+    ]
+  },
   "differential_car_basis.py": {
     "arguments": "entities",
     "targets": [
       "0x43e680"
     ]
   },
-  "differential_car_step.py": {
+  "differential_car_body_matrix.py": {
+    "arguments": "object",
+    "object": "Car.obj",
+    "targets": [
+      "0x432cc0"
+    ]
+  },
+  "differential_car_contact_centers.py": {
     "arguments": "entities",
     "targets": [
-      "0x433890"
+      "0x4657d0",
+      "0x498570"
     ]
   },
   "differential_car_contacts.py": {
     "arguments": "entities",
     "targets": [
       "0x48a1f0"
+    ]
+  },
+  "differential_car_corners.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x43eef0",
+      "0x43f280"
+    ]
+  },
+  "differential_car_engine_speed.py": {
+    "arguments": "object",
+    "object": "Car.obj",
+    "targets": [
+      "0x4380c0"
+    ]
+  },
+  "differential_car_flexible_lines.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x486630",
+      "0x4854a0",
+      "0x484f40"
     ]
   },
   "differential_car_forces.py": {
@@ -94,13 +138,6 @@
       "0x4387a0",
       "0x43b100",
       "0x441500"
-    ]
-  },
-  "differential_car_corners.py": {
-    "arguments": "entities",
-    "targets": [
-      "0x43eef0",
-      "0x43f280"
     ]
   },
   "differential_car_lighting.py": {
@@ -116,28 +153,18 @@
       "0x4ad890"
     ]
   },
+  "differential_car_resources.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x456be0",
+      "0x457ed0",
+      "0x4ad890"
+    ]
+  },
   "differential_car_restore.py": {
     "arguments": "entities",
     "targets": [
       "0x426d80"
-    ]
-  },
-  "differential_car_route_update.py": {
-    "arguments": "entities",
-    "targets": [
-      "0x420a30"
-    ]
-  },
-  "differential_car_spawn.py": {
-    "arguments": "entities",
-    "targets": [
-      "0x43c7f0"
-    ]
-  },
-  "differential_car_shadows.py": {
-    "arguments": "entities",
-    "targets": [
-      "0x494db0"
     ]
   },
   "differential_car_rollover.py": {
@@ -146,10 +173,28 @@
       "0x4373c0"
     ]
   },
-  "differential_ground_contact.py": {
+  "differential_car_route_update.py": {
     "arguments": "entities",
     "targets": [
-      "0x42ce60"
+      "0x420a30"
+    ]
+  },
+  "differential_car_shadows.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x494db0"
+    ]
+  },
+  "differential_car_spawn.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x43c7f0"
+    ]
+  },
+  "differential_car_step.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x433890"
     ]
   },
   "differential_checkpoint_advance.py": {
@@ -185,6 +230,13 @@
       "0x494bb0"
     ]
   },
+  "differential_debris_draw.py": {
+    "arguments": "object",
+    "object": "CarEffects.obj",
+    "targets": [
+      "0x499ac0"
+    ]
+  },
   "differential_debris_frames.py": {
     "arguments": "entities",
     "targets": [
@@ -205,6 +257,13 @@
       "0x46e780",
       "0x4057a8",
       "0x4057ab"
+    ]
+  },
+  "differential_event_starting_grid.py": {
+    "arguments": "object",
+    "object": "StageTiming.obj",
+    "targets": [
+      "0x4584d0"
     ]
   },
   "differential_exhaust_particles.py": {
@@ -239,11 +298,32 @@
       "0x40b880"
     ]
   },
+  "differential_ground_contact.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x42ce60"
+    ]
+  },
+  "differential_headlight_glow_records.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x47d510",
+      "0x47d5a0",
+      "0x47dd70",
+      "0x47e1e0"
+    ]
+  },
   "differential_knockout_bracket.py": {
     "arguments": "both",
     "targets": [
       "0x4069c0",
       "0x4735a0"
+    ]
+  },
+  "differential_light_zone_offsets.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4b4aa0"
     ]
   },
   "differential_low_callbacks.py": {
@@ -289,10 +369,25 @@
       "0x4a0380"
     ]
   },
+  "differential_mesh_parts.py": {
+    "arguments": "object",
+    "object": "Mesh.obj",
+    "targets": [
+      "0x4b1ac0"
+    ]
+  },
   "differential_name_entry.py": {
     "arguments": "both",
     "targets": [
       "0x4f1040"
+    ]
+  },
+  "differential_nearest_car_engines.py": {
+    "arguments": "object",
+    "object": "StageObjects.obj",
+    "targets": [
+      "0x47aa70",
+      "0x47ad20"
     ]
   },
   "differential_net_car_receive.py": {
@@ -351,6 +446,19 @@
       "0x5004c0"
     ]
   },
+  "differential_player_indicators.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x47b0e0"
+    ]
+  },
+  "differential_preview_vertex_lifetime.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x506bb0",
+      "0x505f10"
+    ]
+  },
   "differential_race_estimates.py": {
     "arguments": "entities",
     "targets": [
@@ -363,22 +471,17 @@
       "0x41e8d0"
     ]
   },
-  "differential_player_indicators.py": {
-    "arguments": "entities",
-    "targets": [
-      "0x47b0e0"
-    ]
-  },
-  "differential_light_zone_offsets.py": {
-    "arguments": "entities",
-    "targets": [
-      "0x4b4aa0"
-    ]
-  },
   "differential_race_order.py": {
     "arguments": "entities",
     "targets": [
       "0x448d50"
+    ]
+  },
+  "differential_race_position_marker.py": {
+    "arguments": "object",
+    "object": "RallyData.obj",
+    "targets": [
+      "0x413e00"
     ]
   },
   "differential_race_state_reset.py": {
@@ -420,6 +523,13 @@
     "arguments": "both",
     "targets": [
       "0x4aa720"
+    ]
+  },
+  "differential_relight_sector.py": {
+    "arguments": "object",
+    "object": "SceneNode.obj",
+    "targets": [
+      "0x4b3c00"
     ]
   },
   "differential_render_transforms.py": {
@@ -465,6 +575,13 @@
     "arguments": "both",
     "targets": [
       "0x421470"
+    ]
+  },
+  "differential_scene_ambient.py": {
+    "arguments": "object",
+    "object": "SceneNode.obj",
+    "targets": [
+      "0x4b3740"
     ]
   },
   "differential_scene_reparent.py": {
@@ -514,6 +631,13 @@
       "0x40d520"
     ]
   },
+  "differential_spawn_debris.py": {
+    "arguments": "object",
+    "object": "CarEffects.obj",
+    "targets": [
+      "0x499750"
+    ]
+  },
   "differential_split_standings.py": {
     "arguments": "entities",
     "targets": [
@@ -534,12 +658,6 @@
     "targets": [
       "0x460da0",
       "0x461c30"
-    ]
-  },
-  "differential_weather_setup.py": {
-    "arguments": "entities",
-    "targets": [
-      "0x45eca0"
     ]
   },
   "differential_stage_paths.py": {
@@ -591,112 +709,17 @@
       "0x406580"
     ]
   },
+  "differential_weather_setup.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x45eca0"
+    ]
+  },
   "differential_wheel_emission.py": {
     "arguments": "entities",
     "targets": [
       "0x45b580",
       "0x45c820"
-    ]
-  },
-  "differential_headlight_glow_records.py": {
-    "arguments": "entities",
-    "targets": [
-      "0x47d510",
-      "0x47d5a0",
-      "0x47dd70",
-      "0x47e1e0"
-    ]
-  },
-  "differential_preview_vertex_lifetime.py": {
-    "arguments": "entities",
-    "targets": [
-      "0x506bb0",
-      "0x505f10"
-    ]
-  },
-  "differential_camera_deformation.py": {
-    "arguments": "entities",
-    "targets": [
-      "0x4219b0",
-      "0x45f9d0"
-    ]
-  },
-  "differential_car_body_matrix.py": {
-    "arguments": "object",
-    "object": "Car.obj",
-    "targets": [
-      "0x432cc0"
-    ]
-  },
-  "differential_debris_draw.py": {
-    "arguments": "object",
-    "object": "CarEffects.obj",
-    "targets": [
-      "0x499ac0"
-    ]
-  },
-  "differential_car_engine_speed.py": {
-    "arguments": "object",
-    "object": "Car.obj",
-    "targets": [
-      "0x4380c0"
-    ]
-  },
-  "differential_nearest_car_engines.py": {
-    "arguments": "object",
-    "object": "StageObjects.obj",
-    "targets": [
-      "0x47aa70",
-      "0x47ad20"
-    ]
-  },
-  "differential_race_position_marker.py": {
-    "arguments": "object",
-    "object": "RallyData.obj",
-    "targets": [
-      "0x413e00"
-    ]
-  },
-  "differential_scene_ambient.py": {
-    "arguments": "object",
-    "object": "SceneNode.obj",
-    "targets": [
-      "0x4b3740"
-    ]
-  },
-  "differential_event_starting_grid.py": {
-    "arguments": "object",
-    "object": "StageTiming.obj",
-    "targets": [
-      "0x4584d0"
-    ]
-  },
-  "differential_relight_sector.py": {
-    "arguments": "object",
-    "object": "SceneNode.obj",
-    "targets": [
-      "0x4b3c00"
-    ]
-  },
-  "differential_spawn_debris.py": {
-    "arguments": "object",
-    "object": "CarEffects.obj",
-    "targets": [
-      "0x499750"
-    ]
-  },
-  "differential_basis_rotate.py": {
-    "arguments": "object",
-    "object": "FixedPoint.obj",
-    "targets": [
-      "0x429f20"
-    ]
-  },
-  "differential_mesh_parts.py": {
-    "arguments": "object",
-    "object": "Mesh.obj",
-    "targets": [
-      "0x4b1ac0"
     ]
   }
 }

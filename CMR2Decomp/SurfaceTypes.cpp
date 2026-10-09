@@ -899,7 +899,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
         }
     } else {
         if (Sound_IsPlaying(g_unk0x0058ddf0[player])) {
-            volume = FixMul(0x10000 - FixDiv(pCar->steerFollowRate, pCar->field_0x788),
+            volume = FixMul(0x10000 - FixDiv(pCar->throttleTorque, pCar->maxThrottleTorque),
                             CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, (int *)&g_curve0x0051eab8) << 16) / 100,
                                        g_unk0x0058df3c));
             if (Race_GetPlayerRecordField4((BYTE)player))
@@ -912,7 +912,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
             Sound_SetPlayingSlotVolume(g_unk0x0058ddf0[player], volume);
         }
         if (Sound_IsPlaying(g_unk0x0058dde0[player])) {
-            volume = FixMul(0x10000 - FixDiv(pCar->steerFollowRate, pCar->field_0x788),
+            volume = FixMul(0x10000 - FixDiv(pCar->throttleTorque, pCar->maxThrottleTorque),
                             CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, (int *)&g_curve0x0051eab8) << 16) / 100,
                                        g_unk0x0051f278));
             if (Race_GetPlayerRecordField4((BYTE)player))
@@ -1240,7 +1240,7 @@ void SurfaceSound_UpdatePlayerLoops(int player, int listener)
     state[0] = pitch;
     state[2] = speed;
     state[3] = pCar->gear;
-    state[4] = (FixDiv(FixMul(pCar->steerFollowRate, 0x640000), pCar->field_0x788) < 0x50000 ? 0 : 0x640000) >> 16;
+    state[4] = (FixDiv(FixMul(pCar->throttleTorque, 0x640000), pCar->maxThrottleTorque) < 0x50000 ? 0 : 0x640000) >> 16;
     state[5] = 0;
     state[6] = 0;
     Surface_UpdatePlayerEngineSounds(state, player, listener);

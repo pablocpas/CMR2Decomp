@@ -7779,9 +7779,9 @@
   },
   "0x4dbd80": {
     "n": "FrontendMenu_DrawRallyReport",
-    "s": 0.9889682024659312,
+    "s": 0.9850746268656716,
     "x": false,
-    "fz": 0.9902660609993511,
+    "fz": 0.9980532121998702,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawRallyReport"
@@ -25556,9 +25556,9 @@
   },
   "0x4657d0": {
     "n": "StageObject_RebuildCarExhaustPoints",
-    "s": 0.7216494845360825,
+    "s": 0.8901098901098901,
     "x": false,
-    "fz": 0.8144329896907216,
+    "fz": 0.967032967032967,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_RebuildCarExhaustPoints"
@@ -28654,9 +28654,9 @@
   },
   "0x484f40": {
     "n": "CarPart_ResolveLocalPointGroundContact",
-    "s": 0.9027431421446384,
+    "s": 0.9038701622971286,
     "x": false,
-    "fz": 0.9999,
+    "fz": 0.9937578027465668,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "CarPart_ResolveLocalPointGroundContact"
