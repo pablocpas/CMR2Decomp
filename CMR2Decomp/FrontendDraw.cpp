@@ -120,8 +120,9 @@ int FrontendDraw_MenuPath(Menu *pMenu, int x, int y, char last, int depth, char 
             else
                 pos = FrontendDraw_MenuPath(pMenu->pParent, pos, y, 0, depth - 1, ppNames, n);
         }
-        pColour = g_colourWhite0x00524968;
-        if (last == 0)
+        if (last != 0)
+            pColour = g_colourWhite0x00524968;
+        else
             pColour = g_colourText0x0052496c;
         if (ppNames != NULL && nameCount > 0 && last == 0)
             strcpy(CFrontend::m_stringDest, ppNames[nameCount - 1]);
