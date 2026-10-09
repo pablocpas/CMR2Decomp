@@ -509,8 +509,9 @@ void FrontendDraw_RallyEntryList(BYTE *pList, char *pTitle, int index, char **pp
         pShadow = g_colourShadowWhite0x00524974;
     } else {
         pColour = g_colourText0x0052496c;
-        pShadow = g_colourShadowWhite0x00524974;
-        if (pTitle == NULL)
+        if (!(pTitle == NULL))
+            pShadow = g_colourShadowWhite0x00524974;
+        else
             pShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[1] = top;
@@ -661,10 +662,11 @@ void FrontendDraw_ScrollerRow(MenuScroller *p, char active)
     }
     while (p->widths[i] + p->spacing + x > 0) {
         SCROLLER_TEXT(i);
-        if (pMenu->items[i].enabled)
-            Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)pColour, 0x11);
-        else
+        if (!pMenu->items[i].enabled) {
             Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)g_colourDim0x00524970, 0x11);
+        } else {
+            Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)pColour, 0x11);
+        }
         next = i + 1;
         if (next >= pMenu->itemCount)
             next = 0;

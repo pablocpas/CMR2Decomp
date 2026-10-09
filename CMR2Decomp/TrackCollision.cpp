@@ -642,7 +642,7 @@ void Stage_InitLightMeshes(void)
         maximum = minimum;
         for (i = g_stageMesh1Count - 1; i >= 0; i--) {
             value = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh1Copy->pVertexData)[i].pos[1] * CGraphics::m_65536);
-            if (maximum < value)
+            if (value > maximum)
                 maximum = value;
             if (value < minimum)
                 minimum = value;

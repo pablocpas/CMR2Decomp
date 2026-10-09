@@ -4593,11 +4593,11 @@ void Race_UpdateCarRouteAndWrongWayState(int param_1)
     flags = g_raceCallRecords[param_1 * 5].flags;
     if ((flags & 0x100) == 0)
         return;
-    if ((BYTE)flags == 0x19) {
+    if ((BYTE)flags != 0x19) {
+        g_raceCallRecords[param_1 * 5].flags = (flags - 1 ^ flags) & 0xff ^ flags;
+    } else {
         if (g_unk0x00537354 != 0)
             g_raceCallRecords[param_1 * 5].flags = (flags - 1 ^ flags) & 0xff ^ flags;
-    } else {
-        g_raceCallRecords[param_1 * 5].flags = (flags - 1 ^ flags) & 0xff ^ flags;
     }
     if ((BYTE)g_raceCallRecords[param_1 * 5].flags == 0) {
         pRec = &g_raceCallRecords[param_1 * 5];

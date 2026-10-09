@@ -669,10 +669,11 @@ void FrontendMenu_DrawAdvancedGraphicsOptions(Menu *pMenu)
                     else
                         pColour = pUnselColour;
                 } else {
-                    if (j != 0)
-                        pColour = g_colourWhite0x00524968;
-                    else
+                    if (j == 0) {
                         pColour = g_colourDim0x00524970;
+                    } else {
+                        pColour = g_colourWhite0x00524968;
+                    }
                 }
                 x += (int)(g_pGraphics->resX * 10) / 640 +
                      Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
@@ -8517,11 +8518,11 @@ void FrontendMenu_UpdateNetworkSessionSetup(Menu *pMenu)
     b = 1;
     if (g_unk0x00818ed0 != 0) {
         pDevice = CInput::GetAvailableDeviceRecord(0);
-        if ((pDevice->field_0x8 & 8) == 0) {
+        if (!((pDevice->field_0x8 & 8) == 0)) {
+            pMenu->cursor = 1;
+        } else {
             if ((pDevice->field_0x8 & 4) != 0)
                 pMenu->cursor = pMenu->itemCount - 1;
-        } else {
-            pMenu->cursor = 1;
         }
     }
     if (g_unk0x00818ce8 != Menu_GetItem(pMenu, 1)->max) {
@@ -8641,7 +8642,7 @@ void FrontendMenu_UpdateNetworkSessionDetails(Menu *pMenu)
         Menu_GetItem(pMenu, 1)->min = 5;
     else
         Menu_GetItem(pMenu, 1)->min = 3;
-    if (Menu_GetItem(pMenu, 1)->min <= Menu_GetItem(pMenu, 1)->max)
+    if (Menu_GetItem(pMenu, 1)->max >= Menu_GetItem(pMenu, 1)->min)
         Menu_GetItem(pMenu, 1)->max = Menu_GetItem(pMenu, 1)->min - 1;
     if (Menu_GetItem(pMenu, 1)->max >= 3)
         Menu_GetItem(pMenu, 3)->min = 5;

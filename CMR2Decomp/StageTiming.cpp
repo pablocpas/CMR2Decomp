@@ -5652,7 +5652,7 @@ void StageTiming_EstimateRemainingDriverTimes(void)
 
     total = (BYTE)RallyData_GetSelectionBits16To19() * RallyData_GetRouteAvailabilityState() * 0x10000;
     while (1) {
-        if (count <= slot)
+        if (slot >= count)
             return;
         pSlot = &g_unk0x0053e17c[slot];
         for (i = 0; i < count; i++) {
@@ -7482,7 +7482,7 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, int *rec, int param_3
         }
     }
     if (param_1 != 0 && rec[0x16] != rec[0x17]) {
-        if (rec[0x17] > rec[0x16]) {
+        if (rec[0x16] < rec[0x17]) {
             rec[0x16] += FixMul(rec[0x18], g_unk0x0051bd3c);
             if (rec[0x16] > rec[0x17])
                 rec[0x16] = rec[0x17];

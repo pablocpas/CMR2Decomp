@@ -6622,12 +6622,12 @@ void Car_PlaceAtStart(int *param_1, int *param_2)
     v.y = 0;
     v.z = param_2[2];
     l = FixVecLength(&v);
-    if (l != 0) {
-        FixVecScaleRecip(&g_pCurrentCar->right, &v, l);
-    } else {
+    if (l == 0) {
         g_pCurrentCar->right.x = 0;
         g_pCurrentCar->right.y = 0;
         g_pCurrentCar->right.z = 0;
+    } else {
+        FixVecScaleRecip(&g_pCurrentCar->right, &v, l);
     }
     g_pCurrentCar->up.x = 0;
     g_pCurrentCar->up.y = 0x10000;

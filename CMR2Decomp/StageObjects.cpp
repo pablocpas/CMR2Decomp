@@ -4830,10 +4830,11 @@ void CarDamage_BuildRelativeVelocityHull(Car *pCar, Car *pOther)
     pIn = pCar->field_0x240;
     do {
         pOut[-4] = pOut[-8];
-        if ((int)pOut < (int)&g_stageDeformHull[10])
-            pOut[-4].y += pCar->field_0x770[0];
-        else
+        if (!((int)pOut < (int)&g_stageDeformHull[10])) {
             pOut[-4].y += pCar->field_0x770[1];
+        } else {
+            pOut[-4].y += pCar->field_0x770[0];
+        }
         *pOut = *pIn;
         if (pOut->x > 0)
             pOut->x -= pCar->scale0x764;
@@ -6877,8 +6878,9 @@ void StageObject_RebuildViewWeatherLighting(int index)
         colour.z += ambientMix.z;
 
         if (flag) {
-            objectRefColour[3] = 0xfa;
-            if (objectColour[3] <= 0xc8)
+            if (!(objectColour[3] <= 0xc8))
+                objectRefColour[3] = 0xfa;
+            else
                 objectRefColour[3] = (BYTE)(objectColour[3] + 0x32);
             referenceColour[0] = 0xff;
             referenceColour[1] = 0xff;
@@ -9776,7 +9778,8 @@ int StageObject_UpdateCarBodyFade(int param_1, int param_2)
         if ((unsigned int)g_unk0x0058d2d0[param_1] == (int)pCar->field_0xb20 &&
             pCar->handbrake == 0) {
             BYTE c = g_unk0x0058d478[param_1];
-            g_unk0x0058d478[param_1] = c + 1;
+            g_unk0x0058d478[param_1] = c;
+            g_unk0x0058d478[param_1] += 1;
             if ((BYTE)(c + 1) > 7) {
                 g_unk0x0058d360[param_1] = 1;
                 g_unk0x0058d478[param_1] = 0;
@@ -11054,16 +11057,16 @@ int AI_FindClosestCarInAngleWindow(int param_1, int *param_2, int param_3, int *
             flags[param_1] = 0;
             continue;
         }
-        if (StageObject_WrapFixedDegreeAngle(carHeading - nodeHeading) < 0) {
-            if (*param_4 > 0x320000)
-                flags[param_1] = 4;
-            else
-                flags[param_1] = 2;
-        } else {
+        if (StageObject_WrapFixedDegreeAngle(carHeading - nodeHeading) >= 0) {
             if (*param_4 > 0x320000)
                 flags[param_1] = 3;
             else
                 flags[param_1] = 1;
+        } else {
+            if (*param_4 > 0x320000)
+                flags[param_1] = 4;
+            else
+                flags[param_1] = 2;
         }
         *param_2 = flags[param_1];
         return param_1;
@@ -11344,10 +11347,11 @@ void CarDamage_UpdateSuspensionImpactContacts(Car *pCar)
             i = (int)pCar->index;
             uVar16 = CMain::GetFrameDelta();
             if (0x19 < (unsigned int)(uVar16 - g_deformImpactTicks[i]) && pCar->speed > 0) {
-                if (pCar->speed <= 0x10000)
-                    uVar15 = (unsigned int)FixMul(pCar->speed, 0x5c28);
-                else
+                if (pCar->speed > 0x10000) {
                     uVar15 = 0x5c28;
+                } else {
+                    uVar15 = (unsigned int)FixMul(pCar->speed, 0x5c28);
+                }
                 i = (int)pCar->index;
                 Race_PlayImpactAndShakeCar((unsigned int)i, (int)uVar15, (char)iFlagC, i);
                 uVar16 = CMain::GetFrameDelta();
@@ -14891,10 +14895,11 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                             StageObject_UpdateCarBoxShadowLighting((int *)pBox, pCar);
                         continue;
                     }
-                    if ((pObject[4] & 0x2001000) != 0)
-                        result = Collision_CarVsBox((int)pCar, (int *)pBox, 0);
-                    else
+                    if (!((pObject[4] & 0x2001000) != 0)) {
                         result = Collision_CarVsBox((int)pCar, (int *)pBox, 0x10000);
+                    } else {
+                        result = Collision_CarVsBox((int)pCar, (int *)pBox, 0);
+                    }
                 }
                 if (result != 0 && Collision_ResolveStaticObstacleContact((int)pCar, pEntry, (int)&position, 0) != 0)
                     StageObject_QueueOrEvictMovingObject(pEntry, sector, pCar->index);

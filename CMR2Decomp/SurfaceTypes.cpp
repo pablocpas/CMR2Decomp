@@ -223,7 +223,8 @@ void Car_UpdateSurfaceParams(Car *pCar, int blend)
         diff = g_surface0x51e738[s1] - g_surface0x51e738[s0];
         v738 = FixMul(diff, blend) + g_surface0x51e738[s0];
         diff = g_surfaceSoftness[s1][0] - g_surfaceSoftness[s0][0];
-        dSoftA = FixMul(diff, blend) + g_surfaceSoftness[s0][0];
+        dSoftA = FixMul(diff, blend);
+        dSoftA += g_surfaceSoftness[s0][0];
         diff = g_surfaceSoftness[s1][1] - g_surfaceSoftness[s0][1];
         dSoftB = FixMul(diff, blend) + g_surfaceSoftness[s0][1];
         diff = g_surface0x51e678[s1] - g_surface0x51e678[s0];

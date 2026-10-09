@@ -10620,7 +10620,7 @@ void OptionMenu_DrawStageSummaryPanel(int param_1, int param_2)
                      g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
         y += 0xe;
         w2 = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-        if (w < w2)
+        if (w2 > w)
             w = w2;
     }
     column = Font_GetTextWidth(1, (BYTE *)g_str0x005297bc) + w + x;
@@ -11455,11 +11455,11 @@ int OptionPreview_LoadStageGeometryRecord(int index)
     if (CGameInfo::GetPreviewMode() == 0) {
         strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1N.c3d", 8);
         hC3D = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
-        if (OptionPreview_UsesLowWheelVariant(variant, 1) == 0) {
-            hL = 0;
-        } else {
+        if (!(OptionPreview_UsesLowWheelVariant(variant, 1) == 0)) {
             strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 5, "L.c3d", 5);
             hL = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+        } else {
+            hL = 0;
         }
         if (OptionPreview_UsesWheelVariantSix(variant, 6) != 0) {
             strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 5, "S.c3d", 5);

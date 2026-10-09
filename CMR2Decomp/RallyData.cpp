@@ -3309,7 +3309,8 @@ void RallyData_DrawStageResultRows(int car, short *position)
         record = RallyData_GetAvailableCategorySaveRecord((StageUI_GetRaceEndEventCount() & 0xff) + car);
         index = (RallyDataCountryIndex() & 0xff) * 12 + (RallyDataStageIndex() & 0xff);
         carTime = *(unsigned int *)(record + 0x154 + index * 8);
-        index = (RallyDataCountryIndex() & 0xff) * 11 + (RallyDataStageIndex() & 0xff);
+        index = (RallyDataCountryIndex() & 0xff) * 11;
+        index += (RallyDataStageIndex() & 0xff);
         gameInfo = (BYTE *)CGameInfo::GetGameInfoFieldA4Address();
         recordTime = (*(unsigned int *)(gameInfo + 0x658 + index * 8) >> 7) & 0xffff;
         index = (RallyDataCountryIndex() & 0xff) * 11 + (RallyDataStageIndex() & 0xff);

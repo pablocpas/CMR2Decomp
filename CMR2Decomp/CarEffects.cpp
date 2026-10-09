@@ -1355,10 +1355,11 @@ void WheelSplash_Update(int player)
             else
                 type = front != 0 ? 0xe : 0xf;
             if (EFFECT_RAND() < 0x8000) {
-                if (leading)
-                    count = 0;
-                else
+                if (!leading) {
                     type = (EFFECT_RAND() >= 0x8000) + 0xe;
+                } else {
+                    count = 0;
+                }
             }
             on = 1;
         } else if (emitting) {

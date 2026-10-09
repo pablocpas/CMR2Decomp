@@ -411,7 +411,7 @@ void Dash_DrawBar(int player, int layer)
             dy = -(short)(g_pGraphics->resY / 2);
         }
         split = (g_pGraphics->resY * 0x41) / 480;
-        if (split < len) {
+        if (len > split) {
             rest = len - split;
         } else {
             rest = 0;

@@ -4551,10 +4551,11 @@ void Billboard_Draw(SceneNode *pCamera)
             pVert[2].x = c2.z * axes._21 + c2.y * axes._11 + pos.x;
             pVert[2].y = c2.z * axes._22 + c2.y * axes._12 + pos.y;
             pVert[2].z = c2.z * axes._23 + c2.y * axes._13 + pos.z;
-            if (pQuad->mirror == 0)
-                pVert[2].u = 1.0f;
-            else
+            if (pQuad->mirror != 0) {
                 pVert[2].u = 0.0f;
+            } else {
+                pVert[2].u = 1.0f;
+            }
             pVert[2].v = 1.0f;
             pVert[2].diffuse = colour;
             pVert[2].specular = 0xff000000;
