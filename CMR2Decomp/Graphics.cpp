@@ -4893,48 +4893,51 @@ struct GlowLight {
 };
 
 // Reserves a free glow slot and copies its position, direction, and draw settings.
+// Free glow light slot, or NULL when all are in use.
+static inline GlowLight *Glow_FindFreeSlot(void)
+{
+    int i;
+
+    if (g_unk0x006a2bc8 < g_unk0x006a2bcc) {
+        for (i = 0; i < g_unk0x006a2bcc; i++) {
+            if (((GlowLight *)g_unk0x006a2a98)[i].type == 0)
+                return &((GlowLight *)g_unk0x006a2a98)[i];
+        }
+    }
+    return NULL;
+}
+
 // FUNCTION: CMR2 0x004ae2f0
 GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1,
                     int sizeX, int sizeY, int billboardTexture, int layerTexture,
                     int intensity, int node, BYTE projected, int unused2,
                     int field_0x40)
 {
-    int i;
     GlowLight *light;
 
-    if (g_unk0x006a2bc8 < g_unk0x006a2bcc) {
-        for (i = 0; i < g_unk0x006a2bcc; i++) {
-            light = &((GlowLight *)g_unk0x006a2a98)[i];
-            if (light->type == 0)
-                break;
-        }
-        if (i < g_unk0x006a2bcc) {
-            light = &((GlowLight *)g_unk0x006a2a98)[i];
-            if (light != NULL) {
-                light->type = type;
-                light->pos = *pos;
-                if (dir == NULL) {
-                    light->dir.x = 0;
-                    light->dir.y = 0;
-                    light->dir.z = 0;
-                } else {
-                    light->dir = *dir;
-                }
-                light->sizeX = sizeX;
-                light->sizeY = sizeY;
-                light->pTexture = (unsigned short *)billboardTexture;
-                light->pLayerTexture = (Texture *)layerTexture;
-                light->intensity = intensity;
-                light->pNode = (SceneNode *)node;
-                light->enabled = 1;
-                light->projected = projected;
-                light->field_0x40 = field_0x40;
-                g_unk0x006a2bc8++;
-                return light;
-            }
-        }
+    light = Glow_FindFreeSlot();
+    if (light == NULL)
+        return NULL;
+    light->type = type;
+    light->pos = *pos;
+    if (dir == NULL) {
+        light->dir.x = 0;
+        light->dir.y = 0;
+        light->dir.z = 0;
+    } else {
+        light->dir = *dir;
     }
-    return NULL;
+    light->sizeX = sizeX;
+    light->sizeY = sizeY;
+    light->pTexture = (unsigned short *)billboardTexture;
+    light->pLayerTexture = (Texture *)layerTexture;
+    light->intensity = intensity;
+    light->pNode = (SceneNode *)node;
+    light->enabled = 1;
+    light->projected = projected;
+    light->field_0x40 = field_0x40;
+    g_unk0x006a2bc8++;
+    return light;
 }
 
 // FUNCTION: CMR2 0x004ae2a0
