@@ -201,6 +201,8 @@ void FrontendDraw_DrawProfileMenu(Menu *pMenu)
 // FUNCTION: CMR2 0x004d4460
 void FrontendDraw_HelpText(char *text, int reset)
 {
+    BYTE *pText = g_colourText0x0052496c;
+
     if (text != NULL) {
         if (reset == 0) {
             if (g_helpPulseUp0x00524b8c != 0) {
@@ -216,17 +218,17 @@ void FrontendDraw_HelpText(char *text, int reset)
                     g_helpPulseUp0x00524b8c = 1;
                 }
             }
-            g_helpColour0x00524b88[0] = g_colourText0x0052496c[0] + g_helpPulse0x00818270;
-            g_helpColour0x00524b88[1] = g_colourText0x0052496c[1] + g_helpPulse0x00818270;
-            g_helpColour0x00524b88[3] = g_colourText0x0052496c[3];
-            g_helpColour0x00524b88[2] = g_colourText0x0052496c[2] + g_helpPulse0x00818270;
+            g_helpColour0x00524b88[0] = pText[0] + g_helpPulse0x00818270;
+            g_helpColour0x00524b88[1] = pText[1] + g_helpPulse0x00818270;
+            g_helpColour0x00524b88[2] = pText[2] + g_helpPulse0x00818270;
+            g_helpColour0x00524b88[3] = pText[3];
         } else {
             g_helpPulse0x00818270 = 0;
-            g_helpColour0x00524b88[0] = g_colourText0x0052496c[0];
-            g_helpColour0x00524b88[1] = g_colourText0x0052496c[1];
+            g_helpColour0x00524b88[0] = pText[0];
+            g_helpColour0x00524b88[1] = pText[1];
             g_helpPulseUp0x00524b8c = 1;
-            g_helpColour0x00524b88[2] = g_colourText0x0052496c[2];
-            g_helpColour0x00524b88[3] = g_colourText0x0052496c[3];
+            g_helpColour0x00524b88[2] = pText[2];
+            g_helpColour0x00524b88[3] = pText[3];
         }
         sprintf(CFrontend::m_stringDest, text);
         Font_Unused((int)CFrontend::m_stringDest, Frontend_GetOverlayMode());
