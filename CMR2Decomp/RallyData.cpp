@@ -3210,10 +3210,9 @@ void RallyData_RecordStageStartAndGhostSplit(int car)
     }
     if (CGameInfo::GetConfiguredGameMode() == 0xc) {
         CGameInfo::GetNetworkStageBestTime(g_unk0x00537064);
+        time = CGameInfo::GetNetworkStageBestTime(g_unk0x00537064);
         if (NetPlayers_IsNewLocalRecord())
             time = NetPlayers_GetPreviousBestTime();
-        else
-            time = CGameInfo::GetNetworkStageBestTime(g_unk0x00537064);
         g_stageSplitData[car].targetTime = time;
         if (g_stageSplitData[car].lastSplitTime < time) {
             RallyData_PlayAlternateStageLoopSound(car, 1);
@@ -7980,7 +7979,10 @@ void RallyData_PickOpponentLineups(void)
         pOut = &g_unk0x0052f100[group * 4][1];
         for (i = 0; i < 4; i++) {
             pOut[-1] = classes[i * 2];
-            pOut[0] = split == 0 ? classes[i * 2 + 1] : classes[i * 2];
+            if (split == 0)
+                pOut[0] = classes[i * 2 + 1];
+            else
+                pOut[0] = classes[i * 2];
             pOut += 2;
         }
         RallyData_SelectOpponentSkillClasses(group, (int *)&g_unk0x0051627c[g_selectedRallyData & 0x1f][group * 10], ratings);

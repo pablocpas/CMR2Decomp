@@ -900,10 +900,9 @@ void Race_QueuePlayerCallout(unsigned int player, BYTE callId, BYTE prevCallId, 
             typeCall = 1;
         else
             typeCall = 0;
+        levelCall = 0;
         if (b3 != 0 && b1 != 0)
             levelCall = 1;
-        else
-            levelCall = 0;
         if (prev == 0) {
             if (typeCall) {
                 id -= type * 0x20000;
@@ -3583,10 +3582,9 @@ L_teardown:
             Knockout_ClearRoundActiveFlag();
         break;
     }
+    n = RallyDataState() & 0xff;
     if (CGameInfo::GetConfiguredGameMode() == 4 || (char)RallyData_GetFlag25() != 0)
         n = 2;
-    else
-        n = RallyDataState() & 0xff;
     if (n > 0) {
         pp = g_unk0x00537f3c;
         i = n;

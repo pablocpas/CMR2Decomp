@@ -840,7 +840,9 @@ void GameMenu_DrawSplitTimes(Menu *pMenu)
             base = CGameInfo::GetConfiguredGameMode() == 4 ? g_pGraphics->resY * 0xe6 : g_pGraphics->resY * 0x91;
             Font_DrawText(1, CFrontend::m_stringDest, x,
                           (int)(g_pGraphics->resY * 0x1e) / 480 + base / 480 + header + yAdjust, (int *)pColour, 0x11);
-            base = CGameInfo::GetConfiguredGameMode() == 4 ? g_pGraphics->resY * 0xe6 : g_pGraphics->resY * 0x91;
+            base = g_pGraphics->resY * 0x91;
+            if (CGameInfo::GetConfiguredGameMode() == 4)
+                base = g_pGraphics->resY * 0xe6;
             Font_DrawText(1, CFrontend::GetTextString(0x8a), x,
                           (int)(g_pGraphics->resY * 0x19) / 480 + base / 480 +
                               (int)(GetStageSplitCount() * g_pGraphics->resY * 0x1e) / 480 + header,

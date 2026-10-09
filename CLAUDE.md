@@ -190,6 +190,19 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
 - A narrow argument computed in 8 bits (`add dl, bl`) where the original
   pushes a full register means the callee takes an int (Race_TeardownStage:
   Replay_SwapPendingSlotValue's flag).
+- A choice between two values is usually an `if/else` in the original, not a
+  default followed by an overriding `if`: `if (enabled) c = text; else c =
+  dim;` closed two "registers only" menu screens. Also try the ternary.
+- `cdq; xor; sub` is `abs()`; a hand-written `d < 0 ? b - a : d` where the
+  original reuses one register is `FIX_ABS(a - b)`.
+- Sibling functions share idioms: Car_UpdateRideHeight matched once its axle
+  loads were accumulated like Car_UpdateEngineSpeed's (`x = FixMul(..); x +=
+  FixMul(..); x /= 2;`).
+- A global array re-read (as a word/dword) after unrelated byte stores is
+  read through a pointer in the original (`BYTE *pText = g_colourText;`),
+  so MSVC6 assumes the stores may alias it (FrontendDraw_HelpText).
+- Runtime-library code (type_info's deleting destructor) is compiled /O1 in
+  its own TU (`CRT_O1` in build.py): `pop ecx` instead of `add esp, 4`.
 
 ## Missing code
 

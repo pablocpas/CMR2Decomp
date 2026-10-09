@@ -5318,10 +5318,9 @@ void InRaceMenu_RebuildMainPage(int param)
 
     InRaceMenu_BuildResumePage();
     g_unk0x0052a0b8 = 0;
+    value = param;
     if ((BYTE)param != 0)
         value = (int)g_menu0x0052ad60.items[g_menu0x0052ad60.cursor].value;
-    else
-        value = param;
     Menu_Init(&g_menu0x0052ad60, 0, 0, 0, NULL, NULL, 1, 0, 1);
     if ((char)RallyDataState() == 1)
         Menu_AddItemType2(&g_menu0x0052ad60, 0, 9, &g_menu0x00529ed8, 0, 0);
@@ -9045,7 +9044,9 @@ void InRaceMenu_DrawLabelAndValueRows(Menu *pMenu)
             pA = (int *)sub;
             pB = (int *)sub + 1;
             for (j = 0; j < (int)(BYTE)pItem->min; j++) {
-                text = single == 0 ? (char *)*pA : (char *)*pB;
+                text = (char *)*pB;
+                if (single == 0)
+                    text = (char *)*pA;
                 x = (int)(g_pGraphics->resX * 10) / 0x280 + x
                     + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
                 Font_DrawText(1, text, x, y,
@@ -10410,10 +10411,9 @@ void OptionMenu_DrawResultsOptions(int param_1)
     unsigned int remaining;
 
     x = (int)g_pGraphics->resX * 0x1c / 0x280;
+    colour = *(int *)OptionMenu_GetStateByteAddress();
     if (param_1 != 0)
         colour = g_unk0x0052737c;
-    else
-        colour = *(int *)OptionMenu_GetStateByteAddress();
     mode = OptionMenu_GetSlotType(OptionMenu_FindFirstDetailedSlot());
     g_unk0x00831660[2] = 1;
     g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0);

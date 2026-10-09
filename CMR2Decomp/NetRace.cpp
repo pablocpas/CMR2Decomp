@@ -1255,10 +1255,9 @@ int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
             *pOut = 0x10000;
         else
             *pOut = FixMul(steer << 16, 0x418) - 0x10000;
+        pRec->field_0xb8 = 0;
         if (g_localCarPacket.steerFollow)
             pRec->field_0xb8 = 0x10000;
-        else
-            pRec->field_0xb8 = 0;
         pRec->field_0xd0 = g_localCarPacket.flagB54;
         if (g_localCarPacket.shaking &&
             pRec->holdTicks == 0) {

@@ -8275,10 +8275,9 @@ void View_UpdateCamera(BYTE view)
             nextFree = 1;
         else
             nextFree = 0;
+        nextTracked = 0;
         if (typeB == 1 || typeB == 2)
             nextTracked = 1;
-        else
-            nextTracked = 0;
         t = 0x10000 - FixMul(VIEW_EASE(*pTimer), VIEW_EASE(*pTimer));
         CameraState_Interpolate(VIEW_STATE(index), pActive, pNext, t);
         if ((activeFree && nextTracked) || (activeTracked && nextFree))

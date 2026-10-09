@@ -3445,10 +3445,9 @@ int Scene_AttenuateSectorLight(int sector, int light)
     d.x = g_sectors[sector]->x - lpos.x;
     d.y = g_sectors[sector]->y - lpos.y;
     d.z = g_sectors[sector]->z - lpos.z;
+    g_sceneSectorFlags[sector] = 0;
     if (FIX_ABS(d.x) <= limit && FIX_ABS(d.z) <= limit)
         g_sceneSectorFlags[sector] = 1;
-    else
-        g_sceneSectorFlags[sector] = 0;
     if (g_sceneSectorFlags[sector] != 0) {
         pZone = &((LightZone *)g_sceneLightZones)[g_sceneSectorZone[sector]];
         pIntensity = (int *)(pZone->pVertices + 0x20);
@@ -4545,10 +4544,7 @@ void Billboard_Draw(SceneNode *pCamera)
             pVert[1].x = c1.z * axes._21 + c1.y * axes._11 + pos.x;
             pVert[1].y = c1.z * axes._22 + c1.y * axes._12 + pos.y;
             pVert[1].z = c1.z * axes._23 + c1.y * axes._13 + pos.z;
-            if (pQuad->mirror == 0)
-                pVert[1].u = 0.0f;
-            else
-                pVert[1].u = 1.0f;
+            pVert[1].u = pQuad->mirror == 0 ? 0.0f : 1.0f;
             pVert[1].v = 0.0f;
             pVert[1].diffuse = colour;
             pVert[1].specular = 0xff000000;
@@ -6485,10 +6481,9 @@ Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
         for (y = 0; y < height; y++) {
             for (x = 0; x < width; x++) {
                 p = SampleTGAPixel(x, y, pInfo, pTexture->flags);
+                a = 0;
                 if (aShift < pInfo->bytesPerPixel * 8)
                     a = p[3];
-                else
-                    a = 0;
                 *pDst32++ = (p[0] << rShift) | (p[1] << gShift) | (p[2] << bShift) | (a << aShift);
             }
             if (y != height - 1)

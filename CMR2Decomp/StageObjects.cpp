@@ -5777,10 +5777,9 @@ void Knockout_DrawCurrentRoundBracket(void)
     pTable = (KnockoutTable *)RallyData_GetChampionshipState();
     round = (pTable->state >> 3) & 7;
     bracket = Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c);
+    fading = 0;
     if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058cc70) || (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c) && g_unk0x0058cf7c == 6))
         fading = 1;
-    else
-        fading = 0;
     switch (round) {
     case 1:
         count = 8;
@@ -6063,10 +6062,7 @@ void StageObject_PositionRearViewLightNodes(unsigned int param_1)
     car = param_1;
     pCar = Car_Get(car);
     level = StageObject_GetSceneLightBrightness();
-    if (level == 0x10000)
-        pCar->field_0xb58 = 0;
-    else
-        pCar->field_0xb58 = 1;
+    pCar->field_0xb58 = level == 0x10000 ? 0 : 1;
     value = FixMul(0x4c0000, level);
     StageObject_GetScaledLaneShortValues(car, (int *)&param_1, (int *)&param_1, 4);
     if (param_1 == 0)
@@ -7278,10 +7274,9 @@ void StageLights_Create(void)
     stage = RallyDataStageIndex();
     if ((char)RallyDataStageIndex() == 10) {
         g_stageLightCount = 7;
+        g_stageLightKind = 3;
         if ((char)RallyDataCountryIndex() == 3)
             g_stageLightKind = 2;
-        else
-            g_stageLightKind = 3;
     } else if ((g_stageLightEightMask[RallyDataCountryIndex() & 0xff] & (unsigned short)(1 << stage)) == 0) {
         g_stageLightCount = 7;
         g_stageLightKind = 0;
@@ -8156,7 +8151,9 @@ void Replay_EncodeControlPacket(BYTE *pIn, BYTE *pOut, int active, int handbrake
     pOut[3] = v;
     flag = (lightA != 0 && active != 0) ? 1 : 0;
     pOut[0] = ((pOut[0] ^ flag) & 1) ^ pOut[0];
-    flag = (lightB != 0 && active != 0) ? 1 : 0;
+    flag = 0;
+    if (lightB != 0 && active != 0)
+        flag = 1;
     pOut[0] = (flag << 1) | (pOut[0] & 0xfd);
     if (pIn[0] != 0) {
         v |= 0x40;
@@ -10757,10 +10754,9 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
             break;
         case 2:
             RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058df9c);
+            g_unk0x0058e0a4 = g_unk0x0058df9c;
             if (RallyData_GetUsableRecordCategory(g_unk0x0058df98 & 0xff) == -1)
                 g_unk0x0058e0a4 = g_unk0x0058df98;
-            else
-                g_unk0x0058e0a4 = g_unk0x0058df9c;
             break;
         case 3:
             if (param_1 == 0)
@@ -11544,7 +11540,9 @@ void Replay_EncodeCarPoseSample(Car *pCar, ReplaySample *pSample)
     FixMatrix_GetForward(&basis[1], pCar->pWorld);
     for (i = 0; i < 2; i++) {
         pBasis = &basis[i];
-        size.x = pBasis->x < 0 ? -pBasis->x : pBasis->x;
+        size.x = pBasis->x;
+        if (pBasis->x < 0)
+            size.x = -pBasis->x;
         size.y = pBasis->y < 0 ? -pBasis->y : pBasis->y;
         size.z = pBasis->z < 0 ? -pBasis->z : pBasis->z;
         if (size.x == 0)
@@ -11585,10 +11583,7 @@ void Replay_EncodeCarPoseSample(Car *pCar, ReplaySample *pSample)
     else if (level > 0x1f0000)
         level = 0x1f0000;
     pSample->level = level >> 16;
-    if (pCar->steerFollowRate != 0)
-        pSample->steering = 1;
-    else
-        pSample->steering = 0;
+    pSample->steering = pCar->steerFollowRate != 0 ? 1 : 0;
     pSample->flag24 = *(unsigned int *)&pCar->field_0xb54;
     pSample->flag27 = pCar->field_0xc14;
     pCar->field_0xc14 = 0;
@@ -12566,7 +12561,9 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
     }
     if (count == 0)
         return;
-    slots = (count < 2) ? count : 2;
+    slots = 2;
+    if (count < 2)
+        slots = count;
     for (i = 0; i < 8; i++)
         used[i] = 0;
     for (i = 0; i < count; i++)
@@ -13916,10 +13913,9 @@ void AI_UpdateRouteDrivingControls(Car *pCar, int car, int preview)
     StageTiming_RecomputeCarSplitBarSamples(pCar, *(unsigned int *)g_unk0x0058e394[table], g_unk0x0058e178, variant);
     ahead = -AI_INT(0x34) - (int)(__int64)((double)*(signed char *)(g_unk0x0058e4a4 + node * 0x10 + 0xa) * g_minus65536);
     behind = AI_INT(0x34) - (int)(__int64)((double)*(signed char *)(g_unk0x0058e4a4 + node * 0x10 + 0xe) * g_minus65536);
+    g_unk0x0058e230[car] = behind;
     if (ahead < behind)
         g_unk0x0058e230[car] = ahead;
-    else
-        g_unk0x0058e230[car] = behind;
     AI_CHAR(0xa4) = (char)AI_SelectWallCollisionResponse((int)g_unk0x0058e178);
     if ((char)RallyData_GetSelectionBits10To11() == 2 && (char)RallyData_GetSelectionBits12To13() == 1 && (unsigned int)node > 0xdd &&
         (unsigned int)node < 0xe4)
@@ -14100,10 +14096,9 @@ void CarInput_UpdateWaitingStartSlot(int slot)
             if (*((char *)g_unk0x0058e0a0 + 0xb47) == 0)
                 *((char *)g_unk0x0058e0a0 + 0xb47) = -5 - (char)(rand() % 10);
         }
+        g_unk0x0058e0a0->flag0x1d0[2] = 0x3f;
         if (*((char *)g_unk0x0058e0a0 + 0xb47) <= 0)
             g_unk0x0058e0a0->flag0x1d0[2] = 0;
-        else
-            g_unk0x0058e0a0->flag0x1d0[2] = 0x3f;
     }
     g_unk0x0058e0a0->handbrake = 1;
     g_unk0x0058e0a0->field_0x1dc = 0;
@@ -14301,10 +14296,9 @@ void Replay_PlayStreamFrame(int *pState)
                 }
             }
             if (found == -1) {
+                found = ((ReplayStateLane *)p->pStates)[p->lane].eventCount;
                 if (p->type == 0)
                     found = ((ReplayInputLane *)p->pInputs)[p->lane].eventCount;
-                else
-                    found = ((ReplayStateLane *)p->pStates)[p->lane].eventCount;
             }
             // Both formats index the event table from its base. In the original
             // assembly the final load follows two pops, so its stack offset
