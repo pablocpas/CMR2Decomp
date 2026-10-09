@@ -5897,63 +5897,65 @@ void Particle_DrawAll(int param, BYTE view)
 
     def.flags &= 0xfe;
     mask = 1 << view;
-    pb = (BYTE *)g_particles + 0x55;
-    for (i = 0; i < g_particleCount; i++, pb += 0x68) {
-        if (pb[2] == 0 || (pb[0] & mask) == 0)
-            continue;
-        pType = *(ParticleType **)(pb - 0x55);
-        if (pType->field0x5c != 0) {
-            ((void (*)(void *, ParticleType *, int))pType->field0x5c)(pb - 0x55, pType, param);
-            continue;
-        }
-        if ((int *)pType->field0x4c != NULL) {
-            frame = 0;
-            elapsed = pType->lifetime - *(int *)(pb - 0x11);
-            if (elapsed > pType->field0x54 && pType->field0x58 > 0) {
-                frame = FixDiv(elapsed - pType->field0x54, pType->field0x58) >> 16;
-                if (pType->directionFlags & 8)
-                    frame += ((unsigned int)(pb - 0x55) & 0xffff) % (unsigned int)pType->field0x50;
-                if (frame >= pType->field0x50 && (pType->directionFlags & 4) == 0) {
-                    texture = ((int *)pType->field0x4c)[pType->field0x50 - 1];
-                    goto draw;
-                }
-                frame %= pType->field0x50;
+    if (g_particleCount > 0) {
+        pb = (BYTE *)g_particles + 0x55;
+        for (i = 0; i < g_particleCount; i++, pb += 0x68) {
+            if (pb[2] == 0 || (pb[0] & mask) == 0)
+                continue;
+            pType = *(ParticleType **)(pb - 0x55);
+            if (pType->field0x5c != 0) {
+                ((void (*)(void *, ParticleType *, int))pType->field0x5c)(pb - 0x55, pType, param);
+                continue;
             }
-            texture = ((int *)pType->field0x4c)[frame];
-        } else {
-            texture = *(int *)(pb + 0xb);
+            if ((int *)pType->field0x4c != NULL) {
+                frame = 0;
+                elapsed = pType->lifetime - *(int *)(pb - 0x11);
+                if (elapsed > pType->field0x54 && pType->field0x58 > 0) {
+                    frame = FixDiv(elapsed - pType->field0x54, pType->field0x58) >> 16;
+                    if (pType->directionFlags & 8)
+                        frame += ((unsigned int)(pb - 0x55) & 0xffff) % (unsigned int)pType->field0x50;
+                    if (frame >= pType->field0x50 && (pType->directionFlags & 4) == 0) {
+                        texture = ((int *)pType->field0x4c)[pType->field0x50 - 1];
+                        goto draw;
+                    }
+                    frame %= pType->field0x50;
+                }
+                texture = ((int *)pType->field0x4c)[frame];
+            } else {
+                texture = *(int *)(pb + 0xb);
+            }
+        draw:
+            if (texture == 0)
+                continue;
+            if (*(int *)(pb - 9) == 0x10000) {
+                def.top = pType->field0x3c;
+                def.left = pType->field0x40;
+                def.bottom = pType->field0x44;
+                def.right = pType->field0x48;
+            } else {
+                def.top = FixMul(pType->field0x3c, *(int *)(pb - 9));
+                def.left = FixMul(*(int *)(pb - 9), pType->field0x40);
+                def.bottom = FixMul(pType->field0x44, *(int *)(pb - 9));
+                def.right = FixMul(pType->field0x48, *(int *)(pb - 9));
+            }
+            if ((pType->flags & 0x20) != 0)
+                def.field_0x20 = *(short *)(pb - 5);
+            else
+                def.field_0x20 = 0;
+            def.pos = *(FixVector *)(pb - 0x39);
+            if (*(int *)(pb - 0x15) != 0) {
+                def.pos.x += *(int *)(*(int *)(pb - 0x15) + 0x30);
+                def.pos.y += *(int *)(*(int *)(pb - 0x15) + 0x34);
+                def.pos.z += *(int *)(*(int *)(pb - 0x15) + 0x38);
+            }
+            def.flags ^= (pType->directionFlags ^ def.flags) & 2;
+            def.r = pb[4];
+            def.g = pb[5];
+            def.b = pb[6];
+            def.a = pb[-2];
+            def.shade = pb[-1];
+            Billboard_Add(&def, (unsigned short *)texture);
         }
-    draw:
-        if (texture == 0)
-            continue;
-        if (*(int *)(pb - 9) == 0x10000) {
-            def.top = pType->field0x3c;
-            def.left = pType->field0x40;
-            def.bottom = pType->field0x44;
-            def.right = pType->field0x48;
-        } else {
-            def.top = FixMul(pType->field0x3c, *(int *)(pb - 9));
-            def.left = FixMul(*(int *)(pb - 9), pType->field0x40);
-            def.bottom = FixMul(pType->field0x44, *(int *)(pb - 9));
-            def.right = FixMul(pType->field0x48, *(int *)(pb - 9));
-        }
-        if ((pType->flags & 0x20) != 0)
-            def.field_0x20 = *(short *)(pb - 5);
-        else
-            def.field_0x20 = 0;
-        def.pos = *(FixVector *)(pb - 0x39);
-        if (*(int *)(pb - 0x15) != 0) {
-            def.pos.x += *(int *)(*(int *)(pb - 0x15) + 0x30);
-            def.pos.y += *(int *)(*(int *)(pb - 0x15) + 0x34);
-            def.pos.z += *(int *)(*(int *)(pb - 0x15) + 0x38);
-        }
-        def.flags ^= (pType->directionFlags ^ def.flags) & 2;
-        def.r = pb[4];
-        def.g = pb[5];
-        def.b = pb[6];
-        def.a = pb[-2];
-        def.shade = pb[-1];
-        Billboard_Add(&def, (unsigned short *)texture);
     }
 }
 
