@@ -29,10 +29,8 @@ int g_collisionSelectBackSide;
 BYTE g_collisionNegativeVertexCount;
 // GLOBAL: CMR2 0x00591935
 BYTE g_collisionPositiveVertexCount;
-// GLOBAL: CMR2 0x00591944
-BYTE g_collisionNegativeCandidateCount;
-// GLOBAL: CMR2 0x00591945
-BYTE g_collisionPositiveCandidateCount;
+extern BYTE g_collisionNegativeCandidateCount;
+extern BYTE g_collisionPositiveCandidateCount;
 // GLOBAL: CMR2 0x00591984
 CollisionFaceVertices *g_collisionFace;
 // GLOBAL: CMR2 0x00591988
