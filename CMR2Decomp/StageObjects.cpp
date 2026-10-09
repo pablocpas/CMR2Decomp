@@ -6637,16 +6637,11 @@ BillboardDef g_unk0x00543f00;
 // secondary entry exactly 0x2d dwords above its primary counterpart - followed
 // by [0x5a] the blend factor, [0x5b] the blended intensity, [0x5c] the
 // {current, target} weather words and [0x5d] the weather-changed flag.
-// match 30%: the logic follows the asm, but MSVC6 gives the twelve colour
-// buffers (and three of the scratch vectors) different stack slots than the
-// original - the slot assignment depends on the whole local set and could not
-// be reproduced - so every memory operand is displaced.
-// match 30%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00461c30
 void StageObject_RebuildViewWeatherLighting(int index)
 {
-    int *pObject = (int *)((BYTE *)g_unk0x00543eb8 + index * 0x2c);
     int *pView = (int *)((BYTE *)g_unk0x00547ac8 + index * 0x178);
+    int *pObject = (int *)((BYTE *)g_unk0x00543eb8 + index * 0x2c);
     BYTE lowColour[4] = {0, 0, 0, 0xff};
     BYTE highColour[4] = {0, 0, 0, 0xff};
     BYTE rampColour[4] = {0, 0, 0, 0xff};
@@ -6675,12 +6670,12 @@ void StageObject_RebuildViewWeatherLighting(int index)
         pObject[10] = 0;
         if (g_stageLighting[0x5a] > 0x10000)
             g_stageLighting[0x5a] = 0x10000;
-        if (*(WORD *)&g_stageLighting[0x5c] == 0xffff || pView[0x15] <= 0xcccc || pView[0] != 1)
+        if (*(short *)&g_stageLighting[0x5c] == -1 || pView[0x15] <= 0xcccc || pView[0] != 1)
             flag = 0;
         else
             flag = 1;
-        g_stageLighting[0x5b] = FixMul(g_stageLighting[0x59] - g_stageLighting[0x2c], g_stageLighting[0x5a]) +
-                                g_stageLighting[0x2c];
+        g_stageLighting[0x5b] = g_stageLighting[0x59] - g_stageLighting[0x2c];
+        g_stageLighting[0x5b] = FixMul(g_stageLighting[0x5b], g_stageLighting[0x5a]) + g_stageLighting[0x2c];
 
         v[2].x = g_stageLighting[0x2d] - g_stageLighting[0x00];
         v[2].y = g_stageLighting[0x2e] - g_stageLighting[0x01];
@@ -6689,9 +6684,6 @@ void StageObject_RebuildViewWeatherLighting(int index)
         v[2].x += g_stageLighting[0x00];
         v[2].y += g_stageLighting[0x01];
         v[2].z += g_stageLighting[0x02];
-        lowColour[0] = (BYTE)(v[2].x >> 16);
-        lowColour[1] = (BYTE)(v[2].y >> 16);
-        lowColour[2] = (BYTE)(v[2].z >> 16);
 
         v[0].x = g_stageLighting[0x30] - g_stageLighting[0x03];
         v[0].y = g_stageLighting[0x31] - g_stageLighting[0x04];
@@ -6700,6 +6692,10 @@ void StageObject_RebuildViewWeatherLighting(int index)
         v[0].x += g_stageLighting[0x03];
         v[0].y += g_stageLighting[0x04];
         v[0].z += g_stageLighting[0x05];
+        lowColour[0] = (BYTE)(v[2].x >> 16);
+        lowColour[1] = (BYTE)(v[2].y >> 16);
+        lowColour[2] = (BYTE)(v[2].z >> 16);
+
         colour.x = v[0].x + v[2].x;
         colour.y = v[0].y + v[2].y;
         colour.z = v[0].z + v[2].z;
@@ -6730,12 +6726,12 @@ void StageObject_RebuildViewWeatherLighting(int index)
         g_unk0x00543eb4[1] = (BYTE)(colour.y >> 16);
         g_unk0x00543eb4[2] = (BYTE)(colour.z >> 16);
 
-        value = FixMul(g_stageLighting[0x58] - g_stageLighting[0x2b], g_stageLighting[0x5a]) +
-                g_stageLighting[0x2b];
+        value = g_stageLighting[0x58] - g_stageLighting[0x2b];
+        value = FixMul(value, g_stageLighting[0x5a]) + g_stageLighting[0x2b];
         g_unk0x00543d58 = FixMul(value, 0x66);
         g_unk0x00543d5c = FixMul(value, 0x88);
-        blend = FixMul(g_stageLighting[0x54] - g_stageLighting[0x27], g_stageLighting[0x5a]) +
-                g_stageLighting[0x27];
+        value = g_stageLighting[0x54] - g_stageLighting[0x27];
+        blend = FixMul(value, g_stageLighting[0x5a]) + g_stageLighting[0x27];
 
         colour.x = g_stageLighting[0x3c] - g_stageLighting[0x0f];
         colour.y = g_stageLighting[0x3d] - g_stageLighting[0x10];
@@ -6744,11 +6740,12 @@ void StageObject_RebuildViewWeatherLighting(int index)
         colour.x += g_stageLighting[0x0f];
         colour.y += g_stageLighting[0x10];
         colour.z += g_stageLighting[0x11];
+        value = g_stageLighting[0x56] - g_stageLighting[0x29];
+        value = FixMul(value, g_stageLighting[0x5a]) + g_stageLighting[0x29];
         objectColour[0] = (BYTE)(colour.x >> 16);
         objectColour[1] = (BYTE)(colour.y >> 16);
         objectColour[2] = (BYTE)(colour.z >> 16);
-        objectColour[3] = (BYTE)((g_stageLighting[0x29] +
-                                  FixMul(g_stageLighting[0x56] - g_stageLighting[0x29], g_stageLighting[0x5a])) >> 16);
+        objectColour[3] = (BYTE)(value >> 16);
 
         colour.x = g_stageLighting[0x3f] - g_stageLighting[0x12];
         colour.y = g_stageLighting[0x40] - g_stageLighting[0x13];
@@ -6758,12 +6755,12 @@ void StageObject_RebuildViewWeatherLighting(int index)
         colour.y += g_stageLighting[0x13];
         colour.z += g_stageLighting[0x14];
         FixVecScale(&colour, &colour, FixMul(g_stageLighting[0x5b], 0x3333) + 0xcccc);
+        ambientColour[0] = (BYTE)(colour.x >> 16);
+        ambientColour[1] = (BYTE)(colour.y >> 16);
+        ambientColour[2] = (BYTE)(colour.z >> 16);
         ambientMix.x = colour.x;
         ambientMix.y = colour.y;
         ambientMix.z = colour.z;
-        ambientColour[0] = (BYTE)(ambientMix.x >> 16);
-        ambientColour[1] = (BYTE)(ambientMix.y >> 16);
-        ambientColour[2] = (BYTE)(ambientMix.z >> 16);
 
         delta.x = g_stageLighting[0x39] - g_stageLighting[0x0c];
         delta.y = g_stageLighting[0x3a] - g_stageLighting[0x0d];
@@ -6782,8 +6779,8 @@ void StageObject_RebuildViewWeatherLighting(int index)
         groundColour[0] = (BYTE)(delta.x >> 16);
         groundColour[1] = (BYTE)(delta.y >> 16);
         groundColour[2] = (BYTE)(delta.z >> 16);
-        value = FixMul(g_stageLighting[0x55] - g_stageLighting[0x28], g_stageLighting[0x5a]) +
-                g_stageLighting[0x28];
+        value = g_stageLighting[0x55] - g_stageLighting[0x28];
+        value = FixMul(value, g_stageLighting[0x5a]) + g_stageLighting[0x28];
 
         colour.x = v[1].x - delta.x;
         colour.y = v[1].y - delta.y;
@@ -6810,11 +6807,12 @@ void StageObject_RebuildViewWeatherLighting(int index)
         colour.x += g_stageLighting[0x21];
         colour.y += g_stageLighting[0x22];
         colour.z += g_stageLighting[0x23];
+        value = g_stageLighting[0x51] - g_stageLighting[0x24];
+        value = FixMul(value, g_stageLighting[0x5a]) + g_stageLighting[0x24];
         skyColour[0] = (BYTE)(colour.x >> 16);
         skyColour[1] = (BYTE)(colour.y >> 16);
         skyColour[2] = (BYTE)(colour.z >> 16);
-        skyColour[3] = (BYTE)((g_stageLighting[0x24] +
-                               FixMul(g_stageLighting[0x51] - g_stageLighting[0x24], g_stageLighting[0x5a])) >> 16);
+        skyColour[3] = (BYTE)(value >> 16);
 
         if (g_stageLighting[0x5d] != 0) {
             colour.x = g_stageLighting[0x4b] - g_stageLighting[0x1e];
@@ -6856,11 +6854,12 @@ void StageObject_RebuildViewWeatherLighting(int index)
         colour.x += g_stageLighting[0x18];
         colour.y += g_stageLighting[0x19];
         colour.z += g_stageLighting[0x1a];
+        value = g_stageLighting[0x57] - g_stageLighting[0x2a];
+        value = FixMul(value, g_stageLighting[0x5a]) + g_stageLighting[0x2a];
         rampColour[0] = (BYTE)(colour.x >> 16);
         rampColour[1] = (BYTE)(colour.y >> 16);
         rampColour[2] = (BYTE)(colour.z >> 16);
-        rampColour[3] = (BYTE)((g_stageLighting[0x2a] +
-                                FixMul(g_stageLighting[0x57] - g_stageLighting[0x2a], g_stageLighting[0x5a])) >> 16);
+        rampColour[3] = (BYTE)(value >> 16);
 
         colour.x = g_stageLighting[0x42] - g_stageLighting[0x15];
         colour.y = g_stageLighting[0x43] - g_stageLighting[0x16];
@@ -12180,7 +12179,7 @@ void CarDamage_UpdateSuspensionImpactContacts(Car *pCar);
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
 // Nota: StageObject_UpdatePlayerControlIndicators debe colocarse DESPUES de StageObject_ReadCarControllerMapping y de las definiciones
 // de g_carButtonMasks / g_unk0x0058e0a0 / g_unk0x0058e0a8 (todas en este fichero).
-BYTE GameMenu_IsPauseHeaderActive(void);
+int GameMenu_IsPauseHeaderActive(void);
 int Race_GetPlayerRecordField4(BYTE index);
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
 void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *param_3, int param_4,
@@ -12643,7 +12642,6 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
 // Refreshes the on-screen control indicators of the active car (steer, throttle,
 // brake, handbrake) from the input device driving a player: analogue axes scale
 // the indicators, digital buttons light them full.
-// match 33%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0047b0e0
 void StageObject_UpdatePlayerControlIndicators(int player, int device)
 {
@@ -12656,6 +12654,7 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
     int idx;
     int raw;
     int half;
+    int *pAxis;
     char c;
     if (CGameInfo::IsInRaceMenuOpen())
         return;
@@ -12702,13 +12701,17 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
                 axisBrake = -1;
             }
             if (axisSteer != -1) {
-                *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb88) = CInput::GetControllerField124((short)((Car *)g_unk0x0058e0a0)->index) ? 1 : 2;
-                raw = ((int *)pDev)[axisSteer * 5 + 0x11f];
-                half = raw <= -1 ? -raw : raw;
-                if (raw < 0)
-                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[0] = (char)FixMulShift32(half, 0x3f0000);
+                if (CInput::GetControllerField124((short)((Car *)g_unk0x0058e0a0)->index) != 0)
+                    *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb88) = 1;
                 else
-                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[1] = (char)FixMulShift32(0x3f0000, half);
+                    *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb88) = 2;
+                pAxis = &((int *)pDev)[axisSteer * 5 + 0x11f];
+                half = *pAxis < 0 ? -*pAxis : *pAxis;
+                half = FixMul(half, 0x3f0000) >> 16;
+                if (*pAxis < 0)
+                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[0] = (char)half;
+                else
+                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[1] = (char)half;
             } else if ((pDev->field_0x4 & g_carButtonMasks[0]) != 0) {
                 ((Car *)g_unk0x0058e0a0)->flag0x1d0[0] = 0x3f;
             } else if ((pDev->field_0x4 & g_carButtonMasks[1]) != 0) {
@@ -12716,15 +12719,16 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
             }
             if (axisThrottle != -1) {
                 *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb8c) = 1;
-                raw = ((int *)pDev)[axisThrottle * 5 + 0x11f];
-                half = raw < 0 ? -raw : raw;
-                if (axisThrottle == axisBrake) {
-                    if ((raw > 0) == (CInput::GetControllerField120(device) != 0)) {
-                        ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = (char)FixMulShift32(0x3f0000, half);
-                    } else {
-                        *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb90) = 1;
-                        ((Car *)g_unk0x0058e0a0)->flag0x1d0[3] = (char)FixMulShift32(0x3f0000, half);
-                    }
+                pAxis = &((int *)pDev)[axisThrottle * 5 + 0x11f];
+                half = *pAxis < 0 ? -*pAxis : *pAxis;
+                half = FixMul(half, 0x3f0000) >> 16;
+                raw = *pAxis;
+                if ((raw <= 0 && axisThrottle == axisBrake && CInput::GetControllerField120(device) == 0) ||
+                    (raw > 0 && axisThrottle == axisBrake && CInput::GetControllerField120(device) != 0)) {
+                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = (char)half;
+                } else if (axisThrottle == axisBrake) {
+                    *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb90) = 1;
+                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[3] = (char)half;
                 } else {
                     half = raw / 2;
                     idx = half + 0x8000;

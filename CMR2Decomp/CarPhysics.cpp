@@ -405,17 +405,14 @@ void CarContact_BuildBodyPatch(Car *pCar, CarContact *pContact)
     out.y += (b).y;             \
     out.z += (b).z
 
-#define SHADOW_VERTEX(v, p, c) \
-    v.x = (p).x;               \
-    v.y = (p).y;               \
-    v.z = (p).z;               \
-    *(DWORD *)v.colour = *(DWORD *)(c)
-
 #define SHADOW_TRIANGLE(p0, c0, p1, c1, p2, c2) \
-    SHADOW_VERTEX(v0, p0, c0);                  \
-    SHADOW_VERTEX(v1, p1, c1);                  \
-    SHADOW_VERTEX(v2, p2, c2);                  \
-    Quad2D_QueueFixedTriangle(0, &v0, &v1, &v2, NULL, (Quad2D *)10)
+    *(FixVector *)&vertices[0] = (p0);         \
+    *(FixVector *)&vertices[1] = (p1);         \
+    *(FixVector *)&vertices[2] = (p2);         \
+    *(DWORD *)vertices[0].colour = *(DWORD *)(c0); \
+    *(DWORD *)vertices[1].colour = *(DWORD *)(c1); \
+    *(DWORD *)vertices[2].colour = *(DWORD *)(c2); \
+    Quad2D_QueueFixedTriangle(0, &vertices[0], &vertices[1], &vertices[2], NULL, (Quad2D *)10)
 
 // Octagon around the body patch (its corners cut at 5% / 95% of each edge)
 // and the solid core, 60% of its size.
@@ -450,9 +447,7 @@ void CarContact_BuildBodyPatch(Car *pCar, CarContact *pContact)
 // FUNCTION: CMR2 0x00494db0
 void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
 {
-    Quad2DInputVertex v0;
-    Quad2DInputVertex v1;
-    Quad2DInputVertex v2;
+    Quad2DInputVertex vertices[3];
     FixVector ring[18];
     FixVector outline[18];
     FixVector e;
@@ -487,12 +482,12 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
     clear[3] = 0;
     g_physContactView = *CAR_CONTACT(pCar->index);
     CarShadow_OffsetPointsTowardsCamera(view, &g_physContactView);
-    v0.u = 0;
-    v0.v = 0;
-    v1.u = 0;
-    v1.v = 0;
-    v2.u = 0;
-    v2.v = 0;
+    vertices[0].u = 0;
+    vertices[0].v = 0;
+    vertices[1].u = 0;
+    vertices[1].v = 0;
+    vertices[2].u = 0;
+    vertices[2].v = 0;
 
     // Wheels.
     if (g_physContactView.field_0x298 != 0) {
@@ -500,12 +495,13 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
             if (*(int *)((BYTE *)pCar->pWheelNodes[i] + 8) == RallyData_GetChallengeRenderState() ||
                 g_physContactView.wheelGrip[i] == 0)
                 continue;
-            alpha = FixMul(0xe60000, g_physContactView.wheelGrip[i]);
+            alpha = g_physContactView.wheelGrip[i];
+            alpha = FixMul(0xe60000, alpha);
             pSrc = CAR_CONTACT(pCar->index)->wheelCorners[i];
             FIX_MIDPOINT(d, pSrc[0], pSrc[2]);
             FIX_MIDPOINT(centre, pSrc[1], pSrc[3]);
-            CAR_CONTACT(pCar->index)->wheelFrontMid[i].y = d.y;
             CAR_CONTACT(pCar->index)->wheelFrontMid[i].x = d.x;
+            CAR_CONTACT(pCar->index)->wheelFrontMid[i].y = d.y;
             CAR_CONTACT(pCar->index)->wheelFrontMid[i].z = d.z;
             CAR_CONTACT(pCar->index)->wheelRearMid[i].x = centre.x;
             CAR_CONTACT(pCar->index)->wheelRearMid[i].y = centre.y;
@@ -515,8 +511,8 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
             colour[3] = (BYTE)(alpha >> 16);
             SHADOW_TRIANGLE(g_physContactView.wheelCorners[i][0], clear, g_physContactView.wheelCorners[i][1], clear, d, colour);
             SHADOW_TRIANGLE(d, colour, g_physContactView.wheelCorners[i][1], clear, centre, colour);
-            SHADOW_TRIANGLE(centre, colour, g_physContactView.wheelCorners[i][3], clear, g_physContactView.wheelCorners[i][2], clear);
             SHADOW_TRIANGLE(d, colour, centre, colour, g_physContactView.wheelCorners[i][2], clear);
+            SHADOW_TRIANGLE(centre, colour, g_physContactView.wheelCorners[i][3], clear, g_physContactView.wheelCorners[i][2], clear);
         }
     }
 
@@ -537,7 +533,8 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
         outline[count + 3] = g_physContactView.points[(k + 3) % 4];
         outline[count + 4] = g_physContactView.points[(k + 2) % 4];
         total = (short)(count + 4);
-        t = 0xfd70 - FixMul(0x10000 - g_physContactView.field_0x250, 0x23d7);
+        t = 0x10000 - g_physContactView.field_0x250;
+        t = 0xfd70 - FixMul(t, 0x23d7);
         for (i = 0; i < total + 1; i++) {
             d.x = outline[i].x - centre.x;
             d.y = outline[i].y - centre.y;
@@ -547,12 +544,16 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
             ring[i].y = d.y + centre.y;
             ring[i].z = d.z + centre.z;
         }
-        colour[3] = FixMulShift32(level, pCar->field_0xa70);
+        // This multiply is emitted by the original even though its result
+        // is discarded before the shadow-level calculation.
+        t = g_physContactView.field_0x250;
+        FixMul(0xc80000, t);
+        colour[3] = (BYTE)(FixMul(level, pCar->field_0xa70) >> 16);
         for (i = 1; i <= total; i++) {
+            SHADOW_TRIANGLE(ring[i - 1], colour, centre, colour, ring[i % total], colour);
             level = i % total;
             SHADOW_TRIANGLE(outline[i - 1], clear, ring[i - 1], colour, outline[level], clear);
             SHADOW_TRIANGLE(outline[level], clear, ring[i - 1], colour, ring[level], colour);
-            SHADOW_TRIANGLE(ring[i - 1], colour, centre, colour, ring[level], colour);
         }
     }
 
@@ -580,8 +581,8 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
     for (i = 1; i <= 8; i++) {
         level = i % 8;
         SHADOW_TRIANGLE(outline[level], colour, outline[i - 1], colour, centre, colour);
-        SHADOW_TRIANGLE(outline[i - 1], colour, outline[level], colour, ring[level], clear);
         SHADOW_TRIANGLE(ring[i - 1], clear, outline[i - 1], colour, ring[level], clear);
+        SHADOW_TRIANGLE(outline[i - 1], colour, outline[level], colour, ring[level], clear);
     }
 }
 

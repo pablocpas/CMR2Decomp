@@ -1,0 +1,59 @@
+{
+  "baseline": "1ef671253335ded2d2bd469d584a39c2a9ba0224",
+  "baseline_audit": "car-rollover-matching.json",
+  "baseline_exe_sha256": "f2eb5d7b00ed6f63e4282e004180e6c73879b840e8283971728dc83c9bafbff4",
+  "targets": [
+    {
+      "address": "0x40f8d0",
+      "name": "RallyData_DrawViewEndFrameOverlay",
+      "original_bytes": 1117,
+      "raw_before": 0.7122861586314152,
+      "raw_after": 0.7153965785381027,
+      "fuzzy_before": 0.8709175738724728,
+      "fuzzy_after": 0.8709175738724728,
+      "byte_exact": false
+    },
+    {
+      "address": "0x47b0e0",
+      "name": "StageObject_UpdatePlayerControlIndicators",
+      "original_bytes": 1344,
+      "raw_before": 0.6613119143239625,
+      "raw_after": 0.7908232118758435,
+      "fuzzy_before": 0.8433734939759037,
+      "fuzzy_after": 0.9068825910931174,
+      "byte_exact": false
+    }
+  ],
+  "byte_exact_functions": 2921,
+  "remaining_nonmatching_functions": 443,
+  "perfect_percent": 56.08,
+  "fuzzy_percent": 94.44,
+  "lost_exact_functions": [],
+  "score_regressions": [],
+  "exe_sha256": "60c52fb567db314f0b672be9d639f2996a0c09c456d5749e8ea3b2dddf437590",
+  "source_sha256": {
+    "CMR2Decomp/StageObjects.cpp": "0137e462ac2637e14873c05c4db62417bec8b284020ed55369f59405bbd6e88f",
+    "CMR2Decomp/RallyData.cpp": "f5b6199ead166ebcc66e279f6fb43ec4876bc003b423768d8b4ee8c60eb2aabe",
+    "CMR2Decomp/GameMenus.cpp": "166f2c2ebf3b6a7b28e9a2b92eaf7427324454cd62502a319ffe168155b8b67d"
+  },
+  "harness_sha256": "db1e487d9dad6317833b9c5e89c1ff833875d676e8782f8ffe2fc57ddfe78a22",
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "data_issues": 0,
+    "differential_harnesses": 103,
+    "failures": 0,
+    "player_indicator_cases": 1332,
+    "independent_model_cases": 1332,
+    "steering_multiplier_mutation_detected": true,
+    "target_scalar_imul_counts": {
+      "original": 4,
+      "rebuilt": 4
+    },
+    "pause_getter_remains_byte_exact": true
+  },
+  "recovered_sequence": "Restore explicit steering-mode branches, axis-pointer reuse and shared signed fixed-point intensity conversion before sign/axis dispatch. The original performs four scalar multiplications rather than the six in the previous reconstruction. Correct GameMenu_IsPauseHeaderActive return declaration and definition from BYTE to int, matching both original callers test eax,eax while preserving the exact getter.",
+  "behavior_change": false,
+  "harness_scope": "Independent signed arithmetic model covers 1332 cases, including signed boundaries, INT_MIN, byte wrapping, shared/separate/missing axes, inversion, input enable flags, finished stage, gear and camera actions, merged source/device buttons and preserved prior flags. Checks complete seeded guarded heap, global writes, stack poisoning, ABI and provider/camera traces. Input query/mapping providers remain controlled leaves; actual fixed-point arithmetic executes.",
+  "remaining_difference": "Axis and intensity stack homes, branch layout, operand scheduling and register allocation still differ. Two FixMulShift32 helper fingerprint hits remain due to interleaved loads around SAR; actual scalar multiplication counts match at four."
+}

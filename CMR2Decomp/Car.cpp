@@ -4602,23 +4602,21 @@ void Car_FollowGround(void)
 // car gets a growing torque that tips it over; otherwise, sliding sideways
 // faster than the wheels can hold tips the body, and past the limit the car
 // starts to tumble.
-// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004373c0
 void Car_UpdateRollover(void)
 {
-    FixVector t;
-    FixVector a;
-    FixVector b;
-    FixVector c;
-    FixVector dir;
+    struct {
+        FixVector a;
+        FixVector b;
+        FixVector c;
+        FixVector t;
+    } vectors;
     int k;
     int sum;
     int limit;
     int slide;
-    int tip;
     int target;
     int diff;
-    int rate;
     int mag;
     int i;
 
@@ -4627,19 +4625,23 @@ void Car_UpdateRollover(void)
         return;
     if (g_pCurrentCar->groundNormal.y < 0x10000 && (short)(0x400 - FixAcos(g_pCurrentCar->groundNormal.y)) > 0x155 &&
         g_pCurrentCar->field_0xb42 <= 0) {
-        FixVecScale(&t, &g_pCurrentCar->groundNormal, 0x280000);
-        FixMatrix_InverseRotateVector(&a, &t, g_pCurrentCar->pWorld);
-        FixVecScale(&t, &g_pCurrentCar->baseForce,
+        FixVecScale(&vectors.t, &g_pCurrentCar->groundNormal, 0x280000);
+        FixMatrix_InverseRotateVector(&vectors.a, &vectors.t, g_pCurrentCar->pWorld);
+        FixVecScale(&vectors.t, &g_pCurrentCar->baseForce,
                     FixMul(g_pCurrentCar->steepTime << 16, FixMul(FixDiv(0x10000, 0xc80000), 0x8000)));
-        FixMatrix_InverseRotateVector(&b, &t, g_pCurrentCar->pWorld);
-        FixVecCross(&c, &b, &a);
-        FixVecScale(&c, &c, g_pCurrentCar->field_0x760);
+        FixMatrix_InverseRotateVector(&vectors.b, &vectors.t, g_pCurrentCar->pWorld);
+        FixVecCross(&vectors.c, &vectors.b, &vectors.a);
+        FixVecScale(&vectors.c, &vectors.c, g_pCurrentCar->field_0x760);
         if (g_pCurrentCar->field_0xc00 == 0) {
-            CAR_START_TUMBLING();
+            g_pCurrentCar->field_0xc00 = 1;
+            g_pCurrentCar->field_0x96c = 0x10000;
+            g_pCurrentCar->field_0x91c = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->groundNormal);
+            g_pCurrentCar->field_0x920 = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
+            g_pCurrentCar->field_0x924 = FixVecDot(&g_pCurrentCar->forward, &g_pCurrentCar->groundNormal);
         }
-        g_pCurrentCar->field_0x5d0.x += c.x;
-        g_pCurrentCar->field_0x5d0.y += c.y;
-        g_pCurrentCar->field_0x5d0.z += c.z;
+        g_pCurrentCar->field_0x5d0.x += vectors.c.x;
+        g_pCurrentCar->field_0x5d0.y += vectors.c.y;
+        g_pCurrentCar->field_0x5d0.z += vectors.c.z;
         if (g_pCurrentCar->steepTime < 200)
             g_pCurrentCar->steepTime++;
     } else {
@@ -4652,41 +4654,55 @@ void Car_UpdateRollover(void)
     sum = 0;
     for (i = 0; i < 4; i++)
         sum += *((BYTE *)g_pCurrentCar + 0x1a0 + i * 0xc) << 16;
-    limit = FixMul(0x3d1, FixDiv(sum, 0x40000));
-    FixVecScale(&t, &g_pCurrentCar->groundNormal, FixVecDot(&g_pCurrentCar->forward, &g_pCurrentCar->groundNormal));
-    t.x = g_pCurrentCar->forward.x - t.x;
-    t.y = g_pCurrentCar->forward.y - t.y;
-    t.z = g_pCurrentCar->forward.z - t.z;
-    FIX_NORMALIZE_INTO(dir, t);
-    slide = FixVecDot(&dir, &g_pCurrentCar->velocity);
-    tip = 0;
+    sum = FixMul(sum, 0x4000);
+    limit = FixMul(sum, FixDiv(0x10000, 0x431168));
+    FixVecScale(&vectors.t, &g_pCurrentCar->groundNormal, FixVecDot(&g_pCurrentCar->forward, &g_pCurrentCar->groundNormal));
+    vectors.t.x = g_pCurrentCar->forward.x - vectors.t.x;
+    vectors.t.y = g_pCurrentCar->forward.y - vectors.t.y;
+    vectors.t.z = g_pCurrentCar->forward.z - vectors.t.z;
+    FIX_NORMALIZE_INTO(vectors.t, vectors.t);
+    slide = FixVecDot(&vectors.t, &g_pCurrentCar->velocity);
     if (FIX_ABS(slide) > limit) {
         sum = 0;
         for (i = 0; i < 4; i++)
             sum += *((BYTE *)g_pCurrentCar + 0x1a1 + i * 0xc) << 16;
+        sum = FixMul(sum, 0x4000);
+        sum = FixMul(sum, FixDiv(0x10000, 0x431168));
         if (limit != 0)
-            k = FixDiv(0x10000, FixMul(FixDiv(sum, 0x40000), 0x3d1) - limit);
+            k = FixDiv(0x10000, sum - limit);
         if (slide > 0)
-            limit = -limit;
-        tip = FixMul(slide + limit, k);
-        if (FIX_ABS(tip) > 0x10000)
-            tip = tip > 0 ? 0x10000 : -0x10000;
-    }
-    target = FixMul(tip, 0x10000);
+            sum = slide - limit;
+        else
+            sum = slide + limit;
+        sum = FixMul(sum, k);
+        if (FIX_ABS(sum) > 0x10000)
+            sum = sum > 0 ? 0x10000 : -0x10000;
+    } else
+        sum = 0;
+    target = FixMul(sum, 0x10000);
     diff = target - g_pCurrentCar->tipRatio;
-    rate = FixMul(0x1999, g_physicsTimeStep);
-    if (FIX_ABS(diff) < rate) {
+    k = 0x1999;
+    k = FixMul(k, g_physicsTimeStep);
+    if (FIX_ABS(diff) < k) {
         g_pCurrentCar->tipRatio = target;
     } else {
-        if (diff <= 0)
-            rate = -rate;
-        g_pCurrentCar->tipRatio += rate;
+        if (diff > 0)
+            g_pCurrentCar->tipRatio += k;
+        else
+            g_pCurrentCar->tipRatio -= k;
     }
-    mag = FIX_ABS(g_pCurrentCar->tipRatio);
+    if (FIX_ABS(g_pCurrentCar->tipRatio) > FixMul(0xcccc, 0x10000))
+        mag = 1;
+    else
+        mag = 0;
     g_pCurrentCar->tipAngle = FixAtan2(g_pCurrentCar->tipRatio, 0x20000);
-    if (mag > 0xcccc) {
+    if (mag) {
         g_pCurrentCar->tipAngle = 0;
-        CAR_START_TUMBLING();
+        g_pCurrentCar->field_0xc00 = 1;
+        g_pCurrentCar->field_0x96c = 0x10000;
+        g_pCurrentCar->field_0x91c = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->groundNormal);
+        g_pCurrentCar->field_0x920 = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
+        g_pCurrentCar->field_0x924 = FixVecDot(&g_pCurrentCar->forward, &g_pCurrentCar->groundNormal);
         g_pCurrentCar->field_0x5d0.x += FixMul(FixMul(slide, g_physicsScale), -0xa0000);
     }
 }
@@ -7368,31 +7384,31 @@ void Car_PrepareBodies(int base, short *pList, short count)
 // its wheels. The body matrix is finally written with the optional tip
 // rotation (tipAngle) and the sink depth (field_0x958) is recomputed from the
 // first four box corners.
-// match 57%: implementada, MSVC6 no reproduce el reparto de registros ni el tamano de pila del original
 // FUNCTION: CMR2 0x0042ce60
 void Car_StepGroundContact(void)
 {
+    // Reuse the saved normal for the final rotated axis after contact work.
     FixVector prevNormal;
-    FixVector delta;
-    FixVector vOut;
-    FixVector tv;
-    FixVector rotVec;
+    struct {
+        FixVector vOut;
+        FixVector worldUp;
+        FixVector delta;
+        FixVector tv;
+    } vectors;
     FixMatrix rotMat;
-    int len;
-    int dot;
     int groundSpeed;
     int t;
     int i;
     char gotNormal;
 
-    gotNormal = 0;
     g_pCurrentCar->normal0x498 = g_pCurrentCar->groundNormal;
     for (i = 0; i < 8; i++)
         g_pCurrentCar->cornerNormal[i] = g_pCurrentCar->cornerAxis[i];
-    g_pCurrentCar->field_0xba0[0] = 0;
-    g_pCurrentCar->field_0xba0[1] = 0;
     g_pCurrentCar->field_0xba0[2] = 0;
+    g_pCurrentCar->field_0xba0[1] = 0;
+    g_pCurrentCar->field_0xba0[0] = 0;
     StageObject_UpdateCarCornerGroundHeights(g_pCurrentCar, 4);
+    gotNormal = 0;
     if (g_pCurrentCar->field_0xb35[0] == 1)
         Car_FlagAirborneCorners();
 
@@ -7410,33 +7426,33 @@ void Car_StepGroundContact(void)
 
         if (groundSpeed <= FixMul(0x10000 - t, 0x1999)) {
             // Slow: re-orthogonalise the body axes against the ground normal.
-            dot = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
-            if (dot < 0xb334) {
+            t = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
+            if (t < 0xb334) {
                 g_pCurrentCar->field_0xc00 = 1;
                 g_pCurrentCar->field_0x96c = 0x10000;
-                *(BYTE *)&g_pCurrentCar->field_0xc04[0] = 1;
-            } else if (g_pCurrentCar->field_0xb60 == 0 || dot < 0xfd70) {
+                g_pCurrentCar->field_0xc04[0] = 1;
+            } else if (g_pCurrentCar->field_0xb60 == 0 || t < 0xfd70) {
                 if (!(g_pCurrentCar->field_0xb2a == 0)) {
                     g_pCurrentCar->up = g_pCurrentCar->groundNormal;
                 } else {
-                    delta.x = g_pCurrentCar->groundNormal.x - g_pCurrentCar->up.x;
-                    delta.y = g_pCurrentCar->groundNormal.y - g_pCurrentCar->up.y;
-                    delta.z = g_pCurrentCar->groundNormal.z - g_pCurrentCar->up.z;
-                    FixVecScale(&delta, &delta, 0x8000);
-                    delta.x += g_pCurrentCar->up.x;
-                    delta.y += g_pCurrentCar->up.y;
-                    delta.z += g_pCurrentCar->up.z;
-                    FIX_NORMALIZE_INTO(g_pCurrentCar->up, delta)
+                    vectors.delta.x = g_pCurrentCar->groundNormal.x - g_pCurrentCar->up.x;
+                    vectors.delta.y = g_pCurrentCar->groundNormal.y - g_pCurrentCar->up.y;
+                    vectors.delta.z = g_pCurrentCar->groundNormal.z - g_pCurrentCar->up.z;
+                    FixVecScale(&vectors.delta, &vectors.delta, 0x8000);
+                    vectors.delta.x += g_pCurrentCar->up.x;
+                    vectors.delta.y += g_pCurrentCar->up.y;
+                    vectors.delta.z += g_pCurrentCar->up.z;
+                    FIX_NORMALIZE_INTO(g_pCurrentCar->up, vectors.delta)
                 }
                 gotNormal = 1;
-                dot = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->right);
-                FixVecScale(&delta, &g_pCurrentCar->up, dot);
-                delta.x = g_pCurrentCar->right.x - delta.x;
-                delta.y = g_pCurrentCar->right.y - delta.y;
-                delta.z = g_pCurrentCar->right.z - delta.z;
-                FIX_NORMALIZE_INTO(g_pCurrentCar->right, delta)
-                FixVecCross(&delta, &g_pCurrentCar->right, &g_pCurrentCar->up);
-                FIX_NORMALIZE_INTO(g_pCurrentCar->forward, delta)
+                t = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->right);
+                FixVecScale(&vectors.delta, &g_pCurrentCar->up, t);
+                vectors.delta.x = g_pCurrentCar->right.x - vectors.delta.x;
+                vectors.delta.y = g_pCurrentCar->right.y - vectors.delta.y;
+                vectors.delta.z = g_pCurrentCar->right.z - vectors.delta.z;
+                FIX_NORMALIZE_INTO(g_pCurrentCar->right, vectors.delta)
+                FixVecCross(&vectors.delta, &g_pCurrentCar->right, &g_pCurrentCar->up);
+                FIX_NORMALIZE_INTO(g_pCurrentCar->forward, vectors.delta)
             } else {
                 memcpy(&g_pCurrentCar->right, g_pCurrentCar->field_0x384, 0x24);
             }
@@ -7455,21 +7471,23 @@ void Car_StepGroundContact(void)
         } else {
             // Fast along the normal: turn the change of the ground normal
             // into a body torque perpendicular to it.
-            FixVector worldUp = { 0, 0x10000, 0 };
-
-            delta.x = g_pCurrentCar->groundNormal.x - prevNormal.x;
-            delta.y = g_pCurrentCar->groundNormal.y - prevNormal.y;
-            delta.z = g_pCurrentCar->groundNormal.z - prevNormal.z;
-            len = FixVecLength(&delta);
-            if (len > 0) {
-                FixVecScaleRecip(&delta, &delta, len);
-                FixMatrix_InverseRotateVector(&vOut, &delta, g_pCurrentCar->pWorld);
-                tv.x = FixMul(FixMul(vOut.y, worldUp.z) - FixMul(vOut.z, worldUp.y), 0x14ccc);
-                tv.y = 0;
-                tv.z = FixMul(FixMul(vOut.x, worldUp.y) - FixMul(vOut.y, worldUp.x), 0xe666);
-                g_pCurrentCar->field_0x5d0.x += tv.x;
-                g_pCurrentCar->field_0x5d0.y += tv.y;
-                g_pCurrentCar->field_0x5d0.z += tv.z;
+            vectors.delta.x = g_pCurrentCar->groundNormal.x - prevNormal.x;
+            vectors.delta.y = g_pCurrentCar->groundNormal.y - prevNormal.y;
+            vectors.delta.z = g_pCurrentCar->groundNormal.z - prevNormal.z;
+            t = FixVecLength(&vectors.delta);
+            if (t > 0) {
+                FixVecScaleRecip(&vectors.delta, &vectors.delta, t);
+                vectors.worldUp.x = 0;
+                vectors.worldUp.y = 0x10000;
+                vectors.worldUp.z = 0;
+                FixMatrix_InverseRotateVector(&vectors.vOut, &vectors.delta, g_pCurrentCar->pWorld);
+                FixVecCross(&vectors.tv, &vectors.vOut, &vectors.worldUp);
+                vectors.tv.x = FixMul(vectors.tv.x, 0x14ccc);
+                vectors.tv.z = FixMul(vectors.tv.z, 0xe666);
+                vectors.tv.y = 0;
+                g_pCurrentCar->field_0x5d0.x += vectors.tv.x;
+                g_pCurrentCar->field_0x5d0.y += vectors.tv.y;
+                g_pCurrentCar->field_0x5d0.z += vectors.tv.z;
             }
             g_pCurrentCar->groundNormal = prevNormal;
         }
@@ -7478,10 +7496,10 @@ void Car_StepGroundContact(void)
         if (g_pCurrentCar->field_0xb35[0] == 0) {
             t = FixMul(0x1eb8, g_physicsTimeStep);
             if (groundSpeed < 0) {
-                FixVecScale(&delta, &g_pCurrentCar->groundNormal, groundSpeed);
-                g_pCurrentCar->velocity.x -= delta.x;
-                g_pCurrentCar->velocity.y -= delta.y;
-                g_pCurrentCar->velocity.z -= delta.z;
+                FixVecScale(&vectors.delta, &g_pCurrentCar->groundNormal, groundSpeed);
+                g_pCurrentCar->velocity.x -= vectors.delta.x;
+                g_pCurrentCar->velocity.y -= vectors.delta.y;
+                g_pCurrentCar->velocity.z -= vectors.delta.z;
             }
             g_pCurrentCar->angularVelocity.x = FixMul(g_pCurrentCar->angularVelocity.x, t);
             g_pCurrentCar->angularVelocity.z = FixMul(g_pCurrentCar->angularVelocity.z, t);
@@ -7493,12 +7511,12 @@ void Car_StepGroundContact(void)
     if (g_pCurrentCar->tipAngle != 0) {
         g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
         FixMatrix_FromAxisAngle(&rotMat, &g_pCurrentCar->right, g_pCurrentCar->tipAngle);
-        FixMatrix_RotateVector(&rotVec, &g_pCurrentCar->up, &rotMat);
-        FIX_NORMALIZE_INTO(rotVec, rotVec)
-        g_pCurrentCar->pWorld->up = rotVec;
-        FixMatrix_RotateVector(&rotVec, &g_pCurrentCar->forward, &rotMat);
-        FIX_NORMALIZE_INTO(rotVec, rotVec)
-        g_pCurrentCar->pWorld->forward = rotVec;
+        FixMatrix_RotateVector(&prevNormal, &g_pCurrentCar->up, &rotMat);
+        FIX_NORMALIZE_INTO(prevNormal, prevNormal)
+        g_pCurrentCar->pWorld->up = prevNormal;
+        FixMatrix_RotateVector(&prevNormal, &g_pCurrentCar->forward, &rotMat);
+        FIX_NORMALIZE_INTO(prevNormal, prevNormal)
+        g_pCurrentCar->pWorld->forward = prevNormal;
     } else {
         g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
         g_pCurrentCar->pWorld->up = g_pCurrentCar->up;

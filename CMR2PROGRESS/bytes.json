@@ -748,9 +748,9 @@
   },
   "0x4373c0": {
     "n": "Car_UpdateRollover",
-    "s": 0.7676902536715621,
+    "s": 0.8956007879185818,
     "x": false,
-    "fz": 0.8945260347129506,
+    "fz": 0.9783322390019698,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateRollover"
@@ -1180,9 +1180,9 @@
   },
   "0x42ce60": {
     "n": "Car_StepGroundContact",
-    "s": 0.7406819984139572,
+    "s": 0.7707129094412332,
     "x": false,
-    "fz": 0.8580491673275178,
+    "fz": 0.8608863198458574,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_StepGroundContact"
@@ -1594,9 +1594,9 @@
   },
   "0x494db0": {
     "n": "CarPhysics_DrawBodyWheelAndSkidShadows",
-    "s": 0.5525709900230238,
+    "s": 0.7777359909740504,
     "x": false,
-    "fz": 0.639293937068304,
+    "fz": 0.8649868371568259,
     "unknown": [],
     "f": "CarPhysics.cpp",
     "symbol_name": "CarPhysics_DrawBodyWheelAndSkidShadows"
@@ -20225,7 +20225,7 @@
   },
   "0x4129d0": {
     "n": "RallyData_DrawCarStageGapPanel",
-    "s": 0.6732510288065844,
+    "s": 0.6765432098765433,
     "x": false,
     "fz": 0.8016460905349794,
     "unknown": [],
@@ -21431,7 +21431,7 @@
   },
   "0x40f8d0": {
     "n": "RallyData_DrawViewEndFrameOverlay",
-    "s": 0.7122861586314152,
+    "s": 0.7153965785381027,
     "x": false,
     "fz": 0.8709175738724728,
     "unknown": [],
@@ -21449,7 +21449,7 @@
   },
   "0x413fe0": {
     "n": "RallyData_DrawStageTimePanel",
-    "s": 0.8700906344410876,
+    "s": 0.8761329305135952,
     "x": false,
     "fz": 0.9244712990936556,
     "unknown": [],
@@ -25169,9 +25169,9 @@
   },
   "0x461c30": {
     "n": "StageObject_RebuildViewWeatherLighting",
-    "s": 0.3426763110307414,
+    "s": 0.5963179164795689,
     "x": false,
-    "fz": 0.6636528028933092,
+    "fz": 0.7606645711719803,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_RebuildViewWeatherLighting"
@@ -26231,9 +26231,9 @@
   },
   "0x47b0e0": {
     "n": "StageObject_UpdatePlayerControlIndicators",
-    "s": 0.6613119143239625,
+    "s": 0.7908232118758435,
     "x": false,
-    "fz": 0.8433734939759037,
+    "fz": 0.9068825910931174,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_UpdatePlayerControlIndicators"
@@ -28447,9 +28447,9 @@
   },
   "0x458e00": {
     "n": "StageTiming_AdvanceCrossedCheckpoints",
-    "s": 0.40217391304347827,
-    "x": false,
-    "fz": 0.8152173913043478,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageTiming_AdvanceCrossedCheckpoints"
@@ -28474,9 +28474,9 @@
   },
   "0x45b580": {
     "n": "StageTiming_SpawnWheelParticles",
-    "s": 0.4679245283018868,
+    "s": 0.5312631137221989,
     "x": false,
-    "fz": 0.6867924528301886,
+    "fz": 0.7343684431389006,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageTiming_SpawnWheelParticles"
@@ -28861,9 +28861,9 @@
   },
   "0x45eca0": {
     "n": "StageWeather_InitParticleAndLightState",
-    "s": 0.5257731958762887,
+    "s": 0.801980198019802,
     "x": false,
-    "fz": 0.7319587628865979,
+    "fz": 0.8118811881188119,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageWeather_InitParticleAndLightState"

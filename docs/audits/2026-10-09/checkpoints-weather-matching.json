@@ -1,0 +1,48 @@
+{
+  "baseline": "1ef671253335ded2d2bd469d584a39c2a9ba0224",
+  "targets": [
+    {
+      "address": "0x458e00",
+      "name": "StageTiming_AdvanceCrossedCheckpoints",
+      "raw_before": 0.40217391304347827,
+      "raw_after": 1.0,
+      "fuzzy_before": 0.8152173913043478,
+      "fuzzy_after": 1.0,
+      "byte_exact": true
+    },
+    {
+      "address": "0x45eca0",
+      "name": "StageWeather_InitParticleAndLightState",
+      "raw_before": 0.5257731958762887,
+      "raw_after": 0.801980198019802,
+      "fuzzy_before": 0.7319587628865979,
+      "fuzzy_after": 0.8118811881188119,
+      "byte_exact": false
+    }
+  ],
+  "byte_exact_functions": 2921,
+  "remaining_nonmatching_functions": 443,
+  "perfect_percent": 56.08,
+  "fuzzy_percent": 94.29,
+  "lost_exact_functions": [],
+  "score_regressions": [],
+  "exe_sha256": "215b5a6445211f1a5a61693a6408b26a8fd48ba25e8a043afe082417cf7e82b5",
+  "source_sha256": "e9c054e3a20e8532a7cc69b32c23f9eab97c311b41de392bd997fe19f7612a50",
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "data_issues": 0,
+    "differential_harnesses": 100,
+    "failures": 0,
+    "checkpoint_cases": 3072,
+    "weather_setup_cases": 576,
+    "weather_original_model_cases": 576,
+    "weather_stack_patterns": [
+      0,
+      165,
+      255
+    ],
+    "weather_rgb_negative_control_detected": true
+  },
+  "remaining_weather_difference": "RGB packing optimizations, store scheduling and stack-slot allocation still differ from the original."
+}

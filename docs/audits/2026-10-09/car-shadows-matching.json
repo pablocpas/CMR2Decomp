@@ -1,0 +1,44 @@
+{
+  "baseline": "1ef671253335ded2d2bd469d584a39c2a9ba0224",
+  "baseline_audit": "checkpoints-weather-matching.json",
+  "baseline_exe_sha256": "215b5a6445211f1a5a61693a6408b26a8fd48ba25e8a043afe082417cf7e82b5",
+  "targets": [
+    {
+      "address": "0x494db0",
+      "name": "CarPhysics_DrawBodyWheelAndSkidShadows",
+      "original_bytes": 4510,
+      "raw_before": 0.5525709900230238,
+      "raw_after": 0.7777359909740504,
+      "fuzzy_before": 0.639293937068304,
+      "fuzzy_after": 0.8649868371568259,
+      "byte_exact": false
+    }
+  ],
+  "byte_exact_functions": 2921,
+  "remaining_nonmatching_functions": 443,
+  "perfect_percent": 56.08,
+  "fuzzy_percent": 94.39,
+  "lost_exact_functions": [],
+  "score_regressions": [],
+  "exe_sha256": "fc58d1427dba208eae619e48690843d9ea04f6d658399e63353b010879995967",
+  "source_file": "CMR2Decomp/CarPhysics.cpp",
+  "source_sha256": "974e4cd8590e8181c5d6e08e0c40828c1b3a2c8a2bdc90d2210c56ec18092c45",
+  "harness_sha256": "f8158c030050cadae72c0250ec7efa8e550e4cbbe9598488719e785bb612350a",
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "data_issues": 0,
+    "differential_harnesses": 101,
+    "failures": 0,
+    "shadow_cases": 3456,
+    "shadow_original_model_cases": 3456,
+    "shadow_stack_patterns": [
+      0,
+      165
+    ],
+    "baseline_wrong_triangle_order_detected": true
+  },
+  "recovered_behavior": "Original submission order of wheel, skid-trail and body triangles, with all positions copied before vertex colours; restored discarded fixed-point multiply and operand homes.",
+  "harness_scope": "Real shadow-colour, render-state and skid-visibility helpers; controlled replay lookup, camera offset and final triangle queue. Independent geometry model checks ordered vertices, RGBA, zero UV, contact midpoint writes, intact remaining heap/contact fields and guards.",
+  "remaining_shadow_difference": "Loop induction, indexed position copies, instruction scheduling, registers and stack-slot allocation still differ from the original."
+}

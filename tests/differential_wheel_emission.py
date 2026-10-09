@@ -3,8 +3,9 @@
 
 Settings, RNG, wheel-speed queries, tyre wear and particle creation are controlled
 leaves. Fixed-point arithmetic and the view-matrix helper execute normally.
-Compare every RNG result, wear call and particle's position, velocity and colour;
-speed queries return a stable value (the original ABS macro calls them twice).
+Compare every RNG result, wheel-speed query, wear call and particle's position,
+velocity and colour; speed queries return a stable value (the original ABS
+macro calls them twice).
 """
 import json
 from pathlib import Path
@@ -49,6 +50,7 @@ class Wheels(Lighting):
         elif address == 0x42b600:
             assert args[0] == CAR
             value = self.speed
+            self.trace.append(('speed', tuple(args), value))
         elif address == 0x4074f0:
             value = 8
         elif address == 0x41f3d0:
@@ -135,7 +137,7 @@ def main():
                 return 1
             emitted += sum(event[0] == 'particle' for event in a)
         assert emitted > 100, 'emission branches were not exercised'
-        print(hex(target), len(cases), 'cases:', emitted, 'identical particles and RNG/wear traces')
+        print(hex(target), len(cases), 'cases:', emitted, 'identical particles and RNG/speed/wear traces')
     return 0
 
 

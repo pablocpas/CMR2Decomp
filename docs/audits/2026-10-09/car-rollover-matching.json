@@ -1,0 +1,50 @@
+{
+  "baseline": "1ef671253335ded2d2bd469d584a39c2a9ba0224",
+  "baseline_audit": "ground-contact-matching.json",
+  "baseline_exe_sha256": "fc62a8fc7ee3e6514674bdfcf751f366a668016eb270c94ab9d26dad6a547a8c",
+  "targets": [
+    {
+      "address": "0x4373c0",
+      "name": "Car_UpdateRollover",
+      "original_bytes": 2470,
+      "raw_before": 0.7676902536715621,
+      "raw_after": 0.8956007879185818,
+      "fuzzy_before": 0.8945260347129506,
+      "fuzzy_after": 0.9783322390019698,
+      "byte_exact": false
+    }
+  ],
+  "byte_exact_functions": 2921,
+  "remaining_nonmatching_functions": 443,
+  "perfect_percent": 56.08,
+  "fuzzy_percent": 94.43,
+  "lost_exact_functions": [],
+  "score_regressions": [],
+  "exe_sha256": "f2eb5d7b00ed6f63e4282e004180e6c73879b840e8283971728dc83c9bafbff4",
+  "source_file": "CMR2Decomp/Car.cpp",
+  "source_sha256": "2d617e9c96d9414c6553a4f651eb2030abdb7bebe37e0ca69945dcc2dc3aa5ff",
+  "harness_sha256": "47d27e57817504d487e55b44759c21e2b01c78cfb8cfe825808dd35827c71ca6",
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "data_issues": 0,
+    "differential_harnesses": 103,
+    "failures": 0,
+    "rollover_cases": 7680,
+    "original_model_cases": 7680,
+    "stack_patterns": [
+      0,
+      165
+    ],
+    "x87_control_words": [
+      "0x037f",
+      "0x0f7f"
+    ],
+    "slope_multiplier_mutation_detected": true,
+    "target_helper_count_mismatches": []
+  },
+  "recovered_sequence": "Restored two quarter-average FixMul operations followed by FixDiv(0x10000, 0x431168) scaling, and the fixed-point tip threshold multiplication. Four contiguous scratch vectors and in-place projected-direction normalization restore the original 0x48-byte frame. Reused sum and k across disjoint phases, preserved the original slide for tumbling torque, restored grip-adjusted excess branches, explicit zero-slip else, positive/negative tip increments, explicit boolean branches before FixAtan2 and original ground-normal dot operand order.",
+  "behavior_change": false,
+  "harness_scope": "No controlled leaves. Actual inverse matrix, fixed-point and x87 angle code executes. Independent signed integer model checks complete guarded heap (car and padded world matrix), steep torque, unsigned-short timer, tumbling axes, grip averages, slip clamp, tip interpolation and angle lookup. Includes zero projected direction, zero grip, positive/negative grip boundaries, slope threshold affected by rounding, timer 199/200/201/65535, pre-existing tumble and large signed products. Seeded lookup tables plus mapped adjacent atan boundary word are immutable; global writes are forbidden; matrix input values and order, x87 control word and ABI are checked.",
+  "remaining_difference": "Scalar temporary homes, steep-branch operand scheduling and the tip-ratio subtraction load still differ; register allocation also differs."
+}

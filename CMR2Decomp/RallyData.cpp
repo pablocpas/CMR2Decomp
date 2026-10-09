@@ -72,7 +72,7 @@ int Race_GetCoDriverCallState(void);
 int Sound_PlaySampleWithParameters(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
 void RallyData_ResetDriverRecordCategory(BYTE index, BYTE param2);
 int StageTiming_GetCheckpointField2(int index);
-bool StageTiming_IsClockOverlayActive(void);
+int StageTiming_IsClockOverlayActive(void);
 int StageTiming_GetPendingDriverEntry(int index);
 int StageTiming_GetCarTimingByte81(int car);
 int NetPlayers_GetResultPlayerIndex(int index);
@@ -8056,7 +8056,7 @@ void RallyData_DrawHeadToHeadDriverCaption(int bottom, int player)
 
 void NetRace_DrawPlayerFlashOverlay(unsigned int player, short *pRect, int check);
 BYTE Race_GetStateByte(void);
-BYTE GameMenu_IsPauseHeaderActive(void);
+int GameMenu_IsPauseHeaderActive(void);
 extern BYTE g_unk0x00536ac8;
 extern char g_keypadFormat[];
 
@@ -8290,7 +8290,7 @@ draw:
 
 void RallyData_DrawCarSplitTimeBar(int car, short *pRect);
 void RallyData_DrawSplitBarAndLeaderMarkers(int car, short *pRect);
-bool StageTiming_IsClockOverlayActive(void);
+int StageTiming_IsClockOverlayActive(void);
 int Race_IsRouteModeWithoutFlag18(void);
 
 // Stage time panel of the HUD: the split boxes, a background panel (taller when

@@ -1,0 +1,102 @@
+{
+  "baseline": "1ef671253335ded2d2bd469d584a39c2a9ba0224",
+  "baseline_audit": "player-indicators-matching.json",
+  "baseline_exe_sha256": "60c52fb567db314f0b672be9d639f2996a0c09c456d5749e8ea3b2dddf437590",
+  "targets": [
+    {
+      "address": "0x4129d0",
+      "name": "RallyData_DrawCarStageGapPanel",
+      "original_bytes": 1922,
+      "raw_before": 0.6732510288065844,
+      "raw_after": 0.6765432098765433,
+      "fuzzy_before": 0.8016460905349794,
+      "fuzzy_after": 0.8016460905349794,
+      "byte_exact": false
+    },
+    {
+      "address": "0x413fe0",
+      "name": "RallyData_DrawStageTimePanel",
+      "original_bytes": 1036,
+      "raw_before": 0.8700906344410876,
+      "raw_after": 0.8761329305135952,
+      "fuzzy_before": 0.9244712990936556,
+      "fuzzy_after": 0.9244712990936556,
+      "byte_exact": false
+    }
+  ],
+  "byte_exact_functions": 2921,
+  "remaining_nonmatching_functions": 443,
+  "perfect_percent": 56.08,
+  "fuzzy_percent": 94.44,
+  "lost_exact_functions": [],
+  "score_regressions": [],
+  "exe_sha256": "a13de36f98b28c455e1dc1d58301c7835a69ef7d7a3521b5fcb020b02eecc242",
+  "source_sha256": {
+    "CMR2Decomp/RallyData.cpp": "5d5433f18a9d2de0857058228f46f5cad368d4e0b6dce3737fc6aba2043cdecc",
+    "CMR2Decomp/StageTiming.cpp": "717d98bcd31586f68191b80f2a82d710e6dc0de5dc20a6227b495e7be5099c5f"
+  },
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "data_issues": 0,
+    "differential_harnesses": 103,
+    "failures": 0,
+    "clock_getter_remains_byte_exact": true,
+    "original_call_sites": 4
+  },
+  "recovered_sequence": "StageTiming_IsClockOverlayActive returns int rather than bool. Original getter zeros EAX and writes AL to return 0/1; all four original callers test EAX, whereas bool declarations generated tests of AL. Corrected the definition and both forward declarations, preserving the byte-exact getter.",
+  "behavior_change": false,
+  "evidence": {
+    "hits": [
+      {
+        "caller": "0x4129d0",
+        "caller_name": "RallyData_DrawCarStageGapPanel",
+        "file": "RallyData.cpp",
+        "call_at": "0x412af0",
+        "callee": "0x459390",
+        "callee_name": "StageTiming_IsClockOverlayActive",
+        "callee_file": "StageTiming.cpp",
+        "callee_exact": true,
+        "original_test": "test eax, eax",
+        "rebuilt_test": "test al, al"
+      },
+      {
+        "caller": "0x4129d0",
+        "caller_name": "RallyData_DrawCarStageGapPanel",
+        "file": "RallyData.cpp",
+        "call_at": "0x412b7d",
+        "callee": "0x459390",
+        "callee_name": "StageTiming_IsClockOverlayActive",
+        "callee_file": "StageTiming.cpp",
+        "callee_exact": true,
+        "original_test": "test eax, eax",
+        "rebuilt_test": "test al, al"
+      },
+      {
+        "caller": "0x413fe0",
+        "caller_name": "RallyData_DrawStageTimePanel",
+        "file": "RallyData.cpp",
+        "call_at": "0x414163",
+        "callee": "0x459390",
+        "callee_name": "StageTiming_IsClockOverlayActive",
+        "callee_file": "StageTiming.cpp",
+        "callee_exact": true,
+        "original_test": "test eax, eax",
+        "rebuilt_test": "test al, al"
+      },
+      {
+        "caller": "0x413fe0",
+        "caller_name": "RallyData_DrawStageTimePanel",
+        "file": "RallyData.cpp",
+        "call_at": "0x4141f0",
+        "callee": "0x459390",
+        "callee_name": "StageTiming_IsClockOverlayActive",
+        "callee_file": "StageTiming.cpp",
+        "callee_exact": true,
+        "original_test": "test eax, eax",
+        "rebuilt_test": "test al, al"
+      }
+    ],
+    "errors": []
+  }
+}

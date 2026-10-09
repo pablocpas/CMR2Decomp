@@ -1,0 +1,48 @@
+{
+  "baseline": "1ef671253335ded2d2bd469d584a39c2a9ba0224",
+  "baseline_audit": "wheel-emission-matching.json",
+  "baseline_exe_sha256": "e81609a660cd0f1ae47c4160da611bc2649daa4d1cc21fe61ac3a420c4df49bc",
+  "targets": [
+    {
+      "address": "0x42ce60",
+      "name": "Car_StepGroundContact",
+      "original_bytes": 4017,
+      "raw_before": 0.7406819984139572,
+      "raw_after": 0.7707129094412332,
+      "fuzzy_before": 0.8580491673275178,
+      "fuzzy_after": 0.8608863198458574,
+      "byte_exact": false
+    }
+  ],
+  "byte_exact_functions": 2921,
+  "remaining_nonmatching_functions": 443,
+  "perfect_percent": 56.08,
+  "fuzzy_percent": 94.41,
+  "lost_exact_functions": [],
+  "score_regressions": [],
+  "exe_sha256": "fc62a8fc7ee3e6514674bdfcf751f366a668016eb270c94ab9d26dad6a547a8c",
+  "source_file": "CMR2Decomp/Car.cpp",
+  "source_sha256": "ce960d6d4d61aecdf31e3f49032ecc9909b10dc58c4e21e0cc2d2b0cc68beff6",
+  "harness_sha256": "ba07187de31a43071639240e4b3b6627ab20971fbfe656eb8db52fb9e33b92f7",
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "data_issues": 0,
+    "differential_harnesses": 102,
+    "failures": 0,
+    "ground_contact_cases": 4608,
+    "original_model_cases": 4608,
+    "stack_patterns": [
+      0,
+      165
+    ],
+    "baseline_partial_state_write_detected": true,
+    "torque_multiplier_mutation_detected": true,
+    "target_helper_count_mismatches": []
+  },
+  "corrected_behavior": "The tumbling branch writes the complete 32-bit field_0xc04[0] to 1, clearing its previous upper three bytes; the old reconstruction wrote only the low byte.",
+  "recovered_sequence": "The fast-normal branch performs FixVecCross before x/z torque scaling and explicitly clears y afterwards. Grouped scratch vectors, reused the saved normal for final tip rotation and a scalar for disjoint dot/length/step uses; restored descending state clears and flag initialization after the first terrain query.",
+  "harness_scope": "Controlled terrain heights, new ground normal, airborne flags, free-corner lift and wheel travel. Actual fixed-point arithmetic, corner geometry, axis-angle matrix creation, rotation and normalization execute. Independent integer model checks full heap including guards, basis, torque, damping, sink depth, matrix padding, rotation globals, immutable sine/sqrt tables, helper/provider order and ABI.",
+  "rejected_opacity_trial": "Replacing FixMul followed by a C shift with FixMulShift32 produced identical shadow code; retained the measured shadow source.",
+  "remaining_ground_contact_difference": "Local buffer and scalar homes, branch layout, global-load scheduling and tip-angle argument preparation still differ from the original."
+}

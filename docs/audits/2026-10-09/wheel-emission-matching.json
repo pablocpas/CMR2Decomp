@@ -1,0 +1,56 @@
+{
+  "baseline": "1ef671253335ded2d2bd469d584a39c2a9ba0224",
+  "baseline_audit": "car-shadows-matching.json",
+  "baseline_exe_sha256": "fc58d1427dba208eae619e48690843d9ea04f6d658399e63353b010879995967",
+  "targets": [
+    {
+      "address": "0x45b580",
+      "name": "StageTiming_SpawnWheelParticles",
+      "original_bytes": 4195,
+      "raw_before": 0.4679245283018868,
+      "raw_after": 0.5312631137221989,
+      "fuzzy_before": 0.6867924528301886,
+      "fuzzy_after": 0.7343684431389006,
+      "byte_exact": false
+    }
+  ],
+  "byte_exact_functions": 2921,
+  "remaining_nonmatching_functions": 443,
+  "perfect_percent": 56.08,
+  "fuzzy_percent": 94.41,
+  "lost_exact_functions": [],
+  "score_regressions": [],
+  "exe_sha256": "e81609a660cd0f1ae47c4160da611bc2649daa4d1cc21fe61ac3a420c4df49bc",
+  "source_file": "CMR2Decomp/StageTiming.cpp",
+  "source_sha256": "ebd0a76946ce1f48772260a61ec261961a3dfed0cf6c2dbc9fc9c81d03d32878",
+  "harness_sha256": "94b57a0dbb8e9d95c6450928ad10424b74a9313682d84de7e45ce69dca2c7920",
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "data_issues": 0,
+    "differential_harnesses": 101,
+    "failures": 0,
+    "wheel_particle_cases": 1501,
+    "wheel_splash_cases": 1501,
+    "identical_wheel_particles": 548,
+    "identical_splash_particles": 424,
+    "baseline_missing_speed_query_detected": true,
+    "helper_count_mismatches": []
+  },
+  "recovered_sequence": "Particle velocity queries use the original repeated FIX_ABS evaluation. The high-speed branch reuses speed for the fixed-point ratio and scales x/y/z with three FixMul calls. Restored signed material load placement and early slip-state initialization.",
+  "harness_scope": "Controlled RNG, settings, wheel-speed providers, tyre wear and particle submission. Actual fixed-point arithmetic executes. Compare ordered RNG/speed/wear calls and every emitted particle argument, position, velocity and colour; verify heap remains intact.",
+  "basis_rotation_trials": {
+    "temporary_variants": 44,
+    "accepted": 0,
+    "source_unchanged": true,
+    "families": [
+      "scalar/buffer scope and names",
+      "disjoint scratch reuse",
+      "vector pointers",
+      "normalization scope",
+      "commutative matrix sums"
+    ],
+    "reason": "No variant improved both the direct and fuzzy scores. Kept the measured source and moved to the missing helper pattern in wheel emission."
+  },
+  "remaining_particle_difference": "Boolean dispatch, stack-slot allocation, temporary vector layout and instruction scheduling still differ from the original."
+}

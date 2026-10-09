@@ -1,0 +1,55 @@
+{
+  "baseline": "1ef671253335ded2d2bd469d584a39c2a9ba0224",
+  "baseline_audit": "clock-overlay-return-matching.json",
+  "baseline_exe_sha256": "a13de36f98b28c455e1dc1d58301c7835a69ef7d7a3521b5fcb020b02eecc242",
+  "targets": [
+    {
+      "address": "0x461c30",
+      "name": "StageObject_RebuildViewWeatherLighting",
+      "original_bytes": 3694,
+      "raw_before": 0.3426763110307414,
+      "raw_after": 0.5963179164795689,
+      "fuzzy_before": 0.6636528028933092,
+      "fuzzy_after": 0.7606645711719803,
+      "byte_exact": false
+    }
+  ],
+  "byte_exact_functions": 2921,
+  "remaining_nonmatching_functions": 443,
+  "perfect_percent": 56.08,
+  "fuzzy_percent": 94.48,
+  "lost_exact_functions": [],
+  "score_regressions": [],
+  "exe_sha256": "16b79d7de918f46c76d2cc2dcc87981010295e6b21700892f2e4216fcd4ed6f2",
+  "source_file": "CMR2Decomp/StageObjects.cpp",
+  "source_sha256": "475e568a026c27399986a722d17f2ecd101a554a1d3eaccfecf9baf15b4ca486",
+  "harness_sha256": "3a00d23feba7b8c31ff5398665471bd125b744495a23e06eac27c57e13e5a09a",
+  "validation": {
+    "default_build": true,
+    "full_measure": true,
+    "data_issues": 0,
+    "differential_harnesses": 103,
+    "failures": 0,
+    "lighting_initialisation_cases": 1620,
+    "weather_blend_cases": 2904,
+    "original_independent_model_cases": 2904,
+    "extended_boundary_blend_cases": 1944,
+    "stack_patterns": [
+      0,
+      165
+    ],
+    "fixed_point_shift_mutation_detected": true,
+    "baseline_missing_intermediate_write_detected": true,
+    "target_inline_helper_count_mismatches": [],
+    "target_scalar_imul_counts": {
+      "original": 62,
+      "rebuilt": 62
+    },
+    "aligned_call_return_width_differences_remaining": 0,
+    "aligned_call_return_width_comparison_errors": 0
+  },
+  "recovered_sequence": "Restore the intermediate g_stageLighting[0x5b] difference store before multiplying it in place. Reuse value for scalar differences, interpolation and alpha conversions; convert low RGB after both initial vectors have been interpolated, and ambient RGB before copying the ambient vector. Signed-short weather sentinel matches the original short compare; view pointer is computed before object pointer. Remove obsolete matching comments.",
+  "behavior_change": "Restored the original intermediate global intensity write; final state, colours and scene calls remain equivalent in all tested cases.",
+  "harness_scope": "Existing 1620 weather initialisation cases retain complete lighting state/provider parity. 2904 blends additionally execute real fixed-point arithmetic and check an independent signed model, all 94 lighting DWORDs, fog diffuse and distances, every emitted colour/vector/scalar and call order, two intensity stores, complete seeded guarded heap, allowed global writes, poisoned stack and callee ABI. Includes signed product and subtraction wrap, BYTE conversion, negative/oversized factors, INT_MIN/INT_MAX, three view strides/kinds, low/high weather-word guards, view-level threshold, optional fog and prior nonzero reset flag. Mesh/rendering/scene setters remain controlled leaves.",
+  "remaining_difference": "Colour buffer stack homes, scratch pointer/scalar slot sharing, prologue scheduling, a few scalar interpolation homes and register allocation remain different. Original and rebuilt retain the same 0x90-byte frame."
+}

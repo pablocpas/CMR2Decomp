@@ -3759,7 +3759,7 @@ void GameMenu_RestoreSavedHeaderMenu(void)
 extern Menu g_menu0x0053ea68;
 
 // FUNCTION: CMR2 0x0044a130
-BYTE GameMenu_IsPauseHeaderActive(void)
+int GameMenu_IsPauseHeaderActive(void)
 {
     return g_pHeaderMenu == &g_menu0x0053ea68;
 }

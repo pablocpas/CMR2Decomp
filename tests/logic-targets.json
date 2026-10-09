@@ -134,6 +134,24 @@
       "0x43c7f0"
     ]
   },
+  "differential_car_shadows.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x494db0"
+    ]
+  },
+  "differential_car_rollover.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4373c0"
+    ]
+  },
+  "differential_ground_contact.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x42ce60"
+    ]
+  },
   "differential_checkpoint_advance.py": {
     "arguments": "entities",
     "targets": [
@@ -516,6 +534,12 @@
     "targets": [
       "0x460da0",
       "0x461c30"
+    ]
+  },
+  "differential_weather_setup.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x45eca0"
     ]
   },
   "differential_stage_paths.py": {

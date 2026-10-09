@@ -2616,7 +2616,7 @@ void StageTiming_ResetCheckpointSlotStates(void)
 }
 
 // FUNCTION: CMR2 0x00459390
-bool StageTiming_IsClockOverlayActive(void)
+int StageTiming_IsClockOverlayActive(void)
 {
     return g_unk0x00543098 != 0;
 }
@@ -4976,46 +4976,46 @@ extern char g_stageLooped;
 extern int g_stageCheckpointCount;
 
 // Advances one car through crossed checkpoints.
-// match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00458e00
 void StageTiming_AdvanceCrossedCheckpoints(int car, int target)
 {
-    int current = g_unk0x00542e78[car].field_0x0;
+    int current;
     int step;
     int i;
     int prev;
     int delta;
 
-    if (target == current)
-        return;
-    delta = target - current;
-    if (g_stageLooped == 0)
-        step = delta >= 1 ? 1 : -1;
-    else if (delta < -50 || (delta > 0 && delta < 50))
-        step = 1;
-    else
-        step = -1;
-    for (i = 0; current != target && i < g_stageCheckpointCount; i++) {
-        g_unk0x00542e78[car].field_0x12 += (short)step;
-        if ((int)g_unk0x00542e78[car].field_0x12 > (unsigned short)g_unk0x00542e78[car].field_0x10)
-            g_unk0x00542e78[car].field_0x10 = g_unk0x00542e78[car].field_0x12;
-        prev = current;
-        current += step;
-        if (current < 0)
-            current = g_stageCheckpointCount - 1;
-        if (current >= g_stageCheckpointCount)
-            current = 0;
-        if (g_stageLooped)
-            StageTiming_CountLapCrossings(car, prev, current);
-        if (g_unk0x00542cad != 0)
-            StageTiming_AdvanceLoopedCarCheckpoint(car, current);
+    if (target != g_unk0x00542e78[car].field_0x0) {
+        current = g_unk0x00542e78[car].field_0x0;
+        delta = target - current;
+        if (g_stageLooped == 0)
+            step = delta > 0 ? 1 : -1;
+        else if (delta < -50 || (delta > 0 && delta < 50))
+            step = 1;
         else
-            StageTiming_AdvanceTimedLapCheckpoint(car, current);
-        StageTiming_FlagCoincidentCheckpointPositions(car);
-        StageTiming_SetViewRouteDistanceLimit(car, current, step);
+            step = -1;
+        for (i = 0; current != target && i < g_stageCheckpointCount; i++) {
+            g_unk0x00542e78[car].field_0x12 += (short)step;
+            prev = current;
+            current += step;
+            if ((int)g_unk0x00542e78[car].field_0x12 > (unsigned short)g_unk0x00542e78[car].field_0x10)
+                g_unk0x00542e78[car].field_0x10 = g_unk0x00542e78[car].field_0x12;
+            if (current < 0)
+                current = g_stageCheckpointCount - 1;
+            if (current >= g_stageCheckpointCount)
+                current = 0;
+            if (g_stageLooped)
+                StageTiming_CountLapCrossings(car, prev, current);
+            if (g_unk0x00542cad != 0)
+                StageTiming_AdvanceLoopedCarCheckpoint(car, current);
+            else
+                StageTiming_AdvanceTimedLapCheckpoint(car, current);
+            StageTiming_FlagCoincidentCheckpointPositions(car);
+            StageTiming_SetViewRouteDistanceLimit(car, current, step);
+        }
+        g_unk0x00542e78[car].field_0x0 = (short)target;
+        g_unk0x00542e78[car].field_0x16 = 1;
     }
-    g_unk0x00542e78[car].field_0x0 = (short)target;
-    g_unk0x00542e78[car].field_0x16 = 1;
 }
 
 // GLOBAL: CMR2 0x00590b10
@@ -5123,17 +5123,17 @@ void StageTiming_SpawnWheelParticles(int carIndex)
     Car *car = Car_Get(carIndex);
     int intensity = 100;
     for (int wheel = 0; wheel < 4; wheel++) {
+        int slipping = 0;
         int other = wheel ^ 1;
-        short material = car->wheelSurfaceType[wheel];
         int front = wheel == 2 || wheel == 3;
         int reverse = car->gear == 7;
         int leading = reverse ? front : !front;
         int surface = car->wheelSurface[wheel];
+        int material = car->wheelSurfaceType[wheel];
         int spray = surface == 11 || material == 0x5b || material == 0x5c || material == 0x5d;
         int loose = surface == 10 || surface == 6 || material == 0x1b || material == 0x1c ||
                     material == 0x11 || material == 0x12 || material == 0x48;
         int gravel = surface == 9;
-        int slipping = 0;
         if (surface == 13 || surface == 24)
             slipping = StageObject_GetWheelSlip(carIndex, wheel) >= 0xe666;
         if (gravel && TRAIL_RANDOM(CGraphics::m_65536) > 0x3333) gravel = 0;
@@ -5288,17 +5288,19 @@ void StageTiming_SpawnWheelParticles(int carIndex)
             particleVelocity.y = cornerVelocity->y / 10;
             particleVelocity.x = -(cornerVelocity->x / 4);
             particleVelocity.z = -(cornerVelocity->z / 4);
-            speed = abs(Car_GetWheelSpeed(car, 2, 0));
-            if (!(speed > speedLimit)) {
+            speed = FIX_ABS(Car_GetWheelSpeed(car, 2, 0));
+            if (speed > speedLimit) {
+                speed = FixDiv(speedLimit, speed);
+                particleVelocity.x = FixMul(particleVelocity.x, speed);
+                particleVelocity.y = FixMul(particleVelocity.y, speed);
+                particleVelocity.z = FixMul(particleVelocity.z, speed);
+            } else {
                 FixVector offset;
                 offset.x = velocity.x - cornerVelocity->x;
                 offset.y = velocity.y - cornerVelocity->y;
                 offset.z = velocity.z - cornerVelocity->z;
                 FixVecScale(&offset, &offset, 0x6666);
                 particleVelocity.x += offset.x; particleVelocity.y += offset.y; particleVelocity.z += offset.z;
-            } else {
-                int scale = FixDiv(speedLimit, speed);
-                FixVecScale(&particleVelocity, &particleVelocity, scale);
             }
             Particle_Spawn(type, &source, &particleVelocity, source.y - 0x10000, 0, colour,
                            g_trailLevel[carIndex][wheel], (int)&carIndex, *((BYTE *)car->pNode0x720 + 0x17c));
@@ -9235,6 +9237,7 @@ void StageWeather_DistributeViewParticles(void)
 void StageWeather_InitParticleAndLightState(void)
 {
     BYTE colour[4];
+    BYTE particleColour[8];
     FixVector light;
 
     g_unk0x00543ef8 = 1;
@@ -9250,12 +9253,20 @@ void StageWeather_InitParticleAndLightState(void)
         g_unk0x00543d50 = 0;
         break;
     }
+    particleColour[0] = 0x96;
+    particleColour[1] = 0x96;
+    particleColour[2] = 0x96;
     *(int *)(g_unk0x00543da0Block + 0x24) = 0xff000000;
     *(int *)(g_unk0x00543da0Block + 0x84) = 0xff000000;
     *(int *)(g_unk0x00543da0Block + 0x80) = 0x1e969696;
     *(int *)(g_unk0x00543da0Block + 0x54) = 0xff000000;
     *(int *)(g_unk0x00543da0Block + 0x50) = 0x1e969696;
-    *(int *)(g_unk0x00543da0Block + 0x20) = 0x969696;
+    // The original packs RGB using overlapping DWORD reads, masking each
+    // channel before shifting. Keep room for the read at byte offset two.
+    *(int *)(g_unk0x00543da0Block + 0x20) =
+        (((*(int *)(particleColour + 0) & 0xff) << 8 |
+          (*(int *)(particleColour + 1) & 0xff)) << 8) |
+          (*(int *)(particleColour + 2) & 0xff);
     g_unk0x00543f00.top = -0x2666;
     g_unk0x00543f00.left = 0x2666;
     g_unk0x00543f00.bottom = 0x2666;
