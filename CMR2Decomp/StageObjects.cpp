@@ -14068,9 +14068,11 @@ void CarInput_UpdateWaitingStartSlot(int slot)
 {
     char device;
     char count;
+    short *pOrder;
 
+    pOrder = Car_GetOrder();
     Car_GetOrderCount();
-    g_unk0x0058e0a0 = Car_Get(Car_GetOrder()[slot]);
+    g_unk0x0058e0a0 = Car_Get(pOrder[slot]);
     g_unk0x0058e0a0->field_0x1e0 = 0;
     g_unk0x0058e0a0->field_0x1dc = 0;
     g_unk0x0058e0a0->handbrake = 0;
@@ -14096,8 +14098,9 @@ void CarInput_UpdateWaitingStartSlot(int slot)
             if (*((char *)g_unk0x0058e0a0 + 0xb47) == 0)
                 *((char *)g_unk0x0058e0a0 + 0xb47) = -5 - (char)(rand() % 10);
         }
-        g_unk0x0058e0a0->flag0x1d0[2] = 0x3f;
-        if (*((char *)g_unk0x0058e0a0 + 0xb47) <= 0)
+        if (*((char *)g_unk0x0058e0a0 + 0xb47) > 0)
+            g_unk0x0058e0a0->flag0x1d0[2] = 0x3f;
+        else
             g_unk0x0058e0a0->flag0x1d0[2] = 0;
     }
     g_unk0x0058e0a0->handbrake = 1;
