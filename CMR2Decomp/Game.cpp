@@ -1426,38 +1426,35 @@ BOOL CGame::UpdateInRaceCallbackMachine(void)
     if (c == 4) {
         switch ((int)((*pState >> 3) & 7) - 1) {
         case 0:
-            if (RallyData_GetUsableRecordCategory((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] & 0x1f) == -1) {
-                if (RallyData_GetUsableRecordCategory((pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] >> 5) & 0x1f) == -1)
-                    goto fail;
-                level = 2;
-                goto state1;
-            }
-            break;
+            if (RallyData_GetUsableRecordCategory((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] & 0x1f) == -1 &&
+                RallyData_GetUsableRecordCategory((pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] >> 5) & 0x1f) == -1)
+                goto fail;
+            level = 2;
+            goto state1;
         case 1:
-            if (RallyData_GetUsableRecordCategory((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 10] & 0x1f) == -1) {
-                if (RallyData_GetUsableRecordCategory((pState[((*pState >> 0xc) & 0xf) * 3 + 10] >> 5) & 0x1f) == -1)
-                    goto fail;
-            }
-            break;
+            if (RallyData_GetUsableRecordCategory((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 10] & 0x1f) == -1 &&
+                RallyData_GetUsableRecordCategory((pState[((*pState >> 0xc) & 0xf) * 3 + 10] >> 5) & 0x1f) == -1)
+                goto fail;
+            level = 2;
+            goto state1;
         case 2:
-            if (RallyData_GetUsableRecordCategory((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 4] & 0x1f) == -1) {
-                if (RallyData_GetUsableRecordCategory((pState[((*pState >> 0xc) & 0xf) * 3 + 4] >> 5) & 0x1f) == -1)
-                    goto fail;
-            }
-            break;
+            if (RallyData_GetUsableRecordCategory((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 4] & 0x1f) == -1 &&
+                RallyData_GetUsableRecordCategory((pState[((*pState >> 0xc) & 0xf) * 3 + 4] >> 5) & 0x1f) == -1)
+                goto fail;
+            level = 2;
+            goto state1;
         case 3:
-            if (RallyData_GetUsableRecordCategory((BYTE)pState[1] & 0x1f) == -1) {
-                if (RallyData_GetUsableRecordCategory((pState[1] >> 5) & 0x1f) == -1)
-                    goto fail;
-            }
-            break;
+            if (RallyData_GetUsableRecordCategory((BYTE)pState[1] & 0x1f) == -1 &&
+                RallyData_GetUsableRecordCategory((pState[1] >> 5) & 0x1f) == -1)
+                goto fail;
+            level = 2;
+            goto state1;
         default:
 fail:
             level = 3;
             state = 2;
             goto done;
         }
-        level = 2;
     } else {
         if ((BYTE)RallyData_IsChampionshipFinalStage() == 0 && state > 1) {
             if (CGameInfo::GetConfiguredGameMode() != 3 && 2 >= state && CGameInfo::IsConfiguredMultiplayer() == 0) {
