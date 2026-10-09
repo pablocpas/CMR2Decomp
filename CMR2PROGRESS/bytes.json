@@ -1549,9 +1549,9 @@
   },
   "0x45d540": {
     "n": "CarEffect_UpdateWheelSurfaceParticles",
-    "s": 0.7676950998185118,
+    "s": 0.7695099818511797,
     "x": false,
-    "fz": 0.9364791288566243,
+    "fz": 0.9382940108892922,
     "unknown": [],
     "f": "CarEffects.cpp",
     "symbol_name": "CarEffect_UpdateWheelSurfaceParticles"
@@ -3144,9 +3144,9 @@
   },
   "0x4d40d0": {
     "n": "FrontendDraw_MenuPath",
-    "s": 0.75,
-    "x": false,
-    "fz": 0.8666666666666667,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FrontendDraw.cpp",
     "symbol_name": "FrontendDraw_MenuPath"
@@ -3180,9 +3180,9 @@
   },
   "0x4d4460": {
     "n": "FrontendDraw_HelpText",
-    "s": 0.8720379146919431,
-    "x": false,
-    "fz": 0.919431279620853,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FrontendDraw.cpp",
     "symbol_name": "FrontendDraw_HelpText"
@@ -5151,9 +5151,9 @@
   },
   "0x4e0770": {
     "n": "FrontendMenu_DrawAdvancedGraphicsOptions",
-    "s": 0.7654596100278551,
+    "s": 0.9113218070273285,
     "x": false,
-    "fz": 0.7988857938718663,
+    "fz": 0.9481316229782487,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawAdvancedGraphicsOptions"
@@ -7185,9 +7185,9 @@
   },
   "0x4e1230": {
     "n": "FrontendMenu_DrawMultiplayerRaceSettings",
-    "s": 0.9637826961770624,
-    "x": false,
-    "fz": 0.9999,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawMultiplayerRaceSettings"
@@ -7689,9 +7689,9 @@
   },
   "0x4d7380": {
     "n": "FrontendMenu_DrawProfileRenameEntry",
-    "s": 0.7949921752738655,
+    "s": 0.8,
     "x": false,
-    "fz": 0.9139280125195618,
+    "fz": 0.921875,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawProfileRenameEntry"
@@ -7788,9 +7788,9 @@
   },
   "0x4dfe20": {
     "n": "FrontendMenu_DrawGraphicsOptions",
-    "s": 0.9186281102891728,
+    "s": 0.928763440860215,
     "x": false,
-    "fz": 0.9293880295897781,
+    "fz": 0.9354838709677419,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawGraphicsOptions"
@@ -7824,9 +7824,9 @@
   },
   "0x4e90f0": {
     "n": "FrontendMenu_DrawNetworkExtendedStageSetup",
-    "s": 0.9525816649104321,
-    "x": false,
-    "fz": 0.9799789251844047,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawNetworkExtendedStageSetup"
@@ -7842,9 +7842,9 @@
   },
   "0x4dd4b0": {
     "n": "FrontendMenu_DrawNetworkSessionSetup",
-    "s": 0.8466135458167331,
+    "s": 0.8544272136068034,
     "x": false,
-    "fz": 0.9272908366533864,
+    "fz": 0.9354677338669335,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawNetworkSessionSetup"
@@ -22085,9 +22085,9 @@
   },
   "0x4b45d0": {
     "n": "Scene_AddShadowCaster",
-    "s": 0.5369649805447471,
+    "s": 0.6081871345029239,
     "x": false,
-    "fz": 0.9299610894941635,
+    "fz": 0.935672514619883,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Scene_AddShadowCaster"
@@ -25121,9 +25121,9 @@
   },
   "0x461830": {
     "n": "StageObject_BlendTimeOfDayRecord",
-    "s": 0.6005830903790087,
+    "s": 0.6297376093294461,
     "x": false,
-    "fz": 0.8513119533527697,
+    "fz": 0.880466472303207,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_BlendTimeOfDayRecord"
@@ -25166,9 +25166,9 @@
   },
   "0x461c30": {
     "n": "StageObject_RebuildViewWeatherLighting",
-    "s": 0.33921302578018997,
+    "s": 0.34177215189873417,
     "x": false,
-    "fz": 0.6585255540479421,
+    "fz": 0.6609403254972875,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_RebuildViewWeatherLighting"
@@ -26048,9 +26048,9 @@
   },
   "0x47c5e0": {
     "n": "AI_SelectWallCollisionResponse",
-    "s": 0.6522988505747126,
+    "s": 0.6589928057553956,
     "x": false,
-    "fz": 0.9482758620689655,
+    "fz": 0.9381294964028777,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "AI_SelectWallCollisionResponse"
@@ -26507,9 +26507,9 @@
   },
   "0x48e0a0": {
     "n": "Collision_TestCarAgainstSectorEdges",
-    "s": 0.6645865834633385,
+    "s": 0.7520525451559934,
     "x": false,
-    "fz": 0.8455538221528861,
+    "fz": 0.9425287356321839,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Collision_TestCarAgainstSectorEdges"
