@@ -3385,34 +3385,28 @@ void StageTiming_ResetPlayerLapRecord(int param_1, int param_2, int param_3, cha
         goto end;
     }
     if (g_unk0x00542cad == 0) {
-        if (CGameInfo::GetGameModeOptionBit19() != 0) {
-            if (g_unk0x00542cb4[0] != 0 && CGameInfo::GetConfiguredGameMode() != 10)
-                goto d8e;
-        }
-        else {
-            if (param_1 != g_unk0x00542cb0 && CGameInfo::GetConfiguredGameMode() != 3)
-                goto d8e;
-        }
+        if (CGameInfo::GetGameModeOptionBit19() != 0 ? (g_unk0x00542cb4[0] == 0 || CGameInfo::GetConfiguredGameMode() == 10)
+                                                     : (param_1 == g_unk0x00542cb0 || CGameInfo::GetConfiguredGameMode() == 3)) {
         g_unk0x00542e78[param_1].field_0x2 = -1;
         g_unk0x00542e78[param_1].field_0x6 = 0;
         g_unk0x00542e78[param_1].field_0xa = 1;
         g_unk0x00542e78[param_1].field_0xc = 1;
-    }
-    else {
+        g_unk0x00542e78[param_1].field_0xe = 0;
+        } else {
+        g_unk0x00542e78[param_1].field_0x2 = 0;
+        g_unk0x00542e78[param_1].field_0x6 = 1;
+        g_unk0x00542e78[param_1].field_0xa = 0;
+        g_unk0x00542e78[param_1].field_0x8 = 1;
+        g_unk0x00542e78[param_1].field_0xc = 1;
+        g_unk0x00542e78[param_1].field_0xe = 1;
+        }
+    } else {
         g_unk0x00542e78[param_1].field_0x2 = -1;
         g_unk0x00542e78[param_1].field_0x6 = 0;
         g_unk0x00542e78[param_1].field_0xa = 0;
         g_unk0x00542e78[param_1].field_0xc = 1000;
+        g_unk0x00542e78[param_1].field_0xe = 0;
     }
-    g_unk0x00542e78[param_1].field_0xe = 0;
-    goto end;
-d8e:
-    g_unk0x00542e78[param_1].field_0x2 = 0;
-    g_unk0x00542e78[param_1].field_0x6 = 1;
-    g_unk0x00542e78[param_1].field_0xa = 0;
-    g_unk0x00542e78[param_1].field_0x8 = 1;
-    g_unk0x00542e78[param_1].field_0xc = 1;
-    g_unk0x00542e78[param_1].field_0xe = 1;
 end:
     StageTiming_SetViewRouteDistanceLimit((BYTE)param_1, (int)g_unk0x00542e78[param_1].field_0x0, 1);
 }
