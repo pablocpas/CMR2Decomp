@@ -8472,9 +8472,9 @@
   },
   "0x4aa930": {
     "n": "CGame::AddConnection",
-    "s": 0.5584415584415584,
-    "x": false,
-    "fz": 0.7792207792207793,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "CGame::AddConnection"
@@ -29707,9 +29707,9 @@
   },
   "0x490720": {
     "n": "Collision_ClassifyFaceVertices",
-    "s": 0.8906666666666667,
+    "s": 0.9054054054054054,
     "x": false,
-    "fz": 0.9253333333333333,
+    "fz": 0.9378378378378378,
     "unknown": [],
     "f": "VehiclePhysics.cpp",
     "symbol_name": "Collision_ClassifyFaceVertices"
@@ -29743,9 +29743,9 @@
   },
   "0x48fb80": {
     "n": "Collision_ResolveSectorEdgeContact",
-    "s": 0.7833026396562308,
+    "s": 0.8228080931943593,
     "x": false,
-    "fz": 0.910988336402701,
+    "fz": 0.9160024524831392,
     "unknown": [],
     "f": "VehiclePhysics.cpp",
     "symbol_name": "Collision_ResolveSectorEdgeContact"
