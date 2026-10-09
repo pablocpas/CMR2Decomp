@@ -1088,9 +1088,7 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
     CGame::RegisterCallback(SavedGames_ReleaseRecords, NULL);
     Sound_Init(0x5622, 2, 0x10, 0);
     FrontendAudio_LoadSounds();
-    if (FrontendText_LoadFonts() == 0)
-        goto exit;
-    if (FrontendText_LoadRegionLanguages() == 0)
+    if (FrontendText_LoadFonts() == 0 || FrontendText_LoadRegionLanguages() == 0)
         goto exit;
     FrontendCredits_LoadText(1);
     FrontendScroller_ResetAll();

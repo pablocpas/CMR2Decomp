@@ -1011,11 +1011,11 @@ void GameMenu_DrawScrollingStageSplits(Menu *pMenu)
             if (StageTiming_GetCurrentSplitPositionOfDriver(player) == pos) {
                 isPlayer = true;
                 strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(player));
-                goto found;
+                break;
             }
         }
-        strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
-    found:
+        if (!isPlayer)
+            strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
                        (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
@@ -1214,11 +1214,11 @@ void GameMenu_DrawScrollingChampionshipPoints(Menu *pMenu)
             if (RallyTiming_GetOverallPositionOfDriver(StageTiming_GetDriverSlot(player)) == pos) {
                 isPlayer = true;
                 strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(player));
-                goto found;
+                break;
             }
         }
-        strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
-    found:
+        if (!isPlayer)
+            strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
                        (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60 + g_unk0x0053e698,
@@ -1309,11 +1309,11 @@ void GameMenu_DrawScrollingRallyTimes(Menu *pMenu)
             if (RallyTiming_GetOverallPositionOfDriver(0xf - player) == pos) {
                 isPlayer = TRUE;
                 strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(player));
-                goto found;
+                break;
             }
         }
-        strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
-    found:
+        if (!isPlayer)
+            strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
                        (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60 + g_unk0x0053e698,
@@ -1575,11 +1575,11 @@ void GameMenu_DrawScrollingStagePoints(Menu *pMenu)
             if (StageTiming_GetDriverSlot(player) == id) {
                 isPlayer = TRUE;
                 strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(player));
-                goto found;
+                break;
             }
         }
-        strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
-    found:
+        if (!isPlayer)
+            strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
                        (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
