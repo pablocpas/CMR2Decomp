@@ -873,54 +873,78 @@ HRESULT CGraphics::EnumeratePreferredHalDevices(LPSTR lpDeviceDescription, LPSTR
 // recolour masked areas. The untouched original is first saved in cache slot
 // cacheSlot so BltTexture can restore it.
 // match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Number of bits set in a pixel-format channel mask.
+static inline BYTE Bump_CountBits(DWORD mask)
+{
+    int count = 0;
+    int i;
+
+    for (i = 32; i != 0; i--) {
+        if (mask & 1)
+            count++;
+        mask >>= 1;
+    }
+    return count;
+}
+
+// Bit position of a pixel-format channel mask's lowest set bit (32 for an empty mask).
+static inline BYTE Bump_LowestSetBit(DWORD mask)
+{
+    int count;
+
+    for (count = 0; count < 32; count++) {
+        if (mask & 1)
+            break;
+        mask >>= 1;
+    }
+    return count;
+}
+
 // FUNCTION: CMR2 0x004a4d30
 void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD from1, WORD to1, WORD from2, WORD to2,
                                   int cacheSlot)
 {
     DDSURFACEDESC2 desc;
     RECT rect;
-    int width;
-    int height;
-    unsigned int mask;
-    BYTE bits;
-    int i;
-    int x;
-    int y;
+    unsigned int width;
+    unsigned int height;
+    int bits;
+    unsigned int x;
+    unsigned int y;
     int skip;
     DWORD *p32;
     WORD *p16;
+    short w;
+    short h;
+    DWORD f0, t0, f1, t1, f2, t2;
 
     desc.dwSize = sizeof(DDSURFACEDESC2);
     rect.left = 0;
-    rect.right = pTexture->width;
+    w = pTexture->width;
+    h = pTexture->height;
+    rect.right = w;
     rect.top = 0;
-    rect.bottom = pTexture->height;
+    rect.bottom = h;
     if (m_textureCache[cacheSlot].pSurface == NULL) {
-        CreateTextureSurface(&m_textureCache[cacheSlot], pTexture->width, pTexture->height, 9);
+        CreateTextureSurface(&m_textureCache[cacheSlot], w, h, 9);
         m_textureCache[cacheSlot].pSurface->Blt(&rect, pTexture->pSurface, NULL, DDBLT_WAIT, NULL);
         g_unk0x0065fa30++;
     }
     pTexture->pSurface->Lock(NULL, &desc, DDLOCK_WAIT, NULL);
-    width = (int)(short)pTexture->width;
-    height = (int)(short)pTexture->height;
-    bits = 0;
-    mask = desc.ddpfPixelFormat.dwRGBAlphaBitMask;
-    for (i = 32; i != 0; i--) {
-        if (mask & 1)
-            bits++;
-        mask >>= 1;
-    }
+    width = pTexture->width;
+    height = pTexture->height;
+    bits = Bump_CountBits(desc.ddpfPixelFormat.dwRGBAlphaBitMask);
     switch (bits) {
     case 4:
         skip = desc.lPitch - width * 2;
         p16 = (WORD *)desc.lpSurface;
-        for (y = height; y != 0; y--) {
-            for (x = width; x != 0; x--) {
-                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(from0 & 0xf0))
+        for (y = 0; y < height; y++) {
+            for (x = 0; x < width; x++) {
+                if ((WORD)((*p16 & 0xf000) >> 8) == (WORD)(((from0 << 8) & 0xf000) >> 8))
                     *p16 = (WORD)(((to0 & 0xf0) << 8) | (*p16 & 0xfff));
-                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(from1 & 0xf0))
+                if ((WORD)((*p16 & 0xf000) >> 8) == (WORD)(((from1 << 8) & 0xf000) >> 8))
                     *p16 = (WORD)(((to1 & 0xf0) << 8) | (*p16 & 0xfff));
-                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(from2 & 0xf0))
+                if ((WORD)((*p16 & 0xf000) >> 8) == (WORD)(((from2 << 8) & 0xf000) >> 8))
                     *p16 = (WORD)(((to2 & 0xf0) << 8) | (*p16 & 0xfff));
                 p16++;
             }
@@ -930,14 +954,20 @@ void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD 
     case 8:
         skip = (unsigned int)(desc.lPitch - width * 4) >> 2;
         p32 = (DWORD *)desc.lpSurface;
-        for (y = height; y != 0; y--) {
-            for (x = width; x != 0; x--) {
-                if ((*p32 >> 24) == from0)
-                    *p32 = (*p32 & 0xffffff) | ((DWORD)to0 << 24);
-                if ((*p32 >> 24) == from1)
-                    *p32 = (*p32 & 0xffffff) | ((DWORD)to1 << 24);
-                if ((*p32 >> 24) == from2)
-                    *p32 = (*p32 & 0xffffff) | ((DWORD)to2 << 24);
+        f0 = from0;
+        t0 = to0;
+        f1 = from1;
+        t1 = to1;
+        f2 = from2;
+        t2 = to2;
+        for (y = 0; y < height; y++) {
+            for (x = 0; x < width; x++) {
+                if ((*p32 >> 24) == f0)
+                    *p32 = (*p32 & 0xffffff) | (t0 << 24);
+                if ((*p32 >> 24) == f1)
+                    *p32 = (*p32 & 0xffffff) | (t1 << 24);
+                if ((*p32 >> 24) == f2)
+                    *p32 = (*p32 & 0xffffff) | (t2 << 24);
                 p32++;
             }
             p32 += skip;
@@ -2054,33 +2084,6 @@ void CGraphics::SetProjection(int fovX, int fovY, int farPlane, int nearPlane)
     tmp = matrix;
     m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &tmp);
     m_farPlaneFixed = farPlane;
-}
-
-// Number of bits set in a bump-map channel mask.
-static inline BYTE Bump_CountBits(DWORD mask)
-{
-    int count = 0;
-    int i;
-
-    for (i = 32; i != 0; i--) {
-        if (mask & 1)
-            count++;
-        mask >>= 1;
-    }
-    return count;
-}
-
-// Bit position of a channel mask's lowest set bit (32 for an empty mask).
-static inline BYTE Bump_LowestSetBit(DWORD mask)
-{
-    int count;
-
-    for (count = 0; count < 32; count++) {
-        if (mask & 1)
-            break;
-        mask >>= 1;
-    }
-    return count;
 }
 
 // FUNCTION: CMR2 0x004a5880
