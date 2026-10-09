@@ -1,7 +1,7 @@
 {
   "build": {
-    "commit": "99a949cdf338ca31bd30b90a4f2e802977f1971e",
-    "source_changed": false,
+    "commit": "f3322d40a70163ce123957502916572a54c88494",
+    "source_changed": true,
     "windowed": false,
     "flags": [
       "/O2",
@@ -38,6 +38,9 @@
       "TimingUtils.cpp",
       "TrackCollision.cpp"
     ],
+    "o1_files": [
+      "CrtTypeInfo.cpp"
+    ],
     "zlib_flags": [
       "/Ob2",
       "/TC"
@@ -57,6 +60,7 @@
       "CMR2Decomp/CascadeSeedDeps.cpp": "bfa2c3ab6259ca648c47a9b64e8be6e6660cd0eac0e4c1ca2ba25bc44812603f",
       "CMR2Decomp/Collision2D.cpp": "b384bcaf335dc6f15feebbe1d91d7201a548ef14c5d980bd200adb91eae0a9e7",
       "CMR2Decomp/Collision2D.h": "6eedd09d731eed8519479030202ff14b86ed9cf89bb26fc7e83f68aa9a4b0aac",
+      "CMR2Decomp/CrtTypeInfo.cpp": "4688c2e984b6a872dc2fa61cf81b9bfb8730fb8fe5ed27cb540e2ce095ed1dd2",
       "CMR2Decomp/FileBuffer.cpp": "996560b1438f94d2b34ad9bfc20a260871486f481b556c694297de6e2f7adcb3",
       "CMR2Decomp/FileBuffer.h": "38afa99a1ea6bc78ef37511f715e61e494639a6e711308824858aefe2198eeee",
       "CMR2Decomp/FixedPoint.cpp": "13d617dc65b26b03c6c9526eb095cbd59fa81517559f95f46a37072c9aba066f",
@@ -74,7 +78,7 @@
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
       "CMR2Decomp/Game.cpp": "86308b3429af58450860f8d908039fe7d630816ce1d3a559adf942db2bd43722",
       "CMR2Decomp/Game.h": "3ac93fd8707b75dea487ba1a23170a63a0099477a95f0c5a0c7d98c31726bf03",
-      "CMR2Decomp/GameInfo.cpp": "eacf26797dd6cf1a3336cec73a5c878077f7b9a10d8b5df0f4d98fb0f4ff5114",
+      "CMR2Decomp/GameInfo.cpp": "4504a570818fd61bafa250e3f06abb268328375eea14caf6a36f6296dcbd71ea",
       "CMR2Decomp/GameInfo.h": "191777cd7d1cc6c81276e22879fd745d02fc9fa7b29ac05f0bff3761ae5b8bb7",
       "CMR2Decomp/GameMenus.cpp": "4c67ecfeebcaeaf5852573a8e609a8a30b085907b093079789394f8d45df490a",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
@@ -167,18 +171,18 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "95cb6c014235ff848e4208a25f93a9f7ff7f0b840e557fb78d27d0801af10369",
-    "pdb_sha256": "22a3dcc9fdb9816467f633b95c8c25c7744bad2052fda4ef71c7edd0ab81752f"
+    "exe_sha256": "e8e70899208261d08877c8e4c896417740b74184f13d154be281706bb6a561a2",
+    "pdb_sha256": "a12bbf22adbe1f9a7d0d1e58fc25ae162455be57488956fc4b5c6a3e7fdc1714"
   },
-  "perfect_match_percent": 54.81,
+  "perfect_match_percent": 54.82,
   "fuzzy_match_percent": 94.05,
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
   "measured_functions": 3368,
-  "reccmp_exact": 2738,
+  "reccmp_exact": 2739,
   "audited_source_functions": 3364,
-  "relocated_byte_exact": 2905,
-  "nonmatching_source_functions": 459,
+  "relocated_byte_exact": 2906,
+  "nonmatching_source_functions": 458,
   "unresolved_source_functions": [
     "0x496e00",
     "0x5062d0",
@@ -189,5 +193,5 @@
   ],
   "data_variables": 3207,
   "data_issues": 0,
-  "byte_auditor_sha256": "bfc4fd421a968e75452df809bfd2ab83c0658dac5547fed6efcf519ff5c02183"
+  "byte_auditor_sha256": "1ac8835e1dc1c0e462166ef572ecc9f2b4aee4a841d3fc6a516a06b39939d155"
 }

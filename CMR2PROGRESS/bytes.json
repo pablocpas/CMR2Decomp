@@ -1729,6 +1729,15 @@
     "f": "Collision2D.cpp",
     "symbol_name": "Collision_ResolveStaticObstacleContact"
   },
+  "0x5105a0": {
+    "n": "type_info::DeleteWithFlags",
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
+    "unknown": [],
+    "f": "CrtTypeInfo.cpp",
+    "symbol_name": "type_info::DeleteWithFlags"
+  },
   "0x4aad70": {
     "n": "CFileBuffer::AllocateLockedBuffer",
     "s": 1.0,
@@ -12825,15 +12834,6 @@
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_DrawRallyInfoScreen"
-  },
-  "0x5105a0": {
-    "n": "type_info::DeleteWithFlags",
-    "s": 0.8181818181818182,
-    "x": false,
-    "fz": 0.9090909090909091,
-    "unknown": [],
-    "f": "GameInfo.cpp",
-    "symbol_name": "type_info::DeleteWithFlags"
   },
   "0x50cc10": {
     "n": "OptionMenu_DrawGameInfoLayout",

@@ -249,7 +249,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x486c30	StageObject_QueueViewLensFlare	StageObjects.cpp	907	0.8173652694610778	0.7289156626506024
 0x4b7de0	Sector_CullGridAroundViewNode	Sector.cpp	1164	0.8180645161290323	0.7644787644787645
 0x47cc50	StageObject_UpdateApproachingCar	StageObjects.cpp	169	0.8181818181818182	0.8181818181818182
-0x5105a0	type_info::DeleteWithFlags	GameInfo.cpp	28	0.8181818181818182	0.8181818181818182
 0x46ed80	CarSkid_SpawnWheelDustPuff	StageObjects.cpp	304	0.819047619047619	0.8699551569506726
 0x478a20	SurfaceText_LoadRegionalStringTable	SurfaceTypes.cpp	228	0.8217054263565892	0.8403361344537815
 0x47f740	Fireworks_Draw	StageObjects.cpp	1380	0.8223350253807107	0.8274111675126904

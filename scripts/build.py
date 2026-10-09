@@ -15,6 +15,8 @@ QIFIST = set("Race.cpp StageUI.cpp TimingUtils.cpp Frontend.cpp FrontendScreens.
              "CarPhysics.cpp HudDash.cpp CarEffects.cpp TrackCollision.cpp RallyData.cpp "
              "Mesh.cpp Sector.cpp StageTiming.cpp StageObjects.cpp SceneNode.cpp "
              "FixedPoint.cpp RallyTiming.cpp NetRace.cpp".split())
+# Code the original linked from Microsoft's runtime library, which is built for size.
+CRT_O1 = set("CrtTypeInfo.cpp".split())
 
 
 def sha256(path):
@@ -64,10 +66,11 @@ def main():
         flags.append("/DCMR2_WINDOWED")
     sources = sorted((ROOT / "CMR2Decomp").glob("*.cpp"))
     groups = [([p for p in sources if p.name in QIFIST], ["/QIfist"]),
+              ([p for p in sources if p.name in CRT_O1], ["/O1"]),
               # zlib 1.1.3 was compiled as C (the Rich header lists C objects).
               ([p for p in sources if p.name.startswith("Zlib") and p.name != "ZlibZutil.cpp"], ["/Ob2", "/TC"]),
               ([p for p in sources if p.name == "ZlibZutil.cpp"], ["/Ob2"]),
-              ([p for p in sources if p.name not in QIFIST and not p.name.startswith("Zlib")], [])]
+              ([p for p in sources if p.name not in QIFIST | CRT_O1 and not p.name.startswith("Zlib")], [])]
     for paths, extra in groups:
         if paths:
             subprocess.run(prefix + ["/c"] + flags + extra + ["/Fo" + win(build) + "\\"] +
@@ -85,7 +88,7 @@ def main():
                                     cwd=ROOT).returncode != 0
     manifest = {"commit": commit, "source_changed": source_changed,
                 "windowed": args.windowed, "flags": flags,
-                "qifist_files": sorted(QIFIST), "zlib_flags": ["/Ob2", "/TC"], "compiler_sha256": sha256(compiler),
+                "qifist_files": sorted(QIFIST), "o1_files": sorted(CRT_O1), "zlib_flags": ["/Ob2", "/TC"], "compiler_sha256": sha256(compiler),
                 "source_sha256": {str(p.relative_to(ROOT)): sha256(p)
                                   for p in sorted((ROOT / "CMR2Decomp").rglob("*"))
                                   if p.suffix in (".cpp", ".h")},

@@ -812,6 +812,7 @@ def main():
     ):
         parser.error("CMR2_MSVC_ROOT must point to the compiler used for this build.")
     F.QIFIST = set(manifest["qifist_files"])
+    F.CRT_O1 = set(manifest.get("o1_files", []))
     for suffix in ("exe", "pdb"):
         actual = hashlib.sha256(
             (ROOT / ("build/CMR2." + suffix)).read_bytes()

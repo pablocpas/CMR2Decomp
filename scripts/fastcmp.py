@@ -21,6 +21,7 @@ MSVC = os.environ.get('CMR2_MSVC_ROOT') or next(
     (p for p in (REPO + '/msvc600/VC98', os.path.dirname(REPO) + '/msvc600/VC98') if os.path.isdir(p)),
     REPO + '/msvc600/VC98')
 QIFIST = set("Race.cpp StageUI.cpp TimingUtils.cpp Frontend.cpp FrontendScreens.cpp Game.cpp GameInfo.cpp Graphics.cpp Sprite.cpp Car.cpp Sound.cpp CarPhysics.cpp HudDash.cpp CarEffects.cpp TrackCollision.cpp RallyData.cpp Mesh.cpp Sector.cpp StageTiming.cpp StageObjects.cpp SceneNode.cpp FixedPoint.cpp RallyTiming.cpp NetRace.cpp".split())
+CRT_O1 = set("CrtTypeInfo.cpp".split())
 IMGBASE = 0x400000
 
 # ---------------------------------------------------------------- PE / COFF
@@ -173,6 +174,7 @@ def compile_tu(src, objout):
     qifist = b in QIFIST or (os.environ.get('FASTCMP_QIFIST_ALL') and not b.startswith('Zlib'))
     if os.environ.get('FASTCMP_TOGGLE_QIFIST'): qifist = not qifist   # flag experiments
     if qifist: fl.append('/QIfist')
+    if b in CRT_O1: fl.append('/O1')   # runtime-library code, built for size
     if b.startswith('Zlib'): fl.append('/Ob2')
     if b.startswith('Zlib') and b != 'ZlibZutil.cpp': fl.append('/TC')   # zlib was built as C (Rich header: C objects)
     fl += os.environ.get('FASTCMP_EXTRA', '').split()
