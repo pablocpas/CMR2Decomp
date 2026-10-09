@@ -4365,20 +4365,23 @@ void StageTiming_SnapshotStageReplayColours(int car)
 void StageTiming_InsertDriverSplitRanking(int driver, int hundredths, int split)
 {
     int time = Timing_CentisecondsToFixedSeconds(hundredths);
-    int slot = driver;
+    int slot;
     int pos;
     int i;
     int c;
 
     if (driver < g_unk0x00541f98)
         slot = g_unk0x00541f90[StageUI_GetRaceEndEventCount() & 0xff];
+    else
+        slot = driver;
     g_stageSplitTimesRaw[split][slot] = time;
-    for (pos = 0; g_stageSplitTimesRaw[split][g_stageSplitTimesRawDriverIx[split][pos]] < time &&
-                  pos != g_stageSplitDriverCount[split];) {
-        pos++;
-        if (pos >= 16)
-            goto done;
+    for (pos = 0; pos < 16; pos++) {
+        if (time <= g_stageSplitTimesRaw[split][g_stageSplitTimesRawDriverIx[split][pos]] ||
+            pos == g_stageSplitDriverCount[split])
+            goto insert;
     }
+    goto done;
+insert:
     for (i = 15; pos < i; i--) {
         g_stageSplitTimesRawDriverIx[split][i] = g_stageSplitTimesRawDriverIx[split][i - 1];
         c = g_stageSplitDriverIndices[split][i - 1];
