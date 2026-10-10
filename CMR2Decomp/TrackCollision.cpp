@@ -445,9 +445,9 @@ void Car_UpdateAutomaticGear(void)
     }
 }
 
-void StageObject_GetCurrentObjectPointer(SceneNode **pOut);
-void StageObject_GetCurrentObjectContext(SceneNode **pOut);
-void StageObject_GetCurrentObjectValues(SceneNode **pOut1, SceneNode **pOut2);
+void StageObject_GetSkyNode(SceneNode **pOut);
+void StageObject_GetGroundNode(SceneNode **pOut);
+void StageObject_GetCloudNodes(SceneNode **pOut1, SceneNode **pOut2);
 extern BYTE *g_unk0x005920f0;
 extern FixVector g_unk0x00592114;
 
@@ -544,9 +544,9 @@ void Stage_InitLightMeshes(void)
     int maximum;
     float *vertices;
 
-    StageObject_GetCurrentObjectPointer(&object0);
-    StageObject_GetCurrentObjectContext(&context);
-    StageObject_GetCurrentObjectValues(&object2, &object3);
+    StageObject_GetSkyNode(&object0);
+    StageObject_GetGroundNode(&context);
+    StageObject_GetCloudNodes(&object2, &object3);
     node = NULL;
     root = NULL;
     child = NULL;
@@ -1077,7 +1077,7 @@ void Track_ShiftMeshAndAmbientHeights(int oldHeight, int newHeight, int mode)
     g_unk0x00592128 = mode;
     g_unk0x00592130 = newHeight;
     g_unk0x0059212c = oldHeight;
-    StageObject_GetCurrentObjectPointer(&object);
+    StageObject_GetSkyNode(&object);
     FixMatrix_RotateVector(&position, &g_unk0x00592114, &object->current);
     position.y += g_unk0x0059212c;
     Scene_SetLightPosition(g_stageAmbientNode, position.x, position.y, position.z);

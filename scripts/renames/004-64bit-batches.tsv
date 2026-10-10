@@ -1,0 +1,4 @@
+address	old_name	new_name	evidence	file	line	signature	comment
+0x0046f4c0	StageObject_GetCurrentObjectPointer	StageObject_GetSkyNode	Body: { *pOut = g_stageSkyNode; }	CMR2Decomp/StageObjects.cpp	1773	void StageObject_GetSkyNode(SceneNode **pOut)	Returns the stage sky node.
+0x0046f4d0	StageObject_GetCurrentObjectContext	StageObject_GetGroundNode	Body: { *pOut = g_stageGroundNode; }	CMR2Decomp/StageObjects.cpp	1779	void StageObject_GetGroundNode(SceneNode **pOut)	Returns the stage ground node.
+0x0046f4e0	StageObject_GetCurrentObjectValues	StageObject_GetCloudNodes	Body: { *pOut1 = g_stageCloudNode; *pOut2 = g_stageCloudTopNode; }	CMR2Decomp/StageObjects.cpp	1814	void StageObject_GetCloudNodes(SceneNode **pOut1, SceneNode **pOut2)	Returns the two cloud nodes.

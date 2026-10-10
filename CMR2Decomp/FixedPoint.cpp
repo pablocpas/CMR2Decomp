@@ -1107,7 +1107,7 @@ FixVector g_unk0x00589458[8];
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface,
                           int defaultY);
 
-struct StageObjectEntry0x128 {
+struct MovingObject {
     int field_0x0;              // 0x000 route element of the object
     SceneNode *pObject;         // 0x004 scene node (head of the object's node chain)
     FixMatrix keyB;             // 0x008 previous key
@@ -1150,7 +1150,7 @@ inline int FixVecNormalizeLen(FixVector *pOut, FixVector *pV)
 // point and returns the signed distance from the point to the ground plane.
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004702f0
-int StageObject_ProbeGroundDistance(StageObjectEntry0x128 *pObj, FixVector *pPoint)
+int StageObject_ProbeGroundDistance(MovingObject *pObj, FixVector *pPoint)
 {
     unsigned short surface;
     FixVector neg;
@@ -1400,7 +1400,7 @@ void NetRace_ExtrapolateOrderedCarPoses(Car *pCars, short *pOrder, short count)
 // 0x128-byte record per object (defined in StageObjects.cpp, which owns the
 // GLOBAL annotations of the table and of the active count).
 struct MovingObjects {
-    StageObjectEntry0x128 entries[40];
+    MovingObject entries[40];
     BYTE meshCount;
     BYTE field_0x2e41[0x103];
     int carDistance[40 * 8];
@@ -1481,7 +1481,7 @@ void StageObject_UpdateMovingTransforms(void)
     FixVector v;
     FixAngles angles;
     FixMatrix *pMatrix;
-    StageObjectEntry0x128 *pObj;
+    MovingObject *pObj;
     SceneNode *pNode;
     int len;
     int len2;

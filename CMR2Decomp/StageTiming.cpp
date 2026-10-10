@@ -719,8 +719,9 @@ void StageTiming_SetNodeTreeVertexGrey(SceneNode *pNode, BYTE colour)
     }
 }
 
+// Replay streams of the eight cars (ReplayStream), reached through g_replaySlots.
 // GLOBAL: CMR2 0x00588e80
-void *g_unk0x00588e80[8];
+void *g_replayStreams[8];
 extern void *g_unk0x00588ea0[8];
 // GLOBAL: CMR2 0x00588d3c
 int g_unk0x00588d3c;
@@ -732,7 +733,7 @@ BOOL Replay_ReleaseStageBuffers(void)
 {
     void **p;
 
-    p = g_unk0x00588e80;
+    p = g_replayStreams;
     do {
         if (*p != NULL) {
             CFileBuffer::FreeGenericFileBuffer(*p);
@@ -740,7 +741,7 @@ BOOL Replay_ReleaseStageBuffers(void)
         }
         p++;
     // 0x588ea0 in the original (g_unk0x00588ea0, the next global).
-    } while ((int)p < (int)(g_unk0x00588e80 + 8));
+    } while ((int)p < (int)(g_replayStreams + 8));
     g_unk0x00588d3c = 0;
     g_unk0x00588d14 = 0;
     return TRUE;

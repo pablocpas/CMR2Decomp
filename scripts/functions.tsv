@@ -1397,9 +1397,9 @@ addr	size	name	callers	callees	fpu	thunk	external
 0046f060	714	StageObjects_LoadSkyAndGround	1	9	0	false	false
 0046f330	353	StageObject_PositionSplitViewNodes	1	9	0	false	false
 0046f4a0	28	StageObject_GetCurrentObjectPosition	1	1	0	false	false
-0046f4c0	15	StageObject_GetCurrentObjectPointer	4	0	0	false	false
-0046f4d0	15	StageObject_GetCurrentObjectContext	1	0	0	false	false
-0046f4e0	26	StageObject_GetCurrentObjectValues	3	0	0	false	false
+0046f4c0	15	StageObject_GetSkyNode	4	0	0	false	false
+0046f4d0	15	StageObject_GetGroundNode	1	0	0	false	false
+0046f4e0	26	StageObject_GetCloudNodes	3	0	0	false	false
 0046f500	79	StageObjects_ReleaseObjectFiles	0	1	0	false	false
 0046f550	655	StageObject_LoadAndClassifyMeshes	1	7	18	false	false
 0046f7e0	44	StageObject_ResetMovingObjectCountsAndPhases	2	0	0	false	false

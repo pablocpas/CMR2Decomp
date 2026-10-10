@@ -23917,22 +23917,22 @@
     "symbol_name": "Replay_GetStreamFrameState"
   },
   "0x46f4c0": {
-    "n": "StageObject_GetCurrentObjectPointer",
+    "n": "StageObject_GetSkyNode",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_GetCurrentObjectPointer"
+    "symbol_name": "StageObject_GetSkyNode"
   },
   "0x46f4d0": {
-    "n": "StageObject_GetCurrentObjectContext",
+    "n": "StageObject_GetGroundNode",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_GetCurrentObjectContext"
+    "symbol_name": "StageObject_GetGroundNode"
   },
   "0x46f500": {
     "n": "StageObjects_ReleaseObjectFiles",
@@ -23944,13 +23944,13 @@
     "symbol_name": "StageObjects_ReleaseObjectFiles"
   },
   "0x46f4e0": {
-    "n": "StageObject_GetCurrentObjectValues",
+    "n": "StageObject_GetCloudNodes",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_GetCurrentObjectValues"
+    "symbol_name": "StageObject_GetCloudNodes"
   },
   "0x46f060": {
     "n": "StageObjects_LoadSkyAndGround",
