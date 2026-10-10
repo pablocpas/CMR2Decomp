@@ -689,14 +689,13 @@ void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, Quad2D *pDest)
     p->verts = *pVerts;
 }
 
-struct Unk0x004a3e20;
-void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
+void Frontend_SetObjectField118(struct Texture *pTexture, int value);
 void Graphics_InvalidateTextureStageCache(void);
 
 // Applies the texture (with its blend setup) and the z/cull flags of a queued quad.
 #define QUAD2D_SET_STATE(q)                                                          \
     if ((q)->pTexture != NULL) {                                                    \
-        Frontend_SetObjectField118((Unk0x004a3e20 *)(q)->pTexture, (q)->pTexture->blendMode);      \
+        Frontend_SetObjectField118((q)->pTexture, (q)->pTexture->blendMode);      \
         CGraphics::ApplyTextureStageChange(0, (int)(q)->pTexture);                              \
     } else {                                                                        \
         CGraphics::ApplyTextureStageChange(0, 0);                                               \

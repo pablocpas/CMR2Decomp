@@ -1514,6 +1514,6 @@ struct BillboardDef {
     BYTE flags;                 // 0x23 1 mirrored, 2 lit by the scene light
     int field_0x24;
 };
-void Billboard_Add(BillboardDef *pDef, unsigned short *pTexture);
+void Billboard_Add(BillboardDef *pDef, Texture *pTexture);
 
 #endif

@@ -575,7 +575,7 @@ unsigned short Input_GetControllerSlotMapping(unsigned short slot);
 void Car_SetDrawnFlag(int index, char value);
 int StageTiming_GetCarReplayTailEntry(void *pCar, int index);
 void CarInterior_UpdateWiperSweep(int index);
-int InRaceMenu_GetRoundBoxTexture(void);
+Texture *InRaceMenu_GetRoundBoxTexture(void);
 int CarInterior_UpdateSteeringBlendFraction(int car, int pCar);
 
 // Global fixed-point lighting parameters for both stage conditions.
@@ -2660,11 +2660,11 @@ void StageObject_DrawOutlinedStageBox(short *pRect, BYTE *pColour, BYTE *pEdgeCo
         dest.y = pRect[1];
         // The texture quad is scaled to the rectangle and to the reference
         // resolution (640x480) it was authored for.
-        dest.w = (short)(((int)((Texture *)InRaceMenu_GetRoundBoxTexture())->width * (int)pRect[2] * (int)g_pGraphics->resX / 0x280) /
+        dest.w = (short)(((int)InRaceMenu_GetRoundBoxTexture()->width * (int)pRect[2] * (int)g_pGraphics->resX / 0x280) /
                           ((int)g_pGraphics->resX * 0x55 / 0x280));
-        dest.h = (short)(((int)((Texture *)InRaceMenu_GetRoundBoxTexture())->height * (int)pRect[3] * (int)g_pGraphics->resY / 0x1e0) /
+        dest.h = (short)(((int)InRaceMenu_GetRoundBoxTexture()->height * (int)pRect[3] * (int)g_pGraphics->resY / 0x1e0) /
                           ((int)g_pGraphics->resY * 0x26 / 0x1e0));
-        Sprite_Queue((SpriteRect *)(InRaceMenu_GetRoundBoxTexture() + 0x11c), &dest, (Texture *)InRaceMenu_GetRoundBoxTexture(), 2, 0, 0, 0,
+        Sprite_Queue((SpriteRect *)&InRaceMenu_GetRoundBoxTexture()->field_0x11c, &dest, InRaceMenu_GetRoundBoxTexture(), 2, 0, 0, 0,
                      pEdgeColour, 8);
     }
 }
@@ -2858,7 +2858,7 @@ void *g_unk0x00590af8;
 // GLOBAL: CMR2 0x00590afc
 BYTE g_unk0x00590afc;
 // GLOBAL: CMR2 0x00590b00
-int g_unk0x00590b00;
+Texture *g_unk0x00590b00;
 // GLOBAL: CMR2 0x00590b04
 void *g_unk0x00590b04;
 // GLOBAL: CMR2 0x00590b08
@@ -5486,8 +5486,7 @@ void CarLight_ResetTextureState(int index)
 
 SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
 void Graphics_SetRecordField2C(BYTE *p, int value);
-struct Unk0x004a3e20;
-void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
+void Frontend_SetObjectField118(struct Texture *pTexture, int value);
 
 // Resets a car's light texture levels and caches the textures of its two
 // body parts (scene nodes of type 0xe).
@@ -5507,13 +5506,13 @@ void CarLight_CacheBodyTextures(int car, int unused1, int unused2, BYTE flag)
     Graphics_SetRecordField2C(pMesh, 0);
     pTexture = CGraphics::m_pTextureManager->textureBuffer[*(int *)(*(BYTE **)(pMesh + 0x24) + 4)];
     pRecord->textures[0] = pTexture;
-    Frontend_SetObjectField118((Unk0x004a3e20 *)pTexture, 2);
+    Frontend_SetObjectField118(pTexture, 2);
     if (Car_Get(car)->pAlternateBodyNode != NULL) {
         pMesh = *(BYTE **)((BYTE *)SceneNode_FindByType(Car_Get(car)->pAlternateBodyNode, 0xe) + 0xc);
         Graphics_SetRecordField2C(pMesh, 0);
         pTexture = CGraphics::m_pTextureManager->textureBuffer[*(int *)(*(BYTE **)(pMesh + 0x24) + 4)];
         pRecord->textures[1] = pTexture;
-        Frontend_SetObjectField118((Unk0x004a3e20 *)pTexture, 2);
+        Frontend_SetObjectField118(pTexture, 2);
     }
 }
 
@@ -5629,8 +5628,8 @@ BYTE g_unk0x0051c984[4] = { 210, 202, 210, 128 };
 // GLOBAL: CMR2 0x0051c994
 BYTE g_unk0x0051c994[4] = { 143, 135, 143, 255 };
 
-int InRaceMenu_GetUpArrowTexture(void);
-int InRaceMenu_GetDownArrowTexture(void);
+Texture *InRaceMenu_GetUpArrowTexture(void);
+Texture *InRaceMenu_GetDownArrowTexture(void);
 
 // Draws the stage-data panel of the pause screen: its background, the row
 // separators and, for every item, the label and the highlight sprite.
@@ -5645,15 +5644,15 @@ void StageObject_DrawPauseStageDataPanel(Menu *pMenu)
     short rect[4];
     short rect2[4];
     int i;
-    int texture;
+    Texture *texture;
     BYTE *pColour;
 
     rect2[0] = (short)((int)(g_pGraphics->resX * 0x64) / 0x280);
     rect2[1] = (short)((int)(g_pGraphics->resY * 0xd1) / 0x1e0);
     texture = InRaceMenu_GetUpArrowTexture();
-    rect2[2] = *(short *)(texture + 0x120);
+    rect2[2] = texture->width;
     texture = InRaceMenu_GetUpArrowTexture();
-    rect2[3] = *(short *)(texture + 0x122);
+    rect2[3] = texture->height;
     rect[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
     rect[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
     rect[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
@@ -5680,7 +5679,7 @@ void StageObject_DrawPauseStageDataPanel(Menu *pMenu)
                       (int)(g_pGraphics->resY * i * 0x24) / 0x1e0
                           + (int)(g_pGraphics->resY * 0xdd) / 0x1e0,
                       (int *)pColour, 0x11);
-        Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect2, (Texture *)texture,
+        Sprite_Queue((SpriteRect *)&texture->field_0x11c, (SpriteRect *)rect2, texture,
                      2, 0, NULL, NULL, pColour, 8);
         if (i == 0 || pMenu->cursor == i) {
             rect[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
@@ -6924,8 +6923,7 @@ void StageObject_UpdateSunVisibility(short *pRect)
 // Stage lights: up to eight glowing lamps (e.g. start lights) whose on/off
 // pattern per state comes from g_stageLightStates, plus the car lamp textures.
 
-struct Unk0x004a3e20;
-void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
+void Frontend_SetObjectField118(struct Texture *pTexture, int value);
 
 struct StageLight {
     GlowLight *pGlow;        // glow source
@@ -7073,8 +7071,8 @@ void StageLights_LoadTextures(void)
 
     LOAD_STAGE_TEXTURE(g_stageLightRedTexture, g_strLightRedTga);
     LOAD_STAGE_TEXTURE(g_stageLightGreenTexture, g_strLightGreenTga);
-    Frontend_SetObjectField118((Unk0x004a3e20 *)g_stageLightRedTexture, 1);
-    Frontend_SetObjectField118((Unk0x004a3e20 *)g_stageLightGreenTexture, 1);
+    Frontend_SetObjectField118(g_stageLightRedTexture, 1);
+    Frontend_SetObjectField118(g_stageLightGreenTexture, 1);
     g_stageLightTexture = g_stageLightRedTexture;
 }
 
@@ -8577,8 +8575,7 @@ inline void StageObj_NormalizeInto(FixVector *out, FixVector *v)
 }
 
 
-struct Unk0x004a3e20;
-void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
+void Frontend_SetObjectField118(struct Texture *pTexture, int value);
 
 // Finds the rev counter and digit textures for a player.
 // FUNCTION: CMR2 0x00477340
@@ -8592,7 +8589,7 @@ void StageObject_FindPlayerRevTextures(int player)
                    base, CFrontend::m_stringDest);
         sprintf(CFrontend::m_stringDest, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)base));
         if (strcmp(CFrontend::m_stringDest, CGraphics::m_strSuffixREVCT) == 0) {
-            Frontend_SetObjectField118((Unk0x004a3e20 *)(g_carInteriorDashTextures[player].revCounter =
+            Frontend_SetObjectField118((g_carInteriorDashTextures[player].revCounter =
                                                              CGraphics::m_pTextureManager->textureBuffer[i]), 2);
         }
         if (strcmp(CFrontend::m_stringDest, CGraphics::m_strSuffixDIGIT) == 0)
@@ -10102,7 +10099,7 @@ void StageObject_CycleDriverCameraSelection(unsigned int param_1, unsigned int p
     }
 }
 
-extern int g_unk0x00547ad0;
+extern Texture *g_unk0x00547ad0;
 
 // 0x547abc is g_stageLighting.intensity (the lighting block runs to 0x547ac8).
 #define g_weatherLightIntensity (g_stageLighting.intensity)
@@ -10420,10 +10417,10 @@ void StageObject_DrawProjectedViewIcon(int param_1, int param_2)
     icon.y = 0;
     if (g_unk0x00547ad0 == 0)
         return;
-    uv.x = *(short *)(g_unk0x00547ad0 + 0x11c);
-    uv.y = *(short *)(g_unk0x00547ad0 + 0x11e);
-    uv.w = *(short *)(g_unk0x00547ad0 + 0x120);
-    uv.h = *(short *)(g_unk0x00547ad0 + 0x122);
+    uv.x = g_unk0x00547ad0->field_0x11c;
+    uv.y = g_unk0x00547ad0->field_0x11e;
+    uv.w = g_unk0x00547ad0->width;
+    uv.h = g_unk0x00547ad0->height;
     view = (int)g_viewNodes[param_2];
     StageObject_GetRotatedStageLightVector(&vR);
     StageObject_GetCurrentObjectPosition(&vP);
@@ -10465,7 +10462,7 @@ void StageObject_DrawProjectedViewIcon(int param_1, int param_2)
     dst.h = (short)(FixMul(g_sunIconHeightScale, *((int *)g_pGraphics + 1) << 16) >> 16);
     dst.x = (short)(vOut.x - dst.w / 2);
     dst.y = (short)(vOut.y - dst.h / 2);
-    Sprite_Queue(&uv, &dst, (Texture *)g_unk0x00547ad0, 2, 0, 0, 0, colour, 8);
+    Sprite_Queue(&uv, &dst, g_unk0x00547ad0, 2, 0, 0, 0, colour, 8);
 }
 
 
@@ -11690,8 +11687,8 @@ void StageObject_RebuildCarLightMeshes(int param_1)
                     if (node == NULL)
                         node = *(SceneNode **)(param_1 + 0x720);
                 }
-                Frontend_SetObjectField118((Unk0x004a3e20 *)g_carLightTexA[pPoint->slot], 1);
-                Frontend_SetObjectField118((Unk0x004a3e20 *)g_carLightTexB[pPoint->slot], 1);
+                Frontend_SetObjectField118(g_carLightTexA[pPoint->slot], 1);
+                Frontend_SetObjectField118(g_carLightTexB[pPoint->slot], 1);
                 scale.x = 0x10000;
                 projected = 0;
                 if (pPoint->type == 9)
@@ -14391,7 +14388,7 @@ int CarDamage_PickRandomTriangleEdgePoint(FixVector *pOut, CarPartSet *pParts, i
 BillboardDef g_bodySparkBillboard;
 
 extern int g_unk0x0051bd3c;
-extern int g_unk0x005477f0;
+extern Texture *g_unk0x005477f0;
 CarPartSet *StageTiming_GetCarReplayRecord(int index);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 
@@ -14403,9 +14400,9 @@ int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar);
 void Scene_GetLightColour(DWORD *pColour, int level);
 extern BYTE g_unk0x00543da0Block[0x90];
 #define g_unk0x00543da0 (*(int *)g_unk0x00543da0Block)
-extern int g_unk0x00543e90;
-extern int g_unk0x00543ea4;
-extern int g_unk0x00543ea8[3];
+extern Texture *g_unk0x00543e90;
+extern Texture *g_unk0x00543ea4;
+extern Texture *g_unk0x00543ea8[3];
 extern BillboardDef g_rainSplashBillboard;
 extern BillboardDef g_snowBillboard;
 extern double g_fixedDegreesToAngle12;
@@ -14483,7 +14480,7 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
             WEATHER_QUAD(0x68) -= sideF[0];
             WEATHER_QUAD(0x6c) -= sideF[1];
             WEATHER_QUAD(0x70) -= sideF[2];
-            Quad2D_Queue((Quad2DVertices *)(g_unk0x00543da0Block + 8), (Texture *)g_unk0x00543e90, (Quad2D *)0x16);
+            Quad2D_Queue((Quad2DVertices *)(g_unk0x00543da0Block + 8), g_unk0x00543e90, (Quad2D *)0x16);
             if (pNode->wrapped != 0) {
                 forward = *(FixVector *)pNode;
                 forward.y -= 0xc0000;
@@ -14492,7 +14489,7 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
                 g_rainSplashBillboard.pos.x = offset.x + forward.x;
                 g_rainSplashBillboard.pos.y = offset.y + forward.y;
                 g_rainSplashBillboard.pos.z = offset.z + forward.z;
-                Billboard_Add(&g_rainSplashBillboard, (unsigned short *)g_unk0x00543ea4);
+                Billboard_Add(&g_rainSplashBillboard, g_unk0x00543ea4);
             }
         }
         if (CGameInfo::IsInRaceMenuOpen() == 0) {
@@ -14512,7 +14509,7 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
             g_snowBillboard.pos.x += offset.x;
             g_snowBillboard.pos.y += offset.y;
             g_snowBillboard.pos.z += offset.z;
-            Billboard_Add(&g_snowBillboard, (unsigned short *)g_unk0x00543ea8[pNode->textureVariant]);
+            Billboard_Add(&g_snowBillboard, g_unk0x00543ea8[pNode->textureVariant]);
         }
     }
     *pPos = saved;
@@ -14568,7 +14565,7 @@ int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar)
                     rotated.y += origin.y;
                     rotated.z += origin.z;
                     g_bodySparkBillboard.pos = rotated;
-                    Billboard_Add(&g_bodySparkBillboard, (unsigned short *)g_unk0x005477f0);
+                    Billboard_Add(&g_bodySparkBillboard, g_unk0x005477f0);
                 }
             }
         }
@@ -15166,7 +15163,7 @@ void Fireworks_Init(BYTE count)
             b = start;
         }
     }
-    g_unk0x00590b00 = (int)g_carLightTexA[1];
+    g_unk0x00590b00 = g_carLightTexA[1];
     g_unk0x005909c8[0].x = 0x5b50000;
     g_unk0x005909c8[0].y = 0x20000;
     g_unk0x005909c8[1].x = 0x5b50000;
@@ -15721,8 +15718,8 @@ void Knockout_RecordCurrentMatchResults(void)
     Knockout_PropagateWinners();
 }
 
-int InRaceMenu_GetUpArrowTexture(void);
-int InRaceMenu_GetDownArrowTexture(void);
+Texture *InRaceMenu_GetUpArrowTexture(void);
+Texture *InRaceMenu_GetDownArrowTexture(void);
 void StageObject_DrawTypingTextFraction(char *text, int fraction, unsigned int font, int x, unsigned int y, int *pColour,
                   unsigned int flags);
 int StageObject_FillWidthScaledRectangle(int scale, BYTE *unused, short *pRect, BYTE *pColour, int layer);
@@ -15743,7 +15740,7 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
     int i;
     short rect[4];
     short rect2[4];
-    int texture;
+    Texture *texture;
     int y0;
     int y;
     int halfHeight;
@@ -15753,18 +15750,18 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
     rect[0] = (short)((int)(g_pGraphics->resX * 0x64) / 0x280);
     rect[1] = 0;
     texture = InRaceMenu_GetUpArrowTexture();
-    rect[2] = *(short *)(texture + 0x120);
+    rect[2] = texture->width;
     texture = InRaceMenu_GetUpArrowTexture();
-    rect[3] = *(short *)(texture + 0x122);
+    rect[3] = texture->height;
     y0 = (int)(g_pGraphics->resY * 0x17c) / 0x1e0;
     pState = RallyData_GetChampionshipState();
     for (i = 0; i < pMenu->itemCount; i++) {
         texture = InRaceMenu_GetUpArrowTexture();
-        halfHeight = *(short *)(texture + 0x122) / 2;
+        halfHeight = texture->height / 2;
         rect[1] = (short)((int)(g_pGraphics->resY * 0x24) / 0x1e0 * i +
                           (int)(g_pGraphics->resY * 0x14) / 0x1e0 - halfHeight + y0);
         y = (int)(g_pGraphics->resY * 0x24) / 0x1e0 * i
-            - (int)(g_pGraphics->resY * (*(short *)(InRaceMenu_GetUpArrowTexture() + 0x122) / 2)) / 0x1e0
+            - (int)(g_pGraphics->resY * (InRaceMenu_GetUpArrowTexture()->height / 2)) / 0x1e0
             + (int)(g_pGraphics->resY * 0x14) / 0x1e0 + y0
             + (int)(g_pGraphics->resY * 0xe) / 0x1e0;
         if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) &&
@@ -15823,13 +15820,13 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
         rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
         rect2[3] = 1;
         if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058cf60)) {
-            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect, (Texture *)texture, 2,
+            Sprite_Queue((SpriteRect *)&texture->field_0x11c, (SpriteRect *)rect, texture, 2,
                          0, NULL, NULL, pColour, 8);
             StageObject_DrawTypingTextFraction(CFrontend::m_stringDest, g_unk0x0058ce58, 0,
                          (int)(g_pGraphics->resX * 0x7a) / 0x280,
                          y, (int *)pColour, 0x21);
         } else {
-            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect, (Texture *)texture, 2,
+            Sprite_Queue((SpriteRect *)&texture->field_0x11c, (SpriteRect *)rect, texture, 2,
                          0, NULL, NULL, pColour, 8);
             Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
                           y, (int *)pColour, 0x21);
@@ -16036,7 +16033,7 @@ void Fireworks_Draw(void)
         case 1:
             ((BillboardDef *)g_unk0x00590b04)->pos = p->drawPos;
             *(int *)&((BillboardDef *)g_unk0x00590b04)->r = *(int *)p->rocketColour;
-            Billboard_Add((BillboardDef *)g_unk0x00590b04, (unsigned short *)g_unk0x00590b00);
+            Billboard_Add((BillboardDef *)g_unk0x00590b04, g_unk0x00590b00);
             colourIndex = 0;
             break;
         case 2:
@@ -16062,7 +16059,7 @@ void Fireworks_Draw(void)
                             } else {
                                 SPARK_COLOUR(colourB);
                             }
-                            Billboard_Add(SPARK_DEF, (unsigned short *)g_unk0x00590b00);
+                            Billboard_Add(SPARK_DEF, g_unk0x00590b00);
                         }
                         if (p->sparkOn[k][j][1] != 0) {
                             sparkX = -sparkX;
@@ -16079,7 +16076,7 @@ void Fireworks_Draw(void)
                             } else {
                                 SPARK_COLOUR(colourB);
                             }
-                            Billboard_Add(SPARK_DEF, (unsigned short *)g_unk0x00590b00);
+                            Billboard_Add(SPARK_DEF, g_unk0x00590b00);
                         }
                         if (p->sparkOn[k][j][2] != 0) {
                             SPARK_DEF->pos.x = p->drawPos.x + sparkX;
@@ -16096,7 +16093,7 @@ void Fireworks_Draw(void)
                             } else {
                                 SPARK_COLOUR(colourB);
                             }
-                            Billboard_Add(SPARK_DEF, (unsigned short *)g_unk0x00590b00);
+                            Billboard_Add(SPARK_DEF, g_unk0x00590b00);
                         }
                         if (p->sparkOn[k][j][3] != 0) {
                             sparkX = -sparkX;
@@ -16113,7 +16110,7 @@ void Fireworks_Draw(void)
                             } else {
                                 SPARK_COLOUR(colourA);
                             }
-                            Billboard_Add(SPARK_DEF, (unsigned short *)g_unk0x00590b00);
+                            Billboard_Add(SPARK_DEF, g_unk0x00590b00);
                         }
                     }
                 }
@@ -16159,7 +16156,7 @@ void Fireworks_Draw(void)
                         pFlag -= 0x14;
                         pTrail -= 0x14;
                     }
-                    Billboard_Add(SPARK_DEF, (unsigned short *)g_unk0x00590b00);
+                    Billboard_Add(SPARK_DEF, g_unk0x00590b00);
                 } while (--n != 0);
             }
         }

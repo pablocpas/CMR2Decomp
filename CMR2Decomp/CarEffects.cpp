@@ -346,7 +346,7 @@ void Car_BreakQueuedWindows(Car *pCar)
 
 // Texture coordinates of the effect triangles.
 // FUNCTION: CMR2 0x00499020
-void CarEffects_InitUVs(int unused1, int unused2)
+void CarEffects_InitUVs(Texture *unused1, Texture *unused2)
 {
     g_sparkTri[0].u = 0x8000;
     g_sparkTri[0].v = 0;
@@ -413,7 +413,7 @@ void Spark_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
     g_sparkTri[1].z = pos.z - side.z;
     g_sparkTri[1].y = pos.y - side.y;
     g_sparkTri[0].colour[3] = g_sparkTri[1].colour[3] = g_sparkTri[2].colour[3] = p->type0x53;
-    Quad2D_QueueFixedTriangle(0, &g_sparkTri[0], &g_sparkTri[1], &g_sparkTri[2], (Texture *)pType->field0x38,
+    Quad2D_QueueFixedTriangle(0, &g_sparkTri[0], &g_sparkTri[1], &g_sparkTri[2], pType->texture,
                               (Quad2D *)0x14);
 }
 
@@ -502,7 +502,7 @@ void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
         *pC = *(DWORD *)light;
         pC += 6;
     } while ((int)pC < (int)g_shardTri[3].colour);
-    Quad2D_QueueFixedTriangle(0, &g_shardTri[0], &g_shardTri[1], &g_shardTri[2], (Texture *)pType->field0x38,
+    Quad2D_QueueFixedTriangle(0, &g_shardTri[0], &g_shardTri[1], &g_shardTri[2], pType->texture,
                               (Quad2D *)0x14);
 }
 
@@ -654,7 +654,7 @@ void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
         g_debrisTri[colour].y += o.y;
         g_debrisTri[colour].z += o.z;
     }
-    Quad2D_QueueFixedTriangle(0, &g_debrisTri[0], &g_debrisTri[1], &g_debrisTri[2], (Texture *)pType->field0x38,
+    Quad2D_QueueFixedTriangle(0, &g_debrisTri[0], &g_debrisTri[1], &g_debrisTri[2], pType->texture,
                               (Quad2D *)0x14);
 }
 

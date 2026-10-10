@@ -1939,8 +1939,8 @@ void Game_SetRaceExitFlags(Menu *pMenu, int param)
     Race_SetFlag37F94();
 }
 
-int InRaceMenu_GetUpArrowTexture(void);
-int InRaceMenu_GetDownArrowTexture(void);
+Texture *InRaceMenu_GetUpArrowTexture(void);
+Texture *InRaceMenu_GetDownArrowTexture(void);
 
 // Draws the in-race menu built by 0x475f00: the title, then one row per item
 // with its banner sprite, the item text and the separator line above the list
@@ -1970,8 +1970,8 @@ void Game_DrawInRaceActionMenu(Menu *pMenu)
     rect[1] = 0;
     rect[0] = (short)x;
     if (InRaceMenu_GetUpArrowTexture() != 0) {
-        rect[2] = ((SpriteRect *)(InRaceMenu_GetUpArrowTexture() + 0x11c))->w;
-        rect[3] = ((SpriteRect *)(InRaceMenu_GetUpArrowTexture() + 0x11c))->h;
+        rect[2] = InRaceMenu_GetUpArrowTexture()->width;
+        rect[3] = InRaceMenu_GetUpArrowTexture()->height;
     }
     line[0] = (short)x;
     line[1] = (short)((int)(g_pGraphics->resY * 0xd7) / 0x1e0);
@@ -1985,7 +1985,7 @@ void Game_DrawInRaceActionMenu(Menu *pMenu)
     for (i = 0; i < 2; i++, pItem++) {
         if (InRaceMenu_GetUpArrowTexture() != 0)
             rect[1] = (short)(line[1] + (int)(g_pGraphics->resY * 0xe) / 0x1e0 -
-                              ((SpriteRect *)(InRaceMenu_GetUpArrowTexture() + 0x11c))->h / 2);
+                              InRaceMenu_GetUpArrowTexture()->height / 2);
         sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                 CFrontend::GetTextString(pItem->id));
         if (i == cursor) {
@@ -1994,16 +1994,16 @@ void Game_DrawInRaceActionMenu(Menu *pMenu)
                               (int)(g_pGraphics->resX * 0x14) / 0x280,
                           line[1] + (int)(g_pGraphics->resY * 0x12) / 0x1e0, (int *)colourWhite, 0x11);
             if (InRaceMenu_GetDownArrowTexture() != 0)
-                Sprite_Queue((SpriteRect *)(InRaceMenu_GetDownArrowTexture() + 0x11c), (SpriteRect *)rect,
-                             (Texture *)InRaceMenu_GetDownArrowTexture(), 1, 0, NULL, NULL, colourWhite, 8);
+                Sprite_Queue((SpriteRect *)&InRaceMenu_GetDownArrowTexture()->field_0x11c, (SpriteRect *)rect,
+                             InRaceMenu_GetDownArrowTexture(), 1, 0, NULL, NULL, colourWhite, 8);
         } else {
             Font_DrawText(0, CFrontend::m_stringDest,
                           (int)(g_pGraphics->resX * 0xf0) / 0x280 +
                               (int)(g_pGraphics->resX * 0x14) / 0x280,
                           line[1] + (int)(g_pGraphics->resY * 0x12) / 0x1e0, (int *)colourText, 0x11);
             if (InRaceMenu_GetDownArrowTexture() != 0)
-                Sprite_Queue((SpriteRect *)(InRaceMenu_GetDownArrowTexture() + 0x11c), (SpriteRect *)rect,
-                             (Texture *)InRaceMenu_GetDownArrowTexture(), 1, 0, NULL, NULL, colourText, 8);
+                Sprite_Queue((SpriteRect *)&InRaceMenu_GetDownArrowTexture()->field_0x11c, (SpriteRect *)rect,
+                             InRaceMenu_GetDownArrowTexture(), 1, 0, NULL, NULL, colourText, 8);
         }
         line[1] = (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 * (i + 1) +
                           (int)(g_pGraphics->resY * 0xd7) / 0x1e0);
@@ -2240,8 +2240,7 @@ CMR2_LAYOUT_CHECK(StageObjectDraw_size, sizeof(StageObjectDraw) == 0xa0);
 // (defined in Graphics.cpp).
 extern int g_unk0x005207b4;
 
-struct Unk0x004a3e20;
-void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
+void Frontend_SetObjectField118(struct Texture *pTexture, int value);
 
 // Draws the objects the deferred pass of the static stage objects queued:
 // sorts them by view depth (farthest first) and, for each one, binds its
@@ -2256,7 +2255,7 @@ void Game_DrawDeferredObjects(void)
         if (g_unk0x005207b4 != 0)
             qsort(CGame::m_unk0x00593cb0, CGame::m_unk0x0059ce28, 4, Game_CompareDeferredDrawDepth);
         for (i = 0; i < (unsigned int)CGame::m_unk0x0059ce28; i++) {
-            Frontend_SetObjectField118((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[
+            Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[
                 ((int *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->pTriangles)[1]], 0);
             CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
                 (D3DMATRIX *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->matrix);

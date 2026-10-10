@@ -1004,16 +1004,11 @@ int CFrontend::GetArchiveSecondaryIDEntry(int index)
     return g_unk0x00516b40.ids[index + 22];
 }
 
-struct Unk0x004a3e20 {
-    BYTE field_0x0[0x118];
-    int field_0x118;
-};
-
 // FUNCTION: CMR2 0x004a3e20
-void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value)
+void Frontend_SetObjectField118(Texture *pTexture, int value)
 {
-    if (pObject != NULL)
-        pObject->field_0x118 = value;
+    if (pTexture != NULL)
+        pTexture->blendMode = value;
 }
 
 // ---------------------------------------------------------------------------

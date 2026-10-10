@@ -4014,7 +4014,7 @@ char *g_unk0x00527128[9] = {
 struct WeatherMapSet {
     unsigned int count; // 0x00, low byte used
     void *mainMap;      // 0x04
-    int maps[4];        // 0x08
+    Texture *maps[4];   // 0x08
     short rects[8];     // 0x18, x/y pairs
     BYTE slots[8];      // 0x28
 };
@@ -4024,7 +4024,7 @@ WeatherMapSet g_weatherMaps;
 void *g_unk0x0082c690;
 extern int g_unk0x0082c694;
 // GLOBAL: CMR2 0x0082ca20
-int g_unk0x0082ca20[9];
+Texture *g_unk0x0082ca20[9];
 // GLOBAL: CMR2 0x0082c9e8
 void *g_unk0x0082c9e8;
 // Source rectangle of the map texture (x, y, w, h).
@@ -4106,7 +4106,7 @@ void RallyData_LoadCurrentRallyWeatherTextures(void)
 
     *(BYTE *)&g_weatherMaps.count = 0;
     for (i = 0; i < 5; i++) {
-        g_weatherMaps.maps[i] = 0;
+        g_weatherMaps.maps[i] = NULL;
         g_weatherMaps.rects[i * 2] = 0;
         g_weatherMaps.rects[i * 2 + 1] = 0;
     }
@@ -4134,14 +4134,14 @@ void RallyData_LoadCurrentRallyWeatherTextures(void)
                     g_unk0x0052714c[RallyDataCountryIndex()],
                     g_unk0x0052716c[RallyDataCountryIndex()],
                     g_weatherMaps.slots[i] + 1);
-            g_weatherMaps.maps[i] = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetStageArchive(),
+            g_weatherMaps.maps[i] = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetStageArchive(),
                                                                  CFrontend::m_stringDest, 0, NULL, false, 0);
         }
     }
     for (i = 0; i < 9; i++) {
         sprintf(CFrontend::m_stringDest, g_str0x005272b4, CInstallInfo::GetSetupRepDir(),
                 0x280, g_unk0x00527128[i]);
-        g_unk0x0082ca20[i] = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(),
+        g_unk0x0082ca20[i] = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(),
                                                              CFrontend::m_stringDest, 0, NULL, false, 0);
     }
     sprintf(CFrontend::m_stringDest, g_str0x00527290, CInstallInfo::GetSetupRepDir(), 0x280);
@@ -4185,7 +4185,7 @@ void RallyData_SetupWeatherTextureEntries(void)
         pEntry->field_0x40 = 0;
         pEntry->startTime = 0;
         index = (RallyDataStageIndex() & 0xff) % 4 + i;
-        pEntry->texture = (void *)g_weatherMaps.maps[index];
+        pEntry->texture = g_weatherMaps.maps[index];
         pEntry->field_0x48 = g_weatherMaps.slots[index];
         pEntry->srcX1 = g_weatherMaps.rects[index * 2] + g_unk0x0082c9ec[0];
         pEntry->srcY1 = g_weatherMaps.rects[index * 2 + 1];
@@ -7195,8 +7195,8 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
                 OptionMenu_DrawTransitionTextShortCoords(3, 1, 1, CFrontend::GetTextString(0xfe), rect[0], rect[1],
                              (int *)textColour, (int *)shadowColour, 0x12);
             } else {
-                rect[2] = (short)(FixMul(scale, *(short *)(g_unk0x0082ca20[g_unk0x0082ca04[i]] + 0x120) << 16) >> 16);
-                rect[3] = (short)(FixMul(scale, *(short *)(g_unk0x0082ca20[g_unk0x0082ca04[i]] + 0x122) << 16) >> 16);
+                rect[2] = (short)(FixMul(scale, g_unk0x0082ca20[g_unk0x0082ca04[i]]->width << 16) >> 16);
+                rect[3] = (short)(FixMul(scale, g_unk0x0082ca20[g_unk0x0082ca04[i]]->height << 16) >> 16);
                 rect[0] -= (short)(FixMul(scale, rect[2] / 2 << 16) >> 16);
                 if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) &&
                     CFrontend::IsTextureHeightSupported(0x400))
@@ -7204,8 +7204,8 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
                 else
                     t = FixMul(scale, g_unk0x0052723c[g_unk0x0082ca04[i]] << 16);
                 rect[1] -= (short)(t >> 16);
-                Sprite_Queue((SpriteRect *)(g_unk0x0082ca20[g_unk0x0082ca04[i]] + 0x11c), (SpriteRect *)rect,
-                             (Texture *)g_unk0x0082ca20[g_unk0x0082ca04[i]], 1, 0, NULL, NULL, colour, 8);
+                Sprite_Queue((SpriteRect *)&g_unk0x0082ca20[g_unk0x0082ca04[i]]->field_0x11c, (SpriteRect *)rect,
+                             g_unk0x0082ca20[g_unk0x0082ca04[i]], 1, 0, NULL, NULL, colour, 8);
             }
             x += 0x1e;
             // the original reads the count as a masked dword here (byte everywhere else)

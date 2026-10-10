@@ -5582,19 +5582,18 @@ char g_strRainTga[] = "\\NEWIMAGE\\rain.tga";
 
 extern char g_strPathConcat[];
 
-struct Unk0x004a3e20;
-void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
+void Frontend_SetObjectField118(struct Texture *pTexture, int value);
 
 // GLOBAL: CMR2 0x00543e90
-int g_unk0x00543e90;
+Texture *g_unk0x00543e90;
 // GLOBAL: CMR2 0x00543ea4
-int g_unk0x00543ea4;
+Texture *g_unk0x00543ea4;
 // GLOBAL: CMR2 0x00543ea8
-int g_unk0x00543ea8[3];
+Texture *g_unk0x00543ea8[3];
 // GLOBAL: CMR2 0x005477f0
-int g_unk0x005477f0;
+Texture *g_unk0x005477f0;
 // GLOBAL: CMR2 0x00547ad0
-int g_unk0x00547ad0;
+Texture *g_unk0x00547ad0;
 
 // Loads the weather particle textures (rain, splats, snow, sunglow).
 // FUNCTION: CMR2 0x0045eb50
@@ -5604,23 +5603,23 @@ void StageTiming_LoadWeatherParticleTextures(void)
     int i;
 
     sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strRainTga);
-    g_unk0x00543e90 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+    g_unk0x00543e90 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
                                                      CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
     sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strSplatTga);
-    g_unk0x00543ea4 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+    g_unk0x00543ea4 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
                                                      CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
     sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strSplat2Tga);
-    g_unk0x005477f0 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+    g_unk0x005477f0 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
                                                      CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
     for (i = 0; i < 3; i++) {
         sprintf(CFrontend::m_stringDest, g_strSnowTga, CInstallInfo::GetTexturesDirectory(), i + 1);
-        g_unk0x00543ea8[i] = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+        g_unk0x00543ea8[i] = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
                                                             CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
     }
     sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strSunGlowTga);
-    g_unk0x00547ad0 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+    g_unk0x00547ad0 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
                                                      CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
-    Frontend_SetObjectField118((Unk0x004a3e20 *)g_unk0x00547ad0, 1);
+    Frontend_SetObjectField118(g_unk0x00547ad0, 1);
 }
 
 // File name formats of the three "team" model archives.
@@ -6106,48 +6105,48 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
 
 // Per-particle-kind texture handles for the wheel spray / smoke effects.
 // GLOBAL: CMR2 0x005435c8
-int g_unk0x005435c8;
+Texture *g_unk0x005435c8;
 // GLOBAL: CMR2 0x00543650
-int g_unk0x00543650;
+Texture *g_unk0x00543650;
 // GLOBAL: CMR2 0x00543654
-int g_unk0x00543654;
+Texture *g_unk0x00543654;
 // GLOBAL: CMR2 0x00543658
-int g_unk0x00543658;
+Texture *g_unk0x00543658;
 // GLOBAL: CMR2 0x0054365c
-int g_unk0x0054365c;
+Texture *g_unk0x0054365c;
 // GLOBAL: CMR2 0x00543660
-int g_unk0x00543660;
+Texture *g_unk0x00543660;
 // GLOBAL: CMR2 0x00543664
-int g_unk0x00543664;
+Texture *g_unk0x00543664;
 // GLOBAL: CMR2 0x00543668
-int g_unk0x00543668;
+Texture *g_unk0x00543668;
 // GLOBAL: CMR2 0x0054366c
-int g_unk0x0054366c;
+Texture *g_unk0x0054366c;
 // GLOBAL: CMR2 0x00543670
-int g_unk0x00543670;
+Texture *g_unk0x00543670;
 // GLOBAL: CMR2 0x00543674
-int g_unk0x00543674;
+Texture *g_unk0x00543674;
 // GLOBAL: CMR2 0x00543678
-int g_unk0x00543678;
+Texture *g_unk0x00543678;
 // GLOBAL: CMR2 0x0054367c
-int g_unk0x0054367c[5];
+Texture *g_unk0x0054367c[5];
 // GLOBAL: CMR2 0x00543690
-int g_unk0x00543690[2];
+Texture *g_unk0x00543690[2];
 // GLOBAL: CMR2 0x00543698
-int g_unk0x00543698[2];
+Texture *g_unk0x00543698[2];
 // GLOBAL: CMR2 0x005436a0
-int g_unk0x005436a0[5];
+Texture *g_unk0x005436a0[5];
 // GLOBAL: CMR2 0x005436b8
-int g_unk0x005436b8[8];
+Texture *g_unk0x005436b8[8];
 // GLOBAL: CMR2 0x005436d8
-int g_unk0x005436d8[4];
+Texture *g_unk0x005436d8[4];
 // GLOBAL: CMR2 0x00547fb4
-int g_unk0x00547fb4;
+Texture *g_unk0x00547fb4;
 
 void ParticleEdit_Select(int index);
 void ParticleEdit_CopyTemplate(int index);
-void ParticleEdit_SetTextureParams(int a, int b, int c, int d, int e);
-void ParticleEdit_SetExtendedParams(int a, int b, int c, int d, BYTE flag4, BYTE flag8, int e, int f,
+void ParticleEdit_SetTextureParams(Texture *texture, int b, int c, int d, int e);
+void ParticleEdit_SetExtendedParams(Texture **frames, int b, int c, int d, BYTE flag4, BYTE flag8, int e, int f,
                                     int g, int h);
 void ParticleEdit_SetMotion(int lifetime, int gravity, int drag, int bounce, int friction, char bounces,
                             BYTE killBelowFloor);
@@ -6223,7 +6222,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_CopyTemplate(0);
   ParticleEdit_SetMotion(0x40000,0,0,0,0,0,0);
   ParticleEdit_SetSizeRamp(0xccc,0x2147,0xccc);
-  ParticleEdit_SetExtendedParams((int)&g_unk0x005436d8,4,0,0x10000,0,0,0xffff0000,0x10000,0x10000,0xffff0000);
+  ParticleEdit_SetExtendedParams(g_unk0x005436d8,4,0,0x10000,0,0,0xffff0000,0x10000,0x10000,0xffff0000);
   ParticleEdit_SetAlphaRamp(0xfe,0xfe,0,0);
   ParticleEdit_SetSizeRange(0x1999,0x3333);
   ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffect_SpawnExhaustParticle,(void (*)(void *, ParticleType *, int))CarEffects_InitParticleOwnerData,0);
@@ -6256,19 +6255,19 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(10);
   ParticleEdit_CopyTemplate(6);
-  ParticleEdit_SetExtendedParams((int)&g_unk0x005436b8,8,0,0x20000,0,0,0xffffb334,0x4ccc,0x4ccc,0xffffb334);
+  ParticleEdit_SetExtendedParams(g_unk0x005436b8,8,0,0x20000,0,0,0xffffb334,0x4ccc,0x4ccc,0xffffb334);
   ParticleEdit_SetAlphaRamp(100,0,0,0);
   ParticleEdit_SetColour(0xff,0xff,0xff,1);
   ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateCarFollowingRisingParticle,(void (*)(void *, ParticleType *, int))CarEffects_InitParticleOwnerData,0);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(8);
   ParticleEdit_CopyTemplate(4);
-  ParticleEdit_SetExtendedParams((int)&g_unk0x005436b8,8,0,0x20000,1,1,0xffff4ccd,0xb333,0xb333,0xffff4ccd);
+  ParticleEdit_SetExtendedParams(g_unk0x005436b8,8,0,0x20000,1,1,0xffff4ccd,0xb333,0xb333,0xffff4ccd);
   ParticleEdit_SetColour(0x98,0x7e,0x66,1);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0xb);
   ParticleEdit_CopyTemplate(7);
-  ParticleEdit_SetExtendedParams((int)&g_unk0x005436b8,8,0,0x20000,1,1,0xffff4ccd,0xb333,0xb333,0xffff4ccd);
+  ParticleEdit_SetExtendedParams(g_unk0x005436b8,8,0,0x20000,1,1,0xffff4ccd,0xb333,0xb333,0xffff4ccd);
   ParticleEdit_SetSizeRamp(0x4ccc,0x13333,0x147a);
   ParticleEdit_SetMotion(0x640000,0,0xa0000,0,0,0,0);
   ParticleEdit_SetAlphaRamp(100,0,0,0);
@@ -6286,14 +6285,14 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0xc);
   ParticleEdit_CopyTemplate(5);
-  ParticleEdit_SetExtendedParams((int)&g_unk0x005436b8,8,0,0x20000,1,1,0xffffc000,0x4000,0x8000,0xffffc000);
+  ParticleEdit_SetExtendedParams(g_unk0x005436b8,8,0,0x20000,1,1,0xffffc000,0x4000,0x8000,0xffffc000);
   ParticleEdit_SetAlphaRamp(0x1e,0,4,1);
   ParticleEdit_SetSizeRamp(0x4ccc,0x5555,0x3332);
   ParticleEdit_SetField2CAndFlag5(0);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0xd);
   ParticleEdit_CopyTemplate(5);
-  ParticleEdit_SetExtendedParams((int)&g_unk0x005436b8,8,0,0x20000,1,1,0xffff0000,0x10000,0x20000,0xffff0000);
+  ParticleEdit_SetExtendedParams(g_unk0x005436b8,8,0,0x20000,1,1,0xffff0000,0x10000,0x20000,0xffff0000);
   ParticleEdit_SetAlphaRamp(0x46,0,2,1);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0xe);
@@ -6311,7 +6310,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_SetTextureParams(g_unk0x00543670,0,0,0x20000,0xfffe0000);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0x10);
-  ParticleEdit_SetExtendedParams((int)&g_unk0x0054367c,5,0x20000,0x10000,1,1,0xffff3334,0xcccc,0xcccc,0xffff3334);
+  ParticleEdit_SetExtendedParams(g_unk0x0054367c,5,0x20000,0x10000,1,1,0xffff3334,0xcccc,0xcccc,0xffff3334);
   ParticleEdit_SetMotion(0xc80000,0x28f,0,0,0,0,1);
   ParticleEdit_SetAlphaRamp(0xff,0xff,0,1);
   ParticleEdit_SetColour(0xff,0xff,0xff,1);
@@ -6326,7 +6325,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0x12);
   ParticleEdit_CopyTemplate(0x10);
-  ParticleEdit_SetExtendedParams((int)&g_unk0x00543690,2,0x40000,0x40000,1,1,0xfffe8000,0x18000,0x18000,0xfffe8000);
+  ParticleEdit_SetExtendedParams(g_unk0x00543690,2,0x40000,0x40000,1,1,0xfffe8000,0x18000,0x18000,0xfffe8000);
   ParticleEdit_SetMotion(0xc80000,0x28f,0,0,0,0,1);
   ParticleEdit_SetAlphaRamp(0xff,0xff,0,1);
   ParticleEdit_SetColour(0xff,0xff,0xff,1);
@@ -6341,7 +6340,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0x14);
   ParticleEdit_CopyTemplate(0x12);
-  ParticleEdit_SetExtendedParams((int)&g_unk0x00543698,2,0x40000,0x40000,1,1,0xfffe8000,0x18000,0x18000,0xfffe8000);
+  ParticleEdit_SetExtendedParams(g_unk0x00543698,2,0x40000,0x40000,1,1,0xfffe8000,0x18000,0x18000,0xfffe8000);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0x15);
   ParticleEdit_CopyTemplate(0x14);
@@ -6395,7 +6394,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_CommitCurrentType();
   iVar1 = WheelSpray_Init(0x10000,0x190000);
   ParticleEdit_Select(0x1d);
-  ParticleEdit_SetExtendedParams((int)&g_unk0x005436a0,5,0x20000,0x10000,1,1,0xfffff99a,0x666,0x666,0xfffff99a);
+  ParticleEdit_SetExtendedParams(g_unk0x005436a0,5,0x20000,0x10000,1,1,0xfffff99a,0x666,0x666,0xfffff99a);
   ParticleEdit_SetMotion(0xf0000,FixMul(iVar1, 0x3333),0,0xb333,0,1,0);
   ParticleEdit_SetAlphaRamp(0xff,0xff,0,0);
   ParticleEdit_SetColour(0xff,0,0xff,1);
@@ -6404,7 +6403,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_SetSpread(0,0,0,0);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0x1e);
-  ParticleEdit_SetExtendedParams((int)&g_unk0x005436a0,5,0x20000,0x10000,1,1,0xfffff70b,0x8f5,0x8f5,0xfffff70b);
+  ParticleEdit_SetExtendedParams(g_unk0x005436a0,5,0x20000,0x10000,1,1,0xfffff70b,0x8f5,0x8f5,0xfffff70b);
   ParticleEdit_SetMotion(0x190000,iVar1,0,0xb333,0,1,0);
   ParticleEdit_SetAlphaRamp(0xff,0xff,0,0);
   ParticleEdit_SetColour(0xff,0,0xff,1);
@@ -7816,12 +7815,11 @@ char g_strTexPaint[] = "\\NEWIMAGE\\paint.tga";
 char g_strTexSpark[] = "\\NEWIMAGE\\spark4.tga";
 
 extern char g_strPathConcat[];
-struct Unk0x004a3e20;
-void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
-void CarEffects_InitUVs(int unused1, int unused2);
+void Frontend_SetObjectField118(struct Texture *pTexture, int value);
+void CarEffects_InitUVs(Texture *unused1, Texture *unused2);
 
 #define LOAD_EFFECT_TEXTURE() \
-    (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), CFrontend::m_stringDest, &loaded, NULL, 0, 0x10)
+    CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), CFrontend::m_stringDest, &loaded, NULL, 0, 0x10)
 
 // Loads the textures of the particle effects (sparks, debris, exhaust, spray,
 // snow, dust, leaves, grass, gravel) from the stage archive.
@@ -7848,10 +7846,10 @@ void StageTiming_LoadEffectParticleTextures(void)
     g_unk0x00543668 = LOAD_EFFECT_TEXTURE();
     sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strTexSplashSpray2);
     g_unk0x00543670 = LOAD_EFFECT_TEXTURE();
-    Frontend_SetObjectField118((Unk0x004a3e20 *)g_unk0x00543670, 1);
+    Frontend_SetObjectField118(g_unk0x00543670, 1);
     sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strTexSplashSpray2f);
     g_unk0x00543674 = LOAD_EFFECT_TEXTURE();
-    Frontend_SetObjectField118((Unk0x004a3e20 *)g_unk0x00543674, 1);
+    Frontend_SetObjectField118(g_unk0x00543674, 1);
     sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strTexSnowSpray);
     g_unk0x00543678 = LOAD_EFFECT_TEXTURE();
     for (i = 0; i < 8; i++) {
@@ -7861,7 +7859,7 @@ void StageTiming_LoadEffectParticleTextures(void)
     for (i = 0; i < 4; i++) {
         sprintf(CFrontend::m_stringDest, g_strNumberedTga, CInstallInfo::GetTexturesDirectory(), g_strTexDetail, i + 1);
         g_unk0x005436d8[i] = LOAD_EFFECT_TEXTURE();
-        Frontend_SetObjectField118((Unk0x004a3e20 *)g_unk0x005436d8[i], 1);
+        Frontend_SetObjectField118(g_unk0x005436d8[i], 1);
     }
     for (i = 0; i < 5; i++) {
         sprintf(CFrontend::m_stringDest, g_strNumberedTga, CInstallInfo::GetTexturesDirectory(), g_strTexLeaf, i);
@@ -7877,7 +7875,7 @@ void StageTiming_LoadEffectParticleTextures(void)
     }
     sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strTexSplashDrop);
     g_unk0x005435c8 = LOAD_EFFECT_TEXTURE();
-    Frontend_SetObjectField118((Unk0x004a3e20 *)g_unk0x005435c8, 1);
+    Frontend_SetObjectField118(g_unk0x005435c8, 1);
     for (i = 0; i < 5; i++) {
         sprintf(CFrontend::m_stringDest, g_strNumberedTga, CInstallInfo::GetTexturesDirectory(), g_strTexRocksGrav, i);
         g_unk0x005436a0[i] = LOAD_EFFECT_TEXTURE();

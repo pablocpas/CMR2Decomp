@@ -2380,8 +2380,7 @@ void Scene_FreeShadowCasters(void)
     g_shadowBatchCount = 0;
 }
 
-struct Unk0x004a3e20;
-void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
+void Frontend_SetObjectField118(struct Texture *pTexture, int value);
 void Graphics_InvalidateTextureStageCache(void);
 
 // Draws the shadow batches visible in view `view` (bit of each batch mask),
@@ -2408,9 +2407,9 @@ void Scene_DrawShadowBatches(unsigned int view)
             if (pTexture != pLast) {
                 pLast = pTexture;
                 blend = pTexture->blendMode;
-                Frontend_SetObjectField118((Unk0x004a3e20 *)pTexture, 10);
+                Frontend_SetObjectField118(pTexture, 10);
                 CGraphics::ApplyTextureStageChange(0, (int)pTexture);
-                Frontend_SetObjectField118((Unk0x004a3e20 *)pTexture, blend);
+                Frontend_SetObjectField118(pTexture, blend);
             }
             CGraphics::m_pTextureManager->pD3D->DrawPrimitiveVB(D3DPT_TRIANGLELIST,
                                                                 CGraphics::m_pTextureManager->pVertexBuffer2,

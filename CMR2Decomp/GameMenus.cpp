@@ -660,7 +660,7 @@ void GameMenu_DrawKnockoutSplitComparison(void)
     }
 }
 
-int InRaceMenu_GetCurtainTexture(void);
+Texture *InRaceMenu_GetCurtainTexture(void);
 int NetRace_GetType8PlayerIndex(void);
 int NetRace_GetType9PlayerIndex(void);
 int StageTiming_GetCarSplitTime(int car, int index);
@@ -714,8 +714,8 @@ void GameMenu_DrawSplitTimes(Menu *pMenu)
         rect[3] = ((Texture *)InRaceMenu_GetCurtainTexture())->height;
         rect[0] = (short)((int)(g_pGraphics->resX * 0x234) / 640 - rect[2] / 2);
         rect[1] = (short)((int)(g_pGraphics->resY * 0x30) / 480 - rect[3] / 2);
-        pFlag = (Texture *)InRaceMenu_GetCurtainTexture();
-        Sprite_Queue((SpriteRect *)((BYTE *)InRaceMenu_GetCurtainTexture() + 0x11c), (SpriteRect *)rect, pFlag, 2, 0, NULL, NULL,
+        pFlag = InRaceMenu_GetCurtainTexture();
+        Sprite_Queue((SpriteRect *)&InRaceMenu_GetCurtainTexture()->field_0x11c, (SpriteRect *)rect, pFlag, 2, 0, NULL, NULL,
                      g_menuFrameColour, 8);
     }
     if (CGameInfo::GetConfiguredGameMode() == 4) {
@@ -2227,8 +2227,8 @@ unsigned int RallyData_GetSelectionBits10To11(void);
 unsigned int RallyData_GetSelectionBits12To13(void);
 void GameMenu_DrawInGameBreadcrumb(Menu *pMenu);
 void GameMenus_FormatModeName(int unused, int mode);
-int InRaceMenu_GetUpArrowTexture(void);
-int InRaceMenu_GetDownArrowTexture(void);
+Texture *InRaceMenu_GetUpArrowTexture(void);
+Texture *InRaceMenu_GetDownArrowTexture(void);
 BYTE StageUI_GetRaceEndEventCount(void);
 
 // GLOBAL: CMR2 0x00541cc0
@@ -2329,7 +2329,7 @@ BYTE g_menuTextColour[4] = { 0xa7, 0xac, 0xdb, 0xff };
                       (int)(g_pGraphics->resY * 0xde) / 0x1e0 +                                  \
                       ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,                             \
                   (int *)pColour, 0x11);                                                         \
-    Sprite_Queue((SpriteRect *)(pTexture() + 0x11c), (SpriteRect *)rect, (Texture *)pTexture(), 2, 0, NULL,    \
+    Sprite_Queue((SpriteRect *)&pTexture()->field_0x11c, (SpriteRect *)rect, pTexture(), 2, 0, NULL,    \
                  NULL, pColour, 8);
 
 // GLOBAL: CMR2 0x00517dd0
@@ -2434,8 +2434,8 @@ void GameMenu_DrawStandingsMenuItems(Menu *pMenu)
     Font_DrawText(2, CFrontend::GetTextString(0x56), x, (int)(g_pGraphics->resY * 0x43) / 0x1e0,
                   (int *)g_menuFrameColour, 0x11);
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
-    rect[2] = ((SpriteRect *)(InRaceMenu_GetUpArrowTexture() + 0x11c))->w;
-    rect[3] = ((SpriteRect *)(InRaceMenu_GetUpArrowTexture() + 0x11c))->h;
+    rect[2] = InRaceMenu_GetUpArrowTexture()->width;
+    rect[3] = InRaceMenu_GetUpArrowTexture()->height;
     i = 0;
     pItem = pMenu->items;
     if (pMenu->itemCount > 0) {
@@ -2969,8 +2969,8 @@ void GameMenu_DrawNetworkTimeTrialResults(Menu *pMenu)
     Font_DrawText(2, CFrontend::GetTextString(0x56), x, (int)(g_pGraphics->resY * 0x43) / 0x1e0,
                   (int *)g_menuFrameColour, 0x11);
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
-    rect[2] = ((SpriteRect *)(InRaceMenu_GetUpArrowTexture() + 0x11c))->w;
-    rect[3] = ((SpriteRect *)(InRaceMenu_GetUpArrowTexture() + 0x11c))->h;
+    rect[2] = InRaceMenu_GetUpArrowTexture()->width;
+    rect[3] = InRaceMenu_GetUpArrowTexture()->height;
     i = 1;
     pItem = pMenu->items + 1;
     if (pMenu->itemCount > 1) {

@@ -25,12 +25,12 @@ struct ParticleType {
                             //      0x10 size ramp set by range, 0x20 spin, 0x40 alpha ramp, 0x80 bounce
     BYTE directionFlags;
     BYTE pad0x37;
-    int field0x38;
+    Texture *texture;       // 0x38
     int field0x3c;          // 0x3c billboard top/left/bottom/right (0x3c..0x48)
     int field0x40;
     int field0x44;
     int field0x48;
-    int field0x4c;          // 0x4c animation frames (texture per frame)
+    Texture **frames;       // 0x4c animation frames (texture per frame)
     int field0x50;          // 0x50 frame count
     int field0x54;          // 0x54 delay before the animation starts
     int field0x58;          // 0x58 time per frame
@@ -63,7 +63,7 @@ struct Particle {
     BYTE field0x58;
     BYTE colour[3];
     BYTE pad0x5c[4];
-    int field0x60;
+    Texture *texture;       // 0x60 the type's texture, copied when spawned
     short field0x64;         // effect data: car << 8 | variant
     short field0x66;
 };
