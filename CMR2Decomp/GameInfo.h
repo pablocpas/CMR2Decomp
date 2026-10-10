@@ -120,7 +120,7 @@ struct FixInterp {
     int active;             // 0x4c
 };
 
-BYTE *OptionMenu_GetControlSetupMenu(void);
+struct Menu *OptionMenu_GetControlSetupMenu(void);
 void FixInterp_StartToOne(FixInterp *p);
 void FixInterp_StartToZero(FixInterp *p);
 

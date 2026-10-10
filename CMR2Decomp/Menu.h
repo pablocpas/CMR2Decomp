@@ -35,7 +35,7 @@ struct MenuItem {
     BYTE min;               // 0xa
     BYTE max;               // 0xb
     Menu *pSubMenu;         // 0xc  type 2 only
-    INT_PTR action;         // 0x10 MenuItemAction called when the item is selected (0: none)
+    MenuItemAction action;  // 0x10 called when the item is selected (NULL: none)
 };
 
 struct Menu {
@@ -68,11 +68,11 @@ struct Menu {
 void Menu_PlaySound(int id);
 void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, Menu *pParent, MenuItemCallbacks *pItemCallbacks, BYTE flag4, BYTE defaultCursor, BYTE layout);
 void Menu_ClearNextItem(Menu *pMenu);
-void Menu_AddItemType3(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, BYTE flag2, int unused, INT_PTR action, short value);
-void Menu_AddItemType6(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, BYTE flag2, int unused, INT_PTR action, short value);
-void Menu_AddItemType4(Menu *pMenu, int stringId, short id, INT_PTR action, short value);
-void Menu_AddItemType1(Menu *pMenu, int stringId, short id, INT_PTR action, short value);
-void Menu_AddItemType2(Menu *pMenu, int stringId, short id, Menu *pSubMenu, INT_PTR action, short value);
+void Menu_AddItemType3(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, BYTE flag2, int unused, MenuItemAction action, short value);
+void Menu_AddItemType6(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, BYTE flag2, int unused, MenuItemAction action, short value);
+void Menu_AddItemType4(Menu *pMenu, int stringId, short id, MenuItemAction action, short value);
+void Menu_AddItemType1(Menu *pMenu, int stringId, short id, MenuItemAction action, short value);
+void Menu_AddItemType2(Menu *pMenu, int stringId, short id, Menu *pSubMenu, MenuItemAction action, short value);
 void Menu_SetCursor(Menu *pMenu, BYTE cursor);
 void Menu_SetParent(Menu *pMenu, Menu *pParent);
 int Menu_FindItem(Menu *pMenu, int id);
@@ -85,8 +85,8 @@ void Menu_ValidateCursor(Menu *pMenu, int unused);
 void Menu_CallCallback0(Menu *pMenu);
 void Menu_CallCallback3(Menu *pMenu);
 void Menu_CallCallback2(Menu *pMenu);
-int Menu_Update(Menu *pMenu, unsigned int input);
-void Menu_SetNextAction(int action);
+Menu *Menu_Update(Menu *pMenu, unsigned int input);
+void Menu_SetNextAction(Menu *action);
 void Menu_GoBack(Menu *pMenu);
 void Menu_PlaySoundId(int id);
 void Menu_SetInputStateFlag(char param1);

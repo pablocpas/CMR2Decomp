@@ -2544,8 +2544,8 @@ void Game_DrawInRaceActionMenu(Menu *pMenu);
 void StageObject_BuildInRaceActionMenu(void)
 {
     Menu_Init((Menu *)g_unk0x0058cf80, 0, -1, 0, NULL, NULL, 1, 0, 1);
-    Menu_AddItemType4((Menu *)g_unk0x0058cf80, 0, 0xf4, (INT_PTR)Game_NoOpInRaceMenuItemEvent, -1);
-    Menu_AddItemType4((Menu *)g_unk0x0058cf80, 0, 0xf5, (INT_PTR)Game_SetRaceExitFlags, -1);
+    Menu_AddItemType4((Menu *)g_unk0x0058cf80, 0, 0xf4, (MenuItemAction)Game_NoOpInRaceMenuItemEvent, -1);
+    Menu_AddItemType4((Menu *)g_unk0x0058cf80, 0, 0xf5, (MenuItemAction)Game_SetRaceExitFlags, -1);
     Menu_SetCallbacks((Menu *)g_unk0x0058cf80, NULL, NULL, (MenuCallback)Game_DrawInRaceActionMenu, NULL);
     Menu_ValidateCursor((Menu *)g_unk0x0058cf80, 0);
 }

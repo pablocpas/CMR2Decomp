@@ -93,7 +93,7 @@ bool FrontendProfile_DoesDriverMatchEntry(int param_1, BYTE *param_2);
 struct Menu;
 Menu *FrontendMenu_GetAlternateRallyStageSelection(void);
 Menu *FrontendMenu_GetRallyStartTransition(void);
-void Menu_SetNextAction(int action);
+void Menu_SetNextAction(Menu *action);
 void Menu_SetInputStateFlag(char param1);
 unsigned short RallyData_GetPrimaryStageScoreScale(void);
 void RallyData_RebuildDistinctValueList(void);
@@ -1823,18 +1823,18 @@ void RallyData_FillStageSplitEditorRows(int param_1, int param_2, char param_3)
         pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
         *(BYTE *)(pMenu + 6) = 0;
         Menu_SetInputStateFlag(0);
-        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+        Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
         Menu_SetInputStateFlag(1);
     } else if (RallyDataStageIndex() == '\n') {
         RallyData_SetDriverPairingStateValues(1, 0);
         pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
         *(BYTE *)(pMenu + 6) = 0;
         Menu_SetInputStateFlag(0);
-        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+        Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
         Menu_SetInputStateFlag(1);
     } else {
         Menu_SetInputStateFlag(param_3);
-        Menu_SetNextAction((int)FrontendMenu_GetAlternateRallyStageSelection());
+        Menu_SetNextAction(FrontendMenu_GetAlternateRallyStageSelection());
         Menu_SetInputStateFlag(1);
         if (count <= 3) {
             pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();

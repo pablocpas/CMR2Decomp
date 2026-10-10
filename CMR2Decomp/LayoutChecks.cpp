@@ -735,3 +735,4 @@ CMR2_LAYOUT_CHECK(CarNoiseTargetWidthCheck, sizeof(((Car *)0)->field_0xa78) == 4
 CMR2_LAYOUT_CHECK(MenuItemSizeCheck, sizeof(MenuItem) == 0x14);
 CMR2_LAYOUT_CHECK(MenuItemActionOffsetCheck, offsetof(MenuItem, action) == 0x10);
 CMR2_LAYOUT_CHECK(MenuItemsOffsetCheck, offsetof(Menu, items) == 0x14);
+CMR2_LAYOUT_CHECK(MenuSizeCheck, sizeof(Menu) == 0x1e0);

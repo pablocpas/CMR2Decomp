@@ -1,5 +1,9 @@
 # Acciones de los elementos de menú con anchura de puntero
 
+> **Sustituido** por `64bit-menu-transitions.md`: el campo y los parámetros son
+> ahora `MenuItemAction`. El `INT_PTR` de esta tanda solo esquivaba un cambio
+> de orden de operandos en `OptionMenu_DrawResultsRallyInfo`, explicado allí.
+
 Tanda sobre `d48fc00`, siguiendo `CODEX-64BIT.md`. `MenuItem` es estado de
 ejecución (los constructores de menú lo rellenan); no es una imagen de disco.
 

@@ -147,19 +147,19 @@ BYTE g_unk0x00818ac4;
 // GLOBAL: CMR2 0x00818f14
 BYTE g_unk0x00818f14[0xe0];
 // GLOBAL: CMR2 0x00819030
-int g_unk0x00819030;
+Menu *g_unk0x00819030;
 // GLOBAL: CMR2 0x00819050
 int g_unk0x00819050;
 // GLOBAL: CMR2 0x008190f4
 BYTE g_unk0x008190f4[0x30];
 // GLOBAL: CMR2 0x00819124
-int g_unk0x00819124;
+Menu *g_unk0x00819124;
 // GLOBAL: CMR2 0x00819748
 BYTE g_unk0x00819748;
 // GLOBAL: CMR2 0x0081975c
 int g_unk0x0081975c;
 // GLOBAL: CMR2 0x00819870
-int g_unk0x00819870;
+Menu *g_unk0x00819870;
 // GLOBAL: CMR2 0x00819878
 BYTE g_unk0x00819878;
 // GLOBAL: CMR2 0x00819884
@@ -1880,7 +1880,7 @@ void FrontendNetwork_HandleHostMessage(DPID *pFrom, BYTE *pMsg)
         *(unsigned int *)(g_unk0x00818ef8 + 0x14) = CMain::GetFrameDelta();
         NetPlayers_ResetStageState(0, 1);
         if (pMsg[0] == 2) {
-            Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+            Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
             NetPlayers_ResetRaceReadyAndTimeState(1, 1);
             NetPlayers_ResetBestTimes();
             NetPlayers_RebuildSortedPlayerIDs();
@@ -1928,7 +1928,7 @@ void FrontendMenu_EnterNetworkConnection(Menu *pMenu, int param)
             }
             CGame::DestroyDirectPlayLobby();
             CGame::DestroyDirectPlay();
-            Menu_SetNextAction((int)pMenu->pParent);
+            Menu_SetNextAction(pMenu->pParent);
             return;
         }
         CGame::DestroyDirectPlay();
@@ -2048,7 +2048,7 @@ void FrontendMenu_UpdateNetworkSessionBrowser(Menu *pMenu)
             g_unk0x00819020 = g_unk0x00819018;
     } else if (status != -1 && status == -2) {
         CGame::SkipNextCallbackRenderPass();
-        Menu_SetNextAction((int)pMenu->pParent);
+        Menu_SetNextAction(pMenu->pParent);
     }
 }
 
@@ -2097,22 +2097,22 @@ void FrontendNetwork_JoinSelectedSession(Menu *pMenu, int param)
                     RallyData_GetDriverRecordSelectionValue(0);
                     if (FrontendNetwork_SendLobbyPlayerDescription() != 0) {
                         Menu_SetParent(FrontendMenu_GetNetworkSessionSetup(), FrontendMenu_GetNetworkSessionBrowser());
-                        Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
+                        Menu_SetNextAction(FrontendMenu_GetNetworkSessionSetup());
                         return;
                     }
                     Network_CloseSession();
                     FrontendNetwork_SetMessageState(3);
-                    Menu_SetNextAction((int)FrontendMenu_GetNetworkMessage());
+                    Menu_SetNextAction(FrontendMenu_GetNetworkMessage());
                     return;
                 }
             }
             if (Network_IsSessionFlag10Set((BYTE)g_unk0x00525288) != 0) {
-                Menu_SetNextAction((int)FrontendMenu_GetNetworkNameEntry());
+                Menu_SetNextAction(FrontendMenu_GetNetworkNameEntry());
                 return;
             }
             Network_CloseSession();
             FrontendNetwork_SetMessageState(1);
-            Menu_SetNextAction((int)FrontendMenu_GetNetworkMessage());
+            Menu_SetNextAction(FrontendMenu_GetNetworkMessage());
             return;
         }
         if ((int)Network_GetEnumeratedSessionCount() > 0)
@@ -2150,7 +2150,7 @@ void FrontendNetwork_CreateSelectedSession(Menu *pMenu, int param)
             g_unk0x00818d04 = 1;
         }
         if (FrontendNetwork_SendLobbyPlayerDescription() != 0) {
-            Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionDetails());
+            Menu_SetNextAction(FrontendMenu_GetNetworkSessionDetails());
             return;
         }
     } else {
@@ -2169,7 +2169,7 @@ bool Network_AddSessionPlayerSlot(BYTE param1);
 void FrontendNetwork_OpenConnectedLeaderboard(Menu *pMenu, int param)
 {
     if (Network_AddSessionPlayerSlot(pMenu->items[0].max))
-        Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionBrowser());
+        Menu_SetNextAction(FrontendMenu_GetNetworkSessionBrowser());
 }
 
 // FUNCTION: CMR2 0x004ecfa0
@@ -2235,19 +2235,19 @@ void FrontendNetwork_ApplyHostSessionDetails(Menu *pMenu, int param)
         Session_SetOpen(1);
         switch (Menu_GetItem(pMenu, 1)->max) {
         case 0:
-            Menu_SetNextAction((int)FrontendMenu_GetNetworkPlayerSetup());
+            Menu_SetNextAction(FrontendMenu_GetNetworkPlayerSetup());
             break;
         case 1:
-            Menu_SetNextAction((int)FrontendMenu_GetNetworkCarSetup());
+            Menu_SetNextAction(FrontendMenu_GetNetworkCarSetup());
             break;
         case 2:
-            Menu_SetNextAction((int)FrontendMenu_GetNetworkRallySetup());
+            Menu_SetNextAction(FrontendMenu_GetNetworkRallySetup());
             break;
         case 3:
-            Menu_SetNextAction((int)FrontendMenu_GetNetworkStageSetup());
+            Menu_SetNextAction(FrontendMenu_GetNetworkStageSetup());
             break;
         default:
-            Menu_SetNextAction((int)FrontendMenu_GetNetworkExtendedStageSetup());
+            Menu_SetNextAction(FrontendMenu_GetNetworkExtendedStageSetup());
             break;
         }
         FrontendNetwork_SendSetupPacket();
@@ -2365,7 +2365,7 @@ void FrontendNetwork_StartHostRace(Menu *pMenu, int param)
         NetPlayers_ResetBestTimes();
         NetPlayers_ResetStageState(0, 1);
         CGame::SetProfileSelectionState(1);
-        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+        Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
         NetPlayers_RebuildSortedPlayerIDs();
     }
 }
@@ -2457,7 +2457,7 @@ void FrontendNetwork_ApplyPlayerRoleAndJoin(Menu *pMenu, int param)
             RallyData_SetStageSelectionAndRefreshFlags(0);
             RallyData_SetCountrySelectionBits(Menu_GetItem(pMenu, 1)->max);
             FrontendMenu_GetNetworkSessionSetup()->pParent = pMenu;
-            Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
+            Menu_SetNextAction(FrontendMenu_GetNetworkSessionSetup());
             break;
         }
     }
@@ -2560,7 +2560,7 @@ void FrontendNetwork_ApplyRallyAndJoin(Menu *pMenu, int param)
     else
         RallyData_SetDriverPairingStateValues(1, 0);
     FrontendMenu_GetNetworkSessionSetup()->pParent = pMenu;
-    Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
+    Menu_SetNextAction(FrontendMenu_GetNetworkSessionSetup());
     FrontendNetwork_SendSetupPacket();
 }
 
@@ -2633,7 +2633,7 @@ void FrontendNetwork_ApplyTwoPlayerRally(Menu *pMenu, int param)
         GameInfo_SetSessionField397C(Menu_GetItem(pMenu, 2)->max);
     RallyData_SetDriverPairingStateValues(1, 0);
     FrontendMenu_GetNetworkSessionSetup()->pParent = pMenu;
-    Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
+    Menu_SetNextAction(FrontendMenu_GetNetworkSessionSetup());
     FrontendNetwork_SendSetupPacket();
 }
 
@@ -2714,7 +2714,7 @@ void FrontendNetwork_ApplySinglePlayerRally(Menu *pMenu, int param)
     GameInfo_SetSessionField3988(Menu_GetItem(pMenu, 1)->max + 1);
     GameInfo_SetSessionField3984(g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max]);
     FrontendMenu_GetNetworkSessionSetup()->pParent = pMenu;
-    Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
+    Menu_SetNextAction(FrontendMenu_GetNetworkSessionSetup());
     FrontendNetwork_SendSetupPacket();
 }
 
@@ -2807,7 +2807,7 @@ void FrontendNetwork_ApplyChampionshipRally(Menu *pMenu, int param)
     else
         GameInfo_SetSessionField397C(Menu_GetItem(pMenu, 1)->max);
     FrontendMenu_GetNetworkSessionSetup()->pParent = pMenu;
-    Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
+    Menu_SetNextAction(FrontendMenu_GetNetworkSessionSetup());
     FrontendNetwork_SendSetupPacket();
 }
 
@@ -2868,21 +2868,21 @@ void FrontendNetwork_JoinNamedSession(Menu *pMenu, int param)
         if (FrontendNetwork_SendLobbyPlayerDescription() != 0) {
             Menu *pLobby = FrontendMenu_GetNetworkSessionBrowser();
             Menu_SetParent(FrontendMenu_GetNetworkSessionSetup(), pLobby);
-            Menu_SetNextAction((int)FrontendMenu_GetNetworkSessionSetup());
+            Menu_SetNextAction(FrontendMenu_GetNetworkSessionSetup());
         } else {
             Network_CloseSession();
             FrontendNetwork_SetMessageState(3);
-            Menu_SetNextAction((int)FrontendMenu_GetNetworkMessage());
+            Menu_SetNextAction(FrontendMenu_GetNetworkMessage());
         }
         return;
     }
     if (invalidPassword != 0) {
-        Menu_SetNextAction((int)FrontendMenu_GetNetworkNameEntry());
+        Menu_SetNextAction(FrontendMenu_GetNetworkNameEntry());
         return;
     }
     Network_CloseSession();
     FrontendNetwork_SetMessageState(1);
-    Menu_SetNextAction((int)FrontendMenu_GetNetworkMessage());
+    Menu_SetNextAction(FrontendMenu_GetNetworkMessage());
 }
 
 // FUNCTION: CMR2 0x004eef30
@@ -3179,10 +3179,10 @@ void FrontendMenu_SelectAlternateRallyStage(Menu *pMenu, MenuItem *pItem)
 {
     if (pItem->value == -1) {
         RallyData_SetDriverPairingStateValues(0, 0);
-        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+        Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
     } else {
         RallyData_SetDriverPairingStateValues(1, pItem->value);
-        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+        Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
     }
 }
 
@@ -3280,7 +3280,7 @@ void FrontendMenu_LeaveProfileRenameEntry(Menu *pMenu, int param)
     Menu_SetActionLatch(0);
 }
 
-int FrontendProfile_GetRenameMenu(void);
+Menu *FrontendProfile_GetRenameMenu(void);
 void RallyData_SetEditedDriverOrCategoryName(unsigned int slot, char *pName);
 
 // Characters of the three name-picker rows (a-j, k-t and u-z plus '.', space
@@ -3433,7 +3433,7 @@ done:
 
 void Profile_ResetRecordCategory(int index);
 void FrontendProfile_SetCurrentPlayer(int value);
-int FrontendProfile_GetCompletionMenu(void);
+Menu *FrontendProfile_GetCompletionMenu(void);
 BYTE RallyData_FindCheatNameIndex(int param_1, BYTE *param_2);
 char RallyData_SaveEditedCategoryProfile(int param_1);
 BYTE Profile_LoadAndLinkSavedRecord(int param_1, int param_2);
@@ -3480,14 +3480,14 @@ void FrontendProfile_PickRenameCharacterOrCheat(Menu *pMenu, int param)
             Profile_ResetRecordCategory(FrontendProfile_GetCurrentPlayer());
             g_unk0x00819048++;
             if (FrontendRecords_GetProfileMode())
-                Menu_SetNextAction((int)FrontendMenu_GetRallyProfile());
+                Menu_SetNextAction(FrontendMenu_GetRallyProfile());
             else
-                Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
+                Menu_SetNextAction(FrontendMenu_GetMultiplayerProfile());
             g_unk0x00819038 = 0;
             return;
         }
         if (len > 0) {
-            Menu_SetNextAction((int)FrontendMenu_GetProfileDateEntry());
+            Menu_SetNextAction(FrontendMenu_GetProfileDateEntry());
             g_unk0x00819038 = 0;
         }
         return;
@@ -3522,7 +3522,7 @@ void FrontendProfile_ApplyDateEntry(Menu *pMenu, int param)
     FrontendProfile_SetCategoryColour(FrontendProfile_GetCurrentPlayer(), pMenu->items[2].max + 1, pMenu->items[1].max + 1,
                  pMenu->items[0].max);
     if (RallyData_SaveEditedCategoryProfile(FrontendProfile_GetCurrentPlayer()) != 0) {
-        Menu_SetNextAction((int)FrontendProfile_GetCompletionMenu());
+        Menu_SetNextAction(FrontendProfile_GetCompletionMenu());
         g_unk0x00819879 = 0;
         if (FrontendRecords_GetProfileMode()) {
             RallyData_SetPlayerProfileInUse(FrontendProfile_GetCurrentPlayer(), 0);
@@ -3701,7 +3701,7 @@ void FrontendProfile_OpenPaletteEditor(Menu *pMenu, int param)
     if (g_unk0x00819048 == 0) {
         switch (CGameInfo::GetConfiguredGameMode()) {
         case 0:
-            Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+            Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
             GameInfo_ResetSessionTimestamp();
             return;
         case 1:
@@ -3709,21 +3709,21 @@ void FrontendProfile_OpenPaletteEditor(Menu *pMenu, int param)
         case 3:
             FrontendMenu_EnablePlayerSetupItems();
             Menu_SetParent(FrontendMenu_GetRallySelection(), pMenu);
-            Menu_SetNextAction((int)FrontendMenu_GetRallySelection());
+            Menu_SetNextAction(FrontendMenu_GetRallySelection());
             return;
         case 4:
             Menu_SetParent(FrontendMenu_GetMultiplayerRaceSettings(), pMenu);
-            Menu_SetNextAction((int)FrontendMenu_GetMultiplayerRaceSettings());
+            Menu_SetNextAction(FrontendMenu_GetMultiplayerRaceSettings());
             return;
         }
     } else {
         Menu_SetParent(FrontendMenu_GetMultiplayerProfile(), pMenu);
         if (CGameInfo::GetConfiguredGameMode() != 4) {
-            Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
+            Menu_SetNextAction(FrontendMenu_GetMultiplayerProfile());
             return;
         }
         FrontendProfile_SetupNextPlayer(pMenu, param);
-        Menu_SetNextAction((int)FrontendMenu_GetProfileNameEntry());
+        Menu_SetNextAction(FrontendMenu_GetProfileNameEntry());
     }
 }
 
@@ -3743,11 +3743,11 @@ void FrontendChampionship_ToggleAndAdvanceEntry(Menu *pMenu, int param)
     FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048), pMenu->items[0].max);
     if (g_unk0x00819048 == 0) {
         FrontendMenu_EnablePlayerSetupItems();
-        Menu_SetNextAction((int)FrontendMenu_GetMultiplayerRaceSettings());
+        Menu_SetNextAction(FrontendMenu_GetMultiplayerRaceSettings());
         return;
     }
     Menu_SetParent(FrontendMenu_GetMultiplayerProfile(), pMenu);
-    Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
+    Menu_SetNextAction(FrontendMenu_GetMultiplayerProfile());
 }
 
 // FUNCTION: CMR2 0x004f1b90
@@ -3769,7 +3769,7 @@ void FrontendProfile_SetPlayersRemaining(int value)
 }
 
 // FUNCTION: CMR2 0x004f1bc0
-void FrontendProfile_SetReturnMenu(int value)
+void FrontendProfile_SetReturnMenu(Menu *value)
 {
     g_unk0x00819870 = value;
 }
@@ -3963,7 +3963,7 @@ void FrontendMenu_ApplyRenderDeviceOptions(Menu *pMenu, int param)
         g_pGraphics->field913_0x3bc |= 0x80;
         break;
     }
-    Menu_SetNextAction((int)pMenu->pParent);
+    Menu_SetNextAction(pMenu->pParent);
 }
 
 // FUNCTION: CMR2 0x004f23c0
@@ -4013,7 +4013,7 @@ void FrontendMenu_ApplyDisplayMode(Menu *pMenu, int param)
     FrontendText_ReloadFonts();
     FrontendScroller_RecomputeAllAttached();
     CMain::SetGameActiveState(0);
-    Menu_SetNextAction((int)pMenu->pParent);
+    Menu_SetNextAction(pMenu->pParent);
 }
 
 // FUNCTION: CMR2 0x004f24f0
@@ -4138,25 +4138,25 @@ void FrontendProfile_SetCurrentPlayer(int value)
 }
 
 // FUNCTION: CMR2 0x004f2c00
-int FrontendProfile_GetRenameMenu(void)
+Menu *FrontendProfile_GetRenameMenu(void)
 {
     return g_unk0x00819030;
 }
 
 // FUNCTION: CMR2 0x004f2c10
-void FrontendProfile_SetRenameMenu(int value)
+void FrontendProfile_SetRenameMenu(Menu *value)
 {
     g_unk0x00819030 = value;
 }
 
 // FUNCTION: CMR2 0x004f2c20
-int FrontendProfile_GetCompletionMenu(void)
+Menu *FrontendProfile_GetCompletionMenu(void)
 {
     return g_unk0x00819124;
 }
 
 // FUNCTION: CMR2 0x004f2c30
-void FrontendProfile_SetCompletionMenu(int value)
+void FrontendProfile_SetCompletionMenu(Menu *value)
 {
     g_unk0x00819124 = value;
 }
@@ -4528,7 +4528,7 @@ void FrontendMenu_CancelQuit(Menu *pMenu, int param)
 void FrontendMenu_LeaveQuitConfirmation(Menu *pMenu, char param)
 {
     if (g_unk0x00819878 == 0 && param == 0)
-        Menu_SetNextAction((int)FrontendMenu_GetQuitTransition());
+        Menu_SetNextAction(FrontendMenu_GetQuitTransition());
 }
 
 // Frontend sound names and path
@@ -5091,7 +5091,7 @@ void FrontendMenu_UpdateMain(Menu *pMenu)
         g_mainMenuInputTime = timeGetTime();
     if ((int)(now - g_mainMenuInputTime) > 30500) {
         CGameInfo::SetGameInfoSessionFlag(1);
-        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+        Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
     }
 }
 
@@ -5135,7 +5135,7 @@ void FrontendChampionship_StartNewEntry(Menu *pMenu, int param)
     GameInfo_SetConfiguredPlayerCount(1);
     CGameInfo::SetGameModeOptionBit19(1);
     GameInfo_SetConfiguredMultiplayer(0);
-    FrontendProfile_SetReturnMenu((int)pMenu);
+    FrontendProfile_SetReturnMenu(pMenu);
     Menu_SetParent(FrontendMenu_GetMultiplayerProfile(), pMenu);
     FrontendProfile_SetPlayersRemaining(CGameInfo::GetConfiguredPlayerCount());
     if (CGameInfo::GetConfiguredGameMode() < 8) {
@@ -5224,7 +5224,7 @@ void FrontendProfile_SelectPlayerSlot(Menu *pMenu, int param)
     if ((int)index < count) {
         ok = Profile_LoadAndLinkSavedRecord(0, index);
         if (ok != 0) {
-            Menu_SetNextAction((int)FrontendMenu_GetProfileActions());
+            Menu_SetNextAction(FrontendMenu_GetProfileActions());
             return;
         }
     } else {
@@ -5243,11 +5243,11 @@ void FrontendProfile_CreateNewProfile(Menu *pMenu, int param)
     Profile_ResetCategoryData(FrontendProfile_GetCurrentPlayer());
     RallyData_SetPlayerProfileInUse(FrontendProfile_GetCurrentPlayer(), 0);
     Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
-    FrontendProfile_SetRenameMenu((int)FrontendMenu_GetProfileRenameEntry());
-    FrontendProfile_SetCompletionMenu((int)pMenu);
+    FrontendProfile_SetRenameMenu(FrontendMenu_GetProfileRenameEntry());
+    FrontendProfile_SetCompletionMenu(pMenu);
     FrontendProfile_SetHeaderText(CFrontend::GetTextString(0xb));
     g_unk0x00819048--;
-    Menu_SetNextAction((int)FrontendMenu_GetProfileNameEntry());
+    Menu_SetNextAction(FrontendMenu_GetProfileNameEntry());
 }
 
 // Item callback of a saved profile: loads it for the current player.
@@ -5260,7 +5260,7 @@ void FrontendProfile_LoadSelectedProfile(Menu *pMenu, int param)
     FrontendProfile_SetCurrentPlayer(0);
     Profile_AssignAvailableCategory((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), profile);
     RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
-    Menu_SetNextAction((int)FrontendMenu_GetProfileActions());
+    Menu_SetNextAction(FrontendMenu_GetProfileActions());
     g_unk0x00819048--;
 }
 
@@ -5287,7 +5287,7 @@ void FrontendMenu_EnterRallyProfile(Menu *pMenu, char back)
     FrontendProfile_SetHeaderMode(1);
     GameInfo_SetConfiguredPlayerCount(1);
     g_unk0x00819048 = 1;
-    g_unk0x00819870 = (int)pMenu->pParent;
+    g_unk0x00819870 = pMenu->pParent;
     CSound::NoOpSoundDeviceCallback();
     for (i = 0; i < 4; i++) {
         if (i < SaveProfiles_CountAvailableProfiles()) {
@@ -5418,7 +5418,7 @@ void FrontendMenu_LeaveCheats(Menu *pMenu, char back)
 // FUNCTION: CMR2 0x004f3a50
 void FrontendMenu_ReturnToParent(Menu *pMenu, int param)
 {
-    Menu_SetNextAction((int)pMenu->pParent);
+    Menu_SetNextAction(pMenu->pParent);
 }
 
 // GLOBAL: CMR2 0x00524dcc
@@ -5585,7 +5585,7 @@ void FrontendMenu_SelectDisplayDevice(Menu *pMenu, int param)
     CGameInfo::SetGraphicsOptionBits25To26(1);
     CGameInfo::SetGraphicsOptionBits27To28(1);
     CGameInfo::SetPreviewMode(2);
-    Menu_SetNextAction((int)pMenu->pParent);
+    Menu_SetNextAction(pMenu->pParent);
 }
 
 // GLOBAL: CMR2 0x005250a4
@@ -6256,21 +6256,21 @@ void FrontendProfile_SetupNextPlayer(Menu *pMenu, int param)
         Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
         RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 1);
         if (CGameInfo::GetGameModeOptionBit19() != 0) {
-            FrontendProfile_SetRenameMenu((int)FrontendMenu_GetNetworkConnection());
+            FrontendProfile_SetRenameMenu(FrontendMenu_GetNetworkConnection());
         } else {
-            FrontendProfile_SetRenameMenu((int)pNext);
+            FrontendProfile_SetRenameMenu(pNext);
             Menu_SetParent(pNext, pMenu);
         }
     } else {
         Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
-        FrontendProfile_SetRenameMenu((int)FrontendMenu_GetPaletteSelection());
+        FrontendProfile_SetRenameMenu(FrontendMenu_GetPaletteSelection());
         FrontendMenu_GetPaletteConfirmation();
     }
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc),
             (CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) + 1);
     FrontendProfile_SetHeaderText(CFrontend::m_stringDest);
     g_unk0x00819048--;
-    Menu_SetNextAction((int)FrontendMenu_GetProfileNameEntry());
+    Menu_SetNextAction(FrontendMenu_GetProfileNameEntry());
 }
 
 // Item callback of a difficulty: stores it and moves on to the next screen
@@ -6299,23 +6299,23 @@ void FrontendMenu_SelectDifficulty(Menu *pMenu, int param)
         if (CGameInfo::GetConfiguredGameMode() != 3 && CGameInfo::GetConfiguredPlayerCount() == 2) {
             switch (CGameInfo::GetConfiguredGameMode()) {
             case 0:
-                Menu_SetNextAction((int)FrontendMenu_GetSingleRallyTransmission());
+                Menu_SetNextAction(FrontendMenu_GetSingleRallyTransmission());
                 return;
             case 1:
-                Menu_SetNextAction((int)FrontendMenu_GetChampionshipTransmission());
+                Menu_SetNextAction(FrontendMenu_GetChampionshipTransmission());
                 return;
             case 2:
-                Menu_SetNextAction((int)FrontendMenu_GetTimeTrialTransmission());
+                Menu_SetNextAction(FrontendMenu_GetTimeTrialTransmission());
                 return;
             }
             return;
         }
         GameInfo_SetConfiguredMultiplayer(1);
     }
-    g_unk0x00819870 = (int)pMenu;
+    g_unk0x00819870 = pMenu;
     Menu_SetParent(FrontendMenu_GetMultiplayerProfile(), pMenu);
     g_unk0x00819048 = CGameInfo::GetConfiguredPlayerCount();
-    Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
+    Menu_SetNextAction(FrontendMenu_GetMultiplayerProfile());
 }
 
 // Entering a difficulty page: sets up its scroller.
@@ -6437,7 +6437,7 @@ void FrontendMenu_UpdateTransmissionChoice(Menu *pMenu)
 void FrontendMenu_SelectTransmission(Menu *pMenu, int param)
 {
     GameInfo_SetConfiguredMultiplayer(pMenu->cursor);
-    g_unk0x00819870 = (int)pMenu;
+    g_unk0x00819870 = pMenu;
     Menu_SetParent(FrontendMenu_GetMultiplayerProfile(), pMenu);
     g_unk0x00819048 = CGameInfo::GetConfiguredPlayerCount();
 }
@@ -6621,17 +6621,17 @@ void FrontendProfile_CreateNewPlayerProfile(Menu *pMenu, int param)
     Profile_ResetCategoryData((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff));
     RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
     Menu_SetParent(FrontendMenu_GetProfileNameEntry(), pMenu);
-    FrontendProfile_SetRenameMenu((int)FrontendMenu_GetProfileRenameEntry());
+    FrontendProfile_SetRenameMenu(FrontendMenu_GetProfileRenameEntry());
     if (CGameInfo::GetGameModeOptionBit19() != 0)
-        FrontendProfile_SetCompletionMenu((int)FrontendMenu_GetNetworkConnection());
+        FrontendProfile_SetCompletionMenu(FrontendMenu_GetNetworkConnection());
     else
-        FrontendProfile_SetCompletionMenu((int)pNext);
+        FrontendProfile_SetCompletionMenu(pNext);
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc),
             (CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) + 1);
     FrontendProfile_SetHeaderText(CFrontend::m_stringDest);
     g_unk0x00819048--;
     Menu_SetParent(pNext, pMenu);
-    Menu_SetNextAction((int)FrontendMenu_GetProfileNameEntry());
+    Menu_SetNextAction(FrontendMenu_GetProfileNameEntry());
 }
 
 // Item callback of a saved profile in the player profile menu.
@@ -6648,11 +6648,11 @@ void FrontendProfile_SelectSavedPlayerProfile(Menu *pMenu, int param)
     g_unk0x00819048--;
     if (CGameInfo::GetGameModeOptionBit19() != 0) {
         Menu_SetParent(FrontendMenu_GetNetworkConnection(), pMenu);
-        Menu_SetNextAction((int)FrontendMenu_GetNetworkConnection());
+        Menu_SetNextAction(FrontendMenu_GetNetworkConnection());
         return;
     }
     Menu_SetParent(pNext, pMenu);
-    Menu_SetNextAction((int)pNext);
+    Menu_SetNextAction(pNext);
 }
 
 // Callback that steps the player list back one player while setting up a
@@ -6675,7 +6675,7 @@ void FrontendMenu_LeaveProfileNameEntry(int param_1, char param_2)
                     FrontendProfile_SetHeaderText(CFrontend::m_stringDest);
                     return;
                 }
-                Menu_SetNextAction((int)FrontendMenu_GetMultiplayerExtendedDifficulty());
+                Menu_SetNextAction(FrontendMenu_GetMultiplayerExtendedDifficulty());
             }
         }
     }
@@ -6821,7 +6821,7 @@ void FrontendMenu_StartMultiplayerKnockout(Menu *pMenu, int param)
     }
     RallyData_InitKnockoutBracket();
     RallyData_SelectKnockoutCountryStage();
-    Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+    Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
 }
 
 // Update callback of the multiplayer race settings page.
@@ -7394,7 +7394,7 @@ void FrontendMenu_StartQuickRace(Menu *pMenu, int param)
         GameInfo_SetNetworkOptionBits8To10(pMenu->items[1].max + 1);
         GameInfo_SetNetworkOptionBit11(0);
     }
-    Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+    Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
 }
 
 // Entering the first quick race page: loads its settings.
@@ -7462,7 +7462,7 @@ void FrontendMenu_StartAdvancedQuickRace(Menu *pMenu, int param)
         GameInfo_SetNetworkOptionBits16To19(pMenu->items[1].max + 1);
         break;
     }
-    Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+    Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
 }
 
 // Entering the second quick race page: loads its settings.
@@ -7618,11 +7618,11 @@ void FrontendChampionship_SelectRouteEntry(Menu *pMenu, int param)
         (unsigned char)g_unk0x008196e8[pMenu->cursor]);
     RallyData_FillEventSlotSelections();
     if (g_unk0x00819048 == 0) {
-        Menu_SetNextAction((int)FrontendMenu_GetArcadeChampionshipTransmission());
+        Menu_SetNextAction(FrontendMenu_GetArcadeChampionshipTransmission());
         return;
     }
     Menu_SetParent(FrontendMenu_GetMultiplayerProfile(), pMenu);
-    Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
+    Menu_SetNextAction(FrontendMenu_GetMultiplayerProfile());
 }
 
 // Item callback of the championship value screens: toggles the entry's
@@ -7632,10 +7632,10 @@ void FrontendChampionship_ToggleRouteEntry(Menu *pMenu, int param)
 {
     FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048), pMenu->items[0].max);
     if (g_unk0x00819048 == 0) {
-        Menu_SetNextAction((int)FrontendMenu_GetArcadeChampionshipTransmission());
+        Menu_SetNextAction(FrontendMenu_GetArcadeChampionshipTransmission());
         return;
     }
-    Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
+    Menu_SetNextAction(FrontendMenu_GetMultiplayerProfile());
 }
 
 // Change callback of the entry value screens: stores the value selected for
@@ -7660,16 +7660,16 @@ void FrontendChampionship_ApplySharedRouteEntry(Menu *pMenu, int param)
         if (CGameInfo::GetConfiguredPlayerCount() == 2) {
             FrontendMenu_GetMultiplayerProfile()->pParent = pMenu;
             FrontendMenu_GetArcadeRallySelection()->pParent = pMenu;
-            Menu_SetNextAction((int)FrontendMenu_GetArcadeRallySelection());
+            Menu_SetNextAction(FrontendMenu_GetArcadeRallySelection());
         } else {
             FrontendMenu_GetArcadeRallySelection()->pParent = FrontendMenu_GetArcadeCarClass();
             FrontendMenu_GetArcadeCarClass()->pParent = pMenu;
-            Menu_SetNextAction((int)FrontendMenu_GetArcadeCarClass());
+            Menu_SetNextAction(FrontendMenu_GetArcadeCarClass());
         }
     } else {
         if (CGameInfo::GetConfiguredPlayerCount() == 2)
             FrontendMenu_GetMultiplayerProfile()->pParent = pMenu;
-        Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
+        Menu_SetNextAction(FrontendMenu_GetMultiplayerProfile());
     }
 }
 
@@ -7691,10 +7691,10 @@ void FrontendChampionship_ToggleArcadeRouteEntry(Menu *pMenu, int param)
 {
     FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048), pMenu->items[0].max);
     if (g_unk0x00819048 == 0) {
-        Menu_SetNextAction((int)FrontendMenu_GetArcadeChampionshipRallySelection());
+        Menu_SetNextAction(FrontendMenu_GetArcadeChampionshipRallySelection());
         return;
     }
-    Menu_SetNextAction((int)FrontendMenu_GetMultiplayerProfile());
+    Menu_SetNextAction(FrontendMenu_GetMultiplayerProfile());
 }
 
 // FUNCTION: CMR2 0x004faef0
@@ -7746,7 +7746,7 @@ void FrontendMenu_SelectArcadeChampionshipTransmission(Menu *pMenu, int param)
     RallyData_SetSelectionBits10To11(pMenu->cursor);
     RallyData_SetSelectionBits12To13(0);
     RallyData_SetSelectionBits16To19(3);
-    Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+    Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
 }
 
 // Item callback that rebuilds a horizontally scrolling menu: the visible item
@@ -7859,13 +7859,13 @@ void FrontendMenu_SelectArcadeRallyRow(int param_1, int unused)
         RallyData_SetSecondarySelectionNibble(5);
     if (CGameInfo::GetConfiguredGameMode() == 6) {
         if (CGameInfo::GetConfiguredPlayerCount() == 2)
-            Menu_SetNextAction((int)FrontendMenu_GetQuickRaceAdvancedSettings());
+            Menu_SetNextAction(FrontendMenu_GetQuickRaceAdvancedSettings());
         else
-            Menu_SetNextAction((int)FrontendMenu_GetQuickRaceSettings());
+            Menu_SetNextAction(FrontendMenu_GetQuickRaceSettings());
         return;
     }
     RallyData_SetSelectionBits16To19(3);
-    Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+    Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
 }
 
 void GameInfo_SetConfiguredDifficulty(BYTE param1);
@@ -9541,12 +9541,12 @@ void FrontendProfile_ApplyStageSelectionAndAdvance(Menu *pMenu, int param)
         RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048, 0);
         if (result != 0) {
             if (CGameInfo::GetGameModeOptionBit19() != 0) {
-                Menu_SetNextAction((int)FrontendMenu_GetNetworkConnection());
+                Menu_SetNextAction(FrontendMenu_GetNetworkConnection());
                 g_unk0x00819048--;
                 return;
             }
             Menu_SetParent(pScreen, FrontendMenu_GetMultiplayerProfile());
-            Menu_SetNextAction((int)pScreen);
+            Menu_SetNextAction(pScreen);
             g_unk0x00819048--;
             return;
         }
@@ -10398,13 +10398,13 @@ void FrontendMenu_SelectRallyStage(Menu *pMenu, int param)
         }
         if (CGameInfo::GetConfiguredGameMode() == 6) {
             if (CGameInfo::GetConfiguredPlayerCount() == 2) {
-                Menu_SetNextAction((int)FrontendMenu_GetQuickRaceAdvancedSettings());
+                Menu_SetNextAction(FrontendMenu_GetQuickRaceAdvancedSettings());
                 return;
             }
-            Menu_SetNextAction((int)FrontendMenu_GetQuickRaceSettings());
+            Menu_SetNextAction(FrontendMenu_GetQuickRaceSettings());
             return;
         }
-        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+        Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
     }
 }
 
@@ -10421,7 +10421,7 @@ void FrontendMenu_EnableRallyStageRows(Menu *pMenu, int param)
         RallyData_FillStageSplitEditorRows((int)pMenu, param, 0);
     if (CGameInfo::GetConfiguredGameMode() == 1) {
         RallyData_SetStageSelectionAndRefreshFlags(0);
-        Menu_SetNextAction((int)FrontendMenu_GetRallyStartTransition());
+        Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
         GameInfo_ResetSessionTimestamp();
         return;
     }
@@ -10471,7 +10471,7 @@ void FrontendMenu_EnableRallyStageRows(Menu *pMenu, int param)
     }
     if (FrontendMenu_GetRallyStageSelection()->cursor >= FrontendMenu_GetRallyStageSelection()->itemCount)
         FrontendMenu_GetRallyStageSelection()->cursor = FrontendMenu_GetRallyStageSelection()->itemCount - 1;
-    Menu_SetNextAction((int)FrontendMenu_GetRallyStageSelection());
+    Menu_SetNextAction(FrontendMenu_GetRallyStageSelection());
 }
 
 // Palette index (g_unk0x008196e8) -> livery index of m_unk0x00818530.
