@@ -445,9 +445,9 @@ void Car_UpdateAutomaticGear(void)
     }
 }
 
-void StageObject_GetCurrentObjectPointer(int *pOut);
-void StageObject_GetCurrentObjectContext(int *pOut);
-void StageObject_GetCurrentObjectValues(int *pOut1, int *pOut2);
+void StageObject_GetCurrentObjectPointer(SceneNode **pOut);
+void StageObject_GetCurrentObjectContext(SceneNode **pOut);
+void StageObject_GetCurrentObjectValues(SceneNode **pOut1, SceneNode **pOut2);
 extern BYTE *g_unk0x005920f0;
 extern FixVector g_unk0x00592114;
 
@@ -531,13 +531,13 @@ int g_stageLightReady;
 // FUNCTION: CMR2 0x004919a0
 void Stage_InitLightMeshes(void)
 {
-    int object0;
-    int context;
-    int object2;
-    int object3;
-    int *node;
-    int *root;
-    int *child;
+    SceneNode *object0;
+    SceneNode *context;
+    SceneNode *object2;
+    SceneNode *object3;
+    SceneNode *node;
+    SceneNode *root;
+    SceneNode *child;
     int i;
     int value;
     int minimum;
@@ -550,17 +550,16 @@ void Stage_InitLightMeshes(void)
     node = NULL;
     root = NULL;
     child = NULL;
-    if (object0 != 0 && (node = *(int **)(object0 + 4)) != NULL &&
-        (root = (int *)*node) != NULL)
-        child = (int *)*root;
+    if (object0 != NULL && (node = object0->pFirstChild) != NULL &&
+        (root = node->pNext) != NULL)
+        child = root->pNext;
 
     g_stageRandomTextures[0] = NULL;
     g_stageRandomTextures[1] = NULL;
     g_stageRandomTextures[2] = NULL;
-    g_stageLightNode = (SceneNode *)node;
-    g_stageLightObject = SceneType2_Create((FixVector *)(node + 4), (FixAngles *)(node + 7), NULL,
-                                           (SceneNode *)node);
-    g_stageLightRoot = (SceneNode *)child;
+    g_stageLightNode = node;
+    g_stageLightObject = SceneType2_Create(&node->translation, &node->angles, NULL, node);
+    g_stageLightRoot = child;
     g_stageMesh0Copy = NULL;
     g_stageMesh0Count = 0;
     g_stageMesh1Copy = NULL;
@@ -576,28 +575,28 @@ void Stage_InitLightMeshes(void)
     g_stageMesh6Copy = NULL;
     g_stageMesh6Count = 0;
 
-    g_stageMesh0 = *(Mesh **)(object0 + 0xc);
+    g_stageMesh0 = (Mesh *)object0->pObject;
     g_stageMesh0Copy = g_stageMesh0;
     g_stageMesh0Count = (short)Mesh_GetField0x10(g_stageMesh0);
-    g_stageMesh1 = *(Mesh **)(context + 0xc);
+    g_stageMesh1 = (Mesh *)context->pObject;
     g_stageMesh1Copy = g_stageMesh1;
     g_stageMesh1Count = (short)Mesh_GetField0x10(g_stageMesh1);
-    g_stageMesh2 = *(Mesh **)(object2 + 0xc);
+    g_stageMesh2 = (Mesh *)object2->pObject;
     g_stageMesh2Copy = g_stageMesh2;
     g_stageMesh2Count = (short)Mesh_GetField0x10(g_stageMesh2);
-    if (object3 != 0) {
-        g_stageMesh3 = *(Mesh **)(object3 + 0xc);
+    if (object3 != NULL) {
+        g_stageMesh3 = (Mesh *)object3->pObject;
         g_stageMesh3Copy = g_stageMesh3;
         g_stageMesh3Count = (short)Mesh_GetField0x10(g_stageMesh3);
     }
-    g_stageMesh4 = (Mesh *)root[3];
+    g_stageMesh4 = (Mesh *)root->pObject;
     g_stageMesh4Copy = g_stageMesh4;
     g_stageMesh4Count = (short)Mesh_GetField0x10(g_stageMesh4);
-    g_stageMesh5 = (Mesh *)node[3];
+    g_stageMesh5 = (Mesh *)node->pObject;
     g_unk0x005920f0 = (BYTE *)g_stageMesh5;
     g_stageMesh5Count = (short)Mesh_GetField0x10(g_stageMesh5);
     if (child != NULL) {
-        g_stageMesh6 = *(Mesh **)((BYTE *)child + 0xc);
+        g_stageMesh6 = (Mesh *)child->pObject;
         g_stageMesh6Copy = g_stageMesh6;
         g_stageMesh6Count = (short)Mesh_GetField0x10(g_stageMesh6);
     }
@@ -1059,7 +1058,7 @@ void Track_ShiftMeshAndAmbientHeights(int oldHeight, int newHeight, int mode)
 {
     int height = g_stageHeightTarget - oldHeight + newHeight;
     int i;
-    int object;
+    SceneNode *object;
     FixVector position;
 
     for (i = g_stageMesh0Count - 1; i >= 0; i--) {
@@ -1079,7 +1078,7 @@ void Track_ShiftMeshAndAmbientHeights(int oldHeight, int newHeight, int mode)
     g_unk0x00592130 = newHeight;
     g_unk0x0059212c = oldHeight;
     StageObject_GetCurrentObjectPointer(&object);
-    FixMatrix_RotateVector(&position, &g_unk0x00592114, (FixMatrix *)(object + 0x98));
+    FixMatrix_RotateVector(&position, &g_unk0x00592114, &object->current);
     position.y += g_unk0x0059212c;
     Scene_SetLightPosition(g_stageAmbientNode, position.x, position.y, position.z);
 }

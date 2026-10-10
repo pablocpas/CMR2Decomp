@@ -1109,7 +1109,7 @@ int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, un
 
 struct StageObjectEntry0x128 {
     int field_0x0;              // 0x000 route element of the object
-    int *pObject;               // 0x004 scene node (head of the object's node chain)
+    SceneNode *pObject;         // 0x004 scene node (head of the object's node chain)
     FixMatrix keyB;             // 0x008 previous key
     FixMatrix keyA;             // 0x048 next key
     FixMatrix current;          // 0x088 interpolated matrix
@@ -1482,7 +1482,7 @@ void StageObject_UpdateMovingTransforms(void)
     FixAngles angles;
     FixMatrix *pMatrix;
     StageObjectEntry0x128 *pObj;
-    int *pNode;
+    SceneNode *pNode;
     int len;
     int len2;
     int dot;
@@ -1571,8 +1571,8 @@ void StageObject_UpdateMovingTransforms(void)
             FixMatrix_SetUp(&basis.up, pMatrix);
             FixMatrix_SetForward(&basis.forward, pMatrix);
 
-            for (pNode = pObj->pObject; pNode != NULL; pNode = *(int **)((BYTE *)pNode + 8))
-                *(int *)((BYTE *)pNode + 0x174) = 1;
+            for (pNode = pObj->pObject; pNode != NULL; pNode = pNode->pParent)
+                pNode->dirty = 1;
 
             if (pObj->mode == 0)
                 pObj->keyA = pObj->keyB;
@@ -1714,8 +1714,8 @@ void StageObject_UpdateMovingTransforms(void)
             pos.z = world.z - pos.z;
             FixMatrix_SetPosition(&pos, pMatrix);
 
-            for (pNode = pObj->pObject; pNode != NULL; pNode = *(int **)((BYTE *)pNode + 8))
-                *(int *)((BYTE *)pNode + 0x174) = 1;
+            for (pNode = pObj->pObject; pNode != NULL; pNode = pNode->pParent)
+                pNode->dirty = 1;
 
             if (pObj->mode == 0)
                 pObj->keyA = pObj->keyB;

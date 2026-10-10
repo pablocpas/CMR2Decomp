@@ -4890,9 +4890,9 @@ static inline GlowLight *Glow_FindFreeSlot(void)
 }
 
 // FUNCTION: CMR2 0x004ae2f0
-GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1,
+GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, FixVector *unused1,
                     int sizeX, int sizeY, Texture *billboardTexture, Texture *layerTexture,
-                    int intensity, SceneNode *node, BYTE projectedBrightness, int unused2,
+                    int intensity, SceneNode *node, BYTE projectedBrightness, FixVector *unused2,
                     int projectedSizeScale)
 {
     GlowLight *light;

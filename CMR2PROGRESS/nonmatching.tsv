@@ -29,7 +29,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x455f00	StageTiming_BlendCarPaintDecalRows	StageTiming.cpp	527	0.5263157894736842	0.5348837209302325
 0x42e450	Car_IntegrateWheelTravel	Car.cpp	1165	0.5358166189111748	0.48732394366197185
 0x4919a0	Stage_InitLightMeshes	TrackCollision.cpp	918	0.5384615384615384	0.50682261208577
-0x4675c0	CarDamage_BuildRelativeVelocityHull	StageObjects.cpp	316	0.5393258426966292	0.5
 0x463410	StageLights_Create	StageObjects.cpp	1983	0.5450274079874706	0.7799530148786218
 0x488640	Collision_TestOrientedBoxCornerOverlap	StageObjects.cpp	1948	0.55	0.5110635260528195
 0x40b5b0	Font_GetTextWidth	Font.cpp	376	0.5546875	0.5645161290322581
@@ -244,7 +243,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4a0570	Menu_Update	Menu.cpp	1363	0.8252631578947368	0.7190775681341719
 0x408600	RallyData_SetDriverCategoryOption	RallyData.cpp	172	0.8269230769230769	0.8269230769230769
 0x4f4b90	FrontendText_LoadRegionLanguages	GameInfo.cpp	281	0.8304093567251462	0.8176100628930818
-0x46c8e0	Replay_AdvanceLiveRecordingStreams	StageObjects.cpp	765	0.8310502283105022	0.8136363636363636
 0x48df50	CarPhysics_UpdateWheelSlipAndVelocityDamping	StageObjects.cpp	335	0.8333333333333334	0.803921568627451
 0x505b40	OptionMenu_AnimateSelectedPanel	GameInfo.cpp	713	0.8340425531914893	0.7295597484276729
 0x4878a0	Collision_TestCarAgainstSectorObjects	StageObjects.cpp	732	0.834061135371179	0.7850877192982456
@@ -280,6 +278,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4744f0	Knockout_DrawCurrentRoundBracket	StageObjects.cpp	2774	0.8560962846677133	0.7824267782426778
 0x46cbe0	Replay_CanExtendControlPacketRun	StageObjects.cpp	121	0.8571428571428571	0.8080808080808081
 0x47e1e0	StageObject_InterpolateHeadlightGlows	StageObjects.cpp	681	0.857707509881423	0.857707509881423
+0x46c8e0	Replay_AdvanceLiveRecordingStreams	StageObjects.cpp	765	0.8584474885844748	0.8409090909090909
 0x406580	CGameInfo::ApplyStageOptionUnlockFlags	GameInfo.cpp	257	0.8598130841121495	0.8599033816425121
 0x41db10	Race_UpdateDriverReadyAndRecordState	Race.cpp	1792	0.8608294930875576	0.8215919487648673
 0x4f17d0	FrontendScroller_InitRallyStageSelection	FrontendScreens.cpp	395	0.8615384615384616	0.8571428571428571

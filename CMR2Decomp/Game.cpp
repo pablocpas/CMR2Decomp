@@ -2797,7 +2797,7 @@ struct Unk004238e0 {
 };
 
 void StageObject_ResetContactEffectAndSetLevel(BYTE *p, BYTE *q);
-void StageObject_SetContactLevelToUnity(BYTE *p, int unused);
+void StageObject_SetContactLevelToUnity(BYTE *p, void *unused);
 void Game_SetObjectRenderModeOne(void *param1);
 void StageObject_ResetRightAngleContactEffect(BYTE *pCar, BYTE *pInfo);
 
@@ -2811,7 +2811,7 @@ void Game_DispatchObjectContactReset(BYTE *pObject, BYTE *pInfo)
         Game_SetObjectRenderModeOne(pObject);
         return;
     case 2:
-        StageObject_SetContactLevelToUnity(pObject, (int)pInfo);
+        StageObject_SetContactLevelToUnity(pObject, pInfo);
         return;
     case 1:
     case 10:

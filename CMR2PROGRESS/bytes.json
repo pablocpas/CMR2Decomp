@@ -24827,9 +24827,9 @@
   },
   "0x4675c0": {
     "n": "CarDamage_BuildRelativeVelocityHull",
-    "s": 0.5,
-    "x": false,
-    "fz": 0.7555555555555555,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "CarDamage_BuildRelativeVelocityHull"
@@ -25997,9 +25997,9 @@
   },
   "0x46c8e0": {
     "n": "Replay_AdvanceLiveRecordingStreams",
-    "s": 0.8136363636363636,
+    "s": 0.8409090909090909,
     "x": false,
-    "fz": 0.9227272727272727,
+    "fz": 0.9363636363636364,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Replay_AdvanceLiveRecordingStreams"

@@ -38,9 +38,9 @@ extern int g_glowAllocatedCount;
 void Glow_AllocateEntryTable(int capacity);
 int Glow_FreeTable(void);
 void Glow_ResetEntries(void);
-GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1,
+GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, FixVector *unused1,
                    int sizeX, int sizeY, Texture *billboardTexture, Texture *layerTexture,
-                   int intensity, SceneNode *node, unsigned char projectedBrightness, int unused2,
+                   int intensity, SceneNode *node, unsigned char projectedBrightness, FixVector *unused2,
                    int projectedSizeScale);
 void Glow_SetEnabled(GlowLight *pLight, unsigned char value);
 void Glow_SetIntensity(GlowLight *pLight, int value);

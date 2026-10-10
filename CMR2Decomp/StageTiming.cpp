@@ -3231,7 +3231,7 @@ int g_unk0x0051bfac[8] = { 0x3333, 0x3333, 0x3333, 0x3333, 0x1999, 0x1999, 0x199
 // GLOBAL: CMR2 0x0051bfcc
 int g_unk0x0051bfcc[8] = { 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999 };
 
-void StageObject_SetModelSubmeshVisibility(int param_1, int param_2, char param_3);
+void StageObject_SetModelSubmeshVisibility(Car *pCar, int param_2, char param_3);
 void Race_PlayHornSound(unsigned int view, int kind, int listener);
 void Car_QueueWindowBreak(CarPartSet *pParts, Car *pCar, unsigned int part);
 
@@ -3253,7 +3253,7 @@ void StageTiming_FlagCarPartBreaks(Car *pCar, int param_2)
             part = pRecord->breakPartIndex[i];
             if (pRecord->partBroken[i] == 0 || pRecord->partDamaged[i] == 0) {
                 if (pRecord->damageValues[i + 26] > g_unk0x0051bfac[i] && pRecord->partBroken[i] == 0) {
-                    StageObject_SetModelSubmeshVisibility((int)pCar, 2, i);
+                    StageObject_SetModelSubmeshVisibility(pCar, 2, i);
                     pRecord->partBroken[i] = 1;
                     pRecord->partDamaged[i] = 1;
                     if (param_2 == 0) {
@@ -3279,7 +3279,7 @@ void StageTiming_FlagCarPartBreaks(Car *pCar, int param_2)
                     }
                 }
                 else if (pRecord->damageValues[i + 26] > g_unk0x0051bfcc[i] && pRecord->partDamaged[i] == 0 && pRecord->partBroken[i] == 0) {
-                    StageObject_SetModelSubmeshVisibility((int)pCar, 1, i);
+                    StageObject_SetModelSubmeshVisibility(pCar, 1, i);
                     pRecord->partDamaged[i] = 1;
                     if (param_2 == 0) {
                         carIndex = pCar->index;
@@ -4325,7 +4325,7 @@ void StageTiming_CreateWhiteStageLight(void)
 
 extern int g_carDamageModelEnabled[8];
 
-void StageObject_SetModelSubmeshVisibility(int param_1, int param_2, char param_3);
+void StageObject_SetModelSubmeshVisibility(Car *pCar, int param_2, char param_3);
 void Mesh_Rebuild(Mesh *pMesh);
 void RallyData_ValidateIndex(int index);
 void CarLight_SetChannelMasks(int index, char set0, char set1, BYTE mask);
@@ -4333,7 +4333,7 @@ void CarLight_SetChannelMasks(int index, char set0, char set1, BYTE mask);
 // Rebuilds the part meshes of a damaged car from its packed vertices, then
 // clears the part set's damage state.
 // FUNCTION: CMR2 0x004698a0
-void StageTiming_RebuildDamagedPartMeshes(int pCar)
+void StageTiming_RebuildDamagedPartMeshes(Car *pCar)
 {
     CarPartSet *set;
     int i;
@@ -4342,8 +4342,8 @@ void StageTiming_RebuildDamagedPartMeshes(int pCar)
     FixVector pos;
     FixVector normal;
 
-    if (g_carDamageModelEnabled[*(char *)(pCar + 0xb1a)] != 0) {
-        set = g_carPartSets + *(char *)(pCar + 0xb1a);
+    if (g_carDamageModelEnabled[pCar->index] != 0) {
+        set = g_carPartSets + pCar->index;
         for (i = 0; i < set->count; i++) {
             for (j = 0; j < set->vertexCount[i]; j++) {
                 pos = set->geometry.vertices[i][j].pos;
@@ -4359,7 +4359,7 @@ void StageTiming_RebuildDamagedPartMeshes(int pCar)
             if (pMesh != NULL) {
                 Mesh_Rebuild(pMesh);
                 RallyData_ValidateIndex((int)pMesh);
-                Scene_MarkShadowPartDirty(*(SceneNode **)(pCar + 0x720), pMesh);
+                Scene_MarkShadowPartDirty(pCar->pBodyNode, pMesh);
             }
         }
         for (i = 0; i < 9; i++)
@@ -4373,7 +4373,7 @@ void StageTiming_RebuildDamagedPartMeshes(int pCar)
             set->partDamaged[i] = 0;
             StageObject_SetModelSubmeshVisibility(pCar, 0, i);
         }
-        CarLight_SetChannelMasks(*(char *)(pCar + 0xb1a), 0, 0, 4);
+        CarLight_SetChannelMasks(pCar->index, 0, 0, 4);
     }
 }
 

@@ -7917,15 +7917,15 @@ void StageObject_SyncStateAndSceneMatrix(BYTE *p, int *src, int unused, BYTE val
 void Dash_UpdateCameraModeOffset(BYTE *param_1, BYTE *param_2, int param_3);
 void View_PlaceTracksideCameraAtSpot(BYTE *pRecord, FixMatrix *pRef, int param);
 void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc);
-void StageObject_BuildCarNodeOrientation(int object, int *src);
+void StageObject_BuildCarNodeOrientation(BYTE *object, int *src);
 void View_CacheReferenceBasisAndBuildMatrix(BYTE *pObj, FixMatrix *pRef);
 void View_RestartTracksideCameraDolly(BYTE *pRecord, FixMatrix *pRef);
 void View_PositionFromCarProfile(CameraRecord *pObj, FixMatrix *pRef);
-void StageObject_BuildCarMountWorldMatrix(BYTE *object, int unused);
+void StageObject_BuildCarMountWorldMatrix(BYTE *object, void *unused);
 void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef);
 void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef);
 void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3);
-void StageObject_DispatchActiveCarObjectUpdate(BYTE *pObj, int a, int b);
+void StageObject_DispatchActiveCarObjectUpdate(BYTE *pObj, FixMatrix *pRef, int b);
 void Dash_BuildInterpolatedCockpitMatrix(BYTE *param_1, FixMatrix *param_2, int param_3);
 void View_UpdateTracksideZoomAndShake(BYTE *pRecord, FixMatrix *pRef);
 int Track_GetGroundHeight5(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass, int defaultY);
@@ -8016,9 +8016,9 @@ void Camera_Update(CameraRecord *pRecord)
         break;
     case 3:
         if (onCar == 0 && pCar->field_0xb60 == 0)
-            StageObject_DispatchActiveCarObjectUpdate((BYTE *)pRecord, (int)Car_GetCameraReferenceMatrix(car), 0);
+            StageObject_DispatchActiveCarObjectUpdate((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car), 0);
         else
-            StageObject_DispatchActiveCarObjectUpdate((BYTE *)pRecord, (int)Car_GetCameraReferenceMatrix(car), 1);
+            StageObject_DispatchActiveCarObjectUpdate((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car), 1);
         break;
     case 2:
         StageObject_InterpolateReferenceMatrix((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
@@ -8065,7 +8065,7 @@ void Camera_Restart(CameraRecord *pRecord)
         View_CacheReferenceBasisAndBuildMatrix((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car));
         return;
     case 3:
-        StageObject_BuildCarNodeOrientation((int)pRecord, (int *)Car_GetCameraReferenceMatrix(car));
+        StageObject_BuildCarNodeOrientation((BYTE *)pRecord, (int *)Car_GetCameraReferenceMatrix(car));
         return;
     case 2:
         StageObject_RebuildMirroredTiltMatrix((BYTE *)pRecord, (int *)&body);
@@ -8094,7 +8094,7 @@ void Camera_SnapTo(CameraRecord *pRecord, FixMatrix *pRef)
         View_BuildMatrixFromCameraBasis((BYTE *)pRecord, pRef);
         return;
     case 3:
-        StageObject_BuildCarMountWorldMatrix((BYTE *)pRecord, (int)pRef);
+        StageObject_BuildCarMountWorldMatrix((BYTE *)pRecord, pRef);
         return;
     case 10:
         View_PositionFromCarProfile((CameraRecord *)pRecord, pRef);
