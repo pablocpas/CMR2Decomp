@@ -66,6 +66,8 @@ struct SaveSlot {
 #include "StageUI.h"
 #include "FileBuffer.h"
 #include "Input.h"
+#include "Glow.h"
+#include "LayoutChecks.h"
 
 int StageTiming_GetStartSlotIndex(int index);
 int Race_GetPlayerRecordField4(BYTE index);
@@ -163,7 +165,7 @@ struct RallyPairingTables {
     int flags[20];
     int otherFlags[20];
 };
-typedef char RallyPairingTablesSize[sizeof(RallyPairingTables) == 0x190 ? 1 : -1];
+CMR2_LAYOUT_CHECK(RallyPairingTablesSize, sizeof(RallyPairingTables) == 0x190);
 // GLOBAL: CMR2 0x0052f100
 RallyPairingTables g_rallyPairingTables;
 #define g_unk0x0052f100 (g_rallyPairingTables.pairs)
@@ -5135,7 +5137,7 @@ void RallyData_FillEventSlotSelections(void)
 {
     if (!RallyData_GetSecondarySelectionNibble())
         return;
-    g_unk0x005337ec = (int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0));
+    g_unk0x005337ec = CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0));
     g_unk0x00533758[16] = RallyData_GetDriverRecordSelectionValue(0);
     if (g_unk0x005337ec >= 0 && g_unk0x005337ec <= 5 || g_unk0x005337ec == 0xc) {
         if (CGameInfo::GetGameInfoSessionFlag()) {
@@ -5195,11 +5197,11 @@ int RallyData_PickStageOutsideExcludedGroups(int exclude1, int exclude2)
 {
     memset(g_unk0x005337d4, 0, sizeof(g_unk0x005337d4));
     if (exclude1 >= 0)
-        g_unk0x005337d4[(int)CFrontend::GetArchivePrimaryIDEntry(exclude1)] = 1;
+        g_unk0x005337d4[CFrontend::GetArchivePrimaryIDEntry(exclude1)] = 1;
     if (exclude2 >= 0)
-        g_unk0x005337d4[(int)CFrontend::GetArchivePrimaryIDEntry(exclude2)] = 1;
+        g_unk0x005337d4[CFrontend::GetArchivePrimaryIDEntry(exclude2)] = 1;
     g_unk0x005337c4 = rand() % 12;
-    while (g_unk0x005337d4[(int)CFrontend::GetArchivePrimaryIDEntry(g_unk0x005337c4)] == 1)
+    while (g_unk0x005337d4[CFrontend::GetArchivePrimaryIDEntry(g_unk0x005337c4)] == 1)
         g_unk0x005337c4 = rand() % 12;
     return g_unk0x005337c4;
 }
@@ -5308,7 +5310,7 @@ int RallyData_GetDistinctValueCount(void)
     return g_unk0x0052eab8;
 }
 
-void StageObject_ResetDamageRecordIndices(void);
+void CarLight_InvalidateAppliedLevels(void);
 void StageObject_ResetBodyTextureCaches(void);
 void StageObject_FreeAll(void);
 void Mesh_FreeClones(void);
@@ -5316,7 +5318,7 @@ void Mesh_FreeClones(void);
 // FUNCTION: CMR2 0x00411110
 void RallyData_ResetDamageAndTextureCaches(void)
 {
-    StageObject_ResetDamageRecordIndices();
+    CarLight_InvalidateAppliedLevels();
     StageObject_ResetBodyTextureCaches();
 }
 
@@ -7811,7 +7813,6 @@ reset:
 
 void Particle_BuildTriangleStripIndices(void);
 void Particle_Init(int typeCount, int particleCount);
-void Glow_AllocateEntryTable(int param1);
 void Graphics_CreateSharedWriteOnlyVertexBuffer(void);
 void Dash_Reset(void);
 void StageTiming_ResetCheckpointSlotStates(void);

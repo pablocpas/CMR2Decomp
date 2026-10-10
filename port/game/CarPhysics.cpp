@@ -1,6 +1,8 @@
+#include <stddef.h>
 #include "CarPhysics.h"
 #include "Car.h"
 #include "CarResources.h"
+#include "CarParts.h"
 #include "GameInfo.h"
 #include "RallyData.h"
 #include "StageTiming.h"
@@ -16,10 +18,10 @@ extern CarContact *g_carContacts;
 extern int g_carContactCount;
 
 // Skid-trail bend unit conversion (16.16 degree steps -> sine-table angle).
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 extern double g_unk0x00511308;
 
-int StageTiming_GetStartArchiveRelativeEntry(BYTE *pCar, int offset);
+void *CarInfo_GetSection(Car *pCar, int section);
 int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass,
                                  unsigned short *pSurface, int defaultY);
 int RallyData_GetChallengeRenderState(void);
@@ -52,7 +54,7 @@ CarTransforms *g_physBody;
 // GLOBAL: CMR2 0x005922f0
 FixVector g_physPos;
 // GLOBAL: CMR2 0x005922fc
-int *g_physSkidWidth[8];
+CarSkidProfilePoint *g_physSkidProfilePoints[8];
 // GLOBAL: CMR2 0x00592320
 FixVector g_physRight;
 // GLOBAL: CMR2 0x0059232c
@@ -128,16 +130,19 @@ void CarContact_InitStageRecords(void)
         }
     }
     for (i = 0; i < g_carContactCount; i++) {
-        data = (BYTE *)StageTiming_GetStartArchiveRelativeEntry((BYTE *)Car_Get(i), 1);
-        g_physSkidCount[i] = data;
-        data++;
-        g_physSkidRange[i] = data;
-        data += 3;
-        g_physSkidOffset[i] = (int *)data;
-        data += 4;
-        g_physWheelLength[i] = (int *)data;
-        data += 4;
-        g_physSkidWidth[i] = (int *)data;
+        // MSVC6 needs the original byte induction; each typed view names its bias.
+#define CONTACT_AT(member) ((CarContactProfile *)(data - offsetof(CarContactProfile, member)))
+        data = (BYTE *)CarInfo_GetSection(Car_Get(i), CAR_INFO_CONTACT);
+        g_physSkidCount[i] = &CONTACT_AT(pointCount)->pointCount;
+        data += sizeof(((CarContactProfile *)0)->pointCount);
+        g_physSkidRange[i] = &CONTACT_AT(visibleRangeStart)->visibleRangeStart;
+        data += offsetof(CarContactProfile, longitudinalOffset) - offsetof(CarContactProfile, visibleRangeStart);
+        g_physSkidOffset[i] = &CONTACT_AT(longitudinalOffset)->longitudinalOffset;
+        data += sizeof(((CarContactProfile *)0)->longitudinalOffset);
+        g_physWheelLength[i] = &CONTACT_AT(wheelPatchLength)->wheelPatchLength;
+        data += sizeof(((CarContactProfile *)0)->wheelPatchLength);
+        g_physSkidProfilePoints[i] = CONTACT_AT(points)->points;
+#undef CONTACT_AT
     }
 }
 
@@ -471,7 +476,7 @@ void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view)
     colour[3] = 0x32;
     count = *g_physSkidCount[pCar->index];
     all = TRUE;
-    if (*(int *)((BYTE *)StageTiming_GetCarReplayRecord(pCar->index) + 0x4bc) != 0) {
+    if (StageTiming_GetCarReplayRecord(pCar->index)->partHidden[3] != 0) {
         all = FALSE;
         count -= g_physSkidRange[pCar->index][1];
     }
@@ -642,7 +647,7 @@ void CarShadow_OffsetPointsTowardsCamera(int view, CarContact *pContact)
 void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
 {
     CarContact *pContact;
-    int *pProfile;
+    CarSkidProfilePoint *pProfile;
     FixVector flat;
     FixVector p;
     FixVector v;
@@ -675,7 +680,7 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
     acc = 0;
     side = 0;
     first = 0;
-    pProfile = g_physSkidWidth[pCar->index];
+    pProfile = g_physSkidProfilePoints[pCar->index];
     g_physBody = Car_GetTransforms(pCar->index);
     g_physWheels = Car_GetWheelTransforms(pCar->index);
     FixMatrix_GetRight(&g_physRight, &g_physBody->body);
@@ -704,7 +709,7 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
         pContact->pointCount = 4;
     } else {
         // Trail direction relative to the car, flattened onto the ground.
-        scale = FixDiv(g_physPatchLength, *pProfile);
+        scale = FixDiv(g_physPatchLength, pProfile->longitudinalDistance);
         flat = g_physPatchDir;
         flat.y = 0;
         FIX_NORMALIZE_INTO(flat, flat);
@@ -727,9 +732,9 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
         side = FixMul(sideDot, g_physTrailScale);
         bend = FixMul(grip, side);
         if (fwd < 0) {
-            sideDot = pProfile[*g_physSkidCount[pCar->index] * 2 - 1];
+            sideDot = pProfile[*g_physSkidCount[pCar->index] - 1].lateralWidth;
         } else {
-            sideDot = pProfile[1];
+            sideDot = pProfile[0].lateralWidth;
         }
         base = FixMul(sideDot + *g_physSkidOffset[pCar->index], fwd);
         lateral = g_physPatchWidth;
@@ -757,14 +762,14 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
         else
             pContact->skidRangeAscending = 1;
         for (c = 0; c < *g_physSkidCount[pCar->index]; c++) {
-            sideDot = pProfile[c * 2];
-            h = FixMul(pProfile[c * 2 + 1], bend);
+            sideDot = pProfile[c].longitudinalDistance;
+            h = FixMul(pProfile[c].lateralWidth, bend);
             h += lateral;
             if (c != 0 && c != *g_physSkidCount[pCar->index] - 1) {
                 if (fwd >= 0)
-                    grip = pProfile[c * 2 - 2] - sideDot;
+                    grip = pProfile[c - 1].longitudinalDistance - sideDot;
                 else
-                    grip = pProfile[c * 2 + 2] - sideDot;
+                    grip = pProfile[c + 1].longitudinalDistance - sideDot;
                 sideDot += FixMul(grip, FIX_ABS(cosA));
             }
             grip = FixMul(sideDot + base, scale);
@@ -832,9 +837,9 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
                 acc += 0x18000;
                 if (limit < acc) {
                     if (side < 0)
-                        FixVecScale(&w, &g_physPatchSide, FixSin((__int64)((double)-acc * g_unk0x00511300)));
+                        FixVecScale(&w, &g_physPatchSide, FixSin((__int64)((double)-acc * g_fixedDegreesToAngle12)));
                     else
-                        FixVecScale(&w, &g_physPatchSide, FixSin((__int64)((double)acc * g_unk0x00511300)));
+                        FixVecScale(&w, &g_physPatchSide, FixSin((__int64)((double)acc * g_fixedDegreesToAngle12)));
                     sideDot = FixCos((__int64)((double)acc * g_unk0x00511308));
                     p.x = FixMul(g_physPatchDir.x, sideDot) + w.x;
                     p.y = FixMul(g_physPatchDir.y, sideDot) + w.y;

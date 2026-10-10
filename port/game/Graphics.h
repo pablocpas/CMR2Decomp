@@ -1331,7 +1331,7 @@ private:
     friend void Graphics_SwitchAlphaBlendAndTest(int enable);
     friend void Graphics_PresentFrameAndResetCounters(void);
     friend void Graphics_MarkTexturesAndDrawMeshParts(Mesh *pMesh);
-    friend void StageObject_InitCarBodyDamageTextures(int car, int unused1, int unused2, BYTE flag);
+    friend void CarLight_CacheBodyTextures(int car, int unused1, int unused2, BYTE flag);
     friend void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, BYTE *pView);
     friend void Graphics_DrawMeshPartsByTexture(Mesh *pMesh);
     // Draws the mesh LOD record in use with the state its flags ask for.

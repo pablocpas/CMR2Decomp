@@ -15,6 +15,7 @@
 #include "RegKey.h"
 #include "FixedPoint.h"
 #include <stdlib.h>
+#include <stddef.h>
 #include "FrontendDraw.h"
 #include "Sound.h"
 #include "main.h"
@@ -8070,7 +8071,8 @@ void FrontendProfile_ScrambleIdentifier(unsigned int param_1, unsigned int *pNum
         bytes[i] += g_unk0x00526eb0[i] + g_unk0x00526ebc[i] + g_unk0x00526ea4[i] + *p * 3;
         i++;
         p--;
-    } while ((int)p > (int)(g_unk0x00526ea4 + 6));
+    // ptrdiff_t preserves the signed Win32 comparison and native address width.
+    } while ((ptrdiff_t)p > (ptrdiff_t)(g_unk0x00526ea4 + 6));
     FrontendProfile_BuildGuestIdentifier(param_1, (bytes[3] << 24) + (bytes[2] << 16) + (bytes[1] << 8) + bytes[0],
                  g_unk0x00526ea4[4] + g_unk0x00526eb0[4] + g_unk0x00526ebc[4] + g_unk0x00526ea4[6] +
                      g_unk0x00526eb0[6] + g_unk0x00526ebc[6] + seed,
@@ -10589,7 +10591,7 @@ void FrontendMenu_DrawCarSetup(Menu *pMenu)
         Sprite_Queue((SpriteRect *)pRects[g_unk0x008196e8[pMenu->cursor]], (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, 0, NULL,
                      g_colourWhite0x00524968, 8);
     }
-    FrontendCar_GetClassPerformance((int)CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
+    FrontendCar_GetClassPerformance(CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
     FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
                  (int)CFrontend::GetTextString(0x186));
     x = FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,
@@ -10668,7 +10670,7 @@ void FrontendMenu_DrawPaletteSelection(Menu *pMenu)
         Sprite_Queue((SpriteRect *)pRects[g_unk0x008196e8[pMenu->cursor]], (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, 0, NULL,
                      g_colourWhite0x00524968, 8);
     }
-    FrontendCar_GetClassPerformance((int)CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
+    FrontendCar_GetClassPerformance(CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
     FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
                  (int)CFrontend::GetTextString(0x186));
     x = FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,

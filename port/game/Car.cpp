@@ -2602,7 +2602,7 @@ void Car_UpdateTyreForces(void)
 
 int StageTiming_GetCarReplayTailEntry(void *pCar, int index);
 
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 
 // Orientation of a lean vector: up along (lean.x, 1, lean.z) with the tilt
 // limited to about 0.09, right the X axis made perpendicular to it.
@@ -2827,7 +2827,7 @@ void Car_UpdateSuspension(void)
         flat.x = 0;
         flat.y = 0;
         flat.z = 0x10000;
-        angle = (short)llrint((double)FixMul(g_pCurrentCar->field_0xb1d << 16, 0x3333) * g_unk0x00511300);
+        angle = (short)llrint((double)FixMul(g_pCurrentCar->field_0xb1d << 16, 0x3333) * g_fixedDegreesToAngle12);
         ((void (__stdcall *)(FixMatrix *, FixVector *, short))FixMatrix_FromAxisAngle)(&m, &flat, angle);
         for (i = 0; i < 3; i++) {
             FixMatrix_RotateVector(&flat, &basis[i], &m);
@@ -3377,7 +3377,7 @@ short g_wheelRotation[8][4];
 
 extern int g_unk0x005199c8[14];
 extern int g_unk0x00519a00[14];
-int *StageTiming_GetCarReplayRecord(int index);
+CarPartSet *StageTiming_GetCarReplayRecord(int index);
 
 // Rebuilds the transforms of the cars of a list: the previous rows are
 // restored into the physics rows and moved by the ride height, and the wheel
@@ -3464,10 +3464,10 @@ void Car_StoreRenderTransforms(short *pList, short count)
             for (j = 3; j >= 0; j--)
                 pWheels[j].position = pCar->wheelEmitter[j];
         } else {
-            pRecord = (CarPartSet *)StageTiming_GetCarReplayRecord(car);
+            pRecord = StageTiming_GetCarReplayRecord(car);
             for (j = 3; j >= 0; j--) {
                 typeAngle = (short)(int)llrint((double)FixMul(0x50000,
-                        pRecord->damageValues[j]) * g_unk0x00511300);
+                        pRecord->damageValues[j]) * g_fixedDegreesToAngle12);
                 if (j < 2) {
                     pWheels[j].tiltDegrees = typeAngle * 0x1680;
                     pWheels[j].steeringDegrees = steering * 0x1680;
@@ -3479,7 +3479,7 @@ void Car_StoreRenderTransforms(short *pList, short count)
                 }
                 up = pCar->wheelEmitter[j];
                 up.y += pCar->field_0x928[j];
-                sum = ((CarPartSet *)StageTiming_GetCarReplayRecord(pCar->index))->damageValues[4 + j] +
+                sum = (StageTiming_GetCarReplayRecord(pCar->index))->damageValues[4 + j] +
                       pCar->field_0x978[j];
                 if (sum > 0x10000)
                     sum = 0x10000;
@@ -3803,14 +3803,14 @@ void CarTransforms_Copy(CarTransforms *pDst, CarTransforms *pSrc);
 void Car_UpdateWheelMeshStates(void);
 
 // 16.16 degrees to a sine table index (4096 per turn); defined in GameInfo.cpp.
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 
 // Interpolates the render transforms of every car in the draw order between
 // the physics row (0x53a3a8) and its shadow by the car's time step, rebuilds
 // the four wheel matrices from the wheel records, normalises the ground normal
 // and marks the nodes of the extra parts for a refresh.
 // match 30%: implemented from the disassembly; the instruction sequence of the
-// wheel loop, the angle conversion (g_unk0x00511300 + fistp), the FixVecLength/
+// wheel loop, the angle conversion (g_fixedDegreesToAngle12 + fistp), the FixVecLength/
 // FixVecScaleRecip pair and the calls all line up, but the frame layout and the
 // address temps the original kept in locals differ, and that changes the whole
 // register allocation. Kept as FUNCTION so reccmp keeps measuring it.
@@ -3884,13 +3884,13 @@ void Car_InterpolateRenderTransforms(void)
                 // The right-hand wheels point backwards: 180 degrees plus the
                 // wheel angles.
                 if (wheel % 2 == 1) {
-                    angles[0] = (short)llrint((double)(-result[0]) * g_unk0x00511300);
-                    angles[1] = (short)llrint((double)(result[1] + 0xb40000) * g_unk0x00511300);
-                    angles[2] = (short)llrint((double)(-result[2]) * g_unk0x00511300);
+                    angles[0] = (short)llrint((double)(-result[0]) * g_fixedDegreesToAngle12);
+                    angles[1] = (short)llrint((double)(result[1] + 0xb40000) * g_fixedDegreesToAngle12);
+                    angles[2] = (short)llrint((double)(-result[2]) * g_fixedDegreesToAngle12);
                 } else {
-                    angles[0] = (short)llrint((double)result[0] * g_unk0x00511300);
-                    angles[1] = (short)llrint((double)result[1] * g_unk0x00511300);
-                    angles[2] = (short)llrint((double)result[2] * g_unk0x00511300);
+                    angles[0] = (short)llrint((double)result[0] * g_fixedDegreesToAngle12);
+                    angles[1] = (short)llrint((double)result[1] * g_fixedDegreesToAngle12);
+                    angles[2] = (short)llrint((double)result[2] * g_fixedDegreesToAngle12);
                 }
 
                 basis.right.x = 0x10000;
@@ -4017,6 +4017,10 @@ BYTE InRaceMenu_IsOpening(void);
 void InRaceMenu_ClearOpeningFlag(void);
 int Race_ConsumeTransitionLatch(void);
 
+// Historical numeric behaviour: fromStart is stored as float, but toEnd stays
+// in x87 precision until nearest-even FISTP. Half-step boundaries can be
+// counted twice depending on render cadence. Preserve this for matching; see
+// docs/audits/2026-10-10/numeric-semantics.md.
 // Schedules physics steps from elapsed time and each car's rate, storing the
 // remaining step count and fractional interpolation. Returns the largest
 // step count so the race loop can run each scheduled car the correct times.
@@ -4390,7 +4394,7 @@ void Car_UpdateSuspensionPass(Car *param_1, short *param_2, short param_3)
     n++;
     do {
         g_pCurrentCar = param_1 + *p;
-        g_physicsPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_UpdateWheelTravel();
         g_pCurrentCar->previousWheelSurface[0] = g_pCurrentCar->wheelSurface[0];
         g_pCurrentCar->previousWheelSurface[1] = g_pCurrentCar->wheelSurface[1];
@@ -4793,7 +4797,7 @@ void Car_StepAll(Car *base, short *pList, short count)
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = base + pList[i];
-        g_physicsPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         if (g_physicsPartSet->glassDebrisEmitted == 0 && g_physicsPartSet->glassCooldown != 0)
             g_physicsPartSet->glassCooldown -= 1;
         g_physicsPartSet->glassDebrisEmitted = 0;
@@ -4813,7 +4817,7 @@ void Car_StepAll(Car *base, short *pList, short count)
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = base + pList[i];
-        g_physicsPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_UpdateEngineTorque();
     }
     for (i = count - 1; i >= 0; i--) {
@@ -4822,7 +4826,7 @@ void Car_StepAll(Car *base, short *pList, short count)
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = base + pList[i];
-        g_physicsPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_IntegrateContacts();
     }
     for (i = count - 1; i >= 0; i--) {
@@ -4979,7 +4983,7 @@ void Car_UpdateSteering(void)
             if (g_pCurrentCar->speed < 0x10000)
                 w = FixMul(w, g_pCurrentCar->speed);
             w = FixMul(w, g_physicsPartSet->steeringWobble);
-            angle += (short)llrint((double)w * g_unk0x00511300);
+            angle += (short)llrint((double)w * g_fixedDegreesToAngle12);
         }
     }
     right = g_pCurrentCar->right;
@@ -5142,7 +5146,7 @@ void Car_UpdateEngineSpeed(void)
         } else if (g_pCurrentCar->engineStartTimer > 0) {
             excess = 0x190000 - FixMul(0x41, g_pCurrentCar->engineStartTimer << 16);
             excess = FixMul(excess, 0xa3d);
-            angle = (short)llrint((double)FixMul(excess, 0x8c0000) * g_unk0x00511300);
+            angle = (short)llrint((double)FixMul(excess, 0x8c0000) * g_fixedDegreesToAngle12);
             g_pCurrentCar->engineSpeed = FixMul(FixMul(g_sinTable[(unsigned short)angle & 0xfff], 0x10000), g_pCurrentCar->engineSpeedLimit);
             g_pCurrentCar->engineStartTimer -= (short)(FixMul(g_physicsTimeStep, 0x3e80000) >> 16);
             if (g_pCurrentCar->engineStartTimer < 0)
@@ -5598,7 +5602,7 @@ int Car_GetScaledSteerFollowRate(void)
     return FixMul(g_pCurrentCar->throttleTorque, g_physicsPartSet->engineTorqueScale);
 }
 
-int StageObject_GetCarNodeSlotValue(BYTE index);
+int CarInterior_IsLoaded(BYTE index);
 int StageObject_GetSelectedRecordListState(void);
 
 // Whether view mode `mode` is available for car `index`.
@@ -5619,7 +5623,7 @@ int View_IsModeAvailable(BYTE index, int mode)
     case 7:
         return (unsigned int)StageObject_GetSelectedRecordListState() > 0;
     case 3:
-        result = StageObject_GetCarNodeSlotValue((BYTE)index);
+        result = CarInterior_IsLoaded((BYTE)index);
         break;
     }
     return result;
@@ -6769,9 +6773,9 @@ void Car_PlaceAtStart(int *param_1, int *param_2)
 class CFrontend
 {
 public:
-    static void *GetArchivePrimaryFlagEntry(int index);
-    static void *GetArchiveSecondaryFlagEntry(int index);
-    static void *GetArchivePrimaryIDEntry(int index);
+    static int GetArchivePrimaryFlagEntry(int index);
+    static int GetArchiveSecondaryFlagEntry(int index);
+    static int GetArchivePrimaryIDEntry(int index);
 };
 
 unsigned char RallyData_GetSelectionFlag28(void);
@@ -6822,7 +6826,7 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
             carType = 0;
             flag8 = 1;
         } else {
-            carType = (int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)Replay_GetSelectionStateByte()));
+            carType = CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)Replay_GetSelectionStateByte()));
             flagC = 1;
         }
     } else {
@@ -7079,8 +7083,8 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     g_pCurrentCar->inverseMass = FixDiv(0x10000, g_pCurrentCar->mass);
     g_pCurrentCar->steeringTorqueScale = 0x1333;
     g_pCurrentCar->steeringSpeedScale = FixDiv(0x10000, 0x30000);
-    g_pCurrentCar->field_0xb7c = (int)CFrontend::GetArchiveSecondaryFlagEntry((int)g_pCurrentCar->type);
-    g_pCurrentCar->field_0xb80 = (int)CFrontend::GetArchivePrimaryFlagEntry((int)g_pCurrentCar->type);
+    g_pCurrentCar->field_0xb7c = CFrontend::GetArchiveSecondaryFlagEntry((int)g_pCurrentCar->type);
+    g_pCurrentCar->field_0xb80 = CFrontend::GetArchivePrimaryFlagEntry((int)g_pCurrentCar->type);
     if (flagC != 0) {
         pcVar13 = (char *)RallyData_GetDriverSkillRecord(Replay_GetSelectionStateByte());
         goto LAB_0043d703;
@@ -7305,7 +7309,7 @@ void View_PlaceCarCamera(BYTE param_1)
         angle = (short)llrint((double)FixMul(
                     g_sinTable[g_unk0x00538df8[index] & 0xfff],
                     FixDiv(HudDash_GetPlayerGaugeValue(param_1) - 0x80000, 0x100000) * 0x5a + 0x140000) *
-                    g_unk0x00511300);
+                    g_fixedDegreesToAngle12);
         FixMatrix_CopyRotationFrom(&src, Car_Get(index)->pBodyMatrix);
         basis = *pView;
         FixMatrix_RebuildBasis(&basis);
@@ -7348,7 +7352,7 @@ void Car_PrepareBodies(Car *base, short *pList, short count)
 
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = base + pList[i];
-        g_physicsPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_UpdateWheelTravel();
         g_pCurrentCar->previousWheelSurface[0] = g_pCurrentCar->wheelSurface[0];
         g_pCurrentCar->previousWheelSurface[1] = g_pCurrentCar->wheelSurface[1];
@@ -7590,7 +7594,7 @@ void Car_RunStepPasses(Car *carBase, short *pOrder, short count)
     // Pass 3: corner loads and forces.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = carBase + pOrder[i];
-        g_physicsPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_UpdateCornerVelocityPair();
         for (j = 7; j >= 0; j--) {
             g_pCurrentCar->cornerLoad[j].x = 0;
@@ -7607,7 +7611,7 @@ void Car_RunStepPasses(Car *carBase, short *pOrder, short count)
     // Pass 4: body lean and steering.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = carBase + pOrder[i];
-        g_physicsPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_UpdateBodyLean();
         if (g_pCurrentCar->field_0xb74 != 0) {
             Car_SetupSuspensionRates();
@@ -7618,7 +7622,7 @@ void Car_RunStepPasses(Car *carBase, short *pOrder, short count)
     // Pass 5: wheel forces.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = carBase + pOrder[i];
-        g_physicsPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         if (g_pCurrentCar->field_0xb74 != 0) {
             Car_SplitEngineTorque();
             Car_UpdateWheelForces();
@@ -7629,7 +7633,7 @@ void Car_RunStepPasses(Car *carBase, short *pOrder, short count)
     // Pass 6: body axes without damping.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = carBase + pOrder[i];
-        g_physicsPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         if (g_pCurrentCar->field_0xb74 != 0)
             Car_UpdateBodyAxesNoDamping();
     }
@@ -7637,7 +7641,7 @@ void Car_RunStepPasses(Car *carBase, short *pOrder, short count)
     // Pass 7: integrate the rigid body.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = carBase + pOrder[i];
-        g_physicsPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
         Car_Integrate();
     }
 
@@ -7926,7 +7930,7 @@ found:
                 0x10000) / 2)
 
 extern double g_unk0x00511308;
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 struct Unk004238e0;
 void Game_DispatchObjectTypeEvent(BYTE *pObject, BYTE *pInfo);
 void Game_DispatchObjectTypeUpdate(BYTE *pObject, BYTE *pInfo);
@@ -7942,7 +7946,7 @@ void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc);
 void StageObject_BuildCarNodeOrientation(int object, int *src);
 void View_CacheReferenceBasisAndBuildMatrix(BYTE *pObj, FixMatrix *pRef);
 void View_RestartTracksideCameraDolly(BYTE *pRecord, FixMatrix *pRef);
-void StageObject_SetPositionFromSplitVector(BYTE *pObj, FixMatrix *pRef);
+void View_PositionFromCarProfile(CameraRecord *pObj, FixMatrix *pRef);
 void StageObject_BuildCarMountWorldMatrix(BYTE *object, int unused);
 void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef);
 void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef);
@@ -7955,7 +7959,7 @@ void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car);
 unsigned short RallyData_GetPrimaryStageScoreScale(void);
 unsigned short RallyData_GetSecondaryStageScoreScale(void);
 void StageObject_InitCarSceneTables(void);
-void StageObject_CacheCarSplitVectorPointers(void);
+void CarInfo_CacheCameraOffsets(void);
 void StageTiming_SetViewRouteDistanceLimit(BYTE player, unsigned int node, int dir);
 int RallyData_GetChallengeRenderState(void);
 void View_PlaceCarCamera(BYTE param_1);
@@ -8119,11 +8123,11 @@ void Camera_SnapTo(CameraRecord *pRecord, FixMatrix *pRef)
         StageObject_BuildCarMountWorldMatrix((BYTE *)pRecord, (int)pRef);
         return;
     case 10:
-        StageObject_SetPositionFromSplitVector((BYTE *)pRecord, pRef);
+        View_PositionFromCarProfile((CameraRecord *)pRecord, pRef);
         return;
     case 1:
     case 2:
-        StageObject_SetPositionFromSplitVector((BYTE *)pRecord, pRef);
+        View_PositionFromCarProfile((CameraRecord *)pRecord, pRef);
         return;
     case 7:
         View_BuildTracksideCameraMatrix((BYTE *)pRecord, pRef);
@@ -8143,7 +8147,7 @@ void View_SetupCameras(void)
         RallyData_GetSecondaryStageScoreScale();
     CGame::RegisterCallback(View_ReleaseNodes, NULL);
     StageObject_InitCarSceneTables();
-    StageObject_CacheCarSplitVectorPointers();
+    CarInfo_CacheCameraOffsets();
     for (i = 0; i < 4; i++) {
         g_viewRecords[i].index = i;
         g_viewRecords[i].view = i >> 1;
@@ -8297,7 +8301,7 @@ void View_UpdateCamera(BYTE view)
         CameraState_Interpolate(VIEW_STATE(index), pActive, pNext, t);
         if ((activeFree && nextTracked) || (activeTracked && nextFree))
             VIEW_STATE(index)->matrix.position.y +=
-                FixMul(g_sinTable[(short)(int)llrint((double)(t * 180) * g_unk0x00511300) & 0xfff], 0x10000);
+                FixMul(g_sinTable[(short)(int)llrint((double)(t * 180) * g_fixedDegreesToAngle12) & 0xfff], 0x10000);
         *(int *)(g_unk0x00538d2c + index * 100) = 8;
         *pTimer -= g_physicsTimeStep;
         return;

@@ -2,6 +2,7 @@
 #include "TimingUtils.h"
 #include "GameInfo.h"
 #include "Graphics.h"
+#include "LayoutChecks.h"
 extern double g_minus65536;
 
 // GLOBAL: CMR2 0x00533638
@@ -25,7 +26,7 @@ struct ChampionshipTables {
     char tieBreak[8];
     char wins[8];
 };
-typedef char ChampionshipTablesSize[sizeof(ChampionshipTables) == 0x78 ? 1 : -1];
+CMR2_LAYOUT_CHECK(ChampionshipTablesSize, sizeof(ChampionshipTables) == 0x78);
 // GLOBAL: CMR2 0x005335b8
 ChampionshipTables g_championshipTables;
 #define g_unk0x005335b8 (g_championshipTables.totals)

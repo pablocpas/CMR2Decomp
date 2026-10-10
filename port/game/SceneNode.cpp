@@ -2640,9 +2640,13 @@ extern const double g_unk0x00511380;
 //   g_sqrtTable sqrt(8 + 16 * i) * 256              (fsqrt)
 //   g_acosTable asin(i / 4095) as a 12-bit angle    (_CIasin)
 //   g_atanTable arctan(i / 511) as a 12-bit angle   (fpatan)
-// PORT: MSVC6 /QIfist converted through x87 fistp with nearest-even rounding.
-// A C++ integer cast truncates instead. Keep the 64-bit conversion before
-// narrowing (including the original low-word behaviour on overflow).
+// MSVC6 /QIfist emits x87 FISTP without changing its rounding mode: nearest
+// even in the audited original. The __int64 cast is not portable C++ rounding;
+// other compilers normally truncate it. All loops fill their complete tables
+// (4096 entries, except the 512-entry arctangent table). See the numeric audit
+// in docs/audits/2026-10-10/numeric-semantics.md.
+// PORT: llrint rounds to nearest even like FISTP, keeping the 64-bit value
+// before narrowing (the original's low word on overflow).
 // match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7b20
 void Scene_InitFixedMathTables(void)

@@ -1,9 +1,16 @@
 #ifndef _STAGE_TIMING_H
 #define _STAGE_TIMING_H
-
+#if defined(_MSC_VER) && _MSC_VER <= 1200
+#ifndef CMR2_LAYOUT_CHECK
+#define CMR2_LAYOUT_CHECK(name, condition) typedef char name[condition ? 1 : -1]
+#endif
+#else
+#include "LayoutChecks.h"
+#endif
 
 struct PartState;
 struct CarSceneRecord;
+struct CarPartSet;
 
 // Four moving-part slots, each owning one PartState array indexed by car.
 // The mode bytes at +0x10 are used by the corresponding object transforms.
@@ -11,7 +18,7 @@ struct CarPartStateTables {
     PartState *parts[4];
     BYTE modes[4];
 };
-typedef char CarPartStateTablesSize[sizeof(CarPartStateTables) == 0x14 ? 1 : -1];
+CMR2_LAYOUT_CHECK(CarPartStateTablesSize, sizeof(CarPartStateTables) == 0x14);
 extern CarPartStateTables g_carPartStateTables;
 
 struct ReplayLevelState {
@@ -19,7 +26,7 @@ struct ReplayLevelState {
     int bufferCount;
     int pending[8];
 };
-typedef char ReplayLevelSizeCheck[sizeof(ReplayLevelState) == 0x64 ? 1 : -1];
+CMR2_LAYOUT_CHECK(ReplayLevelSizeCheck, sizeof(ReplayLevelState) == 0x64);
 extern ReplayLevelState g_replayLevelState;
 #define g_unk0x00588cd4 (g_replayLevelState.levels)
 #define g_unk0x00588d14 (g_replayLevelState.bufferCount)
@@ -64,22 +71,9 @@ void StageTiming_RebuildSplitPositions(void);
 CarSceneRecord *StageTiming_GetStartTableRecord(int index);
 void StageDeform_ApplyRadialDent(void);
 void StageDeform_ApplyPlanarDent(void);
-int StageTiming_FindModelPartByNodeType(unsigned int type, BYTE *pModel);
-int *StageTiming_GetCarReplayRecord(int index);
+int StageTiming_FindModelPartByNodeType(unsigned int type, CarPartSet *pModel);
+CarPartSet *StageTiming_GetCarReplayRecord(int index);
 
-// One deformable node of a stage record: position, spin rate, angle and scale
-// (stride 0x24).
-struct StageDeformNode {
-    int x;          // 0x00
-    int y;          // 0x04
-    int z;          // 0x08
-    int spin;       // 0x0c
-    int field_0x10; // 0x10
-    int angle;      // 0x14
-    int scale;      // 0x18
-    int field_0x1c; // 0x1c
-    int wrapped;    // 0x20
-};
-extern StageDeformNode g_unk0x00543fb0[400];
+#include "StageWeatherParticle.h"
 
 #endif

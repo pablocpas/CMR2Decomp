@@ -1,6 +1,12 @@
 #ifndef _STAGE_UI_H
 #define _STAGE_UI_H
-
+#if defined(_MSC_VER) && _MSC_VER <= 1200
+#ifndef CMR2_LAYOUT_CHECK
+#define CMR2_LAYOUT_CHECK(name, condition) typedef char name[condition ? 1 : -1]
+#endif
+#else
+#include "LayoutChecks.h"
+#endif
 
 void StageUI_ApplySoundState(int channel, BYTE *pState);
 
@@ -85,7 +91,7 @@ struct RaceCarSoundState {
     int time;                  // 0xac  timestamp of the last change
     BYTE field_0xb0[0x4];
 };
-typedef char RaceCarSoundStateSizeCheck[sizeof(RaceCarSoundState) == 0xb4 ? 1 : -1];
+CMR2_LAYOUT_CHECK(RaceCarSoundStateSizeCheck, sizeof(RaceCarSoundState) == 0xb4);
 extern RaceCarSoundState g_carSoundStates[8];                     // 0x5377a8
 #define g_carSoundSets ((CarSoundSet *)((BYTE *)g_carSoundStates + 0x1c)) // 0x5377c4
 

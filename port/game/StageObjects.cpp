@@ -5,12 +5,14 @@ short Car_GetOrderCount(void);
 #include <stdlib.h>
 #include "StageBlock.h"
 #include <string.h>
+#include <stddef.h>
 #include "RallyData.h"
 #include "SceneNode.h"
 #include "Frontend.h"
 #include "InstallInfo.h"
 #include "Texture.h"
 #include "StageTiming.h"
+#include "StageWeather.h"
 #include "AIHelper.h"
 #include "RegKey.h"
 #include <stdio.h>
@@ -28,32 +30,25 @@ short Car_GetOrderCount(void);
 #include "FileBuffer.h"
 #include "Mesh.h"
 #include "CarParts.h"
+#include "CarLightState.h"
 #include "Graphics.h"
 #include "Font.h"
 #include "Sprite.h"
 #include "Collision2D.h"
 #include "Menu.h"
+#include "Glow.h"
+#include "CarExhaust.h"
+#include "LayoutChecks.h"
 // --- module prototypes (address order; see tools/fastcmp/tuproto.py) ---
 void StageObject_DrawViewPrecipitationAndObjects(int param_1, int view);
 void StageWeather_DrawViewPrecipitation(int index, int view);
 void StageObject_DeriveLoadedScaleVector(FixVector *pOut);
-void StageObject_AdvanceAnimatedRecordState(int *p, int unused);
+void StageObject_AdvanceAnimatedRecordState(ViewWeatherState *p, int unused);
 BYTE StageObject_GetViewWeatherStateByte(int index);
 int StageObject_GetViewWeatherField54(int index);
 void StageObject_SetScaledValue(int value, int index);
 int StageObject_GetCarWeatherRampValue(BYTE *pCar);
 int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar);
-// Lighting preset of one weather condition as stored in the stage files:
-// the sun direction, three 16.16 values and eleven byte colours (RGB plus a
-// fourth byte used as a factor by some of them).
-struct StageLightPreset {
-    FixVector dir;          // 0x00
-    int field_0xc;
-    int field_0x10;         // 0x10
-    int field_0x14;         // 0x14
-    int field_0x18;         // 0x18
-    BYTE colour[11][4];     // 0x1c
-};
 void StageObject_SetLighting(const StageLightPreset *pPrimary, const StageLightPreset *pSecondary);
 int StageObject_BlendClampedByteValues(BYTE a, BYTE b, int t);
 void StageObject_InterpolateFrameRecord(BYTE *out, BYTE *from, BYTE *to, int t);
@@ -111,14 +106,14 @@ void StageObjects_Update(void);
 void CarDamage_UpdateOrderedCarsOffRoadState(short *param_1, short param_2, int param_3, int param_4);
 void StageObject_SetPhysicsScaleAndReciprocal(int value);
 void CarDamage_BuildRelativeVelocityHull(Car *pCar, CarPartSet *pParts);
-void StageObject_BuildDeformationVectors(BYTE *p);
+void CarDamage_DecodeImpactPayload(CarImpactPayload *p);
 void StageObject_ApplyWeightedContactDamage(Car *pCar, int amount);
 void StageObject_RebuildDamagePartValues(Car *pCar);
 int CarDamage_AverageVertexDisplacement(Car *pCar, CarPartSet *set);
 void StageObject_SetModelSubmeshVisibility(int param_1, int param_2, int param_3);
 void StageObject_ResetCarObjectState(Car *pCar);
 void StageObject_SetReplayEntryHitFlag(Car *pCar, int index);
-int CarDamage_PickRandomTriangleEdgePoint(FixVector *pOut, int *pParts, int index);
+int CarDamage_PickRandomTriangleEdgePoint(FixVector *pOut, CarPartSet *pParts, int index);
 int StageObject_IsEligibleType(short type, int mode, int category);
 void StageObject_UpdateEnabledCornerContactFrames(Car *param_1, short *param_2, short param_3);
 void CarDamage_UpdateSuspensionImpactContacts(Car *pCar);
@@ -228,7 +223,7 @@ struct FireworkRocket {
     int blinking;                // 0x930
     int blink;                   // 0x934
 };
-typedef char FireworkRocketSize[sizeof(FireworkRocket) == 0x938 ? 1 : -1];
+CMR2_LAYOUT_CHECK(FireworkRocketSize, sizeof(FireworkRocket) == 0x938);
 
 // One replay stream (recorder/player of one car); the slots hang off
 // g_unk0x00588d40. Type 2 streams store a 16-byte car sample every third frame
@@ -387,27 +382,27 @@ void StageObject_BuildInRaceActionMenu(void);
 BYTE *StageObject_GetInRaceActionMenu(void);
 void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car);
 void StageObject_SyncStateAndSceneMatrix(BYTE *p, int *src, int unused, BYTE value);
-void StageObject_SetCarSlotActiveFlag(BYTE *p);
-int StageObject_GetCarNodeSlotValue(BYTE index);
-void StageObject_CacheCarClassAndTimingPointers(int index);
+void CarInterior_ResetDriverPoseOnNextUpdate(BYTE *p);
+int CarInterior_IsLoaded(BYTE index);
+void CarInterior_CacheProfilePointers(int index);
 void StageObject_DispatchActiveCarObjectUpdate(BYTE *pObj, int a, int b);
 void StageObject_BlendCarMountTransform(int car);
-int StageObject_UpdateCarBodyFade(int param_1, int param_2);
-void StageObject_ApplyCarFadeRoll(int index);
-void StageObject_UpdateObjectFadeOffset(int index);
-void StageObject_IntegrateFilteredObjectPose(BYTE *param_1, int *param_2, int unused);
+int CarInterior_UpdateSteeringBlendFraction(int param_1, int param_2);
+void CarInterior_AnimateWipers(int index);
+void CarInterior_UpdateWiperSweep(int index);
+void CarInterior_IntegrateDriverPose(BYTE *param_1, FixMatrix *param_2, int unused);
 void StageObject_FindPlayerRevTextures(int player);
 void StageObject_UpdateRevCounterTextures(int index);
-void StageObject_UpdateBodyTextureAlphaValues(Texture *pTexture, int state, int cacheBase, int index);
+void CarInterior_UpdateGearDigitTexture(Texture *pTexture, int state, int cacheBase, int index);
 void StageObject_BuildCarNodeOrientation(int object, int *src);
 void StageObject_BuildCarMountWorldMatrix(BYTE *object, int unused);
 void StageObject_ResetBodyTextureCaches(void);
-void StageObject_ClearDamageRecord(int index);
-void StageObject_InitCarBodyDamageTextures(int car, int unused1, int unused2, BYTE flag);
-void StageObject_ModifyDamageRecordFlagBytes(int index, char set0, char set1, BYTE mask);
-void StageObject_GetScaledLaneShortValues(int lane, int *pA, int *pB, int slot);
+void CarLight_ResetTextureState(int index);
+void CarLight_CacheBodyTextures(int car, int unused1, int unused2, BYTE flag);
+void CarLight_SetChannelMasks(int index, char set0, char set1, BYTE mask);
+void CarLight_GetScaledChannelLevels(int lane, int *pA, int *pB, int slot);
 void StageObject_AnimateCarLightLevels(int car);
-void StageObject_ResetDamageRecordIndices(void);
+void CarLight_InvalidateAppliedLevels(void);
 void StageObject_StartCarSoundTimer(int index);
 void StageObject_UpdateCarSoundElapsedTime(int index);
 void StageObject_ResetCarSoundElapsedTime(int index);
@@ -478,7 +473,7 @@ int StageObject_DistanceFade(FixVector *delta);
 void StageObject_InterpolateOrderedMotionRecords(int scale);
 void StageObject_ResetVectorListRecord(int list, int index, int value);
 void StageObject_DestroyStageKindCarNodes(void);
-void StageObject_CacheCarSplitVectorPointers(void);
+void CarInfo_CacheCameraOffsets(void);
 void StageObject_SelectAndCopyCarNodePayload(BYTE *pObj, int *pSrc, BYTE index, BYTE value);
 void StageObject_DispatchContactAndSetLevel(BYTE *pCar, BYTE *pInfo);
 void StageObject_SetLevelFromContactType(BYTE *pCar, BYTE *pInfo);
@@ -547,11 +542,7 @@ int StageObject_RunNodeActionAndSoundCallback(void *pNode, int value);
 // --- end module prototypes ---
 
 struct GlowLight;
-GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1, int sizeX, int sizeY, int billboardTexture,
-                    int layerTexture, int intensity, int node, BYTE projected, int unused2, int field_0x40);
-void Glow_SetEntryByte50(BYTE *p, BYTE value);
-void Glow_SetEntryValue3C(BYTE *p, int value);
-int StageTiming_GetStartArchiveRelativeEntry(BYTE *pCar, int offset);
+void *CarInfo_GetSection(Car *pCar, int section);
 struct KnockoutMatch;
 int Knockout_HasHumanLostMatch(KnockoutMatch *pMatch);
 int Car_UsesNarrowWheels(Car *pCar, int variant);
@@ -582,13 +573,13 @@ void RallyData_SetSelectionBits14To15(BYTE param1);
 unsigned short Input_GetControllerSlotMapping(unsigned short slot);
 void Car_SetDrawnFlag(int index, char value);
 int StageTiming_GetCarReplayTailEntry(void *pCar, int index);
-void StageObject_UpdateObjectFadeOffset(int index);
+void CarInterior_UpdateWiperSweep(int index);
 int InRaceMenu_GetRoundBoxTexture(void);
-int StageObject_UpdateCarBodyFade(int car, int pCar);
+int CarInterior_UpdateSteeringBlendFraction(int car, int pCar);
 
 // Global fixed-point lighting parameters for both stage conditions.
 // GLOBAL: CMR2 0x00547950
-int g_stageLighting[0x178 / 4];
+StageLightingState g_stageLighting;
 
 // Default intensity by stage weather index.
 // GLOBAL: CMR2 0x0051b0b8
@@ -638,14 +629,14 @@ extern FixVector g_carTyreTrailCenters[8][4];
 
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
 
-extern void *g_unk0x00547ac8;
-extern BYTE g_unk0x00543e98;
-extern FixVector g_unk0x00547930;
-extern int g_unk0x00547940;
+extern ViewWeatherState *g_viewWeather;
+extern BYTE g_weatherViewCount;
+extern FixVector g_weatherWindDirection;
+extern int g_weatherWindStrength;
 extern void *g_unk0x0058c928;
 extern void *g_unk0x0058c92c;
 extern void *g_unk0x0058c930;
-extern void *g_unk0x00543ecc;
+extern CarSurfaceRamp *g_carSurfaceRamps;
 extern int g_unk0x0058cf7c;
 extern BYTE *g_unk0x0058c94c;
 extern unsigned int g_unk0x0058ca6c;
@@ -684,7 +675,7 @@ void Game_SetTriangleField30ByGroup(Mesh *pMesh, int mask, int value);
 // FUNCTION: CMR2 0x004694a0
 void StageObject_SetModelSubmeshVisibility(int param_1, int param_2, char param_3)
 {
-    int *pParts;
+    CarPartSet *pParts;
     CarSceneRecord *pType;
     int i;
     int uVar4;
@@ -715,53 +706,53 @@ void StageObject_SetModelSubmeshVisibility(int param_1, int param_2, char param_
         }
         switch ((BYTE)param_3) {
         case 0:
-            i = StageTiming_FindModelPartByNodeType(7, (BYTE *)pParts);
+            i = StageTiming_FindModelPartByNodeType(7, pParts);
             if (i >= 0) {
-                Game_SetTriangleField2CByGroup((Mesh *)pParts[i], 0x100, uVar4);
-                Game_SetTriangleField30ByGroup((Mesh *)pParts[i], 0x100, uVar3);
+                Game_SetTriangleField2CByGroup(pParts->geometry.meshes[i], 0x100, uVar4);
+                Game_SetTriangleField30ByGroup(pParts->geometry.meshes[i], 0x100, uVar3);
                 return;
             }
             break;
         case 1:
-            i = StageTiming_FindModelPartByNodeType(0xc, (BYTE *)pParts);
+            i = StageTiming_FindModelPartByNodeType(0xc, pParts);
             if (i >= 0) {
-                Game_SetTriangleField2CByGroup((Mesh *)pParts[i], 0x20, uVar4);
-                Game_SetTriangleField30ByGroup((Mesh *)pParts[i], 0x20, uVar3);
+                Game_SetTriangleField2CByGroup(pParts->geometry.meshes[i], 0x20, uVar4);
+                Game_SetTriangleField30ByGroup(pParts->geometry.meshes[i], 0x20, uVar3);
             }
-            i = StageTiming_FindModelPartByNodeType(7, (BYTE *)pParts);
+            i = StageTiming_FindModelPartByNodeType(7, pParts);
             if (i >= 0) {
-                Game_SetTriangleField2CByGroup((Mesh *)pParts[i], 0x20, uVar4);
-                Game_SetTriangleField30ByGroup((Mesh *)pParts[i], 0x20, uVar3);
+                Game_SetTriangleField2CByGroup(pParts->geometry.meshes[i], 0x20, uVar4);
+                Game_SetTriangleField30ByGroup(pParts->geometry.meshes[i], 0x20, uVar3);
                 return;
             }
             break;
         case 2:
-            i = StageTiming_FindModelPartByNodeType(7, (BYTE *)pParts);
+            i = StageTiming_FindModelPartByNodeType(7, pParts);
             if (i >= 0) {
-                Game_SetTriangleField2CByGroup((Mesh *)pParts[i], 0x40, uVar4);
-                Game_SetTriangleField30ByGroup((Mesh *)pParts[i], 0x40, uVar3);
+                Game_SetTriangleField2CByGroup(pParts->geometry.meshes[i], 0x40, uVar4);
+                Game_SetTriangleField30ByGroup(pParts->geometry.meshes[i], 0x40, uVar3);
                 return;
             }
             break;
         case 3:
-            i = StageTiming_FindModelPartByNodeType(7, (BYTE *)pParts);
+            i = StageTiming_FindModelPartByNodeType(7, pParts);
             if (i >= 0) {
-                Game_SetTriangleField2CByGroup((Mesh *)pParts[i], 0x80, uVar4);
-                Game_SetTriangleField30ByGroup((Mesh *)pParts[i], 0x80, uVar3);
+                Game_SetTriangleField2CByGroup(pParts->geometry.meshes[i], 0x80, uVar4);
+                Game_SetTriangleField30ByGroup(pParts->geometry.meshes[i], 0x80, uVar3);
                 return;
             }
             break;
         case 4:
-            i = StageTiming_FindModelPartByNodeType(0xe, (BYTE *)pParts);
+            i = StageTiming_FindModelPartByNodeType(0xe, pParts);
             if (i >= 0) {
-                Game_SetTriangleField2CByGroup((Mesh *)pParts[i], 4, uVar4);
+                Game_SetTriangleField2CByGroup(pParts->geometry.meshes[i], 4, uVar4);
                 return;
             }
             break;
         case 5:
-            i = StageTiming_FindModelPartByNodeType(0xe, (BYTE *)pParts);
+            i = StageTiming_FindModelPartByNodeType(0xe, pParts);
             if (i >= 0)
-                Game_SetTriangleField2CByGroup((Mesh *)pParts[i], 8, uVar4);
+                Game_SetTriangleField2CByGroup(pParts->geometry.meshes[i], 8, uVar4);
             break;
         }
     }
@@ -839,25 +830,25 @@ int g_unk0x00588864;
 // GLOBAL: CMR2 0x00588868
 int g_unk0x00588868;
 // GLOBAL: CMR2 0x00588970
-int g_unk0x00588970[8];
+int g_carDamageModelEnabled[8];
 // GLOBAL: CMR2 0x00588ba4
 BYTE g_unk0x00588ba4[16];
 // GLOBAL: CMR2 0x00588bb4
-int g_unk0x00588bb4[16];
+int g_carPairValuePending[16];
 // GLOBAL: CMR2 0x00588cd4
 ReplayLevelState g_replayLevelState;
 // GLOBAL: CMR2 0x00588d38
 int g_unk0x00588d38;
 // GLOBAL: CMR2 0x00589438
-int g_unk0x00589438;
+SceneNode *g_stageSkyNode;
 // GLOBAL: CMR2 0x0058943c
-int g_unk0x0058943c;
+SceneNode *g_stageGroundNode;
 // GLOBAL: CMR2 0x00589440
-int g_unk0x00589440;
+SceneNode *g_stageCloudNode;
 // GLOBAL: CMR2 0x00589444
-int g_unk0x00589444;
+SceneNode *g_stageCloudTopNode;
 // GLOBAL: CMR2 0x00589448
-GenericFile g_unk0x00589448;
+GenericFile g_stageCloudArchive;
 // GLOBAL: CMR2 0x0058cf68
 int g_unk0x0058cf68;
 // GLOBAL: CMR2 0x0058cf6c
@@ -866,7 +857,7 @@ int g_unk0x0058cf6c;
 BYTE g_unk0x0058cf80[0x100];
 // Scratch rotation matrix for the stage-object nodes.
 // GLOBAL: CMR2 0x0058d260
-FixMatrix g_unk0x0058d260;
+FixMatrix g_carWiperRotationMatrix;
 BYTE g_stageBlock[0x430];
 // GLOBAL: CMR2 0x0058da30
 int g_unk0x0058da30[8];
@@ -1215,18 +1206,18 @@ void StageObject_DeriveLoadedScaleVector(FixVector *pOut)
 
     // The original loads the whole dword at the flag byte (the variable lived
     // in that translation unit; see CONOCIMIENTO 4.y) and only uses its low byte.
-    flags = *(DWORD *)&g_unk0x00543e98;
+    flags = *(DWORD *)&g_weatherViewCount;
     value = 0;
     typeTwo = 0;
     if ((char)flags == 1) {
-        value = *((int *)g_unk0x00547ac8 + 0x15);
-        if (*((int *)g_unk0x00547ac8) == 2)
+        value = g_viewWeather->intensity;
+        if (g_viewWeather->kind == 2)
             typeTwo = 1;
     } else {
         count = (BYTE)flags;
         for (i = 0; i < count; i++) {
-            value += ((int *)g_unk0x00547ac8)[i * 0x5e + 0x15];
-            if (((int *)g_unk0x00547ac8)[i * 0x5e] == 2)
+            value += g_viewWeather[i].intensity;
+            if (g_viewWeather[i].kind == 2)
                 typeTwo = 1;
         }
         if ((char)flags != 0)
@@ -1237,42 +1228,42 @@ void StageObject_DeriveLoadedScaleVector(FixVector *pOut)
     if (value < 0x4ccc)
         value = 0x4ccc;
     if (typeTwo)
-        FixVecScale(pOut, &g_unk0x00547930, FixMul(0x20000, FixMul(value, g_unk0x00547940)));
+        FixVecScale(pOut, &g_weatherWindDirection, FixMul(0x20000, FixMul(value, g_weatherWindStrength)));
     else
-        FixVecScale(pOut, &g_unk0x00547930, FixMul(value, g_unk0x00547940));
+        FixVecScale(pOut, &g_weatherWindDirection, FixMul(value, g_weatherWindStrength));
 }
 
 // FUNCTION: CMR2 0x00460bf0
 BYTE StageObject_GetViewWeatherStateByte(int index)
 {
-    return *((BYTE *)g_unk0x00547ac8 + index * 0x178);
+    return *(BYTE *)&g_viewWeather[index].kind;
 }
 
 // FUNCTION: CMR2 0x00460c10
 int StageObject_GetViewWeatherField54(int index)
 {
-    return *(int *)((BYTE *)g_unk0x00547ac8 + 0x54 + index * 0x178);
+    return g_viewWeather[index].intensity;
 }
 
 // GLOBAL: CMR2 0x00543d50
-int g_unk0x00543d50;
+int g_weatherParticleQualityScale;
 
 // Sets an object's scalar and derives its fixed-point scaled component.
 // FUNCTION: CMR2 0x00460c30
 void StageObject_SetScaledValue(int value, int index)
 {
-    BYTE *entry = (BYTE *)g_unk0x00547ac8 + index * 0x178;
+    ViewWeatherState *entry = &g_viewWeather[index];
     index = value;
-    *(int *)(entry + 0x54) = value;
-    value = FixMul(g_unk0x00543d50, index);
-    index = (int)*(short *)(entry + 0x74) << 16;
-    *(int *)(entry + 0x5c) = FixMul(value, index);
+    entry->intensity = value;
+    value = FixMul(g_weatherParticleQualityScale, index);
+    index = (int)entry->particleCapacity << 16;
+    entry->targetParticleCount = FixMul(value, index);
 }
 
 // FUNCTION: CMR2 0x00460c80
 int StageObject_GetCarWeatherRampValue(BYTE *pCar)
 {
-    return *(int *)((BYTE *)g_unk0x00543ecc + 8 + (signed char)pCar[0xb1a] * 0xc);
+    return g_carSurfaceRamps[(signed char)pCar[0xb1a]].blend;
 }
 
 // FUNCTION: CMR2 0x00463270
@@ -1510,13 +1501,13 @@ int Replay_GetSelectionStateByte(void)
 // FUNCTION: CMR2 0x0046b400
 void StageObject_SetCarStateSlot(int value, int index)
 {
-    g_unk0x00588970[index] = value;
+    g_carDamageModelEnabled[index] = value;
 }
 
 // FUNCTION: CMR2 0x0046b420
 void StageObject_ClearCarStateSlots(void)
 {
-    memset(g_unk0x00588970, 0, 8 * sizeof(int));
+    memset(g_carDamageModelEnabled, 0, 8 * sizeof(int));
 }
 
 // Reads vertex `vertex` of mesh `mesh` (float source data) as a 16.16 vector.
@@ -1542,29 +1533,29 @@ extern float g_oneOverRandMax;
 // FUNCTION: CMR2 0x0046b4e0
 void CarEffects_UpdateBrokenLightFlicker(BYTE *pCar)
 {
-    int *p;
+    CarPartSet *p;
     int k;
 
-    p = StageTiming_GetCarReplayRecord((signed char)pCar[0xb1a]);
-    if (p[0xa7] > 0x8000) {
-        k = FixMul(p[0xa7] - 0x8000, 0x20000);
+    p = StageTiming_GetCarReplayRecord(((Car *)pCar)->index);
+    if (p->damageValues[23] > 0x8000) {
+        k = FixMul(p->damageValues[23] - 0x8000, 0x20000);
         if (k < 0)
             k = 0;
         else if (k > 0x10000)
             k = 0x10000;
         k = FixMul(k, 0xcccc);
-        if (p[0x103] <= 0) {
-            if (p[0x133] != 0) {
-                p[0x133] = 0;
-                p[0x103] = FixMul(0x10000 - k, FixMul((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0xfa0000));
-                p[0x103] += FixMul(0x10000 - k, 0x320000);
+        if (p->brokenLightFlickerTimer <= 0) {
+            if (p->brokenLightFlickerPhase != 0) {
+                p->brokenLightFlickerPhase = 0;
+                p->brokenLightFlickerTimer = FixMul(0x10000 - k, FixMul((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0xfa0000));
+                p->brokenLightFlickerTimer += FixMul(0x10000 - k, 0x320000);
             } else {
-                p[0x133] = 1;
-                p[0x103] = FixMul(k, FixMul((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0xf0000));
-                p[0x103] += FixMul(k, 0);
+                p->brokenLightFlickerPhase = 1;
+                p->brokenLightFlickerTimer = FixMul(k, FixMul((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0xf0000));
+                p->brokenLightFlickerTimer += FixMul(k, 0);
             }
         } else {
-            p[0x103] -= 0x10000;
+            p->brokenLightFlickerTimer -= 0x10000;
         }
     }
 }
@@ -1572,7 +1563,7 @@ void CarEffects_UpdateBrokenLightFlicker(BYTE *pCar)
 // FUNCTION: CMR2 0x0046b4c0
 int StageObject_GetCarStateSlot(BYTE *pCar)
 {
-    return g_unk0x00588970[(signed char)pCar[0xb1a]];
+    return g_carDamageModelEnabled[(signed char)pCar[0xb1a]];
 }
 
 // FUNCTION: CMR2 0x0046b710
@@ -1580,7 +1571,7 @@ void StageObject_ResetPairedCarValues(void)
 {
     int *p;
     p = &g_unk0x00588cd4[1];
-    memset(g_unk0x00588bb4, 0, 8 * sizeof(int));
+    memset(g_carPairValuePending, 0, 8 * sizeof(int));
     do {
         p[-1] = 0;
         *p = 0;
@@ -1598,10 +1589,10 @@ void StageObject_SetPairedCarValue(int i, int value, int j)
 void StageObject_SetCarValuePendingFlag(int index, int reset)
 {
     if (reset != 0) {
-        g_unk0x00588bb4[index] = 0;
+        g_carPairValuePending[index] = 0;
         return;
     }
-    g_unk0x00588bb4[index] = 1;
+    g_carPairValuePending[index] = 1;
 }
 
 // FUNCTION: CMR2 0x0046bd20
@@ -1745,7 +1736,7 @@ void Replay_CopyBlock6(Block6 *pSrc, Block6 *pDst)
     *pDst = *pSrc;
 }
 
-int *StageTiming_GetCarReplayRecord(int index);
+CarPartSet *StageTiming_GetCarReplayRecord(int index);
 struct RaceRecord;
 RaceRecord *RallyData_GetCarRaceRecord(int index);
 void RallyData_ResetRaceRecordAndRouteProbe(int index);
@@ -1783,13 +1774,13 @@ int Replay_GetStreamFrameState(void)
 // FUNCTION: CMR2 0x0046f4c0
 void StageObject_GetCurrentObjectPointer(int *pOut)
 {
-    *pOut = g_unk0x00589438;
+    *pOut = (int)g_stageSkyNode;
 }
 
 // FUNCTION: CMR2 0x0046f4d0
 void StageObject_GetCurrentObjectContext(int *pOut)
 {
-    *pOut = g_unk0x0058943c;
+    *pOut = (int)g_stageGroundNode;
 }
 
 // GLOBAL: CMR2 0x0058c928
@@ -1822,8 +1813,8 @@ int StageObjects_ReleaseObjectFiles(void)
 // FUNCTION: CMR2 0x0046f4e0
 void StageObject_GetCurrentObjectValues(int *pOut1, int *pOut2)
 {
-    *pOut1 = g_unk0x00589440;
-    *pOut2 = g_unk0x00589444;
+    *pOut1 = (int)g_stageCloudNode;
+    *pOut2 = (int)g_stageCloudTopNode;
 }
 
 // GLOBAL: CMR2 0x0051c6d0
@@ -1852,30 +1843,30 @@ void StageObjects_LoadSkyAndGround(void)
     char buffer[MAX_PATH];
     GenericFile *pFile;
     GenericFile *pC3d;
-    int node;
+    SceneNode *node;
     BYTE *pMesh;
 
     pFile = (GenericFile *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempSky, NULL, NULL, 0);
     if (pFile != NULL) {
-        g_unk0x00589438 = (int)Sector_BuildC3DModelScene((unsigned int)pFile, (unsigned int)RallyData_GetChallengeRenderState(),
+        g_stageSkyNode = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)pFile, (unsigned int)RallyData_GetChallengeRenderState(),
                                            (unsigned int)Race_GetLoadedStageFile());
-        if (g_unk0x00589438 != 0) {
-            Graphics_SetRecordField2C(*(BYTE **)(g_unk0x00589438 + 0xc), 0);
-            *(int *)(g_unk0x00589438 + 0x180) = 0;
-            node = *(int *)(g_unk0x00589438 + 4);
+        if (g_stageSkyNode != 0) {
+            Graphics_SetRecordField2C((BYTE *)g_stageSkyNode->pObject, 0);
+            g_stageSkyNode->visible = 0;
+            node = g_stageSkyNode->pFirstChild;
             if (node != 0) {
-                pMesh = *(BYTE **)(node + 0xc);
-                *(int *)(node + 0x180) = 0;
+                pMesh = (BYTE *)node->pObject;
+                node->visible = 0;
                 Graphics_SetRecordField2C(pMesh, 0);
-                node = *(int *)(*(int *)(g_unk0x00589438 + 4));
+                node = g_stageSkyNode->pFirstChild->pNext;
                 if (node != 0) {
-                    pMesh = *(BYTE **)(node + 0xc);
-                    *(int *)(node + 0x180) = 0;
+                    pMesh = (BYTE *)node->pObject;
+                    node->visible = 0;
                     Graphics_SetRecordField2C(pMesh, 0);
-                    node = *(int *)(*(int *)(*(int *)(g_unk0x00589438 + 4)));
+                    node = g_stageSkyNode->pFirstChild->pNext->pNext;
                     if (node != 0) {
-                        pMesh = *(BYTE **)(node + 0xc);
-                        *(int *)(node + 0x180) = 0;
+                        pMesh = (BYTE *)node->pObject;
+                        node->visible = 0;
                         Graphics_SetRecordField2C(pMesh, 0);
                     }
                 }
@@ -1886,39 +1877,39 @@ void StageObjects_LoadSkyAndGround(void)
     strcpy(buffer, CFrontend::m_stringDest);
     strcpy(CFrontend::m_stringDest, buffer);
     strcat(CFrontend::m_stringDest, g_strBflExt);
-    CGenericFileLoader::LoadIntoFileRecord(&g_unk0x00589448, CFrontend::m_stringDest);
+    CGenericFileLoader::LoadIntoFileRecord(&g_stageCloudArchive, CFrontend::m_stringDest);
     strcpy(CFrontend::m_stringDest, buffer);
     strcat(CFrontend::m_stringDest, g_strC3dExt);
-    pC3d = (GenericFile *)CGenericFileLoader::FindFile(&g_unk0x00589448, CFrontend::m_stringDest, NULL, NULL, 0);
+    pC3d = (GenericFile *)CGenericFileLoader::FindFile(&g_stageCloudArchive, CFrontend::m_stringDest, NULL, NULL, 0);
     strcpy(CFrontend::m_stringDest, buffer);
     strcat(CFrontend::m_stringDest, g_strTopC3d);
-    pFile = (GenericFile *)CGenericFileLoader::FindFile(&g_unk0x00589448, CFrontend::m_stringDest, NULL, NULL, 0);
+    pFile = (GenericFile *)CGenericFileLoader::FindFile(&g_stageCloudArchive, CFrontend::m_stringDest, NULL, NULL, 0);
     if (pFile != NULL) {
-        g_unk0x00589444 = (int)Sector_BuildC3DModelScene((unsigned int)pFile, (unsigned int)RallyData_GetChallengeRenderState(),
-                                           (unsigned int)&g_unk0x00589448);
-        if (g_unk0x00589444 != 0) {
-            pMesh = *(BYTE **)(g_unk0x00589444 + 0xc);
-            *(int *)(g_unk0x00589444 + 0x180) = 0;
+        g_stageCloudTopNode = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)pFile, (unsigned int)RallyData_GetChallengeRenderState(),
+                                           (unsigned int)&g_stageCloudArchive);
+        if (g_stageCloudTopNode != 0) {
+            pMesh = (BYTE *)g_stageCloudTopNode->pObject;
+            g_stageCloudTopNode->visible = 0;
             Graphics_SetRecordField2C(pMesh, 0);
-            *(BYTE *)(g_unk0x00589444 + 0x17c) = 0;
+            g_stageCloudTopNode->viewMask = 0;
         }
     }
     if (pC3d != NULL) {
-        g_unk0x00589440 = (int)Sector_BuildC3DModelScene((unsigned int)pC3d, (unsigned int)RallyData_GetChallengeRenderState(),
-                                           (unsigned int)&g_unk0x00589448);
-        if (g_unk0x00589440 != 0) {
-            pMesh = *(BYTE **)(g_unk0x00589440 + 0xc);
-            *(int *)(g_unk0x00589440 + 0x180) = 0;
+        g_stageCloudNode = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)pC3d, (unsigned int)RallyData_GetChallengeRenderState(),
+                                           (unsigned int)&g_stageCloudArchive);
+        if (g_stageCloudNode != 0) {
+            pMesh = (BYTE *)g_stageCloudNode->pObject;
+            g_stageCloudNode->visible = 0;
             Graphics_SetRecordField2C(pMesh, 0);
         }
     }
     pFile = (GenericFile *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempGro, NULL, NULL, 0);
     if (pFile != NULL) {
-        g_unk0x0058943c = (int)Sector_BuildC3DModelScene((unsigned int)pFile, (unsigned int)RallyData_GetChallengeRenderState(),
+        g_stageGroundNode = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)pFile, (unsigned int)RallyData_GetChallengeRenderState(),
                                            (unsigned int)Race_GetLoadedStageFile());
-        if (g_unk0x0058943c != 0) {
-            pMesh = *(BYTE **)(g_unk0x0058943c + 0xc);
-            *(int *)(g_unk0x0058943c + 0x180) = 0;
+        if (g_stageGroundNode != 0) {
+            pMesh = (BYTE *)g_stageGroundNode->pObject;
+            g_stageGroundNode->visible = 0;
             Graphics_SetRecordField2C(pMesh, 0);
         }
     }
@@ -2573,60 +2564,62 @@ void StageObject_SyncStateAndSceneMatrix(BYTE *p, int *src, int unused, BYTE val
     int index;
     FixVector pos;
 
-    g_unk0x0058d4d0[*p] = value;
+    g_carInteriorModelClasses[*p] = value;
     StageObject_BuildCarNodeOrientation((int)p, src);
-    if (g_unk0x0058d49c[p[2]] != NULL) {
-        SceneNode_Unused((SceneNode *)g_unk0x0058d49c[p[2]]);
-        pos.x = ((SceneNode *)g_unk0x0058d49c[p[2]])->world.position.x;
-        pos.y = ((SceneNode *)g_unk0x0058d49c[p[2]])->world.position.y;
-        pos.z = ((SceneNode *)g_unk0x0058d49c[p[2]])->world.position.z;
+    if (g_carInteriorRoots[p[2]] != NULL) {
+        SceneNode_Unused(g_carInteriorRoots[p[2]]);
+        pos.x = (g_carInteriorRoots[p[2]])->world.position.x;
+        pos.y = (g_carInteriorRoots[p[2]])->world.position.y;
+        pos.z = (g_carInteriorRoots[p[2]])->world.position.z;
         index = (short)Sector_FromPosition(&pos);
-        if (index != ((SceneNode *)g_unk0x0058d49c[p[2]])->sector) {
-            Sector_InsertNodeByPosition((SceneNode *)g_unk0x0058d49c[p[2]]);
-            SceneNode_Unused((SceneNode *)g_unk0x0058d49c[p[2]]);
+        if (index != (g_carInteriorRoots[p[2]])->sector) {
+            Sector_InsertNodeByPosition(g_carInteriorRoots[p[2]]);
+            SceneNode_Unused(g_carInteriorRoots[p[2]]);
         }
     }
 }
 
 // FUNCTION: CMR2 0x004764e0
-void StageObject_SetCarSlotActiveFlag(BYTE *p)
+void CarInterior_ResetDriverPoseOnNextUpdate(BYTE *p)
 {
-    g_unk0x0058d3b0[p[2]] = 1;
+    g_carDriverPoseNeedsReset[p[2]] = 1;
 }
 
 // FUNCTION: CMR2 0x00476520
-int StageObject_GetCarNodeSlotValue(BYTE index)
+int CarInterior_IsLoaded(BYTE index)
 {
-    return g_unk0x0058d6a8[index];
+    return g_carInteriorLoaded[index];
 }
 
-// Caches, for a car, whether its class is special and pointers into its
-// timing record.
+// Caches the CIN cockpit profile and the class-dependent wiper direction.
 // FUNCTION: CMR2 0x00476540
-void StageObject_CacheCarClassAndTimingPointers(int index)
+void CarInterior_CacheProfilePointers(int index)
 {
     Car *pCar = Car_Get(index);
     char type = (BYTE)pCar->type;
-    int p;
+    BYTE *p;
 
     if (type == 8 || type == 7 || type == 9 || type == 13)
-        g_unk0x0058d2f0[index] = 1;
+        g_carWiperDirectionReversed[index] = 1;
     else
-        g_unk0x0058d2f0[index] = 0;
-    p = StageTiming_GetStartArchiveRelativeEntry((BYTE *)pCar, 5);
-    ((int *)g_unk0x0058d4f0)[index * 7] = p;
-    p += 8;
-    ((int *)g_unk0x0058d4f0)[index * 7 + 1] = p;
-    p += 4;
-    ((int *)g_unk0x0058d4f0)[index * 7 + 2] = p;
-    p += 0xc;
-    ((int *)g_unk0x0058d4f0)[index * 7 + 3] = p;
-    p += 4;
-    ((int *)g_unk0x0058d4f0)[index * 7 + 4] = p;
-    p += 8;
-    ((int *)g_unk0x0058d4f0)[index * 7 + 5] = p;
-    p += 8;
-    ((int *)g_unk0x0058d4f0)[index * 7 + 6] = p;
+        g_carWiperDirectionReversed[index] = 0;
+    // Preserve the original advancing cursor; the member gives its bias.
+#define INTERIOR_AT(member) ((CarInteriorProfile *)(p - offsetof(CarInteriorProfile, member)))
+    p = (BYTE *)CarInfo_GetSection(pCar, CAR_INFO_INTERIOR);
+    g_carInteriorProfilePointers[index].firstWiperRotation = &INTERIOR_AT(firstWiperRotation)->firstWiperRotation;
+    p += offsetof(CarInteriorProfile, firstWiperMaxAngle) - offsetof(CarInteriorProfile, firstWiperRotation);
+    g_carInteriorProfilePointers[index].firstWiperMaxAngle = &INTERIOR_AT(firstWiperMaxAngle)->firstWiperMaxAngle;
+    p += offsetof(CarInteriorProfile, driverPoseOffset) - offsetof(CarInteriorProfile, firstWiperMaxAngle);
+    g_carInteriorProfilePointers[index].driverPoseOffset = &INTERIOR_AT(driverPoseOffset)->driverPoseOffset;
+    p += offsetof(CarInteriorProfile, driverRestYaw) - offsetof(CarInteriorProfile, driverPoseOffset);
+    g_carInteriorProfilePointers[index].driverRestYaw = &INTERIOR_AT(driverRestYaw)->driverRestYaw;
+    p += offsetof(CarInteriorProfile, steeringBaseRotation) - offsetof(CarInteriorProfile, driverRestYaw);
+    g_carInteriorProfilePointers[index].steeringBaseRotation = &INTERIOR_AT(steeringBaseRotation)->steeringBaseRotation;
+    p += offsetof(CarInteriorProfile, secondWiperRotation) - offsetof(CarInteriorProfile, steeringBaseRotation);
+    g_carInteriorProfilePointers[index].secondWiperRotation = &INTERIOR_AT(secondWiperRotation)->secondWiperRotation;
+    p += offsetof(CarInteriorProfile, secondWiperMaxAngle) - offsetof(CarInteriorProfile, secondWiperRotation);
+    g_carInteriorProfilePointers[index].secondWiperMaxAngle = &INTERIOR_AT(secondWiperMaxAngle)->secondWiperMaxAngle;
+#undef INTERIOR_AT
 }
 
 // Draws a stage box: a filled rectangle, its one pixel outline and, optionally,
@@ -2675,11 +2668,6 @@ void StageObject_DrawOutlinedStageBox(short *pRect, BYTE *pColour, BYTE *pEdgeCo
     }
 }
 
-// Per-car node row at 0x58d528 (0x1c bytes): +0 node 0x1a, +4 node 0x1c,
-// +8 node 0x1b, +0x10 node 0x17.  The angles pointer for each car sits at
-// 0x58d500 (row - 0x28); the original re-reads every slot it may alias.
-#define CAR_NODE(c, off) (*(SceneNode **)(g_stageBlock + 0x288 + (off) + (c) * 0x1c))
-#define CAR_ANGLES(c) (*(FixAngles **)(g_stageBlock + 0x260 + (c) * 0x1c))
 // The original callers pass the 12-bit angle in a 16-bit slot without sign
 // extension (the definition reads a 32-bit int and masks it to 0xfff).
 #define FromAxisAngle16(pOut, pAxis, angle) \
@@ -2703,45 +2691,43 @@ void StageObject_BlendCarMountTransform(int car)
     FixVector position;
     int fade;
 
-    SceneNode_SetRotation(CAR_NODE(car, 0x10), CAR_ANGLES(car));
-    axis.x = CAR_NODE(car, 0x10)->current.right.x;
-    axis.y = CAR_NODE(car, 0x10)->current.right.y;
-    axis.z = CAR_NODE(car, 0x10)->current.right.z;
+    SceneNode_SetRotation(g_carInteriorNodeRows[car].steeringWheelNode, g_carInteriorProfilePointers[car].steeringBaseRotation);
+    axis.x = g_carInteriorNodeRows[car].steeringWheelNode->current.right.x;
+    axis.y = g_carInteriorNodeRows[car].steeringWheelNode->current.right.y;
+    axis.z = g_carInteriorNodeRows[car].steeringWheelNode->current.right.z;
     FromAxisAngle16(&rot, &axis, angle);
 
     // Rotate the node without touching its translation.
-    position.x = CAR_NODE(car, 0x10)->current.position.x;
-    position.y = CAR_NODE(car, 0x10)->current.position.y;
-    position.z = CAR_NODE(car, 0x10)->current.position.z;
-    CAR_NODE(car, 0x10)->current.position.x = 0;
-    CAR_NODE(car, 0x10)->current.position.y = 0;
-    CAR_NODE(car, 0x10)->current.position.z = 0;
-    FixMatrix_Multiply(&CAR_NODE(car, 0x10)->current, &CAR_NODE(car, 0x10)->current, &rot);
-    CAR_NODE(car, 0x10)->current.position.x = position.x;
-    CAR_NODE(car, 0x10)->current.position.y = position.y;
-    CAR_NODE(car, 0x10)->current.position.z = position.z;
+    position.x = g_carInteriorNodeRows[car].steeringWheelNode->current.position.x;
+    position.y = g_carInteriorNodeRows[car].steeringWheelNode->current.position.y;
+    position.z = g_carInteriorNodeRows[car].steeringWheelNode->current.position.z;
+    g_carInteriorNodeRows[car].steeringWheelNode->current.position.x = 0;
+    g_carInteriorNodeRows[car].steeringWheelNode->current.position.y = 0;
+    g_carInteriorNodeRows[car].steeringWheelNode->current.position.z = 0;
+    FixMatrix_Multiply(&g_carInteriorNodeRows[car].steeringWheelNode->current, &g_carInteriorNodeRows[car].steeringWheelNode->current, &rot);
+    g_carInteriorNodeRows[car].steeringWheelNode->current.position.x = position.x;
+    g_carInteriorNodeRows[car].steeringWheelNode->current.position.y = position.y;
+    g_carInteriorNodeRows[car].steeringWheelNode->current.position.z = position.z;
 
-    SceneNode_SetRotation(CAR_NODE(car, 0x8), CAR_ANGLES(car));
-    FixMatrix_Multiply(&combined, &CAR_NODE(car, 0x8)->current, &rot);
+    SceneNode_SetRotation(g_carInteriorNodeRows[car].steeringReferenceNode, g_carInteriorProfilePointers[car].steeringBaseRotation);
+    FixMatrix_Multiply(&combined, &g_carInteriorNodeRows[car].steeringReferenceNode->current, &rot);
     combined.position.x += position.x;
     combined.position.y += position.y;
     combined.position.z += position.z;
 
-    original = CAR_NODE(car, 0x0)->current;
+    original = g_carInteriorNodeRows[car].steeringRestNode->current;
 
-    fade = StageObject_UpdateCarBodyFade(car, (int)pCar);
-    FixMatrix_Interpolate(&CAR_NODE(car, 0x4)->current, &combined, &original, 0, 0,
+    fade = CarInterior_UpdateSteeringBlendFraction(car, (int)pCar);
+    FixMatrix_Interpolate(&g_carInteriorNodeRows[car].steeringBlendNode->current, &combined, &original, 0, 0,
                           fadeCurve[(FixMul(0xC0000, fade) >> 16)], 1);
 }
-#undef CAR_NODE
-#undef CAR_ANGLES
 #undef FromAxisAngle16
 
 // FUNCTION: CMR2 0x00477a90
 void StageObject_ResetBodyTextureCaches(void)
 {
-    memset(g_unk0x0058d6b0, 0xff, 7 * 4);
-    memset(g_unk0x0058d2a0, 0xff, 12 * 4);
+    memset(g_carAppliedDigitTextureAlphas, 0xff, sizeof(g_carAppliedDigitTextureAlphas));
+    memset(g_carAppliedRevTextureLevels, 0xff, sizeof(g_carAppliedRevTextureLevels));
 }
 
 // FUNCTION: CMR2 0x00478170
@@ -2800,7 +2786,7 @@ BYTE g_unk0x00590c60[4];
 // GLOBAL: CMR2 0x00590d70
 int g_unk0x00590d70;
 // GLOBAL: CMR2 0x00590db0
-int g_unk0x00590db0[64];
+int g_viewObjectLevels[64];
 // GLOBAL: CMR2 0x00590ed0
 BYTE g_unk0x00590ed0[8][0x98];
 // GLOBAL: CMR2 0x00591390
@@ -3066,7 +3052,7 @@ void StageObject_SpawnDebris(const FixVector *pPosition, const FixVector *pVeloc
 }
 #undef DEBRIS_RAND
 
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 
 // Spawns one debris burst at a random entry of the four-way spawn table with a
 // random, upward-biased velocity of length 1.5..2.5.
@@ -3080,7 +3066,7 @@ void StageObject_SpawnRandomDebrisBurst(void)
     int randomSpread;
 
     randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-    angle = (unsigned short)(__int64)((double)FixMul(randomFixed, 0x1680000) * g_unk0x00511300);
+    angle = (unsigned short)(__int64)((double)FixMul(randomFixed, 0x1680000) * g_fixedDegreesToAngle12);
     pPosition = &g_unk0x005909c8[rand() % 4];
 
     velocity.x = g_sinTable[angle & 0xfff];
@@ -3286,14 +3272,14 @@ void StageObject_InterpolateOrderedMotionRecords(int scale)
 // FUNCTION: CMR2 0x00486be0
 void StageObject_SetContactLevelToUnity(BYTE *p, int unused)
 {
-    g_unk0x00590db0[*p] = 0x10000;
+    g_viewObjectLevels[*p] = 0x10000;
 }
 
 // FUNCTION: CMR2 0x00486c00
 void StageObject_ResetContactEffectAndSetLevel(BYTE *p, BYTE *q)
 {
     Glow_NoOpEntryCallback(q[2], q[1], 0, 0);
-    g_unk0x00590db0[*p] = 0x10000;
+    g_viewObjectLevels[*p] = 0x10000;
 }
 
 // FUNCTION: CMR2 0x00487130
@@ -3518,9 +3504,9 @@ int StageObject_FindClosestMeshVertex(void)
         StageObject_GetCurrentObjectValues(&object, &unused);
         FixMatrix_InverseRotateVector(&delta, &g_unk0x00592114, (FixMatrix *)(object + 0x98));
         for (i = 0; i < g_stageMesh2Count; i++) {
-            d.x = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh2Copy->pVertexData)[i].pos[0] * CGraphics::m_65536);
-            d.y = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh2Copy->pVertexData)[i].pos[1] * CGraphics::m_65536);
-            v = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh2Copy->pVertexData)[i].pos[2] * CGraphics::m_65536);
+            d.x = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[i].pos[0] * CGraphics::m_65536);
+            d.y = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[i].pos[1] * CGraphics::m_65536);
+            v = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[i].pos[2] * CGraphics::m_65536);
             d.x = delta.x - d.x;
             d.y = delta.y - d.y;
             d.z = delta.z - v;
@@ -3533,9 +3519,9 @@ int StageObject_FindClosestMeshVertex(void)
             }
         }
         if (best != -1) {
-            g_unk0x005920fc = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[0] * CGraphics::m_65536);
-            g_unk0x00592100 = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[1] * CGraphics::m_65536);
-            g_unk0x00592104 = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[2] * CGraphics::m_65536);
+            g_unk0x005920fc = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[0] * CGraphics::m_65536);
+            g_unk0x00592100 = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[1] * CGraphics::m_65536);
+            g_unk0x00592104 = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[2] * CGraphics::m_65536);
             return best;
         }
     }
@@ -3696,10 +3682,10 @@ int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *p
 DWORD Graphics_GetDeviceCaps3C(void);
 DWORD Graphics_GetDeviceCaps40(void);
 DWORD Graphics_GetDeviceCaps44(void);
-int *StageTiming_GetCarReplayRecord(int index);
+CarPartSet *StageTiming_GetCarReplayRecord(int index);
 void StageObject_ResetCarPartNodeValue(BYTE *pCar, int slot, int reset);
 void Car_SetDrawnFlag(int index, char value);
-int StageTiming_GetStartArchiveRelativeEntry(BYTE *pCar, int offset);
+void *CarInfo_GetSection(Car *pCar, int section);
 struct KnockoutMatch;
 int Knockout_HasHumanLostMatch(KnockoutMatch *pMatch);
 short Car_GetOrderCount(void);
@@ -3714,8 +3700,8 @@ void StageObject_SetForwardedFlareState(int value)
 // FUNCTION: CMR2 0x0046f4a0
 void StageObject_GetCurrentObjectPosition(FixVector *pOut)
 {
-    if (g_unk0x00589438 != 0)
-        FixMatrix_GetPosition(pOut, (FixMatrix *)(g_unk0x00589438 + 0x98));
+    if (g_stageSkyNode != 0)
+        FixMatrix_GetPosition(pOut, &g_stageSkyNode->current);
 }
 
 // Ground height at a point; the surface id is written over the defaultY slot.
@@ -3838,7 +3824,7 @@ void StageObject_UpdateProjectedDistanceFade(int param_1)
 
     pCar = Car_Get(1);
     pView = (BYTE *)g_viewNodes[param_1];
-    FixMatrix_GetPosition(&pos, (FixMatrix *)((BYTE *)pCar->pSceneRoot + 0x98));
+    FixMatrix_GetPosition(&pos, &pCar->pSceneRoot->current);
     pos.y = pos.y + 0x10000;
     FixMatrix_ProjectWorldPointToView(screen, &pos, pView);
     if (screen[0] != -0x640000 || screen[1] != -0x640000) {
@@ -3905,32 +3891,32 @@ void Replay_SwapPendingSlotValue(int **pValue, int slot, int flag)
 // FUNCTION: CMR2 0x0046b670
 void StageObject_ResetCarPartNodeValues(BYTE *pCar)
 {
-    int *p;
+    CarPartSet *p;
     int i;
 
-    p = StageTiming_GetCarReplayRecord((char)pCar[0xb1a]);
+    p = StageTiming_GetCarReplayRecord(((Car *)pCar)->index);
     i = 0;
     while (i < 4) {
-        StageObject_ResetCarPartNodeValue(pCar, i, *(int *)((BYTE *)p + 0x4b0 + i * 4));
+        StageObject_ResetCarPartNodeValue(pCar, i, p->partHidden[i]);
         i++;
     }
 }
 
-// Per car in race order: its split value (see StageTiming_GetStartArchiveRelativeEntry).
+// CIN section 4: variable camera offsets indexed by each view mode.
 // GLOBAL: CMR2 0x00590d90
-int g_carSplitValues[8];
+FixVector *g_carCameraOffsets[8];
 
 // FUNCTION: CMR2 0x00486700
-void StageObject_CacheCarSplitVectorPointers(void)
+void CarInfo_CacheCameraOffsets(void)
 {
-    int *p;
+    FixVector **p;
     int i;
 
     i = 0;
     if (Car_GetOrderCount() > 0) {
-        p = g_carSplitValues;
+        p = g_carCameraOffsets;
         do {
-            *p = StageTiming_GetStartArchiveRelativeEntry((BYTE *)Car_Get(i), 4);
+            *p = (FixVector *)CarInfo_GetSection(Car_Get(i), CAR_INFO_CAMERA_OFFSETS);
             i++;
             p++;
         } while (i < Car_GetOrderCount());
@@ -3958,18 +3944,18 @@ BYTE Knockout_ClearChampionshipPendingFlag(void)
 // Eight records of 0x48 bytes: ten shorts at +0x1c (reset to -1) and two
 // flag bytes at +0x44/+0x45.
 // GLOBAL: CMR2 0x0058d6d0
-BYTE g_unk0x0058d6d0[8][0x48];
+CarLightTextureState g_carLightTextureStates[8];
 
 // Fills the 12 outline values of a stage box (11 boundary levels plus the
 // corner colour at +0x16) and repaints its two textures once the cached copy
 // differs from the new values.
 int StageTiming_GetDashRevValue(int index);
-void StageObject_UpdateBodyTextureAlphaValues(Texture *pTexture, int state, int cacheBase, int index);
+void CarInterior_UpdateGearDigitTexture(Texture *pTexture, int state, int cacheBase, int index);
 // FUNCTION: CMR2 0x00477460
 void StageObject_UpdateRevCounterTextures(int index)
 {
-    unsigned short *pNew = g_unk0x0058d310 + index * 0xc;
-    unsigned short *pOld = (unsigned short *)(g_stageBlock + index * 0x18);
+    unsigned short *pNew = g_carRequestedRevTextureLevels[index];
+    unsigned short *pOld = g_carAppliedRevTextureLevels[index];
     int changed = 0;
     int limit;
     int slot;
@@ -3978,9 +3964,9 @@ void StageObject_UpdateRevCounterTextures(int index)
     limit = FixMul(StageTiming_GetDashRevValue(index), 0xb0000) >> 16;
     for (i = 0; i <= 0xa; i++)
         pNew[i] = i < limit ? 0xff : 0;
-    if (g_unk0x0058d4c4[index * 2] != 0)
-        StageObject_UpdateBodyTextureAlphaValues((Texture *)g_unk0x0058d4c4[index * 2], (int)Car_Get(index)->gear, 2, index);
-    if (g_unk0x0058d4c0[index * 2] != 0) {
+    if (g_carInteriorDashTextures[index].digit != 0)
+        CarInterior_UpdateGearDigitTexture(g_carInteriorDashTextures[index].digit, (int)Car_Get(index)->gear, 2, index);
+    if (g_carInteriorDashTextures[index].revCounter != 0) {
         slot = index + 8;
         pNew[0xb] = 0x6c;
         // the original leaves the scan by setting the counter to 0xc
@@ -3991,14 +3977,14 @@ void StageObject_UpdateRevCounterTextures(int index)
             }
         }
         if (changed != 0) {
-            CGraphics::BltTexture((Texture *)g_unk0x0058d4c0[index * 2], slot);
-            CGraphics::RemapTextureAlpha((Texture *)g_unk0x0058d4c0[index * 2], 0xe0, 0xff, 0xd0, pNew[1], 0xc0,
+            CGraphics::BltTexture(g_carInteriorDashTextures[index].revCounter, slot);
+            CGraphics::RemapTextureAlpha(g_carInteriorDashTextures[index].revCounter, 0xe0, 0xff, 0xd0, pNew[1], 0xc0,
                                          pNew[2], slot);
-            CGraphics::RemapTextureAlpha((Texture *)g_unk0x0058d4c0[index * 2], 0xb0, pNew[3], 0xa0, pNew[4], 0x90,
+            CGraphics::RemapTextureAlpha(g_carInteriorDashTextures[index].revCounter, 0xb0, pNew[3], 0xa0, pNew[4], 0x90,
                                          pNew[5], slot);
-            CGraphics::RemapTextureAlpha((Texture *)g_unk0x0058d4c0[index * 2], 0x80, pNew[6], 0x70, pNew[7], 0x60,
+            CGraphics::RemapTextureAlpha(g_carInteriorDashTextures[index].revCounter, 0x80, pNew[6], 0x70, pNew[7], 0x60,
                                          pNew[8], slot);
-            CGraphics::RemapTextureAlpha((Texture *)g_unk0x0058d4c0[index * 2], 0x50, pNew[9], 0x40, pNew[10], 0x30,
+            CGraphics::RemapTextureAlpha(g_carInteriorDashTextures[index].revCounter, 0x50, pNew[9], 0x40, pNew[10], 0x30,
                                          pNew[0xb], slot);
             for (i = 0; i < 0xc; i++)
                 pOld[i] = pNew[i];
@@ -4006,14 +3992,14 @@ void StageObject_UpdateRevCounterTextures(int index)
     }
 }
 
-// Body colours of the two stage objects for the object's current body state:
-// seven alpha values per object, compared against the ones already applied to
-// the texture so the remap only runs when they change.
+// Seven alpha values of the gear digit, selected by the current gear. They
+// are compared against the applied values so the texture is repainted only
+// when its digit changes.
 // FUNCTION: CMR2 0x004775f0
-void StageObject_UpdateBodyTextureAlphaValues(Texture *pTexture, int state, int cacheBase, int index)
+void CarInterior_UpdateGearDigitTexture(Texture *pTexture, int state, int cacheBase, int index)
 {
-    WORD *pColours = g_unk0x0058d2d4 + index * 7;
-    WORD *pApplied = (WORD *)g_unk0x0058d6b0 + index * 7;
+    WORD *pColours = g_carRequestedDigitTextureAlphas[index];
+    WORD *pApplied = g_carAppliedDigitTextureAlphas[index];
     int changed = 0;
     int cacheSlot = index + cacheBase * 8;
     int i;
@@ -4136,66 +4122,66 @@ void StageObject_UpdateBodyTextureAlphaValues(Texture *pTexture, int state, int 
     }
 }
 
-// Fades the two 5-slot colour ramps of a car's stage object towards its flag
-// bytes, repaints both cached textures when anything changed and stores the frame.
+// Fades two sets of five car-light channels towards their enable masks,
+// repaints the cached body textures on change and stores the applied levels.
 extern int g_unk0x0051bd3c;
 // FUNCTION: CMR2 0x00477ce0
 void StageObject_AnimateCarLightLevels(int car)
 {
-    BYTE *pRecord = g_unk0x0058d6d0[car];
+    CarLightTextureState *pRecord = &g_carLightTextureStates[car];
     short values[5];
     int changed = 0;
     int value;
     int i;
 
     for (i = 0; i < 5; i++) {
-        if (0 == (pRecord[0x44] & (1 << i))) {
-            value = *(short *)(pRecord + 0x30 + i * 2) - FixMul(0x50, g_unk0x0051bd3c);
+        if (0 == (pRecord->channelMasks[0] & (1 << i))) {
+            value = pRecord->fadedLevels[0][i] - FixMul(0x50, g_unk0x0051bd3c);
             if (value < 0)
                 value = 0;
         } else {
-            value = *(short *)(pRecord + 0x30 + i * 2) + FixMul(0x80, g_unk0x0051bd3c);
+            value = pRecord->fadedLevels[0][i] + FixMul(0x80, g_unk0x0051bd3c);
             if (value > 0xff)
                 value = 0xff;
         }
-        *(short *)(pRecord + 0x30 + i * 2) = value;
-        *(short *)(pRecord + 0x8 + i * 2) = value;
-        if ((pRecord[0x45] & (1 << i)) == 0) {
-            value = *(short *)(pRecord + 0x3a + i * 2) - FixMul(0x50, g_unk0x0051bd3c);
+        pRecord->fadedLevels[0][i] = value;
+        pRecord->levels[0][i] = value;
+        if ((pRecord->channelMasks[1] & (1 << i)) == 0) {
+            value = pRecord->fadedLevels[1][i] - FixMul(0x50, g_unk0x0051bd3c);
             if (value < 0)
                 value = 0;
         } else {
-            value = *(short *)(pRecord + 0x3a + i * 2) + FixMul(0x80, g_unk0x0051bd3c);
+            value = pRecord->fadedLevels[1][i] + FixMul(0x80, g_unk0x0051bd3c);
             if (value > 0xff)
                 value = 0xff;
         }
-        *(short *)(pRecord + 0x3a + i * 2) = (BYTE)value;
-        *(short *)(pRecord + 0x12 + i * 2) = (BYTE)value;
+        pRecord->fadedLevels[1][i] = (BYTE)value;
+        pRecord->levels[1][i] = (BYTE)value;
     }
-    if (pRecord[0x46] != 0) {
-        value = *(short *)(pRecord + 0xa) + (*(short *)(pRecord + 0x8) / 3) * 2;
+    if (pRecord->combineFirstTwoChannels != 0) {
+        value = pRecord->levels[0][1] + (pRecord->levels[0][0] / 3) * 2;
         if (value > 0xff)
             value = 0xff;
-        *(short *)(pRecord + 0xa) = (BYTE)value;
-        value = *(short *)(pRecord + 0x14) + (*(short *)(pRecord + 0x12) / 3) * 2;
+        pRecord->levels[0][1] = (BYTE)value;
+        value = pRecord->levels[1][1] + (pRecord->levels[1][0] / 3) * 2;
         if (value > 0xff)
             value = 0xff;
-        *(short *)(pRecord + 0x14) = (BYTE)value;
+        pRecord->levels[1][1] = (BYTE)value;
     } else {
-        *(short *)(pRecord + 0x8) = (short)((*(short *)(pRecord + 0x8) / 3) * 2);
-        *(short *)(pRecord + 0x12) = (short)((*(short *)(pRecord + 0x12) / 3) * 2);
+        pRecord->levels[0][0] = (short)((pRecord->levels[0][0] / 3) * 2);
+        pRecord->levels[1][0] = (short)((pRecord->levels[1][0] / 3) * 2);
     }
     for (i = 0; i < 5; i++) {
-        if (*(short *)(pRecord + 0x12 + i * 2) != *(short *)(pRecord + 0x26 + i * 2) ||
-            *(short *)(pRecord + 0x8 + i * 2) != *(short *)(pRecord + 0x1c + i * 2))
+        if (pRecord->levels[1][i] != pRecord->appliedLevels[1][i] ||
+            pRecord->levels[0][i] != pRecord->appliedLevels[0][i])
             changed = 1;
-        if (*(short *)(pRecord + 0x12 + i * 2) >= *(short *)(pRecord + 0x8 + i * 2))
-            values[i] = *(short *)(pRecord + 0x12 + i * 2);
+        if (pRecord->levels[1][i] >= pRecord->levels[0][i])
+            values[i] = pRecord->levels[1][i];
         else
-            values[i] = *(short *)(pRecord + 0x8 + i * 2);
+            values[i] = pRecord->levels[0][i];
     }
     if (changed != 0) {
-        Texture **ppTextures = (Texture **)pRecord;
+        Texture **ppTextures = pRecord->textures;
         Texture *pTexture;
 
         for (i = 0; i < 2; i++) {
@@ -4207,28 +4193,28 @@ void StageObject_AnimateCarLightLevels(int car)
             }
         }
         for (i = 0; i < 5; i++) {
-            *(short *)(pRecord + 0x1c + i * 2) = *(short *)(pRecord + 0x8 + i * 2);
-            *(short *)(pRecord + 0x26 + i * 2) = *(short *)(pRecord + 0x12 + i * 2);
+            pRecord->appliedLevels[0][i] = pRecord->levels[0][i];
+            pRecord->appliedLevels[1][i] = pRecord->levels[1][i];
         }
     }
 }
 
 // FUNCTION: CMR2 0x00477f30
-void StageObject_ResetDamageRecordIndices(void)
+void CarLight_InvalidateAppliedLevels(void)
 {
     int i;
 
     for (i = 0; i < 8; i++) {
-        ((short *)g_unk0x0058d6d0[i])[0xe] = -1;
-        ((short *)g_unk0x0058d6d0[i])[0xf] = -1;
-        ((short *)g_unk0x0058d6d0[i])[0x10] = -1;
-        ((short *)g_unk0x0058d6d0[i])[0x11] = -1;
-        ((short *)g_unk0x0058d6d0[i])[0x12] = -1;
-        ((short *)g_unk0x0058d6d0[i])[0x13] = -1;
-        ((short *)g_unk0x0058d6d0[i])[0x14] = -1;
-        ((short *)g_unk0x0058d6d0[i])[0x15] = -1;
-        ((short *)g_unk0x0058d6d0[i])[0x16] = -1;
-        ((short *)g_unk0x0058d6d0[i])[0x17] = -1;
+        g_carLightTextureStates[i].appliedLevels[0][0] = -1;
+        g_carLightTextureStates[i].appliedLevels[0][1] = -1;
+        g_carLightTextureStates[i].appliedLevels[0][2] = -1;
+        g_carLightTextureStates[i].appliedLevels[0][3] = -1;
+        g_carLightTextureStates[i].appliedLevels[0][4] = -1;
+        g_carLightTextureStates[i].appliedLevels[1][0] = -1;
+        g_carLightTextureStates[i].appliedLevels[1][1] = -1;
+        g_carLightTextureStates[i].appliedLevels[1][2] = -1;
+        g_carLightTextureStates[i].appliedLevels[1][3] = -1;
+        g_carLightTextureStates[i].appliedLevels[1][4] = -1;
     }
 }
 
@@ -4236,41 +4222,24 @@ int StageObject_GetCarWeatherRampValue(BYTE *pCar);
 char RallyData_GetUsableRecordCategory(BYTE param1);
 
 // GLOBAL: CMR2 0x005909b8
-int g_unk0x005909b8;
+int g_stageAmbientFlashLevel;
 // GLOBAL: CMR2 0x005909c0
-BYTE g_unk0x005909c0[4];
+BYTE g_stageAmbientBaseColour[4];
 // GLOBAL: CMR2 0x005909c4
-BYTE g_unk0x005909c4[4];
+BYTE g_stageAmbientFlashColour[4];
 
 // Per car: ticks until the next headlight glow may be spawned.
 // GLOBAL: CMR2 0x0058e4a8
-int g_unk0x0058e4a8[8];
+int g_carHeadlightGlowCooldowns[8];
 // Glow record of the stage objects: pRec offsets are relative to this base,
 // i.e. 0x18 bytes below the glow fields that 0x47d510 walks.
 // GLOBAL: CMR2 0x0058e4c8
-BYTE g_unk0x0058e4c8[100][0x5c];
+CarHeadlightGlowRecord g_carHeadlightGlowRecords[100];
 
-// One flying debris piece / headlight glow record (0x5c bytes, g_unk0x0058e4c8).
-struct DebrisRecord {
-    FixVector velocity;     // 0x00
-    FixVector position;     // 0x0c
-    FixVector normal;       // 0x18 ground normal under it
-    int fade;               // 0x24
-    FixVector prevPosition; // 0x28 values of the previous frame
-    FixVector prevNormal;   // 0x34
-    int prevFade;           // 0x40
-    int height;             // 0x44 ground height
-    int life;               // 0x48
-    short triangle;         // 0x4c ground triangle hint
-    short pad;
-    void *pGlow;           // 0x50
-    int active;             // 0x54
-    BYTE car;               // 0x58
-    BYTE pad2[3];
-};
+// One flying debris piece / headlight glow record (0x5c bytes, g_carHeadlightGlowRecords).
+
 // Same records as 0x47d5a0 walks, seen from their position field (+0xc): the
 // pointer arithmetic of that view lives in 0x47e1e0.
-#define g_unk0x0058e4d4 ((BYTE (*)[0x5c])((BYTE *)g_unk0x0058e4c8 + 0xc))
 
 // Spawns the headlight glow of one stage object: finds the first free record,
 // places it at the top corner of the car's bounding box, aims it along the
@@ -4285,11 +4254,11 @@ void StageObject_SpawnCarHeadlightGlow(BYTE car)
     FixVector half;
     Car *pCar;
     short surface;
-    DebrisRecord *pRec;
+    CarHeadlightGlowRecord *pRec;
     int i;
 
-    if (g_unk0x0058e4a8[car] <= 0) {
-        pRec = (DebrisRecord *)g_unk0x0058e4c8;
+    if (g_carHeadlightGlowCooldowns[car] <= 0) {
+        pRec = g_carHeadlightGlowRecords;
         i = 0;
         do {
             if (pRec->active == 0) {
@@ -4320,7 +4289,7 @@ void StageObject_SpawnCarHeadlightGlow(BYTE car)
                 pRec->prevNormal = pRec->normal;
                 pRec->prevFade = pRec->fade;
                 i = 100;
-                g_unk0x0058e4a8[car] = 0x100000;
+                g_carHeadlightGlowCooldowns[car] = 0x100000;
             }
             pRec++;
             i++;
@@ -4328,8 +4297,6 @@ void StageObject_SpawnCarHeadlightGlow(BYTE car)
     }
 }
 
-void Glow_SetPosition(GlowLight *pLight, FixVector *pPos, FixVector *pDir);
-void Glow_SetLayerPlane(GlowLight *pLight, FixVector *pPoint, FixVector *pNormal, int layerIntensity);
 
 // Interpolates every headlight glow between its spawn record (the copy at
 // +0x28/+0x34) and the current car state by the fraction t, normalises the
@@ -4350,24 +4317,25 @@ void StageObject_InterpolateHeadlightGlows(int t)
     int size;
     int i;
 
-    pRec = (int *)g_unk0x0058e4d4;
+    pRec = &g_carHeadlightGlowRecords[0].position.x;
+#define GLOW_RECORD (*(CarHeadlightGlowRecord *)((BYTE *)pRec - offsetof(CarHeadlightGlowRecord, position)))
     i = 100;
     do {
-        if (pRec[0x12] != 0) {
-            delta.x = pRec[0] - pRec[7];
-            delta.y = pRec[1] - pRec[8];
-            delta.z = pRec[2] - pRec[9];
+        if (GLOW_RECORD.active != 0) {
+            delta.x = GLOW_RECORD.position.x - GLOW_RECORD.prevPosition.x;
+            delta.y = GLOW_RECORD.position.y - GLOW_RECORD.prevPosition.y;
+            delta.z = GLOW_RECORD.position.z - GLOW_RECORD.prevPosition.z;
             FixVecScale(&delta, &delta, t);
-            pos.x = delta.x + pRec[7];
-            pos.y = delta.y + pRec[8];
-            pos.z = delta.z + pRec[9];
-            delta.x = pRec[3] - pRec[0xa];
-            delta.y = pRec[4] - pRec[0xb];
-            delta.z = pRec[5] - pRec[0xc];
+            pos.x = delta.x + GLOW_RECORD.prevPosition.x;
+            pos.y = delta.y + GLOW_RECORD.prevPosition.y;
+            pos.z = delta.z + GLOW_RECORD.prevPosition.z;
+            delta.x = GLOW_RECORD.normal.x - GLOW_RECORD.prevNormal.x;
+            delta.y = GLOW_RECORD.normal.y - GLOW_RECORD.prevNormal.y;
+            delta.z = GLOW_RECORD.normal.z - GLOW_RECORD.prevNormal.z;
             FixVecScale(&delta, &delta, t);
-            normal.x = delta.x + pRec[0xa];
-            normal.y = delta.y + pRec[0xb];
-            normal.z = delta.z + pRec[0xc];
+            normal.x = delta.x + GLOW_RECORD.prevNormal.x;
+            normal.y = delta.y + GLOW_RECORD.prevNormal.y;
+            normal.z = delta.z + GLOW_RECORD.prevNormal.z;
             length = FixVecLength(&normal);
             if (length == 0) {
                 normal.x = 0;
@@ -4376,34 +4344,35 @@ void StageObject_InterpolateHeadlightGlows(int t)
             } else {
                 FixVecScaleRecip(&normal, &normal, length);
             }
-            size = FixMul(pRec[6] - pRec[0xd], t) + pRec[0xd];
+            size = FixMul(GLOW_RECORD.fade - GLOW_RECORD.prevFade, t) + GLOW_RECORD.prevFade;
             if (size > 0) {
-                Glow_SetEntryByte50((BYTE *)pRec[0x11], 1);
-                Glow_SetEntryValue3C((BYTE *)pRec[0x11], size);
-                Glow_SetPosition((GlowLight *)pRec[0x11], &pos, &pos);
+                Glow_SetEnabled(GLOW_RECORD.pGlow, 1);
+                Glow_SetIntensity(GLOW_RECORD.pGlow, size);
+                Glow_SetPosition(GLOW_RECORD.pGlow, &pos, &pos);
                 ground = pos;
                 ground.y -= 0x8000;
-                Glow_SetLayerPlane((GlowLight *)pRec[0x11], &ground, &normal, 0);
+                Glow_SetLayerPlane(GLOW_RECORD.pGlow, &ground, &normal, 0);
             } else {
-                Glow_SetEntryByte50((BYTE *)pRec[0x11], 0);
+                Glow_SetEnabled(GLOW_RECORD.pGlow, 0);
             }
         } else {
-            Glow_SetEntryByte50((BYTE *)pRec[0x11], 0);
+            Glow_SetEnabled(GLOW_RECORD.pGlow, 0);
         }
-        pRec += 0x17;
+        pRec += sizeof(CarHeadlightGlowRecord) / sizeof(*pRec);
     } while (--i);
+#undef GLOW_RECORD
 }
 
 // FUNCTION: CMR2 0x0047e490
 void StageObject_SetVehicleEffectColour(BYTE *pColour)
 {
-    g_unk0x005909c0[0] = pColour[0];
-    g_unk0x005909c0[1] = pColour[1];
-    g_unk0x005909c0[2] = pColour[2];
-    g_unk0x005909c4[0] = 0xff;
-    g_unk0x005909c4[1] = 0xff;
-    g_unk0x005909c4[2] = 0xff;
-    g_unk0x005909b8 = 0;
+    g_stageAmbientBaseColour[0] = pColour[0];
+    g_stageAmbientBaseColour[1] = pColour[1];
+    g_stageAmbientBaseColour[2] = pColour[2];
+    g_stageAmbientFlashColour[0] = 0xff;
+    g_stageAmbientFlashColour[1] = 0xff;
+    g_stageAmbientFlashColour[2] = 0xff;
+    g_stageAmbientFlashLevel = 0;
 }
 
 // Fades the stage ambient colour towards the base colour while the 0x5909b8
@@ -4419,25 +4388,25 @@ void StageObject_FadeAmbientColourToBase(void)
     int scale;
     int scale_2;
 
-    length = FixSqrt(g_unk0x005909b8);
-    scale = (g_unk0x005909c4[0] & 0xff) << 16;
-    scale = (FixMul(scale, length) >> 16) + (g_unk0x005909c0[0] & 0xff);
+    length = FixSqrt(g_stageAmbientFlashLevel);
+    scale = (g_stageAmbientFlashColour[0] & 0xff) << 16;
+    scale = (FixMul(scale, length) >> 16) + (g_stageAmbientBaseColour[0] & 0xff);
     if (scale > 0xff)
         scale = 0xff;
     colour[0] = scale;
-    scale_2 = (g_unk0x005909c4[1] & 0xff) << 16;
-    scale_2 = (FixMul(scale_2, length) >> 16) + (g_unk0x005909c0[1] & 0xff);
+    scale_2 = (g_stageAmbientFlashColour[1] & 0xff) << 16;
+    scale_2 = (FixMul(scale_2, length) >> 16) + (g_stageAmbientBaseColour[1] & 0xff);
     if (scale_2 > 0xff)
         scale_2 = 0xff;
     colour[1] = scale_2;
-    scale_2 = (g_unk0x005909c4[2] & 0xff) << 16;
-    scale_2 = (FixMul(scale_2, length) >> 16) + (g_unk0x005909c0[2] & 0xff);
+    scale_2 = (g_stageAmbientFlashColour[2] & 0xff) << 16;
+    scale_2 = (FixMul(scale_2, length) >> 16) + (g_stageAmbientBaseColour[2] & 0xff);
     if (scale_2 > 0xff)
         scale_2 = 0xff;
     colour[2] = scale_2;
-    g_unk0x005909b8 -= 0x8000;
-    if (g_unk0x005909b8 < 0)
-        g_unk0x005909b8 = 0;
+    g_stageAmbientFlashLevel -= 0x8000;
+    if (g_stageAmbientFlashLevel < 0)
+        g_stageAmbientFlashLevel = 0;
     Scene_SetAmbient(colour, 1);
 }
 
@@ -4558,7 +4527,7 @@ void StageObject_SetLevelFromContactType(BYTE *pCar, BYTE *pInfo)
         value = 0;
     else
         value = 0x10000;
-    g_unk0x00590db0[*pCar] = value;
+    g_viewObjectLevels[*pCar] = value;
 }
 
 int Knockout_HasHumanLostMatch(KnockoutMatch *pMatch);
@@ -4850,32 +4819,32 @@ void CarDamage_BuildRelativeVelocityHull(Car *pCar, CarPartSet *pParts)
     } while ((int)pOut < (int)&g_stageDeformHull[12]);
 }
 
-// Builds the deformation offset, normal and impact vectors plus the strength
-// and mode flags from a per-car byte record (angles, break flags, scale).
+// Decodes one packed impact into the car dent position, normal, axis, strength
+// and mode; the mode 1 radius is expanded from its unsigned quantised byte.
 // match 89%: the original folds the 0x10000<<16 division into a plain IDIV in
 // the two later scale blocks, and stores the mode as a byte (declared int in
 // StageTiming.cpp)
 // FUNCTION: CMR2 0x004688b0
-void StageObject_BuildDeformationVectors(BYTE *p)
+void CarDamage_DecodeImpactPayload(CarImpactPayload *p)
 {
-    g_stageDeformOffset.x = (char)p[9] << 16;
-    g_stageDeformOffset.y = (char)p[10] << 16;
-    g_stageDeformOffset.z = (char)p[11] << 16;
+    g_stageDeformOffset.x = (char)p->position[0] << 16;
+    g_stageDeformOffset.y = (char)p->position[1] << 16;
+    g_stageDeformOffset.z = (char)p->position[2] << 16;
     FixVecScale(&g_stageDeformOffset, &g_stageDeformOffset,
                 FixMul(0xa0000, FixDiv(0x10000, 0x7f0000)));
-    g_stageDeformNormal.x = (char)p[3] << 16;
-    g_stageDeformNormal.y = (char)p[4] << 16;
-    g_stageDeformNormal.z = (char)p[5] << 16;
+    g_stageDeformNormal.x = (char)p->normal[0] << 16;
+    g_stageDeformNormal.y = (char)p->normal[1] << 16;
+    g_stageDeformNormal.z = (char)p->normal[2] << 16;
     FixVecScaleRecip(&g_stageDeformNormal, &g_stageDeformNormal, 0x7f0000);
-    g_stageDeformImpact.x = (char)p[6] << 16;
-    g_stageDeformImpact.y = (char)p[7] << 16;
-    g_stageDeformImpact.z = (char)p[8] << 16;
+    g_stageDeformImpact.x = (char)p->axis[0] << 16;
+    g_stageDeformImpact.y = (char)p->axis[1] << 16;
+    g_stageDeformImpact.z = (char)p->axis[2] << 16;
     FixVecScaleRecip(&g_stageDeformImpact, &g_stageDeformImpact, 0x7f0000);
-    g_stageDeformStrength = (BYTE)p[0] << 16;
+    g_stageDeformStrength = (BYTE)p->strength << 16;
     g_stageDeformStrength = FixDiv(g_stageDeformStrength, 0xff0000);
-    *(BYTE *)&g_stageDeformMode = p[1];
-    if (p[1] == 1) {
-        g_stageDeformSpeed = (BYTE)p[2] << 16;
+    *(BYTE *)&g_stageDeformMode = p->mode;
+    if (p->mode == 1) {
+        g_stageDeformSpeed = (BYTE)p->axisRadius << 16;
         g_stageDeformSpeed = FixMul(g_stageDeformSpeed, FixMul(0xa0000, FixDiv(0x10000, 0xff0000)));
     }
 }
@@ -5044,7 +5013,7 @@ int CarDamage_AverageVertexDisplacement(Car *pCar, CarPartSet *set)
     int dz;
     int dist;
 
-    if (g_unk0x00588970[pCar->index] == 0)
+    if (g_carDamageModelEnabled[pCar->index] == 0)
         return 0;
     partA = StageObject_GetCarPartTableValue(1, pCar->index);
     partB = StageObject_GetCarPartTableValue(3, pCar->index);
@@ -5061,12 +5030,12 @@ skip:
         }
         {
             for (j = 0; j < set->vertexCount[i]; j++) {
-                dx = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[0] * CGraphics::m_65536) -
-                     set->vertices[i][j].pos.x;
-                dy = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[1] * CGraphics::m_65536) -
-                     set->vertices[i][j].pos.y;
-                dz = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[2] * CGraphics::m_65536) -
-                     set->vertices[i][j].pos.z;
+                dx = (int)(__int64)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[0] * CGraphics::m_65536) -
+                     set->geometry.vertices[i][j].pos.x;
+                dy = (int)(__int64)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[1] * CGraphics::m_65536) -
+                     set->geometry.vertices[i][j].pos.y;
+                dz = (int)(__int64)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[2] * CGraphics::m_65536) -
+                     set->geometry.vertices[i][j].pos.z;
                 dist = FIX_ABS(dx) + FIX_ABS(dy) + FIX_ABS(dz);
                 dist = FixMul(dist, 0x50000);
                 if (dist > 0x10000)
@@ -5085,207 +5054,207 @@ skip:
 void StageObject_SetLighting(const StageLightPreset *pPrimary, const StageLightPreset *pSecondary)
 {
     Stage_InitLightMeshes();
-    *(WORD *)&g_stageLighting[0x5c] = 0xffff;
+    g_stageLighting.lightningSector = 0xffff;
     int *pWeatherPair = RallyData_GetDriverSettingPair(RallyDataStageIndex());
-    g_stageLighting[0x2c] = g_stageWeatherIntensity[pWeatherPair[0]];
-    g_stageLighting[0x59] = g_stageWeatherIntensity[pWeatherPair[1]];
+    g_stageLighting.primary.intensity = g_stageWeatherIntensity[pWeatherPair[0]];
+    g_stageLighting.secondary.intensity = g_stageWeatherIntensity[pWeatherPair[1]];
     if (pPrimary != NULL && pSecondary != NULL) {
-        g_stageLighting[0x1b] = pPrimary->dir.x;
-        g_stageLighting[0x1c] = pPrimary->dir.y;
-        g_stageLighting[0x1d] = pPrimary->dir.z;
-        g_stageLighting[0x48] = pSecondary->dir.x;
-        g_stageLighting[0x49] = pSecondary->dir.y;
-        g_stageLighting[0x4a] = pSecondary->dir.z;
-        Track_ShiftMeshAndAmbientHeights(pPrimary->dir.x, pPrimary->dir.y, pPrimary->dir.z);
+        g_stageLighting.primary.meshHeightParameters.x = pPrimary->meshHeightParameters.x;
+        g_stageLighting.primary.meshHeightParameters.y = pPrimary->meshHeightParameters.y;
+        g_stageLighting.primary.meshHeightParameters.z = pPrimary->meshHeightParameters.z;
+        g_stageLighting.secondary.meshHeightParameters.x = pSecondary->meshHeightParameters.x;
+        g_stageLighting.secondary.meshHeightParameters.y = pSecondary->meshHeightParameters.y;
+        g_stageLighting.secondary.meshHeightParameters.z = pSecondary->meshHeightParameters.z;
+        Track_ShiftMeshAndAmbientHeights(pPrimary->meshHeightParameters.x, pPrimary->meshHeightParameters.y, pPrimary->meshHeightParameters.z);
         StageObject_SetStageLightState(0x10000);
         {
             unsigned int r = pPrimary->colour[0][0];
             unsigned int g = pPrimary->colour[0][1];
             unsigned int b = pPrimary->colour[0][2];
-            g_stageLighting[0x0] = (unsigned int)pPrimary->colour[1][0] << 0x10;
-            g_stageLighting[0x1] = (unsigned int)pPrimary->colour[1][1] << 0x10;
-            g_stageLighting[0x2] = (unsigned int)pPrimary->colour[1][2] << 0x10;
-            g_stageLighting[0x3] = (r << 0x10) - g_stageLighting[0x0];
-            g_stageLighting[0x4] = (g << 0x10) - g_stageLighting[0x1];
-            g_stageLighting[0x5] = (b << 0x10) - g_stageLighting[0x2];
+            g_stageLighting.primary.lowColour.x = (unsigned int)pPrimary->colour[1][0] << 0x10;
+            g_stageLighting.primary.lowColour.y = (unsigned int)pPrimary->colour[1][1] << 0x10;
+            g_stageLighting.primary.lowColour.z = (unsigned int)pPrimary->colour[1][2] << 0x10;
+            g_stageLighting.primary.highColourDelta.x = (r << 0x10) - g_stageLighting.primary.lowColour.x;
+            g_stageLighting.primary.highColourDelta.y = (g << 0x10) - g_stageLighting.primary.lowColour.y;
+            g_stageLighting.primary.highColourDelta.z = (b << 0x10) - g_stageLighting.primary.lowColour.z;
         }
-        g_stageLighting[0x2d] = (unsigned int)pSecondary->colour[1][0] << 0x10;
-        g_stageLighting[0x2e] = (unsigned int)pSecondary->colour[1][1] << 0x10;
-        g_stageLighting[0x2f] = (unsigned int)pSecondary->colour[1][2] << 0x10;
-        g_stageLighting[0x30] = ((unsigned int)pSecondary->colour[0][0] << 0x10) - g_stageLighting[0x2d];
-        g_stageLighting[0x31] = ((unsigned int)pSecondary->colour[0][1] << 0x10) - g_stageLighting[0x2e];
-        g_stageLighting[0x32] = ((unsigned int)pSecondary->colour[0][2] << 0x10) - g_stageLighting[0x2f];
-        g_stageLighting[0x6] = (unsigned int)pPrimary->colour[2][0] << 0x10;
-        g_stageLighting[0x7] = (unsigned int)pPrimary->colour[2][1] << 0x10;
-        g_stageLighting[0x8] = (unsigned int)pPrimary->colour[2][2] << 0x10;
-        g_stageLighting[0x33] = (unsigned int)pSecondary->colour[2][0] << 0x10;
-        g_stageLighting[0x34] = (unsigned int)pSecondary->colour[2][1] << 0x10;
-        g_stageLighting[0x35] = (unsigned int)pSecondary->colour[2][2] << 0x10;
-        g_stageLighting[0x27] = FixDiv((int)pPrimary->colour[2][3] << 16, 0xff0000);
-        g_stageLighting[0x54] = FixDiv((int)pSecondary->colour[2][3] << 16, 0xff0000);
-        g_stageLighting[0x9] = (unsigned int)pPrimary->colour[8][0] << 0x10;
-        g_stageLighting[0xa] = (unsigned int)pPrimary->colour[8][1] << 0x10;
-        g_stageLighting[0xb] = (unsigned int)pPrimary->colour[8][2] << 0x10;
-        g_stageLighting[0x36] = (unsigned int)pSecondary->colour[8][0] << 0x10;
-        g_stageLighting[0x37] = (unsigned int)pSecondary->colour[8][1] << 0x10;
-        g_stageLighting[0x38] = (unsigned int)pSecondary->colour[8][2] << 0x10;
-        g_stageLighting[0x2b] = pPrimary->field_0x10;
-        g_stageLighting[0x58] = pSecondary->field_0x10;
-        g_stageLighting[0x18] = (unsigned int)pPrimary->colour[6][0] << 0x10;
-        g_stageLighting[0x19] = (unsigned int)pPrimary->colour[6][1] << 0x10;
-        g_stageLighting[0x1a] = (unsigned int)pPrimary->colour[6][2] << 0x10;
-        g_stageLighting[0x45] = (unsigned int)pSecondary->colour[6][0] << 0x10;
-        g_stageLighting[0x46] = (unsigned int)pSecondary->colour[6][1] << 0x10;
-        g_stageLighting[0x47] = (unsigned int)pSecondary->colour[6][2] << 0x10;
-        g_stageLighting[0x2a] = (unsigned int)pPrimary->colour[6][3] << 0x10;
-        g_stageLighting[0x57] = (unsigned int)pSecondary->colour[6][3] << 0x10;
-        g_stageLighting[0x15] = (unsigned int)pPrimary->colour[7][0] << 0x10;
-        g_stageLighting[0x16] = (unsigned int)pPrimary->colour[7][1] << 0x10;
-        g_stageLighting[0x17] = (unsigned int)pPrimary->colour[7][2] << 0x10;
-        g_stageLighting[0x42] = (unsigned int)pSecondary->colour[7][0] << 0x10;
-        g_stageLighting[0x43] = (unsigned int)pSecondary->colour[7][1] << 0x10;
-        g_stageLighting[0x44] = (unsigned int)pSecondary->colour[7][2] << 0x10;
-        g_stageLighting[0xc] = (unsigned int)pPrimary->colour[3][0] << 0x10;
-        g_stageLighting[0xd] = (unsigned int)pPrimary->colour[3][1] << 0x10;
-        g_stageLighting[0xe] = (unsigned int)pPrimary->colour[3][2] << 0x10;
-        g_stageLighting[0x39] = (unsigned int)pSecondary->colour[3][0] << 0x10;
-        g_stageLighting[0x3a] = (unsigned int)pSecondary->colour[3][1] << 0x10;
-        g_stageLighting[0x3b] = (unsigned int)pSecondary->colour[3][2] << 0x10;
-        g_stageLighting[0x28] = FixDiv((int)pPrimary->colour[3][3] << 16, 0xff0000);
-        g_stageLighting[0x55] = FixDiv((int)pSecondary->colour[3][3] << 16, 0xff0000);
-        g_stageLighting[0xf] = (unsigned int)pPrimary->colour[4][0] << 0x10;
-        g_stageLighting[0x10] = (unsigned int)pPrimary->colour[4][1] << 0x10;
-        g_stageLighting[0x11] = (unsigned int)pPrimary->colour[4][2] << 0x10;
-        g_stageLighting[0x3c] = (unsigned int)pSecondary->colour[4][0] << 0x10;
-        g_stageLighting[0x3d] = (unsigned int)pSecondary->colour[4][1] << 0x10;
-        g_stageLighting[0x3e] = (unsigned int)pSecondary->colour[4][2] << 0x10;
-        g_stageLighting[0x29] = (int)((unsigned int)pPrimary->colour[4][3] << 0x10);
-        g_stageLighting[0x56] = (int)((unsigned int)pSecondary->colour[4][3] << 0x10);
-        g_stageLighting[0x12] = (unsigned int)pPrimary->colour[5][0] << 0x10;
-        g_stageLighting[0x13] = (unsigned int)pPrimary->colour[5][1] << 0x10;
-        g_stageLighting[0x14] = (unsigned int)pPrimary->colour[5][2] << 0x10;
-        g_stageLighting[0x3f] = (unsigned int)pSecondary->colour[5][0] << 0x10;
-        g_stageLighting[0x40] = (unsigned int)pSecondary->colour[5][1] << 0x10;
-        g_stageLighting[0x41] = (unsigned int)pSecondary->colour[5][2] << 0x10;
-        g_stageLighting[0x1e] = (unsigned int)pPrimary->colour[10][0] << 0x10;
-        g_stageLighting[0x1f] = (unsigned int)pPrimary->colour[10][1] << 0x10;
-        g_stageLighting[0x20] = (unsigned int)pPrimary->colour[10][2] << 0x10;
-        g_stageLighting[0x25] = pPrimary->field_0x14;
-        g_stageLighting[0x26] = pPrimary->field_0x18;
-        g_stageLighting[0x4b] = (unsigned int)pSecondary->colour[10][0] << 0x10;
-        g_stageLighting[0x4c] = (unsigned int)pSecondary->colour[10][1] << 0x10;
-        g_stageLighting[0x4d] = (unsigned int)pSecondary->colour[10][2] << 0x10;
-        g_stageLighting[0x52] = pSecondary->field_0x14;
-        g_stageLighting[0x53] = pSecondary->field_0x18;
-        g_stageLighting[0x21] = (unsigned int)pPrimary->colour[9][0] << 0x10;
-        g_stageLighting[0x22] = (unsigned int)pPrimary->colour[9][1] << 0x10;
-        g_stageLighting[0x23] = (unsigned int)pPrimary->colour[9][2] << 0x10;
-        g_stageLighting[0x24] = (unsigned int)pPrimary->colour[9][3] << 0x10;
-        g_stageLighting[0x4e] = (unsigned int)pSecondary->colour[9][0] << 0x10;
-        g_stageLighting[0x4f] = (unsigned int)pSecondary->colour[9][1] << 0x10;
-        g_stageLighting[0x50] = (unsigned int)pSecondary->colour[9][2] << 0x10;
-        g_stageLighting[0x51] = (unsigned int)pSecondary->colour[9][3] << 0x10;
+        g_stageLighting.secondary.lowColour.x = (unsigned int)pSecondary->colour[1][0] << 0x10;
+        g_stageLighting.secondary.lowColour.y = (unsigned int)pSecondary->colour[1][1] << 0x10;
+        g_stageLighting.secondary.lowColour.z = (unsigned int)pSecondary->colour[1][2] << 0x10;
+        g_stageLighting.secondary.highColourDelta.x = ((unsigned int)pSecondary->colour[0][0] << 0x10) - g_stageLighting.secondary.lowColour.x;
+        g_stageLighting.secondary.highColourDelta.y = ((unsigned int)pSecondary->colour[0][1] << 0x10) - g_stageLighting.secondary.lowColour.y;
+        g_stageLighting.secondary.highColourDelta.z = ((unsigned int)pSecondary->colour[0][2] << 0x10) - g_stageLighting.secondary.lowColour.z;
+        g_stageLighting.primary.heightReferenceColour.x = (unsigned int)pPrimary->colour[2][0] << 0x10;
+        g_stageLighting.primary.heightReferenceColour.y = (unsigned int)pPrimary->colour[2][1] << 0x10;
+        g_stageLighting.primary.heightReferenceColour.z = (unsigned int)pPrimary->colour[2][2] << 0x10;
+        g_stageLighting.secondary.heightReferenceColour.x = (unsigned int)pSecondary->colour[2][0] << 0x10;
+        g_stageLighting.secondary.heightReferenceColour.y = (unsigned int)pSecondary->colour[2][1] << 0x10;
+        g_stageLighting.secondary.heightReferenceColour.z = (unsigned int)pSecondary->colour[2][2] << 0x10;
+        g_stageLighting.primary.heightReferenceBlend = FixDiv((int)pPrimary->colour[2][3] << 16, 0xff0000);
+        g_stageLighting.secondary.heightReferenceBlend = FixDiv((int)pSecondary->colour[2][3] << 16, 0xff0000);
+        g_stageLighting.primary.sunIconColour.x = (unsigned int)pPrimary->colour[8][0] << 0x10;
+        g_stageLighting.primary.sunIconColour.y = (unsigned int)pPrimary->colour[8][1] << 0x10;
+        g_stageLighting.primary.sunIconColour.z = (unsigned int)pPrimary->colour[8][2] << 0x10;
+        g_stageLighting.secondary.sunIconColour.x = (unsigned int)pSecondary->colour[8][0] << 0x10;
+        g_stageLighting.secondary.sunIconColour.y = (unsigned int)pSecondary->colour[8][1] << 0x10;
+        g_stageLighting.secondary.sunIconColour.z = (unsigned int)pSecondary->colour[8][2] << 0x10;
+        g_stageLighting.primary.sunIconSize = pPrimary->sunIconSize;
+        g_stageLighting.secondary.sunIconSize = pSecondary->sunIconSize;
+        g_stageLighting.primary.mesh5Colour.x = (unsigned int)pPrimary->colour[6][0] << 0x10;
+        g_stageLighting.primary.mesh5Colour.y = (unsigned int)pPrimary->colour[6][1] << 0x10;
+        g_stageLighting.primary.mesh5Colour.z = (unsigned int)pPrimary->colour[6][2] << 0x10;
+        g_stageLighting.secondary.mesh5Colour.x = (unsigned int)pSecondary->colour[6][0] << 0x10;
+        g_stageLighting.secondary.mesh5Colour.y = (unsigned int)pSecondary->colour[6][1] << 0x10;
+        g_stageLighting.secondary.mesh5Colour.z = (unsigned int)pSecondary->colour[6][2] << 0x10;
+        g_stageLighting.primary.mesh5Alpha = (unsigned int)pPrimary->colour[6][3] << 0x10;
+        g_stageLighting.secondary.mesh5Alpha = (unsigned int)pSecondary->colour[6][3] << 0x10;
+        g_stageLighting.primary.lightColour.x = (unsigned int)pPrimary->colour[7][0] << 0x10;
+        g_stageLighting.primary.lightColour.y = (unsigned int)pPrimary->colour[7][1] << 0x10;
+        g_stageLighting.primary.lightColour.z = (unsigned int)pPrimary->colour[7][2] << 0x10;
+        g_stageLighting.secondary.lightColour.x = (unsigned int)pSecondary->colour[7][0] << 0x10;
+        g_stageLighting.secondary.lightColour.y = (unsigned int)pSecondary->colour[7][1] << 0x10;
+        g_stageLighting.secondary.lightColour.z = (unsigned int)pSecondary->colour[7][2] << 0x10;
+        g_stageLighting.primary.groundColour.x = (unsigned int)pPrimary->colour[3][0] << 0x10;
+        g_stageLighting.primary.groundColour.y = (unsigned int)pPrimary->colour[3][1] << 0x10;
+        g_stageLighting.primary.groundColour.z = (unsigned int)pPrimary->colour[3][2] << 0x10;
+        g_stageLighting.secondary.groundColour.x = (unsigned int)pSecondary->colour[3][0] << 0x10;
+        g_stageLighting.secondary.groundColour.y = (unsigned int)pSecondary->colour[3][1] << 0x10;
+        g_stageLighting.secondary.groundColour.z = (unsigned int)pSecondary->colour[3][2] << 0x10;
+        g_stageLighting.primary.groundReferenceBlend = FixDiv((int)pPrimary->colour[3][3] << 16, 0xff0000);
+        g_stageLighting.secondary.groundReferenceBlend = FixDiv((int)pSecondary->colour[3][3] << 16, 0xff0000);
+        g_stageLighting.primary.objectColour.x = (unsigned int)pPrimary->colour[4][0] << 0x10;
+        g_stageLighting.primary.objectColour.y = (unsigned int)pPrimary->colour[4][1] << 0x10;
+        g_stageLighting.primary.objectColour.z = (unsigned int)pPrimary->colour[4][2] << 0x10;
+        g_stageLighting.secondary.objectColour.x = (unsigned int)pSecondary->colour[4][0] << 0x10;
+        g_stageLighting.secondary.objectColour.y = (unsigned int)pSecondary->colour[4][1] << 0x10;
+        g_stageLighting.secondary.objectColour.z = (unsigned int)pSecondary->colour[4][2] << 0x10;
+        g_stageLighting.primary.objectAlpha = (int)((unsigned int)pPrimary->colour[4][3] << 0x10);
+        g_stageLighting.secondary.objectAlpha = (int)((unsigned int)pSecondary->colour[4][3] << 0x10);
+        g_stageLighting.primary.ambientColour.x = (unsigned int)pPrimary->colour[5][0] << 0x10;
+        g_stageLighting.primary.ambientColour.y = (unsigned int)pPrimary->colour[5][1] << 0x10;
+        g_stageLighting.primary.ambientColour.z = (unsigned int)pPrimary->colour[5][2] << 0x10;
+        g_stageLighting.secondary.ambientColour.x = (unsigned int)pSecondary->colour[5][0] << 0x10;
+        g_stageLighting.secondary.ambientColour.y = (unsigned int)pSecondary->colour[5][1] << 0x10;
+        g_stageLighting.secondary.ambientColour.z = (unsigned int)pSecondary->colour[5][2] << 0x10;
+        g_stageLighting.primary.fogColour.x = (unsigned int)pPrimary->colour[10][0] << 0x10;
+        g_stageLighting.primary.fogColour.y = (unsigned int)pPrimary->colour[10][1] << 0x10;
+        g_stageLighting.primary.fogColour.z = (unsigned int)pPrimary->colour[10][2] << 0x10;
+        g_stageLighting.primary.fogStart = pPrimary->fogStart;
+        g_stageLighting.primary.fogEnd = pPrimary->fogEnd;
+        g_stageLighting.secondary.fogColour.x = (unsigned int)pSecondary->colour[10][0] << 0x10;
+        g_stageLighting.secondary.fogColour.y = (unsigned int)pSecondary->colour[10][1] << 0x10;
+        g_stageLighting.secondary.fogColour.z = (unsigned int)pSecondary->colour[10][2] << 0x10;
+        g_stageLighting.secondary.fogStart = pSecondary->fogStart;
+        g_stageLighting.secondary.fogEnd = pSecondary->fogEnd;
+        g_stageLighting.primary.skyColour.x = (unsigned int)pPrimary->colour[9][0] << 0x10;
+        g_stageLighting.primary.skyColour.y = (unsigned int)pPrimary->colour[9][1] << 0x10;
+        g_stageLighting.primary.skyColour.z = (unsigned int)pPrimary->colour[9][2] << 0x10;
+        g_stageLighting.primary.skyAlpha = (unsigned int)pPrimary->colour[9][3] << 0x10;
+        g_stageLighting.secondary.skyColour.x = (unsigned int)pSecondary->colour[9][0] << 0x10;
+        g_stageLighting.secondary.skyColour.y = (unsigned int)pSecondary->colour[9][1] << 0x10;
+        g_stageLighting.secondary.skyColour.z = (unsigned int)pSecondary->colour[9][2] << 0x10;
+        g_stageLighting.secondary.skyAlpha = (unsigned int)pSecondary->colour[9][3] << 0x10;
     } else {
-        g_stageLighting[0x1b] = 0xfffb0000;
-        g_stageLighting[0x1c] = 0xffda0000;
-        g_stageLighting[0x1d] = 0xfff30000;
-        g_stageLighting[0x48] = 0xfffb0000;
-        g_stageLighting[0x49] = 0xffda0000;
-        g_stageLighting[0x4a] = 0xfff30000;
+        g_stageLighting.primary.meshHeightParameters.x = 0xfffb0000;
+        g_stageLighting.primary.meshHeightParameters.y = 0xffda0000;
+        g_stageLighting.primary.meshHeightParameters.z = 0xfff30000;
+        g_stageLighting.secondary.meshHeightParameters.x = 0xfffb0000;
+        g_stageLighting.secondary.meshHeightParameters.y = 0xffda0000;
+        g_stageLighting.secondary.meshHeightParameters.z = 0xfff30000;
         Track_ShiftMeshAndAmbientHeights(0xfffb0000, 0xffda0000, 0xfff30000);
         StageObject_SetStageLightState(0x10000);
-        g_stageLighting[0x3] = -0x5d0000;
-        g_stageLighting[0x6] = 0xff0000;
-        g_stageLighting[0x30] = g_stageLighting[0x3];
-        g_stageLighting[0x4] = -0x620000;
-        g_stageLighting[0x5] = 0;
-        g_stageLighting[0x7] = 0xff0000;
-        g_stageLighting[0x8] = 0xff0000;
-        g_stageLighting[0x1e] = 0;
-        g_stageLighting[0x1f] = 0;
-        g_stageLighting[0x20] = 0;
-        g_stageLighting[0x25] = 0;
-        g_stageLighting[0x26] = 0;
-        g_stageLighting[0x21] = 0;
-        g_stageLighting[0x22] = 0;
-        g_stageLighting[0x31] = g_stageLighting[0x4];
-        g_stageLighting[0x32] = g_stageLighting[0x5];
-        g_stageLighting[0x9] = 0xff0000;
-        g_stageLighting[0x33] = g_stageLighting[0x6];
-        g_stageLighting[0xa] = 0xff0000;
-        g_stageLighting[0xb] = 0xff0000;
-        g_stageLighting[0x34] = g_stageLighting[0x7];
-        g_stageLighting[0x35] = g_stageLighting[0x8];
-        g_stageLighting[0x2] = 0xff0000;
-        g_stageLighting[0x36] = g_stageLighting[0x9];
-        g_stageLighting[0x0] = 0xbc0000;
-        g_stageLighting[0x1] = 0xca0000;
-        g_stageLighting[0x29] = 0x640000;
-        g_stageLighting[0x2b] = 0xfa0000;
-        g_stageLighting[0x27] = 0x8000;
-        g_stageLighting[0x18] = 0xff0000;
-        g_stageLighting[0x19] = 0xff0000;
-        g_stageLighting[0x1a] = 0xff0000;
-        g_stageLighting[0x2a] = 0xff0000;
-        g_stageLighting[0x15] = 0xff0000;
-        g_stageLighting[0x16] = 0xff0000;
-        g_stageLighting[0x17] = 0xff0000;
-        g_stageLighting[0xc] = 0x9b0000;
-        g_stageLighting[0xd] = 0x9b0000;
-        g_stageLighting[0xe] = 0x9b0000;
-        g_stageLighting[0x28] = 0x8000;
-        g_stageLighting[0xf] = 0xff0000;
-        g_stageLighting[0x10] = 0xff0000;
-        g_stageLighting[0x11] = 0xff0000;
-        g_stageLighting[0x12] = 0xc80000;
-        g_stageLighting[0x13] = 0xc80000;
-        g_stageLighting[0x14] = 0xc80000;
-        g_stageLighting[0x23] = 0;
-        g_stageLighting[0x24] = 0;
-        g_stageLighting[0x37] = g_stageLighting[0xa];
-        g_stageLighting[0x38] = g_stageLighting[0xb];
-        g_stageLighting[0x58] = g_stageLighting[0x2b];
-        g_stageLighting[0x2d] = g_stageLighting[0x0];
-        g_stageLighting[0x2e] = g_stageLighting[0x1];
-        g_stageLighting[0x45] = g_stageLighting[0x18];
-        g_stageLighting[0x46] = g_stageLighting[0x19];
-        g_stageLighting[0x47] = g_stageLighting[0x1a];
-        g_stageLighting[0x42] = g_stageLighting[0x15];
-        g_stageLighting[0x43] = g_stageLighting[0x16];
-        g_stageLighting[0x44] = g_stageLighting[0x17];
-        g_stageLighting[0x39] = g_stageLighting[0xc];
-        g_stageLighting[0x2f] = g_stageLighting[0x2];
-        g_stageLighting[0x3a] = g_stageLighting[0xd];
-        g_stageLighting[0x3b] = g_stageLighting[0xe];
-        g_stageLighting[0x54] = g_stageLighting[0x27];
-        g_stageLighting[0x55] = g_stageLighting[0x28];
-        g_stageLighting[0x3c] = g_stageLighting[0xf];
-        g_stageLighting[0x3e] = g_stageLighting[0x11];
-        g_stageLighting[0x3d] = g_stageLighting[0x10];
-        g_stageLighting[0x3f] = g_stageLighting[0x12];
-        g_stageLighting[0x41] = g_stageLighting[0x14];
-        g_stageLighting[0x40] = g_stageLighting[0x13];
-        g_stageLighting[0x4b] = g_stageLighting[0x1e];
-        g_stageLighting[0x4d] = g_stageLighting[0x20];
-        g_stageLighting[0x4c] = g_stageLighting[0x1f];
-        g_stageLighting[0x4e] = g_stageLighting[0x21];
-        g_stageLighting[0x57] = g_stageLighting[0x2a];
-        g_stageLighting[0x56] = g_stageLighting[0x29];
-        g_stageLighting[0x52] = g_stageLighting[0x25];
-        g_stageLighting[0x53] = g_stageLighting[0x26];
-        g_stageLighting[0x4f] = g_stageLighting[0x22];
-        g_stageLighting[0x50] = g_stageLighting[0x23];
-        g_stageLighting[0x51] = g_stageLighting[0x24];
+        g_stageLighting.primary.highColourDelta.x = -0x5d0000;
+        g_stageLighting.primary.heightReferenceColour.x = 0xff0000;
+        g_stageLighting.secondary.highColourDelta.x = g_stageLighting.primary.highColourDelta.x;
+        g_stageLighting.primary.highColourDelta.y = -0x620000;
+        g_stageLighting.primary.highColourDelta.z = 0;
+        g_stageLighting.primary.heightReferenceColour.y = 0xff0000;
+        g_stageLighting.primary.heightReferenceColour.z = 0xff0000;
+        g_stageLighting.primary.fogColour.x = 0;
+        g_stageLighting.primary.fogColour.y = 0;
+        g_stageLighting.primary.fogColour.z = 0;
+        g_stageLighting.primary.fogStart = 0;
+        g_stageLighting.primary.fogEnd = 0;
+        g_stageLighting.primary.skyColour.x = 0;
+        g_stageLighting.primary.skyColour.y = 0;
+        g_stageLighting.secondary.highColourDelta.y = g_stageLighting.primary.highColourDelta.y;
+        g_stageLighting.secondary.highColourDelta.z = g_stageLighting.primary.highColourDelta.z;
+        g_stageLighting.primary.sunIconColour.x = 0xff0000;
+        g_stageLighting.secondary.heightReferenceColour.x = g_stageLighting.primary.heightReferenceColour.x;
+        g_stageLighting.primary.sunIconColour.y = 0xff0000;
+        g_stageLighting.primary.sunIconColour.z = 0xff0000;
+        g_stageLighting.secondary.heightReferenceColour.y = g_stageLighting.primary.heightReferenceColour.y;
+        g_stageLighting.secondary.heightReferenceColour.z = g_stageLighting.primary.heightReferenceColour.z;
+        g_stageLighting.primary.lowColour.z = 0xff0000;
+        g_stageLighting.secondary.sunIconColour.x = g_stageLighting.primary.sunIconColour.x;
+        g_stageLighting.primary.lowColour.x = 0xbc0000;
+        g_stageLighting.primary.lowColour.y = 0xca0000;
+        g_stageLighting.primary.objectAlpha = 0x640000;
+        g_stageLighting.primary.sunIconSize = 0xfa0000;
+        g_stageLighting.primary.heightReferenceBlend = 0x8000;
+        g_stageLighting.primary.mesh5Colour.x = 0xff0000;
+        g_stageLighting.primary.mesh5Colour.y = 0xff0000;
+        g_stageLighting.primary.mesh5Colour.z = 0xff0000;
+        g_stageLighting.primary.mesh5Alpha = 0xff0000;
+        g_stageLighting.primary.lightColour.x = 0xff0000;
+        g_stageLighting.primary.lightColour.y = 0xff0000;
+        g_stageLighting.primary.lightColour.z = 0xff0000;
+        g_stageLighting.primary.groundColour.x = 0x9b0000;
+        g_stageLighting.primary.groundColour.y = 0x9b0000;
+        g_stageLighting.primary.groundColour.z = 0x9b0000;
+        g_stageLighting.primary.groundReferenceBlend = 0x8000;
+        g_stageLighting.primary.objectColour.x = 0xff0000;
+        g_stageLighting.primary.objectColour.y = 0xff0000;
+        g_stageLighting.primary.objectColour.z = 0xff0000;
+        g_stageLighting.primary.ambientColour.x = 0xc80000;
+        g_stageLighting.primary.ambientColour.y = 0xc80000;
+        g_stageLighting.primary.ambientColour.z = 0xc80000;
+        g_stageLighting.primary.skyColour.z = 0;
+        g_stageLighting.primary.skyAlpha = 0;
+        g_stageLighting.secondary.sunIconColour.y = g_stageLighting.primary.sunIconColour.y;
+        g_stageLighting.secondary.sunIconColour.z = g_stageLighting.primary.sunIconColour.z;
+        g_stageLighting.secondary.sunIconSize = g_stageLighting.primary.sunIconSize;
+        g_stageLighting.secondary.lowColour.x = g_stageLighting.primary.lowColour.x;
+        g_stageLighting.secondary.lowColour.y = g_stageLighting.primary.lowColour.y;
+        g_stageLighting.secondary.mesh5Colour.x = g_stageLighting.primary.mesh5Colour.x;
+        g_stageLighting.secondary.mesh5Colour.y = g_stageLighting.primary.mesh5Colour.y;
+        g_stageLighting.secondary.mesh5Colour.z = g_stageLighting.primary.mesh5Colour.z;
+        g_stageLighting.secondary.lightColour.x = g_stageLighting.primary.lightColour.x;
+        g_stageLighting.secondary.lightColour.y = g_stageLighting.primary.lightColour.y;
+        g_stageLighting.secondary.lightColour.z = g_stageLighting.primary.lightColour.z;
+        g_stageLighting.secondary.groundColour.x = g_stageLighting.primary.groundColour.x;
+        g_stageLighting.secondary.lowColour.z = g_stageLighting.primary.lowColour.z;
+        g_stageLighting.secondary.groundColour.y = g_stageLighting.primary.groundColour.y;
+        g_stageLighting.secondary.groundColour.z = g_stageLighting.primary.groundColour.z;
+        g_stageLighting.secondary.heightReferenceBlend = g_stageLighting.primary.heightReferenceBlend;
+        g_stageLighting.secondary.groundReferenceBlend = g_stageLighting.primary.groundReferenceBlend;
+        g_stageLighting.secondary.objectColour.x = g_stageLighting.primary.objectColour.x;
+        g_stageLighting.secondary.objectColour.z = g_stageLighting.primary.objectColour.z;
+        g_stageLighting.secondary.objectColour.y = g_stageLighting.primary.objectColour.y;
+        g_stageLighting.secondary.ambientColour.x = g_stageLighting.primary.ambientColour.x;
+        g_stageLighting.secondary.ambientColour.z = g_stageLighting.primary.ambientColour.z;
+        g_stageLighting.secondary.ambientColour.y = g_stageLighting.primary.ambientColour.y;
+        g_stageLighting.secondary.fogColour.x = g_stageLighting.primary.fogColour.x;
+        g_stageLighting.secondary.fogColour.z = g_stageLighting.primary.fogColour.z;
+        g_stageLighting.secondary.fogColour.y = g_stageLighting.primary.fogColour.y;
+        g_stageLighting.secondary.skyColour.x = g_stageLighting.primary.skyColour.x;
+        g_stageLighting.secondary.mesh5Alpha = g_stageLighting.primary.mesh5Alpha;
+        g_stageLighting.secondary.objectAlpha = g_stageLighting.primary.objectAlpha;
+        g_stageLighting.secondary.fogStart = g_stageLighting.primary.fogStart;
+        g_stageLighting.secondary.fogEnd = g_stageLighting.primary.fogEnd;
+        g_stageLighting.secondary.skyColour.y = g_stageLighting.primary.skyColour.y;
+        g_stageLighting.secondary.skyColour.z = g_stageLighting.primary.skyColour.z;
+        g_stageLighting.secondary.skyAlpha = g_stageLighting.primary.skyAlpha;
     }
-    g_stageLighting[0x5a] = 0xffff0000;
-    if (g_stageLighting[0x25] == 0 && g_stageLighting[0x26] == 0 &&
-        g_stageLighting[0x52] == 0 && g_stageLighting[0x53] == 0) {
+    g_stageLighting.blend = 0xffff0000;
+    if (g_stageLighting.primary.fogStart == 0 && g_stageLighting.primary.fogEnd == 0 &&
+        g_stageLighting.secondary.fogStart == 0 && g_stageLighting.secondary.fogEnd == 0) {
         StageObject_SetForwardedFlareState(0);
-        g_stageLighting[0x5d] = 0;
+        g_stageLighting.fogEnabled = 0;
         return;
     }
     StageObject_SetForwardedFlareState(1);
-    g_stageLighting[0x5d] = 1;
+    g_stageLighting.fogEnabled = 1;
 }
 
 // Blends two byte values: b + (a - b) * t, clamped to 255.
@@ -5476,42 +5445,42 @@ void StageObject_AssignMatchingCarClassSlots(BYTE *pCar, BYTE *pObject, BYTE fla
 
 // Clears record `index` of the 0x48-byte table at 0x58d6d0.
 // FUNCTION: CMR2 0x00477ac0
-void StageObject_ClearDamageRecord(int index)
+void CarLight_ResetTextureState(int index)
 {
-    BYTE *p = g_unk0x0058d6d0[index];
+    CarLightTextureState *p = &g_carLightTextureStates[index];
 
-    *(short *)(p + 0x8) = 0;
-    *(short *)(p + 0xa) = 0;
-    *(short *)(p + 0xc) = 0;
-    *(short *)(p + 0xe) = 0;
-    *(short *)(p + 0x10) = 0;
-    *(short *)(p + 0x12) = 0;
-    *(short *)(p + 0x14) = 0;
-    *(short *)(p + 0x16) = 0;
-    *(short *)(p + 0x18) = 0;
-    *(short *)(p + 0x1a) = 0;
-    *(short *)(p + 0x30) = 0;
-    *(short *)(p + 0x32) = 0;
-    *(short *)(p + 0x34) = 0;
-    *(short *)(p + 0x36) = 0;
-    *(short *)(p + 0x38) = 0;
-    *(short *)(p + 0x3a) = 0;
-    *(short *)(p + 0x3c) = 0;
-    *(short *)(p + 0x3e) = 0;
-    *(short *)(p + 0x40) = 0;
-    *(short *)(p + 0x42) = 0;
-    *(short *)(p + 0x1c) = -1;
-    *(short *)(p + 0x1e) = -1;
-    *(short *)(p + 0x20) = -1;
-    *(short *)(p + 0x22) = -1;
-    *(short *)(p + 0x24) = -1;
-    *(short *)(p + 0x26) = -1;
-    *(short *)(p + 0x28) = -1;
-    *(short *)(p + 0x2a) = -1;
-    *(short *)(p + 0x2c) = -1;
-    *(short *)(p + 0x2e) = -1;
-    p[0x44] = 0;
-    p[0x45] = 0;
+    p->levels[0][0] = 0;
+    p->levels[0][1] = 0;
+    p->levels[0][2] = 0;
+    p->levels[0][3] = 0;
+    p->levels[0][4] = 0;
+    p->levels[1][0] = 0;
+    p->levels[1][1] = 0;
+    p->levels[1][2] = 0;
+    p->levels[1][3] = 0;
+    p->levels[1][4] = 0;
+    p->fadedLevels[0][0] = 0;
+    p->fadedLevels[0][1] = 0;
+    p->fadedLevels[0][2] = 0;
+    p->fadedLevels[0][3] = 0;
+    p->fadedLevels[0][4] = 0;
+    p->fadedLevels[1][0] = 0;
+    p->fadedLevels[1][1] = 0;
+    p->fadedLevels[1][2] = 0;
+    p->fadedLevels[1][3] = 0;
+    p->fadedLevels[1][4] = 0;
+    p->appliedLevels[0][0] = -1;
+    p->appliedLevels[0][1] = -1;
+    p->appliedLevels[0][2] = -1;
+    p->appliedLevels[0][3] = -1;
+    p->appliedLevels[0][4] = -1;
+    p->appliedLevels[1][0] = -1;
+    p->appliedLevels[1][1] = -1;
+    p->appliedLevels[1][2] = -1;
+    p->appliedLevels[1][3] = -1;
+    p->appliedLevels[1][4] = -1;
+    p->channelMasks[0] = 0;
+    p->channelMasks[1] = 0;
 }
 
 SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
@@ -5519,50 +5488,50 @@ void Graphics_SetRecordField2C(BYTE *p, int value);
 struct Unk0x004a3e20;
 void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
 
-// Sets up a car's damage record: clears it and keeps the textures of its two
+// Resets a car's light texture levels and caches the textures of its two
 // body parts (scene nodes of type 0xe).
 // FUNCTION: CMR2 0x00477b60
-void StageObject_InitCarBodyDamageTextures(int car, int unused1, int unused2, BYTE flag)
+void CarLight_CacheBodyTextures(int car, int unused1, int unused2, BYTE flag)
 {
-    BYTE *pRecord = g_unk0x0058d6d0[car];
+    CarLightTextureState *pRecord = &g_carLightTextureStates[car];
     BYTE *pMesh;
     Texture *pTexture;
 
-    pRecord[0x46] = flag;
-    *(Texture **)(pRecord + 0) = NULL;
-    *(Texture **)(pRecord + 4) = NULL;
-    StageObject_ClearDamageRecord(car);
+    pRecord->combineFirstTwoChannels = flag;
+    pRecord->textures[0] = NULL;
+    pRecord->textures[1] = NULL;
+    CarLight_ResetTextureState(car);
     RallyData_ValidateIndex(car);
     pMesh = *(BYTE **)((BYTE *)SceneNode_FindByType(Car_Get(car)->pBodyNode, 0xe) + 0xc);
     Graphics_SetRecordField2C(pMesh, 0);
     pTexture = CGraphics::m_pTextureManager->textureBuffer[*(int *)(*(BYTE **)(pMesh + 0x24) + 4)];
-    *(Texture **)(pRecord + 0) = pTexture;
+    pRecord->textures[0] = pTexture;
     Frontend_SetObjectField118((Unk0x004a3e20 *)pTexture, 2);
     if (Car_Get(car)->pAlternateBodyNode != NULL) {
         pMesh = *(BYTE **)((BYTE *)SceneNode_FindByType(Car_Get(car)->pAlternateBodyNode, 0xe) + 0xc);
         Graphics_SetRecordField2C(pMesh, 0);
         pTexture = CGraphics::m_pTextureManager->textureBuffer[*(int *)(*(BYTE **)(pMesh + 0x24) + 4)];
-        *(Texture **)(pRecord + 4) = pTexture;
+        pRecord->textures[1] = pTexture;
         Frontend_SetObjectField118((Unk0x004a3e20 *)pTexture, 2);
     }
 }
 
 // Sets or clears bits in the two flag bytes of record `index` of 0x58d6d0.
 // FUNCTION: CMR2 0x00477c20
-void StageObject_ModifyDamageRecordFlagBytes(int index, char set0, char set1, BYTE mask)
+void CarLight_SetChannelMasks(int index, char set0, char set1, BYTE mask)
 {
-    BYTE *p;
+    CarLightTextureState *p;
 
-    p = g_unk0x0058d6d0[index];
+    p = &g_carLightTextureStates[index];
     if (set0 != 0)
-        p[0x44] |= mask;
+        p->channelMasks[0] |= mask;
     else
-        p[0x44] &= ~mask;
+        p->channelMasks[0] &= ~mask;
     if (set1 != 0) {
-        p[0x45] |= mask;
+        p->channelMasks[1] |= mask;
         return;
     }
-    p[0x45] &= ~mask;
+    p->channelMasks[1] &= ~mask;
 }
 
 extern unsigned short *g_stageRandomTextures[3];
@@ -5586,7 +5555,7 @@ void StageObject_RandomizeStageTriangleTextures(void)
     }
 }
 
-extern int g_unk0x00590c64;
+extern int g_carPartTableCarCount;
 
 int RallyData_GetChallengeRenderState(void);
 
@@ -5599,13 +5568,12 @@ void StageObject_DestroyStageKindCarNodes(void)
     int i;
 
 #define CAR_NODE (g_carPartStateTables.parts[i][car].pNode)
-    for (car = 0; car < g_unk0x00590c64; car++) {
+    for (car = 0; car < g_carPartTableCarCount; car++) {
         for (i = 0; i < 4; i++) {
             if (CAR_NODE != NULL && (int)CAR_NODE->pParent == RallyData_GetChallengeRenderState())
                 SceneNode_Destroy(CAR_NODE);
         }
     }
-#undef CAR_NODE
 }
 
 // FUNCTION: CMR2 0x0048d850
@@ -5622,16 +5590,16 @@ void StageObject_ResetRightAngleContactEffect(BYTE *pCar, BYTE *pInfo)
         StageObject_ResetContactEffectAndSetLevel(pCar, pInfo);
 }
 
-// Two per-lane shorts (+8 and +0x12, `slot` 0..4) scaled by 256.
+// Returns the two signed levels of light channel `slot` scaled by 256.
 // FUNCTION: CMR2 0x00477c80
-void StageObject_GetScaledLaneShortValues(int lane, int *pA, int *pB, int slot)
+void CarLight_GetScaledChannelLevels(int lane, int *pA, int *pB, int slot)
 {
-    BYTE *p = g_unk0x0058d6d0[lane];
+    CarLightTextureState *p = &g_carLightTextureStates[lane];
 
     if (pA != NULL)
-        *pA = (*(short *)(p + 8 + slot * 2) * 0x10000) / 256;
+        *pA = (p->levels[0][slot] * 0x10000) / 256;
     if (pB != NULL)
-        *pB = (*(short *)(p + 0x12 + slot * 2) * 0x10000) / 256;
+        *pB = (p->levels[1][slot] * 0x10000) / 256;
 }
 
 // Resets the car slot tuning values and reseeds the random generator.
@@ -6038,15 +6006,15 @@ int StageObject_GetSceneLightBrightness(void)
 }
 
 // GLOBAL: CMR2 0x00547fa0
-FixVector g_unk0x00547fa0 = { 0, 0, 0 };
+FixVector g_rearViewLightOffsetB = { 0, 0, 0 };
 // GLOBAL: CMR2 0x00547fe0
-FixVector g_unk0x00547fe0 = { 0, 0, 0 };
+FixVector g_rearViewLightOffsetA = { 0, 0, 0 };
 // GLOBAL: CMR2 0x00547fec
-SceneNode *g_unk0x00547fec = NULL;
+SceneNode *g_rearViewLightNodeA = NULL;
 // GLOBAL: CMR2 0x00547ff0
-SceneNode *g_unk0x00547ff0 = NULL;
+SceneNode *g_rearViewLightNodeB = NULL;
 // GLOBAL: CMR2 0x00547ff4
-int g_unk0x00547ff4 = 0;
+int g_rearViewLightAttenuation = 0;
 
 void Graphics_SetGeometryStateValue(int value);
 
@@ -6067,7 +6035,7 @@ void StageObject_PositionRearViewLightNodes(unsigned int param_1)
     level = StageObject_GetSceneLightBrightness();
     pCar->field_0xb58 = level == 0x10000 ? 0 : 1;
     value = FixMul(0x4c0000, level);
-    StageObject_GetScaledLaneShortValues(car, (int *)&param_1, (int *)&param_1, 4);
+    CarLight_GetScaledChannelLevels(car, (int *)&param_1, (int *)&param_1, 4);
     if (param_1 == 0)
         value = 0x3e80000;
     Graphics_SetGeometryStateValue(param_1 != 0);
@@ -6080,22 +6048,22 @@ void StageObject_PositionRearViewLightNodes(unsigned int param_1)
     }
     param_1 = FixMul((int)param_1, 0x190000);
     level = value + param_1;
-    if (level != g_unk0x00547ff4) {
-        Scene_SetLightAttenuation(g_unk0x00547fec, level);
-        Scene_SetLightAttenuation(g_unk0x00547ff0, level);
-        g_unk0x00547ff4 = level;
+    if (level != g_rearViewLightAttenuation) {
+        Scene_SetLightAttenuation(g_rearViewLightNodeA, level);
+        Scene_SetLightAttenuation(g_rearViewLightNodeB, level);
+        g_rearViewLightAttenuation = level;
     }
-    FixMatrix_GetPosition(&pos, (FixMatrix *)((BYTE *)pCar->pSceneRoot + 0x98));
-    FixMatrix_RotateVector(&offset, &g_unk0x00547fe0, (FixMatrix *)((BYTE *)pCar->pSceneRoot + 0x98));
+    FixMatrix_GetPosition(&pos, &pCar->pSceneRoot->current);
+    FixMatrix_RotateVector(&offset, &g_rearViewLightOffsetA, &pCar->pSceneRoot->current);
     offset.x += pos.x;
     offset.y += pos.y;
     offset.z += pos.z;
-    SceneNode_SetPosition(g_unk0x00547fec, &offset);
-    FixMatrix_RotateVector(&offset, &g_unk0x00547fa0, (FixMatrix *)((BYTE *)pCar->pSceneRoot + 0x98));
+    SceneNode_SetPosition(g_rearViewLightNodeA, &offset);
+    FixMatrix_RotateVector(&offset, &g_rearViewLightOffsetB, &pCar->pSceneRoot->current);
     offset.x += pos.x;
     offset.y += pos.y;
     offset.z += pos.z;
-    SceneNode_SetPosition(g_unk0x00547ff0, &offset);
+    SceneNode_SetPosition(g_rearViewLightNodeB, &offset);
 }
 
 
@@ -6256,7 +6224,7 @@ void StageObject_DispatchContactAndSetLevel(BYTE *pCar, BYTE *pInfo)
         value = 0;
     else
         value = 0x10000;
-    g_unk0x00590db0[*pCar] = value;
+    g_viewObjectLevels[*pCar] = value;
 }
 
 extern CarFlexibleLineState **g_carLineStates;
@@ -6295,7 +6263,7 @@ unsigned char RallyDataCountryIndex(void);
 int RallyData_IsChampionshipFinalStage(void);
 void StageObject_SetVehicleEffectColour(BYTE *pColour);
 
-extern void *g_unk0x00543eb8;
+extern ViewLightingRamp *g_viewLightingRamps;
 // GLOBAL: CMR2 0x00547acc
 StageObjectCount g_stageObjectCount;
 
@@ -6592,12 +6560,12 @@ void StageObject_AverageWheelGroundLighting(unsigned int param_1, int param_2)
 void StageObject_InterpolateSecondaryRampRecords(int t)
 {
     int i;
-    BYTE *p;
+    ViewLightingRamp *p;
 
     for (i = 0; i < g_unk0x00547acc; i++) {
-        p = (BYTE *)g_unk0x00543eb8 + i * 0x2c;
-        *(int *)(p + 0x1c) = FixMul(t, *(int *)(p + 0x10) - *(int *)(p + 0x18)) + *(int *)(p + 0x18);
-        *(int *)(p + 0x24) = *(int *)(p + 0x20) + FixMul(t, *(int *)(p + 0x14) - *(int *)(p + 0x20));
+        p = &g_viewLightingRamps[i];
+        p->drawBlend = FixMul(t, p->blend - p->previousBlend) + p->previousBlend;
+        p->drawSunYaw = p->previousSunYaw + FixMul(t, p->sunYaw - p->previousSunYaw);
     }
 }
 void StageObject_ColourGroundMeshReferencePoint(DWORD *pColour, DWORD *pReference);
@@ -6612,37 +6580,34 @@ void Track_SetFogAndSkyAlpha(DWORD *pColour, int start, int end);
 void StageObject_UpdateSceneAmbientColour(BYTE *pColour);
 void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int referenceBlend);
 void StageLights_UpdateDirection(void);
-extern int g_unk0x00543d88;
-extern int g_unk0x00543d8c;
+extern int g_lightingBlendFrom;
+extern int g_lightingBlendTo;
 
 // Blended ramp value and the two step sizes derived from it.
 // GLOBAL: CMR2 0x00543d58
-int g_unk0x00543d58;
+int g_sunIconWidthScale;
 // GLOBAL: CMR2 0x00543d5c
-int g_unk0x00543d5c;
+int g_sunIconHeightScale;
 // Stage object colour pushed straight to the stage mesh.
 // GLOBAL: CMR2 0x00543eb4
-BYTE g_unk0x00543eb4[4];
+BYTE g_sunIconColour[4];
 // Set while the object ramps still have to be re-applied.
 // GLOBAL: CMR2 0x00543ef8
-int g_unk0x00543ef8;
+int g_weatherRampsPending;
 // GLOBAL: CMR2 0x00543f00
-BillboardDef g_unk0x00543f00;
+BillboardDef g_snowBillboard;
 
 // Rebuilds every lighting colour of the stage from the current weather blend
 // factor and pushes them to the stage meshes: height ramp (low/high/reference),
 // ground, sky, light and ambient colours plus the sun light vector. Called once
 // per view index by the stage renderer.
-// The table g_stageLighting holds two complete parameter sets - primary in
-// [0x00..0x2c] and secondary (the other weather) in [0x2d..0x59], every
-// secondary entry exactly 0x2d dwords above its primary counterpart - followed
-// by [0x5a] the blend factor, [0x5b] the blended intensity, [0x5c] the
-// {current, target} weather words and [0x5d] the weather-changed flag.
+// g_stageLighting holds two 0xb4-byte expanded presets followed by the
+// blend, intensity, current/previous lightning sectors and fog enable flag.
 // FUNCTION: CMR2 0x00461c30
 void StageObject_RebuildViewWeatherLighting(int index)
 {
-    int *pView = (int *)((BYTE *)g_unk0x00547ac8 + index * 0x178);
-    int *pObject = (int *)((BYTE *)g_unk0x00543eb8 + index * 0x2c);
+    ViewWeatherState *pView = &g_viewWeather[index];
+    ViewLightingRamp *pObject = &g_viewLightingRamps[index];
     BYTE lowColour[4] = {0, 0, 0, 0xff};
     BYTE highColour[4] = {0, 0, 0, 0xff};
     BYTE rampColour[4] = {0, 0, 0, 0xff};
@@ -6664,35 +6629,35 @@ void StageObject_RebuildViewWeatherLighting(int index)
     int flag;
 
     // 0x461cfe/0x461d12 require both changes before this refresh;
-    // the weather-word and dirty-flag tests are independent.
-    if ((pObject[7] != g_stageLighting[0x5a] && g_unk0x00543d88 != g_unk0x00543d8c) ||
-        *((WORD *)&g_stageLighting[0x5c] + 1) != *(WORD *)&g_stageLighting[0x5c] || pObject[10] != 0) {
-        g_stageLighting[0x5a] = pObject[7];
-        pObject[10] = 0;
-        if (g_stageLighting[0x5a] > 0x10000)
-            g_stageLighting[0x5a] = 0x10000;
-        if (*(short *)&g_stageLighting[0x5c] == -1 || pView[0x15] <= 0xcccc || pView[0] != 1)
+    // the lightning-sector and dirty-flag tests are independent.
+    if ((pObject->drawBlend != g_stageLighting.blend && g_lightingBlendFrom != g_lightingBlendTo) ||
+        g_stageLighting.previousLightningSector != g_stageLighting.lightningSector || pObject->lightingDirty != 0) {
+        g_stageLighting.blend = pObject->drawBlend;
+        pObject->lightingDirty = 0;
+        if (g_stageLighting.blend > 0x10000)
+            g_stageLighting.blend = 0x10000;
+        if (g_stageLighting.lightningSector == -1 || pView->intensity <= 0xcccc || pView->kind != 1)
             flag = 0;
         else
             flag = 1;
-        g_stageLighting[0x5b] = g_stageLighting[0x59] - g_stageLighting[0x2c];
-        g_stageLighting[0x5b] = FixMul(g_stageLighting[0x5b], g_stageLighting[0x5a]) + g_stageLighting[0x2c];
+        g_stageLighting.intensity = g_stageLighting.secondary.intensity - g_stageLighting.primary.intensity;
+        g_stageLighting.intensity = FixMul(g_stageLighting.intensity, g_stageLighting.blend) + g_stageLighting.primary.intensity;
 
-        v[2].x = g_stageLighting[0x2d] - g_stageLighting[0x00];
-        v[2].y = g_stageLighting[0x2e] - g_stageLighting[0x01];
-        v[2].z = g_stageLighting[0x2f] - g_stageLighting[0x02];
-        FixVecScale(&v[2], &v[2], g_stageLighting[0x5a]);
-        v[2].x += g_stageLighting[0x00];
-        v[2].y += g_stageLighting[0x01];
-        v[2].z += g_stageLighting[0x02];
+        v[2].x = g_stageLighting.secondary.lowColour.x - g_stageLighting.primary.lowColour.x;
+        v[2].y = g_stageLighting.secondary.lowColour.y - g_stageLighting.primary.lowColour.y;
+        v[2].z = g_stageLighting.secondary.lowColour.z - g_stageLighting.primary.lowColour.z;
+        FixVecScale(&v[2], &v[2], g_stageLighting.blend);
+        v[2].x += g_stageLighting.primary.lowColour.x;
+        v[2].y += g_stageLighting.primary.lowColour.y;
+        v[2].z += g_stageLighting.primary.lowColour.z;
 
-        v[0].x = g_stageLighting[0x30] - g_stageLighting[0x03];
-        v[0].y = g_stageLighting[0x31] - g_stageLighting[0x04];
-        v[0].z = g_stageLighting[0x32] - g_stageLighting[0x05];
-        FixVecScale(&v[0], &v[0], g_stageLighting[0x5a]);
-        v[0].x += g_stageLighting[0x03];
-        v[0].y += g_stageLighting[0x04];
-        v[0].z += g_stageLighting[0x05];
+        v[0].x = g_stageLighting.secondary.highColourDelta.x - g_stageLighting.primary.highColourDelta.x;
+        v[0].y = g_stageLighting.secondary.highColourDelta.y - g_stageLighting.primary.highColourDelta.y;
+        v[0].z = g_stageLighting.secondary.highColourDelta.z - g_stageLighting.primary.highColourDelta.z;
+        FixVecScale(&v[0], &v[0], g_stageLighting.blend);
+        v[0].x += g_stageLighting.primary.highColourDelta.x;
+        v[0].y += g_stageLighting.primary.highColourDelta.y;
+        v[0].z += g_stageLighting.primary.highColourDelta.z;
         lowColour[0] = (BYTE)(v[2].x >> 16);
         lowColour[1] = (BYTE)(v[2].y >> 16);
         lowColour[2] = (BYTE)(v[2].z >> 16);
@@ -6704,58 +6669,58 @@ void StageObject_RebuildViewWeatherLighting(int index)
         highColour[1] = (BYTE)(colour.y >> 16);
         highColour[2] = (BYTE)(colour.z >> 16);
 
-        v[1].x = g_stageLighting[0x33] - g_stageLighting[0x06];
-        v[1].y = g_stageLighting[0x34] - g_stageLighting[0x07];
-        v[1].z = g_stageLighting[0x35] - g_stageLighting[0x08];
-        FixVecScale(&v[1], &v[1], g_stageLighting[0x5a]);
-        v[1].x += g_stageLighting[0x06];
-        v[1].y += g_stageLighting[0x07];
-        v[1].z += g_stageLighting[0x08];
+        v[1].x = g_stageLighting.secondary.heightReferenceColour.x - g_stageLighting.primary.heightReferenceColour.x;
+        v[1].y = g_stageLighting.secondary.heightReferenceColour.y - g_stageLighting.primary.heightReferenceColour.y;
+        v[1].z = g_stageLighting.secondary.heightReferenceColour.z - g_stageLighting.primary.heightReferenceColour.z;
+        FixVecScale(&v[1], &v[1], g_stageLighting.blend);
+        v[1].x += g_stageLighting.primary.heightReferenceColour.x;
+        v[1].y += g_stageLighting.primary.heightReferenceColour.y;
+        v[1].z += g_stageLighting.primary.heightReferenceColour.z;
         referenceColour[0] = (BYTE)(v[1].x >> 16);
         referenceColour[1] = (BYTE)(v[1].y >> 16);
         referenceColour[2] = (BYTE)(v[1].z >> 16);
 
-        colour.x = g_stageLighting[0x36] - g_stageLighting[0x09];
-        colour.y = g_stageLighting[0x37] - g_stageLighting[0x0a];
-        colour.z = g_stageLighting[0x38] - g_stageLighting[0x0b];
-        FixVecScale(&colour, &colour, g_stageLighting[0x5a]);
-        colour.x += g_stageLighting[0x09];
-        colour.y += g_stageLighting[0x0a];
-        colour.z += g_stageLighting[0x0b];
-        g_unk0x00543eb4[3] = 0xff;
-        g_unk0x00543eb4[0] = (BYTE)(colour.x >> 16);
-        g_unk0x00543eb4[1] = (BYTE)(colour.y >> 16);
-        g_unk0x00543eb4[2] = (BYTE)(colour.z >> 16);
+        colour.x = g_stageLighting.secondary.sunIconColour.x - g_stageLighting.primary.sunIconColour.x;
+        colour.y = g_stageLighting.secondary.sunIconColour.y - g_stageLighting.primary.sunIconColour.y;
+        colour.z = g_stageLighting.secondary.sunIconColour.z - g_stageLighting.primary.sunIconColour.z;
+        FixVecScale(&colour, &colour, g_stageLighting.blend);
+        colour.x += g_stageLighting.primary.sunIconColour.x;
+        colour.y += g_stageLighting.primary.sunIconColour.y;
+        colour.z += g_stageLighting.primary.sunIconColour.z;
+        g_sunIconColour[3] = 0xff;
+        g_sunIconColour[0] = (BYTE)(colour.x >> 16);
+        g_sunIconColour[1] = (BYTE)(colour.y >> 16);
+        g_sunIconColour[2] = (BYTE)(colour.z >> 16);
 
-        value = g_stageLighting[0x58] - g_stageLighting[0x2b];
-        value = FixMul(value, g_stageLighting[0x5a]) + g_stageLighting[0x2b];
-        g_unk0x00543d58 = FixMul(value, 0x66);
-        g_unk0x00543d5c = FixMul(value, 0x88);
-        value = g_stageLighting[0x54] - g_stageLighting[0x27];
-        blend = FixMul(value, g_stageLighting[0x5a]) + g_stageLighting[0x27];
+        value = g_stageLighting.secondary.sunIconSize - g_stageLighting.primary.sunIconSize;
+        value = FixMul(value, g_stageLighting.blend) + g_stageLighting.primary.sunIconSize;
+        g_sunIconWidthScale = FixMul(value, 0x66);
+        g_sunIconHeightScale = FixMul(value, 0x88);
+        value = g_stageLighting.secondary.heightReferenceBlend - g_stageLighting.primary.heightReferenceBlend;
+        blend = FixMul(value, g_stageLighting.blend) + g_stageLighting.primary.heightReferenceBlend;
 
-        colour.x = g_stageLighting[0x3c] - g_stageLighting[0x0f];
-        colour.y = g_stageLighting[0x3d] - g_stageLighting[0x10];
-        colour.z = g_stageLighting[0x3e] - g_stageLighting[0x11];
-        FixVecScale(&colour, &colour, g_stageLighting[0x5a]);
-        colour.x += g_stageLighting[0x0f];
-        colour.y += g_stageLighting[0x10];
-        colour.z += g_stageLighting[0x11];
-        value = g_stageLighting[0x56] - g_stageLighting[0x29];
-        value = FixMul(value, g_stageLighting[0x5a]) + g_stageLighting[0x29];
+        colour.x = g_stageLighting.secondary.objectColour.x - g_stageLighting.primary.objectColour.x;
+        colour.y = g_stageLighting.secondary.objectColour.y - g_stageLighting.primary.objectColour.y;
+        colour.z = g_stageLighting.secondary.objectColour.z - g_stageLighting.primary.objectColour.z;
+        FixVecScale(&colour, &colour, g_stageLighting.blend);
+        colour.x += g_stageLighting.primary.objectColour.x;
+        colour.y += g_stageLighting.primary.objectColour.y;
+        colour.z += g_stageLighting.primary.objectColour.z;
+        value = g_stageLighting.secondary.objectAlpha - g_stageLighting.primary.objectAlpha;
+        value = FixMul(value, g_stageLighting.blend) + g_stageLighting.primary.objectAlpha;
         objectColour[0] = (BYTE)(colour.x >> 16);
         objectColour[1] = (BYTE)(colour.y >> 16);
         objectColour[2] = (BYTE)(colour.z >> 16);
         objectColour[3] = (BYTE)(value >> 16);
 
-        colour.x = g_stageLighting[0x3f] - g_stageLighting[0x12];
-        colour.y = g_stageLighting[0x40] - g_stageLighting[0x13];
-        colour.z = g_stageLighting[0x41] - g_stageLighting[0x14];
-        FixVecScale(&colour, &colour, g_stageLighting[0x5a]);
-        colour.x += g_stageLighting[0x12];
-        colour.y += g_stageLighting[0x13];
-        colour.z += g_stageLighting[0x14];
-        FixVecScale(&colour, &colour, FixMul(g_stageLighting[0x5b], 0x3333) + 0xcccc);
+        colour.x = g_stageLighting.secondary.ambientColour.x - g_stageLighting.primary.ambientColour.x;
+        colour.y = g_stageLighting.secondary.ambientColour.y - g_stageLighting.primary.ambientColour.y;
+        colour.z = g_stageLighting.secondary.ambientColour.z - g_stageLighting.primary.ambientColour.z;
+        FixVecScale(&colour, &colour, g_stageLighting.blend);
+        colour.x += g_stageLighting.primary.ambientColour.x;
+        colour.y += g_stageLighting.primary.ambientColour.y;
+        colour.z += g_stageLighting.primary.ambientColour.z;
+        FixVecScale(&colour, &colour, FixMul(g_stageLighting.intensity, 0x3333) + 0xcccc);
         ambientColour[0] = (BYTE)(colour.x >> 16);
         ambientColour[1] = (BYTE)(colour.y >> 16);
         ambientColour[2] = (BYTE)(colour.z >> 16);
@@ -6763,25 +6728,25 @@ void StageObject_RebuildViewWeatherLighting(int index)
         ambientMix.y = colour.y;
         ambientMix.z = colour.z;
 
-        delta.x = g_stageLighting[0x39] - g_stageLighting[0x0c];
-        delta.y = g_stageLighting[0x3a] - g_stageLighting[0x0d];
-        delta.z = g_stageLighting[0x3b] - g_stageLighting[0x0e];
-        FixVecScale(&delta, &delta, g_stageLighting[0x5a]);
-        delta.x += g_stageLighting[0x0c];
-        delta.y += g_stageLighting[0x0d];
-        delta.z += g_stageLighting[0x0e];
+        delta.x = g_stageLighting.secondary.groundColour.x - g_stageLighting.primary.groundColour.x;
+        delta.y = g_stageLighting.secondary.groundColour.y - g_stageLighting.primary.groundColour.y;
+        delta.z = g_stageLighting.secondary.groundColour.z - g_stageLighting.primary.groundColour.z;
+        FixVecScale(&delta, &delta, g_stageLighting.blend);
+        delta.x += g_stageLighting.primary.groundColour.x;
+        delta.y += g_stageLighting.primary.groundColour.y;
+        delta.z += g_stageLighting.primary.groundColour.z;
         delta.x -= ambientMix.x;
         delta.y -= ambientMix.y;
         delta.z -= ambientMix.z;
-        FixVecScale(&delta, &delta, g_stageLighting[0x5b]);
+        FixVecScale(&delta, &delta, g_stageLighting.intensity);
         delta.x += ambientMix.x;
         delta.y += ambientMix.y;
         delta.z += ambientMix.z;
         groundColour[0] = (BYTE)(delta.x >> 16);
         groundColour[1] = (BYTE)(delta.y >> 16);
         groundColour[2] = (BYTE)(delta.z >> 16);
-        value = g_stageLighting[0x55] - g_stageLighting[0x28];
-        value = FixMul(value, g_stageLighting[0x5a]) + g_stageLighting[0x28];
+        value = g_stageLighting.secondary.groundReferenceBlend - g_stageLighting.primary.groundReferenceBlend;
+        value = FixMul(value, g_stageLighting.blend) + g_stageLighting.primary.groundReferenceBlend;
 
         colour.x = v[1].x - delta.x;
         colour.y = v[1].y - delta.y;
@@ -6793,7 +6758,7 @@ void StageObject_RebuildViewWeatherLighting(int index)
         colour.x -= ambientMix.x;
         colour.y -= ambientMix.y;
         colour.z -= ambientMix.z;
-        FixVecScale(&colour, &colour, g_stageLighting[0x5b]);
+        FixVecScale(&colour, &colour, g_stageLighting.intensity);
         colour.x += ambientMix.x;
         colour.y += ambientMix.y;
         colour.z += ambientMix.z;
@@ -6801,37 +6766,37 @@ void StageObject_RebuildViewWeatherLighting(int index)
         groundRefColour[1] = (BYTE)(colour.y >> 16);
         groundRefColour[2] = (BYTE)(colour.z >> 16);
 
-        colour.x = g_stageLighting[0x4e] - g_stageLighting[0x21];
-        colour.y = g_stageLighting[0x4f] - g_stageLighting[0x22];
-        colour.z = g_stageLighting[0x50] - g_stageLighting[0x23];
-        FixVecScale(&colour, &colour, g_stageLighting[0x5a]);
-        colour.x += g_stageLighting[0x21];
-        colour.y += g_stageLighting[0x22];
-        colour.z += g_stageLighting[0x23];
-        value = g_stageLighting[0x51] - g_stageLighting[0x24];
-        value = FixMul(value, g_stageLighting[0x5a]) + g_stageLighting[0x24];
+        colour.x = g_stageLighting.secondary.skyColour.x - g_stageLighting.primary.skyColour.x;
+        colour.y = g_stageLighting.secondary.skyColour.y - g_stageLighting.primary.skyColour.y;
+        colour.z = g_stageLighting.secondary.skyColour.z - g_stageLighting.primary.skyColour.z;
+        FixVecScale(&colour, &colour, g_stageLighting.blend);
+        colour.x += g_stageLighting.primary.skyColour.x;
+        colour.y += g_stageLighting.primary.skyColour.y;
+        colour.z += g_stageLighting.primary.skyColour.z;
+        value = g_stageLighting.secondary.skyAlpha - g_stageLighting.primary.skyAlpha;
+        value = FixMul(value, g_stageLighting.blend) + g_stageLighting.primary.skyAlpha;
         skyColour[0] = (BYTE)(colour.x >> 16);
         skyColour[1] = (BYTE)(colour.y >> 16);
         skyColour[2] = (BYTE)(colour.z >> 16);
         skyColour[3] = (BYTE)(value >> 16);
 
-        if (g_stageLighting[0x5d] != 0) {
-            colour.x = g_stageLighting[0x4b] - g_stageLighting[0x1e];
-            colour.y = g_stageLighting[0x4c] - g_stageLighting[0x1f];
-            colour.z = g_stageLighting[0x4d] - g_stageLighting[0x20];
-            FixVecScale(&colour, &colour, g_stageLighting[0x5a]);
-            colour.x += g_stageLighting[0x1e];
-            colour.y += g_stageLighting[0x1f];
-            colour.z += g_stageLighting[0x20];
+        if (g_stageLighting.fogEnabled != 0) {
+            colour.x = g_stageLighting.secondary.fogColour.x - g_stageLighting.primary.fogColour.x;
+            colour.y = g_stageLighting.secondary.fogColour.y - g_stageLighting.primary.fogColour.y;
+            colour.z = g_stageLighting.secondary.fogColour.z - g_stageLighting.primary.fogColour.z;
+            FixVecScale(&colour, &colour, g_stageLighting.blend);
+            colour.x += g_stageLighting.primary.fogColour.x;
+            colour.y += g_stageLighting.primary.fogColour.y;
+            colour.z += g_stageLighting.primary.fogColour.z;
             heightColour[0] = (BYTE)(colour.x >> 16);
             heightColour[1] = (BYTE)(colour.y >> 16);
             heightColour[2] = (BYTE)(colour.z >> 16);
             heightColour[3] = 0xff;
             Track_SetFogAndSkyAlpha((DWORD *)heightColour,
-                         g_stageLighting[0x25] +
-                             FixMul(g_stageLighting[0x52] - g_stageLighting[0x25], g_stageLighting[0x5a]),
-                         g_stageLighting[0x26] +
-                             FixMul(g_stageLighting[0x53] - g_stageLighting[0x26], g_stageLighting[0x5a]));
+                         g_stageLighting.primary.fogStart +
+                             FixMul(g_stageLighting.secondary.fogStart - g_stageLighting.primary.fogStart, g_stageLighting.blend),
+                         g_stageLighting.primary.fogEnd +
+                             FixMul(g_stageLighting.secondary.fogEnd - g_stageLighting.primary.fogEnd, g_stageLighting.blend));
         }
         if (flag) {
             if (!(groundColour[0] <= 0xeb))
@@ -6848,31 +6813,31 @@ void StageObject_RebuildViewWeatherLighting(int index)
                 groundColour[2] = (BYTE)(groundColour[2] + 0x14);
         }
 
-        colour.x = g_stageLighting[0x45] - g_stageLighting[0x18];
-        colour.y = g_stageLighting[0x46] - g_stageLighting[0x19];
-        colour.z = g_stageLighting[0x47] - g_stageLighting[0x1a];
-        FixVecScale(&colour, &colour, g_stageLighting[0x5a]);
-        colour.x += g_stageLighting[0x18];
-        colour.y += g_stageLighting[0x19];
-        colour.z += g_stageLighting[0x1a];
-        value = g_stageLighting[0x57] - g_stageLighting[0x2a];
-        value = FixMul(value, g_stageLighting[0x5a]) + g_stageLighting[0x2a];
+        colour.x = g_stageLighting.secondary.mesh5Colour.x - g_stageLighting.primary.mesh5Colour.x;
+        colour.y = g_stageLighting.secondary.mesh5Colour.y - g_stageLighting.primary.mesh5Colour.y;
+        colour.z = g_stageLighting.secondary.mesh5Colour.z - g_stageLighting.primary.mesh5Colour.z;
+        FixVecScale(&colour, &colour, g_stageLighting.blend);
+        colour.x += g_stageLighting.primary.mesh5Colour.x;
+        colour.y += g_stageLighting.primary.mesh5Colour.y;
+        colour.z += g_stageLighting.primary.mesh5Colour.z;
+        value = g_stageLighting.secondary.mesh5Alpha - g_stageLighting.primary.mesh5Alpha;
+        value = FixMul(value, g_stageLighting.blend) + g_stageLighting.primary.mesh5Alpha;
         rampColour[0] = (BYTE)(colour.x >> 16);
         rampColour[1] = (BYTE)(colour.y >> 16);
         rampColour[2] = (BYTE)(colour.z >> 16);
         rampColour[3] = (BYTE)(value >> 16);
 
-        colour.x = g_stageLighting[0x42] - g_stageLighting[0x15];
-        colour.y = g_stageLighting[0x43] - g_stageLighting[0x16];
-        colour.z = g_stageLighting[0x44] - g_stageLighting[0x17];
-        FixVecScale(&colour, &colour, g_stageLighting[0x5a]);
-        colour.x += g_stageLighting[0x15];
-        colour.y += g_stageLighting[0x16];
-        colour.z += g_stageLighting[0x17];
+        colour.x = g_stageLighting.secondary.lightColour.x - g_stageLighting.primary.lightColour.x;
+        colour.y = g_stageLighting.secondary.lightColour.y - g_stageLighting.primary.lightColour.y;
+        colour.z = g_stageLighting.secondary.lightColour.z - g_stageLighting.primary.lightColour.z;
+        FixVecScale(&colour, &colour, g_stageLighting.blend);
+        colour.x += g_stageLighting.primary.lightColour.x;
+        colour.y += g_stageLighting.primary.lightColour.y;
+        colour.z += g_stageLighting.primary.lightColour.z;
         colour.x -= ambientMix.x;
         colour.y -= ambientMix.y;
         colour.z -= ambientMix.z;
-        FixVecScale(&colour, &colour, g_stageLighting[0x5b]);
+        FixVecScale(&colour, &colour, g_stageLighting.intensity);
         colour.x += ambientMix.x;
         colour.y += ambientMix.y;
         colour.z += ambientMix.z;
@@ -6907,13 +6872,13 @@ void StageObject_RebuildViewWeatherLighting(int index)
         TrackLighting_SetLightMeshDiffuseColour((DWORD *)lightColour);
         StageObject_UpdateSceneAmbientColour(ambientColour);
         StageObject_SetUnboostedStageLight(&colour);
-        Track_ShiftMeshAndAmbientHeights(g_stageLighting[0x1b] + FixMul(g_stageLighting[0x48] - g_stageLighting[0x1b], g_stageLighting[0x5a]),
-                     g_stageLighting[0x1c], g_stageLighting[0x1d]);
+        Track_ShiftMeshAndAmbientHeights(g_stageLighting.primary.meshHeightParameters.x + FixMul(g_stageLighting.secondary.meshHeightParameters.x - g_stageLighting.primary.meshHeightParameters.x, g_stageLighting.blend),
+                     g_stageLighting.primary.meshHeightParameters.y, g_stageLighting.primary.meshHeightParameters.z);
         StageLights_UpdateDirection();
     }
-    StageObject_YawMainAndSunNodes(0, 0, pObject[9]);
-    if (g_unk0x00543ef8 != 0)
-        g_unk0x00543ef8 = 0;
+    StageObject_YawMainAndSunNodes(0, 0, pObject->drawSunYaw);
+    if (g_weatherRampsPending != 0)
+        g_weatherRampsPending = 0;
     StageObject_OrientLightNodesToView(index);
     TrackLighting_PushRecolouredMeshVertices();
 }
@@ -6958,15 +6923,12 @@ void StageObject_UpdateSunVisibility(short *pRect)
 // Stage lights: up to eight glowing lamps (e.g. start lights) whose on/off
 // pattern per state comes from g_stageLightStates, plus the car lamp textures.
 
-void Glow_SetEntryByte50(BYTE *p, BYTE value);
-void Glow_SetEntryValue3C(BYTE *p, int value);
-void Glow_ResetEntries(void);
 struct Unk0x004a3e20;
 void Frontend_SetObjectField118(Unk0x004a3e20 *pObject, int value);
 
 struct StageLight {
-    BYTE *pGlow;        // glow source
-    BYTE *pGlow2;       // second glow when the kind doubles them
+    GlowLight *pGlow;        // glow source
+    GlowLight *pGlow2;       // second glow when the kind doubles them
     int level;          // 0..1, eased towards the pattern
 };
 
@@ -7043,24 +7005,10 @@ int g_stageLightsActive;
 // GLOBAL: CMR2 0x00547cd8
 int g_stageLightCount;
 
-// Light point of a car (0x28 bytes), loaded from the car file.
-struct CarLightPoint {
-    FixVector pos;          // 0x00 body space
-    FixVector dir;          // 0x0c
-    int size;               // 0x18 glow size
-    int intensity;          // 0x1c
-    BYTE type;              // 0x20 lamp type (9 = projected headlight)
-    BYTE slot;              // 0x21 texture slot
-    char part;              // 0x22 body part carrying it (-1 = main body)
-    BYTE pad_0x23;
-    short object;           // 0x24 nearest mesh object
-    short vertex;           // 0x26 nearest vertex of that object
-};
-
 // Per car: the light block of the car file (a count followed by the
 // CarLightPoint records) and a pointer to its first record.
 // GLOBAL: CMR2 0x00547f80
-int *g_carLightSets[8];
+CarLightProfile *g_carLightProfiles[8];
 // Lamp textures of the two lamp layers, by slot: brake, reverse, hazard,
 // second hazard, head.
 // GLOBAL: CMR2 0x00547fac
@@ -7151,17 +7099,17 @@ void StageLights_Update(void)
         else
             p->level -= 0x3333;
         if (p->level > 0) {
-            Glow_SetEntryByte50(p->pGlow, 1);
+            Glow_SetEnabled(p->pGlow, 1);
             if (g_stageLightDouble[g_stageLightKind] != 0)
-                Glow_SetEntryByte50(p->pGlow2, 1);
+                Glow_SetEnabled(p->pGlow2, 1);
         } else {
-            Glow_SetEntryByte50(p->pGlow, 0);
+            Glow_SetEnabled(p->pGlow, 0);
             if (g_stageLightDouble[g_stageLightKind] != 0)
-                Glow_SetEntryByte50(p->pGlow2, 0);
+                Glow_SetEnabled(p->pGlow2, 0);
         }
-        Glow_SetEntryValue3C(p->pGlow, p->level);
+        Glow_SetIntensity(p->pGlow, p->level);
         if (g_stageLightDouble[g_stageLightKind] != 0)
-            Glow_SetEntryValue3C(p->pGlow2, p->level);
+            Glow_SetIntensity(p->pGlow2, p->level);
     }
 }
 
@@ -7176,9 +7124,9 @@ void StageLights_Off(void)
         return;
     for (i = 0; i < g_stageLightCount; i++) {
         g_stageLights[i].level = 0;
-        Glow_SetEntryByte50(g_stageLights[i].pGlow, 0);
+        Glow_SetEnabled(g_stageLights[i].pGlow, 0);
         if (g_stageLightDouble[g_stageLightKind] != 0)
-            Glow_SetEntryByte50(g_stageLights[i].pGlow2, 0);
+            Glow_SetEnabled(g_stageLights[i].pGlow2, 0);
     }
 }
 
@@ -7242,8 +7190,6 @@ FixMatrix g_stageLightBasis;
 
 unsigned char RallyDataStageIndex(void);
 struct GlowLight;
-GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1, int sizeX, int sizeY, int billboardTexture,
-                    int layerTexture, int intensity, int node, BYTE projected, int unused2, int field_0x40);
 
 #define LIGHT_SIZE(i) FixMul(lenX, g_stageLightSize[g_stageLightKind][g_stageLightColour[g_stageLightKind][i]])
 
@@ -7313,23 +7259,23 @@ void StageLights_Create(void)
         pos[i].x += origin.x;
         pos[i].y += origin.y;
         pos[i].z += origin.z;
-        g_stageLights[i].pGlow = (BYTE *)Glow_Add(
+        g_stageLights[i].pGlow = Glow_Add(
             2, &pos[i], &dir, (int)&zero, LIGHT_SIZE(i), LIGHT_SIZE(i),
-            (int)g_stageLightTextures[g_stageLightColour[g_stageLightKind][i]],
-            (int)g_stageLightTextures[g_stageLightColour[g_stageLightKind][i]], 0, 0, 0, (int)&dir, 0);
+            g_stageLightTextures[g_stageLightColour[g_stageLightKind][i]],
+            g_stageLightTextures[g_stageLightColour[g_stageLightKind][i]], 0, 0, 0, (int)&dir, 0);
         if (g_stageLightDouble[g_stageLightKind] != 0) {
             pos[i].x += pair.x;
             pos[i].y += pair.y;
             pos[i].z += pair.z;
-            g_stageLights[i].pGlow2 = (BYTE *)Glow_Add(
+            g_stageLights[i].pGlow2 = Glow_Add(
                 2, &pos[i], &dir, (int)&zero, LIGHT_SIZE(i), LIGHT_SIZE(i),
-                (int)g_stageLightTextures[g_stageLightColour[g_stageLightKind][i]],
-                (int)g_stageLightTextures[g_stageLightColour[g_stageLightKind][i]], 0, 0, 0, (int)&dir, 0);
+                g_stageLightTextures[g_stageLightColour[g_stageLightKind][i]],
+                g_stageLightTextures[g_stageLightColour[g_stageLightKind][i]], 0, 0, 0, (int)&dir, 0);
         }
         g_stageLights[i].level = 0;
-        Glow_SetEntryByte50(g_stageLights[i].pGlow, 0);
+        Glow_SetEnabled(g_stageLights[i].pGlow, 0);
         if (g_stageLightDouble[g_stageLightKind] != 0)
-            Glow_SetEntryByte50(g_stageLights[i].pGlow2, 0);
+            Glow_SetEnabled(g_stageLights[i].pGlow2, 0);
     }
     g_unk0x00547b80 = 6;
     g_stageLightsActive = 1;
@@ -7787,12 +7733,12 @@ void StageObject_BuildCloudTexturePath(void)
 // FUNCTION: CMR2 0x0046f030
 BYTE StageObject_ReleaseLoadedObjectFile(void)
 {
-    if (g_unk0x00589448.buffer) {
-        CFileBuffer::FreeGenericFileBuffer(g_unk0x00589448.buffer);
-        g_unk0x00589448.buffer = NULL;
+    if (g_stageCloudArchive.buffer) {
+        CFileBuffer::FreeGenericFileBuffer(g_stageCloudArchive.buffer);
+        g_stageCloudArchive.buffer = NULL;
     }
-    g_unk0x00589448.didFileLoad = FALSE;
-    g_unk0x00589448.fileSize = 0;
+    g_stageCloudArchive.didFileLoad = FALSE;
+    g_stageCloudArchive.fileSize = 0;
     return 1;
 }
 
@@ -7813,9 +7759,9 @@ void StageObject_PositionSplitViewNodes(int param_1)
     car = param_1;
     node = View_GetActiveCameraMode(car);
     if (node == 3)
-        FixMatrix_GetPosition(&pos, (FixMatrix *)((int)Car_Get(car)->pBodyNode + 0x98));
+        FixMatrix_GetPosition(&pos, &Car_Get(car)->pBodyNode->current);
     else
-        FixMatrix_GetPosition(&pos, (FixMatrix *)((int)g_viewNodes[car] + 0x98));
+        FixMatrix_GetPosition(&pos, &g_viewNodes[car]->current);
     pos.y = pos.y - 0xf0000;
     vecC.x = pos.x;
     vecC.z = pos.z;
@@ -7829,21 +7775,21 @@ void StageObject_PositionSplitViewNodes(int param_1)
     vecB.y = vecB.y + offset.z;
     if ((char)RallyDataCountryIndex() == 3 && (char)RallyDataStageIndex() == 7)
         vecB.y = vecB.y - 0x40000;
-    if (g_unk0x00589438 != 0)
-        SceneNode_SetPosition((SceneNode *)g_unk0x00589438, &pos);
-    if (g_unk0x0058943c != 0)
-        SceneNode_SetPosition((SceneNode *)g_unk0x0058943c, &vecC);
-    if (g_unk0x00589440 != 0)
-        SceneNode_SetPosition((SceneNode *)g_unk0x00589440, &vecB);
-    if (g_unk0x00589444 != 0) {
+    if (g_stageSkyNode != 0)
+        SceneNode_SetPosition(g_stageSkyNode, &pos);
+    if (g_stageGroundNode != 0)
+        SceneNode_SetPosition(g_stageGroundNode, &vecC);
+    if (g_stageCloudNode != 0)
+        SceneNode_SetPosition(g_stageCloudNode, &vecB);
+    if (g_stageCloudTopNode != 0) {
         vecB.y = vecB.y - 0x140000;
-        SceneNode_SetPosition((SceneNode *)g_unk0x00589444, &vecB);
+        SceneNode_SetPosition(g_stageCloudTopNode, &vecB);
     }
     StageObject_GetStageLightState(&param_1);
     offset.x = 0;
     offset.y = param_1;
     offset.z = 0;
-    FixMatrix_SetUp(&offset, (FixMatrix *)((BYTE *)g_unk0x00589438 + 0x98));
+    FixMatrix_SetUp(&offset, &g_stageSkyNode->current);
 }
 
 void StageObject_DispatchContactAndSetLevel(BYTE *pCar, BYTE *pInfo);
@@ -7873,7 +7819,6 @@ void StageObject_UpdateNearRightAngleContactLevel(BYTE *pInfo, BYTE *pCar)
 
 // Ground-normal view (+0x18) of the same 100 headlight-glow records. These
 // interior views must share storage with the spawn/collision record base.
-#define g_unk0x0058e4e0 ((BYTE (*)[0x5c])((BYTE *)g_unk0x0058e4c8 + 0x18))
 
 // Creates the glow of every record and resets the records.
 // FUNCTION: CMR2 0x0047d510
@@ -7882,20 +7827,22 @@ void StageObject_CreateRecordGlows(void)
     FixVector unused;
     BYTE *p;
 
-    for (p = g_unk0x0058e4e0[0] + 0x38; (int)p < (int)(g_unk0x0058e4e0[100] + 0x38); p += 0x5c) {
-        BYTE *q = p - 0x38;
-        *(int *)(q + 0x3c) = 0;
-        *(GlowLight **)(q + 0x38) =
-            Glow_Add(1, &unused, &unused, (int)&unused, 0x3333, 0x3333, (int)g_carLightTexA[2],
-                     (int)g_carLightTexB[2], 0x10000, 0, 0xb4, (int)&unused, 0x20000);
-        Glow_SetEntryByte50(*(BYTE **)(q + 0x38), 0);
-        *(int *)(q + 0x2c) = 0;
-        *(short *)(q + 0x34) = -1;
-        *(int *)(q + 0x0) = 0;
-        *(int *)(q + 0x4) = 0x10000;
-        *(int *)(q + 0x8) = 0;
+    for (p = (BYTE *)&g_carHeadlightGlowRecords[0].pGlow; (int)p < (int)((BYTE *)(g_carHeadlightGlowRecords + 100) + offsetof(CarHeadlightGlowRecord, pGlow)); p += sizeof(CarHeadlightGlowRecord)) {
+        BYTE *q = p - (offsetof(CarHeadlightGlowRecord, pGlow) - offsetof(CarHeadlightGlowRecord, normal));
+#define GLOW_RECORD (*(CarHeadlightGlowRecord *)(q - offsetof(CarHeadlightGlowRecord, normal)))
+        GLOW_RECORD.active = 0;
+        GLOW_RECORD.pGlow =
+            Glow_Add(1, &unused, &unused, (int)&unused, 0x3333, 0x3333, g_carLightTexA[2],
+                     g_carLightTexB[2], 0x10000, 0, 0xb4, (int)&unused, 0x20000);
+        Glow_SetEnabled(GLOW_RECORD.pGlow, 0);
+        GLOW_RECORD.height = 0;
+        GLOW_RECORD.triangle = -1;
+        GLOW_RECORD.normal.x = 0;
+        GLOW_RECORD.normal.y = 0x10000;
+        GLOW_RECORD.normal.z = 0;
     }
-    memset(g_unk0x0058e4a8, 0, sizeof(g_unk0x0058e4a8));
+    memset(g_carHeadlightGlowCooldowns, 0, sizeof(g_carHeadlightGlowCooldowns));
+#undef GLOW_RECORD
 }
 
 #include "WheelTrail.h"
@@ -8644,11 +8591,11 @@ void StageObject_FindPlayerRevTextures(int player)
                    base, CFrontend::m_stringDest);
         sprintf(CFrontend::m_stringDest, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)base));
         if (strcmp(CFrontend::m_stringDest, CGraphics::m_strSuffixREVCT) == 0) {
-            Frontend_SetObjectField118((Unk0x004a3e20 *)(*(Texture **)(g_stageBlock + 0x220 + player * 8) =
+            Frontend_SetObjectField118((Unk0x004a3e20 *)(g_carInteriorDashTextures[player].revCounter =
                                                              CGraphics::m_pTextureManager->textureBuffer[i]), 2);
         }
         if (strcmp(CFrontend::m_stringDest, CGraphics::m_strSuffixDIGIT) == 0)
-            *(Texture **)(g_stageBlock + 0x224 + player * 8) = CGraphics::m_pTextureManager->textureBuffer[i];
+            g_carInteriorDashTextures[player].digit = CGraphics::m_pTextureManager->textureBuffer[i];
     }
 }
 
@@ -8754,14 +8701,14 @@ BYTE *Replay_LoadValidatedBuffer(char *path)
 void FixMatrix_RotateAboutRight(FixMatrix *pOut, unsigned short angle);
 
 // GLOBAL: CMR2 0x0051c9b0
-short g_unk0x0051c9b0 = 0x71;
+short g_carMountRightRotationAngle = 0x71;
 
 // Builds a stage object's world matrix from its car and mount point.
 // match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004778b0
 void StageObject_BuildCarMountWorldMatrix(BYTE *object, int unused)
 {
-    FixVector position = *(FixVector *)(g_stageBlock + 0xe0 + object[2] * 36);
+    FixVector position = g_carDriverPoseStates[object[2]].mountOffset;
     FixMatrix orient;
     FixMatrix mount;
     FixMatrix combined;
@@ -8778,10 +8725,10 @@ void StageObject_BuildCarMountWorldMatrix(BYTE *object, int unused)
     orient.forward.x = 0x10000;
     orient.forward.y = 0;
     orient.forward.z = 0;
-    FixMatrix_RotateAboutRight(&orient, (unsigned short)g_unk0x0051c9b0);
-    FixMatrix_SetPosition((FixVector *)(g_stageBlock + 0xe0 + object[2] * 36), &orient);
+    FixMatrix_RotateAboutRight(&orient, (unsigned short)g_carMountRightRotationAngle);
+    FixMatrix_SetPosition(&g_carDriverPoseStates[object[2]].mountOffset, &orient);
     FixMatrix_Multiply(&combined, &orient,
-                       (FixMatrix *)(*(BYTE **)(g_stageBlock + 0x294 + object[2] * 0x1c) + 0x98));
+                       &g_carInteriorNodeRows[object[2]].driverPoseNode->current);
     FixMatrix_Multiply((FixMatrix *)(object + 8), &combined,
                        *(FixMatrix **)((BYTE *)Car_Get(object[2]) + 0x754));
     *(int *)(object + 0x58) = 0;
@@ -8894,7 +8841,7 @@ void StageObject_BuildCarNodeOrientation(int object, int *src)
     *(int *)(object + 0x28) = src[0];
     *(int *)(object + 0x2c) = src[1];
     *(int *)(object + 0x30) = src[2];
-    FixMatrix_RotateAboutRight((FixMatrix *)dst, (unsigned short)g_unk0x0051c9b0);
+    FixMatrix_RotateAboutRight((FixMatrix *)dst, (unsigned short)g_carMountRightRotationAngle);
     StageObject_BuildCarMountWorldMatrix((BYTE *)object, (int)src);
 }
 
@@ -9131,13 +9078,13 @@ void StageObject_ResetCarNodeViewFlags(Car *pCar)
         SceneNode_SetViewMaskTree(pCar->pExtraNodes[2], g_unk0x00588ba4[12]);
     if (pCar->pExtraNodes[3] != NULL)
         SceneNode_SetViewMaskTree(pCar->pExtraNodes[3], g_unk0x00588ba4[12]);
-    if (*(int *)(g_stageBlock + 0x1fc + pCar->index * 4) != 0)
-        SceneNode_SetViewMaskTree(*(SceneNode **)(g_stageBlock + 0x1fc + pCar->index * 4),
+    if (g_carInteriorRoots[pCar->index] != 0)
+        SceneNode_SetViewMaskTree(g_carInteriorRoots[pCar->index],
                                   g_unk0x00588ba4[11]);
-    if (*(int *)(g_stageBlock + 0xa0 + pCar->index * 4) != 0)
-        *(BYTE *)(*(int *)(g_stageBlock + 0xa0 + pCar->index * 4) + 0x17c) = g_unk0x00588ba4[8];
-    if (*(int *)(g_stageBlock + 0x1dc + pCar->index * 4) != 0)
-        *(BYTE *)(*(int *)(g_stageBlock + 0x1dc + pCar->index * 4) + 0x17c) = g_unk0x00588ba4[8];
+    if (g_carDetailBodyNodes[pCar->index] != 0)
+        g_carDetailBodyNodes[pCar->index]->viewMask = g_unk0x00588ba4[8];
+    if (g_carDefaultBodyNodes[pCar->index] != 0)
+        g_carDefaultBodyNodes[pCar->index]->viewMask = g_unk0x00588ba4[8];
     StageObject_ClearNodeValueBelowThreshold(pCar->pSceneRoot, 10);
     StageObject_ClearNodeTreeValuesBelowThreshold(pCar->pSceneRoot->pFirstChild, 10);
     StageObject_ClearNodeValueBelowThreshold(pCar->pBodyNode, 10);
@@ -9186,11 +9133,11 @@ void StageObject_RebuildOrderedWheelVisibility(void)
     pOrder = Car_GetOrder();
     for (n = Car_GetOrderCount() - 1; n >= 0; n--) {
         pCar = Car_Get(pOrder[n]);
-        swap = (*(unsigned int *)(*(int *)(*(int *)&pCar->pBodyNode + 0xc) + 0x30) >> 0x12) & 1;
+        swap = (((Mesh *)pCar->pBodyNode->pObject)->flags >> 0x12) & 1;
         for (i = 0; i < 2; i++) {
             index = pCar->index;
             if ((View_GetActiveCameraFlags(i) & 0xff) == index) {
-                if (flags[i] == 1 && g_unk0x00588bb4[index] != 0) {
+                if (flags[i] == 1 && g_carPairValuePending[index] != 0) {
                     if (swap)
                         StageObject_SetPairedCarValue(index, 4, i);
                     else
@@ -9201,7 +9148,7 @@ void StageObject_RebuildOrderedWheelVisibility(void)
                     StageObject_SetPairedCarValue(index, flags[i], i);
             } else if ((BYTE)RallyDataState() > 1 && StageObject_UsesExtendedMode() == 0) {
                 StageObject_SetPairedCarValue(pCar->index, 7, i);
-            } else if (g_unk0x00588bb4[pCar->index] == 0) {
+            } else if (g_carPairValuePending[pCar->index] == 0) {
                 if (swap)
                     StageObject_SetPairedCarValue(pCar->index, 2, i);
                 else
@@ -9226,107 +9173,111 @@ void StageObject_RebuildOrderedWheelVisibility(void)
 
 extern Car *g_collisionCar;
 
-// Applies the fade-driven roll (about the node's current up axis) to the two
-// scene nodes of car `index`'s stage object and advances its fade state machine.
+// Rotates both cockpit wipers about their current up axes, using the signed
+// sweep limits and the model-class direction, then advances the sweep state.
 // FUNCTION: CMR2 0x00476a40
-void StageObject_ApplyCarFadeRoll(int index)
+void CarInterior_AnimateWipers(int index)
 {
-    int off = index * 0x1c;
+    int off = index * sizeof(CarInteriorNodes);
+    // Retain the shared byte cursor and every node/profile reload.
+#define INTERIOR_NODES ((CarInteriorNodes *)((BYTE *)g_carInteriorNodeRows + off))
+#define INTERIOR_PROFILE ((CarInteriorProfilePointers *)((BYTE *)g_carInteriorProfilePointers + off))
     SceneNode *pNode;
     FixVector axis;
     FixVector position;
 
-    pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0xc);
+    pNode = INTERIOR_NODES->wiperNodes[0];
     if (pNode != NULL) {
-        SceneNode_SetRotation(pNode, *(FixAngles **)(g_unk0x0058d4f0 + off));
-        axis.x = (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.up.x;
-        axis.y = (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.up.y;
-        axis.z = (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.up.z;
-        short angle = g_unk0x0058d4e0[index * 6];
-        if (g_unk0x0058d2f0[index] != 0)
+        SceneNode_SetRotation(pNode, INTERIOR_PROFILE->firstWiperRotation);
+        axis.x = (INTERIOR_NODES->wiperNodes[0])->current.up.x;
+        axis.y = (INTERIOR_NODES->wiperNodes[0])->current.up.y;
+        axis.z = (INTERIOR_NODES->wiperNodes[0])->current.up.z;
+        short angle = g_carWiperStates[index].angle;
+        if (g_carWiperDirectionReversed[index] != 0)
             angle = -angle;
-        FixMatrix_FromAxisAngle(&g_unk0x0058d260, &axis, angle);
-        position.x = (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.x;
-        position.y = (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.y;
-        position.z = (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.z;
-        (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.x = 0;
-        (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.y = 0;
-        (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.z = 0;
-        FixMatrix_Multiply(&(*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current, &(*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current, &g_unk0x0058d260);
-        (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.x = position.x;
-        (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.y = position.y;
-        (*(SceneNode **)(g_unk0x0058d530 + off + 0xc))->current.position.z = position.z;
+        FixMatrix_FromAxisAngle(&g_carWiperRotationMatrix, &axis, angle);
+        position.x = (INTERIOR_NODES->wiperNodes[0])->current.position.x;
+        position.y = (INTERIOR_NODES->wiperNodes[0])->current.position.y;
+        position.z = (INTERIOR_NODES->wiperNodes[0])->current.position.z;
+        (INTERIOR_NODES->wiperNodes[0])->current.position.x = 0;
+        (INTERIOR_NODES->wiperNodes[0])->current.position.y = 0;
+        (INTERIOR_NODES->wiperNodes[0])->current.position.z = 0;
+        FixMatrix_Multiply(&(INTERIOR_NODES->wiperNodes[0])->current, &(INTERIOR_NODES->wiperNodes[0])->current, &g_carWiperRotationMatrix);
+        (INTERIOR_NODES->wiperNodes[0])->current.position.x = position.x;
+        (INTERIOR_NODES->wiperNodes[0])->current.position.y = position.y;
+        (INTERIOR_NODES->wiperNodes[0])->current.position.z = position.z;
     }
-    pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0x10);
+    pNode = INTERIOR_NODES->wiperNodes[1];
     if (pNode != NULL) {
-        SceneNode_SetRotation(pNode, *(FixAngles **)(g_unk0x0058d4f0 + off + 0x14));
-        short *pNum = *(short **)(g_unk0x0058d4f0 + off + 0x18);
-        axis.x = (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.up.x;
-        axis.y = (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.up.y;
-        axis.z = (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.up.z;
-        short *pDen = *(short **)(g_unk0x0058d4f0 + off + 4);
+        SceneNode_SetRotation(pNode, INTERIOR_PROFILE->secondWiperRotation);
+        short *pNum = INTERIOR_PROFILE->secondWiperMaxAngle;
+        axis.x = (INTERIOR_NODES->wiperNodes[1])->current.up.x;
+        axis.y = (INTERIOR_NODES->wiperNodes[1])->current.up.y;
+        axis.z = (INTERIOR_NODES->wiperNodes[1])->current.up.z;
+        short *pDen = INTERIOR_PROFILE->firstWiperMaxAngle;
         int angle;
-        if (g_unk0x0058d2f0[index] != 0)
-            angle = -(*pNum * g_unk0x0058d4e0[index * 6] / *pDen);
+        if (g_carWiperDirectionReversed[index] != 0)
+            angle = -(*pNum * g_carWiperStates[index].angle / *pDen);
         else
-            angle = *pNum * g_unk0x0058d4e0[index * 6] / *pDen;
-        FixMatrix_FromAxisAngle(&g_unk0x0058d260, &axis, angle);
-        position.x = (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.x;
-        position.y = (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.y;
-        position.z = (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.z;
-        (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.x = 0;
-        (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.y = 0;
-        (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.z = 0;
-        FixMatrix_Multiply(&(*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current, &(*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current, &g_unk0x0058d260);
-        (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.x = position.x;
-        (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.y = position.y;
-        (*(SceneNode **)(g_unk0x0058d530 + off + 0x10))->current.position.z = position.z;
+            angle = *pNum * g_carWiperStates[index].angle / *pDen;
+        FixMatrix_FromAxisAngle(&g_carWiperRotationMatrix, &axis, angle);
+        position.x = (INTERIOR_NODES->wiperNodes[1])->current.position.x;
+        position.y = (INTERIOR_NODES->wiperNodes[1])->current.position.y;
+        position.z = (INTERIOR_NODES->wiperNodes[1])->current.position.z;
+        (INTERIOR_NODES->wiperNodes[1])->current.position.x = 0;
+        (INTERIOR_NODES->wiperNodes[1])->current.position.y = 0;
+        (INTERIOR_NODES->wiperNodes[1])->current.position.z = 0;
+        FixMatrix_Multiply(&(INTERIOR_NODES->wiperNodes[1])->current, &(INTERIOR_NODES->wiperNodes[1])->current, &g_carWiperRotationMatrix);
+        (INTERIOR_NODES->wiperNodes[1])->current.position.x = position.x;
+        (INTERIOR_NODES->wiperNodes[1])->current.position.y = position.y;
+        (INTERIOR_NODES->wiperNodes[1])->current.position.z = position.z;
     }
-    StageObject_UpdateObjectFadeOffset(index);
+    CarInterior_UpdateWiperSweep(index);
+#undef INTERIOR_NODES
+#undef INTERIOR_PROFILE
 }
 
-// Steps the fade state machine of one stage object: 0 -> 2 -> 3 ramps the
-// offset up to the record's limit and 1 ramps it back to zero, retriggering
-// from the object's +0x54 field.
+// Rain intensity selects slow/fast wiper steps. Mode 1 finishes the current
+// sweep; angle and step keep their signed-short overflow and strict limits.
 // FUNCTION: CMR2 0x00476c70
-void StageObject_UpdateObjectFadeOffset(int index)
+void CarInterior_UpdateWiperSweep(int index)
 {
     short *pMax;
 
     if (StageObject_GetViewWeatherStateByte(index) == 1) {
-        if (StageObject_GetViewWeatherField54(index) > 0x3333 && g_unk0x0058d4d8[index * 3] == 0) {
-            g_unk0x0058d4d8[index * 3] = 2;
-            g_unk0x0058d4e0[index * 6 + 1] = rand() % 0xb + 0x2d;
+        if (StageObject_GetViewWeatherField54(index) > 0x3333 && g_carWiperStates[index].mode == 0) {
+            g_carWiperStates[index].mode = 2;
+            g_carWiperStates[index].step = rand() % 0xb + 0x2d;
         }
-        if (StageObject_GetViewWeatherField54(index) > 0x8000 && g_unk0x0058d4d8[index * 3] == 2) {
-            g_unk0x0058d4d8[index * 3] = 3;
-            g_unk0x0058d4e0[index * 6 + 1] = rand() % 0xb + 0x5b;
+        if (StageObject_GetViewWeatherField54(index) > 0x8000 && g_carWiperStates[index].mode == 2) {
+            g_carWiperStates[index].mode = 3;
+            g_carWiperStates[index].step = rand() % 0xb + 0x5b;
         }
-        if (StageObject_GetViewWeatherField54(index) < 0x1999 && g_unk0x0058d4d8[index * 3] == 2)
-            g_unk0x0058d4d8[index * 3] = 1;
-        if (StageObject_GetViewWeatherField54(index) < 0x6666 && g_unk0x0058d4d8[index * 3] == 3) {
-            g_unk0x0058d4d8[index * 3] = 2;
-            g_unk0x0058d4e0[index * 6 + 1] = rand() % 0xb + 0x2d;
+        if (StageObject_GetViewWeatherField54(index) < 0x1999 && g_carWiperStates[index].mode == 2)
+            g_carWiperStates[index].mode = 1;
+        if (StageObject_GetViewWeatherField54(index) < 0x6666 && g_carWiperStates[index].mode == 3) {
+            g_carWiperStates[index].mode = 2;
+            g_carWiperStates[index].step = rand() % 0xb + 0x2d;
         }
     } else {
-        g_unk0x0058d4d8[index * 3] = 0;
+        g_carWiperStates[index].mode = 0;
     }
-    if (g_unk0x0058d4d8[index * 3] != 0) {
-        if (g_unk0x0058d4d8[index * 3 + 1] != 0) {
-            g_unk0x0058d4e0[index * 6] += g_unk0x0058d4e0[index * 6 + 1];
-            pMax = *(short **)(g_unk0x0058d4f0 + index * 0x1c + 4);
-            if (g_unk0x0058d4e0[index * 6] > *pMax) {
-                g_unk0x0058d4d8[index * 3 + 1] = 0;
-                g_unk0x0058d4e0[index * 6] = *pMax;
+    if (g_carWiperStates[index].mode != 0) {
+        if (g_carWiperStates[index].sweepingForward != 0) {
+            g_carWiperStates[index].angle += g_carWiperStates[index].step;
+            pMax = ((CarInteriorProfilePointers *)((BYTE *)g_carInteriorProfilePointers + index * sizeof(CarInteriorProfilePointers)))->firstWiperMaxAngle;
+            if (g_carWiperStates[index].angle > *pMax) {
+                g_carWiperStates[index].sweepingForward = 0;
+                g_carWiperStates[index].angle = *pMax;
                 return;
             }
         } else {
-            g_unk0x0058d4e0[index * 6] -= g_unk0x0058d4e0[index * 6 + 1];
-            if (g_unk0x0058d4e0[index * 6] < 0) {
-                g_unk0x0058d4d8[index * 3 + 1] = 1;
-                if (g_unk0x0058d4d8[index * 3] == 1)
-                    g_unk0x0058d4d8[index * 3] = 0;
-                g_unk0x0058d4e0[index * 6] = 0;
+            g_carWiperStates[index].angle -= g_carWiperStates[index].step;
+            if (g_carWiperStates[index].angle < 0) {
+                g_carWiperStates[index].sweepingForward = 1;
+                if (g_carWiperStates[index].mode == 1)
+                    g_carWiperStates[index].mode = 0;
+                g_carWiperStates[index].angle = 0;
             }
         }
     }
@@ -9678,7 +9629,7 @@ int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *p
 // FUNCTION: CMR2 0x004930e0
 void StageObject_UpdateCarCornerGroundHeights(Car *pCar, int count)
 {
-    int *p;
+    CarPartSet *p;
     short i;
     short missing;
 
@@ -9695,7 +9646,7 @@ void StageObject_UpdateCarCornerGroundHeights(Car *pCar, int count)
             if (pCar->cornerTriangle[i] == -1)
                 missing = missing + 1;
             if (i < 4) {
-                int t = pCar->field_0x978[i] + p[0x96 + i];
+                int t = pCar->field_0x978[i] + p->damageValues[6 + i];
                 if (t > 0x10000)
                     t = 0x10000;
                 pCar->cornerHeight[i] += FixMul(t, pCar->field_0x938[i]);
@@ -9722,70 +9673,67 @@ void StageObject_UpdateCarCornerGroundHeights(Car *pCar, int count)
 }
 
 // Views into g_stageBlock for the object fade tables at 0x58d2d0/0x58d360/0x58d478.
-#define g_unk0x0058d2d0 ((BYTE *)(g_stageBlock + 0x30))
-#define g_unk0x0058d360 ((int *)(g_stageBlock + 0xc0))
-#define g_unk0x0058d478 ((BYTE *)(g_stageBlock + 0x1d8))
 
-// Fades a car's stage object in and out as its body state changes.
+// Returns the steering blend fraction through the gear/handbrake transition.
 // match 83%: fade state machine branches differ from the original
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00476850
-int StageObject_UpdateCarBodyFade(int param_1, int param_2)
+int CarInterior_UpdateSteeringBlendFraction(int param_1, int param_2)
 {
     Car *pCar = (Car *)param_2;
     int result = 0;
 
-    if (g_unk0x0058d360[param_1] == 1 &&
-        ((unsigned int)g_unk0x0058d2d0[param_1] != (int)pCar->requestedGear ||
+    if (g_carSteeringBlendModes[param_1] == 1 &&
+        ((unsigned int)g_carSteeringBlendLastGears[param_1] != (int)pCar->requestedGear ||
          pCar->handbrake != 0)) {
-        g_unk0x0058d2d0[param_1] = pCar->requestedGear;
-        g_unk0x0058d360[param_1] = 2;
-        g_unk0x0058d478[param_1] = 0;
+        g_carSteeringBlendLastGears[param_1] = pCar->requestedGear;
+        g_carSteeringBlendModes[param_1] = 2;
+        g_carSteeringBlendFrames[param_1] = 0;
     }
-    if (g_unk0x0058d360[param_1] == 2) {
-        int local_c = (int)(__int64)((double)(BYTE)g_unk0x0058d478[param_1] * CGraphics::m_65536);
+    if (g_carSteeringBlendModes[param_1] == 2) {
+        int local_c = (int)(__int64)((double)(BYTE)g_carSteeringBlendFrames[param_1] * CGraphics::m_65536);
         BYTE c;
         result = FixDiv(local_c, 0x70000);
-        g_unk0x0058d2d0[param_1] = pCar->requestedGear;
-        c = g_unk0x0058d478[param_1];
-        g_unk0x0058d478[param_1] = c;
-        g_unk0x0058d478[param_1] += 1;
+        g_carSteeringBlendLastGears[param_1] = pCar->requestedGear;
+        c = g_carSteeringBlendFrames[param_1];
+        g_carSteeringBlendFrames[param_1] = c;
+        g_carSteeringBlendFrames[param_1] += 1;
         if ((BYTE)(c + 1) > 7) {
-            g_unk0x0058d360[param_1] = 3;
-            g_unk0x0058d478[param_1] = 0;
+            g_carSteeringBlendModes[param_1] = 3;
+            g_carSteeringBlendFrames[param_1] = 0;
         }
     }
-    if (g_unk0x0058d360[param_1] == 3) {
+    if (g_carSteeringBlendModes[param_1] == 3) {
         result = 0x10000;
-        g_unk0x0058d478[param_1] = g_unk0x0058d478[param_1] + 1;
-        if ((unsigned int)g_unk0x0058d2d0[param_1] != (int)pCar->requestedGear ||
+        g_carSteeringBlendFrames[param_1] = g_carSteeringBlendFrames[param_1] + 1;
+        if ((unsigned int)g_carSteeringBlendLastGears[param_1] != (int)pCar->requestedGear ||
             pCar->handbrake != 0) {
-            g_unk0x0058d478[param_1] = 0;
-            g_unk0x0058d2d0[param_1] = pCar->requestedGear;
+            g_carSteeringBlendFrames[param_1] = 0;
+            g_carSteeringBlendLastGears[param_1] = pCar->requestedGear;
         }
-        if ((BYTE)g_unk0x0058d478[param_1] > 3) {
-            g_unk0x0058d360[param_1] = 4;
-            g_unk0x0058d478[param_1] = 0;
+        if ((BYTE)g_carSteeringBlendFrames[param_1] > 3) {
+            g_carSteeringBlendModes[param_1] = 4;
+            g_carSteeringBlendFrames[param_1] = 0;
         }
     }
-    if (g_unk0x0058d360[param_1] == 4) {
-        int local_c = (int)(__int64)((double)(BYTE)g_unk0x0058d478[param_1] * CGraphics::m_65536);
+    if (g_carSteeringBlendModes[param_1] == 4) {
+        int local_c = (int)(__int64)((double)(BYTE)g_carSteeringBlendFrames[param_1] * CGraphics::m_65536);
         result = 0x10000 - FixDiv(local_c, 0x70000);
-        if ((unsigned int)g_unk0x0058d2d0[param_1] == (int)pCar->requestedGear &&
+        if ((unsigned int)g_carSteeringBlendLastGears[param_1] == (int)pCar->requestedGear &&
             pCar->handbrake == 0) {
-            BYTE c = g_unk0x0058d478[param_1];
-            g_unk0x0058d478[param_1] = c;
-            g_unk0x0058d478[param_1] += 1;
+            BYTE c = g_carSteeringBlendFrames[param_1];
+            g_carSteeringBlendFrames[param_1] = c;
+            g_carSteeringBlendFrames[param_1] += 1;
             if ((BYTE)(c + 1) > 7) {
-                g_unk0x0058d360[param_1] = 1;
-                g_unk0x0058d478[param_1] = 0;
+                g_carSteeringBlendModes[param_1] = 1;
+                g_carSteeringBlendFrames[param_1] = 0;
                 return 0;
             }
         } else {
-            BYTE c = g_unk0x0058d478[param_1];
-            g_unk0x0058d2d0[param_1] = pCar->requestedGear;
-            g_unk0x0058d360[param_1] = 2;
-            g_unk0x0058d478[param_1] = 7 - c;
+            BYTE c = g_carSteeringBlendFrames[param_1];
+            g_carSteeringBlendLastGears[param_1] = pCar->requestedGear;
+            g_carSteeringBlendModes[param_1] = 2;
+            g_carSteeringBlendFrames[param_1] = 7 - c;
         }
     }
     return result;
@@ -9992,7 +9940,7 @@ short Car_GetOrderCount(void);
 SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
 void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc);
 
-extern BYTE g_unk0x00590ec0[16];
+extern BYTE g_viewObjectCarIndices[16];
 
 // Picks the scene node of a car's object payload by the payload type letter
 // ('C' or 'A' select the 9-mode node, anything else the 5-mode one) and stores
@@ -10001,15 +9949,15 @@ extern BYTE g_unk0x00590ec0[16];
 void StageObject_SelectAndCopyCarNodePayload(BYTE *pObj, int *pSrc, BYTE index, BYTE value)
 {
     g_carPartStateTables.modes[*pObj] = value;
-    g_unk0x00590ec0[*pObj] = index;
+    g_viewObjectCarIndices[*pObj] = index;
     if ((short)index < Car_GetOrderCount() && Car_Get(index)->pBodyNode != NULL) {
         if (StageTiming_GetStartTableRecord(index)->detailCode == 'C' || StageTiming_GetStartTableRecord(index)->detailCode == 'A')
-            g_stageBlock_58d340[index] =
-                (int)SceneNode_FindByType(Car_Get(index)->pBodyNode, 9);
+            g_carDetailBodyNodes[index] =
+                SceneNode_FindByType(Car_Get(index)->pBodyNode, 9);
         else
-            g_stageBlock_58d340[index] =
-                (int)SceneNode_FindByType(Car_Get(index)->pBodyNode, 5);
-        g_stageBlock_58d47c[index] = (int)SceneNode_FindByType(Car_Get(index)->pBodyNode, 5);
+            g_carDetailBodyNodes[index] =
+                SceneNode_FindByType(Car_Get(index)->pBodyNode, 5);
+        g_carDefaultBodyNodes[index] = SceneNode_FindByType(Car_Get(index)->pBodyNode, 5);
     }
     StageObject_RebuildMirroredTiltMatrix(pObj, pSrc);
 }
@@ -10155,8 +10103,8 @@ void StageObject_CycleDriverCameraSelection(unsigned int param_1, unsigned int p
 
 extern int g_unk0x00547ad0;
 
-// 0x547abc is g_stageLighting[0x5b] (the lighting block runs to 0x547ac8).
-#define g_unk0x00547abc (g_stageLighting[0x5b])
+// 0x547abc is g_stageLighting.intensity (the lighting block runs to 0x547ac8).
+#define g_weatherLightIntensity (g_stageLighting.intensity)
 
 // Positions a lens flare of the given view node on screen: its brightness
 // follows the sun visibility and the camera's pitch, its colour is scaled by
@@ -10464,7 +10412,6 @@ void StageObject_DrawProjectedViewIcon(int param_1, int param_2)
 
     int diff;
     int scale;
-    int base;
 
     icon.w = 0x10;
     icon.h = 0x10;
@@ -10488,34 +10435,33 @@ void StageObject_DrawProjectedViewIcon(int param_1, int param_2)
     icon.x = (short)(vOut.x - icon.w / 2);
     icon.y = (short)(vOut.y - icon.h / 2);
     StageObject_UpdateSunVisibility((short *)&icon);
-    ramp = FixMul(-0x20000, g_unk0x00547abc) + 0x20000;
+    ramp = FixMul(-0x20000, g_weatherLightIntensity) + 0x20000;
     if (ramp < 0)
         ramp = 0;
     else if (ramp > 0x10000)
         ramp = 0x10000;
     value = FixMul((int)g_sunVisibility << 16, 0x28f);
-    base = param_2 * 0x178;
-    diff = value - *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68);
+    diff = value - g_viewWeather[param_2].sunVisibility;
     if ((diff < 0 ? -diff : diff) <= FixMul(0x4ccc, g_unk0x0051bd3c)) {
-        *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) = value;
+        g_viewWeather[param_2].sunVisibility = value;
     } else {
         if (diff > 0)
-            *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) += FixMul(0x4ccc, g_unk0x0051bd3c);
+            g_viewWeather[param_2].sunVisibility += FixMul(0x4ccc, g_unk0x0051bd3c);
         else
-            *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) -= FixMul(0x4ccc, g_unk0x0051bd3c);
+            g_viewWeather[param_2].sunVisibility -= FixMul(0x4ccc, g_unk0x0051bd3c);
     }
-    ramp += *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68);
+    ramp += g_viewWeather[param_2].sunVisibility;
     if (ramp > 0x10000)
         ramp = 0x10000;
     scale = FixMul(0x10000 - ramp, 0x30000);
     if (scale > 0x10000)
         scale = 0x10000;
-    colour[0] = (BYTE)(FixMul(g_unk0x00543eb4[0] << 16, scale) >> 16);
-    colour[1] = (BYTE)(FixMul(g_unk0x00543eb4[1] << 16, scale) >> 16);
-    colour[2] = (BYTE)(FixMul(g_unk0x00543eb4[2] << 16, scale) >> 16);
+    colour[0] = (BYTE)(FixMul(g_sunIconColour[0] << 16, scale) >> 16);
+    colour[1] = (BYTE)(FixMul(g_sunIconColour[1] << 16, scale) >> 16);
+    colour[2] = (BYTE)(FixMul(g_sunIconColour[2] << 16, scale) >> 16);
     colour[3] = 0xff;
-    dst.w = (short)(FixMul(g_unk0x00543d58, *(int *)g_pGraphics << 16) >> 16);
-    dst.h = (short)(FixMul(g_unk0x00543d5c, *((int *)g_pGraphics + 1) << 16) >> 16);
+    dst.w = (short)(FixMul(g_sunIconWidthScale, *(int *)g_pGraphics << 16) >> 16);
+    dst.h = (short)(FixMul(g_sunIconHeightScale, *((int *)g_pGraphics + 1) << 16) >> 16);
     dst.x = (short)(vOut.x - dst.w / 2);
     dst.y = (short)(vOut.y - dst.h / 2);
     Sprite_Queue(&uv, &dst, (Texture *)g_unk0x00547ad0, 2, 0, 0, 0, colour, 8);
@@ -10613,8 +10559,8 @@ void StageObject_QueueOrEvictMovingObject(int *param_1, int param_2, int param_3
     StageObject_InitMovingObject(entry, param_3);
 }
 
-extern int *g_unk0x00588b9c;
-extern int *g_unk0x00588ba0;
+extern DeformVertex ***g_carOriginalPartVertices;
+extern BYTE **g_carOriginalPartNodeTypes;
 
 // Builds the vertex buffer of one stage object for one car: converts the
 // float source vertices to 16.16 fixed point and packs the normal bytes.
@@ -10628,27 +10574,27 @@ void CarDamage_BuildPartVertexBuffer(int param_1, int param_2, CarPartSet *set)
     int len;
     BYTE rgb[3];
     FixVector v;
-    CarPartVertex *pDst;
+    DeformVertex *pDst;
     FixVector *pPos;
     FixVector p;
 
-    g_unk0x00588b9c[param_1] = (int)CFileBuffer::AllocateLockedBuffer(set->count << 2);
+    g_carOriginalPartVertices[param_1] = (DeformVertex **)CFileBuffer::AllocateLockedBuffer(set->count << 2);
     total = set->count * 4;
-    g_unk0x00588ba0[param_1] = (int)CFileBuffer::AllocateLockedBuffer(set->count);
+    g_carOriginalPartNodeTypes[param_1] = (BYTE *)CFileBuffer::AllocateLockedBuffer(set->count);
     for (i = 0; i < set->count; i++) {
-        ((CarPartVertex **)g_unk0x00588b9c[param_1])[i] =
-            (CarPartVertex *)CFileBuffer::AllocateLockedBuffer(set->vertexCount[i] << 5);
+        g_carOriginalPartVertices[param_1][i] =
+            (DeformVertex *)CFileBuffer::AllocateLockedBuffer(set->vertexCount[i] << 5);
         total += set->vertexCount[i] << 5;
-        ((BYTE *)g_unk0x00588ba0[param_1])[i] = (BYTE)set->nodes[i]->key;
+        g_carOriginalPartNodeTypes[param_1][i] = (BYTE)set->geometry.nodes[i]->flags;
         for (j = 0; j < set->vertexCount[i]; j++) {
-            pDst = &((CarPartVertex **)g_unk0x00588b9c[param_1])[i][j];
+            pDst = &g_carOriginalPartVertices[param_1][i][j];
             pPos = &pDst->pos;
-            pDst->pos.x = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[0] * CGraphics::m_65536);
-            pDst->pos.y = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[1] * CGraphics::m_65536);
-            pDst->pos.z = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[2] * CGraphics::m_65536);
-            pDst->normal.x = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[0] * CGraphics::m_65536);
-            pDst->normal.y = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[1] * CGraphics::m_65536);
-            pDst->normal.z = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[2] * CGraphics::m_65536);
+            pDst->pos.x = (int)(__int64)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[0] * CGraphics::m_65536);
+            pDst->pos.y = (int)(__int64)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[1] * CGraphics::m_65536);
+            pDst->pos.z = (int)(__int64)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[2] * CGraphics::m_65536);
+            pDst->normal.x = (int)(__int64)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].normal[0] * CGraphics::m_65536);
+            pDst->normal.y = (int)(__int64)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].normal[1] * CGraphics::m_65536);
+            pDst->normal.z = (int)(__int64)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].normal[2] * CGraphics::m_65536);
             p = *pPos;
             if (p.x >= 0)
                 pDst->rawNormal[0] = 0x81;
@@ -10662,9 +10608,9 @@ void CarDamage_BuildPartVertexBuffer(int param_1, int param_2, CarPartSet *set)
                 pDst->rawNormal[2] = 0x81;
             else
                 pDst->rawNormal[2] = 0x7f;
-            rgb[0] = (BYTE)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].colour >> 16);
-            rgb[1] = (BYTE)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].colour >> 8);
-            rgb[2] = (BYTE)((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].colour;
+            rgb[0] = (BYTE)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].colour >> 16);
+            rgb[1] = (BYTE)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].colour >> 8);
+            rgb[2] = (BYTE)((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].colour;
             t = rgb[0] - 0x80;
             if (t < -0x7f)
                 t = -0x7f;
@@ -10964,7 +10910,7 @@ unsigned int AI_SelectWallCollisionResponse(int param_1)
 int RallyData_GetRouteAvailabilityState(void);
 int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
 void RallyData_GetRouteNodeGroundPosition(int index, int *pOut);
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 
 // Picks the closest car ahead of the reference angle among the active cars,
 // rejecting those out of range or outside the angular window, and writes the
@@ -11042,7 +10988,7 @@ int AI_FindClosestCarInAngleWindow(int param_1, int *param_2, int param_3, int *
             limit = 0x50000;
         else if (limit < 0)
             limit = 0;
-        length = FixMul(g_sinTable[(short)(__int64)((double)angle * g_unk0x00511300) & 0xfff], length);
+        length = FixMul(g_sinTable[(short)(__int64)((double)angle * g_fixedDegreesToAngle12) & 0xfff], length);
         i = param_3 + 5;
         if (i - wrap >= 0)
             i -= wrap;
@@ -11120,29 +11066,21 @@ int Replay_InitCarStreamState(ReplayStream *p, int unused, BYTE car)
 // Views into the stage object block declared in StageBlock.h, used by the
 // stage object pose code.
 // Per-object pose record of the stage object pass (0x24 bytes).
-struct ObjectPoseRecord {
-    short angle;            // 0x00 12-bit spin angle
-    FixAngles rot;          // 0x02 eased body angles
-    short pad;
-    FixVector offset;       // 0x0c eased position offset
-    BYTE field_0x18[0xc];
-};
+
 // GLOBAL: CMR2 0x0058d2f8  (per object: 3 int, animated pose offset)
-#define g_unk0x0058d2f8 (g_stageBlock + 0x58)
 // GLOBAL: CMR2 0x0058d368  (per object: 0x24-byte timing record, angle at +0)
-#define g_unk0x0058d368 (g_stageBlock + 0xc8)
 // GLOBAL: CMR2 0x0058d374  (per object: int pose offset, +4/+8 are y/z)
-#define g_unk0x0058d374 (g_stageBlock + 0xd4)
+#define g_carDriverPoseOffsetView (&g_carDriverPoseStates[0].offset)
 // GLOBAL: CMR2 0x0058d560  (scratch 4x4 16.16 matrix, 16 int = 0x40 bytes)
-#define g_unk0x0058d560 ((int *)(g_stageBlock + 0x2c0))
+#define g_carDriverPoseMatrix (*(FixMatrix *)(g_stageBlock + 0x2c0))
 
 // Integrates one stage object's pose: rebuilds the object matrix from the car
 // basis, low-pass filters the object's angles against the car's body axes and
 // moves the object's scene node.
 // FUNCTION: CMR2 0x00476e00
-void StageObject_IntegrateFilteredObjectPose(BYTE *param_1, int *param_2, int unused)
+void CarInterior_IntegrateDriverPose(BYTE *param_1, FixMatrix *param_2, int unused)
 {
-#define POSE (((ObjectPoseRecord *)g_unk0x0058d368)[param_1[2]])
+#define POSE (g_carDriverPoseStates[param_1[2]])
     Car *pCar;
     FixVector acc;
     FixVector off;
@@ -11155,22 +11093,22 @@ void StageObject_IntegrateFilteredObjectPose(BYTE *param_1, int *param_2, int un
 
     // Object matrix: rows 0 and 2 swapped (the old row 2 negated), translation
     // cleared, then rotated about the object's right axis.
-    *(ObjectMatrix16 *)g_unk0x0058d560 = *(ObjectMatrix16 *)param_2;
-    g_unk0x0058d560[0] = -param_2[8];
-    g_unk0x0058d560[1] = -param_2[9];
-    g_unk0x0058d560[2] = -param_2[10];
-    g_unk0x0058d560[8] = param_2[0];
-    g_unk0x0058d560[9] = param_2[1];
-    g_unk0x0058d560[10] = param_2[2];
-    g_unk0x0058d560[12] = 0;
-    g_unk0x0058d560[13] = 0;
-    g_unk0x0058d560[14] = 0;
-    FixMatrix_RotateAboutRight((FixMatrix *)g_unk0x0058d560,
-                               ((unsigned int)param_2[0] & 0xffff0000) |
-                                   (unsigned int)(unsigned short)g_unk0x0051c9b0);
+    g_carDriverPoseMatrix = *param_2;
+    g_carDriverPoseMatrix.right.x = -param_2->forward.x;
+    g_carDriverPoseMatrix.right.y = -param_2->forward.y;
+    g_carDriverPoseMatrix.right.z = -param_2->forward.z;
+    g_carDriverPoseMatrix.forward.x = param_2->right.x;
+    g_carDriverPoseMatrix.forward.y = param_2->right.y;
+    g_carDriverPoseMatrix.forward.z = param_2->right.z;
+    g_carDriverPoseMatrix.position.x = 0;
+    g_carDriverPoseMatrix.position.y = 0;
+    g_carDriverPoseMatrix.position.z = 0;
+    FixMatrix_RotateAboutRight(&g_carDriverPoseMatrix,
+                               ((unsigned int)param_2->right.x & 0xffff0000) |
+                                   (unsigned int)(unsigned short)g_carMountRightRotationAngle);
 
-    // Steps this object's 12-bit angle by 3.
-    POSE.angle = (POSE.angle + 3) % 0x1000;
+    // Advances the stored 12-bit phase angle by 3.
+    POSE.phaseAngle = (POSE.phaseAngle + 3) % 0x1000;
 
     // Angle of the car body axes against the car's last acceleration.
     acc.x = pCar->velocity.x - pCar->velocityNext.x;
@@ -11182,15 +11120,15 @@ void StageObject_IntegrateFilteredObjectPose(BYTE *param_1, int *param_2, int un
     acc.y = pCar->velocity.y - pCar->velocityNext.y;
     acc.z = pCar->velocity.z - pCar->velocityNext.z;
     target.x = (unsigned short)FixDiv(FixVecDot(&acc, &pCar->forward), 0x1e0000);
-    target.y = **(short **)(g_unk0x0058d4f0 + param_1[2] * 0x1c + 0xc);
+    target.y = *g_carInteriorProfilePointers[param_1[2]].driverRestYaw;
 
     // Eases each angle a fifth of the way towards its target.
-    POSE.rot.x += ((short)target.x - (short)POSE.rot.x) / 5;
-    POSE.rot.y += ((short)target.y - (short)POSE.rot.y) / 5;
-    POSE.rot.z += ((short)right - (short)POSE.rot.z) / 5;
-    if (g_unk0x0058d3b0[param_1[2]] != 0)
-        POSE.rot = target;
-    SceneNode_SetRotation(*(SceneNode **)(g_unk0x0058d530 + param_1[2] * 0x1c + 4), &POSE.rot);
+    POSE.rotation.x += ((short)target.x - (short)POSE.rotation.x) / 5;
+    POSE.rotation.y += ((short)target.y - (short)POSE.rotation.y) / 5;
+    POSE.rotation.z += ((short)right - (short)POSE.rotation.z) / 5;
+    if (g_carDriverPoseNeedsReset[param_1[2]] != 0)
+        POSE.rotation = target;
+    SceneNode_SetRotation(g_carInteriorNodeRows[param_1[2]].driverPoseNode, &POSE.rotation);
 
     // Pose offset from the body axes, clamped and eased towards its target.
     off.x = FixDiv(-FixVecDot(&acc, &pCar->right), 0x4ccc);
@@ -11204,9 +11142,9 @@ void StageObject_IntegrateFilteredObjectPose(BYTE *param_1, int *param_2, int un
     else if (off.z > 0xf5c)
         off.z = 0xf5c;
     off.y = 0;
-    if (g_unk0x0058d3b0[param_1[2]] != 0) {
+    if (g_carDriverPoseNeedsReset[param_1[2]] != 0) {
         POSE.offset = off;
-        g_unk0x0058d3b0[param_1[2]] = 0;
+        g_carDriverPoseNeedsReset[param_1[2]] = 0;
     } else {
         off.x -= POSE.offset.x;
         off.y = -POSE.offset.y;
@@ -11217,12 +11155,12 @@ void StageObject_IntegrateFilteredObjectPose(BYTE *param_1, int *param_2, int un
         POSE.offset.z += off.z;
     }
 
-    pos.x = ((FixVector *)g_unk0x0058d2f8)[param_1[2]].x + POSE.offset.x;
-    pos.y = ((FixVector *)g_unk0x0058d2f8)[param_1[2]].y + POSE.offset.y;
-    pos.z = ((FixVector *)g_unk0x0058d2f8)[param_1[2]].z + POSE.offset.z;
+    pos.x = g_carDriverRestPositions[param_1[2]].x + POSE.offset.x;
+    pos.y = g_carDriverRestPositions[param_1[2]].y + POSE.offset.y;
+    pos.z = g_carDriverRestPositions[param_1[2]].z + POSE.offset.z;
     if (CGameInfo::IsActiveCheatEnabled(6) != 0)
         pos.y += FixMul(Car_Get(param_1[2])->cheatBodyLift, 0x8000);
-    SceneNode_SetPosition(*(SceneNode **)(g_unk0x0058d530 + param_1[2] * 0x1c + 4), &pos);
+    SceneNode_SetPosition(g_carInteriorNodeRows[param_1[2]].driverPoseNode, &pos);
 #undef POSE
 }
 
@@ -11262,7 +11200,7 @@ void CarDamage_UpdateSuspensionImpactContacts(Car *pCar)
     FixVector vHit;
 
     iFlagC = 0;
-    pParts = (CarPartSet *)StageTiming_GetCarReplayRecord(pCar->index);
+    pParts = StageTiming_GetCarReplayRecord(pCar->index);
     bVar5 = FALSE;
     bVar14 = TRUE;
     i = 0;
@@ -11387,35 +11325,35 @@ void CarDamage_RebuildPartBounds(int param_1, int param_2, int param_3)
     FixVector normal;
     FixVector extents;
 
-    if (g_unk0x00588970[param_1] == 0)
+    if (g_carDamageModelEnabled[param_1] == 0)
         return;
-    if (g_unk0x00588b9c[param_1] == 0)
+    if (g_carOriginalPartVertices[param_1] == 0)
         CarDamage_BuildPartVertexBuffer(param_1, param_2, (CarPartSet *)param_3);
     for (i = 0; i < set->count; i++) {
-        key = set->nodes[i]->key & 0xff;
+        key = set->geometry.nodes[i]->flags & 0xff;
         match = -1;
         for (j = 0; j <= set->count; j++) {
-            if (((BYTE *)g_unk0x00588ba0[param_1])[j] == key) {
+            if (g_carOriginalPartNodeTypes[param_1][j] == key) {
                 match = j;
                 j = set->count;
             }
         }
         if (match >= 0) {
-            set->vertices[i] = ((CarPartVertex **)g_unk0x00588b9c[param_1])[match];
+            set->geometry.vertices[i] = g_carOriginalPartVertices[param_1][match];
             maxX = maxY = maxZ = -0x640000;
             minX = minY = minZ = 0x640000;
             for (j = 0; j < set->vertexCount[i]; j++) {
-                pos = set->vertices[i][j].pos;
-                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[0] = pos.x * CGraphics::m_oneOver65536;
-                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[1] = pos.y * CGraphics::m_oneOver65536;
-                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[2] = pos.z * CGraphics::m_oneOver65536;
-                normal = set->vertices[i][j].normal;
-                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[0] = normal.x * CGraphics::m_oneOver65536;
-                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[1] = normal.y * CGraphics::m_oneOver65536;
-                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[2] = normal.z * CGraphics::m_oneOver65536;
-                fx = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[0] * CGraphics::m_65536);
-                fy = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[1] * CGraphics::m_65536);
-                fz = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[2] * CGraphics::m_65536);
+                pos = set->geometry.vertices[i][j].pos;
+                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[0] = pos.x * CGraphics::m_oneOver65536;
+                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[1] = pos.y * CGraphics::m_oneOver65536;
+                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[2] = pos.z * CGraphics::m_oneOver65536;
+                normal = set->geometry.vertices[i][j].normal;
+                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].normal[0] = normal.x * CGraphics::m_oneOver65536;
+                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].normal[1] = normal.y * CGraphics::m_oneOver65536;
+                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].normal[2] = normal.z * CGraphics::m_oneOver65536;
+                fx = (int)(__int64)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[0] * CGraphics::m_65536);
+                fy = (int)(__int64)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[1] * CGraphics::m_65536);
+                fz = (int)(__int64)(((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[2] * CGraphics::m_65536);
                 if (fx > maxX)
                     maxX = fx;
                 if (fx < minX)
@@ -11487,7 +11425,7 @@ static inline short Replay_Acos(int x)
 extern const float g_netMinusOne;
 extern const float g_netOne;
 extern float g_65536f;
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 extern const float g_unk0x00511358;   // defined in NetRace.cpp (single definition)
 extern const float g_unk0x0051135c;   // defined in NetRace.cpp (single definition)
 extern const float g_unk0x00511368;   // defined in NetRace.cpp (single definition)
@@ -11650,8 +11588,8 @@ void Replay_DecodeCarPoseSample(unsigned int *pFlag24, unsigned int *pFlag27, un
     for (i = 0; i < 2; i++) {
         float vh = (heading[i] *= g_unk0x0051135c);
         float vp = (pitch[i] *= g_unk0x00511358);
-        yaw[i] = (short)(__int64)((double)FloatToFix(vh) * g_unk0x00511300);
-        tilt[i] = (short)(__int64)((double)FloatToFix(vp) * g_unk0x00511300);
+        yaw[i] = (short)(__int64)((double)FloatToFix(vh) * g_fixedDegreesToAngle12);
+        tilt[i] = (short)(__int64)((double)FloatToFix(vp) * g_fixedDegreesToAngle12);
         a = yaw[i];
         b = tilt[i];
         axes[i * 2].x = FixMul(g_sinTable[(unsigned short)b & 0xfff], g_sinTable[((unsigned short)a + 0x400) & 0xfff]);
@@ -11673,19 +11611,15 @@ void Replay_DecodeCarPoseSample(unsigned int *pFlag24, unsigned int *pFlag27, un
     *pFlag26 = pSample->flag26;
 }
 
-void Glow_SetPosition(GlowLight *pLight, FixVector *pPos, FixVector *pDir);
-void Glow_SetLayerPlane(GlowLight *pLight, FixVector *pPoint, FixVector *pNormal, int layerIntensity);
-void StageTiming_SetPrimaryWheelTrailTexture(int texture, int side, int car);
-void StageTiming_SetSecondaryWheelTrailTexture(int texture, int side, int car);
 void StageTiming_ReadCarReplayTailValues(int *pA, int *pB, Car *pCar);
 int Surface_GetTransitionBlend(int surface, int t);
 SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles,
                              SceneNode *pParent);
 
 // GLOBAL: CMR2 0x00547ce0
-int g_unk0x00547ce0[8];
+int g_carDamageHazardTimer[8];
 // GLOBAL: CMR2 0x00547d00
-int g_unk0x00547d00[8 * 0x14]; // 20 glow slots per car, up to 8 cars (runs to 0x547f80)
+GlowLight *g_carLightGlowSlots[8 * 0x14]; // 20 glow slots per car, up to 8 cars (runs to 0x547f80)
 
 // Rebuilds the two light meshes of a car. First a glow light is created for
 // every collision point of the car (the (object, vertex) slot is stored into
@@ -11699,7 +11633,7 @@ void StageObject_RebuildCarLightMeshes(int param_1)
 // the original re-reads the car index at every use
 #define LCAR (*(char *)(param_1 + 0xb1a))
     int minDot[20];
-    int *pRec;
+    CarPartSet *pRec;
     FixVector scale;
     FixAngles angles;
     FixVector position;
@@ -11716,31 +11650,31 @@ void StageObject_RebuildCarLightMeshes(int param_1)
     angles.y = 0;
     angles.pad = 0;
     if (LCAR == 0) {
-        g_unk0x00547fe0.x = 0x1e0000;
-        g_unk0x00547fe0.y = 0;
-        g_unk0x00547fe0.z = 0;
-        g_unk0x00547fa0.x = 0xf0000;
-        g_unk0x00547fa0.y = 0;
-        g_unk0x00547fa0.z = 0;
+        g_rearViewLightOffsetA.x = 0x1e0000;
+        g_rearViewLightOffsetA.y = 0;
+        g_rearViewLightOffsetA.z = 0;
+        g_rearViewLightOffsetB.x = 0xf0000;
+        g_rearViewLightOffsetB.y = 0;
+        g_rearViewLightOffsetB.z = 0;
         position.x = 0;
         position.y = 0;
         position.z = 0;
-        g_unk0x00547fec = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &angles,
+        g_rearViewLightNodeA = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &angles,
                                             (SceneNode *)RallyData_GetChallengeRenderState());
-        g_unk0x00547ff0 = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &angles,
+        g_rearViewLightNodeB = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &angles,
                                             (SceneNode *)RallyData_GetChallengeRenderState());
     }
     {
-        int *pSet = (int *)StageTiming_GetStartArchiveRelativeEntry((BYTE *)param_1, 0);
+        CarLightProfile *pSet = (CarLightProfile *)CarInfo_GetSection((Car *)param_1, CAR_INFO_LIGHTS);
         int side = 0;
         int *pMin;
         int off;
         char projected;
         SceneNode *node;
 
-        g_carLightSets[LCAR] = pSet;
-        g_carLightPoints[LCAR] = (CarLightPoint *)(pSet + 1);
-        if (0 < *g_carLightSets[LCAR]) {
+        g_carLightProfiles[LCAR] = pSet;
+        g_carLightPoints[LCAR] = pSet->points;
+        if (0 < g_carLightProfiles[LCAR]->count) {
             pMin = minDot;
             off = 0;
             do {
@@ -11761,21 +11695,21 @@ void StageObject_RebuildCarLightMeshes(int param_1)
                 position.x = 0;
                 position.y = 0;
                 position.z = 0;
-                g_unk0x00547d00[n + LCAR * 0x14] =
-                    (int)Glow_Add(2, &pPoint->pos, &pPoint->dir, (int)&scale, pPoint->size, pPoint->size,
-                                  (int)g_carLightTexA[pPoint->slot], (int)g_carLightTexB[pPoint->slot],
-                                  pPoint->intensity, (int)node, (BYTE)projected, (int)&position, 0x10000);
-                Glow_SetEntryByte50((BYTE *)g_unk0x00547d00[n + LCAR * 0x14], 1);
+                g_carLightGlowSlots[n + LCAR * 0x14] =
+                    Glow_Add(2, &pPoint->pos, &pPoint->dir, (int)&scale, pPoint->size, pPoint->size,
+                                  g_carLightTexA[pPoint->slot], g_carLightTexB[pPoint->slot],
+                                  pPoint->intensity, node, (BYTE)projected, (int)&position, 0x10000);
+                Glow_SetEnabled(g_carLightGlowSlots[n + LCAR * 0x14], 1);
                 *pMin = 0x3e80000;
                 if (pPoint->type == 9) {
-                    StageTiming_SetPrimaryWheelTrailTexture((int)pPoint, side, LCAR);
-                    StageTiming_SetSecondaryWheelTrailTexture(g_unk0x00547d00[n + LCAR * 0x14], side, LCAR);
+                    CarExhaust_SetPoint(pPoint, side, LCAR);
+                    CarExhaust_SetGlow(g_carLightGlowSlots[n + LCAR * 0x14], side, LCAR);
                     side++;
                 }
                 pMin++;
-                off += 0x28;
+                off += sizeof(CarLightPoint);
                 n++;
-            } while (n < *g_carLightSets[LCAR]);
+            } while (n < g_carLightProfiles[LCAR]->count);
         }
     }
     if (StageObject_GetCarStateSlot((BYTE *)param_1) != 0) {
@@ -11787,14 +11721,14 @@ void StageObject_RebuildCarLightMeshes(int param_1)
 
         pRec = StageTiming_GetCarReplayRecord(LCAR);
         i = 0;
-        if (0 < pRec[0x117]) {
-            pObj = pRec + 0x108;
+        if (0 < pRec->count) {
+            pObj = pRec->vertexCount;
             do {
                 j = 0;
                 if (0 < *pObj) {
                     do {
                         k = 0;
-                        if (0 < *g_carLightSets[LCAR]) {
+                        if (0 < g_carLightProfiles[LCAR]->count) {
                             off = 0;
                             pMin = minDot;
                             do {
@@ -11802,7 +11736,10 @@ void StageObject_RebuildCarLightMeshes(int param_1)
 
                                 pPoint = (CarLightPoint *)((BYTE *)g_carLightPoints[LCAR] + off);
                                 {
-                                    FixVector v = *(FixVector *)(pObj[-0xea] + j * 0x20);
+                                    // Keep the original walk biased at vertexCount: MSVC6 otherwise
+                                    // creates a second induction pointer and changes the full body.
+                                    FixVector v = ((DeformVertex **)((BYTE *)pObj +
+                                        offsetof(CarPartSet, geometry) + offsetof(DeformMeshSources, vertices) - offsetof(CarPartSet, vertexCount)))[0][j].pos;
                                     position.x = pPoint->pos.x - v.x;
                                     position.y = pPoint->pos.y - v.y;
                                     position.z = pPoint->pos.z - v.z;
@@ -11814,21 +11751,21 @@ void StageObject_RebuildCarLightMeshes(int param_1)
                                     pPoint->vertex = (short)j;
                                 }
                                 pMin++;
-                                off += 0x28;
+                                off += sizeof(CarLightPoint);
                                 k++;
-                            } while (k < *g_carLightSets[LCAR]);
+                            } while (k < g_carLightProfiles[LCAR]->count);
                         }
                         j++;
                     } while (j < *pObj);
                 }
                 i++;
                 pObj++;
-            } while (i < pRec[0x117]);
+            } while (i < pRec->count);
         }
     }
-    g_unk0x00547ff4 = 0xffff0000;
+    g_rearViewLightAttenuation = 0xffff0000;
     for (i = 0; i < 8; i++)
-        g_unk0x00547ce0[i] = 0;
+        g_carDamageHazardTimer[i] = 0;
 #undef LCAR
 }
 
@@ -11837,23 +11774,23 @@ void StageObject_RebuildCarLightMeshes(int param_1)
 // the per-lane tuning table, colours it by the point type and hangs it on the
 // car body, or disables every glow when the car is not racing.
 // match 18%: implementada (flags de luces del coche + glow por punto de colision);
-// el codegen de la tabla de ajuste por carril y de las llamadas a StageObject_ModifyDamageRecordFlagBytes difiere
+// el codegen de la tabla de ajuste por carril y de las llamadas a CarLight_SetChannelMasks difiere
 // FUNCTION: CMR2 0x004643f0
 void StageObject_UpdateCarLightFlagsAndGlows(int param_1)
 {
     Car *pCar = (Car *)param_1;
 // the original re-reads the car index at every use
 #define LIGHT_CAR (pCar->index)
-#define LIGHT_COUNT(c) (*g_carLightSets[c])
+#define LIGHT_COUNT(c) (g_carLightProfiles[c]->count)
 #define LIGHT_POINTS(c) g_carLightPoints[c]
     int lights[11];
     FixVector planePos;
     FixVector colour;
     FixVector pos;
     int out[3];
-    int *pRec;
+    CarPartSet *pRec;
     CarLightPoint *pPoint;
-    BYTE *glow;
+    GlowLight *glow;
     int vA;
     int vB;
     int old;
@@ -11866,62 +11803,62 @@ void StageObject_UpdateCarLightFlagsAndGlows(int param_1)
     int vz;
     int oi;
     int ii;
-    int *pVertex;
+    DeformVertex *pVertex;
 
     pRec = StageTiming_GetCarReplayRecord(LIGHT_CAR);
     if (pCar->field_0xb70 != 0) {
-        StageObject_ModifyDamageRecordFlagBytes(LIGHT_CAR, 0, 0, 2);
-        StageObject_ModifyDamageRecordFlagBytes(LIGHT_CAR, 0, 0, 8);
+        CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 2);
+        CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 8);
         for (n = 0; n < LIGHT_COUNT(LIGHT_CAR); n++)
-            Glow_SetEntryByte50((BYTE *)g_unk0x00547d00[n + LIGHT_CAR * 0x14], 0);
+            Glow_SetEnabled(g_carLightGlowSlots[n + LIGHT_CAR * 0x14], 0);
         return;
     }
     StageTiming_ReadCarReplayTailValues(&vA, &vB, (Car *)param_1);
     if (pCar->braking != 0)
-        StageObject_ModifyDamageRecordFlagBytes(LIGHT_CAR, vA == 0, vB == 0, 2);
+        CarLight_SetChannelMasks(LIGHT_CAR, vA == 0, vB == 0, 2);
     else
-        StageObject_ModifyDamageRecordFlagBytes(LIGHT_CAR, 0, 0, 2);
+        CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 2);
     if (pCar->reversing != 0)
-        StageObject_ModifyDamageRecordFlagBytes(LIGHT_CAR, vA == 0, vB == 0, 8);
+        CarLight_SetChannelMasks(LIGHT_CAR, vA == 0, vB == 0, 8);
     else
-        StageObject_ModifyDamageRecordFlagBytes(LIGHT_CAR, 0, 0, 8);
+        CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 8);
     if (pCar->field_0xb58 != 0) {
-        StageObject_ModifyDamageRecordFlagBytes(LIGHT_CAR, vA == 0, vB == 0, 1);
-        StageObject_ModifyDamageRecordFlagBytes(LIGHT_CAR, 1, 1, 0x10);
+        CarLight_SetChannelMasks(LIGHT_CAR, vA == 0, vB == 0, 1);
+        CarLight_SetChannelMasks(LIGHT_CAR, 1, 1, 0x10);
     } else {
-        StageObject_ModifyDamageRecordFlagBytes(LIGHT_CAR, 0, 0, 1);
-        StageObject_ModifyDamageRecordFlagBytes(LIGHT_CAR, 0, 0, 0x10);
+        CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 1);
+        CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 0x10);
     }
-    if (pRec[0xa7] > 0x4ccc) {
-        old = g_unk0x00547ce0[LIGHT_CAR];
-        g_unk0x00547ce0[LIGHT_CAR] = old;
-        g_unk0x00547ce0[LIGHT_CAR] += g_unk0x0051bd3c;
-        if (g_unk0x00547ce0[LIGHT_CAR] > 0x140000)
-            g_unk0x00547ce0[LIGHT_CAR] = 0;
-        if (g_unk0x00547ce0[LIGHT_CAR] == 0)
-            StageObject_ModifyDamageRecordFlagBytes(LIGHT_CAR, 0, 0, 4);
-        if (old < 0xa0000 && g_unk0x00547ce0[LIGHT_CAR] >= 0xa0000)
-            StageObject_ModifyDamageRecordFlagBytes(LIGHT_CAR, vA == 0, vB == 0, 4);
+    if (pRec->damageValues[23] > 0x4ccc) {
+        old = g_carDamageHazardTimer[LIGHT_CAR];
+        g_carDamageHazardTimer[LIGHT_CAR] = old;
+        g_carDamageHazardTimer[LIGHT_CAR] += g_unk0x0051bd3c;
+        if (g_carDamageHazardTimer[LIGHT_CAR] > 0x140000)
+            g_carDamageHazardTimer[LIGHT_CAR] = 0;
+        if (g_carDamageHazardTimer[LIGHT_CAR] == 0)
+            CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 4);
+        if (old < 0xa0000 && g_carDamageHazardTimer[LIGHT_CAR] >= 0xa0000)
+            CarLight_SetChannelMasks(LIGHT_CAR, vA == 0, vB == 0, 4);
     }
-    StageObject_GetScaledLaneShortValues(LIGHT_CAR, &lights[0], &lights[1], 1);
-    StageObject_GetScaledLaneShortValues(LIGHT_CAR, &lights[2], &lights[3], 3);
-    StageObject_GetScaledLaneShortValues(LIGHT_CAR, &lights[4], &lights[5], 2);
-    StageObject_GetScaledLaneShortValues(LIGHT_CAR, &lights[6], &lights[7], 0);
-    StageObject_GetScaledLaneShortValues(LIGHT_CAR, &lights[8], &lights[8], 4);
+    CarLight_GetScaledChannelLevels(LIGHT_CAR, &lights[0], &lights[1], 1);
+    CarLight_GetScaledChannelLevels(LIGHT_CAR, &lights[2], &lights[3], 3);
+    CarLight_GetScaledChannelLevels(LIGHT_CAR, &lights[4], &lights[5], 2);
+    CarLight_GetScaledChannelLevels(LIGHT_CAR, &lights[6], &lights[7], 0);
+    CarLight_GetScaledChannelLevels(LIGHT_CAR, &lights[8], &lights[8], 4);
     lights[10] = 0;
     lights[9] = 0;
     planePos = pCar->corners[0];
     planePos.y = pCar->cornerHeight[0];
     for (n = 0, off = 0; n < LIGHT_COUNT(LIGHT_CAR); n++, off += 0x28) {
         pPoint = (CarLightPoint *)((BYTE *)LIGHT_POINTS(LIGHT_CAR) + off);
-        glow = (BYTE *)g_unk0x00547d00[n + LIGHT_CAR * 0x14];
+        glow = g_carLightGlowSlots[n + LIGHT_CAR * 0x14];
         if (glow == NULL)
             continue;
         if (lights[pPoint->type] == 0) {
-            Glow_SetEntryByte50(glow, 0);
+            Glow_SetEnabled(glow, 0);
         } else {
-            Glow_SetEntryByte50(glow, 1);
-            Glow_SetEntryValue3C(glow, FixMul(lights[pPoint->type], pPoint->intensity));
+            Glow_SetEnabled(glow, 1);
+            Glow_SetIntensity(glow, FixMul(lights[pPoint->type], pPoint->intensity));
             intensity = FixMul(lights[pPoint->type], pPoint->intensity);
             intensity = FixMul(intensity, 0x8000);
             switch (pPoint->slot) {
@@ -11946,28 +11883,28 @@ void StageObject_UpdateCarLightFlagsAndGlows(int param_1)
             Glow_NoOpEntryCallback((BYTE)(int)glow, (BYTE)colour.x, colour.y, colour.z);
         }
         idx = 0;
-        if (*(int *)(glow + 4) < 0)
+        if (glow->pos.x < 0)
             idx = 2;
-        if (*(int *)(glow + 0xc) < 0)
+        if (glow->pos.z < 0)
             idx++;
-        Glow_SetLayerPlane((GlowLight *)glow, &planePos, (FixVector *)(param_1 + 0x48c),
+        Glow_SetLayerPlane(glow, &planePos, (FixVector *)(param_1 + 0x48c),
                            Surface_GetTransitionBlend(pCar->wheelSurface[idx],
                                         StageObject_GetCarWeatherRampValue((BYTE *)param_1)));
         if (StageObject_GetCarStateSlot((BYTE *)param_1) != 0) {
             ii = (unsigned short)pPoint->vertex;
             oi = (unsigned short)pPoint->object;
-            pVertex = (int *)(pRec[0x1e + oi] + ii * 0x20);
-            vx = pVertex[0];
-            vy = pVertex[1];
-            vz = pVertex[2];
-            Mesh_ReadVertexFixed((Mesh **)pRec, oi, ii, out);
+            pVertex = pRec->geometry.vertices[oi] + ii;
+            vx = pVertex->pos.x;
+            vy = pVertex->pos.y;
+            vz = pVertex->pos.z;
+            Mesh_ReadVertexFixed(pRec->geometry.meshes, oi, ii, out);
             pos.x = out[0] - vx;
             pos.y = out[1] - vy;
             pos.z = out[2] - vz;
             pos.x += pPoint->pos.x;
             pos.y += pPoint->pos.y;
             pos.z += pPoint->pos.z;
-            Glow_SetPosition((GlowLight *)glow, &pos, &pPoint->dir);
+            Glow_SetPosition(glow, &pos, &pPoint->dir);
         }
     }
 #undef LIGHT_CAR
@@ -11982,7 +11919,7 @@ void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *p
                   int param_6);
 void StageTiming_RebuildDamagedPartMeshes(int pCar);
 void StageTiming_FlagCarPartBreaks(Car *pCar, int param_2);
-void StageObject_BuildDeformationVectors(BYTE *p);
+void CarDamage_DecodeImpactPayload(CarImpactPayload *p);
 void StageObject_RebuildDamagePartValues(Car *pCar);
 void StageObject_ResetVectorListRecord(int list, int index, int value);
 void StageObject_ResetCarPartNodeValue(BYTE *pCar, int slot, int reset);
@@ -11994,7 +11931,7 @@ void StageTiming_PlaceEventStartingGrid(char param_1);
 void StageTiming_ResetParticipatingDriverRecords(int param_1);
 void StageObject_StartReplaySession(char restart);
 void Car_ReloadModels(int, int, int);
-int *StageTiming_GetCarReplayRecord(int index);
+CarPartSet *StageTiming_GetCarReplayRecord(int index);
 void RallyData_ResetRaceRecordAndRouteProbe(int index);
 void RallyData_RestoreAllCarRaceRecords(void);
 RaceRecord *RallyData_GetCarRaceRecord(int index);
@@ -12037,7 +11974,7 @@ void StageObject_ResetCarObjectState(Car *pCar)
     pLink = &pRecord->impacts.links[pRecord->impacts.firstLink];
     if (pRecord->impacts.count) {
         while (pLink != NULL) {
-            StageObject_BuildDeformationVectors((BYTE *)pLink);
+            CarDamage_DecodeImpactPayload(&pLink->impact);
             CarDamage_ApplyCollisionDeformImpulse(pCar, 0, 0, 0, 0, 1);
             if (pLink->next == -1)
                 break;
@@ -12199,7 +12136,7 @@ void Collision_SplitBoxSeparationMovement(int *pA, int *pB, int *pDir, int amoun
 int Collision_FindQuadEdgeOverlap(FixVector *pVertsA, FixVector *pVertsB, FixVector *pDir, int *pDistance);
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
 struct CollisionFaceVertices;
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 extern Car *g_collisionCar;
 extern CollisionFaceVertices *g_collisionFace;
 void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, int flag);
@@ -12246,7 +12183,7 @@ int g_unk0x0051fb00[52] = {
 };
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
 void Race_PlayScrapeAndShakeCar(int view, int strength, int listener);
-void StageObject_IntegrateViewDeformationGrid(int param_1, int *param_2, int param_3);
+void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *param_2, int param_3);
 int NetRace_GetListenerDistanceAttenuation(unsigned int view, int listener);
 bool NetRace_IsValueWithinCurveRange(int value, int *pRange);
 unsigned int NetRace_InterpolateWordCurve(int value, int *pCurve);
@@ -12276,25 +12213,25 @@ int g_unk0x0051f2d8[13] = {
 // 1/2 states it re-derives the scaled component and notifies the timing module;
 // on returning to idle it clears the derived components.
 // FUNCTION: CMR2 0x00460b60
-void StageObject_AdvanceAnimatedRecordState(int *p, int unused)
+void StageObject_AdvanceAnimatedRecordState(ViewWeatherState *p, int unused)
 {
-    int next = p[1];
-    int state = *p;
+    int next = p->targetKind;
+    int state = p->kind;
     if (next == state)
         return;
     if (state == 0) {
         if (next != 1 && next != 2)
             return;
-        p[0x16] = 0;
-        p[0x17] = FixMul(FixMul(g_unk0x00543d50, p[0x15]), (short)p[0x1d] << 16);
-        *p = p[1];
+        p->particleCount = 0;
+        p->targetParticleCount = FixMul(FixMul(g_weatherParticleQualityScale, p->intensity), p->particleCapacity << 16);
+        p->kind = p->targetKind;
         StageObject_IntegrateViewDeformationGrid(0, p, unused);
         return;
     }
     if ((state == 1 || state == 2) && next == 0) {
-        p[0x17] = 0;
-        if (p[0x16] == 0)
-            *p = 0;
+        p->targetParticleCount = 0;
+        if (p->particleCount == 0)
+            p->kind = 0;
     }
 }
 // Walks a short list of scene objects backwards and, for each of their eight
@@ -12415,7 +12352,7 @@ void Replay_InterpolatePoseStream(ReplayStream *p)
     FixMatrix_Interpolate(pCar->pWorld, &p->pose.from, &p->pose.to, t, t, t, 1);
     value = FixMul(FixMul(p->headingTo - p->headingFrom, t) + p->headingFrom, pCar->maxSteeringAngleDegrees * 0x1680);
     pCar->engineSpeed = 0;
-    pCar->wheelSteeringAngle = (unsigned short)(__int64)((double)value * g_unk0x00511300);
+    pCar->wheelSteeringAngle = (unsigned short)(__int64)((double)value * g_fixedDegreesToAngle12);
     pCar->throttleTorque = FixMul(pCar->maxThrottleTorque, FixMul(p->steerTo - p->steerFrom, t) + p->steerFrom);
     pCar->velocityNext = pCar->velocity;
     pCar->velocity.x += p->pose.velocity.x;
@@ -12429,10 +12366,10 @@ void Replay_InterpolatePoseStream(ReplayStream *p)
 // FUNCTION: CMR2 0x004765e0
 void StageObject_DispatchActiveCarObjectUpdate(BYTE *pObj, int a, int b)
 {
-    if (g_unk0x0058d6a8[pObj[2]] != 0) {
-        StageObject_IntegrateFilteredObjectPose(pObj, (int *)a, b);
+    if (g_carInteriorLoaded[pObj[2]] != 0) {
+        CarInterior_IntegrateDriverPose(pObj, (FixMatrix *)a, b);
         StageObject_BlendCarMountTransform(pObj[2]);
-        StageObject_ApplyCarFadeRoll(pObj[2]);
+        CarInterior_AnimateWipers(pObj[2]);
         StageObject_UpdateRevCounterTextures(pObj[2]);
         StageObject_BuildCarMountWorldMatrix(pObj, a);
     }
@@ -12515,7 +12452,7 @@ void SurfaceSound_UpdateNearestLocalCarEngines(void)
             volScale = FixMul(dist2, volScale);
             *pHandle = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[0] + 6),
                                     volScale, 0x5622,
-                                    g_unk0x0051f2d8[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
+                                    g_unk0x0051f2d8[CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
         }
         if (NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051ec50)) {
             unsigned int pan = NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50);
@@ -12616,7 +12553,7 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
             volScale = FixMul(dist2, volScale);
             *pHandle = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[0] + 6),
                                     volScale, 0x5622,
-                                    g_unk0x0051f2d8[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
+                                    g_unk0x0051f2d8[CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
         }
         if (NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051ec50)) {
             unsigned int pan = NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50);
@@ -12799,22 +12736,23 @@ void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, int *param_2)
     int i;
     int dot1;
     int dot2;
-    pRec = (int *)g_unk0x0058e4c8;
+    pRec = (int *)g_carHeadlightGlowRecords;
+#define GLOW_RECORD (*(CarHeadlightGlowRecord *)pRec)
     i = 100;
     do {
-        if (pRec[0x15] != 0 && *(BYTE *)(pRec + 0x16) != pCar->index) {
+        if (GLOW_RECORD.active != 0 && GLOW_RECORD.car != pCar->index) {
             pAnchor = (FixVector *)param_2[0x25];
-            offset.x = *(int *)(pRec + 3) - pAnchor->x;
-            offset.y = *(int *)(pRec + 4) - pAnchor->y;
-            offset.z = *(int *)(pRec + 5) - pAnchor->z;
+            offset.x = GLOW_RECORD.position.x - pAnchor->x;
+            offset.y = GLOW_RECORD.position.y - pAnchor->y;
+            offset.z = GLOW_RECORD.position.z - pAnchor->z;
             if (FIX_ABS(offset.x) < 0x640000) {
                 if (FIX_ABS(offset.y) < 0x640000) {
-                    if (FIX_ABS(offset.z) < 0x640000 && *(int *)(pRec + 4) >= param_2[3] &&
-                        *(int *)(pRec + 4) <= param_2[2]) {
+                    if (FIX_ABS(offset.z) < 0x640000 && GLOW_RECORD.position.y >= param_2[3] &&
+                        GLOW_RECORD.position.y <= param_2[2]) {
                         dot1 = FixVecDot(&offset, (FixVector *)(param_2 + 4));
                         dot2 = FixVecDot(&offset, (FixVector *)(param_2 + 7));
                         if (FIX_ABS(dot1) <= param_2[0] && FIX_ABS(dot2) <= param_2[1]) {
-                            FixVecScale(&dir, (FixVector *)pRec, 0x20000);
+                            FixVecScale(&dir, &GLOW_RECORD.velocity, 0x20000);
                             FixVecScaleRecip(&dir, &dir, FixVecLength(&dir));
                             dir.y += 0x6666;
                             FixVecScale(&dir, &dir, 0x60000);
@@ -12832,17 +12770,18 @@ void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, int *param_2)
                             pCar->useUpperCollisionCorners = 1;
                             pCar->field_0x96c = 0x10000;
                             FIX_NORMALIZE_INTO(dir, dir);
-                            CarDamage_ApplyCollisionDeformImpulse(pCar, pRec + 3, &dir, 0, 2, 0);
-                            pRec[0x15] = 0;
-                            pRec[0x12] = 0;
+                            CarDamage_ApplyCollisionDeformImpulse(pCar, (int *)&GLOW_RECORD.position, &dir, 0, 2, 0);
+                            GLOW_RECORD.active = 0;
+                            GLOW_RECORD.life = 0;
                         }
                     }
                 }
             }
         }
-        pRec += 0x17;
+        pRec += sizeof(CarHeadlightGlowRecord) / sizeof(*pRec);
         i--;
     } while (i != 0);
+#undef GLOW_RECORD
 }
 // Stops the stage-object records of every climbing car: cars resting on a very
 // steep ground normal get the ground-aligned step, the rest the free step.
@@ -12864,7 +12803,7 @@ void CarDamage_StepClimbingCarRecords(int param_1, short param_2)
         int idx = *pIndex;
         int m;
         g_partCar = (Car *)Car_Get(idx);
-        g_partSet = (CarPartSet *)StageTiming_GetCarReplayRecord(idx);
+        g_partSet = StageTiming_GetCarReplayRecord(idx);
         if (g_partCar->field_0xc0c == 0) {
             if (g_partCar->field_0xb64 == 0 &&
                 g_partCar->useUpperCollisionCorners != 0 &&
@@ -13398,7 +13337,7 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
             if (surface != 0xff) {
                 // Impact direction from the surface angle (12-bit angle into the sine
                 // table, with the +0x400 entry as the perpendicular component).
-                angle = (unsigned short)llrint((double)FixMul((int)surface << 16, 0x1cccc) * g_unk0x00511300);
+                angle = (unsigned short)llrint((double)FixMul((int)surface << 16, 0x1cccc) * g_fixedDegreesToAngle12);
                 g_unk0x00591990.x = g_sinTable[angle & 0xfff];
                 g_unk0x00591990.y = 0;
                 g_unk0x00591990.z = g_sinTable[(angle + 0x400) & 0xfff];
@@ -13493,7 +13432,7 @@ extern double g_minus65536;
 void StageObject_SelectAndCopyCarNodePayload(BYTE *pObj, int *pSrc, BYTE index, BYTE value);
 void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3);
 void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc);
-void StageObject_SetPositionFromSplitVector(BYTE *pObj, FixMatrix *pRef);
+void View_PositionFromCarProfile(CameraRecord *pObj, FixMatrix *pRef);
 void StageObject_ApplySmoothedSurfaceImpact(BYTE *pSurface, FixMatrix *pMatrix);
 void StageObject_StepVectorToTarget(BYTE *p, int step);
 void StageObject_ApproachCarLevelTarget(BYTE *pCar, int step);
@@ -13677,11 +13616,11 @@ void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef)
     heading = g_unk0x00591750[g_unk0x00591740[index]].heading;
     pSpot = SPOT(index);
     if (heading > 0x3f4 && heading < 0x40b) {
-        StageObject_SetPositionFromSplitVector(pRecord, pRef);
+        View_PositionFromCarProfile((CameraRecord *)pRecord, pRef);
         return;
     }
     if (heading < -0x3f4 && heading > -0x40b) {
-        StageObject_SetPositionFromSplitVector(pRecord, pRef);
+        View_PositionFromCarProfile((CameraRecord *)pRecord, pRef);
         return;
     }
     FixMatrix_GetPosition(&carPos, pRef);
@@ -13778,10 +13717,6 @@ char *Car_GetDirectoryPath(int car);
 void StageObject_FindPlayerRevTextures(int player);
 int Sector_BuildC3DModelScene(unsigned int, unsigned int, unsigned int);
 
-// Per-car node row at 0x58d528 (0x1c bytes; g_unk0x0058d530 is the same rows
-// seen from +8): +0 node 0x1a, +4 node 0x1c, +8 new node, +0xc node, +0x10
-// node 0x1b, +0x14 node 0x16, +0x18 node 0x17.
-#define CAR_NODE_ROW(i) ((int *)(g_unk0x0058d530 - 8 + (i) * 0x1c))
 
 // Loads the interior (cockpit) model of a player's car and hooks its nodes
 // (steering wheel, dash, driver) into the car's scene graph.
@@ -13790,23 +13725,23 @@ void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car)
 {
     Car *pCar;
     int ok;
-    int *pRow;
-    int *pOffset;
+    CarInteriorNodes *pRow;
+    FixVector *pOffset;
 
     ok = 1;
     if (CGameInfo::GetGameModeOptionBit19() && car > 0)
         return;
     pCar = Car_Get(car);
     if ((short)car < Car_GetOrderCount() && pCar->pBodyNode != NULL) {
-        g_stageBlock_58d340[car] = (int)SceneNode_FindByType(pCar->pBodyNode, 9);
-        g_stageBlock_58d47c[car] = (int)SceneNode_FindByType(pCar->pBodyNode, 5);
+        g_carDetailBodyNodes[car] = SceneNode_FindByType(pCar->pBodyNode, 9);
+        g_carDefaultBodyNodes[car] = SceneNode_FindByType(pCar->pBodyNode, 5);
     } else {
         ok = 0;
     }
     if (car >= 2)
         return;
-    pRow = CAR_NODE_ROW(car);
-    if (pRow[3] != 0)
+    pRow = &g_carInteriorNodeRows[car];
+    if (pRow->driverPoseNode != 0)
         return;
     if ((char)RallyData_GetFlag24() || ok == 0)
         return;
@@ -13816,44 +13751,43 @@ void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car)
     else
         sprintf(CFrontend::m_stringDest, g_strCarModelC5C3d,
                 Car_GetDirectoryPath(RallyData_GetDriverRecordSelectionValue(StageUI_GetRaceEndEventCount() + car)));
-    g_unk0x0058d6a0[car] = CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, FALSE);
+    g_carInteriorModelBuffers[car] = CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, FALSE);
     if (CGameInfo::GetPreviewMode() == 0)
         sprintf(CFrontend::m_stringDest, g_strCarModelA5Bfl,
                 Car_GetDirectoryPath(RallyData_GetDriverRecordSelectionValue(StageUI_GetRaceEndEventCount() + car)));
     else
         sprintf(CFrontend::m_stringDest, g_strCarModelC5Bfl,
                 Car_GetDirectoryPath(RallyData_GetDriverRecordSelectionValue(StageUI_GetRaceEndEventCount() + car)));
-    CGenericFileLoader::LoadIntoFileRecord((GenericFile *)g_unk0x0058d3b8, CFrontend::m_stringDest);
-    StageObject_CacheCarClassAndTimingPointers(car);
-    if (g_unk0x0058d6a0[car] == NULL)
+    CGenericFileLoader::LoadIntoFileRecord(g_carInteriorArchives, CFrontend::m_stringDest);
+    CarInterior_CacheProfilePointers(car);
+    if (g_carInteriorModelBuffers[car] == NULL)
         return;
-    g_unk0x0058d49c[car] = (void *)Sector_BuildC3DModelScene((unsigned int)g_unk0x0058d6a0[car],
+    g_carInteriorRoots[car] = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)g_carInteriorModelBuffers[car],
                                                 *(unsigned int *)&pCar->pBodyNode,
-                                                (unsigned int)g_unk0x0058d3b8);
-    pRow[2] = (int)SceneNode_Create((SceneNode *)g_unk0x0058d49c[car]);
-    pRow[0] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x1a);
-    pRow[1] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x1c);
-    pRow[3] = (int)SceneNode_Create(pCar->pBodyNode);
-    pRow[4] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x1b);
-    pRow[5] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x16);
-    pRow[6] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x17);
-    memcpy((BYTE *)pRow[2] + 0x98, (BYTE *)pRow[1] + 0x98, 0x40);
-    *(int *)(pRow[2] + 0xc) = 0;
-    *(int *)(pRow[2] + 0x178) = 3;
-    *(int *)(pRow[2] + 0x30) = *(int *)(pRow[1] + 0x30);
-    SceneNode_Reparent((SceneNode *)pRow[1], (SceneNode *)g_unk0x0058d49c[car]);
-    pOffset = *(int **)(g_unk0x0058d4f0 + car * 0x1c + 8);
-    *(int *)(pRow[3] + 0xc8) = *(int *)(pRow[4] + 0xc8) + pOffset[0];
-    *(int *)(pRow[3] + 0xcc) = *(int *)(pRow[4] + 0xcc) + pOffset[1];
-    *(int *)(pRow[3] + 0xd0) = *(int *)(pRow[4] + 0xd0) + pOffset[2];
-    g_unk0x0058d6a8[car] = 1;
-    g_unk0x0058d4d0[(BYTE)record] = (BYTE)pCar->type;
-    *(int *)(g_unk0x0058d2f8 + car * 12) = *(int *)(pRow[3] + 0xc8);
-    *(int *)(g_unk0x0058d2f8 + car * 12 + 4) = *(int *)(pRow[3] + 0xcc);
-    *(int *)(g_unk0x0058d2f8 + car * 12 + 8) = *(int *)(pRow[3] + 0xd0);
+                                                (unsigned int)g_carInteriorArchives);
+    pRow->steeringReferenceNode = SceneNode_Create(g_carInteriorRoots[car]);
+    pRow->steeringRestNode = SceneNode_FindByType(g_carInteriorRoots[car], 0x1a);
+    pRow->steeringBlendNode = SceneNode_FindByType(g_carInteriorRoots[car], 0x1c);
+    pRow->driverPoseNode = SceneNode_Create(pCar->pBodyNode);
+    pRow->steeringWheelNode = SceneNode_FindByType(g_carInteriorRoots[car], 0x1b);
+    pRow->wiperNodes[0] = SceneNode_FindByType(g_carInteriorRoots[car], 0x16);
+    pRow->wiperNodes[1] = SceneNode_FindByType(g_carInteriorRoots[car], 0x17);
+    memcpy(&pRow->steeringReferenceNode->current, &pRow->steeringBlendNode->current, sizeof(FixMatrix));
+    pRow->steeringReferenceNode->pObject = NULL;
+    pRow->steeringReferenceNode->type = 3;
+    pRow->steeringReferenceNode->flags = pRow->steeringBlendNode->flags;
+    SceneNode_Reparent((SceneNode *)pRow->steeringBlendNode, g_carInteriorRoots[car]);
+    pOffset = g_carInteriorProfilePointers[car].driverPoseOffset;
+    pRow->driverPoseNode->current.position.x = pRow->steeringWheelNode->current.position.x + pOffset->x;
+    pRow->driverPoseNode->current.position.y = pRow->steeringWheelNode->current.position.y + pOffset->y;
+    pRow->driverPoseNode->current.position.z = pRow->steeringWheelNode->current.position.z + pOffset->z;
+    g_carInteriorLoaded[car] = 1;
+    g_carInteriorModelClasses[(BYTE)record] = (BYTE)pCar->type;
+    g_carDriverRestPositions[car].x = pRow->driverPoseNode->current.position.x;
+    g_carDriverRestPositions[car].y = pRow->driverPoseNode->current.position.y;
+    g_carDriverRestPositions[car].z = pRow->driverPoseNode->current.position.z;
     StageObject_FindPlayerRevTextures(car);
 }
-#undef CAR_NODE_ROW
 
 // --- CPU driver input (0x47b000-0x47c5ac) -----------------------------------
 
@@ -14397,42 +14331,43 @@ void StageObject_UpdateListedCarPhysicsAndWeather(short *pOrder, short count)
 // of a car's damage parts (vertices are floats, 0x30 bytes apart). Returns 0
 // when the part has no mesh.
 // FUNCTION: CMR2 0x00469c30
-int CarDamage_PickRandomTriangleEdgePoint(FixVector *pOut, int *pParts, int index)
+int CarDamage_PickRandomTriangleEdgePoint(FixVector *pOut, CarPartSet *pParts, int index)
 {
-    BYTE *pTri;
+    MeshTriangle *pTri;
+    int triangleIndex;
     float *pA;
     float *pB;
-    BYTE *pVerts;
+    DeformFloatVertex *pVerts;
     int t;
     int edge;
     FixVector a;
     FixVector d;
 
-    if (pParts[index] == 0) {
+    if (pParts->geometry.meshes[index] == 0) {
         pOut->x = 0;
         pOut->y = 0;
         pOut->z = 0;
         return 0;
     }
-    pTri = (BYTE *)(rand() % *(int *)(pParts[index] + 0x28));
+    triangleIndex = rand() % pParts->geometry.meshes[index]->triangleCount;
     edge = rand() % 3;
     t = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-    pTri = *(BYTE **)(pParts[index] + 0x24) + (int)pTri * 0x4c;
+    pTri = pParts->geometry.meshes[index]->pTriangles + triangleIndex;
     switch (edge) {
     case 0:
-        pVerts = *(BYTE **)(pParts[index] + 0xc);
-        pA = (float *)(pVerts + *(unsigned short *)(pTri + 0x40) * 0x30);
-        pB = (float *)(pVerts + *(unsigned short *)(pTri + 0x42) * 0x30);
+        pVerts = (DeformFloatVertex *)pParts->geometry.meshes[index]->pVertexData;
+        pA = pVerts[pTri->vertexIndex[0]].pos;
+        pB = pVerts[pTri->vertexIndex[1]].pos;
         break;
     case 1:
-        pVerts = *(BYTE **)(pParts[index] + 0xc);
-        pA = (float *)(pVerts + *(unsigned short *)(pTri + 0x42) * 0x30);
-        pB = (float *)(pVerts + *(unsigned short *)(pTri + 0x44) * 0x30);
+        pVerts = (DeformFloatVertex *)pParts->geometry.meshes[index]->pVertexData;
+        pA = pVerts[pTri->vertexIndex[1]].pos;
+        pB = pVerts[pTri->vertexIndex[2]].pos;
         break;
     default:
-        pVerts = *(BYTE **)(pParts[index] + 0xc);
-        pA = (float *)(pVerts + *(unsigned short *)(pTri + 0x44) * 0x30);
-        pB = (float *)(pVerts + *(unsigned short *)(pTri + 0x40) * 0x30);
+        pVerts = (DeformFloatVertex *)pParts->geometry.meshes[index]->pVertexData;
+        pA = pVerts[pTri->vertexIndex[2]].pos;
+        pB = pVerts[pTri->vertexIndex[0]].pos;
         break;
     }
     a.x = (int)(__int64)(pA[0] * CGraphics::m_65536);
@@ -14449,11 +14384,11 @@ int CarDamage_PickRandomTriangleEdgePoint(FixVector *pOut, int *pParts, int inde
 }
 
 // GLOBAL: CMR2 0x00547908
-BillboardDef g_unk0x00547908;
+BillboardDef g_bodySparkBillboard;
 
 extern int g_unk0x0051bd3c;
 extern int g_unk0x005477f0;
-int *StageTiming_GetCarReplayRecord(int index);
+CarPartSet *StageTiming_GetCarReplayRecord(int index);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 
 
@@ -14467,9 +14402,9 @@ extern BYTE g_unk0x00543da0Block[0x90];
 extern int g_unk0x00543e90;
 extern int g_unk0x00543ea4;
 extern int g_unk0x00543ea8[3];
-extern BillboardDef g_unk0x00543ed0;
-extern BillboardDef g_unk0x00543f00;
-extern double g_unk0x00511300;
+extern BillboardDef g_rainSplashBillboard;
+extern BillboardDef g_snowBillboard;
+extern double g_fixedDegreesToAngle12;
 #define WEATHER_QUAD(o) (*(float *)(g_unk0x00543da0Block + (o)))
 
 // Draws the precipitation of one view. Rain: each drop is a streak quad
@@ -14479,7 +14414,7 @@ extern double g_unk0x00511300;
 // FUNCTION: CMR2 0x00460390
 void StageWeather_DrawViewPrecipitation(int index, int view)
 {
-    BYTE *pView;
+    ViewWeatherState *pView;
     FixVector *pPos;
     int count;
     int i;
@@ -14493,45 +14428,45 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
     FixVector offset;
     float sideF[3];
     float trailF[3];
-    StageDeformNode *pNode;
+    StageWeatherParticle *pNode;
 
     alpha = 0x1e;
-    pView = (BYTE *)g_unk0x00547ac8 + index * 0x178;
-    pPos = (FixVector *)(pView + 8);
-    count = *(int *)(pView + 0x58) >> 16;
+    pView = &g_viewWeather[index];
+    pPos = &pView->centre;
+    count = pView->particleCount >> 16;
     saved = *pPos;
-    if (*(int *)pView == 1) {
-        fade = *(int *)(pView + 0x64);
+    if (pView->kind == 1) {
+        fade = pView->precipitationFade;
         if (fade == 0x10000) {
-            g_unk0x00543ed0.a = 0xaa;
-            g_unk0x00547908.a = 0xaa;
+            g_rainSplashBillboard.a = 0xaa;
+            g_bodySparkBillboard.a = 0xaa;
         } else if (fade == 0) {
             alpha = 0;
-            g_unk0x00543ed0.a = 0;
-            g_unk0x00547908.a = 0;
+            g_rainSplashBillboard.a = 0;
+            g_bodySparkBillboard.a = 0;
         } else {
             alpha = (BYTE)(FixMul(0x1e0000, fade) >> 16);
-            g_unk0x00543ed0.a = (BYTE)(FixMul(*(int *)(pView + 0x64), 0xaa0000) >> 16);
-            g_unk0x00547908.a = (BYTE)(FixMul(*(int *)(pView + 0x64), 0xaa0000) >> 16);
+            g_rainSplashBillboard.a = (BYTE)(FixMul(pView->precipitationFade, 0xaa0000) >> 16);
+            g_bodySparkBillboard.a = (BYTE)(FixMul(pView->precipitationFade, 0xaa0000) >> 16);
         }
         *(DWORD *)(g_unk0x00543da0Block + 0x50) = *(DWORD *)(g_unk0x00543da0Block + 0x80) =
             (alpha << 24) | 0x969696;
         FixMatrix_GetForward(&forward, &g_viewNodes[view]->current);
-        FixVecCross(&side, &forward, (FixVector *)(pView + 0x20));
+        FixVecCross(&side, &forward, &pView->relativeVelocity);
         FIX_NORMALIZE_INTO(side, side);
-        amount = FixMul(*(int *)(pView + 0x58), g_unk0x00543da0);
+        amount = FixMul(pView->particleCount, g_unk0x00543da0);
         if (amount > 0x10000)
             amount = 0x10000;
         FixVecScale(&side, &side, FixMul(0xccc, FixMul(0xcccd, amount) + 0x13333));
         sideF[0] = (float)(side.x * CGraphics::m_oneOver65536);
         sideF[1] = (float)(side.y * CGraphics::m_oneOver65536);
         sideF[2] = (float)(side.z * CGraphics::m_oneOver65536);
-        FixVecScale(&trail, (FixVector *)(pView + 0x20), 0x20000);
+        FixVecScale(&trail, &pView->relativeVelocity, 0x20000);
         trailF[0] = (float)(trail.x * CGraphics::m_oneOver65536);
         trailF[1] = (float)(trail.y * CGraphics::m_oneOver65536);
         trailF[2] = (float)(trail.z * CGraphics::m_oneOver65536);
         for (i = 0; i < count; i++) {
-            pNode = &g_unk0x00543fb0[*(short *)(pView + 0x76) + i];
+            pNode = &g_weatherParticles[pView->firstParticle + i];
             WEATHER_QUAD(0x68) = (float)(pNode->x * CGraphics::m_oneOver65536);
             WEATHER_QUAD(0x6c) = (float)(pNode->y * CGraphics::m_oneOver65536);
             WEATHER_QUAD(0x70) = (float)(pNode->z * CGraphics::m_oneOver65536);
@@ -14548,32 +14483,32 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
             if (pNode->wrapped != 0) {
                 forward = *(FixVector *)pNode;
                 forward.y -= 0xc0000;
-                FixVecScale(&offset, (FixVector *)(pView + 0x44),
-                            FixMul(pNode->angle - forward.y, *(int *)(pView + 0x50)));
-                g_unk0x00543ed0.pos.x = offset.x + forward.x;
-                g_unk0x00543ed0.pos.y = offset.y + forward.y;
-                g_unk0x00543ed0.pos.z = offset.z + forward.z;
-                Billboard_Add(&g_unk0x00543ed0, (unsigned short *)g_unk0x00543ea4);
+                FixVecScale(&offset, &pView->splashDisplacement,
+                            FixMul(pNode->splashGroundHeight - forward.y, pView->inverseFallDisplacement));
+                g_rainSplashBillboard.pos.x = offset.x + forward.x;
+                g_rainSplashBillboard.pos.y = offset.y + forward.y;
+                g_rainSplashBillboard.pos.z = offset.z + forward.z;
+                Billboard_Add(&g_rainSplashBillboard, (unsigned short *)g_unk0x00543ea4);
             }
         }
         if (CGameInfo::IsInRaceMenuOpen() == 0) {
-            amount = FixMul(*(int *)(pView + 0x58), g_unk0x00543da0);
+            amount = FixMul(pView->particleCount, g_unk0x00543da0);
             if (amount > 0x10000)
                 amount = 0x10000;
             CarDamage_EmitBodySparkBillboards(amount, Car_Get(View_GetActiveCameraFlags((BYTE)view)));
         }
     } else {
-        Scene_GetLightColour((DWORD *)&g_unk0x00543f00.r, 0xcccc);
+        Scene_GetLightColour((DWORD *)&g_snowBillboard.r, 0xcccc);
         for (i = 0; i < count; i++) {
-            pNode = &g_unk0x00543fb0[*(short *)(pView + 0x76) + i];
-            g_unk0x00543f00.pos = *(FixVector *)pNode;
-            FixVecScale(&offset, (FixVector *)(pView + 0x38),
-                        FixMul(g_sinTable[(unsigned short)(__int64)(pNode->angle * g_unk0x00511300) & 0xfff],
-                               pNode->field_0x10));
-            g_unk0x00543f00.pos.x += offset.x;
-            g_unk0x00543f00.pos.y += offset.y;
-            g_unk0x00543f00.pos.z += offset.z;
-            Billboard_Add(&g_unk0x00543f00, (unsigned short *)g_unk0x00543ea8[((BYTE *)&pNode->field_0x1c)[1]]);
+            pNode = &g_weatherParticles[pView->firstParticle + i];
+            g_snowBillboard.pos = *(FixVector *)pNode;
+            FixVecScale(&offset, &pView->snowSwayAxis,
+                        FixMul(g_sinTable[(unsigned short)(__int64)(pNode->snowPhaseDegrees * g_fixedDegreesToAngle12) & 0xfff],
+                               pNode->swayAmplitude));
+            g_snowBillboard.pos.x += offset.x;
+            g_snowBillboard.pos.y += offset.y;
+            g_snowBillboard.pos.z += offset.z;
+            Billboard_Add(&g_snowBillboard, (unsigned short *)g_unk0x00543ea8[pNode->textureVariant]);
         }
     }
     *pPos = saved;
@@ -14586,10 +14521,10 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
 // FUNCTION: CMR2 0x00460330
 void StageObject_DrawViewPrecipitationAndObjects(int param_1, int view)
 {
-    int *pType;
+    ViewWeatherState *pType;
 
-    pType = (int *)((BYTE *)g_unk0x00547ac8 + view * 0x178);
-    if (*pType == 1 || *pType == 2)
+    pType = &g_viewWeather[view];
+    if (pType->kind == 1 || pType->kind == 2)
         StageWeather_DrawViewPrecipitation(view, view);
     if ((char)RallyDataState() != 1 && Race_IsMultiplayerRecordMode10() == 0 && CGameInfo::IsConfiguredMultiplayer() == 0)
         return;
@@ -14601,7 +14536,7 @@ void StageObject_DrawViewPrecipitationAndObjects(int param_1, int view)
 // FUNCTION: CMR2 0x00460ca0
 int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar)
 {
-    int *pParts;
+    CarPartSet *pParts;
     int count;
     int result;
     int n;
@@ -14618,18 +14553,18 @@ int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar)
         n = result % count;
         result /= count;
         for (; n > 0; n--) {
-            part = rand() % pParts[0x117];
+            part = rand() % pParts->count;
             result = CarDamage_PickRandomTriangleEdgePoint(&point, pParts, part);
             if (result != 0) {
                 result = point.y;
                 if (point.y > 0) {
-                    FixMatrix_RotateVector(&rotated, &point, (FixMatrix *)(pParts[0xf + part] + 0xd8));
-                    FixMatrix_GetPosition(&origin, (FixMatrix *)(pParts[0xf + part] + 0xd8));
+                    FixMatrix_RotateVector(&rotated, &point, &pParts->geometry.nodes[part]->world);
+                    FixMatrix_GetPosition(&origin, &pParts->geometry.nodes[part]->world);
                     rotated.x += origin.x;
                     rotated.y += origin.y;
                     rotated.z += origin.z;
-                    g_unk0x00547908.pos = rotated;
-                    Billboard_Add(&g_unk0x00547908, (unsigned short *)g_unk0x005477f0);
+                    g_bodySparkBillboard.pos = rotated;
+                    Billboard_Add(&g_bodySparkBillboard, (unsigned short *)g_unk0x005477f0);
                 }
             }
         }
@@ -14820,8 +14755,8 @@ BYTE *Sector_GetListA(unsigned int sector, unsigned int *pCount);
 BYTE *Sector_GetListB(unsigned int sector, unsigned int *pCount);
 void RallyData_CopyRaisedElementVector(int *pDest, void **pParam1);
 int RallyData_IsElementFlagSet(BYTE **pEntry, int bit);
-int Collision_CarVsBox(int car, int *pBox, int scale);
-int Collision_ResolveStaticObstacleContact(int param_1, int *param_2, int param_3, int param_4);
+int Collision_CarVsBox(Car *car, int *pBox, int scale);
+int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, FixVector *param_3, int param_4);
 
 // Collides a car with the stage objects of the four sectors it touches
 // (static objects, then moving ones): box test, then the plain, wall or
@@ -14893,12 +14828,12 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                         continue;
                     }
                     if (!((pObject[4] & 0x2001000) != 0)) {
-                        result = Collision_CarVsBox((int)pCar, (int *)pBox, 0x10000);
+                        result = Collision_CarVsBox(pCar, (int *)pBox, 0x10000);
                     } else {
-                        result = Collision_CarVsBox((int)pCar, (int *)pBox, 0);
+                        result = Collision_CarVsBox(pCar, (int *)pBox, 0);
                     }
                 }
-                if (result != 0 && Collision_ResolveStaticObstacleContact((int)pCar, pEntry, (int)&position, 0) != 0)
+                if (result != 0 && Collision_ResolveStaticObstacleContact(pCar, (StageObject **)pEntry, &position, 0) != 0)
                     StageObject_QueueOrEvictMovingObject(pEntry, sector, pCar->index);
             }
         }
@@ -15210,17 +15145,17 @@ void Fireworks_Init(BYTE count)
         start = FixMul(k, 0x8000);
         b = start;
         for (i = 0; i < 3; i++) {
-            sinA = (unsigned short)(int)(__int64)((float)a * g_unk0x00511300) & 0xfff;
+            sinA = (unsigned short)(int)(__int64)((float)a * g_fixedDegreesToAngle12) & 0xfff;
             cosA = (0x400 - (unsigned short)(int)(__int64)((float)a * g_unk0x00511308)) & 0xfff;
             for (n = 0; n < 3; n++) {
                 ((FixVector *)g_unk0x00590b0c[i])[n].x =
                     FixMul(g_sinTable[sinA],
-                           g_sinTable[(unsigned short)(int)(__int64)((float)b * g_unk0x00511300) & 0xfff]);
+                           g_sinTable[(unsigned short)(int)(__int64)((float)b * g_fixedDegreesToAngle12) & 0xfff]);
                 ((FixVector *)g_unk0x00590b0c[i])[n].y =
                     g_sinTable[(0x400 - (unsigned short)(int)(__int64)((float)b * g_unk0x00511308)) & 0xfff];
                 ((FixVector *)g_unk0x00590b0c[i])[n].z =
                     FixMul(g_sinTable[cosA],
-                           g_sinTable[(unsigned short)(int)(__int64)((float)b * g_unk0x00511300) & 0xfff]);
+                           g_sinTable[(unsigned short)(int)(__int64)((float)b * g_fixedDegreesToAngle12) & 0xfff]);
                 b += k;
             }
             a += step;
@@ -15381,7 +15316,7 @@ void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition, int
 // FUNCTION: CMR2 0x0047dd70
 void CarDamage_UpdateFlyingDebris(void)
 {
-    DebrisRecord *pRec;
+    CarHeadlightGlowRecord *pRec;
     int i;
     short tri;
     FixVector d;
@@ -15393,13 +15328,13 @@ void CarDamage_UpdateFlyingDebris(void)
     int ground;
 
     for (i = 0; i < 8; i++) {
-        if (g_unk0x0058e4a8[i] > 0) {
-            g_unk0x0058e4a8[i] -= g_physicsTimeStep;
-            if (g_unk0x0058e4a8[i] < 0)
-                g_unk0x0058e4a8[i] = 0;
+        if (g_carHeadlightGlowCooldowns[i] > 0) {
+            g_carHeadlightGlowCooldowns[i] -= g_physicsTimeStep;
+            if (g_carHeadlightGlowCooldowns[i] < 0)
+                g_carHeadlightGlowCooldowns[i] = 0;
         }
     }
-    pRec = (DebrisRecord *)g_unk0x0058e4c8;
+    pRec = g_carHeadlightGlowRecords;
     for (i = 100; i != 0; i--, pRec++) {
         if (pRec->active == 0)
             continue;
@@ -15550,8 +15485,8 @@ void Fireworks_Update(void)
                 if (pRocket->sound != -1 && Sound_IsPlaying(pRocket->sound))
                     Sound_Free(pRocket->sound);
                 pRocket->state = 2;
-                g_unk0x005909b8 = 0x10000;
-                *(DWORD *)g_unk0x005909c4 = g_fireworkFlashColours[pRocket->colour];
+                g_stageAmbientFlashLevel = 0x10000;
+                *(DWORD *)g_stageAmbientFlashColour = g_fireworkFlashColours[pRocket->colour];
                 if (pRocket->burst != 0) {
                     pRocket->prevPos = pRocket->pos;
                     for (k = 0; k < 20; k++)
@@ -15643,17 +15578,17 @@ void StageObjects_Init(void)
     count = Car_GetOrderCount();
     for (i = 0; i < count; i++) {
         car = pOrder[i];
-        StageTiming_SetPrimaryWheelTrailTexture(0, 0, i);
-        StageTiming_SetPrimaryWheelTrailTexture(0, 1, i);
-        StageTiming_SetSecondaryWheelTrailTexture(0, 0, i);
-        StageTiming_SetSecondaryWheelTrailTexture(0, 1, i);
+        CarExhaust_SetPoint(0, 0, i);
+        CarExhaust_SetPoint(0, 1, i);
+        CarExhaust_SetGlow(0, 0, i);
+        CarExhaust_SetGlow(0, 1, i);
         if (*(int *)((BYTE *)Car_Get(car) + 0xc0c) == 0) {
             StageObject_RebuildCarLightMeshes((int)Car_Get(car));
             if (Car_Get(car)->type == 6 || Car_Get(car)->type == 7 ||
                 Car_Get(car)->type == 10)
-                StageObject_InitCarBodyDamageTextures(i, 0, 0, 0);
+                CarLight_CacheBodyTextures(i, 0, 0, 0);
             else
-                StageObject_InitCarBodyDamageTextures(i, 0, 0, 1);
+                CarLight_CacheBodyTextures(i, 0, 0, 1);
         }
     }
     CarEffects_InitDebris();
@@ -15946,7 +15881,7 @@ void CarPart_IntegrateDetachedMotion(void)
         FixVecScale(&scratch, &scratch, -0x60000);
         if (g_partCar->type != 8) {
             type = g_carPartModelIndices[2][g_partCar->index];
-            if (*(BYTE *)&g_partSet->nodes[type]->key == 0xc)
+            if (*(BYTE *)&g_partSet->geometry.nodes[type]->flags == 0xc)
                 scratch.x = -scratch.x;
         }
         motion.x += scratch.x;

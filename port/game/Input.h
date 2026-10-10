@@ -1,8 +1,13 @@
 #ifndef _INPUT_H
 #define _INPUT_H
-
+#if defined(_MSC_VER) && _MSC_VER <= 1200
+#ifndef CMR2_LAYOUT_CHECK
+#define CMR2_LAYOUT_CHECK(name, condition) typedef char name[condition ? 1 : -1]
+#endif
+#else
+#include "LayoutChecks.h"
+#endif
 #include "port/input.h"
-
 
 struct JoystickBinding {
     DWORD range;
@@ -138,13 +143,13 @@ struct InputDeviceState {
     DeviceInfo availableDevices[8];
     InputDevice *keyboard;
 };
-typedef char InputDeviceStateSize[sizeof(InputDeviceState) == 0x2864 ? 1 : -1];
+CMR2_LAYOUT_CHECK(InputDeviceStateSize, sizeof(InputDeviceState) == 0x2864);
 
 struct InputFeedbackState {
     ForceFeedbackDevice devices[8];
     DWORD gains[8];
 };
-typedef char InputFeedbackStateSize[sizeof(InputFeedbackState) == 0x1c0 ? 1 : -1];
+CMR2_LAYOUT_CHECK(InputFeedbackStateSize, sizeof(InputFeedbackState) == 0x1c0);
 
 #define m_availableDevices m_deviceState.availableDevices
 #define m_pDirectInputKeyboard m_deviceState.keyboard

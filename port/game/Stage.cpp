@@ -27,7 +27,7 @@ int GetStageSplitCount(void)
 // FUNCTION: CMR2 0x00458390
 int Stage_GetDriverCount(void)
 {
-    return g_unk0x00542c68;
+    return g_stageArchiveTables.driverCount;
 }
 
 // FUNCTION: CMR2 0x004583a0
@@ -91,7 +91,7 @@ void Stage_RestoreCarsToRoutePositions(void)
 {
     int i;
 
-    for (i = 0; i < g_unk0x00542c68; i++) {
+    for (i = 0; i < g_stageArchiveTables.driverCount; i++) {
         Car *pCar = Car_Get(i);
         RallyData_SetCarRaceRecordPosition(pCar, g_unk0x00542d38[i] >> 16);
     }
