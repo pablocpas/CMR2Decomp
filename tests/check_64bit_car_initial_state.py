@@ -51,7 +51,7 @@ void Car_LiftFreeCorners(){g_pCurrentCar->position.y+=0x3000+fixtureSeed*128;}
 void Car_ShareWeightOnWheels(){for(int i=0;i<4;i++)g_pCurrentCar->wheelLoad[i]=65536+i*8192;}
 void Car_InvalidateTransforms(int index){assert(index==(signed char)g_pCurrentCar->index);}
 void SceneNode_SetPosition(SceneNode *node,FixVector *position){node->current.position=*position;}
-void Car_UpdateSurfaceParams(Car *car,int blend){car->field_0xa78=blend^0x12345678;}
+void Car_UpdateSurfaceParams(Car *car,int blend){car->surfaceNoiseTarget=blend^0x12345678;}
 void CarPhysics_IntegrateWheelSuspension() {}
 Car *Car_Get(int index){assert(index==fixtureSeed-128);return g_pCurrentCar;}
 int StageObject_GetCarWeatherRampValue(Car *);

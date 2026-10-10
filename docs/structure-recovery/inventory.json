@@ -6,8 +6,8 @@
     "AIHelper.h": "bab8d194d555cb12c67813998a76874490d63165d0b535b5005e222045cc8b55",
     "BFL.h": "950defe875ffe734f13dce73dda42d7bc1b5369a7def6a53f9e0ba27ed047a7d",
     "BestTimeRecords.h": "7b09c04cab99c03d334b39ec5340a7216840903b2f9d51cfc8ac497473de4291",
-    "Car.cpp": "ac475cc1f414b451f9dba0b353d3b7372339a599ce5fb68de822caeb4781b78c",
-    "Car.h": "a901a1fcd3bdcdf6b6406bc33d79afbc08204bcee73e5ca57e0262873a04d3ae",
+    "Car.cpp": "a48e323805e5d83ddabcc15c1b690f6bcfd180eeb4b9944b97748a842a603221",
+    "Car.h": "ba548bb35e606e241a399e066a7c4eb36e70df5eee62dc05092b694fb04a0060",
     "CarEffects.cpp": "4774e4c0439ea7a6ad057b574cecb3ad5034e276c243cde7cdbb5fce116fc48d",
     "CarExhaust.h": "2f51d0a245b1da6a98dc0a1152098b0c9dce08b33b29d0459feb77328a9207dc",
     "CarImpact.h": "1800bc27ccd9f5c0ea2398977c5ae92c33ff8ad44084d687cb711e0a67c795db",
@@ -52,12 +52,12 @@
     "Glow.h": "3578d2d56f4b05aff49532c1f67c83942688b7190ea44fb6ba38c3f110792e8b",
     "Graphics.cpp": "8e37ab26b6f03a795d5e4d0b74b5931790e5b8bcef5271e0a6233eab4a1daccf",
     "Graphics.h": "97e32ba9c55b52659d79831eebf0688998b94588a843beecb7dafffc8c9d7b95",
-    "HudDash.cpp": "4231048b2eb2c7bf12e63cced05d944b841d2d90a98b26ae72087ffdfade3947",
+    "HudDash.cpp": "5358d8bb344d28034c9ba6b47057b501234f2db8b93b26015a2829f93e99d5b7",
     "Input.cpp": "04412be20dd693d046b85ccaee4ff1786844497094f679d4ed382e0d719405a0",
     "Input.h": "6c8ce64e581da4f84e04af836ec4276d106ed118b58ddd8521fff3d05eeacb8c",
     "InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
     "InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
-    "LayoutChecks.cpp": "d501f48150d063ad7758fb15f71182c587266632bedf5add8aa4cb2b13e2869e",
+    "LayoutChecks.cpp": "156e3875466e60c20f7e9e5823ef3a58dc0cbdcc625b480929b907030b1cd291",
     "LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
     "Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
     "Logger.h": "9223f11dbb0c66b7b32057403dfda5267d674de807a6fa64aad78866540cf196",
@@ -95,16 +95,16 @@
     "Stage.h": "4a75c6c0ce11b7ac1fa616ed12e7c7931d3e23ab12a678370ac800ef700f04cd",
     "StageBlock.h": "ed67c8a616df022340a6831bb1acffa00c7b6f1596c18297299fcce0deb73c05",
     "StageObjectCount.h": "541514d4da5e984bc83597c9b0839bebc67ac87ef78d2fe76fc2f3841c08010e",
-    "StageObjects.cpp": "23422ce5a8729c4105fd21a1085952e013be3e03956ee7f8c44375cb948d933e",
+    "StageObjects.cpp": "6f22e191383f9cf8f66d06ada91c033ff82690575502245c672f7c53860a4dbb",
     "StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
     "StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
-    "StageTiming.cpp": "e80c5621c84094e154ce52924c58f7664f710ffaac10a8ac9504045abfd073b4",
+    "StageTiming.cpp": "c4c31ece4065b848ac399438a0ae4726b91db8646f031130f6384158ea0b7402",
     "StageTiming.h": "83a0d3266fda81c4b1e65e87e17bfc27f073ac5ef9449e75368fbba9af57857f",
     "StageUI.cpp": "f344ea709ae4a655c7c3aaba3ebb45904370ed7eab807f98597dbe0387648199",
     "StageUI.h": "30113bb1c038c7ab0bc539eca8ad3ba06224365b60d8e32727e304e1f7323e42",
     "StageWeather.h": "29941250ba41afaa63578e0c91a2835998339b9302bcd12a7717787984219dc1",
     "StageWeatherParticle.h": "bc58dc39786b7226607aa6dd7779ad3198afa98c4620eb7228436c5573682bdf",
-    "SurfaceTypes.cpp": "12829839f57b8c4067aad3014833f208784db18788e16f0e0f4f450aff576c1f",
+    "SurfaceTypes.cpp": "14fd8b624d743107050f934005395e1193e7b0b16ef4a8982c39e7388b3e56eb",
     "SurfaceTypes.h": "1c81086631cfd2493e9c5a4af7da66e1d02417ed38b7628c7a1e1a986d52e8e7",
     "Texture.cpp": "2ca3a6fa0da96446aadf924346f349f7cad42fafeaf06e60c006cc79b82aeea0",
     "Texture.h": "00635eccfb6ed1ce010106ad790747185ef79856fd27d6e49605484db7a02263",
@@ -133,11 +133,11 @@
   },
   "metrics": {
     "types": 312,
-    "raw_accesses": 1341,
+    "raw_accesses": 1337,
     "fixed_sizes": 78,
-    "hex_multipliers": 2214,
+    "hex_multipliers": 2212,
     "unknown_identifiers": 10462,
-    "unnamed_field_declarations": 1490,
+    "unnamed_field_declarations": 1487,
     "unique_unknown_identifiers": 1279
   },
   "files": {
@@ -171,9 +171,9 @@
     },
     "Car.cpp": {
       "types": 2,
-      "raw_accesses": 37,
+      "raw_accesses": 33,
       "fixed_sizes": 2,
-      "hex_multipliers": 13,
+      "hex_multipliers": 11,
       "unknown_identifiers": 239
     },
     "Car.h": {
@@ -1158,7 +1158,7 @@
       "line": 37,
       "kind": "struct",
       "name": "Car",
-      "end_line": 302,
+      "end_line": 307,
       "unnamed_fields": [
         {
           "file": "Car.h",
@@ -1192,511 +1192,493 @@
         },
         {
           "file": "Car.h",
-          "line": 62,
+          "line": 67,
           "name": "field_0x2dc",
           "declaration": "FixVector field_0x2dc;            // 0x2dc"
         },
         {
           "file": "Car.h",
-          "line": 98,
+          "line": 103,
           "name": "field_0x564",
           "declaration": "FixVector field_0x564[8];         // 0x564  per-corner ground normal ([0] used while cornerOnGround[4] is set)"
         },
         {
           "file": "Car.h",
-          "line": 99,
+          "line": 104,
           "name": "field_0x5c4",
           "declaration": "FixVector field_0x5c4;            // 0x5c4"
         },
         {
           "file": "Car.h",
-          "line": 100,
+          "line": 105,
           "name": "field_0x5d0",
           "declaration": "FixVector field_0x5d0;            // 0x5d0"
         },
         {
           "file": "Car.h",
-          "line": 101,
+          "line": 106,
           "name": "field_0x5dc",
           "declaration": "FixVector field_0x5dc;            // 0x5dc"
         },
         {
           "file": "Car.h",
-          "line": 125,
+          "line": 130,
           "name": "field_0x770",
           "declaration": "int field_0x770[2];               // 0x770"
         },
         {
           "file": "Car.h",
-          "line": 134,
+          "line": 139,
           "name": "field_0x798",
           "declaration": "int field_0x798;"
         },
         {
           "file": "Car.h",
-          "line": 138,
+          "line": 143,
           "name": "field_0x7a8",
           "declaration": "int field_0x7a8;"
         },
         {
           "file": "Car.h",
-          "line": 139,
+          "line": 144,
           "name": "field_0x7ac",
           "declaration": "int field_0x7ac;                  // 0x7ac"
         },
         {
           "file": "Car.h",
-          "line": 145,
+          "line": 150,
           "name": "field_0x7fc",
           "declaration": "int field_0x7fc;                  // 0x7fc  set from the difficulty (0x43e530)"
         },
         {
           "file": "Car.h",
-          "line": 146,
+          "line": 151,
           "name": "field_0x800",
           "declaration": "int field_0x800;                  // 0x800"
         },
         {
           "file": "Car.h",
-          "line": 147,
+          "line": 152,
           "name": "field_0x804",
           "declaration": "int field_0x804;                  // 0x804"
         },
         {
           "file": "Car.h",
-          "line": 148,
+          "line": 153,
           "name": "field_0x808",
           "declaration": "int field_0x808[4];               // 0x808"
         },
         {
           "file": "Car.h",
-          "line": 173,
+          "line": 178,
           "name": "field_0x8b8",
           "declaration": "int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)"
         },
         {
           "file": "Car.h",
-          "line": 177,
+          "line": 182,
           "name": "field_0x8d8",
           "declaration": "int field_0x8d8;                  // 0x8d8"
         },
         {
           "file": "Car.h",
-          "line": 179,
+          "line": 184,
           "name": "field_0x8fc",
           "declaration": "int field_0x8fc[8];               // 0x8fc  per-corner height offset while cornerOnGround[4 + i]"
         },
         {
           "file": "Car.h",
-          "line": 183,
+          "line": 188,
           "name": "field_0x928",
           "declaration": "int field_0x928[4];               // 0x928"
         },
         {
           "file": "Car.h",
-          "line": 184,
+          "line": 189,
           "name": "field_0x938",
           "declaration": "int field_0x938[4];               // 0x938  per-wheel scale of the part offset"
         },
         {
           "file": "Car.h",
-          "line": 185,
+          "line": 190,
           "name": "field_0x948",
           "declaration": "int field_0x948[4];               // 0x948"
         },
         {
           "file": "Car.h",
-          "line": 187,
+          "line": 192,
           "name": "field_0x95c",
           "declaration": "int field_0x95c;                  // 0x95c"
         },
         {
           "file": "Car.h",
-          "line": 188,
+          "line": 193,
           "name": "field_0x960",
           "declaration": "int field_0x960;"
         },
         {
           "file": "Car.h",
-          "line": 189,
+          "line": 194,
           "name": "field_0x964",
           "declaration": "int field_0x964;"
         },
         {
           "file": "Car.h",
-          "line": 190,
+          "line": 195,
           "name": "field_0x968",
           "declaration": "int field_0x968;"
         },
         {
           "file": "Car.h",
-          "line": 191,
+          "line": 196,
           "name": "field_0x96c",
           "declaration": "int field_0x96c;                  // 0x96c"
         },
         {
           "file": "Car.h",
-          "line": 192,
+          "line": 197,
           "name": "field_0x970",
           "declaration": "int field_0x970[2];               // 0x970"
         },
         {
           "file": "Car.h",
-          "line": 193,
+          "line": 198,
           "name": "field_0x978",
           "declaration": "int field_0x978[4];               // 0x978  per-wheel offset added to the part's value"
         },
         {
           "file": "Car.h",
-          "line": 195,
+          "line": 200,
           "name": "field_0x998",
           "declaration": "int field_0x998[4];               // 0x998  suspension height of each corner, front lean frame"
         },
         {
           "file": "Car.h",
-          "line": 199,
+          "line": 204,
           "name": "field_0x9c0",
           "declaration": "int field_0x9c0;"
         },
         {
           "file": "Car.h",
-          "line": 200,
+          "line": 205,
           "name": "field_0x9c4",
           "declaration": "int field_0x9c4;                  // 0x9c4"
         },
         {
           "file": "Car.h",
-          "line": 201,
+          "line": 206,
           "name": "field_0x9c8",
           "declaration": "int field_0x9c8[4];               // 0x9c8"
         },
         {
           "file": "Car.h",
-          "line": 203,
+          "line": 208,
           "name": "field_0x9e8",
           "declaration": "BYTE field_0x9e8[0x20];"
         },
         {
           "file": "Car.h",
-          "line": 204,
+          "line": 209,
           "name": "field_0xa08",
           "declaration": "int field_0xa08;"
         },
         {
           "file": "Car.h",
-          "line": 207,
+          "line": 212,
           "name": "field_0xa4c",
           "declaration": "int field_0xa4c[4];               // 0xa4c"
         },
         {
           "file": "Car.h",
-          "line": 208,
+          "line": 213,
           "name": "field_0xa5c",
           "declaration": "int field_0xa5c[4];               // 0xa5c"
         },
         {
           "file": "Car.h",
-          "line": 209,
+          "line": 214,
           "name": "field_0xa6c",
           "declaration": "BYTE field_0xa6c[0x4];"
         },
         {
           "file": "Car.h",
-          "line": 210,
+          "line": 215,
           "name": "field_0xa70",
           "declaration": "int field_0xa70;                  // 0xa70"
         },
         {
           "file": "Car.h",
-          "line": 211,
-          "name": "field_0xa74",
-          "declaration": "int field_0xa74;"
-        },
-        {
-          "file": "Car.h",
-          "line": 212,
-          "name": "field_0xa78",
-          "declaration": "int field_0xa78;                  // 0xa78 surface-noise target, copied to +0xa74"
-        },
-        {
-          "file": "Car.h",
-          "line": 213,
+          "line": 218,
           "name": "field_0xa7c",
           "declaration": "int field_0xa7c;                  // 0xa7c"
         },
         {
           "file": "Car.h",
-          "line": 214,
+          "line": 219,
           "name": "field_0xa80",
           "declaration": "int field_0xa80;"
         },
         {
           "file": "Car.h",
-          "line": 215,
+          "line": 220,
           "name": "field_0xa84",
           "declaration": "int field_0xa84;"
         },
         {
           "file": "Car.h",
-          "line": 219,
+          "line": 224,
           "name": "field_0xa94",
           "declaration": "BYTE field_0xa94[4];              // 0xa94 purpose not established"
         },
         {
           "file": "Car.h",
-          "line": 226,
+          "line": 231,
           "name": "field_0xad6",
           "declaration": "BYTE field_0xad6[0x28];"
         },
         {
           "file": "Car.h",
-          "line": 239,
+          "line": 244,
           "name": "field_0xb1d",
           "declaration": "char field_0xb1d;                 // 0xb1d"
         },
         {
           "file": "Car.h",
-          "line": 241,
+          "line": 246,
           "name": "field_0xb1f",
           "declaration": "char field_0xb1f;                 // 0xb1f"
         },
         {
           "file": "Car.h",
-          "line": 245,
+          "line": 250,
           "name": "field_0xb23",
           "declaration": "BYTE field_0xb23[0x1];"
         },
         {
           "file": "Car.h",
-          "line": 247,
+          "line": 252,
           "name": "field_0xb25",
           "declaration": "BYTE field_0xb25;                 // 0xb25  countdowns started by 0x43b020"
         },
         {
           "file": "Car.h",
-          "line": 248,
+          "line": 253,
           "name": "field_0xb26",
           "declaration": "BYTE field_0xb26;"
         },
         {
           "file": "Car.h",
-          "line": 249,
+          "line": 254,
           "name": "field_0xb27",
           "declaration": "BYTE field_0xb27;"
         },
         {
           "file": "Car.h",
-          "line": 250,
+          "line": 255,
           "name": "field_0xb28",
           "declaration": "BYTE field_0xb28;                 // 0xb28"
         },
         {
           "file": "Car.h",
-          "line": 251,
-          "name": "field_0xb29",
-          "declaration": "BYTE field_0xb29;                 // 0xb29"
-        },
-        {
-          "file": "Car.h",
-          "line": 252,
+          "line": 257,
           "name": "field_0xb2a",
           "declaration": "BYTE field_0xb2a;                 // 0xb2a"
         },
         {
           "file": "Car.h",
-          "line": 255,
+          "line": 260,
           "name": "field_0xb34",
           "declaration": "char field_0xb34;                 // 0xb34"
         },
         {
           "file": "Car.h",
-          "line": 256,
+          "line": 261,
           "name": "field_0xb35",
           "declaration": "BYTE field_0xb35[0xd];"
         },
         {
           "file": "Car.h",
-          "line": 257,
+          "line": 262,
           "name": "field_0xb42",
           "declaration": "char field_0xb42;                 // 0xb42"
         },
         {
           "file": "Car.h",
-          "line": 259,
+          "line": 264,
           "name": "field_0xb44",
           "declaration": "char field_0xb44;                 // 0xb44"
         },
         {
           "file": "Car.h",
-          "line": 260,
+          "line": 265,
           "name": "field_0xb45",
           "declaration": "BYTE field_0xb45;"
         },
         {
           "file": "Car.h",
-          "line": 262,
+          "line": 267,
           "name": "field_0xb47",
           "declaration": "BYTE field_0xb47;"
         },
         {
           "file": "Car.h",
-          "line": 263,
+          "line": 268,
           "name": "field_0xb48",
           "declaration": "int field_0xb48;                  // 0xb48"
         },
         {
           "file": "Car.h",
-          "line": 265,
+          "line": 270,
           "name": "field_0xb50",
           "declaration": "int field_0xb50;"
         },
         {
           "file": "Car.h",
-          "line": 267,
+          "line": 272,
           "name": "field_0xb58",
           "declaration": "int field_0xb58;"
         },
         {
           "file": "Car.h",
-          "line": 269,
+          "line": 274,
           "name": "field_0xb60",
           "declaration": "int field_0xb60;                  // 0xb60"
         },
         {
           "file": "Car.h",
-          "line": 270,
+          "line": 275,
           "name": "field_0xb64",
           "declaration": "int field_0xb64;                  // 0xb64"
         },
         {
           "file": "Car.h",
-          "line": 272,
+          "line": 277,
           "name": "field_0xb6c",
           "declaration": "int field_0xb6c;"
         },
         {
           "file": "Car.h",
-          "line": 273,
+          "line": 278,
           "name": "field_0xb70",
           "declaration": "int field_0xb70;"
         },
         {
           "file": "Car.h",
-          "line": 274,
+          "line": 279,
           "name": "field_0xb74",
           "declaration": "int field_0xb74;                  // 0xb74"
         },
         {
           "file": "Car.h",
-          "line": 276,
+          "line": 281,
           "name": "field_0xb7c",
           "declaration": "int field_0xb7c;                  // 0xb7c"
         },
         {
           "file": "Car.h",
-          "line": 277,
+          "line": 282,
           "name": "field_0xb80",
           "declaration": "int field_0xb80;                  // 0xb80"
         },
         {
           "file": "Car.h",
-          "line": 279,
+          "line": 284,
           "name": "field_0xb88",
           "declaration": "int field_0xb88;"
         },
         {
           "file": "Car.h",
-          "line": 280,
+          "line": 285,
           "name": "field_0xb8c",
           "declaration": "int field_0xb8c;"
         },
         {
           "file": "Car.h",
-          "line": 281,
+          "line": 286,
           "name": "field_0xb90",
           "declaration": "int field_0xb90;"
         },
         {
           "file": "Car.h",
-          "line": 285,
+          "line": 290,
           "name": "field_0xba0",
           "declaration": "int field_0xba0[3];               // 0xba0"
         },
         {
           "file": "Car.h",
-          "line": 287,
+          "line": 292,
           "name": "field_0xbcc",
           "declaration": "int field_0xbcc[4];               // 0xbcc"
         },
         {
           "file": "Car.h",
-          "line": 288,
+          "line": 293,
           "name": "field_0xbdc",
           "declaration": "int field_0xbdc;                  // 0xbdc"
         },
         {
           "file": "Car.h",
-          "line": 289,
+          "line": 294,
           "name": "field_0xbe0",
           "declaration": "int field_0xbe0;                  // 0xbe0"
         },
         {
           "file": "Car.h",
-          "line": 290,
+          "line": 295,
           "name": "field_0xbe4",
           "declaration": "int field_0xbe4;                  // 0xbe4"
         },
         {
           "file": "Car.h",
-          "line": 292,
+          "line": 297,
           "name": "field_0xbf8",
           "declaration": "int field_0xbf8;                  // 0xbf8"
         },
         {
           "file": "Car.h",
-          "line": 293,
+          "line": 298,
           "name": "field_0xbfc",
           "declaration": "int field_0xbfc;                  // 0xbfc"
         },
         {
           "file": "Car.h",
-          "line": 295,
+          "line": 300,
           "name": "field_0xc04",
           "declaration": "int field_0xc04[2];               // 0xc04"
         },
         {
           "file": "Car.h",
-          "line": 296,
+          "line": 301,
           "name": "field_0xc0c",
           "declaration": "int field_0xc0c;                  // 0xc0c"
         },
         {
           "file": "Car.h",
-          "line": 297,
+          "line": 302,
           "name": "field_0xc10",
           "declaration": "int field_0xc10;                  // 0xc10"
         },
         {
           "file": "Car.h",
-          "line": 298,
+          "line": 303,
           "name": "field_0xc14",
           "declaration": "unsigned int field_0xc14;"
         },
         {
           "file": "Car.h",
-          "line": 299,
+          "line": 304,
           "name": "field_0xc18",
           "declaration": "int field_0xc18;                  // 0xc18"
         },
         {
           "file": "Car.h",
-          "line": 300,
+          "line": 305,
           "name": "field_0xc1c",
           "declaration": "int field_0xc1c;"
         },
         {
           "file": "Car.h",
-          "line": 301,
+          "line": 306,
           "name": "field_0xc20",
           "declaration": "int field_0xc20;"
         }
@@ -1704,48 +1686,48 @@
     },
     {
       "file": "Car.h",
-      "line": 306,
+      "line": 311,
       "kind": "struct",
       "name": "CarWheelRecord",
-      "end_line": 311,
+      "end_line": 316,
       "unnamed_fields": []
     },
     {
       "file": "Car.h",
-      "line": 315,
+      "line": 320,
       "kind": "struct",
       "name": "CarTransforms",
-      "end_line": 321,
+      "end_line": 326,
       "unnamed_fields": []
     },
     {
       "file": "Car.h",
-      "line": 413,
+      "line": 418,
       "kind": "struct",
       "name": "CarNetRecord",
-      "end_line": 443,
+      "end_line": 448,
       "unnamed_fields": [
         {
           "file": "Car.h",
-          "line": 426,
+          "line": 431,
           "name": "field_0xb4",
           "declaration": "int field_0xb4;             // 0xb4 smoothed field_0xbc"
         },
         {
           "file": "Car.h",
-          "line": 428,
+          "line": 433,
           "name": "field_0xbc",
           "declaration": "int field_0xbc;"
         },
         {
           "file": "Car.h",
-          "line": 429,
+          "line": 434,
           "name": "field_0xc0",
           "declaration": "int field_0xc0;"
         },
         {
           "file": "Car.h",
-          "line": 441,
+          "line": 446,
           "name": "field_0xe4",
           "declaration": "int field_0xe4;"
         }
@@ -1753,44 +1735,44 @@
     },
     {
       "file": "Car.h",
-      "line": 447,
+      "line": 452,
       "kind": "struct",
       "name": "CameraRecord",
-      "end_line": 461,
+      "end_line": 466,
       "unnamed_fields": [
         {
           "file": "Car.h",
-          "line": 454,
+          "line": 459,
           "name": "field_0x48",
           "declaration": "int field_0x48;"
         },
         {
           "file": "Car.h",
-          "line": 455,
+          "line": 460,
           "name": "field_0x4c",
           "declaration": "int field_0x4c;"
         },
         {
           "file": "Car.h",
-          "line": 456,
+          "line": 461,
           "name": "field_0x50",
           "declaration": "int field_0x50;"
         },
         {
           "file": "Car.h",
-          "line": 457,
+          "line": 462,
           "name": "field_0x54",
           "declaration": "int field_0x54;"
         },
         {
           "file": "Car.h",
-          "line": 458,
+          "line": 463,
           "name": "field_0x58",
           "declaration": "int field_0x58;"
         },
         {
           "file": "Car.h",
-          "line": 459,
+          "line": 464,
           "name": "field_0x5c",
           "declaration": "int field_0x5c;"
         }
@@ -13082,49 +13064,21 @@
     },
     {
       "file": "Car.cpp",
-      "line": 6795,
-      "nearest_function": "0x0043c7f0",
-      "access_type": "int *",
-      "expression": "*(int *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6796,
-      "nearest_function": "0x0043c7f0",
-      "access_type": "char *",
-      "expression": "*(char *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 7142,
-      "nearest_function": "0x0043c7f0",
-      "access_type": "short *",
-      "expression": "*(short *)((int)g_pCurrentCar + 0xb16)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 7235,
-      "nearest_function": "0x0043c7f0",
-      "access_type": "short *",
-      "expression": "*(short *)((int)g_pCurrentCar + 0xafe)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8040,
+      "line": 8037,
       "nearest_function": "0x00423460",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)Car_Get(pRecord->car) + 0x8e4)"
     },
     {
       "file": "Car.cpp",
-      "line": 8141,
+      "line": 8138,
       "nearest_function": "0x00421610",
       "access_type": "int *",
       "expression": "*(int *)(g_unk0x00538d2c + i * 100)"
     },
     {
       "file": "Car.cpp",
-      "line": 8279,
+      "line": 8276,
       "nearest_function": "0x004219b0",
       "access_type": "int *",
       "expression": "*(int *)(g_unk0x00538d2c + index * 100)"
@@ -22265,7 +22219,7 @@
     },
     {
       "file": "Car.cpp",
-      "line": 7555,
+      "line": 7552,
       "nearest_function": "0x0043f630",
       "call": "memcpy",
       "size_expressions": [
@@ -23020,19 +22974,7 @@
     },
     {
       "file": "Car.cpp",
-      "line": 7194,
-      "nearest_function": "0x0043c7f0",
-      "value": "0xc"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 7195,
-      "nearest_function": "0x0043c7f0",
-      "value": "0xc"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 7289,
+      "line": 7286,
       "nearest_function": "0x00423b20",
       "value": "0x5a"
     },
@@ -37291,51 +37233,57 @@
     },
     {
       "file": "Car.cpp",
-      "line": 7274,
+      "line": 7271,
       "nearest_function": "0x00423b20",
       "name": "g_unk0x00538ca0"
     },
     {
       "file": "Car.cpp",
-      "line": 7275,
+      "line": 7272,
       "nearest_function": "0x00423b20",
       "name": "g_unk0x00538ca0"
     },
     {
       "file": "Car.cpp",
-      "line": 7286,
+      "line": 7283,
       "nearest_function": "0x00423b20",
       "name": "g_unk0x00538f00"
     },
     {
       "file": "Car.cpp",
-      "line": 7288,
+      "line": 7285,
       "nearest_function": "0x00423b20",
       "name": "g_unk0x00538df8"
     },
     {
       "file": "Car.cpp",
-      "line": 7311,
+      "line": 7308,
       "nearest_function": "0x00423b20",
       "name": "g_unk0x00538c98"
     },
     {
       "file": "Car.cpp",
-      "line": 7550,
+      "line": 7547,
       "nearest_function": "0x0043f630",
       "name": "g_unk0x0053c9d4"
     },
     {
       "file": "Car.cpp",
-      "line": 7899,
+      "line": 7896,
       "nearest_function": "0x0042fb20",
       "name": "g_unk0x00538d2c"
     },
     {
       "file": "Car.cpp",
-      "line": 7900,
+      "line": 7897,
       "nearest_function": "0x0042fb20",
       "name": "g_unk0x00538e38"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 7900,
+      "nearest_function": "0x0042fb20",
+      "name": "g_unk0x00511308"
     },
     {
       "file": "Car.cpp",
@@ -37345,9 +37293,9 @@
     },
     {
       "file": "Car.cpp",
-      "line": 7906,
+      "line": 7905,
       "nearest_function": "0x0042fb20",
-      "name": "g_unk0x00511308"
+      "name": "Unk004238e0"
     },
     {
       "file": "Car.cpp",
@@ -37357,117 +37305,129 @@
     },
     {
       "file": "Car.cpp",
-      "line": 7911,
-      "nearest_function": "0x0042fb20",
-      "name": "Unk004238e0"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8008,
+      "line": 8005,
       "nearest_function": "0x00423460",
       "name": "g_unk0x00538f00"
     },
     {
       "file": "Car.cpp",
-      "line": 8141,
+      "line": 8138,
       "nearest_function": "0x00421610",
       "name": "g_unk0x00538d2c"
     },
     {
       "file": "Car.cpp",
-      "line": 8142,
+      "line": 8139,
       "nearest_function": "0x00421610",
       "name": "g_unk0x00538d20"
     },
     {
       "file": "Car.cpp",
-      "line": 8143,
+      "line": 8140,
       "nearest_function": "0x00421610",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8144,
+      "line": 8141,
       "nearest_function": "0x00421610",
       "name": "g_unk0x005391b0"
     },
     {
       "file": "Car.cpp",
-      "line": 8145,
+      "line": 8142,
       "nearest_function": "0x00421610",
       "name": "g_unk0x005391c4"
     },
     {
       "file": "Car.cpp",
-      "line": 8146,
+      "line": 8143,
       "nearest_function": "0x00421610",
       "name": "g_unk0x005391a8"
     },
     {
       "file": "Car.cpp",
-      "line": 8148,
+      "line": 8145,
       "nearest_function": "0x00421610",
       "name": "g_unk0x00538f00"
     },
     {
       "file": "Car.cpp",
-      "line": 8170,
+      "line": 8167,
       "nearest_function": "0x00421720",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8171,
+      "line": 8168,
       "nearest_function": "0x00421720",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8189,
+      "line": 8186,
       "nearest_function": "0x00421720",
       "name": "g_unk0x00538d20"
     },
     {
       "file": "Car.cpp",
-      "line": 8192,
+      "line": 8189,
       "nearest_function": "0x00421720",
       "name": "Unk004238e0"
     },
     {
       "file": "Car.cpp",
-      "line": 8195,
+      "line": 8192,
       "nearest_function": "0x00421720",
       "name": "g_unk0x005391b0"
     },
     {
       "file": "Car.cpp",
-      "line": 8196,
+      "line": 8193,
       "nearest_function": "0x00421720",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8196,
+      "line": 8193,
       "nearest_function": "0x00421720",
       "name": "g_unk0x00538e0c"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8217,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538e0c"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8218,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538e0c"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8219,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538f00"
     },
     {
       "file": "Car.cpp",
       "line": 8220,
       "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538e0c"
+      "name": "g_unk0x00538f00"
     },
     {
       "file": "Car.cpp",
       "line": 8221,
       "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538e0c"
+      "name": "g_unk0x00538c98"
     },
     {
       "file": "Car.cpp",
       "line": 8222,
       "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538f00"
+      "name": "g_unk0x00538c98"
     },
     {
       "file": "Car.cpp",
@@ -37478,12 +37438,6 @@
     {
       "file": "Car.cpp",
       "line": 8224,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538c98"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8225,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538c98"
     },
@@ -37501,6 +37455,12 @@
     },
     {
       "file": "Car.cpp",
+      "line": 8228,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538c98"
+    },
+    {
+      "file": "Car.cpp",
       "line": 8229,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538f00"
@@ -37513,31 +37473,19 @@
     },
     {
       "file": "Car.cpp",
-      "line": 8231,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538c98"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8232,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538f00"
-    },
-    {
-      "file": "Car.cpp",
       "line": 8233,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538c98"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8236,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538df8"
     },
     {
       "file": "Car.cpp",
-      "line": 8237,
+      "line": 8234,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538df8"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8235,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538df8"
     },
@@ -37545,119 +37493,113 @@
       "file": "Car.cpp",
       "line": 8238,
       "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538df8"
+      "name": "g_unk0x00538d20"
     },
     {
       "file": "Car.cpp",
-      "line": 8241,
+      "line": 8239,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538d20"
     },
     {
       "file": "Car.cpp",
-      "line": 8242,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538d20"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8248,
+      "line": 8245,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x005391c4"
     },
     {
       "file": "Car.cpp",
-      "line": 8248,
+      "line": 8245,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x005391b0"
     },
     {
       "file": "Car.cpp",
-      "line": 8249,
+      "line": 8246,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x005391b0"
     },
     {
       "file": "Car.cpp",
-      "line": 8279,
+      "line": 8276,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538d2c"
     },
     {
       "file": "Car.cpp",
-      "line": 8283,
+      "line": 8280,
       "nearest_function": "0x004219b0",
       "name": "Unk004238e0"
     },
     {
       "file": "Car.cpp",
-      "line": 8287,
+      "line": 8284,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8287,
+      "line": 8284,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8298,
+      "line": 8295,
       "nearest_function": "0x00421d80",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8299,
+      "line": 8296,
       "nearest_function": "0x00421d80",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8307,
+      "line": 8304,
       "nearest_function": "0x00421d80",
       "name": "g_unk0x005391b0"
     },
     {
       "file": "Car.cpp",
-      "line": 8320,
+      "line": 8317,
       "nearest_function": "0x00421e20",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8321,
+      "line": 8318,
       "nearest_function": "0x00421e20",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8328,
+      "line": 8325,
       "nearest_function": "0x00421e20",
       "name": "g_unk0x00538d20"
     },
     {
       "file": "Car.cpp",
-      "line": 8328,
+      "line": 8325,
       "nearest_function": "0x00421e20",
       "name": "g_unk0x00538d20"
     },
     {
       "file": "Car.cpp",
-      "line": 8367,
+      "line": 8364,
       "nearest_function": "0x00422140",
       "name": "g_unk0x005391cc"
     },
     {
       "file": "Car.cpp",
-      "line": 8368,
+      "line": 8365,
       "nearest_function": "0x00422140",
       "name": "g_unk0x005391a8"
     },
     {
       "file": "Car.cpp",
-      "line": 8369,
+      "line": 8366,
       "nearest_function": "0x00422140",
       "name": "g_unk0x00538df0"
     },

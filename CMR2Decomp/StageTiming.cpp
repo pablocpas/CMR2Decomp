@@ -6420,7 +6420,7 @@ void StageTiming_InitEffectParticleTypes(void)
   return;
 }
 
-void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5, int param_6);
+void Car_Spawn(Car *param_1, SceneNode *param_2, int param_3, FixVector *param_4, int param_5, int param_6);
 void Car_ResetBodyBasis(Car *param_1);
 void StageTiming_IntegratePartSpringMotion(void);
 
@@ -6783,7 +6783,7 @@ void StageTiming_PlaceCarViewNodesAndBody(SceneNode *pNodeA, SceneNode *pNodeB, 
     SceneNode_SetRotation(pNodeB, pAngles);
     SceneNode_SetPosition(pNodeA, pPosition);
     SceneNode_SetPosition(pNodeB, pPosition);
-    Car_Spawn((int)Car_Get(carIndex), (int)pNodeA, param_4, (int *)pPosition, carIndex, param_7);
+    Car_Spawn(Car_Get(carIndex), pNodeA, param_4, pPosition, carIndex, param_7);
     Car_ResetBodyBasis(Car_Get(carIndex));
     if (CGameInfo::GetGameModeOptionBit19() != 0)
         StageTiming_SnapshotCarNetworkPose(Car_Get(carIndex));

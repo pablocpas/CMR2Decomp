@@ -191,3 +191,5 @@ la referencia avanzada de 2924 funciones exactas, incluido el casco corregido.
 Ambos productores usan campos y recorridos calculados por tipos; mejoran sus
 scores sin regresiones. Pasan 117 arneses, 14112 casos nuevos y 480 escenarios
 nativos. El inventario queda en 1341 candidatos crudos.
+
+- [64-bit car spawn and surface names](64bit-car-spawn.md): 17 pointer/integer conversions removed; runtime Car/SceneNode/position arguments, evidenced noise/drag names; 2924 exact functions preserved.

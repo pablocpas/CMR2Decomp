@@ -929,7 +929,7 @@ void Dash_BuildInterpolatedCockpitMatrix(BYTE *param_1, FixMatrix *param_2, int 
         else
             scale = 0xe0000;
         t = FixMul(FixDiv(g_physicsTimeStep, scale),
-                   Car_Get(param_1[2])->field_0xa74);
+                   Car_Get(param_1[2])->surfaceNoise);
         FixMatrix_Interpolate(&xform, &mat, &xform, t, t, 0x10000, 0);
         FixMatrix_GetUp(pUp, &xform);
         FixMatrix_GetForward(pRight, &xform);

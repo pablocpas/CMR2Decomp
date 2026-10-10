@@ -1,0 +1,3 @@
+PASS: actual Car_Spawn body, 336 x64 scenarios, native Car/SceneNode pointers above 4 GB; complete heap and gravity match original, ASan/UBSan
+PASS: six actual bodies, 354 x64 scenarios, all fifteen pointers above 4 GB intact; complete primitive heap matches original, ASan/UBSan
+PASS: two actual surface bodies, 480 x64 cases, original tables/math; complete primitive heap and fifteen pointers above 4 GB preserved, ASan/UBSan

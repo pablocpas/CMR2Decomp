@@ -38,10 +38,10 @@ struct Car {
     // Fixed-word prefix: original cursors walk across grip/effect records.
     union {
         struct {
-        FixMatrix physicsMatrix;          // 0x00 pWorld points here
-        FixMatrix bodyMatrix;             // 0x40 pBodyMatrix points here
-        CarCornerGrip cornerGrip[8];      // 0x80
-        CarWheelSurface wheelSurfaceFx[4]; // 0x1a0
+            FixMatrix physicsMatrix;          // 0x00 pWorld points here
+            FixMatrix bodyMatrix;             // 0x40 pBodyMatrix points here
+            CarCornerGrip cornerGrip[8];      // 0x80
+            CarWheelSurface wheelSurfaceFx[4]; // 0x1a0
         };
         int surfaceOutputWords[116];
         BYTE surfaceOutputBytes[0x1d0];
@@ -55,8 +55,13 @@ struct Car {
     int field_0x1e8[4];               // 0x1e8
     FixVector bodySize;                // 0x1f8  full body dimensions; halfExtents is half this vector
     FixVector halfExtents;            // 0x204
-    FixVector wheelPos[4];            // 0x210  wheel positions in body space
-    FixVector upperCornersLocal[4];    // 0x240  four upper body-space collision corners
+    union {
+        struct {
+            FixVector wheelPos[4];            // 0x210  wheel positions in body space
+            FixVector upperCornersLocal[4];    // 0x240  four upper body-space collision corners
+        };
+        FixVector collisionCornersLocal[8]; // 0x210 four lower + four upper corners
+    };
     FixVector corners[8];             // 0x270  world-space box corners
     FixVector position;               // 0x2d0
     FixVector field_0x2dc;            // 0x2dc
@@ -165,12 +170,12 @@ struct Car {
     int wheelSlip[4];                 // 0x870  rolling slip of each wheel
     union {
         struct {
-        int wheelSlipLateral[4];          // 0x880  lateral slip of each wheel
-        int wheelSpinForWheelLean[4];      // 0x890  filtered wheel spin (front lean)
-        int wheelSpinForBodyLean[4];       // 0x8a0  filtered wheel spin (body lean)
-        int cornerMass;                   // 0x8b0  mass carried by each touching corner
-        int tyreGrip;                     // 0x8b4  tyre grip, times the physics scale each step
-        int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)
+            int wheelSlipLateral[4];          // 0x880  lateral slip of each wheel
+            int wheelSpinForWheelLean[4];      // 0x890  filtered wheel spin (front lean)
+            int wheelSpinForBodyLean[4];       // 0x8a0  filtered wheel spin (body lean)
+            int cornerMass;                   // 0x8b0  mass carried by each touching corner
+            int tyreGrip;                     // 0x8b4  tyre grip, times the physics scale each step
+            int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)
         };
         int surfaceCompressionWords[22]; // 0x880..0x8d7, original contiguous walk
     };
@@ -208,8 +213,8 @@ struct Car {
     int field_0xa5c[4];               // 0xa5c
     BYTE field_0xa6c[0x4];
     int field_0xa70;                  // 0xa70
-    int field_0xa74;
-    int field_0xa78;                  // 0xa78 surface-noise target, copied to +0xa74
+    int surfaceNoise;               // 0xa74 smoothed wheel-surface noise
+    int surfaceNoiseTarget;                  // 0xa78 surface-noise target, copied to +0xa74
     int field_0xa7c;                  // 0xa7c
     int field_0xa80;
     int field_0xa84;
@@ -248,7 +253,7 @@ struct Car {
     BYTE field_0xb26;
     BYTE field_0xb27;
     BYTE field_0xb28;                 // 0xb28
-    BYTE field_0xb29;                 // 0xb29
+    BYTE surfaceDragLevel;             // 0xb29 group of nine surface drag values
     BYTE field_0xb2a;                 // 0xb2a
     char deepestCorner;                // 0xb2b  0..3, or -1 when no corner penetrates
     char cornerFlags[8];              // 0xb2c  set while a corner is disabled

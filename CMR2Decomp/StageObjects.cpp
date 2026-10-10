@@ -2748,7 +2748,7 @@ int StageObject_GetCarSoundElapsedTime(int index)
 // FUNCTION: CMR2 0x004789b0
 void StageObject_CopyCarSurfaceNoiseTarget(Car *pCar)
 {
-    pCar->field_0xa74 = pCar->field_0xa78;
+    pCar->surfaceNoise = pCar->surfaceNoiseTarget;
 }
 
 // Second group (0x4805f0-0x49e940)
@@ -11220,7 +11220,7 @@ void CarDamage_UpdateSuspensionImpactContacts(Car *pCar)
         idx = 0;
         do {
             if (StageObject_IsEligibleType((short)(unsigned short)pCar->wheelSurface[idx], 0,
-                                           (int)pCar->field_0xb29) != 0) {
+                                           (int)pCar->surfaceDragLevel) != 0) {
                 bVar5 = TRUE;
                 idx = 4;
             }
@@ -12238,7 +12238,7 @@ void StageObject_UpdateEnabledCornerContactFrames(Car *param_1, short *param_2, 
             if (pCar->cornerFlags[idx] != 0)
                 continue;
             if (StageObject_IsEligibleType(pCar->wheelSurface[idx],
-                                           pCar->field_0xb74, (int)pCar->field_0xb29) == 0)
+                                           pCar->field_0xb74, (int)pCar->surfaceDragLevel) == 0)
                 continue;
             if (pCar->speed <= 0x1999)
                 continue;

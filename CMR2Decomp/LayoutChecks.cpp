@@ -727,11 +727,11 @@ CMR2_LAYOUT_CHECK(CarState_field_0xb28_Check, offsetof(Car, field_0xb28) == 0xb2
 CMR2_LAYOUT_CHECK(CarState_wheelSteeringAngle_Check, offsetof(Car, wheelSteeringAngle) == 0xb10);
 CMR2_LAYOUT_CHECK(CarState_targetSteeringAngle_Check, offsetof(Car, targetSteeringAngle) == 0xb12);
 CMR2_LAYOUT_CHECK(CarState_gear_Check, offsetof(Car, gear) == 0xb1e);
-CMR2_LAYOUT_CHECK(CarState_field_0xa74_Check, offsetof(Car, field_0xa74) == 0xa74);
-CMR2_LAYOUT_CHECK(CarState_field_0xa78_Check, offsetof(Car, field_0xa78) == 0xa78);
+CMR2_LAYOUT_CHECK(CarState_surfaceNoise_Check, offsetof(Car, surfaceNoise) == 0xa74);
+CMR2_LAYOUT_CHECK(CarState_surfaceNoiseTarget_Check, offsetof(Car, surfaceNoiseTarget) == 0xa78);
 CMR2_LAYOUT_CHECK(CarBodyAxesSizeCheck, sizeof(((Car *)0)->bodyAxes) == 0x24);
 CMR2_LAYOUT_CHECK(CarTargetAxesSizeCheck, sizeof(((Car *)0)->targetAxes) == 0x24);
-CMR2_LAYOUT_CHECK(CarNoiseTargetWidthCheck, sizeof(((Car *)0)->field_0xa78) == 4);
+CMR2_LAYOUT_CHECK(CarNoiseTargetWidthCheck, sizeof(((Car *)0)->surfaceNoiseTarget) == 4);
 // Menus: items are walked by index; the action follows four 32-bit words.
 CMR2_LAYOUT_CHECK(MenuItemSizeCheck, sizeof(MenuItem) == 0x14);
 CMR2_LAYOUT_CHECK(MenuItemActionOffsetCheck, offsetof(MenuItem, action) == 0x10);
@@ -754,3 +754,18 @@ CMR2_LAYOUT_CHECK(CarSurfaceGripB_Check, offsetof(CarCornerGrip, gripB) == 4);
 CMR2_LAYOUT_CHECK(CarSurfaceGrip2B_Check, offsetof(CarCornerGrip, grip2B) == 0xc);
 CMR2_LAYOUT_CHECK(CarSurfaceWheelDrag_Check, offsetof(CarWheelSurface, drag) == 4);
 CMR2_LAYOUT_CHECK(CarSurfaceWheelEffect_Check, offsetof(CarWheelSurface, effect) == 0);
+
+// Runtime local collision-corner overlay and spawn field widths (Win32).
+CMR2_LAYOUT_CHECK(CarSpawnLocalCorners_Check, offsetof(Car, collisionCornersLocal) == 0x210);
+CMR2_LAYOUT_CHECK(CarSpawnLocalCornersSize_Check, sizeof(((Car *)0)->collisionCornersLocal) == 0x60);
+CMR2_LAYOUT_CHECK(CarSpawnLowerCorners_Check, offsetof(Car, wheelPos) == 0x210);
+CMR2_LAYOUT_CHECK(CarSpawnUpperCorners_Check, offsetof(Car, upperCornersLocal) == 0x240);
+CMR2_LAYOUT_CHECK(CarSpawnFlags_Check, offsetof(Car, flags) == 0xb1c);
+CMR2_LAYOUT_CHECK(CarSpawnSteerLimit_Check, offsetof(Car, maxSteeringAngleDegrees) == 0xb16);
+CMR2_LAYOUT_CHECK(CarSpawnEngineStart_Check, offsetof(Car, engineStartTimer) == 0xafe);
+CMR2_LAYOUT_CHECK(CarSpawnFlagsWidth_Check, sizeof(((Car *)0)->flags) == 1);
+CMR2_LAYOUT_CHECK(CarSpawnSteerLimitWidth_Check, sizeof(((Car *)0)->maxSteeringAngleDegrees) == 2);
+CMR2_LAYOUT_CHECK(CarSpawnEngineStartWidth_Check, sizeof(((Car *)0)->engineStartTimer) == 2);
+
+CMR2_LAYOUT_CHECK(CarSurfaceDragLevel_Check, offsetof(Car, surfaceDragLevel) == 0xb29);
+CMR2_LAYOUT_CHECK(CarSurfaceDragLevelWidth_Check, sizeof(((Car *)0)->surfaceDragLevel) == 1);

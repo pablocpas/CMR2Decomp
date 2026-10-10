@@ -53,7 +53,7 @@ int main(int argc,char **argv) {
     for(unsigned i=0;i<15;i++) {
         uintptr_t value;memcpy(&value,pointers+i*sizeof(void *),sizeof(value));assert(value>UINT32_MAX);
     }
-    assert(offsetof(Car,wheelSurface)!=0xaae && offsetof(Car,field_0xa78)!=0xa78);
+    assert(offsetof(Car,wheelSurface)!=0xaae && offsetof(Car,surfaceNoiseTarget)!=0xa78);
     if(!strcmp(argv[1],"paired"))Surface_BlendWheelContactParameters(&car,atoi(argv[2]));
     else {assert(!strcmp(argv[1],"blended"));Car_UpdateSurfaceParams(&car,atoi(argv[2]));}
     assert(!memcmp(pointers,&car.pSceneRoot,sizeof(pointers)));

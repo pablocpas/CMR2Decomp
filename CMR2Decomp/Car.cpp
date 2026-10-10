@@ -4114,7 +4114,7 @@ int Car_UsesNarrowWheels(Car *pCar, int param2)
     char stage;
 
     stage = StageTiming_GetStartTableRecord(pCar->index)->modelClass;
-    if (!CGameInfo::IsActiveCheatEnabled(6) && pCar->field_0xb29 == 6 && stage != 0xb && stage != 8 && stage != 0xa &&
+    if (!CGameInfo::IsActiveCheatEnabled(6) && pCar->surfaceDragLevel == 6 && stage != 0xb && stage != 8 && stage != 0xa &&
         stage != 0xd && (StageTiming_GetStartTableRecord(pCar->index)->detailCode != 'A' || param2 != 0))
         return 1;
     return 0;
@@ -4170,7 +4170,7 @@ void Car_SetDriveSplit(int value)
 // FUNCTION: CMR2 0x0043e1d0
 void Car_SetSurfaceDragLevel(int value)
 {
-    g_pCurrentCar->field_0xb29 = (BYTE)value;
+    g_pCurrentCar->surfaceDragLevel = (BYTE)value;
 }
 
 int Car_GetScaledSteerFollowRate(void);
@@ -4265,7 +4265,7 @@ BOOL Car_ShowsCleanWheels(Car *pCar)
     char stage;
 
     stage = StageTiming_GetStartTableRecord(pCar->index)->modelClass;
-    if (pCar->field_0xb29 <= 1 && stage != 11 && stage != 8 && stage != 10 && stage != 13)
+    if (pCar->surfaceDragLevel <= 1 && stage != 11 && stage != 8 && stage != 10 && stage != 13)
         return TRUE;
     return FALSE;
 }
@@ -6774,7 +6774,7 @@ BYTE StageUI_GetRaceEndEventCount(void);
 // match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // Implementada; las 68 llamadas coinciden en simbolo y frecuencia y no hay offsets inventados; difieren el reparto de registros y algunas expresiones reasociadas por el optimizador.
 // FUNCTION: CMR2 0x0043c7f0
-void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
+void Car_Spawn(Car *param_1, SceneNode *param_2, int param_3, FixVector *param_4, int param_5,
                   int param_6)
 {
     FixVector v;
@@ -6792,13 +6792,11 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     int hz;
     char *pcVar13;
 
-#define CARF(off) (*(int *)((int)g_pCurrentCar + (off)))
-#define CARB(off) (*(char *)((int)g_pCurrentCar + (off)))
 
     limit = 0;
     flag8 = 0;
     flagC = 0;
-    g_pCurrentCar = (Car *)param_1;
+    g_pCurrentCar = param_1;
     if (RallyData_GetSelectionFlag28() != 0 && CGameInfo::GetSoundOptionBit30() != 0 &&
         param_5 == (int)StageTiming_GetTotalCarCount() - 1) {
         if (Replay_GetSelectionStateByte() == -1) {
@@ -6814,7 +6812,7 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     g_pCurrentCar->index = (char)param_5;
     g_pCurrentCar->type = (char)carType;
     if (param_6 == 0)
-        Car_BindModel(param_5, (Car *)param_1);
+        Car_BindModel(param_5, param_1);
     g_pCurrentCar->cheatWheelDrop = FixMul(0x5999, 0x20000);
     g_pCurrentCar->cheatBodyLift = g_pCurrentCar->cheatWheelDrop + FixMul(0x5999, 0x18000);
     for (i = 0; i < 4; i++) {
@@ -6823,9 +6821,9 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
         if (CGameInfo::IsActiveCheatEnabled(6) != 0)
             g_pCurrentCar->wheelEmitter[i].y -= g_pCurrentCar->cheatWheelDrop;
     }
-    g_pCurrentCar->position = *(FixVector *)param_4;
+    g_pCurrentCar->position = *param_4;
     g_pCurrentCar->gear = 0;
-    FixMatrix *pBasis = (FixMatrix *)(param_2 + 0x98);
+    FixMatrix *pBasis = &param_2->current;
     g_pCurrentCar->pWorld = &g_pCurrentCar->physicsMatrix;
     FixMatrix_GetRight(&g_pCurrentCar->right, pBasis);
     FixMatrix_GetUp(&g_pCurrentCar->up, pBasis);
@@ -7138,8 +7136,8 @@ LAB_0043d703:
     g_pCurrentCar->brakeRampStep = 0xccc;
     g_pCurrentCar->handbrakeRampStep = 0x1999;
     g_pCurrentCar->maxHandbrakeForce = 0x8000;
-    CARB(0xb1c) = 3;
-    *(short *)((int)g_pCurrentCar + 0xb16) = 0x2aa;
+    g_pCurrentCar->flags = 3;
+    g_pCurrentCar->maxSteeringAngleDegrees = 0x2aa;
     g_pCurrentCar->steeringReturnRate = 0x3333;
     g_pCurrentCar->gearRatio[0] = 0;
     g_pCurrentCar->gearRatio[1] = FixDiv(0x10000, g_pCurrentCar->gearSpeed[1]);
@@ -7187,12 +7185,12 @@ LAB_0043d703:
     g_pCurrentCar->upperCornersLocal[3].z = -hz;
     // Leftover of an extreme-corner search: the loop and the copies are no-ops,
     // but the original kept them (the indices only fold after the copy check).
-    for (i = 0; i < 0x60; i += 0xc)
-        CARF(0x210 + i) = CARF(0x210 + i);
+    for (i = 0; i < (int)sizeof(g_pCurrentCar->collisionCornersLocal); i += sizeof(FixVector))
+        g_pCurrentCar->collisionCornersLocal[i / sizeof(FixVector)].x = g_pCurrentCar->collisionCornersLocal[i / sizeof(FixVector)].x;
     i = 1;
     g_pCurrentCar->wheelPos[1].x = g_pCurrentCar->wheelPos[i].x;
-    g_pCurrentCar->wheelPos[0].x = CARF(0x210 + (i - 1) * 0xc);
-    g_pCurrentCar->wheelPos[0].z = CARF(0x218 + (i - 1) * 0xc);
+    g_pCurrentCar->wheelPos[0].x = g_pCurrentCar->wheelPos[i - 1].x;
+    g_pCurrentCar->wheelPos[0].z = g_pCurrentCar->wheelPos[i - 1].z;
     g_pCurrentCar->wheelPos[2].z = g_pCurrentCar->wheelPos[1 + i].z;
     Car_UpdateCorners(g_pCurrentCar);
     g_gravityDir.x = 0;
@@ -7232,7 +7230,7 @@ LAB_0043d703:
     if (CGameInfo::GetConfiguredGameMode() == 4)
         g_pCurrentCar->field_0xb50 = 0;
     g_pCurrentCar->engineRestartPending = 0;
-    *(short *)((int)g_pCurrentCar + 0xafe) = 0;
+    g_pCurrentCar->engineStartTimer = 0;
     g_pCurrentCar->gearAtOrBelowBest = 1;
     g_pCurrentCar->field_0xb44 = (char)0xff;
     g_gravityScale = 0x9999;
@@ -7243,8 +7241,7 @@ LAB_0043d703:
         g_pCurrentCar->field_0xc1c = 1;
     }
 
-#undef CARF
-#undef CARB
+
 }
 
 int HudDash_GetPlayerGaugeValue(BYTE index);

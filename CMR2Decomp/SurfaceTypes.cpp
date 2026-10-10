@@ -311,9 +311,9 @@ store_grip2B:
 
                 CarSurfaceWheelOutput(pOut)->effect[0] = g_surfaceEffect[id][0];
                 CarSurfaceWheelOutput(pOut)->effect[1] = g_surfaceEffect[id][1];
-                drag = FixMul(g_surfaceDrag[g_surfaceDragIndex[id] + pCar->field_0xb29 * 9], 0x51e);
+                drag = FixMul(g_surfaceDrag[g_surfaceDragIndex[id] + pCar->surfaceDragLevel * 9], 0x51e);
                 dragNext = FixMul(g_surfaceDrag[g_surfaceDragIndex[(int)(short)(unsigned short)next] +
-                                                pCar->field_0xb29 * 9], 0x51e);
+                                                pCar->surfaceDragLevel * 9], 0x51e);
                 CarSurfaceWheelOutput(pOut)->extraGrip = 0;
                 CarSurfaceWheelOutput(pOut)->drag = FixMul(dragNext - drag, blend) + drag;
                 pOut -= sizeof(CarWheelSurface) / sizeof(*pOut);
@@ -325,18 +325,18 @@ store_grip2B:
 
             level = FixMul(((int)noiseNext >> 2) * 0x10000 + ((int)noise & 0xfffffffc) * -0x4000, blend);
             level = FixMul(((int)noise & 0xfffffffc) * 0x4000 + level, 0x28f);
-            previous = pCar->field_0xa74;
+            previous = pCar->surfaceNoise;
             diff = level - previous;
-            pCar->field_0xa78 = level;
+            pCar->surfaceNoiseTarget = level;
             if (FIX_ABS(diff) < 0x3334) {
-                pCar->field_0xa74 = level;
+                pCar->surfaceNoise = level;
                 return;
             }
             if (diff > 0) {
-                pCar->field_0xa74 = previous + 0x3333;
+                pCar->surfaceNoise = previous + 0x3333;
                 return;
             }
-            pCar->field_0xa74 = previous - 0x3333;
+            pCar->surfaceNoise = previous - 0x3333;
             return;
         }
     }
@@ -1545,7 +1545,7 @@ void Surface_BlendWheelContactParameters(Car *pWheel, int unused)
         CarSurfacePairedWheelOutput(pOut2)->effect[0] = g_surfaceEffect[id][0];
         CarSurfacePairedWheelOutput(pOut2)->effect[1] = g_surfaceEffect[id][1];
         CarSurfacePairedWheelOutput(pOut2)->drag =
-            FixMul(0x51e, g_surfaceDrag[g_surfaceDragIndex[id] + pWheel->field_0xb29 * 9]);
+            FixMul(0x51e, g_surfaceDrag[g_surfaceDragIndex[id] + pWheel->surfaceDragLevel * 9]);
         CarSurfacePairedWheelOutput(pOut2)->extraGrip = 0;
         total += g_surfaceNoise[id] * 2;
         CarSurfacePairedWheelOutput(pOut2)[-1].effect[0] = CarSurfacePairedWheelOutput(pOut2)->effect[0];
@@ -1557,22 +1557,22 @@ void Surface_BlendWheelContactParameters(Car *pWheel, int unused)
     } while (--i);
 
     total = (total & 0xfffffffc) << 14;
-    pWheel->field_0xa78 = total;
+    pWheel->surfaceNoiseTarget = total;
     v = FixMul(total, 0x28f);
-    blend = pWheel->field_0xa74;
-    pWheel->field_0xa78 = v;
+    blend = pWheel->surfaceNoise;
+    pWheel->surfaceNoiseTarget = v;
     i = v - blend;
     if (i < 0)
         i = -i;
     if (i <= 0x3333) {
-        pWheel->field_0xa74 = v;
+        pWheel->surfaceNoise = v;
         return;
     }
     if (v - blend > 0) {
-        pWheel->field_0xa74 = blend + 0x3333;
+        pWheel->surfaceNoise = blend + 0x3333;
         return;
     }
-    pWheel->field_0xa74 = blend - 0x3333;
+    pWheel->surfaceNoise = blend - 0x3333;
 }
 
 // Stops the surface sounds of every active player (the per-player handles set
