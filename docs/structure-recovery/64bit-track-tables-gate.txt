@@ -1,0 +1,9 @@
+LayoutChecks.cpp: 0/0 exact (baseline 0)
+  (0.8s)
+StageObjects.cpp: 251/354 exact (baseline 251)
+  (2.1s)
+StageTiming.cpp: 207/253 exact (baseline 207)
+  (1.7s)
+TrackCollision.cpp: 24/27 exact (baseline 24)
+  (0.8s)
+4 TUs in 2.1s

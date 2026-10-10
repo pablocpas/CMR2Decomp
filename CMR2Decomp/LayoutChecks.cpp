@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "Car.h"
 #include "Collision2D.h"
+#include "TrackCollisionData.h"
 #include "Sector.h"
 #include "CarResources.h"
 #include "CarPhysics.h"
@@ -786,3 +787,26 @@ CMR2_LAYOUT_CHECK(CollisionBoxSizeCheck, sizeof(CollisionBox) == 0x98);
 CMR2_LAYOUT_CHECK(CollisionBoxPointsSizeCheck, sizeof(((CollisionBox *)0)->points) == 0x60);
 CMR2_LAYOUT_CHECK(CollisionBoxPointWordsCheck, offsetof(CollisionBox, pointWords) == 0x30);
 CMR2_LAYOUT_CHECK(CollisionBoxPointWordsSizeCheck, sizeof(((CollisionBox *)0)->pointWords) == 0x60);
+
+// Fixed disk records and native runtime pointer-slot views (Win32 layout).
+CMR2_LAYOUT_CHECK(TrackCollisionHeaderSizeCheck, sizeof(TrackCollisionHeader) == 0x14);
+CMR2_LAYOUT_CHECK(TrackCollisionHeader_x_Check, offsetof(TrackCollisionHeader, x) == 0x0);
+CMR2_LAYOUT_CHECK(TrackCollisionHeader_z_Check, offsetof(TrackCollisionHeader, z) == 0x4);
+CMR2_LAYOUT_CHECK(TrackCollisionHeader_levelCounts_Check, offsetof(TrackCollisionHeader, levelCounts) == 0x8);
+CMR2_LAYOUT_CHECK(TrackCollisionHeader_field_0x12_Check, offsetof(TrackCollisionHeader, field_0x12) == 0x12);
+CMR2_LAYOUT_CHECK(TrackTriangleSizeCheck, sizeof(TrackTriangle) == 0x8);
+CMR2_LAYOUT_CHECK(TrackTriangle_v_Check, offsetof(TrackTriangle, v) == 0x0);
+CMR2_LAYOUT_CHECK(TrackQuadNodeSizeCheck, sizeof(TrackQuadNode) == 0x8);
+CMR2_LAYOUT_CHECK(TrackQuadNode_triangleCount_Check, offsetof(TrackQuadNode, triangleCount) == 0x0);
+CMR2_LAYOUT_CHECK(TrackQuadNode_field_0x2_Check, offsetof(TrackQuadNode, field_0x2) == 0x2);
+CMR2_LAYOUT_CHECK(TrackQuadNode_firstIndex_Check, offsetof(TrackQuadNode, firstIndex) == 0x4);
+CMR2_LAYOUT_CHECK(TrackCollisionCountSizeCheck, sizeof(TrackCollisionCount) == 0x4);
+CMR2_LAYOUT_CHECK(TrackCollisionCount_count_Check, offsetof(TrackCollisionCount, count) == 0x0);
+CMR2_LAYOUT_CHECK(TrackCollisionCount_field_0x2_Check, offsetof(TrackCollisionCount, field_0x2) == 0x2);
+CMR2_LAYOUT_CHECK(TrackCollisionTablesSizeCheck, sizeof(TrackCollisionTables) == 0x18);
+CMR2_LAYOUT_CHECK(TrackCollisionTables_levels_Check, offsetof(TrackCollisionTables, levels) == 0x0);
+CMR2_LAYOUT_CHECK(TrackCollisionTables_vertices_Check, offsetof(TrackCollisionTables, vertices) == 0x14);
+CMR2_LAYOUT_CHECK(TrackCollisionTables_traversalLevels_Check, offsetof(TrackCollisionTables, traversalLevels) == 0x0);
+CMR2_LAYOUT_CHECK(TrackCollisionTablesLevelsSizeCheck, sizeof(((TrackCollisionTables *)0)->levels) == 0x14);
+CMR2_LAYOUT_CHECK(TrackCollisionTablesTraversalSizeCheck, sizeof(((TrackCollisionTables *)0)->traversalLevels) == 0x18);
+CMR2_LAYOUT_CHECK(TrackTriangleIndicesSizeCheck, sizeof(((TrackTriangle *)0)->v) == 6);

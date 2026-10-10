@@ -1,0 +1,1 @@
+PASS: five actual table bodies, 444 x64 scenarios, native table/vertex pointers above 4 GB, fixed disk layouts and complete original heaps, high unsigned indices/aliases, ASan/UBSan

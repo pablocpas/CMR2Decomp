@@ -822,6 +822,15 @@
       "0x491550"
     ]
   },
+  "differential_track_tables.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x490d50",
+      "0x490e00",
+      "0x491790",
+      "0x4917f0"
+    ]
+  },
   "differential_unlock_flags.py": {
     "arguments": "entities",
     "targets": [

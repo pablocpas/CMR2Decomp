@@ -6447,7 +6447,7 @@ void StageObject_SetPairSpeedLimits(BYTE *pA, BYTE *pB)
 }
 
 void StageTiming_ReadStageFaceRecord(short index, short *pA, short *pB, short *pC, short *pD, unsigned short *pFlags);
-void StageTiming_CopyTriangleVertices(int *pOut, unsigned short *pIndices, int unused);
+void StageTiming_CopyTriangleVertices(FixVector *pOut, unsigned short *pIndices, unsigned short *unused);
 int Graphics_GetTriangleHeight(unsigned short *pHeightIndices, FixVector *pVertices, FixVector *pPosition);
 void Scene_GetLightColour(DWORD *pColour, int level);
 void Scene_GetAmbientColour(DWORD *pColour);
@@ -6462,14 +6462,14 @@ void StageObject_AverageWheelGroundLighting(unsigned int param_1, int param_2)
 {
     Car *pCar;
     short *pIndex;
-    int vertex;
+    FixVector *vertex;
     int i;
     int sum;
     int count;
     unsigned short idx[3];
     unsigned short d;
     unsigned short flags;
-    int lighting[9];
+    FixVector lighting[3];
     int h;
     BYTE light[4];
     DWORD ambient[1];
@@ -6484,13 +6484,13 @@ void StageObject_AverageWheelGroundLighting(unsigned int param_1, int param_2)
     sum = 0;
     count = 0;
     pIndex = &pCar->cornerTriangle[0];
-    vertex = (int)pCar + 0x270;
+    vertex = &pCar->corners[0];
     do {
         if (*pIndex >= 0) {
             StageTiming_ReadStageFaceRecord(*pIndex, (short *)&idx[0], (short *)&idx[1], (short *)&idx[2],
                          (short *)&d, &flags);
-            StageTiming_CopyTriangleVertices(lighting, idx, (int)&d);
-            h = Graphics_GetTriangleHeight(idx, (FixVector *)lighting, (FixVector *)vertex);
+            StageTiming_CopyTriangleVertices(lighting, idx, &d);
+            h = Graphics_GetTriangleHeight(idx, lighting, vertex);
             if (h != -0x3e70000) {
                 sum = sum + h;
                 count = count + 1;
@@ -6502,7 +6502,7 @@ void StageObject_AverageWheelGroundLighting(unsigned int param_1, int param_2)
         }
         i = i + 1;
         pIndex = pIndex + 1;
-        vertex = vertex + 0xc;
+        vertex = vertex + 1;
     } while (i < 4);
     if (count > 0) {
         avg = FixDiv(sum, count << 16);

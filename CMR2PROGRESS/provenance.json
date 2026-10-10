@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "8f268f4bed659d0d916c7e0e707cb983ca4f3e35",
+    "commit": "5d991a50e7f72e832c1ec1ac7420208cedd135b1",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -102,7 +102,7 @@
       "CMR2Decomp/Input.h": "6c8ce64e581da4f84e04af836ec4276d106ed118b58ddd8521fff3d05eeacb8c",
       "CMR2Decomp/InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
       "CMR2Decomp/InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
-      "CMR2Decomp/LayoutChecks.cpp": "bf2b197ff38cae9d048d3b0e35df86cef4faeeab6b3c45f65b871cc9e1333361",
+      "CMR2Decomp/LayoutChecks.cpp": "cc35e3f9c7fe63aab0852def9108e018e5bff8de426c254704e6af152d7b4bc4",
       "CMR2Decomp/LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
       "CMR2Decomp/Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
       "CMR2Decomp/Logger.h": "9223f11dbb0c66b7b32057403dfda5267d674de807a6fa64aad78866540cf196",
@@ -140,10 +140,10 @@
       "CMR2Decomp/Stage.h": "4a75c6c0ce11b7ac1fa616ed12e7c7931d3e23ab12a678370ac800ef700f04cd",
       "CMR2Decomp/StageBlock.h": "ed67c8a616df022340a6831bb1acffa00c7b6f1596c18297299fcce0deb73c05",
       "CMR2Decomp/StageObjectCount.h": "541514d4da5e984bc83597c9b0839bebc67ac87ef78d2fe76fc2f3841c08010e",
-      "CMR2Decomp/StageObjects.cpp": "a2e9fe948ce2f880a8c8d0bd69445bb9c929e0223b816bafa9db4d25d8f40645",
+      "CMR2Decomp/StageObjects.cpp": "0ef87fde88ab480d6f5c72cbd09c0ae4574d57c4763dd7f9ad5bce5d410d4dcc",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
-      "CMR2Decomp/StageTiming.cpp": "c4c31ece4065b848ac399438a0ae4726b91db8646f031130f6384158ea0b7402",
+      "CMR2Decomp/StageTiming.cpp": "17540076c2f6fb7abeff9c2e9e263f64351d667167d3349462a791550f7c3e00",
       "CMR2Decomp/StageTiming.h": "83a0d3266fda81c4b1e65e87e17bfc27f073ac5ef9449e75368fbba9af57857f",
       "CMR2Decomp/StageUI.cpp": "f344ea709ae4a655c7c3aaba3ebb45904370ed7eab807f98597dbe0387648199",
       "CMR2Decomp/StageUI.h": "30113bb1c038c7ab0bc539eca8ad3ba06224365b60d8e32727e304e1f7323e42",
@@ -155,7 +155,8 @@
       "CMR2Decomp/Texture.h": "00635eccfb6ed1ce010106ad790747185ef79856fd27d6e49605484db7a02263",
       "CMR2Decomp/TimingUtils.cpp": "fc8629d93f5b42a82c702c1bf7b3fd21e43589a8c8125cb7eacfb13933e63954",
       "CMR2Decomp/TimingUtils.h": "88a323a639040f96349e78fe47382a677cb87591e10de4110ae64b80f4960f6b",
-      "CMR2Decomp/TrackCollision.cpp": "9f809c80507fa68caf752e087e6da46195b7095f3f859b3820b97e378c955562",
+      "CMR2Decomp/TrackCollision.cpp": "377e26848f70353081d753378e307946e183cdac55e5ffd9ebe8a0a21ad30bf0",
+      "CMR2Decomp/TrackCollisionData.h": "84be23243800722cd07ff24d57d0bc64e12912f1c3cc6c71112efcad7fbf085b",
       "CMR2Decomp/TrackLighting.cpp": "2bd30f439e2a0f185c178eaa9760440b1bf1949b55d23e068466a47e9a8f7344",
       "CMR2Decomp/VehiclePhysics.cpp": "7db20c93cbc2ea782f86f9be9a72cdb0ff7f32398ce4e9b707e5ed03368eb711",
       "CMR2Decomp/WheelTrail.cpp": "dfe77badcde6ea688b606ce78a5d3c1b3ea4ac3934cc4b318764934f446461cf",
@@ -187,8 +188,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "476b86829adb0f0333a004807b19031a5b826e366908f2c31a62da88332cfb45",
-    "pdb_sha256": "6b2a24783949ba63305c835defe409764234a11568e88505471945f5a0099dac"
+    "exe_sha256": "4adc80d43e9454211571b23f832310e4b320b7dfb6283142addc016a543993ef",
+    "pdb_sha256": "573879af641fa48f40ca78b7802322238c6c7f2a16fd39b458e4e04bc124b697"
   },
   "perfect_match_percent": 56.17,
   "fuzzy_match_percent": 94.52,
@@ -208,7 +209,7 @@
     "0x4a28d0",
     "0x459630"
   ],
-  "data_variables": 3220,
+  "data_variables": 3219,
   "data_issues": 0,
   "byte_auditor_sha256": "1d3eaf2fdf3cf6d919a5362e503d1fb66552c62203e55fc46d95798edce89c49"
 }

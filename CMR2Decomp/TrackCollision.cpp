@@ -7,6 +7,7 @@
 #include "Frontend.h"
 #include "GenericFileLoader.h"
 #include "StageTiming.h"
+#include "TrackCollisionData.h"
 #include "GameInfo.h"
 
 // Ground queries against the stage collision mesh loaded by StageTiming_IndexSerializedStageTables:
@@ -14,13 +15,6 @@
 // vertices, and a five-level quadtree whose leaves list the triangles of a cell.
 
 // Pointers into the stage collision block (see StageTiming_IndexSerializedStageTables).
-extern int g_unk0x00591af0;     // triangles: unsigned short v0, v1, v2; BYTE pad, surface
-extern int g_unk0x00591af8;     // grid origin: int x, z
-extern int g_unk0x00591b00[5];  // quadtree levels: { short count; int first; } per node
-extern int g_unk0x00591b14;     // vertices (FixVector)
-extern int g_unk0x00591b18;     // triangle index lists (short)
-extern int g_unk0x00591b1c;     // grid depth in cells (short)
-extern int g_unk0x00591b20;     // grid width in cells (short)
 
 short Surface_GetMappedIndex(short index);
 
@@ -42,17 +36,16 @@ FixVector g_trackTriangle[3];
 // FUNCTION: CMR2 0x00490e00
 int Track_GetTriangle(FixVector *pOut, short tri)
 {
-#define TRACK_VERTEX(n, c) \
-    *(int *)(g_unk0x00591b14 + *(unsigned short *)(tri * 8 + g_unk0x00591af0 + (n) * 2) * 12 + (c) * 4)
-    pOut[0].x = TRACK_VERTEX(0, 0);
-    pOut[0].y = TRACK_VERTEX(0, 1);
-    pOut[0].z = TRACK_VERTEX(0, 2);
-    pOut[1].x = TRACK_VERTEX(1, 0);
-    pOut[1].y = TRACK_VERTEX(1, 1);
-    pOut[1].z = TRACK_VERTEX(1, 2);
-    pOut[2].x = TRACK_VERTEX(2, 0);
-    pOut[2].y = TRACK_VERTEX(2, 1);
-    pOut[2].z = TRACK_VERTEX(2, 2);
+#define TRACK_VERTEX(n) g_trackVertices[g_trackTriangles[tri].v[n]]
+    pOut[0].x = TRACK_VERTEX(0).x;
+    pOut[0].y = TRACK_VERTEX(0).y;
+    pOut[0].z = TRACK_VERTEX(0).z;
+    pOut[1].x = TRACK_VERTEX(1).x;
+    pOut[1].y = TRACK_VERTEX(1).y;
+    pOut[1].z = TRACK_VERTEX(1).z;
+    pOut[2].x = TRACK_VERTEX(2).x;
+    pOut[2].y = TRACK_VERTEX(2).y;
+    pOut[2].z = TRACK_VERTEX(2).z;
 #undef TRACK_VERTEX
     return 1;
 }
@@ -101,12 +94,7 @@ int Track_PointInTriangle(FixVector *pPoint, short tri, FixVector *pTri)
 // Height of the point on the triangle's plane; pNormal receives the plane
 // normal and pSurface the triangle's surface type.
 // match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// 8-byte record of the triangle table at g_unk0x00591af0.
-struct TrackTriangle {
-    short v[3];
-    unsigned short surface : 7;
-    unsigned short flags : 9;
-};
+// 8-byte record of the triangle table at g_trackTriangles.
 
 // FUNCTION: CMR2 0x004910f0
 int Track_GetHeight(FixVector *pPoint, short tri, int defaultY, FixVector *pNormal, unsigned short *pSurface)
@@ -118,7 +106,7 @@ int Track_GetHeight(FixVector *pPoint, short tri, int defaultY, FixVector *pNorm
 
     if (!Track_GetTriangle(t, tri))
         return 0;
-    *pSurface = ((TrackTriangle *)g_unk0x00591af0)[tri].surface;
+    *pSurface = g_trackTriangles[tri].surface;
     e1.x = t[1].x - t[0].x;
     e1.y = t[1].y - t[0].y;
     e1.z = t[1].z - t[0].z;
@@ -211,28 +199,28 @@ int Track_FindTriangle(FixVector *pPoint, short *pOut, int y)
     short level;
     int node;
 
-    dx = pPoint->x - ((int *)g_unk0x00591af8)[0];
-    dz = pPoint->z - ((int *)g_unk0x00591af8)[1];
+    dx = pPoint->x - g_trackCollisionHeader->x;
+    dz = pPoint->z - g_trackCollisionHeader->z;
     col = (short)(dx >> 24);
     level = 0;
     row = (short)(dz >> 24);
     mask = 0xffffff;
-    node = *(short *)g_unk0x00591b20 * row + col;
+    node = *g_trackGridColumns * row + col;
     shift = 24;
-    if (col < 0 || col >= *(short *)g_unk0x00591b20 || row < 0 || row >= *(short *)g_unk0x00591b1c)
+    if (col < 0 || col >= *g_trackGridColumns || row < 0 || row >= *g_trackGridRows)
         return 0;
-    while (*(short *)(g_unk0x00591b00[level] + node * 8) == -1) {
+    while (g_trackCollisionTables.traversalLevels[level][node].triangleCount == -1) {
         if (level >= 5)
             return 0;
         dx &= mask;
         dz &= mask;
         mask >>= 2;
         shift -= 2;
-        node = (short)(dx >> shift) + *(int *)(g_unk0x00591b00[level] + node * 8 + 4) + (short)(dz >> shift) * 4;
+        node = (short)(dx >> shift) + g_trackCollisionTables.traversalLevels[level][node].firstIndex + (short)(dz >> shift) * 4;
         level++;
     }
-    return Track_FindNearestTriangle(pPoint, pOut, y, *(short *)(g_unk0x00591b00[level] + node * 8),
-                                     (short *)(g_unk0x00591b18 + *(int *)(g_unk0x00591b00[level] + node * 8 + 4) * 2));
+    return Track_FindNearestTriangle(pPoint, pOut, y, g_trackCollisionTables.traversalLevels[level][node].triangleCount,
+                                     g_trackTriangleIndices + g_trackCollisionTables.traversalLevels[level][node].firstIndex);
 }
 
 // GLOBAL: CMR2 0x005918d8

@@ -1,6 +1,7 @@
 #include "StageObjectCount.h"
 #include "StageBlock.h"
 #include "StageTiming.h"
+#include "TrackCollisionData.h"
 #include "StageWeather.h"
 #include <stdio.h>
 #include <stddef.h>
@@ -1656,44 +1657,39 @@ void ForceFeedback_CreateEffects(void)
 }
 
 // GLOBAL: CMR2 0x00591af0
-int g_unk0x00591af0;
+TrackTriangle *g_trackTriangles;
 // GLOBAL: CMR2 0x00591af8
-int g_unk0x00591af8;
+TrackCollisionHeader *g_trackCollisionHeader;
 // GLOBAL: CMR2 0x00591afc
-int g_unk0x00591afc;
+TrackCollisionCount *g_trackTriangleCountRecord;
 // GLOBAL: CMR2 0x00591b00
-int g_unk0x00591b00[5];
+TrackCollisionTables g_trackCollisionTables;
 // GLOBAL: CMR2 0x00591b14
-int g_unk0x00591b14;
+#define g_trackVertices g_trackCollisionTables.vertices
 // GLOBAL: CMR2 0x00591b18
-int g_unk0x00591b18;
+short *g_trackTriangleIndices;
 // GLOBAL: CMR2 0x00591b1c
-int g_unk0x00591b1c;
+short *g_trackGridRows;
 // GLOBAL: CMR2 0x00591b20
-int g_unk0x00591b20;
+short *g_trackGridColumns;
 // GLOBAL: CMR2 0x00591b24
-int g_unk0x00591b24;
+TrackCollisionCount *g_trackVertexCountRecord;
 // GLOBAL: CMR2 0x00591b30
-int g_unk0x00591b30;
+BYTE *g_trackCollisionBlock;
 // GLOBAL: CMR2 0x00591b34
-int g_unk0x00591b34;
+int *g_trackTriangleListCount;
 // GLOBAL: CMR2 0x00591b38
-int g_unk0x00591b38[5];
-// 8-byte record of the triangle table at g_unk0x00591af0.
-struct TrackTriangle {
-    short v[3];
-    unsigned short surface : 7;
-    unsigned short flags : 9;
-};
+int g_trackLevelNodeCounts[5];
+// 8-byte record of the triangle table at g_trackTriangles.
 
-// Reads entry index of the 8-byte table at g_unk0x00591af0.
+// Reads entry index of the 8-byte table at g_trackTriangles.
 // FUNCTION: CMR2 0x00491790
 void StageTiming_ReadStageFaceRecord(short index, short *pA, short *pB, short *pC, short *pD, unsigned short *pFlags)
 {
-    *pA = ((TrackTriangle *)g_unk0x00591af0)[index].v[0];
-    *pB = ((TrackTriangle *)g_unk0x00591af0)[index].v[1];
-    *pC = ((TrackTriangle *)g_unk0x00591af0)[index].v[2];
-    *pFlags = ((TrackTriangle *)g_unk0x00591af0)[index].surface;
+    *pA = g_trackTriangles[index].v[0];
+    *pB = g_trackTriangles[index].v[1];
+    *pC = g_trackTriangles[index].v[2];
+    *pFlags = g_trackTriangles[index].surface;
     *pD = 0;
 }
 
@@ -1712,37 +1708,37 @@ void StageTiming_IndexSerializedStageTables(BYTE *pData)
     BYTE *p;
     int i;
 
-    g_unk0x00591b30 = (int)pData;
-    g_unk0x00591af8 = (int)pData;
-    p = pData + 8;
+    g_trackCollisionBlock = pData;
+    g_trackCollisionHeader = (TrackCollisionHeader *)pData;
+    p = pData + offsetof(TrackCollisionHeader, levelCounts);
     for (i = 0; i < 5; i++) {
-        g_unk0x00591b38[i] = *(short *)p;
-        p += 2;
+        g_trackLevelNodeCounts[i] = *(short *)p;
+        p += sizeof(short);
     }
-    p += 2;
+    p += sizeof(short);
     for (i = 0; i < 5; i++) {
-        g_unk0x00591b00[i] = (int)p;
-        p += g_unk0x00591b38[i] * 8;
+        g_trackCollisionTables.levels[i] = (TrackQuadNode *)p;
+        p += g_trackLevelNodeCounts[i] * (int)sizeof(TrackQuadNode);
     }
-    g_unk0x00591b24 = (int)p;
-    p += 4;
-    g_unk0x00591b14 = (int)p;
-    i = *(unsigned short *)g_unk0x00591b24;
-    p = p + i * 12;
-    g_unk0x00591afc = (int)p;
-    p += 4;
-    g_unk0x00591af0 = (int)p;
-    i = *(unsigned short *)g_unk0x00591afc;
-    p = p + i * 8;
+    g_trackVertexCountRecord = (TrackCollisionCount *)p;
+    p += sizeof(TrackCollisionCount);
+    g_trackVertices = (FixVector *)p;
+    i = g_trackVertexCountRecord->count;
+    p = p + i * sizeof(FixVector);
+    g_trackTriangleCountRecord = (TrackCollisionCount *)p;
+    p += sizeof(TrackCollisionCount);
+    g_trackTriangles = (TrackTriangle *)p;
+    i = g_trackTriangleCountRecord->count;
+    p = p + i * sizeof(TrackTriangle);
     BYTE *pCount = p;
-    p += 4;
-    g_unk0x00591b34 = (int)pCount;
-    g_unk0x00591b18 = (int)p;
+    p += sizeof(TrackCollisionCount);
+    g_trackTriangleListCount = (int *)pCount;
+    g_trackTriangleIndices = (short *)p;
     i = *(int *)pCount;
-    p = p + i * 2;
-    g_unk0x00591b20 = (int)p;
-    p += 2;
-    g_unk0x00591b1c = (int)p;
+    p = p + i * (int)sizeof(short);
+    g_trackGridColumns = (short *)p;
+    p += sizeof(short);
+    g_trackGridRows = (short *)p;
     CGame::RegisterCallback(StageTiming_NoOpLightRelease, NULL);
 }
 
@@ -4561,17 +4557,17 @@ void StageTiming_AdvanceTimedLapCheckpoint(int car, int time)
 
 // Copies the three vertices of a triangle (indices in pIndices).
 // FUNCTION: CMR2 0x004917f0
-void StageTiming_CopyTriangleVertices(int *pOut, unsigned short *pIndices, int unused)
+void StageTiming_CopyTriangleVertices(FixVector *pOut, unsigned short *pIndices, unsigned short *unused)
 {
-    pOut[0] = *(int *)(g_unk0x00591b14 + pIndices[0] * 0xc);
-    pOut[1] = *(int *)(g_unk0x00591b14 + 4 + pIndices[0] * 0xc);
-    pOut[2] = *(int *)(g_unk0x00591b14 + 8 + pIndices[0] * 0xc);
-    pOut[3] = *(int *)(g_unk0x00591b14 + pIndices[1] * 0xc);
-    pOut[4] = *(int *)(g_unk0x00591b14 + 4 + pIndices[1] * 0xc);
-    pOut[5] = *(int *)(g_unk0x00591b14 + 8 + pIndices[1] * 0xc);
-    pOut[6] = *(int *)(g_unk0x00591b14 + pIndices[2] * 0xc);
-    pOut[7] = *(int *)(g_unk0x00591b14 + 4 + pIndices[2] * 0xc);
-    pOut[8] = *(int *)(g_unk0x00591b14 + 8 + pIndices[2] * 0xc);
+    pOut[0].x = g_trackVertices[pIndices[0]].x;
+    pOut[0].y = g_trackVertices[pIndices[0]].y;
+    pOut[0].z = g_trackVertices[pIndices[0]].z;
+    pOut[1].x = g_trackVertices[pIndices[1]].x;
+    pOut[1].y = g_trackVertices[pIndices[1]].y;
+    pOut[1].z = g_trackVertices[pIndices[1]].z;
+    pOut[2].x = g_trackVertices[pIndices[2]].x;
+    pOut[2].y = g_trackVertices[pIndices[2]].y;
+    pOut[2].z = g_trackVertices[pIndices[2]].z;
 }
 
 int RallyData_GetCarRaceRecordField10(BYTE *p);

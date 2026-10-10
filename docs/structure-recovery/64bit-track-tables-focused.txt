@@ -1,0 +1,1 @@
+PASS: 144 complete serialized-index scenarios, 264 triangle-reader scenarios; independent pointer/copy models, full heap and 1 MB guards, unsigned high indices and aliases, ABI
