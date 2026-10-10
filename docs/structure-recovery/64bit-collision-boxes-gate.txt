@@ -1,0 +1,7 @@
+Collision2D.cpp: 6/10 exact (baseline 6)
+  (0.8s)
+LayoutChecks.cpp: 0/0 exact (baseline 0)
+  (0.8s)
+StageObjects.cpp: 251/354 exact (baseline 251)
+  (1.7s)
+3 TUs in 1.7s

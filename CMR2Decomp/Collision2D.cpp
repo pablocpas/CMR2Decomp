@@ -112,9 +112,9 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
 // GLOBAL: CMR2 0x005914a8
 FixVector g_collisionPush;
 // GLOBAL: CMR2 0x005914b8
-FixVector g_unk0x005914b8;
+FixVector g_collisionPushB;
 // GLOBAL: CMR2 0x005915e8
-FixVector g_unk0x005915e8;
+FixVector g_collisionContactNormal;
 
 // Splits a movement of `amount` along pDir between the two collision boxes: the
 // scale*amount part goes to pB and the opposite of the remainder to pA.  Both
@@ -124,7 +124,7 @@ FixVector g_unk0x005915e8;
 // The instruction sequence is the original's; only the register numbering of
 // the induction variables and the base/index order of the two 0x60 loops differ.
 // FUNCTION: CMR2 0x004894b0
-void Collision_SplitBoxSeparationMovement(int *pA, int *pB, int *pDir, int amount, int scale)
+void Collision_SplitBoxSeparationMovement(CollisionBox *pA, CollisionBox *pB, FixVector *pDir, int amount, int scale)
 {
     FixVector v;
     int t;
@@ -133,56 +133,56 @@ void Collision_SplitBoxSeparationMovement(int *pA, int *pB, int *pDir, int amoun
     int i;
     int j;
 
-    g_unk0x005915e8.x = pDir[0];
-    g_unk0x005915e8.y = pDir[1];
-    g_unk0x005915e8.z = pDir[2];
+    g_collisionContactNormal.x = pDir->x;
+    g_collisionContactNormal.y = pDir->y;
+    g_collisionContactNormal.z = pDir->z;
     if (amount > 0) {
         t = FixMul(amount, scale);
         rest = amount - t;
         if (scale != 0) {
-            FixVecScale(&v, (FixVector *)pDir, t);
+            FixVecScale(&v, pDir, t);
             // the original accumulates y, z and x in this order
-            g_unk0x005914b8.y += v.y;
-            g_unk0x005914b8.z += v.z;
-            g_unk0x005914b8.x += v.x;
-            if ((int *)pB[0x25] != NULL && pB[0x24] != 0) {
-                ((int *)pB[0x25])[0] += v.x;
-                ((int *)pB[0x25])[1] += v.y;
-                ((int *)pB[0x25])[2] += v.z;
-                for (i = 0; i < 0x60; i += 0xc) {
-                    *(int *)(pB[0x24] + i) += v.x;
-                    *(int *)(pB[0x24] + i + 4) += v.y;
-                    *(int *)(pB[0x24] + i + 8) += v.z;
+            g_collisionPushB.y += v.y;
+            g_collisionPushB.z += v.z;
+            g_collisionPushB.x += v.x;
+            if (pB->pVertex != NULL && pB->pArray != 0) {
+                pB->pVertex->x += v.x;
+                pB->pVertex->y += v.y;
+                pB->pVertex->z += v.z;
+                for (i = 0; i < 8; i++) {
+                    pB->pArray[i].x += v.x;
+                    pB->pArray[i].y += v.y;
+                    pB->pArray[i].z += v.z;
                 }
-                p = pB + 0xd;
+                p = &pB->pointWords[offsetof(FixVector, y) / sizeof(int)];
                 for (j = 4; j != 0; j--) {
-                    p[-1] += v.x;
-                    p[0] += v.y;
-                    p[1] += v.z;
-                    p += 3;
+                    CollisionBoxPointAtY(p)->x += v.x;
+                    CollisionBoxPointAtY(p)->y += v.y;
+                    CollisionBoxPointAtY(p)->z += v.z;
+                    p += sizeof(FixVector) / sizeof(int);
                 }
             }
         }
         if (scale != 0x10000) {
-            FixVecScale(&v, (FixVector *)pDir, -rest);
+            FixVecScale(&v, pDir, -rest);
             g_collisionPush.y += v.y;
             g_collisionPush.z += v.z;
             g_collisionPush.x += v.x;
-            if ((int *)pA[0x25] != NULL && pA[0x24] != 0) {
-                ((int *)pA[0x25])[0] += v.x;
-                ((int *)pA[0x25])[1] += v.y;
-                ((int *)pA[0x25])[2] += v.z;
-                for (i = 0; i < 0x60; i += 0xc) {
-                    *(int *)(pA[0x24] + i) += v.x;
-                    *(int *)(pA[0x24] + i + 4) += v.y;
-                    *(int *)(pA[0x24] + i + 8) += v.z;
+            if (pA->pVertex != NULL && pA->pArray != 0) {
+                pA->pVertex->x += v.x;
+                pA->pVertex->y += v.y;
+                pA->pVertex->z += v.z;
+                for (i = 0; i < 8; i++) {
+                    pA->pArray[i].x += v.x;
+                    pA->pArray[i].y += v.y;
+                    pA->pArray[i].z += v.z;
                 }
-                p = pA + 0xd;
+                p = &pA->pointWords[offsetof(FixVector, y) / sizeof(int)];
                 for (j = 4; j != 0; j--) {
-                    p[-1] += v.x;
-                    p[0] += v.y;
-                    p[1] += v.z;
-                    p += 3;
+                    CollisionBoxPointAtY(p)->x += v.x;
+                    CollisionBoxPointAtY(p)->y += v.y;
+                    CollisionBoxPointAtY(p)->z += v.z;
+                    p += sizeof(FixVector) / sizeof(int);
                 }
             }
         }
@@ -235,18 +235,6 @@ extern FixVector g_collisionSphereCentre;
 // Oriented box of a stage object: the half extents along its two horizontal
 // axes, the axes, the eight box points (the first four are its footprint) and
 // the object's own corners and centre, which a push moves along.
-struct CollisionBox {
-    int halfWidth;          // 0x0   extent along axisA
-    int halfLength;         // 0x4   extent along axisB
-    BYTE pad_0x08[0x8];
-    FixVector axisA;        // 0x10
-    FixVector axisB;        // 0x1c
-    BYTE pad_0x28[0x8];
-    FixVector points[8];    // 0x30
-    int *pArray;            // 0x90  eight corners of the object (FixVector)
-    int *pVertex;           // 0x94  centre of the object (FixVector)
-};
-CMR2_LAYOUT_CHECK(CollisionBoxSize, sizeof(CollisionBox) == 0x98);
 
 // Tests the car's bounding sphere (centre g_collisionSphereCentre, radius
 // g_collisionSphereRadius) against an oriented box. When the sphere is diagonally
@@ -256,9 +244,9 @@ CMR2_LAYOUT_CHECK(CollisionBoxSize, sizeof(CollisionBox) == 0x98);
 // is published in g_collisionPush. pAlong0/pAlong1 receive the sphere's
 // position along both axes relative to the reach of the box.
 // FUNCTION: CMR2 0x00489b20
-int Collision_SphereVsBox(int *param_1, int *pAlong0, unsigned int *pAlong1, int scale)
+int Collision_SphereVsBox(CollisionBox *param_1, int *pAlong0, unsigned int *pAlong1, int scale)
 {
-    CollisionBox *pBox = (CollisionBox *)param_1;
+    CollisionBox *pBox = param_1;
     FixVector delta;
     FixVector dir;
     int dirAlong0;
@@ -286,9 +274,9 @@ int Collision_SphereVsBox(int *param_1, int *pAlong0, unsigned int *pAlong1, int
     t1 = 0;
     side = 0;
     push = 0;
-    delta.x = g_collisionSphereCentre.x - ((FixVector *)pBox->pVertex)->x;
-    delta.y = g_collisionSphereCentre.y - ((FixVector *)pBox->pVertex)->y;
-    delta.z = g_collisionSphereCentre.z - ((FixVector *)pBox->pVertex)->z;
+    delta.x = g_collisionSphereCentre.x - pBox->pVertex->x;
+    delta.y = g_collisionSphereCentre.y - pBox->pVertex->y;
+    delta.z = g_collisionSphereCentre.z - pBox->pVertex->z;
     delta.y = 0;
     FIX_NORMALIZE_INTO(dir, delta);
     dirAlong0 = FixVecDot(&dir, &pBox->axisA);
@@ -363,13 +351,13 @@ int Collision_SphereVsBox(int *param_1, int *pAlong0, unsigned int *pAlong1, int
     if (push > 0) {
         FixVecScale(&dir, &dir, -FixMul(push, scale));
         if (pBox->pVertex != NULL && pBox->pArray != NULL) {
-            ((FixVector *)pBox->pVertex)->x += dir.x;
-            ((FixVector *)pBox->pVertex)->y += dir.y;
-            ((FixVector *)pBox->pVertex)->z += dir.z;
+            pBox->pVertex->x += dir.x;
+            pBox->pVertex->y += dir.y;
+            pBox->pVertex->z += dir.z;
             for (i = 0; i < 8; i++) {
-                ((FixVector *)pBox->pArray)[i].x += dir.x;
-                ((FixVector *)pBox->pArray)[i].y += dir.y;
-                ((FixVector *)pBox->pArray)[i].z += dir.z;
+                pBox->pArray[i].x += dir.x;
+                pBox->pArray[i].y += dir.y;
+                pBox->pArray[i].z += dir.z;
             }
             p = pBox->points;
             for (i = 4; i != 0; i--) {
@@ -406,7 +394,7 @@ void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, i
 // and the body of the box by the tangential remainder of the correction.
 // match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00489750
-int Collision_CarVsBox(Car *car, int *pBox, int scale)
+int Collision_CarVsBox(Car *car, CollisionBox *pBox, int scale)
 {
     FixVector a;
     FixVector b;
@@ -419,7 +407,7 @@ int Collision_CarVsBox(Car *car, int *pBox, int scale)
     int i;
     short j;
     char side;
-    CollisionBox *pB = (CollisionBox *)pBox;
+    CollisionBox *pB = pBox;
 
     side = (char)Collision_SphereVsBox(pBox, &factor, (unsigned int *)&t, scale);
     if (side != 0) {
@@ -434,32 +422,32 @@ int Collision_CarVsBox(Car *car, int *pBox, int scale)
 
         if (side != 3) {
             if (side == 1)
-                g_unk0x005915e8 = pB->axisA;
+                g_collisionContactNormal = pB->axisA;
             else
-                g_unk0x005915e8 = pB->axisB;
+                g_collisionContactNormal = pB->axisB;
         } else {
-            g_unk0x005915e8.x = ((int *)pB->pVertex)[0] + a.x;
-            g_unk0x005915e8.y = ((int *)pB->pVertex)[1] + a.y;
-            g_unk0x005915e8.z = ((int *)pB->pVertex)[2] + a.z;
-            g_unk0x005915e8.x -= g_collisionSphereCentre.x;
-            g_unk0x005915e8.y = 0;
-            g_unk0x005915e8.z -= g_collisionSphereCentre.z;
-            FIX_NORMALIZE_INTO(g_unk0x005915e8, g_unk0x005915e8)
+            g_collisionContactNormal.x = pB->pVertex->x + a.x;
+            g_collisionContactNormal.y = pB->pVertex->y + a.y;
+            g_collisionContactNormal.z = pB->pVertex->z + a.z;
+            g_collisionContactNormal.x -= g_collisionSphereCentre.x;
+            g_collisionContactNormal.y = 0;
+            g_collisionContactNormal.z -= g_collisionSphereCentre.z;
+            FIX_NORMALIZE_INTO(g_collisionContactNormal, g_collisionContactNormal)
         }
 
-        FixVecScale(&along, &g_unk0x005915e8, FixVecDot(&g_collisionPush, &g_unk0x005915e8));
+        FixVecScale(&along, &g_collisionContactNormal, FixVecDot(&g_collisionPush, &g_collisionContactNormal));
         dx = along.x - g_collisionPush.x;
         dy = along.y - g_collisionPush.y;
         dz = along.z - g_collisionPush.z;
 
         if (pB->pVertex != NULL && pB->pArray != NULL) {
-            pB->pVertex[0] += dx;
-            pB->pVertex[1] += dy;
-            pB->pVertex[2] += dz;
-            for (i = 0; i < 0x60; i += 0xc) {
-                *(int *)((BYTE *)pB->pArray + i) += dx;
-                *(int *)((BYTE *)pB->pArray + i + 4) += dy;
-                *(int *)((BYTE *)pB->pArray + i + 8) += dz;
+            pB->pVertex->x += dx;
+            pB->pVertex->y += dy;
+            pB->pVertex->z += dz;
+            for (i = 0; i < 8; i++) {
+                pB->pArray[i].x += dx;
+                pB->pArray[i].y += dy;
+                pB->pArray[i].z += dz;
             }
             for (j = 0; j < 4; j++) {
                 pB->points[j].x += dx;
@@ -755,13 +743,13 @@ int Collision_SeparateCarBoxes(Car *param_1, Car *param_2)
         dz = delta.z - g_collisionPush.z;
         if (((CollisionBox *)g_pContacts0x005915e0)->pVertex != NULL &&
             ((CollisionBox *)g_pContacts0x005915e0)->pArray != NULL) {
-            ((CollisionBox *)g_pContacts0x005915e0)->pVertex[0] += dx;
-            ((CollisionBox *)g_pContacts0x005915e0)->pVertex[1] += dy;
-            ((CollisionBox *)g_pContacts0x005915e0)->pVertex[2] += dz;
-            for (i = 0; i < 0x60; i += 0xc) {
-                *(int *)((BYTE *)((CollisionBox *)g_pContacts0x005915e0)->pArray + i) += dx;
-                *(int *)((BYTE *)((CollisionBox *)g_pContacts0x005915e0)->pArray + i + 4) += dy;
-                *(int *)((BYTE *)((CollisionBox *)g_pContacts0x005915e0)->pArray + i + 8) += dz;
+            ((CollisionBox *)g_pContacts0x005915e0)->pVertex->x += dx;
+            ((CollisionBox *)g_pContacts0x005915e0)->pVertex->y += dy;
+            ((CollisionBox *)g_pContacts0x005915e0)->pVertex->z += dz;
+            for (i = 0; i < 8; i++) {
+                ((CollisionBox *)g_pContacts0x005915e0)->pArray[i].x += dx;
+                ((CollisionBox *)g_pContacts0x005915e0)->pArray[i].y += dy;
+                ((CollisionBox *)g_pContacts0x005915e0)->pArray[i].z += dz;
             }
             for (i = 0; i < 0x30; i += 0xc) {
                 *(int *)((BYTE *)g_pContacts0x005915e0 + i + 0x30) += dx;
@@ -770,19 +758,19 @@ int Collision_SeparateCarBoxes(Car *param_1, Car *param_2)
             }
         }
         StageObject_ApplyRecursiveFrameDelta(param_1->index, param_2->index, (int *)&delta, 1);
-        FixVecScale(&delta, &normal, FixVecDot(&g_unk0x005914b8, &normal));
-        dx = delta.x - g_unk0x005914b8.x;
-        dy = delta.y - g_unk0x005914b8.y;
-        dz = delta.z - g_unk0x005914b8.z;
+        FixVecScale(&delta, &normal, FixVecDot(&g_collisionPushB, &normal));
+        dx = delta.x - g_collisionPushB.x;
+        dy = delta.y - g_collisionPushB.y;
+        dz = delta.z - g_collisionPushB.z;
         if (((CollisionBox *)g_pContacts0x00591394)->pVertex != NULL &&
             ((CollisionBox *)g_pContacts0x00591394)->pArray != NULL) {
-            ((CollisionBox *)g_pContacts0x00591394)->pVertex[0] += dx;
-            ((CollisionBox *)g_pContacts0x00591394)->pVertex[1] += dy;
-            ((CollisionBox *)g_pContacts0x00591394)->pVertex[2] += dz;
-            for (i = 0; i < 0x60; i += 0xc) {
-                *(int *)((BYTE *)((CollisionBox *)g_pContacts0x00591394)->pArray + i) += dx;
-                *(int *)((BYTE *)((CollisionBox *)g_pContacts0x00591394)->pArray + i + 4) += dy;
-                *(int *)((BYTE *)((CollisionBox *)g_pContacts0x00591394)->pArray + i + 8) += dz;
+            ((CollisionBox *)g_pContacts0x00591394)->pVertex->x += dx;
+            ((CollisionBox *)g_pContacts0x00591394)->pVertex->y += dy;
+            ((CollisionBox *)g_pContacts0x00591394)->pVertex->z += dz;
+            for (i = 0; i < 8; i++) {
+                ((CollisionBox *)g_pContacts0x00591394)->pArray[i].x += dx;
+                ((CollisionBox *)g_pContacts0x00591394)->pArray[i].y += dy;
+                ((CollisionBox *)g_pContacts0x00591394)->pArray[i].z += dz;
             }
             for (i = 0; i < 0x30; i += 0xc) {
                 *(int *)((BYTE *)g_pContacts0x00591394 + i + 0x30) += dx;
@@ -792,17 +780,17 @@ int Collision_SeparateCarBoxes(Car *param_1, Car *param_2)
         }
         StageObject_ApplyRecursiveFrameDelta(param_2->index, param_1->index, (int *)&delta, 1);
     }
-    g_unk0x005915e8.x = normal.x;
-    g_unk0x005915e8.y = normal.y;
-    g_unk0x005915e8.z = normal.z;
+    g_collisionContactNormal.x = normal.x;
+    g_collisionContactNormal.y = normal.y;
+    g_collisionContactNormal.z = normal.z;
     FixMatrix_InverseRotateVector(&param_1->field_0x5dc, &sum,
                                   param_1->pWorld);
-    sum.x += ((CollisionBox *)g_pContacts0x005915e0)->pVertex[0];
-    sum.y += ((CollisionBox *)g_pContacts0x005915e0)->pVertex[1];
-    sum.z += ((CollisionBox *)g_pContacts0x005915e0)->pVertex[2];
-    tmp.x = sum.x - ((CollisionBox *)g_pContacts0x00591394)->pVertex[0];
-    tmp.y = sum.y - ((CollisionBox *)g_pContacts0x00591394)->pVertex[1];
-    tmp.z = sum.z - ((CollisionBox *)g_pContacts0x00591394)->pVertex[2];
+    sum.x += ((CollisionBox *)g_pContacts0x005915e0)->pVertex->x;
+    sum.y += ((CollisionBox *)g_pContacts0x005915e0)->pVertex->y;
+    sum.z += ((CollisionBox *)g_pContacts0x005915e0)->pVertex->z;
+    tmp.x = sum.x - ((CollisionBox *)g_pContacts0x00591394)->pVertex->x;
+    tmp.y = sum.y - ((CollisionBox *)g_pContacts0x00591394)->pVertex->y;
+    tmp.z = sum.z - ((CollisionBox *)g_pContacts0x00591394)->pVertex->z;
     FixMatrix_InverseRotateVector(&param_2->field_0x5dc, &tmp,
                                   param_2->pWorld);
     }
@@ -863,8 +851,8 @@ void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2)
 
     // Mass-weighted common velocity along the debrisAxes[2]; the restitution term
     // is zero in the shipped game.
-    dotA = FixVecDot(&tmp, &g_unk0x005915e8);
-    dotB = FixVecDot(&vB, &g_unk0x005915e8);
+    dotA = FixVecDot(&tmp, &g_collisionContactNormal);
+    dotB = FixVecDot(&vB, &g_collisionContactNormal);
     bounce = FixMul(dotA - dotB, 0);
     x = FixDiv(FixMul(dotA, param_1->mass) +
                    (FixMul(dotB, param_2->mass) -
@@ -873,7 +861,7 @@ void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2)
     newB = x + bounce;
 
     dA = x - dotA;
-    FixVecScale(&impA, &g_unk0x005915e8, dA);
+    FixVecScale(&impA, &g_collisionContactNormal, dA);
     if (param_1->useUpperCollisionCorners == 0 && FIX_ABS(dA) > 0x9999 &&
         (param_1->field_0xb64 == 0 || param_2->field_0xb64 == 0)) {
         bSepA = 1;
@@ -889,7 +877,7 @@ void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2)
     }
 
     dB = newB - dotB;
-    FixVecScale(&impB, &g_unk0x005915e8, dB);
+    FixVecScale(&impB, &g_collisionContactNormal, dB);
     if (param_2->useUpperCollisionCorners == 0 && FIX_ABS(dB) > 0x9999 &&
         (param_1->field_0xb64 == 0 || param_2->field_0xb64 == 0)) {
         dB = 1;
@@ -951,22 +939,22 @@ void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2)
 
     if (g_unk0x005915f4 != 0) {
         CarDamage_ApplyCollisionDeformImpulse(param_1, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
-                     &g_unk0x005915e8, 0, 0, 0);
+                     &g_collisionContactNormal, 0, 0, 0);
         CarDamage_ApplyCollisionDeformImpulse(param_2, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
-                     &g_unk0x005915e8, 0, 2, 0);
+                     &g_collisionContactNormal, 0, 2, 0);
     } else if (g_unk0x005914d4 != 0) {
         CarDamage_ApplyCollisionDeformImpulse(param_1, (int *)&g_pContacts0x00591394[g_unk0x00590ecc[0] + 4],
-                     &g_unk0x005915e8, 0, 2, 0);
+                     &g_collisionContactNormal, 0, 2, 0);
         CarDamage_ApplyCollisionDeformImpulse(param_2, (int *)&g_pContacts0x00591394[g_unk0x00590ecc[0] + 4],
-                     &g_unk0x005915e8, 0, 0, 0);
+                     &g_collisionContactNormal, 0, 0, 0);
     }
 
     // Tangential relative velocity.
     vA.x = tmp.x - vB.x;
     vA.y = tmp.y - vB.y;
     vA.z = tmp.z - vB.z;
-    d = FixVecDot(&vA, &g_unk0x005915e8);
-    FixVecScale(&debrisAxes[0], &g_unk0x005915e8, d);
+    d = FixVecDot(&vA, &g_collisionContactNormal);
+    FixVecScale(&debrisAxes[0], &g_collisionContactNormal, d);
     debrisAxes[0].x = vA.x - debrisAxes[0].x;
     debrisAxes[0].y = vA.y - debrisAxes[0].y;
     debrisAxes[0].z = vA.z - debrisAxes[0].z;
@@ -989,7 +977,7 @@ void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2)
     d = FixVecLength(&debrisAxes[0]);
     if (d > 0x3333) {
         FixVecScaleRecip(&debrisAxes[0], &debrisAxes[0], -d);
-        FixVecCross(&debrisAxes[1], &debrisAxes[0], &g_unk0x005915e8);
+        FixVecCross(&debrisAxes[1], &debrisAxes[0], &g_collisionContactNormal);
         len = FixVecLength(&debrisAxes[1]);
         if (len == 0) {
             debrisAxes[1].x = 0;
@@ -998,7 +986,7 @@ void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2)
         } else {
             FixVecScaleRecip(&debrisAxes[1], &debrisAxes[1], len);
         }
-        debrisAxes[2] = g_unk0x005915e8;
+        debrisAxes[2] = g_collisionContactNormal;
 
         if (g_unk0x005915f4 != 0) {
             FixVector *pContact = &g_pContacts0x005915e0[g_unk0x005914c4[0] + 4];
@@ -1088,7 +1076,7 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
     vA.z += param_1->velocity.z;
 
     if (param_1->field_0xb64 == 0 && param_1->useUpperCollisionCorners == 0) {
-        dot = FIX_ABS(FixVecDot(&vA, &g_unk0x005915e8));
+        dot = FIX_ABS(FixVecDot(&vA, &g_collisionContactNormal));
         if (dot > g_unk0x00591468) {
             flagA = 1;
             flagB = 1;
@@ -1098,7 +1086,7 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
         }
     }
 
-    dot = FixVecDot(&vA, &g_unk0x005915e8);
+    dot = FixVecDot(&vA, &g_collisionContactNormal);
     impulse = FixMul(dot, 0) - dot;
     if ((*(unsigned int *)(*param_2)->field_0x10 & 0x2001000) != 0 && FIX_ABS(impulse) > 0) {
         flagC = 1;
@@ -1106,7 +1094,7 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
         impulse = FixMul(impulse, 0x28f);
     }
 
-    FixVecScale(&imp, &g_unk0x005915e8, impulse);
+    FixVecScale(&imp, &g_collisionContactNormal, impulse);
     FixVecScale(&imp, &imp, g_physicsScale);
 
     FixMatrix_InverseRotateVector(&tmp, &imp, param_1->pWorld);
@@ -1122,14 +1110,14 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
         if (g_unk0x005915f4 != 0) {
             CarDamage_ApplyCollisionDeformImpulse(param_1,
                          (int *)&param_1->corners[g_unk0x005914c4[0]],
-                         &g_unk0x005915e8, 0, 0, 0);
+                         &g_collisionContactNormal, 0, 0, 0);
         } else if (g_unk0x005914d4 != 0) {
             CarDamage_ApplyCollisionDeformImpulse(param_1,
                          (int *)&g_unk0x00591628[g_unk0x00590ecc[0]],
-                         &g_unk0x005915e8, 0, 2, 0);
+                         &g_collisionContactNormal, 0, 2, 0);
         }
     } else {
-        CarDamage_ApplyCollisionDeformImpulse(param_1, (int *)&g_collisionSphereCentre, &g_unk0x005915e8,
+        CarDamage_ApplyCollisionDeformImpulse(param_1, (int *)&g_collisionSphereCentre, &g_collisionContactNormal,
                      g_collisionSphereRadius, 1, 0);
     }
 known:

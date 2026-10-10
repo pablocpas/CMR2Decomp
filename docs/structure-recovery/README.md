@@ -193,3 +193,5 @@ scores sin regresiones. Pasan 117 arneses, 14112 casos nuevos y 480 escenarios
 nativos. El inventario queda en 1341 candidatos crudos.
 
 - [64-bit car spawn and surface names](64bit-car-spawn.md): 17 pointer/integer conversions removed; runtime Car/SceneNode/position arguments, evidenced noise/drag names; 2924 exact functions preserved.
+
+La tanda de [cajas de colisión](64bit-collision-boxes.md) elimina 18 conversiones (576 → 558), conserva 2924 funciones exactas y mejora dos scores. Pasan 118 arneses, incluidos 4783 casos nuevos, y 432 escenarios nativos con centros/vértices por encima de 4 GB. El inventario queda en 1319 accesos crudos.

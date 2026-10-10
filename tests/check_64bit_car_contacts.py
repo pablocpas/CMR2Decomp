@@ -43,7 +43,7 @@ typedef long long __int64;
 #define FIX_ABS(x) ((x) < 0 ? -(x) : (x))
 unsigned short g_sqrtTable[4096];
 int g_physicsScale = 65536;
-FixVector g_collisionPush, g_unk0x005914b8, g_unk0x005915e8, g_collisionSphereCentre;
+FixVector g_collisionPush, g_collisionPushB, g_collisionContactNormal, g_collisionSphereCentre;
 int g_collisionSphereRadius = 16384, g_unk0x005915dc = 32768, g_unk0x00591468 = 87949;
 int g_unk0x005914d8, g_unk0x005915f8[0x26];
 #define g_unk0x00591628 ((FixVector *)&g_unk0x005915f8[0xc])
@@ -57,7 +57,7 @@ void Car_SpawnDebris(int, FixVector *, Car *, FixVector *, int, int) { assert(fa
 '''
 
 LEAVES = r'''
-int Collision_SphereVsBox(int *, int *factor, unsigned int *t, int) {
+int Collision_SphereVsBox(CollisionBox *, int *factor, unsigned int *t, int) {
     *factor = 32768; *t = 0; return 1;
 }
 int Collision_TestOrientedBoxCornerOverlap(CollisionBox *, CollisionBox *, FixVector *, int) {
@@ -87,7 +87,7 @@ int main() {
     FixVector centreA={}, centreB={}, verticesA[8]={}, verticesB[8]={};
     StageObject *entry = &owner;
     assert(reinterpret_cast<uintptr_t>(entry) > UINT32_MAX);
-    g_unk0x005915e8.z=65536;
+    g_collisionContactNormal.z=65536;
     car(a); car(b); a.velocity.z=65536;
     a.useUpperCollisionCorners=b.useUpperCollisionCorners=1;
     Collision_ResolveCarContactImpulse(&a,&b);
@@ -99,11 +99,11 @@ int main() {
     assert(a.field_0x5c4.z==-655 && a.field_0xb35[10]==1);
     short contact; std::memcpy(&contact,a.field_0xad6+10,sizeof(contact)); assert(contact==9);
     car(a); boxA.axisA.x=65536; boxA.axisB.z=65536;
-    boxA.pVertex=reinterpret_cast<int *>(&centreA); boxA.pArray=reinterpret_cast<int *>(verticesA);
-    assert(Collision_CarVsBox(&a,reinterpret_cast<int *>(&boxA),32768)==1);
+    boxA.pVertex=&centreA; boxA.pArray=verticesA;
+    assert(Collision_CarVsBox(&a,&boxA,32768)==1);
     assert(a.field_0x5dc.x==32768 && a.field_0x5dc.y==0 && a.field_0x5dc.z==0);
     car(a); car(b); boxB.axisA.x=65536; boxB.axisB.z=65536;
-    boxB.pVertex=reinterpret_cast<int *>(&centreB); boxB.pArray=reinterpret_cast<int *>(verticesB);
+    boxB.pVertex=&centreB; boxB.pArray=verticesB;
     centreA.x=3*65536; centreB.x=5*65536; b.position.x=2*65536;
     a.corners[0].x=0; b.corners[0].x=2*65536;
     g_pContacts0x005915e0=reinterpret_cast<FixVector *>(&boxA);
@@ -138,7 +138,7 @@ def main():
     source = ROOT / 'CMR2Decomp'
     with tempfile.TemporaryDirectory(prefix='cmr2-native-car-contacts-') as directory:
         tmp = Path(directory)
-        for name in ('Car.h', 'SceneNode.h', 'Sector.h', 'LayoutChecks.h'):
+        for name in ('Car.h', 'SceneNode.h', 'Sector.h', 'LayoutChecks.h', 'Collision2D.h'):
             shutil.copyfile(source / name, tmp / name)
         shutil.copyfile(args.port_root / 'game/FixedPoint.h', tmp / 'FixedPoint.h')
         (tmp / 'Graphics.h').write_text('struct Graphics;\nstruct Texture;\nclass CGraphics { public: static const double m_oneOver65536; };\n')
@@ -150,7 +150,7 @@ def main():
         assert failed.returncode and 'negative' in failed.stderr, '32-bit layout checks must stay active'
         collision = (source / 'Collision2D.cpp').read_text()
         fixed = (source / 'FixedPoint.cpp').read_text()
-        record = re.search(r'struct CollisionBox \{.*?\n\};', collision, re.S).group()
+        record = '#include "Collision2D.h"\n'
         functions = ('Collision_ClampContactOffset', 'Collision_ClampAngularCorrection',
                      'Collision_CarVsBox', 'Collision_SeparateCarBoxes',
                      'Collision_ResolveCarContactImpulse', 'Collision_ResolveStaticObstacleContact')
@@ -160,7 +160,17 @@ def main():
             audit = {'baseline_commit': args.baseline_commit,
                      'compiler': run([args.compiler, '--version']).stdout.splitlines()[0]}
             for label, text in (('baseline', previous), ('current', collision)):
-                chunks = [PRELUDE, record, LEAVES]
+                legacy_record = re.search(r'struct CollisionBox \{.*?\n\};', text, re.S)
+                audit_record = legacy_record.group() if legacy_record else record
+                audit_prelude = PRELUDE
+                if 'g_unk0x005914b8' in text:
+                    audit_prelude = audit_prelude.replace('g_collisionPushB','g_unk0x005914b8')
+                if 'g_unk0x005915e8' in text:
+                    audit_prelude = audit_prelude.replace('g_collisionContactNormal','g_unk0x005915e8')
+                audit_leaves = LEAVES
+                if 'Collision_CarVsBox(Car *car, int *pBox' in text:
+                    audit_leaves = audit_leaves.replace('Collision_SphereVsBox(CollisionBox *,','Collision_SphereVsBox(int *,')
+                chunks = [audit_prelude, audit_record, audit_leaves]
                 ranges = {}
                 for name in functions:
                     first = '\n'.join(chunks).count('\n') + 2

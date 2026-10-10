@@ -262,6 +262,15 @@
       "0x458e00"
     ]
   },
+  "differential_collision_boxes.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4894b0",
+      "0x489b20",
+      "0x487f60",
+      "0x487e50"
+    ]
+  },
   "differential_collision_checkpoint.py": {
     "arguments": "both",
     "targets": [

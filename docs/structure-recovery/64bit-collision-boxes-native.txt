@@ -1,0 +1,3 @@
+PASS: two actual collision bodies, 432 x64 cases; complete original heap/globals with native box/geometry pointers above 4 GB, ASan/UBSan
+Native cast warnings: 0 -> 0
+PASS: original-layout checks active on x86, inactive on x64; four actual contact bodies with pointers above 4 GB, ASan/UBSan

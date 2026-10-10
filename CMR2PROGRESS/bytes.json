@@ -1650,7 +1650,7 @@
   },
   "0x4894b0": {
     "n": "Collision_SplitBoxSeparationMovement",
-    "s": 0.7299270072992701,
+    "s": 0.7493917274939172,
     "x": false,
     "fz": 0.9391727493917275,
     "unknown": [],
@@ -26483,7 +26483,7 @@
   },
   "0x487f60": {
     "n": "Collision_ResolveCarTurnedObjectContact",
-    "s": 0.8879384088964928,
+    "s": 0.894781864841745,
     "x": false,
     "fz": 0.9717707442258341,
     "unknown": [],

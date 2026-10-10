@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "Car.h"
+#include "Collision2D.h"
 #include "Sector.h"
 #include "CarResources.h"
 #include "CarPhysics.h"
@@ -769,3 +770,19 @@ CMR2_LAYOUT_CHECK(CarSpawnEngineStartWidth_Check, sizeof(((Car *)0)->engineStart
 
 CMR2_LAYOUT_CHECK(CarSurfaceDragLevel_Check, offsetof(Car, surfaceDragLevel) == 0xb29);
 CMR2_LAYOUT_CHECK(CarSurfaceDragLevelWidth_Check, sizeof(((Car *)0)->surfaceDragLevel) == 1);
+
+// Runtime collision box; two native geometry pointers follow the fixed span.
+CMR2_LAYOUT_CHECK(CollisionBox_halfWidth_Check, offsetof(CollisionBox, halfWidth) == 0x0);
+CMR2_LAYOUT_CHECK(CollisionBox_halfLength_Check, offsetof(CollisionBox, halfLength) == 0x4);
+CMR2_LAYOUT_CHECK(CollisionBox_top_Check, offsetof(CollisionBox, top) == 0x8);
+CMR2_LAYOUT_CHECK(CollisionBox_bottom_Check, offsetof(CollisionBox, bottom) == 0xc);
+CMR2_LAYOUT_CHECK(CollisionBox_axisA_Check, offsetof(CollisionBox, axisA) == 0x10);
+CMR2_LAYOUT_CHECK(CollisionBox_axisB_Check, offsetof(CollisionBox, axisB) == 0x1c);
+CMR2_LAYOUT_CHECK(CollisionBox_pad_0x28_Check, offsetof(CollisionBox, pad_0x28) == 0x28);
+CMR2_LAYOUT_CHECK(CollisionBox_points_Check, offsetof(CollisionBox, points) == 0x30);
+CMR2_LAYOUT_CHECK(CollisionBox_pArray_Check, offsetof(CollisionBox, pArray) == 0x90);
+CMR2_LAYOUT_CHECK(CollisionBox_pVertex_Check, offsetof(CollisionBox, pVertex) == 0x94);
+CMR2_LAYOUT_CHECK(CollisionBoxSizeCheck, sizeof(CollisionBox) == 0x98);
+CMR2_LAYOUT_CHECK(CollisionBoxPointsSizeCheck, sizeof(((CollisionBox *)0)->points) == 0x60);
+CMR2_LAYOUT_CHECK(CollisionBoxPointWordsCheck, offsetof(CollisionBox, pointWords) == 0x30);
+CMR2_LAYOUT_CHECK(CollisionBoxPointWordsSizeCheck, sizeof(((CollisionBox *)0)->pointWords) == 0x60);

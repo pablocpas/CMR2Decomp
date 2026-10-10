@@ -1,0 +1,44 @@
+{
+  "baseline": "8f268f4",
+  "functions": 3364,
+  "byte_exact": 2924,
+  "regressions": [],
+  "changes": [
+    {
+      "address": "0x4894b0",
+      "function": "Collision_SplitBoxSeparationMovement",
+      "metrics": {
+        "s": [
+          0.7299270072992701,
+          0.7493917274939172
+        ],
+        "fz": [
+          0.9391727493917275,
+          0.9391727493917275
+        ],
+        "x": [
+          false,
+          false
+        ]
+      }
+    },
+    {
+      "address": "0x487f60",
+      "function": "Collision_ResolveCarTurnedObjectContact",
+      "metrics": {
+        "s": [
+          0.8879384088964928,
+          0.894781864841745
+        ],
+        "fz": [
+          0.9717707442258341,
+          0.9717707442258341
+        ],
+        "x": [
+          false,
+          false
+        ]
+      }
+    }
+  ]
+}

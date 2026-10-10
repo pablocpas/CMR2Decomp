@@ -1,0 +1,1 @@
+PASS: 147 lighting bounds, 128 turned object contacts, 3500 independent split cases, 1008 complete sphere cases; whole guarded heap/globals/ABI, real geometry and fixed-point helpers

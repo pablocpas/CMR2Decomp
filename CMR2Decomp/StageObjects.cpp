@@ -173,18 +173,6 @@ struct ReplayPose {
 };
 
 // Oriented box of a stage object (same layout as in Collision2D.cpp).
-struct CollisionBox {
-    int halfWidth;          // 0x0   extent along axisA
-    int halfLength;         // 0x4   extent along axisB
-    int top;                // 0x8
-    int bottom;             // 0xc
-    FixVector axisA;        // 0x10
-    FixVector axisB;        // 0x1c
-    BYTE pad_0x28[0x8];
-    FixVector points[8];    // 0x30
-    int *pArray;            // 0x90  eight corners of the object (FixVector)
-    int *pVertex;           // 0x94  centre of the object (FixVector)
-};
 
 // One firework rocket of the pool at g_unk0x00590af8 (0x938 bytes). Each
 // simulated array has a previous-frame copy and an interpolated copy that is
@@ -490,8 +478,8 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar);
 int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB);
 void StageObject_BuildSpriteExtentOrientation(int *pMatrix, int param_2, int *pOffset);
 void StageObject_SetCollisionSphereAndMaterial(FixVector *pPos, int *pInfo);
-void StageObject_UpdateCarBoxShadowLighting(int *pBox, Car *pCar);
-int Collision_ResolveCarTurnedObjectContact(Car *pCar, int *pEntry, CollisionBox *pBox, CollisionBox *pObject);
+void StageObject_UpdateCarBoxShadowLighting(CollisionBox *pBox, Car *pCar);
+int Collision_ResolveCarTurnedObjectContact(Car *pCar, StageObject **pEntry, CollisionBox *pBox, CollisionBox *pObject);
 int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pBoxB, FixVector *pOffset, int scale);
 int Collision_FindQuadEdgeOverlap(FixVector *pVertsA, FixVector *pVertsB, FixVector *pDir, int *pDistance);
 void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, int flag);
@@ -4624,25 +4612,25 @@ void StageObject_SetCollisionSphereAndMaterial(FixVector *pPos, int *pInfo)
 // The original hoists both tolerance'd limits before testing the absolute
 // values, which is what the two named locals reproduce.
 // FUNCTION: CMR2 0x00487e50
-void StageObject_UpdateCarBoxShadowLighting(int *pBox, Car *pCar)
+void StageObject_UpdateCarBoxShadowLighting(CollisionBox *pBox, Car *pCar)
 {
     FixVector delta;
     int u;
     int v;
 
-    delta.x = g_collisionSphereCentre.x - ((int *)pBox[0x25])[0];
-    delta.y = g_collisionSphereCentre.y - ((int *)pBox[0x25])[1];
-    delta.z = g_collisionSphereCentre.z - ((int *)pBox[0x25])[2];
+    delta.x = g_collisionSphereCentre.x - pBox->pVertex->x;
+    delta.y = g_collisionSphereCentre.y - pBox->pVertex->y;
+    delta.z = g_collisionSphereCentre.z - pBox->pVertex->z;
     delta.y = 0;
-    u = FixVecDot(&delta, (FixVector *)(pBox + 4));
-    v = FixVecDot(&delta, (FixVector *)(pBox + 7));
-    if (FIX_ABS(u) > pBox[0] && FIX_ABS(v) > pBox[1])
+    u = FixVecDot(&delta, &pBox->axisA);
+    v = FixVecDot(&delta, &pBox->axisB);
+    if (FIX_ABS(u) > pBox->halfWidth && FIX_ABS(v) > pBox->halfLength)
         return;
     {
         int limit0;
         int limit1;
-        limit0 = pBox[0] + g_collisionSphereRadius;
-        limit1 = pBox[1] + g_collisionSphereRadius;
+        limit0 = pBox->halfWidth + g_collisionSphereRadius;
+        limit1 = pBox->halfLength + g_collisionSphereRadius;
         if (FIX_ABS(u) > limit0 || FIX_ABS(v) > limit1)
             return;
     }
@@ -12111,8 +12099,8 @@ int g_unk0x00590c58;
 int g_unk0x00590c5c;
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
 extern FixVector g_collisionPush;
-extern FixVector g_unk0x005914b8;
-void Collision_SplitBoxSeparationMovement(int *pA, int *pB, int *pDir, int amount, int scale);
+extern FixVector g_collisionPushB;
+void Collision_SplitBoxSeparationMovement(CollisionBox *pA, CollisionBox *pB, FixVector *pDir, int amount, int scale);
 int Collision_FindQuadEdgeOverlap(FixVector *pVertsA, FixVector *pVertsB, FixVector *pDir, int *pDistance);
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
 struct CollisionFaceVertices;
@@ -13096,11 +13084,11 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
     g_collisionPush.x = 0;
     g_collisionPush.y = 0;
     g_collisionPush.z = 0;
-    g_unk0x005914b8.x = 0;
-    g_unk0x005914b8.y = 0;
-    g_unk0x005914b8.z = 0;
-    posA = (FixVector *)pBoxA->pVertex;
-    posB = (FixVector *)pBoxB->pVertex;
+    g_collisionPushB.x = 0;
+    g_collisionPushB.y = 0;
+    g_collisionPushB.z = 0;
+    posA = pBoxA->pVertex;
+    posB = pBoxB->pVertex;
     // Direction from the offset point to box B, flattened and normalised.
     delta.x = posB->x - pOffset->x;
     delta.y = posB->y - pOffset->y;
@@ -13115,9 +13103,9 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
     maxDist = 0;
     // Pass 1: box B's corners tested in box A's frame.
     for (i = 0; i < 4; i++) {
-        delta.x = pBoxB->points[i].x - ((FixVector *)pBoxA->pVertex)->x;
-        delta.y = pBoxB->points[i].y - ((FixVector *)pBoxA->pVertex)->y;
-        delta.z = pBoxB->points[i].z - ((FixVector *)pBoxA->pVertex)->z;
+        delta.x = pBoxB->points[i].x - pBoxA->pVertex->x;
+        delta.y = pBoxB->points[i].y - pBoxA->pVertex->y;
+        delta.z = pBoxB->points[i].z - pBoxA->pVertex->z;
         delta.y = 0;
         projCorner0 = FixVecDot(&pBoxA->axisA, &delta);
         projCorner1 = FixVecDot(&pBoxA->axisB, &delta);
@@ -13161,7 +13149,7 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
         g_unk0x005914d4 = (char)(index + 1);
     }
     if (passHit != 0)
-        Collision_SplitBoxSeparationMovement((int *)pBoxA, (int *)pBoxB, (int *)&dir, maxDist, scale);
+        Collision_SplitBoxSeparationMovement(pBoxA, pBoxB, &dir, maxDist, scale);
     // Pass 2: box A's corners tested in box B's frame, with the direction negated.
     FixVecScale(&negDir, &dir, -0x10000);
     projAxis0 = FixVecDot(&pBoxB->axisA, &negDir);
@@ -13169,9 +13157,9 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
     passHit = 0;
     maxDist = 0;
     for (i = 0; i < 4; i++) {
-        delta.x = pBoxA->points[i].x - ((FixVector *)pBoxB->pVertex)->x;
-        delta.y = pBoxA->points[i].y - ((FixVector *)pBoxB->pVertex)->y;
-        delta.z = pBoxA->points[i].z - ((FixVector *)pBoxB->pVertex)->z;
+        delta.x = pBoxA->points[i].x - pBoxB->pVertex->x;
+        delta.y = pBoxA->points[i].y - pBoxB->pVertex->y;
+        delta.z = pBoxA->points[i].z - pBoxB->pVertex->z;
         delta.y = 0;
         projCorner0 = FixVecDot(&delta, &pBoxB->axisA);
         projCorner1 = FixVecDot(&pBoxB->axisB, &delta);
@@ -13213,11 +13201,11 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
         g_unk0x005915f4 = (char)(index + 1);
     }
     if (passHit != 0)
-        Collision_SplitBoxSeparationMovement((int *)pBoxA, (int *)pBoxB, (int *)&dir, maxDist, scale);
+        Collision_SplitBoxSeparationMovement(pBoxA, pBoxB, &dir, maxDist, scale);
     if (hit == 0) {
         hit = Collision_FindQuadEdgeOverlap((FixVector *)pBoxA, (FixVector *)pBoxB, &dir, &maxDist);
         if (hit != 0)
-            Collision_SplitBoxSeparationMovement((int *)pBoxA, (int *)pBoxB, (int *)&dir, maxDist, scale);
+            Collision_SplitBoxSeparationMovement(pBoxA, pBoxB, &dir, maxDist, scale);
     }
     return hit;
 }
@@ -14590,7 +14578,7 @@ void Replay_RecordPeriodicCarSamples(void)
 }
 
 extern FixVector g_collisionPush;
-extern FixVector g_unk0x005915e8;
+extern FixVector g_collisionContactNormal;
 extern int g_unk0x005915dc;
 extern int g_unk0x00591468;
 extern int g_unk0x005914d8;
@@ -14603,7 +14591,7 @@ int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM)
 // the object is pushable, a one-sided contact also moves the object. Returns
 // whether the boxes overlapped.
 // FUNCTION: CMR2 0x00487f60
-int Collision_ResolveCarTurnedObjectContact(Car *pCar, int *pEntry, CollisionBox *pBox, CollisionBox *pObject)
+int Collision_ResolveCarTurnedObjectContact(Car *pCar, StageObject **pEntry, CollisionBox *pBox, CollisionBox *pObject)
 {
     FixVector sum;
     FixVector point;
@@ -14620,7 +14608,7 @@ int Collision_ResolveCarTurnedObjectContact(Car *pCar, int *pEntry, CollisionBox
     int dz;
 
     count = 0;
-    if ((*(unsigned int *)(*pEntry + 0x10) & 0x2001000) != 0) {
+    if ((*(unsigned int *)(*pEntry)->field_0x10 & 0x2001000) != 0) {
         solid = 1;
         hit = Collision_TestOrientedBoxCornerOverlap(pBox, pObject, &pCar->positionPrev, 0x10000);
     } else {
@@ -14707,13 +14695,13 @@ int Collision_ResolveCarTurnedObjectContact(Car *pCar, int *pEntry, CollisionBox
             dy = point.y - g_collisionPush.y;
             dz = point.z - g_collisionPush.z;
             if (pBox->pVertex != NULL && pBox->pArray != NULL) {
-                pBox->pVertex[0] += dx;
-                pBox->pVertex[1] += dy;
-                pBox->pVertex[2] += dz;
-                for (k = 0; k < 0x60; k += 0xc) {
-                    *(int *)((BYTE *)pBox->pArray + k) += dx;
-                    *(int *)((BYTE *)pBox->pArray + k + 4) += dy;
-                    *(int *)((BYTE *)pBox->pArray + k + 8) += dz;
+                pBox->pVertex->x += dx;
+                pBox->pVertex->y += dy;
+                pBox->pVertex->z += dz;
+                for (k = 0; k < 8; k++) {
+                    pBox->pArray[k].x += dx;
+                    pBox->pArray[k].y += dy;
+                    pBox->pArray[k].z += dz;
                 }
                 for (k = 0; k < 4; k++) {
                     pBox->points[k].x += dx;
@@ -14723,7 +14711,7 @@ int Collision_ResolveCarTurnedObjectContact(Car *pCar, int *pEntry, CollisionBox
             }
             StageObject_ApplyRecursiveFrameDelta(pCar->index, -1, (int *)&point, 1);
         }
-        g_unk0x005915e8 = dir;
+        g_collisionContactNormal = dir;
         FixMatrix_InverseRotateVector(&pCar->field_0x5dc, &sum, pCar->pWorld);
         g_unk0x005915dc = 0x8000;
         g_unk0x00591468 = 0x1570a;
@@ -14735,7 +14723,7 @@ BYTE *Sector_GetListA(unsigned int sector, unsigned int *pCount);
 BYTE *Sector_GetListB(unsigned int sector, unsigned int *pCount);
 void RallyData_CopyRaisedElementVector(int *pDest, void **pParam1);
 int RallyData_IsElementFlagSet(BYTE **pEntry, int bit);
-int Collision_CarVsBox(Car *car, int *pBox, int scale);
+int Collision_CarVsBox(Car *car, CollisionBox *pBox, int scale);
 int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, FixVector *param_3, int param_4);
 
 // Collides a car with the stage objects of the four sectors it touches
@@ -14800,17 +14788,17 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                     StageObject_SetCollisionSphereAndMaterial(&position, pEntry);
                 }
                 if (g_unk0x005914d8 != 0) {
-                    result = Collision_ResolveCarTurnedObjectContact(pCar, pEntry, (CollisionBox *)pBox, (CollisionBox *)g_unk0x005915f8);
+                    result = Collision_ResolveCarTurnedObjectContact(pCar, (StageObject **)pEntry, (CollisionBox *)pBox, (CollisionBox *)g_unk0x005915f8);
                 } else {
                     if (pObject[4] & 0x4000) {
                         if (*(int *)(p + 0xc20) == 0)
-                            StageObject_UpdateCarBoxShadowLighting((int *)pBox, pCar);
+                            StageObject_UpdateCarBoxShadowLighting((CollisionBox *)pBox, pCar);
                         continue;
                     }
                     if (!((pObject[4] & 0x2001000) != 0)) {
-                        result = Collision_CarVsBox(pCar, (int *)pBox, 0x10000);
+                        result = Collision_CarVsBox(pCar, (CollisionBox *)pBox, 0x10000);
                     } else {
-                        result = Collision_CarVsBox(pCar, (int *)pBox, 0);
+                        result = Collision_CarVsBox(pCar, (CollisionBox *)pBox, 0);
                     }
                 }
                 if (result != 0 && Collision_ResolveStaticObstacleContact(pCar, (StageObject **)pEntry, &position, 0) != 0)

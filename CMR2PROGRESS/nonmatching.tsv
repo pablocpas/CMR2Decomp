@@ -188,7 +188,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47a710	SurfaceSound_UpdatePlayerLoops	SurfaceTypes.cpp	834	0.771689497716895	0.7460674157303371
 0x50c420	OptionMenu_DrawResultsOptions	GameInfo.cpp	1804	0.7730941704035874	0.7355298308103295
 0x46c1a0	Replay_RestoreAuxState	StageObjects.cpp	124	0.7733333333333333	0.7792207792207793
-0x4894b0	Collision_SplitBoxSeparationMovement	Collision2D.cpp	659	0.774818401937046	0.7299270072992701
 0x487140	Collision_BuildOrientedBoxWorldCorners	StageObjects.cpp	681	0.7749510763209393	0.7868217054263565
 0x498590	StageTiming_RelocateCarRecordRoutePoints	StageTiming.cpp	138	0.7755102040816326	0.7755102040816326
 0x4cfb30	FrontendRecords_InsertStageDeviceRecord	Frontend.cpp	344	0.776	0.792
@@ -208,6 +207,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x475a50	StageUI_DrawChampionshipBar	StageUI.cpp	1179	0.792156862745098	0.7894039735099337
 0x4ee170	FrontendMenu_UpdateNetworkCarSetup	FrontendScreens.cpp	739	0.7927565392354124	0.7380952380952381
 0x4d28c0	FrontendDraw_AnimatedMatrixBackground	Frontend.cpp	771	0.7941176470588235	0.8125
+0x4894b0	Collision_SplitBoxSeparationMovement	Collision2D.cpp	659	0.7941888619854721	0.7493917274939172
 0x46ef50	StageObject_BuildCloudTexturePath	StageObjects.cpp	215	0.7950310559006211	0.7950310559006211
 0x448550	StageTiming_EstimateElapsedStageTime	StageTiming.cpp	202	0.796875	0.796875
 0x4cfc90	FrontendRecords_InsertStageCategoryRecord	Frontend.cpp	386	0.7971014492753623	0.7971014492753623
@@ -386,10 +386,10 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4ba440	FixMatrix_Invert	FixedPoint.cpp	1062	0.952	0.952
 0x48ae90	Collision_ResolveCarContactImpulse	Collision2D.cpp	3970	0.9530309112806102	0.9199359487590072
 0x429810	Car_UpdateViewNodes	Car.cpp	1797	0.9553903345724907	0.8923933209647495
-0x487f60	Collision_ResolveCarTurnedObjectContact	StageObjects.cpp	1752	0.9554794520547946	0.8879384088964928
 0x480af0	StageObject_AssignMatchingCarClassSlots	StageObjects.cpp	79	0.9565217391304348	0.9565217391304348
 0x423780	Camera_SnapTo	Car.cpp	104	0.9574468085106383	0.9444444444444444
 0x4fb8d0	FrontendProfile_ScrambleIdentifier	FrontendScreens.cpp	232	0.9594594594594594	0.9594594594594594
+0x487f60	Collision_ResolveCarTurnedObjectContact	StageObjects.cpp	1752	0.9623287671232876	0.894781864841745
 0x4387a0	Car_UpdateTyreForces	Car.cpp	8567	0.9646050670640834	0.9646050670640834
 0x46fe70	StageObject_QueueOrEvictMovingObject	StageObjects.cpp	969	0.964968152866242	0.964968152866242
 0x448920	StageTiming_HandleCarSplitCrossing	StageTiming.cpp	706	0.9651741293532339	0.9701492537313433
