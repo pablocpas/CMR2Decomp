@@ -5489,9 +5489,13 @@ void StageTiming_SelectRecordMeshBrightness(int index)
     } while (++level < 8);
 }
 
-// First of the eight car network records (the rest are g_unk0x005394bc).
+// The eight car network records, one per car.
+// PORT: one array. The decompilation splits it into this record and the
+// other seven (g_unk0x005394bc, 0x5394bc), which MSVC6 lays out together;
+// other linkers do not, so remote cars (index 1 up) wrote over whatever
+// followed the first record.
 // GLOBAL: CMR2 0x005393d8
-CarNetRecord g_unk0x005393d8;
+CarNetRecord g_unk0x005393d8[8];
 
 extern NetStats g_localCarStats;
 void NetRace_PackCarState(Car *car);
@@ -5506,7 +5510,7 @@ unsigned int RallyData_GetFlag21(void);
 // FUNCTION: CMR2 0x00424dc0
 void StageTiming_SnapshotCarNetworkPose(Car *car)
 {
-    CarNetRecord *rec = (CarNetRecord *)&g_unk0x005393d8 + car->index;
+    CarNetRecord *rec = &g_unk0x005393d8[car->index];
     NetStats *stats;
     int *p = (int *)rec;
     int i;

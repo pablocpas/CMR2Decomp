@@ -1,6 +1,7 @@
 #include <math.h>
 #include <string.h>
 #include "NetPlayers.h"
+#include "Car.h"
 #include "Sprite.h"
 #include "Graphics.h"
 #include "GameInfo.h"
@@ -46,8 +47,8 @@ int g_unk0x0053a0cc[8];
 int g_unk0x0053a0ec[8];
 // GLOBAL: CMR2 0x0053a20c
 int g_unk0x0053a20c[8];
-// GLOBAL: CMR2 0x005394bc
-BYTE g_unk0x005394bc[7][0xec];  // 7 rows up to the triangle table at 0x539b38
+// PORT: the records at 0x5394bc are g_unk0x005393d8[1..7] (StageTiming.cpp).
+extern CarNetRecord g_unk0x005393d8[8];
 
 // Font picked for the screen size (0x28 normal, 0x29 small).
 // GLOBAL: CMR2 0x005393d4
@@ -76,7 +77,7 @@ void NetRace_SelectHUDFont(int width, int height, int players)
 // FUNCTION: CMR2 0x00427620
 int NetRace_GetPlayerStatisticsValue(int index)
 {
-    return *(int *)g_unk0x005394bc[index];
+    return *(int *)&g_unk0x005393d8[index + 1];
 }
 
 // FUNCTION: CMR2 0x00427640
@@ -1283,7 +1284,7 @@ extern void NetPlayers_RebuildStageResults(int param1, int param2, int param3);
 extern void NetRace_PollPlayerStatisticsPackets(Car *pCars);
 extern void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc);
 
-extern CarNetRecord g_unk0x005393d8;
+extern CarNetRecord g_unk0x005393d8[8];
 
 // Text of the network frame statistics trace.
 // GLOBAL: CMR2 0x00519988
@@ -1314,13 +1315,13 @@ void NetRace_ReceiveAndIntegrateListedCars(Car *pCars, short *pIndices, short co
         int idx = pIndices[i];
 
         if (pCars[idx].field_0xc1c != 0)
-            NetRace_IntegrateRemoteCarBody(&g_unk0x005393d8 + idx, g_unk0x005393ac[NetPlayers_FindPlayerByField8(idx)]);
+            NetRace_IntegrateRemoteCarBody(&g_unk0x005393d8[idx], g_unk0x005393ac[NetPlayers_FindPlayerByField8(idx)]);
     }
     for (i = (int)count - 1; i >= 0; i--) {
         int idx = pIndices[i];
 
         if (pCars[idx].field_0xc1c != 0)
-            Car_RestorePhysicsFromRecord(pCars + idx, &g_unk0x005393d8 + idx);
+            Car_RestorePhysicsFromRecord(pCars + idx, &g_unk0x005393d8[idx]);
     }
 }
 
@@ -1348,7 +1349,7 @@ void NetRace_PollPlayerStatisticsPackets(Car *pCars)
             NetPlayers_ClearNewStatisticsFlag(i);
             pStats = NetPlayers_GetStatisticsRecord(i);
             g_localCarStats = *pStats;
-            pEntry = &g_unk0x005393d8 + NetPlayers_GetPlayerField8(i);
+            pEntry = &g_unk0x005393d8[NetPlayers_GetPlayerField8(i)];
             pCar = pCars + NetPlayers_GetPlayerField8(i);
             if (NetRace_DecodeReceivedCarState(pEntry, &local) != 0) {
                 value = FixMul(local, pCar->maxSteeringAngleDegrees * 0x1680);

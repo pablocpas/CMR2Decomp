@@ -1288,7 +1288,7 @@ void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3)
 }
 
 // (defined in StageTiming.cpp, which owns the GLOBAL annotation)
-extern CarNetRecord g_unk0x005393d8;
+extern CarNetRecord g_unk0x005393d8[8];
 
 void Car_InvalidateTransforms(int index);
 void NetRace_AdvanceRemoteCarAccumulator(CarNetRecord *p);
@@ -1320,7 +1320,7 @@ void NetRace_ExtrapolateOrderedCarPoses(Car *pCars, short *pOrder, short count)
 
     for (i = count - 1; i >= 0; i--) {
         pCar = pCars + pOrder[i];
-        pRec = &g_unk0x005393d8 + pOrder[i];
+        pRec = &g_unk0x005393d8[pOrder[i]];
 
         if (pCar->field_0xc20 == 0)
             continue;
