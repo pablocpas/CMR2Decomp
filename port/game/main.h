@@ -1,0 +1,63 @@
+#ifndef _MAIN_H
+#define _MAIN_H
+
+
+struct SysEvent;
+
+class CMain
+{
+public:
+    static unsigned int Initialize(const char *commandLine);
+    static BOOL CreateGameWindow(LPCSTR sWindowName);
+    static void HandleEvent(const SysEvent *event);
+    static void UnwindGameCallbacks(void);
+    static void SetGameActiveState(int param1);
+    static void ResetFpsWarmup(void);
+    static int GetFrameTime(void);
+    static void UpdateFrameTime(void);
+    static unsigned int GetFrameDelta(void);
+    static bool ResetFrameDelta(void);
+
+    // GLOBAL: CMR2 0x00663ecc
+    static BOOL m_frameDeltaInitialised;
+    // GLOBAL: CMR2 0x00663ed0
+    static unsigned int m_frameDeltaStart;
+    // GLOBAL: CMR2 0x00663ed4
+    static unsigned int m_frameDeltaLast;
+    // GLOBAL: CMR2 0x00663ed8
+    static unsigned int m_frameDelta;
+    // GLOBAL: CMR2 0x00663edc
+    static unsigned int m_frameDeltaMax;
+
+    // GLOBAL: CMR2 0x00663ee0
+    static int m_frameTime;
+
+    // GLOBAL: CMR2 0x00663dbc
+    static int m_unk0x00663dbc;
+    // GLOBAL: CMR2 0x00663dc0
+    static int m_unk0x00663dc0;
+
+    // Exit code of the main loop (the WM_QUIT wParam in the original).
+    // GLOBAL: CMR2 0x00663c68
+    static int m_exitCode;
+
+    // GLOBAL: CMR2 0x0052ea5c
+    static char m_logFileBlankLine[1]; // TODO: better name?
+
+private:
+    // GLOBAL: CMR2 0x00511430
+    static char m_gameName[20];
+    // GLOBAL: CMR2 0x00520c74
+    static char m_logFileLocation[14];
+    // GLOBAL: CMR2 0x00520c54
+    static char m_logFileHeader1[29];
+    // GLOBAL: CMR2 0x00520c34
+    static char m_logFileAsterisks[29];
+
+    // GLOBAL: CMR2 0x00520bf4
+    static char m_logFileFinishedNormally[30];
+    // GLOBAL: CMR2 0x00520bf0
+    static BOOL m_isShowingCursor;
+};
+
+#endif

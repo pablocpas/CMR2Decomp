@@ -1,0 +1,4 @@
+/build*/
+/out/
+*.swp
+__pycache__/
