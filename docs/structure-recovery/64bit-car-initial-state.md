@@ -63,6 +63,9 @@ ser válidos con punteros de ocho bytes. El código nuevo usa miembros.
   pérdida de fuzzy. Tres tests prueban rechazo de esa combinación,
   aceptación de mejoras y rechazo de pérdidas previas de score/exactitud.
 
+La suite completa pasa: **116 harnesses, cero fallos**. Se verifican además
+manifest, procedencia y hashes de las fuentes del ejecutable medido.
+
 ## Medición y deuda
 
 El inventario pasa de 1489 a **1452 accesos crudos**. De los 37 candidatos

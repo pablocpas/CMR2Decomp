@@ -26,5 +26,7 @@
   "obsolete_macro_candidates_removed": 16,
   "real_raw_accesses_replaced": 21,
   "native_scenarios": 354,
-  "differential_cases": 3456
+  "differential_cases": 3456,
+  "harnesses": 116,
+  "failures": 0
 }

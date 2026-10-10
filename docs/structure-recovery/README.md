@@ -178,3 +178,10 @@ Las 3364 puntuaciones siguen idénticas, los 115 harnesses pasan y el
 wrapper se prueba en x64 con un Graphics cuyo miembro de contexto se
 desplaza. El inventario sigue en 1489 desreferencias crudas; también se
 documenta una diferencia previa de recorte que no entra por perder score.
+
+La tanda de [estado inicial del coche](64bit-car-initial-state.md) tipa las
+bases completas, inicio/reset, suspensión y proveedores de rampa/ruido.
+Conserva las 2922 funciones exactas y mejora el score y fuzzy de colocación.
+Los 116 harnesses pasan, con 3456 casos nuevos y 354 escenarios nativos.
+El inventario baja a 1452 candidatos crudos, distinguiendo 16 macros sin uso
+de los 21 accesos reales reemplazados. El gate controla también el fuzzy.
