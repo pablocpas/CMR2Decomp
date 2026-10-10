@@ -635,7 +635,7 @@ void Game_RunFrontendBootFrame(CallbackStateMachine *p1, BYTE p2)
 // GLOBAL: CMR2 0x00513ec8
 float g_unk0x00513ec8 = 1.0f / 1500.0f;
 extern const float g_netByteScale;
-int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
+int Sprite_FillRect(BYTE *unused, short *pRect, BYTE *pColour, int layer);
 
 // Draws a boot/HUD label at (x, y) in a colour that fades out 2.5 s after the
 // frame timer was last reset; unless flag is set it also fills the 2 pixel wide
@@ -675,7 +675,7 @@ int Game_DrawFadingBootLabel(int x, int y, char *pText, char flag)
         rect[1] = (int)(g_pGraphics->resY * 200) / 0x1e0;
         rect[2] = 2;
         rect[3] = (int)(g_pGraphics->resY * 60) / 0x1e0;
-        Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, rect, colour, 1);
         px += (int)(g_pGraphics->resX * 10) / 0x280;
     }
     return px;
@@ -1978,9 +1978,9 @@ void Game_DrawInRaceActionMenu(Menu *pMenu)
     line[2] = (short)((int)(g_pGraphics->resX * 0xa2) / 0x280);
     line[3] = 1;
     if (cursor == 0)
-        Sprite_FillRect((int)g_pGraphics + 0x150, line, colourWhite, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, line, colourWhite, 1);
     else
-        Sprite_FillRect((int)g_pGraphics + 0x150, line, colourDim, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, line, colourDim, 1);
     pItem = pMenu->items;
     for (i = 0; i < 2; i++, pItem++) {
         if (InRaceMenu_GetUpArrowTexture() != 0)
@@ -2008,9 +2008,9 @@ void Game_DrawInRaceActionMenu(Menu *pMenu)
         line[1] = (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 * (i + 1) +
                           (int)(g_pGraphics->resY * 0xd7) / 0x1e0);
         if (i == cursor || i + 1 == cursor)
-            Sprite_FillRect((int)g_pGraphics + 0x150, line, colourWhite, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, line, colourWhite, 1);
         else
-            Sprite_FillRect((int)g_pGraphics + 0x150, line, colourDim, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, line, colourDim, 1);
     }
 }
 

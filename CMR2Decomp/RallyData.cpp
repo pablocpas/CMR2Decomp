@@ -2765,7 +2765,7 @@ void RallyData_DrawNetworkStandingsPanel(short *pRect)
             continue;
         if (id == -2) {
             sprintf(name, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord(0));
-            Sprite_FillRect((int)g_pGraphics + 0x150, panel, (BYTE *)&g_unk0x005170d8, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, panel, (BYTE *)&g_unk0x005170d8, 2);
             pColour = NetPlayers_GetPlayerNameColour(Network_GetLocalPlayerID());
         } else {
             char *pName = NetPlayers_GetPlayerName(id);
@@ -2773,14 +2773,14 @@ void RallyData_DrawNetworkStandingsPanel(short *pRect)
                 sprintf(name, CRegKey::m_regKeyPathFormatValue, pName);
             else
                 sprintf(name, CMain::m_logFileBlankLine);
-            Sprite_FillRect((int)g_pGraphics + 0x150, panel, (BYTE *)&g_stageResultPanelColour, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, panel, (BYTE *)&g_stageResultPanelColour, 2);
             pColour = NetPlayers_GetPlayerNameColour(NetPlayers_GetPlayerID(id));
         }
         square[2] = (short)((int)(g_pGraphics->resX * 10) / 640);
         square[3] = (short)((int)(g_pGraphics->resY * 10) / 480);
         square[0] = panel[2] - (short)((int)(g_pGraphics->resX * 10) / 640) + panel[0] - square[2] / 2;
         square[1] = panel[3] / 2 + panel[1] - square[3] / 2;
-        Sprite_FillRect((int)g_pGraphics + 0x150, square, pColour, 2);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, square, pColour, 2);
         sprintf(number, g_strOneDigit, i + 1);
         Font_DrawText(0, number, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
                       (int *)&g_stageResultTextColour, 0x22);
@@ -2909,7 +2909,7 @@ void RallyData_DrawCarStageGapPanel(int car, short *pRect)
         else
             rect[3] += (short)((int)g_pGraphics->resY * 24 / 480);
     }
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_stageHudPanelColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, (BYTE *)&g_stageHudPanelColour, 2);
     if (StageTiming_IsClockOverlayActive()) {
         if (CGameInfo::GetGameLanguage() == 1 || CGameInfo::GetGameLanguage() == 3 ||
             CGameInfo::GetGameLanguage() == 2)
@@ -3441,7 +3441,7 @@ void RallyData_DrawStageResultRows(int car, short *position)
         } else {
             *(unsigned int *)colour = *(unsigned int *)base;
         }
-        Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 2);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, rect, colour, 2);
         textY = position[1] + currentOffset + 1 + ((int)g_pGraphics->resY * 0x1b32 >> 16);
         Font_DrawText(0, CFrontend::m_stringDest,
                       (short)((int)g_pGraphics->resX * 0xf95 >> 16) + position[0],
@@ -4944,7 +4944,7 @@ int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha)
         g_itemRect[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);
         g_itemRect[2] = 2;
         g_itemRect[3] = (short)((int)(g_pGraphics->resY * 0x3c) / 0x1e0);
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_itemRect, colour, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_itemRect, colour, 1);
         px += (int)(g_pGraphics->resX * 10) / 0x280;
     }
     return px;
@@ -4987,9 +4987,9 @@ void RallyData_DrawLoadingProgress(int progress, char drawScene, BYTE alpha)
         g_itemRect[2] = (short)((int)(g_pGraphics->resX * 8) / 640);
         g_itemRect[3] = (short)((int)(g_pGraphics->resX * 8) / 640);
         if (progress < 100 && limit / 11 >= progress)
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_itemRect, colourLit, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_itemRect, colourLit, 1);
         else
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_itemRect, colour, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_itemRect, colour, 1);
         i++;
         limit += 100;
     } while (limit < 1200);
@@ -6615,24 +6615,24 @@ void RallyData_DrawCarSplitTimeBar(int car, short *pRect)
             CGameInfo::IsSplitBarEnabled();
         for (i = 0; i <= g_unk0x00536c90; i++) {
             if (i != g_stageSplitData[car].split) {
-                Sprite_FillRect((int)g_pGraphics + 0x150,
+                Sprite_FillRect(&g_pGraphics->field309_0x150,
                                 (short *)&g_unk0x00536cb8[i + car * 0x14],
                                 (BYTE *)&g_unk0x00536d14[car * 0x28 + i + 1], 2);
             } else {
                 g_unk0x005170cc = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
                 ((BYTE *)&g_unk0x005170cc)[3] = 0xff;
-                Sprite_FillRect((int)g_pGraphics + 0x150,
+                Sprite_FillRect(&g_pGraphics->field309_0x150,
                                 (short *)(g_unk0x00536d14 + car * 0x28 + 13),
                                 (BYTE *)&g_unk0x005170cc, 2);
                 colour = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
-                Sprite_FillRect((int)g_pGraphics + 0x150,
+                Sprite_FillRect(&g_pGraphics->field309_0x150,
                                 (short *)(g_unk0x00536d14 + car * 0x28 + 15),
                                 (BYTE *)&colour, 2);
             }
             if (i > 0 && i < g_unk0x00536c90 - 1) {
                 marker = g_unk0x00536cb8[i + car * 0x14];
                 marker.w = 1;
-                Sprite_FillRect((int)g_pGraphics + 0x150, (short *)&marker,
+                Sprite_FillRect(&g_pGraphics->field309_0x150, (short *)&marker,
                                 (BYTE *)&g_unk0x005170ac, 2);
             }
         }
@@ -6657,24 +6657,24 @@ void RallyData_DrawSplitBarAndLeaderMarkers(int car, short *pRect)
             CGameInfo::IsSplitBarEnabled();
         for (i = 0; i <= g_unk0x00536c90; i++) {
             if (i != g_stageSplitData[car].split) {
-                Sprite_FillRect((int)g_pGraphics + 0x150,
+                Sprite_FillRect(&g_pGraphics->field309_0x150,
                                 (short *)&g_unk0x00536cb8[i + car * 0x14],
                                 (BYTE *)&g_unk0x00536d14[car * 0x28 + i + 1], 2);
             } else {
                 g_unk0x005170cc = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
                 ((BYTE *)&g_unk0x005170cc)[3] = 0xff;
-                Sprite_FillRect((int)g_pGraphics + 0x150,
+                Sprite_FillRect(&g_pGraphics->field309_0x150,
                                 (short *)(g_unk0x00536d14 + car * 0x28 + 13),
                                 (BYTE *)&g_unk0x005170cc, 2);
                 colour = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
-                Sprite_FillRect((int)g_pGraphics + 0x150,
+                Sprite_FillRect(&g_pGraphics->field309_0x150,
                                 (short *)(g_unk0x00536d14 + car * 0x28 + 15),
                                 (BYTE *)&colour, 2);
             }
             if (i > 0 && i < g_unk0x00536c90 - 1) {
                 marker = g_unk0x00536cb8[i + car * 0x14];
                 marker.w = 1;
-                Sprite_FillRect((int)g_pGraphics + 0x150, (short *)&marker,
+                Sprite_FillRect(&g_pGraphics->field309_0x150, (short *)&marker,
                                 (BYTE *)&g_unk0x005170ac, 2);
             }
         }
@@ -6751,34 +6751,34 @@ void RallyData_DrawClippedHudRectangleEdges(short *param_1, BYTE *param_2, int p
         rect[2] = (short)w;
         rect[3] = 1;
         if (clipped[0] == 0 || clipped[1] == 0)
-            Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, rect, param_2, 1);
         rect[1] = (short)corner[3].y;
         if (clipped[2] == 0 || clipped[3] == 0)
-            Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, rect, param_2, 1);
         rect[0] = (short)corner[0].x;
         rect[1] = (short)corner[0].y;
         rect[2] = 1;
         rect[3] = (short)h;
         if (clipped[0] == 0 || clipped[3] == 0)
-            Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, rect, param_2, 1);
         rect[0] = (short)(corner[0].x + w - 1);
         if (clipped[1] == 0 || clipped[2] == 0)
-            Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, rect, param_2, 1);
     } else {
         rect[0] = param_1[0];
         rect[1] = param_1[1];
         rect[2] = param_1[2];
         rect[3] = 1;
-        Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, rect, param_2, 1);
         rect[1] = (short)(param_1[1] + param_1[3]);
-        Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, rect, param_2, 1);
         rect[0] = param_1[0];
         rect[1] = param_1[1];
         rect[2] = 1;
         rect[3] = param_1[3];
-        Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, rect, param_2, 1);
         rect[0] = (short)(param_1[0] + param_1[2] - 1);
-        Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, rect, param_2, 1);
     }
 }
 
@@ -7047,7 +7047,7 @@ void RallyData_DrawCarSplitTimePanels(void)
     rect[1] = (short)((int)p->dstY1 * (int)g_pGraphics->resY / 0x1e0);
     rect[2] = (short)((int)p->dstX2 * (int)g_pGraphics->resX / 0x280);
     rect[3] = (short)((int)p->dstY2 * (int)g_pGraphics->resY / 0x1e0);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, colour, 1);
     RallyData_DrawClippedHudRectangleEdges(rect, &colour[8], 0);
     *(int *)&rect[0] = *(int *)&p->dstX1;
     *(int *)&rect[2] = *(int *)&p->dstX2;
@@ -7177,7 +7177,7 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
     accent[0] = (BYTE)((accent[0] >> 2) * 3);
     accent[1] = (BYTE)((accent[1] >> 2) * 3);
     accent[2] = (BYTE)((accent[2] >> 2) * 3);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, accent, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, accent, 1);
     scale = FixDiv(pEntry->dstX2 << 16, g_unk0x0082c9ec[2] << 16);
     if (pEntry->field_0x24 != 0) {
         t = FixMul(pEntry->current, pEntry->field_0x24);
@@ -7248,7 +7248,7 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
             outline[1] = (short)((int)outline[1] * (int)g_pGraphics->resY / 0x1e0);
             *(int *)outlineColour = g_unk0x005270ec;
             outlineColour[3] = colour[3];
-            Sprite_FillRect((int)g_pGraphics + 0x150, outline, outlineColour, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, outline, outlineColour, 1);
         }
         RallyData_DrawClippedHudRectangleEdges(rect, &g_unk0x005270e4[4], 0);
     }
@@ -8112,11 +8112,11 @@ void RallyData_DrawViewEndFrameOverlay(BYTE *pKey, int view)
                     if ((char)RallyData_GetSelectionFlag26()) {
                         if ((char)RallyData_GetSetupFlag11() == 0 || RallyData_GetSetupModeBits() != 0)
                             goto divider;
-                        Sprite_FillRect((int)g_pGraphics + 0x150, (short *)StageObject_GetPlayerViewRectangle(i), g_unk0x00516ce0, 2);
+                        Sprite_FillRect(&g_pGraphics->field309_0x150, (short *)StageObject_GetPlayerViewRectangle(i), g_unk0x00516ce0, 2);
                         sprintf(CFrontend::m_stringDest, g_strVersusFormat, CFrontend::GetTextString(0x85),
                                 CFrontend::GetTextString(0x87), (char *)RallyData_GetRecord(other));
                     } else {
-                        Sprite_FillRect((int)g_pGraphics + 0x150, (short *)StageObject_GetPlayerViewRectangle(i), g_unk0x00516ce0, 2);
+                        Sprite_FillRect(&g_pGraphics->field309_0x150, (short *)StageObject_GetPlayerViewRectangle(i), g_unk0x00516ce0, 2);
                         if (Race_GetStateByte() != 0xff && (char)Race_GetStateByte() == i) {
                             if (CGameInfo::GetConfiguredGameMode() == 4)
                                 sprintf(name, g_strName0x00516e2c,
@@ -8152,7 +8152,7 @@ void RallyData_DrawViewEndFrameOverlay(BYTE *pKey, int view)
                     rect[1] = ((short *)StageObject_GetPlayerViewRectangle(1))[1];
                     rect[3] = ((short *)StageObject_GetPlayerViewRectangle(1))[3];
                 }
-                Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_unk0x00516cd8, 2);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, rect, g_unk0x00516cd8, 2);
             }
         }
     }
@@ -8171,7 +8171,7 @@ void RallyData_DrawViewEndFrameOverlay(BYTE *pKey, int view)
             fadeColour[1] = 0xb4;
             fadeColour[2] = 0xac;
             fadeColour[3] = (BYTE)alpha;
-            Sprite_FillRect((int)g_pGraphics + 0x150, fadeRect, fadeColour, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, fadeRect, fadeColour, 1);
             RallyData_DrawFadedLoadingText((BYTE)alpha);
             RallyData_DrawLoadingProgress(100, 0, (BYTE)alpha);
         }
@@ -8339,7 +8339,7 @@ void RallyData_DrawStageTimePanel(int car, short *pRect)
         else
             rect[3] += (short)((int)(g_pGraphics->resY * 24) / 480);
     }
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_stageHudPanelColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, (BYTE *)&g_stageHudPanelColour, 2);
     if (StageTiming_IsClockOverlayActive()) {
         if (CGameInfo::GetGameLanguage() == 1 || CGameInfo::GetGameLanguage() == 3 || CGameInfo::GetGameLanguage() == 2)
             rect[3] += (short)((int)(g_pGraphics->resY * -24) / 480 * 2);
@@ -8403,9 +8403,9 @@ void RallyData_DrawSplitStandingsPanel(int car, short *pRect)
             panel[2] = (short)((int)(g_pGraphics->resX * 0x3333) >> 16);
             panel[3] = (short)((int)(g_pGraphics->resY * 0xccc) >> 16) - 2;
             if (*pPosition == g_stageSplitData[car].position)
-                Sprite_FillRect((int)g_pGraphics + 0x150, panel, (BYTE *)&g_unk0x005170d8, 2);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, panel, (BYTE *)&g_unk0x005170d8, 2);
             else
-                Sprite_FillRect((int)g_pGraphics + 0x150, panel, (BYTE *)&g_stageResultPanelColour, 2);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, panel, (BYTE *)&g_stageResultPanelColour, 2);
             if (*pPosition != -1 &&
                 (StageTiming_GetSplitDisplayState() == 0 ||
                  StageTiming_GetSplitDriverIDForPosition(*pPosition, g_stageSplitData[car].split) != -1)) {
@@ -8443,9 +8443,9 @@ void RallyData_DrawSplitStandingsPanel(int car, short *pRect)
         panel[2] = (short)((int)(g_pGraphics->resX * 0x47ae) >> 16);
         panel[3] = (short)((int)(g_pGraphics->resY * 0xccc) >> 16) - 2;
         if (*pPosition == g_stageSplitData[car].position)
-            Sprite_FillRect((int)g_pGraphics + 0x150, panel, (BYTE *)&g_unk0x005170d8, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, panel, (BYTE *)&g_unk0x005170d8, 2);
         else
-            Sprite_FillRect((int)g_pGraphics + 0x150, panel, (BYTE *)&g_stageResultPanelColour, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, panel, (BYTE *)&g_stageResultPanelColour, 2);
         if (*pPosition != -1) {
             if (StageTiming_GetSplitDisplayState())
                 StageTiming_GetSplitDriverIDForPosition(*pPosition, g_stageSplitData[car].split);

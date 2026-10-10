@@ -87,7 +87,7 @@ extern unsigned int g_tri2DCount4;
 void Sprite_Init(void);
 void Sprite_Queue(SpriteRect *pSrc, SpriteRect *pDst, Texture *pTexture, int layer, short angleDeg, int *pCentre, SpriteRect *pUv2, BYTE *pColour, int param);
 int Sprite_Shutdown(void);
-int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
+int Sprite_FillRect(BYTE *unused, short *pRect, BYTE *pColour, int layer);
 void Line2D_Init(void);
 void Line2D_Queue(int *pA, int *pB, BYTE *pColourA, BYTE *pColourB);
 int Line2D_Shutdown(void);

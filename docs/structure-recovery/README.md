@@ -171,3 +171,10 @@ ocho bytes. Véanse [layouts, pruebas y offsets todavía pendientes](64bit-best-
 Los 114 harnesses pasan, incluidos 10640 casos nuevos, y la auditoría de
 3364 funciones continúa idéntica con 2922 exactas. Cinco cuerpos actuales
 se prueban también en x64 con punteros no nulos mayores que 4 GB.
+
+La tanda de [contextos de rectángulos](64bit-sprite-context.md) convierte
+315 argumentos de dirección y las dos interfaces que los transportan.
+Las 3364 puntuaciones siguen idénticas, los 115 harnesses pasan y el
+wrapper se prueba en x64 con un Graphics cuyo miembro de contexto se
+desplaza. El inventario sigue en 1489 desreferencias crudas; también se
+documenta una diferencia previa de recorte que no entra por perder score.

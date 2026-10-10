@@ -696,3 +696,9 @@ CMR2_LAYOUT_CHECK(BestTimeCursorIndexOffsetCheck, offsetof(BestTimeCursor, index
 CMR2_LAYOUT_CHECK(BestTimeCursorPointerOffsetCheck, offsetof(BestTimeCursor, bytes) == 0);
 CMR2_LAYOUT_CHECK(BestTimeCursorWordOffsetCheck, offsetof(BestTimeCursor, word) == 0);
 CMR2_LAYOUT_CHECK(BestTimeCursorRallyOffsetCheck, offsetof(BestTimeCursor, rally) == 0);
+
+#include "Graphics.h"
+CMR2_LAYOUT_CHECK(GraphicsSizeCheck, sizeof(Graphics) == 0x3cc);
+CMR2_LAYOUT_CHECK(GraphicsRectContextCheck, offsetof(Graphics, field309_0x150) == 0x150);
+CMR2_LAYOUT_CHECK(GraphicsRectWidthCheck, offsetof(Graphics, resX) == 0);
+CMR2_LAYOUT_CHECK(GraphicsRectHeightCheck, offsetof(Graphics, resY) == 4);

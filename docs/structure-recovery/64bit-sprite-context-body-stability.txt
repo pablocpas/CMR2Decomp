@@ -1,0 +1,1 @@
+PASS: all 18 relocated Sprite instruction/byte streams identical to pre-conversion object; no clipping logic changed

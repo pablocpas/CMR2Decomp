@@ -469,7 +469,7 @@ void NetRace_DrawPlayerFlashOverlay(unsigned int player, short *pRect, int check
             colour[1] = ((BYTE *)&g_unk0x0053a00c[player & 0xff])[1];
             colour[2] = ((BYTE *)&g_unk0x0053a00c[player & 0xff])[2];
             colour[3] = (BYTE)alpha;
-            Sprite_FillRect((int)g_pGraphics + 0x150, pRect, colour, g_unk0x0053a20c[view]);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, pRect, colour, g_unk0x0053a20c[view]);
         }
     }
 }

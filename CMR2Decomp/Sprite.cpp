@@ -348,7 +348,7 @@ double g_minus65536 = -65536.0;
 // clipping it to the screen first.
 // match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a5e40
-int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer)
+int Sprite_FillRect(BYTE *unused, short *pRect, BYTE *pColour, int layer)
 {
     short x;
     short y;

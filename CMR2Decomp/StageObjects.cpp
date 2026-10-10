@@ -377,7 +377,7 @@ void Knockout_DrawAnimatedMatchHeader(int param1, int param2, int param3, int pa
 char *StageObject_FormatAnimatedLapTime(int *p, int index, int mode);
 void StageObject_DrawAnimatedTextPair(int param1, KnockoutMatch *param2, short *param3, BYTE *param4, BYTE *param5, int param6, int param7, int *param8, int param9);
 void StageObject_DrawOutlinedStageBox(short *pRect, BYTE *pColour, BYTE *pEdgeColour, int drawTexture);
-int StageObject_FillWidthScaledRectangle(int scale, int unused, short *pRect, BYTE *pColour, int layer);
+int StageObject_FillWidthScaledRectangle(int scale, BYTE *unused, short *pRect, BYTE *pColour, int layer);
 void StageObject_ClearAndDrawSplitPositions(int unused1, int unused2);
 void StageObject_BuildInRaceActionMenu(void);
 BYTE *StageObject_GetInRaceActionMenu(void);
@@ -2632,28 +2632,28 @@ void StageObject_DrawOutlinedStageBox(short *pRect, BYTE *pColour, BYTE *pEdgeCo
     SpriteRect dest;
 
     if (pColour != NULL)
-        Sprite_FillRect((int)g_pGraphics + 0x150, pRect, pColour, 2);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, pRect, pColour, 2);
     if (pEdgeColour != NULL) {
         edge[0] = pRect[0];
         edge[1] = pRect[1];
         edge[2] = pRect[2];
         edge[3] = 1;
-        Sprite_FillRect((int)g_pGraphics + 0x150, edge, pEdgeColour, 2);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, edge, pEdgeColour, 2);
         edge[0] = (short)(pRect[0] + pRect[2]);
         edge[1] = pRect[1];
         edge[2] = 1;
         edge[3] = (short)(pRect[3] + 1);
-        Sprite_FillRect((int)g_pGraphics + 0x150, edge, pEdgeColour, 2);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, edge, pEdgeColour, 2);
         edge[0] = pRect[0];
         edge[1] = (short)(pRect[1] + pRect[3]);
         edge[2] = pRect[2];
         edge[3] = 1;
-        Sprite_FillRect((int)g_pGraphics + 0x150, edge, pEdgeColour, 2);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, edge, pEdgeColour, 2);
         edge[0] = pRect[0];
         edge[1] = pRect[1];
         edge[2] = 1;
         edge[3] = pRect[3];
-        Sprite_FillRect((int)g_pGraphics + 0x150, edge, pEdgeColour, 2);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, edge, pEdgeColour, 2);
     }
     if (drawTexture != 0) {
         dest.x = pRect[0];
@@ -5620,7 +5620,7 @@ void StageObject_ResetPartTuningAndRandomSeed(void)
     g_unk0x00590bfd = 2;
 }
 
-int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
+int Sprite_FillRect(BYTE *unused, short *pRect, BYTE *pColour, int layer);
 
 extern BYTE g_barTextColour[4];
 // Panel, text and selection colours of the stage-data screen.
@@ -5658,7 +5658,7 @@ void StageObject_DrawPauseStageDataPanel(Menu *pMenu)
     rect[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
     rect[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
     rect[3] = (short)((int)(g_pGraphics->resY * 0x26) / 0x1e0);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_unk0x0051c984, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, g_unk0x0051c984, 2);
     // Title of the panel (text 0x76); it was missing from the transcription.
     Font_DrawText(0, CFrontend::GetTextString(0x76),
                   (int)(g_pGraphics->resX * 0x7a) / 0x280,
@@ -5688,14 +5688,14 @@ void StageObject_DrawPauseStageDataPanel(Menu *pMenu)
                               + (int)(g_pGraphics->resY * 0xc6) / 0x1e0);
             rect[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
             rect[3] = 1;
-            Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, rect, pColour, 1);
         }
         rect[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
         rect[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0
                           + (int)(g_pGraphics->resY * 0xea) / 0x1e0);
         rect[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
         rect[3] = 1;
-        Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, rect, pColour, 1);
     }
 }
 
@@ -5957,7 +5957,7 @@ void StageObject_DrawTypingTextFraction(char *text, int fraction, unsigned int f
 
 // Fills a rectangle whose width is scaled by `scale` (16.16).
 // FUNCTION: CMR2 0x00475970
-int StageObject_FillWidthScaledRectangle(int scale, int unused, short *pRect, BYTE *pColour, int layer)
+int StageObject_FillWidthScaledRectangle(int scale, BYTE *unused, short *pRect, BYTE *pColour, int layer)
 {
     short rect[4];
 
@@ -15725,7 +15725,7 @@ int InRaceMenu_GetUpArrowTexture(void);
 int InRaceMenu_GetDownArrowTexture(void);
 void StageObject_DrawTypingTextFraction(char *text, int fraction, unsigned int font, int x, unsigned int y, int *pColour,
                   unsigned int flags);
-int StageObject_FillWidthScaledRectangle(int scale, int unused, short *pRect, BYTE *pColour, int layer);
+int StageObject_FillWidthScaledRectangle(int scale, BYTE *unused, short *pRect, BYTE *pColour, int layer);
 
 // Draws the in-race pause menu: for every entry the background of the selected
 // row, its label (the stage name with the round number in the knockout modes,
@@ -15809,13 +15809,13 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
                 rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0 + y0);
                 rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
                 rect2[3] = 1;
-                StageObject_FillWidthScaledRectangle(g_unk0x0058ce58, (int)g_pGraphics + 0x150, rect2, pColour, 1);
+                StageObject_FillWidthScaledRectangle(g_unk0x0058ce58, &g_pGraphics->field309_0x150, rect2, pColour, 1);
             } else {
                 rect2[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
                 rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0 + y0);
                 rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
                 rect2[3] = 1;
-                Sprite_FillRect((int)g_pGraphics + 0x150, rect2, pColour, 1);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, rect2, pColour, 1);
             }
         }
         rect2[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
@@ -15840,9 +15840,9 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
         rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
         rect2[3] = 1;
         if (!(Graphics_IsRegisteredTimerRunning(&g_unk0x0058cf60)))
-            Sprite_FillRect((int)g_pGraphics + 0x150, rect2, pColour, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, rect2, pColour, 2);
         else
-            StageObject_FillWidthScaledRectangle(g_unk0x0058ce58, (int)g_pGraphics + 0x150, rect2, pColour, 2);
+            StageObject_FillWidthScaledRectangle(g_unk0x0058ce58, &g_pGraphics->field309_0x150, rect2, pColour, 2);
     }
     Font_SetBlendMode(2);
     Knockout_DrawCurrentRoundBracket();

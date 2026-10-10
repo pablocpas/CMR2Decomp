@@ -817,5 +817,11 @@
       "0x45b580",
       "0x45c820"
     ]
+  },
+  "differential_sprite_rectangle_context.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x475970"
+    ]
   }
 }

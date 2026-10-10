@@ -1,0 +1,1 @@
+960 width wrapper cases: independent signed fixed-point model, context/rect/colour/layer trace, return/input/global/ABI guards; Sprite_FillRect controlled

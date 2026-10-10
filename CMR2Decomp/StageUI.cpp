@@ -73,7 +73,7 @@ void FormatGapToLeader(int iLeaderGap, unsigned int fontIndex, unsigned char par
                   (short)((int)g_pGraphics->resY / 0xf0) - 2;
         rect[3] = (short)((int)g_pGraphics->resY / 0x140) +
                   (short)Font_GetTextHeight(fontIndex, text) + 4;
-        Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)pColour, 2);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, rect, (BYTE *)pColour, 2);
     }
     Font_DrawText(fontIndex, text, px, (int)g_pGraphics->resY * y >> 0x10,
                   (int *)g_gapTextColour, flags);
@@ -625,7 +625,7 @@ void StageUI_DrawChampionshipBar(void)
     pState = RallyData_GetChampionshipState();
     flags = *pState;
     x = (int)(g_pGraphics->resX * 0x1e) / 0x280;
-    Sprite_FillRect((int)g_pGraphics + 0x150, screen, g_barBackColour, 4);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, screen, g_barBackColour, 4);
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x7c));
     CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
     Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 0x39) / 0x1e0,
@@ -633,7 +633,7 @@ void StageUI_DrawChampionshipBar(void)
     width = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
     x = (int)(g_pGraphics->resX * 5) / 0x280 + x + width;
     bar[0] = (short)x;
-    Sprite_FillRect((int)g_pGraphics + 0x150, bar, g_barTextColour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, bar, g_barTextColour, 1);
     x = x + 2 + (int)(g_pGraphics->resX * 5) / 0x280;
 
     switch ((flags >> 3) & 7) {
@@ -665,7 +665,7 @@ void StageUI_DrawChampionshipBar(void)
             bar[2] = 2;
             bar[1] = (short)((int)(g_pGraphics->resY * 0x1b) / 0x1e0);
             bar[3] = (short)((int)(g_pGraphics->resY * 0x29) / 0x1e0);
-            Sprite_FillRect((int)g_pGraphics + 0x150, bar, g_barTextColour, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, bar, g_barTextColour, 1);
             if (g_unk0x0058cf7c == 3 || (*pState & 0x400000) != 0) {
                 round = (*pState >> 0xc) & 0xf;
             } else {
@@ -682,7 +682,7 @@ void StageUI_DrawChampionshipBar(void)
         bar[2] = 2;
         bar[1] = (short)((int)(g_pGraphics->resY * 0x1b) / 0x1e0);
         bar[3] = (short)((int)(g_pGraphics->resY * 0x29) / 0x1e0);
-        Sprite_FillRect((int)g_pGraphics + 0x150, bar, g_barTextColour, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, bar, g_barTextColour, 1);
         Font_DrawText(2, CFrontend::GetTextString(0x7b), x + 2 + (int)(g_pGraphics->resX * 5) / 0x280,
                       (int)(g_pGraphics->resY * 0x39) / 0x1e0, (int *)g_barTextColour, 0x11);
     }
@@ -881,7 +881,7 @@ void StageUI_DrawStageGrid(int unused, int set)
     rect[2] = cellW * 0x14;
     rect[3] = cellH * 0x15 - 1;
     rect[0] = left + cellW * -9;
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_gridBackColour, 3);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, g_gridBackColour, 3);
 
     rect[2] = (short)((int)(g_pGraphics->resX * 4) / 0x280);
     i = 8;
@@ -899,7 +899,7 @@ void StageUI_DrawStageGrid(int unused, int set)
                 if (*pCell != 2) {
                     pColour = g_gridColour1;
                 }
-                Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 3);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, rect, pColour, 3);
             }
             rect[1] = rect[1] + cellH;
             pCell = pCell + 0x21;

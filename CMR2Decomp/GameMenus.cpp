@@ -551,7 +551,7 @@ void GameMenu_DrawPauseHeader(Menu *pMenu)
     g_menuRect[2] = 2;
     g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0x29) / 480);
     x += 2 + (int)(g_pGraphics->resX * 8) / 640;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
     if (Race_IsMultiplayerRecordMode10()) {
         if (CGameInfo::GetConfiguredGameMode() == 4)
             Font_DrawText(2, Knockout_GetCarNameForSide(g_pKnockoutMatch, View_GetActiveCameraFlags(1)), x,
@@ -1033,7 +1033,7 @@ void GameMenu_DrawScrollingStageSplits(Menu *pMenu)
             g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
             g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
             g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuRowFillColour, 2);
         } else {
             strcpy(CFrontend::m_stringDest, (char *)CFrontend::GetModeSpecificCountryText(RallyData_GetDriverSelectGridSlot(id)));
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
@@ -1123,7 +1123,7 @@ void GameMenu_DrawStageTimeStandings(Menu *pMenu)
                 g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
                 g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280 -
                                         (int)(g_pGraphics->resX * 0x20) / 0x280);
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuRowFillColour, 2);
             } else {
                 strcpy(CFrontend::m_stringDest,
                        (char *)CFrontend::GetModeSpecificCountryText(NetPlayers_GetStandingCar(i, 0)));
@@ -1236,7 +1236,7 @@ void GameMenu_DrawScrollingChampionshipPoints(Menu *pMenu)
             g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
             g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
             g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuRowFillColour, 2);
         } else {
             if (pos <= 5)
                 GameMenus_DrawRowHighlight(row);
@@ -1331,7 +1331,7 @@ void GameMenu_DrawScrollingRallyTimes(Menu *pMenu)
             g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
             g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
             g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuRowFillColour, 2);
         } else {
             if (pos <= 5)
                 GameMenus_DrawRowHighlight(row);
@@ -1408,7 +1408,7 @@ void GameMenu_DrawChampionshipTimeStandings(Menu *pMenu)
                 g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
                 g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280 -
                                         (int)(g_pGraphics->resX * 0x20) / 0x280);
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuRowFillColour, 2);
             } else {
                 strcpy(CFrontend::m_stringDest,
                        (char *)CFrontend::GetModeSpecificCountryText(NetPlayers_GetStandingCar(i, 1)));
@@ -1592,7 +1592,7 @@ void GameMenu_DrawScrollingStagePoints(Menu *pMenu)
             g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
             g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
             g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuRowFillColour, 2);
         } else {
             strcpy(CFrontend::m_stringDest, (char *)CFrontend::GetModeSpecificCountryText(RallyData_GetDriverSelectGridSlot(id)));
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
@@ -1766,7 +1766,7 @@ void GameMenu_DrawStageClassification(Menu *pMenu)
             g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
             g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
             g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuRowFillColour, 2);
         } else {
             strcpy(CFrontend::m_stringDest, (char *)CFrontend::GetModeSpecificCountryText(RallyData_GetDriverSelectGridSlot(car)));
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
@@ -1982,7 +1982,7 @@ void GameMenu_DrawRallyPointsTable(Menu *pMenu)
             g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
             g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
             g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuRowFillColour, 2);
         } else {
             strcpy(CFrontend::m_stringDest, (char *)CFrontend::GetModeSpecificCountryText(RallyData_GetDriverSelectGridSlot(id)));
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
@@ -2040,7 +2040,7 @@ void GameMenu_DrawRallyResultsBanner(Menu *pMenu)
             g_menuRect[1] = (short)(resY * 242 / 480 + resY * 4 / 480 - lineHeight);
             g_menuRect[2] = 2;
             g_menuRect[3] = (short)((int)(*pResY * 41) / 480);
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
             x += (int)(g_pGraphics->resX * 8) / 640;
             strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(CGameInfo::GetConfiguredDifficulty() + 0x8e));
             Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 242) / 480,
@@ -2048,7 +2048,7 @@ void GameMenu_DrawRallyResultsBanner(Menu *pMenu)
             x += Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
             x += (int)(g_pGraphics->resX * 8) / 640;
             g_menuRect[0] = (short)x;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
             x += (int)(g_pGraphics->resX * 8) / 640;
             Font_DrawText(2, CFrontend::GetTextString(0x49), x, (int)(g_pGraphics->resY * 242) / 480,
                           (int *)g_menuFrameColour, 0x11);
@@ -2506,7 +2506,7 @@ void GameMenu_DrawStageStartList(Menu *pMenu)
                 g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
                 g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280 -
                                         (int)(g_pGraphics->resX * 0x20) / 0x280);
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuRowFillColour, 2);
             } else {
                 strcpy(CFrontend::m_stringDest,
                        (char *)CFrontend::GetModeSpecificCountryText(NetPlayers_GetStandingCar(i, 1)));
@@ -2551,7 +2551,7 @@ Menu *g_pHeaderMenu;
     g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x25) / 0x1e0);                          \
     g_menuRect[2] = 2;                                                                         \
     g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0x29) / 0x1e0);                          \
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);                \
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);                \
     x = x + (int)(g_pGraphics->resX * 8) / 0x280 + 2;
 
 // Breadcrumb of the in-game screens: the menu title (when it is the one that
@@ -2646,7 +2646,7 @@ void GameMenu_DrawChampionshipDriverStandings(Menu *pMenu)
                 g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
                 g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280 -
                                         (int)(g_pGraphics->resX * 0x20) / 0x280);
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuRowFillColour, 2);
             } else {
                 strcpy(CFrontend::m_stringDest,
                        (char *)CFrontend::GetModeSpecificCountryText(NetPlayers_GetStandingCar(i, 0)));
@@ -2699,7 +2699,7 @@ void GameMenus_DrawRowFrame(short row, short yOffset, char compact)
     g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280) -
                     (short)((int)(g_pGraphics->resX * 0x20) / 0x280) - 4;
     g_menuRect[3] = 2;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
 
     g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280) + 2;
     g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) - (short)g_unk0x00540c60 +
@@ -2707,7 +2707,7 @@ void GameMenus_DrawRowFrame(short row, short yOffset, char compact)
     g_menuRect[3] = 2;
     g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280) -
                     (short)((int)(g_pGraphics->resX * 0x20) / 0x280) - 4;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
 
     g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280) - 2;
     g_menuRect[2] = 2;
@@ -2715,7 +2715,7 @@ void GameMenus_DrawRowFrame(short row, short yOffset, char compact)
                     row + (short)g_unk0x0053e698 + yOffset;
     g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) -
                     (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0);
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
 
     g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
     g_menuRect[2] = 2;
@@ -2723,7 +2723,7 @@ void GameMenus_DrawRowFrame(short row, short yOffset, char compact)
                     row + (short)g_unk0x0053e698 + yOffset;
     g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) -
                     (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0);
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
 }
 
 // Draws a row of strings at (x, y), separated by a thin vertical bar.
@@ -2748,7 +2748,7 @@ void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
         }
         width = (int)(g_pGraphics->resX * 8) / 0x280 + x + Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
         g_menuRect[0] = (short)width;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
         x = width + (int)(g_pGraphics->resX * 8) / 0x280 + 2;
     }
 }
@@ -2908,16 +2908,16 @@ void GameMenu_DrawNetworkTimeTrialResults(Menu *pMenu)
         colour[3] = 0x10;
         pColour = g_menuTextColour;
     }
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, colour, 1);
     rect[1] += (short)((int)(g_pGraphics->resY * 10) / 0x1e0) + rect[3];
     rect[3] = (short)((int)(g_pGraphics->resY * 0x1e) / 0x1e0);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, colour, 1);
     rect[0] = (short)((int)(g_pGraphics->resX * 0x1b3) / 0x280 +
                       (int)(g_pGraphics->resX * 0x6c) / 0x280 - (int)(g_pGraphics->resX * 0x46) / 0x280);
     rect[1] = (short)((int)(g_pGraphics->resY * 0x55) / 0x1e0);
     rect[2] = (short)((int)(g_pGraphics->resX * 0x82) / 0x280);
     rect[3] = (short)((int)(g_pGraphics->resY * 0x10e) / 0x1e0);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, colour, 1);
     for (i = 4, y = 0x5a; y < 0xbe; y += 0x14, i--) {
         Font_DrawText(0, NetworkChat_GetLine(i),
                       (int)(g_pGraphics->resX * 0x76) / 0x280 - (int)(g_pGraphics->resX * 0x46) / 0x280,
@@ -3597,7 +3597,7 @@ void GameMenu_DrawStageEndBanner(void)
         g_menuRect[1] = (short)(resY * 242 / 480 + resY * 4 / 480 - lineHeight);
         g_menuRect[2] = 2;
         g_menuRect[3] = (short)((int)(*pResY * 41) / 480);
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
         x += (int)(g_pGraphics->resX * 8) / 640;
         sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x93));
         Font_DrawText(2, CFrontend::m_stringDest, x, y, (int *)g_menuFrameColour, 0x11);
@@ -3646,7 +3646,7 @@ void GameMenu_ClearMenuListWithHighlight(void)
     g_menuRect[2] = (short)g_pGraphics->resX;
     g_menuRect[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, (BYTE *)&g_menuHighlightColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, (BYTE *)&g_menuHighlightColour, 2);
 }
 
 // Fills the row the cursor is on with the highlight colour.
@@ -3665,7 +3665,7 @@ void GameMenus_DrawRowHighlight(short row)
     g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
     g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280) -
                     (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, (BYTE *)&colour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, (BYTE *)&colour, 2);
 }
 
 // Draws the thin separator under one menu row.
@@ -3682,7 +3682,7 @@ void GameMenus_DrawRowSeparator(short row)
                     (short)g_unk0x00540c60;
     g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x240) / 0x280);
     g_menuRect[3] = 1;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
 }
 
 // GLOBAL: CMR2 0x00519f98

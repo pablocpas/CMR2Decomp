@@ -4771,22 +4771,22 @@ void DrawRectOutline(short *pRect, BYTE *pColour)
     edge[1] = pRect[1];
     edge[2] = pRect[2];
     edge[3] = 1;
-    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, edge, pColour, 2);
     edge[0] = pRect[2] + pRect[0];
     edge[1] = pRect[1];
     edge[2] = 1;
     edge[3] = pRect[3] + 1;
-    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, edge, pColour, 2);
     edge[0] = pRect[0];
     edge[1] = pRect[3] + pRect[1];
     edge[2] = pRect[2];
     edge[3] = 1;
-    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, edge, pColour, 2);
     edge[0] = pRect[0];
     edge[1] = pRect[1];
     edge[2] = 1;
     edge[3] = pRect[3];
-    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, edge, pColour, 2);
 }
 
 void View_SetShake(int view, int start);
@@ -4856,9 +4856,9 @@ void InRaceMenu_DrawHeaderBar(void)
     rect[2] = 1;
     rect[1] = (short)((int)(g_pGraphics->resY * 0x25) / 0x1e0);
     rect[3] = (short)((int)(g_pGraphics->resY * 0x2d) / 0x1e0);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x00516074, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, (BYTE *)&g_unk0x00516074, 2);
     rect[0] = rect[0] + 1;
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x00516084, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, (BYTE *)&g_unk0x00516084, 2);
     Font_DrawText(2, CFrontend::GetTextString(0x18), y + (int)(g_pGraphics->resY * 10) / 0x1e0,
                   (int)(g_pGraphics->resY * 0x45) / 0x1e0, &g_unk0x00516074, 0x11);
 }
@@ -4880,7 +4880,7 @@ void InRaceMenu_DrawOptionList(Menu *pMenu)
     rect[2] = (short)g_pGraphics->resX;
     rect[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
     InRaceMenu_DrawHeaderBar();
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
@@ -4941,7 +4941,7 @@ void InRaceMenu_DrawMenuRows(Menu *pMenu)
     rect[2] = (short)g_pGraphics->resX;
     rect[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
     InRaceMenu_DrawHeaderBar();
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
@@ -5004,7 +5004,7 @@ void InRaceMenu_DrawNetworkPlayerList(Menu *pMenu)
     g_unk0x0052ad58[2] = (short)g_pGraphics->resX;
     g_unk0x0052ad58[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0052ad58, (BYTE *)&g_unk0x0051608c, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x0052ad58, (BYTE *)&g_unk0x0051608c, 2);
     InRaceMenu_DrawHeaderBar();
     g_unk0x0052ad58[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     g_unk0x0052ad58[2] = *(short *)(g_unk0x0052aa60 + 0x120);
@@ -5086,7 +5086,7 @@ void InRaceMenu_DrawPlayerClassRows(Menu *pMenu)
     rect[2] = (short)g_pGraphics->resX;
     rect[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
     InRaceMenu_DrawHeaderBar();
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
@@ -5487,16 +5487,16 @@ void OptionMenu_DrawBoxEdges(short *pRect, BYTE *pColour)
     edge[2] = pRect[2];
     edge[3] = 1;
     edge[1] = pRect[1];
-    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 3);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, edge, pColour, 3);
     edge[1] = pRect[3] + pRect[1] - 1;
-    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 3);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, edge, pColour, 3);
     edge[1] = pRect[1];
     edge[3] = pRect[3];
     edge[2] = 1;
     edge[0] = pRect[0];
-    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 3);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, edge, pColour, 3);
     edge[0] = pRect[2] + pRect[0] - 1;
-    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 3);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, edge, pColour, 3);
 }
 
 // Returns the byte at column type of the 7-byte option record index,
@@ -6485,7 +6485,7 @@ void OptionMenu_DrawThreeColourGradientStrips(short *pRect, int unused, unsigned
         else if (b < 0)
             b = 0;
         colour[2] = b;
-        Sprite_FillRect((int)g_pGraphics + 0x150, strip, colour, 3);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, strip, colour, 3);
         strip[0] += strip[2];
     }
 }
@@ -8758,7 +8758,7 @@ void InRaceMenu_DrawLabelAndValueRows(Menu *pMenu)
     y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0;
     g_unk0x0052ad58[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0052ad58, (BYTE *)&g_unk0x0051608c, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x0052ad58, (BYTE *)&g_unk0x0051608c, 2);
     InRaceMenu_DrawHeaderBar();
     g_unk0x0052ad58[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     g_unk0x0052ad58[2] = *(short *)(g_unk0x0052aa60 + 0x120);
@@ -8861,7 +8861,7 @@ void InRaceMenu_DrawSliderRows(Menu *pMenu)
     Font_SetBlendMode(2);
     *(DWORD *)fade = g_unk0x0051608c;
     fade[3] = 0x73;
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, fade, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, fade, 2);
     InRaceMenu_DrawHeaderBar();
     maxWidth = 0;
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
@@ -8916,7 +8916,7 @@ void InRaceMenu_DrawSliderRows(Menu *pMenu)
                                  - (int)(g_pGraphics->resY * 0xc) / 0x1e0);
                 bar[2] = (short)((int)(g_pGraphics->resX * 0x17) / 0x280);
                 bar[3] = (short)((int)(g_pGraphics->resY * 0xe) / 0x1e0);
-                Sprite_FillRect((int)g_pGraphics + 0x150, bar, (BYTE *)pColour, 2);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, bar, (BYTE *)pColour, 2);
                 break;
             default:
                 y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
@@ -8969,7 +8969,7 @@ void InRaceMenu_DrawCarSetupChoices(Menu *pMenu)
     rect[2] = (short)g_pGraphics->resX;
     rect[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 4);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, (BYTE *)&g_unk0x0051608c, 4);
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
     rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
     rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
@@ -9132,10 +9132,10 @@ void OptionMenu_DrawSeparators(int param1)
         g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0) - g_controlsLine[1];
         // Drawn first: the bounds below read the line after Sprite_FillRect.
         if (i % 2 == 0) {
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine,
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_controlsLine,
                             (BYTE *)&g_unk0x00526ffc, 4);
         } else {
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine,
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_controlsLine,
                             (BYTE *)&g_unk0x00526ffc, 1);
         }
         if (i == 0) {
@@ -9170,7 +9170,7 @@ void OptionMenu_DrawSeparators(int param1)
         g_unk0x0082ace8.pad[0] = (short)minX;
         g_unk0x0082ace8.pad[1] = (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0);
         g_unk0x0082ace8.pad[2] = (short)(maxX - minX + 1);
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0082ace8.pad, (BYTE *)&g_unk0x00526ffc, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x0082ace8.pad, (BYTE *)&g_unk0x00526ffc, 1);
     }
     centre = minX + (maxX - minX) / 2;
     g_controlsLine[0] = (short)centre;
@@ -9178,16 +9178,16 @@ void OptionMenu_DrawSeparators(int param1)
     if (centre <= (int)(g_pGraphics->resX * 0xe4) / 0x280) {
         g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0xff) / 0x1e0) -
                             (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0);
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, 1);
         return;
     }
     g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0) -
                         (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0);
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, 1);
     g_unk0x0082ace8.pad[0] = (short)((int)(g_pGraphics->resX * 0xe5) / 0x280);
     g_unk0x0082ace8.pad[1] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0);
     g_unk0x0082ace8.pad[2] = (short)(centre - g_unk0x0082ace8.pad[0] + 1);
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0082ace8.pad, (BYTE *)&g_unk0x00526ffc, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x0082ace8.pad, (BYTE *)&g_unk0x00526ffc, 1);
 }
 
 // 0x50-byte entry of 0x82c6c8 as seen by the option panel animation: the source
@@ -9428,7 +9428,7 @@ void OptionMenu_DrawGameInfoLayout(int param_1, int param_2)
     g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0);
     if (!(char)param_2)
         pColour = &g_unk0x00527380[2];
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x005273b8, 3);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x005273b8, 3);
     if ((char)param_2 != '\0' && (CMain::GetFrameDelta() / 0x14 & 1) == 0) {
         g_unk0x00831660[0] -= 3;
         g_unk0x00831660[2] += 6;
@@ -9463,7 +9463,7 @@ void OptionMenu_DrawGameInfoLayout(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)pColour, 3);
         g_unk0x00831660[2] = 1;
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x1a / 0x1e0);
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x16f / 0x1e0);
@@ -9501,7 +9501,7 @@ void OptionMenu_DrawGameInfoLayout(int param_1, int param_2)
                 else
                     x -= Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest) / 2;
                 g_unk0x00831660[0] = (short)((centre + x) / 2);
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660,
                                 (BYTE *)&g_unk0x00527380[2], 3);
             }
         }
@@ -9526,7 +9526,7 @@ void OptionMenu_DrawGameInfoLayout(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)pColour, 3);
         Font_DrawText(1, CFrontend::GetTextString(0xc9),
                       (int)g_pGraphics->resX * 0x1c / 0x280,
                       (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
@@ -9548,7 +9548,7 @@ void OptionMenu_DrawGameInfoLayout(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)pColour, 3);
         Font_DrawText(1, CFrontend::GetTextString(0xcb),
                       (int)g_pGraphics->resX * 0x1c / 0x280,
                       (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
@@ -9570,7 +9570,7 @@ void OptionMenu_DrawGameInfoLayout(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)pColour, 3);
         Font_DrawText(1, CFrontend::GetTextString(0xce),
                       (int)g_pGraphics->resX * 0x1c / 0x280,
                       (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
@@ -9592,7 +9592,7 @@ void OptionMenu_DrawGameInfoLayout(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)pColour, 3);
         Font_DrawText(1, CFrontend::GetTextString(0xce),
                       (int)g_pGraphics->resX * 0x1c / 0x280,
                       (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
@@ -9614,7 +9614,7 @@ void OptionMenu_DrawGameInfoLayout(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)pColour, 3);
         Font_DrawText(1, CFrontend::GetTextString(0xd2),
                       (int)g_pGraphics->resX * 0x1c / 0x280,
                       (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
@@ -9636,7 +9636,7 @@ void OptionMenu_DrawGameInfoLayout(int param_1, int param_2)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)pColour, 3);
         Font_DrawText(1, CFrontend::GetTextString(0xcf),
                       (int)g_pGraphics->resX * 0x1c / 0x280,
                       (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
@@ -9775,9 +9775,9 @@ void OptionMenu_DrawValueSelectionRows(unsigned int param_1)
     g_unk0x00831660[3] = 1;
     OptionMenu_EaseRecordBar(0, g_unk0x00831660, 1, 1);
     if (sel == 0)
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&colour, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&colour, 1);
     else
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
     for (i = 0; i < (int)*(signed char *)(param_1 + 6); i++) {
         if (g_unk0x0083166c != 0) {
             if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::IsTextureWidthSupported(0x400) ||
@@ -9811,11 +9811,11 @@ void OptionMenu_DrawValueSelectionRows(unsigned int param_1)
             (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1) + yBase);
         if (i == sel || i + 1 == sel) {
             if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
             else
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&colour, 1);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&colour, 1);
         } else {
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
         }
     }
 }
@@ -9942,13 +9942,13 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
     g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0xff / 0x1e0);
     g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xc9 / 0x280);
     g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x5d / 0x1e0);
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, g_colour0x005273b0, 3);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, g_colour0x005273b0, 3);
     g_unk0x00831660[0] = g_unk0x00831660[0] + g_unk0x00831660[2];
     g_unk0x00831660[3] = g_unk0x00831660[3] + g_unk0x00831660[1];
     g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x12a / 0x1e0);
     g_unk0x00831660[3] = g_unk0x00831660[3] - g_unk0x00831660[1];
     g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x7e / 0x280);
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, g_colour0x005273b0 + 4, 3);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, g_colour0x005273b0 + 4, 3);
     x = g_unk0x00831660[2] / 2 + g_unk0x00831660[0];
     y = (int)g_pGraphics->resY * 0x124 / 0x1e0;
     if (param_1 != 0)
@@ -10016,7 +10016,7 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((CMain::GetFrameDelta() / 0x14 & 1) == 0)
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660,
                             (BYTE *)&g_unk0x0052737c, 3);
         w = OptionMenu_GetColumnWeight(idx);
         t = OptionMenu_GetRecordGroupWeight(w);
@@ -10228,9 +10228,9 @@ void OptionMenu_DrawResultsOptions(int param_1)
         g_unk0x00831660[0] = (short)x;
         if (i != (signed char)OptionMenu_GetControlSetupMenu()[6] - 1) {
             if (a == i || b == i + 1)
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&colour, 3);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&colour, 3);
             else
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660,
                                 (BYTE *)(g_unk0x00527380 + 2), 3);
         }
         x += 2 + Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
@@ -10244,7 +10244,7 @@ void OptionMenu_DrawResultsOptions(int param_1)
     x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
     x += Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
     g_unk0x00831660[0] = (short)x;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)(g_unk0x00527380 + 2), 3);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)(g_unk0x00527380 + 2), 3);
     x += 2 + Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
     Font_DrawText(0, (char *)RallyData_GetRecord((BYTE)CGameInfo::GetActiveOptionSlot()), x,
                   (int)g_pGraphics->resY * 0x2c / 0x1e0, g_unk0x00527380, 0x11);
@@ -10339,7 +10339,7 @@ void OptionMenu_DrawStageSummaryPanel(int param_1, int param_2)
         right = Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest) + x;
         right += Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
         bar[0] = (short)right;
-        Sprite_FillRect((int)g_pGraphics + 0x150, bar, (BYTE *)(g_unk0x005297ac + 3), 3);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, bar, (BYTE *)(g_unk0x005297ac + 3), 3);
         right += 2 + Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
         if (param_2 == 10)
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x13c),

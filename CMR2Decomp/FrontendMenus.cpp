@@ -1236,9 +1236,9 @@ void FrontendControls_DrawDeviceList(Menu *pMenu)
         pColour = g_colourText0x0052496c;
         pShadow = g_colourShadowText0x00524978;
     }
-    Sprite_FillRect((int)g_pGraphics + 0x150, line, pShadow, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, line, pShadow, 1);
     line[1]++;
-    Sprite_FillRect((int)g_pGraphics + 0x150, line, pColour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, line, pColour, 1);
     for (i = 0; i < pMenu->itemCount; i++) {
         pItem = &pMenu->items[i];
         if (pItem->visible) {
@@ -1267,9 +1267,9 @@ void FrontendControls_DrawDeviceList(Menu *pMenu)
                 pLineShadow = g_colourShadowText0x00524978;
             }
             line[1] = (int)(g_pGraphics->resY * 36) / 480 * (row + 1) + y0;
-            Sprite_FillRect((int)g_pGraphics + 0x150, line, pLineShadow, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, line, pLineShadow, 1);
             line[1]++;
-            Sprite_FillRect((int)g_pGraphics + 0x150, line, pLineColour, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, line, pLineColour, 1);
             row++;
         }
     }
@@ -1322,9 +1322,9 @@ void FrontendControls_DrawDeviceBindings(Menu *pMenu)
         pColour = g_colourDim0x00524970;
         pShadow = g_colourShadowDim0x0052497c;
     }
-    Sprite_FillRect((int)g_pGraphics + 0x150, line, pShadow, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, line, pShadow, 1);
     line[1]++;
-    Sprite_FillRect((int)g_pGraphics + 0x150, line, pColour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, line, pColour, 1);
     row = 0;
     for (i = 0; i < pMenu->itemCount; i++) {
         pItem = &pMenu->items[i];
@@ -1359,9 +1359,9 @@ void FrontendControls_DrawDeviceBindings(Menu *pMenu)
                 pLineShadow = g_colourShadowText0x00524978;
             }
             line[1] = (int)(g_pGraphics->resY * 36) / 480 * (row + 1) + y0;
-            Sprite_FillRect((int)g_pGraphics + 0x150, line, pLineShadow, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, line, pLineShadow, 1);
             line[1]++;
-            Sprite_FillRect((int)g_pGraphics + 0x150, line, pLineColour, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, line, pLineColour, 1);
             row++;
         }
     }
@@ -1448,9 +1448,9 @@ void FrontendControls_DrawCalibration(Menu *pMenu)
     g_controlsLine[1] = y0;
     g_controlsLine[2] = (int)(g_pGraphics->resX * 282) / 640;
     g_controlsLine[3] = 1;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pShadow, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_controlsLine, pShadow, 1);
     g_controlsLine[1]++;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pColour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_controlsLine, pColour, 1);
     maxWidth = 0;
     for (i = 0; i < pMenu->itemCount; i++) {
         sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x77), i);
@@ -1489,9 +1489,9 @@ void FrontendControls_DrawCalibration(Menu *pMenu)
             pShadow = g_colourShadowText0x00524978;
         }
         g_controlsLine[1] = (short)((int)(g_pGraphics->resY * 36) / 480) * ((short)i + 1) + y0;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pShadow, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_controlsLine, pShadow, 1);
         g_controlsLine[1]++;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pColour, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_controlsLine, pColour, 1);
     }
     if (FrontendControls_GetCalibrationState() != 0) {
         Font_DrawText(1, CFrontend::GetTextString(0x207), (int)(g_pGraphics->resX * 24) / 640,
@@ -1572,9 +1572,9 @@ void FrontendControls_DrawPadSettings(Menu *pMenu)
     g_controlsLine[1] = y0;
     g_controlsLine[2] = (int)(g_pGraphics->resX * 282) / 640;
     g_controlsLine[3] = 1;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pShadow, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_controlsLine, pShadow, 1);
     g_controlsLine[1]++;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pColour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_controlsLine, pColour, 1);
     for (i = 0; i < pMenu->itemCount; i++) {
         pItem = &pMenu->items[i];
         icon[1] = (int)(g_pGraphics->resY * 2) / 480 + (int)(g_pGraphics->resY * 18) / 480 + y0
@@ -1611,9 +1611,9 @@ void FrontendControls_DrawPadSettings(Menu *pMenu)
             pShadow = g_colourShadowText0x00524978;
         }
         g_controlsLine[1] = (short)((int)(g_pGraphics->resY * 36) / 480) * ((short)i + 1) + y0;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pShadow, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_controlsLine, pShadow, 1);
         g_controlsLine[1]++;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pColour, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_controlsLine, pColour, 1);
     }
     FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
@@ -1662,9 +1662,9 @@ void FrontendControls_DrawDeviceConfiguration(Menu *pMenu)
         pShadow = g_colourShadowText0x00524978;
     }
     line[1] = y0;
-    Sprite_FillRect((int)g_pGraphics + 0x150, line, pShadow, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, line, pShadow, 1);
     line[1]++;
-    Sprite_FillRect((int)g_pGraphics + 0x150, line, pColour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, line, pColour, 1);
     for (i = 0; i < pMenu->itemCount; i++) {
         pItem = &pMenu->items[i];
         icon[1] = (int)(g_pGraphics->resY * 20) / 480 + y0 + (int)(g_pGraphics->resY * 36) / 480 * (short)i
@@ -1714,9 +1714,9 @@ void FrontendControls_DrawDeviceConfiguration(Menu *pMenu)
             pShadow = g_colourShadowText0x00524978;
         }
         line[1] = (int)(g_pGraphics->resY * 36) / 480 * ((short)i + 1) + y0;
-        Sprite_FillRect((int)g_pGraphics + 0x150, line, pShadow, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, line, pShadow, 1);
         line[1]++;
-        Sprite_FillRect((int)g_pGraphics + 0x150, line, pColour, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, line, pColour, 1);
     }
     FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
@@ -1740,14 +1740,14 @@ void FrontendControls_DrawAxisCalibrationBar(short x, short y, DWORD colour, Axi
     bar[1] = y - (short)((int)(g_pGraphics->resY * 10) / 480 / 2);
     bar[2] = (int)(g_pGraphics->resX * 200) / 640;
     bar[3] = (int)(g_pGraphics->resY * 10) / 480;
-    Sprite_FillRect((int)g_pGraphics + 0x150, bar, (BYTE *)&colour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, bar, (BYTE *)&colour, 1);
     if (pAxis != NULL) {
         half = (short)(FrontendControls_MultiplyScaledPercent(pAxis->deadzone, (int)(g_pGraphics->resX * 200) / 640) / 2);
         deadzone[0] = x - half;
         deadzone[2] = 2;
         deadzone[1] = y - (short)((int)(g_pGraphics->resY * 10) / 480 / 2) - 2;
         deadzone[3] = (int)(g_pGraphics->resY * 10) / 480 + 4;
-        Sprite_FillRect((int)g_pGraphics + 0x150, deadzone, g_colourWhite0x00524968, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, deadzone, g_colourWhite0x00524968, 1);
         v = FrontendControls_MultiplyScaledPercent(pAxis->saturation, (int)(g_pGraphics->resX * 200) / 640);
         saturation[2] = deadzone[2];
         saturation[1] = deadzone[1];
@@ -1758,11 +1758,11 @@ void FrontendControls_DrawAxisCalibrationBar(short x, short y, DWORD colour, Axi
         position[0] = (short)((int)(g_pGraphics->resX * 200) / 640 * pAxis->position / 2 / 0x10000) + x;
         position[1] = deadzone[1];
         position[2] = deadzone[2];
-        Sprite_FillRect((int)g_pGraphics + 0x150, deadzone, g_colourWhite0x00524968, 1);
-        Sprite_FillRect((int)g_pGraphics + 0x150, saturation, g_colourWhite0x00524968, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, deadzone, g_colourWhite0x00524968, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, saturation, g_colourWhite0x00524968, 1);
         saturation[0] = (short)(v / 2) + x;
-        Sprite_FillRect((int)g_pGraphics + 0x150, saturation, g_colourWhite0x00524968, 1);
-        Sprite_FillRect((int)g_pGraphics + 0x150, position, g_colourWhite0x00524968, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, saturation, g_colourWhite0x00524968, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, position, g_colourWhite0x00524968, 1);
     }
 }
 

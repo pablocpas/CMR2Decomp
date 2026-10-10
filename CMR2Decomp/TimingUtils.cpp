@@ -89,8 +89,8 @@ void FrontendDraw_DrawStageTimes(int unused)
     rectB[2] = (short)((int)(g_pGraphics->resX * 0x82) / 0x280);
     rectB[3] = (short)((int)(g_pGraphics->resY * 0x118) / 0x1e0);
 
-    Sprite_FillRect((int)g_pGraphics + 0x150, rectA, colour, 1);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rectB, colour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rectA, colour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rectB, colour, 1);
 
     pText[0] = CFrontend::GetTextString(0x12);
     if (CGameInfo::GetConfiguredGameMode() == 10)

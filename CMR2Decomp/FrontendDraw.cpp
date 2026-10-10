@@ -59,7 +59,7 @@ int FrontendDraw_BreadcrumbItem(int x, int y, BYTE *pColour, char last, char *te
         g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 38) / 480 - (int)(g_pGraphics->resY * 15) / 480;
         g_unk0x008189a8[2] = 1;
         g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 23) / 480;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
         next += (int)(g_pGraphics->resX * 5) / 640;
     }
     return next;
@@ -291,9 +291,9 @@ void FrontendDraw_Carousel(Menu *pMenu, char active, char *help)
         pShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = p->widths[pMenu->cursor] + p->spacing / 2 + x0;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pColour, 1);
     g_unk0x008189a8[0]++;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pShadow, 1);
 
     i = pMenu->cursor;
     x = p->widths[i] + x0 + p->spacing;
@@ -313,9 +313,9 @@ void FrontendDraw_Carousel(Menu *pMenu, char active, char *help)
         else
             Font_DrawText(2, CFrontend::GetTextString(pMenu->items[i].id), x, CAROUSEL_Y(), (int *)pSepShadow, 0x11);
         g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSep, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pSep, 1);
         g_unk0x008189a8[0]++;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSepShadow, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pSepShadow, 1);
         x += p->widths[i] + p->spacing;
     }
 
@@ -341,9 +341,9 @@ void FrontendDraw_Carousel(Menu *pMenu, char active, char *help)
         else
             Font_DrawText(2, CFrontend::GetTextString(pMenu->items[i].id), x, CAROUSEL_Y(), (int *)pShadow, 0x11);
         g_unk0x008189a8[0] = p->widths[i] + p->spacing / 2 + x;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSep, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pSep, 1);
         g_unk0x008189a8[0]++;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSepShadow, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pSepShadow, 1);
         i--;
         if (i < 0)
             i = pMenu->itemCount - 1;
@@ -419,9 +419,9 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
     g_unk0x008189a8[3] = 1;
     if (title != NULL)
         g_unk0x008189a8[1] = ROW_H() + top;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pShadow, 1);
     g_unk0x008189a8[1]++;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pColour, 1);
     for (row = 0; row < hasTitle; row++) {
         while (!pMenu->items[curFirst].visible)
             curFirst++;
@@ -455,15 +455,15 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
                     pShadow = g_colourShadowText0x00524978;
                 }
                 g_unk0x008189a8[1] = ROW_H() * (row + 1) + top;
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pShadow, 1);
                 g_unk0x008189a8[1]++;
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pColour, 1);
             }
             curFirst++;
         } else {
             g_unk0x008189a8[3] = ROW_H();
             g_unk0x008189a8[1] = top;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
             Font_DrawText(1, title, x, (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]),
                           (int *)g_colourTitle0x00524984, 0x11);
             g_unk0x008189a8[3] = 1;
@@ -521,9 +521,9 @@ void FrontendDraw_RallyEntryList(BYTE *pList, char *pTitle, int index, char **pp
     g_unk0x008189a8[3] = 1;
     if (pTitle != NULL)
         g_unk0x008189a8[1] = top + (int)(g_pGraphics->resY * 0x1a) / 480;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pShadow, 1);
     g_unk0x008189a8[1]++;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pColour, 1);
     for (i = 0; i < pList[0xa] + hasTitle; i++) {
         rect[1] = (short)(top + (int)(g_pGraphics->resY * 0x10) / 480 +
                           ((int)(g_pGraphics->resY * 0x1a) / 480) * i -
@@ -531,7 +531,7 @@ void FrontendDraw_RallyEntryList(BYTE *pList, char *pTitle, int index, char **pp
         if (pTitle != NULL && i == 0) {
             g_unk0x008189a8[1] = top;
             g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 0x1a) / 480;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
             Font_DrawText(1, pTitle, (int)(g_pGraphics->resX * 0x50) / 640,
                           g_unk0x008189a8[1] + (int)(g_pGraphics->resY * 0x14) / 480,
                           (int *)g_colourTitle0x00524984, 0x11);
@@ -559,9 +559,9 @@ void FrontendDraw_RallyEntryList(BYTE *pList, char *pTitle, int index, char **pp
             pLineShadow = g_colourShadowText0x00524978;
         }
         g_unk0x008189a8[1] = top + ((int)(g_pGraphics->resY * 0x1a) / 480) * (i + 1);
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pLineShadow, 1);
         g_unk0x008189a8[1]++;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLine, 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pLine, 1);
     }
 }
 
@@ -610,9 +610,9 @@ void FrontendDraw_ScrollerRow(MenuScroller *p, char active)
         pShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = p->widths[pMenu->cursor] + p->spacing / 2 + x0;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pColour, 1);
     g_unk0x008189a8[0]++;
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pShadow, 1);
 
     x = p->widths[pMenu->cursor] + x0 + p->spacing;
     if (active != 0) {
@@ -635,14 +635,14 @@ void FrontendDraw_ScrollerRow(MenuScroller *p, char active)
         }
         if (pMenu->items[i].enabled) {
             g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSep, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pSep, 1);
             g_unk0x008189a8[0]++;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pShadow, 1);
         } else {
             g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourDim0x00524970, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, g_colourDim0x00524970, 1);
             g_unk0x008189a8[0]++;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowDim0x0052497c, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, g_colourShadowDim0x0052497c, 1);
         }
         x += p->widths[i] + p->spacing;
     }
@@ -672,14 +672,14 @@ void FrontendDraw_ScrollerRow(MenuScroller *p, char active)
             next = 0;
         if (pMenu->items[next].enabled) {
             g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSep, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pSep, 1);
             g_unk0x008189a8[0]++;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, pShadow, 1);
         } else {
             g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourDim0x00524970, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, g_colourDim0x00524970, 1);
             g_unk0x008189a8[0]++;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowDim0x0052497c, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x008189a8, g_colourShadowDim0x0052497c, 1);
         }
         i--;
         if (i < 0)

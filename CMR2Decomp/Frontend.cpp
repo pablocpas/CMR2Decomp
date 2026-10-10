@@ -635,16 +635,16 @@ void Frontend_DrawRectangleOutline(short *pRect, BYTE *pColour)
     rect[1] = pRect[1] + 1;
     rect[2] = 1;
     rect[3] = pRect[3] - 2;
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 4);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, pColour, 4);
     rect[0] = pRect[2] + pRect[0] - 1;
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 4);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, pColour, 4);
     rect[0] = pRect[0];
     rect[1] = pRect[1];
     rect[2] = pRect[2];
     rect[3] = 1;
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 4);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, pColour, 4);
     rect[1] = pRect[1] + pRect[3] - 1;
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 4);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, pColour, 4);
 }
 
 // Draws the animated frontend background: an 18x12 grid of the large matrix

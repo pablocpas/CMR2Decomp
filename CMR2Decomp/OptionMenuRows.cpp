@@ -174,11 +174,11 @@ void OptionMenu_DrawAnimatedScreenRows(short param1, short param2, short param3,
 
     if (param2 == 0) {
                 if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
-Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
+Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
         else
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&param6, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&param6, 1);
     } else {
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
     }
 
     for (i = 0; i < param1; i++) {
@@ -392,11 +392,11 @@ OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
                                      (int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1));
         if (i == param2 || i + 1 == param2) {
             if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
             else
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&param6, 1);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&param6, 1);
         } else {
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
         }
     }
 }
