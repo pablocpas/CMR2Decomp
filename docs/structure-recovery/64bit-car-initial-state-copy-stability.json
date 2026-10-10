@@ -1,0 +1,20 @@
+{
+  "0x42eae0": {
+    "name": "Car_UpdateGroundContact",
+    "relocated_instruction_stream_identical": true,
+    "instructions": 885,
+    "unknown_symbols": 0
+  },
+  "0x444c10": {
+    "name": "Car_PrepareStep",
+    "relocated_instruction_stream_identical": true,
+    "instructions": 905,
+    "unknown_symbols": 0
+  },
+  "0x42ce60": {
+    "name": "Car_StepGroundContact",
+    "relocated_instruction_stream_identical": true,
+    "instructions": 1281,
+    "unknown_symbols": 0
+  }
+}

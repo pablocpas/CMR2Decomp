@@ -718,7 +718,7 @@ void CarEffects_InitDebris(void)
 BYTE *RallyData_GetTyreRecord(BYTE index);
 void RallyData_MarkTyresChanged(int index);
 BYTE StageUI_GetRaceEndEventCount(void);
-int StageObject_GetCarWeatherRampValue(BYTE *pCar);
+int StageObject_GetCarWeatherRampValue(Car *pCar);
 int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit);
 
 // Wheel spray effects: colour, whether it is dust (longer, flatter), whether
@@ -971,7 +971,7 @@ void WheelSpray_Update(int player)
     do {
         if (pSlip[0xcf] != 0) {
             effect = WheelSpray_GetEffect(*pSurface);
-            wet = StageObject_GetCarWeatherRampValue((BYTE *)pCar);
+            wet = StageObject_GetCarWeatherRampValue(pCar);
             if (effect >= 0 && (wet != 0 || g_sprayAlways[effect] != 0) &&
                 --g_sprayCountdown[pCar->index][wheel] <= 0) {
                 pDust = &g_sprayDust[effect];

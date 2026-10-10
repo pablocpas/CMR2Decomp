@@ -6,9 +6,9 @@
     "AIHelper.h": "bab8d194d555cb12c67813998a76874490d63165d0b535b5005e222045cc8b55",
     "BFL.h": "950defe875ffe734f13dce73dda42d7bc1b5369a7def6a53f9e0ba27ed047a7d",
     "BestTimeRecords.h": "7b09c04cab99c03d334b39ec5340a7216840903b2f9d51cfc8ac497473de4291",
-    "Car.cpp": "630990b05ebd2178f03ab6b32c50b9872531026bca00dcef2ad441368427ae39",
-    "Car.h": "fea87b7358831bfb9b5033c9bf2f34985960a564efdc536e9f1d79c57a656d28",
-    "CarEffects.cpp": "3ed4c140bcbc9b872f8c6802afac3c6e69c0b58b4049ae430f956232329a7b4c",
+    "Car.cpp": "b22aa333f2e03d5e990a70ec06051210f010a0ea0e16fb6f15be670b14e73d5d",
+    "Car.h": "f498550d71b1ec86a28ca2839bef82ad11231c35c91097e0063f5103e67a9fda",
+    "CarEffects.cpp": "fbb8de00c7db2834d43d1222fa24e015e12a348c4e24960125d00a91d48633de",
     "CarExhaust.h": "2f51d0a245b1da6a98dc0a1152098b0c9dce08b33b29d0459feb77328a9207dc",
     "CarImpact.h": "1800bc27ccd9f5c0ea2398977c5ae92c33ff8ad44084d687cb711e0a67c795db",
     "CarInfo.h": "3c677f96cb8c0c97bf56c33151505283e3453be93448f64c77e99f463f6d456a",
@@ -57,7 +57,7 @@
     "Input.h": "6c8ce64e581da4f84e04af836ec4276d106ed118b58ddd8521fff3d05eeacb8c",
     "InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
     "InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
-    "LayoutChecks.cpp": "9db94414a9b931bca05da354d5be40c7a5d46031a505e4505e340a4e9c35fe41",
+    "LayoutChecks.cpp": "9718f10766c9cca24ba36531bcebd897fff12e722493e07b8572dd49bb3281e8",
     "LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
     "Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
     "Logger.h": "9223f11dbb0c66b7b32057403dfda5267d674de807a6fa64aad78866540cf196",
@@ -95,16 +95,16 @@
     "Stage.h": "4a75c6c0ce11b7ac1fa616ed12e7c7931d3e23ab12a678370ac800ef700f04cd",
     "StageBlock.h": "ed67c8a616df022340a6831bb1acffa00c7b6f1596c18297299fcce0deb73c05",
     "StageObjectCount.h": "541514d4da5e984bc83597c9b0839bebc67ac87ef78d2fe76fc2f3841c08010e",
-    "StageObjects.cpp": "38cf5022231b59bdd36a346d6c2a773ee6ac2f2c8013f52069c9dc149eaec4ef",
+    "StageObjects.cpp": "40773278bd28e7cefc5acd0a60dbd270cd53532fb96e267e27a3d260b5d13ce2",
     "StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
     "StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
-    "StageTiming.cpp": "e376ae7ef704bf31bd46aaf5e45935328c4d9565ba962228ff7bdd3dd737ab79",
+    "StageTiming.cpp": "14fc03c82c47d793b024d751e2c343dc26d4b4ddb449f47c08a79b02eb8301cc",
     "StageTiming.h": "83a0d3266fda81c4b1e65e87e17bfc27f073ac5ef9449e75368fbba9af57857f",
     "StageUI.cpp": "52a8ccfa5c6fd6e259c533d10a94f811b4f2873870fc5ddae26d9759bd2b7ea0",
     "StageUI.h": "30113bb1c038c7ab0bc539eca8ad3ba06224365b60d8e32727e304e1f7323e42",
     "StageWeather.h": "29941250ba41afaa63578e0c91a2835998339b9302bcd12a7717787984219dc1",
     "StageWeatherParticle.h": "bc58dc39786b7226607aa6dd7779ad3198afa98c4620eb7228436c5573682bdf",
-    "SurfaceTypes.cpp": "a27135fcc9af3bedbdbbc73f6142b22a56a5e2c50e1103d22db4692149742c8c",
+    "SurfaceTypes.cpp": "086f12e4038f6d1d13d0954e0a4a34bc700d0c10e23b67818d2063064b475f70",
     "SurfaceTypes.h": "1c81086631cfd2493e9c5a4af7da66e1d02417ed38b7628c7a1e1a986d52e8e7",
     "Texture.cpp": "2ca3a6fa0da96446aadf924346f349f7cad42fafeaf06e60c006cc79b82aeea0",
     "Texture.h": "00635eccfb6ed1ce010106ad790747185ef79856fd27d6e49605484db7a02263",
@@ -133,11 +133,11 @@
   },
   "metrics": {
     "types": 313,
-    "raw_accesses": 1489,
-    "fixed_sizes": 83,
-    "hex_multipliers": 2243,
+    "raw_accesses": 1452,
+    "fixed_sizes": 78,
+    "hex_multipliers": 2242,
     "unknown_identifiers": 10577,
-    "unnamed_field_declarations": 1498,
+    "unnamed_field_declarations": 1497,
     "unique_unknown_identifiers": 1285
   },
   "files": {
@@ -171,9 +171,9 @@
     },
     "Car.cpp": {
       "types": 2,
-      "raw_accesses": 70,
-      "fixed_sizes": 7,
-      "hex_multipliers": 14,
+      "raw_accesses": 37,
+      "fixed_sizes": 2,
+      "hex_multipliers": 13,
       "unknown_identifiers": 239
     },
     "Car.h": {
@@ -794,7 +794,7 @@
     },
     "StageObjects.cpp": {
       "types": 27,
-      "raw_accesses": 289,
+      "raw_accesses": 286,
       "fixed_sizes": 10,
       "hex_multipliers": 135,
       "unknown_identifiers": 1376
@@ -857,7 +857,7 @@
     },
     "SurfaceTypes.cpp": {
       "types": 1,
-      "raw_accesses": 16,
+      "raw_accesses": 15,
       "fixed_sizes": 0,
       "hex_multipliers": 2,
       "unknown_identifiers": 393
@@ -1088,20 +1088,20 @@
     },
     {
       "file": "Car.cpp",
-      "line": 5485,
+      "line": 5477,
       "nearest_function": "0x00423db0",
       "kind": "struct",
       "name": "Unk00423ee0Block",
-      "end_line": 5487,
+      "end_line": 5479,
       "unnamed_fields": []
     },
     {
       "file": "Car.cpp",
-      "line": 6771,
+      "line": 6753,
       "nearest_function": "0x00431ff0",
       "kind": "class",
       "name": "CFrontend",
-      "end_line": 6777,
+      "end_line": 6759,
       "unnamed_fields": []
     },
     {
@@ -1158,7 +1158,7 @@
       "line": 37,
       "kind": "struct",
       "name": "Car",
-      "end_line": 278,
+      "end_line": 290,
       "unnamed_fields": [
         {
           "file": "Car.h",
@@ -1198,511 +1198,505 @@
         },
         {
           "file": "Car.h",
-          "line": 63,
-          "name": "field_0x384",
-          "declaration": "BYTE field_0x384[0xc];"
-        },
-        {
-          "file": "Car.h",
-          "line": 79,
+          "line": 91,
           "name": "field_0x564",
           "declaration": "FixVector field_0x564[8];         // 0x564  per-corner ground normal ([0] used while cornerOnGround[4] is set)"
         },
         {
           "file": "Car.h",
-          "line": 80,
+          "line": 92,
           "name": "field_0x5c4",
           "declaration": "FixVector field_0x5c4;            // 0x5c4"
         },
         {
           "file": "Car.h",
-          "line": 81,
+          "line": 93,
           "name": "field_0x5d0",
           "declaration": "FixVector field_0x5d0;            // 0x5d0"
         },
         {
           "file": "Car.h",
-          "line": 82,
+          "line": 94,
           "name": "field_0x5dc",
           "declaration": "FixVector field_0x5dc;            // 0x5dc"
         },
         {
           "file": "Car.h",
-          "line": 106,
+          "line": 118,
           "name": "field_0x770",
           "declaration": "int field_0x770[2];               // 0x770"
         },
         {
           "file": "Car.h",
-          "line": 115,
+          "line": 127,
           "name": "field_0x798",
           "declaration": "int field_0x798;"
         },
         {
           "file": "Car.h",
-          "line": 119,
+          "line": 131,
           "name": "field_0x7a8",
           "declaration": "int field_0x7a8;"
         },
         {
           "file": "Car.h",
-          "line": 120,
+          "line": 132,
           "name": "field_0x7ac",
           "declaration": "int field_0x7ac;                  // 0x7ac"
         },
         {
           "file": "Car.h",
-          "line": 126,
+          "line": 138,
           "name": "field_0x7fc",
           "declaration": "int field_0x7fc;                  // 0x7fc  set from the difficulty (0x43e530)"
         },
         {
           "file": "Car.h",
-          "line": 127,
+          "line": 139,
           "name": "field_0x800",
           "declaration": "int field_0x800;                  // 0x800"
         },
         {
           "file": "Car.h",
-          "line": 128,
+          "line": 140,
           "name": "field_0x804",
           "declaration": "int field_0x804;                  // 0x804"
         },
         {
           "file": "Car.h",
-          "line": 129,
+          "line": 141,
           "name": "field_0x808",
           "declaration": "int field_0x808[4];               // 0x808"
         },
         {
           "file": "Car.h",
-          "line": 152,
+          "line": 164,
           "name": "field_0x8b8",
           "declaration": "int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)"
         },
         {
           "file": "Car.h",
-          "line": 153,
+          "line": 165,
           "name": "field_0x8d8",
           "declaration": "int field_0x8d8;                  // 0x8d8"
         },
         {
           "file": "Car.h",
-          "line": 155,
+          "line": 167,
           "name": "field_0x8fc",
           "declaration": "int field_0x8fc[8];               // 0x8fc  per-corner height offset while cornerOnGround[4 + i]"
         },
         {
           "file": "Car.h",
-          "line": 159,
+          "line": 171,
           "name": "field_0x928",
           "declaration": "int field_0x928[4];               // 0x928"
         },
         {
           "file": "Car.h",
-          "line": 160,
+          "line": 172,
           "name": "field_0x938",
           "declaration": "int field_0x938[4];               // 0x938  per-wheel scale of the part offset"
         },
         {
           "file": "Car.h",
-          "line": 161,
+          "line": 173,
           "name": "field_0x948",
           "declaration": "int field_0x948[4];               // 0x948"
         },
         {
           "file": "Car.h",
-          "line": 163,
+          "line": 175,
           "name": "field_0x95c",
           "declaration": "int field_0x95c;                  // 0x95c"
         },
         {
           "file": "Car.h",
-          "line": 164,
+          "line": 176,
           "name": "field_0x960",
           "declaration": "int field_0x960;"
         },
         {
           "file": "Car.h",
-          "line": 165,
+          "line": 177,
           "name": "field_0x964",
           "declaration": "int field_0x964;"
         },
         {
           "file": "Car.h",
-          "line": 166,
+          "line": 178,
           "name": "field_0x968",
           "declaration": "int field_0x968;"
         },
         {
           "file": "Car.h",
-          "line": 167,
+          "line": 179,
           "name": "field_0x96c",
           "declaration": "int field_0x96c;                  // 0x96c"
         },
         {
           "file": "Car.h",
-          "line": 168,
+          "line": 180,
           "name": "field_0x970",
           "declaration": "int field_0x970[2];               // 0x970"
         },
         {
           "file": "Car.h",
-          "line": 169,
+          "line": 181,
           "name": "field_0x978",
           "declaration": "int field_0x978[4];               // 0x978  per-wheel offset added to the part's value"
         },
         {
           "file": "Car.h",
-          "line": 171,
+          "line": 183,
           "name": "field_0x998",
           "declaration": "int field_0x998[4];               // 0x998  suspension height of each corner, front lean frame"
         },
         {
           "file": "Car.h",
-          "line": 175,
+          "line": 187,
           "name": "field_0x9c0",
           "declaration": "int field_0x9c0;"
         },
         {
           "file": "Car.h",
-          "line": 176,
+          "line": 188,
           "name": "field_0x9c4",
           "declaration": "int field_0x9c4;                  // 0x9c4"
         },
         {
           "file": "Car.h",
-          "line": 177,
+          "line": 189,
           "name": "field_0x9c8",
           "declaration": "int field_0x9c8[4];               // 0x9c8"
         },
         {
           "file": "Car.h",
-          "line": 179,
+          "line": 191,
           "name": "field_0x9e8",
           "declaration": "BYTE field_0x9e8[0x20];"
         },
         {
           "file": "Car.h",
-          "line": 180,
+          "line": 192,
           "name": "field_0xa08",
           "declaration": "int field_0xa08;"
         },
         {
           "file": "Car.h",
-          "line": 183,
+          "line": 195,
           "name": "field_0xa4c",
           "declaration": "int field_0xa4c[4];               // 0xa4c"
         },
         {
           "file": "Car.h",
-          "line": 184,
+          "line": 196,
           "name": "field_0xa5c",
           "declaration": "int field_0xa5c[4];               // 0xa5c"
         },
         {
           "file": "Car.h",
-          "line": 185,
+          "line": 197,
           "name": "field_0xa6c",
           "declaration": "BYTE field_0xa6c[0x4];"
         },
         {
           "file": "Car.h",
-          "line": 186,
+          "line": 198,
           "name": "field_0xa70",
           "declaration": "int field_0xa70;                  // 0xa70"
         },
         {
           "file": "Car.h",
-          "line": 187,
+          "line": 199,
           "name": "field_0xa74",
           "declaration": "int field_0xa74;"
         },
         {
           "file": "Car.h",
-          "line": 188,
+          "line": 200,
           "name": "field_0xa78",
-          "declaration": "BYTE field_0xa78[0x4];"
+          "declaration": "int field_0xa78;                  // 0xa78 surface-noise target, copied to +0xa74"
         },
         {
           "file": "Car.h",
-          "line": 189,
+          "line": 201,
           "name": "field_0xa7c",
           "declaration": "int field_0xa7c;                  // 0xa7c"
         },
         {
           "file": "Car.h",
-          "line": 190,
+          "line": 202,
           "name": "field_0xa80",
           "declaration": "int field_0xa80;"
         },
         {
           "file": "Car.h",
-          "line": 191,
+          "line": 203,
           "name": "field_0xa84",
           "declaration": "int field_0xa84;"
         },
         {
           "file": "Car.h",
-          "line": 195,
+          "line": 207,
           "name": "field_0xa94",
           "declaration": "BYTE field_0xa94[4];              // 0xa94 purpose not established"
         },
         {
           "file": "Car.h",
-          "line": 202,
+          "line": 214,
           "name": "field_0xad6",
           "declaration": "BYTE field_0xad6[0x28];"
         },
         {
           "file": "Car.h",
-          "line": 215,
+          "line": 227,
           "name": "field_0xb1d",
           "declaration": "char field_0xb1d;                 // 0xb1d"
         },
         {
           "file": "Car.h",
-          "line": 217,
+          "line": 229,
           "name": "field_0xb1f",
           "declaration": "char field_0xb1f;                 // 0xb1f"
         },
         {
           "file": "Car.h",
-          "line": 221,
+          "line": 233,
           "name": "field_0xb23",
           "declaration": "BYTE field_0xb23[0x1];"
         },
         {
           "file": "Car.h",
-          "line": 223,
+          "line": 235,
           "name": "field_0xb25",
           "declaration": "BYTE field_0xb25;                 // 0xb25  countdowns started by 0x43b020"
         },
         {
           "file": "Car.h",
-          "line": 224,
+          "line": 236,
           "name": "field_0xb26",
           "declaration": "BYTE field_0xb26;"
         },
         {
           "file": "Car.h",
-          "line": 225,
+          "line": 237,
           "name": "field_0xb27",
           "declaration": "BYTE field_0xb27;"
         },
         {
           "file": "Car.h",
-          "line": 226,
+          "line": 238,
           "name": "field_0xb28",
           "declaration": "BYTE field_0xb28;                 // 0xb28"
         },
         {
           "file": "Car.h",
-          "line": 227,
+          "line": 239,
           "name": "field_0xb29",
           "declaration": "BYTE field_0xb29;                 // 0xb29"
         },
         {
           "file": "Car.h",
-          "line": 228,
+          "line": 240,
           "name": "field_0xb2a",
           "declaration": "BYTE field_0xb2a;                 // 0xb2a"
         },
         {
           "file": "Car.h",
-          "line": 231,
+          "line": 243,
           "name": "field_0xb34",
           "declaration": "char field_0xb34;                 // 0xb34"
         },
         {
           "file": "Car.h",
-          "line": 232,
+          "line": 244,
           "name": "field_0xb35",
           "declaration": "BYTE field_0xb35[0xd];"
         },
         {
           "file": "Car.h",
-          "line": 233,
+          "line": 245,
           "name": "field_0xb42",
           "declaration": "char field_0xb42;                 // 0xb42"
         },
         {
           "file": "Car.h",
-          "line": 235,
+          "line": 247,
           "name": "field_0xb44",
           "declaration": "char field_0xb44;                 // 0xb44"
         },
         {
           "file": "Car.h",
-          "line": 236,
+          "line": 248,
           "name": "field_0xb45",
           "declaration": "BYTE field_0xb45;"
         },
         {
           "file": "Car.h",
-          "line": 238,
+          "line": 250,
           "name": "field_0xb47",
           "declaration": "BYTE field_0xb47;"
         },
         {
           "file": "Car.h",
-          "line": 239,
+          "line": 251,
           "name": "field_0xb48",
           "declaration": "int field_0xb48;                  // 0xb48"
         },
         {
           "file": "Car.h",
-          "line": 241,
+          "line": 253,
           "name": "field_0xb50",
           "declaration": "int field_0xb50;"
         },
         {
           "file": "Car.h",
-          "line": 243,
+          "line": 255,
           "name": "field_0xb58",
           "declaration": "int field_0xb58;"
         },
         {
           "file": "Car.h",
-          "line": 245,
+          "line": 257,
           "name": "field_0xb60",
           "declaration": "int field_0xb60;                  // 0xb60"
         },
         {
           "file": "Car.h",
-          "line": 246,
+          "line": 258,
           "name": "field_0xb64",
           "declaration": "int field_0xb64;                  // 0xb64"
         },
         {
           "file": "Car.h",
-          "line": 248,
+          "line": 260,
           "name": "field_0xb6c",
           "declaration": "int field_0xb6c;"
         },
         {
           "file": "Car.h",
-          "line": 249,
+          "line": 261,
           "name": "field_0xb70",
           "declaration": "int field_0xb70;"
         },
         {
           "file": "Car.h",
-          "line": 250,
+          "line": 262,
           "name": "field_0xb74",
           "declaration": "int field_0xb74;                  // 0xb74"
         },
         {
           "file": "Car.h",
-          "line": 252,
+          "line": 264,
           "name": "field_0xb7c",
           "declaration": "int field_0xb7c;                  // 0xb7c"
         },
         {
           "file": "Car.h",
-          "line": 253,
+          "line": 265,
           "name": "field_0xb80",
           "declaration": "int field_0xb80;                  // 0xb80"
         },
         {
           "file": "Car.h",
-          "line": 255,
+          "line": 267,
           "name": "field_0xb88",
           "declaration": "int field_0xb88;"
         },
         {
           "file": "Car.h",
-          "line": 256,
+          "line": 268,
           "name": "field_0xb8c",
           "declaration": "int field_0xb8c;"
         },
         {
           "file": "Car.h",
-          "line": 257,
+          "line": 269,
           "name": "field_0xb90",
           "declaration": "int field_0xb90;"
         },
         {
           "file": "Car.h",
-          "line": 261,
+          "line": 273,
           "name": "field_0xba0",
           "declaration": "int field_0xba0[3];               // 0xba0"
         },
         {
           "file": "Car.h",
-          "line": 263,
+          "line": 275,
           "name": "field_0xbcc",
           "declaration": "int field_0xbcc[4];               // 0xbcc"
         },
         {
           "file": "Car.h",
-          "line": 264,
+          "line": 276,
           "name": "field_0xbdc",
           "declaration": "int field_0xbdc;                  // 0xbdc"
         },
         {
           "file": "Car.h",
-          "line": 265,
+          "line": 277,
           "name": "field_0xbe0",
           "declaration": "int field_0xbe0;                  // 0xbe0"
         },
         {
           "file": "Car.h",
-          "line": 266,
+          "line": 278,
           "name": "field_0xbe4",
           "declaration": "int field_0xbe4;                  // 0xbe4"
         },
         {
           "file": "Car.h",
-          "line": 268,
+          "line": 280,
           "name": "field_0xbf8",
           "declaration": "int field_0xbf8;                  // 0xbf8"
         },
         {
           "file": "Car.h",
-          "line": 269,
+          "line": 281,
           "name": "field_0xbfc",
           "declaration": "int field_0xbfc;                  // 0xbfc"
         },
         {
           "file": "Car.h",
-          "line": 271,
+          "line": 283,
           "name": "field_0xc04",
           "declaration": "int field_0xc04[2];               // 0xc04"
         },
         {
           "file": "Car.h",
-          "line": 272,
+          "line": 284,
           "name": "field_0xc0c",
           "declaration": "int field_0xc0c;                  // 0xc0c"
         },
         {
           "file": "Car.h",
-          "line": 273,
+          "line": 285,
           "name": "field_0xc10",
           "declaration": "int field_0xc10;                  // 0xc10"
         },
         {
           "file": "Car.h",
-          "line": 274,
+          "line": 286,
           "name": "field_0xc14",
           "declaration": "unsigned int field_0xc14;"
         },
         {
           "file": "Car.h",
-          "line": 275,
+          "line": 287,
           "name": "field_0xc18",
           "declaration": "int field_0xc18;                  // 0xc18"
         },
         {
           "file": "Car.h",
-          "line": 276,
+          "line": 288,
           "name": "field_0xc1c",
           "declaration": "int field_0xc1c;"
         },
         {
           "file": "Car.h",
-          "line": 277,
+          "line": 289,
           "name": "field_0xc20",
           "declaration": "int field_0xc20;"
         }
@@ -1710,48 +1704,48 @@
     },
     {
       "file": "Car.h",
-      "line": 282,
+      "line": 294,
       "kind": "struct",
       "name": "CarWheelRecord",
-      "end_line": 287,
+      "end_line": 299,
       "unnamed_fields": []
     },
     {
       "file": "Car.h",
-      "line": 291,
+      "line": 303,
       "kind": "struct",
       "name": "CarTransforms",
-      "end_line": 297,
+      "end_line": 309,
       "unnamed_fields": []
     },
     {
       "file": "Car.h",
-      "line": 389,
+      "line": 401,
       "kind": "struct",
       "name": "CarNetRecord",
-      "end_line": 419,
+      "end_line": 431,
       "unnamed_fields": [
         {
           "file": "Car.h",
-          "line": 402,
+          "line": 414,
           "name": "field_0xb4",
           "declaration": "int field_0xb4;             // 0xb4 smoothed field_0xbc"
         },
         {
           "file": "Car.h",
-          "line": 404,
+          "line": 416,
           "name": "field_0xbc",
           "declaration": "int field_0xbc;"
         },
         {
           "file": "Car.h",
-          "line": 405,
+          "line": 417,
           "name": "field_0xc0",
           "declaration": "int field_0xc0;"
         },
         {
           "file": "Car.h",
-          "line": 417,
+          "line": 429,
           "name": "field_0xe4",
           "declaration": "int field_0xe4;"
         }
@@ -1759,44 +1753,44 @@
     },
     {
       "file": "Car.h",
-      "line": 423,
+      "line": 435,
       "kind": "struct",
       "name": "CameraRecord",
-      "end_line": 437,
+      "end_line": 449,
       "unnamed_fields": [
         {
           "file": "Car.h",
-          "line": 430,
+          "line": 442,
           "name": "field_0x48",
           "declaration": "int field_0x48;"
         },
         {
           "file": "Car.h",
-          "line": 431,
+          "line": 443,
           "name": "field_0x4c",
           "declaration": "int field_0x4c;"
         },
         {
           "file": "Car.h",
-          "line": 432,
+          "line": 444,
           "name": "field_0x50",
           "declaration": "int field_0x50;"
         },
         {
           "file": "Car.h",
-          "line": 433,
+          "line": 445,
           "name": "field_0x54",
           "declaration": "int field_0x54;"
         },
         {
           "file": "Car.h",
-          "line": 434,
+          "line": 446,
           "name": "field_0x58",
           "declaration": "int field_0x58;"
         },
         {
           "file": "Car.h",
-          "line": 435,
+          "line": 447,
           "name": "field_0x5c",
           "declaration": "int field_0x5c;"
         }
@@ -12984,441 +12978,210 @@
     },
     {
       "file": "Car.cpp",
-      "line": 1137,
-      "nearest_function": "0x00432c20",
-      "access_type": "int *",
-      "expression": "*(int *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 1271,
-      "nearest_function": "0x00432cc0",
-      "access_type": "unsigned short *",
-      "expression": "*(unsigned short *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 1368,
-      "nearest_function": "0x0042eae0",
-      "access_type": "int *",
-      "expression": "*(int *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 1369,
-      "nearest_function": "0x0042eae0",
-      "access_type": "FixVector *",
-      "expression": "*(FixVector *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 1370,
-      "nearest_function": "0x0042eae0",
-      "access_type": "char *",
-      "expression": "*(char *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 2897,
+      "line": 2892,
       "nearest_function": "0x0043c640",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)g_pCurrentCar + i)"
     },
     {
       "file": "Car.cpp",
-      "line": 2897,
+      "line": 2892,
       "nearest_function": "0x0043c640",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)g_pCurrentCar + i)"
     },
     {
       "file": "Car.cpp",
-      "line": 2948,
+      "line": 2943,
       "nearest_function": "0x00440840",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)g_pCurrentCar + off - 0x438)"
     },
     {
       "file": "Car.cpp",
-      "line": 2959,
+      "line": 2954,
       "nearest_function": "0x00440840",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)g_pCurrentCar + off + 0x270)"
     },
     {
       "file": "Car.cpp",
-      "line": 2960,
+      "line": 2955,
       "nearest_function": "0x00440840",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)g_pCurrentCar + off + 0x274)"
     },
     {
       "file": "Car.cpp",
-      "line": 2961,
+      "line": 2956,
       "nearest_function": "0x00440840",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)g_pCurrentCar + off + 0x278)"
     },
     {
       "file": "Car.cpp",
-      "line": 4302,
+      "line": 4297,
       "nearest_function": "0x0042cb90",
       "access_type": "Mesh **",
       "expression": "*(Mesh **)((BYTE *)pWheels[w] + 0xc)"
     },
     {
       "file": "Car.cpp",
-      "line": 4759,
+      "line": 4754,
       "nearest_function": "0x00433890",
       "access_type": "FixVector *",
       "expression": "*(FixVector *)((BYTE *)g_pCurrentCar + k + 0x30)"
     },
     {
       "file": "Car.cpp",
-      "line": 4760,
+      "line": 4755,
       "nearest_function": "0x00433890",
       "access_type": "FixVector *",
       "expression": "*(FixVector *)((BYTE *)g_pCurrentCar + k)"
     },
     {
       "file": "Car.cpp",
-      "line": 4761,
+      "line": 4756,
       "nearest_function": "0x00433890",
       "access_type": "FixVector *",
       "expression": "*(FixVector *)((BYTE *)g_pCurrentCar + k)"
     },
     {
       "file": "Car.cpp",
-      "line": 4762,
+      "line": 4757,
       "nearest_function": "0x00433890",
       "access_type": "FixVector *",
       "expression": "*(FixVector *)((BYTE *)g_pCurrentCar + k - 0x90)"
     },
     {
       "file": "Car.cpp",
-      "line": 5246,
-      "nearest_function": "0x00444c10",
-      "access_type": "int *",
-      "expression": "*(int *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5247,
-      "nearest_function": "0x00444c10",
-      "access_type": "FixVector *",
-      "expression": "*(FixVector *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5248,
-      "nearest_function": "0x00444c10",
-      "access_type": "char *",
-      "expression": "*(char *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5287,
+      "line": 5279,
       "nearest_function": "0x00444c10",
       "access_type": "FixVector *",
       "expression": "*(FixVector *)((BYTE *)g_pCurrentCar + i)"
     },
     {
       "file": "Car.cpp",
-      "line": 5362,
+      "line": 5354,
       "nearest_function": "0x00444c10",
       "access_type": "FixVector *",
       "expression": "*(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc + 0xc0)"
     },
     {
       "file": "Car.cpp",
-      "line": 5364,
+      "line": 5356,
       "nearest_function": "0x00444c10",
       "access_type": "FixVector *",
       "expression": "*(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc + 0x90)"
     },
     {
       "file": "Car.cpp",
-      "line": 5562,
+      "line": 5554,
       "nearest_function": "0x004218d0",
       "access_type": "int *",
       "expression": "*(int *)(g_unk0x0053901c +\n                    (BYTE)(g_unk0x00538e0c[view & 0xff] + (char)view * 2) * 100)"
     },
     {
       "file": "Car.cpp",
-      "line": 5800,
+      "line": 5792,
       "nearest_function": "0x00431c50",
       "access_type": "BYTE *",
       "expression": "*(BYTE *)(pRecord + 0x18)"
     },
     {
       "file": "Car.cpp",
-      "line": 5998,
+      "line": 5990,
       "nearest_function": "0x00421590",
       "access_type": "int *",
       "expression": "*(int *)(g_unk0x00538d2c + i * 100)"
     },
     {
       "file": "Car.cpp",
-      "line": 5999,
+      "line": 5991,
       "nearest_function": "0x00421590",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)g_unk0x00538d20 + off)"
     },
     {
       "file": "Car.cpp",
-      "line": 6001,
+      "line": 5993,
       "nearest_function": "0x00421590",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)g_unk0x005391b0 + off)"
     },
     {
       "file": "Car.cpp",
-      "line": 6002,
+      "line": 5994,
       "nearest_function": "0x00421590",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)g_unk0x005391c4 + off)"
     },
     {
       "file": "Car.cpp",
-      "line": 6003,
+      "line": 5995,
       "nearest_function": "0x00421590",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)g_unk0x005391a8 + off)"
     },
     {
       "file": "Car.cpp",
-      "line": 6004,
+      "line": 5996,
       "nearest_function": "0x00421590",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)g_unk0x00538f00 + off)"
     },
     {
       "file": "Car.cpp",
-      "line": 6249,
+      "line": 6241,
       "nearest_function": "0x00435470",
       "access_type": "signed char *",
       "expression": "*(signed char *)((BYTE *)g_pCurrentCar + 0xb36 + i)"
     },
     {
       "file": "Car.cpp",
-      "line": 6434,
-      "nearest_function": "0x0043e680",
-      "access_type": "int *",
-      "expression": "*(int *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6435,
-      "nearest_function": "0x0043e680",
-      "access_type": "FixVector *",
-      "expression": "*(FixVector *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6496,
-      "nearest_function": "0x0043e680",
-      "access_type": "BYTE *",
-      "expression": "*(BYTE *)((int)g_pCurrentCar + 0xb45)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6501,
-      "nearest_function": "0x0043e680",
-      "access_type": "BYTE *",
-      "expression": "*(BYTE *)((int)g_pCurrentCar + 0xb28)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6532,
-      "nearest_function": "0x0042e450",
-      "access_type": "int *",
-      "expression": "*(int *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6578,
-      "nearest_function": "0x0042e450",
-      "access_type": "char *",
-      "expression": "*(char *)((int)g_pCurrentCar + 0xb2c + i)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6632,
-      "nearest_function": "0x00431ff0",
-      "access_type": "int *",
-      "expression": "*(int *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6633,
-      "nearest_function": "0x00431ff0",
-      "access_type": "FixVector *",
-      "expression": "*(FixVector *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6701,
-      "nearest_function": "0x00431ff0",
-      "access_type": "FixVector *",
-      "expression": "*(FixVector *)((int)g_pCurrentCar + i)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6701,
-      "nearest_function": "0x00431ff0",
-      "access_type": "FixVector *",
-      "expression": "*(FixVector *)((int)g_pCurrentCar + i - 0x60)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6712,
-      "nearest_function": "0x00431ff0",
-      "access_type": "FixVector *",
-      "expression": "*(FixVector *)((int)g_pCurrentCar + i)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6712,
-      "nearest_function": "0x00431ff0",
-      "access_type": "FixVector *",
-      "expression": "*(FixVector *)((int)g_pCurrentCar + i - 0xc0)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6713,
-      "nearest_function": "0x00431ff0",
-      "access_type": "FixVector *",
-      "expression": "*(FixVector *)((int)g_pCurrentCar + i - 0x30)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6713,
-      "nearest_function": "0x00431ff0",
-      "access_type": "FixVector *",
-      "expression": "*(FixVector *)((int)g_pCurrentCar + i)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6722,
-      "nearest_function": "0x00431ff0",
-      "access_type": "short *",
-      "expression": "*(short *)((int)g_pCurrentCar + 0xa9c)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6724,
-      "nearest_function": "0x00431ff0",
-      "access_type": "short *",
-      "expression": "*(short *)((int)g_pCurrentCar + 0xb18)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6726,
-      "nearest_function": "0x00431ff0",
-      "access_type": "BYTE *",
-      "expression": "*(BYTE *)((int)g_pCurrentCar + 0xb45)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6745,
-      "nearest_function": "0x00431ff0",
-      "access_type": "short *",
-      "expression": "*(short *)((int)g_pCurrentCar + i)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6746,
-      "nearest_function": "0x00431ff0",
-      "access_type": "short *",
-      "expression": "*(short *)((int)g_pCurrentCar + 0xb10)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6747,
-      "nearest_function": "0x00431ff0",
-      "access_type": "short *",
-      "expression": "*(short *)((int)g_pCurrentCar + 0xb12)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6753,
-      "nearest_function": "0x00431ff0",
-      "access_type": "BYTE *",
-      "expression": "*(BYTE *)((int)g_pCurrentCar + 0xb1e)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6758,
-      "nearest_function": "0x00431ff0",
-      "access_type": "char *",
-      "expression": "*(char *)((int)g_pCurrentCar + 0xb1a)"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6813,
+      "line": 6795,
       "nearest_function": "0x0043c7f0",
       "access_type": "int *",
       "expression": "*(int *)((int)g_pCurrentCar + (off))"
     },
     {
       "file": "Car.cpp",
-      "line": 6814,
-      "nearest_function": "0x0043c7f0",
-      "access_type": "FixVector *",
-      "expression": "*(FixVector *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6815,
+      "line": 6796,
       "nearest_function": "0x0043c7f0",
       "access_type": "char *",
       "expression": "*(char *)((int)g_pCurrentCar + (off))"
     },
     {
       "file": "Car.cpp",
-      "line": 7161,
+      "line": 7142,
       "nearest_function": "0x0043c7f0",
       "access_type": "short *",
       "expression": "*(short *)((int)g_pCurrentCar + 0xb16)"
     },
     {
       "file": "Car.cpp",
-      "line": 7254,
+      "line": 7235,
       "nearest_function": "0x0043c7f0",
       "access_type": "short *",
       "expression": "*(short *)((int)g_pCurrentCar + 0xafe)"
     },
     {
       "file": "Car.cpp",
-      "line": 7676,
-      "nearest_function": "0x0043f630",
-      "access_type": "int *",
-      "expression": "*(int *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 7677,
-      "nearest_function": "0x0043f630",
-      "access_type": "FixVector *",
-      "expression": "*(FixVector *)((int)g_pCurrentCar + (off))"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8064,
+      "line": 8040,
       "nearest_function": "0x00423460",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)Car_Get(pRecord->car) + 0x8e4)"
     },
     {
       "file": "Car.cpp",
-      "line": 8165,
+      "line": 8141,
       "nearest_function": "0x00421610",
       "access_type": "int *",
       "expression": "*(int *)(g_unk0x00538d2c + i * 100)"
     },
     {
       "file": "Car.cpp",
-      "line": 8303,
+      "line": 8279,
       "nearest_function": "0x004219b0",
       "access_type": "int *",
       "expression": "*(int *)(g_unk0x00538d2c + index * 100)"
@@ -20219,20 +19982,6 @@
     },
     {
       "file": "StageObjects.cpp",
-      "line": 2755,
-      "nearest_function": "0x004789b0",
-      "access_type": "int *",
-      "expression": "*(int *)(pCar + 0xa74)"
-    },
-    {
-      "file": "StageObjects.cpp",
-      "line": 2755,
-      "nearest_function": "0x004789b0",
-      "access_type": "int *",
-      "expression": "*(int *)(pCar + 0xa78)"
-    },
-    {
-      "file": "StageObjects.cpp",
       "line": 3342,
       "nearest_function": "0x0048c900",
       "access_type": "int *",
@@ -20265,13 +20014,6 @@
       "nearest_function": "0x0047e1e0",
       "access_type": "CarHeadlightGlowRecord *",
       "expression": "*(CarHeadlightGlowRecord *)((BYTE *)pRec - offsetof(CarHeadlightGlowRecord, position))"
-    },
-    {
-      "file": "StageObjects.cpp",
-      "line": 4439,
-      "nearest_function": "0x0046eeb0",
-      "access_type": "short *",
-      "expression": "*(short *)(pCar + 0xaae + wheel * 2)"
     },
     {
       "file": "StageObjects.cpp",
@@ -22914,13 +22656,6 @@
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 314,
-      "nearest_function": "0x004781d0",
-      "access_type": "int *",
-      "expression": "*(int *)((BYTE *)pCar + 0xa78)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
       "line": 751,
       "nearest_function": "0x00478f50",
       "access_type": "int *",
@@ -23355,16 +23090,7 @@
   "fixed_sizes": [
     {
       "file": "Car.cpp",
-      "line": 1416,
-      "nearest_function": "0x0042eae0",
-      "call": "memcpy",
-      "size_expressions": [
-        "0x24"
-      ]
-    },
-    {
-      "file": "Car.cpp",
-      "line": 4767,
+      "line": 4762,
       "nearest_function": "0x00433890",
       "call": "memcpy",
       "size_expressions": [
@@ -23373,43 +23099,7 @@
     },
     {
       "file": "Car.cpp",
-      "line": 5277,
-      "nearest_function": "0x00444c10",
-      "call": "memcpy",
-      "size_expressions": [
-        "0x24"
-      ]
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5377,
-      "nearest_function": "0x00444c10",
-      "call": "memcpy",
-      "size_expressions": [
-        "0x24"
-      ]
-    },
-    {
-      "file": "Car.cpp",
-      "line": 6492,
-      "nearest_function": "0x0043e680",
-      "call": "memcpy",
-      "size_expressions": [
-        "36"
-      ]
-    },
-    {
-      "file": "Car.cpp",
-      "line": 7455,
-      "nearest_function": "0x0042ce60",
-      "call": "memcpy",
-      "size_expressions": [
-        "0x24"
-      ]
-    },
-    {
-      "file": "Car.cpp",
-      "line": 7575,
+      "line": 7555,
       "nearest_function": "0x0043f630",
       "call": "memcpy",
       "size_expressions": [
@@ -24104,13 +23794,31 @@
   "hex_multipliers": [
     {
       "file": "Car.cpp",
-      "line": 2114,
+      "line": 2109,
       "nearest_function": "0x0043a920",
       "value": "0x1680"
     },
     {
       "file": "Car.cpp",
-      "line": 3472,
+      "line": 3467,
+      "nearest_function": "0x0042af50",
+      "value": "0x1680"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3468,
+      "nearest_function": "0x0042af50",
+      "value": "0x1680"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3469,
+      "nearest_function": "0x0042af50",
+      "value": "0x1680"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3471,
       "nearest_function": "0x0042af50",
       "value": "0x1680"
     },
@@ -24122,67 +23830,43 @@
     },
     {
       "file": "Car.cpp",
-      "line": 3474,
-      "nearest_function": "0x0042af50",
-      "value": "0x1680"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3476,
-      "nearest_function": "0x0042af50",
-      "value": "0x1680"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3478,
-      "nearest_function": "0x0042af50",
-      "value": "0x1680"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 4873,
+      "line": 4868,
       "nearest_function": "0x00433e80",
       "value": "0x10000"
     },
     {
       "file": "Car.cpp",
-      "line": 4976,
+      "line": 4971,
       "nearest_function": "0x00434140",
       "value": "0x40"
     },
     {
       "file": "Car.cpp",
-      "line": 5362,
+      "line": 5354,
       "nearest_function": "0x00444c10",
       "value": "0xc"
     },
     {
       "file": "Car.cpp",
-      "line": 5364,
+      "line": 5356,
       "nearest_function": "0x00444c10",
       "value": "0xc"
     },
     {
       "file": "Car.cpp",
-      "line": 6584,
-      "nearest_function": "0x0042e450",
-      "value": "0xc"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 7213,
+      "line": 7194,
       "nearest_function": "0x0043c7f0",
       "value": "0xc"
     },
     {
       "file": "Car.cpp",
-      "line": 7214,
+      "line": 7195,
       "nearest_function": "0x0043c7f0",
       "value": "0xc"
     },
     {
       "file": "Car.cpp",
-      "line": 7309,
+      "line": 7289,
       "nearest_function": "0x00423b20",
       "value": "0x5a"
     },
@@ -37805,253 +37489,289 @@
     },
     {
       "file": "Car.cpp",
-      "line": 1277,
+      "line": 1275,
       "nearest_function": "0x00432cc0",
       "name": "g_unk0x00511398"
     },
     {
       "file": "Car.cpp",
-      "line": 1294,
+      "line": 1292,
       "nearest_function": "0x004336f0",
       "name": "g_unk0x00511398"
     },
     {
       "file": "Car.cpp",
-      "line": 3363,
+      "line": 3358,
       "nearest_function": "0x00441500",
       "name": "g_unk0x0053acc8"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3368,
+      "nearest_function": "0x00441500",
+      "name": "g_unk0x0053c9a8"
     },
     {
       "file": "Car.cpp",
       "line": 3373,
       "nearest_function": "0x00441500",
-      "name": "g_unk0x0053c9a8"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3378,
-      "nearest_function": "0x00441500",
       "name": "g_unk0x005199c8"
     },
     {
       "file": "Car.cpp",
-      "line": 3379,
+      "line": 3374,
       "nearest_function": "0x00441500",
       "name": "g_unk0x00519a00"
     },
     {
       "file": "Car.cpp",
-      "line": 3426,
+      "line": 3421,
       "nearest_function": "0x0042af50",
       "name": "g_unk0x00519a00"
     },
     {
       "file": "Car.cpp",
-      "line": 3426,
+      "line": 3421,
       "nearest_function": "0x0042af50",
       "name": "g_unk0x005199c8"
     },
     {
       "file": "Car.cpp",
-      "line": 3428,
+      "line": 3423,
       "nearest_function": "0x0042af50",
       "name": "g_unk0x005199c8"
     },
     {
       "file": "Car.cpp",
-      "line": 3521,
+      "line": 3516,
       "nearest_function": "0x0042b7e0",
       "name": "g_unk0x0053c9a8"
     },
     {
       "file": "Car.cpp",
-      "line": 3529,
+      "line": 3524,
       "nearest_function": "0x0042b7e0",
       "name": "g_unk0x0053a314"
     },
     {
       "file": "Car.cpp",
-      "line": 3531,
+      "line": 3526,
       "nearest_function": "0x0042b7e0",
       "name": "g_unk0x0053bd6c"
     },
     {
       "file": "Car.cpp",
-      "line": 3533,
+      "line": 3528,
       "nearest_function": "0x0042b7e0",
       "name": "g_unk0x0053c9a0"
     },
     {
       "file": "Car.cpp",
-      "line": 3546,
+      "line": 3541,
       "nearest_function": "0x0042b660",
       "name": "g_unk0x0053a314"
     },
     {
       "file": "Car.cpp",
-      "line": 3547,
+      "line": 3542,
       "nearest_function": "0x0042b660",
       "name": "g_unk0x0053bd6c"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3545,
+      "nearest_function": "0x0042b660",
+      "name": "g_unk0x0053c9a0"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3548,
+      "nearest_function": "0x0042b660",
+      "name": "g_unk0x0053acc8"
     },
     {
       "file": "Car.cpp",
       "line": 3550,
       "nearest_function": "0x0042b660",
-      "name": "g_unk0x0053c9a0"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3553,
-      "nearest_function": "0x0042b660",
       "name": "g_unk0x0053acc8"
     },
     {
       "file": "Car.cpp",
-      "line": 3555,
-      "nearest_function": "0x0042b660",
-      "name": "g_unk0x0053acc8"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3577,
+      "line": 3572,
       "nearest_function": "0x0042b710",
       "name": "g_unk0x0053acc8"
     },
     {
       "file": "Car.cpp",
-      "line": 3583,
+      "line": 3578,
       "nearest_function": "0x0042b720",
       "name": "g_unk0x0053acc8"
     },
     {
       "file": "Car.cpp",
-      "line": 3628,
+      "line": 3623,
       "nearest_function": "0x0042b720",
       "name": "g_unk0x0053a300"
     },
     {
       "file": "Car.cpp",
-      "line": 3632,
+      "line": 3627,
       "nearest_function": "0x0042b720",
       "name": "g_unk0x0053a398"
     },
     {
       "file": "Car.cpp",
-      "line": 3634,
+      "line": 3629,
       "nearest_function": "0x0042b720",
       "name": "g_unk0x0053ab88"
     },
     {
       "file": "Car.cpp",
-      "line": 3644,
+      "line": 3639,
       "nearest_function": "0x0042b720",
       "name": "g_unk0x0053bd44"
     },
     {
       "file": "Car.cpp",
-      "line": 3660,
+      "line": 3655,
       "nearest_function": "0x0042b800",
       "name": "g_unk0x0053a300"
     },
     {
       "file": "Car.cpp",
-      "line": 3664,
+      "line": 3659,
       "nearest_function": "0x0042b800",
       "name": "g_unk0x0053a398"
     },
     {
       "file": "Car.cpp",
-      "line": 3672,
+      "line": 3667,
       "nearest_function": "0x0042b800",
       "name": "g_unk0x0053bd44"
     },
     {
       "file": "Car.cpp",
-      "line": 3673,
+      "line": 3668,
       "nearest_function": "0x0042b800",
       "name": "g_unk0x0053ab88"
     },
     {
       "file": "Car.cpp",
-      "line": 3675,
+      "line": 3670,
       "nearest_function": "0x0042b800",
       "name": "g_unk0x0053a398"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3684,
+      "nearest_function": "0x0042b800",
+      "name": "g_unk0x0053bd44"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3685,
+      "nearest_function": "0x0042b800",
+      "name": "g_unk0x0053ab88"
     },
     {
       "file": "Car.cpp",
       "line": 3689,
       "nearest_function": "0x0042b800",
-      "name": "g_unk0x0053bd44"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3690,
-      "nearest_function": "0x0042b800",
-      "name": "g_unk0x0053ab88"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3694,
-      "nearest_function": "0x0042b800",
       "name": "g_unk0x0053a398"
     },
     {
       "file": "Car.cpp",
-      "line": 3696,
+      "line": 3691,
       "nearest_function": "0x0042b800",
       "name": "g_unk0x0053a300"
     },
     {
       "file": "Car.cpp",
-      "line": 3707,
+      "line": 3702,
       "nearest_function": "0x0042b800",
       "name": "g_unk0x0053a300"
     },
     {
       "file": "Car.cpp",
-      "line": 3721,
+      "line": 3716,
       "nearest_function": "0x0042baf0",
       "name": "g_unk0x0053b4f0"
     },
     {
       "file": "Car.cpp",
-      "line": 3721,
+      "line": 3716,
       "nearest_function": "0x0042baf0",
       "name": "g_unk0x0053a310"
     },
     {
       "file": "Car.cpp",
-      "line": 3723,
+      "line": 3718,
       "nearest_function": "0x0042baf0",
       "name": "g_unk0x0053bd6c"
     },
     {
       "file": "Car.cpp",
-      "line": 3724,
+      "line": 3719,
       "nearest_function": "0x0042baf0",
       "name": "g_unk0x0053a270"
     },
     {
       "file": "Car.cpp",
-      "line": 3726,
+      "line": 3721,
       "nearest_function": "0x0042baf0",
       "name": "g_unk0x0053b4f0"
     },
     {
       "file": "Car.cpp",
-      "line": 3726,
+      "line": 3721,
       "nearest_function": "0x0042baf0",
       "name": "g_unk0x0053a310"
     },
     {
       "file": "Car.cpp",
-      "line": 3729,
+      "line": 3724,
       "nearest_function": "0x0042baf0",
       "name": "g_unk0x0053bd6c"
     },
     {
       "file": "Car.cpp",
-      "line": 3731,
+      "line": 3726,
+      "nearest_function": "0x0042baf0",
+      "name": "g_unk0x0053bd6c"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3727,
+      "nearest_function": "0x0042baf0",
+      "name": "g_unk0x0053a314"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3727,
+      "nearest_function": "0x0042baf0",
+      "name": "g_unk0x0053c9a0"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3728,
+      "nearest_function": "0x0042baf0",
+      "name": "g_unk0x0053bd6c"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3729,
+      "nearest_function": "0x0042baf0",
+      "name": "g_unk0x0053a314"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3729,
+      "nearest_function": "0x0042baf0",
+      "name": "g_unk0x0053c9a0"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 3730,
       "nearest_function": "0x0042baf0",
       "name": "g_unk0x0053bd6c"
     },
@@ -38071,49 +37791,37 @@
       "file": "Car.cpp",
       "line": 3733,
       "nearest_function": "0x0042baf0",
-      "name": "g_unk0x0053bd6c"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3734,
-      "nearest_function": "0x0042baf0",
-      "name": "g_unk0x0053a314"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3734,
-      "nearest_function": "0x0042baf0",
-      "name": "g_unk0x0053c9a0"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3735,
-      "nearest_function": "0x0042baf0",
-      "name": "g_unk0x0053bd6c"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3737,
-      "nearest_function": "0x0042baf0",
-      "name": "g_unk0x0053a314"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3737,
-      "nearest_function": "0x0042baf0",
-      "name": "g_unk0x0053c9a0"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 3738,
-      "nearest_function": "0x0042baf0",
       "name": "g_unk0x0053b4f0"
     },
     {
       "file": "Car.cpp",
-      "line": 3738,
+      "line": 3733,
       "nearest_function": "0x0042baf0",
       "name": "g_unk0x0053a310"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 4246,
+      "nearest_function": "0x00423010",
+      "name": "g_unk0x00538f00"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 4247,
+      "nearest_function": "0x00423010",
+      "name": "g_unk0x00538f00"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 4248,
+      "nearest_function": "0x00423010",
+      "name": "g_unk0x00538df8"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 4249,
+      "nearest_function": "0x00423010",
+      "name": "g_unk0x00538c98"
     },
     {
       "file": "Car.cpp",
@@ -38123,21 +37831,9 @@
     },
     {
       "file": "Car.cpp",
-      "line": 4252,
+      "line": 4255,
       "nearest_function": "0x00423010",
       "name": "g_unk0x00538f00"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 4253,
-      "nearest_function": "0x00423010",
-      "name": "g_unk0x00538df8"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 4254,
-      "nearest_function": "0x00423010",
-      "name": "g_unk0x00538c98"
     },
     {
       "file": "Car.cpp",
@@ -38147,165 +37843,255 @@
     },
     {
       "file": "Car.cpp",
-      "line": 4260,
-      "nearest_function": "0x00423010",
-      "name": "g_unk0x00538f00"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 4261,
-      "nearest_function": "0x00423010",
-      "name": "g_unk0x00538f00"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 4708,
+      "line": 4703,
       "nearest_function": "0x004373c0",
       "name": "g_unk0x0053c9d4"
     },
     {
       "file": "Car.cpp",
-      "line": 4752,
+      "line": 4747,
       "nearest_function": "0x00433890",
       "name": "g_unk0x0053c9d4"
     },
     {
       "file": "Car.cpp",
-      "line": 4927,
+      "line": 4922,
       "nearest_function": "0x00434070",
       "name": "g_unk0x0053c9d4"
     },
     {
       "file": "Car.cpp",
-      "line": 4930,
+      "line": 4925,
       "nearest_function": "0x00434070",
       "name": "g_unk0x0053c9d4"
     },
     {
       "file": "Car.cpp",
-      "line": 5015,
+      "line": 5010,
       "nearest_function": "0x00434140",
       "name": "g_unk0x0053c9d4"
     },
     {
       "file": "Car.cpp",
-      "line": 5096,
+      "line": 5091,
       "nearest_function": "0x004348c0",
       "name": "g_unk0x0053c9d4"
     },
     {
       "file": "Car.cpp",
-      "line": 5452,
+      "line": 5444,
       "nearest_function": "0x004458d0",
       "name": "g_unk0x0053cdb4"
     },
     {
       "file": "Car.cpp",
-      "line": 5457,
+      "line": 5449,
       "nearest_function": "0x00445a20",
       "name": "g_unk0x0053cdb4"
     },
     {
       "file": "Car.cpp",
-      "line": 5483,
+      "line": 5475,
       "nearest_function": "0x00423db0",
       "name": "g_unk0x0053901c"
     },
     {
       "file": "Car.cpp",
-      "line": 5483,
+      "line": 5475,
       "nearest_function": "0x00423db0",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 5485,
+      "line": 5477,
       "nearest_function": "0x00423db0",
       "name": "Unk00423ee0Block"
     },
     {
       "file": "Car.cpp",
-      "line": 5510,
+      "line": 5502,
       "nearest_function": "0x00423ee0",
       "name": "Unk00423ee0Block"
     },
     {
       "file": "Car.cpp",
-      "line": 5510,
+      "line": 5502,
       "nearest_function": "0x00423ee0",
       "name": "Unk00423ee0Block"
     },
     {
       "file": "Car.cpp",
-      "line": 5562,
+      "line": 5554,
       "nearest_function": "0x004218d0",
       "name": "g_unk0x0053901c"
     },
     {
       "file": "Car.cpp",
-      "line": 5563,
+      "line": 5555,
       "nearest_function": "0x004218d0",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 5639,
+      "line": 5631,
       "nearest_function": "0x0042b740",
       "name": "g_unk0x0053c9a8"
     },
     {
       "file": "Car.cpp",
-      "line": 5649,
+      "line": 5641,
       "nearest_function": "0x0042b790",
       "name": "g_unk0x0053c9a8"
     },
     {
       "file": "Car.cpp",
-      "line": 5650,
+      "line": 5642,
       "nearest_function": "0x0042b790",
       "name": "g_unk0x0053c9a8"
     },
     {
       "file": "Car.cpp",
-      "line": 5652,
+      "line": 5644,
       "nearest_function": "0x0042b790",
       "name": "g_unk0x0053c9a8"
     },
     {
       "file": "Car.cpp",
-      "line": 5689,
+      "line": 5681,
       "nearest_function": "0x00421fe0",
       "name": "g_unk0x00538d2c"
     },
     {
       "file": "Car.cpp",
-      "line": 5757,
+      "line": 5749,
       "nearest_function": "0x00431c10",
       "name": "g_unk0x0053c9c4"
     },
     {
       "file": "Car.cpp",
-      "line": 5759,
+      "line": 5751,
       "nearest_function": "0x00431c10",
       "name": "g_unk0x0053ca24"
     },
     {
       "file": "Car.cpp",
-      "line": 5761,
+      "line": 5753,
       "nearest_function": "0x00431c10",
       "name": "g_unk0x0053ca58"
     },
     {
       "file": "Car.cpp",
-      "line": 5763,
+      "line": 5755,
       "nearest_function": "0x00431c10",
       "name": "g_unk0x0053cae8"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5827,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053cae8"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5831,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca58"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5831,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053cae8"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5832,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca58"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5832,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053cae8"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5833,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca58"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5833,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053cae8"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5834,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca58"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5834,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca58"
     },
     {
       "file": "Car.cpp",
       "line": 5835,
       "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053cae8"
+      "name": "g_unk0x0053ca58"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5835,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca58"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5836,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca24"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5836,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca58"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5837,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca58"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5837,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca58"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5838,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca58"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5838,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca58"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5839,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca24"
     },
     {
       "file": "Car.cpp",
@@ -38315,21 +38101,9 @@
     },
     {
       "file": "Car.cpp",
-      "line": 5839,
+      "line": 5841,
       "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053cae8"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5840,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca58"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5840,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053cae8"
+      "name": "g_unk0x0053ca24"
     },
     {
       "file": "Car.cpp",
@@ -38339,21 +38113,9 @@
     },
     {
       "file": "Car.cpp",
-      "line": 5841,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053cae8"
-    },
-    {
-      "file": "Car.cpp",
       "line": 5842,
       "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca58"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5842,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca58"
+      "name": "g_unk0x0053ca24"
     },
     {
       "file": "Car.cpp",
@@ -38369,21 +38131,15 @@
     },
     {
       "file": "Car.cpp",
-      "line": 5844,
+      "line": 5843,
       "nearest_function": "0x00431d80",
       "name": "g_unk0x0053ca24"
     },
     {
       "file": "Car.cpp",
-      "line": 5844,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca58"
-    },
-    {
-      "file": "Car.cpp",
       "line": 5845,
       "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca58"
+      "name": "g_unk0x0053c9c4"
     },
     {
       "file": "Car.cpp",
@@ -38395,587 +38151,515 @@
       "file": "Car.cpp",
       "line": 5846,
       "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca58"
+      "name": "g_unk0x0053c9c4"
     },
     {
       "file": "Car.cpp",
       "line": 5846,
       "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca58"
+      "name": "g_unk0x0053c9c4"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 5846,
+      "nearest_function": "0x00431d80",
+      "name": "g_unk0x0053ca24"
     },
     {
       "file": "Car.cpp",
       "line": 5847,
       "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca24"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5847,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca58"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5849,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca24"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5849,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca58"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5850,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca24"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5851,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca58"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5851,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca58"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5851,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca24"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5853,
-      "nearest_function": "0x00431d80",
       "name": "g_unk0x0053c9c4"
     },
     {
       "file": "Car.cpp",
-      "line": 5853,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca58"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5854,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053c9c4"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5854,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053c9c4"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5854,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053ca24"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5855,
-      "nearest_function": "0x00431d80",
-      "name": "g_unk0x0053c9c4"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 5967,
+      "line": 5959,
       "nearest_function": "0x00437fd0",
       "name": "g_unk0x00538d20"
     },
     {
       "file": "Car.cpp",
-      "line": 5969,
+      "line": 5961,
       "nearest_function": "0x00437fd0",
       "name": "g_unk0x005391a8"
     },
     {
       "file": "Car.cpp",
-      "line": 5971,
+      "line": 5963,
       "nearest_function": "0x00437fd0",
       "name": "g_unk0x005391b0"
     },
     {
       "file": "Car.cpp",
-      "line": 5973,
+      "line": 5965,
       "nearest_function": "0x00437fd0",
       "name": "g_unk0x005391c4"
     },
     {
       "file": "Car.cpp",
-      "line": 5998,
+      "line": 5990,
       "nearest_function": "0x00421590",
       "name": "g_unk0x00538d2c"
     },
     {
       "file": "Car.cpp",
-      "line": 5999,
+      "line": 5991,
       "nearest_function": "0x00421590",
       "name": "g_unk0x00538d20"
     },
     {
       "file": "Car.cpp",
-      "line": 6000,
+      "line": 5992,
       "nearest_function": "0x00421590",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 6001,
+      "line": 5993,
       "nearest_function": "0x00421590",
       "name": "g_unk0x005391b0"
     },
     {
       "file": "Car.cpp",
-      "line": 6002,
+      "line": 5994,
       "nearest_function": "0x00421590",
       "name": "g_unk0x005391c4"
     },
     {
       "file": "Car.cpp",
-      "line": 6003,
+      "line": 5995,
       "nearest_function": "0x00421590",
       "name": "g_unk0x005391a8"
     },
     {
       "file": "Car.cpp",
-      "line": 6004,
+      "line": 5996,
       "nearest_function": "0x00421590",
       "name": "g_unk0x00538f00"
     },
     {
       "file": "Car.cpp",
-      "line": 6119,
+      "line": 6111,
       "nearest_function": "0x0042b4a0",
       "name": "g_unk0x00511398"
     },
     {
       "file": "Car.cpp",
-      "line": 6221,
+      "line": 6213,
       "nearest_function": "0x00442e90",
       "name": "g_unk0x005391cc"
     },
     {
       "file": "Car.cpp",
-      "line": 6223,
+      "line": 6215,
       "nearest_function": "0x00442e90",
       "name": "g_unk0x00511380"
     },
     {
       "file": "Car.cpp",
-      "line": 6371,
+      "line": 6363,
       "nearest_function": "0x00435470",
       "name": "g_unk0x00511380"
     },
     {
       "file": "Car.cpp",
-      "line": 6372,
+      "line": 6364,
       "nearest_function": "0x00435470",
       "name": "g_unk0x00511380"
     },
     {
       "file": "Car.cpp",
-      "line": 6373,
+      "line": 6365,
       "nearest_function": "0x00435470",
       "name": "g_unk0x00511380"
     },
     {
       "file": "Car.cpp",
-      "line": 6375,
+      "line": 6367,
       "nearest_function": "0x00435470",
       "name": "g_unk0x00511380"
     },
     {
       "file": "Car.cpp",
-      "line": 6376,
+      "line": 6368,
       "nearest_function": "0x00435470",
       "name": "g_unk0x00511380"
     },
     {
       "file": "Car.cpp",
-      "line": 6377,
+      "line": 6369,
       "nearest_function": "0x00435470",
       "name": "g_unk0x00511380"
     },
     {
       "file": "Car.cpp",
-      "line": 7294,
+      "line": 7274,
       "nearest_function": "0x00423b20",
       "name": "g_unk0x00538ca0"
     },
     {
       "file": "Car.cpp",
-      "line": 7295,
+      "line": 7275,
       "nearest_function": "0x00423b20",
       "name": "g_unk0x00538ca0"
     },
     {
       "file": "Car.cpp",
-      "line": 7306,
+      "line": 7286,
       "nearest_function": "0x00423b20",
       "name": "g_unk0x00538f00"
     },
     {
       "file": "Car.cpp",
-      "line": 7308,
+      "line": 7288,
       "nearest_function": "0x00423b20",
       "name": "g_unk0x00538df8"
     },
     {
       "file": "Car.cpp",
-      "line": 7331,
+      "line": 7311,
       "nearest_function": "0x00423b20",
       "name": "g_unk0x00538c98"
     },
     {
       "file": "Car.cpp",
-      "line": 7570,
+      "line": 7550,
       "nearest_function": "0x0043f630",
       "name": "g_unk0x0053c9d4"
     },
     {
       "file": "Car.cpp",
-      "line": 7923,
+      "line": 7899,
       "nearest_function": "0x0042fb20",
       "name": "g_unk0x00538d2c"
     },
     {
       "file": "Car.cpp",
-      "line": 7924,
+      "line": 7900,
       "nearest_function": "0x0042fb20",
       "name": "g_unk0x00538e38"
     },
     {
       "file": "Car.cpp",
-      "line": 7927,
+      "line": 7903,
       "nearest_function": "0x0042fb20",
       "name": "g_unk0x00511308"
     },
     {
       "file": "Car.cpp",
-      "line": 7930,
+      "line": 7906,
       "nearest_function": "0x0042fb20",
       "name": "g_unk0x00511308"
     },
     {
       "file": "Car.cpp",
-      "line": 7932,
+      "line": 7908,
       "nearest_function": "0x0042fb20",
       "name": "Unk004238e0"
     },
     {
       "file": "Car.cpp",
-      "line": 7935,
+      "line": 7911,
       "nearest_function": "0x0042fb20",
       "name": "Unk004238e0"
     },
     {
       "file": "Car.cpp",
-      "line": 8032,
+      "line": 8008,
       "nearest_function": "0x00423460",
       "name": "g_unk0x00538f00"
     },
     {
       "file": "Car.cpp",
-      "line": 8165,
+      "line": 8141,
       "nearest_function": "0x00421610",
       "name": "g_unk0x00538d2c"
     },
     {
       "file": "Car.cpp",
-      "line": 8166,
+      "line": 8142,
       "nearest_function": "0x00421610",
       "name": "g_unk0x00538d20"
     },
     {
       "file": "Car.cpp",
-      "line": 8167,
+      "line": 8143,
       "nearest_function": "0x00421610",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8168,
+      "line": 8144,
       "nearest_function": "0x00421610",
       "name": "g_unk0x005391b0"
     },
     {
       "file": "Car.cpp",
-      "line": 8169,
+      "line": 8145,
       "nearest_function": "0x00421610",
       "name": "g_unk0x005391c4"
     },
     {
       "file": "Car.cpp",
-      "line": 8170,
+      "line": 8146,
       "nearest_function": "0x00421610",
       "name": "g_unk0x005391a8"
     },
     {
       "file": "Car.cpp",
-      "line": 8172,
+      "line": 8148,
       "nearest_function": "0x00421610",
       "name": "g_unk0x00538f00"
     },
     {
       "file": "Car.cpp",
-      "line": 8194,
+      "line": 8170,
       "nearest_function": "0x00421720",
       "name": "g_unk0x00538e0c"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8171,
+      "nearest_function": "0x00421720",
+      "name": "g_unk0x00538e0c"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8189,
+      "nearest_function": "0x00421720",
+      "name": "g_unk0x00538d20"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8192,
+      "nearest_function": "0x00421720",
+      "name": "Unk004238e0"
     },
     {
       "file": "Car.cpp",
       "line": 8195,
       "nearest_function": "0x00421720",
-      "name": "g_unk0x00538e0c"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8213,
-      "nearest_function": "0x00421720",
-      "name": "g_unk0x00538d20"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8216,
-      "nearest_function": "0x00421720",
-      "name": "Unk004238e0"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8219,
-      "nearest_function": "0x00421720",
       "name": "g_unk0x005391b0"
     },
     {
       "file": "Car.cpp",
-      "line": 8220,
+      "line": 8196,
+      "nearest_function": "0x00421720",
+      "name": "g_unk0x00538e0c"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8196,
       "nearest_function": "0x00421720",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
       "line": 8220,
-      "nearest_function": "0x00421720",
-      "name": "g_unk0x00538e0c"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8244,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8245,
+      "line": 8221,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8246,
+      "line": 8222,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538f00"
     },
     {
       "file": "Car.cpp",
-      "line": 8247,
+      "line": 8223,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538f00"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8224,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538c98"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8225,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538c98"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8226,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538f00"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8227,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538c98"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8229,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538f00"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8230,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538c98"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8231,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538c98"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8232,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538f00"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8233,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538c98"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8236,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538df8"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8237,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538df8"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8238,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538df8"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8241,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538d20"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8242,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x00538d20"
     },
     {
       "file": "Car.cpp",
       "line": 8248,
       "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538c98"
+      "name": "g_unk0x005391c4"
+    },
+    {
+      "file": "Car.cpp",
+      "line": 8248,
+      "nearest_function": "0x004219b0",
+      "name": "g_unk0x005391b0"
     },
     {
       "file": "Car.cpp",
       "line": 8249,
       "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538c98"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8250,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538f00"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8251,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538c98"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8253,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538f00"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8254,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538c98"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8255,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538c98"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8256,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538f00"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8257,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538c98"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8260,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538df8"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8261,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538df8"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8262,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538df8"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8265,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538d20"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8266,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x00538d20"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8272,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x005391c4"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8272,
-      "nearest_function": "0x004219b0",
       "name": "g_unk0x005391b0"
     },
     {
       "file": "Car.cpp",
-      "line": 8273,
-      "nearest_function": "0x004219b0",
-      "name": "g_unk0x005391b0"
-    },
-    {
-      "file": "Car.cpp",
-      "line": 8303,
+      "line": 8279,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538d2c"
     },
     {
       "file": "Car.cpp",
-      "line": 8307,
+      "line": 8283,
       "nearest_function": "0x004219b0",
       "name": "Unk004238e0"
     },
     {
       "file": "Car.cpp",
-      "line": 8311,
+      "line": 8287,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8311,
+      "line": 8287,
       "nearest_function": "0x004219b0",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8322,
+      "line": 8298,
       "nearest_function": "0x00421d80",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8323,
+      "line": 8299,
       "nearest_function": "0x00421d80",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8331,
+      "line": 8307,
       "nearest_function": "0x00421d80",
       "name": "g_unk0x005391b0"
     },
     {
       "file": "Car.cpp",
-      "line": 8344,
+      "line": 8320,
       "nearest_function": "0x00421e20",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8345,
+      "line": 8321,
       "nearest_function": "0x00421e20",
       "name": "g_unk0x00538e0c"
     },
     {
       "file": "Car.cpp",
-      "line": 8352,
+      "line": 8328,
       "nearest_function": "0x00421e20",
       "name": "g_unk0x00538d20"
     },
     {
       "file": "Car.cpp",
-      "line": 8352,
+      "line": 8328,
       "nearest_function": "0x00421e20",
       "name": "g_unk0x00538d20"
     },
     {
       "file": "Car.cpp",
-      "line": 8391,
+      "line": 8367,
       "nearest_function": "0x00422140",
       "name": "g_unk0x005391cc"
     },
     {
       "file": "Car.cpp",
-      "line": 8392,
+      "line": 8368,
       "nearest_function": "0x00422140",
       "name": "g_unk0x005391a8"
     },
     {
       "file": "Car.cpp",
-      "line": 8393,
+      "line": 8369,
       "nearest_function": "0x00422140",
       "name": "g_unk0x00538df0"
     },

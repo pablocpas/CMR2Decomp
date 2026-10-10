@@ -113,7 +113,9 @@ def check_tu(src, base, sizes, workdir):
         try:
             score, exact, detail, unknown = compare(addr, obj, str(src), row["symbol_name"],
                                                     sizes.get(addr), coff)
-            results[addr] = dict(s=score, x=exact and not unknown, detail=detail, unknown=unknown)
+            matched = exact and not unknown
+            fuzzy = 1.0 if matched else min(shape_score(*detail[:2]), 0.9999)
+            results[addr] = dict(s=score, x=matched, fz=fuzzy, detail=detail, unknown=unknown)
         except Exception as error:
             results[addr] = dict(s=0.0, x=False, err=str(error))
     return src, results, None, time.time() - t0
@@ -165,6 +167,10 @@ def report(src, results, base, focus, args):
         elif addr in focus or args.all:
             state = f"{G}exact{X}" if r["x"] else f"{100 * new:.2f}%"
             lines.append(f"  {D}same{X}     {addr:#x} {name}: {state}")
+        if "fz" in r and r["fz"] < b.get("fz", 0) - 1e-9:
+            lines.append(f"  {R}worse fz{X} {addr:#x} {name}: "
+                         f"{100 * b['fz']:.2f}% -> {100 * r['fz']:.2f}%")
+            regress += 1
     print(f"{B}{src.name}{X}: {new_x}/{len(results)} exact (baseline {old_x})")
     for line in lines:
         print(line)

@@ -1,0 +1,1 @@
+PASS: six actual bodies, 354 x64 scenarios, all fifteen pointers above 4 GB intact; complete primitive heap matches original, ASan/UBSan

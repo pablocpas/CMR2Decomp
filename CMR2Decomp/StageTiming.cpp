@@ -4613,9 +4613,9 @@ void StageObject_UpdateThirdRouteRamp(ViewLightingRamp *pRecord, int view)
     }
 }
 
-int StageObject_GetCarWeatherRampValue(BYTE *pCar);
+int StageObject_GetCarWeatherRampValue(Car *pCar);
 void Car_UpdateSurfaceParams(Car *pCar, int blend);
-void StageObject_CopyCarSurfaceNoiseTarget(BYTE *pCar);
+void StageObject_CopyCarSurfaceNoiseTarget(Car *pCar);
 
 // Sets the third object ramp and resets every car's record and surface.
 // FUNCTION: CMR2 0x0045e710
@@ -4639,8 +4639,8 @@ void StageTiming_SetThirdObjectRamp(int v1, int v2, int from, int to)
         p->lastRoutePosition = 0;
         p->routePosition = 0;
         p->blend = g_surfaceBlendFrom;
-        Car_UpdateSurfaceParams(Car_Get(i), StageObject_GetCarWeatherRampValue((BYTE *)Car_Get(i)));
-        StageObject_CopyCarSurfaceNoiseTarget((BYTE *)Car_Get(i));
+        Car_UpdateSurfaceParams(Car_Get(i), StageObject_GetCarWeatherRampValue(Car_Get(i)));
+        StageObject_CopyCarSurfaceNoiseTarget(Car_Get(i));
         i++;
     } while (i < (int)(g_stageObjectCount.packed & 0xff));
     }
@@ -6421,7 +6421,7 @@ void StageTiming_InitEffectParticleTypes(void)
 }
 
 void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5, int param_6);
-void Car_ResetBodyBasis(int param_1);
+void Car_ResetBodyBasis(Car *param_1);
 void StageTiming_IntegratePartSpringMotion(void);
 
 // One wheel/hub record (stride 0x1a0) of the four slots CarPart_InitWheelHubSlot installs:
@@ -6784,7 +6784,7 @@ void StageTiming_PlaceCarViewNodesAndBody(SceneNode *pNodeA, SceneNode *pNodeB, 
     SceneNode_SetPosition(pNodeA, pPosition);
     SceneNode_SetPosition(pNodeB, pPosition);
     Car_Spawn((int)Car_Get(carIndex), (int)pNodeA, param_4, (int *)pPosition, carIndex, param_7);
-    Car_ResetBodyBasis((int)Car_Get(carIndex));
+    Car_ResetBodyBasis(Car_Get(carIndex));
     if (CGameInfo::GetGameModeOptionBit19() != 0)
         StageTiming_SnapshotCarNetworkPose(Car_Get(carIndex));
 }

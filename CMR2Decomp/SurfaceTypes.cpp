@@ -311,7 +311,7 @@ store_grip2B:
             level = FixMul(((int)noise & 0xfffffffc) * 0x4000 + level, 0x28f);
             previous = pCar->field_0xa74;
             diff = level - previous;
-            *(int *)((BYTE *)pCar + 0xa78) = level;
+            pCar->field_0xa78 = level;
             if (FIX_ABS(diff) < 0x3334) {
                 pCar->field_0xa74 = level;
                 return;

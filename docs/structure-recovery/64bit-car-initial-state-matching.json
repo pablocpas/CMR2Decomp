@@ -1,0 +1,30 @@
+{
+  "baseline": "1a08864",
+  "functions": 3364,
+  "unchanged_scores": 3363,
+  "changed": [
+    {
+      "address": "0x431ff0",
+      "name": "Car_PlaceAtStart",
+      "before": {
+        "s": 0.7476518472135254,
+        "fz": 0.9204758922980588,
+        "x": false
+      },
+      "after": {
+        "s": 0.7944862155388471,
+        "fz": 0.931077694235589,
+        "x": false
+      }
+    }
+  ],
+  "byte_exact": 2922,
+  "score_regressions": 0,
+  "fuzzy_regressions": 0,
+  "raw_accesses_before": 1489,
+  "raw_accesses_after": 1452,
+  "obsolete_macro_candidates_removed": 16,
+  "real_raw_accesses_replaced": 21,
+  "native_scenarios": 354,
+  "differential_cases": 3456
+}

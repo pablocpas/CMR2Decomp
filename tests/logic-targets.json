@@ -164,6 +164,17 @@
       "0x456b70"
     ]
   },
+  "differential_car_initial_state.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x431ff0",
+      "0x43e680",
+      "0x42e450",
+      "0x460c80",
+      "0x4789b0",
+      "0x46eeb0"
+    ]
+  },
   "differential_car_light_state.py": {
     "arguments": "entities",
     "targets": [
@@ -734,6 +745,12 @@
       "0x40d480"
     ]
   },
+  "differential_sprite_rectangle_context.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x475970"
+    ]
+  },
   "differential_stage_grid.py": {
     "arguments": "entities",
     "targets": [
@@ -816,12 +833,6 @@
     "targets": [
       "0x45b580",
       "0x45c820"
-    ]
-  },
-  "differential_sprite_rectangle_context.py": {
-    "arguments": "entities",
-    "targets": [
-      "0x475970"
     ]
   }
 }

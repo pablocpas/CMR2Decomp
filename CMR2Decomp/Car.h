@@ -57,12 +57,24 @@ struct Car {
     FixVector positionPrev2;          // 0x2f4  and of the one before
     FixVector cornerPrev[4];          // 0x300  previous positions of the four lower corners
     FixVector cornerPrev2[4];         // 0x330  and the ones before
-    FixVector right;                  // 0x360  body axes (rows of the body matrix)
-    FixVector up;                     // 0x36c
-    FixVector forward;                // 0x378
-    BYTE field_0x384[0xc];
-    FixVector targetUp;               // 0x390  up/forward the body relaxes towards
-    FixVector targetForward;          // 0x39c
+    // The original copies all nine words together at start/reset and restores
+    // them together on a player fade. These overlays are runtime state.
+    union {
+        struct {
+            FixVector right;         // 0x360 body axes (rows of the body matrix)
+            FixVector up;            // 0x36c
+            FixVector forward;       // 0x378
+        };
+        int bodyAxes[9];
+    };
+    union {
+        struct {
+            FixVector targetRight;   // 0x384 saved right, restored with up/forward
+            FixVector targetUp;      // 0x390 up/forward the body relaxes towards
+            FixVector targetForward; // 0x39c
+        };
+        int targetAxes[9];
+    };
     FixVector frontWheelAxis;         // 0x3a8  lateral axis of the front (steered) wheels
     FixVector frontWheelDir;          // 0x3b4  rolling direction of the front wheels 0/1: rearWheelDir turned by the steering
     FixVector wheelEmitter[4];        // 0x3c0  wheel dust/smoke emitter in body space
@@ -185,7 +197,7 @@ struct Car {
     BYTE field_0xa6c[0x4];
     int field_0xa70;                  // 0xa70
     int field_0xa74;
-    BYTE field_0xa78[0x4];
+    int field_0xa78;                  // 0xa78 surface-noise target, copied to +0xa74
     int field_0xa7c;                  // 0xa7c
     int field_0xa80;
     int field_0xa84;

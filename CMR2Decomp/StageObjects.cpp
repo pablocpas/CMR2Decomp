@@ -48,7 +48,7 @@ void StageObject_AdvanceAnimatedRecordState(ViewWeatherState *p, int unused);
 BYTE StageObject_GetViewWeatherStateByte(int index);
 int StageObject_GetViewWeatherField54(int index);
 void StageObject_SetScaledValue(int value, int index);
-int StageObject_GetCarWeatherRampValue(BYTE *pCar);
+int StageObject_GetCarWeatherRampValue(Car *pCar);
 int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar);
 void StageObject_SetLighting(const StageLightPreset *pPrimary, const StageLightPreset *pSecondary);
 int StageObject_BlendClampedByteValues(BYTE a, BYTE b, int t);
@@ -409,7 +409,7 @@ void StageObject_UpdateCarSoundElapsedTime(int index);
 void StageObject_ResetCarSoundElapsedTime(int index);
 void StageObject_AddCarSoundTimeSeconds(int index, int seconds);
 int StageObject_GetCarSoundElapsedTime(int index);
-void StageObject_CopyCarSurfaceNoiseTarget(BYTE *pCar);
+void StageObject_CopyCarSurfaceNoiseTarget(Car *pCar);
 BYTE StageObject_LoadStageMenuSounds(void);
 void StageObject_SetSoundStateValue(int value);
 void SurfaceSound_UpdateNearestLocalCarEngines(void);
@@ -1262,9 +1262,9 @@ void StageObject_SetScaledValue(int value, int index)
 }
 
 // FUNCTION: CMR2 0x00460c80
-int StageObject_GetCarWeatherRampValue(BYTE *pCar)
+int StageObject_GetCarWeatherRampValue(Car *pCar)
 {
-    return g_carSurfaceRamps[(signed char)pCar[0xb1a]].blend;
+    return g_carSurfaceRamps[(signed char)pCar->index].blend;
 }
 
 // FUNCTION: CMR2 0x00463270
@@ -2750,9 +2750,9 @@ int StageObject_GetCarSoundElapsedTime(int index)
 }
 
 // FUNCTION: CMR2 0x004789b0
-void StageObject_CopyCarSurfaceNoiseTarget(BYTE *pCar)
+void StageObject_CopyCarSurfaceNoiseTarget(Car *pCar)
 {
-    *(int *)(pCar + 0xa74) = *(int *)(pCar + 0xa78);
+    pCar->field_0xa74 = pCar->field_0xa78;
 }
 
 // Second group (0x4805f0-0x49e940)
@@ -4219,7 +4219,7 @@ void CarLight_InvalidateAppliedLevels(void)
     }
 }
 
-int StageObject_GetCarWeatherRampValue(BYTE *pCar);
+int StageObject_GetCarWeatherRampValue(Car *pCar);
 char RallyData_GetUsableRecordCategory(BYTE param1);
 
 // GLOBAL: CMR2 0x005909b8
@@ -4432,11 +4432,11 @@ int StageObject_SelectNonemptyRecordList(int *pList)
 BYTE StageObject_IsWheelOnActiveEffectSurface(int index, int wheel)
 {
     BYTE result;
-    BYTE *pCar;
+    Car *pCar;
 
     result = 0;
-    pCar = (BYTE *)Car_Get(index);
-    switch (*(short *)(pCar + 0xaae + wheel * 2)) {
+    pCar = Car_Get(index);
+    switch (pCar->wheelSurface[wheel]) {
     case 0:
     case 3:
     case 0xc:
@@ -11893,7 +11893,7 @@ void StageObject_UpdateCarLightFlagsAndGlows(int param_1)
             idx++;
         Glow_SetLayerPlane(glow, &planePos, (FixVector *)(param_1 + 0x48c),
                            Surface_GetTransitionBlend(pCar->wheelSurface[idx],
-                                        StageObject_GetCarWeatherRampValue((BYTE *)param_1)));
+                                        StageObject_GetCarWeatherRampValue((Car *)param_1)));
         if (StageObject_GetCarStateSlot((BYTE *)param_1) != 0) {
             ii = (unsigned short)pPoint->vertex;
             oi = (unsigned short)pPoint->object;

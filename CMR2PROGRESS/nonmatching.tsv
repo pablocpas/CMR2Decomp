@@ -224,7 +224,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4584d0	StageTiming_PlaceEventStartingGrid	StageTiming.cpp	1284	0.8042959427207638	0.7557160048134778
 0x49b3e0	WheelSpray_Update	CarEffects.cpp	2244	0.8048606147248034	0.7558386411889597
 0x4348c0	Car_UpdateCornerLoads	Car.cpp	1668	0.8057259713701431	0.789795918367347
-0x431ff0	Car_PlaceAtStart	Car.cpp	2874	0.8061029879211697	0.7476518472135254
 0x4d5fb0	FrontendMenu_DrawDifficulty	FrontendScreens.cpp	695	0.8074534161490683	0.8068669527896996
 0x47c2f0	AI_LoadStageRouteTables	StageObjects.cpp	701	0.8088888888888889	0.756152125279642
 0x457e10	CarInfo_GetSection	StageTiming.cpp	59	0.8095238095238095	0.7619047619047619
@@ -278,6 +277,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4d5ad0	FrontendDraw_RipplingDotIcon	FrontendScreens.cpp	450	0.8542372881355932	0.8707482993197279
 0x480600	StageObject_UpdateDebris	StageObjects.cpp	617	0.8547008547008547	0.888268156424581
 0x507080	OptionPreview_RebuildMeshRecord	GameInfo.cpp	521	0.8553846153846154	0.8722741433021807
+0x431ff0	Car_PlaceAtStart	Car.cpp	2874	0.8556897647806738	0.7944862155388471
 0x4744f0	Knockout_DrawCurrentRoundBracket	StageObjects.cpp	2774	0.8560962846677133	0.7824267782426778
 0x46cbe0	Replay_CanExtendControlPacketRun	StageObjects.cpp	121	0.8571428571428571	0.8080808080808081
 0x47e1e0	StageObject_InterpolateHeadlightGlows	StageObjects.cpp	681	0.857707509881423	0.857707509881423
