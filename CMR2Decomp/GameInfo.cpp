@@ -11302,6 +11302,8 @@ int OptionPreview_LoadStageGeometryRecord(int index)
 // ---------------------------------------------------------------------------
 // Identifier tables of the profile screens (defined in FrontendMenus.cpp).
 // ---------------------------------------------------------------------------
+#include "BestTimeRecords.h"
+
 extern BYTE g_unk0x00825398[0x4c];
 extern BYTE g_unk0x008253e4[0x98];
 extern BYTE g_unk0x0082547c[0x898];
@@ -11317,9 +11319,9 @@ void FrontendProfile_ScrambleIdentifier(unsigned int param_1, unsigned int *pNum
 // FUNCTION: CMR2 0x004f8b30
 void FrontendRecords_BuildScrambledBestTimeTables(void)
 {
-    int iVar2;
-    int iVar3;
-    int iVar4;
+    BestTimeCursor iVar2;
+    BestTimeCursor iVar3;
+    unsigned int *iVar4;
     unsigned int uVar5;
     unsigned int uVar8;
     unsigned int *puVar10;
@@ -11348,28 +11350,28 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
             unsigned rest : 1;
         } rally;
     } local_8;
-    int local_c;
-    BYTE *local_10;
+    BestTimeCursor local_c;
+    BestTimeCursor local_10;
     int local_14;
     BYTE *local_18;
     int local_1c;
 
     local_8.word = 0;
     local_4.word = 0;
-    local_10 = 0;
+    local_10.index = 0;
     local_14 = 0x150;
     do {
-        local_c = ((int)local_10 % 2) + 10;
+        local_c.index = (local_10.index % 2) + 10;
         local_1c = local_14;
-        for (uVar8 = 0; (int)uVar8 < local_c; uVar8++) {
+        for (uVar8 = 0; (int)uVar8 < local_c.index; uVar8++) {
             {
                 puVar7 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 4 + local_1c);
                 puVar10 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + local_1c);
                 if (((*puVar10 & 0x80) == 0) || (*puVar7 / 6000 >= 16)) {
-                    g_unk0x0082547c[((int)local_10 * 11 + uVar8) * 0x19] = 0;
+                    g_unk0x0082547c[(local_10.index * 11 + uVar8) * 0x19] = 0;
                 } else {
                     local_8.word = (local_8.word & 0xfffff00f) |
-                              (((uVar8 & 0xf) << 4 | (unsigned int)local_10 & 0xf) << 4);
+                              (((uVar8 & 0xf) << 4 | (unsigned int)local_10.index & 0xf) << 4);
                     local_8.word = (local_8.word & 0xfffc0fff) | (*puVar10 & 0x3f) << 0xc;
                     local_8.word = (local_8.word & 0x7fffffff) | (~*puVar10 & 0xffffffc0) << 0x19;
                     local_8.word = local_8.word ^ ((*puVar7 / 6000 ^ local_8.word) & 0xf);
@@ -11378,72 +11380,72 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
                     local_4.bits.kind = 0;
                     local_4.bits.driver = *puVar10 >> 8;
                     puVar7 = &local_8.word;
-                    iVar2 = 4;
+                    iVar2.index = 4;
                     do {
                         *(BYTE *)puVar7 ^= (BYTE)(local_4.bits.driver << 1);
-                        puVar7 = (unsigned int *)((int)puVar7 + 1);
-                        iVar2--;
-                    } while (iVar2 != 0);
+                        puVar7 = (unsigned int *)((BYTE *)puVar7 + 1);
+                        iVar2.index--;
+                    } while (iVar2.index != 0);
                     FrontendProfile_ScrambleIdentifier(0, &local_8.word, (char *)&local_4,
-                                 (char *)&g_unk0x0082547c[((int)local_10 * 11 + uVar8) * 0x19]);
-                    FrontendText_FormatCodeGroups((char *)&g_unk0x0082547c[((int)local_10 * 11 + uVar8) * 0x19]);
+                                 (char *)&g_unk0x0082547c[(local_10.index * 11 + uVar8) * 0x19]);
+                    FrontendText_FormatCodeGroups((char *)&g_unk0x0082547c[(local_10.index * 11 + uVar8) * 0x19]);
                 }
                 local_1c += 8;
             }
         }
         local_14 += 0x60;
-        local_10 = (BYTE *)((int)local_10 + 1);
+        local_10.index = local_10.index + 1;
     } while (local_14 < 0x450);
 
-    local_10 = g_unk0x00825d14;
+    local_10.bytes = g_unk0x00825d14;
     local_1c = 0;
     local_14 = 0;
     do {
         uVar5 = 0;
-        local_18 = local_10;
-        local_c = local_14;
+        local_18 = local_10.bytes;
+        local_c.index = local_14;
         do {
-            iVar3 = (int)(RallyData_GetAvailableCategorySaveRecord(0) + 0x34 + local_c);
-            iVar4 = (int)(RallyData_GetAvailableCategorySaveRecord(0) + 0x30 + local_c);
-            puVar7 = (unsigned int *)iVar4;
-            if (((*(BYTE *)iVar4 & 0x80) == 0) || (*(unsigned int *)(iVar3 + 4) / 6000 >= 64)) {
+            iVar3.rally = (BestTimeRallyTail *)(RallyData_GetAvailableCategorySaveRecord(0) + 0x34 + local_c.index);
+            iVar4 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 0x30 + local_c.index);
+            puVar7 = iVar4;
+            if (((*(BYTE *)iVar4 & 0x80) == 0) || (iVar3.rally->centiseconds / 6000 >= 64)) {
                 *local_18 = 0;
             } else {
                 local_8.rally.country = uVar5;
                 local_8.rally.car = *puVar7 & 0x3f;
                 local_8.rally.automatic = (~*puVar7 & 0x40) >> 6;
-                local_8.rally.minutes = *(unsigned int *)(iVar3 + 4) / 6000;
-                local_8.rally.seconds = (*(unsigned int *)(iVar3 + 4) / 100) % 60;
-                local_8.rally.hundredths = *(unsigned int *)(iVar3 + 4) % 100;
+                local_8.rally.minutes = iVar3.rally->centiseconds / 6000;
+                local_8.rally.seconds = (iVar3.rally->centiseconds / 100) % 60;
+                local_8.rally.hundredths = iVar3.rally->centiseconds % 100;
                 local_8.rally.difficulty = local_1c;
 
                 puVar7 = &local_8.word;
                 local_4.bits.kind = 1;
-                local_4.bits.driver = *(unsigned *)iVar4 >> 8;
-                iVar3 = 4;
+                local_4.bits.driver = *iVar4 >> 8;
+                iVar3.index = 4;
                 do {
                     *(BYTE *)puVar7 ^= (BYTE)(local_4.bits.driver << 1);
-                    puVar7 = (unsigned int *)((int)puVar7 + 1);
-                    iVar3--;
-                } while (iVar3 != 0);
+                    puVar7 = (unsigned int *)((BYTE *)puVar7 + 1);
+                    iVar3.index--;
+                } while (iVar3.index != 0);
                 FrontendProfile_ScrambleIdentifier(0, &local_8.word, (char *)&local_4, (char *)local_18);
                 FrontendText_FormatCodeGroups((char *)local_18);
             }
             uVar5++;
-            local_c += 0x24;
+            local_c.index += 0x24;
             local_18 += 0x4b;
         } while ((int)uVar5 < 8);
         local_1c++;
         local_14 += 0xc;
-        local_10 += 0x19;
-    } while (local_10 < g_unk0x00825d14 + 0x4b);
+        local_10.bytes += 0x19;
+    } while (local_10.bytes < g_unk0x00825d14 + 0x4b);
 
     uVar5 = 0;
-    local_c = 0;
+    local_c.index = 0;
     puVar9 = g_unk0x00825398;
     do {
-        puVar7 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 4 + local_c);
-        puVar10 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + local_c);
+        puVar7 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 4 + local_c.index);
+        puVar10 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + local_c.index);
         if ((*(BYTE *)puVar10 & 0x80) != 0) {
             local_8.word = (local_8.word & 0xfff83fff) | (*puVar7 & 0xf) << 0xe;
             local_8.word = (local_8.word & 0xffe7c07f) |
@@ -11454,12 +11456,12 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
             local_4.bits.driver = *puVar10 >> 8;
 
             puVar10 = &local_8.word;
-            iVar2 = 4;
+            iVar2.index = 4;
             do {
                 *(BYTE *)puVar10 ^= (BYTE)(local_4.bits.driver << 1);
-                puVar10 = (unsigned int *)((int)puVar10 + 1);
-                iVar2--;
-            } while (iVar2 != 0);
+                puVar10 = (unsigned int *)((BYTE *)puVar10 + 1);
+                iVar2.index--;
+            } while (iVar2.index != 0);
             FrontendProfile_ScrambleIdentifier(0, &local_8.word, (char *)&local_4, (char *)puVar9);
             FrontendText_FormatCodeGroups((char *)puVar9);
         } else {
@@ -11467,7 +11469,7 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
         }
         puVar9 += 0x19;
         uVar5++;
-        local_c += 0x10;
+        local_c.index += 0x10;
     } while (puVar9 < g_unk0x00825398 + 0x4b);
 
     uVar5 = 0;
@@ -11475,38 +11477,38 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
     local_18 = g_unk0x008253e4;
     do {
         uVar8 = 0;
-        local_10 = (BYTE *)local_14;
-        local_c = (int)local_18;
+        local_10.index = local_14;
+        local_c.bytes = local_18;
         do {
             // The original keeps puVar7 from the championship pass here and
             // discards the first provider result. Preserve both calls.
             RallyData_GetAvailableCategorySaveRecord(0);
-            iVar2 = (int)RallyData_GetAvailableCategorySaveRecord(0);
-            puVar10 = (unsigned int *)(iVar2 + (int)local_10);
+            iVar2.bytes = RallyData_GetAvailableCategorySaveRecord(0);
+            puVar10 = (unsigned int *)(iVar2.bytes + local_10.index);
             if ((*puVar10 & 0x80) != 0) {
                 local_8.word = (local_8.word & 0xffff8fff) | (*puVar7 & 7) << 0xc;
                 local_8.word = (local_8.word & 0xfffe707f) |
                           ((uVar5 & 3) << 0xe | *puVar7 & 0x7c0) << 1;
                 local_8.word = local_8.word ^ ((*puVar10 ^ local_8.word) & 0x3f);
                 local_8.word = (local_8.word & 0xfff9ffbf) | (~*puVar10 & 0x40) | (uVar8 & 3) << 0x11;
-                iVar2 = 4;
+                iVar2.index = 4;
                 local_4.bits.kind = 3;
                 local_4.bits.driver = *puVar10 >> 8;
 
                 puVar10 = &local_8.word;
                 do {
                     *(BYTE *)puVar10 ^= (BYTE)(local_4.bits.driver << 1);
-                    puVar10 = (unsigned int *)((int)puVar10 + 1);
-                    iVar2--;
-                } while (iVar2 != 0);
-                FrontendProfile_ScrambleIdentifier(0, &local_8.word, (char *)&local_4, (char *)local_c);
-                FrontendText_FormatCodeGroups((char *)local_c);
+                    puVar10 = (unsigned int *)((BYTE *)puVar10 + 1);
+                    iVar2.index--;
+                } while (iVar2.index != 0);
+                FrontendProfile_ScrambleIdentifier(0, &local_8.word, (char *)&local_4, (char *)local_c.bytes);
+                FrontendText_FormatCodeGroups((char *)local_c.bytes);
             } else {
-                *(BYTE *)local_c = 0;
+                *local_c.bytes = 0;
             }
             uVar8++;
-            local_10 = (BYTE *)((int)local_10 + 0x24);
-            local_c += 0x4b;
+            local_10.index = local_10.index + 0x24;
+            local_c.bytes += 0x4b;
         } while ((int)uVar8 < 2);
         local_14 += 0xc;
         uVar5++;
@@ -11514,35 +11516,35 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
     } while (local_14 < 0x474);
 
     uVar5 = 0;
-    local_10 = g_unk0x00825f6c;
+    local_10.bytes = g_unk0x00825f6c;
     do {
-        iVar2 = ((int)uVar5 / 3) * 3 + (int)uVar5 % 3;
-        puVar7 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 0x4c0 + iVar2 * 8);
-        iVar3 = (int)(RallyData_GetAvailableCategorySaveRecord(0) + 0x4bc + iVar2 * 8);
-        uVar8 = *(unsigned int *)iVar3;
-        puVar10 = (unsigned int *)iVar3;
+        iVar2.index = ((int)uVar5 / 3) * 3 + (int)uVar5 % 3;
+        puVar7 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 0x4c0 + iVar2.index * 8);
+        iVar3.word = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 0x4bc + iVar2.index * 8);
+        uVar8 = *iVar3.word;
+        puVar10 = iVar3.word;
         if (((uVar8 & 0x80) == 0) || (*puVar7 / 6000 >= 64)) {
-            *local_10 = 0;
+            *local_10.bytes = 0;
         } else {
             local_8.word = local_8.word ^ ((uVar8 ^ local_8.word) & 0x3f);
             local_8.word = (local_8.word & 0xfffffc3f) | (~*puVar10 & 0x40) | (uVar5 & 7) << 7;
             local_8.word = (local_8.word & 0xe07fffff) | (*puVar7 / 6000 & 0x3f) << 0x17;
             local_8.word = (local_8.word & 0xffff03ff) | ((*puVar7 / 100) % 0x3c & 0x3f) << 10;
             local_8.word = (local_8.word & 0xff80ffff) | (*puVar7 % 100 & 0x7f) << 0x10;
-            iVar2 = 4;
+            iVar2.index = 4;
 
             puVar7 = &local_8.word;
             local_4.bits.kind = 4;
             local_4.bits.driver = *puVar10 >> 8;
             do {
                 *(BYTE *)puVar7 ^= (BYTE)(local_4.bits.driver << 1);
-                puVar7 = (unsigned int *)((int)puVar7 + 1);
-                iVar2--;
-            } while (iVar2 != 0);
-            FrontendProfile_ScrambleIdentifier(0, &local_8.word, (char *)&local_4, (char *)local_10);
-            FrontendText_FormatCodeGroups((char *)local_10);
+                puVar7 = (unsigned int *)((BYTE *)puVar7 + 1);
+                iVar2.index--;
+            } while (iVar2.index != 0);
+            FrontendProfile_ScrambleIdentifier(0, &local_8.word, (char *)&local_4, (char *)local_10.bytes);
+            FrontendText_FormatCodeGroups((char *)local_10.bytes);
         }
-        local_10 += 0x19;
+        local_10.bytes += 0x19;
         uVar5++;
-    } while (local_10 < g_unk0x00825f6c + 0xc8);
+    } while (local_10.bytes < g_unk0x00825f6c + 0xc8);
 }

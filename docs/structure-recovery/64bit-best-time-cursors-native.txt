@@ -1,0 +1,1 @@
+PASS: three actual bodies on x64, 64 scenarios / 16000 provider calls, native save pointers above 4 GB; all five tables match original, ASan/UBSan

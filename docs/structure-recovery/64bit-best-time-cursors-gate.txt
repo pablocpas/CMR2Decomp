@@ -1,0 +1,7 @@
+FrontendScreens.cpp: 280/312 exact (baseline 280)
+  (1.9s)
+GameInfo.cpp: 388/424 exact (baseline 388)
+  (1.8s)
+LayoutChecks.cpp: 0/0 exact (baseline 0)
+  (0.4s)
+3 TUs in 1.9s

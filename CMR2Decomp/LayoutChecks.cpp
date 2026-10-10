@@ -686,3 +686,13 @@ CMR2_LAYOUT_CHECK(TextureSpriteOriginOffsetCheck, offsetof(Texture, field_0x11c)
 CMR2_LAYOUT_CHECK(TextureSpriteWidthOffsetCheck, offsetof(Texture, width) == 0x120);
 CMR2_LAYOUT_CHECK(TextureSpriteHeightOffsetCheck, offsetof(Texture, height) == 0x122);
 CMR2_LAYOUT_CHECK(TextureArchiveOffsetCheck, offsetof(Texture, pArchive) == 0x12c);
+
+#include "BestTimeRecords.h"
+CMR2_LAYOUT_CHECK(BestTimeRallyTailSizeCheck, sizeof(BestTimeRallyTail) == 8);
+CMR2_LAYOUT_CHECK(BestTimeRallyTailPrefixCheck, offsetof(BestTimeRallyTail, field_0x0) == 0);
+CMR2_LAYOUT_CHECK(BestTimeRallyTimeOffsetCheck, offsetof(BestTimeRallyTail, centiseconds) == 4);
+CMR2_LAYOUT_CHECK(BestTimeCursorSizeCheck, sizeof(BestTimeCursor) == 4);
+CMR2_LAYOUT_CHECK(BestTimeCursorIndexOffsetCheck, offsetof(BestTimeCursor, index) == 0);
+CMR2_LAYOUT_CHECK(BestTimeCursorPointerOffsetCheck, offsetof(BestTimeCursor, bytes) == 0);
+CMR2_LAYOUT_CHECK(BestTimeCursorWordOffsetCheck, offsetof(BestTimeCursor, word) == 0);
+CMR2_LAYOUT_CHECK(BestTimeCursorRallyOffsetCheck, offsetof(BestTimeCursor, rally) == 0);

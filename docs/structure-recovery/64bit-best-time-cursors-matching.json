@@ -1,0 +1,10 @@
+{
+  "baseline": "e6c36f3",
+  "functions": 3364,
+  "unchanged_rows": 3364,
+  "byte_exact": 2922,
+  "harnesses": 114,
+  "failures": 0,
+  "raw_accesses_before": 1493,
+  "raw_accesses_after": 1489
+}

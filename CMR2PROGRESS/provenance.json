@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "53b60c194d0f356582e38e40aaa793553f779b12",
+    "commit": "e6c36f32e6d0f8f72aadcb31f2087238cbc3ade6",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -50,6 +50,7 @@
       "CMR2Decomp/AIHelper.cpp": "19671c5c51ff79d525928b0be4c3fb378774605984fdfc9151729d7a26618f2d",
       "CMR2Decomp/AIHelper.h": "bab8d194d555cb12c67813998a76874490d63165d0b535b5005e222045cc8b55",
       "CMR2Decomp/BFL.h": "950defe875ffe734f13dce73dda42d7bc1b5369a7def6a53f9e0ba27ed047a7d",
+      "CMR2Decomp/BestTimeRecords.h": "7b09c04cab99c03d334b39ec5340a7216840903b2f9d51cfc8ac497473de4291",
       "CMR2Decomp/Car.cpp": "630990b05ebd2178f03ab6b32c50b9872531026bca00dcef2ad441368427ae39",
       "CMR2Decomp/Car.h": "fea87b7358831bfb9b5033c9bf2f34985960a564efdc536e9f1d79c57a656d28",
       "CMR2Decomp/CarEffects.cpp": "3ed4c140bcbc9b872f8c6802afac3c6e69c0b58b4049ae430f956232329a7b4c",
@@ -81,12 +82,12 @@
       "CMR2Decomp/FrontendMenus.cpp": "bfe92e4f60e5d5d4a43576409ebc7489033332e443bc22dc352c25bd55527b17",
       "CMR2Decomp/FrontendMenus.h": "cdbe32e65867864d13950fad5dbf93442018ac0c99a1a4a7c97cff7b98393cb7",
       "CMR2Decomp/FrontendNetworkRally.cpp": "04877e99bd48400fbbce1fcca1a48f7611af8e0e9d6992529062dd7537bfd635",
-      "CMR2Decomp/FrontendScreens.cpp": "2696c87d0af5e51592b28839661d5f264dbe2d1faa001834b5ed528d6df61ec7",
+      "CMR2Decomp/FrontendScreens.cpp": "6655453d3f03dccbc9f22ca456ed68d3f91d5e76e24cb59d7062d10bed306396",
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
       "CMR2Decomp/Game.cpp": "7f9eb157c76a84e41009dadc355645a6d1a3937e78fcf048b6c039e6d399fc8e",
       "CMR2Decomp/Game.h": "df14938640f6db1159b46edc671c03c08af78a21c0da87f981fb6e31141655d8",
       "CMR2Decomp/GameConnections.cpp": "c9034f5c8d5de0e88a5e107895406e2c2a444c211ce6b1dd0e422a1e0751f4f7",
-      "CMR2Decomp/GameInfo.cpp": "4c3a373b87b829c6ae5e46495e5bd6afd84d57e6ddf6df8680630e56337389dc",
+      "CMR2Decomp/GameInfo.cpp": "07fc73b739fdffac8fc114d27255f212cf68843736630bf7b54bef8344cd5775",
       "CMR2Decomp/GameInfo.h": "411e0e4a8fdf6ccb0a3d3cac16db379a040a213154d087ebf2e31cab9249b46e",
       "CMR2Decomp/GameMenus.cpp": "95ec91780bb808bb1b40ed4b96923dfd70489d895386e6c3c8fff50e59b14430",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
@@ -101,7 +102,7 @@
       "CMR2Decomp/Input.h": "6c8ce64e581da4f84e04af836ec4276d106ed118b58ddd8521fff3d05eeacb8c",
       "CMR2Decomp/InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
       "CMR2Decomp/InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
-      "CMR2Decomp/LayoutChecks.cpp": "1c61ffd7dab1b5012946cc3fa023d9201451e30d8af4b558695e34c45bb9b8b2",
+      "CMR2Decomp/LayoutChecks.cpp": "e2facc90c2877da390c74fb26a4640d5c34fa20056d2ee733c1d5fe2ed0b368a",
       "CMR2Decomp/LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
       "CMR2Decomp/Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
       "CMR2Decomp/Logger.h": "9223f11dbb0c66b7b32057403dfda5267d674de807a6fa64aad78866540cf196",
@@ -186,8 +187,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "0eb0cfeb5cf12015909e3e73e744ebbf5b55f2c439ee03a0c000bc1fbfc7c1ae",
-    "pdb_sha256": "9de36a6196ee4a5e561ac78ee276ec5eee6b708d3dfbb17c72c304cbd29c1d0f"
+    "exe_sha256": "264210cf5c628baab8394f82356ebe415462b5d8f55c0c9b4a583b4d9805fab5",
+    "pdb_sha256": "ab44c6dc06e793d44799b6ffb3f44755a8ab67847a9c6bb4b41fe33c271eee73"
   },
   "perfect_match_percent": 56.1,
   "fuzzy_match_percent": 94.5,

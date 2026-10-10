@@ -163,6 +163,11 @@ de doce piezas junto con todos sus consumidores. Corrige además cuatro
 getters que devolvían ids/flags numéricos como `void *`. Elimina 76 casts
 de direcciones/números y once accesos crudos; el inventario queda en 1493.
 Véanse [evidencia, cobertura y API pendiente](64bit-option-textures-and-indices.md).
+
+La siguiente tanda convierte los cursores mixtos de las cinco tablas de
+récords y la comparación de direcciones del helper de scramble. Las 3364
+puntuaciones siguen idénticas y se prueban los cuerpos con direcciones de
+ocho bytes. Véanse [layouts, pruebas y offsets todavía pendientes](64bit-best-time-cursors.md).
 Los 114 harnesses pasan, incluidos 10640 casos nuevos, y la auditoría de
 3364 funciones continúa idéntica con 2922 exactas. Cinco cuerpos actuales
 se prueban también en x64 con punteros no nulos mayores que 4 GB.
