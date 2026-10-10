@@ -2464,7 +2464,7 @@ int StageTiming_GetCarTimingByte81(int car);
 void StageTiming_RecordDriverTimeoutFinish(int index);
 int GameInfo_GetSessionField398C(void);
 void NetPlayers_SendCarClass(BYTE carClass);
-void StageTiming_SnapshotStageReplayColours(int car);
+void CarDamage_CaptureStageSnapshot(int car);
 void StageObject_UpdateCarSoundElapsedTime(int index);
 int StageTiming_GetValidStartTime(int index);
 int StageTiming_EstimateElapsedStageTime(void);
@@ -2738,7 +2738,7 @@ fade:
             NetPlayers_SendCarClass(3);
         g_unk0x00537f78[4] = g_unk0x00537f78[4] + 1;
         g_unk0x00537f98[index] = 1;
-        StageTiming_SnapshotStageReplayColours(index);
+        CarDamage_CaptureStageSnapshot(index);
         g_unk0x00537f34[index] = CMain::GetFrameDelta();
         CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)param1, param2, 0, 2);
     }
@@ -3157,7 +3157,7 @@ void Knockout_ResetRaceStateMachine(void);
 void Race_FreeSoundsAndUnwindCallbacks(void);
 void StageSound_ResetRecordsAndRegisterCleanup(void);
 void Frontend_AccumulateDeviceKeyCounters(void);
-void StageTiming_CopyCarTimesToRallyRecord(int index);
+void CarDamage_ExportStageSnapshotToRallyRecord(int index);
 BYTE RallyData_AdvanceSelectedStage(void);
 void Game_SetOptionStateByte(BYTE param1);
 bool RallyData_AdvanceRallySelectionPair(void);
@@ -3416,8 +3416,8 @@ void Race_HandleStageReplayViewTransitions(BYTE *param1, unsigned int param2)
             g_unk0x00537ffc = CMain::GetFrameDelta();
         }
         for (i = 0; i < (BYTE)RallyDataState(); i++)
-            StageTiming_CopyCarTimesToRallyRecord(i);
-        StageTiming_CopyCarTimesToRallyRecord(0);
+            CarDamage_ExportStageSnapshotToRallyRecord(i);
+        CarDamage_ExportStageSnapshotToRallyRecord(0);
         if (CGameInfo::GetConfiguredGameMode() != 4)
             Frontend_AccumulateDeviceKeyCounters();
         if (CGameInfo::GetConfiguredGameMode() != 4) {

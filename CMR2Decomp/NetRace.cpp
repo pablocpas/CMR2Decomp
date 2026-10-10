@@ -1160,14 +1160,14 @@ inline void NetRace_NormalizeInto(FixVector *out, FixVector *v)
     }
 }
 
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 
 // Applies the car state received from a player (g_localCarStats) to that
 // player's record: drops stale and out-of-range packets, converts the quantised
 // position, heading, speed and flags back to 16.16, builds the two body axes
 // from the packed pair of angles plus the third one (cross product) and leaves
 // the steering angle in *pOut. The packed axis angles are 16.16 degrees and go
-// through g_unk0x00511300 (4096/360/65536) to sine-table units.
+// through g_fixedDegreesToAngle12 (4096/360/65536) to sine-table units.
 // FUNCTION: CMR2 0x00425c40
 int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
 {
@@ -1226,8 +1226,8 @@ int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
         for (i = 0; i < 2; i++, pRow += 2) {
             float valueA = (axisA[i] *= g_unk0x0051135c);
             float valueB = (axisB[i] *= g_unk0x00511358);
-            ang1[i] = (short)(__int64)((double)NetRace_FloatToFix(valueA) * g_unk0x00511300);
-            ang2[i] = (short)(__int64)((double)NetRace_FloatToFix(valueB) * g_unk0x00511300);
+            ang1[i] = (short)(__int64)((double)NetRace_FloatToFix(valueA) * g_fixedDegreesToAngle12);
+            ang2[i] = (short)(__int64)((double)NetRace_FloatToFix(valueB) * g_fixedDegreesToAngle12);
             pRow->x = FixMul(g_sinTable[ang2[i] & 0xfff], g_sinTable[(ang1[i] + 0x400) & 0xfff]);
             pRow->y = g_sinTable[(ang2[i] + 0x400) & 0xfff];
             pRow->z = FixMul(g_sinTable[ang2[i] & 0xfff], g_sinTable[ang1[i] & 0xfff]);
@@ -1281,7 +1281,7 @@ extern int NetPlayers_FindPlayerByField8(int value);
 extern BYTE NetPlayers_HasNewStatistics(int index);
 extern void NetPlayers_ClearNewStatisticsFlag(int index);
 extern NetStats *NetPlayers_GetStatisticsRecord(int index);
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 extern void NetPlayers_RebuildStageResults(int param1, int param2, int param3);
 extern void NetRace_PollPlayerStatisticsPackets(Car *pCars);
 extern void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc);
@@ -1356,7 +1356,7 @@ void NetRace_PollPlayerStatisticsPackets(Car *pCars)
             if (NetRace_DecodeReceivedCarState(pEntry, &local) != 0) {
                 value = FixMul(local, pCar->maxSteeringAngleDegrees * 0x1680);
                 pEntry->wheelSteeringAngle =
-                    (unsigned short)(__int64)((double)value * g_unk0x00511300);
+                    (unsigned short)(__int64)((double)value * g_fixedDegreesToAngle12);
                 pEntry->throttleTorque =
                     FixMul(pCar->maxThrottleTorque, pEntry->throttleTorque);
             }

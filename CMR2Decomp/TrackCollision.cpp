@@ -612,7 +612,7 @@ void Stage_InitLightMeshes(void)
         maximum = 0;
         minimum = 0;
         for (i = g_stageMesh0Count - 1; i >= 0; i--) {
-            value = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh0Copy->pVertexData)[i].pos[1] * CGraphics::m_65536);
+            value = (int)(__int64)(((DeformFloatVertex *)g_stageMesh0Copy->pVertexData)[i].pos[1] * CGraphics::m_65536);
             if (i == g_stageMesh0Count - 1) {
                 minimum = value;
                 maximum = value;
@@ -624,8 +624,8 @@ void Stage_InitLightMeshes(void)
             }
             if (i == 0x68) {
                 g_unk0x00592114.y = value;
-                g_unk0x00592114.x = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh0Copy->pVertexData)[i].pos[0] * CGraphics::m_65536);
-                g_unk0x00592114.z = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh0Copy->pVertexData)[i].pos[2] * CGraphics::m_65536);
+                g_unk0x00592114.x = (int)(__int64)(((DeformFloatVertex *)g_stageMesh0Copy->pVertexData)[i].pos[0] * CGraphics::m_65536);
+                g_unk0x00592114.z = (int)(__int64)(((DeformFloatVertex *)g_stageMesh0Copy->pVertexData)[i].pos[2] * CGraphics::m_65536);
             }
             g_stageHeightSamples[i] = value;
         }
@@ -635,13 +635,13 @@ void Stage_InitLightMeshes(void)
         }
     }
     if (g_stageMesh1Count != 0) {
-        g_stageRangeOrigin.x = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh1Copy->pVertexData)[0x32].pos[0] * CGraphics::m_65536);
-        g_stageRangeOrigin.y = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh1Copy->pVertexData)[0x32].pos[1] * CGraphics::m_65536);
-        g_stageRangeOrigin.z = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh1Copy->pVertexData)[0x32].pos[2] * CGraphics::m_65536);
-        minimum = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh1Copy->pVertexData)[0].pos[1] * CGraphics::m_65536);
+        g_stageRangeOrigin.x = (int)(__int64)(((DeformFloatVertex *)g_stageMesh1Copy->pVertexData)[0x32].pos[0] * CGraphics::m_65536);
+        g_stageRangeOrigin.y = (int)(__int64)(((DeformFloatVertex *)g_stageMesh1Copy->pVertexData)[0x32].pos[1] * CGraphics::m_65536);
+        g_stageRangeOrigin.z = (int)(__int64)(((DeformFloatVertex *)g_stageMesh1Copy->pVertexData)[0x32].pos[2] * CGraphics::m_65536);
+        minimum = (int)(__int64)(((DeformFloatVertex *)g_stageMesh1Copy->pVertexData)[0].pos[1] * CGraphics::m_65536);
         maximum = minimum;
         for (i = g_stageMesh1Count - 1; i >= 0; i--) {
-            value = (int)(__int64)(((CarPartFloatVertex *)g_stageMesh1Copy->pVertexData)[i].pos[1] * CGraphics::m_65536);
+            value = (int)(__int64)(((DeformFloatVertex *)g_stageMesh1Copy->pVertexData)[i].pos[1] * CGraphics::m_65536);
             if (value > maximum)
                 maximum = value;
             if (value < minimum)
@@ -650,7 +650,7 @@ void Stage_InitLightMeshes(void)
         g_stageHeightTarget = minimum + FixMul(maximum - minimum, 0xc000);
     }
     for (i = g_stageMesh4Count - 1; i >= 0; i--)
-        ((CarPartFloatVertex *)g_stageMesh4Copy->pVertexData)[i].colour = 0;
+        ((DeformFloatVertex *)g_stageMesh4Copy->pVertexData)[i].colour = 0;
     g_stageLightReady = 1;
 }
 
@@ -835,7 +835,7 @@ void TrackLighting_PushRecolouredMeshVertices(void)
     }
 }
 
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 
 // Swings field 0x848 of the auto-gear car toward its target over time (a
 // quarter sine), or resets it when the swing is off.
@@ -851,7 +851,7 @@ void AutoGear_UpdateSecondarySwing(void)
             g_pAutoGearCar->handbrakeForce = g_pAutoGearCar->maxHandbrakeForce;
             return;
         }
-        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->handbrakePhase, 0x5a0000) * g_unk0x00511300);
+        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->handbrakePhase, 0x5a0000) * g_fixedDegreesToAngle12);
         g_pAutoGearCar->handbrakeForce = FixMul(g_pAutoGearCar->maxHandbrakeForce, g_sinTable[angle & 0xfff]);
     } else {
         g_pAutoGearCar->handbrakePhase = 0;
@@ -917,7 +917,7 @@ void AutoGear_UpdateRollingFollowRate(void)
             g_pAutoGearCar->throttleTorque = 0;
         } else {
             angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->throttlePhase, 0x5a0000) *
-                                              g_unk0x00511300);
+                                              g_fixedDegreesToAngle12);
             g_pAutoGearCar->throttleTorque = FixMul(g_pAutoGearCar->maxThrottleTorque, g_sinTable[angle & 0xfff]);
         }
         if (g_pAutoGearCar->throttleTorque != 0 && g_pAutoGearCar->automaticReverse == 0) {
@@ -932,7 +932,7 @@ void AutoGear_UpdateRollingFollowRate(void)
             return;
         }
         angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->throttlePhase, 0x5a0000) *
-                                          g_unk0x00511300);
+                                          g_fixedDegreesToAngle12);
         g_pAutoGearCar->throttleTorque = FixMul(g_pAutoGearCar->maxThrottleTorque, g_sinTable[angle & 0xfff]);
     }
 }
@@ -951,7 +951,7 @@ void AutoGear_UpdateSteeringSwing(void)
             g_pAutoGearCar->brakeInput = g_pAutoGearCar->maxBrakeForce;
             return;
         }
-        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->brakePhase, 0x5a0000) * g_unk0x00511300);
+        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->brakePhase, 0x5a0000) * g_fixedDegreesToAngle12);
         g_pAutoGearCar->brakeInput = FixMul(g_pAutoGearCar->maxBrakeForce, g_sinTable[angle & 0xfff]);
         return;
     }
@@ -1144,7 +1144,7 @@ void AutoGear_ApplyShiftBodyNudge(void)
     }
 }
 
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 
 // Eases the car's steering angle towards the value taken from its track
 // surface, then stores the damped angle into 0xb10/0xb12.
@@ -1180,7 +1180,7 @@ void CarPhysics_DampSurfaceSteeringAngle(void)
     if (value == 0)
         target = 0;
     else
-        target = (short)(__int64)((double)FixMul(g_unk0x00592160, value) * g_unk0x00511300);
+        target = (short)(__int64)((double)FixMul(g_unk0x00592160, value) * g_fixedDegreesToAngle12);
 
     if (g_pAutoGearCar->field_0xb88 == 2) {
         *(short *)&g_pAutoGearCar->wheelSteeringAngle = target;
@@ -1194,17 +1194,17 @@ void CarPhysics_DampSurfaceSteeringAngle(void)
         delta = 0x1000 - delta;
     if (delta >= 0x20 || delta <= -0x20) {
         if (current == 0)
-            delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
+            delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_fixedDegreesToAngle12);
         else if (current > 0) {
             if (delta < 0)
-                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
+                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_fixedDegreesToAngle12);
             else
-                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleLeft) * g_unk0x00511300);
+                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleLeft) * g_fixedDegreesToAngle12);
         } else {
             if (delta > 0)
-                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
+                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_fixedDegreesToAngle12);
             else
-                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleLeft) * g_unk0x00511300);
+                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleLeft) * g_fixedDegreesToAngle12);
         }
     }
     *(short *)&g_pAutoGearCar->wheelSteeringAngle -= delta;
@@ -1300,8 +1300,8 @@ convert:
         *(short *)&g_pAutoGearCar->wheelSteeringAngle -= limit;
 }
 
-int *StageTiming_GetCarReplayRecord(int index);
-extern double g_unk0x00511300;
+CarPartSet *StageTiming_GetCarReplayRecord(int index);
+extern double g_fixedDegreesToAngle12;
 
 // Applies the automatic-gear state to the car for one frame: rebuilds the body
 // pitch/roll from the setup data, advances the active gear and the shifting
@@ -1316,7 +1316,7 @@ void AutoGear_UpdateCarGearState(Car *pCar)
     int v;
 
     g_pAutoGearCar = pCar;
-    g_autoGearPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)pCar->index);
+    g_autoGearPartSet = StageTiming_GetCarReplayRecord((int)pCar->index);
     AutoGear_ApplyShiftBodyNudge();
     if (g_pAutoGearCar->field_0xb8c != 0) {
         if (*(BYTE *)&g_pAutoGearCar->flag0x1d0[2] != 0) {
@@ -1405,5 +1405,5 @@ void AutoGear_UpdateCarGearState(Car *pCar)
         else
             t = -g_unk0x00592160;
     }
-    g_pAutoGearCar->renderSteeringAngle = (short)(__int64)((double)t * g_unk0x00511300);
+    g_pAutoGearCar->renderSteeringAngle = (short)(__int64)((double)t * g_fixedDegreesToAngle12);
 }

@@ -1,0 +1,1 @@
+5691 light/interior cases: 0 differences; independent signed fades, alias outputs, byte masks, gear/rev cache thresholds, sequential steering phases and release ownership; full poisoned records/block/heap, guards, widths, provider order and ABI; render/release leaves controlled

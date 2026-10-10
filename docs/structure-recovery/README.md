@@ -1,6 +1,6 @@
 # Recuperación de estructuras y campos
 
-Objetivo activo: reconstruir los tipos, arrays y campos que puedan justificarse
+Objetivo del proyecto: reconstruir los tipos, arrays y campos que puedan justificarse
 con el ejecutable y sus usos, y expresar sus accesos mediante esos tipos.
 El trabajo comprende todo el proyecto, incluidos los registros todavía
 representados por buffers y los campos con nombres basados en direcciones.
@@ -59,8 +59,8 @@ identificados como deuda concreta; no se ocultan detrás de nombres nuevos.
 | Bloque | Estado y siguiente trabajo |
 | --- | --- |
 | Coche, callbacks y jugadores de sesión | Véanse [auditoría inicial](../audits/2026-10-09/readability.md), [motor, controles y cambio](car-controls.md) [transforms/contactos](transforms-and-contact.md) y [recursos/vínculos](car-resources.md). Snapshots, contactos y recursos tipados; quedan campos del coche, perfiles serializados y registros de vista. |
-| Piezas móviles, geometría y daños del coche | Recuperación en curso. Véanse [piezas](car-parts.md) y [líneas/snapshots](flexible-lines-and-damage.md). Quedan consumidores que tratan el conjunto como `int *`, cargas de impactos y campos de estado móvil. |
-| Objetos de etapa y nodos de escena | Prioridad por volumen de accesos crudos; reconstruir las variantes y la propiedad de los buffers. |
+| Piezas móviles, geometría y daños del coche | Recuperación en curso. Véanse [piezas](car-parts.md) y [líneas/snapshots](flexible-lines-and-damage.md). [Consumidores de piezas](car-part-consumers.md), [geometría de preview](preview-deform-records.md) e [impactos persistentes](impact-and-preview-state.md) tipados. Quedan campos de estado móvil y longitudes serializadas de CIN; véase [perfiles y cockpit](cin-and-cockpit-records.md). |
+| Objetos de etapa y nodos de escena | [Clima, iluminación y escenas](weather-and-stage-scenes.md): registros de vista, partículas, presets y nodos de cielo/suelo/nubes tipados; quedan variantes de objetos móviles y otros buffers; [interior y luces](interior-and-light-state.md) recupera sus recursos, pose y pools compartidos. |
 | Tiempos, replay y estado de carrera | Distinguir registros persistentes, instantáneas y tablas de ranking antes de asignar tipos. |
 | Información de juego y datos del rally | Rastrear opciones empaquetadas, tablas de ruta y registros por jugador. |
 | Colisión, sectores y gráficos | Recuperar formatos de malla, árbol de colisión, nodos y vértices con tamaños y variantes verificados. |
@@ -77,3 +77,73 @@ liberación añade 128 casos y lleva la suite registrada a 106 harnesses.
 Los campos desconocidos y formatos de los buffers conservan su estado
 pendiente. La siguiente investigación preparada es la de perfiles CIN,
 registros de vista y variantes de los objetos/nodos de etapa.
+
+Las tandas 07–09 recuperan la familia de clima, iluminación y escenas de etapa
+con 97 comprobaciones de layouts y capacidad. El inventario actualizado tiene
+1987 accesos crudos, 1389 identificadores desconocidos distintos y 1512 campos
+sin nombre semántico. Véanse [evidencia y deuda concreta](weather-and-stage-scenes.md).
+La suite incorpora una prueba de registros de clima con 3827 casos y tiene
+107 harnesses registrados. El objetivo del proyecto completo sigue abierto.
+
+Las tandas 10–11 completan la interfaz tipada del getter y sus consumidores de
+montaje, recursos, luces, sombras y chispas en 43 funciones, con 12 globals y
+dos campos nombrados y 34 comprobaciones de layout. El inventario queda en
+1964 accesos crudos y 1377 identificadores desconocidos distintos.
+Véanse [evidencia y siguiente bloque de deformación](car-part-consumers.md).
+La nueva prueba de registros aporta 494 casos y la suite completa tiene
+108 harnesses, todos aprobados. La auditoría de bytes permanece idéntica.
+
+Las tandas 12–13 recuperan la geometría compartida de coche/preview y los
+registros de meshes (`0x2ac`), escenas (`0x54`) y puntos de control (`0x138`).
+Nombran 23 globals y añaden 57 comprobaciones de layout. El inventario pasa a
+1858 accesos crudos y 1346 identificadores desconocidos distintos. Véanse
+[evidencia y límites del tipado](preview-deform-records.md). La medición
+completa conserva todas las puntuaciones de 3364 funciones y las 2922 exactas;
+la auditoría de bytes es idéntica. Las 109 pruebas registradas pasan sin fallos.
+El objetivo de todo el proyecto sigue abierto.
+
+Las tandas 14–15 recuperan las cargas de impactos y el registro persistente
+`0x148`, los ángulos con signo y las tablas de referencia/proyección del
+preview. Nombran 11 globals y corrigen 16 nombres de funciones; añaden 40
+comprobaciones de layout. El inventario queda en 1850 accesos crudos, 1334
+identificadores desconocidos distintos y 1495 campos sin semántica.
+Véanse [layouts, comportamiento y límites](impact-and-preview-state.md).
+Todos los scores de las 3364 funciones y las 2922 exactas se conservan;
+los 110 harnesses pasan sin fallos, incluidos 1861 casos nuevos.
+Los perfiles CIN, los campos móviles con solo un escritor de inicialización
+y el resto del inventario siguen pendientes dentro del objetivo completo.
+
+Las tandas 16–18 recuperan las seis familias CIN observadas y sus caches,
+el cockpit y los archivos del coche. Añaden 101 comprobaciones de layout,
+nombran 14 globals/vistas y corrigen nueve nombres de funciones. El inventario
+queda en 1781 accesos crudos, 1319 identificadores desconocidos distintos y
+1496 campos sin semántica. Los tipos de cola variable y prefijo conocido no
+establecen tamaños completos de archivo. Véanse [evidencia y límites](cin-and-cockpit-records.md).
+Todos los scores de las 3364 funciones y las 2922 exactas se conservan; los
+111 harnesses pasan sin fallos, incluidos 17323 casos nuevos. Los recursos
+restantes, registros de luces, estado móvil y el resto del proyecto siguen
+pendientes dentro del objetivo completo.
+
+Las tandas 19–21 recuperan los recursos y texturas del cockpit, pose del
+conductor, mezcla de dirección, niveles de luces y pool compartido de glows.
+Convierten 41 cuerpos de funciones en conjunto, recuperan 27 nombres de
+globals/vistas y corrigen nueve nombres de funciones. Añaden 60 comprobaciones
+de layout y capacidad. El inventario queda en 1677 accesos crudos, 1292
+identificadores desconocidos distintos y 1498 campos sin semántica. Véanse
+[evidencia, comportamiento y deuda](interior-and-light-state.md). Los 112
+harnesses pasan sin fallos, incluidos 5691 casos nuevos. Todos los scores de
+3364 funciones y las 2922 exactas se conservan, sin problemas de datos.
+La siguiente familia preparada es `GlowLight`, su registry y los quads;
+el resto del inventario mantiene el objetivo completo abierto.
+
+
+La tanda 22 comparte el registro del renderer `GlowLight`, su interfaz y
+los quads de layer/proyección. Tipa las tablas de emisores/glows de escape,
+recupera nueve nombres de globals (siete antes desconocidos) y corrige cuatro
+nombres de funciones. Añade 22 comprobaciones de layout/capacidad. El inventario
+queda en 1663 accesos crudos, 1285 identificadores desconocidos distintos y
+1497 campos sin semántica. Véanse [evidencia y límites](glow-and-exhaust-records.md).
+El punto estable conserva todas las puntuaciones de las 3364 funciones respecto
+al último commit: 2922 exactas y cero problemas de datos; las 38 unidades del
+gate y los 112 harnesses pasan. No añade un nuevo harness de proyección/reserva;
+la cobertura independiente de esas rutas y el resto del objetivo siguen pendientes.

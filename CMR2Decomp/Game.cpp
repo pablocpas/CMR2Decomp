@@ -22,6 +22,7 @@
 #include <string.h>
 #include <time.h>
 #include <float.h>
+#include "Glow.h"
 
 BOOL CGame::m_shouldExit = FALSE;
 BOOL CGame::m_isActive = FALSE;
@@ -2549,7 +2550,6 @@ void Tri2D_DrawLayer(int layer);
 void Line2D_Draw(void);
 void Quad2D_DrawLayer(unsigned int layer);
 void Billboard_Draw(SceneNode *pCamera);
-void Glow_Draw(SceneNode *pCamera, BYTE view);
 void Particle_DrawAll(int param, BYTE view);
 void Scene_DrawShadowBatches(unsigned int view);
 void Scene_RelightSector(int sector);
@@ -2762,14 +2762,14 @@ void CGame::RegisterNetworkResourceRelease(void)
 // FUNCTION: CMR2 0x004764c0
 void Game_SetObjectRenderModeZero(void *param1)
 {
-    if (g_unk0x0058d49c[*((BYTE *)param1 + 2)] != NULL)
+    if (g_carInteriorRoots[*((BYTE *)param1 + 2)] != NULL)
         CGame::SetObjectRenderMode(0);
 }
 
 // FUNCTION: CMR2 0x00476500
 void Game_SetObjectRenderModeOne(void *param1)
 {
-    if (g_unk0x0058d49c[*((BYTE *)param1 + 2)] != NULL)
+    if (g_carInteriorRoots[*((BYTE *)param1 + 2)] != NULL)
         CGame::SetObjectRenderMode(1);
 }
 
@@ -2823,7 +2823,7 @@ void Game_DispatchObjectContactReset(BYTE *pObject, BYTE *pInfo)
 }
 
 void StageObject_SetLevelFromContactType(BYTE *pCar, BYTE *pInfo);
-void StageObject_SetCarSlotActiveFlag(BYTE *p);
+void CarInterior_ResetDriverPoseOnNextUpdate(BYTE *p);
 FixMatrix *Car_GetCameraReferenceMatrix(BYTE index);
 void HudDash_UpdateCameraBasis(BYTE *pDst, BYTE *pSrc, FixMatrix *pM);
 void StageObject_UpdateNearRightAngleContactLevel(BYTE *pInfo, BYTE *pCar);
@@ -2839,7 +2839,7 @@ void Game_DispatchObjectTypeUpdate(BYTE *pObject, BYTE *pInfo)
         HudDash_UpdateCameraBasis(pObject, pInfo, Car_GetCameraReferenceMatrix(pObject[2]));
         return;
     case 3:
-        StageObject_SetCarSlotActiveFlag(pObject);
+        CarInterior_ResetDriverPoseOnNextUpdate(pObject);
         return;
     case 1:
     case 2:
@@ -3318,35 +3318,35 @@ BOOL Game_ReleaseSceneResourceBlocks(void)
     int i;
 
     for (i = 0; i < 2; i++) {
-        if (g_unk0x0058d49c[i] != NULL) {
-            if (*(int *)(g_unk0x0058d530 + i * 0x1c) != 0)
-                SceneNode_Destroy((SceneNode *)*(int *)(g_unk0x0058d530 + i * 0x1c));
-            SceneNode_Destroy((SceneNode *)g_unk0x0058d49c[i]);
-            *(int *)(g_unk0x0058d530 + i * 0x1c + 0x0) = 0;
-            *(int *)(g_unk0x0058d530 + i * 0x1c + 0x4) = 0;
-            *(int *)(g_unk0x0058d530 + i * 0x1c + 0x8) = 0;
-            *(int *)(g_unk0x0058d530 + i * 0x1c + 0xc) = 0;
-            *(int *)(g_unk0x0058d530 + i * 0x1c + 0x10) = 0;
+        if (g_carInteriorRoots[i] != NULL) {
+            if (g_carInteriorNodeRows[i].steeringReferenceNode != 0)
+                SceneNode_Destroy((SceneNode *)g_carInteriorNodeRows[i].steeringReferenceNode);
+            SceneNode_Destroy(g_carInteriorRoots[i]);
+            g_carInteriorNodeRows[i].steeringReferenceNode = 0;
+            g_carInteriorNodeRows[i].driverPoseNode = 0;
+            g_carInteriorNodeRows[i].steeringWheelNode = 0;
+            g_carInteriorNodeRows[i].wiperNodes[0] = 0;
+            g_carInteriorNodeRows[i].wiperNodes[1] = 0;
         }
     }
     for (i = 0; i < 2; i++) {
-        if (g_unk0x0058d6a0[i] != NULL) {
-            CFileBuffer::FreeGenericFileBuffer(g_unk0x0058d6a0[i]);
-            g_unk0x0058d6a0[i] = NULL;
+        if (g_carInteriorModelBuffers[i] != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_carInteriorModelBuffers[i]);
+            g_carInteriorModelBuffers[i] = NULL;
         }
     }
     for (i = 0; i < 2; i++) {
-        g_unk0x0058d4c0[i * 2] = 0;
-        g_unk0x0058d4c0[i * 2 + 1] = 0;
+        g_carInteriorDashTextures[i].revCounter = 0;
+        g_carInteriorDashTextures[i].digit = 0;
     }
     for (i = 0; i < 16; i++) {
-        if (*(void **)(g_unk0x0058d3b8 + i * 0xc) != NULL) {
-            CFileBuffer::FreeGenericFileBuffer(*(void **)(g_unk0x0058d3b8 + i * 0xc));
-            *(void **)(g_unk0x0058d3b8 + i * 0xc) = NULL;
+        if (g_carInteriorArchives[i].buffer != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_carInteriorArchives[i].buffer);
+            g_carInteriorArchives[i].buffer = NULL;
         }
-        *(int *)(g_unk0x0058d3b8 + i * 0xc + 0x0) = 0;
-        *(int *)(g_unk0x0058d3b8 + i * 0xc + 0x4) = 0;
-        *(int *)(g_unk0x0058d3b8 + i * 0xc + 0x8) = 0;
+        g_carInteriorArchives[i].buffer = 0;
+        g_carInteriorArchives[i].fileSize = 0;
+        g_carInteriorArchives[i].didFileLoad = 0;
     }
     return TRUE;
 }

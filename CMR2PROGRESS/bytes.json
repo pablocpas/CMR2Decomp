@@ -2270,13 +2270,13 @@
     "symbol_name": "CarPhysics_IntegrateWheelSuspension"
   },
   "0x4869e0": {
-    "n": "StageObject_SetPositionFromSplitVector",
+    "n": "View_PositionFromCarProfile",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FixedPoint.cpp",
-    "symbol_name": "StageObject_SetPositionFromSplitVector"
+    "symbol_name": "View_PositionFromCarProfile"
   },
   "0x4702f0": {
     "n": "StageObject_ProbeGroundDistance",
@@ -10514,22 +10514,22 @@
     "symbol_name": "OptionMenu_GetRecordGroupAppliedFlag"
   },
   "0x509d00": {
-    "n": "OptionPreview_ClearSkyFadeShape",
+    "n": "OptionPreview_ClearCornerHeightOffsets",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionPreview_ClearSkyFadeShape"
+    "symbol_name": "OptionPreview_ClearCornerHeightOffsets"
   },
   "0x509d90": {
-    "n": "OptionPreview_ClearColourFractions",
+    "n": "OptionPreview_ClearPartDamageFractions",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionPreview_ClearColourFractions"
+    "symbol_name": "OptionPreview_ClearPartDamageFractions"
   },
   "0x50a020": {
     "n": "OptionPreview_UsesWheelVariantSix",
@@ -10550,13 +10550,13 @@
     "symbol_name": "OptionPreview_UsesLowWheelVariant"
   },
   "0x50f120": {
-    "n": "OptionPreview_ProjectWheelVertices",
+    "n": "OptionPreview_ProjectReferencePartQuads",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionPreview_ProjectWheelVertices"
+    "symbol_name": "OptionPreview_ProjectReferencePartQuads"
   },
   "0x50f1c0": {
     "n": "OptionMenu_ResetActivePage",
@@ -10730,31 +10730,31 @@
     "symbol_name": "OptionPreview_AddNodeMeshToRecord"
   },
   "0x5074d0": {
-    "n": "OptionPreview_RebuildStageMeshes",
+    "n": "OptionPreview_RestoreOriginalMeshVertices",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionPreview_RebuildStageMeshes"
+    "symbol_name": "OptionPreview_RestoreOriginalMeshVertices"
   },
   "0x507650": {
-    "n": "OptionPreview_ApplyStageDeformations",
+    "n": "OptionPreview_ApplyStoredDamage",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionPreview_ApplyStageDeformations"
+    "symbol_name": "OptionPreview_ApplyStoredDamage"
   },
   "0x507710": {
-    "n": "OptionPreview_LoadSkyColourRecord",
+    "n": "OptionPreview_DecodeImpactPayload",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionPreview_LoadSkyColourRecord"
+    "symbol_name": "OptionPreview_DecodeImpactPayload"
   },
   "0x4f4910": {
     "n": "FrontendCredits_LoadText",
@@ -12125,22 +12125,22 @@
     "symbol_name": "OptionMenu_ReleaseTextures"
   },
   "0x509d30": {
-    "n": "OptionPreview_UnpackColourFractions",
+    "n": "OptionPreview_UnpackPartDamageFractions",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionPreview_UnpackColourFractions"
+    "symbol_name": "OptionPreview_UnpackPartDamageFractions"
   },
   "0x509be0": {
-    "n": "OptionPreview_UpdateSkyFadeShape",
+    "n": "OptionPreview_UpdateCornerHeightOffsets",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionPreview_UpdateSkyFadeShape"
+    "symbol_name": "OptionPreview_UpdateCornerHeightOffsets"
   },
   "0x508fa0": {
     "n": "OptionPreview_SetMeshRenderFlags",
@@ -12395,13 +12395,13 @@
     "symbol_name": "OptionMenu_LoadPartTextures"
   },
   "0x507080": {
-    "n": "OptionPreview_RebuildStageMeshRecord",
+    "n": "OptionPreview_RebuildMeshRecord",
     "s": 0.8722741433021807,
     "x": false,
     "fz": 0.9781931464174455,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionPreview_RebuildStageMeshRecord"
+    "symbol_name": "OptionPreview_RebuildMeshRecord"
   },
   "0x509dc0": {
     "n": "OptionPreview_AnimatePreviewNodeTransforms",
@@ -12440,13 +12440,13 @@
     "symbol_name": "OptionPreview_UpdateWheelMeshVariants"
   },
   "0x506720": {
-    "n": "OptionPreview_AnimateWheelRotations",
+    "n": "OptionPreview_AnimateModelRotations",
     "s": 0.9170305676855895,
     "x": false,
     "fz": 0.9606986899563319,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionPreview_AnimateWheelRotations"
+    "symbol_name": "OptionPreview_AnimateModelRotations"
   },
   "0x5068b0": {
     "n": "OptionPreview_RotateSlotVector",
@@ -12458,13 +12458,13 @@
     "symbol_name": "OptionPreview_RotateSlotVector"
   },
   "0x506930": {
-    "n": "OptionPreview_SetTargetWheelAngles",
+    "n": "OptionPreview_SetTargetModelAngles",
     "s": 0.5803571428571429,
     "x": false,
     "fz": 0.8035714285714286,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionPreview_SetTargetWheelAngles"
+    "symbol_name": "OptionPreview_SetTargetModelAngles"
   },
   "0x506b20": {
     "n": "OptionPreview_SetWheelNodesVisible",
@@ -12485,13 +12485,13 @@
     "symbol_name": "OptionPreview_AllocateConvertedWheelVertices"
   },
   "0x5078e0": {
-    "n": "OptionPreview_UpdateStageSkyColours",
+    "n": "OptionPreview_ApplyDecodedImpact",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionPreview_UpdateStageSkyColours"
+    "symbol_name": "OptionPreview_ApplyDecodedImpact"
   },
   "0x507a10": {
     "n": "OptionPreview_BuildDeformGeometry",
@@ -14963,22 +14963,22 @@
     "symbol_name": "Glow_ResetEntries"
   },
   "0x4ae3d0": {
-    "n": "Glow_SetEntryByte50",
+    "n": "Glow_SetEnabled",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
-    "symbol_name": "Glow_SetEntryByte50"
+    "symbol_name": "Glow_SetEnabled"
   },
   "0x4ae3f0": {
-    "n": "Glow_SetEntryValue3C",
+    "n": "Glow_SetIntensity",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
-    "symbol_name": "Glow_SetEntryValue3C"
+    "symbol_name": "Glow_SetIntensity"
   },
   "0x4ae410": {
     "n": "Glow_NoOpEntryCallback",
@@ -24133,31 +24133,31 @@
     "symbol_name": "StageObject_SyncStateAndSceneMatrix"
   },
   "0x4764e0": {
-    "n": "StageObject_SetCarSlotActiveFlag",
+    "n": "CarInterior_ResetDriverPoseOnNextUpdate",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_SetCarSlotActiveFlag"
+    "symbol_name": "CarInterior_ResetDriverPoseOnNextUpdate"
   },
   "0x476520": {
-    "n": "StageObject_GetCarNodeSlotValue",
+    "n": "CarInterior_IsLoaded",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_GetCarNodeSlotValue"
+    "symbol_name": "CarInterior_IsLoaded"
   },
   "0x476540": {
-    "n": "StageObject_CacheCarClassAndTimingPointers",
+    "n": "CarInterior_CacheProfilePointers",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_CacheCarClassAndTimingPointers"
+    "symbol_name": "CarInterior_CacheProfilePointers"
   },
   "0x475740": {
     "n": "StageObject_DrawOutlinedStageBox",
@@ -24619,13 +24619,13 @@
     "symbol_name": "StageObject_ResetCarPartNodeValues"
   },
   "0x486700": {
-    "n": "StageObject_CacheCarSplitVectorPointers",
+    "n": "CarInfo_CacheCameraOffsets",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_CacheCarSplitVectorPointers"
+    "symbol_name": "CarInfo_CacheCameraOffsets"
   },
   "0x4729f0": {
     "n": "Knockout_ClearChampionshipPendingFlag",
@@ -24646,13 +24646,13 @@
     "symbol_name": "StageObject_UpdateRevCounterTextures"
   },
   "0x4775f0": {
-    "n": "StageObject_UpdateBodyTextureAlphaValues",
+    "n": "CarInterior_UpdateGearDigitTexture",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_UpdateBodyTextureAlphaValues"
+    "symbol_name": "CarInterior_UpdateGearDigitTexture"
   },
   "0x477ce0": {
     "n": "StageObject_AnimateCarLightLevels",
@@ -24664,13 +24664,13 @@
     "symbol_name": "StageObject_AnimateCarLightLevels"
   },
   "0x477f30": {
-    "n": "StageObject_ResetDamageRecordIndices",
+    "n": "CarLight_InvalidateAppliedLevels",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ResetDamageRecordIndices"
+    "symbol_name": "CarLight_InvalidateAppliedLevels"
   },
   "0x47d5a0": {
     "n": "StageObject_SpawnCarHeadlightGlow",
@@ -24835,13 +24835,13 @@
     "symbol_name": "CarDamage_BuildRelativeVelocityHull"
   },
   "0x4688b0": {
-    "n": "StageObject_BuildDeformationVectors",
+    "n": "CarDamage_DecodeImpactPayload",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_BuildDeformationVectors"
+    "symbol_name": "CarDamage_DecodeImpactPayload"
   },
   "0x468c10": {
     "n": "StageObject_RebuildDamagePartValues",
@@ -24916,31 +24916,31 @@
     "symbol_name": "StageObject_AssignMatchingCarClassSlots"
   },
   "0x477ac0": {
-    "n": "StageObject_ClearDamageRecord",
+    "n": "CarLight_ResetTextureState",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ClearDamageRecord"
+    "symbol_name": "CarLight_ResetTextureState"
   },
   "0x477b60": {
-    "n": "StageObject_InitCarBodyDamageTextures",
+    "n": "CarLight_CacheBodyTextures",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_InitCarBodyDamageTextures"
+    "symbol_name": "CarLight_CacheBodyTextures"
   },
   "0x477c20": {
-    "n": "StageObject_ModifyDamageRecordFlagBytes",
+    "n": "CarLight_SetChannelMasks",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ModifyDamageRecordFlagBytes"
+    "symbol_name": "CarLight_SetChannelMasks"
   },
   "0x492b50": {
     "n": "StageObject_RandomizeStageTriangleTextures",
@@ -24970,13 +24970,13 @@
     "symbol_name": "StageObject_ResetRightAngleContactEffect"
   },
   "0x477c80": {
-    "n": "StageObject_GetScaledLaneShortValues",
+    "n": "CarLight_GetScaledChannelLevels",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_GetScaledLaneShortValues"
+    "symbol_name": "CarLight_GetScaledChannelLevels"
   },
   "0x480a60": {
     "n": "StageObject_ResetPartTuningAndRandomSeed",
@@ -25771,22 +25771,22 @@
     "symbol_name": "StageObject_RebuildOrderedWheelVisibility"
   },
   "0x476a40": {
-    "n": "StageObject_ApplyCarFadeRoll",
+    "n": "CarInterior_AnimateWipers",
     "s": 0.816793893129771,
     "x": false,
     "fz": 0.9389312977099237,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ApplyCarFadeRoll"
+    "symbol_name": "CarInterior_AnimateWipers"
   },
   "0x476c70": {
-    "n": "StageObject_UpdateObjectFadeOffset",
+    "n": "CarInterior_UpdateWiperSweep",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_UpdateObjectFadeOffset"
+    "symbol_name": "CarInterior_UpdateWiperSweep"
   },
   "0x48df50": {
     "n": "CarPhysics_UpdateWheelSlipAndVelocityDamping",
@@ -25861,13 +25861,13 @@
     "symbol_name": "StageObject_UpdateCarCornerGroundHeights"
   },
   "0x476850": {
-    "n": "StageObject_UpdateCarBodyFade",
+    "n": "CarInterior_UpdateSteeringBlendFraction",
     "s": 0.8326848249027238,
     "x": false,
     "fz": 0.9883268482490273,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_UpdateCarBodyFade"
+    "symbol_name": "CarInterior_UpdateSteeringBlendFraction"
   },
   "0x4b5320": {
     "n": "StageObject_RunNodeActionAndSoundCallback",
@@ -26077,13 +26077,13 @@
     "symbol_name": "Replay_InitCarStreamState"
   },
   "0x476e00": {
-    "n": "StageObject_IntegrateFilteredObjectPose",
+    "n": "CarInterior_IntegrateDriverPose",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_IntegrateFilteredObjectPose"
+    "symbol_name": "CarInterior_IntegrateDriverPose"
   },
   "0x46a500": {
     "n": "CarDamage_UpdateSuspensionImpactContacts",
@@ -27562,22 +27562,22 @@
     "symbol_name": "StageTiming_GetStartTableField244"
   },
   "0x457e00": {
-    "n": "StageTiming_GetStartTableField398",
+    "n": "CarInfo_GetDirectory",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_GetStartTableField398"
+    "symbol_name": "CarInfo_GetDirectory"
   },
   "0x457e10": {
-    "n": "StageTiming_GetStartArchiveRelativeEntry",
+    "n": "CarInfo_GetSection",
     "s": 0.7619047619047619,
     "x": false,
     "fz": 0.9523809523809523,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_GetStartArchiveRelativeEntry"
+    "symbol_name": "CarInfo_GetSection"
   },
   "0x456a40": {
     "n": "StageTiming_UpdateSplitRatesForSlot",
@@ -27661,13 +27661,13 @@
     "symbol_name": "StageDeform_ApplyPlanarDent"
   },
   "0x469b50": {
-    "n": "StageTiming_CopyCarTimesToRallyRecord",
+    "n": "CarDamage_ExportStageSnapshotToRallyRecord",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_CopyCarTimesToRallyRecord"
+    "symbol_name": "CarDamage_ExportStageSnapshotToRallyRecord"
   },
   "0x456bb0": {
     "n": "StageTiming_InitStageFileTable",
@@ -27888,22 +27888,22 @@
     "symbol_name": "StageTiming_ResetWeatherSelectionState"
   },
   "0x45a150": {
-    "n": "StageTiming_SetPrimaryWheelTrailTexture",
+    "n": "CarExhaust_SetPoint",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_SetPrimaryWheelTrailTexture"
+    "symbol_name": "CarExhaust_SetPoint"
   },
   "0x45b530": {
-    "n": "StageTiming_SetSecondaryWheelTrailTexture",
+    "n": "CarExhaust_SetGlow",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_SetSecondaryWheelTrailTexture"
+    "symbol_name": "CarExhaust_SetGlow"
   },
   "0x45b550": {
     "n": "StageTiming_ForceWheelTrailSurface",
@@ -28023,13 +28023,13 @@
     "symbol_name": "StageTiming_ResetCarPartRecordsAndSlots"
   },
   "0x4809e0": {
-    "n": "StageTiming_CacheListedCarTimingPointers",
+    "n": "CarPart_CacheFlexibleLineProfiles",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_CacheListedCarTimingPointers"
+    "symbol_name": "CarPart_CacheFlexibleLineProfiles"
   },
   "0x4591e0": {
     "n": "StageTiming_AdvancePlayerHalfLapCounter",
@@ -28266,13 +28266,13 @@
     "symbol_name": "StageTiming_RebuildDamagedPartMeshes"
   },
   "0x469a80": {
-    "n": "StageTiming_SnapshotStageReplayColours",
+    "n": "CarDamage_CaptureStageSnapshot",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_SnapshotStageReplayColours"
+    "symbol_name": "CarDamage_CaptureStageSnapshot"
   },
   "0x455af0": {
     "n": "StageTiming_InsertDriverSplitRanking",
@@ -28491,13 +28491,13 @@
     "symbol_name": "CarDamage_ApplyCameraSpaceMeshDent"
   },
   "0x508ee0": {
-    "n": "StageTiming_SelectRecordMeshBrightness",
+    "n": "OptionPreview_SelectDamageMaterials",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_SelectRecordMeshBrightness"
+    "symbol_name": "OptionPreview_SelectDamageMaterials"
   },
   "0x424dc0": {
     "n": "StageTiming_SnapshotCarNetworkPose",

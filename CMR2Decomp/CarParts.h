@@ -3,38 +3,14 @@
 
 #include "FixedPoint.h"
 #include "Mesh.h"
-
-// Packed 16.16 copy of one part vertex (built by CarDamage_BuildPartVertexBuffer).
-struct CarPartVertex {
-    FixVector pos;               // 0x00
-    FixVector normal;            // 0x0c
-    signed char normal8[3];      // 0x18 normalised normal, 1.7 bits
-    signed char rawNormal[3];    // 0x1b from the vertex colour bytes
-    BYTE pad[2];
-};
-
-// Float vertex of a part mesh (Mesh::pVertexData, 0x30 bytes).
-struct CarPartFloatVertex {
-    float pos[3];    // 0x00
-    float normal[3]; // 0x0c
-    DWORD colour;    // 0x18
-    BYTE pad[0x14];
-};
-
-// Object that owns a part mesh.
-struct CarPartNode {
-    BYTE pad0[0xc];
-    Mesh *pMesh;     // 0x0c
-    BYTE pad10[0x20];
-    int key;         // 0x30 low byte = material key
-};
+#include "DeformGeometry.h"
+#include "CarImpact.h"
+#include "CarInfo.h"
 
 // Breakable parts of one car body (0x4d0 bytes per car, table at
 // g_carPartSets): render meshes, owners, packed vertices and boxes.
 struct CarPartSet {
-    Mesh *meshes[15];                 // 0x000
-    CarPartNode *nodes[15];           // 0x03c
-    CarPartVertex *vertices[15];      // 0x078
+    DeformMeshSources geometry;       // 0x000 common meshes/nodes/vertices
     FixVector centres[15];            // 0x0b4
     FixVector halfExtents[15];        // 0x168
     int damageGrid[3][3];             // 0x21c dent depth per body cell
@@ -48,7 +24,7 @@ struct CarPartSet {
     int rearBrakeScale;               // 0x400
     int engineTorqueScale;            // 0x404 damage multiplier applied to throttle torque
     int bodyDamageDrag;               // 0x408 additional aerodynamic drag
-    BYTE field_0x40c[4];
+    int brokenLightFlickerTimer;       // 0x40c signed 16.16 countdown
     int maxX;                         // 0x410
     int minX;                         // 0x414
     int maxZ;                         // 0x418
@@ -64,17 +40,7 @@ struct CarPartSet {
     int partBroken[8];                // 0x490 broken appearance has been applied
     int partHidden[4];               // 0x4b0
     int lineGrounded[3];               // 0x4c0
-    int field_0x4cc;
-};
-
-// A flexible line drawn from a car model (0x20-byte serialized descriptor).
-// The original reserves three dynamic states per car. The model's count
-// selects the active descriptors; a grounded line is drawn as one segment.
-struct CarFlexibleLineDescriptor {
-    FixVector position;             // 0x00 local attachment point
-    FixVector axis;                 // 0x0c local rest axis
-    int length;                     // 0x18 16.16 line length
-    BYTE colour[4];                 // 0x1c RGBA
+    int brokenLightFlickerPhase;       // 0x4cc toggles at expiry of the countdown
 };
 
 struct CarFlexibleLineState {
@@ -90,28 +56,6 @@ struct CarFlexibleLineState {
 extern CarFlexibleLineState **g_carLineStates;
 extern CarFlexibleLineDescriptor *g_carLineDescriptors[8];
 extern int *g_carLineCounts[8];
-
-// One damage link of a car's damage record (13 bytes, linked by index).
-struct CarDamageLink {
-    BYTE data[0xc];
-    signed char next;                // 0x0c  next link, -1 = end
-};
-
-// Packed list of twenty 13-byte impact records. The count is a byte;
-// firstLink and each link's next byte select indices rather than pointers.
-struct CarDamageLinkPool {
-    CarDamageLink links[20];
-    BYTE count;                     // 0x104
-    BYTE firstLink;                 // 0x105
-};
-
-// One 0x40-byte damage snapshot, copied to/from driver-group records.
-struct CarDamageSnapshot {
-    BYTE intensity[34];             // 0x00 quantised per-part damage
-    BYTE padding[2];                // 0x22 alignment before the flag arrays
-    int partHidden[4];              // 0x24 moving parts whose node is hidden
-    int lineGrounded[3];            // 0x34 resolved flexible-line ground segments
-};
 
 // Damage state of one car: active state and preserved stage snapshots.
 // Two packed 0x106-byte link pools followed by two 0x40-byte snapshots.

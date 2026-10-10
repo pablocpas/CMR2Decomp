@@ -1,3 +1,4 @@
+#include "CarInfo.h"
 #include <windows.h>
 #include <stdlib.h>
 #include "Car.h"
@@ -7,12 +8,14 @@
 #include "Sprite.h"
 #include "RallyData.h"
 #include "StageTiming.h"
+#include "Glow.h"
+#include "CarExhaust.h"
 
 // Particle effects of the cars: breaking windows, glass shards and debris.
 
 void Scene_GetLightColour(DWORD *pColour, int level);
 unsigned char RallyData_GetSelectionFlag26(void);
-int StageTiming_GetStartArchiveRelativeEntry(BYTE *pCar, int offset);
+void *CarInfo_GetSection(Car *pCar, int section);
 short *Car_GetOrder(void);
 short Car_GetOrderCount(void);
 extern float g_oneOverRandMax;
@@ -41,7 +44,7 @@ Quad2DInputVertex g_sparkTri[3];
 // GLOBAL: CMR2 0x005928c0
 FixVector g_debrisShapes[30][3];
 // GLOBAL: CMR2 0x00592cf8
-BYTE *g_carDamageData[8];           // damage section of each car's data
+CarGlassProfile *g_carGlassProfiles[8]; // consumed glass section of each CIN file
 // GLOBAL: CMR2 0x00592d18
 FixVector *g_carWindowVerts[8];     // window vertices of each car
 // Triangle of a debris piece.
@@ -125,8 +128,8 @@ void CarEffects_Init(void)
     pOrder = Car_GetOrder();
     while (--n >= 0) {
         car = pOrder[n];
-        g_carDamageData[car] = (BYTE *)StageTiming_GetStartArchiveRelativeEntry((BYTE *)Car_Get(car), 2);
-        g_carWindowVerts[car] = (FixVector *)(g_carDamageData[car] + 0xc);
+        g_carGlassProfiles[car] = (CarGlassProfile *)CarInfo_GetSection(Car_Get(car), CAR_INFO_GLASS);
+        g_carWindowVerts[car] = g_carGlassProfiles[car]->windowVertices;
     }
 }
 
@@ -467,7 +470,7 @@ void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
     tint = 0;
     if (shard >= 3)
         tint = (shard >= 6) + 1;
-    pTint = g_carDamageData[car] + tint * 4;
+    pTint = g_carGlassProfiles[car]->tint[tint];
     for (k_idx = 0; k_idx < 3; k_idx++) {
         g_shardTri[k_idx].x = ((FixVector *)(g_glassShards[shard]))[k_idx].x + pos.x;
         g_shardTri[k_idx].y = ((FixVector *)(g_glassShards[shard]))[k_idx].y + pos.y;
@@ -487,9 +490,9 @@ void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
     pos.z = FixMul(light[2] << 16, 0x106);
     if (pos.z > 0x10000)
         pos.z = 0x10000;
-    pos.x = FixMul(pos.x, g_carDamageData[car][tint * 4] << 16);
-    pos.y = FixMul(pos.y, g_carDamageData[car][1 + tint * 4] << 16);
-    pos.z = FixMul(pos.z, g_carDamageData[car][2 + tint * 4] << 16);
+    pos.x = FixMul(pos.x, g_carGlassProfiles[car]->tint[tint][0] << 16);
+    pos.y = FixMul(pos.y, g_carGlassProfiles[car]->tint[tint][1] << 16);
+    pos.z = FixMul(pos.z, g_carGlassProfiles[car]->tint[tint][2] << 16);
     light[0] = (BYTE)(pos.x >> 16);
     light[1] = (BYTE)(pos.y >> 16);
     light[2] = (BYTE)(pos.z >> 16);
@@ -531,7 +534,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
     BYTE light;
 
     glass = 0;
-    pRecord = (CarPartSet *)StageTiming_GetCarReplayRecord(pCar->index);
+    pRecord = StageTiming_GetCarReplayRecord(pCar->index);
     if ((BYTE)RallyData_GetSelectionFlag26() != 0 || pCar->field_0xc0c != 0)
         return;
     n = EFFECT_RAND();
@@ -1183,10 +1186,9 @@ void CarEffects_UpdateCarFollowingRisingParticle(void *pParticle, ParticleType *
 
 // Exhaust emitter offsets of each car, rotated into the world.
 // GLOBAL: CMR2 0x00543380
-FixVector g_unk0x00543380[8];
+FixVector g_carExhaustWorldPositions[8];
 // GLOBAL: CMR2 0x00543cf8
-int g_unk0x00543cf8;
-extern int g_trailTextureA[8][2];
+int g_exhaustParticleSide;
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 
 // Spawn callback: places the particle at one of the car's two exhausts
@@ -1204,12 +1206,12 @@ void CarEffect_SpawnExhaustParticle(void *pParticle, ParticleType *pType, int pa
     int z;
 
     if (car < 8) {
-        if (g_trailTextureA[car][1] != 0)
-            g_unk0x00543cf8 = (g_unk0x00543cf8 + 1) % 2;
+        if (g_carExhaustPoints[car][1] != 0)
+            g_exhaustParticleSide = (g_exhaustParticleSide + 1) % 2;
         else
-            g_unk0x00543cf8 = 0;
+            g_exhaustParticleSide = 0;
         pCar = Car_Get(car);
-        FixMatrix_RotateVector(&g_unk0x00543380[car], (FixVector *)g_trailTextureA[car][g_unk0x00543cf8], pCar->pBodyMatrix);
+        FixMatrix_RotateVector(&g_carExhaustWorldPositions[car], &g_carExhaustPoints[car][g_exhaustParticleSide]->pos, pCar->pBodyMatrix);
         pM = pCar->pBodyMatrix;
         x = p->vector0x28.x + pM->position.x;
         p->vector0x28.x = x;
@@ -1217,9 +1219,9 @@ void CarEffect_SpawnExhaustParticle(void *pParticle, ParticleType *pType, int pa
         z = p->vector0x28.z + pM->position.z;
         p->vector0x28.y = y;
         p->vector0x28.z = z;
-        p->vector0x28.x = g_unk0x00543380[car].x + x;
-        p->vector0x28.y = g_unk0x00543380[car].y + y;
-        p->vector0x28.z = g_unk0x00543380[car].z + z;
+        p->vector0x28.x = g_carExhaustWorldPositions[car].x + x;
+        p->vector0x28.y = g_carExhaustWorldPositions[car].y + y;
+        p->vector0x28.z = g_carExhaustWorldPositions[car].z + z;
     }
 }
 

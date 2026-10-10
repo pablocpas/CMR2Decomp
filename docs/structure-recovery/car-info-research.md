@@ -1,4 +1,9 @@
-# Perfiles CIN — investigación preparada, pendiente de conversión
+# Perfiles CIN — investigación previa a las tandas 16–18
+
+Esta nota conserva el estado previo a la conversión. La evidencia actual, los
+tipos y sus límites se documentan en [perfiles CIN y cockpit](cin-and-cockpit-records.md).
+La sección 4 se ha rastreado hasta sus offsets de cámara; los tamaños totales
+serializados y los campos sin semántica siguen pendientes.
 
 Los buffers `g_carInfoBuffers[8]` de la tanda 06 proceden de los archivos
 `%s.cin`. `StageTiming_GetStartArchiveRelativeEntry` (`0x457e10`) obtiene el

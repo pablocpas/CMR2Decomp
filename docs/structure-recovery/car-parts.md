@@ -63,3 +63,15 @@ La reconstrucción completa conserva las 2922 funciones byte-exactas de 3364,
 sin cambios de puntuación respecto al inicio de esta tanda y con cero problemas
 de datos globales. Los 103 harnesses diferenciales pasan sin fallos. Los hashes
 y métricas constan en [car-parts-matching.json](car-parts-matching.json).
+
+Las tandas 10–11 continúan esta recuperación con la interfaz del getter y sus
+consumidores de montaje, recursos y luces: `nodes` contiene ya `SceneNode *`
+y los dos campos de parpadeo tienen nombres comprobados. Véase
+[car-part-consumers.md](car-part-consumers.md) para el estado actual, su
+medición y la deuda de deformación restante.
+
+Las tandas 12–13 recuperan la interfaz geométrica compartida y sus consumidores
+de deformación. `CarPartSet::geometry` contiene las tres tablas iniciales;
+los vertices comunes se definen en `DeformGeometry.h`. Véase
+[preview-deform-records.md](preview-deform-records.md) para sus cuentas distintas,
+validación y recorridos sensibles al matching.

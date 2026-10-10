@@ -1,0 +1,1 @@
+17323 CIN/cockpit record cases: 0 differences; independent directory reloads, pointer caches, signed sweeps, camera fixed-point offsets and archive ownership; complete poisoned heap/block guards, widths, provider order and ABI; wiper geometry leaves controlled

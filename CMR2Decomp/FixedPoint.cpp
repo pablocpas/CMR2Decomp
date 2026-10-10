@@ -905,7 +905,7 @@ void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef)
 }
 
 extern CarPartSet *g_physicsPartSet;
-int *StageTiming_GetCarReplayRecord(int index);
+CarPartSet *StageTiming_GetCarReplayRecord(int index);
 
 // Copies the car's body and world matrices into the local transform of its two
 // body scene nodes.
@@ -915,7 +915,7 @@ void Car_SyncBodySceneNodes(Car *pCar)
     FixVector v;
 
     g_pCurrentCar = pCar;
-    g_physicsPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)pCar->index);
+    g_physicsPartSet = StageTiming_GetCarReplayRecord((int)pCar->index);
     Car_StoreBodyMatrix();
     FixMatrix_GetRight(&v, g_pCurrentCar->pBodyMatrix);
     g_pCurrentCar->pBodyNode->current.right = v;
@@ -1047,14 +1047,14 @@ void CarPhysics_IntegrateWheelSuspension(void)
 // tables at 0x590d90 and 0x590db0 they index).
 
 // GLOBAL: CMR2 0x00590ec0
-BYTE g_unk0x00590ec0[16];
-extern int g_carSplitValues[8];
-extern int g_unk0x00590db0[64];
+BYTE g_viewObjectCarIndices[16];
+extern FixVector *g_carCameraOffsets[8];
+extern int g_viewObjectLevels[64];
 
-// Positions a stage object: its matrix is rebuilt from the object's split
-// vector and the reference matrix's position, then its scale fields are set.
+// Positions a view from the per-mode offset of its car's CIN section 4,
+// transforms it through the current basis and adds the reference position.
 // FUNCTION: CMR2 0x004869e0
-void StageObject_SetPositionFromSplitVector(BYTE *pObj, FixMatrix *pRef)
+void View_PositionFromCarProfile(CameraRecord *pObj, FixMatrix *pRef)
 {
     FixMatrix identity;
     FixVector src;
@@ -1065,24 +1065,24 @@ void StageObject_SetPositionFromSplitVector(BYTE *pObj, FixMatrix *pRef)
     int base;
 
     if (RallyData_IsHeadToHeadRaceMode() != 0 && CGameInfo::IsSplitBarEnabled() != 0 && Race_IsMultiplayerRecordMode10() == 0) {
-        if (g_carPartStateTables.modes[pObj[0]] == 0)
+        if (g_carPartStateTables.modes[pObj->index] == 0)
             mode = 3;
-        else if (g_carPartStateTables.modes[pObj[0]] == 2)
+        else if (g_carPartStateTables.modes[pObj->index] == 2)
             mode = 4;
         else
-            mode = g_carPartStateTables.modes[pObj[0]];
+            mode = g_carPartStateTables.modes[pObj->index];
     } else {
-        mode = g_carPartStateTables.modes[pObj[0]];
+        mode = g_carPartStateTables.modes[pObj->index];
     }
-    base = g_carSplitValues[g_unk0x00590ec0[pObj[0]]];
+    base = (int)g_carCameraOffsets[g_viewObjectCarIndices[pObj->index]];
     src = ((FixVector *)base)[mode];
 
     FixMatrix_Identity(&identity);
     FixMatrix_SetPosition(&src, &identity);
-    pM = (FixMatrix *)(pObj + 8);
-    *(int *)(pObj + 0x38) = 0;
-    *(int *)(pObj + 0x3c) = 0;
-    *(int *)(pObj + 0x40) = 0;
+    pM = &pObj->matrix;
+    pObj->matrix.position.x = 0;
+    pObj->matrix.position.y = 0;
+    pObj->matrix.position.z = 0;
     FixMatrix_Multiply(pM, &identity, pM);
     FixMatrix_GetPosition(&pos, pM);
     FixMatrix_GetPosition(&off, pRef);
@@ -1091,13 +1091,13 @@ void StageObject_SetPositionFromSplitVector(BYTE *pObj, FixMatrix *pRef)
     pos.z += off.z;
     FixMatrix_SetPosition(&pos, pM);
 
-    base = g_unk0x00590db0[pObj[0]];
-    *(int *)(pObj + 0x54) = 0xa000;
-    *(int *)(pObj + 0x48) = base;
-    *(int *)(pObj + 0x4c) = 0x1999;
-    *(int *)(pObj + 0x58) = 0;
-    *(int *)(pObj + 0x5c) = 0x10000;
-    *(int *)(pObj + 0x50) = 0;
+    base = g_viewObjectLevels[pObj->index];
+    pObj->field_0x54 = 0xa000;
+    pObj->field_0x48 = base;
+    pObj->field_0x4c = 0x1999;
+    pObj->field_0x58 = 0;
+    pObj->field_0x5c = 0x10000;
+    pObj->field_0x50 = 0;
 }
 
 // Per-octant reference vectors used to probe the ground.
@@ -1190,7 +1190,7 @@ int StageObject_ProbeGroundDistance(StageObjectEntry0x128 *pObj, FixVector *pPoi
     return FixDiv(FixVecDot(&v, pPoint), pObj->groundNormal.y);
 }
 
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 
 // Rebuilds an object's local matrix from a reference matrix: mirrors it about
 // the object's split axis and applies the car's tilt rotation.
@@ -1225,8 +1225,8 @@ void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc)
     angle = g_carPartStateTables.modes[idx] == 0 ? 10 : 0;
     v = (int)(__int64)((double)angle * CGraphics::m_65536);
     FixMatrix_RotateAboutRight((FixMatrix *)pMat,
-                               (unsigned short)(__int64)((double)v * g_unk0x00511300));
-    StageObject_SetPositionFromSplitVector(pObj, (FixMatrix *)pSrc);
+                               (unsigned short)(__int64)((double)v * g_fixedDegreesToAngle12));
+    View_PositionFromCarProfile((CameraRecord *)pObj, (FixMatrix *)pSrc);
 }
 
 // Rebuilds an object's local matrix from a reference matrix and interpolates
@@ -1260,14 +1260,14 @@ void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3)
     angle = g_carPartStateTables.modes[*pObj] == 0 ? 10 : 0;
     v = (int)(__int64)((double)angle * CGraphics::m_65536);
     FixMatrix_RotateAboutRight((FixMatrix *)m,
-                               (unsigned short)(__int64)((double)(int)v * g_unk0x00511300));
+                               (unsigned short)(__int64)((double)(int)v * g_fixedDegreesToAngle12));
     if (param_3 != 0)
         tAxis = 0x10000;
     else
         tAxis = FixMul(0x4ccc, g_physicsTimeStep);
     FixMatrix_Interpolate((FixMatrix *)(pObj + 8), (FixMatrix *)(pObj + 8), (FixMatrix *)m,
                           0x10000, tAxis, 0x10000, 0);
-    StageObject_SetPositionFromSplitVector(pObj, (FixMatrix *)pSrc);
+    View_PositionFromCarProfile((CameraRecord *)pObj, (FixMatrix *)pSrc);
 }
 
 // (defined in StageTiming.cpp, which owns the GLOBAL annotation)
@@ -1413,7 +1413,8 @@ extern MovingObjects g_movingObjects;
 extern const double g_unk0x00511380;
 
 // The original converts the 16.16 value on the FPU (fild / fmul / fistp) and
-// keeps the low word of the truncated result.
+// keeps the low word of the nearest-even result with the original FPU mode.
+// MSVC6 /QIfist is required; a standard C++ cast alone would truncate instead.
 #define FIX_ANGLE(v) ((short)(__int64)((double)(v) * g_unk0x00511380))
 
 // The eight ground-probe vectors of an object: its reference axes at 0x104 (x),

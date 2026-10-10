@@ -5,6 +5,7 @@
 #include "FixedPoint.h"
 
 struct SceneNode;
+struct CarInfoDirectory;
 
 // One loaded car scene. Wheel objects are saved before the optional wheel
 // scene replaces them and restored before the main scene is destroyed.
@@ -46,7 +47,7 @@ extern BYTE g_knockoutOpponentCarDetail;
 // GLOBAL: CMR2 0x005429c6
 extern BYTE g_unk0x005429c6[2];
 // GLOBAL: CMR2 0x005429c8
-extern void *g_carInfoBuffers[8];
+extern CarInfoDirectory *g_carInfoBuffers[8];
 // GLOBAL: CMR2 0x005429e8
 extern BYTE g_unk0x005429e8[0xc8];
 CarSceneRecord *StageTiming_GetStartTableRecord(int index);

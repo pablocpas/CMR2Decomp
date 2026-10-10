@@ -1,0 +1,91 @@
+{
+  "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
+  "silentpatch_sha256": "1f7ff73ebe705d800be0dd25adc60d86f08603f768a2d2abad1a5bbc99961098",
+  "observer_sha256": "81741e85ece33de2f4a054881eb935e801080ec63133325bff77ff71b7a0b49a",
+  "observer_source_sha256": "36d0d888eb5b4dc960125dc9c3581cf1c73401b3af66db746337ab199073b0b3",
+  "writer_sha256": "b91e1dc4651f4d38ad5666a614b1f8441652391c124985948003d858eb0c924d",
+  "entities_sha256": "34cb335a53f058600ee18cca5c530035c57ef47ef48b8180dffae46fd9da2ac2",
+  "decompilation_build": {
+    "commit": "8acd7e5b762082b8a85ab4340232f006f4a31a6d",
+    "exe_sha256": "0646d1c964d93ac9d50bb1c250c554f8b98a371179a3182c3ca4efe92cf4ca3f",
+    "pdb_sha256": "88511bbbb6cf988f765821a3e7c1ef6c81c21681d6b8733d2a09abb7efa9f3f0",
+    "compiler_sha256": "1bf99f206271ecdbd13da2829192ea2c02e2a44c740b8d72935d5d9cb753b156",
+    "flags": [
+      "/O2",
+      "/DNDEBUG",
+      "/D_CRTIMP=",
+      "/Zi",
+      "/Gz",
+      "/MD",
+      "/GX"
+    ],
+    "qifist_files": [
+      "Car.cpp",
+      "CarEffects.cpp",
+      "CarPhysics.cpp",
+      "FixedPoint.cpp",
+      "Frontend.cpp",
+      "FrontendScreens.cpp",
+      "Game.cpp",
+      "GameInfo.cpp",
+      "Graphics.cpp",
+      "HudDash.cpp",
+      "Mesh.cpp",
+      "NetRace.cpp",
+      "Race.cpp",
+      "RallyData.cpp",
+      "RallyTiming.cpp",
+      "SceneNode.cpp",
+      "Sector.cpp",
+      "Sound.cpp",
+      "Sprite.cpp",
+      "StageObjects.cpp",
+      "StageTiming.cpp",
+      "StageUI.cpp",
+      "TimingUtils.cpp",
+      "TrackCollision.cpp"
+    ]
+  },
+  "schema": 1,
+  "scope": "captured build predates comment-only source edits",
+  "race_x87_control_word": "0x027f",
+  "table_entries": 16896,
+  "tables_identical": true,
+  "original": {
+    "math-tables.bin": "46381d72c0b4d14a0078fd0e52e34d3f36794119a6731c952eeb6005f601b5d2",
+    "state.bin": "3811d38f44be4b97cb41cb75eed5f2ec3aa3cfc44478c2080a28bae53a59692c",
+    "capture.log": "2f02af7540137c971ef37a19cfcd766b482fb4a4508c456b8027b643206f9a2b",
+    "capture.map": "d8794e5cddbc7d8362508db2ed0367164d7e0f3d408bf40695a7374d4d03cfc5",
+    "CMR2.exe": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817"
+  },
+  "decomp": {
+    "math-tables.bin": "46381d72c0b4d14a0078fd0e52e34d3f36794119a6731c952eeb6005f601b5d2",
+    "state.bin": "d81e42eac014b8fc26018898ef78abfa3f57117268b4297593e7fed4e2f9d113",
+    "capture.log": "3e14e02bb9d36102e84d83eafa93fa7a64a725f396796ad683a4614f78582e2a",
+    "capture.map": "ebea6e5d498dcf1369f3dab39e33ddde44adda95b5cb3d12b1f943e44ce7c4db",
+    "CMR2.exe": "7670298631e7d83fbc2de6c2deb6d18612ed2cd1568fe2d0f30c345d4a21b31f"
+  },
+  "post_edit_validation": {
+    "source_statements_unchanged": true,
+    "all_127_source_hashes_match_rebuild_manifest": true,
+    "match_gate": {
+      "Car.cpp": {
+        "exact": 110,
+        "functions": 143,
+        "baseline_exact": 110
+      },
+      "FixedPoint.cpp": {
+        "exact": 41,
+        "functions": 46,
+        "baseline_exact": 41
+      },
+      "SceneNode.cpp": {
+        "exact": 51,
+        "functions": 62,
+        "baseline_exact": 51
+      }
+    },
+    "rebuild_exe_sha256": "61e01185552152489c81745a48eda97fc165ed1fe5e4dcc159db212aaaee2f97",
+    "rebuild_pdb_sha256": "7ec36a536b7ad4c44bc6652cb48b0f65e42c7ec117277c2190a86c5365fcf22d"
+  }
+}

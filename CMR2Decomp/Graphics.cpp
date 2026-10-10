@@ -4,6 +4,7 @@
 #include "Graphics.h"
 #include "Car.h"
 #include "CarResources.h"
+#include "Glow.h"
 #include "Sprite.h"
 #include "../third_party/dx7sdk-7001/include/d3dxmath.h"
 #pragma comment(lib, "third_party/dx7sdk-7001/lib/d3dx.lib")
@@ -3268,7 +3269,7 @@ void Graphics_SetRecordField2C(BYTE *p, int value)
 extern int g_sceneLightState2[10];
 extern BYTE g_sceneLightFlag2;
 // 4096 / (360 * 65536): 16.16 degrees to a sine table index.
-extern double g_unk0x00511300;
+extern double g_fixedDegreesToAngle12;
 
 // Vertex of a Mesh (0x30 bytes): position and normal, then colour/uv data.
 struct MeshVertexF {
@@ -3360,7 +3361,7 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
         ((MeshVertexF *)pCyl->pVertexData)[0].y = 0.0f;
         angle = 0;
         for (i = 1; i <= 10; i++) {
-            idx = (unsigned short)(__int64)((double)angle * g_unk0x00511300);
+            idx = (unsigned short)(__int64)((double)angle * g_fixedDegreesToAngle12);
             ((MeshVertexF *)pCyl->pVertexData)[i].x =
                 (float)g_sinTable[idx & 0xfff] * CGraphics::m_oneOver65536 * radius;
             ((MeshVertexF *)pCyl->pVertexData)[i].y =
@@ -4611,13 +4612,13 @@ int Graphics_CopyIntoFreeTextureSlot(void *pSource, int param2)
 }
 
 // GLOBAL: CMR2 0x006a2a98
-void *g_unk0x006a2a98;
+GlowLight *g_glowEntries;
 // GLOBAL: CMR2 0x006a2bcc
-int g_unk0x006a2bcc;
+int g_glowCapacity;
 // GLOBAL: CMR2 0x006a2bc8
-int g_unk0x006a2bc8;
+int g_glowAllocatedCount;
 // GLOBAL: CMR2 0x00520f94
-BYTE g_unk0x00520f94[4] = { 0, 0, 0, 70 };
+BYTE g_layerQuadColour[4] = { 0, 0, 0, 70 };
 // GLOBAL: CMR2 0x00520f98
 Quad2DInputVertex g_projectedQuad[4] = {
     { 0, 0, 0, { 0xff, 0xff, 0xff, 0xff }, 0, 0 },
@@ -4634,19 +4635,19 @@ FixVector g_glowBasis[3] = {{0x10000, 0, 0}, {0, 0x10000, 0}, {0, 0, 0x10000}};
 // FUNCTION: CMR2 0x004ae140
 void Graphics_SetLayerQuadColour(BYTE *pColour)
 {
-    g_unk0x00520f94[0] = pColour[0];
-    g_unk0x00520f94[1] = pColour[1];
-    g_unk0x00520f94[2] = pColour[2];
-    g_unk0x00520f94[3] = pColour[3];
+    g_layerQuadColour[0] = pColour[0];
+    g_layerQuadColour[1] = pColour[1];
+    g_layerQuadColour[2] = pColour[2];
+    g_layerQuadColour[3] = pColour[3];
 }
 
 // FUNCTION: CMR2 0x004ae230
-void Glow_SetSymmetricBounds(int *p, int x, int y)
+void Glow_SetSymmetricBounds(BillboardDef *p, int x, int y)
 {
-    p[3] = -x;
-    p[4] = y;
-    p[5] = x;
-    p[6] = -y;
+    p->top = -x;
+    p->left = y;
+    p->bottom = x;
+    p->right = -y;
 }
 
 // FUNCTION: CMR2 0x004ae260
@@ -4654,23 +4655,23 @@ void Glow_ResetEntries(void)
 {
     int i;
 
-    for (i = 0; i < g_unk0x006a2bcc; i++)
-        *(int *)((BYTE *)g_unk0x006a2a98 + i * 0x5c) = 0;
-    g_unk0x006a2bc8 = 0;
+    for (i = 0; i < g_glowCapacity; i++)
+        g_glowEntries[i].type = 0;
+    g_glowAllocatedCount = 0;
 }
 
 // FUNCTION: CMR2 0x004ae3d0
-void Glow_SetEntryByte50(BYTE *p, BYTE value)
+void Glow_SetEnabled(GlowLight *p, BYTE value)
 {
     if (p != NULL)
-        p[0x50] = value;
+        p->enabled = value;
 }
 
 // FUNCTION: CMR2 0x004ae3f0
-void Glow_SetEntryValue3C(BYTE *p, int value)
+void Glow_SetIntensity(GlowLight *p, int value)
 {
     if (p != NULL)
-        *(int *)(p + 0x3c) = value;
+        p->intensity = value;
 }
 
 // FUNCTION: CMR2 0x004ae410
@@ -4681,7 +4682,7 @@ void Glow_NoOpEntryCallback(BYTE a, BYTE b, int c, int d)
 // Draws a fading rectangle around a point projected onto the given plane.
 // The corners and colours use the fixed-point triangle queue's shared scratch.
 // FUNCTION: CMR2 0x004ae950
-void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pTarget, FixVector *pUnused)
+void Graphics_DrawProjectedQuad(GlowLight *pSurface, FixVector *pPoint, FixVector *pTarget, FixVector *pUnused)
 {
     FixVector projected;
     FixVector axisA;
@@ -4692,11 +4693,11 @@ void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pT
     BYTE colour[4];
     int i;
 
-    projected.x = pPoint->x - ((FixVector *)(pSurface + 0x1c))->x;
-    projected.y = pPoint->y - ((FixVector *)(pSurface + 0x1c))->y;
-    projected.z = pPoint->z - ((FixVector *)(pSurface + 0x1c))->z;
-    depth = FixVecDot(&projected, (FixVector *)(pSurface + 0x28));
-    FixVecScale(&projected, (FixVector *)(pSurface + 0x28), depth);
+    projected.x = pPoint->x - pSurface->planePoint.x;
+    projected.y = pPoint->y - pSurface->planePoint.y;
+    projected.z = pPoint->z - pSurface->planePoint.z;
+    depth = FixVecDot(&projected, &pSurface->planeNormal);
+    FixVecScale(&projected, &pSurface->planeNormal, depth);
     projected.x = pPoint->x - projected.x;
     projected.y = pPoint->y - projected.y;
     projected.z = pPoint->z - projected.z;
@@ -4714,8 +4715,8 @@ void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pT
     axisA.x = 0x10000;
     axisA.y = 0;
     axisA.z = 0;
-    depth = FixVecDot(&axisA, (FixVector *)(pSurface + 0x28));
-    FixVecScale(&toTarget, (FixVector *)(pSurface + 0x28), depth);
+    depth = FixVecDot(&axisA, &pSurface->planeNormal);
+    FixVecScale(&toTarget, &pSurface->planeNormal, depth);
     axisA.x -= toTarget.x;
     axisA.y -= toTarget.y;
     axisA.z -= toTarget.z;
@@ -4725,15 +4726,15 @@ void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pT
     } else {
         FixVecScaleRecip(&axisA, &axisA, depth);
     }
-    FixVecCross(&axisB, &axisA, (FixVector *)(pSurface + 0x28));
+    FixVecCross(&axisB, &axisA, &pSurface->planeNormal);
     depth = FixVecLength(&axisB);
     if (depth == 0) {
         axisB.x = 0; axisB.y = 0; axisB.z = 0;
     } else {
         FixVecScaleRecip(&axisB, &axisB, depth);
     }
-    FixVecScale(&axisA, &axisA, FixMul(*(int *)(pSurface + 0x40), *(int *)(pSurface + 0x34)));
-    FixVecScale(&axisB, &axisB, FixMul(*(int *)(pSurface + 0x40), *(int *)(pSurface + 0x34)));
+    FixVecScale(&axisA, &axisA, FixMul(pSurface->projectedSizeScale, pSurface->sizeX));
+    FixVecScale(&axisB, &axisB, FixMul(pSurface->projectedSizeScale, pSurface->sizeX));
 
     toTarget.x = pTarget->x - projected.x;
     toTarget.y = pTarget->y - projected.y;
@@ -4769,16 +4770,16 @@ void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pT
     g_projectedQuad[2].y += axisB.y;
     g_projectedQuad[2].z += axisB.z;
 
-    colour[0] = (BYTE)((pSurface[0x51] * FixMul(fade, *(int *)(pSurface + 0x3c))) >> 16);
+    colour[0] = (BYTE)((pSurface->projectedBrightness * FixMul(fade, pSurface->intensity)) >> 16);
     colour[1] = colour[0];
     colour[2] = colour[0];
     colour[3] = 0xff;
     for (i = 0; i < 4; i++)
         *(DWORD *)g_projectedQuad[i].colour = *(DWORD *)colour;
     Quad2D_QueueFixedTriangle(0, &g_projectedQuad[0], &g_projectedQuad[1], &g_projectedQuad[2],
-                              *(Texture **)(pSurface + 0x48), (Quad2D *)0xe);
+                              pSurface->pTexture, (Quad2D *)0xe);
     Quad2D_QueueFixedTriangle(0, &g_projectedQuad[0], &g_projectedQuad[2], &g_projectedQuad[3],
-                              *(Texture **)(pSurface + 0x48), (Quad2D *)0xe);
+                              pSurface->pTexture, (Quad2D *)0xe);
 }
 
 // FUNCTION: CMR2 0x004b1970
@@ -4795,7 +4796,7 @@ BillboardDef g_glowDef;
 // Projects the layer anchor onto a plane, stretches it toward a target and
 // draws a four-vertex strip with distance-based greyscale opacity.
 // FUNCTION: CMR2 0x004ae470
-void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
+void Graphics_DrawLayerQuad(GlowLight *pSurface, FixVector *pTarget)
 {
     FixVector quad[4];
     FixVector axisA;
@@ -4808,11 +4809,11 @@ void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
     int i;
 
     // quad[0] holds the glow position projected onto the layer plane.
-    quad[0].x = g_glowDef.pos.x - ((FixVector *)(pSurface + 0x1c))->x;
-    quad[0].y = g_glowDef.pos.y - ((FixVector *)(pSurface + 0x1c))->y;
-    quad[0].z = g_glowDef.pos.z - ((FixVector *)(pSurface + 0x1c))->z;
-    depth = FixVecDot(&quad[0], (FixVector *)(pSurface + 0x28));
-    FixVecScale(&quad[0], (FixVector *)(pSurface + 0x28), depth);
+    quad[0].x = g_glowDef.pos.x - pSurface->planePoint.x;
+    quad[0].y = g_glowDef.pos.y - pSurface->planePoint.y;
+    quad[0].z = g_glowDef.pos.z - pSurface->planePoint.z;
+    depth = FixVecDot(&quad[0], &pSurface->planeNormal);
+    FixVecScale(&quad[0], &pSurface->planeNormal, depth);
     quad[0].x = g_glowDef.pos.x - quad[0].x;
     quad[0].y = g_glowDef.pos.y - quad[0].y;
     quad[0].z = g_glowDef.pos.z - quad[0].z;
@@ -4859,7 +4860,7 @@ void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
     t = FixMul(t, 0x20000);
     if (t > 0x10000)
         t = 0x10000;
-    t = FixMul(0x10000 - t, *(int *)(pSurface + 0x44));
+    t = FixMul(0x10000 - t, pSurface->layerIntensity);
     colour[0] = (BYTE)(FixMul(t, (int)g_glowDef.r << 16) >> 16);
     colour[1] = colour[0];
     colour[2] = colour[0];
@@ -4869,41 +4870,20 @@ void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
         *(DWORD *)g_layerQuad[i].colour = *(DWORD *)colour;
     }
     Quad2D_QueueFixedTriangle(0, &g_layerQuad[0], &g_layerQuad[1], &g_layerQuad[2],
-                              *(Texture **)(pSurface + 0x4c), (Quad2D *)0x16);
+                              pSurface->pLayerTexture, (Quad2D *)0x16);
     Quad2D_QueueFixedTriangle(0, &g_layerQuad[0], &g_layerQuad[2], &g_layerQuad[3],
-                              *(Texture **)(pSurface + 0x4c), (Quad2D *)0x16);
+                              pSurface->pLayerTexture, (Quad2D *)0x16);
 }
-// Light glow source (0x5c bytes), one per entry of g_unk0x006a2a98.
-struct GlowLight {
-    int type;                   // 0x0  0 free, 2 seen from behind, 3 seen from both sides
-    FixVector pos;              // 0x4  local to pNode when set
-    FixVector dir;              // 0x10
-    FixVector planePoint;       // 0x1c
-    FixVector planeNormal;      // 0x28
-    int sizeX;                  // 0x34
-    int sizeY;                  // 0x38
-    int intensity;              // 0x3c
-    int field_0x40;
-    int layerIntensity;         // 0x44 draw the ground layer quad when non-zero
-    unsigned short *pTexture;   // 0x48
-    Texture *pLayerTexture;     // 0x4c
-    BYTE enabled;               // 0x50
-    BYTE projected;             // 0x51 also draw the projected quad
-    BYTE field_0x52[2];
-    SceneNode *pNode;           // 0x54
-    int field_0x58;
-};
-
 // Reserves a free glow slot and copies its position, direction, and draw settings.
 // Free glow light slot, or NULL when all are in use.
 static inline GlowLight *Glow_FindFreeSlot(void)
 {
     int i;
 
-    if (g_unk0x006a2bc8 < g_unk0x006a2bcc) {
-        for (i = 0; i < g_unk0x006a2bcc; i++) {
-            if (((GlowLight *)g_unk0x006a2a98)[i].type == 0)
-                return &((GlowLight *)g_unk0x006a2a98)[i];
+    if (g_glowAllocatedCount < g_glowCapacity) {
+        for (i = 0; i < g_glowCapacity; i++) {
+            if (g_glowEntries[i].type == 0)
+                return &g_glowEntries[i];
         }
     }
     return NULL;
@@ -4911,9 +4891,9 @@ static inline GlowLight *Glow_FindFreeSlot(void)
 
 // FUNCTION: CMR2 0x004ae2f0
 GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1,
-                    int sizeX, int sizeY, int billboardTexture, int layerTexture,
-                    int intensity, int node, BYTE projected, int unused2,
-                    int field_0x40)
+                    int sizeX, int sizeY, Texture *billboardTexture, Texture *layerTexture,
+                    int intensity, SceneNode *node, BYTE projectedBrightness, int unused2,
+                    int projectedSizeScale)
 {
     GlowLight *light;
 
@@ -4931,14 +4911,14 @@ GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1,
     }
     light->sizeX = sizeX;
     light->sizeY = sizeY;
-    light->pTexture = (unsigned short *)billboardTexture;
-    light->pLayerTexture = (Texture *)layerTexture;
+    light->pTexture = billboardTexture;
+    light->pLayerTexture = layerTexture;
     light->intensity = intensity;
-    light->pNode = (SceneNode *)node;
+    light->pNode = node;
     light->enabled = 1;
-    light->projected = projected;
-    light->field_0x40 = field_0x40;
-    g_unk0x006a2bc8++;
+    light->projectedBrightness = projectedBrightness;
+    light->projectedSizeScale = projectedSizeScale;
+    g_glowAllocatedCount++;
     return light;
 }
 
@@ -5006,8 +4986,8 @@ void Glow_Draw(SceneNode *pCamera, BYTE view)
     g_glowBasis[2].y = 0;
     g_glowBasis[2].z = g_glowForward.x;
 
-    for (i = 0; i < g_unk0x006a2bcc; i++) {
-        pLight = &((GlowLight *)g_unk0x006a2a98)[i];
+    for (i = 0; i < g_glowCapacity; i++) {
+        pLight = &g_glowEntries[i];
         if (pLight->type == 0 || pLight->enabled == 0 || pLight->intensity <= 0)
             continue;
         if (pLight->pNode != NULL && (mask & pLight->pNode->viewMask) == 0)
@@ -5071,7 +5051,7 @@ void Glow_Draw(SceneNode *pCamera, BYTE view)
         }
 
         intensity = FixMul(fade, pLight->intensity);
-        Glow_SetSymmetricBounds((int *)&g_glowDef, pLight->sizeX, pLight->sizeY);
+        Glow_SetSymmetricBounds(&g_glowDef, pLight->sizeX, pLight->sizeY);
         g_glowDef.r = (BYTE)((intensity * 254) >> 16);
         g_glowDef.g = g_glowDef.r;
         g_glowDef.b = g_glowDef.r;
@@ -5096,12 +5076,12 @@ void Glow_Draw(SceneNode *pCamera, BYTE view)
             d = g_glowBillboard.left;
             g_glowBillboard.left = FixMul(d, len);
         }
-        Billboard_Add(&g_glowBillboard, pLight->pTexture);
+        Billboard_Add(&g_glowBillboard, (unsigned short *)pLight->pTexture);
         if (pLight->layerIntensity != 0)
-            Graphics_DrawLayerQuad((BYTE *)pLight, &camPos);
+            Graphics_DrawLayerQuad(pLight, &camPos);
     projected:
-        if (pLight->projected != 0)
-            Graphics_DrawProjectedQuad((BYTE *)pLight, &pos, &camPos, &dir);
+        if (pLight->projectedBrightness != 0)
+            Graphics_DrawProjectedQuad(pLight, &pos, &camPos, &dir);
     }
 }
 
@@ -5109,23 +5089,23 @@ void Glow_Draw(SceneNode *pCamera, BYTE view)
 // FUNCTION: CMR2 0x004ae200
 int Glow_FreeTable(void)
 {
-    if (g_unk0x006a2a98 != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(g_unk0x006a2a98);
-        g_unk0x006a2a98 = NULL;
+    if (g_glowEntries != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_glowEntries);
+        g_glowEntries = NULL;
     }
-    g_unk0x006a2bcc = 0;
+    g_glowCapacity = 0;
     return 1;
 }
 
 // FUNCTION: CMR2 0x004ae170
 void Glow_AllocateEntryTable(int param1)
 {
-    if (g_unk0x006a2a98 != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(g_unk0x006a2a98);
-        g_unk0x006a2a98 = NULL;
+    if (g_glowEntries != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_glowEntries);
+        g_glowEntries = NULL;
     }
-    g_unk0x006a2a98 = CFileBuffer::AllocateLockedBuffer((param1 & 0xff) * 92);
-    g_unk0x006a2bcc = (BYTE)param1;
+    g_glowEntries = (GlowLight *)CFileBuffer::AllocateLockedBuffer((param1 & 0xff) * sizeof(GlowLight));
+    g_glowCapacity = (BYTE)param1;
     g_layerQuad[0].u = 0;
     g_layerQuad[0].v = 0;
     g_layerQuad[1].u = 0xfff9;

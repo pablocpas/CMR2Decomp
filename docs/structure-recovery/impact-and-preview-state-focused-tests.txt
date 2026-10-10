@@ -1,0 +1,1 @@
+1861 impact/preview record cases: 0 differences; independent encoder/decoder and pool, snapshot alignment guards, signed orientation lifecycles, all fourteen reference models, full heap/global records, provider order and ABI

@@ -91,6 +91,10 @@ source, compiler, EXE and PDB hashes in `build/manifest.json`.
 `--windowed` enables windowed rendering support for running the game under
 Wine. Always measure the default build.
 
+The [numeric semantics audit](docs/audits/2026-10-10/numeric-semantics.md)
+records original nearest-even conversions and mixed-precision scheduling.
+Original defects are preserved here; intentional fixes belong in the port.
+
 ## Measure
 
 Place the original `CMR2.exe` in `cmr2bin/`, create the local

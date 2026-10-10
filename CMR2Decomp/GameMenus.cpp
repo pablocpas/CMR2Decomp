@@ -125,7 +125,7 @@ void NetRace_SendType14AndClearRaceFlag(void);
 void NetRace_SendType15AndResetInput(void);
 void NetPlayers_BuildFinalClassification(void);
 void NetPlayers_ClearReadyFlags(void);
-void StageTiming_CopyCarTimesToRallyRecord(int index);
+void CarDamage_ExportStageSnapshotToRallyRecord(int index);
 void GameMenu_LeaveStageAndAdvanceChampionship(void);
 int Replay_ResetBufferIfActive(int *p);
 void Replay_ResetActiveBufferState(void);
@@ -485,7 +485,7 @@ void GameMenu_LeaveStageAndAdvanceChampionship(void)
     int i;
 
     for (i = 0; i < (BYTE)RallyDataState(); i++)
-        StageTiming_CopyCarTimesToRallyRecord(i);
+        CarDamage_ExportStageSnapshotToRallyRecord(i);
     for (i = 0; i < *(BYTE *)g_unk0x00537f0c[5]; i++) {
         CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)g_unk0x00537f0c[5], i, 0, 2);
         Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[i]);

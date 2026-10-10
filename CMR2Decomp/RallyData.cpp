@@ -66,6 +66,7 @@ struct SaveSlot {
 #include "StageUI.h"
 #include "FileBuffer.h"
 #include "Input.h"
+#include "Glow.h"
 
 int StageTiming_GetStartSlotIndex(int index);
 int Race_GetPlayerRecordField4(BYTE index);
@@ -5308,7 +5309,7 @@ int RallyData_GetDistinctValueCount(void)
     return g_unk0x0052eab8;
 }
 
-void StageObject_ResetDamageRecordIndices(void);
+void CarLight_InvalidateAppliedLevels(void);
 void StageObject_ResetBodyTextureCaches(void);
 void StageObject_FreeAll(void);
 void Mesh_FreeClones(void);
@@ -5316,7 +5317,7 @@ void Mesh_FreeClones(void);
 // FUNCTION: CMR2 0x00411110
 void RallyData_ResetDamageAndTextureCaches(void)
 {
-    StageObject_ResetDamageRecordIndices();
+    CarLight_InvalidateAppliedLevels();
     StageObject_ResetBodyTextureCaches();
 }
 
@@ -7811,7 +7812,6 @@ reset:
 
 void Particle_BuildTriangleStripIndices(void);
 void Particle_Init(int typeCount, int particleCount);
-void Glow_AllocateEntryTable(int param1);
 void Graphics_CreateSharedWriteOnlyVertexBuffer(void);
 void Dash_Reset(void);
 void StageTiming_ResetCheckpointSlotStates(void);

@@ -1,0 +1,1 @@
+954 deformation record cases: 0 differences; independent signed clamp/search/visibility models, four complete deformation consumers, their real helpers, upload order, complete heap guards and ABI

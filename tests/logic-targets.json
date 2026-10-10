@@ -140,10 +140,49 @@
       "0x441500"
     ]
   },
+  "differential_car_info_records.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x457e00",
+      "0x457e10",
+      "0x4809e0",
+      "0x476540",
+      "0x486700",
+      "0x476a40",
+      "0x476c70",
+      "0x4869e0",
+      "0x456bb0",
+      "0x456b70"
+    ]
+  },
+  "differential_car_light_state.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x477ce0",
+      "0x477ac0",
+      "0x477f30",
+      "0x477c20",
+      "0x477c80",
+      "0x476850",
+      "0x4779e0",
+      "0x477460",
+      "0x4775f0"
+    ]
+  },
   "differential_car_lighting.py": {
     "arguments": "entities",
     "targets": [
       "0x462aa0"
+    ]
+  },
+  "differential_car_part_records.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x466e90",
+      "0x4692b0",
+      "0x46b4e0",
+      "0x469c30",
+      "0x4669f0"
     ]
   },
   "differential_car_preview_load.py": {
@@ -245,6 +284,18 @@
       "0x483100"
     ]
   },
+  "differential_deform_mesh_records.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x508740",
+      "0x508f60",
+      "0x509150",
+      "0x467700",
+      "0x467e90",
+      "0x508890",
+      "0x507fe0"
+    ]
+  },
   "differential_effect_calls.py": {
     "arguments": "both",
     "targets": [
@@ -311,6 +362,18 @@
       "0x47d5a0",
       "0x47dd70",
       "0x47e1e0"
+    ]
+  },
+  "differential_impact_and_preview_records.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x468520",
+      "0x4688b0",
+      "0x507710",
+      "0x469b50",
+      "0x506930",
+      "0x506720",
+      "0x50f120"
     ]
   },
   "differential_knockout_bracket.py": {
@@ -707,6 +770,15 @@
     "arguments": "entities",
     "targets": [
       "0x406580"
+    ]
+  },
+  "differential_weather_records.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x460c30",
+      "0x460b60",
+      "0x45e9a0",
+      "0x461bb0"
     ]
   },
   "differential_weather_setup.py": {

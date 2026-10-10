@@ -13,10 +13,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "Glow.h"
 
 // Not ported/declared elsewhere yet.
 void Scene_SetAmbient(BYTE *pColour, int boost);
-void Glow_ResetEntries(void);
 void Particle_BuildTriangleStripIndices(void);
 void Scene_InitFixedMathTables(void);
 void Game_CreateSplashScene(void);
