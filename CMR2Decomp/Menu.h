@@ -9,6 +9,10 @@ struct MenuItem;
 
 typedef void (*MenuCallback)(Menu *pMenu, int param);
 typedef void (*MenuItemCallback)(Menu *pMenu, MenuItem *pItem, int param);
+// Action of a selected item (MenuItem::action). Most actions are declared
+// (Menu *, int) and ignore the second argument; they are registered through
+// this type, which is how Menu_HandleInput calls them.
+typedef void (*MenuItemAction)(Menu *pMenu, MenuItem *pItem);
 
 // Optional per-item notifications (Menu::pItemCallbacks)
 struct MenuItemCallbacks {
@@ -31,7 +35,7 @@ struct MenuItem {
     BYTE min;               // 0xa
     BYTE max;               // 0xb
     Menu *pSubMenu;         // 0xc  type 2 only
-    int param;              // 0x10 action callback for the frontend
+    INT_PTR action;         // 0x10 MenuItemAction called when the item is selected (0: none)
 };
 
 struct Menu {
@@ -64,11 +68,11 @@ struct Menu {
 void Menu_PlaySound(int id);
 void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, Menu *pParent, MenuItemCallbacks *pItemCallbacks, BYTE flag4, BYTE defaultCursor, BYTE layout);
 void Menu_ClearNextItem(Menu *pMenu);
-void Menu_AddItemType3(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, BYTE flag2, int unused, int param, short value);
-void Menu_AddItemType6(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, BYTE flag2, int unused, int param, short value);
-void Menu_AddItemType4(Menu *pMenu, int stringId, short id, int param, short value);
-void Menu_AddItemType1(Menu *pMenu, int stringId, short id, int param, short value);
-void Menu_AddItemType2(Menu *pMenu, int stringId, short id, Menu *pSubMenu, int param, short value);
+void Menu_AddItemType3(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, BYTE flag2, int unused, INT_PTR action, short value);
+void Menu_AddItemType6(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, BYTE flag2, int unused, INT_PTR action, short value);
+void Menu_AddItemType4(Menu *pMenu, int stringId, short id, INT_PTR action, short value);
+void Menu_AddItemType1(Menu *pMenu, int stringId, short id, INT_PTR action, short value);
+void Menu_AddItemType2(Menu *pMenu, int stringId, short id, Menu *pSubMenu, INT_PTR action, short value);
 void Menu_SetCursor(Menu *pMenu, BYTE cursor);
 void Menu_SetParent(Menu *pMenu, Menu *pParent);
 int Menu_FindItem(Menu *pMenu, int id);

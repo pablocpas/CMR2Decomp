@@ -13,6 +13,7 @@
 #include "CarLightState.h"
 #include "Glow.h"
 #include "CarExhaust.h"
+#include "Menu.h"
 #include <stddef.h>
 #include "LayoutChecks.h"
 
@@ -730,3 +731,7 @@ CMR2_LAYOUT_CHECK(CarState_field_0xa78_Check, offsetof(Car, field_0xa78) == 0xa7
 CMR2_LAYOUT_CHECK(CarBodyAxesSizeCheck, sizeof(((Car *)0)->bodyAxes) == 0x24);
 CMR2_LAYOUT_CHECK(CarTargetAxesSizeCheck, sizeof(((Car *)0)->targetAxes) == 0x24);
 CMR2_LAYOUT_CHECK(CarNoiseTargetWidthCheck, sizeof(((Car *)0)->field_0xa78) == 4);
+// Menus: items are walked by index; the action follows four 32-bit words.
+CMR2_LAYOUT_CHECK(MenuItemSizeCheck, sizeof(MenuItem) == 0x14);
+CMR2_LAYOUT_CHECK(MenuItemActionOffsetCheck, offsetof(MenuItem, action) == 0x10);
+CMR2_LAYOUT_CHECK(MenuItemsOffsetCheck, offsetof(Menu, items) == 0x14);

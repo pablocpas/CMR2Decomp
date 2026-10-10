@@ -2044,7 +2044,7 @@ void FrontendMenu_BuildMain(void)
     Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x4f, &g_menu0x008212d8, 0, 0);
     Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x50, &g_menu0x00823a38, 0, 1);
     Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x51, FrontendMenu_GetArcade(), 0, 2);
-    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x52, &g_menu0x008241b8, (int)FrontendChampionship_StartNewEntry, 3);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x52, &g_menu0x008241b8, (INT_PTR)FrontendChampionship_StartNewEntry, 3);
     Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x53, &g_menu0x0081f118, 0, 4);
     if (GameInfo_AreOptionsAvailable() != 0)
         Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x54, &g_menu0x00822958, 0, 5);
@@ -2069,11 +2069,11 @@ void FrontendMenu_BuildRallyProfile(void)
     int i;
 
     Menu_Init(&g_menu0x008212d8, 0, 0xb, 0, &g_menu0x0081d6d8, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x008212d8, 0, 0x102, &g_menu0x008203d8, (int)FrontendMenu_SetNextParent, -1);
-    Menu_AddItemType4(&g_menu0x008212d8, 0, 0xe6, (int)FrontendProfile_CreateNewProfile, -1);
+    Menu_AddItemType2(&g_menu0x008212d8, 0, 0x102, &g_menu0x008203d8, (INT_PTR)FrontendMenu_SetNextParent, -1);
+    Menu_AddItemType4(&g_menu0x008212d8, 0, 0xe6, (INT_PTR)FrontendProfile_CreateNewProfile, -1);
     i = 4;
     do {
-        Menu_AddItemType4(&g_menu0x008212d8, 0, -1, (int)FrontendProfile_LoadSelectedProfile, -1);
+        Menu_AddItemType4(&g_menu0x008212d8, 0, -1, (INT_PTR)FrontendProfile_LoadSelectedProfile, -1);
         i--;
     } while (i != 0);
     Menu_SetCallbacks(&g_menu0x008212d8, (MenuCallback)FrontendMenu_EnterRallyProfile, (MenuCallback)FrontendScroller_UpdateMain,
@@ -2118,7 +2118,7 @@ void FrontendMenu_BuildCheats(void)
     Menu_Init(&g_menu0x0081be78, 0, 0x148, 0, &g_menu0x0081f118, NULL, 1, 0, 1);
     i = 0;
     do {
-        Menu_AddItemType3(&g_menu0x0081be78, 0, i + 0x149, 2, 0, 0, 0, (int)FrontendMenu_ReturnToParent, -1);
+        Menu_AddItemType3(&g_menu0x0081be78, 0, i + 0x149, 2, 0, 0, 0, (INT_PTR)FrontendMenu_ReturnToParent, -1);
         i++;
     } while (i < 8);
     Menu_SetCallbacks(&g_menu0x0081be78, (MenuCallback)FrontendMenu_EnterCheats, NULL, (MenuCallback)FrontendMenu_DrawCheats,
@@ -2140,7 +2140,7 @@ void FrontendMenu_BuildDisplayDevice(void)
     i = 0;
     if ((unsigned int)CGraphics::GetDisplayDriverCount() > 0) {
         do {
-            Menu_AddItemType4(&g_menu0x0081c7d8, 0, -1, (int)FrontendMenu_SelectDisplayDevice, 0);
+            Menu_AddItemType4(&g_menu0x0081c7d8, 0, -1, (INT_PTR)FrontendMenu_SelectDisplayDevice, 0);
             i++;
         } while (i < (unsigned int)CGraphics::GetDisplayDriverCount());
     }
@@ -2156,7 +2156,7 @@ void FrontendMenu_DrawHighScores(Menu *pMenu);
 void FrontendMenu_BuildHighScores(void)
 {
     Menu_Init(&g_menu0x00820b58, 0, 0x162, 0, &g_menu0x00823c18, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x00820b58, 0, -1, (int)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x00820b58, 0, -1, (INT_PTR)FrontendRecords_CycleTableMode, -1);
     Menu_SetCallbacks(&g_menu0x00820b58, NULL, NULL, (MenuCallback)FrontendMenu_DrawHighScores, NULL);
     Menu_ValidateCursor(&g_menu0x00820b58, 0);
     g_menu0x00820b58.items[0].flag3 = 1;
@@ -2169,7 +2169,7 @@ void FrontendMenu_DrawProfileHighScores(Menu *pMenu);
 void FrontendMenu_BuildProfileHighScores(void)
 {
     Menu_Init(&g_menu0x00823498, 0, 0x162, 0, &g_menu0x00820d38, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x00823498, 0, -1, (int)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x00823498, 0, -1, (INT_PTR)FrontendRecords_CycleTableMode, -1);
     Menu_SetCallbacks(&g_menu0x00823498, NULL, NULL, (MenuCallback)FrontendMenu_DrawProfileHighScores, NULL);
     Menu_ValidateCursor(&g_menu0x00823498, 0);
     g_menu0x00823498.items[0].flag3 = 1;
@@ -2216,10 +2216,10 @@ void FrontendMenu_DrawDifficulty(Menu *pMenu);
 void FrontendMenu_BuildSingleRallyDifficulty(char difficulty)
 {
     Menu_Init(&g_menu0x0081d318, 0, 0x1c, 0, &g_menu0x0081d4f8, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc5, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc6, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc7, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc8, (int)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc5, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc6, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc7, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc8, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
     Menu_SetCallbacks(&g_menu0x0081d318, (MenuCallback)FrontendScroller_InitDifficulty, (MenuCallback)FrontendScroller_UpdateDifficulty, (MenuCallback)FrontendMenu_DrawDifficulty, NULL);
     Menu_ValidateCursor(&g_menu0x0081d318, 0);
     g_menu0x0081d318.items[0].max = difficulty - 1;
@@ -2230,10 +2230,10 @@ void FrontendMenu_BuildSingleRallyDifficulty(char difficulty)
 void FrontendMenu_BuildChampionshipDifficulty(char difficulty)
 {
     Menu_Init(&g_menu0x00820978, 0, 0x1c, 0, &g_menu0x00824498, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc5, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc6, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc7, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc8, (int)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc5, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc6, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc7, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc8, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
     Menu_SetCallbacks(&g_menu0x00820978, (MenuCallback)FrontendScroller_InitDifficulty, (MenuCallback)FrontendScroller_UpdateDifficulty, (MenuCallback)FrontendMenu_DrawDifficulty, NULL);
     Menu_ValidateCursor(&g_menu0x00820978, 0);
     g_menu0x00820978.items[0].max = difficulty - 1;
@@ -2244,10 +2244,10 @@ void FrontendMenu_BuildChampionshipDifficulty(char difficulty)
 void FrontendMenu_BuildTimeTrialDifficulty(char difficulty)
 {
     Menu_Init(&g_menu0x0081f2f8, 0, 0x1c, 0, &g_menu0x00823fd8, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc5, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc6, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc7, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc8, (int)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc5, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc6, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc7, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc8, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
     Menu_SetCallbacks(&g_menu0x0081f2f8, (MenuCallback)FrontendScroller_InitDifficulty, (MenuCallback)FrontendScroller_UpdateDifficulty, (MenuCallback)FrontendMenu_DrawDifficulty, NULL);
     Menu_ValidateCursor(&g_menu0x0081f2f8, 0);
     g_menu0x0081f2f8.items[0].max = difficulty - 1;
@@ -2258,10 +2258,10 @@ void FrontendMenu_BuildTimeTrialDifficulty(char difficulty)
 void FrontendMenu_BuildMultiplayerDifficulty(char difficulty)
 {
     Menu_Init(&g_menu0x00824678, 0, 0x1c, 0, &g_menu0x00823a38, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc5, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc6, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc7, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc8, (int)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc5, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc6, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc7, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc8, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
     Menu_SetCallbacks(&g_menu0x00824678, (MenuCallback)FrontendScroller_InitDifficulty, (MenuCallback)FrontendScroller_UpdateDifficulty, (MenuCallback)FrontendMenu_DrawDifficulty, NULL);
     Menu_ValidateCursor(&g_menu0x00824678, 0);
     g_menu0x00824678.items[0].max = difficulty - 1;
@@ -2272,14 +2272,14 @@ void FrontendMenu_BuildMultiplayerDifficulty(char difficulty)
 void FrontendMenu_BuildMultiplayerExtendedDifficulty(char difficulty)
 {
     Menu_Init(&g_menu0x0081e5d8, 0, 0x40, 0, &g_menu0x00823a38, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc5, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc6, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc7, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc8, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc9, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xca, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xcb, (int)FrontendMenu_SelectDifficulty, -1);
-    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xcc, (int)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc5, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc6, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc7, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc8, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc9, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xca, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xcb, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xcc, (INT_PTR)FrontendMenu_SelectDifficulty, -1);
     Menu_SetCallbacks(&g_menu0x0081e5d8, (MenuCallback)FrontendMenu_EnterMultiplayerExtendedDifficulty, (MenuCallback)FrontendScroller_UpdateDifficulty, (MenuCallback)FrontendMenu_DrawDifficulty, NULL);
     Menu_ValidateCursor(&g_menu0x0081e5d8, 0);
     g_menu0x0081e5d8.items[0].max = difficulty - 1;
@@ -2294,8 +2294,8 @@ void FrontendMenu_SelectTransmission(Menu *pMenu, int param);
 void FrontendMenu_BuildSingleRallyTransmission(char choice)
 {
     Menu_Init(&g_menu0x008230d8, 0, 0x1e, 0, &g_menu0x0081d318, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x008230d8, 0, 0xd3, &g_menu0x008241b8, (int)FrontendMenu_SelectTransmission, -1);
-    Menu_AddItemType2(&g_menu0x008230d8, 0, 0xd4, &g_menu0x008241b8, (int)FrontendMenu_SelectTransmission, -1);
+    Menu_AddItemType2(&g_menu0x008230d8, 0, 0xd3, &g_menu0x008241b8, (INT_PTR)FrontendMenu_SelectTransmission, -1);
+    Menu_AddItemType2(&g_menu0x008230d8, 0, 0xd4, &g_menu0x008241b8, (INT_PTR)FrontendMenu_SelectTransmission, -1);
     Menu_SetCallbacks(&g_menu0x008230d8, NULL, (MenuCallback)FrontendMenu_UpdateTransmissionChoice, (MenuCallback)FrontendMenu_DrawTransmissionChoice, NULL);
     Menu_ValidateCursor(&g_menu0x008230d8, 0);
     g_menu0x008230d8.cursor = choice;
@@ -2307,8 +2307,8 @@ void FrontendMenu_BuildSingleRallyTransmission(char choice)
 void FrontendMenu_BuildChampionshipTransmission(char choice)
 {
     Menu_Init(&g_menu0x00824858, 0, 0x1e, 0, &g_menu0x00820978, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x00824858, 0, 0xd3, &g_menu0x008241b8, (int)FrontendMenu_SelectTransmission, -1);
-    Menu_AddItemType2(&g_menu0x00824858, 0, 0xd4, &g_menu0x008241b8, (int)FrontendMenu_SelectTransmission, -1);
+    Menu_AddItemType2(&g_menu0x00824858, 0, 0xd3, &g_menu0x008241b8, (INT_PTR)FrontendMenu_SelectTransmission, -1);
+    Menu_AddItemType2(&g_menu0x00824858, 0, 0xd4, &g_menu0x008241b8, (INT_PTR)FrontendMenu_SelectTransmission, -1);
     Menu_SetCallbacks(&g_menu0x00824858, NULL, (MenuCallback)FrontendMenu_UpdateTransmissionChoice, (MenuCallback)FrontendMenu_DrawTransmissionChoice, NULL);
     Menu_ValidateCursor(&g_menu0x00824858, 0);
     g_menu0x00824858.cursor = choice;
@@ -2320,8 +2320,8 @@ void FrontendMenu_BuildChampionshipTransmission(char choice)
 void FrontendMenu_BuildTimeTrialTransmission(char choice)
 {
     Menu_Init(&g_menu0x008251b8, 0, 0x1e, 0, &g_menu0x0081f2f8, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x008251b8, 0, 0xd3, &g_menu0x008241b8, (int)FrontendMenu_SelectTransmission, -1);
-    Menu_AddItemType2(&g_menu0x008251b8, 0, 0xd4, &g_menu0x008241b8, (int)FrontendMenu_SelectTransmission, -1);
+    Menu_AddItemType2(&g_menu0x008251b8, 0, 0xd3, &g_menu0x008241b8, (INT_PTR)FrontendMenu_SelectTransmission, -1);
+    Menu_AddItemType2(&g_menu0x008251b8, 0, 0xd4, &g_menu0x008241b8, (INT_PTR)FrontendMenu_SelectTransmission, -1);
     Menu_SetCallbacks(&g_menu0x008251b8, NULL, (MenuCallback)FrontendMenu_UpdateTransmissionChoice, (MenuCallback)FrontendMenu_DrawTransmissionChoice, NULL);
     Menu_ValidateCursor(&g_menu0x008251b8, 0);
     g_menu0x008251b8.cursor = choice;
@@ -2342,12 +2342,12 @@ void FrontendMenu_BuildMultiplayerProfile(void)
     int i;
 
     Menu_Init(&g_menu0x008241b8, 0, 0x21, 0, NULL, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x008241b8, 0, 0x102, &g_menu0x008203d8, (int)FrontendMenu_SetNextParent, -1);
-    Menu_AddItemType4(&g_menu0x008241b8, 0, 0xe6, (int)FrontendProfile_CreateNewPlayerProfile, 0);
-    Menu_AddItemType4(&g_menu0x008241b8, 0, 0xe5, (int)FrontendProfile_SetupNextPlayer, 0);
+    Menu_AddItemType2(&g_menu0x008241b8, 0, 0x102, &g_menu0x008203d8, (INT_PTR)FrontendMenu_SetNextParent, -1);
+    Menu_AddItemType4(&g_menu0x008241b8, 0, 0xe6, (INT_PTR)FrontendProfile_CreateNewPlayerProfile, 0);
+    Menu_AddItemType4(&g_menu0x008241b8, 0, 0xe5, (INT_PTR)FrontendProfile_SetupNextPlayer, 0);
     i = 4;
     do {
-        Menu_AddItemType4(&g_menu0x008241b8, 0, -1, (int)FrontendProfile_SelectSavedPlayerProfile, -1);
+        Menu_AddItemType4(&g_menu0x008241b8, 0, -1, (INT_PTR)FrontendProfile_SelectSavedPlayerProfile, -1);
         i--;
     } while (i != 0);
     Menu_SetCallbacks(&g_menu0x008241b8, (MenuCallback)FrontendMenu_EnterMultiplayerProfile, NULL, (MenuCallback)FrontendMenu_DrawMultiplayerProfile,
@@ -2368,7 +2368,7 @@ void FrontendMenu_BuildMultiplayerRaceSettings(void)
     Menu_AddItemType3(&g_menu0x00823858, 0, -1, 4, 0, 0, 0, 0, 0);
     Menu_AddItemType3(&g_menu0x00823858, 0, -1, 4, 0, 0, 0, 0, 1);
     Menu_AddItemType3(&g_menu0x00823858, 0, -1, 5, 0, 0, 0, 0, 2);
-    Menu_AddItemType4(&g_menu0x00823858, 0, -1, (int)FrontendMenu_StartMultiplayerKnockout, 3);
+    Menu_AddItemType4(&g_menu0x00823858, 0, -1, (INT_PTR)FrontendMenu_StartMultiplayerKnockout, 3);
     Menu_SetCallbacks(&g_menu0x00823858, (MenuCallback)FrontendMenu_EnterMultiplayerRaceSettings, (MenuCallback)FrontendMenu_UpdateMultiplayerRaceSettings,
                       (MenuCallback)FrontendMenu_DrawMultiplayerRaceSettings, NULL);
     Menu_ValidateCursor(&g_menu0x00823858, 0);
@@ -2419,7 +2419,7 @@ void FrontendMenu_BuildArcade(void)
     Menu_Init(&g_menu0x008267e0, 0, 0x58, 0, FrontendMenu_GetMain(), NULL, 1, 1, 1);
     Menu_AddItemType2(&g_menu0x008267e0, 0, 0xc, &g_menu0x00826600, 0, 0);
     Menu_AddItemType2(&g_menu0x008267e0, 0, 0xe2, &g_menu0x008276e0, 0, 0);
-    Menu_AddItemType4(&g_menu0x008267e0, 0, 0x10, (int)FrontendMenu_StartArcadeGame, -1);
+    Menu_AddItemType4(&g_menu0x008267e0, 0, 0x10, (INT_PTR)FrontendMenu_StartArcadeGame, -1);
     Menu_SetCallbacks(&g_menu0x008267e0, NULL, (MenuCallback)FrontendScroller_UpdateMain, (MenuCallback)FrontendMenu_DrawArcade,
                       (MenuCallback)FrontendMenu_LeaveArcade);
     Menu_ValidateCursor(&g_menu0x008267e0, 0);
@@ -2472,8 +2472,8 @@ void FrontendMenu_DrawDifficulty(Menu *pMenu);
 void FrontendMenu_BuildArcadeChampionshipPlayerCount(char players)
 {
     Menu_Init(&g_menu0x008269c0, 0, 0x1c, 0, &g_menu0x00826600, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x008269c0, 0, 0x19f, (int)FrontendMenu_SelectArcadePlayerCount, -1);
-    Menu_AddItemType4(&g_menu0x008269c0, 0, 0x1a0, (int)FrontendMenu_SelectArcadePlayerCount, -1);
+    Menu_AddItemType4(&g_menu0x008269c0, 0, 0x19f, (INT_PTR)FrontendMenu_SelectArcadePlayerCount, -1);
+    Menu_AddItemType4(&g_menu0x008269c0, 0, 0x1a0, (INT_PTR)FrontendMenu_SelectArcadePlayerCount, -1);
     Menu_SetCallbacks(&g_menu0x008269c0, (MenuCallback)FrontendMenu_EnterArcadePlayerCount, (MenuCallback)FrontendScroller_UpdateDifficulty,
                       (MenuCallback)FrontendMenu_DrawDifficulty, NULL);
     Menu_ValidateCursor(&g_menu0x008269c0, 0);
@@ -2492,8 +2492,8 @@ void FrontendMenu_UpdateArcadePlayerCount(Menu *pMenu)
 void FrontendMenu_BuildArcadePlayerCount(char players)
 {
     Menu_Init(&g_menu0x008276e0, 0, 0x1c, 0, &g_menu0x008267e0, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x008276e0, 0, 0x19f, (int)FrontendMenu_SelectArcadePlayerCount, -1);
-    Menu_AddItemType4(&g_menu0x008276e0, 0, 0x1a0, (int)FrontendMenu_SelectArcadePlayerCount, -1);
+    Menu_AddItemType4(&g_menu0x008276e0, 0, 0x19f, (INT_PTR)FrontendMenu_SelectArcadePlayerCount, -1);
+    Menu_AddItemType4(&g_menu0x008276e0, 0, 0x1a0, (INT_PTR)FrontendMenu_SelectArcadePlayerCount, -1);
     Menu_SetCallbacks(&g_menu0x008276e0, (MenuCallback)FrontendMenu_EnterArcadePlayerCount, (MenuCallback)FrontendMenu_UpdateArcadePlayerCount,
                       (MenuCallback)FrontendMenu_DrawDifficulty, NULL);
     Menu_ValidateCursor(&g_menu0x008276e0, 0);
@@ -2517,9 +2517,9 @@ void FrontendMenu_SetupSinglePlayerArcade(void)
 void FrontendMenu_BuildArcadeGameType(char unused)
 {
     Menu_Init(&g_menu0x00826600, 0, 0x1d, 0, &g_menu0x008267e0, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x00826600, 0, 0xd0, FrontendMenu_GetMultiplayerProfile(), (int)FrontendMenu_SelectCarClass, 0);
-    Menu_AddItemType2(&g_menu0x00826600, 0, 0xd1, FrontendMenu_GetMultiplayerProfile(), (int)FrontendMenu_SelectCarClass, 0);
-    Menu_AddItemType2(&g_menu0x00826600, 0, 0xd2, FrontendMenu_GetMultiplayerProfile(), (int)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x00826600, 0, 0xd0, FrontendMenu_GetMultiplayerProfile(), (INT_PTR)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x00826600, 0, 0xd1, FrontendMenu_GetMultiplayerProfile(), (INT_PTR)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x00826600, 0, 0xd2, FrontendMenu_GetMultiplayerProfile(), (INT_PTR)FrontendMenu_SelectCarClass, 0);
     Menu_SetCallbacks(&g_menu0x00826600, (MenuCallback)FrontendMenu_EnterArcadeCarClass, NULL, (MenuCallback)FrontendMenu_DrawCarClass, NULL);
     Menu_ValidateCursor(&g_menu0x00826600, 0);
 }
@@ -2540,7 +2540,7 @@ void FrontendMenu_BuildQuickRaceSettings(void)
     Menu_Init(&g_menu0x00828040, 0, 0x1a7, 0, FrontendMenu_GetArcadeRallySelection(), NULL, 1, 0, 1);
     Menu_AddItemType3(&g_menu0x00828040, 0, -1, 10, 0, 0, 0, 0, 0);
     Menu_AddItemType3(&g_menu0x00828040, 0, -1, 5, 0, 0, 0, 0, 1);
-    Menu_AddItemType4(&g_menu0x00828040, 0, 0x67, (int)FrontendMenu_StartQuickRace, -1);
+    Menu_AddItemType4(&g_menu0x00828040, 0, 0x67, (INT_PTR)FrontendMenu_StartQuickRace, -1);
     Menu_SetCallbacks(&g_menu0x00828040, (MenuCallback)FrontendMenu_EnterQuickRaceSettings, (MenuCallback)FrontendScroller_UpdateArcadeRally,
                       (MenuCallback)FrontendMenu_DrawQuickRaceSettings, NULL);
     Menu_ValidateCursor(&g_menu0x00828040, 0);
@@ -2555,7 +2555,7 @@ void FrontendMenu_BuildQuickRaceAdvancedSettings(void)
     Menu_AddItemType3(&g_menu0x00827aa0, 0, -1, 3, 0, 0, 0, 0, 3);
     Menu_AddItemType3(&g_menu0x00827aa0, 0, -1, 5, 0, 0, 0, 0, -1);
     Menu_AddItemType3(&g_menu0x00827aa0, 0, -1, 5, 0, 0, 0, 0, 2);
-    Menu_AddItemType4(&g_menu0x00827aa0, 0, 0x67, (int)FrontendMenu_StartAdvancedQuickRace, -1);
+    Menu_AddItemType4(&g_menu0x00827aa0, 0, 0x67, (INT_PTR)FrontendMenu_StartAdvancedQuickRace, -1);
     Menu_SetCallbacks(&g_menu0x00827aa0, (MenuCallback)FrontendMenu_EnterQuickRaceAdvancedSettings, (MenuCallback)FrontendMenu_UpdateQuickRaceAdvancedSettings,
                       (MenuCallback)FrontendMenu_DrawQuickRaceAdvancedSettings, NULL);
     Menu_ValidateCursor(&g_menu0x00827aa0, 0);
@@ -2625,7 +2625,7 @@ void FrontendMenu_BuildSingleRallyModes(void)
 void FrontendMenu_BuildSingleRallySelection(void)
 {
     Menu_Init(&g_menu0x00820018, 0, 0xda, 0, &g_menu0x0081dc78, NULL, 1, 0, 0);
-    Menu_AddItemType3(&g_menu0x00820018, 0, -1, 1, 0, 0, 0, (int)FrontendCar_ApplyPreviewSelection, -1);
+    Menu_AddItemType3(&g_menu0x00820018, 0, -1, 1, 0, 0, 0, (INT_PTR)FrontendCar_ApplyPreviewSelection, -1);
     Menu_SetCallbacks(&g_menu0x00820018, FrontendMenu_EnterSingleRallySelection, (MenuCallback)FrontendMenu_UpdateSingleRallySelection, (MenuCallback)FrontendMenu_DrawSingleRallySelection, NULL);
     Menu_ValidateCursor(&g_menu0x00820018, 0);
 }
@@ -2642,7 +2642,7 @@ void FrontendMenu_BuildRallyStartTransition(void)
 void FrontendMenu_BuildNetworkConnection(void)
 {
     Menu_Init(&g_menu0x00822598, 0, 0x3c, 0, &g_menu0x008241b8, NULL, 1, 0, 0);
-    Menu_AddItemType3(&g_menu0x00822598, 0, -1, 0xa, 0, 1, 0, (int)FrontendNetwork_OpenConnectedLeaderboard, 0);
+    Menu_AddItemType3(&g_menu0x00822598, 0, -1, 0xa, 0, 1, 0, (INT_PTR)FrontendNetwork_OpenConnectedLeaderboard, 0);
     Menu_SetCallbacks(&g_menu0x00822598, FrontendMenu_EnterNetworkConnection, NULL, (MenuCallback)FrontendMenu_DrawNetworkConnection, (MenuCallback)FrontendNetwork_LeaveConnectionPages);
     Menu_ValidateCursor(&g_menu0x00822598, 0);
 }
@@ -2651,8 +2651,8 @@ void FrontendMenu_BuildNetworkConnection(void)
 void FrontendMenu_BuildNetworkSessionBrowser(void)
 {
     Menu_Init(&g_menu0x00824c18, 0, 0x35, 0, &g_menu0x00822598, NULL, 1, 0, 1);
-    Menu_AddItemType4(&g_menu0x00824c18, 0, 0x1ec, (int)FrontendNetwork_JoinSelectedSession, 0);
-    Menu_AddItemType4(&g_menu0x00824c18, 0, 0x3d, (int)FrontendNetwork_CreateSelectedSession, 0);
+    Menu_AddItemType4(&g_menu0x00824c18, 0, 0x1ec, (INT_PTR)FrontendNetwork_JoinSelectedSession, 0);
+    Menu_AddItemType4(&g_menu0x00824c18, 0, 0x3d, (INT_PTR)FrontendNetwork_CreateSelectedSession, 0);
     Menu_AddItemType1(&g_menu0x00824c18, 0, 0x1b, 0, 0);
     Menu_SetCallbacks(&g_menu0x00824c18, (MenuCallback)FrontendMenu_EnterNetworkSessionBrowser, (MenuCallback)FrontendMenu_UpdateNetworkSessionBrowser, (MenuCallback)FrontendMenu_DrawNetworkSessionBrowser, (MenuCallback)FrontendNetwork_LeaveConnectionPages);
     Menu_ValidateCursor(&g_menu0x00824c18, 0);
@@ -2668,7 +2668,7 @@ void FrontendMenu_BuildNetworkSessionDetails(void)
     Menu_AddItemType3(&g_menu0x00821c38, 0, -1, 8, 6, 1, 0, 0, 3);
     Menu_AddItemType4(&g_menu0x00821c38, 0, -1, 0, 4);
     Menu_AddItemType2(&g_menu0x00821c38, 0, -1, &g_menu0x0081bab8, 0, 5);
-    Menu_AddItemType4(&g_menu0x00821c38, 0, 0x67, (int)FrontendNetwork_ApplyHostSessionDetails, 6);
+    Menu_AddItemType4(&g_menu0x00821c38, 0, 0x67, (INT_PTR)FrontendNetwork_ApplyHostSessionDetails, 6);
     Menu_AddItemType1(&g_menu0x00821c38, 0, 0x1b, 0, 7);
     Menu_SetCallbacks(&g_menu0x00821c38, (MenuCallback)FrontendMenu_EnterNetworkSessionDetails, (MenuCallback)FrontendMenu_UpdateNetworkSessionDetails, (MenuCallback)FrontendMenu_DrawNetworkSessionDetails, (MenuCallback)FrontendMenu_LeaveNetworkSessionDetails);
     Menu_ValidateCursor(&g_menu0x00821c38, 0);
@@ -2681,7 +2681,7 @@ void FrontendMenu_BuildNetworkSessionSetup(void)
     Menu_AddItemType4(&g_menu0x0081e218, 0, -1, 0, 0);
     Menu_AddItemType3(&g_menu0x0081e218, 0, -1, 0x16, 0, 1, 0, 0, 1);
     Menu_AddItemType3(&g_menu0x0081e218, 0, -1, 2, 0, 1, 0, 0, 2);
-    Menu_AddItemType3(&g_menu0x0081e218, 0, -1, 2, 0, 1, 0, (int)FrontendNetwork_StartHostRace, 3);
+    Menu_AddItemType3(&g_menu0x0081e218, 0, -1, 2, 0, 1, 0, (INT_PTR)FrontendNetwork_StartHostRace, 3);
     Menu_AddItemType1(&g_menu0x0081e218, 0, 0x1b, 0, 4);
     Menu_SetCallbacks(&g_menu0x0081e218, (MenuCallback)FrontendMenu_EnterNetworkSessionSetup, (MenuCallback)FrontendMenu_UpdateNetworkSessionSetup, (MenuCallback)FrontendMenu_DrawNetworkSessionSetup, (MenuCallback)FrontendMenu_LeaveNetworkSessionSetup);
     Menu_ValidateCursor(&g_menu0x0081e218, 0);
@@ -2705,7 +2705,7 @@ void FrontendMenu_BuildGameOptions(void)
     Menu_AddItemType3(&g_menu0x0081ef38, 0, 0x96, 2, 0, 0, 0, 0, 3);
     Menu_AddItemType3(&g_menu0x0081ef38, 0, 0x151, 3, 0, 0, 0, 0, 4);
     Menu_AddItemType2(&g_menu0x0081ef38, 0, 0x8e, &g_menu0x008210f8, 0, -1);
-    Menu_AddItemType2(&g_menu0x0081ef38, 0, 0x67, g_menu0x0081ef38.pParent, (int)FrontendMenu_ApplyGameOptions, -1);
+    Menu_AddItemType2(&g_menu0x0081ef38, 0, 0x67, g_menu0x0081ef38.pParent, (INT_PTR)FrontendMenu_ApplyGameOptions, -1);
     Menu_SetCallbacks(&g_menu0x0081ef38, (MenuCallback)FrontendMenu_EnterGameOptions, NULL, (MenuCallback)FrontendMenu_DrawGameOptions, NULL);
     Menu_ValidateCursor(&g_menu0x0081ef38, 0);
 }
@@ -2721,7 +2721,7 @@ void FrontendMenu_BuildGraphicsOptions(void)
     Menu_AddItemType3(&g_menu0x008210f8, 0, -1, 3, 0, 0, 0, 0, 4);
     Menu_AddItemType3(&g_menu0x008210f8, 0, -1, 0xa, 0, 0, 0, 0, 5);
     Menu_AddItemType2(&g_menu0x008210f8, 0, 0x1ac, &g_menu0x0081cd78, 0, 6);
-    Menu_AddItemType1(&g_menu0x008210f8, 0, 0x67, (int)FrontendMenu_ApplyGraphicsOptions, 0xe);
+    Menu_AddItemType1(&g_menu0x008210f8, 0, 0x67, (INT_PTR)FrontendMenu_ApplyGraphicsOptions, 0xe);
     Menu_SetCallbacks(&g_menu0x008210f8, FrontendMenu_EnterGraphicsOptions, NULL, (MenuCallback)FrontendMenu_DrawGraphicsOptions, (MenuCallback)FrontendMenu_LeaveGraphicsOptions);
     Menu_ValidateCursor(&g_menu0x008210f8, 0);
 }
@@ -2733,7 +2733,7 @@ void FrontendMenu_BuildAdvancedGraphicsOptions(void)
     Menu_AddItemType3(&g_menu0x0081cd78, 0, 0x1b8, 3, 0, 0, 0, 0, 8);
     Menu_AddItemType3(&g_menu0x0081cd78, 0, 0x1b7, 2, 0, 0, 0, 0, 9);
     Menu_AddItemType3(&g_menu0x0081cd78, 0, 0x1b6, 2, 0, 0, 0, 0, 0xa);
-    Menu_AddItemType1(&g_menu0x0081cd78, 0, 0x67, (int)FrontendMenu_ApplyAdvancedGraphicsOptions, 0xe);
+    Menu_AddItemType1(&g_menu0x0081cd78, 0, 0x67, (INT_PTR)FrontendMenu_ApplyAdvancedGraphicsOptions, 0xe);
     Menu_SetCallbacks(&g_menu0x0081cd78, FrontendMenu_EnterAdvancedGraphicsOptions, (MenuCallback)FrontendMenu_UpdateAdvancedGraphicsOptions, (MenuCallback)FrontendMenu_DrawAdvancedGraphicsOptions, NULL);
     Menu_ValidateCursor(&g_menu0x0081cd78, 0);
 }
@@ -2742,10 +2742,10 @@ void FrontendMenu_BuildAdvancedGraphicsOptions(void)
 void FrontendMenu_BuildRenderDeviceOptions(void)
 {
     Menu_Init(&g_menu0x0081de58, 0, 0x1b1, 0, &g_menu0x008210f8, NULL, 1, 0, 1);
-    Menu_AddItemType4(&g_menu0x0081de58, 0, 0x133, (int)FrontendMenu_ApplyRenderDeviceOptions, 0);
-    Menu_AddItemType4(&g_menu0x0081de58, 0, 0x1ae, (int)FrontendMenu_ApplyRenderDeviceOptions, 0);
-    Menu_AddItemType4(&g_menu0x0081de58, 0, 0x1af, (int)FrontendMenu_ApplyRenderDeviceOptions, 0);
-    Menu_AddItemType4(&g_menu0x0081de58, 0, 0x1b0, (int)FrontendMenu_ApplyRenderDeviceOptions, 0);
+    Menu_AddItemType4(&g_menu0x0081de58, 0, 0x133, (INT_PTR)FrontendMenu_ApplyRenderDeviceOptions, 0);
+    Menu_AddItemType4(&g_menu0x0081de58, 0, 0x1ae, (INT_PTR)FrontendMenu_ApplyRenderDeviceOptions, 0);
+    Menu_AddItemType4(&g_menu0x0081de58, 0, 0x1af, (INT_PTR)FrontendMenu_ApplyRenderDeviceOptions, 0);
+    Menu_AddItemType4(&g_menu0x0081de58, 0, 0x1b0, (INT_PTR)FrontendMenu_ApplyRenderDeviceOptions, 0);
     Menu_SetCallbacks(&g_menu0x0081de58, FrontendMenu_EnterRenderDeviceOptions, NULL, (MenuCallback)FrontendMenu_DrawRenderDeviceOptions, NULL);
     Menu_ValidateCursor(&g_menu0x0081de58, 0);
 }
@@ -2754,7 +2754,7 @@ void FrontendMenu_BuildRenderDeviceOptions(void)
 void FrontendMenu_BuildDisplayMode(void)
 {
     Menu_Init(&g_menu0x0081cb98, 0, 0x14, 0, &g_menu0x008210f8, NULL, 1, 0, 0);
-    Menu_AddItemType3(&g_menu0x0081cb98, 0, -1, 2, 0, 0, 0, (int)FrontendMenu_ApplyDisplayMode, 0);
+    Menu_AddItemType3(&g_menu0x0081cb98, 0, -1, 2, 0, 0, 0, (INT_PTR)FrontendMenu_ApplyDisplayMode, 0);
     Menu_SetCallbacks(&g_menu0x0081cb98, (MenuCallback)FrontendMenu_EnterDisplayMode, (MenuCallback)FrontendMenu_UpdateDisplayMode, (MenuCallback)FrontendMenu_DrawDisplayMode, NULL);
     Menu_ValidateCursor(&g_menu0x0081cb98, 0);
 }
@@ -2801,14 +2801,14 @@ void FrontendMenu_BuildProfileRecords(void)
 void FrontendMenu_BuildStageRecords(void)
 {
     Menu_Init(&g_menu0x0081c418, 0, 0x163, 0, &g_menu0x00823c18, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x27, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x28, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x29, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x2a, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x2b, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x2c, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x2d, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x2e, (int)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x27, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x28, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x29, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x2a, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x2b, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x2c, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x2d, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x0081c418, 0, 0x2e, (INT_PTR)FrontendRecords_CycleTableMode, -1);
     Menu_SetCallbacks(&g_menu0x0081c418, FrontendScroller_InitStageRecords, (MenuCallback)FrontendScroller_UpdateStageRecords, (MenuCallback)FrontendMenu_DrawStageRecords, NULL);
     Menu_ValidateCursor(&g_menu0x0081c418, 0);
 }
@@ -2833,8 +2833,8 @@ void FrontendMenu_BuildBestStageTimes(void)
 void FrontendMenu_BuildTransmissionRecords(void)
 {
     Menu_Init(&g_menu0x008232b8, 0, 0x165, 0, &g_menu0x00823c18, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x008232b8, 0, 0xe9, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x008232b8, 0, 0xe8, (int)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x008232b8, 0, 0xe9, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x008232b8, 0, 0xe8, (INT_PTR)FrontendRecords_CycleTableMode, -1);
     Menu_SetCallbacks(&g_menu0x008232b8, FrontendScroller_InitTransmissionRecords, (MenuCallback)FrontendScroller_UpdateTransmissionRecords, (MenuCallback)FrontendMenu_DrawTransmissionRecords, NULL);
     Menu_ValidateCursor(&g_menu0x008232b8, 0);
 }
@@ -2852,14 +2852,14 @@ void FrontendMenu_BuildChampionshipRecords(void)
 void FrontendMenu_BuildProfileStageRecords(void)
 {
     Menu_Init(&g_menu0x008201f8, 0, 0x163, 0, &g_menu0x00820d38, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x27, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x28, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x29, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x2a, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x2b, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x2c, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x2d, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x2e, (int)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x27, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x28, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x29, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x2a, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x2b, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x2c, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x2d, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x008201f8, 0, 0x2e, (INT_PTR)FrontendRecords_CycleTableMode, -1);
     Menu_SetCallbacks(&g_menu0x008201f8, FrontendScroller_InitStageRecords, (MenuCallback)FrontendScroller_UpdateStageRecords, (MenuCallback)FrontendMenu_DrawProfileStageRecords, NULL);
     Menu_ValidateCursor(&g_menu0x008201f8, 0);
 }
@@ -2868,8 +2868,8 @@ void FrontendMenu_BuildProfileStageRecords(void)
 void FrontendMenu_BuildProfileTransmissionRecords(void)
 {
     Menu_Init(&g_menu0x0081b518, 0, 0x165, 0, &g_menu0x00820d38, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x0081b518, 0, 0xe9, (int)FrontendRecords_CycleTableMode, -1);
-    Menu_AddItemType4(&g_menu0x0081b518, 0, 0xe8, (int)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x0081b518, 0, 0xe9, (INT_PTR)FrontendRecords_CycleTableMode, -1);
+    Menu_AddItemType4(&g_menu0x0081b518, 0, 0xe8, (INT_PTR)FrontendRecords_CycleTableMode, -1);
     Menu_SetCallbacks(&g_menu0x0081b518, FrontendScroller_InitTransmissionRecords, (MenuCallback)FrontendScroller_UpdateTransmissionRecords, (MenuCallback)FrontendMenu_DrawProfileTransmissionRecords, NULL);
     Menu_ValidateCursor(&g_menu0x0081b518, 0);
 }
@@ -2897,7 +2897,7 @@ void FrontendMenu_BuildQuitConfirmation(void)
 {
     Menu_Init(&g_menu0x00823df8, 0, 3, 0, &g_menu0x0081d6d8, NULL, 1, 1, 1);
     Menu_AddItemType2(&g_menu0x00823df8, 0, 5, &g_menu0x00820798, 0, 0);
-    Menu_AddItemType1(&g_menu0x00823df8, 0, 4, (int)FrontendMenu_CancelQuit, 0);
+    Menu_AddItemType1(&g_menu0x00823df8, 0, 4, (INT_PTR)FrontendMenu_CancelQuit, 0);
     Menu_SetCallbacks(&g_menu0x00823df8, FrontendMenu_EnterQuitConfirmation, (MenuCallback)FrontendScroller_UpdateMain, (MenuCallback)FrontendMenu_DrawQuitConfirmation, (MenuCallback)FrontendMenu_LeaveQuitConfirmation);
     Menu_ValidateCursor(&g_menu0x00823df8, 0);
 }
@@ -2906,9 +2906,9 @@ void FrontendMenu_BuildQuitConfirmation(void)
 void FrontendMenu_BuildSingleRallyCarClass(int unused)
 {
     Menu_Init(&g_menu0x0081d4f8, 0, 0x1d, 0, &g_menu0x0081dc78, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x0081d4f8, 0, 0xd0, &g_menu0x0081d318, (int)FrontendMenu_SelectCarClass, 0);
-    Menu_AddItemType2(&g_menu0x0081d4f8, 0, 0xd1, &g_menu0x0081d318, (int)FrontendMenu_SelectCarClass, 0);
-    Menu_AddItemType2(&g_menu0x0081d4f8, 0, 0xd2, &g_menu0x0081d318, (int)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x0081d4f8, 0, 0xd0, &g_menu0x0081d318, (INT_PTR)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x0081d4f8, 0, 0xd1, &g_menu0x0081d318, (INT_PTR)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x0081d4f8, 0, 0xd2, &g_menu0x0081d318, (INT_PTR)FrontendMenu_SelectCarClass, 0);
     Menu_SetCallbacks(&g_menu0x0081d4f8, FrontendMenu_EnterCarClass, NULL, (MenuCallback)FrontendMenu_DrawCarClass, NULL);
     Menu_ValidateCursor(&g_menu0x0081d4f8, 0);
 }
@@ -2917,9 +2917,9 @@ void FrontendMenu_BuildSingleRallyCarClass(int unused)
 void FrontendMenu_BuildChampionshipCarClass(int unused)
 {
     Menu_Init(&g_menu0x00824498, 0, 0x1d, 0, &g_menu0x00823a38, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x00824498, 0, 0xd0, &g_menu0x00820978, (int)FrontendMenu_SelectCarClass, 0);
-    Menu_AddItemType2(&g_menu0x00824498, 0, 0xd1, &g_menu0x00820978, (int)FrontendMenu_SelectCarClass, 0);
-    Menu_AddItemType2(&g_menu0x00824498, 0, 0xd2, &g_menu0x00820978, (int)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x00824498, 0, 0xd0, &g_menu0x00820978, (INT_PTR)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x00824498, 0, 0xd1, &g_menu0x00820978, (INT_PTR)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x00824498, 0, 0xd2, &g_menu0x00820978, (INT_PTR)FrontendMenu_SelectCarClass, 0);
     Menu_SetCallbacks(&g_menu0x00824498, FrontendMenu_EnterCarClass, NULL, (MenuCallback)FrontendMenu_DrawCarClass, NULL);
     Menu_ValidateCursor(&g_menu0x00824498, 0);
 }
@@ -2928,9 +2928,9 @@ void FrontendMenu_BuildChampionshipCarClass(int unused)
 void FrontendMenu_BuildTimeTrialCarClass(int unused)
 {
     Menu_Init(&g_menu0x00823fd8, 0, 0x1d, 0, &g_menu0x00823a38, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x00823fd8, 0, 0xd0, &g_menu0x0081f2f8, (int)FrontendMenu_SelectCarClass, 0);
-    Menu_AddItemType2(&g_menu0x00823fd8, 0, 0xd1, &g_menu0x0081f2f8, (int)FrontendMenu_SelectCarClass, 0);
-    Menu_AddItemType2(&g_menu0x00823fd8, 0, 0xd2, &g_menu0x0081f2f8, (int)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x00823fd8, 0, 0xd0, &g_menu0x0081f2f8, (INT_PTR)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x00823fd8, 0, 0xd1, &g_menu0x0081f2f8, (INT_PTR)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x00823fd8, 0, 0xd2, &g_menu0x0081f2f8, (INT_PTR)FrontendMenu_SelectCarClass, 0);
     Menu_SetCallbacks(&g_menu0x00823fd8, FrontendMenu_EnterCarClass, NULL, (MenuCallback)FrontendMenu_DrawCarClass, NULL);
     Menu_ValidateCursor(&g_menu0x00823fd8, 0);
 }
@@ -2939,10 +2939,10 @@ void FrontendMenu_BuildTimeTrialCarClass(int unused)
 void FrontendMenu_BuildMultiplayerCarClass(void)
 {
     Menu_Init(&g_menu0x0081ed58, 0, 0x41, 0, &g_menu0x00823a38, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x0081ed58, 0, 0x42, &g_menu0x00823858, (int)FrontendMenu_SelectMultiplayerClass, -1);
-    Menu_AddItemType2(&g_menu0x0081ed58, 0, 0xd0, &g_menu0x00823858, (int)FrontendMenu_SelectMultiplayerClass, -1);
-    Menu_AddItemType2(&g_menu0x0081ed58, 0, 0xd1, &g_menu0x00823858, (int)FrontendMenu_SelectMultiplayerClass, -1);
-    Menu_AddItemType2(&g_menu0x0081ed58, 0, 0xd2, &g_menu0x00823858, (int)FrontendMenu_SelectMultiplayerClass, -1);
+    Menu_AddItemType2(&g_menu0x0081ed58, 0, 0x42, &g_menu0x00823858, (INT_PTR)FrontendMenu_SelectMultiplayerClass, -1);
+    Menu_AddItemType2(&g_menu0x0081ed58, 0, 0xd0, &g_menu0x00823858, (INT_PTR)FrontendMenu_SelectMultiplayerClass, -1);
+    Menu_AddItemType2(&g_menu0x0081ed58, 0, 0xd1, &g_menu0x00823858, (INT_PTR)FrontendMenu_SelectMultiplayerClass, -1);
+    Menu_AddItemType2(&g_menu0x0081ed58, 0, 0xd2, &g_menu0x00823858, (INT_PTR)FrontendMenu_SelectMultiplayerClass, -1);
     Menu_SetCallbacks(&g_menu0x0081ed58, FrontendMenu_EnterMultiplayerCarClass, NULL, (MenuCallback)FrontendMenu_DrawMultiplayerCarClass, NULL);
     Menu_ValidateCursor(&g_menu0x0081ed58, 0);
 }
@@ -2951,7 +2951,7 @@ void FrontendMenu_BuildMultiplayerCarClass(void)
 void FrontendMenu_BuildMultiplayerStageSelection(void)
 {
     Menu_Init(&g_menu0x008203d8, 0, 0x17a, 0, &g_menu0x008241b8, NULL, 1, 0, 1);
-    Menu_AddItemType6(&g_menu0x008203d8, 0, -1, 1, 0, 1, 0, (int)FrontendProfile_ApplyStageSelectionAndAdvance, -1);
+    Menu_AddItemType6(&g_menu0x008203d8, 0, -1, 1, 0, 1, 0, (INT_PTR)FrontendProfile_ApplyStageSelectionAndAdvance, -1);
     Menu_AddItemType1(&g_menu0x008203d8, 0, 0x11a, 0, 0);
     Menu_SetCallbacks(&g_menu0x008203d8, FrontendMenu_EnterMultiplayerStageSelection, (MenuCallback)FrontendMenu_UpdateMultiplayerStageSelection, (MenuCallback)FrontendMenu_DrawMultiplayerStageSelection, FrontendMenu_LeaveMultiplayerStageSelection);
     Menu_ValidateCursor(&g_menu0x008203d8, 0);
@@ -2961,9 +2961,9 @@ void FrontendMenu_BuildMultiplayerStageSelection(void)
 void FrontendMenu_BuildProfileNameEntry(void)
 {
     Menu_Init(&g_menu0x00824a38, 0, 0x22, 0, NULL, NULL, 1, 0, 1);
-    Menu_AddItemType6(&g_menu0x00824a38, 0, -1, 0xa, 0, 1, 0, (int)FrontendProfile_PickNameCharacter, 0);
-    Menu_AddItemType6(&g_menu0x00824a38, 0, -1, 0xa, 0, 1, 0, (int)FrontendProfile_PickNameCharacter, 1);
-    Menu_AddItemType6(&g_menu0x00824a38, 0, -1, 0xa, 0, 1, 0, (int)FrontendProfile_PickNameCharacter, 2);
+    Menu_AddItemType6(&g_menu0x00824a38, 0, -1, 0xa, 0, 1, 0, (INT_PTR)FrontendProfile_PickNameCharacter, 0);
+    Menu_AddItemType6(&g_menu0x00824a38, 0, -1, 0xa, 0, 1, 0, (INT_PTR)FrontendProfile_PickNameCharacter, 1);
+    Menu_AddItemType6(&g_menu0x00824a38, 0, -1, 0xa, 0, 1, 0, (INT_PTR)FrontendProfile_PickNameCharacter, 2);
     Menu_SetCallbacks(&g_menu0x00824a38, (MenuCallback)FrontendMenu_EnterProfileNameEntry, (MenuCallback)FrontendMenu_UpdateProfileNameEntry, (MenuCallback)FrontendMenu_DrawProfileNameEntry, (MenuCallback)FrontendMenu_LeaveProfileNameEntry);
     Menu_ValidateCursor(&g_menu0x00824a38, 0);
 }
@@ -2972,9 +2972,9 @@ void FrontendMenu_BuildProfileNameEntry(void)
 void FrontendMenu_BuildProfileRenameEntry(void)
 {
     Menu_Init(&g_menu0x0081d8b8, 0, 0x8c, 0, &g_menu0x00824a38, NULL, 1, 0, 1);
-    Menu_AddItemType6(&g_menu0x0081d8b8, 0, -1, 0xa, 0, 1, 0, (int)FrontendProfile_PickRenameCharacterOrCheat, 0);
-    Menu_AddItemType6(&g_menu0x0081d8b8, 0, -1, 0xa, 0, 1, 0, (int)FrontendProfile_PickRenameCharacterOrCheat, 1);
-    Menu_AddItemType6(&g_menu0x0081d8b8, 0, -1, 0xa, 0, 1, 0, (int)FrontendProfile_PickRenameCharacterOrCheat, 2);
+    Menu_AddItemType6(&g_menu0x0081d8b8, 0, -1, 0xa, 0, 1, 0, (INT_PTR)FrontendProfile_PickRenameCharacterOrCheat, 0);
+    Menu_AddItemType6(&g_menu0x0081d8b8, 0, -1, 0xa, 0, 1, 0, (INT_PTR)FrontendProfile_PickRenameCharacterOrCheat, 1);
+    Menu_AddItemType6(&g_menu0x0081d8b8, 0, -1, 0xa, 0, 1, 0, (INT_PTR)FrontendProfile_PickRenameCharacterOrCheat, 2);
     Menu_SetCallbacks(&g_menu0x0081d8b8, (MenuCallback)FrontendMenu_EnterProfileRenameEntry, (MenuCallback)FrontendMenu_UpdateProfileRenameEntry, (MenuCallback)FrontendMenu_DrawProfileRenameEntry, FrontendMenu_LeaveProfileRenameEntry);
     Menu_ValidateCursor(&g_menu0x0081d8b8, 0);
 }
@@ -2986,7 +2986,7 @@ void FrontendMenu_BuildProfileDateEntry(void)
     Menu_AddItemType3(&g_menu0x0081bc98, 0, -1, 0xff, 0x64, 1, 0, 0, 0);
     Menu_AddItemType3(&g_menu0x0081bc98, 0, -1, 0xc, 0, 1, 0, 0, 1);
     Menu_AddItemType3(&g_menu0x0081bc98, 0, -1, 0x1f, 0, 1, 0, 0, 2);
-    Menu_AddItemType4(&g_menu0x0081bc98, 0, 0x67, (int)FrontendProfile_ApplyDateEntry, -1);
+    Menu_AddItemType4(&g_menu0x0081bc98, 0, 0x67, (INT_PTR)FrontendProfile_ApplyDateEntry, -1);
     Menu_SetCallbacks(&g_menu0x0081bc98, FrontendProfile_FillColourPicker, (MenuCallback)FrontendMenu_UpdateProfileDateEntry, (MenuCallback)FrontendMenu_DrawProfileDateEntry, FrontendMenu_ClearOverlayMode);
     Menu_ValidateCursor(&g_menu0x0081bc98, 0);
 }
@@ -2995,28 +2995,28 @@ void FrontendMenu_BuildProfileDateEntry(void)
 void FrontendMenu_BuildCarSetup(void)
 {
     Menu_Init(&g_menu0x00821e18, 0, 0x33, 0, NULL, NULL, 1, 0, 0);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x98, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x99, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x9a, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x9b, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x9c, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x9d, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x9e, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x9f, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa0, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa1, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa2, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa3, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa4, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa5, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa6, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa7, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa8, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa9, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xaa, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xab, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xac, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
-    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xad, &g_menu0x0081cf58, (int)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x98, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x99, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x9a, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x9b, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x9c, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x9d, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x9e, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0x9f, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa0, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa1, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa2, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa3, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa4, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa5, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa6, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa7, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa8, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xa9, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xaa, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xab, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xac, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
+    Menu_AddItemType2(&g_menu0x00821e18, 0, 0xad, &g_menu0x0081cf58, (INT_PTR)FrontendProfile_SelectPalette, -1);
     Menu_SetCallbacks(&g_menu0x00821e18, FrontendScroller_InitRallyStageSelection, (MenuCallback)FrontendScroller_UpdateChampionshipEntry, (MenuCallback)FrontendMenu_DrawCarSetup, FrontendMenu_ClearOverlayMode);
     Menu_ValidateCursor(&g_menu0x00821e18, 0);
 }
@@ -3025,7 +3025,7 @@ void FrontendMenu_BuildCarSetup(void)
 void FrontendMenu_BuildPaletteSelection(void)
 {
     Menu_Init(&g_menu0x0081cf58, 0, 0x97, 0, &g_menu0x00821e18, NULL, 1, 0, 1);
-    Menu_AddItemType3(&g_menu0x0081cf58, 0, 0x88, 2, 0, 0, 0, (int)FrontendProfile_OpenPaletteEditor, 0);
+    Menu_AddItemType3(&g_menu0x0081cf58, 0, 0x88, 2, 0, 0, 0, (INT_PTR)FrontendProfile_OpenPaletteEditor, 0);
     Menu_SetCallbacks(&g_menu0x0081cf58, (MenuCallback)FrontendMenu_EnterPaletteSelection, (MenuCallback)FrontendScroller_UpdateChampionshipEntry, (MenuCallback)FrontendMenu_DrawSavedStageSelection, NULL);
     Menu_ValidateCursor(&g_menu0x0081cf58, 0);
 }
@@ -3034,7 +3034,7 @@ void FrontendMenu_BuildPaletteSelection(void)
 void FrontendMenu_BuildPaletteConfirmation(void)
 {
     Menu_Init(&g_menu0x00822d18, 0, 0x33, 0, &g_menu0x008241b8, NULL, 1, 0, 1);
-    Menu_AddItemType3(&g_menu0x00822d18, 0, 0x88, 2, 0, 0, 0, (int)FrontendChampionship_ToggleAndAdvanceEntry, 0);
+    Menu_AddItemType3(&g_menu0x00822d18, 0, 0x88, 2, 0, 0, 0, (INT_PTR)FrontendChampionship_ToggleAndAdvanceEntry, 0);
     Menu_SetCallbacks(&g_menu0x00822d18, FrontendMenu_EnterPaletteConfirmation, NULL, (MenuCallback)FrontendMenu_DrawTimeAttackOptions, NULL);
     Menu_ValidateCursor(&g_menu0x00822d18, 0);
 }
@@ -3043,14 +3043,14 @@ void FrontendMenu_BuildPaletteConfirmation(void)
 void FrontendMenu_BuildRallySelection(void)
 {
     Menu_Init(&g_menu0x0081eb78, 0, 0x24, 0, NULL, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x27, (int)FrontendMenu_EnableRallyStageRows, -1);
-    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x28, (int)FrontendMenu_EnableRallyStageRows, -1);
-    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x29, (int)FrontendMenu_EnableRallyStageRows, -1);
-    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x2a, (int)FrontendMenu_EnableRallyStageRows, -1);
-    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x2b, (int)FrontendMenu_EnableRallyStageRows, -1);
-    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x2c, (int)FrontendMenu_EnableRallyStageRows, -1);
-    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x2d, (int)FrontendMenu_EnableRallyStageRows, -1);
-    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x2e, (int)FrontendMenu_EnableRallyStageRows, -1);
+    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x27, (INT_PTR)FrontendMenu_EnableRallyStageRows, -1);
+    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x28, (INT_PTR)FrontendMenu_EnableRallyStageRows, -1);
+    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x29, (INT_PTR)FrontendMenu_EnableRallyStageRows, -1);
+    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x2a, (INT_PTR)FrontendMenu_EnableRallyStageRows, -1);
+    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x2b, (INT_PTR)FrontendMenu_EnableRallyStageRows, -1);
+    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x2c, (INT_PTR)FrontendMenu_EnableRallyStageRows, -1);
+    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x2d, (INT_PTR)FrontendMenu_EnableRallyStageRows, -1);
+    Menu_AddItemType4(&g_menu0x0081eb78, 0, 0x2e, (INT_PTR)FrontendMenu_EnableRallyStageRows, -1);
     Menu_SetCallbacks(&g_menu0x0081eb78, FrontendMenu_EnterRallySelection, (MenuCallback)FrontendMenu_UpdateRallySelection, (MenuCallback)FrontendMenu_DrawRallySelection, NULL);
     Menu_ValidateCursor(&g_menu0x0081eb78, 0);
 }
@@ -3059,17 +3059,17 @@ void FrontendMenu_BuildRallySelection(void)
 void FrontendMenu_BuildRallyStageSelection(void)
 {
     Menu_Init(&g_menu0x0081e3f8, 0, 0x25, 0, &g_menu0x0081eb78, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xc5, (int)FrontendMenu_SelectRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xc6, (int)FrontendMenu_SelectRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xc7, (int)FrontendMenu_SelectRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xc8, (int)FrontendMenu_SelectRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xc9, (int)FrontendMenu_SelectRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xca, (int)FrontendMenu_SelectRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xcb, (int)FrontendMenu_SelectRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xcc, (int)FrontendMenu_SelectRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xcd, (int)FrontendMenu_SelectRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xce, (int)FrontendMenu_SelectRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xcf, (int)FrontendMenu_SelectRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xc5, (INT_PTR)FrontendMenu_SelectRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xc6, (INT_PTR)FrontendMenu_SelectRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xc7, (INT_PTR)FrontendMenu_SelectRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xc8, (INT_PTR)FrontendMenu_SelectRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xc9, (INT_PTR)FrontendMenu_SelectRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xca, (INT_PTR)FrontendMenu_SelectRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xcb, (INT_PTR)FrontendMenu_SelectRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xcc, (INT_PTR)FrontendMenu_SelectRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xcd, (INT_PTR)FrontendMenu_SelectRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xce, (INT_PTR)FrontendMenu_SelectRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xcf, (INT_PTR)FrontendMenu_SelectRallyStage, -1);
     Menu_SetCallbacks(&g_menu0x0081e3f8, FrontendMenu_EnterRallyStageSelection, (MenuCallback)FrontendMenu_UpdateRallyStageSelection, (MenuCallback)FrontendMenu_DrawRallySummary, NULL);
     Menu_ValidateCursor(&g_menu0x0081e3f8, 0);
 }
@@ -3078,17 +3078,17 @@ void FrontendMenu_BuildRallyStageSelection(void)
 void FrontendMenu_BuildAlternateRallyStageSelection(void)
 {
     Menu_Init(&g_menu0x0081f4d8, 0, 0x155, 0, &g_menu0x0081e3f8, NULL, 1, 0, 1);
-    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xc5, (int)FrontendMenu_SelectAlternateRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xc6, (int)FrontendMenu_SelectAlternateRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xc7, (int)FrontendMenu_SelectAlternateRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xc8, (int)FrontendMenu_SelectAlternateRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xc9, (int)FrontendMenu_SelectAlternateRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xca, (int)FrontendMenu_SelectAlternateRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xcb, (int)FrontendMenu_SelectAlternateRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xcc, (int)FrontendMenu_SelectAlternateRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xcd, (int)FrontendMenu_SelectAlternateRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xce, (int)FrontendMenu_SelectAlternateRallyStage, -1);
-    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xcf, (int)FrontendMenu_SelectAlternateRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xc5, (INT_PTR)FrontendMenu_SelectAlternateRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xc6, (INT_PTR)FrontendMenu_SelectAlternateRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xc7, (INT_PTR)FrontendMenu_SelectAlternateRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xc8, (INT_PTR)FrontendMenu_SelectAlternateRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xc9, (INT_PTR)FrontendMenu_SelectAlternateRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xca, (INT_PTR)FrontendMenu_SelectAlternateRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xcb, (INT_PTR)FrontendMenu_SelectAlternateRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xcc, (INT_PTR)FrontendMenu_SelectAlternateRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xcd, (INT_PTR)FrontendMenu_SelectAlternateRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xce, (INT_PTR)FrontendMenu_SelectAlternateRallyStage, -1);
+    Menu_AddItemType4(&g_menu0x0081f4d8, 0, 0xcf, (INT_PTR)FrontendMenu_SelectAlternateRallyStage, -1);
     Menu_SetCallbacks(&g_menu0x0081f4d8, FrontendMenu_EnterAlternateRallyStageSelection, (MenuCallback)FrontendMenu_UpdateAlternateRallyStageSelection, (MenuCallback)FrontendMenu_DrawAlternateRallyStageSelection, NULL);
     Menu_ValidateCursor(&g_menu0x0081f4d8, 0);
 }
@@ -3105,9 +3105,9 @@ void FrontendMenu_BuildQuitTransition(void)
 void FrontendMenu_BuildNetworkPlayerSetup(void)
 {
     Menu_Init(&g_menu0x00824fd8, 0, 0x13, 0, &g_menu0x00821c38, NULL, 1, 0, 1);
-    Menu_AddItemType3(&g_menu0x00824fd8, 0, -1, 0xb, 0, 1, 0, (int)FrontendNetwork_ToggleStageOption, 0);
+    Menu_AddItemType3(&g_menu0x00824fd8, 0, -1, 0xb, 0, 1, 0, (INT_PTR)FrontendNetwork_ToggleStageOption, 0);
     Menu_AddItemType3(&g_menu0x00824fd8, 0, -1, 8, 0, 1, 0, 0, 1);
-    Menu_AddItemType4(&g_menu0x00824fd8, 0, 0x67, (int)FrontendNetwork_ApplyPlayerRoleAndJoin, 2);
+    Menu_AddItemType4(&g_menu0x00824fd8, 0, 0x67, (INT_PTR)FrontendNetwork_ApplyPlayerRoleAndJoin, 2);
     Menu_AddItemType1(&g_menu0x00824fd8, 0, 0x1b, 0, 3);
     Menu_SetCallbacks(&g_menu0x00824fd8, FrontendMenu_EnterNetworkPlayerSetup, (MenuCallback)FrontendMenu_UpdateNetworkPlayerSetup, (MenuCallback)FrontendMenu_DrawNetworkPlayerSetup, NULL);
     Menu_ValidateCursor(&g_menu0x00824fd8, 0);
@@ -3120,7 +3120,7 @@ void FrontendMenu_BuildNetworkCarSetup(void)
     Menu_AddItemType3(&g_menu0x0081fc58, 0, -1, 8, 0, 1, 0, 0, 0);
     Menu_AddItemType3(&g_menu0x0081fc58, 0, -1, 0xb, 0, 1, 0, 0, 1);
     Menu_AddItemType3(&g_menu0x0081fc58, 0, -1, 4, 0, 1, 0, 0, 2);
-    Menu_AddItemType4(&g_menu0x0081fc58, 0, 0x67, (int)FrontendNetwork_ApplyRallyAndJoin, 3);
+    Menu_AddItemType4(&g_menu0x0081fc58, 0, 0x67, (INT_PTR)FrontendNetwork_ApplyRallyAndJoin, 3);
     Menu_AddItemType1(&g_menu0x0081fc58, 0, 0x1b, 0, 4);
     Menu_SetCallbacks(&g_menu0x0081fc58, (MenuCallback)FrontendMenu_EnterNetworkCarSetup, (MenuCallback)FrontendMenu_UpdateNetworkCarSetup, (MenuCallback)FrontendMenu_DrawNetworkCarSetup, NULL);
     Menu_ValidateCursor(&g_menu0x0081fc58, 0);
@@ -3133,7 +3133,7 @@ void FrontendMenu_BuildNetworkRallySetup(void)
     Menu_AddItemType3(&g_menu0x0081b338, 0, -1, 8, 0, 1, 0, 0, 0);
     Menu_AddItemType3(&g_menu0x0081b338, 0, -1, 0xb, 0, 1, 0, 0, 1);
     Menu_AddItemType3(&g_menu0x0081b338, 0, -1, 0x39, 0, 1, 0, 0, 2);
-    Menu_AddItemType4(&g_menu0x0081b338, 0, 0x67, (int)FrontendNetwork_ApplyTwoPlayerRally, 3);
+    Menu_AddItemType4(&g_menu0x0081b338, 0, 0x67, (INT_PTR)FrontendNetwork_ApplyTwoPlayerRally, 3);
     Menu_AddItemType1(&g_menu0x0081b338, 0, 0x1b, 0, 4);
     Menu_SetCallbacks(&g_menu0x0081b338, FrontendMenu_EnterNetworkRallySetup, (MenuCallback)FrontendMenu_UpdateNetworkRallySetup, (MenuCallback)FrontendMenu_DrawNetworkRallySetup, NULL);
     Menu_ValidateCursor(&g_menu0x0081b338, 0);
@@ -3145,7 +3145,7 @@ void FrontendMenu_BuildNetworkStageSetup(void)
     Menu_Init(&g_menu0x0081e998, 0, 0x13, 0, &g_menu0x00821c38, NULL, 1, 0, 1);
     Menu_AddItemType3(&g_menu0x0081e998, 0, -1, 8, 0, 1, 0, 0, 0);
     Menu_AddItemType3(&g_menu0x0081e998, 0, -1, 0xa, 0, 1, 0, 0, 1);
-    Menu_AddItemType4(&g_menu0x0081e998, 0, 0x67, (int)FrontendNetwork_ApplySinglePlayerRally, 2);
+    Menu_AddItemType4(&g_menu0x0081e998, 0, 0x67, (INT_PTR)FrontendNetwork_ApplySinglePlayerRally, 2);
     Menu_AddItemType1(&g_menu0x0081e998, 0, 0x1b, 0, 3);
     Menu_SetCallbacks(&g_menu0x0081e998, FrontendMenu_EnterNetworkStageSetup, (MenuCallback)FrontendNetwork_PumpMenuMessages, (MenuCallback)FrontendMenu_DrawNetworkStageSetup, NULL);
     Menu_ValidateCursor(&g_menu0x0081e998, 0);
@@ -3157,7 +3157,7 @@ void FrontendMenu_BuildNetworkExtendedStageSetup(void)
     Menu_Init(&g_menu0x0081d138, 0, 0x13, 0, &g_menu0x00821c38, NULL, 1, 0, 1);
     Menu_AddItemType3(&g_menu0x0081d138, 0, -1, 8, 0, 1, 0, 0, 0);
     Menu_AddItemType3(&g_menu0x0081d138, 0, -1, 0x3d, 0, 1, 0, 0, 1);
-    Menu_AddItemType4(&g_menu0x0081d138, 0, 0x67, (int)FrontendNetwork_ApplyChampionshipRally, 2);
+    Menu_AddItemType4(&g_menu0x0081d138, 0, 0x67, (INT_PTR)FrontendNetwork_ApplyChampionshipRally, 2);
     Menu_AddItemType1(&g_menu0x0081d138, 0, 0x1b, 0, 3);
     Menu_SetCallbacks(&g_menu0x0081d138, (MenuCallback)FrontendMenu_EnterNetworkExtendedStageSetup, (MenuCallback)FrontendNetwork_PumpMenuMessages, (MenuCallback)FrontendMenu_DrawNetworkExtendedStageSetup, NULL);
     Menu_ValidateCursor(&g_menu0x0081d138, 0);
@@ -3167,7 +3167,7 @@ void FrontendMenu_BuildNetworkExtendedStageSetup(void)
 void FrontendMenu_BuildNetworkNameEntry(void)
 {
     Menu_Init(&g_menu0x0081b158, 0, 0x13, 0, &g_menu0x00824c18, NULL, 1, 0, 1);
-    Menu_AddItemType4(&g_menu0x0081b158, 0, -1, (int)FrontendNetwork_JoinNamedSession, -1);
+    Menu_AddItemType4(&g_menu0x0081b158, 0, -1, (INT_PTR)FrontendNetwork_JoinNamedSession, -1);
     Menu_SetCallbacks(&g_menu0x0081b158, FrontendMenu_EnterNetworkNameEntry, (MenuCallback)FrontendMenu_UpdateNetworkNameEntry, (MenuCallback)FrontendMenu_DrawNetworkNameEntry, NULL);
     Menu_ValidateCursor(&g_menu0x0081b158, 0);
 }
@@ -3176,9 +3176,9 @@ void FrontendMenu_BuildNetworkNameEntry(void)
 void FrontendMenu_BuildNetworkLeaderboard(void)
 {
     Menu_Init(&g_menu0x0081bab8, 0, 0x13, 0, &g_menu0x00821c38, NULL, 1, 0, 1);
-    Menu_AddItemType3(&g_menu0x0081bab8, 0, -1, 1, 0, 1, 0, (int)FrontendLeaderboard_SelectEntry, 0);
-    Menu_AddItemType4(&g_menu0x0081bab8, 0, 0x20, (int)FrontendLeaderboard_AddEntry, 1);
-    Menu_AddItemType4(&g_menu0x0081bab8, 0, 0x81, (int)FrontendLeaderboard_RefreshSelection, 2);
+    Menu_AddItemType3(&g_menu0x0081bab8, 0, -1, 1, 0, 1, 0, (INT_PTR)FrontendLeaderboard_SelectEntry, 0);
+    Menu_AddItemType4(&g_menu0x0081bab8, 0, 0x20, (INT_PTR)FrontendLeaderboard_AddEntry, 1);
+    Menu_AddItemType4(&g_menu0x0081bab8, 0, 0x81, (INT_PTR)FrontendLeaderboard_RefreshSelection, 2);
     Menu_AddItemType1(&g_menu0x0081bab8, 0, 0x1b, 0, -1);
     Menu_SetCallbacks(&g_menu0x0081bab8, FrontendMenu_EnterNetworkLeaderboard, (MenuCallback)FrontendMenu_UpdateNetworkLeaderboard, (MenuCallback)FrontendMenu_DrawNetworkLeaderboard, NULL);
     Menu_ValidateCursor(&g_menu0x0081bab8, 0);
@@ -3188,9 +3188,9 @@ void FrontendMenu_BuildNetworkLeaderboard(void)
 void FrontendMenu_BuildArcadeCarClass(int unused)
 {
     Menu_Init(&g_menu0x00828220, 0, 0x1d, 0, &g_menu0x008267e0, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x00828220, 0, 0xd0, &g_menu0x00827320, (int)FrontendMenu_SelectCarClass, 0);
-    Menu_AddItemType2(&g_menu0x00828220, 0, 0xd1, &g_menu0x00827320, (int)FrontendMenu_SelectCarClass, 0);
-    Menu_AddItemType2(&g_menu0x00828220, 0, 0xd2, &g_menu0x00827320, (int)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x00828220, 0, 0xd0, &g_menu0x00827320, (INT_PTR)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x00828220, 0, 0xd1, &g_menu0x00827320, (INT_PTR)FrontendMenu_SelectCarClass, 0);
+    Menu_AddItemType2(&g_menu0x00828220, 0, 0xd2, &g_menu0x00827320, (INT_PTR)FrontendMenu_SelectCarClass, 0);
     Menu_SetCallbacks(&g_menu0x00828220, FrontendMenu_EnterArcadeCarClass, NULL, (MenuCallback)FrontendMenu_DrawCarClass, NULL);
     Menu_ValidateCursor(&g_menu0x00828220, 0);
 }
@@ -3199,28 +3199,28 @@ void FrontendMenu_BuildArcadeCarClass(int unused)
 void FrontendMenu_BuildChampionshipRouteSelection(void)
 {
     Menu_Init(&g_menu0x00826f60, 0, 0x33, 0, &g_menu0x008286e0, NULL, 1, 0, 0);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x98, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x99, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x9a, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x9b, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x9c, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x9d, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x9e, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x9f, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa0, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa1, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa2, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa3, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa4, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa5, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa6, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa7, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa8, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa9, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xaa, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xab, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xac, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xad, &g_menu0x00826d80, (int)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x98, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x99, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x9a, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x9b, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x9c, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x9d, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x9e, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0x9f, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa0, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa1, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa2, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa3, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa4, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa5, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa6, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa7, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa8, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xa9, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xaa, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xab, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xac, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00826f60, 0, 0xad, &g_menu0x00826d80, (INT_PTR)FrontendChampionship_SelectRouteEntry, -1);
     Menu_SetCallbacks(&g_menu0x00826f60, FrontendMenu_InitRouteScroller, (MenuCallback)FrontendScroller_UpdateChampionshipEntry, (MenuCallback)FrontendMenu_DrawPaletteSelection, NULL);
     Menu_ValidateCursor(&g_menu0x00826f60, 0);
 }
@@ -3229,7 +3229,7 @@ void FrontendMenu_BuildChampionshipRouteSelection(void)
 void FrontendMenu_BuildChampionshipEntry(void)
 {
     Menu_Init(&g_menu0x00826d80, 0, 0x97, 0, &g_menu0x00826f60, NULL, 1, 0, 1);
-    Menu_AddItemType3(&g_menu0x00826d80, 0, 0x88, 2, 0, 0, 0, (int)FrontendChampionship_ToggleRouteEntry, 0x88);
+    Menu_AddItemType3(&g_menu0x00826d80, 0, 0x88, 2, 0, 0, 0, (INT_PTR)FrontendChampionship_ToggleRouteEntry, 0x88);
     Menu_SetCallbacks(&g_menu0x00826d80, (MenuCallback)FrontendMenu_UpdateChampionshipEntry, (MenuCallback)FrontendScroller_UpdateChampionshipEntry, (MenuCallback)FrontendMenu_DrawChampionshipEntry, NULL);
     Menu_ValidateCursor(&g_menu0x00826d80, 0);
 }
@@ -3238,28 +3238,28 @@ void FrontendMenu_BuildChampionshipEntry(void)
 void FrontendMenu_BuildAlternateChampionshipRouteSelection(void)
 {
     Menu_Init(&g_menu0x00828500, 0, 0x33, 0, &g_menu0x00827c80, NULL, 1, 0, 0);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0x98, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0x99, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0x9a, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0x9b, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0x9c, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0x9d, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0x9e, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0x9f, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa0, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa1, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa2, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa3, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa4, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa5, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa6, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa7, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa8, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa9, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xaa, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xab, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xac, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00828500, 0, 0xad, &g_menu0x00827140, (int)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0x98, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0x99, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0x9a, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0x9b, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0x9c, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0x9d, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0x9e, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0x9f, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa0, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa1, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa2, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa3, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa4, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa5, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa6, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa7, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa8, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xa9, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xaa, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xab, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xac, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00828500, 0, 0xad, &g_menu0x00827140, (INT_PTR)FrontendChampionship_UpdateAlternateRouteEntry, -1);
     Menu_SetCallbacks(&g_menu0x00828500, FrontendMenu_InitRouteScroller, (MenuCallback)FrontendScroller_UpdateChampionshipEntry, (MenuCallback)FrontendMenu_DrawPaletteSelection, NULL);
     Menu_ValidateCursor(&g_menu0x00828500, 0);
 }
@@ -3268,7 +3268,7 @@ void FrontendMenu_BuildAlternateChampionshipRouteSelection(void)
 void FrontendMenu_BuildAlternateChampionshipEntry(void)
 {
     Menu_Init(&g_menu0x00827140, 0, 0x97, 0, &g_menu0x00828500, NULL, 1, 0, 1);
-    Menu_AddItemType3(&g_menu0x00827140, 0, 0x88, 2, 0, 0, 0, (int)FrontendChampionship_ApplySharedRouteEntry, 0x88);
+    Menu_AddItemType3(&g_menu0x00827140, 0, 0x88, 2, 0, 0, 0, (INT_PTR)FrontendChampionship_ApplySharedRouteEntry, 0x88);
     Menu_SetCallbacks(&g_menu0x00827140, (MenuCallback)FrontendMenu_UpdateChampionshipEntry, (MenuCallback)FrontendScroller_UpdateChampionshipEntry, (MenuCallback)FrontendMenu_DrawChampionshipEntry, NULL);
     Menu_ValidateCursor(&g_menu0x00827140, 0);
 }
@@ -3277,28 +3277,28 @@ void FrontendMenu_BuildAlternateChampionshipEntry(void)
 void FrontendMenu_BuildArcadeChampionshipRouteSelection(void)
 {
     Menu_Init(&g_menu0x00827e60, 0, 0x33, 0, &g_menu0x008278c0, NULL, 1, 0, 0);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x98, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x99, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x9a, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x9b, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x9c, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x9d, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x9e, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x9f, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa0, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa1, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa2, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa3, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa4, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa5, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa6, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa7, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa8, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa9, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xaa, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xab, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xac, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
-    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xad, &g_menu0x00827500, (int)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x98, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x99, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x9a, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x9b, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x9c, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x9d, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x9e, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0x9f, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa0, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa1, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa2, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa3, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa4, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa5, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa6, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa7, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa8, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xa9, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xaa, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xab, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xac, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
+    Menu_AddItemType2(&g_menu0x00827e60, 0, 0xad, &g_menu0x00827500, (INT_PTR)FrontendChampionship_UpdateArcadeRouteEntry, -1);
     Menu_SetCallbacks(&g_menu0x00827e60, FrontendMenu_InitRouteScroller, (MenuCallback)FrontendScroller_UpdateChampionshipEntry, (MenuCallback)FrontendMenu_DrawPaletteSelection, NULL);
     Menu_ValidateCursor(&g_menu0x00827e60, 0);
 }
@@ -3307,7 +3307,7 @@ void FrontendMenu_BuildArcadeChampionshipRouteSelection(void)
 void FrontendMenu_BuildArcadeChampionshipEntry(void)
 {
     Menu_Init(&g_menu0x00827500, 0, 0x97, 0, &g_menu0x00827e60, NULL, 1, 0, 1);
-    Menu_AddItemType3(&g_menu0x00827500, 0, 0x88, 2, 0, 0, 0, (int)FrontendChampionship_ToggleArcadeRouteEntry, 0x88);
+    Menu_AddItemType3(&g_menu0x00827500, 0, 0x88, 2, 0, 0, 0, (INT_PTR)FrontendChampionship_ToggleArcadeRouteEntry, 0x88);
     Menu_SetCallbacks(&g_menu0x00827500, (MenuCallback)FrontendMenu_UpdateChampionshipEntry, (MenuCallback)FrontendScroller_UpdateChampionshipEntry, (MenuCallback)FrontendMenu_DrawChampionshipEntry, NULL);
     Menu_ValidateCursor(&g_menu0x00827500, 0);
 }
@@ -3316,8 +3316,8 @@ void FrontendMenu_BuildArcadeChampionshipEntry(void)
 void FrontendMenu_BuildArcadeChampionshipTransmission(void)
 {
     Menu_Init(&g_menu0x00826ba0, 0, 0x26, 0, &g_menu0x00826d80, NULL, 1, 0, 1);
-    Menu_AddItemType4(&g_menu0x00826ba0, 0, 0xe9, (int)FrontendMenu_SelectArcadeChampionshipTransmission, 1);
-    Menu_AddItemType4(&g_menu0x00826ba0, 0, 0xe8, (int)FrontendMenu_SelectArcadeChampionshipTransmission, 0);
+    Menu_AddItemType4(&g_menu0x00826ba0, 0, 0xe9, (INT_PTR)FrontendMenu_SelectArcadeChampionshipTransmission, 1);
+    Menu_AddItemType4(&g_menu0x00826ba0, 0, 0xe8, (INT_PTR)FrontendMenu_SelectArcadeChampionshipTransmission, 0);
     Menu_SetCallbacks(&g_menu0x00826ba0, FrontendMenu_EnterArcadeChampionshipTransmission, (MenuCallback)FrontendMenu_UpdateArcadeChampionshipTransmission, (MenuCallback)FrontendMenu_DrawArcadeChampionshipTransmission, NULL);
     Menu_ValidateCursor(&g_menu0x00826ba0, 0);
 }
@@ -3326,14 +3326,14 @@ void FrontendMenu_BuildArcadeChampionshipTransmission(void)
 void FrontendMenu_BuildArcadeRallySelection(void)
 {
     Menu_Init(&g_menu0x00827320, 0, 0x25, 0, &g_menu0x00828220, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfa, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfb, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfc, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfd, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfe, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0xff, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0x100, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0x101, (int)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfa, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfb, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfc, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfd, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfe, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0xff, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0x100, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0x101, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
     Menu_SetCallbacks(&g_menu0x00827320, FrontendScroller_InitArcadeRally, (MenuCallback)FrontendScroller_UpdateArcadeRally, (MenuCallback)FrontendMenu_DrawArcadeRallySelection, NULL);
     Menu_ValidateCursor(&g_menu0x00827320, 0);
 }
@@ -3342,14 +3342,14 @@ void FrontendMenu_BuildArcadeRallySelection(void)
 void FrontendMenu_BuildArcadeChampionshipRallySelection(void)
 {
     Menu_Init(&g_menu0x00826420, 0, 0x25, 0, &g_menu0x00827500, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfa, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfb, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfc, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfd, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfe, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0xff, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0x100, (int)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0x101, (int)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfa, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfb, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfc, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfd, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfe, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0xff, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0x100, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0x101, (INT_PTR)FrontendMenu_SelectArcadeRallyRow, -1);
     Menu_SetCallbacks(&g_menu0x00826420, FrontendScroller_InitArcadeRally, (MenuCallback)FrontendScroller_UpdateArcadeRally, (MenuCallback)FrontendMenu_DrawArcadeRallySelection, NULL);
     Menu_ValidateCursor(&g_menu0x00826420, 0);
 }
@@ -3705,8 +3705,8 @@ void FrontendControls_DrawDeviceList(Menu *pMenu);
 void FrontendMenu_BuildControls(void)
 {
     Menu_Init(&g_menu0x00828c80, 0, 0x18, 0, FrontendMenu_GetOptions(), NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x00828c80, 0, -1, &g_menu0x00829140, (int)FrontendControls_SelectDevice, 0);
-    Menu_AddItemType2(&g_menu0x00828c80, 0, -1, &g_menu0x00829140, (int)FrontendControls_SelectDevice, 0);
+    Menu_AddItemType2(&g_menu0x00828c80, 0, -1, &g_menu0x00829140, (INT_PTR)FrontendControls_SelectDevice, 0);
+    Menu_AddItemType2(&g_menu0x00828c80, 0, -1, &g_menu0x00829140, (INT_PTR)FrontendControls_SelectDevice, 0);
     Menu_AddItemType1(&g_menu0x00828c80, 0, 0x67, 0, 0);
     Menu_SetCallbacks(&g_menu0x00828c80, (MenuCallback)FrontendControls_ShowBindingEntries, NULL, (MenuCallback)FrontendControls_DrawDeviceList, NULL);
     Menu_ValidateCursor(&g_menu0x00828c80, 0);
@@ -3727,7 +3727,7 @@ void FrontendMenu_BuildDeviceBindings(void)
     Menu_Init(&g_menu0x008288c0, 0, 0x65, 0, &g_menu0x00828c80, NULL, 1, 0, 1);
     i = 0;
     do {
-        Menu_AddItemType4(&g_menu0x008288c0, 0, i + 0x6b, (int)FrontendControls_BeginBindingCapture, i);
+        Menu_AddItemType4(&g_menu0x008288c0, 0, i + 0x6b, (INT_PTR)FrontendControls_BeginBindingCapture, i);
         i++;
     } while (i < 10);
     Menu_AddItemType2(&g_menu0x008288c0, 0, 0x67, &g_menu0x00828c80, 0, 0);
@@ -3757,7 +3757,7 @@ void FrontendMenu_BuildDeviceCalibration(void)
     Menu_Init(&g_menu0x00828aa0, 0, 0x75, 0, &g_menu0x008288c0, NULL, 1, 0, 1);
     i = 0;
     do {
-        Menu_AddItemType4(&g_menu0x00828aa0, 0, -1, (int)FrontendControls_BeginCalibration, i);
+        Menu_AddItemType4(&g_menu0x00828aa0, 0, -1, (INT_PTR)FrontendControls_BeginCalibration, i);
         i++;
     } while (i < 8);
     Menu_AddItemType2(&g_menu0x00828aa0, 0, 0x67, &g_menu0x00828c80, 0, 0);

@@ -2104,11 +2104,11 @@ void GameMenus_Build(void)
     Menu_SetCallbacks(&g_menu0x0053f5b0, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)GameMenu_DrawStageWinner, NULL);
     Menu_ValidateCursor(&g_menu0x0053f5b0, 0);
     Menu_Init(&g_menu0x0053e4b8, 0, 0, 0, NULL, NULL, 1, 0, 0);
-    Menu_AddItemType3(&g_menu0x0053e4b8, 0, 0, 0xb, 0, 0, 0, (int)GameMenu_OpenFirstItemSubmenu, 0);
+    Menu_AddItemType3(&g_menu0x0053e4b8, 0, 0, 0xb, 0, 0, 0, (INT_PTR)GameMenu_OpenFirstItemSubmenu, 0);
     Menu_SetCallbacks(&g_menu0x0053e4b8, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)GameMenu_DrawScrollingStageSplits, NULL);
     Menu_ValidateCursor(&g_menu0x0053e4b8, 0);
     Menu_Init(&g_menu0x00540c68, 0, 0, 0, NULL, NULL, 1, 0, 0);
-    Menu_AddItemType3(&g_menu0x00540c68, 0, 0, 8, 0, 0, 0, (int)GameMenu_OpenFirstItemSubmenu, 0);
+    Menu_AddItemType3(&g_menu0x00540c68, 0, 0, 8, 0, 0, 0, (INT_PTR)GameMenu_OpenFirstItemSubmenu, 0);
     Menu_SetCallbacks(&g_menu0x00540c68, (MenuCallback)GameMenu_UpdateRemainingRaceRange, NULL, (MenuCallback)GameMenu_DrawStageTimeStandings, NULL);
     Menu_ValidateCursor(&g_menu0x00540c68, 0);
     Menu_Init(&g_menu0x005406b8, 0, 0, 0, NULL, NULL, 1, 0, 0);
@@ -2116,15 +2116,15 @@ void GameMenus_Build(void)
     Menu_SetCallbacks(&g_menu0x005406b8, NULL, NULL, (MenuCallback)GameMenu_DrawChampionshipClassResults, NULL);
     Menu_ValidateCursor(&g_menu0x005406b8, 0);
     Menu_Init(&g_menu0x0053f008, 0, 0, 0, &g_menu0x0053e4b8, NULL, 1, 0, 0);
-    Menu_AddItemType3(&g_menu0x0053f008, 0, 0, 0xb, 0, 0, 0, (int)GameMenu_OpenFirstItemSubmenu, 0);
+    Menu_AddItemType3(&g_menu0x0053f008, 0, 0, 0xb, 0, 0, 0, (INT_PTR)GameMenu_OpenFirstItemSubmenu, 0);
     Menu_SetCallbacks(&g_menu0x0053f008, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)GameMenu_DrawScrollingRallyTimes, NULL);
     Menu_ValidateCursor(&g_menu0x0053f008, 0);
     Menu_Init(&g_menu0x0053fd58, 0, 0, 0, &g_menu0x00540c68, NULL, 1, 0, 0);
-    Menu_AddItemType3(&g_menu0x0053fd58, 0, 0, 0xb, 0, 0, 0, (int)GameMenu_OpenFirstItemSubmenu, 0);
+    Menu_AddItemType3(&g_menu0x0053fd58, 0, 0, 0xb, 0, 0, 0, (INT_PTR)GameMenu_OpenFirstItemSubmenu, 0);
     Menu_SetCallbacks(&g_menu0x0053fd58, (MenuCallback)GameMenu_UpdateRemainingRaceRange, NULL, (MenuCallback)GameMenu_DrawChampionshipTimeStandings, NULL);
     Menu_ValidateCursor(&g_menu0x0053fd58, 0);
     Menu_Init(&g_menu0x0053e6a0, 0, 0, 0, &g_menu0x0053f008, NULL, 1, 0, 0);
-    Menu_AddItemType3(&g_menu0x0053e6a0, 0, 0, 0xb, 0, 0, 0, (int)GameMenu_OpenFirstItemSubmenu, 0);
+    Menu_AddItemType3(&g_menu0x0053e6a0, 0, 0, 0xb, 0, 0, 0, (INT_PTR)GameMenu_OpenFirstItemSubmenu, 0);
     Menu_SetCallbacks(&g_menu0x0053e6a0, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)GameMenu_DrawScrollingChampionshipPoints, NULL);
     Menu_ValidateCursor(&g_menu0x0053e6a0, 0);
     Menu_Init(&g_menu0x00540118, 0, 0, 0, &g_menu0x0053e6a0, NULL, 1, 0, 0);
@@ -2140,7 +2140,7 @@ void GameMenus_Build(void)
     Menu_SetCallbacks(&g_menu0x00541030, NULL, NULL, (MenuCallback)GameMenu_DrawStageStartList, NULL);
     Menu_ValidateCursor(&g_menu0x00541030, 0);
     Menu_Init(&g_menu0x00541ae0, 0, 0, 0, &g_menu0x00540118, NULL, 1, 0, 0);
-    Menu_AddItemType3(&g_menu0x00541ae0, 0, 0, 0xb, 0, 0, 0, (int)GameMenu_OpenFirstItemSubmenu, 0);
+    Menu_AddItemType3(&g_menu0x00541ae0, 0, 0, 0xb, 0, 0, 0, (INT_PTR)GameMenu_OpenFirstItemSubmenu, 0);
     Menu_SetCallbacks(&g_menu0x00541ae0, (MenuCallback)GameMenu_UpdateStandingsScrollRange, NULL, (MenuCallback)GameMenu_DrawScrollingStagePoints, NULL);
     Menu_ValidateCursor(&g_menu0x00541ae0, 0);
     Menu_Init(&g_menu0x0053f790, 0, 0, 0, &g_menu0x00541ae0, NULL, 1, 0, 0);
@@ -2148,7 +2148,7 @@ void GameMenus_Build(void)
     Menu_SetCallbacks(&g_menu0x0053f790, NULL, NULL, (MenuCallback)GameMenu_DrawFinalChampionshipStandings, NULL);
     Menu_ValidateCursor(&g_menu0x0053f790, 0);
     Menu_Init(&g_menu0x0053f970, 0, 0, 0, &g_menu0x0053f790, NULL, 1, 0, 0);
-    Menu_AddItemType2(&g_menu0x0053f970, 0, 0, NULL, (int)GameMenu_RequestResultsContinue, 0);
+    Menu_AddItemType2(&g_menu0x0053f970, 0, 0, NULL, (INT_PTR)GameMenu_RequestResultsContinue, 0);
     Menu_SetCallbacks(&g_menu0x0053f970, (MenuCallback)GameMenu_ContinueWithDefaultMode, NULL, (MenuCallback)GameMenu_DrawFinalChampionshipStandings, NULL);
     Menu_ValidateCursor(&g_menu0x0053f970, 0);
     Menu_Init(&g_menu0x0053fb70, 0, 0, 0, NULL, NULL, 1, 0, 0);
@@ -2185,9 +2185,9 @@ void GameMenus_Build(void)
         Menu_Init(&g_menu0x005402f8, 0, 0, 0, &g_menu0x005416e0, NULL, 1, 0, 1);
     else
         Menu_Init(&g_menu0x005402f8, 0, 0, 0, &g_menu0x00541400, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x005402f8, 0, -1, NULL, (int)GameMenu_RequestResultsRestart, 1000);
+    Menu_AddItemType2(&g_menu0x005402f8, 0, -1, NULL, (INT_PTR)GameMenu_RequestResultsRestart, 1000);
     if (CGameInfo::GetConfiguredGameMode() == 2 || CGameInfo::GetConfiguredGameMode() == 3)
-        Menu_AddItemType2(&g_menu0x005402f8, 0, 0x8b, NULL, (int)GameMenu_RequestResultsRetry, 0x3e9);
+        Menu_AddItemType2(&g_menu0x005402f8, 0, 0x8b, NULL, (INT_PTR)GameMenu_RequestResultsRetry, 0x3e9);
     Menu_AddItemType1(&g_menu0x005402f8, 0, 0xa6, 0, -1);
     Menu_SetCallbacks(&g_menu0x005402f8, (MenuCallback)GameMenu_SelectLastItem, NULL, (MenuCallback)GameMenu_DrawStandingsMenuItems, NULL);
     Menu_ValidateCursor(&g_menu0x005402f8, 0);
@@ -2195,12 +2195,12 @@ void GameMenus_Build(void)
         Menu_Init(&g_menu0x005418d8, 0, 0, 0, &g_menu0x005416e0, NULL, 1, 0, 1);
     else
         Menu_Init(&g_menu0x005418d8, 0, 0, 0, &g_menu0x00541400, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x005418d8, 0, 0xa8, NULL, (int)GameMenu_RequestResultsQuit, 1000);
+    Menu_AddItemType2(&g_menu0x005418d8, 0, 0xa8, NULL, (INT_PTR)GameMenu_RequestResultsQuit, 1000);
     Menu_AddItemType1(&g_menu0x005418d8, 0, 0xaa, 0, -1);
     Menu_SetCallbacks(&g_menu0x005418d8, (MenuCallback)GameMenu_SelectLastItem, NULL, (MenuCallback)GameMenu_DrawStandingsMenuItems, NULL);
     Menu_ValidateCursor(&g_menu0x005418d8, 0);
     Menu_Init(&g_menu0x005408a0, 0, 0, 0, &g_menu0x005416e0, NULL, 1, 0, 1);
-    Menu_AddItemType2(&g_menu0x005408a0, 0, 0xf6, NULL, (int)GameMenu_RequestNetworkResultsQuit, 1000);
+    Menu_AddItemType2(&g_menu0x005408a0, 0, 0xf6, NULL, (INT_PTR)GameMenu_RequestNetworkResultsQuit, 1000);
     Menu_AddItemType1(&g_menu0x005408a0, 0, 0xaa, 0, -1);
     Menu_SetCallbacks(&g_menu0x005408a0, (MenuCallback)GameMenu_SelectLastItem, NULL, (MenuCallback)GameMenu_DrawStandingsMenuItems, NULL);
     Menu_ValidateCursor(&g_menu0x005408a0, 0);
@@ -3504,21 +3504,21 @@ void GameMenu_BuildStageResultsMenu(char param1, Menu *pParent)
     if (param1 != 0) {
         if (CGameInfo::IsConfiguredMultiplayer() &&
             StageUI_GetRaceEndEventCount() != (unsigned int)(CGameInfo::GetConfiguredPlayerCount() - 1)) {
-            Menu_AddItemType4(&g_menu0x00541400, 0, 0x21, (int)GameMenu_RequestResultsContinue, 0x3ea);
+            Menu_AddItemType4(&g_menu0x00541400, 0, 0x21, (INT_PTR)GameMenu_RequestResultsContinue, 0x3ea);
         } else if (g_unk0x00541210 && g_unk0x00540898 && CGameInfo::GetConfiguredGameMode() == 0) {
-            Menu_AddItemType4(&g_menu0x00541400, 0, 0x80, (int)GameMenu_RequestResultsContinue, -1);
+            Menu_AddItemType4(&g_menu0x00541400, 0, 0x80, (INT_PTR)GameMenu_RequestResultsContinue, -1);
         } else if (CGameInfo::GetConfiguredGameMode() != 5) {
-            Menu_AddItemType4(&g_menu0x00541400, 0, 0x1f, (int)GameMenu_RequestResultsContinue, -1);
+            Menu_AddItemType4(&g_menu0x00541400, 0, 0x1f, (INT_PTR)GameMenu_RequestResultsContinue, -1);
         } else {
-            Menu_AddItemType4(&g_menu0x00541400, 0, 0x95, (int)GameMenu_RequestResultsContinue, -1);
+            Menu_AddItemType4(&g_menu0x00541400, 0, 0x95, (INT_PTR)GameMenu_RequestResultsContinue, -1);
         }
         Menu_AddItemType2(&g_menu0x00541400, 0, -1, &g_menu0x005402f8, 0, 1000);
         Menu_AddItemType2(&g_menu0x00541400, 0, 0x2d, &g_menu0x005418d8, 0, -1);
     } else {
-        Menu_AddItemType2(&g_menu0x00541400, 0, -1, NULL, (int)GameMenu_RequestResultsRestart, 1000);
+        Menu_AddItemType2(&g_menu0x00541400, 0, -1, NULL, (INT_PTR)GameMenu_RequestResultsRestart, 1000);
         if (CGameInfo::GetConfiguredGameMode() == 2 || CGameInfo::GetConfiguredGameMode() == 3)
-            Menu_AddItemType2(&g_menu0x00541400, 0, 0x8b, NULL, (int)GameMenu_RequestResultsRetry, 0x3e9);
-        Menu_AddItemType2(&g_menu0x00541400, 0, 0xa8, NULL, (int)GameMenu_RequestResultsQuit, -1);
+            Menu_AddItemType2(&g_menu0x00541400, 0, 0x8b, NULL, (INT_PTR)GameMenu_RequestResultsRetry, 0x3e9);
+        Menu_AddItemType2(&g_menu0x00541400, 0, 0xa8, NULL, (INT_PTR)GameMenu_RequestResultsQuit, -1);
     }
     Menu_SetCallbacks(&g_menu0x00541400, NULL, NULL, (MenuCallback)GameMenu_DrawStandingsMenuItems, NULL);
     Menu_ValidateCursor(&g_menu0x00541400, 0);
@@ -3533,7 +3533,7 @@ void GameMenu_BuildTimeTrialResultsMenu(char param1, Menu *pParent)
     Menu_AddItemType4(&g_menu0x005416e0, 0, -1, 0, 0x3eb);
     if (param1 != 0) {
         if (Network_GetSessionStateFlag()) {
-            Menu_AddItemType4(&g_menu0x005416e0, 0, 0x1f, (int)GameMenu_RequestResultsContinue, -1);
+            Menu_AddItemType4(&g_menu0x005416e0, 0, 0x1f, (INT_PTR)GameMenu_RequestResultsContinue, -1);
             Menu_AddItemType2(&g_menu0x005416e0, 0, -1, &g_menu0x005402f8, 0, 1000);
             Menu_AddItemType2(&g_menu0x005416e0, 0, 0xf6, &g_menu0x005408a0, 0, -1);
         }
@@ -3541,15 +3541,15 @@ void GameMenu_BuildTimeTrialResultsMenu(char param1, Menu *pParent)
     } else {
         if (Network_GetSessionStateFlag()) {
             if (CGameInfo::GetConfiguredGameMode() != 0xc)
-                Menu_AddItemType2(&g_menu0x005416e0, 0, -1, NULL, (int)GameMenu_RequestResultsRestart, 1000);
+                Menu_AddItemType2(&g_menu0x005416e0, 0, -1, NULL, (INT_PTR)GameMenu_RequestResultsRestart, 1000);
             if (CGameInfo::GetConfiguredGameMode() == 9 || CGameInfo::GetConfiguredGameMode() == 10)
-                Menu_AddItemType2(&g_menu0x005416e0, 0, 0x8b, NULL, (int)GameMenu_RequestResultsRetry, 0x3e9);
-            Menu_AddItemType2(&g_menu0x005416e0, 0, 0xf6, NULL, (int)GameMenu_RequestNetworkResultsQuit, -1);
+                Menu_AddItemType2(&g_menu0x005416e0, 0, 0x8b, NULL, (INT_PTR)GameMenu_RequestResultsRetry, 0x3e9);
+            Menu_AddItemType2(&g_menu0x005416e0, 0, 0xf6, NULL, (INT_PTR)GameMenu_RequestNetworkResultsQuit, -1);
         } else if (CGameInfo::GetConfiguredGameMode() == 10) {
-            Menu_AddItemType2(&g_menu0x005416e0, 0, -1, NULL, (int)GameMenu_RequestResultsRestart, 1000);
-            Menu_AddItemType2(&g_menu0x005416e0, 0, 0x8b, NULL, (int)GameMenu_RequestResultsRetry, 0x3e9);
+            Menu_AddItemType2(&g_menu0x005416e0, 0, -1, NULL, (INT_PTR)GameMenu_RequestResultsRestart, 1000);
+            Menu_AddItemType2(&g_menu0x005416e0, 0, 0x8b, NULL, (INT_PTR)GameMenu_RequestResultsRetry, 0x3e9);
         }
-        Menu_AddItemType2(&g_menu0x005416e0, 0, 0xa8, NULL, (int)GameMenu_RequestResultsQuit, -1);
+        Menu_AddItemType2(&g_menu0x005416e0, 0, 0xa8, NULL, (INT_PTR)GameMenu_RequestResultsQuit, -1);
     }
     Menu_SetCallbacks(&g_menu0x005416e0, (MenuCallback)GameMenu_ClearChatCharacterQueue, (MenuCallback)GameMenu_HandleNetworkResultsChatInput,
                       (MenuCallback)GameMenu_DrawNetworkTimeTrialResults, NULL);

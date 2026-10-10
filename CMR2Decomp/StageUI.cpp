@@ -576,12 +576,12 @@ void StageUI_BuildPauseMenus(void)
 {
     g_pUnk0x0051c97c = g_unk0x0058ca90;
     Menu_Init((Menu *)g_unk0x0058ca90, 0, 0, 0, NULL, NULL, 1, 0, 1);
-    Menu_AddItemType4((Menu *)g_unk0x0058ca90, 0, 0x13, (int)StageUI_NoOpPauseItemEvent, 0);
+    Menu_AddItemType4((Menu *)g_unk0x0058ca90, 0, 0x13, (INT_PTR)StageUI_NoOpPauseItemEvent, 0);
     Menu_AddItemType2((Menu *)g_unk0x0058ca90, 0, 0x63, (Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 1);
     Menu_SetCallbacks((Menu *)g_unk0x0058ca90, NULL, NULL, (MenuCallback)StageObject_DrawInRacePauseMenu, NULL);
     Menu_ValidateCursor((Menu *)g_unk0x0058ca90, 0);
     Menu_Init((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0, 0, NULL, NULL, 1, 0, 1);
-    Menu_AddItemType4((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0x72, (int)StageUI_RequestPauseMenuExit, 0);
+    Menu_AddItemType4((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0x72, (INT_PTR)StageUI_RequestPauseMenuExit, 0);
     Menu_AddItemType2((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0x73, (Menu *)g_unk0x0058ca90, 0, 1);
     Menu_SetCallbacks((Menu *)(g_unk0x0058ca90 + 0x1e8), NULL, NULL, (MenuCallback)StageObject_DrawPauseStageDataPanel, NULL);
     Menu_ValidateCursor((Menu *)(g_unk0x0058ca90 + 0x1e8), 0);
