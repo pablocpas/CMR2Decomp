@@ -1,0 +1,4 @@
+ENet 1.3.18 (http://enet.bespin.org), unmodified.
+Source: https://github.com/lsalzman/enet tag v1.3.18,
+commit 2662c0de09e36f2a2030ccc2c528a3e4c9e8138a. MIT licence (LICENSE).
+Built by src/CMakeLists.txt; only the library sources and headers are kept.

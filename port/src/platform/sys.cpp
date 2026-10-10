@@ -197,7 +197,20 @@ const char s_defaultSettings[] =
     "; 1 = fullscreen (on the desktop resolution), 0 = window.\n"
     "fullscreen = 1\n"
     "; Field of view, 30 to 150 (70 = original).\n"
-    "; fov = 70\n";
+    "; fov = 70\n"
+    "; 1 = keep running when the window loses the focus or is minimised.\n"
+    "; run_in_background = 0\n"
+    "\n"
+    "[net]\n"
+    "; Network play (see docs/NETWORK.md). UDP port games are hosted on.\n"
+    "; port = 28620\n"
+    "; More hosts to look for games at, for internet play: names or addresses,\n"
+    "; with :port when not the default (peers = 203.0.113.7, friend.example.org).\n"
+    "; peers =\n"
+    "; Also look at the Tailscale machines that are online (auto, 1 or 0).\n"
+    "; tailscale = auto\n"
+    "; Look on the local network.\n"
+    "; broadcast = 1\n";
 
 bool LooksLikeGameData(const std::string &dir)
 {
@@ -362,6 +375,11 @@ int ToWindows1252(Uint32 cp)
 // Text input can carry several characters; they are handed out one by one.
 std::vector<int> s_pendingText;
 
+bool RunInBackground()
+{
+    return Platform_GetSettingInt("video.run_in_background", 0) != 0;
+}
+
 bool Translate(const SDL_Event &e, SysEvent *out)
 {
     memset(out, 0, sizeof(*out));
@@ -370,18 +388,21 @@ bool Translate(const SDL_Event &e, SysEvent *out)
     case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
         out->type = SYS_EVENT_QUIT;
         return true;
+    // The game pauses when its window loses the focus or is minimised, as
+    // the original did; video.run_in_background keeps it running (network
+    // play, two copies on one machine).
     case SDL_EVENT_WINDOW_FOCUS_LOST:
         out->type = SYS_EVENT_FOCUS_LOST;
-        return true;
+        return !RunInBackground();
     case SDL_EVENT_WINDOW_FOCUS_GAINED:
         out->type = SYS_EVENT_FOCUS_GAINED;
-        return true;
+        return !RunInBackground();
     case SDL_EVENT_WINDOW_MINIMIZED:
         out->type = SYS_EVENT_MINIMIZED;
-        return true;
+        return !RunInBackground();
     case SDL_EVENT_WINDOW_RESTORED:
         out->type = SYS_EVENT_RESTORED;
-        return true;
+        return !RunInBackground();
     case SDL_EVENT_KEY_DOWN:
         out->type = SYS_EVENT_KEY_DOWN;
         out->key = Keys_FromScancode(e.key.scancode);

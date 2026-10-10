@@ -8,6 +8,12 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND CMAKE_SYSTEM_PROCESSOR MATCHES "i[3-6]86|x86"
     add_test(NAME fixedpoint_equiv COMMAND fixedpoint_equiv)
 endif()
 
+add_executable(net_session_test net_session.cpp)
+target_link_libraries(net_session_test PRIVATE opencmr2_net)
+target_compile_options(net_session_test PRIVATE "SHELL:-include ${PROJECT_SOURCE_DIR}/src/port/types.h")
+add_test(NAME net_session COMMAND net_session_test)
+set_tests_properties(net_session PROPERTIES TIMEOUT 60)
+
 add_executable(bink_decoder_test bink_decoder.cpp)
 target_link_libraries(bink_decoder_test PRIVATE opencmr2_bink)
 add_test(NAME bink_decoder COMMAND bink_decoder_test)

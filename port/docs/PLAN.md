@@ -81,7 +81,8 @@ adding passes. A working renderer does not by itself establish simulation parity
 - [ ] Quality of life: skip intros, quick stage restart, pause on focus
       loss, per-category volume, camera and FOV options, mods through an
       overlay data directory, `FIX_BUGS` fixes for original bugs.
-- [ ] Network play over UDP (ENet-style), replacing DirectPlay.
+- [x] Network play over UDP (ENet), replacing DirectPlay: LAN, Tailscale
+      and internet hosts, host migration. See [NETWORK.md](NETWORK.md).
 
 ## F6: Distribution
 
