@@ -1,0 +1,63 @@
+{
+  "baseline_commit": "53b60c1",
+  "audited_source_functions": 3364,
+  "byte_report_identical": true,
+  "relocated_byte_exact": 2922,
+  "perfect_match_percent": 56.1,
+  "fuzzy_match_percent": 94.5,
+  "data_issues": 0,
+  "manifest_matches_provenance": true,
+  "source_and_artifact_hashes_verified": true,
+  "affected_translation_units": 24,
+  "new_layout_checks": 6,
+  "pointer_numeric_cast_expressions_removed": 76,
+  "cast_expression_counts": {
+    "int": {
+      "before": 4988,
+      "after": 4948,
+      "removed": 40
+    },
+    "Texture *": {
+      "before": 85,
+      "after": 53,
+      "removed": 32
+    },
+    "void *": {
+      "before": 33,
+      "after": 29,
+      "removed": 4
+    },
+    "short *": {
+      "before": 216,
+      "after": 205,
+      "removed": 11
+    }
+  },
+  "typed_texture_globals": 10,
+  "typed_texture_array_slots": 12,
+  "numeric_getters_corrected": 4,
+  "differential_cases": 10640,
+  "registered_harnesses": 114,
+  "harness_failures": 0,
+  "native_loading_scenarios": 32,
+  "native_pointer_stores_checked": 704,
+  "native_numeric_getter_cases": 76,
+  "inventory_before": {
+    "types": 311,
+    "raw_accesses": 1504,
+    "fixed_sizes": 83,
+    "hex_multipliers": 2243,
+    "unknown_identifiers": 10577,
+    "unnamed_field_declarations": 1497,
+    "unique_unknown_identifiers": 1285
+  },
+  "inventory_after": {
+    "types": 311,
+    "raw_accesses": 1493,
+    "fixed_sizes": 83,
+    "hex_multipliers": 2243,
+    "unknown_identifiers": 10577,
+    "unnamed_field_declarations": 1497,
+    "unique_unknown_identifiers": 1285
+  }
+}

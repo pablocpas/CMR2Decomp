@@ -702,9 +702,9 @@ void Surface_LoadCarEngineSounds(void)
         opponent = 0;
     for (i = 0; i < (int)(BYTE)RallyDataState() + opponent; i++) {
         if (opponent != 0 && i > 0)
-            team = (int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverSelectGridSlot(StageTiming_GetSplitSecondaryEntry(StageUI_GetRaceEndEventCount())));
+            team = CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverSelectGridSlot(StageTiming_GetSplitSecondaryEntry(StageUI_GetRaceEndEventCount())));
         else
-            team = (int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(StageUI_GetRaceEndEventCount() + i));
+            team = CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(StageUI_GetRaceEndEventCount() + i));
         g_unk0x0058ddb4[i] = Sound_GetSampleCount();
         pCarName = g_carSoundDir[team];
         sprintf(archive, g_strCarSoundBfl, CInstallInfo::GetSoundsDir(), pCarName);
@@ -953,7 +953,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
             }
         }
         backfire = 0;
-        if (CFrontend::GetArchiveSecondaryFlagEntry(pCar->type) != NULL &&
+        if (CFrontend::GetArchiveSecondaryFlagEntry(pCar->type) != 0 &&
             g_unk0x0058df88[player] >= 2 && g_unk0x0058df88[player] <= 6 &&
             g_unk0x0058dd68[player] != g_unk0x0058df88[player] &&
             g_unk0x0058dd68[player] < g_unk0x0058df88[player]) {
@@ -991,7 +991,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
         if (g_unk0x0058df78[player] != 0) {
             if (pState[1] < lo || pState[4] != 0)
                 g_unk0x0058df78[player] = 0;
-        } else if (CFrontend::GetArchiveSecondaryFlagEntry(pCar->type) != NULL) {
+        } else if (CFrontend::GetArchiveSecondaryFlagEntry(pCar->type) != 0) {
             if (pState[4] == 0 && pState[1] > hi) {
                 g_unk0x0058df78[player] = 1;
                 g_unk0x0058dd60[player] = now;
@@ -1080,7 +1080,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
         if (Sound_IsPlaying(g_unk0x0058dd90[player]) == 0)
             g_unk0x0058dd90[player] = Sound_PlaySampleWithParameters(
                 (unsigned short)(g_unk0x0058ddb4[player] + 5), 0, 0x5622,
-                g_unk0x0051f2a0[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)(StageUI_GetRaceEndEventCount() + player)))],
+                g_unk0x0051f2a0[CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)(StageUI_GetRaceEndEventCount() + player)))],
                 1, 0);
         if (Race_GetPlayerRecordField4((BYTE)player))
             Sound_SetPan(g_unk0x0058dd90[player],
@@ -1092,7 +1092,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
         if (Sound_IsPlaying(g_unk0x0058ddd0[player]) == 0)
             g_unk0x0058ddd0[player] = Sound_PlaySampleWithParameters(
                 (unsigned short)(g_unk0x0058ddb4[player] + 6), 0, 0x5622,
-                g_unk0x0051f2d8[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)(StageUI_GetRaceEndEventCount() + player)))],
+                g_unk0x0051f2d8[CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)(StageUI_GetRaceEndEventCount() + player)))],
                 1, 0);
         if (Race_GetPlayerRecordField4((BYTE)player))
             Sound_SetPan(g_unk0x0058ddd0[player],

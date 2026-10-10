@@ -12456,7 +12456,7 @@ void SurfaceSound_UpdateNearestLocalCarEngines(void)
             volScale = FixMul(dist2, volScale);
             *pHandle = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[0] + 6),
                                     volScale, 0x5622,
-                                    g_unk0x0051f2d8[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
+                                    g_unk0x0051f2d8[CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
         }
         if (NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051ec50)) {
             unsigned int pan = NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50);
@@ -12557,7 +12557,7 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
             volScale = FixMul(dist2, volScale);
             *pHandle = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[0] + 6),
                                     volScale, 0x5622,
-                                    g_unk0x0051f2d8[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
+                                    g_unk0x0051f2d8[CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
         }
         if (NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051ec50)) {
             unsigned int pan = NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50);

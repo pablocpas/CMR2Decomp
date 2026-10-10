@@ -6771,9 +6771,9 @@ void Car_PlaceAtStart(int *param_1, int *param_2)
 class CFrontend
 {
 public:
-    static void *GetArchivePrimaryFlagEntry(int index);
-    static void *GetArchiveSecondaryFlagEntry(int index);
-    static void *GetArchivePrimaryIDEntry(int index);
+    static int GetArchivePrimaryFlagEntry(int index);
+    static int GetArchiveSecondaryFlagEntry(int index);
+    static int GetArchivePrimaryIDEntry(int index);
 };
 
 unsigned char RallyData_GetSelectionFlag28(void);
@@ -6824,7 +6824,7 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
             carType = 0;
             flag8 = 1;
         } else {
-            carType = (int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)Replay_GetSelectionStateByte()));
+            carType = CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)Replay_GetSelectionStateByte()));
             flagC = 1;
         }
     } else {
@@ -7081,8 +7081,8 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     g_pCurrentCar->inverseMass = FixDiv(0x10000, g_pCurrentCar->mass);
     g_pCurrentCar->steeringTorqueScale = 0x1333;
     g_pCurrentCar->steeringSpeedScale = FixDiv(0x10000, 0x30000);
-    g_pCurrentCar->field_0xb7c = (int)CFrontend::GetArchiveSecondaryFlagEntry((int)g_pCurrentCar->type);
-    g_pCurrentCar->field_0xb80 = (int)CFrontend::GetArchivePrimaryFlagEntry((int)g_pCurrentCar->type);
+    g_pCurrentCar->field_0xb7c = CFrontend::GetArchiveSecondaryFlagEntry((int)g_pCurrentCar->type);
+    g_pCurrentCar->field_0xb80 = CFrontend::GetArchivePrimaryFlagEntry((int)g_pCurrentCar->type);
     if (flagC != 0) {
         pcVar13 = (char *)RallyData_GetDriverSkillRecord(Replay_GetSelectionStateByte());
         goto LAB_0043d703;

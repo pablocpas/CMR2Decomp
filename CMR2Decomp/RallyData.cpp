@@ -5137,7 +5137,7 @@ void RallyData_FillEventSlotSelections(void)
 {
     if (!RallyData_GetSecondarySelectionNibble())
         return;
-    g_unk0x005337ec = (int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0));
+    g_unk0x005337ec = CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0));
     g_unk0x00533758[16] = RallyData_GetDriverRecordSelectionValue(0);
     if (g_unk0x005337ec >= 0 && g_unk0x005337ec <= 5 || g_unk0x005337ec == 0xc) {
         if (CGameInfo::GetGameInfoSessionFlag()) {
@@ -5197,11 +5197,11 @@ int RallyData_PickStageOutsideExcludedGroups(int exclude1, int exclude2)
 {
     memset(g_unk0x005337d4, 0, sizeof(g_unk0x005337d4));
     if (exclude1 >= 0)
-        g_unk0x005337d4[(int)CFrontend::GetArchivePrimaryIDEntry(exclude1)] = 1;
+        g_unk0x005337d4[CFrontend::GetArchivePrimaryIDEntry(exclude1)] = 1;
     if (exclude2 >= 0)
-        g_unk0x005337d4[(int)CFrontend::GetArchivePrimaryIDEntry(exclude2)] = 1;
+        g_unk0x005337d4[CFrontend::GetArchivePrimaryIDEntry(exclude2)] = 1;
     g_unk0x005337c4 = rand() % 12;
-    while (g_unk0x005337d4[(int)CFrontend::GetArchivePrimaryIDEntry(g_unk0x005337c4)] == 1)
+    while (g_unk0x005337d4[CFrontend::GetArchivePrimaryIDEntry(g_unk0x005337c4)] == 1)
         g_unk0x005337c4 = rand() % 12;
     return g_unk0x005337c4;
 }

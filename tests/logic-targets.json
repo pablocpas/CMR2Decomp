@@ -518,6 +518,21 @@
       "0x5004c0"
     ]
   },
+  "differential_option_texture_records.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x40ee70",
+      "0x40ee80",
+      "0x40ee90",
+      "0x40eea0",
+      "0x50a080",
+      "0x50b1c0",
+      "0x50e780",
+      "0x50a920",
+      "0x50bfd0",
+      "0x500550"
+    ]
+  },
   "differential_player_indicators.py": {
     "arguments": "entities",
     "targets": [

@@ -157,3 +157,12 @@ pendiente](64bit-car-contacts-and-layouts.md). Se conservan las 2922 funciones
 byte-exact y todas las puntuaciones de las 3364 filas; los 113 harnesses
 pasan, incluidos 4446 casos nuevos. Cuatro cuerpos se ejecutan además con
 punteros de ocho bytes por encima de 4 GB. El port completo sigue pendiente.
+
+La segunda tanda para 64 bits tipa las diez texturas de opciones y su array
+de doce piezas junto con todos sus consumidores. Corrige además cuatro
+getters que devolvían ids/flags numéricos como `void *`. Elimina 76 casts
+de direcciones/números y once accesos crudos; el inventario queda en 1493.
+Véanse [evidencia, cobertura y API pendiente](64bit-option-textures-and-indices.md).
+Los 114 harnesses pasan, incluidos 10640 casos nuevos, y la auditoría de
+3364 funciones continúa idéntica con 2922 exactas. Cinco cuerpos actuales
+se prueban también en x64 con punteros no nulos mayores que 4 GB.

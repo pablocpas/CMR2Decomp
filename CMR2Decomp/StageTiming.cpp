@@ -8181,14 +8181,14 @@ BYTE StageTiming_LoadSelectedCarModel(int car)
                 }
                 NetPlayers_SetPlayerFlag23(slot);
                 model = NetPlayers_GetCarSelection(slot);
-                team = (int)CFrontend::GetArchivePrimaryIDEntry(model);
+                team = CFrontend::GetArchivePrimaryIDEntry(model);
                 NetPlayers_SetPlayerField8(slot, car);
                 goto classes;
             }
             model = RallyData_GetDriverRecordSelectionValue((BYTE)slot);
         }
         model &= 0xff;
-        team = (int)CFrontend::GetArchivePrimaryIDEntry(model);
+        team = CFrontend::GetArchivePrimaryIDEntry(model);
     } else {
         if (car == 0) {
             team = rand() % 6;
@@ -8228,7 +8228,7 @@ classes:
             }
             if (mode == 5 || mode == 6) {
                 model = RallyData_GetDistinctValueEntry(car);
-                team = (int)CFrontend::GetArchivePrimaryIDEntry(model);
+                team = CFrontend::GetArchivePrimaryIDEntry(model);
             }
             hasVariant = 1;
         }

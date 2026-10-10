@@ -981,27 +981,27 @@ void *CFrontend::GetArchiveDirectoryEntry(int index)
 }
 
 // FUNCTION: CMR2 0x0040ee70
-void *CFrontend::GetArchivePrimaryFlagEntry(int index)
+int CFrontend::GetArchivePrimaryFlagEntry(int index)
 {
-    return (void *)g_unk0x00516b40.flags[index];
+    return g_unk0x00516b40.flags[index];
 }
 
 // FUNCTION: CMR2 0x0040ee80
-void *CFrontend::GetArchiveSecondaryFlagEntry(int index)
+int CFrontend::GetArchiveSecondaryFlagEntry(int index)
 {
-    return (void *)g_unk0x00516b40.flags[index + 14];
+    return g_unk0x00516b40.flags[index + 14];
 }
 
 // FUNCTION: CMR2 0x0040ee90
-void *CFrontend::GetArchivePrimaryIDEntry(int index)
+int CFrontend::GetArchivePrimaryIDEntry(int index)
 {
-    return (void *)g_unk0x00516b40.ids[index];
+    return g_unk0x00516b40.ids[index];
 }
 
 // FUNCTION: CMR2 0x0040eea0
-void *CFrontend::GetArchiveSecondaryIDEntry(int index)
+int CFrontend::GetArchiveSecondaryIDEntry(int index)
 {
-    return (void *)g_unk0x00516b40.ids[index + 22];
+    return g_unk0x00516b40.ids[index + 22];
 }
 
 struct Unk0x004a3e20 {

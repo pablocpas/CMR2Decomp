@@ -17,10 +17,10 @@ public:
     static char *GetModeSpecificCountryText(int offset);
     static char *GetModeSpecificStageText(int offset);
     static void *GetArchiveDirectoryEntry(int index);
-    static void *GetArchivePrimaryFlagEntry(int index);
-    static void *GetArchiveSecondaryFlagEntry(int index);
-    static void *GetArchivePrimaryIDEntry(int index);
-    static void *GetArchiveSecondaryIDEntry(int index);
+    static int GetArchivePrimaryFlagEntry(int index);
+    static int GetArchiveSecondaryFlagEntry(int index);
+    static int GetArchivePrimaryIDEntry(int index);
+    static int GetArchiveSecondaryIDEntry(int index);
     static void ResetFrontendPlayerInputState(void);
     static void ClearFrontendPlayerInputCounters(void);
     static DWORD GetDeviceCapabilityFieldA8(void);

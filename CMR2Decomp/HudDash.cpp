@@ -204,7 +204,7 @@ void Dash_InitStyle(void)
                 g_dashSimple = 1;
             } else {
                 if (CGameInfo::GetNetworkOptionBits1To2() == 0)
-                    *p = g_dashCarDigital[(int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(i))];
+                    *p = g_dashCarDigital[CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(i))];
                 else
                     *p = CGameInfo::GetNetworkOptionBits1To2() == 1;
                 g_dashSimple = 0;

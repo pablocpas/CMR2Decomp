@@ -10604,7 +10604,7 @@ void FrontendMenu_DrawCarSetup(Menu *pMenu)
         Sprite_Queue((SpriteRect *)pRects[g_unk0x008196e8[pMenu->cursor]], (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, 0, NULL,
                      g_colourWhite0x00524968, 8);
     }
-    FrontendCar_GetClassPerformance((int)CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
+    FrontendCar_GetClassPerformance(CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
     FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
                  (int)CFrontend::GetTextString(0x186));
     x = FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,
@@ -10683,7 +10683,7 @@ void FrontendMenu_DrawPaletteSelection(Menu *pMenu)
         Sprite_Queue((SpriteRect *)pRects[g_unk0x008196e8[pMenu->cursor]], (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, 0, NULL,
                      g_colourWhite0x00524968, 8);
     }
-    FrontendCar_GetClassPerformance((int)CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
+    FrontendCar_GetClassPerformance(CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
     FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
                  (int)CFrontend::GetTextString(0x186));
     x = FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,

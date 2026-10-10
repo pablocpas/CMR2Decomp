@@ -678,3 +678,11 @@ CMR2_LAYOUT_CHECK(StageObjectDiskSizeCheck, sizeof(StageObject) == 0xa0);
 CMR2_LAYOUT_CHECK(StageObjectMeshOffsetCheck, offsetof(StageObject, pMesh) == 0xc);
 CMR2_LAYOUT_CHECK(StageObjectFlagsPrefixCheck, offsetof(StageObject, field_0x10) == 0x10);
 CMR2_LAYOUT_CHECK(StageObjectNextOffsetCheck, offsetof(StageObject, pNext) == 0x98);
+
+// Runtime Texture fields used by option-menu sprites; original Win32 offsets.
+CMR2_LAYOUT_CHECK(TextureRuntimeSizeCheck, sizeof(Texture) == 0x130);
+CMR2_LAYOUT_CHECK(TextureSurfaceOffsetCheck, offsetof(Texture, pSurface) == 0x114);
+CMR2_LAYOUT_CHECK(TextureSpriteOriginOffsetCheck, offsetof(Texture, field_0x11c) == 0x11c);
+CMR2_LAYOUT_CHECK(TextureSpriteWidthOffsetCheck, offsetof(Texture, width) == 0x120);
+CMR2_LAYOUT_CHECK(TextureSpriteHeightOffsetCheck, offsetof(Texture, height) == 0x122);
+CMR2_LAYOUT_CHECK(TextureArchiveOffsetCheck, offsetof(Texture, pArchive) == 0x12c);

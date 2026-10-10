@@ -6790,27 +6790,27 @@ void OptionPreview_SetMeshOpacity(int index)
 /* ===== integrated from casc/s6 ===== */
 // Textures of the option menu (symbols, banners and car parts).
 // GLOBAL: CMR2 0x00831360
-int g_unk0x00831360;
+Texture *g_unk0x00831360;
 // GLOBAL: CMR2 0x00831364
-int g_unk0x00831364;
+Texture *g_unk0x00831364;
 // GLOBAL: CMR2 0x00831368
-int g_unk0x00831368;
+Texture *g_unk0x00831368;
 // GLOBAL: CMR2 0x00831668
-int g_unk0x00831668;
+Texture *g_unk0x00831668;
 // GLOBAL: CMR2 0x0083166c
-int g_unk0x0083166c;
+Texture *g_unk0x0083166c;
 // GLOBAL: CMR2 0x00831670
-int g_unk0x00831670;
+Texture *g_unk0x00831670;
 // GLOBAL: CMR2 0x008313ac
-int g_unk0x008313ac;
+Texture *g_unk0x008313ac;
 // GLOBAL: CMR2 0x00831648
-int g_unk0x00831648;
+Texture *g_unk0x00831648;
 // GLOBAL: CMR2 0x008313b0
-int g_unk0x008313b0;
+Texture *g_unk0x008313b0;
 // GLOBAL: CMR2 0x00831674
-int g_unk0x00831674;
+Texture *g_unk0x00831674;
 // GLOBAL: CMR2 0x0083137c
-int g_unk0x0083137c[12];
+Texture *g_unk0x0083137c[12];
 // Country banner codes, in banner order (the last one is CFrontend::m_strUK).
 // Names of the car part textures.
 // GLOBAL: CMR2 0x00529590
@@ -6874,29 +6874,29 @@ void OptionMenu_LoadPartTextures(void)
     int i;
 
     sprintf(CFrontend::m_stringDest, g_str0x0052956c, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831360 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831360 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529548, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831364 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831364 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529524, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831368 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831368 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529508, CInstallInfo::GetSetupRepDir(),
             pBanners[RallyDataCountryIndex() & 0xff]);
-    g_unk0x00831668 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetStageArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831668 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetStageArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x005294f0, CInstallInfo::GetFrontendDir());
-    g_unk0x0083166c = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x0083166c = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x005294d8, CInstallInfo::GetFrontendDir());
-    g_unk0x00831670 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831670 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x005294b8, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x008313ac = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x008313ac = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529494, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831648 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831648 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529474, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x008313b0 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x008313b0 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529450, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831674 = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831674 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     for (i = 0; i < 12; i++) {
         sprintf(CFrontend::m_stringDest, g_str0x00529434, CInstallInfo::GetSetupRepDir(), 0x280, pParts[i]);
-        g_unk0x0083137c[i] = (int)CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest,
+        g_unk0x0083137c[i] = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest,
                                                             0, 0, 0, 0);
     }
 }
@@ -7684,7 +7684,7 @@ void OptionPreview_BuildDeformGeometry(OptionPreviewMeshRecord *pObject, int ind
         pGeom->anchorPhaseDegrees[i] =
             FixMul((int)(__int64)((float)value * g_oneOverRandMax * CGraphics::m_65536), 0x1680000);
     }
-    switch ((int)CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)index))) {
+    switch (CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)index))) {
     case 3:
         sizes.x = 0x44560;
         sizes.y = 0x15eb8;
@@ -8408,22 +8408,22 @@ int g_unk0x005293a0 = 0x1c2;
 void OptionMenu_DrawRightColumn(void)
 {
     OptionMenu_DrawTransitionTextShortCoords(3, 0, 0,
-                 CFrontend::GetTextString((int)CFrontend::GetArchivePrimaryIDEntry(
+                 CFrontend::GetTextString(CFrontend::GetArchivePrimaryIDEntry(
                      RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot())) * 4 + 0x4c),
                  g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                  (int)g_pGraphics->resY * 0xb4 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
     OptionMenu_DrawTransitionTextShortCoords(3, 1, 0,
-                 CFrontend::GetTextString((int)CFrontend::GetArchivePrimaryIDEntry(
+                 CFrontend::GetTextString(CFrontend::GetArchivePrimaryIDEntry(
                      RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot())) * 4 + 0x4d),
                  g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                  (int)g_pGraphics->resY * 0xc2 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
     OptionMenu_DrawTransitionTextShortCoords(3, 1, 0,
-                 CFrontend::GetTextString((int)CFrontend::GetArchivePrimaryIDEntry(
+                 CFrontend::GetTextString(CFrontend::GetArchivePrimaryIDEntry(
                      RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot())) * 4 + 0x4e),
                  g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                  (int)g_pGraphics->resY * 0xd0 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
     OptionMenu_DrawTransitionTextShortCoords(3, 1, 0,
-                 CFrontend::GetTextString((int)CFrontend::GetArchivePrimaryIDEntry(
+                 CFrontend::GetTextString(CFrontend::GetArchivePrimaryIDEntry(
                      RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot())) * 4 + 0x4f),
                  g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                  (int)g_pGraphics->resY * 0xde / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
@@ -9122,8 +9122,8 @@ void OptionMenu_DrawSeparators(int param1)
     g_controlsLine[2] = 1;
     g_unk0x0082ace8.pad[3] = 1;
     if (g_unk0x00831674 != 0) {
-        rect[2] = *(short *)(g_unk0x00831674 + 0x120);
-        rect[3] = *(short *)(g_unk0x00831674 + 0x122);
+        rect[2] = g_unk0x00831674->width;
+        rect[3] = g_unk0x00831674->height;
     }
     for (i = 0; i < 4; i++) {
         // The layout records hold 16.16 pairs: the integer part is the slot.
@@ -9156,12 +9156,12 @@ void OptionMenu_DrawSeparators(int param1)
                 rect[1] = g_controlsLine[1] - 3;
             }
             if (i % 2 == 0) {
-                Sprite_Queue((SpriteRect *)(g_unk0x00831674 + 0x11c), (SpriteRect *)rect,
-                             (Texture *)g_unk0x00831674, 4, 0, NULL, NULL,
+                Sprite_Queue((SpriteRect *)&g_unk0x00831674->field_0x11c, (SpriteRect *)rect,
+                             g_unk0x00831674, 4, 0, NULL, NULL,
                              (BYTE *)&g_unk0x00526ffc, 8);
             } else {
-                Sprite_Queue((SpriteRect *)(g_unk0x00831674 + 0x11c), (SpriteRect *)rect,
-                             (Texture *)g_unk0x00831674, 1, 0, NULL, NULL,
+                Sprite_Queue((SpriteRect *)&g_unk0x00831674->field_0x11c, (SpriteRect *)rect,
+                             g_unk0x00831674, 1, 0, NULL, NULL,
                              (BYTE *)&g_unk0x00526ffc, 8);
             }
         }
@@ -9796,16 +9796,16 @@ void OptionMenu_DrawValueSelectionRows(unsigned int param_1)
                          (short)((int)g_pGraphics->resY * 0x12 / 0x1e0) + g_unk0x00831660[1],
                          &colour, g_unk0x00527380, 0x11);
             if (g_unk0x0083166c != 0)
-                Sprite_Queue((SpriteRect *)(g_unk0x0083166c + 0x11c), (SpriteRect *)destRect,
-                             (Texture *)g_unk0x0083166c, 1, 0, 0, 0, (BYTE *)&colour, 8);
+                Sprite_Queue((SpriteRect *)&g_unk0x0083166c->field_0x11c, (SpriteRect *)destRect,
+                             g_unk0x0083166c, 1, 0, 0, 0, (BYTE *)&colour, 8);
         } else {
             OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                          (int)g_pGraphics->resX * 0x14 / 0x280 + x0,
                          (short)((int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1]),
                          g_unk0x00527380, g_unk0x0052738c, 0x11);
             if (g_unk0x00831670 != 0)
-                Sprite_Queue((SpriteRect *)(g_unk0x00831670 + 0x11c), (SpriteRect *)destRect,
-                             (Texture *)g_unk0x00831670, 1, 0, 0, 0, (BYTE *)g_unk0x00527380, 8);
+                Sprite_Queue((SpriteRect *)&g_unk0x00831670->field_0x11c, (SpriteRect *)destRect,
+                             g_unk0x00831670, 1, 0, 0, 0, (BYTE *)g_unk0x00527380, 8);
         }
         g_unk0x00831660[1] =
             (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1) + yBase);
@@ -9960,19 +9960,19 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
     x = x - Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest) / 2;
     Font_DrawText(1, CFrontend::m_stringDest, x, y, g_unk0x00527380, 0x11);
     if (param_1 != 0) {
-        tex = (Texture *)g_unk0x0083137c[OptionMenu_GetColumnWeight(
+        tex = g_unk0x0083137c[OptionMenu_GetColumnWeight(
             OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2) * 0x14])];
     } else {
-        tex = (Texture *)g_unk0x0083137c[OptionMenu_GetColumnLabelId(
+        tex = g_unk0x0083137c[OptionMenu_GetColumnLabelId(
             OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1) * 0x14])];
     }
     if (tex != NULL) {
         g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x2c / 0x280);
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x12d / 0x1e0);
-        g_unk0x00831660[2] = *(short *)((char *)tex + 0x120);
-        g_unk0x00831660[3] = *(short *)((char *)tex + 0x122);
-        g_unk0x00831660[1] = g_unk0x00831660[1] - *(short *)((char *)tex + 0x122) / 2;
-        Sprite_Queue((SpriteRect *)((char *)tex + 0x11c), (SpriteRect *)g_unk0x00831660,
+        g_unk0x00831660[2] = tex->width;
+        g_unk0x00831660[3] = tex->height;
+        g_unk0x00831660[1] = g_unk0x00831660[1] - tex->height / 2;
+        Sprite_Queue((SpriteRect *)&tex->field_0x11c, (SpriteRect *)g_unk0x00831660,
                      tex, 1, 0, NULL, NULL, g_colour0x005273a8, 8);
     }
     if (param_1 != 0) {
@@ -10109,7 +10109,7 @@ void OptionMenu_DrawSlotStripPanel(int param_1)
         local.y = 0;
         local.x = 0;
         OptionMenu_AnimateLayoutRectangleEdge(2, g_unk0x00831660);
-        Sprite_Queue(&local, (SpriteRect *)g_unk0x00831660, (Texture *)g_unk0x00831668,
+        Sprite_Queue(&local, (SpriteRect *)g_unk0x00831660, g_unk0x00831668,
                      1, 0, NULL, NULL, g_colour0x005273a8, 8);
     }
     OptionMenu_SelectAndAnimateSlot(OptionMenu_GetControlSetupMenu()[0x1f + Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 0) * 0x14],
@@ -11123,7 +11123,7 @@ void OptionMenu_UpdateMessagesAndRecordStates(Menu *pMenu)
     OptionMenu_ConfirmHighlightedItem(pMenu);
     value = ((Menu *)OptionMenu_GetControlSetupMenu())->items[Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 1)].max;
     while (OptionMenu_IsSlotEnabled(OptionMenu_GetColumnLabelId(value),
-                        (int)CFrontend::GetArchivePrimaryIDEntry(
+                        CFrontend::GetArchivePrimaryIDEntry(
                             RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot()) & 0xff)) == 0) {
         if (g_unk0x00526f48 < value)
             value++;
@@ -11139,7 +11139,7 @@ void OptionMenu_UpdateMessagesAndRecordStates(Menu *pMenu)
     g_unk0x00526f48 = value;
     value = ((Menu *)OptionMenu_GetControlSetupMenu())->items[Menu_FindItem((Menu *)OptionMenu_GetControlSetupMenu(), 2)].max;
     while (OptionMenu_IsSlotEnabled(OptionMenu_GetColumnWeight(value),
-                        (int)CFrontend::GetArchivePrimaryIDEntry(
+                        CFrontend::GetArchivePrimaryIDEntry(
                             RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot()) & 0xff)) == 0) {
         if (g_unk0x00526f4c < value)
             value++;
@@ -11213,7 +11213,7 @@ int OptionPreview_LoadStageGeometryRecord(int index)
         }
     }
     model = (BYTE)(int)RallyData_GetDriverRecordSelectionValue(index);
-    variant = (BYTE)(int)CFrontend::GetArchivePrimaryIDEntry(model);
+    variant = (BYTE)CFrontend::GetArchivePrimaryIDEntry(model);
     sprintf(g_unk0x00663b60, "%s.c3d", Car_GetTextureSetPath(model, 0, 0));
     if (CGameInfo::GetPreviewMode() == 0) {
         strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1N.c3d", 8);

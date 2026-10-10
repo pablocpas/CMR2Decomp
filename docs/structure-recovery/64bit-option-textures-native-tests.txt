@@ -1,0 +1,1 @@
+PASS: five actual option bodies on x64, 32 loading scenarios / 704 stores, non-null pointers above 4 GB; 76 numeric getter cases, ASan/UBSan
