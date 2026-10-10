@@ -15,6 +15,7 @@
 #include "Menu.h"
 #include "Car.h"
 #include "CarParts.h"
+#include "CarPhysics.h"
 #include "RallyData.h"
 #define SDL_MAIN_HANDLED
 #include <SDL3/SDL_main.h>
@@ -33,13 +34,13 @@ extern Menu *FrontendMenu_GetActiveMenu();
 extern Menu *g_pMenu0x00831778;
 extern void RallyData_SetEditedDriverOrCategoryName(unsigned int, char *);
 extern "C" unsigned int Crt_GetRandState();
-extern BYTE *g_unk0x00588b94;
-extern BYTE *g_unk0x00588b98;
+extern CarPartSet *g_carPartSets;
+extern CarDamageRecord *g_carDamageRecords;
 extern int StageTiming_GetCheckpointGroupIndex(int);
 extern int StageTiming_GetCheckpointSplitIndex(int);
 extern BYTE StageTiming_GetCheckpointField19(int);
 extern int StageTiming_GetCarSplitTime(int, int);
-extern void *g_unk0x00592734;
+extern CarContact *g_carContacts;
 extern unsigned char g_unk0x00542e78[];
 extern unsigned char g_carStageTiming[];
 extern int g_unk0x0053d1b0;
@@ -112,8 +113,8 @@ struct Probe : Diagnostics::TimingObserver {
         if (memory) {
             StateCaptureView view{};
             view.cars = reinterpret_cast<const unsigned char *>(g_carBuffer);
-            view.parts = g_unk0x00588b94; view.damage = g_unk0x00588b98;
-            view.contacts = static_cast<const unsigned char *>(g_unk0x00592734);
+            view.parts = reinterpret_cast<const unsigned char *>(g_carPartSets); view.damage = reinterpret_cast<const unsigned char *>(g_carDamageRecords);
+            view.contacts = reinterpret_cast<const unsigned char *>(g_carContacts);
             view.timing = g_carStageTiming; view.checkpoints = g_unk0x00542e78;
             view.transforms = reinterpret_cast<const unsigned char *>(g_carTransforms);
             view.shadow = reinterpret_cast<const unsigned char *>(g_carTransformsShadow);
@@ -179,7 +180,7 @@ struct Probe : Diagnostics::TimingObserver {
         for (int i = 0; i < g_carOrderCount; ++i) {
             const Car &c = g_carBuffer[g_carOrder[i]];
             fprintf(trace, "%s{\"id\":%d,\"type\":%d,\"gear\":%d,\"speed\":%d,\"sector\":%d,\"heading\":%u",
-                    i ? "," : "", g_carOrder[i], c.type, c.gear, c.speed, c.sector, c.heading);
+                    i ? "," : "", g_carOrder[i], c.type, c.gear, c.speed, c.sector, c.wheelSteeringAngle);
             Vector("position", c.position); Vector("position_prev", c.positionPrev);
             Vector("velocity", c.velocity); Vector("velocity_next", c.velocityNext);
             Vector("angular_velocity", c.angularVelocity);
@@ -191,21 +192,21 @@ struct Probe : Diagnostics::TimingObserver {
             Array("wheel_slip", c.wheelSlip); Array("wheel_slip_lateral", c.wheelSlipLateral);
             Array("suspension", c.wheel0x988); Array("suspension_body", c.wheel0x9a8);
             Array("corner_height", c.cornerHeight); Array("disabled_corners", c.cornerFlags);
-            if (g_unk0x00588b94) {
-                const CarPartSet &parts = reinterpret_cast<const CarPartSet *>(g_unk0x00588b94)[int(c.index)];
+            if (g_carPartSets) {
+                const CarPartSet &parts = g_carPartSets[int(c.index)];
                 Array("damage_front", parts.damageGrid[0]); Array("damage_middle", parts.damageGrid[1]); Array("damage_rear", parts.damageGrid[2]);
-                Array("damage_parts", parts.field_0x240);
+                Array("damage_parts", parts.damageValues);
             }
-            if (g_unk0x00588b98) {
-                const CarDamageRecord &damage = reinterpret_cast<const CarDamageRecord *>(g_unk0x00588b98)[int(c.index)];
-                Array("damage_intensity", damage.intensity);
+            if (g_carDamageRecords) {
+                const CarDamageRecord &damage = g_carDamageRecords[int(c.index)];
+                Array("damage_intensity", damage.damage.intensity);
             }
             fprintf(trace, ",\"checkpoint_group\":%d,\"checkpoint_split\":%d,\"finish\":%u,\"split_times\":[",
                     StageTiming_GetCheckpointGroupIndex(c.index), StageTiming_GetCheckpointSplitIndex(c.index), StageTiming_GetCheckpointField19(c.index));
             for (int split = 0; split < 12; ++split) fprintf(trace, "%s%d", split ? "," : "", StageTiming_GetCarSplitTime(c.index, split));
             fputc(']', trace);
             fprintf(trace, ",\"handbrake\":%d,\"steering_filter\":%d,\"steering_torque\":%d,\"brake\":%d,\"engine\":%d,\"shift_delay\":%d,\"auto_gearbox\":%d}",
-                    c.handbrake, c.field_0x818, c.field_0x824, c.brakeInput, c.field_0x7a4, c.field_0xb21, c.field_0xb9c);
+                    c.handbrake, c.steeringInput, c.steeringTorqueScale, c.brakeInput, c.engineSpeed, c.autoShiftDelay, c.automaticGearbox);
         }
         fputs("]}\n", trace);
         ++tick;

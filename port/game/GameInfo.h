@@ -60,7 +60,7 @@ struct GameInfo
     int screenWidth;
     int screenHeight;
     int screenColourDepth;
-    unsigned int unknownGraphicsOptions; // first byte is fullscreen
+    unsigned int graphicsOptions; // first byte is fullscreen
     unsigned int field_0x34;
     char graphicsCardName[80];
     unsigned int field_0x88;

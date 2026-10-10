@@ -42,19 +42,26 @@ BYTE CGame::m_maxConnections;
 
 int CGame::m_unk0x00523c58 = -1;
 int CGame::m_unk0x00523c5c = -1;
-Unk0049c2c0 CGame::m_unk0x00817da0;
+// GLOBAL: CMR2 0x00817da0
+CallbackStateMachine CGame::m_frontendCallbackMachine;
 int CGame::m_unk0x0052ea4c;
 BYTE CGame::m_unk0x0052ea51;
-bool CGame::m_unk0x00817eb0 = false;
-Unk00817d98 CGame::m_unk0x00817d98;
-unsigned int CGame::m_unk0x00523c18[16] = {
+// GLOBAL: CMR2 0x00817eb0
+bool CGame::m_frontendCallbackInitialized = false;
+// GLOBAL: CMR2 0x00817d98
+CallbackStateRecord CGame::m_frontendCallbackRecord;
+// GLOBAL: CMR2 0x00523c18
+unsigned int CGame::m_frontendStateRules[16] = {
     0x0101ff00, 0x0600ff00, 0x0706ff00, 0x0200ff01, 0x0300ff02, 0x0400ff03,
     0x0500ff04, 0x0600ff05, 0x0700ff06, 0x0902ff06, 0x0707ff06, 0x0807ff06,
     0x0900ff08, 0x0900ff07, 0x0000ff09, 0xffffffff,
 };
-BYTE CGame::m_unk0x00593cac;
-CallbackIndex CGame::m_unk0x00593ba8;
-Unk00817d98 *CGame::m_unk0x00593ba4;
+// GLOBAL: CMR2 0x00593cac
+BYTE CGame::m_skipRenderCallbacks;
+// GLOBAL: CMR2 0x00593ba8
+CallbackIndex CGame::m_callbackIndex;
+// GLOBAL: CMR2 0x00593ba4
+CallbackStateRecord *CGame::m_currentCallbackRecord;
 
 BYTE CGame::m_unk0x00523d68 = 1;
 BYTE CGame::m_unk0x008180f9;
@@ -70,13 +77,16 @@ int CGame::m_unk0x00593ba0;
 // GLOBAL: CMR2 0x005939a0
 void *CGame::m_callbacks[64];
 
-BYTE CGame::m_unk0x005a1818;
+// GLOBAL: CMR2 0x005a1818
+BYTE CGame::m_sessionPlayerCount;
 BYTE CGame::m_unk0x005a1819;
-Unk0x005a1820 CGame::m_unk0x005a1820[7];
+// GLOBAL: CMR2 0x005a1820
+SessionPlayerRecord CGame::m_sessionPlayers[7];
 int CGame::m_unk0x005a1e34;
 bool CGame::m_unk0x005a1fc0;
 void *CGame::m_pDirectPlay4A = NULL;
-NetPlayerID CGame::m_unk0x005a1ea0 = NULL;
+// GLOBAL: CMR2 0x005a1ea0
+NetPlayerID CGame::m_localPlayerId = NULL;
 
 void *CGame::m_pDirectPlayLobby3A;
 
@@ -87,26 +97,26 @@ void *CGame::m_unk0x005a1fb8;
 
 // Boot states of the grouped callback machine (functions next to
 // CGame::InitializeGame; the render halves are not written yet).
-void Game_DrawBootTextureScreen(Unk0049c2c0 *p1, BYTE p2);
-void Game_WaitForButtonOrSplashTimeout(Unk0049c2c0 *p1, BYTE p2);
-void Game_WaitForSplashTimeout(Unk0049c2c0 *p1, BYTE p2);
-void Game_RunFrontendBootFrame(Unk0049c2c0 *p1, BYTE p2);
-void Game_DrawBootCameraAndFPS(Unk0049c2c0 *p1, BYTE p2);
-void Game_DrawCountryLoadingScreen(Unk0049c2c0 *p1, BYTE p2);
-void Game_PlayCountryIntroAfterFrontendDelay(Unk0049c2c0 *p1, BYTE p2);
-void Game_PlayCodemastersBootVideo(Unk0049c2c0 *p1, BYTE state);
-void Game_PlayIntroBootVideo(Unk0049c2c0 *p1, BYTE state);
-void Game_UpdateBootInputDelay(Unk0049c2c0 *p1, BYTE state);
-void OptionMenu_UpdateHiddenPreviewState(Unk0049c2c0 *p1, BYTE state);
-void OptionMenu_DrawBackgroundState(Unk0049c2c0 *p1, BYTE state);
-void OptionMenu_LeaveAndCommitState(Unk0049c2c0 *p1, BYTE state);
-void OptionMenu_LeaveWithoutCommitState(Unk0049c2c0 *p1, BYTE state);
-void Game_FinishRaceAndAdvanceBootState(Unk0049c2c0 *p1, BYTE p2);
-void Game_DrawLogoAndLoadingSprites(Unk0049c2c0 *p1, BYTE p2);
+void Game_DrawBootTextureScreen(CallbackStateMachine *p1, BYTE p2);
+void Game_WaitForButtonOrSplashTimeout(CallbackStateMachine *p1, BYTE p2);
+void Game_WaitForSplashTimeout(CallbackStateMachine *p1, BYTE p2);
+void Game_RunFrontendBootFrame(CallbackStateMachine *p1, BYTE p2);
+void Game_DrawBootCameraAndFPS(CallbackStateMachine *p1, BYTE p2);
+void Game_DrawCountryLoadingScreen(CallbackStateMachine *p1, BYTE p2);
+void Game_PlayCountryIntroAfterFrontendDelay(CallbackStateMachine *p1, BYTE p2);
+void Game_PlayCodemastersBootVideo(CallbackStateMachine *p1, BYTE state);
+void Game_PlayIntroBootVideo(CallbackStateMachine *p1, BYTE state);
+void Game_UpdateBootInputDelay(CallbackStateMachine *p1, BYTE state);
+void OptionMenu_UpdateHiddenPreviewState(CallbackStateMachine *p1, BYTE state);
+void OptionMenu_DrawBackgroundState(CallbackStateMachine *p1, BYTE state);
+void OptionMenu_LeaveAndCommitState(CallbackStateMachine *p1, BYTE state);
+void OptionMenu_LeaveWithoutCommitState(CallbackStateMachine *p1, BYTE state);
+void Game_FinishRaceAndAdvanceBootState(CallbackStateMachine *p1, BYTE p2);
+void Game_DrawLogoAndLoadingSprites(CallbackStateMachine *p1, BYTE p2);
 void OptionMenu_StartDelayedFade(int param1, int unused);
-void Game_DrawMovieFrameAndCredits(Unk0049c2c0 *p1, BYTE p2);
+void Game_DrawMovieFrameAndCredits(CallbackStateMachine *p1, BYTE p2);
 
-FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
+StateCallbackPair CGame::m_initializeGameGroupedFuncTable[10] = {
     {InitializeGame,
      NoOpSecondaryStateCallback},
     {Game_WaitForSplashTimeout, Game_DrawLogoAndLoadingSprites},
@@ -175,17 +185,17 @@ BOOL CGame::DispatchFrontendResourceState(void)
 // FUNCTION: CMR2 0x004d07c0
 BOOL CGame::UpdateFrontendCallbackMachine(void)
 {
-    if (m_unk0x00817eb0)
+    if (m_frontendCallbackInitialized)
     {
-        RunStateUpdateCallbacks(&m_unk0x00817da0);
-        RunStateRenderCallbacks(&m_unk0x00817da0);
-        AdvanceCallbackStateTimers(&m_unk0x00817da0);
+        RunStateUpdateCallbacks(&m_frontendCallbackMachine);
+        RunStateRenderCallbacks(&m_frontendCallbackMachine);
+        AdvanceCallbackStateTimers(&m_frontendCallbackMachine);
         return FALSE;
     }
 
-    InitializeCallbackStateRecord(&m_unk0x00817d98, 0, 0xFF);
-    InitializeCallbackStateMachine(&m_unk0x00817da0, 1, &m_unk0x00817d98, m_initializeGameGroupedFuncTable, &m_unk0x00523c18);
-    m_unk0x00817eb0 = true;
+    InitializeCallbackStateRecord(&m_frontendCallbackRecord, 0, 0xFF);
+    InitializeCallbackStateMachine(&m_frontendCallbackMachine, 1, &m_frontendCallbackRecord, m_initializeGameGroupedFuncTable, m_frontendStateRules);
+    m_frontendCallbackInitialized = true;
     return FALSE;
 }
 
@@ -250,7 +260,7 @@ void Graphics_PresentFrameAndResetCounters(void);
 // Boot render state: places the splash-scene camera, clears the target and
 // prints the FPS counter while the graphics debug flag (bit 2) is set.
 // FUNCTION: CMR2 0x004d0a80
-void Game_DrawBootCameraAndFPS(Unk0049c2c0 *p1, BYTE p2)
+void Game_DrawBootCameraAndFPS(CallbackStateMachine *p1, BYTE p2)
 {
     FixVector translation;
     FixAngles angles;
@@ -290,7 +300,7 @@ void Game_DrawBootCameraAndFPS(Unk0049c2c0 *p1, BYTE p2)
 // loading sprites, prepares the splash scene and shows the FPS counter when the
 // debug flag of the graphics device is on.
 // FUNCTION: CMR2 0x004d1080
-void Game_DrawLogoAndLoadingSprites(Unk0049c2c0 *p1, BYTE p2)
+void Game_DrawLogoAndLoadingSprites(CallbackStateMachine *p1, BYTE p2)
 {
     BYTE colour[4];
     SpriteRect dst;
@@ -379,7 +389,7 @@ unsigned char RallyDataCountryIndex(void);
 // Boot render state shown while the country data loads: draws the country name
 // with the current championship position, centred on the screen.
 // FUNCTION: CMR2 0x004d0ba0
-void Game_DrawCountryLoadingScreen(Unk0049c2c0 *p1, BYTE p2)
+void Game_DrawCountryLoadingScreen(CallbackStateMachine *p1, BYTE p2)
 {
     FixVector translation;
     FixAngles angles;
@@ -522,7 +532,7 @@ void Graphics_PresentFrameAndResetCounters(void);
 // frontend texture as a sprite centred over the screen and, when the debug
 // flag is on, draws the frame rate.
 // FUNCTION: CMR2 0x004d0ea0
-void Game_DrawBootTextureScreen(Unk0049c2c0 *p1, BYTE p2)
+void Game_DrawBootTextureScreen(CallbackStateMachine *p1, BYTE p2)
 {
     SpriteRect screenRect;
     BYTE colour[4];
@@ -576,7 +586,7 @@ void Game_DrawBootTextureScreen(Unk0049c2c0 *p1, BYTE p2)
 
 // Waits for the pad button (or 5 s), then restarts the music and asks for state 0.
 // FUNCTION: CMR2 0x004d1a90
-void Game_WaitForButtonOrSplashTimeout(Unk0049c2c0 *p1, BYTE p2)
+void Game_WaitForButtonOrSplashTimeout(CallbackStateMachine *p1, BYTE p2)
 {
     char path[MAX_PATH];
     DeviceInfo *pDevice;
@@ -598,7 +608,7 @@ void Game_WaitForButtonOrSplashTimeout(Unk0049c2c0 *p1, BYTE p2)
 
 // Waits ~5 s, then asks for state 0.
 // FUNCTION: CMR2 0x004d1b40
-void Game_WaitForSplashTimeout(Unk0049c2c0 *p1, BYTE p2)
+void Game_WaitForSplashTimeout(CallbackStateMachine *p1, BYTE p2)
 {
     g_unk0x00817fe4 = Sys_GetTicks();
     CInput::UpdateAllAvailableDevices();
@@ -612,7 +622,7 @@ void Game_WaitForSplashTimeout(Unk0049c2c0 *p1, BYTE p2)
 
 // Stores the frame time and runs the frontend.
 // FUNCTION: CMR2 0x004d1c90
-void Game_RunFrontendBootFrame(Unk0049c2c0 *p1, BYTE p2)
+void Game_RunFrontendBootFrame(CallbackStateMachine *p1, BYTE p2)
 {
     g_unk0x00817fe4 = Sys_GetTicks();
     g_unk0x00817ff4 = g_unk0x00817fe4 - GameInfo_GetSessionTimestamp();
@@ -696,7 +706,7 @@ char g_str0x00523dc0[14] = "%s\\%s\\%s.bik";
 // Boot state 7: shows the frontend for four seconds and then plays the
 // country intro video before asking for state 0.
 // FUNCTION: CMR2 0x004d1cc0
-void Game_PlayCountryIntroAfterFrontendDelay(Unk0049c2c0 *p1, BYTE p2)
+void Game_PlayCountryIntroAfterFrontendDelay(CallbackStateMachine *p1, BYTE p2)
 {
     char *codes[8] = {
         g_str0x00519280, g_str0x0051927c, g_str0x00519278, g_str0x00519274,
@@ -752,7 +762,7 @@ BYTE g_unk0x008180fa;
 // Unwinds the group of callbacks of the current state, saves the data of the
 // ending race and asks for the next state (level 2, state index 0).
 // FUNCTION: CMR2 0x004d1e90
-void Game_FinishRaceAndAdvanceBootState(Unk0049c2c0 *p1, BYTE unused)
+void Game_FinishRaceAndAdvanceBootState(CallbackStateMachine *p1, BYTE unused)
 {
     CGame::SetSecondaryOptionStateByte(0);
     if (CGameInfo::IsRecordFlagSet(0x11))
@@ -843,7 +853,7 @@ char g_strBinkCreditPl0x00523d1c[73] = "Wykorzystuje Bink Video. Copyright (C) 1
 // Renders the boot screens: clears the target white, draws the frontend movie
 // frame centred, then the FPS counter and the Bink Video credit line.
 // FUNCTION: CMR2 0x004d1370
-void Game_DrawMovieFrameAndCredits(Unk0049c2c0 *p1, BYTE p2)
+void Game_DrawMovieFrameAndCredits(CallbackStateMachine *p1, BYTE p2)
 {
     SpriteRect dst;
     SpriteRect viewport;
@@ -907,7 +917,7 @@ int g_unk0x00523d6c = -1;
 unsigned int g_unk0x00817ff0;
 
 // FUNCTION: CMR2 0x004d1ba0
-void Game_PlayCodemastersBootVideo(Unk0049c2c0 *p1, BYTE state)
+void Game_PlayCodemastersBootVideo(CallbackStateMachine *p1, BYTE state)
 {
     char path[260];
 
@@ -923,7 +933,7 @@ void Game_PlayCodemastersBootVideo(Unk0049c2c0 *p1, BYTE state)
 }
 
 // FUNCTION: CMR2 0x004d1c30
-void Game_PlayIntroBootVideo(Unk0049c2c0 *p1, BYTE state)
+void Game_PlayIntroBootVideo(CallbackStateMachine *p1, BYTE state)
 {
     char path[260];
 
@@ -934,7 +944,7 @@ void Game_PlayIntroBootVideo(Unk0049c2c0 *p1, BYTE state)
 }
 
 // FUNCTION: CMR2 0x004d1e10
-void Game_UpdateBootInputDelay(Unk0049c2c0 *p1, BYTE state)
+void Game_UpdateBootInputDelay(CallbackStateMachine *p1, BYTE state)
 {
     CInput::UpdateAllAvailableDevices();
     Input_TranslatePedalsToMenuKeys();
@@ -954,7 +964,7 @@ void Game_UpdateBootInputDelay(Unk0049c2c0 *p1, BYTE state)
 }
 
 // FUNCTION: CMR2 0x004d15e0
-void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
+void CGame::InitializeGame(CallbackStateMachine *p1, BYTE p2)
 {
     time_t srandSeed;
     char *skuValue, *skuRegion;
@@ -1121,88 +1131,88 @@ exit:
 }
 
 // FUNCTION: CMR2 0x0049c2c0
-void CGame::RunStateUpdateCallbacks(Unk0049c2c0 *param1)
+void CGame::RunStateUpdateCallbacks(CallbackStateMachine *param1)
 {
-    FuncTableEntry func;
+    StateUpdateCallback func;
     BYTE counter;
-    BYTE unkIx;
+    BYTE stateIndex;
 
     counter = 0;
-    unkIx = 0;
+    stateIndex = 0;
     if (param1->count > 0)
     {
         do
         {
-            func = param1->funcLookupTable[param1->unk[unkIx].field0x1 & 0xFF].func1;
+            func = param1->callbacks[param1->records[stateIndex].packedState & 0xFF].update;
             if (func != NULL)
-                (func)(param1, unkIx);
+                (func)(param1, stateIndex);
 
             counter++;
-            unkIx = counter;
+            stateIndex = counter;
         } while (counter < param1->count);
     }
 }
 
 // FUNCTION: CMR2 0x0049c310
-void CGame::RunStateRenderCallbacks(Unk0049c2c0 *param1)
+void CGame::RunStateRenderCallbacks(CallbackStateMachine *param1)
 {
-    OtherFuncTableEntry func;
+    StateRenderCallback func;
     BYTE counter;
-    BYTE unkIx;
+    BYTE stateIndex;
 
-    if (m_unk0x00593cac == 0)
+    if (m_skipRenderCallbacks == 0)
     {
 
         counter = 0;
-        unkIx = 0;
+        stateIndex = 0;
         if (param1->count > 0)
         {
             do
             {
-                func = param1->funcLookupTable[param1->unk[unkIx].field0x1 & 0xFF].func2;
+                func = param1->callbacks[param1->records[stateIndex].packedState & 0xFF].render;
                 if (func != NULL)
-                    (func)(param1, unkIx);
+                    (func)(param1, stateIndex);
 
                 counter++;
-                unkIx = counter;
+                stateIndex = counter;
             } while (counter < param1->count);
         }
     }
     else
-        m_unk0x00593cac = 0;
+        m_skipRenderCallbacks = 0;
 }
 
 // FUNCTION: CMR2 0x0049c370
-void CGame::AdvanceCallbackStateTimers(Unk0049c2c0 *param1)
+void CGame::AdvanceCallbackStateTimers(CallbackStateMachine *param1)
 {
     unsigned int tVar1;
 
-    m_unk0x00593ba8.index = 0;
+    m_callbackIndex.index = 0;
     if (param1->count > 0)
     {
         do
         {
-            m_unk0x00593ba4 = &param1->unk[m_unk0x00593ba8.packed & 0xff];
-            tVar1 = m_unk0x00593ba4->field0x1;
+            m_currentCallbackRecord = &param1->records[m_callbackIndex.packed & 0xff];
+            tVar1 = m_currentCallbackRecord->packedState;
             if (tVar1 & 0x3000000)
             {
-                m_unk0x00593ba4->field0x1 = ((tVar1 >> 0x10) & 0xff) | (tVar1 & 0xffffff00);
-                m_unk0x00593ba4->field0x1 = m_unk0x00593ba4->field0x1 & 0xff00ffff;
-                m_unk0x00593ba4->field0x1 = m_unk0x00593ba4->field0x1 & 0xfcffffff;
-                m_unk0x00593ba4->field0x2 = 0;
+                m_currentCallbackRecord->packedState = ((tVar1 >> 0x10) & 0xff) | (tVar1 & 0xffffff00);
+                m_currentCallbackRecord->packedState = m_currentCallbackRecord->packedState & 0xff00ffff;
+                m_currentCallbackRecord->packedState = m_currentCallbackRecord->packedState & 0xfcffffff;
+                m_currentCallbackRecord->elapsedTicks = 0;
             }
             else
-                m_unk0x00593ba4->field0x2 = m_unk0x00593ba4->field0x2 + 1;
+                m_currentCallbackRecord->elapsedTicks = m_currentCallbackRecord->elapsedTicks + 1;
 
-            m_unk0x00593ba8.index++;
-        } while (m_unk0x00593ba8.index < param1->count);
+            m_callbackIndex.index++;
+        } while (m_callbackIndex.index < param1->count);
     }
 }
 
 // FUNCTION: CMR2 0x0049c150
-void CGame::InitializeCallbackStateRecord(Unk00817d98 *param1, int param2, int param3)
+void CGame::InitializeCallbackStateRecord(CallbackStateRecord *param1, int param2, int param3)
 {
-    param1->field0x2 = 0;
+    param1->elapsedTicks = 0;
     param1->bits.state = (BYTE)param2;
     param1->bits.value = (BYTE)param3;
     param1->bits.rule = 0;
@@ -1210,37 +1220,37 @@ void CGame::InitializeCallbackStateRecord(Unk00817d98 *param1, int param2, int p
 }
 
 // FUNCTION: CMR2 0x0049c190
-void CGame::InitializeCallbackStateMachine(Unk0049c2c0 *p1, BYTE count, Unk00817d98 *unk, FuncTableGroup *funcLookupTable, void *unk2)
+void CGame::InitializeCallbackStateMachine(CallbackStateMachine *p1, BYTE count, CallbackStateRecord *records, StateCallbackPair *callbacks, unsigned int *rules)
 {
     p1->count = count;
-    p1->unk = unk;
-    p1->funcLookupTable = funcLookupTable;
-    p1->unk2 = unk2;
+    p1->records = records;
+    p1->callbacks = callbacks;
+    p1->rules = rules;
 }
 
 // Promotes entry index of the table to the given level when a rule of
-// p->unk2 (terminated by 0xffffffff, 0xff bytes are wildcards) matches it
+// p->rules (terminated by 0xffffffff, 0xff bytes are wildcards) matches it
 // with the given value; the rule's top byte becomes the entry's third byte.
 // FUNCTION: CMR2 0x0049c1c0
-int CGame::PromoteCallbackEntryByRule(Unk0049c2c0 *p, BYTE index, BYTE value, int level)
+int CGame::PromoteCallbackEntryByRule(CallbackStateMachine *p, BYTE index, BYTE value, int level)
 {
     unsigned int *pEntry;
     unsigned int *pRule;
     unsigned int entry;
     unsigned int rule;
 
-    pEntry = (unsigned int *)&p->unk[index];
+    pEntry = (unsigned int *)&p->records[index].packedState;
     entry = *pEntry;
     if ((entry & 0x3000000) == 0x3000000 || (int)((entry >> 24) & 3) < level) {
-        for (pRule = (unsigned int *)p->unk2;; pRule++) {
+        for (pRule = p->rules;; pRule++) {
             rule = *pRule;
             if ((rule & 0xff) == 0xff && (rule & 0xff00) == 0xff00 && (rule & 0xff0000) == 0xff0000 &&
                 (rule & 0xff000000) == 0xff000000)
                 break;
             if ((((rule ^ entry) & 0xff) == 0 || (rule & 0xff) == 0xff) &&
                 (((rule ^ entry) & 0xff00) == 0 || (rule & 0xff00) == 0xff00) && ((rule >> 16) & 0xff) == value) {
-                ((Unk00817d98 *)pEntry)->bits.level = level;
-                ((Unk00817d98 *)pEntry)->bits.rule = *pRule >> 24;
+                ((CallbackStateRecord *)pEntry)->bits.level = level;
+                ((CallbackStateRecord *)pEntry)->bits.rule = *pRule >> 24;
                 return 1;
             }
         }
@@ -1248,41 +1258,41 @@ int CGame::PromoteCallbackEntryByRule(Unk0049c2c0 *p, BYTE index, BYTE value, in
     return 0;
 }
 // GLOBAL: CMR2 0x0082a7f0
-Unk0049c2c0 g_unk0x0082a7f0;
+CallbackStateMachine g_secondaryCallbackMachine;
 
 // FUNCTION: CMR2 0x004ff440
-Unk0049c2c0 *Game_GetSecondaryCallbackMachine(void)
+CallbackStateMachine *Game_GetSecondaryCallbackMachine(void)
 {
-    return &g_unk0x0082a7f0;
+    return &g_secondaryCallbackMachine;
 }
 // GLOBAL: CMR2 0x0082a800
-Unk00817d98 g_unk0x0082a800;
+CallbackStateRecord g_secondaryCallbackRecord;
 // GLOBAL: CMR2 0x0082a908
-BYTE g_unk0x0082a908;
+BYTE g_secondaryCallbackInitialized;
 // State 0x500df0 (country menus) is defined in GameInfo.cpp.
-void OptionMenu_EnterCountryState(Unk0049c2c0 *p1, BYTE p2);
+void OptionMenu_EnterCountryState(CallbackStateMachine *p1, BYTE p2);
 
 // State of the option menu machine (GameInfo.cpp).
-void OptionMenu_EnterStartState(Unk0049c2c0 *p1, BYTE state);
+void OptionMenu_EnterStartState(CallbackStateMachine *p1, BYTE state);
 
-void OptionMenu_UpdateFadeState(Unk0049c2c0 *p1, BYTE state);
+void OptionMenu_UpdateFadeState(CallbackStateMachine *p1, BYTE state);
 void OptionMenu_FadeBackgroundToGrey(int param1, int unused);
 void OptionMenu_FadeToStoredColour(int param1, int unused);
 
 // GLOBAL: CMR2 0x00526ee0
-FuncTableGroup g_unk0x00526ee0[7] = {
+StateCallbackPair g_secondaryStateCallbacks[7] = {
     {OptionMenu_EnterStartState, NULL},
-    {OptionMenu_UpdateHiddenPreviewState, (OtherFuncTableEntry)OptionMenu_FadeBackgroundToGrey},
+    {OptionMenu_UpdateHiddenPreviewState, (StateRenderCallback)OptionMenu_FadeBackgroundToGrey},
     {OptionMenu_EnterCountryState, NULL},
     {OptionMenu_UpdateFadeState, OptionMenu_DrawBackgroundState},
-    {(FuncTableEntry)OptionMenu_StartDelayedFade, (OtherFuncTableEntry)OptionMenu_FadeToStoredColour},
+    {(StateUpdateCallback)OptionMenu_StartDelayedFade, (StateRenderCallback)OptionMenu_FadeToStoredColour},
     {OptionMenu_LeaveAndCommitState, CGame::NoOpSecondaryStateCallback},
     {OptionMenu_LeaveWithoutCommitState, CGame::NoOpSecondaryStateCallback},
 };
 // Transition rules of the secondary (option/country menu) callback machine.
 // Keep the entire table and its terminator: the dispatcher scans its address.
 // GLOBAL: CMR2 0x00526f18
-unsigned int g_unk0x00526f18[10] = {
+unsigned int g_secondaryStateRules[10] = {
     0x0100ff00, 0x0200ff01, 0x0300ff02, 0x0400ff03, 0x0201ff03,
     0x0500ff04, 0x0602ff04, 0x0000ff05, 0x0000ff06, 0xffffffff,
 };
@@ -1290,15 +1300,15 @@ unsigned int g_unk0x00526f18[10] = {
 // FUNCTION: CMR2 0x004ff450
 BOOL CGame::UpdateSecondaryCallbackMachine()
 {
-    if (g_unk0x0082a908 != 0) {
-        RunStateUpdateCallbacks(&g_unk0x0082a7f0);
-        RunStateRenderCallbacks(&g_unk0x0082a7f0);
-        AdvanceCallbackStateTimers(&g_unk0x0082a7f0);
+    if (g_secondaryCallbackInitialized != 0) {
+        RunStateUpdateCallbacks(&g_secondaryCallbackMachine);
+        RunStateRenderCallbacks(&g_secondaryCallbackMachine);
+        AdvanceCallbackStateTimers(&g_secondaryCallbackMachine);
         return FALSE;
     }
-    InitializeCallbackStateRecord(&g_unk0x0082a800, 0, 0xFF);
-    InitializeCallbackStateMachine(&g_unk0x0082a7f0, 1, &g_unk0x0082a800, g_unk0x00526ee0, &g_unk0x00526f18);
-    g_unk0x0082a908 = 1;
+    InitializeCallbackStateRecord(&g_secondaryCallbackRecord, 0, 0xFF);
+    InitializeCallbackStateMachine(&g_secondaryCallbackMachine, 1, &g_secondaryCallbackRecord, g_secondaryStateCallbacks, g_secondaryStateRules);
+    g_secondaryCallbackInitialized = 1;
     return FALSE;
 }
 // In-race callback group of the game state machine (0x0041b060), filled by
@@ -1310,7 +1320,7 @@ extern int g_unk0x00537ef8;
 extern int g_unk0x00537efc;
 extern int g_unk0x00537df0;
 
-void InRaceMenu_UpdateStateMachineFrame(Unk0049c2c0 *param1);
+void InRaceMenu_UpdateStateMachineFrame(CallbackStateMachine *param1);
 void InRaceMenu_AdvanceScreenEntries(BYTE *param1);
 void StageUI_ResetRaceEndEventCount(void);
 unsigned int *RallyData_GetChampionshipState(void);
@@ -1320,7 +1330,7 @@ void RallyData_SetSelectionBits14To15(BYTE param1);
 void Car_BuildRaceOrder(int count);
 void Dash_Reset(void);
 void Race_EnterCurrentModeScene(int param1, int param2);
-void Race_UpdatePauseState(Unk0049c2c0 *p, BYTE index);
+void Race_UpdatePauseState(CallbackStateMachine *p, BYTE index);
 void RallyData_DrawProjectedChallengeScene(int param1, int param2);
 void Race_StartArcadeScene(int param1, int param2);
 void RallyData_RunChallengeLoadingScreen(int param1, char param2);
@@ -1335,7 +1345,7 @@ void Race_UpdateDriverCountdown(int param1, unsigned int param2);
 void Race_UpdateDriverReadyAndRecordState(BYTE *param1, unsigned int param2);
 void Race_HandleStageReplayViewTransitions(BYTE *param1, unsigned int param2);
 void Race_UpdateInterStageFadeJobs(int param1, unsigned int param2);
-void Race_UpdateState12(Unk0049c2c0 *p, BYTE index);
+void Race_UpdateState12(CallbackStateMachine *p, BYTE index);
 void Race_LeaveAndFadeOut(int param1, char param2);
 void RallyData_GrowEntryAndRefreshRecords(BYTE *param1, unsigned int param2);
 void RallyData_GrowEntryPanel(BYTE *param1, unsigned int param2);
@@ -1346,28 +1356,28 @@ void RallyData_ShrinkEntryAndDrawStageStarted(BYTE *param1, unsigned int param2)
 // In-race state table: pairs of (update, render) callbacks indexed by the state
 // of each slot of the callback group (0x537dd0).
 // GLOBAL: CMR2 0x005190b0
-FuncTableGroup g_unk0x005190b0[14] = {
-    {(FuncTableEntry)Race_EnterCurrentModeScene, NULL},
-    {(FuncTableEntry)Race_UpdatePauseState, (OtherFuncTableEntry)RallyData_DrawProjectedChallengeScene},
-    {(FuncTableEntry)Race_StartArcadeScene, (OtherFuncTableEntry)RallyData_RunChallengeLoadingScreen},
-    {(FuncTableEntry)GameInfo_EnterStageGroup, NULL},
-    {(FuncTableEntry)GameInfo_LeaveStageGroup, NULL},
-    {(FuncTableEntry)InRaceMenu_AdvanceCascade, (OtherFuncTableEntry)RallyData_GrowEntryAndInvokeAction},
-    {(FuncTableEntry)Knockout_UpdateRaceStateAndFades, (OtherFuncTableEntry)StageObject_ClearAndDrawSplitPositions},
-    {(FuncTableEntry)Race_UpdateDriverPreRaceScene, (OtherFuncTableEntry)RallyData_GrowEntryAndRefreshRecords},
-    {(FuncTableEntry)Race_UpdateDriverCountdown, (OtherFuncTableEntry)RallyData_GrowEntryPanel},
-    {(FuncTableEntry)Race_UpdateDriverReadyAndRecordState, (OtherFuncTableEntry)RallyData_UpdateUnavailableEntryText},
-    {(FuncTableEntry)Race_UpdateInterStageFadeJobs, (OtherFuncTableEntry)RallyData_ShrinkEntryAndNotifyCompletion},
-    {(FuncTableEntry)Race_HandleStageReplayViewTransitions, (OtherFuncTableEntry)CGame::NoOpSecondaryStateCallback},
-    {(FuncTableEntry)Race_UpdateState12, NULL},
-    {(FuncTableEntry)Race_LeaveAndFadeOut, (OtherFuncTableEntry)RallyData_ShrinkEntryAndDrawStageStarted},
+StateCallbackPair g_raceStateCallbacks[14] = {
+    {(StateUpdateCallback)Race_EnterCurrentModeScene, NULL},
+    {(StateUpdateCallback)Race_UpdatePauseState, (StateRenderCallback)RallyData_DrawProjectedChallengeScene},
+    {(StateUpdateCallback)Race_StartArcadeScene, (StateRenderCallback)RallyData_RunChallengeLoadingScreen},
+    {(StateUpdateCallback)GameInfo_EnterStageGroup, NULL},
+    {(StateUpdateCallback)GameInfo_LeaveStageGroup, NULL},
+    {(StateUpdateCallback)InRaceMenu_AdvanceCascade, (StateRenderCallback)RallyData_GrowEntryAndInvokeAction},
+    {(StateUpdateCallback)Knockout_UpdateRaceStateAndFades, (StateRenderCallback)StageObject_ClearAndDrawSplitPositions},
+    {(StateUpdateCallback)Race_UpdateDriverPreRaceScene, (StateRenderCallback)RallyData_GrowEntryAndRefreshRecords},
+    {(StateUpdateCallback)Race_UpdateDriverCountdown, (StateRenderCallback)RallyData_GrowEntryPanel},
+    {(StateUpdateCallback)Race_UpdateDriverReadyAndRecordState, (StateRenderCallback)RallyData_UpdateUnavailableEntryText},
+    {(StateUpdateCallback)Race_UpdateInterStageFadeJobs, (StateRenderCallback)RallyData_ShrinkEntryAndNotifyCompletion},
+    {(StateUpdateCallback)Race_HandleStageReplayViewTransitions, (StateRenderCallback)CGame::NoOpSecondaryStateCallback},
+    {(StateUpdateCallback)Race_UpdateState12, NULL},
+    {(StateUpdateCallback)Race_LeaveAndFadeOut, (StateRenderCallback)RallyData_ShrinkEntryAndDrawStageStarted},
 };
 
 // State transition rules of the in-race machine (byte 0 = current state, 0xff
 // any; byte 1 = slot level, 0xff any; byte 2 = value; byte 3 = next state),
 // terminated by 0xffffffff.
 // GLOBAL: CMR2 0x00519120
-unsigned int g_unk0x00519120[26] = {
+unsigned int g_raceStateRules[26] = {
     0x0100ff00, 0x0200ff01, 0x0c01ff01, 0x0300ff02, 0x0400ff03, 0x0500ff04,
     0x0700ff05, 0x0605ff05, 0x0d06ff05, 0x0a01ff05, 0x0700ff06, 0x0800ff07,
     0x0900ff08, 0x0a00ff09, 0x0b00000a, 0x0b00010a, 0x0b00040a, 0x0b00020a,
@@ -1402,7 +1412,7 @@ unsigned int g_unk0x00519120[26] = {
 BOOL CGame::UpdateInRaceCallbackMachine(void)
 {
     unsigned int *pState;
-    Unk00817d98 *pSlot;
+    CallbackStateRecord *pSlot;
     BYTE level;
     BYTE state;
     BYTE i;
@@ -1410,14 +1420,14 @@ BOOL CGame::UpdateInRaceCallbackMachine(void)
 
     if (g_unk0x00537ef4 != 0 && g_unk0x00537ef5 == 0 && g_unk0x00537ef8 == 0) {
         if (CGameInfo::IsInRaceMenuOpen() != 0) {
-            InRaceMenu_UpdateStateMachineFrame((Unk0049c2c0 *)g_unk0x00537dd0);
+            InRaceMenu_UpdateStateMachineFrame((CallbackStateMachine *)g_unk0x00537dd0);
             InRaceMenu_AdvanceScreenEntries(g_unk0x00537dd0);
-            AdvanceCallbackStateTimers((Unk0049c2c0 *)g_unk0x00537dd0);
+            AdvanceCallbackStateTimers((CallbackStateMachine *)g_unk0x00537dd0);
             return FALSE;
         }
-        RunStateUpdateCallbacks((Unk0049c2c0 *)g_unk0x00537dd0);
-        RunStateRenderCallbacks((Unk0049c2c0 *)g_unk0x00537dd0);
-        AdvanceCallbackStateTimers((Unk0049c2c0 *)g_unk0x00537dd0);
+        RunStateUpdateCallbacks((CallbackStateMachine *)g_unk0x00537dd0);
+        RunStateRenderCallbacks((CallbackStateMachine *)g_unk0x00537dd0);
+        AdvanceCallbackStateTimers((CallbackStateMachine *)g_unk0x00537dd0);
         return FALSE;
     }
     pState = RallyData_GetChampionshipState();
@@ -1475,7 +1485,7 @@ done:
     RallyData_SetSelectionBits14To15(state);
     g_unk0x00537df0 = level;
     if (state > 0) {
-        pSlot = (Unk00817d98 *)&g_unk0x00537dd0[0x10];
+        pSlot = (CallbackStateRecord *)&g_unk0x00537dd0[0x10];
         i = state;
         do {
             if (g_unk0x00537ef8 != 0) {
@@ -1488,8 +1498,8 @@ done:
             i--;
         } while (i != 0);
     }
-    InitializeCallbackStateMachine((Unk0049c2c0 *)g_unk0x00537dd0, state, (Unk00817d98 *)&g_unk0x00537dd0[0x10],
-                 g_unk0x005190b0, g_unk0x00519120);
+    InitializeCallbackStateMachine((CallbackStateMachine *)g_unk0x00537dd0, state, (CallbackStateRecord *)&g_unk0x00537dd0[0x10],
+                 g_raceStateCallbacks, g_raceStateRules);
     if (g_unk0x00537ef8 != 0) {
         Car_BuildRaceOrder(2);
         Dash_Reset();
@@ -1502,7 +1512,7 @@ done:
 
 
 // FUNCTION: CMR2 0x00501680
-void CGame::NoOpSecondaryStateCallback(struct Unk0049c2c0 *, BYTE) { return; }
+void CGame::NoOpSecondaryStateCallback(struct CallbackStateMachine *, BYTE) { return; }
 
 extern int g_unk0x0082b1b0;
 
@@ -1640,27 +1650,27 @@ void CGame::ResetSessionPlayerTable(bool param1) {
     if (param1)
         m_unk0x005a1fc0 = false;
 
-    // The original walks a pointer to field_0x64 and stops when it passes
+    // The original walks a pointer to longName and stops when it passes
     // 0x5a1e34, which clears exactly the 7 entries (0x5a1820..0x5a1dd0).
-    Unk0x005a1820 *dest = m_unk0x005a1820;
+    SessionPlayerRecord *dest = m_sessionPlayers;
     do {
         // The original calls sprintf through a fixed 2-argument prototype; the
         // non-variadic call makes MSVC6 defer the stack cleanup across the pair
         // (the merged `add esp,0x10` of the original).
-        ((int (__cdecl *)(char *, const char *))sprintf)(dest->field_0x0, CMain::m_logFileBlankLine);
-        ((int (__cdecl *)(char *, const char *))sprintf)(dest->field_0x64, CMain::m_logFileBlankLine);
-        dest->field_0xc8 = 0;
-        dest->field_0xcc = 0;
+        ((int (__cdecl *)(char *, const char *))sprintf)(dest->shortName, CMain::m_logFileBlankLine);
+        ((int (__cdecl *)(char *, const char *))sprintf)(dest->longName, CMain::m_logFileBlankLine);
+        dest->playerId = 0;
+        dest->active = 0;
         dest++;
-    } while ((int)dest->field_0x64 < (int)m_unk0x005a1820[7].field_0x64); // 0x5a1e34 in the original
+    } while ((int)dest->longName < (int)m_sessionPlayers[7].longName); // 0x5a1e34 in the original
 
-    m_unk0x005a1818 = 0;
+    m_sessionPlayerCount = 0;
 }
 
 // FUNCTION: CMR2 0x004a1a90
 BOOL CGame::DestroyLocalNetworkPlayer(void) {
     if (m_unk0x005a1fc0 && GetDirectPlay() != NULL)
-        return Net_DestroyPlayer(m_unk0x005a1ea0) == NET_OK;
+        return Net_DestroyPlayer(m_localPlayerId) == NET_OK;
     return FALSE;
 }
 
@@ -1993,7 +2003,7 @@ void CGame::UnwindCallbacks(int count)
 // FUNCTION: CMR2 0x0049c140
 void CGame::SkipNextCallbackRenderPass(void)
 {
-    m_unk0x00593cac = 1;
+    m_skipRenderCallbacks = 1;
 }
 
 // FUNCTION: CMR2 0x0049c400
@@ -2111,12 +2121,12 @@ void Game_DrawViewMaskNodes(SceneNode *pNode, int bit)
         if (pNode->type == SCENE_NODE_MESH) {
             Mesh *pMesh = (Mesh *)pNode->pObject;
             int mask = 1 << bit;
-            if ((mask & pNode->field_0x17c) != 0) {
+            if ((mask & pNode->viewMask) != 0) {
                 if (pMesh != NULL) {
                     Gfx_SetTransform(GFX_TRANSFORM_WORLD, (GfxMatrix *)pNode->worldF);
                     Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
                 }
-                if ((pNode->field_0x17c & mask) != 0 && pNode->pFirstChild != NULL)
+                if ((pNode->viewMask & mask) != 0 && pNode->pFirstChild != NULL)
                     Game_DrawViewMaskNodes(pNode->pFirstChild, bit);
             }
         }
@@ -2131,14 +2141,14 @@ void Game_DrawViewMaskNode(SceneNode *pNode, int bit)
 {
     if (pNode->type == SCENE_NODE_MESH) {
         Mesh *pMesh = (Mesh *)pNode->pObject;
-        if ((pNode->field_0x17c & (1 << bit)) != 0) {
+        if ((pNode->viewMask & (1 << bit)) != 0) {
             if (pMesh != NULL) {
                 Gfx_SetTransform(GFX_TRANSFORM_WORLD, (GfxMatrix *)pNode->worldF);
                 Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
             }
         }
     }
-    if ((pNode->field_0x17c & (1 << bit)) != 0 && pNode->pFirstChild != NULL)
+    if ((pNode->viewMask & (1 << bit)) != 0 && pNode->pFirstChild != NULL)
         Game_DrawViewMaskNodes(pNode->pFirstChild, bit);
 }
 
@@ -2354,7 +2364,7 @@ void Game_DrawWorldMeshNodesAnd2DLayer(void)
         pNode = g_sceneNodes[i];
         if (pNode != NULL && pNode->type == SCENE_NODE_MESH) {
             pMesh = (Mesh *)pNode->pObject;
-            if (pNode->field_0x17c != 0 && pMesh != NULL) {
+            if (pNode->viewMask != 0 && pMesh != NULL) {
                 Gfx_SetTransform(GFX_TRANSFORM_WORLD, (GfxMatrix *)pNode->worldF);
                 Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
             }
@@ -3066,26 +3076,26 @@ BYTE Network_IsSessionFlag10Set(BYTE index)
 // FUNCTION: CMR2 0x004a1850
 void Network_AddRemoteSessionPlayer(char *shortName, char *longName, NetPlayerID dpId)
 {
-    Unk0x005a1820 *pPlayer;
+    SessionPlayerRecord *pPlayer;
     int i;
 
-    if (CGame::m_unk0x005a1ea0 == dpId)
+    if (CGame::m_localPlayerId == dpId)
         return;
     for (i = 0; i < 7; i++) {
-        if (CGame::m_unk0x005a1820[i].field_0xc8 == dpId)
+        if (CGame::m_sessionPlayers[i].playerId == dpId)
             return;
     }
-    if (CGame::m_unk0x005a1818 >= 7)
+    if (CGame::m_sessionPlayerCount >= 7)
         return;
     for (i = 0; i < 7; i++) {
-        if (CGame::m_unk0x005a1820[i].field_0xcc == 0) {
+        if (CGame::m_sessionPlayers[i].active == 0) {
             if (shortName != NULL)
-                strcpy(CGame::m_unk0x005a1820[i].field_0x0, shortName);
+                strcpy(CGame::m_sessionPlayers[i].shortName, shortName);
             if (longName != NULL)
-                strcpy(CGame::m_unk0x005a1820[i].field_0x64, longName);
-            CGame::m_unk0x005a1820[i].field_0xc8 = dpId;
-            CGame::m_unk0x005a1820[i].field_0xcc = 1;
-            CGame::m_unk0x005a1818++;
+                strcpy(CGame::m_sessionPlayers[i].longName, longName);
+            CGame::m_sessionPlayers[i].playerId = dpId;
+            CGame::m_sessionPlayers[i].active = 1;
+            CGame::m_sessionPlayerCount++;
             return;
         }
     }
@@ -3133,7 +3143,7 @@ bool Network_EnumerateServiceProviders(void)
 char Network_SetLocalPlayerData(int data, int size)
 {
     if (CGame::GetDirectPlay() != NULL)
-        return Net_SetPlayerData(CGame::m_unk0x005a1ea0, (const void *)(intptr_t)data, size) == NET_OK;
+        return Net_SetPlayerData(CGame::m_localPlayerId, (const void *)(intptr_t)data, size) == NET_OK;
     return 0;
 }
 
@@ -3143,7 +3153,7 @@ char Network_SetLocalPlayerData(int data, int size)
 char Network_SendPlayerMessage(int to, int guaranteed, int data, int size)
 {
     if (CGame::GetDirectPlay() != NULL)
-        return Net_Send(CGame::m_unk0x005a1ea0, to, guaranteed == 1, (const void *)(intptr_t)data, size) == NET_OK;
+        return Net_Send(CGame::m_localPlayerId, to, guaranteed == 1, (const void *)(intptr_t)data, size) == NET_OK;
     return 0;
 }
 
@@ -3159,7 +3169,7 @@ int Network_CreateLocalPlayer(int param1, int param2, int param3, int param4)
     g_networkPlayerName.lpszLongNameA = (char *)(intptr_t)param2;
     if (CGame::GetDirectPlay() == NULL)
         return 0;
-    if (Net_CreatePlayer(&CGame::m_unk0x005a1ea0, &g_networkPlayerName, (const void *)(intptr_t)param3, param4) != NET_OK)
+    if (Net_CreatePlayer(&CGame::m_localPlayerId, &g_networkPlayerName, (const void *)(intptr_t)param3, param4) != NET_OK)
         return 0;
     CGame::m_unk0x005a1fc0 = 1;
     return 1;
@@ -3259,14 +3269,14 @@ void Network_RemoveSessionPlayerByID(NetPlayerID *pId)
     int i;
 
     for (i = 0; i < 7; i++) {
-        if (CGame::m_unk0x005a1820[i].field_0xc8 == *pId) {
+        if (CGame::m_sessionPlayers[i].playerId == *pId) {
             // Non-variadic prototype: MSVC6 defers the pair's stack cleanup
             // (merged `add esp,0x10` in the original).
-            ((int (__cdecl *)(char *, const char *))sprintf)(CGame::m_unk0x005a1820[i].field_0x0, CMain::m_logFileBlankLine);
-            ((int (__cdecl *)(char *, const char *))sprintf)(CGame::m_unk0x005a1820[i].field_0x64, CMain::m_logFileBlankLine);
-            CGame::m_unk0x005a1820[i].field_0xc8 = 0;
-            CGame::m_unk0x005a1820[i].field_0xcc = 0;
-            CGame::m_unk0x005a1818--;
+            ((int (__cdecl *)(char *, const char *))sprintf)(CGame::m_sessionPlayers[i].shortName, CMain::m_logFileBlankLine);
+            ((int (__cdecl *)(char *, const char *))sprintf)(CGame::m_sessionPlayers[i].longName, CMain::m_logFileBlankLine);
+            CGame::m_sessionPlayers[i].playerId = 0;
+            CGame::m_sessionPlayers[i].active = 0;
+            CGame::m_sessionPlayerCount--;
             return;
         }
     }
@@ -3293,7 +3303,7 @@ int Network_FindSessionPlayerIndex(NetPlayerID *pId, char *pIndex)
     int i;
 
     for (i = 0; i < 7; i++) {
-        if (CGame::m_unk0x005a1820[i].field_0xc8 == *pId) {
+        if (CGame::m_sessionPlayers[i].playerId == *pId) {
             *pIndex = i;
             return 1;
         }
@@ -3305,22 +3315,22 @@ int Network_FindSessionPlayerIndex(NetPlayerID *pId, char *pIndex)
 // FUNCTION: CMR2 0x004a1a00
 NetPlayerID Network_GetLocalPlayerID(void)
 {
-    return CGame::m_unk0x005a1ea0;
+    return CGame::m_localPlayerId;
 }
 
 // FUNCTION: CMR2 0x004a1b60
 char *Network_GetActiveSessionPlayerLongName(BYTE index)
 {
-    if (CGame::m_unk0x005a1820[index].field_0xcc != 0)
-        return CGame::m_unk0x005a1820[index].field_0x64;
+    if (CGame::m_sessionPlayers[index].active != 0)
+        return CGame::m_sessionPlayers[index].longName;
     return NULL;
 }
 
 // FUNCTION: CMR2 0x004a1b30
-Unk0x005a1820 *Network_GetActiveSessionPlayerRecord(BYTE index)
+SessionPlayerRecord *Network_GetActiveSessionPlayerRecord(BYTE index)
 {
-    if (CGame::m_unk0x005a1820[index].field_0xcc != 0)
-        return &CGame::m_unk0x005a1820[index];
+    if (CGame::m_sessionPlayers[index].active != 0)
+        return &CGame::m_sessionPlayers[index];
     return NULL;
 }
 

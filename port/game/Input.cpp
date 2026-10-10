@@ -174,7 +174,7 @@ BOOL CInput::SetupKeyboard(void) {
         ((int (__cdecl *)(char *, const char *))sprintf)(m_availableDevices[m_unk0x0059f8cc.field_0x0].deviceProductName, m_strKeyboard);
         
         uVar1 = m_unk0x0059f8cc.field_0x0;
-        m_availableDevices[uVar1].unk_isJoystick = FALSE;
+        m_availableDevices[uVar1].supportsForceFeedback = FALSE;
 
         if (!iVar3) {
             m_availableDevices[uVar1].keyboard.field_0x468 = 0xcb;
@@ -306,12 +306,12 @@ BOOL CInput::SetupJoystick(int joystickIndex) {
 
             {
                 if (devCaps.forceFeedback) {
-                    pDeviceInfo->unk_isJoystick = TRUE;
+                    pDeviceInfo->supportsForceFeedback = TRUE;
 
                     Input_SetAutocenter(m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2], FALSE);
                     InitializeForceFeedbackDevice(m_unk0x0059f8cc.field_0x0, m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]);
                 } else {
-                    pDeviceInfo->unk_isJoystick = FALSE;
+                    pDeviceInfo->supportsForceFeedback = FALSE;
                 }
 
                 // Button names (DIJOFS_BUTTON(i) = 0x30 + i).
@@ -381,7 +381,7 @@ void CInput::SetupJoystickDeviceInfo(DeviceInfo *deviceInfo) {
     do {
         // PORT: the axis exists when it has a range (DIPROP_RANGE succeeded).
         if (Input_HasAxis(m_unk0x0059f6b0[deviceInfo->field_0x18], *unk0x00511400)) {
-            bindings[-1].field_0x10 = TRUE; // esentially just deviceInfo->unk_isJoystick but it doesnt match
+            bindings[-1].field_0x10 = TRUE; // esentially just deviceInfo->supportsForceFeedback but it doesnt match
             bindings->deadzone = 0xc8;
             bindings->range = 0x10000;
             bindings->saturation = 0x2710;
@@ -1313,7 +1313,7 @@ void CInput::InitDetectedControllerSlot(DeviceInfo *pDevice, int index)
     pController->field_0x10c = (pDevice->field_0x0 == 3 || pDevice->field_0x0 == 2) ? 1 : 0;
     pController->field_0x110 = (pDevice->field_0x0 == 3 || pDevice->field_0x0 == 2) ? 1 : 0;
     pController->field_0x114 = (pDevice->field_0x0 == 3 || pDevice->field_0x0 == 2) ? 1 : 0;
-    pController->field_0x118 = pDevice->unk_isJoystick;
+    pController->field_0x118 = pDevice->supportsForceFeedback;
     m_controllerInfo[index].field_0x4 = 0x8000;
     m_controllerInfo[index].field_0x0 = 0x8000;
     if (pDevice->field_0x0 == 1) {

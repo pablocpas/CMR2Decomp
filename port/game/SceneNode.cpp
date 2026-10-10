@@ -157,7 +157,7 @@ void SceneNode_Init(SceneNode *pNode)
     pNode->pFirstChild = NULL;
     pNode->type = SCENE_NODE_EMPTY;
     pNode->pObject = NULL;
-    pNode->field_0x17c = 0xff;
+    pNode->viewMask = 0xff;
     pNode->pParent = NULL;
     pNode->sector = -1;
     pNode->pNextInSector = NULL;
@@ -1864,7 +1864,7 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
         offset = 0;
         do {
             pPart = (ShadowPart *)((BYTE *)pCaster2->pParts + offset);
-            if (pPart->pNode->field_0x17c != 0) {
+            if (pPart->pNode->viewMask != 0) {
                 float *pf = (float *)pPart;
 
                 projY[0] = projScaleY * pf[6];
@@ -2020,7 +2020,7 @@ void Scene_EmitNodeShadowGeometry(SceneNode *pNode, int param2, BYTE param3)
     int count;
 
     pCaster = NULL;
-    if (pNode != NULL && pNode->field_0x17c != 0 && g_sceneSectorZone != NULL &&
+    if (pNode != NULL && pNode->viewMask != 0 && g_sceneSectorZone != NULL &&
         (unsigned short)g_sceneZoneCount > 0) {
         i = 0;
         count = g_sceneLightFlag & 0xff;
@@ -2079,7 +2079,7 @@ void Scene_CollectNearbyLightZones(SceneNode *pNode, int radius, short *pSector)
 
     pCaster = NULL;
     *(unsigned short *)&g_sceneZoneCount = 0;
-    if (pNode != NULL && pNode->field_0x17c != 0 && g_sceneSectorZone != NULL) {
+    if (pNode != NULL && pNode->viewMask != 0 && g_sceneSectorZone != NULL) {
         i = 0;
         count = g_sceneLightFlag & 0xff;
         if (count > 0) {
@@ -2429,7 +2429,7 @@ void SceneNode_SetViewMask(SceneNode *pNode, BYTE mask)
 {
     for (; pNode != NULL; pNode = pNode->pNext) {
         if (pNode->type == SCENE_NODE_MESH) {
-            pNode->field_0x17c = mask;
+            pNode->viewMask = mask;
             if (pNode->pFirstChild != NULL)
                 SceneNode_SetViewMask(pNode->pFirstChild, mask);
         }
@@ -2618,7 +2618,7 @@ void Scene_ApplyShadowLightDirection(FixVector *pLightDir)
 void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask)
 {
     if (pNode->type == SCENE_NODE_MESH)
-        pNode->field_0x17c = mask;
+        pNode->viewMask = mask;
     if (pNode->pFirstChild != NULL)
         SceneNode_SetViewMask(pNode->pFirstChild, mask);
 }

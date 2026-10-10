@@ -1827,9 +1827,9 @@ void Frontend_MergeNamedRecordSixBitFields(int *pDest, int *pSource)
 // cross-range: 0x4d0770 belongs to the Game.cpp range but is only used by
 // Frontend_SetDebugOverlayChannels here; it returns the callback machine state block.
 // FUNCTION: CMR2 0x004d0770
-Unk0049c2c0 *Frontend_GetOverlayCallbackState(void)
+CallbackStateMachine *Frontend_GetOverlayCallbackState(void)
 {
-    return &CGame::m_unk0x00817da0;
+    return &CGame::m_frontendCallbackMachine;
 }
 
 // Enables/disables the debug overlay channels and pushes the new flags into
@@ -1837,9 +1837,9 @@ Unk0049c2c0 *Frontend_GetOverlayCallbackState(void)
 // FUNCTION: CMR2 0x004d2070
 void Frontend_SetDebugOverlayChannels(BYTE param1, BYTE param2, BYTE param3)
 {
-    Unk0049c2c0 *p;
+    CallbackStateMachine *p;
 
-    p = (Unk0049c2c0 *)Frontend_GetOverlayCallbackState();
+    p = (CallbackStateMachine *)Frontend_GetOverlayCallbackState();
     CGame::m_unk0x00523d68 = param1;
     CGame::m_unk0x008180f9 = param2;
     g_unk0x008180fa = param3;

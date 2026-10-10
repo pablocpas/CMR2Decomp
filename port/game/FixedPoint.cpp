@@ -3,6 +3,7 @@
 #include "Graphics.h"
 #include "GameInfo.h"
 #include "Car.h"
+#include "CarParts.h"
 #include "StageTiming.h"
 
 // GLOBAL: CMR2 0x0072d67c
@@ -920,7 +921,7 @@ void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef)
     *(int *)(pObj + 0x50) = v - 0x10000;
 }
 
-extern BYTE *g_pCarSetup;
+extern CarPartSet *g_physicsPartSet;
 int *StageTiming_GetCarReplayRecord(int index);
 
 // Copies the car's body and world matrices into the local transform of its two
@@ -931,24 +932,24 @@ void Car_SyncBodySceneNodes(Car *pCar)
     FixVector v;
 
     g_pCurrentCar = pCar;
-    g_pCarSetup = (BYTE *)StageTiming_GetCarReplayRecord((int)pCar->index);
+    g_physicsPartSet = (CarPartSet *)StageTiming_GetCarReplayRecord((int)pCar->index);
     Car_StoreBodyMatrix();
     FixMatrix_GetRight(&v, g_pCurrentCar->pBodyMatrix);
-    g_pCurrentCar->pNode0x720->current.right = v;
+    g_pCurrentCar->pBodyNode->current.right = v;
     FixMatrix_GetUp(&v, g_pCurrentCar->pBodyMatrix);
-    g_pCurrentCar->pNode0x720->current.up = v;
+    g_pCurrentCar->pBodyNode->current.up = v;
     FixMatrix_GetForward(&v, g_pCurrentCar->pBodyMatrix);
-    g_pCurrentCar->pNode0x720->current.forward = v;
+    g_pCurrentCar->pBodyNode->current.forward = v;
     FixMatrix_GetPosition(&v, g_pCurrentCar->pBodyMatrix);
-    g_pCurrentCar->pNode0x720->current.position = v;
+    g_pCurrentCar->pBodyNode->current.position = v;
     FixMatrix_GetRight(&v, g_pCurrentCar->pWorld);
-    g_pCurrentCar->pNode0x71c->current.right = v;
+    g_pCurrentCar->pSceneRoot->current.right = v;
     FixMatrix_GetUp(&v, g_pCurrentCar->pWorld);
-    g_pCurrentCar->pNode0x71c->current.up = v;
+    g_pCurrentCar->pSceneRoot->current.up = v;
     FixMatrix_GetForward(&v, g_pCurrentCar->pWorld);
-    g_pCurrentCar->pNode0x71c->current.forward = v;
+    g_pCurrentCar->pSceneRoot->current.forward = v;
     FixMatrix_GetPosition(&v, g_pCurrentCar->pWorld);
-    g_pCurrentCar->pNode0x71c->current.position = v;
+    g_pCurrentCar->pSceneRoot->current.position = v;
 }
 
 void Car_UpdateCorners(Car *pCar);
@@ -961,13 +962,13 @@ void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc)
 {
     int i;
 
-    pDst->field_0xb54 = pSrc->field_0xd0;
-    pDst->field_0x7a4 = 0;
-    pDst->heading = pSrc->heading;
-    pDst->steerFollowRate = pSrc->field_0xb8;
+    pDst->braking = pSrc->braking;
+    pDst->engineSpeed = 0;
+    pDst->wheelSteeringAngle = pSrc->wheelSteeringAngle;
+    pDst->throttleTorque = pSrc->throttleTorque;
     pDst->velocityNext = pDst->velocity;
     pDst->field_0xb35[0] = pSrc->flag_0xcc;
-    pDst->field_0xc00 = pSrc->field_0xd4;
+    pDst->useUpperCollisionCorners = pSrc->useUpperCollisionCorners;
     pDst->velocity = pSrc->velocity;
     pDst->angularVelocity = pSrc->angularVelocity;
     FixMatrix_CopyRotation(&pSrc->matrix, pDst->pWorld);
@@ -978,13 +979,13 @@ void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc)
         pDst->cornerPrev2[i] =
             pDst->cornerPrev[i];
         pDst->cornerPrev[i] = pDst->corners[i];
-        pDst->field_0xabe[i] = pDst->wheelSurface[i];
+        pDst->previousWheelSurface[i] = pDst->wheelSurface[i];
     }
     for (i = 0; i < 8; i++) {
         pDst->cornerNormal[i] = pDst->cornerAxis[i];
         pDst->cornerOnGround[4 + i] = 0;
     }
-    pDst->field_0x7a8 = pDst->field_0x7a4;
+    pDst->field_0x7a8 = pDst->engineSpeed;
     pDst->positionPrev2 = pDst->positionPrev;
     pDst->positionPrev = pDst->position;
     pDst->normal0x498 = pDst->groundNormal;
@@ -1081,14 +1082,14 @@ void StageObject_SetPositionFromSplitVector(BYTE *pObj, FixMatrix *pRef)
     int base;
 
     if (RallyData_IsHeadToHeadRaceMode() != 0 && CGameInfo::IsSplitBarEnabled() != 0 && Race_IsMultiplayerRecordMode10() == 0) {
-        if (g_unk0x00590d8c[pObj[0]] == 0)
+        if (g_carPartStateTables.modes[pObj[0]] == 0)
             mode = 3;
-        else if (g_unk0x00590d8c[pObj[0]] == 2)
+        else if (g_carPartStateTables.modes[pObj[0]] == 2)
             mode = 4;
         else
-            mode = g_unk0x00590d8c[pObj[0]];
+            mode = g_carPartStateTables.modes[pObj[0]];
     } else {
-        mode = g_unk0x00590d8c[pObj[0]];
+        mode = g_carPartStateTables.modes[pObj[0]];
     }
     base = g_carSplitValues[g_unk0x00590ec0[pObj[0]]];
     src = ((FixVector *)base)[mode];
@@ -1222,7 +1223,7 @@ void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc)
 
     memcpy(pMat, pSrc, 0x40);
     idx = *pObj;
-    if (g_unk0x00590d8c[idx] == 2) {
+    if (g_carPartStateTables.modes[idx] == 2) {
         pMat->right.x = pRef->forward.x;
         pMat->right.y = pRef->forward.y;
         pMat->right.z = pRef->forward.z;
@@ -1238,7 +1239,7 @@ void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc)
         angle = pRef->right.z;
     }
     pMat->forward.z = angle;
-    angle = g_unk0x00590d8c[idx] == 0 ? 10 : 0;
+    angle = g_carPartStateTables.modes[idx] == 0 ? 10 : 0;
     v = (int)(__int64)((double)angle * CGraphics::m_65536);
     FixMatrix_RotateAboutRight((FixMatrix *)pMat,
                                (unsigned short)(__int64)((double)v * g_unk0x00511300));
@@ -1258,7 +1259,7 @@ void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3)
     __int64 v;
 
     memcpy(m, pSrc, 0x40);
-    if (g_unk0x00590d8c[*pObj] == 2) {
+    if (g_carPartStateTables.modes[*pObj] == 2) {
         m[0] = pSrc[8];
         m[1] = pSrc[9];
         m[2] = pSrc[10];
@@ -1273,7 +1274,7 @@ void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3)
         m[9] = pSrc[1];
         m[10] = pSrc[2];
     }
-    angle = g_unk0x00590d8c[*pObj] == 0 ? 10 : 0;
+    angle = g_carPartStateTables.modes[*pObj] == 0 ? 10 : 0;
     v = (int)(__int64)((double)angle * CGraphics::m_65536);
     FixMatrix_RotateAboutRight((FixMatrix *)m,
                                (unsigned short)(__int64)((double)(int)v * g_unk0x00511300));
@@ -1345,14 +1346,14 @@ void NetRace_ExtrapolateOrderedCarPoses(Car *pCars, short *pOrder, short count)
         pRec->velocity.z += v.z;
 
         pRec->angularVelocity = pCar->angularVelocity;
-        v.x = FixMul(pCar->field_0x5d0.x, -FixMul(pCar->inertia.x, pCar->field_0x75c));
-        v.y = FixMul(-FixMul(pCar->field_0x75c, pCar->inertia.y), pCar->field_0x5d0.y);
-        v.z = FixMul(pCar->field_0x5d0.z, -FixMul(pCar->inertia.z, pCar->field_0x75c));
+        v.x = FixMul(pCar->field_0x5d0.x, -FixMul(pCar->inertia.x, pCar->mass));
+        v.y = FixMul(-FixMul(pCar->mass, pCar->inertia.y), pCar->field_0x5d0.y);
+        v.z = FixMul(pCar->field_0x5d0.z, -FixMul(pCar->inertia.z, pCar->mass));
         pRec->angularVelocity.x += v.x;
         pRec->angularVelocity.y += v.y;
         pRec->angularVelocity.z += v.z;
 
-        pRec->field_0xd4 = pCar->field_0xc00;
+        pRec->useUpperCollisionCorners = pCar->useUpperCollisionCorners;
         pCar->field_0x960 = pRec->field_0xb4;
         NetRace_AdvanceRemoteCarAccumulator(pRec);
 
@@ -1369,9 +1370,9 @@ void NetRace_ExtrapolateOrderedCarPoses(Car *pCars, short *pOrder, short count)
                 if (az < 0)
                     az = -az;
                 if (az < 0x28f) {
-                    pCar->field_0xc00 = 0;
+                    pCar->useUpperCollisionCorners = 0;
                     pCar->field_0x96c = 0;
-                    pRec->field_0xd4 = 0;
+                    pRec->useUpperCollisionCorners = 0;
                 }
             }
         }
