@@ -1,0 +1,1 @@
+PASS: 1536 actual native Send/SetLocal/CreatePlayer/Receive scenarios; >4 GB payload/name/output/buffer pointers, COM argument identities, null/HRESULT/growth/allocation paths and full buffer guards, ASan/UBSan; COM and allocation leaves controlled

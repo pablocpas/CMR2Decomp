@@ -417,7 +417,7 @@ void CarContact_BuildBodyPatch(Car *pCar, CarContact *pContact)
     *(DWORD *)vertices[0].colour = *(DWORD *)(c0); \
     *(DWORD *)vertices[1].colour = *(DWORD *)(c1); \
     *(DWORD *)vertices[2].colour = *(DWORD *)(c2); \
-    Quad2D_QueueFixedTriangle(0, &vertices[0], &vertices[1], &vertices[2], NULL, (Quad2D *)10)
+    Quad2D_QueueFixedTriangle(0, &vertices[0], &vertices[1], &vertices[2], NULL, 10)
 
 // Octagon around the body patch (its corners cut at 5% / 95% of each edge)
 // and the solid core, 60% of its size.

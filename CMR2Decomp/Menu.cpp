@@ -25,9 +25,9 @@ unsigned int g_menuLastInput;
 char g_unk0x0059fa17;
 
 // FUNCTION: CMR2 0x0049ffd0
-void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, Menu *pParent, MenuItemCallbacks *pItemCallbacks, BYTE flag4, BYTE defaultCursor, BYTE layout)
+void Menu_Init(Menu *pMenu, char *text, short param3, int param4, Menu *pParent, MenuItemCallbacks *pItemCallbacks, BYTE flag4, BYTE defaultCursor, BYTE layout)
 {
-    pMenu->stringId = stringId;
+    pMenu->text = text;
     pMenu->field_0x4 = param3;
     pMenu->pParent = pParent == (Menu *)-1 ? NULL : pParent;
     pMenu->itemCount = 0;
@@ -55,7 +55,7 @@ void Menu_ClearNextItem(Menu *pMenu)
     MenuItem *pItem;
 
     pItem = &pMenu->items[pMenu->itemCount];
-    pItem->stringId = 0;
+    pItem->text = 0;
     pItem->type = 0;
     pItem->value = 0;
     pItem->action = NULL;
@@ -70,10 +70,10 @@ void Menu_ClearNextItem(Menu *pMenu)
 }
 
 // FUNCTION: CMR2 0x004a00a0
-void Menu_AddItemType3(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, BYTE flag2, int unused, MenuItemAction action, short value)
+void Menu_AddItemType3(Menu *pMenu, char *text, short id, BYTE min, BYTE max, BYTE flag2, int unused, MenuItemAction action, short value)
 {
     Menu_ClearNextItem(pMenu);
-    pMenu->items[pMenu->itemCount].stringId = stringId;
+    pMenu->items[pMenu->itemCount].text = text;
     pMenu->items[pMenu->itemCount].id = id;
     pMenu->items[pMenu->itemCount].type = 3;
     pMenu->items[pMenu->itemCount].min = min;
@@ -85,10 +85,10 @@ void Menu_AddItemType3(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, 
 }
 
 // FUNCTION: CMR2 0x004a0150
-void Menu_AddItemType6(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, BYTE flag2, int unused, MenuItemAction action, short value)
+void Menu_AddItemType6(Menu *pMenu, char *text, short id, BYTE min, BYTE max, BYTE flag2, int unused, MenuItemAction action, short value)
 {
     Menu_ClearNextItem(pMenu);
-    pMenu->items[pMenu->itemCount].stringId = stringId;
+    pMenu->items[pMenu->itemCount].text = text;
     pMenu->items[pMenu->itemCount].id = id;
     pMenu->items[pMenu->itemCount].type = 6;
     pMenu->items[pMenu->itemCount].min = min;
@@ -100,10 +100,10 @@ void Menu_AddItemType6(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, 
 }
 
 // FUNCTION: CMR2 0x004a0200
-void Menu_AddItemType4(Menu *pMenu, int stringId, short id, MenuItemAction action, short value)
+void Menu_AddItemType4(Menu *pMenu, char *text, short id, MenuItemAction action, short value)
 {
     Menu_ClearNextItem(pMenu);
-    pMenu->items[pMenu->itemCount].stringId = stringId;
+    pMenu->items[pMenu->itemCount].text = text;
     pMenu->items[pMenu->itemCount].id = id;
     pMenu->items[pMenu->itemCount].type = 4;
     pMenu->items[pMenu->itemCount].value = value;
@@ -112,10 +112,10 @@ void Menu_AddItemType4(Menu *pMenu, int stringId, short id, MenuItemAction actio
 }
 
 // FUNCTION: CMR2 0x004a0270
-void Menu_AddItemType1(Menu *pMenu, int stringId, short id, MenuItemAction action, short value)
+void Menu_AddItemType1(Menu *pMenu, char *text, short id, MenuItemAction action, short value)
 {
     Menu_ClearNextItem(pMenu);
-    pMenu->items[pMenu->itemCount].stringId = stringId;
+    pMenu->items[pMenu->itemCount].text = text;
     pMenu->items[pMenu->itemCount].id = id;
     pMenu->items[pMenu->itemCount].type = 1;
     pMenu->items[pMenu->itemCount].value = value;
@@ -124,10 +124,10 @@ void Menu_AddItemType1(Menu *pMenu, int stringId, short id, MenuItemAction actio
 }
 
 // FUNCTION: CMR2 0x004a02e0
-void Menu_AddItemType2(Menu *pMenu, int stringId, short id, Menu *pSubMenu, MenuItemAction action, short value)
+void Menu_AddItemType2(Menu *pMenu, char *text, short id, Menu *pSubMenu, MenuItemAction action, short value)
 {
     Menu_ClearNextItem(pMenu);
-    pMenu->items[pMenu->itemCount].stringId = stringId;
+    pMenu->items[pMenu->itemCount].text = text;
     pMenu->items[pMenu->itemCount].id = id;
     pMenu->items[pMenu->itemCount].type = 2;
     pMenu->items[pMenu->itemCount].pSubMenu = pSubMenu;

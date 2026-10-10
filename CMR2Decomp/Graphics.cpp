@@ -4777,9 +4777,9 @@ void Graphics_DrawProjectedQuad(GlowLight *pSurface, FixVector *pPoint, FixVecto
     for (i = 0; i < 4; i++)
         *(DWORD *)g_projectedQuad[i].colour = *(DWORD *)colour;
     Quad2D_QueueFixedTriangle(0, &g_projectedQuad[0], &g_projectedQuad[1], &g_projectedQuad[2],
-                              pSurface->pTexture, (Quad2D *)0xe);
+                              pSurface->pTexture, 0xe);
     Quad2D_QueueFixedTriangle(0, &g_projectedQuad[0], &g_projectedQuad[2], &g_projectedQuad[3],
-                              pSurface->pTexture, (Quad2D *)0xe);
+                              pSurface->pTexture, 0xe);
 }
 
 // FUNCTION: CMR2 0x004b1970
@@ -4870,9 +4870,9 @@ void Graphics_DrawLayerQuad(GlowLight *pSurface, FixVector *pTarget)
         *(DWORD *)g_layerQuad[i].colour = *(DWORD *)colour;
     }
     Quad2D_QueueFixedTriangle(0, &g_layerQuad[0], &g_layerQuad[1], &g_layerQuad[2],
-                              pSurface->pLayerTexture, (Quad2D *)0x16);
+                              pSurface->pLayerTexture, 0x16);
     Quad2D_QueueFixedTriangle(0, &g_layerQuad[0], &g_layerQuad[2], &g_layerQuad[3],
-                              pSurface->pLayerTexture, (Quad2D *)0x16);
+                              pSurface->pLayerTexture, 0x16);
 }
 // Reserves a free glow slot and copies its position, direction, and draw settings.
 // Free glow light slot, or NULL when all are in use.

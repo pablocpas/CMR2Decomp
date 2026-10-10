@@ -1,0 +1,1 @@
+PASS: 576 complete Send/SetLocal scenarios; COM payload/id/size/flags argument models, HRESULT/null paths, full heap guards, stdcall/callee-saved ABI

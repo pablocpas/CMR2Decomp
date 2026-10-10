@@ -2852,7 +2852,7 @@ void Game_DispatchObjectTypeUpdate(BYTE *pObject, BYTE *pInfo)
 }
 
 // FUNCTION: CMR2 0x004238e0
-void Game_UpdateType3ObjectState(Unk004238e0 *param1, int param2)
+void Game_UpdateType3ObjectState(Unk004238e0 *param1, void *param2)
 {
     if (param1->field_0x4 == 3)
         Game_SetObjectRenderModeZero(param1);
@@ -3244,16 +3244,18 @@ bool Network_EnumerateServiceProviders(void)
     return false;
 }
 
+typedef HRESULT (__stdcall *DPSetPlayerDataFn)(void *pThis, DPID player, void *data, DWORD size, DWORD flags);
+
 // Sets the local player data (guaranteed).
 // FUNCTION: CMR2 0x004a1cb0
-char Network_SetLocalPlayerData(int data, int size)
+char Network_SetLocalPlayerData(void *data, int size)
 {
     IDirectPlay4A *pDP;
     HRESULT hr;
 
     pDP = CGame::GetDirectPlay();
     if (pDP != NULL) {
-        hr = ((DPMethod4)(*(void ***)pDP)[0x74 / 4])(pDP, CGame::m_localPlayerId, data, size, 2);
+        hr = ((DPSetPlayerDataFn)(*(void ***)pDP)[0x74 / 4])(pDP, CGame::m_localPlayerId, data, size, 2);
         if (hr > (HRESULT)0x88770082 && hr != (HRESULT)0x88770096 &&
             hr != (HRESULT)0x88770168 && hr == 0)
             return 1;
@@ -3264,7 +3266,7 @@ char Network_SetLocalPlayerData(int data, int size)
 // Sends a message to a player (0 = all), guaranteed when requested.
 // match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1c50
-char Network_SendPlayerMessage(int to, int guaranteed, int data, int size)
+char Network_SendPlayerMessage(int to, int guaranteed, void *data, int size)
 {
     BOOL flags;
     IDirectPlay4A *pDP;
@@ -3276,7 +3278,7 @@ char Network_SendPlayerMessage(int to, int guaranteed, int data, int size)
         flags = FALSE;
     pDP = CGame::GetDirectPlay();
     if (pDP != NULL) {
-        hr = ((DPSendFn)(*(void ***)pDP)[0x68 / 4])(pDP, CGame::m_localPlayerId, to, flags, (void *)data, size);
+        hr = ((DPSendFn)(*(void ***)pDP)[0x68 / 4])(pDP, CGame::m_localPlayerId, to, flags, data, size);
         if (hr > (HRESULT)0x8877010e && hr != (HRESULT)0x88770816 && hr == 0)
             return 1;
     }
@@ -3289,20 +3291,20 @@ typedef HRESULT (__stdcall *DPMethod6)(void *pThis, DWORD a1, DWORD a2, DWORD a3
 // GLOBAL: CMR2 0x005a1fa8
 DPNAME g_networkPlayerName;
 // FUNCTION: CMR2 0x004a1a10
-int Network_CreateLocalPlayer(int param1, int param2, int param3, int param4)
+int Network_CreateLocalPlayer(char *param1, char *param2, void *param3, int param4)
 {
     IDirectPlay4A *pDP;
     HRESULT hr;
 
     memset(&g_networkPlayerName, 0, sizeof(g_networkPlayerName));
     g_networkPlayerName.dwSize = sizeof(g_networkPlayerName);
-    g_networkPlayerName.lpszShortNameA = (char *)param1;
-    g_networkPlayerName.lpszLongNameA = (char *)param2;
+    g_networkPlayerName.lpszShortNameA = param1;
+    g_networkPlayerName.lpszLongNameA = param2;
     pDP = CGame::GetDirectPlay();
     if (pDP == NULL)
         return 0;
     hr = pDP->CreatePlayer(&CGame::m_localPlayerId, &g_networkPlayerName, NULL,
-                          (void *)param3, param4, 0);
+                          param3, param4, 0);
     if (hr <= (HRESULT)0x88770078 || hr == (HRESULT)0x887700aa || hr != 0)
         return 0;
     CGame::m_unk0x005a1fc0 = 1;
@@ -3387,14 +3389,14 @@ bool Network_AddSessionPlayerSlot(BYTE param1)
 
 // Enumera las sesiones o vuelca el buffer recibido en *param2.
 // FUNCTION: CMR2 0x004a1b90
-int Network_PollReceivedMessageBuffer(int param1, void **param2)
+int Network_PollReceivedMessageBuffer(DWORD *param1, void **param2)
 {
     DWORD bufferSize = CGame::m_unk0x005a1fbc;
     DPID receiver;
     IDirectPlay4A *pDP = CGame::GetDirectPlay();
     if (pDP == NULL)
         return 0;
-    HRESULT hr = pDP->Receive((LPDPID)param1, &receiver, DPRECEIVE_ALL,
+    HRESULT hr = pDP->Receive(param1, &receiver, DPRECEIVE_ALL,
                              CGame::m_unk0x005a1fb8, &bufferSize);
     if (hr <= DPERR_INVALIDOBJECT) {
         if (hr == DPERR_INVALIDOBJECT || hr == DPERR_GENERIC || hr == DPERR_INVALIDPARAMS ||

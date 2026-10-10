@@ -461,6 +461,13 @@
       "0x4a0380"
     ]
   },
+  "differential_menu_text_pointers.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x401870",
+      "0x401d20"
+    ]
+  },
   "differential_mesh_parts.py": {
     "arguments": "object",
     "object": "Mesh.obj",
@@ -498,6 +505,13 @@
     "arguments": "both",
     "targets": [
       "0x427580"
+    ]
+  },
+  "differential_network_pointer_transport.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4a1c50",
+      "0x4a1cb0"
     ]
   },
   "differential_network_results.py": {
@@ -564,6 +578,13 @@
     "targets": [
       "0x506bb0",
       "0x505f10"
+    ]
+  },
+  "differential_quad_queue.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4bbc60",
+      "0x4bba00"
     ]
   },
   "differential_race_estimates.py": {

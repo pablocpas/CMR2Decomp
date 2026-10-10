@@ -2,6 +2,7 @@
 #include "Car.h"
 #include "Collision2D.h"
 #include "TrackCollisionData.h"
+#include "Sprite.h"
 #include "Sector.h"
 #include "CarResources.h"
 #include "CarPhysics.h"
@@ -810,3 +811,52 @@ CMR2_LAYOUT_CHECK(TrackCollisionTables_traversalLevels_Check, offsetof(TrackColl
 CMR2_LAYOUT_CHECK(TrackCollisionTablesLevelsSizeCheck, sizeof(((TrackCollisionTables *)0)->levels) == 0x14);
 CMR2_LAYOUT_CHECK(TrackCollisionTablesTraversalSizeCheck, sizeof(((TrackCollisionTables *)0)->traversalLevels) == 0x18);
 CMR2_LAYOUT_CHECK(TrackTriangleIndicesSizeCheck, sizeof(((TrackTriangle *)0)->v) == 6);
+
+// Runtime queued triangle records and fixed render/input vertices (Win32).
+CMR2_LAYOUT_CHECK(Quad2DRenderVertexSizeCheck, sizeof(Quad2DRenderVertex) == 0x30);
+CMR2_LAYOUT_CHECK(Quad2DRenderVertex_x_Check, offsetof(Quad2DRenderVertex, x) == 0x0);
+CMR2_LAYOUT_CHECK(Quad2DRenderVertex_y_Check, offsetof(Quad2DRenderVertex, y) == 0x4);
+CMR2_LAYOUT_CHECK(Quad2DRenderVertex_z_Check, offsetof(Quad2DRenderVertex, z) == 0x8);
+CMR2_LAYOUT_CHECK(Quad2DRenderVertex_pad0x0c_Check, offsetof(Quad2DRenderVertex, pad0x0c) == 0xc);
+CMR2_LAYOUT_CHECK(Quad2DRenderVertex_colour_Check, offsetof(Quad2DRenderVertex, colour) == 0x18);
+CMR2_LAYOUT_CHECK(Quad2DRenderVertex_specular_Check, offsetof(Quad2DRenderVertex, specular) == 0x1c);
+CMR2_LAYOUT_CHECK(Quad2DRenderVertex_u_Check, offsetof(Quad2DRenderVertex, u) == 0x20);
+CMR2_LAYOUT_CHECK(Quad2DRenderVertex_v_Check, offsetof(Quad2DRenderVertex, v) == 0x24);
+CMR2_LAYOUT_CHECK(Quad2DRenderVertex_pad0x28_Check, offsetof(Quad2DRenderVertex, pad0x28) == 0x28);
+CMR2_LAYOUT_CHECK(Quad2DVerticesSizeCheck, sizeof(Quad2DVertices) == 0x90);
+CMR2_LAYOUT_CHECK(Quad2DVertices_v_Check, offsetof(Quad2DVertices, v) == 0x0);
+CMR2_LAYOUT_CHECK(Quad2DSizeCheck, sizeof(Quad2D) == 0x98);
+CMR2_LAYOUT_CHECK(Quad2D_verts_Check, offsetof(Quad2D, verts) == 0x0);
+CMR2_LAYOUT_CHECK(Quad2D_pTexture_Check, offsetof(Quad2D, pTexture) == 0x90);
+CMR2_LAYOUT_CHECK(Quad2D_flags_Check, offsetof(Quad2D, flags) == 0x94);
+CMR2_LAYOUT_CHECK(Quad2DInputVertexSizeCheck, sizeof(Quad2DInputVertex) == 0x18);
+CMR2_LAYOUT_CHECK(Quad2DInputVertex_x_Check, offsetof(Quad2DInputVertex, x) == 0x0);
+CMR2_LAYOUT_CHECK(Quad2DInputVertex_y_Check, offsetof(Quad2DInputVertex, y) == 0x4);
+CMR2_LAYOUT_CHECK(Quad2DInputVertex_z_Check, offsetof(Quad2DInputVertex, z) == 0x8);
+CMR2_LAYOUT_CHECK(Quad2DInputVertex_colour_Check, offsetof(Quad2DInputVertex, colour) == 0xc);
+CMR2_LAYOUT_CHECK(Quad2DInputVertex_u_Check, offsetof(Quad2DInputVertex, u) == 0x10);
+CMR2_LAYOUT_CHECK(Quad2DInputVertex_v_Check, offsetof(Quad2DInputVertex, v) == 0x14);
+
+// Optional literal text pointers of runtime menus (localized ids remain shorts).
+CMR2_LAYOUT_CHECK(MenuItem_text_Check, offsetof(MenuItem, text) == 0x0);
+CMR2_LAYOUT_CHECK(MenuItem_id_Check, offsetof(MenuItem, id) == 0x4);
+CMR2_LAYOUT_CHECK(MenuItem_type_Check, offsetof(MenuItem, type) == 0x7);
+CMR2_LAYOUT_CHECK(MenuItem_value_Check, offsetof(MenuItem, value) == 0x8);
+CMR2_LAYOUT_CHECK(MenuItem_min_Check, offsetof(MenuItem, min) == 0xa);
+CMR2_LAYOUT_CHECK(MenuItem_max_Check, offsetof(MenuItem, max) == 0xb);
+CMR2_LAYOUT_CHECK(MenuItem_pSubMenu_Check, offsetof(MenuItem, pSubMenu) == 0xc);
+CMR2_LAYOUT_CHECK(Menu_text_Check, offsetof(Menu, text) == 0x0);
+CMR2_LAYOUT_CHECK(Menu_field_0x4_Check, offsetof(Menu, field_0x4) == 0x4);
+CMR2_LAYOUT_CHECK(Menu_itemCount_Check, offsetof(Menu, itemCount) == 0x6);
+CMR2_LAYOUT_CHECK(Menu_cursor_Check, offsetof(Menu, cursor) == 0x7);
+CMR2_LAYOUT_CHECK(Menu_pParent_Check, offsetof(Menu, pParent) == 0x8);
+CMR2_LAYOUT_CHECK(Menu_defaultCursor_Check, offsetof(Menu, defaultCursor) == 0xc);
+CMR2_LAYOUT_CHECK(Menu_layout_Check, offsetof(Menu, layout) == 0xd);
+CMR2_LAYOUT_CHECK(Menu_moveFlags_Check, offsetof(Menu, moveFlags) == 0xf);
+CMR2_LAYOUT_CHECK(Menu_value_Check, offsetof(Menu, value) == 0x10);
+CMR2_LAYOUT_CHECK(Menu_pfnCallback0_Check, offsetof(Menu, pfnCallback0) == 0x1cc);
+CMR2_LAYOUT_CHECK(Menu_pfnCallback1_Check, offsetof(Menu, pfnCallback1) == 0x1d0);
+CMR2_LAYOUT_CHECK(Menu_pfnCallback2_Check, offsetof(Menu, pfnCallback2) == 0x1d4);
+CMR2_LAYOUT_CHECK(Menu_pfnCallback3_Check, offsetof(Menu, pfnCallback3) == 0x1d8);
+CMR2_LAYOUT_CHECK(Menu_pItemCallbacks_Check, offsetof(Menu, pItemCallbacks) == 0x1dc);
+

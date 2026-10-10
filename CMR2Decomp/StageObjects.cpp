@@ -1410,8 +1410,8 @@ void CarEffects_DrawTyreMarks(int index)
                         pTexture = g_unk0x00588740;
                         break;
                     }
-                    Quad2D_QueueFixedTriangle(0, &b, &a, &c, pTexture, (Quad2D *)0x26);
-                    Quad2D_QueueFixedTriangle(0, &d, &b, &c, pTexture, (Quad2D *)0x26);
+                    Quad2D_QueueFixedTriangle(0, &b, &a, &c, pTexture, 0x26);
+                    Quad2D_QueueFixedTriangle(0, &d, &b, &c, pTexture, 0x26);
                 } while (step > 1);
             }
             j += step;
@@ -9712,7 +9712,7 @@ int CarInterior_UpdateSteeringBlendFraction(int car, Car *pCar)
 // signatures come from the original's `ret N`; the bodies are empty so the
 // calls sites compile and reccmp can measure the callers.
 int Scene_ApplyGroundLightToMeshTree(SceneNode *pNode, int param_2);
-void Sound_NoOpMusicCallback(int unused);
+void Sound_NoOpMusicCallback(INT_PTR unused);
 
 // Runs Scene_ApplyGroundLightToMeshTree on a node, then Sound_NoOpMusicCallback; returns the first result.
 // FUNCTION: CMR2 0x004b5320
@@ -9721,7 +9721,7 @@ int StageObject_RunNodeActionAndSoundCallback(void *pNode, int value)
     int result;
 
     result = Scene_ApplyGroundLightToMeshTree((SceneNode *)pNode, value);
-    Sound_NoOpMusicCallback((int)pNode);
+    Sound_NoOpMusicCallback((INT_PTR)pNode);
     return result;
 }
 
@@ -14362,7 +14362,7 @@ int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 
 struct Quad2DVertices;
 struct Quad2D;
-void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, Quad2D *pDest);
+void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, UINT_PTR pDest);
 int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar);
 void Scene_GetLightColour(DWORD *pColour, int level);
 extern BYTE g_unk0x00543da0Block[0x90];
@@ -14447,7 +14447,7 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
             WEATHER_QUAD(0x68) -= sideF[0];
             WEATHER_QUAD(0x6c) -= sideF[1];
             WEATHER_QUAD(0x70) -= sideF[2];
-            Quad2D_Queue((Quad2DVertices *)(g_unk0x00543da0Block + 8), g_unk0x00543e90, (Quad2D *)0x16);
+            Quad2D_Queue((Quad2DVertices *)(g_unk0x00543da0Block + 8), g_unk0x00543e90, 0x16);
             if (pNode->wrapped != 0) {
                 forward = *(FixVector *)pNode;
                 forward.y -= 0xc0000;
@@ -14834,7 +14834,7 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
 int StageObject_IsCarOutsideCollisionHeightInterval(void);
 int Collision_ResolveSectorEdgeContact(char type, int param);
 int VehiclePhysics_ClassifyCandidateFace(int param_1);
-void Sound_NoOpMusicCallback(int unused);
+void Sound_NoOpMusicCallback(INT_PTR unused);
 void CarPhysics_UpdateWheelSlipAndVelocityDamping(Car *param_1);
 void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *param_3, int param_4, unsigned char param_5, int param_6);
 

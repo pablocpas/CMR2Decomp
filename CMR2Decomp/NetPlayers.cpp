@@ -67,9 +67,9 @@ BYTE *NetworkLeaderboard_GetPublishedBoard(void);
 int Network_FindSessionPlayerIndex(DPID *pId, char *pIndex);
 char *Network_GetActiveSessionPlayerLongName(BYTE index);
 DPID Network_GetLocalPlayerID(void);
-char Network_SetLocalPlayerData(int data, int size);
+char Network_SetLocalPlayerData(void *data, int size);
 unsigned int StageTiming_GetDriverSplitClock(int index, int split);
-char Network_SendPlayerMessage(int to, int guaranteed, int data, int size);
+char Network_SendPlayerMessage(int to, int guaranteed, void *data, int size);
 
 // FUNCTION: CMR2 0x00409a30
 void NetPlayers_ResetAllTables(void)
@@ -141,7 +141,7 @@ void NetPlayers_ClearReadyFlags(void)
 }
 
 // FUNCTION: CMR2 0x00409be0
-void NetPlayers_SetNotificationMask(int param)
+void NetPlayers_SetNotificationMask(void *param)
 {
     Network_SetLocalPlayerData(param, 0x10);
 }
@@ -808,7 +808,7 @@ void NetPlayers_SendCarClass(BYTE carClass)
 
     msg[0] = 6;
     msg[1] = carClass;
-    Network_SendPlayerMessage(0, 1, (int)msg, 2);
+    Network_SendPlayerMessage(0, 1, msg, 2);
 }
 
 // FUNCTION: CMR2 0x0040ac70
@@ -936,7 +936,7 @@ void NetPlayers_SendType16Notification(void)
     BYTE msg;
 
     msg = 0x10;
-    Network_SendPlayerMessage(0, 1, (int)&msg, 1);
+    Network_SendPlayerMessage(0, 1, &msg, 1);
 }
 
 // FUNCTION: CMR2 0x0040af60
@@ -958,7 +958,7 @@ void NetPlayers_SendPublishedLeaderboard(void)
     } else {
         msg.valid = 0;
     }
-    Network_SendPlayerMessage(0, 1, (int)&msg, sizeof(msg));
+    Network_SendPlayerMessage(0, 1, &msg, sizeof(msg));
 }
 
 // FUNCTION: CMR2 0x0040afb0

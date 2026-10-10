@@ -1623,7 +1623,7 @@ extern BYTE g_unk0x00818ce4;
 DPID Network_GetLocalPlayerID(void);
 BYTE RallyData_GetDriverRecordSelectionValue(BYTE index);
 BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
-void NetPlayers_SetNotificationMask(int param);
+void NetPlayers_SetNotificationMask(void *param);
 
 // Sends this machine's player description (id, car, flags) to the network
 // player list.
@@ -1640,7 +1640,7 @@ void FrontendNetwork_SendPlayerDescription(void)
     info.bits.active = 1;
     info.bits.ready = 0;
     info.bits.finished = 0;
-    NetPlayers_SetNotificationMask((int)&info);
+    NetPlayers_SetNotificationMask(&info);
 }
 
 void RallyData_PickOpponentLineups(void);
@@ -1661,9 +1661,9 @@ void Session_SetOpen(char open);
 int Session_GetUserValue(BYTE index);
 void Network_SetSessionDescription(DPSESSIONDESC2 *pDesc);
 void Network_RemoveSessionPlayerByID(DPID *pId);
-int Network_CreateLocalPlayer(int param1, int param2, int param3, int param4);
-int Network_PollReceivedMessageBuffer(int param1, void **param2);
-char Network_SendPlayerMessage(int to, int guaranteed, int data, int size);
+int Network_CreateLocalPlayer(char *param1, char *param2, void *param3, int param4);
+int Network_PollReceivedMessageBuffer(DWORD *param1, void **param2);
+char Network_SendPlayerMessage(int to, int guaranteed, void *data, int size);
 void NetworkChat_AppendLine(DPID *pFrom, char *text, char local);
 void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
 void RallyData_SetDriverCategoryOption(BYTE index, BYTE value);
@@ -1765,7 +1765,7 @@ void FrontendNetwork_SendSetupPacket(void)
     }
     packet.field_0x14 = GameInfo_GetSessionField397C();
     FrontendNetwork_WriteSetupPacket((BYTE *)&packet);
-    Network_SendPlayerMessage(0, 1, (int)&packet, 0x1c4);
+    Network_SendPlayerMessage(0, 1, &packet, 0x1c4);
 }
 
 // Message handler of the joining side: session data, player info and the
@@ -1902,7 +1902,7 @@ void FrontendNetwork_DrainMessageQueue(void)
     DPID from;
     void *pData;
 
-    while (Network_PollReceivedMessageBuffer((int)&from, &pData) != 0) {
+    while (Network_PollReceivedMessageBuffer(&from, &pData) != 0) {
         if (from == 0)
             FrontendNetwork_HandleJoinerMessage(&from, (unsigned int *)pData);
         else
@@ -1944,7 +1944,7 @@ char FrontendNetwork_SendLobbyPlayerDescription(void)
 
     info[0] = Network_GetLocalPlayerID();
     info[1] = (RallyData_GetDriverRecordSelectionValue(0) & 0x1f) | (info[1] & 0xffffffe0) | 0x80;
-    return Network_CreateLocalPlayer((int)RallyData_GetRecord(0), (int)RallyData_GetRecord(0), (int)info, 0x10);
+    return Network_CreateLocalPlayer((char *)RallyData_GetRecord(0), (char *)RallyData_GetRecord(0), info, 0x10);
 }
 
 // The GUID of the session the browser list currently points at.
@@ -2360,7 +2360,7 @@ void FrontendNetwork_StartHostRace(Menu *pMenu, int param)
         }
         packet.field_0x14 = GameInfo_GetSessionField397C();
         FrontendNetwork_WriteSetupPacket((BYTE *)&packet);
-        Network_SendPlayerMessage(0, 1, (int)&packet, 0x1c4);
+        Network_SendPlayerMessage(0, 1, &packet, 0x1c4);
         NetPlayers_ResetRaceReadyAndTimeState(1, 1);
         NetPlayers_ResetBestTimes();
         NetPlayers_ResetStageState(0, 1);
@@ -5294,7 +5294,7 @@ void FrontendMenu_EnterRallyProfile(Menu *pMenu, char back)
             sprintf(g_profileEntryTexts[i], CFrontend::GetTextString(0x17f), SaveProfiles_GetAvailableProfileName(i));
             pMenu->items[i + 2].enabled = 1;
             pMenu->items[i + 2].visible = 1;
-            pMenu->items[i + 2].stringId = (int)g_profileEntryTexts[i];
+            pMenu->items[i + 2].text = g_profileEntryTexts[i];
         } else {
             pMenu->items[i + 2].enabled = 0;
             pMenu->items[i + 2].visible = 0;
@@ -6595,7 +6595,7 @@ void FrontendMenu_EnterMultiplayerProfile(Menu *pMenu, char back)
             sprintf(g_profileEntryTexts[i], CFrontend::GetTextString(0x17e), SaveProfiles_GetAvailableProfileName(i));
             pMenu->items[i + 3].enabled = 1;
             pMenu->items[i + 3].visible = 1;
-            pMenu->items[i + 3].stringId = (int)g_profileEntryTexts[i];
+            pMenu->items[i + 3].text = g_profileEntryTexts[i];
         } else {
             pMenu->items[i + 3].enabled = 0;
             pMenu->items[i + 3].visible = 0;

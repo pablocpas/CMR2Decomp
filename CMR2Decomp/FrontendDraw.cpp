@@ -126,8 +126,8 @@ int FrontendDraw_MenuPath(Menu *pMenu, int x, int y, char last, int depth, char 
             pColour = g_colourText0x0052496c;
         if (ppNames != NULL && nameCount > 0 && last == 0)
             strcpy(CFrontend::m_stringDest, ppNames[nameCount - 1]);
-        else if (pMenu->stringId != 0)
-            strcpy(CFrontend::m_stringDest, (char *)pMenu->stringId);
+        else if (pMenu->text != 0)
+            strcpy(CFrontend::m_stringDest, pMenu->text);
         else
             strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->field_0x4));
         pos = FrontendDraw_BreadcrumbItem(pos, y, pColour, last, CFrontend::m_stringDest);
@@ -439,7 +439,7 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
                     Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, &dst, CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, pColour, 8);
                 }
                 if (pMenu->items[curFirst].id == -1)
-                    Font_DrawText(1, (char *)pMenu->items[curFirst].stringId, x,
+                    Font_DrawText(1, pMenu->items[curFirst].text, x,
                                   (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
                 else
                     Font_DrawText(1, CFrontend::GetTextString(pMenu->items[curFirst].id), x,

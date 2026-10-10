@@ -24,9 +24,9 @@ unsigned int g_tri2DCount2;
 unsigned int g_tri2DCount3;
 unsigned int g_tri2DCount4;
 // GLOBAL: CMR2 0x0081616c
-unsigned int g_unk0x0081616c;
+unsigned int g_quad2DCountA;
 // GLOBAL: CMR2 0x00816170
-unsigned int g_unk0x00816170;
+unsigned int g_quad2DCountB;
 
 // Screen-space quads of each sprite layer, four vertices per sprite.
 // GLOBAL: CMR2 0x005a2858
@@ -210,8 +210,8 @@ int Tri2D_Shutdown(void)
     g_tri2DCount1 = 0;
     g_tri2DCount2 = 0;
     g_tri2DCount4 = 0;
-    g_unk0x00816170 = 0;
-    g_unk0x0081616c = 0;
+    g_quad2DCountB = 0;
+    g_quad2DCountA = 0;
     g_tri2DEnabled = 0;
     return 1;
 }
@@ -224,8 +224,8 @@ void Tri2D_Init(void)
     g_tri2DCount2 = 0;
     g_tri2DCount3 = 0;
     g_tri2DCount4 = 0;
-    g_unk0x0081616c = 0;
-    g_unk0x00816170 = 0;
+    g_quad2DCountA = 0;
+    g_quad2DCountB = 0;
     CGame::RegisterCallback(Tri2D_Shutdown, NULL);
 }
 
@@ -601,29 +601,6 @@ void Tri2D_DrawLayer(int layer)
     CGraphics::InvalidateBlendStateCache();
 }
 
-struct Quad2DRenderVertex {
-    float x;
-    float y;
-    float z;
-    BYTE pad0x0c[0xc];
-    DWORD colour;
-    DWORD specular;
-    float u;
-    float v;
-    BYTE pad0x28[8];
-};
-
-// Three 0x30-byte render vertices plus texture and flags.
-struct Quad2DVertices {
-    Quad2DRenderVertex v[3];
-};
-
-struct Quad2D {
-    Quad2DVertices verts;   // 0x0
-    Texture *pTexture;      // 0x90
-    unsigned int flags;     // 0x94
-};
-
 // GLOBAL: CMR2 0x007dd168
 Quad2D g_quad2DLayerA[0x400];
 // GLOBAL: CMR2 0x00803168
@@ -641,31 +618,33 @@ BYTE g_quad2DConvertOverflow;
 // GLOBAL: CMR2 0x0081618d
 BYTE g_quad2DOverflow;
 
+// pDest carries either numeric layer flags or a native destination address.
+// flags retains only the 32-bit render mask; it is never used to rebuild p.
 // Queues a quad into the layer selected by the low bits of pDest (8, 0x10,
 // 0x20, 0x40); with none of those bits set pDest is the destination itself.
 // match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004bbc60
-void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, Quad2D *pDest)
+void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, UINT_PTR pDest)
 {
     Quad2D *p;
 
-    if ((unsigned int)pDest & 8) {
-        if (g_unk0x0081616c >= 0x400) {
+    if (pDest & 8) {
+        if (g_quad2DCountA >= 0x400) {
             if (g_quad2DOverflow == 0)
                 g_quad2DOverflow = 1;
             return;
         }
-        p = &g_quad2DLayerA[g_unk0x0081616c];
-        g_unk0x0081616c++;
-    } else if ((unsigned int)pDest & 0x10) {
-        if (g_unk0x00816170 >= 0x200) {
+        p = &g_quad2DLayerA[g_quad2DCountA];
+        g_quad2DCountA++;
+    } else if (pDest & 0x10) {
+        if (g_quad2DCountB >= 0x200) {
             if (g_quad2DOverflow == 0)
                 g_quad2DOverflow = 1;
             return;
         }
-        p = &g_quad2DLayerB[g_unk0x00816170];
-        g_unk0x00816170++;
-    } else if ((unsigned int)pDest & 0x20) {
+        p = &g_quad2DLayerB[g_quad2DCountB];
+        g_quad2DCountB++;
+    } else if (pDest & 0x20) {
         if (g_quad2DCountC >= 0x800) {
             if (g_quad2DOverflow == 0)
                 g_quad2DOverflow = 1;
@@ -673,7 +652,7 @@ void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, Quad2D *pDest)
         }
         p = &g_quad2DLayerC[g_quad2DCountC];
         g_quad2DCountC++;
-    } else if ((unsigned int)pDest & 0x40) {
+    } else if (pDest & 0x40) {
         if (g_quad2DCountD >= 1) {
             if (g_quad2DOverflow == 0)
                 g_quad2DOverflow = 1;
@@ -682,7 +661,7 @@ void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, Quad2D *pDest)
         p = &g_quad2DLayerD[g_quad2DCountD];
         g_quad2DCountD++;
     } else {
-        p = (Quad2D *)((unsigned int)pDest);
+        p = (Quad2D *)pDest;
     }
     p->flags = (unsigned int)pDest;
     p->pTexture = pTexture;
@@ -737,13 +716,13 @@ void Quad2D_DrawLayer(unsigned int layer)
     lastFlags = 0xffffffff;
     CGraphics::m_pTextureManager->pVertexBuffer1->Lock(DDLOCK_WAIT | DDLOCK_WRITEONLY, (LPVOID *)&pData, NULL);
     if (layer & 8) {
-        count = g_unk0x0081616c;
+        count = g_quad2DCountA;
         pQuad = g_quad2DLayerA;
-        g_unk0x0081616c = 0;
+        g_quad2DCountA = 0;
     } else if (layer & 0x10) {
-        count = g_unk0x00816170;
+        count = g_quad2DCountB;
         pQuad = g_quad2DLayerB;
-        g_unk0x00816170 = 0;
+        g_quad2DCountB = 0;
     } else if (layer & 0x20) {
         count = g_quad2DCountC;
         pQuad = g_quad2DLayerC;
@@ -805,27 +784,27 @@ void Quad2D_DrawLayer(unsigned int layer)
 void Quad2D_QueueFixedTriangle(int, Quad2DInputVertex *pA,
                                Quad2DInputVertex *pB,
                                Quad2DInputVertex *pC, Texture *pTexture,
-                               Quad2D *pDest)
+                               UINT_PTR pDest)
 {
     Quad2D *p;
 
-    if ((unsigned int)pDest & 8) {
-        if (g_unk0x0081616c >= 0x400) {
+    if (pDest & 8) {
+        if (g_quad2DCountA >= 0x400) {
             if (g_quad2DConvertOverflow == 0)
                 g_quad2DConvertOverflow = 1;
             return;
         }
-        p = &g_quad2DLayerA[g_unk0x0081616c];
-        g_unk0x0081616c++;
-    } else if ((unsigned int)pDest & 0x10) {
-        if (g_unk0x00816170 >= 0x200) {
+        p = &g_quad2DLayerA[g_quad2DCountA];
+        g_quad2DCountA++;
+    } else if (pDest & 0x10) {
+        if (g_quad2DCountB >= 0x200) {
             if (g_quad2DConvertOverflow == 0)
                 g_quad2DConvertOverflow = 1;
             return;
         }
-        p = &g_quad2DLayerB[g_unk0x00816170];
-        g_unk0x00816170++;
-    } else if ((unsigned int)pDest & 0x20) {
+        p = &g_quad2DLayerB[g_quad2DCountB];
+        g_quad2DCountB++;
+    } else if (pDest & 0x20) {
         if (g_quad2DCountC >= 0x800) {
             if (g_quad2DConvertOverflow == 0)
                 g_quad2DConvertOverflow = 1;
@@ -833,7 +812,7 @@ void Quad2D_QueueFixedTriangle(int, Quad2DInputVertex *pA,
         }
         p = &g_quad2DLayerC[g_quad2DCountC];
         g_quad2DCountC++;
-    } else if ((unsigned int)pDest & 0x40) {
+    } else if (pDest & 0x40) {
         if (g_quad2DCountD >= 1) {
             if (g_quad2DConvertOverflow == 0)
                 g_quad2DConvertOverflow = 1;
@@ -842,7 +821,7 @@ void Quad2D_QueueFixedTriangle(int, Quad2DInputVertex *pA,
         p = &g_quad2DLayerD[g_quad2DCountD];
         g_quad2DCountD++;
     } else {
-        p = (Quad2D *)((unsigned int)pDest);
+        p = (Quad2D *)pDest;
     }
 
     p->pTexture = pTexture;

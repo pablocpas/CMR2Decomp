@@ -982,7 +982,7 @@ BYTE g_shadowCasterCount;           // used entries of g_shadowCasters
 // GLOBAL: CMR2 0x006e0b99
 BYTE g_shadowCylinderCount;         // used entries of g_shadowCylinders
 
-void Sound_NoOpMusicCallback(int unused);
+void Sound_NoOpMusicCallback(INT_PTR unused);
 int Scene_AttenuateSectorLight(int sector, int light);
 extern int g_unk0x005210c0;
 
@@ -1062,7 +1062,7 @@ void Scene_RelightSector(int sector)
                 }
             }
             for (pNode = pSector->pFirstNode; pNode != NULL; pNode = pNode->pNextInSector)
-                Sound_NoOpMusicCallback((int)pNode);
+                Sound_NoOpMusicCallback((INT_PTR)pNode);
             if (g_sceneShadowMeshes == NULL)
                 return;
             if (g_sceneShadowMeshes[sector] != NULL)

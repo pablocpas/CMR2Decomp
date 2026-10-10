@@ -414,7 +414,7 @@ void Spark_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
     g_sparkTri[1].y = pos.y - side.y;
     g_sparkTri[0].colour[3] = g_sparkTri[1].colour[3] = g_sparkTri[2].colour[3] = p->type0x53;
     Quad2D_QueueFixedTriangle(0, &g_sparkTri[0], &g_sparkTri[1], &g_sparkTri[2], pType->texture,
-                              (Quad2D *)0x14);
+                              0x14);
 }
 
 // Lit colour of a car piece: the car's paint scaled by the scene light.
@@ -503,7 +503,7 @@ void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
         pC += 6;
     } while ((int)pC < (int)g_shardTri[3].colour);
     Quad2D_QueueFixedTriangle(0, &g_shardTri[0], &g_shardTri[1], &g_shardTri[2], pType->texture,
-                              (Quad2D *)0x14);
+                              0x14);
 }
 
 // Spawn callback of a glass shard: remembers the car and picks a shard.
@@ -655,7 +655,7 @@ void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
         g_debrisTri[colour].z += o.z;
     }
     Quad2D_QueueFixedTriangle(0, &g_debrisTri[0], &g_debrisTri[1], &g_debrisTri[2], pType->texture,
-                              (Quad2D *)0x14);
+                              0x14);
 }
 
 // Makes the random debris triangles (at most 0.1 from their centre).

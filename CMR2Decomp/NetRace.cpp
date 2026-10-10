@@ -15,7 +15,7 @@ extern const float g_netFontMaximumScale;
 
 // Network messages sent during a race (0x427620-0x428760)
 
-char Network_SendPlayerMessage(int to, int guaranteed, int data, int size);
+char Network_SendPlayerMessage(int to, int guaranteed, void *data, int size);
 int NetPlayers_GetAccumulatedTotal(void);
 void NetPlayers_BlockStatisticsReception(void);
 
@@ -189,7 +189,7 @@ void NetRace_DispatchRacePacket(DWORD *pId, BYTE *pPacket)
     }
 }
 
-int Network_PollReceivedMessageBuffer(int param1, void **param2);
+int Network_PollReceivedMessageBuffer(DWORD *param1, void **param2);
 void NetRace_HandleDeviceNotification(int param_1, int *param_2);
 void NetRace_DispatchRacePacket(DWORD *pId, BYTE *pPacket);
 
@@ -201,7 +201,7 @@ void NetRace_DrainPendingMessages(void)
     DWORD from;
     void *pData;
 
-    while (Network_PollReceivedMessageBuffer((int)&from, &pData)) {
+    while (Network_PollReceivedMessageBuffer(&from, &pData)) {
         if (from == 0)
             NetRace_HandleDeviceNotification((int)&from, (int *)pData);
         else
@@ -221,7 +221,7 @@ void NetRace_SendLocalCarState(NetStats *pStats)
 
     msg.type = 0xb;
     msg.stats = *pStats;
-    Network_SendPlayerMessage(0, 0, (int)&msg, sizeof(msg));
+    Network_SendPlayerMessage(0, 0, &msg, sizeof(msg));
 }
 
 // FUNCTION: CMR2 0x00427930
@@ -230,7 +230,7 @@ void NetRace_SendType7Notification(void)
     BYTE msg;
 
     msg = 7;
-    Network_SendPlayerMessage(0, 1, (int)&msg, 1);
+    Network_SendPlayerMessage(0, 1, &msg, 1);
 }
 
 // Sends the stage time and the accumulated total.
@@ -246,7 +246,7 @@ void NetRace_SendStageAndOverallTimes(int time)
     msg.type = 0xa;
     msg.time = time;
     msg.total = NetPlayers_GetAccumulatedTotal() + time;
-    Network_SendPlayerMessage(0, 1, (int)&msg, sizeof(msg));
+    Network_SendPlayerMessage(0, 1, &msg, sizeof(msg));
 }
 
 // FUNCTION: CMR2 0x00427990
@@ -262,7 +262,7 @@ void NetRace_SendType8PlayerValue(int index, int value)
     msg.type = 8;
     msg.value = value;
     msg.index = index;
-    Network_SendPlayerMessage(0, 0, (int)&msg, sizeof(msg));
+    Network_SendPlayerMessage(0, 0, &msg, sizeof(msg));
 }
 
 // FUNCTION: CMR2 0x004279d0
@@ -278,7 +278,7 @@ void NetRace_SendType9PlayerValue(int index, int value)
     msg.type = 9;
     msg.value = value;
     msg.index = index;
-    Network_SendPlayerMessage(0, 1, (int)&msg, sizeof(msg));
+    Network_SendPlayerMessage(0, 1, &msg, sizeof(msg));
 }
 
 // FUNCTION: CMR2 0x00427a10
@@ -287,7 +287,7 @@ void NetRace_SendType12Notification(void)
     BYTE msg;
 
     msg = 0xc;
-    Network_SendPlayerMessage(0, 1, (int)&msg, 1);
+    Network_SendPlayerMessage(0, 1, &msg, 1);
 }
 
 // FUNCTION: CMR2 0x00427a30
@@ -296,7 +296,7 @@ void NetRace_SendType13AndResetInput(void)
     BYTE msg;
 
     msg = 0xd;
-    Network_SendPlayerMessage(0, 1, (int)&msg, 1);
+    Network_SendPlayerMessage(0, 1, &msg, 1);
     NetPlayers_BlockStatisticsReception();
 }
 
@@ -306,7 +306,7 @@ void NetRace_SendType14AndClearRaceFlag(void)
     BYTE msg;
 
     msg = 0xe;
-    Network_SendPlayerMessage(0, 1, (int)&msg, 1);
+    Network_SendPlayerMessage(0, 1, &msg, 1);
     NetRace_SetRaceControlFlag(0);
     NetPlayers_BlockStatisticsReception();
 }
@@ -317,7 +317,7 @@ void NetRace_SendType15AndResetInput(void)
     BYTE msg;
 
     msg = 0xf;
-    Network_SendPlayerMessage(0, 1, (int)&msg, 1);
+    Network_SendPlayerMessage(0, 1, &msg, 1);
     NetPlayers_BlockStatisticsReception();
 }
 

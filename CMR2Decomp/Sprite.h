@@ -54,9 +54,34 @@ struct Quad2DInputVertex {
     int v;
 };
 
-struct Quad2D;
+// Runtime render records; pTexture expands with native pointer width.
+struct Quad2DRenderVertex {
+    float x;
+    float y;
+    float z;
+    BYTE pad0x0c[0xc];
+    DWORD colour;
+    DWORD specular;
+    float u;
+    float v;
+    BYTE pad0x28[8];
+};
+
+// Three 0x30-byte render vertices plus texture and flags.
+struct Quad2DVertices {
+    Quad2DRenderVertex v[3];
+};
+
+struct Quad2D {
+    Quad2DVertices verts;   // 0x0
+    Texture *pTexture;      // 0x90
+    unsigned int flags;     // 0x94
+};
+
+// A destination is either layer flags or a native address.
+void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, UINT_PTR pDest);
 void Quad2D_QueueFixedTriangle(int, Quad2DInputVertex *pA, Quad2DInputVertex *pB, Quad2DInputVertex *pC,
-                               Texture *pTexture, Quad2D *pDest);
+                               Texture *pTexture, UINT_PTR pDest);
 
 // Queued 2D triangle (three transformed vertices); four layers of 0x400.
 struct Tri2D {

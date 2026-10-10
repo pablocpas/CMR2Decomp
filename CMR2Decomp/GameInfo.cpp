@@ -1,3 +1,11 @@
+// The original sums the two packed DWORDs, including both high shorts.
+inline int OptionMenu_AddPackedScreenRectangleWords(int *pWords)
+{
+    int value = pWords[1];
+    value += pWords[0];
+    return value;
+}
+
 #include "GameInfo.h"
 #include "Menu.h"
 #include "Graphics.h"
@@ -1137,7 +1145,7 @@ void NetworkChat_ClearLog(void)
 
 int Network_FindSessionPlayerIndex(DPID *pId, char *pIndex);
 SessionPlayerRecord *Network_GetActiveSessionPlayerRecord(BYTE index);
-char Network_SendPlayerMessage(int to, int guaranteed, int data, int size);
+char Network_SendPlayerMessage(int to, int guaranteed, void *data, int size);
 
 // GLOBAL: CMR2 0x00523bbc
 char g_chatLineFormat[] = "%s > %s";
@@ -1179,7 +1187,7 @@ void NetworkChat_SendLine(char *text)
 
     message[0] = 0;
     strcpy(message + 1, text);
-    Network_SendPlayerMessage(0, 0, (int)message, 0x101);
+    Network_SendPlayerMessage(0, 0, message, 0x101);
     NetworkChat_AppendLine(NULL, text, 1);
 }
 
@@ -1613,17 +1621,17 @@ void OptionMenu_HandleNetworkNotification(DPID *pId, BYTE *pData)
     }
 }
 
-int Network_PollReceivedMessageBuffer(int param1, void **param2);
+int Network_PollReceivedMessageBuffer(DWORD *param1, void **param2);
 
 // Drains the pending network messages: those coming from the system id (0) go to
 // the player-list handler, the rest to the option notification handler.
 // FUNCTION: CMR2 0x00500ba0
 void GameInfo_ProcessNetworkMessages(void)
 {
-    int senderId;
+    DWORD senderId;
     void *pMessage;
 
-    while (Network_PollReceivedMessageBuffer((int)&senderId, &pMessage) != 0) {
+    while (Network_PollReceivedMessageBuffer(&senderId, &pMessage) != 0) {
         if (senderId == 0)
             OptionMenu_HandleItemNotification((int)&senderId, (int *)pMessage);
         else
@@ -4873,8 +4881,8 @@ void InRaceMenu_DrawOptionList(Menu *pMenu)
     short rect[4];
     int i;
     int y;
-    int string1;
-    int string2;
+    char *string1;
+    char *string2;
 
     rect[0] = 0;
     rect[1] = 0;
@@ -4893,24 +4901,24 @@ void InRaceMenu_DrawOptionList(Menu *pMenu)
         do {
             rect[1] = (short)(y - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
             if (i != 2) {
-                string1 = pItem->stringId;
+                string1 = pItem->text;
                 if (string1 != 0) {
                     string2 = string1;
                 } else {
-                    string1 = (int)CFrontend::GetTextString(pItem->id);
-                    string2 = (int)CFrontend::GetTextString(pItem->id + 1);
+                    string1 = CFrontend::GetTextString(pItem->id);
+                    string2 = CFrontend::GetTextString(pItem->id + 1);
                 }
                 if (pMenu->cursor == i) {
-                    Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
+                    Font_DrawText(1, string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
                                   &g_unk0x00516074, 0x11);
-                    Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
+                    Font_DrawText(0, string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
                                   (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516074, 0x11);
                     Sprite_Queue((SpriteRect *)&g_unk0x0052aa60->field_0x11c, (SpriteRect *)rect,
                                  g_unk0x0052aa60, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516074, 8);
                 } else {
-                    Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
+                    Font_DrawText(1, string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
                                   &g_unk0x00516078, 0x11);
-                    Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
+                    Font_DrawText(0, string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
                                   (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516078, 0x11);
                     Sprite_Queue((SpriteRect *)&g_unk0x0052aa68->field_0x11c, (SpriteRect *)rect,
                                  g_unk0x0052aa68, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516078, 8);
@@ -4932,8 +4940,8 @@ void InRaceMenu_DrawMenuRows(Menu *pMenu)
     short rect[4];
     int i;
     int y;
-    int string1;
-    int string2;
+    char *string1;
+    char *string2;
     int *pColour;
     Texture *texture;
 
@@ -4951,23 +4959,23 @@ void InRaceMenu_DrawMenuRows(Menu *pMenu)
     pItem = pMenu->items;
     for (i = 0; i < pMenu->itemCount; i++, pItem++) {
         rect[1] = (short)(y - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
-        string1 = pItem->stringId;
+        string1 = pItem->text;
         string2 = string1;
         if (string1 == 0) {
-            string1 = (int)CFrontend::GetTextString(pItem->id);
-            string2 = (int)CFrontend::GetTextString(pItem->id + 1);
+            string1 = CFrontend::GetTextString(pItem->id);
+            string2 = CFrontend::GetTextString(pItem->id + 1);
         }
         if (pMenu->cursor == i) {
-            Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
+            Font_DrawText(1, string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
                           &g_unk0x00516074, 0x11);
-            Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
+            Font_DrawText(0, string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
                           (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516074, 0x11);
             pColour = &g_unk0x00516074;
             texture = g_unk0x0052aa60;
         } else {
-            Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
+            Font_DrawText(1, string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
                           &g_unk0x00516078, 0x11);
-            Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
+            Font_DrawText(0, string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
                           (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516078, 0x11);
             pColour = &g_unk0x00516078;
             texture = g_unk0x0052aa68;
@@ -9964,7 +9972,7 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
                       (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x11);
         sprintf(CFrontend::m_stringDest, g_str0x00524e20);
         Font_DrawText(0, CFrontend::m_stringDest,
-                      *(int *)&g_unk0x00831660[2] + *(int *)&g_unk0x00831660[0],
+                      OptionMenu_AddPackedScreenRectangleWords((int *)g_unk0x00831660),
                       (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x14);
         Font_DrawText(1, CFrontend::GetTextString(0xf9),
                       g_unk0x00831660[2] / 2 + *(int *)&g_unk0x00831660[0],

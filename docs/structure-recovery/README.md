@@ -197,3 +197,5 @@ nativos. El inventario queda en 1341 candidatos crudos.
 La tanda de [cajas de colisión](64bit-collision-boxes.md) elimina 18 conversiones (576 → 558), conserva 2924 funciones exactas y mejora dos scores. Pasan 118 arneses, incluidos 4783 casos nuevos, y 432 escenarios nativos con centros/vértices por encima de 4 GB. El inventario queda en 1319 accesos crudos.
 
 La tanda de [tablas de pista](64bit-track-tables.md) elimina 57 conversiones (558 → 501), conserva las 3364 puntuaciones y 2924 funciones exactas. Pasan los 119 arneses, incluidos 408 casos nuevos, y 444 escenarios nativos con punteros superiores a 4 GB. El inventario queda en 1304 accesos crudos.
+
+La tanda de [interfaces de dibujo, textos y red](64bit-native-interfaces.md) elimina 66 avisos de conversiones (501 → 435) en 35 funciones, conserva todas las puntuaciones y las 2924 funciones exactas. Pasan los 122 arneses, incluidos 1240 casos nuevos, y 2184 escenarios x64 con direcciones mayores que 4 GB.

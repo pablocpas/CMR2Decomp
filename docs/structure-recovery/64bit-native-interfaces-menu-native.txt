@@ -1,0 +1,1 @@
+PASS: 360 actual x64 menu draw scenarios; real Menu/Texture/Graphics headers, texts and records above 4 GB, changed field offsets/strides, complete primitive call models, whole input guards, ASan/UBSan; rendering/header/text providers controlled

@@ -1,0 +1,1905 @@
+{
+  "casts": [
+    {
+      "function": "0x004b93c0",
+      "name": "Sector_RelocateStageMeshFile",
+      "file": "Sector.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 21
+      }
+    },
+    {
+      "function": "0x00471dd0",
+      "name": "RallyData_RebuildSectorStaticObjectTables",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 6,
+        "-Wint-to-pointer-cast": 7
+      }
+    },
+    {
+      "function": "0x0046f810",
+      "name": "StageObject_InitMovingObject",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1,
+        "-Wint-to-void-pointer-cast": 1,
+        "-Wint-to-pointer-cast": 9
+      }
+    },
+    {
+      "function": "0x004b4aa0",
+      "name": "Scene_LoadLighting",
+      "file": "SceneNode.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 4,
+        "-Wint-to-pointer-cast": 5
+      }
+    },
+    {
+      "function": "0x00498620",
+      "name": "StageTiming_RecomputeCarSplitBarSamples",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 8
+      }
+    },
+    {
+      "function": "0x0047ca30",
+      "name": "StageObject_ProjectRotationTableRows",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 5,
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x004b0480",
+      "name": "Particle_DrawAll",
+      "file": "Graphics.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 4,
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x004177d0",
+      "name": "Race_DrawPlayerCallSlots",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 6
+      }
+    },
+    {
+      "function": "0x00417090",
+      "name": "Race_UpdateCarRouteAndWrongWayState",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 4,
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x004069c0",
+      "name": "RallyData_InitKnockoutBracket",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 6
+      }
+    },
+    {
+      "function": "0x004207f0",
+      "name": "RallyData_RestoreAllCarRaceRecords",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2,
+        "-Wint-to-pointer-cast": 4
+      }
+    },
+    {
+      "function": "0x0046f550",
+      "name": "StageObject_LoadAndClassifyMeshes",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 5,
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0048fb80",
+      "name": "Collision_ResolveSectorEdgeContact",
+      "file": "VehiclePhysics.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 6
+      }
+    },
+    {
+      "function": "0x00401150",
+      "name": "InRaceMenu_AdvanceCascade",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 5
+      }
+    },
+    {
+      "function": "0x0041d7a0",
+      "name": "Race_UpdateDriverCountdown",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 5
+      }
+    },
+    {
+      "function": "0x0041c5a0",
+      "name": "Race_UpdatePlayerViewAndDrivenCars",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 4,
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0040f0c0",
+      "name": "RallyData_UpdateViewFrameAndDebugOverlay",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 5
+      }
+    },
+    {
+      "function": "0x0046fe70",
+      "name": "StageObject_QueueOrEvictMovingObject",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 3,
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x004564d0",
+      "name": "StageTiming_InterpolateCarFixedSampleRows",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 5
+      }
+    },
+    {
+      "function": "0x00490720",
+      "name": "Collision_ClassifyFaceVertices",
+      "file": "VehiclePhysics.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 3,
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x00499750",
+      "name": "Car_SpawnDebris",
+      "file": "CarEffects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 4
+      }
+    },
+    {
+      "function": "0x004cf830",
+      "name": "Frontend_MergeBestArcadeRecordOption",
+      "file": "Frontend.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2,
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x0044a1b0",
+      "name": "GameMenu_SetupStageResults",
+      "file": "GameMenus.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 4
+      }
+    },
+    {
+      "function": "0x004b9910",
+      "name": "Graphics_LoadTextureRecordList",
+      "file": "Graphics.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 4
+      }
+    },
+    {
+      "function": "0x0041d2b0",
+      "name": "Race_UpdateDriverPreRaceScene",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2,
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x004878a0",
+      "name": "Collision_TestCarAgainstSectorObjects",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 3,
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00475f80",
+      "name": "StageObject_InitCarSceneTables",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 4
+      }
+    },
+    {
+      "function": "0x00455f00",
+      "name": "StageTiming_BlendCarPaintDecalRows",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 4
+      }
+    },
+    {
+      "function": "0x004994f0",
+      "name": "GlassShard_Draw",
+      "file": "CarEffects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1,
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x00499ac0",
+      "name": "Debris_Draw",
+      "file": "CarEffects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2,
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x0050f480",
+      "name": "OptionMenu_ReleaseTextures",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wint-to-void-pointer-cast": 3
+      }
+    },
+    {
+      "function": "0x00427ad0",
+      "name": "NetRace_InterpolateByteCurve",
+      "file": "NetRace.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 3
+      }
+    },
+    {
+      "function": "0x00427b70",
+      "name": "NetRace_InterpolateWordCurve",
+      "file": "NetRace.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 3
+      }
+    },
+    {
+      "function": "0x0041e350",
+      "name": "Race_UpdateInterStageFadeJobs",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 3
+      }
+    },
+    {
+      "function": "0x0041e6b0",
+      "name": "Race_TeardownStage",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2,
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0041e8d0",
+      "name": "Race_HandleStageReplayViewTransitions",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 3
+      }
+    },
+    {
+      "function": "0x00415750",
+      "name": "RallyData_FormatResultDriverName",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 3
+      }
+    },
+    {
+      "function": "0x00471a60",
+      "name": "StageObject_ApplyInterpolatedNodeMatrices",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2,
+        "-Wint-to-void-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x00487c40",
+      "name": "StageObject_BuildSpriteExtentOrientation",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2,
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00457ed0",
+      "name": "StageTiming_FreeSceneAndFinishResources",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 3
+      }
+    },
+    {
+      "function": "0x00498590",
+      "name": "StageTiming_RelocateCarRecordRoutePoints",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1,
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x0045a170",
+      "name": "StageTiming_InitEffectParticleTypes",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 3
+      }
+    },
+    {
+      "function": "0x00455470",
+      "name": "StageTiming_InitRaceDriverRecords",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 3
+      }
+    },
+    {
+      "function": "0x0042b4a0",
+      "name": "Car_IntegrateWheelRotation",
+      "file": "Car.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1,
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x00498dd0",
+      "name": "CarEffects_Init",
+      "file": "CarEffects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x00499de0",
+      "name": "Car_ShatterWindow",
+      "file": "CarEffects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x0049b3e0",
+      "name": "WheelSpray_Update",
+      "file": "CarEffects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x0045d3a0",
+      "name": "CarEffects_UpdateSpiralParticle",
+      "file": "CarEffects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x004aa220",
+      "name": "?",
+      "file": "FileBuffer.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 2
+      }
+    },
+    {
+      "function": "0x004869e0",
+      "name": "View_PositionFromCarProfile",
+      "file": "FixedPoint.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1,
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004cfe20",
+      "name": "Frontend_AccumulateMinimumArcadeOption",
+      "file": "Frontend.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1,
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004cfe80",
+      "name": "FrontendRecords_CopyArcadeSplitMirror",
+      "file": "Frontend.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1,
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004ec560",
+      "name": "FrontendNetwork_HandleJoinerMessage",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x004f3dd0",
+      "name": "FrontendAnimation_ResetMainPath",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x004fb370",
+      "name": "FrontendMenu_SelectArcadeRallyRow",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x004ed100",
+      "name": "FrontendMenu_UpdateNetworkSessionDetails",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 2
+      }
+    },
+    {
+      "function": "0x004d7db0",
+      "name": "FrontendMenu_DrawCarSetup",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x004d8950",
+      "name": "FrontendMenu_DrawPaletteSelection",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x0050f3c0",
+      "name": "OptionMenu_LoadSounds",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x00501350",
+      "name": "OptionMenu_StartDelayedFade",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x00402000",
+      "name": "InRaceMenu_DrawLabelAndValueRows",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x0050e280",
+      "name": "OptionMenu_DrawRecordValues",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x0050e780",
+      "name": "OptionMenu_DrawValueSelectionRows",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x0041f2b0",
+      "name": "GameMenu_LeaveStageAndAdvanceChampionship",
+      "file": "GameMenus.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x004b07a0",
+      "name": "Particle_Spawn",
+      "file": "Graphics.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x0049e960",
+      "name": "CInput::UpdateDevice",
+      "file": "Input.cpp",
+      "counts": {
+        "-Wvoid-pointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x00409bc0",
+      "name": "NetPlayers_ClearReadyFlags",
+      "file": "NetPlayers.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x0040afd0",
+      "name": "NetPlayers_BlockStatisticsReception",
+      "file": "NetPlayers.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x00425a90",
+      "name": "NetRace_PollPlayerStatisticsPackets",
+      "file": "NetRace.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x0040e3c0",
+      "name": "CNetworkLeaderboards::Reset",
+      "file": "NetworkLeaderboards.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1,
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004174e0",
+      "name": "Race_QueuePlayerCallout",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x0041db10",
+      "name": "Race_UpdateDriverReadyAndRecordState",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1,
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x00410ee0",
+      "name": "RallyData_UpdateUnavailableEntryText",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x0040ccd0",
+      "name": "RallyTiming_AddChampionshipPoints",
+      "file": "RallyTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x0040cf00",
+      "name": "RallyTiming_ResetStageResults",
+      "file": "RallyTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x0040d520",
+      "name": "RallyTiming_SortOrder",
+      "file": "RallyTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x004b5770",
+      "name": "Scene_ProjectCasterIntoLightZone",
+      "file": "SceneNode.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x00487e00",
+      "name": "StageObject_SetCollisionSphereAndMaterial",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x0047bad0",
+      "name": "StageObject_CycleDriverCameraSelection",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x00486c30",
+      "name": "StageObject_QueueViewLensFlare",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x004873f0",
+      "name": "Collision_BuildObjectPointBounds",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x0046acb0",
+      "name": "CarDamage_RebuildPartBounds",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x0047b0e0",
+      "name": "StageObject_UpdatePlayerControlIndicators",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 2
+      }
+    },
+    {
+      "function": "0x0047c2f0",
+      "name": "AI_LoadStageRouteTables",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1,
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00456bb0",
+      "name": "StageTiming_InitStageFileTable",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x0045b580",
+      "name": "StageTiming_SpawnWheelParticles",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x00455300",
+      "name": "StageTiming_LoadSelectedTeamArchive",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wint-to-void-pointer-cast": 1,
+        "-Wvoid-pointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00480de0",
+      "name": "StageTiming_WakeUnloadedWheelSlots",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1,
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x00456d90",
+      "name": "StageTiming_LoadStageCarsAndEffects",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x00457000",
+      "name": "StageTiming_LoadSelectedCarModel",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1,
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004669f0",
+      "name": "CarDamage_SetupOrderedCarParts",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x00480bb0",
+      "name": "StageTiming_UpdateAttachedCarParts",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 2
+      }
+    },
+    {
+      "function": "0x004be660",
+      "name": "gzread",
+      "file": "ZlibGzio.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 2
+      }
+    },
+    {
+      "function": "0x0042b800",
+      "name": "Car_ReloadModels",
+      "file": "Car.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x00444c10",
+      "name": "Car_PrepareStep",
+      "file": "Car.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00499070",
+      "name": "Spark_Draw",
+      "file": "CarEffects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x0045de80",
+      "name": "CarEffects_InitParticleOwnerData",
+      "file": "CarEffects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x0045c820",
+      "name": "WheelSplash_Update",
+      "file": "CarEffects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0045dc00",
+      "name": "CarEffects_EmitWheelDustParticle",
+      "file": "CarEffects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004eb4c0",
+      "name": "Profile_LoadAndLinkSavedRecord",
+      "file": "FileBuffer.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0040b350",
+      "name": "Font_Setup",
+      "file": "Font.cpp",
+      "counts": {
+        "-Wvoid-pointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0040b880",
+      "name": "Font_DrawText",
+      "file": "Font.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x004d2590",
+      "name": "CFrontend::LoadFrontendCarPreviewTextures",
+      "file": "Frontend.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004cf5b0",
+      "name": "Frontend_MergeBestDeviceStageOption",
+      "file": "Frontend.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004cf660",
+      "name": "Frontend_MergeBestDeviceButtonOption",
+      "file": "Frontend.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004cf740",
+      "name": "Frontend_MergeBestPlayerStageOption",
+      "file": "Frontend.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004cf8e0",
+      "name": "Frontend_MergeBestSecondaryPlayerOption",
+      "file": "Frontend.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004d0180",
+      "name": "Frontend_LoadSplitTimeMirror",
+      "file": "Frontend.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004d4460",
+      "name": "FrontendDraw_HelpText",
+      "file": "FrontendDraw.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004fc970",
+      "name": "FrontendControls_LeaveDeviceConfiguration",
+      "file": "FrontendMenus.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004fc9b0",
+      "name": "FrontendControls_EnterDeviceConfiguration",
+      "file": "FrontendMenus.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004eed80",
+      "name": "FrontendMenu_UpdateNetworkNameEntry",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x004ef190",
+      "name": "FrontendScroller_RecomputeAllAttached",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004f1040",
+      "name": "FrontendProfile_PickNameCharacter",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x004f11d0",
+      "name": "FrontendMenu_UpdateProfileRenameEntry",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x004f13c0",
+      "name": "FrontendProfile_PickRenameCharacterOrCheat",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x004f1f70",
+      "name": "FrontendMenu_LeaveGraphicsOptions",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004f45a0",
+      "name": "FrontendAnimation_DrawLetters",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004f4760",
+      "name": "FrontendAnimation_DrawDotStreams",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004d8330",
+      "name": "FrontendDraw_ModeProgressBar",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004eae40",
+      "name": "FrontendChampionship_InitEntries",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004ebd60",
+      "name": "FrontendProfile_IsAlreadyInChampionship",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004ed840",
+      "name": "FrontendMenu_UpdateNetworkSessionSetup",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x004f0e80",
+      "name": "FrontendMenu_UpdateProfileNameEntry",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x004d6a60",
+      "name": "FrontendMenu_DrawMultiplayerStageSelection",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004efde0",
+      "name": "FrontendMenu_SelectRallyStage",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004efb70",
+      "name": "FrontendMenu_EnableRallyStageRows",
+      "file": "FrontendScreens.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004b7a40",
+      "name": "CGame::UpdateActiveSoundSlots",
+      "file": "Game.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004d15e0",
+      "name": "CGame::InitializeGame",
+      "file": "Game.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x004a17f0",
+      "name": "CGame::ResetSessionPlayerTable",
+      "file": "Game.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00406580",
+      "name": "CGameInfo::ApplyStageOptionUnlockFlags",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004d05f0",
+      "name": "NetworkChat_ClearLog",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00500ba0",
+      "name": "GameInfo_ProcessNetworkMessages",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0050f120",
+      "name": "OptionPreview_ProjectReferencePartQuads",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0050f240",
+      "name": "OptionMenu_LoadRegionalText",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wvoid-pointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004f4d80",
+      "name": "FrontendText_ReloadFonts",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00402460",
+      "name": "InRaceMenu_DrawNetworkPlayerList",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x0050f340",
+      "name": "OptionMenu_ReleaseSoundBuffer",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wint-to-void-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x00507080",
+      "name": "OptionPreview_RebuildMeshRecord",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0050e1c0",
+      "name": "OptionMenu_DrawScreenTitle",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0050eba0",
+      "name": "OptionMenu_DispatchRecordEditState",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004fffe0",
+      "name": "OptionMenu_ApplyHighlightedValue",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004ff720",
+      "name": "OptionMenu_UpdateLoadGameAndNameEntry",
+      "file": "GameInfo.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x00451890",
+      "name": "GameMenu_DrawInGameBreadcrumb",
+      "file": "GameMenus.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00449ce0",
+      "name": "GameMenu_HandleNetworkResultsChatInput",
+      "file": "GameMenus.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x004bc440",
+      "name": "Graphics_ResetInterpolationTimers",
+      "file": "Graphics.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004b23c0",
+      "name": "Graphics_ReserveCubeMapsAndLoadEnvironment",
+      "file": "Graphics.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004b7ca0",
+      "name": "CInput::QueueInputCharacter",
+      "file": "Input.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004ab670",
+      "name": "CLogger::LogToFile",
+      "file": "Logger.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x004ab720",
+      "name": "StageObject_FreeAll",
+      "file": "Mesh.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0040a820",
+      "name": "NetPlayers_BuildStageStandings",
+      "file": "NetPlayers.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00427890",
+      "name": "NetRace_DrainPendingMessages",
+      "file": "NetRace.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00418580",
+      "name": "Race_DecodeCallSlotIcon",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0041bf80",
+      "name": "Race_EnterCurrentModeScene",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x0041c0e0",
+      "name": "Race_StartArcadeScene",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x0041e5c0",
+      "name": "Race_LeaveAndFadeOut",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x00418ee0",
+      "name": "Race_StopAllStageSounds",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00416720",
+      "name": "Race_LoadCoDriverCallData",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wvoid-pointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0041fd30",
+      "name": "Race_ResolveStageTexturesAndPalettes",
+      "file": "Race.cpp",
+      "counts": {
+        "-Wvoid-pointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00423970",
+      "name": "RallyData_IsDriverViewModeAllowed",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004239e0",
+      "name": "RallyData_ValidateType3Entry",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004eb290",
+      "name": "RallyData_FindCheatNameIndex",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0040d820",
+      "name": "RallyData_UpdateStageWetShares",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004125f0",
+      "name": "RallyData_DrawAndHandleCarHUD",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00410de0",
+      "name": "RallyData_GrowEntryAndInvokeAction",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00410e20",
+      "name": "RallyData_GrowEntryAndRefreshRecords",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00410e70",
+      "name": "RallyData_GrowEntryPanel",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00410ea0",
+      "name": "RallyData_GrowEntryAndNotifyCompletion",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00410fa0",
+      "name": "RallyData_ShrinkEntryAndDrawStageStarted",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00411020",
+      "name": "RallyData_ShrinkEntryAndNotifyCompletion",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00411280",
+      "name": "RallyData_LoadChallengeScreenTextures",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x00411b20",
+      "name": "RallyData_LayoutPlayerSplitBars",
+      "file": "RallyData.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0040d100",
+      "name": "RallyTiming_ResetOverallPlayerTimes",
+      "file": "RallyTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004b4180",
+      "name": "Scene_EmitProjectedShadowMesh",
+      "file": "SceneNode.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    },
+    {
+      "function": "0x004b8270",
+      "name": "Sector_RebuildStageGrid",
+      "file": "Sector.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004b7910",
+      "name": "Sound_FreeAll",
+      "file": "Sound.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004b7a70",
+      "name": "Sound_FindFreeSlot",
+      "file": "Sound.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004b7950",
+      "name": "Sound_SetMasterVolume",
+      "file": "Sound.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0046b6b0",
+      "name": "StageObject_ClearNodeValueBelowThreshold",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x0046b710",
+      "name": "StageObject_ResetPairedCarValues",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00472e00",
+      "name": "Knockout_UpdateRaceStateAndFades",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00463290",
+      "name": "StageLights_SetTransform",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00465530",
+      "name": "CarSkid_ClearWheelTrails",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0047c9a0",
+      "name": "StageObject_BuildTypeTableRowOutput",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0046c750",
+      "name": "Replay_InitCarStreamState",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-void-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004643f0",
+      "name": "StageObject_UpdateCarLightFlagsAndGlows",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0047d850",
+      "name": "StageObject_TestHeadlightGlowsAgainstCarBox",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x00484e00",
+      "name": "CarDamage_StepClimbingCarRecords",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x0048e0a0",
+      "name": "Collision_TestCarAgainstSectorEdges",
+      "file": "StageObjects.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x0046c500",
+      "name": "Replay_ReleaseStageBuffers",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00480870",
+      "name": "StageTiming_FreeCarPartNodeTables",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00456c90",
+      "name": "StageTiming_GetStartTableField244",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00467700",
+      "name": "StageDeform_ApplyRadialDent",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00467e90",
+      "name": "StageDeform_ApplyPlanarDent",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00480980",
+      "name": "StageTiming_ResetCarPartRecordsAndSlots",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00484d30",
+      "name": "StageTiming_InterpolateMovingPartMatrices",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004698a0",
+      "name": "StageTiming_RebuildDamagedPartMeshes",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0046c4e0",
+      "name": "StageTiming_InstallCarPartModelGeometry",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004561e0",
+      "name": "StageTiming_BuildAndSortCPUSplitTimes",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x0045af90",
+      "name": "CarEffect_UpdateExhaustSmokeAndBackfire",
+      "file": "StageTiming.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00478b50",
+      "name": "Surface_LoadStageFonts",
+      "file": "SurfaceTypes.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00478f50",
+      "name": "Surface_LoadCarEngineSounds",
+      "file": "SurfaceTypes.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x00478c40",
+      "name": "Surface_StopAndFreeSounds",
+      "file": "SurfaceTypes.cpp",
+      "counts": {
+        "-Wpointer-to-int-cast": 1
+      }
+    },
+    {
+      "function": "0x004932f0",
+      "name": "AutoGear_ApplyShiftBodyNudge",
+      "file": "TrackCollision.cpp",
+      "counts": {
+        "-Wint-to-pointer-cast": 1
+      }
+    },
+    {
+      "function": "0x004be520",
+      "name": "get_byte",
+      "file": "ZlibGzio.cpp",
+      "counts": {
+        "-Wshorten-64-to-32": 1
+      }
+    }
+  ],
+  "layout_assertions": [],
+  "baseline_commit": "bb1b336",
+  "baseline_casts": 501,
+  "current_casts": 435,
+  "removed_casts": 66,
+  "compatibility_errors": 370,
+  "compatibility_errors_by_file": {
+    "FrontendScreens.cpp": 6,
+    "Game.cpp": 43,
+    "GameInfo.cpp": 3,
+    "Graphics.cpp": 306,
+    "NetPlayers.cpp": 1,
+    "SceneNode.cpp": 4,
+    "Sound.cpp": 2,
+    "Sprite.cpp": 3,
+    "StageTiming.cpp": 2
+  },
+  "whole_game_native_build": false,
+  "conversion_changes": [
+    {
+      "function": "0x00401870",
+      "name": "InRaceMenu_DrawOptionList",
+      "before": 6,
+      "after": 0
+    },
+    {
+      "function": "0x00401d20",
+      "name": "InRaceMenu_DrawMenuRows",
+      "before": 6,
+      "after": 0
+    },
+    {
+      "function": "0x0040ac40",
+      "name": "NetPlayers_SendCarClass",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x0040af40",
+      "name": "NetPlayers_SendType16Notification",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x0040af60",
+      "name": "NetPlayers_SendPublishedLeaderboard",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x0040f0c0",
+      "name": "RallyData_UpdateViewFrameAndDebugOverlay",
+      "before": 11,
+      "after": 5
+    },
+    {
+      "function": "0x00421720",
+      "name": "View_SwitchCamera",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004219b0",
+      "name": "View_UpdateCamera",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x00427890",
+      "name": "NetRace_DrainPendingMessages",
+      "before": 2,
+      "after": 1
+    },
+    {
+      "function": "0x004278f0",
+      "name": "NetRace_SendLocalCarState",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x00427930",
+      "name": "NetRace_SendType7Notification",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x00427950",
+      "name": "NetRace_SendStageAndOverallTimes",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x00427990",
+      "name": "NetRace_SendType8PlayerValue",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004279d0",
+      "name": "NetRace_SendType9PlayerValue",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x00427a10",
+      "name": "NetRace_SendType12Notification",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x00427a30",
+      "name": "NetRace_SendType13AndResetInput",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x00427a50",
+      "name": "NetRace_SendType14AndClearRaceFlag",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x00427a80",
+      "name": "NetRace_SendType15AndResetInput",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004a28d0",
+      "name": "CSound::OpenStreamingMusicFile",
+      "before": 3,
+      "after": 0
+    },
+    {
+      "function": "0x004a2bd0",
+      "name": "Sound_StartLoopingMusicStream",
+      "before": 2,
+      "after": 0
+    },
+    {
+      "function": "0x004b3c00",
+      "name": "Scene_RelightSector",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004b5320",
+      "name": "StageObject_RunNodeActionAndSoundCallback",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004bba00",
+      "name": "Quad2D_QueueFixedTriangle",
+      "before": 7,
+      "after": 0
+    },
+    {
+      "function": "0x004bbc60",
+      "name": "Quad2D_Queue",
+      "before": 7,
+      "after": 0
+    },
+    {
+      "function": "0x004d0700",
+      "name": "NetworkChat_SendLine",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004d3360",
+      "name": "FrontendDraw_MenuList",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004d40d0",
+      "name": "FrontendDraw_MenuPath",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004ec2b0",
+      "name": "FrontendNetwork_SendPlayerDescription",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004ec460",
+      "name": "FrontendNetwork_SendSetupPacket",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004ec8d0",
+      "name": "FrontendNetwork_DrainMessageQueue",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004eca10",
+      "name": "FrontendNetwork_SendLobbyPlayerDescription",
+      "before": 2,
+      "after": 0
+    },
+    {
+      "function": "0x004ed610",
+      "name": "FrontendNetwork_StartHostRace",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004f03f0",
+      "name": "FrontendMenu_EnterMultiplayerProfile",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x004f2620",
+      "name": "FrontendMenu_EnterRallyProfile",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "function": "0x00500ba0",
+      "name": "GameInfo_ProcessNetworkMessages",
+      "before": 2,
+      "after": 1
+    }
+  ]
+}

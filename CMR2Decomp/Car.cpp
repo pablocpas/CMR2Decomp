@@ -7905,7 +7905,7 @@ extern double g_fixedDegreesToAngle12;
 struct Unk004238e0;
 void Game_DispatchObjectTypeEvent(BYTE *pObject, BYTE *pInfo);
 void Game_DispatchObjectTypeUpdate(BYTE *pObject, BYTE *pInfo);
-void Game_UpdateType3ObjectState(Unk004238e0 *param1, int param2);
+void Game_UpdateType3ObjectState(Unk004238e0 *param1, void *param2);
 void Game_DispatchObjectContactReset(BYTE *pObject, BYTE *pInfo);
 void RallyData_ValidateType3Entry(int *p);
 void Glow_NoOpEntryCallback(BYTE a, BYTE b, int c, int d);
@@ -8186,7 +8186,7 @@ void View_SwitchCamera(BYTE view, int type, int param, BYTE target, int blend)
         g_unk0x00538d20[view] = 0xc8000;
         return;
     }
-    Game_UpdateType3ObjectState((Unk004238e0 *)VIEW_RECORD(active), (int)VIEW_RECORD(next));
+    Game_UpdateType3ObjectState((Unk004238e0 *)VIEW_RECORD(active), VIEW_RECORD(next));
     Game_DispatchObjectContactReset((BYTE *)VIEW_RECORD(next), (BYTE *)VIEW_RECORD(active));
     RallyData_ValidateType3Entry((int *)VIEW_RECORD(active));
     g_unk0x005391b0[view] = 1;
@@ -8277,7 +8277,7 @@ void View_UpdateCamera(BYTE view)
         *pTimer -= g_physicsTimeStep;
         return;
     }
-    Game_UpdateType3ObjectState((Unk004238e0 *)pActive, (int)pNext);
+    Game_UpdateType3ObjectState((Unk004238e0 *)pActive, pNext);
     Game_DispatchObjectContactReset((BYTE *)pNext, (BYTE *)pActive);
     RallyData_ValidateType3Entry((int *)pActive);
     CameraState_Copy(VIEW_STATE(index), pNext);

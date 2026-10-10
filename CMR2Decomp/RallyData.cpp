@@ -6198,7 +6198,7 @@ void RallyData_UpdateViewFrameAndDebugOverlay(int param1, int param2, int param3
     short resX;
     int resY;
     int resZ;
-    int target;
+    SceneNode *target;
     unsigned int vramKB;
     float vramMB;
     float buffersMB;
@@ -6295,30 +6295,30 @@ void RallyData_UpdateViewFrameAndDebugOverlay(int param1, int param2, int param3
         }
         pNode = pCar->pAlternateBodyNode;
         if (pNode != NULL && pNode->viewMask > 0) {
-            target = (int)SceneNode_FindByType(pCar->pAlternateBodyNode, 0x14);
+            target = SceneNode_FindByType(pCar->pAlternateBodyNode, 0x14);
             if (CGame::GetObjectRenderMode() != 0) {
                 SceneNode_SetViewMaskTree(pCar->pSceneRoot, 0);
                 SceneNode_SetViewMaskTree(pCar->pAlternateBodyNode, 0);
                 if (target != 0)
-                    SceneNode_SetViewMaskTree((SceneNode *)target, 1);
+                    SceneNode_SetViewMaskTree(target, 1);
             } else {
                 SceneNode_SetViewMaskTree(pCar->pSceneRoot, 1);
                 SceneNode_SetViewMaskTree(pCar->pAlternateBodyNode, 1);
                 if (target != 0)
-                    SceneNode_SetViewMaskTree((SceneNode *)target, 0);
+                    SceneNode_SetViewMaskTree(target, 0);
             }
         } else {
-            target = (int)SceneNode_FindByType(pCar->pBodyNode, 0x14);
+            target = SceneNode_FindByType(pCar->pBodyNode, 0x14);
             if (CGame::GetObjectRenderMode() != 0) {
                 SceneNode_SetViewMaskTree(pCar->pSceneRoot, 0);
                 SceneNode_SetViewMaskTree(pCar->pBodyNode, 0);
                 if (target != 0)
-                    SceneNode_SetViewMaskTree((SceneNode *)target, 1);
+                    SceneNode_SetViewMaskTree(target, 1);
             } else {
                 SceneNode_SetViewMaskTree(pCar->pSceneRoot, 1);
                 SceneNode_SetViewMaskTree(pCar->pBodyNode, 1);
                 if (target != 0)
-                    SceneNode_SetViewMaskTree((SceneNode *)target, 0);
+                    SceneNode_SetViewMaskTree(target, 0);
             }
         }
         StageObject_ResetCarNodeViewFlags(pCar);
