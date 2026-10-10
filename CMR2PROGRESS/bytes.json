@@ -29194,9 +29194,9 @@
   },
   "0x4781d0": {
     "n": "Car_UpdateSurfaceParams",
-    "s": 0.5940054495912807,
+    "s": 0.6002728512960437,
     "x": false,
-    "fz": 0.7275204359673024,
+    "fz": 0.7285129604365621,
     "unknown": [],
     "f": "SurfaceTypes.cpp",
     "symbol_name": "Car_UpdateSurfaceParams"
@@ -29329,9 +29329,9 @@
   },
   "0x4786b0": {
     "n": "Surface_BlendWheelContactParameters",
-    "s": 0.8246013667425968,
+    "s": 0.8662131519274376,
     "x": false,
-    "fz": 0.8337129840546698,
+    "fz": 0.9297052154195011,
     "unknown": [],
     "f": "SurfaceTypes.cpp",
     "symbol_name": "Surface_BlendWheelContactParameters"

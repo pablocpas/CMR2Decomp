@@ -185,3 +185,9 @@ Conserva las 2922 funciones exactas y mejora el score y fuzzy de colocación.
 Los 116 harnesses pasan, con 3456 casos nuevos y 354 escenarios nativos.
 El inventario baja a 1452 candidatos crudos, distinguiendo 16 macros sin uso
 de los 21 accesos reales reemplazados. El gate controla también el fuzzy.
+
+La tanda de [cursores de superficie](64bit-car-surface-cursors.md) conserva
+la referencia avanzada de 2924 funciones exactas, incluido el casco corregido.
+Ambos productores usan campos y recorridos calculados por tipos; mejoran sus
+scores sin regresiones. Pasan 117 arneses, 14112 casos nuevos y 480 escenarios
+nativos. El inventario queda en 1341 candidatos crudos.

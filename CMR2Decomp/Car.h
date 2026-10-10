@@ -35,10 +35,17 @@ struct SectorNeighbours {
 };
 
 struct Car {
-    FixMatrix physicsMatrix;          // 0x00 pWorld points here
-    FixMatrix bodyMatrix;             // 0x40 pBodyMatrix points here
-    CarCornerGrip cornerGrip[8];      // 0x80
-    CarWheelSurface wheelSurfaceFx[4]; // 0x1a0
+    // Fixed-word prefix: original cursors walk across grip/effect records.
+    union {
+        struct {
+        FixMatrix physicsMatrix;          // 0x00 pWorld points here
+        FixMatrix bodyMatrix;             // 0x40 pBodyMatrix points here
+        CarCornerGrip cornerGrip[8];      // 0x80
+        CarWheelSurface wheelSurfaceFx[4]; // 0x1a0
+        };
+        int surfaceOutputWords[116];
+        BYTE surfaceOutputBytes[0x1d0];
+    };
     char flag0x1d0[4];                // 0x1d0
     BYTE field_0x1d4[0x4];
     int handbrake;                    // 0x1d8  handbrake engaged (the rear wheels stop being driven)
@@ -156,12 +163,17 @@ struct Car {
     int wheelTorque[4];               // 0x850  drive/brake torque per wheel
     int wheelLoad[4];                 // 0x860  paired per axle; Car_BalanceWheelPairs evens each pair out
     int wheelSlip[4];                 // 0x870  rolling slip of each wheel
-    int wheelSlipLateral[4];          // 0x880  lateral slip of each wheel
-    int wheelSpinForWheelLean[4];      // 0x890  filtered wheel spin (front lean)
-    int wheelSpinForBodyLean[4];       // 0x8a0  filtered wheel spin (body lean)
-    int cornerMass;                   // 0x8b0  mass carried by each touching corner
-    int tyreGrip;                     // 0x8b4  tyre grip, times the physics scale each step
-    int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)
+    union {
+        struct {
+        int wheelSlipLateral[4];          // 0x880  lateral slip of each wheel
+        int wheelSpinForWheelLean[4];      // 0x890  filtered wheel spin (front lean)
+        int wheelSpinForBodyLean[4];       // 0x8a0  filtered wheel spin (body lean)
+        int cornerMass;                   // 0x8b0  mass carried by each touching corner
+        int tyreGrip;                     // 0x8b4  tyre grip, times the physics scale each step
+        int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)
+        };
+        int surfaceCompressionWords[22]; // 0x880..0x8d7, original contiguous walk
+    };
     int field_0x8d8;                  // 0x8d8
     int cornerHeight[8];              // 0x8dc  ground height under each box corner
     int field_0x8fc[8];               // 0x8fc  per-corner height offset while cornerOnGround[4 + i]

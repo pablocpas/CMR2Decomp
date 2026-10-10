@@ -57,9 +57,9 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x461c30	StageObject_RebuildViewWeatherLighting	StageObjects.cpp	3694	0.5993690851735016	0.5963179164795689
 0x47bdd0	AI_UpdateRouteDrivingControls	StageObjects.cpp	940	0.5996204933586338	0.5060240963855421
 0x4b93c0	Sector_RelocateStageMeshFile	Sector.cpp	1320	0.6026097271648873	0.5870069605568445
-0x4781d0	Car_UpdateSurfaceParams	SurfaceTypes.cpp	1243	0.6059782608695652	0.5940054495912807
 0x4b06a0	Particle_Interpolate	Graphics.cpp	247	0.6067415730337079	0.6136363636363636
 0x473d60	StageObject_DrawInRacePauseMenu	StageObjects.cpp	1720	0.6079545454545454	0.6072423398328691
+0x4781d0	Car_UpdateSurfaceParams	SurfaceTypes.cpp	1243	0.6084583901773534	0.6002728512960437
 0x506930	OptionPreview_SetTargetModelAngles	GameInfo.cpp	485	0.6098654708520179	0.5803571428571429
 0x45d2d0	CarEffect_SpawnExhaustParticle	CarEffects.cpp	206	0.6141732283464567	0.6564885496183206
 0x4b5f90	Scene_CollectNearbyLightZones	SceneNode.cpp	688	0.6142857142857143	0.5714285714285714
@@ -238,7 +238,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47f740	Fireworks_Draw	StageObjects.cpp	1380	0.8223350253807107	0.8274111675126904
 0x48d0f0	View_BuildTracksideCameraMatrix	StageObjects.cpp	1719	0.8230240549828178	0.779777206512425
 0x4d7380	FrontendMenu_DrawProfileRenameEntry	FrontendScreens.cpp	967	0.8231611893583725	0.8
-0x4786b0	Surface_BlendWheelContactParameters	SurfaceTypes.cpp	764	0.8248847926267281	0.8246013667425968
 0x4a28d0	CSound::OpenStreamingMusicFile	Sound.cpp	333	0.8252427184466019	0.7358490566037735
 0x4a0570	Menu_Update	Menu.cpp	1363	0.8252631578947368	0.7190775681341719
 0x408600	RallyData_SetDriverCategoryOption	RallyData.cpp	172	0.8269230769230769	0.8269230769230769
@@ -291,6 +290,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4f0820	FrontendProfile_ApplyStageSelectionAndAdvance	FrontendScreens.cpp	297	0.8673469387755102	0.7914438502673797
 0x47d5a0	StageObject_SpawnCarHeadlightGlow	StageObjects.cpp	673	0.8679245283018868	0.8752941176470588
 0x502570	OptionMenu_InitDefaultRecordTables	GameInfo.cpp	191	0.8695652173913043	0.8695652173913043
+0x4786b0	Surface_BlendWheelContactParameters	SurfaceTypes.cpp	764	0.8721461187214612	0.8662131519274376
 0x47d0e0	AI_SelectCarsWithinOvertakeWindow	StageObjects.cpp	578	0.8733850129198967	0.8144329896907216
 0x508740	StageDeform_ClampVertex	StageTiming.cpp	330	0.8734693877551021	0.6829268292682927
 0x45d540	CarEffect_UpdateWheelSurfaceParticles	CarEffects.cpp	1677	0.8744434550311665	0.7695099818511797

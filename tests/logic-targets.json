@@ -783,6 +783,12 @@
       "0x48fb80"
     ]
   },
+  "differential_surface_contacts.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4786b0"
+    ]
+  },
   "differential_surface_params.py": {
     "arguments": "entities",
     "targets": [

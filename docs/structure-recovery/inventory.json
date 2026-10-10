@@ -6,8 +6,8 @@
     "AIHelper.h": "bab8d194d555cb12c67813998a76874490d63165d0b535b5005e222045cc8b55",
     "BFL.h": "950defe875ffe734f13dce73dda42d7bc1b5369a7def6a53f9e0ba27ed047a7d",
     "BestTimeRecords.h": "7b09c04cab99c03d334b39ec5340a7216840903b2f9d51cfc8ac497473de4291",
-    "Car.cpp": "45fe3ce5f1421f1ad5d611e3ab53e94fe793a67b3916d71d1d6432971bf6af55",
-    "Car.h": "f498550d71b1ec86a28ca2839bef82ad11231c35c91097e0063f5103e67a9fda",
+    "Car.cpp": "ac475cc1f414b451f9dba0b353d3b7372339a599ce5fb68de822caeb4781b78c",
+    "Car.h": "a901a1fcd3bdcdf6b6406bc33d79afbc08204bcee73e5ca57e0262873a04d3ae",
     "CarEffects.cpp": "4774e4c0439ea7a6ad057b574cecb3ad5034e276c243cde7cdbb5fce116fc48d",
     "CarExhaust.h": "2f51d0a245b1da6a98dc0a1152098b0c9dce08b33b29d0459feb77328a9207dc",
     "CarImpact.h": "1800bc27ccd9f5c0ea2398977c5ae92c33ff8ad44084d687cb711e0a67c795db",
@@ -57,7 +57,7 @@
     "Input.h": "6c8ce64e581da4f84e04af836ec4276d106ed118b58ddd8521fff3d05eeacb8c",
     "InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
     "InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
-    "LayoutChecks.cpp": "8b9fcdb71dad167d537f090eda40482d58062110a6821db6efcbdd43e9422df1",
+    "LayoutChecks.cpp": "d501f48150d063ad7758fb15f71182c587266632bedf5add8aa4cb2b13e2869e",
     "LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
     "Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
     "Logger.h": "9223f11dbb0c66b7b32057403dfda5267d674de807a6fa64aad78866540cf196",
@@ -104,7 +104,7 @@
     "StageUI.h": "30113bb1c038c7ab0bc539eca8ad3ba06224365b60d8e32727e304e1f7323e42",
     "StageWeather.h": "29941250ba41afaa63578e0c91a2835998339b9302bcd12a7717787984219dc1",
     "StageWeatherParticle.h": "bc58dc39786b7226607aa6dd7779ad3198afa98c4620eb7228436c5573682bdf",
-    "SurfaceTypes.cpp": "086f12e4038f6d1d13d0954e0a4a34bc700d0c10e23b67818d2063064b475f70",
+    "SurfaceTypes.cpp": "12829839f57b8c4067aad3014833f208784db18788e16f0e0f4f450aff576c1f",
     "SurfaceTypes.h": "1c81086631cfd2493e9c5a4af7da66e1d02417ed38b7628c7a1e1a986d52e8e7",
     "Texture.cpp": "2ca3a6fa0da96446aadf924346f349f7cad42fafeaf06e60c006cc79b82aeea0",
     "Texture.h": "00635eccfb6ed1ce010106ad790747185ef79856fd27d6e49605484db7a02263",
@@ -133,7 +133,7 @@
   },
   "metrics": {
     "types": 312,
-    "raw_accesses": 1354,
+    "raw_accesses": 1341,
     "fixed_sizes": 78,
     "hex_multipliers": 2214,
     "unknown_identifiers": 10462,
@@ -857,7 +857,7 @@
     },
     "SurfaceTypes.cpp": {
       "types": 1,
-      "raw_accesses": 15,
+      "raw_accesses": 2,
       "fixed_sizes": 0,
       "hex_multipliers": 2,
       "unknown_identifiers": 393
@@ -1158,545 +1158,545 @@
       "line": 37,
       "kind": "struct",
       "name": "Car",
-      "end_line": 290,
+      "end_line": 302,
       "unnamed_fields": [
         {
           "file": "Car.h",
-          "line": 43,
+          "line": 50,
           "name": "field_0x1d4",
           "declaration": "BYTE field_0x1d4[0x4];"
         },
         {
           "file": "Car.h",
-          "line": 45,
+          "line": 52,
           "name": "field_0x1dc",
           "declaration": "int field_0x1dc;                  // 0x1dc"
         },
         {
           "file": "Car.h",
-          "line": 46,
+          "line": 53,
           "name": "field_0x1e0",
           "declaration": "int field_0x1e0;                  // 0x1e0"
         },
         {
           "file": "Car.h",
-          "line": 47,
+          "line": 54,
           "name": "field_0x1e4",
           "declaration": "int field_0x1e4;                  // 0x1e4"
         },
         {
           "file": "Car.h",
-          "line": 48,
+          "line": 55,
           "name": "field_0x1e8",
           "declaration": "int field_0x1e8[4];               // 0x1e8"
         },
         {
           "file": "Car.h",
-          "line": 55,
+          "line": 62,
           "name": "field_0x2dc",
           "declaration": "FixVector field_0x2dc;            // 0x2dc"
         },
         {
           "file": "Car.h",
-          "line": 91,
+          "line": 98,
           "name": "field_0x564",
           "declaration": "FixVector field_0x564[8];         // 0x564  per-corner ground normal ([0] used while cornerOnGround[4] is set)"
         },
         {
           "file": "Car.h",
-          "line": 92,
+          "line": 99,
           "name": "field_0x5c4",
           "declaration": "FixVector field_0x5c4;            // 0x5c4"
         },
         {
           "file": "Car.h",
-          "line": 93,
+          "line": 100,
           "name": "field_0x5d0",
           "declaration": "FixVector field_0x5d0;            // 0x5d0"
         },
         {
           "file": "Car.h",
-          "line": 94,
+          "line": 101,
           "name": "field_0x5dc",
           "declaration": "FixVector field_0x5dc;            // 0x5dc"
         },
         {
           "file": "Car.h",
-          "line": 118,
+          "line": 125,
           "name": "field_0x770",
           "declaration": "int field_0x770[2];               // 0x770"
         },
         {
           "file": "Car.h",
-          "line": 127,
+          "line": 134,
           "name": "field_0x798",
           "declaration": "int field_0x798;"
         },
         {
           "file": "Car.h",
-          "line": 131,
+          "line": 138,
           "name": "field_0x7a8",
           "declaration": "int field_0x7a8;"
         },
         {
           "file": "Car.h",
-          "line": 132,
+          "line": 139,
           "name": "field_0x7ac",
           "declaration": "int field_0x7ac;                  // 0x7ac"
         },
         {
           "file": "Car.h",
-          "line": 138,
+          "line": 145,
           "name": "field_0x7fc",
           "declaration": "int field_0x7fc;                  // 0x7fc  set from the difficulty (0x43e530)"
         },
         {
           "file": "Car.h",
-          "line": 139,
+          "line": 146,
           "name": "field_0x800",
           "declaration": "int field_0x800;                  // 0x800"
         },
         {
           "file": "Car.h",
-          "line": 140,
+          "line": 147,
           "name": "field_0x804",
           "declaration": "int field_0x804;                  // 0x804"
         },
         {
           "file": "Car.h",
-          "line": 141,
+          "line": 148,
           "name": "field_0x808",
           "declaration": "int field_0x808[4];               // 0x808"
         },
         {
           "file": "Car.h",
-          "line": 164,
+          "line": 173,
           "name": "field_0x8b8",
           "declaration": "int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)"
         },
         {
           "file": "Car.h",
-          "line": 165,
+          "line": 177,
           "name": "field_0x8d8",
           "declaration": "int field_0x8d8;                  // 0x8d8"
         },
         {
           "file": "Car.h",
-          "line": 167,
+          "line": 179,
           "name": "field_0x8fc",
           "declaration": "int field_0x8fc[8];               // 0x8fc  per-corner height offset while cornerOnGround[4 + i]"
         },
         {
           "file": "Car.h",
-          "line": 171,
+          "line": 183,
           "name": "field_0x928",
           "declaration": "int field_0x928[4];               // 0x928"
         },
         {
           "file": "Car.h",
-          "line": 172,
+          "line": 184,
           "name": "field_0x938",
           "declaration": "int field_0x938[4];               // 0x938  per-wheel scale of the part offset"
         },
         {
           "file": "Car.h",
-          "line": 173,
+          "line": 185,
           "name": "field_0x948",
           "declaration": "int field_0x948[4];               // 0x948"
         },
         {
           "file": "Car.h",
-          "line": 175,
+          "line": 187,
           "name": "field_0x95c",
           "declaration": "int field_0x95c;                  // 0x95c"
         },
         {
           "file": "Car.h",
-          "line": 176,
+          "line": 188,
           "name": "field_0x960",
           "declaration": "int field_0x960;"
         },
         {
           "file": "Car.h",
-          "line": 177,
+          "line": 189,
           "name": "field_0x964",
           "declaration": "int field_0x964;"
         },
         {
           "file": "Car.h",
-          "line": 178,
+          "line": 190,
           "name": "field_0x968",
           "declaration": "int field_0x968;"
         },
         {
           "file": "Car.h",
-          "line": 179,
+          "line": 191,
           "name": "field_0x96c",
           "declaration": "int field_0x96c;                  // 0x96c"
         },
         {
           "file": "Car.h",
-          "line": 180,
+          "line": 192,
           "name": "field_0x970",
           "declaration": "int field_0x970[2];               // 0x970"
         },
         {
           "file": "Car.h",
-          "line": 181,
+          "line": 193,
           "name": "field_0x978",
           "declaration": "int field_0x978[4];               // 0x978  per-wheel offset added to the part's value"
         },
         {
           "file": "Car.h",
-          "line": 183,
+          "line": 195,
           "name": "field_0x998",
           "declaration": "int field_0x998[4];               // 0x998  suspension height of each corner, front lean frame"
         },
         {
           "file": "Car.h",
-          "line": 187,
+          "line": 199,
           "name": "field_0x9c0",
           "declaration": "int field_0x9c0;"
         },
         {
           "file": "Car.h",
-          "line": 188,
+          "line": 200,
           "name": "field_0x9c4",
           "declaration": "int field_0x9c4;                  // 0x9c4"
         },
         {
           "file": "Car.h",
-          "line": 189,
+          "line": 201,
           "name": "field_0x9c8",
           "declaration": "int field_0x9c8[4];               // 0x9c8"
         },
         {
           "file": "Car.h",
-          "line": 191,
+          "line": 203,
           "name": "field_0x9e8",
           "declaration": "BYTE field_0x9e8[0x20];"
         },
         {
           "file": "Car.h",
-          "line": 192,
+          "line": 204,
           "name": "field_0xa08",
           "declaration": "int field_0xa08;"
         },
         {
           "file": "Car.h",
-          "line": 195,
+          "line": 207,
           "name": "field_0xa4c",
           "declaration": "int field_0xa4c[4];               // 0xa4c"
         },
         {
           "file": "Car.h",
-          "line": 196,
+          "line": 208,
           "name": "field_0xa5c",
           "declaration": "int field_0xa5c[4];               // 0xa5c"
         },
         {
           "file": "Car.h",
-          "line": 197,
+          "line": 209,
           "name": "field_0xa6c",
           "declaration": "BYTE field_0xa6c[0x4];"
         },
         {
           "file": "Car.h",
-          "line": 198,
+          "line": 210,
           "name": "field_0xa70",
           "declaration": "int field_0xa70;                  // 0xa70"
         },
         {
           "file": "Car.h",
-          "line": 199,
+          "line": 211,
           "name": "field_0xa74",
           "declaration": "int field_0xa74;"
         },
         {
           "file": "Car.h",
-          "line": 200,
+          "line": 212,
           "name": "field_0xa78",
           "declaration": "int field_0xa78;                  // 0xa78 surface-noise target, copied to +0xa74"
         },
         {
           "file": "Car.h",
-          "line": 201,
+          "line": 213,
           "name": "field_0xa7c",
           "declaration": "int field_0xa7c;                  // 0xa7c"
         },
         {
           "file": "Car.h",
-          "line": 202,
+          "line": 214,
           "name": "field_0xa80",
           "declaration": "int field_0xa80;"
         },
         {
           "file": "Car.h",
-          "line": 203,
+          "line": 215,
           "name": "field_0xa84",
           "declaration": "int field_0xa84;"
         },
         {
           "file": "Car.h",
-          "line": 207,
+          "line": 219,
           "name": "field_0xa94",
           "declaration": "BYTE field_0xa94[4];              // 0xa94 purpose not established"
         },
         {
           "file": "Car.h",
-          "line": 214,
+          "line": 226,
           "name": "field_0xad6",
           "declaration": "BYTE field_0xad6[0x28];"
         },
         {
           "file": "Car.h",
-          "line": 227,
+          "line": 239,
           "name": "field_0xb1d",
           "declaration": "char field_0xb1d;                 // 0xb1d"
         },
         {
           "file": "Car.h",
-          "line": 229,
+          "line": 241,
           "name": "field_0xb1f",
           "declaration": "char field_0xb1f;                 // 0xb1f"
         },
         {
           "file": "Car.h",
-          "line": 233,
+          "line": 245,
           "name": "field_0xb23",
           "declaration": "BYTE field_0xb23[0x1];"
         },
         {
           "file": "Car.h",
-          "line": 235,
+          "line": 247,
           "name": "field_0xb25",
           "declaration": "BYTE field_0xb25;                 // 0xb25  countdowns started by 0x43b020"
         },
         {
           "file": "Car.h",
-          "line": 236,
+          "line": 248,
           "name": "field_0xb26",
           "declaration": "BYTE field_0xb26;"
         },
         {
           "file": "Car.h",
-          "line": 237,
+          "line": 249,
           "name": "field_0xb27",
           "declaration": "BYTE field_0xb27;"
         },
         {
           "file": "Car.h",
-          "line": 238,
+          "line": 250,
           "name": "field_0xb28",
           "declaration": "BYTE field_0xb28;                 // 0xb28"
         },
         {
           "file": "Car.h",
-          "line": 239,
+          "line": 251,
           "name": "field_0xb29",
           "declaration": "BYTE field_0xb29;                 // 0xb29"
         },
         {
           "file": "Car.h",
-          "line": 240,
+          "line": 252,
           "name": "field_0xb2a",
           "declaration": "BYTE field_0xb2a;                 // 0xb2a"
         },
         {
           "file": "Car.h",
-          "line": 243,
+          "line": 255,
           "name": "field_0xb34",
           "declaration": "char field_0xb34;                 // 0xb34"
         },
         {
           "file": "Car.h",
-          "line": 244,
+          "line": 256,
           "name": "field_0xb35",
           "declaration": "BYTE field_0xb35[0xd];"
         },
         {
           "file": "Car.h",
-          "line": 245,
+          "line": 257,
           "name": "field_0xb42",
           "declaration": "char field_0xb42;                 // 0xb42"
         },
         {
           "file": "Car.h",
-          "line": 247,
+          "line": 259,
           "name": "field_0xb44",
           "declaration": "char field_0xb44;                 // 0xb44"
         },
         {
           "file": "Car.h",
-          "line": 248,
+          "line": 260,
           "name": "field_0xb45",
           "declaration": "BYTE field_0xb45;"
         },
         {
           "file": "Car.h",
-          "line": 250,
+          "line": 262,
           "name": "field_0xb47",
           "declaration": "BYTE field_0xb47;"
         },
         {
           "file": "Car.h",
-          "line": 251,
+          "line": 263,
           "name": "field_0xb48",
           "declaration": "int field_0xb48;                  // 0xb48"
         },
         {
           "file": "Car.h",
-          "line": 253,
+          "line": 265,
           "name": "field_0xb50",
           "declaration": "int field_0xb50;"
         },
         {
           "file": "Car.h",
-          "line": 255,
+          "line": 267,
           "name": "field_0xb58",
           "declaration": "int field_0xb58;"
         },
         {
           "file": "Car.h",
-          "line": 257,
+          "line": 269,
           "name": "field_0xb60",
           "declaration": "int field_0xb60;                  // 0xb60"
         },
         {
           "file": "Car.h",
-          "line": 258,
+          "line": 270,
           "name": "field_0xb64",
           "declaration": "int field_0xb64;                  // 0xb64"
         },
         {
           "file": "Car.h",
-          "line": 260,
+          "line": 272,
           "name": "field_0xb6c",
           "declaration": "int field_0xb6c;"
         },
         {
           "file": "Car.h",
-          "line": 261,
+          "line": 273,
           "name": "field_0xb70",
           "declaration": "int field_0xb70;"
         },
         {
           "file": "Car.h",
-          "line": 262,
+          "line": 274,
           "name": "field_0xb74",
           "declaration": "int field_0xb74;                  // 0xb74"
         },
         {
           "file": "Car.h",
-          "line": 264,
+          "line": 276,
           "name": "field_0xb7c",
           "declaration": "int field_0xb7c;                  // 0xb7c"
         },
         {
           "file": "Car.h",
-          "line": 265,
+          "line": 277,
           "name": "field_0xb80",
           "declaration": "int field_0xb80;                  // 0xb80"
         },
         {
           "file": "Car.h",
-          "line": 267,
+          "line": 279,
           "name": "field_0xb88",
           "declaration": "int field_0xb88;"
         },
         {
           "file": "Car.h",
-          "line": 268,
+          "line": 280,
           "name": "field_0xb8c",
           "declaration": "int field_0xb8c;"
         },
         {
           "file": "Car.h",
-          "line": 269,
+          "line": 281,
           "name": "field_0xb90",
           "declaration": "int field_0xb90;"
         },
         {
           "file": "Car.h",
-          "line": 273,
+          "line": 285,
           "name": "field_0xba0",
           "declaration": "int field_0xba0[3];               // 0xba0"
         },
         {
           "file": "Car.h",
-          "line": 275,
+          "line": 287,
           "name": "field_0xbcc",
           "declaration": "int field_0xbcc[4];               // 0xbcc"
         },
         {
           "file": "Car.h",
-          "line": 276,
+          "line": 288,
           "name": "field_0xbdc",
           "declaration": "int field_0xbdc;                  // 0xbdc"
         },
         {
           "file": "Car.h",
-          "line": 277,
+          "line": 289,
           "name": "field_0xbe0",
           "declaration": "int field_0xbe0;                  // 0xbe0"
         },
         {
           "file": "Car.h",
-          "line": 278,
+          "line": 290,
           "name": "field_0xbe4",
           "declaration": "int field_0xbe4;                  // 0xbe4"
         },
         {
           "file": "Car.h",
-          "line": 280,
+          "line": 292,
           "name": "field_0xbf8",
           "declaration": "int field_0xbf8;                  // 0xbf8"
         },
         {
           "file": "Car.h",
-          "line": 281,
+          "line": 293,
           "name": "field_0xbfc",
           "declaration": "int field_0xbfc;                  // 0xbfc"
         },
         {
           "file": "Car.h",
-          "line": 283,
+          "line": 295,
           "name": "field_0xc04",
           "declaration": "int field_0xc04[2];               // 0xc04"
         },
         {
           "file": "Car.h",
-          "line": 284,
+          "line": 296,
           "name": "field_0xc0c",
           "declaration": "int field_0xc0c;                  // 0xc0c"
         },
         {
           "file": "Car.h",
-          "line": 285,
+          "line": 297,
           "name": "field_0xc10",
           "declaration": "int field_0xc10;                  // 0xc10"
         },
         {
           "file": "Car.h",
-          "line": 286,
+          "line": 298,
           "name": "field_0xc14",
           "declaration": "unsigned int field_0xc14;"
         },
         {
           "file": "Car.h",
-          "line": 287,
+          "line": 299,
           "name": "field_0xc18",
           "declaration": "int field_0xc18;                  // 0xc18"
         },
         {
           "file": "Car.h",
-          "line": 288,
+          "line": 300,
           "name": "field_0xc1c",
           "declaration": "int field_0xc1c;"
         },
         {
           "file": "Car.h",
-          "line": 289,
+          "line": 301,
           "name": "field_0xc20",
           "declaration": "int field_0xc20;"
         }
@@ -1704,48 +1704,48 @@
     },
     {
       "file": "Car.h",
-      "line": 294,
+      "line": 306,
       "kind": "struct",
       "name": "CarWheelRecord",
-      "end_line": 299,
+      "end_line": 311,
       "unnamed_fields": []
     },
     {
       "file": "Car.h",
-      "line": 303,
+      "line": 315,
       "kind": "struct",
       "name": "CarTransforms",
-      "end_line": 309,
+      "end_line": 321,
       "unnamed_fields": []
     },
     {
       "file": "Car.h",
-      "line": 401,
+      "line": 413,
       "kind": "struct",
       "name": "CarNetRecord",
-      "end_line": 431,
+      "end_line": 443,
       "unnamed_fields": [
         {
           "file": "Car.h",
-          "line": 414,
+          "line": 426,
           "name": "field_0xb4",
           "declaration": "int field_0xb4;             // 0xb4 smoothed field_0xbc"
         },
         {
           "file": "Car.h",
-          "line": 416,
+          "line": 428,
           "name": "field_0xbc",
           "declaration": "int field_0xbc;"
         },
         {
           "file": "Car.h",
-          "line": 417,
+          "line": 429,
           "name": "field_0xc0",
           "declaration": "int field_0xc0;"
         },
         {
           "file": "Car.h",
-          "line": 429,
+          "line": 441,
           "name": "field_0xe4",
           "declaration": "int field_0xe4;"
         }
@@ -1753,44 +1753,44 @@
     },
     {
       "file": "Car.h",
-      "line": 435,
+      "line": 447,
       "kind": "struct",
       "name": "CameraRecord",
-      "end_line": 449,
+      "end_line": 461,
       "unnamed_fields": [
         {
           "file": "Car.h",
-          "line": 442,
+          "line": 454,
           "name": "field_0x48",
           "declaration": "int field_0x48;"
         },
         {
           "file": "Car.h",
-          "line": 443,
+          "line": 455,
           "name": "field_0x4c",
           "declaration": "int field_0x4c;"
         },
         {
           "file": "Car.h",
-          "line": 444,
+          "line": 456,
           "name": "field_0x50",
           "declaration": "int field_0x50;"
         },
         {
           "file": "Car.h",
-          "line": 445,
+          "line": 457,
           "name": "field_0x54",
           "declaration": "int field_0x54;"
         },
         {
           "file": "Car.h",
-          "line": 446,
+          "line": 458,
           "name": "field_0x58",
           "declaration": "int field_0x58;"
         },
         {
           "file": "Car.h",
-          "line": 447,
+          "line": 459,
           "name": "field_0x5c",
           "declaration": "int field_0x5c;"
         }
@@ -12563,11 +12563,11 @@
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 389,
+      "line": 405,
       "nearest_function": "0x004789d0",
       "kind": "struct",
       "name": "SoundCurve",
-      "end_line": 395,
+      "end_line": 411,
       "unnamed_fields": []
     },
     {
@@ -21955,108 +21955,17 @@
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 751,
+      "line": 767,
       "nearest_function": "0x00478f50",
       "access_type": "int *",
       "expression": "*(int *)(pFile + 4)"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 752,
+      "line": 768,
       "nearest_function": "0x00478f50",
       "access_type": "int *",
       "expression": "*(int *)(pFile + 8)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1530,
-      "nearest_function": "0x004786b0",
-      "access_type": "int *",
-      "expression": "*(int *)((BYTE *)pOut2 + 3)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1531,
-      "nearest_function": "0x004786b0",
-      "access_type": "BYTE *",
-      "expression": "*(BYTE *)(pWheel + 0xb29)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1532,
-      "nearest_function": "0x004786b0",
-      "access_type": "int *",
-      "expression": "*(int *)((BYTE *)pOut2 + 7)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1536,
-      "nearest_function": "0x004786b0",
-      "access_type": "int *",
-      "expression": "*(int *)((BYTE *)pOut2 - 9)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1536,
-      "nearest_function": "0x004786b0",
-      "access_type": "int *",
-      "expression": "*(int *)((BYTE *)pOut2 + 3)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1537,
-      "nearest_function": "0x004786b0",
-      "access_type": "int *",
-      "expression": "*(int *)((BYTE *)pOut2 - 5)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1537,
-      "nearest_function": "0x004786b0",
-      "access_type": "int *",
-      "expression": "*(int *)((BYTE *)pOut2 + 7)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1543,
-      "nearest_function": "0x004786b0",
-      "access_type": "int *",
-      "expression": "*(int *)(pWheel + 0xa78)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1545,
-      "nearest_function": "0x004786b0",
-      "access_type": "int *",
-      "expression": "*(int *)(pWheel + 0xa74)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1546,
-      "nearest_function": "0x004786b0",
-      "access_type": "int *",
-      "expression": "*(int *)(pWheel + 0xa78)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1551,
-      "nearest_function": "0x004786b0",
-      "access_type": "int *",
-      "expression": "*(int *)(pWheel + 0xa74)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1555,
-      "nearest_function": "0x004786b0",
-      "access_type": "int *",
-      "expression": "*(int *)(pWheel + 0xa74)"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1558,
-      "nearest_function": "0x004786b0",
-      "access_type": "int *",
-      "expression": "*(int *)(pWheel + 0xa74)"
     },
     {
       "file": "TimingUtils.cpp",
@@ -35912,13 +35821,13 @@
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 310,
+      "line": 326,
       "nearest_function": "0x004781d0",
       "value": "0x10000"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 311,
+      "line": 327,
       "nearest_function": "0x004781d0",
       "value": "0x4000"
     },
@@ -95500,33 +95409,27 @@
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 42,
+      "line": 43,
       "nearest_function": "0x00478a10",
       "name": "g_unk0x0058db50"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 44,
+      "line": 45,
       "nearest_function": "0x00478a10",
-      "name": "g_unk0x0058dc54"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 53,
-      "nearest_function": "0x00478b20",
       "name": "g_unk0x0058dc54"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 54,
       "nearest_function": "0x00478b20",
-      "name": "g_unk0x0058db50"
+      "name": "g_unk0x0058dc54"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 55,
       "nearest_function": "0x00478b20",
-      "name": "g_unk0x0058dc54"
+      "name": "g_unk0x0058db50"
     },
     {
       "file": "SurfaceTypes.cpp",
@@ -95536,469 +95439,427 @@
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 370,
+      "line": 57,
+      "nearest_function": "0x00478b20",
+      "name": "g_unk0x0058dc54"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 386,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0058dd70"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 372,
+      "line": 388,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0058ddc0"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 374,
+      "line": 390,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0058de00"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 376,
+      "line": 392,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0058de08"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 378,
+      "line": 394,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0058df20"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 404,
-      "nearest_function": "0x004789d0",
-      "name": "g_unk0x0051ea60"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 415,
-      "nearest_function": "0x004789d0",
-      "name": "g_unk0x0051ea74"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 420,
       "nearest_function": "0x004789d0",
+      "name": "g_unk0x0051ea60"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 431,
+      "nearest_function": "0x004789d0",
+      "name": "g_unk0x0051ea74"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 436,
+      "nearest_function": "0x004789d0",
       "name": "g_unk0x0051ea9e"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 425,
+      "line": 441,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0051eacc"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 439,
+      "line": 455,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0051ebca"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 451,
+      "line": 467,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0051ec64"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 465,
+      "line": 481,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0051ed62"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 477,
+      "line": 493,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0051edfc"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 497,
+      "line": 513,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0051ef80"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 530,
-      "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058dd68"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 532,
-      "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058dd78"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 534,
-      "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058dd80"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 536,
-      "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058dd88"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 538,
-      "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058dd90"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 540,
-      "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058dd98"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 542,
-      "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 544,
-      "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 546,
       "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058ddd8"
+      "name": "g_unk0x0058dd68"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 548,
       "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058dde0"
+      "name": "g_unk0x0058dd78"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 550,
       "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058dde8"
+      "name": "g_unk0x0058dd80"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 552,
       "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058ddf0"
+      "name": "g_unk0x0058dd88"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 554,
       "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058ddf8"
+      "name": "g_unk0x0058dd90"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 556,
       "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058de10"
+      "name": "g_unk0x0058dd98"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 558,
       "nearest_function": "0x004789d0",
-      "name": "g_unk0x0058de18"
+      "name": "g_unk0x0058ddac"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 560,
       "nearest_function": "0x004789d0",
+      "name": "g_unk0x0058ddd0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 562,
+      "nearest_function": "0x004789d0",
+      "name": "g_unk0x0058ddd8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 564,
+      "nearest_function": "0x004789d0",
+      "name": "g_unk0x0058dde0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 566,
+      "nearest_function": "0x004789d0",
+      "name": "g_unk0x0058dde8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 568,
+      "nearest_function": "0x004789d0",
+      "name": "g_unk0x0058ddf0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 570,
+      "nearest_function": "0x004789d0",
+      "name": "g_unk0x0058ddf8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 572,
+      "nearest_function": "0x004789d0",
+      "name": "g_unk0x0058de10"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 574,
+      "nearest_function": "0x004789d0",
+      "name": "g_unk0x0058de18"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 576,
+      "nearest_function": "0x004789d0",
       "name": "g_unk0x0058df30"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 563,
+      "line": 579,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0058ddc8Pair"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 564,
+      "line": 580,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0058ddc8"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 564,
+      "line": 580,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0058ddc8Pair"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 565,
+      "line": 581,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0058ddcc"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 565,
+      "line": 581,
       "nearest_function": "0x004789d0",
       "name": "g_unk0x0058ddc8Pair"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 589,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058dd78"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 590,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058de08"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 591,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058de00"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 592,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058de18"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 593,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058dd68"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 594,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058dd88"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 595,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058de10"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 596,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058ddf0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 597,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058dde0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 598,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058dde8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 599,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 600,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058dd80"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 601,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058ddc0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 602,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058dd90"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 603,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058ddd0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 604,
-      "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058ddd8"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 605,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058df30"
+      "name": "g_unk0x0058dd78"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 606,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058ddf8"
+      "name": "g_unk0x0058de08"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 607,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058dd98"
+      "name": "g_unk0x0058de00"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 608,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058dd70"
+      "name": "g_unk0x0058de18"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 609,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058df20"
+      "name": "g_unk0x0058dd68"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 610,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0058dd88"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 611,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058ddc8"
+      "name": "g_unk0x0058de10"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 612,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0058ddcc"
+      "name": "g_unk0x0058ddf0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 613,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0051ea74"
+      "name": "g_unk0x0058dde0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 614,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0051ea9e"
+      "name": "g_unk0x0058dde8"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 615,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0051eacc"
+      "name": "g_unk0x0058ddac"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 616,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0051ebca"
+      "name": "g_unk0x0058dd80"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 617,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0051ec64"
+      "name": "g_unk0x0058ddc0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 618,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0051ed62"
+      "name": "g_unk0x0058dd90"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 619,
       "nearest_function": "0x00478dc0",
-      "name": "g_unk0x0051edfc"
+      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 620,
       "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0058ddd8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 621,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0058df30"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 622,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0058ddf8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 623,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0058dd98"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 624,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0058dd70"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 625,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0058df20"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 627,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0058ddc8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 628,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0058ddcc"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 629,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0051ea74"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 630,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0051ea9e"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 631,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0051eacc"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 632,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0051ebca"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 633,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0051ec64"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 634,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0051ed62"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 635,
+      "nearest_function": "0x00478dc0",
+      "name": "g_unk0x0051edfc"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 636,
+      "nearest_function": "0x00478dc0",
       "name": "g_unk0x0051ef80"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 666,
+      "line": 682,
       "nearest_function": "0x00478f30",
       "name": "g_unk0x0058df48"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 668,
+      "line": 684,
       "nearest_function": "0x00478f30",
       "name": "g_unk0x0058ddb4"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 708,
-      "nearest_function": "0x00478f50",
-      "name": "g_unk0x0058ddb4"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 711,
-      "nearest_function": "0x00478f50",
-      "name": "g_unk0x0058df48"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 714,
-      "nearest_function": "0x00478f50",
-      "name": "g_unk0x0058df48"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 716,
-      "nearest_function": "0x00478f50",
-      "name": "g_unk0x0058df48"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 718,
-      "nearest_function": "0x00478f50",
-      "name": "g_unk0x0058df48"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 720,
-      "nearest_function": "0x00478f50",
-      "name": "g_unk0x0058df48"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 722,
-      "nearest_function": "0x00478f50",
-      "name": "g_unk0x0058df48"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 724,
       "nearest_function": "0x00478f50",
-      "name": "g_unk0x0058df48"
+      "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 726,
-      "nearest_function": "0x00478f50",
-      "name": "g_unk0x0058df48"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 728,
+      "line": 727,
       "nearest_function": "0x00478f50",
       "name": "g_unk0x0058df48"
     },
@@ -96034,7 +95895,19 @@
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 746,
+      "line": 740,
+      "nearest_function": "0x00478f50",
+      "name": "g_unk0x0058df48"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 742,
+      "nearest_function": "0x00478f50",
+      "name": "g_unk0x0058df48"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 744,
       "nearest_function": "0x00478f50",
       "name": "g_unk0x0058df48"
     },
@@ -96046,267 +95919,237 @@
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 761,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058dd70"
+      "line": 748,
+      "nearest_function": "0x00478f50",
+      "name": "g_unk0x0058df48"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 750,
+      "nearest_function": "0x00478f50",
+      "name": "g_unk0x0058df48"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 752,
+      "nearest_function": "0x00478f50",
+      "name": "g_unk0x0058df48"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 754,
+      "nearest_function": "0x00478f50",
+      "name": "g_unk0x0058df48"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 762,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058ddc0"
+      "nearest_function": "0x00478f50",
+      "name": "g_unk0x0058df48"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 763,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058ddc0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 764,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058ddc0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 766,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058dd70"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 774,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0051f290"
+      "line": 762,
+      "nearest_function": "0x00478f50",
+      "name": "g_unk0x0058df48"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 777,
       "nearest_function": "0x004792c0",
-      "name": "g_unk0x0051f2a0"
+      "name": "g_unk0x0058dd70"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 778,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0058ddc0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 779,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0058ddc0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 780,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0058ddc0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 782,
       "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058dd60"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 784,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058dda0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 786,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058df28"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 788,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058df60"
+      "name": "g_unk0x0058dd70"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 790,
       "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058df68"
+      "name": "g_unk0x0051f290"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 792,
+      "line": 793,
       "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058df70"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 794,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058df78"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 796,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058df80"
+      "name": "g_unk0x0051f2a0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 798,
       "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058df88"
+      "name": "g_unk0x0058dd60"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 800,
       "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058dda8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 801,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0051f274"
+      "name": "g_unk0x0058dda0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 802,
       "nearest_function": "0x004792c0",
-      "name": "g_unk0x0051f278"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 803,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0051f27c"
+      "name": "g_unk0x0058df28"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 804,
       "nearest_function": "0x004792c0",
-      "name": "g_unk0x0051f294"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 805,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0051f298"
+      "name": "g_unk0x0058df60"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 806,
       "nearest_function": "0x004792c0",
-      "name": "g_unk0x0051f29c"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 807,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058df38"
+      "name": "g_unk0x0058df68"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 808,
       "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058df3c"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 809,
-      "nearest_function": "0x004792c0",
-      "name": "g_unk0x0058df40"
+      "name": "g_unk0x0058df70"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 810,
       "nearest_function": "0x004792c0",
-      "name": "g_unk0x0051f2d8"
+      "name": "g_unk0x0058df78"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 826,
+      "line": 812,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0058df80"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 814,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0058df88"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 816,
       "nearest_function": "0x004792c0",
       "name": "g_unk0x0058dda8"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 850,
+      "line": 817,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0051f274"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 818,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0051f278"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 819,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0051f27c"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 820,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0051f294"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 821,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0051f298"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 822,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0051f29c"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 823,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0058df38"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 824,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0058df3c"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 825,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0058df40"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 826,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0051f2d8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 842,
+      "nearest_function": "0x004792c0",
+      "name": "g_unk0x0058dda8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 866,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058df88"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 852,
+      "line": 868,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058df68"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 854,
+      "line": 870,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058df70"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 855,
+      "line": 871,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0051ea60"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 859,
+      "line": 875,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058dde8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 860,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 861,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 863,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 864,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 865,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 867,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 868,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 869,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 871,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 872,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 873,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddac"
     },
     {
       "file": "SurfaceTypes.cpp",
@@ -96322,81 +96165,39 @@
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 877,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddb4"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 878,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
       "line": 879,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 879,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 880,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde8"
+      "name": "g_unk0x0058ddac"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 881,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 881,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0051ea60"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 882,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde8"
+      "name": "g_unk0x0058ddac"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 883,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0051ea60"
+      "name": "g_unk0x0058dde8"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 883,
+      "line": 884,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df38"
+      "name": "g_unk0x0058dde8"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 885,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 886,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 886,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0051ea60"
+      "name": "g_unk0x0058dde8"
     },
     {
       "file": "SurfaceTypes.cpp",
@@ -96408,65 +96209,131 @@
       "file": "SurfaceTypes.cpp",
       "line": 888,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0051ea60"
+      "name": "g_unk0x0058ddac"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 888,
+      "line": 889,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0051f274"
+      "name": "g_unk0x0058ddac"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 892,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddf0"
+      "name": "g_unk0x0058dde8"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 893,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddf0"
+      "name": "g_unk0x0058dde8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 893,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 894,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddf0"
+      "name": "g_unk0x0058ddac"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 895,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddac"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 895,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 896,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde0"
+      "name": "g_unk0x0058dde8"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 897,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde0"
+      "name": "g_unk0x0058dde8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 897,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0051ea60"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 898,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde0"
+      "name": "g_unk0x0058dde8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 899,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0051ea60"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 899,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df38"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 901,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddf0"
+      "name": "g_unk0x0058ddac"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 902,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddac"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 902,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0051ea60"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 903,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddac"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 904,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df3c"
+      "name": "g_unk0x0051ea60"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 906,
+      "line": 904,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0051f274"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 908,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddf0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 909,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058ddf0"
     },
@@ -96480,7 +96347,13 @@
       "file": "SurfaceTypes.cpp",
       "line": 912,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddf0"
+      "name": "g_unk0x0058dde0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 913,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dde0"
     },
     {
       "file": "SurfaceTypes.cpp",
@@ -96492,241 +96365,211 @@
       "file": "SurfaceTypes.cpp",
       "line": 917,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0051f278"
+      "name": "g_unk0x0058ddf0"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 919,
+      "line": 920,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde0"
+      "name": "g_unk0x0058df3c"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 923,
+      "line": 922,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde0"
+      "name": "g_unk0x0058ddf0"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 925,
+      "line": 926,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dde0"
+      "name": "g_unk0x0058ddf0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 928,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddf0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 930,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd60"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 930,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df28"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 931,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddf8"
+      "name": "g_unk0x0058dde0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 933,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddf8"
+      "name": "g_unk0x0051f278"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 935,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd98"
+      "name": "g_unk0x0058dde0"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 936,
+      "line": 939,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd98"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 937,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd60"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 938,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df28"
+      "name": "g_unk0x0058dde0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 941,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd98"
+      "name": "g_unk0x0058dde0"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 942,
+      "line": 946,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058dd60"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 949,
+      "line": 946,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058df28"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 951,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd60"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 952,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df28"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 957,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df88"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 957,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df88"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 958,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd68"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 958,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df88"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 959,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd68"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 959,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df88"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 960,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df88"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 991,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df78"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 993,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df78"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 996,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df78"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 997,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd60"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 998,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dda0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 999,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df28"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1000,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd98"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1003,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df78"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1005,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df78"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1008,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddc0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1009,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddc0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1010,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddb4"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1011,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd60"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1012,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df20"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1013,
+      "line": 947,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058ddf8"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1014,
+      "line": 949,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddf8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 951,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd98"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 952,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd98"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 953,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd60"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 954,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058df28"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 957,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd98"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 958,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd60"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 965,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df28"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 967,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd60"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 968,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df28"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 973,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df88"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 973,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df88"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 974,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd68"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 974,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df88"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 975,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd68"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 975,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df88"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 976,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df88"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1007,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df78"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1009,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df78"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1012,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df78"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1013,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd60"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1014,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dda0"
     },
     {
       "file": "SurfaceTypes.cpp",
@@ -96736,19 +96579,7 @@
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1017,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddc0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1017,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0051f294"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1018,
+      "line": 1016,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058dd98"
     },
@@ -96756,25 +96587,13 @@
       "file": "SurfaceTypes.cpp",
       "line": 1019,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddc0"
+      "name": "g_unk0x0058df78"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1020,
+      "line": 1021,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddc0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1020,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0051f294"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1022,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddc0"
+      "name": "g_unk0x0058df78"
     },
     {
       "file": "SurfaceTypes.cpp",
@@ -96798,37 +96617,67 @@
       "file": "SurfaceTypes.cpp",
       "line": 1027,
       "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd60"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1028,
+      "nearest_function": "0x00479360",
       "name": "g_unk0x0058df20"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1029,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd60"
+      "name": "g_unk0x0058ddf8"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1029,
+      "line": 1030,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058df28"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1030,
+      "line": 1031,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df28"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1033,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058ddc0"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1030,
+      "line": 1033,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0051f294"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1037,
+      "line": 1034,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd70"
+      "name": "g_unk0x0058dd98"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1035,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddc0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1036,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddc0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1036,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0051f294"
     },
     {
       "file": "SurfaceTypes.cpp",
@@ -96838,757 +96687,799 @@
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1039,
+      "line": 1040,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddb4"
+      "name": "g_unk0x0058ddc0"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1040,
+      "line": 1041,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd70"
+      "name": "g_unk0x0058ddc0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1042,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddc0"
+      "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1043,
       "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df20"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1045,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd60"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1045,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df28"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1046,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddc0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1046,
+      "nearest_function": "0x00479360",
       "name": "g_unk0x0051f294"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1050,
+      "line": 1053,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd90"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1051,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd90"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1052,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd90"
+      "name": "g_unk0x0058dd70"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1054,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd0"
+      "name": "g_unk0x0058ddc0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1055,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd0"
+      "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1056,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd0"
+      "name": "g_unk0x0058dd70"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1058,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058de08"
+      "name": "g_unk0x0058ddc0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1059,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd90"
+      "name": "g_unk0x0051f294"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1060,
+      "line": 1066,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058dd90"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1061,
+      "line": 1067,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058dd90"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1063,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1064,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1065,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1067,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df68"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1067,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df70"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1067,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df60"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1068,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddb4"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1068,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0051f290"
+      "name": "g_unk0x0058dd90"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1070,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df60"
+      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1071,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df68"
+      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1072,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df70"
+      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1076,
+      "line": 1074,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058de08"
     },
     {
       "file": "SurfaceTypes.cpp",
+      "line": 1075,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd90"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1076,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd90"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
       "line": 1077,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058de10"
+      "name": "g_unk0x0058dd90"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1079,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df60"
+      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1080,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd90"
+      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1081,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd90"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1082,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddb4"
+      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1083,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0051f2a0"
+      "name": "g_unk0x0058df68"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1086,
+      "line": 1083,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd90"
+      "name": "g_unk0x0058df70"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1090,
+      "line": 1083,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd90"
+      "name": "g_unk0x0058df60"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1091,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd90"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1091,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df40"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1092,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1093,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1094,
+      "line": 1084,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
+      "line": 1084,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0051f290"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1086,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df60"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1087,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df68"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1088,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df70"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1092,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058de08"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1093,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058de10"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
       "line": 1095,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0051f2d8"
+      "name": "g_unk0x0058df60"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1096,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd90"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1097,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd90"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1098,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd0"
+      "name": "g_unk0x0058ddb4"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1099,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0051f2a0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1102,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1103,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1103,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0051f27c"
+      "name": "g_unk0x0058dd90"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1106,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df80"
+      "name": "g_unk0x0058dd90"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1107,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058dd68"
+      "name": "g_unk0x0058dd90"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1107,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df88"
+      "name": "g_unk0x0058df40"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1108,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1109,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd8"
+      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1110,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058ddd8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1110,
-      "nearest_function": "0x00479360",
-      "name": "g_unk0x0051f298"
+      "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1111,
       "nearest_function": "0x00479360",
-      "name": "g_unk0x0058df30"
+      "name": "g_unk0x0051f2d8"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1112,
+      "line": 1114,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddd0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1118,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddd0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1119,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddd0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1119,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0051f27c"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1122,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df80"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1123,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058dd68"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1123,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df88"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1125,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddd8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1126,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058ddd8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1126,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0051f298"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1127,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0058df30"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1112,
+      "line": 1128,
+      "nearest_function": "0x00479360",
+      "name": "g_unk0x0058df30"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1128,
       "nearest_function": "0x00479360",
       "name": "g_unk0x0051f29c"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1121,
+      "line": 1137,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0058df20"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1122,
+      "line": 1138,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0058ddc0"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1123,
+      "line": 1139,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0058ddc0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1124,
-      "nearest_function": "0x00479310",
-      "name": "g_unk0x0058ddc0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1126,
-      "nearest_function": "0x00479310",
-      "name": "g_unk0x0058df20"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1140,
       "nearest_function": "0x00479310",
+      "name": "g_unk0x0058ddc0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1142,
+      "nearest_function": "0x00479310",
+      "name": "g_unk0x0058df20"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1156,
+      "nearest_function": "0x00479310",
       "name": "g_unk0x0058dda8"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1144,
+      "line": 1160,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0051f280"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1147,
+      "line": 1163,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0051f310"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1155,
+      "line": 1171,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0051f274"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1157,
+      "line": 1173,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0051f278"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1159,
+      "line": 1175,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0051f294"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1161,
+      "line": 1177,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0051f298"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1163,
+      "line": 1179,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0051f29c"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1165,
+      "line": 1181,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0058df38"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1167,
+      "line": 1183,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0058df3c"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1169,
+      "line": 1185,
       "nearest_function": "0x00479310",
       "name": "g_unk0x0058df40"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1170,
+      "line": 1186,
       "nearest_function": "0x00479310",
-      "name": "g_unk0x0051f27c"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1189,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058df38"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1190,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0051f274"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1191,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058df3c"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1192,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0051f278"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1193,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058df40"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1194,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0051f27c"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1195,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0051f294"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1196,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0051f29c"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1197,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0051f298"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1199,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058df38"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1200,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0051f274"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1201,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058df3c"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1202,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0051f278"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1203,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058df40"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1204,
-      "nearest_function": "0x0047a710",
       "name": "g_unk0x0051f27c"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1205,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0051f294"
+      "name": "g_unk0x0058df38"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1206,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0051f29c"
+      "name": "g_unk0x0051f274"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1207,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0051f298"
+      "name": "g_unk0x0058df3c"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1208,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0051f278"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1209,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058df40"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1210,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058ddf0"
+      "name": "g_unk0x0051f27c"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1211,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058ddf0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1211,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058ddb4"
+      "name": "g_unk0x0051f294"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1212,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058dde0"
+      "name": "g_unk0x0051f29c"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1213,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058dde0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1213,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058ddb4"
+      "name": "g_unk0x0051f298"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1215,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058dd80"
+      "name": "g_unk0x0058df38"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1216,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058dd80"
+      "name": "g_unk0x0051f274"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1216,
+      "line": 1217,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058ddb4"
+      "name": "g_unk0x0058df3c"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1218,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0051f278"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1219,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058ddd8"
+      "name": "g_unk0x0058df40"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1220,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058ddd8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1220,
-      "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058ddb4"
+      "name": "g_unk0x0051f27c"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1221,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058df30"
+      "name": "g_unk0x0051f294"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1222,
       "nearest_function": "0x0047a710",
-      "name": "g_unk0x0058df30"
+      "name": "g_unk0x0051f29c"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1222,
+      "line": 1223,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0051f298"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1226,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058ddf0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1227,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058ddf0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1227,
       "nearest_function": "0x0047a710",
       "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1271,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd68"
+      "line": 1228,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058dde0"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1272,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058ddd0"
+      "line": 1229,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058dde0"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1273,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058ddd0"
+      "line": 1229,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1274,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058ddd0"
+      "line": 1231,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058dd80"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1276,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd90"
+      "line": 1232,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058dd80"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1277,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd90"
+      "line": 1232,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1278,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd90"
+      "line": 1235,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058ddd8"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1280,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058de10"
+      "line": 1236,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058ddd8"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1283,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058de10"
+      "line": 1236,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1285,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd68"
+      "line": 1237,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058df30"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1285,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd68"
+      "line": 1238,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058df30"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1238,
+      "nearest_function": "0x0047a710",
+      "name": "g_unk0x0058ddb4"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1287,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd88"
+      "name": "g_unk0x0058dd68"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1288,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1289,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd88"
+      "name": "g_unk0x0058ddd0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1290,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1292,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd88"
+      "name": "g_unk0x0058dd90"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1293,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0051f310"
+      "name": "g_unk0x0058dd90"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1293,
+      "line": 1294,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd88"
+      "name": "g_unk0x0058dd90"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1296,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058de10"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1299,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd78"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1300,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd78"
+      "name": "g_unk0x0058de10"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1301,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd78"
+      "name": "g_unk0x0058dd68"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1301,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058dd68"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1303,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd78"
+      "name": "g_unk0x0058dd88"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1305,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058dd88"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1308,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd80"
+      "name": "g_unk0x0058dd88"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1309,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd80"
+      "name": "g_unk0x0051f310"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1323,
+      "line": 1309,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058dd88"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1315,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058dd78"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1316,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058dd78"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1317,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058dd78"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1319,
       "nearest_function": "0x0047a3d0",
       "name": "g_unk0x0058dd78"
     },
@@ -97596,35 +97487,11 @@
       "file": "SurfaceTypes.cpp",
       "line": 1324,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058de10"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1331,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dda8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1331,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0051f280"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1335,
-      "nearest_function": "0x0047a3d0",
       "name": "g_unk0x0058dd80"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1336,
-      "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd80"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1337,
+      "line": 1325,
       "nearest_function": "0x0047a3d0",
       "name": "g_unk0x0058dd80"
     },
@@ -97632,227 +97499,269 @@
       "file": "SurfaceTypes.cpp",
       "line": 1339,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd80"
+      "name": "g_unk0x0058dd78"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1340,
       "nearest_function": "0x0047a3d0",
-      "name": "g_unk0x0058dd80"
+      "name": "g_unk0x0058de10"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1341,
+      "line": 1347,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058dda8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1347,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0051f280"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1351,
       "nearest_function": "0x0047a3d0",
       "name": "g_unk0x0058dd80"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1349,
-      "nearest_function": "0x0047a380",
-      "name": "g_unk0x0058de00"
+      "line": 1352,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058dd80"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1353,
-      "nearest_function": "0x0047a380",
-      "name": "g_unk0x0058de00"
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058dd80"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1355,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058dd80"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1356,
-      "nearest_function": "0x0047a380",
-      "name": "g_unk0x0058de00"
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058dd80"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1360,
-      "nearest_function": "0x0047a380",
-      "name": "g_unk0x0058de00"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1361,
-      "nearest_function": "0x0047a380",
-      "name": "g_unk0x0058de08"
+      "line": 1357,
+      "nearest_function": "0x0047a3d0",
+      "name": "g_unk0x0058dd80"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1365,
       "nearest_function": "0x0047a380",
+      "name": "g_unk0x0058de00"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1369,
+      "nearest_function": "0x0047a380",
+      "name": "g_unk0x0058de00"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1372,
+      "nearest_function": "0x0047a380",
+      "name": "g_unk0x0058de00"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1376,
+      "nearest_function": "0x0047a380",
+      "name": "g_unk0x0058de00"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1377,
+      "nearest_function": "0x0047a380",
+      "name": "g_unk0x0058de08"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1381,
+      "nearest_function": "0x0047a380",
       "name": "g_unk0x0058dc58"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1367,
+      "line": 1383,
       "nearest_function": "0x0047a380",
       "name": "g_unk0x0058dc5c"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1378,
+      "line": 1394,
       "nearest_function": "0x00478be0",
       "name": "g_unk0x0058dc5c"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1380,
+      "line": 1396,
       "nearest_function": "0x00478be0",
       "name": "g_unk0x0058dc58"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1380,
+      "line": 1396,
       "nearest_function": "0x00478be0",
       "name": "g_unk0x0058dc58"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1380,
+      "line": 1396,
       "nearest_function": "0x00478be0",
       "name": "g_unk0x0058dc58"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1380,
+      "line": 1396,
       "nearest_function": "0x00478be0",
       "name": "g_unk0x0058dc58"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1381,
+      "line": 1397,
       "nearest_function": "0x00478be0",
       "name": "g_unk0x0058dc58"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1447,
+      "line": 1464,
       "nearest_function": "0x00478a20",
       "name": "g_unk0x0058dc54"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1448,
+      "line": 1465,
       "nearest_function": "0x00478a20",
       "name": "g_unk0x0058db50"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1449,
+      "line": 1466,
       "nearest_function": "0x00478a20",
       "name": "g_unk0x0058dc54"
     },
     {
       "file": "SurfaceTypes.cpp",
-      "line": 1450,
+      "line": 1467,
       "nearest_function": "0x00478a20",
       "name": "g_unk0x0058dc54"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1576,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058ddf0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1577,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058ddf0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1578,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058dde0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1579,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058dde0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1580,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058dde8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1581,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058dde8"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1582,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1583,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058ddac"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1584,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058dd80"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1585,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058dd80"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1586,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058ddc0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1587,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058ddc0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1588,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058dd90"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1589,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058dd90"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1590,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058ddd0"
-    },
-    {
-      "file": "SurfaceTypes.cpp",
-      "line": 1591,
-      "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058ddd0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1593,
       "nearest_function": "0x00478c40",
-      "name": "g_unk0x0058ddc8"
+      "name": "g_unk0x0058ddf0"
     },
     {
       "file": "SurfaceTypes.cpp",
       "line": 1594,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058ddf0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1595,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058dde0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1596,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058dde0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1597,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058dde8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1598,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058dde8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1599,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058ddac"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1600,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058ddac"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1601,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058dd80"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1602,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058dd80"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1603,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058ddc0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1604,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058ddc0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1605,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058dd90"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1606,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058dd90"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1607,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058ddd0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1608,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058ddd0"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1610,
+      "nearest_function": "0x00478c40",
+      "name": "g_unk0x0058ddc8"
+    },
+    {
+      "file": "SurfaceTypes.cpp",
+      "line": 1611,
       "nearest_function": "0x00478c40",
       "name": "g_unk0x0058ddc8Pair"
     },

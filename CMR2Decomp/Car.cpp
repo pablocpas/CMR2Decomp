@@ -7513,7 +7513,7 @@ void Car_StepGroundContact(void)
 
 // --- 0x0043f630 (layer 0) ----------------------------------------------------
 void AutoGear_UpdateCarGearState(Car *pCar);
-void Surface_BlendWheelContactParameters(BYTE *pWheel, int unused);
+void Surface_BlendWheelContactParameters(Car *pWheel, int unused);
 short Sector_GetNeighbours(FixVector *pPos, short *pOut);
 
 // Race context handed to the per-car step chain: the car buffer, the car order
@@ -7555,7 +7555,7 @@ void Car_RunStepPasses(Car *carBase, short *pOrder, short count)
         memcpy((BYTE *)g_pCurrentCar + 0x384, (BYTE *)g_pCurrentCar + 0x360, 0x24);
         g_pCurrentCar->field_0x968 = g_pCurrentCar->field_0x964;
         g_pCurrentCar->field_0x964 = g_pCurrentCar->field_0x960;
-        Surface_BlendWheelContactParameters((BYTE *)g_pCurrentCar, 0);
+        Surface_BlendWheelContactParameters(g_pCurrentCar, 0);
         Car_UpdateLowSpeedWheelLoadTimer();
     }
 

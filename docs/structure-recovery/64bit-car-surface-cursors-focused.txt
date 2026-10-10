@@ -1,0 +1,1 @@
+14112 paired surface cases: real helpers/tables; independent model, complete heap/ABI and noise thresholds match

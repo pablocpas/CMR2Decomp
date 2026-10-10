@@ -737,3 +737,20 @@ CMR2_LAYOUT_CHECK(MenuItemSizeCheck, sizeof(MenuItem) == 0x14);
 CMR2_LAYOUT_CHECK(MenuItemActionOffsetCheck, offsetof(MenuItem, action) == 0x10);
 CMR2_LAYOUT_CHECK(MenuItemsOffsetCheck, offsetof(Menu, items) == 0x14);
 CMR2_LAYOUT_CHECK(MenuSizeCheck, sizeof(Menu) == 0x1e0);
+
+// Contiguous fixed-word surface inputs and typed output cursor (Win32).
+CMR2_LAYOUT_CHECK(CarSurfaceCompression_Check, offsetof(Car, surfaceCompressionWords) == 0x880);
+CMR2_LAYOUT_CHECK(CarSurfaceCompressionSize_Check, sizeof(((Car *)0)->surfaceCompressionWords) == 0x58);
+CMR2_LAYOUT_CHECK(CarSurfaceWheelLean_Check, offsetof(Car, wheelSpinForWheelLean) == 0x890);
+CMR2_LAYOUT_CHECK(CarSurfaceBodyLean_Check, offsetof(Car, wheelSpinForBodyLean) == 0x8a0);
+CMR2_LAYOUT_CHECK(CarSurfaceCornerMass_Check, offsetof(Car, cornerMass) == 0x8b0);
+CMR2_LAYOUT_CHECK(CarSurfaceTyreGrip_Check, offsetof(Car, tyreGrip) == 0x8b4);
+CMR2_LAYOUT_CHECK(CarSurfaceNextInputs_Check, offsetof(Car, field_0x8b8) == 0x8b8);
+CMR2_LAYOUT_CHECK(CarSurfaceOutputWords_Check, offsetof(Car, surfaceOutputWords) == 0);
+CMR2_LAYOUT_CHECK(CarSurfaceOutputBytes_Check, offsetof(Car, surfaceOutputBytes) == 0);
+CMR2_LAYOUT_CHECK(CarSurfaceOutputWordsSize_Check, sizeof(((Car *)0)->surfaceOutputWords) == 0x1d0);
+CMR2_LAYOUT_CHECK(CarSurfaceOutputBytesSize_Check, sizeof(((Car *)0)->surfaceOutputBytes) == 0x1d0);
+CMR2_LAYOUT_CHECK(CarSurfaceGripB_Check, offsetof(CarCornerGrip, gripB) == 4);
+CMR2_LAYOUT_CHECK(CarSurfaceGrip2B_Check, offsetof(CarCornerGrip, grip2B) == 0xc);
+CMR2_LAYOUT_CHECK(CarSurfaceWheelDrag_Check, offsetof(CarWheelSurface, drag) == 4);
+CMR2_LAYOUT_CHECK(CarSurfaceWheelEffect_Check, offsetof(CarWheelSurface, effect) == 0);

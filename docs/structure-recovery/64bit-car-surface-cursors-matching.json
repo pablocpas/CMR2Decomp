@@ -1,0 +1,44 @@
+{
+  "baseline": "949ac3b",
+  "functions": 3364,
+  "byte_exact": 2924,
+  "unchanged_scores": 3362,
+  "changed": [
+    {
+      "address": "0x4781d0",
+      "name": "Car_UpdateSurfaceParams",
+      "before": {
+        "s": 0.5940054495912807,
+        "fz": 0.7275204359673024,
+        "x": false
+      },
+      "after": {
+        "s": 0.6002728512960437,
+        "fz": 0.7285129604365621,
+        "x": false
+      }
+    },
+    {
+      "address": "0x4786b0",
+      "name": "Surface_BlendWheelContactParameters",
+      "before": {
+        "s": 0.8246013667425968,
+        "fz": 0.8337129840546698,
+        "x": false
+      },
+      "after": {
+        "s": 0.8662131519274376,
+        "fz": 0.9297052154195011,
+        "x": false
+      }
+    }
+  ],
+  "score_regressions": 0,
+  "fuzzy_regressions": 0,
+  "raw_accesses_before": 1354,
+  "raw_accesses_after": 1341,
+  "harnesses": 117,
+  "failures": 0,
+  "paired_surface_cases": 14112,
+  "native_scenarios": 480
+}

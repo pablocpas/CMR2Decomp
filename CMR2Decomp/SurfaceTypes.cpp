@@ -8,6 +8,7 @@
 #include "GameInfo.h"
 #include "Input.h"
 #include <stdio.h>
+#include <stddef.h>
 #include "InstallInfo.h"
 #include "RallyData.h"
 #include "Frontend.h"
@@ -174,6 +175,21 @@ BYTE g_surfaceDragIndex[48] = {
 
 #define FIX_ABS(x) ((x) < 0 ? -(x) : (x))
 
+// Typed views of the original interior cursors. offsetof follows the field,
+// while the cursor arrays in Car keep the complete walks in one allocation.
+inline CarCornerGrip *CarSurfaceGripOutput(int *p) {
+    return (CarCornerGrip *)((BYTE *)p - offsetof(CarCornerGrip, gripB));
+}
+inline CarWheelSurface *CarSurfaceWheelOutput(int *p) {
+    return (CarWheelSurface *)((BYTE *)p - offsetof(CarWheelSurface, drag));
+}
+inline CarCornerGrip *CarSurfacePairedGripOutput(int *p) {
+    return (CarCornerGrip *)((BYTE *)p - offsetof(CarCornerGrip, grip2B));
+}
+inline CarWheelSurface *CarSurfacePairedWheelOutput(BYTE *p) {
+    return (CarWheelSurface *)(p - offsetof(CarWheelSurface, effect) - 1);
+}
+
 // Rebuilds the per-corner grip parameters of a car by blending the surface it
 // stands on with the next one, and smooths the resulting rolling noise level.
 // match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -182,10 +198,10 @@ void Car_UpdateSurfaceParams(Car *pCar, int blend)
 {
     int i = 7;
     short noise = 0;
-    int *pComp = &pCar->field_0x8b8[1];
+    int *pComp = &pCar->surfaceCompressionWords[(offsetof(Car, field_0x8b8) + sizeof(int) - offsetof(Car, surfaceCompressionWords)) / sizeof(int)];
     short noiseNext = 0;
-    short *pSurf = (short *)((BYTE *)pCar + 0xabc);
-    int *pOut = &pCar->cornerGrip[7].gripB;
+    short *pSurf = &pCar->wheelSurface[7];
+    int *pOut = &pCar->surfaceOutputWords[(offsetof(Car, cornerGrip) + 7 * sizeof(CarCornerGrip) + offsetof(CarCornerGrip, gripB)) / sizeof(int)];
     short s0;
     unsigned short next;
     int s1;
@@ -231,11 +247,11 @@ void Car_UpdateSurfaceParams(Car *pCar, int blend)
         v678 = FixMul(diff, blend) + g_surface0x51e678[s0];
 
         if (i >= 4) {
-            pOut[0] = gripB;
-            pOut[-1] = gripA;
-            pOut[1] = grip2A;
+            CarSurfaceGripOutput(pOut)->gripB = gripB;
+            CarSurfaceGripOutput(pOut)->gripA = gripA;
+            CarSurfaceGripOutput(pOut)->grip2A = grip2A;
 store_grip2B:
-            pOut[2] = grip2B;
+            CarSurfaceGripOutput(pOut)->grip2B = grip2B;
         } else {
             int comp = pComp[-4];
 
@@ -246,15 +262,15 @@ store_grip2B:
                     comp = 0x10000;
                 }
                 soft = FixMul(comp, dSoftA);
-                pOut[-1] = soft + gripA;
-                pOut[1] = soft + grip2A;
-                pOut[0] = FixDiv(FixMul(gripA, gripB), pOut[-1]);
-                pOut[2] = FixDiv(FixMul(grip2A, grip2B), pOut[1]);
+                CarSurfaceGripOutput(pOut)->gripA = soft + gripA;
+                CarSurfaceGripOutput(pOut)->grip2A = soft + grip2A;
+                CarSurfaceGripOutput(pOut)->gripB = FixDiv(FixMul(gripA, gripB), CarSurfaceGripOutput(pOut)->gripA);
+                CarSurfaceGripOutput(pOut)->grip2B = FixDiv(FixMul(grip2A, grip2B), CarSurfaceGripOutput(pOut)->grip2A);
             } else {
-                pOut[1] = grip2A;
-                pOut[-1] = gripA;
-                pOut[0] = gripB;
-                pOut[2] = grip2B;
+                CarSurfaceGripOutput(pOut)->grip2A = grip2A;
+                CarSurfaceGripOutput(pOut)->gripA = gripA;
+                CarSurfaceGripOutput(pOut)->gripB = gripB;
+                CarSurfaceGripOutput(pOut)->grip2B = grip2B;
             }
             comp = *pComp;
             if (comp != 0) {
@@ -264,28 +280,28 @@ store_grip2B:
                     comp = 0x10000;
                 }
                 soft = FixMul(comp, dSoftB);
-                grip2B = pOut[2] + soft;
-                pOut[0] = pOut[0] + soft;
+                grip2B = CarSurfaceGripOutput(pOut)->grip2B + soft;
+                CarSurfaceGripOutput(pOut)->gripB = CarSurfaceGripOutput(pOut)->gripB + soft;
                 goto store_grip2B;
             }
         }
 
-        pOut[5] = v2b8;
-        pOut[4] = v738;
-        pOut[7] = v5b8;
-        pOut[6] = v4f8;
-        pOut[3] = v678;
+        CarSurfaceGripOutput(pOut)->field_0x18 = v2b8;
+        CarSurfaceGripOutput(pOut)->field_0x14 = v738;
+        CarSurfaceGripOutput(pOut)->field_0x20 = v5b8;
+        CarSurfaceGripOutput(pOut)->field_0x1c = v4f8;
+        CarSurfaceGripOutput(pOut)->drag = v678;
         i--;
         pSurf--;
         pComp--;
-        pOut -= 9;
+        pOut -= sizeof(CarCornerGrip) / sizeof(*pOut);
         if (i < 0) {
             int level;
             int previous;
             int diff;
 
             i = 4;
-            pOut = &pCar->wheelSurfaceFx[3].drag;
+            pOut = &pCar->surfaceOutputWords[(offsetof(Car, wheelSurfaceFx) + 3 * sizeof(CarWheelSurface) + offsetof(CarWheelSurface, drag)) / sizeof(int)];
             pSurf = &pCar->wheelSurface[3];
             do {
                 int id = *pSurf;
@@ -293,14 +309,14 @@ store_grip2B:
                 int drag;
                 int dragNext;
 
-                *((BYTE *)pOut - 4) = g_surfaceEffect[id][0];
-                *((BYTE *)pOut - 3) = g_surfaceEffect[id][1];
+                CarSurfaceWheelOutput(pOut)->effect[0] = g_surfaceEffect[id][0];
+                CarSurfaceWheelOutput(pOut)->effect[1] = g_surfaceEffect[id][1];
                 drag = FixMul(g_surfaceDrag[g_surfaceDragIndex[id] + pCar->field_0xb29 * 9], 0x51e);
                 dragNext = FixMul(g_surfaceDrag[g_surfaceDragIndex[(int)(short)(unsigned short)next] +
                                                 pCar->field_0xb29 * 9], 0x51e);
-                pOut[1] = 0;
-                pOut[0] = FixMul(dragNext - drag, blend) + drag;
-                pOut -= 3;
+                CarSurfaceWheelOutput(pOut)->extraGrip = 0;
+                CarSurfaceWheelOutput(pOut)->drag = FixMul(dragNext - drag, blend) + drag;
+                pOut -= sizeof(CarWheelSurface) / sizeof(*pOut);
                 noise = noise + (unsigned short)g_surfaceNoise[id];
                 noiseNext = noiseNext + (unsigned short)g_surfaceNoise[(int)(short)(unsigned short)next];
                 pSurf--;
@@ -1403,6 +1419,7 @@ char g_strLangEnglish[] = "genglish";
 #include "GenericFileLoader.h"
 #include "Game.h"
 #include <stdio.h>
+#include <stddef.h>
 
 BYTE Surface_FreeTextureData(void);
 
@@ -1459,7 +1476,7 @@ BYTE SurfaceText_LoadRegionalStringTable(void)
 // the per-wheel block (grip, noise, effect bytes and the drag-derived value).
 // match 63%: implemented; the two pointer walks use different index registers here
 // FUNCTION: CMR2 0x004786b0
-void Surface_BlendWheelContactParameters(BYTE *pWheel, int unused)
+void Surface_BlendWheelContactParameters(Car *pWheel, int unused)
 {
     int v;
     int total;
@@ -1467,13 +1484,13 @@ void Surface_BlendWheelContactParameters(BYTE *pWheel, int unused)
     int *pMix;
     short *pId;
     int *pOut;
-    int *pOut2;
+    BYTE *pOut2;
     int id;
     int blend;
 
-    pMix = (int *)(pWheel + 0x8ac);
-    pId = (short *)(pWheel + 0xab4);
-    pOut = (int *)(pWheel + 0xf8);
+    pMix = &pWheel->surfaceCompressionWords[(offsetof(Car, wheelSpinForBodyLean) + 3 * sizeof(int) - offsetof(Car, surfaceCompressionWords)) / sizeof(int)];
+    pId = &pWheel->wheelSurface[3];
+    pOut = &pWheel->surfaceOutputWords[(offsetof(Car, cornerGrip) + 3 * sizeof(CarCornerGrip) + offsetof(CarCornerGrip, grip2B)) / sizeof(int)];
     total = 0;
     i = 2;
     do {
@@ -1483,79 +1500,79 @@ void Surface_BlendWheelContactParameters(BYTE *pWheel, int unused)
             if (blend > 0x10000)
                 blend = 0x10000;
             v = FixMul(blend, g_surfaceSoftness[id][0]);
-            pOut[-3] = g_surfaceGrip[id][0] + v;
-            pOut[-1] = g_surfaceGrip2[id][0] + v;
-            pOut[-2] = FixDiv(FixMul(g_surfaceGrip[id][0], g_surfaceGrip[id][1]), pOut[-3]);
-            pOut[0] = FixDiv(FixMul(g_surfaceGrip2[id][0], g_surfaceGrip2[id][1]), pOut[-1]);
+            CarSurfacePairedGripOutput(pOut)->gripA = g_surfaceGrip[id][0] + v;
+            CarSurfacePairedGripOutput(pOut)->grip2A = g_surfaceGrip2[id][0] + v;
+            CarSurfacePairedGripOutput(pOut)->gripB = FixDiv(FixMul(g_surfaceGrip[id][0], g_surfaceGrip[id][1]), CarSurfacePairedGripOutput(pOut)->gripA);
+            CarSurfacePairedGripOutput(pOut)->grip2B = FixDiv(FixMul(g_surfaceGrip2[id][0], g_surfaceGrip2[id][1]), CarSurfacePairedGripOutput(pOut)->grip2A);
         } else {
-            pOut[-3] = g_surfaceGrip[id][0];
-            pOut[-1] = g_surfaceGrip2[id][0];
-            pOut[-2] = g_surfaceGrip[id][1];
-            pOut[0] = g_surfaceGrip2[id][1];
+            CarSurfacePairedGripOutput(pOut)->gripA = g_surfaceGrip[id][0];
+            CarSurfacePairedGripOutput(pOut)->grip2A = g_surfaceGrip2[id][0];
+            CarSurfacePairedGripOutput(pOut)->gripB = g_surfaceGrip[id][1];
+            CarSurfacePairedGripOutput(pOut)->grip2B = g_surfaceGrip2[id][1];
         }
         if (*pMix != 0) {
             blend = *pMix;
             if (blend > 0x10000)
                 blend = 0x10000;
             v = FixMul(blend, g_surfaceSoftness[id][1]);
-            pOut[-2] += v;
-            pOut[0] += v;
+            CarSurfacePairedGripOutput(pOut)->gripB += v;
+            CarSurfacePairedGripOutput(pOut)->grip2B += v;
         }
         pMix -= 2;
-        pOut[1] = g_surface0x51e678[id];
-        pOut[2] = g_surface0x51e738[id];
-        pOut[3] = g_surface0x51e2b8[id];
-        pOut[4] = g_surface0x51e4f8[id];
-        pOut[5] = g_surface0x51e5b8[id];
-        pOut[-10] = pOut[-1];
-        pOut[-9] = pOut[0];
-        pOut[-12] = pOut[-3];
-        pOut[-11] = pOut[-2];
-        pOut[-8] = pOut[1];
-        pOut[-7] = pOut[2];
-        pOut[-6] = pOut[3];
-        pOut[-5] = pOut[4];
-        pOut[-4] = pOut[5];
-        pOut -= 0x12;
+        CarSurfacePairedGripOutput(pOut)->drag = g_surface0x51e678[id];
+        CarSurfacePairedGripOutput(pOut)->field_0x14 = g_surface0x51e738[id];
+        CarSurfacePairedGripOutput(pOut)->field_0x18 = g_surface0x51e2b8[id];
+        CarSurfacePairedGripOutput(pOut)->field_0x1c = g_surface0x51e4f8[id];
+        CarSurfacePairedGripOutput(pOut)->field_0x20 = g_surface0x51e5b8[id];
+        CarSurfacePairedGripOutput(pOut)[-1].grip2A = CarSurfacePairedGripOutput(pOut)->grip2A;
+        CarSurfacePairedGripOutput(pOut)[-1].grip2B = CarSurfacePairedGripOutput(pOut)->grip2B;
+        CarSurfacePairedGripOutput(pOut)[-1].gripA = CarSurfacePairedGripOutput(pOut)->gripA;
+        CarSurfacePairedGripOutput(pOut)[-1].gripB = CarSurfacePairedGripOutput(pOut)->gripB;
+        CarSurfacePairedGripOutput(pOut)[-1].drag = CarSurfacePairedGripOutput(pOut)->drag;
+        CarSurfacePairedGripOutput(pOut)[-1].field_0x14 = CarSurfacePairedGripOutput(pOut)->field_0x14;
+        CarSurfacePairedGripOutput(pOut)[-1].field_0x18 = CarSurfacePairedGripOutput(pOut)->field_0x18;
+        CarSurfacePairedGripOutput(pOut)[-1].field_0x1c = CarSurfacePairedGripOutput(pOut)->field_0x1c;
+        CarSurfacePairedGripOutput(pOut)[-1].field_0x20 = CarSurfacePairedGripOutput(pOut)->field_0x20;
+        pOut -= 2 * sizeof(CarCornerGrip) / sizeof(*pOut);
         pId -= 2;
     } while (--i);
 
-    pId = (short *)(pWheel + 0xab4);
-    pOut2 = (int *)(pWheel + 0x1c5);
+    pId = &pWheel->wheelSurface[3];
+    pOut2 = &pWheel->surfaceOutputBytes[offsetof(Car, wheelSurfaceFx) + 3 * sizeof(CarWheelSurface) + offsetof(CarWheelSurface, effect) + 1];
     i = 2;
     do {
         id = *pId;
-        ((BYTE *)pOut2)[-1] = g_surfaceEffect[id][0];
-        ((BYTE *)pOut2)[0] = g_surfaceEffect[id][1];
-        *(int *)((BYTE *)pOut2 + 3) =
-            FixMul(0x51e, g_surfaceDrag[g_surfaceDragIndex[id] + *(BYTE *)(pWheel + 0xb29) * 9]);
-        *(int *)((BYTE *)pOut2 + 7) = 0;
+        CarSurfacePairedWheelOutput(pOut2)->effect[0] = g_surfaceEffect[id][0];
+        CarSurfacePairedWheelOutput(pOut2)->effect[1] = g_surfaceEffect[id][1];
+        CarSurfacePairedWheelOutput(pOut2)->drag =
+            FixMul(0x51e, g_surfaceDrag[g_surfaceDragIndex[id] + pWheel->field_0xb29 * 9]);
+        CarSurfacePairedWheelOutput(pOut2)->extraGrip = 0;
         total += g_surfaceNoise[id] * 2;
-        ((BYTE *)pOut2)[-0xd] = ((BYTE *)pOut2)[-1];
-        ((BYTE *)pOut2)[-0xc] = ((BYTE *)pOut2)[0];
-        *(int *)((BYTE *)pOut2 - 9) = *(int *)((BYTE *)pOut2 + 3);
-        *(int *)((BYTE *)pOut2 - 5) = *(int *)((BYTE *)pOut2 + 7);
+        CarSurfacePairedWheelOutput(pOut2)[-1].effect[0] = CarSurfacePairedWheelOutput(pOut2)->effect[0];
+        CarSurfacePairedWheelOutput(pOut2)[-1].effect[1] = CarSurfacePairedWheelOutput(pOut2)->effect[1];
+        CarSurfacePairedWheelOutput(pOut2)[-1].drag = CarSurfacePairedWheelOutput(pOut2)->drag;
+        CarSurfacePairedWheelOutput(pOut2)[-1].extraGrip = CarSurfacePairedWheelOutput(pOut2)->extraGrip;
         pId -= 2;
-        pOut2 = (int *)((BYTE *)pOut2 - 0x18);
+        pOut2 -= 2 * sizeof(CarWheelSurface);
     } while (--i);
 
     total = (total & 0xfffffffc) << 14;
-    *(int *)(pWheel + 0xa78) = total;
+    pWheel->field_0xa78 = total;
     v = FixMul(total, 0x28f);
-    blend = *(int *)(pWheel + 0xa74);
-    *(int *)(pWheel + 0xa78) = v;
+    blend = pWheel->field_0xa74;
+    pWheel->field_0xa78 = v;
     i = v - blend;
     if (i < 0)
         i = -i;
     if (i <= 0x3333) {
-        *(int *)(pWheel + 0xa74) = v;
+        pWheel->field_0xa74 = v;
         return;
     }
     if (v - blend > 0) {
-        *(int *)(pWheel + 0xa74) = blend + 0x3333;
+        pWheel->field_0xa74 = blend + 0x3333;
         return;
     }
-    *(int *)(pWheel + 0xa74) = blend - 0x3333;
+    pWheel->field_0xa74 = blend - 0x3333;
 }
 
 // Stops the surface sounds of every active player (the per-player handles set
