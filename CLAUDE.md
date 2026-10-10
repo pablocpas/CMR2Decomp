@@ -228,3 +228,6 @@ change, e.g. `Sprite_FillRect byte-exact (24.8% -> exact): ...`.
 - Keep annotations, struct offsets, declaration order; do not rename while matching.
 - Behaviour must stay identical; no inline asm, no `#pragma` tricks to fake bytes.
 - A change that makes one function exact but breaks another in the TU is not progress.
+- `port/` is OpenCMR2, the SDL3 port, with its own CMake build; matching work
+  does not touch it. `port/game/` is a patched copy of `CMR2Decomp/` synced with
+  `port/tools/sync_upstream.py`.

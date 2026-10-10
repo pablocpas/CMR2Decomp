@@ -1,7 +1,7 @@
 # OpenCMR2
 
 A native, modernised port of **Colin McRae Rally 2.0** (PC, 2000), built from
-the [CMR2Decomp](https://github.com/pablocpas/CMR2Decomp) decompilation. It
+the CMR2Decomp decompilation in the parent directory of this repository. It
 replaces DirectDraw/Direct3D 7, DirectSound, DirectInput, DirectPlay and Bink
 with SDL3 and the SDL GPU API (Vulkan, Direct3D 12, Metal) and our own code,
 so the game runs natively on Linux, Windows and macOS.
@@ -51,10 +51,14 @@ in [docs/PHYSICS_PARITY.md](docs/PHYSICS_PARITY.md).
 
 ## Updating the game source
 
-`game/` follows CMR2Decomp. To bring in upstream changes:
+`game/` is a copy of `../CMR2Decomp/` with the port's edits. To bring in the
+decomp's changes since the commit in `UPSTREAM`:
 
-    git remote add upstream https://github.com/pablocpas/CMR2Decomp   # once
     tools/sync_upstream.py
+
+The goal is to fold those edits back into `../CMR2Decomp/` (behind
+`#ifndef OPENCMR2` where they replace platform code, which keeps the matching
+build byte-identical) until `game/` is no longer needed.
 
 ## Licence
 

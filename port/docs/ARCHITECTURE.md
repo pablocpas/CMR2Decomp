@@ -1,7 +1,7 @@
 # OpenCMR2 architecture
 
 OpenCMR2 is a native port of Colin McRae Rally 2.0 built from the
-[CMR2Decomp](https://github.com/pablocpas/CMR2Decomp) decompilation. It runs on
+CMR2Decomp decompilation (`../CMR2Decomp/` in this repository). It runs on
 SDL3 and the SDL GPU API (Vulkan, Direct3D 12, Metal) and needs the original
 game data.
 
@@ -14,7 +14,7 @@ verification required before changing the timing architecture.
 
 | Path | Contents |
 | --- | --- |
-| `game/` | The decompiled game, synced from CMR2Decomp (`tools/sync_upstream.py`, last commit in `UPSTREAM`). |
+| `game/` | The decompiled game, a copy of `../CMR2Decomp/` synced with `tools/sync_upstream.py` (last commit in `UPSTREAM`). |
 | `src/port/` | The platform API the game calls: `types.h`, `sys.h`, `gfx.h`, `audio.h`, `input.h`, `movie.h`, `net.h`. Plain C-style functions and our own types; no Win32 or DirectX names. |
 | `src/platform/` | `main()`, window and event loop, time, files, configuration (SDL3). |
 | `src/render/` | The SDL_GPU renderer behind `gfx.h`, and its shaders. |

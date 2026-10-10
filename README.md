@@ -43,7 +43,7 @@ some behaviour that needs fixing, so expect rough edges.
 2. **Port to SDL3**, replacing DirectDraw/Direct3D 7, DirectInput and the
    Windows-only audio and window code with SDL3 and the SDL GPU API (Vulkan,
    Direct3D 12 and Metal), so the game runs natively on modern Windows, Linux
-   and macOS.
+   and macOS. This is OpenCMR2, in `port/` (see [port/README.md](port/README.md)).
 3. **Modernise it while preserving it**: widescreen and arbitrary resolutions,
    modern controller support, an updated renderer with better lighting and
    image quality, and quality-of-life improvements. Every upgrade stays
@@ -58,6 +58,7 @@ some behaviour that needs fixing, so expect rough edges.
 | `scripts/` | Build, measurement and matching tools. `functions.tsv` is the original function inventory. |
 | `tests/` | Differential harnesses that run original and rebuilt machine code side by side. |
 | `CMR2PROGRESS/` | Measurement data for the current source: scores, byte audit, symbol map. |
+| `port/` | OpenCMR2, the native SDL3 port built from this source with CMake (its own README, docs and tests). |
 
 ## Build
 
