@@ -960,9 +960,9 @@ void Scene_GetShadowColourD3D(DWORD *pColour, int level)
 struct ShadowCaster;
 
 // GLOBAL: CMR2 0x006e0124
-ShadowCaster *g_sceneLightState[30];          // registered shadow casters
+ShadowCaster *g_shadowCasters[30];  // registered shadow casters
 // GLOBAL: CMR2 0x006e01c4
-Mesh *g_sceneLightState2[10];                // shadow cylinders, cached by mesh name
+Mesh *g_shadowCylinders[10];        // shadow cylinders, cached by mesh name
 // GLOBAL: CMR2 0x006e019c
 void *g_sceneSectorLights;          // per sector
 // GLOBAL: CMR2 0x006dfd90
@@ -978,9 +978,9 @@ int *g_sceneSectorFlags;            // per sector
 // GLOBAL: CMR2 0x006e0204
 short *g_sceneSectorZone;           // zone of each sector (-1 none)
 // GLOBAL: CMR2 0x006deab8
-BYTE g_sceneLightFlag;           // used entries of g_sceneLightState
+BYTE g_shadowCasterCount;           // used entries of g_shadowCasters
 // GLOBAL: CMR2 0x006e0b99
-BYTE g_sceneLightFlag2;         // used entries of g_sceneLightState2
+BYTE g_shadowCylinderCount;         // used entries of g_shadowCylinders
 
 void Sound_NoOpMusicCallback(int unused);
 int Scene_AttenuateSectorLight(int sector, int light);
@@ -1172,10 +1172,10 @@ void Scene_MarkShadowPartDirty(SceneNode *pNode, Mesh *pMesh)
     int count;
     if (g_sceneShadowMeshes != NULL) {
         i = 0;
-        count = g_sceneLightFlag & 0xff;
+        count = g_shadowCasterCount & 0xff;
         if (count > 0) {
             do {
-                ShadowCaster *p = g_sceneLightState[i];
+                ShadowCaster *p = g_shadowCasters[i];
                 if (p->pNode == pNode) {
                     pCaster = p;
                     i = count;
@@ -1234,10 +1234,10 @@ void Scene_AddShadowCaster(SceneNode *pNode, int exactMeshes)
     SceneNode *pChild;
     SceneNode *p;
 
-    if (pNode == NULL || g_sceneLightFlag >= 29)
+    if (pNode == NULL || g_shadowCasterCount >= 29)
         return;
     pCaster = (ShadowCaster *)CFileBuffer::AllocateLockedBuffer(sizeof(ShadowCaster));
-    g_sceneLightState[g_sceneLightFlag++] = pCaster;
+    g_shadowCasters[g_shadowCasterCount++] = pCaster;
     pCaster->pNode = pNode;
     pCaster->pParts = NULL;
     pCaster->partCount = 0;
@@ -1556,9 +1556,9 @@ void Scene_InitLighting(int *pData, int *pHeights)
     unsigned int k;
 
     for (i = 0; i < 30; i++)
-        g_sceneLightState[i] = NULL;
+        g_shadowCasters[i] = NULL;
     for (i = 0; i < 10; i++)
-        g_sceneLightState2[i] = NULL;
+        g_shadowCylinders[i] = NULL;
     g_triangleVertexHeights = NULL;
     g_sceneSectorLights = NULL;
     g_sceneSectorLights2 = NULL;
@@ -1570,8 +1570,8 @@ void Scene_InitLighting(int *pData, int *pHeights)
     g_sceneLightData = NULL;
     g_sceneLightZones = NULL;
     g_sceneSectorFlags = NULL;
-    g_sceneLightFlag = 0;
-    g_sceneLightFlag2 = 0;
+    g_shadowCasterCount = 0;
+    g_shadowCylinderCount = 0;
     g_sceneSectorLights = CFileBuffer::AllocateLockedBuffer(g_sectorCount * 4);
     g_sceneSectorLights2 = CFileBuffer::AllocateLockedBuffer(g_sectorCount * 4);
     g_sceneLightTable = (BYTE *)CFileBuffer::AllocateLockedBuffer(200);
@@ -2019,10 +2019,10 @@ void Scene_EmitNodeShadowGeometry(SceneNode *pNode, int param2, BYTE param3)
     if (pNode != NULL && pNode->viewMask != 0 && g_sceneSectorZone != NULL &&
         (unsigned short)g_sceneZoneCount > 0) {
         i = 0;
-        count = g_sceneLightFlag & 0xff;
+        count = g_shadowCasterCount & 0xff;
         if (count > 0) {
             do {
-                ShadowCaster *p = g_sceneLightState[i];
+                ShadowCaster *p = g_shadowCasters[i];
                 if (p->pNode == pNode) {
                     pCaster = p;
                     i = count;
@@ -2077,10 +2077,10 @@ void Scene_CollectNearbyLightZones(SceneNode *pNode, int radius, short *pSector)
     *(unsigned short *)&g_sceneZoneCount = 0;
     if (pNode != NULL && pNode->viewMask != 0 && g_sceneSectorZone != NULL) {
         i = 0;
-        count = g_sceneLightFlag & 0xff;
+        count = g_shadowCasterCount & 0xff;
         if (count > 0) {
             do {
-                ShadowCaster *p = g_sceneLightState[i];
+                ShadowCaster *p = g_shadowCasters[i];
                 if (p->pNode == pNode) {
                     pCaster = p;
                     i = count;
@@ -2309,59 +2309,59 @@ void Scene_FreeShadowCasters(void)
     int i;
 
     for (n = 0; n < 30; n++) {
-        if (g_sceneLightState[n] != NULL) {
-            if (g_sceneLightState[n]->pParts != NULL) {
-                for (i = 0; i < g_sceneLightState[n]->partCount; i++) {
-                    if (g_sceneLightState[n]->pParts[i].pVertexWork != NULL) {
-                        CFileBuffer::FreeGenericFileBuffer(g_sceneLightState[n]->pParts[i].pVertexWork);
-                        g_sceneLightState[n]->pParts[i].pVertexWork = NULL;
+        if (g_shadowCasters[n] != NULL) {
+            if (g_shadowCasters[n]->pParts != NULL) {
+                for (i = 0; i < g_shadowCasters[n]->partCount; i++) {
+                    if (g_shadowCasters[n]->pParts[i].pVertexWork != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(g_shadowCasters[n]->pParts[i].pVertexWork);
+                        g_shadowCasters[n]->pParts[i].pVertexWork = NULL;
                     }
-                    if (g_sceneLightState[n]->pParts[i].pVertexFlags != NULL) {
-                        CFileBuffer::FreeGenericFileBuffer(g_sceneLightState[n]->pParts[i].pVertexFlags);
-                        g_sceneLightState[n]->pParts[i].pVertexFlags = NULL;
+                    if (g_shadowCasters[n]->pParts[i].pVertexFlags != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(g_shadowCasters[n]->pParts[i].pVertexFlags);
+                        g_shadowCasters[n]->pParts[i].pVertexFlags = NULL;
                     }
-                    if (g_sceneLightState[n]->pParts[i].pVertexWork2 != NULL) {
-                        CFileBuffer::FreeGenericFileBuffer(g_sceneLightState[n]->pParts[i].pVertexWork2);
-                        g_sceneLightState[n]->pParts[i].pVertexWork2 = NULL;
+                    if (g_shadowCasters[n]->pParts[i].pVertexWork2 != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(g_shadowCasters[n]->pParts[i].pVertexWork2);
+                        g_shadowCasters[n]->pParts[i].pVertexWork2 = NULL;
                     }
-                    if (g_sceneLightState[n]->pParts[i].pVertices != NULL) {
-                        CFileBuffer::FreeGenericFileBuffer(g_sceneLightState[n]->pParts[i].pVertices);
-                        g_sceneLightState[n]->pParts[i].pVertices = NULL;
+                    if (g_shadowCasters[n]->pParts[i].pVertices != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(g_shadowCasters[n]->pParts[i].pVertices);
+                        g_shadowCasters[n]->pParts[i].pVertices = NULL;
                     }
-                    if (g_sceneLightState[n]->pParts[i].pVertexWork3 != NULL) {
-                        CFileBuffer::FreeGenericFileBuffer(g_sceneLightState[n]->pParts[i].pVertexWork3);
-                        g_sceneLightState[n]->pParts[i].pVertexWork3 = NULL;
+                    if (g_shadowCasters[n]->pParts[i].pVertexWork3 != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(g_shadowCasters[n]->pParts[i].pVertexWork3);
+                        g_shadowCasters[n]->pParts[i].pVertexWork3 = NULL;
                     }
-                    if (g_sceneLightState[n]->pParts[i].pTriangleWork != NULL) {
-                        CFileBuffer::FreeGenericFileBuffer(g_sceneLightState[n]->pParts[i].pTriangleWork);
-                        g_sceneLightState[n]->pParts[i].pTriangleWork = NULL;
+                    if (g_shadowCasters[n]->pParts[i].pTriangleWork != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(g_shadowCasters[n]->pParts[i].pTriangleWork);
+                        g_shadowCasters[n]->pParts[i].pTriangleWork = NULL;
                     }
                 }
-                CFileBuffer::FreeGenericFileBuffer(g_sceneLightState[n]->pParts);
-                g_sceneLightState[n]->pParts = NULL;
+                CFileBuffer::FreeGenericFileBuffer(g_shadowCasters[n]->pParts);
+                g_shadowCasters[n]->pParts = NULL;
             }
-            CFileBuffer::FreeGenericFileBuffer(g_sceneLightState[n]);
-            g_sceneLightState[n] = NULL;
+            CFileBuffer::FreeGenericFileBuffer(g_shadowCasters[n]);
+            g_shadowCasters[n] = NULL;
         }
-        g_sceneLightState[n] = NULL;
+        g_shadowCasters[n] = NULL;
     }
     for (n = 0; n < 10; n++) {
-        if (g_sceneLightState2[n] != NULL) {
-            if (g_sceneLightState2[n]->pTriangles != NULL) {
-                CFileBuffer::FreeGenericFileBuffer(g_sceneLightState2[n]->pTriangles);
-                g_sceneLightState2[n]->pTriangles = NULL;
+        if (g_shadowCylinders[n] != NULL) {
+            if (g_shadowCylinders[n]->pTriangles != NULL) {
+                CFileBuffer::FreeGenericFileBuffer(g_shadowCylinders[n]->pTriangles);
+                g_shadowCylinders[n]->pTriangles = NULL;
             }
-            if (g_sceneLightState2[n]->pVertexData != NULL) {
-                CFileBuffer::FreeGenericFileBuffer(g_sceneLightState2[n]->pVertexData);
-                g_sceneLightState2[n]->pVertexData = NULL;
+            if (g_shadowCylinders[n]->pVertexData != NULL) {
+                CFileBuffer::FreeGenericFileBuffer(g_shadowCylinders[n]->pVertexData);
+                g_shadowCylinders[n]->pVertexData = NULL;
             }
-            CFileBuffer::FreeGenericFileBuffer(g_sceneLightState2[n]);
-            g_sceneLightState2[n] = NULL;
+            CFileBuffer::FreeGenericFileBuffer(g_shadowCylinders[n]);
+            g_shadowCylinders[n] = NULL;
         }
-        g_sceneLightState2[n] = NULL;
+        g_shadowCylinders[n] = NULL;
     }
-    g_sceneLightFlag = 0;
-    g_sceneLightFlag2 = 0;
+    g_shadowCasterCount = 0;
+    g_shadowCylinderCount = 0;
     g_shadowVertexCount = 0;
     g_shadowBatchCount = 0;
 }

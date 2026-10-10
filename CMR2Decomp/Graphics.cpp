@@ -3266,8 +3266,8 @@ void Graphics_SetRecordField2C(BYTE *p, int value)
 }
 
 // Shadow volumes: up to 9 cylinders built from meshes, cached by mesh name.
-extern Mesh *g_sceneLightState2[10];
-extern BYTE g_sceneLightFlag2;
+extern Mesh *g_shadowCylinders[10];
+extern BYTE g_shadowCylinderCount;
 // 4096 / (360 * 65536): 16.16 degrees to a sine table index.
 extern double g_fixedDegreesToAngle12;
 
@@ -3303,18 +3303,18 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
     int i;
     int n;
 
-    count = g_sceneLightFlag2;
+    count = g_shadowCylinderCount;
     pFound = NULL;
     for (i = 0; i < count; i++) {
-        if (strcmp((char *)g_sceneLightState2[i], (char *)pMesh) == 0) {
-            pFound = g_sceneLightState2[i];
+        if (strcmp((char *)g_shadowCylinders[i], (char *)pMesh) == 0) {
+            pFound = g_shadowCylinders[i];
             i = count;
         }
     }
     if (pFound != NULL)
         return pFound;
 
-    if (g_sceneLightFlag2 < 9) {
+    if (g_shadowCylinderCount < 9) {
         pVerts = (MeshVertexF *)pMesh->pVertexData;
         radius = 0.0f;
         minZ = 0.0f;
@@ -3348,7 +3348,7 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
         }
 
         pCyl = (Mesh *)CFileBuffer::AllocateLockedBuffer(0x108);
-        g_sceneLightState2[g_sceneLightFlag2++] = pCyl;
+        g_shadowCylinders[g_shadowCylinderCount++] = pCyl;
         memset(pCyl, 0, 0x108);
         strcpy((char *)pCyl, (char *)pMesh);
         pCyl->field_0x10 = 22;

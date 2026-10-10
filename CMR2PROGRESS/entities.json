@@ -24792,19 +24792,19 @@
     "g_meshTotalSize"
   ],
   "0x67f238": [
-    6113820,
+    6113780,
     "g_rotAxisXY"
   ],
   "0x67f244": [
-    6113824,
+    6113784,
     "g_rotAxisXZ"
   ],
   "0x67f248": [
-    6129180,
+    6129060,
     "g_rotCos"
   ],
   "0x67f24c": [
-    6113832,
+    6113792,
     "g_rotAxisYZ"
   ],
   "0x67f250": [
@@ -24812,35 +24812,35 @@
     "g_rotSin"
   ],
   "0x67f254": [
-    6113812,
+    6113772,
     "g_rotAxisXX"
   ],
   "0x67f258": [
-    6113828,
+    6113788,
     "g_rotAxisYY"
   ],
   "0x67f25c": [
-    6097404,
+    6097368,
     "g_rotAxisZZ"
   ],
   "0x67f36c": [
-    6081012,
+    6080976,
     "g_sceneNodes"
   ],
   "0x68336c": [
-    6123244,
+    6123084,
     "g_rotOneMinusCos"
   ],
   "0x683370": [
-    6114892,
+    6114852,
     "g_sceneNodeCount"
   ],
   "0x683374": [
-    6097400,
+    6097364,
     "g_sceneStatCopied"
   ],
   "0x683378": [
-    6115048,
+    6114888,
     "g_sceneStatMultiplied"
   ],
   "0x68337c": [
@@ -24848,23 +24848,23 @@
     "g_sceneStatClean"
   ],
   "0x683380": [
-    6080948,
+    6080952,
     "g_sceneStatHidden"
   ],
   "0x683388": [
-    6123260,
+    6123100,
     "g_sceneType2Objects"
   ],
   "0x6838c8": [
-    6113816,
+    6113776,
     "g_sceneType2CallbackRegistered"
   ],
   "0x6838cc": [
-    6064536,
+    6064540,
     "g_sceneType2Count"
   ],
   "0x6838d0": [
-    6114896,
+    6114856,
     "g_viewSetupMode"
   ],
   "0x6a2a08": [
@@ -25008,19 +25008,19 @@
     "g_unk0x006de95c"
   ],
   "0x6deab8": [
-    6124284,
-    "g_sceneLightFlag"
+    6062480,
+    "g_shadowCasterCount"
   ],
   "0x6deacc": [
     6129828,
     "g_sceneShadowTableD3D"
   ],
   "0x6dead0": [
-    6124372,
+    6124212,
     "g_shadowBatches"
   ],
   "0x6dfd90": [
-    6080936,
+    6080940,
     "g_sceneSectorLights2"
   ],
   "0x6dfd98": [
@@ -25032,15 +25032,15 @@
     "g_sceneShadowTable"
   ],
   "0x6dfda0": [
-    6113800,
+    6113760,
     "g_sceneLightForward"
   ],
   "0x6dfdbc": [
-    6080992,
+    6080956,
     "g_sceneLightZones"
   ],
   "0x6dfdc4": [
-    6129172,
+    6129012,
     "g_sceneLightColourBytes"
   ],
   "0x6dfdc8": [
@@ -25048,11 +25048,11 @@
     "g_sceneLightTableD3D"
   ],
   "0x6dfdcc": [
-    6113796,
+    6113756,
     "g_sceneLightData"
   ],
   "0x6dfdd8": [
-    6124288,
+    6124128,
     "g_sceneShadowDir"
   ],
   "0x6dfdf8": [
@@ -25060,7 +25060,7 @@
     "g_unk0x006dfdf8"
   ],
   "0x6dfdfc": [
-    6080996,
+    6080960,
     "g_sceneSectorFlags"
   ],
   "0x6dfe00": [
@@ -25088,43 +25088,43 @@
     "g_sceneLightBasis"
   ],
   "0x6e00c8": [
-    6124304,
+    6124144,
     "g_sceneMaterial"
   ],
   "0x6e0118": [
-    6114880,
+    6114840,
     "g_sceneAmbient"
   ],
   "0x6e0124": [
-    6114928,
-    "g_sceneLightState"
+    6129064,
+    "g_shadowCasters"
   ],
   "0x6e019c": [
     6062428,
     "g_sceneSectorLights"
   ],
   "0x6e01a0": [
-    6113840,
+    6113800,
     "g_sceneLight"
   ],
   "0x6e01b0": [
-    6081000,
+    6080964,
     "g_sceneLightDirF"
   ],
   "0x6e01c0": [
-    6114904,
+    6114864,
     "g_sceneZoneCount"
   ],
   "0x6e01c4": [
-    6080952,
-    "g_sceneLightState2"
+    6129020,
+    "g_shadowCylinders"
   ],
   "0x6e01ec": [
-    6124300,
+    6124140,
     "g_sceneAmbientColour"
   ],
   "0x6e01f0": [
-    6080940,
+    6080944,
     "g_shadowBatch"
   ],
   "0x6e0204": [
@@ -25132,59 +25132,59 @@
     "g_sceneSectorZone"
   ],
   "0x6e020c": [
-    6064540,
+    6064544,
     "g_sceneAmbientD3D"
   ],
   "0x6e0220": [
-    6064496,
+    6064500,
     "g_sceneLightBasisF"
   ],
   "0x6e0244": [
-    6064548,
+    6064552,
     "g_sceneLightDirty"
   ],
   "0x6e0348": [
-    6114912,
+    6114872,
     "g_sceneLightColour"
   ],
   "0x6e0354": [
-    6062480,
+    6062484,
     "g_unk0x006e0354"
   ],
   "0x6e0b28": [
-    6123248,
+    6123088,
     "g_sceneLightRight"
   ],
   "0x6e0b34": [
-    6114924,
+    6114884,
     "g_sceneLightTable"
   ],
   "0x6e0b38": [
-    6080944,
+    6080948,
     "g_shadowLevel"
   ],
   "0x6e0b48": [
-    6064532,
+    6064536,
     "g_sceneType1Count"
   ],
   "0x6e0b90": [
-    6129176,
+    6129016,
     "g_shadowVertexData"
   ],
   "0x6e0b94": [
-    6064544,
+    6064548,
     "g_shadowVertexCount"
   ],
   "0x6e0b98": [
-    6114900,
+    6114860,
     "g_shadowBatchCount"
   ],
   "0x6e0b99": [
-    6113792,
-    "g_sceneLightFlag2"
+    6114861,
+    "g_shadowCylinderCount"
   ],
   "0x6e0b9c": [
-    6097396,
+    6097360,
     "g_sceneLightCallbackSet"
   ],
   "0x6e0bac": [
@@ -25212,11 +25212,11 @@
     "g_unk0x006e0ef0"
   ],
   "0x6e0ef4": [
-    6115052,
+    6114892,
     "g_sqrtTable"
   ],
   "0x6e2ef4": [
-    6097408,
+    6097372,
     "g_sinTable"
   ],
   "0x6e6ef4": [
@@ -25224,11 +25224,11 @@
     "g_acosTable"
   ],
   "0x6e8ff4": [
-    6113852,
+    6113812,
     "g_atanTable"
   ],
   "0x6e93f4": [
-    6064552,
+    6064556,
     "g_tanTable"
   ],
   "0x6ed3f4": [
