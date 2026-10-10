@@ -2232,9 +2232,9 @@ int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int co
 
 #define CORNER_NORMAL(i) \
     ((float *)((BYTE *)pMesh->pVertexData + pTri->vertexIndex[corner] * 0x30))[3 + (i)]
-    normal.x = (int)(__int64)(CORNER_NORMAL(0) * CGraphics::m_65536);
-    normal.y = (int)(__int64)(CORNER_NORMAL(1) * CGraphics::m_65536);
-    normal.z = (int)(__int64)(CORNER_NORMAL(2) * CGraphics::m_65536);
+    normal.x = (int)llrint(CORNER_NORMAL(0) * CGraphics::m_65536);
+    normal.y = (int)llrint(CORNER_NORMAL(1) * CGraphics::m_65536);
+    normal.z = (int)llrint(CORNER_NORMAL(2) * CGraphics::m_65536);
 #undef CORNER_NORMAL
     level = FixMul(FixVecDot(pDir, &normal), 0x40000);
     if (level < 0)
@@ -2640,9 +2640,9 @@ extern const double g_unk0x00511380;
 //   g_sqrtTable sqrt(8 + 16 * i) * 256              (fsqrt)
 //   g_acosTable asin(i / 4095) as a 12-bit angle    (_CIasin)
 //   g_atanTable arctan(i / 511) as a 12-bit angle   (fpatan)
-// The conversions to 16.16 go through __int64, which is the original's fistp
-// rounding. The two shortest loops stop one entry short of the table size,
-// like the original does.
+// PORT: MSVC6 /QIfist converted through x87 fistp with nearest-even rounding.
+// A C++ integer cast truncates instead. Keep the 64-bit conversion before
+// narrowing (including the original low-word behaviour on overflow).
 // match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7b20
 void Scene_InitFixedMathTables(void)
@@ -2652,8 +2652,8 @@ void Scene_InitFixedMathTables(void)
     unsigned short *p;
 
     for (i = 0; i < 4096; i++) {
-        g_sinTable[i] = (int)(__int64)(sin((double)i * g_unk0x00511d08) * CGraphics::m_65536);
-        g_tanTable[i] = (int)(__int64)(tan((double)i * g_unk0x00511d08) * CGraphics::m_65536);
+        g_sinTable[i] = (int)llrint(sin((double)i * g_unk0x00511d08) * CGraphics::m_65536);
+        g_tanTable[i] = (int)llrint(tan((double)i * g_unk0x00511d08) * CGraphics::m_65536);
     }
     i = 8;
     // tan(90°) and tan(270°) would overflow: the original clamps them
@@ -2662,20 +2662,20 @@ void Scene_InitFixedMathTables(void)
 
     p = g_sqrtTable;
     for (; (int)p < (int)(g_sqrtTable + 4096); i += 16)
-        *p++ = (unsigned short)(int)(__int64)(sqrt((double)i * CGraphics::m_oneOver65536) * CGraphics::m_65536);
+        *p++ = (unsigned short)(int)llrint(sqrt((double)i * CGraphics::m_oneOver65536) * CGraphics::m_65536);
 
     i = 0;
     p = (unsigned short *)g_acosTable;
     for (; (int)p < (int)(g_acosTable + 4096); i++, p++) {
-        value = (int)(__int64)(asin((double)i * g_unk0x00511d00) * CGraphics::m_65536);
-        *p = (short)(__int64)((double)value * g_unk0x00511380);
+        value = (int)llrint(asin((double)i * g_unk0x00511d00) * CGraphics::m_65536);
+        *p = (short)llrint((double)value * g_unk0x00511380);
     }
 
     i = 0;
     p = g_atanTable;
     for (; (int)p < (int)(g_atanTable + 512); i++, p++) {
-        value = (int)(__int64)(atan((double)i * g_unk0x00511cf8) * CGraphics::m_65536);
-        *p = (unsigned short)(__int64)((double)value * g_unk0x00511380);
+        value = (int)llrint(atan((double)i * g_unk0x00511cf8) * CGraphics::m_65536);
+        *p = (unsigned short)llrint((double)value * g_unk0x00511380);
     }
 }
 

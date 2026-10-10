@@ -2,6 +2,10 @@
 
 Milestones, in order. Each phase lists what "done" means.
 
+For graphics modernisation, follow [MODERNIZATION.md](MODERNIZATION.md): capture
+the simulation baseline and establish state ownership before changing clocks or
+adding passes. A working renderer does not by itself establish simulation parity.
+
 ## F0: Portable build of the game code
 
 - [x] Repository, `game/` imported from CMR2Decomp, `tools/sync_upstream.py`.
@@ -37,7 +41,8 @@ Milestones, in order. Each phase lists what "done" means.
 ## F3: Parity (0.1)
 
 - [ ] Menus, rallies, arcade, replays, split screen, saves.
-- [ ] Bink 1 (`BIKi`) decoder of our own for the videos (no FFmpeg).
+- [x] In-tree Bink 1 (`BIKi`) video and stereo audio decoder (no FFmpeg
+      dependency); see [VIDEO.md](VIDEO.md) for scope and validation.
 - [ ] Headless build (null renderer and audio) and golden replay tests
       against traces from the original executable.
 
@@ -50,8 +55,22 @@ Milestones, in order. Each phase lists what "done" means.
 
 ## F5: Modernisation (every item optional, "Original" preset)
 
-- [ ] Fixed-rate simulation (25 Hz, as the original's physics scale assumes)
-      with interpolated rendering at any refresh rate.
+- [x] Initial M0: real-stage capture and recorded tick-input playback with a
+      controlled clock; scheduler contract tests and optional CPU profiling.
+      See [BASELINE.md](BASELINE.md); full cadence/parity coverage remains open.
+- [x] Record original + SilentPatch and latest standalone decompilation;
+      separate vehicle-state and elapsed-time pacing comparisons across FPS.
+      See [PHYSICS_PARITY.md](PHYSICS_PARITY.md).
+- [x] Resolve the Finland fixture's numeric differences; original math tables
+      and 500 vehicle steps match. Fix duplicate scheduling and the extra
+      countdown step; verify six cadences at 25 Hz. Expand fidelity fixtures
+      before declaring full-game parity.
+- [ ] Validate and isolate the existing normal 25 Hz car scheduling and
+      body/wheel/camera interpolation; preserve stored replay/ghost rates.
+- [ ] Tick-indexed input/state traces prove that render cadence, graphics
+      settings and original/enhanced mode switching preserve the simulation.
+- [ ] Decouple host, simulation and presentation clocks with explicit
+      pause/stall policies and measured frame pacing/input latency.
 - [ ] Any resolution, widescreen (Hor+ FOV), HUD anchored to the screen
       edges, UI scaling, borderless fullscreen, VSync options.
 - [ ] MSAA, anisotropic filtering, reversed-Z, longer draw and fog

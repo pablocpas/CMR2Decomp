@@ -1,0 +1,6531 @@
+{
+  "schema": 1,
+  "identical": false,
+  "reference_sha256": "75fdf0feee700df0a3c1247675058f95207996af860d253577f3c0340aef5cd6",
+  "candidate_sha256": "87d9f4eb4992bc979fc680078a29d939c3a6dcf714f2dda74acfcbf7dece09f5",
+  "reference_ticks": 500,
+  "candidate_ticks": 500,
+  "first_difference_tick": 0,
+  "different_fields": 929,
+  "different_values_by_block": {
+    "body": 5197,
+    "car": 151840,
+    "contact": 74909,
+    "physics": 362,
+    "rng": 500,
+    "shadow": 23229,
+    "time": 500,
+    "transforms": 24540,
+    "wheels": 16353,
+    "world": 5049,
+    "damage": 5517,
+    "parts": 7771,
+    "checkpoint": 249
+  },
+  "differences": {
+    "body.0.forward.x": {
+      "first_tick": 0,
+      "reference": -40398,
+      "candidate": -40400,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "body.0.forward.z": {
+      "first_tick": 0,
+      "reference": -51604,
+      "candidate": -51603,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "body.0.position.y": {
+      "first_tick": 0,
+      "reference": 636551,
+      "candidate": 636549,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "body.0.right.x": {
+      "first_tick": 0,
+      "reference": -51588,
+      "candidate": -51589,
+      "ticks_different": 496,
+      "last_tick": 499
+    },
+    "body.0.right.z": {
+      "first_tick": 0,
+      "reference": 40390,
+      "candidate": 40393,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "body.0.up.y": {
+      "first_tick": 0,
+      "reference": 65530,
+      "candidate": 65527,
+      "ticks_different": 494,
+      "last_tick": 499
+    },
+    "car.0.baseForce.x": {
+      "first_tick": 0,
+      "reference": -27719,
+      "candidate": -27718,
+      "ticks_different": 490,
+      "last_tick": 499
+    },
+    "car.0.baseForce.y": {
+      "first_tick": 0,
+      "reference": -269,
+      "candidate": -471,
+      "ticks_different": 486,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[0].y": {
+      "first_tick": 0,
+      "reference": 65482,
+      "candidate": 65483,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[1].y": {
+      "first_tick": 0,
+      "reference": 65477,
+      "candidate": 65478,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[1].z": {
+      "first_tick": 0,
+      "reference": 2505,
+      "candidate": 2506,
+      "ticks_different": 338,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[2].y": {
+      "first_tick": 0,
+      "reference": 65482,
+      "candidate": 65483,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[3].y": {
+      "first_tick": 0,
+      "reference": 65477,
+      "candidate": 65478,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[3].z": {
+      "first_tick": 0,
+      "reference": 2505,
+      "candidate": 2506,
+      "ticks_different": 333,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[4].y": {
+      "first_tick": 0,
+      "reference": 65482,
+      "candidate": 65483,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[5].y": {
+      "first_tick": 0,
+      "reference": 65477,
+      "candidate": 65478,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[5].z": {
+      "first_tick": 0,
+      "reference": 2505,
+      "candidate": 2506,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[6].y": {
+      "first_tick": 0,
+      "reference": 65482,
+      "candidate": 65483,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[7].y": {
+      "first_tick": 0,
+      "reference": 65477,
+      "candidate": 65478,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[7].z": {
+      "first_tick": 0,
+      "reference": 2505,
+      "candidate": 2506,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerHeight[1]": {
+      "first_tick": 0,
+      "reference": 585386,
+      "candidate": 585385,
+      "ticks_different": 496,
+      "last_tick": 499
+    },
+    "car.0.cornerHeight[3]": {
+      "first_tick": 0,
+      "reference": 588490,
+      "candidate": 588494,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "car.0.cornerHeight[5]": {
+      "first_tick": 0,
+      "reference": 257706,
+      "candidate": 257705,
+      "ticks_different": 496,
+      "last_tick": 499
+    },
+    "car.0.cornerHeight[7]": {
+      "first_tick": 0,
+      "reference": 260810,
+      "candidate": 260814,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[0].y": {
+      "first_tick": 0,
+      "reference": 65482,
+      "candidate": 65483,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[1].y": {
+      "first_tick": 0,
+      "reference": 65477,
+      "candidate": 65478,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[1].z": {
+      "first_tick": 0,
+      "reference": 2505,
+      "candidate": 2506,
+      "ticks_different": 338,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[2].y": {
+      "first_tick": 0,
+      "reference": 65482,
+      "candidate": 65483,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[3].y": {
+      "first_tick": 0,
+      "reference": 65477,
+      "candidate": 65478,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[3].z": {
+      "first_tick": 0,
+      "reference": 2505,
+      "candidate": 2506,
+      "ticks_different": 333,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[4].y": {
+      "first_tick": 0,
+      "reference": 65482,
+      "candidate": 65483,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[5].y": {
+      "first_tick": 0,
+      "reference": 65477,
+      "candidate": 65478,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[5].z": {
+      "first_tick": 0,
+      "reference": 2505,
+      "candidate": 2506,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[6].y": {
+      "first_tick": 0,
+      "reference": 65482,
+      "candidate": 65483,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[7].y": {
+      "first_tick": 0,
+      "reference": 65477,
+      "candidate": 65478,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[7].z": {
+      "first_tick": 0,
+      "reference": 2505,
+      "candidate": 2506,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev2[0].x": {
+      "first_tick": 0,
+      "reference": 67381045,
+      "candidate": 67381044,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev2[0].y": {
+      "first_tick": 0,
+      "reference": 584571,
+      "candidate": 584572,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev2[0].z": {
+      "first_tick": 0,
+      "reference": 12787656,
+      "candidate": 12787662,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev2[1].x": {
+      "first_tick": 0,
+      "reference": 67452539,
+      "candidate": 67452540,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev2[1].y": {
+      "first_tick": 0,
+      "reference": 585079,
+      "candidate": 585080,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev2[1].z": {
+      "first_tick": 0,
+      "reference": 12878980,
+      "candidate": 12878984,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev2[2].x": {
+      "first_tick": 0,
+      "reference": 67595289,
+      "candidate": 67595288,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev2[2].y": {
+      "first_tick": 0,
+      "reference": 587985,
+      "candidate": 587986,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev2[2].z": {
+      "first_tick": 0,
+      "reference": 12619918,
+      "candidate": 12619914,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev2[3].x": {
+      "first_tick": 0,
+      "reference": 67666783,
+      "candidate": 67666784,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev2[3].y": {
+      "first_tick": 0,
+      "reference": 588493,
+      "candidate": 588494,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev2[3].z": {
+      "first_tick": 0,
+      "reference": 12711242,
+      "candidate": 12711236,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev[0].x": {
+      "first_tick": 0,
+      "reference": 67381045,
+      "candidate": 67381044,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev[0].y": {
+      "first_tick": 0,
+      "reference": 584571,
+      "candidate": 584572,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev[0].z": {
+      "first_tick": 0,
+      "reference": 12787656,
+      "candidate": 12787662,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev[1].x": {
+      "first_tick": 0,
+      "reference": 67452539,
+      "candidate": 67452540,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev[1].y": {
+      "first_tick": 0,
+      "reference": 585079,
+      "candidate": 585080,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev[1].z": {
+      "first_tick": 0,
+      "reference": 12878980,
+      "candidate": 12878984,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev[2].x": {
+      "first_tick": 0,
+      "reference": 67595289,
+      "candidate": 67595288,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev[2].y": {
+      "first_tick": 0,
+      "reference": 587985,
+      "candidate": 587986,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev[2].z": {
+      "first_tick": 0,
+      "reference": 12619918,
+      "candidate": 12619914,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev[3].x": {
+      "first_tick": 0,
+      "reference": 67666783,
+      "candidate": 67666784,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev[3].y": {
+      "first_tick": 0,
+      "reference": 588493,
+      "candidate": 588494,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "car.0.cornerPrev[3].z": {
+      "first_tick": 0,
+      "reference": 12711242,
+      "candidate": 12711236,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[0].x": {
+      "first_tick": 0,
+      "reference": 67381045,
+      "candidate": 67381044,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[0].z": {
+      "first_tick": 0,
+      "reference": 12787656,
+      "candidate": 12787662,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[1].x": {
+      "first_tick": 0,
+      "reference": 67452539,
+      "candidate": 67452540,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[1].z": {
+      "first_tick": 0,
+      "reference": 12878980,
+      "candidate": 12878984,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[2].x": {
+      "first_tick": 0,
+      "reference": 67595289,
+      "candidate": 67595288,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[2].z": {
+      "first_tick": 0,
+      "reference": 12619918,
+      "candidate": 12619914,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[3].x": {
+      "first_tick": 0,
+      "reference": 67666783,
+      "candidate": 67666784,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[3].z": {
+      "first_tick": 0,
+      "reference": 12711242,
+      "candidate": 12711236,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[4].x": {
+      "first_tick": 0,
+      "reference": 67482447,
+      "candidate": 67482446,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[4].y": {
+      "first_tick": 0,
+      "reference": 679505,
+      "candidate": 679501,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[4].z": {
+      "first_tick": 0,
+      "reference": 12727720,
+      "candidate": 12727722,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "car.0.corners[5].x": {
+      "first_tick": 0,
+      "reference": 67534553,
+      "candidate": 67534554,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[5].y": {
+      "first_tick": 0,
+      "reference": 679875,
+      "candidate": 679871,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.corners[6].x": {
+      "first_tick": 0,
+      "reference": 67578011,
+      "candidate": 67578010,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[6].y": {
+      "first_tick": 0,
+      "reference": 681028,
+      "candidate": 681024,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "car.0.corners[6].z": {
+      "first_tick": 0,
+      "reference": 12652901,
+      "candidate": 12652898,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[7].x": {
+      "first_tick": 0,
+      "reference": 67630117,
+      "candidate": 67630118,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[7].y": {
+      "first_tick": 0,
+      "reference": 681398,
+      "candidate": 681394,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.corners[7].z": {
+      "first_tick": 0,
+      "reference": 12719459,
+      "candidate": 12719454,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.field_0x0.forward.x": {
+      "first_tick": 0,
+      "reference": -40392,
+      "candidate": -40393,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.field_0x0.forward.z": {
+      "first_tick": 0,
+      "reference": -51595,
+      "candidate": -51594,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "car.0.field_0x0.position.y": {
+      "first_tick": 0,
+      "reference": 633390,
+      "candidate": 633388,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "car.0.field_0x0.right.z": {
+      "first_tick": 0,
+      "reference": 40400,
+      "candidate": 40402,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.field_0x0.up.y": {
+      "first_tick": 0,
+      "reference": 65532,
+      "candidate": 65529,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "car.0.field_0x2dc.y": {
+      "first_tick": 0,
+      "reference": 633059,
+      "candidate": 633058,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.field_0x384[8]": {
+      "first_tick": 0,
+      "reference": 208,
+      "candidate": 210,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "car.0.field_0x40.forward.x": {
+      "first_tick": 0,
+      "reference": -40398,
+      "candidate": -40400,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.field_0x40.forward.z": {
+      "first_tick": 0,
+      "reference": -51604,
+      "candidate": -51603,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.field_0x40.position.y": {
+      "first_tick": 0,
+      "reference": 636551,
+      "candidate": 636549,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.field_0x40.right.x": {
+      "first_tick": 0,
+      "reference": -51588,
+      "candidate": -51589,
+      "ticks_different": 496,
+      "last_tick": 499
+    },
+    "car.0.field_0x40.right.z": {
+      "first_tick": 0,
+      "reference": 40390,
+      "candidate": 40393,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "car.0.field_0x40.up.y": {
+      "first_tick": 0,
+      "reference": 65530,
+      "candidate": 65527,
+      "ticks_different": 494,
+      "last_tick": 499
+    },
+    "car.0.field_0x758": {
+      "first_tick": 0,
+      "reference": 155028,
+      "candidate": 155024,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.field_0x808[0]": {
+      "first_tick": 0,
+      "reference": -974,
+      "candidate": -980,
+      "ticks_different": 491,
+      "last_tick": 499
+    },
+    "car.0.field_0x808[1]": {
+      "first_tick": 0,
+      "reference": 959,
+      "candidate": 946,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "car.0.field_0x808[3]": {
+      "first_tick": 0,
+      "reference": -1107,
+      "candidate": -1087,
+      "ticks_different": 487,
+      "last_tick": 499
+    },
+    "car.0.field_0x920": {
+      "first_tick": 0,
+      "reference": 65540,
+      "candidate": 65534,
+      "ticks_different": 481,
+      "last_tick": 499
+    },
+    "car.0.field_0x928[1]": {
+      "first_tick": 0,
+      "reference": -24,
+      "candidate": -25,
+      "ticks_different": 472,
+      "last_tick": 499
+    },
+    "car.0.field_0x928[3]": {
+      "first_tick": 0,
+      "reference": -334,
+      "candidate": -330,
+      "ticks_different": 454,
+      "last_tick": 499
+    },
+    "car.0.field_0xa4c[1]": {
+      "first_tick": 0,
+      "reference": 2384814,
+      "candidate": 2384887,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.field_0xa4c[3]": {
+      "first_tick": 0,
+      "reference": 2384814,
+      "candidate": 2384887,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.field_0xa5c[1]": {
+      "first_tick": 0,
+      "reference": 2029725,
+      "candidate": 2029787,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.field_0xa5c[3]": {
+      "first_tick": 0,
+      "reference": 2029725,
+      "candidate": 2029787,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.field_0xa90[0]": {
+      "first_tick": 0,
+      "reference": 51,
+      "candidate": 0,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.field_0xa90[1]": {
+      "first_tick": 0,
+      "reference": 211,
+      "candidate": 64,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.field_0xa90[2]": {
+      "first_tick": 0,
+      "reference": 255,
+      "candidate": 0,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.field_0xa90[3]": {
+      "first_tick": 0,
+      "reference": 255,
+      "candidate": 0,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.forward.x": {
+      "first_tick": 0,
+      "reference": -40392,
+      "candidate": -40393,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.forward.z": {
+      "first_tick": 0,
+      "reference": -51595,
+      "candidate": -51594,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "car.0.frontWheelAxis.x": {
+      "first_tick": 0,
+      "reference": -40398,
+      "candidate": -40400,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.frontWheelDir.x": {
+      "first_tick": 0,
+      "reference": -51598,
+      "candidate": -51600,
+      "ticks_different": 494,
+      "last_tick": 499
+    },
+    "car.0.frontWheelDir.z": {
+      "first_tick": 0,
+      "reference": 40397,
+      "candidate": 40401,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.groundAxis[0].x": {
+      "first_tick": 0,
+      "reference": -40390,
+      "candidate": -40393,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.groundAxis[0].z": {
+      "first_tick": 0,
+      "reference": -51593,
+      "candidate": -51594,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.groundAxis[1].x": {
+      "first_tick": 0,
+      "reference": -40390,
+      "candidate": -40393,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.groundAxis[1].z": {
+      "first_tick": 0,
+      "reference": -51593,
+      "candidate": -51594,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.groundDir[0].x": {
+      "first_tick": 0,
+      "reference": -51587,
+      "candidate": -51590,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.groundDir[0].z": {
+      "first_tick": 0,
+      "reference": 40387,
+      "candidate": 40392,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.groundDir[1].x": {
+      "first_tick": 0,
+      "reference": -51587,
+      "candidate": -51590,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.groundDir[1].z": {
+      "first_tick": 0,
+      "reference": 40387,
+      "candidate": 40392,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.groundNormal.x": {
+      "first_tick": 0,
+      "reference": -818,
+      "candidate": -819,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "car.0.groundNormal.y": {
+      "first_tick": 0,
+      "reference": 65533,
+      "candidate": 65530,
+      "ticks_different": 494,
+      "last_tick": 499
+    },
+    "car.0.normal0x498.y": {
+      "first_tick": 0,
+      "reference": 65532,
+      "candidate": 65529,
+      "ticks_different": 494,
+      "last_tick": 499
+    },
+    "car.0.position.y": {
+      "first_tick": 0,
+      "reference": 633390,
+      "candidate": 633388,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.positionPrev.y": {
+      "first_tick": 0,
+      "reference": 633059,
+      "candidate": 633058,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.positionPrev2.y": {
+      "first_tick": 0,
+      "reference": 633059,
+      "candidate": 633058,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.rearWheelDir.x": {
+      "first_tick": 0,
+      "reference": -51598,
+      "candidate": -51600,
+      "ticks_different": 494,
+      "last_tick": 499
+    },
+    "car.0.rearWheelDir.z": {
+      "first_tick": 0,
+      "reference": 40397,
+      "candidate": 40401,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.right.z": {
+      "first_tick": 0,
+      "reference": 40400,
+      "candidate": 40402,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.targetForward.x": {
+      "first_tick": 0,
+      "reference": -40392,
+      "candidate": -40393,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "car.0.targetForward.z": {
+      "first_tick": 0,
+      "reference": -51595,
+      "candidate": -51594,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "car.0.targetUp.y": {
+      "first_tick": 0,
+      "reference": 65532,
+      "candidate": 65529,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "car.0.up.y": {
+      "first_tick": 0,
+      "reference": 65532,
+      "candidate": 65529,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[0]": {
+      "first_tick": 0,
+      "reference": 585389,
+      "candidate": 585388,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[10]": {
+      "first_tick": 0,
+      "reference": 585190,
+      "candidate": 585173,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[11]": {
+      "first_tick": 0,
+      "reference": 585372,
+      "candidate": 585357,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[12]": {
+      "first_tick": 0,
+      "reference": 585784,
+      "candidate": 585768,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[13]": {
+      "first_tick": 0,
+      "reference": 586102,
+      "candidate": 586088,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[14]": {
+      "first_tick": 0,
+      "reference": 586507,
+      "candidate": 586506,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[15]": {
+      "first_tick": 0,
+      "reference": 590933,
+      "candidate": 590934,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[1]": {
+      "first_tick": 0,
+      "reference": 584574,
+      "candidate": 584573,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[3]": {
+      "first_tick": 0,
+      "reference": 588493,
+      "candidate": 588495,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[5]": {
+      "first_tick": 0,
+      "reference": 583937,
+      "candidate": 583936,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[6]": {
+      "first_tick": 0,
+      "reference": 583243,
+      "candidate": 583242,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[7]": {
+      "first_tick": 0,
+      "reference": 583963,
+      "candidate": 583961,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[8]": {
+      "first_tick": 0,
+      "reference": 584797,
+      "candidate": 584805,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[9]": {
+      "first_tick": 0,
+      "reference": 585211,
+      "candidate": 585209,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[8]": {
+      "first_tick": 0,
+      "reference": 10909,
+      "candidate": 10908,
+      "ticks_different": 205,
+      "last_tick": 499
+    },
+    "contact.0.points[0].x": {
+      "first_tick": 0,
+      "reference": 67451948,
+      "candidate": 67451937,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[0].z": {
+      "first_tick": 0,
+      "reference": 12879145,
+      "candidate": 12879172,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[10].x": {
+      "first_tick": 0,
+      "reference": 67577087,
+      "candidate": 67576720,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[10].z": {
+      "first_tick": 0,
+      "reference": 12503306,
+      "candidate": 12503140,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[11].x": {
+      "first_tick": 0,
+      "reference": 67584808,
+      "candidate": 67584419,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[11].z": {
+      "first_tick": 0,
+      "reference": 12499423,
+      "candidate": 12499310,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[12].x": {
+      "first_tick": 0,
+      "reference": 67587698,
+      "candidate": 67587347,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[12].z": {
+      "first_tick": 0,
+      "reference": 12514336,
+      "candidate": 12514147,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[13].x": {
+      "first_tick": 0,
+      "reference": 67591611,
+      "candidate": 67591262,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[13].z": {
+      "first_tick": 0,
+      "reference": 12523380,
+      "candidate": 12523254,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[14].x": {
+      "first_tick": 0,
+      "reference": 67597859,
+      "candidate": 67597871,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[14].z": {
+      "first_tick": 0,
+      "reference": 12532168,
+      "candidate": 12532112,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[15].x": {
+      "first_tick": 0,
+      "reference": 67669323,
+      "candidate": 67669350,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[15].z": {
+      "first_tick": 0,
+      "reference": 12623454,
+      "candidate": 12623414,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[1].x": {
+      "first_tick": 0,
+      "reference": 67380484,
+      "candidate": 67380457,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[1].z": {
+      "first_tick": 0,
+      "reference": 12787859,
+      "candidate": 12787868,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[2].x": {
+      "first_tick": 0,
+      "reference": 67594708,
+      "candidate": 67594719,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[2].z": {
+      "first_tick": 0,
+      "reference": 12620153,
+      "candidate": 12620126,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[3].x": {
+      "first_tick": 0,
+      "reference": 67666172,
+      "candidate": 67666199,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[3].z": {
+      "first_tick": 0,
+      "reference": 12711439,
+      "candidate": 12711430,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[4].x": {
+      "first_tick": 0,
+      "reference": 67394212,
+      "candidate": 67394194,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[4].z": {
+      "first_tick": 0,
+      "reference": 12716369,
+      "candidate": 12716358,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[5].x": {
+      "first_tick": 0,
+      "reference": 67456833,
+      "candidate": 67456824,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[5].z": {
+      "first_tick": 0,
+      "reference": 12637221,
+      "candidate": 12637183,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[6].x": {
+      "first_tick": 0,
+      "reference": 67466509,
+      "candidate": 67466492,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[6].z": {
+      "first_tick": 0,
+      "reference": 12589806,
+      "candidate": 12589751,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[7].x": {
+      "first_tick": 0,
+      "reference": 67518289,
+      "candidate": 67518285,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[7].z": {
+      "first_tick": 0,
+      "reference": 12540846,
+      "candidate": 12540776,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[8].x": {
+      "first_tick": 0,
+      "reference": 67555607,
+      "candidate": 67555605,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[8].z": {
+      "first_tick": 0,
+      "reference": 12520153,
+      "candidate": 12520085,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[9].x": {
+      "first_tick": 0,
+      "reference": 67566844,
+      "candidate": 67566845,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.points[9].z": {
+      "first_tick": 0,
+      "reference": 12521465,
+      "candidate": 12521399,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[0].y": {
+      "first_tick": 0,
+      "reference": 587967,
+      "candidate": 587966,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[0].z": {
+      "first_tick": 0,
+      "reference": 12756052,
+      "candidate": 12756053,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[10].x": {
+      "first_tick": 0,
+      "reference": 67535310,
+      "candidate": 67535311,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[10].z": {
+      "first_tick": 0,
+      "reference": 12727845,
+      "candidate": 12727844,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[11].x": {
+      "first_tick": 0,
+      "reference": 67547341,
+      "candidate": 67547342,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[11].y": {
+      "first_tick": 0,
+      "reference": 589339,
+      "candidate": 589340,
+      "ticks_different": 496,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[11].z": {
+      "first_tick": 0,
+      "reference": 12743247,
+      "candidate": 12743245,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[12].x": {
+      "first_tick": 0,
+      "reference": 67547362,
+      "candidate": 67547364,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[13].z": {
+      "first_tick": 0,
+      "reference": 12727832,
+      "candidate": 12727830,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[14].z": {
+      "first_tick": 0,
+      "reference": 12771467,
+      "candidate": 12771469,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[15].x": {
+      "first_tick": 0,
+      "reference": 67499295,
+      "candidate": 67499293,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[1].x": {
+      "first_tick": 0,
+      "reference": 67511347,
+      "candidate": 67511346,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[1].z": {
+      "first_tick": 0,
+      "reference": 12771454,
+      "candidate": 12771455,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[2].x": {
+      "first_tick": 0,
+      "reference": 67535310,
+      "candidate": 67535311,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[2].z": {
+      "first_tick": 0,
+      "reference": 12727845,
+      "candidate": 12727844,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[3].x": {
+      "first_tick": 0,
+      "reference": 67547341,
+      "candidate": 67547342,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[3].y": {
+      "first_tick": 0,
+      "reference": 589339,
+      "candidate": 589340,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[3].z": {
+      "first_tick": 0,
+      "reference": 12743247,
+      "candidate": 12743245,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[4].x": {
+      "first_tick": 0,
+      "reference": 67547362,
+      "candidate": 67547364,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[5].z": {
+      "first_tick": 0,
+      "reference": 12727832,
+      "candidate": 12727830,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[6].z": {
+      "first_tick": 0,
+      "reference": 12771467,
+      "candidate": 12771469,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[7].x": {
+      "first_tick": 0,
+      "reference": 67499295,
+      "candidate": 67499293,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[8].y": {
+      "first_tick": 0,
+      "reference": 587967,
+      "candidate": 587966,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[8].z": {
+      "first_tick": 0,
+      "reference": 12756052,
+      "candidate": 12756053,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[9].x": {
+      "first_tick": 0,
+      "reference": 67511347,
+      "candidate": 67511346,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[9].z": {
+      "first_tick": 0,
+      "reference": 12771454,
+      "candidate": 12771455,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelFrontMid[0].x": {
+      "first_tick": 0,
+      "reference": 67517312,
+      "candidate": 67517313,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelFrontMid[0].y": {
+      "first_tick": 0,
+      "reference": 588280,
+      "candidate": 588279,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "contact.0.wheelFrontMid[1].x": {
+      "first_tick": 0,
+      "reference": 67529370,
+      "candidate": 67529371,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelFrontMid[1].z": {
+      "first_tick": 0,
+      "reference": 12757365,
+      "candidate": 12757366,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelFrontMid[2].x": {
+      "first_tick": 0,
+      "reference": 67517312,
+      "candidate": 67517313,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelFrontMid[2].y": {
+      "first_tick": 0,
+      "reference": 588280,
+      "candidate": 588279,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "contact.0.wheelFrontMid[3].x": {
+      "first_tick": 0,
+      "reference": 67529370,
+      "candidate": 67529371,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelFrontMid[3].z": {
+      "first_tick": 0,
+      "reference": 12757365,
+      "candidate": 12757366,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelGrip[0]": {
+      "first_tick": 0,
+      "reference": 65450,
+      "candidate": 65470,
+      "ticks_different": 464,
+      "last_tick": 499
+    },
+    "contact.0.wheelGrip[1]": {
+      "first_tick": 0,
+      "reference": 65450,
+      "candidate": 65470,
+      "ticks_different": 455,
+      "last_tick": 499
+    },
+    "contact.0.wheelGrip[2]": {
+      "first_tick": 0,
+      "reference": 65450,
+      "candidate": 65470,
+      "ticks_different": 450,
+      "last_tick": 499
+    },
+    "contact.0.wheelGrip[3]": {
+      "first_tick": 0,
+      "reference": 65450,
+      "candidate": 65470,
+      "ticks_different": 453,
+      "last_tick": 499
+    },
+    "contact.0.wheelRearMid[1].x": {
+      "first_tick": 0,
+      "reference": 67517287,
+      "candidate": 67517286,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelRearMid[1].z": {
+      "first_tick": 0,
+      "reference": 12741933,
+      "candidate": 12741932,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "contact.0.wheelRearMid[3].x": {
+      "first_tick": 0,
+      "reference": 67517287,
+      "candidate": 67517286,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelRearMid[3].z": {
+      "first_tick": 0,
+      "reference": 12741933,
+      "candidate": 12741932,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "physics.stage_clock": {
+      "first_tick": 0,
+      "reference": 4,
+      "candidate": 6,
+      "ticks_different": 362,
+      "last_tick": 498
+    },
+    "rng": {
+      "first_tick": 0,
+      "reference": 4165000894,
+      "candidate": 1370310382,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "shadow.0.body.forward.x": {
+      "first_tick": 0,
+      "reference": -40392,
+      "candidate": -40393,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "shadow.0.body.forward.z": {
+      "first_tick": 0,
+      "reference": -51595,
+      "candidate": -51594,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "shadow.0.body.position.y": {
+      "first_tick": 0,
+      "reference": 632080,
+      "candidate": 632078,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "shadow.0.body.right.z": {
+      "first_tick": 0,
+      "reference": 40400,
+      "candidate": 40402,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "shadow.0.body.up.y": {
+      "first_tick": 0,
+      "reference": 65532,
+      "candidate": 65529,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "shadow.0.body2.forward.x": {
+      "first_tick": 0,
+      "reference": -40398,
+      "candidate": -40400,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "shadow.0.body2.forward.z": {
+      "first_tick": 0,
+      "reference": -51604,
+      "candidate": -51603,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "shadow.0.body2.position.y": {
+      "first_tick": 0,
+      "reference": 635241,
+      "candidate": 635239,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "shadow.0.body2.right.x": {
+      "first_tick": 0,
+      "reference": -51588,
+      "candidate": -51589,
+      "ticks_different": 496,
+      "last_tick": 499
+    },
+    "shadow.0.body2.right.z": {
+      "first_tick": 0,
+      "reference": 40390,
+      "candidate": 40393,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "shadow.0.body2.up.y": {
+      "first_tick": 0,
+      "reference": 65530,
+      "candidate": 65527,
+      "ticks_different": 494,
+      "last_tick": 499
+    },
+    "shadow.0.cornerHeight[1]": {
+      "first_tick": 0,
+      "reference": 585386,
+      "candidate": 585385,
+      "ticks_different": 496,
+      "last_tick": 499
+    },
+    "shadow.0.cornerHeight[3]": {
+      "first_tick": 0,
+      "reference": 588490,
+      "candidate": 588494,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[28]": {
+      "first_tick": 0,
+      "reference": 193,
+      "candidate": 192,
+      "ticks_different": 485,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[76]": {
+      "first_tick": 0,
+      "reference": 131,
+      "candidate": 135,
+      "ticks_different": 486,
+      "last_tick": 499
+    },
+    "shadow.0.groundNormal.x": {
+      "first_tick": 0,
+      "reference": -818,
+      "candidate": -819,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "shadow.0.groundNormal.y": {
+      "first_tick": 0,
+      "reference": 65533,
+      "candidate": 65530,
+      "ticks_different": 494,
+      "last_tick": 499
+    },
+    "time": {
+      "first_tick": 0,
+      "reference": 100116,
+      "candidate": 100133,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "transforms.0.body.forward.x": {
+      "first_tick": 0,
+      "reference": -40393,
+      "candidate": -40395,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "transforms.0.body.forward.z": {
+      "first_tick": 0,
+      "reference": -51595,
+      "candidate": -51596,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "transforms.0.body.right.x": {
+      "first_tick": 0,
+      "reference": -51594,
+      "candidate": -51596,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "transforms.0.body.right.z": {
+      "first_tick": 0,
+      "reference": 40392,
+      "candidate": 40395,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "transforms.0.body.up.y": {
+      "first_tick": 0,
+      "reference": 65534,
+      "candidate": 65536,
+      "ticks_different": 492,
+      "last_tick": 499
+    },
+    "transforms.0.body2.forward.x": {
+      "first_tick": 0,
+      "reference": -40393,
+      "candidate": -40395,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "transforms.0.body2.forward.z": {
+      "first_tick": 0,
+      "reference": -51595,
+      "candidate": -51596,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "transforms.0.body2.position.y": {
+      "first_tick": 0,
+      "reference": 633059,
+      "candidate": 633058,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "transforms.0.body2.right.x": {
+      "first_tick": 0,
+      "reference": -51594,
+      "candidate": -51596,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "transforms.0.body2.right.z": {
+      "first_tick": 0,
+      "reference": 40392,
+      "candidate": 40395,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "transforms.0.body2.up.y": {
+      "first_tick": 0,
+      "reference": 65534,
+      "candidate": 65536,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "transforms.0.groundNormal.y": {
+      "first_tick": 0,
+      "reference": 65520,
+      "candidate": 65522,
+      "ticks_different": 491,
+      "last_tick": 499
+    },
+    "wheels.0.[0].forward.z": {
+      "first_tick": 0,
+      "reference": 65355,
+      "candidate": 65354,
+      "ticks_different": 494,
+      "last_tick": 499
+    },
+    "wheels.0.[0].up.y": {
+      "first_tick": 0,
+      "reference": 65476,
+      "candidate": 65475,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "wheels.0.[1].forward.z": {
+      "first_tick": 0,
+      "reference": -65341,
+      "candidate": -65342,
+      "ticks_different": 490,
+      "last_tick": 499
+    },
+    "wheels.0.[1].right.x": {
+      "first_tick": 0,
+      "reference": -65520,
+      "candidate": -65522,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "wheels.0.[1].up.y": {
+      "first_tick": 0,
+      "reference": 65476,
+      "candidate": 65475,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "wheels.0.[2].forward.z": {
+      "first_tick": 0,
+      "reference": 65355,
+      "candidate": 65354,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "wheels.0.[2].up.y": {
+      "first_tick": 0,
+      "reference": 65476,
+      "candidate": 65475,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "wheels.0.[3].forward.z": {
+      "first_tick": 0,
+      "reference": -65341,
+      "candidate": -65342,
+      "ticks_different": 490,
+      "last_tick": 499
+    },
+    "wheels.0.[3].right.x": {
+      "first_tick": 0,
+      "reference": -65520,
+      "candidate": -65522,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "wheels.0.[3].up.y": {
+      "first_tick": 0,
+      "reference": 65476,
+      "candidate": 65475,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "world.0.forward.x": {
+      "first_tick": 0,
+      "reference": -40392,
+      "candidate": -40393,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "world.0.forward.z": {
+      "first_tick": 0,
+      "reference": -51595,
+      "candidate": -51594,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "world.0.position.y": {
+      "first_tick": 0,
+      "reference": 633390,
+      "candidate": 633388,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "world.0.right.z": {
+      "first_tick": 0,
+      "reference": 40400,
+      "candidate": 40402,
+      "ticks_different": 500,
+      "last_tick": 499
+    },
+    "world.0.up.y": {
+      "first_tick": 0,
+      "reference": 65532,
+      "candidate": 65529,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "car.0.field_0x8b8[0]": {
+      "first_tick": 1,
+      "reference": 18486440,
+      "candidate": 18487280,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.field_0x8b8[1]": {
+      "first_tick": 1,
+      "reference": 18215820,
+      "candidate": 18217640,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.field_0x8b8[3]": {
+      "first_tick": 1,
+      "reference": 18505060,
+      "candidate": 18502260,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.field_0xa4c[0]": {
+      "first_tick": 1,
+      "reference": 2401041,
+      "candidate": 2401139,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.field_0xa5c[0]": {
+      "first_tick": 1,
+      "reference": 2043535,
+      "candidate": 2043619,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "car.0.frontWheelAxis.z": {
+      "first_tick": 1,
+      "reference": -51603,
+      "candidate": -51605,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "car.0.groundAxis[0].y": {
+      "first_tick": 1,
+      "reference": -277,
+      "candidate": -276,
+      "ticks_different": 426,
+      "last_tick": 499
+    },
+    "car.0.groundAxis[1].y": {
+      "first_tick": 1,
+      "reference": -277,
+      "candidate": -276,
+      "ticks_different": 426,
+      "last_tick": 499
+    },
+    "car.0.groundDir[0].y": {
+      "first_tick": 1,
+      "reference": -824,
+      "candidate": -823,
+      "ticks_different": 432,
+      "last_tick": 499
+    },
+    "car.0.groundDir[1].y": {
+      "first_tick": 1,
+      "reference": -824,
+      "candidate": -823,
+      "ticks_different": 431,
+      "last_tick": 499
+    },
+    "car.0.handbrakeForce": {
+      "first_tick": 1,
+      "reference": 10135,
+      "candidate": 10087,
+      "ticks_different": 8,
+      "last_tick": 433
+    },
+    "car.0.normal0x498.x": {
+      "first_tick": 1,
+      "reference": -818,
+      "candidate": -819,
+      "ticks_different": 494,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[2]": {
+      "first_tick": 1,
+      "reference": 588300,
+      "candidate": 588306,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.pointGroundY[4]": {
+      "first_tick": 1,
+      "reference": 583498,
+      "candidate": 583503,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "contact.0.points[0].y": {
+      "first_tick": 1,
+      "reference": 179038,
+      "candidate": 427686,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "contact.0.points[10].y": {
+      "first_tick": 1,
+      "reference": 179833,
+      "candidate": 429848,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[11].y": {
+      "first_tick": 1,
+      "reference": 179862,
+      "candidate": 429924,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[12].y": {
+      "first_tick": 1,
+      "reference": 179856,
+      "candidate": 429906,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[13].y": {
+      "first_tick": 1,
+      "reference": 179856,
+      "candidate": 429915,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[14].y": {
+      "first_tick": 1,
+      "reference": 179870,
+      "candidate": 429949,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[15].y": {
+      "first_tick": 1,
+      "reference": 179993,
+      "candidate": 430282,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "contact.0.points[1].y": {
+      "first_tick": 1,
+      "reference": 178914,
+      "candidate": 427352,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "contact.0.points[2].y": {
+      "first_tick": 1,
+      "reference": 179766,
+      "candidate": 429662,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[3].y": {
+      "first_tick": 1,
+      "reference": 179890,
+      "candidate": 429996,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[4].y": {
+      "first_tick": 1,
+      "reference": 179034,
+      "candidate": 427681,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "contact.0.points[5].y": {
+      "first_tick": 1,
+      "reference": 179316,
+      "candidate": 428445,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[6].y": {
+      "first_tick": 1,
+      "reference": 179398,
+      "candidate": 428668,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[7].y": {
+      "first_tick": 1,
+      "reference": 179612,
+      "candidate": 429251,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[8].y": {
+      "first_tick": 1,
+      "reference": 179752,
+      "candidate": 429628,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.points[9].y": {
+      "first_tick": 1,
+      "reference": 179785,
+      "candidate": 429719,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[0].x": {
+      "first_tick": 1,
+      "reference": 67475764,
+      "candidate": 67435801,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[10].y": {
+      "first_tick": 1,
+      "reference": 588440,
+      "candidate": 588182,
+      "ticks_different": 496,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[12].y": {
+      "first_tick": 1,
+      "reference": 588887,
+      "candidate": 588503,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[12].z": {
+      "first_tick": 1,
+      "reference": 12738621,
+      "candidate": 12730733,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[13].x": {
+      "first_tick": 1,
+      "reference": 67561433,
+      "candidate": 67605938,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[13].y": {
+      "first_tick": 1,
+      "reference": 589662,
+      "candidate": 589279,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[14].x": {
+      "first_tick": 1,
+      "reference": 67537474,
+      "candidate": 67581980,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[14].y": {
+      "first_tick": 1,
+      "reference": 588366,
+      "candidate": 587981,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[15].y": {
+      "first_tick": 1,
+      "reference": 589141,
+      "candidate": 588757,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[15].z": {
+      "first_tick": 1,
+      "reference": 12751430,
+      "candidate": 12743548,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[1].y": {
+      "first_tick": 1,
+      "reference": 587963,
+      "candidate": 586689,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[2].y": {
+      "first_tick": 1,
+      "reference": 587843,
+      "candidate": 586569,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[4].y": {
+      "first_tick": 1,
+      "reference": 588388,
+      "candidate": 587158,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[4].z": {
+      "first_tick": 1,
+      "reference": 12765511,
+      "candidate": 12803342,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[5].x": {
+      "first_tick": 1,
+      "reference": 67527086,
+      "candidate": 67513199,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[5].y": {
+      "first_tick": 1,
+      "reference": 589163,
+      "candidate": 587934,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[6].x": {
+      "first_tick": 1,
+      "reference": 67503127,
+      "candidate": 67489241,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[6].y": {
+      "first_tick": 1,
+      "reference": 587867,
+      "candidate": 586636,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[7].y": {
+      "first_tick": 1,
+      "reference": 588642,
+      "candidate": 587412,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[7].z": {
+      "first_tick": 1,
+      "reference": 12778320,
+      "candidate": 12816157,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[8].x": {
+      "first_tick": 1,
+      "reference": 67510109,
+      "candidate": 67528538,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "contact.0.wheelCorners[9].y": {
+      "first_tick": 1,
+      "reference": 588560,
+      "candidate": 588302,
+      "ticks_different": 496,
+      "last_tick": 499
+    },
+    "contact.0.wheelFrontMid[0].z": {
+      "first_tick": 1,
+      "reference": 12744635,
+      "candidate": 12749175,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "contact.0.wheelFrontMid[1].y": {
+      "first_tick": 1,
+      "reference": 588127,
+      "candidate": 586897,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelFrontMid[2].z": {
+      "first_tick": 1,
+      "reference": 12717745,
+      "candidate": 12676566,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelFrontMid[3].y": {
+      "first_tick": 1,
+      "reference": 588626,
+      "candidate": 588242,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelGroundY[0]": {
+      "first_tick": 1,
+      "reference": 587901,
+      "candidate": 586627,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "contact.0.wheelGroundY[1]": {
+      "first_tick": 1,
+      "reference": 588513,
+      "candidate": 587283,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelGroundY[2]": {
+      "first_tick": 1,
+      "reference": 588498,
+      "candidate": 588240,
+      "ticks_different": 496,
+      "last_tick": 499
+    },
+    "contact.0.wheelGroundY[3]": {
+      "first_tick": 1,
+      "reference": 589012,
+      "candidate": 588628,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelRearMid[0].x": {
+      "first_tick": 1,
+      "reference": 67505796,
+      "candidate": 67465846,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelRearMid[0].y": {
+      "first_tick": 1,
+      "reference": 588276,
+      "candidate": 587002,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "contact.0.wheelRearMid[0].z": {
+      "first_tick": 1,
+      "reference": 12760035,
+      "candidate": 12764577,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelRearMid[1].y": {
+      "first_tick": 1,
+      "reference": 588902,
+      "candidate": 587673,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelRearMid[2].x": {
+      "first_tick": 1,
+      "reference": 67540141,
+      "candidate": 67558583,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelRearMid[2].y": {
+      "first_tick": 1,
+      "reference": 588873,
+      "candidate": 588615,
+      "ticks_different": 496,
+      "last_tick": 499
+    },
+    "contact.0.wheelRearMid[2].z": {
+      "first_tick": 1,
+      "reference": 12733145,
+      "candidate": 12691968,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "contact.0.wheelRearMid[3].y": {
+      "first_tick": 1,
+      "reference": 589401,
+      "candidate": 589018,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "transforms.0.body.forward.y": {
+      "first_tick": 1,
+      "reference": -72,
+      "candidate": -195,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "transforms.0.body.position.x": {
+      "first_tick": 1,
+      "reference": 67523332,
+      "candidate": 67523338,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "transforms.0.body.position.y": {
+      "first_tick": 1,
+      "reference": 158020,
+      "candidate": 426644,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "transforms.0.body.position.z": {
+      "first_tick": 1,
+      "reference": 12749647,
+      "candidate": 12749644,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "transforms.0.body.right.y": {
+      "first_tick": 1,
+      "reference": -207,
+      "candidate": -555,
+      "ticks_different": 365,
+      "last_tick": 499
+    },
+    "transforms.0.body.up.x": {
+      "first_tick": 1,
+      "reference": -208,
+      "candidate": -558,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "transforms.0.body.up.z": {
+      "first_tick": 1,
+      "reference": 70,
+      "candidate": 188,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "transforms.0.body2.forward.y": {
+      "first_tick": 1,
+      "reference": -72,
+      "candidate": -195,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "transforms.0.body2.position.x": {
+      "first_tick": 1,
+      "reference": 67523322,
+      "candidate": 67523311,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "transforms.0.body2.position.z": {
+      "first_tick": 1,
+      "reference": 12749650,
+      "candidate": 12749653,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "transforms.0.body2.right.y": {
+      "first_tick": 1,
+      "reference": -207,
+      "candidate": -556,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "transforms.0.body2.up.x": {
+      "first_tick": 1,
+      "reference": -208,
+      "candidate": -558,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "transforms.0.body2.up.z": {
+      "first_tick": 1,
+      "reference": 70,
+      "candidate": 189,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "transforms.0.cornerHeight[0]": {
+      "first_tick": 1,
+      "reference": 146147,
+      "candidate": 394589,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "transforms.0.cornerHeight[1]": {
+      "first_tick": 1,
+      "reference": 146346,
+      "candidate": 395127,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "transforms.0.cornerHeight[2]": {
+      "first_tick": 1,
+      "reference": 147079,
+      "candidate": 397106,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "transforms.0.cornerHeight[3]": {
+      "first_tick": 1,
+      "reference": 147122,
+      "candidate": 397226,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[0]": {
+      "first_tick": 1,
+      "reference": 75,
+      "candidate": 24,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[1]": {
+      "first_tick": 1,
+      "reference": 79,
+      "candidate": 214,
+      "ticks_different": 15,
+      "last_tick": 496
+    },
+    "transforms.0.field_0x80[24]": {
+      "first_tick": 1,
+      "reference": 75,
+      "candidate": 24,
+      "ticks_different": 232,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[25]": {
+      "first_tick": 1,
+      "reference": 79,
+      "candidate": 214,
+      "ticks_different": 120,
+      "last_tick": 494
+    },
+    "transforms.0.field_0x80[28]": {
+      "first_tick": 1,
+      "reference": 176,
+      "candidate": 14,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[29]": {
+      "first_tick": 1,
+      "reference": 232,
+      "candidate": 193,
+      "ticks_different": 319,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[32]": {
+      "first_tick": 1,
+      "reference": 108,
+      "candidate": 217,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "transforms.0.field_0x80[33]": {
+      "first_tick": 1,
+      "reference": 207,
+      "candidate": 124,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "transforms.0.field_0x80[48]": {
+      "first_tick": 1,
+      "reference": 221,
+      "candidate": 240,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "transforms.0.field_0x80[49]": {
+      "first_tick": 1,
+      "reference": 164,
+      "candidate": 9,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "transforms.0.field_0x80[4]": {
+      "first_tick": 1,
+      "reference": 103,
+      "candidate": 75,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[52]": {
+      "first_tick": 1,
+      "reference": 182,
+      "candidate": 31,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[53]": {
+      "first_tick": 1,
+      "reference": 232,
+      "candidate": 193,
+      "ticks_different": 309,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[56]": {
+      "first_tick": 1,
+      "reference": 147,
+      "candidate": 38,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "transforms.0.field_0x80[57]": {
+      "first_tick": 1,
+      "reference": 48,
+      "candidate": 131,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "transforms.0.field_0x80[5]": {
+      "first_tick": 1,
+      "reference": 232,
+      "candidate": 192,
+      "ticks_different": 256,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[72]": {
+      "first_tick": 1,
+      "reference": 221,
+      "candidate": 240,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[73]": {
+      "first_tick": 1,
+      "reference": 164,
+      "candidate": 9,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "transforms.0.field_0x80[76]": {
+      "first_tick": 1,
+      "reference": 96,
+      "candidate": 59,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[77]": {
+      "first_tick": 1,
+      "reference": 232,
+      "candidate": 192,
+      "ticks_different": 288,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[80]": {
+      "first_tick": 1,
+      "reference": 108,
+      "candidate": 217,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "transforms.0.field_0x80[81]": {
+      "first_tick": 1,
+      "reference": 207,
+      "candidate": 124,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "transforms.0.field_0x80[8]": {
+      "first_tick": 1,
+      "reference": 147,
+      "candidate": 38,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "transforms.0.field_0x80[9]": {
+      "first_tick": 1,
+      "reference": 48,
+      "candidate": 131,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "transforms.0.groundNormal.x": {
+      "first_tick": 1,
+      "reference": -206,
+      "candidate": -554,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "transforms.0.groundNormal.z": {
+      "first_tick": 1,
+      "reference": 72,
+      "candidate": 195,
+      "ticks_different": 498,
+      "last_tick": 499
+    },
+    "wheels.0.[0].position.x": {
+      "first_tick": 1,
+      "reference": 20299,
+      "candidate": 54808,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "wheels.0.[0].position.y": {
+      "first_tick": 1,
+      "reference": -6041,
+      "candidate": -16309,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "wheels.0.[0].position.z": {
+      "first_tick": 1,
+      "reference": 12435,
+      "candidate": 33574,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "wheels.0.[1].position.x": {
+      "first_tick": 1,
+      "reference": 20299,
+      "candidate": 54808,
+      "ticks_different": 232,
+      "last_tick": 499
+    },
+    "wheels.0.[1].position.y": {
+      "first_tick": 1,
+      "reference": -5968,
+      "candidate": -16114,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "wheels.0.[1].position.z": {
+      "first_tick": 1,
+      "reference": -12436,
+      "candidate": -33575,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "wheels.0.[2].position.x": {
+      "first_tick": 1,
+      "reference": -23331,
+      "candidate": -62992,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "wheels.0.[2].position.y": {
+      "first_tick": 1,
+      "reference": -5962,
+      "candidate": -16097,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "wheels.0.[2].position.z": {
+      "first_tick": 1,
+      "reference": 12435,
+      "candidate": 33574,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "wheels.0.[3].position.x": {
+      "first_tick": 1,
+      "reference": -23331,
+      "candidate": -62992,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "wheels.0.[3].position.y": {
+      "first_tick": 1,
+      "reference": -6048,
+      "candidate": -16325,
+      "ticks_different": 499,
+      "last_tick": 499
+    },
+    "wheels.0.[3].position.z": {
+      "first_tick": 1,
+      "reference": -12436,
+      "candidate": -33575,
+      "ticks_different": 1,
+      "last_tick": 1
+    },
+    "car.0.frontWheelAxis.y": {
+      "first_tick": 2,
+      "reference": -287,
+      "candidate": -286,
+      "ticks_different": 400,
+      "last_tick": 499
+    },
+    "car.0.frontWheelDir.y": {
+      "first_tick": 3,
+      "reference": -824,
+      "candidate": -823,
+      "ticks_different": 395,
+      "last_tick": 499
+    },
+    "car.0.rearWheelDir.y": {
+      "first_tick": 3,
+      "reference": -824,
+      "candidate": -823,
+      "ticks_different": 396,
+      "last_tick": 499
+    },
+    "car.0.wheelPhase[0]": {
+      "first_tick": 3,
+      "reference": 65535,
+      "candidate": 0,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "car.0.wheelPhase[1]": {
+      "first_tick": 3,
+      "reference": 65535,
+      "candidate": 0,
+      "ticks_different": 497,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[20]": {
+      "first_tick": 3,
+      "reference": 128,
+      "candidate": 0,
+      "ticks_different": 294,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[21]": {
+      "first_tick": 3,
+      "reference": 233,
+      "candidate": 0,
+      "ticks_different": 496,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[22]": {
+      "first_tick": 3,
+      "reference": 255,
+      "candidate": 0,
+      "ticks_different": 467,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[23]": {
+      "first_tick": 3,
+      "reference": 255,
+      "candidate": 0,
+      "ticks_different": 192,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[44]": {
+      "first_tick": 3,
+      "reference": 128,
+      "candidate": 0,
+      "ticks_different": 305,
+      "last_tick": 498
+    },
+    "shadow.0.field_0x80[45]": {
+      "first_tick": 3,
+      "reference": 233,
+      "candidate": 0,
+      "ticks_different": 494,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[46]": {
+      "first_tick": 3,
+      "reference": 255,
+      "candidate": 0,
+      "ticks_different": 468,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[47]": {
+      "first_tick": 3,
+      "reference": 255,
+      "candidate": 0,
+      "ticks_different": 209,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[20]": {
+      "first_tick": 4,
+      "reference": 15,
+      "candidate": 0,
+      "ticks_different": 494,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[21]": {
+      "first_tick": 4,
+      "reference": 252,
+      "candidate": 0,
+      "ticks_different": 493,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[22]": {
+      "first_tick": 4,
+      "reference": 255,
+      "candidate": 0,
+      "ticks_different": 449,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[23]": {
+      "first_tick": 4,
+      "reference": 255,
+      "candidate": 0,
+      "ticks_different": 257,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[44]": {
+      "first_tick": 4,
+      "reference": 15,
+      "candidate": 0,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[45]": {
+      "first_tick": 4,
+      "reference": 252,
+      "candidate": 0,
+      "ticks_different": 492,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[46]": {
+      "first_tick": 4,
+      "reference": 255,
+      "candidate": 0,
+      "ticks_different": 451,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[47]": {
+      "first_tick": 4,
+      "reference": 255,
+      "candidate": 0,
+      "ticks_different": 241,
+      "last_tick": 499
+    },
+    "wheels.0.[0].right.x": {
+      "first_tick": 5,
+      "reference": 65520,
+      "candidate": 65536,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "wheels.0.[0].right.y": {
+      "first_tick": 5,
+      "reference": -101,
+      "candidate": 0,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "wheels.0.[0].right.z": {
+      "first_tick": 5,
+      "reference": 4,
+      "candidate": 0,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "wheels.0.[0].up.x": {
+      "first_tick": 5,
+      "reference": 100,
+      "candidate": 0,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "wheels.0.[0].up.z": {
+      "first_tick": 5,
+      "reference": -2811,
+      "candidate": -2812,
+      "ticks_different": 490,
+      "last_tick": 499
+    },
+    "wheels.0.[1].right.y": {
+      "first_tick": 5,
+      "reference": 98,
+      "candidate": 0,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "wheels.0.[1].right.z": {
+      "first_tick": 5,
+      "reference": 4,
+      "candidate": 0,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "wheels.0.[1].up.x": {
+      "first_tick": 5,
+      "reference": 99,
+      "candidate": 0,
+      "ticks_different": 495,
+      "last_tick": 499
+    },
+    "wheels.0.[1].up.z": {
+      "first_tick": 5,
+      "reference": 2810,
+      "candidate": 2811,
+      "ticks_different": 490,
+      "last_tick": 499
+    },
+    "car.0.cornerForce[0].z": {
+      "first_tick": 6,
+      "reference": 60,
+      "candidate": 59,
+      "ticks_different": 488,
+      "last_tick": 499
+    },
+    "car.0.cornerForce[1].z": {
+      "first_tick": 6,
+      "reference": 60,
+      "candidate": 59,
+      "ticks_different": 488,
+      "last_tick": 499
+    },
+    "car.0.cornerForce[2].z": {
+      "first_tick": 8,
+      "reference": -759,
+      "candidate": -760,
+      "ticks_different": 490,
+      "last_tick": 499
+    },
+    "car.0.cornerForce[3].z": {
+      "first_tick": 8,
+      "reference": -759,
+      "candidate": -760,
+      "ticks_different": 490,
+      "last_tick": 499
+    },
+    "car.0.cornerForce[2].x": {
+      "first_tick": 9,
+      "reference": 2387,
+      "candidate": 2386,
+      "ticks_different": 491,
+      "last_tick": 499
+    },
+    "car.0.cornerForce[3].x": {
+      "first_tick": 9,
+      "reference": 2387,
+      "candidate": 2386,
+      "ticks_different": 491,
+      "last_tick": 499
+    },
+    "car.0.velocity.x": {
+      "first_tick": 9,
+      "reference": -49,
+      "candidate": -50,
+      "ticks_different": 490,
+      "last_tick": 499
+    },
+    "car.0.cornerForce[2].y": {
+      "first_tick": 10,
+      "reference": 40,
+      "candidate": 41,
+      "ticks_different": 489,
+      "last_tick": 499
+    },
+    "car.0.cornerForce[3].y": {
+      "first_tick": 10,
+      "reference": 40,
+      "candidate": 41,
+      "ticks_different": 489,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[0].x": {
+      "first_tick": 10,
+      "reference": -49,
+      "candidate": -50,
+      "ticks_different": 488,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[1].x": {
+      "first_tick": 10,
+      "reference": -49,
+      "candidate": -50,
+      "ticks_different": 489,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[2].x": {
+      "first_tick": 10,
+      "reference": -49,
+      "candidate": -50,
+      "ticks_different": 489,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[3].x": {
+      "first_tick": 10,
+      "reference": -49,
+      "candidate": -50,
+      "ticks_different": 488,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[4].x": {
+      "first_tick": 10,
+      "reference": -49,
+      "candidate": -50,
+      "ticks_different": 489,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[5].x": {
+      "first_tick": 10,
+      "reference": -49,
+      "candidate": -50,
+      "ticks_different": 489,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[6].x": {
+      "first_tick": 10,
+      "reference": -49,
+      "candidate": -50,
+      "ticks_different": 489,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[7].x": {
+      "first_tick": 10,
+      "reference": -49,
+      "candidate": -50,
+      "ticks_different": 488,
+      "last_tick": 499
+    },
+    "car.0.field_0x890[2]": {
+      "first_tick": 10,
+      "reference": 50,
+      "candidate": 51,
+      "ticks_different": 421,
+      "last_tick": 499
+    },
+    "car.0.field_0x890[3]": {
+      "first_tick": 10,
+      "reference": 50,
+      "candidate": 51,
+      "ticks_different": 411,
+      "last_tick": 499
+    },
+    "car.0.velocityNext.x": {
+      "first_tick": 10,
+      "reference": -49,
+      "candidate": -50,
+      "ticks_different": 489,
+      "last_tick": 499
+    },
+    "car.0.wheelLoad[0]": {
+      "first_tick": 10,
+      "reference": 191,
+      "candidate": 195,
+      "ticks_different": 485,
+      "last_tick": 499
+    },
+    "car.0.wheelLoad[1]": {
+      "first_tick": 10,
+      "reference": 191,
+      "candidate": 195,
+      "ticks_different": 486,
+      "last_tick": 499
+    },
+    "car.0.wheelSlip[2]": {
+      "first_tick": 10,
+      "reference": 192,
+      "candidate": 196,
+      "ticks_different": 488,
+      "last_tick": 499
+    },
+    "car.0.wheelSlip[3]": {
+      "first_tick": 10,
+      "reference": 192,
+      "candidate": 196,
+      "ticks_different": 488,
+      "last_tick": 499
+    },
+    "car.0.wheelTorque[0]": {
+      "first_tick": 10,
+      "reference": 15,
+      "candidate": 19,
+      "ticks_different": 478,
+      "last_tick": 499
+    },
+    "car.0.wheelTorque[1]": {
+      "first_tick": 10,
+      "reference": 15,
+      "candidate": 19,
+      "ticks_different": 478,
+      "last_tick": 499
+    },
+    "car.0.cornerForce[0].x": {
+      "first_tick": 11,
+      "reference": 212,
+      "candidate": 237,
+      "ticks_different": 487,
+      "last_tick": 499
+    },
+    "car.0.cornerForce[1].x": {
+      "first_tick": 11,
+      "reference": 212,
+      "candidate": 237,
+      "ticks_different": 487,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[2].grip2A": {
+      "first_tick": 11,
+      "reference": 13108,
+      "candidate": 13109,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[2].grip2B": {
+      "first_tick": 11,
+      "reference": 91739,
+      "candidate": 91732,
+      "ticks_different": 378,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[2].gripA": {
+      "first_tick": 11,
+      "reference": 15401,
+      "candidate": 15402,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[2].gripB": {
+      "first_tick": 11,
+      "reference": 91740,
+      "candidate": 91734,
+      "ticks_different": 378,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[3].grip2A": {
+      "first_tick": 11,
+      "reference": 13108,
+      "candidate": 13109,
+      "ticks_different": 351,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[3].grip2B": {
+      "first_tick": 11,
+      "reference": 91739,
+      "candidate": 91732,
+      "ticks_different": 360,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[3].gripA": {
+      "first_tick": 11,
+      "reference": 15401,
+      "candidate": 15402,
+      "ticks_different": 351,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[3].gripB": {
+      "first_tick": 11,
+      "reference": 91740,
+      "candidate": 91734,
+      "ticks_different": 360,
+      "last_tick": 499
+    },
+    "car.0.field_0xa4c[2]": {
+      "first_tick": 11,
+      "reference": 2366894,
+      "candidate": 2367047,
+      "ticks_different": 472,
+      "last_tick": 499
+    },
+    "car.0.field_0xa5c[2]": {
+      "first_tick": 11,
+      "reference": 2014495,
+      "candidate": 2014649,
+      "ticks_different": 472,
+      "last_tick": 499
+    },
+    "car.0.wheelSlipLateral[0]": {
+      "first_tick": 11,
+      "reference": 17,
+      "candidate": 18,
+      "ticks_different": 480,
+      "last_tick": 499
+    },
+    "car.0.wheelSlipLateral[1]": {
+      "first_tick": 11,
+      "reference": 17,
+      "candidate": 18,
+      "ticks_different": 476,
+      "last_tick": 499
+    },
+    "car.0.wheelSlipLateral[2]": {
+      "first_tick": 11,
+      "reference": 17,
+      "candidate": 18,
+      "ticks_different": 474,
+      "last_tick": 499
+    },
+    "car.0.wheelSlipLateral[3]": {
+      "first_tick": 11,
+      "reference": 17,
+      "candidate": 18,
+      "ticks_different": 471,
+      "last_tick": 499
+    },
+    "car.0.cornerForce[0].y": {
+      "first_tick": 16,
+      "reference": 2,
+      "candidate": 3,
+      "ticks_different": 480,
+      "last_tick": 499
+    },
+    "car.0.cornerForce[1].y": {
+      "first_tick": 16,
+      "reference": 2,
+      "candidate": 3,
+      "ticks_different": 480,
+      "last_tick": 499
+    },
+    "car.0.velocity.z": {
+      "first_tick": 16,
+      "reference": 23,
+      "candidate": 24,
+      "ticks_different": 484,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[0].z": {
+      "first_tick": 17,
+      "reference": 23,
+      "candidate": 24,
+      "ticks_different": 483,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[1].z": {
+      "first_tick": 17,
+      "reference": 23,
+      "candidate": 24,
+      "ticks_different": 483,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[2].z": {
+      "first_tick": 17,
+      "reference": 23,
+      "candidate": 24,
+      "ticks_different": 483,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[3].z": {
+      "first_tick": 17,
+      "reference": 23,
+      "candidate": 24,
+      "ticks_different": 483,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[4].z": {
+      "first_tick": 17,
+      "reference": 23,
+      "candidate": 24,
+      "ticks_different": 483,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[5].z": {
+      "first_tick": 17,
+      "reference": 23,
+      "candidate": 24,
+      "ticks_different": 483,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[6].z": {
+      "first_tick": 17,
+      "reference": 23,
+      "candidate": 24,
+      "ticks_different": 483,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[7].z": {
+      "first_tick": 17,
+      "reference": 23,
+      "candidate": 24,
+      "ticks_different": 483,
+      "last_tick": 499
+    },
+    "car.0.velocityNext.z": {
+      "first_tick": 17,
+      "reference": 23,
+      "candidate": 24,
+      "ticks_different": 483,
+      "last_tick": 499
+    },
+    "car.0.velocity.y": {
+      "first_tick": 18,
+      "reference": 0,
+      "candidate": -1,
+      "ticks_different": 464,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[0].y": {
+      "first_tick": 19,
+      "reference": 0,
+      "candidate": -1,
+      "ticks_different": 461,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[1].y": {
+      "first_tick": 19,
+      "reference": 0,
+      "candidate": -1,
+      "ticks_different": 461,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[2].y": {
+      "first_tick": 19,
+      "reference": 0,
+      "candidate": -1,
+      "ticks_different": 462,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[3].y": {
+      "first_tick": 19,
+      "reference": 0,
+      "candidate": -1,
+      "ticks_different": 461,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[4].y": {
+      "first_tick": 19,
+      "reference": 0,
+      "candidate": -1,
+      "ticks_different": 461,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[5].y": {
+      "first_tick": 19,
+      "reference": 0,
+      "candidate": -1,
+      "ticks_different": 461,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[6].y": {
+      "first_tick": 19,
+      "reference": 0,
+      "candidate": -1,
+      "ticks_different": 463,
+      "last_tick": 499
+    },
+    "car.0.cornerVelocity[7].y": {
+      "first_tick": 19,
+      "reference": 0,
+      "candidate": -1,
+      "ticks_different": 461,
+      "last_tick": 499
+    },
+    "car.0.velocityNext.y": {
+      "first_tick": 19,
+      "reference": 0,
+      "candidate": -1,
+      "ticks_different": 463,
+      "last_tick": 499
+    },
+    "car.0.field_0x8a0[0]": {
+      "first_tick": 26,
+      "reference": 16,
+      "candidate": 15,
+      "ticks_different": 395,
+      "last_tick": 499
+    },
+    "car.0.field_0x8a0[1]": {
+      "first_tick": 26,
+      "reference": 16,
+      "candidate": 15,
+      "ticks_different": 361,
+      "last_tick": 499
+    },
+    "car.0.field_0x8a0[2]": {
+      "first_tick": 26,
+      "reference": 16,
+      "candidate": 15,
+      "ticks_different": 403,
+      "last_tick": 499
+    },
+    "car.0.field_0x8a0[3]": {
+      "first_tick": 26,
+      "reference": 16,
+      "candidate": 15,
+      "ticks_different": 395,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[0].grip2B": {
+      "first_tick": 32,
+      "reference": 91752,
+      "candidate": 91751,
+      "ticks_different": 391,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[0].gripB": {
+      "first_tick": 32,
+      "reference": 91752,
+      "candidate": 91751,
+      "ticks_different": 391,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[1].grip2B": {
+      "first_tick": 32,
+      "reference": 91752,
+      "candidate": 91751,
+      "ticks_different": 355,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[1].gripB": {
+      "first_tick": 32,
+      "reference": 91752,
+      "candidate": 91751,
+      "ticks_different": 354,
+      "last_tick": 499
+    },
+    "car.0.wheelSlipping[0]": {
+      "first_tick": 33,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 51,
+      "last_tick": 487
+    },
+    "car.0.wheelSlipping[1]": {
+      "first_tick": 33,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 51,
+      "last_tick": 487
+    },
+    "car.0.field_0x7a4": {
+      "first_tick": 125,
+      "reference": 6492,
+      "candidate": 6567,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.field_0x7ac": {
+      "first_tick": 125,
+      "reference": 6492,
+      "candidate": 6567,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.field_0x890[0]": {
+      "first_tick": 125,
+      "reference": 88,
+      "candidate": 86,
+      "ticks_different": 312,
+      "last_tick": 499
+    },
+    "car.0.field_0x890[1]": {
+      "first_tick": 125,
+      "reference": 88,
+      "candidate": 86,
+      "ticks_different": 271,
+      "last_tick": 499
+    },
+    "car.0.wheelLoad[2]": {
+      "first_tick": 125,
+      "reference": 1811,
+      "candidate": 1832,
+      "ticks_different": 364,
+      "last_tick": 499
+    },
+    "car.0.wheelLoad[3]": {
+      "first_tick": 125,
+      "reference": 1811,
+      "candidate": 1832,
+      "ticks_different": 365,
+      "last_tick": 499
+    },
+    "car.0.wheelSlip[0]": {
+      "first_tick": 125,
+      "reference": -1467,
+      "candidate": -1444,
+      "ticks_different": 374,
+      "last_tick": 499
+    },
+    "car.0.wheelSlip[1]": {
+      "first_tick": 125,
+      "reference": -1467,
+      "candidate": -1444,
+      "ticks_different": 375,
+      "last_tick": 499
+    },
+    "car.0.wheelTorque[2]": {
+      "first_tick": 125,
+      "reference": 1698,
+      "candidate": 1718,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "car.0.wheelTorque[3]": {
+      "first_tick": 125,
+      "reference": 1698,
+      "candidate": 1718,
+      "ticks_different": 373,
+      "last_tick": 499
+    },
+    "car.0.field_0x7a8": {
+      "first_tick": 126,
+      "reference": 6492,
+      "candidate": 6567,
+      "ticks_different": 367,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[68]": {
+      "first_tick": 126,
+      "reference": 192,
+      "candidate": 159,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[69]": {
+      "first_tick": 126,
+      "reference": 154,
+      "candidate": 238,
+      "ticks_different": 373,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[70]": {
+      "first_tick": 126,
+      "reference": 255,
+      "candidate": 254,
+      "ticks_different": 374,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[92]": {
+      "first_tick": 126,
+      "reference": 192,
+      "candidate": 159,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[93]": {
+      "first_tick": 126,
+      "reference": 154,
+      "candidate": 238,
+      "ticks_different": 372,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[94]": {
+      "first_tick": 126,
+      "reference": 255,
+      "candidate": 254,
+      "ticks_different": 374,
+      "last_tick": 499
+    },
+    "wheels.0.[2].right.x": {
+      "first_tick": 126,
+      "reference": 65519,
+      "candidate": 65528,
+      "ticks_different": 374,
+      "last_tick": 499
+    },
+    "wheels.0.[2].right.y": {
+      "first_tick": 126,
+      "reference": -402,
+      "candidate": -1206,
+      "ticks_different": 374,
+      "last_tick": 499
+    },
+    "wheels.0.[2].right.z": {
+      "first_tick": 126,
+      "reference": 17,
+      "candidate": 51,
+      "ticks_different": 374,
+      "last_tick": 499
+    },
+    "wheels.0.[2].up.x": {
+      "first_tick": 126,
+      "reference": 401,
+      "candidate": 1206,
+      "ticks_different": 374,
+      "last_tick": 499
+    },
+    "wheels.0.[2].up.z": {
+      "first_tick": 126,
+      "reference": -2811,
+      "candidate": -2812,
+      "ticks_different": 374,
+      "last_tick": 499
+    },
+    "wheels.0.[3].right.y": {
+      "first_tick": 126,
+      "reference": 399,
+      "candidate": 1202,
+      "ticks_different": 374,
+      "last_tick": 499
+    },
+    "wheels.0.[3].right.z": {
+      "first_tick": 126,
+      "reference": 17,
+      "candidate": 51,
+      "ticks_different": 374,
+      "last_tick": 499
+    },
+    "wheels.0.[3].up.x": {
+      "first_tick": 126,
+      "reference": 400,
+      "candidate": 1205,
+      "ticks_different": 374,
+      "last_tick": 499
+    },
+    "wheels.0.[3].up.z": {
+      "first_tick": 126,
+      "reference": 2810,
+      "candidate": 2811,
+      "ticks_different": 374,
+      "last_tick": 499
+    },
+    "car.0.field_0x780": {
+      "first_tick": 127,
+      "reference": 5131,
+      "candidate": 5097,
+      "ticks_different": 361,
+      "last_tick": 499
+    },
+    "car.0.steerFollowRate": {
+      "first_tick": 127,
+      "reference": 5138,
+      "candidate": 5105,
+      "ticks_different": 48,
+      "last_tick": 410
+    },
+    "car.0.wheelPhase[2]": {
+      "first_tick": 128,
+      "reference": 65278,
+      "candidate": 65279,
+      "ticks_different": 372,
+      "last_tick": 499
+    },
+    "car.0.wheelPhase[3]": {
+      "first_tick": 128,
+      "reference": 65278,
+      "candidate": 65279,
+      "ticks_different": 372,
+      "last_tick": 499
+    },
+    "body.0.right.y": {
+      "first_tick": 129,
+      "reference": -822,
+      "candidate": -824,
+      "ticks_different": 366,
+      "last_tick": 499
+    },
+    "body.0.up.x": {
+      "first_tick": 129,
+      "reference": -824,
+      "candidate": -825,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[0].grip2A": {
+      "first_tick": 129,
+      "reference": 13154,
+      "candidate": 13153,
+      "ticks_different": 286,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[0].gripA": {
+      "first_tick": 129,
+      "reference": 15447,
+      "candidate": 15446,
+      "ticks_different": 286,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[1].grip2A": {
+      "first_tick": 129,
+      "reference": 13154,
+      "candidate": 13153,
+      "ticks_different": 254,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[1].gripA": {
+      "first_tick": 129,
+      "reference": 15447,
+      "candidate": 15446,
+      "ticks_different": 254,
+      "last_tick": 499
+    },
+    "car.0.cornerHeight[2]": {
+      "first_tick": 129,
+      "reference": 588316,
+      "candidate": 588315,
+      "ticks_different": 367,
+      "last_tick": 499
+    },
+    "car.0.cornerHeight[6]": {
+      "first_tick": 129,
+      "reference": 260636,
+      "candidate": 260635,
+      "ticks_different": 367,
+      "last_tick": 499
+    },
+    "car.0.corners[0].y": {
+      "first_tick": 129,
+      "reference": 584902,
+      "candidate": 584900,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "car.0.corners[1].y": {
+      "first_tick": 129,
+      "reference": 585402,
+      "candidate": 585400,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "car.0.corners[2].y": {
+      "first_tick": 129,
+      "reference": 588324,
+      "candidate": 588322,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "car.0.corners[3].y": {
+      "first_tick": 129,
+      "reference": 588824,
+      "candidate": 588822,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "car.0.corners[5].z": {
+      "first_tick": 129,
+      "reference": 12794283,
+      "candidate": 12794280,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "car.0.field_0x0.right.x": {
+      "first_tick": 129,
+      "reference": -51602,
+      "candidate": -51596,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.field_0x0.up.x": {
+      "first_tick": 129,
+      "reference": -823,
+      "candidate": -824,
+      "ticks_different": 366,
+      "last_tick": 499
+    },
+    "car.0.field_0x40.right.y": {
+      "first_tick": 129,
+      "reference": -822,
+      "candidate": -824,
+      "ticks_different": 366,
+      "last_tick": 499
+    },
+    "car.0.field_0x40.up.x": {
+      "first_tick": 129,
+      "reference": -824,
+      "candidate": -825,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "car.0.field_0x808[2]": {
+      "first_tick": 129,
+      "reference": 1066,
+      "candidate": 1053,
+      "ticks_different": 364,
+      "last_tick": 499
+    },
+    "car.0.field_0x928[0]": {
+      "first_tick": 129,
+      "reference": -314,
+      "candidate": -312,
+      "ticks_different": 330,
+      "last_tick": 499
+    },
+    "car.0.field_0x928[2]": {
+      "first_tick": 129,
+      "reference": -8,
+      "candidate": -7,
+      "ticks_different": 340,
+      "last_tick": 499
+    },
+    "car.0.field_0x958": {
+      "first_tick": 129,
+      "reference": -8,
+      "candidate": -7,
+      "ticks_different": 349,
+      "last_tick": 499
+    },
+    "car.0.right.x": {
+      "first_tick": 129,
+      "reference": -51602,
+      "candidate": -51596,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.up.x": {
+      "first_tick": 129,
+      "reference": -823,
+      "candidate": -824,
+      "ticks_different": 366,
+      "last_tick": 499
+    },
+    "shadow.0.body.right.x": {
+      "first_tick": 129,
+      "reference": -51602,
+      "candidate": -51596,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "shadow.0.body.up.x": {
+      "first_tick": 129,
+      "reference": -823,
+      "candidate": -824,
+      "ticks_different": 366,
+      "last_tick": 499
+    },
+    "shadow.0.body2.right.y": {
+      "first_tick": 129,
+      "reference": -822,
+      "candidate": -824,
+      "ticks_different": 366,
+      "last_tick": 499
+    },
+    "shadow.0.body2.up.x": {
+      "first_tick": 129,
+      "reference": -824,
+      "candidate": -825,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "shadow.0.cornerHeight[2]": {
+      "first_tick": 129,
+      "reference": 588316,
+      "candidate": 588315,
+      "ticks_different": 367,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[4]": {
+      "first_tick": 129,
+      "reference": 159,
+      "candidate": 161,
+      "ticks_different": 350,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[52]": {
+      "first_tick": 129,
+      "reference": 209,
+      "candidate": 210,
+      "ticks_different": 357,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[68]": {
+      "first_tick": 129,
+      "reference": 128,
+      "candidate": 0,
+      "ticks_different": 180,
+      "last_tick": 497
+    },
+    "shadow.0.field_0x80[69]": {
+      "first_tick": 129,
+      "reference": 44,
+      "candidate": 67,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[92]": {
+      "first_tick": 129,
+      "reference": 128,
+      "candidate": 0,
+      "ticks_different": 184,
+      "last_tick": 498
+    },
+    "shadow.0.field_0x80[93]": {
+      "first_tick": 129,
+      "reference": 44,
+      "candidate": 67,
+      "ticks_different": 371,
+      "last_tick": 499
+    },
+    "world.0.right.x": {
+      "first_tick": 129,
+      "reference": -51602,
+      "candidate": -51596,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "world.0.up.x": {
+      "first_tick": 129,
+      "reference": -823,
+      "candidate": -824,
+      "ticks_different": 366,
+      "last_tick": 499
+    },
+    "body.0.position.x": {
+      "first_tick": 130,
+      "reference": 67523287,
+      "candidate": 67523286,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "body.0.up.z": {
+      "first_tick": 130,
+      "reference": -143,
+      "candidate": -140,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "car.0.baseForce.z": {
+      "first_tick": 130,
+      "reference": 9743,
+      "candidate": 9742,
+      "ticks_different": 357,
+      "last_tick": 499
+    },
+    "car.0.field_0x0.forward.y": {
+      "first_tick": 130,
+      "reference": -277,
+      "candidate": -278,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.field_0x0.right.y": {
+      "first_tick": 130,
+      "reference": -822,
+      "candidate": -823,
+      "ticks_different": 358,
+      "last_tick": 499
+    },
+    "car.0.field_0x384[0]": {
+      "first_tick": 130,
+      "reference": 110,
+      "candidate": 116,
+      "ticks_different": 367,
+      "last_tick": 499
+    },
+    "car.0.field_0x40.position.x": {
+      "first_tick": 130,
+      "reference": 67523287,
+      "candidate": 67523286,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "car.0.field_0x40.up.z": {
+      "first_tick": 130,
+      "reference": -143,
+      "candidate": -140,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "car.0.field_0x8b8[2]": {
+      "first_tick": 130,
+      "reference": 19013960,
+      "candidate": 19010740,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "car.0.field_0x998[0]": {
+      "first_tick": 130,
+      "reference": 1451,
+      "candidate": 1442,
+      "ticks_different": 367,
+      "last_tick": 499
+    },
+    "car.0.field_0x998[1]": {
+      "first_tick": 130,
+      "reference": 1451,
+      "candidate": 1442,
+      "ticks_different": 363,
+      "last_tick": 499
+    },
+    "car.0.field_0x998[2]": {
+      "first_tick": 130,
+      "reference": -1452,
+      "candidate": -1443,
+      "ticks_different": 364,
+      "last_tick": 499
+    },
+    "car.0.field_0x998[3]": {
+      "first_tick": 130,
+      "reference": -1452,
+      "candidate": -1443,
+      "ticks_different": 366,
+      "last_tick": 499
+    },
+    "car.0.field_0x9c8[0]": {
+      "first_tick": 130,
+      "reference": -2,
+      "candidate": -1,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.forward.y": {
+      "first_tick": 130,
+      "reference": -277,
+      "candidate": -278,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.lean.x": {
+      "first_tick": 130,
+      "reference": -699,
+      "candidate": -695,
+      "ticks_different": 356,
+      "last_tick": 499
+    },
+    "car.0.right.y": {
+      "first_tick": 130,
+      "reference": -822,
+      "candidate": -823,
+      "ticks_different": 358,
+      "last_tick": 499
+    },
+    "car.0.targetUp.x": {
+      "first_tick": 130,
+      "reference": -823,
+      "candidate": -824,
+      "ticks_different": 365,
+      "last_tick": 499
+    },
+    "car.0.wheel0x9a8[0]": {
+      "first_tick": 130,
+      "reference": 1451,
+      "candidate": 1442,
+      "ticks_different": 364,
+      "last_tick": 499
+    },
+    "car.0.wheel0x9a8[1]": {
+      "first_tick": 130,
+      "reference": 1451,
+      "candidate": 1442,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.wheel0x9a8[2]": {
+      "first_tick": 130,
+      "reference": -1452,
+      "candidate": -1443,
+      "ticks_different": 366,
+      "last_tick": 499
+    },
+    "car.0.wheel0x9a8[3]": {
+      "first_tick": 130,
+      "reference": -1452,
+      "candidate": -1443,
+      "ticks_different": 364,
+      "last_tick": 499
+    },
+    "car.0.wheel0x9d8[0]": {
+      "first_tick": 130,
+      "reference": -1,
+      "candidate": 0,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "car.0.wheelLean.x": {
+      "first_tick": 130,
+      "reference": -699,
+      "candidate": -695,
+      "ticks_different": 362,
+      "last_tick": 499
+    },
+    "shadow.0.body.forward.y": {
+      "first_tick": 130,
+      "reference": -277,
+      "candidate": -278,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "shadow.0.body.right.y": {
+      "first_tick": 130,
+      "reference": -822,
+      "candidate": -823,
+      "ticks_different": 358,
+      "last_tick": 499
+    },
+    "shadow.0.body2.position.x": {
+      "first_tick": 130,
+      "reference": 67523303,
+      "candidate": 67523302,
+      "ticks_different": 369,
+      "last_tick": 499
+    },
+    "shadow.0.body2.up.z": {
+      "first_tick": 130,
+      "reference": -143,
+      "candidate": -140,
+      "ticks_different": 370,
+      "last_tick": 499
+    },
+    "world.0.forward.y": {
+      "first_tick": 130,
+      "reference": -277,
+      "candidate": -278,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "world.0.right.y": {
+      "first_tick": 130,
+      "reference": -822,
+      "candidate": -823,
+      "ticks_different": 358,
+      "last_tick": 499
+    },
+    "body.0.forward.y": {
+      "first_tick": 131,
+      "reference": -273,
+      "candidate": -277,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.field_0x0.up.z": {
+      "first_tick": 131,
+      "reference": 290,
+      "candidate": 289,
+      "ticks_different": 363,
+      "last_tick": 499
+    },
+    "car.0.field_0x384[4]": {
+      "first_tick": 131,
+      "reference": 202,
+      "candidate": 201,
+      "ticks_different": 356,
+      "last_tick": 499
+    },
+    "car.0.field_0x40.forward.y": {
+      "first_tick": 131,
+      "reference": -273,
+      "candidate": -277,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.groundNormal.z": {
+      "first_tick": 131,
+      "reference": 290,
+      "candidate": 289,
+      "ticks_different": 362,
+      "last_tick": 499
+    },
+    "car.0.lean.z": {
+      "first_tick": 131,
+      "reference": -5,
+      "candidate": -3,
+      "ticks_different": 364,
+      "last_tick": 499
+    },
+    "car.0.speed": {
+      "first_tick": 131,
+      "reference": 3228,
+      "candidate": 3238,
+      "ticks_different": 358,
+      "last_tick": 499
+    },
+    "car.0.targetForward.y": {
+      "first_tick": 131,
+      "reference": -277,
+      "candidate": -278,
+      "ticks_different": 367,
+      "last_tick": 499
+    },
+    "car.0.up.z": {
+      "first_tick": 131,
+      "reference": 290,
+      "candidate": 289,
+      "ticks_different": 363,
+      "last_tick": 499
+    },
+    "car.0.wheelLean.z": {
+      "first_tick": 131,
+      "reference": -3,
+      "candidate": -2,
+      "ticks_different": 354,
+      "last_tick": 499
+    },
+    "shadow.0.body.up.z": {
+      "first_tick": 131,
+      "reference": 290,
+      "candidate": 289,
+      "ticks_different": 363,
+      "last_tick": 499
+    },
+    "shadow.0.body2.forward.y": {
+      "first_tick": 131,
+      "reference": -273,
+      "candidate": -277,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "shadow.0.groundNormal.z": {
+      "first_tick": 131,
+      "reference": 290,
+      "candidate": 289,
+      "ticks_different": 362,
+      "last_tick": 499
+    },
+    "world.0.up.z": {
+      "first_tick": 131,
+      "reference": 290,
+      "candidate": 289,
+      "ticks_different": 363,
+      "last_tick": 499
+    },
+    "body.0.position.z": {
+      "first_tick": 132,
+      "reference": 12751935,
+      "candidate": 12751940,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.field_0x0.position.x": {
+      "first_tick": 132,
+      "reference": 67520393,
+      "candidate": 67520395,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.field_0x0.position.z": {
+      "first_tick": 132,
+      "reference": 12751921,
+      "candidate": 12751926,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.field_0x2dc.x": {
+      "first_tick": 132,
+      "reference": 67520393,
+      "candidate": 67520395,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.field_0x2dc.z": {
+      "first_tick": 132,
+      "reference": 12751921,
+      "candidate": 12751926,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.field_0x40.position.z": {
+      "first_tick": 132,
+      "reference": 12751935,
+      "candidate": 12751940,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.field_0x924": {
+      "first_tick": 132,
+      "reference": -2,
+      "candidate": -1,
+      "ticks_different": 234,
+      "last_tick": 498
+    },
+    "car.0.field_0x938[0]": {
+      "first_tick": 132,
+      "reference": 130,
+      "candidate": 126,
+      "ticks_different": 131,
+      "last_tick": 495
+    },
+    "car.0.field_0x938[1]": {
+      "first_tick": 132,
+      "reference": 70,
+      "candidate": 68,
+      "ticks_different": 117,
+      "last_tick": 499
+    },
+    "car.0.field_0x938[3]": {
+      "first_tick": 132,
+      "reference": 10,
+      "candidate": 12,
+      "ticks_different": 144,
+      "last_tick": 495
+    },
+    "car.0.field_0x9c8[1]": {
+      "first_tick": 132,
+      "reference": -5,
+      "candidate": 0,
+      "ticks_different": 365,
+      "last_tick": 499
+    },
+    "car.0.field_0x9c8[3]": {
+      "first_tick": 132,
+      "reference": -5,
+      "candidate": -1,
+      "ticks_different": 365,
+      "last_tick": 499
+    },
+    "car.0.normal0x498.z": {
+      "first_tick": 132,
+      "reference": 290,
+      "candidate": 289,
+      "ticks_different": 361,
+      "last_tick": 499
+    },
+    "car.0.position.x": {
+      "first_tick": 132,
+      "reference": 67520393,
+      "candidate": 67520395,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.position.z": {
+      "first_tick": 132,
+      "reference": 12751921,
+      "candidate": 12751926,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.targetUp.z": {
+      "first_tick": 132,
+      "reference": 290,
+      "candidate": 289,
+      "ticks_different": 362,
+      "last_tick": 499
+    },
+    "car.0.wheel0x9d8[1]": {
+      "first_tick": 132,
+      "reference": -7,
+      "candidate": -1,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.wheel0x9d8[3]": {
+      "first_tick": 132,
+      "reference": -4,
+      "candidate": 0,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "shadow.0.body.position.x": {
+      "first_tick": 132,
+      "reference": 67520409,
+      "candidate": 67520411,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "shadow.0.body.position.z": {
+      "first_tick": 132,
+      "reference": 12751915,
+      "candidate": 12751920,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "shadow.0.body2.position.z": {
+      "first_tick": 132,
+      "reference": 12751929,
+      "candidate": 12751934,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "world.0.position.x": {
+      "first_tick": 132,
+      "reference": 67520393,
+      "candidate": 67520395,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "world.0.position.z": {
+      "first_tick": 132,
+      "reference": 12751921,
+      "candidate": 12751926,
+      "ticks_different": 368,
+      "last_tick": 499
+    },
+    "car.0.cornerHeight[0]": {
+      "first_tick": 133,
+      "reference": 584567,
+      "candidate": 584565,
+      "ticks_different": 367,
+      "last_tick": 499
+    },
+    "car.0.cornerHeight[4]": {
+      "first_tick": 133,
+      "reference": 256887,
+      "candidate": 256885,
+      "ticks_different": 367,
+      "last_tick": 499
+    },
+    "car.0.field_0x948[0]": {
+      "first_tick": 133,
+      "reference": 24562,
+      "candidate": 26545,
+      "ticks_different": 217,
+      "last_tick": 496
+    },
+    "car.0.field_0x948[1]": {
+      "first_tick": 133,
+      "reference": 2302,
+      "candidate": 4669,
+      "ticks_different": 187,
+      "last_tick": 499
+    },
+    "car.0.field_0x948[2]": {
+      "first_tick": 133,
+      "reference": 11065,
+      "candidate": 8571,
+      "ticks_different": 189,
+      "last_tick": 499
+    },
+    "car.0.field_0x948[3]": {
+      "first_tick": 133,
+      "reference": 21620,
+      "candidate": 19509,
+      "ticks_different": 237,
+      "last_tick": 496
+    },
+    "car.0.field_0x9c8[2]": {
+      "first_tick": 133,
+      "reference": -5,
+      "candidate": -11,
+      "ticks_different": 366,
+      "last_tick": 499
+    },
+    "car.0.positionPrev.x": {
+      "first_tick": 133,
+      "reference": 67520393,
+      "candidate": 67520395,
+      "ticks_different": 367,
+      "last_tick": 499
+    },
+    "car.0.positionPrev.z": {
+      "first_tick": 133,
+      "reference": 12751921,
+      "candidate": 12751926,
+      "ticks_different": 367,
+      "last_tick": 499
+    },
+    "car.0.wheel0x9d8[2]": {
+      "first_tick": 133,
+      "reference": -6,
+      "candidate": -12,
+      "ticks_different": 364,
+      "last_tick": 499
+    },
+    "shadow.0.cornerHeight[0]": {
+      "first_tick": 133,
+      "reference": 584567,
+      "candidate": 584565,
+      "ticks_different": 367,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[70]": {
+      "first_tick": 133,
+      "reference": 116,
+      "candidate": 117,
+      "ticks_different": 363,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[94]": {
+      "first_tick": 133,
+      "reference": 116,
+      "candidate": 117,
+      "ticks_different": 362,
+      "last_tick": 499
+    },
+    "car.0.field_0x91c": {
+      "first_tick": 134,
+      "reference": 1,
+      "candidate": 0,
+      "ticks_different": 250,
+      "last_tick": 499
+    },
+    "car.0.positionPrev2.x": {
+      "first_tick": 134,
+      "reference": 67520393,
+      "candidate": 67520395,
+      "ticks_different": 366,
+      "last_tick": 499
+    },
+    "car.0.positionPrev2.z": {
+      "first_tick": 134,
+      "reference": 12751921,
+      "candidate": 12751926,
+      "ticks_different": 366,
+      "last_tick": 499
+    },
+    "car.0.field_0x938[2]": {
+      "first_tick": 136,
+      "reference": 307,
+      "candidate": 325,
+      "ticks_different": 119,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[10]": {
+      "first_tick": 137,
+      "reference": 10908,
+      "candidate": 10909,
+      "ticks_different": 212,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[71]": {
+      "first_tick": 137,
+      "reference": 255,
+      "candidate": 254,
+      "ticks_different": 266,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[95]": {
+      "first_tick": 137,
+      "reference": 255,
+      "candidate": 254,
+      "ticks_different": 264,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[11]": {
+      "first_tick": 138,
+      "reference": 10908,
+      "candidate": 10909,
+      "ticks_different": 232,
+      "last_tick": 499
+    },
+    "car.0.angularVelocity.y": {
+      "first_tick": 139,
+      "reference": 5,
+      "candidate": 4,
+      "ticks_different": 337,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[0]": {
+      "first_tick": 142,
+      "reference": 10948,
+      "candidate": 10906,
+      "ticks_different": 199,
+      "last_tick": 499
+    },
+    "contact.0.wheelTriangle[1]": {
+      "first_tick": 145,
+      "reference": 10948,
+      "candidate": 10906,
+      "ticks_different": 210,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[29]": {
+      "first_tick": 147,
+      "reference": 160,
+      "candidate": 159,
+      "ticks_different": 303,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[53]": {
+      "first_tick": 147,
+      "reference": 160,
+      "candidate": 159,
+      "ticks_different": 299,
+      "last_tick": 498
+    },
+    "contact.0.pointTriangle[1]": {
+      "first_tick": 148,
+      "reference": 10951,
+      "candidate": 10950,
+      "ticks_different": 212,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[5]": {
+      "first_tick": 148,
+      "reference": 159,
+      "candidate": 160,
+      "ticks_different": 225,
+      "last_tick": 499
+    },
+    "car.0.field_0xa70": {
+      "first_tick": 149,
+      "reference": 112,
+      "candidate": 113,
+      "ticks_different": 250,
+      "last_tick": 478
+    },
+    "shadow.0.field_0x80[77]": {
+      "first_tick": 150,
+      "reference": 160,
+      "candidate": 161,
+      "ticks_different": 256,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[6]": {
+      "first_tick": 151,
+      "reference": 10909,
+      "candidate": 10951,
+      "ticks_different": 205,
+      "last_tick": 499
+    },
+    "contact.0.wheelTriangle[2]": {
+      "first_tick": 152,
+      "reference": 10909,
+      "candidate": 10951,
+      "ticks_different": 190,
+      "last_tick": 499
+    },
+    "contact.0.wheelTriangle[3]": {
+      "first_tick": 152,
+      "reference": 10948,
+      "candidate": 10906,
+      "ticks_different": 190,
+      "last_tick": 499
+    },
+    "car.0.field_0x960": {
+      "first_tick": 153,
+      "reference": 742,
+      "candidate": 709,
+      "ticks_different": 56,
+      "last_tick": 497
+    },
+    "contact.0.pointTriangle[3]": {
+      "first_tick": 153,
+      "reference": 10948,
+      "candidate": 10906,
+      "ticks_different": 184,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[7]": {
+      "first_tick": 153,
+      "reference": 10909,
+      "candidate": 10951,
+      "ticks_different": 207,
+      "last_tick": 499
+    },
+    "car.0.cornerLoad[0].x": {
+      "first_tick": 154,
+      "reference": -51223,
+      "candidate": -50847,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.cornerLoad[0].y": {
+      "first_tick": 154,
+      "reference": 979488,
+      "candidate": 979428,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.cornerLoad[0].z": {
+      "first_tick": 154,
+      "reference": 28987,
+      "candidate": 28822,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.cornerLoad[1].x": {
+      "first_tick": 154,
+      "reference": -51223,
+      "candidate": -50847,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.cornerLoad[1].y": {
+      "first_tick": 154,
+      "reference": 979488,
+      "candidate": 979428,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.cornerLoad[1].z": {
+      "first_tick": 154,
+      "reference": 28987,
+      "candidate": 28822,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.cornerLoad[2].x": {
+      "first_tick": 154,
+      "reference": -51223,
+      "candidate": -50847,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.cornerLoad[2].y": {
+      "first_tick": 154,
+      "reference": 979488,
+      "candidate": 979428,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.cornerLoad[2].z": {
+      "first_tick": 154,
+      "reference": 28987,
+      "candidate": 28822,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.cornerLoad[3].x": {
+      "first_tick": 154,
+      "reference": -51223,
+      "candidate": -50847,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.cornerLoad[3].y": {
+      "first_tick": 154,
+      "reference": 979488,
+      "candidate": 979428,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.cornerLoad[3].z": {
+      "first_tick": 154,
+      "reference": 28987,
+      "candidate": 28822,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.field_0x964": {
+      "first_tick": 154,
+      "reference": 742,
+      "candidate": 709,
+      "ticks_different": 56,
+      "last_tick": 498
+    },
+    "car.0.field_0x384[5]": {
+      "first_tick": 155,
+      "reference": 241,
+      "candidate": 240,
+      "ticks_different": 273,
+      "last_tick": 499
+    },
+    "car.0.field_0x968": {
+      "first_tick": 155,
+      "reference": 742,
+      "candidate": 709,
+      "ticks_different": 56,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[12]": {
+      "first_tick": 155,
+      "reference": 10909,
+      "candidate": 10951,
+      "ticks_different": 240,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[13]": {
+      "first_tick": 155,
+      "reference": 10909,
+      "candidate": 10951,
+      "ticks_different": 230,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[14]": {
+      "first_tick": 155,
+      "reference": 10909,
+      "candidate": 10951,
+      "ticks_different": 219,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[15]": {
+      "first_tick": 155,
+      "reference": 10909,
+      "candidate": 10951,
+      "ticks_different": 193,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[2]": {
+      "first_tick": 157,
+      "reference": 10951,
+      "candidate": 10950,
+      "ticks_different": 184,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[71]": {
+      "first_tick": 165,
+      "reference": 6,
+      "candidate": 7,
+      "ticks_different": 209,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[5]": {
+      "first_tick": 167,
+      "reference": 10950,
+      "candidate": 10904,
+      "ticks_different": 202,
+      "last_tick": 499
+    },
+    "contact.0.wheelTriangle[0]": {
+      "first_tick": 167,
+      "reference": 10904,
+      "candidate": 10905,
+      "ticks_different": 216,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[4]": {
+      "first_tick": 169,
+      "reference": 10904,
+      "candidate": 10905,
+      "ticks_different": 211,
+      "last_tick": 499
+    },
+    "car.0.field_0x384[9]": {
+      "first_tick": 170,
+      "reference": 156,
+      "candidate": 157,
+      "ticks_different": 275,
+      "last_tick": 499
+    },
+    "car.0.field_0x7b0": {
+      "first_tick": 181,
+      "reference": 17912,
+      "candidate": 17874,
+      "ticks_different": 319,
+      "last_tick": 499
+    },
+    "contact.0.pointTriangle[9]": {
+      "first_tick": 187,
+      "reference": 10955,
+      "candidate": 10954,
+      "ticks_different": 204,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[0].x": {
+      "first_tick": 188,
+      "reference": -452,
+      "candidate": -451,
+      "ticks_different": 208,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[0].z": {
+      "first_tick": 188,
+      "reference": -2749,
+      "candidate": -2748,
+      "ticks_different": 207,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[0].x": {
+      "first_tick": 189,
+      "reference": -452,
+      "candidate": -451,
+      "ticks_different": 207,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[0].z": {
+      "first_tick": 189,
+      "reference": -2749,
+      "candidate": -2748,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[2].x": {
+      "first_tick": 192,
+      "reference": -452,
+      "candidate": -451,
+      "ticks_different": 188,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[2].z": {
+      "first_tick": 192,
+      "reference": -2749,
+      "candidate": -2748,
+      "ticks_different": 179,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[2].x": {
+      "first_tick": 193,
+      "reference": -452,
+      "candidate": -451,
+      "ticks_different": 187,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[2].z": {
+      "first_tick": 193,
+      "reference": -2749,
+      "candidate": -2748,
+      "ticks_different": 178,
+      "last_tick": 499
+    },
+    "car.0.cornerTriangle[0]": {
+      "first_tick": 198,
+      "reference": 10895,
+      "candidate": 10894,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "car.0.angularVelocity.z": {
+      "first_tick": 200,
+      "reference": 4,
+      "candidate": 40,
+      "ticks_different": 223,
+      "last_tick": 499
+    },
+    "car.0.cornerFlags[0]": {
+      "first_tick": 200,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 68,
+      "last_tick": 496
+    },
+    "car.0.cornerFlags[1]": {
+      "first_tick": 200,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 126,
+      "last_tick": 497
+    },
+    "car.0.cornerFlags[2]": {
+      "first_tick": 200,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 125,
+      "last_tick": 497
+    },
+    "car.0.cornerFlags[3]": {
+      "first_tick": 200,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 65,
+      "last_tick": 496
+    },
+    "car.0.field_0xb34": {
+      "first_tick": 200,
+      "reference": 4,
+      "candidate": 0,
+      "ticks_different": 158,
+      "last_tick": 497
+    },
+    "car.0.field_0xb35[0]": {
+      "first_tick": 200,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 47,
+      "last_tick": 497
+    },
+    "car.0.cornerMass": {
+      "first_tick": 201,
+      "reference": 18350080,
+      "candidate": 0,
+      "ticks_different": 158,
+      "last_tick": 498
+    },
+    "car.0.angularVelocity.x": {
+      "first_tick": 203,
+      "reference": 0,
+      "candidate": -1,
+      "ticks_different": 147,
+      "last_tick": 499
+    },
+    "car.0.cornerTriangle[2]": {
+      "first_tick": 203,
+      "reference": 10894,
+      "candidate": 10054,
+      "ticks_different": 178,
+      "last_tick": 499
+    },
+    "car.0.field_0xb35[1]": {
+      "first_tick": 208,
+      "reference": 2,
+      "candidate": 3,
+      "ticks_different": 47,
+      "last_tick": 497
+    },
+    "car.0.field_0xb35[2]": {
+      "first_tick": 208,
+      "reference": 1,
+      "candidate": 2,
+      "ticks_different": 147,
+      "last_tick": 497
+    },
+    "car.0.field_0xb2a": {
+      "first_tick": 210,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 24,
+      "last_tick": 488
+    },
+    "car.0.cornerAxis[1].x": {
+      "first_tick": 212,
+      "reference": -2568,
+      "candidate": -2592,
+      "ticks_different": 196,
+      "last_tick": 499
+    },
+    "car.0.cornerTriangle[1]": {
+      "first_tick": 212,
+      "reference": 10036,
+      "candidate": 10037,
+      "ticks_different": 193,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[1].x": {
+      "first_tick": 213,
+      "reference": -2568,
+      "candidate": -2592,
+      "ticks_different": 195,
+      "last_tick": 499
+    },
+    "car.0.field_0xb1d": {
+      "first_tick": 217,
+      "reference": 0,
+      "candidate": 2,
+      "ticks_different": 15,
+      "last_tick": 486
+    },
+    "car.0.field_0xb20": {
+      "first_tick": 217,
+      "reference": 3,
+      "candidate": 4,
+      "ticks_different": 61,
+      "last_tick": 499
+    },
+    "car.0.field_0xb21": {
+      "first_tick": 217,
+      "reference": 0,
+      "candidate": 10,
+      "ticks_different": 55,
+      "last_tick": 495
+    },
+    "car.0.field_0xb78": {
+      "first_tick": 217,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 3,
+      "last_tick": 485
+    },
+    "car.0.field_0xb84": {
+      "first_tick": 217,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 8,
+      "last_tick": 485
+    },
+    "car.0.gear": {
+      "first_tick": 218,
+      "reference": 3,
+      "candidate": 4,
+      "ticks_different": 60,
+      "last_tick": 499
+    },
+    "car.0.wheelSlipping[2]": {
+      "first_tick": 219,
+      "reference": 1,
+      "candidate": 0,
+      "ticks_different": 21,
+      "last_tick": 487
+    },
+    "car.0.wheelSlipping[3]": {
+      "first_tick": 219,
+      "reference": 1,
+      "candidate": 0,
+      "ticks_different": 24,
+      "last_tick": 487
+    },
+    "car.0.field_0x384[1]": {
+      "first_tick": 222,
+      "reference": 54,
+      "candidate": 55,
+      "ticks_different": 266,
+      "last_tick": 499
+    },
+    "car.0.cornerAxis[3].x": {
+      "first_tick": 226,
+      "reference": -5825,
+      "candidate": -5766,
+      "ticks_different": 189,
+      "last_tick": 499
+    },
+    "car.0.cornerTriangle[3]": {
+      "first_tick": 226,
+      "reference": 10009,
+      "candidate": 10008,
+      "ticks_different": 179,
+      "last_tick": 499
+    },
+    "car.0.field_0xb12": {
+      "first_tick": 226,
+      "reference": -48,
+      "candidate": -47,
+      "ticks_different": 49,
+      "last_tick": 301
+    },
+    "car.0.field_0xb14": {
+      "first_tick": 226,
+      "reference": -96,
+      "candidate": -94,
+      "ticks_different": 58,
+      "last_tick": 312
+    },
+    "car.0.heading": {
+      "first_tick": 226,
+      "reference": 65488,
+      "candidate": 65489,
+      "ticks_different": 58,
+      "last_tick": 312
+    },
+    "shadow.0.field_0x80[17]": {
+      "first_tick": 226,
+      "reference": 144,
+      "candidate": 189,
+      "ticks_different": 58,
+      "last_tick": 312
+    },
+    "shadow.0.field_0x80[41]": {
+      "first_tick": 226,
+      "reference": 144,
+      "candidate": 189,
+      "ticks_different": 58,
+      "last_tick": 312
+    },
+    "transforms.0.field_0x80[16]": {
+      "first_tick": 226,
+      "reference": 187,
+      "candidate": 159,
+      "ticks_different": 66,
+      "last_tick": 314
+    },
+    "transforms.0.field_0x80[17]": {
+      "first_tick": 226,
+      "reference": 230,
+      "candidate": 8,
+      "ticks_different": 71,
+      "last_tick": 314
+    },
+    "transforms.0.field_0x80[18]": {
+      "first_tick": 226,
+      "reference": 254,
+      "candidate": 253,
+      "ticks_different": 46,
+      "last_tick": 313
+    },
+    "transforms.0.field_0x80[40]": {
+      "first_tick": 226,
+      "reference": 187,
+      "candidate": 159,
+      "ticks_different": 66,
+      "last_tick": 314
+    },
+    "transforms.0.field_0x80[41]": {
+      "first_tick": 226,
+      "reference": 230,
+      "candidate": 8,
+      "ticks_different": 71,
+      "last_tick": 314
+    },
+    "transforms.0.field_0x80[42]": {
+      "first_tick": 226,
+      "reference": 254,
+      "candidate": 253,
+      "ticks_different": 46,
+      "last_tick": 313
+    },
+    "wheels.0.[0].forward.x": {
+      "first_tick": 226,
+      "reference": -1307,
+      "candidate": -3317,
+      "ticks_different": 145,
+      "last_tick": 499
+    },
+    "wheels.0.[0].forward.y": {
+      "first_tick": 226,
+      "reference": 2813,
+      "candidate": 2811,
+      "ticks_different": 142,
+      "last_tick": 499
+    },
+    "wheels.0.[1].forward.x": {
+      "first_tick": 226,
+      "reference": 1306,
+      "candidate": 3416,
+      "ticks_different": 265,
+      "last_tick": 499
+    },
+    "wheels.0.[1].forward.y": {
+      "first_tick": 226,
+      "reference": 2813,
+      "candidate": 2811,
+      "ticks_different": 264,
+      "last_tick": 499
+    },
+    "car.0.cornerNormal[3].x": {
+      "first_tick": 227,
+      "reference": -5825,
+      "candidate": -5766,
+      "ticks_different": 188,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[18]": {
+      "first_tick": 234,
+      "reference": 227,
+      "candidate": 228,
+      "ticks_different": 30,
+      "last_tick": 311
+    },
+    "shadow.0.field_0x80[42]": {
+      "first_tick": 234,
+      "reference": 227,
+      "candidate": 228,
+      "ticks_different": 30,
+      "last_tick": 311
+    },
+    "shadow.0.field_0x80[16]": {
+      "first_tick": 240,
+      "reference": 128,
+      "candidate": 0,
+      "ticks_different": 16,
+      "last_tick": 302
+    },
+    "shadow.0.field_0x80[40]": {
+      "first_tick": 240,
+      "reference": 128,
+      "candidate": 0,
+      "ticks_different": 16,
+      "last_tick": 302
+    },
+    "car.0.field_0x384[10]": {
+      "first_tick": 241,
+      "reference": 255,
+      "candidate": 0,
+      "ticks_different": 82,
+      "last_tick": 499
+    },
+    "car.0.field_0x384[11]": {
+      "first_tick": 241,
+      "reference": 255,
+      "candidate": 0,
+      "ticks_different": 82,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[95]": {
+      "first_tick": 246,
+      "reference": 253,
+      "candidate": 254,
+      "ticks_different": 206,
+      "last_tick": 499
+    },
+    "contact.0.field_0x250": {
+      "first_tick": 253,
+      "reference": 1190,
+      "candidate": 850,
+      "ticks_different": 180,
+      "last_tick": 477
+    },
+    "car.0.field_0x5d0.x": {
+      "first_tick": 255,
+      "reference": 85926,
+      "candidate": 0,
+      "ticks_different": 113,
+      "last_tick": 499
+    },
+    "car.0.field_0x5d0.z": {
+      "first_tick": 255,
+      "reference": 2366,
+      "candidate": 0,
+      "ticks_different": 114,
+      "last_tick": 499
+    },
+    "car.0.field_0x5c4.x": {
+      "first_tick": 265,
+      "reference": 1787,
+      "candidate": 0,
+      "ticks_different": 92,
+      "last_tick": 499
+    },
+    "car.0.field_0x5c4.z": {
+      "first_tick": 265,
+      "reference": 12612,
+      "candidate": 0,
+      "ticks_different": 92,
+      "last_tick": 499
+    },
+    "car.0.field_0x5d0.y": {
+      "first_tick": 265,
+      "reference": 108066,
+      "candidate": 136939,
+      "ticks_different": 111,
+      "last_tick": 499
+    },
+    "car.0.field_0x5dc.x": {
+      "first_tick": 265,
+      "reference": 95078,
+      "candidate": 95583,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "car.0.field_0x5dc.y": {
+      "first_tick": 265,
+      "reference": -10564,
+      "candidate": -10761,
+      "ticks_different": 86,
+      "last_tick": 356
+    },
+    "car.0.field_0xb35[10]": {
+      "first_tick": 265,
+      "reference": 1,
+      "candidate": 0,
+      "ticks_different": 87,
+      "last_tick": 499
+    },
+    "car.0.field_0xb35[9]": {
+      "first_tick": 265,
+      "reference": 1,
+      "candidate": 0,
+      "ticks_different": 87,
+      "last_tick": 499
+    },
+    "car.0.shakeLevel": {
+      "first_tick": 265,
+      "reference": 2,
+      "candidate": 6,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "car.0.wheelOffset[2]": {
+      "first_tick": 265,
+      "reference": -79,
+      "candidate": -82,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "car.0.wheelOffset[6]": {
+      "first_tick": 265,
+      "reference": -60,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "car.0.wheelOffset[7]": {
+      "first_tick": 265,
+      "reference": 11,
+      "candidate": 0,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[0]": {
+      "first_tick": 265,
+      "reference": 49,
+      "candidate": 212,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[10]": {
+      "first_tick": 265,
+      "reference": 247,
+      "candidate": 253,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[11]": {
+      "first_tick": 265,
+      "reference": 243,
+      "candidate": 237,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[12]": {
+      "first_tick": 265,
+      "reference": 1,
+      "candidate": 255,
+      "ticks_different": 1,
+      "last_tick": 265
+    },
+    "damage.0.field_0x106[13]": {
+      "first_tick": 265,
+      "reference": 209,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[16]": {
+      "first_tick": 265,
+      "reference": 92,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[17]": {
+      "first_tick": 265,
+      "reference": 245,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[18]": {
+      "first_tick": 265,
+      "reference": 169,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[19]": {
+      "first_tick": 265,
+      "reference": 18,
+      "candidate": 0,
+      "ticks_different": 1,
+      "last_tick": 265
+    },
+    "damage.0.field_0x106[1]": {
+      "first_tick": 265,
+      "reference": 1,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[20]": {
+      "first_tick": 265,
+      "reference": 125,
+      "candidate": 0,
+      "ticks_different": 1,
+      "last_tick": 265
+    },
+    "damage.0.field_0x106[21]": {
+      "first_tick": 265,
+      "reference": 5,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[22]": {
+      "first_tick": 265,
+      "reference": 19,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[23]": {
+      "first_tick": 265,
+      "reference": 253,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[24]": {
+      "first_tick": 265,
+      "reference": 237,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[260]": {
+      "first_tick": 265,
+      "reference": 2,
+      "candidate": 1,
+      "ticks_different": 76,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[2]": {
+      "first_tick": 265,
+      "reference": 6,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[3]": {
+      "first_tick": 265,
+      "reference": 125,
+      "candidate": 92,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[4]": {
+      "first_tick": 265,
+      "reference": 237,
+      "candidate": 245,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[5]": {
+      "first_tick": 265,
+      "reference": 255,
+      "candidate": 169,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[9]": {
+      "first_tick": 265,
+      "reference": 223,
+      "candidate": 20,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.damageGrid[0]": {
+      "first_tick": 265,
+      "reference": 10746,
+      "candidate": 10912,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.damageGrid[2]": {
+      "first_tick": 265,
+      "reference": 2547,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[11]": {
+      "first_tick": 265,
+      "reference": 3223,
+      "candidate": 3273,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[13]": {
+      "first_tick": 265,
+      "reference": 1528,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[17]": {
+      "first_tick": 265,
+      "reference": 1105,
+      "candidate": 969,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[1]": {
+      "first_tick": 265,
+      "reference": 3223,
+      "candidate": 3273,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[31]": {
+      "first_tick": 265,
+      "reference": 2547,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[33]": {
+      "first_tick": 265,
+      "reference": 10746,
+      "candidate": 10912,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[3]": {
+      "first_tick": 265,
+      "reference": 1528,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[5]": {
+      "first_tick": 265,
+      "reference": 3223,
+      "candidate": 3273,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[7]": {
+      "first_tick": 265,
+      "reference": 3223,
+      "candidate": 3273,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[9]": {
+      "first_tick": 265,
+      "reference": 1528,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x3dc[1]": {
+      "first_tick": 265,
+      "reference": -645,
+      "candidate": -655,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x3dc[3]": {
+      "first_tick": 265,
+      "reference": -153,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x3ec[1]": {
+      "first_tick": 265,
+      "reference": 161,
+      "candidate": 163,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x3ec[3]": {
+      "first_tick": 265,
+      "reference": 76,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x3fc[0]": {
+      "first_tick": 265,
+      "reference": 65214,
+      "candidate": 65209,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x3fc[1]": {
+      "first_tick": 265,
+      "reference": 65384,
+      "candidate": 65536,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "parts.0.field_0x408": {
+      "first_tick": 265,
+      "reference": 276,
+      "candidate": 242,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[24]": {
+      "first_tick": 265,
+      "reference": 224,
+      "candidate": 221,
+      "ticks_different": 231,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[36]": {
+      "first_tick": 265,
+      "reference": 128,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[37]": {
+      "first_tick": 265,
+      "reference": 67,
+      "candidate": 45,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[72]": {
+      "first_tick": 265,
+      "reference": 57,
+      "candidate": 117,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[84]": {
+      "first_tick": 265,
+      "reference": 128,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[85]": {
+      "first_tick": 265,
+      "reference": 22,
+      "candidate": 0,
+      "ticks_different": 235,
+      "last_tick": 499
+    },
+    "car.0.driveSplit": {
+      "first_tick": 266,
+      "reference": 32768,
+      "candidate": 33239,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "car.0.field_0x5dc.z": {
+      "first_tick": 266,
+      "reference": -29508,
+      "candidate": -57999,
+      "ticks_different": 218,
+      "last_tick": 499
+    },
+    "car.0.field_0xb42": {
+      "first_tick": 266,
+      "reference": 9,
+      "candidate": 10,
+      "ticks_different": 43,
+      "last_tick": 314
+    },
+    "car.0.wheelOffset[3]": {
+      "first_tick": 266,
+      "reference": 120,
+      "candidate": 123,
+      "ticks_different": 232,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[14]": {
+      "first_tick": 266,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[15]": {
+      "first_tick": 266,
+      "reference": 0,
+      "candidate": 6,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "parts.0.damageGrid[5]": {
+      "first_tick": 266,
+      "reference": 0,
+      "candidate": 4715,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[16]": {
+      "first_tick": 266,
+      "reference": 0,
+      "candidate": 942,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[18]": {
+      "first_tick": 266,
+      "reference": 0,
+      "candidate": 4715,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[20]": {
+      "first_tick": 266,
+      "reference": 0,
+      "candidate": 4715,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[21]": {
+      "first_tick": 266,
+      "reference": 0,
+      "candidate": 4715,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[24]": {
+      "first_tick": 266,
+      "reference": 0,
+      "candidate": 2828,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[25]": {
+      "first_tick": 266,
+      "reference": 0,
+      "candidate": 471,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[27]": {
+      "first_tick": 266,
+      "reference": 0,
+      "candidate": 4715,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "parts.0.field_0x3fc[2]": {
+      "first_tick": 266,
+      "reference": 65536,
+      "candidate": 65396,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[36]": {
+      "first_tick": 266,
+      "reference": 224,
+      "candidate": 96,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[37]": {
+      "first_tick": 266,
+      "reference": 16,
+      "candidate": 30,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[84]": {
+      "first_tick": 266,
+      "reference": 160,
+      "candidate": 0,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[85]": {
+      "first_tick": 266,
+      "reference": 5,
+      "candidate": 0,
+      "ticks_different": 234,
+      "last_tick": 499
+    },
+    "wheels.0.[3].forward.x": {
+      "first_tick": 267,
+      "reference": -28,
+      "candidate": 72,
+      "ticks_different": 233,
+      "last_tick": 499
+    },
+    "wheels.0.[3].forward.y": {
+      "first_tick": 267,
+      "reference": 2716,
+      "candidate": 2880,
+      "ticks_different": 233,
+      "last_tick": 499
+    },
+    "contact.0.field_0x29c": {
+      "first_tick": 268,
+      "reference": 1,
+      "candidate": 0,
+      "ticks_different": 79,
+      "last_tick": 496
+    },
+    "contact.0.field_0x2a0": {
+      "first_tick": 268,
+      "reference": 1,
+      "candidate": 0,
+      "ticks_different": 4,
+      "last_tick": 499
+    },
+    "contact.0.trailEdge": {
+      "first_tick": 268,
+      "reference": 3,
+      "candidate": 2,
+      "ticks_different": 82,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[25]": {
+      "first_tick": 273,
+      "reference": 60,
+      "candidate": 61,
+      "ticks_different": 117,
+      "last_tick": 499
+    },
+    "car.0.field_0x384[6]": {
+      "first_tick": 286,
+      "reference": 0,
+      "candidate": 255,
+      "ticks_different": 31,
+      "last_tick": 316
+    },
+    "car.0.field_0x384[7]": {
+      "first_tick": 286,
+      "reference": 0,
+      "candidate": 255,
+      "ticks_different": 31,
+      "last_tick": 316
+    },
+    "car.0.field_0xb60": {
+      "first_tick": 289,
+      "reference": 1,
+      "candidate": 0,
+      "ticks_different": 16,
+      "last_tick": 415
+    },
+    "car.0.neighbours.s[0]": {
+      "first_tick": 309,
+      "reference": -1,
+      "candidate": 546,
+      "ticks_different": 15,
+      "last_tick": 499
+    },
+    "checkpoint.0.field_0x0": {
+      "first_tick": 315,
+      "reference": 10,
+      "candidate": 11,
+      "ticks_different": 120,
+      "last_tick": 499
+    },
+    "checkpoint.0.field_0x12": {
+      "first_tick": 315,
+      "reference": 10,
+      "candidate": 11,
+      "ticks_different": 120,
+      "last_tick": 499
+    },
+    "checkpoint.0.field_0x16": {
+      "first_tick": 315,
+      "reference": 1,
+      "candidate": 0,
+      "ticks_different": 9,
+      "last_tick": 490
+    },
+    "car.0.wheelSurfaceType[0]": {
+      "first_tick": 318,
+      "reference": 48,
+      "candidate": 13,
+      "ticks_different": 154,
+      "last_tick": 499
+    },
+    "car.0.wheelSurface[0]": {
+      "first_tick": 318,
+      "reference": 3,
+      "candidate": 11,
+      "ticks_different": 154,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[0].drag": {
+      "first_tick": 319,
+      "reference": 13107,
+      "candidate": 0,
+      "ticks_different": 153,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[0].field_0x14": {
+      "first_tick": 319,
+      "reference": 0,
+      "candidate": 13107,
+      "ticks_different": 153,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[0].field_0x18": {
+      "first_tick": 319,
+      "reference": 0,
+      "candidate": 3932,
+      "ticks_different": 153,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[0].field_0x1c": {
+      "first_tick": 319,
+      "reference": 5242,
+      "candidate": 2621,
+      "ticks_different": 153,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[0].field_0x20": {
+      "first_tick": 319,
+      "reference": 1310,
+      "candidate": 655,
+      "ticks_different": 153,
+      "last_tick": 499
+    },
+    "car.0.field_0xa74": {
+      "first_tick": 319,
+      "reference": 65500,
+      "candidate": 62225,
+      "ticks_different": 155,
+      "last_tick": 499
+    },
+    "car.0.field_0xa78[0]": {
+      "first_tick": 319,
+      "reference": 220,
+      "candidate": 17,
+      "ticks_different": 155,
+      "last_tick": 499
+    },
+    "car.0.field_0xa78[1]": {
+      "first_tick": 319,
+      "reference": 255,
+      "candidate": 243,
+      "ticks_different": 155,
+      "last_tick": 499
+    },
+    "car.0.field_0xabe[0]": {
+      "first_tick": 319,
+      "reference": 3,
+      "candidate": 11,
+      "ticks_different": 153,
+      "last_tick": 499
+    },
+    "car.0.wheelSurfaceFx[0].drag": {
+      "first_tick": 319,
+      "reference": -655,
+      "candidate": 0,
+      "ticks_different": 153,
+      "last_tick": 499
+    },
+    "car.0.wheelSurfaceType[1]": {
+      "first_tick": 329,
+      "reference": 48,
+      "candidate": 13,
+      "ticks_different": 141,
+      "last_tick": 499
+    },
+    "car.0.wheelSurface[1]": {
+      "first_tick": 329,
+      "reference": 3,
+      "candidate": 11,
+      "ticks_different": 141,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[1].drag": {
+      "first_tick": 330,
+      "reference": 13107,
+      "candidate": 0,
+      "ticks_different": 140,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[1].field_0x14": {
+      "first_tick": 330,
+      "reference": 0,
+      "candidate": 13107,
+      "ticks_different": 140,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[1].field_0x18": {
+      "first_tick": 330,
+      "reference": 0,
+      "candidate": 3932,
+      "ticks_different": 140,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[1].field_0x1c": {
+      "first_tick": 330,
+      "reference": 5242,
+      "candidate": 2621,
+      "ticks_different": 140,
+      "last_tick": 499
+    },
+    "car.0.cornerGrip[1].field_0x20": {
+      "first_tick": 330,
+      "reference": 1310,
+      "candidate": 655,
+      "ticks_different": 140,
+      "last_tick": 499
+    },
+    "car.0.field_0xabe[1]": {
+      "first_tick": 330,
+      "reference": 3,
+      "candidate": 11,
+      "ticks_different": 140,
+      "last_tick": 499
+    },
+    "car.0.wheelSurfaceFx[1].drag": {
+      "first_tick": 330,
+      "reference": -655,
+      "candidate": 0,
+      "ticks_different": 140,
+      "last_tick": 499
+    },
+    "car.0.wheelSurfaceType[2]": {
+      "first_tick": 332,
+      "reference": 48,
+      "candidate": 13,
+      "ticks_different": 32,
+      "last_tick": 427
+    },
+    "car.0.wheelSurface[2]": {
+      "first_tick": 332,
+      "reference": 3,
+      "candidate": 11,
+      "ticks_different": 32,
+      "last_tick": 427
+    },
+    "car.0.cornerGrip[2].drag": {
+      "first_tick": 333,
+      "reference": 13107,
+      "candidate": 0,
+      "ticks_different": 32,
+      "last_tick": 428
+    },
+    "car.0.cornerGrip[2].field_0x14": {
+      "first_tick": 333,
+      "reference": 0,
+      "candidate": 13107,
+      "ticks_different": 32,
+      "last_tick": 428
+    },
+    "car.0.cornerGrip[2].field_0x18": {
+      "first_tick": 333,
+      "reference": 0,
+      "candidate": 3932,
+      "ticks_different": 32,
+      "last_tick": 428
+    },
+    "car.0.cornerGrip[2].field_0x1c": {
+      "first_tick": 333,
+      "reference": 5242,
+      "candidate": 2621,
+      "ticks_different": 32,
+      "last_tick": 428
+    },
+    "car.0.cornerGrip[2].field_0x20": {
+      "first_tick": 333,
+      "reference": 1310,
+      "candidate": 655,
+      "ticks_different": 32,
+      "last_tick": 428
+    },
+    "car.0.field_0xabe[2]": {
+      "first_tick": 333,
+      "reference": 3,
+      "candidate": 11,
+      "ticks_different": 32,
+      "last_tick": 428
+    },
+    "car.0.wheelSurfaceFx[2].drag": {
+      "first_tick": 333,
+      "reference": -655,
+      "candidate": 0,
+      "ticks_different": 32,
+      "last_tick": 428
+    },
+    "car.0.wheelSurfaceType[3]": {
+      "first_tick": 339,
+      "reference": 48,
+      "candidate": 13,
+      "ticks_different": 120,
+      "last_tick": 458
+    },
+    "car.0.wheelSurface[3]": {
+      "first_tick": 339,
+      "reference": 3,
+      "candidate": 11,
+      "ticks_different": 120,
+      "last_tick": 458
+    },
+    "car.0.cornerGrip[3].drag": {
+      "first_tick": 340,
+      "reference": 13107,
+      "candidate": 0,
+      "ticks_different": 120,
+      "last_tick": 459
+    },
+    "car.0.cornerGrip[3].field_0x14": {
+      "first_tick": 340,
+      "reference": 0,
+      "candidate": 13107,
+      "ticks_different": 120,
+      "last_tick": 459
+    },
+    "car.0.cornerGrip[3].field_0x18": {
+      "first_tick": 340,
+      "reference": 0,
+      "candidate": 3932,
+      "ticks_different": 120,
+      "last_tick": 459
+    },
+    "car.0.cornerGrip[3].field_0x1c": {
+      "first_tick": 340,
+      "reference": 5242,
+      "candidate": 2621,
+      "ticks_different": 120,
+      "last_tick": 459
+    },
+    "car.0.cornerGrip[3].field_0x20": {
+      "first_tick": 340,
+      "reference": 1310,
+      "candidate": 655,
+      "ticks_different": 120,
+      "last_tick": 459
+    },
+    "car.0.field_0xabe[3]": {
+      "first_tick": 340,
+      "reference": 3,
+      "candidate": 11,
+      "ticks_different": 120,
+      "last_tick": 459
+    },
+    "car.0.wheelSurfaceFx[3].drag": {
+      "first_tick": 340,
+      "reference": -655,
+      "candidate": 0,
+      "ticks_different": 120,
+      "last_tick": 459
+    },
+    "car.0.field_0xb22": {
+      "first_tick": 350,
+      "reference": 1,
+      "candidate": 2,
+      "ticks_different": 47,
+      "last_tick": 499
+    },
+    "car.0.brakeInput": {
+      "first_tick": 352,
+      "reference": 12265,
+      "candidate": 12186,
+      "ticks_different": 27,
+      "last_tick": 389
+    },
+    "car.0.field_0x83c": {
+      "first_tick": 377,
+      "reference": 0,
+      "candidate": 65536,
+      "ticks_different": 13,
+      "last_tick": 389
+    },
+    "car.0.field_0xb94": {
+      "first_tick": 377,
+      "reference": 1,
+      "candidate": 0,
+      "ticks_different": 13,
+      "last_tick": 389
+    },
+    "car.0.field_0x7a0": {
+      "first_tick": 378,
+      "reference": 3276,
+      "candidate": 0,
+      "ticks_different": 33,
+      "last_tick": 410
+    },
+    "car.0.field_0xb54": {
+      "first_tick": 378,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 13,
+      "last_tick": 390
+    },
+    "car.0.field_0xb5c": {
+      "first_tick": 379,
+      "reference": 1,
+      "candidate": 0,
+      "ticks_different": 13,
+      "last_tick": 391
+    },
+    "car.0.wheelOffset[0]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": -57,
+      "ticks_different": 74,
+      "last_tick": 499
+    },
+    "car.0.wheelOffset[1]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 27,
+      "ticks_different": 74,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[25]": {
+      "first_tick": 425,
+      "reference": 255,
+      "candidate": 2,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[26]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 103,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[27]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[28]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 6,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[29]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 126,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[30]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 247,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[31]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 255,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[32]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 8,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[33]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 126,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[34]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 2,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[35]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 29,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[36]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 246,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "damage.0.field_0x106[37]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 6,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.damageGrid[3]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 5328,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.damageGrid[6]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 5328,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[0]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 1598,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[10]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 1598,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[14]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 3196,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[15]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 1598,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[19]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 5328,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[22]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 5328,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[23]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 2131,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[26]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 5328,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[32]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 5328,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[4]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 1598,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x240[6]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 1598,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x3d8": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 15980,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x3dc[0]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": -320,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "parts.0.field_0x3ec[0]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 79,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[0]": {
+      "first_tick": 425,
+      "reference": 47,
+      "candidate": 246,
+      "ticks_different": 74,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[12]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 128,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[13]": {
+      "first_tick": 425,
+      "reference": 0,
+      "candidate": 22,
+      "ticks_different": 75,
+      "last_tick": 499
+    },
+    "shadow.0.field_0x80[1]": {
+      "first_tick": 425,
+      "reference": 61,
+      "candidate": 60,
+      "ticks_different": 17,
+      "last_tick": 494
+    },
+    "transforms.0.field_0x80[12]": {
+      "first_tick": 426,
+      "reference": 0,
+      "candidate": 48,
+      "ticks_different": 74,
+      "last_tick": 499
+    },
+    "transforms.0.field_0x80[13]": {
+      "first_tick": 426,
+      "reference": 0,
+      "candidate": 15,
+      "ticks_different": 74,
+      "last_tick": 499
+    },
+    "car.0.field_0xb35[3]": {
+      "first_tick": 427,
+      "reference": 0,
+      "candidate": 1,
+      "ticks_different": 23,
+      "last_tick": 452
+    },
+    "car.0.field_0x384[2]": {
+      "first_tick": 497,
+      "reference": 0,
+      "candidate": 255,
+      "ticks_different": 3,
+      "last_tick": 499
+    },
+    "car.0.field_0x384[3]": {
+      "first_tick": 497,
+      "reference": 0,
+      "candidate": 255,
+      "ticks_different": 3,
+      "last_tick": 499
+    }
+  },
+  "schema_sha256": "de32fdce8270f7a4678bb8d8ef83238af9b250154ee7a2c0126253c8c75c930a"
+}

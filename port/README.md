@@ -9,15 +9,20 @@ so the game runs natively on Linux, Windows and macOS.
 OpenCMR2 contains no game data. You need your own copy of the original game.
 
 > [!NOTE]
-> Work in progress: the port does not run yet. See [docs/PLAN.md](docs/PLAN.md)
-> for the roadmap and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how it is
-> built.
+> Work in progress: the game code compiles and an initial SDL_GPU renderer is
+> implemented. Gameplay parity and simulation fidelity are still being verified.
+> See [docs/PLAN.md](docs/PLAN.md) for the roadmap,
+> [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the architecture and
+> [docs/MODERNIZATION.md](docs/MODERNIZATION.md) for the design of graphics
+> modernisation with the original simulation.
 
 ## Goals
 
-- **Faithful by default.** The simulation is the original's, bit for bit in
-  the reference build, checked by golden replay tests against the original
-  executable.
+- **Faithful by default.** The target is the original simulation, bit for bit
+  in the reference build. Fixed-point helpers have assembly equivalence tests;
+  500 Finland stage 1 updates now match original + SilentPatch at six render
+  cadences, with stable 25 Hz scheduling. Full-game parity remains open;
+  see [the comparison](docs/PHYSICS_PARITY.md).
 - **Modern where it helps, always optional.** Any resolution and aspect ratio,
   high refresh rates with the physics at its original rate, better image
   quality and lighting, modern controllers and force feedback, and
@@ -34,6 +39,15 @@ Then:
     cmake --preset linux-x86
     cmake --build --preset linux-x86
     ctest --test-dir build/linux-x86
+
+To record and replay a real stage at different render cadences, or measure CPU
+frame/tick/presentation timings, see [docs/BASELINE.md](docs/BASELINE.md).
+For frozen Windows original + SilentPatch recordings and field-by-field
+comparison with the port, see [docs/ORIGINAL_REFERENCE.md](docs/ORIGINAL_REFERENCE.md).
+Vehicle physics and game-speed checks at different render FPS are summarized
+in [docs/PHYSICS_PARITY.md](docs/PHYSICS_PARITY.md).
+
+    python3 tools/stage_baseline.py run --data ~/cmr2game --output build/baseline-first
 
 ## Updating the game source
 

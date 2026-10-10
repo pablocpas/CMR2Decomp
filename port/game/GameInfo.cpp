@@ -640,21 +640,40 @@ int OptionMovie_Open(char *fileName, unsigned int trackIndex)
 // GLOBAL: CMR2 0x005113b8
 double g_unk0x005113b8 = 0.5;
 
+// PORT: movie playback blocks the main loop, so it must dispatch SDL events
+// itself. Consume Enter here so a skip does not also confirm the next menu.
+static BOOL OptionMovie_PollEvents(void)
+{
+    SysEvent event;
+    BOOL skip = FALSE;
+    while (Sys_PollEvent(&event)) {
+        if (event.type == SYS_EVENT_KEY_DOWN &&
+            (event.key == INPUT_KEY_RETURN || event.key == INPUT_KEY_NUMPADENTER)) {
+            if (!event.repeat)
+                skip = TRUE;
+        } else
+            CMain::HandleEvent(&event);
+    }
+    // Record the held button before returning so the same press cannot become
+    // a new controller confirmation when the following movie opens.
+    if (skip)
+        CInput::UpdateAllAvailableDevices();
+    return skip || CGame::m_shouldExit;
+}
+
 // Plays one frame of the current movie: scales and offsets the Bink buffer to
 // the game window, copies the frame into it and blits it to the screen.
 // Returns whether the movie has more frames left.
 // FUNCTION: CMR2 0x00510120
-// PORT: the frame is drawn by the movie layer into the rectangle the
-// original's Bink buffer covered: the whole window when windowed, otherwise
-// 640x480 (or the larger 1024x768 / 1280x960 stretch on wide enough modes)
-// centred on the screen.
+// PORT: stretch into the requested rectangle (the whole back buffer for
+// intros), independently of the old DirectDraw scaling capability flags.
 BOOL OptionMovie_PlayFrame(BYTE skipOnSpace)
 {
     DeviceInfo *pDevice;
-    int scaleWidth;
-    int scaleHeight;
     int waitResult;
 
+    if (OptionMovie_PollEvents())
+        return FALSE;
     CInput::UpdateAllAvailableDevices();
     pDevice = CInput::GetAvailableDeviceRecord(0);
     Input_MergeAssignedJoystickButtons(0, pDevice);
@@ -666,33 +685,22 @@ BOOL OptionMovie_PlayFrame(BYTE skipOnSpace)
     }
 
     Movie_DecodeFrame(g_pUnk0x00831ad0);
-    if (!g_pGraphics->isFullscreen) {
-        scaleWidth = g_pGraphics->resX;
-        scaleHeight = g_pGraphics->resY;
-    } else if (CGraphics::GetTextureFormatCap200(CGraphics::GetSelectedDisplayDriverIndex()) != 0) {
-        if (CGameInfo::GetScreenWidth() >= 0x640) {
-            scaleWidth = 0x500;
-            scaleHeight = 0x3c0;
-        } else if (CGameInfo::GetScreenWidth() >= 0x400) {
-            scaleWidth = 0x400;
-            scaleHeight = 0x300;
-        } else {
-            scaleWidth = 0x280;
-            scaleHeight = 0x1e0;
-        }
-    } else {
-        scaleWidth = 0x280;
-        scaleHeight = 0x1e0;
-    }
-    Movie_Present(g_pUnk0x00831ad0, (int)((g_pGraphics->resX - scaleWidth) * g_unk0x005113b8),
-                  (int)((g_pGraphics->resY - scaleHeight) * g_unk0x005113b8), scaleWidth, scaleHeight);
+    GfxViewport previousViewport;
+    Gfx_GetViewport(&previousViewport);
+    GfxViewport viewport = { 0, 0, (DWORD)g_pGraphics->resX, (DWORD)g_pGraphics->resY, 0.0f, 1.0f };
+    Gfx_SetViewport(&viewport);
+    Movie_Present(g_pUnk0x00831ad0, g_unk0x00831c58, g_unk0x00831c5c,
+                  g_unk0x00831c60 - g_unk0x00831c58, g_unk0x00831c64 - g_unk0x00831c5c);
+    Gfx_SetViewport(&previousViewport);
     Movie_NextFrame(g_pUnk0x00831ad0);
     waitResult = Movie_Wait(g_pUnk0x00831ad0);
     while (waitResult != 0) {
+        if (OptionMovie_PollEvents())
+            return FALSE;
         Sys_Sleep(1);
         waitResult = Movie_Wait(g_pUnk0x00831ad0);
     }
-    return Movie_GetFrameNumber(g_pUnk0x00831ad0) < Movie_GetFrameCount(g_pUnk0x00831ad0);
+    return Movie_GetFrameNumber(g_pUnk0x00831ad0) <= Movie_GetFrameCount(g_pUnk0x00831ad0);
 }
 
 // Releases the DirectDraw surface the movie frames are converted to and closes
@@ -7343,7 +7351,7 @@ BYTE g_unk0x0082ca18;
 // mesh is shown and the three wheel-mesh variants that can be assigned to it.
 
 // GLOBAL: CMR2 0x0082d15c
-int g_unk0x0082d15c[2];
+int g_unk0x0082d15c[16];
 
 // 8-byte entry (four 16-bit values) of the timing tables: current
 // 0x82d0b8/0x82d0f8, animated 0x82d0d8 and target 0x82fce0, four slots each.
@@ -7370,11 +7378,12 @@ int g_unk0x00831148[20];
 BYTE g_unk0x0083131c[4];
 // Per-slot converted vertex buffer of the wheel meshes: each slot holds an
 // array of one block per source mesh.
+// All 16 preview slots are visited by session cleanup, including unused ones.
 // GLOBAL: CMR2 0x00831198
-BYTE **g_unk0x00831198[2];
+BYTE **g_unk0x00831198[16];
 // Per-slot byte copied from each source mesh (its field 0x30).
 // GLOBAL: CMR2 0x0082d1dc
-BYTE *g_unk0x0082d1dc[2];
+BYTE *g_unk0x0082d1dc[16];
 
 int *RallyData_GetDriverPrimaryPairRecord(int index);
 int *RallyData_GetDriverSettingPair(int index);

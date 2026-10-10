@@ -19,8 +19,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Semantics the decompiled code relies on:
 #  - signed overflow wraps (16.16 fixed point overflows on purpose);
 #  - type punning through casts (the code was written against MSVC6);
-#  - floats are computed in single precision, as the original ran with the
-#    x87 in 24-bit mode; SSE gives that without x87 double rounding.
+#  - explicit float stores use single precision, doubles use double precision;
+#    the original's x87 nearest-even integer conversions are written explicitly
+#    at audited physics sites (ordinary C++ casts would truncate).
 add_compile_options(-fwrapv -fno-strict-aliasing)
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i[3-6]86|AMD64")
     add_compile_options(-msse2 -mfpmath=sse)

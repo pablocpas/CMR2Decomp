@@ -18,6 +18,8 @@ extern "C" void Crt_Srand(unsigned int seed)
     s_randSeed = seed;
 }
 
+extern "C" unsigned int Crt_GetRandState(void) { return s_randSeed; }
+
 extern "C" char *Crt_Strlwr(char *s)
 {
     for (char *p = s; *p; p++)

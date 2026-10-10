@@ -3,6 +3,7 @@
 
 #include "platform/platform.h"
 #include "port/sys.h"
+#include "diagnostics/timing.h"
 #include "main.h"
 
 #define SDL_MAIN_HANDLED
@@ -13,7 +14,9 @@ int main(int argc, char **argv)
     SDL_SetMainReady();
     if (!Platform_Init(argc, argv))
         return 1;
+    Diagnostics::StartProfileFromEnvironment();
     unsigned int code = CMain::Initialize(Sys_GetCommandLine());
+    Diagnostics::StopProfile();
     Platform_Shutdown();
     return (int)code;
 }

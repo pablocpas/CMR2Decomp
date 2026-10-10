@@ -13401,7 +13401,7 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
             if (surface != 0xff) {
                 // Impact direction from the surface angle (12-bit angle into the sine
                 // table, with the +0x400 entry as the perpendicular component).
-                angle = (unsigned short)(__int64)((double)FixMul((int)surface << 16, 0x1cccc) * g_unk0x00511300);
+                angle = (unsigned short)llrint((double)FixMul((int)surface << 16, 0x1cccc) * g_unk0x00511300);
                 g_unk0x00591990.x = g_sinTable[angle & 0xfff];
                 g_unk0x00591990.y = 0;
                 g_unk0x00591990.z = g_sinTable[(angle + 0x400) & 0xfff];

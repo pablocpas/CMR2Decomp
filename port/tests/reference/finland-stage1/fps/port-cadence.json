@@ -1,0 +1,232 @@
+{
+  "schema": 1,
+  "scope": "explicit vehicle/control/damage/checkpoint fields; clock pacing measured independently; full-state comparisons remain separate",
+  "clock_origin_ms": 100000,
+  "reference_sha256": "4e14342989cdc7a62a8a36d93915f1166b2a0770e764df21f23d0515580b9efc",
+  "reference_clock": {
+    "ticks": 500,
+    "first_tick_ms": 133,
+    "last_tick_ms": 20083,
+    "driving_ticks": 375,
+    "first_driving_tick_ms": 5133,
+    "driving_capture_span_ms": 14950,
+    "ticks_between_10s_and_18s": 200,
+    "ticks_at_elapsed_ms": {
+      "5000": 122,
+      "10000": 247,
+      "15000": 372,
+      "18000": 447
+    }
+  },
+  "car_fields": [
+    "type",
+    "gear",
+    "speed",
+    "sector",
+    "heading",
+    "position",
+    "positionPrev",
+    "positionPrev2",
+    "velocity",
+    "velocityNext",
+    "angularVelocity",
+    "right",
+    "up",
+    "forward",
+    "groundNormal",
+    "cornerOnGround",
+    "cornerTriangle",
+    "wheelSurface",
+    "wheelSurfaceType",
+    "cornerHeight",
+    "wheelLoad",
+    "wheelTorque",
+    "wheelSlip",
+    "wheelSlipLateral",
+    "wheelSlipping",
+    "cornerLoad",
+    "cornerForce",
+    "baseForce",
+    "tyreGrip",
+    "cornerMass",
+    "wheel0x988",
+    "wheel0x9a8",
+    "handbrake",
+    "handbrakeForce",
+    "brakeInput",
+    "brakeBias",
+    "driveSplit",
+    "field_0x818",
+    "field_0x824",
+    "field_0x7a4",
+    "field_0xb21",
+    "field_0xb9c"
+  ],
+  "comparisons": {
+    "30": {
+      "vehicle": {
+        "identical": true,
+        "first_difference": null,
+        "different_ticks": 0,
+        "scalar_fields_per_tick": 1110
+      },
+      "aligned_driving": {
+        "identical": true,
+        "first_difference": null,
+        "different_ticks": 0,
+        "scalar_fields_per_tick": 1110,
+        "common_driving_ticks": 375,
+        "reference_driving_ticks": 375,
+        "candidate_driving_ticks": 375
+      },
+      "clock": {
+        "ticks": 500,
+        "first_tick_ms": 233,
+        "last_tick_ms": 20166,
+        "driving_ticks": 375,
+        "first_driving_tick_ms": 5233,
+        "driving_capture_span_ms": 14933,
+        "ticks_between_10s_and_18s": 200,
+        "ticks_at_elapsed_ms": {
+          "5000": 120,
+          "10000": 245,
+          "15000": 370,
+          "18000": 445
+        }
+      },
+      "candidate_sha256": "d3c6ea070d9740c7e7f2cb8d35ec87c3845939cc1085f9a026b43a2c6c57fd3c"
+    },
+    "120": {
+      "vehicle": {
+        "identical": true,
+        "first_difference": null,
+        "different_ticks": 0,
+        "scalar_fields_per_tick": 1110
+      },
+      "aligned_driving": {
+        "identical": true,
+        "first_difference": null,
+        "different_ticks": 0,
+        "scalar_fields_per_tick": 1110,
+        "common_driving_ticks": 375,
+        "reference_driving_ticks": 375,
+        "candidate_driving_ticks": 375
+      },
+      "clock": {
+        "ticks": 500,
+        "first_tick_ms": 83,
+        "last_tick_ms": 20041,
+        "driving_ticks": 375,
+        "first_driving_tick_ms": 5083,
+        "driving_capture_span_ms": 14958,
+        "ticks_between_10s_and_18s": 200,
+        "ticks_at_elapsed_ms": {
+          "5000": 123,
+          "10000": 248,
+          "15000": 373,
+          "18000": 448
+        }
+      },
+      "candidate_sha256": "46c7ee68ffd97bd8cc31712e0d32cadae6af7461ea7c5e232f5245ad398d0293"
+    },
+    "144": {
+      "vehicle": {
+        "identical": true,
+        "first_difference": null,
+        "different_ticks": 0,
+        "scalar_fields_per_tick": 1110
+      },
+      "aligned_driving": {
+        "identical": true,
+        "first_difference": null,
+        "different_ticks": 0,
+        "scalar_fields_per_tick": 1110,
+        "common_driving_ticks": 375,
+        "reference_driving_ticks": 375,
+        "candidate_driving_ticks": 375
+      },
+      "clock": {
+        "ticks": 500,
+        "first_tick_ms": 76,
+        "last_tick_ms": 20034,
+        "driving_ticks": 375,
+        "first_driving_tick_ms": 5076,
+        "driving_capture_span_ms": 14958,
+        "ticks_between_10s_and_18s": 200,
+        "ticks_at_elapsed_ms": {
+          "5000": 124,
+          "10000": 249,
+          "15000": 374,
+          "18000": 449
+        }
+      },
+      "candidate_sha256": "72342f3f20d91332f3f0c4afbad47097d59cbec2ea096a10c36878239e47690e"
+    },
+    "240": {
+      "vehicle": {
+        "identical": true,
+        "first_difference": null,
+        "different_ticks": 0,
+        "scalar_fields_per_tick": 1110
+      },
+      "aligned_driving": {
+        "identical": true,
+        "first_difference": null,
+        "different_ticks": 0,
+        "scalar_fields_per_tick": 1110,
+        "common_driving_ticks": 375,
+        "reference_driving_ticks": 375,
+        "candidate_driving_ticks": 375
+      },
+      "clock": {
+        "ticks": 500,
+        "first_tick_ms": 62,
+        "last_tick_ms": 20020,
+        "driving_ticks": 375,
+        "first_driving_tick_ms": 5062,
+        "driving_capture_span_ms": 14958,
+        "ticks_between_10s_and_18s": 200,
+        "ticks_at_elapsed_ms": {
+          "5000": 124,
+          "10000": 249,
+          "15000": 374,
+          "18000": 449
+        }
+      },
+      "candidate_sha256": "bdd004afb99a1cbea7517c5d7ad382f27d734be11e73b57276a1ae2ad0ecafca"
+    },
+    "variable": {
+      "vehicle": {
+        "identical": true,
+        "first_difference": null,
+        "different_ticks": 0,
+        "scalar_fields_per_tick": 1110
+      },
+      "aligned_driving": {
+        "identical": true,
+        "first_difference": null,
+        "different_ticks": 0,
+        "scalar_fields_per_tick": 1110,
+        "common_driving_ticks": 375,
+        "reference_driving_ticks": 375,
+        "candidate_driving_ticks": 375
+      },
+      "clock": {
+        "ticks": 500,
+        "first_tick_ms": 128,
+        "last_tick_ms": 20080,
+        "driving_ticks": 375,
+        "first_driving_tick_ms": 5120,
+        "driving_capture_span_ms": 14960,
+        "ticks_between_10s_and_18s": 200,
+        "ticks_at_elapsed_ms": {
+          "5000": 122,
+          "10000": 248,
+          "15000": 372,
+          "18000": 448
+        }
+      },
+      "candidate_sha256": "ac0078c645dde10714f0d4b8be44b5ba01d40b7526bb8f70cffef158093c9f7d"
+    }
+  }
+}

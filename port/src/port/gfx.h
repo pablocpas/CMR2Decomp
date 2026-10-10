@@ -228,6 +228,8 @@ void Gfx_GetDisplayMode(int index, int *width, int *height);
 void Gfx_BeginScene(void);
 void Gfx_EndScene(void);
 void Gfx_Present(BOOL vsync);
+/* Movie presentation: stretch the back buffer to the entire drawable area. */
+void Gfx_PresentStretched(BOOL vsync);
 
 enum GfxClearFlags {
     GFX_CLEAR_TARGET = 1,
@@ -236,6 +238,11 @@ enum GfxClearFlags {
 void Gfx_Clear(DWORD flags, DWORD color, float z);
 void Gfx_SetViewport(const GfxViewport *viewport);
 void Gfx_GetViewport(GfxViewport *viewport);
+
+/* Preserve drawing state around temporary passes such as movie playback.
+   Referenced textures must remain alive until the matching PopState. */
+void Gfx_PushState(void);
+void Gfx_PopState(void);
 
 /* Draws into a render-target texture (or a cube face from Gfx_GetCubeFace)
    or, with NULL, the back buffer. */

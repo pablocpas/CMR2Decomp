@@ -1,4 +1,5 @@
 #include "port/sys.h"
+#include "port/diagnostics.h"
 #include "main.h"
 #include "Graphics.h"
 #include "Logger.h"
@@ -75,7 +76,11 @@ unsigned int CMain::Initialize(const char *commandLine)
 		if (!CGame::m_isActive)
 		{
 			CGame::UpdateActiveSoundSlots();
+			if (Diagnostics::observer)
+				Diagnostics::observer->BeginFrame();
 			CGame::DispatchFrontendResourceState();
+			if (Diagnostics::observer)
+				Diagnostics::observer->EndFrame();
 		}
 
 		if (g_pGraphics->isFullscreen != FALSE)

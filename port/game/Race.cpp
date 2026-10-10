@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "port/diagnostics.h"
 #include "RallyData.h"
 #include "GameInfo.h"
 #include "StageUI.h"
@@ -2571,16 +2572,22 @@ fade:
         if (g_unk0x00537fc0 == 0)
             g_unk0x00537fc0 = 1;
     }
+    if (CGameInfo::GetConfiguredGameMode() == 5 || CGameInfo::GetConfiguredGameMode() == 6 ||
+        CGameInfo::GetConfiguredGameMode() == 7 || CGameInfo::GetConfiguredGameMode() == 4) {
+        if ((unsigned int)g_unk0x00537fc0 >= 500) {
+            GameMenu_ClearPauseOverlayLatch();
+            goto big;
+        }
+    } else if ((unsigned int)g_unk0x00537fc0 >= 500) {
+        GameMenu_ClearPauseOverlayLatch();
+        goto big;
+    }
+    // PORT: finish the hold before taking another waiting-state physics step.
+    // Checking it after the update adds one countdown step when the next
+    // rendered frame also contains the next simulation step (e.g. at 30 FPS).
     if ((char)param2 == 0)
         Race_UpdatePlayerViewAndDrivenCars(*(BYTE *)(*(int *)(param1 + 4)), 0);
     GameMenu_ClearPauseOverlayLatch();
-    if (CGameInfo::GetConfiguredGameMode() == 5 || CGameInfo::GetConfiguredGameMode() == 6 ||
-        CGameInfo::GetConfiguredGameMode() == 7 || CGameInfo::GetConfiguredGameMode() == 4) {
-        if ((unsigned int)g_unk0x00537fc0 >= 500)
-            goto big;
-    } else if ((unsigned int)g_unk0x00537fc0 >= 500) {
-        goto big;
-    }
     if (GameInfo_GetFrontendSessionFlag() == 0) {
         if (CGameInfo::GetConfiguredGameMode() == 12)
             CInput::UpdateInputFrameDelta();
@@ -5227,6 +5234,8 @@ void Race_UpdatePlayerViewAndDrivenCars(BYTE param1, int param2)
     g_unk0x00538124 = Car_UpdateEngineNoteFalloff(&g_unk0x00537f60);
     g_unk0x00537f0c[4] = 0;
     for (; g_unk0x00537f0c[4] < g_unk0x00538124; g_unk0x00537f0c[4]++) {
+        if (Diagnostics::observer)
+            Diagnostics::observer->BeginTick(param1);
         player = Car_Get(0)->field_0xb43 > 0;
         CInput::UpdateAllAvailableDevices();
         if (player != 0) {
@@ -5349,8 +5358,11 @@ void Race_UpdatePlayerViewAndDrivenCars(BYTE param1, int param2)
                     View_UpdateModeSurface((BYTE)g_unk0x00537f04);
             }
         }
-        if (first == 0 || second != 0)
+        if (first == 0 || second != 0) {
+            if (Diagnostics::observer)
+                Diagnostics::observer->ControlsReady();
             Car_UpdateAndRenderAll();
+        }
         if (player != 0)
             StageObjects_Update();
         for (g_unk0x00537f04 = 0; g_unk0x00537f04 < Car_GetOrderCount(); g_unk0x00537f04++) {
@@ -5449,6 +5461,8 @@ void Race_UpdatePlayerViewAndDrivenCars(BYTE param1, int param2)
             }
         }
         Car_DecrementContactTimers(Car_GetOrder(), Car_GetOrderCount());
+        if (Diagnostics::observer)
+            Diagnostics::observer->EndTick();
     }
     if (CGameInfo::GetConfiguredGameMode() == 8 || CGameInfo::GetConfiguredGameMode() == 9 ||
         CGameInfo::GetConfiguredGameMode() == 0xb)

@@ -5,6 +5,11 @@ OpenCMR2 is a native port of Colin McRae Rally 2.0 built from the
 SDL3 and the SDL GPU API (Vulkan, Direct3D 12, Metal) and needs the original
 game data.
 
+The design for modern rendering while preserving the simulation is in
+[MODERNIZATION.md](MODERNIZATION.md). It records the existing 25 Hz car
+scheduling/interpolation, the remaining shared-state boundaries and the
+verification required before changing the timing architecture.
+
 ## Layout
 
 | Path | Contents |
@@ -15,7 +20,7 @@ game data.
 | `src/render/` | The SDL_GPU renderer behind `gfx.h`, and its shaders. |
 | `src/audio/` | Mixer behind `audio.h` (SDL3 audio streams), WAV and MS-ADPCM decoding. |
 | `src/input/` | Keyboard, mouse, joysticks, gamepads and force feedback (SDL3). |
-| `src/video/` | Bink 1 (`BIKi`) decoder behind `movie.h`. No FFmpeg. |
+| `src/video/` | Standalone Bink 1 (`BIKi`) video/audio decoder behind `movie.h`; queued sound uses the SDL3 mixer. No external codec library. See [VIDEO.md](VIDEO.md). |
 | `src/net/` | Network sessions behind `net.h` (replaces DirectPlay). |
 | `tests/` | Unit tests and the golden replay tests. |
 
@@ -27,7 +32,10 @@ platform-free logic. Those 300 are rewritten in place in `game/` against the
 one can still be compared with the original, and get a `// PORT:` line that
 says what changed. Game data structures that embedded DirectX types use our
 types instead (`GfxTexture *` for `IDirectDrawSurface7 *`, `GfxTLVertex` for
-`D3DTLVERTEX`); in the 32-bit build every structure keeps its size and layout.
+`D3DTLVERTEX`). Structures used by raw-offset accesses or loaded from game data
+must retain their required size and layout in the 32-bit build. Renderer-owned
+descriptions can change when all their callers are adapted; layout checks for
+the compatibility-sensitive structures are still required.
 
 Everything else in `game/` is changed only for portability (inline assembly,
 MSVC-only syntax, undefined behaviour) or for real bugs, so upstream syncs stay
@@ -91,20 +99,29 @@ fallback on gamepads.
 
 ## Determinism and the golden tests
 
-Vehicle physics is integer fixed point, so a 32-bit build of the port must
-reproduce the original simulation exactly. The golden tests replay recorded
-inputs through a headless build (null renderer, null audio) and compare a hash
-of the car states every frame against traces recorded from the original
-executable.
+Vehicle physics uses integer fixed point. The reference build's target is to
+reproduce the original simulation exactly, including input, scheduling, RNG
+and the floating-point conversions used around the fixed-point core.
+
+`tests/` checks the fixed-point helpers against the original assembly and tests
+the existing scheduler's cadence, stored rates, cap, rebasing and wrap behaviour.
+The optional `stage_probe` runs Finland through the real load/update path with
+controlled clocks and recorded tick inputs. Its selected car/damage/checkpoint
+fields repeat exactly in the initial 500-tick experiment, including across
+render cadences, while the shared RNG differs across cadences. See
+[BASELINE.md](BASELINE.md) for scope and CPU profiling commands. Full simulation
+equivalence, graphics-setting independence and comparison with the original
+executable remain to be established; see [MODERNIZATION.md](MODERNIZATION.md).
 
 The compiler flags encode what the decompiled code relies on:
 
 - `-fwrapv`: 16.16 fixed point overflows on purpose;
 - `-fno-strict-aliasing`: the code reinterprets memory freely;
-- `-msse2 -mfpmath=sse`: float arithmetic in single precision. The original
-  ran the x87 in 24-bit precision once Direct3D was initialised;
+- `-msse2 -mfpmath=sse`: explicit float/double arithmetic. The audited original
+  race used x87 53-bit precision; identical precision across drivers is not assumed;
 - float-to-int conversions: the original TUs built with `/QIfist` round to
-  nearest instead of truncating. Those conversions use `lrintf` explicitly.
+  nearest instead of truncating. Audited sites use `llrint`/`lrintf` explicitly,
+  preserving the original narrowing after 64-bit conversion.
 
 ## Builds
 

@@ -1,12 +1,14 @@
 // System services on SDL3: see port/sys.h.
 
 #include "platform/platform.h"
+#include "platform/testing.h"
 #include "port/sys.h"
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include <map>
 #include <string>
@@ -20,6 +22,7 @@ std::string s_userDir;     // saves, settings, logs (ends with '/')
 std::string s_commandLine;
 std::map<std::string, std::string> s_settings;  // "section.key" -> value
 FILE *s_logFile;
+const PlatformTestClock *s_testClock;
 
 // ---- paths -----------------------------------------------------------------
 
@@ -314,11 +317,24 @@ int Platform_GetSettingInt(const char *key, int fallback)
 
 extern "C" DWORD Sys_GetTicks(void)
 {
+    if (s_testClock)
+        return s_testClock->ticks();
     return (DWORD)SDL_GetTicks();
 }
 
+extern "C" unsigned int Sys_GetUnixTime(void)
+{
+    return s_testClock ? s_testClock->unixTime : (unsigned int)time(NULL);
+}
+
+void Platform_SetTestClock(const PlatformTestClock *clock) { s_testClock = clock; }
+
 extern "C" void Sys_Sleep(DWORD ms)
 {
+    if (s_testClock) {
+        s_testClock->sleep(ms);
+        return;
+    }
     SDL_Delay(ms);
 }
 
@@ -367,6 +383,7 @@ bool Translate(const SDL_Event &e, SysEvent *out)
     case SDL_EVENT_KEY_DOWN:
         out->type = SYS_EVENT_KEY_DOWN;
         out->key = Keys_FromScancode(e.key.scancode);
+        out->repeat = e.key.repeat;
         return out->key != 0;
     case SDL_EVENT_TEXT_INPUT: {
         const char *text = e.text.text;

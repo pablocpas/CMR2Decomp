@@ -18,6 +18,7 @@ extern "C" {
 #endif
 
 typedef struct AudioBuffer AudioBuffer;
+typedef struct AudioStream AudioStream;
 
 #define AUDIO_VOLUME_MAX 0
 #define AUDIO_VOLUME_MIN (-10000)
@@ -53,6 +54,14 @@ void Audio_SetPlayPosition(AudioBuffer *buffer, DWORD position);
 void Audio_SetVolume(AudioBuffer *buffer, LONG volume);
 void Audio_SetPan(AudioBuffer *buffer, LONG pan);
 void Audio_SetFrequency(AudioBuffer *buffer, DWORD frequency);
+
+/* Queued float PCM for movie sound. The mixer resamples to its output rate.
+   Starts after the first video frame is presented; releasing discards queued
+   sound immediately, including when the user skips a movie. */
+AudioStream *Audio_CreateStream(DWORD sampleRate, int channels);
+BOOL Audio_QueueStream(AudioStream *stream, const float *samples, DWORD sampleCount);
+void Audio_StartStream(AudioStream *stream);
+void Audio_ReleaseStream(AudioStream *stream);
 
 /* ---- wave files ---------------------------------------------------------- */
 

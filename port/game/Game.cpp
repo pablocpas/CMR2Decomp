@@ -960,7 +960,7 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
     char *skuValue, *skuRegion;
     bool didLoadGameInfo = false;
 
-    srandSeed = time(NULL);
+    srandSeed = Sys_GetUnixTime();
     srand(srandSeed);
 
     // europe sku check

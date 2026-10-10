@@ -1,6 +1,6 @@
 /*
- * OpenCMR2 movie playback, implemented in src/video: a decoder of our own for
- * the game's Bink 1 files (revision 'i'), with no external library.
+ * OpenCMR2 movie playback, implemented in src/video: an in-tree decoder for
+ * the game's Bink 1 files (revision 'i'), with no external codec library.
  *
  * It follows Bink's playback model, which the game's movie loop is written
  * for: decode the current frame, show it, advance, and wait until it is time

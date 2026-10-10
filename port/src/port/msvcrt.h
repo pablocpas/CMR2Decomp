@@ -21,6 +21,8 @@ extern "C" {
 /* MSVC's linear congruential generator, 15-bit results. */
 int Crt_Rand(void);
 void Crt_Srand(unsigned int seed);
+/* Read-only diagnostic view; does not draw a random value. */
+unsigned int Crt_GetRandState(void);
 #undef RAND_MAX
 #define RAND_MAX 0x7fff
 #define rand Crt_Rand

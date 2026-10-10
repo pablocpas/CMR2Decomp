@@ -36,6 +36,7 @@ typedef struct InputEffect InputEffect;
 /* Key codes: DirectInput scan codes (the ones the game names). */
 #define INPUT_KEY_ESCAPE 0x01
 #define INPUT_KEY_RETURN 0x1C
+#define INPUT_KEY_NUMPADENTER 0x9C
 #define INPUT_KEY_LSHIFT 0x2A
 #define INPUT_KEY_SPACE 0x39
 #define INPUT_KEY_RSHIFT 0x36

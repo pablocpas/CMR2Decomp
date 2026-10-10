@@ -1289,7 +1289,7 @@ void Car_UpdateWheelTravel(void)
                 g_pCurrentCar->wheelPhase[i] += 0x28b;
             }
         } else {
-            delta = (short)(__int64)((double)g_pCurrentCar->wheelLoad[i] * g_unk0x00511398);
+            delta = (short)llrint((double)g_pCurrentCar->wheelLoad[i] * g_unk0x00511398);
             g_pCurrentCar->wheelPhase[i] += delta;
         }
         if (*(int *)(g_pCarSetup + 0x240 + i * 4) > 0) {
@@ -2825,7 +2825,7 @@ void Car_UpdateSuspension(void)
         flat.x = 0;
         flat.y = 0;
         flat.z = 0x10000;
-        angle = (short)((double)FixMul(g_pCurrentCar->field_0xb1d << 16, 0x3333) * g_unk0x00511300);
+        angle = (short)llrint((double)FixMul(g_pCurrentCar->field_0xb1d << 16, 0x3333) * g_unk0x00511300);
         ((void (__stdcall *)(FixMatrix *, FixVector *, short))FixMatrix_FromAxisAngle)(&m, &flat, angle);
         for (i = 0; i < 3; i++) {
             FixMatrix_RotateVector(&flat, &basis[i], &m);
@@ -3475,7 +3475,7 @@ void Car_StoreRenderTransforms(short *pList, short count)
         } else {
             pRecord = StageTiming_GetCarReplayRecord(car);
             for (j = 3; j >= 0; j--) {
-                typeAngle = (short)(int)(__int64)((double)FixMul(0x50000,
+                typeAngle = (short)(int)llrint((double)FixMul(0x50000,
                         *(int *)((BYTE *)pRecord + 0x240 + j * 4)) * g_unk0x00511300);
                 if (j < 2) {
                     pWheels[j].angle[0] = typeAngle * 0x1680;
@@ -3891,13 +3891,13 @@ void Car_InterpolateRenderTransforms(void)
                 // The right-hand wheels point backwards: 180 degrees plus the
                 // wheel angles.
                 if (wheel % 2 == 1) {
-                    angles[0] = (short)(__int64)((double)(-result[0]) * g_unk0x00511300);
-                    angles[1] = (short)(__int64)((double)(result[1] + 0xb40000) * g_unk0x00511300);
-                    angles[2] = (short)(__int64)((double)(-result[2]) * g_unk0x00511300);
+                    angles[0] = (short)llrint((double)(-result[0]) * g_unk0x00511300);
+                    angles[1] = (short)llrint((double)(result[1] + 0xb40000) * g_unk0x00511300);
+                    angles[2] = (short)llrint((double)(-result[2]) * g_unk0x00511300);
                 } else {
-                    angles[0] = (short)(__int64)((double)result[0] * g_unk0x00511300);
-                    angles[1] = (short)(__int64)((double)result[1] * g_unk0x00511300);
-                    angles[2] = (short)(__int64)((double)result[2] * g_unk0x00511300);
+                    angles[0] = (short)llrint((double)result[0] * g_unk0x00511300);
+                    angles[1] = (short)llrint((double)result[1] * g_unk0x00511300);
+                    angles[2] = (short)llrint((double)result[2] * g_unk0x00511300);
                 }
 
                 basis.right.x = 0x10000;
@@ -4036,8 +4036,8 @@ int Car_UpdateEngineNoteFalloff(int *pOut)
     int max;
     int offset;
     int mid;
-    float fromStart;
-    float toEnd;
+    double fromStart;
+    double toEnd;
     float frac;
     Car *pCar;
 
@@ -4067,14 +4067,20 @@ int Car_UpdateEngineNoteFalloff(int *pOut)
             *(int *)pCar->field_0xa90 = *(int *)g_carBuffer->field_0xa90;
             offset = g_carBuffer->field_0xb43;
         } else {
-            fromStart = ((float)(unsigned int)(g_unk0x0053a374 - g_unk0x0053bd64) * g_unk0x005113a0) *
+            // PORT: the original uses nearest-even FISTP, including a signed
+            // interpolation phase. Its previous boundary is spilled to float
+            // while the current boundary stays in x87 double precision. At
+            // half steps these disagree and count the same step twice, with
+            // more duplicates at higher render FPS. Evaluate both boundaries
+            // in the same precision to retain the stored simulation rate.
+            fromStart = ((double)(unsigned int)(g_unk0x0053a374 - g_unk0x0053bd64) * g_unk0x005113a0) *
                         *(float *)(pCar->field_0xa90 + 8);
-            toEnd = ((float)(unsigned int)(g_unk0x0053bd40 - g_unk0x0053bd64) * g_unk0x005113a0) *
+            toEnd = ((double)(unsigned int)(g_unk0x0053bd40 - g_unk0x0053bd64) * g_unk0x005113a0) *
                     *(float *)(pCar->field_0xa90 + 8);
-            mid = (int)(__int64)toEnd;
-            frac = toEnd - (float)mid;
-            *(int *)pCar->field_0xa90 = (int)(frac * g_65536f);
-            offset = mid - (int)(__int64)fromStart;
+            mid = (int)llrint(toEnd);
+            frac = (float)(toEnd - (double)mid);
+            *(int *)pCar->field_0xa90 = (int)lrintf(frac * g_65536f);
+            offset = mid - (int)llrint(fromStart);
             if (offset > 5)
                 offset = 5;
         }
@@ -4979,7 +4985,7 @@ void Car_UpdateSteering(void)
             if (g_pCurrentCar->speed < 0x10000)
                 w = FixMul(w, g_pCurrentCar->speed);
             w = FixMul(w, *(int *)(g_pCarSetup + 0x3d8));
-            angle += (short)(__int64)((double)w * g_unk0x00511300);
+            angle += (short)llrint((double)w * g_unk0x00511300);
         }
     }
     right = g_pCurrentCar->right;
@@ -5099,14 +5105,14 @@ void Car_UpdateCornerLoads(void)
         if (g_pCurrentCar->field_0xb74 == 0) {
             if (g_pCurrentCar->field_0xb34 >= 1)
                 FixVecScaleRecip(&g_carStepAccel, &f,
-                                 (int)(__int64)((double)g_pCurrentCar->field_0xb34 * CGraphics::m_65536));
+                                 (int)llrint((double)g_pCurrentCar->field_0xb34 * CGraphics::m_65536));
             else
                 FixVecScaleRecip(&g_carStepAccel, &f,
-                                 (int)(__int64)((double)g_pCurrentCar->field_0xb28 * CGraphics::m_65536));
+                                 (int)llrint((double)g_pCurrentCar->field_0xb28 * CGraphics::m_65536));
         } else if (g_pCurrentCar->field_0xb28 > 0) {
-            FixVecScaleRecip(&g_carStepAccel, &f, (int)(__int64)((double)g_pCurrentCar->field_0xb28 * CGraphics::m_65536));
+            FixVecScaleRecip(&g_carStepAccel, &f, (int)llrint((double)g_pCurrentCar->field_0xb28 * CGraphics::m_65536));
         } else {
-            FixVecScaleRecip(&g_carStepAccel, &f, (int)(__int64)((double)g_pCurrentCar->field_0xb34 * CGraphics::m_65536));
+            FixVecScaleRecip(&g_carStepAccel, &f, (int)llrint((double)g_pCurrentCar->field_0xb34 * CGraphics::m_65536));
         }
         k = FixMul(-0xb333, FixDiv(0x10000, 0x3d70));
         if (k < 0)
@@ -5142,7 +5148,7 @@ void Car_UpdateEngineSpeed(void)
         } else if (g_pCurrentCar->field_0xafe > 0) {
             excess = 0x190000 - FixMul(0x41, g_pCurrentCar->field_0xafe << 16);
             excess = FixMul(excess, 0xa3d);
-            angle = (short)(__int64)((double)FixMul(excess, 0x8c0000) * g_unk0x00511300);
+            angle = (short)llrint((double)FixMul(excess, 0x8c0000) * g_unk0x00511300);
             g_pCurrentCar->field_0x7a4 = FixMul(FixMul(g_sinTable[(unsigned short)angle & 0xfff], 0x10000), g_pCurrentCar->field_0x794);
             g_pCurrentCar->field_0xafe -= (short)(FixMul(g_physicsTimeStep, 0x3e80000) >> 16);
             if (g_pCurrentCar->field_0xafe < 0)
@@ -5540,7 +5546,7 @@ int Render_GetDetailDistanceScale(void)
         (float)(*(int *)&g_pGraphics->field921_0x3c4 * CGraphics::m_oneOver65536);
     float scale = base * steps[CGameInfo::GetGraphicsOptionBits21To24()];
 
-    return (int)(__int64)((scale + base) * CGraphics::m_65536);
+    return (int)llrint((scale + base) * CGraphics::m_65536);
 }
 
 // FUNCTION: CMR2 0x00423fc0
@@ -6114,7 +6120,7 @@ void Car_IntegrateWheelRotation(int *pList, short count)
                 int v = FixMul(*pList, g_physicsTimeStep);
                 if (*(int *)(carBase + 0xb60) == 0 || *(unsigned char *)(carBase + 0x1d2) > 0 ||
                     *(unsigned char *)(carBase + 0x1d3) > 0 || *(int *)(carBase + 0x1d8) > 0) {
-                    local_14 = (short)(__int64)((double)v * g_unk0x00511398);
+                    local_14 = (short)llrint((double)v * g_unk0x00511398);
                     ((short *)&g_unk0x0053a230[carIndex])[w] += local_14;
                 }
                 if (v < 0)
@@ -6366,13 +6372,13 @@ void Car_IntegrateContacts(void)
         angStep.x -= angAccel.x;
         angStep.y -= angAccel.y;
         angStep.z -= angAccel.z;
-        angles[0] = (short)(__int64)((double)angStep.x * g_unk0x00511380);
-        angles[1] = (short)(__int64)((double)angStep.y * g_unk0x00511380);
-        angles[2] = (short)(__int64)((double)angStep.z * g_unk0x00511380);
+        angles[0] = (short)llrint((double)angStep.x * g_unk0x00511380);
+        angles[1] = (short)llrint((double)angStep.y * g_unk0x00511380);
+        angles[2] = (short)llrint((double)angStep.z * g_unk0x00511380);
     } else {
-        angles[0] = (short)(__int64)((double)FixMul(g_pCurrentCar->angularVelocity.x, g_physicsTimeStep) * g_unk0x00511380);
-        angles[1] = (short)(__int64)((double)FixMul(g_pCurrentCar->angularVelocity.y, g_physicsTimeStep) * g_unk0x00511380);
-        angles[2] = (short)(__int64)((double)FixMul(g_pCurrentCar->angularVelocity.z, g_physicsTimeStep) * g_unk0x00511380);
+        angles[0] = (short)llrint((double)FixMul(g_pCurrentCar->angularVelocity.x, g_physicsTimeStep) * g_unk0x00511380);
+        angles[1] = (short)llrint((double)FixMul(g_pCurrentCar->angularVelocity.y, g_physicsTimeStep) * g_unk0x00511380);
+        angles[2] = (short)llrint((double)FixMul(g_pCurrentCar->angularVelocity.z, g_physicsTimeStep) * g_unk0x00511380);
     }
     if (g_pCurrentCar->field_0xb34 > 0) {
         int upDot = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
@@ -7302,7 +7308,7 @@ void View_PlaceCarCamera(BYTE param_1)
         FixMatrix_SetPosition(&pos, pView);
     }
     if (g_unk0x00538f00[index] != 0) {
-        angle = (short)(__int64)((double)FixMul(
+        angle = (short)llrint((double)FixMul(
                     g_sinTable[g_unk0x00538df8[index] & 0xfff],
                     FixDiv(HudDash_GetPlayerGaugeValue(param_1) - 0x80000, 0x100000) * 0x5a + 0x140000) *
                     g_unk0x00511300);
@@ -7922,7 +7928,7 @@ found:
 #define VIEW_PREV_STATE(v) ((CameraRecord *)g_unk0x00538e38 + (v))
 // Smooth-step weight of a camera blend timer (0xc8000 = the whole transition).
 #define VIEW_EASE(t)                                                                               \
-    (0x10000 - (FixCos((short)(int)(__int64)((double)(FixDiv((t), 0xc8000) * 180) * g_unk0x00511308)) + \
+    (0x10000 - (FixCos((short)(int)llrint((double)(FixDiv((t), 0xc8000) * 180) * g_unk0x00511308)) + \
                 0x10000) / 2)
 
 extern double g_unk0x00511308;
@@ -8297,7 +8303,7 @@ void View_UpdateCamera(BYTE view)
         CameraState_Interpolate(VIEW_STATE(index), pActive, pNext, t);
         if ((activeFree && nextTracked) || (activeTracked && nextFree))
             VIEW_STATE(index)->matrix.position.y +=
-                FixMul(g_sinTable[(short)(int)(__int64)((double)(t * 180) * g_unk0x00511300) & 0xfff], 0x10000);
+                FixMul(g_sinTable[(short)(int)llrint((double)(t * 180) * g_unk0x00511300) & 0xfff], 0x10000);
         *(int *)(g_unk0x00538d2c + index * 100) = 8;
         *pTimer -= g_physicsTimeStep;
         return;
