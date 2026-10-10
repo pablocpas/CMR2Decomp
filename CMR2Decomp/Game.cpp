@@ -254,8 +254,8 @@ int g_unk0x00523c64[5] = { -1, 120, 120, 120, 120 };
 
 void FrontendMenu_DrawActiveMenu(void);
 float Graphics_GetFrameScale(void);
-int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
-int Game_DrawSceneViewport(int, int, void *, int, BYTE);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int param);
+int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 void Graphics_PresentFrameAndResetCounters(void);
 
 // Boot render state: places the splash-scene camera, clears the target and
@@ -285,12 +285,12 @@ void Game_DrawBootCameraAndFPS(CallbackStateMachine *p1, BYTE p2)
     CGraphics::ClearTarget();
     CGraphics::ClearZBuffer();
     FrontendMenu_DrawActiveMenu();
-    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)rect, 0);
+    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, rect, 0);
     if ((g_pGraphics->field913_0x3bc & 4) != 0) {
         sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
         Font_DrawText(0, CFrontend::m_stringDest, 0, 0, g_unk0x00523c64, 9);
     }
-    Game_DrawSceneViewport((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, rect, 0, 1);
+    Game_DrawSceneViewport(g_unk0x00817fc8, g_unk0x00817fc4, rect, 0, 1);
     if (g_unk0x00817fcc == 0)
         Graphics_PresentFrameAndResetCounters();
 }
@@ -374,12 +374,12 @@ void Game_DrawLogoAndLoadingSprites(CallbackStateMachine *p1, BYTE p2)
         }
     }
 
-    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)&screen, 0);
+    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, &screen, 0);
     if (g_pGraphics->field913_0x3bc & 4) {
         sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
         Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
     }
-    Game_DrawSceneViewport((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, &screen, 0, 1);
+    Game_DrawSceneViewport(g_unk0x00817fc8, g_unk0x00817fc4, &screen, 0, 1);
     if (g_unk0x00817fcc == 0)
         Graphics_PresentFrameAndResetCounters();
 }
@@ -424,8 +424,8 @@ void Game_DrawCountryLoadingScreen(CallbackStateMachine *p1, BYTE p2)
                 CFrontend::GetTextString((RallyDataCountryIndex() & 0xff) + 0x27));
         CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
         Game_DrawFadingBootLabel(y, (int)g_pGraphics->resY / 2, CFrontend::m_stringDest, 1);
-        Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)rect, 0);
-        Game_DrawSceneViewport((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, rect, 0, 1);
+        Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, rect, 0);
+        Game_DrawSceneViewport(g_unk0x00817fc8, g_unk0x00817fc4, rect, 0, 1);
         if (g_unk0x00817fcc == 0)
             Graphics_PresentFrameAndResetCounters();
     }
@@ -523,9 +523,9 @@ char g_strMusicSelect1Adp[16] = "%s\\select1.adp";
 
 void FrontendMenu_UpdateAndSwitchActive(void);
 
-int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int param);
 float Graphics_GetFrameScale(void);
-int Game_DrawSceneViewport(int, int, void *, int, BYTE);
+int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 void Graphics_PresentFrameAndResetCounters(void);
 
 // FPS overlay format string ("FPS: %.2f").
@@ -573,14 +573,14 @@ void Game_DrawBootTextureScreen(CallbackStateMachine *p1, BYTE p2)
         Sprite_Queue(&src, &dst, CFrontend::m_unk0x00817fd0, 1, 0, centre, NULL, colour, 8);
     }
 
-    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)&screenRect, 0);
+    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, &screenRect, 0);
 
     if ((g_pGraphics->field913_0x3bc & 4) != 0) {
         sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
         Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
     }
 
-    Game_DrawSceneViewport((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, &screenRect, 0, 1);
+    Game_DrawSceneViewport(g_unk0x00817fc8, g_unk0x00817fc4, &screenRect, 0, 1);
 
     if (g_unk0x00817fcc == 0)
         Graphics_PresentFrameAndResetCounters();
@@ -838,9 +838,9 @@ void Game_FinishRaceAndAdvanceBootState(CallbackStateMachine *p1, BYTE unused)
 }
 
 float Graphics_GetFrameScale(void);
-int Game_DrawSceneViewport(int, int, void *, int, BYTE);
+int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 void Graphics_PresentFrameAndResetCounters(void);
-int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int param);
 
 // Needed by every boot-screen render of this file (0x4d0a80 / 0x4d0ea0 /
 // 0x4d1080 / 0x4d1370); the duplicated definition is deduplicated on integration.
@@ -892,7 +892,7 @@ void Game_DrawMovieFrameAndCredits(CallbackStateMachine *p1, BYTE p2)
         centre[1] = h / 2;
         Sprite_Queue(&src, &dst, CFrontend::m_unk0x00817ebc, 1, 0, centre, NULL, white, 8);
     }
-    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)&viewport, 0);
+    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, &viewport, 0);
     if ((g_pGraphics->field913_0x3bc & 4) != 0) {
         sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
         Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)white, 9);
@@ -903,7 +903,7 @@ void Game_DrawMovieFrameAndCredits(CallbackStateMachine *p1, BYTE p2)
         sprintf(CFrontend::m_stringDest, g_strBinkCredit0x00523cd8);
     Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x140) / 0x280,
                   (int)(g_pGraphics->resY * 0x15e) / 0x1e0, (int *)black, 10);
-    Game_DrawSceneViewport((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, &viewport, 0, 1);
+    Game_DrawSceneViewport(g_unk0x00817fc8, g_unk0x00817fc4, &viewport, 0, 1);
     if (g_unk0x00817fcc == 0)
         Graphics_PresentFrameAndResetCounters();
 }
@@ -1514,7 +1514,7 @@ done:
 // FUNCTION: CMR2 0x00501680
 void CGame::NoOpSecondaryStateCallback(struct CallbackStateMachine *, BYTE) { return; }
 
-extern int g_unk0x0082b1b0;
+extern SceneNode *g_unk0x0082b1b0;
 
 void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, BYTE *pView);
 
@@ -2256,7 +2256,7 @@ void Game_DrawDeferredObjects(void)
             qsort(CGame::m_unk0x00593cb0, CGame::m_unk0x0059ce28, 4, Game_CompareDeferredDrawDepth);
         for (i = 0; i < (unsigned int)CGame::m_unk0x0059ce28; i++) {
             Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[
-                ((int *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->pTriangles)[1]], 0);
+                ((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->pTriangles->textureIndex], 0);
             CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
                 (D3DMATRIX *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->matrix);
             if (*(int *)((BYTE *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh + 0x114) < 0xc80000)
@@ -2550,11 +2550,11 @@ void Tri2D_DrawLayer(int layer);
 void Line2D_Draw(void);
 void Quad2D_DrawLayer(unsigned int layer);
 void Billboard_Draw(SceneNode *pCamera);
-void Particle_DrawAll(int param, BYTE view);
+void Particle_DrawAll(SceneNode *pCamera, BYTE view);
 void Scene_DrawShadowBatches(unsigned int view);
 void Scene_RelightSector(int sector);
 BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance);
-void Sector_CullGridAroundViewNode(SceneNode *pNode, int unused);
+void Sector_CullGridAroundViewNode(SceneNode *pNode, void *pRect);
 void Graphics_UpdateFrameStatistics(void);
 int Graphics_GetFlareStateValue(void);
 void Graphics_SwitchAlphaBlendAndTest(int enable);
@@ -2575,7 +2575,7 @@ D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
 // scratch slots), plus the 0.0f store which the original materialises as an
 // immediate.
 // FUNCTION: CMR2 0x0049d3f0
-int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE flag)
+int Game_DrawSceneViewport(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int bit, BYTE flag)
 {
     D3DVIEWPORT7 viewport;
     FixVector cameraPosition;
@@ -2584,17 +2584,17 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
     unsigned int i;
     unsigned short *pIndex;
 
-    g_unk0x0059be6c = (SceneNode *)param2;
+    g_unk0x0059be6c = pCamera;
     CGame::m_unk0x0059ce18 = 0;
     CGame::m_unk0x0059ce1c = 0;
     CGame::m_unk0x0059ce20 = 0;
     if (CGraphics::m_pTextureManager->pD3D->BeginScene() != D3D_OK)
         return 1;
     memset(&viewport, 0, sizeof(viewport));
-    viewport.dwX = ((short *)param3)[0];
-    viewport.dwY = ((short *)param3)[1];
-    viewport.dwWidth = ((short *)param3)[2];
-    viewport.dwHeight = ((short *)param3)[3];
+    viewport.dwX = ((short *)pRect)[0];
+    viewport.dwY = ((short *)pRect)[1];
+    viewport.dwWidth = ((short *)pRect)[2];
+    viewport.dwHeight = ((short *)pRect)[3];
     viewport.dvMinZ = 0.0f;
     viewport.dvMaxZ = 1.0f;
     CGraphics::m_pTextureManager->pD3D->SetViewport(&viewport);
@@ -2608,13 +2608,13 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
         if (CGraphics::m_unk0x0072d56c != 0) {
             CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
                                                              &g_unk0x005207b8);
-            Sector_CullGridAroundViewNode((SceneNode *)param2, (int)param3);
+            Sector_CullGridAroundViewNode(pCamera, pRect);
             for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++)
                 Scene_RelightSector(((unsigned short *)g_unk0x006ed5f0)[i]);
         }
         CGraphics::SetCullMode(CGame::GetSectorDrawState());
-        FixMatrix_GetPosition(&cameraPosition, &((SceneNode *)param2)->world);
-        Particle_DrawAll(param2, (BYTE)bit);
+        FixMatrix_GetPosition(&cameraPosition, &pCamera->world);
+        Particle_DrawAll(pCamera, (BYTE)bit);
         forward.x = g_unk0x0059be6c->world.forward.x;
         forward.y = 0;
         forward.z = g_unk0x0059be6c->world.forward.z;
@@ -2651,7 +2651,7 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
             Graphics_SetLightingMode(5);
             Game_DrawCulledSectorShadows();
             Graphics_SwitchAlphaBlendAndTest(1);
-            Glow_Draw((SceneNode *)param2, (BYTE)bit);
+            Glow_Draw(pCamera, (BYTE)bit);
             Quad2D_DrawLayer(8);
             Graphics_SetLightingMode(4);
             Quad2D_DrawLayer(0x20);
@@ -2667,7 +2667,7 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
                 Graphics_SetLightingMode(5);
                 Quad2D_DrawLayer(0x10);
                 Line2D_Draw();
-                Billboard_Draw((SceneNode *)param2);
+                Billboard_Draw(pCamera);
                 Graphics_SetLightingMode(1);
                 Game_QueueVisibleSectorNodes(bit);
                 Game_DrawSortedNodes(bit);
@@ -2690,7 +2690,7 @@ int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE f
         Quad2D_DrawLayer(0x40);
         Graphics_SetLightingMode(5);
         Line2D_Draw();
-        Billboard_Draw((SceneNode *)param2);
+        Billboard_Draw(pCamera);
         Scene_DrawShadowBatches(bit);
     }
     Flare_SampleVisibility(NULL, NULL, 0);
@@ -3525,7 +3525,7 @@ void Scene_SetViewFromCamera(SceneNode *pCamera);
 
 // Updates a scene tree for drawing from a camera.
 // FUNCTION: CMR2 0x0049ce10
-int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param)
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int param)
 {
     SceneNode_UpdateTree(pRoot, param);
     SceneNode_FlushTransforms(pRoot);

@@ -170,8 +170,8 @@ int g_unk0x0051922c = -1;
 // GLOBAL: CMR2 0x0051948c
 char g_strTempC3D[] = "TEMP.C3D";
 
-int RallyData_GetChallengeRenderState(void);
-int Sector_BuildC3DModelScene(unsigned int, unsigned int, unsigned int);
+SceneNode *RallyData_GetChallengeRenderState(void);
+struct SceneNode *Sector_BuildC3DModelScene(void *data, struct SceneNode *parent, struct GenericFile *archive);
 BYTE *Replay_LoadValidatedBuffer(char *path);
 char *Race_GetStagePathBuffer3874C(void);
 GenericFile *Race_GetLoadedStageFile(void);
@@ -347,7 +347,7 @@ void Race_LoadStageModel(void)
     pBuffer = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempC3D, NULL, NULL, 0);
     if (pBuffer != NULL) {
         pFile = Race_GetLoadedStageFile();
-        Sector_BuildC3DModelScene((unsigned int)pBuffer, RallyData_GetChallengeRenderState(), (unsigned int)pFile);
+        Sector_BuildC3DModelScene(pBuffer, RallyData_GetChallengeRenderState(), pFile);
     }
 }
 

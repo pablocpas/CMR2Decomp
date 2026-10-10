@@ -1339,7 +1339,7 @@ private:
     friend void Graphics_DrawCubeMappedShadowTriangles(Mesh *pMesh);
     // Mesh_DrawEnvMapped sets the texture transform of the projected cube map.
     friend void Mesh_DrawEnvMapped(Mesh *pMesh);
-    friend void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_3);
+    friend void *Sector_RelocateStageMeshFile(BYTE *pData, struct SceneNode *parent, struct GenericFile *archive);
     friend void OptionPreview_UpdateWheelMeshVariants(int param1);
     friend Texture *Graphics_FindAndEnsureResidentTexture(char *name);
     friend void Events_Init(int unused, int slot, char animate);
@@ -1498,7 +1498,7 @@ private:
     friend void Game_DrawViewMaskNode(SceneNode *pNode, int bit);
     friend void Game_DrawDeferredObjects(void);
     friend int Graphics_RenderNodeCubeMapFaces(SceneNode *pNode, int bit);
-    friend int Game_DrawSceneViewport(int param1, int param2, void *param3, int bit, BYTE flag);
+    friend int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 };
 
 // A camera-facing sprite queued by Billboard_Add.

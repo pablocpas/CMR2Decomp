@@ -4051,7 +4051,7 @@ char g_str0x00521118[4] = "B2";
 // skipped when the record type is 6.
 // match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b9910
-void Graphics_LoadTextureRecordList(int param1, int param2, unsigned int param3, int param4, int param5)
+void Graphics_LoadTextureRecordList(int param1, int param2, unsigned int param3, int param4, GenericFile *archive)
 {
     unsigned short *pEntry;
     unsigned int remaining;
@@ -4082,7 +4082,7 @@ void Graphics_LoadTextureRecordList(int param1, int param2, unsigned int param3,
                     } else {
                         flags = param4 != 10 ? 0x90 : 0;
                     }
-                    CTexture::FindLoadTexture((GenericFile *)param5, fileName, 0, 0, 0, flags);
+                    CTexture::FindLoadTexture(archive, fileName, 0, 0, 0, flags);
 nextEntry:
                     pEntry += 4;
                     i++;
@@ -5866,7 +5866,7 @@ void Particle_Interpolate(int t)
 //   pb+2    active       pb+0    field0x55   pb+4..6 colour      pb+0xb field0x60
 // match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b0480
-void Particle_DrawAll(int param, BYTE view)
+void Particle_DrawAll(SceneNode *pCamera, BYTE view)
 {
     BillboardDef def;
     ParticleType *pType;
@@ -5886,7 +5886,7 @@ void Particle_DrawAll(int param, BYTE view)
                 continue;
             pType = *(ParticleType **)(pb - 0x55);
             if (pType->field0x5c != 0) {
-                ((void (*)(void *, ParticleType *, int))pType->field0x5c)(pb - 0x55, pType, param);
+                ((void (*)(void *, ParticleType *, int))pType->field0x5c)(pb - 0x55, pType, (int)pCamera);
                 continue;
             }
             if (pType->frames != NULL) {

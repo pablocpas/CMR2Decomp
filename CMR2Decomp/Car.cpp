@@ -533,7 +533,7 @@ void Car_SetDifficultyHandling(int level)
 CarSceneRecord *StageTiming_GetStartTableRecord(int index);
 SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
 int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent);
-int RallyData_GetChallengeRenderState(void);
+SceneNode *RallyData_GetChallengeRenderState(void);
 void Car_SwapWheelTextures(char mode, SceneNode **pWheels);
 
 // Binds a car to its loaded model: body nodes, wheels and view nodes, and
@@ -554,10 +554,10 @@ void Car_BindModel(int model, Car *pCar)
     pCar->pViewNodeFar = SceneNode_FindByType(pBody2, 0xe);
     pCar->pViewNodeNear = SceneNode_FindByType(pBody2, 0xf);
     Car_SwapWheelTextures(StageTiming_GetStartTableRecord(pCar->index)->detailCode, pCar->pWheelNodes);
-    if ((int)pBody->pParent != RallyData_GetChallengeRenderState())
-        SceneNode_Reparent(pBody, (SceneNode *)RallyData_GetChallengeRenderState());
-    if ((int)pCar->pBodyNode->pParent != RallyData_GetChallengeRenderState())
-        SceneNode_Reparent(pCar->pBodyNode, (SceneNode *)RallyData_GetChallengeRenderState());
+    if (pBody->pParent != RallyData_GetChallengeRenderState())
+        SceneNode_Reparent(pBody, RallyData_GetChallengeRenderState());
+    if (pCar->pBodyNode->pParent != RallyData_GetChallengeRenderState())
+        SceneNode_Reparent(pCar->pBodyNode, RallyData_GetChallengeRenderState());
 }
 
 // Recomputes the eight world-space corners of the car's box from its
@@ -7935,7 +7935,7 @@ unsigned short RallyData_GetSecondaryStageScoreScale(void);
 void StageObject_InitCarSceneTables(void);
 void CarInfo_CacheCameraOffsets(void);
 void StageTiming_SetViewRouteDistanceLimit(BYTE player, unsigned int node, int dir);
-int RallyData_GetChallengeRenderState(void);
+SceneNode *RallyData_GetChallengeRenderState(void);
 void View_PlaceCarCamera(BYTE param_1);
 int View_IsModeAvailable(BYTE index, int mode);
 FixMatrix *View_GetCarBodyMatrix(FixMatrix *pOut, BYTE car);
@@ -8137,7 +8137,7 @@ void View_SetupCameras(void)
     angles.z = 0;
     i = 0;
     for (i = 0; i < 2; i++) {
-        g_viewNodes[i] = SceneType2_Create(&position, &angles, NULL, (SceneNode *)RallyData_GetChallengeRenderState());
+        g_viewNodes[i] = SceneType2_Create(&position, &angles, NULL, RallyData_GetChallengeRenderState());
         *(int *)(g_unk0x00538d2c + i * 100) = 0;
         g_unk0x00538d20[i] = -0x10000;
         g_unk0x00538e0c[i] = 0;

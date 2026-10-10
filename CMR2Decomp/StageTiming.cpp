@@ -4279,7 +4279,7 @@ struct FixAngles;
 SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles, SceneNode *pParent);
 void Scene_SetAmbient(BYTE *pColour, int boost);
 void Scene_SetLight(FixVector *pLight, int boost);
-int RallyData_GetChallengeRenderState(void);
+SceneNode *RallyData_GetChallengeRenderState(void);
 extern SceneNode *g_stageAmbientNode;
 extern BYTE g_unk0x00592146;
 extern BYTE g_stageColourAlpha;
@@ -4310,7 +4310,7 @@ void StageTiming_CreateWhiteStageLight(void)
     angles[2] = 0;
     angles[3] = 0;
     g_stageAmbientNode = Scene_CreateLight(2, 0x10000, 0x10000, 0x10000, &position, (FixAngles *)angles,
-                                           (SceneNode *)RallyData_GetChallengeRenderState());
+                                           RallyData_GetChallengeRenderState());
     country = (char)RallyDataCountryIndex();
     if (country == 3) {
         Scene_SetAmbient(ambient, 0);
@@ -8044,7 +8044,7 @@ int RallyData_GetDistinctValueEntry(int index);
 void RallyData_SetDriverCategoryOption(BYTE index, BYTE value);
 char *Car_GetDirectoryPath(int car);
 void Graphics_SetTextureStageState(int param1);
-int Sector_BuildC3DModelScene(unsigned int, unsigned int, unsigned int);
+struct SceneNode *Sector_BuildC3DModelScene(void *data, struct SceneNode *parent, struct GenericFile *archive);
 int *StageTiming_GetCarStartPosition(int car);
 int StageTiming_GetStartTableField244(int unused);
 int Car_UsesNarrowWheels(Car *pCar, int param2);
@@ -8315,7 +8315,7 @@ classes:
     CGenericFileLoader::LoadIntoFileRecord(pArchive, CFrontend::m_stringDest);
     if (pData == NULL)
         return 0;
-    pScene = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)pData, RallyData_GetChallengeRenderState(), (unsigned int)pArchive);
+    pScene = Sector_BuildC3DModelScene(pData, RallyData_GetChallengeRenderState(), pArchive);
     pBody = SceneNode_FindByType(pScene, 5);
     pRecord->rootNode = pScene;
     pRecord->bodyNode = pBody;
@@ -8336,8 +8336,8 @@ classes:
             pWheelData = CFileBuffer::GetGenericFileBuffer(path, FALSE);
         }
         if (pWheelData != NULL) {
-            pRecord->alternateWheelScene = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)pWheelData, RallyData_GetChallengeRenderState(),
-                                                   (unsigned int)&g_carModelArchives[car * 2]);
+            pRecord->alternateWheelScene = Sector_BuildC3DModelScene(pWheelData, RallyData_GetChallengeRenderState(),
+                                                   &g_carModelArchives[car * 2]);
             pRecord->originalWheelObjects[0] = SceneNode_FindByType(pScene, 1)->pObject;
             pRecord->originalWheelObjects[1] = SceneNode_FindByType(pScene, 2)->pObject;
             pRecord->originalWheelObjects[2] = SceneNode_FindByType(pScene, 3)->pObject;
@@ -8406,7 +8406,7 @@ wheelsDone:
     pArchive = &g_carModelArchives[car * 2 + 1];
     CGenericFileLoader::LoadIntoFileRecord(pArchive, CFrontend::m_stringDest);
     pCar = Car_Get(car);
-    pNodes = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)pData, RallyData_GetChallengeRenderState(), (unsigned int)pArchive);
+    pNodes = Sector_BuildC3DModelScene(pData, RallyData_GetChallengeRenderState(), pArchive);
     g_carAlternateBodyScenes[car] = pNodes;
     pCar->pAlternateBodyNode = SceneNode_FindByType(pNodes, 5);
     pCar->pExtraNodes[0] = SceneNode_FindByType(pNodes, 1);

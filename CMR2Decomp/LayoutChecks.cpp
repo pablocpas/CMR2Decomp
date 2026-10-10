@@ -326,6 +326,7 @@ CMR2_LAYOUT_CHECK(CarPartFloatVertex_pos_GeometryOffsetCheck, offsetof(DeformFlo
 CMR2_LAYOUT_CHECK(CarPartFloatVertex_normal_GeometryOffsetCheck, offsetof(DeformFloatVertex, normal) == 0xc);
 CMR2_LAYOUT_CHECK(CarPartFloatVertex_colour_GeometryOffsetCheck, offsetof(DeformFloatVertex, colour) == 0x18);
 CMR2_LAYOUT_CHECK(MeshTriangle_vertexIndex_GeometryOffsetCheck, offsetof(MeshTriangle, vertexIndex) == 0x40);
+CMR2_LAYOUT_CHECK(MeshTriangle_textureIndex_OffsetCheck, offsetof(MeshTriangle, textureIndex) == 0x4);
 CMR2_LAYOUT_CHECK(Mesh_pVertexData_GeometryOffsetCheck, offsetof(Mesh, pVertexData) == 0xc);
 CMR2_LAYOUT_CHECK(Mesh_pTriangles_GeometryOffsetCheck, offsetof(Mesh, pTriangles) == 0x24);
 CMR2_LAYOUT_CHECK(Mesh_triangleCount_GeometryOffsetCheck, offsetof(Mesh, triangleCount) == 0x28);

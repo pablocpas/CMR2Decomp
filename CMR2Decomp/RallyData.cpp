@@ -4676,12 +4676,12 @@ unsigned char RallyData_GetSelectionFlag28(void)
 
 // Neutral type for now: nothing implemented reads it yet.
 // GLOBAL: CMR2 0x00536be0
-int g_unk0x00536be0;
+SceneNode *g_unk0x00536be0;
 // GLOBAL: CMR2 0x00536be4
-int g_unk0x00536be4;
+SceneNode *g_unk0x00536be4;
 
 // FUNCTION: CMR2 0x0040eeb0
-int RallyData_GetChallengeSceneState(void)
+SceneNode *RallyData_GetChallengeSceneState(void)
 {
     return g_unk0x00536be4;
 }
@@ -4703,9 +4703,9 @@ void RallyData_DrawViewEndFrameOverlay(BYTE *, int);
 void RallyData_DrawLoadingProgress(int progress, char drawScene, BYTE alpha);
 void RallyData_DrawHeadToHeadDriverCaption(int, int);
 void InRaceMenu_DrawActivePage(void);
-int RallyData_GetChallengeRenderState(void);
-int Game_PrepareScene(SceneNode *, SceneNode *, int, int);
-int Game_DrawSceneViewport(int, int, void *, int, BYTE);
+SceneNode *RallyData_GetChallengeRenderState(void);
+int Game_PrepareScene(SceneNode *, SceneNode *, void *, int);
+int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 void Graphics_PresentFrameAndResetCounters(void);
 float Graphics_GetFrameScale(void);
 void GameMenu_UpdateHeaderCallbacks(void);
@@ -4740,8 +4740,8 @@ void RallyData_RunChallengeLoadingScreen(int param1, char param2)
         do {
             CGraphics::ClearTarget();
             CGraphics::ClearZBuffer();
-            Game_PrepareScene((SceneNode *)RallyData_GetChallengeRenderState(),
-                              (SceneNode *)g_unk0x00536be4, (int)rect, 0);
+            Game_PrepareScene(RallyData_GetChallengeRenderState(),
+                              g_unk0x00536be4, rect, 0);
             if ((g_pGraphics->field913_0x3bc & 4) != 0) {
                 colour[0] = 0xff;
                 colour[1] = 0xff;
@@ -4859,7 +4859,7 @@ void RallyData_ShrinkEntryAndNotifyCompletion(BYTE *param1, unsigned int param2)
 }
 
 // FUNCTION: CMR2 0x00411060
-int RallyData_GetChallengeRenderState(void)
+SceneNode *RallyData_GetChallengeRenderState(void)
 {
     return g_unk0x00536be0;
 }
@@ -4917,9 +4917,9 @@ void RallyData_CreateFrontendChallengeScene(void)
     angles.y = 0;
     angles.z = 0;
     angles.pad = 0;
-    g_unk0x00536be0 = (int)SceneNode_CreateRoot();
-    g_unk0x00536be4 = (int)SceneType2_Create(&position, &angles, NULL, (SceneNode *)g_unk0x00536be0);
-    for (pNode = (SceneNode *)g_unk0x00536be0; pNode != NULL; pNode = *(SceneNode **)((BYTE *)pNode + 8))
+    g_unk0x00536be0 = SceneNode_CreateRoot();
+    g_unk0x00536be4 = SceneType2_Create(&position, &angles, NULL, g_unk0x00536be0);
+    for (pNode = g_unk0x00536be0; pNode != NULL; pNode = *(SceneNode **)((BYTE *)pNode + 8))
         *(int *)((BYTE *)pNode + 0x174) = 1;
     CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
 }
@@ -4951,8 +4951,8 @@ int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha)
 }
 
 int RallyData_ShouldEndStageEarly(void);
-int RallyData_GetChallengeRenderState(void);
-int Game_DrawSceneViewport(int, int, void *, int, BYTE);
+SceneNode *RallyData_GetChallengeRenderState(void);
+int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 void Graphics_PresentFrameAndResetCounters(void);
 
 // Draws the loading bar: eleven blocks, lit up to the given progress (0-99, 100
@@ -5328,7 +5328,7 @@ BYTE RallyData_FreeChallengeSceneObjects(void)
 {
     StageObject_FreeAll();
     if (g_unk0x00536be0 != 0)
-        SceneNode_Destroy((SceneNode *)g_unk0x00536be0);
+        SceneNode_Destroy(g_unk0x00536be0);
     Mesh_FreeClones();
     return 1;
 }
@@ -6081,8 +6081,8 @@ struct Menu;
 void Menu_CallCallback2(Menu *pMenu);
 int Race_GetFlag38108(void);
 BYTE *StageObject_GetInRaceActionMenu(void);
-int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
-int Game_DrawSceneViewport(int, int, void *, int, BYTE);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int param);
+int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 void Graphics_PresentFrameAndResetCounters(void);
 
 // Sets up the projection, clears the targets and draws the challenge scene.
@@ -6100,7 +6100,7 @@ void RallyData_DrawProjectedChallengeScene(int param1, int param2)
     CGraphics::ClearZBuffer();
     if (Race_GetFlag38108() == 0)
         Menu_CallCallback2((Menu *)StageObject_GetInRaceActionMenu());
-    Game_PrepareScene((SceneNode *)g_unk0x00536be0, (SceneNode *)g_unk0x00536be4, (int)rect, 0);
+    Game_PrepareScene(g_unk0x00536be0, g_unk0x00536be4, rect, 0);
     Game_DrawSceneViewport(g_unk0x00536be0, g_unk0x00536be4, rect, 0, 1);
     Graphics_PresentFrameAndResetCounters();
 }
@@ -6239,8 +6239,8 @@ void RallyData_UpdateViewFrameAndDebugOverlay(int param1, int param2, int param3
     View_SelectVisibleCars(maskedView, (short *)g_unk0x00536ad4);
     Replay_HideFinishedGhostCarNodes();
     StageObject_PositionRearViewLightNodes(View_GetActiveCameraFlags(maskedView));
-    Game_PrepareScene((SceneNode *)RallyData_GetChallengeRenderState(), g_viewNodes[maskedView],
-                      (int)g_unk0x00536ad4, maskedView);
+    Game_PrepareScene(RallyData_GetChallengeRenderState(), g_viewNodes[maskedView],
+                      g_unk0x00536ad4, maskedView);
     if (g_unk0x00536ad0 == 0) {
         g_unk0x00536ad0 = 1;
         Scene_BeginShadowBatch();
@@ -8177,7 +8177,7 @@ void RallyData_DrawViewEndFrameOverlay(BYTE *pKey, int view)
         }
     }
     g_unk0x00536ad4 = RallyData_GetViewScreenRectangle(view);
-    Game_DrawSceneViewport(RallyData_GetChallengeRenderState(), (int)g_viewNodes[view], g_unk0x00536ad4, view, 1);
+    Game_DrawSceneViewport(RallyData_GetChallengeRenderState(), g_viewNodes[view], g_unk0x00536ad4, view, 1);
     RallyData_NotifyAdjacentMenuKeyValue(pKey, view);
 }
 

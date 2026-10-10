@@ -53,7 +53,7 @@ extern int g_unk0x0067f228;
 extern StageObject *g_stageObjects[6000];
 
 void Graphics_AccumulateCounterOrInitialize(int *p, int value);
-void Graphics_LoadTextureRecordList(int param1, int param2, unsigned int param3, int param4, int param5);
+void Graphics_LoadTextureRecordList(int param1, int param2, unsigned int param3, int param4, GenericFile *archive);
 void Mesh_UploadVertices(Mesh *pMesh);
 void Mesh_BuildParts(Mesh *pMesh);
 
@@ -61,16 +61,16 @@ void Mesh_BuildParts(Mesh *pMesh);
 // GLOBAL: CMR2 0x0052110c
 char g_strC3dMagic[] = "PP_F";
 
-void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_3);
+void *Sector_RelocateStageMeshFile(BYTE *pData, SceneNode *parent, GenericFile *archive);
 
 // Builds the scene of a C3D model file, if the data really is one.
 // FUNCTION: CMR2 0x004b9380
-int Sector_BuildC3DModelScene(unsigned int data, unsigned int parent, unsigned int textures)
+SceneNode *Sector_BuildC3DModelScene(void *data, SceneNode *parent, GenericFile *archive)
 {
-    int result = 0;
+    SceneNode *result = NULL;
 
     if (strncmp((char *)data, g_strC3dMagic, 4) == 0)
-        result = (int)Sector_RelocateStageMeshFile((BYTE *)data, parent, textures);
+        result = (SceneNode *)Sector_RelocateStageMeshFile((BYTE *)data, parent, archive);
     return result;
 }
 
@@ -79,7 +79,7 @@ int Sector_BuildC3DModelScene(unsigned int data, unsigned int parent, unsigned i
 // mesh, stage object and sector tables, loads the textures and re-uploads the
 // vertex buffers of every mesh.
 // FUNCTION: CMR2 0x004b93c0
-void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_3)
+void *Sector_RelocateStageMeshFile(BYTE *pData, SceneNode *parent, GenericFile *archive)
 {
     int count = 0;
     BYTE *pNodes;
@@ -132,14 +132,14 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, int param_2, unsigned int param_
         } while (count < *(unsigned int *)(pData + 0x20));
     }
     Graphics_LoadTextureRecordList((int)pEnd, textureRecords,
-                 *(unsigned short *)(pData + 0x24), *(int *)(pData + 4), param_3);
+                 *(unsigned short *)(pData + 0x24), *(int *)(pData + 4), archive);
     savedNodeCount = g_sceneNodeCount;
     if (*(unsigned short *)(pData + 0x18) > 0) {
         for (i = 0, p = pNodes; i < *(unsigned short *)(pData + 0x18); i++, p += 0x18c) {
             Graphics_AccumulateCounterOrInitialize((int *)p, (int)pNodes);
             Graphics_AccumulateCounterOrInitialize((int *)(p + 4), (int)pNodes);
-            if (param_2 != 0 && *(short *)(p + 0x24) == -1) {
-                SceneNode_Attach((SceneNode *)p, (SceneNode *)param_2);
+            if (parent != NULL && *(short *)(p + 0x24) == -1) {
+                SceneNode_Attach((SceneNode *)p, parent);
             } else {
                 Graphics_AccumulateCounterOrInitialize((int *)(p + 8), (int)pNodes);
                 *(short *)(p + 0x24) = -1;
@@ -610,7 +610,7 @@ int Tri2D_Contains(int *pPoint, int *pTri);
 // distance), storing the squared distance of each marked sector.
 // match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7de0
-void Sector_CullGridAroundViewNode(SceneNode *pNode, int unused)
+void Sector_CullGridAroundViewNode(SceneNode *pNode, void *pRect)
 {
     FixVector pos;
     FixVector origin;

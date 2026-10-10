@@ -8142,7 +8142,6 @@ unsigned int SavedGames_GetDateLowBits(int index);
 unsigned int SavedGames_GetDifficulty(int index);
 void *SavedGames_GetFileName(int index);
 BYTE *SavedGames_GetRecordData(int index);
-bool SavedGames_ReleaseRecords(void);
 int Network_RebuildSessionPlayerList(void);
 extern char g_stageNumberFormat[];
 

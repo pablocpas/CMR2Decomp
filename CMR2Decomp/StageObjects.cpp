@@ -1831,9 +1831,9 @@ char g_strTempSky[] = "TEMP.SKY";
 
 void Graphics_SetRecordField2C(BYTE *p, int value);
 void StageObject_BuildCloudTexturePath(void);
-int Sector_BuildC3DModelScene(unsigned int, unsigned int, unsigned int);
+struct SceneNode *Sector_BuildC3DModelScene(void *data, struct SceneNode *parent, struct GenericFile *archive);
 GenericFile *Race_GetLoadedStageFile(void);
-int RallyData_GetChallengeRenderState(void);
+SceneNode *RallyData_GetChallengeRenderState(void);
 BYTE StageObject_ReleaseLoadedObjectFile(void);
 
 // Loads the stage's sky and ground objects: the TEMP.SKY archive (also opened
@@ -1849,8 +1849,8 @@ void StageObjects_LoadSkyAndGround(void)
 
     pFile = (GenericFile *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempSky, NULL, NULL, 0);
     if (pFile != NULL) {
-        g_stageSkyNode = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)pFile, (unsigned int)RallyData_GetChallengeRenderState(),
-                                           (unsigned int)Race_GetLoadedStageFile());
+        g_stageSkyNode = Sector_BuildC3DModelScene(pFile, RallyData_GetChallengeRenderState(),
+                                           Race_GetLoadedStageFile());
         if (g_stageSkyNode != 0) {
             Graphics_SetRecordField2C((BYTE *)g_stageSkyNode->pObject, 0);
             g_stageSkyNode->visible = 0;
@@ -1886,8 +1886,8 @@ void StageObjects_LoadSkyAndGround(void)
     strcat(CFrontend::m_stringDest, g_strTopC3d);
     pFile = (GenericFile *)CGenericFileLoader::FindFile(&g_stageCloudArchive, CFrontend::m_stringDest, NULL, NULL, 0);
     if (pFile != NULL) {
-        g_stageCloudTopNode = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)pFile, (unsigned int)RallyData_GetChallengeRenderState(),
-                                           (unsigned int)&g_stageCloudArchive);
+        g_stageCloudTopNode = Sector_BuildC3DModelScene(pFile, RallyData_GetChallengeRenderState(),
+                                           &g_stageCloudArchive);
         if (g_stageCloudTopNode != 0) {
             pMesh = (BYTE *)g_stageCloudTopNode->pObject;
             g_stageCloudTopNode->visible = 0;
@@ -1896,8 +1896,8 @@ void StageObjects_LoadSkyAndGround(void)
         }
     }
     if (pC3d != NULL) {
-        g_stageCloudNode = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)pC3d, (unsigned int)RallyData_GetChallengeRenderState(),
-                                           (unsigned int)&g_stageCloudArchive);
+        g_stageCloudNode = Sector_BuildC3DModelScene(pC3d, RallyData_GetChallengeRenderState(),
+                                           &g_stageCloudArchive);
         if (g_stageCloudNode != 0) {
             pMesh = (BYTE *)g_stageCloudNode->pObject;
             g_stageCloudNode->visible = 0;
@@ -1906,8 +1906,8 @@ void StageObjects_LoadSkyAndGround(void)
     }
     pFile = (GenericFile *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempGro, NULL, NULL, 0);
     if (pFile != NULL) {
-        g_stageGroundNode = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)pFile, (unsigned int)RallyData_GetChallengeRenderState(),
-                                           (unsigned int)Race_GetLoadedStageFile());
+        g_stageGroundNode = Sector_BuildC3DModelScene(pFile, RallyData_GetChallengeRenderState(),
+                                           Race_GetLoadedStageFile());
         if (g_stageGroundNode != 0) {
             pMesh = (BYTE *)g_stageGroundNode->pObject;
             g_stageGroundNode->visible = 0;
@@ -1917,7 +1917,7 @@ void StageObjects_LoadSkyAndGround(void)
     CGame::RegisterCallback((void *)StageObject_ReleaseLoadedObjectFile, NULL);
 }
 
-int RallyData_GetChallengeRenderState(void);
+SceneNode *RallyData_GetChallengeRenderState(void);
 void Mesh_ResetCloneCount(void);
 Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource);
 extern double g_minus65536;
@@ -1944,7 +1944,7 @@ void StageObject_LoadAndClassifyMeshes(void)
     Mesh_ResetCloneCount();
     pEntry = (BYTE *)g_movingObjects.entries + 0x114;
     do {
-        SceneNode *pNode = SceneNode_Create((SceneNode *)RallyData_GetChallengeRenderState());
+        SceneNode *pNode = SceneNode_Create(RallyData_GetChallengeRenderState());
         *(int *)(pEntry - 0x110) = (int)pNode;
         *(int *)((BYTE *)pNode + 0x178) = 3;
         *(int *)pEntry = -0x10000;
@@ -5557,7 +5557,7 @@ void StageObject_RandomizeStageTriangleTextures(void)
 
 extern int g_carPartTableCarCount;
 
-int RallyData_GetChallengeRenderState(void);
+SceneNode *RallyData_GetChallengeRenderState(void);
 
 // Destroys, in the four node tables, the nodes of every car that belong to
 // the current stage kind.
@@ -5570,7 +5570,7 @@ void StageObject_DestroyStageKindCarNodes(void)
 #define CAR_NODE (g_carPartStateTables.parts[i][car].pNode)
     for (car = 0; car < g_carPartTableCarCount; car++) {
         for (i = 0; i < 4; i++) {
-            if (CAR_NODE != NULL && (int)CAR_NODE->pParent == RallyData_GetChallengeRenderState())
+            if (CAR_NODE != NULL && CAR_NODE->pParent == RallyData_GetChallengeRenderState())
                 SceneNode_Destroy(CAR_NODE);
         }
     }
@@ -8743,9 +8743,9 @@ void StageUI_DrawChampionshipBar(void);
 // El prototipo real: devuelve int y el 5o parametro es BYTE (los llamadores de Game.cpp/RallyData.cpp
 // y la definicion en Game.cpp:2575 coinciden en esa firma). Un prototipo viejo aqui generaba otro
 // nombre manglado y rompia el enlace.
-int Game_DrawSceneViewport(int, int, void *, int, BYTE);
-int Sector_BuildC3DModelScene(unsigned int, unsigned int, unsigned int);
-int RallyData_GetChallengeSceneState(void);
+int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
+struct SceneNode *Sector_BuildC3DModelScene(void *data, struct SceneNode *parent, struct GenericFile *archive);
+SceneNode *RallyData_GetChallengeSceneState(void);
 int *RallyData_GetViewScreenRectangle(int view);
 void NetRace_DrawPlayerFlashOverlay(unsigned int player, short *pRect, int check);
 struct Menu;
@@ -8784,7 +8784,7 @@ void StageObject_LoadTempObjectModel(void)
     pObj = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempObj, NULL, NULL, 0);
     if (pObj != NULL) {
         pFile = Race_GetLoadedStageFile();
-        Sector_BuildC3DModelScene((unsigned int)pObj, RallyData_GetChallengeRenderState(), (unsigned int)pFile);
+        Sector_BuildC3DModelScene(pObj, RallyData_GetChallengeRenderState(), pFile);
     }
 }
 
@@ -8798,7 +8798,7 @@ void StageObject_LoadTempShadowModel(void)
     pObj = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempSht, NULL, NULL, 0);
     if (pObj != NULL) {
         pFile = Race_GetLoadedStageFile();
-        Sector_BuildC3DModelScene((unsigned int)pObj, RallyData_GetChallengeRenderState(), (unsigned int)pFile);
+        Sector_BuildC3DModelScene(pObj, RallyData_GetChallengeRenderState(), pFile);
     }
 }
 
@@ -11661,9 +11661,9 @@ void StageObject_RebuildCarLightMeshes(int param_1)
         position.y = 0;
         position.z = 0;
         g_rearViewLightNodeA = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &angles,
-                                            (SceneNode *)RallyData_GetChallengeRenderState());
+                                            RallyData_GetChallengeRenderState());
         g_rearViewLightNodeB = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &angles,
-                                            (SceneNode *)RallyData_GetChallengeRenderState());
+                                            RallyData_GetChallengeRenderState());
     }
     {
         CarLightProfile *pSet = (CarLightProfile *)CarInfo_GetSection((Car *)param_1, CAR_INFO_LIGHTS);
@@ -13716,7 +13716,7 @@ char g_strCarModelA5C3d[] = "%sa5.c3d";
 
 char *Car_GetDirectoryPath(int car);
 void StageObject_FindPlayerRevTextures(int player);
-int Sector_BuildC3DModelScene(unsigned int, unsigned int, unsigned int);
+struct SceneNode *Sector_BuildC3DModelScene(void *data, struct SceneNode *parent, struct GenericFile *archive);
 
 
 // Loads the interior (cockpit) model of a player's car and hooks its nodes
@@ -13763,9 +13763,9 @@ void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car)
     CarInterior_CacheProfilePointers(car);
     if (g_carInteriorModelBuffers[car] == NULL)
         return;
-    g_carInteriorRoots[car] = (SceneNode *)Sector_BuildC3DModelScene((unsigned int)g_carInteriorModelBuffers[car],
-                                                *(unsigned int *)&pCar->pBodyNode,
-                                                (unsigned int)g_carInteriorArchives);
+    g_carInteriorRoots[car] = Sector_BuildC3DModelScene(g_carInteriorModelBuffers[car],
+                                                pCar->pBodyNode,
+                                                g_carInteriorArchives);
     pRow->steeringReferenceNode = SceneNode_Create(g_carInteriorRoots[car]);
     pRow->steeringRestNode = SceneNode_FindByType(g_carInteriorRoots[car], 0x1a);
     pRow->steeringBlendNode = SceneNode_FindByType(g_carInteriorRoots[car], 0x1c);

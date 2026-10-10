@@ -1347,7 +1347,7 @@ int g_unk0x0082af78[4];
 // GLOBAL: CMR2 0x0082af90
 int g_unk0x0082af90[4];
 // GLOBAL: CMR2 0x0082b1b4
-int g_unk0x0082b1b4;
+SceneNode *g_unk0x0082b1b4;
 // GLOBAL: CMR2 0x0082b1bc
 int g_unk0x0082b1bc;
 // GLOBAL: CMR2 0x0082b488
@@ -1717,7 +1717,7 @@ void OptionMenu_SetSlotSelector(int index, int value)
 }
 
 // FUNCTION: CMR2 0x00501510
-int OptionMenu_GetBackgroundRoot(void)
+SceneNode *OptionMenu_GetBackgroundRoot(void)
 {
     return g_unk0x0082b1b4;
 }
@@ -5888,7 +5888,7 @@ int OptionMenu_TransformHudPointToScreen(Unk0x0082c6c8 *p, short *pX, short *pY)
 // FUNCTION: CMR2 0x00501390
 BYTE OptionMenu_UpdateBackgroundRoot(void)
 {
-    SceneNode_Destroy((SceneNode *)g_unk0x0082b1b4);
+    SceneNode_Destroy(g_unk0x0082b1b4);
     return 1;
 }
 
@@ -6033,11 +6033,11 @@ void OptionMenu_LoadArchives(void)
 char g_str0x00527050[] = "*** WORLD CREATED: 0x%08X ***\n";
 // Camera node of the option menu's background world (0x82b1b0).
 // GLOBAL: CMR2 0x0082b1b0
-int g_unk0x0082b1b0;
+SceneNode *g_unk0x0082b1b0;
 
 void Scene_SetAmbient(BYTE *pColour, int boost);
 SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles, SceneNode *pParent);
-int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int param);
 
 // Builds the option menu's background world: root node, camera, ambient and key
 // light, then registers the release callback.
@@ -6070,16 +6070,16 @@ void OptionMenu_CreateBackgroundWorld(void)
     colour[1] = 0xc8;
     colour[2] = 0xc8;
     colour[3] = 0xff;
-    g_unk0x0082b1b4 = (int)SceneNode_CreateRoot();
+    g_unk0x0082b1b4 = SceneNode_CreateRoot();
     sprintf(CFrontend::m_stringDest, g_str0x00527050, g_unk0x0082b1b4);
     puts(CFrontend::m_stringDest);
-    g_unk0x0082b1b0 = (int)SceneType2_Create(&translation, &angles, NULL, (SceneNode *)g_unk0x0082b1b4);
-    for (pNode = (SceneNode *)g_unk0x0082b1b4; pNode != NULL; pNode = pNode->pParent)
+    g_unk0x0082b1b0 = SceneType2_Create(&translation, &angles, NULL, g_unk0x0082b1b4);
+    for (pNode = g_unk0x0082b1b4; pNode != NULL; pNode = pNode->pParent)
         pNode->dirty = 1;
     Scene_SetAmbient(colour, 0);
-    Scene_CreateLight(2, 0x10000, 0x10000, 0x10000, &lightPosition, &angles, (SceneNode *)g_unk0x0082b1b4);
+    Scene_CreateLight(2, 0x10000, 0x10000, 0x10000, &lightPosition, &angles, g_unk0x0082b1b4);
     CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
-    Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)view, 0);
+    Game_PrepareScene(g_unk0x0082b1b4, g_unk0x0082b1b0, view, 0);
     CGame::RegisterCallback(OptionMenu_UpdateBackgroundRoot, NULL);
 }
 // Releases the three option menu textures and clears their handles.
@@ -6546,8 +6546,8 @@ void OptionMenu_StartDelayedFade(int param1, int unused)
 // GLOBAL: CMR2 0x0052704c
 int g_unk0x0052704c = 0x00acb49c;
 
-int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
-int Game_DrawSceneViewport(int, int, void *, int, BYTE);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int param);
+int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 void Graphics_PresentFrameAndResetCounters(void);
 
 // Clears the screen to a colour fading from the stored menu colour to grey over
@@ -6559,9 +6559,9 @@ void OptionMenu_CopyDefaultValues(void);
 void OptionMenu_SetBackgroundViewport(void);
 void Graphics_PresentFrameAndResetCounters(void);
 void OptionPreview_SetWheelNodesVisible(int index, char visible);
-int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int param);
 void OptionMenu_DrawActivePage(void);
-int Game_DrawSceneViewport(int a, int b, void *c, int d, BYTE e);
+int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 
 
 // FUNCTION: CMR2 0x005010a0
@@ -6635,7 +6635,7 @@ void OptionMenu_DrawBackgroundState(CallbackStateMachine *p1, BYTE state)
     CGraphics::ClearZBuffer();
     CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
     OptionMenu_DrawActivePage();
-    Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)&rect[0], 0);
+    Game_PrepareScene(g_unk0x0082b1b4, g_unk0x0082b1b0, &rect[0], 0);
     Game_DrawSceneViewport(g_unk0x0082b1b4, g_unk0x0082b1b0, &rect[0], 0, 1);
     Graphics_PresentFrameAndResetCounters();
 }
@@ -6665,7 +6665,7 @@ void OptionMenu_FadeBackgroundToGrey(int param1, int unused)
     CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
     // The globals are the root and camera scene nodes; the third argument is a
     // temporary 4-short rectangle covering the middle of the screen.
-    Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)rect, 0);
+    Game_PrepareScene(g_unk0x0082b1b4, g_unk0x0082b1b0, rect, 0);
     Game_DrawSceneViewport(g_unk0x0082b1b4, g_unk0x0082b1b0, rect, 0, 1);
     Graphics_PresentFrameAndResetCounters();
 }
@@ -6692,7 +6692,7 @@ void OptionMenu_FadeToStoredColour(int param1, int unused)
     CGraphics::ClearZBuffer();
     CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
     CMain::GetFrameDelta();
-    Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)rect, 0);
+    Game_PrepareScene(g_unk0x0082b1b4, g_unk0x0082b1b0, rect, 0);
     Game_DrawSceneViewport(g_unk0x0082b1b4, g_unk0x0082b1b0, rect, 0, 1);
     Graphics_PresentFrameAndResetCounters();
 }
@@ -7308,7 +7308,7 @@ void OptionPreview_UpdateWheelMeshVariants(int param1)
             for (w = 0; w < 4; w++) {
                 pMesh = (Mesh *)PREVIEW_SCENE_AT_OFFSET(off)->wheelNodes[0]->pObject;
                 for (k = 0; k < pMesh->triangleCount; k++) {
-                    pTex = CGraphics::m_pTextureManager->textureBuffer[((int *)&pMesh->pTriangles[k])[1]];
+                    pTex = CGraphics::m_pTextureManager->textureBuffer[pMesh->pTriangles[k].textureIndex];
                     if (OptionPreview_UsesLowWheelVariant(PREVIEW_SCENE_AT_OFFSET(off)->modelClass, g_previewWheelVariant[param1]) != 0) {
                         if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
                             strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
@@ -11151,13 +11151,13 @@ SceneNode *SceneNode_FindByType(SceneNode *, unsigned int);
 #include "Graphics.h"
 #include "FileBuffer.h"
 #include "SceneNode.h"
-int  Sector_BuildC3DModelScene(unsigned int, unsigned int, unsigned int);
+struct SceneNode *Sector_BuildC3DModelScene(void *data, struct SceneNode *parent, struct GenericFile *archive);
 char *Car_GetTextureSetPath(int, int, int);
 int  OptionPreview_UsesWheelVariantSix(int, int);
 int  OptionPreview_UsesLowWheelVariant(int, int);
 void OptionPreview_BuildDeformGeometry(OptionPreviewMeshRecord *, int);
 void OptionPreview_ProjectReferencePartQuads(int);
-int  OptionMenu_GetBackgroundRoot(void);
+SceneNode *OptionMenu_GetBackgroundRoot(void);
 
 
 // Compone el nombre de la geometria del stage (base .c3d con los sufijos A1N/L/S y su .bfl), registra y
@@ -11167,16 +11167,16 @@ int  OptionMenu_GetBackgroundRoot(void);
 int OptionPreview_LoadStageGeometryRecord(int index)
 {
     OptionPreviewSceneRecord *pEntry;
-    int hC3D;
-    int hL;
-    int hS;
-    unsigned int stage;
+    BYTE *hC3D;
+    BYTE *hL;
+    BYTE *hS;
+    SceneNode *stage;
     unsigned char model;
     unsigned char variant;
-    int *pRecord;
-    int root;
-    int nodeL;
-    int nodeS;
+    GenericFile *pRecord;
+    SceneNode *root;
+    SceneNode *nodeL;
+    SceneNode *nodeS;
     int i;
 
     stage = OptionMenu_GetBackgroundRoot();
@@ -11195,27 +11195,27 @@ int OptionPreview_LoadStageGeometryRecord(int index)
     sprintf(g_unk0x00663b60, "%s.c3d", Car_GetTextureSetPath(model, 0, 0));
     if (CGameInfo::GetPreviewMode() == 0) {
         strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1N.c3d", 8);
-        hC3D = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+        hC3D = (BYTE *)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
         if (!(OptionPreview_UsesLowWheelVariant(variant, 1) == 0)) {
             strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 5, "L.c3d", 5);
-            hL = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+            hL = (BYTE *)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
         } else {
-            hL = 0;
+            hL = NULL;
         }
         if (OptionPreview_UsesWheelVariantSix(variant, 6) != 0) {
             strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 5, "S.c3d", 5);
-            hS = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+            hS = (BYTE *)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
         } else {
-            hS = 0;
+            hS = NULL;
         }
     } else {
-        hC3D = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
-        hL = 0;
-        hS = 0;
+        hC3D = (BYTE *)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+        hL = NULL;
+        hS = NULL;
     }
-    g_previewNormalModelBuffers[index] = (BYTE *)hC3D;
-    g_previewLowWheelModelBuffers[index] = (BYTE *)hL;
-    g_previewSixWheelModelBuffers[index] = (BYTE *)hS;
+    g_previewNormalModelBuffers[index] = hC3D;
+    g_previewLowWheelModelBuffers[index] = hL;
+    g_previewSixWheelModelBuffers[index] = hS;
 
     sprintf(g_unk0x00663b60, "%s.bfl", Car_GetTextureSetPath(model, 0, 0));
     if (CGameInfo::GetPreviewMode() == 0)
@@ -11224,50 +11224,50 @@ int OptionPreview_LoadStageGeometryRecord(int index)
     pEntry = &g_previewSceneRecords[index];
     // the .bfl and the geometry relocations go to the 12-byte loader record of
     // this entry (0x831088, cleared on the first call above), not to pEntry
-    pRecord = (int *)&g_unk0x00831088[index];
-    CGenericFileLoader::LoadIntoFileRecord((GenericFile *)pRecord, g_unk0x00663b60);
-    if (hC3D == 0)
+    pRecord = (GenericFile *)&g_unk0x00831088[index];
+    CGenericFileLoader::LoadIntoFileRecord(pRecord, g_unk0x00663b60);
+    if (hC3D == NULL)
         return 0;
 
-    nodeL = 0;
-    nodeS = 0;
-    root = Sector_BuildC3DModelScene(hC3D, stage, (unsigned int)pRecord);
+    nodeL = NULL;
+    nodeS = NULL;
+    root = Sector_BuildC3DModelScene(hC3D, stage, pRecord);
     if (CGameInfo::GetPreviewMode() == 0) {
         Mesh **p = &pEntry->normalWheelMeshes[0];
         for (i = 1; i <= 4; i++)
-            *p++ = (Mesh *)SceneNode_FindByType((SceneNode *)root, (unsigned int)i)->pObject;
-        if (hL != 0) {
+            *p++ = (Mesh *)SceneNode_FindByType(root, (unsigned int)i)->pObject;
+        if (hL != NULL) {
             Mesh **q = &pEntry->lowWheelMeshes[0];
-            nodeL = Sector_BuildC3DModelScene(hL, stage, (unsigned int)pRecord);
+            nodeL = Sector_BuildC3DModelScene(hL, stage, pRecord);
             for (i = 1; i <= 4; i++)
-                *q++ = (Mesh *)SceneNode_FindByType((SceneNode *)nodeL, (unsigned int)i)->pObject;
-            SceneNode_SetViewMaskTree((SceneNode *)nodeL, 0);
+                *q++ = (Mesh *)SceneNode_FindByType(nodeL, (unsigned int)i)->pObject;
+            SceneNode_SetViewMaskTree(nodeL, 0);
         }
-        if (hS != 0) {
+        if (hS != NULL) {
             Mesh **q = &pEntry->sixWheelMeshes[0];
-            nodeS = Sector_BuildC3DModelScene(hS, stage, (unsigned int)pRecord);
+            nodeS = Sector_BuildC3DModelScene(hS, stage, pRecord);
             for (i = 1; i <= 4; i++)
-                *q++ = (Mesh *)SceneNode_FindByType((SceneNode *)nodeS, (unsigned int)i)->pObject;
-            SceneNode_SetViewMaskTree((SceneNode *)nodeS, 0);
+                *q++ = (Mesh *)SceneNode_FindByType(nodeS, (unsigned int)i)->pObject;
+            SceneNode_SetViewMaskTree(nodeS, 0);
         }
     }
-    pEntry->wheelNodes[0] = SceneNode_FindByType((SceneNode *)root, (unsigned int)1);
-    pEntry->wheelNodes[1] = SceneNode_FindByType((SceneNode *)root, (unsigned int)2);
-    pEntry->wheelNodes[2] = SceneNode_FindByType((SceneNode *)root, (unsigned int)3);
-    pEntry->wheelNodes[3] = SceneNode_FindByType((SceneNode *)root, (unsigned int)4);
+    pEntry->wheelNodes[0] = SceneNode_FindByType(root, (unsigned int)1);
+    pEntry->wheelNodes[1] = SceneNode_FindByType(root, (unsigned int)2);
+    pEntry->wheelNodes[2] = SceneNode_FindByType(root, (unsigned int)3);
+    pEntry->wheelNodes[3] = SceneNode_FindByType(root, (unsigned int)4);
     pEntry->modelClass = variant;
-    pEntry->rootNode = (SceneNode *)root;
-    pEntry->bodyNode = SceneNode_FindByType((SceneNode *)root, (unsigned int)5);
-    pEntry->lowWheelRoot = (SceneNode *)nodeL;
-    pEntry->sixWheelRoot = (SceneNode *)nodeS;
+    pEntry->rootNode = root;
+    pEntry->bodyNode = SceneNode_FindByType(root, (unsigned int)5);
+    pEntry->lowWheelRoot = nodeL;
+    pEntry->sixWheelRoot = nodeS;
     OptionPreview_RebuildMeshRecord(index);
     OptionPreview_BuildDeformGeometry(&g_previewMeshRecords[index], index);
     {
-        int h = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)0xe);
-        if (h != 0) {
-            int tex = *(int *)((char *)CGraphics::m_pTextureManager + *(int *)(*(int *)(*(int *)(h + 0xc) + 0x24) + 4) * 4 + 900);
-            CGraphics::RemapTextureAlpha((Texture *)tex, 0xbf, 0, 0x40, 0, 0x80, 0, index);
-            CGraphics::RemapTextureAlpha((Texture *)tex, 0xe0, 0, 0xe0, 0, 0xe0, 0, index);
+        SceneNode *h = SceneNode_FindByType(root, (unsigned int)0xe);
+        if (h != NULL) {
+            Texture *tex = CGraphics::m_pTextureManager->textureBuffer[((Mesh *)h->pObject)->pTriangles->textureIndex];
+            CGraphics::RemapTextureAlpha(tex, 0xbf, 0, 0x40, 0, 0x80, 0, index);
+            CGraphics::RemapTextureAlpha(tex, 0xe0, 0, 0xe0, 0, 0xe0, 0, index);
         }
     }
     g_previewPreviousAnimationTime = 0;
