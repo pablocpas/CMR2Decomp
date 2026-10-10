@@ -1,0 +1,358 @@
+{
+  "baseline": "18c29a1",
+  "before": 435,
+  "after": 356,
+  "removed": 79,
+  "functions_improved": 58,
+  "changes": [
+    {
+      "address": "0x004069c0",
+      "before": 6,
+      "after": 0,
+      "removed": 6
+    },
+    {
+      "address": "0x0048fb80",
+      "before": 6,
+      "after": 4,
+      "removed": 2
+    },
+    {
+      "address": "0x00490720",
+      "before": 5,
+      "after": 4,
+      "removed": 1
+    },
+    {
+      "address": "0x0041d2b0",
+      "before": 4,
+      "after": 2,
+      "removed": 2
+    },
+    {
+      "address": "0x00475f80",
+      "before": 4,
+      "after": 2,
+      "removed": 2
+    },
+    {
+      "address": "0x004994f0",
+      "before": 3,
+      "after": 1,
+      "removed": 2
+    },
+    {
+      "address": "0x00499ac0",
+      "before": 3,
+      "after": 1,
+      "removed": 2
+    },
+    {
+      "address": "0x0041e6b0",
+      "before": 3,
+      "after": 2,
+      "removed": 1
+    },
+    {
+      "address": "0x0041e8d0",
+      "before": 3,
+      "after": 2,
+      "removed": 1
+    },
+    {
+      "address": "0x00457ed0",
+      "before": 3,
+      "after": 0,
+      "removed": 3
+    },
+    {
+      "address": "0x00455470",
+      "before": 3,
+      "after": 1,
+      "removed": 2
+    },
+    {
+      "address": "0x00498dd0",
+      "before": 2,
+      "after": 0,
+      "removed": 2
+    },
+    {
+      "address": "0x004f3dd0",
+      "before": 2,
+      "after": 0,
+      "removed": 2
+    },
+    {
+      "address": "0x00409bc0",
+      "before": 2,
+      "after": 0,
+      "removed": 2
+    },
+    {
+      "address": "0x0040afd0",
+      "before": 2,
+      "after": 0,
+      "removed": 2
+    },
+    {
+      "address": "0x0041db10",
+      "before": 2,
+      "after": 1,
+      "removed": 1
+    },
+    {
+      "address": "0x0040ccd0",
+      "before": 2,
+      "after": 0,
+      "removed": 2
+    },
+    {
+      "address": "0x0040cf00",
+      "before": 2,
+      "after": 0,
+      "removed": 2
+    },
+    {
+      "address": "0x00456bb0",
+      "before": 2,
+      "after": 0,
+      "removed": 2
+    },
+    {
+      "address": "0x00456d90",
+      "before": 2,
+      "after": 0,
+      "removed": 2
+    },
+    {
+      "address": "0x00480bb0",
+      "before": 2,
+      "after": 1,
+      "removed": 1
+    },
+    {
+      "address": "0x004eb4c0",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004d2590",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004d0180",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004fc970",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004fc9b0",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004ef190",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004f45a0",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004f4760",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004eae40",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004ebd60",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004b7a40",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004a17f0",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x00406580",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004d05f0",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x0050f120",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004f4d80",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004bc440",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004b7ca0",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004ab720",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x0040a820",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x00418ee0",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004eb290",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x0040d820",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x00411b20",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x0040d100",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004b7910",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004b7a70",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004b7950",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x0046b710",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x00465530",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x0046c500",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x00480870",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x00480980",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x00484d30",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x00478b50",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x00478f50",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x00478c40",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    }
+  ],
+  "additional_errors": 370
+}

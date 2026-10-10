@@ -2612,7 +2612,7 @@ big:
                 Replay_InitCarStreamState((ReplayStream *)*p, 0, NetPlayers_GetPlayerField8(i));
             p++;
             i++;
-        } while ((int)p < (int)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
+        } while ((INT_PTR)p < (INT_PTR)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
     } else if ((BYTE)RallyDataState() == 1 && (char)RallyData_GetFlag25() != 0) {
         if (CGameInfo::GetConfiguredGameMode() == 4) {
             i = 0;
@@ -2626,7 +2626,7 @@ big:
                 }
                 p++;
                 i++;
-            } while ((int)p < (int)&g_unk0x00537f3c[2]);
+            } while ((INT_PTR)p < (INT_PTR)&g_unk0x00537f3c[2]);
         } else if ((char)RallyData_GetFlag25() != 0) {
             for (i = 0; i < ((char)RallyData_GetSelectionFlag28() != 0 ? 1 : 2); i++) {
                 if (CGameInfo::IsConfiguredMultiplayer() != 0) {
@@ -2853,7 +2853,7 @@ void Race_UpdateDriverReadyAndRecordState(BYTE *param1, unsigned int param2)
             do {
                 Replay_StopRecording(*pp);
                 pp++;
-            } while ((int)pp < (int)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
+            } while ((INT_PTR)pp < (INT_PTR)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
         } else {
             Replay_StopRecording(g_unk0x00537f3c[index]);
         }
@@ -3259,7 +3259,7 @@ void Race_TeardownStage(int param1, int param2, char flag)
             Replay_ResetBufferIfActive((int *)*pp);
             Replay_StopRecording(*pp);
             pp++;
-        } while ((int)pp < (int)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
+        } while ((INT_PTR)pp < (INT_PTR)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
     } else if (CGameInfo::GetConfiguredGameMode() == 4 || (char)RallyData_GetFlag25()) {
         n = 2;
     } else {
@@ -3600,7 +3600,7 @@ L_teardown:
             Replay_ResetBufferIfActive((int *)*pp);
             Replay_StopRecording(*pp);
             pp++;
-        } while ((int)pp < (int)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
+        } while ((INT_PTR)pp < (INT_PTR)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
     }
     if ((char)RallyData_GetSelectionFlag28() != 0 && (char)CGameInfo::GetSoundOptionBit30() != 0)
         Replay_ResetActiveBufferState();
@@ -3718,7 +3718,7 @@ void Race_StopAllStageSounds(void)
             pHandle++;
         }
         pSet++;
-    } while ((int)pSet < (int)&g_carSoundSets[8]);
+    } while ((INT_PTR)pSet < (INT_PTR)&g_carSoundSets[8]);
 }
 
 // Loads a sound sample by the name held in the caller's buffer, reading it

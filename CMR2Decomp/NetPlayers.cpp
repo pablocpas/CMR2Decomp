@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "NetPlayers.h"
 #include "GameInfo.h"
 #include "RallyData.h"
@@ -134,9 +135,9 @@ void NetPlayers_ClearReadyFlags(void)
 {
     unsigned int *p;
 
-    // The original walks the flags byte of each record up to g_netRanks[1],
-    // the global that follows g_netPlayers.
-    for (p = &g_netPlayers[0].flags; (int)p < (int)&g_netRanks[1]; p += 0x20)
+    // The original bound is one flags-member bias beyond this array.
+    // Calculate its address from the owned array, without linker adjacency.
+    for (p = &g_netPlayers[0].flags; (INT_PTR)p < (INT_PTR)g_netPlayers + (int)sizeof(g_netPlayers) + (int)offsetof(NetPlayer, flags); p += sizeof(NetPlayer) / sizeof(*p))
         *p &= ~0x100;
 }
 
@@ -694,7 +695,7 @@ void NetPlayers_BuildStageStandings(unsigned int localTime)
     {
         int *r = g_netRanks2;
         NetStanding *p = &g_netStandings2[1];
-        for (; (int)p < (int)&g_netStandings2[8]; p++) {
+        for (; (INT_PTR)p < (INT_PTR)&g_netStandings2[8]; p++) {
             if (p->index == -1)
                 return;
             if (p->time != p[-1].time)
@@ -975,7 +976,7 @@ void NetPlayers_BlockStatisticsReception(void)
     unsigned int *p;
 
     // Same bound as NetPlayers_ClearReadyFlags (see there).
-    for (p = &g_netPlayers[0].flags; (int)p < (int)&g_netRanks[1]; p += 0x20)
+    for (p = &g_netPlayers[0].flags; (INT_PTR)p < (INT_PTR)g_netPlayers + (int)sizeof(g_netPlayers) + (int)offsetof(NetPlayer, flags); p += sizeof(NetPlayer) / sizeof(*p))
         *p |= 0x400000;
 }
 

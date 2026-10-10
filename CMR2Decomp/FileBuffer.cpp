@@ -300,7 +300,7 @@ BYTE Profile_LoadAndLinkSavedRecord(int param_1, int param_2)
     pBuffer = (BYTE *)Profile_ReadLocalFile((char *)Profile_BuildSavePath((char *)(g_unk0x00531764 + param_2 * 12)), 0);
     if (pBuffer != NULL) {
         *(unsigned int *)(pBuffer + 0x54) &= 0xffff807f;
-        for (i = 0, pRecord = g_saveProfiles + 0x14; (int)pRecord < (int)(g_saveProfiles + 0x1954); i++) {
+        for (i = 0, pRecord = g_saveProfiles + 0x14; (INT_PTR)pRecord < (INT_PTR)(g_saveProfiles + 0x1954); i++) {
             if (strcmp((char *)(pRecord - 4), (char *)(pBuffer + 0x10)) == 0) {
                 diff = *(unsigned int *)(pBuffer + 0x14) ^ *(unsigned int *)pRecord;
                 if ((diff & 0x1f0f00) == 0 && (char)diff == 0 && (diff & 0xfc0f000) == 0)

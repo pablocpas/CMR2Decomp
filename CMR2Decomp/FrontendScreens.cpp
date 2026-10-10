@@ -2988,7 +2988,7 @@ void FrontendScroller_RecomputeAllAttached(void)
             }
         }
         p++;
-    } while ((int)&p->pMenu < (int)&g_menuScrollers[12].pMenu); // 0x819754 in the original
+    } while ((INT_PTR)&p->pMenu < (INT_PTR)&g_menuScrollers[12].pMenu); // 0x819754 in the original
 }
 
 // FUNCTION: CMR2 0x004ef480
@@ -4711,7 +4711,7 @@ void FrontendAnimation_ResetMainPath(void)
     do {
         *pPos++ = (i << 16) / 200;
         i++;
-    } while ((int)pPos < (int)(g_menuLetterPos + 200)); // 0x819cb4 in the original
+    } while ((INT_PTR)pPos < (INT_PTR)(g_menuLetterPos + 200)); // 0x819cb4 in the original
     memset(g_menuTrailPos, 0, sizeof(g_menuTrailPos));
     k = 0;
     pPos = g_menuStreamPos[0];
@@ -4721,7 +4721,7 @@ void FrontendAnimation_ResetMainPath(void)
             pPos[j] = k / 6;
         pPos += 10;
         k += 0x4000;
-    } while ((int)pPos < (int)&g_menuStreamPos[6][0]); // 0x819da8 in the original
+    } while ((INT_PTR)pPos < (INT_PTR)&g_menuStreamPos[6][0]); // 0x819da8 in the original
     g_menuAnimTime = -1;
     switch (FrontendMenu_GetMain()->items[FrontendMenu_GetMain()->cursor].value) {
     case 0:
@@ -4930,7 +4930,7 @@ void FrontendAnimation_DrawLetters(void)
                       (int)(g_pGraphics->resY * point[1]) / 480);
         pPos++;
         i++;
-    } while ((int)pPos < (int)(g_menuLetterPos + 200)); // 0x819cb4 in the original
+    } while ((INT_PTR)pPos < (INT_PTR)(g_menuLetterPos + 200)); // 0x819cb4 in the original
 }
 
 // Draws the trail of 15 dots, fading out towards the tail.
@@ -4998,7 +4998,7 @@ void FrontendAnimation_DrawDotStreams(void)
         } while (fade >= 0);
         pPoint += 2;
         pStream += 10;
-    } while ((int)pPoint < (int)(g_menuStreamPoint[6] + 1));
+    } while ((INT_PTR)pPoint < (INT_PTR)(g_menuStreamPoint[6] + 1));
 
 }
 
@@ -6102,7 +6102,7 @@ void FrontendChampionship_InitEntries(void)
         pEntry += 0xc4;
     // 0x52fa0c in the original (g_saveProfiles + 4): bounded by the array
     // itself, since our link order does not keep g_saveProfiles after it.
-    } while ((int)pEntry < (int)(g_saveCarRecords + 0x62c));
+    } while ((INT_PTR)pEntry < (INT_PTR)(g_saveCarRecords + 0x62c));
 }
 
 extern BYTE *g_unk0x00531764;
@@ -6197,7 +6197,7 @@ bool FrontendProfile_IsAlreadyInChampionship(int index)
     unsigned int diff;
 
     pProfile = g_unk0x00531764 + index * 12;
-    for (pRecord = g_saveSlots; (int)pRecord < (int)(g_saveSlots + 0x300); pRecord += 0x30) {
+    for (pRecord = g_saveSlots; (INT_PTR)pRecord < (INT_PTR)(g_saveSlots + 0x300); pRecord += 0x30) {
         category = (*(unsigned int *)pRecord >> 0x12) & 0xf;
         if (category == 0xf)
             continue;

@@ -1,0 +1,1 @@
+PASS: 512 actual native address walks; pointers >4 GB, native pointer-table strides, full record guards, null/mixed slots, negative counts, provider identities; complete first-model-failure stage path; ASan/UBSan

@@ -2197,7 +2197,7 @@ void CInput::QueueInputCharacter(int param1)
 
     i = 0;
     p = g_unk0x006ed3f4;
-    while ((int)p < (int)(g_unk0x006ed3f4 + 30)) {
+    while ((INT_PTR)p < (INT_PTR)(g_unk0x006ed3f4 + 30)) {
         if (*p == 0) {
             g_unk0x006ed3f4[i] = param1;
             return;

@@ -303,7 +303,7 @@ void RallyData_InitKnockoutBracket(void)
         p->bits.first = 31;
         p->bits.second = 31;
         p++;
-    } while ((int)p < (int)&g_knockout.round1[8]);
+    } while ((INT_PTR)p < (INT_PTR)&g_knockout.round1[8]);
     p = g_knockout.quarters;
     do {
         p->bits.played = 0;
@@ -313,7 +313,7 @@ void RallyData_InitKnockoutBracket(void)
         p->bits.first = 31;
         p->bits.second = 31;
         p++;
-    } while ((int)p < (int)&g_knockout.quarters[4]);
+    } while ((INT_PTR)p < (INT_PTR)&g_knockout.quarters[4]);
     p = g_knockout.semis;
     do {
         p->bits.played = 0;
@@ -323,7 +323,7 @@ void RallyData_InitKnockoutBracket(void)
         p->bits.first = 31;
         p->bits.second = 31;
         p++;
-    } while ((int)p < (int)&g_knockout.semis[2]);
+    } while ((INT_PTR)p < (INT_PTR)&g_knockout.semis[2]);
     g_knockout.final.bits.played = 0;
     g_knockout.final.time1 = 0;
     g_knockout.final.time2 = 0;
@@ -435,7 +435,7 @@ void RallyData_InitKnockoutBracket(void)
             }
         }
         p++;
-    } while ((int)p < (int)&g_knockout.round1[8]);
+    } while ((INT_PTR)p < (INT_PTR)&g_knockout.round1[8]);
     p = g_knockout.quarters;
     do {
         if ((CGameInfo::GetConfiguredPlayerCount() & 0xff) > p->bits.first) {
@@ -447,7 +447,7 @@ void RallyData_InitKnockoutBracket(void)
             }
         }
         p++;
-    } while ((int)p < (int)&g_knockout.quarters[4]);
+    } while ((INT_PTR)p < (INT_PTR)&g_knockout.quarters[4]);
     p = g_knockout.semis;
     do {
         if ((CGameInfo::GetConfiguredPlayerCount() & 0xff) > p->bits.first) {
@@ -459,7 +459,7 @@ void RallyData_InitKnockoutBracket(void)
             }
         }
         p++;
-    } while ((int)p < (int)&g_knockout.semis[2]);
+    } while ((INT_PTR)p < (INT_PTR)&g_knockout.semis[2]);
     if ((CGameInfo::GetConfiguredPlayerCount() & 0xff) > g_knockout.final.bits.first) {
         oldSecond = g_knockout.final.bits.second;
         if ((CGameInfo::GetConfiguredPlayerCount() & 0xff) > oldSecond && oldSecond < g_knockout.final.bits.first) {
@@ -1518,7 +1518,7 @@ BYTE RallyData_FindCheatNameIndex(int param_1, BYTE *param_2)
     result = 0;
     i = 0;
     p = g_cheatNames;
-    while ((int)p < (int)(g_cheatNames + 20)) {
+    while ((INT_PTR)p < (INT_PTR)(g_cheatNames + 20)) {
         if (FrontendProfile_DoesDriverMatchEntry(param_1, *p)) {
             *param_2 = CGameInfo::ToggleRecordFlag(i);
             result = 1;
@@ -2327,7 +2327,7 @@ void RallyData_UpdateStageWetShares(void)
         pFlag++;
         pPairs += 2;
         pOther++;
-    } while ((int)pPairs < (int)&g_unk0x0052f100[11][1]);
+    } while ((INT_PTR)pPairs < (INT_PTR)&g_unk0x0052f100[11][1]);
 }
 
 // Recomputes the grip byte of the four stages of a rally group, interpolating
@@ -6957,7 +6957,7 @@ storeSplitColour:
                 split++;
                 pRef++;
                 pColour++;
-            } while ((int)pTime < (int)(g_unk0x00536ff0 + 25));
+            } while ((INT_PTR)pTime < (INT_PTR)(g_unk0x00536ff0 + 25));
             // Every split's segment runs up to the next split's x.
             pSpan = (SplitMarker *)&g_unk0x00536cb8[car * 0x14];
             split = 0xc;

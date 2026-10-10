@@ -388,7 +388,7 @@ nextVertex:
         vertexOffset += sizeof(FixVector);
         vertexIndex++;
         pDistance++;
-    } while ((int)pDistance < (int)(g_collisionVertexDistances + 4)); // 0x5919b4 in the original
+    } while ((INT_PTR)pDistance < (INT_PTR)(g_collisionVertexDistances + 4)); // 0x5919b4 in the original
 }
 
 // Updates the vehicle-local motion vector and the resulting positional correction.
@@ -595,7 +595,7 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
                 }
                 i++;
                 pDistance++;
-            } while ((int)pDistance < (int)(g_collisionVertexDistances + 4)); // 0x5919b4 in the original
+            } while ((INT_PTR)pDistance < (INT_PTR)(g_collisionVertexDistances + 4)); // 0x5919b4 in the original
         } else if (g_collisionNegativeVertexCount == 4 && g_collisionSelectBackSide != 0) {
             best = 0x27100000;
             i = 0;
@@ -608,7 +608,7 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
                 }
                 i++;
                 pDistance++;
-            } while ((int)pDistance < (int)(g_collisionVertexDistances + 4)); // 0x5919b4 in the original
+            } while ((INT_PTR)pDistance < (INT_PTR)(g_collisionVertexDistances + 4)); // 0x5919b4 in the original
         } else {
             goto finish;
         }

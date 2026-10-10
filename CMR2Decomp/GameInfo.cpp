@@ -938,7 +938,7 @@ void CGameInfo::ApplyStageOptionUnlockFlags(void) {
     bool bVar6 = false;
 
     do {
-        if (((int)piVar4 < (int)(m_gameInfo.field_0x38f8 + 44)) && (*piVar4 & 2) != 0) {
+        if (((INT_PTR)piVar4 < (INT_PTR)(m_gameInfo.field_0x38f8 + 44)) && (*piVar4 & 2) != 0) {
             *piVar4 = *piVar4 & 0xfd;
         }
 
@@ -1139,7 +1139,7 @@ void NetworkChat_ClearLog(void)
         p += 256;
         pp++;
     // 0x817c84 in the original (g_unk0x00817c84, the next global).
-    } while ((int)p < (int)g_unk0x00817784[5]);
+    } while ((INT_PTR)p < (INT_PTR)g_unk0x00817784[5]);
     g_unk0x00817780 = -1;
 }
 
@@ -2232,7 +2232,7 @@ void OptionPreview_ProjectReferencePartQuads(int param1)
             pOut++;
         }
         pAngles++;
-    } while ((int)pAngles < (int)(g_previewPartRotationPresets + 12)); // 0x527420 in the original
+    } while ((INT_PTR)pAngles < (INT_PTR)(g_previewPartRotationPresets + 12)); // 0x527420 in the original
 }
 
 // FUNCTION: CMR2 0x0050f1c0
@@ -3005,7 +3005,7 @@ void FrontendText_ReloadFonts(void)
         Font_Reload(pName, CGenericFileLoader::GetGenericFile(), i);
         pName += 20;
         i++;
-    } while ((int)pName < (int)g_frontendFontNames[4]);
+    } while ((INT_PTR)pName < (INT_PTR)g_frontendFontNames[4]);
 }
 
 // FUNCTION: CMR2 0x004f48b0

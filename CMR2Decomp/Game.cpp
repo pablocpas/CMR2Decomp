@@ -154,7 +154,7 @@ void CGame::UpdateActiveSoundSlots(void)
             if (*ppSlot != NULL)
                 CSound::UpdateFinishedSoundSlot(*ppSlot);
             ppSlot++;
-        } while ((int)ppSlot < (int)(CSound::m_soundSlots + 32));
+        } while ((INT_PTR)ppSlot < (INT_PTR)(CSound::m_soundSlots + 32));
     }
 }
 
@@ -1662,7 +1662,7 @@ void CGame::ResetSessionPlayerTable(bool param1) {
         dest->playerId = 0;
         dest->active = 0;
         dest++;
-    } while ((int)dest->longName < (int)m_sessionPlayers[7].longName); // 0x5a1e34 in the original
+    } while ((INT_PTR)dest->longName < (INT_PTR)m_sessionPlayers[7].longName); // 0x5a1e34 in the original
 
     m_sessionPlayerCount = 0;
 }

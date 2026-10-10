@@ -3754,7 +3754,7 @@ void Graphics_ResetInterpolationTimers(void)
     do {
         *p = 5;
         p += 0x30;
-    } while ((int)p < (int)g_unk0x00521138[32]);
+    } while ((INT_PTR)p < (INT_PTR)g_unk0x00521138[32]);
 }
 
 // FUNCTION: CMR2 0x004bc470

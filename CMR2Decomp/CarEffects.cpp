@@ -89,7 +89,7 @@ void CarEffects_Init(void)
     do {
         *p = *(DWORD *)sparkColour;
         p += 6;
-    } while ((int)p < (int)g_sparkTri[3].colour);
+    } while ((INT_PTR)p < (INT_PTR)g_sparkTri[3].colour);
     pBase = (int *)g_glassShards[0] + 1; // &g_glassShards[0][0].y  (0x592d84 in the original)
     do {
         pV = pBase;
@@ -501,7 +501,7 @@ void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
     do {
         *pC = *(DWORD *)light;
         pC += 6;
-    } while ((int)pC < (int)g_shardTri[3].colour);
+    } while ((INT_PTR)pC < (INT_PTR)g_shardTri[3].colour);
     Quad2D_QueueFixedTriangle(0, &g_shardTri[0], &g_shardTri[1], &g_shardTri[2], pType->texture,
                               0x14);
 }
@@ -629,7 +629,7 @@ void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
     do {
         *pC = *(DWORD *)light;
         pC += 6;
-    } while ((int)pC < (int)g_debrisTri[3].colour);
+    } while ((INT_PTR)pC < (INT_PTR)g_debrisTri[3].colour);
     pos = p->vector0x1c;
     FixMatrix_GetPosition(&o, (FixMatrix *)p->field0x40);
     pos.x += o.x;

@@ -1562,7 +1562,7 @@ void StageObject_ResetPairedCarValues(void)
         p[-1] = 0;
         *p = 0;
         p += 2;
-    } while ((int)p < (int)g_unk0x00588d18);
+    } while ((INT_PTR)p < (INT_PTR)g_unk0x00588d18);
 }
 
 // FUNCTION: CMR2 0x0046b740
@@ -7862,7 +7862,7 @@ void CarSkid_ClearWheelTrails(void)
             q += 3;
         }
         p = q;
-    } while ((int)q < (int)((int *)g_trailDelta + 8 * 12 + 1));
+    } while ((INT_PTR)q < (INT_PTR)((int *)g_trailDelta + 8 * 12 + 1));
 }
 
 // GLOBAL: CMR2 0x0051bce0

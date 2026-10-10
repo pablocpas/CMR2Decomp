@@ -364,7 +364,7 @@ void Surface_LoadStageFonts(void)
     Font_InitTable(7);
     i = 0;
     // The original walks the array up to its end (the address of the global that follows it there).
-    for (pName = g_fontNames[0]; (int)pName < (int)g_fontNames[7]; pName += 20) {
+    for (pName = g_fontNames[0]; (INT_PTR)pName < (INT_PTR)g_fontNames[7]; pName += 20) {
         Font_Load(pName, (GenericFile *)StageTiming_GetStageFile1(), i);
         i++;
     }
@@ -759,7 +759,7 @@ void Surface_LoadCarEngineSounds(void)
             Surface_LoadArchiveSample(name, (GenericFile *)StageTiming_GetStageFile0());
         }
     }
-    for (pFile = g_unk0x0058df48[0]; (int)pFile < (int)g_unk0x0058df48[2]; pFile += 12) {
+    for (pFile = g_unk0x0058df48[0]; (INT_PTR)pFile < (INT_PTR)g_unk0x0058df48[2]; pFile += 12) {
         if (*(void **)pFile != NULL) {
             CFileBuffer::FreeGenericFileBuffer(*(void **)pFile);
             *(void **)pFile = NULL;
@@ -1608,7 +1608,7 @@ void Surface_StopAndFreeSounds(void)
             Sound_SetPlayingSlotVolume((unsigned int)g_unk0x0058ddd0[i], 0);
     }
     pHandle = &g_unk0x0058ddc8;
-    while ((int)pHandle < (int)(g_unk0x0058ddc8Pair + 2)) { // 0x58ddd0 in the original
+    while ((INT_PTR)pHandle < (INT_PTR)(g_unk0x0058ddc8Pair + 2)) { // 0x58ddd0 in the original
         if (*pHandle != -1)
             Sound_Free((unsigned int)*pHandle);
         pHandle++;

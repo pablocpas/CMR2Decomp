@@ -428,7 +428,7 @@ void StageObject_FreeAll(void)
             CGraphics::m_pTextureManager->vertexBufferFill[i] = 0;
         pSlot++;
         CGraphics::m_pTextureManager->field_0x348 = 0;
-    } while ((int)pSlot < (int)&g_stageObjects[6000]);
+    } while ((INT_PTR)pSlot < (INT_PTR)&g_stageObjects[6000]);
 }
 
 // Frees every cloned mesh (and the parts of its source mesh slot).

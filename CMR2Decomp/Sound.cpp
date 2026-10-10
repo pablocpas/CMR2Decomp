@@ -1369,7 +1369,7 @@ void Sound_FreeAll(void)
             *pp = NULL;
         }
         pp++;
-    } while ((int)pp < (int)(CSound::m_soundSlots + 32));
+    } while ((INT_PTR)pp < (INT_PTR)(CSound::m_soundSlots + 32));
 }
 
 // FUNCTION: CMR2 0x004b7940
@@ -1409,7 +1409,7 @@ int Sound_FindFreeSlot(void)
     int i;
     SoundSlot **pp;
 
-    for (i = 0, pp = CSound::m_soundSlots; (int)pp < (int)(CSound::m_soundSlots + 32); pp++, i++) {
+    for (i = 0, pp = CSound::m_soundSlots; (INT_PTR)pp < (INT_PTR)(CSound::m_soundSlots + 32); pp++, i++) {
         if (*pp == NULL)
             return i;
     }
@@ -1463,7 +1463,7 @@ void Sound_SetMasterVolume(int volume)
         if (*ppSlot != NULL)
             Sound_ApplySlotVolumeAttenuation(*ppSlot);
         ppSlot++;
-    } while ((int)ppSlot < (int)(CSound::m_soundSlots + 32));
+    } while ((INT_PTR)ppSlot < (INT_PTR)(CSound::m_soundSlots + 32));
 }
 
 // Releases the (3D) buffers of a sample.

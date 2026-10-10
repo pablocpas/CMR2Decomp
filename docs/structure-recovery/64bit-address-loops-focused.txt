@@ -1,0 +1,1 @@
+PASS: 592 complete table walks; independent free/volume/flag/time models, null/mixed slots, signed counts, full heap/global guards, pointer identities/provider order, stdcall/callee-saved ABI

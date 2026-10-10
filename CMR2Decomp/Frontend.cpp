@@ -351,7 +351,7 @@ void CFrontend::LoadFrontendCarPreviewTextures(void) {
         sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesCarsLivery, CInstallInfo::GetGameCDPath(), liveryIndex);
         *pTexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, 0, 0, 0, 0);
         pTexture++;
-    } while ((int)pTexture < (int)(m_unk0x00818530 + 3)); // 0x81853c in the original
+    } while ((INT_PTR)pTexture < (INT_PTR)(m_unk0x00818530 + 3)); // 0x81853c in the original
 }
 
 // Returns the common frontend archive (Common.bfl).
@@ -1688,7 +1688,7 @@ void Frontend_LoadSplitTimeMirror(void)
             }
             pDest++;
             i++;
-        } while ((int)pDest < (int)&g_unk0x00817448[10]);
+        } while ((INT_PTR)pDest < (INT_PTR)&g_unk0x00817448[10]);
         RallyData_GetFlag24();
         g_unk0x00817570 = 360000;
         return;

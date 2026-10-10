@@ -107,7 +107,7 @@ void RallyTiming_AddChampionshipPoints(char *pPositions, int *pPoints)
         // operand the original emits.
         int *pAcc;
         int *pPts;
-        for (pAcc = g_unk0x005335f0, pPts = pPoints; (int)pAcc < (int)g_unk0x00533610; pAcc++, pPts++)
+        for (pAcc = g_unk0x005335f0, pPts = pPoints; (INT_PTR)pAcc < (INT_PTR)(g_championshipTables.points + 8); pAcc++, pPts++)
             *pAcc += *pPts;
     }
     i = 0;
@@ -207,7 +207,7 @@ void RallyTiming_ResetStageResults(void)
         g_stageTieBreak[i] = 0;
         p++;
         i++;
-    } while ((int)p < (int)g_stagePenalty);
+    } while ((INT_PTR)p < (INT_PTR)(g_rallyStageTables.times + 16));
 }
 
 unsigned char RallyDataCountryIndex(void);
@@ -277,7 +277,7 @@ void RallyTiming_ResetOverallPlayerTimes(void)
 		*ptr = 0;
 		g_rallyOverallOrderDriverID[ix] = ix;
 		ix++;
-	} while ((int)++ptr < (int)&g_unk0x00533698); // the original compares against the global that follows the array
+	} while ((INT_PTR)++ptr < (INT_PTR)(g_rallyOverallTables.times + 16)); // the original bound is the end of the 16 times
 }
 
 // FUNCTION: CMR2 0x0040d050

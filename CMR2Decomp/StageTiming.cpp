@@ -742,7 +742,7 @@ BOOL Replay_ReleaseStageBuffers(void)
         }
         p++;
     // 0x588ea0 in the original (g_unk0x00588ea0, the next global).
-    } while ((int)p < (int)(g_replayStreams + 8));
+    } while ((INT_PTR)p < (INT_PTR)(g_replayStreams + 8));
     g_unk0x00588d3c = 0;
     g_unk0x00588d14 = 0;
     return TRUE;
@@ -1317,7 +1317,7 @@ int StageTiming_FreeCarPartNodeTables(void)
             *p = NULL;
         }
         p++;
-    } while ((int)p < (int)&g_carPartStateTables.parts[4]);
+    } while ((INT_PTR)p < (INT_PTR)&g_carPartStateTables.parts[4]);
     if (g_carLineStates != NULL) {
         for (i = 0; i < g_carPartTableCarCount; i++) {
             if (g_carLineStates[i] != NULL) {
@@ -2019,7 +2019,7 @@ void StageObject_InitCarSceneTables(void)
         pTexture += sizeof(CarInteriorDashTextures) / sizeof(*pTexture);
         pState += sizeof(CarWiperState) / sizeof(*pState);
         pTiming += sizeof(CarDriverPoseState);
-    } while ((int)pPosition < (int)(g_stageBlock + 0x2d0));
+    } while ((INT_PTR)pPosition < (INT_PTR)(g_stageBlock + 0x2d0));
     p = (int *)&g_carInteriorArchives[0].fileSize;
     do {
         INTERIOR_ARCHIVE.buffer = NULL;
@@ -2560,7 +2560,7 @@ void StageTiming_InitStageFileTable(void)
             ((GenericFile *)((BYTE *)p - sizeof(g_carModelArchives[0].buffer)))->didFileLoad = FALSE;
             p += sizeof(GenericFile) / sizeof(*p);
         } while (--count);
-    } while ((int)p < (int)&g_stageArchiveTables.secondaryCount);
+    } while ((INT_PTR)p < (INT_PTR)&g_stageArchiveTables.secondaryCount);
     CGame::RegisterCallback(StageTiming_ReleaseStartArchiveBuffers, 0);
 }
 
@@ -3010,7 +3010,7 @@ int StageTiming_FreeSceneAndFinishResources(void)
         }
         pNodeList++;
         pRecord++;
-    } while ((int)pNodeList < (int)(g_carAlternateBodyScenes + 16));
+    } while ((INT_PTR)pNodeList < (INT_PTR)(g_carAlternateBodyScenes + 16));
     for (i = 0; i < 16; i++) {
         if (g_carModelBuffers[i] != NULL) {
             CFileBuffer::FreeGenericFileBuffer(g_carModelBuffers[i]);
@@ -3036,7 +3036,7 @@ int StageTiming_FreeSceneAndFinishResources(void)
             *pBuffer = NULL;
         }
         pBuffer++;
-    } while ((int)pBuffer < (int)(g_carInfoBuffers + 8));
+    } while ((INT_PTR)pBuffer < (INT_PTR)(g_carInfoBuffers + 8));
     CGraphics::ReleaseCachedTextureSurfaces();
     Scene_FreeShadowCasters();
     return 1;
@@ -3480,7 +3480,7 @@ void StageTiming_ResetCarPartRecordsAndSlots(void)
     int i;
     int offset;
 
-    for (pp = g_carPartStateTables.parts; (int)pp < (int)(g_carPartStateTables.parts + 4); pp++) {
+    for (pp = g_carPartStateTables.parts; (INT_PTR)pp < (INT_PTR)(g_carPartStateTables.parts + 4); pp++) {
         i = 0;
         if (g_carPartTableCarCount > 0) {
             offset = 0;
@@ -3933,7 +3933,7 @@ void StageTiming_InterpolateMovingPartMatrices(int t)
     count++;
     do {
         index = (signed char)Car_Get(*p)->index;
-        for (pp = &g_carPartStateTables.parts[3]; (int)pp >= (int)g_carPartStateTables.parts; pp--) {
+        for (pp = &g_carPartStateTables.parts[3]; (INT_PTR)pp >= (INT_PTR)g_carPartStateTables.parts; pp--) {
             pPart = *pp + index;
             g_partState = pPart;
             if (pPart->pNode != NULL && (pPart->flags & 1) != 0) {
@@ -7948,7 +7948,7 @@ int StageTiming_LoadStageCarsAndEffects(void)
     memset(g_carModelBuffers, 0, sizeof(g_carModelBuffers));
     // MSVC6 keeps the original cursor biased to bodyNode (+4). The bound
     // is the same member position one record beyond the 16-element array.
-    while ((int)pRec < (int)((BYTE *)(g_carScenes + 16) + sizeof(SceneNode *))) {
+    while ((INT_PTR)pRec < (INT_PTR)(g_carScenes + 16) + (int)offsetof(CarSceneRecord, bodyNode)) {
         pRec[1] = NULL;
         pRec[0] = NULL;
         pRec += sizeof(CarSceneRecord) / sizeof(SceneNode *);
@@ -9159,7 +9159,7 @@ void StageTiming_UpdateAttachedCarParts(Car *pCars, short *pOrder, short count)
                         g_partState->update();
                 }
                 pTable--;
-            } while ((int)pTable >= (int)g_carPartStateTables.parts);
+            } while ((INT_PTR)pTable >= (INT_PTR)g_carPartStateTables.parts);
             Car_BreakQueuedWindows(g_partCar);
             pIndex--;
         } while (--remaining);
@@ -9461,7 +9461,7 @@ void StageTiming_InitRaceDriverRecords(char param_1)
             p[-3] = 0;
             p[0] = 0;
             p += 6;
-        } while ((int)p < (int)(g_unk0x00542528 + 0xd0));
+        } while ((INT_PTR)p < (INT_PTR)(g_unk0x00542528 + 0xd0));
         g_unk0x00542420[0] = ConvertRawTimeToCentiseconds(*(int *)(g_unk0x0054241c + 0x2d0));
         g_unk0x00542420[1] = ConvertRawTimeToCentiseconds(*(int *)(g_unk0x0054241c + 0x310));
         StageTiming_PairPlayerOpponentSlots();

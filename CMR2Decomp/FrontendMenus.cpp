@@ -960,7 +960,7 @@ void FrontendControls_LeaveDeviceConfiguration(Menu *pMenu, char back)
             Input_SetControllerSlotMapping(i, *pSlot);
             pSlot++;
             i++;
-        } while ((int)pSlot < (int)&g_unk0x0082a7d8);
+        } while ((INT_PTR)pSlot < (INT_PTR)(g_controlsDeviceSelection.slots + 8));
         memcpy(Input_GetControllerTable(), g_controlsCopy, sizeof(g_controlsCopy));
     }
 }
@@ -1021,7 +1021,7 @@ void FrontendControls_EnterDeviceConfiguration(Menu *pMenu, int param)
         *pSlot = Input_GetControllerSlotMapping(i);
         pSlot++;
         i++;
-    } while ((int)pSlot < (int)&g_unk0x0082a7d8);
+    } while ((INT_PTR)pSlot < (INT_PTR)(g_controlsDeviceSelection.slots + 8));
     memcpy(g_controlsCopy, Input_GetControllerTable(), sizeof(g_controlsCopy));
     FrontendControls_FillDeviceConfiguration();
 }

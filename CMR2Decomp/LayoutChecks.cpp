@@ -3,6 +3,7 @@
 #include "Collision2D.h"
 #include "TrackCollisionData.h"
 #include "Sprite.h"
+#include "NetPlayers.h"
 #include "Sector.h"
 #include "CarResources.h"
 #include "CarPhysics.h"
@@ -860,3 +861,16 @@ CMR2_LAYOUT_CHECK(Menu_pfnCallback2_Check, offsetof(Menu, pfnCallback2) == 0x1d4
 CMR2_LAYOUT_CHECK(Menu_pfnCallback3_Check, offsetof(Menu, pfnCallback3) == 0x1d8);
 CMR2_LAYOUT_CHECK(Menu_pItemCallbacks_Check, offsetof(Menu, pItemCallbacks) == 0x1dc);
 
+// Primitive network player records used by the flags-member cursor.
+CMR2_LAYOUT_CHECK(NetPlayerSizeCheck, sizeof(NetPlayer) == 0x80);
+CMR2_LAYOUT_CHECK(NetPlayer_id_Check, offsetof(NetPlayer, id) == 0x0);
+CMR2_LAYOUT_CHECK(NetPlayer_flags_Check, offsetof(NetPlayer, flags) == 0x4);
+CMR2_LAYOUT_CHECK(NetPlayer_field_0x8_Check, offsetof(NetPlayer, field_0x8) == 0x8);
+CMR2_LAYOUT_CHECK(NetPlayer_field_0xc_Check, offsetof(NetPlayer, field_0xc) == 0xc);
+CMR2_LAYOUT_CHECK(NetPlayer_stats_Check, offsetof(NetPlayer, stats) == 0x10);
+CMR2_LAYOUT_CHECK(NetPlayer_statsNew_Check, offsetof(NetPlayer, statsNew) == 0x2e);
+CMR2_LAYOUT_CHECK(NetPlayer_splits_Check, offsetof(NetPlayer, splits) == 0x30);
+CMR2_LAYOUT_CHECK(NetPlayer_stageTimes_Check, offsetof(NetPlayer, stageTimes) == 0x4c);
+CMR2_LAYOUT_CHECK(NetPlayer_time_Check, offsetof(NetPlayer, time) == 0x74);
+CMR2_LAYOUT_CHECK(NetPlayer_bestTime_Check, offsetof(NetPlayer, bestTime) == 0x78);
+CMR2_LAYOUT_CHECK(NetPlayer_field_0x7c_Check, offsetof(NetPlayer, field_0x7c) == 0x7c);

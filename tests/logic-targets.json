@@ -1,4 +1,21 @@
 {
+  "differential_address_loops.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x46c500",
+      "0x480870",
+      "0x4b7950",
+      "0x409bc0",
+      "0x40afd0",
+      "0x40cf00",
+      "0x40d100",
+      "0x46b710",
+      "0x4fc970",
+      "0x4fc9b0",
+      "0x456d90",
+      "0x40ccd0"
+    ]
+  },
   "differential_ai_controls.py": {
     "arguments": "entities",
     "targets": [
