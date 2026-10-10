@@ -173,7 +173,7 @@ void Sprite_DrawLayer(int layer)
     CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_POINT);
     CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT);
     for (n = 0; n < count; n++) {
-        CGraphics::ApplyTextureStageChange(0, (int)pSprite[n].pTexture);
+        CGraphics::ApplyTextureStageChange(0, pSprite[n].pTexture);
         CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, &pVert[n * 4], 4, 0);
         CGame::m_unk0x0059ce20 += 2;
     }
@@ -696,7 +696,7 @@ void Graphics_InvalidateTextureStageCache(void);
 #define QUAD2D_SET_STATE(q)                                                          \
     if ((q)->pTexture != NULL) {                                                    \
         Frontend_SetObjectField118((q)->pTexture, (q)->pTexture->blendMode);      \
-        CGraphics::ApplyTextureStageChange(0, (int)(q)->pTexture);                              \
+        CGraphics::ApplyTextureStageChange(0, (q)->pTexture);                              \
     } else {                                                                        \
         CGraphics::ApplyTextureStageChange(0, 0);                                               \
     }

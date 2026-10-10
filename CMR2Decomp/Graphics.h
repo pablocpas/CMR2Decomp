@@ -1316,11 +1316,11 @@ private:
     // GLOBAL: CMR2 0x0065fa24
     static unsigned int m_unk0x0065fa24;
     // GLOBAL: CMR2 0x0065fa38
-    static int m_unk0x0065fa38;
+    static Texture *m_unk0x0065fa38;     // texture set on the last changed stage
 
     static void SetCachedSourceDestinationBlend(int param1, int param2);
-    static void ConfigureTextureStageBlendMode(int param1, int param2);
-    static void ApplyTextureStageChange(int param1, int param2);
+    static void ConfigureTextureStageBlendMode(int stage, Texture *pTexture);
+    static void ApplyTextureStageChange(int stage, Texture *pTexture);
     // SceneNode_CreateRoot stores the root node in the texture manager.
     friend SceneNode *SceneNode_CreateRoot(void);
     friend void Graphics_SetTextureFactorAlpha(BYTE *pColour);

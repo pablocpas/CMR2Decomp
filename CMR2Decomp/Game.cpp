@@ -2119,7 +2119,7 @@ void Game_DrawMeshTextureRuns(Mesh *pMesh)
             }
             prev = texture;
             count = 0;
-            CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+            CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[texture]);
         }
         g_unk0x0059be74[count++] = pTri->vertexIndex[0];
         g_unk0x0059be74[count++] = pTri->vertexIndex[1];
@@ -2134,7 +2134,7 @@ void Game_DrawMeshTextureRuns(Mesh *pMesh)
         pTri++;
     }
     if (count != 0) {
-        CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[
+        CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[
             *(int *)((BYTE *)&pMesh->pTriangles[total - 1] + 4 +
                      pMesh->pTriangles[total - 1].field_0x2c * 4)]);
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(

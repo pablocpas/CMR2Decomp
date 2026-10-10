@@ -22259,9 +22259,9 @@
   },
   "0x4b5380": {
     "n": "Scene_FreeShadowCasters",
-    "s": 0.5018181818181818,
-    "x": false,
-    "fz": 0.8727272727272727,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Scene_FreeShadowCasters"

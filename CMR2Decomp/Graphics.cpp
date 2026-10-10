@@ -3192,7 +3192,7 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
             CGraphics::m_pTextureManager->textureBuffer2[g_unk0x006de95c[(pMesh->flags >> 15) & 7]],
             0xb);
         CGraphics::ApplyTextureStageChange(
-            0, (int)CGraphics::m_pTextureManager->textureBuffer2[g_unk0x006de95c[(pMesh->flags >> 15) & 7]]);
+            0, CGraphics::m_pTextureManager->textureBuffer2[g_unk0x006de95c[(pMesh->flags >> 15) & 7]]);
         if ((g_unk0x005210b8 >= 0 || (int)g_unk0x006de95c[(pMesh->flags >> 15) & 7] >= 0) &&
             triangleCount > 0) {
             for (i = 0; i < triangleCount; i++) {
@@ -3211,7 +3211,7 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
                             CGraphics::m_pTextureManager->textureBuffer[currentTexture], 5);
                         if (g_unk0x005210bc != 0)
                             CGraphics::ApplyTextureStageChange(
-                                1, (int)CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
+                                1, CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
                     }
                 }
                 if (currentTexture > -1) {
@@ -3227,7 +3227,7 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
                     Frontend_SetObjectField118(
                         CGraphics::m_pTextureManager->textureBuffer[texture], 5);
                     if (g_unk0x005210bc != 0)
-                        CGraphics::ApplyTextureStageChange(1, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+                        CGraphics::ApplyTextureStageChange(1, CGraphics::m_pTextureManager->textureBuffer[texture]);
                     CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
                         D3DPT_TRIANGLELIST,
                         CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
@@ -3266,7 +3266,7 @@ void Graphics_SetRecordField2C(BYTE *p, int value)
 }
 
 // Shadow volumes: up to 9 cylinders built from meshes, cached by mesh name.
-extern int g_sceneLightState2[10];
+extern Mesh *g_sceneLightState2[10];
 extern BYTE g_sceneLightFlag2;
 // 4096 / (360 * 65536): 16.16 degrees to a sine table index.
 extern double g_fixedDegreesToAngle12;
@@ -3307,7 +3307,7 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
     pFound = NULL;
     for (i = 0; i < count; i++) {
         if (strcmp((char *)g_sceneLightState2[i], (char *)pMesh) == 0) {
-            pFound = (Mesh *)g_sceneLightState2[i];
+            pFound = g_sceneLightState2[i];
             i = count;
         }
     }
@@ -3348,7 +3348,7 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
         }
 
         pCyl = (Mesh *)CFileBuffer::AllocateLockedBuffer(0x108);
-        g_sceneLightState2[g_sceneLightFlag2++] = (int)pCyl;
+        g_sceneLightState2[g_sceneLightFlag2++] = pCyl;
         memset(pCyl, 0, 0x108);
         strcpy((char *)pCyl, (char *)pMesh);
         pCyl->field_0x10 = 22;
@@ -4578,7 +4578,7 @@ void Billboard_Draw(SceneNode *pCamera)
     CGraphics::SetZWriteEnable(0);
     g_billboardRun = g_billboardRuns[0];
     for (i = 0; i < (unsigned int)g_unk0x006dd788; i++) {
-        CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[g_billboardRun[1]]);
+        CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[g_billboardRun[1]]);
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0x2d2, &g_billboardVerts[first * 4],
                                                                  g_billboardRun[0] * 4, g_unk0x006db200,
                                                                  g_billboardRun[0] * 6, 0);
@@ -6235,7 +6235,7 @@ void CGraphics::InvalidateBlendStateCache(void)
 }
 int CGraphics::m_unk0x00520b28 = -1;
 unsigned int CGraphics::m_unk0x0065fa24;
-int CGraphics::m_unk0x0065fa38;
+Texture *CGraphics::m_unk0x0065fa38;
 
 // Sets render states 0x13/0x14 when the pair changes.
 // FUNCTION: CMR2 0x004a3e40
@@ -6709,171 +6709,169 @@ Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
 // no texture): colour/alpha operations, filters, blend render states and
 // texture coordinate set.
 // FUNCTION: CMR2 0x004a3e90
-void CGraphics::ConfigureTextureStageBlendMode(int param1, int param2)
+void CGraphics::ConfigureTextureStageBlendMode(int stage, Texture *pTexture)
 {
-    Texture *pTexture;
     float value;
 
-    pTexture = (Texture *)param2;
     if (pTexture == NULL) {
         g_unk0x00520b18 = -1;
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, (DWORD)pTexture);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_DISABLE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, (DWORD)pTexture);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_DISABLE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
         return;
     }
     switch (pTexture->blendMode) {
     case 0:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
         if (g_pGraphics->field913_0x3bc & 1)
-            m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MIPFILTER, D3DTFP_POINT);
+            m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_POINT);
         else if (g_pGraphics->field913_0x3bc & 2)
-            m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MIPFILTER, D3DTFP_LINEAR);
+            m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_LINEAR);
         else
-            m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MIPFILTER, D3DTFP_NONE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MAXMIPLEVEL, 0);
+            m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_NONE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_MAXMIPLEVEL, 0);
         SetCachedSourceDestinationBlend(5, 6);
-        SetTexCoordIndex(param1, 0);
+        SetTexCoordIndex(stage, 0);
         break;
     case 1:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
         SetCachedSourceDestinationBlend(2, 2);
-        SetTexCoordIndex(param1, 0);
+        SetTexCoordIndex(stage, 0);
         break;
     case 2:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
         SetCachedSourceDestinationBlend(5, 2);
-        SetTexCoordIndex(param1, 0);
+        SetTexCoordIndex(stage, 0);
         break;
     case 3:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
         SetCachedSourceDestinationBlend(1, 4);
-        SetTexCoordIndex(param1, 0);
+        SetTexCoordIndex(stage, 0);
         break;
     case 4:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2);
-        SetTexCoordIndex(param1, 1);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2);
+        SetTexCoordIndex(stage, 1);
         break;
     case 5:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_CURRENT);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_SELECTARG2);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG2);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
         SetCachedSourceDestinationBlend(5, 2);
-        SetTexCoordIndex(param1, 0);
+        SetTexCoordIndex(stage, 0);
         break;
     case 6:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_CURRENT);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
-        SetTexCoordIndex(param1, 0);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        SetTexCoordIndex(stage, 0);
         break;
     case 7:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE | D3DTA_COMPLEMENT);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_CURRENT);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_ADDSIGNED);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE | D3DTA_COMPLEMENT);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_ADDSIGNED);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
         SetCachedSourceDestinationBlend(9, 3);
-        SetTexCoordIndex(param1, 1);
+        SetTexCoordIndex(stage, 1);
         break;
     case 8:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_BUMPENVMAPLUMINANCE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_BUMPENVMAPLUMINANCE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
         value = m_bumpScale;
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_BUMPENVMAT00, *(DWORD *)&value);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_BUMPENVMAT00, *(DWORD *)&value);
         value = 0.0f;
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_BUMPENVMAT01, *(DWORD *)&value);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_BUMPENVMAT01, *(DWORD *)&value);
         value = 0.0f;
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_BUMPENVMAT10, *(DWORD *)&value);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_BUMPENVMAT10, *(DWORD *)&value);
         value = m_bumpScale;
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_BUMPENVMAT11, *(DWORD *)&value);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_BUMPENVMAT11, *(DWORD *)&value);
         value = 1.0f;
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_BUMPENVLSCALE, *(DWORD *)&value);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_BUMPENVLSCALE, *(DWORD *)&value);
         value = 0.0f;
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_BUMPENVLOFFSET, *(DWORD *)&value);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
-        SetTexCoordIndex(param1, 0);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_BUMPENVLOFFSET, *(DWORD *)&value);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        SetTexCoordIndex(stage, 0);
         break;
     case 9:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_CURRENT);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_MINFILTER, D3DTFN_LINEAR);
         SetCachedSourceDestinationBlend(2, 2);
-        SetTexCoordIndex(param1, 1);
+        SetTexCoordIndex(stage, 1);
         break;
     case 10:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE | D3DTA_ALPHAREPLICATE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE | D3DTA_ALPHAREPLICATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
         SetCachedSourceDestinationBlend(5, 6);
-        SetTexCoordIndex(param1, 0);
+        SetTexCoordIndex(stage, 0);
         break;
     case 11:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_TEXCOORDINDEX,
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_TEXCOORDINDEX,
                                                       D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR | 1);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT3);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT3);
         break;
     case 0xff:
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
         SetCachedSourceDestinationBlend(5, 6);
-        SetTexCoordIndex(param1, 0);
+        SetTexCoordIndex(stage, 0);
         break;
     }
     g_unk0x00520b18 = pTexture->blendMode;
@@ -6881,19 +6879,18 @@ void CGraphics::ConfigureTextureStageBlendMode(int param1, int param2)
 
 // Applies a texture stage change and forwards it to the render states.
 // FUNCTION: CMR2 0x004a4850
-void CGraphics::ApplyTextureStageChange(int param1, int param2)
+void CGraphics::ApplyTextureStageChange(int stage, Texture *pTexture)
 {
-    if (m_unk0x0065fa38 == param2 && m_unk0x00520b28 == param1)
+    if (m_unk0x0065fa38 == pTexture && m_unk0x00520b28 == stage)
         return;
-    m_unk0x0065fa38 = param2;
-    m_unk0x00520b28 = param1;
-    if (param2 != 0) {
-        m_pTextureManager->pD3D->SetTexture((DWORD)param1,
-            (IDirectDrawSurface7 *)*(int *)(param2 + 0x114));
-        ConfigureTextureStageBlendMode(param1, param2);
+    m_unk0x0065fa38 = pTexture;
+    m_unk0x00520b28 = stage;
+    if (pTexture != NULL) {
+        m_pTextureManager->pD3D->SetTexture((DWORD)stage, pTexture->pSurface);
+        ConfigureTextureStageBlendMode(stage, pTexture);
     } else {
-        m_pTextureManager->pD3D->SetTexture((DWORD)param1, NULL);
-        ConfigureTextureStageBlendMode(param1, 0);
+        m_pTextureManager->pD3D->SetTexture((DWORD)stage, NULL);
+        ConfigureTextureStageBlendMode(stage, NULL);
     }
     m_unk0x0065fa24++;
 }
@@ -7069,16 +7066,16 @@ void Graphics_DrawCubeMappedShadowTriangles(Mesh *pMesh)
             if (currentTexture > -1) {
                 if ((g_pGraphics->field913_0x3bc & 0x10) != 0) {
                     Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[currentTexture], 8);
-                    CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
+                    CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
                     Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 9);
                     if (g_unk0x005210bc != 0)
-                        CGraphics::ApplyTextureStageChange(1, (int)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
+                        CGraphics::ApplyTextureStageChange(1, CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
                 } else {
                     Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 4);
-                    CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
+                    CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
                     Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[currentTexture], 5);
                     if (g_unk0x005210bc != 0)
-                        CGraphics::ApplyTextureStageChange(1, (int)CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
+                        CGraphics::ApplyTextureStageChange(1, CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
                 }
             }
         }
@@ -7095,16 +7092,16 @@ void Graphics_DrawCubeMappedShadowTriangles(Mesh *pMesh)
     if (texture > -1) {
         if ((g_pGraphics->field913_0x3bc & 0x10) != 0) {
             Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[texture], 8);
-            CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+            CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[texture]);
             Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 9);
             if (g_unk0x005210bc != 0)
-                CGraphics::ApplyTextureStageChange(1, (int)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
+                CGraphics::ApplyTextureStageChange(1, CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
             } else {
             Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 4);
-            CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
+            CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8]);
             Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[texture], 5);
             if (g_unk0x005210bc != 0)
-                CGraphics::ApplyTextureStageChange(1, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+                CGraphics::ApplyTextureStageChange(1, CGraphics::m_pTextureManager->textureBuffer[texture]);
         }
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
             D3DPT_TRIANGLELIST,
@@ -7215,7 +7212,7 @@ void Graphics_DrawMeshPartsByTexture(Mesh *pMesh)
         ppPart = pMesh->pParts;
         do {
             pPart = *ppPart;
-            CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
+            CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
             CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
                 D3DPT_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
                 pMesh->vertexOffset + pPart->minIndex, pMesh->field_0x10 - pPart->minIndex, pPart->pData,
@@ -7241,7 +7238,7 @@ void Graphics_MarkTexturesAndDrawMeshParts(Mesh *pMesh)
         do {
             pPart = *ppPart;
             Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[pPart->texture], 10);
-            CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
+            CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
             CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
                 D3DPT_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
                 pMesh->vertexOffset + pPart->minIndex, pMesh->field_0x10 - pPart->minIndex, pPart->pData,
@@ -7277,7 +7274,7 @@ void Graphics_DrawMeshTextureBatches(Mesh *pMesh)
                     pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
             }
             count = 0;
-            CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+            CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[texture]);
             currentTexture = texture;
         }
         g_unk0x0059be74[count++] = pTri->vertexIndex[0];
@@ -7289,7 +7286,7 @@ void Graphics_DrawMeshTextureBatches(Mesh *pMesh)
     if (count != 0) {
         MeshTriangle *pLast = &pMesh->pTriangles[total - 1];
         int texture = *(int *)((BYTE *)pLast + 4 + pLast->field_0x2c * 4);
-        CGraphics::ApplyTextureStageChange(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+        CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[texture]);
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
             D3DPT_TRIANGLELIST,
             CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],

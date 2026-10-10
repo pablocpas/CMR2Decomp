@@ -18,7 +18,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4483e0	StageTiming_EstimateRemainingDriverTimes	StageTiming.cpp	358	0.47761194029850745	0.460093896713615
 0x4a91b0	CGraphics::EnumTextureFormatsCallback	Graphics.cpp	1294	0.48313090418353577	0.4372574385510996
 0x45c820	WheelSplash_Update	CarEffects.cpp	2496	0.4838921761998685	0.48104575163398694
-0x4b5380	Scene_FreeShadowCasters	SceneNode.cpp	400	0.49070631970260226	0.5018181818181818
 0x46ea80	CarSkid_EmitSlippingWheelEffects	StageObjects.cpp	438	0.4934210526315789	0.5048543689320388
 0x4b4aa0	Scene_LoadLighting	SceneNode.cpp	1538	0.49391727493917276	0.47417840375586856
 0x4b6ca0	Scene_AttenuateSectorLight	Graphics.cpp	589	0.5013774104683195	0.46236559139784944

@@ -9412,7 +9412,7 @@ void StageTiming_RestoreDeviceStageResources(void)
     for (i = 0; i < CGraphics::m_textureCount; i++) {
         Texture *pTexture = CGraphics::m_pTextureManager->textureBuffer[i];
         if (pTexture != NULL && pTexture->pSurface != NULL) {
-            CGraphics::ApplyTextureStageChange(0, (int)pTexture);
+            CGraphics::ApplyTextureStageChange(0, pTexture);
             CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, 0x1c4, verts, 3, 0);
         }
     }

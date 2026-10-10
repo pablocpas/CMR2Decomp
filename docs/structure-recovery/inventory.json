@@ -39,7 +39,7 @@
     "FrontendNetworkRally.cpp": "04877e99bd48400fbbce1fcca1a48f7611af8e0e9d6992529062dd7537bfd635",
     "FrontendScreens.cpp": "117d4749b56745be817fe8752f350ce0826eba4de2d61f34a059405a60c028b8",
     "FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
-    "Game.cpp": "6212a20743dbbc19c7d5f820cf2e42ddaa2e9e17ba9e4782b898987272a64187",
+    "Game.cpp": "575d19f7e7791eb96ef16be2433a01657f3c473380fc6402fc52a3642ba321ef",
     "Game.h": "df14938640f6db1159b46edc671c03c08af78a21c0da87f981fb6e31141655d8",
     "GameConnections.cpp": "c9034f5c8d5de0e88a5e107895406e2c2a444c211ce6b1dd0e422a1e0751f4f7",
     "GameInfo.cpp": "83d31664fab122849e6df57b5f39306cb711c226f8376230be5cb647380e9f1a",
@@ -50,8 +50,8 @@
     "GenericFileLoader.cpp": "eba2ddfd0571387fcb1bc7c23202b10d552442c4270cfeccb41d4742e522abb1",
     "GenericFileLoader.h": "5d6070c8817d1be15f3b0c6bfb2a7932e47ede28dc7a6ee8e0f8120691152e01",
     "Glow.h": "464b34406d44ff9090bbdbb989e9375f6e73e23ad95c8d80e909f33b9a777e32",
-    "Graphics.cpp": "ca3850cbe6d8eb397cb2a5b64832f819f8de8e26fd989a170db915845e940765",
-    "Graphics.h": "86c298de35f97a86f3ccdbf60308687a5d81ab3b6e7ddc4c68d1fe524d023ff2",
+    "Graphics.cpp": "c78f3c17f12752b7a8a8d76e4cc794689fea20e915a4d504dfe3dd11635a4010",
+    "Graphics.h": "97e32ba9c55b52659d79831eebf0688998b94588a843beecb7dafffc8c9d7b95",
     "HudDash.cpp": "4231048b2eb2c7bf12e63cced05d944b841d2d90a98b26ae72087ffdfade3947",
     "Input.cpp": "04412be20dd693d046b85ccaee4ff1786844497094f679d4ed382e0d719405a0",
     "Input.h": "6c8ce64e581da4f84e04af836ec4276d106ed118b58ddd8521fff3d05eeacb8c",
@@ -82,14 +82,14 @@
     "RallyTiming.h": "7572a85e234628fa6abe639a9e3360c94e5161e6c14a289c844146d08f983148",
     "RegKey.cpp": "80d7d2b84d958f007807a48186dbbe67190b231fd21b059eb9dbea4f26a8b80c",
     "RegKey.h": "cb2934244f3e58e032b9644f58ea83230965ed366c7000fb4690ef50d5bb62c4",
-    "SceneNode.cpp": "f480eff6b730cda707a8fbd793d3b60cb0a3fd69ab3bf11d114a71f7281823d8",
+    "SceneNode.cpp": "b893059d541922b2eb5a0f9a3a129da2b01b0e54dcd39b7fe93bbcb43b503eaf",
     "SceneNode.h": "bc8806a29bc5f4a6b8655c4e96320450694cd5bf55062abfdd98581448f81620",
     "Sector.cpp": "e13537dc650b3c7b18ac2b73ce032f39b029a6ae99ec2a3c4d5f657771a688a5",
     "Sector.h": "7b942f9f0a7f1ddf5564bdd2a5d83a42a299d2682ce388516d5c810c0268f16e",
     "SharedData.cpp": "89e9d55481bb4e820d8cd6c7f0924e70f78d255d7b02b73e67785e291c1406df",
     "Sound.cpp": "1da33332f53ce5ccd94d4bb4ba661daf2f5e196bea307b627b6c07d3ee419681",
     "Sound.h": "5b972d156316f420fed6f54f55d219e8f2863df1219bb9c22e755fcbe474c015",
-    "Sprite.cpp": "2e6fc641a658df837ff6f6fdb29775ac6d801154a1adc49aa6e42b61b12496e2",
+    "Sprite.cpp": "5615f9b9ef6f5e98eb808c2f5e999ed2225715f2f48007b9bcc161737d1c0456",
     "Sprite.h": "cf52927116241e30fab159d1ed2db212d1f42e1349ae50ce70b411514ff4da11",
     "Stage.cpp": "3a063103b501a89354d2cd70447d4d0efe4f2613b505b642547ddc0632a01868",
     "Stage.h": "4a75c6c0ce11b7ac1fa616ed12e7c7931d3e23ab12a678370ac800ef700f04cd",
@@ -98,7 +98,7 @@
     "StageObjects.cpp": "5fa69eac0f1a70267783db8f662411259e45b55a50f7d70c49614e29b3c2ee7e",
     "StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
     "StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
-    "StageTiming.cpp": "43051bf4cb49bc67e21bfd59db9c06e154dcce7cbe2c843c5a130390d9601144",
+    "StageTiming.cpp": "129171d35e0e55dc938729f1eef806acd3806c9089498377ad19baac7d68cf2c",
     "StageTiming.h": "83a0d3266fda81c4b1e65e87e17bfc27f073ac5ef9449e75368fbba9af57857f",
     "StageUI.cpp": "f344ea709ae4a655c7c3aaba3ebb45904370ed7eab807f98597dbe0387648199",
     "StageUI.h": "30113bb1c038c7ab0bc539eca8ad3ba06224365b60d8e32727e304e1f7323e42",
@@ -133,11 +133,11 @@
   },
   "metrics": {
     "types": 312,
-    "raw_accesses": 1417,
+    "raw_accesses": 1382,
     "fixed_sizes": 78,
     "hex_multipliers": 2215,
     "unknown_identifiers": 10524,
-    "unnamed_field_declarations": 1493,
+    "unnamed_field_declarations": 1490,
     "unique_unknown_identifiers": 1284
   },
   "files": {
@@ -479,7 +479,7 @@
     },
     "Graphics.cpp": {
       "types": 6,
-      "raw_accesses": 78,
+      "raw_accesses": 77,
       "fixed_sizes": 9,
       "hex_multipliers": 14,
       "unknown_identifiers": 378
@@ -703,7 +703,7 @@
     },
     "SceneNode.cpp": {
       "types": 5,
-      "raw_accesses": 95,
+      "raw_accesses": 61,
       "fixed_sizes": 10,
       "hex_multipliers": 22,
       "unknown_identifiers": 27
@@ -11095,36 +11095,15 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1115,
+      "line": 1113,
       "nearest_function": "0x004b3c00",
       "kind": "struct",
       "name": "ShadowPart",
-      "end_line": 1128,
+      "end_line": 1126,
       "unnamed_fields": [
         {
           "file": "SceneNode.cpp",
-          "line": 1116,
-          "nearest_function": "0x004b3c00",
-          "name": "field_0x0",
-          "declaration": "BYTE field_0x0[0x30];"
-        },
-        {
-          "file": "SceneNode.cpp",
           "line": 1125,
-          "nearest_function": "0x004b3c00",
-          "name": "field_0x50",
-          "declaration": "short field_0x50;"
-        },
-        {
-          "file": "SceneNode.cpp",
-          "line": 1126,
-          "nearest_function": "0x004b3c00",
-          "name": "field_0x52",
-          "declaration": "short field_0x52;"
-        },
-        {
-          "file": "SceneNode.cpp",
-          "line": 1127,
           "nearest_function": "0x004b3c00",
           "name": "field_0x54",
           "declaration": "int field_0x54;"
@@ -11133,22 +11112,22 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1131,
+      "line": 1129,
       "nearest_function": "0x004b3c00",
       "kind": "struct",
       "name": "ShadowCaster",
-      "end_line": 1137,
+      "end_line": 1135,
       "unnamed_fields": [
         {
           "file": "SceneNode.cpp",
-          "line": 1135,
+          "line": 1133,
           "nearest_function": "0x004b3c00",
           "name": "field_0xc",
           "declaration": "int field_0xc;              // 0xc"
         },
         {
           "file": "SceneNode.cpp",
-          "line": 1136,
+          "line": 1134,
           "nearest_function": "0x004b3c00",
           "name": "field_0x10",
           "declaration": "int field_0x10;"
@@ -11157,59 +11136,59 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1736,
+      "line": 1731,
       "nearest_function": "0x004b5eb0",
       "kind": "struct",
       "name": "ShadowVertex",
-      "end_line": 1738,
+      "end_line": 1733,
       "unnamed_fields": []
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2054,
+      "line": 2049,
       "nearest_function": "0x004b5ee0",
       "kind": "struct",
       "name": "LightZoneVertex",
-      "end_line": 2067,
+      "end_line": 2062,
       "unnamed_fields": [
         {
           "file": "SceneNode.cpp",
-          "line": 2055,
+          "line": 2050,
           "nearest_function": "0x004b5ee0",
           "name": "field_0x0",
           "declaration": "int field_0x0;"
         },
         {
           "file": "SceneNode.cpp",
-          "line": 2056,
+          "line": 2051,
           "nearest_function": "0x004b5ee0",
           "name": "field_0x4",
           "declaration": "int field_0x4;"
         },
         {
           "file": "SceneNode.cpp",
-          "line": 2061,
+          "line": 2056,
           "nearest_function": "0x004b5ee0",
           "name": "field_0x18",
           "declaration": "int field_0x18;"
         },
         {
           "file": "SceneNode.cpp",
-          "line": 2062,
+          "line": 2057,
           "nearest_function": "0x004b5ee0",
           "name": "field_0x1c",
           "declaration": "int field_0x1c;"
         },
         {
           "file": "SceneNode.cpp",
-          "line": 2064,
+          "line": 2059,
           "nearest_function": "0x004b5ee0",
           "name": "field_0x24",
           "declaration": "int field_0x24;"
         },
         {
           "file": "SceneNode.cpp",
-          "line": 2065,
+          "line": 2060,
           "nearest_function": "0x004b5ee0",
           "name": "field_0x28",
           "declaration": "int field_0x28;"
@@ -15950,42 +15929,35 @@
     },
     {
       "file": "Graphics.cpp",
-      "line": 6892,
-      "nearest_function": "0x004a4850",
-      "access_type": "int *",
-      "expression": "*(int *)(param2 + 0x114)"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7060,
+      "line": 7057,
       "nearest_function": "0x004b2610",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)&pMesh->pTriangles[i] + 4 + textureIndex * 4)"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7068,
+      "line": 7065,
       "nearest_function": "0x004b2610",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)&pMesh->pTriangles[i] + 4 + textureIndex * 4)"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7094,
+      "line": 7091,
       "nearest_function": "0x004b2610",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)&pMesh->pTriangles[triangleCount - 1] + 4 + textureIndex * 4)"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7271,
+      "line": 7268,
       "nearest_function": "0x0049c680",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4)"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7291,
+      "line": 7288,
       "nearest_function": "0x0049c680",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)pLast + 4 + pLast->field_0x2c * 4)"
@@ -18351,87 +18323,94 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1223,
+      "line": 1221,
       "nearest_function": "0x004b4100",
       "access_type": "DWORD *",
       "expression": "*(DWORD *)(pPart->pVertices + i * 0x30 + 0x1c)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1341,
+      "line": 1339,
       "nearest_function": "0x004b4aa0",
       "access_type": "int *",
       "expression": "*(int *)(pCursor + 2)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1342,
+      "line": 1340,
       "nearest_function": "0x004b4aa0",
       "access_type": "int *",
       "expression": "*(int *)(pCursor + 4)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1371,
+      "line": 1369,
       "nearest_function": "0x004b4aa0",
       "access_type": "BYTE **",
       "expression": "*(BYTE **)(g_sceneLightZones + off + 0xc)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1372,
+      "line": 1370,
       "nearest_function": "0x004b4aa0",
       "access_type": "unsigned short *",
       "expression": "*(unsigned short *)(g_sceneLightZones + off + 2)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1375,
+      "line": 1373,
       "nearest_function": "0x004b4aa0",
       "access_type": "BYTE **",
       "expression": "*(BYTE **)(g_sceneLightZones + off + 0x10)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1379,
+      "line": 1377,
       "nearest_function": "0x004b4aa0",
       "access_type": "int **",
       "expression": "*(int **)(g_sceneLightZones + off + 0x10)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1384,
+      "line": 1382,
       "nearest_function": "0x004b4aa0",
       "access_type": "int **",
       "expression": "*(int **)(g_sceneLightZones + off + 0x10)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1389,
+      "line": 1387,
       "nearest_function": "0x004b4aa0",
       "access_type": "int **",
       "expression": "*(int **)(g_sceneLightZones + off + 0x10)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1399,
+      "line": 1397,
       "nearest_function": "0x004b4aa0",
       "access_type": "short *",
       "expression": "*(short *)(g_sceneLightZones + off)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1404,
+      "line": 1402,
       "nearest_function": "0x004b4aa0",
       "access_type": "int *",
       "expression": "*(int *)(g_sceneLightZones + off + 4)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1405,
+      "line": 1403,
       "nearest_function": "0x004b4aa0",
       "access_type": "int *",
       "expression": "*(int *)(g_sceneLightZones + off + 8)"
+    },
+    {
+      "file": "SceneNode.cpp",
+      "line": 1410,
+      "nearest_function": "0x004b4aa0",
+      "access_type": "short *",
+      "expression": "*(short *)(g_sceneLightZones + off)"
     },
     {
       "file": "SceneNode.cpp",
@@ -18442,73 +18421,80 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1414,
-      "nearest_function": "0x004b4aa0",
-      "access_type": "short *",
-      "expression": "*(short *)(g_sceneLightZones + off)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1419,
+      "line": 1417,
       "nearest_function": "0x004b4aa0",
       "access_type": "unsigned short *",
       "expression": "*(unsigned short *)(g_sceneLightZones + zoneOff + 2)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1421,
+      "line": 1419,
       "nearest_function": "0x004b4aa0",
       "access_type": "BYTE **",
       "expression": "*(BYTE **)(g_sceneLightZones + zoneOff + 0xc)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1424,
+      "line": 1422,
       "nearest_function": "0x004b4aa0",
       "access_type": "int **",
       "expression": "*(int **)((BYTE *)g_sectors[s] + 0x14)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1449,
+      "line": 1447,
       "nearest_function": "0x004b4aa0",
       "access_type": "int **",
       "expression": "*(int **)(g_sceneLightZones + off + 0x10)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1452,
+      "line": 1450,
       "nearest_function": "0x004b4aa0",
       "access_type": "BYTE **",
       "expression": "*(BYTE **)(g_sceneLightZones + off + 0xc)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1453,
+      "line": 1451,
       "nearest_function": "0x004b4aa0",
       "access_type": "int *",
       "expression": "*(int *)(*(BYTE **)(*(BYTE **)(pOwner[0xb] + 0xc) + 0x24) + 4)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1453,
+      "line": 1451,
       "nearest_function": "0x004b4aa0",
       "access_type": "BYTE **",
       "expression": "*(BYTE **)(*(BYTE **)(pOwner[0xb] + 0xc) + 0x24)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1453,
+      "line": 1451,
       "nearest_function": "0x004b4aa0",
       "access_type": "BYTE **",
       "expression": "*(BYTE **)(pOwner[0xb] + 0xc)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1472,
+      "line": 1470,
       "nearest_function": "0x004b4aa0",
       "access_type": "short *",
       "expression": "*(short *)(g_sceneLightZones + off)"
+    },
+    {
+      "file": "SceneNode.cpp",
+      "line": 1472,
+      "nearest_function": "0x004b4aa0",
+      "access_type": "unsigned short *",
+      "expression": "*(unsigned short *)(g_sceneLightZones + off)"
+    },
+    {
+      "file": "SceneNode.cpp",
+      "line": 1473,
+      "nearest_function": "0x004b4aa0",
+      "access_type": "unsigned short *",
+      "expression": "*(unsigned short *)(g_sceneLightZones + off)"
     },
     {
       "file": "SceneNode.cpp",
@@ -18519,500 +18505,248 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1475,
-      "nearest_function": "0x004b4aa0",
-      "access_type": "unsigned short *",
-      "expression": "*(unsigned short *)(g_sceneLightZones + off)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1476,
-      "nearest_function": "0x004b4aa0",
-      "access_type": "unsigned short *",
-      "expression": "*(unsigned short *)(g_sceneLightZones + off)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1482,
+      "line": 1480,
       "nearest_function": "0x004b4aa0",
       "access_type": "int **",
       "expression": "*(int **)(g_sceneLightZones + off + 0x10)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1489,
+      "line": 1487,
       "nearest_function": "0x004b4aa0",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)pMesh + 0x20)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1491,
+      "line": 1489,
       "nearest_function": "0x004b4aa0",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)pMesh + 0x34)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1492,
+      "line": 1490,
       "nearest_function": "0x004b4aa0",
       "access_type": "unsigned int *",
       "expression": "*(unsigned int *)((BYTE *)pMesh + 0x30)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1493,
+      "line": 1491,
       "nearest_function": "0x004b4aa0",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)pMesh + 0x2c)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1796,
+      "line": 1791,
       "nearest_function": "0x004b5770",
       "access_type": "int **",
       "expression": "*(int **)((BYTE *)pItem + 0x2c)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1800,
+      "line": 1795,
       "nearest_function": "0x004b5770",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)pZone + 0x10)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1802,
+      "line": 1797,
       "nearest_function": "0x004b5770",
       "access_type": "float **",
       "expression": "*(float **)((BYTE *)pZone + 0xc)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1829,
+      "line": 1824,
       "nearest_function": "0x004b5770",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)pItem + 0x18)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1832,
+      "line": 1827,
       "nearest_function": "0x004b5770",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)pItem + 0x1c)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1844,
+      "line": 1839,
       "nearest_function": "0x004b5770",
       "access_type": "int *",
       "expression": "*(int *)(*(int *)((BYTE *)pZone + 0x24) + 4)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1844,
+      "line": 1839,
       "nearest_function": "0x004b5770",
       "access_type": "int *",
       "expression": "*(int *)((BYTE *)pZone + 0x24)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1883,
+      "line": 1878,
       "nearest_function": "0x004b5770",
       "access_type": "float *",
       "expression": "*(float *)((BYTE *)pPart->pNode + 0x148)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1884,
+      "line": 1879,
       "nearest_function": "0x004b5770",
       "access_type": "float *",
       "expression": "*(float *)((BYTE *)pPart->pNode + 0x14c)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1885,
+      "line": 1880,
       "nearest_function": "0x004b5770",
       "access_type": "float *",
       "expression": "*(float *)((BYTE *)pPart->pNode + 0x150)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1922,
+      "line": 1917,
       "nearest_function": "0x004b5770",
       "access_type": "float *",
       "expression": "*(float *)(pv0 + 0x20)"
+    },
+    {
+      "file": "SceneNode.cpp",
+      "line": 1918,
+      "nearest_function": "0x004b5770",
+      "access_type": "float *",
+      "expression": "*(float *)(pv1 + 0x20)"
+    },
+    {
+      "file": "SceneNode.cpp",
+      "line": 1919,
+      "nearest_function": "0x004b5770",
+      "access_type": "float *",
+      "expression": "*(float *)(pv2 + 0x20)"
+    },
+    {
+      "file": "SceneNode.cpp",
+      "line": 1920,
+      "nearest_function": "0x004b5770",
+      "access_type": "float *",
+      "expression": "*(float *)(pv0 + 0x20)"
+    },
+    {
+      "file": "SceneNode.cpp",
+      "line": 1921,
+      "nearest_function": "0x004b5770",
+      "access_type": "float *",
+      "expression": "*(float *)(pv1 + 0x20)"
+    },
+    {
+      "file": "SceneNode.cpp",
+      "line": 1922,
+      "nearest_function": "0x004b5770",
+      "access_type": "float *",
+      "expression": "*(float *)(pv2 + 0x20)"
     },
     {
       "file": "SceneNode.cpp",
       "line": 1923,
       "nearest_function": "0x004b5770",
       "access_type": "float *",
-      "expression": "*(float *)(pv1 + 0x20)"
+      "expression": "*(float *)(pv0 + 0x24)"
     },
     {
       "file": "SceneNode.cpp",
       "line": 1924,
       "nearest_function": "0x004b5770",
       "access_type": "float *",
-      "expression": "*(float *)(pv2 + 0x20)"
+      "expression": "*(float *)(pv1 + 0x24)"
     },
     {
       "file": "SceneNode.cpp",
       "line": 1925,
       "nearest_function": "0x004b5770",
       "access_type": "float *",
-      "expression": "*(float *)(pv0 + 0x20)"
+      "expression": "*(float *)(pv2 + 0x24)"
     },
     {
       "file": "SceneNode.cpp",
       "line": 1926,
       "nearest_function": "0x004b5770",
       "access_type": "float *",
-      "expression": "*(float *)(pv1 + 0x20)"
+      "expression": "*(float *)(pv0 + 0x24)"
     },
     {
       "file": "SceneNode.cpp",
       "line": 1927,
       "nearest_function": "0x004b5770",
       "access_type": "float *",
-      "expression": "*(float *)(pv2 + 0x20)"
+      "expression": "*(float *)(pv1 + 0x24)"
     },
     {
       "file": "SceneNode.cpp",
       "line": 1928,
       "nearest_function": "0x004b5770",
       "access_type": "float *",
-      "expression": "*(float *)(pv0 + 0x24)"
+      "expression": "*(float *)(pv2 + 0x24)"
     },
     {
       "file": "SceneNode.cpp",
       "line": 1929,
-      "nearest_function": "0x004b5770",
-      "access_type": "float *",
-      "expression": "*(float *)(pv1 + 0x24)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1930,
-      "nearest_function": "0x004b5770",
-      "access_type": "float *",
-      "expression": "*(float *)(pv2 + 0x24)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1931,
-      "nearest_function": "0x004b5770",
-      "access_type": "float *",
-      "expression": "*(float *)(pv0 + 0x24)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1932,
-      "nearest_function": "0x004b5770",
-      "access_type": "float *",
-      "expression": "*(float *)(pv1 + 0x24)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1933,
-      "nearest_function": "0x004b5770",
-      "access_type": "float *",
-      "expression": "*(float *)(pv2 + 0x24)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1934,
       "nearest_function": "0x004b5770",
       "access_type": "ShadowVertex *",
       "expression": "*(ShadowVertex *)((BYTE *)g_shadowVertexData +\n                                                  g_shadowVertexCount * 0x30)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1936,
+      "line": 1931,
       "nearest_function": "0x004b5770",
       "access_type": "ShadowVertex *",
       "expression": "*(ShadowVertex *)((BYTE *)g_shadowVertexData +\n                                                  (g_shadowVertexCount * 3 + 3) * 0x10)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1938,
+      "line": 1933,
       "nearest_function": "0x004b5770",
       "access_type": "ShadowVertex *",
       "expression": "*(ShadowVertex *)((BYTE *)g_shadowVertexData +\n                                                  (g_shadowVertexCount * 3 + 6) * 0x10)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2730,
-      "nearest_function": "0x004b4180",
-      "access_type": "short *",
-      "expression": "*(short *)(p + 0x50)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2731,
-      "nearest_function": "0x004b4180",
-      "access_type": "short *",
-      "expression": "*(short *)(p + 0x52)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2734,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(*(int *)(p + 0x30) + 0x10)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2734,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x30)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2738,
-      "nearest_function": "0x004b4180",
-      "access_type": "float *",
-      "expression": "*(float *)(*(int *)(p + 0x34) + 0x148)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2738,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x34)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2739,
-      "nearest_function": "0x004b4180",
-      "access_type": "float *",
-      "expression": "*(float *)(*(int *)(p + 0x34) + 0x14c)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2739,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x34)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2740,
-      "nearest_function": "0x004b4180",
-      "access_type": "float *",
-      "expression": "*(float *)(*(int *)(p + 0x34) + 0x150)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2740,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x34)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2742,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x34)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2744,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x34)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2746,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x34)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2748,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x34)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2751,
-      "nearest_function": "0x004b4180",
-      "access_type": "float **",
-      "expression": "*(float **)(p + 0x38)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2752,
-      "nearest_function": "0x004b4180",
-      "access_type": "float **",
-      "expression": "*(float **)(p + 0x40)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2753,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(*(int *)(p + 0x30) + 0x10)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2753,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x30)"
-    },
-    {
-      "file": "SceneNode.cpp",
       "line": 2760,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x4c)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2761,
-      "nearest_function": "0x004b4180",
-      "access_type": "BYTE **",
-      "expression": "*(BYTE **)(p + 0x44)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2762,
-      "nearest_function": "0x004b4180",
-      "access_type": "BYTE **",
-      "expression": "*(BYTE **)(p + 0x48)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2763,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(*(int *)(p + 0x30) + 0x28)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2763,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x30)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2765,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(*(int *)(p + 0x30) + 0x24)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2765,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x30)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2770,
-      "nearest_function": "0x004b4180",
-      "access_type": "float **",
-      "expression": "*(float **)(p + 0x40)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2771,
-      "nearest_function": "0x004b4180",
-      "access_type": "float **",
-      "expression": "*(float **)(p + 0x40)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2772,
-      "nearest_function": "0x004b4180",
-      "access_type": "float **",
-      "expression": "*(float **)(p + 0x40)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2780,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x3c)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2785,
       "nearest_function": "0x004b4180",
       "access_type": "BYTE **",
       "expression": "*(BYTE **)((char *)pi + off)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2786,
-      "nearest_function": "0x004b4180",
-      "access_type": "short *",
-      "expression": "*(short *)(p + 0x52)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2788,
-      "nearest_function": "0x004b4180",
-      "access_type": "float **",
-      "expression": "*(float **)(p + 0x40)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2795,
+      "line": 2770,
       "nearest_function": "0x004b4180",
       "access_type": "DWORD *",
       "expression": "*(DWORD *)(pVtx + 0x18)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2798,
-      "nearest_function": "0x004b4180",
-      "access_type": "int *",
-      "expression": "*(int *)(p + 0x34)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2803,
+      "line": 2778,
       "nearest_function": "0x004b4180",
       "access_type": "float *",
       "expression": "*(float *)(pVtx + 4)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2804,
+      "line": 2779,
       "nearest_function": "0x004b4180",
       "access_type": "float *",
       "expression": "*(float *)(pVtx + 8)"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2807,
-      "nearest_function": "0x004b4180",
-      "access_type": "short *",
-      "expression": "*(short *)(p + 0x52)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2809,
+      "line": 2784,
       "nearest_function": "0x004b4180",
       "access_type": "BYTE **",
       "expression": "*(BYTE **)((char *)pi + off)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2814,
-      "nearest_function": "0x004b4180",
-      "access_type": "short *",
-      "expression": "*(short *)(p + 0x50)"
     },
     {
       "file": "Sector.cpp",
@@ -23142,7 +22876,7 @@
     },
     {
       "file": "Graphics.cpp",
-      "line": 7033,
+      "line": 7030,
       "nearest_function": "0x004b2460",
       "call": "memcpy",
       "size_expressions": [
@@ -23322,11 +23056,20 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 710,
+      "line": 706,
       "nearest_function": "0x004adfa0",
       "call": "AllocateLockedBuffer",
       "size_expressions": [
         "0x104"
+      ]
+    },
+    {
+      "file": "SceneNode.cpp",
+      "line": 1215,
+      "nearest_function": "0x004b4100",
+      "call": "AllocateLockedBuffer",
+      "size_expressions": [
+        "pPart->pMesh->field_0x10 * 0xc"
       ]
     },
     {
@@ -23340,16 +23083,7 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1219,
-      "nearest_function": "0x004b4100",
-      "call": "AllocateLockedBuffer",
-      "size_expressions": [
-        "pPart->pMesh->field_0x10 * 0xc"
-      ]
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1220,
+      "line": 1218,
       "nearest_function": "0x004b4100",
       "call": "AllocateLockedBuffer",
       "size_expressions": [
@@ -23358,7 +23092,7 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1221,
+      "line": 1219,
       "nearest_function": "0x004b4100",
       "call": "AllocateLockedBuffer",
       "size_expressions": [
@@ -23367,7 +23101,7 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1224,
+      "line": 1222,
       "nearest_function": "0x004b4100",
       "call": "AllocateLockedBuffer",
       "size_expressions": [
@@ -23376,7 +23110,7 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1582,
+      "line": 1577,
       "nearest_function": "0x004b5620",
       "call": "AllocateLockedBuffer",
       "size_expressions": [
@@ -23385,7 +23119,7 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1583,
+      "line": 1578,
       "nearest_function": "0x004b5620",
       "call": "AllocateLockedBuffer",
       "size_expressions": [
@@ -23394,7 +23128,7 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1584,
+      "line": 1579,
       "nearest_function": "0x004b5620",
       "call": "AllocateLockedBuffer",
       "size_expressions": [
@@ -23403,7 +23137,7 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1585,
+      "line": 1580,
       "nearest_function": "0x004b5620",
       "call": "AllocateLockedBuffer",
       "size_expressions": [
@@ -32903,25 +32637,25 @@
     },
     {
       "file": "Graphics.cpp",
-      "line": 7023,
+      "line": 7020,
       "nearest_function": "0x004b2460",
       "value": "0x30"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7033,
+      "line": 7030,
       "nearest_function": "0x004b2460",
       "value": "0x30"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7033,
+      "line": 7030,
       "nearest_function": "0x004b2460",
       "value": "0x30"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7150,
+      "line": 7147,
       "nearest_function": "0x0049c940",
       "value": "0x108"
     },
@@ -35012,21 +34746,27 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 819,
+      "line": 815,
       "nearest_function": "0x004b3ae0",
       "value": "0x31"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 938,
+      "line": 934,
       "nearest_function": "0x004b3b40",
       "value": "0x31"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 956,
+      "line": 952,
       "nearest_function": "0x004b3ba0",
       "value": "0x31"
+    },
+    {
+      "file": "SceneNode.cpp",
+      "line": 1215,
+      "nearest_function": "0x004b4100",
+      "value": "0xc"
     },
     {
       "file": "SceneNode.cpp",
@@ -35036,15 +34776,15 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1219,
+      "line": 1218,
       "nearest_function": "0x004b4100",
       "value": "0xc"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1220,
+      "line": 1219,
       "nearest_function": "0x004b4100",
-      "value": "0xc"
+      "value": "0x30"
     },
     {
       "file": "SceneNode.cpp",
@@ -35054,91 +34794,85 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1223,
-      "nearest_function": "0x004b4100",
-      "value": "0x30"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1224,
+      "line": 1222,
       "nearest_function": "0x004b4100",
       "value": "0xc"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1369,
+      "line": 1367,
       "nearest_function": "0x004b4aa0",
       "value": "0x14"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1372,
+      "line": 1370,
       "nearest_function": "0x004b4aa0",
       "value": "0x30"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1381,
+      "line": 1379,
       "nearest_function": "0x004b4aa0",
       "value": "0x30"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1386,
+      "line": 1384,
       "nearest_function": "0x004b4aa0",
       "value": "0x4c"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1452,
+      "line": 1450,
       "nearest_function": "0x004b4aa0",
       "value": "0x30"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1683,
+      "line": 1678,
       "nearest_function": "0x004b50b0",
       "value": "0x4c"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1935,
+      "line": 1930,
       "nearest_function": "0x004b5770",
       "value": "0x30"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1937,
+      "line": 1932,
       "nearest_function": "0x004b5770",
       "value": "0x10"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1939,
+      "line": 1934,
       "nearest_function": "0x004b5770",
       "value": "0x10"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2125,
+      "line": 2120,
       "nearest_function": "0x004b5f90",
       "value": "0x14"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2235,
+      "line": 2230,
       "nearest_function": "0x004b4040",
       "value": "0x30"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2780,
+      "line": 2755,
       "nearest_function": "0x004b4180",
       "value": "0xc"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2809,
+      "line": 2784,
       "nearest_function": "0x004b4180",
       "value": "0x30"
     },
@@ -65591,15 +65325,27 @@
     },
     {
       "file": "Graphics.cpp",
-      "line": 6719,
+      "line": 6717,
       "nearest_function": "0x004a3e90",
       "name": "g_unk0x00520b18"
     },
     {
       "file": "Graphics.cpp",
-      "line": 6879,
+      "line": 6877,
       "nearest_function": "0x004a3e90",
       "name": "g_unk0x00520b18"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 6884,
+      "nearest_function": "0x004a4850",
+      "name": "m_unk0x0065fa38"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 6884,
+      "nearest_function": "0x004a4850",
+      "name": "m_unk0x00520b28"
     },
     {
       "file": "Graphics.cpp",
@@ -65609,79 +65355,79 @@
     },
     {
       "file": "Graphics.cpp",
-      "line": 6886,
+      "line": 6887,
       "nearest_function": "0x004a4850",
       "name": "m_unk0x00520b28"
     },
     {
       "file": "Graphics.cpp",
-      "line": 6888,
-      "nearest_function": "0x004a4850",
-      "name": "m_unk0x0065fa38"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 6889,
-      "nearest_function": "0x004a4850",
-      "name": "m_unk0x00520b28"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 6898,
+      "line": 6895,
       "nearest_function": "0x004a4850",
       "name": "m_unk0x0065fa24"
     },
     {
       "file": "Graphics.cpp",
-      "line": 6951,
+      "line": 6948,
       "nearest_function": "0x004bc410",
       "name": "g_unk0x00521138"
     },
     {
       "file": "Graphics.cpp",
-      "line": 6960,
+      "line": 6957,
       "nearest_function": "0x004bc410",
       "name": "g_unk0x006de95c"
     },
     {
       "file": "Graphics.cpp",
-      "line": 6971,
+      "line": 6968,
       "nearest_function": "0x004b23c0",
       "name": "g_unk0x006de95c"
     },
     {
       "file": "Graphics.cpp",
-      "line": 6971,
+      "line": 6968,
       "nearest_function": "0x004b23c0",
       "name": "g_unk0x006de95c"
     },
     {
       "file": "Graphics.cpp",
-      "line": 6973,
+      "line": 6970,
       "nearest_function": "0x004b23c0",
       "name": "g_unk0x006de95c"
     },
     {
       "file": "Graphics.cpp",
-      "line": 6982,
+      "line": 6979,
       "nearest_function": "0x004b23c0",
       "name": "g_unk0x005210b8"
     },
     {
       "file": "Graphics.cpp",
-      "line": 6983,
+      "line": 6980,
       "nearest_function": "0x004b23c0",
       "name": "g_unk0x005210b8"
     },
     {
       "file": "Graphics.cpp",
-      "line": 6993,
+      "line": 6990,
       "nearest_function": "0x004b23c0",
       "name": "g_unk0x00511424"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7024,
+      "line": 7021,
+      "nearest_function": "0x004b2460",
+      "name": "g_unk0x00511424"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 7022,
+      "nearest_function": "0x004b2460",
+      "name": "g_unk0x00511424"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 7023,
       "nearest_function": "0x004b2460",
       "name": "g_unk0x00511424"
     },
@@ -65699,37 +65445,37 @@
     },
     {
       "file": "Graphics.cpp",
-      "line": 7028,
-      "nearest_function": "0x004b2460",
-      "name": "g_unk0x00511424"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7029,
-      "nearest_function": "0x004b2460",
-      "name": "g_unk0x00511424"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7056,
+      "line": 7053,
       "nearest_function": "0x004b2610",
       "name": "g_unk0x005210b8"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7056,
+      "line": 7053,
       "nearest_function": "0x004b2610",
       "name": "g_unk0x006de95c"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7065,
+      "line": 7062,
       "nearest_function": "0x004b2610",
       "name": "g_unk0x006dd9bc"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7073,
+      "line": 7070,
+      "nearest_function": "0x004b2610",
+      "name": "g_unk0x005210b8"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 7071,
+      "nearest_function": "0x004b2610",
+      "name": "g_unk0x005210bc"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 7072,
       "nearest_function": "0x004b2610",
       "name": "g_unk0x005210b8"
     },
@@ -65737,7 +65483,7 @@
       "file": "Graphics.cpp",
       "line": 7074,
       "nearest_function": "0x004b2610",
-      "name": "g_unk0x005210bc"
+      "name": "g_unk0x005210b8"
     },
     {
       "file": "Graphics.cpp",
@@ -65749,47 +65495,47 @@
       "file": "Graphics.cpp",
       "line": 7077,
       "nearest_function": "0x004b2610",
-      "name": "g_unk0x005210b8"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7078,
-      "nearest_function": "0x004b2610",
-      "name": "g_unk0x005210b8"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7080,
-      "nearest_function": "0x004b2610",
       "name": "g_unk0x005210bc"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 7083,
+      "nearest_function": "0x004b2610",
+      "name": "g_unk0x006dd9bc"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 7084,
+      "nearest_function": "0x004b2610",
+      "name": "g_unk0x006dd9bc"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 7085,
+      "nearest_function": "0x004b2610",
+      "name": "g_unk0x006dd9bc"
     },
     {
       "file": "Graphics.cpp",
       "line": 7086,
       "nearest_function": "0x004b2610",
-      "name": "g_unk0x006dd9bc"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7087,
-      "nearest_function": "0x004b2610",
-      "name": "g_unk0x006dd9bc"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7088,
-      "nearest_function": "0x004b2610",
-      "name": "g_unk0x006dd9bc"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7089,
-      "nearest_function": "0x004b2610",
       "name": "m_unk0x0059ce18"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7099,
+      "line": 7096,
+      "nearest_function": "0x004b2610",
+      "name": "g_unk0x005210b8"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 7097,
+      "nearest_function": "0x004b2610",
+      "name": "g_unk0x005210bc"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 7098,
       "nearest_function": "0x004b2610",
       "name": "g_unk0x005210b8"
     },
@@ -65797,7 +65543,7 @@
       "file": "Graphics.cpp",
       "line": 7100,
       "nearest_function": "0x004b2610",
-      "name": "g_unk0x005210bc"
+      "name": "g_unk0x005210b8"
     },
     {
       "file": "Graphics.cpp",
@@ -65809,59 +65555,65 @@
       "file": "Graphics.cpp",
       "line": 7103,
       "nearest_function": "0x004b2610",
-      "name": "g_unk0x005210b8"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7104,
-      "nearest_function": "0x004b2610",
-      "name": "g_unk0x005210b8"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7106,
-      "nearest_function": "0x004b2610",
       "name": "g_unk0x005210bc"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7112,
+      "line": 7109,
       "nearest_function": "0x004b2610",
       "name": "g_unk0x006dd9bc"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7142,
+      "line": 7139,
       "nearest_function": "0x004b9b80",
       "name": "g_unk0x005207b4"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7176,
+      "line": 7173,
       "nearest_function": "0x0049c940",
       "name": "g_unk0x005207b4"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7223,
+      "line": 7220,
       "nearest_function": "0x0049c880",
       "name": "m_unk0x0059ce18"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7249,
+      "line": 7246,
       "nearest_function": "0x0049c7b0",
       "name": "m_unk0x0059ce18"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7257,
+      "line": 7254,
       "nearest_function": "0x0049c7b0",
       "name": "g_unk0x0059be74"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7277,
+      "line": 7274,
+      "nearest_function": "0x0049c680",
+      "name": "g_unk0x0059be74"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 7280,
+      "nearest_function": "0x0049c680",
+      "name": "g_unk0x0059be74"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 7281,
+      "nearest_function": "0x0049c680",
+      "name": "g_unk0x0059be74"
+    },
+    {
+      "file": "Graphics.cpp",
+      "line": 7282,
       "nearest_function": "0x0049c680",
       "name": "g_unk0x0059be74"
     },
@@ -65869,29 +65621,11 @@
       "file": "Graphics.cpp",
       "line": 7283,
       "nearest_function": "0x0049c680",
-      "name": "g_unk0x0059be74"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7284,
-      "nearest_function": "0x0049c680",
-      "name": "g_unk0x0059be74"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7285,
-      "nearest_function": "0x0049c680",
-      "name": "g_unk0x0059be74"
-    },
-    {
-      "file": "Graphics.cpp",
-      "line": 7286,
-      "nearest_function": "0x0049c680",
       "name": "m_unk0x0059ce18"
     },
     {
       "file": "Graphics.cpp",
-      "line": 7296,
+      "line": 7293,
       "nearest_function": "0x0049c680",
       "name": "g_unk0x0059be74"
     },
@@ -80607,163 +80341,163 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 989,
+      "line": 987,
       "nearest_function": "0x004b3ba0",
       "name": "g_unk0x005210c0"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1074,
+      "line": 1072,
       "nearest_function": "0x004b3c00",
       "name": "g_unk0x005210c0"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1079,
+      "line": 1077,
       "nearest_function": "0x004b3c00",
       "name": "g_unk0x005210c0"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1730,
+      "line": 1725,
       "nearest_function": "0x004b5eb0",
       "name": "g_unk0x00511cf0"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1891,
+      "line": 1886,
       "nearest_function": "0x004b5770",
       "name": "g_unk0x00511cf0"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1959,
+      "line": 1954,
       "nearest_function": "0x004b5770",
       "name": "g_unk0x00511cec"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1990,
+      "line": 1985,
       "nearest_function": "0x004b4490",
       "name": "g_unk0x00511cec"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1992,
+      "line": 1987,
       "nearest_function": "0x004b4490",
       "name": "g_unk0x00511cec"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1993,
+      "line": 1988,
       "nearest_function": "0x004b4490",
       "name": "g_unk0x00511cec"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2629,
+      "line": 2610,
       "nearest_function": "0x004addd0",
       "name": "g_unk0x00511cf8"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2631,
+      "line": 2612,
       "nearest_function": "0x004addd0",
       "name": "g_unk0x00511d00"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2633,
+      "line": 2614,
       "nearest_function": "0x004addd0",
       "name": "g_unk0x00511d08"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2636,
+      "line": 2617,
       "nearest_function": "0x004addd0",
       "name": "g_unk0x00511380"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2659,
+      "line": 2640,
       "nearest_function": "0x004b7b20",
       "name": "g_unk0x00511d08"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2660,
+      "line": 2641,
       "nearest_function": "0x004b7b20",
       "name": "g_unk0x00511d08"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2674,
+      "line": 2652,
       "nearest_function": "0x004b7b20",
       "name": "g_unk0x00511d00"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2675,
+      "line": 2653,
       "nearest_function": "0x004b7b20",
       "name": "g_unk0x00511380"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2681,
+      "line": 2657,
       "nearest_function": "0x004b7b20",
       "name": "g_unk0x00511cf8"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2682,
+      "line": 2658,
       "nearest_function": "0x004b7b20",
       "name": "g_unk0x00511380"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2689,
+      "line": 2665,
       "nearest_function": "0x004b7b20",
       "name": "g_unk0x00511360"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2691,
+      "line": 2667,
       "nearest_function": "0x004b7b20",
       "name": "g_unk0x00511ce8"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2694,
+      "line": 2670,
       "nearest_function": "0x004b7b20",
       "name": "g_unk0x006e0354"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2733,
+      "line": 2708,
       "nearest_function": "0x004b4180",
       "name": "g_unk0x006e0354"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2778,
+      "line": 2753,
       "nearest_function": "0x004b4180",
       "name": "g_unk0x006e0354"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2786,
+      "line": 2761,
       "nearest_function": "0x004b4180",
       "name": "g_unk0x006e0354"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2792,
+      "line": 2767,
       "nearest_function": "0x004b4180",
       "name": "g_unk0x00511ce8"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2793,
+      "line": 2768,
       "nearest_function": "0x004b4180",
       "name": "g_unk0x00511360"
     },
