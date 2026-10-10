@@ -1,6 +1,0 @@
-/build*/
-/out/
-*.swp
-__pycache__/
-# The decomp's root .gitignore ignores *.log; the reference captures are data.
-!/tests/reference/**/*.log

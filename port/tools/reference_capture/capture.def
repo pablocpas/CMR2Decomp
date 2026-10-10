@@ -1,3 +1,0 @@
-LIBRARY SPCMR2
-EXPORTS
-    DirectSoundCreate=CaptureSound @1

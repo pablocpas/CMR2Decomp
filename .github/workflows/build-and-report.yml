@@ -4,13 +4,9 @@ on:
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - "port/**"
   push:
     branches:
       - main
-    paths-ignore:
-      - "port/**"
   workflow_dispatch:
 
 concurrency:
