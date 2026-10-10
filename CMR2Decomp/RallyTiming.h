@@ -1,6 +1,12 @@
 #ifndef _RALLY_TIMING_H
 #define _RALLY_TIMING_H
-
+#if defined(_MSC_VER) && _MSC_VER <= 1200
+#ifndef CMR2_LAYOUT_CHECK
+#define CMR2_LAYOUT_CHECK(name, condition) typedef char name[condition ? 1 : -1]
+#endif
+#else
+#include "LayoutChecks.h"
+#endif
 struct RallyStageTables {
     char order[16];
     char positions[16];
@@ -8,7 +14,7 @@ struct RallyStageTables {
     char penalties[16];
     char tieBreak[16];
 };
-typedef char RallyStageTablesSize[sizeof(RallyStageTables) == 0x80 ? 1 : -1];
+CMR2_LAYOUT_CHECK(RallyStageTablesSize, sizeof(RallyStageTables) == 0x80);
 extern RallyStageTables g_rallyStageTables;
 #define g_stageOrderDriverID (g_rallyStageTables.order)
 #define g_stagePositionOfDriver (g_rallyStageTables.positions)
@@ -27,7 +33,7 @@ struct RallyOverallTables {
     int times[16];
     int count;
 };
-typedef char RallyOverallTablesSize[sizeof(RallyOverallTables) == 0x64 ? 1 : -1];
+CMR2_LAYOUT_CHECK(RallyOverallTablesSize, sizeof(RallyOverallTables) == 0x64);
 extern RallyOverallTables g_rallyOverallTables;
 #define g_rallyOverallOrderDriverID (g_rallyOverallTables.order)
 #define g_rallyOverallPositionOfDriver (g_rallyOverallTables.positions)

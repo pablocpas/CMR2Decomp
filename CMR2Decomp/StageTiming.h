@@ -1,6 +1,12 @@
 #ifndef _STAGE_TIMING_H
 #define _STAGE_TIMING_H
-
+#if defined(_MSC_VER) && _MSC_VER <= 1200
+#ifndef CMR2_LAYOUT_CHECK
+#define CMR2_LAYOUT_CHECK(name, condition) typedef char name[condition ? 1 : -1]
+#endif
+#else
+#include "LayoutChecks.h"
+#endif
 #include <windows.h>
 
 struct PartState;
@@ -13,7 +19,7 @@ struct CarPartStateTables {
     PartState *parts[4];
     BYTE modes[4];
 };
-typedef char CarPartStateTablesSize[sizeof(CarPartStateTables) == 0x14 ? 1 : -1];
+CMR2_LAYOUT_CHECK(CarPartStateTablesSize, sizeof(CarPartStateTables) == 0x14);
 extern CarPartStateTables g_carPartStateTables;
 
 struct ReplayLevelState {
@@ -21,7 +27,7 @@ struct ReplayLevelState {
     int bufferCount;
     int pending[8];
 };
-typedef char ReplayLevelSizeCheck[sizeof(ReplayLevelState) == 0x64 ? 1 : -1];
+CMR2_LAYOUT_CHECK(ReplayLevelSizeCheck, sizeof(ReplayLevelState) == 0x64);
 extern ReplayLevelState g_replayLevelState;
 #define g_unk0x00588cd4 (g_replayLevelState.levels)
 #define g_unk0x00588d14 (g_replayLevelState.bufferCount)

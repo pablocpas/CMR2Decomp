@@ -67,6 +67,7 @@ struct SaveSlot {
 #include "FileBuffer.h"
 #include "Input.h"
 #include "Glow.h"
+#include "LayoutChecks.h"
 
 int StageTiming_GetStartSlotIndex(int index);
 int Race_GetPlayerRecordField4(BYTE index);
@@ -164,7 +165,7 @@ struct RallyPairingTables {
     int flags[20];
     int otherFlags[20];
 };
-typedef char RallyPairingTablesSize[sizeof(RallyPairingTables) == 0x190 ? 1 : -1];
+CMR2_LAYOUT_CHECK(RallyPairingTablesSize, sizeof(RallyPairingTables) == 0x190);
 // GLOBAL: CMR2 0x0052f100
 RallyPairingTables g_rallyPairingTables;
 #define g_unk0x0052f100 (g_rallyPairingTables.pairs)

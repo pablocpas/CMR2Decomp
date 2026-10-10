@@ -1,0 +1,2 @@
+Native cast warnings: 188 -> 0
+PASS: original-layout checks active on x86, inactive on x64; four actual contact bodies with pointers above 4 GB, ASan/UBSan

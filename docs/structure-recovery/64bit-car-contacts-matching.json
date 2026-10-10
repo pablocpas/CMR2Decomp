@@ -1,0 +1,38 @@
+{
+  "baseline_commit": "c9c8b9cacc9c600f952a75b8835e30d3250cfc56",
+  "audited_source_functions": 3364,
+  "byte_report_identical": true,
+  "relocated_byte_exact": 2922,
+  "perfect_match_percent": 56.1,
+  "fuzzy_match_percent": 94.5,
+  "data_issues": 0,
+  "manifest_matches_provenance": true,
+  "source_and_artifact_hashes_verified": true,
+  "layout_checks": 625,
+  "existing_layout_checks_converted": 600,
+  "new_layout_checks": 25,
+  "cast_warnings_removed": 188,
+  "affected_translation_units": 33,
+  "differential_cases": 4446,
+  "registered_harnesses": 113,
+  "harness_failures": 0,
+  "native_contact_bodies_tested_above_4GB": 4,
+  "inventory_before": {
+    "types": 311,
+    "raw_accesses": 1663,
+    "fixed_sizes": 83,
+    "hex_multipliers": 2248,
+    "unknown_identifiers": 10577,
+    "unnamed_field_declarations": 1497,
+    "unique_unknown_identifiers": 1285
+  },
+  "inventory_after": {
+    "types": 311,
+    "raw_accesses": 1504,
+    "fixed_sizes": 83,
+    "hex_multipliers": 2243,
+    "unknown_identifiers": 10577,
+    "unnamed_field_declarations": 1497,
+    "unique_unknown_identifiers": 1285
+  }
+}

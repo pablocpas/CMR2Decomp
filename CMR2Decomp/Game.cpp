@@ -23,6 +23,7 @@
 #include <time.h>
 #include <float.h>
 #include "Glow.h"
+#include "LayoutChecks.h"
 
 BOOL CGame::m_shouldExit = FALSE;
 BOOL CGame::m_isActive = FALSE;
@@ -2233,7 +2234,7 @@ struct StageObjectDraw {
     StageObjectDraw *pNext;     // 0x98 next object of the sector
     int lightLevel;             // 0x9c light level when not lit per vertex
 };
-typedef char StageObjectDraw_size[sizeof(StageObjectDraw) == 0xa0 ? 1 : -1];
+CMR2_LAYOUT_CHECK(StageObjectDraw_size, sizeof(StageObjectDraw) == 0xa0);
 
 // Non-zero while the draw lists are depth sorted before being drawn
 // (defined in Graphics.cpp).

@@ -1,6 +1,12 @@
 #ifndef _CARPARTS_H
 #define _CARPARTS_H
-
+#if defined(_MSC_VER) && _MSC_VER <= 1200
+#ifndef CMR2_LAYOUT_CHECK
+#define CMR2_LAYOUT_CHECK(name, condition) typedef char name[condition ? 1 : -1]
+#endif
+#else
+#include "LayoutChecks.h"
+#endif
 #include "FixedPoint.h"
 #include "Mesh.h"
 #include "DeformGeometry.h"
@@ -100,7 +106,7 @@ struct PartState {
     FixVector stiffness;        // 0x170 ground response gains
     FixBasis basis;             // 0x17c right / up / forward
 };
-typedef char PartStateSize[sizeof(PartState) == 0x1a0 ? 1 : -1];
+CMR2_LAYOUT_CHECK(PartStateSize, sizeof(PartState) == 0x1a0);
 
 extern CarDamageRecord *g_carDamageRecords;
 extern CarPartSet *g_carPartSets;

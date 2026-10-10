@@ -24,6 +24,7 @@
 #include <wingdi.h>
 #include <winnt.h>
 #include <winuser.h>
+#include "LayoutChecks.h"
 
 // Not declared in Mesh.h yet; the other two are not analysed yet.
 void Mesh_ReuploadAll(void);
@@ -3087,7 +3088,7 @@ struct TimerPulseState {
     int rising;
     float maximum;
 };
-typedef char TimerPulseStateSize[sizeof(TimerPulseState) == 0x608 ? 1 : -1];
+CMR2_LAYOUT_CHECK(TimerPulseStateSize, sizeof(TimerPulseState) == 0x608);
 // GLOBAL: CMR2 0x00521138
 TimerPulseState g_timerPulseState = { {
     { 5 },

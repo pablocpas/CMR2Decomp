@@ -1,6 +1,12 @@
 #ifndef _NETPLAYERS_H
 #define _NETPLAYERS_H
-
+#if defined(_MSC_VER) && _MSC_VER <= 1200
+#ifndef CMR2_LAYOUT_CHECK
+#define CMR2_LAYOUT_CHECK(name, condition) typedef char name[condition ? 1 : -1]
+#endif
+#else
+#include "LayoutChecks.h"
+#endif
 #include <windows.h>
 
 // Players of a network game (0x409a30-0x40b1e0): one 0x80 byte record per
@@ -121,7 +127,7 @@ struct NetTriangleState {
     int values[100];
     BYTE enabled;
 };
-typedef char NetTriangleStateSize[sizeof(NetTriangleState) == 0x194 ? 1 : -1];
+CMR2_LAYOUT_CHECK(NetTriangleStateSize, sizeof(NetTriangleState) == 0x194);
 extern NetTriangleState g_netTriangleState;
 #define g_triangleNumbers (g_netTriangleState.values)
 #define g_unk0x00539cc8 (g_netTriangleState.enabled)

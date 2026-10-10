@@ -147,3 +147,13 @@ El punto estable conserva todas las puntuaciones de las 3364 funciones respecto
 al último commit: 2922 exactas y cero problemas de datos; las 38 unidades del
 gate y los 112 harnesses pasan. No añade un nuevo harness de proyección/reserva;
 la cobertura independiente de esas rutas y el resto del objetivo siguen pendientes.
+
+La preparación de 64 bits parte del commit estable `c9c8b9c`. Su primera
+tanda convierte las cuatro respuestas de contacto del coche y 600 checks
+existentes, añadiendo 25 checks de offsets y una macro común compatible con
+MSVC6. Elimina 188 avisos de casts nativos de esos cuerpos y 159 accesos
+crudos; el inventario queda en 1504. Véanse [evidencia, disco y deuda
+pendiente](64bit-car-contacts-and-layouts.md). Se conservan las 2922 funciones
+byte-exact y todas las puntuaciones de las 3364 filas; los 113 harnesses
+pasan, incluidos 4446 casos nuevos. Cuatro cuerpos se ejecutan además con
+punteros de ocho bytes por encima de 4 GB. El port completo sigue pendiente.

@@ -96,6 +96,15 @@
       "0x432cc0"
     ]
   },
+  "differential_car_collision_access.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x489750",
+      "0x48a5f0",
+      "0x48be20",
+      "0x48ae90"
+    ]
+  },
   "differential_car_contact_centers.py": {
     "arguments": "entities",
     "targets": [

@@ -22,6 +22,10 @@ struct Sector {
     int bounds[4][2];           // 0x5c x/z of the ground mesh bounding rectangle corners
 };
 
+// ON-DISK: a 0xa0-byte record inside the stage mesh file. The loader at
+// 0x4b93c0 relocates pMesh (+0x0c) against its mesh array and pNext (+0x98)
+// against the stage-object array, in place. The port must split this disk
+// representation from native runtime pointers; do not resize the disk record.
 // Static object placed in a sector (only the fields used so far).
 struct StageObject {
     BYTE field_0x0[0xc];

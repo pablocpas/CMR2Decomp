@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
+#include "LayoutChecks.h"
 
 // GLOBAL: CMR2 0x00516134
 char gameRegionPoland[9] = "\\Poland\\";
@@ -1365,7 +1366,7 @@ struct PlayerOptionCache {
     BYTE dirty[4][12];
     BYTE records[4][0x148];
 };
-typedef char PlayerOptionCacheSize[sizeof(PlayerOptionCache) == 0x550 ? 1 : -1];
+CMR2_LAYOUT_CHECK(PlayerOptionCacheSize, sizeof(PlayerOptionCache) == 0x550);
 // GLOBAL: CMR2 0x0082c040
 PlayerOptionCache g_playerOptionCache;
 #define g_unk0x0082c040 (g_playerOptionCache.dirty)

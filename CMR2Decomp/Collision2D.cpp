@@ -1,6 +1,8 @@
 #include <windows.h>
 #include "Collision2D.h"
 #include "Car.h"
+#include "Sector.h"
+#include "LayoutChecks.h"
 
 // GLOBAL: CMR2 0x00591438
 FixVector g_collisionQuad[4];
@@ -244,7 +246,7 @@ struct CollisionBox {
     int *pArray;            // 0x90  eight corners of the object (FixVector)
     int *pVertex;           // 0x94  centre of the object (FixVector)
 };
-typedef char CollisionBoxSize[sizeof(CollisionBox) == 0x98 ? 1 : -1];
+CMR2_LAYOUT_CHECK(CollisionBoxSize, sizeof(CollisionBox) == 0x98);
 
 // Tests the car's bounding sphere (centre g_collisionSphereCentre, radius
 // g_collisionSphereRadius) against an oriented box. When the sphere is diagonally
@@ -404,7 +406,7 @@ void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, i
 // and the body of the box by the tangential remainder of the correction.
 // match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00489750
-int Collision_CarVsBox(int car, int *pBox, int scale)
+int Collision_CarVsBox(Car *car, int *pBox, int scale)
 {
     FixVector a;
     FixVector b;
@@ -427,8 +429,8 @@ int Collision_CarVsBox(int car, int *pBox, int scale)
         a.x += b.x;
         a.y += b.y;
         a.z += b.z;
-        FixMatrix_InverseRotateVector((FixVector *)(car + 0x5dc), &a,
-                                      *(FixMatrix **)(car + 0x750));
+        FixMatrix_InverseRotateVector(&car->field_0x5dc, &a,
+                                      car->pWorld);
 
         if (side != 3) {
             if (side == 1)
@@ -466,7 +468,7 @@ int Collision_CarVsBox(int car, int *pBox, int scale)
             }
         }
 
-        StageObject_ApplyRecursiveFrameDelta(*(BYTE *)(car + 0xb1a), -1, (int *)&along, 1);
+        StageObject_ApplyRecursiveFrameDelta((BYTE)car->index, -1, (int *)&along, 1);
         g_unk0x005915dc = 0x8000;
         g_unk0x00591468 = 0x1578d;
         return 1;
@@ -524,8 +526,8 @@ unsigned int RallyData_GetSelectionFlag27(void);
 int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB);
 void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, int *param_2);
 void StageObject_QueueViewLensFlare(int *pObj, int *param2, int *param3, FixVector *pVerts);
-int Collision_SeparateCarBoxes(int param_1, int param_2);
-void Collision_ResolveCarContactImpulse(int param_1, int param_2);
+int Collision_SeparateCarBoxes(Car *param_1, Car *param_2);
+void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2);
 
 // Tests every pair of cars of the given order for contact: pairs whose
 // sectors (each car's own plus its three neighbours) share one are run through the 2D box overlap test
@@ -586,14 +588,14 @@ void Collision_TestOrderedCarPairs(Car *pCars, short *pOrder, short count)
                                                    (int *)&pCarA->position, pCarA->corners);
                     StageObject_QueueViewLensFlare((int *)g_pContacts0x00591394, (int *)&pCarB->right,
                                                    (int *)&pCarB->position, pCarB->corners);
-                    result = Collision_SeparateCarBoxes((int)pCarA, (int)pCarB);
+                    result = Collision_SeparateCarBoxes(pCarA, pCarB);
                     g_unk0x00591390 = 0;
                     if (result != 0) {
                         g_unk0x005913f8[pCarA->index][g_unk0x005913dc[pCarA->index]] = pCarB->index;
                         g_unk0x005913dc[pCarA->index]++;
                         g_unk0x005913f8[pCarB->index][g_unk0x005913dc[pCarB->index]] = pCarA->index;
                         g_unk0x005913dc[pCarB->index]++;
-                        Collision_ResolveCarContactImpulse((int)pCarA, (int)pCarB);
+                        Collision_ResolveCarContactImpulse(pCarA, pCarB);
                         g_unk0x00591390 = 1;
                     }
                 }
@@ -639,7 +641,7 @@ void Collision_TestOrderedCarPairs(Car *pCars, short *pOrder, short count)
 // offset. When both cars do have corners the boxes are handed to the
 // deformation solver instead.
 // FUNCTION: CMR2 0x0048a5f0
-int Collision_SeparateCarBoxes(int param_1, int param_2)
+int Collision_SeparateCarBoxes(Car *param_1, Car *param_2)
 {
     FixVector normal;
     FixVector sum;
@@ -656,7 +658,7 @@ int Collision_SeparateCarBoxes(int param_1, int param_2)
     int i;
 
     result = Collision_TestOrientedBoxCornerOverlap((CollisionBox *)g_pContacts0x005915e0, (CollisionBox *)g_pContacts0x00591394,
-                          (FixVector *)(param_1 + 0x2e8), 0x8000);
+                          &param_1->positionPrev, 0x8000);
     if (result != 0) {
     sum.x = 0;
     sum.y = 0;
@@ -667,12 +669,12 @@ int Collision_SeparateCarBoxes(int param_1, int param_2)
     countA = 0;
     if (g_unk0x005915f4 >= 1) {
         for (i = 0; i < g_unk0x005915f4; i++) {
-            delta.x = *(int *)(param_1 + (g_unk0x005914c4[i] * 3 + 0x9c) * 4) -
-                      *(int *)(param_1 + 0x2d0);
-            delta.y = *(int *)(param_1 + g_unk0x005914c4[i] * 0xc + 0x274) -
-                      *(int *)(param_1 + 0x2d4);
-            delta.z = *(int *)(param_1 + g_unk0x005914c4[i] * 0xc + 0x278) -
-                      *(int *)(param_1 + 0x2d8);
+            delta.x = param_1->corners[g_unk0x005914c4[i]].x -
+                      param_1->position.x;
+            delta.y = param_1->corners[g_unk0x005914c4[i]].y -
+                      param_1->position.y;
+            delta.z = param_1->corners[g_unk0x005914c4[i]].z -
+                      param_1->position.z;
             delta.y = 0;
             sum.x += delta.x;
             sum.z += delta.z;
@@ -703,12 +705,12 @@ int Collision_SeparateCarBoxes(int param_1, int param_2)
     countB = 0;
     if (g_unk0x005914d4 > 0) {
         for (i = 0; i < g_unk0x005914d4; i++) {
-            delta.x = *(int *)(param_2 + (g_unk0x00590ecc[i] * 3 + 0x9c) * 4) -
-                      *(int *)(param_1 + 0x2d0);
-            delta.y = *(int *)(param_2 + g_unk0x00590ecc[i] * 0xc + 0x274) -
-                      *(int *)(param_1 + 0x2d4);
-            delta.z = *(int *)(param_2 + g_unk0x00590ecc[i] * 0xc + 0x278) -
-                      *(int *)(param_1 + 0x2d8);
+            delta.x = param_2->corners[g_unk0x00590ecc[i]].x -
+                      param_1->position.x;
+            delta.y = param_2->corners[g_unk0x00590ecc[i]].y -
+                      param_1->position.y;
+            delta.z = param_2->corners[g_unk0x00590ecc[i]].z -
+                      param_1->position.z;
             delta.y = 0;
             sum.x += delta.x;
             sum.z += delta.z;
@@ -767,7 +769,7 @@ int Collision_SeparateCarBoxes(int param_1, int param_2)
                 *(int *)((BYTE *)g_pContacts0x005915e0 + i + 0x38) += dz;
             }
         }
-        StageObject_ApplyRecursiveFrameDelta(*(char *)(param_1 + 0xb1a), *(char *)(param_2 + 0xb1a), (int *)&delta, 1);
+        StageObject_ApplyRecursiveFrameDelta(param_1->index, param_2->index, (int *)&delta, 1);
         FixVecScale(&delta, &normal, FixVecDot(&g_unk0x005914b8, &normal));
         dx = delta.x - g_unk0x005914b8.x;
         dy = delta.y - g_unk0x005914b8.y;
@@ -788,21 +790,21 @@ int Collision_SeparateCarBoxes(int param_1, int param_2)
                 *(int *)((BYTE *)g_pContacts0x00591394 + i + 0x38) += dz;
             }
         }
-        StageObject_ApplyRecursiveFrameDelta(*(char *)(param_2 + 0xb1a), *(char *)(param_1 + 0xb1a), (int *)&delta, 1);
+        StageObject_ApplyRecursiveFrameDelta(param_2->index, param_1->index, (int *)&delta, 1);
     }
     g_unk0x005915e8.x = normal.x;
     g_unk0x005915e8.y = normal.y;
     g_unk0x005915e8.z = normal.z;
-    FixMatrix_InverseRotateVector((FixVector *)(param_1 + 0x5dc), &sum,
-                                  *(FixMatrix **)(param_1 + 0x750));
-    sum.x += *(int *)(*(int *)((BYTE *)g_pContacts0x005915e0 + 0x94));
-    sum.y += *(int *)(*(int *)((BYTE *)g_pContacts0x005915e0 + 0x94) + 4);
-    sum.z += *(int *)(*(int *)((BYTE *)g_pContacts0x005915e0 + 0x94) + 8);
-    tmp.x = sum.x - *(int *)(*(int *)((BYTE *)g_pContacts0x00591394 + 0x94));
-    tmp.y = sum.y - *(int *)(*(int *)((BYTE *)g_pContacts0x00591394 + 0x94) + 4);
-    tmp.z = sum.z - *(int *)(*(int *)((BYTE *)g_pContacts0x00591394 + 0x94) + 8);
-    FixMatrix_InverseRotateVector((FixVector *)(param_2 + 0x5dc), &tmp,
-                                  *(FixMatrix **)(param_2 + 0x750));
+    FixMatrix_InverseRotateVector(&param_1->field_0x5dc, &sum,
+                                  param_1->pWorld);
+    sum.x += ((CollisionBox *)g_pContacts0x005915e0)->pVertex[0];
+    sum.y += ((CollisionBox *)g_pContacts0x005915e0)->pVertex[1];
+    sum.z += ((CollisionBox *)g_pContacts0x005915e0)->pVertex[2];
+    tmp.x = sum.x - ((CollisionBox *)g_pContacts0x00591394)->pVertex[0];
+    tmp.y = sum.y - ((CollisionBox *)g_pContacts0x00591394)->pVertex[1];
+    tmp.z = sum.z - ((CollisionBox *)g_pContacts0x00591394)->pVertex[2];
+    FixMatrix_InverseRotateVector(&param_2->field_0x5dc, &tmp,
+                                  param_2->pWorld);
     }
     return result;
 }
@@ -823,7 +825,7 @@ int Collision_SeparateCarBoxes(int param_1, int param_2)
 // restitution term, FixVecScale impulses). The rest is the frame-slot packing
 // of the inline-asm temporaries.
 // FUNCTION: CMR2 0x0048ae90
-void Collision_ResolveCarContactImpulse(int param_1, int param_2)
+void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2)
 {
     FixVector vA;
     FixVector tmp;
@@ -844,118 +846,118 @@ void Collision_ResolveCarContactImpulse(int param_1, int param_2)
     int size;
     int bSepA;
 
-    Collision_ClampContactOffset((int *)(param_1 + 0x5dc), (int *)(param_1 + 0x204), 0);
-    Collision_ClampContactOffset((int *)(param_2 + 0x5dc), (int *)(param_2 + 0x204), 0);
+    Collision_ClampContactOffset((int *)&param_1->field_0x5dc, (int *)&param_1->halfExtents, 0);
+    Collision_ClampContactOffset((int *)&param_2->field_0x5dc, (int *)&param_2->halfExtents, 0);
 
-    FixVecCross(&vA, (FixVector *)(param_1 + 0x420), (FixVector *)(param_1 + 0x5dc));
-    FixMatrix_RotateVector(&tmp, &vA, *(FixMatrix **)(param_1 + 0x750));
-    tmp.x += *(int *)(param_1 + 0x408);
-    tmp.y += *(int *)(param_1 + 0x40c);
-    tmp.z += *(int *)(param_1 + 0x410);
+    FixVecCross(&vA, &param_1->angularVelocity, &param_1->field_0x5dc);
+    FixMatrix_RotateVector(&tmp, &vA, param_1->pWorld);
+    tmp.x += param_1->velocity.x;
+    tmp.y += param_1->velocity.y;
+    tmp.z += param_1->velocity.z;
 
-    FixVecCross(&vA, (FixVector *)(param_2 + 0x420), (FixVector *)(param_2 + 0x5dc));
-    FixMatrix_RotateVector(&vB, &vA, *(FixMatrix **)(param_2 + 0x750));
-    vB.x += *(int *)(param_2 + 0x408);
-    vB.y += *(int *)(param_2 + 0x40c);
-    vB.z += *(int *)(param_2 + 0x410);
+    FixVecCross(&vA, &param_2->angularVelocity, &param_2->field_0x5dc);
+    FixMatrix_RotateVector(&vB, &vA, param_2->pWorld);
+    vB.x += param_2->velocity.x;
+    vB.y += param_2->velocity.y;
+    vB.z += param_2->velocity.z;
 
     // Mass-weighted common velocity along the debrisAxes[2]; the restitution term
     // is zero in the shipped game.
     dotA = FixVecDot(&tmp, &g_unk0x005915e8);
     dotB = FixVecDot(&vB, &g_unk0x005915e8);
     bounce = FixMul(dotA - dotB, 0);
-    x = FixDiv(FixMul(dotA, *(int *)(param_1 + 0x75c)) +
-                   (FixMul(dotB, *(int *)(param_2 + 0x75c)) -
-                    FixMul(bounce, *(int *)(param_2 + 0x75c))),
-               *(int *)(param_1 + 0x75c) + *(int *)(param_2 + 0x75c));
+    x = FixDiv(FixMul(dotA, param_1->mass) +
+                   (FixMul(dotB, param_2->mass) -
+                    FixMul(bounce, param_2->mass)),
+               param_1->mass + param_2->mass);
     newB = x + bounce;
 
     dA = x - dotA;
     FixVecScale(&impA, &g_unk0x005915e8, dA);
-    if (*(int *)(param_1 + 0xc00) == 0 && FIX_ABS(dA) > 0x9999 &&
-        (*(int *)(param_1 + 0xb64) == 0 || *(int *)(param_2 + 0xb64) == 0)) {
+    if (param_1->useUpperCollisionCorners == 0 && FIX_ABS(dA) > 0x9999 &&
+        (param_1->field_0xb64 == 0 || param_2->field_0xb64 == 0)) {
         bSepA = 1;
-        vA.x = -*(int *)(param_1 + 0x364);
-        vA.y = -*(int *)(param_1 + 0x370);
-        vA.z = -*(int *)(param_1 + 0x37c);
+        vA.x = -param_1->right.y;
+        vA.y = -param_1->up.y;
+        vA.z = -param_1->forward.y;
         FixVecScale(&vA, &vA, 0x40000);
-        *(int *)(param_1 + 0x5dc) += vA.x;
-        *(int *)(param_1 + 0x5e0) += vA.y;
-        *(int *)(param_1 + 0x5e4) += vA.z;
+        param_1->field_0x5dc.x += vA.x;
+        param_1->field_0x5dc.y += vA.y;
+        param_1->field_0x5dc.z += vA.z;
     } else {
         bSepA = 0;
     }
 
     dB = newB - dotB;
     FixVecScale(&impB, &g_unk0x005915e8, dB);
-    if (*(int *)(param_2 + 0xc00) == 0 && FIX_ABS(dB) > 0x9999 &&
-        (*(int *)(param_1 + 0xb64) == 0 || *(int *)(param_2 + 0xb64) == 0)) {
+    if (param_2->useUpperCollisionCorners == 0 && FIX_ABS(dB) > 0x9999 &&
+        (param_1->field_0xb64 == 0 || param_2->field_0xb64 == 0)) {
         dB = 1;
-        vA.x = -*(int *)(param_2 + 0x364);
-        vA.y = -*(int *)(param_2 + 0x370);
-        vA.z = -*(int *)(param_2 + 0x37c);
+        vA.x = -param_2->right.y;
+        vA.y = -param_2->up.y;
+        vA.z = -param_2->forward.y;
         FixVecScale(&vA, &vA, 0x40000);
-        *(int *)(param_2 + 0x5dc) += vA.x;
-        *(int *)(param_2 + 0x5e0) += vA.y;
-        *(int *)(param_2 + 0x5e4) += vA.z;
+        param_2->field_0x5dc.x += vA.x;
+        param_2->field_0x5dc.y += vA.y;
+        param_2->field_0x5dc.z += vA.z;
     } else {
         dB = 0;
     }
 
-    if (*(char *)(param_1 + 0xb35) != 1 && impA.y < 0) {
+    if (((char *)param_1->field_0xb35)[0] != 1 && impA.y < 0) {
         impB.y -= impA.y;
         impA.y = 0;
     }
-    if (*(char *)(param_2 + 0xb35) != 1 && impB.y < 0) {
+    if (((char *)param_2->field_0xb35)[0] != 1 && impB.y < 0) {
         impA.y -= impB.y;
         impB.y = 0;
     }
 
     FixVecScale(&impA, &impA, g_physicsScale);
-    FixMatrix_InverseRotateVector(&vA, &impA, *(FixMatrix **)(param_1 + 0x750));
-    *(int *)(param_1 + 0x5c4) += impA.x;
-    *(int *)(param_1 + 0x5c8) += impA.y;
-    *(int *)(param_1 + 0x5cc) += impA.z;
-    FixVecCross(&axis, &vA, (FixVector *)(param_1 + 0x5dc));
+    FixMatrix_InverseRotateVector(&vA, &impA, param_1->pWorld);
+    param_1->field_0x5c4.x += impA.x;
+    param_1->field_0x5c4.y += impA.y;
+    param_1->field_0x5c4.z += impA.z;
+    FixVecCross(&axis, &vA, &param_1->field_0x5dc);
     if (bSepA) {
         FixVecScale(&axis, &axis, 0x40000);
-        *(int *)(param_1 + 0xc00) = 1;
-        *(int *)(param_1 + 0x96c) = 0x10000;
+        param_1->useUpperCollisionCorners = 1;
+        param_1->field_0x96c = 0x10000;
     } else {
         FixVecScale(&axis, &axis, 0x20000);
     }
-    *(int *)(param_1 + 0x5d0) += axis.x;
-    *(int *)(param_1 + 0x5d4) += axis.y;
-    *(int *)(param_1 + 0x5d8) += axis.z;
-    Collision_ClampAngularCorrection((int *)(param_1 + 0x5d0));
+    param_1->field_0x5d0.x += axis.x;
+    param_1->field_0x5d0.y += axis.y;
+    param_1->field_0x5d0.z += axis.z;
+    Collision_ClampAngularCorrection((int *)&param_1->field_0x5d0);
 
     FixVecScale(&impB, &impB, g_physicsScale);
-    FixMatrix_InverseRotateVector(&vA, &impB, *(FixMatrix **)(param_2 + 0x750));
-    *(int *)(param_2 + 0x5c4) += impB.x;
-    *(int *)(param_2 + 0x5c8) += impB.y;
-    *(int *)(param_2 + 0x5cc) += impB.z;
-    FixVecCross(&axis, &vA, (FixVector *)(param_2 + 0x5dc));
+    FixMatrix_InverseRotateVector(&vA, &impB, param_2->pWorld);
+    param_2->field_0x5c4.x += impB.x;
+    param_2->field_0x5c4.y += impB.y;
+    param_2->field_0x5c4.z += impB.z;
+    FixVecCross(&axis, &vA, &param_2->field_0x5dc);
     if (dB) {
         FixVecScale(&axis, &axis, 0x40000);
-        *(int *)(param_2 + 0xc00) = 1;
-        *(int *)(param_2 + 0x96c) = 0x10000;
+        param_2->useUpperCollisionCorners = 1;
+        param_2->field_0x96c = 0x10000;
     } else {
         FixVecScale(&axis, &axis, 0x20000);
     }
-    *(int *)(param_2 + 0x5d0) += axis.x;
-    *(int *)(param_2 + 0x5d4) += axis.y;
-    *(int *)(param_2 + 0x5d8) += axis.z;
-    Collision_ClampAngularCorrection((int *)(param_2 + 0x5d0));
+    param_2->field_0x5d0.x += axis.x;
+    param_2->field_0x5d0.y += axis.y;
+    param_2->field_0x5d0.z += axis.z;
+    Collision_ClampAngularCorrection((int *)&param_2->field_0x5d0);
 
     if (g_unk0x005915f4 != 0) {
-        CarDamage_ApplyCollisionDeformImpulse((Car *)param_1, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
+        CarDamage_ApplyCollisionDeformImpulse(param_1, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
                      &g_unk0x005915e8, 0, 0, 0);
-        CarDamage_ApplyCollisionDeformImpulse((Car *)param_2, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
+        CarDamage_ApplyCollisionDeformImpulse(param_2, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
                      &g_unk0x005915e8, 0, 2, 0);
     } else if (g_unk0x005914d4 != 0) {
-        CarDamage_ApplyCollisionDeformImpulse((Car *)param_1, (int *)&g_pContacts0x00591394[g_unk0x00590ecc[0] + 4],
+        CarDamage_ApplyCollisionDeformImpulse(param_1, (int *)&g_pContacts0x00591394[g_unk0x00590ecc[0] + 4],
                      &g_unk0x005915e8, 0, 2, 0);
-        CarDamage_ApplyCollisionDeformImpulse((Car *)param_2, (int *)&g_pContacts0x00591394[g_unk0x00590ecc[0] + 4],
+        CarDamage_ApplyCollisionDeformImpulse(param_2, (int *)&g_pContacts0x00591394[g_unk0x00590ecc[0] + 4],
                      &g_unk0x005915e8, 0, 0, 0);
     }
 
@@ -970,18 +972,18 @@ void Collision_ResolveCarContactImpulse(int param_1, int param_2)
     debrisAxes[0].z = vA.z - debrisAxes[0].z;
 
     if (CGameInfo::IsActiveCheatEnabled(4) != 0) {
-        *(int *)(param_1 + 0x5c4) -= impA.x;
-        *(int *)(param_1 + 0x5c8) -= impA.y;
-        *(int *)(param_1 + 0x5cc) -= impA.z;
-        *(int *)(param_1 + 0x408) += impA.x * 2;
-        *(int *)(param_1 + 0x40c) += impA.y * 2;
-        *(int *)(param_1 + 0x410) += impA.z * 2;
-        *(int *)(param_2 + 0x5c4) -= impB.x;
-        *(int *)(param_2 + 0x5c8) -= impB.y;
-        *(int *)(param_2 + 0x5cc) -= impB.z;
-        *(int *)(param_2 + 0x408) += impB.x * 2;
-        *(int *)(param_2 + 0x40c) += impB.y * 2;
-        *(int *)(param_2 + 0x410) += impB.z * 2;
+        param_1->field_0x5c4.x -= impA.x;
+        param_1->field_0x5c4.y -= impA.y;
+        param_1->field_0x5c4.z -= impA.z;
+        param_1->velocity.x += impA.x * 2;
+        param_1->velocity.y += impA.y * 2;
+        param_1->velocity.z += impA.z * 2;
+        param_2->field_0x5c4.x -= impB.x;
+        param_2->field_0x5c4.y -= impB.y;
+        param_2->field_0x5c4.z -= impB.z;
+        param_2->velocity.x += impB.x * 2;
+        param_2->velocity.y += impB.y * 2;
+        param_2->velocity.z += impB.z * 2;
     }
 
     d = FixVecLength(&debrisAxes[0]);
@@ -1000,20 +1002,20 @@ void Collision_ResolveCarContactImpulse(int param_1, int param_2)
 
         if (g_unk0x005915f4 != 0) {
             FixVector *pContact = &g_pContacts0x005915e0[g_unk0x005914c4[0] + 4];
-            impA.x = pContact->x - *(int *)(param_1 + 0x2d0);
-            impA.y = g_pContacts0x005915e0[g_unk0x005914c4[0] + 4].y - *(int *)(param_1 + 0x2d4);
-            impA.z = g_pContacts0x005915e0[g_unk0x005914c4[0] + 4].z - *(int *)(param_1 + 0x2d8);
-            impB.x = pContact->x - *(int *)(param_2 + 0x2d0);
-            impB.y = g_pContacts0x005915e0[g_unk0x005914c4[0] + 4].y - *(int *)(param_2 + 0x2d4);
-            impB.z = g_pContacts0x005915e0[g_unk0x005914c4[0] + 4].z - *(int *)(param_2 + 0x2d8);
+            impA.x = pContact->x - param_1->position.x;
+            impA.y = g_pContacts0x005915e0[g_unk0x005914c4[0] + 4].y - param_1->position.y;
+            impA.z = g_pContacts0x005915e0[g_unk0x005914c4[0] + 4].z - param_1->position.z;
+            impB.x = pContact->x - param_2->position.x;
+            impB.y = g_pContacts0x005915e0[g_unk0x005914c4[0] + 4].y - param_2->position.y;
+            impB.z = g_pContacts0x005915e0[g_unk0x005914c4[0] + 4].z - param_2->position.z;
         } else if (g_unk0x005914d4 != 0) {
             FixVector *pContact = &g_pContacts0x00591394[g_unk0x00590ecc[0] + 4];
-            impA.x = pContact->x - *(int *)(param_1 + 0x2d0);
-            impA.y = g_pContacts0x00591394[g_unk0x00590ecc[0] + 4].y - *(int *)(param_1 + 0x2d4);
-            impA.z = g_pContacts0x00591394[g_unk0x00590ecc[0] + 4].z - *(int *)(param_1 + 0x2d8);
-            impB.x = pContact->x - *(int *)(param_2 + 0x2d0);
-            impB.y = g_pContacts0x00591394[g_unk0x00590ecc[0] + 4].y - *(int *)(param_2 + 0x2d4);
-            impB.z = g_pContacts0x00591394[g_unk0x00590ecc[0] + 4].z - *(int *)(param_2 + 0x2d8);
+            impA.x = pContact->x - param_1->position.x;
+            impA.y = g_pContacts0x00591394[g_unk0x00590ecc[0] + 4].y - param_1->position.y;
+            impA.z = g_pContacts0x00591394[g_unk0x00590ecc[0] + 4].z - param_1->position.z;
+            impB.x = pContact->x - param_2->position.x;
+            impB.y = g_pContacts0x00591394[g_unk0x00590ecc[0] + 4].y - param_2->position.y;
+            impB.z = g_pContacts0x00591394[g_unk0x00590ecc[0] + 4].z - param_2->position.z;
         }
 
         impA.y = 0;
@@ -1024,9 +1026,9 @@ void Collision_ResolveCarContactImpulse(int param_1, int param_2)
         size = FixMul(d, 0x20000);
         if (size > 0x10000)
             size = 0x10000;
-        if (*(int *)(param_1 + 0xb70) == 0 && *(int *)(param_2 + 0xb70) == 0) {
-            Car_SpawnDebris(size, &impA, (Car *)param_1, &debrisAxes[0], 0x90000, 0x6666);
-            Car_SpawnDebris(size, &impB, (Car *)param_2, &debrisAxes[0], 0x90000, 0x6666);
+        if (param_1->field_0xb70 == 0 && param_2->field_0xb70 == 0) {
+            Car_SpawnDebris(size, &impA, param_1, &debrisAxes[0], 0x90000, 0x6666);
+            Car_SpawnDebris(size, &impB, param_2, &debrisAxes[0], 0x90000, 0x6666);
         }
     }
 }
@@ -1058,7 +1060,7 @@ extern int g_unk0x005915f8[0x26];
 // diff is the FPU-dense block scheduling and the reused stack slots of the
 // original (CONOCIMIENTO 4.t).
 // FUNCTION: CMR2 0x0048be20
-int Collision_ResolveStaticObstacleContact(int param_1, int *param_2, int param_3, int param_4)
+int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, FixVector *param_3, int param_4)
 {
     FixVector tmp;
     FixVector vA;
@@ -1076,16 +1078,16 @@ int Collision_ResolveStaticObstacleContact(int param_1, int *param_2, int param_
     flagA = 0;
     flagB = 0;
     flagC = 0;
-    *(int *)(param_1 + 0x5e0) = 0;
-    Collision_ClampContactOffset((int *)(param_1 + 0x5dc), (int *)(param_1 + 0x204), 1);
+    param_1->field_0x5dc.y = 0;
+    Collision_ClampContactOffset((int *)&param_1->field_0x5dc, (int *)&param_1->halfExtents, 1);
 
-    FixVecCross(&tmp, (FixVector *)(param_1 + 0x420), (FixVector *)(param_1 + 0x5dc));
-    FixMatrix_RotateVector(&vA, &tmp, *(FixMatrix **)(param_1 + 0x750));
-    vA.x += *(int *)(param_1 + 0x408);
-    vA.y += *(int *)(param_1 + 0x40c);
-    vA.z += *(int *)(param_1 + 0x410);
+    FixVecCross(&tmp, &param_1->angularVelocity, &param_1->field_0x5dc);
+    FixMatrix_RotateVector(&vA, &tmp, param_1->pWorld);
+    vA.x += param_1->velocity.x;
+    vA.y += param_1->velocity.y;
+    vA.z += param_1->velocity.z;
 
-    if (*(int *)(param_1 + 0xb64) == 0 && *(int *)(param_1 + 0xc00) == 0) {
+    if (param_1->field_0xb64 == 0 && param_1->useUpperCollisionCorners == 0) {
         dot = FIX_ABS(FixVecDot(&vA, &g_unk0x005915e8));
         if (dot > g_unk0x00591468) {
             flagA = 1;
@@ -1098,7 +1100,7 @@ int Collision_ResolveStaticObstacleContact(int param_1, int *param_2, int param_
 
     dot = FixVecDot(&vA, &g_unk0x005915e8);
     impulse = FixMul(dot, 0) - dot;
-    if ((*(unsigned int *)(*param_2 + 0x10) & 0x2001000) != 0 && FIX_ABS(impulse) > 0) {
+    if ((*(unsigned int *)(*param_2)->field_0x10 & 0x2001000) != 0 && FIX_ABS(impulse) > 0) {
         flagC = 1;
         flagB = 0;
         impulse = FixMul(impulse, 0x28f);
@@ -1107,93 +1109,93 @@ int Collision_ResolveStaticObstacleContact(int param_1, int *param_2, int param_
     FixVecScale(&imp, &g_unk0x005915e8, impulse);
     FixVecScale(&imp, &imp, g_physicsScale);
 
-    FixMatrix_InverseRotateVector(&tmp, &imp, *(FixMatrix **)(param_1 + 0x750));
-    *(int *)(param_1 + 0x5c4) += imp.x;
-    *(int *)(param_1 + 0x5c8) += imp.y;
-    *(int *)(param_1 + 0x5cc) += imp.z;
+    FixMatrix_InverseRotateVector(&tmp, &imp, param_1->pWorld);
+    param_1->field_0x5c4.x += imp.x;
+    param_1->field_0x5c4.y += imp.y;
+    param_1->field_0x5c4.z += imp.z;
 
-    for (i = 0; i < *(char *)(param_1 + 0xb3e); i++) {
-        if (((short *)(param_1 + 0xad6))[i] == param_4)
+    for (i = 0; i < ((char *)param_1->field_0xb35)[9]; i++) {
+        if (((short *)param_1->field_0xad6)[i] == param_4)
             goto known;
     }
     if (g_unk0x005914d8 != 0) {
         if (g_unk0x005915f4 != 0) {
-            CarDamage_ApplyCollisionDeformImpulse((Car *)param_1,
-                         (int *)(param_1 + (g_unk0x005914c4[0] + 0x34) * 0xc),
+            CarDamage_ApplyCollisionDeformImpulse(param_1,
+                         (int *)&param_1->corners[g_unk0x005914c4[0]],
                          &g_unk0x005915e8, 0, 0, 0);
         } else if (g_unk0x005914d4 != 0) {
-            CarDamage_ApplyCollisionDeformImpulse((Car *)param_1,
+            CarDamage_ApplyCollisionDeformImpulse(param_1,
                          (int *)&g_unk0x00591628[g_unk0x00590ecc[0]],
                          &g_unk0x005915e8, 0, 2, 0);
         }
     } else {
-        CarDamage_ApplyCollisionDeformImpulse((Car *)param_1, (int *)&g_collisionSphereCentre, &g_unk0x005915e8,
+        CarDamage_ApplyCollisionDeformImpulse(param_1, (int *)&g_collisionSphereCentre, &g_unk0x005915e8,
                      g_collisionSphereRadius, 1, 0);
     }
 known:
 
-    FixMatrix_RotateVector(&vPos, (FixVector *)(param_1 + 0x5dc), *(FixMatrix **)(param_1 + 0x750));
-    vPos.x += *(int *)(param_1 + 0x2d0);
-    vPos.y += *(int *)(param_1 + 0x2d4);
-    vPos.z += *(int *)(param_1 + 0x2d8);
+    FixMatrix_RotateVector(&vPos, &param_1->field_0x5dc, param_1->pWorld);
+    vPos.x += param_1->position.x;
+    vPos.y += param_1->position.y;
+    vPos.z += param_1->position.z;
 
     if (flagC == 0 && flagA != 0) {
-        *(int *)(param_1 + 0x96c) = 0x10000;
-        *(int *)(param_1 + 0xc00) = 1;
-        *(int *)(param_1 + 0xc04) = 1;
+        param_1->field_0x96c = 0x10000;
+        param_1->useUpperCollisionCorners = 1;
+        param_1->field_0xc04[0] = 1;
     }
-    *(int *)(param_1 + 0x5e0) = 0;
+    param_1->field_0x5dc.y = 0;
 
     if (flagA == 0) {
-        FixVecCross(&spin, &tmp, (FixVector *)(param_1 + 0x5dc));
+        FixVecCross(&spin, &tmp, &param_1->field_0x5dc);
         if (g_unk0x005914d8 != 0)
             FixVecScale(&spin, &spin, 0x18000);
         else
             FixVecScale(&spin, &spin, 0x30000);
-        *(int *)(param_1 + 0x5d0) += spin.x;
-        *(int *)(param_1 + 0x5d4) += spin.y;
-        *(int *)(param_1 + 0x5d8) += spin.z;
+        param_1->field_0x5d0.x += spin.x;
+        param_1->field_0x5d0.y += spin.y;
+        param_1->field_0x5d0.z += spin.z;
     } else {
         if (flagB != 0) {
-            off.x = -*(int *)(param_1 + 0x364);
-            off.y = -*(int *)(param_1 + 0x370);
-            off.z = -*(int *)(param_1 + 0x37c);
+            off.x = -param_1->right.y;
+            off.y = -param_1->up.y;
+            off.z = -param_1->forward.y;
             FixVecScale(&off, &off, 0x40000);
-            off.x += *(int *)(param_1 + 0x5dc);
-            off.y += *(int *)(param_1 + 0x5e0);
-            off.z += *(int *)(param_1 + 0x5e4);
+            off.x += param_1->field_0x5dc.x;
+            off.y += param_1->field_0x5dc.y;
+            off.z += param_1->field_0x5dc.z;
             FixVecCross(&spin, &tmp, &off);
             FixVecScale(&spin, &spin, 0x40000);
-            *(int *)(param_1 + 0x40c) += 0x4000;
+            param_1->velocity.y += 0x4000;
         } else {
-            off.x = -*(int *)(param_1 + 0x364);
-            off.y = -*(int *)(param_1 + 0x370);
-            off.z = -*(int *)(param_1 + 0x37c);
+            off.x = -param_1->right.y;
+            off.y = -param_1->up.y;
+            off.z = -param_1->forward.y;
             FixVecScale(&off, &off, 0x10000);
-            off.x += *(int *)(param_1 + 0x5dc);
-            off.y += *(int *)(param_1 + 0x5e0);
-            off.z += *(int *)(param_1 + 0x5e4);
+            off.x += param_1->field_0x5dc.x;
+            off.y += param_1->field_0x5dc.y;
+            off.z += param_1->field_0x5dc.z;
             FixVecCross(&spin, &tmp, &off);
             FixVecScale(&spin, &spin, 0x40000);
         }
-        *(int *)(param_1 + 0x5d0) += spin.x;
-        *(int *)(param_1 + 0x5d4) += spin.y;
-        *(int *)(param_1 + 0x5d8) += spin.z;
+        param_1->field_0x5d0.x += spin.x;
+        param_1->field_0x5d0.y += spin.y;
+        param_1->field_0x5d0.z += spin.z;
     }
-    Collision_ClampAngularCorrection((int *)(param_1 + 0x5d0));
+    Collision_ClampAngularCorrection((int *)&param_1->field_0x5d0);
 
-    if (*(char *)(param_1 + 0xb3f) < 5) {
-        *(short *)(param_1 + 0xae0 + *(char *)(param_1 + 0xb3f) * 2) = (short)param_4;
-        *(char *)(param_1 + 0xb3f) = *(char *)(param_1 + 0xb3f) + 1;
+    if (((char *)param_1->field_0xb35)[10] < 5) {
+        ((short *)param_1->field_0xad6)[5 + ((char *)param_1->field_0xb35)[10]] = (short)param_4;
+        ((char *)param_1->field_0xb35)[10] = ((char *)param_1->field_0xb35)[10] + 1;
     }
 
     if (CGameInfo::IsActiveCheatEnabled(4) != 0) {
-        *(int *)(param_1 + 0x5c4) -= imp.x;
-        *(int *)(param_1 + 0x5c8) -= imp.y;
-        *(int *)(param_1 + 0x5cc) -= imp.z;
-        *(int *)(param_1 + 0x408) += imp.x * 2;
-        *(int *)(param_1 + 0x40c) += imp.y * 2;
-        *(int *)(param_1 + 0x410) += imp.z * 2;
+        param_1->field_0x5c4.x -= imp.x;
+        param_1->field_0x5c4.y -= imp.y;
+        param_1->field_0x5c4.z -= imp.z;
+        param_1->velocity.x += imp.x * 2;
+        param_1->velocity.y += imp.y * 2;
+        param_1->velocity.z += imp.z * 2;
     }
     return flagC;
 }

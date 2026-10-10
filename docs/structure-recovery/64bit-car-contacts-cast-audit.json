@@ -1,0 +1,785 @@
+{
+  "baseline_commit": "c9c8b9c",
+  "compiler": "clang version 19.1.7 (Fedora 19.1.7-5.fc41)",
+  "baseline": {
+    "body_source_sha256": "a7601ea44854092a1f20e11d720f1835a98e1ee244de10e2e6394dabd37ad2f5",
+    "warnings": 188,
+    "errors": 0,
+    "by_function": {
+      "Collision_ClampContactOffset": 0,
+      "Collision_ClampAngularCorrection": 0,
+      "Collision_CarVsBox": 3,
+      "Collision_SeparateCarBoxes": 27,
+      "Collision_ResolveCarContactImpulse": 95,
+      "Collision_ResolveStaticObstacleContact": 63
+    },
+    "diagnostics": [
+      {
+        "function": "Collision_CarVsBox",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_CarVsBox",
+        "diagnostic": "cast to 'FixMatrix **' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_CarVsBox",
+        "diagnostic": "cast to 'unsigned char *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'char *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'char *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'char *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'char *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'FixMatrix **' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_SeparateCarBoxes",
+        "diagnostic": "cast to 'FixMatrix **' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'FixMatrix **' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'FixMatrix **' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'char *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'char *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'FixMatrix **' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'FixMatrix **' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'Car *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'Car *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'Car *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'Car *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'Car *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveCarContactImpulse",
+        "diagnostic": "cast to 'Car *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'FixMatrix **' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'unsigned int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'FixMatrix **' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'char *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'short *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'Car *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'Car *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'Car *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'FixMatrix **' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'FixVector *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'char *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'char *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'short *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'char *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'char *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      },
+      {
+        "function": "Collision_ResolveStaticObstacleContact",
+        "diagnostic": "cast to 'int *' from smaller integer type 'int' [-Wint-to-pointer-cast]"
+      }
+    ]
+  },
+  "current": {
+    "body_source_sha256": "6c4777a89263df6f3cf5b209cb4de67d6a4f7edc995cb8d6d4cb023c72fc7b1a",
+    "warnings": 0,
+    "errors": 0,
+    "by_function": {
+      "Collision_ClampContactOffset": 0,
+      "Collision_ClampAngularCorrection": 0,
+      "Collision_CarVsBox": 0,
+      "Collision_SeparateCarBoxes": 0,
+      "Collision_ResolveCarContactImpulse": 0,
+      "Collision_ResolveStaticObstacleContact": 0
+    },
+    "diagnostics": []
+  }
+}

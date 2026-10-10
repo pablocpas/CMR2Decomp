@@ -39,6 +39,7 @@ short Car_GetOrderCount(void);
 #include "Menu.h"
 #include "Glow.h"
 #include "CarExhaust.h"
+#include "LayoutChecks.h"
 // --- module prototypes (address order; see tools/fastcmp/tuproto.py) ---
 void StageObject_DrawViewPrecipitationAndObjects(int param_1, int view);
 void StageWeather_DrawViewPrecipitation(int index, int view);
@@ -223,7 +224,7 @@ struct FireworkRocket {
     int blinking;                // 0x930
     int blink;                   // 0x934
 };
-typedef char FireworkRocketSize[sizeof(FireworkRocket) == 0x938 ? 1 : -1];
+CMR2_LAYOUT_CHECK(FireworkRocketSize, sizeof(FireworkRocket) == 0x938);
 
 // One replay stream (recorder/player of one car); the slots hang off
 // g_unk0x00588d40. Type 2 streams store a 16-byte car sample every third frame
@@ -14758,8 +14759,8 @@ BYTE *Sector_GetListA(unsigned int sector, unsigned int *pCount);
 BYTE *Sector_GetListB(unsigned int sector, unsigned int *pCount);
 void RallyData_CopyRaisedElementVector(int *pDest, void **pParam1);
 int RallyData_IsElementFlagSet(BYTE **pEntry, int bit);
-int Collision_CarVsBox(int car, int *pBox, int scale);
-int Collision_ResolveStaticObstacleContact(int param_1, int *param_2, int param_3, int param_4);
+int Collision_CarVsBox(Car *car, int *pBox, int scale);
+int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, FixVector *param_3, int param_4);
 
 // Collides a car with the stage objects of the four sectors it touches
 // (static objects, then moving ones): box test, then the plain, wall or
@@ -14831,12 +14832,12 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                         continue;
                     }
                     if (!((pObject[4] & 0x2001000) != 0)) {
-                        result = Collision_CarVsBox((int)pCar, (int *)pBox, 0x10000);
+                        result = Collision_CarVsBox(pCar, (int *)pBox, 0x10000);
                     } else {
-                        result = Collision_CarVsBox((int)pCar, (int *)pBox, 0);
+                        result = Collision_CarVsBox(pCar, (int *)pBox, 0);
                     }
                 }
-                if (result != 0 && Collision_ResolveStaticObstacleContact((int)pCar, pEntry, (int)&position, 0) != 0)
+                if (result != 0 && Collision_ResolveStaticObstacleContact(pCar, (StageObject **)pEntry, &position, 0) != 0)
                     StageObject_QueueOrEvictMovingObject(pEntry, sector, pCar->index);
             }
         }
