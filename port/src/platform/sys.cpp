@@ -195,7 +195,9 @@ const char s_defaultSettings[] =
     "\n"
     "[video]\n"
     "; 1 = fullscreen (on the desktop resolution), 0 = window.\n"
-    "fullscreen = 1\n";
+    "fullscreen = 1\n"
+    "; Field of view, 30 to 150 (70 = original).\n"
+    "; fov = 70\n";
 
 bool LooksLikeGameData(const std::string &dir)
 {

@@ -1,3 +1,4 @@
+#include "port/sys.h"
 #include "FixedPoint.h"
 #include "Graphics.h"
 #include "GameInfo.h"
@@ -711,6 +712,20 @@ int Race_IsMultiplayerRecordMode10(void);
 int RallyData_IsChampionshipFinalStage(void);
 int RallyData_IsHeadToHeadRaceMode(void);
 
+// PORT (SilentPatchCMR2): the field of view from video.fov in degrees, 70 being
+// the original's 0x275c2; like SilentPatch, the scale is inversely
+// proportional to it (30 to 150).
+static int View_GetFovScale(void)
+{
+    static int scale;
+    if (scale == 0) {
+        int fov = Sys_GetOption("video.fov", 70);
+        fov = fov < 30 ? 30 : fov > 150 ? 150 : fov;
+        scale = (int)(0x275c2 * 70.0 / fov);
+    }
+    return scale;
+}
+
 // Sets the camera projection for the selected player's view.
 // match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00422d40
@@ -718,9 +733,12 @@ void View_SetPlayerProjection(unsigned int player)
 {
     BYTE i = (BYTE)player;
     int zoom = g_unk0x005391cc[i];
-    int fovX = FixMul(0x123d7, FixMul(FixMul(zoom, 0x275c2),
-        (int)(__int64)(((double)g_pGraphics->resX / (double)g_pGraphics->resY) * CGraphics::m_65536)));
-    int fovY = FixMul(0x2147a, FixMul(zoom, 0x275c2));
+    // PORT (SilentPatchCMR2): the original scales X by resX/resY, which is
+    // right only at 4:3 and stretches wider resolutions. (16/9) * (resY/resX)
+    // is the same at 4:3 and keeps the vertical view on any other shape.
+    int fovX = FixMul(0x123d7, FixMul(FixMul(zoom, View_GetFovScale()),
+        (int)(__int64)((16.0 / 9.0) * ((double)g_pGraphics->resY / (double)g_pGraphics->resX) * CGraphics::m_65536)));
+    int fovY = FixMul(0x2147a, FixMul(zoom, View_GetFovScale()));
 
     if (Race_IsMultiplayerRecordMode10() == 0 && RallyData_IsHeadToHeadRaceMode()) {
         if (CGameInfo::IsSplitBarEnabled())
