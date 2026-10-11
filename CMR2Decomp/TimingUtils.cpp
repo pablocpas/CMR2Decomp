@@ -1,4 +1,5 @@
 #include "TimingUtils.h"
+#include "FloatToInt.h"
 #include "RallyTiming.h"
 #include "FixedPoint.h"
 #include <windows.h>
@@ -34,8 +35,8 @@ extern double g_minus65536;
 // FUNCTION: CMR2 0x0040d4b0
 int Timing_CentisecondsToFixedSeconds(int hundredths)
 {
-    return FixDiv((int)(__int64)((hundredths % 100) * CGraphics::m_65536), 0x640000) -
-           (int)(__int64)((hundredths / 100) * g_minus65536);
+    return FixDiv((int)FTOI(__int64, (hundredths % 100) * CGraphics::m_65536), 0x640000) -
+           (int)FTOI(__int64, (hundredths / 100) * g_minus65536);
 }
 
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "FloatToInt.h"
 #include <stddef.h>
 #include <math.h>
 #include <string.h>
@@ -1039,9 +1040,9 @@ void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BY
             dst[2] = (BYTE)((BYTE)m_lockedTextures[i].masks[2] & px) << (BYTE)-m_lockedTextures[i].depths[2];
             f = (float)pColour[3] * g_unk0x00511364;
             inv = g_netOne - f;
-            r = (int)(__int64)((float)r * f + (float)dst[0] * inv);
-            g = (int)(__int64)((float)g * f + (float)dst[1] * inv);
-            b = (int)(__int64)((float)b * f + (float)dst[2] * inv);
+            r = (int)FTOI(__int64, (float)r * f + (float)dst[0] * inv);
+            g = (int)FTOI(__int64, (float)g * f + (float)dst[1] * inv);
+            b = (int)FTOI(__int64, (float)b * f + (float)dst[2] * inv);
         }
         *p16 = (WORD)(PACK_CHANNEL(m_lockedTextures[i].masks[3], (short)m_lockedTextures[i].depths[3], 0xff) |
                       PACK_CHANNEL(m_lockedTextures[i].masks[0], (short)m_lockedTextures[i].depths[0], r) |
@@ -1055,9 +1056,9 @@ void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BY
             dst[2] = *(BYTE *)p32;
             f = (float)pColour[3] * g_unk0x00511364;
             inv = g_netOne - f;
-            r = (int)(__int64)((float)r * f + g_netZero * inv);
-            g = (int)(__int64)((float)g * f + g_netZero * inv);
-            b = (int)(__int64)((float)b * f + (float)dst[2] * inv);
+            r = (int)FTOI(__int64, (float)r * f + g_netZero * inv);
+            g = (int)FTOI(__int64, (float)g * f + g_netZero * inv);
+            b = (int)FTOI(__int64, (float)b * f + (float)dst[2] * inv);
         }
         *p32 = RGBA_MAKE(r, g, b, 0xff);
     }
@@ -2068,21 +2069,21 @@ void CGraphics::SetProjection(int fovX, int fovY, int farPlane, int nearPlane)
     matrix._11 = m_projection11;
     matrix._22 = m_projection22 = scale * m_fovY;
     matrix._43 = m_projection43;
-    m_pTextureManager->fixedProjection[0] = (int)(__int64)(m_projection11 * m_65536);
+    m_pTextureManager->fixedProjection[0] = (int)FTOI(__int64, m_projection11 * m_65536);
     m_pTextureManager->fixedProjection[1] = 0;
     m_pTextureManager->fixedProjection[2] = 0;
     m_pTextureManager->fixedProjection[3] = 0;
     m_pTextureManager->fixedProjection[4] = 0;
-    m_pTextureManager->fixedProjection[5] = (int)(__int64)(matrix._22 * m_65536);
+    m_pTextureManager->fixedProjection[5] = (int)FTOI(__int64, matrix._22 * m_65536);
     m_pTextureManager->fixedProjection[6] = 0;
     m_pTextureManager->fixedProjection[7] = 0;
     m_pTextureManager->fixedProjection[8] = 0;
     m_pTextureManager->fixedProjection[8] = 0;
-    m_pTextureManager->fixedProjection[10] = (int)(__int64)(matrix._33 * m_65536);
+    m_pTextureManager->fixedProjection[10] = (int)FTOI(__int64, matrix._33 * m_65536);
     m_pTextureManager->fixedProjection[11] = 0x10000;
     m_pTextureManager->fixedProjection[12] = 0;
     m_pTextureManager->fixedProjection[12] = 0;
-    m_pTextureManager->fixedProjection[14] = (int)(__int64)(matrix._43 * m_65536);
+    m_pTextureManager->fixedProjection[14] = (int)FTOI(__int64, matrix._43 * m_65536);
     m_pTextureManager->fixedProjection[15] = 0;
 
     tmp = matrix;
@@ -3357,7 +3358,7 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
         ((MeshVertexF *)pCyl->pVertexData)[0].y = 0.0f;
         angle = 0;
         for (i = 1; i <= 10; i++) {
-            idx = (unsigned short)(__int64)((double)angle * g_fixedDegreesToAngle12);
+            idx = (unsigned short)FTOI(__int64, (double)angle * g_fixedDegreesToAngle12);
             ((MeshVertexF *)pCyl->pVertexData)[i].x =
                 (float)g_sinTable[idx & 0xfff] * CGraphics::m_oneOver65536 * radius;
             ((MeshVertexF *)pCyl->pVertexData)[i].y =
@@ -3431,14 +3432,14 @@ int Scene_AttenuateSectorLight(int sector, int light)
     pLight = (D3DLIGHT7 *)g_sceneType1Objects[light];
     if (pLight == NULL)
         return changed;
-    range = (int)(__int64)(pLight->dvRange * CGraphics::m_65536);
-    att0 = (int)(__int64)(pLight->dvAttenuation0 * CGraphics::m_65536);
+    range = (int)FTOI(__int64, pLight->dvRange * CGraphics::m_65536);
+    att0 = (int)FTOI(__int64, pLight->dvAttenuation0 * CGraphics::m_65536);
     base = FixMul(0x20000, att0);
-    att2 = (int)(__int64)(pLight->dvAttenuation2 * CGraphics::m_65536);
+    att2 = (int)FTOI(__int64, pLight->dvAttenuation2 * CGraphics::m_65536);
     limit = g_sectorHalfSize + range + 0x140000;
-    lpos.x = (int)(__int64)(pLight->dvPosition.x * CGraphics::m_65536);
-    lpos.y = (int)(__int64)(pLight->dvPosition.y * CGraphics::m_65536);
-    lpos.z = (int)(__int64)(pLight->dvPosition.z * CGraphics::m_65536);
+    lpos.x = (int)FTOI(__int64, pLight->dvPosition.x * CGraphics::m_65536);
+    lpos.y = (int)FTOI(__int64, pLight->dvPosition.y * CGraphics::m_65536);
+    lpos.z = (int)FTOI(__int64, pLight->dvPosition.z * CGraphics::m_65536);
     wasLit = g_sceneSectorFlags[sector];
     d.x = g_sectors[sector]->x - lpos.x;
     d.y = g_sectors[sector]->y - lpos.y;
@@ -6055,9 +6056,9 @@ void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition,
 
 particleFound:
 
-    randomX = -0x8000 - (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536);
-    randomY = -0x8000 - (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536);
-    randomZ = -0x8000 - (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536);
+    randomX = -0x8000 - (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * g_minus65536);
+    randomY = -0x8000 - (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * g_minus65536);
+    randomZ = -0x8000 - (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * g_minus65536);
 
     pParticle->position.x = pPosition->x;
     pParticle->position.y = pPosition->y;
@@ -6112,7 +6113,7 @@ particleFound:
     }
     if ((pType->flags & 0x10) != 0) {
         int sizeVariation = pType->sizeVariation;
-        int variation = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+        int variation = (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536);
         pParticle->size = pType->size + FixMul(sizeVariation, variation);
     } else {
         pParticle->size = pType->size;
@@ -6598,9 +6599,9 @@ BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pI
             out.g = 0.0f;
         if (out.b < g_netZero)
             out.b = 0.0f;
-        m_tgaPixel[0] = (BYTE)(int)(out.r * 255.0f);
-        m_tgaPixel[1] = (BYTE)(int)(out.g * 255.0f);
-        m_tgaPixel[2] = (BYTE)(int)(out.b * 255.0f);
+        m_tgaPixel[0] = (BYTE)FTOI(int, out.r * 255.0f);
+        m_tgaPixel[1] = (BYTE)FTOI(int, out.g * 255.0f);
+        m_tgaPixel[2] = (BYTE)FTOI(int, out.b * 255.0f);
     }
     return m_tgaPixel;
 }

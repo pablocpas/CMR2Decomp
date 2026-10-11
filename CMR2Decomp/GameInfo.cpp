@@ -7,6 +7,7 @@ inline int OptionMenu_AddPackedScreenRectangleWords(int *pWords)
 }
 
 #include "GameInfo.h"
+#include "FloatToInt.h"
 #include "Menu.h"
 #include "Graphics.h"
 #include "Input.h"
@@ -726,16 +727,16 @@ BOOL OptionMovie_PlayFrame(BYTE skipOnSpace)
             }
             BinkBufferSetScale(g_pUnk0x00831ad4, scaleWidth, scaleHeight);
             BinkBufferSetOffset(g_pUnk0x00831ad4,
-                                (int)(__int64)((g_pGraphics->resX - scaleWidth) * g_unk0x005113b8),
-                                (int)(__int64)((g_pGraphics->resY - scaleHeight) * g_unk0x005113b8));
+                                (int)FTOI(__int64, (g_pGraphics->resX - scaleWidth) * g_unk0x005113b8),
+                                (int)FTOI(__int64, (g_pGraphics->resY - scaleHeight) * g_unk0x005113b8));
         } else {
-            BinkBufferSetOffset(g_pUnk0x00831ad4, (int)(__int64)((g_pGraphics->resX - 0x280) * g_unk0x005113b8),
-                                (int)(__int64)((g_pGraphics->resY - 0x1e0) * g_unk0x005113b8));
+            BinkBufferSetOffset(g_pUnk0x00831ad4, (int)FTOI(__int64, (g_pGraphics->resX - 0x280) * g_unk0x005113b8),
+                                (int)FTOI(__int64, (g_pGraphics->resY - 0x1e0) * g_unk0x005113b8));
         }
         if (CGraphics::GetTextureFormatCap80000(CGraphics::GetSelectedDisplayDriverIndex()) == 0)
             BinkBufferSetOffset(g_pUnk0x00831ad4,
-                                (int)(__int64)((int)(g_pGraphics->screenResX - 0x280) * g_unk0x005113b8),
-                                (int)(__int64)((int)(g_pGraphics->screenResY - 0x1e0) * g_unk0x005113b8));
+                                (int)FTOI(__int64, (int)(g_pGraphics->screenResX - 0x280) * g_unk0x005113b8),
+                                (int)FTOI(__int64, (int)(g_pGraphics->screenResY - 0x1e0) * g_unk0x005113b8));
     }
 
     if (BinkBufferLock(g_pUnk0x00831ad4) != 0) {
@@ -2563,11 +2564,11 @@ void OptionPreview_AddNodeMeshToRecord(SceneNode *pNode, OptionPreviewMeshRecord
             minY = 0x640000;
             minX = 0x640000;
             for (i = 0; i < (int)pRecord->vertexCount[slot]; i++) {
-                x = (int)(__int64)(((DeformFloatVertex *)pRecord->geometry.meshes[slot]->pVertexData)[i].pos[0] *
+                x = (int)FTOI(__int64, ((DeformFloatVertex *)pRecord->geometry.meshes[slot]->pVertexData)[i].pos[0] *
                                    CGraphics::m_65536);
                 pVertex = ((DeformFloatVertex *)pRecord->geometry.meshes[slot]->pVertexData) + i;
-                y = (int)(__int64)(pVertex->pos[1] * CGraphics::m_65536);
-                z = (int)(__int64)(pVertex->pos[2] * CGraphics::m_65536);
+                y = (int)FTOI(__int64, pVertex->pos[1] * CGraphics::m_65536);
+                z = (int)FTOI(__int64, pVertex->pos[2] * CGraphics::m_65536);
                 if (x > maxX)
                     maxX = x;
                 if (x < minX)
@@ -5744,7 +5745,7 @@ void OptionMenu_UpdateOverlayPulse(void)
     value = CMain::GetFrameDelta() % 0x3c;
     value = FixDiv(value << 16, 0x3c0000);
     value = FixMul(value, 0x1680000);
-    value = g_sinTable[(unsigned short)(__int64)(value * g_fixedDegreesToAngle12) & 0xfff] + 0x10000;
+    value = g_sinTable[(unsigned short)FTOI(__int64, value * g_fixedDegreesToAngle12) & 0xfff] + 0x10000;
     value = FixMul(value, 0x8000);
     if (value < 0)
         value = 0;
@@ -7454,9 +7455,9 @@ void OptionPreview_SetTargetModelAngles(int param1, FixAngles *param2, int param
         else
             a[2] += 0x1680000;
     }
-    g_previewRotationDeltas[param1].x = (short)(__int64)((double)a[0] * g_fixedDegreesToAngle12);
-    g_previewRotationDeltas[param1].y = (short)(__int64)((double)a[1] * g_fixedDegreesToAngle12);
-    g_previewRotationDeltas[param1].z = (short)(__int64)((double)a[2] * g_fixedDegreesToAngle12);
+    g_previewRotationDeltas[param1].x = (short)FTOI(__int64, (double)a[0] * g_fixedDegreesToAngle12);
+    g_previewRotationDeltas[param1].y = (short)FTOI(__int64, (double)a[1] * g_fixedDegreesToAngle12);
+    g_previewRotationDeltas[param1].z = (short)FTOI(__int64, (double)a[2] * g_fixedDegreesToAngle12);
 }
 
 void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask);
@@ -7518,12 +7519,12 @@ void OptionPreview_AllocateConvertedWheelVertices(int param1, int param2, Option
             srcOff = 0;
             for (k = 0; k < (int)(unsigned int)*pCounts; k++) {
                 pDest = (DeformVertex *)((BYTE *)(*ppBlock)[i] + destOff);
-                pDest->pos.x = (int)(__int64)((double)((DeformFloatVertex *)((BYTE *)param3->geometry.meshes[i]->pVertexData + srcOff))->pos[0] * CGraphics::m_65536);
-                pDest->pos.y = (int)(__int64)((double)((DeformFloatVertex *)((BYTE *)param3->geometry.meshes[i]->pVertexData + srcOff))->pos[1] * CGraphics::m_65536);
-                pDest->pos.z = (int)(__int64)((double)((DeformFloatVertex *)((BYTE *)param3->geometry.meshes[i]->pVertexData + srcOff))->pos[2] * CGraphics::m_65536);
-                pDest->normal.x = (int)(__int64)((double)((DeformFloatVertex *)((BYTE *)param3->geometry.meshes[i]->pVertexData + srcOff))->normal[0] * CGraphics::m_65536);
-                pDest->normal.y = (int)(__int64)((double)((DeformFloatVertex *)((BYTE *)param3->geometry.meshes[i]->pVertexData + srcOff))->normal[1] * CGraphics::m_65536);
-                pDest->normal.z = (int)(__int64)((double)((DeformFloatVertex *)((BYTE *)param3->geometry.meshes[i]->pVertexData + srcOff))->normal[2] * CGraphics::m_65536);
+                pDest->pos.x = (int)FTOI(__int64, (double)((DeformFloatVertex *)((BYTE *)param3->geometry.meshes[i]->pVertexData + srcOff))->pos[0] * CGraphics::m_65536);
+                pDest->pos.y = (int)FTOI(__int64, (double)((DeformFloatVertex *)((BYTE *)param3->geometry.meshes[i]->pVertexData + srcOff))->pos[1] * CGraphics::m_65536);
+                pDest->pos.z = (int)FTOI(__int64, (double)((DeformFloatVertex *)((BYTE *)param3->geometry.meshes[i]->pVertexData + srcOff))->pos[2] * CGraphics::m_65536);
+                pDest->normal.x = (int)FTOI(__int64, (double)((DeformFloatVertex *)((BYTE *)param3->geometry.meshes[i]->pVertexData + srcOff))->normal[0] * CGraphics::m_65536);
+                pDest->normal.y = (int)FTOI(__int64, (double)((DeformFloatVertex *)((BYTE *)param3->geometry.meshes[i]->pVertexData + srcOff))->normal[1] * CGraphics::m_65536);
+                pDest->normal.z = (int)FTOI(__int64, (double)((DeformFloatVertex *)((BYTE *)param3->geometry.meshes[i]->pVertexData + srcOff))->normal[2] * CGraphics::m_65536);
                 pos = pDest->pos;
                 // Preserve BYTE writes of 0x81; signed member assignment changes scheduling.
                 if (pos.x >= 0)
@@ -7679,7 +7680,7 @@ void OptionPreview_BuildDeformGeometry(OptionPreviewMeshRecord *pObject, int ind
                               &pGeom->pEntry->wheelNodes[i]->local);
         value = rand();
         pGeom->anchorPhaseDegrees[i] =
-            FixMul((int)(__int64)((float)value * g_oneOverRandMax * CGraphics::m_65536), 0x1680000);
+            FixMul((int)FTOI(__int64, (float)value * g_oneOverRandMax * CGraphics::m_65536), 0x1680000);
     }
     switch (CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)index))) {
     case 3:
@@ -7953,11 +7954,11 @@ void OptionPreview_RebuildDeformedGeometry(OptionPreviewMeshRecord *pObject, Opt
     for (j = 0; j < pObject->meshCount; j++) {
         dirty = 0;
         for (i = 0; i < pObject->vertexCount[j]; i++) {
-            pos.x = (int)(__int64)(((DeformFloatVertex *)pObject->geometry.meshes[j]->pVertexData)[i].pos[0] *
+            pos.x = (int)FTOI(__int64, ((DeformFloatVertex *)pObject->geometry.meshes[j]->pVertexData)[i].pos[0] *
                                    CGraphics::m_65536);
-            pos.y = (int)(__int64)(((DeformFloatVertex *)pObject->geometry.meshes[j]->pVertexData)[i].pos[1] *
+            pos.y = (int)FTOI(__int64, ((DeformFloatVertex *)pObject->geometry.meshes[j]->pVertexData)[i].pos[1] *
                                    CGraphics::m_65536);
-            pos.z = (int)(__int64)(((DeformFloatVertex *)pObject->geometry.meshes[j]->pVertexData)[i].pos[2] *
+            pos.z = (int)FTOI(__int64, ((DeformFloatVertex *)pObject->geometry.meshes[j]->pVertexData)[i].pos[2] *
                                    CGraphics::m_65536);
             dv.x = g_previewDentPosition.x - pos.x;
             dv.y = g_previewDentPosition.y - pos.y;
@@ -8000,11 +8001,11 @@ void OptionPreview_RebuildDeformedGeometry(OptionPreviewMeshRecord *pObject, Opt
                 pos.z += dv.z;
             }
             StageDeform_ClampVertex(&pos.x, j, i, &pObject->geometry);
-            dest.x = (int)(__int64)(((DeformFloatVertex *)pObject->geometry.meshes[j]->pVertexData)[i].normal[0] *
+            dest.x = (int)FTOI(__int64, ((DeformFloatVertex *)pObject->geometry.meshes[j]->pVertexData)[i].normal[0] *
                                     CGraphics::m_65536);
-            dest.y = (int)(__int64)(((DeformFloatVertex *)pObject->geometry.meshes[j]->pVertexData)[i].normal[1] *
+            dest.y = (int)FTOI(__int64, ((DeformFloatVertex *)pObject->geometry.meshes[j]->pVertexData)[i].normal[1] *
                                     CGraphics::m_65536);
-            dest.z = (int)(__int64)(((DeformFloatVertex *)pObject->geometry.meshes[j]->pVertexData)[i].normal[2] *
+            dest.z = (int)FTOI(__int64, ((DeformFloatVertex *)pObject->geometry.meshes[j]->pVertexData)[i].normal[2] *
                                     CGraphics::m_65536);
             d.x = pos.x - saved.x;
             d.y = pos.y - saved.y;
@@ -10149,24 +10150,24 @@ void OptionMenu_DrawResultsOptions(int param_1)
     i = 0;
     switch (mode) {
     case 0:
-        f = 0x10000 - FixDiv(0x10000 - (int)(__int64)((double)(unsigned)frames * CGraphics::m_65536), 0x10000);
-        FixMul((int)(__int64)((double)(colour & 0xff) * CGraphics::m_65536), f);
-        FixMul((int)(__int64)((double)(g_unk0x00527380[0] & 0xff) * CGraphics::m_65536), 0x10000 - f);
-        FixMul((int)(__int64)((double)(colour >> 8 & 0xff) * CGraphics::m_65536), f);
-        FixMul((int)(__int64)((double)(g_unk0x00527380[0] >> 8 & 0xff) * CGraphics::m_65536), 0x10000 - f);
-        FixMul((int)(__int64)((double)(colour >> 16 & 0xff) * CGraphics::m_65536), f);
-        FixMul(0x10000 - f, (int)(__int64)((double)(g_unk0x00527380[0] >> 16 & 0xff) * CGraphics::m_65536));
+        f = 0x10000 - FixDiv(0x10000 - (int)FTOI(__int64, (double)(unsigned)frames * CGraphics::m_65536), 0x10000);
+        FixMul((int)FTOI(__int64, (double)(colour & 0xff) * CGraphics::m_65536), f);
+        FixMul((int)FTOI(__int64, (double)(g_unk0x00527380[0] & 0xff) * CGraphics::m_65536), 0x10000 - f);
+        FixMul((int)FTOI(__int64, (double)(colour >> 8 & 0xff) * CGraphics::m_65536), f);
+        FixMul((int)FTOI(__int64, (double)(g_unk0x00527380[0] >> 8 & 0xff) * CGraphics::m_65536), 0x10000 - f);
+        FixMul((int)FTOI(__int64, (double)(colour >> 16 & 0xff) * CGraphics::m_65536), f);
+        FixMul(0x10000 - f, (int)FTOI(__int64, (double)(g_unk0x00527380[0] >> 16 & 0xff) * CGraphics::m_65536));
         break;
     case 1:
         break;
     case 2:
-        f = 0x10000 - FixDiv(0x10000 - (int)(__int64)((double)(unsigned)frames * CGraphics::m_65536), 0x10000);
-        FixMul(f, (int)(__int64)((double)(g_unk0x00527380[0] & 0xff) * CGraphics::m_65536));
-        FixMul((int)(__int64)((double)(colour & 0xff) * CGraphics::m_65536), 0x10000 - f);
-        FixMul((int)(__int64)((double)(g_unk0x00527380[0] >> 8 & 0xff) * CGraphics::m_65536), f);
-        FixMul((int)(__int64)((double)(colour >> 8 & 0xff) * CGraphics::m_65536), 0x10000 - f);
-        FixMul((int)(__int64)((double)(g_unk0x00527380[0] >> 16 & 0xff) * CGraphics::m_65536), f);
-        FixMul(0x10000 - f, (int)(__int64)((double)(colour >> 16 & 0xff) * CGraphics::m_65536));
+        f = 0x10000 - FixDiv(0x10000 - (int)FTOI(__int64, (double)(unsigned)frames * CGraphics::m_65536), 0x10000);
+        FixMul(f, (int)FTOI(__int64, (double)(g_unk0x00527380[0] & 0xff) * CGraphics::m_65536));
+        FixMul((int)FTOI(__int64, (double)(colour & 0xff) * CGraphics::m_65536), 0x10000 - f);
+        FixMul((int)FTOI(__int64, (double)(g_unk0x00527380[0] >> 8 & 0xff) * CGraphics::m_65536), f);
+        FixMul((int)FTOI(__int64, (double)(colour >> 8 & 0xff) * CGraphics::m_65536), 0x10000 - f);
+        FixMul((int)FTOI(__int64, (double)(g_unk0x00527380[0] >> 16 & 0xff) * CGraphics::m_65536), f);
+        FixMul(0x10000 - f, (int)FTOI(__int64, (double)(colour >> 16 & 0xff) * CGraphics::m_65536));
         break;
     }
     while (i < (signed char)OptionMenu_GetControlSetupMenu()->itemCount) {

@@ -161,6 +161,9 @@
     <ClInclude Include="MeshVertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FloatToInt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="zlib\zlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>

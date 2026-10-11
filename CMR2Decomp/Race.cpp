@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include "FloatToInt.h"
 #include <windows.h>
 #include "Game.h"
 #include "RallyData.h"
@@ -1169,14 +1170,14 @@ void Race_DrawPlayerCallSlots(unsigned int player, int param2)
         rectMain.y = (short)(rectMain.y + (short)yOff);
 
         if (value != 0) {
-            r = FixMul((int)(__int64)(((int)rectMain.w / 2) * CGraphics::m_65536), g_sinTable[(value + 0x400) & 0xfff]);
+            r = FixMul((int)FTOI(__int64, ((int)rectMain.w / 2) * CGraphics::m_65536), g_sinTable[(value + 0x400) & 0xfff]);
             rectMain.w = (short)(r * 2 >> 16);
         }
         if (found == 0)
             rectMain.w = 0;
 
         if (bVar2) {
-            r = FixMul((int)(__int64)(((int)rectSecond.w / 2) * CGraphics::m_65536), g_sinTable[(curveB + 0x400) & 0xfff]);
+            r = FixMul((int)FTOI(__int64, ((int)rectSecond.w / 2) * CGraphics::m_65536), g_sinTable[(curveB + 0x400) & 0xfff]);
             r = r * 2 >> 16;
             rectSecond.w = (short)r;
             rectMain.x = (short)((((int)g_pGraphics->resX << 15) >> 16) - (r + (int)rectMain.w) / 2 + xOff);
@@ -1979,7 +1980,7 @@ void Race_UpdateIndependentEngineSound(int car, int param2)
             speedVol = 0x8000;
         else
             speedVol = 0x10000 - FixMul(0x8000,
-                            FixDiv((int)(__int64)((double)engSpeed * CGraphics::m_65536), 0x640000));
+                            FixDiv((int)FTOI(__int64, (double)engSpeed * CGraphics::m_65536), 0x640000));
         volume = FixMul(volume, speedVol);
         if (engSpeed < 0)
             engSpeed = 0;
@@ -3703,7 +3704,7 @@ int Race_GetNormalizedCarSpeed(int car)
         speed = 0;
     else if (speed > 120)
         speed = 120;
-    return FixDiv((int)(__int64)(speed * CGraphics::m_65536), 0x780000);
+    return FixDiv((int)FTOI(__int64, speed * CGraphics::m_65536), 0x780000);
 }
 
 // Silences every stage sound still playing.

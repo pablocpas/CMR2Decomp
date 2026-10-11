@@ -1,4 +1,5 @@
 #include <windows.h>
+#include "FloatToInt.h"
 #include <string.h>
 #include "Mesh.h"
 #include "MeshVertex.h"
@@ -366,16 +367,16 @@ Mesh *Mesh_CloneInto(Mesh *pSrc, StageObject *pSource)
     FixMatrix_GetPosition(&v, &pSource->matrix);
     FixMatrix_SetPosition(&v, &m);
     for (i = 0; i < pMesh->field_0x10; i++) {
-        d.x = (int)(__int64)(((MeshVertexF *)pMesh->pVertexData)[i].x * CGraphics::m_65536) - v.x;
-        d.y = (int)(__int64)(((MeshVertexF *)pMesh->pVertexData)[i].y * CGraphics::m_65536) - v.y;
-        d.z = (int)(__int64)(((MeshVertexF *)pMesh->pVertexData)[i].z * CGraphics::m_65536) - v.z;
+        d.x = (int)FTOI(__int64, ((MeshVertexF *)pMesh->pVertexData)[i].x * CGraphics::m_65536) - v.x;
+        d.y = (int)FTOI(__int64, ((MeshVertexF *)pMesh->pVertexData)[i].y * CGraphics::m_65536) - v.y;
+        d.z = (int)FTOI(__int64, ((MeshVertexF *)pMesh->pVertexData)[i].z * CGraphics::m_65536) - v.z;
         FixMatrix_InverseRotateVector(&r, &d, &m);
         ((MeshVertexF *)pMesh->pVertexData)[i].x = (float)r.x * CGraphics::m_oneOver65536;
         ((MeshVertexF *)pMesh->pVertexData)[i].y = (float)r.y * CGraphics::m_oneOver65536;
         ((MeshVertexF *)pMesh->pVertexData)[i].z = (float)r.z * CGraphics::m_oneOver65536;
-        dn.x = (int)(__int64)(((MeshVertexF *)pMesh->pVertexData)[i].nx * CGraphics::m_65536);
-        dn.y = (int)(__int64)(((MeshVertexF *)pMesh->pVertexData)[i].ny * CGraphics::m_65536);
-        dn.z = (int)(__int64)(((MeshVertexF *)pMesh->pVertexData)[i].nz * CGraphics::m_65536);
+        dn.x = (int)FTOI(__int64, ((MeshVertexF *)pMesh->pVertexData)[i].nx * CGraphics::m_65536);
+        dn.y = (int)FTOI(__int64, ((MeshVertexF *)pMesh->pVertexData)[i].ny * CGraphics::m_65536);
+        dn.z = (int)FTOI(__int64, ((MeshVertexF *)pMesh->pVertexData)[i].nz * CGraphics::m_65536);
         FixMatrix_InverseRotateVector(&rn, &dn, &m);
         ((MeshVertexF *)pMesh->pVertexData)[i].nx = (float)rn.x * CGraphics::m_oneOver65536;
         ((MeshVertexF *)pMesh->pVertexData)[i].ny = (float)rn.y * CGraphics::m_oneOver65536;

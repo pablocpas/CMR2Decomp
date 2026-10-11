@@ -1,5 +1,6 @@
 #ifndef _CAR_H
 #define _CAR_H
+#include "FloatToInt.h"
 
 #include "FixedPoint.h"
 #include "SceneNode.h"
@@ -383,9 +384,9 @@ inline short FixAcos(int x)
     }
     t = (double)x * CGraphics::m_oneOver65536 * -4095.0;
     if (neg) {
-        return -g_acosTable[-(__int64)t];
+        return -g_acosTable[-FTOI(__int64, t)];
     }
-    return g_acosTable[-(__int64)t];
+    return g_acosTable[-FTOI(__int64, t)];
 }
 
 // GLOBAL: CMR2 0x0053aba8

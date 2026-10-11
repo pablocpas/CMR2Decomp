@@ -1,4 +1,5 @@
 #include <windows.h>
+#include "FloatToInt.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -2208,9 +2209,9 @@ int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int co
 
 #define CORNER_NORMAL(i) \
     ((float *)((BYTE *)pMesh->pVertexData + pTri->vertexIndex[corner] * 0x30))[3 + (i)]
-    normal.x = (int)(__int64)(CORNER_NORMAL(0) * CGraphics::m_65536);
-    normal.y = (int)(__int64)(CORNER_NORMAL(1) * CGraphics::m_65536);
-    normal.z = (int)(__int64)(CORNER_NORMAL(2) * CGraphics::m_65536);
+    normal.x = (int)FTOI(__int64, CORNER_NORMAL(0) * CGraphics::m_65536);
+    normal.y = (int)FTOI(__int64, CORNER_NORMAL(1) * CGraphics::m_65536);
+    normal.z = (int)FTOI(__int64, CORNER_NORMAL(2) * CGraphics::m_65536);
 #undef CORNER_NORMAL
     level = FixMul(FixVecDot(pDir, &normal), 0x40000);
     if (level < 0)
@@ -2617,8 +2618,8 @@ void Scene_InitFixedMathTables(void)
     int value;
 
     for (i = 0; i < 4096; i++) {
-        g_sinTable[i] = (int)(__int64)(sin((double)i * g_unk0x00511d08) * CGraphics::m_65536);
-        g_tanTable[i] = (int)(__int64)(tan((double)i * g_unk0x00511d08) * CGraphics::m_65536);
+        g_sinTable[i] = (int)FTOI(__int64, sin((double)i * g_unk0x00511d08) * CGraphics::m_65536);
+        g_tanTable[i] = (int)FTOI(__int64, tan((double)i * g_unk0x00511d08) * CGraphics::m_65536);
     }
     i = 8;
     // tan(90°) and tan(270°) would overflow: the original clamps them
@@ -2626,16 +2627,16 @@ void Scene_InitFixedMathTables(void)
     g_tanTable[1024] = 0x7fffffff;
 
     for (n = 0; n < 4096; n++, i += 16)
-        g_sqrtTable[n] = (unsigned short)(int)(__int64)(sqrt((double)i * CGraphics::m_oneOver65536) * CGraphics::m_65536);
+        g_sqrtTable[n] = (unsigned short)(int)FTOI(__int64, sqrt((double)i * CGraphics::m_oneOver65536) * CGraphics::m_65536);
 
     for (i = 0; i < 4096; i++) {
-        value = (int)(__int64)(asin((double)i * g_unk0x00511d00) * CGraphics::m_65536);
-        g_acosTable[i] = (short)(__int64)((double)value * g_unk0x00511380);
+        value = (int)FTOI(__int64, asin((double)i * g_unk0x00511d00) * CGraphics::m_65536);
+        g_acosTable[i] = (short)FTOI(__int64, (double)value * g_unk0x00511380);
     }
 
     for (i = 0; i < 512; i++) {
-        value = (int)(__int64)(atan((double)i * g_unk0x00511cf8) * CGraphics::m_65536);
-        g_atanTable[i] = (unsigned short)(__int64)((double)value * g_unk0x00511380);
+        value = (int)FTOI(__int64, atan((double)i * g_unk0x00511cf8) * CGraphics::m_65536);
+        g_atanTable[i] = (unsigned short)FTOI(__int64, (double)value * g_unk0x00511380);
     }
 }
 
@@ -2681,7 +2682,7 @@ void Scene_EmitProjectedShadowMesh(ShadowPart *pPart, int param_2)
         param_2 = 0x10000;
     param_2 = FixMul(g_shadowLevel, param_2);
     scale = (float)((double)param_2 * CGraphics::m_oneOver65536);
-    baseColour = (BYTE)(__int64)scale;
+    baseColour = (BYTE)FTOI(__int64, scale);
     pPart->faceCount = 0;
     pPart->vertexCount = 0;
     {
@@ -2747,7 +2748,7 @@ void Scene_EmitProjectedShadowMesh(ShadowPart *pPart, int param_2)
                             if (vy < g_netZero)
                                 colour[3] = 0;
                             else if (vy < g_unk0x00511ce8)
-                                colour[3] = (BYTE)(__int64)(vy * g_unk0x00511360 * scale);
+                                colour[3] = (BYTE)FTOI(__int64, vy * g_unk0x00511360 * scale);
                         }
                         *(DWORD *)(pVtx + 0x18) =
                             ((((DWORD)colour[3] << 8 | colour[0]) << 8 | colour[1]) << 8) | colour[2];

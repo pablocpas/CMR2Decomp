@@ -1,4 +1,5 @@
 #include "RaceCallbackStorage.h"
+#include "FloatToInt.h"
 #include "StageBlock.h"
 #include "Game.h"
 #include "Menu.h"
@@ -662,7 +663,7 @@ int Game_DrawFadingBootLabel(int x, int y, char *pText, char flag)
             alpha = 0;
         else
             alpha = 0xff -
-                    (int)(__int64)((float)(elapsed - 0x9c4) * g_netByteScale * g_unk0x00513ec8);
+                    (int)FTOI(__int64, (float)(elapsed - 0x9c4) * g_netByteScale * g_unk0x00513ec8);
     } else {
         alpha = 0xff;
     }

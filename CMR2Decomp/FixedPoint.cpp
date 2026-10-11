@@ -1,4 +1,5 @@
 #include <windows.h>
+#include "FloatToInt.h"
 #include "FixedPoint.h"
 #include "MovingObject.h"
 #include "Graphics.h"
@@ -61,22 +62,22 @@ D3DMATRIX *FloatMatrix_Multiply(D3DMATRIX *pOut, D3DMATRIX *pA, D3DMATRIX *pB)
 // FUNCTION: CMR2 0x004ba160
 FixMatrix *FloatMatrix_ToFix(FixMatrix *pOut, D3DMATRIX *pIn)
 {
-    ((int *)pOut)[0] = (int)(__int64)(((float *)pIn)[0] * CGraphics::m_65536);
-    ((int *)pOut)[1] = (int)(__int64)(((float *)pIn)[1] * CGraphics::m_65536);
-    ((int *)pOut)[2] = (int)(__int64)(((float *)pIn)[2] * CGraphics::m_65536);
-    ((int *)pOut)[3] = (int)(__int64)(((float *)pIn)[3] * CGraphics::m_65536);
-    ((int *)pOut)[4] = (int)(__int64)(((float *)pIn)[4] * CGraphics::m_65536);
-    ((int *)pOut)[5] = (int)(__int64)(((float *)pIn)[5] * CGraphics::m_65536);
-    ((int *)pOut)[6] = (int)(__int64)(((float *)pIn)[6] * CGraphics::m_65536);
-    ((int *)pOut)[7] = (int)(__int64)(((float *)pIn)[7] * CGraphics::m_65536);
-    ((int *)pOut)[8] = (int)(__int64)(((float *)pIn)[8] * CGraphics::m_65536);
-    ((int *)pOut)[9] = (int)(__int64)(((float *)pIn)[9] * CGraphics::m_65536);
-    ((int *)pOut)[10] = (int)(__int64)(((float *)pIn)[10] * CGraphics::m_65536);
-    ((int *)pOut)[11] = (int)(__int64)(((float *)pIn)[11] * CGraphics::m_65536);
-    ((int *)pOut)[12] = (int)(__int64)(((float *)pIn)[12] * CGraphics::m_65536);
-    ((int *)pOut)[13] = (int)(__int64)(((float *)pIn)[13] * CGraphics::m_65536);
-    ((int *)pOut)[14] = (int)(__int64)(((float *)pIn)[14] * CGraphics::m_65536);
-    ((int *)pOut)[15] = (int)(__int64)(((float *)pIn)[15] * CGraphics::m_65536);
+    ((int *)pOut)[0] = (int)FTOI(__int64, ((float *)pIn)[0] * CGraphics::m_65536);
+    ((int *)pOut)[1] = (int)FTOI(__int64, ((float *)pIn)[1] * CGraphics::m_65536);
+    ((int *)pOut)[2] = (int)FTOI(__int64, ((float *)pIn)[2] * CGraphics::m_65536);
+    ((int *)pOut)[3] = (int)FTOI(__int64, ((float *)pIn)[3] * CGraphics::m_65536);
+    ((int *)pOut)[4] = (int)FTOI(__int64, ((float *)pIn)[4] * CGraphics::m_65536);
+    ((int *)pOut)[5] = (int)FTOI(__int64, ((float *)pIn)[5] * CGraphics::m_65536);
+    ((int *)pOut)[6] = (int)FTOI(__int64, ((float *)pIn)[6] * CGraphics::m_65536);
+    ((int *)pOut)[7] = (int)FTOI(__int64, ((float *)pIn)[7] * CGraphics::m_65536);
+    ((int *)pOut)[8] = (int)FTOI(__int64, ((float *)pIn)[8] * CGraphics::m_65536);
+    ((int *)pOut)[9] = (int)FTOI(__int64, ((float *)pIn)[9] * CGraphics::m_65536);
+    ((int *)pOut)[10] = (int)FTOI(__int64, ((float *)pIn)[10] * CGraphics::m_65536);
+    ((int *)pOut)[11] = (int)FTOI(__int64, ((float *)pIn)[11] * CGraphics::m_65536);
+    ((int *)pOut)[12] = (int)FTOI(__int64, ((float *)pIn)[12] * CGraphics::m_65536);
+    ((int *)pOut)[13] = (int)FTOI(__int64, ((float *)pIn)[13] * CGraphics::m_65536);
+    ((int *)pOut)[14] = (int)FTOI(__int64, ((float *)pIn)[14] * CGraphics::m_65536);
+    ((int *)pOut)[15] = (int)FTOI(__int64, ((float *)pIn)[15] * CGraphics::m_65536);
     return pOut;
 }
 
@@ -103,8 +104,8 @@ void FixMatrix_ProjectToScreen(int *pOut, FixVector *pV, int *pM)
     z = FixMul(pM[2], pV->x) + FixMul(pM[6], pV->y) + FixMul(pM[10], pV->z);
     w = (float)((int)(FixMul(pM[3], pV->x) + FixMul(pM[7], pV->y) + FixMul(pM[11], pV->z) + pM[15]) *
                 CGraphics::m_oneOver65536);
-    pOut[0] = (int)(__int64)(x / (w / halfW) * CGraphics::m_65536);
-    pOut[1] = (int)(__int64)(-(y / (w / halfH)) * CGraphics::m_65536);
+    pOut[0] = (int)FTOI(__int64, x / (w / halfW) * CGraphics::m_65536);
+    pOut[1] = (int)FTOI(__int64, -(y / (w / halfH)) * CGraphics::m_65536);
 }
 
 // FUNCTION: CMR2 0x004ba2b0
@@ -583,8 +584,8 @@ void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, BYTE *pView
         return;
     }
     FixMatrix_ProjectToScreen(pOut, &v, (int *)((BYTE *)CGraphics::m_pTextureManager + 0x23e4));
-    pOut[0] += (int)(__int64)((*(int *)g_pGraphics / 2) * CGraphics::m_65536);
-    pOut[1] += (int)(__int64)((g_pGraphics->resY / 2) * CGraphics::m_65536);
+    pOut[0] += (int)FTOI(__int64, (*(int *)g_pGraphics / 2) * CGraphics::m_65536);
+    pOut[1] += (int)FTOI(__int64, (g_pGraphics->resY / 2) * CGraphics::m_65536);
 }
 
 // Normalises a vector; components beyond +-100.0 are scaled down by 512
@@ -722,7 +723,7 @@ void View_SetPlayerProjection(unsigned int player)
     BYTE i = (BYTE)player;
     int zoom = g_unk0x005391cc[i];
     int fovX = FixMul(0x123d7, FixMul(FixMul(zoom, 0x275c2),
-        (int)(__int64)(((double)g_pGraphics->resX / (double)g_pGraphics->resY) * CGraphics::m_65536)));
+        (int)FTOI(__int64, ((double)g_pGraphics->resX / (double)g_pGraphics->resY) * CGraphics::m_65536)));
     int fovY = FixMul(0x2147a, FixMul(zoom, 0x275c2));
 
     if (Race_IsMultiplayerRecordMode10() == 0 && RallyData_IsHeadToHeadRaceMode()) {
@@ -1203,9 +1204,9 @@ void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc)
     }
     pMat->forward.z = angle;
     angle = g_carPartStateTables.modes[idx] == 0 ? 10 : 0;
-    v = (int)(__int64)((double)angle * CGraphics::m_65536);
+    v = (int)FTOI(__int64, (double)angle * CGraphics::m_65536);
     FixMatrix_RotateAboutRight((FixMatrix *)pMat,
-                               (unsigned short)(__int64)((double)v * g_fixedDegreesToAngle12));
+                               (unsigned short)FTOI(__int64, (double)v * g_fixedDegreesToAngle12));
     View_PositionFromCarProfile((CameraRecord *)pObj, (FixMatrix *)pSrc);
 }
 
@@ -1238,9 +1239,9 @@ void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3)
         m[10] = pSrc[2];
     }
     angle = g_carPartStateTables.modes[*pObj] == 0 ? 10 : 0;
-    v = (int)(__int64)((double)angle * CGraphics::m_65536);
+    v = (int)FTOI(__int64, (double)angle * CGraphics::m_65536);
     FixMatrix_RotateAboutRight((FixMatrix *)m,
-                               (unsigned short)(__int64)((double)(int)v * g_fixedDegreesToAngle12));
+                               (unsigned short)FTOI(__int64, (double)(int)v * g_fixedDegreesToAngle12));
     if (param_3 != 0)
         tAxis = 0x10000;
     else
@@ -1389,7 +1390,7 @@ extern const double g_unk0x00511380;
 // The original converts the 16.16 value on the FPU (fild / fmul / fistp) and
 // keeps the low word of the nearest-even result with the original FPU mode.
 // MSVC6 /QIfist is required; a standard C++ cast alone would truncate instead.
-#define FIX_ANGLE(v) ((short)(__int64)((double)(v) * g_unk0x00511380))
+#define FIX_ANGLE(v) ((short)FTOI(__int64, (double)(v) * g_unk0x00511380))
 
 // The eight ground-probe vectors of an object: its reference axes at 0x104 (x),
 // 0x108 (y) and 0x10c (z) with the sign pattern StageObject_ProbeGroundDistance selects with its

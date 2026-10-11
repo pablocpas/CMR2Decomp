@@ -1,4 +1,5 @@
 #include "SoundCurve.h"
+#include "FloatToInt.h"
 #include <windows.h>
 #include <string.h>
 #include "NetPlayers.h"
@@ -711,26 +712,26 @@ void NetRace_PackCarState(Car *car)
     value = (float)(displacement.x * CGraphics::m_oneOver65536) * g_netDeltaScale;
     if (value >= g_netOne) g_localCarPacket.dispX = 0x7ffd;
     else if (value <= g_netMinusOne) g_localCarPacket.dispX = 0x8003;
-    else g_localCarPacket.dispX = (short)(int)(__int64)(value * 32765.0f);
+    else g_localCarPacket.dispX = (short)(int)FTOI(__int64, value * 32765.0f);
     value = (float)(displacement.z * CGraphics::m_oneOver65536) * g_netDeltaScale;
     if (value >= g_netOne) g_localCarPacket.dispZ = 0x7ffd;
     else if (value <= g_netMinusOne) g_localCarPacket.dispZ = 0x8003;
-    else g_localCarPacket.dispZ = (short)(int)(__int64)(value * 32765.0f);
+    else g_localCarPacket.dispZ = (short)(int)FTOI(__int64, value * 32765.0f);
     value = (float)((double)FixMul(average.z, average.x) * CGraphics::m_oneOver65536);
     if (value >= g_netOne) g_localCarPacket.wheelSpread = 0xfffa;
-    else g_localCarPacket.wheelSpread = (unsigned short)(int)(__int64)(value * 65530.0f);
+    else g_localCarPacket.wheelSpread = (unsigned short)(int)FTOI(__int64, value * 65530.0f);
     value = (float)(car->angularVelocity.x * CGraphics::m_oneOver65536) * g_netAngularScale;
     if (value >= g_netOne) g_localCarPacket.angVelX = 0x7f;
     else if (value <= g_netMinusOne) g_localCarPacket.angVelX = 0x81;
-    else g_localCarPacket.angVelX = (int)(__int64)(value * 127.0f);
+    else g_localCarPacket.angVelX = (int)FTOI(__int64, value * 127.0f);
     value = (float)(car->angularVelocity.y * CGraphics::m_oneOver65536) * g_netAngularScale;
     if (value >= g_netOne) g_localCarPacket.angVelY = 0x7f;
     else if (value <= g_netMinusOne) g_localCarPacket.angVelY = 0x81;
-    else g_localCarPacket.angVelY = (int)(__int64)(value * 127.0f);
+    else g_localCarPacket.angVelY = (int)FTOI(__int64, value * 127.0f);
     value = (float)(car->angularVelocity.z * CGraphics::m_oneOver65536) * g_netAngularScale;
     if (value >= g_netOne) g_localCarPacket.angVelZ = 0x7f;
     else if (value <= g_netMinusOne) g_localCarPacket.angVelZ = 0x81;
-    else g_localCarPacket.angVelZ = (int)(__int64)(value * 127.0f);
+    else g_localCarPacket.angVelZ = (int)FTOI(__int64, value * 127.0f);
     g_localCarPacket.flagB35 = ((Car *)raw)->field_0xb35[0];
     g_localCarPacket.flagC00 = (BYTE)((Car *)raw)->useUpperCollisionCorners;
     g_localCarPacket.sector = ((Car *)raw)->sector;
@@ -743,10 +744,10 @@ void NetRace_PackCarState(Car *car)
     z = (float)((double)relative.z * CGraphics::m_oneOver65536 * CGraphics::m_oneOver128);
     if (value >= g_netOne) g_localCarPacket.posX = 0x7ffd;
     else if (value <= g_netMinusOne) g_localCarPacket.posX = 0x8003;
-    else g_localCarPacket.posX = (short)(int)(__int64)(value * 32765.0f);
+    else g_localCarPacket.posX = (short)(int)FTOI(__int64, value * 32765.0f);
     if (z >= g_netOne) g_localCarPacket.posZ = 0x7ffd;
     else if (z <= g_netMinusOne) g_localCarPacket.posZ = 0x8003;
-    else g_localCarPacket.posZ = (short)(int)(__int64)(z * 32765.0f);
+    else g_localCarPacket.posZ = (short)(int)FTOI(__int64, z * 32765.0f);
     FixMatrix_GetRight(&axes[0], car->pWorld);
     FixMatrix_GetForward(&axes[1], car->pWorld);
     for (i = 0; i < 2; i++) {
@@ -760,7 +761,7 @@ void NetRace_PackCarState(Car *car)
         if (negative) y = -y;
         short acos;
         if (y <= 0x10000) {
-            int index = (int)(__int64)((double)y * CGraphics::m_oneOver65536 * g_netAcosScale);
+            int index = (int)FTOI(__int64, (double)y * CGraphics::m_oneOver65536 * g_netAcosScale);
             acos = negative ? -g_acosTable[-index] : g_acosTable[-index];
         } else {
             acos = g_acosTable[4095];
@@ -778,8 +779,8 @@ void NetRace_PackCarState(Car *car)
         else if (value > g_netByteScale) value = 255.0f;
         if (vertical < g_netZero) vertical = g_netZero;
         else if (vertical > g_netByteScale) vertical = g_netByteScale;
-        BYTE high = (BYTE)(int)(__int64)(vertical);
-        BYTE low = (BYTE)(int)(__int64)(value);
+        BYTE high = (BYTE)(int)FTOI(__int64, vertical);
+        BYTE low = (BYTE)(int)FTOI(__int64, value);
         if (i == 0)
             g_localCarPacket.axes[0] = (high << 8) | low;
         else
@@ -795,11 +796,11 @@ void NetRace_PackCarState(Car *car)
     value = (float)((double)((Car *)raw)->field_0x960 * CGraphics::m_oneOver65536 * g_netHeightScale);
     if (value >= g_netOne) g_localCarPacket.height = 255;
     else if (value <= g_netZero) g_localCarPacket.height = 0;
-    else g_localCarPacket.height = (int)(__int64)(value * 255.0f);
+    else g_localCarPacket.height = (int)FTOI(__int64, value * 255.0f);
     value = (float)((double)(((Car *)raw)->field_0x960 - ((Car *)raw)->field_0x964) * CGraphics::m_oneOver65536 * g_netDeltaScale);
     if (value >= g_netOne) g_localCarPacket.heightDelta = 0x7f;
     else if (value <= g_netMinusOne) g_localCarPacket.heightDelta = 0x81;
-    else g_localCarPacket.heightDelta = (int)(__int64)(value * 127.0f);
+    else g_localCarPacket.heightDelta = (int)FTOI(__int64, value * 127.0f);
     if (((Car *)raw)->field_0xb45) {
         g_localCarPacket.shaking = 1;
         --((Car *)raw)->field_0xb45;
@@ -926,9 +927,9 @@ void NetRace_IntegrateRemoteCarBody(CarNetRecord *p, int param_2)
     p->velocity.z += v.z;
 
     FixVecScale(&v, &p->angularVelocity, delta);
-    angles[0] = (short)(__int64)((double)v.x * g_unk0x00511380);
-    angles[1] = (short)(__int64)((double)v.y * g_unk0x00511380);
-    angles[2] = (short)(__int64)((double)v.z * g_unk0x00511380);
+    angles[0] = (short)FTOI(__int64, (double)v.x * g_unk0x00511380);
+    angles[1] = (short)FTOI(__int64, (double)v.y * g_unk0x00511380);
+    angles[2] = (short)FTOI(__int64, (double)v.z * g_unk0x00511380);
     FixBasis_Rotate((FixBasis *)&p->right, (unsigned short *)angles);
 
     p->field_0xbc += FixMul(p->field_0xc0, delta) -
@@ -1094,7 +1095,7 @@ unsigned short NetRace_ScaleViewAngleByDistance(int param_1, int param_2, unsign
         if (dot > 0) {
             t = FixDiv(FixVec_Length(&dir), 0xd3d70);
             t += 0x10000;
-            value = (int)(__int64)((double)(param_3 >> 1) * CGraphics::m_65536);
+            value = (int)FTOI(__int64, (double)(param_3 >> 1) * CGraphics::m_65536);
             if (t > 0x8000)
                 return (FixDiv(value, t) >> 16) * 2;
             return (value >> 16) * 2;
@@ -1102,7 +1103,7 @@ unsigned short NetRace_ScaleViewAngleByDistance(int param_1, int param_2, unsign
         if (dot < 0) {
             t = FixDiv(FixVec_Length(&dir), 0xd3d70);
             t = 0x10000 - t;
-            value = (int)(__int64)((double)(param_3 >> 1) * CGraphics::m_65536);
+            value = (int)FTOI(__int64, (double)(param_3 >> 1) * CGraphics::m_65536);
             if (t > 0x8000)
                 value = FixDiv(value, t);
             return (value >> 16) * 2;
@@ -1227,8 +1228,8 @@ int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
         for (i = 0; i < 2; i++, pRow += 2) {
             float valueA = (axisA[i] *= g_unk0x0051135c);
             float valueB = (axisB[i] *= g_unk0x00511358);
-            ang1[i] = (short)(__int64)((double)NetRace_FloatToFix(valueA) * g_fixedDegreesToAngle12);
-            ang2[i] = (short)(__int64)((double)NetRace_FloatToFix(valueB) * g_fixedDegreesToAngle12);
+            ang1[i] = (short)FTOI(__int64, (double)NetRace_FloatToFix(valueA) * g_fixedDegreesToAngle12);
+            ang2[i] = (short)FTOI(__int64, (double)NetRace_FloatToFix(valueB) * g_fixedDegreesToAngle12);
             pRow->x = FixMul(g_sinTable[ang2[i] & 0xfff], g_sinTable[(ang1[i] + 0x400) & 0xfff]);
             pRow->y = g_sinTable[(ang2[i] + 0x400) & 0xfff];
             pRow->z = FixMul(g_sinTable[ang2[i] & 0xfff], g_sinTable[ang1[i] & 0xfff]);
@@ -1357,7 +1358,7 @@ void NetRace_PollPlayerStatisticsPackets(Car *pCars)
             if (NetRace_DecodeReceivedCarState(pEntry, &local) != 0) {
                 value = FixMul(local, pCar->maxSteeringAngleDegrees * 0x1680);
                 pEntry->wheelSteeringAngle =
-                    (unsigned short)(__int64)((double)value * g_fixedDegreesToAngle12);
+                    (unsigned short)FTOI(__int64, (double)value * g_fixedDegreesToAngle12);
                 pEntry->throttleTorque =
                     FixMul(pCar->maxThrottleTorque, pEntry->throttleTorque);
             }

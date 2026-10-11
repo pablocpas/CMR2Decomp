@@ -1,4 +1,5 @@
 #include "Frontend.h"
+#include "FloatToInt.h"
 #include "Game.h"
 #include "FileBuffer.h"
 #include "GameInfo.h"
@@ -687,19 +688,19 @@ void FrontendDraw_AnimatedMatrixBackground(short x0, short y0, char *pMap)
         for (j = 0; j < 0xc; j++) {
             g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 18) / 640 * i + x0;
             g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 18) / 480 * j + y0;
-            u = FixDiv((int)(__int64)(g_unk0x008189a8[0] * CGraphics::m_65536),
-                       (int)(__int64)((int)g_pGraphics->resX * CGraphics::m_65536));
-            v = FixDiv((int)(__int64)(g_unk0x008189a8[1] * CGraphics::m_65536),
-                       (int)(__int64)((int)g_pGraphics->resX * CGraphics::m_65536));
+            u = FixDiv((int)FTOI(__int64, g_unk0x008189a8[0] * CGraphics::m_65536),
+                       (int)FTOI(__int64, (int)g_pGraphics->resX * CGraphics::m_65536));
+            v = FixDiv((int)FTOI(__int64, g_unk0x008189a8[1] * CGraphics::m_65536),
+                       (int)FTOI(__int64, (int)g_pGraphics->resX * CGraphics::m_65536));
             wave1 = Frontend_ComputeRippleHeight(centre1, u, v, g_matrixPhase1, 0x20000);
             wave = (Frontend_ComputeRippleHeight(centre2, u, v, g_matrixPhase2, 0x140000) + wave1) / 2;
             g_unk0x008189a8[0] -= FixMulShift32(0x30000, wave);
             g_unk0x008189a8[1] -= (FixMul(0x30000, wave) >> 16);
             *(unsigned int *)colour = g_matrixColours[*pCell];
             brightness = wave / 4 + 0xc000;
-            colour[0] = FixMulShift32((int)(__int64)(colour[0] * CGraphics::m_65536), brightness);
-            colour[1] = FixMulShift32((int)(__int64)(colour[1] * CGraphics::m_65536), brightness);
-            colour[2] = FixMulShift32((int)(__int64)(colour[2] * CGraphics::m_65536), brightness);
+            colour[0] = FixMulShift32((int)FTOI(__int64, colour[0] * CGraphics::m_65536), brightness);
+            colour[1] = FixMulShift32((int)FTOI(__int64, colour[1] * CGraphics::m_65536), brightness);
+            colour[2] = FixMulShift32((int)FTOI(__int64, colour[2] * CGraphics::m_65536), brightness);
             Sprite_Queue((SpriteRect *)&CFrontend::m_pLgMatrixTexture->field_0x11c, (SpriteRect *)g_unk0x008189a8,
                          CFrontend::m_pLgMatrixTexture, 1, 0, NULL, NULL, colour, 8);
             pCell += 0x12;

@@ -1,4 +1,5 @@
 #include <windows.h>
+#include "FloatToInt.h"
 #include "Sprite.h"
 #include "Game.h"
 #include "Graphics.h"
@@ -50,9 +51,9 @@ void Graphics_InvalidateTextureStageCache(void);
     (v)->tu = (u);                                                                  \
     (v)->tv = (vv);                                                                 \
     if (angle != 0) {                                                               \
-        p.x = (int)(__int64)(v)->sx;                                                \
-        p.y = (int)(__int64)(v)->sy;                                                \
-        p.z = (int)(__int64)(v)->sz;                                                \
+        p.x = (int)FTOI(__int64, (v)->sx);                                                \
+        p.y = (int)FTOI(__int64, (v)->sy);                                                \
+        p.z = (int)FTOI(__int64, (v)->sz);                                                \
         FixMatrix_TransformAboutPivot(&out, &p, (FixVector *)centre, &rotation);    \
         (v)->sx = (float)out.x;                                                     \
         (v)->sy = (float)out.y;                                                     \
@@ -383,13 +384,13 @@ int Sprite_FillRect(BYTE *unused, short *pRect, BYTE *pColour, int layer)
             if (h + y0 > (int)g_pGraphics->resY)
                 h = (short)g_pGraphics->resX - y;
                 h -= 1;
-            a[0] = (int)(__int64)((double)x0 * CGraphics::m_65536);
+            a[0] = (int)FTOI(__int64, (double)x0 * CGraphics::m_65536);
             c[0] = a[0];
-            a[1] = (int)(__int64)((double)y0 * CGraphics::m_65536);
-            x1 = 0x8000 - (int)(__int64)((double)(w - 1 + x0) * g_minus65536);
+            a[1] = (int)FTOI(__int64, (double)y0 * CGraphics::m_65536);
+            x1 = 0x8000 - (int)FTOI(__int64, (double)(w - 1 + x0) * g_minus65536);
             b[0] = x1;
             b[1] = a[1];
-            y1 = 0x8000 - (int)(__int64)((double)(h - 1 + y0) * g_minus65536);
+            y1 = 0x8000 - (int)FTOI(__int64, (double)(h - 1 + y0) * g_minus65536);
             c[1] = y1;
             Tri2D_Queue(a, b, c, pColour, layer);
             a[0] = x1;
