@@ -108,12 +108,13 @@ struct Unk0x0082b2c0 {
     int field_0x10;
 };
 
-// 0x50-byte entry of the option panel table at 0x82c6c8 (g_unk0x0082c6c8): a
+// 0x50-byte entry of the option panel table at 0x82c6c8 (g_optionPreviewPanels): a
 // picture slid from its source to its destination rectangle by a 16.16 value
 // animated between start and end at 50 units/s, then faded in two phases.
 // The panel, split and animation code all read these entries.
+struct Texture;
 struct FixInterp {
-    void *texture;          // 0x00 Texture * of the picture
+    Texture *texture;       // 0x00 picture displayed by the panel
     short srcX1;            // 0x04 rectangle while the value is 0
     short srcY1;
     short srcX2;
@@ -141,6 +142,11 @@ struct FixInterp {
     };
     int active;             // 0x4c
 };
+
+extern FixInterp g_optionPreviewPanels[16];
+extern BYTE g_selectedOptionPreviewPanel; // 0xff means no selection
+extern int g_optionPreviewPanelCount;
+void OptionMenu_TransformHudPointToScreen(FixInterp *p, short *pX, short *pY);
 
 struct Menu *OptionMenu_GetControlSetupMenu(void);
 void FixInterp_StartToOne(FixInterp *p);

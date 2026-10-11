@@ -926,14 +926,9 @@ struct Graphics
     LPDIRECTDRAW7 pDD7; 
     unsigned int field913_0x3bc;
     unsigned int field917_0x3c0;
-    unsigned char field921_0x3c4;
-    unsigned char field922_0x3c5;
-    unsigned char field923_0x3c6;
-    unsigned char field924_0x3c7;
-    unsigned char field925_0x3c8;
-    unsigned char field926_0x3c9;
-    unsigned char field927_0x3ca;
-    unsigned char field928_0x3cb;
+    int baseDrawDistance; // 0x3c4, 16.16 route near limit before detail scaling
+    int maxDrawDistance;  // 0x3c8, 16.16 route far limit
+
 };
 
 // Texture format description filled in by CGraphics::EnumTextureFormatsCallback

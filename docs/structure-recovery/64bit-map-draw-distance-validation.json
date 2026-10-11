@@ -1,0 +1,82 @@
+{
+  "baseline": "096b134",
+  "validation": "isolated checkout excluding unrelated weather-texture worktree edit",
+  "source_sha256": {
+    "CMR2Decomp/Car.cpp": "3d77ffcc19d8ffbc9a1b4bfbeefc671b53d8338e269484028606ddbae733755f",
+    "CMR2Decomp/GameInfo.cpp": "c4b29d87ee4b32ab3acf94a65ab89fcda50225249542ae07329c1338cf6ba858",
+    "CMR2Decomp/GameInfo.h": "32b17d353992b39f09a3e509c2f0f05b4ed9f526eb960a3cc8729aeb7b01feab",
+    "CMR2Decomp/Graphics.h": "7c0f01407587cc9f21d6ad00a29655d89889b6abcebe2a29ac4566e1a52ac620",
+    "CMR2Decomp/LayoutChecks.cpp": "2f2748cafb71a4343af8c0a7ef7149d6aa2f904dd201809d5b62624837b6bec5",
+    "CMR2Decomp/RallyData.cpp": "0f5a063cd9737cde059248961641612495e79b118936184f8b0b4a21f9d7d886",
+    "CMR2Decomp/StageTiming.cpp": "37402dc9ac7750b99c87572b034db92f5f5db20fd930abfe394120aed9ab435f"
+  },
+  "exe_sha256": "9737b0f2d0115fac6321ccfec869987fa1723c4fe3de7026ac02ea857c4f6dd1",
+  "native_game_sha256": "343139521b912d49a68e77bc75bcd37f12565818e9c0ddc7047a2b7745109720",
+  "native_route_cases": 7680,
+  "native_negative_controls": 1,
+  "original_point_cases": 1024,
+  "original_camera_clip_cases": 6000,
+  "runtime_scenarios": {
+    "preliminary-map": {
+      "ticks": 500,
+      "driving_ticks": 375
+    },
+    "arcade-time-trial": {
+      "ticks": 500,
+      "driving_ticks": 375
+    },
+    "multiplayer-host": {
+      "ticks": 500,
+      "driving_ticks": 375
+    },
+    "recorded-replay": {
+      "ticks": 1000,
+      "driving_ticks": 875,
+      "replay": {
+        "distinct_packet_cursors": 10,
+        "last_playing_tick": 850,
+        "first_finished_tick": 875
+      }
+    }
+  },
+  "return_type_audit": {
+    "files": 70,
+    "warnings": 0,
+    "errors": 0
+  },
+  "differential_suite": {
+    "harnesses": 132,
+    "failures": 0
+  },
+  "native_ctests": {
+    "tests": 22,
+    "failures": 0
+  },
+  "isolated_native_without_weather": {
+    "source_sha256": "e0579d2aae8bf171fcdb9ee13209f6a720985fce60e0e4ab99764e68d5f2d896",
+    "probe_sha256": "c2f5f8c58269c9dbc422be1043d77feb948379280afa642cb2d999f41868c5a3",
+    "runtime_scenarios": {
+      "preliminary-map": {
+        "ticks": 500,
+        "driving_ticks": 375
+      },
+      "arcade-time-trial": {
+        "ticks": 500,
+        "driving_ticks": 375
+      },
+      "multiplayer-host": {
+        "ticks": 500,
+        "driving_ticks": 375
+      },
+      "recorded-replay": {
+        "ticks": 1000,
+        "driving_ticks": 875,
+        "replay": {
+          "distinct_packet_cursors": 10,
+          "last_playing_tick": 850,
+          "first_finished_tick": 875
+        }
+      }
+    }
+  }
+}

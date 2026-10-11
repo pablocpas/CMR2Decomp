@@ -5528,7 +5528,7 @@ int Render_GetDetailDistanceScale(void)
     steps[8] = 3.5f;
     steps[9] = 4.0f;
     *(volatile float *)&base =
-        (float)(*(int *)&g_pGraphics->field921_0x3c4 * CGraphics::m_oneOver65536);
+        (float)(g_pGraphics->baseDrawDistance * CGraphics::m_oneOver65536);
     float scale = base * steps[CGameInfo::GetGraphicsOptionBits21To24()];
 
     return (int)(__int64)((scale + base) * CGraphics::m_65536);

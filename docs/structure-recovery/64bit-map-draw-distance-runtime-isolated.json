@@ -1,0 +1,23 @@
+{
+  "preliminary-map": {
+    "ticks": 500,
+    "driving_ticks": 375
+  },
+  "arcade-time-trial": {
+    "ticks": 500,
+    "driving_ticks": 375
+  },
+  "multiplayer-host": {
+    "ticks": 500,
+    "driving_ticks": 375
+  },
+  "recorded-replay": {
+    "ticks": 1000,
+    "driving_ticks": 875,
+    "replay": {
+      "distinct_packet_cursors": 10,
+      "last_playing_tick": 850,
+      "first_finished_tick": 875
+    }
+  }
+}

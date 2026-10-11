@@ -4022,7 +4022,7 @@ struct WeatherMapSet {
 WeatherMapSet g_weatherMaps;
 // GLOBAL: CMR2 0x0082c690
 void *g_unk0x0082c690;
-extern int g_unk0x0082c694;
+extern int g_optionPreviewPanelCount;
 // GLOBAL: CMR2 0x0082ca20
 Texture *g_unk0x0082ca20[9];
 // GLOBAL: CMR2 0x0082c9e8
@@ -4053,13 +4053,11 @@ char g_str0x005272b4[38] = "%s\\Textures\\Weather\\Symbols\\%d\\%s.tga";
 char g_str0x00527290[33] = "%s\\Textures\\Symbols\\%d\\Arrow.tga";
 
 // 0x50-byte entry of the table at 0x82c6c8 (FixInterp in GameInfo.h).
-typedef FixInterp Unk0x0082c6c8;
-extern Unk0x0082c6c8 g_unk0x0082c6c8[16];
+extern FixInterp g_optionPreviewPanels[16];
 extern short g_unk0x0082c9ec[4];
 
 // 0x50-byte entry of 0x82c6c8 as seen by the per-car split panel.
-typedef FixInterp Unk0x0082c6c8Panel;
-extern BYTE g_unk0x0082ca1c;
+extern BYTE g_selectedOptionPreviewPanel;
 extern int g_unk0x0082c6c0;
 extern int g_unk0x0082cb44;
 
@@ -4124,7 +4122,7 @@ void RallyData_LoadCurrentRallyWeatherTextures(void)
 // FUNCTION: CMR2 0x005040f0
 void RallyData_SetupWeatherTextureEntries(void)
 {
-    Unk0x0082c6c8Panel *pEntry;
+    FixInterp *pEntry;
     int index;
     int i;
 
@@ -4140,9 +4138,9 @@ void RallyData_SetupWeatherTextureEntries(void)
     g_unk0x0082c9fe = 0x7c;
     g_unk0x0082ca00 = 0x3b;
     g_unk0x0082ca02 = 0x39;
-    g_unk0x0082c694 = CGameInfo::GetPreviewLayoutMode();
-    for (i = 0; i < g_unk0x0082c694; i++) {
-        pEntry = (Unk0x0082c6c8Panel *)g_unk0x0082c6c8 + i;
+    g_optionPreviewPanelCount = CGameInfo::GetPreviewLayoutMode();
+    for (i = 0; i < g_optionPreviewPanelCount; i++) {
+        pEntry = g_optionPreviewPanels + i;
         pEntry->end = 0;
         pEntry->start = 0;
         pEntry->current = 0;
@@ -4176,7 +4174,7 @@ void RallyData_SetupWeatherTextureEntries(void)
                                    g_unk0x0082c9ec[3] << 16),
                             g_mapSrcRect[3] << 16);
     }
-    g_unk0x0082ca1c = 0;
+    g_selectedOptionPreviewPanel = 0;
     g_unk0x0082c6c0 = CMain::GetFrameDelta();
     g_unk0x0082cb44 = 0;
     RallyData_BuildCountryWeatherIndexMap();
@@ -6326,11 +6324,11 @@ void RallyData_UpdateViewFrameAndDebugOverlay(CallbackStateMachine *param1, int 
             sprintf(CFrontend::m_stringDest, g_strSoftwareTl0x00516d40);
         Font_DrawText(1, CFrontend::m_stringDest, 0, 0x5a, (int *)colour, 9);
         sprintf(CFrontend::m_stringDest, g_strDrawDistance0x00516ce8,
-                (Render_GetDetailDistanceScale() > *(int *)&g_pGraphics->field925_0x3c8
-                     ? *(int *)&g_pGraphics->field925_0x3c8
+                (Render_GetDetailDistanceScale() > g_pGraphics->maxDrawDistance
+                     ? g_pGraphics->maxDrawDistance
                      : Render_GetDetailDistanceScale()) >> 16,
-                *(int *)&g_pGraphics->field921_0x3c4 >> 16,
-                *(int *)&g_pGraphics->field925_0x3c8 >> 16,
+                g_pGraphics->baseDrawDistance >> 16,
+                g_pGraphics->maxDrawDistance >> 16,
                 (int)g_pGraphics->field917_0x3c0 + 1);
         Font_DrawText(1, CFrontend::m_stringDest, 0, 0x69, (int *)colour, 9);
     }
@@ -6747,9 +6745,8 @@ void RallyData_DrawClippedHudRectangleEdges(short *param_1, BYTE *param_2, int p
     }
 }
 
-// Same 0x50-byte entry as Unk0x0082c6c8, seen with the fields the split-bar
+// Same 0x50-byte entry as FixInterp, seen with the fields the split-bar
 // texture mapping uses.
-typedef FixInterp Unk0x0082c6c8Split;
 
 // Gradients the split-time texture is mapped through.
 // GLOBAL: CMR2 0x005270e4
@@ -6764,8 +6761,8 @@ void RallyData_QueueSelectedCarSplitPanel(void)
 {
     short rect[4];
     short src[4];
-    if (g_unk0x0082ca1c != 0xff) {
-        Unk0x0082c6c8Split *pEntry = (Unk0x0082c6c8Split *)g_unk0x0082c6c8 + (signed char)g_unk0x0082ca1c;
+    if (g_selectedOptionPreviewPanel != 0xff) {
+        FixInterp *pEntry = g_optionPreviewPanels + (signed char)g_selectedOptionPreviewPanel;
         int start = pEntry->dstX1 << 16;
         int end = (pEntry->dstX2 + pEntry->dstX1) << 16;
         int first = FixDiv(start - (g_unk0x0082c9ec[0] << 16), g_unk0x0082c9ec[2] << 16);
@@ -6933,7 +6930,6 @@ int g_unk0x005270f0 = 0xff0000ff;
 
 // 0x50-byte entry of 0x82c6c8 as seen by the per-car split draw: source and
 // destination rects plus the shared easing value at 0x1c.
-typedef FixInterp Unk0x0082c6c8Src;
 
 // Draws the split-time panels of every car of the current rally. The active
 // entry (0x82ca1c) gives the destination rect of each panel and the two scale
@@ -6945,8 +6941,8 @@ typedef FixInterp Unk0x0082c6c8Src;
 // FUNCTION: CMR2 0x005051c0
 void RallyData_DrawCarSplitTimePanels(void)
 {
-    Unk0x0082c6c8Src *p;
-    Unk0x0082c6c8Src *pEntry;
+    FixInterp *p;
+    FixInterp *pEntry;
     BYTE colour[12];
     int scaleX;
     int scaleY;
@@ -6955,9 +6951,9 @@ void RallyData_DrawCarSplitTimePanels(void)
     int grow;
     short rect[4];
 
-    if (g_unk0x0082ca1c == 0xff)
+    if (g_selectedOptionPreviewPanel == 0xff)
         return;
-    p = (Unk0x0082c6c8Src *)g_unk0x0082c6c8 + (signed char)g_unk0x0082ca1c;
+    p = g_optionPreviewPanels + (signed char)g_selectedOptionPreviewPanel;
     alpha = 0xff0000 - FixMul(p->current, 0xff0000);
     *(int *)&colour[0] = g_unk0x005270ec;
     *(int *)&colour[8] = g_unk0x005270f0;
@@ -6969,9 +6965,9 @@ void RallyData_DrawCarSplitTimePanels(void)
         return;
     scaleX = FixDiv((int)p->dstX2 << 16, (int)p->srcX2 << 16);
     scaleY = FixDiv((int)p->dstY2 << 16, (int)p->srcY2 << 16);
-    for (i = 0; i < g_unk0x0082c694; i++) {
-        pEntry = (Unk0x0082c6c8Src *)g_unk0x0082c6c8 + i;
-        if (i == (signed char)g_unk0x0082ca1c)
+    for (i = 0; i < g_optionPreviewPanelCount; i++) {
+        pEntry = g_optionPreviewPanels + i;
+        if (i == (signed char)g_selectedOptionPreviewPanel)
             continue;
         rect[0] = (short)(p->dstX1 + (FixMul((pEntry->srcX1 - p->srcX1) << 16, scaleX) >> 16));
         rect[1] = (short)(p->dstY1 + (FixMul(scaleY, (pEntry->srcY1 - p->srcY1) << 16) >> 16));
@@ -7047,7 +7043,7 @@ BYTE g_unk0x00527248[12] = { 0x2d, 0x30, 0x31, 0x28, 0x28, 0x21, 0x22, 0x1d, 0x1
 
 void OptionMenu_DrawTransitionTextShortCoords(int index, int font1, int font2, char *text, short x, short y,
                   int *pColour1, int *pColour2, unsigned int flags);
-int OptionMenu_TransformHudPointToScreen(Unk0x0082c6c8 *p, short *pX, short *pY);
+void OptionMenu_TransformHudPointToScreen(FixInterp *p, short *pX, short *pY);
 
 // Draws the split-times panel of car slot param1: the animated panel sprite,
 // then one row per opponent (the car marker plus its faded preview rect), then
@@ -7056,7 +7052,7 @@ int OptionMenu_TransformHudPointToScreen(Unk0x0082c6c8 *p, short *pX, short *pY)
 // FUNCTION: CMR2 0x005044d0
 void RallyData_DrawCarSplitTimesPanel(int param1)
 {
-    Unk0x0082c6c8Panel *pEntry;
+    FixInterp *pEntry;
     short src[4];
     short outline[4];
     short rect[4];
@@ -7074,7 +7070,7 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
 
     if (g_unk0x0082c690 == NULL || param1 == -1)
         return;
-    pEntry = (Unk0x0082c6c8Panel *)g_unk0x0082c6c8 + param1;
+    pEntry = g_optionPreviewPanels + param1;
     rect[0] = (short)((int)pEntry->dstX1 * (int)g_pGraphics->resX / 0x280);
     rect[1] = (short)((int)pEntry->dstY1 * (int)g_pGraphics->resY / 0x1e0);
     rect[2] = (short)((int)pEntry->dstX2 * (int)g_pGraphics->resX / 0x280);
@@ -7085,15 +7081,15 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
     colour[3] = (BYTE)(FixMul(pEntry->current, 0xff0000) >> 16);
     if (pEntry->current == 0)
         return;
-    *(int *)&src[0] = *(int *)&((Texture *)pEntry->texture)->field_0x11c;
-    *(int *)&src[2] = *(int *)&((Texture *)pEntry->texture)->width;
+    *(int *)&src[0] = *(int *)&pEntry->texture->field_0x11c;
+    *(int *)&src[2] = *(int *)&pEntry->texture->width;
     src[3] = g_mapSrcRect[3];
     if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) &&
         CFrontend::IsTextureHeightSupported(0x400)) {
         src[2] = (short)((int)g_unk0x0082c9ec[2] * (int)g_pGraphics->resX / 0x280);
         src[3] = (short)((int)g_unk0x0082c9ec[3] * (int)g_pGraphics->resY / 0x1e0);
     }
-    Sprite_Queue((SpriteRect *)src, (SpriteRect *)rect, (Texture *)pEntry->texture, 3, 0, NULL, NULL, colour, 8);
+    Sprite_Queue((SpriteRect *)src, (SpriteRect *)rect, pEntry->texture, 3, 0, NULL, NULL, colour, 8);
     x = 0x3c;
     rect[3] = 0x28;
     rect[0] = 0x29;
@@ -7125,7 +7121,7 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
         for (i = 0; i < (g_unk0x0082ca18 & 0xff); i++) {
             rect[0] = (short)x;
             rect[1] = (short)y;
-            OptionMenu_TransformHudPointToScreen((Unk0x0082c6c8 *)pEntry, &rect[0], &rect[1]);
+            OptionMenu_TransformHudPointToScreen(pEntry, &rect[0], &rect[1]);
             if (g_unk0x0082ca04[i] == 100) {
                 if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) &&
                     CFrontend::IsTextureHeightSupported(0x400))
@@ -7152,7 +7148,7 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
             if (i != (*(int *)&g_unk0x0082ca18 & 0xff) - 1) {
                 rect[0] = (short)x;
                 rect[1] = (short)y;
-                OptionMenu_TransformHudPointToScreen((Unk0x0082c6c8 *)pEntry, &rect[0], &rect[1]);
+                OptionMenu_TransformHudPointToScreen(pEntry, &rect[0], &rect[1]);
                 rect[2] = (short)(FixMul(scale, ((Texture *)g_unk0x0082c690)->width << 16) >> 16);
                 rect[3] = (short)(FixMul(scale, ((Texture *)g_unk0x0082c690)->height << 16) >> 16);
                 rect[0] += -(rect[2] / 2);
@@ -8417,7 +8413,6 @@ void RallyData_DrawSplitStandingsPanel(int car, short *pRect)
 
 // 0x50-byte entry of the table at 0x82c6c8 as seen by the panel enter helper:
 // the scoreboard texture slot picked for the panel.
-typedef FixInterp Unk0x0082c6c8Sel;
 
 void OptionMenu_DrawResultRows(int param1);
 void OptionMenu_DrawStageSummaryPanel(int param1, int param2);
@@ -8484,15 +8479,15 @@ void RallyData_DrawSelectedRallyTemperature(int param_1)
 // FUNCTION: CMR2 0x005043b0
 void RallyData_EnterSelectedOptionPanel(void)
 {
-    Unk0x0082c6c8Sel *pEntry;
+    FixInterp *pEntry;
     short rect[4];
 
     RallyData_QueueSelectedCarSplitPanel();
-    RallyData_DrawCarSplitTimesPanel((int)(signed char)g_unk0x0082ca1c);
+    RallyData_DrawCarSplitTimesPanel((int)(signed char)g_selectedOptionPreviewPanel);
     RallyData_DrawCarSplitTimePanels();
     OptionMenu_DrawCountryFlags();
-    if (g_unk0x0082ca1c != 0xff) {
-        pEntry = (Unk0x0082c6c8Sel *)g_unk0x0082c6c8 + (signed char)g_unk0x0082ca1c;
+    if (g_selectedOptionPreviewPanel != 0xff) {
+        pEntry = g_optionPreviewPanels + (signed char)g_selectedOptionPreviewPanel;
         OptionMenu_DrawResultRows(RallyDataCountryIndex() & 0xff);
         OptionMenu_DrawStageSummaryPanel(RallyDataCountryIndex() & 0xff, pEntry->count);
         RallyData_DrawSelectedRallyTemperature(pEntry->count);

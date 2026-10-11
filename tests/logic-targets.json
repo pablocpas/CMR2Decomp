@@ -588,6 +588,12 @@
       "0x5004c0"
     ]
   },
+  "differential_option_panel_points.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x503b70"
+    ]
+  },
   "differential_option_texture_records.py": {
     "arguments": "entities",
     "targets": [

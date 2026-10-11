@@ -4256,17 +4256,17 @@ void StageTiming_SetViewRouteDistanceLimit(BYTE player, unsigned int node, int d
         else
             farDist = pNode->forwardFarLimit;
         if (farDist > 0) {
-            *(int *)((BYTE *)g_pGraphics + 0x3c8) = farDist;
+            g_pGraphics->maxDrawDistance = farDist;
             distance = Render_GetDetailDistanceScale();
-            if (distance > *(int *)((BYTE *)g_pGraphics + 0x3c8))
-                distance = *(int *)((BYTE *)g_pGraphics + 0x3c8);
+            if (distance > g_pGraphics->maxDrawDistance)
+                distance = g_pGraphics->maxDrawDistance;
             View_SetDistanceOverride(player, distance);
         }
         if (nearDist > 0) {
-            *(int *)((BYTE *)g_pGraphics + 0x3c4) = nearDist;
+            g_pGraphics->baseDrawDistance = nearDist;
             distance = Render_GetDetailDistanceScale();
-            if (distance > *(int *)((BYTE *)g_pGraphics + 0x3c8))
-                distance = *(int *)((BYTE *)g_pGraphics + 0x3c8);
+            if (distance > g_pGraphics->maxDrawDistance)
+                distance = g_pGraphics->maxDrawDistance;
             View_SetDistanceOverride(player, distance);
         }
     }

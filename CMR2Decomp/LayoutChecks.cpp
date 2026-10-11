@@ -1212,3 +1212,15 @@ CMR2_LAYOUT_CHECK(ReplaySample_yCheck, offsetof(ReplaySample, y) == 0x0);
 CMR2_LAYOUT_CHECK(Sector_viewDistanceSquared_Check, offsetof(Sector, viewDistanceSquared) == 0x7c);
 CMR2_LAYOUT_CHECK(Sector_field_0x80_Check, offsetof(Sector, field_0x80) == 0x80);
 CMR2_LAYOUT_CHECK(Sector_field_0x84_Check, offsetof(Sector, field_0x84) == 0x84);
+
+CMR2_LAYOUT_CHECK(Graphics_baseDrawDistance_Check, offsetof(Graphics, baseDrawDistance) == 0x3c4);
+CMR2_LAYOUT_CHECK(Graphics_maxDrawDistance_Check, offsetof(Graphics, maxDrawDistance) == 0x3c8);
+
+CMR2_LAYOUT_CHECK(FixInterpSizeCheck, sizeof(FixInterp) == 0x50);
+CMR2_LAYOUT_CHECK(FixInterp_texture_Check, offsetof(FixInterp, texture) == 0x0);
+CMR2_LAYOUT_CHECK(FixInterp_srcX1_Check, offsetof(FixInterp, srcX1) == 0x4);
+CMR2_LAYOUT_CHECK(FixInterp_dstX1_Check, offsetof(FixInterp, dstX1) == 0xc);
+CMR2_LAYOUT_CHECK(FixInterp_current_Check, offsetof(FixInterp, current) == 0x1c);
+CMR2_LAYOUT_CHECK(FixInterp_phase2_Check, offsetof(FixInterp, phase2) == 0x28);
+CMR2_LAYOUT_CHECK(FixInterp_count_Check, offsetof(FixInterp, count) == 0x48);
+CMR2_LAYOUT_CHECK(FixInterp_active_Check, offsetof(FixInterp, active) == 0x4c);

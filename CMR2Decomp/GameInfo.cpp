@@ -2500,12 +2500,11 @@ int CGameInfo::GetPreviewLayoutMode(void)
 }
 
 // 0x50-byte entry of the table at 0x82c6c8 (FixInterp in GameInfo.h).
-typedef FixInterp Unk0x0082c6c8;
 
 // GLOBAL: CMR2 0x0082c6c8
-Unk0x0082c6c8 g_unk0x0082c6c8[16];
+FixInterp g_optionPreviewPanels[16];
 // GLOBAL: CMR2 0x0082ca1c
-BYTE g_unk0x0082ca1c;
+BYTE g_selectedOptionPreviewPanel;
 // GLOBAL: CMR2 0x0082c6c0
 int g_unk0x0082c6c0;
 // GLOBAL: CMR2 0x0082cb44
@@ -2520,12 +2519,12 @@ int g_unk0x0082cb44;
 int CGameInfo::SelectIdleOptionPreviewEntry(BYTE param1)
 {
     int result = 0;
-    Unk0x0082c6c8 *pEntry;
-    if (g_unk0x0082ca1c == 0xff ||
-        ((pEntry = &g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c])->active == 0 &&
+    FixInterp *pEntry;
+    if (g_selectedOptionPreviewPanel == 0xff ||
+        ((pEntry = &g_optionPreviewPanels[(signed char)g_selectedOptionPreviewPanel])->active == 0 &&
          pEntry->current == 0)) {
         result = 1;
-        g_unk0x0082ca1c = param1;
+        g_selectedOptionPreviewPanel = param1;
         g_unk0x0082c6c0 = CMain::GetFrameDelta();
         g_unk0x0082cb44 = 0;
     }
@@ -3637,12 +3636,12 @@ void CGameInfo::SwitchOptionPreviewMode(int param1)
     FixInterp *pOld;
     int tmp;
 
-    current = (signed char)g_unk0x0082ca1c;
+    current = (signed char)g_selectedOptionPreviewPanel;
     if (current == param1)
         return;
-    if (g_unk0x0082ca1c != 0xff && param1 != -1) {
-        pOld = &g_unk0x0082c6c8[current];
-        pNew = &g_unk0x0082c6c8[param1];
+    if (g_selectedOptionPreviewPanel != 0xff && param1 != -1) {
+        pOld = &g_optionPreviewPanels[current];
+        pNew = &g_optionPreviewPanels[param1];
         tmp = pOld->active;
         pOld->active = pNew->active;
         pNew->active = tmp;
@@ -3677,7 +3676,7 @@ void CGameInfo::SwitchOptionPreviewMode(int param1)
     }
     g_unk0x0082c6c0 = (int)CMain::GetFrameDelta();
     g_unk0x0082cb44 = 0;
-    g_unk0x0082ca1c = (BYTE)param1;
+    g_selectedOptionPreviewPanel = (BYTE)param1;
 }
 
 
@@ -5876,7 +5875,7 @@ short g_unk0x0082c9ec[4];
 // marked as already scaled (field_0x1c == 0x10000) it only resolves the
 // 640x480 reference to the current resolution.
 // FUNCTION: CMR2 0x00503b70
-int OptionMenu_TransformHudPointToScreen(Unk0x0082c6c8 *p, short *pX, short *pY)
+void OptionMenu_TransformHudPointToScreen(FixInterp *p, short *pX, short *pY)
 {
     int value;
 
@@ -7181,7 +7180,7 @@ void OptionPreview_BuildCornerHeightTransform(int index)
 
 // Number of filled slots (1 or 2), from CGameInfo::GetPreviewLayoutMode.
 // GLOBAL: CMR2 0x0082c694
-int g_unk0x0082c694;
+int g_optionPreviewPanelCount;
 // Active slot read from the current mode entry's field 0x48.
 // GLOBAL: CMR2 0x0082c710
 BYTE g_unk0x0082c710;
@@ -7246,7 +7245,7 @@ void OptionPreview_FillTextureSetIndices(void)
     pPairs = (BYTE *)RallyData_GetDriverSettingPair(0);
     // The original reads [index * 0x50 + 0x82c6c0]: byte 0x48 of the previous
     // 0x50-byte entry of the table at 0x82c6c8 (index is 1-based).
-    count = g_unk0x0082c6c8[g_unk0x0082c694 - 1].count;
+    count = g_optionPreviewPanels[g_optionPreviewPanelCount - 1].count;
     slot = g_unk0x0082c710 & 0xff;
     g_unk0x0082ca18 = count - slot + 2;
     pEntry = RallyData_GetDriverSecondaryPairRecord(slot);
@@ -8088,9 +8087,9 @@ void OptionMenu_ToggleValueAnimation(int param_1, int param_2)
 {
     FixInterp *p;
 
-    if (g_unk0x0082ca1c == 0xff)
+    if (g_selectedOptionPreviewPanel == 0xff)
         return;
-    p = &g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c];
+    p = &g_optionPreviewPanels[(signed char)g_selectedOptionPreviewPanel];
     if (param_1 != 0) {
         if (p->end != 0x10000)
             FixInterp_StartToOne(p);
@@ -9191,7 +9190,6 @@ void OptionMenu_DrawSeparators(int param1)
 // 0x50-byte entry of 0x82c6c8 as seen by the option panel animation: the source
 // and destination rects, the slide ramp, the two fade phases and their start
 // times.
-typedef FixInterp Unk0x0082c6c8Anim;
 
 // Advances the animation of the option panel selected by 0x82ca1c: eases its
 // slide (the ramp is 16.16 and follows the square root of the elapsed
@@ -9204,15 +9202,15 @@ typedef FixInterp Unk0x0082c6c8Anim;
 // FUNCTION: CMR2 0x00505b40
 void OptionMenu_AnimateSelectedPanel(void)
 {
-    Unk0x0082c6c8Anim *pEntry;
+    FixInterp *pEntry;
     unsigned int now;
     int ratio;
     int index;
 
-    if (g_unk0x0082ca1c == 0xff)
+    if (g_selectedOptionPreviewPanel == 0xff)
         return;
-    index = (signed char)g_unk0x0082ca1c;
-    pEntry = (Unk0x0082c6c8Anim *)g_unk0x0082c6c8 + index;
+    index = (signed char)g_selectedOptionPreviewPanel;
+    pEntry = g_optionPreviewPanels + index;
     if (pEntry->active != 0) {
         now = CMain::GetFrameDelta();
         ratio = FixDiv((int)(now - pEntry->startTime) << 16, pEntry->distance);
@@ -9278,14 +9276,14 @@ void OptionMenu_AnimateSelectedPanel(void)
 // FUNCTION: CMR2 0x005059d0
 void OptionMenu_SelectDisplaySlot(int param_1)
 {
-    if (g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c].active == 0) {
-        if ((signed char)g_unk0x0082ca1c != param_1) {
-            param_1 = param_1 % g_unk0x0082c694;
+    if (g_optionPreviewPanels[(signed char)g_selectedOptionPreviewPanel].active == 0) {
+        if ((signed char)g_selectedOptionPreviewPanel != param_1) {
+            param_1 = param_1 % g_optionPreviewPanelCount;
             CGameInfo::SwitchOptionPreviewMode(param_1);
         }
         Menu_SetFlags(OptionMenu_GetControlSetupMenu(), 1, 1, 1, 1);
-        if ((signed char)g_unk0x0082ca1c != param_1) {
-            CGameInfo::SelectIdleOptionPreviewEntry((BYTE)(param_1 % g_unk0x0082c694));
+        if ((signed char)g_selectedOptionPreviewPanel != param_1) {
+            CGameInfo::SelectIdleOptionPreviewEntry((BYTE)(param_1 % g_optionPreviewPanelCount));
             OptionMenu_AnimateSelectedPanel();
             return;
         }

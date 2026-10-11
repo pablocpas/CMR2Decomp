@@ -1,0 +1,17 @@
+Thread 1 "stage_probe" received signal SIGSEGV, Segmentation fault.
+SceneNode_Destroy (pNode=0x1d79450) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/SceneNode.cpp:368
+368	        pNext = pChild->pNext;
+#0  SceneNode_Destroy (pNode=0x1d79450) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/SceneNode.cpp:368
+#1  0x00000000004c85a8 in SceneNode_Destroy (pNode=0x7ffff77f6b20 <main_arena+96>) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/SceneNode.cpp:369
+#2  0x00000000004c85a8 in SceneNode_Destroy (pNode=0xa6a390) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/SceneNode.cpp:369
+#3  0x0000000000470a1d in OptionMenu_UpdateBackgroundRoot () at /home/pablo/colin_mcrae_linux/OpenCMR2/game/GameInfo.cpp:5843
+#4  0x00000000004c3407 in RallyData_DrawCarSplitTimesPanel (param1=<optimized out>) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/RallyData.cpp:7155
+#5  0x00000000004c58fc in RallyData_EnterSelectedOptionPanel () at /home/pablo/colin_mcrae_linux/OpenCMR2/game/RallyData.cpp:8491
+#6  0x000000000047977d in OptionMenu_SelectAndAnimateSlot (param_1=<optimized out>, param_2=0) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/GameInfo.cpp:9259
+#7  OptionMenu_DrawSlotStripPanel (param_1=<optimized out>) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/GameInfo.cpp:10024
+#8  0x0000000000471da3 in OptionMenu_DrawActivePage () at /home/pablo/colin_mcrae_linux/OpenCMR2/game/GameInfo.cpp:2232
+#9  OptionMenu_DrawBackgroundState (p1=<optimized out>, state=<optimized out>) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/GameInfo.cpp:6589
+#10 0x000000000045dffb in CGame::RunStateRenderCallbacks (param1=<optimized out>) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/Game.cpp:1177
+#11 CGame::UpdateSecondaryCallbackMachine () at /home/pablo/colin_mcrae_linux/OpenCMR2/game/Game.cpp:1308
+#12 0x000000000045da45 in CGame::DispatchFrontendResourceState () at /home/pablo/colin_mcrae_linux/OpenCMR2/game/Game.cpp:176
+#13 0x000000000040304f in main (argc=<optimized out>, argv=0x7fffffffd608) at /home/pablo/colin_mcrae_linux/OpenCMR2/tests/stage_probe.cpp:366

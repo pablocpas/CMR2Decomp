@@ -1,0 +1,3 @@
+old-offsets -6  old-offsets: /tmp/cmr2-distance-native-k0q_r_ao/old-offsets.cpp:128: int main(): Assertion `!memcmp(&expected, g_pGraphics, sizeof(expected))' failed.
+
+typed-fields 0 PASS 7680 native route/detail cases: whole Graphics, route records, distances and high pointers
