@@ -189,6 +189,7 @@
   <ItemGroup>
     <ClInclude Include="CarPhysics.h" />
     <ClInclude Include="CarResources.h" />
+    <ClInclude Include="MeshVertex.h" />
     <ClInclude Include="zlib\zlib.h" />
     <ClInclude Include="zlib\zconf.h" />
     <ClInclude Include="zlib\zutil.h" />

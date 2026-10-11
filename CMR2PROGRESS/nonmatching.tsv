@@ -255,13 +255,13 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x456110	StageTiming_RandomizeComputerTimes	StageTiming.cpp	204	0.8413793103448276	0.8794326241134752
 0x464cb0	StageObject_UpdateSkidTrails	StageObjects.cpp	2172	0.8424242424242424	0.831306990881459
 0x45f530	StageObject_ScaleViewValueByRoute	StageTiming.cpp	154	0.8440366972477065	0.8518518518518519
-0x4abaf0	Mesh_CloneInto	Mesh.cpp	1616	0.8452488687782805	0.7692307692307693
 0x468520	CarDamage_AllocateImpactDeformRecord	StageTiming.cpp	908	0.8455008488964346	0.7269681742043551
 0x426fc0	NetRace_ExtrapolateOrderedCarPoses	FixedPoint.cpp	1466	0.8459915611814346	0.821917808219178
 0x444c10	Car_PrepareStep	Car.cpp	3256	0.8477777777777777	0.8138766519823789
 0x45c610	CarTyres_CommitPlayerWear	StageTiming.cpp	145	0.85	0.85
 0x467e90	StageDeform_ApplyPlanarDent	StageTiming.cpp	1666	0.8505106778087279	0.8051948051948052
 0x463070	StageLights_UpdateDirection	StageObjects.cpp	512	0.850632911392405	0.7182044887780549
+0x4abaf0	Mesh_CloneInto	Mesh.cpp	1616	0.8517179023508138	0.7732610659439928
 0x402c90	InRaceMenu_RebuildMainPage	GameInfo.cpp	487	0.8525641025641025	0.8480565371024735
 0x454df0	GameMenus_DrawTextRow	GameMenus.cpp	296	0.8526315789473684	0.8677248677248677
 0x4a8890	CGraphics::SetProjection	Graphics.cpp	661	0.8527131782945736	0.8527131782945736

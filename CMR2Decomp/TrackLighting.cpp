@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "FixedPoint.h"
 #include "Mesh.h"
+#include "MeshVertex.h"
 
 // Mesh lighting reads the shared stage state defined in TrackCollision.cpp.
 extern Mesh *g_stageMesh4Copy;
@@ -27,8 +28,8 @@ void TrackLighting_SetLightMeshDiffuseColour(DWORD *pColour)
     colour.value = *pColour;
 
     for (i = g_stageMesh4Count - 1; i >= 0; i--) {
-        *(DWORD *)((BYTE *)g_stageMesh4Copy->pVertexData + i * 0x30 + 0x18) = PACK_STAGE_COLOUR(colour);
-        *(DWORD *)((BYTE *)g_stageMesh4Copy->pVertexData + i * 0x30 + 0x1c) = 0xff000000;
+        ((MeshVertexF *)g_stageMesh4Copy->pVertexData)[i].diffuseColour = PACK_STAGE_COLOUR(colour);
+        ((MeshVertexF *)g_stageMesh4Copy->pVertexData)[i].specularColour = 0xff000000;
     }
     g_stageLightReady = 1;
 }
@@ -43,8 +44,8 @@ void TrackLighting_SetMesh5DiffuseColour(DWORD *pColour)
     colour.value = *pColour;
 
     for (i = g_stageMesh5Count - 1; i >= 0; i--) {
-        *(DWORD *)((BYTE *)g_groundReferenceMesh->pVertexData + i * 0x30 + 0x18) = PACK_STAGE_COLOUR(colour);
-        *(DWORD *)((BYTE *)g_groundReferenceMesh->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
+        ((MeshVertexF *)g_groundReferenceMesh->pVertexData)[i].diffuseColour = PACK_STAGE_COLOUR(colour);
+        ((MeshVertexF *)g_groundReferenceMesh->pVertexData)[i].specularColour = (DWORD)g_stageColourAlpha << 24;
     }
     g_stageColourValue = 1;
 }
@@ -59,8 +60,8 @@ void TrackLighting_SetSkyDiffuseColour(DWORD *pColour)
     if (g_stageMesh6Copy != NULL) {
         colour.value = *pColour;
         for (i = g_stageMesh6Count - 1; i >= 0; i--) {
-            *(DWORD *)((BYTE *)g_stageMesh6Copy->pVertexData + i * 0x30 + 0x18) = PACK_STAGE_COLOUR(colour);
-            *(DWORD *)((BYTE *)g_stageMesh6Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
+            ((MeshVertexF *)g_stageMesh6Copy->pVertexData)[i].diffuseColour = PACK_STAGE_COLOUR(colour);
+            ((MeshVertexF *)g_stageMesh6Copy->pVertexData)[i].specularColour = (DWORD)g_stageColourAlpha << 24;
         }
         g_stageColourState = 1;
     }

@@ -1104,6 +1104,7 @@ CMR2_LAYOUT_CHECK(StageTimingSpread_endBlendFixed_Check, offsetof(StageTimingSpr
 
 #include "Texture.h"
 #include "Mesh.h"
+#include "MeshVertex.h"
 #include "BFL.h"
 CMR2_LAYOUT_CHECK(Texture_SizeCheck, sizeof(Texture) == 0x130);
 CMR2_LAYOUT_CHECK(Texture_pSurface_Check, offsetof(Texture, pSurface) == 0x114);
@@ -1239,3 +1240,16 @@ CMR2_LAYOUT_CHECK(CategoryBestResultsRallyCheck, offsetof(CategoryBestResults, r
 CMR2_LAYOUT_CHECK(CategoryBestResultsStageCheck, offsetof(CategoryBestResults, rallyStageTimes) == 0x150);
 CMR2_LAYOUT_CHECK(CategoryBestResultsArcadeCheck, offsetof(CategoryBestResults, arcadeResults) == 0x450);
 CMR2_LAYOUT_CHECK(CategoryBestResultsArcadeTimeCheck, offsetof(CategoryBestResults, arcadeStageTimes) == 0x4bc);
+
+// Pointer-free source vertices and native object placement matrix consumers.
+CMR2_LAYOUT_CHECK(MeshVertexF_SizeCheck, sizeof(MeshVertexF) == 0x30);
+CMR2_LAYOUT_CHECK(MeshVertexF_x_Check, offsetof(MeshVertexF, x) == 0x0);
+CMR2_LAYOUT_CHECK(MeshVertexF_y_Check, offsetof(MeshVertexF, y) == 0x4);
+CMR2_LAYOUT_CHECK(MeshVertexF_z_Check, offsetof(MeshVertexF, z) == 0x8);
+CMR2_LAYOUT_CHECK(MeshVertexF_nx_Check, offsetof(MeshVertexF, nx) == 0xc);
+CMR2_LAYOUT_CHECK(MeshVertexF_ny_Check, offsetof(MeshVertexF, ny) == 0x10);
+CMR2_LAYOUT_CHECK(MeshVertexF_nz_Check, offsetof(MeshVertexF, nz) == 0x14);
+CMR2_LAYOUT_CHECK(MeshVertexF_diffuseColour_Check, offsetof(MeshVertexF, diffuseColour) == 0x18);
+CMR2_LAYOUT_CHECK(MeshVertexF_specularColour_Check, offsetof(MeshVertexF, specularColour) == 0x1c);
+CMR2_LAYOUT_CHECK(MeshVertexF_textureCoordinates_Check, offsetof(MeshVertexF, textureCoordinates) == 0x20);
+CMR2_LAYOUT_CHECK(StageObject_matrix_Check, offsetof(StageObject, matrix) == 0x18);

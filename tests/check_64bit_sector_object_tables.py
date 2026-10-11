@@ -53,7 +53,7 @@ void StageObjects_ReleaseObjectFiles(){}
 void Mesh_ResetCloneCount(){}
 SceneNode *RallyData_GetChallengeRenderState(){return &root;}
 SceneNode *SceneNode_Create(SceneNode *p){assert(p==&root && created<40);return &nodes[created++];}
-Mesh *Mesh_CloneInto(Mesh *m,BYTE *source){auto *p=(StageObject *)source;int i=(int)(p-placements);assert(m==&meshes[i]);return i==failed?nullptr:m;}
+Mesh *Mesh_CloneInto(Mesh *m,StageObject *source){auto *p=source;int i=(int)(p-placements);assert(m==&meshes[i]);return i==failed?nullptr:m;}
 StageObject *StageObject_GetNext(StageObject *p){return p->pNext;}
 Car *Car_Get(int i){assert(i>=0 && i<2);return &cars[i];}
 short Car_GetOrderCount(){return 2;}

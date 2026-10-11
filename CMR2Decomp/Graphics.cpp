@@ -3272,12 +3272,7 @@ extern BYTE g_shadowCylinderCount;
 // 4096 / (360 * 65536): 16.16 degrees to a sine table index.
 extern double g_fixedDegreesToAngle12;
 
-// Vertex of a Mesh (0x30 bytes): position and normal, then colour/uv data.
-struct MeshVertexF {
-    float x, y, z;
-    float nx, ny, nz;
-    BYTE field_0x18[0x18];
-};
+#include "MeshVertex.h"
 
 // Returns a closed 10-sided cylinder (22 vertices, 20 triangles) enclosing pMesh:
 // its radius is the furthest point where a triangle crosses z = 0, its height the

@@ -3,6 +3,7 @@
 #include "FixedPoint.h"
 #include "Car.h"
 #include "Mesh.h"
+#include "MeshVertex.h"
 #include "CarParts.h"
 #include "FinRecord.h"
 #include <stdio.h>
@@ -705,8 +706,8 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
         if (height == g_unk0x00592114.y &&
             g_unk0x00592114.x == (int)(__int64)((double)vx * CGraphics::m_65536) &&
             g_unk0x00592114.z == (int)(__int64)((double)vz * CGraphics::m_65536)) {
-            *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x18) = ((0xffffff00 | refColour[0]) << 8 | refColour[1]) << 8 | refColour[2];
-            *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)*pAlpha << 24;
+            ((MeshVertexF *)g_stageMesh0Copy->pVertexData)[i].diffuseColour = ((0xffffff00 | refColour[0]) << 8 | refColour[1]) << 8 | refColour[2];
+            ((MeshVertexF *)g_stageMesh0Copy->pVertexData)[i].specularColour = (DWORD)*pAlpha << 24;
         } else {
             t = FixMul(height - g_stageHeightMin, g_stageHeightScale);
             if (t < 0)
@@ -728,9 +729,9 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
             value = colour.z >> 16;
             if (value > 255) value = 255;
             else if (value < 0) value = 0;
-            *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x18) =
+            ((MeshVertexF *)g_stageMesh0Copy->pVertexData)[i].diffuseColour =
                 ((0xffffff00 | rgb[0]) << 8 | rgb[1]) << 8 | (BYTE)value;
-            *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)*pAlpha << 24;
+            ((MeshVertexF *)g_stageMesh0Copy->pVertexData)[i].specularColour = (DWORD)*pAlpha << 24;
         }
     }
     g_stageColourDirty = 1;

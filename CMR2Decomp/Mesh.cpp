@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <string.h>
 #include "Mesh.h"
+#include "MeshVertex.h"
 #include "FileBuffer.h"
 #include "Graphics.h"
 #include "Frontend.h"
@@ -303,11 +304,11 @@ void Mesh_ResetCloneCount(void)
 }
 
 // Clones a mesh and moves its vertices (positions and normals) into the
-// local space of pSource->matrix (at +0x18), with the matrix axes
+// local space of pSource->matrix, with the matrix axes
 // normalised; the clone gets its own parts and vertex buffer slot.
 // match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004abaf0
-Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource)
+Mesh *Mesh_CloneInto(Mesh *pSrc, StageObject *pSource)
 {
     FixMatrix m;
     FixVector v;
@@ -336,13 +337,13 @@ Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource)
     for (k = 0; k < 0xc; k++)
         pMesh->field_0x0[k] = pSrc->field_0x0[k];
     pMesh->field_0x10 = pSrc->field_0x10;
-    pMesh->pVertexData = (DWORD *)CFileBuffer::AllocateLockedBuffer(pMesh->field_0x10 * 0x30);
-    for (i = 0, off = 0; i < pMesh->field_0x10; i++, off += 0x30)
-        memcpy((BYTE *)pMesh->pVertexData + off, (BYTE *)pSrc->pVertexData + off, 0x30);
+    pMesh->pVertexData = (DWORD *)CFileBuffer::AllocateLockedBuffer(pMesh->field_0x10 * sizeof(MeshVertexF));
+    for (i = 0; i < pMesh->field_0x10; i++)
+        memcpy(&((MeshVertexF *)pMesh->pVertexData)[i], &((MeshVertexF *)pSrc->pVertexData)[i], sizeof(MeshVertexF));
     pMesh->triangleCount = pSrc->triangleCount;
-    pMesh->pTriangles = (MeshTriangle *)CFileBuffer::AllocateLockedBuffer(pMesh->triangleCount * 0x4c);
-    for (i = 0, off = 0; i < pMesh->triangleCount; i++, off += 0x4c)
-        memcpy((BYTE *)pMesh->pTriangles + off, (BYTE *)pSrc->pTriangles + off, 0x4c);
+    pMesh->pTriangles = (MeshTriangle *)CFileBuffer::AllocateLockedBuffer(pMesh->triangleCount * sizeof(MeshTriangle));
+    for (i = 0; i < pMesh->triangleCount; i++)
+        memcpy(&pMesh->pTriangles[i], &pSrc->pTriangles[i], sizeof(MeshTriangle));
     pMesh->pField20 = CFileBuffer::AllocateLockedBuffer(pMesh->triangleCount * 0x14);
     for (i = 0, off = 0; i < pMesh->triangleCount; i++, off += 0x14)
         memcpy((BYTE *)pMesh->pField20 + off, (BYTE *)pSrc->pField20 + off, 0x14);
@@ -353,32 +354,32 @@ Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource)
     pMesh->flags = pSrc->flags;
     pMesh->field_0x2c = pSrc->field_0x2c;
 
-    FixMatrix_GetRight(&v, (FixMatrix *)(pSource + 0x18));
+    FixMatrix_GetRight(&v, &pSource->matrix);
     FIX_NORMALIZE_INTO(v, v);
     FixMatrix_SetRight(&v, &m);
-    FixMatrix_GetUp(&v, (FixMatrix *)(pSource + 0x18));
+    FixMatrix_GetUp(&v, &pSource->matrix);
     FIX_NORMALIZE_INTO(v, v);
     FixMatrix_SetUp(&v, &m);
-    FixMatrix_GetForward(&v, (FixMatrix *)(pSource + 0x18));
+    FixMatrix_GetForward(&v, &pSource->matrix);
     FIX_NORMALIZE_INTO(v, v);
     FixMatrix_SetForward(&v, &m);
-    FixMatrix_GetPosition(&v, (FixMatrix *)(pSource + 0x18));
+    FixMatrix_GetPosition(&v, &pSource->matrix);
     FixMatrix_SetPosition(&v, &m);
-    for (i = 0, off = 0; i < pMesh->field_0x10; i++, off += 0x30) {
-        d.x = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData + off + 0) * CGraphics::m_65536) - v.x;
-        d.y = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData + off + 4) * CGraphics::m_65536) - v.y;
-        d.z = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData + off + 8) * CGraphics::m_65536) - v.z;
+    for (i = 0; i < pMesh->field_0x10; i++) {
+        d.x = (int)(__int64)(((MeshVertexF *)pMesh->pVertexData)[i].x * CGraphics::m_65536) - v.x;
+        d.y = (int)(__int64)(((MeshVertexF *)pMesh->pVertexData)[i].y * CGraphics::m_65536) - v.y;
+        d.z = (int)(__int64)(((MeshVertexF *)pMesh->pVertexData)[i].z * CGraphics::m_65536) - v.z;
         FixMatrix_InverseRotateVector(&r, &d, &m);
-        *(float *)((BYTE *)pMesh->pVertexData + off + 0) = (float)r.x * CGraphics::m_oneOver65536;
-        *(float *)((BYTE *)pMesh->pVertexData + off + 4) = (float)r.y * CGraphics::m_oneOver65536;
-        *(float *)((BYTE *)pMesh->pVertexData + off + 8) = (float)r.z * CGraphics::m_oneOver65536;
-        dn.x = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData + off + 0xc) * CGraphics::m_65536);
-        dn.y = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData + off + 0x10) * CGraphics::m_65536);
-        dn.z = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData + off + 0x14) * CGraphics::m_65536);
+        ((MeshVertexF *)pMesh->pVertexData)[i].x = (float)r.x * CGraphics::m_oneOver65536;
+        ((MeshVertexF *)pMesh->pVertexData)[i].y = (float)r.y * CGraphics::m_oneOver65536;
+        ((MeshVertexF *)pMesh->pVertexData)[i].z = (float)r.z * CGraphics::m_oneOver65536;
+        dn.x = (int)(__int64)(((MeshVertexF *)pMesh->pVertexData)[i].nx * CGraphics::m_65536);
+        dn.y = (int)(__int64)(((MeshVertexF *)pMesh->pVertexData)[i].ny * CGraphics::m_65536);
+        dn.z = (int)(__int64)(((MeshVertexF *)pMesh->pVertexData)[i].nz * CGraphics::m_65536);
         FixMatrix_InverseRotateVector(&rn, &dn, &m);
-        *(float *)((BYTE *)pMesh->pVertexData + off + 0xc) = (float)rn.x * CGraphics::m_oneOver65536;
-        *(float *)((BYTE *)pMesh->pVertexData + off + 0x10) = (float)rn.y * CGraphics::m_oneOver65536;
-        *(float *)((BYTE *)pMesh->pVertexData + off + 0x14) = (float)rn.z * CGraphics::m_oneOver65536;
+        ((MeshVertexF *)pMesh->pVertexData)[i].nx = (float)rn.x * CGraphics::m_oneOver65536;
+        ((MeshVertexF *)pMesh->pVertexData)[i].ny = (float)rn.y * CGraphics::m_oneOver65536;
+        ((MeshVertexF *)pMesh->pVertexData)[i].nz = (float)rn.z * CGraphics::m_oneOver65536;
     }
     Mesh_BuildParts(pMesh);
     Mesh_UploadVertices(pMesh);

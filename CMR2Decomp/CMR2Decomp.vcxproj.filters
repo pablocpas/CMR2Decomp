@@ -158,6 +158,9 @@
     <ClInclude Include="CarResources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MeshVertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="zlib\zlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>

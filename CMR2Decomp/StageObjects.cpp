@@ -36,6 +36,7 @@ short Car_GetOrderCount(void);
 #include "GenericFileLoader.h"
 #include "FileBuffer.h"
 #include "Mesh.h"
+#include "MeshVertex.h"
 #include "CarParts.h"
 #include "CarLightState.h"
 #include "Graphics.h"
@@ -1385,11 +1386,11 @@ void Mesh_ReadVertexFixed(Mesh **ppMeshes, int mesh, int vertex, int *pOut)
 {
     float f;
 
-    f = *(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30);
+    f = ((MeshVertexF *)ppMeshes[mesh]->pVertexData)[vertex].x;
     pOut[0] = (int)(__int64)(f * CGraphics::m_65536);
-    f = *(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30 + 4);
+    f = ((MeshVertexF *)ppMeshes[mesh]->pVertexData)[vertex].y;
     pOut[1] = (int)(__int64)(f * CGraphics::m_65536);
-    f = *(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30 + 8);
+    f = ((MeshVertexF *)ppMeshes[mesh]->pVertexData)[vertex].z;
     pOut[2] = (int)(__int64)(f * CGraphics::m_65536);
 }
 
@@ -1790,7 +1791,7 @@ void StageObjects_LoadSkyAndGround(void)
 
 SceneNode *RallyData_GetChallengeRenderState(void);
 void Mesh_ResetCloneCount(void);
-Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource);
+Mesh *Mesh_CloneInto(Mesh *pSrc, StageObject *pSource);
 extern double g_minus65536;
 
 // Loads the stage object list, creates a scene node and clones the mesh of
@@ -1838,7 +1839,7 @@ void StageObject_LoadAndClassifyMeshes(void)
                 mesh = pEntries[i].pObject->pMesh;
                 if ((int)g_movingObjects.meshCount < count) {
                     g_movingObjectMeshIndex[i] = (BYTE)g_movingObjects.meshCount;
-                    mesh = Mesh_CloneInto(mesh, (BYTE *)pEntries[i].pObject);
+                    mesh = Mesh_CloneInto(mesh, pEntries[i].pObject);
                     g_movingObjectMeshes[(BYTE)g_movingObjects.meshCount] = mesh;
                     if (g_movingObjectMeshes[(BYTE)g_movingObjects.meshCount] == 0)
                         g_movingObjectMeshIndex[i] = 0;
@@ -9629,7 +9630,7 @@ void StageObject_ColourGroundMeshReferencePoint(DWORD *pColour, DWORD *pReferenc
     StageRGBA colour;
     StageRGBA reference;
     int i;
-    float *vertex;
+    MeshVertexF *vertex;
     float f0;
     float f1;
     float f2;
@@ -9637,17 +9638,17 @@ void StageObject_ColourGroundMeshReferencePoint(DWORD *pColour, DWORD *pReferenc
     colour = *(StageRGBA *)pColour;
     reference = *(StageRGBA *)pReference;
     for (i = g_stageMesh1Count - 1; i >= 0; i--) {
-        vertex = (float *)((BYTE *)g_stageMesh1Copy->pVertexData + i * 0x30);
-        f0 = vertex[0];
-        f1 = vertex[1];
-        f2 = vertex[2];
+        vertex = &((MeshVertexF *)g_stageMesh1Copy->pVertexData)[i];
+        f0 = vertex->x;
+        f1 = vertex->y;
+        f2 = vertex->z;
         if (g_stageRangeOrigin.x == (int)(__int64)(f0 * CGraphics::m_65536) &&
             g_stageRangeOrigin.y == (int)(__int64)(f1 * CGraphics::m_65536) &&
             g_stageRangeOrigin.z == (int)(__int64)(f2 * CGraphics::m_65536))
-            *(DWORD *)((BYTE *)vertex + 0x18) = STAGE_ARGB(reference);
+            vertex->diffuseColour = STAGE_ARGB(reference);
         else
-            *(DWORD *)((BYTE *)vertex + 0x18) = STAGE_ARGB(colour);
-        *(DWORD *)((BYTE *)g_stageMesh1Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_unk0x00592146 << 24;
+            vertex->diffuseColour = STAGE_ARGB(colour);
+        ((MeshVertexF *)g_stageMesh1Copy->pVertexData)[i].specularColour = (DWORD)g_unk0x00592146 << 24;
     }
     g_stageColourMode = 1;
 }
@@ -9660,7 +9661,7 @@ void StageObject_ColourObjectMeshReferencePoint(DWORD *pColour, DWORD *pReferenc
     StageRGBA colour;
     StageRGBA reference;
     int i;
-    float *vertex;
+    MeshVertexF *vertex;
     float f0;
     float f1;
     float f2;
@@ -9668,22 +9669,22 @@ void StageObject_ColourObjectMeshReferencePoint(DWORD *pColour, DWORD *pReferenc
     colour = *(StageRGBA *)pColour;
     reference = *(StageRGBA *)pReference;
     for (i = g_stageMesh2Count - 1; i >= 0; i--) {
-        vertex = (float *)((BYTE *)g_stageMesh2Copy->pVertexData + i * 0x30);
-        f0 = vertex[0];
-        f1 = vertex[1];
-        f2 = vertex[2];
+        vertex = &((MeshVertexF *)g_stageMesh2Copy->pVertexData)[i];
+        f0 = vertex->x;
+        f1 = vertex->y;
+        f2 = vertex->z;
         if (g_unk0x005920fc == (int)(__int64)(f0 * CGraphics::m_65536) &&
             g_unk0x00592100 == (int)(__int64)(f1 * CGraphics::m_65536) &&
             g_unk0x00592104 == (int)(__int64)(f2 * CGraphics::m_65536))
-            *(DWORD *)((BYTE *)vertex + 0x18) = STAGE_ARGB(reference);
+            vertex->diffuseColour = STAGE_ARGB(reference);
         else
-            *(DWORD *)((BYTE *)vertex + 0x18) = STAGE_ARGB(colour);
-        *(DWORD *)((BYTE *)g_stageMesh2Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
+            vertex->diffuseColour = STAGE_ARGB(colour);
+        ((MeshVertexF *)g_stageMesh2Copy->pVertexData)[i].specularColour = (DWORD)g_stageColourAlpha << 24;
     }
     if (g_stageMesh3Copy != NULL) {
         for (i = g_stageMesh3Count - 1; i >= 0; i--) {
-            *(DWORD *)((BYTE *)g_stageMesh3Copy->pVertexData + i * 0x30 + 0x18) = STAGE_ARGB(colour);
-            *(DWORD *)((BYTE *)g_stageMesh3Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
+            ((MeshVertexF *)g_stageMesh3Copy->pVertexData)[i].diffuseColour = STAGE_ARGB(colour);
+            ((MeshVertexF *)g_stageMesh3Copy->pVertexData)[i].specularColour = (DWORD)g_stageColourAlpha << 24;
         }
     }
     g_stageColourStep = 1;

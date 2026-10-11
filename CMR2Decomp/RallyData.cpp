@@ -4131,8 +4131,8 @@ void RallyData_SetupWeatherTextureEntries(void)
     g_unk0x0082c9ec[1] = 0x72;
     g_unk0x0082c9ec[2] = 0x100;
     g_unk0x0082c9ec[3] = 0xf6;
-    *(int *)&g_mapSrcRect[0] = *(int *)((BYTE *)g_weatherMaps.mainMap + 0x11c);
-    *(int *)&g_mapSrcRect[2] = *(int *)((BYTE *)g_weatherMaps.mainMap + 0x120);
+    *(int *)&g_mapSrcRect[0] = *(int *)&((Texture *)g_weatherMaps.mainMap)->field_0x11c;
+    *(int *)&g_mapSrcRect[2] = *(int *)&((Texture *)g_weatherMaps.mainMap)->width;
     g_mapSrcRect[3] = 0xf6;
     g_unk0x0082c9fc = 0xd8;
     g_unk0x0082c9fe = 0x7c;
