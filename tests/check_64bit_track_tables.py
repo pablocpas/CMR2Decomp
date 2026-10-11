@@ -134,7 +134,7 @@ def main():
                                          'StageTiming_ReadStageFaceRecord','StageTiming_CopyTriangleVertices'))
         fixture=tmp/'tables.cpp';fixture.write_text(PRELUDE+functions+MAIN)
         executable=tmp/'tables'
-        subprocess.run(['clang++','-m64','-std=c++17','-O2','-fwrapv','-fno-strict-aliasing',
+        subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fwrapv','-fno-strict-aliasing',
                         '-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fPIE','-pie',
                         '-fsanitize=address,undefined',str(fixture),'-o',str(executable)],check=True)
         count=0

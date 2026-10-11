@@ -111,13 +111,13 @@ def main():
  env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1')
  with tempfile.TemporaryDirectory(prefix='cmr2-native-lookups-') as directory:
   tmp=Path(directory)
-  for header in ('Car.h','SceneNode.h','Sector.h','LayoutChecks.h','SoundCurve.h','AIReferenceRoute.h','StageTimingSpread.h'):shutil.copyfile(source/header,tmp/header)
+  for header in ('FloatToInt.h','Car.h','SceneNode.h','Sector.h','LayoutChecks.h','SoundCurve.h','AIReferenceRoute.h','StageTimingSpread.h'):shutil.copyfile(source/header,tmp/header)
   shutil.copyfile(ROOT.parent/'OpenCMR2/game/FixedPoint.h',tmp/'FixedPoint.h')
   (tmp/'windows.h').write_text('typedef unsigned char BYTE;typedef unsigned int DWORD;typedef int BOOL;\n')
   (tmp/'Graphics.h').write_text('struct Graphics;struct Texture;class CGraphics{public:static constexpr double m_oneOver65536=1.0/65536.0;static constexpr double m_65536=65536.0;};\n')
   (tmp/'Mesh.h').write_text('struct Mesh;\n')
   fixture=tmp/'lookup.cpp';fixture.write_text(PRELUDE+funcs+MAIN);exe=tmp/'lookup'
-  subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(fixture),'-o',str(exe)],check=True)
+  subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(fixture),'-o',str(exe)],check=True)
   def native(args,input,expected):
    p=subprocess.run([str(exe),*map(str,args)],input=input,capture_output=True,env=env)
    assert p.returncode==0,p.stderr.decode()

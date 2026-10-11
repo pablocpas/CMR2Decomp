@@ -3964,8 +3964,8 @@ void RallyData_BuildCountryWeatherIndexMap(void)
 
 #include "InstallInfo.h"
 #include "Game.h"
-int *OptionMenu_GetCommonArchive(void);
-int *OptionMenu_GetStageArchive(void);
+GenericFile *OptionMenu_GetCommonArchive(void);
+GenericFile *OptionMenu_GetStageArchive(void);
 int StageTiming_NoOpResourceRelease(void);
 
 extern char g_str0x00519268[4];
@@ -4094,7 +4094,7 @@ void RallyData_LoadCurrentRallyWeatherTextures(void)
     }
     sprintf(CFrontend::m_stringDest, g_str0x00527300, CInstallInfo::GetSetupRepDir(),
             g_unk0x0052714c[RallyDataCountryIndex()]);
-    g_weatherMaps.mainMap = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetStageArchive(),
+    g_weatherMaps.mainMap = CTexture::FindLoadTexture(OptionMenu_GetStageArchive(),
                                                 CFrontend::m_stringDest, 0, NULL, false, 0);
     for (i = 0; i < 4; i++) {
         if (i < (int)(g_weatherMaps.count & 0xff)) {
@@ -4102,18 +4102,18 @@ void RallyData_LoadCurrentRallyWeatherTextures(void)
                     g_unk0x0052714c[RallyDataCountryIndex()],
                     g_unk0x0052716c[RallyDataCountryIndex()],
                     g_weatherMaps.slots[i] + 1);
-            g_weatherMaps.maps[i] = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetStageArchive(),
+            g_weatherMaps.maps[i] = CTexture::FindLoadTexture(OptionMenu_GetStageArchive(),
                                                                  CFrontend::m_stringDest, 0, NULL, false, 0);
         }
     }
     for (i = 0; i < 9; i++) {
         sprintf(CFrontend::m_stringDest, g_str0x005272b4, CInstallInfo::GetSetupRepDir(),
                 0x280, g_unk0x00527128[i]);
-        g_unk0x0082ca20[i] = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(),
+        g_unk0x0082ca20[i] = CTexture::FindLoadTexture(OptionMenu_GetCommonArchive(),
                                                              CFrontend::m_stringDest, 0, NULL, false, 0);
     }
     sprintf(CFrontend::m_stringDest, g_str0x00527290, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x0082c690 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(),
+    g_unk0x0082c690 = CTexture::FindLoadTexture(OptionMenu_GetCommonArchive(),
                                                 CFrontend::m_stringDest, 0, NULL, false, 0);
     CGame::RegisterCallback((void *)StageTiming_NoOpResourceRelease, 0);
 }
@@ -6044,7 +6044,7 @@ void RallyData_LoadNavigationSounds(void)
 struct Menu;
 void Menu_CallCallback2(Menu *pMenu);
 int Race_GetFlag38108(void);
-BYTE *StageObject_GetInRaceActionMenu(void);
+Menu *StageObject_GetInRaceActionMenu(void);
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int param);
 int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 void Graphics_PresentFrameAndResetCounters(void);
@@ -6063,7 +6063,7 @@ void RallyData_DrawProjectedChallengeScene(int param1, int param2)
     CGraphics::ClearTarget();
     CGraphics::ClearZBuffer();
     if (Race_GetFlag38108() == 0)
-        Menu_CallCallback2((Menu *)StageObject_GetInRaceActionMenu());
+        Menu_CallCallback2(StageObject_GetInRaceActionMenu());
     Game_PrepareScene(g_unk0x00536be0, g_unk0x00536be4, rect, 0);
     Game_DrawSceneViewport(g_unk0x00536be0, g_unk0x00536be4, rect, 0, 1);
     Graphics_PresentFrameAndResetCounters();

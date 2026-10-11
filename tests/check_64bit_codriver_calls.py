@@ -104,7 +104,7 @@ def main():
   tmp=Path(directory);shutil.copyfile(source/'RaceCallRecord.h',tmp/'RaceCallRecord.h');shutil.copyfile(ROOT.parent/'OpenCMR2/game/FixedPoint.h',tmp/'FixedPoint.h')
   (tmp/'Texture.h').write_text('struct Texture {};\n');(tmp/'Sprite.h').write_text(re.sub(r'^#include .*dx7sdk.*\n','',(source/'Sprite.h').read_text(),flags=re.M))
   cpp=tmp/'calls.cpp';cpp.write_text(PRELUDE+funcs+MAIN);exe=tmp/'calls'
-  subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(cpp),'-o',str(exe)],check=True)
+  subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(cpp),'-o',str(exe)],check=True)
   oracle=Calls(ROOT/'cmr2bin/CMR2.exe');number=0
   cases=[(0,c,0,t|(b1<<4)|(b2<<17)|(b3<<21),255,0) for t,b1,b2,b3,c in itertools.product(range(16),range(4),[0,1,2,3,14],range(4),range(2))]
   cases +=[(1,*args) for args in itertools.product(range(4),range(2),[255,0,1,4,7,11],[255,0,3,5],range(6))]

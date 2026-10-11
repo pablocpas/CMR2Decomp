@@ -98,7 +98,7 @@ def main():
                             ('Collision_SplitBoxSeparationMovement','Collision_SphereVsBox'))
         fixture=tmp/'boxes.cpp';fixture.write_text(PRELUDE+functions+MAIN)
         executable=tmp/'boxes'
-        subprocess.run(['clang++','-m64','-std=c++17','-O2','-fwrapv','-fno-strict-aliasing',
+        subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fwrapv','-fno-strict-aliasing',
                         '-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast',
                         '-fsanitize=address,undefined',str(fixture),'-o',str(executable)],check=True)
         count=0

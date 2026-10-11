@@ -65,5 +65,5 @@ with tempfile.TemporaryDirectory(prefix='cmr2-sector-native-') as temp:
  old=code.replace('g_sectors[index]->viewDistanceSquared','*(int *)((BYTE *)g_sectors[index] + 0x7c)').replace('g_sectors[index]->field_0x80','*(int *)((BYTE *)g_sectors[index] + 0x80)').replace('g_sectors[index]->field_0x84','*(int *)((BYTE *)g_sectors[index] + 0x84)')
  for name,source in [('original-offsets',old),('typed-fields',code)]:
   (d/(name+'.cpp')).write_text(source)
-  subprocess.run(['clang++','-std=c++17','-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all','-fms-extensions','-Wno-everything','-I'+str(d),'-I'+str(port/'src'),str(d/(name+'.cpp')),'-o',str(d/name)],check=True)
+  subprocess.run(['clang++','-include',str(root/'CMR2Decomp/FloatToInt.h'),'-std=c++17','-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all','-fms-extensions','-Wno-everything','-I'+str(d),'-I'+str(port/'src'),str(d/(name+'.cpp')),'-o',str(d/name)],check=True)
   r=subprocess.run([str(d/name)],capture_output=True,text=True);print(name,r.returncode,r.stdout,r.stderr[-600:]);assert (r.returncode==0)==(name=='typed-fields')

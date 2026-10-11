@@ -94,7 +94,7 @@ def main():
     functions = [body(fp, 'FloatMatrix_RotateVector'), body(fp, 'FloatMatrix_InverseRotateVector')] + functions
     with tempfile.TemporaryDirectory(prefix='cmr2-native-shadow-buffers-') as directory:
         tmp = Path(directory)
-        for header in ('ShadowPart.h', 'SceneNode.h', 'Sector.h', 'Mesh.h'):
+        for header in ('FloatToInt.h','ShadowPart.h', 'SceneNode.h', 'Sector.h', 'Mesh.h'):
             shutil.copyfile(src / header, tmp / header)
         shutil.copyfile(ROOT.parent / 'OpenCMR2/game/FixedPoint.h', tmp / 'FixedPoint.h')
         (tmp / 'windows.h').write_text('typedef unsigned char BYTE;typedef unsigned int DWORD;typedef int BOOL;typedef intptr_t INT_PTR;\n')
@@ -103,7 +103,7 @@ def main():
         driver = PRELUDE + '\n'.join(functions) + MAIN
         cpp.write_text(driver)
         exe = tmp / 'shadow'
-        command = ['clang++', '-m64', '-std=c++17', '-O2', '-fPIE', '-pie', '-fwrapv',
+        command = ['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'), '-m64', '-std=c++17', '-O2', '-fPIE', '-pie', '-fwrapv',
                    '-ffp-contract=off', '-fno-strict-aliasing', '-I', str(tmp),
                    '-Werror=int-to-pointer-cast', '-Werror=pointer-to-int-cast',
                    '-fsanitize=address,undefined', str(cpp), '-o', str(exe)]

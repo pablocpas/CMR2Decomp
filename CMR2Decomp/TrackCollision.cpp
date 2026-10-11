@@ -13,6 +13,7 @@
 #include "StageTiming.h"
 #include "TrackCollisionData.h"
 #include "GameInfo.h"
+#include "ReplayStream.h"
 
 // Ground queries against the stage collision mesh loaded by StageTiming_IndexSerializedStageTables:
 // triangles (three vertex indices plus a surface byte, 8 bytes each), their
@@ -1081,7 +1082,7 @@ unsigned char RallyData_GetFlag24(void);
 unsigned int RallyData_GetSelectionFlag27(void);
 BYTE *StageUI_GetRaceResultTable(void);
 int Race_GetPlayerRecordField4(BYTE index);
-BYTE *Race_GetPlayerRecordPointer(int index);
+ReplayStream *Race_GetPlayerRecordPointer(int index);
 void StageObject_SpawnCarHeadlightGlow(BYTE car);
 
 // Applies the automatic gearbox's mid-shift body nudge: while a shift is in
@@ -1099,7 +1100,7 @@ void AutoGear_ApplyShiftBodyNudge(void)
         g_pAutoGearCar->field_0xa84 = 0;
         if ((int)g_pAutoGearCar->index < (int)(BYTE)RallyDataState() &&
             Race_GetPlayerRecordField4(g_pAutoGearCar->index) != 0 &&
-            *(char *)(Race_GetPlayerRecordPointer((int)g_pAutoGearCar->index) + 0x10c) == 8)
+            (char)Race_GetPlayerRecordPointer((int)g_pAutoGearCar->index)->field_0x10c == 8)
             shifted = 1;
         if ((char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[g_pAutoGearCar->index].packedState == 8 ||
             shifted) {

@@ -571,20 +571,20 @@ unsigned int FixVec_Length(FixVector *pV)
 // Projects a world point to screen pixels through the view node's camera
 // (off-screen marker -100,-100 when behind the camera).
 // FUNCTION: CMR2 0x004bad40
-void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, BYTE *pView)
+void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, SceneNode *pView)
 {
     FixVector v;
     FixMatrix inverse;
 
-    FixMatrix_Invert(&inverse, (FixMatrix *)(pView + 0xd8));
+    FixMatrix_Invert(&inverse, &pView->world);
     FixMatrix_TransformPoint(&v, pPoint, &inverse);
     if (v.z < 0x10000) {
         pOut[0] = -0x640000;
         pOut[1] = -0x640000;
         return;
     }
-    FixMatrix_ProjectToScreen(pOut, &v, (int *)((BYTE *)CGraphics::m_pTextureManager + 0x23e4));
-    pOut[0] += (int)FTOI(__int64, (*(int *)g_pGraphics / 2) * CGraphics::m_65536);
+    FixMatrix_ProjectToScreen(pOut, &v, CGraphics::m_pTextureManager->fixedProjection);
+    pOut[0] += (int)FTOI(__int64, (g_pGraphics->resX / 2) * CGraphics::m_65536);
     pOut[1] += (int)FTOI(__int64, (g_pGraphics->resY / 2) * CGraphics::m_65536);
 }
 
@@ -764,7 +764,7 @@ struct Unk0x00539278 {
 };
 extern Unk0x00539278 g_forceFeedbackSlots[2];
 extern Unk0x00539278 *g_unk0x00539278;
-extern BYTE *g_unk0x0053937c;
+extern Car *g_unk0x0053937c;
 
 // Rebuilds the rotation part of a matrix as an orthonormal basis that keeps
 // the current forward direction and the world up axis.
@@ -798,14 +798,14 @@ void FixMatrix_RebuildBasis(FixMatrix *pOut)
 // Updates the player's force-feedback slot from the car's slip: the input
 // vector is rotated into car space and its z / length scaled to 16.16.
 // FUNCTION: CMR2 0x004241d0
-void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero)
+void ForceFeedback_UpdateSlot(Car *pCar, FixVector *pIn, int nonzero)
 {
     FixVector v;
     int x;
 
     g_unk0x0053937c = pCar;
-    g_unk0x00539278 = &g_forceFeedbackSlots[((Car *)pCar)->index];
-    FixMatrix_InverseRotateVector(&v, pIn, ((Car *)pCar)->pWorld);
+    g_unk0x00539278 = &g_forceFeedbackSlots[pCar->index];
+    FixMatrix_InverseRotateVector(&v, pIn, pCar->pWorld);
     if (nonzero != 0) {
         x = v.z;
         if (x < 0)
@@ -1397,9 +1397,9 @@ extern const double g_unk0x00511380;
 // octant index (y >= 0 -> +4, x < 0 -> +2, z < 0 -> +1).
 #define FILL_PROBE_TABLE(pObj)                                                          \
     {                                                                                   \
-        int probeX = *(int *)((BYTE *)(pObj) + 0x104);                                  \
-        int probeY = *(int *)((BYTE *)(pObj) + 0x108);                                  \
-        int probeZ = *(int *)((BYTE *)(pObj) + 0x10c);                                  \
+        int probeX = (pObj)->probe.x;                                                   \
+        int probeY = (pObj)->probe.y;                                                   \
+        int probeZ = (pObj)->probe.z;                                                   \
                                                                                         \
         g_unk0x00589458[0].x = probeX;                                                  \
         g_unk0x00589458[0].y = -probeY;                                                 \

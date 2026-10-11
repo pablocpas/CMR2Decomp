@@ -1740,7 +1740,7 @@ void OptionMenu_LoadArchives(void);
 void OptionPreview_FillTextureSetIndices(void);
 void RallyData_LoadCurrentRallyWeatherTextures(void);
 void RallyData_SetupWeatherTextureEntries(void);
-int *OptionMenu_GetCommonArchive(void);
+GenericFile *OptionMenu_GetCommonArchive(void);
 void Particle_BuildTriangleStripIndices(void);
 void Graphics_SetShadowGeometryState(int value);
 
@@ -1772,9 +1772,9 @@ void OptionMenu_InitBackground(void)
     sprintf(CFrontend::m_stringDest, g_str0x00527070, CInstallInfo::GetSetupRepDir());
     Graphics_SetShadowGeometryState(!CGameInfo::IsRecordFlagSet(0xf));
     if (CGameInfo::IsRecordFlagSet(0x10))
-        Graphics_ReserveCubeMapsAndLoadEnvironment(CFrontend::m_stringDest, 0, (GenericFile *)OptionMenu_GetCommonArchive(), 0x80);
+        Graphics_ReserveCubeMapsAndLoadEnvironment(CFrontend::m_stringDest, 0, OptionMenu_GetCommonArchive(), 0x80);
     else
-        Graphics_ReserveCubeMapsAndLoadEnvironment(CFrontend::m_stringDest, 0, (GenericFile *)OptionMenu_GetCommonArchive(), 0x40);
+        Graphics_ReserveCubeMapsAndLoadEnvironment(CFrontend::m_stringDest, 0, OptionMenu_GetCommonArchive(), 0x40);
 }
 
 // FUNCTION: CMR2 0x00501d00
@@ -2296,9 +2296,9 @@ char g_str0x00529664[12] = "senglish";
 extern char g_strTxtFormat[];
 extern BYTE *g_optionLanguageText;
 extern BYTE g_optionLanguageTextInArchive;
-int *OptionMenu_GetCommonArchive(void);
-int *OptionMenu_GetLanguageArchive(void);
-int *OptionMenu_GetStageArchive(void);
+GenericFile *OptionMenu_GetCommonArchive(void);
+GenericFile *OptionMenu_GetLanguageArchive(void);
+GenericFile *OptionMenu_GetStageArchive(void);
 bool OptionMenu_ReleaseSoundBuffer(void);
 int OptionMenu_ReleaseTextures(void);
 
@@ -2340,7 +2340,7 @@ BYTE OptionMenu_LoadRegionalText(void)
     }
 
     sprintf(CFrontend::m_stringDest, g_strTxtFormat, names[CGameInfo::GetGameLanguage()]);
-    g_optionLanguageText = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)OptionMenu_GetLanguageArchive(),
+    g_optionLanguageText = (BYTE *)CGenericFileLoader::FindFile(OptionMenu_GetLanguageArchive(),
                                                        CFrontend::m_stringDest, &g_optionLanguageTextInArchive, NULL, 0);
     // the original tests the address of the buffer, so this is always true
     if (&g_optionLanguageText != NULL) {
@@ -2352,21 +2352,21 @@ BYTE OptionMenu_LoadRegionalText(void)
 }
 
 // FUNCTION: CMR2 0x0050f620
-int *OptionMenu_GetCommonArchive(void)
+GenericFile *OptionMenu_GetCommonArchive(void)
 {
-    return g_optionCommonArchive;
+    return (GenericFile *)g_optionCommonArchive;
 }
 
 // FUNCTION: CMR2 0x0050f630
-int *OptionMenu_GetLanguageArchive(void)
+GenericFile *OptionMenu_GetLanguageArchive(void)
 {
-    return g_optionLanguageArchive;
+    return (GenericFile *)g_optionLanguageArchive;
 }
 
 // FUNCTION: CMR2 0x0050f640
-int *OptionMenu_GetStageArchive(void)
+GenericFile *OptionMenu_GetStageArchive(void)
 {
-    return g_optionStageArchive;
+    return (GenericFile *)g_optionStageArchive;
 }
 
 unsigned char GameInfo_GetFrontendSessionFlag(void);
@@ -5925,7 +5925,7 @@ BYTE OptionMenu_LoadSounds(void)
     nameEnd = (int)g_unk0x005296c4 + sizeof(g_unk0x005296c4);
     do {
         sprintf(CFrontend::m_stringDest, g_str0x005296e8, CInstallInfo::GetSoundsDir(), name);
-        if (Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)OptionMenu_GetCommonArchive()) == 0)
+        if (Sound_LoadSample(CFrontend::m_stringDest, 0, OptionMenu_GetCommonArchive()) == 0)
             result = 0;
         name += 7;
     } while ((int)name < nameEnd);
@@ -6017,7 +6017,7 @@ void OptionMenu_LoadArchives(void)
         resolution = 0x280;
 
     sprintf(CFrontend::m_stringDest, g_str0x00529794, CInstallInfo::GetSetupRepDir(), resolution);
-    CGenericFileLoader::LoadIntoFileRecord((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest);
+    CGenericFileLoader::LoadIntoFileRecord(OptionMenu_GetCommonArchive(), CFrontend::m_stringDest);
 
     if (CFrontend::HasDXT1TextureSupport()) {
         sprintf(CFrontend::m_stringDest, g_str0x00529780, CInstallInfo::GetSetupRepDir(), resolution,
@@ -6026,12 +6026,12 @@ void OptionMenu_LoadArchives(void)
         sprintf(CFrontend::m_stringDest, g_str0x0052976c, CInstallInfo::GetSetupRepDir(), resolution,
                 g_unk0x005296f8[RallyDataCountryIndex() & 0xff], stage + 1);
     }
-    CGenericFileLoader::LoadIntoFileRecord((GenericFile *)OptionMenu_GetStageArchive(), CFrontend::m_stringDest);
+    CGenericFileLoader::LoadIntoFileRecord(OptionMenu_GetStageArchive(), CFrontend::m_stringDest);
 
     sprintf(CFrontend::m_stringDest, g_str0x0051a100, CInstallInfo::GetCountrySpecificDir(),
             CGameInfo::GetGameRegionDirectory(),
             g_unk0x0052971c[CGameInfo::GetGameRegion() * 5 + CGameInfo::GetGameLanguage()]);
-    CGenericFileLoader::LoadIntoFileRecord((GenericFile *)OptionMenu_GetLanguageArchive(), CFrontend::m_stringDest);
+    CGenericFileLoader::LoadIntoFileRecord(OptionMenu_GetLanguageArchive(), CFrontend::m_stringDest);
 
     CGame::RegisterCallback(OptionMenu_ReleaseTextures, NULL);
 }
@@ -6762,10 +6762,10 @@ void OptionMenu_AdvanceSelectedOption(int unused, int unused2)
 void OptionMenu_LoadFonts(void)
 {
     Font_InitTable(4);
-    Font_Load(g_strFontGeneralHel15pt, (GenericFile *)OptionMenu_GetCommonArchive(), 0);
-    Font_Load(g_strFontGeneralHel12pt, (GenericFile *)OptionMenu_GetCommonArchive(), 1);
-    Font_Load(g_strFontGeneralDot, (GenericFile *)OptionMenu_GetCommonArchive(), 2);
-    Font_Load(g_strFontGeneralHandel, (GenericFile *)OptionMenu_GetCommonArchive(), 3);
+    Font_Load(g_strFontGeneralHel15pt, OptionMenu_GetCommonArchive(), 0);
+    Font_Load(g_strFontGeneralHel12pt, OptionMenu_GetCommonArchive(), 1);
+    Font_Load(g_strFontGeneralDot, OptionMenu_GetCommonArchive(), 2);
+    Font_Load(g_strFontGeneralHandel, OptionMenu_GetCommonArchive(), 3);
 }
 
 // Sets the whole mesh list of the record to opaque when the record has content
@@ -6872,29 +6872,29 @@ void OptionMenu_LoadPartTextures(void)
     int i;
 
     sprintf(CFrontend::m_stringDest, g_str0x0052956c, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831360 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831360 = CTexture::FindLoadTexture(OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529548, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831364 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831364 = CTexture::FindLoadTexture(OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529524, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831368 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831368 = CTexture::FindLoadTexture(OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529508, CInstallInfo::GetSetupRepDir(),
             pBanners[RallyDataCountryIndex() & 0xff]);
-    g_unk0x00831668 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetStageArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831668 = CTexture::FindLoadTexture(OptionMenu_GetStageArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x005294f0, CInstallInfo::GetFrontendDir());
-    g_unk0x0083166c = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x0083166c = CTexture::FindLoadTexture(OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x005294d8, CInstallInfo::GetFrontendDir());
-    g_unk0x00831670 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831670 = CTexture::FindLoadTexture(OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x005294b8, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x008313ac = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x008313ac = CTexture::FindLoadTexture(OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529494, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831648 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831648 = CTexture::FindLoadTexture(OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529474, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x008313b0 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x008313b0 = CTexture::FindLoadTexture(OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     sprintf(CFrontend::m_stringDest, g_str0x00529450, CInstallInfo::GetSetupRepDir(), 0x280);
-    g_unk0x00831674 = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    g_unk0x00831674 = CTexture::FindLoadTexture(OptionMenu_GetCommonArchive(), CFrontend::m_stringDest, 0, 0, 0, 0);
     for (i = 0; i < 12; i++) {
         sprintf(CFrontend::m_stringDest, g_str0x00529434, CInstallInfo::GetSetupRepDir(), 0x280, pParts[i]);
-        g_unk0x0083137c[i] = CTexture::FindLoadTexture((GenericFile *)OptionMenu_GetCommonArchive(), CFrontend::m_stringDest,
+        g_unk0x0083137c[i] = CTexture::FindLoadTexture(OptionMenu_GetCommonArchive(), CFrontend::m_stringDest,
                                                             0, 0, 0, 0);
     }
 }
@@ -10926,14 +10926,8 @@ BYTE *g_previewLowWheelModelBuffers[16];
 // GLOBAL: CMR2 0x00831158
 BYTE *g_previewSixWheelModelBuffers[16];
 
-// 0xc-byte per-slot entry of the table at 0x831088.
-struct Unk0x00831088 {
-    void *pUnk0x0;              // 0x0
-    void *pUnk0x4;              // 0x4
-    void *pUnk0x8;              // 0x8
-};
 // GLOBAL: CMR2 0x00831088
-Unk0x00831088 g_unk0x00831088[16];
+GenericFile g_unk0x00831088[16];
 // GLOBAL: CMR2 0x00831318
 BYTE g_previewSessionRegistered;
 
@@ -10974,13 +10968,13 @@ BYTE OptionPreview_ReleaseSessionResources(void)
         }
     }
     for (i = 0; i < 16; i++) {
-        if (g_unk0x00831088[i].pUnk0x0 != NULL) {
-            CFileBuffer::FreeGenericFileBuffer(g_unk0x00831088[i].pUnk0x0);
-            g_unk0x00831088[i].pUnk0x0 = NULL;
+        if (g_unk0x00831088[i].buffer != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x00831088[i].buffer);
+            g_unk0x00831088[i].buffer = NULL;
         }
-        g_unk0x00831088[i].pUnk0x0 = NULL;
-        g_unk0x00831088[i].pUnk0x8 = NULL;
-        g_unk0x00831088[i].pUnk0x4 = NULL;
+        g_unk0x00831088[i].buffer = NULL;
+        g_unk0x00831088[i].didFileLoad = 0;
+        g_unk0x00831088[i].fileSize = 0;
     }
     for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++) {
         if (g_previewSceneRecords[i].rootNode != NULL)
@@ -11170,9 +11164,9 @@ int OptionPreview_LoadStageGeometryRecord(int index)
         CGame::RegisterCallback((void *)OptionPreview_ReleaseSessionResources, 0);
         g_previewSessionRegistered = 1;
         for (i = 0; i < 16; i++) {
-            g_unk0x00831088[i].pUnk0x0 = NULL;
-            g_unk0x00831088[i].pUnk0x8 = NULL;
-            g_unk0x00831088[i].pUnk0x4 = NULL;
+            g_unk0x00831088[i].buffer = NULL;
+            g_unk0x00831088[i].didFileLoad = 0;
+            g_unk0x00831088[i].fileSize = 0;
         }
     }
     model = (BYTE)(int)RallyData_GetDriverRecordSelectionValue(index);
@@ -11209,7 +11203,7 @@ int OptionPreview_LoadStageGeometryRecord(int index)
     pEntry = &g_previewSceneRecords[index];
     // the .bfl and the geometry relocations go to the 12-byte loader record of
     // this entry (0x831088, cleared on the first call above), not to pEntry
-    pRecord = (GenericFile *)&g_unk0x00831088[index];
+    pRecord = &g_unk0x00831088[index];
     CGenericFileLoader::LoadIntoFileRecord(pRecord, g_unk0x00663b60);
     if (hC3D == NULL)
         return 0;

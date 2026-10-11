@@ -397,9 +397,9 @@ void Race_SetFlag3810D(void)
 }
 
 // FUNCTION: CMR2 0x0041f350
-BYTE *Race_GetPlayerRecordPointer(int index)
+ReplayStream *Race_GetPlayerRecordPointer(int index)
 {
-    return g_unk0x00537f3c[index];
+    return (ReplayStream *)g_unk0x00537f3c[index];
 }
 
 // FUNCTION: CMR2 0x0041f360
@@ -3942,7 +3942,7 @@ void Race_UpdateCarSoundDistanceVolumes(CallbackStateMachine *p, BYTE index)
 void Input_TranslatePedalsToMenuKeys(void);
 struct DeviceInfo;
 void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut);
-BYTE *StageObject_GetInRaceActionMenu(void);
+Menu *StageObject_GetInRaceActionMenu(void);
 int Race_AcceptStateTransition(void);
 
 // Update handler of the pause state (state table 0x5190b0): runs the pause
@@ -3966,7 +3966,7 @@ void Race_UpdatePauseState(CallbackStateMachine *p, BYTE index)
     Input_TranslatePedalsToMenuKeys();
     pDev = CInput::GetAvailableDeviceRecord(0);
     Input_MergeAssignedJoystickButtons(0, pDev);
-    Menu_Update((Menu *)StageObject_GetInRaceActionMenu(), pDev->field_0x8);
+    Menu_Update(StageObject_GetInRaceActionMenu(), pDev->field_0x8);
     if (g_unk0x00537f94 != 0)
         CGame::PromoteCallbackEntryByRule(p, index, 1, 2);
 }

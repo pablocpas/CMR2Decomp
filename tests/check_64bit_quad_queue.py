@@ -87,7 +87,7 @@ def main():
   source=input_data(kind,seed);data+=struct.pack('<5I',kind=='fixed',flags,count,over,k)+source.ljust(144,b'\0')+model(kind,bytes([0xd3])*152,source,TEXTURE,flags)
  with tempfile.TemporaryDirectory(prefix='cmr2-native-quad-') as d:
   p=Path(d);(p/'queue.cpp').write_text(code)
-  subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-fsanitize=address,undefined',str(p/'queue.cpp'),'-o',str(p/'queue')],check=True)
+  subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-fsanitize=address,undefined',str(p/'queue.cpp'),'-o',str(p/'queue')],check=True)
   result=subprocess.run([str(p/'queue')],input=data,capture_output=True,env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1'))
   assert result.returncode==0,result.stderr.decode();print(result.stdout.decode(),end='')
 if __name__=='__main__':main()

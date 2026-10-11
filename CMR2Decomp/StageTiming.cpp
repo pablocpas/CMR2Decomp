@@ -1478,7 +1478,7 @@ void ForceFeedback_ComputeRoadNoise(void);
 void ForceFeedback_FadeImpulseForces(void);
 
 extern int g_unk0x00539270[2];
-extern BYTE *g_unk0x0053937c;
+extern Car *g_unk0x0053937c;
 
 // Selects the force-feedback slot and car of a player, copies the car's
 // centring state into the shared road-rumble values and re-applies the slot's
@@ -1487,10 +1487,10 @@ extern BYTE *g_unk0x0053937c;
 void ForceFeedback_UpdatePlayerSlot(int view)
 {
     g_unk0x00539278 = &g_forceFeedbackSlots[view];
-    g_unk0x0053937c = (BYTE *)Car_Get(view);
-    if (*(int *)(g_unk0x0053937c + 0xb74) != 0) {
-        g_unk0x00539270[0] = *(int *)(g_unk0x0053937c + 0xbac);
-        g_unk0x00539270[1] = *(int *)(g_unk0x0053937c + 0xbb0);
+    g_unk0x0053937c = Car_Get(view);
+    if (g_unk0x0053937c->field_0xb74 != 0) {
+        g_unk0x00539270[0] = g_unk0x0053937c->cornerOnGround[0];
+        g_unk0x00539270[1] = g_unk0x0053937c->cornerOnGround[1];
     } else {
         g_unk0x00539270[0] = 0;
         g_unk0x00539270[1] = 0;
@@ -2828,7 +2828,7 @@ void StageTiming_DrawProjectedCarMarker(int param_1, int param_2)
     FixMatrix_GetPosition(&viewPos, &pView->current);
     nodePos.y += 0x10000;
     StageTiming_ProjectPointToTenUnitRadius((int *)&nodePos, (int *)&viewPos, (int *)&out);
-    FixMatrix_ProjectWorldPointToView(proj, &out, (BYTE *)pView);
+    FixMatrix_ProjectWorldPointToView(proj, &out, pView);
     if (CGameInfo::GetConfiguredGameMode() == '\b' || CGameInfo::GetConfiguredGameMode() == '\t' ||
         CGameInfo::GetConfiguredGameMode() == '\n')
         flag = 0;
@@ -2842,7 +2842,7 @@ void StageTiming_DrawProjectedCarMarker(int param_1, int param_2)
         up.y += nodePos.y;
         up.z += nodePos.z;
         StageTiming_ProjectPointToTenUnitRadius((int *)&up, (int *)&viewPos, (int *)&out);
-        FixMatrix_ProjectWorldPointToView(proj, &out, (BYTE *)pView);
+        FixMatrix_ProjectWorldPointToView(proj, &out, pView);
         if (proj[0] != -0x640000 || proj[1] != -0x640000) {
             distance = (float)sqrt(FSQR((proj[0] * CGraphics::m_oneOver65536 - prevX) * g_unk0x005113e0 /
                                         (int)g_pGraphics->resX) +
@@ -4782,7 +4782,7 @@ int g_unk0x005391f8[2];
 // GLOBAL: CMR2 0x00539270
 int g_unk0x00539270[2];
 // GLOBAL: CMR2 0x0053937c
-BYTE *g_unk0x0053937c;
+Car *g_unk0x0053937c;
 // GLOBAL: CMR2 0x00539380
 int g_unk0x00539380;
 
@@ -4800,15 +4800,15 @@ void ForceFeedback_ComputeSteeringForce(void)
 
     force = g_unk0x005391f8[1] - g_unk0x005391f8[0];
     if (g_unk0x00539270[0] != 0) {
-        pAxis = (FixVector *)(g_unk0x0053937c + 0x4a4);
-        pForward = (FixVector *)(g_unk0x0053937c + 0x378);
+        pAxis = &g_unk0x0053937c->cornerAxis[0];
+        pForward = &g_unk0x0053937c->forward;
         left = FixVecDot(pForward, pAxis);
     } else {
         left = 0;
     }
     if (g_unk0x00539270[1] != 0) {
-        pAxis = (FixVector *)(g_unk0x0053937c + 0x4b0);
-        pForward = (FixVector *)(g_unk0x0053937c + 0x378);
+        pAxis = &g_unk0x0053937c->cornerAxis[1];
+        pForward = &g_unk0x0053937c->forward;
         right = FixVecDot(pForward, pAxis);
     } else {
         right = 0;
@@ -4817,7 +4817,7 @@ void ForceFeedback_ComputeSteeringForce(void)
     if (FIX_ABS(force) > 0x10000)
         force = force > 0 ? 0x10000 : -0x10000;
 
-    speed = FixMul(*(int *)(g_unk0x0053937c + 0x778) - 0x8000, 0x20000);
+    speed = FixMul(g_unk0x0053937c->speed - 0x8000, 0x20000);
     if (speed > 0x10000)
         speed = 0x10000;
     else if (speed < 0)
@@ -4847,15 +4847,15 @@ void ForceFeedback_ComputeAxleRumble(void)
 {
     int i;
     int v;
-    BYTE *p = g_unk0x0053937c;
+    Car *p = g_unk0x0053937c;
 
     for (i = 0; i < 2; i++) {
         if (g_unk0x00539270[i] == 0) {
             g_unk0x005391f8[i] = 0;
         } else {
-            g_unk0x005391f8[i] = *(int *)(p + 0x1a8 + i * 0xc) + *(int *)(p + 0x8c + i * 0x24);
+            g_unk0x005391f8[i] = p->wheelSurfaceFx[i].extraGrip + p->cornerGrip[i].grip2B;
             v = g_unk0x005391f8[i];
-            v = FixMul(*(int *)(p + 0x1a4 + i * 0xc) + *(int *)(p + 0x88 + i * 0x24), v);
+            v = FixMul(p->wheelSurfaceFx[i].drag + p->cornerGrip[i].grip2A, v);
             g_unk0x005391f8[i] = v;
             v = FixMul(v, 0x16e14);
             g_unk0x005391f8[i] = v;
@@ -4864,7 +4864,7 @@ void ForceFeedback_ComputeAxleRumble(void)
             if (g_unk0x005391f8[i] > 0x9999)
                 g_unk0x005391f8[i] = 0x9999;
             p = g_unk0x0053937c;
-            g_unk0x005391f8[i] += *(int *)(p + 0x90 + i * 0x24);
+            g_unk0x005391f8[i] += p->cornerGrip[i].drag;
             if (g_unk0x005391f8[i] > 0x10000)
                 g_unk0x005391f8[i] = 0x10000;
         }
@@ -4887,8 +4887,8 @@ void ForceFeedback_ComputeConditionCoefficients(void)
     spring = FixMul(g_unk0x00539380, 0x6666) + 0x1999;
     damper = FixMul(g_unk0x00539380, 0x4ccc);
     if (g_unk0x00539270[0] != 0 && g_unk0x00539270[1] != 0) {
-        pForward = (FixVector *)(g_unk0x0053937c + 0x378);
-        pVelocity = (FixVector *)(g_unk0x0053937c + 0x408);
+        pForward = &g_unk0x0053937c->forward;
+        pVelocity = &g_unk0x0053937c->velocity;
         contact = FixVecDot(pForward, pVelocity);
         if (contact < 0)
             contact = -contact;
@@ -4902,8 +4902,8 @@ void ForceFeedback_ComputeConditionCoefficients(void)
             spring = 0;
         damper -= FixMul(contact, 0x4ccc);
 
-        if (*(int *)(g_unk0x0053937c + 0x778) <= 0x1999) {
-            speed = 0x10000 - FixMul(*(int *)(g_unk0x0053937c + 0x778), 0xa0000);
+        if (g_unk0x0053937c->speed <= 0x1999) {
+            speed = 0x10000 - FixMul(g_unk0x0053937c->speed, 0xa0000);
             spring += FixMul(-spring, speed);
             if (spring < 0)
                 spring = 0;
@@ -4987,8 +4987,8 @@ void ForceFeedback_ComputeRoadNoise(void)
         g_unk0x00539278->field_0x20 = (int)FTOI(__int64, rand() * g_oneOverRandMax * g_minus65536);
     else
         g_unk0x00539278->field_0x20 = (int)FTOI(__int64, rand() * g_oneOverRandMax * CGraphics::m_65536);
-    k = *(int *)(g_unk0x0053937c + 0xc0) + *(int *)(g_unk0x0053937c + 0x9c);
-    speed = FixMul(*(int *)(g_unk0x0053937c + 0x778), 0x10000);
+    k = g_unk0x0053937c->cornerGrip[1].field_0x1c + g_unk0x0053937c->cornerGrip[0].field_0x1c;
+    speed = FixMul(g_unk0x0053937c->speed, 0x10000);
     if (speed > 0x10000)
         speed = 0x10000;
     k = FixMul(k, speed);
@@ -5323,7 +5323,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
             freeSource.y = position.y - cornerVelocity->y;
             freeSource.z = position.z - cornerVelocity->z;
             Particle_Spawn(type, &freeSource, cornerVelocity, position.y - 0x10000, 0, colour,
-                           g_trailLevel[carIndex][wheel], &carIndex, *((BYTE *)car->pBodyNode + 0x17c));
+                           g_trailLevel[carIndex][wheel], &carIndex, car->pBodyNode->viewMask);
         } else {
             source.x = position.x - car->position.x + jitter.x;
             source.y = position.y - car->position.y + jitter.y;
@@ -5354,7 +5354,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
                 particleVelocity.x += offset.x; particleVelocity.y += offset.y; particleVelocity.z += offset.z;
             }
             Particle_Spawn(type, &source, &particleVelocity, source.y - 0x10000, 0, colour,
-                           g_trailLevel[carIndex][wheel], &carIndex, *((BYTE *)car->pBodyNode + 0x17c));
+                           g_trailLevel[carIndex][wheel], &carIndex, car->pBodyNode->viewMask);
 
         }
     }
@@ -6875,7 +6875,7 @@ void CarPart_InitWheelHubSlot(int slot)
             off.y = g_partSet->halfExtents[type].y;
         } else {
             off.x = 0;
-            if (*(int *)(((BYTE *)g_partSet) + 0x248) > *(int *)(((BYTE *)g_partSet) + 0x24c)) {
+            if (g_partSet->damageValues[2] > g_partSet->damageValues[3]) {
                 off.z = g_partSet->halfExtents[type].z;
                 off.y = -g_partSet->halfExtents[type].y;
             } else {
@@ -7085,7 +7085,7 @@ void StageTiming_IntegratePartSpringMotion(void)
             force.y = FixMul(force.y, -0xa0000);
             force.z = FixMul(force.z, -0x50000);
             if (FixMul(force.x, force.x) + FixMul(force.z, force.z) > 0x64000 &&
-                *(int *)(((BYTE *)g_partSet) + 0x288) > 0x8000) {
+                g_partSet->damageValues[18] > 0x8000) {
                 saved = force;
                 detached = 1;
             } else {
@@ -7195,7 +7195,7 @@ void StageTiming_IntegratePartSpringMotion(void)
 
 
 extern int g_carDamageModelEnabled[8];
-void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero);
+void ForceFeedback_UpdateSlot(Car *pCar, FixVector *pIn, int nonzero);
 void Race_PlayScrapeAndShakeCar(int view, int strength, int listener);
 void Race_PlayImpactAndShakeCar(unsigned int view, int volume, char heavy, int listener);
 void CarDamage_BuildRelativeVelocityHull(Car *pCar, CarPartSet *pParts);
@@ -7243,7 +7243,7 @@ void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *p
                 Race_PlayImpactAndShakeCar(carIdx, len, 0, carIdx);
             }
         }
-        ForceFeedback_UpdateSlot((BYTE *)pCar, &pCar->field_0x5c4, 1);
+        ForceFeedback_UpdateSlot(pCar, &pCar->field_0x5c4, 1);
     }
     carIdx = pCar->index;
     if (g_carPartSets[carIdx].count != 0 &&
@@ -8394,11 +8394,11 @@ wheelsDone:
     }
     if (hasVariant == 0 || CGameInfo::IsRecordFlagSet(0x10)) {
         pCar = Car_Get(car);
-        *(int *)&pCar->pAlternateBodyNode = 0;
-        *(int *)&pCar->pExtraNodes[0] = 0;
-        *(int *)&pCar->pExtraNodes[1] = 0;
-        *(int *)&pCar->pExtraNodes[2] = 0;
-        *(int *)&pCar->pExtraNodes[3] = 0;
+        pCar->pAlternateBodyNode = NULL;
+        pCar->pExtraNodes[0] = NULL;
+        pCar->pExtraNodes[1] = NULL;
+        pCar->pExtraNodes[2] = NULL;
+        pCar->pExtraNodes[3] = NULL;
         return 1;
     }
     pRecord->variantCode = variant;
@@ -8441,7 +8441,7 @@ void StageObject_ResetPartTuningAndRandomSeed(void);
 void StageObject_ClearPartTuningState(void);
 void StageObject_ResetAttachedCarNodes(BYTE *pCar);
 void StageTiming_RegisterSlotMeshNode(SceneNode *pNode, CarPartSet *pSlot);
-void StageObject_AssignMatchingCarClassSlots(BYTE *pCar, BYTE *pObject, BYTE flag);
+void StageObject_AssignMatchingCarClassSlots(Car *pCar, SceneNode *pObject, BYTE flag);
 void CarDamage_RebuildPartBounds(int param_1, SceneNode *param_2, CarPartSet *param_3);
 void StageObject_ResetCarObjectState(Car *pCar);
 
@@ -8508,7 +8508,7 @@ void CarDamage_SetupOrderedCarParts(int lock, int keep, short *pOrder, short cou
                         j--;
                 }
                 for (i = 0; i < pParts->count; i++)
-                    StageObject_AssignMatchingCarClassSlots((BYTE *)pCar, (BYTE *)pParts->geometry.nodes[i], (BYTE)i);
+                    StageObject_AssignMatchingCarClassSlots(pCar, pParts->geometry.nodes[i], (BYTE)i);
                 pParts->breakPartIndex[0] = 4;
                 pParts->breakPartIndex[1] = 5;
                 pParts->breakPartIndex[2] = 1;
@@ -9040,7 +9040,7 @@ void CarEffect_UpdateExhaustSmokeAndBackfire(int car)
             velocity.z += carVelocity.z;
             t = FixMul((int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0x3d7);
             Particle_Spawn(big, &g_carExhaustWorldPositions[car], &velocity, g_carExhaustWorldPositions[car].y - 0x10000, 0, NULL, 0, 0,
-                           *(BYTE *)(*(BYTE * *)&pCar->pBodyNode + 0x17c));
+                           pCar->pBodyNode->viewMask);
         }
         if (g_trailForced[car] != 0)
             g_carExhaustBurstFrames[car] = (BYTE)g_trailForcedSurface[car];
@@ -9064,10 +9064,10 @@ void CarEffect_UpdateExhaustSmokeAndBackfire(int car)
             t = FixMul((int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0x3d7);
             if (speed > 0x8000)
                 Particle_Spawn(2, &position, &velocity, position.y - 0x10000, 0, NULL, 0, 0,
-                               *(BYTE *)(*(BYTE * *)&pCar->pBodyNode + 0x17c));
+                               pCar->pBodyNode->viewMask);
             else
                 Particle_Spawn(2, &position, &velocity, position.y - 0x10000, 0, NULL, 0, 0,
-                               *(BYTE *)(*(BYTE * *)&pCar->pBodyNode + 0x17c));
+                               pCar->pBodyNode->viewMask);
         }
     }
     if (g_carExhaustBurstFrames[car] == 0)
@@ -9084,7 +9084,7 @@ void CarEffect_UpdateExhaustSmokeAndBackfire(int car)
         zero.z = 0;
         g_trailForced[car] = 0;
         Particle_Spawn(3, &zero, &velocity, -0x640000, 0, NULL, 0, &car,
-                       *(BYTE *)(*(BYTE * *)&pCar->pBodyNode + 0x17c));
+                       pCar->pBodyNode->viewMask);
         r = (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536);
         if (g_carExhaustGlows[car][exhaust] != 0) {
             Glow_SetIntensity(g_carExhaustGlows[car][exhaust], r);

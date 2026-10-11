@@ -75,7 +75,7 @@ char RallyData_GetUsableRecordCategory(BYTE){return -1;}
 void RallyData_SetSelectionBits14To15(BYTE value){selection=value;}
 void Car_BuildRaceOrder(int){}void Dash_Reset(){}
 void InRaceMenu_UpdateStateMachineFrame(CallbackStateMachine *m){assert(m==&g_raceCallbackStorage.machine);menuFrames++;}
-void InRaceMenu_AdvanceScreenEntries(BYTE *m){assert(m==(BYTE *)&g_raceCallbackStorage.machine);advances++;}
+void InRaceMenu_AdvanceScreenEntries(CallbackStateMachine *m){assert(m==&g_raceCallbackStorage.machine);advances++;}
 int RallyDataState(){return entrants;}
 int View_IsModeAvailable(BYTE index,int requested){assert(index<2 && requested==2);queries++;return available;}
 int CGame::PromoteCallbackEntryByRule(CallbackStateMachine *m,BYTE index,BYTE value,int level){assert(m==&g_raceCallbackStorage.machine && index<=2 && level==2);lastMachine=m;promotions++;return value;}
@@ -152,10 +152,10 @@ def main():
  for file,name in (('StageUI.cpp','StageUI_GetRaceResultTable'),('Race.cpp','Race_IsMultiplayerRecordMode10'),('RallyData.cpp','RallyData_IsDriverViewModeAllowed'),('GameInfo.cpp','OptionMenu_StartDelayedFade'),('Race.cpp','Race_EnterCurrentModeScene'),('Race.cpp','Race_ReadPlayerState37F0C')):funcs+='\n'+body((source/file).read_text(),name)
  with tempfile.TemporaryDirectory(prefix='cmr2-native-race-state-') as directory:
   tmp=Path(directory)
-  for header in ('CallbackState.h','RaceCallbackStorage.h'):shutil.copyfile(source/header,tmp/header)
+  for header in ('FloatToInt.h','CallbackState.h','RaceCallbackStorage.h'):shutil.copyfile(source/header,tmp/header)
   (tmp/'windows.h').write_text('typedef unsigned char BYTE;typedef unsigned int DWORD;typedef int BOOL;\n#define FALSE 0\n#define TRUE 1\n')
   fixture=tmp/'race.cpp';fixture.write_text(PRELUDE+'\nBYTE *StageUI_GetRaceResultTable();\n'+funcs+MAIN)
   exe=tmp/'race'
-  subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(fixture),'-o',str(exe)],check=True)
+  subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(fixture),'-o',str(exe)],check=True)
   subprocess.run([str(exe)],check=True,env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1'))
 if __name__=='__main__':main()

@@ -103,7 +103,7 @@ def main():
         for name, source in (("old-offsets", old), ("typed-fields", code)):
             cpp, exe = folder / (name + ".cpp"), folder / name
             cpp.write_text(source)
-            subprocess.run(["clang++", "-std=c++17", "-O2", "-g", "-fsanitize=address,undefined",
+            subprocess.run(["clang++",'-include',str(ROOT/'CMR2Decomp/FloatToInt.h'), "-std=c++17", "-O2", "-g", "-fsanitize=address,undefined",
                             "-fno-sanitize-recover=all", "-fms-extensions", "-Wno-everything",
                             "-I" + str(PORT / "src"), "-I" + str(PORT / "src/port/compat"),
                             "-I" + str(PORT / "game"), str(cpp), "-o", str(exe)], check=True)

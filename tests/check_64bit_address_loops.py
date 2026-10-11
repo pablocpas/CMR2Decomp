@@ -35,7 +35,10 @@ using BYTE=unsigned char;using DWORD=uint32_t;using BOOL=int;using INT_PTR=intpt
 #include "RallyTiming.h"
 struct FixVector;struct FixAngles;
 #include "CarResources.h"
-struct Car;struct Menu;struct SoundSlot;struct CarFlexibleLineState;
+// The stage path past the first failure only needs these to compile; it
+// asserts if reached.
+struct SceneNode{SceneNode *pNext,*pFirstChild;};struct Car{SceneNode *pSceneRoot,*pBodyNode;};
+struct Menu;struct SoundSlot;struct CarFlexibleLineState;
 CarPartStateTables g_carPartStateTables;ReplayLevelState g_replayLevelState;
 RallyStageTables g_rallyStageTables;RallyOverallTables g_rallyOverallTables;NetPlayer g_netPlayers[8];
 void *g_replayStreams[8];int g_unk0x00588d3c;int g_carPairValuePending[16];
@@ -124,10 +127,10 @@ void FrontendControls_FillDeviceConfiguration(){++controllerCalls;}
  code+=stage+MAIN
  with tempfile.TemporaryDirectory(prefix='cmr2-native-walks-') as d:
   p=Path(d);(p/'walks.cpp').write_text(code);(p/'windows.h').write_text('#include <cstdint>\nusing BYTE=unsigned char;using BOOL=int;using DWORD=uint32_t;\n')
-  for name in ('StageTiming.h','StageWeatherParticle.h','NetPlayers.h','RallyTiming.h','LayoutChecks.h','CarResources.h'):
+  for name in ('FloatToInt.h','StageTiming.h','StageWeatherParticle.h','NetPlayers.h','RallyTiming.h','LayoutChecks.h','CarResources.h'):
    text=(ROOT/'CMR2Decomp'/name).read_text().replace('#include "FixedPoint.h"','')
    (p/name).write_text(text)
-  subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-fsanitize=address,undefined','-I'+d,str(p/'walks.cpp'),'-o',str(p/'walks')],check=True)
+  subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-fsanitize=address,undefined','-I'+d,str(p/'walks.cpp'),'-o',str(p/'walks')],check=True)
   r=subprocess.run([str(p/'walks')],capture_output=True,env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1'))
   assert r.returncode==0,r.stderr.decode();print(r.stdout.decode(),end='')
 if __name__=='__main__':main()

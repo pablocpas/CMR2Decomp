@@ -19,6 +19,7 @@
 #include "Texture.h"
 #include "Input.h"
 #include "Menu.h"
+#include "PauseMenus.h"
 
 // FUNCTION: CMR2 0x00415bc0
 void StageUI_NoOpMapEvent(int, int)
@@ -547,23 +548,21 @@ void StageUI_PublishNetworkRaceWins(void)
 BYTE g_barBackColour[4] = { 156, 180, 172, 255 };
 // GLOBAL: CMR2 0x0051c990
 BYTE g_barTextColour[4] = { 255, 255, 255, 255 };
-extern BYTE g_unk0x0058ca90[0x4d4];
+extern PauseMenus g_unk0x0058ca90;
 // GLOBAL: CMR2 0x0051c97c
-BYTE *g_pUnk0x0051c97c = g_unk0x0058ca90;
+Menu *g_pUnk0x0051c97c = &g_unk0x0058ca90.main;
 
 // FUNCTION: CMR2 0x00475a40
-BYTE *StageUI_GetStageOverlayNode(void)
+Menu *StageUI_GetStageOverlayNode(void)
 {
     return g_pUnk0x0051c97c;
 }
 // GLOBAL: CMR2 0x0058ca90
-BYTE g_unk0x0058ca90[0x4d4];
+PauseMenus g_unk0x0058ca90;
 // GLOBAL: CMR2 0x0058cf64
 int g_unk0x0058cf64;
 // GLOBAL: CMR2 0x0058cf7c
 int g_unk0x0058cf7c;
-
-struct Menu;
 
 void StageUI_NoOpPauseItemEvent(Menu *pMenu, int param);
 void StageUI_RequestPauseMenuExit(Menu *pMenu, int param);
@@ -577,17 +576,17 @@ extern int g_unk0x0058cf6c;
 // FUNCTION: CMR2 0x00473360
 void StageUI_BuildPauseMenus(void)
 {
-    g_pUnk0x0051c97c = g_unk0x0058ca90;
-    Menu_Init((Menu *)g_unk0x0058ca90, 0, 0, 0, NULL, NULL, 1, 0, 1);
-    Menu_AddItemType4((Menu *)g_unk0x0058ca90, 0, 0x13, (MenuItemAction)StageUI_NoOpPauseItemEvent, 0);
-    Menu_AddItemType2((Menu *)g_unk0x0058ca90, 0, 0x63, (Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 1);
-    Menu_SetCallbacks((Menu *)g_unk0x0058ca90, NULL, NULL, (MenuCallback)StageObject_DrawInRacePauseMenu, NULL);
-    Menu_ValidateCursor((Menu *)g_unk0x0058ca90, 0);
-    Menu_Init((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0, 0, NULL, NULL, 1, 0, 1);
-    Menu_AddItemType4((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0x72, (MenuItemAction)StageUI_RequestPauseMenuExit, 0);
-    Menu_AddItemType2((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0x73, (Menu *)g_unk0x0058ca90, 0, 1);
-    Menu_SetCallbacks((Menu *)(g_unk0x0058ca90 + 0x1e8), NULL, NULL, (MenuCallback)StageObject_DrawPauseStageDataPanel, NULL);
-    Menu_ValidateCursor((Menu *)(g_unk0x0058ca90 + 0x1e8), 0);
+    g_pUnk0x0051c97c = &g_unk0x0058ca90.main;
+    Menu_Init(&g_unk0x0058ca90.main, 0, 0, 0, NULL, NULL, 1, 0, 1);
+    Menu_AddItemType4(&g_unk0x0058ca90.main, 0, 0x13, (MenuItemAction)StageUI_NoOpPauseItemEvent, 0);
+    Menu_AddItemType2(&g_unk0x0058ca90.main, 0, 0x63, &g_unk0x0058ca90.stageData, 0, 1);
+    Menu_SetCallbacks(&g_unk0x0058ca90.main, NULL, NULL, (MenuCallback)StageObject_DrawInRacePauseMenu, NULL);
+    Menu_ValidateCursor(&g_unk0x0058ca90.main, 0);
+    Menu_Init(&g_unk0x0058ca90.stageData, 0, 0, 0, NULL, NULL, 1, 0, 1);
+    Menu_AddItemType4(&g_unk0x0058ca90.stageData, 0, 0x72, (MenuItemAction)StageUI_RequestPauseMenuExit, 0);
+    Menu_AddItemType2(&g_unk0x0058ca90.stageData, 0, 0x73, &g_unk0x0058ca90.main, 0, 1);
+    Menu_SetCallbacks(&g_unk0x0058ca90.stageData, NULL, NULL, (MenuCallback)StageObject_DrawPauseStageDataPanel, NULL);
+    Menu_ValidateCursor(&g_unk0x0058ca90.stageData, 0);
     g_unk0x0058cf6c = 1;
 }
 
@@ -658,7 +657,7 @@ void StageUI_DrawChampionshipBar(void)
     Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 0x39) / 0x1e0,
                   (int *)g_barTextColour, 0x11);
 
-    if (g_pUnk0x0051c97c == g_unk0x0058ca90) {
+    if (g_pUnk0x0051c97c == &g_unk0x0058ca90.main) {
         if (g_unk0x0058cf7c > 1 && g_unk0x0058cf7c < 6) {
             unsigned int round;
 
@@ -931,7 +930,7 @@ void StageUI_RetireFromRace(Menu *pMenu)
 }
 
 extern int g_unk0x0058cf7c;
-extern BYTE g_unk0x0058ca90[];
+extern PauseMenus g_unk0x0058ca90;
 void Graphics_StartShapedInterpolationTimer(BYTE *p, int, int, int, int, int, BYTE);
 
 // Fade callback of the in-race state machine: releases the scene callbacks and
@@ -951,7 +950,7 @@ void StageUI_ReleaseSceneAndFadeStage(BYTE index)
     CGameInfo::SetInputAndGamePaused(0);
     StageUI_ClearRaceEndState();
     g_unk0x0058cf7c = 5;
-    Graphics_StartShapedInterpolationTimer(g_unk0x0058ca90 + 0x4d0, 2, 7, 0, 0, 0x10000, 0);
+    Graphics_StartShapedInterpolationTimer(&g_unk0x0058ca90.textTimer, 2, 7, 0, 0, 0x10000, 0);
 }
 
 // Co-driver arrow sprites: 64-pixel cells for low resolutions, 102-pixel
@@ -1008,17 +1007,17 @@ void StageUI_UpdatePauseMenu(void)
 
     CInput::UpdateAllAvailableDevices();
     Input_TranslatePedalsToMenuKeys();
-    if (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca90 + 0x1e0) && !Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c)) {
+    if (!Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.bracketTimer) && !Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c)) {
         pDev = CInput::GetAvailableDeviceRecord(0);
         Input_MergeAssignedJoystickButtons(0, pDev);
-        next = Menu_Update((Menu *)g_pUnk0x0051c97c, pDev->field_0x8);
+        next = Menu_Update(g_pUnk0x0051c97c, pDev->field_0x8);
     } else {
-        next = Menu_Update((Menu *)g_pUnk0x0051c97c, 0);
+        next = Menu_Update(g_pUnk0x0051c97c, 0);
     }
     if (next != 0) {
-        g_unk0x0058ca90[7] = 0;
-        g_unk0x0058ca90[0x1ef] = 1;
-        g_pUnk0x0051c97c = (BYTE *)next;
+        g_unk0x0058ca90.main.cursor = 0;
+        g_unk0x0058ca90.stageData.cursor = 1;
+        g_pUnk0x0051c97c = next;
     }
 }
 

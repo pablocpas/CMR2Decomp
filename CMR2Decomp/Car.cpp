@@ -11,6 +11,7 @@
 #include "RallyData.h"
 #include "Mesh.h"
 #include "main.h"
+#include "ReplayStream.h"
 #include <string.h>
 
 Car *g_cars[40];
@@ -123,7 +124,7 @@ void Car_AllocateTable(int count)
 }
 
 int NetPlayers_GetPlayerField8(int index);
-BYTE *Race_GetPlayerRecordPointer(int index);
+ReplayStream *Race_GetPlayerRecordPointer(int index);
 unsigned int NetPlayers_IsPlayerPresent(int index);
 void Car_MarkHiddenFromCameras(Car *pCar);
 extern short g_unk0x0053a314[8];
@@ -154,8 +155,8 @@ void Car_BuildViewOrder(void)
         g_carOrderCount = 1;
         for (i = 0; i < 7; i++) {
             flag = 0;
-            BYTE *pPlayer = Race_GetPlayerRecordPointer(i + 1);
-            if (pPlayer != 0 && *(int *)(pPlayer + 4) != 0 && *(int *)(pPlayer + 0xe8) != 0)
+            ReplayStream *pPlayer = Race_GetPlayerRecordPointer(i + 1);
+            if (pPlayer != 0 && pPlayer->playing != 0 && pPlayer->field_0xe8 != 0)
                 flag = 1;
             if ((BYTE)NetPlayers_IsPlayerPresent(i) != 0 || flag) {
                 g_carOrder[g_carOrderCount] = NetPlayers_GetPlayerField8(i);
@@ -348,14 +349,14 @@ void View_SelectVisibleCars(unsigned int view, short *pRect)
     if (g_carOrderCount > 1) {
         do {
             FixMatrix_GetPosition(&otherPos, &Car_Get(g_carOrder[j])->pSceneRoot->current);
-            FixMatrix_ProjectWorldPointToView(proj1, &otherPos, (BYTE *)pView);
+            FixMatrix_ProjectWorldPointToView(proj1, &otherPos, pView);
             proj1[0] >>= 16;
             proj1[1] >>= 16;
             FixVecScale(&delta, &up, Car_Get(g_carOrder[j])->collisionRadius);
             delta.x += otherPos.x;
             delta.y += otherPos.y;
             delta.z += otherPos.z;
-            FixMatrix_ProjectWorldPointToView(proj2, &delta, (BYTE *)pView);
+            FixMatrix_ProjectWorldPointToView(proj2, &delta, pView);
             proj2[0] >>= 16;
             proj2[1] >>= 16;
             if ((proj1[0] == -100 && proj1[1] == -100) || (proj2[0] == -100 && proj2[1] == -100)) {

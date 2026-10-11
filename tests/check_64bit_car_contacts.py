@@ -49,7 +49,8 @@ int g_unk0x005914d8, g_unk0x005915f8[0x26];
 #define g_unk0x00591628 ((FixVector *)&g_unk0x005915f8[0xc])
 char g_unk0x00590ecc[4], g_unk0x005914c4[4], g_unk0x005914d4, g_unk0x005915f4;
 BYTE g_unk0x00590ec8[4], g_unk0x005914a4[4];
-FixVector *g_pContacts0x005915e0, *g_pContacts0x00591394;
+struct CollisionBox;
+CollisionBox *g_pContacts0x005915e0, *g_pContacts0x00591394;
 class CGameInfo { public: static int IsActiveCheatEnabled(int v) { assert(v == 4); return 0; } };
 void StageObject_ApplyRecursiveFrameDelta(BYTE, char, int *, int) {}
 void CarDamage_ApplyCollisionDeformImpulse(Car *, int *, FixVector *, int, unsigned char, int) {}
@@ -106,8 +107,8 @@ int main() {
     boxB.pVertex=&centreB; boxB.pArray=verticesB;
     centreA.x=3*65536; centreB.x=5*65536; b.position.x=2*65536;
     a.corners[0].x=0; b.corners[0].x=2*65536;
-    g_pContacts0x005915e0=reinterpret_cast<FixVector *>(&boxA);
-    g_pContacts0x00591394=reinterpret_cast<FixVector *>(&boxB);
+    g_pContacts0x005915e0=&boxA;
+    g_pContacts0x00591394=&boxB;
     g_unk0x005915f4=g_unk0x005914d4=1;
     assert(Collision_SeparateCarBoxes(&a,&b)==1);
     assert(a.field_0x5dc.x==65536 && b.field_0x5dc.x==-65536);
@@ -138,7 +139,7 @@ def main():
     source = ROOT / 'CMR2Decomp'
     with tempfile.TemporaryDirectory(prefix='cmr2-native-car-contacts-') as directory:
         tmp = Path(directory)
-        for name in ('Car.h', 'SceneNode.h', 'Sector.h', 'LayoutChecks.h', 'Collision2D.h'):
+        for name in ('FloatToInt.h','Car.h', 'SceneNode.h', 'Sector.h', 'LayoutChecks.h', 'Collision2D.h'):
             shutil.copyfile(source / name, tmp / name)
         shutil.copyfile(args.port_root / 'game/FixedPoint.h', tmp / 'FixedPoint.h')
         (tmp / 'Graphics.h').write_text('struct Graphics;\nstruct Texture;\nclass CGraphics { public: static const double m_oneOver65536; };\n')

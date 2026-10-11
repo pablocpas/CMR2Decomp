@@ -90,11 +90,11 @@ def main():
   _,_,canonical=oracle.clone(*case);inputs+=struct.pack('<4I',*case)+oracle.initial_heap;expected+=canonical
  with tempfile.TemporaryDirectory(prefix='cmr2-native-mesh-') as folder:
   tmp=Path(folder)
-  for name in ('Mesh.h','MeshVertex.h','Sector.h'):shutil.copyfile(source/name,tmp/name)
+  for name in ('FloatToInt.h','Mesh.h','MeshVertex.h','Sector.h'):shutil.copyfile(source/name,tmp/name)
   shutil.copyfile(ROOT.parent/'OpenCMR2/game/FixedPoint.h',tmp/'FixedPoint.h')
   for name,fn in [('typed',clone),('old-matrix-offset',old)]:
    cpp,exe=tmp/(name+'.cpp'),tmp/name;cpp.write_text(PRE+helpers+fn+MAIN)
-   subprocess.run(['clang++','-m64','-std=c++17','-O2','-fwrapv','-fno-strict-aliasing','-fsanitize=address,undefined','-fno-sanitize-recover=all','-I'+str(tmp),str(cpp),'-o',str(exe)],check=True)
+   subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fwrapv','-fno-strict-aliasing','-fsanitize=address,undefined','-fno-sanitize-recover=all','-I'+str(tmp),str(cpp),'-o',str(exe)],check=True)
    p=subprocess.run([str(exe)],input=inputs,capture_output=True,env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0'))
    if name=='typed':
     assert p.returncode==0,p.stderr.decode();assert p.stdout==expected,('original x86 clone outputs',next((i for i,(a,b) in enumerate(zip(p.stdout,expected)) if a!=b),None))

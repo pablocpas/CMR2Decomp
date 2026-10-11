@@ -54,7 +54,7 @@ unsigned int RallyData_GetFlag25(){return (selection>>25)&1;}
 unsigned int RallyData_GetSelectionFlag26(){return (selection>>26)&1;}
 unsigned int RallyData_GetSelectionFlag28(){return (selection>>28)&1;}
 Car *Car_Get(int i){assert(i==0 || i==1);return &car;}
-int RallyData_GetActiveCarRaceRecordField0(BYTE *p){assert(p==(BYTE *)&car);return best;}
+int RallyData_GetActiveCarRaceRecordField0(Car *p){assert(p==&car);return best;}
 int Car_OverlapsOtherCar(int){int result=overlaps>0;overlaps-=result;return result;}
 void Car_PlaceAtStart(int *,int *){}
 void Race_StorePlayerRouteAndClearSlots(int){}
@@ -65,7 +65,7 @@ BYTE StageTiming_GetCheckpointField18(int){return caseId%2;}
 int StageTiming_GetClockTime(){return 80+caseId%20;}
 void *StageUI_GetRaceResultTable(){return &machine;}
 int Car_IsStateC10Set(int){return (caseId/3)%2;}
-int RallyData_GetCarRecordValueRatio(BYTE *){return 32768;}
+int RallyData_GetCarRecordValueRatio(Car *){return 32768;}
 void StageObject_SetBoundedWeatherKind(int){}
 void Race_AssignUnusedSlot(BYTE *){}
 void RaceCalls_UpdatePlaybackQueue(){}
@@ -114,12 +114,12 @@ def main():
  env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1');oracle=Nodes(ROOT/'cmr2bin/CMR2.exe');number=0
  with tempfile.TemporaryDirectory(prefix='cmr2-native-route-') as directory:
   tmp=Path(directory)
-  for h in ('Car.h','SceneNode.h','Sector.h','Mesh.h','LayoutChecks.h','RallyRouteNode.h','RaceRecord.h','RaceCallRecord.h','CallbackState.h'):shutil.copyfile(source/h,tmp/h)
+  for h in ('FloatToInt.h','Car.h','SceneNode.h','Sector.h','Mesh.h','LayoutChecks.h','RallyRouteNode.h','RaceRecord.h','RaceCallRecord.h','CallbackState.h'):shutil.copyfile(source/h,tmp/h)
   shutil.copyfile(ROOT.parent/'OpenCMR2/game/FixedPoint.h',tmp/'FixedPoint.h')
   (tmp/'windows.h').write_text('typedef unsigned char BYTE;typedef unsigned int DWORD;typedef int BOOL;\n')
   (tmp/'Graphics.h').write_text('class CGraphics{public:static constexpr double m_oneOver65536=1.0/65536.0;static constexpr double m_65536=65536.0;};\n')
   cpp=tmp/'route.cpp';cpp.write_text(PRELUDE+funcs+code);exe=tmp/'route'
-  subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(cpp),'-o',str(exe)],check=True)
+  subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(cpp),'-o',str(exe)],check=True)
   for kind,case,count,missing in itertools.product(range(5),range(32),[12,16],[False,True]):
    if kind==4 and missing:continue
    image=oracle.initialize(case,count,missing);data=image+b''.join(oracle.read(oracle.addr(a),size) for _,a,size in GLOBALS)

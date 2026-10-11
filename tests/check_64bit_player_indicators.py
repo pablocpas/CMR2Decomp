@@ -72,10 +72,10 @@ def main():
  src=ROOT/'CMR2Decomp';fn=body((src/'StageObjects.cpp').read_text(),'StageObject_UpdatePlayerControlIndicators');input_header=(src/'Input.h').read_text();fragment=input_header[input_header.index('struct JoystickBinding'):input_header.index('struct Unk0x0059f8cc')]
  with tempfile.TemporaryDirectory(prefix='cmr2-native-controls-') as directory:
   tmp=Path(directory)
-  for h in ('Car.h','SceneNode.h','Sector.h','Mesh.h','CallbackState.h'):shutil.copyfile(src/h,tmp/h)
+  for h in ('FloatToInt.h','Car.h','SceneNode.h','Sector.h','Mesh.h','CallbackState.h'):shutil.copyfile(src/h,tmp/h)
   shutil.copyfile(ROOT.parent/'OpenCMR2/game/FixedPoint.h',tmp/'FixedPoint.h');(tmp/'windows.h').write_text('typedef unsigned char BYTE;typedef unsigned int DWORD;typedef int BOOL;\n');(tmp/'Graphics.h').write_text('struct Graphics;class CGraphics{public:static constexpr double m_oneOver65536=1.0/65536.0;};\n');(tmp/'DeviceInfo.h').write_text(fragment)
   cpp=tmp/'control.cpp';cpp.write_text(PRELUDE+fn+MAIN);exe=tmp/'control';env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1')
-  subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(cpp),'-o',str(exe)],check=True)
+  subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(cpp),'-o',str(exe)],check=True)
   oracle=Indicators(ROOT/'cmr2bin/CMR2.exe');cases=[]
   for seed,kind,axes,inverted,finished,enabled in itertools.product(range(3),(1,2,3),[(0,-1,1,2),(0,-1,1,1),(-1,-1,-1,-1)],range(2),range(2),[(1,1),(0,1),(1,0)]):
    raw=(-65536,32769,0x7fffffff,-0x80000000)[seed:]+(-65536,32769,0x7fffffff,-0x80000000)[:seed]

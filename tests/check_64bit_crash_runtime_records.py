@@ -118,7 +118,7 @@ def main():
  code=PRELUDE+'\n#include <initializer_list>\n'+'\n'.join(functions)+MAIN
  with tempfile.TemporaryDirectory(prefix='cmr2-native-crash-records-') as d:
   d=Path(d)
-  for name in ('Car.h','SceneNode.h','Sector.h','Mesh.h','ReplayStream.h','LayoutChecks.h'):
+  for name in ('FloatToInt.h','Car.h','SceneNode.h','Sector.h','Mesh.h','ReplayStream.h','LayoutChecks.h'):
    shutil.copyfile(src/name,d/name)
   shutil.copyfile(PORT/'game/FixedPoint.h',d/'FixedPoint.h')
   (d/'Graphics.h').write_text('class CGraphics{public:static constexpr double m_oneOver65536=1.0/65536.0;};\n')
@@ -129,7 +129,7 @@ def main():
    'sample-truncation':code.replace('Replay_RecordCarPoseSample((ReplaySample *)p->pSamples + p->samplesPerLane * p->laneCount + n, p->car);','Replay_RecordCarPoseSample((ReplaySample *)(uintptr_t)(unsigned)((uintptr_t)p->pSamples+16*(p->samplesPerLane*p->laneCount+n)), p->car);')}
   for name,contents in variants.items():
    source=d/(name+'.cpp');source.write_text(contents);exe=d/name
-   subprocess.run(['clang++','-std=c++17','-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all','-fms-extensions','-Wno-everything','-I'+str(d),'-I'+str(PORT/'src'),str(source),'-o',str(exe)],check=True)
+   subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-std=c++17','-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all','-fms-extensions','-Wno-everything','-I'+str(d),'-I'+str(PORT/'src'),str(source),'-o',str(exe)],check=True)
    run=subprocess.run([str(exe)],capture_output=True,text=True,env=dict(os.environ,ASAN_OPTIONS='detect_leaks=1'))
    if name=='good':assert run.returncode==0,run.stderr;print(run.stdout.strip())
    else:assert run.returncode!=0,'negative control passed: '+name;print('PASS negative control detected:',name)

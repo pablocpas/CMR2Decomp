@@ -74,7 +74,7 @@ def main():
  code+=MAIN
  with tempfile.TemporaryDirectory(prefix='cmr2-native-network-') as d:
   p=Path(d);(p/'network.cpp').write_text(code)
-  subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-fsanitize=address,undefined',str(p/'network.cpp'),'-o',str(p/'network')],check=True)
+  subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-fsanitize=address,undefined',str(p/'network.cpp'),'-o',str(p/'network')],check=True)
   r=subprocess.run([str(p/'network')],capture_output=True,env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1'))
   assert r.returncode==0,r.stderr.decode();print(r.stdout.decode(),end='')
 if __name__=='__main__':main()

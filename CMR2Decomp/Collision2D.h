@@ -13,7 +13,8 @@ struct CollisionBox {
     int bottom;             // 0x0c world lower y
     FixVector axisA;        // 0x10
     FixVector axisB;        // 0x1c
-    BYTE pad_0x28[0x8];
+    int built;              // 0x28 set once rebuilt for this frame (cleared each frame)
+    int hasSecondaryVertices; // 0x2c face boxes: points 4..7 hold a second face
     union {
         FixVector points[8];    // 0x30 first four are the footprint
         int pointWords[24];     // same pointer-free vector span

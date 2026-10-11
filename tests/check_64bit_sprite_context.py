@@ -89,7 +89,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix='cmr2-native-sprite-context-') as directory:
         tmp=Path(directory);fixture=tmp/'rectangles.cpp';executable=tmp/'rectangles'
         fixture.write_text(PRELUDE+graphics+signature+SUPPORT+wrapper+MAIN)
-        subprocess.run(['clang++','-m64','-std=c++17','-O2','-fwrapv','-fno-strict-aliasing',
+        subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fwrapv','-fno-strict-aliasing',
                         '-fsanitize=address,undefined',str(fixture),'-o',str(executable)],check=True)
         actual=subprocess.run([str(executable)],input=inputs,capture_output=True,
                               env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1'))

@@ -83,7 +83,7 @@ int main() {
         shutil.copyfile(ROOT / 'CMR2Decomp/BestTimeRecords.h', tmp / 'BestTimeRecords.h')
         fixture = tmp / 'records.cpp';fixture.write_text(PRELUDE+definitions+functions+main_code)
         executable = tmp / 'records'
-        subprocess.run(['clang++','-m64','-std=c++17','-O2','-fwrapv','-fno-strict-aliasing',
+        subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fwrapv','-fno-strict-aliasing',
                         '-fsanitize=address,undefined',str(fixture),'-o',str(executable)],check=True)
         for seed in range(64):
             outputs, _, _ = oracle.run(seed, 0xa5)

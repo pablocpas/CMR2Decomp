@@ -1518,14 +1518,14 @@ void CGame::NoOpSecondaryStateCallback(struct CallbackStateMachine *, BYTE) { re
 
 extern SceneNode *g_unk0x0082b1b0;
 
-void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, BYTE *pView);
+void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, SceneNode *pView);
 
 // Projects a 16.16 point through the option menu's background camera and scales
 // the result by 2/3.
 // FUNCTION: CMR2 0x00501690
 void Game_ProjectMenuBackgroundPoint(int *param1, FixVector *param2)
 {
-    FixMatrix_ProjectWorldPointToView(param1, param2, (BYTE *)g_unk0x0082b1b0);
+    FixMatrix_ProjectWorldPointToView(param1, param2, g_unk0x0082b1b0);
     param1[0] = FixMul(param1[0], FixDiv(0x20000, 0x30000));
     param1[1] = FixMul(param1[1], FixDiv(0x20000, 0x30000));
 }

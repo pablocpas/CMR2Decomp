@@ -3085,8 +3085,31 @@ int g_unk0x005210bc = 1;
 int g_unk0x005210c0 = 1;
 // GLOBAL: CMR2 0x005210c4
 int g_unk0x005210c4 = 5;
+// One of the 32 interpolation timers (0x30 bytes): a value that moves from
+// start to end along a curve, one step every 16 ms.
+struct InterpolationTimer {
+    BYTE shape;             // 0x00 curve 0-4; 5 = free or finished
+    signed char direction;  // 0x01 sign of scale (wobble at the end of curve 4)
+    BYTE pad_0x2[2];
+    unsigned int length;    // 0x04 steps of the curve
+    int base;               // 0x08 value the curve starts from
+    int end;                // 0x0c value once finished
+    int start;              // 0x10 value while delayed
+    BYTE holdAtEnd;         // 0x14 still running for 3 steps past length
+    BYTE pad_0x15[3];
+    BYTE bitUnion;          // 0x18 Graphics_GetTimerRecordBitUnion at start
+    BYTE pad_0x19[3];
+    int scale;              // 0x1c curve slope, 4096 = 1
+    BYTE *pOwner;           // 0x20 slot byte the timer was registered with
+    unsigned int delay;     // 0x24 steps left before it starts
+    unsigned int step;      // 0x28
+    int lastTime;           // 0x2c frame time of the last step
+};
+CMR2_LAYOUT_CHECK(InterpolationTimerSize, sizeof(InterpolationTimer) == 0x30);
+CMR2_LAYOUT_CHECK(InterpolationTimerOwner, offsetof(InterpolationTimer, pOwner) == 0x20);
+
 struct TimerPulseState {
-    BYTE timers[32][0x30];
+    InterpolationTimer timers[32];
     int rising;
     float maximum;
 };
@@ -3585,7 +3608,7 @@ signed char g_timerWobble[24] = { 3, 6, 6, 3, 0, 2, 4, 4, 2, 0, 1, 2, 2, 1, 0, 1
 // FUNCTION: CMR2 0x004bc110
 int Timer_GetValue(BYTE index)
 {
-    BYTE *t;
+    InterpolationTimer *t;
     unsigned int pos;
     unsigned int dur;
     int v;
@@ -3593,17 +3616,17 @@ int Timer_GetValue(BYTE index)
     int now;
 
     index &= 0xff;
-    t = g_unk0x00521138[index];
-    pos = *(unsigned int *)(t + 0x28);
-    dur = *(unsigned int *)(t + 4);
+    t = &g_unk0x00521138[index];
+    pos = t->step;
+    dur = t->length;
     step = (BYTE)pos;
     if (pos >= dur)
         step = (BYTE)dur;
-    if (*(unsigned int *)(t + 0x24) > 0) {
-        (*(unsigned int *)(t + 0x24))--;
-        return *(int *)(t + 0x10);
+    if (t->delay > 0) {
+        (t->delay)--;
+        return t->start;
     }
-    switch (t[0]) {
+    switch (t->shape) {
     case 0:
         v = step;
         break;
@@ -3621,29 +3644,29 @@ int Timer_GetValue(BYTE index)
     case 4:
         if (step > dur - 0x11) {
         wobble:
-            v = (int)g_timerWobble[16 + step - dur] * (int)(signed char)t[1];
-            *(int *)(t + 0x1c) = 0x1000;
+            v = (int)g_timerWobble[16 + step - dur] * (int)t->direction;
+            t->scale = 0x1000;
         } else {
             v = (int)((dur - step - 0x11 + 1) * (dur - step - 0x11)) / 2;
         }
         break;
     case 5:
-        v = *(unsigned int *)(t + 0xc);
+        v = (unsigned int)t->end;
         break;
     default:
-        return *(int *)(t + 0xc);
+        return t->end;
     }
     if (pos < dur + 3) {
         now = CMain::GetFrameTime();
-        if (abs(now - *(int *)(t + 0x2c)) >= 17) {
-            (*(unsigned int *)(t + 0x28))++;
-            *(int *)(t + 0x2c) = CMain::GetFrameTime();
+        if (abs(now - t->lastTime) >= 17) {
+            (t->step)++;
+            t->lastTime = CMain::GetFrameTime();
         }
     }
-    if (t[0] == 1 || *(unsigned int *)(t + 0x28) < *(unsigned int *)(t + 4))
-        return (int)(*(int *)(t + 0x1c) * v) / 4096 + *(int *)(t + 8);
-    t[0] = 5;
-    return *(int *)(t + 0xc);
+    if (t->shape == 1 || t->step < t->length)
+        return (int)(t->scale * v) / 4096 + t->base;
+    t->shape = 5;
+    return t->end;
 }
 
 // Whether the timer that p was registered with (its first byte is the slot)
@@ -3651,13 +3674,13 @@ int Timer_GetValue(BYTE index)
 // FUNCTION: CMR2 0x004bc0c0
 BYTE Graphics_IsRegisteredTimerRunning(BYTE *p)
 {
-    BYTE *timer = g_unk0x00521138[*p];
+    InterpolationTimer *timer = &g_unk0x00521138[*p];
 
-    if (*(BYTE **)(timer + 0x20) != p)
+    if (timer->pOwner != p)
         return 0;
-    if (timer[0x14] != 0)
-        return *(unsigned int *)(timer + 0x28) < *(unsigned int *)(timer + 4) + 3;
-    return *(unsigned int *)(timer + 0x28) < *(unsigned int *)(timer + 4);
+    if (timer->holdAtEnd != 0)
+        return timer->step < timer->length + 3;
+    return timer->step < timer->length;
 }
 
 BYTE Graphics_GetTimerRecordBitUnion(BYTE index);
@@ -3675,7 +3698,7 @@ int g_unk0x00816290;
 // FUNCTION: CMR2 0x004bc290
 void Graphics_StartShapedInterpolationTimer(BYTE *pSlot, int shape, int length, int param4, int start, int end, BYTE param7)
 {
-    BYTE *rec;
+    InterpolationTimer *rec;
     int speed;
     int tri;
 
@@ -3685,53 +3708,53 @@ void Graphics_StartShapedInterpolationTimer(BYTE *pSlot, int shape, int length, 
         param7 = 0;
     }
     tri = (length + 1) * length / 2;
-    if (*pSlot < 0x20 && *(BYTE **)(g_unk0x00521138[*pSlot] + 0x20) == pSlot)
-        g_unk0x00521138[*pSlot][0] = 5;
+    if (*pSlot < 0x20 && g_unk0x00521138[*pSlot].pOwner == pSlot)
+        g_unk0x00521138[*pSlot].shape = 5;
     *pSlot = Timer_FindFree();
-    rec = g_unk0x00521138[*pSlot];
+    rec = &g_unk0x00521138[*pSlot];
     switch (shape) {
     case 0:
-        *(int *)(rec + 8) = start;
-        *(int *)(rec + 0x1c) = (end - start) * 0x1000 / length;
+        rec->base = start;
+        rec->scale = (end - start) * 0x1000 / length;
         break;
     case 1:
         speed = (start - end) * 0x1000 / length;
-        *(int *)(rec + 0x1c) = speed;
-        *(int *)(rec + 8) = end;
+        rec->scale = speed;
+        rec->base = end;
         length += 0x11;
         break;
     case 2:
-        *(int *)(rec + 8) = end;
-        *(int *)(rec + 0x1c) = (start - end) * 0x1000 / tri;
+        rec->base = end;
+        rec->scale = (start - end) * 0x1000 / tri;
         break;
     case 3:
-        *(int *)(rec + 8) = start;
-        *(int *)(rec + 0x1c) = (end - start) * 0x1000 / tri;
+        rec->base = start;
+        rec->scale = (end - start) * 0x1000 / tri;
         break;
     case 4:
-        *(int *)(rec + 0x1c) = (start - end) * 0x1000 / tri;
-        *(int *)(rec + 8) = end;
+        rec->scale = (start - end) * 0x1000 / tri;
+        rec->base = end;
         length += 0x11;
         break;
     default:
         return;
     }
-    rec[0] = (BYTE)shape;
-    *(int *)(rec + 4) = length;
-    *(signed char *)(rec + 1) = *(int *)(rec + 0x1c) < 0 ? -1 : 1;
-    rec[0x14] = param7;
-    *(int *)(rec + 0x24) = param4;
-    *(int *)(rec + 0x10) = start;
-    *(int *)(rec + 0xc) = end;
-    *(BYTE **)(rec + 0x20) = pSlot;
-    *(int *)(rec + 0x28) = 0;
-    rec[0x18] = Graphics_GetTimerRecordBitUnion(*pSlot);
+    rec->shape = (BYTE)shape;
+    rec->length = length;
+    rec->direction = rec->scale < 0 ? -1 : 1;
+    rec->holdAtEnd = param7;
+    rec->delay = param4;
+    rec->start = start;
+    rec->end = end;
+    rec->pOwner = pSlot;
+    rec->step = 0;
+    rec->bitUnion = Graphics_GetTimerRecordBitUnion(*pSlot);
 }
 
 // FUNCTION: CMR2 0x004bc3e0
 BYTE Graphics_GetTimerRecordBitUnion(BYTE index)
 {
-    BYTE *p = g_unk0x00521138[index & 0xff];
+    BYTE *p = (BYTE *)&g_unk0x00521138[index & 0xff];
     BYTE r = (BYTE)index;
     int i = 24;
 
@@ -3744,20 +3767,20 @@ BYTE Graphics_GetTimerRecordBitUnion(BYTE index)
 // FUNCTION: CMR2 0x004bc440
 void Graphics_ResetInterpolationTimers(void)
 {
-    BYTE *p;
+    InterpolationTimer *p;
 
     memset(g_unk0x00521138, 0, sizeof(g_unk0x00521138));
-    p = g_unk0x00521138[0];
+    p = g_unk0x00521138;
     do {
-        *p = 5;
-        p += 0x30;
-    } while ((INT_PTR)p < (INT_PTR)g_unk0x00521138[32]);
+        p->shape = 5;
+        p++;
+    } while ((INT_PTR)p < (INT_PTR)&g_unk0x00521138[32]);
 }
 
 // FUNCTION: CMR2 0x004bc470
 void Graphics_StopRegisteredTimer(BYTE *p)
 {
-    g_unk0x00521138[*p][0] = 5;
+    g_unk0x00521138[*p].shape = 5;
 }
 
 // GLOBAL: CMR2 0x008164c8
@@ -6943,7 +6966,7 @@ BYTE Timer_FindFree(void)
 
     slot = 0;
     for (i = 0; i < 32; i++) {
-        if (g_unk0x00521138[slot][0] == 5)
+        if (g_unk0x00521138[slot].shape == 5)
             return (BYTE)slot;
         slot = (slot + 1) % 32;
     }

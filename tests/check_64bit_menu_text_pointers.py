@@ -85,7 +85,7 @@ def main():
   data+=struct.pack('<6i',kind=='rows',*res,count,cursor,mode);expected+=encoded(oracle(kind,res,count,cursor,mode));n+=1
  with tempfile.TemporaryDirectory(prefix='cmr2-native-menu-text-') as d:
   p=Path(d);(p/'menu.cpp').write_text(code)
-  subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-fsanitize=address,undefined',str(p/'menu.cpp'),'-o',str(p/'menu')],check=True)
+  subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-fsanitize=address,undefined',str(p/'menu.cpp'),'-o',str(p/'menu')],check=True)
   r=subprocess.run([str(p/'menu')],input=data,capture_output=True,env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1'))
   assert r.returncode==0,r.stderr.decode();assert r.stdout==expected,'complete primitive drawing model and native text identity'
  print(f'PASS: {n} actual x64 menu draw scenarios; real Menu/Texture/Graphics headers, texts and records above 4 GB, changed field offsets/strides, complete primitive call models, whole input guards, ASan/UBSan; rendering/header/text providers controlled')

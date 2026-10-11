@@ -44,6 +44,7 @@ short Car_GetOrderCount(void);
 #include "Font.h"
 #include "Sprite.h"
 #include "Collision2D.h"
+#include "PauseMenus.h"
 #include "Menu.h"
 #include "Glow.h"
 #include "CarExhaust.h"
@@ -280,7 +281,7 @@ void StageObject_DrawOutlinedStageBox(short *pRect, BYTE *pColour, BYTE *pEdgeCo
 int StageObject_FillWidthScaledRectangle(int scale, BYTE *unused, short *pRect, BYTE *pColour, int layer);
 void StageObject_ClearAndDrawSplitPositions(int unused1, int unused2);
 void StageObject_BuildInRaceActionMenu(void);
-BYTE *StageObject_GetInRaceActionMenu(void);
+Menu *StageObject_GetInRaceActionMenu(void);
 void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car);
 void StageObject_SyncStateAndSceneMatrix(BYTE *p, int *src, int unused, BYTE value);
 void CarInterior_ResetDriverPoseOnNextUpdate(BYTE *p);
@@ -360,7 +361,7 @@ void StageObject_UpdateDebris(int scale);
 void StageObject_ClearPartTuningState(void);
 void StageObject_ResetPartTuningAndRandomSeed(void);
 void StageObject_ResetCarPartNodeValue(BYTE *pCar, int slot, int reset);
-void StageObject_AssignMatchingCarClassSlots(BYTE *pCar, BYTE *pObject, BYTE flag);
+void StageObject_AssignMatchingCarClassSlots(Car *pCar, SceneNode *pObject, BYTE flag);
 void StageObject_ResetAttachedCarNodes(BYTE *pCar);
 void CarPart_IntegrateDetachedMotion(void);
 unsigned int StageObject_GetCarPartTableValue(int i, int j);
@@ -755,7 +756,7 @@ int g_unk0x0058cf68;
 // GLOBAL: CMR2 0x0058cf6c
 int g_unk0x0058cf6c;
 // GLOBAL: CMR2 0x0058cf80
-BYTE g_unk0x0058cf80[0x100];
+Menu g_unk0x0058cf80;
 // Scratch rotation matrix for the stage-object nodes.
 // GLOBAL: CMR2 0x0058d260
 FixMatrix g_carWiperRotationMatrix;
@@ -1715,12 +1716,12 @@ BYTE StageObject_ReleaseLoadedObjectFile(void);
 void StageObjects_LoadSkyAndGround(void)
 {
     char buffer[MAX_PATH];
-    GenericFile *pFile;
-    GenericFile *pC3d;
+    void *pFile;
+    void *pC3d;
     SceneNode *node;
     Mesh *pMesh;
 
-    pFile = (GenericFile *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempSky, NULL, NULL, 0);
+    pFile = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempSky, NULL, NULL, 0);
     if (pFile != NULL) {
         g_stageSkyNode = Sector_BuildC3DModelScene(pFile, RallyData_GetChallengeRenderState(),
                                            Race_GetLoadedStageFile());
@@ -1754,10 +1755,10 @@ void StageObjects_LoadSkyAndGround(void)
     CGenericFileLoader::LoadIntoFileRecord(&g_stageCloudArchive, CFrontend::m_stringDest);
     strcpy(CFrontend::m_stringDest, buffer);
     strcat(CFrontend::m_stringDest, g_strC3dExt);
-    pC3d = (GenericFile *)CGenericFileLoader::FindFile(&g_stageCloudArchive, CFrontend::m_stringDest, NULL, NULL, 0);
+    pC3d = CGenericFileLoader::FindFile(&g_stageCloudArchive, CFrontend::m_stringDest, NULL, NULL, 0);
     strcpy(CFrontend::m_stringDest, buffer);
     strcat(CFrontend::m_stringDest, g_strTopC3d);
-    pFile = (GenericFile *)CGenericFileLoader::FindFile(&g_stageCloudArchive, CFrontend::m_stringDest, NULL, NULL, 0);
+    pFile = CGenericFileLoader::FindFile(&g_stageCloudArchive, CFrontend::m_stringDest, NULL, NULL, 0);
     if (pFile != NULL) {
         g_stageCloudTopNode = Sector_BuildC3DModelScene(pFile, RallyData_GetChallengeRenderState(),
                                            &g_stageCloudArchive);
@@ -1777,7 +1778,7 @@ void StageObjects_LoadSkyAndGround(void)
             Graphics_SetRecordField2C(pMesh, 0);
         }
     }
-    pFile = (GenericFile *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempGro, NULL, NULL, 0);
+    pFile = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempGro, NULL, NULL, 0);
     if (pFile != NULL) {
         g_stageGroundNode = Sector_BuildC3DModelScene(pFile, RallyData_GetChallengeRenderState(),
                                            Race_GetLoadedStageFile());
@@ -2043,12 +2044,12 @@ int g_unk0x0058ca84;
 // The five fade-timer objects below live inside the 0x58ca90 block declared in
 // StageUI.cpp, so they are addressed as offsets of it (a separate declaration
 // would overlap it).
-extern BYTE g_unk0x0058ca90[];
-#define g_unk0x0058cc70 (g_unk0x0058ca90[0x1e0])
-#define g_unk0x0058cc74 (*(int *)(g_unk0x0058ca90 + 0x1e4))
-#define g_unk0x0058ce58 (*(int *)(g_unk0x0058ca90 + 0x3c8))
-#define g_unk0x0058ce5c (*(unsigned int *)(g_unk0x0058ca90 + 0x3cc))
-#define g_unk0x0058cf60 (g_unk0x0058ca90[0x4d0])
+extern PauseMenus g_unk0x0058ca90;
+#define g_unk0x0058cc70 (g_unk0x0058ca90.bracketTimer)
+#define g_unk0x0058cc74 (g_unk0x0058ca90.bracketFade)
+#define g_unk0x0058ce58 (g_unk0x0058ca90.textFade)
+#define g_unk0x0058ce5c (g_unk0x0058ca90.roundEntry)
+#define g_unk0x0058cf60 (g_unk0x0058ca90.textTimer)
 
 extern BYTE *g_unk0x0058ca88;
 extern BYTE g_unk0x0058ca8c[4];
@@ -2413,17 +2414,17 @@ void Game_DrawInRaceActionMenu(Menu *pMenu);
 // FUNCTION: CMR2 0x00475f00
 void StageObject_BuildInRaceActionMenu(void)
 {
-    Menu_Init((Menu *)g_unk0x0058cf80, 0, -1, 0, NULL, NULL, 1, 0, 1);
-    Menu_AddItemType4((Menu *)g_unk0x0058cf80, 0, 0xf4, (MenuItemAction)Game_NoOpInRaceMenuItemEvent, -1);
-    Menu_AddItemType4((Menu *)g_unk0x0058cf80, 0, 0xf5, (MenuItemAction)Game_SetRaceExitFlags, -1);
-    Menu_SetCallbacks((Menu *)g_unk0x0058cf80, NULL, NULL, (MenuCallback)Game_DrawInRaceActionMenu, NULL);
-    Menu_ValidateCursor((Menu *)g_unk0x0058cf80, 0);
+    Menu_Init(&g_unk0x0058cf80, 0, -1, 0, NULL, NULL, 1, 0, 1);
+    Menu_AddItemType4(&g_unk0x0058cf80, 0, 0xf4, (MenuItemAction)Game_NoOpInRaceMenuItemEvent, -1);
+    Menu_AddItemType4(&g_unk0x0058cf80, 0, 0xf5, (MenuItemAction)Game_SetRaceExitFlags, -1);
+    Menu_SetCallbacks(&g_unk0x0058cf80, NULL, NULL, (MenuCallback)Game_DrawInRaceActionMenu, NULL);
+    Menu_ValidateCursor(&g_unk0x0058cf80, 0);
 }
 
 // FUNCTION: CMR2 0x00475f70
-BYTE *StageObject_GetInRaceActionMenu(void)
+Menu *StageObject_GetInRaceActionMenu(void)
 {
-    return g_unk0x0058cf80;
+    return &g_unk0x0058cf80;
 }
 
 // Updates one stage object's state byte and re-syncs its scene node with the
@@ -3202,7 +3203,7 @@ void StageObject_MoveRecursiveBoxCorners(BYTE index)
         p += 3;
     } while (--j);
     if (g_unk0x005913d8 != 0) {
-        if (*(int *)g_unk0x00590ed0[index].pad_0x28 != 0) {
+        if (g_unk0x00590ed0[index].built != 0) {
             p = &g_unk0x00590ed0[index].pointWords[1];
             j = 4;
             do {
@@ -3677,7 +3678,7 @@ int View_GetActiveCameraMode(BYTE index);
 void StageObject_UpdateProjectedDistanceFade(int param_1)
 {
     Car *pCar;
-    BYTE *pView;
+    SceneNode *pView;
     FixVector pos;
     FixVector dir;
     int screen[2];
@@ -3687,21 +3688,21 @@ void StageObject_UpdateProjectedDistanceFade(int param_1)
     int alpha;
 
     pCar = Car_Get(1);
-    pView = (BYTE *)g_viewNodes[param_1];
+    pView = g_viewNodes[param_1];
     FixMatrix_GetPosition(&pos, &pCar->pSceneRoot->current);
     pos.y = pos.y + 0x10000;
     FixMatrix_ProjectWorldPointToView(screen, &pos, pView);
     if (screen[0] != -0x640000 || screen[1] != -0x640000) {
         f2 = (float)(screen[0] * CGraphics::m_oneOver65536);
         f4 = (float)(screen[1] * CGraphics::m_oneOver65536);
-        FixMatrix_GetUp(&dir, (FixMatrix *)(pView + 0x98));
+        FixMatrix_GetUp(&dir, &pView->current);
         dir.x = dir.x + pos.x;
         dir.y = dir.y + pos.y;
         dir.z = dir.z + pos.z;
         FixMatrix_ProjectWorldPointToView(screen, &dir, pView);
         if (screen[0] != -0x640000 || screen[1] != -0x640000) {
             f1 = ((float)(screen[0] * CGraphics::m_oneOver65536) - f2) * g_unk0x005113e0 /
-                 (float)*(int *)g_pGraphics;
+                 (float)g_pGraphics->resX;
             f2 = ((float)(screen[1] * CGraphics::m_oneOver65536) - f4) * g_unk0x005113dc /
                  (float)g_pGraphics->resY;
             f1 = (float)sqrt(f1 * f1 + f2 * f2);
@@ -5287,14 +5288,14 @@ char g_carSlotClasses[4] = { 9, 10, 12, 13 };
 
 // Stores an object in every car slot whose class matches it.
 // FUNCTION: CMR2 0x00480af0
-void StageObject_AssignMatchingCarClassSlots(BYTE *pCar, BYTE *pObject, BYTE flag)
+void StageObject_AssignMatchingCarClassSlots(Car *pCar, SceneNode *pObject, BYTE flag)
 {
     int i;
 
     for (i = 3; i >= 0; i--) {
-        if (g_carSlotClasses[i] == (char)pObject[0x30]) {
-            g_carPartNodes[i][((Car *)pCar)->index] = (SceneNode *)pObject;
-            g_carPartModelIndices[i][((Car *)pCar)->index] = flag;
+        if (g_carSlotClasses[i] == (char)pObject->flags) {
+            g_carPartNodes[i][pCar->index] = pObject;
+            g_carPartModelIndices[i][pCar->index] = flag;
         }
     }
 }
@@ -8591,7 +8592,7 @@ void StageObject_BuildCarMountWorldMatrix(BYTE *object, void *unused)
 }
 
 GenericFile *Race_GetLoadedStageFile(void);
-BYTE *StageUI_GetStageOverlayNode(void);
+Menu *StageUI_GetStageOverlayNode(void);
 void StageUI_DrawChampionshipBar(void);
 // El prototipo real: devuelve int y el 5o parametro es BYTE (los llamadores de Game.cpp/RallyData.cpp
 // y la definicion en Game.cpp:2575 coinciden en esa firma). Un prototipo viejo aqui generaba otro
@@ -8664,7 +8665,7 @@ void StageObject_ClearAndDrawSplitPositions(int unused1, int unused2)
     CGraphics::ClearTarget();
     CGraphics::ClearZBuffer();
     StageUI_DrawChampionshipBar();
-    Menu_CallCallback2((Menu *)StageUI_GetStageOverlayNode());
+    Menu_CallCallback2(StageUI_GetStageOverlayNode());
     i = 0;
     if ((BYTE)RallyDataState() > 0) {
         do {
@@ -8736,7 +8737,7 @@ void StageObject_BuildSpriteExtentOrientation(CollisionBox *pMatrix, SectorObjec
     FixVector t, u;
     int i;
 
-    if (*(int *)pMatrix->pad_0x28 == 0) {
+    if (pMatrix->built == 0) {
         pMatrix->halfWidth = (int)p[4] << 9;
         pMatrix->halfLength = (int)p[5] << 9;
         pMatrix->axisA.x = (int)p[0] << 9;
@@ -8765,7 +8766,7 @@ void StageObject_BuildSpriteExtentOrientation(CollisionBox *pMatrix, SectorObjec
             pMatrix->points[i].y = pMatrix->bottom;
             pMatrix->points[i].z += pOffset[2];
         }
-        *(int *)pMatrix->pad_0x28 = 1;
+        pMatrix->built = 1;
     }
 }
 
@@ -10279,7 +10280,7 @@ void StageObject_DrawProjectedViewIcon(int param_1, int param_2)
     vR.x += vP.x;
     vR.y += vP.y;
     vR.z += vP.z;
-    FixMatrix_ProjectWorldPointToView((int *)&vOut, &vR, (BYTE *)view);
+    FixMatrix_ProjectWorldPointToView((int *)&vOut, &vR, view);
     vOut.x >>= 16;
     vOut.y >>= 16;
     icon.x = (short)(vOut.x - icon.w / 2);
@@ -11017,7 +11018,7 @@ void CarInterior_IntegrateDriverPose(BYTE *param_1, FixMatrix *param_2, int unus
 // this translation unit yet.
 // ---------------------------------------------------------------------------
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
-void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero);
+void ForceFeedback_UpdateSlot(Car *pCar, FixVector *pIn, int nonzero);
 void Race_PlayImpactAndShakeCar(unsigned int view, int volume, char heavy, int listener);
 // Shared cooldown timestamps are defined and annotated in StageTiming.cpp.
 extern int g_deformImpactTicks[2];
@@ -11139,10 +11140,10 @@ void CarDamage_UpdateSuspensionImpactContacts(Car *pCar)
                 g_deformImpactTicks[(int)pCar->index] = (int)uVar16;
             }
         }
-        ForceFeedback_UpdateSlot((BYTE *)pCar, &pCar->velocity, 0);
+        ForceFeedback_UpdateSlot(pCar, &pCar->velocity, 0);
         FixVecScale(&pCar->velocity, &pCar->velocity, 0xf851);
     } else if (pCar->field_0xb74 != 0 && bVar5) {
-        ForceFeedback_UpdateSlot((BYTE *)pCar, &pCar->velocity, 0);
+        ForceFeedback_UpdateSlot(pCar, &pCar->velocity, 0);
     }
 
 }
@@ -11987,10 +11988,9 @@ extern FixVector g_collisionPushB;
 void Collision_SplitBoxSeparationMovement(CollisionBox *pA, CollisionBox *pB, FixVector *pDir, int amount, int scale);
 int Collision_FindQuadEdgeOverlap(FixVector *pVertsA, FixVector *pVertsB, FixVector *pDir, int *pDistance);
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
-struct CollisionFaceVertices;
 extern double g_fixedDegreesToAngle12;
 extern Car *g_collisionCar;
-extern CollisionFaceVertices *g_collisionFace;
+extern CollisionBox *g_collisionFace;
 void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, int flag);
 void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoint);
 // ---- GLOBALS nuevos (definir UNA sola vez en el proyecto) ----
@@ -14664,7 +14664,7 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                 StageObject_QueueViewLensFlare((int *)pBox, (int *)&pCar->right, (int *)&pCar->position, pCar->corners);
                 result = 0;
                 if (g_unk0x005914d8 != 0) {
-                    *(int *)g_sectorObjectCollisionBox.pad_0x28 = 0;
+                    g_sectorObjectCollisionBox.built = 0;
                     StageObject_BuildSpriteExtentOrientation(&g_sectorObjectCollisionBox, pEntry, (int *)&position);
                 } else {
                     StageObject_SetCollisionSphereAndMaterial(&position, pEntry);
@@ -14710,7 +14710,7 @@ extern int g_collisionDirectionDirty;
 extern int g_unk0x005918d0;
 extern int g_unk0x0059195c;
 extern int g_unk0x005919b8;
-extern struct CollisionFaceVertices *g_collisionFace;
+extern CollisionBox *g_collisionFace;
 extern int g_unk0x0051fb00[52];
 int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, char param_4);
 int StageObject_IsCarOutsideCollisionHeightInterval(void);
@@ -14770,7 +14770,7 @@ void Collision_TestCarAgainstSectorEdges(Car *pCar, int param)
     int sector;
 
     g_collisionCar = pCar;
-    g_collisionFace = (CollisionFaceVertices *)StageObject_GetCarCameraSelectionValue(pCar->index);
+    g_collisionFace = (CollisionBox *)StageObject_GetCarCameraSelectionValue(pCar->index);
     g_collisionCar->field_0xb42--;
     if (g_collisionCar->field_0xb42 < 0)
         g_collisionCar->field_0xb42 = 0;
@@ -14892,7 +14892,7 @@ void Collision_UpdateOrderedCars(Car *pCars, short *pOrder, short count)
     int car;
 
     for (i = count - 1; i >= 0; i--)
-        *(int *)g_unk0x00590ed0[pOrder[i]].pad_0x28 = 0;
+        g_unk0x00590ed0[pOrder[i]].built = 0;
     if (StageObject_UsesExtendedMode())
         Collision_TestOrderedCarPairs(pCars, pOrder, count);
     for (i = count - 1; i >= 0; i--) {

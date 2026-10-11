@@ -222,12 +222,12 @@ def main():
  env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1')
  with tempfile.TemporaryDirectory(prefix='cmr2-native-sector-objects-') as directory:
   tmp=Path(directory)
-  for header in ('Car.h','SceneNode.h','Sector.h','Mesh.h','LayoutChecks.h','MovingObject.h','SectorObjectEntry.h','MeshCollisionRecord.h','Collision2D.h'):shutil.copyfile(source/header,tmp/header)
+  for header in ('FloatToInt.h','Car.h','SceneNode.h','Sector.h','Mesh.h','LayoutChecks.h','MovingObject.h','SectorObjectEntry.h','MeshCollisionRecord.h','Collision2D.h'):shutil.copyfile(source/header,tmp/header)
   shutil.copyfile(ROOT.parent/'OpenCMR2/game/FixedPoint.h',tmp/'FixedPoint.h')
   (tmp/'windows.h').write_text('typedef unsigned char BYTE;typedef unsigned int DWORD;typedef int BOOL;\n')
   (tmp/'Graphics.h').write_text('struct Graphics;struct Texture;class CGraphics{public:static constexpr double m_oneOver65536=1.0/65536.0;static constexpr double m_65536=65536.0;};\n')
   fixture=tmp/'sector.cpp';fixture.write_text(PRELUDE+funcs+MAIN);exe=tmp/'sector'
-  subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(fixture),'-o',str(exe)],check=True)
+  subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(fixture),'-o',str(exe)],check=True)
   oracle=Tables(ROOT/'cmr2bin/CMR2.exe');number=0
   for args in itertools.product(range(4),[0,1,2,5],[1,2,3],[-1,1]):
    oracle.initialize(*args);initial=oracle.read(HEAP,0x10000);oracle.pipeline(*args)

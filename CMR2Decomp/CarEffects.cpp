@@ -268,7 +268,7 @@ void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
             vel.z += t.z;
             param[1] = (window == 7 || window == 6 ? 1 : 0) << 16;
             Particle_Spawn(0x1c, &pos, &vel, -0x40000, &pCar->pSceneRoot->current, NULL, 0, param,
-                           *((BYTE *)pCar->pBodyNode + 0x17c));
+                           pCar->pBodyNode->viewMask);
             pP++;
         }
         pRow += 8;
@@ -574,7 +574,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
             vel.z = off[0].z - off[2].z;
         }
         if (EFFECT_RAND() < glassChance) {
-            light = *((BYTE *)pCar->pBodyNode + 0x17c);
+            light = pCar->pBodyNode->viewMask;
             if (pRecord->glassCooldown < 8) {
                 Particle_Spawn(0x1b, pPos, &vel, pPos->y - 0x1999, &pCar->pSceneRoot->current, NULL, 0,
                                pCar, light);
@@ -586,7 +586,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
             }
         } else {
             Particle_Spawn(0x1a, pPos, &vel, pPos->y - 0x1999, &pCar->pSceneRoot->current, NULL, 0, 0,
-                           *((BYTE *)pCar->pBodyNode + 0x17c));
+                           pCar->pBodyNode->viewMask);
         }
     } while (--n != 0);
     if (glass != 0) {
@@ -1093,10 +1093,10 @@ void WheelSpray_Update(int player)
                         colour = g_sprayColour[effect];
                         if (*pDust != 0)
                             Particle_Spawn(0x1d, &world, &v, ground, &pCar->pSceneRoot->current,
-                                           (BYTE *)&colour, level, 0, *((BYTE *)pCar->pBodyNode + 0x17c));
+                                           (BYTE *)&colour, level, 0, pCar->pBodyNode->viewMask);
                         else
                             Particle_Spawn(0x1e, &world, &v, ground, &pCar->pSceneRoot->current,
-                                           (BYTE *)&colour, level, 0, *((BYTE *)pCar->pBodyNode + 0x17c));
+                                           (BYTE *)&colour, level, 0, pCar->pBodyNode->viewMask);
                     }
                 }
             }
@@ -1448,7 +1448,7 @@ void WheelSplash_Update(int player)
                     f48 = p.y - 0x630000;
                 }
                 Particle_Spawn(type, pPos, &vel, f48, 0, colour, g_trailLevel[player][wheel], &player,
-                               *((BYTE *)pCar->pBodyNode + 0x17c));
+                               pCar->pBodyNode->viewMask);
             } while (--count != 0);
             count = 0;
         }

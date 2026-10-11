@@ -94,13 +94,13 @@ def main():
  code+=body(graphics,'Particle_Spawn')+'\n'+body(rally,'RallyData_RestoreAllCarRaceRecords')+MAIN
  with tempfile.TemporaryDirectory(prefix='cmr2-native-particle-pointers-') as d:
   p=Path(d)
-  for name in ('Car.h','SceneNode.h','Sector.h','LayoutChecks.h','Particle.h','RaceRecord.h'):shutil.copyfile(source/name,p/name)
+  for name in ('FloatToInt.h','Car.h','SceneNode.h','Sector.h','LayoutChecks.h','Particle.h','RaceRecord.h'):shutil.copyfile(source/name,p/name)
   shutil.copyfile(ROOT.parent/'OpenCMR2/game/FixedPoint.h',p/'FixedPoint.h')
   (p/'Mesh.h').write_text('struct Mesh;\n')
   (p/'Graphics.h').write_text('struct Texture;class CGraphics{public:static double m_65536;static const double m_oneOver65536;};\n')
   (p/'windows.h').write_text('#include <cstdint>\nusing BYTE=unsigned char;using DWORD=uint32_t;\n')
   (p/'particles.cpp').write_text(code)
-  subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-fsanitize=address,undefined','-I'+d,str(p/'particles.cpp'),'-o',str(p/'particles')],check=True)
+  subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-fsanitize=address,undefined','-I'+d,str(p/'particles.cpp'),'-o',str(p/'particles')],check=True)
   r=subprocess.run([str(p/'particles')],capture_output=True,env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1'))
   assert not r.returncode,r.stderr.decode();print(r.stdout.decode(),end='')
 if __name__=='__main__':main()

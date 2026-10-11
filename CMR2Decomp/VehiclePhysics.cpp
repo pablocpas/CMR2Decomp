@@ -2,6 +2,7 @@
 #include "Car.h"
 #include "CarParts.h"
 #include "FinRecord.h"
+#include "Collision2D.h"
 #include "FixedPoint.h"
 #include "GameInfo.h"
 #include <string.h>
@@ -15,12 +16,6 @@ FixVector g_collisionDirection;
 // GLOBAL: CMR2 0x00591ae0
 FixVector g_collisionTarget;
 
-struct CollisionFaceVertices {
-    BYTE pad0x00[0x2c];
-    int hasSecondaryVertices;
-    FixVector primaryVertices[4];
-    FixVector secondaryVertices[4];
-};
 
 
 
@@ -33,7 +28,7 @@ BYTE g_collisionPositiveVertexCount;
 extern BYTE g_collisionNegativeCandidateCount;
 extern BYTE g_collisionPositiveCandidateCount;
 // GLOBAL: CMR2 0x00591984
-CollisionFaceVertices *g_collisionFace;
+CollisionBox *g_collisionFace;
 // GLOBAL: CMR2 0x00591988
 BYTE g_collisionNegativeCandidates[4];
 // GLOBAL: CMR2 0x0059198c
@@ -634,9 +629,9 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
             g_collisionCar->corners[i].z += scaled.z;
         }
         for (i = 0; i < 4; i++) {
-            g_collisionFace->primaryVertices[i].x += scaled.x;
-            g_collisionFace->primaryVertices[i].y += scaled.y;
-            g_collisionFace->primaryVertices[i].z += scaled.z;
+            g_collisionFace->points[i].x += scaled.x;
+            g_collisionFace->points[i].y += scaled.y;
+            g_collisionFace->points[i].z += scaled.z;
         }
         StageObject_ApplyRecursiveFrameDelta((BYTE)g_collisionCar->index, -1, (int *)&scaled, 0);
     }
@@ -662,7 +657,7 @@ noSlide:
         slide.y = perp.y - slide.y + velDiff.y;
         slide.z = perp.z - slide.z + velDiff.z;
         CarPhysics_ApplyImpulse(&slide,
-                                &(&g_collisionFace->primaryVertices[0])[g_collisionBestVertex], 0);
+                                &(&g_collisionFace->points[0])[g_collisionBestVertex], 0);
         len = FixVecLength(&slide);
         if (g_unk0x00591930 != 0 && g_unk0x005919a0 >= len)
             goto skipReflect;
@@ -699,11 +694,11 @@ skipReflect:
     }
 
     debrisAxes[2] = g_collisionDirection;
-    delta.x = (&g_collisionFace->primaryVertices[0])[g_collisionBestVertex].x -
+    delta.x = (&g_collisionFace->points[0])[g_collisionBestVertex].x -
               g_collisionCar->position.x;
-    delta.y = (&g_collisionFace->primaryVertices[0])[g_collisionBestVertex].y -
+    delta.y = (&g_collisionFace->points[0])[g_collisionBestVertex].y -
               g_collisionCar->position.y;
-    delta.z = (&g_collisionFace->primaryVertices[0])[g_collisionBestVertex].z -
+    delta.z = (&g_collisionFace->points[0])[g_collisionBestVertex].z -
               g_collisionCar->position.z;
     delta.y = 0;
     FixVecScale(&delta, &delta, 0xcccc);

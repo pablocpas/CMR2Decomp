@@ -39,8 +39,8 @@ class CInstallInfo { public:
 int country, loads, nullResidue;
 unsigned int RallyDataCountryIndex() { return country; }
 GenericFile commonFile={}, stageFile={};
-int *OptionMenu_GetCommonArchive() { return reinterpret_cast<int *>(&commonFile); }
-int *OptionMenu_GetStageArchive() { return reinterpret_cast<int *>(&stageFile); }
+GenericFile *OptionMenu_GetCommonArchive() { return &commonFile; }
+GenericFile *OptionMenu_GetStageArchive() { return &stageFile; }
 Texture *textures;
 Texture *CTexture::FindLoadTexture(GenericFile *archive, char *name, bool *loaded,
                                  LPVOID extra, bool flag, unsigned int flags) {
@@ -106,7 +106,7 @@ def main():
     code += '\n'.join(body(frontend, 'CFrontend::' + name) for name in getters) + load + MAIN
     with tempfile.TemporaryDirectory(prefix='cmr2-native-option-records-') as directory:
         tmp = Path(directory)
-        for name in ('Texture.h', 'GenericFileLoader.h'):
+        for name in ('FloatToInt.h','Texture.h', 'GenericFileLoader.h'):
             shutil.copyfile(source / name, tmp / name)
         (tmp / 'windows.h').write_text('typedef unsigned char BYTE; typedef unsigned short USHORT,WORD; typedef unsigned int DWORD; typedef int BOOL; typedef void *LPVOID;\n')
         # Texture.h's relative SDK include resolves inside the fixture directory.
@@ -117,7 +117,7 @@ def main():
         (sdk / 'ddraw.h').write_text('#include <windows.h>\nstruct IDirectDrawSurface7; struct DDSURFACEDESC2 { DWORD words[31]; };\n')
         fixture = tmp / 'options.cpp'; fixture.write_text(code)
         executable = tmp / 'options'
-        command = ['clang++', '-m64', '-std=c++17', '-O2', '-fwrapv', '-fno-strict-aliasing',
+        command = ['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'), '-m64', '-std=c++17', '-O2', '-fwrapv', '-fno-strict-aliasing',
                    '-I'+str(tmp), '-I'+str(include), '-fsanitize=address,undefined',
                    str(fixture), '-o', str(executable)]
         subprocess.run(command, check=True)
