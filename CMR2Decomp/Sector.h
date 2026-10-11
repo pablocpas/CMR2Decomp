@@ -50,25 +50,12 @@ struct StageObject {
     int lightLevel;             // 0x9c light level when not lit per vertex
 };
 
-// Ground mesh LOD record of a sector (0x108 bytes): the geometry part of a
-// Mesh, which its LOD records repeat. Same members as Mesh up to field_0x108,
-// so the LOD stride follows the Mesh layout on every target.
+// Ground mesh LOD record of a sector (0x108 bytes).
 struct SectorMesh {
     BYTE field_0x0[0xc];
     float *pVertices;           // 0xc  0x30 bytes per vertex, x/y/z first
     unsigned int vertexCount;   // 0x10
-    int vertexBufferIndex;      // 0x14
-    int vertexOffset;           // 0x18
-    int field_0x1c;
-    void *pField20;             // 0x20
-    void *pTriangles;           // 0x24
-    int triangleCount;          // 0x28
-    int field_0x2c;
-    unsigned int flags;         // 0x30
-    int *pLightLevels;          // 0x34
-    void *pParts[50];           // 0x38
-    int partCount;              // 0x100
-    BYTE field_0x104[4];
+    BYTE field_0x14[0xf4];
 };
 
 // GLOBAL: CMR2 0x006ed5f0

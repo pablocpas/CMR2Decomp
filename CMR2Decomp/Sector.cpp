@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "FloatToInt.h"
 #include <stdlib.h>
+#include <stddef.h>
 #include "Sector.h"
 #include "FinRecord.h"
 #include "SceneNode.h"
@@ -417,7 +418,7 @@ int Sector_NearestCornerHeight(unsigned int side, int index)
     int height;
     unsigned int i;
     float *pVert;
-    SectorMesh *pMesh;
+    Mesh *pMesh;
     FixVector best;
     FixVector d;
 
@@ -444,13 +445,13 @@ int Sector_NearestCornerHeight(unsigned int side, int index)
     best.x = g_sectors[index]->corners[side].x - cx;
     best.z = g_sectors[index]->corners[side].z - cz;
     best.y = 0;
-    pMesh = &((SectorMesh *)g_sectors[index]->pMesh)[g_sectors[index]->pMesh->lodIndex];
-    pVert = pMesh->pVertices;
+    pMesh = (Mesh *)((BYTE *)g_sectors[index]->pMesh + g_sectors[index]->pMesh->lodIndex * offsetof(Mesh, field_0x108));
+    pVert = (float *)pMesh->pVertexData;
     height = 0;
     best.x = -cx - (int)FTOI(__int64, pVert[0] * -65536.0);
     best.y = 0;
     best.z = -cz - (int)FTOI(__int64, pVert[2] * -65536.0);
-    for (i = 1; i < ((SectorMesh *)g_sectors[index]->pMesh)[g_sectors[index]->pMesh->lodIndex].vertexCount; i++) {
+    for (i = 1; i < ((Mesh *)((BYTE *)g_sectors[index]->pMesh + g_sectors[index]->pMesh->lodIndex * offsetof(Mesh, field_0x108)))->field_0x10; i++) {
         d.x = -cx - (int)FTOI(__int64, pVert[0] * -65536.0);
         d.z = -cz - (int)FTOI(__int64, pVert[2] * -65536.0);
         d.y = 0;
@@ -896,7 +897,7 @@ short Sector_GetNeighbours(FixVector *pPos, short *pOut)
 void Sector_ComputeBounds(void)
 {
     Sector *pSector;
-    SectorMesh *pMesh;
+    Mesh *pMesh;
     float *pVertex;
     int minX, maxX, minZ, maxZ;
     int n;
@@ -914,9 +915,9 @@ void Sector_ComputeBounds(void)
             g_sectors[i]->bounds[2][0] = g_sectorHalfSize + g_sectors[i]->x;
             g_sectors[i]->bounds[2][1] = g_sectors[i]->z + g_sectorHalfSize;
         } else {
-            pMesh = &((SectorMesh *)pSector->pMesh)[pSector->pMesh->lodIndex];
-            pVertex = pMesh->pVertices;
-            n = pMesh->vertexCount;
+            pMesh = (Mesh *)((BYTE *)pSector->pMesh + pSector->pMesh->lodIndex * offsetof(Mesh, field_0x108));
+            pVertex = (float *)pMesh->pVertexData;
+            n = pMesh->field_0x10;
             minX = (int)FTOI(__int64, pVertex[0]);
             maxX = minX;
             minZ = maxZ = (int)FTOI(__int64, pVertex[2]);
