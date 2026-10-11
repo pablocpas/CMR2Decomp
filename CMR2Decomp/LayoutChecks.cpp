@@ -1096,3 +1096,18 @@ CMR2_LAYOUT_CHECK(Sector_SizeCheck, sizeof(Sector) == 0x88);
 CMR2_LAYOUT_CHECK(Sector_pMesh_Check, offsetof(Sector, pMesh) == 0x10);
 CMR2_LAYOUT_CHECK(Mesh_lodIndex_Check, offsetof(Mesh, lodIndex) == 0x112);
 CMR2_LAYOUT_CHECK(Mesh_pCollisionRecords_Check, offsetof(Mesh, pCollisionRecords) == 0x10c);
+#include "StageBlock.h"
+CMR2_LAYOUT_CHECK(StageBlock_SizeCheck, sizeof(StageBlock) == 0x430);
+CMR2_LAYOUT_CHECK(StageBlock_carInteriorArchives_Check, offsetof(StageBlock, carInteriorArchives) == 0x118);
+CMR2_LAYOUT_CHECK(StageBlock_carDefaultBodyNodes_Check, offsetof(StageBlock, carDefaultBodyNodes) == 0x1dc);
+CMR2_LAYOUT_CHECK(StageBlock_carInteriorDashTextures_Check, offsetof(StageBlock, carInteriorDashTextures) == 0x220);
+CMR2_LAYOUT_CHECK(StageBlock_carInteriorTables_Check, offsetof(StageBlock, carInteriorTables) == 0x230);
+CMR2_LAYOUT_CHECK(StageBlock_carDriverPoseMatrix_Check, offsetof(StageBlock, carDriverPoseMatrix) == 0x2c0);
+CMR2_LAYOUT_CHECK(StageBlock_carInteriorModelBuffers_Check, offsetof(StageBlock, carInteriorModelBuffers) == 0x400);
+CMR2_LAYOUT_CHECK(StageBlock_carAppliedDigitTextureAlphas_Check, offsetof(StageBlock, carAppliedDigitTextureAlphas) == 0x410);
+CMR2_LAYOUT_CHECK(StageBlock_nodeRowsEnd_Check, offsetof(StageBlock, carInteriorTables) + offsetof(CarInteriorRuntimeTables, nodes) + 2 * sizeof(CarInteriorNodes) + offsetof(CarInteriorNodes, steeringWheelNode) == 0x2d0);
+#include "FinRecord.h"
+// ON-DISK: the fin.dat record.
+CMR2_LAYOUT_CHECK(FinRecord_SizeCheck, sizeof(FinRecord) == 0x30);
+CMR2_LAYOUT_CHECK(FinRecord_pNext_Check, offsetof(FinRecord, pNext) == 0x28);
+CMR2_LAYOUT_CHECK(FinRecord_type_Check, offsetof(FinRecord, type) == 0x2c);

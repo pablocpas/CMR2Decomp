@@ -205,7 +205,8 @@ struct Car {
     int field_0x9c4;                  // 0x9c4
     int field_0x9c8[4];               // 0x9c8
     int wheel0x9d8[4];                // 0x9d8
-    BYTE field_0x9e8[0x20];
+    int field_0x9e8[4];               // 0x9e8
+    int field_0x9f8[4];               // 0x9f8
     int field_0xa08;
     int cornerGripA[8];               // 0xa0c  grip limits of a corner without a wheel
     int cornerGripB[8];               // 0xa2c

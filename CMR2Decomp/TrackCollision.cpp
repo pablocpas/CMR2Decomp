@@ -4,6 +4,7 @@
 #include "Car.h"
 #include "Mesh.h"
 #include "CarParts.h"
+#include "FinRecord.h"
 #include <stdio.h>
 #include "Frontend.h"
 #include "GenericFileLoader.h"
@@ -229,7 +230,7 @@ BYTE g_unk0x005918d8;
 // GLOBAL: CMR2 0x0072d250
 int g_finCount;
 // GLOBAL: CMR2 0x0072d254
-BYTE *g_finData;
+FinRecord *g_finData;
 // GLOBAL: CMR2 0x0051fc38
 char g_strFinFormat[] = "%sfin.dat";
 
@@ -243,7 +244,7 @@ void TrackCollision_LoadFinishRecords(void)
 
     g_unk0x005918d8 = 0;
     sprintf(CFrontend::m_stringDest, g_strFinFormat, GameMenu_GetChampionshipTransitionState());
-    g_finData = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+    g_finData = (FinRecord *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
                                                      CFrontend::m_stringDest, 0, &size, 0);
     g_finCount = size / 0x30;
 }

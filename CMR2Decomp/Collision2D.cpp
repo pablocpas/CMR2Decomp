@@ -503,7 +503,7 @@ int g_unk0x005913f4;
 extern int g_unk0x00591390;
 extern BYTE g_unk0x005913dc[8];
 extern BYTE g_unk0x005913f8[8][8];
-extern BYTE g_unk0x00590ed0[8][0x98];
+extern CollisionBox g_unk0x00590ed0[8];
 extern BYTE g_unk0x00590ec8[4];
 extern BYTE g_unk0x005914a4[4];
 extern int g_physicsTimeStep;

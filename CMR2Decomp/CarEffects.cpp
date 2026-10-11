@@ -1539,7 +1539,7 @@ void CarEffects_EmitWheelDustParticle(int car, int wheel, FixVector *pPos, FixVe
     }
     ((BYTE *)&debris)[3] = 0xff;
     Particle_Spawn(light, pPos, &velocity, pPos->y, 0, (BYTE *)&debris, g_trailLevel[car][wheel], &car,
-                   *(BYTE *)(*(BYTE **)((BYTE *)Car_Get(car) + 0x720) + 0x17c));
+                   Car_Get(car)->pBodyNode->viewMask);
 }
 
 // Wheel dust, gravel and water of a car: the surface under each wheel and the
@@ -1548,7 +1548,7 @@ void CarEffects_EmitWheelDustParticle(int car, int wheel, FixVector *pPos, FixVe
 // FUNCTION: CMR2 0x0045d540
 void CarEffect_UpdateWheelSurfaceParticles(int car)
 {
-    BYTE *pCar;
+    Car *pCar;
     BYTE colour[4];
     int wheel;
     int surface;
@@ -1575,10 +1575,10 @@ void CarEffect_UpdateWheelSurfaceParticles(int car)
     count = 0;
     if (car >= 8)
         return;
-    pCar = (BYTE *)Car_Get(car);
+    pCar = Car_Get(car);
     for (wheel = 0; wheel < 4; wheel++) {
         snow = 0;
-        surface = *(short *)(pCar + 0xac6 + wheel * 2);
+        surface = pCar->wheelSurfaceType[wheel];
         if (surface == 0x19 || surface == 0x2e || surface == 0x2f || surface == 0x30 || surface == 0x31 ||
             surface == 0x32 || surface == 0x4f)
             water = 1;
@@ -1726,19 +1726,19 @@ void CarEffect_UpdateWheelSurfaceParticles(int car)
                 break;
             }
         }
-        if ((water == 0 && emit == 0) || *(int *)(pCar + 0xbac + wheel * 4) == 0)
+        if ((water == 0 && emit == 0) || pCar->cornerOnGround[wheel] == 0)
             continue;
-        spin = Car_GetWheelSpeed((Car *)pCar, 2, 0);
+        spin = Car_GetWheelSpeed(pCar, 2, 0);
         if (spin < 0)
             spin = -spin;
         if (spin > 0xa0000)
             count = rand() % 4 / 4;
         if (spin > 0xf0000)
             count = rand() % 3 / 2;
-        FixVecLength((FixVector *)(pCar + 0x42c + wheel * 0xc));
-        velY = *(int *)(pCar + 0x430 + wheel * 0xc);
-        velX = -(*(int *)(pCar + 0x42c + wheel * 0xc) / 4);
-        velZ = -(*(int *)(pCar + 0x434 + wheel * 0xc) / 4);
+        FixVecLength(&pCar->cornerVelocity[wheel]);
+        velY = pCar->cornerVelocity[wheel].y;
+        velX = -(pCar->cornerVelocity[wheel].x / 4);
+        velZ = -(pCar->cornerVelocity[wheel].z / 4);
         if (wheel == 0 || wheel == 2)
             side = -0x10000;
         else
@@ -1746,15 +1746,15 @@ void CarEffect_UpdateWheelSurfaceParticles(int car)
         if (wheel != 3 && wheel != 2)
             side = FixMul(side, 0x3333);
         for (k = count; k > 0; k--) {
-            position.x = g_trailPos[car][wheel].x - *(int *)(pCar + 0x2d0);
-            position.y = g_trailPos[car][wheel].y - *(int *)(pCar + 0x2d4);
-            position.z = g_trailPos[car][wheel].z - *(int *)(pCar + 0x2d8);
+            position.x = g_trailPos[car][wheel].x - pCar->position.x;
+            position.y = g_trailPos[car][wheel].y - pCar->position.y;
+            position.z = g_trailPos[car][wheel].z - pCar->position.z;
             velocity.x = velX;
             velocity.y = velY;
             velocity.z = velZ;
             if (water != 0) {
-                CarEffects_EmitWheelDustParticle(car, wheel, &position, &velocity, 0, side, (FixVector *)(pCar + 0x6d8),
-                             (FixVector *)(pCar + 0x6c0), (short *)(pCar + 0xa9e + wheel * 2), 0, 0, 0, colour);
+                CarEffects_EmitWheelDustParticle(car, wheel, &position, &velocity, 0, side, &pCar->groundAxis[1],
+                             &pCar->groundDir[1], &pCar->cornerTriangle[wheel], 0, 0, 0, colour);
                 continue;
             }
             if (StageObject_GetViewWeatherStateByte(car) == 1)
@@ -1764,13 +1764,13 @@ void CarEffect_UpdateWheelSurfaceParticles(int car)
             n = (0x100 - shade) / 128 + 1;
             if (dark != 0 && n > 0) {
                 for (spin = n; spin != 0; spin--)
-                    CarEffects_EmitWheelDustParticle(car, wheel, &position, &velocity, 0, side, (FixVector *)(pCar + 0x6d8),
-                                 (FixVector *)(pCar + 0x6c0), (short *)(pCar + 0xa9e + wheel * 2), 1, 0, 0, colour);
+                    CarEffects_EmitWheelDustParticle(car, wheel, &position, &velocity, 0, side, &pCar->groundAxis[1],
+                                 &pCar->groundDir[1], &pCar->cornerTriangle[wheel], 1, 0, 0, colour);
             }
             if (light != 0 && n > 0) {
                 for (; n != 0; n--)
-                    CarEffects_EmitWheelDustParticle(car, wheel, &position, &velocity, 0, side, (FixVector *)(pCar + 0x6d8),
-                                 (FixVector *)(pCar + 0x6c0), (short *)(pCar + 0xa9e + wheel * 2), 1, 1, 0, colour);
+                    CarEffects_EmitWheelDustParticle(car, wheel, &position, &velocity, 0, side, &pCar->groundAxis[1],
+                                 &pCar->groundDir[1], &pCar->cornerTriangle[wheel], 1, 1, 0, colour);
             }
         }
     }

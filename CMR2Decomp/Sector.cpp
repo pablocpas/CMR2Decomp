@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <stdlib.h>
 #include "Sector.h"
+#include "FinRecord.h"
 #include "SceneNode.h"
 #include "Graphics.h"
 #include "Game.h"
@@ -714,7 +715,7 @@ void Sector_RebuildNodeLists(void);
 void Sector_ComputeBounds(void);
 extern int g_unk0x0067f228;
 extern int g_finCount;
-extern BYTE *g_finData;
+extern FinRecord *g_finData;
 
 // Rebuilds the whole sector grid of the stage that was just loaded: the cell
 // size, the scale used to convert world coordinates to grid coordinates, the
@@ -783,9 +784,9 @@ void Sector_RebuildStageGrid(void)
     Sector_RebuildNodeLists();
     if (g_finData != NULL) {
         for (i = 0; i < (unsigned int)g_finCount; i++) {
-            Sector *pSector = g_sectors[*(int *)(g_finData + i * 0x30 + 0x28)];
-            *(int *)(g_finData + i * 0x30 + 0x28) = (int)pSector->pFinRecords;
-            pSector->pFinRecords = g_finData + i * 0x30;
+            Sector *pSector = g_sectors[g_finData[i].sector];
+            g_finData[i].pNext = pSector->pFinRecords;
+            pSector->pFinRecords = &g_finData[i];
             pSector->finCount++;
         }
     }

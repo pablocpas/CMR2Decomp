@@ -803,8 +803,8 @@ void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero)
     int x;
 
     g_unk0x0053937c = pCar;
-    g_unk0x00539278 = &g_forceFeedbackSlots[*(signed char *)(pCar + 0xb1a)];
-    FixMatrix_InverseRotateVector(&v, pIn, *(FixMatrix **)(pCar + 0x750));
+    g_unk0x00539278 = &g_forceFeedbackSlots[((Car *)pCar)->index];
+    FixMatrix_InverseRotateVector(&v, pIn, ((Car *)pCar)->pWorld);
     if (nonzero != 0) {
         x = v.z;
         if (x < 0)
@@ -1031,8 +1031,8 @@ void CarPhysics_IntegrateWheelSuspension(void)
             }
         }
         f = FixMul(g_physicsTimeStep,
-                   -(FixMul(((int *)((BYTE *)g_pCurrentCar + 0x9e8))[w], g_pCurrentCar->wheel0x9d8[w]) +
-                     FixMul(((int *)((BYTE *)g_pCurrentCar + 0x9f8))[w], (g_pCurrentCar->field_0x9c8)[w])));
+                   -(FixMul(g_pCurrentCar->field_0x9e8[w], g_pCurrentCar->wheel0x9d8[w]) +
+                     FixMul(g_pCurrentCar->field_0x9f8[w], (g_pCurrentCar->field_0x9c8)[w])));
         (g_pCurrentCar->field_0x9c8)[w] += f;
         (&g_pCurrentCar->wheel0x9d8[0])[w] +=
             FixMul(g_physicsTimeStep, (g_pCurrentCar->field_0x9c8)[w]);

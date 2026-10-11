@@ -2022,14 +2022,14 @@ void StageObject_InitCarSceneTables(void)
         pTexture += sizeof(CarInteriorDashTextures) / sizeof(*pTexture);
         pState += sizeof(CarWiperState) / sizeof(*pState);
         pTiming += sizeof(CarDriverPoseState);
-    } while ((INT_PTR)pPosition < (INT_PTR)(g_stageBlock + 0x2d0));
+    } while ((INT_PTR)pPosition < (INT_PTR)&g_carInteriorNodeRows[2].steeringWheelNode);
     p = (int *)&g_carInteriorArchives[0].fileSize;
     do {
         INTERIOR_ARCHIVE.buffer = NULL;
         INTERIOR_ARCHIVE.fileSize = 0;
         INTERIOR_ARCHIVE.didFileLoad = FALSE;
         p += sizeof(GenericFile) / sizeof(*p);
-    } while ((int)p < (int)g_carDefaultBodyNodes);
+    } while ((INT_PTR)p < (INT_PTR)&g_carInteriorArchives[16].fileSize);
     CGame::RegisterCallback(Game_ReleaseSceneResourceBlocks, NULL);
 #undef DRIVER_STATE
 #undef WIPER_STATE
@@ -2304,10 +2304,15 @@ void StageDeform_ApplyRadialDent(void)
     FixVector dir;
     FixVector limit;
 
+    // pSlot walks the mesh pointers and is also read as a CarPartSet biased by
+    // the mesh index, which reaches vertexCount[meshIndex]; the correction term
+    // is 0 on Win32 and undoes the wider pointer step elsewhere.
     pSlot = pRecord->geometry.meshes;
     for (meshIndex = 0; meshIndex < pRecord->count; meshIndex++) {
         changed = 0;
-        for (vertexIndex = 0; vertexIndex < ((CarPartSet *)pSlot)->vertexCount[0]; vertexIndex++) {
+        for (vertexIndex = 0; vertexIndex < ((CarPartSet *)((BYTE *)pSlot - ((BYTE *)pSlot - (BYTE *)pRecord->geometry.meshes) *
+                                                      (sizeof(Mesh *) - sizeof(int)) / sizeof(Mesh *)))->vertexCount[0];
+             vertexIndex++) {
             pos.x = (int)(__int64)(((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].pos[0] * CGraphics::m_65536);
             pos.y = (int)(__int64)(((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].pos[1] * CGraphics::m_65536);
             pos.z = (int)(__int64)(((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].pos[2] * CGraphics::m_65536);
@@ -2425,7 +2430,9 @@ void StageDeform_ApplyPlanarDent(void)
 #define DENT_NORMAL(k) (((DeformFloatVertex *)((BYTE *)((Mesh *)*pSlot)->pVertexData + vertexIndex * sizeof(DeformFloatVertex)))->normal[k])
     for (meshIndex = 0; meshIndex < pRecord->count; meshIndex++) {
         changed = 0;
-        for (vertexIndex = 0; vertexIndex < ((CarPartSet *)pSlot)->vertexCount[0]; vertexIndex++) {
+        for (vertexIndex = 0; vertexIndex < ((CarPartSet *)((BYTE *)pSlot - ((BYTE *)pSlot - (BYTE *)pRecord->geometry.meshes) *
+                                                      (sizeof(Mesh *) - sizeof(int)) / sizeof(Mesh *)))->vertexCount[0];
+             vertexIndex++) {
             pos.x = (int)(__int64)(DENT_POS(0) * CGraphics::m_65536);
             pos.y = (int)(__int64)(DENT_POS(1) * CGraphics::m_65536);
             pos.z = (int)(__int64)(DENT_POS(2) * CGraphics::m_65536);
@@ -6510,9 +6517,9 @@ void CarPart_IntegrateHubGroundContact(void)
                 FixVecScale(&spring, &v24, len);
             }
             idx = 0;
-            v4c.x = *(int *)(((BYTE *)g_partCar) + 0x408) - *(int *)(((BYTE *)g_partCar) + 0x414);
-            v4c.y = *(int *)(((BYTE *)g_partCar) + 0x40c) - *(int *)(((BYTE *)g_partCar) + 0x418);
-            v4c.z = *(int *)(((BYTE *)g_partCar) + 0x410) - *(int *)(((BYTE *)g_partCar) + 0x41c);
+            v4c.x = g_partCar->velocity.x - g_partCar->velocityNext.x;
+            v4c.y = g_partCar->velocity.y - g_partCar->velocityNext.y;
+            v4c.z = g_partCar->velocity.z - g_partCar->velocityNext.z;
             v3c.x = 0;
             v3c.y = 0;
             v3c.z = 0;
@@ -6521,11 +6528,11 @@ void CarPart_IntegrateHubGroundContact(void)
             if ((g_partState->flags & 0xf0) == 0x10)
                 idx += 2;
             if (g_partCar->cornerOnGround[idx] != 0) {
-                dot = FixVecDot((FixVector *)(((BYTE *)g_partCar) + 0x408), (FixVector *)(((BYTE *)g_partCar) + 0x48c));
-                FixVecScale(&v3c, (FixVector *)(((BYTE *)g_partCar) + 0x48c), dot);
-                v3c.x = *(int *)(((BYTE *)g_partCar) + 0x408) - v3c.x;
-                v3c.y = *(int *)(((BYTE *)g_partCar) + 0x40c) - v3c.y;
-                v3c.z = *(int *)(((BYTE *)g_partCar) + 0x410) - v3c.z;
+                dot = FixVecDot(&g_partCar->velocity, &g_partCar->groundNormal);
+                FixVecScale(&v3c, &g_partCar->groundNormal, dot);
+                v3c.x = g_partCar->velocity.x - v3c.x;
+                v3c.y = g_partCar->velocity.y - v3c.y;
+                v3c.z = g_partCar->velocity.z - v3c.z;
                 FixVecScale(&v3c, &v3c, 0x3333);
                 StageTiming_FireCarPartDebris((int *)&v3c, idx);
             }
@@ -6534,7 +6541,7 @@ void CarPart_IntegrateHubGroundContact(void)
             v24.z = v3c.z + v4c.z;
             len = FixVecLength(&v24);
             if (len > 0x4ccc) {
-                dot = FixVecDot(&v24, (FixVector *)(((BYTE *)g_partCar) + 0x360));
+                dot = FixVecDot(&v24, &g_partCar->right);
                 if ((g_partState->flags & 0xf0) == 0x10) {
                     if (g_partState->position.z < 0) {
                         scale = -0x10000;
@@ -6632,7 +6639,7 @@ void CarPart_IntegrateHubGroundContact(void)
         }
         if (g_partState->flags & 6) {
             g_partState->flags |= 8;
-            if (detached == 0 && (g_partState->flags & 4) == 0 && *(int *)(((BYTE *)g_partCar) + 0x778) <= 0x7ae)
+            if (detached == 0 && (g_partState->flags & 4) == 0 && g_partCar->speed <= 0x7ae)
                 g_partState->flags &= ~8;
             if ((g_partState->flags & 2) && !(g_partState->flags & 8)) {
                 g_partState->angularVelocity.x = 0;
@@ -6912,13 +6919,13 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 // FUNCTION: CMR2 0x00483100
 void StageTiming_FireCarPartDebris(int *param_1, unsigned int param_2)
 {
-    int sel = g_carPartModelIndices[g_partState->flags >> 4][*(char *)(((BYTE *)g_partCar) + 0xb1a)];
+    int sel = g_carPartModelIndices[g_partState->flags >> 4][g_partCar->index];
     FixVector pos;
     FixVector offset;
     FixVector debrisAxes[3];
     int len;
 
-    if (StageObject_IsEligibleType(*(short *)(((BYTE *)g_partCar) + 0xaae + (param_2 & 0xff) * 2), 0, 0) != 0) {
+    if (StageObject_IsEligibleType(g_partCar->wheelSurface[param_2 & 0xff], 0, 0) != 0) {
         pos = g_partState->position;
         pos.y -= FixMul(0x20000, g_partSet->halfExtents[sel].y);
         if (g_partState->position.z > 0)
@@ -6930,7 +6937,7 @@ void StageTiming_FireCarPartDebris(int *param_1, unsigned int param_2)
         pos.x += offset.x;
         pos.y += offset.y;
         pos.z += offset.z;
-        FixMatrix_RotateVector(&offset, &pos, *(FixMatrix **)(((BYTE *)g_partCar) + 0x750));
+        FixMatrix_RotateVector(&offset, &pos, g_partCar->pWorld);
         len = FixVecLength((FixVector *)param_1);
         if (len > 0) {
             FixVecScaleRecip(&debrisAxes[0], (FixVector *)param_1, -len);
@@ -6939,7 +6946,7 @@ void StageTiming_FireCarPartDebris(int *param_1, unsigned int param_2)
                 len = 0x10000;
             else if (len <= 0x3333)
                 return;
-            debrisAxes[1] = *(FixVector *)(((BYTE *)g_partCar) + 0x48c);
+            debrisAxes[1] = g_partCar->groundNormal;
             FixVecCross(&debrisAxes[2], &debrisAxes[0], &debrisAxes[1]);
             Motion_NormalizeInto(&debrisAxes[2], &debrisAxes[2]);
             Car_SpawnDebris(len, &offset, (Car *)((BYTE *)g_partCar), &debrisAxes[0], 0x40000, 0x6666);
@@ -9104,7 +9111,7 @@ void StageTiming_UpdateCarWheelAndExhaustEffects(int car)
 
     if (index >= 8)
         return;
-    if (*(int *)((BYTE *)Car_Get(index) + 0xc0c) != 0 || CGameInfo::GetGraphicsOptionBits25To26() == 2)
+    if (Car_Get(index)->field_0xc0c != 0 || CGameInfo::GetGraphicsOptionBits25To26() == 2)
         return;
     pColour = (BYTE *)StageObject_GetViewWeatherSlot(index, 0);
     if (pColour != NULL) {
@@ -9123,7 +9130,7 @@ void StageTiming_UpdateCarWheelAndExhaustEffects(int car)
     CarEffect_UpdateExhaustSmokeAndBackfire(index);
 }
 
-void CarDamage_StepClimbingCarRecords(int param_1, short count);
+void CarDamage_StepClimbingCarRecords(short *param_1, short count);
 void Car_BreakQueuedWindows(Car *pCar);
 void CarPart_SmoothSteeringOffset(void);
 void StageTiming_WakeUnloadedWheelSlots(void);
@@ -9166,7 +9173,7 @@ void StageTiming_UpdateAttachedCarParts(Car *pCars, short *pOrder, short count)
             pIndex--;
         } while (--remaining);
     }
-    CarDamage_StepClimbingCarRecords((int)pOrder, count);
+    CarDamage_StepClimbingCarRecords(pOrder, count);
 }
 
 extern int g_weatherParticleQualityScale;

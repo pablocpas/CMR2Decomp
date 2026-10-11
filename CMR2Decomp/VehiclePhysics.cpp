@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "Car.h"
 #include "CarParts.h"
+#include "FinRecord.h"
 #include "FixedPoint.h"
 #include "GameInfo.h"
 #include <string.h>
@@ -263,14 +264,14 @@ int VehiclePhysics_SelectParallelCollisionSide(void)
 // FUNCTION: CMR2 0x00490640
 int VehiclePhysics_TestBehindFaceCollision(void)
 {
-    BYTE *pCar = (BYTE *)g_collisionCar;
+    Car *pCar = g_collisionCar;
     FixVector delta;
     int side;
     int d;
 
-    delta.x = g_collisionTarget.x - *(int *)(pCar + 0x2e8);
-    delta.y = g_collisionTarget.y - *(int *)(pCar + 0x2ec);
-    delta.z = g_collisionTarget.z - *(int *)(pCar + 0x2f0);
+    delta.x = g_collisionTarget.x - pCar->positionPrev.x;
+    delta.y = g_collisionTarget.y - pCar->positionPrev.y;
+    delta.z = g_collisionTarget.z - pCar->positionPrev.z;
     side = FixVecDot(&g_collisionDirection, &delta);
     if (side > 0)
         return 0;
@@ -331,7 +332,7 @@ void Collision_ClassifyFaceVertices(void)
     pDistance = g_collisionVertexDistances;
 
     do {
-        FixVector *pPrimary = (FixVector *)(vertexOffset + (int)g_collisionFace + 0x30);
+        FixVector *pPrimary = (FixVector *)(vertexOffset + (BYTE *)g_collisionFace + 0x30);
         targetDelta.x = g_collisionTarget.x - pPrimary->x;
         targetDelta.y = g_collisionTarget.y - pPrimary->y;
         targetDelta.z = g_collisionTarget.z - pPrimary->z;
@@ -364,7 +365,7 @@ checkSecondary:
                 goto addVertex;
 
             {
-                FixVector *pSecondary = (FixVector *)(vertexOffset + (int)g_collisionFace + 0x60);
+                FixVector *pSecondary = (FixVector *)(vertexOffset + (BYTE *)g_collisionFace + 0x60);
                 secondaryDelta.x = g_collisionTarget.x - pSecondary->x;
                 secondaryDelta.y = g_collisionTarget.y - pSecondary->y;
                 secondaryDelta.z = g_collisionTarget.z - pSecondary->z;
@@ -506,14 +507,14 @@ void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, i
 int Collision_TestSectorEdgeEndpoints(char type);
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
 
-extern int *g_unk0x0059190c;
+extern FinRecord *g_unk0x0059190c;
 extern FixVector g_unk0x005918e0;
 extern int g_unk0x00591930;
 extern FixVector g_unk0x00591938;
 extern BYTE g_unk0x0059199c;
 extern int g_unk0x005919a0;
 extern FixVector g_unk0x00591ad0;
-extern int g_unk0x00591948;
+extern FinRecord *g_unk0x00591948;
 extern int g_unk0x0051fb00[52];
 
 // Resolves the car's contact with the sector edge tracked in g_unk0x0059190c:
@@ -541,14 +542,14 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
     int *pDistance;
 
     result = 0;
-    if ((*(BYTE *)((BYTE *)g_unk0x0059190c + 0x2d) & 1) != 0)
+    if ((g_unk0x0059190c->flags & 1) != 0)
         found = VehiclePhysics_SelectParallelCollisionSide();
     else
         found = VehiclePhysics_TestBehindFaceCollision();
     if (found == 0)
         goto finish;
 
-    if ((*(BYTE *)((BYTE *)g_unk0x0059190c + 0x2d) & 1) == 0)
+    if ((g_unk0x0059190c->flags & 1) == 0)
         result = Collision_TestSectorEdgeEndpoints(type);
 
     StageObject_QueueViewLensFlare((int *)g_collisionFace, &g_collisionCar->right.x,
@@ -565,7 +566,7 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
                 if (g_collisionVertexDistances[index] > best) {
                     best = g_collisionVertexDistances[index];
                     g_collisionBestVertex = index;
-                    g_unk0x00591948 = (int)g_unk0x0059190c;
+                    g_unk0x00591948 = g_unk0x0059190c;
                 }
             }
         } else {
@@ -576,7 +577,7 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
                 if (g_collisionVertexDistances[index] < best) {
                     best = g_collisionVertexDistances[index];
                     g_collisionBestVertex = index;
-                    g_unk0x00591948 = (int)g_unk0x0059190c;
+                    g_unk0x00591948 = g_unk0x0059190c;
                 }
             }
         }
@@ -591,7 +592,7 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
                 if (*pDistance > best) {
                     best = *pDistance;
                     g_collisionBestVertex = i;
-                    g_unk0x00591948 = (int)g_unk0x0059190c;
+                    g_unk0x00591948 = g_unk0x0059190c;
                 }
                 i++;
                 pDistance++;
@@ -604,7 +605,7 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
                 if (*pDistance < best) {
                     best = *pDistance;
                     g_collisionBestVertex = i;
-                    g_unk0x00591948 = (int)g_unk0x0059190c;
+                    g_unk0x00591948 = g_unk0x0059190c;
                 }
                 i++;
                 pDistance++;

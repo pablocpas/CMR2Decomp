@@ -4760,7 +4760,7 @@ void Car_StepAll(Car *base, short *pList, short count)
         g_pCurrentCar->positionPrev2 =
             g_pCurrentCar->positionPrev;
         g_pCurrentCar->positionPrev = g_pCurrentCar->position;
-        memcpy((BYTE *)g_pCurrentCar + 0x384, (BYTE *)g_pCurrentCar + 0x360, 0x24);
+        memcpy(g_pCurrentCar->targetAxes, g_pCurrentCar->bodyAxes, sizeof(g_pCurrentCar->bodyAxes));
         g_pCurrentCar->field_0x968 = g_pCurrentCar->field_0x964;
         g_pCurrentCar->field_0x964 = g_pCurrentCar->field_0x960;
         if (g_pCurrentCar->field_0xbfc == 0)
@@ -5219,7 +5219,7 @@ void Car_RebuildBodyAxes(void)
 void Car_ShareWeightOnWheels(void);
 void Car_LiftOutOfGround(void);
 void Car_UpdateSurfaceParams(Car *pCar, int blend);
-void CarDamage_StepClimbingCarRecords(int param_1, short count);
+void CarDamage_StepClimbingCarRecords(short *param_1, short count);
 short Sector_GetNeighbours(FixVector *pPos, short *pOut);
 
 // Prepares every car of the order list for a physics step: restores the body
@@ -5352,9 +5352,9 @@ void Car_PrepareStep(Car *carBase, short *pOrder, short count)
 
             if (g_pCurrentCar->field_0xbf8 != 0) {
                 for (i = 0; i < 4; i++) {
-                    *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc + 0xc0) =
+                    g_pCurrentCar->cornerPrev2[i] =
                         g_pCurrentCar->corners[i];
-                    *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc + 0x90) =
+                    g_pCurrentCar->cornerPrev[i] =
                         g_pCurrentCar->corners[i];
                     g_pCurrentCar->previousWheelSurface[i] = g_pCurrentCar->wheelSurface[i];
                 }
@@ -5399,7 +5399,7 @@ void Car_PrepareStep(Car *carBase, short *pOrder, short count)
             p--;
         } while (--n != 0);
     }
-    CarDamage_StepClimbingCarRecords((int)pOrder, count);
+    CarDamage_StepClimbingCarRecords(pOrder, count);
 }
 
 // Lifts the current car out of the ground by the deepest penetration of any
@@ -5982,7 +5982,8 @@ BYTE View_ReleaseNodes(void)
     int off;
 
     for (i = 0, off = 0; i < 2; off += 4) {
-        SceneNode **pNode = (SceneNode **)((BYTE *)g_viewNodes + off);
+        // off steps over ints; scaled where a pointer is wider (factor 1 on Win32).
+        SceneNode **pNode = (SceneNode **)((BYTE *)g_viewNodes + off * (int)(sizeof(SceneNode *) / sizeof(int)));
 
         if (*pNode != NULL) {
             SceneNode_Destroy(*pNode);
@@ -6099,7 +6100,8 @@ void Car_IntegrateWheelRotation(int *pList, short count)
 
     local_c = count;
     if (local_c - 1 >= 0) {
-        local_8 = (short *)((int)pList + (local_c - 1) * 2);
+        // The list holds shorts; the parameter is reused below for wheelLoad.
+        local_8 = (short *)pList + (local_c - 1);
         do {
             int carIndex = *local_8;
             Car *carBase = g_carBuffer + carIndex;
@@ -6239,7 +6241,7 @@ void Car_IntegrateContacts(void)
         if (scale > 0x13333) scale = 0x13333;
         scale += 0x10000;
         for (i = g_pCurrentCar->field_0xb34 - 1; i >= 0; i--) {
-            corner = *(signed char *)((BYTE *)g_pCurrentCar + 0xb36 + i);
+            corner = ((signed char *)&g_pCurrentCar->field_0xb35[1])[i];
             if (corner >= 4) {
                 FixVecScale(&tmp, &g_pCurrentCar->cornerForce[corner], scale);
                 tmp.x += g_pCurrentCar->cornerLoad[corner].x;
@@ -7550,7 +7552,7 @@ void Car_RunStepPasses(Car *carBase, short *pOrder, short count)
         g_pCurrentCar->positionPrev2 =
             g_pCurrentCar->positionPrev;
         g_pCurrentCar->positionPrev = g_pCurrentCar->position;
-        memcpy((BYTE *)g_pCurrentCar + 0x384, (BYTE *)g_pCurrentCar + 0x360, 0x24);
+        memcpy(g_pCurrentCar->targetAxes, g_pCurrentCar->bodyAxes, sizeof(g_pCurrentCar->bodyAxes));
         g_pCurrentCar->field_0x968 = g_pCurrentCar->field_0x964;
         g_pCurrentCar->field_0x964 = g_pCurrentCar->field_0x960;
         Surface_BlendWheelContactParameters(g_pCurrentCar, 0);
@@ -8035,7 +8037,7 @@ void Camera_Update(CameraRecord *pRecord)
         FixMatrix_GetPosition(&position, &pRecord->matrix);
         tri = 0;
         clearance = Track_GetGroundHeight5(&position, &normal, &tri, &surface,
-                                           *(int *)((BYTE *)Car_Get(pRecord->car) + 0x8e4)) -
+                                           Car_Get(pRecord->car)->cornerHeight[2]) -
                     position.y + 0x10000;
         if (clearance < 0)
             clearance = 0;
@@ -8172,7 +8174,7 @@ void View_SwitchCamera(BYTE view, int type, int param, BYTE target, int blend)
     else
         blend = 1;
     if (type == 7 && param == 0xffff)
-        param = StageObject_FindNearestCameraSpot((FixVector *)((BYTE *)Car_Get(view) + 0x2d0));
+        param = StageObject_FindNearestCameraSpot(&Car_Get(view)->position);
     VIEW_RECORD(next)->type = type;
     if (VIEW_RECORD(next)->car != target) {
         Glow_NoOpEntryCallback(VIEW_RECORD(next)->car, VIEW_RECORD(next)->view, 1, 1);

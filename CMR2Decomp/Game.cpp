@@ -2207,8 +2207,8 @@ void CGame::QueueSecondaryDrawObject(void *param1)
 // FUNCTION: CMR2 0x0049cb90
 int __cdecl Game_CompareDeferredDrawDepth(const void *a, const void *b)
 {
-    int depthA = *(int *)(*(BYTE **)(*(BYTE **)a + 0xc) + 0x114);
-    int depthB = *(int *)(*(BYTE **)(*(BYTE **)b + 0xc) + 0x114);
+    int depthA = (*(StageObject **)a)->pMesh->field_0x114;
+    int depthB = (*(StageObject **)b)->pMesh->field_0x114;
     return depthA < depthB ? 1 : -1;
 }
 

@@ -1051,15 +1051,15 @@ unsigned short NetRace_ScaleViewAngleByDistance(int param_1, int param_2, unsign
     if (Race_IsMultiplayerRecordMode10() != 0)
         index = 1;
     FixMatrix_GetPosition(&carPos, (FixMatrix *)(g_unk0x00538d2c + 4 + index * 100));
-    delta.x = carPos.x - *(int *)((BYTE *)Car_Get(param_2) + 0x2d0);
-    delta.y = carPos.y - *(int *)((BYTE *)Car_Get(param_2) + 0x2d4);
-    delta.z = carPos.z - *(int *)((BYTE *)Car_Get(param_2) + 0x2d8);
+    delta.x = carPos.x - Car_Get(param_2)->position.x;
+    delta.y = carPos.y - Car_Get(param_2)->position.y;
+    delta.z = carPos.z - Car_Get(param_2)->position.z;
     dist = FixVec_Length(&delta);
     if (dist < 0x640000) {
         Car_GetViewPositionDelta(&camView, param_1);
-        dir.x = camView.x - *(int *)((BYTE *)Car_Get(param_2) + 0x408);
-        dir.y = camView.y - *(int *)((BYTE *)Car_Get(param_2) + 0x40c);
-        dir.z = camView.z - *(int *)((BYTE *)Car_Get(param_2) + 0x410);
+        dir.x = camView.x - Car_Get(param_2)->velocity.x;
+        dir.y = camView.y - Car_Get(param_2)->velocity.y;
+        dir.z = camView.z - Car_Get(param_2)->velocity.z;
         dist = FixVec_Length(&dir);
         if (dist > 0x320000) {
             len = FixVecLength(&dir);

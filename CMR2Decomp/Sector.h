@@ -20,7 +20,7 @@ struct Sector {
     SceneNode *pFirstNode;      // 0x1c
     int nodeCount;              // 0x20
     int finCount;               // 0x24 number of fin.dat records of the sector
-    BYTE *pFinRecords;          // 0x28 head of the sector's fin record list
+    struct FinRecord *pFinRecords; // 0x28 head of the sector's fin record list
     FixVector corners[4];       // 0x2c per side: offset of the nearest ground vertex, then corner point
     int bounds[4][2];           // 0x5c x/z of the ground mesh bounding rectangle corners
     BYTE field_0x7c[0xc];
