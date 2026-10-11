@@ -5362,7 +5362,7 @@ void RallyData_MarkElementReachedByCar(SectorObjectEntry *pElement, int car)
 {
     if (RallyData_IsElementFlagSet(&pElement, car) == 0) {
         RallyData_SetElementFlagBit(&pElement, car, 1);
-        if (Car_Get(car)->field_0xc0c == 0 && (BYTE)RallyDataState() == 1) {
+        if (Car_Get(car)->isGhost == 0 && (BYTE)RallyDataState() == 1) {
             pElement->pObject->position.y += 0x3e80000;
             pElement->pObject->visible = 0xff;
         }

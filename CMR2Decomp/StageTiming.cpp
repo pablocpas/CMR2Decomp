@@ -3,6 +3,7 @@
 #include "StageTimingSpread.h"
 #include "StageBlock.h"
 #include "StageTiming.h"
+#include "ReplayStream.h"
 #include "TrackCollisionData.h"
 #include "StageWeather.h"
 #include <stdio.h>
@@ -1208,7 +1209,7 @@ void StageTiming_SetNodeMeshAlpha(SceneNode *pNode, int alpha, BYTE checkFlag)
     pMesh = (Mesh *)pNode->pObject;
     if (pMesh == NULL)
         return;
-    *(int *)((char *)pMesh + 0x30) |= 0x40008;
+    pMesh->flags |= 0x40008;
     Mesh_SetVertexAlpha(pMesh, (BYTE)alpha);
     if (checkFlag != 0)
         Mesh_SetVertexColours(pMesh, rgb);
@@ -7551,14 +7552,13 @@ void Replay_EncodeCarPoseSample(Car *pCar, ReplaySample *pSample);
 extern int g_wheelSlotDamageThresholds[4];   // per-slot thresholds 0x590c44..0x590c53
 extern BYTE g_wheelSlotDamageIndices[4];
 
-// Installs the model geometry of part `index` (byte index into the car table)
-// into car record `param_1`.
+// Encodes one car pose into the next periodic replay sample.
 // FUNCTION: CMR2 0x0046c4e0
-void StageTiming_InstallCarPartModelGeometry(int param_1, BYTE index)
+void Replay_RecordCarPoseSample(ReplaySample *pSample, BYTE index)
 {
     Car *pCar = Car_Get(index);
 
-    Replay_EncodeCarPoseSample(pCar, (ReplaySample *)param_1);
+    Replay_EncodeCarPoseSample(pCar, pSample);
 }
 
 // Wakes the wheels of the current car whose static slot record has no model
@@ -9111,7 +9111,7 @@ void StageTiming_UpdateCarWheelAndExhaustEffects(int car)
 
     if (index >= 8)
         return;
-    if (Car_Get(index)->field_0xc0c != 0 || CGameInfo::GetGraphicsOptionBits25To26() == 2)
+    if (Car_Get(index)->isGhost != 0 || CGameInfo::GetGraphicsOptionBits25To26() == 2)
         return;
     pColour = (BYTE *)StageObject_GetViewWeatherSlot(index, 0);
     if (pColour != NULL) {

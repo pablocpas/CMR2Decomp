@@ -336,7 +336,7 @@ void Car_BreakQueuedWindows(Car *pCar)
 {
     int i;
 
-    if (pCar->field_0xc0c == 0) {
+    if (pCar->isGhost == 0) {
         i = g_windowSmashCount[pCar->index];
         while (--i >= 0)
             Car_BreakWindow(g_windowSmash[pCar->index][i], &g_windowSmashDir[pCar->index][i], 1, pCar);
@@ -537,7 +537,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 
     glass = 0;
     pRecord = StageTiming_GetCarReplayRecord(pCar->index);
-    if ((BYTE)RallyData_GetSelectionFlag26() != 0 || pCar->field_0xc0c != 0)
+    if ((BYTE)RallyData_GetSelectionFlag26() != 0 || pCar->isGhost != 0)
         return;
     n = EFFECT_RAND();
     n = (FixMul(count, n) >> 16) + 1;

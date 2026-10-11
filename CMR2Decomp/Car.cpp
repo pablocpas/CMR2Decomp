@@ -3665,7 +3665,7 @@ void Car_ReloadModels(int first, int count, int param_3)
             g_savedCarExtraNodes[i][k] = g_carBuffer[i].pExtraNodes[k];
             g_savedCarWheelNodes[i][k] = g_carBuffer[i].pWheelNodes[k];
         }
-        g_unk0x0053bd44[i] = g_carBuffer[i].field_0xc0c;
+        g_unk0x0053bd44[i] = g_carBuffer[i].isGhost;
         g_unk0x0053ab88[i] = g_carBuffer[i].field_0xb58;
         if (CGameInfo::GetConfiguredGameMode() == 4)
             g_unk0x0053a398[i] = 0;
@@ -3682,7 +3682,7 @@ void Car_ReloadModels(int first, int count, int param_3)
             g_carBuffer[i].pExtraNodes[k] = g_savedCarExtraNodes[i][k];
             g_carBuffer[i].pWheelNodes[k] = g_savedCarWheelNodes[i][k];
         }
-        g_carBuffer[i].field_0xc0c = g_unk0x0053bd44[i];
+        g_carBuffer[i].isGhost = g_unk0x0053bd44[i];
         g_carBuffer[i].field_0xb58 = g_unk0x0053ab88[i];
     }
     for (i = first; i < end; i++)

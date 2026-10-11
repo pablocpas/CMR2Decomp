@@ -568,7 +568,7 @@ void Collision_TestOrderedCarPairs(Car *pCars, short *pOrder, short count)
                 flags[pCarB->index] = 1;
                 flags[pCarA->index] = 1;
                 if (pCarA->field_0xc04[1] == 0 && pCarB->field_0xc04[1] == 0 &&
-                    pCarA->field_0xc0c == 0 && pCarB->field_0xc0c == 0 &&
+                    pCarA->isGhost == 0 && pCarB->isGhost == 0 &&
                     (pCarA->field_0xc18 == 0 || pCarB->field_0xc18 == 0)) {
                     g_pContacts0x005915e0 = (FixVector *)&g_unk0x00590ed0[pOrder[i]];
                     g_pContacts0x00591394 = (FixVector *)&g_unk0x00590ed0[pOrder[j]];

@@ -18,6 +18,7 @@
 #include "CarResources.h"
 #include "CarPhysics.h"
 #include "Game.h"
+#include "GameInfo.h"
 #include "CarParts.h"
 #include "OptionPreviewGeometry.h"
 #include "StageTiming.h"
@@ -28,6 +29,7 @@
 #include "CarLightState.h"
 #include "Glow.h"
 #include "ShadowPart.h"
+#include "ReplayStream.h"
 #include "CarExhaust.h"
 #include "Menu.h"
 #include <stddef.h>
@@ -1131,3 +1133,78 @@ CMR2_LAYOUT_CHECK(StageBlock_nodeRowsEnd_Check, offsetof(StageBlock, carInterior
 CMR2_LAYOUT_CHECK(FinRecord_SizeCheck, sizeof(FinRecord) == 0x30);
 CMR2_LAYOUT_CHECK(FinRecord_pNext_Check, offsetof(FinRecord, pNext) == 0x28);
 CMR2_LAYOUT_CHECK(FinRecord_type_Check, offsetof(FinRecord, type) == 0x2c);
+
+CMR2_LAYOUT_CHECK(NetworkSessionSizeCheck, sizeof(DPSESSIONDESC2) == 0x50);
+CMR2_LAYOUT_CHECK(NetworkSession_dwSizeCheck, offsetof(DPSESSIONDESC2, dwSize) == 0x0);
+CMR2_LAYOUT_CHECK(NetworkSession_dwFlagsCheck, offsetof(DPSESSIONDESC2, dwFlags) == 0x4);
+CMR2_LAYOUT_CHECK(NetworkSession_guidInstanceCheck, offsetof(DPSESSIONDESC2, guidInstance) == 0x8);
+CMR2_LAYOUT_CHECK(NetworkSession_guidApplicationCheck, offsetof(DPSESSIONDESC2, guidApplication) == 0x18);
+CMR2_LAYOUT_CHECK(NetworkSession_dwMaxPlayersCheck, offsetof(DPSESSIONDESC2, dwMaxPlayers) == 0x28);
+CMR2_LAYOUT_CHECK(NetworkSession_dwCurrentPlayersCheck, offsetof(DPSESSIONDESC2, dwCurrentPlayers) == 0x2c);
+CMR2_LAYOUT_CHECK(NetworkSession_lpszSessionNameACheck, offsetof(DPSESSIONDESC2, lpszSessionNameA) == 0x30);
+CMR2_LAYOUT_CHECK(NetworkSession_lpszPasswordACheck, offsetof(DPSESSIONDESC2, lpszPasswordA) == 0x34);
+CMR2_LAYOUT_CHECK(NetworkSession_dwReserved1Check, offsetof(DPSESSIONDESC2, dwReserved1) == 0x38);
+CMR2_LAYOUT_CHECK(NetworkSession_dwReserved2Check, offsetof(DPSESSIONDESC2, dwReserved2) == 0x3c);
+CMR2_LAYOUT_CHECK(NetworkSession_dwUser1Check, offsetof(DPSESSIONDESC2, dwUser1) == 0x40);
+CMR2_LAYOUT_CHECK(NetworkSession_dwUser2Check, offsetof(DPSESSIONDESC2, dwUser2) == 0x44);
+CMR2_LAYOUT_CHECK(NetworkSession_dwUser3Check, offsetof(DPSESSIONDESC2, dwUser3) == 0x48);
+CMR2_LAYOUT_CHECK(NetworkSession_dwUser4Check, offsetof(DPSESSIONDESC2, dwUser4) == 0x4c);
+CMR2_LAYOUT_CHECK(ReplayStreamSizeCheck, sizeof(ReplayStream) == 0x110);
+CMR2_LAYOUT_CHECK(ReplayStream_steeringModeOptionCheck, offsetof(ReplayStream, steeringModeOption) == 0x0);
+CMR2_LAYOUT_CHECK(ReplayStream_pInputsCheck, offsetof(ReplayStream, pInputs) == 0x24);
+CMR2_LAYOUT_CHECK(ReplayStream_pInputLaneCheck, offsetof(ReplayStream, pInputLane) == 0x28);
+CMR2_LAYOUT_CHECK(ReplayStream_pInputRecLaneCheck, offsetof(ReplayStream, pInputRecLane) == 0x2c);
+CMR2_LAYOUT_CHECK(ReplayStream_pStatesCheck, offsetof(ReplayStream, pStates) == 0x30);
+CMR2_LAYOUT_CHECK(ReplayStream_pStateLaneCheck, offsetof(ReplayStream, pStateLane) == 0x34);
+CMR2_LAYOUT_CHECK(ReplayStream_pStateRecLaneCheck, offsetof(ReplayStream, pStateRecLane) == 0x38);
+CMR2_LAYOUT_CHECK(ReplayStream_pFramesCheck, offsetof(ReplayStream, pFrames) == 0x3c);
+CMR2_LAYOUT_CHECK(ReplayStream_pSamplesCheck, offsetof(ReplayStream, pSamples) == 0x40);
+CMR2_LAYOUT_CHECK(ReplayStream_pLaneSamplesCheck, offsetof(ReplayStream, pLaneSamples) == 0x104);
+CMR2_LAYOUT_CHECK(ReplayStream_playingCheck, offsetof(ReplayStream, playing) == 0x4);
+CMR2_LAYOUT_CHECK(ReplayStream_playStartedCheck, offsetof(ReplayStream, playStarted) == 0x8);
+CMR2_LAYOUT_CHECK(ReplayStream_recordingCheck, offsetof(ReplayStream, recording) == 0xc);
+CMR2_LAYOUT_CHECK(ReplayStream_recordStartedCheck, offsetof(ReplayStream, recordStarted) == 0x10);
+CMR2_LAYOUT_CHECK(ReplayStream_field_0x14Check, offsetof(ReplayStream, field_0x14) == 0x14);
+CMR2_LAYOUT_CHECK(ReplayStream_field_0x18Check, offsetof(ReplayStream, field_0x18) == 0x18);
+CMR2_LAYOUT_CHECK(ReplayStream_typeCheck, offsetof(ReplayStream, type) == 0x1c);
+CMR2_LAYOUT_CHECK(ReplayStream_carCheck, offsetof(ReplayStream, car) == 0x20);
+CMR2_LAYOUT_CHECK(ReplayStream_field_0x21Check, offsetof(ReplayStream, field_0x21) == 0x21);
+CMR2_LAYOUT_CHECK(ReplayStream_poseCheck, offsetof(ReplayStream, pose) == 0x44);
+CMR2_LAYOUT_CHECK(ReplayStream_headingFromCheck, offsetof(ReplayStream, headingFrom) == 0xd0);
+CMR2_LAYOUT_CHECK(ReplayStream_headingToCheck, offsetof(ReplayStream, headingTo) == 0xd4);
+CMR2_LAYOUT_CHECK(ReplayStream_steerFromCheck, offsetof(ReplayStream, steerFrom) == 0xd8);
+CMR2_LAYOUT_CHECK(ReplayStream_steerToCheck, offsetof(ReplayStream, steerTo) == 0xdc);
+CMR2_LAYOUT_CHECK(ReplayStream_eventPrevCheck, offsetof(ReplayStream, eventPrev) == 0xe0);
+CMR2_LAYOUT_CHECK(ReplayStream_eventCheck, offsetof(ReplayStream, event) == 0xe4);
+CMR2_LAYOUT_CHECK(ReplayStream_field_0xe8Check, offsetof(ReplayStream, field_0xe8) == 0xe8);
+CMR2_LAYOUT_CHECK(ReplayStream_field_0xecCheck, offsetof(ReplayStream, field_0xec) == 0xec);
+CMR2_LAYOUT_CHECK(ReplayStream_flagPrevCheck, offsetof(ReplayStream, flagPrev) == 0xf0);
+CMR2_LAYOUT_CHECK(ReplayStream_flagCheck, offsetof(ReplayStream, flag) == 0xf4);
+CMR2_LAYOUT_CHECK(ReplayStream_stepCheck, offsetof(ReplayStream, step) == 0xf8);
+CMR2_LAYOUT_CHECK(ReplayStream_laneCapacityCheck, offsetof(ReplayStream, laneCapacity) == 0xfc);
+CMR2_LAYOUT_CHECK(ReplayStream_samplesPerLaneCheck, offsetof(ReplayStream, samplesPerLane) == 0xfe);
+CMR2_LAYOUT_CHECK(ReplayStream_laneCountCheck, offsetof(ReplayStream, laneCount) == 0x100);
+CMR2_LAYOUT_CHECK(ReplayStream_laneCheck, offsetof(ReplayStream, lane) == 0x108);
+CMR2_LAYOUT_CHECK(ReplayStream_frameCheck, offsetof(ReplayStream, frame) == 0x10a);
+CMR2_LAYOUT_CHECK(ReplayStream_field_0x10cCheck, offsetof(ReplayStream, field_0x10c) == 0x10c);
+CMR2_LAYOUT_CHECK(ReplaySampleSizeCheck, sizeof(ReplaySample) == 0x10);
+CMR2_LAYOUT_CHECK(ReplayEventSizeCheck, sizeof(ReplayEvent) == 0x6);
+CMR2_LAYOUT_CHECK(ReplayInputLaneSizeCheck, sizeof(ReplayInputLane) == 0x114c);
+CMR2_LAYOUT_CHECK(ReplayStateLaneSizeCheck, sizeof(ReplayStateLane) == 0x5c);
+CMR2_LAYOUT_CHECK(ReplayPoseSizeCheck, sizeof(ReplayPose) == 0x8c);
+
+CMR2_LAYOUT_CHECK(EnumeratedSessionsSizeCheck, sizeof(CGameInfo::m_enumeratedSessions) == 20 * sizeof(DPSESSIONDESC2));
+CMR2_LAYOUT_CHECK(CarIsGhostCheck, offsetof(Car, isGhost) == 0xc0c);
+CMR2_LAYOUT_CHECK(ReplayEvent_frameCheck, offsetof(ReplayEvent, frame) == 0x0);
+CMR2_LAYOUT_CHECK(ReplayEvent_countCheck, offsetof(ReplayEvent, count) == 0x2);
+CMR2_LAYOUT_CHECK(ReplayEvent_valueCheck, offsetof(ReplayEvent, value) == 0x4);
+CMR2_LAYOUT_CHECK(ReplayInputLane_inputsCheck, offsetof(ReplayInputLane, inputs) == 0x0);
+CMR2_LAYOUT_CHECK(ReplayInputLane_eventsCheck, offsetof(ReplayInputLane, events) == 0x110c);
+CMR2_LAYOUT_CHECK(ReplayInputLane_eventCountCheck, offsetof(ReplayInputLane, eventCount) == 0x1148);
+CMR2_LAYOUT_CHECK(ReplayStateLane_dataCheck, offsetof(ReplayStateLane, data) == 0x0);
+CMR2_LAYOUT_CHECK(ReplayStateLane_eventsCheck, offsetof(ReplayStateLane, events) == 0x1c);
+CMR2_LAYOUT_CHECK(ReplayStateLane_eventCountCheck, offsetof(ReplayStateLane, eventCount) == 0x58);
+CMR2_LAYOUT_CHECK(ReplayPose_fromCheck, offsetof(ReplayPose, from) == 0x0);
+CMR2_LAYOUT_CHECK(ReplayPose_toCheck, offsetof(ReplayPose, to) == 0x40);
+CMR2_LAYOUT_CHECK(ReplayPose_velocityCheck, offsetof(ReplayPose, velocity) == 0x80);
+CMR2_LAYOUT_CHECK(ReplaySample_yCheck, offsetof(ReplaySample, y) == 0x0);

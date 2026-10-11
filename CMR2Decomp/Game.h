@@ -32,7 +32,7 @@ struct DPlayConnection {
     GUID guidSP;
 };
 
-extern BYTE g_unk0x005a0068[0x50];
+extern DPSESSIONDESC2 g_networkSession;
 
 // GLOBAL: CMR2 0x00511a38
 // DPSPGUID_IPX

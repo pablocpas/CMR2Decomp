@@ -991,5 +991,22 @@
       "0x45b580",
       "0x45c820"
     ]
+  },
+  "differential_crash_runtime_records.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4a16c0",
+      "0x4a1680",
+      "0x4a1510",
+      "0x4a1530",
+      "0x4a1550",
+      "0x4a1570",
+      "0x465ec0",
+      "0x46d2a0",
+      "0x46d510",
+      "0x4a0c60",
+      "0x4a13b0",
+      "0x4a12d0"
+    ]
   }
 }

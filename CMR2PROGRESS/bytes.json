@@ -28689,13 +28689,13 @@
     "symbol_name": "StageObject_IntegrateViewDeformationGrid"
   },
   "0x46c4e0": {
-    "n": "StageTiming_InstallCarPartModelGeometry",
+    "n": "Replay_RecordCarPoseSample",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_InstallCarPartModelGeometry"
+    "symbol_name": "Replay_RecordCarPoseSample"
   },
   "0x480de0": {
     "n": "StageTiming_WakeUnloadedWheelSlots",

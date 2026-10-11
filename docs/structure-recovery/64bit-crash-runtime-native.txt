@@ -1,0 +1,6 @@
+PASS native session, ghost flags, replay queries/reset and pose recording with high pointers
+PASS negative control detected: ghost-offset
+PASS negative control detected: replay-reset
+PASS negative control detected: password-offset
+PASS negative control detected: browser-password-truncation
+PASS negative control detected: sample-truncation

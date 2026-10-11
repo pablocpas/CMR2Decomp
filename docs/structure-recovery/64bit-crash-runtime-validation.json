@@ -1,0 +1,33 @@
+{
+  "baseline": "3bf43d4",
+  "validation": "isolated checkout excluding unrelated weather-texture edits",
+  "source_sha256": {
+    "CMR2Decomp/ReplayStream.h": "e9db60688bcefebd9b6c2ee983315c33bbb3ab77b6672e828937ec5d69606a68",
+    "CMR2Decomp/StageTiming.cpp": "7615a3a57d39102da1bc63ced4f01a8a3b8e204bcb49d72903d27ad1336bf410",
+    "CMR2Decomp/StageObjects.cpp": "5fcb23daa155527645b9f608f60896ec9482d9582b453025fbf2c082fd04e35e",
+    "CMR2Decomp/RallyData.cpp": "bcdbc8eb85d631ec2712721e82a5f9afc028f724862040a51b7293aecc40f489",
+    "CMR2Decomp/Race.cpp": "592ad5740947db64ecfe445799aa3d1bad9b249737e837bde79b5ab137d1d8f3",
+    "CMR2Decomp/LayoutChecks.cpp": "7d926b1f11a854b94f3a7f114fd9a54206cba3869011af51efb03a42e3ec50a8",
+    "CMR2Decomp/GameInfo.h": "adf8d47b8aa0b76bba4f2945c5b2996a1c9551b4628d1669206e57a01ac2119d",
+    "CMR2Decomp/GameInfo.cpp": "7198c584a2239721eb90ddd4732161d49f8137589f9604fd8d61e2851a002888",
+    "CMR2Decomp/Game.h": "9aa1c73ab23a116baede7d7d9789ba129b730bb55de16926fa4202daecb377dc",
+    "CMR2Decomp/Game.cpp": "8f0a1ac4dbb93a3459c239ed3be89e1ae54997631159173de172de54819cc02b",
+    "CMR2Decomp/FrontendScreens.cpp": "4b620627898dd041c7b15583ce3d973587eceb46a5c193cfe28b2651407e3492",
+    "CMR2Decomp/Collision2D.cpp": "9b0153478cafbdc9c03955596c276493076d700b753dffb3cc1d91a76ce83754",
+    "CMR2Decomp/CarEffects.cpp": "7dea93656cc99df919d376d35b2a4deeca90b180dd9f627795d131e2aedaeb6c",
+    "CMR2Decomp/Car.h": "6ac62c1c930b10504ca5f67b7f9e4f1a184c25fd8dd42fb14d4eb509c9507863",
+    "CMR2Decomp/Car.cpp": "46dfd4cabffa3f686f6fb6361b74b47574882ad7b0ef410f75c80bc398f668cf"
+  },
+  "exe_sha256": "e2b56feef16e18cb8bc86be54f6c970b086add049931b4e72e70ff8ad0e41ee8",
+  "native_game_sha256": "ab843e460724a57edc490a9d8615b5d0f56072cf316f120e4fd710470b59248c",
+  "focused_cases": 665,
+  "native_negative_controls": 5,
+  "native_ctests": {
+    "tests": 21,
+    "failures": 0
+  },
+  "differential_suite": {
+    "harnesses": 131,
+    "failures": 0
+  }
+}

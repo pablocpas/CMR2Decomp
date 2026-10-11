@@ -1,0 +1,48 @@
+Internal ctest changing into directory: /home/pablo/colin_mcrae_linux/OpenCMR2/build/linux
+Test project /home/pablo/colin_mcrae_linux/OpenCMR2/build/linux
+      Start  9: physics_original_parity
+      Start 20: bink_file_intro
+      Start 10: runtime_scenarios
+ 1/21 Test #10: runtime_scenarios ................   Passed    1.44 sec
+      Start 11: bink_file_Aus
+ 2/21 Test #11: bink_file_Aus ....................   Passed    1.92 sec
+      Start 18: bink_file_UK
+ 3/21 Test #18: bink_file_UK .....................   Passed    1.87 sec
+      Start 16: bink_file_Ken
+ 4/21 Test #16: bink_file_Ken ....................   Passed    1.90 sec
+      Start 15: bink_file_Ita
+ 5/21 Test #20: bink_file_intro ..................   Passed    7.83 sec
+      Start 12: bink_file_Fin
+ 6/21 Test #15: bink_file_Ita ....................   Passed    1.89 sec
+      Start 14: bink_file_Gre
+ 7/21 Test #12: bink_file_Fin ....................   Passed    1.93 sec
+      Start 17: bink_file_Swe
+ 8/21 Test #14: bink_file_Gre ....................   Passed    1.86 sec
+      Start 13: bink_file_Fra
+ 9/21 Test #17: bink_file_Swe ....................   Passed    1.87 sec
+      Start  1: net_session
+10/21 Test #13: bink_file_Fra ....................   Passed    1.83 sec
+      Start 19: bink_file_cm
+11/21 Test #19: bink_file_cm .....................   Passed    1.58 sec
+      Start  8: reference_capture_format
+12/21 Test  #8: reference_capture_format .........   Passed    0.08 sec
+      Start  2: bink_decoder
+13/21 Test  #2: bink_decoder .....................   Passed    0.01 sec
+      Start 21: replay_disk
+14/21 Test #21: replay_disk ......................   Passed    0.00 sec
+      Start  3: movie_playback
+15/21 Test  #3: movie_playback ...................   Passed    0.00 sec
+      Start  4: movie_render_state
+16/21 Test  #4: movie_render_state ...............   Passed    0.00 sec
+      Start  5: math_tables
+17/21 Test  #5: math_tables ......................   Passed    0.00 sec
+      Start  6: car_scheduler
+18/21 Test  #6: car_scheduler ....................   Passed    0.00 sec
+      Start  7: preview_cleanup
+19/21 Test  #7: preview_cleanup ..................   Passed    0.00 sec
+20/21 Test  #9: physics_original_parity ..........   Passed   15.93 sec
+21/21 Test  #1: net_session ......................   Passed    4.31 sec
+
+100% tests passed, 0 tests failed out of 21
+
+Total Test time (real) =  15.95 sec

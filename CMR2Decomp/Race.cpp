@@ -7,6 +7,7 @@
 #include "Sprite.h"
 #include "RaceCallRecord.h"
 #include "FixedPoint.h"
+#include "ReplayStream.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -436,7 +437,7 @@ int Race_IsMultiplayerRecordMode10(void)
 int Race_GetPlayerRecordField4(BYTE index)
 {
     if (g_unk0x00537f3c[index] != NULL)
-        return *(int *)(g_unk0x00537f3c[index] + 4);
+        return ((ReplayStream *)g_unk0x00537f3c[index])->playing;
     return 0;
 }
 
@@ -444,7 +445,7 @@ int Race_GetPlayerRecordField4(BYTE index)
 int Race_GetPlayerRecordFieldC(BYTE index)
 {
     if (g_unk0x00537f3c[index] != NULL)
-        return *(int *)(g_unk0x00537f3c[index] + 0xc);
+        return ((ReplayStream *)g_unk0x00537f3c[index])->recording;
     return 0;
 }
 
@@ -3072,14 +3073,14 @@ void Race_UpdateInterStageFadeJobs(CallbackStateMachine *param1, unsigned int pa
     anyAlive = 1;
     if ((BYTE)RallyData_IsChampionshipFinalStage() != 0 && g_unk0x00537f3c[0] != 0) {
         if (g_unk0x00538118 == 0) {
-            if (*(int *)(g_unk0x00537f3c[0] + 4) != 0)
+            if (((ReplayStream *)g_unk0x00537f3c[0])->playing != 0)
                 goto done;
             View_SwitchCamera(0, 7, 0xffff, View_GetActiveCameraFlags(0), 0);
             g_unk0x00538118 = 1;
             Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[0]);
             Replay_SelectAndInitializeLane((ReplayStream *)g_unk0x00537f3c[0], 0, 0, 0);
         }
-        if (*(int *)(g_unk0x00537f3c[0] + 4) == 0) {
+        if (((ReplayStream *)g_unk0x00537f3c[0])->playing == 0) {
             StageObject_SpawnRandomDebrisBurst();
             GameMenu_StartPauseOverlayFade();
         }
@@ -5244,7 +5245,7 @@ void Race_UpdatePlayerViewAndDrivenCars(BYTE param1, int param2)
                 if (g_unk0x00538104 < (BYTE)RallyDataState()) {
                     g_unk0x00537fb8 = (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[g_unk0x00538104].packedState;
                     if (Race_GetPlayerRecordField4(g_unk0x00538104) != 0)
-                        g_unk0x00537fb8 = *(char *)(g_unk0x00537f3c[g_unk0x00538104] + 0x10c);
+                        g_unk0x00537fb8 = (char)((ReplayStream *)g_unk0x00537f3c[g_unk0x00538104])->field_0x10c;
                 } else {
                     if ((BYTE)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState <= 7) {
                         g_unk0x00537fb8 = 7;

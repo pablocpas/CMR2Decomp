@@ -322,7 +322,7 @@ struct Car {
     int field_0xbfc;                  // 0xbfc
     int useUpperCollisionCorners;      // 0xc00  8 corners instead of 4 when set
     int field_0xc04[2];               // 0xc04
-    int field_0xc0c;                  // 0xc0c
+    int isGhost;                      // 0xc0c ghost playback skips live physics and effects
     int field_0xc10;                  // 0xc10
     unsigned int field_0xc14;
     int field_0xc18;                  // 0xc18

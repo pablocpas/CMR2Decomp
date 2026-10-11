@@ -1976,7 +1976,7 @@ void FrontendMenu_UpdateNetworkSessionBrowser(Menu *pMenu)
         g_pGraphics->pDD7->FlipToGDISurface();
         ShowCursor(1);
     }
-    status = CGameInfo::EnumerateNetworkSessionsWithUserData((int)&g_unk0x00818ef8);
+    status = CGameInfo::EnumerateNetworkSessionsWithUserData(g_unk0x00818ef8);
     if (g_unk0x00818d04 == 0) {
         ShowCursor(0);
         ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);

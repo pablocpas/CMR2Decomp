@@ -3,6 +3,7 @@
 
 #include "FixedPoint.h"
 #include <windows.h>
+#include "../third_party/dx7sdk-7001/include/dplay.h"
 
 // Record words as the original's bitfields (it merges adjacent field stores).
 struct RecordTimeBits {
@@ -164,7 +165,7 @@ public:
     static int GetPreviewLayoutMode(void);
     static int SelectIdleOptionPreviewEntry(BYTE param1);
     static int EnumerateNetworkSessions(void);
-    static int EnumerateNetworkSessionsWithUserData(int param1);
+    static int EnumerateNetworkSessionsWithUserData(char *pPassword);
     static void SwitchOptionPreviewMode(int param1);
     static int GetNetworkStageBestTime(int index);
     static unsigned char IsConfiguredMultiplayer(void);
@@ -331,14 +332,12 @@ public:
     // GLOBAL: CMR2 0x005a01bc
     static BYTE m_unk0x005a01bc;
     // GLOBAL: CMR2 0x0059fa20
-    static BOOL m_unk0x0059fa20[400];
+    static DPSESSIONDESC2 m_enumeratedSessions[20];
 
 };
 
 // DPSESSIONDESC2 of the hosted/joined session (0x50 bytes, defined in Game.cpp);
 // its lpszSessionName/lpszPassword fields are set to the name buffers below.
-extern BYTE g_unk0x005a0068[0x50];
-#define g_sessionNamePtr (*(LPVOID **)(g_unk0x005a0068 + 0x30))       // 0x5a0098
-#define g_sessionPasswordPtr (*(LPVOID **)(g_unk0x005a0068 + 0x34))   // 0x5a009c
+extern DPSESSIONDESC2 g_networkSession;
 
 #endif
