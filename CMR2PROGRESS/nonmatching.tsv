@@ -5,7 +5,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x475f80	StageObject_InitCarSceneTables	StageTiming.cpp	277	0.3006535947712418	0.3815789473684211
 0x469100	CarDamage_AverageVertexDisplacement	StageObjects.cpp	417	0.3194444444444444	0.31833910034602075
 0x47ca30	StageObject_ProjectRotationTableRows	StageObjects.cpp	387	0.3277310924369748	0.3543307086614173
-0x46cfa0	Replay_PlayStreamFrame	StageObjects.cpp	717	0.3981042654028436	0.39443155452436196
+0x46cfa0	Replay_PlayStreamFrame	StageObjects.cpp	717	0.4009433962264151	0.39351851851851855
 0x4bc490	Flare_SampleVisibility	Graphics.cpp	1496	0.40963855421686746	0.39211136890951276
 0x4ade00	Scene_SetViewFromCamera	SceneNode.cpp	340	0.4444444444444444	0.4444444444444444
 0x4a52d0	CGraphics::BlendPixel	Graphics.cpp	1008	0.45269016697588127	0.4475043029259897

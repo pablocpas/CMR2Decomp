@@ -14089,9 +14089,10 @@ void Replay_PlayStreamFrame(int *pState)
                 }
             }
             if (found == -1) {
-                found = ((ReplayStateLane *)p->pStates)[p->lane].eventCount;
                 if (p->type == 0)
                     found = ((ReplayInputLane *)p->pInputs)[p->lane].eventCount;
+                else
+                    found = ((ReplayStateLane *)p->pStates)[p->lane].eventCount;
             }
             // Both formats index the event table from its base. In the original
             // assembly the final load follows two pops, so its stack offset
