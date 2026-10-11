@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "FixedPoint.h"
+#include "MovingObject.h"
 #include "Graphics.h"
 #include "GameInfo.h"
 #include "Car.h"
@@ -1107,28 +1108,7 @@ FixVector g_unk0x00589458[8];
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface,
                           int defaultY);
 
-struct MovingObject {
-    int field_0x0;              // 0x000 route element of the object
-    SceneNode *pObject;         // 0x004 scene node (head of the object's node chain)
-    FixMatrix keyB;             // 0x008 previous key
-    FixMatrix keyA;             // 0x048 next key
-    FixMatrix current;          // 0x088 interpolated matrix
-    FixMatrix *pMatrix;         // 0x0c8 matrix the motion integrates (keyB)
-    int mode;                   // 0x0cc 1 = sliding on the ground, 2 = airborne
-    int objectType;             // 0x0d0
-    FixVector groundNormal;     // 0x0d4
-    FixVector spin;             // 0x0e0 angular step
-    FixVector velocity;         // 0x0ec
-    FixVector field_0xf8;       // 0x0f8
-    FixVector probe;            // 0x104 ground-probe half extents (x, y, z)
-    int groundHeight;           // 0x110 last ground height under the probe
-    int actionState;            // 0x114 node action / sound callback state
-    int field_0x118;            // 0x118
-    short groundTriangle;       // 0x11c last ground triangle (-1 = none)
-    short field_0x11e;
-    int field_0x120;            // 0x120
-    int moved;                  // 0x124 the interpolated matrix changed this frame
-};
+
 
 // Normalises pV into pOut (zero when pV is zero) and returns its length.
 inline int FixVecNormalizeLen(FixVector *pOut, FixVector *pV)
@@ -1399,13 +1379,7 @@ void NetRace_ExtrapolateOrderedCarPoses(Car *pCars, short *pOrder, short count)
 // Moving stage objects: the table walked by the per-frame update below, one
 // 0x128-byte record per object (defined in StageObjects.cpp, which owns the
 // GLOBAL annotations of the table and of the active count).
-struct MovingObjects {
-    MovingObject entries[40];
-    BYTE meshCount;
-    BYTE field_0x2e41[0x103];
-    int carDistance[40 * 8];
-    BYTE count;
-};
+
 extern MovingObjects g_movingObjects;
 
 // 16.16 -> 12-bit angle of a turn rate (its negated twin is 0x511398 in Car.cpp);

@@ -7,6 +7,8 @@
 #include "NetPlayers.h"
 #include "Particle.h"
 #include "RaceRecord.h"
+#include "MovingObject.h"
+#include "MeshCollisionRecord.h"
 #include "SoundCurve.h"
 #include "CallbackState.h"
 #include "AIReferenceRoute.h"
@@ -691,6 +693,66 @@ CMR2_LAYOUT_CHECK(StageObjectDiskSizeCheck, sizeof(StageObject) == 0xa0);
 CMR2_LAYOUT_CHECK(StageObjectMeshOffsetCheck, offsetof(StageObject, pMesh) == 0xc);
 CMR2_LAYOUT_CHECK(StageObjectFlagsPrefixCheck, offsetof(StageObject, field_0x10) == 0x10);
 CMR2_LAYOUT_CHECK(StageObjectNextOffsetCheck, offsetof(StageObject, pNext) == 0x98);
+CMR2_LAYOUT_CHECK(SectorObjectEntry_SizeCheck, sizeof(SectorObjectEntry) == 8);
+CMR2_LAYOUT_CHECK(SectorObjectEntry_pObject_Check, offsetof(SectorObjectEntry, pObject) == 0);
+CMR2_LAYOUT_CHECK(SectorObjectEntry_pBounds_Check, offsetof(SectorObjectEntry, pBounds) == 4);
+CMR2_LAYOUT_CHECK(SectorObjectBounds_SizeCheck, sizeof(SectorObjectBounds) == 8);
+CMR2_LAYOUT_CHECK(SectorObjectBounds_radius_Check, offsetof(SectorObjectBounds, radius) == 0);
+CMR2_LAYOUT_CHECK(SectorObjectBounds_pProjection_Check, offsetof(SectorObjectBounds, pProjection) == 4);
+CMR2_LAYOUT_CHECK(ObjectPointBounds_SizeCheck, sizeof(ObjectPointBounds) == 0xc);
+CMR2_LAYOUT_CHECK(ObjectPointBounds_directionX_Check, offsetof(ObjectPointBounds, directionX) == 0);
+CMR2_LAYOUT_CHECK(ObjectPointBounds_directionZ_Check, offsetof(ObjectPointBounds, directionZ) == 2);
+CMR2_LAYOUT_CHECK(ObjectPointBounds_top_Check, offsetof(ObjectPointBounds, top) == 4);
+CMR2_LAYOUT_CHECK(ObjectPointBounds_bottom_Check, offsetof(ObjectPointBounds, bottom) == 6);
+CMR2_LAYOUT_CHECK(ObjectPointBounds_halfWidth_Check, offsetof(ObjectPointBounds, halfWidth) == 8);
+CMR2_LAYOUT_CHECK(ObjectPointBounds_halfLength_Check, offsetof(ObjectPointBounds, halfLength) == 10);
+CMR2_LAYOUT_CHECK(MovingObject_SizeCheck, sizeof(MovingObject) == 0x128);
+CMR2_LAYOUT_CHECK(MovingObject_pEntry_Check, offsetof(MovingObject, pEntry) == 0);
+CMR2_LAYOUT_CHECK(MovingObject_pObject_Check, offsetof(MovingObject, pObject) == 4);
+CMR2_LAYOUT_CHECK(MovingObject_keyB_Check, offsetof(MovingObject, keyB) == 8);
+CMR2_LAYOUT_CHECK(MovingObject_keyA_Check, offsetof(MovingObject, keyA) == 0x48);
+CMR2_LAYOUT_CHECK(MovingObject_current_Check, offsetof(MovingObject, current) == 0x88);
+CMR2_LAYOUT_CHECK(MovingObject_pMatrix_Check, offsetof(MovingObject, pMatrix) == 0xc8);
+CMR2_LAYOUT_CHECK(MovingObject_mode_Check, offsetof(MovingObject, mode) == 0xcc);
+CMR2_LAYOUT_CHECK(MovingObject_objectType_Check, offsetof(MovingObject, objectType) == 0xd0);
+CMR2_LAYOUT_CHECK(MovingObject_groundNormal_Check, offsetof(MovingObject, groundNormal) == 0xd4);
+CMR2_LAYOUT_CHECK(MovingObject_spin_Check, offsetof(MovingObject, spin) == 0xe0);
+CMR2_LAYOUT_CHECK(MovingObject_velocity_Check, offsetof(MovingObject, velocity) == 0xec);
+CMR2_LAYOUT_CHECK(MovingObject_field_0xf8_Check, offsetof(MovingObject, field_0xf8) == 0xf8);
+CMR2_LAYOUT_CHECK(MovingObject_probe_Check, offsetof(MovingObject, probe) == 0x104);
+CMR2_LAYOUT_CHECK(MovingObject_groundHeight_Check, offsetof(MovingObject, groundHeight) == 0x110);
+CMR2_LAYOUT_CHECK(MovingObject_actionState_Check, offsetof(MovingObject, actionState) == 0x114);
+CMR2_LAYOUT_CHECK(MovingObject_sectorIndex_Check, offsetof(MovingObject, sectorIndex) == 0x118);
+CMR2_LAYOUT_CHECK(MovingObject_groundTriangle_Check, offsetof(MovingObject, groundTriangle) == 0x11c);
+CMR2_LAYOUT_CHECK(MovingObject_field_0x11e_Check, offsetof(MovingObject, field_0x11e) == 0x11e);
+CMR2_LAYOUT_CHECK(MovingObject_field_0x120_Check, offsetof(MovingObject, field_0x120) == 0x120);
+CMR2_LAYOUT_CHECK(MovingObject_moved_Check, offsetof(MovingObject, moved) == 0x124);
+CMR2_LAYOUT_CHECK(MovingObjects_SizeCheck, sizeof(MovingObjects) == 0x3448);
+CMR2_LAYOUT_CHECK(MovingObjects_entries_Check, offsetof(MovingObjects, entries) == 0);
+CMR2_LAYOUT_CHECK(MovingObjects_meshCount_Check, offsetof(MovingObjects, meshCount) == 0x2e40);
+CMR2_LAYOUT_CHECK(MovingObjects_field_0x2e41_Check, offsetof(MovingObjects, field_0x2e41) == 0x2e41);
+CMR2_LAYOUT_CHECK(MovingObjects_carDistance_Check, offsetof(MovingObjects, carDistance) == 0x2f44);
+CMR2_LAYOUT_CHECK(MovingObjects_count_Check, offsetof(MovingObjects, count) == 0x3444);
+CMR2_LAYOUT_CHECK(MeshCollisionRecord_SizeCheck, sizeof(MeshCollisionRecord) == 0x5c);
+CMR2_LAYOUT_CHECK(MeshCollisionRecord_type_Check, offsetof(MeshCollisionRecord, type) == 0);
+CMR2_LAYOUT_CHECK(MeshCollisionRecord_field_0x1_Check, offsetof(MeshCollisionRecord, field_0x1) == 1);
+CMR2_LAYOUT_CHECK(MeshCollisionRecord_matrix_Check, offsetof(MeshCollisionRecord, matrix) == 4);
+CMR2_LAYOUT_CHECK(MeshCollisionRecord_width_Check, offsetof(MeshCollisionRecord, width) == 0x44);
+CMR2_LAYOUT_CHECK(MeshCollisionRecord_length_Check, offsetof(MeshCollisionRecord, length) == 0x48);
+CMR2_LAYOUT_CHECK(MeshCollisionRecord_height_Check, offsetof(MeshCollisionRecord, height) == 0x4c);
+CMR2_LAYOUT_CHECK(MeshCollisionRecord_field_0x50_Check, offsetof(MeshCollisionRecord, field_0x50) == 0x50);
+CMR2_LAYOUT_CHECK(MeshCollisionRecord_pNext_Check, offsetof(MeshCollisionRecord, pNext) == 0x58);
+CMR2_LAYOUT_CHECK(Mesh_SizeCheck, sizeof(Mesh) == 0x120);
+CMR2_LAYOUT_CHECK(Mesh_field_0x104_Check, offsetof(Mesh, field_0x104) == 0x104);
+CMR2_LAYOUT_CHECK(Mesh_pCollisionRecords_Check, offsetof(Mesh, pCollisionRecords) == 0x10c);
+CMR2_LAYOUT_CHECK(Mesh_sizeUnits_Check, offsetof(Mesh, sizeUnits) == 0x110);
+CMR2_LAYOUT_CHECK(StageObject_position_Check, offsetof(StageObject, position) == 0);
+CMR2_LAYOUT_CHECK(StageObject_flags_Check, offsetof(StageObject, flags) == 0x10);
+CMR2_LAYOUT_CHECK(StageObject_visible_Check, offsetof(StageObject, visible) == 0x14);
+CMR2_LAYOUT_CHECK(StageObject_field_0x15_Check, offsetof(StageObject, field_0x15) == 0x15);
+CMR2_LAYOUT_CHECK(StageObject_matrix_Check, offsetof(StageObject, matrix) == 0x18);
+CMR2_LAYOUT_CHECK(StageObject_field_0x58_Check, offsetof(StageObject, field_0x58) == 0x58);
+CMR2_LAYOUT_CHECK(StageObject_lightLevel_Check, offsetof(StageObject, lightLevel) == 0x9c);
 
 // Runtime Texture fields used by option-menu sprites; original Win32 offsets.
 CMR2_LAYOUT_CHECK(TextureRuntimeSizeCheck, sizeof(Texture) == 0x130);

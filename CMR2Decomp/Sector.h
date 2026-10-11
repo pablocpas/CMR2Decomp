@@ -28,9 +28,18 @@ struct Sector {
 // representation from native runtime pointers; do not resize the disk record.
 // Static object placed in a sector (only the fields used so far).
 struct StageObject {
-    BYTE field_0x0[0xc];
+    union { BYTE field_0x0[0xc]; FixVector position; };
     struct Mesh *pMesh;         // 0xc
-    BYTE field_0x10[0x88];
+    union {
+        BYTE field_0x10[0x88];
+        struct {
+            unsigned int flags; // 0x10 0x2001000 selects moving-entry list
+            BYTE visible;       // 0x14 toggled with the raised position
+            BYTE field_0x15[3];
+            FixMatrix matrix;   // 0x18 placement orientation
+            BYTE field_0x58[0x40];
+        };
+    };
     StageObject *pNext;         // 0x98 next object of the sector
     int lightLevel;             // 0x9c light level when not lit per vertex
 };

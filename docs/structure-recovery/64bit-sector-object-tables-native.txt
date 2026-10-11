@@ -1,0 +1,1 @@
+PASS: 96 native sector-table lifecycles vs original x86; 17 actual changed bodies, production layouts, native allocations/pointers above 4GB, full canonical records and immutable storage, ASan/UBSan

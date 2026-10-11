@@ -25,6 +25,10 @@ struct MeshPart {
     int field_0x18;             // 0x18
 };
 
+struct MeshCollisionRecord;
+// ON-DISK: 0x120-byte stage mesh header, relocated in place at 0x4b93c0.
+// pVertexData, pTriangles and pCollisionRecords hold relocated file offsets;
+// the port must separate this disk representation from native mesh storage.
 // Renderable mesh (0x120 bytes); only the fields used so far are named.
 struct Mesh {
     BYTE field_0x0[0xc];
@@ -41,7 +45,8 @@ struct Mesh {
     int *pLightLevels;          // 0x34 light level of each vertex
     MeshPart *pParts[50];       // 0x38
     int partCount;              // 0x100
-    BYTE field_0x104[0xc];
+    BYTE field_0x104[8];
+    MeshCollisionRecord *pCollisionRecords; // 0x10c relocated collision chain
     BYTE sizeUnits;             // 0x110
     BYTE field_0x111[7];
     int field_0x118;

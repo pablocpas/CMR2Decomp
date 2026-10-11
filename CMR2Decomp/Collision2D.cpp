@@ -1026,8 +1026,8 @@ void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2)
 int g_unk0x005914d8;
 // Corner copy the wall collision keeps for the other body of the contact:
 // the corners of the object box at 0x5915f8 (StageObjects.cpp), from +0x30.
-extern int g_unk0x005915f8[0x26];
-#define g_unk0x00591628 ((FixVector *)&g_unk0x005915f8[0xc])
+extern CollisionBox g_sectorObjectCollisionBox;
+#define g_unk0x00591628 (g_sectorObjectCollisionBox.points)
 
 // Slides one car along a static obstacle. Zeroes the vertical contact offset,
 // clamps the offset by the half extents (including y this time) and turns the

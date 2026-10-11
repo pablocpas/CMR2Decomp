@@ -93,10 +93,10 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x461830	StageObject_BlendTimeOfDayRecord	StageObjects.cpp	498	0.6507462686567164	0.6297376093294461
 0x49b0d0	WheelSpray_GetEffect	CarEffects.cpp	575	0.6515837104072398	0.6782608695652174
 0x497db0	CarPhysics_UpdateWheelContactPatches	CarPhysics.cpp	1471	0.6530612244897959	0.6558375634517767
-0x471dd0	RallyData_RebuildSectorStaticObjectTables	RallyData.cpp	2384	0.6535488404778637	0.6198172874209417
 0x476a40	CarInterior_AnimateWipers	StageObjects.cpp	547	0.6538461538461539	0.816793893129771
 0x41a340	Race_UpdateCarSurfaceSoundState	Race.cpp	625	0.6559139784946236	0.6052631578947368
 0x477f70	StageUI_DrawStageGrid	StageUI.cpp	447	0.6571428571428571	0.6736842105263158
+0x471dd0	RallyData_RebuildSectorStaticObjectTables	RallyData.cpp	2384	0.657765284609979	0.6235955056179775
 0x428a00	Car_MarkHiddenFromCameras	Car.cpp	484	0.6666666666666666	0.6133333333333333
 0x4a13b0	CGameInfo::EnumerateNetworkSessions	GameInfo.cpp	197	0.6666666666666666	0.6796116504854369
 0x4069c0	RallyData_InitKnockoutBracket	RallyData.cpp	1746	0.6703397612488522	0.6198723792160438
@@ -244,9 +244,9 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4f4b90	FrontendText_LoadRegionLanguages	GameInfo.cpp	281	0.8304093567251462	0.8176100628930818
 0x48df50	CarPhysics_UpdateWheelSlipAndVelocityDamping	StageObjects.cpp	335	0.8333333333333334	0.803921568627451
 0x505b40	OptionMenu_AnimateSelectedPanel	GameInfo.cpp	713	0.8340425531914893	0.7295597484276729
-0x4878a0	Collision_TestCarAgainstSectorObjects	StageObjects.cpp	732	0.834061135371179	0.7850877192982456
 0x413e00	RallyData_DrawRacePositionMarker	RallyData.cpp	473	0.8354430379746836	0.8354430379746836
 0x401b60	InRaceMenu_DrawHeaderBar	GameInfo.cpp	436	0.8356164383561644	0.8413793103448276
+0x4878a0	Collision_TestCarAgainstSectorObjects	StageObjects.cpp	732	0.8370044052863436	0.7868131868131868
 0x413330	RallyData_RecordPassedSplit	RallyData.cpp	490	0.837037037037037	0.7867647058823529
 0x464960	StageObject_PositionRearViewLightNodes	StageObjects.cpp	391	0.8373983739837398	0.8286852589641435
 0x472cb0	Knockout_ApplyCarGroundMaterials	StageObjects.cpp	317	0.8376068376068376	0.8017241379310345

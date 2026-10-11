@@ -21368,9 +21368,9 @@
   },
   "0x471dd0": {
     "n": "RallyData_RebuildSectorStaticObjectTables",
-    "s": 0.6198172874209417,
+    "s": 0.6235955056179775,
     "x": false,
-    "fz": 0.7645818692902319,
+    "fz": 0.7654494382022472,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_RebuildSectorStaticObjectTables"
@@ -22506,7 +22506,7 @@
     "x": false,
     "fz": 0.8113207547169812,
     "unknown": [
-      "$L56064",
+      "$L56096",
       "__except_list"
     ],
     "f": "Sound.cpp",
@@ -26492,9 +26492,9 @@
   },
   "0x4878a0": {
     "n": "Collision_TestCarAgainstSectorObjects",
-    "s": 0.7850877192982456,
+    "s": 0.7868131868131868,
     "x": false,
-    "fz": 0.9122807017543859,
+    "fz": 0.9142857142857143,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Collision_TestCarAgainstSectorObjects"

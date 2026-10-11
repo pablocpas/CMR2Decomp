@@ -1,0 +1,8 @@
+{
+  "baseline": "3eb2b4f",
+  "before": 367,
+  "after": 367,
+  "new": {},
+  "removed": {},
+  "note": "All final diagnostics retained. Baseline excludes the three Movie declaration errors already resolved before 3eb2b4f; port-only includes preserved as in the previous batch."
+}

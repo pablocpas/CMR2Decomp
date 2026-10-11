@@ -61,6 +61,12 @@ Tras el renombrado, `CMR2PROGRESS/bytes.json` es idéntico al anterior.
 
 ## Deuda
 
+Actualización: [el lote de tablas de objetos](64bit-sector-object-tables.md)
+demuestra que las entradas de variantes se reservan en memoria; esa parte de
+la clasificación siguiente era incorrecta. Ahora son SectorObjectEntry y las
+dos definiciones de MovingObject/MovingObjects se han unificado en cabecera.
+StageObject y las mallas siguen respaldados por disco y necesitan separación.
+
 - `StageObject` y los datos de variantes (`pEntries + i * 8`,
   `MovingObject::field_0x0`) son registros del fichero de escenario con
   punteros reubicados en sitio; necesitan traducción.

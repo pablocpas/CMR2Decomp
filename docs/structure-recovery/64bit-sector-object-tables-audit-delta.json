@@ -1,0 +1,64 @@
+{
+  "baseline": "3eb2b4f",
+  "before": 257,
+  "after": 208,
+  "removed": 49,
+  "functions_improved": 9,
+  "changes": [
+    {
+      "address": "0x00471dd0",
+      "before": 13,
+      "after": 0,
+      "removed": 13
+    },
+    {
+      "address": "0x0046f810",
+      "before": 11,
+      "after": 0,
+      "removed": 11
+    },
+    {
+      "address": "0x0046f550",
+      "before": 6,
+      "after": 0,
+      "removed": 6
+    },
+    {
+      "address": "0x0046fe70",
+      "before": 5,
+      "after": 0,
+      "removed": 5
+    },
+    {
+      "address": "0x004878a0",
+      "before": 4,
+      "after": 0,
+      "removed": 4
+    },
+    {
+      "address": "0x00471a60",
+      "before": 3,
+      "after": 0,
+      "removed": 3
+    },
+    {
+      "address": "0x00487c40",
+      "before": 3,
+      "after": 0,
+      "removed": 3
+    },
+    {
+      "address": "0x004873f0",
+      "before": 2,
+      "after": 0,
+      "removed": 2
+    },
+    {
+      "address": "0x00487e00",
+      "before": 2,
+      "after": 0,
+      "removed": 2
+    }
+  ],
+  "additional_errors": 367
+}

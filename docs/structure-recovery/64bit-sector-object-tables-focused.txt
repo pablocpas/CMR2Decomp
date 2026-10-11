@@ -1,0 +1,1 @@
+PASS: 288 sector-object original/rebuilt lifecycle scenarios; full guarded heap, runtime globals/owner, provider order and stdcall ABI

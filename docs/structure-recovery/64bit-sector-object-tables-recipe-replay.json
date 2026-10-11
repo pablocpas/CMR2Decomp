@@ -1,0 +1,33 @@
+{
+  "baseline": "3eb2b4f",
+  "operations": 89,
+  "families": [
+    "moving-mesh-runtime-pointers",
+    "sector-object-runtime-entries"
+  ],
+  "input_sha256": {
+    "CMR2Decomp/StageObjects.cpp": "f622be1ab4bbf0af572eda8e888f9ec7557490e7795587c31e973f19cc26da41",
+    "CMR2Decomp/SectorObjectEntry.h": null,
+    "CMR2Decomp/MovingObject.h": null,
+    "CMR2Decomp/FixedPoint.cpp": "ae302f4f61167888386844526eaeb07d831ef7b57093010261f87e1bfd1068d6",
+    "CMR2Decomp/RallyData.cpp": "b7a4a0378b3fa44aef207adf4a23cb8639e7ec664c135ad65c62262a6ce2be7e",
+    "CMR2Decomp/Sector.h": "7b942f9f0a7f1ddf5564bdd2a5d83a42a299d2682ce388516d5c810c0268f16e",
+    "CMR2Decomp/MeshCollisionRecord.h": null,
+    "CMR2Decomp/Mesh.h": "1d8681e9e5a589355acd9340e31ae0c74aa60b5bd4472887d0299947cd1b6abf",
+    "CMR2Decomp/LayoutChecks.cpp": "111116e9f0816dd1a7a352a57f4ab6896a97ab3b2c20379a5a315e0feff21117",
+    "CMR2Decomp/Collision2D.cpp": "ef2c9f061709e9b7d665314650c458e16384683ee1f3ba1f2aa98a1ba564ffa1"
+  },
+  "final_sha256": {
+    "CMR2Decomp/StageObjects.cpp": "dc3cd22c8ab361859172f69cbdccf5f5f39e04d07105b7991abc3c0bfaa57e28",
+    "CMR2Decomp/SectorObjectEntry.h": "36593e63c9880e33bf96b17da04737129b1d6fc7037bae1d759f386a17e4a19b",
+    "CMR2Decomp/MovingObject.h": "cb2de83b7ff7f6e3ab1493ae14a3dbe7c982fa01800a0caaf8096b0c6a7455ee",
+    "CMR2Decomp/FixedPoint.cpp": "862e2b2877dfd9e770fa089251c865760d99fc0c77abafe63e1e65bbe2277faa",
+    "CMR2Decomp/RallyData.cpp": "4e98b8a680bf20bf5e93d9b55816e6128852ef17cb04818d4bbe3f6fe0d68f1f",
+    "CMR2Decomp/Sector.h": "6cc81e183a299236a68788f861334e65caeed75c9d98b7905cda3e3856c0640f",
+    "CMR2Decomp/MeshCollisionRecord.h": "877dd897f012396f59a38a5a2c3d599105137649bc768ec5dcd4abbac9ebde40",
+    "CMR2Decomp/Mesh.h": "395a03124db56f32bca83868d3c06e5323a48f78521cc0bd1f449e56a029a808",
+    "CMR2Decomp/LayoutChecks.cpp": "bdb30ce876ba12e1e8cb2f9ea2eaa16998f424e6fa28d437db861900f6c7afb1",
+    "CMR2Decomp/Collision2D.cpp": "f3d5b31104ab6bf66c654a399ae7323d891e2a2965b3794b6c800c8c1ecc7826"
+  },
+  "all_files_reproduce": true
+}

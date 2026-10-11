@@ -776,6 +776,30 @@
       "0x4ac7a0"
     ]
   },
+  "differential_sector_object_tables.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x471dd0",
+      "0x46f550",
+      "0x471bd0",
+      "0x471b30",
+      "0x471b80",
+      "0x471bf0",
+      "0x471cc0",
+      "0x471d40",
+      "0x471d80",
+      "0x470240",
+      "0x4702a0",
+      "0x46f7e0",
+      "0x46f810",
+      "0x46fe70",
+      "0x471a60",
+      "0x4873f0",
+      "0x487c40",
+      "0x487e00",
+      "0x4878a0"
+    ]
+  },
   "differential_sector_visibility.py": {
     "arguments": "entities",
     "targets": [

@@ -1,0 +1,36 @@
+{
+  "baseline": "3eb2b4f",
+  "functions": 3364,
+  "byte_exact": 2924,
+  "metric_changes": [
+    {
+      "address": "0x471dd0",
+      "name": "RallyData_RebuildSectorStaticObjectTables",
+      "before": {
+        "s": 0.6198172874209417,
+        "fz": 0.7645818692902319,
+        "x": false
+      },
+      "after": {
+        "s": 0.6235955056179775,
+        "fz": 0.7654494382022472,
+        "x": false
+      }
+    },
+    {
+      "address": "0x4878a0",
+      "name": "Collision_TestCarAgainstSectorObjects",
+      "before": {
+        "s": 0.7850877192982456,
+        "fz": 0.9122807017543859,
+        "x": false
+      },
+      "after": {
+        "s": 0.7868131868131868,
+        "fz": 0.9142857142857143,
+        "x": false
+      }
+    }
+  ],
+  "regressions": []
+}

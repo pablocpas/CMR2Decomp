@@ -20,6 +20,8 @@ short Car_GetOrderCount(void);
 #include <stdio.h>
 #include <math.h>
 #include "FixedPoint.h"
+#include "MovingObject.h"
+#include "MeshCollisionRecord.h"
 #include "Car.h"
 #include "CarResources.h"
 #include "CarPhysics.h"
@@ -333,11 +335,11 @@ void StageObject_LoadAndClassifyMeshes(void);
 void StageObject_ResetMovingObjectCountsAndPhases(void);
 struct MovingObject;
 void StageObject_InitMovingObject(MovingObject *pState, int carIndex);
-void StageObject_QueueOrEvictMovingObject(int *param_1, int param_2, int param_3);
+void StageObject_QueueOrEvictMovingObject(SectorObjectEntry *param_1, int param_2, int param_3);
 void StageObject_InterpolateAllObjectMatrices(int t);
 void StageObject_ApplyInterpolatedNodeMatrices(int param_1);
 void StageObject_LoadModelVariantsAndSaveCounts(void);
-unsigned int StageObject_GetLoadedVariantDataAndState(BYTE **pOut);
+unsigned int StageObject_GetLoadedVariantDataAndState(SectorObjectEntry **pOut);
 void StageObject_LoadTempObjectModel(void);
 void StageObject_LoadTempShadowModel(void);
 void Knockout_SetRoundActiveFlag(void);
@@ -473,12 +475,12 @@ void StageObject_QueueViewLensFlare(int *pObj, int *param2, int *param3, FixVect
 void CarPart_BuildScaledWheelOrientation(int *pMatrix, int *pOffset);
 int StageObject_GetCollisionRecordState(void);
 void Collision_BuildOrientedBoxWorldCorners(FixVector *pCorners, FixVector *pCenter, FixMatrix *pRot, FixVector *pHalf);
-void Collision_BuildObjectPointBounds(int *param_1, int param_2, int param_3);
+void Collision_BuildObjectPointBounds(int *param_1, FixVector *param_2, SectorObjectBounds *param_3);
 void Collision_UpdateOrderedCars(Car *pCars, short *pOrder, short count);
 int Collision_TestCarAgainstSectorObjects(Car *pCar);
 int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB);
-void StageObject_BuildSpriteExtentOrientation(int *pMatrix, int param_2, int *pOffset);
-void StageObject_SetCollisionSphereAndMaterial(FixVector *pPos, int *pInfo);
+void StageObject_BuildSpriteExtentOrientation(CollisionBox *pMatrix, SectorObjectEntry *param_2, int *pOffset);
+void StageObject_SetCollisionSphereAndMaterial(FixVector *pPos, SectorObjectEntry *pInfo);
 void StageObject_UpdateCarBoxShadowLighting(CollisionBox *pBox, Car *pCar);
 int Collision_ResolveCarTurnedObjectContact(Car *pCar, StageObject **pEntry, CollisionBox *pBox, CollisionBox *pObject);
 int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pBoxB, FixVector *pOffset, int scale);
@@ -540,8 +542,8 @@ int StageObject_GetWheelSlip(int carIndex, int wheelIndex);
 BYTE StageObject_GetViewWeatherStateByte(int index);
 int StageObject_GetViewWeatherField54(int index);
 int *StageObject_GetViewWeatherSlot(int carIndex, int wheelIndex);
-unsigned int StageObject_GetLoadedVariantDataAndState(BYTE **pOut);
-void RallyData_CopyRaisedElementVector(int *pDest, void **pEntry);
+unsigned int StageObject_GetLoadedVariantDataAndState(SectorObjectEntry **pOut);
+void RallyData_CopyRaisedElementVector(int *pDest, SectorObjectEntry **pEntry);
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri,
                           unsigned short *pSurface, int defaultY);
 void Sector_RemoveNode(SceneNode *pNode);
@@ -623,12 +625,12 @@ extern ViewWeatherState *g_viewWeather;
 extern BYTE g_weatherViewCount;
 extern FixVector g_weatherWindDirection;
 extern int g_weatherWindStrength;
-extern void *g_movingObjectMeshIndex;
-extern void *g_movingObjectMeshes;
-extern void *g_unk0x0058c930;
+extern BYTE *g_movingObjectMeshIndex;
+extern Mesh **g_movingObjectMeshes;
+extern int *g_movingObjectTypes;
 extern CarSurfaceRamp *g_carSurfaceRamps;
 extern int g_unk0x0058cf7c;
-extern BYTE *g_unk0x0058c94c;
+extern SectorObjectEntry *g_movingSectorEntries;
 extern unsigned int g_unk0x0058ca6c;
 
 int Replay_ResetBufferIfActive(int *p);
@@ -1017,39 +1019,12 @@ void StageObject_ClearNodeTreeValuesBelowThreshold(SceneNode *pNode, BYTE thresh
     }
 }
 
-struct MovingObject {
-    int field_0x0;              // 0x000 route element of the object
-    SceneNode *pObject;         // 0x004 scene node (head of the object's node chain)
-    FixMatrix keyB;             // 0x008 previous key
-    FixMatrix keyA;             // 0x048 next key
-    FixMatrix current;          // 0x088 interpolated matrix
-    FixMatrix *pMatrix;         // 0x0c8 matrix the motion integrates (keyB)
-    int mode;                   // 0x0cc 1 = sliding on the ground, 2 = airborne
-    int objectType;             // 0x0d0
-    FixVector groundNormal;     // 0x0d4
-    FixVector spin;             // 0x0e0 angular step
-    FixVector velocity;         // 0x0ec
-    FixVector field_0xf8;       // 0x0f8
-    FixVector probe;            // 0x104 ground-probe half extents (x, y, z)
-    int groundHeight;           // 0x110 last ground height under the probe
-    int actionState;            // 0x114 node action / sound callback state
-    int field_0x118;            // 0x118
-    short groundTriangle;       // 0x11c last ground triangle (-1 = none)
-    short field_0x11e;
-    int field_0x120;            // 0x120
-    int moved;                  // 0x124 the interpolated matrix changed this frame
-};
+
 // Moving stage objects (debris and the like): one object in the original, so a
 // store into entries[] makes MSVC re-read count.
 // GLOBAL: CMR2 0x005894b8
 BYTE g_farVotes[40];    // per entry: cars for which it is the farthest
-struct MovingObjects {
-    MovingObject entries[40];    // 0x0000
-    BYTE meshCount;                       // 0x2e40
-    BYTE field_0x2e41[0x103];
-    int carDistance[40 * 8];              // 0x2f44 [entry * 8 + car]
-    BYTE count;                           // 0x3444 entries in use
-};
+
 // GLOBAL: CMR2 0x005894e0
 MovingObjects g_movingObjects;
 
@@ -1072,7 +1047,7 @@ void StageObject_InitMovingObject(MovingObject *pState, int carIndex)
     int triangle = -1;
     int surfaceIndex = 0;
     Car *pCar = Car_Get(carIndex);
-    BYTE *pEntries;
+    SectorObjectEntry *pEntries;
     int count = StageObject_GetLoadedVariantDataAndState(&pEntries);
     int entryIndex = -1;
     int i;
@@ -1084,25 +1059,25 @@ void StageObject_InitMovingObject(MovingObject *pState, int carIndex)
     FixVector axis;
 
     for (i = 0; i < count; i++) {
-        if ((int)(pEntries + i * 8) == pState->field_0x0) {
+        if (pEntries + i == pState->pEntry) {
             entryIndex = i;
             i = count;
         }
     }
     if (entryIndex >= 0) {
-        pState->objectType = ((int *)g_unk0x0058c930)[((BYTE *)g_movingObjectMeshIndex)[entryIndex]];
+        pState->objectType = g_movingObjectTypes[g_movingObjectMeshIndex[entryIndex]];
         pState->pObject->type = SCENE_NODE_MESH;
-        pState->pObject->pObject = (void *)((int *)g_movingObjectMeshes)[((BYTE *)g_movingObjectMeshIndex)[entryIndex]];
+        pState->pObject->pObject = g_movingObjectMeshes[g_movingObjectMeshIndex[entryIndex]];
         pState->pObject->viewMask = (BYTE)(1 << carIndex);
         pState->actionState = -0x10000;
 
-        RallyData_CopyRaisedElementVector((int *)&position, (void **)pState);
+        RallyData_CopyRaisedElementVector((int *)&position, &pState->pEntry);
         FixMatrix_SetPosition(&position, &pState->pObject->current);
-        FixMatrix_GetRight(&local, (FixMatrix *)(*(BYTE **)pState->field_0x0 + 0x18));
+        FixMatrix_GetRight(&local, &pState->pEntry->pObject->matrix);
         FixMatrix_SetRight(&local, &pState->pObject->current);
-        FixMatrix_GetUp(&local, (FixMatrix *)(*(BYTE **)pState->field_0x0 + 0x18));
+        FixMatrix_GetUp(&local, &pState->pEntry->pObject->matrix);
         FixMatrix_SetUp(&local, &pState->pObject->current);
-        FixMatrix_GetForward(&local, (FixMatrix *)(*(BYTE **)pState->field_0x0 + 0x18));
+        FixMatrix_GetForward(&local, &pState->pEntry->pObject->matrix);
         FixMatrix_SetForward(&local, &pState->pObject->current);
 
         pState->pMatrix = &pState->keyB;
@@ -1136,9 +1111,9 @@ void StageObject_InitMovingObject(MovingObject *pState, int carIndex)
             axis.z = -FixMul(local.x, 0x10000);
             if (pState->objectType == 0)
                 axis.z = 0;
-            pState->probe.x = FixMul(0x8000, *(int *)(*(BYTE **)(*(BYTE **)(*(BYTE **)pState->field_0x0 + 0xc) + 0x10c) + 0x44));
-            pState->probe.y = FixMul(0x8000, *(int *)(*(BYTE **)(*(BYTE **)(*(BYTE **)pState->field_0x0 + 0xc) + 0x10c) + 0x4c));
-            pState->probe.z = FixMul(0x8000, *(int *)(*(BYTE **)(*(BYTE **)(*(BYTE **)pState->field_0x0 + 0xc) + 0x10c) + 0x48));
+            pState->probe.x = FixMul(0x8000, pState->pEntry->pObject->pMesh->pCollisionRecords->width);
+            pState->probe.y = FixMul(0x8000, pState->pEntry->pObject->pMesh->pCollisionRecords->height);
+            pState->probe.z = FixMul(0x8000, pState->pEntry->pObject->pMesh->pCollisionRecords->length);
             pState->field_0xf8.x = 0;
             pState->field_0xf8.y = pState->probe.y;
             pState->field_0xf8.z = 0;
@@ -1154,9 +1129,9 @@ void StageObject_InitMovingObject(MovingObject *pState, int carIndex)
             FixVecScale(&pState->velocity, &velocity, 0xcccc);
             pState->velocity.y = FixVecLength(&velocity);
             pState->velocity.y = FixMul(pState->velocity.y, 0x4ccc);
-            pState->probe.x = FixMul(0x8000, *(int *)(*(BYTE **)(*(BYTE **)(*(BYTE **)pState->field_0x0 + 0xc) + 0x10c) + 0x44));
-            pState->probe.y = FixMul(0x8000, *(int *)(*(BYTE **)(*(BYTE **)(*(BYTE **)pState->field_0x0 + 0xc) + 0x10c) + 0x4c));
-            pState->probe.z = FixMul(0x8000, *(int *)(*(BYTE **)(*(BYTE **)(*(BYTE **)pState->field_0x0 + 0xc) + 0x10c) + 0x48));
+            pState->probe.x = FixMul(0x8000, pState->pEntry->pObject->pMesh->pCollisionRecords->width);
+            pState->probe.y = FixMul(0x8000, pState->pEntry->pObject->pMesh->pCollisionRecords->height);
+            pState->probe.z = FixMul(0x8000, pState->pEntry->pObject->pMesh->pCollisionRecords->length);
             pState->field_0xf8.y = pState->probe.y;
             pState->field_0xf8.x = 0;
             pState->field_0xf8.z = 0;
@@ -1772,12 +1747,12 @@ void StageObject_GetGroundNode(SceneNode **pOut)
 
 // Per variant entry, index of its cloned mesh in g_movingObjectMeshes (0xff none).
 // GLOBAL: CMR2 0x0058c928
-void *g_movingObjectMeshIndex;
+BYTE *g_movingObjectMeshIndex;
 // Meshes cloned for the moving objects (StageObject_LoadAndClassifyMeshes).
 // GLOBAL: CMR2 0x0058c92c
-void *g_movingObjectMeshes;
+Mesh **g_movingObjectMeshes;
 // GLOBAL: CMR2 0x0058c930
-void *g_unk0x0058c930;
+int *g_movingObjectTypes;
 
 // Releases the three files loaded by 0x46f550 (registered callback).
 // FUNCTION: CMR2 0x0046f500
@@ -1787,9 +1762,9 @@ int StageObjects_ReleaseObjectFiles(void)
         CFileBuffer::FreeGenericFileBuffer(g_movingObjectMeshIndex);
         g_movingObjectMeshIndex = NULL;
     }
-    if (g_unk0x0058c930 != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(g_unk0x0058c930);
-        g_unk0x0058c930 = NULL;
+    if (g_movingObjectTypes != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_movingObjectTypes);
+        g_movingObjectTypes = NULL;
     }
     if (g_movingObjectMeshes != NULL) {
         CFileBuffer::FreeGenericFileBuffer(g_movingObjectMeshes);
@@ -1919,13 +1894,13 @@ extern double g_minus65536;
 // FUNCTION: CMR2 0x0046f550
 void StageObject_LoadAndClassifyMeshes(void)
 {
-    BYTE *pEntries;
+    SectorObjectEntry *pEntries;
     int i;
     int count;
     int maxX;
     int maxY;
     int maxZ;
-    int mesh;
+    Mesh *mesh;
     float *pFloats;
 
     Mesh_ResetCloneCount();
@@ -1937,54 +1912,54 @@ void StageObject_LoadAndClassifyMeshes(void)
     }
 
     count = StageObject_GetLoadedVariantDataAndState(&pEntries);
-    g_movingObjectMeshes = CFileBuffer::AllocateLockedBuffer(count * 4);
+    g_movingObjectMeshes = (Mesh **)CFileBuffer::AllocateLockedBuffer(count * sizeof(*g_movingObjectMeshes));
     i = 0;
     if (count > 0) {
         do {
             i++;
-            ((int *)g_movingObjectMeshes)[i - 1] = 0;
+            g_movingObjectMeshes[i - 1] = 0;
         } while (i < count);
     }
     g_movingObjectMeshIndex = 0;
     if (count >= 1) {
-        g_movingObjectMeshIndex = CFileBuffer::AllocateLockedBuffer(count);
+        g_movingObjectMeshIndex = (BYTE *)CFileBuffer::AllocateLockedBuffer(count);
         i = 0;
         g_movingObjects.meshCount = 0;
         if (count > 0) {
             do {
-                mesh = *(int *)(*(int *)(pEntries + i * 8) + 0xc);
+                mesh = pEntries[i].pObject->pMesh;
                 if ((int)g_movingObjects.meshCount < count) {
-                    ((BYTE *)g_movingObjectMeshIndex)[i] = (BYTE)g_movingObjects.meshCount;
-                    mesh = (int)Mesh_CloneInto((Mesh *)mesh, (BYTE *)*(int *)(pEntries + i * 8));
-                    ((int *)g_movingObjectMeshes)[(BYTE)g_movingObjects.meshCount] = mesh;
-                    if (((int *)g_movingObjectMeshes)[(BYTE)g_movingObjects.meshCount] == 0)
-                        ((BYTE *)g_movingObjectMeshIndex)[i] = 0;
+                    g_movingObjectMeshIndex[i] = (BYTE)g_movingObjects.meshCount;
+                    mesh = Mesh_CloneInto(mesh, (BYTE *)pEntries[i].pObject);
+                    g_movingObjectMeshes[(BYTE)g_movingObjects.meshCount] = mesh;
+                    if (g_movingObjectMeshes[(BYTE)g_movingObjects.meshCount] == 0)
+                        g_movingObjectMeshIndex[i] = 0;
                     else
                         g_movingObjects.meshCount++;
                 } else {
-                    ((BYTE *)g_movingObjectMeshIndex)[i] = 0xff;
+                    g_movingObjectMeshIndex[i] = 0xff;
                 }
                 i++;
             } while (i < count);
         }
     }
-    g_unk0x0058c930 = 0;
+    g_movingObjectTypes = 0;
     if (g_movingObjects.meshCount > 0)
-        g_unk0x0058c930 = CFileBuffer::AllocateLockedBuffer((g_movingObjects.meshCount & 0xff) << 2);
+        g_movingObjectTypes = (int *)CFileBuffer::AllocateLockedBuffer((g_movingObjects.meshCount & 0xff) * sizeof(*g_movingObjectTypes));
     i = 0;
     if (g_movingObjects.meshCount > 0) {
         do {
-            int pObject = ((int *)g_movingObjectMeshes)[i];
+            Mesh *pObject = g_movingObjectMeshes[i];
             int n;
             int x;
             int y;
             int z;
             maxY = 0;
             maxX = 0;
-            n = *(int *)((BYTE *)pObject + 0x10);
+            n = pObject->field_0x10;
             maxZ = 0;
             if (n >= 1) {
-                pFloats = *(float **)((BYTE *)pObject + 0xc);
+                pFloats = (float *)pObject->pVertexData;
                 do {
                     x = (int)(__int64)(pFloats[0] * CGraphics::m_65536);
                     if (x < 0)
@@ -2006,11 +1981,11 @@ void StageObject_LoadAndClassifyMeshes(void)
                 } while (n != 0);
             }
             if (FixDiv(maxZ, maxX) < 0x4ccc)
-                ((int *)g_unk0x0058c930)[i] = 0;
+                g_movingObjectTypes[i] = 0;
             else if (FixDiv(maxX, maxY) < 0x4ccc)
-                ((int *)g_unk0x0058c930)[i] = 1;
+                g_movingObjectTypes[i] = 1;
             else
-                ((int *)g_unk0x0058c930)[i] = 0;
+                g_movingObjectTypes[i] = 0;
             i++;
         } while (i < (int)(g_movingObjects.meshCount & 0xff));
     }
@@ -2018,9 +1993,9 @@ void StageObject_LoadAndClassifyMeshes(void)
 }
 
 // FUNCTION: CMR2 0x00471bd0
-unsigned int StageObject_GetLoadedVariantDataAndState(BYTE **pOut)
+unsigned int StageObject_GetLoadedVariantDataAndState(SectorObjectEntry **pOut)
 {
-    *pOut = g_unk0x0058c94c;
+    *pOut = g_movingSectorEntries;
     return g_unk0x0058ca6c;
 }
 
@@ -4601,11 +4576,11 @@ int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB)
 }
 
 // FUNCTION: CMR2 0x00487e00
-void StageObject_SetCollisionSphereAndMaterial(FixVector *pPos, int *pInfo)
+void StageObject_SetCollisionSphereAndMaterial(FixVector *pPos, SectorObjectEntry *pInfo)
 {
     g_collisionSphereCentre = *pPos;
-    g_collisionSphereRadius = *(int *)pInfo[1];
-    g_unk0x00591494 = *(int *)(*(int *)(*(int *)(pInfo[0] + 0xc) + 0x10c) + 0x4c);
+    g_collisionSphereRadius = pInfo->pBounds->radius;
+    g_unk0x00591494 = pInfo->pObject->pMesh->pCollisionRecords->height;
 }
 
 // Updates a car's stage shadow/light when its position, projected on the two
@@ -4655,7 +4630,7 @@ char g_unk0x005915f4;
 // Box of the stage object being collided with (0x98 bytes: half sizes, axes,
 // corners from +0x30, the car offset at +0x94).
 // GLOBAL: CMR2 0x005915f8
-int g_unk0x005915f8[0x26];
+CollisionBox g_sectorObjectCollisionBox;
 
 // Finds the closest overlap between two 4-corner boxes along the horizontal
 // direction `pDir`, testing every pair of edges of their corner quads. Appends
@@ -8305,20 +8280,20 @@ int StageObject_RunNodeActionAndSoundCallback(void *pNode, int value);
 void StageObject_ApplyInterpolatedNodeMatrices(int param_1)
 {
     int i;
-    BYTE *p;
+    MovingObject *p;
 
     i = 0;
     if (g_movingObjects.count > 0) {
-        p = (BYTE *)g_movingObjects.entries;
+        p = g_movingObjects.entries;
         do {
-            *(FixMatrix *)(*(int *)(p + 4) + 0x98) = *(FixMatrix *)(p + 0x88);
-            if (*(int *)(p + 0x124) != 0) {
-                *(FixMatrix *)(*(int *)(p + 4) + 0xd8) = *(FixMatrix *)(p + 0x88);
-                *(int *)(p + 0x114) = StageObject_RunNodeActionAndSoundCallback((void *)*(int *)(p + 4), *(int *)(p + 0x114));
-                *(int *)(p + 0x124) = 0;
+            p->pObject->current = p->current;
+            if (p->moved != 0) {
+                p->pObject->world = p->current;
+                p->actionState = StageObject_RunNodeActionAndSoundCallback(p->pObject, p->actionState);
+                p->moved = 0;
             }
             i = i + 1;
-            p = p + 0x128;
+            p = p + 1;
         } while (i < (int)(g_movingObjects.count & 0xff));
     }
 }
@@ -8849,42 +8824,42 @@ void CarPart_BuildScaledWheelOrientation(int *pMatrix, int *pOffset)
 
 // Builds a sprite orientation matrix from a pair of 16-bit extents.
 // FUNCTION: CMR2 0x00487c40
-void StageObject_BuildSpriteExtentOrientation(int *pMatrix, int param_2, int *pOffset)
+void StageObject_BuildSpriteExtentOrientation(CollisionBox *pMatrix, SectorObjectEntry *param_2, int *pOffset)
 {
-    short *p = *(short **)(*(int *)(param_2 + 4) + 4);
+    short *p = (short *)param_2->pBounds->pProjection;
     FixVector t, u;
     int i;
 
-    if (pMatrix[10] == 0) {
-        pMatrix[0] = (int)p[4] << 9;
-        pMatrix[1] = (int)p[5] << 9;
-        pMatrix[4] = (int)p[0] << 9;
-        pMatrix[5] = 0;
-        pMatrix[6] = (int)p[1] << 9;
-        pMatrix[7] = (int)p[1] << 9;
-        pMatrix[8] = 0;
-        pMatrix[9] = -((int)p[0] << 9);
-        pMatrix[2] = p[2] * 0x200 + pOffset[1];
-        pMatrix[3] = p[3] * 0x200 + pOffset[1];
-        pMatrix[0x25] = (int)pOffset;
-        pMatrix[0x24] = 0;
-        FixVecScale(&t, (FixVector *)&pMatrix[4], pMatrix[0]);
-        FixVecScale(&u, (FixVector *)&pMatrix[7], pMatrix[1]);
-        pMatrix[0xf] = t.x + u.x;
-        pMatrix[0x11] = t.z + u.z;
-        pMatrix[0xc] = t.x - u.x;
-        pMatrix[0xe] = t.z - u.z;
+    if (*(int *)pMatrix->pad_0x28 == 0) {
+        pMatrix->halfWidth = (int)p[4] << 9;
+        pMatrix->halfLength = (int)p[5] << 9;
+        pMatrix->axisA.x = (int)p[0] << 9;
+        pMatrix->axisA.y = 0;
+        pMatrix->axisA.z = (int)p[1] << 9;
+        pMatrix->axisB.x = (int)p[1] << 9;
+        pMatrix->axisB.y = 0;
+        pMatrix->axisB.z = -((int)p[0] << 9);
+        pMatrix->top = p[2] * 0x200 + pOffset[1];
+        pMatrix->bottom = p[3] * 0x200 + pOffset[1];
+        pMatrix->pVertex = (FixVector *)pOffset;
+        pMatrix->pArray = 0;
+        FixVecScale(&t, &pMatrix->axisA, pMatrix->halfWidth);
+        FixVecScale(&u, &pMatrix->axisB, pMatrix->halfLength);
+        pMatrix->pointWords[3] = t.x + u.x;
+        pMatrix->pointWords[5] = t.z + u.z;
+        pMatrix->pointWords[0] = t.x - u.x;
+        pMatrix->pointWords[2] = t.z - u.z;
         FixVecScale(&t, &t, -0x10000);
-        pMatrix[0x12] = t.x - u.x;
-        pMatrix[0x14] = t.z - u.z;
-        pMatrix[0x15] = t.x + u.x;
-        pMatrix[0x17] = t.z + u.z;
+        pMatrix->pointWords[6] = t.x - u.x;
+        pMatrix->pointWords[8] = t.z - u.z;
+        pMatrix->pointWords[9] = t.x + u.x;
+        pMatrix->pointWords[11] = t.z + u.z;
         for (i = 0; i < 4; i++) {
-            pMatrix[0xc + i * 3] += pOffset[0];
-            pMatrix[0xd + i * 3] = pMatrix[3];
-            pMatrix[0xe + i * 3] += pOffset[2];
+            pMatrix->points[i].x += pOffset[0];
+            pMatrix->points[i].y = pMatrix->bottom;
+            pMatrix->points[i].z += pOffset[2];
         }
-        pMatrix[10] = 1;
+        *(int *)pMatrix->pad_0x28 = 1;
     }
 }
 
@@ -10437,14 +10412,14 @@ void StageObject_DrawProjectedViewIcon(int param_1, int param_2)
 }
 
 
-int RallyData_IsElementFlagSet(BYTE **pEntry, int bit);
-void RallyData_SetElementFlagBit(BYTE **pp, int bit, int set);
-void RallyData_MarkElementReachedByCar(BYTE **pElement, int car);
+int RallyData_IsElementFlagSet(SectorObjectEntry **pEntry, int bit);
+void RallyData_SetElementFlagBit(SectorObjectEntry **pp, int bit, int set);
+void RallyData_MarkElementReachedByCar(SectorObjectEntry *pElement, int car);
 
 // Queues a moving stage object: appends it to the free table, or (when the
 // table is full) evicts the entry whose objects are farthest from the cars.
 // FUNCTION: CMR2 0x0046fe70
-void StageObject_QueueOrEvictMovingObject(int *param_1, int param_2, int param_3)
+void StageObject_QueueOrEvictMovingObject(SectorObjectEntry *param_1, int param_2, int param_3)
 {
     MovingObject *entry;
     FixVector pos;
@@ -10458,20 +10433,20 @@ void StageObject_QueueOrEvictMovingObject(int *param_1, int param_2, int param_3
     int j;
     int c;
 
-    if (RallyData_IsElementFlagSet((BYTE **)&param_1, param_3) != 0) {
-        RallyData_SetElementFlagBit((BYTE **)&param_1, param_3, 0);
+    if (RallyData_IsElementFlagSet(&param_1, param_3) != 0) {
+        RallyData_SetElementFlagBit(&param_1, param_3, 0);
         pCar = Car_Get(param_3);
         if (pCar->field_0xc0c == 0 && (char)RallyDataState() == 1) {
-            *(int *)(*param_1 + 4) += -0x3e80000;
-            *(BYTE *)(*param_1 + 0x14) = 0;
+            param_1->pObject->position.y += -0x3e80000;
+            param_1->pObject->visible = 0;
         }
     }
     pCar = Car_Get(param_3);
     if (pCar->field_0xc0c != 0)
         return;
     if (g_movingObjects.count < 0x28) {
-        g_movingObjects.entries[g_movingObjects.count].field_0x0 = (int)param_1;
-        *(int *)((BYTE *)&g_movingObjects.entries[g_movingObjects.count] + 0x118) = param_2;
+        g_movingObjects.entries[g_movingObjects.count].pEntry = param_1;
+        g_movingObjects.entries[g_movingObjects.count].sectorIndex = param_2;
         StageObject_InitMovingObject(&g_movingObjects.entries[g_movingObjects.count], param_3);
         g_movingObjects.count++;
         return;
@@ -10480,7 +10455,7 @@ void StageObject_QueueOrEvictMovingObject(int *param_1, int param_2, int param_3
     if (g_movingObjects.count > 0) {
         entry = &g_movingObjects.entries[0];
         do {
-            RallyData_CopyRaisedElementVector((int *)&pos, (void **)entry);
+            RallyData_CopyRaisedElementVector((int *)&pos, &entry->pEntry);
             for (j = 0; j < Car_GetOrderCount(); j++) {
                 delta.x = Car_Get(j)->position.x - pos.x;
                 delta.y = Car_Get(j)->position.y - pos.y;
@@ -10522,9 +10497,9 @@ void StageObject_QueueOrEvictMovingObject(int *param_1, int param_2, int param_3
     }
     entry = &g_movingObjects.entries[bestIx];
     for (j = 0; j < 8; j++)
-        RallyData_MarkElementReachedByCar((BYTE **)entry->field_0x0, j);
-    entry->field_0x0 = (int)param_1;
-    *(int *)((BYTE *)entry + 0x118) = param_2;
+        RallyData_MarkElementReachedByCar(entry->pEntry, j);
+    entry->pEntry = param_1;
+    entry->sectorIndex = param_2;
     StageObject_InitMovingObject(entry, param_3);
 }
 
@@ -10695,9 +10670,9 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
 // every point is projected onto it, tracking the box bounds.
 // match 59%: implementada, difiere el marco de pila y la fusion de bloques de normalizacion
 // FUNCTION: CMR2 0x004873f0
-void Collision_BuildObjectPointBounds(int *param_1, int param_2, int param_3)
+void Collision_BuildObjectPointBounds(int *param_1, FixVector *param_2, SectorObjectBounds *param_3)
 {
-    short *pOut = *(short **)(param_3 + 4);
+    short *pOut = (short *)param_3->pProjection;
     FixVector dir;
     FixVector perp;
     FixVector pt;
@@ -10743,7 +10718,7 @@ void Collision_BuildObjectPointBounds(int *param_1, int param_2, int param_3)
     perp.y = 0;
     perp.z = -dir.x;
 
-    p = (int *)(param_2 + 8);
+    p = &param_2[0].z;
     n = 8;
     do {
         pt = *(FixVector *)(p - 2);
@@ -14720,10 +14695,10 @@ int Collision_ResolveCarTurnedObjectContact(Car *pCar, StageObject **pEntry, Col
     return hit;
 }
 
-BYTE *Sector_GetListA(unsigned int sector, unsigned int *pCount);
-BYTE *Sector_GetListB(unsigned int sector, unsigned int *pCount);
-void RallyData_CopyRaisedElementVector(int *pDest, void **pParam1);
-int RallyData_IsElementFlagSet(BYTE **pEntry, int bit);
+SectorObjectEntry **Sector_GetListA(unsigned int sector, unsigned int *pCount);
+SectorObjectEntry **Sector_GetListB(unsigned int sector, unsigned int *pCount);
+void RallyData_CopyRaisedElementVector(int *pDest, SectorObjectEntry **pParam1);
+int RallyData_IsElementFlagSet(SectorObjectEntry **pEntry, int bit);
 int Collision_CarVsBox(Car *car, CollisionBox *pBox, int scale);
 int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, FixVector *param_3, int param_4);
 
@@ -14744,8 +14719,9 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
     int count;
     int sector;
     int result;
-    int *pEntry;
-    int *pObject;
+    SectorObjectEntry *pEntry;
+    SectorObjectEntry **ppEntries;
+    StageObject *pObject;
     FixVector position;
 
     result = 0;
@@ -14761,48 +14737,48 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                 continue;
             sector = sectors[k];
             if (moving == 0)
-                pEntry = (int *)Sector_GetListA(sector, (unsigned int *)&count);
+                ppEntries = Sector_GetListA(sector, (unsigned int *)&count);
             else
-                pEntry = (int *)Sector_GetListB(sector, (unsigned int *)&count);
-            pEntry = pEntry != NULL ? *(int **)pEntry : NULL;
-            for (i = 0; i < count; i++, pEntry += 2) {
-                pObject = (int *)pEntry[0];
+                ppEntries = Sector_GetListB(sector, (unsigned int *)&count);
+            pEntry = ppEntries != NULL ? *ppEntries : NULL;
+            for (i = 0; i < count; i++, pEntry++) {
+                pObject = pEntry->pObject;
                 if (moving == 0)
-                    position = *(FixVector *)pObject;
+                    position = pObject->position;
                 else
-                    RallyData_CopyRaisedElementVector((int *)&position, (void **)&pEntry);
-                if ((pObject[4] & 0x8000) == 0 && (BYTE)RallyDataState() == 2)
+                    RallyData_CopyRaisedElementVector((int *)&position, &pEntry);
+                if ((pObject->flags & 0x8000) == 0 && (BYTE)RallyDataState() == 2)
                     continue;
-                g_unk0x005914d8 = *(int *)(pEntry[1] + 4) != 0;
-                result = Collision_DoSpheresOverlap(*(int *)(p + 0x758), *(int *)pEntry[1], (int *)(p + 0x2d0), (int *)&position);
+                g_unk0x005914d8 = pEntry->pBounds->pProjection != 0;
+                result = Collision_DoSpheresOverlap(*(int *)(p + 0x758), pEntry->pBounds->radius, (int *)(p + 0x2d0), (int *)&position);
                 if (result == 0)
                     continue;
                 result = 0;
-                if (moving == 1 && RallyData_IsElementFlagSet((BYTE **)&pEntry, pCar->index) == 0)
+                if (moving == 1 && RallyData_IsElementFlagSet(&pEntry, pCar->index) == 0)
                     continue;
                 StageObject_QueueViewLensFlare((int *)pBox, (int *)(p + 0x360), (int *)(p + 0x2d0), (FixVector *)(p + 0x270));
                 result = 0;
                 if (g_unk0x005914d8 != 0) {
-                    g_unk0x005915f8[10] = 0;
-                    StageObject_BuildSpriteExtentOrientation(g_unk0x005915f8, (int)pEntry, (int *)&position);
+                    *(int *)g_sectorObjectCollisionBox.pad_0x28 = 0;
+                    StageObject_BuildSpriteExtentOrientation(&g_sectorObjectCollisionBox, pEntry, (int *)&position);
                 } else {
                     StageObject_SetCollisionSphereAndMaterial(&position, pEntry);
                 }
                 if (g_unk0x005914d8 != 0) {
-                    result = Collision_ResolveCarTurnedObjectContact(pCar, (StageObject **)pEntry, (CollisionBox *)pBox, (CollisionBox *)g_unk0x005915f8);
+                    result = Collision_ResolveCarTurnedObjectContact(pCar, &pEntry->pObject, (CollisionBox *)pBox, &g_sectorObjectCollisionBox);
                 } else {
-                    if (pObject[4] & 0x4000) {
+                    if (pObject->flags & 0x4000) {
                         if (*(int *)(p + 0xc20) == 0)
                             StageObject_UpdateCarBoxShadowLighting((CollisionBox *)pBox, pCar);
                         continue;
                     }
-                    if (!((pObject[4] & 0x2001000) != 0)) {
+                    if (!((pObject->flags & 0x2001000) != 0)) {
                         result = Collision_CarVsBox(pCar, (CollisionBox *)pBox, 0x10000);
                     } else {
                         result = Collision_CarVsBox(pCar, (CollisionBox *)pBox, 0);
                     }
                 }
-                if (result != 0 && Collision_ResolveStaticObstacleContact(pCar, (StageObject **)pEntry, &position, 0) != 0)
+                if (result != 0 && Collision_ResolveStaticObstacleContact(pCar, &pEntry->pObject, &position, 0) != 0)
                     StageObject_QueueOrEvictMovingObject(pEntry, sector, pCar->index);
             }
         }
