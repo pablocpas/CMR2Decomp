@@ -280,7 +280,8 @@ void Menu_SetNextAction(Menu *action)
 }
 
 #define ITEM_AT(pMenu, i) (&(pMenu)->items[(i)])
-#define MENU_FLAGS(pMenu) (*((BYTE *)(pMenu) + 0xe))
+// The flag0..flag7 bits read as one byte; they follow layout (0xd).
+#define MENU_FLAGS(pMenu) (*(&(pMenu)->layout + 1))
 
 // Applies one frame of input to the menu: moves the cursor, changes the
 // value of type 3/6 items, fires the item callbacks and returns the action

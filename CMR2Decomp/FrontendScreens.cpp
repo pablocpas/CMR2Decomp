@@ -6052,7 +6052,7 @@ void FrontendCar_GetClassPerformance(int param_1, int *param_2, int *param_3, in
 // Draws the progress bar of a game mode page: param_3 small rects in a row,
 // the first param_4 highlighted, and the label of param_5 underneath.
 // FUNCTION: CMR2 0x004d8330
-int FrontendDraw_ModeProgressBar(int param_1, int param_2, int param_3, int param_4, int param_5)
+int FrontendDraw_ModeProgressBar(int param_1, int param_2, int param_3, int param_4, char *param_5)
 {
     short rect[4];
     int i;
@@ -6076,7 +6076,7 @@ int FrontendDraw_ModeProgressBar(int param_1, int param_2, int param_3, int para
         rect[0] = (short)(x >> 16);
     }
     if (param_5 != 0) {
-        Font_DrawText(1, (char *)param_5, *(int *)rect, (int)(g_pGraphics->resY * 0x18) / 0x1e0 + param_2,
+        Font_DrawText(1, param_5, *(int *)rect, (int)(g_pGraphics->resY * 0x18) / 0x1e0 + param_2,
                       (int *)g_colourText0x0052496c, 0x14);
         return rect[0];
     }
@@ -10607,9 +10607,9 @@ void FrontendMenu_DrawCarSetup(Menu *pMenu)
     }
     FrontendCar_GetClassPerformance(CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
     FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
-                 (int)CFrontend::GetTextString(0x186));
+                 CFrontend::GetTextString(0x186));
     x = FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,
-                     (int)CFrontend::GetTextString(0x187));
+                     CFrontend::GetTextString(0x187));
     sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(grip + 0x183));
     Font_DrawText(1, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 245) / 480,
                   (int *)g_colourText0x0052496c, 0x14);
@@ -10686,9 +10686,9 @@ void FrontendMenu_DrawPaletteSelection(Menu *pMenu)
     }
     FrontendCar_GetClassPerformance(CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
     FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
-                 (int)CFrontend::GetTextString(0x186));
+                 CFrontend::GetTextString(0x186));
     x = FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,
-                     (int)CFrontend::GetTextString(0x187));
+                     CFrontend::GetTextString(0x187));
     sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(grip + 0x183));
     Font_DrawText(1, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 245) / 480,
                   (int *)g_colourText0x0052496c, 0x14);

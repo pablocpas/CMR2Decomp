@@ -535,7 +535,7 @@ void CFrontend::BuildLocalizedTextStringTable(int languages, int count, BYTE **p
     m_unk0x0065aa70 = 0;
     m_textFirstId = 0;
     m_textCount = count;
-    m_textStrings = (char **)CFileBuffer::AllocateLockedBuffer(languages * count * 4);
+    m_textStrings = (char **)CFileBuffer::AllocateLockedBuffer(languages * count * sizeof(char *));
     if (m_textStrings != NULL) {
         for (i = 0, row = 0; i < languages; i++, row += count) {
             p = pFiles[i];

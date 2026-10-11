@@ -2831,7 +2831,8 @@ void FrontendCredits_LoadText(char registerRelease)
     }
     g_unk0x0081a728 = g_unk0x0081a728 / 4;
 
-    g_unk0x0081a734 = CFileBuffer::AllocateLockedBuffer(g_unk0x0081a728 * 8);
+    // Two strings per credits line, like p.
+    g_unk0x0081a734 = CFileBuffer::AllocateLockedBuffer(g_unk0x0081a728 * 2 * sizeof(p));
     g_unk0x0081a72c = CFileBuffer::AllocateLockedBuffer(g_unk0x0081a728 * 4);
     if (g_unk0x0081a734 != NULL) {
         p = (char *)g_unk0x0081a730;
@@ -7505,7 +7506,7 @@ void OptionPreview_AllocateConvertedWheelVertices(int param1, int param2, Option
     FixVector pos;
 
     ppBlock = &g_previewOriginalVertices[param1];
-    *ppBlock = (DeformVertex **)CFileBuffer::AllocateLockedBuffer((unsigned int)param3->meshCount << 2);
+    *ppBlock = (DeformVertex **)CFileBuffer::AllocateLockedBuffer((unsigned int)param3->meshCount * sizeof(DeformVertex *));
     totalSize = (unsigned int)param3->meshCount << 2;
     ppFlags = &g_previewOriginalNodeTypes[param1];
     *ppFlags = (BYTE *)CFileBuffer::AllocateLockedBuffer((unsigned int)param3->meshCount);

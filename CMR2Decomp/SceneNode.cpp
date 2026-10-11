@@ -1453,7 +1453,7 @@ void Scene_LoadLighting(int *pData)
     }
 
     // A shadow mesh per zone.
-    g_sceneShadowMeshes = (Mesh **)CFileBuffer::AllocateLockedBuffer(g_sectorCount * 4);
+    g_sceneShadowMeshes = (Mesh **)CFileBuffer::AllocateLockedBuffer(g_sectorCount * sizeof(*g_sceneShadowMeshes));
     g_sceneSectorZone = (short *)CFileBuffer::AllocateLockedBuffer(g_sectorCount * 2);
     s = 0;
     if (g_sectorCount != 0) {

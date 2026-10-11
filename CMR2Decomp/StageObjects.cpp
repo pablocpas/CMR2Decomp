@@ -10522,7 +10522,7 @@ void CarDamage_BuildPartVertexBuffer(int param_1, int param_2, CarPartSet *set)
     FixVector *pPos;
     FixVector p;
 
-    g_carOriginalPartVertices[param_1] = (DeformVertex **)CFileBuffer::AllocateLockedBuffer(set->count << 2);
+    g_carOriginalPartVertices[param_1] = (DeformVertex **)CFileBuffer::AllocateLockedBuffer(set->count * sizeof(DeformVertex *));
     total = set->count * 4;
     g_carOriginalPartNodeTypes[param_1] = (BYTE *)CFileBuffer::AllocateLockedBuffer(set->count);
     for (i = 0; i < set->count; i++) {
@@ -15064,7 +15064,7 @@ void Fireworks_Init(BYTE count)
         g_unk0x00590af8 = CFileBuffer::AllocateLockedBuffer(count * 0x938);
         g_unk0x00590b04 = CFileBuffer::AllocateLockedBuffer(0x28);
         g_unk0x00590b08 = CFileBuffer::AllocateLockedBuffer(0x28);
-        g_unk0x00590b0c = (void **)CFileBuffer::AllocateLockedBuffer(0xc);
+        g_unk0x00590b0c = (void **)CFileBuffer::AllocateLockedBuffer(3 * sizeof(void *));
         for (i = 0; i < 3; i++)
             g_unk0x00590b0c[i] = CFileBuffer::AllocateLockedBuffer(0x24);
         for (i = 0; i < g_unk0x00590afc; i++) {

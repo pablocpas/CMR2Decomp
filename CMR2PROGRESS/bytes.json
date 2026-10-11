@@ -7770,9 +7770,9 @@
   },
   "0x4d9c40": {
     "n": "FrontendMenu_DrawRallySummary",
-    "s": 0.9843260188087775,
+    "s": 0.9855799373040752,
     "x": false,
-    "fz": 0.9968652037617555,
+    "fz": 0.9981191222570532,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawRallySummary"
