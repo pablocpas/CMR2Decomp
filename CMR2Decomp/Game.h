@@ -61,15 +61,15 @@ public:
     // GLOBAL: CMR2 0x0059ce20
     static int m_unk0x0059ce20;
     // GLOBAL: CMR2 0x0059ce28
-    static int m_unk0x0059ce28;
+    static int m_deferredDrawCount;
     // GLOBAL: CMR2 0x0059ce2c
-    static int m_unk0x0059ce2c;
+    static int m_transparentDrawCount;
     // The list ends at 0x593cb0 + 4096 * 4: the original's frame stamps
     // (0x597cb0/0x597cb4) are compiler statics, so they cannot be list slots.
     // GLOBAL: CMR2 0x00593cb0
-    static void *m_unk0x00593cb0[4096];
+    static void *m_deferredDrawObjects[4096];
     // GLOBAL: CMR2 0x00597d04
-    static void *m_unk0x00597d04[4096];
+    static void *m_transparentDrawNodes[4096];
     // GLOBAL: CMR2 0x005207f8
     static int m_unk0x005207f8;
     static void SetGameInputFocusState(int param1);

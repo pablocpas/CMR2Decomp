@@ -2736,9 +2736,9 @@ BYTE g_unk0x00590bfd;
 BYTE g_carPartModelIndices[4][8];
 // Per wheel-hub slot damage threshold (StageTiming_WakeUnloadedWheelSlots).
 // GLOBAL: CMR2 0x00590c44
-int g_unk0x00590c44[4];
+int g_wheelSlotDamageThresholds[4];
 // GLOBAL: CMR2 0x00590c60
-BYTE g_unk0x00590c60[4];
+BYTE g_wheelSlotDamageIndices[4];
 // GLOBAL: CMR2 0x00590d70
 int g_unk0x00590d70;
 // GLOBAL: CMR2 0x00590db0
@@ -2796,7 +2796,7 @@ CameraSpot *g_unk0x00591750;
 // GLOBAL: CMR2 0x005918c8
 int g_unk0x005918c8;
 // GLOBAL: CMR2 0x005920f0
-Mesh *g_unk0x005920f0;
+Mesh *g_groundReferenceMesh;
 // GLOBAL: CMR2 0x00592114
 FixVector g_unk0x00592114;
 // GLOBAL: CMR2 0x00592128
@@ -3485,7 +3485,7 @@ int StageObject_FindClosestMeshVertex(void)
 // FUNCTION: CMR2 0x00492bb0
 void StageObject_GetGroundReferenceColour(int *pOut)
 {
-    *pOut = *(int *)g_unk0x005920f0->pTriangles->colour;
+    *pOut = *(int *)g_groundReferenceMesh->pTriangles->colour;
 }
 
 // FUNCTION: CMR2 0x00498570
@@ -5552,14 +5552,14 @@ void CarLight_GetScaledChannelLevels(int lane, int *pA, int *pB, int slot)
 void StageObject_ResetPartTuningAndRandomSeed(void)
 {
     srand(400);
-    g_unk0x00590c44[0] = 0x8000;
-    g_unk0x00590c44[1] = 0x8000;
-    g_unk0x00590c44[2] = 0x8000;
-    g_unk0x00590c44[3] = 0x3333;
-    g_unk0x00590c60[0] = 0x16;
-    g_unk0x00590c60[1] = 0x14;
-    g_unk0x00590c60[2] = 0x15;
-    g_unk0x00590c60[3] = 0x12;
+    g_wheelSlotDamageThresholds[0] = 0x8000;
+    g_wheelSlotDamageThresholds[1] = 0x8000;
+    g_wheelSlotDamageThresholds[2] = 0x8000;
+    g_wheelSlotDamageThresholds[3] = 0x3333;
+    g_wheelSlotDamageIndices[0] = 0x16;
+    g_wheelSlotDamageIndices[1] = 0x14;
+    g_wheelSlotDamageIndices[2] = 0x15;
+    g_wheelSlotDamageIndices[3] = 0x12;
     g_unk0x00590bfc = 1;
     g_unk0x00590bfd = 2;
 }

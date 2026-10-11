@@ -3951,7 +3951,7 @@ void StageTiming_InterpolateMovingPartMatrices(int t)
 
 // GLOBAL: CMR2 0x00590d78
 CarPartSet *g_partSet;
-extern BYTE g_unk0x00590c60[4];
+extern BYTE g_wheelSlotDamageIndices[4];
 
 void StageObject_SetReplayEntryHitFlag(Car *pCar, int index);
 
@@ -3973,7 +3973,7 @@ void StageTiming_StartLoadedPartSwing(void)
     int a;
     int b;
 
-    idx = g_unk0x00590c60[g_partState->flags >> 4];
+    idx = g_wheelSlotDamageIndices[g_partState->flags >> 4];
     if (g_partSet->damageValues[idx] > 0xcccc) {
         if ((g_partState->flags & 0xf0) == 0x10) {
             a = 2;
@@ -7541,8 +7541,8 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *rec
 // Helpers implemented in other translation units.
 struct ReplaySample;
 void Replay_EncodeCarPoseSample(Car *pCar, ReplaySample *pSample);
-extern int g_unk0x00590c44[4];   // per-slot thresholds 0x590c44..0x590c53
-extern BYTE g_unk0x00590c60[4];
+extern int g_wheelSlotDamageThresholds[4];   // per-slot thresholds 0x590c44..0x590c53
+extern BYTE g_wheelSlotDamageIndices[4];
 
 // Installs the model geometry of part `index` (byte index into the car table)
 // into car record `param_1`.
@@ -7572,8 +7572,8 @@ void StageTiming_WakeUnloadedWheelSlots(void)
             // they are wider than an int (the factor is 1 on Win32).
             (*(PartState **)((BYTE *)&g_carPartStateTables.parts[3] +
                              offset * (int)(sizeof(PartState *) / sizeof(int))))[g_partCar->index].pNode == NULL &&
-            g_partSet->damageValues[g_unk0x00590c60[slot]] >
-                *(int *)((BYTE *)&g_unk0x00590c44[3] + offset)) {
+            g_partSet->damageValues[g_wheelSlotDamageIndices[slot]] >
+                *(int *)((BYTE *)&g_wheelSlotDamageThresholds[3] + offset)) {
             CarPart_InitWheelHubSlot(slot);
         }
         offset -= 4;

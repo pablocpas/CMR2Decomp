@@ -1393,11 +1393,11 @@ Menu *g_pMenu0x0083177c;
 // OptionMenu_DrawResultsRallyInfo lose bytes (register ties in this TU), so
 // they stay int[4] and are read through GenericFile *.
 // GLOBAL: CMR2 0x00831a90
-int g_unk0x00831a90[4];
+int g_optionCommonArchive[4];
 // GLOBAL: CMR2 0x00831aa0
-int g_unk0x00831aa0[4];
+int g_optionStageArchive[4];
 // GLOBAL: CMR2 0x00831ab0
-int g_unk0x00831ab0[4];
+int g_optionLanguageArchive[4];
 
 // FUNCTION: CMR2 0x004ff4b0
 int OptionMenu_GetColumnLabelId(int index)
@@ -2293,8 +2293,8 @@ char g_str0x0052965c[8] = "sfrench";
 char g_str0x00529664[12] = "senglish";
 
 extern char g_strTxtFormat[];
-extern BYTE *g_unk0x00831880;
-extern BYTE g_unk0x00831884;
+extern BYTE *g_optionLanguageText;
+extern BYTE g_optionLanguageTextInArchive;
 int *OptionMenu_GetCommonArchive(void);
 int *OptionMenu_GetLanguageArchive(void);
 int *OptionMenu_GetStageArchive(void);
@@ -2339,11 +2339,11 @@ BYTE OptionMenu_LoadRegionalText(void)
     }
 
     sprintf(CFrontend::m_stringDest, g_strTxtFormat, names[CGameInfo::GetGameLanguage()]);
-    g_unk0x00831880 = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)OptionMenu_GetLanguageArchive(),
-                                                       CFrontend::m_stringDest, &g_unk0x00831884, NULL, 0);
+    g_optionLanguageText = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)OptionMenu_GetLanguageArchive(),
+                                                       CFrontend::m_stringDest, &g_optionLanguageTextInArchive, NULL, 0);
     // the original tests the address of the buffer, so this is always true
-    if (&g_unk0x00831880 != NULL) {
-        CFrontend::BuildLocalizedTextStringTable(1, 0x146, &g_unk0x00831880);
+    if (&g_optionLanguageText != NULL) {
+        CFrontend::BuildLocalizedTextStringTable(1, 0x146, &g_optionLanguageText);
         CGame::RegisterCallback(OptionMenu_ReleaseSoundBuffer, NULL);
         return 1;
     }
@@ -2353,19 +2353,19 @@ BYTE OptionMenu_LoadRegionalText(void)
 // FUNCTION: CMR2 0x0050f620
 int *OptionMenu_GetCommonArchive(void)
 {
-    return g_unk0x00831a90;
+    return g_optionCommonArchive;
 }
 
 // FUNCTION: CMR2 0x0050f630
 int *OptionMenu_GetLanguageArchive(void)
 {
-    return g_unk0x00831ab0;
+    return g_optionLanguageArchive;
 }
 
 // FUNCTION: CMR2 0x0050f640
 int *OptionMenu_GetStageArchive(void)
 {
-    return g_unk0x00831aa0;
+    return g_optionStageArchive;
 }
 
 unsigned char GameInfo_GetFrontendSessionFlag(void);
@@ -2747,13 +2747,13 @@ void OptionPreview_DecodeImpactPayload(CarImpactPayload *pColour)
 
 // Number of credit entries (pairs of quoted strings) in the credits file
 // GLOBAL: CMR2 0x0081a728
-int g_unk0x0081a728;
+int g_creditsLineCount;
 // GLOBAL: CMR2 0x0081a72c
 void *g_unk0x0081a72c;
 // GLOBAL: CMR2 0x0081a730
-void *g_unk0x0081a730;
+void *g_creditsFileBuffer;
 // GLOBAL: CMR2 0x0081a734
-void *g_unk0x0081a734;
+void *g_creditsLines;
 
 // Credits file names per region (index = CGameInfo::GetGameLanguage())
 // GLOBAL: CMR2 0x00525aa4
@@ -2826,37 +2826,37 @@ void FrontendCredits_LoadText(char registerRelease)
 
     sprintf(CFrontend::m_stringDest, g_strCreditsPathFormat, CInstallInfo::GetCountrySpecificDir(),
             CGameInfo::GetGameRegionDirectory(), names[CGameInfo::GetGameLanguage()]);
-    g_unk0x0081a730 = CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, TRUE);
+    g_creditsFileBuffer = CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, TRUE);
 
     size = CGenericFileLoader::GetGenericFileSize();
     for (i = 0; i < size; i++) {
-        if (((char *)g_unk0x0081a730)[i] == '"')
-            g_unk0x0081a728++;
+        if (((char *)g_creditsFileBuffer)[i] == '"')
+            g_creditsLineCount++;
     }
-    g_unk0x0081a728 = g_unk0x0081a728 / 4;
+    g_creditsLineCount = g_creditsLineCount / 4;
 
     // Two strings per credits line, like p.
-    g_unk0x0081a734 = CFileBuffer::AllocateLockedBuffer(g_unk0x0081a728 * 2 * sizeof(p));
-    g_unk0x0081a72c = CFileBuffer::AllocateLockedBuffer(g_unk0x0081a728 * 4);
-    if (g_unk0x0081a734 != NULL) {
-        p = (char *)g_unk0x0081a730;
-        for (i = 0; i < g_unk0x0081a728; i++) {
+    g_creditsLines = CFileBuffer::AllocateLockedBuffer(g_creditsLineCount * 2 * sizeof(p));
+    g_unk0x0081a72c = CFileBuffer::AllocateLockedBuffer(g_creditsLineCount * 4);
+    if (g_creditsLines != NULL) {
+        p = (char *)g_creditsFileBuffer;
+        for (i = 0; i < g_creditsLineCount; i++) {
             p = strchr(p, '"') + 1;
-            ((char **)g_unk0x0081a734)[i * 2] = p;
+            ((char **)g_creditsLines)[i * 2] = p;
             for (n = 0; *p != '"'; n++, p++)
                 line[n] = *p;
             *p = '\0';
             line[n] = '\0';
 
             p = strchr(p + 1, '"') + 1;
-            ((char **)g_unk0x0081a734)[i * 2 + 1] = p;
+            ((char **)g_creditsLines)[i * 2 + 1] = p;
             for (n = 0; *p != '"'; n++, p++)
                 line[n] = *p;
             *p = '\0';
             p++;
         }
     } else {
-        g_unk0x0081a728 = 0;
+        g_creditsLineCount = 0;
     }
 
     if (registerRelease)
@@ -2866,13 +2866,13 @@ void FrontendCredits_LoadText(char registerRelease)
 // FUNCTION: CMR2 0x004f4b10
 void *FrontendCredits_GetNameTable(void)
 {
-    return g_unk0x0081a734;
+    return g_creditsLines;
 }
 
 // FUNCTION: CMR2 0x004f4b20
 int FrontendCredits_GetEntryCount(void)
 {
-    return g_unk0x0081a728;
+    return g_creditsLineCount;
 }
 
 // FUNCTION: CMR2 0x004f4b30
@@ -3016,20 +3016,20 @@ void FrontendText_ReloadFonts(void)
 // FUNCTION: CMR2 0x004f48b0
 bool FrontendCredits_ReleaseText(void)
 {
-    if (g_unk0x0081a730 != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(g_unk0x0081a730);
-        g_unk0x0081a730 = NULL;
+    if (g_creditsFileBuffer != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_creditsFileBuffer);
+        g_creditsFileBuffer = NULL;
     }
-    if (g_unk0x0081a734 != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(g_unk0x0081a734);
-        g_unk0x0081a734 = NULL;
+    if (g_creditsLines != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_creditsLines);
+        g_creditsLines = NULL;
     }
     if (g_unk0x0081a72c != NULL)
         CFileBuffer::FreeGenericFileBuffer(g_unk0x0081a72c);
-    g_unk0x0081a730 = NULL;
-    g_unk0x0081a734 = NULL;
+    g_creditsFileBuffer = NULL;
+    g_creditsLines = NULL;
     g_unk0x0081a72c = NULL;
-    g_unk0x0081a728 = 0;
+    g_creditsLineCount = 0;
     return true;
 }
 
@@ -6099,24 +6099,24 @@ void OptionMenu_CreateBackgroundWorld(void)
 // FUNCTION: CMR2 0x0050f480
 int OptionMenu_ReleaseTextures(void)
 {
-    if (((GenericFile *)g_unk0x00831a90)->buffer != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(((GenericFile *)g_unk0x00831a90)->buffer);
-        ((GenericFile *)g_unk0x00831a90)->buffer = NULL;
+    if (((GenericFile *)g_optionCommonArchive)->buffer != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(((GenericFile *)g_optionCommonArchive)->buffer);
+        ((GenericFile *)g_optionCommonArchive)->buffer = NULL;
     }
-    ((GenericFile *)g_unk0x00831a90)->didFileLoad = 0;
-    ((GenericFile *)g_unk0x00831a90)->fileSize = 0;
-    if (((GenericFile *)g_unk0x00831aa0)->buffer != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(((GenericFile *)g_unk0x00831aa0)->buffer);
-        ((GenericFile *)g_unk0x00831aa0)->buffer = NULL;
+    ((GenericFile *)g_optionCommonArchive)->didFileLoad = 0;
+    ((GenericFile *)g_optionCommonArchive)->fileSize = 0;
+    if (((GenericFile *)g_optionStageArchive)->buffer != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(((GenericFile *)g_optionStageArchive)->buffer);
+        ((GenericFile *)g_optionStageArchive)->buffer = NULL;
     }
-    ((GenericFile *)g_unk0x00831aa0)->didFileLoad = 0;
-    ((GenericFile *)g_unk0x00831aa0)->fileSize = 0;
-    if (((GenericFile *)g_unk0x00831ab0)->buffer != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(((GenericFile *)g_unk0x00831ab0)->buffer);
-        ((GenericFile *)g_unk0x00831ab0)->buffer = NULL;
+    ((GenericFile *)g_optionStageArchive)->didFileLoad = 0;
+    ((GenericFile *)g_optionStageArchive)->fileSize = 0;
+    if (((GenericFile *)g_optionLanguageArchive)->buffer != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(((GenericFile *)g_optionLanguageArchive)->buffer);
+        ((GenericFile *)g_optionLanguageArchive)->buffer = NULL;
     }
-    ((GenericFile *)g_unk0x00831ab0)->didFileLoad = 0;
-    ((GenericFile *)g_unk0x00831ab0)->fileSize = 0;
+    ((GenericFile *)g_optionLanguageArchive)->didFileLoad = 0;
+    ((GenericFile *)g_optionLanguageArchive)->fileSize = 0;
     return 1;
 }
 
@@ -6242,9 +6242,9 @@ void OptionPreview_SetMeshRenderFlags(int index, int param2, BYTE param3){
 // (CFrontend::FreeLocalizedTextStrings)
 
 // GLOBAL: CMR2 0x00831880
-BYTE *g_unk0x00831880;
+BYTE *g_optionLanguageText;
 // GLOBAL: CMR2 0x00831884
-BYTE g_unk0x00831884;
+BYTE g_optionLanguageTextInArchive;
 
 // FUNCTION: CMR2 0x004ff5b0
 void OptionMenu_FillValueSlider(void)
@@ -6274,10 +6274,10 @@ void OptionMenu_FillValueSlider(void)
 // FUNCTION: CMR2 0x0050f340
 bool OptionMenu_ReleaseSoundBuffer(void)
 {
-    if (&g_unk0x00831880 != NULL) {
-        if (g_unk0x00831884 == 0)
-            CFileBuffer::FreeGenericFileBuffer(g_unk0x00831880);
-        g_unk0x00831880 = NULL;
+    if (&g_optionLanguageText != NULL) {
+        if (g_optionLanguageTextInArchive == 0)
+            CFileBuffer::FreeGenericFileBuffer(g_optionLanguageText);
+        g_optionLanguageText = NULL;
     }
     CFrontend::FreeLocalizedTextStrings();
     return 1;

@@ -33,10 +33,10 @@ int CGame::m_unk0x0059ce18;
 // GLOBAL: CMR2 0x0059ce1c
 int CGame::m_unk0x0059ce1c;
 int CGame::m_unk0x0059ce20;
-int CGame::m_unk0x0059ce28;
-int CGame::m_unk0x0059ce2c;
-void *CGame::m_unk0x00593cb0[4096];
-void *CGame::m_unk0x00597d04[4096];
+int CGame::m_deferredDrawCount;
+int CGame::m_transparentDrawCount;
+void *CGame::m_deferredDrawObjects[4096];
+void *CGame::m_transparentDrawNodes[4096];
 int CGame::m_unk0x005207f8 = 3;
 int CGame::m_unk0x00663dc4;
 DPlayConnection CGame::m_connections[10];
@@ -2191,15 +2191,15 @@ void Game_DrawViewMaskNode(SceneNode *pNode, int bit)
 // FUNCTION: CMR2 0x0049cb50
 void CGame::QueuePrimaryDrawObject(void *param1)
 {
-    m_unk0x00593cb0[m_unk0x0059ce28] = param1;
-    m_unk0x0059ce28++;
+    m_deferredDrawObjects[m_deferredDrawCount] = param1;
+    m_deferredDrawCount++;
 }
 
 // FUNCTION: CMR2 0x0049cb70
 void CGame::QueueSecondaryDrawObject(void *param1)
 {
-    m_unk0x00597d04[m_unk0x0059ce2c] = param1;
-    m_unk0x0059ce2c++;
+    m_transparentDrawNodes[m_transparentDrawCount] = param1;
+    m_transparentDrawCount++;
 }
 
 // qsort comparator of the deferred draw list (0x49cc50): sorts by the
@@ -2252,21 +2252,21 @@ void Game_DrawDeferredObjects(void)
 {
     unsigned int i;
 
-    if ((unsigned int)CGame::m_unk0x0059ce28 >= 1) {
+    if ((unsigned int)CGame::m_deferredDrawCount >= 1) {
         if (g_unk0x005207b4 != 0)
-            qsort(CGame::m_unk0x00593cb0, CGame::m_unk0x0059ce28, sizeof(CGame::m_unk0x00593cb0[0]), Game_CompareDeferredDrawDepth);
-        for (i = 0; i < (unsigned int)CGame::m_unk0x0059ce28; i++) {
+            qsort(CGame::m_deferredDrawObjects, CGame::m_deferredDrawCount, sizeof(CGame::m_deferredDrawObjects[0]), Game_CompareDeferredDrawDepth);
+        for (i = 0; i < (unsigned int)CGame::m_deferredDrawCount; i++) {
             Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[
-                ((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->pTriangles->textureIndex], 0);
+                ((StageObjectDraw *)CGame::m_deferredDrawObjects[i])->pMesh->pTriangles->textureIndex], 0);
             CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
-                (D3DMATRIX *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->matrix);
-            if (((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->field_0x114 < 0xc80000)
-                ((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->flags |= 8;
+                (D3DMATRIX *)((StageObjectDraw *)CGame::m_deferredDrawObjects[i])->matrix);
+            if (((StageObjectDraw *)CGame::m_deferredDrawObjects[i])->pMesh->field_0x114 < 0xc80000)
+                ((StageObjectDraw *)CGame::m_deferredDrawObjects[i])->pMesh->flags |= 8;
             else
-                ((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->flags &= 0xfffffff7;
-            Graphics_DrawMeshLOD(((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh, 1, 0, 0);
+                ((StageObjectDraw *)CGame::m_deferredDrawObjects[i])->pMesh->flags &= 0xfffffff7;
+            Graphics_DrawMeshLOD(((StageObjectDraw *)CGame::m_deferredDrawObjects[i])->pMesh, 1, 0, 0);
         }
-        CGame::m_unk0x0059ce28 = 0;
+        CGame::m_deferredDrawCount = 0;
     }
 }
 
@@ -2376,12 +2376,12 @@ void Game_DrawSortedNodes(int bit)
 {
     unsigned int i;
 
-    if ((unsigned int)CGame::m_unk0x0059ce2c >= 1) {
+    if ((unsigned int)CGame::m_transparentDrawCount >= 1) {
         if (g_unk0x005207b4 != 0)
-            qsort(CGame::m_unk0x00597d04, CGame::m_unk0x0059ce2c, sizeof(CGame::m_unk0x00597d04[0]), Game_CompareTransparentDrawEntries);
-        for (i = 0; i < (unsigned int)CGame::m_unk0x0059ce2c; i++)
-            Game_DrawViewMaskNode((SceneNode *)CGame::m_unk0x00597d04[i], bit);
-        CGame::m_unk0x0059ce2c = 0;
+            qsort(CGame::m_transparentDrawNodes, CGame::m_transparentDrawCount, sizeof(CGame::m_transparentDrawNodes[0]), Game_CompareTransparentDrawEntries);
+        for (i = 0; i < (unsigned int)CGame::m_transparentDrawCount; i++)
+            Game_DrawViewMaskNode((SceneNode *)CGame::m_transparentDrawNodes[i], bit);
+        CGame::m_transparentDrawCount = 0;
     }
 }
 
