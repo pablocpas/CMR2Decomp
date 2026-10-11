@@ -1,0 +1,10 @@
+{
+  "before": 370,
+  "after": 367,
+  "new": {},
+  "removed": {
+    "GameInfo.cpp: error: unknown type name 'Movie'": 1,
+    "GameInfo.cpp: error: use of undeclared identifier 'Movie_Open'": 2
+  },
+  "integration_note": "Projection now preserves all port-only include insertions across --theirs merge conflicts. Three Movie declarations are restored by the retained port header, not by a decomp behavior change."
+}

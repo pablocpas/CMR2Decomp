@@ -1,3 +1,5 @@
+#include <stddef.h>
+#include "RaceCallbackStorage.h"
 #include "NetworkLeaderboards.h"
 #include "NetPlayers.h"
 #include "Game.h"
@@ -436,7 +438,7 @@ void StageUI_ApplySoundState(int channel, BYTE *pState)
 
 // Frame/tick counters shared by the in-game UI (0x537df0..0x537efc).
 // GLOBAL: CMR2 0x00537dd0
-BYTE g_unk0x00537dd0[0x20];
+RaceCallbackStorage g_raceCallbackStorage;
 // GLOBAL: CMR2 0x00537df0
 int g_unk0x00537df0;
 // GLOBAL: CMR2 0x00537ef4
@@ -503,7 +505,7 @@ int StageUI_GetRaceResultValue(void)
 // FUNCTION: CMR2 0x0041b390
 BYTE *StageUI_GetRaceResultTable(void)
 {
-    return g_unk0x00537dd0;
+    return ((BYTE *)&g_raceCallbackStorage.machine);
 }
 
 void NetPlayers_BuildFinalClassification(void);
@@ -1235,7 +1237,7 @@ int RallyTiming_GetStagePositionOfDriver(int iDriver);
 int RallyTiming_GetOverallPositionOfDriver(int iDriver);
 extern int g_unk0x00537f68[];
 extern int g_unk0x00537f78[];
-extern int g_unk0x00537f0c[];
+extern ptrdiff_t g_unk0x00537f0c[];
 
 // Bit `(country + 1) / 2` of each of the three event groups of the second game
 // info flag word, indexed by [stage * 4 + country / 2].

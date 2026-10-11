@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <windows.h>
 #include <mmsystem.h>
 #include "GameMenus.h"
@@ -133,7 +134,7 @@ void Knockout_SetRoundActiveFlag(void);
 unsigned int *RallyData_GetChampionshipState(void);
 unsigned char RallyDataState(void);
 unsigned char RallyData_GetSelectionFlag28(void);
-extern int g_unk0x00537f0c[6];
+extern ptrdiff_t g_unk0x00537f0c[6];
 extern BYTE *g_unk0x00537f3c[8];
 extern BYTE g_menuFrameColour[4];
 extern Menu *g_pHeaderMenu;

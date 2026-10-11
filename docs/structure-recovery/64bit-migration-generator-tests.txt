@@ -1,0 +1,21 @@
+PARK probe 1: baseline
+.PASS probe 1: baseline
+PASS probe 2: a
+.PASS probe 1: baseline
+PARK probe 2: consumer, header, other
+PARK probe 3: consumer, header
+PASS probe 4: other
+..PASS probe 1: baseline
+PARK probe 2: a, bad, c, d
+PARK probe 3: a, bad
+PASS probe 4: a
+PARK probe 5: a, bad
+PASS probe 6: a, c, d
+...PASS probe 1: baseline
+PARK probe 2: a
+.PASS probe 1: baseline
+..
+----------------------------------------------------------------------
+Ran 10 tests in 0.391s
+
+OK

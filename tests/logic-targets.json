@@ -640,6 +640,27 @@
       "0x413e00"
     ]
   },
+  "differential_race_state_pointers.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x41b060",
+      "0x401000",
+      "0x4010a0",
+      "0x401150",
+      "0x501350",
+      "0x41bf80",
+      "0x41c0e0",
+      "0x41e5c0",
+      "0x41d2b0",
+      "0x41d7a0",
+      "0x41db10",
+      "0x41e350",
+      "0x41e6b0",
+      "0x41f3a0",
+      "0x423970",
+      "0x41b390"
+    ]
+  },
   "differential_race_state_reset.py": {
     "arguments": "both",
     "targets": [

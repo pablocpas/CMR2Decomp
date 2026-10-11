@@ -1,3 +1,4 @@
+#include "RaceCallbackStorage.h"
 #include "StageBlock.h"
 #include "Game.h"
 #include "Menu.h"
@@ -114,7 +115,7 @@ void OptionMenu_LeaveAndCommitState(CallbackStateMachine *p1, BYTE state);
 void OptionMenu_LeaveWithoutCommitState(CallbackStateMachine *p1, BYTE state);
 void Game_FinishRaceAndAdvanceBootState(CallbackStateMachine *p1, BYTE p2);
 void Game_DrawLogoAndLoadingSprites(CallbackStateMachine *p1, BYTE p2);
-void OptionMenu_StartDelayedFade(int param1, int unused);
+void OptionMenu_StartDelayedFade(CallbackStateMachine *param1, int unused);
 void Game_DrawMovieFrameAndCredits(CallbackStateMachine *p1, BYTE p2);
 
 StateCallbackPair CGame::m_initializeGameGroupedFuncTable[10] = {
@@ -1313,7 +1314,7 @@ BOOL CGame::UpdateSecondaryCallbackMachine()
 }
 // In-race callback group of the game state machine (0x0041b060), filled by
 // InitializeCallbackStateMachine; its slots live at 0x537de0.
-extern BYTE g_unk0x00537dd0[0x20];
+extern RaceCallbackStorage g_raceCallbackStorage;
 extern BYTE g_unk0x00537ef4;
 extern BYTE g_unk0x00537ef5;
 extern int g_unk0x00537ef8;
@@ -1329,24 +1330,24 @@ int RallyData_IsChampionshipFinalStage(void);
 void RallyData_SetSelectionBits14To15(BYTE param1);
 void Car_BuildRaceOrder(int count);
 void Dash_Reset(void);
-void Race_EnterCurrentModeScene(int param1, int param2);
+void Race_EnterCurrentModeScene(CallbackStateMachine *param1, int param2);
 void Race_UpdatePauseState(CallbackStateMachine *p, BYTE index);
 void RallyData_DrawProjectedChallengeScene(int param1, int param2);
-void Race_StartArcadeScene(int param1, int param2);
+void Race_StartArcadeScene(CallbackStateMachine *param1, int param2);
 void RallyData_RunChallengeLoadingScreen(int param1, char param2);
-void GameInfo_EnterStageGroup(BYTE *param1, int param2);
-void GameInfo_LeaveStageGroup(BYTE *param1, int param2);
-void InRaceMenu_AdvanceCascade(int param1, int param2);
+void GameInfo_EnterStageGroup(CallbackStateMachine *param1, int param2);
+void GameInfo_LeaveStageGroup(CallbackStateMachine *param1, int param2);
+void InRaceMenu_AdvanceCascade(CallbackStateMachine *param1, int param2);
 void RallyData_GrowEntryAndInvokeAction(BYTE *param1, unsigned int param2);
 void Knockout_UpdateRaceStateAndFades(BYTE *param_1, unsigned int param_2);
 void StageObject_ClearAndDrawSplitPositions(int unused1, int unused2);
-void Race_UpdateDriverPreRaceScene(BYTE *param1, unsigned int param2);
-void Race_UpdateDriverCountdown(int param1, unsigned int param2);
-void Race_UpdateDriverReadyAndRecordState(BYTE *param1, unsigned int param2);
+void Race_UpdateDriverPreRaceScene(CallbackStateMachine *param1, unsigned int param2);
+void Race_UpdateDriverCountdown(CallbackStateMachine *param1, unsigned int param2);
+void Race_UpdateDriverReadyAndRecordState(CallbackStateMachine *param1, unsigned int param2);
 void Race_HandleStageReplayViewTransitions(BYTE *param1, unsigned int param2);
-void Race_UpdateInterStageFadeJobs(int param1, unsigned int param2);
+void Race_UpdateInterStageFadeJobs(CallbackStateMachine *param1, unsigned int param2);
 void Race_UpdateState12(CallbackStateMachine *p, BYTE index);
-void Race_LeaveAndFadeOut(int param1, char param2);
+void Race_LeaveAndFadeOut(CallbackStateMachine *param1, char param2);
 void RallyData_GrowEntryAndRefreshRecords(BYTE *param1, unsigned int param2);
 void RallyData_GrowEntryPanel(BYTE *param1, unsigned int param2);
 void RallyData_UpdateUnavailableEntryText(BYTE *param1, unsigned int param2);
@@ -1420,14 +1421,14 @@ BOOL CGame::UpdateInRaceCallbackMachine(void)
 
     if (g_unk0x00537ef4 != 0 && g_unk0x00537ef5 == 0 && g_unk0x00537ef8 == 0) {
         if (CGameInfo::IsInRaceMenuOpen() != 0) {
-            InRaceMenu_UpdateStateMachineFrame((CallbackStateMachine *)g_unk0x00537dd0);
-            InRaceMenu_AdvanceScreenEntries(g_unk0x00537dd0);
-            AdvanceCallbackStateTimers((CallbackStateMachine *)g_unk0x00537dd0);
+            InRaceMenu_UpdateStateMachineFrame(&g_raceCallbackStorage.machine);
+            InRaceMenu_AdvanceScreenEntries(((BYTE *)&g_raceCallbackStorage.machine));
+            AdvanceCallbackStateTimers(&g_raceCallbackStorage.machine);
             return FALSE;
         }
-        RunStateUpdateCallbacks((CallbackStateMachine *)g_unk0x00537dd0);
-        RunStateRenderCallbacks((CallbackStateMachine *)g_unk0x00537dd0);
-        AdvanceCallbackStateTimers((CallbackStateMachine *)g_unk0x00537dd0);
+        RunStateUpdateCallbacks(&g_raceCallbackStorage.machine);
+        RunStateRenderCallbacks(&g_raceCallbackStorage.machine);
+        AdvanceCallbackStateTimers(&g_raceCallbackStorage.machine);
         return FALSE;
     }
     pState = RallyData_GetChampionshipState();
@@ -1485,7 +1486,7 @@ done:
     RallyData_SetSelectionBits14To15(state);
     g_unk0x00537df0 = level;
     if (state > 0) {
-        pSlot = (CallbackStateRecord *)&g_unk0x00537dd0[0x10];
+        pSlot = g_raceCallbackStorage.records;
         i = state;
         do {
             if (g_unk0x00537ef8 != 0) {
@@ -1498,7 +1499,7 @@ done:
             i--;
         } while (i != 0);
     }
-    InitializeCallbackStateMachine((CallbackStateMachine *)g_unk0x00537dd0, state, (CallbackStateRecord *)&g_unk0x00537dd0[0x10],
+    InitializeCallbackStateMachine(&g_raceCallbackStorage.machine, state, g_raceCallbackStorage.records,
                  g_raceStateCallbacks, g_raceStateRules);
     if (g_unk0x00537ef8 != 0) {
         Car_BuildRaceOrder(2);

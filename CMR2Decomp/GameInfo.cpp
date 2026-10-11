@@ -4069,18 +4069,18 @@ BYTE g_unk0x00536ac8;
 // entry) or runs the fade-in sequence of the next group, then forwards the
 // event to the stage-list object.
 // FUNCTION: CMR2 0x00401000
-void GameInfo_EnterStageGroup(BYTE *param1, int param2)
+void GameInfo_EnterStageGroup(CallbackStateMachine *param1, int param2)
 {
     int i;
 
     if ((char)param2 == 0) {
         if ((BYTE)Race_LoadSelectedStage() == 0) {
             i = 0;
-            if (*param1 > 0) {
+            if (param1->count > 0) {
                 do {
-                    CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)param1, i, 1, 3);
+                    CGame::PromoteCallbackEntryByRule(param1, i, 1, 3);
                     i++;
-                } while (i < (int)*param1);
+                } while (i < (int)param1->count);
             }
             CGame::SetFrontendResourceMode(0);
             Race_ReleaseFrameResources();
@@ -4095,13 +4095,13 @@ void GameInfo_EnterStageGroup(BYTE *param1, int param2)
         CGame::RegisterCallback((void *)RallyData_FreeChallengeSceneObjects, 0);
         RallyData_DrawLoadingProgress(0x55, 1, 0xff);
     }
-    CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)param1, param2, 0, 2);
+    CGame::PromoteCallbackEntryByRule(param1, param2, 0, 2);
 }
 
 // Leaves a stage group: tears the stage list down or runs the fade-out
 // sequence, then forwards the event to the stage-list object.
 // FUNCTION: CMR2 0x004010a0
-void GameInfo_LeaveStageGroup(BYTE *param1, int param2)
+void GameInfo_LeaveStageGroup(CallbackStateMachine *param1, int param2)
 {
     int i;
 
@@ -4109,11 +4109,11 @@ void GameInfo_LeaveStageGroup(BYTE *param1, int param2)
         RallyData_RestoreAllCarRaceRecords();
         if ((BYTE)Race_LoadStageGeometry() == 0) {
             i = 0;
-            if (*param1 > 0) {
+            if (param1->count > 0) {
                 do {
-                    CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)param1, i, 1, 3);
+                    CGame::PromoteCallbackEntryByRule(param1, i, 1, 3);
                     i++;
-                } while (i < (int)*param1);
+                } while (i < (int)param1->count);
             }
             CGame::SetFrontendResourceMode(0);
             Race_ReleaseFrameResources();
@@ -4128,7 +4128,7 @@ void GameInfo_LeaveStageGroup(BYTE *param1, int param2)
     }
     g_unk0x005297f0 = 1;
     g_unk0x00536ac8 = 1;
-    CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)param1, param2, 0, 2);
+    CGame::PromoteCallbackEntryByRule(param1, param2, 0, 2);
 }
 
 void NetPlayers_SendCarClass(BYTE);
@@ -4154,7 +4154,7 @@ int g_unk0x005298f4;
 // Advances the in-race menu cascade one step: refreshes the per-player window
 // entries and moves to the next state when the race is over.
 // FUNCTION: CMR2 0x00401150
-void InRaceMenu_AdvanceCascade(int param1, int param2)
+void InRaceMenu_AdvanceCascade(CallbackStateMachine *param1, int param2)
 {
     int i;
 
@@ -4172,7 +4172,7 @@ void InRaceMenu_AdvanceCascade(int param1, int param2)
             StageTiming_RestoreDeviceStageResources();
             g_unk0x005298f4 = 1;
             g_unk0x005297f0 = 0;
-            if (**(char **)(StageUI_GetRaceResultTable() + 4) != '\r')
+            if ((char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState != '\r')
                 ForceFeedback_ActivateIdleSlots();
         }
         i = 0;
@@ -4189,25 +4189,25 @@ void InRaceMenu_AdvanceCascade(int param1, int param2)
             } while (i < (BYTE)RallyDataState());
         }
         g_unk0x005298f4--;
-        Race_UpdatePlayerViewAndDrivenCars(**(BYTE **)(param1 + 4), 0);
+        Race_UpdatePlayerViewAndDrivenCars((BYTE)param1->records[0].packedState, 0);
     }
     if (g_unk0x005298f4 <= 0) {
         if ((BYTE)CGameInfo::GetGameInfoSessionFlag() != 0) {
-            CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)param1, param2, 6, 2);
+            CGame::PromoteCallbackEntryByRule(param1, param2, 6, 2);
             return;
         }
         if (CGameInfo::GetConfiguredGameMode() == 4) {
             CGameInfo::SetInputAndGamePaused(1);
-            CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)param1, param2, 5, 2);
+            CGame::PromoteCallbackEntryByRule(param1, param2, 5, 2);
             return;
         }
         if ((BYTE)RallyData_IsChampionshipFinalStage() != 0) {
             RallyData_CopyCountryPlayerDefaults();
             RallyData_ClearDriverGroupRecords();
-            CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)param1, param2, 1, 2);
+            CGame::PromoteCallbackEntryByRule(param1, param2, 1, 2);
             return;
         }
-        CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)param1, param2, 0, 2);
+        CGame::PromoteCallbackEntryByRule(param1, param2, 0, 2);
     }
 }
 
@@ -6537,16 +6537,16 @@ void OptionMenu_Start(char param1)
 
 // Starts the fade of the option menu once more than 50 frames have passed.
 // FUNCTION: CMR2 0x00501350
-void OptionMenu_StartDelayedFade(int param1, int unused)
+void OptionMenu_StartDelayedFade(CallbackStateMachine *param1, int unused)
 {
     unsigned int delta = CMain::GetFrameDelta() - g_unk0x0082b0a4;
 
     if (delta > 0x32) {
         if (g_unk0x0082a938 != 0) {
-            CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)param1, 0, 2, 2);
+            CGame::PromoteCallbackEntryByRule(param1, 0, 2, 2);
             return;
         }
-        CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)param1, 0, 0, 2);
+        CGame::PromoteCallbackEntryByRule(param1, 0, 0, 2);
     }
 }
 

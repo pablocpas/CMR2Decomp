@@ -1,3 +1,4 @@
+#include "CallbackState.h"
 #include <windows.h>
 #include "FixedPoint.h"
 #include "Car.h"
@@ -1097,7 +1098,7 @@ void AutoGear_ApplyShiftBodyNudge(void)
             Race_GetPlayerRecordField4(g_pAutoGearCar->index) != 0 &&
             *(char *)(Race_GetPlayerRecordPointer((int)g_pAutoGearCar->index) + 0x10c) == 8)
             shifted = 1;
-        if (*(char *)(*(int *)(StageUI_GetRaceResultTable() + 4) + g_pAutoGearCar->index * 8) == 8 ||
+        if ((char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[g_pAutoGearCar->index].packedState == 8 ||
             shifted) {
             if (g_pAutoGearCar->handbrake != 0) {
                 speed = g_pAutoGearCar->speed;

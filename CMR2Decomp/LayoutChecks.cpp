@@ -1,3 +1,4 @@
+#include "RaceCallbackStorage.h"
 #include <windows.h>
 #include "Car.h"
 #include "Collision2D.h"
@@ -6,6 +7,7 @@
 #include "NetPlayers.h"
 #include "Particle.h"
 #include "RaceRecord.h"
+#include "CallbackState.h"
 #include "Sector.h"
 #include "CarResources.h"
 #include "CarPhysics.h"
@@ -944,3 +946,20 @@ CMR2_LAYOUT_CHECK(RaceRecord_field_0xc_Check, offsetof(RaceRecord, field_0xc) ==
 CMR2_LAYOUT_CHECK(RaceRecord_field_0x10_Check, offsetof(RaceRecord, field_0x10) == 0x10);
 CMR2_LAYOUT_CHECK(RaceRecord_field_0x14_Check, offsetof(RaceRecord, field_0x14) == 0x14);
 CMR2_LAYOUT_CHECK(RaceRecord_field_0x16_Check, offsetof(RaceRecord, field_0x16) == 0x16);
+
+CMR2_LAYOUT_CHECK(RaceCallbackStorage_SizeCheck, sizeof(RaceCallbackStorage) == 0x20);
+CMR2_LAYOUT_CHECK(RaceCallbackStorage_machine_Check, offsetof(RaceCallbackStorage, machine) == 0x0);
+CMR2_LAYOUT_CHECK(RaceCallbackStorage_records_Check, offsetof(RaceCallbackStorage, records) == 0x10);
+
+CMR2_LAYOUT_CHECK(CallbackStateRecord_packedState_Check, offsetof(CallbackStateRecord, packedState) == 0);
+CMR2_LAYOUT_CHECK(CallbackStateRecord_bits_Check, offsetof(CallbackStateRecord, bits) == 0);
+CMR2_LAYOUT_CHECK(CallbackStateRecord_elapsedTicks_Check, offsetof(CallbackStateRecord, elapsedTicks) == 4);
+CMR2_LAYOUT_CHECK(StateCallbackPair_update_Check, offsetof(StateCallbackPair, update) == 0);
+CMR2_LAYOUT_CHECK(StateCallbackPair_render_Check, offsetof(StateCallbackPair, render) == 4);
+CMR2_LAYOUT_CHECK(CallbackIndex_SizeCheck, sizeof(CallbackIndex) == 4);
+CMR2_LAYOUT_CHECK(CallbackIndex_index_Check, offsetof(CallbackIndex, index) == 0);
+CMR2_LAYOUT_CHECK(CallbackIndex_packed_Check, offsetof(CallbackIndex, packed) == 0);
+CMR2_LAYOUT_CHECK(CallbackStateMachine_count_Check, offsetof(CallbackStateMachine, count) == 0);
+CMR2_LAYOUT_CHECK(CallbackStateMachine_pad_Check, offsetof(CallbackStateMachine, pad) == 1);
+CMR2_LAYOUT_CHECK(CallbackStateMachine_callbacks_Check, offsetof(CallbackStateMachine, callbacks) == 8);
+CMR2_LAYOUT_CHECK(CallbackStateMachine_rules_Check, offsetof(CallbackStateMachine, rules) == 12);

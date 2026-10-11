@@ -1,0 +1,1 @@
+PASS: 290 actual x64 storage/lifecycle/query/fade scenarios, native production headers, pointers/callbacks above 4 GB, whole records and padding guarded, ASan/UBSan

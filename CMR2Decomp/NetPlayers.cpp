@@ -590,7 +590,7 @@ void NetPlayers_RebuildStageResults(int param1, int param2, int param3)
     g_netResults[i].field_0x8 = param2;
     g_netResults[i].field_0xc = param3;
     g_netResults[i].id = Network_GetLocalPlayerID();
-    if ((*(unsigned int *)*(BYTE **)(StageUI_GetRaceResultTable() + 4) & 0xff) > 8)
+    if (((unsigned int)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState & 0xff) > 8)
         g_netResults[i].field_0x14 = 1;
     else
         g_netResults[i].field_0x14 = 0;

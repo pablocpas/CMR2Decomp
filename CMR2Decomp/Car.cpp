@@ -231,8 +231,8 @@ void Car_MarkHiddenFromCameras(Car *pCar)
     pCar->field_0xb70 = 0;
     pCar->field_0xb6c = 0;
     *pRejected = 0;
-    if ((char)RallyData_GetSelectionFlag26() != 0 && **(char **)(StageUI_GetRaceResultTable() + 4) != '\n' &&
-        **(char **)(StageUI_GetRaceResultTable() + 4) != '\t' && **(char **)(StageUI_GetRaceResultTable() + 4) != '\r') {
+    if ((char)RallyData_GetSelectionFlag26() != 0 && (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState != '\n' &&
+        (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState != '\t' && (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState != '\r') {
         rejected = 0;
         count = RallyDataState() & 0xff;
         pView = (FixMatrix *)(g_unk0x00538d2c + 4);

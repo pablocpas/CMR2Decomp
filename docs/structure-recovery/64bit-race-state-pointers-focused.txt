@@ -1,0 +1,1 @@
+PASS: 1920 complete race-state client scenarios; independent queried-state models, guarded records/heaps, global write widths, controlled provider identities/order/arguments, stdcall and preserved registers

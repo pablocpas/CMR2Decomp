@@ -1,3 +1,4 @@
+#include "CallbackState.h"
 #include <stddef.h>
 #include <stdio.h>
 
@@ -1101,7 +1102,7 @@ int RallyData_IsDriverViewModeAllowed(unsigned char index, int mode)
         valid = 1;
         break;
     case 2:
-        valid = (*(char *)(*(int *)(StageUI_GetRaceResultTable() + 4) + (index & 0xff) * 8) != 10);
+        valid = ((char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[(index & 0xff)].packedState != 10);
         break;
     default:
         return 0;
@@ -6369,7 +6370,7 @@ void RallyData_UpdateViewFrameAndDebugOverlay(int param1, int param2, int param3
     CarDamage_UpdateOrderedCarsOffRoadState(pOrder, (short)orderCount, (int)g_unk0x00536ad4, maskedView);
     if (CGameInfo::GetGameModeOptionBit19() != 0) {
         if (CGameInfo::GetConfiguredGameMode() != 0xa) {
-            if (**(char **)(StageUI_GetRaceResultTable() + 4) == '\n')
+            if ((char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState == '\n')
                 StageTiming_DrawProjectedCarMarker(0, 0);
             for (i = 0; i < 7; i++) {
                 if ((BYTE)NetPlayers_IsPlayerPresent(i) != 0)

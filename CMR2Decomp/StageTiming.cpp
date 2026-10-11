@@ -2692,7 +2692,7 @@ void StageTiming_DrawClockAndCountdown(void)
     colour[2] = 0xff;
     colour[3] = 0xff;
     g_unk0x00543098 = 0;
-    if ((**(unsigned int **)(StageUI_GetRaceResultTable() + 4) & 0xff) >= 10)
+    if (((unsigned int)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState & 0xff) >= 10)
         return;
     if (CGameInfo::GetConfiguredGameMode() == '\n' || CGameInfo::GetConfiguredGameMode() == '\f') {
         if (GameInfo_GetSessionField397C() != 0) {
@@ -2727,7 +2727,7 @@ void StageTiming_DrawClockAndCountdown(void)
         return;
     x = (int)g_pGraphics->resX * 0xaf30 >> 16;
     x2 = (int)g_pGraphics->resX * 0xf06b >> 16;
-    if ((**(unsigned int **)(StageUI_GetRaceResultTable() + 4) & 0xff) < 10) {
+    if (((unsigned int)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState & 0xff) < 10) {
         if ((BYTE)RallyData_GetFlag24() == 0 && (BYTE)RallyData_GetFlag25() == 0)
             y = (int)g_pGraphics->resY * 0x14 / 0x1e0 + ((int)g_pGraphics->resY * 0x3000 >> 16);
         else
@@ -5274,7 +5274,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
         velocity.z = rolling.z + cornerMotion.z + lateral.z;
         if ((slipA > 0 || slipB > 0) && FixDiv(slipA, 0x20000) + FixDiv(slipB, 0x8000) > 0x8000)
             intensity = (intensity * 3) / 2;
-        if (Race_GetPlayerRecordField4((BYTE)carIndex) || (*(BYTE **)(StageUI_GetRaceResultTable() + 4))[carIndex * 8] == 9) {
+        if (Race_GetPlayerRecordField4((BYTE)carIndex) || (BYTE)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[carIndex].packedState == 9) {
             type = 7;
             uniform = 1;
         }

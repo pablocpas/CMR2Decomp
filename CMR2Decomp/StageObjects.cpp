@@ -10023,8 +10023,8 @@ void StageObject_CycleDriverCameraSelection(unsigned int param_1, unsigned int p
 {
     int mode;
 
-    if (*(char *)(*(int *)(StageUI_GetRaceResultTable() + 4) + param_2 * 8) == 7 ||
-        *(char *)(*(int *)(StageUI_GetRaceResultTable() + 4) + param_2 * 8) == 8) {
+    if ((char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[param_2].packedState == 7 ||
+        (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[param_2].packedState == 8) {
         if ((param_1 & (unsigned short)g_unk0x0051f4c0) != 0) {
             if (View_GetActiveCameraMode(param_2) != 10)
                 View_SwitchCamera(g_unk0x0058e0a0->index, 10, 0xffff,
@@ -10312,9 +10312,9 @@ void Replay_AdvanceLiveRecordingStreams(void)
             Replay_EncodeCarControls(pFrame, p->car);
             pInfo = StageUI_GetRaceResultTable();
             if (CGameInfo::GetGameModeOptionBit19())
-                value = **(char **)(pInfo + 4);
+                value = (char)((CallbackStateMachine *)pInfo)->records[0].packedState;
             else
-                value = (*(char **)(pInfo + 4))[p->car * 8];
+                value = (char)((CallbackStateMachine *)pInfo)->records[p->car].packedState;
             if (p->type == 0) {
                 pInput = (ReplayInputLane *)(p->pInputs + p->laneCount * 0x114c);
                 if (value != pInput->events[pInput->eventCount - 1].value) {
@@ -10645,7 +10645,7 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
     BYTE *p;
 
     p = StageUI_GetRaceResultTable();
-    if (**(char **)(p + 4) == 10) {
+    if ((char)((CallbackStateMachine *)p)->records[0].packedState == 10) {
         if (Race_IsMultiplayerRecordMode10() != 0) {
             if (CGameInfo::GetConfiguredGameMode() != 2)
                 uVar4 = View_FindFreeModeSlot(1);
@@ -10659,7 +10659,7 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
     }
 
     p = StageUI_GetRaceResultTable();
-    if ((**(char **)(p + 4) == 8) || (p = StageUI_GetRaceResultTable(), **(char **)(p + 4) == 7)) {
+    if (((char)((CallbackStateMachine *)p)->records[0].packedState == 8) || (p = StageUI_GetRaceResultTable(), (char)((CallbackStateMachine *)p)->records[0].packedState == 7)) {
         uVar5 = StageUI_GetRaceResultValue();
         switch (uVar5) {
         case 4:
@@ -11004,16 +11004,16 @@ int Replay_InitCarStreamState(ReplayStream *p, int unused, BYTE car)
         p->pFrames[2] &= 0xc0;
     if (p->type == 0) {
         pInfo = StageUI_GetRaceResultTable();
-        p->pInputs[0x1110] = (BYTE)(*(unsigned int *)(*(BYTE **)(pInfo + 4) + p->car * 8) >> 16);
+        p->pInputs[0x1110] = (BYTE)((unsigned int)((CallbackStateMachine *)pInfo)->records[p->car].packedState >> 16);
         *(short *)(p->pInputs + 0x110c) = 0;
         *(short *)(p->pInputs + 0x110e) = 0;
         p->pInputs[0x1148] = 1;
     } else {
         pInfo = StageUI_GetRaceResultTable();
         if (CGameInfo::GetGameModeOptionBit19())
-            p->pStates[0x20] = (BYTE)(**(unsigned int **)(pInfo + 4) >> 16);
+            p->pStates[0x20] = (BYTE)((unsigned int)((CallbackStateMachine *)pInfo)->records[0].packedState >> 16);
         else
-            p->pStates[0x20] = (BYTE)(*(unsigned int *)(*(BYTE **)(pInfo + 4) + p->car * 8) >> 16);
+            p->pStates[0x20] = (BYTE)((unsigned int)((CallbackStateMachine *)pInfo)->records[p->car].packedState >> 16);
         *(short *)(p->pStates + 0x1c) = 0;
         *(short *)(p->pStates + 0x1e) = 0;
         p->pStates[0x58] = 1;
@@ -12572,9 +12572,9 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
         pDev->field_0xc |= pSrc->field_0xc;
     }
     p = StageUI_GetRaceResultTable();
-    if (*(char *)(*(int *)(p + 4) + player * 8) != '\n' || GameMenu_IsPauseHeaderActive() != 0) {
+    if ((char)((CallbackStateMachine *)p)->records[player].packedState != '\n' || GameMenu_IsPauseHeaderActive() != 0) {
         p = StageUI_GetRaceResultTable();
-        if (*(char *)(*(int *)(p + 4) + player * 8) == '\n') {
+        if ((char)((CallbackStateMachine *)p)->records[player].packedState == '\n') {
             idx = Race_IsMultiplayerRecordMode10() ? 1 : 0;
             if (View_GetActiveCameraMode((BYTE)idx) != 10 && View_GetActiveCameraMode((BYTE)idx) != 7) {
                 if ((pDev->field_0x8 & g_carButtonMasks[7]) != 0)
