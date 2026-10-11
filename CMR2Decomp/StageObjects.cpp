@@ -2707,7 +2707,7 @@ int g_unk0x005918c8;
 // GLOBAL: CMR2 0x005920f0
 Mesh *g_groundReferenceMesh;
 // GLOBAL: CMR2 0x00592114
-FixVector g_unk0x00592114;
+FixVector g_lightMeshReferencePoint;
 // GLOBAL: CMR2 0x00592128
 int g_unk0x00592128;
 // GLOBAL: CMR2 0x0059212c
@@ -3312,7 +3312,7 @@ void StageObject_GetRotatedStageLightVector(FixVector *pOut)
     SceneNode *obj;
 
     StageObject_GetSkyNode(&obj);
-    FixMatrix_RotateVector(pOut, &g_unk0x00592114, &obj->current);
+    FixMatrix_RotateVector(pOut, &g_lightMeshReferencePoint, &obj->current);
 }
 
 // FUNCTION: CMR2 0x004928c0
@@ -3338,13 +3338,13 @@ void StageObject_SetStageLightState(int value)
 extern Mesh *g_stageMesh2Copy;
 extern short g_stageMesh2Count;
 // GLOBAL: CMR2 0x005920fc
-int g_unk0x005920fc;
+int g_objectReferencePointX;
 // GLOBAL: CMR2 0x00592100
-int g_unk0x00592100;
+int g_objectReferencePointY;
 // GLOBAL: CMR2 0x00592104
-int g_unk0x00592104;
+int g_objectReferencePointZ;
 
-// Finds the vertex of stage mesh 2 closest to g_unk0x00592114 within a radius
+// Finds the vertex of stage mesh 2 closest to g_lightMeshReferencePoint within a radius
 // that shrinks to the best distance found so far, caches its stage-space
 // position in 0x5920fc/0x592100/0x592104 and returns its index (-1 if none).
 // FUNCTION: CMR2 0x00492910
@@ -3365,7 +3365,7 @@ int StageObject_FindClosestMeshVertex(void)
     if (g_stageMesh2Count > 0) {
         // The point is taken into the space of the object that owns mesh 2.
         StageObject_GetCloudNodes(&object, &unused);
-        FixMatrix_InverseRotateVector(&delta, &g_unk0x00592114, &object->current);
+        FixMatrix_InverseRotateVector(&delta, &g_lightMeshReferencePoint, &object->current);
         for (i = 0; i < g_stageMesh2Count; i++) {
             d.x = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[i].pos[0] * CGraphics::m_65536);
             d.y = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[i].pos[1] * CGraphics::m_65536);
@@ -3382,9 +3382,9 @@ int StageObject_FindClosestMeshVertex(void)
             }
         }
         if (best != -1) {
-            g_unk0x005920fc = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[0] * CGraphics::m_65536);
-            g_unk0x00592100 = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[1] * CGraphics::m_65536);
-            g_unk0x00592104 = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[2] * CGraphics::m_65536);
+            g_objectReferencePointX = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[0] * CGraphics::m_65536);
+            g_objectReferencePointY = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[1] * CGraphics::m_65536);
+            g_objectReferencePointZ = (int)(__int64)(((DeformFloatVertex *)g_stageMesh2Copy->pVertexData)[best].pos[2] * CGraphics::m_65536);
             return best;
         }
     }
@@ -9612,7 +9612,7 @@ extern Mesh *g_stageMesh3Copy;
 extern short g_stageMesh1Count;
 extern short g_stageMesh3Count;
 extern FixVector g_stageRangeOrigin;
-extern BYTE g_unk0x00592146;
+extern BYTE g_groundColourAlpha;
 extern BYTE g_stageColourAlpha;
 extern int g_stageColourMode;
 extern int g_stageColourStep;
@@ -9648,7 +9648,7 @@ void StageObject_ColourGroundMeshReferencePoint(DWORD *pColour, DWORD *pReferenc
             vertex->diffuseColour = STAGE_ARGB(reference);
         else
             vertex->diffuseColour = STAGE_ARGB(colour);
-        ((MeshVertexF *)g_stageMesh1Copy->pVertexData)[i].specularColour = (DWORD)g_unk0x00592146 << 24;
+        ((MeshVertexF *)g_stageMesh1Copy->pVertexData)[i].specularColour = (DWORD)g_groundColourAlpha << 24;
     }
     g_stageColourMode = 1;
 }
@@ -9673,9 +9673,9 @@ void StageObject_ColourObjectMeshReferencePoint(DWORD *pColour, DWORD *pReferenc
         f0 = vertex->x;
         f1 = vertex->y;
         f2 = vertex->z;
-        if (g_unk0x005920fc == (int)(__int64)(f0 * CGraphics::m_65536) &&
-            g_unk0x00592100 == (int)(__int64)(f1 * CGraphics::m_65536) &&
-            g_unk0x00592104 == (int)(__int64)(f2 * CGraphics::m_65536))
+        if (g_objectReferencePointX == (int)(__int64)(f0 * CGraphics::m_65536) &&
+            g_objectReferencePointY == (int)(__int64)(f1 * CGraphics::m_65536) &&
+            g_objectReferencePointZ == (int)(__int64)(f2 * CGraphics::m_65536))
             vertex->diffuseColour = STAGE_ARGB(reference);
         else
             vertex->diffuseColour = STAGE_ARGB(colour);

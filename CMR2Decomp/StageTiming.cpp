@@ -4288,7 +4288,7 @@ void Scene_SetAmbient(BYTE *pColour, int boost);
 void Scene_SetLight(FixVector *pLight, int boost);
 SceneNode *RallyData_GetChallengeRenderState(void);
 extern SceneNode *g_stageAmbientNode;
-extern BYTE g_unk0x00592146;
+extern BYTE g_groundColourAlpha;
 extern BYTE g_stageColourAlpha;
 
 // Creates the stage light with full white ambient and directional light.
@@ -4326,7 +4326,7 @@ void StageTiming_CreateWhiteStageLight(void)
         Scene_SetAmbient(ambient, 1);
         Scene_SetLight(&light, 1);
     }
-    g_unk0x00592146 = 0xff;
+    g_groundColourAlpha = 0xff;
     g_stageColourAlpha = 0xff;
 }
 

@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "6140f47c95ac7f0e0129f019110a8b3cefd6ab2c",
+    "commit": "0c36f7a5e9cc49383c9e565d62afedb8eae716b3",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -156,10 +156,10 @@
       "CMR2Decomp/Stage.h": "4a75c6c0ce11b7ac1fa616ed12e7c7931d3e23ab12a678370ac800ef700f04cd",
       "CMR2Decomp/StageBlock.h": "d93b2676f2bece5160e17869fbca83e4e9bfb00d41107006b291a9e3c692f1f1",
       "CMR2Decomp/StageObjectCount.h": "541514d4da5e984bc83597c9b0839bebc67ac87ef78d2fe76fc2f3841c08010e",
-      "CMR2Decomp/StageObjects.cpp": "940bec0fcb9c5613f243b2dfb9b645a1aff019d88da43a5597a271754472e1f9",
+      "CMR2Decomp/StageObjects.cpp": "af9d6ab23a2ab41445a98f4d7c15b8b96cae8579e794a0cea3fda39e892bbf3b",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
-      "CMR2Decomp/StageTiming.cpp": "37402dc9ac7750b99c87572b034db92f5f5db20fd930abfe394120aed9ab435f",
+      "CMR2Decomp/StageTiming.cpp": "36acfde32e4a30f5ccea7f71d52a4c8db1745702f301bcc3b41419a7a3fb1573",
       "CMR2Decomp/StageTiming.h": "83a0d3266fda81c4b1e65e87e17bfc27f073ac5ef9449e75368fbba9af57857f",
       "CMR2Decomp/StageTimingSpread.h": "36af19e0df03fc5af5e038804cf927cd111f2796b1e28383abf73447d5496a09",
       "CMR2Decomp/StageUI.cpp": "282a51dc827ef47d7aa344dfc84418318eb0ec3e5e0b6d0bcf387b4255bc3e9a",
@@ -172,7 +172,7 @@
       "CMR2Decomp/Texture.h": "9f6fe6ec562c9780557f1df95eac09b802cc6daeb3c0b05e67e27434832a535f",
       "CMR2Decomp/TimingUtils.cpp": "fc8629d93f5b42a82c702c1bf7b3fd21e43589a8c8125cb7eacfb13933e63954",
       "CMR2Decomp/TimingUtils.h": "88a323a639040f96349e78fe47382a677cb87591e10de4110ae64b80f4960f6b",
-      "CMR2Decomp/TrackCollision.cpp": "4140347b275ce5d69b4ddf484306ba1b16fafcf9af4f5bece60fa37d895555c7",
+      "CMR2Decomp/TrackCollision.cpp": "0e0d718e503ba884f0faf3020cd4a31de21eca89fbbc9b1e89b545a9b7516e0b",
       "CMR2Decomp/TrackCollisionData.h": "84be23243800722cd07ff24d57d0bc64e12912f1c3cc6c71112efcad7fbf085b",
       "CMR2Decomp/TrackLighting.cpp": "9b56233302833aba597636badef75f3ec11f9b49e0a53a8bfcd5d236f41aeae9",
       "CMR2Decomp/VehiclePhysics.cpp": "3f56cf13cfcd3ff5dd616bd19fe07fc9538cea6d88d4b0b28e04d7835fd8387d",
@@ -205,8 +205,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "6e0ea168db6e94d2c3da68dbcad8a6c0d0fc4288417da41eac00d588b99e7331",
-    "pdb_sha256": "ab2c41f6288d64ca82c5912dc4b8d3d2e8945070929ffaf76bb61bf5400f5b10"
+    "exe_sha256": "2a5007295f03fde1b89abf317a5d0f39083a41df1e8ee0e4d975f1dc79b7fbda",
+    "pdb_sha256": "41db51c324d772cdf5d14321354ec393ec3cc9e30c2bbeaf2da8fd9bd924f3a6"
   },
   "perfect_match_percent": 56.17,
   "fuzzy_match_percent": 94.52,
