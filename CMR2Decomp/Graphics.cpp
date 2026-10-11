@@ -2924,7 +2924,7 @@ int Graphics_RenderNodeCubeMapFaces(SceneNode *pNode, int bit)
                                                                 &g_unk0x005207b8);
                 Graphics_DrawMeshLOD(pMesh, 1, 0, 0);
                 while (pObject != NULL) {
-                    if (*(int *)((BYTE *)pObject->pMesh + 0x114) < 0x140000) {
+                    if (pObject->pMesh->field_0x114 < 0x140000) {
                         if ((pObject->pMesh->flags & 2) != 0) {
                             float scale;
 

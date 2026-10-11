@@ -2344,7 +2344,7 @@ void Game_DrawStaticStageObjects(void)
                     delta.x = g_unk0x0059be6c->world.position.x - pObject->position.x;
                     delta.y = 0;
                     delta.z = g_unk0x0059be6c->world.position.z - pObject->position.z;
-                    *(int *)((BYTE *)pObject->pMesh + 0x114) = FixVecLength(&delta);
+                    pObject->pMesh->field_0x114 = FixVecLength(&delta);
                     CGame::QueuePrimaryDrawObject(pObject);
                 } else {
                     Graphics_DrawMeshLOD(pObject->pMesh, 1, 0, 0);

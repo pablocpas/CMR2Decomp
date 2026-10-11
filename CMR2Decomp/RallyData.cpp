@@ -1887,10 +1887,10 @@ void RallyData_FillStageSplitEditorRows(Menu *param_1, int param_2, char param_3
     }
 }
 
+// The setting pair RallyData_GetDriverSettingPair returns in the rally modes;
+// callers read both values.
 // GLOBAL: CMR2 0x0052ea60
-int g_unk0x0052ea60;
-// GLOBAL: CMR2 0x0052ea64
-int g_unk0x0052ea64;
+int g_unk0x0052ea60[2];
 
 unsigned int RallyData_GetSelectionBits10To11(void);
 unsigned char RallyData_GetSelectionFlag26(void);
@@ -1903,14 +1903,14 @@ int *RallyData_GetDriverSettingPair(int index)
 {
     if ((BYTE)RallyData_GetFlag24()) {
         if ((BYTE)RallyData_GetSelectionFlag26())
-            g_unk0x0052ea64 = *(int *)((BYTE *)&g_knockout + 0xb8 +
+            g_unk0x0052ea60[1] = *(int *)((BYTE *)&g_knockout + 0xb8 +
                                        (((RallyData_GetSelectionBits10To11() & 0xff) * 3 + (RallyData_GetSelectionBits12To13() & 0xff)) * 3 +
                                         (CGameInfo::GetConfiguredDifficulty() & 0xff)) * 4);
         else
-            g_unk0x0052ea64 = *(int *)((BYTE *)&g_knockout + 0xb8 +
+            g_unk0x0052ea60[1] = *(int *)((BYTE *)&g_knockout + 0xb8 +
                                        ((RallyData_GetSelectionBits10To11() & 0xff) * 3 + (RallyData_GetSelectionBits12To13() & 0xff)) * 0xc);
-        g_unk0x0052ea60 = g_unk0x0052ea64;
-        return &g_unk0x0052ea60;
+        g_unk0x0052ea60[0] = g_unk0x0052ea60[1];
+        return g_unk0x0052ea60;
     }
     return g_unk0x0052f100[index];
 }
@@ -7141,8 +7141,8 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
     colour[3] = (BYTE)(FixMul(pEntry->current, 0xff0000) >> 16);
     if (pEntry->current == 0)
         return;
-    *(int *)&src[0] = *(int *)((BYTE *)pEntry->texture + 0x11c);
-    *(int *)&src[2] = *(int *)((BYTE *)pEntry->texture + 0x120);
+    *(int *)&src[0] = *(int *)&((Texture *)pEntry->texture)->field_0x11c;
+    *(int *)&src[2] = *(int *)&((Texture *)pEntry->texture)->width;
     src[3] = g_mapSrcRect[3];
     if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) &&
         CFrontend::IsTextureHeightSupported(0x400)) {
@@ -7209,11 +7209,11 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
                 rect[0] = (short)x;
                 rect[1] = (short)y;
                 OptionMenu_TransformHudPointToScreen((Unk0x0082c6c8 *)pEntry, &rect[0], &rect[1]);
-                rect[2] = (short)(FixMul(scale, *(short *)((BYTE *)g_unk0x0082c690 + 0x120) << 16) >> 16);
-                rect[3] = (short)(FixMul(scale, *(short *)((BYTE *)g_unk0x0082c690 + 0x122) << 16) >> 16);
+                rect[2] = (short)(FixMul(scale, ((Texture *)g_unk0x0082c690)->width << 16) >> 16);
+                rect[3] = (short)(FixMul(scale, ((Texture *)g_unk0x0082c690)->height << 16) >> 16);
                 rect[0] += -(rect[2] / 2);
                 rect[1] += -(rect[3] / 2);
-                Sprite_Queue((SpriteRect *)((BYTE *)g_unk0x0082c690 + 0x11c), (SpriteRect *)rect,
+                Sprite_Queue((SpriteRect *)&((Texture *)g_unk0x0082c690)->field_0x11c, (SpriteRect *)rect,
                              (Texture *)g_unk0x0082c690, 1, 0, NULL, NULL, colour, 8);
                 x += 0x1e;
             }

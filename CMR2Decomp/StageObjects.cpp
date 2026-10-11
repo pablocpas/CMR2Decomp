@@ -2,6 +2,7 @@
 // both, MSVC calls RallyDataState first.
 short Car_GetOrderCount(void);
 #include "SoundCurve.h"
+#include "AINetwork.h"
 #include "FinRecord.h"
 #include "StageObjectCount.h"
 #include <windows.h>
@@ -429,7 +430,7 @@ int StageObject_GetCarSlotStateValue(int index);
 void StageObject_ResetObjectValuesToUnity(void);
 unsigned int AI_SelectWallCollisionResponse(int *pState);
 void StageObject_BuildTypeTableRowOutput(int param_1, int *pControls, int *param_3);
-void StageObject_ProjectRotationTableRows(int param_1);
+void StageObject_ProjectRotationTableRows(AINetwork *param_1);
 void StageObject_LookupKeyedValuePair(int unused, int table, int entry, int *pOut1, int *pOut2);
 void StageObject_SetBaseCarCountAndState(void);
 void StageObject_UpdateApproachingCar(int carIndex, int time);
@@ -9478,16 +9479,16 @@ int g_unk0x0058e088[6];
 // match 23%: nested projection loops do not match the original layout
 // match 23%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0047ca30
-void StageObject_ProjectRotationTableRows(int param_1)
+void StageObject_ProjectRotationTableRows(AINetwork *param_1)
 {
     char *pRow;
     int **ppData;
     int *pDst;
     int row;
 
-    if (*(int *)(param_1 + 8) > 1) {
-        pRow = (char *)(param_1 + 0xc);
-        ppData = (int **)(param_1 + 0x14);
+    if (param_1->layerCount > 1) {
+        pRow = param_1->layerSizes;
+        ppData = &param_1->pWeights[1];
         pDst = (int *)g_unk0x0058e0b8;
         row = 0xc;
         do {
@@ -9512,7 +9513,7 @@ void StageObject_ProjectRotationTableRows(int param_1)
                             cols--;
                         } while (cols != 0);
                     }
-                    if (*(int *)(param_1 + 8) - 1 < (int)(pRow + (-0xb - param_1))) {
+                    if (param_1->layerCount - 1 < (int)(pRow - param_1->layerSizes) + 1) {
                         ((int *)g_unk0x0058e0b8)[row + j] = sum;
                     } else {
                         int idx = FixDiv(sum, 0x10000000);
@@ -9534,7 +9535,7 @@ void StageObject_ProjectRotationTableRows(int param_1)
             ppData++;
             pRow++;
             pDst += 0xc;
-        } while ((int)(pRow + (-0xb - param_1)) < *(int *)(param_1 + 8));
+        } while ((int)(pRow - param_1->layerSizes) + 1 < param_1->layerCount);
     }
 }
 
@@ -9553,14 +9554,14 @@ void StageObject_BuildTypeTableRowOutput(int param_1, int *pControls, int *param
             if ((mask & bit) == 0) {
                 mask |= bit;
                 StageTiming_CollectDescriptorCarValues(g_unk0x0058e44c[v], param_3, (int *)g_unk0x0058e0b8);
-                StageObject_ProjectRotationTableRows((int)g_unk0x0058e44c[v]);
+                StageObject_ProjectRotationTableRows((AINetwork *)g_unk0x0058e44c[v]);
             }
             // The original addresses the projection rows through 0x58e088,
             // 0x30 bytes before 0x58e0b8. These globals need not be adjacent
             // after linking, so address the actual row storage directly.
             *(int *)((BYTE *)pControls + i) =
                 ((int *)g_unk0x0058e0b8)[(int)*(char *)(g_unk0x0058e3ac[param_1] + i) +
-                                       (*(int *)(g_unk0x0058e44c[v] + 8) - 1) * 0xc];
+                                       (((AINetwork *)g_unk0x0058e44c[v])->layerCount - 1) * 0xc];
         }
         i += 4;
     } while (i < 0x14);
@@ -14069,42 +14070,42 @@ BYTE *AI_LoadStageRouteTables(void)
         g_unk0x0058e37c[i] = (int *)p;
         p += 4;
     }
-    *((char *)g_unk0x0058e394 + 0x109) = *p;
+    ((char *)&g_unk0x0058e394[0x42])[1] = *p;
     p += 4;
-    for (i = 1; i <= *((char *)g_unk0x0058e394 + 0x109); i++) {
+    for (i = 1; i <= ((char *)&g_unk0x0058e394[0x42])[1]; i++) {
         g_unk0x0058e394[i] = p;
         p += 0x88;
     }
-    *((char *)g_unk0x0058e394 + 0x10a) = *p;
+    ((char *)&g_unk0x0058e394[0x42])[2] = *p;
     p += 4;
-    for (i = 1; i <= *((char *)g_unk0x0058e394 + 0x10a); i++) {
+    for (i = 1; i <= ((char *)&g_unk0x0058e394[0x42])[2]; i++) {
         g_unk0x0058e394[6 + i] = p;
         p += 0x14;
     }
-    *((char *)g_unk0x0058e394 + 0x108) = *p;
+    ((char *)&g_unk0x0058e394[0x42])[0] = *p;
     p += 4;
-    for (i = 1; i <= *((char *)g_unk0x0058e394 + 0x108); i++) {
+    for (i = 1; i <= ((char *)&g_unk0x0058e394[0x42])[0]; i++) {
         g_unk0x0058e394[0x38 + i] = p;
         p += 0x10;
     }
-    *((char *)g_unk0x0058e394 + 0x10b) = *p;
+    ((char *)&g_unk0x0058e394[0x42])[3] = *p;
     p += 4;
-    for (i = 1; i <= *((char *)g_unk0x0058e394 + 0x10b); i++) {
+    for (i = 1; i <= ((char *)&g_unk0x0058e394[0x42])[3]; i++) {
         g_unk0x0058e394[0x2e + i] = p;
         p += 0x20;
     }
-    for (i = 1; i <= *((char *)g_unk0x0058e394 + 0x10b); i++) {
+    for (i = 1; i <= ((char *)&g_unk0x0058e394[0x42])[3]; i++) {
         pEntry = g_unk0x0058e394[0x2e + i];
-        if (1 < *(int *)(pEntry + 8)) {
-            for (k = 1; k < *(int *)(pEntry + 8); k++) {
-                *(BYTE **)(pEntry + 0x10 + k * 4) = p;
-                p += ((char)pEntry[0xc + k - 1] + 1) * (char)pEntry[0xc + k] * 4;
+        if (1 < ((AINetwork *)pEntry)->layerCount) {
+            for (k = 1; k < ((AINetwork *)pEntry)->layerCount; k++) {
+                ((AINetwork *)pEntry)->pWeights[k] = (int *)p;
+                p += (((AINetwork *)pEntry)->layerSizes[k - 1] + 1) * ((AINetwork *)pEntry)->layerSizes[k] * 4;
             }
         }
     }
     g_unk0x0058e394[0x43] = p;
     g_unk0x0058e4a4 = p + 0x100;
-    StageTiming_RelocateCarRecordRoutePoints(g_unk0x0058e4a4 + 0x1720, &g_unk0x0058e394[0x38], *((char *)g_unk0x0058e394 + 0x108));
+    StageTiming_RelocateCarRecordRoutePoints(g_unk0x0058e4a4 + 0x1720, &g_unk0x0058e394[0x38], ((char *)&g_unk0x0058e394[0x42])[0]);
     return pEnd;
 }
 #undef AI_INT

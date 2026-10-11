@@ -1883,7 +1883,7 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
                 delta[0] = origin[0] - pos[0];
                 delta[1] = origin[1] - pos[1];
                 delta[2] = origin[2] - pos[2];
-                FloatMatrix_InverseRotateVector(pos, delta, (float *)((BYTE *)pPart->pNode + 0x118));
+                FloatMatrix_InverseRotateVector(pos, delta, pPart->pNode->worldF);
                 dot = plane[0] * axis[0] + plane[1] * axis[1] + plane[2] * axis[2];
                 if (fabs(dot) > g_unk0x00511cf0) {
                     inv = g_netMinusOne / dot;
