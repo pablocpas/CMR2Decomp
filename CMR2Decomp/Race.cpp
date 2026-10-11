@@ -837,7 +837,7 @@ int g_unk0x00537198[2];
 
 #include "Car.h"
 #include "RallyRouteNode.h"
-int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
+int RallyData_GetActiveCarRaceRecordField0(Car *p);
 
 // Stores the player's route position twice and frees the first five race slots.
 // FUNCTION: CMR2 0x00417780
@@ -845,8 +845,8 @@ void Race_StorePlayerRouteAndClearSlots(int player)
 {
     int i;
 
-    g_unk0x0053708c[player] = RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(player));
-    g_unk0x00537198[player] = RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(player));
+    g_unk0x0053708c[player] = RallyData_GetActiveCarRaceRecordField0(Car_Get(player));
+    g_unk0x00537198[player] = RallyData_GetActiveCarRaceRecordField0(Car_Get(player));
     for (i = 0; i < 5; i++) {
         g_raceSlotState[i].flags &= 0xfc;
         g_raceSlotState[i].pending = -1;
@@ -4088,7 +4088,7 @@ void Race_AdvanceRouteCalloutBlock(int player)
     int block = remaining / 100;
 
     g_unk0x00537350 = -1;
-    g_unk0x0053708c[player] = RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(player));
+    g_unk0x0053708c[player] = RallyData_GetActiveCarRaceRecordField0(Car_Get(player));
     if ((BYTE)RallyData_GetSelectionFlag26()) {
         if (remaining % 100 < 20)
             g_unk0x00537350 = 6;
@@ -4113,7 +4113,7 @@ void Race_AdvanceRouteCalloutBlock(int player)
         else if (block == 0)
             Race_AssignUnusedSlot(g_unk0x0053735c + 0x3a);
     }
-    g_unk0x0053708c[player] = RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(player)) - 1;
+    g_unk0x0053708c[player] = RallyData_GetActiveCarRaceRecordField0(Car_Get(player)) - 1;
 }
 
 int View_GetActiveCameraMode(BYTE index);
@@ -4439,7 +4439,7 @@ void Race_ResolveStageTexturesAndPalettes(void)
 // Route helpers of the per-car update below (no shared header declares them).
 int RallyData_GetRouteAvailabilityState(void);
 RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index);
-int RallyData_GetCarRecordValueRatio(BYTE *p);
+int RallyData_GetCarRecordValueRatio(Car *p);
 BYTE StageTiming_GetCheckpointField18(int index);
 int StageTiming_GetClockTime(void);
 void RallyRoute_CopyIndexedNodeDirection(unsigned int nodeIndex, FixVector *pOut);
@@ -4485,7 +4485,7 @@ void Race_UpdateCarRouteAndWrongWayState(int param_1)
     }
 
     cur = g_unk0x0053708c[param_1];
-    best = RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(param_1));
+    best = RallyData_GetActiveCarRaceRecordField0(Car_Get(param_1));
 
     if (g_unk0x005371a0 == 0 && param_1 == 0) {
         StageObject_SetBoundedWeatherKind(0);
@@ -4553,7 +4553,7 @@ void Race_UpdateCarRouteAndWrongWayState(int param_1)
     if (Car_IsStateC10Set(param_1) == 0 &&
         (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[param_1].packedState == '\b') {
         if (!((char)RallyData_GetFlag25() != '\0' &&
-              RallyData_GetCarRecordValueRatio((BYTE *)Car_Get(param_1)) >= 0x10000)) {
+              RallyData_GetCarRecordValueRatio(Car_Get(param_1)) >= 0x10000)) {
             if (g_unk0x0053708c[param_1] < best) {
                 node = cur + 1;
                 if (node <= best) {

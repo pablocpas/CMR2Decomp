@@ -3353,7 +3353,7 @@ short g_unk0x00542d58[8];
 short g_unk0x00542d68[8];
 
 int Stage_GetPreviousCheckpoint(int index);
-int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
+int RallyData_GetActiveCarRaceRecordField0(Car *p);
 
 // Stores, per car, the checkpoint before its current one and its record's
 // field 0x12.
@@ -3363,7 +3363,7 @@ void StageTiming_StorePreviousCarCheckpoints(void)
     int i;
 
     for (i = 0; i < g_stageArchiveTables.driverCount; i++) {
-        g_unk0x00542d58[i] = Stage_GetPreviousCheckpoint(RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(i)));
+        g_unk0x00542d58[i] = Stage_GetPreviousCheckpoint(RallyData_GetActiveCarRaceRecordField0(Car_Get(i)));
         g_unk0x00542d68[i] = g_unk0x00542e78[i].field_0x12;
     }
 }
@@ -3399,7 +3399,7 @@ void StageTiming_ResetPlayerLapRecord(int param_1, int param_2, int param_3, cha
     g_unk0x00542e78[param_1].field_0x10 = 0;
     g_unk0x00542e78[param_1].field_0x12 = 0;
     if ((BYTE)RallyData_GetFlag24() == 0 && (BYTE)RallyData_GetFlag25() == 0) {
-        g_unk0x00542e78[param_1].field_0x0 = (short)RallyData_GetActiveCarRaceRecordField0((BYTE *)pCar);
+        g_unk0x00542e78[param_1].field_0x0 = (short)RallyData_GetActiveCarRaceRecordField0(pCar);
         g_unk0x00542e78[param_1].field_0x2 = 0;
         g_unk0x00542e78[param_1].field_0x4 = 0;
         g_unk0x00542e78[param_1].field_0x6 = 0;
@@ -3412,7 +3412,7 @@ void StageTiming_ResetPlayerLapRecord(int param_1, int param_2, int param_3, cha
     g_unk0x00542e78[param_1].field_0x4 = 0;
     g_unk0x00542e78[param_1].field_0x8 = 0;
     if (param_4 != 0) {
-        g_unk0x00542e78[param_1].field_0x0 = (short)Stage_GetPreviousCheckpoint(RallyData_GetActiveCarRaceRecordField0((BYTE *)pCar));
+        g_unk0x00542e78[param_1].field_0x0 = (short)Stage_GetPreviousCheckpoint(RallyData_GetActiveCarRaceRecordField0(pCar));
     }
     else {
         value = g_unk0x00542d58[param_1];
@@ -3806,7 +3806,7 @@ void StageObject_ScaleViewValueByRoute(ViewWeatherState *pObject, int view)
     unsigned int position;
 
     if (RallyData_GetRouteAdditionalState() == 0) {
-        position = RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(View_GetActiveCameraFlags(view)));
+        position = RallyData_GetActiveCarRaceRecordField0(Car_Get(View_GetActiveCameraFlags(view)));
         pObject->routePosition = position;
         if (position != pObject->lastRoutePosition) {
             pObject->lastRoutePosition = position;
@@ -4171,7 +4171,7 @@ void StageTiming_UpdateThirdObjectRampValues(void)
             do {
                 pCar = Car_Get(*p);
                 pRec = &g_carSurfaceRamps[pCar->index];
-                position = RallyData_GetActiveCarRaceRecordField0((BYTE *)pCar);
+                position = RallyData_GetActiveCarRaceRecordField0(pCar);
                 pRec->routePosition = position;
                 if (position != pRec->lastRoutePosition) {
                     pRec->lastRoutePosition = position;
@@ -4579,7 +4579,7 @@ void StageTiming_CopyTriangleVertices(FixVector *pOut, unsigned short *pIndices,
     pOut[2].z = g_trackVertices[pIndices[2]].z;
 }
 
-int RallyData_GetCarRaceRecordField10(BYTE *p);
+int RallyData_GetCarRaceRecordField10(Car *p);
 int *RallyData_GetDriverSettingPair(int index);
 
 // Third ramp of a view's object state: value by route position plus the
@@ -4595,7 +4595,7 @@ void StageObject_UpdateThirdRouteRamp(ViewLightingRamp *pRecord, int view)
     if (RallyData_GetRouteAdditionalState() == 0) {
         pRecord->previousBlend = pRecord->blend;
         pCar = Car_Get(View_GetActiveCameraFlags(view));
-        position = RallyData_GetActiveCarRaceRecordField0((BYTE *)pCar);
+        position = RallyData_GetActiveCarRaceRecordField0(pCar);
         pRecord->routePosition = position;
         if (position != pRecord->lastRoutePosition) {
             pRecord->lastRoutePosition = position;
@@ -4610,7 +4610,7 @@ void StageObject_UpdateThirdRouteRamp(ViewLightingRamp *pRecord, int view)
             }
         }
         if (pRecord->routePosition < (unsigned int)g_lightingBlendRouteTo && pRecord->routePosition >= (unsigned int)g_lightingBlendRouteFrom) {
-            t = RallyData_GetCarRaceRecordField10((BYTE *)pCar);
+            t = RallyData_GetCarRaceRecordField10(pCar);
             pRecord->routeBlendOffset = FixMul(g_lightingBlendRouteScale, t);
         } else {
             pRecord->routeBlendOffset = 0;
@@ -5092,7 +5092,7 @@ void CarPart_SmoothSteeringOffset(void)
     phase %= 1024;
     phase = FIX_ABS(phase);
     target = FixMul(target, phase << 6);
-    index = (signed char)((BYTE *)g_partCar)[0xb1a];
+    index = g_partCar->index;
     delta = target - g_unk0x00590b10[index];
     if (FIX_ABS(delta) > step) {
         if (delta > 0)
@@ -5523,7 +5523,7 @@ extern NetStats g_localCarStats;
 void NetRace_PackCarState(Car *car);
 NetStats *NetPlayers_GetStatisticsRecord(int index);
 int NetPlayers_FindPlayerByField8(int value);
-short RallyData_GetActiveCarRaceRecordField14(BYTE *p);
+short RallyData_GetActiveCarRaceRecordField14(Car *p);
 int Replay_GetStreamFrameState(void);
 unsigned int RallyData_GetFlag21(void);
 
@@ -5570,7 +5570,7 @@ void StageTiming_ResetOrderedCarRoadBooks(void)
         g_unk0x00542e78[i].field_0x18 = 0;
         g_unk0x00542e78[i].field_0x19 = 0;
         if (g_unk0x00542e78[i].field_0x1a == 0)
-            StageTiming_AdvanceCrossedCheckpoints(i, Stage_GetPreviousCheckpoint(RallyData_GetActiveCarRaceRecordField14((BYTE *)Car_Get(i)) & 0xffff));
+            StageTiming_AdvanceCrossedCheckpoints(i, Stage_GetPreviousCheckpoint(RallyData_GetActiveCarRaceRecordField14(Car_Get(i)) & 0xffff));
     }
 }
 

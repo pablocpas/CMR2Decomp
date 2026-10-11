@@ -5754,7 +5754,7 @@ int g_unk0x0053ca24;
 FixVector g_unk0x0053ca58;
 // GLOBAL: CMR2 0x0053cae8
 FixVector g_unk0x0053cae8;
-int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
+int RallyData_GetActiveCarRaceRecordField0(Car *p);
 RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index);
 int RallyData_GetRouteAvailabilityState(void);
 void RallyRoute_CopyIndexedNodeDirection(unsigned int nodeIndex, FixVector *pOut);
@@ -5778,7 +5778,7 @@ void Car_ResetToStage(unsigned int param_1)
     RallyRouteNode *pRecord;
 
     g_pCurrentCar = Car_Get(param_1 & 0xff);
-    node = RallyData_GetActiveCarRaceRecordField0((BYTE *)g_pCurrentCar);
+    node = RallyData_GetActiveCarRaceRecordField0(g_pCurrentCar);
     pRecord = RallyData_GetAvailableRouteNodeRecord(node);
     if (pRecord != NULL) {
         while (Car_OverlapsOtherCar(node) != 0) {

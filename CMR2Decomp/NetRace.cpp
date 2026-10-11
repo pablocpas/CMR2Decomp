@@ -618,7 +618,7 @@ void NetRace_ResetStateAndTriangleTable(void)
 extern int Race_ReadState37F24(void);
 extern int StageTiming_GetCheckpointField2(int);
 extern int StageTiming_GetCheckpointField0(int);
-extern int RallyData_GetCarRaceRecordField10(BYTE *);
+extern int RallyData_GetCarRaceRecordField10(Car *);
 
 // GLOBAL: CMR2 0x00539388
 NetStats g_localCarStats;
@@ -731,11 +731,11 @@ void NetRace_PackCarState(Car *car)
     if (value >= g_netOne) g_localCarPacket.angVelZ = 0x7f;
     else if (value <= g_netMinusOne) g_localCarPacket.angVelZ = 0x81;
     else g_localCarPacket.angVelZ = (int)(__int64)(value * 127.0f);
-    g_localCarPacket.flagB35 = raw[0xb35];
-    g_localCarPacket.flagC00 = raw[0xc00];
-    g_localCarPacket.sector = *(short *)(raw + 0xb00);
+    g_localCarPacket.flagB35 = ((Car *)raw)->field_0xb35[0];
+    g_localCarPacket.flagC00 = (BYTE)((Car *)raw)->useUpperCollisionCorners;
+    g_localCarPacket.sector = ((Car *)raw)->sector;
     FixMatrix_GetPosition(&relative, car->pWorld);
-    Sector *sector = g_sectors[*(short *)(raw + 0xb00)];
+    Sector *sector = g_sectors[((Car *)raw)->sector];
     relative.x -= sector->x;
     relative.z -= sector->z;
     relative.y -= sector->y;
@@ -785,24 +785,24 @@ void NetRace_PackCarState(Car *car)
         else
             g_localCarPacket.axes[1] = (high << 8) | low;
     }
-    int steer = FixMul(FixDiv((int)*(short *)(raw + 0xb10) * 0x1680,
-                             (int)*(short *)(raw + 0xb16) * 0x1680) + 0x10000, 0x3f0000) + 0x1999;
+    int steer = FixMul(FixDiv((int)*(short *)&((Car *)raw)->wheelSteeringAngle * 0x1680,
+                             (int)((Car *)raw)->maxSteeringAngleDegrees * 0x1680) + 0x10000, 0x3f0000) + 0x1999;
     if (steer > 0x7e8000) steer = 0x7e8000;
     g_localCarPacket.steer = steer >> 16;
     if (car->throttleTorque) g_localCarPacket.steerFollow = 1;
     else g_localCarPacket.steerFollow = 0;
-    g_localCarPacket.flagB54 = raw[0xb54];
-    value = (float)((double)*(int *)(raw + 0x960) * CGraphics::m_oneOver65536 * g_netHeightScale);
+    g_localCarPacket.flagB54 = (BYTE)((Car *)raw)->braking;
+    value = (float)((double)((Car *)raw)->field_0x960 * CGraphics::m_oneOver65536 * g_netHeightScale);
     if (value >= g_netOne) g_localCarPacket.height = 255;
     else if (value <= g_netZero) g_localCarPacket.height = 0;
     else g_localCarPacket.height = (int)(__int64)(value * 255.0f);
-    value = (float)((double)(*(int *)(raw + 0x960) - *(int *)(raw + 0x964)) * CGraphics::m_oneOver65536 * g_netDeltaScale);
+    value = (float)((double)(((Car *)raw)->field_0x960 - ((Car *)raw)->field_0x964) * CGraphics::m_oneOver65536 * g_netDeltaScale);
     if (value >= g_netOne) g_localCarPacket.heightDelta = 0x7f;
     else if (value <= g_netMinusOne) g_localCarPacket.heightDelta = 0x81;
     else g_localCarPacket.heightDelta = (int)(__int64)(value * 127.0f);
-    if (raw[0xb45]) {
+    if (((Car *)raw)->field_0xb45) {
         g_localCarPacket.shaking = 1;
-        --raw[0xb45];
+        --((Car *)raw)->field_0xb45;
     } else g_localCarPacket.shaking = 0;
     if (CGameInfo::IsInRaceMenuOpen()) g_localCarPacket.menuOpen = 1;
     else g_localCarPacket.menuOpen = 0;
@@ -817,7 +817,7 @@ void NetRace_PackCarState(Car *car)
     } else g_localCarPacket.stageBehind = 0;
     if (stage > 15) stage = 15;
     g_localCarPacket.stage = stage;
-    int progress = FixMulShift32(RallyData_GetCarRaceRecordField10(raw), 0x400000);
+    int progress = FixMulShift32(RallyData_GetCarRaceRecordField10((Car *)raw), 0x400000);
     if (progress < 0) progress = 0;
     else if (progress > 63) progress = 63;
     g_localCarPacket.progress = progress;
@@ -1306,12 +1306,12 @@ void NetRace_ReceiveAndIntegrateListedCars(Car *pCars, short *pIndices, short co
     int i;
 
     if (g_unk0x00539cc8 == 0) {
-        progress = (RallyData_GetCarRaceRecordField10((BYTE *)Car_Get(0)) * 100) >> 16;
+        progress = (RallyData_GetCarRaceRecordField10(Car_Get(0)) * 100) >> 16;
         NetPlayers_RebuildStageResults(StageTiming_GetCheckpointField0(0), progress, StageTiming_GetCheckpointField2(0));
         return;
     }
     NetRace_PollPlayerStatisticsPackets(pCars);
-    progress = (RallyData_GetCarRaceRecordField10((BYTE *)Car_Get(0)) * 100) >> 16;
+    progress = (RallyData_GetCarRaceRecordField10(Car_Get(0)) * 100) >> 16;
     NetPlayers_RebuildStageResults(StageTiming_GetCheckpointField0(0), progress, StageTiming_GetCheckpointField2(0));
 
     for (i = (int)count - 1; i >= 0; i--) {

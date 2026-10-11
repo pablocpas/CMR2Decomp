@@ -640,7 +640,7 @@ extern SectorObjectEntry *g_movingSectorEntries;
 extern unsigned int g_unk0x0058ca6c;
 
 int Replay_ResetBufferIfActive(int *p);
-int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
+int RallyData_GetActiveCarRaceRecordField0(Car *p);
 int RallyData_GetRouteAvailabilityState(void);
 unsigned int RallyData_GetSelectionFlag27(void);
 unsigned char RallyData_GetSelectionFlag28(void);
@@ -3523,7 +3523,7 @@ void StageObject_UpdateApproachingCar(int carIndex, int time)
     int otherX = pOther->position.x;
     int heading = StageObject_Atan2Degrees(pOther->right.z, pOther->right.x);
     int duration = RallyData_GetRouteAvailabilityState();
-    int difference = RallyData_GetActiveCarRaceRecordField0((BYTE *)pPlayer) - time;
+    int difference = RallyData_GetActiveCarRaceRecordField0(pPlayer) - time;
     if (difference < -100) difference += duration;
     if (difference >= 0 && difference <= 7) {
         int direction = StageObject_Atan2Degrees(pPlayer->position.z - otherZ,
@@ -3579,11 +3579,11 @@ unsigned int AI_SelectCarsWithinOvertakeWindow(int index, BYTE *pOut, int *pCoun
     z = pCar->position.z;
     x = pCar->position.x;
     *pCount = 0;
-    referenceTime = RallyData_GetActiveCarRaceRecordField0((BYTE *)pCar);
+    referenceTime = RallyData_GetActiveCarRaceRecordField0(pCar);
 
     for (i = 0; i < (signed char)g_unk0x0058e0b0[1]; i++) {
         if (active[i] != 0) {
-            int delta = RallyData_GetActiveCarRaceRecordField0((BYTE *)cars[i]);
+            int delta = RallyData_GetActiveCarRaceRecordField0(cars[i]);
             scratch[i] = delta;
             delta -= referenceTime;
             if (delta < 0 || delta > 5) {
@@ -10632,7 +10632,7 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
             uVar4 = View_FindFreeModeSlot(0);
         }
     } else {
-        uVar4 = View_FindFreeModeSlot(*(BYTE *)((BYTE *)g_controlCar + 0xb1a));
+        uVar4 = View_FindFreeModeSlot((BYTE)g_controlCar->index);
     }
 
     p = StageUI_GetRaceResultTable();
@@ -10851,7 +10851,7 @@ unsigned int AI_SelectWallCollisionResponse(int *pState)
 }
 
 int RallyData_GetRouteAvailabilityState(void);
-int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
+int RallyData_GetActiveCarRaceRecordField0(Car *p);
 void RallyData_GetRouteNodeGroundPosition(int index, int *pOut);
 extern double g_fixedDegreesToAngle12;
 
@@ -10906,7 +10906,7 @@ int AI_FindClosestCarInAngleWindow(int param_1, int *param_2, int param_3, int *
     }
     for (i = 0; i < (signed char)g_unk0x0058e0b0[0]; i++) {
         if (flags[i] != 0) {
-            routePos[i] = RallyData_GetActiveCarRaceRecordField0((BYTE *)cars[i]);
+            routePos[i] = RallyData_GetActiveCarRaceRecordField0(cars[i]);
             ahead = routePos[i] - param_3;
             if (ahead < -100)
                 ahead += wrap;
@@ -12778,7 +12778,6 @@ int View_IsNegativeRightAngleCameraSpot(int view);
 void StageObject_DrawObjectDustTrail(unsigned int index, int *pTarget, int flag);
 extern int g_unk0x00590c58;
 extern int g_unk0x00590c5c;
-#define CURRENT_CAR ((BYTE *)g_partCar)
 
 // Draws the light beams of every car in the order list for one view (not the
 // player's own car from the in-car cameras): the beam colour follows the
@@ -12805,10 +12804,10 @@ void StageObject_DrawListedCarLightBeams(short *pOrder, short count, int view)
     for (i = count - 1; i >= 0; i--) {
         car = pOrder[i];
         g_partCar = (Car *)Car_Get(car);
-        if (*(int *)(CURRENT_CAR + 0xc0c) != 0 || (inCar != 0 && self == car) ||
-            *(int *)(CURRENT_CAR + 0xb68 + view * 4) != 0)
+        if (g_partCar->field_0xc0c != 0 || (inCar != 0 && self == car) ||
+            (&g_partCar->firstCameraBlocked)[view] != 0)
             continue;
-        Scene_GetLightColour((DWORD *)colour, *(int *)(CURRENT_CAR + 0xa70));
+        Scene_GetLightColour((DWORD *)colour, g_partCar->field_0xa70);
         g_unk0x00590c54 = FixMul(colour[0] << 16, 0x106);
         if (g_unk0x00590c54 > 0x10000)
             g_unk0x00590c54 = 0x10000;
@@ -12820,20 +12819,19 @@ void StageObject_DrawListedCarLightBeams(short *pOrder, short count, int view)
             g_unk0x00590c5c = 0x10000;
         mask = (BYTE)(1 << view);
         lit = 0;
-        if (*(BYTE **)(CURRENT_CAR + 0x724) == NULL) {
-            if ((*(BYTE **)(CURRENT_CAR + 0x738))[0x17c] & mask)
+        if (g_partCar->pAlternateBodyNode == NULL) {
+            if (g_partCar->pWheelNodes[0]->viewMask & mask)
                 lit = 1;
-        } else if ((*(BYTE **)(CURRENT_CAR + 0x724))[0x17c] != 0) {
-            if (mask & (*(BYTE **)(CURRENT_CAR + 0x724))[0x17c])
+        } else if (g_partCar->pAlternateBodyNode->viewMask != 0) {
+            if (mask & g_partCar->pAlternateBodyNode->viewMask)
                 lit = 1;
-        } else if ((*(BYTE **)(CURRENT_CAR + 0x738))[0x17c] & mask) {
+        } else if (g_partCar->pWheelNodes[0]->viewMask & mask) {
             lit = 1;
         }
-        for (n = *g_carLineCounts[(signed char)CURRENT_CAR[0xb1a]] - 1; n >= 0; n--)
+        for (n = *g_carLineCounts[g_partCar->index] - 1; n >= 0; n--)
             StageObject_DrawObjectDustTrail(n, (int *)&viewPos, lit);
     }
 }
-#undef CURRENT_CAR
 
 // Draws a flexible line from a car model. Attached lines use the body world
 // matrix and interpolated deflection to draw five curved segments. Grounded
@@ -13753,7 +13751,7 @@ char g_strAi1Format[] = "%s.ai1";
 // GLOBAL: CMR2 0x0051f4d4
 char g_strAi0Format[] = "%s.ai0";
 
-int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
+int RallyData_GetActiveCarRaceRecordField0(Car *p);
 void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *pOut, int variant);
 BYTE *StageTiming_RelocateCarRecordRoutePoints(BYTE *p, BYTE **unused, int count);
 BYTE Car_GetDrawnFlag(int index);
@@ -13793,7 +13791,7 @@ void AI_UpdateRouteDrivingControls(Car *pCar, int car, int preview)
     table = *pRoute;
     if (table == 0)
         return;
-    node = RallyData_GetActiveCarRaceRecordField0((BYTE *)pCar);
+    node = RallyData_GetActiveCarRaceRecordField0(pCar);
     AI_INT(0x54) = node;
     StageObject_LookupKeyedValuePair(car, table, node, &variant, &modes[2]);
     *(unsigned int *)g_unk0x0058e394[table] |= 0xfffffffc;
@@ -13972,20 +13970,20 @@ void CarInput_UpdateWaitingStartSlot(int slot)
     if (device != -1) {
         StageObject_UpdatePlayerControlIndicators(slot, device);
     } else {
-        count = *((char *)g_controlCar + 0xb47);
+        count = *(char *)&g_controlCar->field_0xb47;
         if (count < 0) {
-            *((char *)g_controlCar + 0xb47) = count + 1;
-            if (*((char *)g_controlCar + 0xb47) == 0)
+            *(char *)&g_controlCar->field_0xb47 = count + 1;
+            if (*(char *)&g_controlCar->field_0xb47 == 0)
                 goto reroll;
         } else if (count < 1) {
         reroll:
-            *((char *)g_controlCar + 0xb47) = (char)(rand() % 10) + 5;
+            *(char *)&g_controlCar->field_0xb47 = (char)(rand() % 10) + 5;
         } else {
-            *((char *)g_controlCar + 0xb47) = count - 1;
-            if (*((char *)g_controlCar + 0xb47) == 0)
-                *((char *)g_controlCar + 0xb47) = -5 - (char)(rand() % 10);
+            *(char *)&g_controlCar->field_0xb47 = count - 1;
+            if (*(char *)&g_controlCar->field_0xb47 == 0)
+                *(char *)&g_controlCar->field_0xb47 = -5 - (char)(rand() % 10);
         }
-        if (*((char *)g_controlCar + 0xb47) > 0)
+        if (*(char *)&g_controlCar->field_0xb47 > 0)
             g_controlCar->flag0x1d0[2] = 0x3f;
         else
             g_controlCar->flag0x1d0[2] = 0;
@@ -15144,7 +15142,7 @@ void Fireworks_Init(BYTE count)
 }
 #undef LOAD_FIREWORK_SOUND
 
-short RallyData_GetActiveCarRaceRecordField14(BYTE *p);
+short RallyData_GetActiveCarRaceRecordField14(Car *p);
 int RallyData_GetRouteStateValue(void);
 
 // Simple CPU driving used near the end of the route (the demo/attract drive):
@@ -15165,7 +15163,7 @@ int AI_UpdateAttractDrivingControls(int car, int preview)
     int mode;
 
     pCar = Car_Get(car);
-    node = (unsigned short)RallyData_GetActiveCarRaceRecordField14((BYTE *)pCar);
+    node = (unsigned short)RallyData_GetActiveCarRaceRecordField14(pCar);
     if (node + 5 > (unsigned int)RallyData_GetRouteStateValue())
         return 0;
     state[0x15] = node;

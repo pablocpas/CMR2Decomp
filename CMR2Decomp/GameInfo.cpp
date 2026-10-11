@@ -2499,13 +2499,8 @@ int CGameInfo::GetPreviewLayoutMode(void)
     return 2;
 }
 
-// 0x50-byte entry of the table at 0x82c6c8.
-struct Unk0x0082c6c8 {
-    BYTE field_0x0[0x1c];
-    int field_0x1c;
-    BYTE field_0x20[0x2c];
-    int field_0x4c;
-};
+// 0x50-byte entry of the table at 0x82c6c8 (FixInterp in GameInfo.h).
+typedef FixInterp Unk0x0082c6c8;
 
 // GLOBAL: CMR2 0x0082c6c8
 Unk0x0082c6c8 g_unk0x0082c6c8[16];
@@ -2527,8 +2522,8 @@ int CGameInfo::SelectIdleOptionPreviewEntry(BYTE param1)
     int result = 0;
     Unk0x0082c6c8 *pEntry;
     if (g_unk0x0082ca1c == 0xff ||
-        ((pEntry = &g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c])->field_0x4c == 0 &&
-         pEntry->field_0x1c == 0)) {
+        ((pEntry = &g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c])->active == 0 &&
+         pEntry->current == 0)) {
         result = 1;
         g_unk0x0082ca1c = param1;
         g_unk0x0082c6c0 = CMain::GetFrameDelta();
@@ -3638,46 +3633,46 @@ int CGameInfo::EnumerateNetworkSessionsWithUserData(int param1)
 void CGameInfo::SwitchOptionPreviewMode(int param1)
 {
     int current;
-    int *pNew;
-    int *pOld;
+    FixInterp *pNew;
+    FixInterp *pOld;
     int tmp;
 
     current = (signed char)g_unk0x0082ca1c;
     if (current == param1)
         return;
     if (g_unk0x0082ca1c != 0xff && param1 != -1) {
-        pOld = (int *)((char *)g_unk0x0082c6c8 + current * 0x50);
-        pNew = (int *)((char *)g_unk0x0082c6c8 + param1 * 0x50);
-        tmp = *(int *)((char *)pOld + 0x4c);
-        *(int *)((char *)pOld + 0x4c) = *(int *)((char *)pNew + 0x4c);
-        *(int *)((char *)pNew + 0x4c) = tmp;
-        tmp = *(int *)((char *)pOld + 0x1c);
-        *(int *)((char *)pOld + 0x1c) = *(int *)((char *)pNew + 0x1c);
-        *(int *)((char *)pNew + 0x1c) = tmp;
-        tmp = *(int *)((char *)pOld + 0x18);
-        *(int *)((char *)pOld + 0x18) = *(int *)((char *)pNew + 0x18);
-        *(int *)((char *)pNew + 0x18) = tmp;
-        tmp = *(int *)((char *)pOld + 0x28);
-        *(int *)((char *)pOld + 0x28) = *(int *)((char *)pNew + 0x28);
-        *(int *)((char *)pNew + 0x28) = tmp;
-        tmp = *(int *)((char *)pOld + 0x14);
-        *(int *)((char *)pOld + 0x14) = *(int *)((char *)pNew + 0x14);
-        *(int *)((char *)pNew + 0x14) = tmp;
-        tmp = *(int *)((char *)pOld + 0x20);
-        *(int *)((char *)pOld + 0x20) = *(int *)((char *)pNew + 0x20);
-        *(int *)((char *)pNew + 0x20) = tmp;
-        tmp = *(int *)((char *)pOld + 0x24);
-        *(int *)((char *)pOld + 0x24) = *(int *)((char *)pNew + 0x24);
-        *(int *)((char *)pNew + 0x24) = tmp;
-        tmp = *(int *)((char *)pOld + 0x44);
-        *(int *)((char *)pOld + 0x44) = *(int *)((char *)pNew + 0x44);
-        *(int *)((char *)pNew + 0x44) = tmp;
-        tmp = *(int *)((char *)pOld + 0x40);
-        *(int *)((char *)pOld + 0x40) = *(int *)((char *)pNew + 0x40);
-        *(int *)((char *)pNew + 0x40) = tmp;
-        tmp = *(int *)((char *)pOld + 0x3c);
-        *(int *)((char *)pOld + 0x3c) = *(int *)((char *)pNew + 0x3c);
-        *(int *)((char *)pNew + 0x3c) = tmp;
+        pOld = &g_unk0x0082c6c8[current];
+        pNew = &g_unk0x0082c6c8[param1];
+        tmp = pOld->active;
+        pOld->active = pNew->active;
+        pNew->active = tmp;
+        tmp = pOld->current;
+        pOld->current = pNew->current;
+        pNew->current = tmp;
+        tmp = pOld->end;
+        pOld->end = pNew->end;
+        pNew->end = tmp;
+        tmp = pOld->phase2;
+        pOld->phase2 = pNew->phase2;
+        pNew->phase2 = tmp;
+        tmp = pOld->start;
+        pOld->start = pNew->start;
+        pNew->start = tmp;
+        tmp = pOld->distance;
+        pOld->distance = pNew->distance;
+        pNew->distance = tmp;
+        tmp = pOld->phase1;
+        pOld->phase1 = pNew->phase1;
+        pNew->phase1 = tmp;
+        tmp = pOld->startTime3;
+        pOld->startTime3 = pNew->startTime3;
+        pNew->startTime3 = tmp;
+        tmp = pOld->startTime2;
+        pOld->startTime2 = pNew->startTime2;
+        pNew->startTime2 = tmp;
+        tmp = pOld->startTime;
+        pOld->startTime = pNew->startTime;
+        pNew->startTime = tmp;
 
     }
     g_unk0x0082c6c0 = (int)CMain::GetFrameDelta();
@@ -5885,13 +5880,13 @@ int OptionMenu_TransformHudPointToScreen(Unk0x0082c6c8 *p, short *pX, short *pY)
 {
     int value;
 
-    if (p->field_0x1c != 0x10000) {
+    if (p->current != 0x10000) {
         value = (*pX - g_unk0x0082c9ec[0]) << 16;
         value = FixDiv(value, g_unk0x0082c9ec[2] << 16);
-        *pX = (FixMul(value, *(short *)((BYTE *)p + 0x10) << 16) >> 16) + *(short *)((BYTE *)p + 0xc);
+        *pX = (FixMul(value, p->dstX2 << 16) >> 16) + p->dstX1;
         value = (*pY - g_unk0x0082c9ec[1]) << 16;
         value = FixDiv(value, g_unk0x0082c9ec[3] << 16);
-        *pY = (FixMul(value, *(short *)((BYTE *)p + 0x12) << 16) >> 16) + *(short *)((BYTE *)p + 0xe);
+        *pY = (FixMul(value, p->dstY2 << 16) >> 16) + p->dstY1;
     }
     *pX = (short)((*pX * (int)g_pGraphics->resX) / 0x280);
     *pY = (short)((*pY * (int)g_pGraphics->resY) / 0x1e0);
@@ -7251,7 +7246,7 @@ void OptionPreview_FillTextureSetIndices(void)
     pPairs = (BYTE *)RallyData_GetDriverSettingPair(0);
     // The original reads [index * 0x50 + 0x82c6c0]: byte 0x48 of the previous
     // 0x50-byte entry of the table at 0x82c6c8 (index is 1-based).
-    count = ((BYTE *)g_unk0x0082c6c8)[g_unk0x0082c694 * 0x50 - 8];
+    count = g_unk0x0082c6c8[g_unk0x0082c694 - 1].count;
     slot = g_unk0x0082c710 & 0xff;
     g_unk0x0082ca18 = count - slot + 2;
     pEntry = RallyData_GetDriverSecondaryPairRecord(slot);
@@ -8095,7 +8090,7 @@ void OptionMenu_ToggleValueAnimation(int param_1, int param_2)
 
     if (g_unk0x0082ca1c == 0xff)
         return;
-    p = (FixInterp *)&g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c];
+    p = &g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c];
     if (param_1 != 0) {
         if (p->end != 0x10000)
             FixInterp_StartToOne(p);
@@ -9196,29 +9191,7 @@ void OptionMenu_DrawSeparators(int param1)
 // 0x50-byte entry of 0x82c6c8 as seen by the option panel animation: the source
 // and destination rects, the slide ramp, the two fade phases and their start
 // times.
-struct Unk0x0082c6c8Anim {
-    void *texture;          // 0x0
-    short srcX1;            // 0x4
-    short srcY1;            // 0x6
-    short srcX2;            // 0x8
-    short srcY2;            // 0xa
-    short dstX1;            // 0xc
-    short dstY1;            // 0xe
-    short dstX2;            // 0x10
-    short dstY2;            // 0x12
-    int start;              // 0x14
-    int end;                // 0x18
-    int current;            // 0x1c
-    int distance;           // 0x20 duration of the slide ramp
-    int phase1;             // 0x24
-    int phase2;             // 0x28
-    BYTE field_0x2c[0x10];  // 0x2c
-    int startTime;          // 0x3c
-    int startTime2;         // 0x40
-    int startTime3;         // 0x44
-    int field_0x48;         // 0x48
-    int active;             // 0x4c
-};
+typedef FixInterp Unk0x0082c6c8Anim;
 
 // Advances the animation of the option panel selected by 0x82ca1c: eases its
 // slide (the ramp is 16.16 and follows the square root of the elapsed
@@ -9305,7 +9278,7 @@ void OptionMenu_AnimateSelectedPanel(void)
 // FUNCTION: CMR2 0x005059d0
 void OptionMenu_SelectDisplaySlot(int param_1)
 {
-    if (g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c].field_0x4c == 0) {
+    if (g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c].active == 0) {
         if ((signed char)g_unk0x0082ca1c != param_1) {
             param_1 = param_1 % g_unk0x0082c694;
             CGameInfo::SwitchOptionPreviewMode(param_1);

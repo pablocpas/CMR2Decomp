@@ -107,16 +107,37 @@ struct Unk0x0082b2c0 {
     int field_0x10;
 };
 
-// 16.16 value animated between start and end at 50 units/s.
+// 0x50-byte entry of the option panel table at 0x82c6c8 (g_unk0x0082c6c8): a
+// picture slid from its source to its destination rectangle by a 16.16 value
+// animated between start and end at 50 units/s, then faded in two phases.
+// The panel, split and animation code all read these entries.
 struct FixInterp {
-    BYTE field_0x0[0x14];
+    void *texture;          // 0x00 Texture * of the picture
+    short srcX1;            // 0x04 rectangle while the value is 0
+    short srcY1;
+    short srcX2;
+    short srcY2;
+    short dstX1;            // 0x0c rectangle when it is 1
+    short dstY1;
+    short dstX2;
+    short dstY2;
     int start;              // 0x14
     int end;                // 0x18
     int current;            // 0x1c
     int distance;           // 0x20 |end - start| * 50
-    BYTE field_0x24[0x18];
+    int phase1;             // 0x24
+    int phase2;             // 0x28
+    int u0;                 // 0x2c texture coordinates in the map texture (16.16)
+    int u1;
+    int v0;
+    int v1;
     unsigned int startTime; // 0x3c
-    BYTE field_0x40[0xc];
+    int startTime2;         // 0x40
+    int startTime3;         // 0x44
+    union {
+        int field_0x48;     // 0x48
+        BYTE count;         // 0x48 low byte, read by the next entry's code
+    };
     int active;             // 0x4c
 };
 

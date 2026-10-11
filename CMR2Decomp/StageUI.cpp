@@ -1087,7 +1087,7 @@ int StageTiming_GetCheckpointField0(int index);
 int Stage_GetNextCheckpoint(int index);
 short Car_GetOrderCount(void);
 struct Car *Car_Get(int index);
-int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
+int RallyData_GetActiveCarRaceRecordField0(Car *p);
 int RallyData_IsHeadToHeadRaceMode(void);
 unsigned char RallyDataState(void);
 unsigned char RallyData_GetFlag25(void);
@@ -1189,7 +1189,7 @@ void StageUI_DrawHudRouteMap(int car, short *pRect)
         }
     } else {
         for (i = Car_GetOrderCount() - 1; i >= 0; i--) {
-            index = RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(i));
+            index = RallyData_GetActiveCarRaceRecordField0(Car_Get(i));
             RallyData_GetRouteNodeGroundPosition(index, point);
             d.x = point[0] - g_stageMapCentre.x;
             d.y = point[1] - g_stageMapCentre.y;

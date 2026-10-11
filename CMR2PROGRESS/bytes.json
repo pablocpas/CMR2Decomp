@@ -10803,9 +10803,9 @@
   },
   "0x4f4b90": {
     "n": "FrontendText_LoadRegionLanguages",
-    "s": 1.0,
-    "x": true,
-    "fz": 1.0,
+    "s": 0.8176100628930818,
+    "x": false,
+    "fz": 0.9308176100628931,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FrontendText_LoadRegionLanguages"
@@ -13537,9 +13537,9 @@
   },
   "0x44a1b0": {
     "n": "GameMenu_SetupStageResults",
-    "s": 0.7264420331239292,
+    "s": 0.741290691033695,
     "x": false,
-    "fz": 0.863506567675614,
+    "fz": 0.8692175899486008,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenu_SetupStageResults"
@@ -22506,7 +22506,7 @@
     "x": false,
     "fz": 0.8113207547169812,
     "unknown": [
-      "$L56079",
+      "$L56103",
       "__except_list"
     ],
     "f": "Sound.cpp",

@@ -638,7 +638,7 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
             g_collisionFace->primaryVertices[i].y += scaled.y;
             g_collisionFace->primaryVertices[i].z += scaled.z;
         }
-        StageObject_ApplyRecursiveFrameDelta(*(BYTE *)((BYTE *)g_collisionCar + 0xb1a), -1, (int *)&scaled, 0);
+        StageObject_ApplyRecursiveFrameDelta((BYTE)g_collisionCar->index, -1, (int *)&scaled, 0);
     }
 
 noSlide:

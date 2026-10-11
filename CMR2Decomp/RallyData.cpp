@@ -2686,7 +2686,7 @@ char g_stageSlashFormat[] = " / ";
 BYTE *StageObject_GetPlayerViewRectangle(int view);
 int StageTiming_GetFinishOrderSecondaryEntry(int index);
 int StageTiming_GetClockTime(void);
-int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
+int RallyData_GetActiveCarRaceRecordField0(Car *p);
 int RallyData_GetRouteAvailabilityState(void);
 extern int g_unk0x00536c88[2];
 extern int g_unk0x00536c00[2];
@@ -2802,7 +2802,7 @@ void RallyData_DrawAndHandleCarHUD(int car, short *pRect)
 
     if ((BYTE)CGameInfo::GetGraphicsOptionBit29()) {
         Font_DrawText(0, CInput::FormatString(g_positionFormat,
-                          RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(car)), RallyData_GetRouteAvailabilityState(),
+                          RallyData_GetActiveCarRaceRecordField0(Car_Get(car)), RallyData_GetRouteAvailabilityState(),
                           StageTiming_GetClockTime() / 100),
                       pRect[0] + 10, pRect[3] + pRect[1] - 10, (int *)colour, 0x21);
     }
@@ -4052,44 +4052,13 @@ char g_str0x005272b4[38] = "%s\\Textures\\Weather\\Symbols\\%d\\%s.tga";
 // GLOBAL: CMR2 0x00527290
 char g_str0x00527290[33] = "%s\\Textures\\Symbols\\%d\\Arrow.tga";
 
-// 0x50-byte entry of the table at 0x82c6c8 (same layout as GameInfo.cpp).
-struct Unk0x0082c6c8 {
-    BYTE field_0x0[0x1c];
-    int field_0x1c;
-    BYTE field_0x20[0x2c];
-    int field_0x4c;
-};
+// 0x50-byte entry of the table at 0x82c6c8 (FixInterp in GameInfo.h).
+typedef FixInterp Unk0x0082c6c8;
 extern Unk0x0082c6c8 g_unk0x0082c6c8[16];
 extern short g_unk0x0082c9ec[4];
 
 // 0x50-byte entry of 0x82c6c8 as seen by the per-car split panel.
-struct Unk0x0082c6c8Panel {
-    void *texture;      // 0x0
-    short srcX1;
-    short srcY1;
-    short srcX2;
-    short srcY2;
-    short dstX1;
-    short dstY1;
-    short dstX2;
-    short dstY2;
-    int start;
-    int end;
-    int current;        // 0x1c
-    int distance;       // 0x20
-    int field_0x24;     // 0x24
-    int field_0x28;     // 0x28
-    int u0;             // 0x2c texture coordinates in the map texture (16.16)
-    int u1;
-    int v0;
-    int v1;
-    int startTime;      // 0x3c
-    int field_0x40;
-    int field_0x44;
-    BYTE field_0x48;
-    BYTE pad_0x49[3];
-    int active;         // 0x4c
-};
+typedef FixInterp Unk0x0082c6c8Panel;
 extern BYTE g_unk0x0082ca1c;
 extern int g_unk0x0082c6c0;
 extern int g_unk0x0082cb44;
@@ -4177,16 +4146,16 @@ void RallyData_SetupWeatherTextureEntries(void)
         pEntry->end = 0;
         pEntry->start = 0;
         pEntry->current = 0;
-        pEntry->field_0x24 = 0;
-        pEntry->field_0x28 = 0;
+        pEntry->phase1 = 0;
+        pEntry->phase2 = 0;
         pEntry->active = 0;
         pEntry->distance = 0;
-        pEntry->field_0x44 = 0;
-        pEntry->field_0x40 = 0;
+        pEntry->startTime3 = 0;
+        pEntry->startTime2 = 0;
         pEntry->startTime = 0;
         index = (RallyDataStageIndex() & 0xff) % 4 + i;
         pEntry->texture = g_weatherMaps.maps[index];
-        pEntry->field_0x48 = g_weatherMaps.slots[index];
+        pEntry->count = g_weatherMaps.slots[index];
         pEntry->srcX1 = g_weatherMaps.rects[index * 2] + g_unk0x0082c9ec[0];
         pEntry->srcY1 = g_weatherMaps.rects[index * 2 + 1];
         pEntry->srcY1 += g_unk0x0082c9ec[1];
@@ -4471,19 +4440,19 @@ void RallyData_UpdateCarRoute(Car *pCar)
 #undef ROUTE_NORMALIZE
 
 // FUNCTION: CMR2 0x00421370
-int RallyData_GetActiveCarRaceRecordField0(BYTE *p)
+int RallyData_GetActiveCarRaceRecordField0(Car *p)
 {
     if (g_unk0x00538a84 == 0)
         return 0;
-    return g_raceRecords[(signed char)p[0xb1a]].routeNodeIndex;
+    return g_raceRecords[p->index].routeNodeIndex;
 }
 
 // FUNCTION: CMR2 0x004213a0
-short RallyData_GetActiveCarRaceRecordField14(BYTE *p)
+short RallyData_GetActiveCarRaceRecordField14(Car *p)
 {
     if (g_unk0x00538a84 == 0)
         return 0;
-    return g_raceRecords[(signed char)p[0xb1a]].field_0x14;
+    return g_raceRecords[p->index].field_0x14;
 }
 
 // FUNCTION: CMR2 0x00421420
@@ -4570,14 +4539,14 @@ void RallyData_GetRouteNodeGroundPosition(int index, int *pOut)
 int g_unk0x00538c94;
 
 // FUNCTION: CMR2 0x004209d0
-int RallyData_GetCarRaceRecordField10(BYTE *p)
+int RallyData_GetCarRaceRecordField10(Car *p)
 {
-    return g_raceRecords[(signed char)p[0xb1a]].field_0x10;
+    return g_raceRecords[p->index].field_0x10;
 }
 
 // Scales the per-record value at p[0xb1a] to a 0..0x10000 ratio.
 // FUNCTION: CMR2 0x00421470
-int RallyData_GetCarRecordValueRatio(BYTE *p)
+int RallyData_GetCarRecordValueRatio(Car *p)
 {
     int value;
     int result;
@@ -4585,11 +4554,11 @@ int RallyData_GetCarRecordValueRatio(BYTE *p)
     if (g_unk0x00538a84 == 0)
         return 0;
     if (g_unk0x00538a94 != 0) {
-        value = g_raceRecords[(signed char)p[0xb1a]].field_0x8;
+        value = g_raceRecords[p->index].field_0x8;
         if (value >= (int)(RallyData_GetSelectionBits16To19() & 0xff) * g_unk0x00538a84)
             return 0x10000;
     } else {
-        value = g_raceRecords[(signed char)p[0xb1a]].field_0x8;
+        value = g_raceRecords[p->index].field_0x8;
         if (value >= g_unk0x00538a84)
             return 0x10000;
     }
@@ -5511,7 +5480,7 @@ int g_unk0x00536c48[8][2];
 // GLOBAL: CMR2 0x00536c94
 int g_unk0x00536c94[2][3];
 
-int RallyData_GetCarRaceRecordField10(BYTE *p);
+int RallyData_GetCarRaceRecordField10(Car *p);
 int StageTiming_GetCheckpointField0(int index);
 int NetPlayers_GetPlayerID(int index);
 int NetPlayers_GetResultField8ByID(int id);
@@ -5527,7 +5496,7 @@ void RallyData_UpdateLocalAndNetworkSplitPositions(void)
     int i;
     int percent;
 
-    percent = RallyData_GetCarRaceRecordField10((BYTE *)Car_Get(0)) * 100 >> 16;
+    percent = RallyData_GetCarRaceRecordField10(Car_Get(0)) * 100 >> 16;
     RallyData_FindCheckpointAndFractionAtDistance(g_unk0x00536c48[0], StageTiming_GetCheckpointField0(0), percent);
     for (i = 0; i < 7; i++) {
         if ((BYTE)NetPlayers_IsPlayerPresent(i))
@@ -6780,19 +6749,7 @@ void RallyData_DrawClippedHudRectangleEdges(short *param_1, BYTE *param_2, int p
 
 // Same 0x50-byte entry as Unk0x0082c6c8, seen with the fields the split-bar
 // texture mapping uses.
-struct Unk0x0082c6c8Split {
-    BYTE pad0[0xc];
-    short field_0xc;
-    short field_0xe;
-    short field_0x10;
-    short field_0x12;
-    BYTE pad1[0x18];
-    int field_0x2c;
-    int field_0x30;
-    int field_0x34;
-    int field_0x38;
-    BYTE pad2[0x14];
-};
+typedef FixInterp Unk0x0082c6c8Split;
 
 // Gradients the split-time texture is mapped through.
 // GLOBAL: CMR2 0x005270e4
@@ -6809,19 +6766,19 @@ void RallyData_QueueSelectedCarSplitPanel(void)
     short src[4];
     if (g_unk0x0082ca1c != 0xff) {
         Unk0x0082c6c8Split *pEntry = (Unk0x0082c6c8Split *)g_unk0x0082c6c8 + (signed char)g_unk0x0082ca1c;
-        int start = pEntry->field_0xc << 16;
-        int end = (pEntry->field_0x10 + pEntry->field_0xc) << 16;
+        int start = pEntry->dstX1 << 16;
+        int end = (pEntry->dstX2 + pEntry->dstX1) << 16;
         int first = FixDiv(start - (g_unk0x0082c9ec[0] << 16), g_unk0x0082c9ec[2] << 16);
         int second = FixDiv(end - (g_unk0x0082c9ec[0] << 16), g_unk0x0082c9ec[2] << 16);
-        int scale = FixDiv(pEntry->field_0x2c - pEntry->field_0x30, first - second);
-        rect[0] = (short)((pEntry->field_0x2c - FixMul(first, scale)) >> 16);
+        int scale = FixDiv(pEntry->u0 - pEntry->u1, first - second);
+        rect[0] = (short)((pEntry->u0 - FixMul(first, scale)) >> 16);
         rect[2] = (short)(scale >> 16);
-        start = pEntry->field_0xe << 16;
-        end = (pEntry->field_0x12 + pEntry->field_0xe) << 16;
+        start = pEntry->dstY1 << 16;
+        end = (pEntry->dstY2 + pEntry->dstY1) << 16;
         first = FixDiv(start - (g_unk0x0082c9ec[1] << 16), g_unk0x0082c9ec[3] << 16);
         second = FixDiv(end - (g_unk0x0082c9ec[1] << 16), g_unk0x0082c9ec[3] << 16);
-        scale = FixDiv(pEntry->field_0x34 - pEntry->field_0x38, first - second);
-        rect[1] = (short)((pEntry->field_0x34 - FixMul(first, scale)) >> 16);
+        scale = FixDiv(pEntry->v0 - pEntry->v1, first - second);
+        rect[1] = (short)((pEntry->v0 - FixMul(first, scale)) >> 16);
         rect[3] = (short)(scale >> 16);
     } else {
         *(int *)&rect[0] = *(int *)&g_mapSrcRect[0];
@@ -6976,20 +6933,7 @@ int g_unk0x005270f0 = 0xff0000ff;
 
 // 0x50-byte entry of 0x82c6c8 as seen by the per-car split draw: source and
 // destination rects plus the shared easing value at 0x1c.
-struct Unk0x0082c6c8Src {
-    BYTE field_0x0[4];
-    short srcX1;
-    short srcY1;
-    short srcX2;
-    short srcY2;
-    short dstX1;
-    short dstY1;
-    short dstX2;
-    short dstY2;
-    BYTE field_0x14[8];
-    int current;
-    BYTE field_0x20[0x30];
-};
+typedef FixInterp Unk0x0082c6c8Src;
 
 // Draws the split-time panels of every car of the current rally. The active
 // entry (0x82ca1c) gives the destination rect of each panel and the two scale
@@ -7164,7 +7108,7 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
     rect[2] = (short)((int)rect[2] * (int)g_pGraphics->resX / 0x280);
     rect[1] = (short)((int)rect[1] * (int)g_pGraphics->resY / 0x1e0);
     rect[3] = (short)((int)rect[3] * (int)g_pGraphics->resY / 0x1e0);
-    scale = FixMul(pEntry->field_0x28, 0x20000);
+    scale = FixMul(pEntry->phase2, 0x20000);
     if (scale > 0x10000)
         scale = 0x10000;
     rect[2] = (short)(FixMul(rect[2] << 16, scale) >> 16);
@@ -7175,8 +7119,8 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
     accent[2] = (BYTE)((accent[2] >> 2) * 3);
     Sprite_FillRect(&g_pGraphics->field309_0x150, rect, accent, 1);
     scale = FixDiv(pEntry->dstX2 << 16, g_unk0x0082c9ec[2] << 16);
-    if (pEntry->field_0x24 != 0) {
-        t = FixMul(pEntry->current, pEntry->field_0x24);
+    if (pEntry->phase1 != 0) {
+        t = FixMul(pEntry->current, pEntry->phase1);
         colour[3] = textColour[3] = (BYTE)(FixMul(t, 0xff0000) >> 16);
         for (i = 0; i < (g_unk0x0082ca18 & 0xff); i++) {
             rect[0] = (short)x;
@@ -7219,8 +7163,8 @@ void RallyData_DrawCarSplitTimesPanel(int param1)
             }
         }
     }
-    if (pEntry->field_0x28 != 0) {
-        scale = FixMul(pEntry->field_0x28, 0x20000);
+    if (pEntry->phase2 != 0) {
+        scale = FixMul(pEntry->phase2, 0x20000);
         over = scale - 0x10000;
         if (scale > 0x10000)
             scale = 0x10000;
@@ -8473,11 +8417,7 @@ void RallyData_DrawSplitStandingsPanel(int car, short *pRect)
 
 // 0x50-byte entry of the table at 0x82c6c8 as seen by the panel enter helper:
 // the scoreboard texture slot picked for the panel.
-struct Unk0x0082c6c8Sel {
-    BYTE field_0x0[0x48];
-    BYTE field_0x48;
-    BYTE field_0x49[0x7];
-};
+typedef FixInterp Unk0x0082c6c8Sel;
 
 void OptionMenu_DrawResultRows(int param1);
 void OptionMenu_DrawStageSummaryPanel(int param1, int param2);
@@ -8554,8 +8494,8 @@ void RallyData_EnterSelectedOptionPanel(void)
     if (g_unk0x0082ca1c != 0xff) {
         pEntry = (Unk0x0082c6c8Sel *)g_unk0x0082c6c8 + (signed char)g_unk0x0082ca1c;
         OptionMenu_DrawResultRows(RallyDataCountryIndex() & 0xff);
-        OptionMenu_DrawStageSummaryPanel(RallyDataCountryIndex() & 0xff, pEntry->field_0x48);
-        RallyData_DrawSelectedRallyTemperature(pEntry->field_0x48);
+        OptionMenu_DrawStageSummaryPanel(RallyDataCountryIndex() & 0xff, pEntry->count);
+        RallyData_DrawSelectedRallyTemperature(pEntry->count);
     }
     *(int *)&rect[0] = *(int *)&g_unk0x0082c9ec[0];
     *(int *)&rect[2] = *(int *)&g_unk0x0082c9ec[2];
