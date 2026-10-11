@@ -23,7 +23,9 @@ struct Sector {
     struct FinRecord *pFinRecords; // 0x28 head of the sector's fin record list
     FixVector corners[4];       // 0x2c per side: offset of the nearest ground vertex, then corner point
     int bounds[4][2];           // 0x5c x/z of the ground mesh bounding rectangle corners
-    BYTE field_0x7c[0xc];
+    int viewDistanceSquared;     // 0x7c squared x/z distance from the culling view
+    int field_0x80;              // 0x80 cleared when the sector is selected
+    int field_0x84;              // 0x84 set to one when selected
 };
 
 // ON-DISK: a 0xa0-byte record inside the stage mesh file. The loader at
@@ -55,6 +57,9 @@ struct SectorMesh {
     unsigned int vertexCount;   // 0x10
     BYTE field_0x14[0xf4];
 };
+
+// GLOBAL: CMR2 0x006ed5f0
+extern unsigned short g_visibleSectorIndices[4096];
 
 // GLOBAL: CMR2 0x0071f600
 extern int g_sectorsPerRow;

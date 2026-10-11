@@ -47,8 +47,18 @@ class Sectors(Lighting):
         angle=direction*math.pi/4
         self.put(HEAP+0xf8,'<3i',round(math.sin(angle)*65536),0,round(math.cos(angle)*65536))
         self.put(HEAP+0x108,'<3i',((ox+col*size)<<16)+offset,0,((oz-row*size)<<16)-offset)
+        before = bytearray(self.read(HEAP, 0x10000))
         self.invoke(0x4b7de0,[HEAP,0])
         count=int.from_bytes(self.read(self.addr(0x72d570),4),'little')
+        visible = struct.unpack('<' + 'H'*count, self.read(self.addr(0x6ed5f0), count*2))
+        assert len(set(visible)) == len(visible) and all(i < 256 for i in visible)
+        for i in visible:
+            px = (ox + (i%16)*size)*65536
+            pz = (oz - (i//16)*size)*65536
+            dx, dz = px-(((ox+col*size)<<16)+offset), pz-(((oz-row*size)<<16)-offset)
+            distance = ((dx*dx>>16)+(dz*dz>>16)) & 0xffffffff
+            struct.pack_into('<Iii', before, 0x2000+i*0x88+0x7c, distance, 0, 1)
+        assert self.read(HEAP, 0x10000) == before, 'complete grid model: bounds/pointers/guards must remain intact'
         return [self.read(self.addr(0x72d258),512),
                 self.read(self.addr(0x6ed5f0),count*2),
                 [self.read(HEAP+0x2000+i*0x88+0x7c,12) for i in range(256)]]

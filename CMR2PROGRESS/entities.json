@@ -25216,7 +25216,7 @@
     "g_inputQueues"
   ],
   "0x6ed5e8": [
-    6219540,
+    6227732,
     "g_unk0x006ed5e8"
   ],
   "0x6ed5ec": [
@@ -25224,8 +25224,8 @@
     "g_unk0x006ed5ec"
   ],
   "0x6ed5f0": [
-    6219544,
-    "g_unk0x006ed5f0"
+    6219540,
+    "g_visibleSectorIndices"
   ],
   "0x6ef5f0": [
     6219012,

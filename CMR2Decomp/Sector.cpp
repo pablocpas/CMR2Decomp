@@ -602,7 +602,7 @@ void Sector_InsertNodeByPosition(SceneNode *pNode)
 
 // Visible sector indices collected by 0x004b7de0 (one short per sector).
 // GLOBAL: CMR2 0x006ed5f0
-unsigned short g_unk0x006ed5f0[4096];
+unsigned short g_visibleSectorIndices[4096];
 int Tri2D_Contains(int *pPoint, int *pTri);
 
 // Sector culling pass of a scene node: walks the sector grid around its world
@@ -696,14 +696,14 @@ void Sector_CullGridAroundViewNode(SceneNode *pNode, void *pRect)
                 index == iSector - g_sectorsPerRow + 1 || index == iSector - 1 || index == iSector ||
                 index == iSector + 1 || index == iSector + g_sectorsPerRow - 1 ||
                 index == iSector + g_sectorsPerRow || index == iSector + g_sectorsPerRow + 1) {
-                *(int *)((BYTE *)g_sectors[index] + 0x7c) =
+                g_sectors[index]->viewDistanceSquared =
                     FixMul(g_sectors[index]->x - tri[0], g_sectors[index]->x - tri[0]) +
                     FixMul(g_sectors[index]->z - tri[1], g_sectors[index]->z - tri[1]);
                 if (index < g_sectorCount && index >= 0) {
-                    g_unk0x006ed5f0[g_sectorCullEnabled] = (short)index;
+                    g_visibleSectorIndices[g_sectorCullEnabled] = (short)index;
                     g_sectorCullEnabled++;
-                    *(int *)((BYTE *)g_sectors[index] + 0x80) = 0;
-                    *(int *)((BYTE *)g_sectors[index] + 0x84) = 1;
+                    g_sectors[index]->field_0x80 = 0;
+                    g_sectors[index]->field_0x84 = 1;
                     g_sectorVisibleBits[index >> 5] |= 1 << (index & 0x1f);
                 }
             }

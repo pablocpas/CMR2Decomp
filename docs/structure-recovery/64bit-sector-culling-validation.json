@@ -1,0 +1,25 @@
+{
+  "baseline": "9be32b5",
+  "validation": "isolated checkout excluding unrelated weather-texture changes",
+  "source_sha256": {
+    "CMR2Decomp/Game.cpp": "12b7bf8378efd1761a752c6d408ee402db90b4c8ed2058b6d47cda99d372c974",
+    "CMR2Decomp/Graphics.cpp": "41f8178b778e9e0845256497e3913b6de4604422a4828f0d092ee3687246ca1e",
+    "CMR2Decomp/LayoutChecks.cpp": "aab97ecc6ff65e0315cbfd50d574cd85d7065be43c2cd4eb0a76a7675078d0d2",
+    "CMR2Decomp/Sector.cpp": "f3053f8bd6751df6fd64551d212e40007075bfef62deb63fd50dd80a2a2ae940",
+    "CMR2Decomp/Sector.h": "2a76908aa33a707e3013845085abd79e7c61038c2248db26cd1b9417cdbd48cf"
+  },
+  "exe_sha256": "57a699387fbf138004e2ee39b1663f33f664cd44158295a14a225a83704ac997",
+  "native_game_sha256": "f53b3aba27b404a72b9a4bc243298c474d78bc86d9ec17c7cb4dcaf30b3289d8",
+  "original_sector_cases": 1950,
+  "native_cases": 384,
+  "native_passes_per_case": 3,
+  "native_negative_controls": 1,
+  "differential_suite": {
+    "harnesses": 131,
+    "failures": 0
+  },
+  "native_ctests": {
+    "tests": 22,
+    "failures": 0
+  }
+}

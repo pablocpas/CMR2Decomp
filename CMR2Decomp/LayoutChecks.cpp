@@ -1208,3 +1208,7 @@ CMR2_LAYOUT_CHECK(ReplayPose_fromCheck, offsetof(ReplayPose, from) == 0x0);
 CMR2_LAYOUT_CHECK(ReplayPose_toCheck, offsetof(ReplayPose, to) == 0x40);
 CMR2_LAYOUT_CHECK(ReplayPose_velocityCheck, offsetof(ReplayPose, velocity) == 0x80);
 CMR2_LAYOUT_CHECK(ReplaySample_yCheck, offsetof(ReplaySample, y) == 0x0);
+
+CMR2_LAYOUT_CHECK(Sector_viewDistanceSquared_Check, offsetof(Sector, viewDistanceSquared) == 0x7c);
+CMR2_LAYOUT_CHECK(Sector_field_0x80_Check, offsetof(Sector, field_0x80) == 0x80);
+CMR2_LAYOUT_CHECK(Sector_field_0x84_Check, offsetof(Sector, field_0x84) == 0x84);

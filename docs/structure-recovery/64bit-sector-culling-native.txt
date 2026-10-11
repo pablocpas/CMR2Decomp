@@ -1,0 +1,3 @@
+original-offsets -6  original-offsets: /tmp/cmr2-sector-native-1_mo5e2x/original-offsets.cpp:213: int main(): Assertion `!memcmp(original[i].bounds,cells[i].bounds,sizeof(cells[i].bounds))' failed.
+
+typed-fields 0 PASS 384 native culling cases, three passes each: stable bounds, full records, masks and sector lists

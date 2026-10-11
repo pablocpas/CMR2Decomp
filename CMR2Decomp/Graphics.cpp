@@ -2764,7 +2764,7 @@ struct StageObjectDraw {
 
 extern D3DMATRIX g_unk0x00597cc0;
 extern D3DMATRIX g_unk0x005207b8;
-extern unsigned short g_unk0x006ed5f0[];
+extern unsigned short g_visibleSectorIndices[];
 D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
 void Graphics_SetShadowGeometryState(int value);
 void Game_QueueVisibleSectorNodes(int param1);
@@ -2905,7 +2905,7 @@ int Graphics_RenderNodeCubeMapFaces(SceneNode *pNode, int bit)
         CGraphics::SetZEnable(0);
         CGraphics::SetZWriteEnable(0);
         for (sectorIndex = 0; sectorIndex < (unsigned int)g_sectorCullEnabled; sectorIndex++) {
-            pChild = g_sectors[(unsigned short)g_unk0x006ed5f0[sectorIndex]]->pFirstNode;
+            pChild = g_sectors[(unsigned short)g_visibleSectorIndices[sectorIndex]]->pFirstNode;
             while (pChild != NULL) {
                 if (pChild->visible == 0)
                     Game_DrawViewMaskNode(pChild, 0);
@@ -2916,7 +2916,7 @@ int Graphics_RenderNodeCubeMapFaces(SceneNode *pNode, int bit)
         CGraphics::SetZWriteEnable(1);
         CGraphics::SetProjection(0x20000, 0x20000, 0x500000, 0x1999);
         for (sectorIndex = 0; sectorIndex < (unsigned int)g_sectorCullEnabled; sectorIndex++) {
-            pSector = g_sectors[(unsigned short)g_unk0x006ed5f0[sectorIndex]];
+            pSector = g_sectors[(unsigned short)g_visibleSectorIndices[sectorIndex]];
             pMesh = (Mesh *)pSector->pMesh;
             pObject = (StageObjectDraw *)pSector->pObjects;
             if (pMesh != NULL) {
