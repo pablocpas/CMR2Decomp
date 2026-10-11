@@ -1,0 +1,23 @@
+{
+  "types": 316,
+  "raw_accesses": 1201,
+  "fixed_sizes": 78,
+  "hex_multipliers": 2203,
+  "unknown_identifiers": 10301,
+  "unnamed_field_declarations": 1481,
+  "unique_unknown_identifiers": 1259
+}
+
+Files with most raw accesses:
+StageObjects.cpp             241 raw accesses,  10 fixed sizes
+RallyData.cpp                210 raw accesses,   4 fixed sizes
+FrontendScreens.cpp          113 raw accesses,   9 fixed sizes
+StageTiming.cpp               97 raw accesses,   1 fixed sizes
+GameInfo.cpp                  93 raw accesses,  14 fixed sizes
+Graphics.cpp                  61 raw accesses,   9 fixed sizes
+SceneNode.cpp                 61 raw accesses,  10 fixed sizes
+Sector.cpp                    52 raw accesses,   0 fixed sizes
+Mesh.cpp                      33 raw accesses,  11 fixed sizes
+Game.cpp                      31 raw accesses,   0 fixed sizes
+Car.cpp                       30 raw accesses,   2 fixed sizes
+Race.cpp                      28 raw accesses,   1 fixed sizes

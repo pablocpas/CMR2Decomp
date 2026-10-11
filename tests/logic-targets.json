@@ -435,6 +435,15 @@
       "0x4b4aa0"
     ]
   },
+  "differential_lookup_pointers.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x427ab0",
+      "0x427ad0",
+      "0x427b70",
+      "0x498590"
+    ]
+  },
   "differential_low_callbacks.py": {
     "arguments": "both",
     "targets": [

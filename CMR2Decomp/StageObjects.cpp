@@ -1,6 +1,7 @@
 // Declared before RallyData.h, as in the original: in an expression that calls
 // both, MSVC calls RallyDataState first.
 short Car_GetOrderCount(void);
+#include "SoundCurve.h"
 #include "StageObjectCount.h"
 #include <windows.h>
 #include <stdlib.h>
@@ -12153,8 +12154,8 @@ int g_unk0x0051fb00[52] = {
 void Race_PlayScrapeAndShakeCar(int view, int strength, int listener);
 void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *param_2, int param_3);
 int NetRace_GetListenerDistanceAttenuation(unsigned int view, int listener);
-bool NetRace_IsValueWithinCurveRange(int value, int *pRange);
-unsigned int NetRace_InterpolateWordCurve(int value, int *pCurve);
+bool NetRace_IsValueWithinCurveRange(int value, SoundCurve *pRange);
+unsigned int NetRace_InterpolateWordCurve(int value, SoundCurve *pCurve);
 // unsigned short, no unsigned int: el original devuelve 16 bits (sus llamadores hacen 'and eax,0xffff').
 // Corregido por la auditoria de W165 en NetRace.cpp; la declaracion tiene que seguir el mismo contrato.
 unsigned short NetRace_ScaleViewAngleByDistance(int param_1, int param_2, unsigned short param_3);
@@ -12163,7 +12164,7 @@ void Sound_SetPlayingSlotVolume(unsigned int handle, int volume);
 void Sound_SetPan(unsigned int handle, int pan);
 void CarPart_ResolveLocalPointGroundContact(unsigned int param_1);
 struct SoundCurve;
-extern struct SoundCurve g_curve0x0051ec50;
+extern struct SoundCurve g_engineWhineSoundCurve;
 extern BYTE g_unk0x00538d2c[];
 extern int g_unk0x0058ddc8Pair[2]; // two sound handles (0x58ddc8, 0x58ddcc)
 // ---- GLOBALS nuevos ----
@@ -12422,8 +12423,8 @@ void SurfaceSound_UpdateNearestLocalCarEngines(void)
                                     volScale, 0x5622,
                                     g_unk0x0051f2d8[CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
         }
-        if (NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051ec50)) {
-            unsigned int pan = NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50);
+        if (NetRace_IsValueWithinCurveRange(pitch, &g_engineWhineSoundCurve)) {
+            unsigned int pan = NetRace_InterpolateWordCurve(pitch, &g_engineWhineSoundCurve);
             unsigned short pan2 = (unsigned short)NetRace_ScaleViewAngleByDistance(0, (int)chosen, (unsigned short)pan);
             int volScale;
             int dist2;
@@ -12523,8 +12524,8 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
                                     volScale, 0x5622,
                                     g_unk0x0051f2d8[CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue(0))], 1, 0);
         }
-        if (NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051ec50)) {
-            unsigned int pan = NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50);
+        if (NetRace_IsValueWithinCurveRange(pitch, &g_engineWhineSoundCurve)) {
+            unsigned int pan = NetRace_InterpolateWordCurve(pitch, &g_engineWhineSoundCurve);
             unsigned short pan2 = (unsigned short)NetRace_ScaleViewAngleByDistance(0, (int)chosen, (unsigned short)pan);
             int volScale;
             int dist2;
@@ -13776,7 +13777,7 @@ char g_strAi0Format[] = "%s.ai0";
 
 int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
 void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *pOut, int variant);
-BYTE *StageTiming_RelocateCarRecordRoutePoints(BYTE *p, int unused, int count);
+BYTE *StageTiming_RelocateCarRecordRoutePoints(BYTE *p, BYTE **unused, int count);
 BYTE Car_GetDrawnFlag(int index);
 void Car_ResetWheelLoadsAfterShift(Car *pCar);
 void StageObject_UpdatePlayerControlIndicators(int player, int device);
@@ -14126,7 +14127,7 @@ BYTE *AI_LoadStageRouteTables(void)
     }
     g_unk0x0058e394[0x43] = p;
     g_unk0x0058e4a4 = p + 0x100;
-    StageTiming_RelocateCarRecordRoutePoints(g_unk0x0058e4a4 + 0x1720, (int)&g_unk0x0058e394[0x38], *((char *)g_unk0x0058e394 + 0x108));
+    StageTiming_RelocateCarRecordRoutePoints(g_unk0x0058e4a4 + 0x1720, &g_unk0x0058e394[0x38], *((char *)g_unk0x0058e394 + 0x108));
     return pEnd;
 }
 #undef AI_INT

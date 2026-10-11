@@ -1,3 +1,4 @@
+#include "SoundCurve.h"
 #include <windows.h>
 #include "SurfaceTypes.h"
 #include "FixedPoint.h"
@@ -401,31 +402,16 @@ int Race_GetResourceState(void);
 
 // Engine sound curves: sample count and input range, then the pitch samples
 // and the volume bytes (the pointers are set by FUN_00478xxx at stage start).
-// NetRace_IsValueWithinCurveRange/ad0/b70 take the curve as an int[4]: count, min, max, samples.
-struct SoundCurve {
-    int count;
-    int min;
-    int max;
-    unsigned short *pSamples;
-    BYTE *pBytes;
-};
+// The range and interpolation consumers use the shared SoundCurve descriptor.
+
 // GLOBAL: CMR2 0x0051ea60
-SoundCurve g_curve0x0051ea60 = { 20, 2000, 3000, 0, 0 };
+SoundCurve g_engineSoundCurve = { 20, 2000, 3000, 0, 0 };
 // GLOBAL: CMR2 0x0051eab8
-SoundCurve g_curve0x0051eab8 = { 126, 2200, 8500, 0, 0 };
+SoundCurve g_engineLoadSoundCurve = { 126, 2200, 8500, 0, 0 };
 // GLOBAL: CMR2 0x0051ec50
-SoundCurve g_curve0x0051ec50 = { 126, 2200, 8500, 0, 0 };
+SoundCurve g_engineWhineSoundCurve = { 126, 2200, 8500, 0, 0 };
 // GLOBAL: CMR2 0x0051ede8
-SoundCurve g_curve0x0051ede8 = { 193, 0, 160, 0, 0 };
-#define g_unk0x0051ea60 ((int *)&g_curve0x0051ea60)
-#define g_pUnk0x0051ea6c g_curve0x0051ea60.pSamples
-#define g_pUnk0x0051ea70 g_curve0x0051ea60.pBytes
-#define g_pUnk0x0051eac4 g_curve0x0051eab8.pSamples
-#define g_pUnk0x0051eac8 g_curve0x0051eab8.pBytes
-#define g_pUnk0x0051ec5c g_curve0x0051ec50.pSamples
-#define g_pUnk0x0051ec60 g_curve0x0051ec50.pBytes
-#define g_pUnk0x0051edf4 g_curve0x0051ede8.pSamples
-#define g_pUnk0x0051edf8 g_curve0x0051ede8.pBytes
+SoundCurve g_speedSoundCurve = { 193, 0, 160, 0, 0 };
 
 // GLOBAL: CMR2 0x0051ea74
 unsigned short g_unk0x0051ea74[21] = {
@@ -626,14 +612,14 @@ void SurfaceSound_ResetPlayerParameters(void)
     }
     g_unk0x0058ddc8 = -1;
     g_unk0x0058ddcc = -1;
-    g_pUnk0x0051ea6c = g_unk0x0051ea74;
-    g_pUnk0x0051ea70 = g_unk0x0051ea9e;
-    g_pUnk0x0051eac4 = g_unk0x0051eacc;
-    g_pUnk0x0051eac8 = g_unk0x0051ebca;
-    g_pUnk0x0051ec5c = g_unk0x0051ec64;
-    g_pUnk0x0051ec60 = g_unk0x0051ed62;
-    g_pUnk0x0051edf4 = g_unk0x0051edfc;
-    g_pUnk0x0051edf8 = g_unk0x0051ef80;
+    g_engineSoundCurve.pSamples = g_unk0x0051ea74;
+    g_engineSoundCurve.pBytes = g_unk0x0051ea9e;
+    g_engineLoadSoundCurve.pSamples = g_unk0x0051eacc;
+    g_engineLoadSoundCurve.pBytes = g_unk0x0051ebca;
+    g_engineWhineSoundCurve.pSamples = g_unk0x0051ec64;
+    g_engineWhineSoundCurve.pBytes = g_unk0x0051ed62;
+    g_speedSoundCurve.pSamples = g_unk0x0051edfc;
+    g_speedSoundCurve.pBytes = g_unk0x0051ef80;
     CGame::RegisterCallback((void *)Surface_ReleaseStageSounds, 0);
 }
 
@@ -825,9 +811,9 @@ extern int g_unk0x0058df3c;
 extern int g_unk0x0058df40;
 extern int g_unk0x0051f2d8[13];
 BYTE NetRace_GetRaceSoundMode(void);
-bool NetRace_IsValueWithinCurveRange(int value, int *pRange);
-unsigned int NetRace_InterpolateByteCurve(int value, int *pCurve);
-unsigned int NetRace_InterpolateWordCurve(int value, int *pCurve);
+bool NetRace_IsValueWithinCurveRange(int value, SoundCurve *pRange);
+unsigned int NetRace_InterpolateByteCurve(int value, SoundCurve *pCurve);
+unsigned int NetRace_InterpolateWordCurve(int value, SoundCurve *pCurve);
 int NetRace_GetListenerDistanceAttenuation(unsigned int view, int listener);
 unsigned short NetRace_ScaleViewAngleByDistance(int param_1, int param_2, unsigned short param_3);
 int Race_GetPlayerRecordField4(BYTE index);
@@ -868,9 +854,9 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
         g_unk0x0058df68[player] = 1;
     if (pitch > 5000)
         g_unk0x0058df70[player] = 1;
-    inEngine = NetRace_IsValueWithinCurveRange(pitch, g_unk0x0051ea60);
-    inLoad = NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051eab8);
-    inWhine = NetRace_IsValueWithinCurveRange(pitch, (int *)&g_curve0x0051ec50);
+    inEngine = NetRace_IsValueWithinCurveRange(pitch, &g_engineSoundCurve);
+    inLoad = NetRace_IsValueWithinCurveRange(pitch, &g_engineLoadSoundCurve);
+    inWhine = NetRace_IsValueWithinCurveRange(pitch, &g_engineWhineSoundCurve);
     if (!inEngine) {
         if (Sound_IsPlaying(g_unk0x0058dde8[player])) {
             Sound_SetPan(g_unk0x0058dde8[player], 0x2b11);
@@ -894,14 +880,14 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
         if (Sound_IsPlaying(g_unk0x0058ddac[player]) == 0)
             g_unk0x0058ddac[player] = Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[player] + 1), 0, 0x5622, 0, 1, 0);
         if (Sound_IsPlaying(g_unk0x0058dde8[player])) {
-            Sound_SetPan(g_unk0x0058dde8[player], NetRace_InterpolateWordCurve(pitch, g_unk0x0051ea60));
+            Sound_SetPan(g_unk0x0058dde8[player], NetRace_InterpolateWordCurve(pitch, &g_engineSoundCurve));
             Sound_SetPlayingSlotVolume(g_unk0x0058dde8[player],
-                         CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, g_unk0x0051ea60) << 16) / 100, g_unk0x0058df38));
+                         CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, &g_engineSoundCurve) << 16) / 100, g_unk0x0058df38));
         }
         if (Sound_IsPlaying(g_unk0x0058ddac[player])) {
-            Sound_SetPan(g_unk0x0058ddac[player], NetRace_InterpolateWordCurve(pitch, g_unk0x0051ea60));
+            Sound_SetPan(g_unk0x0058ddac[player], NetRace_InterpolateWordCurve(pitch, &g_engineSoundCurve));
             Sound_SetPlayingSlotVolume(g_unk0x0058ddac[player],
-                         CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, g_unk0x0051ea60) << 16) / 100, g_unk0x0051f274));
+                         CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, &g_engineSoundCurve) << 16) / 100, g_unk0x0051f274));
         }
     }
     if (!inLoad) {
@@ -916,28 +902,28 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
     } else {
         if (Sound_IsPlaying(g_unk0x0058ddf0[player])) {
             volume = FixMul(0x10000 - FixDiv(pCar->throttleTorque, pCar->maxThrottleTorque),
-                            CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, (int *)&g_curve0x0051eab8) << 16) / 100,
+                            CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, &g_engineLoadSoundCurve) << 16) / 100,
                                        g_unk0x0058df3c));
             if (Race_GetPlayerRecordField4((BYTE)player))
                 Sound_SetPan(g_unk0x0058ddf0[player],
                              NetRace_ScaleViewAngleByDistance(player, player,
-                                          NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051eab8)));
+                                          NetRace_InterpolateWordCurve(pitch, &g_engineLoadSoundCurve)));
             else
                 Sound_SetPan(g_unk0x0058ddf0[player],
-                             NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051eab8));
+                             NetRace_InterpolateWordCurve(pitch, &g_engineLoadSoundCurve));
             Sound_SetPlayingSlotVolume(g_unk0x0058ddf0[player], volume);
         }
         if (Sound_IsPlaying(g_unk0x0058dde0[player])) {
             volume = FixMul(0x10000 - FixDiv(pCar->throttleTorque, pCar->maxThrottleTorque),
-                            CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, (int *)&g_curve0x0051eab8) << 16) / 100,
+                            CAR_VOLUME((int)(NetRace_InterpolateByteCurve(pitch, &g_engineLoadSoundCurve) << 16) / 100,
                                        g_unk0x0051f278));
             if (Race_GetPlayerRecordField4((BYTE)player))
                 Sound_SetPan(g_unk0x0058dde0[player],
                              NetRace_ScaleViewAngleByDistance(player, player,
-                                          NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051eab8)));
+                                          NetRace_InterpolateWordCurve(pitch, &g_engineLoadSoundCurve)));
             else
                 Sound_SetPan(g_unk0x0058dde0[player],
-                             NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051eab8));
+                             NetRace_InterpolateWordCurve(pitch, &g_engineLoadSoundCurve));
             Sound_SetPlayingSlotVolume(g_unk0x0058dde0[player], volume);
         }
     }
@@ -1088,7 +1074,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
             g_unk0x0058df70[player] = 0;
         }
     } else {
-        volume = (int)NetRace_InterpolateByteCurve(pitch, (int *)&g_curve0x0051ec50);
+        volume = (int)NetRace_InterpolateByteCurve(pitch, &g_engineWhineSoundCurve);
         volume = g_unk0x0058de08[player] * volume / 100;
         if (g_unk0x0058de10[player] != -1)
             StageObject_GetCarSoundElapsedTime(player);
@@ -1101,9 +1087,9 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
         if (Race_GetPlayerRecordField4((BYTE)player))
             Sound_SetPan(g_unk0x0058dd90[player],
                          NetRace_ScaleViewAngleByDistance(player, player,
-                                      NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50)));
+                                      NetRace_InterpolateWordCurve(pitch, &g_engineWhineSoundCurve)));
         else
-            Sound_SetPan(g_unk0x0058dd90[player], NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50));
+            Sound_SetPan(g_unk0x0058dd90[player], NetRace_InterpolateWordCurve(pitch, &g_engineWhineSoundCurve));
         Sound_SetPlayingSlotVolume(g_unk0x0058dd90[player], CAR_VOLUME((volume << 16) / 100, g_unk0x0058df40));
         if (Sound_IsPlaying(g_unk0x0058ddd0[player]) == 0)
             g_unk0x0058ddd0[player] = Sound_PlaySampleWithParameters(
@@ -1113,9 +1099,9 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
         if (Race_GetPlayerRecordField4((BYTE)player))
             Sound_SetPan(g_unk0x0058ddd0[player],
                          NetRace_ScaleViewAngleByDistance(player, player,
-                                      NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50)));
+                                      NetRace_InterpolateWordCurve(pitch, &g_engineWhineSoundCurve)));
         else
-            Sound_SetPan(g_unk0x0058ddd0[player], NetRace_InterpolateWordCurve(pitch, (int *)&g_curve0x0051ec50));
+            Sound_SetPan(g_unk0x0058ddd0[player], NetRace_InterpolateWordCurve(pitch, &g_engineWhineSoundCurve));
         Sound_SetPlayingSlotVolume(g_unk0x0058ddd0[player], CAR_VOLUME((volume << 16) / 100, g_unk0x0051f27c));
     }
     Surface_UpdatePlayerSkidSound(player, pState, listener);
@@ -1145,9 +1131,9 @@ void Surface_StopSecondOneShotSound(int player)
 
 
 BYTE NetRace_GetRaceSoundMode(void);
-bool NetRace_IsValueWithinCurveRange(int value, int *pRange);
-unsigned int NetRace_InterpolateByteCurve(int value, int *pCurve);
-unsigned int NetRace_InterpolateWordCurve(int value, int *pCurve);
+bool NetRace_IsValueWithinCurveRange(int value, SoundCurve *pRange);
+unsigned int NetRace_InterpolateByteCurve(int value, SoundCurve *pCurve);
+unsigned int NetRace_InterpolateWordCurve(int value, SoundCurve *pCurve);
 int NetRace_GetListenerDistanceAttenuation(unsigned int view, int listener);
 unsigned short NetRace_ScaleViewAngleByDistance(int param_1, int param_2, unsigned short param_3);
 int Race_GetPlayerRecordField4(BYTE index);
@@ -1310,7 +1296,7 @@ void Surface_UpdatePlayerSkidSound(int player, int *pState, int listener)
         else
             dip = 0;
     }
-    if (speed < g_curve0x0051ede8.max && level != 0) {
+    if (speed < g_speedSoundCurve.max && level != 0) {
         if (pState[4] == 100) {
             g_unk0x0058dd78[player] += 10;
             if (g_unk0x0058dd78[player] > 100)
@@ -1319,17 +1305,17 @@ void Surface_UpdatePlayerSkidSound(int player, int *pState, int listener)
             g_unk0x0058dd78[player] = 0;
         }
         if (!NetRace_GetRaceSoundMode()) {
-            inRange = NetRace_IsValueWithinCurveRange(speed, (int *)&g_curve0x0051ede8);
+            inRange = NetRace_IsValueWithinCurveRange(speed, &g_speedSoundCurve);
             if (inRange != 0) {
                 pHandle = &g_unk0x0058dd80[player];
                 if (Sound_IsPlaying(g_unk0x0058dd80[player]) == 0)
                     return;
                 if (Race_GetPlayerRecordField4((BYTE)player))
                     Sound_SetPan(*pHandle, NetRace_ScaleViewAngleByDistance(player, player,
-                                 NetRace_InterpolateWordCurve(speed, (int *)&g_curve0x0051ede8)));
+                                 NetRace_InterpolateWordCurve(speed, &g_speedSoundCurve)));
                 else
-                    Sound_SetPan(*pHandle, NetRace_InterpolateWordCurve(speed, (int *)&g_curve0x0051ede8));
-                volume = NetRace_InterpolateByteCurve(speed, (int *)&g_curve0x0051ede8);
+                    Sound_SetPan(*pHandle, NetRace_InterpolateWordCurve(speed, &g_speedSoundCurve));
+                volume = NetRace_InterpolateByteCurve(speed, &g_speedSoundCurve);
                 if (locked)
                     return;
                 if (level >= 1 && level <= 3)

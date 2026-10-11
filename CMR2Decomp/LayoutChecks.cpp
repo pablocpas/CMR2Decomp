@@ -7,7 +7,9 @@
 #include "NetPlayers.h"
 #include "Particle.h"
 #include "RaceRecord.h"
+#include "SoundCurve.h"
 #include "CallbackState.h"
+#include "AIReferenceRoute.h"
 #include "Sector.h"
 #include "CarResources.h"
 #include "CarPhysics.h"
@@ -16,6 +18,7 @@
 #include "OptionPreviewGeometry.h"
 #include "StageTiming.h"
 #include "StageWeather.h"
+#include "StageTimingSpread.h"
 #include "Stage.h"
 #include "StageBlock.h"
 #include "CarLightState.h"
@@ -950,12 +953,23 @@ CMR2_LAYOUT_CHECK(RaceRecord_field_0x16_Check, offsetof(RaceRecord, field_0x16) 
 CMR2_LAYOUT_CHECK(RaceCallbackStorage_SizeCheck, sizeof(RaceCallbackStorage) == 0x20);
 CMR2_LAYOUT_CHECK(RaceCallbackStorage_machine_Check, offsetof(RaceCallbackStorage, machine) == 0x0);
 CMR2_LAYOUT_CHECK(RaceCallbackStorage_records_Check, offsetof(RaceCallbackStorage, records) == 0x10);
+CMR2_LAYOUT_CHECK(AIReferenceRoute_SizeCheck, sizeof(AIReferenceRoute) == 0x1720);
+CMR2_LAYOUT_CHECK(AIReferenceRoute_headingDegrees_Check, offsetof(AIReferenceRoute, headingDegrees) == 0);
+CMR2_LAYOUT_CHECK(AIReferenceRoute_speedSamples_Check, offsetof(AIReferenceRoute, speedSamples) == 0x5c8);
+CMR2_LAYOUT_CHECK(AIReferenceRoute_positionX_Check, offsetof(AIReferenceRoute, positionX) == 0xb90);
+CMR2_LAYOUT_CHECK(AIReferenceRoute_positionZ_Check, offsetof(AIReferenceRoute, positionZ) == 0x1158);
 
 CMR2_LAYOUT_CHECK(CallbackStateRecord_packedState_Check, offsetof(CallbackStateRecord, packedState) == 0);
 CMR2_LAYOUT_CHECK(CallbackStateRecord_bits_Check, offsetof(CallbackStateRecord, bits) == 0);
 CMR2_LAYOUT_CHECK(CallbackStateRecord_elapsedTicks_Check, offsetof(CallbackStateRecord, elapsedTicks) == 4);
 CMR2_LAYOUT_CHECK(StateCallbackPair_update_Check, offsetof(StateCallbackPair, update) == 0);
 CMR2_LAYOUT_CHECK(StateCallbackPair_render_Check, offsetof(StateCallbackPair, render) == 4);
+CMR2_LAYOUT_CHECK(SoundCurve_SizeCheck, sizeof(SoundCurve) == 0x14);
+CMR2_LAYOUT_CHECK(SoundCurve_count_Check, offsetof(SoundCurve, count) == 0);
+CMR2_LAYOUT_CHECK(SoundCurve_min_Check, offsetof(SoundCurve, min) == 4);
+CMR2_LAYOUT_CHECK(SoundCurve_max_Check, offsetof(SoundCurve, max) == 8);
+CMR2_LAYOUT_CHECK(SoundCurve_pSamples_Check, offsetof(SoundCurve, pSamples) == 12);
+CMR2_LAYOUT_CHECK(SoundCurve_pBytes_Check, offsetof(SoundCurve, pBytes) == 16);
 CMR2_LAYOUT_CHECK(CallbackIndex_SizeCheck, sizeof(CallbackIndex) == 4);
 CMR2_LAYOUT_CHECK(CallbackIndex_index_Check, offsetof(CallbackIndex, index) == 0);
 CMR2_LAYOUT_CHECK(CallbackIndex_packed_Check, offsetof(CallbackIndex, packed) == 0);
@@ -963,3 +977,13 @@ CMR2_LAYOUT_CHECK(CallbackStateMachine_count_Check, offsetof(CallbackStateMachin
 CMR2_LAYOUT_CHECK(CallbackStateMachine_pad_Check, offsetof(CallbackStateMachine, pad) == 1);
 CMR2_LAYOUT_CHECK(CallbackStateMachine_callbacks_Check, offsetof(CallbackStateMachine, callbacks) == 8);
 CMR2_LAYOUT_CHECK(CallbackStateMachine_rules_Check, offsetof(CallbackStateMachine, rules) == 12);
+CMR2_LAYOUT_CHECK(StageTimingSpread_SizeCheck, sizeof(StageTimingSpread) == 0xb0);
+CMR2_LAYOUT_CHECK(StageTimingSpread_sampleWords_Check, offsetof(StageTimingSpread, sampleWords) == 0);
+CMR2_LAYOUT_CHECK(StageTimingSpread_progress_Check, offsetof(StageTimingSpread, progress) == 0);
+CMR2_LAYOUT_CHECK(StageTimingSpread_startWeight_Check, offsetof(StageTimingSpread, startWeight) == 0x28);
+CMR2_LAYOUT_CHECK(StageTimingSpread_middleWeight_Check, offsetof(StageTimingSpread, middleWeight) == 0x50);
+CMR2_LAYOUT_CHECK(StageTimingSpread_endWeight_Check, offsetof(StageTimingSpread, endWeight) == 0x78);
+CMR2_LAYOUT_CHECK(StageTimingSpread_startPositionFixed_Check, offsetof(StageTimingSpread, startPositionFixed) == 0xa0);
+CMR2_LAYOUT_CHECK(StageTimingSpread_endPositionFixed_Check, offsetof(StageTimingSpread, endPositionFixed) == 0xa4);
+CMR2_LAYOUT_CHECK(StageTimingSpread_startBlendFixed_Check, offsetof(StageTimingSpread, startBlendFixed) == 0xa8);
+CMR2_LAYOUT_CHECK(StageTimingSpread_endBlendFixed_Check, offsetof(StageTimingSpread, endBlendFixed) == 0xac);

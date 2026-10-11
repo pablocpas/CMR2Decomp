@@ -1,3 +1,4 @@
+#include "SoundCurve.h"
 #include <windows.h>
 #include <string.h>
 #include "NetPlayers.h"
@@ -328,11 +329,11 @@ BYTE NetRace_GetRaceSoundMode(void)
 }
 
 // FUNCTION: CMR2 0x00427ab0
-bool NetRace_IsValueWithinCurveRange(int value, int *pRange)
+bool NetRace_IsValueWithinCurveRange(int value, SoundCurve *pRange)
 {
-    if (value < pRange[1])
+    if (value < pRange->min)
         return false;
-    if (value > pRange[2])
+    if (value > pRange->max)
         return false;
     return true;
 }
@@ -528,39 +529,39 @@ void Race_SetCarSoundSelectionState(int value);
 // Linearly interpolated lookup in a byte curve {count, min, max, -, bytes}.
 // match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00427ad0
-unsigned int NetRace_InterpolateByteCurve(int value, int *pCurve)
+unsigned int NetRace_InterpolateByteCurve(int value, SoundCurve *pCurve)
 {
-    int range = pCurve[2] - pCurve[1];
-    int i = value - pCurve[1];
-    int index = (pCurve[0] * i) / range;
-    int step = range / pCurve[0];
+    int range = pCurve->max - pCurve->min;
+    int i = value - pCurve->min;
+    int index = (pCurve->count * i) / range;
+    int step = range / pCurve->count;
     int frac;
 
     if (step > 0) {
         frac = ((i % step) * 100) / step;
-        return (int)((100 - frac) * ((BYTE *)pCurve[4])[index]) / 100 +
-               (int)(((BYTE *)pCurve[4])[index + 1] * frac) / 100;
+        return (int)((100 - frac) * pCurve->pBytes[index]) / 100 +
+               (int)(pCurve->pBytes[index + 1] * frac) / 100;
     }
-    return ((BYTE *)pCurve[4])[index];
+    return pCurve->pBytes[index];
 }
 
 // Linearly interpolated lookup in a 16-bit curve {count, min, max, words}.
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00427b70
-unsigned int NetRace_InterpolateWordCurve(int value, int *pCurve)
+unsigned int NetRace_InterpolateWordCurve(int value, SoundCurve *pCurve)
 {
-    int range = pCurve[2] - pCurve[1];
-    int i = value - pCurve[1];
-    int index = (pCurve[0] * i) / range;
-    int step = range / pCurve[0];
+    int range = pCurve->max - pCurve->min;
+    int i = value - pCurve->min;
+    int index = (pCurve->count * i) / range;
+    int step = range / pCurve->count;
     int frac;
 
     if (step > 0) {
         frac = ((i % step) * 100) / step;
-        return (int)(((unsigned short *)pCurve[3])[index + 1] * frac) / 100 +
-               (int)(((unsigned short *)pCurve[3])[index] * (100 - frac)) / 100;
+        return (int)(pCurve->pSamples[index + 1] * frac) / 100 +
+               (int)(pCurve->pSamples[index] * (100 - frac)) / 100;
     }
-    return ((unsigned short *)pCurve[3])[index];
+    return pCurve->pSamples[index];
 }
 
 // Race start: decides g_unk0x00539ed8 from the game mode and applies the

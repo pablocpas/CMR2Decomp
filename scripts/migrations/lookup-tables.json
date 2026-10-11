@@ -1,0 +1,624 @@
+{
+  "baseline": "09a2b1b",
+  "families": [
+    {
+      "id": "sound-curve-pointers",
+      "classification": "pointer",
+      "evidence": "SurfaceTypes sets pSamples/pBytes to static sample arrays at stage initialization; range/interpolation consumers read numeric bounds and native sample pointers. Runtime descriptors are not file payloads.",
+      "symbols": [
+        "SoundCurve",
+        "NetRace_InterpolateByteCurve",
+        "NetRace_InterpolateWordCurve"
+      ],
+      "rules": [
+        {
+          "create": "CMR2Decomp/SoundCurve.h",
+          "content": "#ifndef _SOUND_CURVE_H\n#define _SOUND_CURVE_H\n\n#include <windows.h>\n\n// Runtime sound lookup: count intervals, inclusive input range, and the\n// count+1 pitch/volume samples assigned by the stage initializer.\nstruct SoundCurve {\n    int count;\n    int min;\n    int max;\n    unsigned short *pSamples;\n    BYTE *pBytes;\n};\n\n#endif\n",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "struct SoundCurve {\n    int count;\n    int min;\n    int max;\n    unsigned short *pSamples;\n    BYTE *pBytes;\n};",
+          "replace": "",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "#include <windows.h>",
+          "replace": "#include \"SoundCurve.h\"\n#include <windows.h>",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/NetRace.cpp"
+          ],
+          "find": "#include <windows.h>",
+          "replace": "#include \"SoundCurve.h\"\n#include <windows.h>",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageObjects.cpp"
+          ],
+          "find": "#include \"StageObjectCount.h\"",
+          "replace": "#include \"SoundCurve.h\"\n#include \"StageObjectCount.h\"",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "NetRace_IsValueWithinCurveRange(int value, int *pRange)",
+          "replace": "NetRace_IsValueWithinCurveRange(int value, SoundCurve *pRange)",
+          "count": 2
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "NetRace_InterpolateByteCurve(int value, int *pCurve)",
+          "replace": "NetRace_InterpolateByteCurve(int value, SoundCurve *pCurve)",
+          "count": 2
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "NetRace_InterpolateWordCurve(int value, int *pCurve)",
+          "replace": "NetRace_InterpolateWordCurve(int value, SoundCurve *pCurve)",
+          "count": 2
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "(int *)&g_curve0x",
+          "replace": "&g_curve0x",
+          "count": 18
+        },
+        {
+          "paths": [
+            "CMR2Decomp/NetRace.cpp"
+          ],
+          "find": "NetRace_IsValueWithinCurveRange(int value, int *pRange)",
+          "replace": "NetRace_IsValueWithinCurveRange(int value, SoundCurve *pRange)",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/NetRace.cpp"
+          ],
+          "find": "NetRace_InterpolateByteCurve(int value, int *pCurve)",
+          "replace": "NetRace_InterpolateByteCurve(int value, SoundCurve *pCurve)",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/NetRace.cpp"
+          ],
+          "find": "NetRace_InterpolateWordCurve(int value, int *pCurve)",
+          "replace": "NetRace_InterpolateWordCurve(int value, SoundCurve *pCurve)",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageObjects.cpp"
+          ],
+          "find": "NetRace_IsValueWithinCurveRange(int value, int *pRange)",
+          "replace": "NetRace_IsValueWithinCurveRange(int value, SoundCurve *pRange)",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageObjects.cpp"
+          ],
+          "find": "NetRace_InterpolateWordCurve(int value, int *pCurve)",
+          "replace": "NetRace_InterpolateWordCurve(int value, SoundCurve *pCurve)",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageObjects.cpp"
+          ],
+          "find": "(int *)&g_curve0x",
+          "replace": "&g_curve0x",
+          "count": 4
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "#define g_unk0x0051ea60 (&g_curve0x0051ea60)\n",
+          "replace": "",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_unk0x0051ea60",
+          "replace": "&g_curve0x0051ea60",
+          "count": 5
+        },
+        {
+          "paths": [
+            "CMR2Decomp/NetRace.cpp"
+          ],
+          "find": "bool NetRace_IsValueWithinCurveRange(int value, SoundCurve *pRange)\n{\n    if (value < pRange[1])\n        return false;\n    if (value > pRange[2])\n        return false;\n    return true;\n}",
+          "replace": "bool NetRace_IsValueWithinCurveRange(int value, SoundCurve *pRange)\n{\n    if (value < pRange->min)\n        return false;\n    if (value > pRange->max)\n        return false;\n    return true;\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/NetRace.cpp"
+          ],
+          "find": "unsigned int NetRace_InterpolateByteCurve(int value, SoundCurve *pCurve)\n{\n    int range = pCurve[2] - pCurve[1];\n    int i = value - pCurve[1];\n    int index = (pCurve[0] * i) / range;\n    int step = range / pCurve[0];\n    int frac;\n\n    if (step > 0) {\n        frac = ((i % step) * 100) / step;\n        return (int)((100 - frac) * ((BYTE *)pCurve[4])[index]) / 100 +\n               (int)(((BYTE *)pCurve[4])[index + 1] * frac) / 100;\n    }\n    return ((BYTE *)pCurve[4])[index];\n}",
+          "replace": "unsigned int NetRace_InterpolateByteCurve(int value, SoundCurve *pCurve)\n{\n    int range = pCurve->max - pCurve->min;\n    int i = value - pCurve->min;\n    int index = (pCurve->count * i) / range;\n    int step = range / pCurve->count;\n    int frac;\n\n    if (step > 0) {\n        frac = ((i % step) * 100) / step;\n        return (int)((100 - frac) * pCurve->pBytes[index]) / 100 +\n               (int)(pCurve->pBytes[index + 1] * frac) / 100;\n    }\n    return pCurve->pBytes[index];\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/NetRace.cpp"
+          ],
+          "find": "unsigned int NetRace_InterpolateWordCurve(int value, SoundCurve *pCurve)\n{\n    int range = pCurve[2] - pCurve[1];\n    int i = value - pCurve[1];\n    int index = (pCurve[0] * i) / range;\n    int step = range / pCurve[0];\n    int frac;\n\n    if (step > 0) {\n        frac = ((i % step) * 100) / step;\n        return (int)(((unsigned short *)pCurve[3])[index + 1] * frac) / 100 +\n               (int)(((unsigned short *)pCurve[3])[index] * (100 - frac)) / 100;\n    }\n    return ((unsigned short *)pCurve[3])[index];\n}",
+          "replace": "unsigned int NetRace_InterpolateWordCurve(int value, SoundCurve *pCurve)\n{\n    int range = pCurve->max - pCurve->min;\n    int i = value - pCurve->min;\n    int index = (pCurve->count * i) / range;\n    int step = range / pCurve->count;\n    int frac;\n\n    if (step > 0) {\n        frac = ((i % step) * 100) / step;\n        return (int)(pCurve->pSamples[index + 1] * frac) / 100 +\n               (int)(pCurve->pSamples[index] * (100 - frac)) / 100;\n    }\n    return pCurve->pSamples[index];\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "#define g_pUnk0x0051ea6c g_curve0x0051ea60.pSamples\n",
+          "replace": "",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_pUnk0x0051ea6c",
+          "replace": "g_curve0x0051ea60.pSamples",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "#define g_pUnk0x0051ea70 g_curve0x0051ea60.pBytes\n",
+          "replace": "",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_pUnk0x0051ea70",
+          "replace": "g_curve0x0051ea60.pBytes",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "#define g_pUnk0x0051eac4 g_curve0x0051eab8.pSamples\n",
+          "replace": "",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_pUnk0x0051eac4",
+          "replace": "g_curve0x0051eab8.pSamples",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "#define g_pUnk0x0051eac8 g_curve0x0051eab8.pBytes\n",
+          "replace": "",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_pUnk0x0051eac8",
+          "replace": "g_curve0x0051eab8.pBytes",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "#define g_pUnk0x0051ec5c g_curve0x0051ec50.pSamples\n",
+          "replace": "",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_pUnk0x0051ec5c",
+          "replace": "g_curve0x0051ec50.pSamples",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "#define g_pUnk0x0051ec60 g_curve0x0051ec50.pBytes\n",
+          "replace": "",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_pUnk0x0051ec60",
+          "replace": "g_curve0x0051ec50.pBytes",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "#define g_pUnk0x0051edf4 g_curve0x0051ede8.pSamples\n",
+          "replace": "",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_pUnk0x0051edf4",
+          "replace": "g_curve0x0051ede8.pSamples",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "#define g_pUnk0x0051edf8 g_curve0x0051ede8.pBytes\n",
+          "replace": "",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_pUnk0x0051edf8",
+          "replace": "g_curve0x0051ede8.pBytes",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_curve0x0051ea60",
+          "replace": "g_engineSoundCurve",
+          "count": 8
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_curve0x0051eab8",
+          "replace": "g_engineLoadSoundCurve",
+          "count": 10
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_curve0x0051ec50",
+          "replace": "g_engineWhineSoundCurve",
+          "count": 9
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageObjects.cpp"
+          ],
+          "find": "g_curve0x0051ec50",
+          "replace": "g_engineWhineSoundCurve",
+          "count": 5
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "g_curve0x0051ede8",
+          "replace": "g_speedSoundCurve",
+          "count": 8
+        },
+        {
+          "paths": [
+            "CMR2Decomp/SurfaceTypes.cpp"
+          ],
+          "find": "// NetRace_IsValueWithinCurveRange/ad0/b70 take the curve as an int[4]: count, min, max, samples.",
+          "replace": "// The range and interpolation consumers use the shared SoundCurve descriptor.",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/LayoutChecks.cpp"
+          ],
+          "find": "#include \"RaceRecord.h\"",
+          "replace": "#include \"RaceRecord.h\"\n#include \"SoundCurve.h\"",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/LayoutChecks.cpp"
+          ],
+          "find": "CMR2_LAYOUT_CHECK(StateCallbackPair_render_Check, offsetof(StateCallbackPair, render) == 4);",
+          "replace": "CMR2_LAYOUT_CHECK(StateCallbackPair_render_Check, offsetof(StateCallbackPair, render) == 4);\nCMR2_LAYOUT_CHECK(SoundCurve_SizeCheck, sizeof(SoundCurve) == 0x14);\nCMR2_LAYOUT_CHECK(SoundCurve_count_Check, offsetof(SoundCurve, count) == 0);\nCMR2_LAYOUT_CHECK(SoundCurve_min_Check, offsetof(SoundCurve, min) == 4);\nCMR2_LAYOUT_CHECK(SoundCurve_max_Check, offsetof(SoundCurve, max) == 8);\nCMR2_LAYOUT_CHECK(SoundCurve_pSamples_Check, offsetof(SoundCurve, pSamples) == 12);\nCMR2_LAYOUT_CHECK(SoundCurve_pBytes_Check, offsetof(SoundCurve, pBytes) == 16);",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "ai-reference-route-pointers",
+      "classification": "pointer",
+      "evidence": "The AI archive loader advances fixed 0x1720-byte pointer-free route records. StageTiming_RelocateCarRecordRoutePoints publishes their addresses and adds the route origin to x/z arrays; telemetry consumes heading/speed/x/z indexed samples.",
+      "symbols": [
+        "g_unk0x00592744",
+        "StageTiming_RelocateCarRecordRoutePoints",
+        "StageTiming_RecomputeCarSplitBarSamples"
+      ],
+      "rules": [
+        {
+          "create": "CMR2Decomp/AIReferenceRoute.h",
+          "content": "#ifndef _AI_REFERENCE_ROUTE_H\n#define _AI_REFERENCE_ROUTE_H\n\n// ON-DISK: four fixed arrays of 370 signed words in an AI archive (0x1720\n// bytes); no embedded pointers. Loading translates x/z by the route origin.\nstruct AIReferenceRoute {\n    int headingDegrees[370]; // 0x0000 fixed degrees, compared with body heading\n    int speedSamples[370];   // 0x05c8 speed comparison after fixed conversion\n    int positionX[370];      // 0x0b90\n    int positionZ[370];      // 0x1158\n};\n\nextern AIReferenceRoute *g_aiReferenceRoutes[9];\n\n#endif\n",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "#include \"StageObjectCount.h\"",
+          "replace": "#include \"AIReferenceRoute.h\"\n#include \"StageObjectCount.h\"",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "int g_unk0x00592744[9];\n#define g_unk0x00592748 (g_unk0x00592744 + 1)",
+          "replace": "AIReferenceRoute *g_aiReferenceRoutes[9];",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "StageTiming_RelocateCarRecordRoutePoints(BYTE *p, int unused, int count)",
+          "replace": "StageTiming_RelocateCarRecordRoutePoints(BYTE *p, BYTE **unused, int count)",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageObjects.cpp"
+          ],
+          "find": "StageTiming_RelocateCarRecordRoutePoints(BYTE *p, int unused, int count)",
+          "replace": "StageTiming_RelocateCarRecordRoutePoints(BYTE *p, BYTE **unused, int count)",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageObjects.cpp"
+          ],
+          "find": "(int)&g_unk0x0058e394[0x38]",
+          "replace": "&g_unk0x0058e394[0x38]",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "BYTE *StageTiming_RelocateCarRecordRoutePoints(BYTE *p, BYTE **unused, int count)\n{\n    int origin[3];\n    short points;\n    int *pp;\n    int i;\n\n    RallyData_GetRouteNodeGroundPosition(0, origin);\n    points = RallyData_GetRouteAvailabilityState();\n    for (pp = g_unk0x00592748; count > 0; count--, pp++) {\n        *pp = (int)p;\n        p += 0x1720;\n        for (i = 0; i < points; i++) {\n            *(int *)(*pp + 0xb90 + i * 4) += origin[0];\n            *(int *)(*pp + 0x1158 + i * 4) += origin[2];\n        }\n    }\n    return p;\n}",
+          "replace": "BYTE *StageTiming_RelocateCarRecordRoutePoints(BYTE *p, BYTE **unused, int count)\n{\n    int origin[3];\n    short points;\n    AIReferenceRoute **pp;\n    int i;\n\n    RallyData_GetRouteNodeGroundPosition(0, origin);\n    points = RallyData_GetRouteAvailabilityState();\n    for (pp = g_aiReferenceRoutes + 1; count > 0; count--, pp++) {\n        *pp = (AIReferenceRoute *)p;\n        p += sizeof(AIReferenceRoute);\n        for (i = 0; i < points; i++) {\n            (*pp)->positionX[i] += origin[0];\n            (*pp)->positionZ[i] += origin[2];\n        }\n    }\n    return p;\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *pOut, int variant)\n{\n// Angle difference wrapped to (-180, 180] degrees (16.16).\n#define WRAP_STORE(dst, t)              \\\n    if ((t) >= 0xb40000) {              \\\n        (dst) = (t) - 0x1680000;        \\\n    } else {                            \\\n        if ((t) < -0xb40000)            \\\n            (t) += 0x1680000;           \\\n        (dst) = (t);                    \\\n    }\n#define WRAP(t)                         \\\n    if ((t) >= 0xb40000)                \\\n        (t) -= 0x1680000;               \\\n    else if ((t) < -0xb40000)           \\\n        (t) += 0x1680000;\n#define REF_TRACK ((BYTE *)*(int *)((int *)&g_unk0x00592744 + variant))\n    BYTE *pc;\n    int nodeZ[20];\n    int nodeX[20];\n    int result[18];\n    int angles[20];\n    FixVector node;\n    int idxCount;\n    int frontAngle;\n    int sideAngle;\n    int px;\n    int pz;\n    int nx;\n    int nz;\n    int baseAngle;\n    int curAngle;\n    int len;\n    int refAngle;\n    int tmp;\n    int t;\n    int a;\n    int b;\n    int slack;\n    int scale;\n    int i;\n\n    pc = (BYTE *)pCar;\n    i = pOut[0x15];\n    idxCount = RallyData_GetRouteStateValue();\n    angles[1] = i;\n    angles[0] = i - 1;\n    angles[4] = i + 2;\n    angles[3] = i + 2;\n    angles[5] = i + 1;\n    angles[2] = i + 5;\n    for (i = 0; i < 6; i++) {\n        if (angles[i] - idxCount >= 0)\n            angles[i] -= idxCount;\n        if (angles[i] < 0)\n            angles[i] = idxCount - 1;\n    }\n    frontAngle = StageObject_Atan2Degrees(*(int *)(pc + 0x368), *(int *)(pc + 0x360));\n    pOut[4] = frontAngle;\n    sideAngle = StageObject_Atan2Degrees(*(int *)(pc + 0x410), *(int *)(pc + 0x408));\n    px = *(int *)(pc + 0x2d0);\n    pz = *(int *)(pc + 0x2d8);\n    RallyData_GetRouteNodeGroundPosition(angles[2], (int *)&node);\n    nodeZ[0] = node.z;\n    nodeX[0] = node.x;\n    if (mask & 1)\n        result[0] = StageObject_Atan2Degrees(nodeZ[0] - pz, nodeX[0] - px);\n    if (variant != 0)\n        result[2] = StageObject_Atan2Degrees(*(int *)(REF_TRACK + 0x1158 + angles[4] * 4) - pz,\n                                             *(int *)(REF_TRACK + 0xb90 + angles[4] * 4) - px);\n    if (mask & 2) {\n        RallyData_GetRouteNodeGroundPosition(angles[3], (int *)&node);\n        nodeZ[1] = node.z;\n        nodeX[1] = node.x;\n    }\n    if (mask & 2)\n        result[1] = StageObject_Atan2Degrees(nodeZ[1] - pz, nodeX[1] - px);\n    baseAngle = FixDiv(*(int *)(pc + 0x778), 0x4000000);\n    baseAngle = (int)(__int64)((double)baseAngle * CGraphics::m_65536);\n    RallyData_GetRouteNodeGroundPosition(angles[1], (int *)&node);\n    nz = node.z;\n    nx = node.x;\n    RallyData_GetRouteNodeGroundPosition(angles[0], (int *)&node);\n    curAngle = StageObject_Atan2Degrees(nz - node.z, nx - node.x);\n    tmp = curAngle;\n    WRAP(tmp)\n    pOut[0x13] = tmp;\n    pOut[0x14] = StageObject_Atan2Degrees(nz - pz, nx - px);\n    px -= nx;\n    len = FixMul(px, px);\n    pz -= nz;\n    len = FixMul(pz, pz) + len;\n    len = FixSqrt(len);\n    if (variant != 0)\n        refAngle = StageObject_Atan2Degrees(\n            *(int *)(REF_TRACK + 0x1158 + angles[1] * 4) - *(int *)(REF_TRACK + 0x1158 + angles[0] * 4),\n            *(int *)(REF_TRACK + 0xb90 + angles[1] * 4) - *(int *)(REF_TRACK + 0xb90 + angles[0] * 4));\n    tmp = curAngle - StageObject_Atan2Degrees(nodeZ[0] - nz, nodeX[0] - nx);\n    WRAP(tmp)\n    pOut[0x17] = tmp;\n    for (i = 0; i < 0x20; i++) {\n        if ((mask & (1 << i)) == 0)\n            continue;\n        switch (i) {\n        case 0:\n            tmp = frontAngle - result[0];\n            WRAP_STORE(pOut[6], tmp)\n            break;\n        case 1:\n            tmp = frontAngle - result[1];\n            WRAP_STORE(pOut[7], tmp)\n            break;\n        case 3:\n            pOut[3] = *(int *)(pc + 0x870);\n            break;\n        case 4:\n            pOut[0x28] = baseAngle - *(int *)(REF_TRACK + 0x5c8 + angles[5] * 4);\n            break;\n        case 6:\n            *pOut = baseAngle;\n            break;\n        case 8:\n            tmp = curAngle - pOut[0x14];\n            WRAP(tmp)\n            pOut[0xd] = FixMul(len,\n                               g_sinTable[(unsigned short)(int)((double)tmp * g_fixedDegreesToAngle12) & 0xfff]);\n            break;\n        case 9:\n            tmp = frontAngle - curAngle;\n            WRAP_STORE(pOut[0xe], tmp)\n            break;\n        case 0xa:\n            tmp = frontAngle - sideAngle;\n            WRAP_STORE(pOut[1], tmp)\n            break;\n        case 0xb:\n            pOut[2] = (int)*(short *)(pc + 0xb10);\n            break;\n        case 0xc:\n            pOut[0x18] = baseAngle - *(int *)(REF_TRACK + 0x5c8 + angles[1] * 4);\n            break;\n        case 0xe:\n            b = *(int *)(REF_TRACK + 0x5c8 + angles[1] * 4);\n            t = *(int *)(REF_TRACK + angles[1] * 4);\n            if (b > 0x3c0000) {\n                if (baseAngle < 0x280000) {\n                    t = curAngle;\n                } else {\n                    a = b - baseAngle;\n                    if (a > 0) {\n                        scale = FixMul(0xb333, b - 0x280000);\n                        slack = scale - (b - 0x280000) + a;\n                        if (slack > 0) {\n                            tmp = t - curAngle;\n                            WRAP(tmp)\n                            t -= FixMul(FixDiv(slack, scale), tmp);\n                        }\n                    }\n                }\n            }\n            tmp = frontAngle - t;\n            WRAP_STORE(pOut[0x19], tmp)\n            break;\n        case 0x12:\n            tmp = frontAngle - refAngle;\n            WRAP_STORE(pOut[0x1e], tmp)\n            break;\n        case 0x14:\n            tmp = frontAngle - result[2];\n            WRAP(tmp)\n            pOut[0x20] = tmp;\n            break;\n        }\n    }\n#undef WRAP_STORE\n#undef WRAP\n#undef REF_TRACK\n}",
+          "replace": "void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *pOut, int variant)\n{\n// Angle difference wrapped to (-180, 180] degrees (16.16).\n#define WRAP_STORE(dst, t)              \\\n    if ((t) >= 0xb40000) {              \\\n        (dst) = (t) - 0x1680000;        \\\n    } else {                            \\\n        if ((t) < -0xb40000)            \\\n            (t) += 0x1680000;           \\\n        (dst) = (t);                    \\\n    }\n#define WRAP(t)                         \\\n    if ((t) >= 0xb40000)                \\\n        (t) -= 0x1680000;               \\\n    else if ((t) < -0xb40000)           \\\n        (t) += 0x1680000;\n#define REF_TRACK (g_aiReferenceRoutes[variant])\n    int nodeZ[20];\n    int nodeX[20];\n    int result[18];\n    int angles[20];\n    FixVector node;\n    int idxCount;\n    int frontAngle;\n    int sideAngle;\n    int px;\n    int pz;\n    int nx;\n    int nz;\n    int baseAngle;\n    int curAngle;\n    int len;\n    int refAngle;\n    int tmp;\n    int t;\n    int a;\n    int b;\n    int slack;\n    int scale;\n    int i;\n\n    i = pOut[0x15];\n    idxCount = RallyData_GetRouteStateValue();\n    angles[1] = i;\n    angles[0] = i - 1;\n    angles[4] = i + 2;\n    angles[3] = i + 2;\n    angles[5] = i + 1;\n    angles[2] = i + 5;\n    for (i = 0; i < 6; i++) {\n        if (angles[i] - idxCount >= 0)\n            angles[i] -= idxCount;\n        if (angles[i] < 0)\n            angles[i] = idxCount - 1;\n    }\n    frontAngle = StageObject_Atan2Degrees(pCar->right.z, pCar->right.x);\n    pOut[4] = frontAngle;\n    sideAngle = StageObject_Atan2Degrees(pCar->velocity.z, pCar->velocity.x);\n    px = pCar->position.x;\n    pz = pCar->position.z;\n    RallyData_GetRouteNodeGroundPosition(angles[2], (int *)&node);\n    nodeZ[0] = node.z;\n    nodeX[0] = node.x;\n    if (mask & 1)\n        result[0] = StageObject_Atan2Degrees(nodeZ[0] - pz, nodeX[0] - px);\n    if (variant != 0)\n        result[2] = StageObject_Atan2Degrees(REF_TRACK->positionZ[angles[4]] - pz,\n                                             REF_TRACK->positionX[angles[4]] - px);\n    if (mask & 2) {\n        RallyData_GetRouteNodeGroundPosition(angles[3], (int *)&node);\n        nodeZ[1] = node.z;\n        nodeX[1] = node.x;\n    }\n    if (mask & 2)\n        result[1] = StageObject_Atan2Degrees(nodeZ[1] - pz, nodeX[1] - px);\n    baseAngle = FixDiv(pCar->speed, 0x4000000);\n    baseAngle = (int)(__int64)((double)baseAngle * CGraphics::m_65536);\n    RallyData_GetRouteNodeGroundPosition(angles[1], (int *)&node);\n    nz = node.z;\n    nx = node.x;\n    RallyData_GetRouteNodeGroundPosition(angles[0], (int *)&node);\n    curAngle = StageObject_Atan2Degrees(nz - node.z, nx - node.x);\n    tmp = curAngle;\n    WRAP(tmp)\n    pOut[0x13] = tmp;\n    pOut[0x14] = StageObject_Atan2Degrees(nz - pz, nx - px);\n    px -= nx;\n    len = FixMul(px, px);\n    pz -= nz;\n    len = FixMul(pz, pz) + len;\n    len = FixSqrt(len);\n    if (variant != 0)\n        refAngle = StageObject_Atan2Degrees(\n            REF_TRACK->positionZ[angles[1]] - REF_TRACK->positionZ[angles[0]],\n            REF_TRACK->positionX[angles[1]] - REF_TRACK->positionX[angles[0]]);\n    tmp = curAngle - StageObject_Atan2Degrees(nodeZ[0] - nz, nodeX[0] - nx);\n    WRAP(tmp)\n    pOut[0x17] = tmp;\n    for (i = 0; i < 0x20; i++) {\n        if ((mask & (1 << i)) == 0)\n            continue;\n        switch (i) {\n        case 0:\n            tmp = frontAngle - result[0];\n            WRAP_STORE(pOut[6], tmp)\n            break;\n        case 1:\n            tmp = frontAngle - result[1];\n            WRAP_STORE(pOut[7], tmp)\n            break;\n        case 3:\n            pOut[3] = pCar->wheelSlip[0];\n            break;\n        case 4:\n            pOut[0x28] = baseAngle - REF_TRACK->speedSamples[angles[5]];\n            break;\n        case 6:\n            *pOut = baseAngle;\n            break;\n        case 8:\n            tmp = curAngle - pOut[0x14];\n            WRAP(tmp)\n            pOut[0xd] = FixMul(len,\n                               g_sinTable[(unsigned short)(int)((double)tmp * g_fixedDegreesToAngle12) & 0xfff]);\n            break;\n        case 9:\n            tmp = frontAngle - curAngle;\n            WRAP_STORE(pOut[0xe], tmp)\n            break;\n        case 0xa:\n            tmp = frontAngle - sideAngle;\n            WRAP_STORE(pOut[1], tmp)\n            break;\n        case 0xb:\n            pOut[2] = (int)(short)pCar->wheelSteeringAngle;\n            break;\n        case 0xc:\n            pOut[0x18] = baseAngle - REF_TRACK->speedSamples[angles[1]];\n            break;\n        case 0xe:\n            b = REF_TRACK->speedSamples[angles[1]];\n            t = REF_TRACK->headingDegrees[angles[1]];\n            if (b > 0x3c0000) {\n                if (baseAngle < 0x280000) {\n                    t = curAngle;\n                } else {\n                    a = b - baseAngle;\n                    if (a > 0) {\n                        scale = FixMul(0xb333, b - 0x280000);\n                        slack = scale - (b - 0x280000) + a;\n                        if (slack > 0) {\n                            tmp = t - curAngle;\n                            WRAP(tmp)\n                            t -= FixMul(FixDiv(slack, scale), tmp);\n                        }\n                    }\n                }\n            }\n            tmp = frontAngle - t;\n            WRAP_STORE(pOut[0x19], tmp)\n            break;\n        case 0x12:\n            tmp = frontAngle - refAngle;\n            WRAP_STORE(pOut[0x1e], tmp)\n            break;\n        case 0x14:\n            tmp = frontAngle - result[2];\n            WRAP(tmp)\n            pOut[0x20] = tmp;\n            break;\n        }\n    }\n#undef WRAP_STORE\n#undef WRAP\n#undef REF_TRACK\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/LayoutChecks.cpp"
+          ],
+          "find": "#include \"CallbackState.h\"",
+          "replace": "#include \"CallbackState.h\"\n#include \"AIReferenceRoute.h\"",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/LayoutChecks.cpp"
+          ],
+          "find": "CMR2_LAYOUT_CHECK(RaceCallbackStorage_records_Check, offsetof(RaceCallbackStorage, records) == 0x10);",
+          "replace": "CMR2_LAYOUT_CHECK(RaceCallbackStorage_records_Check, offsetof(RaceCallbackStorage, records) == 0x10);\nCMR2_LAYOUT_CHECK(AIReferenceRoute_SizeCheck, sizeof(AIReferenceRoute) == 0x1720);\nCMR2_LAYOUT_CHECK(AIReferenceRoute_headingDegrees_Check, offsetof(AIReferenceRoute, headingDegrees) == 0);\nCMR2_LAYOUT_CHECK(AIReferenceRoute_speedSamples_Check, offsetof(AIReferenceRoute, speedSamples) == 0x5c8);\nCMR2_LAYOUT_CHECK(AIReferenceRoute_positionX_Check, offsetof(AIReferenceRoute, positionX) == 0xb90);\nCMR2_LAYOUT_CHECK(AIReferenceRoute_positionZ_Check, offsetof(AIReferenceRoute, positionZ) == 0x1158);",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "timing-spread-pointers",
+      "classification": "pointer",
+      "evidence": "StageTiming_InitRaceDriverRecords owns a 0xb0-byte stack block. BuildSplitInterpolationFactors writes four ten-word bands; fixed interpolation consumes those bands and the four numeric endpoint/blend parameters. The same block flows through sample refresh and CPU split sorting.",
+      "symbols": [
+        "StageTimingSpread",
+        "StageTiming_InterpolateCarFixedSampleRows",
+        "StageTiming_BlendCarPaintDecalRows"
+      ],
+      "rules": [
+        {
+          "create": "CMR2Decomp/StageTimingSpread.h",
+          "content": "#ifndef _STAGE_TIMING_SPREAD_H\n#define _STAGE_TIMING_SPREAD_H\n\n// Runtime interpolation workspace, owned by InitRaceDriverRecords. The\n// four ten-word bands share a word span for the original biased cursors.\nstruct StageTimingSpread {\n    union {\n        int sampleWords[40];\n        struct {\n            int progress[10];     // 0x00 accumulated active route fraction\n            int startWeight[10];  // 0x28 fraction before the start position\n            int middleWeight[10]; // 0x50 remaining active fraction\n            int endWeight[10];    // 0x78 fraction after the end position\n        };\n    };\n    int startPositionFixed; // 0xa0\n    int endPositionFixed;   // 0xa4\n    int startBlendFixed;    // 0xa8\n    int endBlendFixed;      // 0xac\n};\n\n#endif\n",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "struct StageTimingSpread {\n    BYTE field_0x0[0xa0];\n    int field_0xa0;\n    int field_0xa4;\n    int field_0xa8;\n    int field_0xac;\n};",
+          "replace": "",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "#include \"StageBlock.h\"",
+          "replace": "#include \"StageTimingSpread.h\"\n#include \"StageBlock.h\"",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "StageTiming_InterpolateCarFixedSampleRows(int pCar",
+          "replace": "StageTiming_InterpolateCarFixedSampleRows(StageTimingSpread *pCar",
+          "count": 2
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "StageTiming_BlendCarPaintDecalRows(int pCar",
+          "replace": "StageTiming_BlendCarPaintDecalRows(StageTimingSpread *pCar",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "StageTiming_RefreshPaintSamplesAndTimeSpread(int pCar",
+          "replace": "StageTiming_RefreshPaintSamplesAndTimeSpread(StageTimingSpread *pCar",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "StageTiming_BuildSplitInterpolationFactors(int *param_1",
+          "replace": "StageTiming_BuildSplitInterpolationFactors(StageTimingSpread *param_1",
+          "count": 2
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "StageTiming_BuildAndSortCPUSplitTimes(int *pTimes",
+          "replace": "StageTiming_BuildAndSortCPUSplitTimes(StageTimingSpread *pTimes",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "void StageTiming_InterpolateCarFixedSampleRows(StageTimingSpread *pCar, int *pOut)\n{\n    int f;\n    int n;\n    int rf;\n    int rn;\n    int rc;\n    int count;\n    int off;\n    int k;\n    int *pIn;\n    int *p;\n    int *pRow;\n    int sum;\n    int t;\n    int v1;\n    int v2;\n    int v3;\n    int v4;\n    int v5;\n    int v6;\n    int v1b;\n\n    f = *(int *)(pCar + 0xac);\n    n = *(int *)(pCar + 0xa8);\n    rf = f - n;\n    rn = 0x10000 - n;\n    rc = 0x10000 - f;\n    count = GetStageSplitCount();\n    if (count >= 1) {\n        off = 0x310;\n        pIn = (int *)(pCar + 0x7c);\n        pRow = pOut;\n        do {\n            p = pRow;\n            pRow += 0x10;\n            k = 0x10;\n            do {\n                v1 = FixMul(FixMul(pIn[-0x14], rn), *(int *)(g_unk0x0054241c + off - 0x280));\n                v2 = FixMul(FixMul(pIn[-0x14], n), *(int *)(g_unk0x0054241c + off));\n                v3 = FixMul(FixMul(pIn[0], rc), *(int *)(g_unk0x0054241c + off - 0x280));\n                v4 = FixMul(FixMul(pIn[0], f), *(int *)(g_unk0x0054241c + off));\n                v5 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off - 0x280));\n                v6 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off));\n                // the original re-reads pCar+0xa8 here instead of using n\n                v1b = *(int *)(pCar + 0xa8) + FixMul(rf, pIn[-0x1f]);\n                sum = *(int *)(pCar + 0xa8) + FixMul(rf, pIn[-0x1e]) + v1b;\n                t = FixDiv(sum, 0x20000);\n                // 0x456697 weights the second table by t, the first by 1-t\n                *p = FixMul(t, v6) + FixMul(0x10000 - t, v5) + v4 + v3 + v2 + v1;\n                k--;\n                p++;\n                off += 4;\n            } while (k != 0);\n            pIn++;\n            count--;\n        } while (count != 0);\n    }\n}",
+          "replace": "void StageTiming_InterpolateCarFixedSampleRows(StageTimingSpread *pCar, int *pOut)\n{\n    int f;\n    int n;\n    int rf;\n    int rn;\n    int rc;\n    int count;\n    int off;\n    int k;\n    int *pIn;\n    int *p;\n    int *pRow;\n    int sum;\n    int t;\n    int v1;\n    int v2;\n    int v3;\n    int v4;\n    int v5;\n    int v6;\n    int v1b;\n\n    f = pCar->endBlendFixed;\n    n = pCar->startBlendFixed;\n    rf = f - n;\n    rn = 0x10000 - n;\n    rc = 0x10000 - f;\n    count = GetStageSplitCount();\n    if (count >= 1) {\n        off = 0x310;\n        pIn = &pCar->sampleWords[31];\n        pRow = pOut;\n        do {\n            p = pRow;\n            pRow += 0x10;\n            k = 0x10;\n            do {\n                v1 = FixMul(FixMul(pIn[-0x14], rn), *(int *)(g_unk0x0054241c + off - 0x280));\n                v2 = FixMul(FixMul(pIn[-0x14], n), *(int *)(g_unk0x0054241c + off));\n                v3 = FixMul(FixMul(pIn[0], rc), *(int *)(g_unk0x0054241c + off - 0x280));\n                v4 = FixMul(FixMul(pIn[0], f), *(int *)(g_unk0x0054241c + off));\n                v5 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off - 0x280));\n                v6 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off));\n                // the original re-reads pCar+0xa8 here instead of using n\n                v1b = pCar->startBlendFixed + FixMul(rf, pIn[-0x1f]);\n                sum = pCar->startBlendFixed + FixMul(rf, pIn[-0x1e]) + v1b;\n                t = FixDiv(sum, 0x20000);\n                // 0x456697 weights the second table by t, the first by 1-t\n                *p = FixMul(t, v6) + FixMul(0x10000 - t, v5) + v4 + v3 + v2 + v1;\n                k--;\n                p++;\n                off += 4;\n            } while (k != 0);\n            pIn++;\n            count--;\n        } while (count != 0);\n    }\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "void StageTiming_BlendCarPaintDecalRows(StageTimingSpread *pCar, int *pOut)\n{\n    __int64 v;\n    int t;\n    int a8;\n    int r8;\n    int ac;\n    int rc;\n    int sum;\n    int d0;\n    int d3;\n    int d4;\n    int t1;\n    int t2;\n    int t3;\n    int m1;\n    int m2;\n    int m3;\n    int m4;\n    int m5;\n    int m6;\n    int m7;\n    int m8;\n    int m9;\n    int m10;\n    int m11;\n    int t4;\n    int i;\n\n    v = (unsigned int)RallyData_GetRouteAvailabilityState();\n    v = (__int64)((double)v * CGraphics::m_65536);\n    t = (int)v;\n    // The original computes this and discards it (inline __asm FixMul is opaque\n    // to MSVC6, so it cannot be eliminated); reproduced to match the codegen.\n    FixMul(0x20000, t);\n    a8 = *(int *)(pCar + 0xa8);\n    ac = *(int *)(pCar + 0xac);\n    r8 = 0x10000 - a8;\n    rc = 0x10000 - ac;\n    sum = r8 + rc;\n    for (i = 0; i < 0x50; i += 5, pOut++) {\n        d3 = (int)(__int64)(g_unk0x0054241c[i + 3] * CGraphics::m_65536);\n        d4 = (int)(__int64)(g_unk0x0054241c[i + 4] * CGraphics::m_65536);\n        d0 = (int)(__int64)(g_unk0x0054241c[i] * CGraphics::m_65536);\n        t1 = FixDiv(*(int *)(pCar + 0xa0), t);\n        t2 = FixDiv(t - *(int *)(pCar + 0xa4), t);\n        t3 = 0x10000 - t2 - t1;\n        m1 = FixMul(r8, d3);\n        m2 = FixMul(t1, m1);\n        m3 = FixMul(a8, d4);\n        m4 = FixMul(t1, m3);\n        m5 = FixMul(rc, d3);\n        m6 = FixMul(t2, m5);\n        m7 = FixMul(d4, ac);\n        m8 = FixMul(t2, m7);\n        t4 = FixDiv(sum, 0x20000);\n        m9 = FixMul(t4, d3);\n        m10 = FixMul(t3, m9);\n        m11 = FixMul(d4, 0x10000 - t4);\n        *pOut = FixMul(t3, m11) + m10 + m8 + m6 + m4 + m2 + d0;\n    }\n}",
+          "replace": "void StageTiming_BlendCarPaintDecalRows(StageTimingSpread *pCar, int *pOut)\n{\n    __int64 v;\n    int t;\n    int a8;\n    int r8;\n    int ac;\n    int rc;\n    int sum;\n    int d0;\n    int d3;\n    int d4;\n    int t1;\n    int t2;\n    int t3;\n    int m1;\n    int m2;\n    int m3;\n    int m4;\n    int m5;\n    int m6;\n    int m7;\n    int m8;\n    int m9;\n    int m10;\n    int m11;\n    int t4;\n    int i;\n\n    v = (unsigned int)RallyData_GetRouteAvailabilityState();\n    v = (__int64)((double)v * CGraphics::m_65536);\n    t = (int)v;\n    // The original computes this and discards it (inline __asm FixMul is opaque\n    // to MSVC6, so it cannot be eliminated); reproduced to match the codegen.\n    FixMul(0x20000, t);\n    a8 = pCar->startBlendFixed;\n    ac = pCar->endBlendFixed;\n    r8 = 0x10000 - a8;\n    rc = 0x10000 - ac;\n    sum = r8 + rc;\n    for (i = 0; i < 0x50; i += 5, pOut++) {\n        d3 = (int)(__int64)(g_unk0x0054241c[i + 3] * CGraphics::m_65536);\n        d4 = (int)(__int64)(g_unk0x0054241c[i + 4] * CGraphics::m_65536);\n        d0 = (int)(__int64)(g_unk0x0054241c[i] * CGraphics::m_65536);\n        t1 = FixDiv(pCar->startPositionFixed, t);\n        t2 = FixDiv(t - pCar->endPositionFixed, t);\n        t3 = 0x10000 - t2 - t1;\n        m1 = FixMul(r8, d3);\n        m2 = FixMul(t1, m1);\n        m3 = FixMul(a8, d4);\n        m4 = FixMul(t1, m3);\n        m5 = FixMul(rc, d3);\n        m6 = FixMul(t2, m5);\n        m7 = FixMul(d4, ac);\n        m8 = FixMul(t2, m7);\n        t4 = FixDiv(sum, 0x20000);\n        m9 = FixMul(t4, d3);\n        m10 = FixMul(t3, m9);\n        m11 = FixMul(d4, 0x10000 - t4);\n        *pOut = FixMul(t3, m11) + m10 + m8 + m6 + m4 + m2 + d0;\n    }\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "void StageTiming_BuildSplitInterpolationFactors(StageTimingSpread *param_1)\n{\n    int local_20;\n    int local_24;\n    int iVar1;\n    int iVar2;\n    int iVar3;\n    int iVar4;\n    int iVar5;\n    int iVar6;\n    int iVar7;\n    unsigned int local_14;\n    unsigned int local_c;\n    unsigned int local_8;\n    unsigned int uVar7;\n    int *piVar8;\n\n    iVar1 = GetStageSplitCount();\n    for (iVar5 = 1; iVar5 <= iVar1; iVar5++) {\n        if (param_1[0x28] >= Stage_GetSplitPositionFixed(iVar5 - 1) && param_1[0x28] < Stage_GetSplitPositionFixed(iVar5))\n            local_20 = iVar5;\n        if (param_1[0x29] > Stage_GetSplitPositionFixed(iVar5 - 1) && param_1[0x29] <= Stage_GetSplitPositionFixed(iVar5))\n            local_24 = iVar5;\n    }\n    iVar5 = param_1[0x29];\n    iVar2 = param_1[0x28];\n    iVar7 = iVar5 - iVar2;\n    local_14 = 0;\n    *param_1 = 0;\n    iVar6 = 1;\n    if (iVar1 >= 1) {\n        piVar8 = param_1 + 0xb;\n        do {\n            iVar3 = Stage_GetSplitPositionFixed(iVar6);\n            iVar4 = Stage_GetSplitPositionFixed(iVar6 - 1);\n            uVar7 = iVar3 - iVar4;\n            if (iVar6 < local_20)\n                local_c = uVar7;\n            if (iVar6 == local_20)\n                local_c = param_1[0x28] - Stage_GetSplitPositionFixed(iVar6 - 1);\n            if (iVar6 > local_20)\n                local_c = 0;\n            if (iVar6 < local_24)\n                local_8 = 0;\n            if (iVar6 == local_24)\n                local_8 = Stage_GetSplitPositionFixed(iVar6) - param_1[0x29];\n            if (iVar6 > local_24)\n                local_8 = uVar7;\n            *piVar8 = FixDiv(local_c, uVar7);\n            iVar3 = FixDiv(local_8, uVar7);\n            *(volatile int *)(piVar8 + 0x14) = iVar3;\n            piVar8[10] = (0x10000 - *piVar8) - iVar3;\n            local_14 = local_14 + ((uVar7 - local_8) - local_c);\n            if (iVar7 == 0)\n                piVar8[-10] = 0;\n            else\n                piVar8[-10] = FixDiv(local_14, iVar7);\n            iVar6 = iVar6 + 1;\n            piVar8 = piVar8 + 1;\n        } while (iVar6 <= iVar1);\n    }\n}",
+          "replace": "void StageTiming_BuildSplitInterpolationFactors(StageTimingSpread *param_1)\n{\n    int local_20;\n    int local_24;\n    int iVar1;\n    int iVar2;\n    int iVar3;\n    int iVar4;\n    int iVar5;\n    int iVar6;\n    int iVar7;\n    unsigned int local_14;\n    unsigned int local_c;\n    unsigned int local_8;\n    unsigned int uVar7;\n    int *piVar8;\n\n    iVar1 = GetStageSplitCount();\n    for (iVar5 = 1; iVar5 <= iVar1; iVar5++) {\n        if (param_1->startPositionFixed >= Stage_GetSplitPositionFixed(iVar5 - 1) && param_1->startPositionFixed < Stage_GetSplitPositionFixed(iVar5))\n            local_20 = iVar5;\n        if (param_1->endPositionFixed > Stage_GetSplitPositionFixed(iVar5 - 1) && param_1->endPositionFixed <= Stage_GetSplitPositionFixed(iVar5))\n            local_24 = iVar5;\n    }\n    iVar5 = param_1->endPositionFixed;\n    iVar2 = param_1->startPositionFixed;\n    iVar7 = iVar5 - iVar2;\n    local_14 = 0;\n    param_1->sampleWords[0] = 0;\n    iVar6 = 1;\n    if (iVar1 >= 1) {\n        piVar8 = param_1->sampleWords + 0xb;\n        do {\n            iVar3 = Stage_GetSplitPositionFixed(iVar6);\n            iVar4 = Stage_GetSplitPositionFixed(iVar6 - 1);\n            uVar7 = iVar3 - iVar4;\n            if (iVar6 < local_20)\n                local_c = uVar7;\n            if (iVar6 == local_20)\n                local_c = param_1->startPositionFixed - Stage_GetSplitPositionFixed(iVar6 - 1);\n            if (iVar6 > local_20)\n                local_c = 0;\n            if (iVar6 < local_24)\n                local_8 = 0;\n            if (iVar6 == local_24)\n                local_8 = Stage_GetSplitPositionFixed(iVar6) - param_1->endPositionFixed;\n            if (iVar6 > local_24)\n                local_8 = uVar7;\n            *piVar8 = FixDiv(local_c, uVar7);\n            iVar3 = FixDiv(local_8, uVar7);\n            *(volatile int *)(piVar8 + 0x14) = iVar3;\n            piVar8[10] = (0x10000 - *piVar8) - iVar3;\n            local_14 = local_14 + ((uVar7 - local_8) - local_c);\n            if (iVar7 == 0)\n                piVar8[-10] = 0;\n            else\n                piVar8[-10] = FixDiv(local_14, iVar7);\n            iVar6 = iVar6 + 1;\n            piVar8 = piVar8 + 1;\n        } while (iVar6 <= iVar1);\n    }\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "StageTiming_InterpolateCarFixedSampleRows((int)pTimes, pDeltas);",
+          "replace": "StageTiming_InterpolateCarFixedSampleRows(pTimes, pDeltas);",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "StageTiming_RefreshPaintSamplesAndTimeSpread((int)&local);",
+          "replace": "StageTiming_RefreshPaintSamplesAndTimeSpread(&local);",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "StageTiming_BuildAndSortCPUSplitTimes((int *)&local);",
+          "replace": "StageTiming_BuildAndSortCPUSplitTimes(&local);",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "local.field_0xa0",
+          "replace": "local.startPositionFixed",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "local.field_0xa4",
+          "replace": "local.endPositionFixed",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "local.field_0xa8",
+          "replace": "local.startBlendFixed",
+          "count": 2
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "local.field_0xac",
+          "replace": "local.endBlendFixed",
+          "count": 2
+        },
+        {
+          "paths": [
+            "CMR2Decomp/LayoutChecks.cpp"
+          ],
+          "find": "#include \"StageWeather.h\"",
+          "replace": "#include \"StageWeather.h\"\n#include \"StageTimingSpread.h\"",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/LayoutChecks.cpp"
+          ],
+          "find": "CMR2_LAYOUT_CHECK(CallbackStateMachine_rules_Check, offsetof(CallbackStateMachine, rules) == 12);",
+          "replace": "CMR2_LAYOUT_CHECK(CallbackStateMachine_rules_Check, offsetof(CallbackStateMachine, rules) == 12);\nCMR2_LAYOUT_CHECK(StageTimingSpread_SizeCheck, sizeof(StageTimingSpread) == 0xb0);\nCMR2_LAYOUT_CHECK(StageTimingSpread_sampleWords_Check, offsetof(StageTimingSpread, sampleWords) == 0);\nCMR2_LAYOUT_CHECK(StageTimingSpread_progress_Check, offsetof(StageTimingSpread, progress) == 0);\nCMR2_LAYOUT_CHECK(StageTimingSpread_startWeight_Check, offsetof(StageTimingSpread, startWeight) == 0x28);\nCMR2_LAYOUT_CHECK(StageTimingSpread_middleWeight_Check, offsetof(StageTimingSpread, middleWeight) == 0x50);\nCMR2_LAYOUT_CHECK(StageTimingSpread_endWeight_Check, offsetof(StageTimingSpread, endWeight) == 0x78);\nCMR2_LAYOUT_CHECK(StageTimingSpread_startPositionFixed_Check, offsetof(StageTimingSpread, startPositionFixed) == 0xa0);\nCMR2_LAYOUT_CHECK(StageTimingSpread_endPositionFixed_Check, offsetof(StageTimingSpread, endPositionFixed) == 0xa4);\nCMR2_LAYOUT_CHECK(StageTimingSpread_startBlendFixed_Check, offsetof(StageTimingSpread, startBlendFixed) == 0xa8);\nCMR2_LAYOUT_CHECK(StageTimingSpread_endBlendFixed_Check, offsetof(StageTimingSpread, endBlendFixed) == 0xac);",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

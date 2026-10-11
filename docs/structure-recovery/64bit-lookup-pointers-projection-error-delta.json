@@ -1,0 +1,8 @@
+{
+  "baseline": "09a2b1b",
+  "before": 367,
+  "after": 367,
+  "new": {},
+  "removed": {},
+  "note": "All diagnostics retained; comparison uses the same port-only include preservation as the previous batch."
+}

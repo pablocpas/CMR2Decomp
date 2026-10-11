@@ -1,4 +1,6 @@
+#include "AIReferenceRoute.h"
 #include "StageObjectCount.h"
+#include "StageTimingSpread.h"
 #include "StageBlock.h"
 #include "StageTiming.h"
 #include "TrackCollisionData.h"
@@ -611,7 +613,7 @@ unsigned int NetPlayers_IsPlayerPresent(int index);
 // Builds the per-split interpolation factors between the first and last split
 // time of the stage.
 // FUNCTION: CMR2 0x00456330
-void StageTiming_BuildSplitInterpolationFactors(int *param_1)
+void StageTiming_BuildSplitInterpolationFactors(StageTimingSpread *param_1)
 {
     int local_20;
     int local_24;
@@ -630,19 +632,19 @@ void StageTiming_BuildSplitInterpolationFactors(int *param_1)
 
     iVar1 = GetStageSplitCount();
     for (iVar5 = 1; iVar5 <= iVar1; iVar5++) {
-        if (param_1[0x28] >= Stage_GetSplitPositionFixed(iVar5 - 1) && param_1[0x28] < Stage_GetSplitPositionFixed(iVar5))
+        if (param_1->startPositionFixed >= Stage_GetSplitPositionFixed(iVar5 - 1) && param_1->startPositionFixed < Stage_GetSplitPositionFixed(iVar5))
             local_20 = iVar5;
-        if (param_1[0x29] > Stage_GetSplitPositionFixed(iVar5 - 1) && param_1[0x29] <= Stage_GetSplitPositionFixed(iVar5))
+        if (param_1->endPositionFixed > Stage_GetSplitPositionFixed(iVar5 - 1) && param_1->endPositionFixed <= Stage_GetSplitPositionFixed(iVar5))
             local_24 = iVar5;
     }
-    iVar5 = param_1[0x29];
-    iVar2 = param_1[0x28];
+    iVar5 = param_1->endPositionFixed;
+    iVar2 = param_1->startPositionFixed;
     iVar7 = iVar5 - iVar2;
     local_14 = 0;
-    *param_1 = 0;
+    param_1->sampleWords[0] = 0;
     iVar6 = 1;
     if (iVar1 >= 1) {
-        piVar8 = param_1 + 0xb;
+        piVar8 = param_1->sampleWords + 0xb;
         do {
             iVar3 = Stage_GetSplitPositionFixed(iVar6);
             iVar4 = Stage_GetSplitPositionFixed(iVar6 - 1);
@@ -650,13 +652,13 @@ void StageTiming_BuildSplitInterpolationFactors(int *param_1)
             if (iVar6 < local_20)
                 local_c = uVar7;
             if (iVar6 == local_20)
-                local_c = param_1[0x28] - Stage_GetSplitPositionFixed(iVar6 - 1);
+                local_c = param_1->startPositionFixed - Stage_GetSplitPositionFixed(iVar6 - 1);
             if (iVar6 > local_20)
                 local_c = 0;
             if (iVar6 < local_24)
                 local_8 = 0;
             if (iVar6 == local_24)
-                local_8 = Stage_GetSplitPositionFixed(iVar6) - param_1[0x29];
+                local_8 = Stage_GetSplitPositionFixed(iVar6) - param_1->endPositionFixed;
             if (iVar6 > local_24)
                 local_8 = uVar7;
             *piVar8 = FixDiv(local_c, uVar7);
@@ -1216,7 +1218,7 @@ void StageTiming_SetNodeMeshAlpha(SceneNode *pNode, int alpha, BYTE checkFlag)
 // Interpolates 16 fixed-point samples per row from the car's 0x7c table into
 // pOut, weighting the two corner rows by the car's 0xa8/0xac offsets.
 // FUNCTION: CMR2 0x004564d0
-void StageTiming_InterpolateCarFixedSampleRows(int pCar, int *pOut)
+void StageTiming_InterpolateCarFixedSampleRows(StageTimingSpread *pCar, int *pOut)
 {
     int f;
     int n;
@@ -1239,15 +1241,15 @@ void StageTiming_InterpolateCarFixedSampleRows(int pCar, int *pOut)
     int v6;
     int v1b;
 
-    f = *(int *)(pCar + 0xac);
-    n = *(int *)(pCar + 0xa8);
+    f = pCar->endBlendFixed;
+    n = pCar->startBlendFixed;
     rf = f - n;
     rn = 0x10000 - n;
     rc = 0x10000 - f;
     count = GetStageSplitCount();
     if (count >= 1) {
         off = 0x310;
-        pIn = (int *)(pCar + 0x7c);
+        pIn = &pCar->sampleWords[31];
         pRow = pOut;
         do {
             p = pRow;
@@ -1261,8 +1263,8 @@ void StageTiming_InterpolateCarFixedSampleRows(int pCar, int *pOut)
                 v5 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off - 0x280));
                 v6 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off));
                 // the original re-reads pCar+0xa8 here instead of using n
-                v1b = *(int *)(pCar + 0xa8) + FixMul(rf, pIn[-0x1f]);
-                sum = *(int *)(pCar + 0xa8) + FixMul(rf, pIn[-0x1e]) + v1b;
+                v1b = pCar->startBlendFixed + FixMul(rf, pIn[-0x1f]);
+                sum = pCar->startBlendFixed + FixMul(rf, pIn[-0x1e]) + v1b;
                 t = FixDiv(sum, 0x20000);
                 // 0x456697 weights the second table by t, the first by 1-t
                 *p = FixMul(t, v6) + FixMul(0x10000 - t, v5) + v4 + v3 + v2 + v1;
@@ -3604,8 +3606,7 @@ void CarPart_IntegrateVerticalAxisTurn(void)
 // One table: 0x592744 is slot 0 and the eight per-variant entries follow
 // (callers index it with a 1-based variant).
 // GLOBAL: CMR2 0x00592744
-int g_unk0x00592744[9];
-#define g_unk0x00592748 (g_unk0x00592744 + 1)
+AIReferenceRoute *g_aiReferenceRoutes[9];
 
 void RallyData_GetRouteNodeGroundPosition(int index, int *pOut);
 int RallyData_GetRouteAvailabilityState(void);
@@ -3614,21 +3615,21 @@ int RallyData_GetRouteAvailabilityState(void);
 // points by the route origin; returns the end of the records.
 // match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00498590
-BYTE *StageTiming_RelocateCarRecordRoutePoints(BYTE *p, int unused, int count)
+BYTE *StageTiming_RelocateCarRecordRoutePoints(BYTE *p, BYTE **unused, int count)
 {
     int origin[3];
     short points;
-    int *pp;
+    AIReferenceRoute **pp;
     int i;
 
     RallyData_GetRouteNodeGroundPosition(0, origin);
     points = RallyData_GetRouteAvailabilityState();
-    for (pp = g_unk0x00592748; count > 0; count--, pp++) {
-        *pp = (int)p;
-        p += 0x1720;
+    for (pp = g_aiReferenceRoutes + 1; count > 0; count--, pp++) {
+        *pp = (AIReferenceRoute *)p;
+        p += sizeof(AIReferenceRoute);
         for (i = 0; i < points; i++) {
-            *(int *)(*pp + 0xb90 + i * 4) += origin[0];
-            *(int *)(*pp + 0x1158 + i * 4) += origin[2];
+            (*pp)->positionX[i] += origin[0];
+            (*pp)->positionZ[i] += origin[2];
         }
     }
     return p;
@@ -4443,7 +4444,7 @@ extern double g_minus65536;
 // Bilinear blend of a car's 5-byte-wide paint-decal rows (0x54241c) into 16
 // fixed-point samples, weighted by the car's two paint offsets (0xa8/0xac).
 // FUNCTION: CMR2 0x00455f00
-void StageTiming_BlendCarPaintDecalRows(int pCar, int *pOut)
+void StageTiming_BlendCarPaintDecalRows(StageTimingSpread *pCar, int *pOut)
 {
     __int64 v;
     int t;
@@ -4478,8 +4479,8 @@ void StageTiming_BlendCarPaintDecalRows(int pCar, int *pOut)
     // The original computes this and discards it (inline __asm FixMul is opaque
     // to MSVC6, so it cannot be eliminated); reproduced to match the codegen.
     FixMul(0x20000, t);
-    a8 = *(int *)(pCar + 0xa8);
-    ac = *(int *)(pCar + 0xac);
+    a8 = pCar->startBlendFixed;
+    ac = pCar->endBlendFixed;
     r8 = 0x10000 - a8;
     rc = 0x10000 - ac;
     sum = r8 + rc;
@@ -4487,8 +4488,8 @@ void StageTiming_BlendCarPaintDecalRows(int pCar, int *pOut)
         d3 = (int)(__int64)(g_unk0x0054241c[i + 3] * CGraphics::m_65536);
         d4 = (int)(__int64)(g_unk0x0054241c[i + 4] * CGraphics::m_65536);
         d0 = (int)(__int64)(g_unk0x0054241c[i] * CGraphics::m_65536);
-        t1 = FixDiv(*(int *)(pCar + 0xa0), t);
-        t2 = FixDiv(t - *(int *)(pCar + 0xa4), t);
+        t1 = FixDiv(pCar->startPositionFixed, t);
+        t2 = FixDiv(t - pCar->endPositionFixed, t);
         t3 = 0x10000 - t2 - t1;
         m1 = FixMul(r8, d3);
         m2 = FixMul(t1, m1);
@@ -5888,7 +5889,7 @@ void StageTiming_RecordAndReorderSplitTime(int car)
 // Refreshes the paint-decal samples of one car and applies the resulting time
 // spread to the current timing record.
 // FUNCTION: CMR2 0x00455ed0
-void StageTiming_RefreshPaintSamplesAndTimeSpread(int pCar)
+void StageTiming_RefreshPaintSamplesAndTimeSpread(StageTimingSpread *pCar)
 {
     int samples[16];
 
@@ -7613,8 +7614,7 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
         (t) -= 0x1680000;               \
     else if ((t) < -0xb40000)           \
         (t) += 0x1680000;
-#define REF_TRACK ((BYTE *)*(int *)((int *)&g_unk0x00592744 + variant))
-    BYTE *pc;
+#define REF_TRACK (g_aiReferenceRoutes[variant])
     int nodeZ[20];
     int nodeX[20];
     int result[18];
@@ -7639,7 +7639,6 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
     int scale;
     int i;
 
-    pc = (BYTE *)pCar;
     i = pOut[0x15];
     idxCount = RallyData_GetRouteStateValue();
     angles[1] = i;
@@ -7654,19 +7653,19 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
         if (angles[i] < 0)
             angles[i] = idxCount - 1;
     }
-    frontAngle = StageObject_Atan2Degrees(*(int *)(pc + 0x368), *(int *)(pc + 0x360));
+    frontAngle = StageObject_Atan2Degrees(pCar->right.z, pCar->right.x);
     pOut[4] = frontAngle;
-    sideAngle = StageObject_Atan2Degrees(*(int *)(pc + 0x410), *(int *)(pc + 0x408));
-    px = *(int *)(pc + 0x2d0);
-    pz = *(int *)(pc + 0x2d8);
+    sideAngle = StageObject_Atan2Degrees(pCar->velocity.z, pCar->velocity.x);
+    px = pCar->position.x;
+    pz = pCar->position.z;
     RallyData_GetRouteNodeGroundPosition(angles[2], (int *)&node);
     nodeZ[0] = node.z;
     nodeX[0] = node.x;
     if (mask & 1)
         result[0] = StageObject_Atan2Degrees(nodeZ[0] - pz, nodeX[0] - px);
     if (variant != 0)
-        result[2] = StageObject_Atan2Degrees(*(int *)(REF_TRACK + 0x1158 + angles[4] * 4) - pz,
-                                             *(int *)(REF_TRACK + 0xb90 + angles[4] * 4) - px);
+        result[2] = StageObject_Atan2Degrees(REF_TRACK->positionZ[angles[4]] - pz,
+                                             REF_TRACK->positionX[angles[4]] - px);
     if (mask & 2) {
         RallyData_GetRouteNodeGroundPosition(angles[3], (int *)&node);
         nodeZ[1] = node.z;
@@ -7674,7 +7673,7 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
     }
     if (mask & 2)
         result[1] = StageObject_Atan2Degrees(nodeZ[1] - pz, nodeX[1] - px);
-    baseAngle = FixDiv(*(int *)(pc + 0x778), 0x4000000);
+    baseAngle = FixDiv(pCar->speed, 0x4000000);
     baseAngle = (int)(__int64)((double)baseAngle * CGraphics::m_65536);
     RallyData_GetRouteNodeGroundPosition(angles[1], (int *)&node);
     nz = node.z;
@@ -7692,8 +7691,8 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
     len = FixSqrt(len);
     if (variant != 0)
         refAngle = StageObject_Atan2Degrees(
-            *(int *)(REF_TRACK + 0x1158 + angles[1] * 4) - *(int *)(REF_TRACK + 0x1158 + angles[0] * 4),
-            *(int *)(REF_TRACK + 0xb90 + angles[1] * 4) - *(int *)(REF_TRACK + 0xb90 + angles[0] * 4));
+            REF_TRACK->positionZ[angles[1]] - REF_TRACK->positionZ[angles[0]],
+            REF_TRACK->positionX[angles[1]] - REF_TRACK->positionX[angles[0]]);
     tmp = curAngle - StageObject_Atan2Degrees(nodeZ[0] - nz, nodeX[0] - nx);
     WRAP(tmp)
     pOut[0x17] = tmp;
@@ -7710,10 +7709,10 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
             WRAP_STORE(pOut[7], tmp)
             break;
         case 3:
-            pOut[3] = *(int *)(pc + 0x870);
+            pOut[3] = pCar->wheelSlip[0];
             break;
         case 4:
-            pOut[0x28] = baseAngle - *(int *)(REF_TRACK + 0x5c8 + angles[5] * 4);
+            pOut[0x28] = baseAngle - REF_TRACK->speedSamples[angles[5]];
             break;
         case 6:
             *pOut = baseAngle;
@@ -7733,14 +7732,14 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
             WRAP_STORE(pOut[1], tmp)
             break;
         case 0xb:
-            pOut[2] = (int)*(short *)(pc + 0xb10);
+            pOut[2] = (int)(short)pCar->wheelSteeringAngle;
             break;
         case 0xc:
-            pOut[0x18] = baseAngle - *(int *)(REF_TRACK + 0x5c8 + angles[1] * 4);
+            pOut[0x18] = baseAngle - REF_TRACK->speedSamples[angles[1]];
             break;
         case 0xe:
-            b = *(int *)(REF_TRACK + 0x5c8 + angles[1] * 4);
-            t = *(int *)(REF_TRACK + angles[1] * 4);
+            b = REF_TRACK->speedSamples[angles[1]];
+            t = REF_TRACK->headingDegrees[angles[1]];
             if (b > 0x3c0000) {
                 if (baseAngle < 0x280000) {
                     t = curAngle;
@@ -8926,14 +8925,14 @@ void StageTiming_PerturbComputerSplitDeltas(int *pDeltas)
     }
 }
 
-void StageTiming_BuildSplitInterpolationFactors(int *param_1);
-void StageTiming_InterpolateCarFixedSampleRows(int pCar, int *pOut);
+void StageTiming_BuildSplitInterpolationFactors(StageTimingSpread *param_1);
+void StageTiming_InterpolateCarFixedSampleRows(StageTimingSpread *pCar, int *pOut);
 void StageTiming_AccumulateSplitDeltas(int *pDeltas);
 void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCount, char bInitialise);
 
 // Builds the CPU drivers' split times for a stage and sorts every split.
 // FUNCTION: CMR2 0x004561e0
-void StageTiming_BuildAndSortCPUSplitTimes(int *pTimes)
+void StageTiming_BuildAndSortCPUSplitTimes(StageTimingSpread *pTimes)
 {
     int *pDeltas;
     int n;
@@ -8943,7 +8942,7 @@ void StageTiming_BuildAndSortCPUSplitTimes(int *pTimes)
 
     pDeltas = (int *)CFileBuffer::AllocateLockedBuffer(0x280);
     StageTiming_BuildSplitInterpolationFactors(pTimes);
-    StageTiming_InterpolateCarFixedSampleRows((int)pTimes, pDeltas);
+    StageTiming_InterpolateCarFixedSampleRows(pTimes, pDeltas);
     StageTiming_PerturbComputerSplitDeltas(pDeltas);
     StageTiming_AccumulateSplitDeltas(pDeltas);
     n = GetStageSplitCount();
@@ -9423,13 +9422,7 @@ unsigned int g_unk0x00541f88;
 
 // Per-driver timing block: 0xa0 bytes of split samples followed by the four
 // spread parameters of the stage (the two fixed-point ones first).
-struct StageTimingSpread {
-    BYTE field_0x0[0xa0];
-    int field_0xa0;
-    int field_0xa4;
-    int field_0xa8;
-    int field_0xac;
-};
+
 
 // Rebuilds the stage's timing records when a stage starts: resets the split
 // tables, seeds the RNG, lays out the driver slots and pairs the split
@@ -9443,17 +9436,17 @@ void StageTiming_InitRaceDriverRecords(char param_1)
     if (g_unk0x00542604 == 0)
         return;
     StageTiming_Reset();
-    StageTiming_GetObjectRampParameters(&local.field_0xa8, &local.field_0xac, &local.field_0xa0, &local.field_0xa4);
+    StageTiming_GetObjectRampParameters(&local.startBlendFixed, &local.endBlendFixed, &local.startPositionFixed, &local.endPositionFixed);
     if ((char)RallyDataCountryIndex() == 3) {
-        local.field_0xa8 = 0;
-        local.field_0xac = 0;
+        local.startBlendFixed = 0;
+        local.endBlendFixed = 0;
     }
     if (param_1 != 0)
         g_unk0x00541f88 = CMain::GetFrameTime();
     srand(g_unk0x00541f88);
     StageTiming_AssignReservedDriverSlots(CGameInfo::GetConfiguredPlayerCount());
-    StageTiming_RefreshPaintSamplesAndTimeSpread((int)&local);
-    StageTiming_BuildAndSortCPUSplitTimes((int *)&local);
+    StageTiming_RefreshPaintSamplesAndTimeSpread(&local);
+    StageTiming_BuildAndSortCPUSplitTimes(&local);
     StageTiming_RebuildSplitPositions();
     if ((char)RallyData_GetSelectionFlag27() != 0) {
         p = (int *)(g_unk0x00542528 + 0x10);

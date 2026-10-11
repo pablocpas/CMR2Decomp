@@ -1,0 +1,1098 @@
+{
+  "schema_version": 1,
+  "caveat": "Syntactic candidates; nearest_function is a context hint, not ownership. Hex multipliers can be numeric scales rather than strides.",
+  "source_sha256": {
+    "AIHelper.cpp": "19671c5c51ff79d525928b0be4c3fb378774605984fdfc9151729d7a26618f2d",
+    "AIHelper.h": "bab8d194d555cb12c67813998a76874490d63165d0b535b5005e222045cc8b55",
+    "AIReferenceRoute.h": "14001a7c47151722e8b580216c03caa2cedaaa04dfa0e1c533285cb8f718f5cd",
+    "BFL.h": "950defe875ffe734f13dce73dda42d7bc1b5369a7def6a53f9e0ba27ed047a7d",
+    "BestTimeRecords.h": "7b09c04cab99c03d334b39ec5340a7216840903b2f9d51cfc8ac497473de4291",
+    "CallbackState.h": "bdcea074ac9af71d50c7f59b05e197df891b344efbf257bb8ac86e6b632a1749",
+    "Car.cpp": "4cabcf2321df8b1dd6cec5429a43f18d30a8b79a5f952ef33456a4d5772bda8b",
+    "Car.h": "ba548bb35e606e241a399e066a7c4eb36e70df5eee62dc05092b694fb04a0060",
+    "CarEffects.cpp": "1ced61fdcf0261e0aa25848b1f3697ef9ebc4cbe1cb1a2762505a95c0cd66276",
+    "CarExhaust.h": "2f51d0a245b1da6a98dc0a1152098b0c9dce08b33b29d0459feb77328a9207dc",
+    "CarImpact.h": "1800bc27ccd9f5c0ea2398977c5ae92c33ff8ad44084d687cb711e0a67c795db",
+    "CarInfo.h": "3c677f96cb8c0c97bf56c33151505283e3453be93448f64c77e99f463f6d456a",
+    "CarInterior.h": "50c78119af32d5d80b26abb9bb5070299d43a3eb6f3803ff1cd8b169765ff95f",
+    "CarLightState.h": "a0c9561149fb5c977c0db89fc9ab750296697a7573f7081444300fc4b68ae75a",
+    "CarParts.h": "70872d1e886c05fbeb78f8f73a917a1e37255bb9584162dec20c844ef53b3258",
+    "CarPhysics.cpp": "9fee6f0f247f8a60ce1ca8845819a2deb365b800d512944abf1896876c6708e3",
+    "CarPhysics.h": "bae54594ca303fa47dd7857348e8135040d558e9f64f132da8e84825c1153230",
+    "CarResources.h": "56ca4f9220e148d4e16c93835a7166d0299db4833820af0bd7725b3b587cebd9",
+    "CascadeCallbacks.cpp": "a14e3a3405f956dd001d4f8e11eb1a9aa8963c12f8a713d995a81fe21db4cfd8",
+    "CascadeSeedDeps.cpp": "bfa2c3ab6259ca648c47a9b64e8be6e6660cd0eac0e4c1ca2ba25bc44812603f",
+    "Collision2D.cpp": "ef2c9f061709e9b7d665314650c458e16384683ee1f3ba1f2aa98a1ba564ffa1",
+    "Collision2D.h": "dd197125f9d662486b1cc0eed97953559517219caf73970c85bf82af710031a6",
+    "CrtTypeInfo.cpp": "4688c2e984b6a872dc2fa61cf81b9bfb8730fb8fe5ed27cb540e2ce095ed1dd2",
+    "DeformGeometry.h": "8bbb5d6344e38b8eb415e4296c29e322be48187ac0912d09309810a675d13664",
+    "FileBuffer.cpp": "1e1e2329e31278d7d95132f1525237885d32ea010bf4c30b88b68ddc469ffaf5",
+    "FileBuffer.h": "38afa99a1ea6bc78ef37511f715e61e494639a6e711308824858aefe2198eeee",
+    "FixedPoint.cpp": "ae302f4f61167888386844526eaeb07d831ef7b57093010261f87e1bfd1068d6",
+    "FixedPoint.h": "b4ee0888257b77acfdd3a770b56cb4cf2402c9cda4d200d55ac8443d9852be88",
+    "Font.cpp": "3a311471366f8d3674e306972bf2943b30127cc2d113afd1e211489a22a57612",
+    "Font.h": "d7caa2f5f9ffd1be17c85ca150c0c30d679988718a4c1f23bbbce3bfd24a5cb1",
+    "Frontend.cpp": "53dec8570ff948b35f3c97e176003a23696ce71b824a7efa9cdcc3877b18560e",
+    "Frontend.h": "60cdf8b545fd538431a190554ee67fdb4c7830584acca37826a81536994ed24f",
+    "FrontendDraw.cpp": "903685964dbba694862596fc62035594a5c778b0ceab18504bfaf5f4a0e443ec",
+    "FrontendDraw.h": "c55e09d37aaeb9698e2052a12a1e6437971d64fe98a3ac82995f97164e1c964e",
+    "FrontendMenus.cpp": "1352ceec75ff4b66f7465655f84eb6be6dad6f4029446464a9d25efd0928acd2",
+    "FrontendMenus.h": "cdbe32e65867864d13950fad5dbf93442018ac0c99a1a4a7c97cff7b98393cb7",
+    "FrontendNetworkRally.cpp": "04877e99bd48400fbbce1fcca1a48f7611af8e0e9d6992529062dd7537bfd635",
+    "FrontendScreens.cpp": "53a64ddb079886d9afb17526f83161d9c5282771e3e55d6edabeeea3b947965f",
+    "FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
+    "Game.cpp": "d7f7a6cd4e330a5cafb0cdc14ce01e2cf1d8a538f4358c5b5c2c71ae5e45d764",
+    "Game.h": "18562a518d824dd4e2bc9201682e20cfbb038b10c5124eeb1d37786ebbe413d8",
+    "GameConnections.cpp": "c9034f5c8d5de0e88a5e107895406e2c2a444c211ce6b1dd0e422a1e0751f4f7",
+    "GameInfo.cpp": "37474dd23c609e9a16503068b6f1b11ef97076b35d2e5f665071161049e58c7b",
+    "GameInfo.h": "3cc906826981b8e06a9591c8b792ba0b51dc93780ce5ced08aa2b6da6e20fbaa",
+    "GameMenus.cpp": "91707557410c9334bd1a33fbebc318f285d50cee02d75c7d70eea7038dfecbcb",
+    "GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
+    "GameNetwork.cpp": "e4162b9288f4fd3b48d47ecbf7b79328455dafbd04afb997b4e2f427a22f3b57",
+    "GenericFileLoader.cpp": "eba2ddfd0571387fcb1bc7c23202b10d552442c4270cfeccb41d4742e522abb1",
+    "GenericFileLoader.h": "5d6070c8817d1be15f3b0c6bfb2a7932e47ede28dc7a6ee8e0f8120691152e01",
+    "Glow.h": "3578d2d56f4b05aff49532c1f67c83942688b7190ea44fb6ba38c3f110792e8b",
+    "Graphics.cpp": "920be6d3b30dc8303f74b13e647ac48e2c9936df2561f42c999d26644486709a",
+    "Graphics.h": "97e32ba9c55b52659d79831eebf0688998b94588a843beecb7dafffc8c9d7b95",
+    "HudDash.cpp": "5358d8bb344d28034c9ba6b47057b501234f2db8b93b26015a2829f93e99d5b7",
+    "Input.cpp": "e7ca30bc9ace7276fca3e75e97371c9b27f1866ddd9c2068a247ebe7cecf0beb",
+    "Input.h": "6c8ce64e581da4f84e04af836ec4276d106ed118b58ddd8521fff3d05eeacb8c",
+    "InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
+    "InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
+    "LayoutChecks.cpp": "111116e9f0816dd1a7a352a57f4ab6896a97ab3b2c20379a5a315e0feff21117",
+    "LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
+    "Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
+    "Logger.h": "9223f11dbb0c66b7b32057403dfda5267d674de807a6fa64aad78866540cf196",
+    "Menu.cpp": "77c19f837ba9b8fd2331383bde384e41a2112d6b569b24f3ff09371965f92a7d",
+    "Menu.h": "3cca0efe845f86d6ed83827cb4804964a28d5dea74779964cdf0179ecc50352b",
+    "Mesh.cpp": "5c7dbbbd1e9c5eb2da5f7af2a46a4cc05169e166f9ee158938887e6e92a41d56",
+    "Mesh.h": "1d8681e9e5a589355acd9340e31ae0c74aa60b5bd4472887d0299947cd1b6abf",
+    "NetPlayers.cpp": "d2fb7d4804a62f7197fb0295d8629035e1f35dcbd815b9632dc4a5c8c690f25c",
+    "NetPlayers.h": "b62f7f23383276ad0e65f23a2c0ece825c9d335769d9267f7f516ed510bb1665",
+    "NetRace.cpp": "c8bf7f0d4b8c4c2158da70a4b6dd36318270ef334b3f7db5d9cc64e6699794a3",
+    "NetworkLeaderboards.cpp": "9898276e406ba257d805bebc1308b2a0a17b099e9dbfbf411a9a1665ccf56e5d",
+    "NetworkLeaderboards.h": "a969a489a37b53194c8e4831df13fa3217ae6ee475cb82b08887bebfe57237fb",
+    "OptionMenuRows.cpp": "cda01ce9105034080c909160ea856b460bbfbc164c269b57410c3574c390d830",
+    "OptionPreviewGeometry.h": "278a64523b9ed504cb64294b8ba3ee55aaf56eee4780bf567b7106fab5a84f26",
+    "Particle.h": "14a7d0f8742bae13b4853e4883cab155a35f04f55cace8c4d8f615f79b36f7be",
+    "Race.cpp": "6a579b0d5885d0c518a2cc989b9c5d113665aaed8c1b6044e541dacae0b65e46",
+    "RaceCallbackStorage.h": "d540cbe431446daef4724e15b0f10f3702e8e50b8c87bcd04ff5bc1dd3a8d593",
+    "RaceRecord.h": "c86bd8aa45d6828375fee1fd908f60608b85e9b48a7416f8208b209fe98c3453",
+    "RallyData.cpp": "b7a4a0378b3fa44aef207adf4a23cb8639e7ec664c135ad65c62262a6ce2be7e",
+    "RallyData.h": "e987810c2165585326e910e8d05c1dc1cb71d1ea758238d1c98b7347b1bc2470",
+    "RallyRoute.cpp": "994b5ec20055ca0a56941ad464450f265ae9e2889ab9da4bb53d24aa422f74b9",
+    "RallyRoute.h": "5eda732597706920da93ca7181af9320dc4b3a85e19342aeb68b19e92e10ce43",
+    "RallyTiming.cpp": "3967f3ae47ff16cda3bede952774ab11cde8c308ecad896f4f832024c96cb1a1",
+    "RallyTiming.h": "7572a85e234628fa6abe639a9e3360c94e5161e6c14a289c844146d08f983148",
+    "RegKey.cpp": "80d7d2b84d958f007807a48186dbbe67190b231fd21b059eb9dbea4f26a8b80c",
+    "RegKey.h": "cb2934244f3e58e032b9644f58ea83230965ed366c7000fb4690ef50d5bb62c4",
+    "SceneNode.cpp": "fa9518efefef723796fd8a4beccd7b1f3a2192866888df4d141d03af0b959611",
+    "SceneNode.h": "bc8806a29bc5f4a6b8655c4e96320450694cd5bf55062abfdd98581448f81620",
+    "Sector.cpp": "e13537dc650b3c7b18ac2b73ce032f39b029a6ae99ec2a3c4d5f657771a688a5",
+    "Sector.h": "7b942f9f0a7f1ddf5564bdd2a5d83a42a299d2682ce388516d5c810c0268f16e",
+    "SharedData.cpp": "89e9d55481bb4e820d8cd6c7f0924e70f78d255d7b02b73e67785e291c1406df",
+    "Sound.cpp": "b73953f26a085577013a53202e7a308968fd9285fda74df63474c4214e103bb9",
+    "Sound.h": "5b972d156316f420fed6f54f55d219e8f2863df1219bb9c22e755fcbe474c015",
+    "SoundCurve.h": "9436e5bdc041c9f74d847f10351dd84bf799c359a2adb833d57759746f641beb",
+    "Sprite.cpp": "cc0ab9d52cf4f1f06146fb85401359f4cccdd9dbe90dd7d1a77a92a846af325e",
+    "Sprite.h": "130b72f99397abdfe646a0f3a183d6f526883df66bbb89cceea1c2a36a307a02",
+    "Stage.cpp": "3a063103b501a89354d2cd70447d4d0efe4f2613b505b642547ddc0632a01868",
+    "Stage.h": "4a75c6c0ce11b7ac1fa616ed12e7c7931d3e23ab12a678370ac800ef700f04cd",
+    "StageBlock.h": "ed67c8a616df022340a6831bb1acffa00c7b6f1596c18297299fcce0deb73c05",
+    "StageObjectCount.h": "541514d4da5e984bc83597c9b0839bebc67ac87ef78d2fe76fc2f3841c08010e",
+    "StageObjects.cpp": "f622be1ab4bbf0af572eda8e888f9ec7557490e7795587c31e973f19cc26da41",
+    "StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
+    "StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
+    "StageTiming.cpp": "de683aed6cd30e2e5b2c29dcf3442fd19f65de4bdd01e37b0fdc6188ad2bbe86",
+    "StageTiming.h": "83a0d3266fda81c4b1e65e87e17bfc27f073ac5ef9449e75368fbba9af57857f",
+    "StageTimingSpread.h": "36af19e0df03fc5af5e038804cf927cd111f2796b1e28383abf73447d5496a09",
+    "StageUI.cpp": "513283080cbb36d5b434f912cc63dae326745eff81f55fcf4faa8185c2ff0d1f",
+    "StageUI.h": "30113bb1c038c7ab0bc539eca8ad3ba06224365b60d8e32727e304e1f7323e42",
+    "StageWeather.h": "29941250ba41afaa63578e0c91a2835998339b9302bcd12a7717787984219dc1",
+    "StageWeatherParticle.h": "bc58dc39786b7226607aa6dd7779ad3198afa98c4620eb7228436c5573682bdf",
+    "SurfaceTypes.cpp": "4f3f25c5eeb84e4ff4c1af378e8104ea9b2c04dbdf5239714ef552e8c796f414",
+    "SurfaceTypes.h": "1c81086631cfd2493e9c5a4af7da66e1d02417ed38b7628c7a1e1a986d52e8e7",
+    "Texture.cpp": "2ca3a6fa0da96446aadf924346f349f7cad42fafeaf06e60c006cc79b82aeea0",
+    "Texture.h": "00635eccfb6ed1ce010106ad790747185ef79856fd27d6e49605484db7a02263",
+    "TimingUtils.cpp": "fc8629d93f5b42a82c702c1bf7b3fd21e43589a8c8125cb7eacfb13933e63954",
+    "TimingUtils.h": "88a323a639040f96349e78fe47382a677cb87591e10de4110ae64b80f4960f6b",
+    "TrackCollision.cpp": "876fe14338c39c164ec2415b1697078c39135e5990fb617d292b676a4565bb03",
+    "TrackCollisionData.h": "84be23243800722cd07ff24d57d0bc64e12912f1c3cc6c71112efcad7fbf085b",
+    "TrackLighting.cpp": "2bd30f439e2a0f185c178eaa9760440b1bf1949b55d23e068466a47e9a8f7344",
+    "VehiclePhysics.cpp": "87c0a0b86db4a2c52155e092a8f98437709b6cb815446a2ec3bc36f55636fc72",
+    "WheelTrail.cpp": "dfe77badcde6ea688b606ce78a5d3c1b3ea4ac3934cc4b318764934f446461cf",
+    "WheelTrail.h": "1d9972aa866c7b133f0868ac11ef87ebd0e0010501b1c470e4a00373510e70d5",
+    "ZlibAdler32.cpp": "4234d939bd3183d75788304e5eaee1adfa51eea158fc9586697e70512748bfb7",
+    "ZlibCrc32.cpp": "e02caafa34eb671ecffbfc51816405061448524a3186c786255ed9fa3e8dbd3b",
+    "ZlibDeflate.cpp": "56b5619571851bf20ce917db0afcdd9e44a65ac4bec6245d3c7a014bbf89e5e2",
+    "ZlibGzio.cpp": "071d668276cd7261bd57b478951a355d0865e0e637fa38249f2e33dfbf2eb706",
+    "ZlibInfblock.cpp": "1668a222f7aa920a37573a8b74a56c1fb5a8f28788feb249f908fd850b6d8c23",
+    "ZlibInfcodes.cpp": "de491ecd6c31f57ed25c687ca385f4a1fd4e289552765883e925975f1efa399a",
+    "ZlibInffast.cpp": "6ec13a6ee45f20c5926c7b192cc32447078ce57eeb6b6d8767659bc2ceb35b87",
+    "ZlibInflate.cpp": "1123f66cdcff29c6a95e4bd1694aa483a222f1e268b4b03ca203a41230948e0a",
+    "ZlibInftrees.cpp": "94c137217aa5c2dab5212d54eb10a6f52334455c993c3e88469955aea001f4e3",
+    "ZlibInfutil.cpp": "ec68b0c804b6b2351313254bd547c89c1b8cdb714ab1b274cace6a31017d64ae",
+    "ZlibTrees.cpp": "7fd229c333828e149ad2c355f2cc9d06a4946bf1f7864f0e8c0e379d5cea7587",
+    "ZlibZutil.cpp": "7f2faff86e1cfbca73fc71b8c80a247641abc51e9d3d502ba4b1d6b75aba4e6d",
+    "main.cpp": "dc0fbce41da25f66d4b44511b62428b80e1a245bc762a6cdf1e26200b27da7c7",
+    "main.h": "59939fda95add831e9cb6efda96252de839d53bb259dd4bd59a1c1892c88b60a",
+    "temp.h": "a8b4567967c12c06874c2e5b422ee5163d2814b2bab28869cfde9ca7bcb576a5"
+  },
+  "metrics": {
+    "types": 316,
+    "raw_accesses": 1201,
+    "fixed_sizes": 78,
+    "hex_multipliers": 2203,
+    "unknown_identifiers": 10301,
+    "unnamed_field_declarations": 1481,
+    "unique_unknown_identifiers": 1259
+  },
+  "files": {
+    "AIHelper.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "AIHelper.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "AIReferenceRoute.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "BFL.h": {
+      "types": 2,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "BestTimeRecords.h": {
+      "types": 2,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "CallbackState.h": {
+      "types": 4,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Car.cpp": {
+      "types": 2,
+      "raw_accesses": 30,
+      "fixed_sizes": 2,
+      "hex_multipliers": 11,
+      "unknown_identifiers": 239
+    },
+    "Car.h": {
+      "types": 8,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "CarEffects.cpp": {
+      "types": 2,
+      "raw_accesses": 10,
+      "fixed_sizes": 0,
+      "hex_multipliers": 8,
+      "unknown_identifiers": 15
+    },
+    "CarExhaust.h": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "CarImpact.h": {
+      "types": 5,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "CarInfo.h": {
+      "types": 8,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "CarInterior.h": {
+      "types": 7,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "CarLightState.h": {
+      "types": 2,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "CarParts.h": {
+      "types": 4,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "CarPhysics.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 1,
+      "unknown_identifiers": 2
+    },
+    "CarPhysics.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "CarResources.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 2
+    },
+    "CascadeCallbacks.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "CascadeSeedDeps.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Collision2D.cpp": {
+      "types": 1,
+      "raw_accesses": 7,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 75
+    },
+    "Collision2D.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "CrtTypeInfo.cpp": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "DeformGeometry.h": {
+      "types": 3,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "FileBuffer.cpp": {
+      "types": 2,
+      "raw_accesses": 20,
+      "fixed_sizes": 2,
+      "hex_multipliers": 33,
+      "unknown_identifiers": 53
+    },
+    "FileBuffer.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 3
+    },
+    "FixedPoint.cpp": {
+      "types": 3,
+      "raw_accesses": 14,
+      "fixed_sizes": 2,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 70
+    },
+    "FixedPoint.h": {
+      "types": 4,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Font.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Font.h": {
+      "types": 4,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Frontend.cpp": {
+      "types": 11,
+      "raw_accesses": 4,
+      "fixed_sizes": 0,
+      "hex_multipliers": 22,
+      "unknown_identifiers": 193
+    },
+    "Frontend.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 10
+    },
+    "FrontendDraw.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 17,
+      "unknown_identifiers": 87
+    },
+    "FrontendDraw.h": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 1
+    },
+    "FrontendMenus.cpp": {
+      "types": 2,
+      "raw_accesses": 7,
+      "fixed_sizes": 0,
+      "hex_multipliers": 8,
+      "unknown_identifiers": 82
+    },
+    "FrontendMenus.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 2
+    },
+    "FrontendNetworkRally.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 3
+    },
+    "FrontendScreens.cpp": {
+      "types": 4,
+      "raw_accesses": 113,
+      "fixed_sizes": 9,
+      "hex_multipliers": 618,
+      "unknown_identifiers": 1166
+    },
+    "FrontendStubs.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Game.cpp": {
+      "types": 2,
+      "raw_accesses": 31,
+      "fixed_sizes": 0,
+      "hex_multipliers": 19,
+      "unknown_identifiers": 325
+    },
+    "Game.h": {
+      "types": 3,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 28
+    },
+    "GameConnections.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "GameInfo.cpp": {
+      "types": 9,
+      "raw_accesses": 93,
+      "fixed_sizes": 14,
+      "hex_multipliers": 329,
+      "unknown_identifiers": 1873
+    },
+    "GameInfo.h": {
+      "types": 10,
+      "raw_accesses": 2,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 30
+    },
+    "GameMenus.cpp": {
+      "types": 0,
+      "raw_accesses": 3,
+      "fixed_sizes": 0,
+      "hex_multipliers": 487,
+      "unknown_identifiers": 197
+    },
+    "GameMenus.h": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "GameNetwork.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "GenericFileLoader.cpp": {
+      "types": 0,
+      "raw_accesses": 3,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "GenericFileLoader.h": {
+      "types": 2,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Glow.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Graphics.cpp": {
+      "types": 6,
+      "raw_accesses": 61,
+      "fixed_sizes": 9,
+      "hex_multipliers": 14,
+      "unknown_identifiers": 378
+    },
+    "Graphics.h": {
+      "types": 12,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 38
+    },
+    "HudDash.cpp": {
+      "types": 2,
+      "raw_accesses": 1,
+      "fixed_sizes": 0,
+      "hex_multipliers": 18,
+      "unknown_identifiers": 68
+    },
+    "Input.cpp": {
+      "types": 1,
+      "raw_accesses": 10,
+      "fixed_sizes": 2,
+      "hex_multipliers": 1,
+      "unknown_identifiers": 131
+    },
+    "Input.h": {
+      "types": 12,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 15
+    },
+    "InstallInfo.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 2
+    },
+    "InstallInfo.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "LayoutChecks.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "LayoutChecks.h": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Logger.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 2
+    },
+    "Logger.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Menu.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 43
+    },
+    "Menu.h": {
+      "types": 3,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Mesh.cpp": {
+      "types": 0,
+      "raw_accesses": 33,
+      "fixed_sizes": 11,
+      "hex_multipliers": 15,
+      "unknown_identifiers": 3
+    },
+    "Mesh.h": {
+      "types": 3,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "NetPlayers.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 1,
+      "unknown_identifiers": 3
+    },
+    "NetPlayers.h": {
+      "types": 8,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 1
+    },
+    "NetRace.cpp": {
+      "types": 1,
+      "raw_accesses": 25,
+      "fixed_sizes": 0,
+      "hex_multipliers": 9,
+      "unknown_identifiers": 163
+    },
+    "NetworkLeaderboards.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 1,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 8
+    },
+    "NetworkLeaderboards.h": {
+      "types": 4,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "OptionMenuRows.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 22,
+      "unknown_identifiers": 138
+    },
+    "OptionPreviewGeometry.h": {
+      "types": 7,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Particle.h": {
+      "types": 2,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Race.cpp": {
+      "types": 2,
+      "raw_accesses": 28,
+      "fixed_sizes": 1,
+      "hex_multipliers": 10,
+      "unknown_identifiers": 699
+    },
+    "RaceCallbackStorage.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "RaceRecord.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "RallyData.cpp": {
+      "types": 14,
+      "raw_accesses": 210,
+      "fixed_sizes": 4,
+      "hex_multipliers": 270,
+      "unknown_identifiers": 1108
+    },
+    "RallyData.h": {
+      "types": 2,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 1
+    },
+    "RallyRoute.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 2,
+      "unknown_identifiers": 1
+    },
+    "RallyRoute.h": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 1
+    },
+    "RallyTiming.cpp": {
+      "types": 2,
+      "raw_accesses": 1,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 46
+    },
+    "RallyTiming.h": {
+      "types": 2,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 1
+    },
+    "RegKey.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "RegKey.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "SceneNode.cpp": {
+      "types": 5,
+      "raw_accesses": 61,
+      "fixed_sizes": 10,
+      "hex_multipliers": 22,
+      "unknown_identifiers": 27
+    },
+    "SceneNode.h": {
+      "types": 2,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Sector.cpp": {
+      "types": 1,
+      "raw_accesses": 52,
+      "fixed_sizes": 0,
+      "hex_multipliers": 14,
+      "unknown_identifiers": 15
+    },
+    "Sector.h": {
+      "types": 4,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 2
+    },
+    "SharedData.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Sound.cpp": {
+      "types": 0,
+      "raw_accesses": 7,
+      "fixed_sizes": 0,
+      "hex_multipliers": 3,
+      "unknown_identifiers": 131
+    },
+    "Sound.h": {
+      "types": 4,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 9
+    },
+    "SoundCurve.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Sprite.cpp": {
+      "types": 3,
+      "raw_accesses": 1,
+      "fixed_sizes": 0,
+      "hex_multipliers": 1,
+      "unknown_identifiers": 11
+    },
+    "Sprite.h": {
+      "types": 7,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Stage.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 16
+    },
+    "Stage.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "StageBlock.h": {
+      "types": 0,
+      "raw_accesses": 1,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "StageObjectCount.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 1
+    },
+    "StageObjects.cpp": {
+      "types": 26,
+      "raw_accesses": 241,
+      "fixed_sizes": 10,
+      "hex_multipliers": 134,
+      "unknown_identifiers": 1298
+    },
+    "StageSplitData.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "StageSplitData.h": {
+      "types": 3,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 2
+    },
+    "StageTiming.cpp": {
+      "types": 5,
+      "raw_accesses": 97,
+      "fixed_sizes": 1,
+      "hex_multipliers": 25,
+      "unknown_identifiers": 833
+    },
+    "StageTiming.h": {
+      "types": 3,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 3
+    },
+    "StageTimingSpread.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "StageUI.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 19,
+      "unknown_identifiers": 141
+    },
+    "StageUI.h": {
+      "types": 4,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 4
+    },
+    "StageWeather.h": {
+      "types": 7,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "StageWeatherParticle.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "SurfaceTypes.cpp": {
+      "types": 0,
+      "raw_accesses": 2,
+      "fixed_sizes": 0,
+      "hex_multipliers": 2,
+      "unknown_identifiers": 387
+    },
+    "SurfaceTypes.h": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Texture.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "Texture.h": {
+      "types": 7,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "TimingUtils.cpp": {
+      "types": 0,
+      "raw_accesses": 1,
+      "fixed_sizes": 0,
+      "hex_multipliers": 45,
+      "unknown_identifiers": 0
+    },
+    "TimingUtils.h": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "TrackCollision.cpp": {
+      "types": 0,
+      "raw_accesses": 5,
+      "fixed_sizes": 0,
+      "hex_multipliers": 17,
+      "unknown_identifiers": 61
+    },
+    "TrackCollisionData.h": {
+      "types": 5,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "TrackLighting.cpp": {
+      "types": 0,
+      "raw_accesses": 6,
+      "fixed_sizes": 0,
+      "hex_multipliers": 6,
+      "unknown_identifiers": 3
+    },
+    "VehiclePhysics.cpp": {
+      "types": 1,
+      "raw_accesses": 8,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 38
+    },
+    "WheelTrail.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 2
+    },
+    "WheelTrail.h": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 1
+    },
+    "ZlibAdler32.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "ZlibCrc32.cpp": {
+      "types": 0,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "ZlibDeflate.cpp": {
+      "types": 2,
+      "raw_accesses": 11,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "ZlibGzio.cpp": {
+      "types": 2,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "ZlibInfblock.cpp": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "ZlibInfcodes.cpp": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "ZlibInffast.cpp": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "ZlibInflate.cpp": {
+      "types": 2,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "ZlibInftrees.cpp": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "ZlibInfutil.cpp": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "ZlibTrees.cpp": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "ZlibZutil.cpp": {
+      "types": 2,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
+    "main.cpp": {
+      "types": 0,
+      "raw_accesses": 2,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 7
+    },
+    "main.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 2
+    },
+    "temp.h": {
+      "types": 5,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 1
+    }
+  },
+  "reproduce": "python3 scripts/audit_readability.py --json /tmp/cmr2-readability.json"
+}

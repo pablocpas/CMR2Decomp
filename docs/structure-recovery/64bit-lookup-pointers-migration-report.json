@@ -1,0 +1,40 @@
+{
+  "accepted": [
+    "ai-reference-route-pointers",
+    "sound-curve-pointers",
+    "timing-spread-pointers"
+  ],
+  "parked_dependency_groups": [],
+  "probes": [
+    {
+      "families": [],
+      "exit_code": 0,
+      "regressions": [],
+      "passed": true,
+      "log": "64bit-lookup-pointers-probe-001.txt"
+    },
+    {
+      "families": [
+        "ai-reference-route-pointers",
+        "sound-curve-pointers",
+        "timing-spread-pointers"
+      ],
+      "exit_code": 0,
+      "regressions": [],
+      "passed": true,
+      "log": "64bit-lookup-pointers-probe-002.txt"
+    }
+  ],
+  "baseline_metrics_sha256": "83d2ee0c673431fe421cdb000d2dbf9fd1a5b10a58941f3c8b46b5777dc38a2b",
+  "stable": true,
+  "final_validation": {
+    "method": "full pipeline executed separately after automatic acceptance",
+    "build": "PASS",
+    "measurement": "all 3364 scores identical, 2924 exact",
+    "metadata": "PASS",
+    "changed_tu_gate": "5 TUs, no regressions",
+    "suite": "126 harnesses, 0 failures",
+    "native": "548 scenarios, ASan/UBSan",
+    "focused": "412 original/rebuilt scenarios"
+  }
+}

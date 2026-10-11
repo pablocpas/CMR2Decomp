@@ -1,0 +1,11 @@
+LayoutChecks.cpp: 0/0 exact (baseline 0)
+  (0.8s)
+NetRace.cpp: 40/42 exact (baseline 40)
+  (0.9s)
+StageObjects.cpp: 251/354 exact (baseline 251)
+  (2.0s)
+StageTiming.cpp: 207/253 exact (baseline 207)
+  (1.7s)
+SurfaceTypes.cpp: 14/19 exact (baseline 14)
+  (0.8s)
+5 TUs in 2.0s
