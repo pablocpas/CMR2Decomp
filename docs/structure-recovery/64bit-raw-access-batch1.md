@@ -44,3 +44,16 @@ comparison (the original's `jl`).
 All `tests/check_64bit_*.py` compile with `FloatToInt.h`. Three already
 failed before this batch after earlier prototype changes (address loops,
 race-state pointers, route nodes); their stubs now follow the typed prototypes.
+
+## Stage lighting records (follow-up)
+
+`LightZone` (0x14), `LightZoneItem` (0x30) and `LightZoneMesh` (0x14) in
+`LightZone.h` describe the lighting data Scene_LoadLighting relocates in place:
+each holds 32-bit file offsets turned into pointers, so on 64-bit they need
+native copies (OpenCMR2 does that in its Scene_LoadLighting). The consumers
+(Scene_RelightSector, Scene_AttenuateSectorLight, Scene_CollectNearbyLightZones,
+Scene_ProjectCasterIntoLightZone) read the fields; the int walks over items
+step `sizeof(LightZoneItem) / sizeof(int)` (12 on the original). The item's
+owner is a `StageObject`: the caster projection read its position, matrix and
+mesh at raw offsets (pMesh at +0xc is +0x10 on 64-bit). Moving the types out of
+SceneNode.h also made FrontendText_LoadRegionLanguages exact (2925).

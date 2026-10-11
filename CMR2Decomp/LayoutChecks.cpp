@@ -35,6 +35,7 @@
 #include "Menu.h"
 #include <stddef.h>
 #include "LayoutChecks.h"
+#include "LightZone.h"
 
 // Preserve the original Win32 layouts used by array indexing, bulk copies
 // and packed callback tables. Keep these checks out of shared headers:
@@ -1254,3 +1255,13 @@ CMR2_LAYOUT_CHECK(MeshVertexF_diffuseColour_Check, offsetof(MeshVertexF, diffuse
 CMR2_LAYOUT_CHECK(MeshVertexF_specularColour_Check, offsetof(MeshVertexF, specularColour) == 0x1c);
 CMR2_LAYOUT_CHECK(MeshVertexF_textureCoordinates_Check, offsetof(MeshVertexF, textureCoordinates) == 0x20);
 CMR2_LAYOUT_CHECK(StageObject_matrix_Check, offsetof(StageObject, matrix) == 0x18);
+
+// Stage lighting records as stored in the file (relocated in place).
+CMR2_LAYOUT_CHECK(LightZone_SizeCheck, sizeof(LightZone) == 0x14);
+CMR2_LAYOUT_CHECK(LightZone_pItems_Check, offsetof(LightZone, pItems) == 0xc);
+CMR2_LAYOUT_CHECK(LightZone_pMesh_Check, offsetof(LightZone, pMesh) == 0x10);
+CMR2_LAYOUT_CHECK(LightZoneItem_SizeCheck, sizeof(LightZoneItem) == 0x30);
+CMR2_LAYOUT_CHECK(LightZoneItem_intensity_Check, offsetof(LightZoneItem, intensity) == 0x20);
+CMR2_LAYOUT_CHECK(LightZoneItem_pOwner_Check, offsetof(LightZoneItem, pOwner) == 0x2c);
+CMR2_LAYOUT_CHECK(LightZoneMesh_SizeCheck, sizeof(LightZoneMesh) == 0x14);
+CMR2_LAYOUT_CHECK(LightZoneMesh_pLevels_Check, offsetof(LightZoneMesh, pLevels) == 0x10);

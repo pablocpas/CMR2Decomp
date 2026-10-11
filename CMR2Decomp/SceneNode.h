@@ -66,15 +66,6 @@ void SceneNode_Rotate(SceneNode *pNode, FixVector *pTranslation, FixAngles *pAng
 
 void Scene_MarkShadowPartDirty(SceneNode *pNode, Mesh *pMesh);
 
-// Light zone of a sector (0x14 bytes): vertices whose intensity (at 0x20) the
-// scene lights attenuate; each covers the next `count` (at 0x28) shadow mesh vertices.
-struct LightZone {
-    short field_0x0;
-    unsigned short vertexCount;     // 0x2
-    BYTE field_0x4[8];
-    BYTE *pVertices;                // 0xc  0x30 bytes each: x at 8, z at 0xc, intensity at 0x20
-    int field_0x10;
-};
 
 // Type-specific object release, one registry per SceneNode::type
 void Scene_FreeType2Object(void *pObject);

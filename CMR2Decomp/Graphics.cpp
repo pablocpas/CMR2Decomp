@@ -27,6 +27,7 @@
 #include <winnt.h>
 #include <winuser.h>
 #include "LayoutChecks.h"
+#include "LightZone.h"
 
 // Not declared in Mesh.h yet; the other two are not analysed yet.
 void Mesh_ReuploadAll(void);
@@ -3472,8 +3473,8 @@ int Scene_AttenuateSectorLight(int sector, int light)
         g_sceneSectorFlags[sector] = 1;
     if (g_sceneSectorFlags[sector] != 0) {
         pZone = &((LightZone *)g_sceneLightZones)[g_sceneSectorZone[sector]];
-        pIntensity = (int *)(pZone->pVertices + 0x20);
-        for (i = 0; i < pZone->vertexCount; i++) {
+        pIntensity = &pZone->pItems->intensity;
+        for (i = 0; i < pZone->itemCount; i++) {
             old = *pIntensity;
             dx = lpos.x - pIntensity[-6];
             dz = lpos.z - pIntensity[-5];
@@ -3490,18 +3491,18 @@ int Scene_AttenuateSectorLight(int sector, int light)
             }
             if (*pIntensity != old)
                 changed = 1;
-            pIntensity += 12;
+            pIntensity += sizeof(LightZoneItem) / sizeof(int);
         }
     } else if (wasLit != 0) {
         pZone = &((LightZone *)g_sceneLightZones)[g_sceneSectorZone[sector]];
-        if (pZone->vertexCount != 0) {
-            pIntensity = (int *)(pZone->pVertices + 0x20);
-            for (i = 0; i < pZone->vertexCount; i++) {
+        if (pZone->itemCount != 0) {
+            pIntensity = &pZone->pItems->intensity;
+            for (i = 0; i < pZone->itemCount; i++) {
                 old = *pIntensity;
                 *pIntensity = 0x10000;
                 if (old != 0x10000)
                     changed = 1;
-                pIntensity += 12;
+                pIntensity += sizeof(LightZoneItem) / sizeof(int);
             }
             return changed;
         }

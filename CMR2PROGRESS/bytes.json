@@ -10803,9 +10803,9 @@
   },
   "0x4f4b90": {
     "n": "FrontendText_LoadRegionLanguages",
-    "s": 0.8176100628930818,
-    "x": false,
-    "fz": 0.9308176100628931,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FrontendText_LoadRegionLanguages"
@@ -22506,7 +22506,7 @@
     "x": false,
     "fz": 0.8113207547169812,
     "unknown": [
-      "$L56108",
+      "$L56095",
       "__except_list"
     ],
     "f": "Sound.cpp",

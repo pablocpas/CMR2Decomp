@@ -11,6 +11,7 @@
 #include "Sector.h"
 #include "Mesh.h"
 #include "ShadowPart.h"
+#include "LightZone.h"
 
 SceneNode *g_sceneNodes[4096];
 int g_sceneNodeCount;
@@ -1080,8 +1081,8 @@ void Scene_RelightSector(int sector)
         if (g_unk0x005210c0 != 0) {
             pZone = &((LightZone *)g_sceneLightZones)[g_sceneSectorZone[sector]];
             pVertex = (BYTE *)pShadow->pVertexData;
-            pZoneVertex = (int *)(pZone->pVertices + 0x28);
-            for (k = 0; k < pZone->vertexCount; k++) {
+            pZoneVertex = &pZone->pItems->vertexCount;
+            for (k = 0; k < pZone->itemCount; k++) {
                 intensity = pZoneVertex[-2];
                 if (intensity == 0x10000) {
                     for (j = 0; j < *pZoneVertex; j++) {
@@ -1096,7 +1097,7 @@ void Scene_RelightSector(int sector)
                         pVertex += 0x30;
                     }
                 }
-                pZoneVertex += 12;
+                pZoneVertex += sizeof(LightZoneItem) / sizeof(int);
             }
             Mesh_RefreshVertices(pShadow);
             return;
@@ -1725,8 +1726,8 @@ struct ShadowVertex {
 // FUNCTION: CMR2 0x004b5770
 void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
 {
-    int *pLand;
-    int *pZone;
+    StageObject *pLand;
+    Mesh *pZone;
     ShadowCaster *pCaster2;
     ShadowPart *pPart;
     float *pVert;
@@ -1767,13 +1768,13 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
     maxZ = -10.0f;
     minW = 10.0f;
     maxW = -10.0f;
-    pLand = *(int **)((BYTE *)pItem + 0x2c);
-    zoneScaleX = (float)pLand[6] * CGraphics::m_oneOver65536;
-    zoneScaleY = (float)pLand[0xb] * CGraphics::m_oneOver65536;
-    pZone = (int *)pLand[3];
-    count = *(int *)((BYTE *)pZone + 0x10);
+    pLand = ((LightZoneItem *)pItem)->pOwner;
+    zoneScaleX = (float)pLand->matrix.right.x * CGraphics::m_oneOver65536;
+    zoneScaleY = (float)pLand->matrix.up.y * CGraphics::m_oneOver65536;
+    pZone = pLand->pMesh;
+    count = pZone->field_0x10;
     if (count > 0) {
-        pVert = *(float **)((BYTE *)pZone + 0xc);
+        pVert = (float *)pZone->pVertexData;
         do {
             float v;
 
@@ -1800,10 +1801,10 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
             pVert += 0xc;
         } while (--count != 0);
     }
-    scaleX = (float)*(int *)((BYTE *)pItem + 0x18) * CGraphics::m_oneOver65536 + g_netOne;
+    scaleX = (float)((LightZoneItem *)pItem)->field_0x18 * CGraphics::m_oneOver65536 + g_netOne;
     maxX = scaleX * maxX;
     minX = scaleX * minX;
-    scaleY = (float)*(int *)((BYTE *)pItem + 0x1c) * CGraphics::m_oneOver65536 + g_netOne;
+    scaleY = (float)((LightZoneItem *)pItem)->field_0x1c * CGraphics::m_oneOver65536 + g_netOne;
     maxY = scaleY * maxY;
     spanZ = maxZ - minZ;
     spanW = maxW - minW;
@@ -1813,10 +1814,10 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
     minY = (invY * minY + g_netOne) * spanW;
     projScaleX = invX * spanZ;
     projScaleY = invY * spanW;
-    origin[0] = (float)pLand[0] * CGraphics::m_oneOver65536;
-    origin[1] = (float)pLand[1] * CGraphics::m_oneOver65536;
-    tex = *(int *)(*(int *)((BYTE *)pZone + 0x24) + 4);
-    origin[2] = (float)pLand[2] * CGraphics::m_oneOver65536;
+    origin[0] = (float)pLand->position.x * CGraphics::m_oneOver65536;
+    origin[1] = (float)pLand->position.y * CGraphics::m_oneOver65536;
+    tex = pZone->pTriangles->textureIndex;
+    origin[2] = (float)pLand->position.z * CGraphics::m_oneOver65536;
     if (g_shadowLastTexture == -1 || g_shadowLastFlags == -1) {
         ((BYTE *)g_shadowBatch)[0xc] = param3;
         g_shadowBatch[0] = g_shadowVertexCount;
@@ -2025,23 +2026,6 @@ void Scene_EmitNodeShadowGeometry(SceneNode *pNode, int param2, BYTE param3)
     }
 }
 
-// One vertex of a light zone (0x30 bytes): its position and half extents in the
-// light basis, the light level and the scene object it was matched to.
-struct LightZoneVertex {
-    int field_0x0;
-    int field_0x4;
-    int x;                  // 0x8
-    int z;                  // 0xc
-    int halfSizeRight;      // 0x10
-    int halfSizeForward;    // 0x14
-    int field_0x18;
-    int field_0x1c;
-    int intensity;          // 0x20
-    int field_0x24;
-    int field_0x28;
-    void *pOwner;           // 0x2c
-};
-
 // Collects the light zone vertices around a node: the 3x3 neighbourhood of
 // sectors around *pSector is mapped through g_sceneSectorZone, and every item
 // whose box (in the light basis) contains the node within radius is stored in
@@ -2078,7 +2062,7 @@ void Scene_CollectNearbyLightZones(SceneNode *pNode, int radius, short *pSector)
                 short samples[9];
                 short s;
                 LightZone *pZone;
-                LightZoneVertex *pItem;
+                LightZoneItem *pItem;
 
                 FixMatrix_GetPosition(&pos, &pNode->world);
                 Sector_GetGridDimensions(&columns, &rows);
@@ -2098,10 +2082,10 @@ void Scene_CollectNearbyLightZones(SceneNode *pNode, int radius, short *pSector)
                     if ((unsigned int)s < (unsigned int)g_sectorCount && s >= 0) {
                         short zone = g_sceneSectorZone[s];
                         if (zone != -1) {
-                            pZone = (LightZone *)(g_sceneLightZones + zone * 0x14);
-                            for (item = 0, itemOff = 0; item < pZone->vertexCount;
-                                 item++, itemOff += 0x30) {
-                                pItem = (LightZoneVertex *)(pZone->pVertices + itemOff);
+                            pZone = &((LightZone *)g_sceneLightZones)[zone];
+                            for (item = 0, itemOff = 0; item < pZone->itemCount;
+                                 item++, itemOff += sizeof(LightZoneItem)) {
+                                pItem = (LightZoneItem *)((BYTE *)pZone->pItems + itemOff);
                                 if (pItem != NULL && pItem->pOwner != NULL) {
                                     int dx;
                                     int dz;

@@ -192,6 +192,7 @@
     <ClInclude Include="MeshVertex.h" />
     <ClInclude Include="FloatToInt.h" />
     <ClInclude Include="PauseMenus.h" />
+    <ClInclude Include="LightZone.h" />
     <ClInclude Include="zlib\zlib.h" />
     <ClInclude Include="zlib\zconf.h" />
     <ClInclude Include="zlib\zutil.h" />
