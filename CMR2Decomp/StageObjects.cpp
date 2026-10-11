@@ -9239,7 +9239,7 @@ void CarPhysics_UpdateWheelSlipAndVelocityDamping(Car *param_1)
 
     g_collisionCar = param_1;
     i = 0;
-    off = 0xbbc;
+    off = 0;
     do {
         int a, b, d, u;
 
@@ -9247,24 +9247,24 @@ void CarPhysics_UpdateWheelSlipAndVelocityDamping(Car *param_1)
         if (v > 0x10000)
             v = 0x10000;
         v = FixMul(v, 0x6666);
-        a = *(int *)((BYTE *)g_collisionCar + i + 0x270);
-        b = *(int *)((BYTE *)g_collisionCar + i + 0x278);
+        a = g_collisionCar->corners[i].x;
+        b = g_collisionCar->corners[i].z;
         if ((a < 0 ? -a : a) - (b < 0 ? -b : b) < 0)
             d = (b < 0 ? -b : b) - (a < 0 ? -a : a);
         else
             d = (a < 0 ? -a : a) - (b < 0 ? -b : b);
         u = FixMul((d % 0x401) << 6, v);
-        if (*(int *)((BYTE *)g_collisionCar + off) == 0 ||
-            u >= *(int *)((BYTE *)g_collisionCar + off - 0x2c0)) {
-            *(int *)((BYTE *)g_collisionCar + off - 0x2c0) = u;
-            *(int *)((BYTE *)g_collisionCar + off) = 1;
-            *(int *)((BYTE *)g_collisionCar + i + 0x564) = 0;
-            *(int *)((BYTE *)g_collisionCar + i + 0x568) = 0x10000;
-            *(int *)((BYTE *)g_collisionCar + i + 0x56c) = 0;
+        if (g_collisionCar->objectContactState[off] == 0 ||
+            u >= g_collisionCar->field_0x8fc[off]) {
+            g_collisionCar->field_0x8fc[off] = u;
+            g_collisionCar->objectContactState[off] = 1;
+            g_collisionCar->field_0x564[i].x = 0;
+            g_collisionCar->field_0x564[i].y = 0x10000;
+            g_collisionCar->field_0x564[i].z = 0;
         }
-        off += 4;
-        i += 0xc;
-    } while (off < 0xbcc);
+        off++;
+        i++;
+    } while (off < 4);
     FixVecScale(&g_collisionCar->velocity, &g_collisionCar->velocity,
                 0xf851);
 }
@@ -14709,7 +14709,6 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
 // FUNCTION: CMR2 0x004878a0
 int Collision_TestCarAgainstSectorObjects(Car *pCar)
 {
-    BYTE *p = (BYTE *)pCar;
     BYTE *pBox;
     short sectors[4];
     int moving;
@@ -14725,13 +14724,13 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
     FixVector position;
 
     result = 0;
-    p[0xb3f] = 0;
+    pCar->pendingContactCount = 0;
     pBox = g_unk0x00590ed0[pCar->index];
-    memset(p + 0xbbc, 0, 0x20);
-    *(int *)&sectors[1] = *(int *)(p + 0xb02);
-    sectors[0] = *(short *)(p + 0xb00);
-    sectors[3] = *(short *)(p + 0xb06);
-    for (moving = *(int *)(p + 0xc18) != 0; moving < 2; moving++) {
+    memset(pCar->objectContactState, 0, sizeof(pCar->objectContactState));
+    memcpy(&sectors[1], pCar->neighbours.s, 2 * sizeof(sectors[1]));
+    sectors[0] = pCar->sector;
+    sectors[3] = pCar->neighbours.s[2];
+    for (moving = pCar->field_0xc18 != 0; moving < 2; moving++) {
         for (k = 0; k < 4; k++) {
             if (sectors[k] < 0)
                 continue;
@@ -14750,13 +14749,13 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                 if ((pObject->flags & 0x8000) == 0 && (BYTE)RallyDataState() == 2)
                     continue;
                 g_unk0x005914d8 = pEntry->pBounds->pProjection != 0;
-                result = Collision_DoSpheresOverlap(*(int *)(p + 0x758), pEntry->pBounds->radius, (int *)(p + 0x2d0), (int *)&position);
+                result = Collision_DoSpheresOverlap(pCar->collisionRadius, pEntry->pBounds->radius, (int *)&pCar->position, (int *)&position);
                 if (result == 0)
                     continue;
                 result = 0;
                 if (moving == 1 && RallyData_IsElementFlagSet(&pEntry, pCar->index) == 0)
                     continue;
-                StageObject_QueueViewLensFlare((int *)pBox, (int *)(p + 0x360), (int *)(p + 0x2d0), (FixVector *)(p + 0x270));
+                StageObject_QueueViewLensFlare((int *)pBox, (int *)&pCar->right, (int *)&pCar->position, pCar->corners);
                 result = 0;
                 if (g_unk0x005914d8 != 0) {
                     *(int *)g_sectorObjectCollisionBox.pad_0x28 = 0;
@@ -14768,7 +14767,7 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                     result = Collision_ResolveCarTurnedObjectContact(pCar, &pEntry->pObject, (CollisionBox *)pBox, &g_sectorObjectCollisionBox);
                 } else {
                     if (pObject->flags & 0x4000) {
-                        if (*(int *)(p + 0xc20) == 0)
+                        if (pCar->field_0xc20 == 0)
                             StageObject_UpdateCarBoxShadowLighting((CollisionBox *)pBox, pCar);
                         continue;
                     }
@@ -14783,9 +14782,9 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
             }
         }
     }
-    p[0xb3e] = p[0xb3f];
-    for (i = 0; i < (char)p[0xb3e]; i++)
-        ((short *)(p + 0xad6))[i] = ((short *)(p + 0xad6))[i + 5];
+    pCar->previousContactCount = pCar->pendingContactCount;
+    for (i = 0; i < (char)pCar->previousContactCount; i++)
+        pCar->contactSurfaces[0][i] = pCar->contactSurfaces[1][i];
     return result;
 }
 

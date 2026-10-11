@@ -1,0 +1,74 @@
+{
+  "baseline": "43a9b83",
+  "accepted": [
+    "car-object-contact-state",
+    "rally-route-disk-nodes"
+  ],
+  "parked_dependency_groups": [],
+  "final_recipe_reproduces_every_source_file": true,
+  "reviewed_followups": [
+    "Preserve the original byte cursor addressed through node.flags, stepping by sizeof(RallyRouteNode).",
+    "Copy the first two numeric neighbour shorts using memcpy/sizeof without a raw integer view."
+  ],
+  "matching_regressions": [],
+  "measured_source_exe_pdb_hashes_unchanged": true,
+  "build": {
+    "commit": "43a9b8344054cb8992171de7be2b8718404f51bf",
+    "source_changed": true,
+    "windowed": false,
+    "flags": [
+      "/O2",
+      "/DNDEBUG",
+      "/D_CRTIMP=",
+      "/Zi",
+      "/Gz",
+      "/MD",
+      "/GX"
+    ],
+    "qifist_files": [
+      "Car.cpp",
+      "CarEffects.cpp",
+      "CarPhysics.cpp",
+      "FixedPoint.cpp",
+      "Frontend.cpp",
+      "FrontendScreens.cpp",
+      "Game.cpp",
+      "GameInfo.cpp",
+      "Graphics.cpp",
+      "HudDash.cpp",
+      "Mesh.cpp",
+      "NetRace.cpp",
+      "Race.cpp",
+      "RallyData.cpp",
+      "RallyTiming.cpp",
+      "SceneNode.cpp",
+      "Sector.cpp",
+      "Sound.cpp",
+      "Sprite.cpp",
+      "StageObjects.cpp",
+      "StageTiming.cpp",
+      "StageUI.cpp",
+      "TimingUtils.cpp",
+      "TrackCollision.cpp"
+    ],
+    "o1_files": [
+      "CrtTypeInfo.cpp"
+    ],
+    "zlib_flags": [
+      "/Ob2",
+      "/TC"
+    ],
+    "compiler_sha256": "1bf99f206271ecdbd13da2829192ea2c02e2a44c740b8d72935d5d9cb753b156",
+    "exe_sha256": "c01b5ca23f86601126109f1326c215b5467dc453cc9939da59e2f89b5a46395f",
+    "pdb_sha256": "004d330382c55d3c32992af38f18a9eb3e7f65552a404ea53bca6107c3169885"
+  },
+  "measured_source_manifest_sha256": "1272f70c3c9ef2587f21857b801b63bf0af4d4c53b25f5aae7bd8241771e1b4d",
+  "stable": true,
+  "suite": {
+    "harnesses": 128,
+    "failures": 0,
+    "jobs": 3,
+    "log": "64bit-car-contacts-route-nodes-suite.txt"
+  },
+  "all_function_global_annotations_preserved": true
+}

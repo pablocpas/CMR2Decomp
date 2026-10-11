@@ -1,0 +1,35 @@
+{
+  "baseline": "43a9b83",
+  "families": [
+    "car-object-contact-state",
+    "rally-route-disk-nodes"
+  ],
+  "operations": 31,
+  "input_sha256": {
+    "CMR2Decomp/Car.h": "ba548bb35e606e241a399e066a7c4eb36e70df5eee62dc05092b694fb04a0060",
+    "CMR2Decomp/StageObjects.cpp": "dc3cd22c8ab361859172f69cbdccf5f5f39e04d07105b7991abc3c0bfaa57e28",
+    "CMR2Decomp/Collision2D.cpp": "f3d5b31104ab6bf66c654a399ae7323d891e2a2965b3794b6c800c8c1ecc7826",
+    "CMR2Decomp/LayoutChecks.cpp": "bdb30ce876ba12e1e8cb2f9ea2eaa16998f424e6fa28d437db861900f6c7afb1",
+    "CMR2Decomp/RallyRouteNode.h": null,
+    "CMR2Decomp/RallyRoute.h": "5eda732597706920da93ca7181af9320dc4b3a85e19342aeb68b19e92e10ce43",
+    "CMR2Decomp/RallyRoute.cpp": "994b5ec20055ca0a56941ad464450f265ae9e2889ab9da4bb53d24aa422f74b9",
+    "CMR2Decomp/RallyData.cpp": "4e98b8a680bf20bf5e93d9b55816e6128852ef17cb04818d4bbe3f6fe0d68f1f",
+    "CMR2Decomp/StageTiming.cpp": "de683aed6cd30e2e5b2c29dcf3442fd19f65de4bdd01e37b0fdc6188ad2bbe86",
+    "CMR2Decomp/Car.cpp": "4cabcf2321df8b1dd6cec5429a43f18d30a8b79a5f952ef33456a4d5772bda8b",
+    "CMR2Decomp/Race.cpp": "6a579b0d5885d0c518a2cc989b9c5d113665aaed8c1b6044e541dacae0b65e46"
+  },
+  "final_sha256": {
+    "CMR2Decomp/Car.h": "25dde510e55f95d824b5c15591f4a790a8d3b325847612335055fe2273622607",
+    "CMR2Decomp/StageObjects.cpp": "85879367c6bda652288dfa362865b112b5c995a1fb430af8230a94162fc392f8",
+    "CMR2Decomp/Collision2D.cpp": "4b347301a1d7b1d9b5e6fdf8839bbe7740cf16af79ab24cd79f961ae76b2ffb1",
+    "CMR2Decomp/LayoutChecks.cpp": "601cfe160329aa50d5814bf9a3f0ecf710d2a53cd96ecbfc160a002804ab90e8",
+    "CMR2Decomp/RallyRouteNode.h": "b966272d6a2c89284464952afc545687ab79828a45aee42c10f5e7060a30f62a",
+    "CMR2Decomp/RallyRoute.h": "a07c860d0179838b695627459f63021679a16ecb013316d75339f856b7002a4d",
+    "CMR2Decomp/RallyRoute.cpp": "e7f0a2ca141f3474429bfc6f39921030e053c01eaae371641466c20f5a8bcd08",
+    "CMR2Decomp/RallyData.cpp": "3b2bf0474b207510bd93bd75ac9795f5a89d770a3a15539a8aecead65935ba7b",
+    "CMR2Decomp/StageTiming.cpp": "1d19db8a28d912fcbfca190d8b1b40755bf48956c4166469af1caed699172090",
+    "CMR2Decomp/Car.cpp": "e3bfbec70ef97e0c1d4f7f4cca6a9773b7b902ce157fdde82d943c713bd34444",
+    "CMR2Decomp/Race.cpp": "739234d0b0d9332c62a86946383f6f5a910f44636f3773c5c6874eb6f1779f9c"
+  },
+  "all_files_reproduce": true
+}

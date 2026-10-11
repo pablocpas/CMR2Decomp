@@ -1,0 +1,273 @@
+{
+  "baseline": "43a9b83",
+  "families": [
+    {
+      "id": "car-object-contact-state",
+      "classification": "number",
+      "evidence": "Collision_TestCarAgainstSectorObjects clears eight numeric contact words, copies up to five short surface IDs from pending to previous, and Collision_ResolveStaticObstacleContact consumes and appends those IDs. Signed byte counters are retained. Runtime Car offsets must follow pointer growth.",
+      "symbols": [
+        "Collision_TestCarAgainstSectorObjects",
+        "CarPhysics_UpdateWheelSlipAndVelocityDamping"
+      ],
+      "rules": [
+        {
+          "paths": [
+            "CMR2Decomp/Car.h"
+          ],
+          "find": "    BYTE field_0xad6[0x28];",
+          "replace": "    union {\n        BYTE field_0xad6[0x28];\n        struct {\n            short contactSurfaces[2][5]; // 0xad6 previous IDs, 0xae0 pending IDs\n            BYTE field_0xaea[0x14];\n        };\n    };",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/Car.h"
+          ],
+          "find": "    BYTE field_0xb35[0xd];",
+          "replace": "    union {\n        BYTE field_0xb35[0xd];\n        struct {\n            BYTE field_0xb35Prefix[9];\n            char previousContactCount; // 0xb3e signed count of previous surface IDs\n            char pendingContactCount;  // 0xb3f signed count of pending surface IDs\n            BYTE field_0xb40[2];\n        };\n    };",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/Car.h"
+          ],
+          "find": "    int cornerOnGround[8];            // 0xbac  per corner: touching the ground\n    int field_0xbcc[4];               // 0xbcc",
+          "replace": "    union {\n        struct {\n            int cornerOnGround[8];    // 0xbac per corner: touching the ground\n            int field_0xbcc[4];       // 0xbcc\n        };\n        struct {\n            int field_0xbac[4];\n            int objectContactState[8]; // 0xbbc cleared before object traversal;\n                                       // first four alias cornerOnGround[4..7]\n        };\n    };",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageObjects.cpp"
+          ],
+          "find": "int Collision_TestCarAgainstSectorObjects(Car *pCar)\n{\n    BYTE *p = (BYTE *)pCar;\n    BYTE *pBox;\n    short sectors[4];\n    int moving;\n    int n;\n    int k;\n    int i;\n    int count;\n    int sector;\n    int result;\n    SectorObjectEntry *pEntry;\n    SectorObjectEntry **ppEntries;\n    StageObject *pObject;\n    FixVector position;\n\n    result = 0;\n    p[0xb3f] = 0;\n    pBox = g_unk0x00590ed0[pCar->index];\n    memset(p + 0xbbc, 0, 0x20);\n    *(int *)&sectors[1] = *(int *)(p + 0xb02);\n    sectors[0] = *(short *)(p + 0xb00);\n    sectors[3] = *(short *)(p + 0xb06);\n    for (moving = *(int *)(p + 0xc18) != 0; moving < 2; moving++) {\n        for (k = 0; k < 4; k++) {\n            if (sectors[k] < 0)\n                continue;\n            sector = sectors[k];\n            if (moving == 0)\n                ppEntries = Sector_GetListA(sector, (unsigned int *)&count);\n            else\n                ppEntries = Sector_GetListB(sector, (unsigned int *)&count);\n            pEntry = ppEntries != NULL ? *ppEntries : NULL;\n            for (i = 0; i < count; i++, pEntry++) {\n                pObject = pEntry->pObject;\n                if (moving == 0)\n                    position = pObject->position;\n                else\n                    RallyData_CopyRaisedElementVector((int *)&position, &pEntry);\n                if ((pObject->flags & 0x8000) == 0 && (BYTE)RallyDataState() == 2)\n                    continue;\n                g_unk0x005914d8 = pEntry->pBounds->pProjection != 0;\n                result = Collision_DoSpheresOverlap(*(int *)(p + 0x758), pEntry->pBounds->radius, (int *)(p + 0x2d0), (int *)&position);\n                if (result == 0)\n                    continue;\n                result = 0;\n                if (moving == 1 && RallyData_IsElementFlagSet(&pEntry, pCar->index) == 0)\n                    continue;\n                StageObject_QueueViewLensFlare((int *)pBox, (int *)(p + 0x360), (int *)(p + 0x2d0), (FixVector *)(p + 0x270));\n                result = 0;\n                if (g_unk0x005914d8 != 0) {\n                    *(int *)g_sectorObjectCollisionBox.pad_0x28 = 0;\n                    StageObject_BuildSpriteExtentOrientation(&g_sectorObjectCollisionBox, pEntry, (int *)&position);\n                } else {\n                    StageObject_SetCollisionSphereAndMaterial(&position, pEntry);\n                }\n                if (g_unk0x005914d8 != 0) {\n                    result = Collision_ResolveCarTurnedObjectContact(pCar, &pEntry->pObject, (CollisionBox *)pBox, &g_sectorObjectCollisionBox);\n                } else {\n                    if (pObject->flags & 0x4000) {\n                        if (*(int *)(p + 0xc20) == 0)\n                            StageObject_UpdateCarBoxShadowLighting((CollisionBox *)pBox, pCar);\n                        continue;\n                    }\n                    if (!((pObject->flags & 0x2001000) != 0)) {\n                        result = Collision_CarVsBox(pCar, (CollisionBox *)pBox, 0x10000);\n                    } else {\n                        result = Collision_CarVsBox(pCar, (CollisionBox *)pBox, 0);\n                    }\n                }\n                if (result != 0 && Collision_ResolveStaticObstacleContact(pCar, &pEntry->pObject, &position, 0) != 0)\n                    StageObject_QueueOrEvictMovingObject(pEntry, sector, pCar->index);\n            }\n        }\n    }\n    p[0xb3e] = p[0xb3f];\n    for (i = 0; i < (char)p[0xb3e]; i++)\n        ((short *)(p + 0xad6))[i] = ((short *)(p + 0xad6))[i + 5];\n    return result;\n}",
+          "replace": "int Collision_TestCarAgainstSectorObjects(Car *pCar)\n{\n    BYTE *pBox;\n    short sectors[4];\n    int moving;\n    int n;\n    int k;\n    int i;\n    int count;\n    int sector;\n    int result;\n    SectorObjectEntry *pEntry;\n    SectorObjectEntry **ppEntries;\n    StageObject *pObject;\n    FixVector position;\n\n    result = 0;\n    pCar->pendingContactCount = 0;\n    pBox = g_unk0x00590ed0[pCar->index];\n    memset(pCar->objectContactState, 0, sizeof(pCar->objectContactState));\n    memcpy(&sectors[1], pCar->neighbours.s, 2 * sizeof(sectors[1]));\n    sectors[0] = pCar->sector;\n    sectors[3] = pCar->neighbours.s[2];\n    for (moving = pCar->field_0xc18 != 0; moving < 2; moving++) {\n        for (k = 0; k < 4; k++) {\n            if (sectors[k] < 0)\n                continue;\n            sector = sectors[k];\n            if (moving == 0)\n                ppEntries = Sector_GetListA(sector, (unsigned int *)&count);\n            else\n                ppEntries = Sector_GetListB(sector, (unsigned int *)&count);\n            pEntry = ppEntries != NULL ? *ppEntries : NULL;\n            for (i = 0; i < count; i++, pEntry++) {\n                pObject = pEntry->pObject;\n                if (moving == 0)\n                    position = pObject->position;\n                else\n                    RallyData_CopyRaisedElementVector((int *)&position, &pEntry);\n                if ((pObject->flags & 0x8000) == 0 && (BYTE)RallyDataState() == 2)\n                    continue;\n                g_unk0x005914d8 = pEntry->pBounds->pProjection != 0;\n                result = Collision_DoSpheresOverlap(pCar->collisionRadius, pEntry->pBounds->radius, (int *)&pCar->position, (int *)&position);\n                if (result == 0)\n                    continue;\n                result = 0;\n                if (moving == 1 && RallyData_IsElementFlagSet(&pEntry, pCar->index) == 0)\n                    continue;\n                StageObject_QueueViewLensFlare((int *)pBox, (int *)&pCar->right, (int *)&pCar->position, pCar->corners);\n                result = 0;\n                if (g_unk0x005914d8 != 0) {\n                    *(int *)g_sectorObjectCollisionBox.pad_0x28 = 0;\n                    StageObject_BuildSpriteExtentOrientation(&g_sectorObjectCollisionBox, pEntry, (int *)&position);\n                } else {\n                    StageObject_SetCollisionSphereAndMaterial(&position, pEntry);\n                }\n                if (g_unk0x005914d8 != 0) {\n                    result = Collision_ResolveCarTurnedObjectContact(pCar, &pEntry->pObject, (CollisionBox *)pBox, &g_sectorObjectCollisionBox);\n                } else {\n                    if (pObject->flags & 0x4000) {\n                        if (pCar->field_0xc20 == 0)\n                            StageObject_UpdateCarBoxShadowLighting((CollisionBox *)pBox, pCar);\n                        continue;\n                    }\n                    if (!((pObject->flags & 0x2001000) != 0)) {\n                        result = Collision_CarVsBox(pCar, (CollisionBox *)pBox, 0x10000);\n                    } else {\n                        result = Collision_CarVsBox(pCar, (CollisionBox *)pBox, 0);\n                    }\n                }\n                if (result != 0 && Collision_ResolveStaticObstacleContact(pCar, &pEntry->pObject, &position, 0) != 0)\n                    StageObject_QueueOrEvictMovingObject(pEntry, sector, pCar->index);\n            }\n        }\n    }\n    pCar->previousContactCount = pCar->pendingContactCount;\n    for (i = 0; i < (char)pCar->previousContactCount; i++)\n        pCar->contactSurfaces[0][i] = pCar->contactSurfaces[1][i];\n    return result;\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/Collision2D.cpp"
+          ],
+          "find": "((char *)param_1->field_0xb35)[9]",
+          "replace": "param_1->previousContactCount",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/Collision2D.cpp"
+          ],
+          "find": "((short *)param_1->field_0xad6)[i]",
+          "replace": "param_1->contactSurfaces[0][i]",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/Collision2D.cpp"
+          ],
+          "find": "((short *)param_1->field_0xad6)[5 + ((char *)param_1->field_0xb35)[10]]",
+          "replace": "param_1->contactSurfaces[1][param_1->pendingContactCount]",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/Collision2D.cpp"
+          ],
+          "find": "((char *)param_1->field_0xb35)[10]",
+          "replace": "param_1->pendingContactCount",
+          "count": 3
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageObjects.cpp"
+          ],
+          "find": "void CarPhysics_UpdateWheelSlipAndVelocityDamping(Car *param_1)\n{\n    int i;\n    int off;\n    int v;\n\n    g_collisionCar = param_1;\n    i = 0;\n    off = 0xbbc;\n    do {\n        int a, b, d, u;\n\n        v = g_collisionCar->speed;\n        if (v > 0x10000)\n            v = 0x10000;\n        v = FixMul(v, 0x6666);\n        a = *(int *)((BYTE *)g_collisionCar + i + 0x270);\n        b = *(int *)((BYTE *)g_collisionCar + i + 0x278);\n        if ((a < 0 ? -a : a) - (b < 0 ? -b : b) < 0)\n            d = (b < 0 ? -b : b) - (a < 0 ? -a : a);\n        else\n            d = (a < 0 ? -a : a) - (b < 0 ? -b : b);\n        u = FixMul((d % 0x401) << 6, v);\n        if (*(int *)((BYTE *)g_collisionCar + off) == 0 ||\n            u >= *(int *)((BYTE *)g_collisionCar + off - 0x2c0)) {\n            *(int *)((BYTE *)g_collisionCar + off - 0x2c0) = u;\n            *(int *)((BYTE *)g_collisionCar + off) = 1;\n            *(int *)((BYTE *)g_collisionCar + i + 0x564) = 0;\n            *(int *)((BYTE *)g_collisionCar + i + 0x568) = 0x10000;\n            *(int *)((BYTE *)g_collisionCar + i + 0x56c) = 0;\n        }\n        off += 4;\n        i += 0xc;\n    } while (off < 0xbcc);\n    FixVecScale(&g_collisionCar->velocity, &g_collisionCar->velocity,\n                0xf851);\n}",
+          "replace": "void CarPhysics_UpdateWheelSlipAndVelocityDamping(Car *param_1)\n{\n    int i;\n    int off;\n    int v;\n\n    g_collisionCar = param_1;\n    i = 0;\n    off = 0;\n    do {\n        int a, b, d, u;\n\n        v = g_collisionCar->speed;\n        if (v > 0x10000)\n            v = 0x10000;\n        v = FixMul(v, 0x6666);\n        a = g_collisionCar->corners[i].x;\n        b = g_collisionCar->corners[i].z;\n        if ((a < 0 ? -a : a) - (b < 0 ? -b : b) < 0)\n            d = (b < 0 ? -b : b) - (a < 0 ? -a : a);\n        else\n            d = (a < 0 ? -a : a) - (b < 0 ? -b : b);\n        u = FixMul((d % 0x401) << 6, v);\n        if (g_collisionCar->objectContactState[off] == 0 ||\n            u >= g_collisionCar->field_0x8fc[off]) {\n            g_collisionCar->field_0x8fc[off] = u;\n            g_collisionCar->objectContactState[off] = 1;\n            g_collisionCar->field_0x564[i].x = 0;\n            g_collisionCar->field_0x564[i].y = 0x10000;\n            g_collisionCar->field_0x564[i].z = 0;\n        }\n        off++;\n        i++;\n    } while (off < 4);\n    FixVecScale(&g_collisionCar->velocity, &g_collisionCar->velocity,\n                0xf851);\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/LayoutChecks.cpp"
+          ],
+          "find": "CMR2_LAYOUT_CHECK(CarWheelNodesOffsetCheck, offsetof(Car, pWheelNodes) == 0x738);",
+          "replace": "CMR2_LAYOUT_CHECK(CarWheelNodesOffsetCheck, offsetof(Car, pWheelNodes) == 0x738);\nCMR2_LAYOUT_CHECK(Car_contactSurfaces_Check, offsetof(Car, contactSurfaces) == 0xad6);\nCMR2_LAYOUT_CHECK(Car_field_0xaea_Check, offsetof(Car, field_0xaea) == 0xaea);\nCMR2_LAYOUT_CHECK(Car_field_0xb35Prefix_Check, offsetof(Car, field_0xb35Prefix) == 0xb35);\nCMR2_LAYOUT_CHECK(Car_previousContactCount_Check, offsetof(Car, previousContactCount) == 0xb3e);\nCMR2_LAYOUT_CHECK(Car_pendingContactCount_Check, offsetof(Car, pendingContactCount) == 0xb3f);\nCMR2_LAYOUT_CHECK(Car_field_0xb40_Check, offsetof(Car, field_0xb40) == 0xb40);\nCMR2_LAYOUT_CHECK(Car_objectContactState_Check, offsetof(Car, objectContactState) == 0xbbc);\nCMR2_LAYOUT_CHECK(Car_field_0xbcc_Check, offsetof(Car, field_0xbcc) == 0xbcc);\nCMR2_LAYOUT_CHECK(CarContactSurfaceSizeCheck, sizeof(((Car *)0)->contactSurfaces) == 20);\nCMR2_LAYOUT_CHECK(CarObjectContactSizeCheck, sizeof(((Car *)0)->objectContactState) == 32);",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "rally-route-disk-nodes",
+      "classification": "number",
+      "evidence": "The .cat loader divides its file size by 0x2c. Node position is read at 0 and 8, byte flags at 0x18, signed call ID at 0x19, and camera clipping limits at 0x1c..0x28. No node field is relocated to a pointer. All producers, prototypes, consumers and direction-cache accesses are migrated together.",
+      "symbols": [
+        "g_routeNodes",
+        "RallyData_GetAvailableRouteNodeRecord",
+        "Race_UpdateCarRouteAndWrongWayState"
+      ],
+      "rules": [
+        {
+          "create": "CMR2Decomp/RallyRouteNode.h",
+          "content": "#ifndef _RALLY_ROUTE_NODE_H\n#define _RALLY_ROUTE_NODE_H\n#include <windows.h>\n#include \"FixedPoint.h\"\n// ON-DISK: pointer-free 0x2c-byte .cat node; the loader at 0x420630\n// reads an array of these records without relocation. Same layout on 64 bits.\nstruct RallyRouteNode {\n    FixVector position;          // 0x00 ground-position consumers use x and z\n    BYTE field_0xc[0xc];\n    BYTE flags;                  // 0x18 bit 0 checkpoint, bit 1 disallows reset\n    char callId;                 // 0x19 signed -1 sentinel, otherwise .cod index\n    BYTE field_0x1a[2];\n    int backwardNearLimit;       // 0x1c camera distance override while reversing\n    int backwardFarLimit;        // 0x20\n    int forwardNearLimit;        // 0x24 camera distance override while advancing\n    int forwardFarLimit;         // 0x28\n};\n#endif\n",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/RallyRoute.h"
+          ],
+          "find": "#include \"FixedPoint.h\"",
+          "replace": "#include \"FixedPoint.h\"\n#include \"RallyRouteNode.h\"",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/RallyRoute.cpp"
+          ],
+          "find": "BYTE *g_routeNodes",
+          "replace": "RallyRouteNode *g_routeNodes",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/RallyRoute.h"
+          ],
+          "find": "BYTE *g_routeNodes",
+          "replace": "RallyRouteNode *g_routeNodes",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/RallyData.cpp"
+          ],
+          "find": "BYTE *RallyData_GetAvailableRouteNodeRecord(int index)",
+          "replace": "RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index)",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "BYTE *RallyData_GetAvailableRouteNodeRecord(int index)",
+          "replace": "RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index)",
+          "count": 2
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "#include \"Car.h\"",
+          "replace": "#include \"Car.h\"\n#include \"RallyRouteNode.h\"",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/Car.cpp"
+          ],
+          "find": "BYTE *RallyData_GetAvailableRouteNodeRecord(int index)",
+          "replace": "RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index)",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/Car.cpp"
+          ],
+          "find": "#include \"Car.h\"",
+          "replace": "#include \"Car.h\"\n#include \"RallyRouteNode.h\"",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/Race.cpp"
+          ],
+          "find": "BYTE *RallyData_GetAvailableRouteNodeRecord(int index)",
+          "replace": "RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index)",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/Race.cpp"
+          ],
+          "find": "#include \"Car.h\"",
+          "replace": "#include \"Car.h\"\n#include \"RallyRouteNode.h\"",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/RallyData.cpp"
+          ],
+          "find": "RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index)\n{\n    if (g_unk0x00538a84 == 0)\n        return NULL;\n    return g_routeNodes + index * 0x2c;\n}",
+          "replace": "RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index)\n{\n    if (g_unk0x00538a84 == 0)\n        return NULL;\n    return g_routeNodes + index;\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/RallyData.cpp"
+          ],
+          "find": "void RallyData_GetRouteNodeGroundPosition(int index, int *pOut)\n{\n    int x = *(int *)(g_routeNodes + index * 0x2c);\n    pOut[1] = 0;\n    pOut[0] = x;\n    pOut[2] = *(int *)(g_routeNodes + index * 0x2c + 8);\n}",
+          "replace": "void RallyData_GetRouteNodeGroundPosition(int index, int *pOut)\n{\n    int x = g_routeNodes[index].position.x;\n    pOut[1] = 0;\n    pOut[0] = x;\n    pOut[2] = g_routeNodes[index].position.z;\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/RallyData.cpp"
+          ],
+          "find": "void RallyData_LoadSelectedRouteNodes(void)\n{\n    DWORD count;\n    int start[3];\n    int end[3];\n    int index;\n    int dx;\n    int dy;\n    int value;\n    BYTE *pFile;\n    BYTE *pEntry;\n\n    count = 0;\n    sprintf(CFrontend::m_stringDest, g_str0x00519704, GameMenu_GetChampionshipTransitionState());\n    pFile = (BYTE *)CGenericFileLoader::FindFile(\n        (GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest, 0, &count, 0);\n    g_unk0x00538a94 = 0;\n    g_routeDirKey[0] = g_routeDirKey[1] = g_routeDirKey[2] = -1;\n    g_routeDirCount = 0;\n    if (pFile == NULL) {\n        g_routeNodes = NULL;\n        g_unk0x00538a84 = 0;\n        g_unk0x00538a88 = 0;\n    } else {\n        g_routeNodes = pFile;\n        g_unk0x00538a88 = count / 0x2c;\n        g_unk0x00538a84 = g_unk0x00538a88;\n        index = g_unk0x00538a88 - 1;\n        if (index > 0) {\n            pEntry = g_routeNodes + 0x18 + index * 0x2c;\n            do {\n                if ((*pEntry & 1) != 0) {\n                    g_unk0x00538a84 = index + 1;\n                    break;\n                }\n                index--;\n                pEntry -= 0x2c;\n            } while (index > 0);\n        }\n        RallyData_GetRouteNodeGroundPosition(0, start);\n        RallyData_GetRouteNodeGroundPosition(g_unk0x00538a84 - 1, end);\n        dy = end[2] - start[2];\n        dx = end[0] - start[0];\n        if (dx < 0)\n            dx = -dx;\n        value = g_unk0x00538a84;\n        if (dx < 0x320000) {\n            if (dy < 0)\n                dy = -dy;\n            if (dy < 0x320000) {\n                g_unk0x00538a94 = 1;\n                value = (RallyData_GetSelectionBits16To19() & 0xff) * g_unk0x00538a84;\n            }\n        }\n        g_unk0x00538c94 = value << 16;\n    }\n    for (index = 0; index < 8; index++) {\n        g_raceRecords[index].routeNodeIndex = 0;\n        g_raceRecords[index].resetRouteNodeIndex = 0;\n        g_raceRecords[index].field_0x8 = 0;\n        g_raceRecords[index].field_0xc = 0;\n    }\n    RallyData_ResetPlayerRouteProbes();\n    CGame::RegisterCallback((void *)StageTiming_NoOpResourceRelease, 0);\n}",
+          "replace": "void RallyData_LoadSelectedRouteNodes(void)\n{\n    DWORD count;\n    int start[3];\n    int end[3];\n    int index;\n    int dx;\n    int dy;\n    int value;\n    BYTE *pFile;\n    BYTE *pEntry;\n\n    count = 0;\n    sprintf(CFrontend::m_stringDest, g_str0x00519704, GameMenu_GetChampionshipTransitionState());\n    pFile = (BYTE *)CGenericFileLoader::FindFile(\n        (GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest, 0, &count, 0);\n    g_unk0x00538a94 = 0;\n    g_routeDirKey[0] = g_routeDirKey[1] = g_routeDirKey[2] = -1;\n    g_routeDirCount = 0;\n    if (pFile == NULL) {\n        g_routeNodes = NULL;\n        g_unk0x00538a84 = 0;\n        g_unk0x00538a88 = 0;\n    } else {\n        g_routeNodes = (RallyRouteNode *)pFile;\n        g_unk0x00538a88 = count / sizeof(*g_routeNodes);\n        g_unk0x00538a84 = g_unk0x00538a88;\n        index = g_unk0x00538a88 - 1;\n        if (index > 0) {\n            pEntry = &g_routeNodes[index].flags;\n            do {\n                if ((*pEntry & 1) != 0) {\n                    g_unk0x00538a84 = index + 1;\n                    break;\n                }\n                index--;\n                pEntry -= sizeof(*g_routeNodes);\n            } while (index > 0);\n        }\n        RallyData_GetRouteNodeGroundPosition(0, start);\n        RallyData_GetRouteNodeGroundPosition(g_unk0x00538a84 - 1, end);\n        dy = end[2] - start[2];\n        dx = end[0] - start[0];\n        if (dx < 0)\n            dx = -dx;\n        value = g_unk0x00538a84;\n        if (dx < 0x320000) {\n            if (dy < 0)\n                dy = -dy;\n            if (dy < 0x320000) {\n                g_unk0x00538a94 = 1;\n                value = (RallyData_GetSelectionBits16To19() & 0xff) * g_unk0x00538a84;\n            }\n        }\n        g_unk0x00538c94 = value << 16;\n    }\n    for (index = 0; index < 8; index++) {\n        g_raceRecords[index].routeNodeIndex = 0;\n        g_raceRecords[index].resetRouteNodeIndex = 0;\n        g_raceRecords[index].field_0x8 = 0;\n        g_raceRecords[index].field_0xc = 0;\n    }\n    RallyData_ResetPlayerRouteProbes();\n    CGame::RegisterCallback((void *)StageTiming_NoOpResourceRelease, 0);\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/RallyRoute.cpp"
+          ],
+          "find": "void RallyRoute_GetNodeDirection(FixVector *pOut, unsigned int nodeIndex)\n{\n    int slot = -1;\n    int hasNext = 0;\n    int hasPrev = 0;\n    int i = 0;\n    int *pNode;\n    int *pPrev;\n    int *pNext;\n    FixVector sum;\n    FixVector d;\n    int len;\n    int index;\n\n    do {\n        if (nodeIndex == (unsigned int)(int)g_routeDirKey[i]) {\n            slot = i;\n            i = 3;\n        }\n        i++;\n    } while (i < 3);\n\n    if (slot >= 0) {\n        *pOut = g_routeDir[slot];\n        return;\n    }\n\n    pNode = (int *)(g_routeNodes + nodeIndex * 0x2c);\n    if ((int)nodeIndex > 0) {\n        hasPrev = 1;\n        pPrev = pNode - 0xb;\n    }\n    if (nodeIndex < (unsigned int)(g_unk0x00538a84 - 1)) {\n        hasNext = 1;\n        pNext = (int *)(g_routeNodes + nodeIndex * 0x2c + 0x2c);\n    }\n\n    sum.x = 0;\n    sum.y = 0;\n    sum.z = 0;\n    if (hasPrev != 0) {\n        d.y = 0;\n        d.x = pNode[0] - pPrev[0];\n        d.z = pNode[2] - pPrev[2];\n        len = FixVecLength(&d);\n        if (len == 0) {\n            d.x = 0;\n            d.y = 0;\n            d.z = 0;\n        } else {\n            FixVecScaleRecip(&d, &d, len);\n        }\n        sum.x = sum.x + d.x;\n        sum.z = sum.z + d.z;\n    }\n    if (hasNext != 0) {\n        d.y = 0;\n        d.x = pNext[0] - pNode[0];\n        d.z = pNext[2] - pNode[2];\n        len = FixVecLength(&d);\n        if (len == 0) {\n            d.x = 0;\n            d.y = 0;\n            d.z = 0;\n        } else {\n            FixVecScaleRecip(&d, &d, len);\n        }\n        sum.x = sum.x + d.x;\n        sum.z = sum.z + d.z;\n    }\n\n    len = FixVecLength(&sum);\n    if (len == 0) {\n        sum.x = 0;\n        sum.y = 0;\n    } else {\n        FixVecScaleRecip(&sum, &sum, len);\n    }\n\n    index = g_routeDirCount;\n    g_routeDirKey[index] = (short)nodeIndex;\n    g_routeDirCount = (short)(index + 1);\n    g_routeDir[index].x = sum.x;\n    g_routeDir[index].y = sum.y;\n    g_routeDir[index].z = sum.z;\n    if (g_routeDirCount > 2) {\n        g_routeDirCount = (short)(g_routeDirCount - 3);\n    }\n    pOut->x = sum.x;\n    pOut->y = sum.y;\n    pOut->z = sum.z;\n}",
+          "replace": "void RallyRoute_GetNodeDirection(FixVector *pOut, unsigned int nodeIndex)\n{\n    int slot = -1;\n    int hasNext = 0;\n    int hasPrev = 0;\n    int i = 0;\n    RallyRouteNode *pNode;\n    RallyRouteNode *pPrev;\n    RallyRouteNode *pNext;\n    FixVector sum;\n    FixVector d;\n    int len;\n    int index;\n\n    do {\n        if (nodeIndex == (unsigned int)(int)g_routeDirKey[i]) {\n            slot = i;\n            i = 3;\n        }\n        i++;\n    } while (i < 3);\n\n    if (slot >= 0) {\n        *pOut = g_routeDir[slot];\n        return;\n    }\n\n    pNode = g_routeNodes + nodeIndex;\n    if ((int)nodeIndex > 0) {\n        hasPrev = 1;\n        pPrev = pNode - 1;\n    }\n    if (nodeIndex < (unsigned int)(g_unk0x00538a84 - 1)) {\n        hasNext = 1;\n        pNext = g_routeNodes + nodeIndex + 1;\n    }\n\n    sum.x = 0;\n    sum.y = 0;\n    sum.z = 0;\n    if (hasPrev != 0) {\n        d.y = 0;\n        d.x = pNode->position.x - pPrev->position.x;\n        d.z = pNode->position.z - pPrev->position.z;\n        len = FixVecLength(&d);\n        if (len == 0) {\n            d.x = 0;\n            d.y = 0;\n            d.z = 0;\n        } else {\n            FixVecScaleRecip(&d, &d, len);\n        }\n        sum.x = sum.x + d.x;\n        sum.z = sum.z + d.z;\n    }\n    if (hasNext != 0) {\n        d.y = 0;\n        d.x = pNext->position.x - pNode->position.x;\n        d.z = pNext->position.z - pNode->position.z;\n        len = FixVecLength(&d);\n        if (len == 0) {\n            d.x = 0;\n            d.y = 0;\n            d.z = 0;\n        } else {\n            FixVecScaleRecip(&d, &d, len);\n        }\n        sum.x = sum.x + d.x;\n        sum.z = sum.z + d.z;\n    }\n\n    len = FixVecLength(&sum);\n    if (len == 0) {\n        sum.x = 0;\n        sum.y = 0;\n    } else {\n        FixVecScaleRecip(&sum, &sum, len);\n    }\n\n    index = g_routeDirCount;\n    g_routeDirKey[index] = (short)nodeIndex;\n    g_routeDirCount = (short)(index + 1);\n    g_routeDir[index].x = sum.x;\n    g_routeDir[index].y = sum.y;\n    g_routeDir[index].z = sum.z;\n    if (g_routeDirCount > 2) {\n        g_routeDirCount = (short)(g_routeDirCount - 3);\n    }\n    pOut->x = sum.x;\n    pOut->y = sum.y;\n    pOut->z = sum.z;\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/Car.cpp"
+          ],
+          "find": "void Car_ResetToStage(unsigned int param_1)\n{\n    FixVector heading;\n    FixVector position;\n    int node;\n    BYTE *pRecord;\n\n    g_pCurrentCar = Car_Get(param_1 & 0xff);\n    node = RallyData_GetActiveCarRaceRecordField0((BYTE *)g_pCurrentCar);\n    pRecord = RallyData_GetAvailableRouteNodeRecord(node);\n    if (pRecord != NULL) {\n        while (Car_OverlapsOtherCar(node) != 0) {\n            node--;\n            if (node < 0) {\n                if (RallyData_GetRouteAdditionalState() != 0)\n                    node += RallyData_GetRouteAvailabilityState();\n                else\n                    node = 0;\n            }\n        }\n        while ((*(BYTE *)(pRecord + 0x18) & 2) != 0 && node > 0) {\n            node--;\n            pRecord = RallyData_GetAvailableRouteNodeRecord(node);\n        }\n        RallyRoute_CopyIndexedNodeDirection(node, &heading);\n        RallyData_GetRouteNodeGroundPosition(node, (int *)&position);\n    } else {\n        position = g_pCurrentCar->position;\n        heading = g_pCurrentCar->right;\n    }\n    Car_PlaceAtStart((int *)&position, (int *)&heading);\n    Race_StorePlayerRouteAndClearSlots(param_1 & 0xff);\n    Particle_KillAll();\n    if ((BYTE)param_1 < (BYTE)RallyDataState())\n        View_ResetCameras(param_1);\n    g_pCurrentCar->field_0xbf8 = 0;\n    g_pCurrentCar->field_0xa7c = 0;\n    g_pCurrentCar->field_0xa80 = 0;\n}",
+          "replace": "void Car_ResetToStage(unsigned int param_1)\n{\n    FixVector heading;\n    FixVector position;\n    int node;\n    RallyRouteNode *pRecord;\n\n    g_pCurrentCar = Car_Get(param_1 & 0xff);\n    node = RallyData_GetActiveCarRaceRecordField0((BYTE *)g_pCurrentCar);\n    pRecord = RallyData_GetAvailableRouteNodeRecord(node);\n    if (pRecord != NULL) {\n        while (Car_OverlapsOtherCar(node) != 0) {\n            node--;\n            if (node < 0) {\n                if (RallyData_GetRouteAdditionalState() != 0)\n                    node += RallyData_GetRouteAvailabilityState();\n                else\n                    node = 0;\n            }\n        }\n        while ((pRecord->flags & 2) != 0 && node > 0) {\n            node--;\n            pRecord = RallyData_GetAvailableRouteNodeRecord(node);\n        }\n        RallyRoute_CopyIndexedNodeDirection(node, &heading);\n        RallyData_GetRouteNodeGroundPosition(node, (int *)&position);\n    } else {\n        position = g_pCurrentCar->position;\n        heading = g_pCurrentCar->right;\n    }\n    Car_PlaceAtStart((int *)&position, (int *)&heading);\n    Race_StorePlayerRouteAndClearSlots(param_1 & 0xff);\n    Particle_KillAll();\n    if ((BYTE)param_1 < (BYTE)RallyDataState())\n        View_ResetCameras(param_1);\n    g_pCurrentCar->field_0xbf8 = 0;\n    g_pCurrentCar->field_0xa7c = 0;\n    g_pCurrentCar->field_0xa80 = 0;\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "void StageTiming_SetViewRouteDistanceLimit(BYTE player, unsigned int node, int dir)\n{\n    BYTE *pNode;\n    int nearDist;\n    int farDist;\n    int distance;\n\n    if (player < (BYTE)RallyDataState()) {\n        if (dir < 0) {\n            node++;\n            if (node >= (unsigned int)RallyData_GetRouteAvailabilityState())\n                node = RallyData_GetRouteAvailabilityState() - 1;\n        }\n        if ((BYTE)RallyDataState() > 1 && Race_IsMultiplayerRecordMode10() == 0)\n            CGameInfo::IsConfiguredMultiplayer();\n        pNode = RallyData_GetAvailableRouteNodeRecord(node);\n        if (dir < 0) {\n            nearDist = *(int *)(pNode + 0x1c);\n        } else {\n            nearDist = *(int *)(pNode + 0x24);\n        }\n        if (dir < 0)\n            farDist = *(int *)(pNode + 0x20);\n        else\n            farDist = *(int *)(pNode + 0x28);\n        if (farDist > 0) {\n            *(int *)((BYTE *)g_pGraphics + 0x3c8) = farDist;\n            distance = Render_GetDetailDistanceScale();\n            if (distance > *(int *)((BYTE *)g_pGraphics + 0x3c8))\n                distance = *(int *)((BYTE *)g_pGraphics + 0x3c8);\n            View_SetDistanceOverride(player, distance);\n        }\n        if (nearDist > 0) {\n            *(int *)((BYTE *)g_pGraphics + 0x3c4) = nearDist;\n            distance = Render_GetDetailDistanceScale();\n            if (distance > *(int *)((BYTE *)g_pGraphics + 0x3c8))\n                distance = *(int *)((BYTE *)g_pGraphics + 0x3c8);\n            View_SetDistanceOverride(player, distance);\n        }\n    }\n}",
+          "replace": "void StageTiming_SetViewRouteDistanceLimit(BYTE player, unsigned int node, int dir)\n{\n    RallyRouteNode *pNode;\n    int nearDist;\n    int farDist;\n    int distance;\n\n    if (player < (BYTE)RallyDataState()) {\n        if (dir < 0) {\n            node++;\n            if (node >= (unsigned int)RallyData_GetRouteAvailabilityState())\n                node = RallyData_GetRouteAvailabilityState() - 1;\n        }\n        if ((BYTE)RallyDataState() > 1 && Race_IsMultiplayerRecordMode10() == 0)\n            CGameInfo::IsConfiguredMultiplayer();\n        pNode = RallyData_GetAvailableRouteNodeRecord(node);\n        if (dir < 0) {\n            nearDist = pNode->backwardNearLimit;\n        } else {\n            nearDist = pNode->forwardNearLimit;\n        }\n        if (dir < 0)\n            farDist = pNode->backwardFarLimit;\n        else\n            farDist = pNode->forwardFarLimit;\n        if (farDist > 0) {\n            *(int *)((BYTE *)g_pGraphics + 0x3c8) = farDist;\n            distance = Render_GetDetailDistanceScale();\n            if (distance > *(int *)((BYTE *)g_pGraphics + 0x3c8))\n                distance = *(int *)((BYTE *)g_pGraphics + 0x3c8);\n            View_SetDistanceOverride(player, distance);\n        }\n        if (nearDist > 0) {\n            *(int *)((BYTE *)g_pGraphics + 0x3c4) = nearDist;\n            distance = Render_GetDetailDistanceScale();\n            if (distance > *(int *)((BYTE *)g_pGraphics + 0x3c8))\n                distance = *(int *)((BYTE *)g_pGraphics + 0x3c8);\n            View_SetDistanceOverride(player, distance);\n        }\n    }\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/StageTiming.cpp"
+          ],
+          "find": "void StageTiming_BuildCheckpointSplitPositions(void)\n{\n    int count = 0;\n    int i;\n    int unit;\n    int scale;\n\n    g_unk0x00542c74 = 0;\n    g_stageCheckpointCount = RallyData_GetRouteAvailabilityState();\n    if (g_stageCheckpointCount == 0)\n        return;\n    for (i = 0; i < g_stageCheckpointCount; i++) {\n        if ((*(BYTE *)(RallyData_GetAvailableRouteNodeRecord(i) + 0x18) & 1) != 0) {\n            g_unk0x00542c7c[count] = (int)(__int64)((double)i * CGraphics::m_65536);\n            count++;\n        }\n    }\n    g_unk0x00542c74 = count;\n    if ((char)RallyData_GetFlag24() != 0) {\n        g_stageLooped = 1;\n    } else {\n        g_stageLooped = 0;\n        if ((char)RallyData_GetFlag25() != 0)\n            g_stageLooped = 1;\n    }\n    if ((char)RallyData_GetFlag24() != 0 || (char)RallyData_GetFlag25() != 0) {\n        g_unk0x00542c74 = (char)RallyData_GetFlag24() != 0 ? 4 : 2;\n        g_unk0x00542c78 = g_unk0x00542c74;\n        unit = (int)(__int64)((double)g_unk0x00542c74 * CGraphics::m_65536);\n        if ((char)RallyData_GetFlag24() != 0) {\n            scale = FixDiv((int)(__int64)((double)g_stageCheckpointCount * CGraphics::m_65536), unit);\n            for (i = 0; i < g_unk0x00542c74; i++)\n                g_unk0x00542c7c[i] = FixMul((int)(__int64)((double)i * CGraphics::m_65536), scale)\n                                     & 0xffff0000;\n        }\n    }\n    if ((char)RallyData_GetFlag24() != 0 || (char)RallyData_GetFlag25() != 0)\n        g_stageSplitCount = (char)g_unk0x00542c74;\n    else\n        g_stageSplitCount = (char)g_unk0x00542c74 - 1;\n}",
+          "replace": "void StageTiming_BuildCheckpointSplitPositions(void)\n{\n    int count = 0;\n    int i;\n    int unit;\n    int scale;\n\n    g_unk0x00542c74 = 0;\n    g_stageCheckpointCount = RallyData_GetRouteAvailabilityState();\n    if (g_stageCheckpointCount == 0)\n        return;\n    for (i = 0; i < g_stageCheckpointCount; i++) {\n        if ((RallyData_GetAvailableRouteNodeRecord(i)->flags & 1) != 0) {\n            g_unk0x00542c7c[count] = (int)(__int64)((double)i * CGraphics::m_65536);\n            count++;\n        }\n    }\n    g_unk0x00542c74 = count;\n    if ((char)RallyData_GetFlag24() != 0) {\n        g_stageLooped = 1;\n    } else {\n        g_stageLooped = 0;\n        if ((char)RallyData_GetFlag25() != 0)\n            g_stageLooped = 1;\n    }\n    if ((char)RallyData_GetFlag24() != 0 || (char)RallyData_GetFlag25() != 0) {\n        g_unk0x00542c74 = (char)RallyData_GetFlag24() != 0 ? 4 : 2;\n        g_unk0x00542c78 = g_unk0x00542c74;\n        unit = (int)(__int64)((double)g_unk0x00542c74 * CGraphics::m_65536);\n        if ((char)RallyData_GetFlag24() != 0) {\n            scale = FixDiv((int)(__int64)((double)g_stageCheckpointCount * CGraphics::m_65536), unit);\n            for (i = 0; i < g_unk0x00542c74; i++)\n                g_unk0x00542c7c[i] = FixMul((int)(__int64)((double)i * CGraphics::m_65536), scale)\n                                     & 0xffff0000;\n        }\n    }\n    if ((char)RallyData_GetFlag24() != 0 || (char)RallyData_GetFlag25() != 0)\n        g_stageSplitCount = (char)g_unk0x00542c74;\n    else\n        g_stageSplitCount = (char)g_unk0x00542c74 - 1;\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/Race.cpp"
+          ],
+          "find": "void Race_UpdateCarRouteAndWrongWayState(int param_1)\n{\n    int cur;\n    int best;\n    int prev;\n    int node;\n    int n;\n    int dot;\n    int i;\n    unsigned int cnt;\n    FixVector dir;\n    Car *pCar;\n    unsigned int flags;\n    BYTE callId;\n    BYTE prevCallId;\n    RaceCallRecord *pRec;\n\n    if (RallyData_GetRouteAvailabilityState() == 0)\n        return;\n\n    if ((char)RallyData_GetSelectionFlag28() != '\\0' &&\n        ((char)RallyData_GetFlag25() != '\\0' || (char)RallyData_GetFlag24() != '\\0') &&\n        (char)StageTiming_GetCheckpointField18(param_1) != '\\0') {\n        g_unk0x0053708c[param_1] = 0;\n    }\n\n    cur = g_unk0x0053708c[param_1];\n    best = RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(param_1));\n\n    if (g_unk0x005371a0 == 0 && param_1 == 0) {\n        StageObject_SetBoundedWeatherKind(0);\n        Race_AssignUnusedSlot(g_unk0x0053735c + 0xd);\n        g_unk0x005371a0 = 1;\n    }\n\n    if ((char)RallyData_GetSelectionFlag26() != '\\0') {\n        i = StageTiming_GetClockTime();\n        g_unk0x00537350 = (i < 0x5a) - 1;\n    }\n\n    RaceCalls_UpdatePlaybackQueue();\n\n    if (best < cur - 0xc)\n        g_unk0x0053708c[param_1] = best;\n\n    if (best < cur - 1 &&\n        ((int)((unsigned int)RallyData_GetRouteAvailabilityState() >> 1) <= best ||\n         cur <= (int)((unsigned int)RallyData_GetRouteAvailabilityState() >> 1))) {\n        RallyRoute_CopyIndexedNodeDirection(best, &dir);\n        pCar = Car_Get(param_1);\n        dot = FixVecDot(&pCar->rearWheelDir, &dir);\n        if (dot < -0x8000) {\n            g_raceWrongWayFlags[param_1] = 1;\n            g_unk0x00537198[param_1] = best;\n        }\n    }\n\n    if ((int)((unsigned int)RallyData_GetRouteAvailabilityState() >> 1) < best &&\n        cur < (int)((unsigned int)RallyData_GetRouteAvailabilityState() >> 1)) {\n        g_unk0x00537198[param_1] = best;\n        g_unk0x0053708c[param_1] = best;\n        cur = best;\n    }\n\n    if (g_raceWrongWayFlags[param_1] != 0) {\n        RallyRoute_CopyIndexedNodeDirection(best, &dir);\n        pCar = Car_Get(param_1);\n        dot = FixVecDot(&pCar->rearWheelDir, &dir);\n        if (dot > 0x3333)\n            g_raceWrongWayFlags[param_1] = 0;\n    }\n\n    if (g_unk0x00537198[param_1] < best)\n        g_raceWrongWayFlags[param_1] = 0;\n\n    g_unk0x00537354 = 0;\n    i = g_unk0x0053708c[param_1] + 1;\n    if (i <= g_unk0x0053708c[param_1] + 6) {\n        do {\n            cnt = (unsigned int)RallyData_GetRouteAvailabilityState();\n            if ((int)cnt <= i || *(char *)(RallyData_GetAvailableRouteNodeRecord(i) + 0x19) != -1)\n                g_unk0x00537354 = 1;\n            i++;\n        } while (i <= g_unk0x0053708c[param_1] + 6);\n    }\n\n    if ((char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[param_1].packedState == '\\t')\n        g_unk0x00537354 = 1;\n\n    if ((g_raceCallRecords[param_1 * 5 + 1].flags & 0x100) != 0)\n        g_unk0x00537354 = 1;\n\n    if (Car_IsStateC10Set(param_1) == 0 &&\n        (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[param_1].packedState == '\\b') {\n        if (!((char)RallyData_GetFlag25() != '\\0' &&\n              RallyData_GetCarRecordValueRatio((BYTE *)Car_Get(param_1)) >= 0x10000)) {\n            if (g_unk0x0053708c[param_1] < best) {\n                node = cur + 1;\n                if (node <= best) {\n                    prev = cur + 2;\n                    do {\n                        n = (int)RallyData_GetAvailableRouteNodeRecord(node);\n                        if (*(char *)(n + 0x19) != -1 &&\n                            Race_IsFlag24Clear() != 0 && Car_IsStateC10Set(param_1) == 0) {\n                            int ok = 1;\n                            if (prev >= 2) {\n                                n = (int)RallyData_GetAvailableRouteNodeRecord(node - 1);\n                                if (*(char *)(n + 0x19) != -1) {\n                                    ok = 0;\n                                } else {\n                                    callId = *(BYTE *)(RallyData_GetAvailableRouteNodeRecord(node) + 0x19);\n                                    prevCallId = *(BYTE *)(RallyData_GetAvailableRouteNodeRecord(prev) + 0x19);\n                                }\n                            } else {\n                                callId = *(BYTE *)(RallyData_GetAvailableRouteNodeRecord(node) + 0x19);\n                                prevCallId = *(BYTE *)(RallyData_GetAvailableRouteNodeRecord(prev) + 0x19);\n                            }\n                            if (ok)\n                                Race_QueuePlayerCallout(param_1, callId, prevCallId, (BYTE)node);\n                        }\n                        node++;\n                        prev++;\n                    } while (node <= best);\n                }\n                g_unk0x0053708c[param_1] = best;\n            }\n        }\n    }\n\n    if (best < g_unk0x00537198[param_1])\n        g_unk0x00537198[param_1] = best;\n    if (g_unk0x00537198[param_1] + 6 < best)\n        g_unk0x00537198[param_1] = best - 6;\n\n    if (Race_IsFlag24Clear() == 0)\n        return;\n    flags = g_raceCallRecords[param_1 * 5].flags;\n    if ((flags & 0x100) == 0)\n        return;\n    if ((BYTE)flags != 0x19) {\n        g_raceCallRecords[param_1 * 5].flags = (flags - 1 ^ flags) & 0xff ^ flags;\n    } else {\n        if (g_unk0x00537354 != 0)\n            g_raceCallRecords[param_1 * 5].flags = (flags - 1 ^ flags) & 0xff ^ flags;\n    }\n    if ((BYTE)g_raceCallRecords[param_1 * 5].flags == 0) {\n        pRec = &g_raceCallRecords[param_1 * 5];\n        for (i = 0; i < 4; i++)\n            pRec[i] = pRec[i + 1];\n        pRec[4].flags &= 0xfffffc00;\n        pRec[4].field_0x0 = 0;\n        pRec[4].field_0x4 = 0;\n    }\n}",
+          "replace": "void Race_UpdateCarRouteAndWrongWayState(int param_1)\n{\n    int cur;\n    int best;\n    int prev;\n    int node;\n    RallyRouteNode *n;\n    int dot;\n    int i;\n    unsigned int cnt;\n    FixVector dir;\n    Car *pCar;\n    unsigned int flags;\n    BYTE callId;\n    BYTE prevCallId;\n    RaceCallRecord *pRec;\n\n    if (RallyData_GetRouteAvailabilityState() == 0)\n        return;\n\n    if ((char)RallyData_GetSelectionFlag28() != '\\0' &&\n        ((char)RallyData_GetFlag25() != '\\0' || (char)RallyData_GetFlag24() != '\\0') &&\n        (char)StageTiming_GetCheckpointField18(param_1) != '\\0') {\n        g_unk0x0053708c[param_1] = 0;\n    }\n\n    cur = g_unk0x0053708c[param_1];\n    best = RallyData_GetActiveCarRaceRecordField0((BYTE *)Car_Get(param_1));\n\n    if (g_unk0x005371a0 == 0 && param_1 == 0) {\n        StageObject_SetBoundedWeatherKind(0);\n        Race_AssignUnusedSlot(g_unk0x0053735c + 0xd);\n        g_unk0x005371a0 = 1;\n    }\n\n    if ((char)RallyData_GetSelectionFlag26() != '\\0') {\n        i = StageTiming_GetClockTime();\n        g_unk0x00537350 = (i < 0x5a) - 1;\n    }\n\n    RaceCalls_UpdatePlaybackQueue();\n\n    if (best < cur - 0xc)\n        g_unk0x0053708c[param_1] = best;\n\n    if (best < cur - 1 &&\n        ((int)((unsigned int)RallyData_GetRouteAvailabilityState() >> 1) <= best ||\n         cur <= (int)((unsigned int)RallyData_GetRouteAvailabilityState() >> 1))) {\n        RallyRoute_CopyIndexedNodeDirection(best, &dir);\n        pCar = Car_Get(param_1);\n        dot = FixVecDot(&pCar->rearWheelDir, &dir);\n        if (dot < -0x8000) {\n            g_raceWrongWayFlags[param_1] = 1;\n            g_unk0x00537198[param_1] = best;\n        }\n    }\n\n    if ((int)((unsigned int)RallyData_GetRouteAvailabilityState() >> 1) < best &&\n        cur < (int)((unsigned int)RallyData_GetRouteAvailabilityState() >> 1)) {\n        g_unk0x00537198[param_1] = best;\n        g_unk0x0053708c[param_1] = best;\n        cur = best;\n    }\n\n    if (g_raceWrongWayFlags[param_1] != 0) {\n        RallyRoute_CopyIndexedNodeDirection(best, &dir);\n        pCar = Car_Get(param_1);\n        dot = FixVecDot(&pCar->rearWheelDir, &dir);\n        if (dot > 0x3333)\n            g_raceWrongWayFlags[param_1] = 0;\n    }\n\n    if (g_unk0x00537198[param_1] < best)\n        g_raceWrongWayFlags[param_1] = 0;\n\n    g_unk0x00537354 = 0;\n    i = g_unk0x0053708c[param_1] + 1;\n    if (i <= g_unk0x0053708c[param_1] + 6) {\n        do {\n            cnt = (unsigned int)RallyData_GetRouteAvailabilityState();\n            if ((int)cnt <= i || RallyData_GetAvailableRouteNodeRecord(i)->callId != -1)\n                g_unk0x00537354 = 1;\n            i++;\n        } while (i <= g_unk0x0053708c[param_1] + 6);\n    }\n\n    if ((char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[param_1].packedState == '\\t')\n        g_unk0x00537354 = 1;\n\n    if ((g_raceCallRecords[param_1 * 5 + 1].flags & 0x100) != 0)\n        g_unk0x00537354 = 1;\n\n    if (Car_IsStateC10Set(param_1) == 0 &&\n        (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[param_1].packedState == '\\b') {\n        if (!((char)RallyData_GetFlag25() != '\\0' &&\n              RallyData_GetCarRecordValueRatio((BYTE *)Car_Get(param_1)) >= 0x10000)) {\n            if (g_unk0x0053708c[param_1] < best) {\n                node = cur + 1;\n                if (node <= best) {\n                    prev = cur + 2;\n                    do {\n                        n = RallyData_GetAvailableRouteNodeRecord(node);\n                        if (n->callId != -1 &&\n                            Race_IsFlag24Clear() != 0 && Car_IsStateC10Set(param_1) == 0) {\n                            int ok = 1;\n                            if (prev >= 2) {\n                                n = RallyData_GetAvailableRouteNodeRecord(node - 1);\n                                if (n->callId != -1) {\n                                    ok = 0;\n                                } else {\n                                    callId = (BYTE)RallyData_GetAvailableRouteNodeRecord(node)->callId;\n                                    prevCallId = (BYTE)RallyData_GetAvailableRouteNodeRecord(prev)->callId;\n                                }\n                            } else {\n                                callId = (BYTE)RallyData_GetAvailableRouteNodeRecord(node)->callId;\n                                prevCallId = (BYTE)RallyData_GetAvailableRouteNodeRecord(prev)->callId;\n                            }\n                            if (ok)\n                                Race_QueuePlayerCallout(param_1, callId, prevCallId, (BYTE)node);\n                        }\n                        node++;\n                        prev++;\n                    } while (node <= best);\n                }\n                g_unk0x0053708c[param_1] = best;\n            }\n        }\n    }\n\n    if (best < g_unk0x00537198[param_1])\n        g_unk0x00537198[param_1] = best;\n    if (g_unk0x00537198[param_1] + 6 < best)\n        g_unk0x00537198[param_1] = best - 6;\n\n    if (Race_IsFlag24Clear() == 0)\n        return;\n    flags = g_raceCallRecords[param_1 * 5].flags;\n    if ((flags & 0x100) == 0)\n        return;\n    if ((BYTE)flags != 0x19) {\n        g_raceCallRecords[param_1 * 5].flags = (flags - 1 ^ flags) & 0xff ^ flags;\n    } else {\n        if (g_unk0x00537354 != 0)\n            g_raceCallRecords[param_1 * 5].flags = (flags - 1 ^ flags) & 0xff ^ flags;\n    }\n    if ((BYTE)g_raceCallRecords[param_1 * 5].flags == 0) {\n        pRec = &g_raceCallRecords[param_1 * 5];\n        for (i = 0; i < 4; i++)\n            pRec[i] = pRec[i + 1];\n        pRec[4].flags &= 0xfffffc00;\n        pRec[4].field_0x0 = 0;\n        pRec[4].field_0x4 = 0;\n    }\n}",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/LayoutChecks.cpp"
+          ],
+          "find": "#include \"RaceRecord.h\"",
+          "replace": "#include \"RaceRecord.h\"\n#include \"RallyRouteNode.h\"",
+          "count": 1
+        },
+        {
+          "paths": [
+            "CMR2Decomp/LayoutChecks.cpp"
+          ],
+          "find": "CMR2_LAYOUT_CHECK(CarSizeCheck, sizeof(Car) == 0xc24);",
+          "replace": "CMR2_LAYOUT_CHECK(CarSizeCheck, sizeof(Car) == 0xc24);\nCMR2_LAYOUT_CHECK(RallyRouteNode_SizeCheck, sizeof(RallyRouteNode) == 0x2c);\nCMR2_LAYOUT_CHECK(RallyRouteNode_position_Check, offsetof(RallyRouteNode, position) == 0);\nCMR2_LAYOUT_CHECK(RallyRouteNode_field_0xc_Check, offsetof(RallyRouteNode, field_0xc) == 0xc);\nCMR2_LAYOUT_CHECK(RallyRouteNode_flags_Check, offsetof(RallyRouteNode, flags) == 0x18);\nCMR2_LAYOUT_CHECK(RallyRouteNode_callId_Check, offsetof(RallyRouteNode, callId) == 0x19);\nCMR2_LAYOUT_CHECK(RallyRouteNode_field_0x1a_Check, offsetof(RallyRouteNode, field_0x1a) == 0x1a);\nCMR2_LAYOUT_CHECK(RallyRouteNode_backwardNearLimit_Check, offsetof(RallyRouteNode, backwardNearLimit) == 0x1c);\nCMR2_LAYOUT_CHECK(RallyRouteNode_backwardFarLimit_Check, offsetof(RallyRouteNode, backwardFarLimit) == 0x20);\nCMR2_LAYOUT_CHECK(RallyRouteNode_forwardNearLimit_Check, offsetof(RallyRouteNode, forwardNearLimit) == 0x24);\nCMR2_LAYOUT_CHECK(RallyRouteNode_forwardFarLimit_Check, offsetof(RallyRouteNode, forwardFarLimit) == 0x28);",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "baseline": "43a9b83",
+  "functions": 3364,
+  "byte_exact": 2924,
+  "metric_changes": [
+    {
+      "address": "0x48df50",
+      "name": "CarPhysics_UpdateWheelSlipAndVelocityDamping",
+      "before": {
+        "s": 0.803921568627451,
+        "fz": 0.9901960784313726,
+        "x": false
+      },
+      "after": {
+        "s": 0.8823529411764706,
+        "fz": 0.9901960784313726,
+        "x": false
+      }
+    }
+  ],
+  "regressions": []
+}

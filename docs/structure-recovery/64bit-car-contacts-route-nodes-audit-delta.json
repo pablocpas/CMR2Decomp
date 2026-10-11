@@ -1,0 +1,14 @@
+{
+  "baseline": "43a9b83",
+  "before": 208,
+  "after": 204,
+  "removed": 4,
+  "changes": [
+    {
+      "address": "0x00417090",
+      "before": 4,
+      "after": 0,
+      "removed": 4
+    }
+  ]
+}

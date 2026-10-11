@@ -835,6 +835,7 @@ int g_unk0x0053708c[2];
 int g_unk0x00537198[2];
 
 #include "Car.h"
+#include "RallyRouteNode.h"
 int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
 
 // Stores the player's route position twice and frees the first five race slots.
@@ -4439,7 +4440,7 @@ void Race_ResolveStageTexturesAndPalettes(void)
 
 // Route helpers of the per-car update below (no shared header declares them).
 int RallyData_GetRouteAvailabilityState(void);
-BYTE *RallyData_GetAvailableRouteNodeRecord(int index);
+RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index);
 int RallyData_GetCarRecordValueRatio(BYTE *p);
 BYTE StageTiming_GetCheckpointField18(int index);
 int StageTiming_GetClockTime(void);
@@ -4465,7 +4466,7 @@ void Race_UpdateCarRouteAndWrongWayState(int param_1)
     int best;
     int prev;
     int node;
-    int n;
+    RallyRouteNode *n;
     int dot;
     int i;
     unsigned int cnt;
@@ -4539,7 +4540,7 @@ void Race_UpdateCarRouteAndWrongWayState(int param_1)
     if (i <= g_unk0x0053708c[param_1] + 6) {
         do {
             cnt = (unsigned int)RallyData_GetRouteAvailabilityState();
-            if ((int)cnt <= i || *(char *)(RallyData_GetAvailableRouteNodeRecord(i) + 0x19) != -1)
+            if ((int)cnt <= i || RallyData_GetAvailableRouteNodeRecord(i)->callId != -1)
                 g_unk0x00537354 = 1;
             i++;
         } while (i <= g_unk0x0053708c[param_1] + 6);
@@ -4560,21 +4561,21 @@ void Race_UpdateCarRouteAndWrongWayState(int param_1)
                 if (node <= best) {
                     prev = cur + 2;
                     do {
-                        n = (int)RallyData_GetAvailableRouteNodeRecord(node);
-                        if (*(char *)(n + 0x19) != -1 &&
+                        n = RallyData_GetAvailableRouteNodeRecord(node);
+                        if (n->callId != -1 &&
                             Race_IsFlag24Clear() != 0 && Car_IsStateC10Set(param_1) == 0) {
                             int ok = 1;
                             if (prev >= 2) {
-                                n = (int)RallyData_GetAvailableRouteNodeRecord(node - 1);
-                                if (*(char *)(n + 0x19) != -1) {
+                                n = RallyData_GetAvailableRouteNodeRecord(node - 1);
+                                if (n->callId != -1) {
                                     ok = 0;
                                 } else {
-                                    callId = *(BYTE *)(RallyData_GetAvailableRouteNodeRecord(node) + 0x19);
-                                    prevCallId = *(BYTE *)(RallyData_GetAvailableRouteNodeRecord(prev) + 0x19);
+                                    callId = (BYTE)RallyData_GetAvailableRouteNodeRecord(node)->callId;
+                                    prevCallId = (BYTE)RallyData_GetAvailableRouteNodeRecord(prev)->callId;
                                 }
                             } else {
-                                callId = *(BYTE *)(RallyData_GetAvailableRouteNodeRecord(node) + 0x19);
-                                prevCallId = *(BYTE *)(RallyData_GetAvailableRouteNodeRecord(prev) + 0x19);
+                                callId = (BYTE)RallyData_GetAvailableRouteNodeRecord(node)->callId;
+                                prevCallId = (BYTE)RallyData_GetAvailableRouteNodeRecord(prev)->callId;
                             }
                             if (ok)
                                 Race_QueuePlayerCallout(param_1, callId, prevCallId, (BYTE)node);

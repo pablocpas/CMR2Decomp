@@ -2,7 +2,7 @@
 #include "RallyRoute.h"
 
 short g_routeDirKey[3];
-BYTE *g_routeNodes;
+RallyRouteNode *g_routeNodes;
 short g_routeDirCount;
 FixVector g_routeDir[3];
 
@@ -22,9 +22,9 @@ void RallyRoute_GetNodeDirection(FixVector *pOut, unsigned int nodeIndex)
     int hasNext = 0;
     int hasPrev = 0;
     int i = 0;
-    int *pNode;
-    int *pPrev;
-    int *pNext;
+    RallyRouteNode *pNode;
+    RallyRouteNode *pPrev;
+    RallyRouteNode *pNext;
     FixVector sum;
     FixVector d;
     int len;
@@ -43,14 +43,14 @@ void RallyRoute_GetNodeDirection(FixVector *pOut, unsigned int nodeIndex)
         return;
     }
 
-    pNode = (int *)(g_routeNodes + nodeIndex * 0x2c);
+    pNode = g_routeNodes + nodeIndex;
     if ((int)nodeIndex > 0) {
         hasPrev = 1;
-        pPrev = pNode - 0xb;
+        pPrev = pNode - 1;
     }
     if (nodeIndex < (unsigned int)(g_unk0x00538a84 - 1)) {
         hasNext = 1;
-        pNext = (int *)(g_routeNodes + nodeIndex * 0x2c + 0x2c);
+        pNext = g_routeNodes + nodeIndex + 1;
     }
 
     sum.x = 0;
@@ -58,8 +58,8 @@ void RallyRoute_GetNodeDirection(FixVector *pOut, unsigned int nodeIndex)
     sum.z = 0;
     if (hasPrev != 0) {
         d.y = 0;
-        d.x = pNode[0] - pPrev[0];
-        d.z = pNode[2] - pPrev[2];
+        d.x = pNode->position.x - pPrev->position.x;
+        d.z = pNode->position.z - pPrev->position.z;
         len = FixVecLength(&d);
         if (len == 0) {
             d.x = 0;
@@ -73,8 +73,8 @@ void RallyRoute_GetNodeDirection(FixVector *pOut, unsigned int nodeIndex)
     }
     if (hasNext != 0) {
         d.y = 0;
-        d.x = pNext[0] - pNode[0];
-        d.z = pNext[2] - pNode[2];
+        d.x = pNext->position.x - pNode->position.x;
+        d.z = pNext->position.z - pNode->position.z;
         len = FixVecLength(&d);
         if (len == 0) {
             d.x = 0;

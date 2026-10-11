@@ -7,6 +7,7 @@
 #include "NetPlayers.h"
 #include "Particle.h"
 #include "RaceRecord.h"
+#include "RallyRouteNode.h"
 #include "MovingObject.h"
 #include "MeshCollisionRecord.h"
 #include "SoundCurve.h"
@@ -34,8 +35,28 @@
 // and packed callback tables. Keep these checks out of shared headers:
 // extra declarations there can alter MSVC6 code generation in unrelated TUs.
 CMR2_LAYOUT_CHECK(CarSizeCheck, sizeof(Car) == 0xc24);
+CMR2_LAYOUT_CHECK(RallyRouteNode_SizeCheck, sizeof(RallyRouteNode) == 0x2c);
+CMR2_LAYOUT_CHECK(RallyRouteNode_position_Check, offsetof(RallyRouteNode, position) == 0);
+CMR2_LAYOUT_CHECK(RallyRouteNode_field_0xc_Check, offsetof(RallyRouteNode, field_0xc) == 0xc);
+CMR2_LAYOUT_CHECK(RallyRouteNode_flags_Check, offsetof(RallyRouteNode, flags) == 0x18);
+CMR2_LAYOUT_CHECK(RallyRouteNode_callId_Check, offsetof(RallyRouteNode, callId) == 0x19);
+CMR2_LAYOUT_CHECK(RallyRouteNode_field_0x1a_Check, offsetof(RallyRouteNode, field_0x1a) == 0x1a);
+CMR2_LAYOUT_CHECK(RallyRouteNode_backwardNearLimit_Check, offsetof(RallyRouteNode, backwardNearLimit) == 0x1c);
+CMR2_LAYOUT_CHECK(RallyRouteNode_backwardFarLimit_Check, offsetof(RallyRouteNode, backwardFarLimit) == 0x20);
+CMR2_LAYOUT_CHECK(RallyRouteNode_forwardNearLimit_Check, offsetof(RallyRouteNode, forwardNearLimit) == 0x24);
+CMR2_LAYOUT_CHECK(RallyRouteNode_forwardFarLimit_Check, offsetof(RallyRouteNode, forwardFarLimit) == 0x28);
 CMR2_LAYOUT_CHECK(CarPositionOffsetCheck, offsetof(Car, position) == 0x2d0);
 CMR2_LAYOUT_CHECK(CarWheelNodesOffsetCheck, offsetof(Car, pWheelNodes) == 0x738);
+CMR2_LAYOUT_CHECK(Car_contactSurfaces_Check, offsetof(Car, contactSurfaces) == 0xad6);
+CMR2_LAYOUT_CHECK(Car_field_0xaea_Check, offsetof(Car, field_0xaea) == 0xaea);
+CMR2_LAYOUT_CHECK(Car_field_0xb35Prefix_Check, offsetof(Car, field_0xb35Prefix) == 0xb35);
+CMR2_LAYOUT_CHECK(Car_previousContactCount_Check, offsetof(Car, previousContactCount) == 0xb3e);
+CMR2_LAYOUT_CHECK(Car_pendingContactCount_Check, offsetof(Car, pendingContactCount) == 0xb3f);
+CMR2_LAYOUT_CHECK(Car_field_0xb40_Check, offsetof(Car, field_0xb40) == 0xb40);
+CMR2_LAYOUT_CHECK(Car_objectContactState_Check, offsetof(Car, objectContactState) == 0xbbc);
+CMR2_LAYOUT_CHECK(Car_field_0xbcc_Check, offsetof(Car, field_0xbcc) == 0xbcc);
+CMR2_LAYOUT_CHECK(CarContactSurfaceSizeCheck, sizeof(((Car *)0)->contactSurfaces) == 20);
+CMR2_LAYOUT_CHECK(CarObjectContactSizeCheck, sizeof(((Car *)0)->objectContactState) == 32);
 CMR2_LAYOUT_CHECK(CarWheelLoadOffsetCheck, offsetof(Car, wheelLoad) == 0x860);
 CMR2_LAYOUT_CHECK(CarIndexOffsetCheck, offsetof(Car, index) == 0xb1a);
 CMR2_LAYOUT_CHECK(CarCameraRejectionOffsetCheck, offsetof(Car, firstCameraBlocked) == 0xb68);

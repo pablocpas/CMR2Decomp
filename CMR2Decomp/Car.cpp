@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "Graphics.h"
 #include "Car.h"
+#include "RallyRouteNode.h"
 #include "CarResources.h"
 #include "CarParts.h"
 #include "FileBuffer.h"
@@ -5754,7 +5755,7 @@ FixVector g_unk0x0053ca58;
 // GLOBAL: CMR2 0x0053cae8
 FixVector g_unk0x0053cae8;
 int RallyData_GetActiveCarRaceRecordField0(BYTE *p);
-BYTE *RallyData_GetAvailableRouteNodeRecord(int index);
+RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index);
 int RallyData_GetRouteAvailabilityState(void);
 void RallyRoute_CopyIndexedNodeDirection(unsigned int nodeIndex, FixVector *pOut);
 int Car_OverlapsOtherCar(int param_1);
@@ -5774,7 +5775,7 @@ void Car_ResetToStage(unsigned int param_1)
     FixVector heading;
     FixVector position;
     int node;
-    BYTE *pRecord;
+    RallyRouteNode *pRecord;
 
     g_pCurrentCar = Car_Get(param_1 & 0xff);
     node = RallyData_GetActiveCarRaceRecordField0((BYTE *)g_pCurrentCar);
@@ -5789,7 +5790,7 @@ void Car_ResetToStage(unsigned int param_1)
                     node = 0;
             }
         }
-        while ((*(BYTE *)(pRecord + 0x18) & 2) != 0 && node > 0) {
+        while ((pRecord->flags & 2) != 0 && node > 0) {
             node--;
             pRecord = RallyData_GetAvailableRouteNodeRecord(node);
         }

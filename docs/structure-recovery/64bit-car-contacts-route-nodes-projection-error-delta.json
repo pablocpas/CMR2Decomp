@@ -1,0 +1,8 @@
+{
+  "baseline": "43a9b83",
+  "before": 367,
+  "after": 367,
+  "new": {},
+  "removed": {},
+  "note": "All diagnostics retained, normalized only by source line/column. Same compatibility snapshot and preserved port-only includes as the previous batch."
+}

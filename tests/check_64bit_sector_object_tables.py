@@ -72,6 +72,24 @@ int RallyData_IsElementFlagSet(SectorObjectEntry **,int);
 void RallyData_SetElementFlagBit(SectorObjectEntry **,int,int);
 void RallyData_MarkElementReachedByCar(SectorObjectEntry *,int);
 
+
+BYTE g_unk0x00590ed0[8][0x98];CollisionBox g_sectorObjectCollisionBox;
+int g_unk0x005914d8,contactResult,overlapResult,contacts,views,shadows;Car *g_collisionCar;
+int Collision_DoSpheresOverlap(int a,int b,int *left,int *right){
+ assert(a==65536 && b>=0 && left==(int *)&cars[0].position && (uintptr_t)left>UINT32_MAX);
+ assert(right && (uintptr_t)right>UINT32_MAX);return overlapResult;
+}
+void StageObject_QueueViewLensFlare(int *box,int *axes,int *position,FixVector *corners){
+ assert(box==(int *)g_unk0x00590ed0[0] && axes==cars[0].bodyAxes && position==(int *)&cars[0].position && corners==cars[0].corners);views++;
+}
+int contact(Car *c){assert(c==&cars[0]);int i=c->pendingContactCount;if(i<5)c->contactSurfaces[1][c->pendingContactCount++]=(short)(100+contacts);contacts++;return contactResult;}
+int Collision_ResolveCarTurnedObjectContact(Car *c,StageObject **,CollisionBox *,CollisionBox *){return contact(c);}
+int Collision_CarVsBox(Car *c,CollisionBox *,int){return contact(c);}
+int Collision_ResolveStaticObstacleContact(Car *,StageObject **,FixVector *,int){return 0;}
+void StageObject_UpdateCarBoxShadowLighting(CollisionBox *,Car *){shadows++;}
+int Collision_TestCarAgainstSectorObjects(Car *);
+void CarPhysics_UpdateWheelSlipAndVelocityDamping(Car *);
+
 std::vector<BYTE> output;
 void put(uint32_t v){auto *p=(BYTE *)&v;output.insert(output.end(),p,p+4);}
 void bytes(const void *p,size_t n){if(!n)return;assert(p);auto *b=(const BYTE *)p;output.insert(output.end(),b,b+n);}
@@ -165,6 +183,32 @@ int main(int argc,char **argv){
  assert(!RallyData_IsElementFlagSet(&distant,0));RallyData_SetElementFlagBit(&distant,0,1);
  assert(!n || !memcmp(beforeFlags,g_sectorEntryCarFlags,n));
  assert(!memcmp(cars,oldCars.data(),sizeof(cars)) && !memcmp(image,oldImage.data(),sizeof(image)));
+
+ // The car contains native pointers before every contact field. Guard all
+ // other bytes while running the actual traversal with controlled response leaves.
+ for(int overlap: {0,1})for(int response: {0,1})for(int movingOnly: {0,1}){
+  cars[0]=oldCars[0];auto &c=cars[0];c.sector=0;c.neighbours.s[0]=1;c.neighbours.s[1]=2;c.neighbours.s[2]=-1;
+  c.collisionRadius=65536;c.field_0xc18=movingOnly;c.field_0xc20=0;c.index=0;
+  memset(c.objectContactState,0xa5,sizeof(c.objectContactState));c.previousContactCount=7;c.pendingContactCount=3;
+  Car expected=c;contacts=views=shadows=0;overlapResult=overlap;contactResult=response;
+  Collision_TestCarAgainstSectorObjects(&c);
+  memset(expected.objectContactState,0,sizeof(expected.objectContactState));expected.pendingContactCount=expected.previousContactCount=(char)(contacts<5?contacts:5);
+  for(int i=0;i<expected.pendingContactCount;i++)expected.contactSurfaces[0][i]=expected.contactSurfaces[1][i]=(short)(100+i);
+  assert(!memcmp(&c,&expected,sizeof(c)));assert(views>=contacts && (overlap || !views));
+ }
+ // Independent fixed-point slip model, including the untouched upper four
+ // corner states and all pointer-bearing/runtime regions of the car.
+ auto mul=[](int a,int b){return (int)((int64_t)a*b>>16);};
+ for(int trial=0;trial<3000;trial++){
+  auto &c=cars[0];c=oldCars[0];c.pWorld=&c.physicsMatrix;c.speed=trial%7==0?-32768:trial%3==0?131072:trial*23;
+  for(int i=0;i<8;i++){c.corners[i]={(i%2?-1:1)*(trial*13+i*171),123,-(trial*17+i*131)};c.field_0x564[i]={31,47,59};c.field_0x8fc[i]=trial%5?trial*7:0;c.objectContactState[i]=(trial+i)%3;}
+  Car expected=c;int v=mul(c.speed>65536?65536:c.speed,0x6666);
+  for(int i=0;i<4;i++){int d=abs(abs(c.corners[i].x)-abs(c.corners[i].z));int u=mul((d%0x401)<<6,v);
+   if(!expected.objectContactState[i] || u>=expected.field_0x8fc[i]){expected.field_0x8fc[i]=u;expected.objectContactState[i]=1;expected.field_0x564[i]={0,65536,0};}}
+  expected.velocity={mul(c.velocity.x,0xf851),mul(c.velocity.y,0xf851),mul(c.velocity.z,0xf851)};
+  CarPhysics_UpdateWheelSlipAndVelocityDamping(&c);assert(g_collisionCar==&c && !memcmp(&c,&expected,sizeof(c)));
+ }
+
  assert(fwrite(output.data(),1,output.size(),stdout)==output.size());for(auto &p:allocated)free(p.first);
 }
 '''
@@ -173,7 +217,7 @@ def main():
  source=ROOT/'CMR2Decomp'
  names={'FixedPoint.cpp':['FixMatrix_Multiply','FixMatrix_RotateVector','FixMatrix_InverseRotateVector','FixMatrix_GetRight','FixMatrix_GetUp','FixMatrix_GetForward','FixMatrix_SetRight','FixMatrix_SetUp','FixMatrix_SetForward','FixMatrix_SetPosition'],
  'RallyData.cpp':['Sector_GetListA','Sector_GetListB','RallyData_ApplyPlayerFlagsToObjects','RallyData_CopyRaisedElementVector','RallyData_IsElementFlagSet','RallyData_SetElementFlagBit','RallyData_MarkElementReachedByCar','RallyData_RebuildSectorStaticObjectTables'],
- 'StageObjects.cpp':['StageObject_GetLoadedVariantDataAndState','StageObject_ResetMovingObjectCountsAndPhases','StageObject_LoadAndClassifyMeshes','StageObject_InitMovingObject','StageObject_QueueOrEvictMovingObject','StageObject_ApplyInterpolatedNodeMatrices','Collision_BuildObjectPointBounds','StageObject_SetCollisionSphereAndMaterial','StageObject_BuildSpriteExtentOrientation']}
+ 'StageObjects.cpp':['StageObject_GetLoadedVariantDataAndState','StageObject_ResetMovingObjectCountsAndPhases','StageObject_LoadAndClassifyMeshes','StageObject_InitMovingObject','StageObject_QueueOrEvictMovingObject','StageObject_ApplyInterpolatedNodeMatrices','Collision_BuildObjectPointBounds','StageObject_SetCollisionSphereAndMaterial','StageObject_BuildSpriteExtentOrientation','Collision_TestCarAgainstSectorObjects','CarPhysics_UpdateWheelSlipAndVelocityDamping']}
  funcs='\n'.join(body((source/file).read_text(),name) for file,items in names.items() for name in items)
  env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1')
  with tempfile.TemporaryDirectory(prefix='cmr2-native-sector-objects-') as directory:
@@ -190,5 +234,5 @@ def main():
    p=subprocess.run([str(exe),*map(str,args)],input=initial,capture_output=True,env=env);assert p.returncode==0,(args,p.stderr.decode())
    expected=oracle.produced_summary+oracle.lifecycle_summary
    assert p.stdout==expected,(args,len(p.stdout),len(expected),[(hex(i),a,b) for i,(a,b) in enumerate(zip(p.stdout,expected)) if a!=b][:16]);number+=1
- print(f'PASS: {number} native sector-table lifecycles vs original x86; 17 actual changed bodies, production layouts, native allocations/pointers above 4GB, full canonical records and immutable storage, ASan/UBSan')
+ print(f'PASS: {number} native sector-table lifecycles vs original x86; 19 actual changed bodies; 768 native contact traversals and 288000 slip cases with independent full-car model, production layouts, native allocations/pointers above 4GB, full canonical records and immutable storage, ASan/UBSan')
 if __name__=='__main__':main()

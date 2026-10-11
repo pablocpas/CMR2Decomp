@@ -4503,11 +4503,11 @@ int RallyData_GetRouteStateValue(void)
 }
 
 // FUNCTION: CMR2 0x00421440
-BYTE *RallyData_GetAvailableRouteNodeRecord(int index)
+RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index)
 {
     if (g_unk0x00538a84 == 0)
         return NULL;
-    return g_routeNodes + index * 0x2c;
+    return g_routeNodes + index;
 }
 
 int RallyData_GetRouteAdditionalState(void);
@@ -4565,10 +4565,10 @@ RaceRecord *RallyData_GetCarRaceRecord(int index)
 // FUNCTION: CMR2 0x00421530
 void RallyData_GetRouteNodeGroundPosition(int index, int *pOut)
 {
-    int x = *(int *)(g_routeNodes + index * 0x2c);
+    int x = g_routeNodes[index].position.x;
     pOut[1] = 0;
     pOut[0] = x;
-    pOut[2] = *(int *)(g_routeNodes + index * 0x2c + 8);
+    pOut[2] = g_routeNodes[index].position.z;
 }
 // GLOBAL: CMR2 0x00538c94
 int g_unk0x00538c94;
@@ -8610,19 +8610,19 @@ void RallyData_LoadSelectedRouteNodes(void)
         g_unk0x00538a84 = 0;
         g_unk0x00538a88 = 0;
     } else {
-        g_routeNodes = pFile;
-        g_unk0x00538a88 = count / 0x2c;
+        g_routeNodes = (RallyRouteNode *)pFile;
+        g_unk0x00538a88 = count / sizeof(*g_routeNodes);
         g_unk0x00538a84 = g_unk0x00538a88;
         index = g_unk0x00538a88 - 1;
         if (index > 0) {
-            pEntry = g_routeNodes + 0x18 + index * 0x2c;
+            pEntry = &g_routeNodes[index].flags;
             do {
                 if ((*pEntry & 1) != 0) {
                     g_unk0x00538a84 = index + 1;
                     break;
                 }
                 index--;
-                pEntry -= 0x2c;
+                pEntry -= sizeof(*g_routeNodes);
             } while (index > 0);
         }
         RallyData_GetRouteNodeGroundPosition(0, start);

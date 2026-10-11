@@ -1102,8 +1102,8 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
     param_1->field_0x5c4.y += imp.y;
     param_1->field_0x5c4.z += imp.z;
 
-    for (i = 0; i < ((char *)param_1->field_0xb35)[9]; i++) {
-        if (((short *)param_1->field_0xad6)[i] == param_4)
+    for (i = 0; i < param_1->previousContactCount; i++) {
+        if (param_1->contactSurfaces[0][i] == param_4)
             goto known;
     }
     if (g_unk0x005914d8 != 0) {
@@ -1172,9 +1172,9 @@ known:
     }
     Collision_ClampAngularCorrection((int *)&param_1->field_0x5d0);
 
-    if (((char *)param_1->field_0xb35)[10] < 5) {
-        ((short *)param_1->field_0xad6)[5 + ((char *)param_1->field_0xb35)[10]] = (short)param_4;
-        ((char *)param_1->field_0xb35)[10] = ((char *)param_1->field_0xb35)[10] + 1;
+    if (param_1->pendingContactCount < 5) {
+        param_1->contactSurfaces[1][param_1->pendingContactCount] = (short)param_4;
+        param_1->pendingContactCount = param_1->pendingContactCount + 1;
     }
 
     if (CGameInfo::IsActiveCheatEnabled(4) != 0) {

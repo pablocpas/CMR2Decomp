@@ -10,6 +10,7 @@
 #include "Frontend.h"
 #include "GenericFileLoader.h"
 #include "Car.h"
+#include "RallyRouteNode.h"
 #include "CarResources.h"
 #include "CarPhysics.h"
 #include "Stage.h"
@@ -4213,7 +4214,7 @@ int StageTiming_EstimateElapsedStageTime(void)
     return (g_unk0x0053d1b8[0] = g_unk0x0053d1b0 * 2);
 }
 
-BYTE *RallyData_GetAvailableRouteNodeRecord(int index);
+RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index);
 void View_SetDistanceOverride(BYTE index, int value);
 int Render_GetDetailDistanceScale(void);
 int Race_IsMultiplayerRecordMode10(void);
@@ -4223,7 +4224,7 @@ int Race_IsMultiplayerRecordMode10(void);
 // FUNCTION: CMR2 0x00459250
 void StageTiming_SetViewRouteDistanceLimit(BYTE player, unsigned int node, int dir)
 {
-    BYTE *pNode;
+    RallyRouteNode *pNode;
     int nearDist;
     int farDist;
     int distance;
@@ -4238,14 +4239,14 @@ void StageTiming_SetViewRouteDistanceLimit(BYTE player, unsigned int node, int d
             CGameInfo::IsConfiguredMultiplayer();
         pNode = RallyData_GetAvailableRouteNodeRecord(node);
         if (dir < 0) {
-            nearDist = *(int *)(pNode + 0x1c);
+            nearDist = pNode->backwardNearLimit;
         } else {
-            nearDist = *(int *)(pNode + 0x24);
+            nearDist = pNode->forwardNearLimit;
         }
         if (dir < 0)
-            farDist = *(int *)(pNode + 0x20);
+            farDist = pNode->backwardFarLimit;
         else
-            farDist = *(int *)(pNode + 0x28);
+            farDist = pNode->forwardFarLimit;
         if (farDist > 0) {
             *(int *)((BYTE *)g_pGraphics + 0x3c8) = farDist;
             distance = Render_GetDetailDistanceScale();
@@ -5674,7 +5675,7 @@ void StageTiming_LoadSelectedTeamArchive(void)
 }
 
 extern char g_stageSplitCount;
-BYTE *RallyData_GetAvailableRouteNodeRecord(int index);
+RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index);
 unsigned int RallyData_GetSelectionFlag27(void);
 
 // Estimates the remaining stage time of every driver slot from the progress
@@ -5747,7 +5748,7 @@ void StageTiming_BuildCheckpointSplitPositions(void)
     if (g_stageCheckpointCount == 0)
         return;
     for (i = 0; i < g_stageCheckpointCount; i++) {
-        if ((*(BYTE *)(RallyData_GetAvailableRouteNodeRecord(i) + 0x18) & 1) != 0) {
+        if ((RallyData_GetAvailableRouteNodeRecord(i)->flags & 1) != 0) {
             g_unk0x00542c7c[count] = (int)(__int64)((double)i * CGraphics::m_65536);
             count++;
         }

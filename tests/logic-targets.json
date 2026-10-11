@@ -757,6 +757,18 @@
       "0x4ac820"
     ]
   },
+  "differential_route_nodes.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x420630",
+      "0x4201d0",
+      "0x421440",
+      "0x421530",
+      "0x431c50",
+      "0x417090",
+      "0x458a00"
+    ]
+  },
   "differential_route_progress.py": {
     "arguments": "both",
     "targets": [

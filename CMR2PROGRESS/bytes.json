@@ -25790,7 +25790,7 @@
   },
   "0x48df50": {
     "n": "CarPhysics_UpdateWheelSlipAndVelocityDamping",
-    "s": 0.803921568627451,
+    "s": 0.8823529411764706,
     "x": false,
     "fz": 0.9901960784313726,
     "unknown": [],

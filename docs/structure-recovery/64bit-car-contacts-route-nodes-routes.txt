@@ -1,0 +1,1 @@
+PASS: 576 complete route-node scenarios; original/rebuilt memory, immutable disk records, cache, reset/call/checkpoint traces and ABI; wrong position field mutation rejected

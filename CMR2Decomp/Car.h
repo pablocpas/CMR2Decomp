@@ -228,7 +228,13 @@ struct Car {
     short wheelSurface[8];            // 0xaae  surface class under each corner
     short previousWheelSurface[4];     // 0xabe  surface of each wheel at the last step
     short wheelSurfaceType[8];        // 0xac6  surface id under each corner
-    BYTE field_0xad6[0x28];
+    union {
+        BYTE field_0xad6[0x28];
+        struct {
+            short contactSurfaces[2][5]; // 0xad6 previous IDs, 0xae0 pending IDs
+            BYTE field_0xaea[0x14];
+        };
+    };
     short engineStartTimer;            // 0xafe  engine startup countdown
     short sector;                     // 0xb00  stage sector the car is in
     SectorNeighbours neighbours;      // 0xb02  the sectors around it (Sector_GetNeighbours)
@@ -258,7 +264,15 @@ struct Car {
     char deepestCorner;                // 0xb2b  0..3, or -1 when no corner penetrates
     char cornerFlags[8];              // 0xb2c  set while a corner is disabled
     char field_0xb34;                 // 0xb34
-    BYTE field_0xb35[0xd];
+    union {
+        BYTE field_0xb35[0xd];
+        struct {
+            BYTE field_0xb35Prefix[9];
+            char previousContactCount; // 0xb3e signed count of previous surface IDs
+            char pendingContactCount;  // 0xb3f signed count of pending surface IDs
+            BYTE field_0xb40[2];
+        };
+    };
     char field_0xb42;                 // 0xb42
     BYTE simulationStepsRemaining;    // 0xb43 scheduled steps not yet consumed this frame
     char field_0xb44;                 // 0xb44
@@ -288,8 +302,17 @@ struct Car {
     int gearAtOrBelowBest;             // 0xb98  current gear is at or below the best one
     int automaticGearbox;              // 0xb9c  automatic gearbox enabled
     int field_0xba0[3];               // 0xba0
-    int cornerOnGround[8];            // 0xbac  per corner: touching the ground
-    int field_0xbcc[4];               // 0xbcc
+    union {
+        struct {
+            int cornerOnGround[8];    // 0xbac per corner: touching the ground
+            int field_0xbcc[4];       // 0xbcc
+        };
+        struct {
+            int field_0xbac[4];
+            int objectContactState[8]; // 0xbbc cleared before object traversal;
+                                       // first four alias cornerOnGround[4..7]
+        };
+    };
     int field_0xbdc;                  // 0xbdc
     int field_0xbe0;                  // 0xbe0
     int field_0xbe4;                  // 0xbe4
