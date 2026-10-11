@@ -13501,9 +13501,9 @@
   },
   "0x454df0": {
     "n": "GameMenus_DrawTextRow",
-    "s": 0.8571428571428571,
+    "s": 0.8677248677248677,
     "x": false,
-    "fz": 0.8888888888888888,
+    "fz": 0.8994708994708994,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenus_DrawTextRow"

@@ -1,0 +1,128 @@
+{
+  "baseline": "80a16a0",
+  "validation": "isolated matching checkout excluding unrelated weather-texture edit",
+  "source_sha256": {
+    "CMR2Decomp/Frontend.cpp": "b5037149ee52b9db6edb273160d2a28812c15f0cfeea10c511c40084e4c5e766",
+    "CMR2Decomp/GameMenus.cpp": "16c34408a7cb0e5a50f873a2a1696e9077f221b31f98579afbac08fe20c359f2",
+    "CMR2Decomp/CategoryBestResults.h": "601af76aeaba27ce434470d8424ad6335a6a250872682cba1cf9029c4a761400",
+    "CMR2Decomp/LayoutChecks.cpp": "cf9411411d4ca66fd7abd61708808991fb9fe98f2b4c12c8ca54e89f6f10375d"
+  },
+  "exe_sha256": "0ad69c4bfd5c2d36ea4dfc878ec05ebc17f8c261d3e30a8a78675615ff0deb48",
+  "native_game_sha256": "cc8e99019b8d093f2effe260c26f1381ca3501d1e026fb1018d38483876735d2",
+  "native_probe_sha256": "2575f89e854e40ed7e0145891828f96b4210b51b6ed26cac1e359f92fb76c548",
+  "matching": {
+    "functions": 3364,
+    "byte_exact": 2924,
+    "score_regressions": 0,
+    "row_before": {
+      "s": 0.8571428571428571,
+      "fz": 0.8888888888888888
+    },
+    "row_after": {
+      "s": 0.8677248677248677,
+      "fz": 0.8994708994708994
+    }
+  },
+  "differential_suite": {
+    "harnesses": 134,
+    "failures": 0
+  },
+  "original_row_cases": 54,
+  "original_setup_prefixes": 176,
+  "original_record_cases": 4032,
+  "native_record_cases": 960,
+  "native_row_cases": 18,
+  "native_negative_controls": 2,
+  "native_ctests": {
+    "tests": 22,
+    "failures": 0
+  },
+  "runtime_scenarios": {
+    "preliminary-map": {
+      "ticks": 500,
+      "driving_ticks": 375
+    },
+    "arcade-time-trial": {
+      "ticks": 500,
+      "driving_ticks": 375
+    },
+    "multiplayer-host": {
+      "ticks": 500,
+      "driving_ticks": 375
+    },
+    "finland-championship-results": {
+      "ticks": 1500,
+      "driving_ticks": 1153,
+      "next_stage_driving_ticks": 778
+    },
+    "finland-results": {
+      "ticks": 1500,
+      "driving_ticks": 1153,
+      "next_stage_driving_ticks": 778
+    },
+    "recorded-replay": {
+      "ticks": 1000,
+      "driving_ticks": 875,
+      "replay": {
+        "distinct_packet_cursors": 10,
+        "last_playing_tick": 850,
+        "first_finished_tick": 875
+      }
+    }
+  },
+  "inventory_before": {
+    "types": 313,
+    "raw_accesses": 751,
+    "fixed_sizes": 61,
+    "hex_multipliers": 2179,
+    "unknown_identifiers": 9813,
+    "unnamed_field_declarations": 1440,
+    "unique_unknown_identifiers": 1212
+  },
+  "inventory_after": {
+    "types": 317,
+    "raw_accesses": 749,
+    "fixed_sizes": 61,
+    "hex_multipliers": 2173,
+    "unknown_identifiers": 9788,
+    "unnamed_field_declarations": 1441,
+    "unique_unknown_identifiers": 1209
+  },
+  "isolated_native_without_weather": {
+    "probe_sha256": "205ac4f6bbc9b563813c38cc6d8bc2503149f1189b8510c88aa72bb73c19cf68",
+    "rally_data_sha256": "e0579d2aae8bf171fcdb9ee13209f6a720985fce60e0e4ab99764e68d5f2d896",
+    "runtime_scenarios": {
+      "preliminary-map": {
+        "ticks": 500,
+        "driving_ticks": 375
+      },
+      "arcade-time-trial": {
+        "ticks": 500,
+        "driving_ticks": 375
+      },
+      "multiplayer-host": {
+        "ticks": 500,
+        "driving_ticks": 375
+      },
+      "finland-championship-results": {
+        "ticks": 1500,
+        "driving_ticks": 1153,
+        "next_stage_driving_ticks": 778
+      },
+      "finland-results": {
+        "ticks": 1500,
+        "driving_ticks": 1153,
+        "next_stage_driving_ticks": 778
+      },
+      "recorded-replay": {
+        "ticks": 1000,
+        "driving_ticks": 875,
+        "replay": {
+          "distinct_packet_cursors": 10,
+          "last_playing_tick": 850,
+          "first_finished_tick": 875
+        }
+      }
+    }
+  }
+}

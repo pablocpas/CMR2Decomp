@@ -1,0 +1,12 @@
+Thread 1 "stage_probe" received signal SIGSEGV, Segmentation fault.
+0x000000000048aaa3 in CGenericFileLoader::StrLowerPolish (str=0x1e <error: Cannot access memory at address 0x1e>) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/GenericFileLoader.cpp:123
+123	{
+#0  0x000000000048aaa3 in CGenericFileLoader::StrLowerPolish (str=0x1e <error: Cannot access memory at address 0x1e>) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/GenericFileLoader.cpp:123
+#1  0x000000000047ead7 in GameMenus_DrawTextRow (x=196, x@entry=30, y=y@entry=67, pText=0x18d1a95 "stage time") at /home/pablo/colin_mcrae_linux/OpenCMR2/game/GameMenus.cpp:2745
+#2  0x000000000047e033 in GameMenu_DrawSplitTimes (pMenu=<optimized out>) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/GameMenus.cpp:813
+#3  0x000000000048a5fe in GameMenu_UpdateHeaderCallbacks () at /home/pablo/colin_mcrae_linux/OpenCMR2/game/GameMenus.cpp:3796
+#4  0x00000000004bfd01 in RallyData_ShrinkEntryAndNotifyCompletion (param1=0x9ef858 <g_raceCallbackStorage>, param2=<optimized out>) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/RallyData.cpp:4820
+#5  0x000000000045def7 in CGame::RunStateRenderCallbacks (param1=<optimized out>) at /home/pablo/colin_mcrae_linux/OpenCMR2/game/Game.cpp:1177
+#6  CGame::UpdateInRaceCallbackMachine () at /home/pablo/colin_mcrae_linux/OpenCMR2/game/Game.cpp:1432
+#7  0x000000000045dc5e in CGame::DispatchFrontendResourceState () at /home/pablo/colin_mcrae_linux/OpenCMR2/game/Game.cpp:173
+#8  0x00000000004031cb in main (argc=<optimized out>, argv=0x7fffffffd5d8) at /home/pablo/colin_mcrae_linux/OpenCMR2/tests/stage_probe.cpp:393

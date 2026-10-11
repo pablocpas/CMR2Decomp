@@ -1,8 +1,10 @@
 #include <stddef.h>
+#include <stdarg.h>
 #include <windows.h>
 #include <mmsystem.h>
 #include "GameMenus.h"
 #include "GameInfo.h"
+#include "CategoryBestResults.h"
 #include "Frontend.h"
 #include "Font.h"
 #include "RallyTiming.h"
@@ -721,7 +723,7 @@ void GameMenu_DrawSplitTimes(Menu *pMenu)
     }
     if (CGameInfo::GetConfiguredGameMode() == 4) {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
-                              CFrontend::GetTextString(0x48), 0);
+                              CFrontend::GetTextString(0x48), (char *)NULL);
         GameMenu_DrawKnockoutSplitComparison();
         Font_SetBlendMode(2);
         return;
@@ -809,7 +811,7 @@ void GameMenu_DrawSplitTimes(Menu *pMenu)
         }
     } else {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
-                              CFrontend::GetTextString(0x48), 0);
+                              CFrontend::GetTextString(0x48), (char *)NULL);
         count = 2;
         if (CGameInfo::GetGameModeOptionBit19())
             count = 1;
@@ -936,11 +938,11 @@ void GameMenu_DrawStageWinner(Menu *pMenu)
     GameMenu_ClearMenuListWithHighlight();
     if (CGameInfo::GetConfiguredGameMode() != 5 && CGameInfo::GetConfiguredGameMode() != 6) {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
-                              CFrontend::GetTextString(0x49), CFrontend::GetTextString(0x46), 0);
+                              CFrontend::GetTextString(0x49), CFrontend::GetTextString(0x46), (char *)NULL);
         sprintf(CFrontend::m_stringDest, g_winnerFormat, g_unk0x00519edc, CFrontend::GetTextString(0x4a));
     } else {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
-                              CFrontend::GetTextString(0x49), 0);
+                              CFrontend::GetTextString(0x49), (char *)NULL);
         for (i = 0; i < (BYTE)RallyDataState(); i++) {
             if (GameMenu_FindCarStagePosition(i) < best) {
                 best = GameMenu_FindCarStagePosition(i);
@@ -982,16 +984,15 @@ void GameMenu_DrawScrollingStageSplits(Menu *pMenu)
                               CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
                               CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x44),
                                                    (RallyDataStageIndex() >> 2) + 1),
-                              stage, 0);
+                              stage, (char *)NULL);
     } else if (RallyDataStageIndex() == 10) {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
-                              CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0xba), 0);
+                              CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0xba), (char *)NULL);
     } else {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
                               CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
                               CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x40),
-                                                   RallyDataStageIndex() + 1),
-                              0);
+                                                   RallyDataStageIndex() + 1), (char *)NULL);
     }
     for (row = 0; row < rows; row++) {
         if (g_unk0x0053f5a8 != 0) {
@@ -1082,16 +1083,16 @@ void GameMenu_DrawStageTimeStandings(Menu *pMenu)
                               CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
                               CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x44),
                                                    (RallyDataStageIndex() >> 2) + 1),
-                              stage, 0);
+                              stage, (char *)NULL);
     } else if (RallyDataStageIndex() == 10) {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
                               CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
-                              CFrontend::GetTextString(0xba), 0);
+                              CFrontend::GetTextString(0xba), (char *)NULL);
     } else {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
                               CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
                               CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x40),
-                                                   RallyDataStageIndex() + 1), 0);
+                                                   RallyDataStageIndex() + 1), (char *)NULL);
     }
     i = 0;
     if (NetPlayers_GetStandingCount() > 0) {
@@ -1194,7 +1195,7 @@ void GameMenu_DrawScrollingChampionshipPoints(Menu *pMenu)
     GameMenu_ClearMenuListWithHighlight();
     GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 480,
                           CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x41),
-                          CFrontend::GetTextString(0x8d), 0);
+                          CFrontend::GetTextString(0x8d), (char *)NULL);
     for (row = 0; row < rows; row++) {
         if (g_unk0x0053f5a8 != 0) {
             row++;
@@ -1285,11 +1286,11 @@ void GameMenu_DrawScrollingRallyTimes(Menu *pMenu)
     GameMenu_ClearMenuListWithHighlight();
     if (!g_unk0x00541210 || !g_unk0x00540898)
         GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 480,
-                              CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x41), 0);
+                              CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x41), (char *)NULL);
     else
         GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 480,
                               CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x41),
-                              CFrontend::GetTextString(0xef), 0);
+                              CFrontend::GetTextString(0xef), (char *)NULL);
     for (row = 0; row < rows; row++) {
         if (g_unk0x0053f5a8 != 0) {
             row++;
@@ -1373,11 +1374,11 @@ void GameMenu_DrawChampionshipTimeStandings(Menu *pMenu)
     GameMenu_ClearMenuListWithHighlight();
     if (!g_unk0x00541210 || !g_unk0x00540898)
         GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 480,
-                              CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x41), 0);
+                              CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x41), (char *)NULL);
     else
         GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 480,
                               CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x41),
-                              CFrontend::GetTextString(0xef), 0);
+                              CFrontend::GetTextString(0xef), (char *)NULL);
     i = 0;
     if (NetPlayers_GetStandingCount() > 0) {
         do {
@@ -1475,10 +1476,10 @@ void GameMenu_DrawChampionshipOutcome(Menu *pMenu)
     }
     if (slot < 6)
         GameMenus_DrawTextRow(x, y, CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
-                              CFrontend::GetTextString(0x41), CFrontend::GetTextString(0x49), 0);
+                              CFrontend::GetTextString(0x41), CFrontend::GetTextString(0x49), (char *)NULL);
     else
         GameMenus_DrawTextRow(x, y, CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
-                              CFrontend::GetTextString(0x41), CFrontend::GetTextString(0x88), 0);
+                              CFrontend::GetTextString(0x41), CFrontend::GetTextString(0x88), (char *)NULL);
     for (i = 0; i < CGameInfo::GetConfiguredPlayerCount(); i++) {
         place = RallyTiming_GetOverallPositionOfDriver(StageTiming_GetDriverSlot(i));
         switch (place) {
@@ -1554,7 +1555,7 @@ void GameMenu_DrawScrollingStagePoints(Menu *pMenu)
     GameMenu_ClearMenuListWithHighlight();
     GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 480,
                           CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x42),
-                          CFrontend::GetTextString(0x8d), 0);
+                          CFrontend::GetTextString(0x8d), (char *)NULL);
     i = 0;
     do {
         g_unk0x005418c4[i] = (BYTE)RallyTiming_GetStageTimeSeconds(RallyTiming_GetStageOrderDriverID(i));
@@ -1658,7 +1659,7 @@ void GameMenu_DrawFinalChampionshipStandings(Menu *pMenu)
     if (g_pHeaderMenu == &g_menu0x0053f790) {
         GameMenu_ClearMenuListWithHighlight();
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
-                              CFrontend::GetTextString(0x42), CFrontend::GetTextString(CGameInfo::GetConfiguredDifficulty() + 0x8e), 0);
+                              CFrontend::GetTextString(0x42), CFrontend::GetTextString(CGameInfo::GetConfiguredDifficulty() + 0x8e), (char *)NULL);
         for (i = 0; i < CGameInfo::GetConfiguredPlayerCount(); i++) {
             place = RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i));
             switch (place) {
@@ -1936,7 +1937,7 @@ void GameMenu_DrawRallyPointsTable(Menu *pMenu)
     GameMenu_ClearMenuListWithHighlight();
     GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
                           CInput::FormatString(CFrontend::GetTextString(0x43), 0x62 - (RallyData_GetSelectionBits10To11() & 0xff)),
-                          CFrontend::GetTextString(0x42), CFrontend::GetTextString(0x8d), 0);
+                          CFrontend::GetTextString(0x42), CFrontend::GetTextString(0x8d), (char *)NULL);
     for (i = 0; i < (BYTE)Race_GetBaseCarCount(); i++)
         g_unk0x005418c4[i] = (BYTE)RallyTiming_GetChampionshipTimeSeconds(RallyTiming_GetChampionshipDriverAtPosition(i));
     for (i = 0; i < (BYTE)Race_GetBaseCarCount(); i++) {
@@ -2264,12 +2265,12 @@ void GameMenu_DrawChampionshipClassResults(Menu *pMenu)
     if (RallyDataStageIndex() == 0xa) {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 0x1e) / 0x280, (int)(g_pGraphics->resY * 0x43) / 0x1e0,
                               CFrontend::GetTextString((unsigned char)RallyDataCountryIndex()),
-                              CFrontend::GetTextString(0xba), NULL);
+                              CFrontend::GetTextString(0xba), (char *)NULL);
     } else {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 0x1e) / 0x280, (int)(g_pGraphics->resY * 0x43) / 0x1e0,
                               CFrontend::GetTextString((unsigned char)RallyDataCountryIndex()),
                               CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x40),
-                                                   RallyDataStageIndex() + 1), NULL);
+                                                   RallyDataStageIndex() + 1), (char *)NULL);
     }
     i = 0;
     if (NetPlayers_GetClassificationCount() > 0) {
@@ -2357,14 +2358,14 @@ void GameMenu_DrawStageResultsRows(Menu *pMenu)
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 0x1e) / 0x280,
                               (int)(g_pGraphics->resY * 0x43) / 0x1e0,
                               CFrontend::GetTextString((unsigned char)RallyDataCountryIndex()),
-                              CFrontend::GetTextString(0xba), CFrontend::GetTextString(0x9a), NULL);
+                              CFrontend::GetTextString(0xba), CFrontend::GetTextString(0x9a), (char *)NULL);
     } else {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 0x1e) / 0x280,
                               (int)(g_pGraphics->resY * 0x43) / 0x1e0,
                               CFrontend::GetTextString((unsigned char)RallyDataCountryIndex()),
                               CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x40),
                                                    RallyDataStageIndex() + 1),
-                              CFrontend::GetTextString(0x9a), NULL);
+                              CFrontend::GetTextString(0x9a), (char *)NULL);
     }
     switch (StageUI_GetRaceEndEventCount()) {
     case 1:
@@ -2475,7 +2476,7 @@ void GameMenu_DrawStageStartList(Menu *pMenu)
     GameMenu_ClearMenuListWithHighlight();
     GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 0x1e0,
                           CFrontend::GetTextString((unsigned char)RallyDataCountryIndex()),
-                          CFrontend::GetTextString(0x41), CFrontend::GetTextString(0x8d), NULL);
+                          CFrontend::GetTextString(0x41), CFrontend::GetTextString(0x8d), (char *)NULL);
     i = 0;
     if (NetPlayers_GetStandingCount() > 0) {
         do {
@@ -2738,12 +2739,13 @@ void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
     g_menuRect[1] = y - (int)(g_pGraphics->resY * 0x1e) / 0x1e0;
     g_menuRect[3] = (int)(g_pGraphics->resY * 0x29) / 0x1e0;
     char *pCur = pText;
-    char **ppNext = &pText;
+    va_list ppNext;
+    va_start(ppNext, pText);
     while (pCur != NULL) {
         CGenericFileLoader::StrLowerPolish(pCur);
         Font_DrawText(2, pCur, x, y, (int *)g_menuFrameColour, 0x11);
         sprintf(CFrontend::m_stringDest, pCur);
-        pCur = *++ppNext;
+        pCur = va_arg(ppNext, char *);
         if (pCur == NULL) {
             break;
         }
@@ -2752,6 +2754,7 @@ void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
         Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
         x = width + (int)(g_pGraphics->resX * 8) / 0x280 + 2;
     }
+    va_end(ppNext);
 }
 
 // GLOBAL: CMR2 0x00519ed4
@@ -3033,10 +3036,6 @@ void Frontend_SetDeviceOptionBlockValue(int index, int arg, int value);
 void Frontend_SetDeviceSetupOptionFields(int index, int value, unsigned int option, unsigned int field);
 void Frontend_SetDeviceRecordOptionFields(int index, unsigned int value, unsigned int field);
 void Frontend_SetSecondaryRecordOptionFields(int index, unsigned int value, unsigned int field, int extra);
-BYTE Frontend_MergeBestDeviceStageOption(int index, int pBlock);
-BYTE Frontend_MergeBestDeviceButtonOption(int index, int pBlock);
-BYTE Frontend_MergeBestPlayerStageOption(int index, int pBlock);
-BYTE Frontend_MergeBestSecondaryPlayerOption(int index, int pBlock);
 int Frontend_AccumulateMinimumDeviceOption(int param_1, int param_2);
 int Frontend_CopyImprovedStageRecordAndSplits(int param_1, int param_2, char *pName);
 int FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName);
@@ -3082,17 +3081,15 @@ void GameMenu_SetupStageResults(int param_1)
     bVar1 = 0;
     if (Race_GetStateByte() != 0xff)
         StageObject_AddCarSoundTimeSeconds((char)Race_GetStateByte(), 0xb4);
-    sprintf(g_ghostName, (char *)CGameInfo::GetGameInfoFieldA4Address() + 0x654 +
-                                 ((RallyDataCountryIndex() & 0xff) * 0xb +
-                                  (RallyDataStageIndex() & 0xff)) * 8);
+    sprintf(g_ghostName, CGameInfo::GetGameInfoFieldA4Address()->rallyStageRecordTimes[
+                 (RallyDataCountryIndex() & 0xff) * 11 + (RallyDataStageIndex() & 0xff)].ident);
     CGenericFileLoader::StrLowerPolish(g_ghostName);
     for (i = 0; i < 10; i++)
         g_ghostSplits[i] = Frontend_StoreSelectedDeviceOption(i);
     // The tenth split slot is the ghost's total from the stage record
     // (0x541adc lies inside g_ghostSplits).
-    g_ghostSplits[9] = *(unsigned int *)((char *)CGameInfo::GetGameInfoFieldA4Address() + 0x658 +
-                                        ((RallyDataCountryIndex() & 0xff) * 0xb +
-                                         (RallyDataStageIndex() & 0xff)) * 8) >> 7 & 0xffff;
+    g_ghostSplits[9] = CGameInfo::GetGameInfoFieldA4Address()->rallyStageRecordTimes[
+                           (RallyDataCountryIndex() & 0xff) * 11 + (RallyDataStageIndex() & 0xff)].value >> 7 & 0xffff;
     if ((char)param_1 == 0)
         CGameInfo::SetInputAndGamePaused(1);
     Menu_QueueDefaultAction();
@@ -3122,7 +3119,7 @@ void GameMenu_SetupStageResults(int param_1)
                             Frontend_ClearDeviceKeyFields(car);
                         Frontend_AdvanceDeviceOptionNibble(car, driver);
                     }
-                    Frontend_MergeBestDeviceStageOption(car, (int)RallyData_GetAvailableCategorySaveRecord(car));
+                    Frontend_MergeBestDeviceStageOption(car, (CategoryBestResults *)RallyData_GetAvailableCategorySaveRecord(car));
                     state = Frontend_CopyImprovedStageRecordAndSplits(i, car, (char *)RallyData_GetRecord(car));
                     stageFlag = (char)Frontend_AccumulateMinimumDeviceOption(i, car);
                 }
@@ -3131,7 +3128,7 @@ void GameMenu_SetupStageResults(int param_1)
                         time = RallyTiming_GetChampionshipTimeSeconds(i);
                         position = RallyTiming_GetChampionshipPointsByPosition(i);
                         Frontend_SetSecondaryRecordOptionFields(car, position, time, RallyTiming_GetChampionshipStagePoints(i));
-                        Frontend_MergeBestSecondaryPlayerOption(car, (int)RallyData_GetAvailableCategorySaveRecord(car));
+                        Frontend_MergeBestSecondaryPlayerOption(car, (CategoryBestResults *)RallyData_GetAvailableCategorySaveRecord(car));
                         FrontendRecords_InsertArcadeDeviceRecord(i, car, (char *)RallyData_GetRecord(car));
                     }
                     if ((Race_ReadPlayerState37F68(i) & 0x80) != 0 || (Race_ReadPlayerState37F68(i) & 0x2000) != 0 ||
@@ -3155,7 +3152,7 @@ void GameMenu_SetupStageResults(int param_1)
                                 FrontendRecords_ResetDeviceStats(j);
                             Frontend_AddDeviceValueAndStatistic(j, time, position);
                         }
-                        Frontend_MergeBestDeviceButtonOption(j, (int)RallyData_GetAvailableCategorySaveRecord(j));
+                        Frontend_MergeBestDeviceButtonOption(j, (CategoryBestResults *)RallyData_GetAvailableCategorySaveRecord(j));
                         FrontendRecords_InsertStageDeviceRecord(j, j, (char *)RallyData_GetRecord(j));
                         if ((Race_ReadPlayerState37F68(j) & 0x80) != 0 || (Race_ReadPlayerState37F68(j) & 0x2000) != 0)
                             bVar1 = 1;
@@ -3168,7 +3165,7 @@ void GameMenu_SetupStageResults(int param_1)
                     time = RallyTiming_GetStageTimeSeconds(driver);
                     position = RallyTiming_GetStagePositionOfDriver(driver);
                     Frontend_SetDeviceRecordOptionFields(j, position, time);
-                    Frontend_MergeBestPlayerStageOption(j, (int)RallyData_GetAvailableCategorySaveRecord(j));
+                    Frontend_MergeBestPlayerStageOption(j, (CategoryBestResults *)RallyData_GetAvailableCategorySaveRecord(j));
                     FrontendRecords_InsertStageCategoryRecord(j, j, (char *)RallyData_GetRecord(j));
                 }
             }

@@ -1014,5 +1014,24 @@
       "0x4a13b0",
       "0x4a12d0"
     ]
+  },
+  "differential_result_text_rows.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x454df0",
+      "0x44a1b0"
+    ]
+  },
+  "differential_category_best_results.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4cf5b0",
+      "0x4cf660",
+      "0x4cf740",
+      "0x4cf830",
+      "0x4cf8e0",
+      "0x4cfe20",
+      "0x4cfe50"
+    ]
   }
 }

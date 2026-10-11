@@ -19,6 +19,7 @@
 #include "CarPhysics.h"
 #include "Game.h"
 #include "GameInfo.h"
+#include "CategoryBestResults.h"
 #include "CarParts.h"
 #include "OptionPreviewGeometry.h"
 #include "StageTiming.h"
@@ -1224,3 +1225,17 @@ CMR2_LAYOUT_CHECK(FixInterp_current_Check, offsetof(FixInterp, current) == 0x1c)
 CMR2_LAYOUT_CHECK(FixInterp_phase2_Check, offsetof(FixInterp, phase2) == 0x28);
 CMR2_LAYOUT_CHECK(FixInterp_count_Check, offsetof(FixInterp, count) == 0x48);
 CMR2_LAYOUT_CHECK(FixInterp_active_Check, offsetof(FixInterp, active) == 0x4c);
+
+CMR2_LAYOUT_CHECK(CategoryBestTimeSizeCheck, sizeof(CategoryBestTime) == 8);
+CMR2_LAYOUT_CHECK(CategoryBestTimeTimeCheck, offsetof(CategoryBestTime, time) == 4);
+CMR2_LAYOUT_CHECK(CategoryBestResultSizeCheck, sizeof(CategoryBestResult) == 12);
+CMR2_LAYOUT_CHECK(CategoryBestResultResultCheck, offsetof(CategoryBestResult, result) == 4);
+CMR2_LAYOUT_CHECK(CategoryBestResultExtraCheck, offsetof(CategoryBestResult, extra) == 8);
+CMR2_LAYOUT_CHECK(CategoryPlayerResultSizeCheck, sizeof(CategoryPlayerResult) == 16);
+CMR2_LAYOUT_CHECK(CategoryPlayerResultTailCheck, offsetof(CategoryPlayerResult, field_0xc) == 12);
+CMR2_LAYOUT_CHECK(CategoryBestResultsSizeCheck, sizeof(CategoryBestResults) == 0x504);
+CMR2_LAYOUT_CHECK(CategoryBestResultsPlayerCheck, offsetof(CategoryBestResults, playerResults) == 0);
+CMR2_LAYOUT_CHECK(CategoryBestResultsRallyCheck, offsetof(CategoryBestResults, rallyResults) == 0x30);
+CMR2_LAYOUT_CHECK(CategoryBestResultsStageCheck, offsetof(CategoryBestResults, rallyStageTimes) == 0x150);
+CMR2_LAYOUT_CHECK(CategoryBestResultsArcadeCheck, offsetof(CategoryBestResults, arcadeResults) == 0x450);
+CMR2_LAYOUT_CHECK(CategoryBestResultsArcadeTimeCheck, offsetof(CategoryBestResults, arcadeStageTimes) == 0x4bc);

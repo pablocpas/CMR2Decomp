@@ -253,7 +253,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x460390	StageWeather_DrawViewPrecipitation	StageObjects.cpp	1691	0.8404669260700389	0.7934044616876819
 0x4873f0	Collision_BuildObjectPointBounds	StageObjects.cpp	931	0.8411497730711044	0.7563527653213752
 0x456110	StageTiming_RandomizeComputerTimes	StageTiming.cpp	204	0.8413793103448276	0.8794326241134752
-0x454df0	GameMenus_DrawTextRow	GameMenus.cpp	296	0.8421052631578947	0.8571428571428571
 0x464cb0	StageObject_UpdateSkidTrails	StageObjects.cpp	2172	0.8424242424242424	0.831306990881459
 0x45f530	StageObject_ScaleViewValueByRoute	StageTiming.cpp	154	0.8440366972477065	0.8518518518518519
 0x4abaf0	Mesh_CloneInto	Mesh.cpp	1616	0.8452488687782805	0.7692307692307693
@@ -264,6 +263,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x467e90	StageDeform_ApplyPlanarDent	StageTiming.cpp	1666	0.8505106778087279	0.8051948051948052
 0x463070	StageLights_UpdateDirection	StageObjects.cpp	512	0.850632911392405	0.7182044887780549
 0x402c90	InRaceMenu_RebuildMainPage	GameInfo.cpp	487	0.8525641025641025	0.8480565371024735
+0x454df0	GameMenus_DrawTextRow	GameMenus.cpp	296	0.8526315789473684	0.8677248677248677
 0x4a8890	CGraphics::SetProjection	Graphics.cpp	661	0.8527131782945736	0.8527131782945736
 0x4247a0	ForceFeedback_ComputeAxleRumble	StageTiming.cpp	254	0.8531468531468531	0.8368794326241135
 0x46de20	Replay_DecodeCarPoseSample	StageObjects.cpp	1304	0.8534883720930233	0.7958477508650519
