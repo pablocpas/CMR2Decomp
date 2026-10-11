@@ -324,17 +324,17 @@ Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource)
     pMesh = Mesh_Alloc();
     g_meshClones[g_meshCloneCount] = pMesh;
     g_meshCloneCount++;
-    *(int *)((BYTE *)pMesh + 0x108) = *(int *)((BYTE *)pSrc + 0x108);
-    *(int *)((BYTE *)pMesh + 0x10c) = 0;
+    *(int *)pMesh->field_0x108 = *(int *)pSrc->field_0x108;
+    pMesh->pCollisionRecords = NULL;
     pMesh->sizeUnits = 0;
-    ((BYTE *)pMesh)[0x111] = ((BYTE *)pSrc)[0x111];
-    ((BYTE *)pMesh)[0x112] = ((BYTE *)pSrc)[0x112];
-    ((BYTE *)pMesh)[0x113] = ((BYTE *)pSrc)[0x113];
+    pMesh->field_0x111 = pSrc->field_0x111;
+    pMesh->lodIndex = pSrc->lodIndex;
+    pMesh->lodCount = pSrc->lodCount;
     pMesh->field_0x118 = 0;
     pMesh->field_0x11c = 0;
-    *(int *)((BYTE *)pMesh + 0x114) = *(int *)((BYTE *)pSrc + 0x114);
+    pMesh->field_0x114 = pSrc->field_0x114;
     for (k = 0; k < 0xc; k++)
-        ((BYTE *)pMesh)[k] = ((BYTE *)pSrc)[k];
+        pMesh->field_0x0[k] = pSrc->field_0x0[k];
     pMesh->field_0x10 = pSrc->field_0x10;
     pMesh->pVertexData = (DWORD *)CFileBuffer::AllocateLockedBuffer(pMesh->field_0x10 * 0x30);
     for (i = 0, off = 0; i < pMesh->field_0x10; i++, off += 0x30)
@@ -343,15 +343,15 @@ Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource)
     pMesh->pTriangles = (MeshTriangle *)CFileBuffer::AllocateLockedBuffer(pMesh->triangleCount * 0x4c);
     for (i = 0, off = 0; i < pMesh->triangleCount; i++, off += 0x4c)
         memcpy((BYTE *)pMesh->pTriangles + off, (BYTE *)pSrc->pTriangles + off, 0x4c);
-    *(void **)((BYTE *)pMesh + 0x20) = CFileBuffer::AllocateLockedBuffer(pMesh->triangleCount * 0x14);
+    pMesh->pField20 = CFileBuffer::AllocateLockedBuffer(pMesh->triangleCount * 0x14);
     for (i = 0, off = 0; i < pMesh->triangleCount; i++, off += 0x14)
-        memcpy(*(BYTE **)((BYTE *)pMesh + 0x20) + off, *(BYTE **)((BYTE *)pSrc + 0x20) + off, 0x14);
-    *(int **)((BYTE *)pMesh + 0x34) = (int *)CFileBuffer::AllocateLockedBuffer(pMesh->field_0x10 << 2);
+        memcpy((BYTE *)pMesh->pField20 + off, (BYTE *)pSrc->pField20 + off, 0x14);
+    pMesh->pLightLevels = (int *)CFileBuffer::AllocateLockedBuffer(pMesh->field_0x10 << 2);
     for (i = 0; i < pMesh->field_0x10; i++)
-        (*(int **)((BYTE *)pMesh + 0x34))[i] = (*(int **)((BYTE *)pSrc + 0x34))[i];
-    ((BYTE *)pMesh)[0x104] = ((BYTE *)pSrc)[0x104];
-    *(int *)((BYTE *)pMesh + 0x30) = *(int *)((BYTE *)pSrc + 0x30);
-    *(int *)((BYTE *)pMesh + 0x2c) = *(int *)((BYTE *)pSrc + 0x2c);
+        pMesh->pLightLevels[i] = pSrc->pLightLevels[i];
+    pMesh->field_0x104[0] = pSrc->field_0x104[0];
+    pMesh->flags = pSrc->flags;
+    pMesh->field_0x2c = pSrc->field_0x2c;
 
     FixMatrix_GetRight(&v, (FixMatrix *)(pSource + 0x18));
     FIX_NORMALIZE_INTO(v, v);
@@ -495,7 +495,7 @@ void Mesh_ReuploadAll(void)
     CGraphics::AllocateSharedVertexBuffers();
     for (i = 0; i < (unsigned int)g_meshCount; i++) {
         if (g_meshes[i] != NULL)
-            Mesh_UploadVertices((Mesh *)((BYTE *)g_meshes[i] + ((BYTE *)g_meshes[i])[0x112] * 0x108));
+            Mesh_UploadVertices((Mesh *)((BYTE *)g_meshes[i] + g_meshes[i]->lodIndex * 0x108));
     }
     for (i = 0; i < (unsigned int)g_sectorCount; i++) {
         if (g_sectors[i] != NULL && g_sectors[i]->pMesh != NULL)
@@ -503,6 +503,6 @@ void Mesh_ReuploadAll(void)
     }
     for (i = 0; i < (unsigned int)g_unk0x0067f228; i++) {
         if (g_stageObjects[i] != NULL)
-            Mesh_UploadVertices((Mesh *)((BYTE *)g_stageObjects[i]->pMesh + ((BYTE *)g_stageObjects[i]->pMesh)[0x112] * 0x108));
+            Mesh_UploadVertices((Mesh *)((BYTE *)g_stageObjects[i]->pMesh + g_stageObjects[i]->pMesh->lodIndex * 0x108));
     }
 }

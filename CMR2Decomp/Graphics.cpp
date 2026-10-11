@@ -4052,7 +4052,7 @@ char g_str0x00521118[4] = "B2";
 // skipped when the record type is 6.
 // match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b9910
-void Graphics_LoadTextureRecordList(int param1, int param2, unsigned int param3, int param4, GenericFile *archive)
+void Graphics_LoadTextureRecordList(BYTE *param1, char *param2, unsigned int param3, int param4, GenericFile *archive)
 {
     unsigned short *pEntry;
     unsigned int remaining;
@@ -4068,7 +4068,7 @@ void Graphics_LoadTextureRecordList(int param1, int param2, unsigned int param3,
             if (*(unsigned short *)(param1 + 0xc) > 0) {
                 pEntry = (unsigned short *)(param1 + 0x14);
                 do {
-                    pName = (char *)(param2 + *pEntry * 0x104);
+                    pName = param2 + *pEntry * 0x104;
                     CGenericFileLoader::StrUpperPolish((BYTE *)pName);
                     strcpy(CFrontend::m_stringDest, CInstallInfo::GetTexturesDirectory());
                     ((int (__cdecl *)(char *, const char *, char *, char *))sprintf)(fileName, g_fontTgaFormat, CFrontend::m_stringDest,
@@ -7146,7 +7146,7 @@ int g_unk0x005207b4 = 1;
 // FUNCTION: CMR2 0x0049c940
 void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures)
 {
-    Mesh *pLod = (Mesh *)((BYTE *)pMesh + ((BYTE *)pMesh)[0x112] * 0x108);
+    Mesh *pLod = (Mesh *)((BYTE *)pMesh + pMesh->lodIndex * 0x108);
     unsigned int lightingMode;
 
     if (pLod->pTriangles == NULL)

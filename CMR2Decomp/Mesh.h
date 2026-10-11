@@ -45,10 +45,14 @@ struct Mesh {
     int *pLightLevels;          // 0x34 light level of each vertex
     MeshPart *pParts[50];       // 0x38
     int partCount;              // 0x100
-    BYTE field_0x104[8];
+    BYTE field_0x104[4];
+    BYTE field_0x108[4];        // 0x108 0xff 0xff 0xff for the scene shadow meshes
     MeshCollisionRecord *pCollisionRecords; // 0x10c relocated collision chain
     BYTE sizeUnits;             // 0x110
-    BYTE field_0x111[7];
+    BYTE field_0x111;
+    BYTE lodIndex;              // 0x112 LOD in use (LOD geometry records are 0x108 apart)
+    BYTE lodCount;              // 0x113 LOD records; 1 in every stage mesh file
+    int field_0x114;
     int field_0x118;
     int field_0x11c;
 };

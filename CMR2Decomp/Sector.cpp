@@ -53,7 +53,7 @@ extern int g_unk0x0067f228;
 extern StageObject *g_stageObjects[6000];
 
 void Graphics_AccumulateCounterOrInitialize(int *p, int value);
-void Graphics_LoadTextureRecordList(int param1, int param2, unsigned int param3, int param4, GenericFile *archive);
+void Graphics_LoadTextureRecordList(BYTE *param1, char *param2, unsigned int param3, int param4, GenericFile *archive);
 void Mesh_UploadVertices(Mesh *pMesh);
 void Mesh_BuildParts(Mesh *pMesh);
 
@@ -91,7 +91,7 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, SceneNode *parent, GenericFile *
     BYTE *pLightLevels;
     BYTE *pVertexFlags;
     BYTE *pRecords;
-    int textureRecords;
+    char *textureRecords;
     unsigned short recordSize;
     int savedNodeCount;
     unsigned int i;
@@ -113,7 +113,7 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, SceneNode *parent, GenericFile *
     pRecords = pVertexFlags + *(int *)(pData + 0x10) * 0x14;
     recordSize = *(unsigned short *)(pData + 0x26);
     pEnd = pRecords + recordSize * 0x5c;
-    textureRecords = *(int *)(pData + 0xc) + (int)pData;
+    textureRecords = (char *)pData + *(int *)(pData + 0xc);
     if (*(unsigned int *)(pData + 0x20) > 0) {
         // Ten texture indices per triangle (0x4c bytes) are moved past the
         // textures already loaded.
@@ -131,7 +131,7 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, SceneNode *parent, GenericFile *
             pRow += 0x13;
         } while (count < *(unsigned int *)(pData + 0x20));
     }
-    Graphics_LoadTextureRecordList((int)pEnd, textureRecords,
+    Graphics_LoadTextureRecordList(pEnd, textureRecords,
                  *(unsigned short *)(pData + 0x24), *(int *)(pData + 4), archive);
     savedNodeCount = g_sceneNodeCount;
     if (*(unsigned short *)(pData + 0x18) > 0) {
@@ -258,23 +258,23 @@ BYTE Sector_FreeMeshPartLists(void)
 {
     int i;
     int j;
-    BYTE *pModel;
-    BYTE **ppPart;
+    Mesh *pModel;
+    MeshPart **ppPart;
 
     for (i = 0; i < g_sectorCount; i++) {
-        pModel = (BYTE *)g_sectors[i]->pMesh;
+        pModel = g_sectors[i]->pMesh;
         if (pModel != NULL) {
             j = 0;
-            if (*(int *)(pModel + 0x100) > 0) {
-                ppPart = (BYTE **)(pModel + 0x38);
+            if (pModel->partCount > 0) {
+                ppPart = pModel->pParts;
                 do {
-                    CFileBuffer::FreeGenericFileBuffer(*(void **)(*ppPart + 0x14));
-                    *(void **)(*ppPart + 0x14) = NULL;
+                    CFileBuffer::FreeGenericFileBuffer((*ppPart)->pData);
+                    (*ppPart)->pData = NULL;
                     CFileBuffer::FreeGenericFileBuffer(*ppPart);
                     *ppPart = NULL;
                     j++;
                     ppPart++;
-                } while (j < *(int *)(pModel + 0x100));
+                } while (j < pModel->partCount);
             }
         }
     }

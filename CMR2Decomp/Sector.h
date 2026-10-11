@@ -6,12 +6,15 @@
 struct SceneNode;
 
 // Track sector (grid cell); scene nodes are linked into the cell they sit in.
+// ON-DISK: 0x88-byte record of the stage mesh file; the loader at 0x4b93c0
+// relocates pMesh (+0x10) against the mesh array in place. pObjects,
+// pFirstNode and pFinRecords are filled at run time.
 struct Sector {
     int x;                      // 0x0  centre, 16.16
     int y;                      // 0x4
     int z;                      // 0x8
     int field_0xc;
-    struct SectorModel *pMesh;  // 0x10 ground mesh (LOD records of 0x108 bytes)
+    struct Mesh *pMesh;         // 0x10 ground mesh (LOD records of 0x108 bytes)
     struct StageObject *pObjects; // 0x14 static objects of the sector (linked by pNext)
     int field_0x18;
     SceneNode *pFirstNode;      // 0x1c
@@ -20,6 +23,7 @@ struct Sector {
     BYTE *pFinRecords;          // 0x28 head of the sector's fin record list
     FixVector corners[4];       // 0x2c per side: offset of the nearest ground vertex, then corner point
     int bounds[4][2];           // 0x5c x/z of the ground mesh bounding rectangle corners
+    BYTE field_0x7c[0xc];
 };
 
 // ON-DISK: a 0xa0-byte record inside the stage mesh file. The loader at
@@ -50,11 +54,6 @@ struct SectorMesh {
     float *pVertices;           // 0xc  0x30 bytes per vertex, x/y/z first
     unsigned int vertexCount;   // 0x10
     BYTE field_0x14[0xf4];
-};
-struct SectorModel {
-    SectorMesh lod0;
-    BYTE field_0x108[0xa];
-    BYTE lodIndex;              // 0x112 LOD record in use
 };
 
 // GLOBAL: CMR2 0x0071f600

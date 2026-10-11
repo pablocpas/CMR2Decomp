@@ -1092,3 +1092,7 @@ CMR2_LAYOUT_CHECK(MeshPart_SizeCheck, sizeof(MeshPart) == 0x1c);
 CMR2_LAYOUT_CHECK(MeshPart_pData_Check, offsetof(MeshPart, pData) == 0x14);
 // ON-DISK: the header of a compressed file has the same size on every target.
 typedef char BFLHeader_DiskSizeCheck[sizeof(BFLHeader) == 8 ? 1 : -1];
+CMR2_LAYOUT_CHECK(Sector_SizeCheck, sizeof(Sector) == 0x88);
+CMR2_LAYOUT_CHECK(Sector_pMesh_Check, offsetof(Sector, pMesh) == 0x10);
+CMR2_LAYOUT_CHECK(Mesh_lodIndex_Check, offsetof(Mesh, lodIndex) == 0x112);
+CMR2_LAYOUT_CHECK(Mesh_pCollisionRecords_Check, offsetof(Mesh, pCollisionRecords) == 0x10c);

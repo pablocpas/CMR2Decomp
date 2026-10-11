@@ -1388,6 +1388,10 @@ OptionPreviewMeshRecord g_previewMeshRecords[16];
 Menu *g_pMenu0x00831778;
 // GLOBAL: CMR2 0x0083177c
 Menu *g_pMenu0x0083177c;
+// The three option menu archives below are GenericFile records. Declared as
+// GenericFile, FrontendText_LoadRegionLanguages and
+// OptionMenu_DrawResultsRallyInfo lose bytes (register ties in this TU), so
+// they stay int[4] and are read through GenericFile *.
 // GLOBAL: CMR2 0x00831a90
 int g_unk0x00831a90[4];
 // GLOBAL: CMR2 0x00831aa0
@@ -6095,24 +6099,24 @@ void OptionMenu_CreateBackgroundWorld(void)
 // FUNCTION: CMR2 0x0050f480
 int OptionMenu_ReleaseTextures(void)
 {
-    if (g_unk0x00831a90[0] != 0) {
-        CFileBuffer::FreeGenericFileBuffer((void *)g_unk0x00831a90[0]);
-        g_unk0x00831a90[0] = 0;
+    if (((GenericFile *)g_unk0x00831a90)->buffer != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(((GenericFile *)g_unk0x00831a90)->buffer);
+        ((GenericFile *)g_unk0x00831a90)->buffer = NULL;
     }
-    g_unk0x00831a90[2] = 0;
-    g_unk0x00831a90[1] = 0;
-    if (g_unk0x00831aa0[0] != 0) {
-        CFileBuffer::FreeGenericFileBuffer((void *)g_unk0x00831aa0[0]);
-        g_unk0x00831aa0[0] = 0;
+    ((GenericFile *)g_unk0x00831a90)->didFileLoad = 0;
+    ((GenericFile *)g_unk0x00831a90)->fileSize = 0;
+    if (((GenericFile *)g_unk0x00831aa0)->buffer != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(((GenericFile *)g_unk0x00831aa0)->buffer);
+        ((GenericFile *)g_unk0x00831aa0)->buffer = NULL;
     }
-    g_unk0x00831aa0[2] = 0;
-    g_unk0x00831aa0[1] = 0;
-    if (g_unk0x00831ab0[0] != 0) {
-        CFileBuffer::FreeGenericFileBuffer((void *)g_unk0x00831ab0[0]);
-        g_unk0x00831ab0[0] = 0;
+    ((GenericFile *)g_unk0x00831aa0)->didFileLoad = 0;
+    ((GenericFile *)g_unk0x00831aa0)->fileSize = 0;
+    if (((GenericFile *)g_unk0x00831ab0)->buffer != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(((GenericFile *)g_unk0x00831ab0)->buffer);
+        ((GenericFile *)g_unk0x00831ab0)->buffer = NULL;
     }
-    g_unk0x00831ab0[2] = 0;
-    g_unk0x00831ab0[1] = 0;
+    ((GenericFile *)g_unk0x00831ab0)->didFileLoad = 0;
+    ((GenericFile *)g_unk0x00831ab0)->fileSize = 0;
     return 1;
 }
 

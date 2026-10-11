@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stddef.h>
 #include <math.h>
 #include "SceneNode.h"
 #include "FileBuffer.h"
@@ -1419,7 +1420,7 @@ void Scene_LoadLighting(int *pData)
             pItem = (int *)(*(BYTE **)(g_sceneLightZones + zoneOff + 0xc) + itemOff);
             for (s = 0; s < (unsigned int)g_sectorCount; s++) {
                 done = FALSE;
-                pObj = *(int **)((BYTE *)g_sectors[s] + 0x14);
+                pObj = (int *)g_sectors[s]->pObjects;
                 if (pObj == NULL)
                     continue;
                 do {
@@ -1472,10 +1473,11 @@ void Scene_LoadLighting(int *pData)
         g_sceneShadowMeshes[*(unsigned short *)(g_sceneLightZones + off)] = Mesh_Alloc();
         g_sceneSectorZone[*(unsigned short *)(g_sceneLightZones + off)] = (short)zone;
         pMesh = g_sceneShadowMeshes[*(unsigned short *)(g_sceneLightZones + off)];
-        ((BYTE *)pMesh)[0x108] = 0xff;
-        ((BYTE *)pMesh)[0x109] = 0xff;
-        ((BYTE *)pMesh)[0x10a] = 0xff;
-        for (i = 0x10c; i < 0x120; i++)
+        pMesh->field_0x108[0] = 0xff;
+        pMesh->field_0x108[1] = 0xff;
+        pMesh->field_0x108[2] = 0xff;
+        // Clears the tail of the record, pCollisionRecords to the end.
+        for (i = offsetof(Mesh, pCollisionRecords); i < sizeof(Mesh); i++)
             ((BYTE *)pMesh)[i] = 0;
         pHeader = *(int **)(g_sceneLightZones + off + 0x10);
         for (i = 0xc; i != 0; i--)
@@ -1484,11 +1486,11 @@ void Scene_LoadLighting(int *pData)
         pMesh->pVertexData = (DWORD *)pHeader[2];
         pMesh->triangleCount = pHeader[0];
         pMesh->pTriangles = (MeshTriangle *)pHeader[3];
-        *(int *)((BYTE *)pMesh + 0x20) = 0;
-        ((BYTE *)pMesh)[0x104] = 0;
-        *(int *)((BYTE *)pMesh + 0x34) = pHeader[4];
-        *(unsigned int *)((BYTE *)pMesh + 0x30) = flags;
-        *(int *)((BYTE *)pMesh + 0x2c) = 0;
+        pMesh->pField20 = NULL;
+        pMesh->field_0x104[0] = 0;
+        pMesh->pLightLevels = (int *)pHeader[4];
+        pMesh->flags = flags;
+        pMesh->field_0x2c = 0;
         Mesh_BuildParts(pMesh);
         Mesh_UploadVertices(pMesh);
     }
