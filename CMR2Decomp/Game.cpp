@@ -1345,7 +1345,7 @@ void StageObject_ClearAndDrawSplitPositions(int unused1, int unused2);
 void Race_UpdateDriverPreRaceScene(CallbackStateMachine *param1, unsigned int param2);
 void Race_UpdateDriverCountdown(CallbackStateMachine *param1, unsigned int param2);
 void Race_UpdateDriverReadyAndRecordState(CallbackStateMachine *param1, unsigned int param2);
-void Race_HandleStageReplayViewTransitions(BYTE *param1, unsigned int param2);
+void Race_HandleStageReplayViewTransitions(CallbackStateMachine *param1, unsigned int param2);
 void Race_UpdateInterStageFadeJobs(CallbackStateMachine *param1, unsigned int param2);
 void Race_UpdateState12(CallbackStateMachine *p, BYTE index);
 void Race_LeaveAndFadeOut(CallbackStateMachine *param1, char param2);
