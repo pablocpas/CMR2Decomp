@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "b21ecaad0f4fb45dfd7cf76fe1f1a79bb4ab936c",
+    "commit": "6cc698dc1ede3db59ed592ab58ad8a92fd7e77ee",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -81,15 +81,15 @@
       "CMR2Decomp/Frontend.h": "60cdf8b545fd538431a190554ee67fdb4c7830584acca37826a81536994ed24f",
       "CMR2Decomp/FrontendDraw.cpp": "903685964dbba694862596fc62035594a5c778b0ceab18504bfaf5f4a0e443ec",
       "CMR2Decomp/FrontendDraw.h": "c55e09d37aaeb9698e2052a12a1e6437971d64fe98a3ac82995f97164e1c964e",
-      "CMR2Decomp/FrontendMenus.cpp": "1352ceec75ff4b66f7465655f84eb6be6dad6f4029446464a9d25efd0928acd2",
-      "CMR2Decomp/FrontendMenus.h": "cdbe32e65867864d13950fad5dbf93442018ac0c99a1a4a7c97cff7b98393cb7",
+      "CMR2Decomp/FrontendMenus.cpp": "620c4482fc3662a02d15784332e767e6b47d15a4649a5baf75d854a372cb7508",
+      "CMR2Decomp/FrontendMenus.h": "20b809057b95232da6816d1c031f11c4f3b338ee15fd0b184d2e152945d36382",
       "CMR2Decomp/FrontendNetworkRally.cpp": "04877e99bd48400fbbce1fcca1a48f7611af8e0e9d6992529062dd7537bfd635",
-      "CMR2Decomp/FrontendScreens.cpp": "a68ac2fc9826819513b8f119a029a35f2ac44330c7e8af6e9fd4b149a8f91ad6",
+      "CMR2Decomp/FrontendScreens.cpp": "83c12a2765100e12bf78a606af05f6225624a7590d475d508e185083970e457d",
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
       "CMR2Decomp/Game.cpp": "d7f7a6cd4e330a5cafb0cdc14ce01e2cf1d8a538f4358c5b5c2c71ae5e45d764",
       "CMR2Decomp/Game.h": "18562a518d824dd4e2bc9201682e20cfbb038b10c5124eeb1d37786ebbe413d8",
       "CMR2Decomp/GameConnections.cpp": "c9034f5c8d5de0e88a5e107895406e2c2a444c211ce6b1dd0e422a1e0751f4f7",
-      "CMR2Decomp/GameInfo.cpp": "aec4834917b8bf73a17a300ff6c65b62fc3a0da32c7f7f93cebc63d4363ca455",
+      "CMR2Decomp/GameInfo.cpp": "4240c3d78993da3bfd8eb12636095d8b84662b0943510eda893ee0907f6c5edf",
       "CMR2Decomp/GameInfo.h": "3cc906826981b8e06a9591c8b792ba0b51dc93780ce5ced08aa2b6da6e20fbaa",
       "CMR2Decomp/GameMenus.cpp": "91707557410c9334bd1a33fbebc318f285d50cee02d75c7d70eea7038dfecbcb",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
@@ -126,7 +126,7 @@
       "CMR2Decomp/RaceCallRecord.h": "e2418ff397371fd73fc5d83fbba8de474bc0f895eb1dfac5792127d8e6afd8c2",
       "CMR2Decomp/RaceCallbackStorage.h": "d540cbe431446daef4724e15b0f10f3702e8e50b8c87bcd04ff5bc1dd3a8d593",
       "CMR2Decomp/RaceRecord.h": "c86bd8aa45d6828375fee1fd908f60608b85e9b48a7416f8208b209fe98c3453",
-      "CMR2Decomp/RallyData.cpp": "3b2bf0474b207510bd93bd75ac9795f5a89d770a3a15539a8aecead65935ba7b",
+      "CMR2Decomp/RallyData.cpp": "d57d5241269bf4fe6c9de5bf73d7b784e02c58d9b7a643c7856bda80b2d117c7",
       "CMR2Decomp/RallyData.h": "e987810c2165585326e910e8d05c1dc1cb71d1ea758238d1c98b7347b1bc2470",
       "CMR2Decomp/RallyRoute.cpp": "e7f0a2ca141f3474429bfc6f39921030e053c01eaae371641466c20f5a8bcd08",
       "CMR2Decomp/RallyRoute.h": "a07c860d0179838b695627459f63021679a16ecb013316d75339f856b7002a4d",
@@ -199,8 +199,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "3a95fd9666cae6c086402434fe0d76d4ef09cdb79ad1e65794fd918a22b6204e",
-    "pdb_sha256": "514384f75431c845b149dc98f25bea7967c8bb6ee266cb3dd7f45e217d0e277a"
+    "exe_sha256": "3f29884bff28f11fee2a71fd3274f71fcf04678b883afd3a53f718ed36d475a6",
+    "pdb_sha256": "ba9417686c883150b18dcf43d6ca7aea8c6753846a941c40f92eacb3d21f42a1"
   },
   "perfect_match_percent": 56.2,
   "fuzzy_match_percent": 94.52,

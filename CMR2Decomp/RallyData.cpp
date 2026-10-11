@@ -15,6 +15,7 @@ void Race_DrawPlayerMessage(char *text, int *pColour, int car, int param4, int x
 #include "RallyTiming.h"
 #include "main.h"
 #include "Frontend.h"
+#include "Menu.h"
 
 // Championship save data, contiguous in memory:
 //   0x52f3e0  8 driver records of 0xc4 bytes
@@ -1802,9 +1803,9 @@ void RallyData_MarkAllDriverRecordsUnassigned(void)
 // match 69%: the original keeps the split list in EDI and the row index in ESI
 // (we get them swapped), so every register in the marker loop differs.
 // FUNCTION: CMR2 0x004efe60
-void RallyData_FillStageSplitEditorRows(int param_1, int param_2, char param_3)
+void RallyData_FillStageSplitEditorRows(Menu *param_1, int param_2, char param_3)
 {
-    BYTE *pMenu;
+    Menu *pMenu;
     short *pSplits;
     int count;
     int i;
@@ -1815,24 +1816,23 @@ void RallyData_FillStageSplitEditorRows(int param_1, int param_2, char param_3)
     count = RallyData_GetDistinctValueCount();
     pSplits = (short *)RallyData_GetDistinctValueList();
     RallyData_SetDriverPairingStateValues(0, 0);
-    pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-    *(short *)(pMenu + 0x18) = 0x156;
-    pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-    *(short *)(pMenu + 0x1c) = 0xffff;
-    pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-    *(BYTE *)(pMenu + 0x1a) =
-        (*(BYTE *)(pMenu + 0x1a) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x1a);
+    pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+    pMenu->items[0].id = 0x156;
+    pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+    pMenu->items[0].value = 0xffff;
+    pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+    pMenu->items[0].enabled = param_3;
     if ((unsigned short)RallyData_GetPrimaryStageScoreScale() >= 0x834) {
         RallyData_SetDriverPairingStateValues(1, 2);
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(BYTE *)(pMenu + 6) = 0;
+        pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+        pMenu->itemCount = 0;
         Menu_SetInputStateFlag(0);
         Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
         Menu_SetInputStateFlag(1);
     } else if (RallyDataStageIndex() == '\n') {
         RallyData_SetDriverPairingStateValues(1, 0);
-        pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-        *(BYTE *)(pMenu + 6) = 0;
+        pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+        pMenu->itemCount = 0;
         Menu_SetInputStateFlag(0);
         Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
         Menu_SetInputStateFlag(1);
@@ -1841,52 +1841,48 @@ void RallyData_FillStageSplitEditorRows(int param_1, int param_2, char param_3)
         Menu_SetNextAction(FrontendMenu_GetAlternateRallyStageSelection());
         Menu_SetInputStateFlag(1);
         if (count <= 3) {
-            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-            *(char *)(pMenu + 6) = (char)count + 1;
+            pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+            pMenu->itemCount = (char)count + 1;
             if (count > 0) {
                 i = 0;
                 do {
                     value = *pSplits;
-                    pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-                    *(short *)(pMenu + 0x2c + i) = value + 0x157;
-                    pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-                    *(short *)(pMenu + 0x30 + i) = *pSplits;
-                    pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-                    *(BYTE *)(pMenu + 0x2e + i) =
-                        (*(BYTE *)(pMenu + 0x2e + i) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x2e + i);
+                    pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+                    pMenu->items[i + 1].id = value + 0x157;
+                    pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+                    pMenu->items[i + 1].value = *pSplits;
+                    pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+                    pMenu->items[i + 1].enabled = param_3;
                     pSplits += 2;
                     count--;
-                    i += 0x14;
+                    i++;
                 } while (count != 0);
             }
         } else {
-            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-            *(BYTE *)(pMenu + 6) = 4;
+            pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+            pMenu->itemCount = 4;
             value = *pSplits;
-            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-            *(short *)(pMenu + 0x2c) = value + 0x157;
-            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-            *(short *)(pMenu + 0x30) = *pSplits;
-            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-            *(BYTE *)(pMenu + 0x2e) =
-                (*(BYTE *)(pMenu + 0x2e) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x2e);
+            pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+            pMenu->items[1].id = value + 0x157;
+            pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+            pMenu->items[1].value = *pSplits;
+            pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+            pMenu->items[1].enabled = param_3;
             half = count / 2;
             value = pSplits[half * 2];
-            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-            *(short *)(pMenu + 0x40) = value + 0x157;
-            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-            *(BYTE *)(pMenu + 0x42) =
-                (*(BYTE *)(pMenu + 0x42) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x42);
-            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-            *(short *)(pMenu + 0x44) = pSplits[half * 2];
+            pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+            pMenu->items[2].id = value + 0x157;
+            pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+            pMenu->items[2].enabled = param_3;
+            pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+            pMenu->items[2].value = pSplits[half * 2];
             value = pSplits[count * 2 - 2];
-            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-            *(short *)(pMenu + 0x54) = value + 0x157;
-            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-            *(short *)(pMenu + 0x58) = pSplits[count * 2 - 2];
-            pMenu = (BYTE *)FrontendMenu_GetAlternateRallyStageSelection();
-            *(BYTE *)(pMenu + 0x56) =
-                (*(BYTE *)(pMenu + 0x56) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x56);
+            pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+            pMenu->items[3].id = value + 0x157;
+            pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+            pMenu->items[3].value = pSplits[count * 2 - 2];
+            pMenu = FrontendMenu_GetAlternateRallyStageSelection();
+            pMenu->items[3].enabled = param_3;
         }
     }
 }

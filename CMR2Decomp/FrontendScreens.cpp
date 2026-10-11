@@ -3983,7 +3983,7 @@ void FrontendMenu_UpdateDisplayMode(Menu *pMenu)
     if (pMenu->items[0].max >= (int)(count + g_unk0x00819128))
         g_unk0x00819128++;
     if (CGame::GetGameInputFocusState() != 0)
-        FrontendMenu_EnterDisplayMode((BYTE *)pMenu, 0);
+        FrontendMenu_EnterDisplayMode(pMenu, 0);
 }
 
 void FrontendText_ReloadFonts(void);
@@ -4122,7 +4122,7 @@ void FrontendMenu_LeaveSoundOptions(Menu *pMenu, char param)
         CSound::NoOpSoundDeviceCallback();
         return;
     }
-    FrontendMenu_UpdateSoundOptions((BYTE *)pMenu);
+    FrontendMenu_UpdateSoundOptions(pMenu);
 }
 
 // FUNCTION: CMR2 0x004f2be0
@@ -10382,7 +10382,7 @@ void FrontendMenu_DrawProfileRecordsSummary(Menu *pMenu)
         }
     }
 }
-void RallyData_FillStageSplitEditorRows(int param_1, int param_2, char param_3);
+void RallyData_FillStageSplitEditorRows(Menu *param_1, int param_2, char param_3);
 
 // Item action of the stage-split list: opens the split editor of the selected
 // row, or the next screen of the current game mode.
@@ -10392,7 +10392,7 @@ void FrontendMenu_SelectRallyStage(Menu *pMenu, int param)
     RallyData_SetStageSelectionAndRefreshFlags(pMenu->cursor);
     if (g_unk0x00819130[pMenu->cursor] == 1) {
         if (CGameInfo::GetConfiguredGameMode() == 2) {
-            RallyData_FillStageSplitEditorRows((int)pMenu, param, 1);
+            RallyData_FillStageSplitEditorRows(pMenu, param, 1);
             return;
         }
         if (CGameInfo::GetConfiguredGameMode() == 6) {
@@ -10417,7 +10417,7 @@ void FrontendMenu_EnableRallyStageRows(Menu *pMenu, int param)
 
     RallyData_SetCountrySelectionBits(pMenu->cursor);
     if (CGameInfo::GetConfiguredGameMode() == 2)
-        RallyData_FillStageSplitEditorRows((int)pMenu, param, 0);
+        RallyData_FillStageSplitEditorRows(pMenu, param, 0);
     if (CGameInfo::GetConfiguredGameMode() == 1) {
         RallyData_SetStageSelectionAndRefreshFlags(0);
         Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());

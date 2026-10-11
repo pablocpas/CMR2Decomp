@@ -2755,7 +2755,7 @@ void FrontendMenu_BuildDisplayMode(void)
 {
     Menu_Init(&g_menu0x0081cb98, 0, 0x14, 0, &g_menu0x008210f8, NULL, 1, 0, 0);
     Menu_AddItemType3(&g_menu0x0081cb98, 0, -1, 2, 0, 0, 0, (MenuItemAction)FrontendMenu_ApplyDisplayMode, 0);
-    Menu_SetCallbacks(&g_menu0x0081cb98, (MenuCallback)FrontendMenu_EnterDisplayMode, (MenuCallback)FrontendMenu_UpdateDisplayMode, (MenuCallback)FrontendMenu_DrawDisplayMode, NULL);
+    Menu_SetCallbacks(&g_menu0x0081cb98, FrontendMenu_EnterDisplayMode, (MenuCallback)FrontendMenu_UpdateDisplayMode, (MenuCallback)FrontendMenu_DrawDisplayMode, NULL);
     Menu_ValidateCursor(&g_menu0x0081cb98, 0);
 }
 

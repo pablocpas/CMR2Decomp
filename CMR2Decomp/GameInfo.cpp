@@ -2289,7 +2289,7 @@ char g_str0x0052965c[8] = "sfrench";
 char g_str0x00529664[12] = "senglish";
 
 extern char g_strTxtFormat[];
-extern int g_unk0x00831880;
+extern BYTE *g_unk0x00831880;
 extern BYTE g_unk0x00831884;
 int *OptionMenu_GetCommonArchive(void);
 int *OptionMenu_GetLanguageArchive(void);
@@ -2335,11 +2335,11 @@ BYTE OptionMenu_LoadRegionalText(void)
     }
 
     sprintf(CFrontend::m_stringDest, g_strTxtFormat, names[CGameInfo::GetGameLanguage()]);
-    g_unk0x00831880 = (int)CGenericFileLoader::FindFile((GenericFile *)OptionMenu_GetLanguageArchive(),
+    g_unk0x00831880 = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)OptionMenu_GetLanguageArchive(),
                                                        CFrontend::m_stringDest, &g_unk0x00831884, NULL, 0);
     // the original tests the address of the buffer, so this is always true
     if (&g_unk0x00831880 != NULL) {
-        CFrontend::BuildLocalizedTextStringTable(1, 0x146, (BYTE **)&g_unk0x00831880);
+        CFrontend::BuildLocalizedTextStringTable(1, 0x146, &g_unk0x00831880);
         CGame::RegisterCallback(OptionMenu_ReleaseSoundBuffer, NULL);
         return 1;
     }
@@ -3033,7 +3033,7 @@ bool FrontendCredits_ReleaseText(void)
 int g_unk0x00819128;
 
 // FUNCTION: CMR2 0x004f2360
-void FrontendMenu_EnterDisplayMode(BYTE *p, int param2)
+void FrontendMenu_EnterDisplayMode(Menu *pMenu, int param2)
 {
     g_unk0x00819128 = CGraphics::GetSelectedDisplayDeviceIx();
     if (g_unk0x00819128 + 10 > (int)CGraphics::GetDisplayCount()) {
@@ -3041,17 +3041,17 @@ void FrontendMenu_EnterDisplayMode(BYTE *p, int param2)
         if (g_unk0x00819128 < 0)
             g_unk0x00819128 = 0;
     }
-    p[0x1e] = (BYTE)CGraphics::GetDisplayCount();
-    p[0x1f] = (BYTE)CGraphics::GetSelectedDisplayDeviceIx();
+    pMenu->items[0].min = (BYTE)CGraphics::GetDisplayCount();
+    pMenu->items[0].max = (BYTE)CGraphics::GetSelectedDisplayDeviceIx();
     CGame::SetGameInputFocusState(0);
 }
 
 // FUNCTION: CMR2 0x004f2b00
-void FrontendMenu_UpdateSoundOptions(BYTE *p)
+void FrontendMenu_UpdateSoundOptions(Menu *pMenu)
 {
-    CGameInfo::SetMasterSoundVolume(p[0x1f] * 10);
-    CGameInfo::SetEffectsSoundVolume(p[0x33] * 10);
-    CGameInfo::SetCoDriverSoundVolume(p[0x47] * 10);
+    CGameInfo::SetMasterSoundVolume(pMenu->items[0].max * 10);
+    CGameInfo::SetEffectsSoundVolume(pMenu->items[1].max * 10);
+    CGameInfo::SetCoDriverSoundVolume(pMenu->items[2].max * 10);
     CInput::SetInputRepeatTimingState((int)(CGameInfo::GetEffectsSoundVolume() << 16) / 100 / 4);
     CSound::NoOpSoundDeviceCallback();
 }
@@ -6238,7 +6238,7 @@ void OptionPreview_SetMeshRenderFlags(int index, int param2, BYTE param3){
 // (CFrontend::FreeLocalizedTextStrings)
 
 // GLOBAL: CMR2 0x00831880
-int g_unk0x00831880;
+BYTE *g_unk0x00831880;
 // GLOBAL: CMR2 0x00831884
 BYTE g_unk0x00831884;
 
@@ -6272,8 +6272,8 @@ bool OptionMenu_ReleaseSoundBuffer(void)
 {
     if (&g_unk0x00831880 != NULL) {
         if (g_unk0x00831884 == 0)
-            CFileBuffer::FreeGenericFileBuffer((void *)g_unk0x00831880);
-        g_unk0x00831880 = 0;
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x00831880);
+        g_unk0x00831880 = NULL;
     }
     CFrontend::FreeLocalizedTextStrings();
     return 1;
