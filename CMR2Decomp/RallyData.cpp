@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <stdio.h>
 
 void Race_DrawPlayerMessage(char *text, int *pColour, int car, int param4, int x, int y);
@@ -4252,15 +4253,7 @@ void RallyData_CopyDriverStageTimesToRecords(void)
 void RallyData_ResetPlayerRouteProbes(void);
 
 // Per car progress along the route, 0x18 bytes
-struct RaceRecord {
-    int field_0x0;
-    int field_0x4;
-    int field_0x8;
-    int field_0xc;
-    int field_0x10;
-    short field_0x14;
-    short field_0x16;
-};
+#include "RaceRecord.h"
 
 // GLOBAL: CMR2 0x00538a78
 unsigned int g_routeProbeBestDistance[2];
@@ -4284,7 +4277,7 @@ int g_routeProbeCycles[2];
 void RallyData_ResetRaceRecordAndRouteProbe(int index)
 {
     RaceRecord *pRecord = &g_raceRecords[index];
-    pRecord->field_0x0 = pRecord->field_0x4;
+    pRecord->routeNodeIndex = pRecord->resetRouteNodeIndex;
     pRecord->field_0x8 = 0;
     pRecord->field_0x14 = 0;
     pRecord->field_0xc = 0;
@@ -4301,25 +4294,29 @@ void RallyData_ResetRaceRecordAndRouteProbe(int index)
 void RallyData_SetCarRaceRecordPosition(Car *pCar, int value)
 {
     if (g_unk0x00538a84 != 0) {
-        g_raceRecords[pCar->index].field_0x0 = value;
+        g_raceRecords[pCar->index].routeNodeIndex = value;
         g_raceRecords[pCar->index].field_0x14 = (short)value;
         if (pCar->index < 2)
             g_routeProbeCycles[pCar->index] = 0;
     }
 }
 
+// The original cursor is biased to field_0x8; use the owned record layout.
 // Restores the eight cars' race records before reinitializing their routes.
 // FUNCTION: CMR2 0x004207f0
 void RallyData_RestoreAllCarRaceRecords(void)
 {
-    unsigned int recordAddress = (unsigned int)&g_raceRecords[0].field_0x8;
+    // 64BIT: BYTE*/record-field variants change MSVC6 scheduling. This local
+    // numeric cursor retains the original unsigned-int type via size_t,
+    // which is pointer-wide on both supported ABIs (checked in RaceRecord.h).
+    size_t recordAddress = (size_t)&g_raceRecords[0].field_0x8;
     do {
         *(int *)recordAddress = 0;
-        *(int *)(recordAddress - 8) = *(int *)(recordAddress - 4);
-        *(short *)(recordAddress + 12) = 0;
-        *(int *)(recordAddress + 4) = 0;
+        *(int *)(recordAddress - offsetof(RaceRecord, field_0x8)) = *(int *)(recordAddress - (offsetof(RaceRecord, field_0x8) - offsetof(RaceRecord, resetRouteNodeIndex)));
+        *(short *)(recordAddress + (offsetof(RaceRecord, field_0x14) - offsetof(RaceRecord, field_0x8))) = 0;
+        *(int *)(recordAddress + (offsetof(RaceRecord, field_0xc) - offsetof(RaceRecord, field_0x8))) = 0;
         recordAddress += sizeof(g_raceRecords[0]);
-    } while ((int)recordAddress < (int)&g_raceRecords[8].field_0x8);
+    } while ((INT_PTR)recordAddress < (INT_PTR)(g_raceRecords + 8) + (int)offsetof(RaceRecord, field_0x8));
     RallyData_ResetPlayerRouteProbes();
 }
 
@@ -4396,12 +4393,12 @@ void RallyData_UpdateCarRoute(Car *pCar)
                 g_routeProbeIndex[slot] = 0;
         }
         if (++g_routeProbeCycles[slot] > 25) {
-            record->field_0x0 = (unsigned short)g_routeProbeBestIndex[slot];
+            record->routeNodeIndex = (unsigned short)g_routeProbeBestIndex[slot];
             g_routeProbeCycles[slot] = 0;
         }
     }
 
-    node = record->field_0x0;
+    node = record->routeNodeIndex;
     record->field_0x14 = (short)node;
     RallyData_GetRouteNodeGroundPosition(node, (int *)&point);
     delta.x = point.x - pCar->position.x;
@@ -4414,7 +4411,7 @@ void RallyData_UpdateCarRoute(Car *pCar)
         if (g_unk0x00538a94 == 0) {
             if ((unsigned int)node < (unsigned int)(g_unk0x00538a88 - 1)) {
                 record->field_0x14++;
-                record->field_0x0++;
+                record->routeNodeIndex++;
                 record->field_0x8++;
             } else {
                 record->field_0x14++;
@@ -4422,10 +4419,10 @@ void RallyData_UpdateCarRoute(Car *pCar)
             }
         } else if ((unsigned int)node < (unsigned int)(g_unk0x00538a84 - 1)) {
             record->field_0x14++;
-            record->field_0x0++;
+            record->routeNodeIndex++;
             record->field_0x8++;
         } else {
-            record->field_0x0 = 0;
+            record->routeNodeIndex = 0;
             record->field_0x14 = 0;
             record->field_0x8++;
         }
@@ -4448,7 +4445,7 @@ void RallyData_UpdateCarRoute(Car *pCar)
         ROUTE_NORMALIZE(delta);
         RallyRoute_GetNodeDirection(&routeDir, previous);
         if (FixVecDot(&delta, &routeDir) > 0) {
-            record->field_0x0 = previous;
+            record->routeNodeIndex = previous;
             record->field_0x14 = (short)previous;
             if (g_unk0x00538a94 == 0 && (unsigned int)previous == (unsigned int)(g_unk0x00538a84 - 2))
                 record->field_0x8 = previous;
@@ -4479,7 +4476,7 @@ int RallyData_GetActiveCarRaceRecordField0(BYTE *p)
 {
     if (g_unk0x00538a84 == 0)
         return 0;
-    return g_raceRecords[(signed char)p[0xb1a]].field_0x0;
+    return g_raceRecords[(signed char)p[0xb1a]].routeNodeIndex;
 }
 
 // FUNCTION: CMR2 0x004213a0
@@ -6438,8 +6435,8 @@ void RallyData_FindNearestCarRouteNode(Car *pCar)
             }
         }
         if (best != 0x7d000000) {
-            g_raceRecords[pCar->index].field_0x0 = bestIndex;
-            g_raceRecords[pCar->index].field_0x4 = bestIndex;
+            g_raceRecords[pCar->index].routeNodeIndex = bestIndex;
+            g_raceRecords[pCar->index].resetRouteNodeIndex = bestIndex;
         }
     }
 }
@@ -8645,8 +8642,8 @@ void RallyData_LoadSelectedRouteNodes(void)
         g_unk0x00538c94 = value << 16;
     }
     for (index = 0; index < 8; index++) {
-        g_raceRecords[index].field_0x0 = 0;
-        g_raceRecords[index].field_0x4 = 0;
+        g_raceRecords[index].routeNodeIndex = 0;
+        g_raceRecords[index].resetRouteNodeIndex = 0;
         g_raceRecords[index].field_0x8 = 0;
         g_raceRecords[index].field_0xc = 0;
     }

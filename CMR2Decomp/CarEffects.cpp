@@ -266,7 +266,7 @@ void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
             vel.y += t.y;
             vel.z += t.z;
             param[1] = (window == 7 || window == 6 ? 1 : 0) << 16;
-            Particle_Spawn(0x1c, &pos, &vel, -0x40000, (int)&pCar->pSceneRoot->current, NULL, 0, (int)param,
+            Particle_Spawn(0x1c, &pos, &vel, -0x40000, &pCar->pSceneRoot->current, NULL, 0, param,
                            *((BYTE *)pCar->pBodyNode + 0x17c));
             pP++;
         }
@@ -365,8 +365,8 @@ void CarEffects_InitUVs(Texture *unused1, Texture *unused2)
 // Position of a particle: relative to its matrix when it has one.
 #define PARTICLE_POS(pos, p)                                          \
     pos = (p)->vector0x1c;                                            \
-    if ((p)->field0x40 != 0) {                                        \
-        FixMatrix_GetPosition(&o, (FixMatrix *)(p)->field0x40);       \
+    if ((p)->attachmentMatrix != 0) {                                        \
+        FixMatrix_GetPosition(&o, (p)->attachmentMatrix);       \
         pos.x += o.x;                                                 \
         pos.y += o.y;                                                 \
         pos.z += o.z;                                                 \
@@ -443,7 +443,7 @@ void CarEffects_UpdateAgedParticleAppearance(void *pParticle, ParticleType *pTyp
 // Draw callback of a glass shard, tinted like the car's windows.
 // match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004994f0
-void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
+void GlassShard_Draw(Particle *p, ParticleType *pType, SceneNode *unused)
 {
     FixVector pos;
     BYTE light[8];
@@ -460,7 +460,7 @@ void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
     {
         FixVector o;
 
-        FixMatrix_GetPosition(&o, (FixMatrix *)p->field0x40);
+        FixMatrix_GetPosition(&o, p->attachmentMatrix);
         pos.x += o.x;
         pos.y += o.y;
         pos.z += o.z;
@@ -508,8 +508,10 @@ void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
 
 // Spawn callback of a glass shard: remembers the car and picks a shard.
 // FUNCTION: CMR2 0x00499710
-void GlassShard_Init(Particle *p, ParticleType *pType, Car *pCar)
+void GlassShard_Init(void *particle, ParticleType *pType, void *owner)
 {
+    Particle *p = (Particle *)particle;
+    Car *pCar = (Car *)owner;
     p->field0x64 = (unsigned short)((BYTE)pCar->index << 8);
     p->field0x64 += (short)(rand() % 10);
     p->size = pCar->field_0xa70;
@@ -573,16 +575,16 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
         if (EFFECT_RAND() < glassChance) {
             light = *((BYTE *)pCar->pBodyNode + 0x17c);
             if (pRecord->glassCooldown < 8) {
-                Particle_Spawn(0x1b, pPos, &vel, pPos->y - 0x1999, (int)&pCar->pSceneRoot->current, NULL, 0,
-                               (int)pCar, light);
+                Particle_Spawn(0x1b, pPos, &vel, pPos->y - 0x1999, &pCar->pSceneRoot->current, NULL, 0,
+                               pCar, light);
                 glass = 1;
             } else {
-                Particle_Spawn(0x1a, pPos, &vel, pPos->y - 0x1999, (int)&pCar->pSceneRoot->current, NULL, 0, 0,
+                Particle_Spawn(0x1a, pPos, &vel, pPos->y - 0x1999, &pCar->pSceneRoot->current, NULL, 0, 0,
                                light);
                 glass = 1;
             }
         } else {
-            Particle_Spawn(0x1a, pPos, &vel, pPos->y - 0x1999, (int)&pCar->pSceneRoot->current, NULL, 0, 0,
+            Particle_Spawn(0x1a, pPos, &vel, pPos->y - 0x1999, &pCar->pSceneRoot->current, NULL, 0, 0,
                            *((BYTE *)pCar->pBodyNode + 0x17c));
         }
     } while (--n != 0);
@@ -631,7 +633,7 @@ void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
         pC += 6;
     } while ((INT_PTR)pC < (INT_PTR)g_debrisTri[3].colour);
     pos = p->vector0x1c;
-    FixMatrix_GetPosition(&o, (FixMatrix *)p->field0x40);
+    FixMatrix_GetPosition(&o, p->attachmentMatrix);
     pos.x += o.x;
     pos.y += o.y;
     pos.z += o.z;
@@ -1089,10 +1091,10 @@ void WheelSpray_Update(int player)
                         FixMatrix_RotateVector(&v, &vel, pCar->pWorld);
                         colour = g_sprayColour[effect];
                         if (*pDust != 0)
-                            Particle_Spawn(0x1d, &world, &v, ground, (int)&pCar->pSceneRoot->current,
+                            Particle_Spawn(0x1d, &world, &v, ground, &pCar->pSceneRoot->current,
                                            (BYTE *)&colour, level, 0, *((BYTE *)pCar->pBodyNode + 0x17c));
                         else
-                            Particle_Spawn(0x1e, &world, &v, ground, (int)&pCar->pSceneRoot->current,
+                            Particle_Spawn(0x1e, &world, &v, ground, &pCar->pSceneRoot->current,
                                            (BYTE *)&colour, level, 0, *((BYTE *)pCar->pBodyNode + 0x17c));
                     }
                 }
@@ -1266,7 +1268,7 @@ void CarEffects_UpdateSpiralParticle(void *pParticle, ParticleType *pType, int p
 
 // Spawn callback: stores the effect data passed by the spawner.
 // FUNCTION: CMR2 0x0045de80
-void CarEffects_InitParticleOwnerData(void *pParticle, ParticleType *pType, int param)
+void CarEffects_InitParticleOwnerData(void *pParticle, ParticleType *pType, void *param)
 {
     int value = *(int *)param;
 
@@ -1444,7 +1446,7 @@ void WheelSplash_Update(int player)
                     pPos = &p;
                     f48 = p.y - 0x630000;
                 }
-                Particle_Spawn(type, pPos, &vel, f48, 0, colour, g_trailLevel[player][wheel], (int)&player,
+                Particle_Spawn(type, pPos, &vel, f48, 0, colour, g_trailLevel[player][wheel], &player,
                                *((BYTE *)pCar->pBodyNode + 0x17c));
             } while (--count != 0);
             count = 0;
@@ -1459,8 +1461,10 @@ void WheelSplash_Update(int player)
 // Spawn callback of a debris piece or glass fragment: a random shape and
 // the colour passed by the emitter ({light level, colour index << 16}).
 // FUNCTION: CMR2 0x00499a80
-void Debris_Init(Particle *p, ParticleType *pType, int *pParam)
+void Debris_Init(void *particle, ParticleType *pType, void *data)
 {
+    Particle *p = (Particle *)particle;
+    int *pParam = (int *)data;
     int shape;
 
     shape = (rand() % 30) << 8;
@@ -1534,7 +1538,7 @@ void CarEffects_EmitWheelDustParticle(int car, int wheel, FixVector *pPos, FixVe
         ((BYTE *)&debris)[2] = pColour[2];
     }
     ((BYTE *)&debris)[3] = 0xff;
-    Particle_Spawn(light, pPos, &velocity, pPos->y, 0, (BYTE *)&debris, g_trailLevel[car][wheel], (int)&car,
+    Particle_Spawn(light, pPos, &velocity, pPos->y, 0, (BYTE *)&debris, g_trailLevel[car][wheel], &car,
                    *(BYTE *)(*(BYTE **)((BYTE *)Car_Get(car) + 0x720) + 0x17c));
 }
 

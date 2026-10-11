@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stddef.h>
 #include <math.h>
 #include <string.h>
 #include "Graphics.h"
@@ -5429,7 +5430,7 @@ void ParticleEdit_Select(int index)
         g_pEditParticleType->callback = NULL;
         g_pEditParticleType->field0x6c = 0;
         g_pEditParticleType->update = NULL;
-        g_pEditParticleType->field0x5c = 0;
+        g_pEditParticleType->draw = 0;
         g_pEditParticleType->flags &= 0xfe;
         g_pEditParticleType->flags &= 0xfd;
         g_pEditParticleType->flags &= 0xfb;
@@ -5576,16 +5577,16 @@ void ParticleEdit_SetSpread(int x, int y, int z, BYTE flag)
 }
 
 // FUNCTION: CMR2 0x004aff10
-void ParticleEdit_SetCallbacks(int field0x5c, void (*update)(void *, ParticleType *, int),
+void ParticleEdit_SetCallbacks(ParticleDrawCallback draw, void (*update)(void *, ParticleType *, int),
                                void (*postUpdate)(void *, ParticleType *, int),
-                               void (*callback)(void *, ParticleType *, int), int field0x6c)
+                               ParticleInitCallback callback, int field0x6c)
 {
     if (g_pEditParticleType != NULL) {
         g_pEditParticleType->postUpdate = postUpdate;
         g_pEditParticleType->callback = callback;
         g_pEditParticleType->field0x6c = field0x6c;
         g_pEditParticleType->update = update;
-        g_pEditParticleType->field0x5c = field0x5c;
+        g_pEditParticleType->draw = draw;
     }
 }
 
@@ -5865,6 +5866,7 @@ void Particle_Interpolate(int t)
 //   pb-9    size         pb-5    field0x50   pb-2    type0x53   pb-1  field0x54
 //   pb+2    active       pb+0    field0x55   pb+4..6 colour      pb+0xb field0x60
 // match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+#define DRAW_PARTICLE (*(Particle *)(pb - offsetof(Particle, field0x55)))
 // FUNCTION: CMR2 0x004b0480
 void Particle_DrawAll(SceneNode *pCamera, BYTE view)
 {
@@ -5880,22 +5882,22 @@ void Particle_DrawAll(SceneNode *pCamera, BYTE view)
     def.flags &= 0xfe;
     mask = 1 << view;
     if (g_particleCount > 0) {
-        pb = (BYTE *)g_particles + 0x55;
-        for (i = 0; i < g_particleCount; i++, pb += 0x68) {
-            if (pb[2] == 0 || (pb[0] & mask) == 0)
+        pb = (BYTE *)g_particles + offsetof(Particle, field0x55);
+        for (i = 0; i < g_particleCount; i++, pb += sizeof(Particle)) {
+            if (DRAW_PARTICLE.active == 0 || (DRAW_PARTICLE.field0x55 & mask) == 0)
                 continue;
-            pType = *(ParticleType **)(pb - 0x55);
-            if (pType->field0x5c != 0) {
-                ((void (*)(void *, ParticleType *, int))pType->field0x5c)(pb - 0x55, pType, (int)pCamera);
+            pType = DRAW_PARTICLE.pType;
+            if (pType->draw != 0) {
+                pType->draw(&DRAW_PARTICLE, pType, pCamera);
                 continue;
             }
             if (pType->frames != NULL) {
                 frame = 0;
-                elapsed = pType->lifetime - *(int *)(pb - 0x11);
+                elapsed = pType->lifetime - DRAW_PARTICLE.age;
                 if (elapsed > pType->field0x54 && pType->field0x58 > 0) {
                     frame = FixDiv(elapsed - pType->field0x54, pType->field0x58) >> 16;
                     if (pType->directionFlags & 8)
-                        frame += ((unsigned int)(pb - 0x55) & 0xffff) % (unsigned int)pType->field0x50;
+                        frame += ((UINT_PTR)&DRAW_PARTICLE & 0xffff) % (unsigned int)pType->field0x50;
                     if (frame >= pType->field0x50 && (pType->directionFlags & 4) == 0) {
                         texture = pType->frames[pType->field0x50 - 1];
                         goto draw;
@@ -5904,49 +5906,51 @@ void Particle_DrawAll(SceneNode *pCamera, BYTE view)
                 }
                 texture = pType->frames[frame];
             } else {
-                texture = *(Texture **)(pb + 0xb);
+                texture = DRAW_PARTICLE.texture;
             }
         draw:
             if (texture == NULL)
                 continue;
-            if (*(int *)(pb - 9) == 0x10000) {
+            if (DRAW_PARTICLE.size == 0x10000) {
                 def.top = pType->field0x3c;
                 def.left = pType->field0x40;
                 def.bottom = pType->field0x44;
                 def.right = pType->field0x48;
             } else {
-                def.top = FixMul(pType->field0x3c, *(int *)(pb - 9));
-                def.left = FixMul(*(int *)(pb - 9), pType->field0x40);
-                def.bottom = FixMul(pType->field0x44, *(int *)(pb - 9));
-                def.right = FixMul(pType->field0x48, *(int *)(pb - 9));
+                def.top = FixMul(pType->field0x3c, DRAW_PARTICLE.size);
+                def.left = FixMul(DRAW_PARTICLE.size, pType->field0x40);
+                def.bottom = FixMul(pType->field0x44, DRAW_PARTICLE.size);
+                def.right = FixMul(pType->field0x48, DRAW_PARTICLE.size);
             }
             if ((pType->flags & 0x20) != 0)
-                def.field_0x20 = *(short *)(pb - 5);
+                def.field_0x20 = DRAW_PARTICLE.field0x50;
             else
                 def.field_0x20 = 0;
-            def.pos = *(FixVector *)(pb - 0x39);
-            if (*(int *)(pb - 0x15) != 0) {
-                def.pos.x += *(int *)(*(int *)(pb - 0x15) + 0x30);
-                def.pos.y += *(int *)(*(int *)(pb - 0x15) + 0x34);
-                def.pos.z += *(int *)(*(int *)(pb - 0x15) + 0x38);
+            def.pos = DRAW_PARTICLE.vector0x1c;
+            if (DRAW_PARTICLE.attachmentMatrix != 0) {
+                def.pos.x += DRAW_PARTICLE.attachmentMatrix->position.x;
+                def.pos.y += DRAW_PARTICLE.attachmentMatrix->position.y;
+                def.pos.z += DRAW_PARTICLE.attachmentMatrix->position.z;
             }
             def.flags ^= (pType->directionFlags ^ def.flags) & 2;
-            def.r = pb[4];
-            def.g = pb[5];
-            def.b = pb[6];
-            def.a = pb[-2];
-            def.shade = pb[-1];
+            def.r = DRAW_PARTICLE.colour[0];
+            def.g = DRAW_PARTICLE.colour[1];
+            def.b = DRAW_PARTICLE.colour[2];
+            def.a = DRAW_PARTICLE.type0x53;
+            def.shade = DRAW_PARTICLE.field0x54;
             Billboard_Add(&def, texture);
         }
     }
 }
 
+#undef DRAW_PARTICLE
+
 // Allocates and initialises a particle, optionally orienting its random spread
 // around the supplied position vector.
 // FUNCTION: CMR2 0x004b07a0
 void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition,
-                    int field0x48, int field0x40, BYTE *pColour,
-                    BYTE field0x54, int callbackParam, BYTE field0x55)
+                    int field0x48, FixMatrix *attachmentMatrix, BYTE *pColour,
+                    BYTE field0x54, void *callbackParam, BYTE field0x55)
 {
     ParticleType *pType = NULL;
     bool hasBasis;
@@ -6072,7 +6076,7 @@ particleFound:
     pParticle->vector0x1c = pParticle->sourceVector;
     pParticle->vector0x28 = pParticle->sourceVector;
     pParticle->field0x48 = field0x48;
-    pParticle->field0x40 = field0x40;
+    pParticle->attachmentMatrix = attachmentMatrix;
 
     if ((pType->directionFlags & 1) != 0) {
         if (hasBasis) {
@@ -6122,7 +6126,7 @@ particleFound:
     }
     {
         int zero = 0;
-        if (pColour != (BYTE *)zero) {
+        if (pColour != NULL) {
             pParticle->colour[0] = pColour[0];
             pParticle->colour[1] = pColour[1];
             pParticle->colour[2] = pColour[2];
@@ -6138,7 +6142,7 @@ particleFound:
         pParticle->active = 1;
         pParticle->field0x58 = (BYTE)zero;
         pParticle->field0x50 = (short)zero;
-        if (pType->callback != (void (*)(void *, ParticleType *, int))zero)
+        if (pType->callback != NULL)
             pType->callback(pParticle, pType, callbackParam);
     }
 }

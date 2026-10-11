@@ -1,0 +1,13 @@
+CarEffects.cpp: 16/28 exact (baseline 16)
+  (0.9s)
+Graphics.cpp: 169/198 exact (baseline 169)
+  (2.3s)
+LayoutChecks.cpp: 0/0 exact (baseline 0)
+  (0.8s)
+RallyData.cpp: 210/246 exact (baseline 210)
+  (2.3s)
+StageObjects.cpp: 251/354 exact (baseline 251)
+  (2.8s)
+StageTiming.cpp: 207/253 exact (baseline 207)
+  (2.5s)
+6 TUs in 2.8s

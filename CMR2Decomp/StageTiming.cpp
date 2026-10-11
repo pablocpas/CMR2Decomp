@@ -5149,7 +5149,7 @@ extern BYTE StageObject_GetViewWeatherStateByte(int);
 extern int StageObject_GetViewWeatherField54(int);
 extern int Race_GetPlayerRecordField4(BYTE);
 extern void Tyre_AddWear(int, int, int, int);
-extern void Particle_Spawn(int, FixVector *, FixVector *, int, int, BYTE *, BYTE, int, BYTE);
+extern void Particle_Spawn(int, FixVector *, FixVector *, int, FixMatrix *, BYTE *, BYTE, void *, BYTE);
 
 #define TRAIL_RANDOM(scale) ((int)(__int64)(rand() * g_oneOverRandMax * (scale)))
 
@@ -5312,7 +5312,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
             freeSource.y = position.y - cornerVelocity->y;
             freeSource.z = position.z - cornerVelocity->z;
             Particle_Spawn(type, &freeSource, cornerVelocity, position.y - 0x10000, 0, colour,
-                           g_trailLevel[carIndex][wheel], (int)&carIndex, *((BYTE *)car->pBodyNode + 0x17c));
+                           g_trailLevel[carIndex][wheel], &carIndex, *((BYTE *)car->pBodyNode + 0x17c));
         } else {
             source.x = position.x - car->position.x + jitter.x;
             source.y = position.y - car->position.y + jitter.y;
@@ -5343,7 +5343,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
                 particleVelocity.x += offset.x; particleVelocity.y += offset.y; particleVelocity.z += offset.z;
             }
             Particle_Spawn(type, &source, &particleVelocity, source.y - 0x10000, 0, colour,
-                           g_trailLevel[carIndex][wheel], (int)&carIndex, *((BYTE *)car->pBodyNode + 0x17c));
+                           g_trailLevel[carIndex][wheel], &carIndex, *((BYTE *)car->pBodyNode + 0x17c));
 
         }
     }
@@ -6152,24 +6152,24 @@ void ParticleEdit_SetColour(BYTE r, BYTE g, BYTE b, BYTE flag);
 void ParticleEdit_SetSizeRamp(int size, int target, int step);
 void ParticleEdit_SetSizeRange(int min, int max);
 void ParticleEdit_SetSpread(int x, int y, int z, BYTE flag);
-void ParticleEdit_SetCallbacks(int field0x5c, void (*update)(void *, ParticleType *, int),
+void ParticleEdit_SetCallbacks(ParticleDrawCallback draw, void (*update)(void *, ParticleType *, int),
                                void (*postUpdate)(void *, ParticleType *, int),
-                               void (*callback)(void *, ParticleType *, int), int field0x6c);
+                               ParticleInitCallback callback, int field0x6c);
 void ParticleEdit_SetField2CAndFlag5(short param1);
 void ParticleEdit_CommitCurrentType(void);
 void Particle_SetPoolCapacity(int count);
 int WheelSpray_Init(int spread, int range);
 void Spark_Draw(Particle *p, ParticleType *pType, SceneNode *pView);
 void CarEffects_UpdateAgedParticleAppearance(void *pParticle, ParticleType *pType, int param);
-void GlassShard_Draw(Particle *p, ParticleType *pType, int unused);
-void GlassShard_Init(Particle *p, ParticleType *pType, Car *pCar);
-void Debris_Init(Particle *p, ParticleType *pType, int *pParam);
+void GlassShard_Draw(Particle *p, ParticleType *pType, SceneNode *unused);
+void GlassShard_Init(void *particle, ParticleType *pType, void *owner);
+void Debris_Init(void *particle, ParticleType *pType, void *data);
 void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView);
 void CarEffects_UpdateRisingParticle(void *pParticle, ParticleType *pType, int param);
 void CarEffects_UpdateCarFollowingRisingParticle(void *pParticle, ParticleType *pType, int param);
 void CarEffect_SpawnExhaustParticle(void *pParticle, ParticleType *pType, int param);
 void CarEffects_UpdateSpiralParticle(void *pParticle, ParticleType *pType, int param);
-void CarEffects_InitParticleOwnerData(void *pParticle, ParticleType *pType, int param);
+void CarEffects_InitParticleOwnerData(void *pParticle, ParticleType *pType, void *param);
 void CarEffects_UpdateParticleAtCarPosition(void *pParticle, ParticleType *pType, int param);
 
 // Fills the particle-type table of the stage effects (wheel spray, smoke,
@@ -6222,7 +6222,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_SetExtendedParams(g_unk0x005436d8,4,0,0x10000,0,0,0xffff0000,0x10000,0x10000,0xffff0000);
   ParticleEdit_SetAlphaRamp(0xfe,0xfe,0,0);
   ParticleEdit_SetSizeRange(0x1999,0x3333);
-  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffect_SpawnExhaustParticle,(void (*)(void *, ParticleType *, int))CarEffects_InitParticleOwnerData,0);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffect_SpawnExhaustParticle,(ParticleInitCallback)CarEffects_InitParticleOwnerData,0);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(6);
   ParticleEdit_SetTextureParams(g_unk0x0054366c,0xffff999a,0x6666,0x6666,0xffff999a);
@@ -6232,7 +6232,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_SetSizeRamp(0x4ccc,0x18000,0x7ae);
   ParticleEdit_SetField2CAndFlag5(0);
   ParticleEdit_SetSpread(0x51e,0x28f,0x51e,0);
-  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateCarFollowingRisingParticle,(void (*)(void *, ParticleType *, int))CarEffects_InitParticleOwnerData,0);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateCarFollowingRisingParticle,(ParticleInitCallback)CarEffects_InitParticleOwnerData,0);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(4);
   ParticleEdit_CopyTemplate(6);
@@ -6255,7 +6255,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_SetExtendedParams(g_unk0x005436b8,8,0,0x20000,0,0,0xffffb334,0x4ccc,0x4ccc,0xffffb334);
   ParticleEdit_SetAlphaRamp(100,0,0,0);
   ParticleEdit_SetColour(0xff,0xff,0xff,1);
-  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateCarFollowingRisingParticle,(void (*)(void *, ParticleType *, int))CarEffects_InitParticleOwnerData,0);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateCarFollowingRisingParticle,(ParticleInitCallback)CarEffects_InitParticleOwnerData,0);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(8);
   ParticleEdit_CopyTemplate(4);
@@ -6300,7 +6300,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_SetSizeRamp(0x1999,0x10000,0xa3d);
   ParticleEdit_SetAlphaRamp(0xff,0,0xf,1);
   ParticleEdit_SetSpread(0,0,0,0);
-  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateParticleAtCarPosition,(void (*)(void *, ParticleType *, int))CarEffects_InitParticleOwnerData,0);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateParticleAtCarPosition,(ParticleInitCallback)CarEffects_InitParticleOwnerData,0);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0xf);
   ParticleEdit_CopyTemplate(0xe);
@@ -6314,7 +6314,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_SetSizeRange(0x1999,0x147a);
   ParticleEdit_SetField2CAndFlag5(0xb);
   ParticleEdit_SetSpread(0,0,0,0);
-  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateSpiralParticle,(void (*)(void *, ParticleType *, int))CarEffects_InitParticleOwnerData,0);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateSpiralParticle,(ParticleInitCallback)CarEffects_InitParticleOwnerData,0);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0x11);
   ParticleEdit_CopyTemplate(0x10);
@@ -6329,7 +6329,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_SetSizeRange(0x1999,0x147a);
   ParticleEdit_SetField2CAndFlag5(0xb);
   ParticleEdit_SetSpread(0,0,0,0);
-  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateSpiralParticle,(void (*)(void *, ParticleType *, int))CarEffects_InitParticleOwnerData,0);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateSpiralParticle,(ParticleInitCallback)CarEffects_InitParticleOwnerData,0);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0x13);
   ParticleEdit_CopyTemplate(0x12);
@@ -6360,7 +6360,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_SetSizeRamp(0x1999,0x1999,0);
   ParticleEdit_SetField2CAndFlag5(0);
   ParticleEdit_SetSpread(0,0,0,0);
-  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateParticleAtCarPosition,(void (*)(void *, ParticleType *, int))CarEffects_InitParticleOwnerData,0);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateParticleAtCarPosition,(ParticleInitCallback)CarEffects_InitParticleOwnerData,0);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0x1a);
   ParticleEdit_SetTextureParams(g_unk0x00543650,0xffffcccd,0x3333,0x3333,0xffffcccd);
@@ -6369,7 +6369,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_SetSizeRamp(0x10000,0x10000,0);
   ParticleEdit_SetField2CAndFlag5(0);
   ParticleEdit_SetSpread(0,0,0,0);
-  ParticleEdit_SetCallbacks((int)Spark_Draw,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateAgedParticleAppearance,0,0);
+  ParticleEdit_SetCallbacks(Spark_Draw,0,(void (*)(void *, ParticleType *, int))CarEffects_UpdateAgedParticleAppearance,0,0);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0x1b);
   ParticleEdit_SetTextureParams(g_unk0x00543654,0xffffcccd,0x3333,0x3333,0xffffcccd);
@@ -6378,7 +6378,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_SetSizeRamp(0x10000,0x10000,0);
   ParticleEdit_SetField2CAndFlag5(0);
   ParticleEdit_SetSpread(0,0,0,0);
-  ParticleEdit_SetCallbacks((int)GlassShard_Draw,0,0,(void (*)(void *, ParticleType *, int))GlassShard_Init,0);
+  ParticleEdit_SetCallbacks(GlassShard_Draw,0,0,(ParticleInitCallback)GlassShard_Init,0);
   ParticleEdit_CommitCurrentType();
   ParticleEdit_Select(0x1c);
   ParticleEdit_SetTextureParams(g_unk0x00543658,0xffffcccd,0x3333,0x3333,0xffffcccd);
@@ -6387,7 +6387,7 @@ void StageTiming_InitEffectParticleTypes(void)
   ParticleEdit_SetSizeRamp(0x10000,0x10000,0);
   ParticleEdit_SetField2CAndFlag5(0);
   ParticleEdit_SetSpread(0,0,0,0);
-  ParticleEdit_SetCallbacks((int)Debris_Draw,0,0,(void (*)(void *, ParticleType *, int))Debris_Init,0);
+  ParticleEdit_SetCallbacks(Debris_Draw,0,0,(ParticleInitCallback)Debris_Init,0);
   ParticleEdit_CommitCurrentType();
   iVar1 = WheelSpray_Init(0x10000,0x190000);
   ParticleEdit_Select(0x1d);
@@ -8974,8 +8974,8 @@ FixVector g_exhaustSparkLines[4][2] = {
 // GLOBAL: CMR2 0x005439b0
 BYTE g_carExhaustBurstFrames[8];
 
-void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition, int field0x48, int field0x40,
-                    BYTE *pColour, BYTE field0x54, int callbackParam, BYTE field0x55);
+void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition, int field0x48, FixMatrix *attachmentMatrix,
+                    BYTE *pColour, BYTE field0x54, void *callbackParam, BYTE field0x55);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 
 // Exhaust effects of a car: smoke from each exhaust while the engine revs at
@@ -9073,7 +9073,7 @@ void CarEffect_UpdateExhaustSmokeAndBackfire(int car)
         zero.y = 0;
         zero.z = 0;
         g_trailForced[car] = 0;
-        Particle_Spawn(3, &zero, &velocity, -0x640000, 0, NULL, 0, (int)&car,
+        Particle_Spawn(3, &zero, &velocity, -0x640000, 0, NULL, 0, &car,
                        *(BYTE *)(*(BYTE * *)&pCar->pBodyNode + 0x17c));
         r = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
         if (g_carExhaustGlows[car][exhaust] != 0) {

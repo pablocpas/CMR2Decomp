@@ -15272,8 +15272,8 @@ apply:
     return 1;
 }
 
-void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition, int field0x48, int field0x40,
-                    BYTE *pColour, BYTE field0x54, int callbackParam, BYTE field0x55);
+void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition, int field0x48, FixMatrix *attachmentMatrix,
+                    BYTE *pColour, BYTE field0x54, void *callbackParam, BYTE field0x55);
 #define RAND_FIX() ((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536))
 
 

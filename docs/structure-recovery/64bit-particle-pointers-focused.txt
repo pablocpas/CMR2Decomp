@@ -1,0 +1,1 @@
+PASS: 616 whole draw/initializer/setter/route-restore scenarios, independent primitive models, animation/attachment/visibility/null/custom paths, complete heap/record guards, callbacks and stdcall/callee-saved ABI

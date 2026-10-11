@@ -4,6 +4,8 @@
 #include "TrackCollisionData.h"
 #include "Sprite.h"
 #include "NetPlayers.h"
+#include "Particle.h"
+#include "RaceRecord.h"
 #include "Sector.h"
 #include "CarResources.h"
 #include "CarPhysics.h"
@@ -874,3 +876,71 @@ CMR2_LAYOUT_CHECK(NetPlayer_stageTimes_Check, offsetof(NetPlayer, stageTimes) ==
 CMR2_LAYOUT_CHECK(NetPlayer_time_Check, offsetof(NetPlayer, time) == 0x74);
 CMR2_LAYOUT_CHECK(NetPlayer_bestTime_Check, offsetof(NetPlayer, bestTime) == 0x78);
 CMR2_LAYOUT_CHECK(NetPlayer_field_0x7c_Check, offsetof(NetPlayer, field_0x7c) == 0x7c);
+
+CMR2_LAYOUT_CHECK(ParticleType_SizeCheck, sizeof(ParticleType) == 0x70);
+CMR2_LAYOUT_CHECK(ParticleType_lifetime_OffsetCheck, offsetof(ParticleType, lifetime) == 0x0);
+CMR2_LAYOUT_CHECK(ParticleType_spread_OffsetCheck, offsetof(ParticleType, spread) == 0x4);
+CMR2_LAYOUT_CHECK(ParticleType_gravity_OffsetCheck, offsetof(ParticleType, gravity) == 0x10);
+CMR2_LAYOUT_CHECK(ParticleType_drag_OffsetCheck, offsetof(ParticleType, drag) == 0x14);
+CMR2_LAYOUT_CHECK(ParticleType_bounce_OffsetCheck, offsetof(ParticleType, bounce) == 0x18);
+CMR2_LAYOUT_CHECK(ParticleType_friction_OffsetCheck, offsetof(ParticleType, friction) == 0x1c);
+CMR2_LAYOUT_CHECK(ParticleType_size_OffsetCheck, offsetof(ParticleType, size) == 0x20);
+CMR2_LAYOUT_CHECK(ParticleType_sizeVariation_OffsetCheck, offsetof(ParticleType, sizeVariation) == 0x24);
+CMR2_LAYOUT_CHECK(ParticleType_sizeStep_OffsetCheck, offsetof(ParticleType, sizeStep) == 0x28);
+CMR2_LAYOUT_CHECK(ParticleType_field0x2c_OffsetCheck, offsetof(ParticleType, field0x2c) == 0x2c);
+CMR2_LAYOUT_CHECK(ParticleType_type_OffsetCheck, offsetof(ParticleType, type) == 0x2e);
+CMR2_LAYOUT_CHECK(ParticleType_alphaEnd_OffsetCheck, offsetof(ParticleType, alphaEnd) == 0x2f);
+CMR2_LAYOUT_CHECK(ParticleType_alphaStep_OffsetCheck, offsetof(ParticleType, alphaStep) == 0x30);
+CMR2_LAYOUT_CHECK(ParticleType_colour_OffsetCheck, offsetof(ParticleType, colour) == 0x31);
+CMR2_LAYOUT_CHECK(ParticleType_pad0x34_OffsetCheck, offsetof(ParticleType, pad0x34) == 0x34);
+CMR2_LAYOUT_CHECK(ParticleType_flags_OffsetCheck, offsetof(ParticleType, flags) == 0x35);
+CMR2_LAYOUT_CHECK(ParticleType_directionFlags_OffsetCheck, offsetof(ParticleType, directionFlags) == 0x36);
+CMR2_LAYOUT_CHECK(ParticleType_pad0x37_OffsetCheck, offsetof(ParticleType, pad0x37) == 0x37);
+CMR2_LAYOUT_CHECK(ParticleType_texture_OffsetCheck, offsetof(ParticleType, texture) == 0x38);
+CMR2_LAYOUT_CHECK(ParticleType_field0x3c_OffsetCheck, offsetof(ParticleType, field0x3c) == 0x3c);
+CMR2_LAYOUT_CHECK(ParticleType_field0x40_OffsetCheck, offsetof(ParticleType, field0x40) == 0x40);
+CMR2_LAYOUT_CHECK(ParticleType_field0x44_OffsetCheck, offsetof(ParticleType, field0x44) == 0x44);
+CMR2_LAYOUT_CHECK(ParticleType_field0x48_OffsetCheck, offsetof(ParticleType, field0x48) == 0x48);
+CMR2_LAYOUT_CHECK(ParticleType_frames_OffsetCheck, offsetof(ParticleType, frames) == 0x4c);
+CMR2_LAYOUT_CHECK(ParticleType_field0x50_OffsetCheck, offsetof(ParticleType, field0x50) == 0x50);
+CMR2_LAYOUT_CHECK(ParticleType_field0x54_OffsetCheck, offsetof(ParticleType, field0x54) == 0x54);
+CMR2_LAYOUT_CHECK(ParticleType_field0x58_OffsetCheck, offsetof(ParticleType, field0x58) == 0x58);
+CMR2_LAYOUT_CHECK(ParticleType_draw_OffsetCheck, offsetof(ParticleType, draw) == 0x5c);
+CMR2_LAYOUT_CHECK(ParticleType_update_OffsetCheck, offsetof(ParticleType, update) == 0x60);
+CMR2_LAYOUT_CHECK(ParticleType_postUpdate_OffsetCheck, offsetof(ParticleType, postUpdate) == 0x64);
+CMR2_LAYOUT_CHECK(ParticleType_callback_OffsetCheck, offsetof(ParticleType, callback) == 0x68);
+CMR2_LAYOUT_CHECK(ParticleType_field0x6c_OffsetCheck, offsetof(ParticleType, field0x6c) == 0x6c);
+
+CMR2_LAYOUT_CHECK(Particle_SizeCheck, sizeof(Particle) == 0x68);
+CMR2_LAYOUT_CHECK(Particle_pType_OffsetCheck, offsetof(Particle, pType) == 0x0);
+CMR2_LAYOUT_CHECK(Particle_position_OffsetCheck, offsetof(Particle, position) == 0x4);
+CMR2_LAYOUT_CHECK(Particle_vector0x10_OffsetCheck, offsetof(Particle, vector0x10) == 0x10);
+CMR2_LAYOUT_CHECK(Particle_vector0x1c_OffsetCheck, offsetof(Particle, vector0x1c) == 0x1c);
+CMR2_LAYOUT_CHECK(Particle_vector0x28_OffsetCheck, offsetof(Particle, vector0x28) == 0x28);
+CMR2_LAYOUT_CHECK(Particle_sourceVector_OffsetCheck, offsetof(Particle, sourceVector) == 0x34);
+CMR2_LAYOUT_CHECK(Particle_attachmentMatrix_OffsetCheck, offsetof(Particle, attachmentMatrix) == 0x40);
+CMR2_LAYOUT_CHECK(Particle_age_OffsetCheck, offsetof(Particle, age) == 0x44);
+CMR2_LAYOUT_CHECK(Particle_field0x48_OffsetCheck, offsetof(Particle, field0x48) == 0x48);
+CMR2_LAYOUT_CHECK(Particle_size_OffsetCheck, offsetof(Particle, size) == 0x4c);
+CMR2_LAYOUT_CHECK(Particle_field0x50_OffsetCheck, offsetof(Particle, field0x50) == 0x50);
+CMR2_LAYOUT_CHECK(Particle_type0x52_OffsetCheck, offsetof(Particle, type0x52) == 0x52);
+CMR2_LAYOUT_CHECK(Particle_type0x53_OffsetCheck, offsetof(Particle, type0x53) == 0x53);
+CMR2_LAYOUT_CHECK(Particle_field0x54_OffsetCheck, offsetof(Particle, field0x54) == 0x54);
+CMR2_LAYOUT_CHECK(Particle_field0x55_OffsetCheck, offsetof(Particle, field0x55) == 0x55);
+CMR2_LAYOUT_CHECK(Particle_type0x56_OffsetCheck, offsetof(Particle, type0x56) == 0x56);
+CMR2_LAYOUT_CHECK(Particle_active_OffsetCheck, offsetof(Particle, active) == 0x57);
+CMR2_LAYOUT_CHECK(Particle_field0x58_OffsetCheck, offsetof(Particle, field0x58) == 0x58);
+CMR2_LAYOUT_CHECK(Particle_colour_OffsetCheck, offsetof(Particle, colour) == 0x59);
+CMR2_LAYOUT_CHECK(Particle_pad0x5c_OffsetCheck, offsetof(Particle, pad0x5c) == 0x5c);
+CMR2_LAYOUT_CHECK(Particle_texture_OffsetCheck, offsetof(Particle, texture) == 0x60);
+CMR2_LAYOUT_CHECK(Particle_field0x64_OffsetCheck, offsetof(Particle, field0x64) == 0x64);
+CMR2_LAYOUT_CHECK(Particle_field0x66_OffsetCheck, offsetof(Particle, field0x66) == 0x66);
+
+CMR2_LAYOUT_CHECK(RaceRecord_SizeCheck, sizeof(RaceRecord) == 0x18);
+CMR2_LAYOUT_CHECK(RaceRecord_routeNodeIndex_Check, offsetof(RaceRecord, routeNodeIndex) == 0x0);
+CMR2_LAYOUT_CHECK(RaceRecord_resetRouteNodeIndex_Check, offsetof(RaceRecord, resetRouteNodeIndex) == 0x4);
+CMR2_LAYOUT_CHECK(RaceRecord_field_0x8_Check, offsetof(RaceRecord, field_0x8) == 0x8);
+CMR2_LAYOUT_CHECK(RaceRecord_field_0xc_Check, offsetof(RaceRecord, field_0xc) == 0xc);
+CMR2_LAYOUT_CHECK(RaceRecord_field_0x10_Check, offsetof(RaceRecord, field_0x10) == 0x10);
+CMR2_LAYOUT_CHECK(RaceRecord_field_0x14_Check, offsetof(RaceRecord, field_0x14) == 0x14);
+CMR2_LAYOUT_CHECK(RaceRecord_field_0x16_Check, offsetof(RaceRecord, field_0x16) == 0x16);

@@ -584,6 +584,17 @@
       "0x500550"
     ]
   },
+  "differential_particle_pointer_fields.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4b0480",
+      "0x499710",
+      "0x499a80",
+      "0x45de80",
+      "0x4aff10",
+      "0x4207f0"
+    ]
+  },
   "differential_player_indicators.py": {
     "arguments": "entities",
     "targets": [

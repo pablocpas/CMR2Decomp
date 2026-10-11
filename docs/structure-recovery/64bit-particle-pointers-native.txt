@@ -1,0 +1,1 @@
+PASS: 656 actual native particle/route scenarios; >4 GB callback/camera/matrix/init-data pointers, native 128/144-byte strides, full record guards, animation/visibility/custom paths and spawn pool selection, ASan/UBSan
