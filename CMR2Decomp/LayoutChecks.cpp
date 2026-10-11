@@ -1265,3 +1265,4 @@ CMR2_LAYOUT_CHECK(LightZoneItem_intensity_Check, offsetof(LightZoneItem, intensi
 CMR2_LAYOUT_CHECK(LightZoneItem_pOwner_Check, offsetof(LightZoneItem, pOwner) == 0x2c);
 CMR2_LAYOUT_CHECK(LightZoneMesh_SizeCheck, sizeof(LightZoneMesh) == 0x14);
 CMR2_LAYOUT_CHECK(LightZoneMesh_pLevels_Check, offsetof(LightZoneMesh, pLevels) == 0x10);
+CMR2_LAYOUT_CHECK(SectorMesh_SizeCheck, sizeof(SectorMesh) == 0x108);
