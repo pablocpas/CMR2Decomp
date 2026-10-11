@@ -21,19 +21,11 @@ struct Texture {
     void*                   pArchive;       // 0x12c GenericFile the texture was found in
 };
 
-// Layout used by the entries of D3DTextureManager::textureBuffer2 (cube maps):
-// six face surfaces 0x130 apart starting at 0x114, and six z-buffers at 0x720.
-struct RenderTextureFace {
-    IDirectDrawSurface7 *pSurface;
-    BYTE field_0x4[0x12c];
-};
-
+// An entry of D3DTextureManager::textureBuffer2: a cube map, one texture per
+// face (textureBuffer2[i] points at the first) and the faces' z-buffers.
 struct RenderTexture {
-    BYTE field_0x0[0x114];
-    RenderTextureFace faces[5];
-    IDirectDrawSurface7 *pFace5Surface;
-    BYTE field_0x708[0x18];
-    IDirectDrawSurface7 *pZBuffers[6];
+    Texture faces[6];                   // 0x0
+    IDirectDrawSurface7 *pZBuffers[6];  // 0x720
 };
 
 struct DDSFile {

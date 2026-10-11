@@ -4,7 +4,7 @@
 typedef struct _BFLHeader
 {
     char ident[4];             // always CMPR
-    unsigned long archiveSize; // size of BFL minus the header
+    unsigned int archiveSize;  // size of BFL minus the header (32 bits on disk)
 } BFLHeader;
 
 typedef struct _BFLFileList

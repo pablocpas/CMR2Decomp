@@ -164,7 +164,7 @@ void Mesh_BuildParts(Mesh *pMesh)
     if (count > 0) {
         ppPart = pMesh->pParts;
         for (i = count; i != 0; i--)
-            *ppPart++ = (MeshPart *)CFileBuffer::AllocateLockedBuffer(0x1c);
+            *ppPart++ = (MeshPart *)CFileBuffer::AllocateLockedBuffer(sizeof(MeshPart));
     }
     count = 0;
     off = 0;

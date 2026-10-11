@@ -1078,3 +1078,17 @@ CMR2_LAYOUT_CHECK(StageTimingSpread_startPositionFixed_Check, offsetof(StageTimi
 CMR2_LAYOUT_CHECK(StageTimingSpread_endPositionFixed_Check, offsetof(StageTimingSpread, endPositionFixed) == 0xa4);
 CMR2_LAYOUT_CHECK(StageTimingSpread_startBlendFixed_Check, offsetof(StageTimingSpread, startBlendFixed) == 0xa8);
 CMR2_LAYOUT_CHECK(StageTimingSpread_endBlendFixed_Check, offsetof(StageTimingSpread, endBlendFixed) == 0xac);
+
+#include "Texture.h"
+#include "Mesh.h"
+#include "BFL.h"
+CMR2_LAYOUT_CHECK(Texture_SizeCheck, sizeof(Texture) == 0x130);
+CMR2_LAYOUT_CHECK(Texture_pSurface_Check, offsetof(Texture, pSurface) == 0x114);
+CMR2_LAYOUT_CHECK(Texture_width_Check, offsetof(Texture, width) == 0x120);
+CMR2_LAYOUT_CHECK(Texture_pArchive_Check, offsetof(Texture, pArchive) == 0x12c);
+CMR2_LAYOUT_CHECK(RenderTexture_SizeCheck, sizeof(RenderTexture) == 0x738);
+CMR2_LAYOUT_CHECK(RenderTexture_pZBuffers_Check, offsetof(RenderTexture, pZBuffers) == 0x720);
+CMR2_LAYOUT_CHECK(MeshPart_SizeCheck, sizeof(MeshPart) == 0x1c);
+CMR2_LAYOUT_CHECK(MeshPart_pData_Check, offsetof(MeshPart, pData) == 0x14);
+// ON-DISK: the header of a compressed file has the same size on every target.
+typedef char BFLHeader_DiskSizeCheck[sizeof(BFLHeader) == 8 ? 1 : -1];

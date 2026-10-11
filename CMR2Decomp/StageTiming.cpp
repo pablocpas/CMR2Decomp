@@ -5951,7 +5951,7 @@ extern int g_unk0x00542cd8[8][3];
 int StageObject_Atan2Degrees(int y, int x);
 int RallyTiming_GetChampionshipDriverPosition(int index);
 int NetPlayers_GetSortedPlayerID(int index);
-unsigned long Network_GetLocalPlayerID(void);
+DWORD Network_GetLocalPlayerID(void);
 
 // Places every car on the starting grid of the current event: stores its
 // route position and derives its start x/z from the grid origin, the grid
