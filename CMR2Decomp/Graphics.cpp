@@ -3368,9 +3368,9 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
             }
         }
 
-        pCyl = (Mesh *)CFileBuffer::AllocateLockedBuffer(0x108);
+        pCyl = (Mesh *)CFileBuffer::AllocateLockedBuffer(offsetof(Mesh, field_0x108));
         g_shadowCylinders[g_shadowCylinderCount++] = pCyl;
-        memset(pCyl, 0, 0x108);
+        memset(pCyl, 0, offsetof(Mesh, field_0x108));
         strcpy((char *)pCyl, (char *)pMesh);
         pCyl->field_0x10 = 22;
         pCyl->triangleCount = 20;
@@ -7166,7 +7166,7 @@ int g_unk0x005207b4 = 1;
 // FUNCTION: CMR2 0x0049c940
 void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures)
 {
-    Mesh *pLod = (Mesh *)((BYTE *)pMesh + pMesh->lodIndex * 0x108);
+    Mesh *pLod = (Mesh *)((BYTE *)pMesh + pMesh->lodIndex * offsetof(Mesh, field_0x108));
     unsigned int lightingMode;
 
     if (pLod->pTriangles == NULL)

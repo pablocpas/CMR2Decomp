@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "b30c2632c63d417a72e5cc3e4c6a1551912c5e21",
+    "commit": "d0719514974c49e429c81762c728f4dc7a8c3276",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -93,7 +93,7 @@
       "CMR2Decomp/Game.cpp": "ae6e5391764b3442b672b8391fb543e4f2812bf06c5b41f7dec439462d2aef0e",
       "CMR2Decomp/Game.h": "9aa1c73ab23a116baede7d7d9789ba129b730bb55de16926fa4202daecb377dc",
       "CMR2Decomp/GameConnections.cpp": "c9034f5c8d5de0e88a5e107895406e2c2a444c211ce6b1dd0e422a1e0751f4f7",
-      "CMR2Decomp/GameInfo.cpp": "0930f5298b51d308893b7ace0614137e4447982e8ee22fbd25c4d68e76ecaea3",
+      "CMR2Decomp/GameInfo.cpp": "6909de52f9bdc20c1e0b437a13d52820ea3f70c2163fa91c64a0fd3dcbbc5ad6",
       "CMR2Decomp/GameInfo.h": "32b17d353992b39f09a3e509c2f0f05b4ed9f526eb960a3cc8729aeb7b01feab",
       "CMR2Decomp/GameMenus.cpp": "16c34408a7cb0e5a50f873a2a1696e9077f221b31f98579afbac08fe20c359f2",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
@@ -101,7 +101,7 @@
       "CMR2Decomp/GenericFileLoader.cpp": "eba2ddfd0571387fcb1bc7c23202b10d552442c4270cfeccb41d4742e522abb1",
       "CMR2Decomp/GenericFileLoader.h": "5d6070c8817d1be15f3b0c6bfb2a7932e47ede28dc7a6ee8e0f8120691152e01",
       "CMR2Decomp/Glow.h": "3578d2d56f4b05aff49532c1f67c83942688b7190ea44fb6ba38c3f110792e8b",
-      "CMR2Decomp/Graphics.cpp": "863a92f86e3dd9e471148e3cb4e61ac3cd28ca667bb52f0a5052a49c2ec5e5eb",
+      "CMR2Decomp/Graphics.cpp": "4b7bd917f1a43d2237ae4b0c8bd9ac3b6c7b0ff89ea8a5faeb77e74202980cbb",
       "CMR2Decomp/Graphics.h": "a09856daabda2fd36cc0788933287180a1d332e71740a2da3e20cbfe6d8dfe6c",
       "CMR2Decomp/HudDash.cpp": "87cd02f8ac044932a67f9a748d25ce94b0e3688264f3d360e898ef2718956b30",
       "CMR2Decomp/Input.cpp": "e7ca30bc9ace7276fca3e75e97371c9b27f1866ddd9c2068a247ebe7cecf0beb",
@@ -115,8 +115,8 @@
       "CMR2Decomp/Logger.h": "9223f11dbb0c66b7b32057403dfda5267d674de807a6fa64aad78866540cf196",
       "CMR2Decomp/Menu.cpp": "682b2451841da4ad0b63d2b6944a119a177847fd810a2fa04037ecac4374f483",
       "CMR2Decomp/Menu.h": "3cca0efe845f86d6ed83827cb4804964a28d5dea74779964cdf0179ecc50352b",
-      "CMR2Decomp/Mesh.cpp": "1aa5aa4baa58caf3cfff4cbf56253a43ee909f32afac46e80544a26d4d324114",
-      "CMR2Decomp/Mesh.h": "1cc52d7808d9e17d69a28bae1caa99929715ea4161d92a089c04584b081be2ff",
+      "CMR2Decomp/Mesh.cpp": "36294e218bfb349bcda399b578e1870a133d3aaf3e316196b403f69f6c9e70e7",
+      "CMR2Decomp/Mesh.h": "73e4dcdccf658c209d1ff9455e588818c757b2bba3bae53c37f07bb4bf5fc24e",
       "CMR2Decomp/MeshCollisionRecord.h": "877dd897f012396f59a38a5a2c3d599105137649bc768ec5dcd4abbac9ebde40",
       "CMR2Decomp/MeshVertex.h": "2d17e2ddd261c9c22aae8707860f414e4a93dc19eeb9699d4d1bec52c4aa45a0",
       "CMR2Decomp/MovingObject.h": "cb2de83b7ff7f6e3ab1493ae14a3dbe7c982fa01800a0caaf8096b0c6a7455ee",
@@ -208,8 +208,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "83950716bab92cefa2438e693cbc5ed30ed27136fa9ebb26556fb7d2d1d48b54",
-    "pdb_sha256": "2af80d40c96c462987907c3a522caea06f1ec93f5f7efe590f36dd49b2ecce02"
+    "exe_sha256": "69a93082fa28370fef531adef3d9dab6a93b9b34a910e5cd02ad96975c110918",
+    "pdb_sha256": "e21ac565c6fb7d015610c686a7cc49807e3447ed6195fe36e831fc97c310a6f1"
   },
   "perfect_match_percent": 56.2,
   "fuzzy_match_percent": 94.52,

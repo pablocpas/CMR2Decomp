@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "FloatToInt.h"
 #include <string.h>
+#include <stddef.h>
 #include "Mesh.h"
 #include "MeshVertex.h"
 #include "FileBuffer.h"
@@ -497,14 +498,14 @@ void Mesh_ReuploadAll(void)
     CGraphics::AllocateSharedVertexBuffers();
     for (i = 0; i < (unsigned int)g_meshCount; i++) {
         if (g_meshes[i] != NULL)
-            Mesh_UploadVertices((Mesh *)((BYTE *)g_meshes[i] + g_meshes[i]->lodIndex * 0x108));
+            Mesh_UploadVertices((Mesh *)((BYTE *)g_meshes[i] + g_meshes[i]->lodIndex * offsetof(Mesh, field_0x108)));
     }
     for (i = 0; i < (unsigned int)g_sectorCount; i++) {
         if (g_sectors[i] != NULL && g_sectors[i]->pMesh != NULL)
-            Mesh_UploadVertices((Mesh *)((BYTE *)g_sectors[i]->pMesh + g_sectors[i]->pMesh->lodIndex * 0x108));
+            Mesh_UploadVertices((Mesh *)((BYTE *)g_sectors[i]->pMesh + g_sectors[i]->pMesh->lodIndex * offsetof(Mesh, field_0x108)));
     }
     for (i = 0; i < (unsigned int)g_unk0x0067f228; i++) {
         if (g_stageObjects[i] != NULL)
-            Mesh_UploadVertices((Mesh *)((BYTE *)g_stageObjects[i]->pMesh + g_stageObjects[i]->pMesh->lodIndex * 0x108));
+            Mesh_UploadVertices((Mesh *)((BYTE *)g_stageObjects[i]->pMesh + g_stageObjects[i]->pMesh->lodIndex * offsetof(Mesh, field_0x108)));
     }
 }

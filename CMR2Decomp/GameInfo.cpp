@@ -5001,8 +5001,8 @@ void InRaceMenu_DrawNetworkPlayerList(Menu *pMenu)
     char *str2;
     char *sub[3];
     char *text;
-    int *pA;
-    int *pB;
+    char **pA;
+    char **pB;
     char single;
     bool twoLines;
     int *pColour;
@@ -5056,10 +5056,10 @@ void InRaceMenu_DrawNetworkPlayerList(Menu *pMenu)
                                   + (int)(g_pGraphics->resY * 0xaa) / 0x1e0
                                   + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,
                               pColour, 0x11);
-            pB = (int *)sub + 1;
-            pA = (int *)sub;
+            pB = sub + 1;
+            pA = sub;
             for (j = 0; j < (int)(BYTE)pItem->min; j++) {
-                text = single == 0 ? (char *)*pA : (char *)*pB;
+                text = single == 0 ? *pA : *pB;
                 x = (int)(g_pGraphics->resX * 10) / 0x280 + x
                     + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
                 if (pItem->max != j)
@@ -8743,8 +8743,8 @@ void InRaceMenu_DrawLabelAndValueRows(Menu *pMenu)
     char *str2;
     char *sub[3];
     char *text;
-    int *pA;
-    int *pB;
+    char **pA;
+    char **pB;
     char single;
     bool twoLines;
     int *pColour;
@@ -8806,12 +8806,12 @@ void InRaceMenu_DrawLabelAndValueRows(Menu *pMenu)
             Font_DrawText(1, str1, x, y, pColour, 0x11);
             if (twoLines)
                 Font_DrawText(0, str2, x, (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, pColour, 0x11);
-            pA = (int *)sub;
-            pB = (int *)sub + 1;
+            pA = sub;
+            pB = sub + 1;
             for (j = 0; j < (int)(BYTE)pItem->min; j++) {
-                text = (char *)*pB;
+                text = *pB;
                 if (single == 0)
-                    text = (char *)*pA;
+                    text = *pA;
                 x = (int)(g_pGraphics->resX * 10) / 0x280 + x
                     + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
                 Font_DrawText(1, text, x, y,

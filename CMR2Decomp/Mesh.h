@@ -50,7 +50,8 @@ struct Mesh {
     MeshCollisionRecord *pCollisionRecords; // 0x10c relocated collision chain
     BYTE sizeUnits;             // 0x110
     BYTE field_0x111;
-    BYTE lodIndex;              // 0x112 LOD in use (LOD geometry records are 0x108 apart)
+    BYTE lodIndex;              // 0x112 LOD in use (LOD geometry records, the part before
+                                //       field_0x108, follow each other)
     BYTE lodCount;              // 0x113 LOD records; 1 in every stage mesh file
     int field_0x114;
     int field_0x118;

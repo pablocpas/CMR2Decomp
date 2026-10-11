@@ -57,3 +57,13 @@ step `sizeof(LightZoneItem) / sizeof(int)` (12 on the original). The item's
 owner is a `StageObject`: the caster projection read its position, matrix and
 mesh at raw offsets (pMesh at +0xc is +0x10 on 64-bit). Moving the types out of
 SceneNode.h also made FrontendText_LoadRegionLanguages exact (2925).
+
+## Batch 1b
+
+- InRaceMenu_DrawNetworkPlayerList, InRaceMenu_DrawLabelAndValueRows walked
+  `char *sub[3]` through `int *` and turned the int back into a pointer:
+  truncated text pointers on 64-bit. The cursors are `char **`.
+- Mesh_GetShadowCylinder allocated and cleared 0x108 bytes for a Mesh: that is
+  the geometry part (the record LODs repeat), `offsetof(Mesh, field_0x108)`,
+  which grows on 64-bit. The LOD strides in Mesh.cpp and Graphics.cpp use the
+  same expression.
