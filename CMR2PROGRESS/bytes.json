@@ -18668,9 +18668,9 @@
   },
   "0x4177d0": {
     "n": "Race_DrawPlayerCallSlots",
-    "s": 0.5637707948243993,
+    "s": 0.5793357933579336,
     "x": false,
-    "fz": 0.789279112754159,
+    "fz": 0.8062730627306273,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "Race_DrawPlayerCallSlots"

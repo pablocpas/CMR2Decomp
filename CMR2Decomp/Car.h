@@ -295,9 +295,9 @@ struct Car {
     int field_0xb7c;                  // 0xb7c
     int field_0xb80;                  // 0xb80
     int shiftInProgress;               // 0xb84
-    int field_0xb88;
-    int field_0xb8c;
-    int field_0xb90;
+    int steeringInputMode;
+    int analogThrottle;
+    int analogBrake;
     int automaticReverse;              // 0xb94  automatic reverse selected; swaps pedal routing
     int gearAtOrBelowBest;             // 0xb98  current gear is at or below the best one
     int automaticGearbox;              // 0xb9c  automatic gearbox enabled

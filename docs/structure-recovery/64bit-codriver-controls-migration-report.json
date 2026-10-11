@@ -1,0 +1,75 @@
+{
+  "baseline": "d183f5a",
+  "accepted": [
+    "codriver-call-pointer-family",
+    "race-call-record-names",
+    "car-control-mode-fields"
+  ],
+  "parked_dependency_groups": [],
+  "final_recipe_reproduces_every_source_file": true,
+  "reviewed_followups": [
+    "Propagate record names to every declared RaceCallRecord cursor, including the reset cursor.",
+    "Restore original icon centering from the rotated width and the original signed 16-bit wobble temporaries, as verified by original/rebuilt traces and score improvements."
+  ],
+  "matching_regressions": [],
+  "measured_source_exe_pdb_hashes_unchanged": true,
+  "build": {
+    "commit": "d183f5a34063ad5fddc6c141bfcf806b5574a8c7",
+    "source_changed": true,
+    "windowed": false,
+    "flags": [
+      "/O2",
+      "/DNDEBUG",
+      "/D_CRTIMP=",
+      "/Zi",
+      "/Gz",
+      "/MD",
+      "/GX"
+    ],
+    "qifist_files": [
+      "Car.cpp",
+      "CarEffects.cpp",
+      "CarPhysics.cpp",
+      "FixedPoint.cpp",
+      "Frontend.cpp",
+      "FrontendScreens.cpp",
+      "Game.cpp",
+      "GameInfo.cpp",
+      "Graphics.cpp",
+      "HudDash.cpp",
+      "Mesh.cpp",
+      "NetRace.cpp",
+      "Race.cpp",
+      "RallyData.cpp",
+      "RallyTiming.cpp",
+      "SceneNode.cpp",
+      "Sector.cpp",
+      "Sound.cpp",
+      "Sprite.cpp",
+      "StageObjects.cpp",
+      "StageTiming.cpp",
+      "StageUI.cpp",
+      "TimingUtils.cpp",
+      "TrackCollision.cpp"
+    ],
+    "o1_files": [
+      "CrtTypeInfo.cpp"
+    ],
+    "zlib_flags": [
+      "/Ob2",
+      "/TC"
+    ],
+    "compiler_sha256": "1bf99f206271ecdbd13da2829192ea2c02e2a44c740b8d72935d5d9cb753b156",
+    "exe_sha256": "862ea0db8b84945904d8acb7a31d30e0a38757dfcd234e25560124d0f1cdc47a",
+    "pdb_sha256": "22374765aeae1c9b01f85a7edc61234716a02230d870a59a70ff4e8b838abfa8"
+  },
+  "measured_source_manifest_sha256": "da38fcbb840be9e54b23cd1abb074113855221a013ce891cc8ce54ffd263f6b7",
+  "stable": true,
+  "suite": {
+    "harnesses": 129,
+    "failures": 0,
+    "jobs": 3,
+    "log": "64bit-codriver-controls-suite.txt"
+  },
+  "all_function_global_annotations_preserved": true
+}

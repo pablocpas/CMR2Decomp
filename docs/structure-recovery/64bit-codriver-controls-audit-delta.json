@@ -1,0 +1,32 @@
+{
+  "baseline": "d183f5a",
+  "before": 204,
+  "after": 194,
+  "removed": 10,
+  "changes": [
+    {
+      "address": "0x00416720",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x00418580",
+      "before": 1,
+      "after": 0,
+      "removed": 1
+    },
+    {
+      "address": "0x004177d0",
+      "before": 6,
+      "after": 0,
+      "removed": 6
+    },
+    {
+      "address": "0x004174e0",
+      "before": 2,
+      "after": 0,
+      "removed": 2
+    }
+  ]
+}

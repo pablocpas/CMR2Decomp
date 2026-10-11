@@ -1170,7 +1170,7 @@ void CarPhysics_DampSurfaceSteeringAngle(void)
     else
         target = (short)(__int64)((double)FixMul(g_unk0x00592160, value) * g_fixedDegreesToAngle12);
 
-    if (g_pAutoGearCar->field_0xb88 == 2) {
+    if (g_pAutoGearCar->steeringInputMode == 2) {
         *(short *)&g_pAutoGearCar->wheelSteeringAngle = target;
         g_pAutoGearCar->targetSteeringAngle = *(short *)&g_pAutoGearCar->wheelSteeringAngle;
         return;
@@ -1306,7 +1306,7 @@ void AutoGear_UpdateCarGearState(Car *pCar)
     g_pAutoGearCar = pCar;
     g_autoGearPartSet = StageTiming_GetCarReplayRecord((int)pCar->index);
     AutoGear_ApplyShiftBodyNudge();
-    if (g_pAutoGearCar->field_0xb8c != 0) {
+    if (g_pAutoGearCar->analogThrottle != 0) {
         if (*(BYTE *)&g_pAutoGearCar->flag0x1d0[2] != 0) {
             t = FixMul((int)((unsigned int)*(BYTE *)&g_pAutoGearCar->flag0x1d0[2] << 16), 0x410);
             if (t > 0x10000)
@@ -1346,11 +1346,11 @@ void AutoGear_UpdateCarGearState(Car *pCar)
                 Car_UpdateAutomaticGear();
         }
     }
-    if (g_pAutoGearCar->field_0xb88 != 0)
+    if (g_pAutoGearCar->steeringInputMode != 0)
         CarPhysics_DampSurfaceSteeringAngle();
     else
         AutoGear_IntegrateSteeringAccumulator();
-    if (g_pAutoGearCar->field_0xb90 != 0) {
+    if (g_pAutoGearCar->analogBrake != 0) {
         if (*(BYTE *)&g_pAutoGearCar->flag0x1d0[3] != 0) {
             t = FixMul((int)((unsigned int)*(BYTE *)&g_pAutoGearCar->flag0x1d0[3] << 16), 0x410);
             if (t > 0x10000)
@@ -1372,7 +1372,7 @@ void AutoGear_UpdateCarGearState(Car *pCar)
         }
     } else {
         AutoGear_UpdateSteeringSwing();
-        if ((g_pAutoGearCar->field_0xb8c != 0) && (g_pAutoGearCar->automaticReverse != 0)) {
+        if ((g_pAutoGearCar->analogThrottle != 0) && (g_pAutoGearCar->automaticReverse != 0)) {
             t = FixMul((int)((unsigned int)*(BYTE *)&g_pAutoGearCar->flag0x1d0[3] << 16), 0x410);
             if (t > 0x10000)
                 t = 0x10000;

@@ -7,6 +7,7 @@
 #include "NetPlayers.h"
 #include "Particle.h"
 #include "RaceRecord.h"
+#include "RaceCallRecord.h"
 #include "RallyRouteNode.h"
 #include "MovingObject.h"
 #include "MeshCollisionRecord.h"
@@ -35,6 +36,13 @@
 // and packed callback tables. Keep these checks out of shared headers:
 // extra declarations there can alter MSVC6 code generation in unrelated TUs.
 CMR2_LAYOUT_CHECK(CarSizeCheck, sizeof(Car) == 0xc24);
+CMR2_LAYOUT_CHECK(Car_steeringInputMode_Check, offsetof(Car, steeringInputMode) == 0xb88);
+CMR2_LAYOUT_CHECK(Car_analogThrottle_Check, offsetof(Car, analogThrottle) == 0xb8c);
+CMR2_LAYOUT_CHECK(Car_analogBrake_Check, offsetof(Car, analogBrake) == 0xb90);
+CMR2_LAYOUT_CHECK(RaceCallRecord_SizeCheck, sizeof(RaceCallRecord) == 12);
+CMR2_LAYOUT_CHECK(RaceCallRecord_primaryCallId_Check, offsetof(RaceCallRecord, primaryCallId) == 0);
+CMR2_LAYOUT_CHECK(RaceCallRecord_secondaryCallId_Check, offsetof(RaceCallRecord, secondaryCallId) == 4);
+CMR2_LAYOUT_CHECK(RaceCallRecord_flags_Check, offsetof(RaceCallRecord, flags) == 8);
 CMR2_LAYOUT_CHECK(RallyRouteNode_SizeCheck, sizeof(RallyRouteNode) == 0x2c);
 CMR2_LAYOUT_CHECK(RallyRouteNode_position_Check, offsetof(RallyRouteNode, position) == 0);
 CMR2_LAYOUT_CHECK(RallyRouteNode_field_0xc_Check, offsetof(RallyRouteNode, field_0xc) == 0xc);

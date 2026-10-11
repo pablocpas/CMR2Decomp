@@ -5,6 +5,7 @@
 #include "GameInfo.h"
 #include "StageUI.h"
 #include "Sprite.h"
+#include "RaceCallRecord.h"
 #include "FixedPoint.h"
 #include <stdio.h>
 #include <string.h>
@@ -857,19 +858,15 @@ void Race_StorePlayerRouteAndClearSlots(int player)
 int g_unk0x005371a0;
 // GLOBAL: CMR2 0x005371a4
 int g_unk0x005371a4[10];
-struct RaceCallRecord {
-    int field_0x0;
-    int field_0x4;
-    unsigned int flags;         // low 10 bits cleared on reset
-};
+
 // GLOBAL: CMR2 0x005371d0
 RaceCallRecord g_raceCallRecords[10];
 // GLOBAL: CMR2 0x00537248
 int g_raceWrongWayFlags[2];
 
 // Queues a race call (radio message) of the given call id and player.
-extern int g_unk0x00537358;
-int Race_DecodeCallSlotIcon(unsigned int id, int *pTexture, SpriteRect *pRect, unsigned int *pFlag, BYTE *pColour);
+extern unsigned int *g_coDriverCalls;
+int Race_DecodeCallSlotIcon(unsigned int id, Texture **pTexture, SpriteRect *pRect, unsigned int *pFlag, BYTE *pColour);
 // match 69%: the original keeps `player` in memory and a zero constant in ebx
 // (register allocation only; logic matches the asm).
 // FUNCTION: CMR2 0x004174e0
@@ -881,7 +878,7 @@ void Race_QueuePlayerCallout(unsigned int player, BYTE callId, BYTE prevCallId, 
     unsigned int b2;
     unsigned int b3;
     int prev;
-    int texture;
+    Texture *texture;
     BYTE colour[4];
     unsigned int flag;
     SpriteRect rect;
@@ -895,9 +892,9 @@ void Race_QueuePlayerCallout(unsigned int player, BYTE callId, BYTE prevCallId, 
         return;
 
     if (callId != 0xff) {
-        id = ((unsigned int *)g_unk0x00537358)[callId];
+        id = g_coDriverCalls[callId];
         if (prevCallId != 0xff)
-            prev = ((unsigned int *)g_unk0x00537358)[prevCallId];
+            prev = g_coDriverCalls[prevCallId];
         type = id >> 0x11 & 0xf;
         b2 = id & 0xf;
         b1 = id >> 4 & 3;
@@ -930,14 +927,14 @@ void Race_QueuePlayerCallout(unsigned int player, BYTE callId, BYTE prevCallId, 
 
     for (i = 0; i < 5; i++) {
         if ((g_raceCallRecords[player * 5 + i].flags & 0x100) == 0) {
-            g_raceCallRecords[player * 5 + i].field_0x0 = id;
+            g_raceCallRecords[player * 5 + i].primaryCallId = id;
             g_raceCallRecords[player * 5 + i].flags = (g_raceCallRecords[player * 5 + i].flags & 0xfffffd32) | 0x132;
             if (prev != 0) {
-                g_raceCallRecords[player * 5 + i].field_0x4 = prev;
+                g_raceCallRecords[player * 5 + i].secondaryCallId = prev;
                 if (Race_DecodeCallSlotIcon(prev, &texture, &rect, &flag, colour) != 0)
                     g_raceCallRecords[player * 5 + i].flags = (g_raceCallRecords[player * 5 + i].flags & 0xffffff32) | 0x32;
             } else {
-                g_raceCallRecords[player * 5 + i].field_0x4 = 0;
+                g_raceCallRecords[player * 5 + i].secondaryCallId = 0;
             }
             i = 5;
         }
@@ -962,8 +959,8 @@ void Race_ResetPlayerCallState(void)
     for (p = g_raceCallRecords; p < &g_raceCallRecords[10]; p += 5) {
         for (i = 0; i < 5; i++) {
             p[i].flags &= 0xfffffc00;
-            p[i].field_0x4 = 0;
-            p[i].field_0x0 = 0;
+            p[i].secondaryCallId = 0;
+            p[i].primaryCallId = 0;
         }
         g_unk0x005371a0 = 0;
     }
@@ -980,7 +977,7 @@ extern int g_unk0x00537350;
 extern int g_unk0x0053735c;
 void StageUI_DrawStageGrid(int unused, int set);
 void Race_AssignSlotsFromCallRecord(unsigned int id);
-int Race_DecodeCallSlotIcon(unsigned int id, int *pOut, SpriteRect *pRect, unsigned int *pFlag, BYTE *pColour);
+int Race_DecodeCallSlotIcon(unsigned int id, Texture **pOut, SpriteRect *pRect, unsigned int *pFlag, BYTE *pColour);
 void Race_DrawPlayerMessage(char *pText, int *pColour, int player, int param4, int param5, int param6);
 
 // Colour of the race call text (white).
@@ -995,19 +992,19 @@ void Race_DrawPlayerCallSlots(unsigned int player, int param2)
 {
     BYTE colA[4];
     BYTE colB[4];
-    int texA;
-    int texB;
+    Texture *texA;
+    Texture *texB;
     unsigned int flagA;
     unsigned int flagB;
     int yOff;
-    int curveB;
+    short curveB;
     int xOff;
     int second;
     int iVar;
     int base;
     int yText;
     int extra;
-    int value;
+    short value;
     int found;
     int bVar2;
     int n;
@@ -1097,10 +1094,10 @@ void Race_DrawPlayerCallSlots(unsigned int player, int param2)
                 goto next;
         }
 
-        found = Race_DecodeCallSlotIcon((rec->flags & 0x100) ? rec->field_0x0 : 0x14, &texA, &rectIcon, &flagA, colB);
+        found = Race_DecodeCallSlotIcon((rec->flags & 0x100) ? rec->primaryCallId : 0x14, &texA, &rectIcon, &flagA, colB);
         bVar2 = 0;
-        if (rec->field_0x4 != 0) {
-            if (Race_DecodeCallSlotIcon(rec->field_0x4, &texB, &rectTex, &flagB, colA) != 0) {
+        if (rec->secondaryCallId != 0) {
+            if (Race_DecodeCallSlotIcon(rec->secondaryCallId, &texB, &rectTex, &flagB, colA) != 0) {
                 bVar2 = 1;
                 second = 1;
             }
@@ -1108,10 +1105,10 @@ void Race_DrawPlayerCallSlots(unsigned int player, int param2)
 
         if ((rec->flags & 0x200) == 0) {
             if (RallyData_IsHeadToHeadRaceMode() == 0) {
-                if (rec->field_0x0 != 0)
-                    Race_AssignSlotsFromCallRecord(rec->field_0x0);
-                if (rec->field_0x4 != 0)
-                    Race_AssignSlotsFromCallRecord(rec->field_0x4);
+                if (rec->primaryCallId != 0)
+                    Race_AssignSlotsFromCallRecord(rec->primaryCallId);
+                if (rec->secondaryCallId != 0)
+                    Race_AssignSlotsFromCallRecord(rec->secondaryCallId);
             }
             rec->flags |= 0x200;
         }
@@ -1184,28 +1181,29 @@ void Race_DrawPlayerCallSlots(unsigned int player, int param2)
             rectMain.x = (short)((((int)g_pGraphics->resX << 15) >> 16) - (r + (int)rectMain.w) / 2 + xOff);
             if (found != 0) {
                 if (flagA == 0) {
-                    Sprite_Queue(&rectIcon, &rectMain, (Texture *)texA, 2, 0, NULL, NULL, colB, 8);
+                    Sprite_Queue(&rectIcon, &rectMain, texA, 2, 0, NULL, NULL, colB, 8);
                 } else if (rectMain.w != 0) {
-                    Sprite_Queue(&rectIcon, &rectMain, (Texture *)texA, 2, 0, NULL, NULL, colB, 1);
+                    Sprite_Queue(&rectIcon, &rectMain, texA, 2, 0, NULL, NULL, colB, 1);
                 }
             }
         } else {
             rectSecond.w = 0;
-            rectMain.x = (short)((((int)g_pGraphics->resX << 15) >> 16) - (short)value / 2 + xOff);
+            r = rectMain.w;
+            rectMain.x = (short)((((int)g_pGraphics->resX << 15) >> 16) - (short)r / 2 + xOff);
             if (found != 0) {
                 if (flagA != 0)
-                    Sprite_Queue(&rectIcon, &rectMain, (Texture *)texA, 2, 0, NULL, NULL, colB, 1);
+                    Sprite_Queue(&rectIcon, &rectMain, texA, 2, 0, NULL, NULL, colB, 1);
                 else
-                    Sprite_Queue(&rectIcon, &rectMain, (Texture *)texA, 2, 0, NULL, NULL, colB, 8);
+                    Sprite_Queue(&rectIcon, &rectMain, texA, 2, 0, NULL, NULL, colB, 8);
             }
         }
 
         rectSecond.x = (short)(rectMain.x + rectMain.w);
         if (second != 0 && rectSecond.w != 0) {
             if (flagB == 0)
-                Sprite_Queue(&rectTex, &rectSecond, (Texture *)texB, 2, 0, NULL, NULL, colA, 8);
+                Sprite_Queue(&rectTex, &rectSecond, texB, 2, 0, NULL, NULL, colA, 8);
             else
-                Sprite_Queue(&rectTex, &rectSecond, (Texture *)texB, 2, 0, NULL, NULL, colA, 1);
+                Sprite_Queue(&rectTex, &rectSecond, texB, 2, 0, NULL, NULL, colA, 1);
         }
 
 next:
@@ -1559,13 +1557,13 @@ extern int g_carMaxVolume[8];
 extern int g_unk0x00537564;
 
 // GLOBAL: CMR2 0x00537358
-int g_unk0x00537358;
+unsigned int *g_coDriverCalls;
 
 // Registered callback of 0x416720.
 // FUNCTION: CMR2 0x00418550
 int Race_ReleaseCoDriverCallData(void)
 {
-    g_unk0x00537358 = 0;
+    g_coDriverCalls = 0;
     return 1;
 }
 
@@ -1587,7 +1585,7 @@ extern Texture *g_arrowTexture;
 // Decodes a race call slot id into the arrow sprite rect of the call icon, the
 // secondary-icon flag and the colour the icon is tinted with.
 // FUNCTION: CMR2 0x00418580
-int Race_DecodeCallSlotIcon(unsigned int id, int *pTexture, SpriteRect *pRect, unsigned int *pFlag, BYTE *pColour)
+int Race_DecodeCallSlotIcon(unsigned int id, Texture **pTexture, SpriteRect *pRect, unsigned int *pFlag, BYTE *pColour)
 {
     unsigned int type;
     unsigned int b1;
@@ -1676,7 +1674,7 @@ int Race_DecodeCallSlotIcon(unsigned int id, int *pTexture, SpriteRect *pRect, u
         }
     }
 
-    *pTexture = (int)g_arrowTexture;
+    *pTexture = g_arrowTexture;
     return result;
 }
 
@@ -3796,7 +3794,7 @@ void Race_SetResourceStateAndCallbackMark(int value)
 // GLOBAL: CMR2 0x00517ed4
 char g_strCodFormat[] = "%s.cod";
 // GLOBAL: CMR2 0x00537094
-void *g_unk0x00537094;
+unsigned int *g_loadedCoDriverCalls;
 
 // Loads the stage's co-driver calls (.cod) and resets the call state.
 // FUNCTION: CMR2 0x00416720
@@ -3805,9 +3803,9 @@ void Race_LoadCoDriverCallData(void)
     CGame::RegisterCallback(Race_ReleaseCoDriverCallData, 0);
     Race_ResetPlayerCallState();
     sprintf(CFrontend::m_stringDest, g_strCodFormat, GameMenu_GetChampionshipTransitionState());
-    g_unk0x00537094 = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest, 0, 0, 0);
-    if (g_unk0x00537094 != NULL)
-        g_unk0x00537358 = (int)g_unk0x00537094;
+    g_loadedCoDriverCalls = (unsigned int *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest, 0, 0, 0);
+    if (g_loadedCoDriverCalls != NULL)
+        g_coDriverCalls = g_loadedCoDriverCalls;
 }
 
 // GLOBAL: CMR2 0x00537364
@@ -4610,8 +4608,8 @@ void Race_UpdateCarRouteAndWrongWayState(int param_1)
         for (i = 0; i < 4; i++)
             pRec[i] = pRec[i + 1];
         pRec[4].flags &= 0xfffffc00;
-        pRec[4].field_0x0 = 0;
-        pRec[4].field_0x4 = 0;
+        pRec[4].primaryCallId = 0;
+        pRec[4].secondaryCallId = 0;
     }
 }
 

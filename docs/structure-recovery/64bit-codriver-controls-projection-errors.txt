@@ -1,0 +1,367 @@
+/tmp/cmr2-reviewed-native/game/FrontendScreens.cpp:1663:36: error: unknown type name 'DPSESSIONDESC2'
+/tmp/cmr2-reviewed-native/game/FrontendScreens.cpp:1664:38: error: unknown type name 'DPID'
+/tmp/cmr2-reviewed-native/game/FrontendScreens.cpp:1668:29: error: unknown type name 'DPID'
+/tmp/cmr2-reviewed-native/game/FrontendScreens.cpp:1783:9: error: no matching function for call to 'Network_RemoveSessionPlayerByID'
+/tmp/cmr2-reviewed-native/game/FrontendScreens.cpp:1823:9: error: no matching function for call to 'Network_SetSessionDescription'
+/tmp/cmr2-reviewed-native/game/FrontendScreens.cpp:1844:9: error: no matching function for call to 'NetworkChat_AppendLine'
+/tmp/cmr2-reviewed-native/game/Game.cpp:2228:47: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Game.cpp:2229:18: error: use of undeclared identifier 'D3DMATRIX'
+/tmp/cmr2-reviewed-native/game/Game.cpp:2229:29: error: expected expression
+/tmp/cmr2-reviewed-native/game/Game.cpp:2228:62: error: use of undeclared identifier 'D3DTRANSFORMSTATE_WORLD'
+/tmp/cmr2-reviewed-native/game/Game.cpp:2562:14: error: no member named 'dwX' in 'GfxViewport'
+/tmp/cmr2-reviewed-native/game/Game.cpp:2563:14: error: no member named 'dwY' in 'GfxViewport'
+/tmp/cmr2-reviewed-native/game/Game.cpp:2564:14: error: no member named 'dwWidth' in 'GfxViewport'; did you mean 'width'?
+/tmp/cmr2-reviewed-native/game/Game.cpp:2565:14: error: no member named 'dwHeight' in 'GfxViewport'
+/tmp/cmr2-reviewed-native/game/Game.cpp:2566:14: error: no member named 'dvMinZ' in 'GfxViewport'
+/tmp/cmr2-reviewed-native/game/Game.cpp:2567:14: error: no member named 'dvMaxZ' in 'GfxViewport'
+/tmp/cmr2-reviewed-native/game/Game.cpp:2568:39: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Game.cpp:2577:47: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Game.cpp:2577:62: error: use of undeclared identifier 'D3DTRANSFORMSTATE_WORLD'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3144:61: error: unknown type name 'DPID'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3150:5: error: use of undeclared identifier 'IDirectPlay4A'; did you mean 'CGame::m_pDirectPlay4A'?
+/tmp/cmr2-reviewed-native/game/Game.cpp:3150:20: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3153:5: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3154:9: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3155:46: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3155:62: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3169:5: error: use of undeclared identifier 'IDirectPlay4A'; did you mean 'CGame::m_pDirectPlay4A'?
+/tmp/cmr2-reviewed-native/game/Game.cpp:3169:20: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3176:5: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3177:9: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3178:16: error: use of undeclared identifier 'DPSendFn'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3178:37: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3178:53: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3195:5: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3196:9: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3198:5: error: use of undeclared identifier 'hr'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3198:10: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3200:9: error: use of undeclared identifier 'hr'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3200:38: error: use of undeclared identifier 'hr'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3200:67: error: use of undeclared identifier 'hr'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3272:13: error: redefinition of 'hr'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3272:18: error: use of undeclared identifier 'pDP'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3272:50: error: use of undeclared identifier 'DPRECEIVE_ALL'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3274:15: error: use of undeclared identifier 'DPERR_INVALIDOBJECT'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3275:19: error: use of undeclared identifier 'DPERR_INVALIDOBJECT'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3275:48: error: use of undeclared identifier 'DPERR_GENERIC'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3275:71: error: use of undeclared identifier 'DPERR_INVALIDPARAMS'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3276:19: error: use of undeclared identifier 'DPERR_BUFFERTOOSMALL'
+/tmp/cmr2-reviewed-native/game/Game.cpp:3277:18: error: use of undeclared label 'done'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:2680:47: error: unknown type name 'D3DMATRIX'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:2681:1: error: unknown type name 'D3DMATRIX'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:2681:30: error: unknown type name 'D3DMATRIX'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:2719:9: error: no matching function for call to 'FloatMatrix_ToFix'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:2720:9: error: no matching function for call to 'FloatMatrix_ToFix'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:2766:55: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:2767:25: error: use of undeclared identifier 'D3DPT_TRIANGLELIST'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:4123:43: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:4123:66: error: use of undeclared identifier 'D3DPT_TRIANGLELIST'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6252:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6252:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6252:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6253:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6253:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6253:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6254:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6254:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6254:78: error: use of undeclared identifier 'D3DTOP_DISABLE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6255:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6255:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6255:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6256:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6256:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6256:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6257:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6257:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6257:78: error: use of undeclared identifier 'D3DTOP_DISABLE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6262:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6262:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6262:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6263:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6263:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6263:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6264:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6264:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6264:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6265:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6265:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6265:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6266:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6266:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6266:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6267:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6267:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6267:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6269:36: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6269:66: error: use of undeclared identifier 'D3DTSS_MIPFILTER'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6269:84: error: use of undeclared identifier 'D3DTFP_POINT'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6271:36: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6271:66: error: use of undeclared identifier 'D3DTSS_MIPFILTER'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6271:84: error: use of undeclared identifier 'D3DTFP_LINEAR'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6273:36: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6273:66: error: use of undeclared identifier 'D3DTSS_MIPFILTER'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6273:84: error: use of undeclared identifier 'D3DTFP_NONE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6274:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6274:62: error: use of undeclared identifier 'D3DTSS_MAXMIPLEVEL'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6279:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6279:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6279:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6280:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6280:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6280:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6281:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6281:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6281:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6282:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6282:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6282:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6283:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6283:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6283:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6284:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6284:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6284:78: error: use of undeclared identifier 'D3DTOP_DISABLE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6289:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6289:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6289:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6290:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6290:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6290:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6291:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6291:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6291:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6292:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6292:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6292:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6293:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6293:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6293:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6294:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6294:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6294:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6299:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6299:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6299:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6300:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6300:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6300:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6301:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6301:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6301:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6302:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6302:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6302:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6303:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6303:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6303:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6304:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6304:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6304:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6309:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6309:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6309:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6310:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6310:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6310:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6311:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6311:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6311:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6312:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6312:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6312:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6313:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6313:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6313:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6314:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6314:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6314:78: error: use of undeclared identifier 'D3DTOP_SELECTARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6318:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6318:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6318:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6319:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6319:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6319:80: error: use of undeclared identifier 'D3DTA_CURRENT'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6320:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6320:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6320:78: error: use of undeclared identifier 'D3DTOP_SELECTARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6321:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6321:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6321:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6322:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6322:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6322:80: error: use of undeclared identifier 'D3DTA_CURRENT'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6323:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6323:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6323:78: error: use of undeclared identifier 'D3DTOP_SELECTARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6328:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6328:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6328:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6329:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6329:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6329:80: error: use of undeclared identifier 'D3DTA_CURRENT'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6330:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6330:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6330:78: error: use of undeclared identifier 'D3DTOP_SELECTARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6331:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6331:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6331:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6332:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6332:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6332:80: error: use of undeclared identifier 'D3DTA_CURRENT'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6333:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6333:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6333:78: error: use of undeclared identifier 'D3DTOP_DISABLE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6337:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6337:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6337:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6337:96: error: use of undeclared identifier 'D3DTA_COMPLEMENT'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6338:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6338:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6338:80: error: use of undeclared identifier 'D3DTA_CURRENT'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6339:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6339:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6339:78: error: use of undeclared identifier 'D3DTOP_ADDSIGNED'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6340:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6340:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6340:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6341:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6341:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6341:80: error: use of undeclared identifier 'D3DTA_CURRENT'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6342:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6342:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6342:78: error: use of undeclared identifier 'D3DTOP_DISABLE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6347:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6347:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6347:78: error: use of undeclared identifier 'D3DTOP_BUMPENVMAPLUMINANCE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6348:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6348:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6348:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6349:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6349:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6349:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6351:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6351:62: error: use of undeclared identifier 'D3DTSS_BUMPENVMAT00'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6353:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6353:62: error: use of undeclared identifier 'D3DTSS_BUMPENVMAT01'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6355:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6355:62: error: use of undeclared identifier 'D3DTSS_BUMPENVMAT10'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6357:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6357:62: error: use of undeclared identifier 'D3DTSS_BUMPENVMAT11'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6359:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6359:62: error: use of undeclared identifier 'D3DTSS_BUMPENVLSCALE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6361:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6361:62: error: use of undeclared identifier 'D3DTSS_BUMPENVLOFFSET'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6362:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6362:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6362:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6363:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6363:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6363:80: error: use of undeclared identifier 'D3DTA_CURRENT'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6364:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6364:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6364:78: error: use of undeclared identifier 'D3DTOP_DISABLE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6368:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6368:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6368:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6369:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6369:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6369:80: error: use of undeclared identifier 'D3DTA_CURRENT'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6370:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6370:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6370:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6371:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6371:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6371:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6372:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6372:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6372:80: error: use of undeclared identifier 'D3DTA_CURRENT'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6373:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6373:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6373:78: error: use of undeclared identifier 'D3DTOP_DISABLE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6374:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6374:62: error: use of undeclared identifier 'D3DTSS_MAGFILTER'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6374:80: error: use of undeclared identifier 'D3DTFG_LINEAR'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6375:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6375:62: error: use of undeclared identifier 'D3DTSS_MINFILTER'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6375:80: error: use of undeclared identifier 'D3DTFN_LINEAR'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6380:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6380:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6380:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6380:96: error: use of undeclared identifier 'D3DTA_ALPHAREPLICATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6381:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6381:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6381:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6382:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6382:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6382:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6383:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6383:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6383:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6384:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6384:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6384:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6385:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6385:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6385:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6390:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6390:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6390:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6391:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6391:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6391:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6392:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6392:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6392:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6393:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6393:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6393:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6394:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6394:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6394:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6395:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6395:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6395:78: error: use of undeclared identifier 'D3DTOP_SELECTARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6396:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6396:62: error: use of undeclared identifier 'D3DTSS_TEXCOORDINDEX'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6397:55: error: use of undeclared identifier 'D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6398:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6398:62: error: use of undeclared identifier 'D3DTSS_TEXTURETRANSFORMFLAGS'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6398:92: error: use of undeclared identifier 'D3DTTFF_COUNT3'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6401:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6401:62: error: use of undeclared identifier 'D3DTSS_COLORARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6401:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6402:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6402:62: error: use of undeclared identifier 'D3DTSS_COLORARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6402:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6403:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6403:62: error: use of undeclared identifier 'D3DTSS_COLOROP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6403:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6404:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6404:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG1'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6404:80: error: use of undeclared identifier 'D3DTA_TEXTURE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6405:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6405:62: error: use of undeclared identifier 'D3DTSS_ALPHAARG2'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6405:80: error: use of undeclared identifier 'D3DTA_DIFFUSE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6406:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6406:62: error: use of undeclared identifier 'D3DTSS_ALPHAOP'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6406:78: error: use of undeclared identifier 'D3DTOP_MODULATE'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6423:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6426:32: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6746:47: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6747:17: error: use of undeclared identifier 'D3DPT_TRIANGLELIST'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6772:47: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6773:17: error: use of undeclared identifier 'D3DPT_TRIANGLELIST'
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6817:43: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Graphics.cpp:6818:13: error: use of undeclared identifier 'D3DPT_TRIANGLELIST'
+/tmp/cmr2-reviewed-native/game/NetPlayers.cpp:69:1: error: unknown type name 'DPID'
+/tmp/cmr2-reviewed-native/game/SceneNode.cpp:2438:47: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/SceneNode.cpp:2438:62: error: use of undeclared identifier 'D3DLIGHT7'
+/tmp/cmr2-reviewed-native/game/SceneNode.cpp:2438:73: error: expected expression
+/tmp/cmr2-reviewed-native/game/SceneNode.cpp:2439:47: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Sound.cpp:610:71: error: member access into incomplete type 'AudioBuffer'
+/tmp/cmr2-reviewed-native/game/Sound.cpp:610:84: error: use of undeclared identifier 'DSBPLAY_LOOPING'
+/tmp/cmr2-reviewed-native/game/Sprite.cpp:175:43: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/Sprite.cpp:175:59: error: use of undeclared identifier 'D3DPT_TRIANGLESTRIP'
+/tmp/cmr2-reviewed-native/game/Sprite.cpp:175:80: error: use of undeclared identifier 'D3DFVF_TLVERTEX'
+/tmp/cmr2-reviewed-native/game/StageTiming.cpp:9414:47: error: member reference base type 'void' is not a structure or union
+/tmp/cmr2-reviewed-native/game/StageTiming.cpp:9414:63: error: use of undeclared identifier 'D3DPT_TRIANGLELIST'

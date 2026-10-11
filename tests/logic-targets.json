@@ -279,6 +279,16 @@
       "0x458e00"
     ]
   },
+  "differential_codriver_calls.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x416720",
+      "0x418550",
+      "0x418580",
+      "0x4174e0",
+      "0x4177d0"
+    ]
+  },
   "differential_collision_boxes.py": {
     "arguments": "entities",
     "targets": [

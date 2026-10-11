@@ -1,0 +1,1 @@
+PASS: 576 native route-node scenarios vs original x86; eight actual bodies, production disk/Car layouts, full cache/race/call/checkpoint state, pointers above 4GB, ASan/UBSan

@@ -45,7 +45,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4581d0	StageTiming_ResetOrderedCarRoadBooks	StageTiming.cpp	84	0.5833333333333334	0.5833333333333334
 0x477ce0	StageObject_AnimateCarLightLevels	StageObjects.cpp	584	0.583756345177665	0.5408163265306123
 0x417090	Race_UpdateCarRouteAndWrongWayState	Race.cpp	1081	0.5866261398176292	0.5449101796407185
-0x4177d0	Race_DrawPlayerCallSlots	Race.cpp	1665	0.5883495145631068	0.5637707948243993
 0x424f20	NetRace_PackCarState	NetRace.cpp	2496	0.5904059040590406	0.5649303008070433
 0x4a6710	CGraphics::LoadTGATexture	Graphics.cpp	1816	0.5913682277318641	0.5888689407540395
 0x47b640	CarInput_UpdateWaitingStartSlot	StageObjects.cpp	354	0.5942857142857143	0.5930232558139535
@@ -70,6 +69,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x45af90	CarEffect_UpdateExhaustSmokeAndBackfire	StageTiming.cpp	1438	0.6205305651672434	0.586483390607102
 0x470580	StageObject_UpdateMovingTransforms	FixedPoint.cpp	5072	0.6206095791001451	0.5411095305832148
 0x42c890	Car_UpdateEngineNoteFalloff	Car.cpp	471	0.6206896551724138	0.5891472868217055
+0x4177d0	Race_DrawPlayerCallSlots	Race.cpp	1665	0.6216216216216216	0.5793357933579336
 0x4b45d0	Scene_AddShadowCaster	SceneNode.cpp	825	0.6284584980237155	0.6081871345029239
 0x416670	Race_ResetPlayerCallState	Race.cpp	148	0.6292134831460674	0.6
 0x461710	StageObject_InterpolateFrameRecord	StageObjects.cpp	282	0.6301369863013698	0.6306306306306306

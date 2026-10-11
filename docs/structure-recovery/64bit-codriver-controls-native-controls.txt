@@ -1,0 +1,1 @@
+PASS: 324 native player-indicator cases vs original x86 and independent signed model; actual body, production Car/DeviceInfo, full-car guards, complete heap/provider traces, pointers above 4GB, ASan/UBSan

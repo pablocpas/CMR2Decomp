@@ -1,0 +1,26 @@
+{
+  "baseline": "d183f5a",
+  "families": [
+    "codriver-call-pointer-family",
+    "race-call-record-names",
+    "car-control-mode-fields"
+  ],
+  "operations": 34,
+  "input_sha256": {
+    "CMR2Decomp/Race.cpp": "739234d0b0d9332c62a86946383f6f5a910f44636f3773c5c6874eb6f1779f9c",
+    "CMR2Decomp/RaceCallRecord.h": null,
+    "CMR2Decomp/LayoutChecks.cpp": "601cfe160329aa50d5814bf9a3f0ecf710d2a53cd96ecbfc160a002804ab90e8",
+    "CMR2Decomp/Car.h": "25dde510e55f95d824b5c15591f4a790a8d3b325847612335055fe2273622607",
+    "CMR2Decomp/StageObjects.cpp": "85879367c6bda652288dfa362865b112b5c995a1fb430af8230a94162fc392f8",
+    "CMR2Decomp/TrackCollision.cpp": "876fe14338c39c164ec2415b1697078c39135e5990fb617d292b676a4565bb03"
+  },
+  "final_sha256": {
+    "CMR2Decomp/Race.cpp": "8405ba81457255f0822b96fce3e3b9b514eb6ff7a57f9c8800c68e496513f88a",
+    "CMR2Decomp/RaceCallRecord.h": "e2418ff397371fd73fc5d83fbba8de474bc0f895eb1dfac5792127d8e6afd8c2",
+    "CMR2Decomp/LayoutChecks.cpp": "2ed5c8f09b275e2379e3174c96505d2d4df39fdb835edbd04d5d18a305625c3a",
+    "CMR2Decomp/Car.h": "756a33efa0e9a484113744baca3445e27a7e853d2233b698b91b5531ecc561d9",
+    "CMR2Decomp/StageObjects.cpp": "07f46aa5e08ef790bb044bd6c8e7e100557cdf45d54dd9155a8ecf8bb114bea7",
+    "CMR2Decomp/TrackCollision.cpp": "e87a1855aa8c81709386e404b7251bd06f9729cf13f0ea65a234ba1bdb2efe82"
+  },
+  "all_files_reproduce": true
+}

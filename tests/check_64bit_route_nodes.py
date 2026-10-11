@@ -30,7 +30,7 @@ unsigned short g_sqrtTable[4096];int g_sinTable[4096];
 RallyRouteNode *g_routeNodes;short g_routeDirKey[3],g_routeDirCount;FixVector g_routeDir[3];
 int g_unk0x00538a84,g_unk0x00538a88,g_unk0x00538a94,g_unk0x00538c94;
 RaceRecord g_raceRecords[8];
-struct RaceCallRecord {int field_0x0,field_0x4;unsigned int flags;};
+#include "RaceCallRecord.h"
 RaceCallRecord g_raceCallRecords[10];
 int g_unk0x0053708c[2],g_unk0x00537198[2],g_raceWrongWayFlags[2],g_unk0x005371a0=1,g_unk0x00537350,g_unk0x00537354;
 BYTE g_unk0x0053735c[32];
@@ -114,7 +114,7 @@ def main():
  env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1');oracle=Nodes(ROOT/'cmr2bin/CMR2.exe');number=0
  with tempfile.TemporaryDirectory(prefix='cmr2-native-route-') as directory:
   tmp=Path(directory)
-  for h in ('Car.h','SceneNode.h','Sector.h','Mesh.h','LayoutChecks.h','RallyRouteNode.h','RaceRecord.h','CallbackState.h'):shutil.copyfile(source/h,tmp/h)
+  for h in ('Car.h','SceneNode.h','Sector.h','Mesh.h','LayoutChecks.h','RallyRouteNode.h','RaceRecord.h','RaceCallRecord.h','CallbackState.h'):shutil.copyfile(source/h,tmp/h)
   shutil.copyfile(ROOT.parent/'OpenCMR2/game/FixedPoint.h',tmp/'FixedPoint.h')
   (tmp/'windows.h').write_text('typedef unsigned char BYTE;typedef unsigned int DWORD;typedef int BOOL;\n')
   (tmp/'Graphics.h').write_text('class CGraphics{public:static constexpr double m_oneOver65536=1.0/65536.0;static constexpr double m_65536=65536.0;};\n')

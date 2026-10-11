@@ -7967,10 +7967,10 @@ int Replay_DecodeCarControls(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter)
 }
 
 // GLOBAL: CMR2 0x0058e0a0
-Car *g_unk0x0058e0a0;
+Car *g_controlCar;
 // Which of the steering/throttle/brake controls are analogue.
 // GLOBAL: CMR2 0x0058e0a8
-BYTE g_unk0x0058e0a8[3];
+BYTE g_carAxisInputEnabled[3];
 // Button bit of each car control (read from the controller mapping).
 // GLOBAL: CMR2 0x0051f4b0
 unsigned short g_carButtonMasks[9] = { 1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100 };
@@ -7983,23 +7983,23 @@ short *Car_GetOrder(void);
 void StageObject_ResetCarStartControls(int index)
 {
     int driver = Car_GetOrder()[index];
-    g_unk0x0058e0a0 = Car_Get(driver);
-    g_unk0x0058e0a0->field_0x1dc = 0;
-    g_unk0x0058e0a0->handbrake = 0;
-    g_unk0x0058e0a0->field_0x1d4[0] = 0;
-    g_unk0x0058e0a0->flag0x1d0[3] = 0;
-    g_unk0x0058e0a0->flag0x1d0[2] = 0;
-    g_unk0x0058e0a0->flag0x1d0[1] = 0;
-    g_unk0x0058e0a0->flag0x1d0[0] = 0;
-    if (g_unk0x0058e0a0->automaticReverse != 0)
-        g_unk0x0058e0a0->flag0x1d0[3] = 0;
+    g_controlCar = Car_Get(driver);
+    g_controlCar->field_0x1dc = 0;
+    g_controlCar->handbrake = 0;
+    g_controlCar->field_0x1d4[0] = 0;
+    g_controlCar->flag0x1d0[3] = 0;
+    g_controlCar->flag0x1d0[2] = 0;
+    g_controlCar->flag0x1d0[1] = 0;
+    g_controlCar->flag0x1d0[0] = 0;
+    if (g_controlCar->automaticReverse != 0)
+        g_controlCar->flag0x1d0[3] = 0;
     else
-        g_unk0x0058e0a0->flag0x1d0[3] = 1;
-    g_unk0x0058e0a0->flag0x1d0[2] = 0;
-    g_unk0x0058e0a0->handbrake = 1;
-    g_unk0x0058e0a0->automaticGearbox = 0;
-    g_unk0x0058e0a0->field_0x1e4 = 0;
-    FixVecScale(&g_unk0x0058e0a0->velocity, &g_unk0x0058e0a0->velocity, 0xf851);
+        g_controlCar->flag0x1d0[3] = 1;
+    g_controlCar->flag0x1d0[2] = 0;
+    g_controlCar->handbrake = 1;
+    g_controlCar->automaticGearbox = 0;
+    g_controlCar->field_0x1e4 = 0;
+    FixVecScale(&g_controlCar->velocity, &g_controlCar->velocity, 0xf851);
 }
 
 DWORD Input_GetControllerField110(unsigned short slot);
@@ -8019,18 +8019,18 @@ void StageObject_ReadCarControllerMapping(int slot)
     g_carButtonMasks[7] = CInput::GetButtonMapping(slot, 7);
     g_carButtonMasks[8] = CInput::GetButtonMapping(slot, 8);
     if (Input_GetControllerField110(slot) == 0 || (int)CInput::GetEnabledControllerAxisBinding(slot, 0) == -1)
-        g_unk0x0058e0a8[0] = 0;
+        g_carAxisInputEnabled[0] = 0;
     else
-        g_unk0x0058e0a8[0] = 1;
+        g_carAxisInputEnabled[0] = 1;
     if (CInput::GetControllerField114(slot) == 0 || (int)CInput::GetEnabledControllerAxisBinding(slot, 2) == -1)
-        g_unk0x0058e0a8[1] = 0;
+        g_carAxisInputEnabled[1] = 0;
     else
-        g_unk0x0058e0a8[1] = 1;
+        g_carAxisInputEnabled[1] = 1;
     if (CInput::GetControllerField114(slot) != 0 && (int)CInput::GetEnabledControllerAxisBinding(slot, 3) != -1) {
-        g_unk0x0058e0a8[2] = 1;
+        g_carAxisInputEnabled[2] = 1;
         return;
     }
-    g_unk0x0058e0a8[2] = 0;
+    g_carAxisInputEnabled[2] = 0;
 }
 
 // Encodes a car's control record into a 4-byte replay packet.
@@ -8416,8 +8416,8 @@ void Replay_EncodeCarControls(BYTE *pOut, BYTE car)
     Car *pCar = Car_Get(car);
     DeviceInfo *pDev = CInput::GetAvailableDeviceRecord((char)Car_GetDrawnFlag(pCar->index));
 
-    Replay_EncodeControlPacket((BYTE *)pCar + 0x1d0, pOut, pDev->field_0x0 == 3, pCar->field_0xb88,
-                 pCar->field_0xb8c, pCar->field_0xb90);
+    Replay_EncodeControlPacket((BYTE *)pCar + 0x1d0, pOut, pDev->field_0x0 == 3, pCar->steeringInputMode,
+                 pCar->analogThrottle, pCar->analogBrake);
 }
 
 int Race_IsMultiplayerRecordMode10(void);
@@ -10003,11 +10003,11 @@ void StageObject_CycleDriverCameraSelection(unsigned int param_1, unsigned int p
         (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[param_2].packedState == 8) {
         if ((param_1 & (unsigned short)g_unk0x0051f4c0) != 0) {
             if (View_GetActiveCameraMode(param_2) != 10)
-                View_SwitchCamera(g_unk0x0058e0a0->index, 10, 0xffff,
-                             View_GetActiveCameraFlags(g_unk0x0058e0a0->index), 0);
+                View_SwitchCamera(g_controlCar->index, 10, 0xffff,
+                             View_GetActiveCameraFlags(g_controlCar->index), 0);
         }
         if ((param_1 & (unsigned short)g_unk0x0051f4c0) == 0) {
-            if (View_GetActiveCameraMode(g_unk0x0058e0a0->index) == 10) {
+            if (View_GetActiveCameraMode(g_controlCar->index) == 10) {
                 switch (StageUI_GetRaceResultValue()) {
                 case 4:
                     g_unk0x0058e0a4 = (StageUI_GetRaceEndEventCount() & 0xff) + param_2;
@@ -10032,13 +10032,13 @@ void StageObject_CycleDriverCameraSelection(unsigned int param_1, unsigned int p
                 }
                 CGameInfo::GetConfiguredPlayerCount();
                 mode = RallyData_GetDriverCarSelection(g_unk0x0058e0a4 & 0xff);
-                if (View_IsModeAvailable(g_unk0x0058e0a0->index, mode) != 0) {
-                    View_SwitchCamera(g_unk0x0058e0a0->index,
+                if (View_IsModeAvailable(g_controlCar->index, mode) != 0) {
+                    View_SwitchCamera(g_controlCar->index,
                                  RallyData_GetDriverCarSelection(g_unk0x0058e0a4 & 0xff), 0xffff,
-                                 View_GetActiveCameraFlags(g_unk0x0058e0a0->index), 0);
+                                 View_GetActiveCameraFlags(g_controlCar->index), 0);
                 } else {
-                    View_SwitchCamera(g_unk0x0058e0a0->index, 4, 0xffff,
-                                 View_GetActiveCameraFlags(g_unk0x0058e0a0->index), 0);
+                    View_SwitchCamera(g_controlCar->index, 4, 0xffff,
+                                 View_GetActiveCameraFlags(g_controlCar->index), 0);
                 }
             }
         }
@@ -10631,7 +10631,7 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
             uVar4 = View_FindFreeModeSlot(0);
         }
     } else {
-        uVar4 = View_FindFreeModeSlot(*(BYTE *)((BYTE *)g_unk0x0058e0a0 + 0xb1a));
+        uVar4 = View_FindFreeModeSlot(*(BYTE *)((BYTE *)g_controlCar + 0xb1a));
     }
 
     p = StageUI_GetRaceResultTable();
@@ -12053,7 +12053,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 void CarDamage_UpdateSuspensionImpactContacts(Car *pCar);
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
 // Nota: StageObject_UpdatePlayerControlIndicators debe colocarse DESPUES de StageObject_ReadCarControllerMapping y de las definiciones
-// de g_carButtonMasks / g_unk0x0058e0a0 / g_unk0x0058e0a8 (todas en este fichero).
+// de g_carButtonMasks / g_controlCar / g_carAxisInputEnabled (todas en este fichero).
 int GameMenu_IsPauseHeaderActive(void);
 int Race_GetPlayerRecordField4(BYTE index);
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
@@ -12567,8 +12567,8 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
         if ((pDev->field_0x8 & g_carButtonMasks[7]) == 0 && View_GetActiveCameraMode((BYTE)player) != 8)
             StageObject_CycleDriverCameraSelection(pDev->field_0x4, player);
         if (pDev->field_0x0 == 3 || pDev->field_0x0 == 2) {
-            axisSteer = g_unk0x0058e0a8[0] ? (int)CInput::GetEnabledControllerAxisBinding(player, 0) : -1;
-            if (g_unk0x0058e0a8[1]) {
+            axisSteer = g_carAxisInputEnabled[0] ? (int)CInput::GetEnabledControllerAxisBinding(player, 0) : -1;
+            if (g_carAxisInputEnabled[1]) {
                 axisThrottle = (int)CInput::GetEnabledControllerAxisBinding(player, 2);
                 axisBrake = (int)CInput::GetEnabledControllerAxisBinding(player, 3);
             } else {
@@ -12576,49 +12576,49 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
                 axisBrake = -1;
             }
             if (axisSteer != -1) {
-                if (CInput::GetControllerField124((short)((Car *)g_unk0x0058e0a0)->index) != 0)
-                    *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb88) = 1;
+                if (CInput::GetControllerField124((short)g_controlCar->index) != 0)
+                    g_controlCar->steeringInputMode = 1;
                 else
-                    *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb88) = 2;
+                    g_controlCar->steeringInputMode = 2;
                 pAxis = &((int *)pDev)[axisSteer * 5 + 0x11f];
                 half = *pAxis < 0 ? -*pAxis : *pAxis;
                 half = FixMul(half, 0x3f0000) >> 16;
                 if (*pAxis < 0)
-                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[0] = (char)half;
+                    g_controlCar->flag0x1d0[0] = (char)half;
                 else
-                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[1] = (char)half;
+                    g_controlCar->flag0x1d0[1] = (char)half;
             } else if ((pDev->field_0x4 & g_carButtonMasks[0]) != 0) {
-                ((Car *)g_unk0x0058e0a0)->flag0x1d0[0] = 0x3f;
+                g_controlCar->flag0x1d0[0] = 0x3f;
             } else if ((pDev->field_0x4 & g_carButtonMasks[1]) != 0) {
-                ((Car *)g_unk0x0058e0a0)->flag0x1d0[1] = 0x3f;
+                g_controlCar->flag0x1d0[1] = 0x3f;
             }
             if (axisThrottle != -1) {
-                *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb8c) = 1;
+                g_controlCar->analogThrottle = 1;
                 pAxis = &((int *)pDev)[axisThrottle * 5 + 0x11f];
                 half = *pAxis < 0 ? -*pAxis : *pAxis;
                 half = FixMul(half, 0x3f0000) >> 16;
                 raw = *pAxis;
                 if ((raw <= 0 && axisThrottle == axisBrake && CInput::GetControllerField120(device) == 0) ||
                     (raw > 0 && axisThrottle == axisBrake && CInput::GetControllerField120(device) != 0)) {
-                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = (char)half;
+                    g_controlCar->flag0x1d0[2] = (char)half;
                 } else if (axisThrottle == axisBrake) {
-                    *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb90) = 1;
-                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[3] = (char)half;
+                    g_controlCar->analogBrake = 1;
+                    g_controlCar->flag0x1d0[3] = (char)half;
                 } else {
                     half = raw / 2;
                     idx = half + 0x8000;
                     if (idx < 0)
                         idx = -0x8000 - half;
-                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = (char)(0x3f - (FixMul(idx, 0x3f0000) >> 16));
+                    g_controlCar->flag0x1d0[2] = (char)(0x3f - (FixMul(idx, 0x3f0000) >> 16));
                 }
             } else {
-                *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb8c) = 0;
+                g_controlCar->analogThrottle = 0;
                 if ((pDev->field_0x4 & g_carButtonMasks[2]) != 0)
-                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = 0x3f;
+                    g_controlCar->flag0x1d0[2] = 0x3f;
             }
             if (axisBrake != -1) {
                 if (axisBrake != axisThrottle) {
-                    *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb90) = 1;
+                    g_controlCar->analogBrake = 1;
                     raw = ((int *)pDev)[axisBrake * 5 + 0x11f];
                     half = raw / 2;
                     idx = half + 0x8000;
@@ -12626,39 +12626,39 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
                         idx = -0x8000 - half;
                     c = (char)(0x3f - FixMulShift32(idx, 0x3f0000));
                     if (c != 0)
-                        ((Car *)g_unk0x0058e0a0)->flag0x1d0[3] = c;
+                        g_controlCar->flag0x1d0[3] = c;
                 }
             } else {
-                *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb90) = 0;
+                g_controlCar->analogBrake = 0;
                 if ((pDev->field_0x4 & g_carButtonMasks[3]) != 0)
-                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[3] = 0x3f;
+                    g_controlCar->flag0x1d0[3] = 0x3f;
             }
         } else {
-            *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb8c) = 0;
-            *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb90) = 0;
-            *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb88) = 0;
+            g_controlCar->analogThrottle = 0;
+            g_controlCar->analogBrake = 0;
+            g_controlCar->steeringInputMode = 0;
             if ((pDev->field_0x4 & g_carButtonMasks[2]) != 0)
-                ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = 0x3f;
+                g_controlCar->flag0x1d0[2] = 0x3f;
             if ((pDev->field_0x4 & g_carButtonMasks[3]) != 0)
-                ((Car *)g_unk0x0058e0a0)->flag0x1d0[3] = 0x3f;
+                g_controlCar->flag0x1d0[3] = 0x3f;
             if ((pDev->field_0x4 & g_carButtonMasks[0]) != 0)
-                ((Car *)g_unk0x0058e0a0)->flag0x1d0[0] = 0x3f;
+                g_controlCar->flag0x1d0[0] = 0x3f;
             else if ((pDev->field_0x4 & g_carButtonMasks[1]) != 0)
-                ((Car *)g_unk0x0058e0a0)->flag0x1d0[1] = 0x3f;
+                g_controlCar->flag0x1d0[1] = 0x3f;
         }
         if ((pDev->field_0x4 & g_carButtonMasks[4]) != 0)
-            ((Car *)g_unk0x0058e0a0)->handbrake = 1;
-        if (*(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb9c) != 0) {
+            g_controlCar->handbrake = 1;
+        if (g_controlCar->automaticGearbox != 0) {
             if ((pDev->field_0x8 & g_carButtonMasks[5]) != 0)
-                ((Car *)g_unk0x0058e0a0)->field_0x1d4[0] = 1;
+                g_controlCar->field_0x1d4[0] = 1;
             if ((pDev->field_0x8 & g_carButtonMasks[6]) != 0)
-                ((Car *)g_unk0x0058e0a0)->field_0x1d4[0] = 0xff;
+                g_controlCar->field_0x1d4[0] = 0xff;
         }
     }
     if (CGameInfo::IsActiveCheatEnabled(2) != 0) {
-        c = g_unk0x0058e0a0->flag0x1d0[0];
-        g_unk0x0058e0a0->flag0x1d0[0] = g_unk0x0058e0a0->flag0x1d0[1];
-        g_unk0x0058e0a0->flag0x1d0[1] = c;
+        c = g_controlCar->flag0x1d0[0];
+        g_controlCar->flag0x1d0[0] = g_controlCar->flag0x1d0[1];
+        g_controlCar->flag0x1d0[1] = c;
     }
 }
 // Tests every active headlight glow record of the other cars against the
@@ -13911,7 +13911,7 @@ void AI_UpdateRouteDrivingControls(Car *pCar, int car, int preview)
 void StageObject_DriveCPUOrderSlot(int slot)
 {
     if ((char)RallyData_GetSelectionFlag26())
-        AI_UpdateRouteDrivingControls(g_unk0x0058e0a0, slot, 0);
+        AI_UpdateRouteDrivingControls(g_controlCar, slot, 0);
 }
 
 // Per-frame input of the car in race order slot `slot`: player cars read their
@@ -13921,28 +13921,28 @@ void CarInput_UpdateRaceOrderSlot(int slot)
 {
     char device;
 
-    g_unk0x0058e0a0 = Car_Get(Car_GetOrder()[slot]);
-    g_unk0x0058e0a0->field_0x1dc = 0;
-    g_unk0x0058e0a0->handbrake = 0;
-    *((BYTE *)g_unk0x0058e0a0 + 0x1d4) = 0;
-    g_unk0x0058e0a0->flag0x1d0[3] = 0;
-    g_unk0x0058e0a0->flag0x1d0[2] = 0;
-    g_unk0x0058e0a0->flag0x1d0[1] = 0;
-    g_unk0x0058e0a0->flag0x1d0[0] = 0;
+    g_controlCar = Car_Get(Car_GetOrder()[slot]);
+    g_controlCar->field_0x1dc = 0;
+    g_controlCar->handbrake = 0;
+    *((BYTE *)g_controlCar + 0x1d4) = 0;
+    g_controlCar->flag0x1d0[3] = 0;
+    g_controlCar->flag0x1d0[2] = 0;
+    g_controlCar->flag0x1d0[1] = 0;
+    g_controlCar->flag0x1d0[0] = 0;
     if ((char)RallyData_GetFlag22())
         CGameInfo::GetConfiguredGameMode();
-    device = (char)Car_GetDrawnFlag(g_unk0x0058e0a0->index);
+    device = (char)Car_GetDrawnFlag(g_controlCar->index);
     if (device != -1)
         StageObject_UpdatePlayerControlIndicators(slot, device);
     else
         StageObject_DriveCPUOrderSlot(slot);
-    if (g_unk0x0058e0a0->automaticGearbox == 0) {
-        if (g_unk0x0058e0a0->field_0xb48 != 1)
-            Car_ResetWheelLoadsAfterShift(g_unk0x0058e0a0);
-        g_unk0x0058e0a0->automaticGearbox = 1;
+    if (g_controlCar->automaticGearbox == 0) {
+        if (g_controlCar->field_0xb48 != 1)
+            Car_ResetWheelLoadsAfterShift(g_controlCar);
+        g_controlCar->automaticGearbox = 1;
         return;
     }
-    g_unk0x0058e0a0->automaticGearbox = 1;
+    g_controlCar->automaticGearbox = 1;
 }
 
 // Per-frame input of a car waiting at the start line: players keep their
@@ -13956,40 +13956,40 @@ void CarInput_UpdateWaitingStartSlot(int slot)
 
     pOrder = Car_GetOrder();
     Car_GetOrderCount();
-    g_unk0x0058e0a0 = Car_Get(pOrder[slot]);
-    g_unk0x0058e0a0->field_0x1e0 = 0;
-    g_unk0x0058e0a0->field_0x1dc = 0;
-    g_unk0x0058e0a0->handbrake = 0;
-    *((BYTE *)g_unk0x0058e0a0 + 0x1d4) = 0;
-    g_unk0x0058e0a0->flag0x1d0[3] = 0;
-    g_unk0x0058e0a0->flag0x1d0[2] = 0;
-    g_unk0x0058e0a0->flag0x1d0[1] = 0;
-    g_unk0x0058e0a0->flag0x1d0[0] = 0;
-    device = (char)Car_GetDrawnFlag(g_unk0x0058e0a0->index);
+    g_controlCar = Car_Get(pOrder[slot]);
+    g_controlCar->field_0x1e0 = 0;
+    g_controlCar->field_0x1dc = 0;
+    g_controlCar->handbrake = 0;
+    *((BYTE *)g_controlCar + 0x1d4) = 0;
+    g_controlCar->flag0x1d0[3] = 0;
+    g_controlCar->flag0x1d0[2] = 0;
+    g_controlCar->flag0x1d0[1] = 0;
+    g_controlCar->flag0x1d0[0] = 0;
+    device = (char)Car_GetDrawnFlag(g_controlCar->index);
     if (device != -1) {
         StageObject_UpdatePlayerControlIndicators(slot, device);
     } else {
-        count = *((char *)g_unk0x0058e0a0 + 0xb47);
+        count = *((char *)g_controlCar + 0xb47);
         if (count < 0) {
-            *((char *)g_unk0x0058e0a0 + 0xb47) = count + 1;
-            if (*((char *)g_unk0x0058e0a0 + 0xb47) == 0)
+            *((char *)g_controlCar + 0xb47) = count + 1;
+            if (*((char *)g_controlCar + 0xb47) == 0)
                 goto reroll;
         } else if (count < 1) {
         reroll:
-            *((char *)g_unk0x0058e0a0 + 0xb47) = (char)(rand() % 10) + 5;
+            *((char *)g_controlCar + 0xb47) = (char)(rand() % 10) + 5;
         } else {
-            *((char *)g_unk0x0058e0a0 + 0xb47) = count - 1;
-            if (*((char *)g_unk0x0058e0a0 + 0xb47) == 0)
-                *((char *)g_unk0x0058e0a0 + 0xb47) = -5 - (char)(rand() % 10);
+            *((char *)g_controlCar + 0xb47) = count - 1;
+            if (*((char *)g_controlCar + 0xb47) == 0)
+                *((char *)g_controlCar + 0xb47) = -5 - (char)(rand() % 10);
         }
-        if (*((char *)g_unk0x0058e0a0 + 0xb47) > 0)
-            g_unk0x0058e0a0->flag0x1d0[2] = 0x3f;
+        if (*((char *)g_controlCar + 0xb47) > 0)
+            g_controlCar->flag0x1d0[2] = 0x3f;
         else
-            g_unk0x0058e0a0->flag0x1d0[2] = 0;
+            g_controlCar->flag0x1d0[2] = 0;
     }
-    g_unk0x0058e0a0->handbrake = 1;
-    g_unk0x0058e0a0->field_0x1dc = 0;
-    g_unk0x0058e0a0->automaticGearbox = 0;
+    g_controlCar->handbrake = 1;
+    g_controlCar->field_0x1dc = 0;
+    g_controlCar->automaticGearbox = 0;
 }
 
 // Input of a car that has finished: driven as usual, then braked to a stop.
@@ -13997,16 +13997,16 @@ void CarInput_UpdateWaitingStartSlot(int slot)
 void StageObject_BrakeFinishedCarSlot(int slot)
 {
     CarInput_UpdateRaceOrderSlot(slot);
-    g_unk0x0058e0a0 = Car_Get(Car_GetOrder()[slot]);
-    if (g_unk0x0058e0a0->automaticReverse != 0)
-        g_unk0x0058e0a0->flag0x1d0[3] = 0;
+    g_controlCar = Car_Get(Car_GetOrder()[slot]);
+    if (g_controlCar->automaticReverse != 0)
+        g_controlCar->flag0x1d0[3] = 0;
     else
-        g_unk0x0058e0a0->flag0x1d0[3] = 1;
-    g_unk0x0058e0a0->flag0x1d0[2] = 0;
-    g_unk0x0058e0a0->handbrake = 1;
-    g_unk0x0058e0a0->automaticGearbox = 0;
-    g_unk0x0058e0a0->field_0x1e4 = 0;
-    FixVecScale(&g_unk0x0058e0a0->velocity, &g_unk0x0058e0a0->velocity, 0xf851);
+        g_controlCar->flag0x1d0[3] = 1;
+    g_controlCar->flag0x1d0[2] = 0;
+    g_controlCar->handbrake = 1;
+    g_controlCar->automaticGearbox = 0;
+    g_controlCar->field_0x1e4 = 0;
+    FixVecScale(&g_controlCar->velocity, &g_controlCar->velocity, 0xf851);
 }
 
 // Loads the stage's AI route data: the three difficulty files, the one for the
