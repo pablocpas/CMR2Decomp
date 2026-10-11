@@ -24988,7 +24988,7 @@
     "g_unk0x006de95c"
   ],
   "0x6deab8": [
-    6062472,
+    6064488,
     "g_shadowCasterCount"
   ],
   "0x6deacc": [
@@ -25008,7 +25008,7 @@
     "g_sceneShadowMeshes"
   ],
   "0x6dfd9c": [
-    6062468,
+    6064484,
     "g_sceneShadowTable"
   ],
   "0x6dfda0": [
@@ -25024,7 +25024,7 @@
     "g_sceneLightColourBytes"
   ],
   "0x6dfdc8": [
-    6062424,
+    6064440,
     "g_sceneLightTableD3D"
   ],
   "0x6dfdcc": [
@@ -25064,7 +25064,7 @@
     "g_shadowColour"
   ],
   "0x6e00a0": [
-    6062432,
+    6064448,
     "g_sceneLightBasis"
   ],
   "0x6e00c8": [
@@ -25128,8 +25128,8 @@
     "g_sceneLightColour"
   ],
   "0x6e0354": [
-    6062476,
-    "g_unk0x006e0354"
+    6062424,
+    "g_shadowVertexRemap"
   ],
   "0x6e0b28": [
     6123080,

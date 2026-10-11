@@ -27,6 +27,7 @@
 #include "StageBlock.h"
 #include "CarLightState.h"
 #include "Glow.h"
+#include "ShadowPart.h"
 #include "CarExhaust.h"
 #include "Menu.h"
 #include <stddef.h>
@@ -36,6 +37,25 @@
 // and packed callback tables. Keep these checks out of shared headers:
 // extra declarations there can alter MSVC6 code generation in unrelated TUs.
 CMR2_LAYOUT_CHECK(CarSizeCheck, sizeof(Car) == 0xc24);
+CMR2_LAYOUT_CHECK(ShadowPartSizeCheck, sizeof(ShadowPart) == 0x58);
+CMR2_LAYOUT_CHECK(ShadowPartLightCheck, offsetof(ShadowPart, light) == 0);
+CMR2_LAYOUT_CHECK(ShadowPartMeshCheck, offsetof(ShadowPart, pMesh) == 0x30);
+CMR2_LAYOUT_CHECK(ShadowPartNodeCheck, offsetof(ShadowPart, pNode) == 0x34);
+CMR2_LAYOUT_CHECK(ShadowPartVertexWorkCheck, offsetof(ShadowPart, pVertexWork) == 0x38);
+CMR2_LAYOUT_CHECK(ShadowPartVertexWork2Check, offsetof(ShadowPart, pVertexWork2) == 0x3c);
+CMR2_LAYOUT_CHECK(ShadowPartVertexFlagsCheck, offsetof(ShadowPart, pVertexFlags) == 0x40);
+CMR2_LAYOUT_CHECK(ShadowPartVertexWork3Check, offsetof(ShadowPart, pVertexWork3) == 0x44);
+CMR2_LAYOUT_CHECK(ShadowPartVerticesCheck, offsetof(ShadowPart, pVertices) == 0x48);
+CMR2_LAYOUT_CHECK(ShadowPartTriangleWorkCheck, offsetof(ShadowPart, pTriangleWork) == 0x4c);
+CMR2_LAYOUT_CHECK(ShadowPartFaceCountCheck, offsetof(ShadowPart, faceCount) == 0x50);
+CMR2_LAYOUT_CHECK(ShadowPartVertexCountCheck, offsetof(ShadowPart, vertexCount) == 0x52);
+CMR2_LAYOUT_CHECK(ShadowPartDirtyCheck, offsetof(ShadowPart, verticesDirty) == 0x54);
+CMR2_LAYOUT_CHECK(ShadowCasterSizeCheck, sizeof(ShadowCaster) == 0x14);
+CMR2_LAYOUT_CHECK(ShadowCasterNodeCheck, offsetof(ShadowCaster, pNode) == 0);
+CMR2_LAYOUT_CHECK(ShadowCasterPartsCheck, offsetof(ShadowCaster, pParts) == 4);
+CMR2_LAYOUT_CHECK(ShadowCasterCountCheck, offsetof(ShadowCaster, partCount) == 8);
+CMR2_LAYOUT_CHECK(ShadowCasterProjectionDirtyCheck, offsetof(ShadowCaster, projectionDirty) == 0xc);
+CMR2_LAYOUT_CHECK(ShadowCasterMeshDirtyCheck, offsetof(ShadowCaster, meshDirty) == 0x10);
 CMR2_LAYOUT_CHECK(Car_steeringInputMode_Check, offsetof(Car, steeringInputMode) == 0xb88);
 CMR2_LAYOUT_CHECK(Car_analogThrottle_Check, offsetof(Car, analogThrottle) == 0xb8c);
 CMR2_LAYOUT_CHECK(Car_analogBrake_Check, offsetof(Car, analogBrake) == 0xb90);

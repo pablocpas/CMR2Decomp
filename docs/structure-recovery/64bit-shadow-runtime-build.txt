@@ -1,0 +1,322 @@
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+Car.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+CarEffects.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+CarPhysics.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+FixedPoint.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Frontend.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+FrontendScreens.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Game.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+GameInfo.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Graphics.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+HudDash.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Mesh.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+NetRace.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Race.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+RallyData.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+RallyTiming.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+SceneNode.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Sector.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Sound.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Sprite.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+StageObjects.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Generating Code...
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\StageObjects.cpp(14058) : warning C4700: local variable 'pEnd' used without having been initialized
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\GameInfo.cpp(5893) : warning C4715: 'OptionMenu_TransformHudPointToScreen' : not all control paths return a value
+Compiling...
+StageTiming.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+StageUI.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+TimingUtils.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+TrackCollision.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Generating Code...
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\StageTiming.cpp(6196) : warning C4700: local variable 'unset' used without having been initialized
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+Command line warning D4025 : overriding '/O2' with '/O1'
+CrtTypeInfo.cpp
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+ZlibAdler32.cpp
+ZlibCrc32.cpp
+ZlibDeflate.cpp
+ZlibGzio.cpp
+ZlibInfblock.cpp
+ZlibInfcodes.cpp
+ZlibInffast.cpp
+ZlibInflate.cpp
+ZlibInftrees.cpp
+ZlibInfutil.cpp
+ZlibTrees.cpp
+Generating Code...
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+ZlibZutil.cpp
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+AIHelper.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+CascadeCallbacks.cpp
+CascadeSeedDeps.cpp
+Collision2D.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+FileBuffer.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Font.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+FrontendDraw.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+FrontendMenus.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+FrontendNetworkRally.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+FrontendStubs.cpp
+GameConnections.cpp
+GameMenus.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+GameNetwork.cpp
+GenericFileLoader.cpp
+Input.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+InstallInfo.cpp
+LayoutChecks.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Logger.cpp
+Menu.cpp
+NetPlayers.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Generating Code...
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\InstallInfo.cpp(170) : warning C4700: local variable 'unknownLanguageID' used without having been initialized
+Compiling...
+NetworkLeaderboards.cpp
+OptionMenuRows.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+RallyRoute.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+RegKey.cpp
+SharedData.cpp
+Stage.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+StageSplitData.cpp
+SurfaceTypes.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Texture.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+TrackLighting.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+VehiclePhysics.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+WheelTrail.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+main.cpp
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(264) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(309) : warning C4405: 'out' : identifier is reserved word
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\CMR2Decomp\FixedPoint.h(410) : warning C4405: 'out' : identifier is reserved word
+Generating Code...
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+Microsoft (R) Incremental Linker Version 6.00.8447
+Copyright (C) Microsoft Corp 1992-1998. All rights reserved.
+
+/debug
+/out:Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\CMR2.exe
+user32.lib
+gdi32.lib
+advapi32.lib
+ole32.lib
+msacm32.lib
+winmm.lib
+Z:\home\pablo\colin_mcrae_linux\CMR2Decomp\third_party\dx7sdk-7001\lib\dxguid.lib
+Z:\home\pablo\colin_mcrae_linux\CMR2Decomp\third_party\dx7sdk-7001\lib\dinput.lib
+Z:\home\pablo\colin_mcrae_linux\CMR2Decomp\third_party\dx7sdk-7001\lib\ddraw.lib
+Z:\home\pablo\colin_mcrae_linux\CMR2Decomp\third_party\bink-sdk-1.0p\lib\binkw32.lib
+/INCREMENTAL:NO
+/DEBUG
+/PDB:Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\CMR2.pdb
+/SUBSYSTEM:WINDOWS
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\AIHelper.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Car.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\CarEffects.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\CarPhysics.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\CascadeCallbacks.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\CascadeSeedDeps.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Collision2D.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\CrtTypeInfo.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\FileBuffer.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\FixedPoint.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Font.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Frontend.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\FrontendDraw.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\FrontendMenus.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\FrontendNetworkRally.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\FrontendScreens.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\FrontendStubs.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Game.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\GameConnections.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\GameInfo.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\GameMenus.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\GameNetwork.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\GenericFileLoader.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Graphics.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\HudDash.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Input.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\InstallInfo.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\LayoutChecks.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Logger.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Menu.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Mesh.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\NetPlayers.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\NetRace.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\NetworkLeaderboards.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\OptionMenuRows.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Race.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\RallyData.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\RallyRoute.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\RallyTiming.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\RegKey.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\SceneNode.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Sector.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\SharedData.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Sound.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Sprite.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Stage.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\StageObjects.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\StageSplitData.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\StageTiming.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\StageUI.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\SurfaceTypes.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\Texture.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\TimingUtils.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\TrackCollision.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\TrackLighting.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\VehiclePhysics.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\WheelTrail.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\ZlibAdler32.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\ZlibCrc32.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\ZlibDeflate.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\ZlibGzio.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\ZlibInfblock.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\ZlibInfcodes.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\ZlibInffast.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\ZlibInflate.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\ZlibInftrees.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\ZlibInfutil.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\ZlibTrees.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\ZlibZutil.obj
+Z:\tmp\cmr2-shadow-validation-w__ac8yu\repo\build\main.obj
+OK -> build/CMR2.exe

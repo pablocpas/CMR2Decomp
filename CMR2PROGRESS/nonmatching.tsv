@@ -120,7 +120,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4e5630	FrontendMenu_DrawProfileBestStageTimes	FrontendScreens.cpp	1632	0.7011070110701108	0.6967741935483871
 0x48c900	StageObject_MoveRecursiveBoxCorners	StageObjects.cpp	310	0.7023809523809523	0.7176470588235294
 0x4475f0	Dash_BuildInterpolatedCockpitMatrix	HudDash.cpp	1036	0.7040498442367601	0.6889226100151745
-0x4b4180	Scene_EmitProjectedShadowMesh	SceneNode.cpp	781	0.7075664621676891	0.7151515151515152
 0x4b11c0	Billboard_Add	Graphics.cpp	825	0.7078891257995735	0.7166666666666667
 0x499de0	Car_ShatterWindow	CarEffects.cpp	2697	0.7103825136612022	0.6378492356352135
 0x46bdc0	Replay_EncodeControlPacket	StageObjects.cpp	254	0.711340206185567	0.7448979591836735
@@ -134,6 +133,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x447f70	StageTiming_ResetRaceDriverTimes	HudDash.cpp	400	0.7226890756302521	0.6776859504132231
 0x47aa70	SurfaceSound_UpdateNearestLocalCarEngines	StageObjects.cpp	676	0.7247706422018348	0.7155963302752294
 0x4816f0	CarPart_IntegrateHubGroundContact	StageTiming.cpp	5064	0.7258637391023571	0.7448453608247423
+0x4b4180	Scene_EmitProjectedShadowMesh	SceneNode.cpp	781	0.7261663286004056	0.7217741935483871
 0x442e90	Car_SmoothForceFeedback	Car.cpp	301	0.7261904761904762	0.7058823529411765
 0x496e00	CarPhysics_UpdateBodyContactAndSkidTrail	CarPhysics.cpp	4014	0.7262434290335624	0.6752308309915697
 0x4b3c00	Scene_RelightSector	SceneNode.cpp	798	0.7269230769230769	0.7354596622889306

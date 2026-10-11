@@ -1,0 +1,44 @@
+Internal ctest changing into directory: /tmp/cmr2-review-native-current-cn_fi7lz/build
+Test project /tmp/cmr2-review-native-current-cn_fi7lz/build
+      Start  1: net_session
+      Start 19: bink_file_intro
+      Start 10: bink_file_Aus
+ 1/19 Test #10: bink_file_Aus ....................   Passed    1.94 sec
+      Start 11: bink_file_Fin
+ 2/19 Test #11: bink_file_Fin ....................   Passed    1.83 sec
+      Start 15: bink_file_Ken
+ 3/19 Test  #1: net_session ......................   Passed    5.30 sec
+      Start 14: bink_file_Ita
+ 4/19 Test #15: bink_file_Ken ....................   Passed    1.82 sec
+      Start 17: bink_file_UK
+ 5/19 Test #14: bink_file_Ita ....................   Passed    1.85 sec
+      Start 13: bink_file_Gre
+ 6/19 Test #17: bink_file_UK .....................   Passed    1.86 sec
+      Start 12: bink_file_Fra
+ 7/19 Test #19: bink_file_intro ..................   Passed    7.55 sec
+      Start 16: bink_file_Swe
+ 8/19 Test #13: bink_file_Gre ....................   Passed    1.88 sec
+      Start 18: bink_file_cm
+ 9/19 Test #12: bink_file_Fra ....................   Passed    1.83 sec
+      Start  8: reference_capture_format
+10/19 Test  #8: reference_capture_format .........   Passed    0.07 sec
+      Start  2: bink_decoder
+11/19 Test  #2: bink_decoder .....................   Passed    0.01 sec
+      Start  5: math_tables
+12/19 Test  #5: math_tables ......................   Passed    0.00 sec
+      Start  3: movie_playback
+13/19 Test  #3: movie_playback ...................   Passed    0.00 sec
+      Start  6: car_scheduler
+14/19 Test  #6: car_scheduler ....................   Passed    0.00 sec
+      Start  4: movie_render_state
+15/19 Test  #4: movie_render_state ...............   Passed    0.00 sec
+      Start  7: preview_cleanup
+16/19 Test  #7: preview_cleanup ..................   Passed    0.00 sec
+      Start  9: physics_original_parity
+17/19 Test #16: bink_file_Swe ....................   Passed    1.85 sec
+18/19 Test #18: bink_file_cm .....................   Passed    1.51 sec
+19/19 Test  #9: physics_original_parity ..........   Passed   15.47 sec
+
+100% tests passed, 0 tests failed out of 19
+
+Total Test time (real) =  24.85 sec

@@ -22349,9 +22349,9 @@
   },
   "0x4b4180": {
     "n": "Scene_EmitProjectedShadowMesh",
-    "s": 0.7151515151515152,
+    "s": 0.7217741935483871,
     "x": false,
-    "fz": 0.7717171717171717,
+    "fz": 0.7741935483870968,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Scene_EmitProjectedShadowMesh"

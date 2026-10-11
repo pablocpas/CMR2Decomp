@@ -1,0 +1,20 @@
+{
+  "before": {
+    "types": 313,
+    "raw_accesses": 818,
+    "fixed_sizes": 64,
+    "hex_multipliers": 2181,
+    "unknown_identifiers": 9967,
+    "unnamed_field_declarations": 1451,
+    "unique_unknown_identifiers": 1227
+  },
+  "after": {
+    "types": 313,
+    "raw_accesses": 815,
+    "fixed_sizes": 63,
+    "hex_multipliers": 2180,
+    "unknown_identifiers": 9963,
+    "unnamed_field_declarations": 1448,
+    "unique_unknown_identifiers": 1226
+  }
+}

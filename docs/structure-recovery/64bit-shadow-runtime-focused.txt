@@ -1,0 +1,1 @@
+PASS: 80 shadow registration/emission/projection cases; full guarded buffers, shared vertices, complete batches, emitted-face model and x86 ABI

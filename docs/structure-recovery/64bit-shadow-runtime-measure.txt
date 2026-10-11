@@ -1,0 +1,72 @@
+check_dupes: limpio (3364 funciones, 0 stubs, 3212 globales anotados)
+[INFO] Parsing /tmp/cmr2-shadow-validation-w__ac8yu/repo/build/CMR2.pdb ...
+0128:fixme:winediag:loader_init wine-staging 10.15 is a testing version containing experimental patches.
+0128:fixme:winediag:loader_init Please mention your exact version when filing bug reports on winehq.org.
+0138:fixme:winediag:loader_init wine-staging 10.15 is a testing version containing experimental patches.
+0138:fixme:winediag:loader_init Please mention your exact version when filing bug reports on winehq.org.
+0138:fixme:ntdll:EtwEventSetInformation (deadbeef, 2, 004310A8, 43) stub
+0138:fixme:ver:GetCurrentPackageId (0060FEB4 00000000): stub
+[ERROR] Dropped duplicate address 0x817eb0 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+[ERROR] Dropped duplicate address 0x817da0 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+[ERROR] Dropped duplicate address 0x817d98 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+[ERROR] Dropped duplicate address 0x523c18 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+[ERROR] Dropped duplicate address 0x593cac on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+[ERROR] Dropped duplicate address 0x593ba4 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+[ERROR] Dropped duplicate address 0x593ba8 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+[ERROR] Dropped duplicate address 0x5a1818 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+[ERROR] Dropped duplicate address 0x5a1820 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+[ERROR] Dropped duplicate address 0x5a1ea0 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+[ERROR] Dropped duplicate address 0x667204 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Logger.h
+[ERROR] Dropped duplicate address 0x667348 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Logger.h
+[ERROR] Dropped duplicate address 0x542630 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x542870 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x542874 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x542878 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x542884 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x5428c4 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x542904 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x542944 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x542984 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x5429c4 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x5429c5 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x5429c6 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x5429c8 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+[ERROR] Dropped duplicate address 0x5429e8 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+
+
+Implemented:  100.00%  (3368 / 3368)
+Accuracy:     97.02%
+Progress:     97.02%
+0180:fixme:ntdll:EtwEventSetInformation (deadbeef, 2, 004310A8, 43) stub
+0180:fixme:ver:GetCurrentPackageId (0060FEB4 00000000): stub
+Dropped duplicate address 0x817eb0 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+Dropped duplicate address 0x817da0 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+Dropped duplicate address 0x817d98 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+Dropped duplicate address 0x523c18 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+Dropped duplicate address 0x593cac on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+Dropped duplicate address 0x593ba4 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+Dropped duplicate address 0x593ba8 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+Dropped duplicate address 0x5a1818 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+Dropped duplicate address 0x5a1820 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+Dropped duplicate address 0x5a1ea0 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Game.h
+Dropped duplicate address 0x667204 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Logger.h
+Dropped duplicate address 0x667348 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/Logger.h
+Dropped duplicate address 0x542630 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x542870 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x542874 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x542878 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x542884 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x5428c4 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x542904 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x542944 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x542984 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x5429c4 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x5429c5 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x5429c6 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x5429c8 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+Dropped duplicate address 0x5429e8 on GLOBAL annotation in file: /tmp/cmr2-shadow-validation-w__ac8yu/repo/CMR2Decomp/StageTiming.cpp
+fastcmp_sha256 1d3eaf2fdf3cf6d919a5362e503d1fb66552c62203e55fc46d95798edce89c49
+functions 3364 byte_exact 2924
+errors []
+Perfect match: 56.17%  Fuzzy match: 94.52%
+Source functions: 3364 relocated byte-exact: 2924 remaining: 440

@@ -1,0 +1,21 @@
+{
+  "baseline": "9e7b67aa4c2ff70bd70c756ef3d86d10167c48a6",
+  "validation": "isolated checkout excludes the pre-existing RallyData.cpp worktree edit",
+  "source_sha256": {
+    "CMR2Decomp/SceneNode.cpp": "d2dad035a5f4a5a538de11031d2a90787eeaf38bf8eb60609752fcbf349ab20c",
+    "CMR2Decomp/LayoutChecks.cpp": "614ce5defa63a2194cfe2071e833759e96395880b32e64fb161e8d3048d71c31",
+    "CMR2Decomp/ShadowPart.h": "7b3d96538cda487ec312d3ffba16cbf85aa43b3fb799341a7c032ce483a238f1"
+  },
+  "exe_sha256": "5c338a93dc9826d382f139bd4761065bfd83c9b77f91ce32dc543464e96c3e20",
+  "pdb_sha256": "1fd497f7e3f14d765c21c080572d4ce36979d553edcfa8a1ec750405157e1149",
+  "native_game_sha256": "105b36058b7764b4ee40d3a8e01fa4846c705f2e2e1a929d613e2913b1be892c",
+  "native_tests": {
+    "tests": 19,
+    "failures": 0
+  },
+  "native_shadow_cases": 80,
+  "differential_suite": {
+    "harnesses": 130,
+    "failures": 0
+  }
+}

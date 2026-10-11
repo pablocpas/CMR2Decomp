@@ -9,6 +9,7 @@
 #include "Game.h"
 #include "Sector.h"
 #include "Mesh.h"
+#include "ShadowPart.h"
 
 SceneNode *g_sceneNodes[4096];
 int g_sceneNodeCount;
@@ -1110,31 +1111,6 @@ void Scene_RelightSector(int sector)
     }
 }
 
-// One mesh of a shadow caster with its per-vertex working buffers (0x58 bytes).
-struct ShadowPart {
-    float light[12];            // 0x0  light direction and basis in mesh space (4 x float[3])
-    Mesh *pMesh;                // 0x30 mesh (or its shadow cylinder)
-    SceneNode *pNode;           // 0x34 node that owns the mesh
-    void *pVertexWork;          // 0x38 12 bytes per vertex
-    void *pVertexWork2;         // 0x3c 12 bytes per vertex
-    void *pVertexFlags;         // 0x40 4 bytes per vertex
-    void *pVertexWork3;         // 0x44 12 bytes per vertex
-    BYTE *pVertices;            // 0x48 0x30 bytes per vertex, colour 0xff000000
-    void *pTriangleWork;        // 0x4c 12 bytes per triangle
-    short faceCount;            // 0x50 faces emitted by Scene_EmitProjectedShadowMesh
-    short vertexCount;          // 0x52 vertices emitted
-    int field_0x54;
-};
-
-// A scene node hierarchy that casts shadows (0x14 bytes).
-struct ShadowCaster {
-    SceneNode *pNode;           // 0x0
-    ShadowPart *pParts;         // 0x4
-    BYTE partCount;             // 0x8
-    int field_0xc;              // 0xc
-    int field_0x10;
-};
-
 int Scene_ApplyGroundLightToMeshTree(SceneNode *pNode, int param_2);
 
 // Steps the red channel of the ambient colour of every sector light around
@@ -1195,8 +1171,8 @@ void Scene_MarkShadowPartDirty(SceneNode *pNode, Mesh *pMesh)
                         ++i;
                     } while (i < count);
                     if (pPart != NULL) {
-                        pPart->field_0x54 = 1;
-                        pCaster->field_0xc = 1;
+                        pPart->verticesDirty = 1;
+                        pCaster->projectionDirty = 1;
                     }
                 }
             }
@@ -1216,12 +1192,12 @@ static __forceinline void ShadowPart_Init(ShadowPart *pPart)
     pPart->pVertexWork = CFileBuffer::AllocateLockedBuffer(pPart->pMesh->field_0x10 * 0xc);
     pPart->pVertexFlags = CFileBuffer::AllocateLockedBuffer(pPart->pMesh->field_0x10 * 4);
     pPart->pVertexWork2 = CFileBuffer::AllocateLockedBuffer(pPart->pMesh->field_0x10 * 0xc);
-    pPart->pTriangleWork = CFileBuffer::AllocateLockedBuffer(pPart->pMesh->triangleCount * 0xc);
+    pPart->pTriangleWork = (BYTE **)CFileBuffer::AllocateLockedBuffer(pPart->pMesh->triangleCount * 3 * sizeof(*pPart->pTriangleWork));
     pPart->pVertices = (BYTE *)CFileBuffer::AllocateLockedBuffer(pPart->pMesh->field_0x10 * 0x30);
     for (i = 0; i < pPart->pMesh->field_0x10; i++)
         *(DWORD *)(pPart->pVertices + i * 0x30 + 0x1c) = 0xff000000;
     pPart->pVertexWork3 = CFileBuffer::AllocateLockedBuffer(pPart->pMesh->field_0x10 * 0xc);
-    pPart->field_0x54 = 1;
+    pPart->verticesDirty = 1;
 }
 
 // Registers pNode and every mesh below it as a shadow caster (at most 29). Small
@@ -1242,7 +1218,7 @@ void Scene_AddShadowCaster(SceneNode *pNode, int exactMeshes)
     pCaster->pNode = pNode;
     pCaster->pParts = NULL;
     pCaster->partCount = 0;
-    pCaster->field_0xc = 1;
+    pCaster->projectionDirty = 1;
     if (CASTS_SHADOW(pNode))
         pCaster->partCount = 1;
     for (pChild = pNode->pFirstChild; pChild != NULL; pChild = pChild->pNext) {
@@ -1756,7 +1732,7 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
     float *pf;
     float *pIn;
     float *pOut;
-    DWORD **pTri;
+    BYTE **pTri;
     BYTE *pv0;
     BYTE *pv1;
     BYTE *pv2;
@@ -1859,6 +1835,8 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
     }
     i = 0;
     if (pCaster2->partCount != 0) {
+        // 64BIT: the byte cursor preserves MSVC6's register schedule; its
+        // pitch follows the native record instead of the Win32 0x58 bytes.
         offset = 0;
         do {
             pPart = (ShadowPart *)((BYTE *)pCaster2->pParts + offset);
@@ -1877,9 +1855,9 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
                 projX[0] = projScaleX * pf[9];
                 projX[1] = projScaleX * pf[10];
                 projX[2] = projScaleX * pf[11];
-                pos[0] = *(float *)((BYTE *)pPart->pNode + 0x148);
-                pos[1] = *(float *)((BYTE *)pPart->pNode + 0x14c);
-                pos[2] = *(float *)((BYTE *)pPart->pNode + 0x150);
+                pos[0] = pPart->pNode->worldF[12];
+                pos[1] = pPart->pNode->worldF[13];
+                pos[2] = pPart->pNode->worldF[14];
                 delta[0] = origin[0] - pos[0];
                 delta[1] = origin[1] - pos[1];
                 delta[2] = origin[2] - pos[2];
@@ -1909,7 +1887,7 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
                             pOut += 0xc;
                         } while (vi < (unsigned short)pPart->vertexCount);
                     }
-                    pTri = (DWORD **)pPart->pTriangleWork;
+                    pTri = pPart->pTriangleWork;
                     triIndex = 0;
                     if (pPart->faceCount != 0) {
                         do {
@@ -1943,7 +1921,7 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
                 }
             }
             i++;
-            offset += 0x58;
+            offset += sizeof(ShadowPart);
         } while (i < pCaster2->partCount);
     }
 }
@@ -1968,10 +1946,10 @@ void Scene_ProjectDirtyShadowParts(ShadowCaster *pCaster, int param2)
     int j;
     float scaled[3];
 
-    if (pCaster->field_0xc != 0) {
+    if (pCaster->projectionDirty != 0) {
         for (i = 0; i < pCaster->partCount; i++) {
             pPart = &pCaster->pParts[i];
-            if (pPart->field_0x54 != 0) {
+            if (pPart->verticesDirty != 0) {
                 {
                     float *pSrc = (float *)pPart->pMesh->pVertexData;
                     float *pWork2 = (float *)pPart->pVertexWork2;
@@ -1997,15 +1975,15 @@ void Scene_ProjectDirtyShadowParts(ShadowCaster *pCaster, int param2)
                     }
                 }
             }
-            pPart->field_0x54 = 0;
+            pPart->verticesDirty = 0;
         }
     }
-    pCaster->field_0xc = 0;
-    if (pCaster->field_0x10 != 0) {
+    pCaster->projectionDirty = 0;
+    if (pCaster->meshDirty != 0) {
         for (i = 0; i < pCaster->partCount; i++)
             Scene_EmitProjectedShadowMesh(pCaster->pParts + i, param2);
     }
-    pCaster->field_0x10 = 0;
+    pCaster->meshDirty = 0;
 }
 
 // Marks the node's shadow caster and emits every light zone vertex collected by
@@ -2033,7 +2011,7 @@ void Scene_EmitNodeShadowGeometry(SceneNode *pNode, int param2, BYTE param3)
             } while (i < count);
             if (pCaster != NULL) {
                 i = 0;
-                pCaster->field_0x10 = 1;
+                pCaster->meshDirty = 1;
                 if ((unsigned short)g_sceneZoneCount > 0) {
                     do {
                         Scene_ProjectDirtyShadowParts(pCaster, param2);
@@ -2669,7 +2647,7 @@ extern const float g_netZero;          // 0x0051131c, 0.0f
 extern const float g_unk0x00511ce8;    // 0x00511ce8, 0.1f
 // Scratch table of emitted vertex indices of the shadow mesh builder (-1 none).
 // GLOBAL: CMR2 0x006e0354
-unsigned short g_unk0x006e0354[0x3f0];
+unsigned short g_shadowVertexRemap[0x3f0];
 
 // Emits the shadow mesh of a scene node: transforms the light direction and
 // basis by the node matrix, projects every vertex of the mesh, then walks the
@@ -2683,7 +2661,7 @@ void Scene_EmitProjectedShadowMesh(ShadowPart *pPart, int param_2)
     BYTE **pEdge;
     float scale;
     BYTE *pOut;
-    int off;
+    INT_PTR off;
     int k;
     unsigned short *pFace;
     int i;
@@ -2707,7 +2685,7 @@ void Scene_EmitProjectedShadowMesh(ShadowPart *pPart, int param_2)
     pPart->faceCount = 0;
     pPart->vertexCount = 0;
     {
-        unsigned short *pw = g_unk0x006e0354;
+        unsigned short *pw = g_shadowVertexRemap;
         for (i = pPart->pMesh->field_0x10; i > 0; i--)
             *pw++ = 0xffff;
     }
@@ -2734,7 +2712,7 @@ void Scene_EmitProjectedShadowMesh(ShadowPart *pPart, int param_2)
         }
     }
 
-    pEdge = (BYTE **)pPart->pTriangleWork;
+    pEdge = pPart->pTriangleWork;
     pOut = (BYTE *)pPart->pVertexWork3;
     pVtx = pPart->pVertices;
     i = pPart->pMesh->triangleCount;
@@ -2748,19 +2726,21 @@ void Scene_EmitProjectedShadowMesh(ShadowPart *pPart, int param_2)
                 ((float *)pPart->pVertexFlags)[index[1]] >= g_netZero ||
                 ((float *)pPart->pVertexFlags)[index[2]] >= g_netZero) {
                 pi = index;
-                off = (char *)pEdge - (char *)index;
+                // 64BIT: retain MSVC6's shared index/destination cursor, but
+                // account for native pointer slots being wider than ints.
+                off = (INT_PTR)pEdge - (INT_PTR)index;
                 k = 3;
                 do {
                     v = *pi;
-                    s = g_unk0x006e0354[v];
+                    s = g_shadowVertexRemap[v];
                     if (s == -1) {
                         DWORD *pSrcD = (DWORD *)((BYTE *)pPart->pVertexWork2 + v * 0xc);
                         DWORD *pOutD = (DWORD *)pOut;
                         pOutD[0] = pSrcD[0];
                         pOutD[1] = pSrcD[1];
                         pOutD[2] = pSrcD[2];
-                        *(BYTE **)((char *)pi + off) = pVtx;
-                        g_unk0x006e0354[v] = pPart->vertexCount;
+                        *(BYTE **)((char *)pi + off + (pi - index) * (sizeof(*pEdge) - sizeof(*pi))) = pVtx;
+                        g_shadowVertexRemap[v] = pPart->vertexCount;
                         {
                             float vy = ((float *)pPart->pVertexFlags)[v];
                             colour[3] = baseColour;
@@ -2783,7 +2763,7 @@ void Scene_EmitProjectedShadowMesh(ShadowPart *pPart, int param_2)
                         pVtx += 0x30;
                         (pPart->vertexCount)++;
                     } else {
-                        *(BYTE **)((char *)pi + off) = (BYTE *)(pVtx + s * 0x30);
+                        *(BYTE **)((char *)pi + off + (pi - index) * (sizeof(*pEdge) - sizeof(*pi))) = pPart->pVertices + s * 0x30;
                     }
                     pi++;
                 } while (--k);

@@ -851,6 +851,14 @@
       "0x4b5380"
     ]
   },
+  "differential_shadow_buffers.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4b45d0",
+      "0x4b4180",
+      "0x4b5770"
+    ]
+  },
   "differential_slip.py": {
     "arguments": "report",
     "targets": [

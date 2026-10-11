@@ -1,0 +1,23 @@
+{
+  "baseline": "9e7b67aa4c2ff70bd70c756ef3d86d10167c48a6",
+  "functions": 3364,
+  "exact_before": 2924,
+  "exact_after": 2924,
+  "regressions": [],
+  "changes": [
+    {
+      "address": "0x4b4180",
+      "name": "Scene_EmitProjectedShadowMesh",
+      "before": {
+        "x": false,
+        "s": 0.7151515151515152,
+        "fz": 0.7717171717171717
+      },
+      "after": {
+        "x": false,
+        "s": 0.7217741935483871,
+        "fz": 0.7741935483870968
+      }
+    }
+  ]
+}
