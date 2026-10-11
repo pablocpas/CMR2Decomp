@@ -28,7 +28,8 @@ struct SceneNode {
     FixMatrix world;            // 0xd8  current * parent world
     float worldF[16];           // 0x118 float copy of world for Direct3D
     int allocated;              // 0x158 free the node memory on destroy
-    BYTE field_0x15c[0x14];
+    BYTE field_0x15c[0x10];
+    int cameraDistance;         // 0x16c horizontal distance to the camera, transparent draw sort key
     SceneNode *pNextInSector;   // 0x170
     int dirty;                  // 0x174
     int type;                   // 0x178

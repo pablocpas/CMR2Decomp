@@ -3261,9 +3261,9 @@ static void (__cdecl *s_graphicsInit)(void) = Graphics_InitializeShadowGeometryS
 #pragma data_seg()
 
 // FUNCTION: CMR2 0x004b2e40
-void Graphics_SetRecordField2C(BYTE *p, int value)
+void Graphics_SetRecordField2C(Mesh *p, int value)
 {
-    *(int *)(p + 0x2c) = value;
+    p->field_0x2c = value;
 }
 
 // Shadow volumes: up to 9 cylinders built from meshes, cached by mesh name.

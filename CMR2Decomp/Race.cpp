@@ -4350,7 +4350,7 @@ BYTE *g_unk0x00538238;
 void Race_ResolveStageTexturesAndPalettes(void)
 {
     char *pNames[48];
-    int handles[48];
+    BYTE *handles[48];
     BYTE colour[6];
     BYTE *pPrimary;
     BYTE *pSecondary;
@@ -4406,9 +4406,9 @@ void Race_ResolveStageTexturesAndPalettes(void)
     pNames[46] = g_str0x005194b4;
     pNames[47] = g_str0x005194a8;
     for (i = 0; i < 48; i++)
-        handles[i] = (int)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+        handles[i] = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
                                                        pNames[i], NULL, NULL, 0);
-    StageObject_BlendSettingPairRecords(RallyData_GetPrimaryStageScoreScale(), RallyData_GetSecondaryStageScoreScale(), (BYTE **)handles, &g_unk0x00538238,
+    StageObject_BlendSettingPairRecords(RallyData_GetPrimaryStageScoreScale(), RallyData_GetSecondaryStageScoreScale(), handles, &g_unk0x00538238,
                  &g_unk0x00538234);
     StageObject_SetPairSpeedLimits(g_unk0x00538238, g_unk0x00538234);
     if (g_unk0x00538238 != NULL && g_unk0x00538234 != NULL) {
@@ -4420,12 +4420,12 @@ void Race_ResolveStageTexturesAndPalettes(void)
                 avg = 0xff;
             colour[i] = (BYTE)avg;
         }
-        CGraphics::SetPrimaryColourByte((BYTE)*(int *)((BYTE *)colour + 0));
-        CGraphics::SetPrimaryColourScale((BYTE)*(int *)((BYTE *)colour + 1));
-        CGraphics::SetPrimaryColourBias((BYTE)*(int *)((BYTE *)colour + 2));
-        CGraphics::SetSecondaryColourByte((BYTE)*(int *)((BYTE *)colour + 3));
-        CGraphics::SetSecondaryColourScale((BYTE)*(int *)((BYTE *)colour + 4));
-        CGraphics::SetSecondaryColourBias((BYTE)*(int *)((BYTE *)colour + 5));
+        CGraphics::SetPrimaryColourByte(colour[0]);
+        CGraphics::SetPrimaryColourScale(colour[1]);
+        CGraphics::SetPrimaryColourBias(colour[2]);
+        CGraphics::SetSecondaryColourByte(colour[3]);
+        CGraphics::SetSecondaryColourScale(colour[4]);
+        CGraphics::SetSecondaryColourBias(colour[5]);
         if ((unsigned short)RallyData_GetPrimaryStageScoreScale() >= 0x834) {
             RallyData_SetSelectionFlag20(1);
             StageTiming_CreateWhiteStageLight();

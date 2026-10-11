@@ -1860,9 +1860,9 @@ void StageTiming_LoadCspData(void)
 }
 
 // FUNCTION: CMR2 0x00456c90
-int StageTiming_GetStartTableField244(int unused)
+FixAngles *StageTiming_GetStartTableField244(int unused)
 {
-    return (int)g_carStartAngles;
+    return g_carStartAngles;
 }
 
 // FUNCTION: CMR2 0x00457e00
@@ -7541,8 +7541,7 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *rec
 // Helpers implemented in other translation units.
 struct ReplaySample;
 void Replay_EncodeCarPoseSample(Car *pCar, ReplaySample *pSample);
-extern int g_unk0x00590c44;   // first of the four slot clocks 0x590c44..0x590c53
-extern int g_unk0x00590c50;   // last one (0x590c44 + 3 * 4)
+extern int g_unk0x00590c44[4];   // per-slot thresholds 0x590c44..0x590c53
 extern BYTE g_unk0x00590c60[4];
 
 // Installs the model geometry of part `index` (byte index into the car table)
@@ -7569,9 +7568,12 @@ void StageTiming_WakeUnloadedWheelSlots(void)
     offset = 0;
     for (; offset >= -0xc; slot--) {
         if (StageTiming_GetCarReplayTailEntry(g_partCar, slot) == 0 &&
-            (*(PartState **)((BYTE *)&g_carPartStateTables.parts[3] + offset))[g_partCar->index].pNode == NULL &&
+            // offset steps over ints; the parts table holds pointers, scaled where
+            // they are wider than an int (the factor is 1 on Win32).
+            (*(PartState **)((BYTE *)&g_carPartStateTables.parts[3] +
+                             offset * (int)(sizeof(PartState *) / sizeof(int))))[g_partCar->index].pNode == NULL &&
             g_partSet->damageValues[g_unk0x00590c60[slot]] >
-                *(int *)((int)&g_unk0x00590c50 + offset)) {
+                *(int *)((BYTE *)&g_unk0x00590c44[3] + offset)) {
             CarPart_InitWheelHubSlot(slot);
         }
         offset -= 4;
@@ -7992,11 +7994,11 @@ int StageTiming_LoadStageCarsAndEffects(void)
     if ((char)RallyData_GetSelectionFlag28() && (char)CGameInfo::GetSoundOptionBit30())
         CarEffects_MakeGhost(Car_Get(count - 1));
     for (i = 0; i < count; i++) {
-        StageTiming_SetNodeVertexGrey(*(SceneNode **)((BYTE *)Car_Get(i) + 0x71c), 0);
-        StageTiming_SetNodeVertexGrey(*(SceneNode **)((BYTE *)Car_Get(i) + 0x720), 0);
-        StageTiming_SetNodeTreeVertexGrey(*(SceneNode **)(*(BYTE **)((BYTE *)Car_Get(i) + 0x71c) + 4), 0);
-        StageTiming_SetNodeTreeVertexGrey(*(SceneNode **)(*(BYTE **)((BYTE *)Car_Get(i) + 0x720) + 4), 0);
-        pNode = SceneNode_FindByType(*(SceneNode **)((BYTE *)Car_Get(i) + 0x720), 0xe);
+        StageTiming_SetNodeVertexGrey(Car_Get(i)->pSceneRoot, 0);
+        StageTiming_SetNodeVertexGrey(Car_Get(i)->pBodyNode, 0);
+        StageTiming_SetNodeTreeVertexGrey(Car_Get(i)->pSceneRoot->pFirstChild, 0);
+        StageTiming_SetNodeTreeVertexGrey(Car_Get(i)->pBodyNode->pFirstChild, 0);
+        pNode = SceneNode_FindByType(Car_Get(i)->pBodyNode, 0xe);
         if (pNode != NULL)
             StageTiming_SetNodeVertexGrey(pNode, 0xff);
     }
@@ -8043,7 +8045,7 @@ char *Car_GetDirectoryPath(int car);
 void Graphics_SetTextureStageState(int param1);
 struct SceneNode *Sector_BuildC3DModelScene(void *data, struct SceneNode *parent, struct GenericFile *archive);
 int *StageTiming_GetCarStartPosition(int car);
-int StageTiming_GetStartTableField244(int unused);
+FixAngles *StageTiming_GetStartTableField244(int unused);
 int Car_UsesNarrowWheels(Car *pCar, int param2);
 BOOL Car_ShowsCleanWheels(Car *pCar);
 void Car_SwapWheelTextures(char mode, SceneNode **pWheels);
@@ -8321,7 +8323,7 @@ classes:
     if (((char)RallyData_GetFlag25() && CGameInfo::GetGameModeOptionBit19() == 0 && twoPlayers == 0 && car == 1) ||
         (char)RallyData_IsChampionshipFinalStage() || CGameInfo::GetConfiguredGameMode() == 4)
         teamByte = 0;
-    StageTiming_PlaceCarViewNodesAndBody(pScene, pBody, car, teamByte, (FixAngles *)StageTiming_GetStartTableField244(car), (FixVector *)StageTiming_GetCarStartPosition(car), 0);
+    StageTiming_PlaceCarViewNodesAndBody(pScene, pBody, car, teamByte, StageTiming_GetStartTableField244(car), (FixVector *)StageTiming_GetCarStartPosition(car), 0);
     pWheelData = NULL;
     if (pRecord->detailCode == 'A') {
         if (Car_UsesNarrowWheels(Car_Get(car), 1)) {
@@ -8432,7 +8434,7 @@ void StageObject_ClearPartTuningState(void);
 void StageObject_ResetAttachedCarNodes(BYTE *pCar);
 void StageTiming_RegisterSlotMeshNode(SceneNode *pNode, CarPartSet *pSlot);
 void StageObject_AssignMatchingCarClassSlots(BYTE *pCar, BYTE *pObject, BYTE flag);
-void CarDamage_RebuildPartBounds(int param_1, int param_2, int param_3);
+void CarDamage_RebuildPartBounds(int param_1, SceneNode *param_2, CarPartSet *param_3);
 void StageObject_ResetCarObjectState(Car *pCar);
 
 // Sets up the damage parts of the cars in `pOrder` (last first): collects the
@@ -8570,7 +8572,7 @@ void CarDamage_SetupOrderedCarParts(int lock, int keep, short *pOrder, short cou
                         }
                     }
                 }
-                CarDamage_RebuildPartBounds(pCar->index, (int)pCar->pBodyNode, (int)pParts);
+                CarDamage_RebuildPartBounds(pCar->index, pCar->pBodyNode, pParts);
                 StageObject_ResetCarObjectState(pCar);
             }
         }

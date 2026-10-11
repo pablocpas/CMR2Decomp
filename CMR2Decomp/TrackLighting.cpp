@@ -5,7 +5,7 @@
 // Mesh lighting reads the shared stage state defined in TrackCollision.cpp.
 extern Mesh *g_stageMesh4Copy;
 extern Mesh *g_stageMesh6Copy;
-extern BYTE *g_unk0x005920f0;
+extern Mesh *g_unk0x005920f0;
 extern short g_stageMesh4Count;
 extern short g_stageMesh5Count;
 extern short g_stageMesh6Count;
@@ -43,8 +43,8 @@ void TrackLighting_SetMesh5DiffuseColour(DWORD *pColour)
     colour.value = *pColour;
 
     for (i = g_stageMesh5Count - 1; i >= 0; i--) {
-        *(DWORD *)((BYTE *)((Mesh *)g_unk0x005920f0)->pVertexData + i * 0x30 + 0x18) = PACK_STAGE_COLOUR(colour);
-        *(DWORD *)((BYTE *)((Mesh *)g_unk0x005920f0)->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
+        *(DWORD *)((BYTE *)g_unk0x005920f0->pVertexData + i * 0x30 + 0x18) = PACK_STAGE_COLOUR(colour);
+        *(DWORD *)((BYTE *)g_unk0x005920f0->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
     }
     g_stageColourValue = 1;
 }

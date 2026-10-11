@@ -4062,7 +4062,7 @@ void Race_LoadCollisionSoundBanks(void);
 void Race_InitCoDriverSamples(void);
 void Race_ReleaseFrameResources(void);
 void RallyData_DrawLoadingProgress(int progress, char drawScene, BYTE alpha);
-void RallyData_GrowEntryAndNotifyCompletion(BYTE *, unsigned int);
+void RallyData_GrowEntryAndNotifyCompletion(CallbackStateMachine *, unsigned int);
 BYTE RallyData_FreeChallengeSceneObjects(void);
 
 // GLOBAL: CMR2 0x005297f0
@@ -4678,22 +4678,22 @@ playerExit:
     }
 }
 
-void RallyData_GrowEntryAndNotifyCompletion(BYTE *, unsigned int);
+void RallyData_GrowEntryAndNotifyCompletion(CallbackStateMachine *, unsigned int);
 
 // Advances every entry of a menu screen one step.
 // FUNCTION: CMR2 0x00405470
-void InRaceMenu_AdvanceScreenEntries(BYTE *param1)
+void InRaceMenu_AdvanceScreenEntries(CallbackStateMachine *param1)
 {
     BYTE i;
 
     i = 0;
-    if (*param1 > 0) {
+    if (param1->count > 0) {
         do {
             // the original passes the byte counter as a full dword (the callee
             // keeps only its low byte)
             RallyData_GrowEntryAndNotifyCompletion(param1, *(unsigned int *)&i);
             i++;
-        } while (i < *param1);
+        } while (i < param1->count);
     }
 }
 

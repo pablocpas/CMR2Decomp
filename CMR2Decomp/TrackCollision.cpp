@@ -437,7 +437,7 @@ void Car_UpdateAutomaticGear(void)
 void StageObject_GetSkyNode(SceneNode **pOut);
 void StageObject_GetGroundNode(SceneNode **pOut);
 void StageObject_GetCloudNodes(SceneNode **pOut1, SceneNode **pOut2);
-extern BYTE *g_unk0x005920f0;
+extern Mesh *g_unk0x005920f0;
 extern FixVector g_unk0x00592114;
 
 // GLOBAL: CMR2 0x00591c80
@@ -582,7 +582,7 @@ void Stage_InitLightMeshes(void)
     g_stageMesh4Copy = g_stageMesh4;
     g_stageMesh4Count = (short)Mesh_GetField0x10(g_stageMesh4);
     g_stageMesh5 = (Mesh *)node->pObject;
-    g_unk0x005920f0 = (BYTE *)g_stageMesh5;
+    g_unk0x005920f0 = g_stageMesh5;
     g_stageMesh5Count = (short)Mesh_GetField0x10(g_stageMesh5);
     if (child != NULL) {
         g_stageMesh6 = (Mesh *)child->pObject;

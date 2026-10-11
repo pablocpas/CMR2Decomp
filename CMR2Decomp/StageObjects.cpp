@@ -121,8 +121,8 @@ int CarDamage_PickRandomTriangleEdgePoint(FixVector *pOut, CarPartSet *pParts, i
 int StageObject_IsEligibleType(short type, int mode, int category);
 void StageObject_UpdateEnabledCornerContactFrames(Car *param_1, short *param_2, short param_3);
 void CarDamage_UpdateSuspensionImpactContacts(Car *pCar);
-void CarDamage_RebuildPartBounds(int param_1, int param_2, int param_3);
-void CarDamage_BuildPartVertexBuffer(int param_1, int param_2, CarPartSet *set);
+void CarDamage_RebuildPartBounds(int param_1, SceneNode *param_2, CarPartSet *param_3);
+void CarDamage_BuildPartVertexBuffer(int param_1, SceneNode *param_2, CarPartSet *set);
 void StageObject_SetCarStateSlot(int value, int index);
 void StageObject_ClearCarStateSlots(void);
 void Mesh_ReadVertexFixed(Mesh **ppMeshes, int mesh, int vertex, int *pOut);
@@ -1005,7 +1005,7 @@ StageTableEntry *StageObject_GetScreenRectangleEntry(int index)
 void StageObject_ClearNodeValueBelowThreshold(SceneNode *pNode, BYTE threshold)
 {
     if (pNode->type == 0 && pNode->pObject != NULL &&
-        *(BYTE *)(*(int *)((BYTE *)pNode->pObject + 0x24) + 0x37) <= threshold)
+        ((Mesh *)pNode->pObject)->pTriangles->colour[0][3] <= threshold)
         pNode->viewMask = 0;
 }
 
@@ -1792,7 +1792,7 @@ char g_strBflExt[] = ".bfl";
 // GLOBAL: CMR2 0x0051c6f4
 char g_strTempSky[] = "TEMP.SKY";
 
-void Graphics_SetRecordField2C(BYTE *p, int value);
+void Graphics_SetRecordField2C(Mesh *p, int value);
 void StageObject_BuildCloudTexturePath(void);
 struct SceneNode *Sector_BuildC3DModelScene(void *data, struct SceneNode *parent, struct GenericFile *archive);
 GenericFile *Race_GetLoadedStageFile(void);
@@ -1808,28 +1808,28 @@ void StageObjects_LoadSkyAndGround(void)
     GenericFile *pFile;
     GenericFile *pC3d;
     SceneNode *node;
-    BYTE *pMesh;
+    Mesh *pMesh;
 
     pFile = (GenericFile *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempSky, NULL, NULL, 0);
     if (pFile != NULL) {
         g_stageSkyNode = Sector_BuildC3DModelScene(pFile, RallyData_GetChallengeRenderState(),
                                            Race_GetLoadedStageFile());
         if (g_stageSkyNode != 0) {
-            Graphics_SetRecordField2C((BYTE *)g_stageSkyNode->pObject, 0);
+            Graphics_SetRecordField2C((Mesh *)g_stageSkyNode->pObject, 0);
             g_stageSkyNode->visible = 0;
             node = g_stageSkyNode->pFirstChild;
             if (node != 0) {
-                pMesh = (BYTE *)node->pObject;
+                pMesh = (Mesh *)node->pObject;
                 node->visible = 0;
                 Graphics_SetRecordField2C(pMesh, 0);
                 node = g_stageSkyNode->pFirstChild->pNext;
                 if (node != 0) {
-                    pMesh = (BYTE *)node->pObject;
+                    pMesh = (Mesh *)node->pObject;
                     node->visible = 0;
                     Graphics_SetRecordField2C(pMesh, 0);
                     node = g_stageSkyNode->pFirstChild->pNext->pNext;
                     if (node != 0) {
-                        pMesh = (BYTE *)node->pObject;
+                        pMesh = (Mesh *)node->pObject;
                         node->visible = 0;
                         Graphics_SetRecordField2C(pMesh, 0);
                     }
@@ -1852,7 +1852,7 @@ void StageObjects_LoadSkyAndGround(void)
         g_stageCloudTopNode = Sector_BuildC3DModelScene(pFile, RallyData_GetChallengeRenderState(),
                                            &g_stageCloudArchive);
         if (g_stageCloudTopNode != 0) {
-            pMesh = (BYTE *)g_stageCloudTopNode->pObject;
+            pMesh = (Mesh *)g_stageCloudTopNode->pObject;
             g_stageCloudTopNode->visible = 0;
             Graphics_SetRecordField2C(pMesh, 0);
             g_stageCloudTopNode->viewMask = 0;
@@ -1862,7 +1862,7 @@ void StageObjects_LoadSkyAndGround(void)
         g_stageCloudNode = Sector_BuildC3DModelScene(pC3d, RallyData_GetChallengeRenderState(),
                                            &g_stageCloudArchive);
         if (g_stageCloudNode != 0) {
-            pMesh = (BYTE *)g_stageCloudNode->pObject;
+            pMesh = (Mesh *)g_stageCloudNode->pObject;
             g_stageCloudNode->visible = 0;
             Graphics_SetRecordField2C(pMesh, 0);
         }
@@ -1872,7 +1872,7 @@ void StageObjects_LoadSkyAndGround(void)
         g_stageGroundNode = Sector_BuildC3DModelScene(pFile, RallyData_GetChallengeRenderState(),
                                            Race_GetLoadedStageFile());
         if (g_stageGroundNode != 0) {
-            pMesh = (BYTE *)g_stageGroundNode->pObject;
+            pMesh = (Mesh *)g_stageGroundNode->pObject;
             g_stageGroundNode->visible = 0;
             Graphics_SetRecordField2C(pMesh, 0);
         }
@@ -2734,14 +2734,9 @@ BYTE g_unk0x00590bfc;
 BYTE g_unk0x00590bfd;
 // GLOBAL: CMR2 0x00590c24
 BYTE g_carPartModelIndices[4][8];
+// Per wheel-hub slot damage threshold (StageTiming_WakeUnloadedWheelSlots).
 // GLOBAL: CMR2 0x00590c44
-int g_unk0x00590c44;
-// GLOBAL: CMR2 0x00590c48
-int g_unk0x00590c48;
-// GLOBAL: CMR2 0x00590c4c
-int g_unk0x00590c4c;
-// GLOBAL: CMR2 0x00590c50
-int g_unk0x00590c50;
+int g_unk0x00590c44[4];
 // GLOBAL: CMR2 0x00590c60
 BYTE g_unk0x00590c60[4];
 // GLOBAL: CMR2 0x00590d70
@@ -2801,7 +2796,7 @@ CameraSpot *g_unk0x00591750;
 // GLOBAL: CMR2 0x005918c8
 int g_unk0x005918c8;
 // GLOBAL: CMR2 0x005920f0
-BYTE *g_unk0x005920f0;
+Mesh *g_unk0x005920f0;
 // GLOBAL: CMR2 0x00592114
 FixVector g_unk0x00592114;
 // GLOBAL: CMR2 0x00592128
@@ -3490,7 +3485,7 @@ int StageObject_FindClosestMeshVertex(void)
 // FUNCTION: CMR2 0x00492bb0
 void StageObject_GetGroundReferenceColour(int *pOut)
 {
-    *pOut = *(int *)(*(BYTE **)(g_unk0x005920f0 + 0x24) + 0x34);
+    *pOut = *(int *)g_unk0x005920f0->pTriangles->colour;
 }
 
 // FUNCTION: CMR2 0x00498570
@@ -5435,7 +5430,7 @@ void CarLight_ResetTextureState(int index)
 }
 
 SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
-void Graphics_SetRecordField2C(BYTE *p, int value);
+void Graphics_SetRecordField2C(Mesh *p, int value);
 void Frontend_SetObjectField118(struct Texture *pTexture, int value);
 
 // Resets a car's light texture levels and caches the textures of its two
@@ -5444,7 +5439,7 @@ void Frontend_SetObjectField118(struct Texture *pTexture, int value);
 void CarLight_CacheBodyTextures(int car, int unused1, int unused2, BYTE flag)
 {
     CarLightTextureState *pRecord = &g_carLightTextureStates[car];
-    BYTE *pMesh;
+    Mesh *pMesh;
     Texture *pTexture;
 
     pRecord->combineFirstTwoChannels = flag;
@@ -5452,15 +5447,15 @@ void CarLight_CacheBodyTextures(int car, int unused1, int unused2, BYTE flag)
     pRecord->textures[1] = NULL;
     CarLight_ResetTextureState(car);
     RallyData_ValidateIndex(car);
-    pMesh = *(BYTE **)((BYTE *)SceneNode_FindByType(Car_Get(car)->pBodyNode, 0xe) + 0xc);
+    pMesh = (Mesh *)SceneNode_FindByType(Car_Get(car)->pBodyNode, 0xe)->pObject;
     Graphics_SetRecordField2C(pMesh, 0);
-    pTexture = CGraphics::m_pTextureManager->textureBuffer[*(int *)(*(BYTE **)(pMesh + 0x24) + 4)];
+    pTexture = CGraphics::m_pTextureManager->textureBuffer[pMesh->pTriangles->textureIndex];
     pRecord->textures[0] = pTexture;
     Frontend_SetObjectField118(pTexture, 2);
     if (Car_Get(car)->pAlternateBodyNode != NULL) {
-        pMesh = *(BYTE **)((BYTE *)SceneNode_FindByType(Car_Get(car)->pAlternateBodyNode, 0xe) + 0xc);
+        pMesh = (Mesh *)SceneNode_FindByType(Car_Get(car)->pAlternateBodyNode, 0xe)->pObject;
         Graphics_SetRecordField2C(pMesh, 0);
-        pTexture = CGraphics::m_pTextureManager->textureBuffer[*(int *)(*(BYTE **)(pMesh + 0x24) + 4)];
+        pTexture = CGraphics::m_pTextureManager->textureBuffer[pMesh->pTriangles->textureIndex];
         pRecord->textures[1] = pTexture;
         Frontend_SetObjectField118(pTexture, 2);
     }
@@ -5557,10 +5552,10 @@ void CarLight_GetScaledChannelLevels(int lane, int *pA, int *pB, int slot)
 void StageObject_ResetPartTuningAndRandomSeed(void)
 {
     srand(400);
-    g_unk0x00590c44 = 0x8000;
-    g_unk0x00590c48 = 0x8000;
-    g_unk0x00590c4c = 0x8000;
-    g_unk0x00590c50 = 0x3333;
+    g_unk0x00590c44[0] = 0x8000;
+    g_unk0x00590c44[1] = 0x8000;
+    g_unk0x00590c44[2] = 0x8000;
+    g_unk0x00590c44[3] = 0x3333;
     g_unk0x00590c60[0] = 0x16;
     g_unk0x00590c60[1] = 0x14;
     g_unk0x00590c60[2] = 0x15;
@@ -10509,7 +10504,7 @@ extern BYTE **g_carOriginalPartNodeTypes;
 // Builds the vertex buffer of one stage object for one car: converts the
 // float source vertices to 16.16 fixed point and packs the normal bytes.
 // FUNCTION: CMR2 0x0046afe0
-void CarDamage_BuildPartVertexBuffer(int param_1, int param_2, CarPartSet *set)
+void CarDamage_BuildPartVertexBuffer(int param_1, SceneNode *param_2, CarPartSet *set)
 {
     int i;
     int j;
@@ -11247,9 +11242,9 @@ void CarDamage_UpdateSuspensionImpactContacts(Car *pCar)
 // per-part min/max in 16.16 units, expands the record's global x/z bounds and
 // stores each part centre and its half extents.
 // FUNCTION: CMR2 0x0046acb0
-void CarDamage_RebuildPartBounds(int param_1, int param_2, int param_3)
+void CarDamage_RebuildPartBounds(int param_1, SceneNode *param_2, CarPartSet *param_3)
 {
-    CarPartSet *set = (CarPartSet *)param_3;
+    CarPartSet *set = param_3;
     int i;
     int j;
     int match;
@@ -11270,7 +11265,7 @@ void CarDamage_RebuildPartBounds(int param_1, int param_2, int param_3)
     if (g_carDamageModelEnabled[param_1] == 0)
         return;
     if (g_carOriginalPartVertices[param_1] == 0)
-        CarDamage_BuildPartVertexBuffer(param_1, param_2, (CarPartSet *)param_3);
+        CarDamage_BuildPartVertexBuffer(param_1, param_2, param_3);
     for (i = 0; i < set->count; i++) {
         key = set->geometry.nodes[i]->flags & 0xff;
         match = -1;
@@ -11683,8 +11678,11 @@ void StageObject_RebuildCarLightMeshes(Car *pCar)
                                 {
                                     // Keep the original walk biased at vertexCount: MSVC6 otherwise
                                     // creates a second induction pointer and changes the full body.
+                                    // vertexCount holds ints and vertices pointers, so where a pointer
+                                    // is wider the bias grows with the part index (the term is 0 on Win32).
                                     FixVector v = ((DeformVertex **)((BYTE *)pObj +
-                                        offsetof(CarPartSet, geometry) + offsetof(DeformMeshSources, vertices) - offsetof(CarPartSet, vertexCount)))[0][j].pos;
+                                        offsetof(CarPartSet, geometry) + offsetof(DeformMeshSources, vertices) - offsetof(CarPartSet, vertexCount) +
+                                        ((BYTE *)pObj - (BYTE *)pRec->vertexCount) * (sizeof(DeformVertex *) / sizeof(int) - 1)))[0][j].pos;
                                     position.x = pPoint->pos.x - v.x;
                                     position.y = pPoint->pos.y - v.y;
                                     position.z = pPoint->pos.z - v.z;

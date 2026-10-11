@@ -665,7 +665,7 @@ char g_strCarFrontSlowWav[] = "%s\\car\\%s\\fs-%s.wav";
 char g_strCarSoundBfl[] = "%s\\car\\%s.bfl";
 // Sound archives of the loaded car sound sets.
 // GLOBAL: CMR2 0x0058df48
-BYTE g_unk0x0058df48[2][12];
+GenericFile g_unk0x0058df48[2];
 
 extern int g_unk0x0058ddb4[2];
 BYTE RallyData_GetDriverSelectGridSlot(int param1);
@@ -694,7 +694,7 @@ void Surface_LoadCarEngineSounds(void)
     int team;
     char *pCarName;
     char *pShortName;
-    BYTE *pFile;
+    GenericFile *pFile;
 
     pDir = CInstallInfo::GetSoundsDir();
     if ((BYTE)RallyDataState() == 1 && (char)RallyData_GetFlag25() && CGameInfo::GetGameModeOptionBit19() == 0 &&
@@ -710,34 +710,34 @@ void Surface_LoadCarEngineSounds(void)
         g_unk0x0058ddb4[i] = Sound_GetSampleCount();
         pCarName = g_carSoundDir[team];
         sprintf(archive, g_strCarSoundBfl, CInstallInfo::GetSoundsDir(), pCarName);
-        CGenericFileLoader::LoadIntoFileRecord((GenericFile *)&g_unk0x0058df48[i], archive);
+        CGenericFileLoader::LoadIntoFileRecord(&g_unk0x0058df48[i], archive);
         pShortName = g_carSoundShort[team];
         sprintf(name, g_strCarFrontSlowWav, pDir, pCarName, pShortName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         sprintf(name, g_strCarRearSlowWav, pDir, pCarName, pShortName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         sprintf(name, g_strCarFrontMidWav, pDir, pCarName, pShortName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         sprintf(name, g_strCarRearMidWav, pDir, pCarName, pShortName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         sprintf(name, g_strCarWhineWav, pDir, pCarName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         sprintf(name, g_strCarFrontTurboWav, pDir, pCarName, pShortName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         sprintf(name, g_strCarRearTurboWav, pDir, pCarName, pShortName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         sprintf(name, g_strCarChatterWav, pDir, pCarName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         sprintf(name, g_strCarDet1Wav, pDir, pCarName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         sprintf(name, g_strCarDet2Wav, pDir, pCarName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         sprintf(name, g_strCarDet3Wav, pDir, pCarName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         sprintf(name, g_strCarDet4Wav, pDir, pCarName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         sprintf(name, g_strCarDetIdleWav, pDir, pCarName);
-        Surface_LoadArchiveSample(name, (GenericFile *)&g_unk0x0058df48[i]);
+        Surface_LoadArchiveSample(name, &g_unk0x0058df48[i]);
         if (CGameInfo::IsRecordFlagSet(0x13)) {
             sprintf(name, g_strRadioInsideWav);
             Surface_LoadArchiveSample(name, (GenericFile *)StageTiming_GetStageFile0());
@@ -745,13 +745,13 @@ void Surface_LoadCarEngineSounds(void)
             Surface_LoadArchiveSample(name, (GenericFile *)StageTiming_GetStageFile0());
         }
     }
-    for (pFile = g_unk0x0058df48[0]; (INT_PTR)pFile < (INT_PTR)g_unk0x0058df48[2]; pFile += 12) {
-        if (*(void **)pFile != NULL) {
-            CFileBuffer::FreeGenericFileBuffer(*(void **)pFile);
-            *(void **)pFile = NULL;
+    for (pFile = g_unk0x0058df48; (INT_PTR)pFile < (INT_PTR)&g_unk0x0058df48[2]; pFile++) {
+        if (pFile->buffer != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(pFile->buffer);
+            pFile->buffer = NULL;
         }
-        *(int *)(pFile + 4) = 0;
-        *(int *)(pFile + 8) = 0;
+        pFile->fileSize = 0;
+        pFile->didFileLoad = 0;
     }
     SurfaceSound_ResetPlayerParameters();
 }

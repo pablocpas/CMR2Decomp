@@ -3608,7 +3608,7 @@ void StageTiming_PlaceCarViewNodesAndBody(SceneNode *pNodeA, SceneNode *pNodeB, 
 void StageTiming_ClearCarReplayRecordRange(int first, int count);
 void CarDamage_SetupOrderedCarParts(int lock, int keep, short *pOrder, short count);
 void CarTyres_CommitPlayerWear(int a, int b, int count);
-int StageTiming_GetStartTableField244(int unused);
+FixAngles *StageTiming_GetStartTableField244(int unused);
 int *StageTiming_GetCarStartPosition(int car);
 void Events_Flush(void);
 void Particle_KillAll(void);
@@ -3687,7 +3687,7 @@ void Car_ReloadModels(int first, int count, int param_3)
     }
     for (i = first; i < end; i++)
         StageTiming_PlaceCarViewNodesAndBody(g_savedCarSceneRoots[i], g_savedCarBodyNodes[i], i,
-                     g_unk0x0053a398[i], (FixAngles *)StageTiming_GetStartTableField244(i), (FixVector *)StageTiming_GetCarStartPosition(i), 1);
+                     g_unk0x0053a398[i], StageTiming_GetStartTableField244(i), (FixVector *)StageTiming_GetCarStartPosition(i), 1);
     StageTiming_ClearCarReplayRecordRange(first, count);
     CarDamage_SetupOrderedCarParts(1, param_3, g_unk0x0053a300, count);
     CarTyres_CommitPlayerWear(1, param_3, (BYTE)RallyDataState());
@@ -4295,7 +4295,7 @@ void Car_SwapWheelTextures(char mode, SceneNode **pWheels)
     for (w = 0; w < 4; w++) {
         if (pWheels[w] == NULL)
             continue;
-        pMesh = *(Mesh **)((BYTE *)pWheels[w] + 0xc);
+        pMesh = (Mesh *)pWheels[w]->pObject;
         for (t = 0; t < pMesh->triangleCount; t++) {
             for (k = 0; k < 10; k++) {
                 pTex = CGraphics::m_pTextureManager->textureBuffer[((int *)&pMesh->pTriangles[t])[k + 1]];

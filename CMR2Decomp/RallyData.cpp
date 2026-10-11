@@ -4694,8 +4694,8 @@ BOOL RallyData_ClearStageDepthBuffer(void)
    Per-frame handlers of the rally-data menu screens (0x410c80..0x411020).
    -------------------------------------------------------------------------- */
 
-void RallyData_UpdateViewFrameAndDebugOverlay(int, int, int);
-void RallyData_DrawViewEndFrameOverlay(BYTE *, int);
+void RallyData_UpdateViewFrameAndDebugOverlay(CallbackStateMachine *, int, int);
+void RallyData_DrawViewEndFrameOverlay(CallbackStateMachine *, int);
 void RallyData_DrawLoadingProgress(int progress, char drawScene, BYTE alpha);
 void RallyData_DrawHeadToHeadDriverCaption(int, int);
 void InRaceMenu_DrawActivePage(void);
@@ -4763,11 +4763,11 @@ void RallyData_RunChallengeLoadingScreen(int param1, char param2)
 // Advances one step of the current rally-data menu entry: grows the panel and
 // fires the item's action when the last step is reached.
 // FUNCTION: CMR2 0x00410de0
-void RallyData_GrowEntryAndInvokeAction(BYTE *param1, unsigned int param2)
+void RallyData_GrowEntryAndInvokeAction(CallbackStateMachine *param1, unsigned int param2)
 {
     Font_SetBlendMode(2);
     if (CGameInfo::GetConfiguredGameMode() != 4) {
-        RallyData_UpdateViewFrameAndDebugOverlay((int)param1, param2, 1);
+        RallyData_UpdateViewFrameAndDebugOverlay(param1, param2, 1);
         RallyData_DrawViewEndFrameOverlay(param1, param2 & 0xff);
     }
 }
@@ -4775,9 +4775,9 @@ void RallyData_GrowEntryAndInvokeAction(BYTE *param1, unsigned int param2)
 // Advances one step of a rally-data menu entry and, once the panel is fully
 // grown, asks the screen to refresh its records.
 // FUNCTION: CMR2 0x00410e20
-void RallyData_GrowEntryAndRefreshRecords(BYTE *param1, unsigned int param2)
+void RallyData_GrowEntryAndRefreshRecords(CallbackStateMachine *param1, unsigned int param2)
 {
-    RallyData_UpdateViewFrameAndDebugOverlay((int)param1, param2, 1);
+    RallyData_UpdateViewFrameAndDebugOverlay(param1, param2, 1);
     if ((BYTE)RallyData_GetSelectionFlag27() != 0) {
         if ((BYTE)CGameInfo::GetGameModeOptionBit19() == 0)
             RallyData_DrawHeadToHeadDriverCaption(0, param2 & 0xff);
@@ -4787,19 +4787,19 @@ void RallyData_GrowEntryAndRefreshRecords(BYTE *param1, unsigned int param2)
 
 // Advances one step of a rally-data menu entry, always in "growing" mode.
 // FUNCTION: CMR2 0x00410e70
-void RallyData_GrowEntryPanel(BYTE *param1, unsigned int param2)
+void RallyData_GrowEntryPanel(CallbackStateMachine *param1, unsigned int param2)
 {
-    RallyData_UpdateViewFrameAndDebugOverlay((int)param1, param2, 1);
+    RallyData_UpdateViewFrameAndDebugOverlay(param1, param2, 1);
     RallyData_DrawViewEndFrameOverlay(param1, param2 & 0xff);
 }
 
 // Advances one step of a rally-data menu entry and notifies the screen when the
 // entry reaches its last step.
 // FUNCTION: CMR2 0x00410ea0
-void RallyData_GrowEntryAndNotifyCompletion(BYTE *param1, unsigned int param2)
+void RallyData_GrowEntryAndNotifyCompletion(CallbackStateMachine *param1, unsigned int param2)
 {
-    RallyData_UpdateViewFrameAndDebugOverlay((int)param1, param2, 1);
-    if ((param2 & 0xff) == *param1 - 1)
+    RallyData_UpdateViewFrameAndDebugOverlay(param1, param2, 1);
+    if ((param2 & 0xff) == param1->count - 1)
         InRaceMenu_DrawActivePage();
     RallyData_DrawViewEndFrameOverlay(param1, param2 & 0xff);
 }
@@ -4808,7 +4808,7 @@ void RallyData_GrowEntryAndNotifyCompletion(BYTE *param1, unsigned int param2)
 // available yet, and overlays the "no time" / "no best time" label when the
 // screen has one pending.
 // FUNCTION: CMR2 0x00410ee0
-void RallyData_UpdateUnavailableEntryText(BYTE *param1, unsigned int param2)
+void RallyData_UpdateUnavailableEntryText(CallbackStateMachine *param1, unsigned int param2)
 {
     BYTE colour[4];
 
@@ -4817,9 +4817,9 @@ void RallyData_UpdateUnavailableEntryText(BYTE *param1, unsigned int param2)
     colour[2] = 0xff;
     colour[3] = 0xff;
     if ((BYTE)Race_ReadTransitionState3811C() < 100 || (BYTE)RallyDataState() == 1)
-        RallyData_UpdateViewFrameAndDebugOverlay((int)param1, param2, 1);
+        RallyData_UpdateViewFrameAndDebugOverlay(param1, param2, 1);
     else
-        RallyData_UpdateViewFrameAndDebugOverlay((int)param1, param2, 0);
+        RallyData_UpdateViewFrameAndDebugOverlay(param1, param2, 0);
     if (g_unk0x0053811e != 0) {
         Font_DrawText(2, CFrontend::GetTextString(0xf8), (int)g_pGraphics->resX / 2,
                       (int)g_pGraphics->resY / 2, (int *)colour, 0x12);
@@ -4833,9 +4833,9 @@ void RallyData_UpdateUnavailableEntryText(BYTE *param1, unsigned int param2)
 // Advances one step of a rally-data menu entry while shrinking it, and draws
 // the "stage started" banner at the centre of the screen.
 // FUNCTION: CMR2 0x00410fa0
-void RallyData_ShrinkEntryAndDrawStageStarted(BYTE *param1, unsigned int param2)
+void RallyData_ShrinkEntryAndDrawStageStarted(CallbackStateMachine *param1, unsigned int param2)
 {
-    RallyData_UpdateViewFrameAndDebugOverlay((int)param1, param2, 0);
+    RallyData_UpdateViewFrameAndDebugOverlay(param1, param2, 0);
     Font_DrawText(2, CFrontend::GetTextString(0x71),
                   (int)g_pGraphics->resX * 0x1e / 0x280,
                   (int)g_pGraphics->resY * 0x43 / 0x1e0,
@@ -4846,10 +4846,10 @@ void RallyData_ShrinkEntryAndDrawStageStarted(BYTE *param1, unsigned int param2)
 // Advances one step of the current menu entry in "shrinking" mode and notifies
 // the screen when the entry reaches its last step.
 // FUNCTION: CMR2 0x00411020
-void RallyData_ShrinkEntryAndNotifyCompletion(BYTE *param1, unsigned int param2)
+void RallyData_ShrinkEntryAndNotifyCompletion(CallbackStateMachine *param1, unsigned int param2)
 {
-    RallyData_UpdateViewFrameAndDebugOverlay((int)param1, param2, 0);
-    if ((param2 & 0xff) == *param1 - 1)
+    RallyData_UpdateViewFrameAndDebugOverlay(param1, param2, 0);
+    if ((param2 & 0xff) == param1->count - 1)
         GameMenu_UpdateHeaderCallbacks();
     RallyData_DrawViewEndFrameOverlay(param1, param2 & 0xff);
 }
@@ -4915,8 +4915,8 @@ void RallyData_CreateFrontendChallengeScene(void)
     angles.pad = 0;
     g_unk0x00536be0 = SceneNode_CreateRoot();
     g_unk0x00536be4 = SceneType2_Create(&position, &angles, NULL, g_unk0x00536be0);
-    for (pNode = g_unk0x00536be0; pNode != NULL; pNode = *(SceneNode **)((BYTE *)pNode + 8))
-        *(int *)((BYTE *)pNode + 0x174) = 1;
+    for (pNode = g_unk0x00536be0; pNode != NULL; pNode = pNode->pParent)
+        pNode->dirty = 1;
     CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
 }
 
@@ -5960,9 +5960,9 @@ void Graphics_PresentFrameAndResetCounters(void);
 
 // Notifies the menu handler when the received value is one below the key code.
 // FUNCTION: CMR2 0x0040eed0
-void RallyData_NotifyAdjacentMenuKeyValue(BYTE *pKey, int value)
+void RallyData_NotifyAdjacentMenuKeyValue(CallbackStateMachine *pKey, int value)
 {
-    if ((value & 0xff) == *pKey - 1)
+    if ((value & 0xff) == pKey->count - 1)
         Graphics_PresentFrameAndResetCounters();
 }
 
@@ -6183,7 +6183,7 @@ char g_strScenePolygons0x00516dfc[22] = " Scene Polygons: %d  ";
 // EBP, here it is the other way round) and the frame layout (the original
 // reuses the incoming parameter slot for the overlay colour).
 // FUNCTION: CMR2 0x0040f0c0
-void RallyData_UpdateViewFrameAndDebugOverlay(int param1, int param2, int param3)
+void RallyData_UpdateViewFrameAndDebugOverlay(CallbackStateMachine *param1, int param2, int param3)
 {
     int orderCount;
     short *pOrder;
@@ -8070,7 +8070,7 @@ int g_unk0x00536be8;
 // the split-screen divider; then the fade-in of the first 2.25 s of a stage
 // (with the loading bar) and finally renders the view's scene.
 // FUNCTION: CMR2 0x0040f8d0
-void RallyData_DrawViewEndFrameOverlay(BYTE *pKey, int view)
+void RallyData_DrawViewEndFrameOverlay(CallbackStateMachine *pKey, int view)
 {
     BYTE colour[4];
     char name[8];
@@ -8079,7 +8079,7 @@ void RallyData_DrawViewEndFrameOverlay(BYTE *pKey, int view)
     BYTE fadeColour[4];
     int i;
     unsigned short other;
-    BYTE *pRecords;
+    CallbackStateRecord *pRecords;
     unsigned int now;
     unsigned int alpha;
 
@@ -8095,13 +8095,13 @@ void RallyData_DrawViewEndFrameOverlay(BYTE *pKey, int view)
         g_unk0x00536acc = CMain::GetFrameDelta();
         g_unk0x00536ac8 = 0;
     }
-    if (view == *pKey - 1) {
+    if (view == pKey->count - 1) {
         for (i = 0; i < (BYTE)RallyDataState(); i++) {
             NetRace_DrawPlayerFlashOverlay(i, (short *)StageObject_GetPlayerViewRectangle(i), CGameInfo::IsInRaceMenuOpen() ? 1 : 0);
-            pRecords = *(BYTE **)(pKey + 4);
-            if (pRecords[i * 8] == 9) {
+            pRecords = pKey->records;
+            if ((BYTE)pRecords[i].packedState == 9) {
                 other = (i + 1) % 2;
-                if (pRecords[other * 8] == 8 && CGameInfo::IsInRaceMenuOpen() == 0 && (BYTE)RallyDataState() > 1 &&
+                if ((BYTE)pRecords[other].packedState == 8 && CGameInfo::IsInRaceMenuOpen() == 0 && (BYTE)RallyDataState() > 1 &&
                     Race_ReadTransitionState3811C() == 100) {
                     if ((char)RallyData_GetSelectionFlag26()) {
                         if ((char)RallyData_GetSetupFlag11() == 0 || RallyData_GetSetupModeBits() != 0)
@@ -8134,7 +8134,7 @@ void RallyData_DrawViewEndFrameOverlay(BYTE *pKey, int view)
             }
         divider:
             if (Race_IsMultiplayerRecordMode10() == 0 && RallyData_IsHeadToHeadRaceMode() != 0 && CGameInfo::IsInRaceMenuOpen() == 0 && i == 1 &&
-                (pRecords[8] != 10 || GameMenu_IsPauseHeaderActive() != 0)) {
+                ((BYTE)pRecords[1].packedState != 10 || GameMenu_IsPauseHeaderActive() != 0)) {
                 if (CGameInfo::IsSplitBarEnabled()) {
                     rect[0] = 0;
                     rect[2] = ((short *)StageObject_GetPlayerViewRectangle(1))[2];
@@ -8150,7 +8150,7 @@ void RallyData_DrawViewEndFrameOverlay(BYTE *pKey, int view)
             }
         }
     }
-    if ((*(unsigned int *)(*(BYTE **)(pKey + 4) + view * 8) & 0xff) < 8 && CGameInfo::GetConfiguredGameMode() != 4) {
+    if (pKey->records[view].bits.state < 8 && CGameInfo::GetConfiguredGameMode() != 4) {
         now = CMain::GetFrameDelta();
         fadeRect[0] = 0;
         fadeRect[1] = 0;
