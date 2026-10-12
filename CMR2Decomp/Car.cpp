@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "FloatToInt.h"
+#include <stddef.h>
 #include "Graphics.h"
 #include "Car.h"
 #include "RallyRouteNode.h"
@@ -2890,8 +2891,10 @@ void Car_UpdateWheelTorques(void)
             rate = 0x10000;
         }
         int half = g_pCurrentCar->mass / 2;
-        for (i = 0x8b8; i < 0x8c8; i += 4) {
-            int target = i < 0x8c0 ? half : 0;
+        // The original steps a byte offset through field_0x8b8[0..3]; on
+        // 64-bit targets the field lies elsewhere, so take its native offset.
+        for (i = offsetof(Car, field_0x8b8); i < (int)offsetof(Car, field_0x8b8[4]); i += sizeof(int)) {
+            int target = i < (int)offsetof(Car, field_0x8b8[2]) ? half : 0;
             *(int *)((BYTE *)g_pCurrentCar + i) += FixMul(rate, target - *(int *)((BYTE *)g_pCurrentCar + i));
         }
     }

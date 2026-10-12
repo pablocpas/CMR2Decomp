@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "2071d2804c4026985fb9154085d39d914a187e62",
+    "commit": "2e220d2bbbbb19e08eeebcbab0d83c644a7b0e6d",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -54,7 +54,7 @@
       "CMR2Decomp/BFL.h": "c7e2fe4e468203e911b140791b71640a4bbc2806ba298f7c1bac639d2718d8dd",
       "CMR2Decomp/BestTimeRecords.h": "7b09c04cab99c03d334b39ec5340a7216840903b2f9d51cfc8ac497473de4291",
       "CMR2Decomp/CallbackState.h": "bdcea074ac9af71d50c7f59b05e197df891b344efbf257bb8ac86e6b632a1749",
-      "CMR2Decomp/Car.cpp": "eb56bf9ae7294db259a649eb2d6d123e4c0a32613b2a1151638afaee4e29a2f7",
+      "CMR2Decomp/Car.cpp": "72a8d40c3fa9e939036f2bb267a9cdda1e7f812e8218f34f9988a74ca6fb1dff",
       "CMR2Decomp/Car.h": "e52b2cb3992856b6ab7f709870c83440f9131b55898194d916545f4fd75b921e",
       "CMR2Decomp/CarEffects.cpp": "7edc24466df7a59917d209a9d081cf1933048ffde9b77f234dc6be6bee48bfd0",
       "CMR2Decomp/CarExhaust.h": "2f51d0a245b1da6a98dc0a1152098b0c9dce08b33b29d0459feb77328a9207dc",
@@ -208,8 +208,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "1e5c030e811eba2a9dc0e8eb2fba184f2669f2b5d3635a656f6c9d6ecf0c83c7",
-    "pdb_sha256": "43893fd6b02de07934990b0a75afee3298001d3ce56068bc46d490991119d75f"
+    "exe_sha256": "a983b79baffcfe20c254ca93ae31fa408b1b61864731b5d306564470b6512b59",
+    "pdb_sha256": "a5479fd1ad40ac086ed4d6c5f08de71ad490039bada77255231b8edab7b8159c"
   },
   "perfect_match_percent": 56.43,
   "fuzzy_match_percent": 94.54,
