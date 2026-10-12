@@ -13,7 +13,14 @@ struct ReplayEvent {
 
 // Per-lane record of a type 0 (input) stream.
 struct ReplayInputLane {
-    BYTE inputs[0x110c];
+    union {
+        BYTE inputs[0x110c];
+        struct {
+            BYTE partState[0x4d0];  // 0x0    the car's part set (Replay_CopyAuxState)
+            BYTE carState[0xc24];   // 0x4d0  the start of its Car (Replay_CopyBlock309)
+            int raceRecord[6];      // 0x10f4 its race record (Replay_CopyBlock6)
+        };
+    };
     ReplayEvent events[10]; // 0x110c
     BYTE eventCount;        // 0x1148
     BYTE pad[3];
@@ -55,12 +62,12 @@ struct ReplayStream {
     BYTE car;               // 0x20
     BYTE field_0x21;        // 0x21
     BYTE pad22[2];
-    BYTE *pInputs;          // 0x24 0x114c bytes per lane
-    BYTE *pInputLane;       // 0x28 lane being played back
-    BYTE *pInputRecLane;    // 0x2c lane being recorded
-    BYTE *pStates;          // 0x30 0x5c bytes per lane
-    BYTE *pStateLane;       // 0x34 lane being played back
-    BYTE *pStateRecLane;    // 0x38 lane being recorded
+    ReplayInputLane *pInputs;       // 0x24 type 0 lanes
+    ReplayInputLane *pInputLane;    // 0x28 lane being played back
+    ReplayInputLane *pInputRecLane; // 0x2c lane being recorded
+    ReplayStateLane *pStates;       // 0x30 type 1/2 lanes
+    ReplayStateLane *pStateLane;    // 0x34 lane being played back
+    ReplayStateLane *pStateRecLane; // 0x38 lane being recorded
     BYTE *pFrames;          // 0x3c 4 bytes per frame
     BYTE *pSamples;         // 0x40 16 bytes per sample
     ReplayPose pose;        // 0x44

@@ -50,7 +50,7 @@ short Car_GetOrderCount(void);
 #include "CarExhaust.h"
 #include "LayoutChecks.h"
 // --- module prototypes (address order; see tools/fastcmp/tuproto.py) ---
-void StageObject_DrawViewPrecipitationAndObjects(int param_1, int view);
+void StageObject_DrawViewPrecipitationAndObjects(int *pViewRect, int view);
 void StageWeather_DrawViewPrecipitation(int index, int view);
 void StageObject_DeriveLoadedScaleVector(FixVector *pOut);
 void StageObject_AdvanceAnimatedRecordState(ViewWeatherState *p, int unused);
@@ -71,7 +71,7 @@ void StageObject_RebuildViewWeatherLighting(int index);
 void StageObject_AverageWheelGroundLighting(unsigned int param_1, int param_2);
 void StageObject_UpdateSceneAmbientColour(BYTE *pColour);
 void StageObject_UpdateSunVisibility(short *pRect);
-void StageObject_DrawProjectedViewIcon(int param_1, int param_2);
+void StageObject_DrawProjectedViewIcon(int *pViewRect, int param_2);
 void StageLights_UpdateDirection(void);
 int *StageObject_GetViewWeatherSlot(int i, int j);
 void StageLights_SetTransform(FixVector *pAxes);
@@ -113,7 +113,7 @@ void StageObjects_Init(void);
 void StageObject_UpdateDeviceEffectSupportFlag(void);
 void StageObject_UpdateListedCarPhysicsAndWeather(short *pOrder, short count);
 void StageObjects_Update(void);
-void CarDamage_UpdateOrderedCarsOffRoadState(short *param_1, short param_2, int param_3, int param_4);
+void CarDamage_UpdateOrderedCarsOffRoadState(short *param_1, short param_2, int *pViewRect, int param_4);
 void StageObject_SetPhysicsScaleAndReciprocal(int value);
 void CarDamage_BuildRelativeVelocityHull(Car *pCar, CarPartSet *pParts);
 void CarDamage_DecodeImpactPayload(CarImpactPayload *p);
@@ -148,7 +148,7 @@ BYTE StageObject_GetCarRecordState(int index);
 int StageObject_UsesExtendedMode(void);
 void Replay_EncodeControlPacket(BYTE *pIn, BYTE *pOut, int active, int handbrake, int lightA, int lightB);
 int Replay_DecodeInputPacket(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar);
-void Replay_CaptureCarSnapshot(BYTE *pDst, BYTE car);
+void Replay_CaptureCarSnapshot(ReplayInputLane *pDst, BYTE car);
 // Oriented box of a stage object (same layout as in Collision2D.cpp).
 
 // One firework rocket of the pool at g_unk0x00590af8 (0x938 bytes). Each
@@ -191,10 +191,10 @@ struct FireworkRocket {
 };
 CMR2_LAYOUT_CHECK(FireworkRocketSize, sizeof(FireworkRocket) == 0x938);
 
-void Replay_InitObjectListCarState(BYTE *pLane, BYTE param_2);
+void Replay_InitObjectListCarState(ReplayInputLane *pLane, BYTE param_2);
 void Replay_SaveCarTorqueAndRecordState(int *pState, BYTE car);
 void Replay_RestoreCarTorqueAndRecordState(int *pState, BYTE car);
-void Replay_InitMeshListCarState(BYTE *pLane, BYTE param_2);
+void Replay_InitMeshListCarState(ReplayStateLane *pLane, BYTE param_2);
 void Replay_EncodeCarControls(BYTE *pOut, BYTE car);
 int Replay_DecodeCarControls(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter);
 void Replay_InitSlots(void);
@@ -211,7 +211,7 @@ int Replay_ResetBufferIfActive(int *p);
 BYTE *Replay_LoadValidatedBuffer(char *path);
 int Replay_Save(BYTE *pBuffer, char *pName);
 void Replay_SetupPointers(ReplayStream *p, int unused);
-int Replay_GetStreamFrameState(void);
+BYTE *Replay_GetStreamFrameState(void);
 void Replay_RecordPeriodicCarSamples(void);
 void Replay_RecordAllStreamFrames(void);
 
@@ -222,7 +222,7 @@ void Replay_DecodeCarPoseSample(unsigned int *pFlag24, unsigned int *pFlag27, un
 void Replay_ComputePoseVelocityCorrection(ReplayPose *pPose, Car *pCar);
 void Replay_HideFinishedGhostCarNodes(void);
 void Events_Reset(void);
-void Events_Init(int unused, int slot, char animate);
+void Events_Init(char *unused, int slot, char animate);
 void Events_ComputeSteps(void);
 void StageObject_StampPendingEventDraws(int unused);
 void StageObject_SpawnCarWheelSkidEffects(int param_1);
@@ -344,7 +344,7 @@ unsigned int AI_SelectCarsWithinOvertakeWindow(int index, BYTE *pOut, int *pCoun
 int AI_UpdateAttractDrivingControls(int car, int preview);
 void StageObject_CreateRecordGlows(void);
 void StageObject_SpawnCarHeadlightGlow(BYTE car);
-void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, int *param_2);
+void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, CollisionBox *pBox);
 void CarDamage_UpdateFlyingDebris(void);
 void StageObject_InterpolateHeadlightGlows(int t);
 void StageObject_SetVehicleEffectColour(BYTE *pColour);
@@ -740,7 +740,7 @@ int g_carPairValuePending[16];
 // GLOBAL: CMR2 0x00588cd4
 ReplayLevelState g_replayLevelState;
 // GLOBAL: CMR2 0x00588d38
-int g_unk0x00588d38;
+BYTE *g_unk0x00588d38;
 // GLOBAL: CMR2 0x00589438
 SceneNode *g_stageSkyNode;
 // GLOBAL: CMR2 0x0058943c
@@ -859,9 +859,20 @@ void StageObject_ResetObjectValuesToUnity(void)
         g_unk0x0058e0b8[i].value = 0x10000;
 }
 
-// Per-type animation tables (0x58e394..0x58e4a4; the loader also fills the tail bytes).
+// The stage's AI tables, set by AI_LoadStageRouteTables from ai0/ai1/ai2.dat.
+// Each table is numbered from 1, as the file references them; entry 0 is unused.
+struct AIRouteTables {
+    BYTE *routes[6];          // 0x000 [1..counts[1]] 0x88-byte route records
+    char *descriptors[40];    // 0x018 [1..counts[2]] 0x14-byte input descriptors
+    AINetwork *networks[10];  // 0x0b8 [1..counts[3]] driving networks
+    BYTE *points[10];         // 0x0e0 [1..counts[0]] 0x10-byte route points
+    signed char counts[4];    // 0x108 entries of points, routes, descriptors, networks
+    int *pActivation;         // 0x10c activation table of the networks (64 entries)
+};
+CMR2_LAYOUT_CHECK(AIRouteTablesSize, sizeof(AIRouteTables) == 0x110);
+
 // GLOBAL: CMR2 0x0058e394
-BYTE *g_unk0x0058e394[68];
+AIRouteTables g_unk0x0058e394;
 // GLOBAL: CMR2 0x0058e4a4
 BYTE *g_unk0x0058e4a4;
 
@@ -870,13 +881,13 @@ BYTE *g_unk0x0058e4a4;
 void StageObject_LookupKeyedValuePair(int unused, int table, int entry, int *pOut1, int *pOut2)
 {
     int key = *(int *)(entry * 0x10 + 4 + g_unk0x0058e4a4);
-    BYTE *p = g_unk0x0058e394[table];
+    BYTE *p = g_unk0x0058e394.routes[table];
     int i;
 
     for (i = 0; i < *(int *)(p + 0x84); i++) {
         if (key == (char)p[4 + i * 8]) {
             *pOut1 = (char)p[7 + i * 8];
-            *pOut2 = (char)g_unk0x0058e394[table][6 + i * 8];
+            *pOut2 = (char)g_unk0x0058e394.routes[table][6 + i * 8];
             return;
         }
     }
@@ -1614,13 +1625,13 @@ void RallyData_ResetRaceRecordAndRouteProbe(int index);
 
 // Snapshots a car's state into the 0x1100-byte record at pDst.
 // FUNCTION: CMR2 0x0046c240
-void Replay_CaptureCarSnapshot(BYTE *pDst, BYTE car)
+void Replay_CaptureCarSnapshot(ReplayInputLane *pDst, BYTE car)
 {
     Car *pCar = Car_Get(car);
 
-    Replay_CopyAuxState((Block0x134 *)StageTiming_GetCarReplayRecord(car), (Block0x134 *)pDst);
-    Replay_CopyBlock309((Block0x309 *)pCar, (Block0x309 *)(pDst + 0x4d0));
-    Replay_CopyBlock6((Block6 *)RallyData_GetCarRaceRecord(car), (Block6 *)(pDst + 0x10f4));
+    Replay_CopyAuxState((Block0x134 *)StageTiming_GetCarReplayRecord(car), (Block0x134 *)pDst->partState);
+    Replay_CopyBlock309((Block0x309 *)pCar, (Block0x309 *)pDst->carState);
+    Replay_CopyBlock6((Block6 *)RallyData_GetCarRaceRecord(car), (Block6 *)pDst->raceRecord);
     RallyData_ResetRaceRecordAndRouteProbe(car);
 }
 
@@ -1639,7 +1650,7 @@ int Replay_ResetBufferIfActive(int *p)
 }
 
 // FUNCTION: CMR2 0x0046d500
-int Replay_GetStreamFrameState(void)
+BYTE *Replay_GetStreamFrameState(void)
 {
     return g_unk0x00588d38;
 }
@@ -2168,7 +2179,7 @@ void Knockout_UpdateRaceStateAndFades(BYTE *param_1, unsigned int param_2)
                 g_unk0x0058cf64 = 0;
                 return;
             } else {
-                g_unk0x0058ce5c = (unsigned int)RallyData_GetRoundEntry();
+                g_unk0x0058ce5c = RallyData_GetRoundEntry();
                 g_unk0x0058cf64 = 0;
                 g_unk0x0058cf7c = 4;
                 return;
@@ -3617,14 +3628,14 @@ unsigned char RallyData_GetSelectionFlag26(void);
 BYTE View_GetActiveCameraFlags(BYTE index);
 int Race_IsMultiplayerRecordMode10(void);
 void CarPhysics_DrawBodyWheelAndSkidShadows(Car *pCar, int view);
-void StageObject_DrawViewPrecipitationAndObjects(int a, int b);
+void StageObject_DrawViewPrecipitationAndObjects(int *pViewRect, int b);
 void StageObject_DrawListedCarLightBeams(short *pOrder, short count, int view);
 void Fireworks_Draw(void);
 
 // Updates the "damaged / off-road" state of every car in the given order.
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00466570
-void CarDamage_UpdateOrderedCarsOffRoadState(short *param_1, short param_2, int param_3, int param_4)
+void CarDamage_UpdateOrderedCarsOffRoadState(short *param_1, short param_2, int *pViewRect, int param_4)
 {
     short *p;
     Car *pCar;
@@ -3647,7 +3658,7 @@ void CarDamage_UpdateOrderedCarsOffRoadState(short *param_1, short param_2, int 
         i = i + 1;
     }
     StageObject_DrawListedCarLightBeams(param_1, param_2, param_4);
-    StageObject_DrawViewPrecipitationAndObjects(param_3, param_4);
+    StageObject_DrawViewPrecipitationAndObjects(pViewRect, param_4);
     if (g_unk0x0058896c != 0)
         Fireworks_Draw();
 }
@@ -6904,7 +6915,7 @@ void StageLights_SetTransform(FixVector *pAxes)
     FixVector *pNext;
 
     if (pAxes == NULL) {
-        g_stageLightHasMatrix = (int)pAxes;
+        g_stageLightHasMatrix = 0;
         return;
     }
     g_stageLightHasMatrix = 1;
@@ -7250,11 +7261,11 @@ void Replay_SetupPointers(ReplayStream *p, int unused)
     int extraSize;
 
     if (p->type == 0) {
-        p->pInputs = (BYTE *)p + sizeof(ReplayStream);
+        p->pInputs = (ReplayInputLane *)((BYTE *)p + sizeof(ReplayStream));
         p->pStates = NULL;
         recordSize = 0x114c;
     } else {
-        p->pStates = (BYTE *)p + sizeof(ReplayStream);
+        p->pStates = (ReplayStateLane *)((BYTE *)p + sizeof(ReplayStream));
         p->pInputs = NULL;
         recordSize = 0x5c;
     }
@@ -7443,7 +7454,7 @@ void Events_Reset(void);
 
 // Resets the stage events and finds the event texture (name ending in BODF).
 // FUNCTION: CMR2 0x0046e580
-void Events_Init(int unused, int slot, char animate)
+void Events_Init(char *unused, int slot, char animate)
 {
     int i;
     Texture *pTexture;
@@ -9375,11 +9386,9 @@ void StageObject_SpawnCarWheelSkidEffects(int param_1)
 
 // GLOBAL: CMR2 0x0058e088
 int g_unk0x0058e088[6];
-// Views into the stage object pointer table: 0x58e3ac and 0x58e44c are its
-// 7th and 47th entries, 0x58e4a0 is the last one.
-#define g_unk0x0058e3ac ((char **)(g_unk0x0058e394 + 6))
-#define g_unk0x0058e44c ((char **)(g_unk0x0058e394 + 46))
-#define g_unk0x0058e4a0 ((int *)g_unk0x0058e394[67])
+#define g_unk0x0058e3ac (g_unk0x0058e394.descriptors)
+#define g_unk0x0058e44c (g_unk0x0058e394.networks)
+#define g_unk0x0058e4a0 (g_unk0x0058e394.pActivation)
 
 // Projects a stage object's rotation table into its output rows.
 // match 23%: nested projection loops do not match the original layout
@@ -9459,15 +9468,15 @@ void StageObject_BuildTypeTableRowOutput(int param_1, int *pControls, int *param
             unsigned int bit = 1 << v;
             if ((mask & bit) == 0) {
                 mask |= bit;
-                StageTiming_CollectDescriptorCarValues(g_unk0x0058e44c[v], param_3, (int *)g_unk0x0058e0b8);
-                StageObject_ProjectRotationTableRows((AINetwork *)g_unk0x0058e44c[v]);
+                StageTiming_CollectDescriptorCarValues(g_unk0x0058e44c[v]->inputs, param_3, (int *)g_unk0x0058e0b8);
+                StageObject_ProjectRotationTableRows(g_unk0x0058e44c[v]);
             }
             // The original addresses the projection rows through 0x58e088,
             // 0x30 bytes before 0x58e0b8. These globals need not be adjacent
             // after linking, so address the actual row storage directly.
             *(int *)((BYTE *)pControls + i) =
                 ((int *)g_unk0x0058e0b8)[(int)*(char *)(g_unk0x0058e3ac[param_1] + i) +
-                                       (((AINetwork *)g_unk0x0058e44c[v])->layerCount - 1) * 0xc];
+                                       (g_unk0x0058e44c[v]->layerCount - 1) * 0xc];
         }
         i += 4;
     } while (i < 0x14);
@@ -10199,7 +10208,7 @@ void Replay_AdvanceLiveRecordingStreams(void)
             else
                 value = (char)((CallbackStateMachine *)pInfo)->records[p->car].packedState;
             if (p->type == 0) {
-                pInput = (ReplayInputLane *)(p->pInputs + p->laneCount * 0x114c);
+                pInput = p->pInputs + p->laneCount;
                 if (value != pInput->events[pInput->eventCount - 1].value) {
                     pEvent = &pInput->events[pInput->eventCount];
                     pEvent->value = value;
@@ -10214,7 +10223,7 @@ void Replay_AdvanceLiveRecordingStreams(void)
                     }
                 }
             } else {
-                pState = (ReplayStateLane *)(p->pStates + p->laneCount * 0x5c);
+                pState = p->pStates + p->laneCount;
                 if (value != pState->events[pState->eventCount - 1].value) {
                     pEvent = &pState->events[pState->eventCount];
                     pEvent->value = value;
@@ -10237,9 +10246,9 @@ done:
             pFrame[2] &= 0xc0;
             p->field_0x18 = 1;
             if (p->type == 0)
-                p->pInputRecLane = p->pInputs + p->laneCount * 0x114c;
+                p->pInputRecLane = p->pInputs + p->laneCount;
             else
-                p->pStateRecLane = p->laneCount * 0x5c + p->pStates;
+                p->pStateRecLane = p->pStates + p->laneCount;
             p->recordStarted = 1;
         }
     }
@@ -10248,7 +10257,7 @@ done:
 // Draws the stage icon of one view node: projects its world position to the
 // screen, blends the object ramp into the stage colour and queues the sprite.
 // FUNCTION: CMR2 0x00462d80
-void StageObject_DrawProjectedViewIcon(int param_1, int param_2)
+void StageObject_DrawProjectedViewIcon(int *pViewRect, int param_2)
 {
     SpriteRect uv;
     SpriteRect dst;
@@ -10887,19 +10896,19 @@ int Replay_InitCarStreamState(ReplayStream *p, int unused, BYTE car)
         p->pFrames[2] &= 0xc0;
     if (p->type == 0) {
         pInfo = StageUI_GetRaceResultTable();
-        p->pInputs[0x1110] = (BYTE)((unsigned int)((CallbackStateMachine *)pInfo)->records[p->car].packedState >> 16);
-        *(short *)(p->pInputs + 0x110c) = 0;
-        *(short *)(p->pInputs + 0x110e) = 0;
-        p->pInputs[0x1148] = 1;
+        p->pInputs[0].events[0].value = (BYTE)((unsigned int)((CallbackStateMachine *)pInfo)->records[p->car].packedState >> 16);
+        p->pInputs[0].events[0].frame = 0;
+        p->pInputs[0].events[0].count = 0;
+        p->pInputs[0].eventCount = 1;
     } else {
         pInfo = StageUI_GetRaceResultTable();
         if (CGameInfo::GetGameModeOptionBit19())
-            p->pStates[0x20] = (BYTE)((unsigned int)((CallbackStateMachine *)pInfo)->records[0].packedState >> 16);
+            p->pStates[0].events[0].value = (BYTE)((unsigned int)((CallbackStateMachine *)pInfo)->records[0].packedState >> 16);
         else
-            p->pStates[0x20] = (BYTE)((unsigned int)((CallbackStateMachine *)pInfo)->records[p->car].packedState >> 16);
-        *(short *)(p->pStates + 0x1c) = 0;
-        *(short *)(p->pStates + 0x1e) = 0;
-        p->pStates[0x58] = 1;
+            p->pStates[0].events[0].value = (BYTE)((unsigned int)((CallbackStateMachine *)pInfo)->records[p->car].packedState >> 16);
+        p->pStates[0].events[0].frame = 0;
+        p->pStates[0].events[0].count = 0;
+        p->pStates[0].eventCount = 1;
     }
     if (p->type == 0)
         Replay_CaptureCarSnapshot(p->pInputs, car);
@@ -11733,7 +11742,7 @@ void StageObject_UpdateCarLightFlagsAndGlows(Car *pCar)
                 break;
             }
             FixVecScale(&colour, &colour, intensity);
-            Glow_NoOpEntryCallback((BYTE)(int)glow, (BYTE)colour.x, colour.y, colour.z);
+            Glow_NoOpEntryCallback((BYTE)(INT_PTR)glow, (BYTE)colour.x, colour.y, colour.z);
         }
         idx = 0;
         if (glow->pos.x < 0)
@@ -11856,29 +11865,29 @@ void StageObject_ResetCarObjectState(Car *pCar)
 // per-type block, copies it into the stage block, mirrors the road book entry
 // when the car has one, and refreshes the rally-data bookkeeping.
 // FUNCTION: CMR2 0x0046c2a0
-void Replay_InitObjectListCarState(BYTE *pLane, BYTE param_2)
+void Replay_InitObjectListCarState(ReplayInputLane *pLane, BYTE param_2)
 {
     Car *pCar;
     RaceRecord *pRecord;
 
     pCar = Car_Get((int)param_2);
     StageObject_ResetCarObjectState(pCar);
-    Replay_RestoreCarState((Block0x309 *)(pLane + 0x4d0), pCar);
+    Replay_RestoreCarState((Block0x309 *)pLane->carState, pCar);
     if (pCar->field_0xb50 != 0) {
-        Replay_RestoreAuxState((Block0x134 *)pLane, (Block0x134 *)StageTiming_GetCarReplayRecord((int)param_2));
+        Replay_RestoreAuxState((Block0x134 *)pLane->partState, (Block0x134 *)StageTiming_GetCarReplayRecord((int)param_2));
     }
     pRecord = RallyData_GetCarRaceRecord((int)param_2);
-    Replay_CopyBlock6((Block6 *)(pLane + 0x10f4), (Block6 *)pRecord);
+    Replay_CopyBlock6((Block6 *)pLane->raceRecord, (Block6 *)pRecord);
     RallyData_ResetRaceRecordAndRouteProbe((int)param_2);
     StageTiming_ResetScaledViewObjectStates();
     RallyData_MarkAllElementsReached();
-    RallyData_ValidateIndex((int)param_2);
+    RallyData_ValidateIndex(param_2);
 }
 
 // Initialises the stage-object state of one car (list type 2): same reset as
 // above but without the per-type block copy or the road book mirror.
 // FUNCTION: CMR2 0x0046c410
-void Replay_InitMeshListCarState(BYTE *pLane, BYTE param_2)
+void Replay_InitMeshListCarState(ReplayStateLane *pLane, BYTE param_2)
 {
     Car *pCar;
 
@@ -11887,7 +11896,7 @@ void Replay_InitMeshListCarState(BYTE *pLane, BYTE param_2)
     RallyData_ResetRaceRecordAndRouteProbe((int)param_2);
     StageTiming_ResetScaledViewObjectStates();
     RallyData_MarkAllElementsReached();
-    RallyData_ValidateIndex((int)param_2);
+    RallyData_ValidateIndex(param_2);
 }
 
 // Selects one lane of one car's stage-object state and initialises it for the
@@ -11912,17 +11921,17 @@ int Replay_SelectAndInitializeLane(ReplayStream *p, short lane, short start, BYT
         p->frame = -start;
     p->field_0x21 = 0;
     if (p->type == 0)
-        Replay_InitObjectListCarState(p->pInputs + lane * 0x114c, car);
+        Replay_InitObjectListCarState(p->pInputs + lane, car);
     else if (p->type == 1)
-        Replay_RestoreCarTorqueAndRecordState((int *)(lane * 0x5c + p->pStates), car);
+        Replay_RestoreCarTorqueAndRecordState((int *)(p->pStates + lane), car);
     else
-        Replay_InitMeshListCarState(lane * 0x5c + p->pStates, car);
+        Replay_InitMeshListCarState(p->pStates + lane, car);
     Events_Flush();
     p->field_0x14 = 0;
     if (p->type == 0)
-        p->field_0x10c = p->pInputs[lane * 0x114c + 0x1110];
+        p->field_0x10c = p->pInputs[lane].events[0].value;
     else
-        p->field_0x10c = p->pStates[lane * 0x5c + 0x20];
+        p->field_0x10c = p->pStates[lane].events[0].value;
     if (car == 0 && (RallyData_GetSelectionFlag26() || ((char)RallyData_GetSelectionFlag27() && !CGameInfo::GetGameModeOptionBit19()))) {
         RallyData_RestoreAllCarRaceRecords();
         StageTiming_PlaceEventStartingGrid(1);
@@ -12576,7 +12585,7 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
 // torque of the car and applies the mode 2 collision deformation.
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0047d850
-void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, int *param_2)
+void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, CollisionBox *pBox)
 {
     FixVector offset;
     FixVector dir;
@@ -12593,17 +12602,17 @@ void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, int *param_2)
     i = 100;
     do {
         if (GLOW_RECORD.active != 0 && GLOW_RECORD.car != pCar->index) {
-            pAnchor = (FixVector *)param_2[0x25];
+            pAnchor = pBox->pVertex;
             offset.x = GLOW_RECORD.position.x - pAnchor->x;
             offset.y = GLOW_RECORD.position.y - pAnchor->y;
             offset.z = GLOW_RECORD.position.z - pAnchor->z;
             if (FIX_ABS(offset.x) < 0x640000) {
                 if (FIX_ABS(offset.y) < 0x640000) {
-                    if (FIX_ABS(offset.z) < 0x640000 && GLOW_RECORD.position.y >= param_2[3] &&
-                        GLOW_RECORD.position.y <= param_2[2]) {
-                        dot1 = FixVecDot(&offset, (FixVector *)(param_2 + 4));
-                        dot2 = FixVecDot(&offset, (FixVector *)(param_2 + 7));
-                        if (FIX_ABS(dot1) <= param_2[0] && FIX_ABS(dot2) <= param_2[1]) {
+                    if (FIX_ABS(offset.z) < 0x640000 && GLOW_RECORD.position.y >= pBox->bottom &&
+                        GLOW_RECORD.position.y <= pBox->top) {
+                        dot1 = FixVecDot(&offset, &pBox->axisA);
+                        dot2 = FixVecDot(&offset, &pBox->axisB);
+                        if (FIX_ABS(dot1) <= pBox->halfWidth && FIX_ABS(dot2) <= pBox->halfLength) {
                             FixVecScale(&dir, &GLOW_RECORD.velocity, 0x20000);
                             FixVecScaleRecip(&dir, &dir, FixVecLength(&dir));
                             dir.y += 0x6666;
@@ -13663,7 +13672,7 @@ BYTE Car_GetDrawnFlag(int index);
 void Car_ResetWheelLoadsAfterShift(Car *pCar);
 void StageObject_UpdatePlayerControlIndicators(int player, int device);
 BYTE *GameMenu_GetChampionshipTransitionState(void);
-int StageTiming_GetStageArchiveState(void);
+BYTE *StageTiming_GetStageArchiveState(void);
 unsigned int RallyData_GetFlag22(void);
 
 // Works out the controls of a CPU car from the route data: the route
@@ -13699,8 +13708,8 @@ void AI_UpdateRouteDrivingControls(Car *pCar, int car, int preview)
     node = RallyData_GetActiveCarRaceRecordField0(pCar);
     AI_INT(0x54) = node;
     StageObject_LookupKeyedValuePair(car, table, node, &variant, &modes[2]);
-    *(unsigned int *)g_unk0x0058e394[table] |= 0xfffffffc;
-    StageTiming_RecomputeCarSplitBarSamples(pCar, *(unsigned int *)g_unk0x0058e394[table], g_aiDriveState, variant);
+    *(unsigned int *)g_unk0x0058e394.routes[table] |= 0xfffffffc;
+    StageTiming_RecomputeCarSplitBarSamples(pCar, *(unsigned int *)g_unk0x0058e394.routes[table], g_aiDriveState, variant);
     ahead = -AI_INT(0x34) - (int)FTOI(__int64, (double)*(signed char *)(g_unk0x0058e4a4 + node * 0x10 + 0xa) * g_minus65536);
     behind = AI_INT(0x34) - (int)FTOI(__int64, (double)*(signed char *)(g_unk0x0058e4a4 + node * 0x10 + 0xe) * g_minus65536);
     g_unk0x0058e230[car] = behind;
@@ -13929,11 +13938,11 @@ BYTE *AI_LoadStageRouteTables(void)
     BYTE *pEnd;
     BYTE level;
     BYTE *p;
-    BYTE *pEntry;
+    AINetwork *pEntry;
     int i;
     int k;
 
-    pData = (BYTE *)StageTiming_GetStageArchiveState();
+    pData = StageTiming_GetStageArchiveState();
     size = 0;
     sprintf(CFrontend::m_stringDest, g_strAi0Format, GameMenu_GetChampionshipTransitionState());
     files[0] = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest,
@@ -13973,48 +13982,48 @@ BYTE *AI_LoadStageRouteTables(void)
         g_unk0x0058e37c[i] = (int *)p;
         p += 4;
     }
-    ((char *)&g_unk0x0058e394[0x42])[1] = *p;
+    g_unk0x0058e394.counts[1] = *p;
     p += 4;
-    for (i = 1; i <= ((char *)&g_unk0x0058e394[0x42])[1]; i++) {
-        g_unk0x0058e394[i] = p;
+    for (i = 1; i <= g_unk0x0058e394.counts[1]; i++) {
+        g_unk0x0058e394.routes[i] = p;
         p += 0x88;
     }
-    ((char *)&g_unk0x0058e394[0x42])[2] = *p;
+    g_unk0x0058e394.counts[2] = *p;
     p += 4;
-    for (i = 1; i <= ((char *)&g_unk0x0058e394[0x42])[2]; i++) {
-        g_unk0x0058e394[6 + i] = p;
+    for (i = 1; i <= g_unk0x0058e394.counts[2]; i++) {
+        g_unk0x0058e394.descriptors[i] = (char *)p;
         p += 0x14;
     }
-    ((char *)&g_unk0x0058e394[0x42])[0] = *p;
+    g_unk0x0058e394.counts[0] = *p;
     p += 4;
-    for (i = 1; i <= ((char *)&g_unk0x0058e394[0x42])[0]; i++) {
-        g_unk0x0058e394[0x38 + i] = p;
+    for (i = 1; i <= g_unk0x0058e394.counts[0]; i++) {
+        g_unk0x0058e394.points[i] = p;
         p += 0x10;
     }
-    ((char *)&g_unk0x0058e394[0x42])[3] = *p;
+    g_unk0x0058e394.counts[3] = *p;
     p += 4;
-    for (i = 1; i <= ((char *)&g_unk0x0058e394[0x42])[3]; i++) {
-        g_unk0x0058e394[0x2e + i] = p;
+    for (i = 1; i <= g_unk0x0058e394.counts[3]; i++) {
+        g_unk0x0058e394.networks[i] = (AINetwork *)p;
         p += 0x20;
     }
-    for (i = 1; i <= ((char *)&g_unk0x0058e394[0x42])[3]; i++) {
-        pEntry = g_unk0x0058e394[0x2e + i];
-        if (1 < ((AINetwork *)pEntry)->layerCount) {
-            for (k = 1; k < ((AINetwork *)pEntry)->layerCount; k++) {
-                ((AINetwork *)pEntry)->pWeights[k] = (int *)p;
-                p += (((AINetwork *)pEntry)->layerSizes[k - 1] + 1) * ((AINetwork *)pEntry)->layerSizes[k] * 4;
+    for (i = 1; i <= g_unk0x0058e394.counts[3]; i++) {
+        pEntry = g_unk0x0058e394.networks[i];
+        if (1 < pEntry->layerCount) {
+            for (k = 1; k < pEntry->layerCount; k++) {
+                pEntry->pWeights[k] = (int *)p;
+                p += (pEntry->layerSizes[k - 1] + 1) * pEntry->layerSizes[k] * 4;
             }
         }
     }
-    g_unk0x0058e394[0x43] = p;
+    g_unk0x0058e394.pActivation = (int *)p;
     g_unk0x0058e4a4 = p + 0x100;
-    StageTiming_RelocateCarRecordRoutePoints(g_unk0x0058e4a4 + 0x1720, &g_unk0x0058e394[0x38], ((char *)&g_unk0x0058e394[0x42])[0]);
+    StageTiming_RelocateCarRecordRoutePoints(g_unk0x0058e4a4 + 0x1720, g_unk0x0058e394.points, g_unk0x0058e394.counts[0]);
     return pEnd;
 }
 #undef AI_INT
 #undef AI_CHAR
 
-void Replay_InitObjectListCarState(BYTE *pLane, BYTE param_2);
+void Replay_InitObjectListCarState(ReplayInputLane *pLane, BYTE param_2);
 void Replay_RestoreCarTorqueAndRecordState(int *pState, BYTE car);
 int Replay_DecodeCarControls(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter);
 struct ReplayStream;
@@ -14049,9 +14058,9 @@ void Replay_PlayStreamFrame(int *pState)
     if (p->playStarted != 0) {
         if (p->frame < 0) {
             if (p->type == 0)
-                Replay_InitObjectListCarState(p->pInputs + p->lane * 0x114c, p->car);
+                Replay_InitObjectListCarState(p->pInputs + p->lane, p->car);
             else
-                Replay_RestoreCarTorqueAndRecordState((int *)(p->lane * 0x5c + p->pStates), p->car);
+                Replay_RestoreCarTorqueAndRecordState((int *)(p->pStates + p->lane), p->car);
             if (p->frame != -1) {
                 for (k = 0; k < 4; k++)
                     pCar->wheelLoad[k] = 0;
@@ -14066,8 +14075,8 @@ void Replay_PlayStreamFrame(int *pState)
                 p->frame++;
             found = -1;
             if (p->type == 0) {
-                count = ((ReplayInputLane *)p->pInputs)[p->lane].eventCount;
-                pEvents = ((ReplayInputLane *)p->pInputs)[p->lane].events;
+                count = p->pInputs[p->lane].eventCount;
+                pEvents = p->pInputs[p->lane].events;
                 for (k = 0; k < count; k++) {
                     pEvent = &pEvents[k];
                     if (p->frame < pEvent->frame ||
@@ -14077,8 +14086,8 @@ void Replay_PlayStreamFrame(int *pState)
                     }
                 }
             } else {
-                count = ((ReplayStateLane *)p->pStates)[p->lane].eventCount;
-                pEvents = ((ReplayStateLane *)p->pStates)[p->lane].events;
+                count = p->pStates[p->lane].eventCount;
+                pEvents = p->pStates[p->lane].events;
                 for (k = 0; k < count; k++) {
                     pEvent2 = &pEvents[k];
                     if (p->frame < pEvent2->frame ||
@@ -14090,9 +14099,9 @@ void Replay_PlayStreamFrame(int *pState)
             }
             if (found == -1) {
                 if (p->type == 0)
-                    found = ((ReplayInputLane *)p->pInputs)[p->lane].eventCount;
+                    found = p->pInputs[p->lane].eventCount;
                 else
-                    found = ((ReplayStateLane *)p->pStates)[p->lane].eventCount;
+                    found = p->pStates[p->lane].eventCount;
             }
             // Both formats index the event table from its base. In the original
             // assembly the final load follows two pops, so its stack offset
@@ -14113,10 +14122,10 @@ void Replay_PlayStreamFrame(int *pState)
         p->field_0x14 = 1;
         if (p->type == 0) {
             p->playStarted = 1;
-            p->pInputLane = p->pInputs + p->lane * 0x114c;
+            p->pInputLane = p->pInputs + p->lane;
         } else {
             p->playStarted = 1;
-            p->pStateLane = p->lane * 0x5c + p->pStates;
+            p->pStateLane = p->pStates + p->lane;
         }
     }
 }
@@ -14370,7 +14379,7 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
 // Per-view stage objects draw: the view's precipitation, then the object
 // pass when racing, replaying or in the demo.
 // FUNCTION: CMR2 0x00460330
-void StageObject_DrawViewPrecipitationAndObjects(int param_1, int view)
+void StageObject_DrawViewPrecipitationAndObjects(int *pViewRect, int view)
 {
     ViewWeatherState *pType;
 
@@ -14379,7 +14388,7 @@ void StageObject_DrawViewPrecipitationAndObjects(int param_1, int view)
         StageWeather_DrawViewPrecipitation(view, view);
     if ((char)RallyDataState() != 1 && Race_IsMultiplayerRecordMode10() == 0 && CGameInfo::IsConfiguredMultiplayer() == 0)
         return;
-    StageObject_DrawProjectedViewIcon(param_1, view);
+    StageObject_DrawProjectedViewIcon(pViewRect, view);
 }
 
 // Sparks and glints thrown off a car's body: `amount` (per second) of random

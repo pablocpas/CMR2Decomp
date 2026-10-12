@@ -67,7 +67,7 @@ unsigned int *RallyData_GetChampionshipState(void);
 void RallyData_GetRoundDrivers(unsigned int *pFirst, unsigned int *pSecond);
 unsigned char RallyData_GetFlag24(void);
 unsigned char RallyData_GetFlag25(void);
-void RallyData_ValidateIndex(int index);
+void RallyData_ValidateIndex(INT_PTR index);
 void *RallyData_GetRecord(BYTE index);
 char RallyData_GetUsableRecordCategory(BYTE param1);
 BYTE RallyData_GetDriverRecordSelectionValue(BYTE index);

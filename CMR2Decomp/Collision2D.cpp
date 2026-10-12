@@ -512,7 +512,7 @@ int RallyData_IsChampionshipFinalStage(void);
 unsigned char RallyData_GetFlag24(void);
 unsigned int RallyData_GetSelectionFlag27(void);
 int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB);
-void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, int *param_2);
+void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, CollisionBox *pBox);
 void StageObject_QueueViewLensFlare(int *pObj, int *param2, int *param3, FixVector *pVerts);
 int Collision_SeparateCarBoxes(Car *param_1, Car *param_2);
 void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2);
@@ -616,7 +616,7 @@ void Collision_TestOrderedCarPairs(Car *pCars, short *pOrder, short count)
             g_pContacts0x005915e0 = &g_unk0x00590ed0[pOrder[i]];
             StageObject_QueueViewLensFlare((int *)g_pContacts0x005915e0, (int *)&pCarA->right,
                                            (int *)&pCarA->position, pCarA->corners);
-            StageObject_TestHeadlightGlowsAgainstCarBox(pCarA, (int *)g_pContacts0x005915e0);
+            StageObject_TestHeadlightGlowsAgainstCarBox(pCarA, g_pContacts0x005915e0);
         }
     }
 }

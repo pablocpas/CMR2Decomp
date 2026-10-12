@@ -52,7 +52,7 @@ StageFile *StageTiming_GetStageFile3(void);
 StageFile *StageTiming_GetStageFile4(void);
 StageFile *StageTiming_GetStageFile5(void);
 StageFile *StageTiming_GetStageFile6(void);
-int StageTiming_GetStageArchiveState(void);
+BYTE *StageTiming_GetStageArchiveState(void);
 void StageTiming_ClearSplitDisplayFlags(void);
 int StageTiming_GetSplitSecondaryEntry(int iSplit);
 int StageTiming_GetSplitTableEntry(int iSplit, int iIndex);

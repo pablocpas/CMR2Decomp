@@ -349,7 +349,7 @@ void Font_SetBlendMode(int mode)
 }
 
 // FUNCTION: CMR2 0x0040bac0
-int Font_Unused(int unused1, int unused2)
+int Font_Unused(char *unused1, int unused2)
 {
     return 0;
 }

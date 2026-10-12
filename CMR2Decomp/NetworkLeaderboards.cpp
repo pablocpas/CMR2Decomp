@@ -17,12 +17,14 @@ void CNetworkLeaderboards::Reset() {
     m_leaderboardId = -1;
     m_totalLeaderboards = 0;
 
-    int addr = (int)&m_leaderboards;
-    int endAddr = addr + sizeof(m_leaderboards);
-    
+    // The original compares the cursor signed (jl), so it is an integer
+    // address, not a NetworkLeaderboard pointer.
+    INT_PTR addr = (INT_PTR)m_leaderboards;
+    INT_PTR endAddr = addr + sizeof(m_leaderboards);
+
     while (addr < endAddr) {
-        *(BYTE*)addr = 0;
-        addr += 0x104;
+        ((NetworkLeaderboard *)addr)->isLoaded = 0;
+        addr += sizeof(NetworkLeaderboard);
     }
 }
 

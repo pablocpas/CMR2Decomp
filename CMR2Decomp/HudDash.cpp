@@ -334,7 +334,7 @@ void Dash_Update(int player)
 // rectangles), the gear letter and the speed.
 // match 27%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00446270
-void Dash_DrawBar(int player, int layer)
+void Dash_DrawBar(int player, int *pViewRect)
 {
     char gears[] = "RN123456";
     char text[16];
@@ -493,7 +493,7 @@ void Dash_DrawDialFace(int *pCentre, int unused, Texture *pTexture)
 // its point, rotated by angle about pCentre.
 // FUNCTION: CMR2 0x004471b0
 void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, int tip, unsigned int angle,
-                     BYTE *pColour, int layer)
+                     BYTE *pColour, int *pViewRect)
 {
     BYTE edge[4];
     BYTE point[4];
@@ -579,7 +579,7 @@ void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, i
 // the gear letters, the speed and the MPH/KPH plate.
 // match 99.7%: only the order of two `and`s differs (100% ignoring registers).
 // FUNCTION: CMR2 0x00446bf0
-void Dash_DrawDial(int player, int layer)
+void Dash_DrawDial(int player, int *pViewRect)
 {
     char gears[] = "RN123456";
     char speed[12];
@@ -612,9 +612,9 @@ void Dash_DrawDial(int player, int layer)
     needleCentre[0] = 0xf333;
     needleCentre[1] = 0xd113;
     angle = (short)(0x732 - (short)(FixMul(g_dashRev[player] + 0x1eb8, 0xb330000) >> 16));
-    Dash_DrawNeedle(needleCentre, 0x100, 0xcc, -0x8cc, 0x1799, 0x18cc, angle, g_dashNeedleColour, layer);
+    Dash_DrawNeedle(needleCentre, 0x100, 0xcc, -0x8cc, 0x1799, 0x18cc, angle, g_dashNeedleColour, pViewRect);
     Dash_DrawDialFace(dialCentre, 0x3c01, g_dashDialTexture);
-    Dash_DrawNeedle(needleCentre, 0x100, 0x100, -0x8cc, 0x1799, 0x18cc, angle, g_dashNeedleColour, layer);
+    Dash_DrawNeedle(needleCentre, 0x100, 0x100, -0x8cc, 0x1799, 0x18cc, angle, g_dashNeedleColour, pViewRect);
 
     // Gear marker, flashing white after a gear change.
     rect[3] = DASH_Y(0x886);
@@ -683,14 +683,14 @@ void Dash_DrawDial(int player, int layer)
 
 // Draws the dashboard of a player whose car shows one.
 // FUNCTION: CMR2 0x00446210
-void Dash_Draw(int player, int layer)
+void Dash_Draw(int player, int *pViewRect)
 {
     if (player < 2 && (*RallyData_GetDriverKnockoutOrTeamRecord(StageUI_GetRaceEndEventCount() + (char)player) & 0x10) != 0) {
         if (g_dashDigital[StageUI_GetRaceEndEventCount() + player] != 0) {
-            Dash_DrawBar(player, layer);
+            Dash_DrawBar(player, pViewRect);
             return;
         }
-        Dash_DrawDial(player, layer);
+        Dash_DrawDial(player, pViewRect);
     }
 }
 

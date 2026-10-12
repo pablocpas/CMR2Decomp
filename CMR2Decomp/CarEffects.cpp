@@ -433,7 +433,7 @@ void Spark_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
 
 // Update callback: once old enough the particle switches to its type's look.
 // FUNCTION: CMR2 0x004994d0
-void CarEffects_UpdateAgedParticleAppearance(void *pParticle, ParticleType *pType, int param)
+void CarEffects_UpdateAgedParticleAppearance(void *pParticle, ParticleType *pType, SceneNode *pView)
 {
     Particle *p = (Particle *)pParticle;
 
@@ -1146,7 +1146,7 @@ void CarEffects_SetSplashColour(int player, BYTE *pColour)
 }
 // Update callback: lifts the particle by half its size.
 // FUNCTION: CMR2 0x0045d250
-void CarEffects_UpdateRisingParticle(void *pParticle, ParticleType *pType, int param)
+void CarEffects_UpdateRisingParticle(void *pParticle, ParticleType *pType, SceneNode *pView)
 {
     Particle *p = (Particle *)pParticle;
 
@@ -1155,7 +1155,7 @@ void CarEffects_UpdateRisingParticle(void *pParticle, ParticleType *pType, int p
 
 // Update callback: moves the particle with the car stored in its effect data.
 // FUNCTION: CMR2 0x0045dea0
-void CarEffects_UpdateParticleAtCarPosition(void *pParticle, ParticleType *pType, int param)
+void CarEffects_UpdateParticleAtCarPosition(void *pParticle, ParticleType *pType, SceneNode *pView)
 {
     Particle *p = (Particle *)pParticle;
     int car = p->field0x64;
@@ -1169,7 +1169,7 @@ void CarEffects_UpdateParticleAtCarPosition(void *pParticle, ParticleType *pType
 
 // Update callback: rises by half its size (capped at 1.5) and follows its car.
 // FUNCTION: CMR2 0x0045d270
-void CarEffects_UpdateCarFollowingRisingParticle(void *pParticle, ParticleType *pType, int param)
+void CarEffects_UpdateCarFollowingRisingParticle(void *pParticle, ParticleType *pType, SceneNode *pView)
 {
     Particle *p = (Particle *)pParticle;
     Car *pCar;
@@ -1198,7 +1198,7 @@ int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 // (alternating) in world space.
 // match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045d2d0
-void CarEffect_SpawnExhaustParticle(void *pParticle, ParticleType *pType, int param)
+void CarEffect_SpawnExhaustParticle(void *pParticle, ParticleType *pType, SceneNode *pView)
 {
     Particle *p = (Particle *)pParticle;
     int car = p->field0x64;
@@ -1231,7 +1231,7 @@ void CarEffect_SpawnExhaustParticle(void *pParticle, ParticleType *pType, int pa
 // Gives a particle a deterministic spiral offset and, while its owner is a
 // car slot, moves it into that car's world position.
 // FUNCTION: CMR2 0x0045d3a0
-void CarEffects_UpdateSpiralParticle(void *pParticle, ParticleType *pType, int param)
+void CarEffects_UpdateSpiralParticle(void *pParticle, ParticleType *pType, SceneNode *pView)
 {
     int scales[10] = { 0x1999, 0x3333, 0x4ccc, 0x6666, 0x8000,
                        0x9999, 0xb333, 0xcccc, 0xe666, 0x10000 };
@@ -1243,9 +1243,9 @@ void CarEffects_UpdateSpiralParticle(void *pParticle, ParticleType *pType, int p
     int car;
 
     p = (Particle *)pParticle;
-    index = ((int)p / 3 & 0xffffff) % 10;
+    index = ((int)(INT_PTR)p / 3 & 0xffffff) % 10;
     if (p->age == 0xc70000)
-        p->field0x50 = (short)(((int)p / 7 & 0xffffff) % 0x24) * 0x71;
+        p->field0x50 = (short)(((int)(INT_PTR)p / 7 & 0xffffff) % 0x24) * 0x71;
     p->field0x50 += 0x71;
     if (p->field0x50 > 0x1000)
         p->field0x50 -= 0x1000;

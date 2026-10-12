@@ -2721,7 +2721,7 @@ void FrontendMenu_BuildGraphicsOptions(void)
     Menu_AddItemType3(&g_menu0x008210f8, 0, -1, 3, 0, 0, 0, 0, 4);
     Menu_AddItemType3(&g_menu0x008210f8, 0, -1, 0xa, 0, 0, 0, 0, 5);
     Menu_AddItemType2(&g_menu0x008210f8, 0, 0x1ac, &g_menu0x0081cd78, 0, 6);
-    Menu_AddItemType1(&g_menu0x008210f8, 0, 0x67, (MenuItemAction)FrontendMenu_ApplyGraphicsOptions, 0xe);
+    Menu_AddItemType1(&g_menu0x008210f8, 0, 0x67, FrontendMenu_ApplyGraphicsOptions, 0xe);
     Menu_SetCallbacks(&g_menu0x008210f8, FrontendMenu_EnterGraphicsOptions, NULL, (MenuCallback)FrontendMenu_DrawGraphicsOptions, (MenuCallback)FrontendMenu_LeaveGraphicsOptions);
     Menu_ValidateCursor(&g_menu0x008210f8, 0);
 }
@@ -3326,14 +3326,14 @@ void FrontendMenu_BuildArcadeChampionshipTransmission(void)
 void FrontendMenu_BuildArcadeRallySelection(void)
 {
     Menu_Init(&g_menu0x00827320, 0, 0x25, 0, &g_menu0x00828220, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfa, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfb, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfc, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfd, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfe, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0xff, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0x100, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00827320, 0, 0x101, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfa, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfb, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfc, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfd, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0xfe, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0xff, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0x100, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00827320, 0, 0x101, FrontendMenu_SelectArcadeRallyRow, -1);
     Menu_SetCallbacks(&g_menu0x00827320, FrontendScroller_InitArcadeRally, (MenuCallback)FrontendScroller_UpdateArcadeRally, (MenuCallback)FrontendMenu_DrawArcadeRallySelection, NULL);
     Menu_ValidateCursor(&g_menu0x00827320, 0);
 }
@@ -3342,14 +3342,14 @@ void FrontendMenu_BuildArcadeRallySelection(void)
 void FrontendMenu_BuildArcadeChampionshipRallySelection(void)
 {
     Menu_Init(&g_menu0x00826420, 0, 0x25, 0, &g_menu0x00827500, NULL, 1, 0, 0);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfa, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfb, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfc, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfd, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfe, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0xff, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0x100, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
-    Menu_AddItemType4(&g_menu0x00826420, 0, 0x101, (MenuItemAction)FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfa, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfb, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfc, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfd, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0xfe, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0xff, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0x100, FrontendMenu_SelectArcadeRallyRow, -1);
+    Menu_AddItemType4(&g_menu0x00826420, 0, 0x101, FrontendMenu_SelectArcadeRallyRow, -1);
     Menu_SetCallbacks(&g_menu0x00826420, FrontendScroller_InitArcadeRally, (MenuCallback)FrontendScroller_UpdateArcadeRally, (MenuCallback)FrontendMenu_DrawArcadeRallySelection, NULL);
     Menu_ValidateCursor(&g_menu0x00826420, 0);
 }

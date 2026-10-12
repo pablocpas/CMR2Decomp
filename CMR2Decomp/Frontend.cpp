@@ -1583,7 +1583,7 @@ int FrontendRecords_CopyArcadeSplitMirror(int param_1, int param_2)
     StageTiming_GetCheckpointField2(param_1);
     strcpy(placeholder, g_str0x00523bb4);
     pSplits = pInfo->arcadeRecordSplits[stage + group * 3];
-    pTime = (unsigned int *)((int)pOption + 0x20);
+    pTime = (unsigned int *)((BYTE *)pOption + 0x20);
     pRecord = &pInfo->arcadeRecordTimes[stage + group * 3];
     if (pTime != NULL) {
         unsigned int value = *pTime;

@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <string.h>
 #include "NetPlayers.h"
+#include "Car.h"
 #include "Sprite.h"
 #include "Graphics.h"
 #include "GameInfo.h"
@@ -48,8 +49,7 @@ int g_unk0x0053a0cc[8];
 int g_unk0x0053a0ec[8];
 // GLOBAL: CMR2 0x0053a20c
 int g_unk0x0053a20c[8];
-// GLOBAL: CMR2 0x005394bc
-BYTE g_unk0x005394bc[7][0xec];  // 7 rows up to the triangle table at 0x539b38
+extern CarNetRecord g_unk0x005393d8[8];
 
 // Font picked for the screen size (0x28 normal, 0x29 small).
 // GLOBAL: CMR2 0x005393d4
@@ -78,7 +78,7 @@ void NetRace_SelectHUDFont(int width, int height, int players)
 // FUNCTION: CMR2 0x00427620
 int NetRace_GetPlayerStatisticsValue(int index)
 {
-    return *(int *)g_unk0x005394bc[index];
+    return g_unk0x005393d8[index].field_0xe4;
 }
 
 // FUNCTION: CMR2 0x00427640
@@ -192,7 +192,7 @@ void NetRace_DispatchRacePacket(DWORD *pId, BYTE *pPacket)
 }
 
 int Network_PollReceivedMessageBuffer(DWORD *param1, void **param2);
-void NetRace_HandleDeviceNotification(int param_1, int *param_2);
+void NetRace_HandleDeviceNotification(DWORD *pFrom, int *param_2);
 void NetRace_DispatchRacePacket(DWORD *pId, BYTE *pPacket);
 
 // Drains the pending network messages of a race: system messages (from id 0)
@@ -205,7 +205,7 @@ void NetRace_DrainPendingMessages(void)
 
     while (Network_PollReceivedMessageBuffer(&from, &pData)) {
         if (from == 0)
-            NetRace_HandleDeviceNotification((int)&from, (int *)pData);
+            NetRace_HandleDeviceNotification(&from, (int *)pData);
         else
             NetRace_DispatchRacePacket(&from, (BYTE *)pData);
     }
@@ -1009,7 +1009,7 @@ void NetPlayers_RemovePlayerByID(int *pId);
 // Network-device notification: id 5 refreshes the player list of the entry,
 // id 0x101 re-initialises the in-race menu and the HUD.
 // FUNCTION: CMR2 0x00427680
-void NetRace_HandleDeviceNotification(int param_1, int *param_2)
+void NetRace_HandleDeviceNotification(DWORD *pFrom, int *param_2)
 {
     if (*param_2 != 5) {
         if (*param_2 == 0x101) {
@@ -1288,7 +1288,6 @@ extern void NetPlayers_RebuildStageResults(int param1, int param2, int param3);
 extern void NetRace_PollPlayerStatisticsPackets(Car *pCars);
 extern void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc);
 
-extern CarNetRecord g_unk0x005393d8;
 
 // Text of the network frame statistics trace.
 // GLOBAL: CMR2 0x00519988
@@ -1319,13 +1318,13 @@ void NetRace_ReceiveAndIntegrateListedCars(Car *pCars, short *pIndices, short co
         int idx = pIndices[i];
 
         if (pCars[idx].field_0xc1c != 0)
-            NetRace_IntegrateRemoteCarBody(&g_unk0x005393d8 + idx, g_unk0x005393ac[NetPlayers_FindPlayerByField8(idx)]);
+            NetRace_IntegrateRemoteCarBody(&g_unk0x005393d8[idx], g_unk0x005393ac[NetPlayers_FindPlayerByField8(idx)]);
     }
     for (i = (int)count - 1; i >= 0; i--) {
         int idx = pIndices[i];
 
         if (pCars[idx].field_0xc1c != 0)
-            Car_RestorePhysicsFromRecord(pCars + idx, &g_unk0x005393d8 + idx);
+            Car_RestorePhysicsFromRecord(pCars + idx, &g_unk0x005393d8[idx]);
     }
 }
 
@@ -1353,7 +1352,7 @@ void NetRace_PollPlayerStatisticsPackets(Car *pCars)
             NetPlayers_ClearNewStatisticsFlag(i);
             pStats = NetPlayers_GetStatisticsRecord(i);
             g_localCarStats = *pStats;
-            pEntry = &g_unk0x005393d8 + NetPlayers_GetPlayerField8(i);
+            pEntry = &g_unk0x005393d8[NetPlayers_GetPlayerField8(i)];
             pCar = pCars + NetPlayers_GetPlayerField8(i);
             if (NetRace_DecodeReceivedCarState(pEntry, &local) != 0) {
                 value = FixMul(local, pCar->maxSteeringAngleDegrees * 0x1680);
@@ -1370,13 +1369,13 @@ void NetRace_PollPlayerStatisticsPackets(Car *pCars)
             }
             g_unk0x005393ac[i] = ((unsigned)pStats->seq + (unsigned)g_unk0x005393ac[i]) >> 1;
             if (i == 0)
-                RallyData_ValidateIndex((int)CInput::FormatString(g_str0x00519988, pStats->seq,
+                RallyData_ValidateIndex((INT_PTR)CInput::FormatString(g_str0x00519988, pStats->seq,
                                                                  0, g_unk0x005393ac[i]));
         } else {
             if (g_unk0x005393ac[i] != 0)
                 g_unk0x005393ac[i]++;
             if (i == 0)
-                RallyData_ValidateIndex((int)CInput::FormatString(g_str0x0051995c, 0,
+                RallyData_ValidateIndex((INT_PTR)CInput::FormatString(g_str0x0051995c, 0,
                                                                  g_unk0x005393ac[0]));
         }
         i++;

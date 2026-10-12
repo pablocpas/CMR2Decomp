@@ -280,7 +280,7 @@ void *Profile_ReadLocalFile(char *param1, int param2)
     return CFileBuffer::GetGenericFileBuffer(param1, 1);
 }
 
-void RallyData_ValidateIndex(int index);
+void RallyData_ValidateIndex(INT_PTR index);
 void Profile_AssignAvailableCategory(int index, int profile);
 void Profile_ResetCategoryData(int index);
 
@@ -357,7 +357,7 @@ void Profile_ResetAllRecordCategories(void)
     } while (i < 0x10);
 }
 
-void RallyData_ValidateIndex(int index);
+void RallyData_ValidateIndex(INT_PTR index);
 void RallyData_SetPlayerDefaultCarSetup(int player);
 
 // Gives record `index` a profile (category) unless it has one: `profile`

@@ -779,9 +779,11 @@ unsigned char RallyData_GetFlag25(void)
 }
 
 // Index check compiled out of the release build; kept because every
-// RallyData accessor still calls it.
+// RallyData accessor still calls it. The linker folded other empty debug
+// functions into this one, so some callers pass pointers (a mesh, a trace
+// string): the parameter is pointer-sized.
 // FUNCTION: CMR2 0x004083f0
-void RallyData_ValidateIndex(int index)
+void RallyData_ValidateIndex(INT_PTR index)
 {
 }
 
@@ -1120,7 +1122,7 @@ int RallyData_IsDriverViewModeAllowed(unsigned char index, int mode)
 void RallyData_ValidateType3Entry(int *p)
 {
     if (p[1] == 3)
-        RallyData_ValidateIndex((int)p);
+        RallyData_ValidateIndex((INT_PTR)p);
 }
 
 // FUNCTION: CMR2 0x00406940
@@ -2692,7 +2694,7 @@ int RallyData_GetRouteAvailabilityState(void);
 extern int g_unk0x00536c88[2];
 extern int g_unk0x00536c00[2];
 extern int g_unk0x00536c28[2];
-void StageUI_NoOpMapEvent(int, int);
+void StageUI_NoOpMapEvent(int, short *);
 BYTE StageTiming_GetCheckpointField1A(int index);
 extern BYTE g_gapTextColour[4];
 BYTE StageTiming_GetPendingDriverByteA7(void);
@@ -2842,7 +2844,7 @@ void RallyData_DrawAndHandleCarHUD(int car, short *pRect)
                 RallyData_DrawStageResultRows(car, rect);
             }
         } else if ((BYTE)RallyData_GetSelectionFlag27() && !CGameInfo::GetGameModeOptionBit19()) {
-            StageUI_NoOpMapEvent(car, (int)rect);
+            StageUI_NoOpMapEvent(car, rect);
         } else if (CGameInfo::GetConfiguredGameMode() == 2 || CGameInfo::GetConfiguredGameMode() == 0 ||
                    CGameInfo::GetConfiguredGameMode() == 1) {
             RallyData_DrawSplitStandingsPanel(car, rect);
@@ -6081,7 +6083,7 @@ void StageObject_AverageWheelGroundLighting(unsigned int param1, int param2);
 int Render_GetDetailDistanceScale(void);
 BYTE View_GetActiveCameraFlags(BYTE index);
 void View_SelectVisibleCars(unsigned int view, short *pRect);
-void CarDamage_UpdateOrderedCarsOffRoadState(short *param1, short param2, int param3, int param4);
+void CarDamage_UpdateOrderedCarsOffRoadState(short *param1, short param2, int *pViewRect, int param4);
 void StageObject_PositionRearViewLightNodes(unsigned int param1);
 BYTE StageObject_GetCarRecordState(int index);
 void StageObject_ResetCarNodeViewFlags(Car *pCar);
@@ -6105,8 +6107,8 @@ void StageTiming_DrawProjectedCarMarker(int param1, int param2);
 void StageTiming_DrawClockAndCountdown(void);
 void View_SetPlayerProjection(unsigned int player);
 void StageObject_ApplyInterpolatedNodeMatrices(int param1);
-void Race_DrawPlayerCallSlots(unsigned int player, int param2);
-void Dash_Draw(int player, int layer);
+void Race_DrawPlayerCallSlots(unsigned int player, int *pViewRect);
+void Dash_Draw(int player, int *pViewRect);
 void Race_ClearMessageDrawLatch(void);
 int InRaceMenu_IsPlayerEditingCarSetup(unsigned int param1);
 
@@ -6333,7 +6335,7 @@ void RallyData_UpdateViewFrameAndDebugOverlay(CallbackStateMachine *param1, int 
                 (int)g_pGraphics->field917_0x3c0 + 1);
         Font_DrawText(1, CFrontend::m_stringDest, 0, 0x69, (int *)colour, 9);
     }
-    CarDamage_UpdateOrderedCarsOffRoadState(pOrder, (short)orderCount, (int)g_unk0x00536ad4, maskedView);
+    CarDamage_UpdateOrderedCarsOffRoadState(pOrder, (short)orderCount, g_unk0x00536ad4, maskedView);
     if (CGameInfo::GetGameModeOptionBit19() != 0) {
         if (CGameInfo::GetConfiguredGameMode() != 0xa) {
             if ((char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState == '\n')
@@ -6358,14 +6360,14 @@ void RallyData_UpdateViewFrameAndDebugOverlay(CallbackStateMachine *param1, int 
     if ((BYTE)RallyData_IsChampionshipFinalStage() != 0)
         return;
     if ((BYTE)RallyDataState() == 1 && param3 != 0) {
-        Dash_Draw(maskedView, (int)g_unk0x00536ad4);
+        Dash_Draw(maskedView, g_unk0x00536ad4);
         RallyData_DrawAndHandleCarHUD(maskedView, (short *)g_unk0x00536ad4);
-        Race_DrawPlayerCallSlots(maskedView, (int)g_unk0x00536ad4);
+        Race_DrawPlayerCallSlots(maskedView, g_unk0x00536ad4);
     }
     if ((BYTE)RallyDataState() == 2 && param3 != 0) {
-        Dash_Draw(maskedView, (int)g_unk0x00536ad4);
+        Dash_Draw(maskedView, g_unk0x00536ad4);
         RallyData_DrawAndHandleCarHUD(maskedView, (short *)g_unk0x00536ad4);
-        Race_DrawPlayerCallSlots(maskedView, (int)g_unk0x00536ad4);
+        Race_DrawPlayerCallSlots(maskedView, g_unk0x00536ad4);
     }
 }
 

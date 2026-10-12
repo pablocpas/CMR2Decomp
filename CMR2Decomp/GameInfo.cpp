@@ -1564,8 +1564,10 @@ void OptionMenu_SetTargetLayoutPairs(int param1, int *param2, int param3)
 
 // Option menu item notification: refreshes the player list of a network device
 // entry when it changes, or opens the advanced options on the select action.
+// pFrom is the sender id (a DWORD); declaring it DWORD * flips a register
+// tie in FrontendText_LoadRegionLanguages, as other symbol changes in this TU do.
 // FUNCTION: CMR2 0x00500a70
-void OptionMenu_HandleItemNotification(int unused, int *param2)
+void OptionMenu_HandleItemNotification(unsigned int *pFrom, int *param2)
 {
     if (*param2 != 5) {
         if (*param2 == 0x101)
@@ -1638,7 +1640,7 @@ void GameInfo_ProcessNetworkMessages(void)
 
     while (Network_PollReceivedMessageBuffer(&senderId, &pMessage) != 0) {
         if (senderId == 0)
-            OptionMenu_HandleItemNotification((int)&senderId, (int *)pMessage);
+            OptionMenu_HandleItemNotification((unsigned int *)&senderId, (int *)pMessage);
         else
             OptionMenu_HandleNetworkNotification((DPID *)&senderId, (BYTE *)pMessage);
     }
@@ -6904,7 +6906,7 @@ void OptionMenu_LoadPartTextures(void)
 // GLOBAL: CMR2 0x0082cb78
 OptionPreviewSceneRecord g_previewSceneRecords[16];
 
-void OptionPreview_AssignConvertedVertexBuffers(int param1, int param2, OptionPreviewMeshRecord *param3);
+void OptionPreview_AssignConvertedVertexBuffers(int param1, INT_PTR param2, OptionPreviewMeshRecord *param3);
 
 // Rebuilds the mesh record of the option menu preview model: clears the
 // record, adds the mesh of every node of the entry's node tree, compacts the
@@ -6964,7 +6966,7 @@ void OptionPreview_RebuildMeshRecord(int index)
                 i--;
         }
     }
-    OptionPreview_AssignConvertedVertexBuffers(index, (int)pEntry->bodyNode, pRecord);
+    OptionPreview_AssignConvertedVertexBuffers(index, (INT_PTR)pEntry->bodyNode, pRecord);
 }
 
 // GLOBAL: CMR2 0x0082fd00
@@ -7485,7 +7487,7 @@ void OptionPreview_SetWheelNodesVisible(int index, char visible)
 // length.
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00506bb0
-void OptionPreview_AllocateConvertedWheelVertices(int param1, int param2, OptionPreviewMeshRecord *param3)
+void OptionPreview_AllocateConvertedWheelVertices(int param1, INT_PTR param2, OptionPreviewMeshRecord *param3)
 {
     DeformVertex ***ppBlock;
     BYTE **ppFlags;
@@ -8029,8 +8031,10 @@ void OptionPreview_RebuildDeformedGeometry(OptionPreviewMeshRecord *pObject, Opt
 // Copies the converted vertex buffers of the slot into its per-mesh pointer
 // array: for every source mesh it finds the first buffer whose stored flag
 // matches the mesh's flag and points the mesh entry at it.
+// param2 (unused) is the preview's body node. Typed SceneNode * or void * it
+// moves code in OptionMenu_DrawResultsRallyInfo, so it stays an integer address.
 // FUNCTION: CMR2 0x00506fc0
-void OptionPreview_AssignConvertedVertexBuffers(int param1, int param2, OptionPreviewMeshRecord *param3)
+void OptionPreview_AssignConvertedVertexBuffers(int param1, INT_PTR param2, OptionPreviewMeshRecord *param3)
 {
     int i;
     int j;
@@ -8342,7 +8346,7 @@ void OptionMenu_DrawScreenTitle(void)
             flag = 1;
     }
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x131));
-    Font_Unused((int)CFrontend::m_stringDest, flag);
+    Font_Unused(CFrontend::m_stringDest, flag);
     width = Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
     OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::m_stringDest,
                  (int)g_pGraphics->resX * 0x140 / 0x280 - width / 2,
@@ -8617,7 +8621,7 @@ void OptionMenu_ApplyRallyRecordGroup(int param_1, int param_2)
 // Applies the second item of the mode menu when its value still differs from the
 // stored option; the parent menu is always left as the next action.
 // FUNCTION: CMR2 0x00500360
-void OptionMenu_ApplySecondModeItem(Menu *pMenu, int param)
+void OptionMenu_ApplySecondModeItem(Menu *pMenu, MenuItem *pItem)
 {
     int index = Menu_FindItem(OptionMenu_GetControlSetupMenu(), 2);
 
@@ -10595,7 +10599,7 @@ void OptionMenu_LoadGameItem(Menu *pMenu, MenuItem *pItem)
 void OptionMenu_ApplyHighlightedValue(Menu *pMenu, MenuItem *pItem)
 {
     if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(pItem->max)) != 0)
-        OptionMenu_ApplySecondModeItem(pMenu, (int)pItem);
+        OptionMenu_ApplySecondModeItem(pMenu, pItem);
     else
         OptionMenu_ConfirmOrRevertHighlightedValue(pMenu, pItem);
 }

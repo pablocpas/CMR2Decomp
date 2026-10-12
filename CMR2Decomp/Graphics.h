@@ -1337,7 +1337,7 @@ private:
     friend void *Sector_RelocateStageMeshFile(BYTE *pData, struct SceneNode *parent, struct GenericFile *archive);
     friend void OptionPreview_UpdateWheelMeshVariants(int param1);
     friend Texture *Graphics_FindAndEnsureResidentTexture(char *name);
-    friend void Events_Init(int unused, int slot, char animate);
+    friend void Events_Init(char *unused, int slot, char animate);
     friend void Scene_SetAmbient(BYTE *pColour, int boost);
     friend void Sprite_DrawLayer(int layer);
     friend void Quad2D_DrawLayer(unsigned int layer);

@@ -11,6 +11,8 @@ struct ParticleType;
 struct SceneNode;
 typedef void (*ParticleDrawCallback)(Particle *, ParticleType *, SceneNode *);
 typedef void (*ParticleInitCallback)(void *, ParticleType *, void *);
+// Per-step callbacks; the last argument is the view node passed to Particle_UpdateAll.
+typedef void (*ParticleUpdateCallback)(void *, ParticleType *, SceneNode *);
 // Definition of one particle kind (0x70 bytes on Win32).
 struct ParticleType {
     int lifetime;
@@ -42,8 +44,8 @@ struct ParticleType {
     int field0x54;          // 0x54 delay before the animation starts
     int field0x58;          // 0x58 time per frame
     ParticleDrawCallback draw; // 0x5c custom draw callback
-    void (*update)(void *, ParticleType *, int);        // 0x60 replaces the default motion
-    void (*postUpdate)(void *, ParticleType *, int);    // 0x64
+    ParticleUpdateCallback update;     // 0x60 replaces the default motion
+    ParticleUpdateCallback postUpdate; // 0x64
     ParticleInitCallback callback; // 0x68 initial particle data
     int field0x6c;
 };

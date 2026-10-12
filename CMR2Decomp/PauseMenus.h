@@ -12,7 +12,7 @@ struct PauseMenus {
     int bracketFade;            // 0x1e4 its current value, 16.16
     Menu stageData;             // 0x1e8 stage data panel, 0x72 exits
     int textFade;               // 0x3c8 value of textTimer, 16.16
-    unsigned int roundEntry;    // 0x3cc RallyData_GetRoundEntry() when it started
+    unsigned int *roundEntry;   // 0x3cc RallyData_GetRoundEntry() when it started
     BYTE field_0x3d0[0x100];
     BYTE textTimer;             // 0x4d0 timer slot of the text fade
     BYTE pad_0x4d1[3];

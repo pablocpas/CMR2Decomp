@@ -3866,7 +3866,7 @@ void FrontendMenu_ApplyAdvancedGraphicsOptions(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004f1e40
-void FrontendMenu_ApplyGraphicsOptions(Menu *pMenu, int param)
+void FrontendMenu_ApplyGraphicsOptions(Menu *pMenu, MenuItem *pItem)
 {
     if (CFrontend::GetDeviceCapabilityFieldA8()) {
         if (Menu_GetItem(pMenu, 1)->max == 0) {
@@ -3902,7 +3902,7 @@ void FrontendMenu_ApplyGraphicsOptions(Menu *pMenu, int param)
 void FrontendMenu_LeaveGraphicsOptions(Menu *pMenu, char param)
 {
     if (param == 0)
-        FrontendMenu_ApplyGraphicsOptions(pMenu, (int)&pMenu->items[pMenu->cursor]);
+        FrontendMenu_ApplyGraphicsOptions(pMenu, &pMenu->items[pMenu->cursor]);
 }
 
 DWORD Graphics_GetDeviceCaps98(void);
@@ -7850,10 +7850,10 @@ void FrontendScroller_UpdateArcadeRally(Menu *pMenu)
 
 // Selects the menu row/page for a front-end list screen.
 // FUNCTION: CMR2 0x004fb370
-void FrontendMenu_SelectArcadeRallyRow(int param_1, int unused)
+void FrontendMenu_SelectArcadeRallyRow(Menu *pMenu, MenuItem *unused)
 {
-    RallyData_SetSelectionBits10To11((int)*(signed char *)(param_1 + 7) / 3);
-    RallyData_SetSelectionBits12To13((int)*(signed char *)(param_1 + 7) % 3);
+    RallyData_SetSelectionBits10To11(pMenu->cursor / 3);
+    RallyData_SetSelectionBits12To13(pMenu->cursor % 3);
     if (CGameInfo::GetConfiguredPlayerCount() == 2)
         RallyData_SetSecondarySelectionNibble(0);
     else
@@ -10005,7 +10005,7 @@ void FrontendMenu_DrawMultiplayerStageSelection(Menu *pMenu)
                 strcpy(g_unk0x00818368, CFrontend::GetTextString(0xdf));
             } else {
                 sprintf(g_unk0x00818368, CFrontend::GetTextString(0x13b));
-                Font_Unused((int)g_unk0x00818368, Frontend_GetOverlayMode());
+                Font_Unused(g_unk0x00818368, Frontend_GetOverlayMode());
                 FrontendDraw_RallyInfoHeader();
                 FrontendDraw_HelpText(CFrontend::GetTextString(0xf9), 1);
                 return;

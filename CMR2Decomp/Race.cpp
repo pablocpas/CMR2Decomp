@@ -990,7 +990,7 @@ int g_unk0x00517e24 = -1;
 // countdown wobbles it once the slot is the first one) and the timer text.
 // The second parameter is unused (the original still cleans 8 bytes).
 // FUNCTION: CMR2 0x004177d0
-void Race_DrawPlayerCallSlots(unsigned int player, int param2)
+void Race_DrawPlayerCallSlots(unsigned int player, int *pViewRect)
 {
     BYTE colA[4];
     BYTE colB[4];
@@ -5186,7 +5186,7 @@ unsigned int StageObject_GetAnyDeviceHeldButtons(void);
 bool Input_PopQueuedCharacter(int *pOut);
 void Input_ClearCharacterQueue(void);
 void Sound_FreeAll(void);
-void Particle_UpdateAll(int param);
+void Particle_UpdateAll(SceneNode *pView);
 void Replay_SetControlStateByte(BYTE value);
 int Replay_GetActiveBufferState(void);
 void Replay_RestartGhostCar(int a, int b);
@@ -5382,7 +5382,7 @@ void Race_UpdatePlayerViewAndDrivenCars(BYTE param1, int param2)
         }
         if (player != 0) {
             if (first == 0 || second != 0)
-                Particle_UpdateAll((int)g_viewNodes[g_unk0x00537f04]);
+                Particle_UpdateAll(g_viewNodes[g_unk0x00537f04]);
             if (CGameInfo::GetConfiguredGameMode() == 0xc && StageTiming_GetCheckpointField19(0) != 0) {
                 NetRace_SendStageAndOverallTimes(StageTiming_GetCarSplitTime(0, StageTiming_GetCheckpointGroupIndex(0)));
                 NetPlayers_UpdateBestRaceTime(StageTiming_GetCarSplitTime(0, StageTiming_GetCheckpointGroupIndex(0)));

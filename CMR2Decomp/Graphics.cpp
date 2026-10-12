@@ -5595,8 +5595,8 @@ void ParticleEdit_SetSpread(int x, int y, int z, BYTE flag)
 }
 
 // FUNCTION: CMR2 0x004aff10
-void ParticleEdit_SetCallbacks(ParticleDrawCallback draw, void (*update)(void *, ParticleType *, int),
-                               void (*postUpdate)(void *, ParticleType *, int),
+void ParticleEdit_SetCallbacks(ParticleDrawCallback draw, ParticleUpdateCallback update,
+                               ParticleUpdateCallback postUpdate,
                                ParticleInitCallback callback, int field0x6c)
 {
     if (g_pEditParticleType != NULL) {
@@ -5739,7 +5739,7 @@ FixVector g_particleWind;
 // and angle ramps, floor kill or bounce (unless the type has its own update).
 // match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b0110
-void Particle_UpdateAll(int param)
+void Particle_UpdateAll(SceneNode *pView)
 {
     Particle *p;
     ParticleType *pType;
@@ -5842,10 +5842,10 @@ void Particle_UpdateAll(int param)
             }
             p->vector0x28 = p->sourceVector;
         } else {
-            pType->update(p, pType, param);
+            pType->update(p, pType, pView);
         }
         if (pType->postUpdate != NULL)
-            pType->postUpdate(p, pType, param);
+            pType->postUpdate(p, pType, pView);
     }
 }
 

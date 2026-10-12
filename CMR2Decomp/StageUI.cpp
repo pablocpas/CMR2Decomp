@@ -22,7 +22,7 @@
 #include "PauseMenus.h"
 
 // FUNCTION: CMR2 0x00415bc0
-void StageUI_NoOpMapEvent(int, int)
+void StageUI_NoOpMapEvent(int, short *)
 {
 }
 

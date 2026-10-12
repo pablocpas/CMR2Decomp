@@ -78,6 +78,6 @@ int Font_GetLineHeight(BYTE index);
 void Font_DrawChar(BYTE ch, short x, short y);
 void Font_DrawText(BYTE index, char *text, short x, short y, int *pColour, unsigned int flags);
 void Font_SetBlendMode(int mode);
-int Font_Unused(int unused1, int unused2);
+int Font_Unused(char *unused1, int unused2);
 
 #endif

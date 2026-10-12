@@ -404,7 +404,7 @@ void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCou
 {
 	int i;
 	int remaining;
-	int offset;
+	INT_PTR offset;
 	char *pCurrent;
 	int a;
 	int b;
@@ -418,10 +418,12 @@ void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCou
 	if (iCount > 0)
 	{
 		pCurrent = pcOrder;
-		offset = 1 - (int)pcOrder;
+		// The start index is pCurrent - pcOrder + 1, but the original hoists
+		// 1 - pcOrder as an integer address; pointer subtraction moves code.
+		offset = 1 - (INT_PTR)pcOrder;
 		for (remaining = iCount; remaining > 0; remaining--, pCurrent++)
 		{
-			for (i = offset + (int)pCurrent; i < iCount; i++)
+			for (i = (int)(offset + (INT_PTR)pCurrent); i < iCount; i++)
 			{
 				a = *pCurrent;
 				b = pcOrder[i];
