@@ -10,9 +10,9 @@ struct Particle;
 struct ParticleType;
 struct SceneNode;
 typedef void (*ParticleDrawCallback)(Particle *, ParticleType *, SceneNode *);
-typedef void (*ParticleInitCallback)(void *, ParticleType *, void *);
+typedef void (*ParticleInitCallback)(Particle *, ParticleType *, void *);
 // Per-step callbacks; the last argument is the view node passed to Particle_UpdateAll.
-typedef void (*ParticleUpdateCallback)(void *, ParticleType *, SceneNode *);
+typedef void (*ParticleUpdateCallback)(Particle *, ParticleType *, SceneNode *);
 // Definition of one particle kind (0x70 bytes on Win32).
 struct ParticleType {
     int lifetime;

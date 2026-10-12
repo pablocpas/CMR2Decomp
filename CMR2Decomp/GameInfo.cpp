@@ -4835,7 +4835,7 @@ void OptionMenu_ApplyHighlightedValue(Menu *, MenuItem *);
 void OptionMenu_AdvanceSelectedOption(int unused, int unused2);
 void OptionMenu_ResetValueAnimation(int param1, int param2);
 void OptionMenu_RestartCountdown(int unused, int unused2);
-void OptionMenu_RestartEmptyItemRecords(BYTE *pItem, int unused);
+void OptionMenu_RestartEmptyItemRecords(Menu *pMenu, MenuItem *unused);
 void OptionMenu_IncrementSharedValue(Menu *pMenu, char param);
 void OptionMenu_BuildStatusMenu(void);
 void OptionMenu_BuildAdvancedOptions(void);
@@ -4843,7 +4843,7 @@ void OptionMenu_BuildControlSetup(void);
 void OptionMenu_BuildValueSliders(void);
 void OptionMenu_LoadPartTextures(void);
 void OptionPreview_UpdateAllSlots(void);
-void OptionMenu_DispatchRecordEditState(unsigned int);
+void OptionMenu_DispatchRecordEditState(Menu *);
 void OptionMenu_RebuildOptions(void);
 
 // Draws the header of the in-race menu bar: the car count above the bar and
@@ -5352,7 +5352,7 @@ void OptionMenu_RebuildOptions(void)
     Menu_AddItemType3(&g_unk0x0082b668, 0, 0x3c, 1, 0, 0, 0, (MenuItemAction)OptionMenu_RestartCountdown, 3);;
     if (CGameInfo::GetConfiguredGameMode() == 0)
         Menu_AddItemType3(&g_unk0x0082b668, 0, 0xd3, 2, 0, 0, 0, OptionMenu_LoadGameItem, 4);;
-    Menu_AddItemType3(&g_unk0x0082b668, 0, 0x88, 2, 1, 1, 0, (MenuItemAction)OptionMenu_RestartEmptyItemRecords, 5);;
+    Menu_AddItemType3(&g_unk0x0082b668, 0, 0x88, 2, 1, 1, 0, OptionMenu_RestartEmptyItemRecords, 5);;
     Menu_SetCallbacks(&g_unk0x0082b668, (MenuCallback)OptionMenu_ConsumeRefreshRequest, (MenuCallback)OptionMenu_UpdateMessagesAndRecordStates,
                       (MenuCallback)OptionMenu_DispatchRecordEditState, (MenuCallback)OptionMenu_IncrementSharedValue);
     Menu_ValidateCursor(&g_unk0x0082b668, 0);
@@ -6312,13 +6312,13 @@ void OptionMenu_RequestRefresh(int unused, int unused2)
 Menu g_unk0x0082bc08;
 
 void OptionMenu_DrawStatusLine(int unused);
-void OptionMenu_SelectItemAndRefresh(char *pItem, int unused);
+void OptionMenu_SelectItemAndRefresh(Menu *pMenu, int unused);
 void OptionMenu_LoadSelectedSavedGame(unsigned int, unsigned int);
-void OptionMenu_DrawValueSelectionRows(unsigned int);
-void OptionMenu_DrawRaisedRallyInfo(unsigned int);
+void OptionMenu_DrawValueSelectionRows(Menu *);
+void OptionMenu_DrawRaisedRallyInfo(Menu *);
 void OptionMenu_IncrementSharedValue(Menu *pMenu, char param);
 void OptionMenu_ApplyFirstModeItem(Menu *pMenu, int param);
-void OptionMenu_DrawRallyInfoScreen(unsigned int);
+void OptionMenu_DrawRallyInfoScreen(Menu *);
 
 // Builds the option menu's status line: the record-list refresh callback and
 // the owner's help-text draw.
@@ -6339,7 +6339,7 @@ void OptionMenu_BuildAdvancedOptions(void)
     Menu_Init(&g_unk0x0082b488, 0, -1, 0, &g_unk0x0082b668, NULL, 0, 0, 1);
     Menu_AddItemType1(&g_unk0x0082b488, 0, 0x100, (MenuItemAction)OptionMenu_LoadSelectedSavedGame, -1);
     Menu_AddItemType1(&g_unk0x0082b488, 0, 0x101, 0, -1);
-    Menu_SetCallbacks(&g_unk0x0082b488, (MenuCallback)OptionMenu_SelectItemAndRefresh, NULL, (MenuCallback)OptionMenu_DrawValueSelectionRows, NULL);
+    Menu_SetCallbacks(&g_unk0x0082b488, OptionMenu_SelectItemAndRefresh, NULL, (MenuCallback)OptionMenu_DrawValueSelectionRows, NULL);
     Menu_ValidateCursor(&g_unk0x0082b488, 0);
 }
 
@@ -6366,9 +6366,9 @@ void OptionMenu_BuildValueSliders(void)
 
 // Marks the given item selected and requests a refresh.
 // FUNCTION: CMR2 0x004ffa50
-void OptionMenu_SelectItemAndRefresh(char *pItem, int unused)
+void OptionMenu_SelectItemAndRefresh(Menu *pMenu, int unused)
 {
-    pItem[7] = 1;
+    pMenu->cursor = 1;
     g_unk0x0082ac60 = 1;
 }
 
@@ -6397,12 +6397,12 @@ void OptionMenu_ConsumeRefreshRequest(int unused, int unused2)
 
 // Restarts the option records when the selected item has no value.
 // FUNCTION: CMR2 0x00500190
-void OptionMenu_RestartEmptyItemRecords(BYTE *pItem, int unused)
+void OptionMenu_RestartEmptyItemRecords(Menu *pMenu, MenuItem *unused)
 {
     int index;
 
-    index = Menu_FindItem((Menu *)pItem, 5);
-    if (pItem[index * 0x14 + 0x1f] == 0) {
+    index = Menu_FindItem(pMenu, 5);
+    if (pMenu->items[index].max == 0) {
         OptionMenu_FinishRecordTransitions();
         g_unk0x0082ac50 = 1;
     }
@@ -9303,9 +9303,9 @@ void OptionMenu_SelectDisplaySlot(int param_1)
 // ---------------------------------------------------------------------------
 void RallyData_EnterSelectedOptionPanel(void);
 void OptionMenu_DrawAnimatedScreenRows(short param1, short param2, short param3, short param4, short param5, int param6);
-void OptionMenu_DrawStageSelectionPanel(int param1);
+void OptionMenu_DrawStageSelectionPanel(Menu *pMenu);
 void OptionMenu_DrawResultsOptions(int param1);
-void OptionMenu_DrawGameInfoLayout(int param1, int param2);
+void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param2);
 void OptionMenu_DrawResultsRallyInfo(int param1);
 
 // Switches the active display slot of the current menu to param_1 and then
@@ -9320,7 +9320,7 @@ void OptionMenu_SelectAndAnimateSlot(int param_1, int param_2)
 // Draws the recalled rally entry of the mode panel: option row 7 with the
 // "used car" colour 0xf2.
 // FUNCTION: CMR2 0x0050a8a0
-void OptionMenu_DrawRecalledRallyEntry(int param_1, int param_2)
+void OptionMenu_DrawRecalledRallyEntry(Menu *pMenu, int param_2)
 {
     int value = OptionMenu_GetControlSetupMenu()->items[Menu_FindItem(OptionMenu_GetControlSetupMenu(), 1)].max;
     OptionMenu_DrawAnimatedScreenRows(7, value, 2, g_unk0x005293a0, 0xf2, param_2);
@@ -9328,7 +9328,7 @@ void OptionMenu_DrawRecalledRallyEntry(int param_1, int param_2)
 
 // Draws the stage list of the mode panel: option row 0xb with colour 0xaa.
 // FUNCTION: CMR2 0x0050a8e0
-void OptionMenu_DrawModeStageList(int param_1)
+void OptionMenu_DrawModeStageList(Menu *pMenu)
 {
     int value = OptionMenu_GetControlSetupMenu()->items[Menu_FindItem(OptionMenu_GetControlSetupMenu(), 2)].max;
     OptionMenu_DrawAnimatedScreenRows(0xb, value, 1, g_unk0x005293a0, 0xaa, 0);
@@ -9348,22 +9348,22 @@ void OptionMenu_DrawModeTitle(void)
 // Clears the live slots and then re-renders the mode panel with the raised
 // entry selected (menu action callback of the rally-info pane).
 // FUNCTION: CMR2 0x0050edf0
-void OptionMenu_DrawRaisedRallyInfo(unsigned int param_1)
+void OptionMenu_DrawRaisedRallyInfo(Menu *pMenu)
 {
     OptionMenu_DrawResultsOptions(0);
-    OptionMenu_DrawStageSelectionPanel(param_1);
+    OptionMenu_DrawStageSelectionPanel(pMenu);
 }
 
 // Renders the whole rally-info screen for param_1: the option panes, the
 // recalled entry, the game-info layout and the rally preview text.
 // FUNCTION: CMR2 0x0050ee10
-void OptionMenu_DrawRallyInfoScreen(unsigned int param_1)
+void OptionMenu_DrawRallyInfoScreen(Menu *pMenu)
 {
     OptionMenu_DrawResultsOptions(1);
     OptionMenu_DrawClampedStageTime();
     OptionMenu_DrawRightColumn();
-    OptionMenu_DrawRecalledRallyEntry(param_1, 1);
-    OptionMenu_DrawGameInfoLayout(param_1, 1);
+    OptionMenu_DrawRecalledRallyEntry(pMenu, 1);
+    OptionMenu_DrawGameInfoLayout(pMenu, 1);
     OptionMenu_DrawResultsRallyInfo(0);
     OptionMenu_DrawSeparators(CGameInfo::GetActiveOptionSlot());
 }
@@ -9388,7 +9388,7 @@ int g_unk0x005273b8 = -2832441;
 // option type, the title and the value strings of the option list; the rows of
 // the list screen (case 0) are laid out in pairs around their centred bar.
 // FUNCTION: CMR2 0x0050cc10
-void OptionMenu_DrawGameInfoLayout(int param_1, int param_2)
+void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
 {
     int *pColour;
     int index;
@@ -9644,15 +9644,15 @@ extern char g_strNum10[4];
 extern char g_strFlagSS[4];
 
 // Undocumented batch functions of the option/boot subsystem.
-void OptionMenu_DrawRecalledRallyEntry(int, int);
-void OptionMenu_DrawModeStageList(int);
+void OptionMenu_DrawRecalledRallyEntry(Menu *, int);
+void OptionMenu_DrawModeStageList(Menu *);
 void OptionMenu_DrawResultsRallyInfo(int);
-void OptionMenu_DrawSlotStripPanel(int);
+void OptionMenu_DrawSlotStripPanel(Menu *);
 void OptionMenu_DrawResultsOptions(int);
-void OptionMenu_DrawGameInfoLayout(int, int);
+void OptionMenu_DrawGameInfoLayout(Menu *, int);
 void OptionMenu_DrawModeTitle(void);
 void OptionMenu_DrawAnimatedScreenRows(short, short, short, short, short, int);
-void OptionMenu_DrawRecordValues(unsigned int);
+void OptionMenu_DrawRecordValues(Menu *);
 
 // GLOBAL: CMR2 0x00529430
 int g_unk0x00529430 = -1;
@@ -9661,7 +9661,7 @@ int g_unk0x00529430 = -1;
 // its value, its unit label and its sub-label, highlights the row currently
 // being edited and finally lays out the value bar of the selected item.
 // FUNCTION: CMR2 0x0050e280
-void OptionMenu_DrawRecordValues(unsigned int param_1)
+void OptionMenu_DrawRecordValues(Menu *pMenu)
 {
     char *pLabels[11] = { g_strNum1,  g_keypad2, g_keypad3, g_keypad4, g_strNum5, g_keypad6,
                           g_keypad7, g_keypad8, g_keypad9, g_strNum10, g_strFlagSS };
@@ -9720,15 +9720,14 @@ void OptionMenu_DrawRecordValues(unsigned int param_1)
         OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::GetTextString(0x140), (int)g_pGraphics->resX / 2,
                      (int)g_pGraphics->resY / 2, pUnsel, g_unk0x0052738c, 0x12);
     }
-    OptionMenu_DrawAnimatedScreenRows(2, *(unsigned char *)(param_1 + 0x1f +
-                                       Menu_FindItem((Menu *)param_1, 4) * 0x14),
+    OptionMenu_DrawAnimatedScreenRows(2, pMenu->items[Menu_FindItem(pMenu, 4)].max,
                  4, 0x32, 0x17c, 1);
     if (CGameInfo::GetActiveOptionSlot() == 1)
         CGameInfo::IsConfiguredMultiplayer();
 }
 
 // FUNCTION: CMR2 0x0050e780
-void OptionMenu_DrawValueSelectionRows(unsigned int param_1)
+void OptionMenu_DrawValueSelectionRows(Menu *pMenu)
 {
     short destRect[4];
     int i;
@@ -9739,7 +9738,7 @@ void OptionMenu_DrawValueSelectionRows(unsigned int param_1)
 
     x0 = (int)g_pGraphics->resX * 0xf0 / 0x280;
     yBase = (int)g_pGraphics->resY * 0xd7 / 0x1e0;
-    sel = (int)*(signed char *)(param_1 + 7);
+    sel = pMenu->cursor;
     colour = g_unk0x0052737c;
     destRect[0] = (short)(x0 * (int)g_pGraphics->resX / 0x280);
     destRect[1] = 0;
@@ -9757,7 +9756,7 @@ void OptionMenu_DrawValueSelectionRows(unsigned int param_1)
         Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&colour, 1);
     else
         Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
-    for (i = 0; i < (int)*(signed char *)(param_1 + 6); i++) {
+    for (i = 0; i < pMenu->itemCount; i++) {
         if (g_unk0x0083166c != 0) {
             if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::IsTextureWidthSupported(0x400) ||
                 !CFrontend::IsTextureHeightSupported(0x400))
@@ -9802,15 +9801,15 @@ void OptionMenu_DrawValueSelectionRows(unsigned int param_1)
 // Boot/state subsystem entry point: dispatches on the frontend state and
 // updates the record tables of the option record being edited.
 // FUNCTION: CMR2 0x0050eba0
-void OptionMenu_DispatchRecordEditState(unsigned int param_1)
+void OptionMenu_DispatchRecordEditState(Menu *pMenu)
 {
     OptionMenu_DrawResultsOptions(0);
     switch (OptionMenu_FindFirstDetailedSlot()) {
     case 1:
         OptionMenu_DrawClampedStageTime();
         OptionMenu_DrawRightColumn();
-        OptionMenu_DrawRecalledRallyEntry(param_1, 0);
-        OptionMenu_DrawGameInfoLayout((int)OptionMenu_GetValueSliderMenu(), 0);
+        OptionMenu_DrawRecalledRallyEntry(pMenu, 0);
+        OptionMenu_DrawGameInfoLayout(OptionMenu_GetValueSliderMenu(), 0);
         OptionMenu_DrawResultsRallyInfo(0);
         OptionMenu_DrawSeparators(CGameInfo::GetActiveOptionSlot());
         if (g_unk0x00529430 !=
@@ -9829,7 +9828,7 @@ void OptionMenu_DispatchRecordEditState(unsigned int param_1)
         break;
     case 2:
         OptionMenu_DrawClampedStageTime();
-        OptionMenu_DrawModeStageList(param_1);
+        OptionMenu_DrawModeStageList(pMenu);
         OptionMenu_DrawResultsRallyInfo(1);
         OptionMenu_DrawSeparators(CGameInfo::GetActiveOptionSlot());
         if (g_unk0x00529430 !=
@@ -9847,13 +9846,13 @@ void OptionMenu_DispatchRecordEditState(unsigned int param_1)
         }
         break;
     case 0:
-        OptionMenu_DrawSlotStripPanel(param_1);
+        OptionMenu_DrawSlotStripPanel(pMenu);
         return;
     case 3:
         OptionMenu_DrawScreenTitle();
         return;
     case 4:
-        OptionMenu_DrawRecordValues(param_1);
+        OptionMenu_DrawRecordValues(pMenu);
         return;
     case 5:
         OptionMenu_DrawModeTitle();
@@ -10013,7 +10012,7 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
 // current stage highlighted) and the weather forecast, then selects the mode
 // of the active slot.
 // FUNCTION: CMR2 0x0050c130
-void OptionMenu_DrawStageSelectionPanel(int param_1)
+void OptionMenu_DrawStageSelectionPanel(Menu *pMenu)
 {
     int i;
     int *pRec;
@@ -10060,7 +10059,7 @@ void OptionMenu_DrawStageSelectionPanel(int param_1)
 // slots and, when the panel texture is loaded, its background sprite with the
 // current slot texture; selects the mode of the active slot afterwards.
 // FUNCTION: CMR2 0x0050bfd0
-void OptionMenu_DrawSlotStripPanel(int param_1)
+void OptionMenu_DrawSlotStripPanel(Menu *pMenu)
 {
     SpriteRect local;
 

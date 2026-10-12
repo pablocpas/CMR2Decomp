@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "a20ad78182ef9d52dc63051904ee1df2cc85e77f",
+    "commit": "5b264e9458f0bc00720caf2bb35559c2fd2a527c",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -56,7 +56,7 @@
       "CMR2Decomp/CallbackState.h": "bdcea074ac9af71d50c7f59b05e197df891b344efbf257bb8ac86e6b632a1749",
       "CMR2Decomp/Car.cpp": "eb56bf9ae7294db259a649eb2d6d123e4c0a32613b2a1151638afaee4e29a2f7",
       "CMR2Decomp/Car.h": "e52b2cb3992856b6ab7f709870c83440f9131b55898194d916545f4fd75b921e",
-      "CMR2Decomp/CarEffects.cpp": "c1fa650e1c4ad48720c747fcfc215f7abb2b0d225e807eb5443f7b3b3fe828d3",
+      "CMR2Decomp/CarEffects.cpp": "7edc24466df7a59917d209a9d081cf1933048ffde9b77f234dc6be6bee48bfd0",
       "CMR2Decomp/CarExhaust.h": "2f51d0a245b1da6a98dc0a1152098b0c9dce08b33b29d0459feb77328a9207dc",
       "CMR2Decomp/CarImpact.h": "1800bc27ccd9f5c0ea2398977c5ae92c33ff8ad44084d687cb711e0a67c795db",
       "CMR2Decomp/CarInfo.h": "3c677f96cb8c0c97bf56c33151505283e3453be93448f64c77e99f463f6d456a",
@@ -93,7 +93,7 @@
       "CMR2Decomp/Game.cpp": "ff3cd6b6bd98a5f9e6e35d34a1889734c6421d0e946c124d1e8693ca394b2777",
       "CMR2Decomp/Game.h": "9aa1c73ab23a116baede7d7d9789ba129b730bb55de16926fa4202daecb377dc",
       "CMR2Decomp/GameConnections.cpp": "c9034f5c8d5de0e88a5e107895406e2c2a444c211ce6b1dd0e422a1e0751f4f7",
-      "CMR2Decomp/GameInfo.cpp": "b0c9bd88c05c6e0033a8ec4581e6192ec299f51a377a61cf2122b9b6fceb66ea",
+      "CMR2Decomp/GameInfo.cpp": "b764b5695160c90366a0a8f6c4189850e74b30b1b37c11b1b2295f0a417a1b83",
       "CMR2Decomp/GameInfo.h": "32b17d353992b39f09a3e509c2f0f05b4ed9f526eb960a3cc8729aeb7b01feab",
       "CMR2Decomp/GameMenus.cpp": "0b87b2449fbd00822f63fe675914e65e9e4f61c672eba1c44c1061dbcd4eff51",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
@@ -127,7 +127,7 @@
       "CMR2Decomp/NetworkLeaderboards.h": "a969a489a37b53194c8e4831df13fa3217ae6ee475cb82b08887bebfe57237fb",
       "CMR2Decomp/OptionMenuRows.cpp": "cda01ce9105034080c909160ea856b460bbfbc164c269b57410c3574c390d830",
       "CMR2Decomp/OptionPreviewGeometry.h": "278a64523b9ed504cb64294b8ba3ee55aaf56eee4780bf567b7106fab5a84f26",
-      "CMR2Decomp/Particle.h": "e5ec9449cb6789c8eba3af8ffb91f3528532d6b67355a1c851fbf91a38e4029f",
+      "CMR2Decomp/Particle.h": "a79927c8df8b658b25c19124b4079c396cda41ca09cd7dc974eebe37ec119782",
       "CMR2Decomp/PauseMenus.h": "cb2bfa8ccb4eb55803c9f342c57c211286a80aa93e02bbdabcc690bd2db6a774",
       "CMR2Decomp/Race.cpp": "85a3c725af1f744e434af848e34461370e073c7da2d4b5d0625e92a5af57df59",
       "CMR2Decomp/RaceCallRecord.h": "e2418ff397371fd73fc5d83fbba8de474bc0f895eb1dfac5792127d8e6afd8c2",
@@ -162,7 +162,7 @@
       "CMR2Decomp/StageObjects.cpp": "f6a4366f7b4bebed0a1dd0418832dfcf825ef7e9f98ed17c3d910ad8937742ec",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
-      "CMR2Decomp/StageTiming.cpp": "6fac8e16cc88c916bbf5e3a48cc0fd6e67a96040d619c27d0dd1d0b6079612f3",
+      "CMR2Decomp/StageTiming.cpp": "b2a6ad485073d469e717e7873c1cb9a58681a1c145390439ea6bb7cff2925055",
       "CMR2Decomp/StageTiming.h": "18a28d7f38528ca8b2c72e4ff6b685fe6338107b1efe64bb9d0eec13be7c0b41",
       "CMR2Decomp/StageTimingSpread.h": "36af19e0df03fc5af5e038804cf927cd111f2796b1e28383abf73447d5496a09",
       "CMR2Decomp/StageUI.cpp": "b898f5db9a65fce68793ed3c1ff2c1e301b3d31deb4a2900f671c55a8a4bb94a",
@@ -208,8 +208,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "ef6ab4a104a1dca7e2cec94bae2a296948cf8212d32fefcdffdbd498b5c23133",
-    "pdb_sha256": "141ef9249b394b17404d2581842fb2a0aa9d51c6bd2ee10a882e9904a0c8a530"
+    "exe_sha256": "1414f29cd5ee8f0c51d88435ba246bf8e57ae9610f9456db3c8ea6d3955ead00",
+    "pdb_sha256": "e10b2a44f752aafb4c68ed7890abd3a9885959d71a45549637d92886b907cb9f"
   },
   "perfect_match_percent": 56.22,
   "fuzzy_match_percent": 94.53,

@@ -433,9 +433,8 @@ void Spark_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
 
 // Update callback: once old enough the particle switches to its type's look.
 // FUNCTION: CMR2 0x004994d0
-void CarEffects_UpdateAgedParticleAppearance(void *pParticle, ParticleType *pType, SceneNode *pView)
+void CarEffects_UpdateAgedParticleAppearance(Particle *p, ParticleType *pType, SceneNode *pView)
 {
-    Particle *p = (Particle *)pParticle;
 
     if (p->age >= 0x78000)
         p->type0x56 = pType->type;
@@ -509,9 +508,8 @@ void GlassShard_Draw(Particle *p, ParticleType *pType, SceneNode *unused)
 
 // Spawn callback of a glass shard: remembers the car and picks a shard.
 // FUNCTION: CMR2 0x00499710
-void GlassShard_Init(void *particle, ParticleType *pType, void *owner)
+void GlassShard_Init(Particle *p, ParticleType *pType, void *owner)
 {
-    Particle *p = (Particle *)particle;
     Car *pCar = (Car *)owner;
     p->field0x64 = (unsigned short)((BYTE)pCar->index << 8);
     p->field0x64 += (short)(rand() % 10);
@@ -1146,18 +1144,16 @@ void CarEffects_SetSplashColour(int player, BYTE *pColour)
 }
 // Update callback: lifts the particle by half its size.
 // FUNCTION: CMR2 0x0045d250
-void CarEffects_UpdateRisingParticle(void *pParticle, ParticleType *pType, SceneNode *pView)
+void CarEffects_UpdateRisingParticle(Particle *p, ParticleType *pType, SceneNode *pView)
 {
-    Particle *p = (Particle *)pParticle;
 
     p->vector0x28.y += p->size / 2;
 }
 
 // Update callback: moves the particle with the car stored in its effect data.
 // FUNCTION: CMR2 0x0045dea0
-void CarEffects_UpdateParticleAtCarPosition(void *pParticle, ParticleType *pType, SceneNode *pView)
+void CarEffects_UpdateParticleAtCarPosition(Particle *p, ParticleType *pType, SceneNode *pView)
 {
-    Particle *p = (Particle *)pParticle;
     int car = p->field0x64;
 
     if (car < 8) {
@@ -1169,9 +1165,8 @@ void CarEffects_UpdateParticleAtCarPosition(void *pParticle, ParticleType *pType
 
 // Update callback: rises by half its size (capped at 1.5) and follows its car.
 // FUNCTION: CMR2 0x0045d270
-void CarEffects_UpdateCarFollowingRisingParticle(void *pParticle, ParticleType *pType, SceneNode *pView)
+void CarEffects_UpdateCarFollowingRisingParticle(Particle *p, ParticleType *pType, SceneNode *pView)
 {
-    Particle *p = (Particle *)pParticle;
     Car *pCar;
     int car;
 
@@ -1198,9 +1193,8 @@ int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 // (alternating) in world space.
 // match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045d2d0
-void CarEffect_SpawnExhaustParticle(void *pParticle, ParticleType *pType, SceneNode *pView)
+void CarEffect_SpawnExhaustParticle(Particle *p, ParticleType *pType, SceneNode *pView)
 {
-    Particle *p = (Particle *)pParticle;
     int car = p->field0x64;
     Car *pCar;
     FixMatrix *pM;
@@ -1231,7 +1225,7 @@ void CarEffect_SpawnExhaustParticle(void *pParticle, ParticleType *pType, SceneN
 // Gives a particle a deterministic spiral offset and, while its owner is a
 // car slot, moves it into that car's world position.
 // FUNCTION: CMR2 0x0045d3a0
-void CarEffects_UpdateSpiralParticle(void *pParticle, ParticleType *pType, SceneNode *pView)
+void CarEffects_UpdateSpiralParticle(Particle *pParticle, ParticleType *pType, SceneNode *pView)
 {
     int scales[10] = { 0x1999, 0x3333, 0x4ccc, 0x6666, 0x8000,
                        0x9999, 0xb333, 0xcccc, 0xe666, 0x10000 };
@@ -1242,7 +1236,7 @@ void CarEffects_UpdateSpiralParticle(void *pParticle, ParticleType *pType, Scene
     int z;
     int car;
 
-    p = (Particle *)pParticle;
+    p = pParticle;
     index = ((int)(INT_PTR)p / 3 & 0xffffff) % 10;
     if (p->age == 0xc70000)
         p->field0x50 = (short)(((int)(INT_PTR)p / 7 & 0xffffff) % 0x24) * 0x71;
@@ -1269,11 +1263,11 @@ void CarEffects_UpdateSpiralParticle(void *pParticle, ParticleType *pType, Scene
 
 // Spawn callback: stores the effect data passed by the spawner.
 // FUNCTION: CMR2 0x0045de80
-void CarEffects_InitParticleOwnerData(void *pParticle, ParticleType *pType, void *param)
+void CarEffects_InitParticleOwnerData(Particle *pParticle, ParticleType *pType, void *param)
 {
     int value = *(int *)param;
 
-    ((Particle *)pParticle)->field0x64 = value;
+    pParticle->field0x64 = value;
 }
 
 // Splashes and sparks thrown along the wheel trails of a player's car:
@@ -1462,9 +1456,8 @@ void WheelSplash_Update(int player)
 // Spawn callback of a debris piece or glass fragment: a random shape and
 // the colour passed by the emitter ({light level, colour index << 16}).
 // FUNCTION: CMR2 0x00499a80
-void Debris_Init(void *particle, ParticleType *pType, void *data)
+void Debris_Init(Particle *p, ParticleType *pType, void *data)
 {
-    Particle *p = (Particle *)particle;
     int *pParam = (int *)data;
     int shape;
 
