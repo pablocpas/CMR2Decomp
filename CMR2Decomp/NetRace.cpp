@@ -1361,7 +1361,7 @@ void NetRace_PollPlayerStatisticsPackets(Car *pCars)
                 pEntry->throttleTorque =
                     FixMul(pCar->maxThrottleTorque, pEntry->throttleTorque);
             }
-            if (abs(g_unk0x005393ac[i] - pStats->seq) > 0x32) {
+            if (abs((int)(g_unk0x005393ac[i] - pStats->seq)) > 0x32) {
                 g_unk0x005393ac[i] = pStats->seq;
                 pEntry->resync = 1;
             } else {

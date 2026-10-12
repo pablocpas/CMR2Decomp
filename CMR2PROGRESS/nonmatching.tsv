@@ -201,7 +201,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x49a910	Car_QueueWindowBreak	CarEffects.cpp	522	0.7881040892193308	0.7601476014760148
 0x498dd0	CarEffects_Init	CarEffects.cpp	591	0.7889447236180904	0.7869674185463659
 0x42f820	Car_FlagAirborneCorners	Car.cpp	152	0.7894736842105263	0.7894736842105263
-0x447530	Dash_UpdateCameraModeOffset	HudDash.cpp	189	0.7910447761194029	0.7910447761194029
 0x4f03f0	FrontendMenu_EnterMultiplayerProfile	FrontendScreens.cpp	386	0.7916666666666666	0.8
 0x505e10	CGameInfo::SelectIdleOptionPreviewEntry	GameInfo.cpp	83	0.7916666666666666	0.75
 0x475a50	StageUI_DrawChampionshipBar	StageUI.cpp	1179	0.792156862745098	0.7894039735099337

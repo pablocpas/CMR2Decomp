@@ -15729,9 +15729,9 @@
   },
   "0x447530": {
     "n": "Dash_UpdateCameraModeOffset",
-    "s": 0.7910447761194029,
-    "x": false,
-    "fz": 0.9701492537313433,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "HudDash.cpp",
     "symbol_name": "Dash_UpdateCameraModeOffset"

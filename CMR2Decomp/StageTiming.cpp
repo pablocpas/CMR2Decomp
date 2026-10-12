@@ -1974,9 +1974,9 @@ void StageObject_InitCarSceneTables(void)
 {
     BYTE *pTiming;
     int *pState;
-    int *pTexture;
-    int *pPosition;
-    int *p;
+    Texture **pTexture;
+    SceneNode **pPosition;
+    unsigned int *p;
 
 #define DRIVER_STATE (*(CarDriverPoseState *)(pTiming - (offsetof(CarDriverPoseState, rotation) + offsetof(FixAngles, y))))
 #define WIPER_STATE (*(CarWiperState *)((BYTE *)pState - offsetof(CarWiperState, sweepingForward)))
@@ -2001,8 +2001,8 @@ void StageObject_InitCarSceneTables(void)
     *(short *)g_carSteeringBlendFrames = 0x303;
     pTiming = (BYTE *)&g_carDriverPoseStates[0].rotation.y;
     pState = &g_carWiperStates[0].sweepingForward;
-    pTexture = (int *)&g_carInteriorDashTextures[0].digit;
-    pPosition = (int *)&g_carInteriorNodeRows[0].steeringWheelNode;
+    pTexture = &g_carInteriorDashTextures[0].digit;
+    pPosition = &g_carInteriorNodeRows[0].steeringWheelNode;
     do {
         DRIVER_STATE.rotation.x = 0;
         INTERIOR_NODES.driverPoseNode = 0;
@@ -2025,7 +2025,7 @@ void StageObject_InitCarSceneTables(void)
         pState += sizeof(CarWiperState) / sizeof(*pState);
         pTiming += sizeof(CarDriverPoseState);
     } while ((INT_PTR)pPosition < (INT_PTR)&g_carInteriorNodeRows[2].steeringWheelNode);
-    p = (int *)&g_carInteriorArchives[0].fileSize;
+    p = &g_carInteriorArchives[0].fileSize;
     do {
         INTERIOR_ARCHIVE.buffer = NULL;
         INTERIOR_ARCHIVE.fileSize = 0;
@@ -2561,7 +2561,7 @@ BYTE g_unk0x005429e8[0xc8];
 // FUNCTION: CMR2 0x00456bb0
 void StageTiming_InitStageFileTable(void)
 {
-    void **p = (void **)&g_carModelArchives[0].fileSize;
+    unsigned int *p = &g_carModelArchives[0].fileSize;
     int count;
     do {
         count = 2;
