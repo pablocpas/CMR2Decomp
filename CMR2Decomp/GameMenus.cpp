@@ -130,7 +130,8 @@ void NetPlayers_BuildFinalClassification(void);
 void NetPlayers_ClearReadyFlags(void);
 void CarDamage_ExportStageSnapshotToRallyRecord(int index);
 void GameMenu_LeaveStageAndAdvanceChampionship(void);
-int Replay_ResetBufferIfActive(int *p);
+struct ReplayStream;
+int Replay_ResetBufferIfActive(ReplayStream *p);
 void Replay_ResetActiveBufferState(void);
 void Knockout_SetRoundActiveFlag(void);
 unsigned int *RallyData_GetChampionshipState(void);
@@ -491,7 +492,7 @@ void GameMenu_LeaveStageAndAdvanceChampionship(void)
         CarDamage_ExportStageSnapshotToRallyRecord(i);
     for (i = 0; i < *(BYTE *)g_unk0x00537f0c[5]; i++) {
         CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)g_unk0x00537f0c[5], i, 0, 2);
-        Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[i]);
+        Replay_ResetBufferIfActive((ReplayStream *)g_unk0x00537f3c[i]);
     }
     if ((BYTE)RallyData_GetSelectionFlag28() && (BYTE)CGameInfo::GetSoundOptionBit30())
         Replay_ResetActiveBufferState();

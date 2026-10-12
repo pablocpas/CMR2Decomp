@@ -727,8 +727,8 @@ void StageTiming_SetNodeTreeVertexGrey(SceneNode *pNode, BYTE colour)
 
 // Replay streams of the eight cars (ReplayStream), reached through g_replaySlots.
 // GLOBAL: CMR2 0x00588e80
-void *g_replayStreams[8];
-extern void *g_unk0x00588ea0[8];
+ReplayStream *g_replayStreams[8];
+extern ReplayStream *g_unk0x00588ea0[8];
 // GLOBAL: CMR2 0x00588d3c
 int g_unk0x00588d3c;
 
@@ -737,7 +737,7 @@ int g_unk0x00588d3c;
 // FUNCTION: CMR2 0x0046c500
 BOOL Replay_ReleaseStageBuffers(void)
 {
-    void **p;
+    ReplayStream **p;
 
     p = g_replayStreams;
     do {

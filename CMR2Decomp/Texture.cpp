@@ -22,7 +22,7 @@ void Texture_GetPathStem(char *pOut, char *path)
 // or falls back to loading it from disk by name.
 // match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a9e60
-Texture* CTexture::FindLoadTexture(GenericFile* pFile, char* textureName, bool *didLoadTexture, LPVOID param4, bool param5, unsigned int flag) {
+Texture* CTexture::FindLoadTexture(GenericFile* pFile, char* textureName, bool *didLoadTexture, DWORD *pSize, bool param5, unsigned int flag) {
     char name[64];
     void *pData;
     Texture *pTexture;
@@ -32,10 +32,10 @@ Texture* CTexture::FindLoadTexture(GenericFile* pFile, char* textureName, bool *
     if (pFile != NULL && pFile->didFileLoad && !param5) {
         Texture_GetPathStem(name, textureName);
         sprintf(name + strlen(name), g_ddsSuffix);
-        pData = CGenericFileLoader::FindFileInArchive(pFile, name, (DWORD *)param4);
+        pData = CGenericFileLoader::FindFileInArchive(pFile, name, pSize);
         if (pData == NULL) {
             sprintf(name + strlen(name) - 4, g_tgaSuffix);
-            pData = CGenericFileLoader::FindFileInArchive(pFile, name, (DWORD *)param4);
+            pData = CGenericFileLoader::FindFileInArchive(pFile, name, pSize);
         }
         if (pData != NULL) {
             if (didLoadTexture != NULL)

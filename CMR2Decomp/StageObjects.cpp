@@ -147,7 +147,7 @@ int StageObject_GetPairedCarValue(int i, int j);
 BYTE StageObject_GetCarRecordState(int index);
 int StageObject_UsesExtendedMode(void);
 void Replay_EncodeControlPacket(BYTE *pIn, BYTE *pOut, int active, int handbrake, int lightA, int lightB);
-int Replay_DecodeInputPacket(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar);
+int Replay_DecodeInputPacket(ReplayStream *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar);
 void Replay_CaptureCarSnapshot(ReplayInputLane *pDst, BYTE car);
 // Oriented box of a stage object (same layout as in Collision2D.cpp).
 
@@ -196,7 +196,7 @@ void Replay_SaveCarTorqueAndRecordState(int *pState, BYTE car);
 void Replay_RestoreCarTorqueAndRecordState(int *pState, BYTE car);
 void Replay_InitMeshListCarState(ReplayStateLane *pLane, BYTE param_2);
 void Replay_EncodeCarControls(BYTE *pOut, BYTE car);
-int Replay_DecodeCarControls(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter);
+int Replay_DecodeCarControls(ReplayStream *pState, BYTE *pIn, BYTE car, BYTE *pCounter);
 void Replay_InitSlots(void);
 BYTE *Replay_AllocateStreamBuffer(short frames, short samples, int type);
 int Replay_FreeBuffers(void);
@@ -205,9 +205,9 @@ void Replay_AdvanceLiveRecordingStreams(void);
 int Replay_CanExtendControlPacketRun(BYTE *packet, BYTE car);
 int Replay_StopRecording(BYTE *pBuffer);
 int Replay_SelectAndInitializeLane(ReplayStream *p, short lane, short start, BYTE car);
-void Replay_PlayStreamFrame(int *pState);
+void Replay_PlayStreamFrame(ReplayStream *pState);
 void Replay_PlaybackAllStreamFrames(void);
-int Replay_ResetBufferIfActive(int *p);
+int Replay_ResetBufferIfActive(ReplayStream *p);
 BYTE *Replay_LoadValidatedBuffer(char *path);
 int Replay_Save(BYTE *pBuffer, char *pName);
 void Replay_SetupPointers(ReplayStream *p, int unused);
@@ -261,7 +261,7 @@ BYTE Knockout_ClearChampionshipPendingFlag(void);
 void Knockout_RecordCurrentMatchResults(void);
 void Knockout_ResetRaceStateMachine(void);
 void Knockout_ApplyCarGroundMaterials(void);
-void Knockout_UpdateRaceStateAndFades(BYTE *param_1, unsigned int param_2);
+void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned int param_2);
 int Knockout_HasUndecidedRoundMatch(void);
 int Knockout_AreCurrentDriversKnown(void);
 unsigned int Knockout_GetCurrentDriverField(unsigned int *pHigh);
@@ -543,7 +543,7 @@ extern int g_unk0x0058cf7c;
 extern SectorObjectEntry *g_movingSectorEntries;
 extern unsigned int g_unk0x0058ca6c;
 
-int Replay_ResetBufferIfActive(int *p);
+int Replay_ResetBufferIfActive(ReplayStream *p);
 int RallyData_GetActiveCarRaceRecordField0(Car *p);
 int RallyData_GetRouteAvailabilityState(void);
 unsigned int RallyData_GetSelectionFlag27(void);
@@ -1358,7 +1358,7 @@ void CarEffects_MakeGhost(Car *pCar)
 // FUNCTION: CMR2 0x00466080
 void Replay_ResetActiveBufferState(void)
 {
-    Replay_ResetBufferIfActive((int *)g_activeReplayStream);
+    Replay_ResetBufferIfActive(g_activeReplayStream);
 }
 
 // FUNCTION: CMR2 0x00466090
@@ -1494,7 +1494,7 @@ BYTE StageObject_GetCarRecordState(int index)
 // car's handbrake/light switches; returns 1 when the packet's repeat count is
 // used up.
 // FUNCTION: CMR2 0x0046bec0
-int Replay_DecodeInputPacket(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar)
+int Replay_DecodeInputPacket(ReplayStream *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar)
 {
     BYTE steer = pIn[3] & 0x3f;
 
@@ -1519,7 +1519,7 @@ int Replay_DecodeInputPacket(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter,
     else
         pCar->analogBrake = 0;
     if ((pIn[3] & 0x80) != 0) {
-        if (((ReplayStream *)pState)->steeringModeOption != 0)
+        if (pState->steeringModeOption != 0)
             pCar->steeringInputMode = 1;
         else
             pCar->steeringInputMode = 2;
@@ -1636,9 +1636,9 @@ void Replay_CaptureCarSnapshot(ReplayInputLane *pDst, BYTE car)
 }
 
 // FUNCTION: CMR2 0x0046d2a0
-int Replay_ResetBufferIfActive(int *p)
+int Replay_ResetBufferIfActive(ReplayStream *p)
 {
-    ReplayStream *stream = (ReplayStream *)p;
+    ReplayStream *stream = p;
 
     if (stream != NULL && stream->playing != 0) {
         stream->playing = 0;
@@ -2062,7 +2062,7 @@ extern PauseMenus g_unk0x0058ca90;
 #define g_unk0x0058ce5c (g_unk0x0058ca90.roundEntry)
 #define g_unk0x0058cf60 (g_unk0x0058ca90.textTimer)
 
-extern BYTE *g_unk0x0058ca88;
+extern CallbackStateMachine *g_unk0x0058ca88;
 extern BYTE g_unk0x0058ca8c[4];
 extern int g_unk0x0058cf64;
 extern int g_unk0x0058cf7c;
@@ -2107,7 +2107,7 @@ void StageUI_ReleaseSceneAndFadeStage(BYTE index);
 // the round, runs the state transitions and drives the fade in/out of the
 // scene.
 // FUNCTION: CMR2 0x00472e00
-void Knockout_UpdateRaceStateAndFades(BYTE *param_1, unsigned int param_2)
+void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned int param_2)
 {
     unsigned int *pState;
     unsigned int *pEntry;
@@ -2250,11 +2250,11 @@ void Knockout_UpdateRaceStateAndFades(BYTE *param_1, unsigned int param_2)
             RallyData_SelectKnockoutCountryStage();
             Race_SetFlag3810D();
             i = 0;
-            if (*g_unk0x0058ca88 > 0) {
+            if (g_unk0x0058ca88->count > 0) {
                 do {
-                    CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)g_unk0x0058ca88, i, 1, 2);
+                    CGame::PromoteCallbackEntryByRule(g_unk0x0058ca88, i, 1, 2);
                     i++;
-                } while (i < (int)*g_unk0x0058ca88);
+                } while (i < (int)g_unk0x0058ca88->count);
             }
             g_unk0x0058cf7c = 0;
             g_unk0x0058cf64 = 0;
@@ -7151,14 +7151,14 @@ void StageLights_Create(void)
 // Replay buffers and stage event records.
 
 extern int g_unk0x00588d3c;
-extern void *g_replayStreams[8];
+extern ReplayStream *g_replayStreams[8];
 
 // Both sets share a sixteen-entry slot table, traversed as a single array.
 // GLOBAL: CMR2 0x00588d40
-void **g_replaySlots[16];
+ReplayStream **g_replaySlots[16];
 #define g_unk0x00588d60 (g_replaySlots + 8)
 // GLOBAL: CMR2 0x00588ea0
-void *g_unk0x00588ea0[8];
+ReplayStream *g_unk0x00588ea0[8];
 
 // FUNCTION: CMR2 0x0046c540
 void Replay_InitSlots(void)
@@ -7843,7 +7843,7 @@ void StageObject_ApplyRandomizedBodyImpulse(FixVector *pImpulse)
 }
 
 void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask);
-int Replay_DecodeInputPacket(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar);
+int Replay_DecodeInputPacket(ReplayStream *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar);
 
 // Hides every node of the cars whose replay buffer is a finished ghost run.
 // FUNCTION: CMR2 0x0046e440
@@ -7854,7 +7854,7 @@ void Replay_HideFinishedGhostCarNodes(void)
     Car *pCar;
 
     for (i = 0; i < 16; i++) {
-        pBuffer = (ReplayStream *)*g_replaySlots[i];
+        pBuffer = *g_replaySlots[i];
         if (pBuffer != NULL && pBuffer->playing != 0 && pBuffer->type == 2 &&
             pBuffer->field_0xe8 == 0) {
             pCar = Car_Get(pBuffer->car);
@@ -7877,7 +7877,7 @@ void Replay_HideFinishedGhostCarNodes(void)
 
 // Decodes a replay input packet into a car's control record.
 // FUNCTION: CMR2 0x0046c4b0
-int Replay_DecodeCarControls(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter)
+int Replay_DecodeCarControls(ReplayStream *pState, BYTE *pIn, BYTE car, BYTE *pCounter)
 {
     Car *pCar = Car_Get(car);
 
@@ -8508,7 +8508,7 @@ BYTE *Replay_AllocateStreamBuffer(short frames, short samples, int type)
             p->laneCount = 0;
             for (slot = 0; slot < 8; slot++) {
                 if (g_replayStreams[slot] == NULL) {
-                    g_replayStreams[slot] = (BYTE *)p;
+                    g_replayStreams[slot] = p;
                     break;
                 }
             }
@@ -8556,7 +8556,7 @@ BYTE *Replay_LoadValidatedBuffer(char *path)
         return NULL;
     }
     Replay_SetupPointers((ReplayStream *)buffer, 1);
-    g_unk0x00588ea0[g_unk0x00588d14] = buffer;
+    g_unk0x00588ea0[g_unk0x00588d14] = (ReplayStream *)buffer;
     g_unk0x00588d14++;
     return buffer;
 }
@@ -10174,7 +10174,7 @@ void Replay_AdvanceLiveRecordingStreams(void)
     for (i = 0; i < 16; i++) {
         if (g_replaySlots[i] == NULL)
             continue;
-        p = (ReplayStream *)*g_replaySlots[i];
+        p = *g_replaySlots[i];
         if (p == NULL || p->recording == 0 || p->type == 2)
             continue;
         if (Car_Get(p->car)->simulationStepsRemaining <= 0u)
@@ -12200,7 +12200,7 @@ void Replay_InterpolatePoseStream(ReplayStream *p)
                          &p->event, &p->field_0xe8,
                          (ReplaySample *)p->pSamples + p->samplesPerLane * p->lane + p->frame);
         else
-            Replay_ResetBufferIfActive((int *)p);
+            Replay_ResetBufferIfActive(p);
         Replay_ComputePoseVelocityCorrection(&p->pose, pCar);
         p->step = 0;
         if (p->flagPrev != 0)
@@ -14025,7 +14025,7 @@ BYTE *AI_LoadStageRouteTables(void)
 
 void Replay_InitObjectListCarState(ReplayInputLane *pLane, BYTE param_2);
 void Replay_RestoreCarTorqueAndRecordState(int *pState, BYTE car);
-int Replay_DecodeCarControls(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter);
+int Replay_DecodeCarControls(ReplayStream *pState, BYTE *pIn, BYTE car, BYTE *pCounter);
 struct ReplayStream;
 void Replay_InterpolatePoseStream(ReplayStream *p);
 void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar);
@@ -14038,7 +14038,7 @@ void StageTiming_UpdateAllViewWeather(void);
 // up the camera event of the current frame. Ends the replay after the last
 // section.
 // FUNCTION: CMR2 0x0046cfa0
-void Replay_PlayStreamFrame(int *pState)
+void Replay_PlayStreamFrame(ReplayStream *pState)
 {
     ReplayStream *p;
     Car *pCar;
@@ -14049,7 +14049,7 @@ void Replay_PlayStreamFrame(int *pState)
     int k;
     char found;
 
-    p = (ReplayStream *)pState;
+    p = pState;
     if (p == NULL)
         return;
     pCar = Car_Get(p->car);
@@ -14139,7 +14139,7 @@ void Replay_PlaybackAllStreamFrames(void)
 
     for (i = 0; i < 16; i++) {
         if (CGameInfo::GetGameInfoSessionFlag() == 0 || CGameInfo::GetConfiguredGameMode() != 6)
-            Replay_PlayStreamFrame(*(int **)g_replaySlots[i]);
+            Replay_PlayStreamFrame(*g_replaySlots[i]);
     }
 }
 
@@ -14151,7 +14151,7 @@ void Replay_RecordAllStreamFrames(void)
 
     for (i = 0; i < 16; i++) {
         if (CGameInfo::GetGameInfoSessionFlag() == 0 || CGameInfo::GetConfiguredGameMode() != 6)
-            Replay_InterpolatePoseStream(*(ReplayStream **)g_replaySlots[i]);
+            Replay_InterpolatePoseStream(*g_replaySlots[i]);
     }
 }
 
@@ -14448,7 +14448,7 @@ void Replay_RecordPeriodicCarSamples(void)
     for (i = 0; i < 16; i++) {
         if (g_replaySlots[i] == NULL)
             continue;
-        p = (ReplayStream *)*g_replaySlots[i];
+        p = *g_replaySlots[i];
         if (p == NULL || p->recording == 0 || p->type != 2)
             continue;
         if (Car_Get(p->car)->simulationStepsRemaining <= 0u)

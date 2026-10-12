@@ -2450,7 +2450,7 @@ void GameMenu_FinishNetworkResultsQuitFade(BYTE);
 void GameMenu_StartPauseOverlayFade(void);
 BOOL Network_GetSessionStateFlag(void);
 unsigned char GameInfo_GetFrontendSessionFlag(void);
-int Replay_ResetBufferIfActive(int *);
+int Replay_ResetBufferIfActive(ReplayStream *p);
 void StageObject_SpawnRandomDebrisBurst(void);
 BYTE View_GetActiveCameraFlags(BYTE);
 int RallyData_IsChampionshipFinalStage(void);
@@ -2625,7 +2625,7 @@ big:
             p = g_unk0x00537f3c;
             do {
                 if ((char)Car_GetDrawnFlag(i) == -1) {
-                    Replay_ResetBufferIfActive((int *)*p);
+                    Replay_ResetBufferIfActive((ReplayStream *)*p);
                     Replay_SelectAndInitializeLane((ReplayStream *)*p, 0, 0, i);
                 } else {
                     Replay_InitCarStreamState((ReplayStream *)*p, 0, param2);
@@ -2639,11 +2639,11 @@ big:
                     if (i == 0) {
                         Replay_InitCarStreamState((ReplayStream *)g_unk0x00537f3c[i], 0, param2);
                     } else {
-                        Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[1]);
+                        Replay_ResetBufferIfActive((ReplayStream *)g_unk0x00537f3c[1]);
                         Replay_SelectAndInitializeLane((ReplayStream *)g_unk0x00537f3c[1], 0, 0, i);
                     }
                 } else if ((char)RallyData_GetUsableRecordCategory(i) != -1) {
-                    Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[i]);
+                    Replay_ResetBufferIfActive((ReplayStream *)g_unk0x00537f3c[i]);
                     Replay_SelectAndInitializeLane((ReplayStream *)g_unk0x00537f3c[i], 0, 0, i);
                 } else {
                     Replay_InitCarStreamState((ReplayStream *)g_unk0x00537f3c[i], 0, param2);
@@ -2992,7 +2992,7 @@ label4:
 }
 
 int Replay_SelectAndInitializeLane(ReplayStream *p, short lane, short start, BYTE car);
-int Replay_ResetBufferIfActive(int *p);
+int Replay_ResetBufferIfActive(ReplayStream *p);
 int NetPlayers_GetPlayerField8(int index);
 void View_ResetCameras(int player);
 void Replay_ResetActiveBufferState(void);
@@ -3008,21 +3008,21 @@ void Race_StartPlayerAndOpponentReplays(int player)
     Replay_SelectAndInitializeLane((ReplayStream *)g_unk0x00537f3c[(BYTE)player], 0, 0, player);
     if (CGameInfo::GetGameModeOptionBit19()) {
         for (i = 0; i < 7; i++) {
-            Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[i + 1]);
+            Replay_ResetBufferIfActive((ReplayStream *)g_unk0x00537f3c[i + 1]);
             Replay_SelectAndInitializeLane((ReplayStream *)g_unk0x00537f3c[i + 1], 0, 0, NetPlayers_GetPlayerField8(i));
         }
     }
     if (CGameInfo::GetConfiguredGameMode() == 4) {
         for (i = 0; i < 2; i++) {
             if ((char)Car_GetDrawnFlag(i) == -1) {
-                Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[i]);
+                Replay_ResetBufferIfActive((ReplayStream *)g_unk0x00537f3c[i]);
                 Replay_SelectAndInitializeLane((ReplayStream *)g_unk0x00537f3c[i], 0, 0, i);
             }
         }
     } else if ((char)RallyData_GetFlag25() && CGameInfo::GetGameModeOptionBit19() == 0) {
         for (i = 0; i < ((char)RallyData_GetSelectionFlag28() ? 1 : 2); i++) {
             if (RallyData_GetUsableRecordCategory((BYTE)i) != -1 || (CGameInfo::IsConfiguredMultiplayer() && i == 1)) {
-                Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[i]);
+                Replay_ResetBufferIfActive((ReplayStream *)g_unk0x00537f3c[i]);
                 Replay_SelectAndInitializeLane((ReplayStream *)g_unk0x00537f3c[i], 0, 0, i);
             }
         }
@@ -3078,7 +3078,7 @@ void Race_UpdateInterStageFadeJobs(CallbackStateMachine *param1, unsigned int pa
                 goto done;
             View_SwitchCamera(0, 7, 0xffff, View_GetActiveCameraFlags(0), 0);
             g_unk0x00538118 = 1;
-            Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[0]);
+            Replay_ResetBufferIfActive((ReplayStream *)g_unk0x00537f3c[0]);
             Replay_SelectAndInitializeLane((ReplayStream *)g_unk0x00537f3c[0], 0, 0, 0);
         }
         if (((ReplayStream *)g_unk0x00537f3c[0])->playing == 0) {
@@ -3194,7 +3194,7 @@ void CarSkid_ClearWheelTrails(void);
 void RallyData_MarkAllElementsReached(void);
 void StageObject_StartReplaySession(char restart);
 void StageTiming_ResetRaceDriverTimes(void);
-int Replay_ResetBufferIfActive(int *p);
+int Replay_ResetBufferIfActive(ReplayStream *p);
 int Replay_StopRecording(BYTE *pBuffer);
 void Replay_ResetActiveBufferState(void);
 void Replay_SwapPendingSlotValue(int **pValue, int slot, int flag);
@@ -3262,7 +3262,7 @@ void Race_TeardownStage(CallbackStateMachine *param1, int param2, char flag)
         n = 1;
         pp = g_unk0x00537f3c + 1;
         do {
-            Replay_ResetBufferIfActive((int *)*pp);
+            Replay_ResetBufferIfActive((ReplayStream *)*pp);
             Replay_StopRecording(*pp);
             pp++;
         } while ((INT_PTR)pp < (INT_PTR)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
@@ -3274,7 +3274,7 @@ void Race_TeardownStage(CallbackStateMachine *param1, int param2, char flag)
     if (n > zero) {
         pp = g_unk0x00537f3c;
         do {
-            Replay_ResetBufferIfActive((int *)*pp);
+            Replay_ResetBufferIfActive((ReplayStream *)*pp);
             Replay_StopRecording(*pp);
             pp++;
         } while (--n);
@@ -3595,7 +3595,7 @@ L_teardown:
         pp = g_unk0x00537f3c;
         i = n;
         do {
-            Replay_ResetBufferIfActive((int *)*pp);
+            Replay_ResetBufferIfActive((ReplayStream *)*pp);
             Replay_StopRecording(*pp);
             pp++;
         } while (--i);
@@ -3603,7 +3603,7 @@ L_teardown:
     if (CGameInfo::GetGameModeOptionBit19() != 0 && n < 8) {
         pp = g_unk0x00537f3c + n;
         do {
-            Replay_ResetBufferIfActive((int *)*pp);
+            Replay_ResetBufferIfActive((ReplayStream *)*pp);
             Replay_StopRecording(*pp);
             pp++;
         } while ((INT_PTR)pp < (INT_PTR)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
@@ -5341,7 +5341,7 @@ void Race_UpdatePlayerViewAndDrivenCars(BYTE param1, int param2)
                 g_unk0x00537f8c = 0;
             }
             if (StageObject_GetAnyDeviceHeldButtons() != 0 || Input_PopQueuedCharacter(&key) != 0) {
-                Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[0]);
+                Replay_ResetBufferIfActive((ReplayStream *)g_unk0x00537f3c[0]);
                 g_unk0x00537fc8 = 0;
                 for (; g_unk0x00537fc8 < *StageUI_GetRaceResultTable(); g_unk0x00537fc8++)
                     CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)StageUI_GetRaceResultTable(), g_unk0x00537fc8, 1, 3);
@@ -5389,7 +5389,7 @@ void Race_UpdatePlayerViewAndDrivenCars(BYTE param1, int param2)
             }
             if ((char)RallyData_GetFlag24() != 0 && (char)RallyData_GetSelectionFlag28() != 0 &&
                 StageTiming_GetCheckpointField19(0) != 0) {
-                Replay_ResetBufferIfActive((int *)g_unk0x00537f3c[0]);
+                Replay_ResetBufferIfActive((ReplayStream *)g_unk0x00537f3c[0]);
                 Replay_StopRecording(g_unk0x00537f3c[0]);
                 if (CGameInfo::GetSoundOptionBit30() != 0)
                     Replay_ResetActiveBufferState();

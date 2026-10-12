@@ -912,7 +912,7 @@ void StageUI_DrawStageGrid(int unused, int set)
 }
 
 // GLOBAL: CMR2 0x0058ca88
-BYTE *g_unk0x0058ca88;
+CallbackStateMachine *g_unk0x0058ca88;
 extern int g_unk0x0058cf6c;
 void Race_SetFlag3810D(void);
 
@@ -925,8 +925,8 @@ void StageUI_RetireFromRace(Menu *pMenu)
     *RallyData_GetChampionshipState() |= 0x800000;
     g_unk0x0058cf6c = 0;
     Race_SetFlag3810D();
-    for (i = 0; i < *g_unk0x0058ca88; i++)
-        CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)g_unk0x0058ca88, i, 1, 2);
+    for (i = 0; i < g_unk0x0058ca88->count; i++)
+        CGame::PromoteCallbackEntryByRule(g_unk0x0058ca88, i, 1, 2);
 }
 
 extern int g_unk0x0058cf7c;
@@ -941,11 +941,11 @@ void StageUI_ReleaseSceneAndFadeStage(BYTE index)
     int i;
 
     i = 0;
-    if (*g_unk0x0058ca88 > 0) {
+    if (g_unk0x0058ca88->count > 0) {
         do {
-            CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)g_unk0x0058ca88, i, 0, 2);
+            CGame::PromoteCallbackEntryByRule(g_unk0x0058ca88, i, 0, 2);
             i++;
-        } while (i < (int)*g_unk0x0058ca88);
+        } while (i < (int)g_unk0x0058ca88->count);
     }
     CGameInfo::SetInputAndGamePaused(0);
     StageUI_ClearRaceEndState();

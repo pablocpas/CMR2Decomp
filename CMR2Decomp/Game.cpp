@@ -1340,7 +1340,7 @@ void GameInfo_EnterStageGroup(CallbackStateMachine *param1, int param2);
 void GameInfo_LeaveStageGroup(CallbackStateMachine *param1, int param2);
 void InRaceMenu_AdvanceCascade(CallbackStateMachine *param1, int param2);
 void RallyData_GrowEntryAndInvokeAction(CallbackStateMachine *param1, unsigned int param2);
-void Knockout_UpdateRaceStateAndFades(BYTE *param_1, unsigned int param_2);
+void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned int param_2);
 void StageObject_ClearAndDrawSplitPositions(int unused1, int unused2);
 void Race_UpdateDriverPreRaceScene(CallbackStateMachine *param1, unsigned int param2);
 void Race_UpdateDriverCountdown(CallbackStateMachine *param1, unsigned int param2);
