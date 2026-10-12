@@ -10,6 +10,7 @@
 #include "Game.h"
 #include "Sector.h"
 #include "Mesh.h"
+#include "MeshVertex.h"
 #include "ShadowPart.h"
 #include "LightZone.h"
 
@@ -1596,7 +1597,7 @@ FixVector g_sceneShadowDir;
 // Light zone vertices near the current car, collected by Scene_CollectNearbyLightZones and
 // consumed by Scene_EmitNodeShadowGeometry (99 entries max).
 // GLOBAL: CMR2 0x006dfe14
-void *g_sceneZoneList[99];
+LightZoneItem *g_sceneZoneList[99];
 // GLOBAL: CMR2 0x006e01c0
 int g_sceneZoneCount;
 
@@ -1699,7 +1700,7 @@ void Scene_EndShadowBatch(void)
     }
 }
 
-void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3);
+void Scene_ProjectCasterIntoLightZone(LightZoneItem *pItem, ShadowCaster *pCaster, BYTE param3);
 
 // GLOBAL: CMR2 0x00511cf0
 extern const double g_unk0x00511cf0 = 0.009999999776482582;
@@ -1707,24 +1708,16 @@ extern const float g_netOne;           // 0x00511350, 1.0f   (NetRace.cpp)
 extern const float g_netMinusOne;      // 0x0051134c, -1.0f  (NetRace.cpp)
 int FloatMatrix_InverseRotateVector(float *pOut, float *pV, float *pM);
 
-// One 0x30-byte shadow vertex (position + colour) of the batch buffer.
-struct ShadowVertex {
-    DWORD data[12];
-};
-
 // Projects the shadow parts of pCaster through the projection box that the
 // light zone pItem builds from its vertices, and appends the triangles that
 // survive the scissor test to the shadow vertex batch.
-// match 47%: the logic, the constants, the call shape and the block structure
-// follow the original instruction for instruction; the residual diff is
-// register allocation and stack-slot assignment. Of the ~233 mismatching
-// instructions, 142 differ only in the esp displacement (MSVC 6 spills six more
-// dwords here, frame 0xac against our 0x94) and the rest only in the register
-// number or the FPU scheduling. Renaming/reordering the locals, folding the
-// intermediates into the expressions do not move MSVC 6's choice (same ceiling
-// as Scene_ProjectDirtyShadowParts / Scene_EmitProjectedShadowMesh).
+// match 44%: the loops are the original's for loops over unsigned counts, the
+// vertex step keeps the offset from the part's origin (dx, dy, dz) and the
+// scaled axis in delta, as the original's stack shows. The rest is register
+// and stack-slot allocation: MSVC 6 keeps minX on the FPU stack and spills
+// six more dwords (frame 0xac against our 0x90).
 // FUNCTION: CMR2 0x004b5770
-void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
+void Scene_ProjectCasterIntoLightZone(LightZoneItem *pItem, ShadowCaster *pCaster, BYTE param3)
 {
     StageObject *pLand;
     Mesh *pZone;
@@ -1734,10 +1727,10 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
     float *pf;
     float *pIn;
     float *pOut;
-    BYTE **pTri;
-    BYTE *pv0;
-    BYTE *pv1;
-    BYTE *pv2;
+    MeshVertexF **pTri;
+    MeshVertexF *pv0;
+    MeshVertexF *pv1;
+    MeshVertexF *pv2;
     float minY, maxY, minX, maxX;
     float minZ, maxZ, minW, maxW;
     float zoneScaleX, zoneScaleY;
@@ -1753,13 +1746,13 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
     float projX[3];
     float projY[3];
     float ray[3];
-    float dy, dz;
+    float dx, dy, dz;
     float dot, inv;
     float depth;
     float qx, qy, qz, t;
     int count, i, offset, tex, triIndex, vi;
 
-    pCaster2 = (ShadowCaster *)pCaster;
+    pCaster2 = pCaster;
     minY = 0.0f;
     maxY = 0.0f;
     minX = 0.0f;
@@ -1768,7 +1761,7 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
     maxZ = -10.0f;
     minW = 10.0f;
     maxW = -10.0f;
-    pLand = ((LightZoneItem *)pItem)->pOwner;
+    pLand = pItem->pOwner;
     zoneScaleX = (float)pLand->matrix.right.x * CGraphics::m_oneOver65536;
     zoneScaleY = (float)pLand->matrix.up.y * CGraphics::m_oneOver65536;
     pZone = pLand->pMesh;
@@ -1801,10 +1794,10 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
             pVert += 0xc;
         } while (--count != 0);
     }
-    scaleX = (float)((LightZoneItem *)pItem)->field_0x18 * CGraphics::m_oneOver65536 + g_netOne;
+    scaleX = (float)pItem->field_0x18 * CGraphics::m_oneOver65536 + g_netOne;
     maxX = scaleX * maxX;
     minX = scaleX * minX;
-    scaleY = (float)((LightZoneItem *)pItem)->field_0x1c * CGraphics::m_oneOver65536 + g_netOne;
+    scaleY = (float)pItem->field_0x1c * CGraphics::m_oneOver65536 + g_netOne;
     maxY = scaleY * maxY;
     spanZ = maxZ - minZ;
     spanW = maxW - minW;
@@ -1870,55 +1863,52 @@ void Scene_ProjectCasterIntoLightZone(void *pItem, void *pCaster, BYTE param3)
                     ray[0] = plane[0] * inv;
                     ray[1] = plane[1] * inv;
                     ray[2] = plane[2] * inv;
-                    vi = 0;
-                    if (pPart->vertexCount != 0) {
-                        pIn = (float *)pPart->pVertexWork3;
-                        pOut = (float *)((BYTE *)pPart->pVertices + 0x24);
-                        do {
+                    pIn = (float *)pPart->pVertexWork3;
+                    pOut = (float *)((BYTE *)pPart->pVertices + 0x24);
+                    for (vi = 0; vi < (unsigned short)pPart->vertexCount; vi++) {
+                        {
+                            dx = pIn[0] - pos[0];
                             dy = pIn[1] - pos[1];
-                            vi++;
                             dz = pIn[2] - pos[2];
-                            t = (*pIn - pos[0]) * ray[0] + dy * ray[1] + dz * ray[2];
-                            qx = (*pIn - pos[0]) + t * axis[0];
-                            qy = dy + t * axis[1];
-                            qz = dz + t * axis[2];
+                            t = dx * ray[0] + dy * ray[1] + dz * ray[2];
+                            delta[0] = t * axis[0];
+                            delta[1] = t * axis[1];
+                            delta[2] = t * axis[2];
+                            qx = dx + delta[0];
+                            qy = dy + delta[1];
+                            qz = dz + delta[2];
                             depth = qx * projX[0] + qy * projX[1] + qz * projX[2];
                             pOut[-1] = depth - minX + minZ;
                             pOut[0] = minY - (qx * projY[0] + qy * projY[1] + qz * projY[2]) + minW;
                             pIn += 3;
                             pOut += 0xc;
-                        } while (vi < (unsigned short)pPart->vertexCount);
+                        }
                     }
-                    pTri = pPart->pTriangleWork;
-                    triIndex = 0;
-                    if (pPart->faceCount != 0) {
-                        do {
-                            pv0 = (BYTE *)pTri[0];
-                            pv1 = (BYTE *)pTri[1];
-                            pv2 = (BYTE *)pTri[2];
-                            if ((*(float *)(pv0 + 0x20) <= maxZ ||
-                                 *(float *)(pv1 + 0x20) <= maxZ ||
-                                 *(float *)(pv2 + 0x20) <= maxZ) &&
-                                (*(float *)(pv0 + 0x20) >= minZ ||
-                                 *(float *)(pv1 + 0x20) >= minZ ||
-                                 *(float *)(pv2 + 0x20) >= minZ) &&
-                                (*(float *)(pv0 + 0x24) <= maxW ||
-                                 *(float *)(pv1 + 0x24) <= maxW ||
-                                 *(float *)(pv2 + 0x24) <= maxW) &&
-                                (*(float *)(pv0 + 0x24) >= minW ||
-                                 *(float *)(pv1 + 0x24) >= minW ||
-                                 *(float *)(pv2 + 0x24) >= minW)) {
-                                *(ShadowVertex *)((BYTE *)g_shadowVertexData +
-                                                  g_shadowVertexCount * 0x30) = *(ShadowVertex *)pv0;
-                                *(ShadowVertex *)((BYTE *)g_shadowVertexData +
-                                                  (g_shadowVertexCount * 3 + 3) * 0x10) = *(ShadowVertex *)pv1;
-                                *(ShadowVertex *)((BYTE *)g_shadowVertexData +
-                                                  (g_shadowVertexCount * 3 + 6) * 0x10) = *(ShadowVertex *)pv2;
+                    pTri = (MeshVertexF **)pPart->pTriangleWork;
+                    for (triIndex = 0; triIndex < (unsigned short)pPart->faceCount; triIndex++) {
+                        {
+                            pv0 = pTri[0];
+                            pv1 = pTri[1];
+                            pv2 = pTri[2];
+                            if ((pv0->textureCoordinates[0][0] <= maxZ ||
+                                 pv1->textureCoordinates[0][0] <= maxZ ||
+                                 pv2->textureCoordinates[0][0] <= maxZ) &&
+                                (pv0->textureCoordinates[0][0] >= minZ ||
+                                 pv1->textureCoordinates[0][0] >= minZ ||
+                                 pv2->textureCoordinates[0][0] >= minZ) &&
+                                (pv0->textureCoordinates[0][1] <= maxW ||
+                                 pv1->textureCoordinates[0][1] <= maxW ||
+                                 pv2->textureCoordinates[0][1] <= maxW) &&
+                                (pv0->textureCoordinates[0][1] >= minW ||
+                                 pv1->textureCoordinates[0][1] >= minW ||
+                                 pv2->textureCoordinates[0][1] >= minW)) {
+                                ((MeshVertexF *)g_shadowVertexData)[g_shadowVertexCount] = *pv0;
+                                ((MeshVertexF *)g_shadowVertexData)[g_shadowVertexCount + 1] = *pv1;
+                                ((MeshVertexF *)g_shadowVertexData)[g_shadowVertexCount + 2] = *pv2;
                                 g_shadowVertexCount += 3;
                             }
                             pTri += 3;
-                            triIndex++;
-                        } while (triIndex < (int)(unsigned short)pPart->faceCount);
+                        }
                     }
                 }
             }

@@ -11,7 +11,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4a52d0	CGraphics::BlendPixel	Graphics.cpp	1008	0.45269016697588127	0.4475043029259897
 0x47d330	AI_UpdateAttractDrivingControls	StageObjects.cpp	395	0.4573643410852713	0.39330543933054396
 0x4137e0	RallyData_DrawTargetTimeGap	RallyData.cpp	1565	0.46184738955823296	0.452642073778664
-0x4b5770	Scene_ProjectCasterIntoLightZone	SceneNode.cpp	1763	0.46993318485523383	0.40476190476190477
 0x420a30	RallyData_UpdateCarRoute	RallyData.cpp	2035	0.4699777613046701	0.615831517792302
 0x46d2d0	Replay_LoadValidatedBuffer	StageObjects.cpp	284	0.4745762711864407	0.4787234042553192
 0x491550	Track_FindTriangle	TrackCollision.cpp	323	0.47572815533980584	0.48756218905472637
@@ -20,6 +19,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x45c820	WheelSplash_Update	CarEffects.cpp	2496	0.4838921761998685	0.48104575163398694
 0x46ea80	CarSkid_EmitSlippingWheelEffects	StageObjects.cpp	438	0.4934210526315789	0.5048543689320388
 0x4b4aa0	Scene_LoadLighting	SceneNode.cpp	1538	0.49391727493917276	0.47417840375586856
+0x4b5770	Scene_ProjectCasterIntoLightZone	SceneNode.cpp	1763	0.5005537098560354	0.4449244060475162
 0x4b6ca0	Scene_AttenuateSectorLight	Graphics.cpp	589	0.5013774104683195	0.46236559139784944
 0x504eb0	RallyData_DrawClippedHudRectangleEdges	RallyData.cpp	776	0.511340206185567	0.5051334702258727
 0x46f550	StageObject_LoadAndClassifyMeshes	StageObjects.cpp	655	0.512	0.5392670157068062
@@ -362,7 +362,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4752f0	StageObject_FormatAnimatedLapTime	StageObjects.cpp	319	0.9285714285714286	0.9026548672566371
 0x47eab0	Fireworks_Update	StageObjects.cpp	2651	0.9312581063553826	0.9189889825016202
 0x421230	RallyData_ProjectCarRouteSegmentProgress	RallyData.cpp	316	0.9316239316239316	0.919831223628692
-0x50a920	OptionMenu_DrawResultsRallyInfo	GameInfo.cpp	2201	0.9327420546932742	0.9206819866567828
 0x4cfe80	FrontendRecords_CopyArcadeSplitMirror	Frontend.cpp	356	0.9327731092436975	0.9327731092436975
 0x492910	StageObject_FindClosestMeshVertex	StageObjects.cpp	565	0.9333333333333333	0.8203753351206434
 0x480b40	StageObject_ResetAttachedCarNodes	StageObjects.cpp	97	0.9333333333333333	0.9333333333333333

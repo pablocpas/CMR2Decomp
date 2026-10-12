@@ -8032,7 +8032,9 @@ void OptionPreview_RebuildDeformedGeometry(OptionPreviewMeshRecord *pObject, Opt
 // array: for every source mesh it finds the first buffer whose stored flag
 // matches the mesh's flag and points the mesh entry at it.
 // param2 (unused) is the preview's body node. Typed SceneNode * or void * it
-// moves code in OptionMenu_DrawResultsRallyInfo, so it stays an integer address.
+// flips a load-order tie of the packed-rectangle sum in
+// OptionMenu_DrawResultsRallyInfo; reordering that sum then flips a register
+// tie in FrontendText_LoadRegionLanguages. Only this form keeps both exact.
 // FUNCTION: CMR2 0x00506fc0
 void OptionPreview_AssignConvertedVertexBuffers(int param1, INT_PTR param2, OptionPreviewMeshRecord *param3)
 {
@@ -9888,8 +9890,6 @@ void OptionMenu_SelectAndAnimateSlot(int, int);
 // Draws the rally information panel of the results screen: the two shaded
 // bars, the stage name, the stage thumbnail and (second mode only) the time
 // bar, the target time and the stage row labels.
-// match 88%: register allocation / block placement only (676 vs 675 instrs, all relocations and magic-division blocks match); MSVC picks different registers across the menu byte loads and the option-row loop, and if-converts the two ternaries where the original branches.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0050a920
 void OptionMenu_DrawResultsRallyInfo(int param_1)
 {
@@ -9912,8 +9912,8 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
     g_unk0x00831660[0] = g_unk0x00831660[0] + g_unk0x00831660[2];
     g_unk0x00831660[3] = g_unk0x00831660[3] + g_unk0x00831660[1];
     g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x12a / 0x1e0);
-    g_unk0x00831660[3] = g_unk0x00831660[3] - g_unk0x00831660[1];
     g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x7e / 0x280);
+    g_unk0x00831660[3] = g_unk0x00831660[3] - g_unk0x00831660[1];
     Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, g_colour0x005273b0 + 4, 3);
     x = g_unk0x00831660[2] / 2 + g_unk0x00831660[0];
     y = (int)g_pGraphics->resY * 0x124 / 0x1e0;
@@ -9937,7 +9937,7 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x12d / 0x1e0);
         g_unk0x00831660[2] = tex->width;
         g_unk0x00831660[3] = tex->height;
-        g_unk0x00831660[1] = g_unk0x00831660[1] - tex->height / 2;
+        g_unk0x00831660[1] = g_unk0x00831660[1] - g_unk0x00831660[3] / 2;
         Sprite_Queue((SpriteRect *)&tex->field_0x11c, (SpriteRect *)g_unk0x00831660,
                      tex, 1, 0, NULL, NULL, g_colour0x005273a8, 8);
     }
@@ -9960,7 +9960,7 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
         int idx = OptionMenu_GetControlSetupMenu()->items[Menu_FindItem(OptionMenu_GetControlSetupMenu(), 2)].max;
         t = FixDiv(OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(idx), 1) << 16,
                    0x640000);
-        if (t <= -1)
+        if (t < 0)
             t = 0;
         else if (t > 0x10000)
             t = 0x10000;
@@ -9988,10 +9988,9 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
         t = OptionMenu_GetRecordGroupWeight(w);
         base = 0xc;
     } else {
-        int idx = OptionMenu_GetControlSetupMenu()->items[Menu_FindItem(OptionMenu_GetControlSetupMenu(), 1)].max;
+        w = OptionMenu_GetControlSetupMenu()->items[Menu_FindItem(OptionMenu_GetControlSetupMenu(), 1)].max;
         base = 0xad;
-        t = g_unk0x005293c0[idx] * 6000;
-        w = idx;
+        t = g_unk0x005293c0[w] * 6000;
     }
     sprintf(CFrontend::m_stringDest, g_str0x0051a904, (t / 100) / 60, (t / 100) % 60);
     if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
@@ -10001,11 +10000,16 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
         Font_DrawText(3, CFrontend::m_stringDest, (int)g_pGraphics->resX * 0x124 / 0x280,
                           (int)g_pGraphics->resY * 0x150 / 0x1e0, &g_unk0x0052737c, 0x12);
     x = (int)g_pGraphics->resX * 0x1c / 0x280;
-    for (i = 0; i < 4; i++) {
-        OptionMenu_DrawTransitionTextShortCoords(5, 1, 1, CFrontend::GetTextString(base + w * 4 + i), x,
-                     (int)g_pGraphics->resY * (0x19a + i * 0xe) / 0x1e0,
+    base += w * 4;
+    y = 0x19a;
+    i = 4;
+    do {
+        OptionMenu_DrawTransitionTextShortCoords(5, 1, 1, CFrontend::GetTextString(base), x,
+                     (int)g_pGraphics->resY * y / 0x1e0,
                      g_unk0x00527380, g_unk0x0052738c, 0x11);
-    }
+        y += 0xe;
+        base++;
+    } while (--i != 0);
 }
 
 // Draws the stage selection panel: the country name, its stage list (the

@@ -12873,9 +12873,9 @@
   },
   "0x50a920": {
     "n": "OptionMenu_DrawResultsRallyInfo",
-    "s": 0.9206819866567828,
-    "x": false,
-    "fz": 0.9740548554484804,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_DrawResultsRallyInfo"
@@ -22160,9 +22160,9 @@
   },
   "0x4b5770": {
     "n": "Scene_ProjectCasterIntoLightZone",
-    "s": 0.40476190476190477,
+    "s": 0.4449244060475162,
     "x": false,
-    "fz": 0.5974025974025974,
+    "fz": 0.6177105831533477,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Scene_ProjectCasterIntoLightZone"
