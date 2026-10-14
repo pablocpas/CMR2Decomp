@@ -1046,5 +1046,12 @@
       "0x492220",
       "0x491d40"
     ]
+  },
+  "differential_saved_game.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4f5190",
+      "0x4fb400"
+    ]
   }
 }

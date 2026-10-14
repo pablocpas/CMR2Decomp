@@ -6987,9 +6987,9 @@
   },
   "0x4eb160": {
     "n": "FrontendChampionship_RestoreStageTimes",
-    "s": 1.0,
-    "x": true,
-    "fz": 1.0,
+    "s": 0.5321100917431193,
+    "x": false,
+    "fz": 0.6605504587155964,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendChampionship_RestoreStageTimes"
@@ -7437,10 +7437,12 @@
   },
   "0x4fb400": {
     "n": "FrontendProfile_ApplyDriverProfileBlock",
-    "s": 0.7474747474747475,
+    "s": 0.28451882845188287,
     "x": false,
-    "fz": 0.8762626262626263,
-    "unknown": [],
+    "fz": 0.5690376569037657,
+    "unknown": [
+      "?SavedGames_IsValidSessionImage@@YG_NPBXI@Z"
+    ],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendProfile_ApplyDriverProfileBlock"
   },
@@ -7770,9 +7772,9 @@
   },
   "0x4d9c40": {
     "n": "FrontendMenu_DrawRallySummary",
-    "s": 0.9855799373040752,
+    "s": 0.9843260188087775,
     "x": false,
-    "fz": 0.9981191222570532,
+    "fz": 0.9968652037617555,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_DrawRallySummary"
@@ -10803,9 +10805,9 @@
   },
   "0x4f4b90": {
     "n": "FrontendText_LoadRegionLanguages",
-    "s": 1.0,
-    "x": true,
-    "fz": 1.0,
+    "s": 0.8176100628930818,
+    "x": false,
+    "fz": 0.9308176100628931,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FrontendText_LoadRegionLanguages"
@@ -10902,9 +10904,9 @@
   },
   "0x4f4e50": {
     "n": "SavedGames_GetRecord",
-    "s": 1.0,
-    "x": true,
-    "fz": 1.0,
+    "s": 0.5161290322580645,
+    "x": false,
+    "fz": 0.5161290322580645,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "SavedGames_GetRecord"
@@ -10947,10 +10949,12 @@
   },
   "0x4f4ef0": {
     "n": "SavedGames_LoadRecords",
-    "s": 1.0,
-    "x": true,
-    "fz": 1.0,
-    "unknown": [],
+    "s": 0.21333333333333335,
+    "x": false,
+    "fz": 0.32,
+    "unknown": [
+      "?SavedGames_AddFile@@YGXPAD@Z"
+    ],
     "f": "GameInfo.cpp",
     "symbol_name": "SavedGames_LoadRecords"
   },
@@ -12873,9 +12877,9 @@
   },
   "0x50a920": {
     "n": "OptionMenu_DrawResultsRallyInfo",
-    "s": 1.0,
-    "x": true,
-    "fz": 1.0,
+    "s": 0.9940740740740741,
+    "x": false,
+    "fz": 0.997037037037037,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_DrawResultsRallyInfo"
@@ -12918,10 +12922,14 @@
   },
   "0x4f5190": {
     "n": "SavedGames_WriteSessionImage",
-    "s": 1.0,
-    "x": true,
-    "fz": 1.0,
-    "unknown": [],
+    "s": 0.4626865671641791,
+    "x": false,
+    "fz": 0.6380597014925373,
+    "unknown": [
+      "??_C@_02DILL@?$CFs?$AA@",
+      "?SavedGames_IsValidSessionImage@@YG_NPBXI@Z",
+      "__snprintf"
+    ],
     "f": "GameInfo.cpp",
     "symbol_name": "SavedGames_WriteSessionImage"
   },
@@ -20414,9 +20422,9 @@
   },
   "0x408d80": {
     "n": "RallyData_CopyDriverStageTimesToRecords",
-    "s": 1.0,
-    "x": true,
-    "fz": 1.0,
+    "s": 0.625,
+    "x": false,
+    "fz": 0.44642857142857145,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_CopyDriverStageTimesToRecords"
@@ -22506,7 +22514,7 @@
     "x": false,
     "fz": 0.8113207547169812,
     "unknown": [
-      "$L56095",
+      "$L56117",
       "__except_list"
     ],
     "f": "Sound.cpp",

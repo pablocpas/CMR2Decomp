@@ -1,3 +1,4 @@
+#include "SavedGame.h"
 // The original sums the two packed DWORDs, including both high shorts.
 inline int OptionMenu_AddPackedScreenRectangleWords(int *pWords)
 {
@@ -3058,9 +3059,9 @@ void FrontendMenu_UpdateSoundOptions(Menu *pMenu)
 }
 
 // GLOBAL: CMR2 0x0081b14c
-void *g_unk0x0081b14c;
+SavedGameImage *g_unk0x0081b14c;
 // GLOBAL: CMR2 0x0081b150
-void **g_unk0x0081b150;
+char **g_unk0x0081b150;
 // GLOBAL: CMR2 0x0081b154
 int g_unk0x0081b154;
 
@@ -3074,31 +3075,33 @@ int SavedGames_GetCount(void)
 // FUNCTION: CMR2 0x004f4dc0
 BYTE *SavedGames_GetRecordData(int index)
 {
-    return (BYTE *)g_unk0x0081b14c + 0x10 + index * 0x7f4;
+    return (BYTE *)g_unk0x0081b14c[index].name;
 }
 
 // FUNCTION: CMR2 0x004f4de0
 unsigned int SavedGames_GetDifficulty(int index)
 {
-    return *(unsigned int *)((BYTE *)g_unk0x0081b14c + 0x30 + index * 0x7f4) >> 10 & 0xf;
+    return g_unk0x0081b14c[index].options.playerCount;
 }
 
 // FUNCTION: CMR2 0x004f4e00
 unsigned int SavedGames_GetDateLowBits(int index)
 {
-    return *(unsigned int *)((BYTE *)g_unk0x0081b14c + 0x7d8 + index * 0x7f4) & 0x1f;
+    return g_unk0x0081b14c[index].stage.country;
 }
 
 // FUNCTION: CMR2 0x004f4e20
 unsigned int SavedGames_GetDateMiddleBits(int index)
 {
-    return *(unsigned int *)((BYTE *)g_unk0x0081b14c + 0x7d8 + index * 0x7f4) >> 5 & 0x1f;
+    return g_unk0x0081b14c[index].stage.stage;
 }
 
 // FUNCTION: CMR2 0x004f4e50
-BYTE *SavedGames_GetRecord(int index)
+const SavedGameImage *SavedGames_GetRecord(int index)
 {
-    return (BYTE *)g_unk0x0081b14c + index * 0x7f4;
+    if (index < 0 || index >= g_unk0x0081b154)
+        return NULL;
+    return &g_unk0x0081b14c[index];
 }
 
 // FUNCTION: CMR2 0x004f4e70
@@ -3175,8 +3178,28 @@ void FrontendText_FormatCodeGroups(char *pText)
     pText[out] = 0;
 }
 
+// Read only complete, valid session images. A broken .rcs must not reset
+// the live game to zero players and later pass NULL to the garage text draw.
+static void SavedGames_AddFile(char *name)
+{
+    void *pRecord = CFileBuffer::GetGenericFileBuffer(name, TRUE);
+    if (pRecord == NULL)
+        return;
+    if (SavedGames_IsValidSessionImage(pRecord, CGenericFileLoader::m_fileSize)) {
+        g_unk0x0081b14c = (SavedGameImage *)CFileBuffer::ReallocateLockedBuffer(
+            g_unk0x0081b14c, (g_unk0x0081b154 + 1) * sizeof(SavedGameImage));
+        g_unk0x0081b14c[g_unk0x0081b154] = *(SavedGameImage *)pRecord;
+        g_unk0x0081b150 = (char **)CFileBuffer::ReallocateLockedBuffer(
+            g_unk0x0081b150, (g_unk0x0081b154 + 1) * sizeof(*g_unk0x0081b150));
+        g_unk0x0081b150[g_unk0x0081b154] = (char *)CFileBuffer::AllocateLockedBuffer(0x100);
+        strcpy(g_unk0x0081b150[g_unk0x0081b154], name);
+        g_unk0x0081b154++;
+    }
+    CFileBuffer::FreeGenericFileBuffer(pRecord);
+}
+
 // Reads every saved game (<install>\gamesave\*.rcs) into the saved games
-// list: one 0x7f4-byte record per file plus its file name.
+// list: one original disk record per file plus its file name.
 // FUNCTION: CMR2 0x004f4ef0
 void SavedGames_LoadRecords(void)
 {
@@ -3184,7 +3207,6 @@ void SavedGames_LoadRecords(void)
     char saveDir[260];
     char oldDir[260];
     HANDLE hFind;
-    void *pRecord;
 
     SavedGames_ReleaseRecords();
     g_unk0x0081b154 = 0;
@@ -3192,28 +3214,9 @@ void SavedGames_LoadRecords(void)
     sprintf(saveDir, g_strSaveGameDirFormat, CInstallInfo::GetGameHDPath());
     if (SetCurrentDirectoryA(saveDir) != 0 &&
         (hFind = FindFirstFileA(g_strSaveGamePattern, &find)) != INVALID_HANDLE_VALUE) {
-        pRecord = CFileBuffer::GetGenericFileBuffer(find.cFileName, TRUE);
-        if (pRecord != NULL) {
-            g_unk0x0081b14c = CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b14c, (g_unk0x0081b154 + 1) * 0x7f4);
-            memcpy((BYTE *)g_unk0x0081b14c + g_unk0x0081b154 * 0x7f4, pRecord, 0x7f4);
-            g_unk0x0081b150 = (void **)CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b150, g_unk0x0081b154 * 4 + 4);
-            g_unk0x0081b150[g_unk0x0081b154] = CFileBuffer::AllocateLockedBuffer(0x100);
-            strcpy((char *)g_unk0x0081b150[g_unk0x0081b154], find.cFileName);
-            g_unk0x0081b154++;
-            CFileBuffer::FreeGenericFileBuffer(pRecord);
-        }
-        while (FindNextFileA(hFind, &find) != 0) {
-            pRecord = CFileBuffer::GetGenericFileBuffer(find.cFileName, TRUE);
-            if (pRecord != NULL) {
-                g_unk0x0081b14c = CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b14c, (g_unk0x0081b154 + 1) * 0x7f4);
-                memcpy((BYTE *)g_unk0x0081b14c + g_unk0x0081b154 * 0x7f4, pRecord, 0x7f4);
-                g_unk0x0081b150 = (void **)CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b150, g_unk0x0081b154 * 4 + 4);
-                g_unk0x0081b150[g_unk0x0081b154] = CFileBuffer::AllocateLockedBuffer(0x100);
-                strcpy((char *)g_unk0x0081b150[g_unk0x0081b154], find.cFileName);
-                g_unk0x0081b154++;
-                CFileBuffer::FreeGenericFileBuffer(pRecord);
-            }
-        }
+        do {
+            SavedGames_AddFile(find.cFileName);
+        } while (FindNextFileA(hFind, &find) != 0);
         FindClose(hFind);
     }
     SetCurrentDirectoryA(oldDir);
@@ -10426,131 +10429,73 @@ extern unsigned int OptionMenu_GetRecordPercentage(int index, int type, int dyna
 extern void OptionPreview_RestoreOriginalMeshVertices(int index);
 extern int g_unk0x005270b8[11];
 
-// Session image rebuilt before a game is saved. The bytes also form the 0x7f4
-// byte record written to <install>\gamesave\*.rcs.
 // GLOBAL: CMR2 0x0081a858
-BYTE g_unk0x0081a858[0x34];
-// GLOBAL: CMR2 0x0081a868
-char g_unk0x0081a868[0x20];
-// GLOBAL: CMR2 0x0081a888
-int g_unk0x0081a888;
-// GLOBAL: CMR2 0x0081a88c
-int g_unk0x0081a88c[0x20];
-// GLOBAL: CMR2 0x0081a90c
-int g_unk0x0081a90c[4];
-// GLOBAL: CMR2 0x0081a91c
-BYTE g_unk0x0081a91c[0x30];
-// GLOBAL: CMR2 0x0081a94c
-BYTE g_unk0x0081a94c[0x520];
-// GLOBAL: CMR2 0x0081ae6c
-BYTE g_unk0x0081ae6c[0x1c];
-// GLOBAL: CMR2 0x0081ae88
-BYTE g_unk0x0081ae88[0xa0];
-// GLOBAL: CMR2 0x0081af28
-BYTE g_unk0x0081af28[0x50];
-// GLOBAL: CMR2 0x0081af78
-BYTE g_unk0x0081af78[0x14];
-// GLOBAL: CMR2 0x0081af8c
-BYTE g_unk0x0081af8c[0x50];
-// GLOBAL: CMR2 0x0081afdc
-BYTE g_unk0x0081afdc[0x50];
-// GLOBAL: CMR2 0x0081b02c
-BYTE g_unk0x0081b02c;
-// GLOBAL: CMR2 0x0081b030
-int g_unk0x0081b030;
-// GLOBAL: CMR2 0x0081b034
-BYTE g_unk0x0081b034[16];
+static SavedGameImage g_savedGameImage;
 // GLOBAL: CMR2 0x00525c20
 char g_str0x00525c20[] = "%s\\gamesave\\%s";
 
-// Builds the session image that is written as a saved game. When a format
-// string is given it is used for the file name; otherwise the name of the
-// saved game selected by index is read back from the loaded records.
+// Builds the original session image. A name creates a new file; otherwise
+// the selected file is overwritten, preserving its displayed name.
 // FUNCTION: CMR2 0x004f5190
-BYTE SavedGames_WriteSessionImage(int index, char *fmt)
+BYTE SavedGames_WriteSessionImage(int index, const char *name)
 {
-    int i;
-    BYTE *pCar;
-    BYTE *p1;
-    BYTE *p2;
-    BYTE *p3;
-    int *pRec;
-
+    SavedGameImage &image = g_savedGameImage;
+    memset(&image, 0, sizeof(image));
+    if (CGameInfo::GetConfiguredPlayerCount() < 1 || CGameInfo::GetConfiguredPlayerCount() > 4)
+        return 0;
     RallyData_CopyDriverStageTimesToRecords();
 
-    g_unk0x0081a888 = (g_unk0x0081a888 & 0xffffff80) | (CGameInfo::GetConfiguredGameMode() & 0x7f);
-    g_unk0x0081a888 = (g_unk0x0081a888 & 0xfffffc7f) | ((CGameInfo::GetConfiguredDifficulty() & 7) << 7);
-    g_unk0x0081a888 = (g_unk0x0081a888 & 0xffffc3ff) | ((CGameInfo::GetConfiguredPlayerCount() & 0xf) << 0xa);
-    g_unk0x0081a888 = (g_unk0x0081a888 & 0xffffbfff) | ((CGameInfo::IsConfiguredMultiplayer() & 1) << 0xe);
+    image.options.mode = CGameInfo::GetConfiguredGameMode();
+    image.options.difficulty = CGameInfo::GetConfiguredDifficulty();
+    image.options.playerCount = CGameInfo::GetConfiguredPlayerCount();
+    image.options.multiplayer = CGameInfo::IsConfiguredMultiplayer();
 
-    for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++)
-        g_unk0x0081a88c[i * 2] = (g_unk0x0081a88c[i * 2] & 0xffffffbf) |
-                                 ((RallyData_GetDriverOrCategoryFlag((BYTE)i) & 1) << 6);
-
-    for (i = 0; i < 16; i++) {
-        pCar = RallyData_GetDriverEntryRecord(i);
-        g_unk0x0081a88c[i * 2] = (g_unk0x0081a88c[i * 2] & 0xffffffc0) | (*(int *)pCar & 0x3f);
-        pCar = RallyData_GetDriverEntryRecord(i);
-        g_unk0x0081a88c[i * 2] = (g_unk0x0081a88c[i * 2] & 0xffffc07f) |
-                                 ((*(int *)pCar & 0x1fc0) << 1);
-        pCar = RallyData_GetDriverEntryRecord(i);
-        g_unk0x0081a88c[i * 2 + 1] = *(int *)(pCar + 4);
+    {
+    for (int i = 0; i < 16; i++) {
+        const SaveSlot &slot = *(const SaveSlot *)RallyData_GetDriverEntryRecord(i);
+        image.drivers[i].car = slot.car;
+        image.drivers[i].seconds = slot.seconds;
+        image.drivers[i].time = slot.time;
+        image.tieBreak[i] = (BYTE)RallyTiming_GetStageTieBreak(i);
+    }
+    }
+    {
+    for (unsigned i = 0; i < image.options.playerCount; i++) {
+        const DriverProfile *profile = (const DriverProfile *)RallyData_GetDriverCategoryProfile(i);
+        if (!profile)
+            return 0;
+        image.drivers[i].entryFlag = RallyData_GetDriverOrCategoryFlag((BYTE)i);
+        image.playerSetup[i] = profile->setup;
+        image.playerSetup[i].reserved = 0;
+        image.playerIdentifiers[i] = profile->identifier;
+        memcpy(&image.playerCars[i], RallyData_GetDriverGroupRecord(i), sizeof(image.playerCars[i]));
+        memcpy(&image.playerControllers[i], RallyData_GetDriverSkillRecord(i), sizeof(image.playerControllers[i]));
+    }
     }
 
-    for (i = 0; i < 16; i++)
-        g_unk0x0081b034[i] = (BYTE)RallyTiming_GetStageTieBreak(i);
+    memcpy(image.settingPairs, RallyData_GetDriverSettingPair(0), sizeof(image.settingPairs));
+    memcpy(image.primaryValues, RallyData_GetDriverPrimaryPairRecord(0), sizeof(image.primaryValues));
+    memcpy(image.selectionFlags, RallyData_GetDriverSelectionFlagRecord(0), sizeof(image.selectionFlags));
+    memcpy(image.values, RallyData_GetDriverPairRecord(0), sizeof(image.values));
+    memcpy(image.secondaryValues, RallyData_GetDriverSecondaryPairRecord(0), sizeof(image.secondaryValues));
+    image.stage.country = RallyDataCountryIndex();
+    image.stage.stage = RallyDataStageIndex();
+    image.selectionState = RallyData_GetSelectionStateByte();
 
-    i = 0;
-    if ((BYTE)CGameInfo::GetConfiguredPlayerCount() > 0) {
-        p3 = g_unk0x0081ae6c;
-        p2 = g_unk0x0081a94c;
-        p1 = g_unk0x0081a91c;
-        pRec = g_unk0x0081a90c;
-        do {
-            BYTE *p = RallyData_GetDriverCategoryProfile(i);
-            *pRec = (*pRec & 0xfffffcff) | (*(int *)(p + 0x5c) & 0x300);
-            p = RallyData_GetDriverCategoryProfile(i);
-            *pRec = (*pRec & 0xffffffc7) | (*(int *)(p + 0x5c) & 0x38);
-            p = RallyData_GetDriverCategoryProfile(i);
-            *pRec = (*pRec & 0xffffe3ff) | (*(int *)(p + 0x5c) & 0x1c00);
-            p = RallyData_GetDriverCategoryProfile(i);
-            *pRec = (*pRec & 0xffffff3f) | (*(int *)(p + 0x5c) & 0xc0);
-            p = RallyData_GetDriverCategoryProfile(i);
-            *pRec = (*pRec & 0xfffffff8) | (*(int *)(p + 0x5c) & 7);
-            p = RallyData_GetDriverCategoryProfile(i);
-            *(FixVector *)p1 = *(FixVector *)(p + 0x10);
-            memcpy(p2, RallyData_GetDriverGroupRecord(i), 0x148);
-            memcpy(p3, RallyData_GetDriverSkillRecord(i), 7);
-            i++;
-            pRec++;
-            p1 += 0xc;
-            p2 += 0x148;
-            p3 += 7;
-        } while (i < (BYTE)CGameInfo::GetConfiguredPlayerCount());
-    }
-
-    memcpy(g_unk0x0081ae88, RallyData_GetDriverSettingPair(0), 0xa0);
-    memcpy(g_unk0x0081af28, RallyData_GetDriverPrimaryPairRecord(0), 0x50);
-    memcpy(g_unk0x0081af78, RallyData_GetDriverSelectionFlagRecord(0), 0x14);
-    memcpy(g_unk0x0081af8c, RallyData_GetDriverPairRecord(0), 0x50);
-    memcpy(g_unk0x0081afdc, RallyData_GetDriverSecondaryPairRecord(0), 0x50);
-
-    g_unk0x0081b030 = (g_unk0x0081b030 & 0xffffffe0) | (RallyDataCountryIndex() & 0x1f);
-    g_unk0x0081b030 = (g_unk0x0081b030 & 0xfffffc1f) | ((RallyDataStageIndex() & 0x1f) << 5);
-    g_unk0x0081b02c = RallyData_GetSelectionStateByte();
-
-    if (fmt != NULL) {
-        sprintf(g_unk0x0081a868, fmt);
+    if (name != NULL) {
+        _snprintf(image.name, sizeof(image.name), "%s", name);
+        image.name[sizeof(image.name) - 1] = 0;
         SavedGames_MakeUnusedFileName(CFrontend::m_stringDest);
-    } else if (index > -1) {
-        strcpy(g_unk0x0081a868, (char *)((BYTE *)g_unk0x0081b14c + index * 0x7f4 + 0x10));
+    } else if (index >= 0 && index < SavedGames_GetCount()) {
+        strcpy(image.name, g_unk0x0081b14c[index].name);
         sprintf(CFrontend::m_stringDest, g_str0x00525c20, CInstallInfo::GetGameHDPath(),
                 (char *)g_unk0x0081b150[index]);
     } else {
         return 0;
     }
-    CInstallInfo::WriteFileToDisk(CFrontend::m_stringDest, 0, g_unk0x0081a858, 0x7f4);
-    return 1;
+    if (!SavedGames_IsValidSessionImage(&image, sizeof(image)))
+        return 0;
+    return CInstallInfo::WriteFileToDisk(CFrontend::m_stringDest, 0, &image, sizeof(image)) == 1;
 }
 
 // Loads the highlighted saved game into the frontend and moves to the game

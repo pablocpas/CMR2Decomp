@@ -51,6 +51,14 @@ struct GameInfo0xa4
 };
 
 // looks like this should be 0x3958 (14680) bytes in size.
+struct RallyUnlockProgress {
+    unsigned otherOptions : 8;
+    unsigned easyRallies : 4;
+    unsigned normalRallies : 4;
+    unsigned hardRallies : 4;
+    unsigned reserved : 12;
+};
+
 struct GameInfo
 {
     unsigned char empty[16];
@@ -72,7 +80,7 @@ struct GameInfo
     BYTE field_0x96_padding[2];
     short field_0x98;
     short field_0x9a;
-    unsigned int field_0x9c;
+    union { unsigned int field_0x9c; RallyUnlockProgress rallyUnlockProgress; };
     unsigned int field_0xa0;
     GameInfo0xa4 field_0xa4;
     GameInfo0xa4 field_0x1368;

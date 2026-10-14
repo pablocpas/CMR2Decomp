@@ -1,3 +1,4 @@
+#include "SavedGame.h"
 #include "FileBuffer.h"
 #include "GenericFileLoader.h"
 #include "Game.h"
@@ -184,19 +185,6 @@ extern BYTE g_saveDirty[8];
 extern BYTE g_saveProfiles[4 * 0x650];
 extern BYTE g_saveSlots[16 * 0x30];
 
-// Bitfield view of a 0x30-byte slot of g_saveSlots (same layout as in RallyData.cpp).
-struct SaveSlot {
-    unsigned car : 6;
-    unsigned seconds : 7;
-    unsigned bit13 : 1;
-    unsigned level : 4;
-    unsigned category : 4;
-    unsigned bits22 : 3;
-    unsigned bit25 : 1;
-    unsigned rest : 6;
-    int time;
-    BYTE pad[0x28];
-};
 #define SLOT(i) (((SaveSlot *)g_saveSlots)[i])
 
 // Builds the path of a player profile save: <hd>\pps\<name><date>.pps.

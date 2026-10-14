@@ -1,3 +1,4 @@
+#include "SavedGame.h"
 #include "CallbackState.h"
 #include "FloatToInt.h"
 #include <stddef.h>
@@ -37,18 +38,7 @@ BYTE g_unk0x00531348[8];
 BYTE g_saveSlots[16 * 0x30];
 
 // A save slot (g_saveSlots, 0x30 bytes): packed first word and a time.
-struct SaveSlot {
-    unsigned car : 6;
-    unsigned seconds : 7;
-    unsigned bit13 : 1;
-    unsigned level : 4;
-    unsigned category : 4;
-    unsigned bits22 : 3;
-    unsigned bit25 : 1;
-    unsigned rest : 6;
-    int time;
-    BYTE pad[0x28];
-};
+
 #define g_unk0x0052f3e0 (g_saveCarRecords)
 #define g_unk0x0052f3e8 (g_saveCarRecords + 0x8)
 #define g_unk0x0052f3ec (g_saveCarRecords + 0xc)
@@ -4188,33 +4178,20 @@ void RallyData_SetupWeatherTextureEntries(void)
 // FUNCTION: CMR2 0x00408d80
 void RallyData_CopyDriverStageTimesToRecords(void)
 {
-    unsigned int *pRec;
-    int target;
-    unsigned int seconds;
-    int limit;
-    int i;
-    int order;
-
-    i = 0;
-    if ((BYTE)CGameInfo::GetConfiguredPlayerCount() > 0) {
-        pRec = (unsigned int *)g_unk0x00531350;
-        order = 15;
-        do {
-            *pRec = (*pRec & 0xffffe03f) |
-                    ((RallyTiming_GetStageTimeSeconds(order) & 0x7f) << 6);
-            pRec[1] = RallyTiming_GetOverallTimeCentiseconds(order);
-            i++;
-            order--;
-            pRec += 12;
-        } while (i < (CGameInfo::GetConfiguredPlayerCount() & 0xff));
+    SaveSlot *slots = (SaveSlot *)g_saveSlots;
+    const int playerCount = CGameInfo::GetConfiguredPlayerCount();
+    {
+    for (int i = 0; i < playerCount; i++) {
+        slots[i].seconds = RallyTiming_GetStageTimeSeconds(15 - i);
+        slots[i].time = RallyTiming_GetOverallTimeCentiseconds(15 - i);
     }
-    limit = 0x10 - (CGameInfo::GetConfiguredPlayerCount() & 0xff);
-    for (i = 0; i < limit; i++) {
-        target = (CGameInfo::GetConfiguredPlayerCount() & 0xff) + i;
-        seconds = RallyTiming_GetStageTimeSeconds(i);
-        pRec = (unsigned int *)(g_unk0x00531350 + target * 0x30);
-        *pRec = (*pRec & 0xffffe03f) | ((seconds & 0x7f) << 6);
-        *(int *)(g_unk0x00531350 + target * 0x30 + 4) = RallyTiming_GetOverallTimeCentiseconds(i);
+    }
+    {
+    for (int i = 0; i < 16 - playerCount; i++) {
+        SaveSlot &slot = slots[playerCount + i];
+        slot.seconds = RallyTiming_GetStageTimeSeconds(i);
+        slot.time = RallyTiming_GetOverallTimeCentiseconds(i);
+    }
     }
 }
 

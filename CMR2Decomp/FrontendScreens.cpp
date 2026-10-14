@@ -1,3 +1,4 @@
+#include "SavedGame.h"
 #include "Frontend.h"
 #include "FloatToInt.h"
 #include "Game.h"
@@ -3440,8 +3441,8 @@ char RallyData_SaveEditedCategoryProfile(int param_1);
 BYTE Profile_LoadAndLinkSavedRecord(int param_1, int param_2);
 void FrontendProfile_SetCategoryColour(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4);
 BYTE RallyData_IsDriverRecordUsable(BYTE param1);
-BYTE *SavedGames_GetRecord(int index);
-unsigned int FrontendProfile_ApplyDriverProfileBlock(BYTE *pBlock);
+
+
 
 extern BYTE g_unk0x00819879;
 
@@ -6139,31 +6140,20 @@ void RallyTiming_SortStageAndOverallResults(void);
 // FUNCTION: CMR2 0x004eb160
 void FrontendChampionship_RestoreStageTimes(void)
 {
-    int count;
-    int i;
-    int n;
-    unsigned int index;
-    BYTE *pRecord;
-
-    count = 0;
-    if ((unsigned int)CGameInfo::GetConfiguredPlayerCount() > 0) {
-        pRecord = g_saveSlots + 0x4;
-        i = 0xf;
-        do {
-            RallyTiming_SetStageTimeSeconds(i, (*(unsigned int *)(pRecord - 4) >> 6) & 0x7f);
-            RallyTiming_SetOverallTimeRaw(i, *(int *)pRecord);
-            count++;
-            i--;
-            pRecord += 0x30;
-        } while (count < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff));
+    const SaveSlot *slots = (const SaveSlot *)g_saveSlots;
+    const int playerCount = CGameInfo::GetConfiguredPlayerCount();
+    {
+    for (int i = 0; i < playerCount; i++) {
+        RallyTiming_SetStageTimeSeconds(15 - i, slots[i].seconds);
+        RallyTiming_SetOverallTimeRaw(15 - i, slots[i].time);
     }
-    n = 0x10 - (CGameInfo::GetConfiguredPlayerCount() & 0xff);
-    i = 0;
-    while (i < n) {
-        index = (CGameInfo::GetConfiguredPlayerCount() & 0xff) + i;
-        RallyTiming_SetStageTimeSeconds(i, (*(unsigned int *)(g_saveSlots + index * 0x30) >> 6) & 0x7f);
-        RallyTiming_SetOverallTimeRaw(i, *(int *)(g_saveSlots + 0x4 + index * 0x30));
-        i++;
+    }
+    {
+    for (int i = 0; i < 16 - playerCount; i++) {
+        const SaveSlot &slot = slots[playerCount + i];
+        RallyTiming_SetStageTimeSeconds(i, slot.seconds);
+        RallyTiming_SetOverallTimeRaw(i, slot.time);
+    }
     }
     RallyTiming_SortStageAndOverallResults();
 }
@@ -7896,157 +7886,81 @@ void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
 void RallyData_SetSelectionStateByte(char param1);
 void RallyData_SetSetupFlag11(char param1);
 
-// Applies a 0x7e0-byte driver profile block to the game state: resets the four
-// players, copies each one's car record (0x148), controller setup (7) and name
-// (0xc) plus the four gear-ratio tables and the 16 key bindings, and raises the
-// per-mode event ratios.
-// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// logic verified against the dump; the remaining diff is instruction selection
-// in the bit-field inserts and MSVC's basic-block order.
+// Restores the original session image: player profiles, cars, controllers,
+// driver times and event tables. Unsaved profile bits and the player/AI timing
+// order retain their original behaviour.
 // FUNCTION: CMR2 0x004fb400
-unsigned int FrontendProfile_ApplyDriverProfileBlock(BYTE *pBlock)
+unsigned int FrontendProfile_ApplyDriverProfileBlock(const SavedGameImage *pBlock)
 {
-    BYTE *pName;
-    BYTE *pSetup;
-    BYTE *pDest;
-    BYTE *pSrc;
-    BYTE *pRecord;
-    BYTE *pBuffer;
-    unsigned int *pState;
-    unsigned int *pOut;
-    unsigned int value;
-    unsigned int i;
-
-    if (pBlock == NULL)
+    if (!SavedGames_IsValidSessionImage(pBlock, sizeof(SavedGameImage)))
         return 0;
-    GameInfo_SetConfiguredGameMode(pBlock[0x30] & 0x7f);
-    GameInfo_SetConfiguredDifficulty((*(unsigned int *)(pBlock + 0x30) >> 7) & 7);
-    GameInfo_SetConfiguredPlayerCount((*(unsigned int *)(pBlock + 0x30) >> 0xa) & 0xf);
-    GameInfo_SetConfiguredMultiplayer((*(unsigned int *)(pBlock + 0x30) >> 0xe) & 1);
+    const SavedGameImage &image = *pBlock;
+    GameInfo_SetConfiguredGameMode(image.options.mode);
+    GameInfo_SetConfiguredDifficulty(image.options.difficulty);
+    GameInfo_SetConfiguredPlayerCount(image.options.playerCount);
+    GameInfo_SetConfiguredMultiplayer(image.options.multiplayer);
     RallyData_ResetSavedPlayerRecords();
-    i = 0;
-    if (CGameInfo::GetConfiguredPlayerCount() != 0) {
-        pDest = pBlock + 0xf4;
-        pName = pBlock + 0xc4;
-        pSetup = pBlock + 0x614;
-        pSrc = pBlock + 0xb4;
-        do {
-            Profile_AssignAvailableCategory(i, -1);
-            Profile_ResetCategoryData(i);
-            RallyData_SetPlayerProfileInUse((BYTE)i, 0);
-            pRecord = RallyData_GetDriverCategoryProfile(i);
-            *(unsigned int *)(pRecord + 0x5c) =
-                (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0x300 ^
-                *(unsigned int *)(pRecord + 0x5c);
-            pRecord = RallyData_GetDriverCategoryProfile(i);
-            *(unsigned int *)(pRecord + 0x5c) =
-                (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0x38 ^
-                *(unsigned int *)(pRecord + 0x5c);
-            pRecord = RallyData_GetDriverCategoryProfile(i);
-            *(unsigned int *)(pRecord + 0x5c) =
-                (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0x1c00 ^
-                *(unsigned int *)(pRecord + 0x5c);
-            pRecord = RallyData_GetDriverCategoryProfile(i);
-            *(unsigned int *)(pRecord + 0x5c) =
-                (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0xc0 ^
-                *(unsigned int *)(pRecord + 0x5c);
-            pRecord = RallyData_GetDriverCategoryProfile(i);
-            *(unsigned int *)(pRecord + 0x5c) =
-                (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 7 ^
-                *(unsigned int *)(pRecord + 0x5c);
-            pRecord = RallyData_GetDriverCategoryProfile(i);
-            *(unsigned int *)(pRecord + 0x10) = *(unsigned int *)pName;
-            *(unsigned int *)(pRecord + 0x14) = *((unsigned int *)pName + 1);
-            *(unsigned int *)(pRecord + 0x18) = *((unsigned int *)pName + 2);
-            memcpy(RallyData_GetDriverGroupRecord(i), pDest, 0x148);
-            pBuffer = RallyData_GetDriverSkillRecord(i);
-            *(unsigned int *)pBuffer = *(unsigned int *)pSetup;
-            *(unsigned short *)(pBuffer + 4) = *(unsigned short *)(pSetup + 4);
-            pBuffer[6] = pSetup[6];
-            if ((*(unsigned int *)(RallyData_GetDriverCategoryProfile(i) + 0x14) & 0x200000) == 0) {
-                pBuffer = (BYTE *)Profile_ReadLocalFile(Profile_BuildSavePath((char *)pName), 0);
-                if (pBuffer != NULL) {
-                    memcpy(RallyData_GetDriverCategoryProfile(i), pBuffer, 0x650);
-                    pRecord = RallyData_GetDriverCategoryProfile(i);
-                    *(unsigned int *)(pRecord + 0x10) = *(unsigned int *)pName;
-                    *(unsigned int *)(pRecord + 0x14) = *((unsigned int *)pName + 1);
-                    *(unsigned int *)(pRecord + 0x18) = *((unsigned int *)pName + 2);
-                    CFileBuffer::FreeGenericFileBuffer(pBuffer);
-                } else {
-                    RallyData_SetPlayerProfileInUse((BYTE)i, 0);
-                }
+    {
+    for (unsigned i = 0; i < image.options.playerCount; i++) {
+        Profile_AssignAvailableCategory(i, -1);
+        Profile_ResetCategoryData(i);
+        RallyData_SetPlayerProfileInUse((BYTE)i, 0);
+        DriverProfile &profile = *(DriverProfile *)RallyData_GetDriverCategoryProfile(i);
+        // Preserve the unsaved bits of the original profile option word.
+        profile.setup.value0 = image.playerSetup[i].value0;
+        profile.setup.value1 = image.playerSetup[i].value1;
+        profile.setup.value2 = image.playerSetup[i].value2;
+        profile.setup.value3 = image.playerSetup[i].value3;
+        profile.setup.value4 = image.playerSetup[i].value4;
+        profile.identifier = image.playerIdentifiers[i];
+        memcpy(RallyData_GetDriverGroupRecord(i), &image.playerCars[i], sizeof(image.playerCars[i]));
+        memcpy(RallyData_GetDriverSkillRecord(i), &image.playerControllers[i], sizeof(image.playerControllers[i]));
+        if ((profile.identifier.flags & 0x200000) == 0) {
+            BYTE *buffer = (BYTE *)Profile_ReadLocalFile(Profile_BuildSavePath((char *)&profile.identifier), 0);
+            if (buffer != NULL && CGenericFileLoader::m_fileSize == sizeof(DriverProfile)) {
+                profile = *(DriverProfile *)buffer;
+                profile.identifier = image.playerIdentifiers[i];
+                CFileBuffer::FreeGenericFileBuffer(buffer);
+            } else {
+                CFileBuffer::FreeGenericFileBuffer(buffer);
+                RallyData_SetPlayerProfileInUse((BYTE)i, 0);
             }
-            pDest += 0x148;
-            pSetup += 7;
-            i++;
-            pSrc += 4;
-            pName += 0xc;
-        } while ((int)i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff));
+        }
     }
-    pState = (unsigned int *)(pBlock + 0x34);
-    i = 0;
-    pOut = pState;
-    do {
-        pRecord = RallyData_GetDriverEntryRecord(i);
-        *(unsigned int *)pRecord = (*(unsigned int *)pRecord ^ *pOut) & 0x3f ^ *(unsigned int *)pRecord;
-        pRecord = RallyData_GetDriverEntryRecord(i);
-        *(unsigned int *)pRecord = *pOut >> 1 & 0x1fc0 | *(unsigned int *)pRecord & 0xffffe03f;
-        pRecord = RallyData_GetDriverEntryRecord(i);
-        i++;
-        pOut += 2;
-        *(unsigned int *)(pRecord + 4) = *(pOut - 1);
-    } while ((int)i < 0x10);
-    i = 0;
-    if (CGameInfo::GetConfiguredPlayerCount() != 0) {
-        do {
-            FrontendChampionship_SetDriverEntryFlag((BYTE)i, (BYTE)(*pState >> 6) & 1);
-            pRecord = RallyData_GetDriverEntryRecord(i);
-            RallyData_SetCategoryAwardBit(i, *(unsigned int *)pRecord & 0x3f);
-            i++;
-            pState += 2;
-        } while ((int)i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff));
     }
-    i = 0;
-    do {
-        RallyTiming_SetStageTieBreak(i, pBlock[0x7dc + i]);
-        i++;
-    } while ((int)i < 0x10);
-    memcpy(RallyData_GetDriverSettingPair(0), pBlock + 0x630, 0xa0);
-    memcpy(RallyData_GetDriverPrimaryPairRecord(0), pBlock + 0x6d0, 0x50);
-    memcpy(RallyData_GetDriverSelectionFlagRecord(0), pBlock + 0x720, 0x14);
-    memcpy(RallyData_GetDriverPairRecord(0), pBlock + 0x734, 0x50);
-    memcpy(RallyData_GetDriverSecondaryPairRecord(0), pBlock + 0x784, 0x50);
-    RallyData_SetCountrySelectionBits(pBlock[0x7d8] & 0x1f);
-    RallyData_SetStageSelectionAndRefreshFlags((*(unsigned int *)(pBlock + 0x7d8) >> 5) & 0x1f);
-    RallyData_SetSelectionStateByte(pBlock[0x7d4]);
+    {
+    for (int i = 0; i < 16; i++) {
+        SaveSlot &slot = *(SaveSlot *)RallyData_GetDriverEntryRecord(i);
+        slot.car = image.drivers[i].car;
+        slot.seconds = image.drivers[i].seconds;
+        slot.time = image.drivers[i].time;
+        RallyTiming_SetStageTieBreak(i, image.tieBreak[i]);
+    }
+    }
+    {
+    for (unsigned i = 0; i < image.options.playerCount; i++) {
+        FrontendChampionship_SetDriverEntryFlag((BYTE)i, image.drivers[i].entryFlag);
+        const SaveSlot &slot = *(const SaveSlot *)RallyData_GetDriverEntryRecord(i);
+        RallyData_SetCategoryAwardBit(i, slot.car);
+    }
+    }
+    memcpy(RallyData_GetDriverSettingPair(0), image.settingPairs, sizeof(image.settingPairs));
+    memcpy(RallyData_GetDriverPrimaryPairRecord(0), image.primaryValues, sizeof(image.primaryValues));
+    memcpy(RallyData_GetDriverSelectionFlagRecord(0), image.selectionFlags, sizeof(image.selectionFlags));
+    memcpy(RallyData_GetDriverPairRecord(0), image.values, sizeof(image.values));
+    memcpy(RallyData_GetDriverSecondaryPairRecord(0), image.secondaryValues, sizeof(image.secondaryValues));
+    RallyData_SetCountrySelectionBits(image.stage.country);
+    RallyData_SetStageSelectionAndRefreshFlags(image.stage.stage);
+    RallyData_SetSelectionStateByte(image.selectionState);
     FrontendChampionship_RestoreStageTimes();
-    pOut = CGameInfo::GetGameInfoField9CAddress();
-    switch (CGameInfo::GetConfiguredDifficulty()) {
-    case 0:
-        value = RallyDataCountryIndex() & 0xff;
-        if ((*pOut >> 8 & 0xf) < value + 1)
-            *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 8) ^ *pOut) & 0xf00 ^ *pOut;
-        break;
-    case 1:
-        value = RallyDataCountryIndex() & 0xff;
-        if ((*pOut >> 8 & 0xf) < value + 1)
-            *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 8) ^ *pOut) & 0xf00 ^ *pOut;
-        value = RallyDataCountryIndex() & 0xff;
-        if ((*pOut >> 0xc & 0xf) < value + 1)
-            *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 0xc) ^ *pOut) & 0xf000 ^ *pOut;
-        break;
-    case 2:
-        value = RallyDataCountryIndex() & 0xff;
-        if ((*pOut >> 8 & 0xf) < value + 1)
-            *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 8) ^ *pOut) & 0xf00 ^ *pOut;
-        value = RallyDataCountryIndex() & 0xff;
-        if ((*pOut >> 0xc & 0xf) < value + 1)
-            *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 0xc) ^ *pOut) & 0xf000 ^ *pOut;
-        value = RallyDataCountryIndex() & 0xff;
-        if ((*pOut >> 0x10 & 0xf) < value + 1)
-            *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 0x10) ^ *pOut) & 0xf0000 ^ *pOut;
-        break;
-    }
+    RallyUnlockProgress &progress = CGameInfo::m_gameInfo.rallyUnlockProgress;
+    const unsigned reached = image.stage.country + 1;
+    if (progress.easyRallies < reached)
+        progress.easyRallies = reached;
+    if (image.options.difficulty >= 1 && progress.normalRallies < reached)
+        progress.normalRallies = reached;
+    if (image.options.difficulty >= 2 && progress.hardRallies < reached)
+        progress.hardRallies = reached;
     RallyData_SetSetupFlag11(0);
     return 1;
 }
