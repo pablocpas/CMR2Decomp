@@ -951,12 +951,11 @@ void Race_ResetPlayerCallState(void)
     int i;
     RaceCallRecord *p;
 
-    g_unk0x00537198[0] = 9999;
-    g_raceWrongWayFlags[0] = 0;
-    g_unk0x00537198[1] = 9999;
-    g_raceWrongWayFlags[1] = 0;
-    g_unk0x0053708c[0] = -1;
-    g_unk0x0053708c[1] = -1;
+    for (i = 0; i < 2; i++) {
+        g_unk0x0053708c[i] = -1;
+        g_raceWrongWayFlags[i] = 0;
+        g_unk0x00537198[i] = 9999;
+    }
     memset(g_unk0x005371a4, 0, sizeof(g_unk0x005371a4));
     for (p = g_raceCallRecords; p < &g_raceCallRecords[10]; p += 5) {
         for (i = 0; i < 5; i++) {

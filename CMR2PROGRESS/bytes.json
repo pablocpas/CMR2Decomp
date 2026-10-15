@@ -6987,9 +6987,9 @@
   },
   "0x4eb160": {
     "n": "FrontendChampionship_RestoreStageTimes",
-    "s": 0.5321100917431193,
-    "x": false,
-    "fz": 0.6605504587155964,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendChampionship_RestoreStageTimes"
@@ -18667,9 +18667,9 @@
   },
   "0x416670": {
     "n": "Race_ResetPlayerCallState",
-    "s": 0.6,
+    "s": 0.7608695652173914,
     "x": false,
-    "fz": 0.7333333333333333,
+    "fz": 0.8695652173913043,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "Race_ResetPlayerCallState"
@@ -20422,9 +20422,9 @@
   },
   "0x408d80": {
     "n": "RallyData_CopyDriverStageTimesToRecords",
-    "s": 0.625,
-    "x": false,
-    "fz": 0.44642857142857145,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_CopyDriverStageTimesToRecords"
@@ -21367,9 +21367,9 @@
   },
   "0x4111a0": {
     "n": "RallyData_ResetPlayerSplitDisplays",
-    "s": 0.5769230769230769,
+    "s": 0.6923076923076923,
     "x": false,
-    "fz": 0.7692307692307693,
+    "fz": 0.8846153846153846,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_ResetPlayerSplitDisplays"
@@ -21394,9 +21394,9 @@
   },
   "0x411450": {
     "n": "RallyData_ResetStageClockAndRecords",
-    "s": 0.6554621848739496,
-    "x": false,
-    "fz": 0.9243697478991597,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_ResetStageClockAndRecords"

@@ -203,6 +203,18 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
   so MSVC6 assumes the stores may alias it (FrontendDraw_HelpText).
 - Runtime-library code (type_info's deleting destructor) is compiled /O1 in
   its own TU (`CRT_O1` in build.py): `pop ecx` instead of `add esp, 4`.
+- MSVC6 fully unrolls small constant loops. Stores of one constant spread
+  over several registers (`xor eax, eax; xor ecx, ecx`, one register per
+  statement, reused by each copy) are `for (i = 0; i < 2; i++) { a[i] = 0;
+  b[i] = 0; }` written out by the decompiler. Each statement of the body
+  gets its own register, so the grouping gives the body and the statement
+  order; try every order (RallyData_ResetStageClockAndRecords,
+  Race_ResetPlayerCallState).
+- A loop over a pointer compared with `jl` (signed) is an `int` index loop
+  that MSVC6 strength-reduced; a source pointer comparison gives `jb`.
+- A call repeated in the original (`call GetConfiguredPlayerCount` in each
+  loop test and index) was cached in a local by the decompiler; call it
+  again where the original does (FrontendChampionship_RestoreStageTimes).
 
 ## Missing code
 

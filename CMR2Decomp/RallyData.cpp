@@ -4178,20 +4178,20 @@ void RallyData_SetupWeatherTextureEntries(void)
 // FUNCTION: CMR2 0x00408d80
 void RallyData_CopyDriverStageTimesToRecords(void)
 {
-    SaveSlot *slots = (SaveSlot *)g_saveSlots;
-    const int playerCount = CGameInfo::GetConfiguredPlayerCount();
-    {
-    for (int i = 0; i < playerCount; i++) {
-        slots[i].seconds = RallyTiming_GetStageTimeSeconds(15 - i);
-        slots[i].time = RallyTiming_GetOverallTimeCentiseconds(15 - i);
+    int i;
+    int n;
+    int index;
+
+    for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++) {
+        index = 15 - i;
+        ((SaveSlot *)g_saveSlots)[i].seconds = RallyTiming_GetStageTimeSeconds(index);
+        ((SaveSlot *)g_saveSlots)[i].time = RallyTiming_GetOverallTimeCentiseconds(index);
     }
-    }
-    {
-    for (int i = 0; i < 16 - playerCount; i++) {
-        SaveSlot &slot = slots[playerCount + i];
-        slot.seconds = RallyTiming_GetStageTimeSeconds(i);
-        slot.time = RallyTiming_GetOverallTimeCentiseconds(i);
-    }
+    n = 16 - (BYTE)CGameInfo::GetConfiguredPlayerCount();
+    for (i = 0; i < n; i++) {
+        index = (BYTE)CGameInfo::GetConfiguredPlayerCount() + i;
+        ((SaveSlot *)g_saveSlots)[index].seconds = RallyTiming_GetStageTimeSeconds(i);
+        ((SaveSlot *)g_saveSlots)[index].time = RallyTiming_GetOverallTimeCentiseconds(i);
     }
 }
 
@@ -7208,13 +7208,13 @@ void RallyData_ResetPlayerSplitDisplays(void)
     // the dword right before the array gets cleared as well.
     for (car = 0; car < 2; car++) {
         p = (int *)((char *)g_stageSplitData + car * 0x48 - 4);
-        p[0] = 0;
-        p[1] = 0;
-        p[2] = 0;
         p[3] = -1;
-        p[5] = 0;
+        p[2] = 0;
         for (i = 6; i < 0x12; i++)
             p[i] = 0;
+        p[5] = 0;
+        p[0] = 0;
+        p[1] = 0;
     }
     for (i = 0; i < 8; i++) {
         g_unk0x00536c48[i][0] = 0;
@@ -7692,27 +7692,23 @@ void StageUI_FitMapToRoute(void);
 // FUNCTION: CMR2 0x00411450
 void RallyData_ResetStageClockAndRecords(int keepName)
 {
-    if ((char)RallyData_GetFlag25() == 0) {
+    int i;
+
+    if ((char)RallyData_GetFlag25() == 0 && (char)RallyData_GetFlag24() == 0)
         g_unk0x00537068 = 48000;
-        if ((char)RallyData_GetFlag24() == 0)
-            goto reset;
-    }
-    g_unk0x00537068 = 24000;
-reset:
+    else
+        g_unk0x00537068 = 24000;
     RallyData_ResetPlayerSplitDisplays();
-    g_unk0x00536c88[0] = 0;
-    g_unk0x00536ec4[0] = 0;
-    g_unk0x00536c88[1] = 0;
-    g_unk0x00536e88[0] = 0;
-    g_unk0x00536e88[1] = 0;
-    g_unk0x00536ec4[1] = 0;
-    g_unk0x00536c28[0] = 0;
-    g_unk0x00536c00[0] = 0;
     g_unk0x00537050 = 0;
     *(short *)g_unk0x00536c08 = 0;
     *(short *)g_unk0x00536cac = 0;
-    g_unk0x00536c28[1] = 0;
-    g_unk0x00536c00[1] = 0;
+    for (i = 0; i < 2; i++) {
+        g_unk0x00536c00[i] = 0;
+        g_unk0x00536e88[i] = 0;
+        g_unk0x00536c28[i] = 0;
+        g_unk0x00536ec4[i] = 0;
+        g_unk0x00536c88[i] = 0;
+    }
     if (keepName == 0) {
         g_unk0x0053706c = 0;
         sprintf(g_unk0x00536ed0, CMain::m_logFileBlankLine);

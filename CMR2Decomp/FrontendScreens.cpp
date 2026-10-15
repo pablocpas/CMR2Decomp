@@ -6140,20 +6140,20 @@ void RallyTiming_SortStageAndOverallResults(void);
 // FUNCTION: CMR2 0x004eb160
 void FrontendChampionship_RestoreStageTimes(void)
 {
-    const SaveSlot *slots = (const SaveSlot *)g_saveSlots;
-    const int playerCount = CGameInfo::GetConfiguredPlayerCount();
-    {
-    for (int i = 0; i < playerCount; i++) {
-        RallyTiming_SetStageTimeSeconds(15 - i, slots[i].seconds);
-        RallyTiming_SetOverallTimeRaw(15 - i, slots[i].time);
+    int i;
+    int n;
+    int index;
+
+    for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++) {
+        index = 15 - i;
+        RallyTiming_SetStageTimeSeconds(index, ((const SaveSlot *)g_saveSlots)[i].seconds);
+        RallyTiming_SetOverallTimeRaw(index, ((const SaveSlot *)g_saveSlots)[i].time);
     }
-    }
-    {
-    for (int i = 0; i < 16 - playerCount; i++) {
-        const SaveSlot &slot = slots[playerCount + i];
-        RallyTiming_SetStageTimeSeconds(i, slot.seconds);
-        RallyTiming_SetOverallTimeRaw(i, slot.time);
-    }
+    n = 16 - (BYTE)CGameInfo::GetConfiguredPlayerCount();
+    for (i = 0; i < n; i++) {
+        index = (BYTE)CGameInfo::GetConfiguredPlayerCount() + i;
+        RallyTiming_SetStageTimeSeconds(i, ((const SaveSlot *)g_saveSlots)[index].seconds);
+        RallyTiming_SetOverallTimeRaw(i, ((const SaveSlot *)g_saveSlots)[index].time);
     }
     RallyTiming_SortStageAndOverallResults();
 }
