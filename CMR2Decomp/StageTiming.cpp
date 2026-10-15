@@ -1830,7 +1830,9 @@ static void (__cdecl *s_stageQualityInit[2])(void) = { StageQuality_InitCode7, S
 // FUNCTION: CMR2 0x00456ae0
 float StageTiming_GetSelectedStartTableFloat(void)
 {
-    return *(float *)(g_unk0x00542528 + 0x14 + (StageTiming_GetCurrentStartSelection() * 2 - Stage_GetPrimaryStartDriver()) * 12);
+    // Signed: on the S.S. the selection is 0 and the primary start driver 1,
+    // so the record is the first one, not one past 4 GiB on 64-bit.
+    return ((SplitRate *)g_unk0x00542528)[(int)StageTiming_GetCurrentStartSelection() * 2 + 1 - Stage_GetPrimaryStartDriver()].scale;
 }
 
 // FUNCTION: CMR2 0x00456c00
