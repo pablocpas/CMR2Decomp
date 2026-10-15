@@ -106,15 +106,28 @@ BYTE g_dashDialColour[4] = {0xff, 0xff, 0xff, 0xff};
 // Per car: the digital bar instead of the dial.
 // GLOBAL: CMR2 0x00519d44
 int g_dashCarDigital[14] = {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0};
-// Lit width of the bar at each 1000 rpm step (640 and 1024 wide screens).
+// Lit width of the bar at each 1000 rpm step (640 and 1024 wide screens),
+// then the last resolution height. Dash_DrawBar reads up to three steps past
+// the table in use at the rev limiter: the 640 table runs into the 1024 one
+// and that one into g_dashLastResY and the 0xffff after it, as in the original.
+struct DashRevTables {
+    unsigned short ticks640[28];    // 0x519d7c
+    unsigned short ticks1024[28];   // 0x519db4
+    int lastResY;                   // 0x519dec
+    unsigned short field_0x74;      // 0x519df0
+};
 // GLOBAL: CMR2 0x00519d7c
-unsigned short g_dashRevTicks640[28] = {5,  8,  13, 16, 20, 24, 30, 36,  42,  48,  54,  60,  66,  72,
-                               78, 84, 91, 98, 105, 112, 119, 127, 135, 143, 151, 159, 167, 176};
-// GLOBAL: CMR2 0x00519db4
-unsigned short g_dashRevTicks1024[28] = {7,   14,  21,  28,  36,  44,  52,  60,  69,  77,  87,  96,  105, 114,
-                                124, 135, 145, 157, 168, 180, 191, 203, 215, 228, 241, 254, 268, 282};
-// GLOBAL: CMR2 0x00519dec
-int g_dashLastResY = -1;
+DashRevTables g_dashRevTables = {
+    {5,  8,  13, 16, 20, 24, 30, 36,  42,  48,  54,  60,  66,  72,
+     78, 84, 91, 98, 105, 112, 119, 127, 135, 143, 151, 159, 167, 176},
+    {7,   14,  21,  28,  36,  44,  52,  60,  69,  77,  87,  96,  105, 114,
+     124, 135, 145, 157, 168, 180, 191, 203, 215, 228, 241, 254, 268, 282},
+    -1,
+    0xffff
+};
+#define g_dashRevTicks640 (g_dashRevTables.ticks640)
+#define g_dashRevTicks1024 (g_dashRevTables.ticks1024)
+#define g_dashLastResY (g_dashRevTables.lastResY)
 // GLOBAL: CMR2 0x00519df4
 char g_strDashDialTga[] = "\\NEWIMAGE\\INTERIOR\\REV_640.TGA";
 // GLOBAL: CMR2 0x00519e14

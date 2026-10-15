@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "946a4dbb832dad973b520e23352327cf247b0e3e",
+    "commit": "b6da3d9ca4ceadbcc26be75e204c1a89e1f50417",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -103,7 +103,7 @@
       "CMR2Decomp/Glow.h": "3578d2d56f4b05aff49532c1f67c83942688b7190ea44fb6ba38c3f110792e8b",
       "CMR2Decomp/Graphics.cpp": "21b2fb6987f2fc055f98b6b2a6390b14fa8e504b6eebb83ce8d17939fdf738b0",
       "CMR2Decomp/Graphics.h": "2b79ef3a9c150e989a26deeade11b62b7861baa14d83e6a51eace62794219054",
-      "CMR2Decomp/HudDash.cpp": "c9088fd218a28f428b2a5edb0febf67eb1b56d81c6d6cabe98809472f35dfebf",
+      "CMR2Decomp/HudDash.cpp": "7925c1b266fb6193d876b523a939d4c5a4dd7e4346f496d18b65e17fe9e92a59",
       "CMR2Decomp/Input.cpp": "7ac3c10169abe054c371cd4da1e6c1a51f0b4fe33d74027c9db991e0429fe2dd",
       "CMR2Decomp/Input.h": "6c8ce64e581da4f84e04af836ec4276d106ed118b58ddd8521fff3d05eeacb8c",
       "CMR2Decomp/InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
@@ -161,10 +161,10 @@
       "CMR2Decomp/Stage.h": "4a75c6c0ce11b7ac1fa616ed12e7c7931d3e23ab12a678370ac800ef700f04cd",
       "CMR2Decomp/StageBlock.h": "d93b2676f2bece5160e17869fbca83e4e9bfb00d41107006b291a9e3c692f1f1",
       "CMR2Decomp/StageObjectCount.h": "541514d4da5e984bc83597c9b0839bebc67ac87ef78d2fe76fc2f3841c08010e",
-      "CMR2Decomp/StageObjects.cpp": "cd97da03dc4d7a4883d8ad7856a87245674124b073cbb6ac9c55985c94776053",
+      "CMR2Decomp/StageObjects.cpp": "7adfa03e3235e0518e442ee9c5cc114c707354779fd9aa8917e5d513bdfcdd0a",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "badac490a220da4c871e2e9fa21e80035df9f7dacf04454aae4f84b427612986",
-      "CMR2Decomp/StageTiming.cpp": "f0a578f1e9fecf2c5736b8e70b83e9e7c6c063ac406c8597142474e81402eeba",
+      "CMR2Decomp/StageTiming.cpp": "0c48add64e133e0a1f45ad1e8cafa3fcfcc274aee82d40536a11351bcffd2545",
       "CMR2Decomp/StageTiming.h": "18a28d7f38528ca8b2c72e4ff6b685fe6338107b1efe64bb9d0eec13be7c0b41",
       "CMR2Decomp/StageTimingSpread.h": "36af19e0df03fc5af5e038804cf927cd111f2796b1e28383abf73447d5496a09",
       "CMR2Decomp/StageUI.cpp": "a227c51a0f713ed12aa99076c8ba2cdac008697a3839dc28a4b14d6cd0b7a0cf",
@@ -210,8 +210,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "2784f76958f9d03f6187116b660dafb3220e95d56b84ff8789b73580c0800a9a",
-    "pdb_sha256": "45c27d55db592874d63917d2acdf1dffacd70428c24851ed9eb57f365c6216cf"
+    "exe_sha256": "b53c55b2f57d56e662e5fe5176eca2a62cb40c75286d9da20ff4ee7fab87c980",
+    "pdb_sha256": "56e4ac1807cbc183e82cfbcbeb3ec34e08884fabe442dfc7bef75de9a8d04a4c"
   },
   "perfect_match_percent": 56.07,
   "fuzzy_match_percent": 94.43,
@@ -234,7 +234,7 @@
     "0x4a28d0",
     "0x459630"
   ],
-  "data_variables": 3194,
+  "data_variables": 3192,
   "data_issues": 0,
   "byte_auditor_sha256": "1d3eaf2fdf3cf6d919a5362e503d1fb66552c62203e55fc46d95798edce89c49"
 }

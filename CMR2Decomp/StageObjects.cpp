@@ -14257,7 +14257,7 @@ struct Quad2D;
 void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, UINT_PTR pDest);
 int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar);
 void Scene_GetLightColour(DWORD *pColour, int level);
-extern BYTE g_unk0x00543da0Block[0x90];
+extern BYTE g_unk0x00543da0Block[0x98];
 #define g_unk0x00543da0 (*(int *)g_unk0x00543da0Block)
 extern Texture *g_unk0x00543e90;
 extern Texture *g_unk0x00543ea4;

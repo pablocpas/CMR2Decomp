@@ -39,9 +39,10 @@
 #include "CarExhaust.h"
 
 // Three 0x30-byte particle look records (rain, snow, splash): +0 scale,
-// +0x8 extent, +0x20 colour, +0x28/+0x2c texture v range.
+// +0x8 extent, +0x20 colour, +0x28/+0x2c texture v range. The precipitation
+// draw also builds a 0x90-byte quad at +8, so the block runs to 0x543e38.
 // GLOBAL: CMR2 0x00543da0
-BYTE g_unk0x00543da0Block[0x90];
+BYTE g_unk0x00543da0Block[0x98];
 #define g_unk0x00543da0 (*(int *)g_unk0x00543da0Block)
 
 // GLOBAL: CMR2 0x00547930
