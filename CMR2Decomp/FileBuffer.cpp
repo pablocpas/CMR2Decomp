@@ -183,9 +183,9 @@ char g_ppsPath[260];
 extern BYTE g_saveCarRecords[8 * 0xc4];
 extern BYTE g_saveDirty[8];
 extern BYTE g_saveProfiles[4 * 0x650];
-extern BYTE g_saveSlots[16 * 0x30];
+extern SaveSlot g_saveSlots[16];
 
-#define SLOT(i) (((SaveSlot *)g_saveSlots)[i])
+#define SLOT(i) (g_saveSlots[i])
 
 // Builds the path of a player profile save: <hd>\pps\<name><date>.pps.
 // The packed dword after the 4-byte name holds the date fields.
@@ -327,8 +327,8 @@ matched:
 // FUNCTION: CMR2 0x004ebe80
 void Profile_ResetRecordCategory(int index)
 {
-    unsigned int value = *(unsigned int *)(g_saveSlots + index * 0x30);
-    unsigned int *pRecord = (unsigned int *)(g_saveSlots + index * 0x30);
+    unsigned int value = *(unsigned int *)&g_saveSlots[index];
+    unsigned int *pRecord = (unsigned int *)&g_saveSlots[index];
     if ((value & 0x3c0000) != 0x3c0000)
         *pRecord = value & 0xffffdfff | 0x3c0000;
 }
@@ -369,11 +369,11 @@ void Profile_AssignAvailableCategory(int index, int profile)
     int c;
     int i;
     BYTE *p;
-    BYTE *pRec;
+    SaveSlot *pRec;
     char allSame;
 
     RallyData_ValidateIndex(index);
-    pRecord = (unsigned int *)(g_saveSlots + index * 0x30);
+    pRecord = (unsigned int *)&g_saveSlots[index];
     if ((*pRecord & 0x3c0000) != 0x3c0000)
         return;
     if (profile != -1) {
@@ -388,7 +388,7 @@ void Profile_AssignAvailableCategory(int index, int profile)
     }
     if (p < g_saveProfiles + 0x1954 && c != -1) {
         for (i = 0; i < index; i++) {
-            if ((*(unsigned int *)(g_saveSlots + i * 0x30) >> 0x12 & 0xf) == (unsigned int)c)
+            if ((g_saveSlots[i].category) == (unsigned int)c)
                 c = -1;
         }
         if (c != -1) {
@@ -399,11 +399,11 @@ void Profile_AssignAvailableCategory(int index, int profile)
     count = 0;
     for (c = 0; c < 4; c++) {
         free[count] = -1;
-        for (pRec = g_saveSlots; pRec < g_saveSlots + 0x300; pRec += 0x30) {
-            if ((*(unsigned int *)pRec >> 0x12 & 0xf) == (unsigned int)c)
+        for (pRec = g_saveSlots; pRec < g_saveSlots + 16; pRec++) {
+            if (pRec->category == (unsigned int)c)
                 break;
         }
-        if (pRec >= g_saveSlots + 0x300) {
+        if (pRec >= g_saveSlots + 16) {
             free[count] = c;
             count++;
         }
@@ -443,7 +443,7 @@ void Profile_ResetCategoryData(int index)
     unsigned int category;
 
     RallyData_ValidateIndex(index);
-    category = *(unsigned int *)(g_saveSlots + index * 0x30) >> 0x12 & 0xf;
+    category = g_saveSlots[index].category;
     memset(g_saveProfiles + category * 0x650, 0, 0x650);
     *(int *)(g_saveProfiles + 0x58 + category * 0x650) = 4;
     *(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) =
@@ -452,7 +452,7 @@ void Profile_ResetCategoryData(int index)
     *(int *)(g_saveProfiles + 0x4c + category * 0x650) = 0xf11;
     g_saveProfiles[0x588 + category * 0x650] = (g_saveProfiles[0x588 + category * 0x650] & 0xfc) | 0x3c;
     RallyData_SetPlayerDefaultCarSetup(index);
-    g_saveDirty[(*(unsigned int *)(g_saveSlots + index * 0x30) >> 0x12 & 0xf)] = 0;
+    g_saveDirty[(g_saveSlots[index].category)] = 0;
 }
 
 // 12-byte block read from the file buffer (at offset 0x10).

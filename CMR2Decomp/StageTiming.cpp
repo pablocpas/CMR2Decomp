@@ -1974,17 +1974,7 @@ BOOL Game_ReleaseSceneResourceBlocks(void);
 // FUNCTION: CMR2 0x00475f80
 void StageObject_InitCarSceneTables(void)
 {
-    BYTE *pTiming;
-    int *pState;
-    Texture **pTexture;
-    SceneNode **pPosition;
-    unsigned int *p;
-
-#define DRIVER_STATE (*(CarDriverPoseState *)(pTiming - (offsetof(CarDriverPoseState, rotation) + offsetof(FixAngles, y))))
-#define WIPER_STATE (*(CarWiperState *)((BYTE *)pState - offsetof(CarWiperState, sweepingForward)))
-#define DASH_TEXTURES (*(CarInteriorDashTextures *)((BYTE *)pTexture - offsetof(CarInteriorDashTextures, digit)))
-#define INTERIOR_NODES (*(CarInteriorNodes *)((BYTE *)pPosition - offsetof(CarInteriorNodes, steeringWheelNode)))
-#define INTERIOR_ARCHIVE (*(GenericFile *)((BYTE *)p - offsetof(GenericFile, fileSize)))
+    int i;
 
     g_carInteriorLoaded[0] = 0;
     memset(g_carDefaultBodyNodes, 0, sizeof(g_carDefaultBodyNodes));
@@ -2001,45 +1991,30 @@ void StageObject_InitCarSceneTables(void)
     g_carInteriorModelBuffers[1] = NULL;
     *(short *)g_carSteeringBlendLastGears = 0;
     *(short *)g_carSteeringBlendFrames = 0x303;
-    pTiming = (BYTE *)&g_carDriverPoseStates[0].rotation.y;
-    pState = &g_carWiperStates[0].sweepingForward;
-    pTexture = &g_carInteriorDashTextures[0].digit;
-    pPosition = &g_carInteriorNodeRows[0].steeringWheelNode;
-    do {
-        DRIVER_STATE.rotation.x = 0;
-        INTERIOR_NODES.driverPoseNode = 0;
-        DRIVER_STATE.rotation.y = 0;
-        INTERIOR_NODES.steeringWheelNode = 0;
-        WIPER_STATE.angle = 0;
-        DRIVER_STATE.rotation.z = 0;
-        INTERIOR_NODES.wiperNodes[0] = 0;
-        WIPER_STATE.sweepingForward = 1;
-        DRIVER_STATE.mountOffset.x = 0;
-        INTERIOR_NODES.wiperNodes[1] = 0;
-        DASH_TEXTURES.revCounter = 0;
-        WIPER_STATE.step = 0;
-        DRIVER_STATE.mountOffset.y = 0x3333;
-        DASH_TEXTURES.digit = 0;
-        WIPER_STATE.mode = 0;
-        DRIVER_STATE.mountOffset.z = 0;
-        pPosition += sizeof(CarInteriorNodes) / sizeof(*pPosition);
-        pTexture += sizeof(CarInteriorDashTextures) / sizeof(*pTexture);
-        pState += sizeof(CarWiperState) / sizeof(*pState);
-        pTiming += sizeof(CarDriverPoseState);
-    } while ((INT_PTR)pPosition < (INT_PTR)&g_carInteriorNodeRows[2].steeringWheelNode);
-    p = &g_carInteriorArchives[0].fileSize;
-    do {
-        INTERIOR_ARCHIVE.buffer = NULL;
-        INTERIOR_ARCHIVE.fileSize = 0;
-        INTERIOR_ARCHIVE.didFileLoad = FALSE;
-        p += sizeof(GenericFile) / sizeof(*p);
-    } while ((INT_PTR)p < (INT_PTR)&g_carInteriorArchives[16].fileSize);
+    for (i = 0; i < 2; i++) {
+        g_carDriverPoseStates[i].rotation.x = 0;
+        g_carInteriorNodeRows[i].driverPoseNode = 0;
+        g_carDriverPoseStates[i].rotation.y = 0;
+        g_carInteriorNodeRows[i].steeringWheelNode = 0;
+        g_carWiperStates[i].angle = 0;
+        g_carDriverPoseStates[i].rotation.z = 0;
+        g_carInteriorNodeRows[i].wiperNodes[0] = 0;
+        g_carWiperStates[i].sweepingForward = 1;
+        g_carDriverPoseStates[i].mountOffset.x = 0;
+        g_carInteriorNodeRows[i].wiperNodes[1] = 0;
+        g_carInteriorDashTextures[i].revCounter = 0;
+        g_carWiperStates[i].step = 0;
+        g_carDriverPoseStates[i].mountOffset.y = 0x3333;
+        g_carInteriorDashTextures[i].digit = 0;
+        g_carWiperStates[i].mode = 0;
+        g_carDriverPoseStates[i].mountOffset.z = 0;
+    }
+    for (i = 0; i < 16; i++) {
+        g_carInteriorArchives[i].buffer = NULL;
+        g_carInteriorArchives[i].fileSize = 0;
+        g_carInteriorArchives[i].didFileLoad = FALSE;
+    }
     CGame::RegisterCallback(Game_ReleaseSceneResourceBlocks, NULL);
-#undef DRIVER_STATE
-#undef WIPER_STATE
-#undef DASH_TEXTURES
-#undef INTERIOR_NODES
-#undef INTERIOR_ARCHIVE
 }
 
 

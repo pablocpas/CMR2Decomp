@@ -2,7 +2,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4a5e40	Sprite_FillRect	Sprite.cpp	404	0.24193548387096775	0.256
 0x456250	StageTiming_RebuildSplitPositions	StageTiming.cpp	222	0.25316455696202533	0.267515923566879
 0x460da0	StageObject_SetLighting	StageObjects.cpp	2322	0.258252427184466	0.27414903403863844
-0x475f80	StageObject_InitCarSceneTables	StageTiming.cpp	277	0.3006535947712418	0.3815789473684211
+0x475f80	StageObject_InitCarSceneTables	StageTiming.cpp	277	0.2585034013605442	0.348993288590604
 0x4fb400	FrontendProfile_ApplyDriverProfileBlock	FrontendScreens.cpp	1232	0.30254777070063693	0.28451882845188287
 0x469100	CarDamage_AverageVertexDisplacement	StageObjects.cpp	417	0.3194444444444444	0.31833910034602075
 0x47ca30	StageObject_ProjectRotationTableRows	StageObjects.cpp	387	0.3277310924369748	0.3543307086614173

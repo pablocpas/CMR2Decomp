@@ -27616,9 +27616,9 @@
   },
   "0x475f80": {
     "n": "StageObject_InitCarSceneTables",
-    "s": 0.3815789473684211,
+    "s": 0.348993288590604,
     "x": false,
-    "fz": 0.7236842105263158,
+    "fz": 0.8322147651006712,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageObject_InitCarSceneTables"

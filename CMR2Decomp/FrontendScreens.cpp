@@ -5827,7 +5827,7 @@ void FrontendMenu_DrawProfileBestStageTimes(Menu *pMenu)
 extern BYTE g_saveCarRecords[8 * 0xc4];
 extern BYTE g_saveDirty[8];
 extern BYTE g_saveProfiles[4 * 0x650];
-extern BYTE g_saveSlots[16 * 0x30];
+extern SaveSlot g_saveSlots[16];
 int GameInfo_GetField98(void);
 void RallyData_SetPlayerDefaultCarSetup(int player);
 
@@ -6123,7 +6123,7 @@ void FrontendChampionship_SetDriverEntryFlag(BYTE index, BYTE flag)
         *pEntry = ((*pEntry ^ flag) & 1) ^ *pEntry | 2;
         return;
     }
-    category = (*(unsigned int *)(g_saveSlots + index * 0x30) >> 0x12) & 0xf;
+    category = g_saveSlots[index].category;
     if (category != 0xf) {
         *(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) =
             (*(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) & 0xffffffdf) | (flag & 1) << 5;
@@ -6146,14 +6146,14 @@ void FrontendChampionship_RestoreStageTimes(void)
 
     for (i = 0; i < (BYTE)CGameInfo::GetConfiguredPlayerCount(); i++) {
         index = 15 - i;
-        RallyTiming_SetStageTimeSeconds(index, ((const SaveSlot *)g_saveSlots)[i].seconds);
-        RallyTiming_SetOverallTimeRaw(index, ((const SaveSlot *)g_saveSlots)[i].time);
+        RallyTiming_SetStageTimeSeconds(index, g_saveSlots[i].seconds);
+        RallyTiming_SetOverallTimeRaw(index, g_saveSlots[i].time);
     }
     n = 16 - (BYTE)CGameInfo::GetConfiguredPlayerCount();
     for (i = 0; i < n; i++) {
         index = (BYTE)CGameInfo::GetConfiguredPlayerCount() + i;
-        RallyTiming_SetStageTimeSeconds(i, ((const SaveSlot *)g_saveSlots)[index].seconds);
-        RallyTiming_SetOverallTimeRaw(i, ((const SaveSlot *)g_saveSlots)[index].time);
+        RallyTiming_SetStageTimeSeconds(i, g_saveSlots[index].seconds);
+        RallyTiming_SetOverallTimeRaw(i, g_saveSlots[index].time);
     }
     RallyTiming_SortStageAndOverallResults();
 }
@@ -6168,7 +6168,7 @@ bool FrontendProfile_DoesDriverMatchEntry(int param_1, BYTE *param_2)
     char *pName;
 
     RallyData_ValidateIndex(param_1);
-    category = (*(unsigned int *)(g_saveSlots + param_1 * 0x30) >> 0x12) & 0xf;
+    category = g_saveSlots[param_1].category;
     pName = (char *)(g_saveProfiles + category * 0x650);
     CGenericFileLoader::StrLowerPolish((char *)param_2);
     if (strcmp((char *)param_2, pName + 0x1c) == 0)
@@ -6188,8 +6188,8 @@ bool FrontendProfile_IsAlreadyInChampionship(int index)
     unsigned int diff;
 
     pProfile = g_unk0x00531764 + index * 12;
-    for (pRecord = g_saveSlots; (INT_PTR)pRecord < (INT_PTR)(g_saveSlots + 0x300); pRecord += 0x30) {
-        category = (*(unsigned int *)pRecord >> 0x12) & 0xf;
+    for (pRecord = (BYTE *)g_saveSlots; (INT_PTR)pRecord < (INT_PTR)(g_saveSlots + 16); pRecord += sizeof(SaveSlot)) {
+        category = ((SaveSlot *)pRecord)->category;
         if (category == 0xf)
             continue;
         pCategory = g_saveProfiles + 0x10 + category * 0x650;
@@ -6211,7 +6211,7 @@ void FrontendProfile_SetCategoryColour(int param_1, unsigned int param_2, unsign
     unsigned int colour;
 
     RallyData_ValidateIndex(param_1);
-    category = (*(unsigned int *)(g_saveSlots + param_1 * 0x30) >> 0x12) & 0xf;
+    category = g_saveSlots[param_1].category;
     colour = ((((param_2 & 0x1f) << 8) | (param_3 & 0xf)) << 8) |
              (*(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) & 0xffe0f0ff);
     *(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) = ((colour ^ param_4) & 0xff) ^ colour;
