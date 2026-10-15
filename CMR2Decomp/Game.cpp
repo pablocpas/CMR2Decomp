@@ -204,16 +204,16 @@ BOOL CGame::UpdateFrontendCallbackMachine(void)
 
 // Splash screen scene, created while the frontend resources load.
 // GLOBAL: CMR2 0x00817fc4
-SceneNode *g_unk0x00817fc4;
+SceneNode *g_splashCamera;
 // GLOBAL: CMR2 0x00817fc8
-SceneNode *g_unk0x00817fc8;
+SceneNode *g_splashSceneRoot;
 
 // Destroys the splash screen scene (registered as a callback by Game_CreateSplashScene).
 // FUNCTION: CMR2 0x004d0820
 BYTE Game_DestroySplashScene(void)
 {
-    if (g_unk0x00817fc8 != NULL)
-        SceneNode_Destroy(g_unk0x00817fc8);
+    if (g_splashSceneRoot != NULL)
+        SceneNode_Destroy(g_splashSceneRoot);
 
     return TRUE;
 }
@@ -234,10 +234,10 @@ void Game_CreateSplashScene(void)
     angles.z = 0;
     angles.pad = 0;
 
-    g_unk0x00817fc8 = SceneNode_CreateRoot();
-    g_unk0x00817fc4 = SceneType2_Create(&translation, &angles, NULL, g_unk0x00817fc8);
+    g_splashSceneRoot = SceneNode_CreateRoot();
+    g_splashCamera = SceneType2_Create(&translation, &angles, NULL, g_splashSceneRoot);
 
-    for (pNode = g_unk0x00817fc8; pNode != NULL; pNode = pNode->pParent)
+    for (pNode = g_splashSceneRoot; pNode != NULL; pNode = pNode->pParent)
         pNode->dirty = 1;
 
     CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
@@ -246,13 +246,13 @@ void Game_CreateSplashScene(void)
 
 // Set once the boot sequence has finished loading; the render states clear it.
 // GLOBAL: CMR2 0x00817fcc
-BYTE g_unk0x00817fcc;
+BYTE g_bootLoadingDone;
 // Format of the debug FPS counter ("FPS: %.2f").
 // GLOBAL: CMR2 0x00516e14
 char g_strFpsFormat0x00516e14[10] = "FPS: %.2f";
 // Colour table of the debug FPS text; only the entry 0 is read.
 // GLOBAL: CMR2 0x00523c64
-int g_unk0x00523c64[5] = { -1, 120, 120, 120, 120 };
+int g_fpsTextColours[5] = { -1, 120, 120, 120, 120 };
 
 void FrontendMenu_DrawActiveMenu(void);
 float Graphics_GetFrameScale(void);
@@ -281,19 +281,19 @@ void Game_DrawBootCameraAndFPS(CallbackStateMachine *p1, BYTE p2)
     rect[2] = (short)g_pGraphics->resX;
     rect[3] = (short)g_pGraphics->resY;
 
-    SceneNode_SetPosition(g_unk0x00817fc4, &translation);
-    SceneNode_SetRotation(g_unk0x00817fc4, &angles);
+    SceneNode_SetPosition(g_splashCamera, &translation);
+    SceneNode_SetRotation(g_splashCamera, &angles);
     CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
     CGraphics::ClearTarget();
     CGraphics::ClearZBuffer();
     FrontendMenu_DrawActiveMenu();
-    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, rect, 0);
+    Game_PrepareScene(g_splashSceneRoot, g_splashCamera, rect, 0);
     if ((g_pGraphics->field913_0x3bc & 4) != 0) {
         sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
-        Font_DrawText(0, CFrontend::m_stringDest, 0, 0, g_unk0x00523c64, 9);
+        Font_DrawText(0, CFrontend::m_stringDest, 0, 0, g_fpsTextColours, 9);
     }
-    Game_DrawSceneViewport(g_unk0x00817fc8, g_unk0x00817fc4, rect, 0, 1);
-    if (g_unk0x00817fcc == 0)
+    Game_DrawSceneViewport(g_splashSceneRoot, g_splashCamera, rect, 0, 1);
+    if (g_bootLoadingDone == 0)
         Graphics_PresentFrameAndResetCounters();
 }
 
@@ -376,13 +376,13 @@ void Game_DrawLogoAndLoadingSprites(CallbackStateMachine *p1, BYTE p2)
         }
     }
 
-    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, &screen, 0);
+    Game_PrepareScene(g_splashSceneRoot, g_splashCamera, &screen, 0);
     if (g_pGraphics->field913_0x3bc & 4) {
         sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
         Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
     }
-    Game_DrawSceneViewport(g_unk0x00817fc8, g_unk0x00817fc4, &screen, 0, 1);
-    if (g_unk0x00817fcc == 0)
+    Game_DrawSceneViewport(g_splashSceneRoot, g_splashCamera, &screen, 0, 1);
+    if (g_bootLoadingDone == 0)
         Graphics_PresentFrameAndResetCounters();
 }
 
@@ -413,8 +413,8 @@ void Game_DrawCountryLoadingScreen(CallbackStateMachine *p1, BYTE p2)
         rect[1] = 0;
         rect[2] = (short)g_pGraphics->resX;
         rect[3] = (short)g_pGraphics->resY;
-        SceneNode_SetPosition(g_unk0x00817fc4, &translation);
-        SceneNode_SetRotation(g_unk0x00817fc4, &angles);
+        SceneNode_SetPosition(g_splashCamera, &translation);
+        SceneNode_SetRotation(g_splashCamera, &angles);
         CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
         CGraphics::SetClearColour(1, 0, 0, 0);
         CGraphics::ClearTarget();
@@ -426,9 +426,9 @@ void Game_DrawCountryLoadingScreen(CallbackStateMachine *p1, BYTE p2)
                 CFrontend::GetTextString((RallyDataCountryIndex() & 0xff) + 0x27));
         CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
         Game_DrawFadingBootLabel(y, (int)g_pGraphics->resY / 2, CFrontend::m_stringDest, 1);
-        Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, rect, 0);
-        Game_DrawSceneViewport(g_unk0x00817fc8, g_unk0x00817fc4, rect, 0, 1);
-        if (g_unk0x00817fcc == 0)
+        Game_PrepareScene(g_splashSceneRoot, g_splashCamera, rect, 0);
+        Game_DrawSceneViewport(g_splashSceneRoot, g_splashCamera, rect, 0, 1);
+        if (g_bootLoadingDone == 0)
             Graphics_PresentFrameAndResetCounters();
     }
 }
@@ -575,16 +575,16 @@ void Game_DrawBootTextureScreen(CallbackStateMachine *p1, BYTE p2)
         Sprite_Queue(&src, &dst, CFrontend::m_unk0x00817fd0, 1, 0, centre, NULL, colour, 8);
     }
 
-    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, &screenRect, 0);
+    Game_PrepareScene(g_splashSceneRoot, g_splashCamera, &screenRect, 0);
 
     if ((g_pGraphics->field913_0x3bc & 4) != 0) {
         sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
         Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
     }
 
-    Game_DrawSceneViewport(g_unk0x00817fc8, g_unk0x00817fc4, &screenRect, 0, 1);
+    Game_DrawSceneViewport(g_splashSceneRoot, g_splashCamera, &screenRect, 0, 1);
 
-    if (g_unk0x00817fcc == 0)
+    if (g_bootLoadingDone == 0)
         Graphics_PresentFrameAndResetCounters();
 }
 
@@ -635,7 +635,7 @@ void Game_RunFrontendBootFrame(CallbackStateMachine *p1, BYTE p2)
 
 // Fade step of the boot/HUD colour: 1/1500 per elapsed millisecond.
 // GLOBAL: CMR2 0x00513ec8
-float g_unk0x00513ec8 = 1.0f / 1500.0f;
+float g_bootFadeStep = 1.0f / 1500.0f;
 extern const float g_netByteScale;
 int Sprite_FillRect(BYTE *unused, short *pRect, BYTE *pColour, int layer);
 
@@ -663,7 +663,7 @@ int Game_DrawFadingBootLabel(int x, int y, char *pText, char flag)
             alpha = 0;
         else
             alpha = 0xff -
-                    (int)FTOI(__int64, (float)(elapsed - 0x9c4) * g_netByteScale * g_unk0x00513ec8);
+                    (int)FTOI(__int64, (float)(elapsed - 0x9c4) * g_netByteScale * g_bootFadeStep);
     } else {
         alpha = 0xff;
     }
@@ -894,7 +894,7 @@ void Game_DrawMovieFrameAndCredits(CallbackStateMachine *p1, BYTE p2)
         centre[1] = h / 2;
         Sprite_Queue(&src, &dst, CFrontend::m_unk0x00817ebc, 1, 0, centre, NULL, white, 8);
     }
-    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, &viewport, 0);
+    Game_PrepareScene(g_splashSceneRoot, g_splashCamera, &viewport, 0);
     if ((g_pGraphics->field913_0x3bc & 4) != 0) {
         sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
         Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)white, 9);
@@ -905,8 +905,8 @@ void Game_DrawMovieFrameAndCredits(CallbackStateMachine *p1, BYTE p2)
         sprintf(CFrontend::m_stringDest, g_strBinkCredit0x00523cd8);
     Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x140) / 0x280,
                   (int)(g_pGraphics->resY * 0x15e) / 0x1e0, (int *)black, 10);
-    Game_DrawSceneViewport(g_unk0x00817fc8, g_unk0x00817fc4, &viewport, 0, 1);
-    if (g_unk0x00817fcc == 0)
+    Game_DrawSceneViewport(g_splashSceneRoot, g_splashCamera, &viewport, 0, 1);
+    if (g_bootLoadingDone == 0)
         Graphics_PresentFrameAndResetCounters();
 }
 
@@ -1516,7 +1516,7 @@ done:
 // FUNCTION: CMR2 0x00501680
 void CGame::NoOpSecondaryStateCallback(struct CallbackStateMachine *, BYTE) { return; }
 
-extern SceneNode *g_unk0x0082b1b0;
+extern SceneNode *g_optionMenuCamera;
 
 void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, SceneNode *pView);
 
@@ -1525,7 +1525,7 @@ void FixMatrix_ProjectWorldPointToView(int *pOut, FixVector *pPoint, SceneNode *
 // FUNCTION: CMR2 0x00501690
 void Game_ProjectMenuBackgroundPoint(int *param1, FixVector *param2)
 {
-    FixMatrix_ProjectWorldPointToView(param1, param2, g_unk0x0082b1b0);
+    FixMatrix_ProjectWorldPointToView(param1, param2, g_optionMenuCamera);
     param1[0] = FixMul(param1[0], FixDiv(0x20000, 0x30000));
     param1[1] = FixMul(param1[1], FixDiv(0x20000, 0x30000));
 }
@@ -2240,7 +2240,7 @@ CMR2_LAYOUT_CHECK(StageObjectDraw_size, sizeof(StageObjectDraw) == 0xa0);
 
 // Non-zero while the draw lists are depth sorted before being drawn
 // (defined in Graphics.cpp).
-extern int g_unk0x005207b4;
+extern int g_depthSortDrawLists;
 
 void Frontend_SetObjectField118(struct Texture *pTexture, int value);
 
@@ -2254,7 +2254,7 @@ void Game_DrawDeferredObjects(void)
     unsigned int i;
 
     if ((unsigned int)CGame::m_deferredDrawCount >= 1) {
-        if (g_unk0x005207b4 != 0)
+        if (g_depthSortDrawLists != 0)
             qsort(CGame::m_deferredDrawObjects, CGame::m_deferredDrawCount, sizeof(CGame::m_deferredDrawObjects[0]), Game_CompareDeferredDrawDepth);
         for (i = 0; i < (unsigned int)CGame::m_deferredDrawCount; i++) {
             Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[
@@ -2359,7 +2359,7 @@ void Game_DrawStaticStageObjects(void)
 // Identity world transform: the deferred draw paths set it before drawing
 // geometry whose vertices are already in world space.
 // GLOBAL: CMR2 0x005207b8
-D3DMATRIX g_unk0x005207b8 = {
+D3DMATRIX g_identityWorldMatrix = {
     1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
 };
@@ -2378,7 +2378,7 @@ void Game_DrawSortedNodes(int bit)
     unsigned int i;
 
     if ((unsigned int)CGame::m_transparentDrawCount >= 1) {
-        if (g_unk0x005207b4 != 0)
+        if (g_depthSortDrawLists != 0)
             qsort(CGame::m_transparentDrawNodes, CGame::m_transparentDrawCount, sizeof(CGame::m_transparentDrawNodes[0]), Game_CompareTransparentDrawEntries);
         for (i = 0; i < (unsigned int)CGame::m_transparentDrawCount; i++)
             Game_DrawViewMaskNode((SceneNode *)CGame::m_transparentDrawNodes[i], bit);
@@ -2465,7 +2465,7 @@ void Game_DrawCulledSectorMeshes(void)
     }
     Pulse_Update(CMain::GetFrameDelta() - g_sectorFramePrevious);
     g_sectorFramePrevious = CMain::GetFrameDelta();
-    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_identityWorldMatrix);
     for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
         pMesh = (Mesh *)g_sectors[g_visibleSectorIndices[i]]->pMesh;
         if (pMesh != NULL) {
@@ -2495,7 +2495,7 @@ void Game_DrawCulledSectorShadows(void)
     }
     Pulse_Update(CMain::GetFrameDelta() - g_shadowFramePrevious);
     g_shadowFramePrevious = CMain::GetFrameDelta();
-    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_identityWorldMatrix);
     if (g_sceneShadowMeshes != NULL) {
         CGraphics::SetZWriteEnable(0);
         for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
@@ -2568,7 +2568,7 @@ void Game_DrawUnsortedNodes(int bit);
 void Game_DrawSortedNodes(int bit);
 void Game_QueueVisibleSectorNodes(int param1);
 void Game_DrawDeferredObjects(void);
-extern FixMatrix g_unk0x0059bd28;
+extern FixMatrix g_cubeFaceViewMatrix;
 D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
 
 // match 94%: the residual diff is register allocation (the relight loop walks
@@ -2609,7 +2609,7 @@ int Game_DrawSceneViewport(SceneNode *pRoot, SceneNode *pCamera, void *pRect, in
     if (flag != 0) {
         if (CGraphics::m_unk0x0072d56c != 0) {
             CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
-                                                             &g_unk0x005207b8);
+                                                             &g_identityWorldMatrix);
             Sector_CullGridAroundViewNode(pCamera, pRect);
             for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++)
                 Scene_RelightSector(((unsigned short *)g_visibleSectorIndices)[i]);
@@ -2621,23 +2621,23 @@ int Game_DrawSceneViewport(SceneNode *pRoot, SceneNode *pCamera, void *pRect, in
         forward.y = 0;
         forward.z = g_unk0x0059be6c->world.forward.z;
         FIX_NORMALIZE_INTO(forward, forward);
-        g_unk0x0059bd28.right.x = forward.z;
-        g_unk0x0059bd28.right.y = 0;
-        g_unk0x0059bd28.right.z = -forward.x;
-        g_unk0x0059bd28.rw = 0;
-        g_unk0x0059bd28.up.x = 0;
-        g_unk0x0059bd28.up.y = 0x10000;
-        g_unk0x0059bd28.up.z = 0;
-        g_unk0x0059bd28.uw = 0;
-        g_unk0x0059bd28.forward.x = forward.x;
-        g_unk0x0059bd28.forward.y = 0;
-        g_unk0x0059bd28.forward.z = forward.z;
-        g_unk0x0059bd28.fw = 0;
-        g_unk0x0059bd28.position.x = 0;
-        g_unk0x0059bd28.position.y = 0;
-        g_unk0x0059bd28.position.z = 0;
-        g_unk0x0059bd28.pw = 0x10000;
-        FixMatrix_ToFloat(&g_unk0x00597cc0, &g_unk0x0059bd28);
+        g_cubeFaceViewMatrix.right.x = forward.z;
+        g_cubeFaceViewMatrix.right.y = 0;
+        g_cubeFaceViewMatrix.right.z = -forward.x;
+        g_cubeFaceViewMatrix.rw = 0;
+        g_cubeFaceViewMatrix.up.x = 0;
+        g_cubeFaceViewMatrix.up.y = 0x10000;
+        g_cubeFaceViewMatrix.up.z = 0;
+        g_cubeFaceViewMatrix.uw = 0;
+        g_cubeFaceViewMatrix.forward.x = forward.x;
+        g_cubeFaceViewMatrix.forward.y = 0;
+        g_cubeFaceViewMatrix.forward.z = forward.z;
+        g_cubeFaceViewMatrix.fw = 0;
+        g_cubeFaceViewMatrix.position.x = 0;
+        g_cubeFaceViewMatrix.position.y = 0;
+        g_cubeFaceViewMatrix.position.z = 0;
+        g_cubeFaceViewMatrix.pw = 0x10000;
+        FixMatrix_ToFloat(&g_unk0x00597cc0, &g_cubeFaceViewMatrix);
         if ((unsigned int)g_sectorCount > 0) {
             CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c,
                                                                Graphics_GetFlareStateValue());
@@ -2662,7 +2662,7 @@ int Game_DrawSceneViewport(SceneNode *pRoot, SceneNode *pCamera, void *pRect, in
                 Game_DrawStaticStageObjects();
                 Game_DrawDeferredObjects();
                 CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
-                                                                 &g_unk0x005207b8);
+                                                                 &g_identityWorldMatrix);
                 Graphics_SwitchAlphaBlendAndTest(1);
                 CGraphics::SetCachedSourceDestinationBlend(5, 6);
                 CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c, 0);
@@ -2682,7 +2682,7 @@ int Game_DrawSceneViewport(SceneNode *pRoot, SceneNode *pCamera, void *pRect, in
         } else {
             Game_DrawWorldMeshNodesAnd2DLayer();
         }
-        CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+        CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_identityWorldMatrix);
         Graphics_SwitchAlphaBlendAndTest(1);
         CGraphics::SetCachedSourceDestinationBlend(5, 6);
         CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c, 0);

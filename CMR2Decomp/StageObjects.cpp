@@ -771,7 +771,7 @@ int g_unk0x0058dda8;
 int g_unk0x0058e230[15];
 // Random seed of the stage (kept for replays).
 // GLOBAL: CMR2 0x0058e26c
-int g_unk0x0058e26c;
+int g_stageRandomSeed;
 // GLOBAL: CMR2 0x0058e270
 char g_unk0x0058e270[16];
 // GLOBAL: CMR2 0x0058e0b0
@@ -2674,7 +2674,7 @@ int g_unk0x005913d8;
 // Eight per-car contact counts. The original clears them with two dword
 // stores at 0x5913dc and 0x5913e0; the latter is the array's second half.
 // GLOBAL: CMR2 0x005913dc
-BYTE g_unk0x005913dc[8];
+BYTE g_carContactCounts[8];
 // GLOBAL: CMR2 0x005913f8
 BYTE g_unk0x005913f8[8][8];
 // GLOBAL: CMR2 0x0059146c
@@ -3178,11 +3178,11 @@ void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, i
     if (other != -1)
         g_unk0x0059146c[other] = 1;
     i = 0;
-    if (g_unk0x005913dc[index] > 0) {
+    if (g_carContactCounts[index] > 0) {
         do {
             StageObject_MoveRecursiveBoxCorners(g_unk0x005913f8[index][i]);
             i++;
-        } while (i < g_unk0x005913dc[index]);
+        } while (i < g_carContactCounts[index]);
     }
 }
 
@@ -3226,11 +3226,11 @@ void StageObject_MoveRecursiveBoxCorners(BYTE index)
         }
     }
     i = 0;
-    if (g_unk0x005913dc[index] != 0) {
+    if (g_carContactCounts[index] != 0) {
         do {
             StageObject_MoveRecursiveBoxCorners(g_unk0x005913f8[index][i]);
             i++;
-        } while (i < g_unk0x005913dc[index]);
+        } while (i < g_carContactCounts[index]);
     }
 }
 
@@ -7376,7 +7376,7 @@ int g_unk0x00589334;
 // Stamp patterns of the event sprites: a 4x4 grid per rotation and a 16x16
 // grid per rotation.
 // GLOBAL: CMR2 0x0051c240
-BYTE g_unk0x0051c240[0x40] = {
+BYTE g_eventSpriteStamps[0x40] = {
     0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
     0x00, 0x01, 0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00,
@@ -8074,7 +8074,7 @@ void StageObject_StampPendingEventDraws(int unused)
                     k = 0;
                     do {
                         if (!(CGameInfo::GetPreviewMode() == 0))
-                            c = g_unk0x0051c240[(j + idx * 4) * 4 + k];
+                            c = g_eventSpriteStamps[(j + idx * 4) * 4 + k];
                         else
                             c = g_unk0x0051c280[(idx * 0x10 + j) * 0x10 + k];
                         if (c != 0) {
@@ -8231,10 +8231,10 @@ void StageObject_SeedRaceRandomAndCPURevs(char replay, char restart)
     Car *pCar;
 
     if (replay == 0 || restart != 0)
-        g_unk0x0058e26c = CMain::GetFrameTime();
+        g_stageRandomSeed = CMain::GetFrameTime();
     if (CGameInfo::GetGameInfoSessionFlag())
-        g_unk0x0058e26c = 0;
-    srand(g_unk0x0058e26c);
+        g_stageRandomSeed = 0;
+    srand(g_stageRandomSeed);
     rand();
     for (i = 0; i < (BYTE)Race_GetBaseCarCount(); i++) {
         r = rand();
@@ -13655,7 +13655,7 @@ void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car)
 
 // AI data of the stage: base pointer and the per-car route headers.
 // GLOBAL: CMR2 0x0058e378
-BYTE *g_unk0x0058e378;
+BYTE *g_stageAiData;
 // GLOBAL: CMR2 0x0058e37c
 int *g_unk0x0058e37c[6];
 // GLOBAL: CMR2 0x0051f4c4
@@ -13976,7 +13976,7 @@ BYTE *AI_LoadStageRouteTables(void)
     pEnd = pData + sizes[level];
     if (pData == NULL)
         return pEnd;
-    g_unk0x0058e378 = pData;
+    g_stageAiData = pData;
     p = pData;
     for (i = 0; i < 6; i++) {
         g_unk0x0058e37c[i] = (int *)p;
@@ -14471,9 +14471,9 @@ void Replay_RecordPeriodicCarSamples(void)
 
 extern FixVector g_collisionPush;
 extern FixVector g_collisionContactNormal;
-extern int g_unk0x005915dc;
+extern int g_physicsCollisionFlags;
 extern int g_unk0x00591468;
-extern int g_unk0x005914d8;
+extern int g_wallScrapeCount;
 int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pBoxB, FixVector *pOffset, int scale);
 int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 
@@ -14605,7 +14605,7 @@ int Collision_ResolveCarTurnedObjectContact(Car *pCar, StageObject **pEntry, Col
         }
         g_collisionContactNormal = dir;
         FixMatrix_InverseRotateVector(&pCar->field_0x5dc, &sum, pCar->pWorld);
-        g_unk0x005915dc = 0x8000;
+        g_physicsCollisionFlags = 0x8000;
         g_unk0x00591468 = 0x1570a;
     }
     return hit;
@@ -14664,7 +14664,7 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                     RallyData_CopyRaisedElementVector((int *)&position, &pEntry);
                 if ((pObject->flags & 0x8000) == 0 && (BYTE)RallyDataState() == 2)
                     continue;
-                g_unk0x005914d8 = pEntry->pBounds->pProjection != 0;
+                g_wallScrapeCount = pEntry->pBounds->pProjection != 0;
                 result = Collision_DoSpheresOverlap(pCar->collisionRadius, pEntry->pBounds->radius, (int *)&pCar->position, (int *)&position);
                 if (result == 0)
                     continue;
@@ -14673,13 +14673,13 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                     continue;
                 StageObject_QueueViewLensFlare((int *)pBox, (int *)&pCar->right, (int *)&pCar->position, pCar->corners);
                 result = 0;
-                if (g_unk0x005914d8 != 0) {
+                if (g_wallScrapeCount != 0) {
                     g_sectorObjectCollisionBox.built = 0;
                     StageObject_BuildSpriteExtentOrientation(&g_sectorObjectCollisionBox, pEntry, (int *)&position);
                 } else {
                     StageObject_SetCollisionSphereAndMaterial(&position, pEntry);
                 }
-                if (g_unk0x005914d8 != 0) {
+                if (g_wallScrapeCount != 0) {
                     result = Collision_ResolveCarTurnedObjectContact(pCar, &pEntry->pObject, (CollisionBox *)pBox, &g_sectorObjectCollisionBox);
                 } else {
                     if (pObject->flags & 0x4000) {

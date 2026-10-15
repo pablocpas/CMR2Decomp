@@ -49,11 +49,11 @@ int g_unk0x0053a0cc[8];
 int g_unk0x0053a0ec[8];
 // GLOBAL: CMR2 0x0053a20c
 int g_unk0x0053a20c[8];
-extern CarNetRecord g_unk0x005393d8[8];
+extern CarNetRecord g_carNetRecords[8];
 
 // Font picked for the screen size (0x28 normal, 0x29 small).
 // GLOBAL: CMR2 0x005393d4
-int g_unk0x005393d4;
+int g_netRaceFont;
 
 // Chooses the HUD font from the screen size and the number of players shown.
 // FUNCTION: CMR2 0x00427580
@@ -70,15 +70,15 @@ void NetRace_SelectHUDFont(int width, int height, int players)
         scale = scaleX;
     if (scale > g_netFontMaximumScale)
         scale = g_netFontMaximumScale;
-    g_unk0x005393d4 = 0x28;
+    g_netRaceFont = 0x28;
     if ((g_netOne / scale) * g_netFontInverseScale - g_netFontOffset > g_netZero)
-        g_unk0x005393d4 = 0x29;
+        g_netRaceFont = 0x29;
 }
 
 // FUNCTION: CMR2 0x00427620
 int NetRace_GetPlayerStatisticsValue(int index)
 {
-    return g_unk0x005393d8[index].field_0xe4;
+    return g_carNetRecords[index].field_0xe4;
 }
 
 // FUNCTION: CMR2 0x00427640
@@ -1318,13 +1318,13 @@ void NetRace_ReceiveAndIntegrateListedCars(Car *pCars, short *pIndices, short co
         int idx = pIndices[i];
 
         if (pCars[idx].field_0xc1c != 0)
-            NetRace_IntegrateRemoteCarBody(&g_unk0x005393d8[idx], g_unk0x005393ac[NetPlayers_FindPlayerByField8(idx)]);
+            NetRace_IntegrateRemoteCarBody(&g_carNetRecords[idx], g_unk0x005393ac[NetPlayers_FindPlayerByField8(idx)]);
     }
     for (i = (int)count - 1; i >= 0; i--) {
         int idx = pIndices[i];
 
         if (pCars[idx].field_0xc1c != 0)
-            Car_RestorePhysicsFromRecord(pCars + idx, &g_unk0x005393d8[idx]);
+            Car_RestorePhysicsFromRecord(pCars + idx, &g_carNetRecords[idx]);
     }
 }
 
@@ -1352,7 +1352,7 @@ void NetRace_PollPlayerStatisticsPackets(Car *pCars)
             NetPlayers_ClearNewStatisticsFlag(i);
             pStats = NetPlayers_GetStatisticsRecord(i);
             g_localCarStats = *pStats;
-            pEntry = &g_unk0x005393d8[NetPlayers_GetPlayerField8(i)];
+            pEntry = &g_carNetRecords[NetPlayers_GetPlayerField8(i)];
             pCar = pCars + NetPlayers_GetPlayerField8(i);
             if (NetRace_DecodeReceivedCarState(pEntry, &local) != 0) {
                 value = FixMul(local, pCar->maxSteeringAngleDegrees * 0x1680);

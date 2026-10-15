@@ -29,8 +29,8 @@ union StageSplitRuntime {
 };
 extern StageSplitRuntime g_stageSplitRuntime;
 #define g_stageSplitState (g_stageSplitRuntime.split.state)
-#define g_unk0x00536d14 (g_stageSplitRuntime.colourWords)
-#define g_unk0x00536e90 (g_stageSplitState.referenceTimes)
+#define g_splitTimeColours (g_stageSplitRuntime.colourWords)
+#define g_splitTargetTimes (g_stageSplitState.referenceTimes)
 #define g_stageSplitBlock (g_stageSplitState.recordBlock)
 #define g_stageSplitData ((StageSplitData *)g_stageSplitBlock)
 

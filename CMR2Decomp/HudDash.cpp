@@ -699,7 +699,7 @@ void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef);
 void HudDash_SetCameraOffset(BYTE index, FixVector *pOffset);
 void HudDash_SetGaugeTarget(BYTE index, short value);
 void HudDash_SetPlayerGaugeValue(BYTE index, int value);
-extern BYTE g_unk0x0053cff8[8];
+extern BYTE g_playerCameraMode[8];
 
 
 // GLOBAL: CMR2 0x0053d090
@@ -748,12 +748,12 @@ void HudDash_GetCameraUpVector(FixVector *pOut, BYTE index)
 
 // Camera mode of each player (4 = free camera using g_unk0x0053d000).
 // GLOBAL: CMR2 0x0053cff8
-BYTE g_unk0x0053cff8[8];
+BYTE g_playerCameraMode[8];
 // GLOBAL: CMR2 0x0053d000
 FixVector g_unk0x0053d000[6];
 // Default view offsets of the fixed camera modes.
 // GLOBAL: CMR2 0x00519ea0
-FixVector g_unk0x00519ea0[3] = { { 0, 0x13333, -0x50000 }, { 0, 0x13333, -0x50000 }, { 0, 0x13333, -0x50000 } };
+FixVector g_fixedCameraDefaultOffsets[3] = { { 0, 0x13333, -0x50000 }, { 0, 0x13333, -0x50000 }, { 0, 0x13333, -0x50000 } };
 
 int Race_IsMultiplayerRecordMode10(void);
 int RallyData_IsHeadToHeadRaceMode(void);
@@ -765,11 +765,11 @@ void HudDash_GetCameraViewOffset(FixVector *pOut, BYTE *pSel)
     BYTE mode;
     FixVector *p;
 
-    mode = g_unk0x0053cff8[pSel[0]];
+    mode = g_playerCameraMode[pSel[0]];
     if (mode == 4)
         p = &g_unk0x0053d000[pSel[1]];
     else
-        p = &g_unk0x00519ea0[mode];
+        p = &g_fixedCameraDefaultOffsets[mode];
     *pOut = *p;
     if (Race_IsMultiplayerRecordMode10() == 0 && RallyData_IsHeadToHeadRaceMode() != 0 && CGameInfo::IsSplitBarEnabled()) {
         pOut->y -= 0x3333;
@@ -846,7 +846,7 @@ void Dash_UpdateCameraModeOffset(BYTE *param_1, BYTE *param_2, int param_3)
     BYTE *pSettings = param_1;
 
     index = pSettings[1];
-    g_unk0x0053cff8[pSettings[0]] = (BYTE)param_3;
+    g_playerCameraMode[pSettings[0]] = (BYTE)param_3;
     if (pSettings[2] >= (BYTE)RallyDataState()) {
         RallyData_GetDriverCameraOffsets((int *)&offset, &heading, &param_3, 0);
         HudDash_SetCameraOffset(index, &offset);
@@ -902,7 +902,7 @@ void Dash_BuildInterpolatedCockpitMatrix(BYTE *param_1, FixMatrix *param_2, int 
         FixMatrix_RebuildBasis(&xform);
     }
 
-    if (g_unk0x0053cff8[index] == 3) {
+    if (g_playerCameraMode[index] == 3) {
         FixVector up;
 
         up = xform.up;
@@ -926,7 +926,7 @@ void Dash_BuildInterpolatedCockpitMatrix(BYTE *param_1, FixMatrix *param_2, int 
         int scale;
         int t;
 
-        if (g_unk0x0053cff8[index] == 4)
+        if (g_playerCameraMode[index] == 4)
             scale = g_unk0x0053d098[param_1[1]];
         else
             scale = 0xe0000;
@@ -956,8 +956,8 @@ struct CarStageTiming {
 };
 
 extern char g_unk0x0053ddb0[108];
-extern char g_unk0x0053de1c[108][8];
-extern int g_unk0x0053d1e8[8][12][5];
+extern char g_splitLeaders[108][8];
+extern int g_carSplitTimes[8][12][5];
 extern int g_unk0x0053e190[82];
 extern BYTE g_unk0x0053e18c;
 extern BYTE g_unk0x0053e18d[2];
@@ -1002,7 +1002,7 @@ void StageTiming_ResetRaceDriverTimes(void)
         }
         if (count > 0) {
             for (i = 0; i < count; i++) {
-                BYTE *p = (BYTE *)g_unk0x0053de1c + i;
+                BYTE *p = (BYTE *)g_splitLeaders + i;
 
                 for (j = 0; j < 0xc; j++) {
                     int k;
@@ -1027,7 +1027,7 @@ void StageTiming_ResetRaceDriverTimes(void)
                 car->lastTime = 0;
                 if (RallyData_GetFlag24() != 0) {
                     for (j = 0; j < 0x3c; j++)
-                        ((int *)g_unk0x0053d1e8[i])[j] = 0;
+                        ((int *)g_carSplitTimes[i])[j] = 0;
                 }
                 for (j = 0; j < 9; j++)
                     car->field_0x4[j] = 0;

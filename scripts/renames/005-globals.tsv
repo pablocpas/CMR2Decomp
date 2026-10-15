@@ -1,0 +1,121 @@
+address	old_name	new_name	evidence
+0x00536c20	g_unk0x00536c20	g_splitGapDisplayFrames	Set to 75 when a split is passed, decremented per tick; the HUD gap is drawn while non-zero (RallyData_DrawTargetTimeGap).
+0x00536fe4	g_unk0x00536fe4	g_splitGapTime	Clock minus the split leader time, or the grouped checkpoint value minus now; drawn as the gap.
+0x00536c0c	g_unk0x00536c0c	g_splitGapBlank	When set, RallyData_DrawTargetTimeGap draws the gap as a blank (-1) time.
+0x00536c18	g_unk0x00536c18	g_splitGapAwaitingLeader	Set when a split is passed with no leader time there yet; cleared when the leader time arrives.
+0x00537054	g_unk0x00537054	g_splitGapRecorded	Set to 1 whenever a split gap is recorded (RallyData_UpdatePlayerSplitTimerAndSound).
+0x00536c40	g_unk0x00536c40	g_stageTargetTime	Record time of the stage (option value or saved stage record); targetTime of the split records.
+0x00537068	g_unk0x00537068	g_stageDefaultTargetTime	48000 or 24000 by stage kind; the target time equal to it means no record.
+0x00536bfc	g_unk0x00536bfc	g_splitTargetsLoaded	Set once the reference split times are loaded for the stage.
+0x00536e90	g_unk0x00536e90	g_splitTargetTimes	Reference split times [1..12]; existing define of referenceTimes.
+0x00537050	g_unk0x00537050	g_stageFinishBeepPlayed	Set when the finish sample is played once (RallyData_UpdateCountdownAndFinishSounds).
+0x0082c9ec	g_unk0x0082c9ec	g_optionPreviewExpandedRect	Rectangle the option preview panels expand into (0x1c, 0x72, 0x100, 0xf6 of 640x480).
+0x00536c94	g_unk0x00536c94	g_splitNearbyRankRows	Three split rows around the player rank (RallyData_SelectNearbyRankSplitRows).
+0x00536c90	g_unk0x00536c90	g_splitCount	Split positions of the stage, at most 12 (RallyData_BuildStageRouteDistanceColumn).
+0x00538a84	g_unk0x00538a84	g_routeNodeCount	Route node count: nodeIndex < count - 1 in RallyRoute; 0 when no route.
+0x00537064	g_unk0x00537064	g_lastSplitGroup	Checkpoint group of the last split in time trial and ghost modes.
+0x00536c14	g_unk0x00536c14	g_stageStartRecorded	Set once the stage start split is recorded (RallyData_RecordStageStartAndGhostSplit).
+0x00536d14	g_unk0x00536d14	g_splitTimeColours	Colour word of each split box, per car and split.
+0x00831660	g_unk0x00831660	g_gameInfoDrawRect	Commented as the rectangle the game-info option screens draw into.
+0x005273b8	g_unk0x005273b8	g_gameInfoBackgroundColour	Commented as the background colour of the game-info option screens.
+0x005915dc	g_unk0x005915dc	g_physicsCollisionFlags	Collision flags published for the rest of the physics step.
+0x005914d8	g_unk0x005914d8	g_wallScrapeCount	Bumped by 0x4878a0 while a car is scraping along a wall.
+0x00818cd0	g_unk0x00818cd0	g_genericFileLoaded	CMR2 0x00818cd0: generic file load flag, cleared together with the load counter
+0x00589458	g_unk0x00589458	g_groundProbeOctantVectors	Per-octant reference vectors used to probe the ground.
+0x00817420	g_unk0x00817420	g_playerInputRecords	Per-player input state, at most 4 players; the split-time arrays at 0x817448 start right after the 4th record.
+0x00817448	g_unk0x00817448	g_loadedSplitTimes	Split times mirrored out of the loaded game info record; 10 entries for the rally records, the arcade records only fill the first 6.
+0x00817570	g_unk0x00817570	g_lowestSplitValue	Lowest split value seen so far, reset to a whole stage length.
+0x0082a7dc	g_unk0x0082a7dc	g_controlsRereadDevices	Set when the devices must be re-read (the game lost the focus).
+0x008196e8	g_unk0x008196e8	g_screenPaletteIds	Per-screen colour/palette ids, indexed by the screen number in field +7.
+0x00818d18	g_unk0x00818d18	g_filteredRouteIds	Filtered stage/route ids, one int per entry (up to 0x16).
+0x00818d70	g_unk0x00818d70	g_setupRouteIndex	Index of the route/stage the setup screens currently point at.
+0x00818d74	g_unk0x00818d74	g_setupSelectedRouteIds	Route ids of the four selected stages of the outgoing setup packet.
+0x00819879	g_unk0x00819879	g_newProfileUndoPending	Set when the new-profile entry created a profile that "back" must undo.
+0x00829320	g_unk0x00829320	g_quickRaceShownGameType	Game type the second quick race page was last showing.
+0x00526ea4	g_unk0x00526ea4	g_profileScrambleTables	Three 12-byte keyboard-style tables scrambled by FrontendProfile_ScrambleIdentifier.
+0x005249cc	g_unk0x005249cc	g_paletteLiveryIndex	Palette index (g_unk0x008196e8) -> livery index of m_unk0x00818530.
+0x00524a28	g_unk0x00524a28	g_carPictureRectsLow	Source rects (x, y, w, h) of the car picture per palette: 640x480 build.
+0x00524ad8	g_unk0x00524ad8	g_carPictureRectsHigh	Source rects (x, y, w, h) of the car picture per palette: high resolution.
+0x00817fc8	g_unk0x00817fc8	g_splashSceneRoot	Root node of the splash scene (Game_CreateSplashScene).
+0x00817fc4	g_unk0x00817fc4	g_splashCamera	Splash screen scene, created while the frontend resources load.
+0x00817fcc	g_unk0x00817fcc	g_bootLoadingDone	Set once the boot sequence has finished loading; the render states clear it.
+0x00523c64	g_unk0x00523c64	g_fpsTextColours	Colour table of the debug FPS text; only the entry 0 is read.
+0x00513ec8	g_unk0x00513ec8	g_bootFadeStep	Fade step of the boot/HUD colour: 1/1500 per elapsed millisecond.
+0x005207b8	g_unk0x005207b8	g_identityWorldMatrix	Identity world transform: the deferred draw paths set it before drawing geometry whose vertices are already in world space.
+0x0082ac68	g_unk0x0082ac68	g_optionLayoutCoords	16.16 coordinate pairs of the option menu's layout records: the current position, the target it animates to and the interpolated delta.
+0x0052aa50	g_unk0x0052aa50	g_cameraMenuOffset	Camera offset chosen in the camera options menu.
+0x0052af60	g_unk0x0052af60	g_cameraMenuStartOffset	Offset, height and distance the camera menu started with (restored on cancel).
+0x0082b1c0	g_unk0x0082b1c0	g_truncatedTextBuffer	Text buffer for the truncated draw below (256 bytes up to the next global).
+0x0052ad58	g_unk0x0052ad58	g_inRaceMenuScratchRect	Scratch rectangle the in-race menu draws reuse (0x52ad58, right below the main menu at 0x52ad60).
+0x00529900	g_unk0x00529900	g_cameraMenuStartDriverPosition	Driver position record the camera menu started with.
+0x0082b1b0	g_unk0x0082b1b0	g_optionMenuCamera	Camera node of the option menu's background world (0x82b1b0).
+0x0082b1b4	g_unk0x0082b1b4	g_optionMenuSceneRoot	Root node of the option menu background world; g_unk0x0082b1b0 is its camera.
+0x0082a93c	g_unk0x0082a93c	g_optionStatusLine	Text of the option menu's status line (written elsewhere before it is drawn).
+0x0052704c	g_unk0x0052704c	g_menuFadeColour	Menu colour the boot screens fade to/from, r/g/b in its low three bytes.
+0x0082c710	g_unk0x0082c710	g_activeModeSlot	Active slot read from the current mode entry's field 0x48.
+0x0082ca04	g_unk0x0082ca04	g_optionSlotTextureSets	Texture set index of each slot (100 = no data); g_unk0x0082ca18 holds how many of them are valid.
+0x005293a0	g_unk0x005293a0	g_optionLayoutXScale	X multiplier of the option menu layout (450/640 of the resolution).
+0x00527254	g_unk0x00527254	g_flagRowYOffsets	Vertical offsets subtracted from the flag row when the screen is either too narrow for 1024x768 or the row is scrolled (per country).
+0x00526ffc	g_unk0x00526ffc	g_optionWhite	White colour the option screen separators and the panel marker sprites use.
+0x00527398	g_unk0x00527398	g_highlightRowColour	Colour of a highlighted row (light grey).
+0x0082a934	g_unk0x0082a934	g_nameEditorBuffer	Buffer whose contents the name editor is editing.
+0x00526f40	g_unk0x00526f40	g_nameEditorOpened	Set when the name editor was opened this frame.
+0x00519ec8	g_unk0x00519ec8	g_stageEndMenuFade	Fade value of the stage end menus.
+0x00516090	g_unk0x00516090	g_netMenuFadeColour	Fade colour of the in-race network menu transitions.
+0x0053f5a8	g_unk0x0053f5a8	g_standingsExtraRow	Set when the standings menus of the stage end / pause screens show their extra first row.
+0x005418c4	g_unk0x005418c4	g_stagePositionPoints	Stage points of the sixteen stage positions, for the tie checks below.
+0x00540e48	g_unk0x00540e48	g_chatLineSelected	Set while the chat line (the item with value 0x3eb) is selected.
+0x0053e880	g_unk0x0053e880	g_stageEndBannerBlink	Blink timer of the stage end banner.
+0x005418c0	g_unk0x005418c0	g_resultsHeaderFadeTimer	Timer handle of the results header fade (first byte is the timer slot).
+0x0059bd28	g_unk0x0059bd28	g_cubeFaceViewMatrix	Scratch view matrix rebuilt for every cube map face (0x0049d3f0 uses it too).
+0x00816290	g_unk0x00816290	g_timersFrozen	When set, Timer_Start collapses the range to its end value (the demo replays use it to freeze the interpolated values).
+0x006de95c	g_unk0x006de95c	g_carReflectionCubeMaps	Cube-map texture ids reserved for the car reflections (-1 when unused).
+0x00511424	g_unk0x00511424	g_shadowVertexScale	Scale applied to the shadow vertex positions (0.5).
+0x005207b4	g_unk0x005207b4	g_depthSortDrawLists	Non-zero while the draw lists are depth sorted before being drawn (0x49cbc0/0x49cc50/0x49cd20).
+0x0053cff8	g_unk0x0053cff8	g_playerCameraMode	Camera mode of each player (4 = free camera using g_unk0x0053d000).
+0x00519ea0	g_unk0x00519ea0	g_fixedCameraDefaultOffsets	Default view offsets of the fixed camera modes.
+0x005334f4	g_unk0x005334f4	g_latchedThrottleAxes	Latched state of the two throttle axes of each device (pressed once until released).
+0x005393d4	g_unk0x005393d4	g_netRaceFont	Font picked for the screen size (0x28 normal, 0x29 small).
+0x005192f8	g_unk0x005192f8	g_countryNames	Long country names (FINLAND..JAPAN) and codes (FIN..JAP) of the rally selection file names.
+0x00517e24	g_unk0x00517e24	g_raceCallTextColour	Colour of the race call text (white).
+0x00517e28	g_unk0x00517e28	g_raceCallShadowColour	Shadow colour of the race call text (black).
+0x00538234	g_unk0x00538234	g_stageTextureHandles	Handles of the resolved stage texture records.
+0x00537354	g_unk0x00537354	g_pendingCalloutNodeFound	Set while the node scan near the car's position finds a node whose callouts have not been delivered yet.
+0x00536ff0	g_unk0x00536ff0	g_classificationTable	Classification table: per entry the route node index and the distance so far.
+0x0082c698	g_unk0x0082c698	g_championshipFlagCountries	Countries of the championship flag row, in display order (OptionMenu_DrawCountryFlags walks it as an array, so it must be one block).
+0x00536c48	g_unk0x00536c48	g_playerSplitPositions	Split position of each player (index, 16.16 fraction to the next split).
+0x00536ad0	g_unk0x00536ad0	g_viewShadowStreamed	Set while the shadow geometry of the current view has been streamed.
+0x00536ad4	g_unk0x00536ad4	g_viewScreenRect	Screen rectangle of the view being drawn, filled by RallyData_GetViewScreenRectangle.
+0x005112f8	g_unk0x005112f8	g_kilobytesToMegabytes	1 / 1024: kilobytes to megabytes.
+0x005112f4	g_unk0x005112f4	g_frameBufferBytesToMegabytes	3 / (8 * 1024 * 1024): frame buffer bytes to megabytes.
+0x00537070	g_unk0x00537070	g_challengeTextures	Textures of the challenge screens (net-play blob of each player and the blob of the current challenge).
+0x00536cb8	g_unk0x00536cb8	g_splitBarRects	Per-car split-bar rects: 0x14 marker rects per car, then the two rectangles the highlighted split is drawn from.
+0x005170ac	g_unk0x005170ac	g_splitMiddleMarkerColour	Colour of the one-pixel marker between two middle splits (opaque white).
+0x005170cc	g_unk0x005170cc	g_highlightedSplitColour	Colour the highlighted split is drawn with; the routine rewrites it with the split's own colour (alpha forced to 0xff) before drawing.
+0x005270e4	g_unk0x005270e4	g_splitTimeGradients	Gradients the split-time texture is mapped through.
+0x00527104	g_unk0x00527104	g_rallyAccentColours	Per-rally accent colours indexed by RallyDataCountryIndex().
+0x0052723c	g_unk0x0052723c	g_splitMarkerWidths	Marker widths per record slot (narrow / wide layouts).
+0x0051695c	g_unk0x0051695c	g_opponentClassMaxStep	Largest class step allowed between two consecutive opponents, and the extra random hold length, per car class.
+0x005338f0	g_unk0x005338f0	g_opponentClassMinHold	Minimum hold length per car class (never written by the game: all zero).
+0x0066f124	g_unk0x0066f124	g_meshesBySize	Meshes registered by the mesh file loader, indexed by total mesh size.
+0x00542cd8	g_unk0x00542cd8	g_fixedGridStartPositions	Start positions (x, -, z) of the cars when the rally modes use fixed grids.
+0x00542cd4	g_unk0x00542cd4	g_startGridSide	Start-grid side flag used by the stage start layout (0/1).
+0x0058e26c	g_unk0x0058e26c	g_stageRandomSeed	Random seed of the stage (kept for replays).
+0x005913dc	g_unk0x005913dc	g_carContactCounts	Eight per-car contact counts. The original clears them with two dword stores at 0x5913dc and 0x5913e0; the latter is the array's second half.
+0x0051c240	g_unk0x0051c240	g_eventSpriteStamps	Stamp patterns of the event sprites: a 4x4 grid per rotation and a 16x16 grid per rotation.
+0x0058e378	g_unk0x0058e378	g_stageAiData	AI data of the stage: base pointer and the per-car route headers.
+0x0054241c	g_unk0x0054241c	g_splitSpreadTable	Split time spread table of the stage (5-byte rows: -, max down, max up).
+0x0053d1e8	g_unk0x0053d1e8	g_carSplitTimes	Split times of each car per checkpoint group (8 x 12 x 5).
+0x0053de1c	g_unk0x0053de1c	g_splitLeaders	Leader of each split (row per checkpoint group and split, 8 bytes each).
+0x0051bfac	g_unk0x0051bfac	g_timingPartHitThresholds	Thresholds (first/second-hit window speeds) for the high/front and low/rear halves of a car's eight timing parts.
+0x005391f8	g_unk0x005391f8	g_roadRumbleStrength	Road rumble strength of the two players (from the suspension travel).
+0x005393d8	g_unk0x005393d8	g_carNetRecords	The network records of the eight cars (up to 0x539b38).
+0x00542c78	g_unk0x00542c78	g_timingSplitCount	Splits of the stage used for the timing display.
+0x005435c8	g_unk0x005435c8	g_wheelSprayTextures	Per-particle-kind texture handles for the wheel spray / smoke effects.
+0x00541f88	g_unk0x00541f88	g_stageTimingRandomSeed	Random seed for the stage timing shuffles.
+0x0058db50	g_unk0x0058db50	g_surfaceTexturePath	Path of the surface texture file; empty when the data came from memory.
+0x0058dd70	g_unk0x0058dd70	g_surfaceSoundState	Per-player surface sound state (two entries each).
+0x0051f2a0	g_unk0x0051f2a0	g_gearWhineLoopStart	Loop start of the gear-whine sample per car.
+0x0058dd60	g_unk0x0058dd60	g_engineSoundState	Per-player engine sound state.
+0x0051f280	g_unk0x0051f280	g_skidLoopVolumeScale	Master scale of the skid loop volume.
+0x0051f310	g_unk0x0051f310	g_skidVolumeDip	Volume dip (percent) over the first 100 ticks after the skid level rises.

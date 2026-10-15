@@ -41,7 +41,7 @@ short Surface_GetMappedIndex(short index)
 }
 // Path of the surface texture file; empty when the data came from memory.
 // GLOBAL: CMR2 0x0058db50
-char g_unk0x0058db50[MAX_PATH];
+char g_surfaceTexturePath[MAX_PATH];
 // GLOBAL: CMR2 0x0058dc54
 void *g_unk0x0058dc54;
 
@@ -53,7 +53,7 @@ void *g_unk0x0058dc54;
 BYTE Surface_FreeTextureData(void)
 {
     if (g_unk0x0058dc54 != NULL) {
-        if (g_unk0x0058db50[0] == 0)
+        if (g_surfaceTexturePath[0] == 0)
             CFileBuffer::FreeGenericFileBuffer(g_unk0x0058dc54);
         g_unk0x0058dc54 = NULL;
     }
@@ -384,7 +384,7 @@ int Surface_GetTransitionBlend(int surface, int t)
 
 // Per-player surface sound state (two entries each).
 // GLOBAL: CMR2 0x0058dd70
-int g_unk0x0058dd70[2];
+int g_surfaceSoundState[2];
 // GLOBAL: CMR2 0x0058ddc0
 int g_unk0x0058ddc0[2];
 // GLOBAL: CMR2 0x0058de00
@@ -607,7 +607,7 @@ void SurfaceSound_ResetPlayerParameters(void)
         g_unk0x0058df30[i] = -1;
         g_unk0x0058ddf8[i] = 0;
         g_unk0x0058dd98[i] = 0;
-        g_unk0x0058dd70[i] = 0;
+        g_surfaceSoundState[i] = 0;
         g_unk0x0058df20[i] = 0;
     }
     g_unk0x0058ddc8 = -1;
@@ -756,16 +756,16 @@ void Surface_LoadCarEngineSounds(void)
     SurfaceSound_ResetPlayerParameters();
 }
 
-// Stops the player's surface sound started by flag g_unk0x0058dd70.
+// Stops the player's surface sound started by flag g_surfaceSoundState.
 // FUNCTION: CMR2 0x004792c0
 void Surface_StopFirstOneShotSound(int player)
 {
-    if (g_unk0x0058dd70[player] != 0) {
+    if (g_surfaceSoundState[player] != 0) {
         if (Sound_IsPlaying(g_unk0x0058ddc0[player])) {
             Sound_Free(g_unk0x0058ddc0[player]);
             g_unk0x0058ddc0[player] = -1;
         }
-        g_unk0x0058dd70[player] = 0;
+        g_surfaceSoundState[player] = 0;
     }
 }
 
@@ -776,12 +776,12 @@ void Surface_StopFirstOneShotSound(int player)
 int g_unk0x0051f290 = 0xb333;
 // Loop start of the gear-whine sample per car.
 // GLOBAL: CMR2 0x0051f2a0
-int g_unk0x0051f2a0[14] = {
+int g_gearWhineLoopStart[14] = {
     0x32a8, 0x42d6, 0, 0x5a08, 0x5a08, 0, 0, 0x880, 0x3af2, 0x21c0, 0, 0x2400, 0x1444, 0xf80,
 };
 // Per-player engine sound state.
 // GLOBAL: CMR2 0x0058dd60
-unsigned int g_unk0x0058dd60[2];
+unsigned int g_engineSoundState[2];
 // GLOBAL: CMR2 0x0058dda0
 unsigned int g_unk0x0058dda0[2];
 // GLOBAL: CMR2 0x0058df28
@@ -929,19 +929,19 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
     }
     Surface_SmoothPlayerSoundLevel(pState[4], player);
     if (!NetRace_GetRaceSoundMode()) {
-        if (now - g_unk0x0058dd60[player] > g_unk0x0058df28[player]) {
+        if (now - g_engineSoundState[player] > g_unk0x0058df28[player]) {
             if (g_unk0x0058ddf8[player] != 0) {
                 Surface_StopSecondOneShotSound(player);
                 g_unk0x0058ddf8[player] = 0;
             }
             if (g_unk0x0058dd98[player] != 0) {
                 g_unk0x0058dd98[player] = 0;
-                g_unk0x0058dd60[player] = now;
+                g_engineSoundState[player] = now;
                 g_unk0x0058df28[player] = rand() % 10 + 5;
             } else if (pState[1] < 4000) {
                 int v;
                 g_unk0x0058dd98[player] = 1;
-                g_unk0x0058dd60[player] = now;
+                g_engineSoundState[player] = now;
                 if (pState[1] <= 3000)
                     v = 10;
                 else if (pState[1] >= 5000)
@@ -950,7 +950,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
                     v = (3000 - pState[1]) * 10 / 2000 + 10;
                 g_unk0x0058df28[player] = v;
             } else {
-                g_unk0x0058dd60[player] = now;
+                g_engineSoundState[player] = now;
                 g_unk0x0058df28[player] = rand() % 10 + 5;
             }
         }
@@ -996,7 +996,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
         } else if (CFrontend::GetArchiveSecondaryFlagEntry(pCar->type) != 0) {
             if (pState[4] == 0 && pState[1] > hi) {
                 g_unk0x0058df78[player] = 1;
-                g_unk0x0058dd60[player] = now;
+                g_engineSoundState[player] = now;
                 g_unk0x0058dda0[player] = now;
                 g_unk0x0058df28[player] = rand() % 10 + 10;
                 g_unk0x0058dd98[player] = 0;
@@ -1010,7 +1010,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
                 if (Sound_IsPlaying(g_unk0x0058ddc0[player]) == 0) {
                     g_unk0x0058ddc0[player] =
                         Sound_PlaySampleWithParameters((unsigned short)(rand() % 4 + g_unk0x0058ddb4[player] + 8), 0, 0x5622, 0, 0, 0);
-                    g_unk0x0058dd60[player] = now;
+                    g_engineSoundState[player] = now;
                     g_unk0x0058df20[player] = 1;
                     g_unk0x0058ddf8[player] = 1;
                     g_unk0x0058df28[player] = rand() % 10 + 5;
@@ -1028,7 +1028,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
                         Sound_PlaySampleWithParameters((unsigned short)(rand() % 4 + g_unk0x0058ddb4[player] + 8), 0, 0x5622, 0, 0, 0);
                     g_unk0x0058df20[player] = 1;
                 }
-                pct = 100 - (now * 100 - g_unk0x0058dd60[player] * 100) / g_unk0x0058df28[player];
+                pct = 100 - (now * 100 - g_engineSoundState[player] * 100) / g_unk0x0058df28[player];
                 Sound_SetPlayingSlotVolume(g_unk0x0058ddc0[player], CAR_VOLUME(0x10000, g_unk0x0051f294));
                 if (pct == 100 && rand() % pct < 75)
                     StageTiming_ForceWheelTrailSurface(player, rand() % 2 + 2);
@@ -1036,10 +1036,10 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
         } else if (pState[4] == 0) {
             Surface_StopSecondOneShotSound(player);
             if (pState[1] < lo) {
-                if (g_unk0x0058dd70[player] == 0) {
+                if (g_surfaceSoundState[player] == 0) {
                     g_unk0x0058ddc0[player] =
                         Sound_PlaySampleWithParameters((unsigned short)(g_unk0x0058ddb4[player] + 0xc), 0, 0x5622, 0, 1, 0);
-                    g_unk0x0058dd70[player] = 1;
+                    g_surfaceSoundState[player] = 1;
                 }
                 Sound_SetPlayingSlotVolume(g_unk0x0058ddc0[player],
                              CAR_VOLUME(((0xaf0 - pState[1]) * 100 / 0xaf0 / 2 + 50 << 16) / 100, g_unk0x0051f294));
@@ -1082,7 +1082,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
         if (Sound_IsPlaying(g_unk0x0058dd90[player]) == 0)
             g_unk0x0058dd90[player] = Sound_PlaySampleWithParameters(
                 (unsigned short)(g_unk0x0058ddb4[player] + 5), 0, 0x5622,
-                g_unk0x0051f2a0[CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)(StageUI_GetRaceEndEventCount() + player)))],
+                g_gearWhineLoopStart[CFrontend::GetArchivePrimaryIDEntry(RallyData_GetDriverRecordSelectionValue((BYTE)(StageUI_GetRaceEndEventCount() + player)))],
                 1, 0);
         if (Race_GetPlayerRecordField4((BYTE)player))
             Sound_SetPan(g_unk0x0058dd90[player],
@@ -1143,10 +1143,10 @@ extern int g_unk0x0058dda8;
 
 // Master scale of the skid loop volume.
 // GLOBAL: CMR2 0x0051f280
-int g_unk0x0051f280 = 0xb333;
+int g_skidLoopVolumeScale = 0xb333;
 // Volume dip (percent) over the first 100 ticks after the skid level rises.
 // GLOBAL: CMR2 0x0051f310
-int g_unk0x0051f310[23] = {
+int g_skidVolumeDip[23] = {
     30, 20, 10, 20, 50, 90, 100, 50, 10, 30, 60, 30, 10, 40, 70, 20, 5, 20, 50, 30, 20, 10, 5,
 };
 
@@ -1292,7 +1292,7 @@ void Surface_UpdatePlayerSkidSound(int player, int *pState, int listener)
     }
     if (level >= 1 && level <= 3) {
         if ((unsigned int)(StageObject_GetCarSoundElapsedTime(player) - g_unk0x0058dd88[player]) < 100)
-            dip = g_unk0x0051f310[(unsigned int)(StageObject_GetCarSoundElapsedTime(player) * 23 - g_unk0x0058dd88[player] * 23) / 100];
+            dip = g_skidVolumeDip[(unsigned int)(StageObject_GetCarSoundElapsedTime(player) * 23 - g_unk0x0058dd88[player] * 23) / 100];
         else
             dip = 0;
     }
@@ -1330,7 +1330,7 @@ void Surface_UpdatePlayerSkidSound(int player, int *pState, int listener)
                 else if (volume > 100)
                     volume = 100;
                 Sound_SetPlayingSlotVolume(*pHandle, FixMul(NetRace_GetListenerDistanceAttenuation(player, listener),
-                                              FixMul(g_unk0x0058dda8, FixMul((volume << 16) / 100, g_unk0x0051f280))));
+                                              FixMul(g_unk0x0058dda8, FixMul((volume << 16) / 100, g_skidLoopVolumeScale))));
                 return;
             }
         }
@@ -1448,7 +1448,7 @@ BYTE SurfaceText_LoadRegionalStringTable(void)
     }
     sprintf(CFrontend::m_stringDest, g_strTxtFormat, pList[CGameInfo::GetGameLanguage()]);
     g_unk0x0058dc54 = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile6(), CFrontend::m_stringDest,
-                                                   (BYTE *)g_unk0x0058db50, 0, 0);
+                                                   (BYTE *)g_surfaceTexturePath, 0, 0);
     if (g_unk0x0058dc54 != NULL) {
         CFrontend::BuildLocalizedTextStringTable(1, 0x104, (BYTE **)&g_unk0x0058dc54);
         CGame::RegisterCallback(Surface_FreeTextureData, 0);

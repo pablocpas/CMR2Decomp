@@ -51,7 +51,7 @@ void RallyData_SetCarRaceRecordPosition(Car *pCar, int value);
 
 // Start positions (x, -, z) of the cars when the rally modes use fixed grids.
 // GLOBAL: CMR2 0x00542cd8
-int g_unk0x00542cd8[8][3];
+int g_fixedGridStartPositions[8][3];
 
 unsigned char RallyData_GetSelectionFlag26(void);
 unsigned int RallyData_GetFlag31(void);
@@ -82,8 +82,8 @@ void Stage_GetCarStartXZ(int car, int *pStarts, int *pOut)
         pOut[2] = pStarts[2];
         return;
     }
-    pOut[0] = g_unk0x00542cd8[car][0];
-    pOut[2] = g_unk0x00542cd8[car][2];
+    pOut[0] = g_fixedGridStartPositions[car][0];
+    pOut[2] = g_fixedGridStartPositions[car][2];
 }
 
 // Puts every car back on its stored route position.
@@ -133,4 +133,4 @@ int Stage_GetNextCheckpoint(int index)
 
 // Start-grid side flag used by the stage start layout (0/1).
 // GLOBAL: CMR2 0x00542cd4
-int g_unk0x00542cd4;
+int g_startGridSide;

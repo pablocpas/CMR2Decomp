@@ -83,7 +83,7 @@ FixMatrix *FloatMatrix_ToFix(FixMatrix *pOut, D3DMATRIX *pIn)
 
 // Projects a point through a 16.16 view-projection matrix to screen offsets
 // from the centre (16.16 pixels, y up). The z row is computed but unused.
-extern const float g_unk0x00511424;
+extern const float g_shadowVertexScale;
 
 // FUNCTION: CMR2 0x004ba870
 void FixMatrix_ProjectToScreen(int *pOut, FixVector *pV, int *pM)
@@ -95,8 +95,8 @@ void FixMatrix_ProjectToScreen(int *pOut, FixVector *pV, int *pM)
     float w;
     int z;
 
-    halfH = (float)(int)g_pGraphics->resY * g_unk0x00511424;
-    halfW = (float)(int)g_pGraphics->resX * g_unk0x00511424;
+    halfH = (float)(int)g_pGraphics->resY * g_shadowVertexScale;
+    halfW = (float)(int)g_pGraphics->resX * g_shadowVertexScale;
     x = (float)(FixMul(pM[0], pV->x) + FixMul(pM[4], pV->y) + FixMul(pM[8], pV->z) + pM[12]) *
         CGraphics::m_oneOver65536;
     y = (float)(FixMul(pM[1], pV->x) + FixMul(pM[5], pV->y) + FixMul(pM[9], pV->z) + pM[13]) *
@@ -835,7 +835,7 @@ void ForceFeedback_UpdateSlot(Car *pCar, FixVector *pIn, int nonzero)
 }
 
 // Per-player camera mode (4 = free camera) and the camera up/forward vectors.
-extern BYTE g_unk0x0053cff8[8];
+extern BYTE g_playerCameraMode[8];
 extern FixVector g_unk0x0053d000[6];
 extern FixVector g_unk0x0053d048[4];
 // Per-player dashboard gauge values.
@@ -892,7 +892,7 @@ void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef)
     pos.y += off.y;
     pos.z += off.z;
     FixMatrix_SetPosition(&pos, pM);
-    if (g_unk0x0053cff8[index] == 4)
+    if (g_playerCameraMode[index] == 4)
         FixMatrix_RotateAboutRight(pM, (unsigned short)g_unk0x0053d090[2 + pObj[1]]);
 
     *(int *)(pObj + 0x48) = 0;
@@ -1104,7 +1104,7 @@ void View_PositionFromCarProfile(CameraRecord *pObj, FixMatrix *pRef)
 
 // Per-octant reference vectors used to probe the ground.
 // GLOBAL: CMR2 0x00589458
-FixVector g_unk0x00589458[8];
+FixVector g_groundProbeOctantVectors[8];
 
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface,
                           int defaultY);
@@ -1160,7 +1160,7 @@ int StageObject_ProbeGroundDistance(MovingObject *pObj, FixVector *pPoint)
         idx += 1;
     ground = *pPoint;
     ground.y = pObj->groundHeight;
-    FixMatrix_RotateVector(&v, &g_unk0x00589458[idx], pObj->pMatrix);
+    FixMatrix_RotateVector(&v, &g_groundProbeOctantVectors[idx], pObj->pMatrix);
     v.x += pPoint->x;
     v.y += pPoint->y;
     v.z += pPoint->z;
@@ -1252,7 +1252,7 @@ void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3)
 }
 
 // (defined in StageTiming.cpp, which owns the GLOBAL annotation)
-extern CarNetRecord g_unk0x005393d8[8];
+extern CarNetRecord g_carNetRecords[8];
 
 void Car_InvalidateTransforms(int index);
 void NetRace_AdvanceRemoteCarAccumulator(CarNetRecord *p);
@@ -1284,7 +1284,7 @@ void NetRace_ExtrapolateOrderedCarPoses(Car *pCars, short *pOrder, short count)
 
     for (i = count - 1; i >= 0; i--) {
         pCar = pCars + pOrder[i];
-        pRec = &g_unk0x005393d8[pOrder[i]];
+        pRec = &g_carNetRecords[pOrder[i]];
 
         if (pCar->field_0xc20 == 0)
             continue;
@@ -1401,30 +1401,30 @@ extern const double g_unk0x00511380;
         int probeY = (pObj)->probe.y;                                                   \
         int probeZ = (pObj)->probe.z;                                                   \
                                                                                         \
-        g_unk0x00589458[0].x = probeX;                                                  \
-        g_unk0x00589458[0].y = -probeY;                                                 \
-        g_unk0x00589458[0].z = probeZ;                                                  \
-        g_unk0x00589458[1].x = probeX;                                                  \
-        g_unk0x00589458[1].y = -probeY;                                                 \
-        g_unk0x00589458[1].z = -probeZ;                                                 \
-        g_unk0x00589458[2].x = -probeX;                                                 \
-        g_unk0x00589458[2].y = -probeY;                                                 \
-        g_unk0x00589458[2].z = probeZ;                                                  \
-        g_unk0x00589458[3].x = -probeX;                                                 \
-        g_unk0x00589458[3].y = -probeY;                                                 \
-        g_unk0x00589458[3].z = -probeZ;                                                 \
-        g_unk0x00589458[4].x = probeX;                                                  \
-        g_unk0x00589458[4].y = probeY;                                                  \
-        g_unk0x00589458[4].z = probeZ;                                                  \
-        g_unk0x00589458[5].x = probeX;                                                  \
-        g_unk0x00589458[5].y = probeY;                                                  \
-        g_unk0x00589458[5].z = -probeZ;                                                 \
-        g_unk0x00589458[6].x = -probeX;                                                 \
-        g_unk0x00589458[6].y = probeY;                                                  \
-        g_unk0x00589458[6].z = probeZ;                                                  \
-        g_unk0x00589458[7].x = -probeX;                                                 \
-        g_unk0x00589458[7].y = probeY;                                                  \
-        g_unk0x00589458[7].z = -probeZ;                                                 \
+        g_groundProbeOctantVectors[0].x = probeX;                                                  \
+        g_groundProbeOctantVectors[0].y = -probeY;                                                 \
+        g_groundProbeOctantVectors[0].z = probeZ;                                                  \
+        g_groundProbeOctantVectors[1].x = probeX;                                                  \
+        g_groundProbeOctantVectors[1].y = -probeY;                                                 \
+        g_groundProbeOctantVectors[1].z = -probeZ;                                                 \
+        g_groundProbeOctantVectors[2].x = -probeX;                                                 \
+        g_groundProbeOctantVectors[2].y = -probeY;                                                 \
+        g_groundProbeOctantVectors[2].z = probeZ;                                                  \
+        g_groundProbeOctantVectors[3].x = -probeX;                                                 \
+        g_groundProbeOctantVectors[3].y = -probeY;                                                 \
+        g_groundProbeOctantVectors[3].z = -probeZ;                                                 \
+        g_groundProbeOctantVectors[4].x = probeX;                                                  \
+        g_groundProbeOctantVectors[4].y = probeY;                                                  \
+        g_groundProbeOctantVectors[4].z = probeZ;                                                  \
+        g_groundProbeOctantVectors[5].x = probeX;                                                  \
+        g_groundProbeOctantVectors[5].y = probeY;                                                  \
+        g_groundProbeOctantVectors[5].z = -probeZ;                                                 \
+        g_groundProbeOctantVectors[6].x = -probeX;                                                 \
+        g_groundProbeOctantVectors[6].y = probeY;                                                  \
+        g_groundProbeOctantVectors[6].z = probeZ;                                                  \
+        g_groundProbeOctantVectors[7].x = -probeX;                                                 \
+        g_groundProbeOctantVectors[7].y = probeY;                                                  \
+        g_groundProbeOctantVectors[7].z = -probeZ;                                                 \
     }
 
 // Per-frame update of the moving stage objects. Each active object of

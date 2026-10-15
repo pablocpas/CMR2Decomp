@@ -2312,7 +2312,7 @@ int Input_PopQueuedKeyPress(int *pOut)
 
 // Latched state of the two throttle axes of each device (pressed once until released).
 // GLOBAL: CMR2 0x005334f4
-int g_unk0x005334f4[8][2];
+int g_latchedThrottleAxes[8][2];
 
 // Turns the joystick's accelerate/brake axes into one-shot "left"/"right"
 // menu presses (bits 2 and 3) when they are pushed past a quarter.
@@ -2327,20 +2327,20 @@ void Input_TranslatePedalsToMenuKeys(void)
         if (pDev->field_0x0 == 3 && CInput::GetEnabledControllerAxisBinding(0, 2) != CInput::GetEnabledControllerAxisBinding(0, 3)) {
             pDev->field_0x8 &= 0xfffffff3;
             if (((int *)pDev)[CInput::GetEnabledControllerAxisBinding(0, 2) * 5 + 0x11f] < 0x3333) {
-                if (g_unk0x005334f4[i][0] == 0) {
+                if (g_latchedThrottleAxes[i][0] == 0) {
                     pDev->field_0x8 |= 4;
-                    g_unk0x005334f4[i][0] = 1;
+                    g_latchedThrottleAxes[i][0] = 1;
                 }
             } else {
-                g_unk0x005334f4[i][0] = 0;
+                g_latchedThrottleAxes[i][0] = 0;
             }
             if (((int *)pDev)[CInput::GetEnabledControllerAxisBinding(0, 3) * 5 + 0x11f] < 0x3333) {
-                if (g_unk0x005334f4[i][1] == 0) {
+                if (g_latchedThrottleAxes[i][1] == 0) {
                     pDev->field_0x8 |= 8;
-                    g_unk0x005334f4[i][1] = 1;
+                    g_latchedThrottleAxes[i][1] = 1;
                 }
             } else {
-                g_unk0x005334f4[i][1] = 0;
+                g_latchedThrottleAxes[i][1] = 0;
             }
         }
     }

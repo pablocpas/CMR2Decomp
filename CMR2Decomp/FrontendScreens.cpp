@@ -54,7 +54,7 @@ unsigned int g_unk0x008196e0;
 int g_unk0x008196e4;
 // Per-screen colour/palette ids, indexed by the screen number in field +7.
 // GLOBAL: CMR2 0x008196e8
-int g_unk0x008196e8[23];
+int g_screenPaletteIds[23];
 // GLOBAL: CMR2 0x00819864
 BYTE g_unk0x00819864;
 // GLOBAL: CMR2 0x00819880
@@ -99,13 +99,13 @@ int g_unk0x00818ce8;
 int g_unk0x00818d00;
 // Filtered stage/route ids, one int per entry (up to 0x16).
 // GLOBAL: CMR2 0x00818d18
-int g_unk0x00818d18[0x16];
+int g_filteredRouteIds[0x16];
 // Index of the route/stage the setup screens currently point at.
 // GLOBAL: CMR2 0x00818d70
-int g_unk0x00818d70;
+int g_setupRouteIndex;
 // Route ids of the four selected stages of the outgoing setup packet.
 // GLOBAL: CMR2 0x00818d74
-int g_unk0x00818d74[4];
+int g_setupSelectedRouteIds[4];
 // GLOBAL: CMR2 0x00818ebc
 char g_unk0x00818ebc[20];
 // GLOBAL: CMR2 0x00818ed0
@@ -1875,7 +1875,7 @@ void FrontendNetwork_HandleHostMessage(DPID *pFrom, BYTE *pMsg)
         }
         GameInfo_SetSessionField397C(*(unsigned int *)(pMsg + 0x14));
         pItem = Menu_GetItem(FrontendMenu_GetNetworkSessionSetup(), 1);
-        RallyData_SetDriverCategoryOption(0, g_unk0x00818d18[pItem->max]);
+        RallyData_SetDriverCategoryOption(0, g_filteredRouteIds[pItem->max]);
         pItem = Menu_GetItem(FrontendMenu_GetNetworkSessionSetup(), 2);
         FrontendChampionship_SetDriverEntryFlag(0, pItem->max);
         FrontendNetwork_ReadSetupPacket((BYTE *)pMsg);
@@ -2290,7 +2290,7 @@ void FrontendMenu_EnterNetworkSessionSetup(Menu *pMenu, int unused)
     pMenu->cursor = 0;
     g_unk0x00818d00 = 0;
     index = 0;
-    pEntry = g_unk0x00818d18;
+    pEntry = g_filteredRouteIds;
     for (i = 0; i < 0x16; i++) {
         if (RallyData_HasCategoryAward(0, i, 1)) {
             *pEntry = i;
@@ -2342,7 +2342,7 @@ void FrontendNetwork_StartHostRace(Menu *pMenu, int param)
                 }
             }
         }
-        RallyData_SetDriverCategoryOption(0, g_unk0x00818d18[Menu_GetItem(pMenu, 1)->max]);
+        RallyData_SetDriverCategoryOption(0, g_filteredRouteIds[Menu_GetItem(pMenu, 1)->max]);
         FrontendChampionship_SetDriverEntryFlag(0, Menu_GetItem(pMenu, 2)->max);
         packet.type = 2;
         packet.gameMode = CGameInfo::GetConfiguredGameMode();
@@ -2541,7 +2541,7 @@ void FrontendMenu_EnterNetworkCarSetup(Menu *pMenu, int param)
     Menu_GetItem(pMenu, 1)->min = min;
     if ((char)param == 0)
         Menu_GetItem(pMenu, 2)->max = 0;
-    g_unk0x00818d70 = values[0];
+    g_setupRouteIndex = values[0];
     FrontendMenu_UpdateNetworkCarSetup(pMenu);
 }
 
@@ -2557,8 +2557,8 @@ void FrontendNetwork_ApplyRallyAndJoin(Menu *pMenu, int param)
     else
         RallyData_SetStageSelectionAndRefreshFlags(Menu_GetItem(pMenu, 1)->max);
     RallyData_SetCountrySelectionBits(Menu_GetItem(pMenu, 0)->max);
-    if (RallyDataStageIndex() != 0xa && g_unk0x00818d74[Menu_GetItem(pMenu, 2)->max] != -1)
-        RallyData_SetDriverPairingStateValues(1, g_unk0x00818d74[Menu_GetItem(pMenu, 2)->max]);
+    if (RallyDataStageIndex() != 0xa && g_setupSelectedRouteIds[Menu_GetItem(pMenu, 2)->max] != -1)
+        RallyData_SetDriverPairingStateValues(1, g_setupSelectedRouteIds[Menu_GetItem(pMenu, 2)->max]);
     else
         RallyData_SetDriverPairingStateValues(1, 0);
     FrontendMenu_GetNetworkSessionSetup()->pParent = pMenu;
@@ -3444,7 +3444,7 @@ BYTE RallyData_IsDriverRecordUsable(BYTE param1);
 
 
 
-extern BYTE g_unk0x00819879;
+extern BYTE g_newProfileUndoPending;
 
 // Item picker of the second name-entry screen: appends the picked character of
 // the three letter rows to the name; the '<' entry deletes the last character
@@ -3525,7 +3525,7 @@ void FrontendProfile_ApplyDateEntry(Menu *pMenu, int param)
                  pMenu->items[0].max);
     if (RallyData_SaveEditedCategoryProfile(FrontendProfile_GetCurrentPlayer()) != 0) {
         Menu_SetNextAction(FrontendProfile_GetCompletionMenu());
-        g_unk0x00819879 = 0;
+        g_newProfileUndoPending = 0;
         if (FrontendRecords_GetProfileMode()) {
             RallyData_SetPlayerProfileInUse(FrontendProfile_GetCurrentPlayer(), 0);
             Profile_ResetRecordCategory(FrontendProfile_GetCurrentPlayer());
@@ -3656,7 +3656,7 @@ void FrontendScroller_InitRallyStageSelection(Menu *pMenu, int param)
     Frontend_SetOverlayMode(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048 - 1);
     pScroller = FrontendScroller_GetRouteEntryScroller();
     pScroller->pMenu = pMenu;
-    pPalette = g_unk0x008196e8;
+    pPalette = g_screenPaletteIds;
     pItem = pMenu->items;
     pMenu->cursor = 0;
     for (i = 0, p = pItem; i < 0x16; i++) {
@@ -3734,7 +3734,7 @@ void FrontendProfile_SelectPalette(Menu *pMenu, int unused)
 {
     RallyData_SetDriverCategoryOption(
         CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048),
-        (unsigned char)g_unk0x008196e8[pMenu->cursor]);
+        (unsigned char)g_screenPaletteIds[pMenu->cursor]);
 }
 
 // Item callback of the championship entry screens: toggles the selected
@@ -5187,7 +5187,7 @@ void FrontendMenu_UpdateLanguage(Menu *pMenu)
 
 // Set when the new-profile entry created a profile that "back" must undo.
 // GLOBAL: CMR2 0x00819879
-BYTE g_unk0x00819879;
+BYTE g_newProfileUndoPending;
 // "Load <name>" texts of the up to four free saved profiles.
 // GLOBAL: CMR2 0x00819054
 char g_profileEntryTexts[4][40];
@@ -5239,7 +5239,7 @@ void FrontendProfile_SelectPlayerSlot(Menu *pMenu, int param)
 // FUNCTION: CMR2 0x004f2750
 void FrontendProfile_CreateNewProfile(Menu *pMenu, int param)
 {
-    g_unk0x00819879 = 1;
+    g_newProfileUndoPending = 1;
     FrontendProfile_SetCurrentPlayer(0);
     Profile_AssignAvailableCategory(FrontendProfile_GetCurrentPlayer(), -1);
     Profile_ResetCategoryData(FrontendProfile_GetCurrentPlayer());
@@ -5277,7 +5277,7 @@ void FrontendMenu_EnterRallyProfile(Menu *pMenu, char back)
     int i;
 
     if (back != 0) {
-        if (g_unk0x00819879 != 0) {
+        if (g_newProfileUndoPending != 0) {
             RallyData_SetPlayerProfileInUse(0, 0);
             Profile_ResetCategoryData(0);
             Profile_ResetRecordCategory(0);
@@ -5285,7 +5285,7 @@ void FrontendMenu_EnterRallyProfile(Menu *pMenu, char back)
             Profile_ResetRecordCategory(0);
         }
     }
-    g_unk0x00819879 = 0;
+    g_newProfileUndoPending = 0;
     FrontendProfile_SetHeaderMode(1);
     GameInfo_SetConfiguredPlayerCount(1);
     g_unk0x00819048 = 1;
@@ -6567,7 +6567,7 @@ void FrontendMenu_EnterMultiplayerProfile(Menu *pMenu, char back)
     int i;
 
     if (back != 0) {
-        if (RallyData_IsDriverRecordUsable(CGameInfo::GetConfiguredPlayerCount() + (-1 - g_unk0x00819048)) || g_unk0x00819879 != 0) {
+        if (RallyData_IsDriverRecordUsable(CGameInfo::GetConfiguredPlayerCount() + (-1 - g_unk0x00819048)) || g_newProfileUndoPending != 0) {
             if (RallyData_IsDriverRecordUsable(CGameInfo::GetConfiguredPlayerCount() + (-1 - g_unk0x00819048))) {
                 g_unk0x00819744--;
                 RallyData_SetPlayerProfileInUse(CGameInfo::GetConfiguredPlayerCount() + (-1 - g_unk0x00819048), 0);
@@ -6577,7 +6577,7 @@ void FrontendMenu_EnterMultiplayerProfile(Menu *pMenu, char back)
         Profile_ResetRecordCategory((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
         g_unk0x00819048++;
     }
-    g_unk0x00819879 = 0;
+    g_newProfileUndoPending = 0;
     FrontendProfile_SetHeaderMode((CGameInfo::GetConfiguredPlayerCount() & 0xff) - FrontendProfile_GetPlayersRemaining() + 1);
     Frontend_SetOverlayMode((CGameInfo::GetConfiguredPlayerCount() & 0xff) - FrontendProfile_GetPlayersRemaining());
     CSound::NoOpSoundDeviceCallback();
@@ -6605,7 +6605,7 @@ void FrontendProfile_CreateNewPlayerProfile(Menu *pMenu, int param)
 {
     Menu *pNext;
 
-    g_unk0x00819879 = 1;
+    g_newProfileUndoPending = 1;
     FRONTEND_MODE_NEXT_MENU(pNext)
     FrontendProfile_SetCurrentPlayer((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff));
     Profile_AssignAvailableCategory((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_unk0x00819048 & 0xff), -1);
@@ -7185,7 +7185,7 @@ void FrontendMenu_SelectCarClass(Menu *pMenu, int param)
 char g_strLabelColon[4] = "%s:";
 // Game type the second quick race page was last showing.
 // GLOBAL: CMR2 0x00829320
-unsigned int g_unk0x00829320;
+unsigned int g_quickRaceShownGameType;
 
 unsigned int GameInfo_GetNetworkOptionBits8To10(void);
 unsigned int GameInfo_GetNetworkOptionBits3To7(void);
@@ -7462,7 +7462,7 @@ void FrontendMenu_EnterQuickRaceAdvancedSettings(Menu *pMenu, int param)
 {
     unsigned int type;
 
-    g_unk0x00829320 = RallyData_GetSetupModeBits();
+    g_quickRaceShownGameType = RallyData_GetSetupModeBits();
     pMenu->items[0].max = RallyData_GetSetupModeBits();
     type = RallyData_GetSetupModeBits();
     QUICKRACE_TYPE_SETTING(pMenu, type)
@@ -7483,9 +7483,9 @@ void FrontendMenu_UpdateQuickRaceAdvancedSettings(Menu *pMenu)
     unsigned int type;
 
     type = pMenu->items[0].max;
-    if (g_unk0x00829320 != type) {
+    if (g_quickRaceShownGameType != type) {
         QUICKRACE_TYPE_SETTING(pMenu, type)
-        g_unk0x00829320 = pMenu->items[0].max;
+        g_quickRaceShownGameType = pMenu->items[0].max;
     }
     switch (pMenu->items[0].max) {
     case 0:
@@ -7606,7 +7606,7 @@ void FrontendChampionship_SelectRouteEntry(Menu *pMenu, int param)
 {
     RallyData_SetDriverCategoryOption(
         CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048),
-        (unsigned char)g_unk0x008196e8[pMenu->cursor]);
+        (unsigned char)g_screenPaletteIds[pMenu->cursor]);
     RallyData_FillEventSlotSelections();
     if (g_unk0x00819048 == 0) {
         Menu_SetNextAction(FrontendMenu_GetArcadeChampionshipTransmission());
@@ -7637,7 +7637,7 @@ void FrontendChampionship_UpdateAlternateRouteEntry(Menu *pMenu, int param)
     Frontend_SetOverlayMode(0);
     RallyData_SetDriverCategoryOption(
         CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048),
-        (unsigned char)g_unk0x008196e8[pMenu->cursor]);
+        (unsigned char)g_screenPaletteIds[pMenu->cursor]);
     RallyData_FillEventSlotSelections();
 }
 
@@ -7671,7 +7671,7 @@ void FrontendChampionship_UpdateArcadeRouteEntry(Menu *pMenu, int param)
 {
     RallyData_SetDriverCategoryOption(
         CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048),
-        (unsigned char)g_unk0x008196e8[pMenu->cursor]);
+        (unsigned char)g_screenPaletteIds[pMenu->cursor]);
     RallyData_FillEventSlotSelections();
 }
 
@@ -7969,7 +7969,7 @@ void FrontendProfile_BuildGuestIdentifier(unsigned int param_1, unsigned int par
 
 // Three 12-byte keyboard-style tables scrambled by FrontendProfile_ScrambleIdentifier.
 // GLOBAL: CMR2 0x00526ea4
-char g_unk0x00526ea4[12] = "qaz2wsx3e";
+char g_profileScrambleTables[12] = "qaz2wsx3e";
 // GLOBAL: CMR2 0x00526eb0
 char g_unk0x00526eb0[12] = "/-['=]\\`!Q";
 // GLOBAL: CMR2 0x00526ebc
@@ -7981,7 +7981,7 @@ char g_unk0x00526ebc[12] = "\\`!QAZ@WSX";
 // match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // logic verified against the dump; remaining diff is the operand evaluation
 // order of the byte sums and the register/stack split (the original keeps the
-// loop pointer in EDI descending to &g_unk0x00526ea4[6]).
+// loop pointer in EDI descending to &g_profileScrambleTables[6]).
 // FUNCTION: CMR2 0x004fb8d0
 void FrontendProfile_ScrambleIdentifier(unsigned int param_1, unsigned int *pNumber, char *pByte, char *pOut)
 {
@@ -7991,20 +7991,20 @@ void FrontendProfile_ScrambleIdentifier(unsigned int param_1, unsigned int *pNum
     int i;
 
     seed = *pByte;
-    p = &g_unk0x00526ea4[10];
+    p = &g_profileScrambleTables[10];
     bytes[0] = (BYTE)*pNumber;
     bytes[1] = (BYTE)(*pNumber >> 8);
     bytes[2] = (BYTE)(*pNumber >> 16);
     bytes[3] = (BYTE)(*pNumber >> 24);
     i = 0;
     do {
-        bytes[i] += g_unk0x00526eb0[i] + g_unk0x00526ebc[i] + g_unk0x00526ea4[i] + *p * 3;
+        bytes[i] += g_unk0x00526eb0[i] + g_unk0x00526ebc[i] + g_profileScrambleTables[i] + *p * 3;
         i++;
         p--;
     // ptrdiff_t preserves the signed Win32 comparison and native address width.
-    } while ((ptrdiff_t)p > (ptrdiff_t)(g_unk0x00526ea4 + 6));
+    } while ((ptrdiff_t)p > (ptrdiff_t)(g_profileScrambleTables + 6));
     FrontendProfile_BuildGuestIdentifier(param_1, (bytes[3] << 24) + (bytes[2] << 16) + (bytes[1] << 8) + bytes[0],
-                 g_unk0x00526ea4[4] + g_unk0x00526eb0[4] + g_unk0x00526ebc[4] + g_unk0x00526ea4[6] +
+                 g_profileScrambleTables[4] + g_unk0x00526eb0[4] + g_unk0x00526ebc[4] + g_profileScrambleTables[6] +
                      g_unk0x00526eb0[6] + g_unk0x00526ebc[6] + seed,
                  pOut);
 }
@@ -8236,9 +8236,9 @@ void FrontendMenu_UpdateNetworkCarSetup(Menu *pMenu)
 
     pFlags = CGameInfo::GetGameInfoField9CAddress();
     max = Menu_GetItem(pMenu, 0)->max;
-    if (max != (BYTE)g_unk0x00818d70) {
+    if (max != (BYTE)g_setupRouteIndex) {
         Menu_GetItem(pMenu, 2)->max = 0;
-        g_unk0x00818d70 = max;
+        g_setupRouteIndex = max;
     }
     if (CGameInfo::IsRecordFlagSet(0xd) == 0) {
         level = max + 1;
@@ -8288,13 +8288,13 @@ void FrontendMenu_UpdateNetworkCarSetup(Menu *pMenu)
     n = RallyData_GetDistinctValueCount();
     pList = (int *)RallyData_GetDistinctValueList();
     g_unk0x00818d08[0] = 0x156;
-    g_unk0x00818d74[0] = -1;
+    g_setupSelectedRouteIds[0] = -1;
     if (n <= 3) {
         Menu_GetItem(pMenu, 2)->min = (char)n + 1;
         if (0 < n) {
             for (i = 1; i <= n; i++) {
                 g_unk0x00818d08[i] = pList[i - 1] + 0x157;
-                g_unk0x00818d74[i] = pList[i - 1];
+                g_setupSelectedRouteIds[i] = pList[i - 1];
             }
             FrontendNetwork_DrainMessageQueue();
             return;
@@ -8302,11 +8302,11 @@ void FrontendMenu_UpdateNetworkCarSetup(Menu *pMenu)
     } else {
         Menu_GetItem(pMenu, 2)->min = 4;
         g_unk0x00818d08[1] = pList[0] + 0x157;
-        g_unk0x00818d74[1] = pList[0];
+        g_setupSelectedRouteIds[1] = pList[0];
         g_unk0x00818d08[2] = pList[n / 2] + 0x157;
-        g_unk0x00818d74[2] = pList[n / 2];
+        g_setupSelectedRouteIds[2] = pList[n / 2];
         g_unk0x00818d08[3] = pList[n - 1] + 0x157;
-        g_unk0x00818d74[3] = pList[n - 1];
+        g_setupSelectedRouteIds[3] = pList[n - 1];
     }
     FrontendNetwork_DrainMessageQueue();
 }
@@ -8442,7 +8442,7 @@ void FrontendMenu_UpdateNetworkSessionSetup(Menu *pMenu)
         }
     }
     if (g_unk0x00818ce8 != Menu_GetItem(pMenu, 1)->max) {
-        RallyData_SetDriverCategoryOption(0, (BYTE)g_unk0x00818d18[Menu_GetItem(pMenu, 1)->max]);
+        RallyData_SetDriverCategoryOption(0, (BYTE)g_filteredRouteIds[Menu_GetItem(pMenu, 1)->max]);
         FrontendNetwork_SendPlayerDescription();
         g_unk0x00818ce8 = Menu_GetItem(pMenu, 1)->max;
     }
@@ -10388,15 +10388,15 @@ void FrontendMenu_EnableRallyStageRows(Menu *pMenu, int param)
     Menu_SetNextAction(FrontendMenu_GetRallyStageSelection());
 }
 
-// Palette index (g_unk0x008196e8) -> livery index of m_unk0x00818530.
+// Palette index (g_screenPaletteIds) -> livery index of m_unk0x00818530.
 // GLOBAL: CMR2 0x005249cc
-int g_unk0x005249cc[23] = {
+int g_paletteLiveryIndex[23] = {
     1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 2, 0,
 };
 
 // Source rects (x, y, w, h) of the car picture per palette: 640x480 build.
 // GLOBAL: CMR2 0x00524a28
-short g_unk0x00524a28[22][4] = {
+short g_carPictureRectsLow[22][4] = {
     0, 0, 112, 62,
     0, 186, 112, 62,
     0, 62, 112, 62,
@@ -10423,7 +10423,7 @@ short g_unk0x00524a28[22][4] = {
 
 // Source rects (x, y, w, h) of the car picture per palette: high resolution.
 // GLOBAL: CMR2 0x00524ad8
-short g_unk0x00524ad8[22][4] = {
+short g_carPictureRectsHigh[22][4] = {
     0, 0, 180, 100,
     0, 300, 180, 100,
     0, 100, 180, 100,
@@ -10470,9 +10470,9 @@ void FrontendMenu_DrawCarSetup(Menu *pMenu)
 
     if (CGameInfo::GetScreenWidth() < 0x400 || CFrontend::IsTextureWidthSupported(0x400) == 0 ||
         CFrontend::IsTextureHeightSupported(0x400) == 0)
-        pRects = g_unk0x00524a28;
+        pRects = g_carPictureRectsLow;
     else
-        pRects = g_unk0x00524ad8;
+        pRects = g_carPictureRectsHigh;
     FrontendDraw_PlayTime();
     sprintf(g_str0x008188a4, CFrontend::GetTextString(0xdc),
             (BYTE)CGameInfo::GetConfiguredPlayerCount() - (BYTE)FrontendProfile_GetPlayersRemaining());
@@ -10485,7 +10485,7 @@ void FrontendMenu_DrawCarSetup(Menu *pMenu)
         height = 0x1ce;
     else
         height = 0xe8;
-    pTexture = CFrontend::m_unk0x0081884c[g_unk0x008196e8[pMenu->cursor]];
+    pTexture = CFrontend::m_unk0x0081884c[g_screenPaletteIds[pMenu->cursor]];
     if (pTexture != NULL) {
         src = *(SpriteRect *)&pTexture->field_0x11c;
         dst = *(SpriteRect *)&pTexture->field_0x11c;
@@ -10497,7 +10497,7 @@ void FrontendMenu_DrawCarSetup(Menu *pMenu)
         dst.y -= height;
         Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
     }
-    pTexture = CFrontend::m_unk0x008182cc[g_unk0x008196e8[pMenu->cursor]];
+    pTexture = CFrontend::m_unk0x008182cc[g_screenPaletteIds[pMenu->cursor]];
     if (pTexture != NULL) {
         src = *(SpriteRect *)&pTexture->field_0x11c;
         dst = *(SpriteRect *)&pTexture->field_0x11c;
@@ -10509,18 +10509,18 @@ void FrontendMenu_DrawCarSetup(Menu *pMenu)
         dst.y -= height;
         Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
     }
-    pTexture = CFrontend::m_unk0x00818530[g_unk0x005249cc[g_unk0x008196e8[pMenu->cursor]]];
+    pTexture = CFrontend::m_unk0x00818530[g_paletteLiveryIndex[g_screenPaletteIds[pMenu->cursor]]];
     if (pTexture != NULL) {
         g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0x22c) / 0x280;
         g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 0xab) / 0x1e0;
-        g_unk0x008189a8[2] = pRects[g_unk0x008196e8[pMenu->cursor]][2];
-        g_unk0x008189a8[3] = pRects[g_unk0x008196e8[pMenu->cursor]][3];
+        g_unk0x008189a8[2] = pRects[g_screenPaletteIds[pMenu->cursor]][2];
+        g_unk0x008189a8[3] = pRects[g_screenPaletteIds[pMenu->cursor]][3];
         g_unk0x008189a8[0] -= g_unk0x008189a8[2] / 2;
         g_unk0x008189a8[1] -= g_unk0x008189a8[3] / 2;
-        Sprite_Queue((SpriteRect *)pRects[g_unk0x008196e8[pMenu->cursor]], (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, 0, NULL,
+        Sprite_Queue((SpriteRect *)pRects[g_screenPaletteIds[pMenu->cursor]], (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, 0, NULL,
                      g_colourWhite0x00524968, 8);
     }
-    FrontendCar_GetClassPerformance(CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
+    FrontendCar_GetClassPerformance(CFrontend::GetArchivePrimaryIDEntry(g_screenPaletteIds[pMenu->cursor]), &speed, &accel, &grip);
     FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
                  CFrontend::GetTextString(0x186));
     x = FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,
@@ -10549,9 +10549,9 @@ void FrontendMenu_DrawPaletteSelection(Menu *pMenu)
 
     if (CGameInfo::GetScreenWidth() < 0x400 || CFrontend::IsTextureWidthSupported(0x400) == 0 ||
         CFrontend::IsTextureHeightSupported(0x400) == 0)
-        pRects = g_unk0x00524a28;
+        pRects = g_carPictureRectsLow;
     else
-        pRects = g_unk0x00524ad8;
+        pRects = g_carPictureRectsHigh;
     FrontendDraw_PlayTime();
     sprintf(g_str0x008188a4, CFrontend::GetTextString(0xdc),
             (BYTE)CGameInfo::GetConfiguredPlayerCount() - (BYTE)FrontendProfile_GetPlayersRemaining());
@@ -10564,7 +10564,7 @@ void FrontendMenu_DrawPaletteSelection(Menu *pMenu)
         height = 0x1ce;
     else
         height = 0xe8;
-    pTexture = CFrontend::m_unk0x0081884c[g_unk0x008196e8[pMenu->cursor]];
+    pTexture = CFrontend::m_unk0x0081884c[g_screenPaletteIds[pMenu->cursor]];
     if (pTexture != NULL) {
         src = *(SpriteRect *)&pTexture->field_0x11c;
         dst = *(SpriteRect *)&pTexture->field_0x11c;
@@ -10576,7 +10576,7 @@ void FrontendMenu_DrawPaletteSelection(Menu *pMenu)
         dst.y -= height;
         Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
     }
-    pTexture = CFrontend::m_unk0x008182cc[g_unk0x008196e8[pMenu->cursor]];
+    pTexture = CFrontend::m_unk0x008182cc[g_screenPaletteIds[pMenu->cursor]];
     if (pTexture != NULL) {
         src = *(SpriteRect *)&pTexture->field_0x11c;
         dst = *(SpriteRect *)&pTexture->field_0x11c;
@@ -10588,18 +10588,18 @@ void FrontendMenu_DrawPaletteSelection(Menu *pMenu)
         dst.y -= height;
         Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
     }
-    pTexture = CFrontend::m_unk0x00818530[g_unk0x005249cc[g_unk0x008196e8[pMenu->cursor]]];
+    pTexture = CFrontend::m_unk0x00818530[g_paletteLiveryIndex[g_screenPaletteIds[pMenu->cursor]]];
     if (pTexture != NULL) {
         g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0x22c) / 0x280;
         g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 0xab) / 0x1e0;
-        g_unk0x008189a8[2] = pRects[g_unk0x008196e8[pMenu->cursor]][2];
-        g_unk0x008189a8[3] = pRects[g_unk0x008196e8[pMenu->cursor]][3];
+        g_unk0x008189a8[2] = pRects[g_screenPaletteIds[pMenu->cursor]][2];
+        g_unk0x008189a8[3] = pRects[g_screenPaletteIds[pMenu->cursor]][3];
         g_unk0x008189a8[0] -= g_unk0x008189a8[2] / 2;
         g_unk0x008189a8[1] -= g_unk0x008189a8[3] / 2;
-        Sprite_Queue((SpriteRect *)pRects[g_unk0x008196e8[pMenu->cursor]], (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, 0, NULL,
+        Sprite_Queue((SpriteRect *)pRects[g_screenPaletteIds[pMenu->cursor]], (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, 0, NULL,
                      g_colourWhite0x00524968, 8);
     }
-    FrontendCar_GetClassPerformance(CFrontend::GetArchivePrimaryIDEntry(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
+    FrontendCar_GetClassPerformance(CFrontend::GetArchivePrimaryIDEntry(g_screenPaletteIds[pMenu->cursor]), &speed, &accel, &grip);
     FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
                  CFrontend::GetTextString(0x186));
     x = FrontendDraw_ModeProgressBar((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,
@@ -11974,7 +11974,7 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
             break;
         case 1:
             sprintf(CFrontend::m_stringDest, g_str0x00524d9c, CFrontend::GetTextString(0x87),
-                    CFrontend::GetTextString(g_unk0x00818d18[Menu_GetItem(pMenu, 1)->max] + 0x98));
+                    CFrontend::GetTextString(g_filteredRouteIds[Menu_GetItem(pMenu, 1)->max] + 0x98));
             break;
         case 2:
             sprintf(CFrontend::m_stringDest, g_str0x00524d9c, CFrontend::GetTextString(0x88),

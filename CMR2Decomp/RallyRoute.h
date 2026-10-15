@@ -16,7 +16,7 @@ extern short g_routeDirCount;
 // GLOBAL: CMR2 0x00538b68
 extern FixVector g_routeDir[3];
 
-extern int g_unk0x00538a84;
+extern int g_routeNodeCount;
 
 void RallyRoute_GetNodeDirection(FixVector *pOut, unsigned int nodeIndex);
 

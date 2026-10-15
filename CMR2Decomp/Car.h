@@ -438,7 +438,7 @@ void Car_UpdateBodyLean(void);
 void Car_UpdateAutomaticGear(void);
 
 // Network pose record of a car (0xec bytes); eight rows start at 0x5393d8
-// (g_unk0x005393d8, owned by StageTiming.cpp). The remote cars are advanced
+// (g_carNetRecords, owned by StageTiming.cpp). The remote cars are advanced
 // from it between packets.
 struct CarNetRecord {
     FixMatrix matrix;           // 0x00 body matrix sent / rebuilt

@@ -51,7 +51,7 @@ struct MeshFileHeader {
 
 // Meshes registered by the mesh file loader, indexed by total mesh size.
 // GLOBAL: CMR2 0x0066f124
-void *g_unk0x0066f124[8192];
+void *g_meshesBySize[8192];
 extern int g_unk0x0067f228;
 extern StageObject *g_stageObjects[6000];
 
@@ -157,7 +157,7 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, SceneNode *parent, GenericFile *
     if (*(unsigned short *)(pData + 0x26) > 0) {
         for (j = 0, p = pRecords; j < *(unsigned short *)(pData + 0x26); j++, p += 0x5c) {
             Graphics_AccumulateCounterOrInitialize((int *)(p + 0x58), (int)pRecords);
-            g_unk0x0066f124[g_meshTotalSize + j] = p;
+            g_meshesBySize[g_meshTotalSize + j] = p;
         }
         g_meshTotalSize += *(unsigned short *)(pData + 0x26);
     }

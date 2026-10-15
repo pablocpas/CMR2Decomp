@@ -48,7 +48,7 @@ void RallyRoute_GetNodeDirection(FixVector *pOut, unsigned int nodeIndex)
         hasPrev = 1;
         pPrev = pNode - 1;
     }
-    if (nodeIndex < (unsigned int)(g_unk0x00538a84 - 1)) {
+    if (nodeIndex < (unsigned int)(g_routeNodeCount - 1)) {
         hasNext = 1;
         pNext = g_routeNodes + nodeIndex + 1;
     }

@@ -16,7 +16,7 @@
 #include "RallyData.h"
 
 extern BYTE g_unk0x00819048;
-extern int g_unk0x008196e8[23];
+extern int g_screenPaletteIds[23];
 
 #define PATH_X() ((int)(g_pGraphics->resX * 24) / 640)
 bool RallyData_HasCategoryAward(int index, int bit, char check);
@@ -37,7 +37,7 @@ void FrontendMenu_InitRouteScroller(Menu *pMenu, int param)
     for (; i < 0x16; i++) {
         if (CGameInfo::GetConfiguredGameMode() == 7 || CGameInfo::GetConfiguredGameMode() == 5 || CGameInfo::GetConfiguredGameMode() == 6) {
             if (RallyData_HasCategoryAward(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048 - 1, i, 1)) {
-                g_unk0x008196e8[count] = i;
+                g_screenPaletteIds[count] = i;
                 pMenu->items[count].id = i + 0x98;
                 strcpy(CFrontend::m_stringDest, CFrontend::GetTextString((short)(i + 0x98)));
                 CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
@@ -608,7 +608,7 @@ ControlsDeviceSelection g_controlsDeviceSelection;
 #define g_unk0x0082a7d8 (g_controlsDeviceSelection.lastDevice)
 // Set when the devices must be re-read (the game lost the focus).
 // GLOBAL: CMR2 0x0082a7dc
-int g_unk0x0082a7dc;
+int g_controlsRereadDevices;
 // GLOBAL: CMR2 0x0082a7e4
 int g_unk0x0082a7e4;
 // GLOBAL: CMR2 0x0082a7e8
@@ -1040,14 +1040,14 @@ void FrontendControls_UpdateDeviceConfiguration(Menu *pMenu)
         return;
     }
     if (CGame::IsActive() == 0) {
-        if (g_unk0x0082a7dc != 0) {
+        if (g_controlsRereadDevices != 0) {
             CInput::RebuildAvailableInputDevices();
             CInput::RefreshControllerConfigurations();
             FrontendControls_EnterDeviceConfiguration(pMenu, 0);
             Input_GetAssignedController();
-            g_unk0x0082a7dc = 0;
+            g_controlsRereadDevices = 0;
         }
-    } else if (g_unk0x0082a7dc != 0) {
+    } else if (g_controlsRereadDevices != 0) {
         return;
     }
     if (pMenu->items[0].max == g_unk0x0082a7d8) {

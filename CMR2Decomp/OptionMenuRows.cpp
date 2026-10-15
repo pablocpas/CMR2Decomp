@@ -84,7 +84,7 @@ extern int g_unk0x00527378;
 
 extern int g_unk0x0052737c;
 
-extern short g_unk0x00831660[4];
+extern short g_gameInfoDrawRect[4];
 
 extern BYTE g_colour0x005273a8[8];
 
@@ -96,7 +96,7 @@ BYTE RallyData_GetDriverGridRow(BYTE param1, char param2);
 
 extern BYTE g_unk0x0051682c[132];
 
-extern int g_unk0x00527398;
+extern int g_highlightRowColour;
 
 extern char g_unk0x0082aa44[0x100];
 
@@ -163,35 +163,35 @@ void OptionMenu_DrawAnimatedScreenRows(short param1, short param2, short param3,
         OptionMenu_ScaleRecordBar(1, rectP);
     }
 
-    g_unk0x00831660[0] = (short)barX;
-    g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * rowY / 0x1e0);
-    g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xa2 / 0x280);
-    g_unk0x00831660[3] = 1;
+    g_gameInfoDrawRect[0] = (short)barX;
+    g_gameInfoDrawRect[1] = (short)((int)g_pGraphics->resY * rowY / 0x1e0);
+    g_gameInfoDrawRect[2] = (short)((int)g_pGraphics->resX * 0xa2 / 0x280);
+    g_gameInfoDrawRect[3] = 1;
     if (param3 == 4)
-        g_unk0x00831660[2] += (short)((int)g_pGraphics->resX * 200 / 0x280);
+        g_gameInfoDrawRect[2] += (short)((int)g_pGraphics->resX * 200 / 0x280);
 
-    OptionMenu_EaseRecordBar(0, g_unk0x00831660, 1, 1);
+    OptionMenu_EaseRecordBar(0, g_gameInfoDrawRect, 1, 1);
 
     if (param2 == 0) {
                 if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
-Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
+Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_unk0x00527378, 1);
         else
-            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&param6, 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&param6, 1);
     } else {
-        Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2], 1);
     }
 
     for (i = 0; i < param1; i++) {
         if (g_unk0x0083166c != 0) {
             if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) != 0 &&
                 CFrontend::IsTextureHeightSupported(0x400) != 0) {
-                rectQ[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_unk0x00831660[1] - 0xa);
-                rectP[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_unk0x00831660[1] - 0xe);
-                rectR[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_unk0x00831660[1] - 0xd);
+                rectQ[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_gameInfoDrawRect[1] - 0xa);
+                rectP[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_gameInfoDrawRect[1] - 0xe);
+                rectR[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_gameInfoDrawRect[1] - 0xd);
             } else {
-                rectQ[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_unk0x00831660[1] - 6);
-                rectP[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_unk0x00831660[1] - 9);
-                rectR[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_unk0x00831660[1] - 8);
+                rectQ[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_gameInfoDrawRect[1] - 6);
+                rectP[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_gameInfoDrawRect[1] - 9);
+                rectR[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2 + g_gameInfoDrawRect[1] - 8);
             }
         }
         flag = 0;
@@ -336,13 +336,13 @@ Sprite_Queue((SpriteRect *)&g_unk0x00831648->field_0x11c, (SpriteRect *)rectP,
 OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                                  (int)g_pGraphics->resX * 0x14 / 0x280 +
                                      (int)g_pGraphics->resX * param4 / 0x280,
-                                 (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1],
+                                 (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_gameInfoDrawRect[1],
                                  &g_unk0x00527378, &g_unk0x00527378, 0x11);
                 else
 OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
                                  (int)g_pGraphics->resX * 0x14 / 0x280 +
                                      (int)g_pGraphics->resX * param4 / 0x280,
-                                 (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1],
+                                 (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_gameInfoDrawRect[1],
                                  &g_unk0x00527378, g_unk0x00527380, 0x11);
                 if (g_unk0x0083166c != 0)
                     Sprite_Queue((SpriteRect *)&g_unk0x0083166c->field_0x11c, (SpriteRect *)rectQ,
@@ -353,13 +353,13 @@ OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
 OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                                  (int)g_pGraphics->resX * 0x14 / 0x280 +
                                      (int)g_pGraphics->resX * param4 / 0x280,
-                                 (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1],
+                                 (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_gameInfoDrawRect[1],
                                  &param6, &g_unk0x0052738c[1], 0x11);
                 else
 OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
                                  (int)g_pGraphics->resX * 0x14 / 0x280 +
                                      (int)g_pGraphics->resX * param4 / 0x280,
-                                 (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1],
+                                 (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_gameInfoDrawRect[1],
                                  &param6, g_unk0x00527380, 0x11);
                 if (g_unk0x0083166c != 0)
                     Sprite_Queue((SpriteRect *)&g_unk0x0083166c->field_0x11c, (SpriteRect *)rectQ,
@@ -370,17 +370,17 @@ OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
                 OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                              (int)g_pGraphics->resX * 0x14 / 0x280 +
                                  (int)g_pGraphics->resX * param4 / 0x280,
-                             (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1],
-                             &g_unk0x00527398, &g_unk0x0052738c[2], 0x11);
+                             (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_gameInfoDrawRect[1],
+                             &g_highlightRowColour, &g_unk0x0052738c[2], 0x11);
                 if (g_unk0x0083166c != 0)
                     Sprite_Queue((SpriteRect *)&g_unk0x0083166c->field_0x11c, (SpriteRect *)rectQ,
                                  g_unk0x0083166c, 1, 0, NULL, NULL,
-                                 (BYTE *)&g_unk0x00527398, 8);
+                                 (BYTE *)&g_highlightRowColour, 8);
             } else {
                 OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                              (int)g_pGraphics->resX * 0x14 / 0x280 +
                                  (int)g_pGraphics->resX * param4 / 0x280,
-                             (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1],
+                             (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_gameInfoDrawRect[1],
                              g_unk0x00527380, g_unk0x0052738c, 0x11);
                 if (g_unk0x00831670 != 0)
                     Sprite_Queue((SpriteRect *)&g_unk0x00831670->field_0x11c, (SpriteRect *)rectQ,
@@ -388,15 +388,15 @@ OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
                                  (BYTE *)g_unk0x00527380, 8);
             }
         }
-        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * param5 / 0x1e0 +
+        g_gameInfoDrawRect[1] = (short)((int)g_pGraphics->resY * param5 / 0x1e0 +
                                      (int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1));
         if (i == param2 || i + 1 == param2) {
             if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
-                Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_unk0x00527378, 1);
             else
-                Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&param6, 1);
+                Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&param6, 1);
         } else {
-            Sprite_FillRect(&g_pGraphics->field309_0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2], 1);
         }
     }
 }

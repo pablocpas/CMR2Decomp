@@ -381,7 +381,7 @@ done:
 
 // Collision flags published for the rest of the physics step.
 // GLOBAL: CMR2 0x005915dc
-int g_unk0x005915dc;
+int g_physicsCollisionFlags;
 // GLOBAL: CMR2 0x00591468
 int g_unk0x00591468;
 
@@ -457,7 +457,7 @@ int Collision_CarVsBox(Car *car, CollisionBox *pBox, int scale)
         }
 
         StageObject_ApplyRecursiveFrameDelta((BYTE)car->index, -1, (int *)&along, 1);
-        g_unk0x005915dc = 0x8000;
+        g_physicsCollisionFlags = 0x8000;
         g_unk0x00591468 = 0x1578d;
         return 1;
     }
@@ -501,7 +501,7 @@ extern int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, Collision
 int g_unk0x005913f4;
 
 extern int g_unk0x00591390;
-extern BYTE g_unk0x005913dc[8];
+extern BYTE g_carContactCounts[8];
 extern BYTE g_unk0x005913f8[8][8];
 extern CollisionBox g_unk0x00590ed0[8];
 extern BYTE g_unk0x00590ec8[4];
@@ -541,7 +541,7 @@ void Collision_TestOrderedCarPairs(Car *pCars, short *pOrder, short count)
 
     for (i = 0; i < 8; i++)
         flags[i] = 0;
-    memset(g_unk0x005913dc, 0, 8);
+    memset(g_carContactCounts, 0, 8);
     n = count - 1;
     for (i = 0; i < n; i++) {
         for (j = i + 1; j < count; j++) {
@@ -579,10 +579,10 @@ void Collision_TestOrderedCarPairs(Car *pCars, short *pOrder, short count)
                     result = Collision_SeparateCarBoxes(pCarA, pCarB);
                     g_unk0x00591390 = 0;
                     if (result != 0) {
-                        g_unk0x005913f8[pCarA->index][g_unk0x005913dc[pCarA->index]] = pCarB->index;
-                        g_unk0x005913dc[pCarA->index]++;
-                        g_unk0x005913f8[pCarB->index][g_unk0x005913dc[pCarB->index]] = pCarA->index;
-                        g_unk0x005913dc[pCarB->index]++;
+                        g_unk0x005913f8[pCarA->index][g_carContactCounts[pCarA->index]] = pCarB->index;
+                        g_carContactCounts[pCarA->index]++;
+                        g_unk0x005913f8[pCarB->index][g_carContactCounts[pCarB->index]] = pCarA->index;
+                        g_carContactCounts[pCarB->index]++;
                         Collision_ResolveCarContactImpulse(pCarA, pCarB);
                         g_unk0x00591390 = 1;
                     }
@@ -1023,7 +1023,7 @@ void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2)
 
 // Bumped by 0x4878a0 while a car is scraping along a wall.
 // GLOBAL: CMR2 0x005914d8
-int g_unk0x005914d8;
+int g_wallScrapeCount;
 // Corner copy the wall collision keeps for the other body of the contact:
 // the corners of the object box at 0x5915f8 (StageObjects.cpp), from +0x30.
 extern CollisionBox g_sectorObjectCollisionBox;
@@ -1080,7 +1080,7 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
         if (dot > g_unk0x00591468) {
             flagA = 1;
             flagB = 1;
-        } else if (dot > g_unk0x005915dc) {
+        } else if (dot > g_physicsCollisionFlags) {
             flagA = 1;
             flagB = 0;
         }
@@ -1106,7 +1106,7 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
         if (param_1->contactSurfaces[0][i] == param_4)
             goto known;
     }
-    if (g_unk0x005914d8 != 0) {
+    if (g_wallScrapeCount != 0) {
         if (g_unk0x005915f4 != 0) {
             CarDamage_ApplyCollisionDeformImpulse(param_1,
                          (int *)&param_1->corners[g_unk0x005914c4[0]],
@@ -1136,7 +1136,7 @@ known:
 
     if (flagA == 0) {
         FixVecCross(&spin, &tmp, &param_1->field_0x5dc);
-        if (g_unk0x005914d8 != 0)
+        if (g_wallScrapeCount != 0)
             FixVecScale(&spin, &spin, 0x18000);
         else
             FixVecScale(&spin, &spin, 0x30000);

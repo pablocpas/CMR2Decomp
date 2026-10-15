@@ -173,7 +173,7 @@ int g_unk0x00531654[4];
 BYTE *g_unk0x00531764;
 // CMR2 0x00818cd0: generic file load flag, cleared together with the load counter
 // GLOBAL: CMR2 0x00818cd0
-BYTE g_unk0x00818cd0;
+BYTE g_genericFileLoaded;
 
 // GLOBAL: CMR2 0x00525258
 char g_strPpsPathFormat[32] = "%s\\pps\\%s%.2d%.2d%.2d%.2d.pps";
@@ -487,7 +487,7 @@ char Profile_ReleaseLoadBuffer(void)
         g_unk0x00531764 = NULL;
     }
     g_unk0x00531650 = 0;
-    g_unk0x00818cd0 = 0;
+    g_genericFileLoaded = 0;
     return 1;
 }
 
@@ -507,8 +507,8 @@ void Profile_RebuildFileList(void)
     HANDLE hFind;
     char found;
 
-    if (g_unk0x00818cd0 == 0) {
-        g_unk0x00818cd0 = 1;
+    if (g_genericFileLoaded == 0) {
+        g_genericFileLoaded = 1;
         CGame::RegisterCallback((void *)Profile_ReleaseLoadBuffer, NULL);
     }
     if (g_unk0x00531764 != NULL) {

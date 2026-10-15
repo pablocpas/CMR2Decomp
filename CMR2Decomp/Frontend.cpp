@@ -811,7 +811,7 @@ int g_frontendRecordDifficulty;
 // Per-player input state, at most 4 players; the split-time arrays at
 // 0x817448 start right after the 4th record.
 // GLOBAL: CMR2 0x00817420
-BYTE g_unk0x00817420[4 * 0xa];
+BYTE g_playerInputRecords[4 * 0xa];
 // GLOBAL: CMR2 0x00817410
 BYTE g_unk0x00817410;
 // GLOBAL: CMR2 0x00817411
@@ -841,7 +841,7 @@ void CFrontend::ResetFrontendPlayerInputState(void)
     g_unk0x008173f4 = CGameInfo::GetConfiguredGameMode() & 0xff;
     g_frontendRecordDifficulty = CGameInfo::GetConfiguredDifficulty() & 0xff;
     Frontend_StoreCurrentCountryStageSelection();
-    pState = (InputKeyState *)g_unk0x00817420;
+    pState = (InputKeyState *)g_playerInputRecords;
     for (i = 0; i < g_unk0x008173f0; i++) {
         pState->field_0x8 = 0;
         pState->field_0x4 = 0;
@@ -868,10 +868,10 @@ void CFrontend::ClearFrontendPlayerInputCounters(void)
     BYTE index;
 
     for (i = 0; i < g_unk0x008173f0; i++) {
-        g_unk0x00817420[i * 0xa] = 0;
+        g_playerInputRecords[i * 0xa] = 0;
         index = RallyDataStageIndex();
         if (index == 0)
-            g_unk0x00817420[i * 0xa] = index;
+            g_playerInputRecords[i * 0xa] = index;
     }
     g_unk0x00817410 = 0;
     index = RallyDataStageIndex();
@@ -892,7 +892,7 @@ void Frontend_AccumulateDeviceKeyCounters(void)
 
     for (i = 0; i < 0xb; i++) {
         for (j = 0; j < g_unk0x008173f0; j++) {
-            pState = (InputKeyState *)(g_unk0x00817420 + j * 0xa);
+            pState = (InputKeyState *)(g_playerInputRecords + j * 0xa);
             if ((1 << i) & pState->field_0x4) {
                 pState->field_0x8++;
                 RallyData_IncrementCategoryCounter10(j);
@@ -905,7 +905,7 @@ void Frontend_AccumulateDeviceKeyCounters(void)
     }
     for (i = 0; i < 8; i++) {
         for (j = 0; j < g_unk0x008173f0; j++) {
-            pState = (InputKeyState *)(g_unk0x00817420 + j * 0xa);
+            pState = (InputKeyState *)(g_playerInputRecords + j * 0xa);
             if ((1 << i) & pState->field_0x6) {
                 pState->field_0x8++;
                 RallyData_IncrementCategoryCounter10(j);
@@ -917,7 +917,7 @@ void Frontend_AccumulateDeviceKeyCounters(void)
         }
     }
     for (j = 0; j < g_unk0x008173f0; j++) {
-        pState = (InputKeyState *)(g_unk0x00817420 + j * 0xa);
+        pState = (InputKeyState *)(g_playerInputRecords + j * 0xa);
         if (pState->field_0x2 != 0) {
             pState->field_0x8++;
             RallyData_IncrementCategoryCounter10(j);
@@ -1020,10 +1020,10 @@ void Frontend_SetObjectField118(Texture *pTexture, int value)
 // Split times mirrored out of the loaded game info record; 10 entries for the
 // rally records, the arcade records only fill the first 6.
 // GLOBAL: CMR2 0x00817448
-int g_unk0x00817448[10];
+int g_loadedSplitTimes[10];
 // Lowest split value seen so far, reset to a whole stage length.
 // GLOBAL: CMR2 0x00817570
-int g_unk0x00817570;
+int g_lowestSplitValue;
 // Placeholder string copied (and discarded) by FrontendRecords_CopyArcadeSplitMirror.
 // GLOBAL: CMR2 0x00523bb4
 char g_str0x00523bb4[8] = "ABCDEFG";
@@ -1040,14 +1040,14 @@ void Frontend_MergeMenuKeysIntoPlayerState(void)
 
     if ((BYTE)RallyData_GetFlag30()) {
         for (i = 0; i < g_unk0x008173f0; i++) {
-            pState = (InputKeyState *)(g_unk0x00817420 + i * 0xa);
+            pState = (InputKeyState *)(g_playerInputRecords + i * 0xa);
             pState->field_0x4 |= (short)(pState->field_0x0[0] << RallyDataStageIndex());
         }
         g_unk0x00817414 |= (short)(g_unk0x00817410 << RallyDataStageIndex());
     }
     if ((BYTE)RallyData_GetFlag24()) {
         for (i = 0; i < g_unk0x008173f0; i++) {
-            pState = (InputKeyState *)(g_unk0x00817420 + i * 0xa);
+            pState = (InputKeyState *)(g_playerInputRecords + i * 0xa);
             pState->field_0x4 |= (short)(StageTiming_GetFinishStateEntry(i) << RallyData_GetSelectionBits12To13());
         }
         g_unk0x00817414 |= (short)(StageTiming_GetFinishStateByte() << RallyData_GetSelectionBits12To13());
@@ -1055,7 +1055,7 @@ void Frontend_MergeMenuKeysIntoPlayerState(void)
     stage = RallyData_GetModeStageGroup(RallyDataCountryIndex(), (char)CGameInfo::GetConfiguredDifficulty());
     if (RallyDataStageIndex() == stage) {
         for (i = 0; i < g_unk0x008173f0; i++) {
-            pState = (InputKeyState *)(g_unk0x00817420 + i * 0xa);
+            pState = (InputKeyState *)(g_playerInputRecords + i * 0xa);
             pState->field_0x6 |= (short)(pState->field_0x0[1] << RallyDataStageIndex());
         }
         g_unk0x00817416 |= (short)(g_unk0x00817411 << RallyDataStageIndex());
@@ -1204,7 +1204,7 @@ BYTE Frontend_MergeBestDeviceStageOption(int index, CategoryBestResults *pBlock)
         *pEntry = (RallyData_GetDriverRecordSelectionValue((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
         *pEntry = (RallyData_GetDriverOrCategoryFlag((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
         RallyData_MarkTyresChanged(index);
-        g_unk0x00817420[index * 0xa] = 1;
+        g_playerInputRecords[index * 0xa] = 1;
         return 1;
     }
     return 0;
@@ -1238,7 +1238,7 @@ BYTE Frontend_MergeBestDeviceButtonOption(int index, CategoryBestResults *pBlock
             *pEntry = (RallyData_GetDriverRecordSelectionValue((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
             *pEntry = (RallyData_GetDriverOrCategoryFlag((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
             RallyData_MarkTyresChanged(index);
-            g_unk0x00817420[index * 0xa + 1] = 1;
+            g_playerInputRecords[index * 0xa + 1] = 1;
             return 1;
         }
     }
@@ -1313,7 +1313,7 @@ BYTE Frontend_MergeBestPlayerStageOption(int index, CategoryBestResults *pBlock)
             pEntry->car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
             pEntry->bit6 = RallyData_GetDriverOrCategoryFlag((BYTE)index);
             RallyData_MarkTyresChanged(index);
-            g_unk0x00817420[index * 0xa + 2] = 1;
+            g_playerInputRecords[index * 0xa + 2] = 1;
             return 1;
         }
     }
@@ -1371,7 +1371,7 @@ BYTE Frontend_MergeBestSecondaryPlayerOption(int index, CategoryBestResults *pBl
             pEntry->header.car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
             pEntry->header.bit6 = RallyData_GetDriverOrCategoryFlag((BYTE)index);
             RallyData_MarkTyresChanged(index);
-            g_unk0x00817420[index * 0xa + 3] = 1;
+            g_playerInputRecords[index * 0xa + 3] = 1;
             return 1;
         }
     }
@@ -1386,8 +1386,8 @@ int Frontend_AccumulateMinimumDeviceOption(int param_1, int param_2)
 
     RallyData_GetCategoryOptionRecord(param_2);
     pOption = (unsigned int *)Frontend_GetDeviceOptionBlock(param_2);
-    if (pOption != NULL && *pOption < (unsigned int)g_unk0x00817570) {
-        g_unk0x00817570 = *pOption;
+    if (pOption != NULL && *pOption < (unsigned int)g_lowestSplitValue) {
+        g_lowestSplitValue = *pOption;
         return 1;
     }
     return 0;
@@ -1422,7 +1422,7 @@ int Frontend_CopyImprovedStageRecordAndSplits(int param_1, int param_2, char *pN
     for (i = 0; i < 10; i++) {
         unsigned short value = (unsigned short)StageTiming_GetDriverSplitClock(param_1, i);
         pSplits[i] = value;
-        g_unk0x00817448[i] = value;
+        g_loadedSplitTimes[i] = value;
     }
     g_unk0x00817410 = 1;
     return 1;
@@ -1551,8 +1551,8 @@ int Frontend_AccumulateMinimumArcadeOption(int param_1, int param_2)
     pDevice = (unsigned int *)(RallyData_GetCategoryOptionRecord(param_2) + 0x20);
     if (pDevice != NULL) {
         value = *pDevice;
-        if (value < (unsigned int)g_unk0x00817570) {
-            g_unk0x00817570 = value;
+        if (value < (unsigned int)g_lowestSplitValue) {
+            g_lowestSplitValue = value;
             return 1;
         }
     }
@@ -1593,11 +1593,11 @@ int FrontendRecords_CopyArcadeSplitMirror(int param_1, int param_2)
             for (i = 0; i < 6; i++) {
                 unsigned short split = (unsigned short)StageTiming_GetCarSplitMarker(param_1, i);
                 pSplits[i] = split;
-                g_unk0x00817448[i] = split;
+                g_loadedSplitTimes[i] = split;
             }
             value = (pRecord->value >> 7) & 0xffff;
             i = Stage_GetSplitPositionCount();
-            g_unk0x00817448[i] = value;
+            g_loadedSplitTimes[i] = value;
             strcpy(pRecord->ident, (char *)RallyData_GetRecord((BYTE)param_2));
             pRecord->value = (RallyData_GetDriverRecordSelectionValue((BYTE)param_2) & 0x3f) | (pRecord->value & 0xffffffc0);
             pRecord->value = (RallyData_GetDriverOrCategoryFlag((BYTE)param_2) & 1) << 6 | (pRecord->value & 0xffffffbf);
@@ -1679,7 +1679,7 @@ void Frontend_LoadSplitTimeMirror(void)
     if ((BYTE)RallyData_GetFlag23()) {
         Frontend_StoreCurrentCountryStageSelection();
         i = 0;
-        pDest = g_unk0x00817448;
+        pDest = g_loadedSplitTimes;
         do {
             if ((BYTE)RallyData_GetFlag24()) {
                 index = g_frontendRecordStage + g_unk0x00817404 * 3;
@@ -1690,19 +1690,19 @@ void Frontend_LoadSplitTimeMirror(void)
             }
             pDest++;
             i++;
-        } while ((INT_PTR)pDest < (INT_PTR)&g_unk0x00817448[10]);
+        } while ((INT_PTR)pDest < (INT_PTR)&g_loadedSplitTimes[10]);
         RallyData_GetFlag24();
-        g_unk0x00817570 = 360000;
+        g_lowestSplitValue = 360000;
         return;
     }
-    g_unk0x00817570 = 360000;
+    g_lowestSplitValue = 360000;
 }
 
 // Stores a value into the option block of the given device (see Frontend_GetDeviceOptionBlock).
 // FUNCTION: CMR2 0x004d0220
 int Frontend_StoreSelectedDeviceOption(int index)
 {
-    return g_unk0x00817448[index];
+    return g_loadedSplitTimes[index];
 }
 
 // Returns the option block of a device when the current menu mode has one
