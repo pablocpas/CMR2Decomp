@@ -842,6 +842,9 @@ int g_unk0x00537198[2];
 int RallyData_GetActiveCarRaceRecordField0(Car *p);
 
 // Stores the player's route position twice and frees the first five race slots.
+// Car_ResetToStage also calls it for computer cars (index 2..7 in the arcade
+// modes): the original then writes past both two-entry arrays, over the
+// co-driver call table pointer, the arrow texture and the call records.
 // FUNCTION: CMR2 0x00417780
 void Race_StorePlayerRouteAndClearSlots(int player)
 {

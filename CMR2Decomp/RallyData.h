@@ -73,4 +73,25 @@ char RallyData_GetUsableRecordCategory(BYTE param1);
 BYTE RallyData_GetDriverRecordSelectionValue(BYTE index);
 int RallyData_IsHeadToHeadRaceMode(void);
 
+struct RallyPairingTables {
+    int pairs[20][2];
+    int skills[20];
+    int flags[20];
+    int otherFlags[20];
+};
+struct Unk0x0052ebc0 {
+    BYTE field_0x0[0x148];
+};
+// The four driver group records and the tables after them form one block:
+// the network setup packet copies them as offsets from the start of the
+// records (FrontendNetwork_WriteSetupPacket/ReadSetupPacket).
+struct RallyDriverGroupTable {
+    Unk0x0052ebc0 groups[4];        // 0x000
+    BYTE field_0x520[4][7];         // 0x520
+    int field_0x53c;                // 0x53c
+    RallyPairingTables pairing;     // 0x540
+    int field_0x6d0;                // 0x6d0
+    BYTE field_0x6d4[0x14];         // 0x6d4
+};
+
 #endif

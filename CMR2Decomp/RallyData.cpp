@@ -153,15 +153,16 @@ unsigned int g_unk0x0051627c[9][30] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     }
 };
-struct RallyPairingTables {
-    int pairs[20][2];
-    int skills[20];
-    int flags[20];
-    int otherFlags[20];
-};
 CMR2_LAYOUT_CHECK(RallyPairingTablesSize, sizeof(RallyPairingTables) == 0x190);
-// GLOBAL: CMR2 0x0052f100
-RallyPairingTables g_rallyPairingTables;
+CMR2_LAYOUT_CHECK(RallyDriverGroupTableSize, sizeof(RallyDriverGroupTable) == 0x6e8);
+// GLOBAL: CMR2 0x0052ebc0
+RallyDriverGroupTable g_driverGroupTable;
+#define g_unk0x0052ebc0 (g_driverGroupTable.groups)
+#define g_unk0x0052f0e0 (g_driverGroupTable.field_0x520)
+#define g_unk0x0052f0fc (g_driverGroupTable.field_0x53c)
+#define g_rallyPairingTables (g_driverGroupTable.pairing)
+#define g_unk0x0052f290 (g_driverGroupTable.field_0x6d0)
+#define g_unk0x0052f294 (g_driverGroupTable.field_0x6d4)
 #define g_unk0x0052f100 (g_rallyPairingTables.pairs)
 #define g_unk0x0052f1a0 (g_rallyPairingTables.skills)
 #define g_unk0x0052f1f0 (g_rallyPairingTables.flags)
@@ -251,8 +252,6 @@ void RallyData_ResetDriverPairingTables(int value)
     RallyData_InterpolateGroupGrip(2);
 }
 
-// GLOBAL: CMR2 0x0052f294
-BYTE g_unk0x0052f294[0x14];
 // GLOBAL: CMR2 0x0052f2ac
 unsigned int g_selectedRallyData = 0;
 
@@ -1251,8 +1250,6 @@ BYTE g_unk0x0051682c[132] = {
 };
 
 BYTE *RallyData_GetDriverSkillRecord(int index);
-extern int g_unk0x0052f290;
-extern int g_unk0x0052f0fc;
 
 // Copies the country's default 7-byte settings into the four player records;
 // in some championship stages the first value is bumped to the next odd one.
@@ -1936,8 +1933,6 @@ unsigned int *RallyData_GetSelectedCountryValueTable(void)
     return g_unk0x0051627c[g_selectedRallyData & 0x1f];
 }
 
-// GLOBAL: CMR2 0x0052f0e0
-BYTE g_unk0x0052f0e0[4][7];
 
 // FUNCTION: CMR2 0x00407630
 BYTE *RallyData_GetDriverSkillRecord(int index)
@@ -4031,10 +4026,19 @@ short g_unk0x0082c9fe;
 short g_unk0x0082ca00;
 // GLOBAL: CMR2 0x0082ca02
 short g_unk0x0082ca02;
+// Weather map symbol positions per country: an (x, y) pair for each of the
+// eleven stage slots, indexed [country][slot * 2]. The decompilation had kept
+// only the first country, so the others read the strings that follow.
 // GLOBAL: CMR2 0x0052718c
-BYTE g_unk0x0052718c[22] = {
-    0x94, 0x99, 0x91, 0x8b, 0xa0, 0x8e, 0x94, 0x99, 0x7d, 0x4c, 0x75,
-    0x50, 0x6f, 0x44, 0x7d, 0x4c, 0x82, 0x9c, 0x79, 0xa5, 0x00, 0x00
+BYTE g_weatherSymbolPositions[8][22] = {
+    { 0x94, 0x99, 0x91, 0x8b, 0xa0, 0x8e, 0x94, 0x99, 0x7d, 0x4c, 0x75, 0x50, 0x6f, 0x44, 0x7d, 0x4c, 0x82, 0x9c, 0x79, 0xa5, 0x00, 0x00 },
+    { 0x5c, 0x68, 0x5d, 0x62, 0x57, 0x68, 0x5b, 0x63, 0x54, 0x57, 0x4f, 0x5f, 0x57, 0x5c, 0x58, 0x56, 0x6e, 0x47, 0x73, 0x4b, 0x70, 0x49 },
+    { 0xcf, 0x86, 0xd8, 0x83, 0xd4, 0x89, 0xdb, 0x87, 0xcd, 0x98, 0xd4, 0x91, 0xcf, 0x92, 0xd9, 0x8f, 0xd1, 0x9b, 0xce, 0x90, 0x00, 0x00 },
+    { 0x6f, 0x59, 0x75, 0x55, 0x7e, 0x51, 0x7b, 0x57, 0x76, 0x88, 0x72, 0x82, 0x7b, 0x82, 0x76, 0x7e, 0x74, 0xac, 0x6e, 0xa8, 0x72, 0xaa },
+    { 0x49, 0x60, 0x4d, 0x59, 0x4f, 0x60, 0x49, 0x64, 0x5c, 0x37, 0x61, 0x38, 0x5d, 0x32, 0x5b, 0x3b, 0x25, 0x59, 0x2b, 0x61, 0x00, 0x00 },
+    { 0x54, 0x7a, 0x57, 0x74, 0x56, 0x7a, 0x57, 0x82, 0x71, 0x6a, 0x68, 0x68, 0x68, 0x70, 0x6c, 0x6e, 0x4f, 0x65, 0x54, 0x60, 0x53, 0x63 },
+    { 0x5b, 0x42, 0x62, 0x3a, 0x62, 0x48, 0x64, 0x3f, 0x46, 0x35, 0x4a, 0x39, 0x4b, 0x33, 0x3f, 0x37, 0x87, 0x6b, 0x7f, 0x67, 0x00, 0x00 },
+    { 0x7b, 0x6e, 0x7f, 0x6c, 0x7b, 0x6a, 0x7f, 0x66, 0x7b, 0x88, 0x7e, 0x85, 0x7c, 0x7f, 0x7e, 0x7b, 0x6c, 0x91, 0x6e, 0x95, 0x6d, 0x93 },
 };
 // GLOBAL: CMR2 0x00527300
 char g_str0x00527300[35] = "%s\\Textures\\Weather\\%s\\MainMap.tga";
@@ -4078,10 +4082,8 @@ void RallyData_LoadCurrentRallyWeatherTextures(void)
     for (i = 0; i < 4; i++) {
         if (i < (int)(g_weatherMaps.count & 0xff)) {
             g_weatherMaps.slots[i] = (BYTE)(stage * 4 + i);
-            g_weatherMaps.rects[i * 2] = g_unk0x0052718c
-                [(RallyDataCountryIndex() * 0xb + g_weatherMaps.slots[i]) * 2];
-            g_weatherMaps.rects[i * 2 + 1] = g_unk0x0052718c
-                [(RallyDataCountryIndex() * 0xb + g_weatherMaps.slots[i]) * 2 + 1];
+            g_weatherMaps.rects[i * 2] = g_weatherSymbolPositions[RallyDataCountryIndex()][g_weatherMaps.slots[i] * 2];
+            g_weatherMaps.rects[i * 2 + 1] = g_weatherSymbolPositions[RallyDataCountryIndex()][g_weatherMaps.slots[i] * 2 + 1];
         }
     }
     sprintf(CFrontend::m_stringDest, g_str0x00527300, CInstallInfo::GetSetupRepDir(),
@@ -4821,12 +4823,6 @@ unsigned int RallyData_GetSetupModeBits(void)
 
 // Table of 0x148-byte records; count derived from the next known global
 // (0x52f2a9), so it may cover further undeclared values.
-struct Unk0x0052ebc0 {
-    BYTE field_0x0[0x148];
-};
-
-// GLOBAL: CMR2 0x0052ebc0
-Unk0x0052ebc0 g_unk0x0052ebc0[5];
 
 // FUNCTION: CMR2 0x00407610
 Unk0x0052ebc0 *RallyData_GetDriverGroupRecord(int index)
@@ -4948,10 +4944,6 @@ void RallyData_DrawLoadingProgress(int progress, char drawScene, BYTE alpha)
     }
 }
 
-// GLOBAL: CMR2 0x0052f0fc
-int g_unk0x0052f0fc;
-// GLOBAL: CMR2 0x0052f290
-int g_unk0x0052f290;
 
 // FUNCTION: CMR2 0x0040df60
 void RallyData_SetDriverPairingStateValues(int param1, int param2)
@@ -5044,9 +5036,9 @@ BYTE *RallyData_GetStageAvailabilityFlags(void)
 }
 
 // FUNCTION: CMR2 0x004083d0
-Unk0x0052ebc0 *RallyData_GetDriverGroupTable(void)
+RallyDriverGroupTable *RallyData_GetDriverGroupTable(void)
 {
-    return g_unk0x0052ebc0;
+    return &g_driverGroupTable;
 }
 
 // FUNCTION: CMR2 0x004084c0

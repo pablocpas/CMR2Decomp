@@ -1647,7 +1647,7 @@ void FrontendNetwork_SendPlayerDescription(void)
 
 void RallyData_PickOpponentLineups(void);
 struct Unk0x0052ebc0;
-struct Unk0x0052ebc0 *RallyData_GetDriverGroupTable(void);
+RallyDriverGroupTable *RallyData_GetDriverGroupTable(void);
 BYTE *RallyData_GetStageAvailabilityFlags(void);
 void NetPlayers_AddOrUpdatePlayerInfo(DPID *pId, NetPlayerInfo *pInfo, char add);
 void NetPlayers_RemovePlayerByID(int *pId);
@@ -1691,20 +1691,20 @@ void FrontendNetwork_SetMessageState(int value);
 // FUNCTION: CMR2 0x004ec320
 void FrontendNetwork_WriteSetupPacket(BYTE *pPacket)
 {
-    BYTE *pState;
+    RallyDriverGroupTable *pState;
     int i;
 
     RallyData_PickOpponentLineups();
-    pState = (BYTE *)RallyData_GetDriverGroupTable();
+    pState = RallyData_GetDriverGroupTable();
     for (i = 0; i < NET_SETUP_COUNT; i++) {
-        *(unsigned int *)(pPacket + 0x18 + i * 8) = *(unsigned int *)(pState + 0x540 + i * 8);
-        *(unsigned int *)(pPacket + 0x1c + i * 8) = *(unsigned int *)(pState + 0x544 + i * 8);
-        *(unsigned int *)(pPacket + 0xb8 + i * 4) = *(unsigned int *)(pState + 0x5e0 + i * 4);
-        *(unsigned int *)(pPacket + 0x108 + i * 4) = *(unsigned int *)(pState + 0x630 + i * 4);
-        *(unsigned int *)(pPacket + 0x158 + i * 4) = *(unsigned int *)(pState + 0x680 + i * 4);
-        *(BYTE *)(pPacket + 0x1a8 + i) = *(BYTE *)(pState + 0x6d4 + i);
-        *(unsigned int *)(pPacket + 0x1bc) = *(unsigned int *)(pState + 0x53c);
-        *(unsigned int *)(pPacket + 0x1c0) = *(unsigned int *)(pState + 0x6d0);
+        *(unsigned int *)(pPacket + 0x18 + i * 8) = pState->pairing.pairs[i][0];
+        *(unsigned int *)(pPacket + 0x1c + i * 8) = pState->pairing.pairs[i][1];
+        *(unsigned int *)(pPacket + 0xb8 + i * 4) = pState->pairing.skills[i];
+        *(unsigned int *)(pPacket + 0x108 + i * 4) = pState->pairing.flags[i];
+        *(unsigned int *)(pPacket + 0x158 + i * 4) = pState->pairing.otherFlags[i];
+        *(BYTE *)(pPacket + 0x1a8 + i) = pState->field_0x6d4[i];
+        *(unsigned int *)(pPacket + 0x1bc) = pState->field_0x53c;
+        *(unsigned int *)(pPacket + 0x1c0) = pState->field_0x6d0;
     }
 }
 
@@ -1712,18 +1712,18 @@ void FrontendNetwork_WriteSetupPacket(BYTE *pPacket)
 // FUNCTION: CMR2 0x004ec3c0
 void FrontendNetwork_ReadSetupPacket(BYTE *pPacket)
 {
-    BYTE *pState = (BYTE *)RallyData_GetDriverGroupTable();
+    RallyDriverGroupTable *pState = RallyData_GetDriverGroupTable();
     int i;
 
     for (i = 0; i < NET_SETUP_COUNT; i++) {
-        *(unsigned int *)(pState + 0x540 + i * 8) = *(unsigned int *)(pPacket + 0x18 + i * 8);
-        *(unsigned int *)(pState + 0x544 + i * 8) = *(unsigned int *)(pPacket + 0x1c + i * 8);
-        *(unsigned int *)(pState + 0x5e0 + i * 4) = *(unsigned int *)(pPacket + 0xb8 + i * 4);
-        *(unsigned int *)(pState + 0x630 + i * 4) = *(unsigned int *)(pPacket + 0x108 + i * 4);
-        *(unsigned int *)(pState + 0x680 + i * 4) = *(unsigned int *)(pPacket + 0x158 + i * 4);
-        *(BYTE *)(pState + 0x6d4 + i) = *(BYTE *)(pPacket + 0x1a8 + i);
-        *(unsigned int *)(pState + 0x53c) = *(unsigned int *)(pPacket + 0x1bc);
-        *(unsigned int *)(pState + 0x6d0) = *(unsigned int *)(pPacket + 0x1c0);
+        pState->pairing.pairs[i][0] = *(unsigned int *)(pPacket + 0x18 + i * 8);
+        pState->pairing.pairs[i][1] = *(unsigned int *)(pPacket + 0x1c + i * 8);
+        pState->pairing.skills[i] = *(unsigned int *)(pPacket + 0xb8 + i * 4);
+        pState->pairing.flags[i] = *(unsigned int *)(pPacket + 0x108 + i * 4);
+        pState->pairing.otherFlags[i] = *(unsigned int *)(pPacket + 0x158 + i * 4);
+        pState->field_0x6d4[i] = *(BYTE *)(pPacket + 0x1a8 + i);
+        pState->field_0x53c = *(unsigned int *)(pPacket + 0x1bc);
+        pState->field_0x6d0 = *(unsigned int *)(pPacket + 0x1c0);
     }
 }
 
@@ -7869,9 +7869,6 @@ void Profile_ResetCategoryData(int index);
 char *Profile_BuildSavePath(char *pName);
 void *Profile_ReadLocalFile(char *param1, int param2);
 BYTE *RallyData_GetDriverCategoryProfile(int index);
-struct Unk0x0052ebc0 {
-    BYTE field_0x0[0x148];
-};
 Unk0x0052ebc0 *RallyData_GetDriverGroupRecord(int index);
 BYTE *RallyData_GetDriverSkillRecord(int index);
 BYTE *RallyData_GetDriverEntryRecord(int index);

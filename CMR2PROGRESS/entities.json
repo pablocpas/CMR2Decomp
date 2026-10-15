@@ -14356,7 +14356,7 @@
     "CGraphics::m_65536"
   ],
   "0x5112e8": [
-    5425952,
+    5426104,
     "g_minus65536"
   ],
   "0x5112f0": [
@@ -14364,11 +14364,11 @@
     "g_oneOverRandMax"
   ],
   "0x5112f4": [
-    5424552,
+    5424704,
     "g_frameBufferBytesToMegabytes"
   ],
   "0x5112f8": [
-    5424548,
+    5424700,
     "g_kilobytesToMegabytes"
   ],
   "0x511300": [
@@ -14376,7 +14376,7 @@
     "g_fixedDegreesToAngle12"
   ],
   "0x511308": [
-    5444136,
+    5444288,
     "g_unk0x00511308"
   ],
   "0x511310": [
@@ -14504,11 +14504,11 @@
     "g_carMillisecondsToSeconds"
   ],
   "0x5113a8": [
-    5429976,
+    5430128,
     "g_unk0x005113a8"
   ],
   "0x5113b0": [
-    5429968,
+    5430120,
     "g_unk0x005113b0"
   ],
   "0x5113b8": [
@@ -14552,7 +14552,7 @@
     "g_pi"
   ],
   "0x5113f8": [
-    5426120,
+    5426272,
     "g_radiansToDegrees"
   ],
   "0x511400": [
@@ -14580,7 +14580,7 @@
     "g_unk0x00511428"
   ],
   "0x511430": [
-    5448736,
+    5448888,
     "CMain::m_gameName"
   ],
   "0x5114a8": [
@@ -14912,7 +14912,7 @@
     "CGraphics::m_strSettingConfigurationToDefault"
   ],
   "0x516180": [
-    5425496,
+    5425648,
     "CRegKey::m_regKeyPathFormatValue"
   ],
   "0x516184": [
@@ -14940,7 +14940,7 @@
     "g_unk0x005167e0"
   ],
   "0x51681c": [
-    5424476,
+    5424628,
     "g_unk0x0051681c"
   ],
   "0x51682c": [
@@ -15028,11 +15028,11 @@
     "g_keyCloseBracket"
   ],
   "0x51695c": [
-    5425368,
+    5425520,
     "g_opponentClassMaxStep"
   ],
   "0x516968": [
-    5425380,
+    5425532,
     "g_unk0x00516968"
   ],
   "0x516974": [
@@ -15052,7 +15052,7 @@
     "g_unk0x005169e0"
   ],
   "0x516a04": [
-    5425392,
+    5425544,
     "g_strHere"
   ],
   "0x516a0c": [
@@ -15064,7 +15064,7 @@
     "CNetworkLeaderboards::m_strNetworkLeaderboardsDir"
   ],
   "0x516a38": [
-    5425616,
+    5425768,
     "CRegKey::m_rkv_gameHDPath"
   ],
   "0x516a44": [
@@ -15084,15 +15084,15 @@
     "CInstallInfo::m_bigFilesSubDir"
   ],
   "0x516a70": [
-    5425680,
+    5425832,
     "CRegKey::m_rkv_installNetworkOnly"
   ],
   "0x516a80": [
-    5425672,
+    5425824,
     "CRegKey::m_rkv_installFull"
   ],
   "0x516a88": [
-    5425664,
+    5425816,
     "CRegKey::m_rkv_installMedium"
   ],
   "0x516a90": [
@@ -15132,15 +15132,15 @@
     "CInstallInfo::m_tracksSubDir"
   ],
   "0x516b1c": [
-    5425656,
+    5425808,
     "CRegKey::m_rkv_installMinimum"
   ],
   "0x516b24": [
-    5425640,
+    5425792,
     "CRegKey::m_rkv_installVersion"
   ],
   "0x516b34": [
-    5425628,
+    5425780,
     "CRegKey::m_rkv_gameCDPath"
   ],
   "0x516b40": [
@@ -15236,59 +15236,59 @@
     "CFrontend::m_strFoc"
   ],
   "0x516cd0": [
-    5424460,
+    5424612,
     "g_itemColour"
   ],
   "0x516cd4": [
-    5424464,
+    5424616,
     "g_loadBarColourLit"
   ],
   "0x516cd8": [
-    5424468,
+    5424620,
     "g_unk0x00516cd8"
   ],
   "0x516cdc": [
-    5424472,
+    5424624,
     "g_loadBarColour"
   ],
   "0x516ce0": [
-    5425412,
+    5425564,
     "g_unk0x00516ce0"
   ],
   "0x516ce4": [
-    5424456,
+    5424608,
     "g_unk0x00516ce4"
   ],
   "0x516ce8": [
-    5424556,
+    5424708,
     "g_strDrawDistance0x00516ce8"
   ],
   "0x516d40": [
-    5424644,
+    5424796,
     "g_strSoftwareTl0x00516d40"
   ],
   "0x516d54": [
-    5424664,
+    5424816,
     "g_strHardwareTl0x00516d54"
   ],
   "0x516d68": [
-    5424684,
+    5424836,
     "g_strVbMemUsed0x00516d68"
   ],
   "0x516d88": [
-    5424716,
+    5424868,
     "g_strVramUsed0x00516d88"
   ],
   "0x516dcc": [
-    5424784,
+    5424936,
     "g_strTotalPolygons0x00516dcc"
   ],
   "0x516de4": [
-    5424808,
+    5424960,
     "g_strOtherPolygons0x00516de4"
   ],
   "0x516dfc": [
-    5424832,
+    5424984,
     "g_strScenePolygons0x00516dfc"
   ],
   "0x516e14": [
@@ -15296,11 +15296,11 @@
     "g_strFpsFormat0x00516e14"
   ],
   "0x516e20": [
-    5425400,
+    5425552,
     "g_strVersusFormat"
   ],
   "0x516e2c": [
-    5425416,
+    5425568,
     "g_strName0x00516e2c"
   ],
   "0x516e30": [
@@ -15320,19 +15320,19 @@
     "g_unk0x005170a0"
   ],
   "0x5170a7": [
-    5425000,
+    5425152,
     "g_unk0x005170a7"
   ],
   "0x5170a8": [
-    5425004,
+    5425156,
     "g_unk0x005170a8"
   ],
   "0x5170aa": [
-    5425008,
+    5425160,
     "g_unk0x005170aa"
   ],
   "0x5170ac": [
-    5424984,
+    5425136,
     "g_splitMiddleMarkerColour"
   ],
   "0x5170bc": [
@@ -15344,7 +15344,7 @@
     "g_stageHudTextColour"
   ],
   "0x5170cc": [
-    5424988,
+    5425140,
     "g_highlightedSplitColour"
   ],
   "0x5170d0": [
@@ -15368,55 +15368,55 @@
     "g_unk0x005170e8"
   ],
   "0x5170f4": [
-    5432544,
+    5432696,
     "g_gapTextColour"
   ],
   "0x5170fc": [
-    5438396,
+    5438548,
     "g_stageMapCarColours"
   ],
   "0x51711c": [
-    5425364,
+    5425516,
     "g_unk0x0051711c"
   ],
   "0x517d00": [
-    5424492,
+    5424644,
     "g_strTimeoutWav"
   ],
   "0x517d0c": [
-    5424504,
+    5424656,
     "g_strCrossWav"
   ],
   "0x517d18": [
-    5424516,
+    5424668,
     "g_strBlipWav"
   ],
   "0x517d24": [
-    5424528,
+    5424680,
     "g_strDownWav"
   ],
   "0x517d30": [
-    5424540,
+    5424692,
     "g_strUpWav"
   ],
   "0x517d38": [
-    5424856,
+    5425008,
     "g_strChallengeTrackName0x00517d38"
   ],
   "0x517d50": [
-    5424880,
+    5425032,
     "g_strChalblobTga0x00517d50"
   ],
   "0x517d74": [
-    5424916,
+    5425068,
     "g_strNetblobrTga0x00517d74"
   ],
   "0x517d98": [
-    5438388,
+    5438540,
     "g_strPathConcat"
   ],
   "0x517da0": [
-    5424952,
+    5425104,
     "g_strNetblobTga0x00517da0"
   ],
   "0x517dc0": [
@@ -15440,11 +15440,11 @@
     "g_standingsRowFormat"
   ],
   "0x517de0": [
-    5425420,
+    5425572,
     "g_strADriver"
   ],
   "0x517dec": [
-    5425432,
+    5425584,
     "g_strAdr"
   ],
   "0x517df0": [
@@ -15452,23 +15452,23 @@
     "g_strOneDigit"
   ],
   "0x517df4": [
-    5432512,
+    5432664,
     "g_strGapUnknown"
   ],
   "0x517e00": [
-    5432524,
+    5432676,
     "g_strGapTime"
   ],
   "0x517e14": [
-    5432504,
+    5432656,
     "g_positiveSymbol"
   ],
   "0x517e18": [
-    5432508,
+    5432660,
     "g_negativeSymbol"
   ],
   "0x517e1c": [
-    5438428,
+    5438580,
     "g_strMapNumber"
   ],
   "0x517e24": [
@@ -15480,15 +15480,15 @@
     "g_raceCallShadowColour"
   ],
   "0x517e30": [
-    5438224,
+    5438376,
     "g_arrowRectsSmall"
   ],
   "0x517e70": [
-    5438288,
+    5438440,
     "g_arrowRectsLarge"
   ],
   "0x517eb0": [
-    5438352,
+    5438504,
     "g_strArrowsTexture"
   ],
   "0x517ed4": [
@@ -15832,31 +15832,31 @@
     "g_strCollisionDir"
   ],
   "0x518ca8": [
-    5432552,
+    5432704,
     "g_stageSoundPatterns"
   ],
   "0x51900c": [
-    5433420,
+    5433572,
     "g_strSurfSndOut"
   ],
   "0x519024": [
-    5433444,
+    5433596,
     "g_strSurfSndIn"
   ],
   "0x51903c": [
-    5433468,
+    5433620,
     "g_strSurfSndSkidOut"
   ],
   "0x519058": [
-    5433496,
+    5433648,
     "g_strSurfSndSkidIn"
   ],
   "0x519074": [
-    5433524,
+    5433676,
     "g_strSurfSndRollOut"
   ],
   "0x519090": [
-    5433552,
+    5433704,
     "g_strSurfSndRollIn"
   ],
   "0x5190b0": [
@@ -15868,7 +15868,7 @@
     "g_raceStateRules"
   ],
   "0x519198": [
-    5438432,
+    5438584,
     "g_unk0x00519198"
   ],
   "0x5191a0": [
@@ -15984,7 +15984,7 @@
     "g_unk0x0051931c"
   ],
   "0x519340": [
-    5425584,
+    5425736,
     "CRegKey::m_skuJapan"
   ],
   "0x519348": [
@@ -16092,7 +16092,7 @@
     "g_str0x0051947c"
   ],
   "0x519484": [
-    5444092,
+    5444244,
     "g_tgaSuffix"
   ],
   "0x51948c": [
@@ -16312,7 +16312,7 @@
     "g_strCarD3Format"
   ],
   "0x519704": [
-    5425444,
+    5425596,
     "g_str0x00519704"
   ],
   "0x51995c": [
@@ -16520,7 +16520,7 @@
     "g_recordHeaderFormat"
   ],
   "0x519f58": [
-    5444100,
+    5444252,
     "g_minSecMSECFormatString"
   ],
   "0x519f68": [
@@ -16560,35 +16560,35 @@
     "g_str0x00519fb8"
   ],
   "0x519fbc": [
-    5432360,
+    5432512,
     "g_speechRegion0"
   ],
   "0x519fd0": [
-    5432380,
+    5432532,
     "g_speechRegion1"
   ],
   "0x519fdc": [
-    5432392,
+    5432544,
     "g_speechRegion2"
   ],
   "0x519fe0": [
-    5432396,
+    5432548,
     "g_speechRegion3"
   ],
   "0x519fe4": [
-    5432400,
+    5432552,
     "g_textRegion0"
   ],
   "0x519ff8": [
-    5432420,
+    5432572,
     "g_textRegion1"
   ],
   "0x51a004": [
-    5432432,
+    5432584,
     "g_textRegion2"
   ],
   "0x51a008": [
-    5432436,
+    5432588,
     "g_textRegion3"
   ],
   "0x51a00c": [
@@ -16620,39 +16620,39 @@
     "g_str0x0051a054"
   ],
   "0x51a060": [
-    5432248,
+    5432400,
     "g_str0x0051a060"
   ],
   "0x51a070": [
-    5432264,
+    5432416,
     "g_str0x0051a070"
   ],
   "0x51a080": [
-    5432280,
+    5432432,
     "g_str0x0051a080"
   ],
   "0x51a090": [
-    5432296,
+    5432448,
     "g_str0x0051a090"
   ],
   "0x51a0a0": [
-    5432312,
+    5432464,
     "g_str0x0051a0a0"
   ],
   "0x51a0b0": [
-    5432328,
+    5432480,
     "g_str0x0051a0b0"
   ],
   "0x51a0c0": [
-    5432344,
+    5432496,
     "g_str0x0051a0c0"
   ],
   "0x51a0d0": [
-    5432440,
+    5432592,
     "g_str0x0051a0d0"
   ],
   "0x51a0e0": [
-    5432456,
+    5432608,
     "g_str0x0051a0e0"
   ],
   "0x51a0f0": [
@@ -16664,35 +16664,35 @@
     "g_str0x0051a100"
   ],
   "0x51a10c": [
-    5432472,
+    5432624,
     "g_str0x0051a10c"
   ],
   "0x51a11c": [
-    5432488,
+    5432640,
     "g_str0x0051a11c"
   ],
   "0x51a12c": [
-    5430000,
+    5430152,
     "g_strBflFormat"
   ],
   "0x51a134": [
-    5431588,
+    5431740,
     "g_strTm2Format"
   ],
   "0x51a13c": [
-    5431596,
+    5431748,
     "g_strTm1Format"
   ],
   "0x51a144": [
-    5431604,
+    5431756,
     "g_strTm0Format"
   ],
   "0x51a14c": [
-    5429912,
+    5430064,
     "g_strRaceHasAiDriver"
   ],
   "0x51a168": [
-    5429940,
+    5430092,
     "g_strRaceHasPlayer"
   ],
   "0x51a3d0": [
@@ -16700,43 +16700,43 @@
     "g_stageQualityCodes"
   ],
   "0x51a3e8": [
-    5430072,
+    5430224,
     "g_stageEventAreas"
   ],
   "0x51a8b8": [
-    5432088,
+    5432240,
     "g_unk0x0051a8b8"
   ],
   "0x51a8bc": [
-    5429960,
+    5430112,
     "g_strCspFormat"
   ],
   "0x51a8c4": [
-    5432092,
+    5432244,
     "g_strLightWheelsC3d"
   ],
   "0x51a8cc": [
-    5432100,
+    5432252,
     "g_strSnowWheelsC3d"
   ],
   "0x51a8d4": [
-    5432108,
+    5432260,
     "g_strCarBflFormat"
   ],
   "0x51a8e0": [
-    5432120,
+    5432272,
     "g_strCinFormat"
   ],
   "0x51a8e8": [
-    5432128,
+    5432280,
     "g_strDamageModelC3d"
   ],
   "0x51a8f4": [
-    5432136,
+    5432288,
     "g_strCarC3dExt"
   ],
   "0x51a8fc": [
-    5432144,
+    5432296,
     "g_strCarModelFormat"
   ],
   "0x51a904": [
@@ -16744,11 +16744,11 @@
     "g_str0x0051a904"
   ],
   "0x51a910": [
-    5429992,
+    5430144,
     "g_str0x0051a910"
   ],
   "0x51ab68": [
-    5432152,
+    5432304,
     "g_exhaustSparkLines"
   ],
   "0x51abf8": [
@@ -16756,235 +16756,235 @@
     "g_wheelDustColours"
   ],
   "0x51ac20": [
-    5431636,
+    5431788,
     "g_strTexRocksGrav"
   ],
   "0x51ac38": [
-    5431660,
+    5431812,
     "g_strTexSplashDrop"
   ],
   "0x51ac54": [
-    5431688,
+    5431840,
     "g_strTexGrass"
   ],
   "0x51ac68": [
-    5431708,
+    5431860,
     "g_strTexLeaf"
   ],
   "0x51ac80": [
-    5431732,
+    5431884,
     "g_strTexDetail"
   ],
   "0x51ac98": [
-    5431756,
+    5431908,
     "g_strNumberedTga"
   ],
   "0x51aca8": [
-    5431772,
+    5431924,
     "g_strTexDustCloud"
   ],
   "0x51acc4": [
-    5431800,
+    5431952,
     "g_strTexSnowSpray"
   ],
   "0x51ace8": [
-    5431836,
+    5431988,
     "g_strTexSplashSpray2f"
   ],
   "0x51ad08": [
-    5431868,
+    5432020,
     "g_strTexSplashSpray2"
   ],
   "0x51ad28": [
-    5431900,
+    5432052,
     "g_strTexWheelSpray"
   ],
   "0x51ad44": [
-    5431928,
+    5432080,
     "g_strTexSnowCloud"
   ],
   "0x51ad64": [
-    5431960,
+    5432112,
     "g_strTexExhaust2"
   ],
   "0x51ad84": [
-    5431992,
+    5432144,
     "g_strTexExhaust3"
   ],
   "0x51ada4": [
-    5432024,
+    5432176,
     "g_strTexGlass"
   ],
   "0x51adb8": [
-    5432044,
+    5432196,
     "g_strTexPaint"
   ],
   "0x51adcc": [
-    5432064,
+    5432216,
     "g_strTexSpark"
   ],
   "0x51b034": [
-    5426336,
+    5426488,
     "g_stageObjectTimeSteps"
   ],
   "0x51b04c": [
-    5431304,
+    5431456,
     "g_weatherType"
   ],
   "0x51b070": [
-    5431340,
+    5431492,
     "g_weatherBlendA"
   ],
   "0x51b094": [
-    5431376,
+    5431528,
     "g_weatherBlendB"
   ],
   "0x51b0b8": [
-    5425960,
+    5426112,
     "g_stageWeatherIntensity"
   ],
   "0x51b0dc": [
-    5426360,
+    5426512,
     "g_stageObjectWeatherRows"
   ],
   "0x51b0f0": [
-    5426380,
+    5426532,
     "g_stageObjectWeatherFactors"
   ],
   "0x51b114": [
-    5426300,
+    5426452,
     "g_unk0x0051b114"
   ],
   "0x51b138": [
-    5431476,
+    5431628,
     "g_strSunGlowTga"
   ],
   "0x51b150": [
-    5431500,
+    5431652,
     "g_strSnowTga"
   ],
   "0x51b168": [
-    5431524,
+    5431676,
     "g_strSplat2Tga"
   ],
   "0x51b180": [
-    5431548,
+    5431700,
     "g_strSplatTga"
   ],
   "0x51b194": [
-    5431568,
+    5431720,
     "g_strRainTga"
   ],
   "0x51b1a8": [
-    5426416,
+    5426568,
     "g_stageLightOffsets"
   ],
   "0x51b2a8": [
-    5426672,
+    5426824,
     "g_stageLightDepth"
   ],
   "0x51b2b8": [
-    5426688,
+    5426840,
     "g_stageLightColour"
   ],
   "0x51b338": [
-    5426816,
+    5426968,
     "g_stageLightStates"
   ],
   "0x51b6b8": [
-    5427712,
+    5427864,
     "g_stageLightDouble"
   ],
   "0x51b6c8": [
-    5427728,
+    5427880,
     "g_stageLightSize"
   ],
   "0x51b6f8": [
-    5427776,
+    5427928,
     "g_stageLightEightMask"
   ],
   "0x51b70c": [
-    5427820,
+    5427972,
     "g_strLightGreenTga"
   ],
   "0x51b724": [
-    5427796,
+    5427948,
     "g_strLightRedTga"
   ],
   "0x51b98c": [
-    5427916,
+    5428068,
     "g_strBrakeLiteTga"
   ],
   "0x51b9a4": [
-    5427892,
+    5428044,
     "g_strHeadLiteTga"
   ],
   "0x51b9bc": [
-    5427868,
+    5428020,
     "g_strRevLiteTga"
   ],
   "0x51b9d4": [
-    5427844,
+    5427996,
     "g_strHazardLiteTga"
   ],
   "0x51b9f0": [
-    5426128,
+    5426280,
     "g_unk0x0051b9f0"
   ],
   "0x51bc68": [
-    5426000,
+    5426152,
     "g_stageSurfaceInfo"
   ],
   "0x51bcb0": [
-    5426072,
+    5426224,
     "g_stageSurfaceMap"
   ],
   "0x51bce0": [
-    5429104,
+    5429256,
     "g_strNewImageSkidBlankTga"
   ],
   "0x51bd00": [
-    5429136,
+    5429288,
     "g_strNewImageSkidMarkTga"
   ],
   "0x51bd20": [
-    5429168,
+    5429320,
     "g_strNewImageSkid1Tga"
   ],
   "0x51bd3c": [
-    5429984,
+    5430136,
     "g_unk0x0051bd3c"
   ],
   "0x51bd40": [
-    5429988,
+    5430140,
     "g_unk0x0051bd40"
   ],
   "0x51bf94": [
-    5431612,
+    5431764,
     "g_unk0x0051bf94"
   ],
   "0x51bfa0": [
-    5431624,
+    5431776,
     "g_unk0x0051bfa0"
   ],
   "0x51bfac": [
-    5430008,
+    5430160,
     "g_timingPartHitThresholds"
   ],
   "0x51bfcc": [
-    5430040,
+    5430192,
     "g_unk0x0051bfcc"
   ],
   "0x51bfec": [
-    5427940,
+    5428092,
     "g_strReplaySaved"
   ],
   "0x51c240": [
-    5427944,
+    5428096,
     "g_eventSpriteStamps"
   ],
   "0x51c280": [
-    5428008,
+    5428160,
     "g_unk0x0051c280"
   ],
   "0x51c680": [
@@ -16992,115 +16992,115 @@
     "CGraphics::m_strSuffixBODF"
   ],
   "0x51c688": [
-    5429032,
+    5429184,
     "g_cloudLevels"
   ],
   "0x51c694": [
-    5429044,
+    5429196,
     "g_strCloudLight"
   ],
   "0x51c6a0": [
-    5429056,
+    5429208,
     "g_strCloudMed"
   ],
   "0x51c6ac": [
-    5429068,
+    5429220,
     "g_strCloudHeavy"
   ],
   "0x51c6b8": [
-    5429080,
+    5429232,
     "g_strPcLow"
   ],
   "0x51c6c0": [
-    5429088,
+    5429240,
     "g_strPc"
   ],
   "0x51c6c4": [
-    5429092,
+    5429244,
     "g_strCloudsDir"
   ],
   "0x51c6d0": [
-    5426168,
+    5426320,
     "g_strTempGro"
   ],
   "0x51c6dc": [
-    5426180,
+    5426332,
     "g_strTopC3d"
   ],
   "0x51c6e4": [
-    5426188,
+    5426340,
     "g_strC3dExt"
   ],
   "0x51c6ec": [
-    5426196,
+    5426348,
     "g_strBflExt"
   ],
   "0x51c6f4": [
-    5426204,
+    5426356,
     "g_strTempSky"
   ],
   "0x51c950": [
-    5429216,
+    5429368,
     "g_strTempObj"
   ],
   "0x51c95c": [
-    5429228,
+    5429380,
     "g_strTempSht"
   ],
   "0x51c97c": [
-    5433588,
+    5433740,
     "g_pUnk0x0051c97c"
   ],
   "0x51c980": [
-    5429244,
+    5429396,
     "g_unk0x0051c980"
   ],
   "0x51c984": [
-    5426292,
+    5426444,
     "g_unk0x0051c984"
   ],
   "0x51c988": [
-    5433580,
+    5433732,
     "g_barBackColour"
   ],
   "0x51c990": [
-    5433584,
+    5433736,
     "g_barTextColour"
   ],
   "0x51c994": [
-    5426296,
+    5426448,
     "g_unk0x0051c994"
   ],
   "0x51c9a4": [
-    5429248,
+    5429400,
     "g_unk0x0051c9a4"
   ],
   "0x51c9a8": [
-    5426216,
+    5426368,
     "g_unk0x0051c9a8"
   ],
   "0x51c9ac": [
-    5426220,
+    5426372,
     "g_strVs0x0051c9ac"
   ],
   "0x51c9b0": [
-    5429214,
+    5429366,
     "g_carMountRightRotationAngle"
   ],
   "0x51c9b4": [
-    5429516,
+    5429668,
     "g_strCarModelC5Bfl"
   ],
   "0x51c9c0": [
-    5429528,
+    5429680,
     "g_strCarModelA5Bfl"
   ],
   "0x51c9cc": [
-    5429540,
+    5429692,
     "g_strCarModelC5C3d"
   ],
   "0x51c9d8": [
-    5429552,
+    5429704,
     "g_strCarModelA5C3d"
   ],
   "0x51c9e4": [
@@ -17112,119 +17112,119 @@
     "CGraphics::m_strSuffixREVCT"
   ],
   "0x51c9f4": [
-    5433592,
+    5433744,
     "g_gridBackColour"
   ],
   "0x51c9f8": [
-    5433596,
+    5433748,
     "g_gridColour2"
   ],
   "0x51c9fc": [
-    5433600,
+    5433752,
     "g_gridColour1"
   ],
   "0x51ca00": [
-    5433604,
+    5433756,
     "g_stageGrid"
   ],
   "0x51de5c": [
-    5438480,
+    5438632,
     "g_surfaceDrag"
   ],
   "0x51df58": [
-    5438732,
+    5438884,
     "g_surfaceIndexMap"
   ],
   "0x51dfb8": [
-    5438828,
+    5438980,
     "g_surfaceGrip"
   ],
   "0x51e138": [
-    5439212,
+    5439364,
     "g_surfaceGrip2"
   ],
   "0x51e2b8": [
-    5439596,
+    5439748,
     "g_surface0x51e2b8"
   ],
   "0x51e378": [
-    5439788,
+    5439940,
     "g_surfaceSoftness"
   ],
   "0x51e4f8": [
-    5440172,
+    5440324,
     "g_surface0x51e4f8"
   ],
   "0x51e5b8": [
-    5440364,
+    5440516,
     "g_surface0x51e5b8"
   ],
   "0x51e678": [
-    5440556,
+    5440708,
     "g_surface0x51e678"
   ],
   "0x51e738": [
-    5440748,
+    5440900,
     "g_surface0x51e738"
   ],
   "0x51e7f8": [
-    5440940,
+    5441092,
     "g_surfaceEffect"
   ],
   "0x51e858": [
-    5441036,
+    5441188,
     "g_surfaceNoise"
   ],
   "0x51e888": [
-    5441084,
+    5441236,
     "g_surfaceBlendRate"
   ],
   "0x51e8e8": [
-    5441180,
+    5441332,
     "g_surfaceNext"
   ],
   "0x51e918": [
-    5441228,
+    5441380,
     "g_surfaceDragIndex"
   ],
   "0x51e948": [
-    5444008,
+    5444160,
     "g_strTxtFormat"
   ],
   "0x51e950": [
-    5444016,
+    5444168,
     "g_strLangPolish"
   ],
   "0x51e958": [
-    5444024,
+    5444176,
     "g_strLangEngUsa"
   ],
   "0x51e960": [
-    5444032,
+    5444184,
     "g_strLangGerman"
   ],
   "0x51e968": [
-    5444040,
+    5444192,
     "g_strLangItalian"
   ],
   "0x51e974": [
-    5444052,
+    5444204,
     "g_strLangSpanish"
   ],
   "0x51e980": [
-    5444064,
+    5444216,
     "g_strLangFrench"
   ],
   "0x51e988": [
-    5444072,
+    5444224,
     "g_strLangEnglish"
   ],
   "0x51e994": [
-    5441276,
+    5441428,
     "g_fontNames"
   ],
   "0x51ea20": [
-    5426224,
+    5426376,
     "g_strMenuSoundNames"
   ],
   "0x51ea44": [
@@ -17232,255 +17232,255 @@
     "g_strMenuSoundFormat"
   ],
   "0x51ea60": [
-    5441416,
+    5441568,
     "g_engineSoundCurve"
   ],
   "0x51ea74": [
-    5441508,
+    5441660,
     "g_unk0x0051ea74"
   ],
   "0x51ea9e": [
-    5441552,
+    5441704,
     "g_unk0x0051ea9e"
   ],
   "0x51eab8": [
-    5441440,
+    5441592,
     "g_engineLoadSoundCurve"
   ],
   "0x51eacc": [
-    5441580,
+    5441732,
     "g_unk0x0051eacc"
   ],
   "0x51ebca": [
-    5441836,
+    5441988,
     "g_unk0x0051ebca"
   ],
   "0x51ec50": [
-    5441464,
+    5441616,
     "g_engineWhineSoundCurve"
   ],
   "0x51ec64": [
-    5441972,
+    5442124,
     "g_unk0x0051ec64"
   ],
   "0x51ed62": [
-    5442228,
+    5442380,
     "g_unk0x0051ed62"
   ],
   "0x51ede8": [
-    5441488,
+    5441640,
     "g_speedSoundCurve"
   ],
   "0x51edfc": [
-    5442364,
+    5442516,
     "g_unk0x0051edfc"
   ],
   "0x51ef80": [
-    5442752,
+    5442904,
     "g_unk0x0051ef80"
   ],
   "0x51f044": [
-    5442948,
+    5443100,
     "g_carSoundDir"
   ],
   "0x51f15c": [
-    5443228,
+    5443380,
     "g_carSoundShort"
   ],
   "0x51f274": [
-    5443988,
+    5444140,
     "g_unk0x0051f274"
   ],
   "0x51f278": [
-    5443992,
+    5444144,
     "g_unk0x0051f278"
   ],
   "0x51f27c": [
-    5429460,
+    5429612,
     "g_unk0x0051f27c"
   ],
   "0x51f280": [
-    5443892,
+    5444044,
     "g_skidLoopVolumeScale"
   ],
   "0x51f290": [
-    5443832,
+    5443984,
     "g_unk0x0051f290"
   ],
   "0x51f294": [
-    5443996,
+    5444148,
     "g_unk0x0051f294"
   ],
   "0x51f298": [
-    5444000,
+    5444152,
     "g_unk0x0051f298"
   ],
   "0x51f29c": [
-    5444004,
+    5444156,
     "g_unk0x0051f29c"
   ],
   "0x51f2a0": [
-    5443836,
+    5443988,
     "g_gearWhineLoopStart"
   ],
   "0x51f2d8": [
-    5429464,
+    5429616,
     "g_unk0x0051f2d8"
   ],
   "0x51f310": [
-    5443896,
+    5444048,
     "g_skidVolumeDip"
   ],
   "0x51f36c": [
-    5443508,
+    5443660,
     "g_strRadioOutsideWav"
   ],
   "0x51f380": [
-    5443528,
+    5443680,
     "g_strRadioInsideWav"
   ],
   "0x51f394": [
-    5443548,
+    5443700,
     "g_strCarDetIdleWav"
   ],
   "0x51f3ac": [
-    5443572,
+    5443724,
     "g_strCarDet4Wav"
   ],
   "0x51f3c0": [
-    5443592,
+    5443744,
     "g_strCarDet3Wav"
   ],
   "0x51f3d4": [
-    5443612,
+    5443764,
     "g_strCarDet2Wav"
   ],
   "0x51f3e8": [
-    5443632,
+    5443784,
     "g_strCarDet1Wav"
   ],
   "0x51f3fc": [
-    5443652,
+    5443804,
     "g_strCarChatterWav"
   ],
   "0x51f414": [
-    5443676,
+    5443828,
     "g_strCarRearTurboWav"
   ],
   "0x51f428": [
-    5443696,
+    5443848,
     "g_strCarFrontTurboWav"
   ],
   "0x51f43c": [
-    5443716,
+    5443868,
     "g_strCarWhineWav"
   ],
   "0x51f450": [
-    5443736,
+    5443888,
     "g_strCarRearMidWav"
   ],
   "0x51f464": [
-    5443756,
+    5443908,
     "g_strCarFrontMidWav"
   ],
   "0x51f478": [
-    5443776,
+    5443928,
     "g_strCarRearSlowWav"
   ],
   "0x51f48c": [
-    5443796,
+    5443948,
     "g_strCarFrontSlowWav"
   ],
   "0x51f4a0": [
-    5443816,
+    5443968,
     "g_strCarSoundBfl"
   ],
   "0x51f4b0": [
-    5429196,
+    5429348,
     "g_carButtonMasks"
   ],
   "0x51f4c0": [
-    5429240,
+    5429392,
     "g_unk0x0051f4c0"
   ],
   "0x51f4c4": [
-    5429564,
+    5429716,
     "g_strAi2Format"
   ],
   "0x51f4cc": [
-    5429572,
+    5429724,
     "g_strAi1Format"
   ],
   "0x51f4d4": [
-    5429580,
+    5429732,
     "g_strAi0Format"
   ],
   "0x51f4e0": [
-    5429592,
+    5429744,
     "g_fireworksOrigin"
   ],
   "0x51f4ec": [
-    5426260,
+    5426412,
     "g_stageDebrisPalette"
   ],
   "0x51f504": [
-    5429888,
+    5430040,
     "g_fireworkFlashColours"
   ],
   "0x51f51c": [
-    5429604,
+    5429756,
     "g_strFireworksLaunch3"
   ],
   "0x51f534": [
-    5429628,
+    5429780,
     "g_strFireworksLaunch2"
   ],
   "0x51f54c": [
-    5429652,
+    5429804,
     "g_strFireworksLaunch1"
   ],
   "0x51f564": [
-    5429676,
+    5429828,
     "g_strFireworksBang3"
   ],
   "0x51f57c": [
-    5429700,
+    5429852,
     "g_strFireworksBang2"
   ],
   "0x51f594": [
-    5429724,
+    5429876,
     "g_strFireworksBang1"
   ],
   "0x51f5ac": [
-    5429748,
+    5429900,
     "g_strFireworksLoudBang3"
   ],
   "0x51f5c8": [
-    5429776,
+    5429928,
     "g_strFireworksLoudBang2"
   ],
   "0x51f5e4": [
-    5429804,
+    5429956,
     "g_strFireworksLoudBang1"
   ],
   "0x51f600": [
-    5429832,
+    5429984,
     "g_strFireworksFalling2"
   ],
   "0x51f61c": [
-    5429860,
+    5430012,
     "g_strFireworksFalling1"
   ],
   "0x51f888": [
-    5426288,
+    5426440,
     "g_carSlotClasses"
   ],
   "0x51fadc": [
-    5426284,
+    5426436,
     "g_unk0x0051fadc"
   ],
   "0x51fc38": [
-    5444120,
+    5444272,
     "g_strFinFormat"
   ],
   "0x5200e8": [
@@ -17592,35 +17592,35 @@
     "CInput::m_strL"
   ],
   "0x520890": [
-    5425916,
+    5426068,
     "g_soundSpeakerConfig"
   ],
   "0x520a34": [
-    5425920,
+    5426072,
     "g_strWave"
   ],
   "0x520a3c": [
-    5425720,
+    5425872,
     "g_strCouldNotCreateStreamingBuffer"
   ],
   "0x520a60": [
-    5425756,
+    5425908,
     "g_strCouldNotOpenAdpcm"
   ],
   "0x520a8c": [
-    5425800,
+    5425952,
     "g_strCouldNotOpenMusicFile"
   ],
   "0x520aa8": [
-    5425828,
+    5425980,
     "g_strCouldNotPlayMusicFile"
   ],
   "0x520ac4": [
-    5425856,
+    5426008,
     "g_strCouldNotFillMusicBuffer"
   ],
   "0x520ae0": [
-    5425884,
+    5426036,
     "g_strCouldNotRestoreMusicBuffer"
   ],
   "0x520b00": [
@@ -17724,7 +17724,7 @@
     "CGraphics::m_fovY"
   ],
   "0x520b94": [
-    5448888,
+    5449040,
     "m_lpszMenuName"
   ],
   "0x520b9c": [
@@ -17740,31 +17740,31 @@
     "CGraphics::m_direct3DHAL"
   ],
   "0x520bf0": [
-    5448884,
+    5449036,
     "CMain::m_isShowingCursor"
   ],
   "0x520bf4": [
-    5448852,
+    5449004,
     "CMain::m_logFileFinishedNormally"
   ],
   "0x520c14": [
-    5448820,
+    5448972,
     "g_logFileFooterAsterisks"
   ],
   "0x520c34": [
-    5448788,
+    5448940,
     "CMain::m_logFileAsterisks"
   ],
   "0x520c54": [
-    5448756,
+    5448908,
     "CMain::m_logFileHeader1"
   ],
   "0x520c74": [
-    5448720,
+    5448872,
     "CMain::m_logFileLocation"
   ],
   "0x520c98": [
-    5444084,
+    5444236,
     "g_ddsSuffix"
   ],
   "0x520ca0": [
@@ -17832,47 +17832,47 @@
     "CFileBuffer::m_unk0x00520f1c"
   ],
   "0x520f20": [
-    5425512,
+    5425664,
     "CRegKey::m_regKeyValueAmerican"
   ],
   "0x520f2c": [
-    5425524,
+    5425676,
     "CRegKey::m_regKeyValuePolish"
   ],
   "0x520f34": [
-    5425532,
+    5425684,
     "CRegKey::m_regKeyValueSpanish"
   ],
   "0x520f3c": [
-    5425540,
+    5425692,
     "CRegKey::m_regKeyValueItalian"
   ],
   "0x520f44": [
-    5425548,
+    5425700,
     "CRegKey::m_regKeyValueGerman"
   ],
   "0x520f4c": [
-    5425556,
+    5425708,
     "CRegKey::m_regKeyValueFrench"
   ],
   "0x520f54": [
-    5425564,
+    5425716,
     "CRegKey::m_regKeyValueEnglish"
   ],
   "0x520f5c": [
-    5425500,
+    5425652,
     "CRegKey::m_regKeyLanguage"
   ],
   "0x520f68": [
-    5425476,
+    5425628,
     "CRegKey::m_regKeyPathCMR2"
   ],
   "0x520f7c": [
-    5425464,
+    5425616,
     "CRegKey::m_regKeyPathCodemasters"
   ],
   "0x520f88": [
-    5425452,
+    5425604,
     "CRegKey::m_regKeyPathSoftware"
   ],
   "0x520f94": [
@@ -17908,7 +17908,7 @@
     "g_fps"
   ],
   "0x5210ac": [
-    5448716,
+    5448868,
     "g_unk0x005210ac"
   ],
   "0x5210b0": [
@@ -17944,27 +17944,27 @@
     "g_unk0x005210d0"
   ],
   "0x5210d4": [
-    5425704,
+    5425856,
     "g_shadowLastTexture"
   ],
   "0x5210d8": [
-    5425708,
+    5425860,
     "g_shadowLastFlags"
   ],
   "0x5210ec": [
-    5425696,
+    5425848,
     "g_strShadowMeshName"
   ],
   "0x5210f4": [
-    5425928,
+    5426080,
     "g_soundMasterVolume"
   ],
   "0x5210f8": [
-    5425932,
+    5426084,
     "g_strFailedToLoad"
   ],
   "0x52110c": [
-    5425712,
+    5425864,
     "g_strC3dMagic"
   ],
   "0x521114": [
@@ -17988,7 +17988,7 @@
     "g_timerPulseState"
   ],
   "0x521740": [
-    5444148,
+    5444300,
     "gz_magic"
   ],
   "0x521748": [
@@ -18020,11 +18020,11 @@
     "z_msg_unknown_compression_method"
   ],
   "0x5217d8": [
-    5444144,
+    5444296,
     "my_version"
   ],
   "0x5217dc": [
-    5448668,
+    5448820,
     "z_errmsg"
   ],
   "0x521804": [
@@ -18072,15 +18072,15 @@
     "z_msg_invalid_block_type"
   ],
   "0x5218e8": [
-    5448600,
+    5448752,
     "static_l_desc"
   ],
   "0x521900": [
-    5448624,
+    5448776,
     "static_d_desc"
   ],
   "0x521918": [
-    5448648,
+    5448800,
     "static_bl_desc"
   ],
   "0x52192c": [
@@ -18092,19 +18092,19 @@
     "z_msg_invalid_literal_length_code"
   ],
   "0x521960": [
-    5444168,
+    5444320,
     "fixed_bl"
   ],
   "0x521964": [
-    5444172,
+    5444324,
     "fixed_bd"
   ],
   "0x521968": [
-    5444176,
+    5444328,
     "fixed_tl"
   ],
   "0x522968": [
-    5448272,
+    5448424,
     "fixed_td"
   ],
   "0x522a68": [
@@ -18136,7 +18136,7 @@
     "g_zlibMessage00522b38"
   ],
   "0x522b58": [
-    5448528,
+    5448680,
     "inflate_mask"
   ],
   "0x523bb4": [
@@ -18200,19 +18200,19 @@
     "g_strMusicSelect1Adp"
   ],
   "0x523d80": [
-    5425592,
+    5425744,
     "CRegKey::m_skuPoland"
   ],
   "0x523d88": [
-    5425600,
+    5425752,
     "CRegKey::m_skuAmerica"
   ],
   "0x523d90": [
-    5425608,
+    5425760,
     "CRegKey::m_skuEurope"
   ],
   "0x523d98": [
-    5425572,
+    5425724,
     "CRegKey::m_regKeySkuType"
   ],
   "0x523da4": [
@@ -19120,27 +19120,27 @@
     "g_unk0x005270b8"
   ],
   "0x5270e4": [
-    5424992,
+    5425144,
     "g_splitTimeGradients"
   ],
   "0x5270ec": [
-    5425012,
+    5425164,
     "g_unk0x005270ec"
   ],
   "0x5270f0": [
-    5425016,
+    5425168,
     "g_unk0x005270f0"
   ],
   "0x5270fc": [
-    5425020,
+    5425172,
     "g_unk0x005270fc"
   ],
   "0x527100": [
-    5425024,
+    5425176,
     "g_unk0x00527100"
   ],
   "0x527104": [
-    5425028,
+    5425180,
     "g_rallyAccentColours"
   ],
   "0x527128": [
@@ -19157,14 +19157,14 @@
   ],
   "0x52718c": [
     5424284,
-    "g_unk0x0052718c"
+    "g_weatherSymbolPositions"
   ],
   "0x52723c": [
-    5425340,
+    5425492,
     "g_splitMarkerWidths"
   ],
   "0x527248": [
-    5425352,
+    5425504,
     "g_unk0x00527248"
   ],
   "0x527254": [
@@ -19188,31 +19188,31 @@
     "g_str0x00527280"
   ],
   "0x527288": [
-    5425436,
+    5425588,
     "g_str0x00527288"
   ],
   "0x527290": [
-    5424420,
+    5424572,
     "g_str0x00527290"
   ],
   "0x5272b4": [
-    5424380,
+    5424532,
     "g_str0x005272b4"
   ],
   "0x5272dc": [
-    5424344,
+    5424496,
     "g_str0x005272dc"
   ],
   "0x527300": [
-    5424308,
+    5424460,
     "g_str0x00527300"
   ],
   "0x527324": [
-    5431412,
+    5431564,
     "g_previewHeavyDamageThresholds"
   ],
   "0x527344": [
-    5431444,
+    5431596,
     "g_previewLightDamageThresholds"
   ],
   "0x527364": [
@@ -19472,7667 +19472,7647 @@
     "g_unk0x005297d0"
   ],
   "0x5297f0": [
-    5576504,
+    5576656,
     "g_unk0x005297f0"
   ],
   "0x5298f4": [
-    5589696,
+    5589848,
     "g_unk0x005298f4"
   ],
   "0x5298f8": [
-    5589700,
+    5589852,
     "g_unk0x005298f8"
   ],
   "0x529900": [
-    5606996,
+    5607148,
     "g_cameraMenuStartDriverRecord"
   ],
   "0x529914": [
-    5591796,
+    5591948,
     "g_unk0x00529914"
   ],
   "0x529918": [
-    5606488,
+    5606640,
     "g_menu0x00529918"
   ],
   "0x529af8": [
-    5613304,
+    5613456,
     "g_menu0x00529af8"
   ],
   "0x529cd8": [
-    5629536,
+    5629688,
     "g_unk0x00529cd8"
   ],
   "0x529ce8": [
-    5611152,
+    5611304,
     "g_menu0x00529ce8"
   ],
   "0x529ec8": [
-    5628844,
+    5628996,
     "g_unk0x00529ec8"
   ],
   "0x529ecc": [
-    5629624,
+    5629776,
     "g_unk0x00529ecc"
   ],
   "0x529ed0": [
-    5629516,
+    5629668,
     "g_unk0x00529ed0"
   ],
   "0x529ed8": [
-    5609208,
+    5609360,
     "g_menu0x00529ed8"
   ],
   "0x52a0b8": [
-    5606968,
+    5607120,
     "g_unk0x0052a0b8"
   ],
   "0x52a0bc": [
-    5611132,
+    5611284,
     "g_unk0x0052a0bc"
   ],
   "0x52a0c0": [
-    5599496,
+    5599648,
     "g_menu0x0052a0c0"
   ],
   "0x52a2a0": [
-    5611144,
+    5611296,
     "g_unk0x0052a2a0"
   ],
   "0x52a2a8": [
-    5599008,
+    5599160,
     "g_menu0x0052a2a8"
   ],
   "0x52a488": [
-    5628632,
+    5628784,
     "g_unk0x0052a488"
   ],
   "0x52a48c": [
-    5628614,
+    5628766,
     "g_unk0x0052a48c"
   ],
   "0x52a490": [
-    5605744,
+    5605896,
     "g_menu0x0052a490"
   ],
   "0x52a670": [
-    5605224,
+    5605376,
     "g_menu0x0052a670"
   ],
   "0x52a850": [
-    5628624,
+    5628776,
     "g_unk0x0052a850"
   ],
   "0x52a858": [
-    5605708,
+    5605860,
     "g_cameraMenuDriverRecord"
   ],
   "0x52a86c": [
-    5606984,
+    5607136,
     "g_unk0x0052a86c"
   ],
   "0x52a870": [
-    5604072,
+    5604224,
     "g_menu0x0052a870"
   ],
   "0x52aa50": [
-    5604560,
+    5604712,
     "g_cameraMenuOffset"
   ],
   "0x52aa5c": [
-    5605728,
+    5605880,
     "g_unk0x0052aa5c"
   ],
   "0x52aa60": [
-    5602528,
+    5602680,
     "g_unk0x0052aa60"
   ],
   "0x52aa64": [
-    5602532,
+    5602684,
     "g_unk0x0052aa64"
   ],
   "0x52aa68": [
-    5602516,
+    5602668,
     "g_unk0x0052aa68"
   ],
   "0x52aa6c": [
-    5605736,
+    5605888,
     "g_unk0x0052aa6c"
   ],
   "0x52aa70": [
-    5628856,
+    5629008,
     "g_menu0x0052aa70"
   ],
   "0x52ad50": [
-    5606224,
+    5606376,
     "g_unk0x0052ad50"
   ],
   "0x52ad54": [
-    5605732,
+    5605884,
     "g_unk0x0052ad54"
   ],
   "0x52ad58": [
-    5613232,
+    5613384,
     "g_inRaceMenuScratchRect"
   ],
   "0x52ad60": [
-    5591848,
+    5592000,
     "g_menu0x0052ad60"
   ],
   "0x52af40": [
-    5628612,
+    5628764,
     "CGameInfo::m_unk0x0052af40"
   ],
   "0x52af41": [
-    5605216,
+    5605368,
     "g_unk0x0052af41"
   ],
   "0x52af44": [
-    5611140,
+    5611292,
     "g_pMenu0x0052af44"
   ],
   "0x52af48": [
-    5611136,
+    5611288,
     "g_pMenu0x0052af48"
   ],
   "0x52af4c": [
-    5598968,
+    5599120,
     "g_unk0x0052af4c"
   ],
   "0x52af50": [
-    5605704,
+    5605856,
     "g_unk0x0052af50"
   ],
   "0x52af54": [
-    5634408,
+    5634560,
     "g_unk0x0052af54"
   ],
   "0x52af58": [
-    5961196,
+    5961348,
     "g_unk0x0052af58"
   ],
   "0x52af60": [
-    5628704,
+    5628856,
     "g_cameraMenuStartOffset"
   ],
   "0x52af6c": [
-    5598964,
+    5599116,
     "g_unk0x0052af6c"
   ],
   "0x52af80": [
-    5606988,
+    5607140,
     "CGameInfo::m_unk0x0052af80"
   ],
   "0x52af84": [
-    5598880,
+    5599032,
     "CGameInfo::m_unk0x0052af84"
   ],
   "0x52af88": [
-    5629648,
+    5629800,
     "CGameInfo::m_unk0x0052af88"
   ],
   "0x52af8c": [
-    5590508,
+    5590660,
     "CGameInfo::m_unk0x0052af8c"
   ],
   "0x52af90": [
-    5604552,
+    5604704,
     "g_unk0x0052af90"
   ],
   "0x52af94": [
-    5629644,
+    5629796,
     "CGameInfo::m_unk0x0052af94"
   ],
   "0x52af98": [
-    5630612,
+    5630764,
     "CGameInfo::m_unk0x0052af98"
   ],
   "0x52af9c": [
-    5609204,
+    5609356,
     "CGameInfo::m_unk0x0052af9c"
   ],
   "0x52afa0": [
-    5613792,
+    5613944,
     "CGameInfo::m_gameInfo"
   ],
   "0x52e93c": [
-    5629512,
+    5629664,
     "CGameInfo::m_unk0x0052e93c"
   ],
   "0x52e940": [
-    5598872,
+    5599024,
     "CGameInfo::m_unk0x0052e940"
   ],
   "0x52ea44": [
-    5630616,
+    5630768,
     "CGameInfo::m_unk0x0052ea44"
   ],
   "0x52ea48": [
-    5613784,
+    5613936,
     "CGameInfo::m_unk0x0052ea48"
   ],
   "0x52ea4c": [
-    5573564,
+    5573716,
     "CGame::m_unk0x0052ea4c"
   ],
   "0x52ea50": [
-    5557176,
+    5557328,
     "g_unk0x0052ea50"
   ],
   "0x52ea51": [
-    5540364,
+    5540516,
     "CGame::m_unk0x0052ea51"
   ],
   "0x52ea52": [
-    5599976,
+    5600128,
     "CGameInfo::m_unk0x0052ea52"
   ],
   "0x52ea54": [
-    5602520,
+    5602672,
     "CGameInfo::m_gameRegion"
   ],
   "0x52ea58": [
-    5576416,
+    5576568,
     "CGame::m_unk0x0052ea58"
   ],
   "0x52ea59": [
-    5576444,
+    5576596,
     "CGame::m_unk0x0052ea59"
   ],
   "0x52ea5c": [
-    8256924,
+    8256748,
     "CMain::m_logFileBlankLine"
   ],
   "0x52ea60": [
-    6053236,
+    6053084,
     "g_unk0x0052ea60"
   ],
   "0x52ea68": [
-    6053224,
+    6053072,
     "g_unk0x0052ea68"
   ],
   "0x52ea74": [
-    6053188,
+    6053036,
     "g_unk0x0052ea74"
   ],
   "0x52ea98": [
-    6053264,
+    6053112,
     "g_unk0x0052ea98"
   ],
   "0x52eab8": [
-    6053176,
+    6053024,
     "g_unk0x0052eab8"
   ],
   "0x52ebc0": [
-    6051104,
-    "g_unk0x0052ebc0"
-  ],
-  "0x52f0e0": [
-    6042480,
-    "g_unk0x0052f0e0"
-  ],
-  "0x52f0fc": [
-    6042540,
-    "g_unk0x0052f0fc"
-  ],
-  "0x52f100": [
-    6052776,
-    "g_rallyPairingTables"
-  ],
-  "0x52f290": [
-    6055376,
-    "g_unk0x0052f290"
-  ],
-  "0x52f294": [
-    6055268,
-    "g_unk0x0052f294"
+    6042520,
+    "g_driverGroupTable"
   ],
   "0x52f2a8": [
-    6042436,
+    6044360,
     "g_unk0x0052f2a8"
   ],
   "0x52f2a9": [
-    6042437,
+    6044361,
     "g_unk0x0052f2a9"
   ],
   "0x52f2ac": [
-    6056160,
+    6055984,
     "g_selectedRallyData"
   ],
   "0x52f2b0": [
-    6042464,
+    6044388,
     "g_unk0x0052f2b0"
   ],
   "0x52f2b4": [
-    6042552,
+    6044448,
     "g_knockout"
   ],
   "0x52f3d8": [
-    5534104,
+    5534256,
     "g_unk0x0052f3d8"
   ],
   "0x52f3e0": [
-    6049512,
+    6051408,
     "g_saveCarRecords"
   ],
   "0x52fa00": [
-    6042456,
+    6044380,
     "g_saveDirty"
   ],
   "0x52fa08": [
-    6043048,
+    6044944,
     "g_saveProfiles"
   ],
   "0x531348": [
-    6051080,
+    6052976,
     "g_unk0x00531348"
   ],
   "0x531350": [
-    6055384,
+    6055208,
     "g_saveSlots"
   ],
   "0x531650": [
-    5477448,
+    5477592,
     "g_unk0x00531650"
   ],
   "0x531654": [
-    5477432,
+    5477576,
     "g_unk0x00531654"
   ],
   "0x531764": [
-    5477428,
+    5477572,
     "g_unk0x00531764"
   ],
   "0x531768": [
-    5576436,
+    5576588,
     "CGame::m_unk0x00531768"
   ],
   "0x531770": [
-    6026176,
+    6026328,
     "g_netIdCount"
   ],
   "0x531778": [
-    6026320,
+    6026472,
     "g_netPlayers"
   ],
   "0x531b78": [
-    6027344,
+    6027496,
     "g_netRanks"
   ],
   "0x531b98": [
-    6027376,
+    6027528,
     "g_netIdsUnsorted"
   ],
   "0x531bb8": [
-    6027408,
+    6027560,
     "g_netResults"
   ],
   "0x531c98": [
-    6027632,
+    6027784,
     "g_netStageBest"
   ],
   "0x531cc0": [
-    6027672,
+    6027824,
     "g_netIds"
   ],
   "0x531ce0": [
-    6027704,
+    6027856,
     "g_netPrevBest"
   ],
   "0x531ce4": [
-    6027708,
+    6027860,
     "g_netNewRecord"
   ],
   "0x531ce8": [
-    6027712,
+    6027864,
     "g_netTotal"
   ],
   "0x531cec": [
-    6027716,
+    6027868,
     "g_netStandingCount"
   ],
   "0x531cf0": [
-    6027720,
+    6027872,
     "g_netRecordName"
   ],
   "0x531dd8": [
-    6027952,
+    6028104,
     "g_netRanks2"
   ],
   "0x531df8": [
-    6027984,
+    6028136,
     "g_netBestTime"
   ],
   "0x531e00": [
-    6027992,
+    6028144,
     "g_netStandings"
   ],
   "0x531ec0": [
-    6028184,
+    6028336,
     "g_netStandings2"
   ],
   "0x531f80": [
-    6028376,
+    6028528,
     "g_netClassCount"
   ],
   "0x531f84": [
-    6028380,
+    6028532,
     "g_netSplitBest"
   ],
   "0x5320a4": [
-    5956916,
+    5957068,
     "g_unk0x005320a4"
   ],
   "0x5320a8": [
-    6026312,
+    6026464,
     "g_netLapBest"
   ],
   "0x5320b0": [
-    6026184,
+    6026336,
     "g_netClassification"
   ],
   "0x532130": [
-    5477948,
+    5478092,
     "g_fontCharRect"
   ],
   "0x532138": [
-    5477928,
+    5478072,
     "g_fontBlendMode"
   ],
   "0x53223c": [
-    5477924,
+    5478068,
     "g_fonts"
   ],
   "0x532240": [
-    5477936,
+    5478080,
     "g_fontCount"
   ],
   "0x532244": [
-    5477932,
+    5478076,
     "g_pCurrentFont"
   ],
   "0x532248": [
-    5477940,
+    5478084,
     "g_fontColour"
   ],
   "0x532250": [
-    5951104,
+    5951256,
     "CInput::m_controllerInfo"
   ],
   "0x5334f0": [
-    5956072,
+    5956224,
     "CInput::m_hasLoadedControllerInfo"
   ],
   "0x5334f4": [
-    5956076,
+    5956228,
     "g_latchedThrottleAxes"
   ],
   "0x533538": [
-    6056216,
+    6056040,
     "g_rallyStageTables"
   ],
   "0x5335b8": [
-    6056448,
+    6056272,
     "g_championshipTables"
   ],
   "0x533638": [
-    6056344,
+    6056168,
     "g_rallyOverallTables"
   ],
   "0x533758": [
-    6055288,
+    6055116,
     "g_unk0x00533758"
   ],
   "0x5337c4": [
-    6042396,
+    6044320,
     "g_unk0x005337c4"
   ],
   "0x5337c8": [
-    6042432,
+    6044356,
     "g_unk0x005337c8"
   ],
   "0x5337cc": [
-    6042532,
+    6044428,
     "g_unk0x005337cc"
   ],
   "0x5337d0": [
-    6042400,
+    6044324,
     "g_unk0x005337d0"
   ],
   "0x5337d4": [
-    6042408,
+    6044332,
     "g_unk0x005337d4"
   ],
   "0x5337ec": [
-    6042520,
+    6044416,
     "g_unk0x005337ec"
   ],
   "0x5338f0": [
-    6042444,
+    6044368,
     "g_opponentClassMinHold"
   ],
   "0x533900": [
-    6037576,
+    6037728,
     "g_unk0x00533900"
   ],
   "0x533a08": [
-    6029248,
+    6029400,
     "CNetworkLeaderboards::m_leaderboards"
   ],
   "0x535b88": [
-    6037572,
+    6037724,
     "CNetworkLeaderboards::m_totalLeaderboards"
   ],
   "0x535b8c": [
-    6037568,
+    6037720,
     "g_unk0x00535b8c"
   ],
   "0x535b90": [
-    5959280,
+    5959432,
     "CInstallInfo::m_countrySpecificDir"
   ],
   "0x535c94": [
-    5960580,
+    5960732,
     "CInstallInfo::m_fontsDir"
   ],
   "0x535d98": [
-    5959540,
+    5959692,
     "CInstallInfo::m_countrySpecificOtherDir"
   ],
   "0x535e9c": [
-    5959800,
+    5959952,
     "CInstallInfo::m_setupRepDir"
   ],
   "0x535fa0": [
-    5957980,
+    5958132,
     "CInstallInfo::m_soundsDir"
   ],
   "0x5360a4": [
-    5958760,
+    5958912,
     "CInstallInfo::m_videosDir"
   ],
   "0x5361a8": [
-    5957460,
+    5957612,
     "CInstallInfo::m_tracksDir"
   ],
   "0x5362ac": [
-    5960060,
+    5960212,
     "CInstallInfo::m_bigFilesDir"
   ],
   "0x5363b0": [
-    5960320,
+    5960472,
     "CInstallInfo::m_texturesDir"
   ],
   "0x5364b4": [
-    5957720,
+    5957872,
     "CInstallInfo::m_carsDir"
   ],
   "0x5365b8": [
-    5958240,
+    5958392,
     "CInstallInfo::m_savesDir"
   ],
   "0x5366bc": [
-    5959020,
+    5959172,
     "CInstallInfo::m_frontendDir"
   ],
   "0x5367c0": [
-    5960840,
+    5960992,
     "CInstallInfo::m_surprisedDir"
   ],
   "0x5368c4": [
-    5958500,
+    5958652,
     "CInstallInfo::m_musicDir"
   ],
   "0x536ac8": [
-    5628848,
+    5629000,
     "g_unk0x00536ac8"
   ],
   "0x536acc": [
-    6054924,
+    6054772,
     "g_unk0x00536acc"
   ],
   "0x536ad0": [
-    6055236,
+    6055084,
     "g_viewShadowStreamed"
   ],
   "0x536ad4": [
-    6042376,
+    6044300,
     "g_viewScreenRect"
   ],
   "0x536bd8": [
-    6053244,
+    6053092,
     "g_itemRect"
   ],
   "0x536be0": [
-    6053296,
+    6053144,
     "g_unk0x00536be0"
   ],
   "0x536be4": [
-    6053300,
+    6053148,
     "g_unk0x00536be4"
   ],
   "0x536be8": [
-    6054996,
+    6054844,
     "g_unk0x00536be8"
   ],
   "0x536bf0": [
-    8251496,
+    8251320,
     "g_stageMapCentre"
   ],
   "0x536bfc": [
-    6053180,
+    6053028,
     "g_splitTargetsLoaded"
   ],
   "0x536c00": [
-    6052764,
+    6053016,
     "g_unk0x00536c00"
   ],
   "0x536c08": [
-    6052744,
+    6052996,
     "g_unk0x00536c08"
   ],
   "0x536c0c": [
-    6051092,
+    6052988,
     "g_splitGapBlank"
   ],
   "0x536c14": [
-    6055192,
+    6055040,
     "g_stageStartRecorded"
   ],
   "0x536c18": [
-    6054592,
+    6054440,
     "g_splitGapAwaitingLeader"
   ],
   "0x536c20": [
-    6042364,
+    6044288,
     "g_splitGapDisplayFrames"
   ],
   "0x536c24": [
-    8251488,
+    8251312,
     "g_unk0x00536c24"
   ],
   "0x536c28": [
-    6055260,
+    6055108,
     "g_unk0x00536c28"
   ],
   "0x536c30": [
-    6052748,
+    6053000,
     "g_unk0x00536c30"
   ],
   "0x536c3c": [
-    6055244,
+    6055092,
     "g_unk0x00536c3c"
   ],
   "0x536c40": [
-    6051088,
+    6052984,
     "g_stageTargetTime"
   ],
   "0x536c48": [
-    6054928,
+    6054776,
     "g_playerSplitPositions"
   ],
   "0x536c88": [
-    6055252,
+    6055100,
     "g_unk0x00536c88"
   ],
   "0x536c90": [
-    6042904,
+    6044800,
     "g_splitCount"
   ],
   "0x536c94": [
-    6054900,
+    6054748,
     "g_splitNearbyRankRows"
   ],
   "0x536cac": [
-    6054888,
+    6054736,
     "g_unk0x00536cac"
   ],
   "0x536cb0": [
-    6053304,
+    6053152,
     "g_unk0x00536cb0"
   ],
   "0x536cb8": [
-    6053312,
+    6053160,
     "g_splitBarRects"
   ],
   "0x536d14": [
-    8225272,
+    8225096,
     "g_stageSplitRuntime"
   ],
   "0x536ec4": [
-    6054892,
+    6054740,
     "g_unk0x00536ec4"
   ],
   "0x536ecc": [
-    6042468,
+    6044392,
     "g_unk0x00536ecc"
   ],
   "0x536ed0": [
-    6054608,
+    6054456,
     "g_unk0x00536ed0Block"
   ],
   "0x536fe0": [
-    8251508,
+    8251332,
     "g_unk0x00536fe0"
   ],
   "0x536fe4": [
-    6056152,
+    6055976,
     "g_splitGapTime"
   ],
   "0x536fec": [
-    6042404,
+    6044328,
     "g_unk0x00536fec"
   ],
   "0x536ff0": [
-    6042936,
+    6044832,
     "g_classificationTable"
   ],
   "0x537050": [
-    6055380,
+    6055204,
     "g_stageFinishBeepPlayed"
   ],
   "0x537054": [
-    6053252,
+    6053100,
     "g_splitGapRecorded"
   ],
   "0x53705c": [
-    8251484,
+    8251308,
     "g_stageMapScale"
   ],
   "0x537060": [
-    6042512,
+    6044408,
     "g_unk0x00537060"
   ],
   "0x537064": [
-    6053260,
+    6053108,
     "g_lastSplitGroup"
   ],
   "0x537068": [
-    6052760,
+    6053012,
     "g_stageDefaultTargetTime"
   ],
   "0x53706c": [
-    6042392,
+    6044316,
     "g_unk0x0053706c"
   ],
   "0x537070": [
-    6042896,
+    6044792,
     "g_challengeTextures"
   ],
   "0x537074": [
-    6042476,
+    6044400,
     "g_unk0x00537074"
   ],
   "0x537078": [
-    6042508,
+    6044404,
     "g_unk0x00537078"
   ],
   "0x53707c": [
-    6042388,
+    6044312,
     "g_unk0x0053707c"
   ],
   "0x537080": [
-    6042472,
+    6044396,
     "g_unk0x00537080"
   ],
   "0x537084": [
-    8251480,
+    8251304,
     "g_emptyString"
   ],
   "0x537088": [
-    8251472,
+    8251296,
     "g_pArrowRects"
   ],
   "0x53708c": [
-    6039136,
+    6039288,
     "g_unk0x0053708c"
   ],
   "0x537094": [
-    6038784,
+    6038936,
     "g_loadedCoDriverCalls"
   ],
   "0x537098": [
-    8251400,
+    8251224,
     "g_arrowTexture"
   ],
   "0x5370a0": [
-    6042080,
+    6042232,
     "g_raceSlotState"
   ],
   "0x537190": [
-    6039212,
+    6039364,
     "g_unk0x00537190"
   ],
   "0x537194": [
-    6039196,
+    6039348,
     "g_unk0x00537194"
   ],
   "0x537198": [
-    6039200,
+    6039352,
     "g_unk0x00537198"
   ],
   "0x5371a0": [
-    6039060,
+    6039212,
     "g_unk0x005371a0"
   ],
   "0x5371a4": [
-    6039064,
+    6039216,
     "g_unk0x005371a4"
   ],
   "0x5371d0": [
-    6041416,
+    6041568,
     "g_raceCallRecords"
   ],
   "0x537248": [
-    6041536,
+    6041688,
     "g_raceWrongWayFlags"
   ],
   "0x537350": [
-    6039192,
+    6039344,
     "g_unk0x00537350"
   ],
   "0x537354": [
-    6039972,
+    6040124,
     "g_pendingCalloutNodeFound"
   ],
   "0x537358": [
-    6039956,
+    6040108,
     "g_coDriverCalls"
   ],
   "0x53735c": [
-    6039504,
+    6039656,
     "g_unk0x0053735c"
   ],
   "0x537360": [
-    6039168,
+    6039320,
     "g_unk0x00537360"
   ],
   "0x537364": [
-    6039172,
+    6039324,
     "g_unk0x00537364"
   ],
   "0x537374": [
-    6039120,
+    6039272,
     "g_unk0x00537374"
   ],
   "0x537384": [
-    6039148,
+    6039300,
     "g_unk0x00537384"
   ],
   "0x537394": [
-    6039604,
+    6039756,
     "g_unk0x00537394"
   ],
   "0x537398": [
-    6039608,
+    6039760,
     "g_unk0x00537398"
   ],
   "0x5373a8": [
-    6038788,
+    6038940,
     "g_unk0x005373a8"
   ],
   "0x5373ac": [
-    6039932,
+    6040084,
     "g_unk0x005373ac"
   ],
   "0x5373b0": [
-    6039528,
+    6039680,
     "g_carSounds"
   ],
   "0x5374c0": [
-    6038780,
+    6038932,
     "g_unk0x005374c0"
   ],
   "0x5374c4": [
-    6041544,
+    6041696,
     "g_carSlotVolumes"
   ],
   "0x537544": [
-    6039632,
+    6039784,
     "g_carMaxVolume"
   ],
   "0x537564": [
-    6039512,
+    6039664,
     "g_unk0x00537564"
   ],
   "0x537568": [
-    6041804,
+    6041956,
     "g_surfacePrevD"
   ],
   "0x537588": [
-    6037904,
+    6038056,
     "g_surfaceVolA"
   ],
   "0x5375a8": [
-    6039960,
+    6040112,
     "g_stageSoundBank"
   ],
   "0x5375b0": [
-    6041868,
+    6042020,
     "g_surfacePrevB"
   ],
   "0x5375d0": [
-    6039936,
+    6040088,
     "g_stageSoundCount"
   ],
   "0x5375d4": [
-    6038228,
+    6038380,
     "g_stageSoundUsed"
   ],
   "0x5375f4": [
-    6039924,
+    6040076,
     "g_unk0x005375f4"
   ],
   "0x5375fc": [
-    6041740,
+    6041892,
     "g_surfacePrevA"
   ],
   "0x53761c": [
-    6039056,
+    6039208,
     "g_surfaceSlotMax"
   ],
   "0x537620": [
-    6037936,
+    6038088,
     "g_surfaceVolB"
   ],
   "0x537640": [
-    6037840,
+    6037992,
     "g_surfaceVolC"
   ],
   "0x537660": [
-    6039488,
+    6039640,
     "g_unk0x00537660"
   ],
   "0x537664": [
-    6039496,
+    6039648,
     "g_unk0x00537664"
   ],
   "0x537668": [
-    6037872,
+    6038024,
     "g_surfaceVolD"
   ],
   "0x537788": [
-    6041836,
+    6041988,
     "g_surfacePrevC"
   ],
   "0x5377a8": [
-    6039976,
+    6040128,
     "g_carSoundStates"
   ],
   "0x537d48": [
-    6041948,
+    6042100,
     "g_wheelSlipVolume"
   ],
   "0x537dc8": [
-    6039208,
+    6039360,
     "g_unk0x00537dc8"
   ],
   "0x537dcc": [
-    8251468,
+    8251292,
     "g_unk0x00537dcc"
   ],
   "0x537dd0": [
-    8251424,
+    8251248,
     "g_raceCallbackStorage"
   ],
   "0x537df0": [
-    8251420,
+    8251244,
     "g_unk0x00537df0"
   ],
   "0x537ef4": [
-    8251412,
+    8251236,
     "g_unk0x00537ef4"
   ],
   "0x537ef5": [
-    8251404,
+    8251228,
     "g_unk0x00537ef5"
   ],
   "0x537ef6": [
-    8251405,
+    8251229,
     "g_unk0x00537ef6"
   ],
   "0x537ef8": [
-    8251408,
+    8251232,
     "g_unk0x00537ef8"
   ],
   "0x537efc": [
-    8251464,
+    8251288,
     "g_unk0x00537efc"
   ],
   "0x537f00": [
-    6042340,
+    6042492,
     "g_unk0x00537f00"
   ],
   "0x537f04": [
-    6042344,
+    6042496,
     "g_unk0x00537f04"
   ],
   "0x537f08": [
-    6042332,
+    6042484,
     "g_unk0x00537f08"
   ],
   "0x537f0c": [
-    6041708,
+    6041860,
     "g_unk0x00537f0c"
   ],
   "0x537f24": [
-    6042336,
+    6042488,
     "g_unk0x00537f24"
   ],
   "0x537f28": [
-    6042320,
+    6042472,
     "g_unk0x00537f28"
   ],
   "0x537f2c": [
-    6041672,
+    6041824,
     "g_unk0x00537f2c"
   ],
   "0x537f30": [
-    8251332,
+    8251156,
     "g_unk0x00537f30"
   ],
   "0x537f34": [
-    6042324,
+    6042476,
     "g_unk0x00537f34"
   ],
   "0x537f3c": [
-    6041676,
+    6041828,
     "g_unk0x00537f3c"
   ],
   "0x537f5c": [
-    5576412,
+    5576564,
     "g_unk0x00537f5c"
   ],
   "0x537f60": [
-    6041944,
+    6042096,
     "g_unk0x00537f60"
   ],
   "0x537f64": [
-    6041732,
+    6041884,
     "g_raceResourcesFreed"
   ],
   "0x537f68": [
-    6041900,
+    6042052,
     "g_unk0x00537f68"
   ],
   "0x537f78": [
-    6041916,
+    6042068,
     "g_unk0x00537f78"
   ],
   "0x537f94": [
-    6041736,
+    6041888,
     "g_unk0x00537f94"
   ],
   "0x537f98": [
-    6041772,
+    6041924,
     "g_unk0x00537f98"
   ],
   "0x537fb8": [
-    6039116,
+    6039268,
     "g_unk0x00537fb8"
   ],
   "0x537fbc": [
-    6039508,
+    6039660,
     "g_unk0x00537fbc"
   ],
   "0x537fc0": [
-    6039188,
+    6039340,
     "g_unk0x00537fc0"
   ],
   "0x537fc4": [
-    6039108,
+    6039260,
     "g_unk0x00537fc4"
   ],
   "0x537fc8": [
-    6039144,
+    6039296,
     "g_unk0x00537fc8"
   ],
   "0x537fcc": [
-    6039492,
+    6039644,
     "g_unk0x00537fcc"
   ],
   "0x537fd0": [
-    6039112,
+    6039264,
     "g_unk0x00537fd0"
   ],
   "0x537fd4": [
-    6039164,
+    6039316,
     "g_unk0x00537fd4"
   ],
   "0x537fd8": [
-    6039568,
+    6039720,
     "g_unk0x00537fd8"
   ],
   "0x537ff8": [
-    6039520,
+    6039672,
     "g_unk0x00537ff8"
   ],
   "0x537ffa": [
-    6039478,
+    6039630,
     "g_unk0x00537ffa"
   ],
   "0x537ffc": [
-    6039480,
+    6039632,
     "g_unk0x00537ffc"
   ],
   "0x538100": [
-    6039165,
+    6039317,
     "g_unk0x00538100"
   ],
   "0x538104": [
-    6039564,
+    6039716,
     "g_unk0x00538104"
   ],
   "0x538108": [
-    6039628,
+    6039780,
     "g_unk0x00538108"
   ],
   "0x53810c": [
-    6039476,
+    6039628,
     "g_unk0x0053810c"
   ],
   "0x53810d": [
-    6039477,
+    6039629,
     "g_unk0x0053810d"
   ],
   "0x538110": [
-    6039600,
+    6039752,
     "g_unk0x00538110"
   ],
   "0x538114": [
-    6039624,
+    6039776,
     "g_unk0x00538114"
   ],
   "0x538118": [
-    6039524,
+    6039676,
     "g_unk0x00538118"
   ],
   "0x53811c": [
-    6039484,
+    6039636,
     "g_unk0x0053811c"
   ],
   "0x53811d": [
-    5592400,
+    5592552,
     "g_unk0x0053811d"
   ],
   "0x53811e": [
-    6042516,
+    6044412,
     "g_unk0x0053811e"
   ],
   "0x53811f": [
-    6042517,
+    6044413,
     "g_unk0x0053811f"
   ],
   "0x538120": [
-    8229320,
+    8229144,
     "g_unk0x00538120"
   ],
   "0x538124": [
-    6039516,
+    6039668,
     "g_unk0x00538124"
   ],
   "0x538128": [
-    6039560,
+    6039712,
     "g_unk0x00538128"
   ],
   "0x538130": [
-    5632888,
+    5633040,
     "g_unk0x00538130"
   ],
   "0x538234": [
-    6039968,
+    6040120,
     "g_stageLightPresetSecondary"
   ],
   "0x538238": [
-    6042076,
+    6042228,
     "g_stageLightPresetPrimary"
   ],
   "0x53823c": [
-    6038260,
+    6038412,
     "g_unk0x0053823c"
   ],
   "0x538340": [
-    6039216,
+    6039368,
     "g_unk0x00538340"
   ],
   "0x538444": [
-    6038520,
+    6038672,
     "g_unk0x00538444"
   ],
   "0x538548": [
-    6037968,
+    6038120,
     "g_unk0x00538548"
   ],
   "0x53874c": [
-    6038792,
+    6038944,
     "g_unk0x0053874c"
   ],
   "0x538850": [
-    6039104,
+    6039256,
     "g_unk0x00538850"
   ],
   "0x538858": [
-    6039944,
+    6040096,
     "g_raceFile"
   ],
   "0x538864": [
-    6038259,
+    6038411,
     "g_raceFileCallbackSet"
   ],
   "0x538868": [
-    6039664,
+    6039816,
     "g_raceCarPath"
   ],
   "0x53896c": [
-    6039500,
+    6039652,
     "g_raceCallbackMark"
   ],
   "0x538970": [
-    6039052,
+    6039204,
     "g_unk0x00538970"
   ],
   "0x538a78": [
-    6043040,
+    6044936,
     "g_routeProbeBestDistance"
   ],
   "0x538a80": [
-    6053184,
+    6053032,
     "g_routeProbeIndex"
   ],
   "0x538a84": [
-    6042536,
+    6044432,
     "g_routeNodeCount"
   ],
   "0x538a88": [
-    6054884,
+    6054732,
     "g_unk0x00538a88"
   ],
   "0x538a8c": [
-    6056204,
+    6056028,
     "g_routeDirKey"
   ],
   "0x538a94": [
-    6054880,
+    6054728,
     "g_unk0x00538a94"
   ],
   "0x538a98": [
-    6042908,
+    6044804,
     "g_routeProbeBestIndex"
   ],
   "0x538a9c": [
-    6056212,
+    6056036,
     "g_routeNodes"
   ],
   "0x538aa0": [
-    6056210,
+    6056034,
     "g_routeDirCount"
   ],
   "0x538aa8": [
-    6055000,
+    6054848,
     "g_raceRecords"
   ],
   "0x538b68": [
-    6056168,
+    6055992,
     "g_routeDir"
   ],
   "0x538c8c": [
-    6042352,
+    6042504,
     "g_routeProbeCycles"
   ],
   "0x538c94": [
-    6054604,
+    6054452,
     "g_unk0x00538c94"
   ],
   "0x538c98": [
-    5472396,
+    5472540,
     "g_unk0x00538c98"
   ],
   "0x538ca0": [
-    5459544,
+    5459688,
     "g_unk0x00538ca0"
   ],
   "0x538d20": [
-    5472412,
+    5472556,
     "g_unk0x00538d20"
   ],
   "0x538d2c": [
-    5472540,
+    5472684,
     "g_unk0x00538d2c"
   ],
   "0x538df8": [
-    5459720,
+    5459864,
     "g_unk0x00538df8"
   ],
   "0x538e04": [
-    5472404,
+    5472548,
     "g_unk0x00538e04"
   ],
   "0x538e0c": [
-    5472536,
+    5472680,
     "g_unk0x00538e0c"
   ],
   "0x538e10": [
-    5477896,
+    5478040,
     "g_interpPos"
   ],
   "0x538e20": [
-    5477912,
+    5478056,
     "g_interpUp"
   ],
   "0x538e2c": [
-    5472980,
+    5473124,
     "g_viewNodes"
   ],
   "0x538e38": [
-    5472164,
+    5472308,
     "g_unk0x00538e38"
   ],
   "0x538f00": [
-    5472156,
+    5472300,
     "g_unk0x00538f00"
   ],
   "0x539008": [
-    5477880,
+    5478024,
     "g_interpForward"
   ],
   "0x539018": [
-    5469376,
+    5469520,
     "g_viewRecords"
   ],
   "0x5391a8": [
-    5469140,
+    5469284,
     "g_unk0x005391a8"
   ],
   "0x5391b0": [
-    5469132,
+    5469276,
     "g_unk0x005391b0"
   ],
   "0x5391b8": [
-    5477736,
+    5477880,
     "g_interpB"
   ],
   "0x5391c4": [
-    5469124,
+    5469268,
     "g_unk0x005391c4"
   ],
   "0x5391cc": [
-    5460752,
+    5460896,
     "g_unk0x005391cc"
   ],
   "0x5391d8": [
-    5477720,
+    5477864,
     "g_interpA"
   ],
   "0x5391e8": [
-    5477768,
+    5477912,
     "g_interpRight"
   ],
   "0x5391f8": [
-    8232628,
+    8232452,
     "g_roadRumbleStrength"
   ],
   "0x539200": [
-    8229720,
+    8229544,
     "g_forceFeedbackSlots"
   ],
   "0x539270": [
-    8225728,
+    8225552,
     "g_unk0x00539270"
   ],
   "0x539278": [
-    8225720,
+    8225544,
     "g_unk0x00539278"
   ],
   "0x53937c": [
-    8226968,
+    8226792,
     "g_unk0x0053937c"
   ],
   "0x539380": [
-    8227244,
+    8227068,
     "g_unk0x00539380"
   ],
   "0x539388": [
-    6028944,
+    6029096,
     "g_localCarStats"
   ],
   "0x539394": [
-    6028452,
+    6028604,
     "g_unk0x00539394"
   ],
   "0x5393a8": [
-    6028900,
+    6029052,
     "g_unk0x005393a8"
   ],
   "0x5393ac": [
-    6028468,
+    6028620,
     "g_unk0x005393ac"
   ],
   "0x5393cc": [
-    6028460,
+    6028612,
     "g_unk0x005393cc"
   ],
   "0x5393d0": [
-    6028904,
+    6029056,
     "g_unk0x005393d0"
   ],
   "0x5393d4": [
-    6028464,
+    6028616,
     "g_netRaceFont"
   ],
   "0x5393d8": [
-    8230144,
+    8229968,
     "g_carNetRecords"
   ],
   "0x539b38": [
-    6028496,
+    6028648,
     "g_netTriangleState"
   ],
   "0x539dcc": [
-    6028456,
+    6028608,
     "g_unk0x00539dcc"
   ],
   "0x539ed0": [
-    6028448,
+    6028600,
     "g_unk0x00539ed0"
   ],
   "0x539ed4": [
-    6028428,
+    6028580,
     "g_unk0x00539ed4"
   ],
   "0x539ed8": [
-    6028444,
+    6028596,
     "g_unk0x00539ed8"
   ],
   "0x539ee0": [
-    6028416,
+    6028568,
     "g_unk0x00539ee0"
   ],
   "0x539ef0": [
-    6028432,
+    6028584,
     "g_unk0x00539ef0"
   ],
   "0x539f00": [
-    6029040,
+    6029192,
     "g_unk0x00539f00"
   ],
   "0x53a00c": [
-    6029180,
+    6029332,
     "g_unk0x0053a00c"
   ],
   "0x53a02c": [
-    6029148,
+    6029300,
     "g_unk0x0053a02c"
   ],
   "0x53a04c": [
-    6029116,
+    6029268,
     "g_unk0x0053a04c"
   ],
   "0x53a06c": [
-    6029084,
+    6029236,
     "g_unk0x0053a06c"
   ],
   "0x53a08c": [
-    6028908,
+    6029060,
     "g_fadeCallbacks"
   ],
   "0x53a0ac": [
-    6029052,
+    6029204,
     "g_unk0x0053a0ac"
   ],
   "0x53a0cc": [
-    6029008,
+    6029160,
     "g_unk0x0053a0cc"
   ],
   "0x53a0ec": [
-    6028976,
+    6029128,
     "g_unk0x0053a0ec"
   ],
   "0x53a20c": [
-    6029212,
+    6029364,
     "g_unk0x0053a20c"
   ],
   "0x53a230": [
-    5473024,
+    5473168,
     "g_wheelRotation"
   ],
   "0x53a270": [
-    5472772,
+    5472916,
     "g_unk0x0053a270"
   ],
   "0x53a280": [
-    5468996,
+    5469140,
     "g_savedCarExtraNodes"
   ],
   "0x53a300": [
-    5472932,
+    5473076,
     "g_unk0x0053a300"
   ],
   "0x53a310": [
-    5472948,
+    5473092,
     "g_unk0x0053a310"
   ],
   "0x53a314": [
-    5472756,
+    5472900,
     "g_unk0x0053a314"
   ],
   "0x53a324": [
-    5469248,
+    5469392,
     "g_carViewScale"
   ],
   "0x53a374": [
-    5470024,
+    5470168,
     "g_carSimulationPreviousMs"
   ],
   "0x53a378": [
-    5460720,
+    5460864,
     "g_savedCarSceneRoots"
   ],
   "0x53a398": [
-    5473100,
+    5473244,
     "g_unk0x0053a398"
   ],
   "0x53a3a0": [
-    5469368,
+    5469512,
     "g_carOrderCount"
   ],
   "0x53a3a8": [
-    5455464,
+    5455608,
     "g_carPhysicsTransforms"
   ],
   "0x53ab88": [
-    5472120,
+    5472264,
     "g_unk0x0053ab88"
   ],
   "0x53aba8": [
-    5455260,
+    5455404,
     "g_cars"
   ],
   "0x53abc8": [
-    5469864,
+    5470008,
     "g_savedCarWheelNodes"
   ],
   "0x53ac48": [
-    5453096,
+    5453240,
     "g_wheelSpinning"
   ],
   "0x53acc8": [
-    5472952,
+    5473096,
     "g_unk0x0053acc8"
   ],
   "0x53acd0": [
-    5469828,
+    5469972,
     "g_savedCarFarViewNodes"
   ],
   "0x53acf0": [
-    5469992,
+    5470136,
     "g_carTransformsInvalid"
   ],
   "0x53ad10": [
-    5453240,
+    5453384,
     "g_carTransformsShadow"
   ],
   "0x53b4f0": [
-    5459740,
+    5459884,
     "g_unk0x0053b4f0"
   ],
   "0x53b500": [
-    5472424,
+    5472568,
     "g_carOrder"
   ],
   "0x53b510": [
-    5455420,
+    5455564,
     "g_savedCarBodyNodes"
   ],
   "0x53b530": [
-    5472116,
+    5472260,
     "g_carSimulationClockFlags"
   ],
   "0x53b538": [
-    5472992,
+    5473136,
     "g_savedCarNearViewNodes"
   ],
   "0x53b560": [
-    5470032,
+    5470176,
     "g_carTransforms"
   ],
   "0x53bd40": [
-    5468980,
+    5469124,
     "g_carSimulationFrameMs"
   ],
   "0x53bd44": [
-    5469208,
+    5469352,
     "g_unk0x0053bd44"
   ],
   "0x53bd64": [
-    5459716,
+    5459860,
     "g_carSimulationEpochMs"
   ],
   "0x53bd68": [
-    5472068,
+    5472212,
     "g_carCount"
   ],
   "0x53bd6c": [
-    5469776,
+    5469920,
     "g_unk0x0053bd6c"
   ],
   "0x53bd7c": [
-    5472072,
+    5472216,
     "g_savedCarAlternateBodyNodes"
   ],
   "0x53bda0": [
-    5457496,
+    5457640,
     "g_carWheelTransforms"
   ],
   "0x53c5a0": [
-    5459760,
+    5459904,
     "g_carRenderBoxCorners"
   ],
   "0x53c9a0": [
-    5457484,
+    5457628,
     "g_unk0x0053c9a0"
   ],
   "0x53c9a4": [
-    5453092,
+    5453236,
     "g_carBuffer"
   ],
   "0x53c9a8": [
-    5455460,
+    5455604,
     "g_unk0x0053c9a8"
   ],
   "0x53c9b0": [
-    5455256,
+    5455400,
     "g_stepCarOrder"
   ],
   "0x53c9b4": [
-    5460772,
+    5460916,
     "g_tyreGripScale"
   ],
   "0x53c9b8": [
-    5472104,
+    5472248,
     "g_tyreLatForce"
   ],
   "0x53c9c4": [
-    5457480,
+    5457624,
     "g_unk0x0053c9c4"
   ],
   "0x53c9c8": [
-    5460776,
+    5460920,
     "g_carContactNormal"
   ],
   "0x53c9d4": [
-    5455456,
+    5455600,
     "g_unk0x0053c9d4"
   ],
   "0x53c9d8": [
-    5453080,
+    5453224,
     "g_carStepAccel"
   ],
   "0x53c9e8": [
-    5468984,
+    5469128,
     "g_tyreLongForce"
   ],
   "0x53c9f8": [
-    5472520,
+    5472664,
     "g_leanDamping"
   ],
   "0x53ca08": [
-    5472056,
+    5472200,
     "g_carContactWork"
   ],
   "0x53ca18": [
-    5473088,
+    5473232,
     "g_leanAccel"
   ],
   "0x53ca24": [
-    5469204,
+    5469348,
     "g_unk0x0053ca24"
   ],
   "0x53ca28": [
-    5455452,
+    5455596,
     "g_stepCarCount"
   ],
   "0x53ca30": [
-    5472744,
+    5472888,
     "g_leanDelta"
   ],
   "0x53ca40": [
-    5472384,
+    5472528,
     "g_carContactWork2"
   ],
   "0x53ca4c": [
-    5472152,
+    5472296,
     "g_tyreSlipScale"
   ],
   "0x53ca50": [
-    5457488,
+    5457632,
     "g_carSurfaceSnapshot"
   ],
   "0x53ca58": [
-    5469152,
+    5469296,
     "g_unk0x0053ca58"
   ],
   "0x53ca68": [
-    5472368,
+    5472512,
     "g_carContactWork3"
   ],
   "0x53ca78": [
-    5453224,
+    5453368,
     "g_carAccel"
   ],
   "0x53ca88": [
-    5459704,
+    5459848,
     "g_tyreForce"
   ],
   "0x53ca94": [
-    5472048,
+    5472192,
     "g_wheelSpinStep"
   ],
   "0x53ca98": [
-    5459672,
+    5459816,
     "g_carContactSaved"
   ],
   "0x53caa8": [
-    5469168,
+    5469312,
     "g_leanBasis"
   ],
   "0x53cad0": [
-    5460760,
+    5460904,
     "g_gravityDir"
   ],
   "0x53cadc": [
-    5469244,
+    5469388,
     "g_gravityScale"
   ],
   "0x53cae0": [
-    5469860,
+    5470004,
     "g_tyreForceMax"
   ],
   "0x53cae8": [
-    5472968,
+    5473112,
     "g_unk0x0053cae8"
   ],
   "0x53caf8": [
-    5459728,
+    5459872,
     "g_carContactWork4"
   ],
   "0x53cc08": [
-    5459688,
+    5459832,
     "g_carContactPoint"
   ],
   "0x53cc14": [
-    5472420,
+    5472564,
     "g_stepCars"
   ],
   "0x53cc18": [
-    5469240,
+    5469384,
     "g_pCurrentCar"
   ],
   "0x53cc1c": [
-    5473108,
+    5473252,
     "g_physicsPartSet"
   ],
   "0x53cc20": [
-    5472532,
+    5472676,
     "g_tyreForceRecip"
   ],
   "0x53cdb4": [
-    5472364,
+    5472508,
     "g_unk0x0053cdb4"
   ],
   "0x53cdbc": [
-    8248908,
+    8248732,
     "g_unk0x0053cdbc"
   ],
   "0x53ce10": [
-    5933808,
+    5933960,
     "g_dashGearMarkerY"
   ],
   "0x53ce18": [
-    5933820,
+    5933972,
     "g_dashGearFlash"
   ],
   "0x53ce38": [
-    5933940,
+    5934092,
     "g_dashSpeed"
   ],
   "0x53ce40": [
-    5933816,
+    5933968,
     "g_dashAspect"
   ],
   "0x53ce44": [
-    5933828,
+    5933980,
     "g_dashSpeedNext"
   ],
   "0x53ce4c": [
-    5933844,
+    5933996,
     "g_dashSimple"
   ],
   "0x53ce50": [
-    5933856,
+    5934008,
     "g_dashRevTicks"
   ],
   "0x53ce54": [
-    5933724,
+    5933876,
     "g_dashRev"
   ],
   "0x53ce5c": [
-    5933744,
+    5933896,
     "g_dashLastResX"
   ],
   "0x53ce60": [
-    5933836,
+    5933988,
     "g_dashRevPrev"
   ],
   "0x53ce68": [
-    5933748,
+    5933900,
     "g_dashSpeedPrev"
   ],
   "0x53ce70": [
-    5934040,
+    5934192,
     "g_dashGear"
   ],
   "0x53ce78": [
-    5933764,
+    5933916,
     "g_dashDigital"
   ],
   "0x53ce98": [
-    5933712,
+    5933864,
     "g_dashGearMarker"
   ],
   "0x53cfa0": [
-    5934048,
+    5934200,
     "g_dashRevNext"
   ],
   "0x53cfa8": [
-    5933756,
+    5933908,
     "g_dashIdle"
   ],
   "0x53cfb0": [
-    5933956,
+    5934108,
     "g_dashLastGear"
   ],
   "0x53cfd0": [
-    5933936,
+    5934088,
     "g_dashMphTexture"
   ],
   "0x53cfd4": [
-    5933720,
+    5933872,
     "g_dashKphTexture"
   ],
   "0x53cfd8": [
-    5933948,
+    5934100,
     "g_dashDialTexture"
   ],
   "0x53cfdc": [
-    5933952,
+    5934104,
     "g_dashBarTexture"
   ],
   "0x53cfe0": [
-    5933800,
+    5933952,
     "g_dashBarOff"
   ],
   "0x53cfe8": [
-    5933736,
+    5933888,
     "g_dashBarOn"
   ],
   "0x53cff8": [
-    5933848,
+    5934000,
     "g_playerCameraMode"
   ],
   "0x53d000": [
-    5933864,
+    5934016,
     "g_unk0x0053d000"
   ],
   "0x53d048": [
-    5933992,
+    5934144,
     "g_unk0x0053d048"
   ],
   "0x53d090": [
-    5933980,
+    5934132,
     "g_unk0x0053d090"
   ],
   "0x53d098": [
-    5933964,
+    5934116,
     "g_unk0x0053d098"
   ],
   "0x53d1a0": [
-    8226892,
+    8226716,
     "g_unk0x0053d1a0"
   ],
   "0x53d1a2": [
-    8226900,
+    8226724,
     "g_unk0x0053d1a2"
   ],
   "0x53d1a4": [
-    8226908,
+    8226732,
     "g_unk0x0053d1a4"
   ],
   "0x53d1a6": [
-    8226910,
+    8226734,
     "g_unk0x0053d1a6"
   ],
   "0x53d1a7": [
-    8226920,
+    8226744,
     "g_unk0x0053d1a7"
   ],
   "0x53d1a8": [
-    8225744,
+    8225568,
     "g_unk0x0053d1a8"
   ],
   "0x53d1b0": [
-    8226904,
+    8226728,
     "g_unk0x0053d1b0"
   ],
   "0x53d1b4": [
-    8225740,
+    8225564,
     "g_unk0x0053d1b4"
   ],
   "0x53d1b8": [
-    8225752,
+    8225576,
     "g_unk0x0053d1b8"
   ],
   "0x53d1d8": [
-    8225736,
+    8225560,
     "g_unk0x0053d1d8"
   ],
   "0x53d1d9": [
-    8225737,
+    8225561,
     "g_unk0x0053d1d9"
   ],
   "0x53d1da": [
-    8227168,
+    8226992,
     "g_unk0x0053d1da"
   ],
   "0x53d1e8": [
-    8249212,
+    8249036,
     "g_carSplitTimes"
   ],
   "0x53d968": [
-    8225784,
+    8225608,
     "g_carStageTiming"
   ],
   "0x53dda8": [
-    8248772,
+    8248596,
     "g_unk0x0053dda8"
   ],
   "0x53ddb0": [
-    8248792,
+    8248616,
     "g_unk0x0053ddb0"
   ],
   "0x53de1c": [
-    8232720,
+    8232544,
     "g_splitLeaders"
   ],
   "0x53e17c": [
-    8229268,
+    8229092,
     "g_unk0x0053e17c"
   ],
   "0x53e184": [
-    8227688,
+    8227512,
     "g_unk0x0053e184"
   ],
   "0x53e18c": [
-    8229276,
+    8229100,
     "g_unk0x0053e18c"
   ],
   "0x53e18d": [
-    8229280,
+    8229104,
     "g_unk0x0053e18d"
   ],
   "0x53e18f": [
-    8229260,
+    8229084,
     "g_unk0x0053e18f"
   ],
   "0x53e190": [
-    8227360,
+    8227184,
     "g_unk0x0053e190"
   ],
   "0x53e2d8": [
-    5640720,
+    5640872,
     "g_menu0x0053e2d8"
   ],
   "0x53e4b8": [
-    5639736,
+    5639888,
     "g_menu0x0053e4b8"
   ],
   "0x53e698": [
-    5630692,
+    5630844,
     "g_unk0x0053e698"
   ],
   "0x53e6a0": [
-    5632408,
+    5632560,
     "g_menu0x0053e6a0"
   ],
   "0x53e880": [
-    5642644,
+    5642796,
     "g_stageEndBannerBlink"
   ],
   "0x53e888": [
-    5642160,
+    5642312,
     "g_menu0x0053e888"
   ],
   "0x53ea68": [
-    5638280,
+    5638432,
     "g_menu0x0053ea68"
   ],
   "0x53ec48": [
-    5638768,
+    5638920,
     "g_menu0x0053ec48"
   ],
   "0x53ee28": [
-    5637800,
+    5637952,
     "g_menu0x0053ee28"
   ],
   "0x53f008": [
-    5643640,
+    5643792,
     "g_menu0x0053f008"
   ],
   "0x53f1e8": [
-    5631928,
+    5632080,
     "g_menu0x0053f1e8"
   ],
   "0x53f3c8": [
-    5630960,
+    5631112,
     "g_menu0x0053f3c8"
   ],
   "0x53f5a8": [
-    5633440,
+    5633592,
     "g_standingsExtraRow"
   ],
   "0x53f5b0": [
-    5631448,
+    5631600,
     "g_menu0x0053f5b0"
   ],
   "0x53f790": [
-    5641200,
+    5641352,
     "g_menu0x0053f790"
   ],
   "0x53f970": [
-    5640216,
+    5640368,
     "g_menu0x0053f970"
   ],
   "0x53fb70": [
-    5635872,
+    5636024,
     "g_menu0x0053fb70"
   ],
   "0x53fd50": [
-    5643636,
+    5643788,
     "g_menuBuildTime"
   ],
   "0x53fd58": [
-    5634904,
+    5635056,
     "g_menu0x0053fd58"
   ],
   "0x53ff38": [
-    5634416,
+    5634568,
     "g_menu0x0053ff38"
   ],
   "0x540118": [
-    5639248,
+    5639400,
     "g_menu0x00540118"
   ],
   "0x5402f8": [
-    5644600,
+    5644752,
     "g_menu0x005402f8"
   ],
   "0x5404d8": [
-    5645080,
+    5645232,
     "g_menu0x005404d8"
   ],
   "0x5406b8": [
-    5644120,
+    5644272,
     "g_menu0x005406b8"
   ],
   "0x540898": [
-    5642640,
+    5642792,
     "g_unk0x00540898"
   ],
   "0x5408a0": [
-    5643136,
+    5643288,
     "g_menu0x005408a0"
   ],
   "0x540a80": [
-    5633928,
+    5634080,
     "g_menu0x00540a80"
   ],
   "0x540c60": [
-    5634412,
+    5634564,
     "g_unk0x00540c60"
   ],
   "0x540c68": [
-    5632960,
+    5633112,
     "g_menu0x00540c68"
   ],
   "0x540e48": [
-    5638760,
+    5638912,
     "g_chatLineSelected"
   ],
   "0x540e50": [
-    5633448,
+    5633600,
     "g_menu0x00540e50"
   ],
   "0x541030": [
-    5636832,
+    5636984,
     "g_menu0x00541030"
   ],
   "0x541210": [
-    5640712,
+    5640864,
     "g_unk0x00541210"
   ],
   "0x541218": [
-    5636352,
+    5636504,
     "g_menu0x00541218"
   ],
   "0x5413f8": [
-    5630956,
+    5631108,
     "g_unk0x005413f8"
   ],
   "0x541400": [
-    5635392,
+    5635544,
     "g_menu0x00541400"
   ],
   "0x5416e0": [
-    5642656,
+    5642808,
     "g_menu0x005416e0"
   ],
   "0x5418c0": [
-    5637792,
+    5637944,
     "g_resultsHeaderFadeTimer"
   ],
   "0x5418c4": [
-    5643620,
+    5643772,
     "g_stagePositionSeconds"
   ],
   "0x5418d4": [
-    5630696,
+    5630848,
     "g_unk0x005418d4"
   ],
   "0x5418d8": [
-    5641680,
+    5641832,
     "g_menu0x005418d8"
   ],
   "0x541ab8": [
-    5630632,
+    5630784,
     "g_ghostSplits"
   ],
   "0x541ae0": [
-    5637312,
+    5637464,
     "g_menu0x00541ae0"
   ],
   "0x541cc0": [
-    5632952,
+    5633104,
     "g_menuRect"
   ],
   "0x541cc8": [
-    5643616,
+    5643768,
     "g_pHeaderMenu"
   ],
   "0x541ccc": [
-    5634896,
+    5635048,
     "g_pSavedHeaderMenu"
   ],
   "0x541cd0": [
-    5639728,
+    5639880,
     "g_pKnockoutMatch"
   ],
   "0x541cd4": [
-    5640700,
+    5640852,
     "g_unk0x00541cd4"
   ],
   "0x541cd8": [
-    5640708,
+    5640860,
     "g_unk0x00541cd8"
   ],
   "0x541cdc": [
-    5630676,
+    5630828,
     "g_stageResultTimes"
   ],
   "0x541cec": [
-    5631440,
+    5631592,
     "g_stageResultRecords"
   ],
   "0x541cf0": [
-    5640704,
+    5640856,
     "g_unk0x00541cf0"
   ],
   "0x541cf4": [
-    5640696,
+    5640848,
     "g_unk0x00541cf4"
   ],
   "0x541cf8": [
-    5630700,
+    5630852,
     "g_chatLine"
   ],
   "0x541df8": [
-    5630672,
+    5630824,
     "g_chatLineLength"
   ],
   "0x541dfc": [
-    5642652,
+    5642804,
     "g_unk0x00541dfc"
   ],
   "0x541e00": [
-    5635384,
+    5635536,
     "g_unk0x00541e00"
   ],
   "0x541f08": [
-    8229376,
+    8229200,
     "g_stageFiles"
   ],
   "0x541f78": [
-    8248084,
+    8247908,
     "g_stageSplitUnk0x00541f78"
   ],
   "0x541f88": [
-    8226912,
+    8226736,
     "g_stageTimingRandomSeed"
   ],
   "0x541f8c": [
-    8248976,
+    8248800,
     "g_unk0x00541f8c"
   ],
   "0x541f90": [
-    8251320,
+    8251144,
     "g_unk0x00541f90"
   ],
   "0x541f98": [
-    8228056,
+    8227880,
     "g_stageSplit"
   ],
   "0x542418": [
-    8248368,
+    8248192,
     "g_unk0x00542418"
   ],
   "0x54241c": [
-    8227724,
+    8227548,
     "g_splitSpreadTable"
   ],
   "0x542420": [
-    8248360,
+    8248184,
     "g_unk0x00542420"
   ],
   "0x542528": [
-    8227812,
+    8227636,
     "g_unk0x00542528"
   ],
   "0x542600": [
-    8227808,
+    8227632,
     "g_unk0x00542600"
   ],
   "0x542604": [
-    8228028,
+    8227852,
     "g_unk0x00542604"
   ],
   "0x542608": [
-    8227732,
+    8227556,
     "g_unk0x00542608"
   ],
   "0x54260c": [
-    8227312,
+    8227136,
     "g_unk0x0054260c"
   ],
   "0x542630": [
-    8232048,
+    8231872,
     "g_carScenes"
   ],
   "0x542870": [
-    8247992,
+    8247816,
     "g_carStartData"
   ],
   "0x542874": [
-    8229852,
+    8229676,
     "g_carStartAngles"
   ],
   "0x542878": [
-    8230128,
+    8229952,
     "g_carStartPosition"
   ],
   "0x542884": [
-    8227736,
+    8227560,
     "g_carAuxiliaryBuffers"
   ],
   "0x5428c4": [
-    8248104,
+    8247928,
     "g_carAlternateBodyScenes"
   ],
   "0x542904": [
-    8248212,
+    8248036,
     "g_carWheelModelBuffers"
   ],
   "0x542944": [
-    8248000,
+    8247824,
     "g_carAlternateBodyBuffers"
   ],
   "0x542984": [
-    8227176,
+    8227000,
     "g_carModelBuffers"
   ],
   "0x5429c4": [
-    8229560,
+    8229384,
     "g_knockoutPlayerCarDetail"
   ],
   "0x5429c5": [
-    8232032,
+    8231856,
     "g_knockoutOpponentCarDetail"
   ],
   "0x5429c6": [
-    8230092,
+    8229916,
     "g_unk0x005429c6"
   ],
   "0x5429c8": [
-    8248912,
+    8248736,
     "g_carInfoBuffers"
   ],
   "0x5429e8": [
-    8229892,
+    8229716,
     "g_unk0x005429e8"
   ],
   "0x542ae8": [
-    8248376,
+    8248200,
     "g_stageArchiveTables"
   ],
   "0x542c70": [
-    7930144,
+    7929968,
     "g_stageCheckpointCount"
   ],
   "0x542c74": [
-    7930292,
+    7930116,
     "g_unk0x00542c74"
   ],
   "0x542c78": [
-    8229328,
+    8229152,
     "g_timingSplitCount"
   ],
   "0x542c7c": [
-    7930328,
+    7930152,
     "g_unk0x00542c7c"
   ],
   "0x542cac": [
-    7930376,
+    7930200,
     "g_stageSplitCount"
   ],
   "0x542cad": [
-    7930256,
+    7930080,
     "g_unk0x00542cad"
   ],
   "0x542cae": [
-    7930248,
+    7930072,
     "g_stageLooped"
   ],
   "0x542cb0": [
-    7930252,
+    7930076,
     "g_unk0x00542cb0"
   ],
   "0x542cb4": [
-    7930260,
+    7930084,
     "g_unk0x00542cb4"
   ],
   "0x542cd4": [
-    7930244,
+    7930068,
     "g_startGridSide"
   ],
   "0x542cd8": [
-    7930148,
+    7929972,
     "g_fixedGridStartPositions"
   ],
   "0x542d38": [
-    7930296,
+    7930120,
     "g_unk0x00542d38"
   ],
   "0x542d58": [
-    8251156,
+    8250980,
     "g_unk0x00542d58"
   ],
   "0x542d68": [
-    8251132,
+    8250956,
     "g_unk0x00542d68"
   ],
   "0x542e78": [
-    8248984,
+    8248808,
     "g_unk0x00542e78"
   ],
   "0x542f58": [
-    8248944,
+    8248768,
     "g_unk0x00542f58"
   ],
   "0x542f78": [
-    8251368,
+    8251192,
     "g_unk0x00542f78"
   ],
   "0x543098": [
-    8227804,
+    8227628,
     "g_unk0x00543098"
   ],
   "0x5430a0": [
-    8254504,
+    8254328,
     "g_trailTimer"
   ],
   "0x543120": [
-    8256424,
+    8256248,
     "g_trailLevel"
   ],
   "0x543140": [
-    8255400,
+    8255224,
     "g_trailReset"
   ],
   "0x5431c0": [
-    8229568,
+    8229392,
     "g_carExhaustGlows"
   ],
   "0x543200": [
-    8256456,
+    8256280,
     "g_trailPos"
   ],
   "0x543380": [
-    5473192,
+    5473336,
     "g_carExhaustWorldPositions"
   ],
   "0x5433e0": [
-    8248176,
+    8248000,
     "g_trailForced"
   ],
   "0x543400": [
-    8255528,
+    8255352,
     "g_trailLastPos"
   ],
   "0x543580": [
-    8229492,
+    8229316,
     "g_carExhaustPoints"
   ],
   "0x5435c0": [
-    5474476,
+    5474620,
     "g_unk0x005435c0"
   ],
   "0x5435c8": [
-    8227156,
+    8226980,
     "g_wheelSprayTextures"
   ],
   "0x5435cc": [
-    5474480,
+    5474624,
     "g_unk0x005435cc"
   ],
   "0x5435d0": [
-    8256296,
+    8256120,
     "g_trailSurface"
   ],
   "0x543650": [
-    8229264,
+    8229088,
     "g_unk0x00543650"
   ],
   "0x543654": [
-    8229224,
+    8229048,
     "g_unk0x00543654"
   ],
   "0x543658": [
-    8229236,
+    8229060,
     "g_unk0x00543658"
   ],
   "0x54365c": [
-    8226916,
+    8226740,
     "g_unk0x0054365c"
   ],
   "0x543660": [
-    8229220,
+    8229044,
     "g_unk0x00543660"
   ],
   "0x543664": [
-    8229232,
+    8229056,
     "g_unk0x00543664"
   ],
   "0x543668": [
-    8228048,
+    8227872,
     "g_unk0x00543668"
   ],
   "0x54366c": [
-    8225748,
+    8225572,
     "g_unk0x0054366c"
   ],
   "0x543670": [
-    8229228,
+    8229052,
     "g_unk0x00543670"
   ],
   "0x543674": [
-    8228044,
+    8227868,
     "g_unk0x00543674"
   ],
   "0x543678": [
-    8229216,
+    8229040,
     "g_unk0x00543678"
   ],
   "0x54367c": [
-    8226872,
+    8226696,
     "g_unk0x0054367c"
   ],
   "0x543690": [
-    8229208,
+    8229032,
     "g_unk0x00543690"
   ],
   "0x543698": [
-    8228036,
+    8227860,
     "g_unk0x00543698"
   ],
   "0x5436a0": [
-    8230096,
+    8229920,
     "g_unk0x005436a0"
   ],
   "0x5436b8": [
-    8229860,
+    8229684,
     "g_unk0x005436b8"
   ],
   "0x5436d8": [
-    8229832,
+    8229656,
     "g_unk0x005436d8"
   ],
   "0x5436e8": [
-    8232688,
+    8232512,
     "g_trailForcedSurface"
   ],
   "0x543708": [
-    8254632,
+    8254456,
     "g_unk0x00543708"
   ],
   "0x543788": [
-    8255144,
+    8254968,
     "g_trailState"
   ],
   "0x543808": [
-    5473308,
+    5473452,
     "g_unk0x00543808"
   ],
   "0x543830": [
-    8254760,
+    8254584,
     "g_trailOffset"
   ],
   "0x5439b0": [
-    8248076,
+    8247900,
     "g_carExhaustBurstFrames"
   ],
   "0x5439b8": [
-    8254472,
+    8254296,
     "g_trailCount"
   ],
   "0x543ad8": [
-    8255272,
+    8255096,
     "g_trailPrevState"
   ],
   "0x543b58": [
-    8255912,
+    8255736,
     "g_trailDelta"
   ],
   "0x543cf8": [
-    5474564,
+    5474708,
     "g_exhaustParticleSide"
   ],
   "0x543d00": [
-    8215920,
+    8215744,
     "g_stageObjectPrimary"
   ],
   "0x543d50": [
-    8216008,
+    8215832,
     "g_weatherParticleQualityScale"
   ],
   "0x543d54": [
-    8251356,
+    8251180,
     "g_unk0x00543d54"
   ],
   "0x543d58": [
-    8224572,
+    8224396,
     "g_sunIconWidthScale"
   ],
   "0x543d5c": [
-    8216228,
+    8216052,
     "g_sunIconHeightScale"
   ],
   "0x543d60": [
-    8229488,
+    8229312,
     "g_weatherIntensityFrom"
   ],
   "0x543d64": [
-    8251148,
+    8250972,
     "g_weatherIntensityTo"
   ],
   "0x543d68": [
-    8247988,
+    8247812,
     "g_weatherIntensityRouteScale"
   ],
   "0x543d6c": [
-    8227308,
+    8227132,
     "g_weatherIntensityRouteFrom"
   ],
   "0x543d70": [
-    8227728,
+    8227552,
     "g_weatherIntensityRouteTo"
   ],
   "0x543d74": [
-    8226964,
+    8226788,
     "g_surfaceBlendFrom"
   ],
   "0x543d78": [
-    8229632,
+    8229456,
     "g_surfaceBlendTo"
   ],
   "0x543d7c": [
-    8229564,
+    8229388,
     "g_surfaceBlendRouteScale"
   ],
   "0x543d80": [
-    8229316,
+    8229140,
     "g_surfaceBlendRouteFrom"
   ],
   "0x543d84": [
-    8232040,
+    8231864,
     "g_surfaceBlendRouteTo"
   ],
   "0x543d88": [
-    8226960,
+    8226784,
     "g_lightingBlendFrom"
   ],
   "0x543d8c": [
-    8226896,
+    8226720,
     "g_lightingBlendTo"
   ],
   "0x543d90": [
-    8225724,
+    8225548,
     "g_lightingBlendRouteScale"
   ],
   "0x543d94": [
-    8247984,
+    8247808,
     "g_lightingBlendRouteFrom"
   ],
   "0x543d98": [
-    8227304,
+    8227128,
     "g_lightingBlendRouteTo"
   ],
   "0x543d9c": [
-    8248308,
+    8248132,
     "g_unk0x00543d9c"
   ],
   "0x543da0": [
-    8251172,
+    8250996,
     "g_unk0x00543da0Block"
   ],
   "0x543e38": [
-    8202212,
+    8202036,
     "g_stageObjectSecondary"
   ],
   "0x543e88": [
-    8248324,
+    8248148,
     "g_unk0x00543e88"
   ],
   "0x543e8c": [
-    8248168,
+    8247992,
     "g_unk0x00543e8c"
   ],
   "0x543e90": [
-    8251328,
+    8251152,
     "g_unk0x00543e90"
   ],
   "0x543e94": [
-    8248320,
+    8248144,
     "g_unk0x00543e94"
   ],
   "0x543e98": [
-    8225708,
+    8225532,
     "g_weatherViewCount"
   ],
   "0x543e9c": [
-    8248208,
+    8248032,
     "g_unk0x00543e9c"
   ],
   "0x543ea0": [
-    7941028,
+    7940852,
     "g_sunVisibility"
   ],
   "0x543ea4": [
-    8227704,
+    8227528,
     "g_unk0x00543ea4"
   ],
   "0x543ea8": [
-    8227708,
+    8227532,
     "g_unk0x00543ea8"
   ],
   "0x543eb4": [
-    8202080,
+    8201904,
     "g_sunIconColour"
   ],
   "0x543eb8": [
-    8248780,
+    8248604,
     "g_viewLightingRamps"
   ],
   "0x543ec0": [
-    8227720,
+    8227544,
     "g_unk0x00543ec0"
   ],
   "0x543ec4": [
-    8227352,
+    8227176,
     "g_unk0x00543ec4"
   ],
   "0x543ec8": [
-    8227356,
+    8227180,
     "g_unk0x00543ec8"
   ],
   "0x543ecc": [
-    8248068,
+    8247892,
     "g_carSurfaceRamps"
   ],
   "0x543ed0": [
-    8229664,
+    8229488,
     "g_rainSplashBillboard"
   ],
   "0x543ef8": [
-    7942780,
+    7942604,
     "g_weatherRampsPending"
   ],
   "0x543f00": [
-    8216568,
+    8216392,
     "g_snowBillboard"
   ],
   "0x543f28": [
-    8217752,
+    8217576,
     "g_unk0x00543f28"
   ],
   "0x543fa8": [
-    8227348,
+    8227172,
     "g_unk0x00543fa8"
   ],
   "0x543fb0": [
-    8233584,
+    8233408,
     "g_weatherParticles"
   ],
   "0x5477f0": [
-    8248072,
+    8247896,
     "g_unk0x005477f0"
   ],
   "0x5477f8": [
-    8217144,
+    8216968,
     "g_stageLightDirection"
   ],
   "0x547908": [
-    7941128,
+    7940952,
     "g_bodySparkBillboard"
   ],
   "0x547930": [
-    8229704,
+    8229528,
     "g_weatherWindDirection"
   ],
   "0x54793c": [
-    8225712,
+    8225536,
     "g_weatherPreviousWindStrength"
   ],
   "0x547940": [
-    8230120,
+    8229944,
     "g_weatherWindStrength"
   ],
   "0x547944": [
-    8232656,
+    8232480,
     "g_weatherWindTransition"
   ],
   "0x547950": [
-    8216656,
+    8216480,
     "g_stageLighting"
   ],
   "0x547ac8": [
-    8229324,
+    8229148,
     "g_viewWeather"
   ],
   "0x547acc": [
-    7942572,
+    7942396,
     "g_stageObjectCount"
   ],
   "0x547ad0": [
-    8227120,
+    8226944,
     "g_unk0x00547ad0"
   ],
   "0x547ad8": [
-    8216544,
+    8216368,
     "g_stageLightKind"
   ],
   "0x547adc": [
-    7940972,
+    7940796,
     "g_stageLightHasMatrix"
   ],
   "0x547ae0": [
-    7942184,
+    7942008,
     "g_stageLights"
   ],
   "0x547b40": [
-    7941176,
+    7941000,
     "g_stageLightMatrix"
   ],
   "0x547b80": [
-    7941908,
+    7941732,
     "g_unk0x00547b80"
   ],
   "0x547b88": [
-    7941920,
+    7941744,
     "g_stageLightBasis"
   ],
   "0x547cc8": [
-    8217880,
+    8217704,
     "g_stageLightTextures"
   ],
   "0x547cd4": [
-    7940988,
+    7940812,
     "g_stageLightsActive"
   ],
   "0x547cd8": [
-    8201492,
+    8201316,
     "g_stageLightCount"
   ],
   "0x547ce0": [
-    8202424,
+    8202248,
     "g_carDamageHazardTimer"
   ],
   "0x547d00": [
-    8224588,
+    8224412,
     "g_carLightGlowSlots"
   ],
   "0x547f80": [
-    7941096,
+    7940920,
     "g_carLightProfiles"
   ],
   "0x547fa0": [
-    8225232,
+    8225056,
     "g_rearViewLightOffsetB"
   ],
   "0x547fac": [
-    8217700,
+    8217524,
     "g_carLightTexA"
   ],
   "0x547fb4": [
-    8229716,
+    8229540,
     "g_unk0x00547fb4"
   ],
   "0x547fc0": [
-    8202492,
+    8202316,
     "g_carLightPoints"
   ],
   "0x547fe0": [
-    8225248,
+    8225072,
     "g_rearViewLightOffsetA"
   ],
   "0x547fec": [
-    8225260,
+    8225084,
     "g_rearViewLightNodeA"
   ],
   "0x547ff0": [
-    8225264,
+    8225088,
     "g_rearViewLightNodeB"
   ],
   "0x547ff4": [
-    8225268,
+    8225092,
     "g_rearViewLightAttenuation"
   ],
   "0x547ff8": [
-    8217680,
+    8217504,
     "g_carLightTexB"
   ],
   "0x548110": [
-    8201504,
+    8201328,
     "g_unk0x00548110"
   ],
   "0x548220": [
-    8217916,
+    8217740,
     "g_trailPointUsed"
   ],
   "0x549b20": [
-    7930384,
+    7930208,
     "g_unk0x00549b20"
   ],
   "0x549ba0": [
-    8199788,
+    8199612,
     "g_unk0x00549ba0"
   ],
   "0x549c20": [
-    8201664,
+    8201488,
     "g_carTyreTrailCenters"
   ],
   "0x549da0": [
-    7943672,
+    7943496,
     "g_trailPoints"
   ],
   "0x5885a0": [
-    8202084,
+    8201908,
     "g_unk0x005885a0"
   ],
   "0x588620": [
-    8217720,
+    8217544,
     "g_trailColor"
   ],
   "0x588740": [
-    7942708,
+    7942532,
     "g_unk0x00588740"
   ],
   "0x588744": [
-    7942712,
+    7942536,
     "g_unk0x00588744"
   ],
   "0x588748": [
-    7942696,
+    7942520,
     "g_unk0x00588748"
   ],
   "0x588750": [
-    8216536,
+    8216360,
     "g_trailFrame"
   ],
   "0x588758": [
-    8215916,
+    8215740,
     "g_activeReplayStream"
   ],
   "0x58875c": [
-    7942740,
+    7942564,
     "g_ghostCar"
   ],
   "0x588760": [
-    7942700,
+    7942524,
     "g_unk0x00588760"
   ],
   "0x588761": [
-    7942701,
+    7942525,
     "g_unk0x00588761"
   ],
   "0x588864": [
-    8216224,
+    8216048,
     "g_unk0x00588864"
   ],
   "0x588868": [
-    8216016,
+    8215840,
     "g_unk0x00588868"
   ],
   "0x58896c": [
-    8216540,
+    8216364,
     "g_unk0x0058896c"
   ],
   "0x588970": [
-    7940996,
+    7940820,
     "g_carDamageModelEnabled"
   ],
   "0x588990": [
-    8226928,
+    8226752,
     "g_carPartSetLookup"
   ],
   "0x5889b0": [
-    8226976,
+    8226800,
     "g_stageDeformHull"
   ],
   "0x588a40": [
-    8232640,
+    8232464,
     "g_stageDeformOffset"
   ],
   "0x588a4c": [
-    8232672,
+    8232496,
     "g_stageDeformNormal"
   ],
   "0x588a58": [
-    8251344,
+    8251168,
     "g_stageDeformImpact"
   ],
   "0x588a64": [
-    8249208,
+    8249032,
     "g_stageDeformSpeed"
   ],
   "0x588a68": [
-    8227160,
+    8226984,
     "g_stageDeformStrength"
   ],
   "0x588a6c": [
-    8229368,
+    8229192,
     "g_stageDeformMode"
   ],
   "0x588a70": [
-    8251360,
+    8251184,
     "g_stageDeformCar"
   ],
   "0x588a74": [
-    8228032,
+    8227856,
     "g_stageDeformRadius"
   ],
   "0x588a78": [
-    8251336,
+    8251160,
     "g_stageDeformFalloff"
   ],
   "0x588a7c": [
-    8232668,
+    8232492,
     "g_stageDeformScale"
   ],
   "0x588a80": [
-    8248784,
+    8248608,
     "g_deformImpactTicks"
   ],
   "0x588a88": [
-    8227696,
+    8227520,
     "g_deformPulseTicks"
   ],
   "0x588a90": [
-    8229856,
+    8229680,
     "g_carPartSetCount"
   ],
   "0x588b94": [
-    8251364,
+    8251188,
     "g_carPartSets"
   ],
   "0x588b98": [
-    8251316,
+    8251140,
     "g_carDamageRecords"
   ],
   "0x588b9c": [
-    8225716,
+    8225540,
     "g_carOriginalPartVertices"
   ],
   "0x588ba0": [
-    8248064,
+    8247888,
     "g_carOriginalPartNodeTypes"
   ],
   "0x588ba4": [
-    8199916,
+    8199740,
     "g_unk0x00588ba4"
   ],
   "0x588bb4": [
-    8217036,
+    8216860,
     "g_carPairValuePending"
   ],
   "0x588cd4": [
-    8199688,
+    8199512,
     "g_replayLevelState"
   ],
   "0x588d38": [
-    7940980,
+    7940804,
     "g_unk0x00588d38"
   ],
   "0x588d3c": [
-    8230116,
+    8229940,
     "g_unk0x00588d3c"
   ],
   "0x588d40": [
-    7942600,
+    7942424,
     "g_replaySlots"
   ],
   "0x588e80": [
-    8229284,
+    8229108,
     "g_replayStreams"
   ],
   "0x588ea0": [
-    7942148,
+    7941972,
     "g_unk0x00588ea0"
   ],
   "0x588ec8": [
-    7942096,
+    7941920,
     "g_unk0x00588ec8"
   ],
   "0x588ed0": [
-    7942140,
+    7941964,
     "g_eventTextures"
   ],
   "0x588ed8": [
-    8201152,
+    8200976,
     "g_eventRecords"
   ],
   "0x589010": [
-    8217168,
+    8216992,
     "g_eventDraws"
   ],
   "0x589210": [
-    8216000,
+    8215824,
     "g_eventScales"
   ],
   "0x589318": [
-    7942732,
+    7942556,
     "g_unk0x00589318"
   ],
   "0x58931c": [
-    7931752,
+    7931576,
     "g_eventCount"
   ],
   "0x589320": [
-    7942716,
+    7942540,
     "g_unk0x00589320"
   ],
   "0x589330": [
-    8216532,
+    8216356,
     "g_eventsDirty"
   ],
   "0x589331": [
-    7942736,
+    7942560,
     "g_unk0x00589331"
   ],
   "0x589334": [
-    7942704,
+    7942528,
     "g_unk0x00589334"
   ],
   "0x589438": [
-    8202488,
+    8202312,
     "g_stageSkyNode"
   ],
   "0x58943c": [
-    8217032,
+    8216856,
     "g_stageGroundNode"
   ],
   "0x589440": [
-    8216556,
+    8216380,
     "g_stageCloudNode"
   ],
   "0x589444": [
-    7940976,
+    7940800,
     "g_stageCloudTopNode"
   ],
   "0x589448": [
-    8217896,
+    8217720,
     "g_stageCloudArchive"
   ],
   "0x589458": [
-    5477784,
+    5477928,
     "g_groundProbeOctantVectors"
   ],
   "0x5894b8": [
-    8216236,
+    8216060,
     "g_farVotes"
   ],
   "0x5894e0": [
-    8202528,
+    8202352,
     "g_movingObjects"
   ],
   "0x58c928": [
-    8216232,
+    8216056,
     "g_movingObjectMeshIndex"
   ],
   "0x58c92c": [
-    8216012,
+    8215836,
     "g_movingObjectMeshes"
   ],
   "0x58c930": [
-    8216528,
+    8216352,
     "g_movingObjectTypes"
   ],
   "0x58c934": [
-    8201112,
+    8200936,
     "g_unk0x0058c934"
   ],
   "0x58c938": [
-    6055372,
+    6055200,
     "g_sectorEntryCarFlags"
   ],
   "0x58c93c": [
-    6042548,
+    6044440,
     "g_sectorListIndexB"
   ],
   "0x58c940": [
-    6042544,
+    6044436,
     "g_sectorListIndexA"
   ],
   "0x58c944": [
-    6054992,
+    6054840,
     "g_objectPointBounds"
   ],
   "0x58c948": [
-    6055232,
+    6055080,
     "g_staticSectorEntries"
   ],
   "0x58c94c": [
-    6042888,
+    6044784,
     "g_movingSectorEntries"
   ],
   "0x58c950": [
-    8201148,
+    8200972,
     "g_unk0x0058c950"
   ],
   "0x58c954": [
-    6042384,
+    6044308,
     "g_sectorListEntriesB"
   ],
   "0x58c958": [
-    6042900,
+    6044796,
     "g_sectorEntryRaised"
   ],
   "0x58c95c": [
-    6042892,
+    6044788,
     "g_unk0x0058c95c"
   ],
   "0x58c960": [
-    6042524,
+    6044420,
     "g_sectorListCountA"
   ],
   "0x58c964": [
-    6042528,
+    6044424,
     "g_sectorListCountB"
   ],
   "0x58ca68": [
-    8216628,
+    8216452,
     "g_unk0x0058ca68"
   ],
   "0x58ca6c": [
-    6042440,
+    6044364,
     "g_unk0x0058ca6c"
   ],
   "0x58ca70": [
-    6054600,
+    6054448,
     "g_sectorObjectBounds"
   ],
   "0x58ca74": [
-    8216632,
+    8216456,
     "g_unk0x0058ca74"
   ],
   "0x58ca78": [
-    6042380,
+    6044304,
     "g_sectorListEntriesA"
   ],
   "0x58ca80": [
-    8216639,
+    8216463,
     "g_unk0x0058ca80"
   ],
   "0x58ca84": [
-    8216640,
+    8216464,
     "g_unk0x0058ca84"
   ],
   "0x58ca88": [
-    8251456,
+    8251280,
     "g_unk0x0058ca88"
   ],
   "0x58ca8c": [
-    8251416,
+    8251240,
     "g_unk0x0058ca8c"
   ],
   "0x58ca90": [
-    8251512,
+    8251336,
     "g_unk0x0058ca90"
   ],
   "0x58cf64": [
-    8251476,
+    8251300,
     "g_unk0x0058cf64"
   ],
   "0x58cf68": [
-    7941904,
+    7941728,
     "g_unk0x0058cf68"
   ],
   "0x58cf6c": [
-    7941168,
+    7940992,
     "g_unk0x0058cf6c"
   ],
   "0x58cf70": [
-    7941984,
+    7941808,
     "g_unk0x0058cf70"
   ],
   "0x58cf74": [
-    7941416,
+    7941240,
     "g_unk0x0058cf74"
   ],
   "0x58cf78": [
-    7941912,
+    7941736,
     "g_unk0x0058cf78"
   ],
   "0x58cf7c": [
-    8251460,
+    8251284,
     "g_unk0x0058cf7c"
   ],
   "0x58cf80": [
-    7941424,
+    7941248,
     "g_unk0x0058cf80"
   ],
   "0x58d260": [
-    8216464,
+    8216288,
     "g_carWiperRotationMatrix"
   ],
   "0x58d2a0": [
-    8200040,
+    8199864,
     "g_stageBlock"
   ],
   "0x58d6d0": [
-    7943016,
+    7942840,
     "g_carLightTextureStates"
   ],
   "0x58da10": [
-    7941064,
+    7940888,
     "g_unk0x0058da10"
   ],
   "0x58da30": [
-    7941032,
+    7940856,
     "g_unk0x0058da30"
   ],
   "0x58db50": [
-    8253048,
+    8252872,
     "g_surfaceTexturePath"
   ],
   "0x58dc54": [
-    8252952,
+    8252776,
     "g_unk0x0058dc54"
   ],
   "0x58dc58": [
-    8252956,
+    8252780,
     "g_unk0x0058dc58"
   ],
   "0x58dc5c": [
-    8252812,
+    8252636,
     "g_unk0x0058dc5c"
   ],
   "0x58dd60": [
-    8253032,
+    8252856,
     "g_oneShotSoundLastTime"
   ],
   "0x58dd68": [
-    8252888,
+    8252712,
     "g_unk0x0058dd68"
   ],
   "0x58dd70": [
-    8252832,
+    8252656,
     "g_surfaceSoundState"
   ],
   "0x58dd78": [
-    8252904,
+    8252728,
     "g_unk0x0058dd78"
   ],
   "0x58dd80": [
-    8252896,
+    8252720,
     "g_unk0x0058dd80"
   ],
   "0x58dd88": [
-    8252856,
+    8252680,
     "g_unk0x0058dd88"
   ],
   "0x58dd90": [
-    8252912,
+    8252736,
     "g_unk0x0058dd90"
   ],
   "0x58dd98": [
-    8252880,
+    8252704,
     "g_unk0x0058dd98"
   ],
   "0x58dda0": [
-    8253016,
+    8252840,
     "g_unk0x0058dda0"
   ],
   "0x58dda8": [
-    7943600,
+    7943424,
     "g_unk0x0058dda8"
   ],
   "0x58ddac": [
-    8253024,
+    8252848,
     "g_unk0x0058ddac"
   ],
   "0x58ddb4": [
-    7943592,
+    7943416,
     "g_unk0x0058ddb4"
   ],
   "0x58ddc0": [
-    8253000,
+    8252824,
     "g_unk0x0058ddc0"
   ],
   "0x58ddc8": [
-    8253040,
+    8252864,
     "g_unk0x0058ddc8Pair"
   ],
   "0x58ddd0": [
-    8253008,
+    8252832,
     "g_unk0x0058ddd0"
   ],
   "0x58ddd8": [
-    8252992,
+    8252816,
     "g_unk0x0058ddd8"
   ],
   "0x58dde0": [
-    8252976,
+    8252800,
     "g_unk0x0058dde0"
   ],
   "0x58dde8": [
-    8252960,
+    8252784,
     "g_unk0x0058dde8"
   ],
   "0x58ddf0": [
-    8252984,
+    8252808,
     "g_unk0x0058ddf0"
   ],
   "0x58ddf8": [
-    8252968,
+    8252792,
     "g_unk0x0058ddf8"
   ],
   "0x58de00": [
-    8252936,
+    8252760,
     "g_unk0x0058de00"
   ],
   "0x58de08": [
-    8252920,
+    8252744,
     "g_unk0x0058de08"
   ],
   "0x58de10": [
-    8252944,
+    8252768,
     "g_unk0x0058de10"
   ],
   "0x58de18": [
-    8252928,
+    8252752,
     "g_unk0x0058de18"
   ],
   "0x58df20": [
-    8252864,
+    8252688,
     "g_unk0x0058df20"
   ],
   "0x58df28": [
-    8252844,
+    8252668,
     "g_unk0x0058df28"
   ],
   "0x58df30": [
-    8252872,
+    8252696,
     "g_unk0x0058df30"
   ],
   "0x58df38": [
-    8252852,
+    8252676,
     "g_unk0x0058df38"
   ],
   "0x58df3c": [
-    8252776,
+    8252600,
     "g_unk0x0058df3c"
   ],
   "0x58df40": [
-    8252840,
+    8252664,
     "g_unk0x0058df40"
   ],
   "0x58df48": [
-    8252752,
+    8252576,
     "g_carEngineSoundArchives"
   ],
   "0x58df60": [
-    8252816,
+    8252640,
     "g_unk0x0058df60"
   ],
   "0x58df68": [
-    8252796,
+    8252620,
     "g_unk0x0058df68"
   ],
   "0x58df70": [
-    8252824,
+    8252648,
     "g_unk0x0058df70"
   ],
   "0x58df78": [
-    8252804,
+    8252628,
     "g_unk0x0058df78"
   ],
   "0x58df80": [
-    8252788,
+    8252612,
     "g_unk0x0058df80"
   ],
   "0x58df88": [
-    8252780,
+    8252604,
     "g_unk0x0058df88"
   ],
   "0x58df98": [
-    7931760,
+    7931584,
     "g_unk0x0058df98"
   ],
   "0x58df9c": [
-    7940992,
+    7940816,
     "g_unk0x0058df9c"
   ],
   "0x58e088": [
-    8199952,
+    8199776,
     "g_unk0x0058e088"
   ],
   "0x58e0a0": [
-    8216020,
+    8215844,
     "g_controlCar"
   ],
   "0x58e0a4": [
-    7942664,
+    7942488,
     "g_unk0x0058e0a4"
   ],
   "0x58e0a8": [
-    8216636,
+    8216460,
     "g_carAxisInputEnabled"
   ],
   "0x58e0b0": [
-    7942668,
+    7942492,
     "g_unk0x0058e0b0"
   ],
   "0x58e0b8": [
-    8216032,
+    8215856,
     "g_unk0x0058e0b8"
   ],
   "0x58e178": [
-    8216276,
+    8216100,
     "g_aiDriveState"
   ],
   "0x58e230": [
-    8199976,
+    8199800,
     "g_unk0x0058e230"
   ],
   "0x58e26c": [
-    8202076,
+    8201900,
     "g_stageRandomSeed"
   ],
   "0x58e270": [
-    8199932,
+    8199756,
     "g_unk0x0058e270"
   ],
   "0x58e378": [
-    8217160,
+    8216984,
     "g_stageAiData"
   ],
   "0x58e37c": [
-    7942004,
+    7941828,
     "g_unk0x0058e37c"
   ],
   "0x58e394": [
-    7942288,
+    7942112,
     "g_unk0x0058e394"
   ],
   "0x58e4a4": [
-    8215912,
+    8215736,
     "g_unk0x0058e4a4"
   ],
   "0x58e4a8": [
-    8202456,
+    8202280,
     "g_carHeadlightGlowCooldowns"
   ],
   "0x58e4c8": [
-    7931768,
+    7931592,
     "g_carHeadlightGlowRecords"
   ],
   "0x5909b8": [
-    8202292,
+    8202116,
     "g_stageAmbientFlashLevel"
   ],
   "0x5909bc": [
-    7942692,
+    7942516,
     "g_unk0x005909bc"
   ],
   "0x5909c0": [
-    7941240,
+    7941064,
     "g_stageAmbientBaseColour"
   ],
   "0x5909c4": [
-    8216024,
+    8215848,
     "g_stageAmbientFlashColour"
   ],
   "0x5909c8": [
-    7942848,
+    7942672,
     "g_unk0x005909c8"
   ],
   "0x590af8": [
-    7941172,
+    7940996,
     "g_unk0x00590af8"
   ],
   "0x590afc": [
-    7931756,
+    7931580,
     "g_unk0x00590afc"
   ],
   "0x590b00": [
-    8216564,
+    8216388,
     "g_unk0x00590b00"
   ],
   "0x590b04": [
-    8216608,
+    8216432,
     "g_unk0x00590b04"
   ],
   "0x590b08": [
-    8216560,
+    8216384,
     "g_unk0x00590b08"
   ],
   "0x590b0c": [
-    8217136,
+    8216960,
     "g_unk0x00590b0c"
   ],
   "0x590b10": [
-    8248276,
+    8248100,
     "g_unk0x00590b10"
   ],
   "0x590b30": [
-    8227124,
+    8226948,
     "g_carLineCounts"
   ],
   "0x590b50": [
-    8216616,
+    8216440,
     "g_carLineImpulse"
   ],
   "0x590b5c": [
-    8248328,
+    8248152,
     "g_carFlexibleLineConstraintAxes"
   ],
   "0x590b7c": [
-    8202296,
+    8202120,
     "g_carPartNodes"
   ],
   "0x590bfc": [
-    7930516,
+    7930340,
     "g_unk0x00590bfc"
   ],
   "0x590bfd": [
-    7930517,
+    7930341,
     "g_unk0x00590bfd"
   ],
   "0x590c00": [
-    8229332,
+    8229156,
     "g_carLineDescriptors"
   ],
   "0x590c20": [
-    8248312,
+    8248136,
     "g_partState"
   ],
   "0x590c24": [
-    7942108,
+    7941932,
     "g_carPartModelIndices"
   ],
   "0x590c44": [
-    7941244,
+    7941068,
     "g_wheelSlotDamageThresholds"
   ],
   "0x590c54": [
-    8217140,
+    8216964,
     "g_unk0x00590c54"
   ],
   "0x590c58": [
-    8217156,
+    8216980,
     "g_unk0x00590c58"
   ],
   "0x590c5c": [
-    8216644,
+    8216468,
     "g_unk0x00590c5c"
   ],
   "0x590c60": [
-    8216552,
+    8216376,
     "g_wheelSlotDamageIndices"
   ],
   "0x590c64": [
-    8248172,
+    8247996,
     "g_carPartTableCarCount"
   ],
   "0x590c68": [
-    8248904,
+    8248728,
     "g_unk0x00590c68"
   ],
   "0x590c6c": [
-    8232624,
+    8232448,
     "g_carLineStates"
   ],
   "0x590d70": [
-    8217132,
+    8216956,
     "g_unk0x00590d70"
   ],
   "0x590d74": [
-    8226924,
+    8226748,
     "g_partCar"
   ],
   "0x590d78": [
-    8229556,
+    8229380,
     "g_partSet"
   ],
   "0x590d7c": [
-    8229240,
+    8229064,
     "g_carPartStateTables"
   ],
   "0x590d90": [
-    8217100,
+    8216924,
     "g_carCameraOffsets"
   ],
   "0x590db0": [
-    8224316,
+    8224140,
     "g_viewObjectLevels"
   ],
   "0x590ec0": [
-    5477748,
+    5477892,
     "g_viewObjectCarIndices"
   ],
   "0x590ec8": [
-    7930512,
+    7930336,
     "g_unk0x00590ec8"
   ],
   "0x590ecc": [
-    7940984,
+    7940808,
     "g_unk0x00590ecc"
   ],
   "0x590ed0": [
-    7930536,
+    7930360,
     "g_unk0x00590ed0"
   ],
   "0x591390": [
-    7940968,
+    7940792,
     "g_unk0x00591390"
   ],
   "0x591394": [
-    5477412,
+    5477556,
     "g_pContacts0x00591394"
   ],
   "0x5913d8": [
-    7942104,
+    7941928,
     "g_unk0x005913d8"
   ],
   "0x5913dc": [
-    8217908,
+    8217732,
     "g_carContactCounts"
   ],
   "0x5913f4": [
-    5477320,
+    5477464,
     "g_unk0x005913f4"
   ],
   "0x5913f8": [
-    7942028,
+    7941852,
     "g_unk0x005913f8"
   ],
   "0x591438": [
-    5477344,
+    5477488,
     "g_collisionQuad"
   ],
   "0x591468": [
-    5477316,
+    5477460,
     "g_contactImpactHighThreshold"
   ],
   "0x59146c": [
-    7942944,
+    7942768,
     "g_unk0x0059146c"
   ],
   "0x591490": [
-    8216648,
+    8216472,
     "g_collisionSphereRadius"
   ],
   "0x591494": [
-    8199672,
+    8199496,
     "g_unk0x00591494"
   ],
   "0x591498": [
-    7942560,
+    7942384,
     "g_collisionSphereCentre"
   ],
   "0x5914a4": [
-    7942100,
+    7941924,
     "g_unk0x005914a4"
   ],
   "0x5914a8": [
-    5477392,
+    5477536,
     "g_collisionPush"
   ],
   "0x5914b8": [
-    5477304,
+    5477448,
     "g_collisionPushB"
   ],
   "0x5914c4": [
-    7942092,
+    7941916,
     "g_unk0x005914c4"
   ],
   "0x5914c8": [
-    7941992,
+    7941816,
     "g_unk0x005914c8"
   ],
   "0x5914d4": [
-    7941988,
+    7941812,
     "g_unk0x005914d4"
   ],
   "0x5914d8": [
-    5477408,
+    5477552,
     "g_wallScrapeCount"
   ],
   "0x5915dc": [
-    5477404,
+    5477548,
     "g_contactImpactLowThreshold"
   ],
   "0x5915e0": [
-    5477416,
+    5477560,
     "g_pContacts0x005915e0"
   ],
   "0x5915e8": [
-    5477328,
+    5477472,
     "g_collisionContactNormal"
   ],
   "0x5915f4": [
-    7942776,
+    7942600,
     "g_unk0x005915f4"
   ],
   "0x5915f8": [
-    7941264,
+    7941088,
     "g_sectorObjectCollisionBox"
   ],
   "0x591690": [
-    7942992,
+    7942816,
     "g_unk0x00591690"
   ],
   "0x5916a0": [
-    7942800,
+    7942624,
     "g_unk0x005916a0"
   ],
   "0x5916d0": [
-    7942784,
+    7942608,
     "g_unk0x005916d0"
   ],
   "0x5916e0": [
-    7942744,
+    7942568,
     "g_unk0x005916e0"
   ],
   "0x5916f0": [
-    7942760,
+    7942584,
     "g_unk0x005916f0"
   ],
   "0x591700": [
-    7943636,
+    7943460,
     "g_unk0x00591700"
   ],
   "0x591710": [
-    7943652,
+    7943476,
     "g_unk0x00591710"
   ],
   "0x591720": [
-    7943604,
+    7943428,
     "g_unk0x00591720"
   ],
   "0x591730": [
-    7943620,
+    7943444,
     "g_unk0x00591730"
   ],
   "0x591740": [
-    7942976,
+    7942800,
     "g_unk0x00591740"
   ],
   "0x591754": [
-    7942924,
+    7942748,
     "g_unk0x00591754"
   ],
   "0x591868": [
-    8201616,
+    8201440,
     "g_unk0x00591868"
   ],
   "0x591898": [
-    8201568,
+    8201392,
     "g_unk0x00591898"
   ],
   "0x5918c8": [
-    7942596,
+    7942420,
     "g_unk0x005918c8"
   ],
   "0x5918d0": [
-    8254376,
+    8254200,
     "g_unk0x005918d0"
   ],
   "0x5918d4": [
-    7942576,
+    7942400,
     "g_unk0x005918d4"
   ],
   "0x5918d8": [
-    8253388,
+    8253212,
     "g_unk0x005918d8"
   ],
   "0x5918dc": [
-    8254368,
+    8254192,
     "g_collisionCar"
   ],
   "0x5918e0": [
-    7942584,
+    7942408,
     "g_unk0x005918e0"
   ],
   "0x5918f0": [
-    7942680,
+    7942504,
     "g_unk0x005918f0"
   ],
   "0x591900": [
-    7942912,
+    7942736,
     "g_unk0x00591900"
   ],
   "0x59190c": [
-    8199948,
+    8199772,
     "g_unk0x0059190c"
   ],
   "0x591910": [
-    8254432,
+    8254256,
     "g_collisionDirection"
   ],
   "0x591920": [
-    7942896,
+    7942720,
     "g_unk0x00591920"
   ],
   "0x59192c": [
-    8254468,
+    8254292,
     "g_collisionSelectBackSide"
   ],
   "0x591930": [
-    7942908,
+    7942732,
     "g_unk0x00591930"
   ],
   "0x591934": [
-    8254424,
+    8254248,
     "g_collisionNegativeVertexCount"
   ],
   "0x591935": [
-    8254400,
+    8254224,
     "g_collisionPositiveVertexCount"
   ],
   "0x591938": [
-    8202064,
+    8201888,
     "g_unk0x00591938"
   ],
   "0x591944": [
-    6222009,
+    6221833,
     "g_collisionNegativeCandidateCount"
   ],
   "0x591945": [
-    6222008,
+    6221832,
     "g_collisionPositiveCandidateCount"
   ],
   "0x591948": [
-    8201500,
+    8201324,
     "g_unk0x00591948"
   ],
   "0x591950": [
-    8202048,
+    8201872,
     "g_unk0x00591950"
   ],
   "0x59195c": [
-    8254396,
+    8254220,
     "g_unk0x0059195c"
   ],
   "0x591960": [
-    8201496,
+    8201320,
     "g_unk0x00591960"
   ],
   "0x591968": [
-    8201120,
+    8200944,
     "g_unk0x00591968"
   ],
   "0x591978": [
-    8201480,
+    8201304,
     "g_unk0x00591978"
   ],
   "0x591984": [
-    8254420,
+    8254244,
     "g_collisionFace"
   ],
   "0x591988": [
-    8254380,
+    8254204,
     "g_collisionNegativeCandidates"
   ],
   "0x59198c": [
-    8254372,
+    8254196,
     "g_collisionPositiveCandidates"
   ],
   "0x591990": [
-    8201464,
+    8201288,
     "g_unk0x00591990"
   ],
   "0x59199c": [
-    7942280,
+    7942104,
     "g_unk0x0059199c"
   ],
   "0x5919a0": [
-    7942580,
+    7942404,
     "g_unk0x005919a0"
   ],
   "0x5919a4": [
-    8254404,
+    8254228,
     "g_collisionVertexDistances"
   ],
   "0x5919b4": [
-    8254448,
+    8254272,
     "g_collisionBestVertex"
   ],
   "0x5919b8": [
-    8254428,
+    8254252,
     "g_unk0x005919b8"
   ],
   "0x591ac0": [
-    8254456,
+    8254280,
     "g_collisionLineStart"
   ],
   "0x591ad0": [
-    7930520,
+    7930344,
     "g_unk0x00591ad0"
   ],
   "0x591adc": [
-    8254444,
+    8254268,
     "g_collisionDirectionDirty"
   ],
   "0x591ae0": [
-    8254384,
+    8254208,
     "g_collisionTarget"
   ],
   "0x591af0": [
-    8229364,
+    8229188,
     "g_trackTriangles"
   ],
   "0x591af4": [
-    8254328,
+    8254152,
     "g_trackEdgeSide"
   ],
   "0x591af8": [
-    8247996,
+    8247820,
     "g_trackCollisionHeader"
   ],
   "0x591afc": [
-    8248768,
+    8248592,
     "g_trackTriangleCountRecord"
   ],
   "0x591b00": [
-    8229640,
+    8229464,
     "g_trackCollisionTables"
   ],
   "0x591b18": [
-    8232684,
+    8232508,
     "g_trackTriangleIndices"
   ],
   "0x591b1c": [
-    8227164,
+    8226988,
     "g_trackGridRows"
   ],
   "0x591b20": [
-    8230124,
+    8229948,
     "g_trackGridColumns"
   ],
   "0x591b24": [
-    8248900,
+    8248724,
     "g_trackVertexCountRecord"
   ],
   "0x591b28": [
-    8253332,
+    8253156,
     "g_trackEdgeDX"
   ],
   "0x591b2c": [
-    8253328,
+    8253152,
     "g_trackEdgeDZ"
   ],
   "0x591b30": [
-    8232036,
+    8231860,
     "g_trackCollisionBlock"
   ],
   "0x591b34": [
-    8225704,
+    8225528,
     "g_trackTriangleListCount"
   ],
   "0x591b38": [
-    8227284,
+    8227108,
     "g_trackLevelNodeCounts"
   ],
   "0x591c50": [
-    8253364,
+    8253188,
     "g_trackEdgeNX"
   ],
   "0x591c54": [
-    8253360,
+    8253184,
     "g_trackEdgeNZ"
   ],
   "0x591c58": [
-    8254256,
+    8254080,
     "g_trackTriangle"
   ],
   "0x591c80": [
-    8253436,
+    8253260,
     "g_stageHeightSamples"
   ],
   "0x591fa0": [
-    8253416,
+    8253240,
     "g_stageRandomTextures"
   ],
   "0x591fac": [
-    8253356,
+    8253180,
     "g_stageHeightTarget"
   ],
   "0x5920b0": [
-    8254244,
+    8254068,
     "g_stageAmbientNode"
   ],
   "0x5920b8": [
-    8254236,
+    8254060,
     "g_stageLightNode"
   ],
   "0x5920bc": [
-    8254292,
+    8254116,
     "g_stageLightObject"
   ],
   "0x5920c0": [
-    8253368,
+    8253192,
     "g_stageLightRoot"
   ],
   "0x5920c4": [
-    8254360,
+    8254184,
     "g_stageMesh0"
   ],
   "0x5920c8": [
-    8253432,
+    8253256,
     "g_stageMesh0Copy"
   ],
   "0x5920cc": [
-    8254356,
+    8254180,
     "g_stageMesh1"
   ],
   "0x5920d0": [
-    8253316,
+    8253140,
     "g_stageMesh1Copy"
   ],
   "0x5920d4": [
-    8254352,
+    8254176,
     "g_stageMesh2"
   ],
   "0x5920d8": [
-    8254312,
+    8254136,
     "g_stageMesh2Copy"
   ],
   "0x5920dc": [
-    8254348,
+    8254172,
     "g_stageMesh3"
   ],
   "0x5920e0": [
-    8254240,
+    8254064,
     "g_stageMesh3Copy"
   ],
   "0x5920e4": [
-    8254344,
+    8254168,
     "g_stageMesh4"
   ],
   "0x5920e8": [
-    8253384,
+    8253208,
     "g_stageMesh4Copy"
   ],
   "0x5920ec": [
-    8254340,
+    8254164,
     "g_stageMesh5"
   ],
   "0x5920f0": [
-    8216548,
+    8216372,
     "g_groundReferenceMesh"
   ],
   "0x5920f4": [
-    8254336,
+    8254160,
     "g_stageMesh6"
   ],
   "0x5920f8": [
-    8254304,
+    8254128,
     "g_stageMesh6Copy"
   ],
   "0x5920fc": [
-    8224584,
+    8224408,
     "g_objectReferencePointX"
   ],
   "0x592100": [
-    8224580,
+    8224404,
     "g_objectReferencePointY"
   ],
   "0x592104": [
-    8224576,
+    8224400,
     "g_objectReferencePointZ"
   ],
   "0x592108": [
-    8253344,
+    8253168,
     "g_stageRangeOrigin"
   ],
   "0x592114": [
-    8201136,
+    8200960,
     "g_lightMeshReferencePoint"
   ],
   "0x592120": [
-    8254248,
+    8254072,
     "g_stageHeightMin"
   ],
   "0x592124": [
-    8253372,
+    8253196,
     "g_stageHeightScale"
   ],
   "0x592128": [
-    8199680,
+    8199504,
     "g_unk0x00592128"
   ],
   "0x59212c": [
-    7942940,
+    7942764,
     "g_unk0x0059212c"
   ],
   "0x592130": [
-    7931764,
+    7931588,
     "g_unk0x00592130"
   ],
   "0x592134": [
-    8199676,
+    8199500,
     "g_unk0x00592134"
   ],
   "0x592138": [
-    8253324,
+    8253148,
     "g_stageMesh2Count"
   ],
   "0x59213a": [
-    8253312,
+    8253136,
     "g_stageMesh3Count"
   ],
   "0x59213c": [
-    8254324,
+    8254148,
     "g_stageMesh1Count"
   ],
   "0x59213e": [
-    8254364,
+    8254188,
     "g_stageMesh0Count"
   ],
   "0x592140": [
-    8253380,
+    8253204,
     "g_stageMesh4Count"
   ],
   "0x592142": [
-    8253336,
+    8253160,
     "g_stageMesh5Count"
   ],
   "0x592144": [
-    8253390,
+    8253214,
     "g_stageMesh6Count"
   ],
   "0x592146": [
-    8253400,
+    8253224,
     "g_groundColourAlpha"
   ],
   "0x592147": [
-    8254308,
+    8254132,
     "g_stageColourAlpha"
   ],
   "0x592148": [
-    8253320,
+    8253144,
     "g_stageColourDirty"
   ],
   "0x59214c": [
-    8254316,
+    8254140,
     "g_stageColourMode"
   ],
   "0x592150": [
-    8253376,
+    8253200,
     "g_stageColourValue"
   ],
   "0x592154": [
-    8253396,
+    8253220,
     "g_stageColourStep"
   ],
   "0x592158": [
-    8253428,
+    8253252,
     "g_stageLightReady"
   ],
   "0x59215c": [
-    8254320,
+    8254144,
     "g_stageColourState"
   ],
   "0x592160": [
-    8253408,
+    8253232,
     "g_unk0x00592160"
   ],
   "0x592164": [
-    8253412,
+    8253236,
     "g_unk0x00592164"
   ],
   "0x592168": [
-    8253404,
+    8253228,
     "g_unk0x00592168"
   ],
   "0x59226c": [
-    8253392,
+    8253216,
     "g_pAutoGearCar"
   ],
   "0x592270": [
-    8254300,
+    8254124,
     "g_autoGearPartSet"
   ],
   "0x592278": [
-    5476524,
+    5476668,
     "g_physSkidCount"
   ],
   "0x592298": [
-    5476492,
+    5476636,
     "g_physGroundPoint"
   ],
   "0x59229c": [
-    5476428,
+    5476572,
     "g_physWheelLength"
   ],
   "0x5922bc": [
-    5476460,
+    5476604,
     "g_physSkidRange"
   ],
   "0x5922e0": [
-    5476416,
+    5476560,
     "g_physGroundPos"
   ],
   "0x5922ec": [
-    5476412,
+    5476556,
     "g_physBody"
   ],
   "0x5922f0": [
-    5476512,
+    5476656,
     "g_physPos"
   ],
   "0x5922fc": [
-    5476344,
+    5476488,
     "g_physSkidProfilePoints"
   ],
   "0x592320": [
-    5477288,
+    5477432,
     "g_physRight"
   ],
   "0x59232c": [
-    5476496,
+    5476640,
     "g_physUp"
   ],
   "0x592338": [
-    5476384,
+    5476528,
     "g_physForward"
   ],
   "0x592344": [
-    5477256,
+    5477400,
     "g_physSkidOffset"
   ],
   "0x592468": [
-    5476400,
+    5476544,
     "g_physPatchDir"
   ],
   "0x592474": [
-    5477240,
+    5477384,
     "g_physPatchSide"
   ],
   "0x592480": [
-    5477252,
+    5477396,
     "g_physPatchLength"
   ],
   "0x592484": [
-    5476376,
+    5476520,
     "g_physPatchWidth"
   ],
   "0x592488": [
-    5476556,
+    5476700,
     "g_physWheels"
   ],
   "0x592490": [
-    5476560,
+    5476704,
     "g_physContactView"
   ],
   "0x592734": [
-    8227240,
+    8227064,
     "g_carContacts"
   ],
   "0x592738": [
-    8251152,
+    8250976,
     "g_carContactCount"
   ],
   "0x59273c": [
-    8229372,
+    8229196,
     "g_unk0x0059273c"
   ],
   "0x592740": [
-    8230140,
+    8229964,
     "g_unk0x00592740"
   ],
   "0x592744": [
-    8227248,
+    8227072,
     "g_aiReferenceRoutes"
   ],
   "0x592870": [
-    5473184,
+    5473328,
     "g_windowSmashCount"
   ],
   "0x592878": [
-    5473312,
+    5473456,
     "g_sparkTri"
   ],
   "0x5928c0": [
-    5473392,
+    5473536,
     "g_debrisShapes"
   ],
   "0x592cf8": [
-    5474568,
+    5474712,
     "g_carGlassProfiles"
   ],
   "0x592d18": [
-    5474852,
+    5474996,
     "g_carWindowVerts"
   ],
   "0x592d38": [
-    5474488,
+    5474632,
     "g_debrisTri"
   ],
   "0x592d80": [
-    5474928,
+    5475072,
     "g_glassShards"
   ],
   "0x592ee8": [
-    5473288,
+    5473432,
     "g_windowSmash"
   ],
   "0x592f38": [
-    5475288,
+    5475432,
     "g_windowGrid"
   ],
   "0x593358": [
-    5474608,
+    5474752,
     "g_windowSmashDir"
   ],
   "0x593718": [
-    5473112,
+    5473256,
     "g_shardTri"
   ],
   "0x593860": [
-    5474560,
+    5474704,
     "g_spraySurface"
   ],
   "0x593864": [
-    5473384,
+    5473528,
     "g_sprayHalf"
   ],
   "0x593868": [
-    5474848,
+    5474992,
     "g_sprayRange"
   ],
   "0x59386c": [
-    5474472,
+    5474616,
     "g_sprayEffect"
   ],
   "0x593870": [
-    5474884,
+    5475028,
     "g_sprayRecip"
   ],
   "0x593874": [
-    5474888,
+    5475032,
     "g_sprayCountdown"
   ],
   "0x593894": [
-    5473388,
+    5473532,
     "g_sprayStep"
   ],
   "0x593898": [
-    5474600,
+    5474744,
     "g_sprayThird"
   ],
   "0x59389c": [
-    5474920,
+    5475064,
     "g_sprayLife"
   ],
   "0x5939a0": [
-    5540368,
+    5540520,
     "CGame::m_callbacks"
   ],
   "0x593ba0": [
-    5540768,
+    5540920,
     "CGame::m_unk0x00593ba0"
   ],
   "0x593ba4": [
-    5540360,
+    5540512,
     "CGame::m_currentCallbackRecord"
   ],
   "0x593ba8": [
-    5538848,
+    5539000,
     "CGame::m_callbackIndex"
   ],
   "0x593cac": [
-    5540760,
+    5540912,
     "CGame::m_skipRenderCallbacks"
   ],
   "0x593cb0": [
-    5540792,
+    5540944,
     "CGame::m_deferredDrawObjects"
   ],
   "0x597cb0": [
-    5540740,
+    5540892,
     "g_sectorFramePrevious"
   ],
   "0x597cb4": [
-    5576424,
+    5576576,
     "g_shadowFrameStart"
   ],
   "0x597cb8": [
-    5810744,
+    5810896,
     "CGraphics::m_cullMode"
   ],
   "0x597cc0": [
-    5573568,
+    5573720,
     "g_unk0x00597cc0"
   ],
   "0x597d00": [
-    5540761,
+    5540913,
     "g_sectorFrameInit"
   ],
   "0x597d01": [
-    5540365,
+    5540517,
     "g_shadowFrameInit"
   ],
   "0x597d04": [
-    5557180,
+    5557332,
     "CGame::m_transparentDrawNodes"
   ],
   "0x59bd04": [
-    5895476,
+    5895628,
     "CGraphics::m_texCoordIndex"
   ],
   "0x59bd28": [
-    5655184,
+    5655336,
     "g_cubeFaceViewMatrix"
   ],
   "0x59bd68": [
-    5576428,
+    5576580,
     "g_sectorFrameStart"
   ],
   "0x59be6c": [
-    5540648,
+    5540800,
     "g_unk0x0059be6c"
   ],
   "0x59be70": [
-    5540640,
+    5540792,
     "g_shadowFramePrevious"
   ],
   "0x59be74": [
-    5895512,
+    5895664,
     "g_unk0x0059be74"
   ],
   "0x59ce14": [
-    5576404,
+    5576556,
     "CGame::m_unk0x0059ce14"
   ],
   "0x59ce18": [
-    5576460,
+    5576612,
     "CGame::m_unk0x0059ce18"
   ],
   "0x59ce1c": [
-    5576452,
+    5576604,
     "CGame::m_unk0x0059ce1c"
   ],
   "0x59ce20": [
-    5576400,
+    5576552,
     "CGame::m_unk0x0059ce20"
   ],
   "0x59ce24": [
-    5810740,
+    5810892,
     "CGraphics::m_clearColour"
   ],
   "0x59ce28": [
-    5576456,
+    5576608,
     "CGame::m_deferredDrawCount"
   ],
   "0x59ce2c": [
-    5576432,
+    5576584,
     "CGame::m_transparentDrawCount"
   ],
   "0x59ce30": [
-    5823268,
+    5823420,
     "g_unk0x0059ce30"
   ],
   "0x59ce34": [
-    5927272,
+    5927424,
     "CGraphics::m_zEnable"
   ],
   "0x59ce38": [
-    5905176,
+    5905328,
     "CGraphics::m_textureAddressClamp"
   ],
   "0x59ce3c": [
-    5926584,
+    5926736,
     "CGraphics::m_zWriteEnable"
   ],
   "0x59ce48": [
-    5934064,
+    5934216,
     "CInput::m_deviceState"
   ],
   "0x59f6b0": [
-    5944652,
+    5944804,
     "CInput::m_unk0x0059f6b0"
   ],
   "0x59f7c4": [
-    5956924,
+    5957076,
     "CInput::m_pDirectInputMouse"
   ],
   "0x59f7c8": [
-    5956652,
+    5956804,
     "CInput::m_keyboardState"
   ],
   "0x59f8c8": [
-    5944684,
+    5944836,
     "CInput::m_lpDirectInput7"
   ],
   "0x59f8cc": [
-    5955616,
+    5955768,
     "CInput::m_unk0x0059f8cc"
   ],
   "0x59f8d0": [
-    5628540,
+    5628692,
     "CGameInfo::m_unk0x0059f8d0"
   ],
   "0x59f8d4": [
-    5951092,
+    5951244,
     "CInput::m_mouseGranularity"
   ],
   "0x59f8d8": [
-    5934056,
+    5934208,
     "CInput::m_keyboardDelay"
   ],
   "0x59f8dc": [
-    5956912,
+    5957064,
     "CInput::m_keyboardSpeed"
   ],
   "0x59f8f0": [
-    5955620,
+    5955772,
     "CInput::m_unk0x0059f8f0"
   ],
   "0x59f8f4": [
-    5956920,
+    5957072,
     "CInput::m_unk0x0059f8f4"
   ],
   "0x59f8f8": [
-    5951088,
+    5951240,
     "CInput::m_unk0x0059f8f8"
   ],
   "0x59f8fc": [
-    5961184,
+    5961336,
     "g_unk0x0059f8fc"
   ],
   "0x59f900": [
-    5956908,
+    5957060,
     "CInput::m_unk0x0059f900"
   ],
   "0x59f904": [
-    5961198,
+    5961350,
     "g_menuActionPending"
   ],
   "0x59f908": [
-    5961188,
+    5961340,
     "g_menuNextAction"
   ],
   "0x59f90c": [
-    5944648,
+    5944800,
     "CInput::m_unk0x0059f90c"
   ],
   "0x59f910": [
-    5951096,
+    5951248,
     "CInput::m_unk0x0059f910"
   ],
   "0x59fa14": [
-    5961192,
+    5961344,
     "g_unk0x0059fa14"
   ],
   "0x59fa15": [
-    5961193,
+    5961345,
     "g_unk0x0059fa15"
   ],
   "0x59fa16": [
-    5961194,
+    5961346,
     "g_unk0x0059fa16"
   ],
   "0x59fa17": [
-    5961195,
+    5961347,
     "g_unk0x0059fa17"
   ],
   "0x59fa18": [
-    5961180,
+    5961332,
     "g_menuLastInput"
   ],
   "0x59fa20": [
-    5611632,
+    5611784,
     "CGameInfo::m_enumeratedSessions"
   ],
   "0x5a0060": [
-    5599488,
+    5599640,
     "CGameInfo::m_unk0x005a0060"
   ],
   "0x5a0068": [
-    5540656,
+    5540808,
     "g_networkSession"
   ],
   "0x5a00b8": [
-    5604572,
+    5604724,
     "CGameInfo::m_unk0x005a00b8"
   ],
   "0x5a01bc": [
-    5629548,
+    5629700,
     "CGameInfo::m_unk0x005a01bc"
   ],
   "0x5a02c0": [
-    5598096,
+    5598248,
     "CGameInfo::m_unk0x005a02c0"
   ],
   "0x5a03c4": [
-    5592888,
+    5593040,
     "CGameInfo::m_sessionNames"
   ],
   "0x5a1814": [
-    5629520,
+    5629672,
     "CGameInfo::m_unk0x005a1814"
   ],
   "0x5a1818": [
-    5540736,
+    5540888,
     "CGame::m_sessionPlayerCount"
   ],
   "0x5a1819": [
-    5540644,
+    5540796,
     "CGame::m_unk0x005a1819"
   ],
   "0x5a1820": [
-    5538880,
+    5539032,
     "CGame::m_sessionPlayers"
   ],
   "0x5a1e34": [
-    5576448,
+    5576600,
     "CGame::m_unk0x005a1e34"
   ],
   "0x5a1ea0": [
-    5576484,
+    5576636,
     "CGame::m_localPlayerId"
   ],
   "0x5a1fa8": [
-    5540624,
+    5540776,
     "g_networkPlayerName"
   ],
   "0x5a1fb8": [
-    5576420,
+    5576572,
     "CGame::m_unk0x005a1fb8"
   ],
   "0x5a1fbc": [
-    5576396,
+    5576548,
     "CGame::m_unk0x005a1fbc"
   ],
   "0x5a1fc0": [
-    5576464,
+    5576616,
     "CGame::m_unk0x005a1fc0"
   ],
   "0x5a1fc8": [
-    6223124,
+    6222948,
     "g_sound3DBuffers"
   ],
   "0x5a23e8": [
-    6222048,
+    6221872,
     "CSound::m_pMMIO"
   ],
   "0x5a23ec": [
-    6222316,
+    6222140,
     "g_soundBuffers"
   ],
   "0x5a2710": [
-    6222036,
+    6221860,
     "g_unk0x005a2710"
   ],
   "0x5a2714": [
-    6222028,
+    6221852,
     "g_unk0x005a2714"
   ],
   "0x5a2718": [
-    6222032,
+    6221856,
     "g_unk0x005a2718"
   ],
   "0x5a271c": [
-    6222016,
+    6221840,
     "g_unk0x005a271c"
   ],
   "0x5a2720": [
-    6222052,
+    6221876,
     "CSound::m_unk0x005a2720"
   ],
   "0x5a2724": [
-    6222056,
+    6221880,
     "CSound::m_unk0x005a2724"
   ],
   "0x5a2728": [
-    6223936,
+    6223760,
     "CSound::m_unk0x005a2728"
   ],
   "0x5a272c": [
-    6224076,
+    6223900,
     "CSound::m_unk0x005a272c"
   ],
   "0x5a2730": [
-    6223116,
+    6222940,
     "CSound::m_unk0x005a2730"
   ],
   "0x5a2734": [
-    6224080,
+    6223904,
     "CSound::m_unk0x005a2734"
   ],
   "0x5a2738": [
-    6222060,
+    6221884,
     "CSound::m_unk0x005a2738"
   ],
   "0x5a2838": [
-    6223928,
+    6223752,
     "g_sound3DEnabled"
   ],
   "0x5a283c": [
-    6222040,
+    6221864,
     "g_unk0x005a283c"
   ],
   "0x5a2844": [
-    6222020,
+    6221844,
     "g_unk0x005a2844"
   ],
   "0x5a2848": [
-    6222024,
+    6221848,
     "g_unk0x005a2848"
   ],
   "0x5a284c": [
-    6222044,
+    6221868,
     "g_unk0x005a284c"
   ],
   "0x5a2854": [
-    6223924,
+    6223748,
     "CSound::m_pDirectSoundBuffer"
   ],
   "0x5a2858": [
-    6224088,
+    6223912,
     "g_spriteVerts1"
   ],
   "0x5c2858": [
-    6355160,
+    6354984,
     "g_spriteVerts2"
   ],
   "0x5e2858": [
-    6870160,
+    6869984,
     "g_spriteLayer3"
   ],
   "0x5f0858": [
-    6755584,
+    6755408,
     "g_spriteLayer1"
   ],
   "0x5fe858": [
-    6617304,
+    6617128,
     "g_spriteVerts4"
   ],
   "0x61e858": [
-    6486232,
+    6486056,
     "g_spriteVerts3"
   ],
   "0x63e958": [
-    6927448,
+    6927272,
     "g_spriteLayer4"
   ],
   "0x64c958": [
-    6812872,
+    6812696,
     "g_spriteLayer2"
   ],
   "0x65a958": [
-    6755580,
+    6755404,
     "g_spriteEnabled"
   ],
   "0x65a95c": [
-    7377984,
+    7377808,
     "g_spriteCount1"
   ],
   "0x65a960": [
-    7377988,
+    7377812,
     "g_spriteCount2"
   ],
   "0x65a964": [
-    7377992,
+    7377816,
     "g_spriteCount3"
   ],
   "0x65a968": [
-    7377996,
+    7377820,
     "g_spriteCount4"
   ],
   "0x65aa6c": [
-    5478688,
+    5478840,
     "CFrontend::m_textStrings"
   ],
   "0x65aa70": [
-    5478440,
+    5478592,
     "CFrontend::m_unk0x0065aa70"
   ],
   "0x65aa71": [
-    5478683,
+    5478835,
     "CFrontend::m_unk0x0065aa71"
   ],
   "0x65aa74": [
-    5478788,
+    5478940,
     "CFrontend::m_textFirstId"
   ],
   "0x65aa78": [
-    5478436,
+    5478588,
     "CFrontend::m_textCount"
   ],
   "0x65aa80": [
-    5905300,
+    5905452,
     "CGraphics::m_tgaPixel"
   ],
   "0x65aa88": [
-    5905304,
+    5905456,
     "CGraphics::m_lockedTextures"
   ],
   "0x65ad08": [
-    5905264,
+    5905416,
     "CGraphics::m_tgaImageInfo"
   ],
   "0x65ad18": [
-    5812720,
+    5812872,
     "g_textureFactor"
   ],
   "0x65ae20": [
-    5907128,
+    5907280,
     "CGraphics::m_textureCache"
   ],
   "0x65fa20": [
-    5810748,
+    5810900,
     "CGraphics::m_textureCount"
   ],
   "0x65fa24": [
-    5906348,
+    5906500,
     "CGraphics::m_unk0x0065fa24"
   ],
   "0x65fa28": [
-    5823256,
+    5823408,
     "CGraphics::m_unk0x0065fa28"
   ],
   "0x65fa2c": [
-    5904048,
+    5904200,
     "CGraphics::m_unk0x0065fa2c"
   ],
   "0x65fa30": [
-    5904052,
+    5904204,
     "g_unk0x0065fa30"
   ],
   "0x65fa38": [
-    5906444,
+    5906596,
     "CGraphics::m_unk0x0065fa38"
   ],
   "0x65fa3c": [
-    5903988,
+    5904140,
     "CGraphics::m_lockedTextureCount"
   ],
   "0x65fa44": [
-    5905296,
+    5905448,
     "CGraphics::m_unk0x0065fa44"
   ],
   "0x65fa48": [
-    5899836,
+    5899988,
     "CGraphics::m_unk0x0065fa48"
   ],
   "0x65fa50": [
-    5927276,
+    5927428,
     "CGraphics::m_projection22"
   ],
   "0x65fa58": [
-    5899568,
+    5899720,
     "CGraphics::m_texFormat32"
   ],
   "0x65fae0": [
-    5899704,
+    5899856,
     "CGraphics::m_texFormat16Alpha"
   ],
   "0x65fb64": [
-    5895508,
+    5895660,
     "CGraphics::m_projection43"
   ],
   "0x65fb68": [
-    5906352,
+    5906504,
     "CGraphics::m_projection11"
   ],
   "0x65fb70": [
-    5904352,
+    5904504,
     "CGraphics::m_texFormatBump16"
   ],
   "0x65fbf8": [
-    5810600,
+    5810752,
     "CGraphics::m_texFormatDXT5_16"
   ],
   "0x65fc80": [
-    5810760,
+    5810912,
     "CGraphics::m_texFormatDXT1_16"
   ],
   "0x65fd08": [
-    5906480,
+    5906632,
     "CGraphics::m_unk0x0065fd08"
   ],
   "0x65ff90": [
-    5893672,
+    5893824,
     "CGraphics::m_unk0x0065ff90"
   ],
   "0x660040": [
-    5810904,
+    5811056,
     "CGraphics::m_unk0x00660040"
   ],
   "0x660698": [
-    5904200,
+    5904352,
     "CGraphics::m_texFormat16"
   ],
   "0x660720": [
-    5903856,
+    5904008,
     "CGraphics::m_texFormat24"
   ],
   "0x6607a8": [
-    5906216,
+    5906368,
     "CGraphics::m_texFormatDXT1_32"
   ],
   "0x660830": [
-    5812936,
+    5813088,
     "g_graphics"
   ],
   "0x660bfc": [
-    5905280,
+    5905432,
     "CGraphics::m_unk0x00660bfc"
   ],
   "0x660c00": [
-    5810456,
+    5810608,
     "CGraphics::m_projection33"
   ],
   "0x660c08": [
-    5904056,
+    5904208,
     "CGraphics::m_texFormatBump32"
   ],
   "0x660d90": [
-    5813936,
+    5814088,
     "g_textureManager"
   ],
   "0x6631f8": [
-    5927152,
+    5927304,
     "CGraphics::m_displays"
   ],
   "0x663450": [
-    5810464,
+    5810616,
     "CGraphics::m_texFormatDXT5_32"
   ],
   "0x6634d8": [
-    5808856,
+    5809008,
     "CGraphics::m_unk0x006634d8"
   ],
   "0x663b18": [
-    5933692,
+    5933844,
     "CGraphics::m_unk0x00663b18"
   ],
   "0x663b1c": [
-    5645576,
+    5645728,
     "CGraphics::m_unk0x00663b1c"
   ],
   "0x663b20": [
-    5933696,
+    5933848,
     "CGraphics::m_unk0x00663b20"
   ],
   "0x663b24": [
-    5933700,
+    5933852,
     "CGraphics::m_unk0x00663b24"
   ],
   "0x663b28": [
-    5933708,
+    5933860,
     "CGraphics::m_displayCount"
   ],
   "0x663b2c": [
-    5933704,
+    5933856,
     "CGraphics::m_selectedDisplayDeviceIx"
   ],
   "0x663b30": [
-    5899844,
+    5899996,
     "CGraphics::m_releaseSurfaceCallbackID"
   ],
   "0x663b34": [
-    5904332,
+    5904484,
     "CGraphics::m_hasTexFormat16"
   ],
   "0x663b38": [
-    5812920,
+    5813072,
     "CGraphics::m_hasTexFormatDXT1_16"
   ],
   "0x663b3c": [
-    5904340,
+    5904492,
     "CGraphics::m_hasTexFormat16Alpha"
   ],
   "0x663b40": [
-    5905292,
+    5905444,
     "CGraphics::m_hasTexFormatDXT5_16"
   ],
   "0x663b44": [
-    5812916,
+    5813068,
     "CGraphics::m_hasTexFormat24"
   ],
   "0x663b48": [
-    5905164,
+    5905316,
     "CGraphics::m_hasTexFormatDXT1_32"
   ],
   "0x663b4c": [
-    5813908,
+    5814060,
     "CGraphics::m_hasTexFormat32"
   ],
   "0x663b50": [
-    5812704,
+    5812856,
     "CGraphics::m_hasTexFormatDXT5_32"
   ],
   "0x663b54": [
-    5899520,
+    5899672,
     "CGraphics::m_hasTexFormatBump16"
   ],
   "0x663b58": [
-    5904500,
+    5904652,
     "CGraphics::m_hasTexFormatBump32"
   ],
   "0x663b60": [
-    5478004,
+    5478156,
     "CFrontend::m_stringDest"
   ],
   "0x663c68": [
-    8256888,
+    8256712,
     "CMain::m_win32Msg"
   ],
   "0x663c84": [
-    8256860,
+    8256684,
     "CMain::m_hWndList"
   ],
   "0x663dac": [
-    8256920,
+    8256744,
     "CMain::m_hWndIx"
   ],
   "0x663db0": [
-    8256880,
+    8256704,
     "CMain::m_hInstance"
   ],
   "0x663db4": [
-    5576472,
+    5576624,
     "CGame::m_isActive"
   ],
   "0x663db8": [
-    5576468,
+    5576620,
     "CGame::m_shouldExit"
   ],
   "0x663dbc": [
-    8256848,
+    8256672,
     "CMain::m_unk0x00663dbc"
   ],
   "0x663dc0": [
-    8256916,
+    8256740,
     "CMain::m_unk0x00663dc0"
   ],
   "0x663dc4": [
-    5540348,
+    5540500,
     "CGame::m_unk0x00663dc4"
   ],
   "0x663ecc": [
-    8256876,
+    8256700,
     "CMain::m_frameDeltaInitialised"
   ],
   "0x663ed0": [
-    8256868,
+    8256692,
     "CMain::m_frameDeltaStart"
   ],
   "0x663ed4": [
-    8256856,
+    8256680,
     "CMain::m_frameDeltaLast"
   ],
   "0x663ed8": [
-    8256872,
+    8256696,
     "CMain::m_frameDelta"
   ],
   "0x663edc": [
-    8256864,
+    8256688,
     "CMain::m_frameDeltaMax"
   ],
   "0x663ee0": [
-    8256852,
+    8256676,
     "CMain::m_frameTime"
   ],
   "0x663ee4": [
-    6056568,
+    6056392,
     "CRegKey::m_regKeyReadData"
   ],
   "0x663fe8": [
-    5645572,
+    5645724,
     "CGenericFileLoader::m_fileSize"
   ],
   "0x6640f0": [
-    5957192,
+    5957344,
     "CInstallInfo::m_hdPath"
   ],
   "0x664400": [
-    5956932,
+    5957084,
     "CInstallInfo::m_cdPath"
   ],
   "0x664604": [
-    5957452,
+    5957604,
     "CInstallInfo::m_isHDInstall"
   ],
   "0x664608": [
-    5957456,
+    5957608,
     "CInstallInfo::m_isCDInstall"
   ],
   "0x66461c": [
-    5477420,
+    5477564,
     "CFileBuffer::m_unk0x0066461c"
   ],
   "0x664620": [
-    5477452,
+    5477596,
     "CFileBuffer::m_unk0x00664620"
   ],
   "0x664650": [
-    5573632,
+    5573784,
     "CGame::m_connections"
   ],
   "0x665118": [
-    5576408,
+    5576560,
     "CGame::m_maxConnections"
   ],
   "0x665119": [
-    5576488,
+    5576640,
     "CGame::m_connectionCount"
   ],
   "0x66521c": [
-    5576480,
+    5576632,
     "CGame::m_pDirectPlay4A"
   ],
   "0x665220": [
-    5540340,
+    5540492,
     "CGame::m_pDirectPlayLobby3A"
   ],
   "0x665324": [
-    5540344,
+    5540496,
     "g_unk0x00665324"
   ],
   "0x665328": [
-    5946608,
+    5946760,
     "CInput::m_forceFeedbackEffects"
   ],
   "0x6664a8": [
-    5944688,
+    5944840,
     "CInput::m_forceFeedbackConditions"
   ],
   "0x666d28": [
-    5955624,
+    5955776,
     "CInput::m_feedbackState"
   ],
   "0x666ee8": [
-    5956928,
+    5957080,
     "CInput::m_unk0x00666ee8"
   ],
   "0x667000": [
-    5956140,
+    5956292,
     "CInput::m_formatBuffer"
   ],
   "0x667200": [
-    5960844,
+    5960996,
     "CLogger::bIsLogFileOpen"
   ],
   "0x667204": [
-    5960852,
+    5961004,
     "CLogger::logFileName"
   ],
   "0x667344": [
-    5961176,
+    5961328,
     "unk0x00667344"
   ],
   "0x667348": [
-    5960848,
+    5961000,
     "CLogger::loggingDisabled"
   ],
   "0x66734c": [
-    5961172,
+    5961324,
     "CLogger::hLogFileHandle"
   ],
   "0x667364": [
-    6001596,
+    6001748,
     "g_meshCloneBase"
   ],
   "0x669364": [
-    5961200,
+    5961352,
     "g_stageObjects"
   ],
   "0x66f124": [
-    6180524,
+    6180348,
     "g_meshesBySize"
   ],
   "0x677124": [
-    6009788,
+    6009940,
     "g_meshClones"
   ],
   "0x67b124": [
-    5985208,
+    5985360,
     "g_meshes"
   ],
   "0x67f224": [
-    6001592,
+    6001744,
     "g_meshCount"
   ],
   "0x67f228": [
-    5813920,
+    5814072,
     "g_unk0x0067f228"
   ],
   "0x67f22c": [
-    5985204,
+    5985356,
     "g_meshCloneCount"
   ],
   "0x67f230": [
-    5985200,
+    5985352,
     "g_meshTotalSize"
   ],
   "0x67f238": [
-    6108044,
+    6107868,
     "g_rotAxisXY"
   ],
   "0x67f244": [
-    6108048,
+    6107872,
     "g_rotAxisXZ"
   ],
   "0x67f248": [
-    6123324,
+    6123148,
     "g_rotCos"
   ],
   "0x67f24c": [
-    6108056,
+    6107880,
     "g_rotAxisYZ"
   ],
   "0x67f250": [
-    6056672,
+    6056496,
     "g_rotSin"
   ],
   "0x67f254": [
-    6108036,
+    6107860,
     "g_rotAxisXX"
   ],
   "0x67f258": [
-    6108052,
+    6107876,
     "g_rotAxisYY"
   ],
   "0x67f25c": [
-    6091632,
+    6091456,
     "g_rotAxisZZ"
   ],
   "0x67f36c": [
-    6075240,
+    6075064,
     "g_sceneNodes"
   ],
   "0x68336c": [
-    6117348,
+    6117172,
     "g_rotOneMinusCos"
   ],
   "0x683370": [
-    6109116,
+    6108940,
     "g_sceneNodeCount"
   ],
   "0x683374": [
-    6091628,
+    6091452,
     "g_sceneStatCopied"
   ],
   "0x683378": [
-    6109152,
+    6108976,
     "g_sceneStatMultiplied"
   ],
   "0x68337c": [
-    6123848,
+    6123672,
     "g_sceneStatClean"
   ],
   "0x683380": [
-    6075216,
+    6075040,
     "g_sceneStatHidden"
   ],
   "0x683388": [
-    6117364,
+    6117188,
     "g_sceneType2Objects"
   ],
   "0x6838c8": [
-    6108040,
+    6107864,
     "g_sceneType2CallbackRegistered"
   ],
   "0x6838cc": [
-    6058804,
+    6058628,
     "g_sceneType2Count"
   ],
   "0x6838d0": [
-    6109120,
+    6108944,
     "g_viewSetupMode"
   ],
   "0x6a2a08": [
-    5810732,
+    5810884,
     "g_quadVertexBuffer"
   ],
   "0x6a2a10": [
-    5906112,
+    5906264,
     "g_layerQuad"
   ],
   "0x6a2a70": [
-    5904008,
+    5904160,
     "g_glowDef"
   ],
   "0x6a2a98": [
-    5906464,
+    5906616,
     "g_glowEntries"
   ],
   "0x6a2aa0": [
-    5899528,
+    5899680,
     "g_glowBillboard"
   ],
   "0x6a2bc8": [
-    5904192,
+    5904344,
     "g_glowAllocatedCount"
   ],
   "0x6a2bcc": [
-    5904000,
+    5904152,
     "g_glowCapacity"
   ],
   "0x6a2cd0": [
-    5905284,
+    5905436,
     "g_particleTypeCount"
   ],
   "0x6a2cd4": [
-    5905168,
+    5905320,
     "g_particleCount"
   ],
   "0x6a2cd8": [
-    5903992,
+    5904144,
     "g_particleTypes"
   ],
   "0x6a2cdc": [
-    5906440,
+    5906592,
     "g_particles"
   ],
   "0x6a2ce0": [
-    5810736,
+    5810888,
     "g_pEditParticleType"
   ],
   "0x6a2ce4": [
-    5823264,
+    5823416,
     "g_nextParticle"
   ],
   "0x6a2ce8": [
-    5904488,
+    5904640,
     "g_particleWind"
   ],
   "0x6a2cf8": [
-    5655256,
+    5655408,
     "g_billboardVerts"
   ],
   "0x6c84f8": [
-    5906468,
+    5906620,
     "g_billboardRun"
   ],
   "0x6c8500": [
-    5927284,
+    5927436,
     "g_billboardRuns"
   ],
   "0x6c9e00": [
-    5823272,
+    5823424,
     "g_billboards"
   ],
   "0x6db200": [
-    5645584,
+    5645736,
     "g_unk0x006db200"
   ],
   "0x6dd780": [
-    5655248,
+    5655400,
     "g_billboardsEnabled"
   ],
   "0x6dd784": [
-    5812712,
+    5812864,
     "g_unk0x006dd784"
   ],
   "0x6dd788": [
-    5812716,
+    5812868,
     "g_unk0x006dd788"
   ],
   "0x6dd78c": [
-    5823260,
+    5823412,
     "g_billboardsRequested"
   ],
   "0x6dd890": [
-    5927280,
+    5927432,
     "CGraphics::m_unk0x006dd890"
   ],
   "0x6dd894": [
-    5813928,
+    5814080,
     "g_unk0x006dd894"
   ],
   "0x6dd898": [
-    5813924,
+    5814076,
     "g_unk0x006dd898"
   ],
   "0x6dd89c": [
-    5812924,
+    5813076,
     "g_unk0x006dd89c"
   ],
   "0x6dd8a0": [
-    5904504,
+    5904656,
     "g_unk0x006dd8a0"
   ],
   "0x6dd8a4": [
-    5905160,
+    5905312,
     "g_unk0x006dd8a4"
   ],
   "0x6dd9a8": [
-    5904344,
+    5904496,
     "g_averageFpsDone"
   ],
   "0x6dd9b0": [
-    5905172,
+    5905324,
     "g_frameCount"
   ],
   "0x6dd9b4": [
-    5895472,
+    5895624,
     "g_framesThisSecond"
   ],
   "0x6dd9b8": [
-    5813916,
+    5814068,
     "g_lastSecond"
   ],
   "0x6dd9bc": [
-    5899852,
+    5900004,
     "g_unk0x006dd9bc"
   ],
   "0x6de95c": [
-    5905180,
+    5905332,
     "g_carReflectionCubeMaps"
   ],
   "0x6deab8": [
-    6058760,
+    6058584,
     "g_shadowCasterCount"
   ],
   "0x6deacc": [
-    6124092,
+    6123916,
     "g_sceneShadowTableD3D"
   ],
   "0x6dead0": [
-    6118476,
+    6118300,
     "g_shadowBatches"
   ],
   "0x6dfd90": [
-    6075204,
+    6075028,
     "g_sceneSectorLights2"
   ],
   "0x6dfd98": [
-    6123844,
+    6123668,
     "g_sceneShadowMeshes"
   ],
   "0x6dfd9c": [
-    6058756,
+    6058580,
     "g_sceneShadowTable"
   ],
   "0x6dfda0": [
-    6108024,
+    6107848,
     "g_sceneLightForward"
   ],
   "0x6dfdbc": [
-    6075220,
+    6075044,
     "g_sceneLightZones"
   ],
   "0x6dfdc4": [
-    6123276,
+    6123100,
     "g_sceneLightColourBytes"
   ],
   "0x6dfdc8": [
-    6058712,
+    6058536,
     "g_sceneLightTableD3D"
   ],
   "0x6dfdcc": [
-    6108020,
+    6107844,
     "g_sceneLightData"
   ],
   "0x6dfdd8": [
-    6118392,
+    6118216,
     "g_sceneShadowDir"
   ],
   "0x6dfdf8": [
-    5813912,
+    5814064,
     "g_unk0x006dfdf8"
   ],
   "0x6dfdfc": [
-    6075224,
+    6075048,
     "g_sceneSectorFlags"
   ],
   "0x6dfe00": [
-    6056680,
+    6056504,
     "g_sceneLightDir"
   ],
   "0x6dfe10": [
-    5906104,
+    5906256,
     "g_triangleVertexHeights"
   ],
   "0x6dfe14": [
-    6123448,
+    6123272,
     "g_sceneZoneList"
   ],
   "0x6dffa4": [
-    6123852,
+    6123676,
     "g_sceneType1Objects"
   ],
   "0x6e0098": [
-    6124100,
+    6123924,
     "g_shadowColour"
   ],
   "0x6e00a0": [
-    6058720,
+    6058544,
     "g_sceneLightBasis"
   ],
   "0x6e00c8": [
-    6118408,
+    6118232,
     "g_sceneMaterial"
   ],
   "0x6e0118": [
-    6109104,
+    6108928,
     "g_sceneAmbient"
   ],
   "0x6e0124": [
-    6123328,
+    6123152,
     "g_shadowCasters"
   ],
   "0x6e019c": [
-    6056692,
+    6056516,
     "g_sceneSectorLights"
   ],
   "0x6e01a0": [
-    6108064,
+    6107888,
     "g_sceneLight"
   ],
   "0x6e01b0": [
-    6075228,
+    6075052,
     "g_sceneLightDirF"
   ],
   "0x6e01c0": [
-    6109128,
+    6108952,
     "g_sceneZoneCount"
   ],
   "0x6e01c4": [
-    6123284,
+    6123108,
     "g_shadowCylinders"
   ],
   "0x6e01ec": [
-    6118404,
+    6118228,
     "g_sceneAmbientColour"
   ],
   "0x6e01f0": [
-    6075208,
+    6075032,
     "g_shadowBatch"
   ],
   "0x6e0204": [
-    6124096,
+    6123920,
     "g_sceneSectorZone"
   ],
   "0x6e020c": [
-    6058808,
+    6058632,
     "g_sceneAmbientD3D"
   ],
   "0x6e0220": [
-    6058764,
+    6058588,
     "g_sceneLightBasisF"
   ],
   "0x6e0244": [
-    6058816,
+    6058640,
     "g_sceneLightDirty"
   ],
   "0x6e0348": [
-    6109136,
+    6108960,
     "g_sceneLightColour"
   ],
   "0x6e0354": [
-    6056696,
+    6056520,
     "g_shadowVertexRemap"
   ],
   "0x6e0b28": [
-    6117352,
+    6117176,
     "g_sceneLightRight"
   ],
   "0x6e0b34": [
-    6109148,
+    6108972,
     "g_sceneLightTable"
   ],
   "0x6e0b38": [
-    6075212,
+    6075036,
     "g_shadowLevel"
   ],
   "0x6e0b48": [
-    6058800,
+    6058624,
     "g_sceneType1Count"
   ],
   "0x6e0b90": [
-    6123280,
+    6123104,
     "g_shadowVertexData"
   ],
   "0x6e0b94": [
-    6058812,
+    6058636,
     "g_shadowVertexCount"
   ],
   "0x6e0b98": [
-    6109124,
+    6108948,
     "g_shadowBatchCount"
   ],
   "0x6e0b99": [
-    6109125,
+    6108949,
     "g_shadowCylinderCount"
   ],
   "0x6e0b9c": [
-    6091624,
+    6091448,
     "g_sceneLightCallbackSet"
   ],
   "0x6e0bac": [
-    5906108,
+    5906260,
     "g_defaultAmbientD3D"
   ],
   "0x6e0bb0": [
-    5812728,
+    5812880,
     "CGraphics::m_d3dDeviceDesc7"
   ],
   "0x6e0d6c": [
-    6223944,
+    6223768,
     "CSound::m_soundSlots"
   ],
   "0x6e0dec": [
-    6223932,
+    6223756,
     "CSound::m_soundSlotsEnd"
   ],
   "0x6e0eec": [
-    6223120,
+    6222944,
     "CSound::m_unk0x006e0eec"
   ],
   "0x6e0ef0": [
-    6222012,
+    6221836,
     "g_unk0x006e0ef0"
   ],
   "0x6e0ef4": [
-    6109156,
+    6108980,
     "g_sqrtTable"
   ],
   "0x6e2ef4": [
-    6091636,
+    6091460,
     "g_sinTable"
   ],
   "0x6e6ef4": [
-    5460788,
+    5460932,
     "g_acosTable"
   ],
   "0x6e8ff4": [
-    6108076,
+    6107900,
     "g_atanTable"
   ],
   "0x6e93f4": [
-    6058820,
+    6058644,
     "g_tanTable"
   ],
   "0x6ed3f4": [
-    5944408,
+    5944560,
     "g_inputQueues"
   ],
   "0x6ed5e8": [
-    6222004,
+    6221828,
     "g_unk0x006ed5e8"
   ],
   "0x6ed5ec": [
-    6213808,
+    6213632,
     "g_unk0x006ed5ec"
   ],
   "0x6ed5f0": [
-    6213812,
+    6213636,
     "g_visibleSectorIndices"
   ],
   "0x6ef5f0": [
-    6180516,
+    6180340,
     "g_sectorOriginX"
   ],
   "0x6ef5f4": [
-    6180520,
+    6180344,
     "g_sectorOriginZ"
   ],
   "0x71f600": [
-    6213804,
+    6213628,
     "g_sectorsPerRow"
   ],
   "0x71f608": [
-    6124108,
+    6123932,
     "g_sectors"
   ],
   "0x72d248": [
-    6180496,
+    6180320,
     "g_sectorHalfSize"
   ],
   "0x72d24c": [
-    6180500,
+    6180324,
     "g_sectorSize"
   ],
   "0x72d250": [
-    8254332,
+    8254156,
     "g_finCount"
   ],
   "0x72d254": [
-    8254296,
+    8254120,
     "g_finData"
   ],
   "0x72d258": [
-    6213292,
+    6213116,
     "g_sectorVisibleBits"
   ],
   "0x72d458": [
-    6180504,
+    6180328,
     "g_sectorRows"
   ],
   "0x72d55c": [
-    6124104,
+    6123928,
     "g_sectorScale"
   ],
   "0x72d568": [
-    6180508,
+    6180332,
     "g_sectorCount"
   ],
   "0x72d56c": [
-    5904336,
+    5904488,
     "CGraphics::m_unk0x0072d56c"
   ],
   "0x72d570": [
-    6180492,
+    6180316,
     "g_sectorCullEnabled"
   ],
   "0x72d578": [
-    6180512,
+    6180336,
     "g_sectorCullDisabled"
   ],
   "0x72d67c": [
-    5477892,
+    5478036,
     "g_fixMatrixMultiplyCount"
   ],
   "0x72d680": [
-    7378000,
+    7377824,
     "g_line2D"
   ],
   "0x72f2a0": [
-    6984736,
+    6984560,
     "g_unk0x0072f2a0"
   ],
   "0x72f2a8": [
-    6748376,
+    6748200,
     "g_screenLine2D"
   ],
   "0x730fc8": [
-    7385200,
+    7385024,
     "g_line2DCount"
   ],
   "0x730fcc": [
-    7377964,
+    7377788,
     "g_line2DInitialised"
   ],
   "0x730fd0": [
-    7618688,
+    7618512,
     "g_quad2DLayerC"
   ],
   "0x77cfd0": [
-    7083048,
+    7082872,
     "g_tri2DLayer2"
   ],
   "0x794fd0": [
-    7279656,
+    7279480,
     "g_tri2DLayer4"
   ],
   "0x7acfd0": [
-    7929992,
+    7929816,
     "g_quad2DLayerD"
   ],
   "0x7ad068": [
-    7181352,
+    7181176,
     "g_tri2DLayer1"
   ],
   "0x7c5068": [
-    6984744,
+    6984568,
     "g_tri2DLayer3"
   ],
   "0x7dd168": [
-    7385216,
+    7385040,
     "g_quad2DLayerA"
   ],
   "0x803168": [
-    7540864,
+    7540688,
     "g_quad2DLayerB"
   ],
   "0x816168": [
-    7385204,
+    7385028,
     "g_tri2DEnabled"
   ],
   "0x81616c": [
-    7929984,
+    7929808,
     "g_quad2DCountA"
   ],
   "0x816170": [
-    7929988,
+    7929812,
     "g_quad2DCountB"
   ],
   "0x816174": [
-    7385208,
+    7385032,
     "g_quad2DCountC"
   ],
   "0x816178": [
-    7385212,
+    7385036,
     "g_quad2DCountD"
   ],
   "0x81617c": [
-    7377968,
+    7377792,
     "g_tri2DCount1"
   ],
   "0x816180": [
-    7377980,
+    7377804,
     "g_tri2DCount2"
   ],
   "0x816184": [
-    7377976,
+    7377800,
     "g_tri2DCount3"
   ],
   "0x816188": [
-    7377972,
+    7377796,
     "g_tri2DCount4"
   ],
   "0x81618c": [
-    6755576,
+    6755400,
     "g_quad2DConvertOverflow"
   ],
   "0x81618d": [
-    7377960,
+    7377784,
     "g_quad2DOverflow"
   ],
   "0x816290": [
-    5810460,
+    5810612,
     "g_timersFrozen"
   ],
   "0x816298": [
-    5926588,
+    5926740,
     "g_unk0x00816298"
   ],
   "0x8164c8": [
-    5812708,
+    5812860,
     "g_unk0x008164c8"
   ],
   "0x8164d0": [
-    5906448,
+    5906600,
     "g_flareRect"
   ],
   "0x8164d8": [
-    5812928,
+    5813080,
     "g_flareColour"
   ],
   "0x8164dc": [
-    5645580,
+    5645732,
     "g_flareVisibility"
   ],
   "0x8164dd": [
-    5903852,
+    5904004,
     "g_flareTolerance"
   ],
   "0x8165f4": [
-    5906472,
+    5906624,
     "g_fogEnd"
   ],
   "0x8165f8": [
-    5810896,
+    5811048,
     "g_fogField2"
   ],
   "0x8165fc": [
-    5810892,
+    5811044,
     "g_fogField1"
   ],
   "0x816600": [
-    5899848,
+    5900000,
     "g_fogStart"
   ],
   "0x816704": [
-    5905288,
+    5905440,
     "g_unk0x00816704"
   ],
   "0x81680c": [
-    5899840,
+    5899992,
     "g_pulsePhase"
   ],
   "0x816810": [
-    5903996,
+    5904148,
     "g_pulseLevel"
   ],
   "0x816814": [
-    5899516,
+    5899668,
     "g_pulseFrozen"
   ],
   "0x816818": [
-    5904188,
+    5904340,
     "g_pulseMin"
   ],
   "0x81681c": [
-    5906356,
+    5906508,
     "g_pulseSpeed"
   ],
   "0x816820": [
-    5906360,
+    5906512,
     "g_unk0x00816820"
   ],
   "0x816970": [
-    5899512,
+    5899664,
     "g_argsParsed"
   ],
   "0x816974": [
-    5906208,
+    5906360,
     "g_unk0x00816974"
   ],
   "0x816978": [
-    6223940,
+    6223764,
     "g_unk0x00816978"
   ],
   "0x816a7c": [
-    6224072,
+    6223896,
     "CSound::m_unk0x00816a7c"
   ],
   "0x816a80": [
-    5899524,
+    5899676,
     "CGraphics::m_unk0x00816a80"
   ],
   "0x816a84": [
-    5810752,
+    5810904,
     "CGraphics::m_unk0x00816a84"
   ],
   "0x816ba8": [
-    5906456,
+    5906608,
     "CGraphics::m_mipMapSurfaces"
   ],
   "0x816ce8": [
-    5904512,
+    5904664,
     "CGraphics::m_displayDevicePool"
   ],
   "0x817094": [
-    5933688,
+    5933840,
     "CGraphics::m_totalPixelsForScreen"
   ],
   "0x817098": [
-    5933684,
+    5933836,
     "CGraphics::m_lifetimeDisplayDeviceCount"
   ],
   "0x81709c": [
-    5906212,
+    5906364,
     "CGraphics::m_unk0x0081709c"
   ],
   "0x8170a0": [
-    8257752,
+    8257576,
     "g_errno"
   ],
   "0x8173f0": [
-    5478264,
+    5478416,
     "g_unk0x008173f0"
   ],
   "0x8173f4": [
-    5478300,
+    5478452,
     "g_unk0x008173f4"
   ],
   "0x8173f8": [
-    5478000,
+    5478152,
     "g_frontendRecordCountry"
   ],
   "0x8173fc": [
-    5478308,
+    5478460,
     "g_frontendRecordStage"
   ],
   "0x817400": [
-    5478736,
+    5478888,
     "g_frontendRecordDifficulty"
   ],
   "0x817404": [
-    5478676,
+    5478828,
     "g_unk0x00817404"
   ],
   "0x817410": [
-    5478672,
+    5478824,
     "g_unk0x00817410"
   ],
   "0x817411": [
-    5478680,
+    5478832,
     "g_unk0x00817411"
   ],
   "0x817412": [
-    5478681,
+    5478833,
     "g_unk0x00817412"
   ],
   "0x817413": [
-    5478682,
+    5478834,
     "g_unk0x00817413"
   ],
   "0x817414": [
-    5478744,
+    5478896,
     "g_unk0x00817414"
   ],
   "0x817416": [
-    5478746,
+    5478898,
     "g_unk0x00817416"
   ],
   "0x817418": [
-    5478748,
+    5478900,
     "g_unk0x00817418"
   ],
   "0x817420": [
-    5478628,
+    5478780,
     "g_playerKeyStates"
   ],
   "0x817448": [
-    5477960,
+    5478104,
     "g_loadedSplitTimes"
   ],
   "0x817570": [
-    5478668,
+    5478820,
     "g_lowestSplitValue"
   ],
   "0x817574": [
-    5606970,
+    5607122,
     "CGameInfo::m_unk0x00817574"
   ],
   "0x817678": [
-    5630624,
+    5630776,
     "CGameInfo::m_unk0x00817678"
   ],
   "0x81777c": [
-    5630620,
+    5630772,
     "CGameInfo::m_unk0x0081777c"
   ],
   "0x817780": [
-    5590512,
+    5590664,
     "g_unk0x00817780"
   ],
   "0x817784": [
-    5590516,
+    5590668,
     "g_unk0x00817784"
   ],
   "0x817c84": [
-    5609184,
+    5609336,
     "g_unk0x00817c84"
   ],
   "0x817d98": [
-    5538856,
+    5539008,
     "CGame::m_frontendCallbackRecord"
   ],
   "0x817da0": [
-    5540776,
+    5540928,
     "CGame::m_frontendCallbackMachine"
   ],
   "0x817eb0": [
-    5576476,
+    5576628,
     "CGame::m_frontendCallbackInitialized"
   ],
   "0x817ebc": [
-    5478336,
+    5478488,
     "CFrontend::m_unk0x00817ebc"
   ],
   "0x817fc4": [
-    5540764,
+    5540916,
     "g_splashCamera"
   ],
   "0x817fc8": [
-    5540352,
+    5540504,
     "g_splashSceneRoot"
   ],
   "0x817fcc": [
-    5540744,
+    5540896,
     "g_bootLoadingDone"
   ],
   "0x817fd0": [
-    5478732,
+    5478884,
     "CFrontend::m_unk0x00817fd0"
   ],
   "0x817fd4": [
-    5478692,
+    5478844,
     "CFrontend::m_unk0x00817fd4"
   ],
   "0x817fe4": [
-    5478740,
+    5478892,
     "g_unk0x00817fe4"
   ],
   "0x817fe8": [
-    5478728,
+    5478880,
     "g_unk0x00817fe8"
   ],
   "0x817fec": [
-    5478708,
+    5478860,
     "g_unk0x00817fec"
   ],
   "0x817ff0": [
-    5576440,
+    5576592,
     "g_unk0x00817ff0"
   ],
   "0x817ff4": [
-    5478724,
+    5478876,
     "g_unk0x00817ff4"
   ],
   "0x8180f9": [
-    5540645,
+    5540797,
     "CGame::m_unk0x008180f9"
   ],
   "0x8180fa": [
-    5540336,
+    5540488,
     "g_unk0x008180fa"
   ],
   "0x8180fc": [
-    5576392,
+    5576544,
     "CGame::m_unk0x008180fc"
   ],
   "0x818200": [
-    5478344,
+    5478496,
     "CFrontend::m_languageFiles"
   ],
   "0x818240": [
-    5478416,
+    5478568,
     "CFrontend::m_commonFile"
   ],
   "0x818250": [
-    5645560,
+    5645712,
     "CGenericFileLoader::m_genericFile"
   ],
   "0x818260": [
-    5478312,
+    5478464,
     "CFrontend::m_unk0x00818260"
   ],
   "0x818270": [
-    5478792,
+    5478944,
     "g_helpPulse0x00818270"
   ],
   "0x818274": [
-    5537672,
+    5537824,
     "g_unk0x00818274"
   ],
   "0x8182b4": [
-    5533956,
+    5534108,
     "g_unk0x008182b4"
   ],
   "0x8182b8": [
-    5478304,
+    5478456,
     "CFrontend::m_pLgMatrixTexture"
   ],
   "0x8182bc": [
-    5478428,
+    5478580,
     "CFrontend::m_pTBronze"
   ],
   "0x8182c0": [
-    5478324,
+    5478476,
     "CFrontend::m_pTSilver"
   ],
   "0x8182c4": [
-    5478404,
+    5478556,
     "CFrontend::m_pTGold"
   ],
   "0x8182cc": [
-    5478540,
+    5478692,
     "CFrontend::m_unk0x008182cc"
   ],
   "0x818324": [
-    5478684,
+    5478836,
     "CFrontend::m_pSmMatrixTexture"
   ],
   "0x818328": [
-    5478756,
+    5478908,
     "CFrontend::m_pSetupRepBanners"
   ],
   "0x818348": [
-    5478268,
+    5478420,
     "CFrontend::m_pTinyFlags"
   ],
   "0x818368": [
-    5534448,
+    5534600,
     "g_unk0x00818368"
   ],
   "0x8183cc": [
-    5533996,
+    5534148,
     "g_unk0x008183cc"
   ],
   "0x818430": [
-    5478796,
+    5478948,
     "g_unk0x00818430"
   ],
   "0x818530": [
-    5478712,
+    5478864,
     "CFrontend::m_unk0x00818530"
   ],
   "0x81853c": [
-    5478752,
+    5478904,
     "CFrontend::m_unk0x0081853c"
   ],
   "0x818540": [
-    5478328,
+    5478480,
     "g_unk0x00818540"
   ],
   "0x818544": [
-    5478332,
+    5478484,
     "g_unk0x00818544"
   ],
   "0x818548": [
-    5478444,
+    5478596,
     "CFrontend::m_pAr640ATexture"
   ],
   "0x81854c": [
-    5534704,
+    5534856,
     "g_nameEntryPath0x0081854c"
   ],
   "0x818554": [
-    5534388,
+    5534540,
     "g_unk0x00818554"
   ],
   "0x8185b8": [
-    5478432,
+    5478584,
     "CFrontend::m_pAr640DTexture"
   ],
   "0x8185bc": [
-    5538332,
+    5538484,
     "g_dmdFiles"
   ],
   "0x818848": [
-    5478408,
+    5478560,
     "g_unk0x00818848"
   ],
   "0x81884c": [
-    5478452,
+    5478604,
     "CFrontend::m_unk0x0081884c"
   ],
   "0x8188a4": [
-    5534112,
+    5534264,
     "g_str0x008188a4"
   ],
   "0x8189a4": [
-    5536392,
+    5536544,
     "g_unk0x008189a4"
   ],
   "0x8189a8": [
-    5479052,
+    5479204,
     "g_unk0x008189a8"
   ],
   "0x8189b0": [
-    5478450,
+    5478602,
     "g_matrixPhase1"
   ],
   "0x8189b2": [
-    5478448,
+    5478600,
     "g_matrixPhase2"
   ],
   "0x8189b4": [
-    5534096,
+    5534248,
     "g_dotIconPhase"
   ],
   "0x8189b8": [
-    5538064,
+    5538216,
     "g_menuEnterTime"
   ],
   "0x818abc": [
-    5537664,
+    5537816,
     "g_pMenu0x00818abc"
   ],
   "0x818ac0": [
-    5538032,
+    5538184,
     "g_pMenu0x00818ac0"
   ],
   "0x818ac4": [
-    5537656,
+    5537808,
     "g_unk0x00818ac4"
   ],
   "0x818ac8": [
-    5628636,
+    5628788,
     "g_unk0x00818ac8"
   ],
   "0x818acc": [
-    5477456,
+    5477600,
     "g_ppsPath"
   ],
   "0x818cd0": [
-    5477424,
+    5477568,
     "g_genericFileLoaded"
   ],
   "0x818cd8": [
-    5538040,
+    5538192,
     "g_unk0x00818cd8"
   ],
   "0x818cdc": [
-    5534540,
+    5534692,
     "g_unk0x00818cdc"
   ],
   "0x818ce0": [
-    5538036,
+    5538188,
     "g_unk0x00818ce0"
   ],
   "0x818ce4": [
-    5576437,
+    5576589,
     "g_unk0x00818ce4"
   ],
   "0x818ce8": [
-    5538028,
+    5538180,
     "g_unk0x00818ce8"
   ],
   "0x818cf0": [
-    5538048,
+    5538200,
     "g_unk0x00818cf0"
   ],
   "0x818d00": [
-    5538760,
+    5538912,
     "g_unk0x00818d00"
   ],
   "0x818d04": [
-    5538764,
+    5538916,
     "g_unk0x00818d04"
   ],
   "0x818d08": [
-    5538728,
+    5538880,
     "g_unk0x00818d08"
   ],
   "0x818d18": [
-    5537204,
+    5537356,
     "g_filteredRouteIds"
   ],
   "0x818d70": [
-    5537668,
+    5537820,
     "g_setupRouteIndex"
   ],
   "0x818d74": [
-    5538744,
+    5538896,
     "g_setupSelectedRouteIds"
   ],
   "0x818d84": [
-    5538292,
+    5538444,
     "g_unk0x00818d84"
   ],
   "0x818da8": [
-    5537772,
+    5537924,
     "g_unk0x00818da8"
   ],
   "0x818ebc": [
-    5534368,
+    5534520,
     "g_unk0x00818ebc"
   ],
   "0x818ed0": [
-    5537768,
+    5537920,
     "g_unk0x00818ed0"
   ],
   "0x818ed4": [
-    5537736,
+    5537888,
     "g_unk0x00818ed4"
   ],
   "0x818ef4": [
-    5534501,
+    5534653,
     "g_unk0x00818ef4"
   ],
   "0x818ef8": [
-    5534516,
+    5534668,
     "g_unk0x00818ef8"
   ],
   "0x818f10": [
-    5538328,
+    5538480,
     "g_unk0x00818f10"
   ],
   "0x818f14": [
-    5538068,
+    5538220,
     "g_unk0x00818f14"
   ],
   "0x819014": [
-    5534500,
+    5534652,
     "g_unk0x00819014"
   ],
   "0x819018": [
-    5534504,
+    5534656,
     "g_unk0x00819018"
   ],
   "0x81901c": [
-    5534108,
+    5534260,
     "g_unk0x0081901c"
   ],
   "0x819020": [
-    5534496,
+    5534648,
     "g_unk0x00819020"
   ],
   "0x819024": [
-    5534512,
+    5534664,
     "g_unk0x00819024"
   ],
   "0x819028": [
-    5534444,
+    5534596,
     "g_unk0x00819028"
   ],
   "0x819030": [
-    5534508,
+    5534660,
     "g_unk0x00819030"
   ],
   "0x819038": [
-    5534484,
+    5534636,
     "g_unk0x00819038"
   ],
   "0x81903c": [
-    5534092,
+    5534244,
     "g_unk0x0081903c"
   ],
   "0x819040": [
-    5534480,
+    5534632,
     "g_unk0x00819040"
   ],
   "0x819044": [
-    5534492,
+    5534644,
     "g_unk0x00819044"
   ],
   "0x819048": [
-    5534424,
+    5534576,
     "g_unk0x00819048"
   ],
   "0x81904c": [
-    5538844,
+    5538996,
     "g_mainMenuInputTime"
   ],
   "0x819050": [
-    5534488,
+    5534640,
     "g_unk0x00819050"
   ],
   "0x819054": [
-    5534544,
+    5534696,
     "g_profileEntryTexts"
   ],
   "0x8190f4": [
-    5534028,
+    5534180,
     "g_unk0x008190f4"
   ],
   "0x819124": [
-    5534428,
+    5534580,
     "g_unk0x00819124"
   ],
   "0x819128": [
-    5590444,
+    5590596,
     "g_unk0x00819128"
   ],
   "0x81912c": [
-    5536156,
+    5536308,
     "g_unk0x0081912c"
   ],
   "0x819130": [
-    5534432,
+    5534584,
     "g_unk0x00819130"
   ],
   "0x819140": [
-    5534712,
+    5534864,
     "g_menuScrollers"
   ],
   "0x8196e0": [
-    5536328,
+    5536480,
     "g_unk0x008196e0"
   ],
   "0x8196e4": [
-    5536332,
+    5536484,
     "g_unk0x008196e4"
   ],
   "0x8196e8": [
-    5537300,
+    5537452,
     "g_screenPaletteIds"
   ],
   "0x819744": [
-    5540356,
+    5540508,
     "g_unk0x00819744"
   ],
   "0x819748": [
-    5533992,
+    5534144,
     "g_unk0x00819748"
   ],
   "0x819754": [
-    5533988,
+    5534140,
     "g_unk0x00819754"
   ],
   "0x81975c": [
-    5533952,
+    5534104,
     "g_unk0x0081975c"
   ],
   "0x819860": [
-    5533984,
+    5534136,
     "g_unk0x00819860"
   ],
   "0x819864": [
-    5533972,
+    5534124,
     "g_unk0x00819864"
   ],
   "0x819868": [
-    5533976,
+    5534128,
     "g_unk0x00819868"
   ],
   "0x81986c": [
-    5534088,
+    5534240,
     "g_unk0x0081986c"
   ],
   "0x819870": [
-    5533968,
+    5534120,
     "g_unk0x00819870"
   ],
   "0x819878": [
-    5533964,
+    5534116,
     "g_unk0x00819878"
   ],
   "0x819879": [
-    5536160,
+    5536312,
     "g_newProfileUndoPending"
   ],
   "0x81987c": [
-    5534080,
+    5534232,
     "g_unk0x0081987c"
   ],
   "0x819880": [
-    5533980,
+    5534132,
     "g_unk0x00819880"
   ],
   "0x819884": [
-    5533960,
+    5534112,
     "g_unk0x00819884"
   ],
   "0x819888": [
-    5536168,
+    5536320,
     "g_menuSoundBase"
   ],
   "0x81988c": [
-    5534084,
+    5534236,
     "g_unk0x0081988c"
   ],
   "0x819990": [
-    5537200,
+    5537352,
     "g_pMenuPath"
   ],
   "0x819994": [
-    5536396,
+    5536548,
     "g_menuLetterPos"
   ],
   "0x819cb4": [
-    5536164,
+    5536316,
     "g_menuPathMode"
   ],
   "0x819cb8": [
-    5537392,
+    5537544,
     "g_menuStreamPos"
   ],
   "0x819da8": [
-    5534100,
+    5534252,
     "g_menuPathVariant"
   ],
   "0x819dac": [
-    5536172,
+    5536324,
     "g_menuPathPrevMode"
   ],
   "0x819db0": [
-    5536344,
+    5536496,
     "g_menuStreamPoint"
   ],
   "0x819de0": [
-    5537632,
+    5537784,
     "g_menuStreamSpeed"
   ],
   "0x819df8": [
-    5536176,
+    5536328,
     "g_menuPathMorph"
   ],
   "0x819e90": [
-    5534076,
+    5534228,
     "g_menuPathInit"
   ],
   "0x819e94": [
-    5538768,
+    5538920,
     "g_menuDotTrail"
   ],
   "0x81a620": [
-    5536336,
+    5536488,
     "g_menuDotRect"
   ],
   "0x81a728": [
-    5590504,
+    5590656,
     "g_creditsLineCount"
   ],
   "0x81a72c": [
-    5630192,
+    5630344,
     "g_unk0x0081a72c"
   ],
   "0x81a730": [
-    5590432,
+    5590584,
     "g_creditsFileBuffer"
   ],
   "0x81a734": [
-    5628608,
+    5628760,
     "g_creditsLines"
   ],
   "0x81a738": [
-    5590220,
+    5590372,
     "g_languageTexts"
   ],
   "0x81a74c": [
-    5629560,
+    5629712,
     "g_languageTextInArchive"
   ],
   "0x81a754": [
-    5628628,
+    5628780,
     "CGameInfo::m_unk0x0081a754"
   ],
   "0x81a858": [
-    5587640,
+    5587792,
     "g_savedGameImage"
   ],
   "0x81b14c": [
-    5630204,
+    5630356,
     "g_unk0x0081b14c"
   ],
   "0x81b150": [
-    5607888,
+    5608040,
     "g_unk0x0081b150"
   ],
   "0x81b154": [
-    5607896,
+    5608048,
     "g_unk0x0081b154"
   ],
   "0x81b158": [
-    5485584,
+    5485736,
     "g_menu0x0081b158"
   ],
   "0x81b338": [
-    5480504,
+    5480656,
     "g_menu0x0081b338"
   ],
   "0x81b518": [
-    5483664,
+    5483816,
     "g_menu0x0081b518"
   ],
   "0x81bab8": [
-    5488960,
+    5489112,
     "g_menu0x0081bab8"
   ],
   "0x81bc98": [
-    5525472,
+    5525624,
     "g_menu0x0081bc98"
   ],
   "0x81be78": [
-    5493360,
+    5493512,
     "g_menu0x0081be78"
   ],
   "0x81c058": [
-    5483184,
+    5483336,
     "g_menu0x0081c058"
   ],
   "0x81c418": [
-    5506128,
+    5506280,
     "g_menu0x0081c418"
   ],
   "0x81c5f8": [
-    5495760,
+    5495912,
     "g_menu0x0081c5f8"
   ],
   "0x81c7d8": [
-    5523408,
+    5523560,
     "g_menu0x0081c7d8"
   ],
   "0x81cb98": [
-    5491360,
+    5491512,
     "g_menu0x0081cb98"
   ],
   "0x81cd78": [
-    5489920,
+    5490072,
     "g_menu0x0081cd78"
   ],
   "0x81cf58": [
-    5490400,
+    5490552,
     "g_menu0x0081cf58"
   ],
   "0x81d138": [
-    5505136,
+    5505288,
     "g_menu0x0081d138"
   ],
   "0x81d318": [
-    5504016,
+    5504168,
     "g_menu0x0081d318"
   ],
   "0x81d4f8": [
-    5519088,
+    5519240,
     "g_menu0x0081d4f8"
   ],
   "0x81d6d8": [
-    5515248,
+    5515400,
     "g_menu0x0081d6d8"
   ],
   "0x81d8b8": [
-    5517168,
+    5517320,
     "g_menu0x0081d8b8"
   ],
   "0x81dc78": [
-    5489440,
+    5489592,
     "g_menu0x0081dc78"
   ],
   "0x81de58": [
-    5487512,
+    5487664,
     "g_menu0x0081de58"
   ],
   "0x81e218": [
-    5503536,
+    5503688,
     "g_menu0x0081e218"
   ],
   "0x81e3f8": [
-    5516688,
+    5516840,
     "g_menu0x0081e3f8"
   ],
   "0x81e5d8": [
-    5514288,
+    5514440,
     "g_menu0x0081e5d8"
   ],
   "0x81e998": [
-    5521008,
+    5521160,
     "g_menu0x0081e998"
   ],
   "0x81eb78": [
-    5486064,
+    5486216,
     "g_menu0x0081eb78"
   ],
   "0x81ed58": [
-    5486544,
+    5486696,
     "g_menu0x0081ed58"
   ],
   "0x81ef38": [
-    5485104,
+    5485256,
     "g_menu0x0081ef38"
   ],
   "0x81f118": [
-    5500144,
+    5500296,
     "g_menu0x0081f118"
   ],
   "0x81f2f8": [
-    5511408,
+    5511560,
     "g_menu0x0081f2f8"
   ],
   "0x81f4d8": [
-    5509488,
+    5509640,
     "g_menu0x0081f4d8"
   ],
   "0x81f6b8": [
-    5509968,
+    5510120,
     "g_menu0x0081f6b8"
   ],
   "0x81fa78": [
-    5484624,
+    5484776,
     "g_menu0x0081fa78"
   ],
   "0x81fc58": [
-    5479064,
+    5479216,
     "g_menu0x0081fc58"
   ],
   "0x81fe38": [
-    5505616,
+    5505768,
     "g_menu0x0081fe38"
   ],
   "0x820018": [
-    5480024,
+    5480176,
     "g_menu0x00820018"
   ],
   "0x8201f8": [
-    5500624,
+    5500776,
     "g_menu0x008201f8"
   ],
   "0x8203d8": [
-    5498224,
+    5498376,
     "g_menu0x008203d8"
   ],
   "0x8205b8": [
-    5499184,
+    5499336,
     "g_menu0x008205b8"
   ],
   "0x820798": [
-    5504656,
+    5504808,
     "g_menu0x00820798"
   ],
   "0x820978": [
-    5503056,
+    5503208,
     "g_menu0x00820978"
   ],
   "0x820b58": [
-    5492800,
+    5492952,
     "g_menu0x00820b58"
   ],
   "0x820d38": [
-    5492320,
+    5492472,
     "g_menu0x00820d38"
   ],
   "0x8210f8": [
-    5498704,
+    5498856,
     "g_menu0x008210f8"
   ],
   "0x8212d8": [
-    5497200,
+    5497352,
     "g_menu0x008212d8"
   ],
   "0x8214b8": [
-    5521488,
+    5521640,
     "g_menu0x008214b8"
   ],
   "0x821878": [
-    5502568,
+    5502720,
     "g_menu0x00821878"
   ],
   "0x821c38": [
-    5490880,
+    5491032,
     "g_menu0x00821c38"
   ],
   "0x821e18": [
-    5488480,
+    5488632,
     "g_menu0x00821e18"
   ],
   "0x8221d8": [
-    5520048,
+    5520200,
     "g_menu0x008221d8"
   ],
   "0x8223b8": [
-    5520528,
+    5520680,
     "g_menu0x008223b8"
   ],
   "0x822598": [
-    5501584,
+    5501736,
     "g_menu0x00822598"
   ],
   "0x822958": [
-    5494800,
+    5494952,
     "g_menu0x00822958"
   ],
   "0x822d18": [
-    5488000,
+    5488152,
     "g_menu0x00822d18"
   ],
   "0x822ef8": [
-    5502088,
+    5502240,
     "g_menu0x00822ef8"
   ],
   "0x8230d8": [
-    5518608,
+    5518760,
     "g_menu0x008230d8"
   ],
   "0x8232b8": [
-    5513328,
+    5513480,
     "g_menu0x008232b8"
   ],
   "0x823498": [
-    5494320,
+    5494472,
     "g_menu0x00823498"
   ],
   "0x823678": [
-    5521968,
+    5522120,
     "g_menu0x00823678"
   ],
   "0x823858": [
-    5522928,
+    5523080,
     "g_menu0x00823858"
   ],
   "0x823a38": [
-    5487024,
+    5487176,
     "g_menu0x00823a38"
   ],
   "0x823c18": [
-    5484144,
+    5484296,
     "g_menu0x00823c18"
   ],
   "0x823df8": [
-    5501104,
+    5501256,
     "g_menu0x00823df8"
   ],
   "0x823fd8": [
-    5499664,
+    5499816,
     "g_menu0x00823fd8"
   ],
   "0x8241b8": [
-    5512848,
+    5513000,
     "g_menu0x008241b8"
   ],
   "0x824498": [
-    5519568,
+    5519720,
     "g_menu0x00824498"
   ],
   "0x824678": [
-    5515728,
+    5515880,
     "g_menu0x00824678"
   ],
   "0x824858": [
-    5517648,
+    5517800,
     "g_menu0x00824858"
   ],
   "0x824a38": [
-    5479544,
+    5479696,
     "g_menu0x00824a38"
   ],
   "0x824c18": [
-    5506608,
+    5506760,
     "g_menu0x00824c18"
   ],
   "0x824df8": [
-    5496720,
+    5496872,
     "g_menu0x00824df8"
   ],
   "0x824fd8": [
-    5523888,
+    5524040,
     "g_menu0x00824fd8"
   ],
   "0x8251b8": [
-    5508048,
+    5508200,
     "g_menu0x008251b8"
   ],
   "0x825398": [
-    5493280,
+    5493432,
     "g_unk0x00825398"
   ],
   "0x8253e4": [
-    5504500,
+    5504652,
     "g_unk0x008253e4"
   ],
   "0x82547c": [
-    5480984,
+    5481136,
     "g_unk0x0082547c"
   ],
   "0x825d14": [
-    5532872,
+    5533024,
     "g_unk0x00825d14"
   ],
   "0x825f6c": [
-    5524848,
+    5525000,
     "g_unk0x00825f6c"
   ],
   "0x826138": [
-    5536152,
+    5536304,
     "g_unk0x00826138"
   ],
   "0x826140": [
-    5513808,
+    5513960,
     "g_menu0x00826140"
   ],
   "0x826420": [
-    5512368,
+    5512520,
     "g_menu0x00826420"
   ],
   "0x826600": [
-    5510928,
+    5511080,
     "g_menu0x00826600"
   ],
   "0x8267e0": [
-    5526912,
+    5527064,
     "g_menu0x008267e0"
   ],
   "0x8269c0": [
-    5526432,
+    5526584,
     "g_menu0x008269c0"
   ],
   "0x826ba0": [
-    5518128,
+    5518280,
     "g_menu0x00826ba0"
   ],
   "0x826d80": [
-    5497744,
+    5497896,
     "g_menu0x00826d80"
   ],
   "0x826f60": [
-    5495280,
+    5495432,
     "g_menu0x00826f60"
   ],
   "0x827140": [
-    5510448,
+    5510600,
     "g_menu0x00827140"
   ],
   "0x827320": [
-    5508528,
+    5508680,
     "g_menu0x00827320"
   ],
   "0x827500": [
-    5507088,
+    5507240,
     "g_menu0x00827500"
   ],
   "0x8276e0": [
-    5525952,
+    5526104,
     "g_menu0x008276e0"
   ],
   "0x8278c0": [
-    5524368,
+    5524520,
     "g_menu0x008278c0"
   ],
   "0x827aa0": [
-    5511888,
+    5512040,
     "g_menu0x00827aa0"
   ],
   "0x827c80": [
-    5496240,
+    5496392,
     "g_menu0x00827c80"
   ],
   "0x827e60": [
-    5522448,
+    5522600,
     "g_menu0x00827e60"
   ],
   "0x828040": [
-    5507568,
+    5507720,
     "g_menu0x00828040"
   ],
   "0x828220": [
-    5533472,
+    5533624,
     "g_menu0x00828220"
   ],
   "0x828500": [
-    5531912,
+    5532064,
     "g_menu0x00828500"
   ],
   "0x8286e0": [
-    5493840,
+    5493992,
     "g_menu0x008286e0"
   ],
   "0x8288c0": [
-    5491840,
+    5491992,
     "g_menu0x008288c0"
   ],
   "0x828aa0": [
-    5509008,
+    5509160,
     "g_menu0x00828aa0"
   ],
   "0x828c80": [
-    5514768,
+    5514920,
     "g_menu0x00828c80"
   ],
   "0x828e60": [
-    5516208,
+    5516360,
     "g_menu0x00828e60"
   ],
   "0x829140": [
-    5532392,
+    5532544,
     "g_menu0x00829140"
   ],
   "0x829320": [
-    5537660,
+    5537812,
     "g_quickRaceShownGameType"
   ],
   "0x829428": [
-    5506096,
+    5506248,
     "g_unk0x00829428"
   ],
   "0x829448": [
-    5527392,
+    5527544,
     "g_controlsCopy"
   ],
   "0x82a5e8": [
-    5525312,
+    5525464,
     "g_axisBindings"
   ],
   "0x82a788": [
-    5497680,
+    5497832,
     "g_bindingText"
   ],
   "0x82a7c8": [
-    5502064,
+    5502216,
     "g_controlsDeviceSelection"
   ],
   "0x82a7dc": [
-    5531904,
+    5532056,
     "g_controlsRereadDevices"
   ],
   "0x82a7e0": [
-    5487992,
+    5488144,
     "g_unk0x0082a7e0"
   ],
   "0x82a7e4": [
-    5487996,
+    5488148,
     "g_unk0x0082a7e4"
   ],
   "0x82a7e8": [
-    5487504,
+    5487656,
     "g_unk0x0082a7e8"
   ],
   "0x82a7ec": [
-    5504496,
+    5504648,
     "g_unk0x0082a7ec"
   ],
   "0x82a7f0": [
-    5538864,
+    5539016,
     "g_secondaryCallbackMachine"
   ],
   "0x82a800": [
-    5540752,
+    5540904,
     "g_secondaryCallbackRecord"
   ],
   "0x82a908": [
-    5540366,
+    5540518,
     "g_secondaryCallbackInitialized"
   ],
   "0x82a90c": [
-    5598844,
+    5598996,
     "g_unk0x0082a90c"
   ],
   "0x82a924": [
-    5534420,
+    5534572,
     "g_unk0x0082a924"
   ],
   "0x82a928": [
-    5590208,
+    5590360,
     "g_unk0x0082a928"
   ],
   "0x82a92c": [
-    5598092,
+    5598244,
     "g_unk0x0082a92c"
   ],
   "0x82a930": [
-    5590440,
+    5590592,
     "g_unk0x0082a930"
   ],
   "0x82a934": [
-    5599980,
+    5600132,
     "g_nameEditorBuffer"
   ],
   "0x82a938": [
-    5590212,
+    5590364,
     "g_unk0x0082a938"
   ],
   "0x82a93c": [
-    5607624,
+    5607776,
     "g_optionStatusLine"
   ],
   "0x82aa3c": [
-    5537292,
+    5537444,
     "g_unk0x0082aa3c"
   ],
   "0x82aa40": [
-    5537196,
+    5537348,
     "g_unk0x0082aa40"
   ],
   "0x82aa44": [
-    5606232,
+    5606384,
     "g_unk0x0082aa44"
   ],
   "0x82ab44": [
-    5611048,
+    5611200,
     "g_unk0x0082ab44"
   ],
   "0x82ac48": [
-    5537296,
+    5537448,
     "g_unk0x0082ac48"
   ],
   "0x82ac4c": [
-    5630200,
+    5630352,
     "g_unk0x0082ac4c"
   ],
   "0x82ac50": [
-    5607884,
+    5608036,
     "g_unk0x0082ac50"
   ],
   "0x82ac58": [
-    5607880,
+    5608032,
     "g_unk0x0082ac58"
   ],
   "0x82ac5c": [
-    5630196,
+    5630348,
     "g_unk0x0082ac5c"
   ],
   "0x82ac60": [
-    5607892,
+    5608044,
     "g_unk0x0082ac60"
   ],
   "0x82ac68": [
-    5602536,
+    5602688,
     "g_optionLayoutCoords"
   ],
   "0x82ace8": [
-    5629336,
+    5629488,
     "g_unk0x0082ace8"
   ],
   "0x82ad70": [
-    5607016,
+    5607168,
     "g_unk0x0082ad70"
   ],
   "0x82adf0": [
-    5628716,
+    5628868,
     "g_unk0x0082adf0"
   ],
   "0x82af70": [
-    5503048,
+    5503200,
     "g_controlsLine"
   ],
   "0x82af78": [
-    5629688,
+    5629840,
     "g_unk0x0082af78"
   ],
   "0x82af88": [
-    5629668,
+    5629820,
     "g_unk0x0082af88"
   ],
   "0x82af8c": [
-    5630236,
+    5630388,
     "g_unk0x0082af8c"
   ],
   "0x82af90": [
-    5629672,
+    5629824,
     "g_unk0x0082af90"
   ],
   "0x82b0a0": [
-    5589680,
+    5589832,
     "g_unk0x0082b0a0"
   ],
   "0x82b0a4": [
-    5589684,
+    5589836,
     "g_unk0x0082b0a4"
   ],
   "0x82b0a8": [
-    5589676,
+    5589828,
     "g_unk0x0082b0a8"
   ],
   "0x82b0ac": [
-    5576496,
+    5576648,
     "g_unk0x0082b0ac"
   ],
   "0x82b1b0": [
-    5590216,
+    5590368,
     "g_optionMenuCamera"
   ],
   "0x82b1b4": [
-    5628620,
+    5628772,
     "g_optionMenuSceneRoot"
   ],
   "0x82b1b8": [
-    5576680,
+    5576832,
     "g_unk0x0082b1b8"
   ],
   "0x82b1bc": [
-    5589692,
+    5589844,
     "g_unk0x0082b1bc"
   ],
   "0x82b1c0": [
-    5630244,
+    5630396,
     "g_truncatedTextBuffer"
   ],
   "0x82b2c0": [
-    5576512,
+    5576664,
     "g_unk0x0082b2c0"
   ],
   "0x82b488": [
-    5589728,
+    5589880,
     "g_unk0x0082b488"
   ],
   "0x82b668": [
-    5598360,
+    5598512,
     "g_unk0x0082b668"
   ],
   "0x82b848": [
-    5592408,
+    5592560,
     "g_unk0x0082b848"
   ],
   "0x82ba28": [
-    5607144,
+    5607296,
     "g_unk0x0082ba28"
   ],
   "0x82bc08": [
-    5629712,
+    5629864,
     "g_unk0x0082bc08"
   ],
   "0x82bee8": [
-    5590448,
+    5590600,
     "g_unk0x0082bee8"
   ],
   "0x82bf20": [
-    5630500,
+    5630652,
     "g_unk0x0082bf20"
   ],
   "0x82c040": [
-    5609688,
+    5609840,
     "g_playerOptionCache"
   ],
   "0x82c690": [
-    6042360,
+    6042512,
     "g_unk0x0082c690"
   ],
   "0x82c694": [
-    5606980,
+    5607132,
     "g_optionPreviewPanelCount"
   ],
   "0x82c698": [
-    6042912,
+    6044808,
     "g_championshipFlagCountries"
   ],
   "0x82c6bc": [
-    6043036,
+    6044932,
     "g_unk0x0082c6bc"
   ],
   "0x82c6c0": [
-    5602512,
+    5602664,
     "g_unk0x0082c6c0"
   ],
   "0x82c6c8": [
-    5607904,
+    5608056,
     "g_optionPreviewPanels"
   ],
   "0x82c710": [
-    5598972,
+    5599124,
     "g_activeModeSlot"
   ],
   "0x82c9e8": [
-    6043032,
+    6044928,
     "g_unk0x0082c9e8"
   ],
   "0x82c9ec": [
-    5629472,
+    5629624,
     "g_optionPreviewExpandedRect"
   ],
   "0x82c9f4": [
-    6042368,
+    6044292,
     "g_mapSrcRect"
   ],
   "0x82c9fc": [
-    6042832,
+    6044728,
     "g_unk0x0082c9fc"
   ],
   "0x82c9fe": [
-    6042834,
+    6044730,
     "g_unk0x0082c9fe"
   ],
   "0x82ca00": [
-    6055240,
+    6055088,
     "g_unk0x0082ca00"
   ],
   "0x82ca02": [
-    6055248,
+    6055096,
     "g_unk0x0082ca02"
   ],
   "0x82ca04": [
-    5592328,
+    5592480,
     "g_optionSlotTextureSets"
   ],
   "0x82ca18": [
-    5629640,
+    5629792,
     "g_unk0x0082ca18"
   ],
   "0x82ca1c": [
-    5606992,
+    5607144,
     "g_selectedOptionPreviewPanel"
   ],
   "0x82ca20": [
-    6055196,
+    6055044,
     "g_unk0x0082ca20"
   ],
   "0x82cb44": [
-    5630240,
+    5630392,
     "g_unk0x0082cb44"
   ],
   "0x82cb48": [
-    6042840,
+    6044736,
     "g_weatherMaps"
   ],
   "0x82cb78": [
-    5602664,
+    5602816,
     "g_previewSceneRecords"
   ],
   "0x82d0b8": [
-    5629592,
+    5629744,
     "g_previewRotationAngles"
   ],
   "0x82d0d8": [
-    5599984,
+    5600136,
     "g_previewRotationDeltas"
   ],
   "0x82d0f8": [
-    5629480,
+    5629632,
     "g_previewRotationStartAngles"
   ],
   "0x82d118": [
-    5629552,
+    5629704,
     "g_previewPreviousAnimationTime"
   ],
   "0x82d120": [
-    5589712,
+    5589864,
     "g_previewDentPosition"
   ],
   "0x82d12c": [
-    5598976,
+    5599128,
     "g_previewDentNormal"
   ],
   "0x82d138": [
-    5629576,
+    5629728,
     "g_previewDentAxis"
   ],
   "0x82d144": [
-    5606976,
+    5607128,
     "g_previewDentAxisRadius"
   ],
   "0x82d148": [
-    5629568,
+    5629720,
     "g_previewDentStrength"
   ],
   "0x82d14c": [
-    5598840,
+    5598992,
     "g_previewDentMode"
   ],
   "0x82d150": [
-    8227800,
+    8227624,
     "g_previewDentRadius"
   ],
   "0x82d154": [
-    8248316,
+    8248140,
     "g_previewDentFalloff"
   ],
   "0x82d158": [
-    8229848,
+    8229672,
     "g_previewDentScale"
   ],
   "0x82d15c": [
-    5629632,
+    5629784,
     "g_previewWheelVariant"
   ],
   "0x82d19c": [
-    5611052,
+    5611204,
     "g_previewNormalModelBuffers"
   ],
   "0x82d1dc": [
-    5628640,
+    5628792,
     "g_previewOriginalNodeTypes"
   ],
   "0x82d220": [
-    5576688,
+    5576840,
     "g_previewMeshRecords"
   ],
   "0x82fce0": [
-    5592360,
+    5592512,
     "g_previewRotationTargets"
   ],
   "0x82fd00": [
-    5600016,
+    5600168,
     "g_previewDeformGeometry"
   ],
   "0x831080": [
-    5598088,
+    5598240,
     "g_previewRotationDuration"
   ],
   "0x831088": [
-    5590240,
+    5590392,
     "g_unk0x00831088"
   ],
   "0x831148": [
-    5598884,
+    5599036,
     "g_previewRotationStartTimes"
   ],
   "0x831158": [
-    5628544,
+    5628696,
     "g_previewSixWheelModelBuffers"
   ],
   "0x831198": [
-    5604008,
+    5604160,
     "g_previewOriginalVertices"
   ],
   "0x8311d8": [
-    5613240,
+    5613392,
     "g_previewLowWheelModelBuffers"
   ],
   "0x831318": [
-    5628616,
+    5628768,
     "g_previewSessionRegistered"
   ],
   "0x83131c": [
-    5630212,
+    5630364,
     "g_previewRotationActive"
   ],
   "0x831360": [
-    5598868,
+    5599020,
     "g_unk0x00831360"
   ],
   "0x831364": [
-    5598876,
+    5599028,
     "g_unk0x00831364"
   ],
   "0x831368": [
-    5598356,
+    5598508,
     "g_unk0x00831368"
   ],
   "0x83137c": [
-    5591800,
+    5591952,
     "g_unk0x0083137c"
   ],
   "0x8313ac": [
-    5602524,
+    5602676,
     "g_unk0x008313ac"
   ],
   "0x8313b0": [
-    5589688,
+    5589840,
     "g_unk0x008313b0"
   ],
   "0x8313c8": [
-    5604832,
+    5604984,
     "g_previewProjectedPartQuads"
   ],
   "0x831648": [
-    5592392,
+    5592544,
     "g_unk0x00831648"
   ],
   "0x831660": [
-    5629704,
+    5629856,
     "g_gameInfoDrawRect"
   ],
   "0x831668": [
-    5592352,
+    5592504,
     "g_unk0x00831668"
   ],
   "0x83166c": [
-    5576676,
+    5576828,
     "g_unk0x0083166c"
   ],
   "0x831670": [
-    5592396,
+    5592548,
     "g_unk0x00831670"
   ],
   "0x831674": [
-    5592348,
+    5592500,
     "g_unk0x00831674"
   ],
   "0x831778": [
-    5587632,
+    5587784,
     "g_pMenu0x00831778"
   ],
   "0x83177c": [
-    5576500,
+    5576652,
     "g_pMenu0x0083177c"
   ],
   "0x831880": [
-    5629524,
+    5629676,
     "g_optionLanguageText"
   ],
   "0x831884": [
-    5629628,
+    5629780,
     "g_optionLanguageTextInArchive"
   ],
   "0x831888": [
-    5576672,
+    5576824,
     "g_unk0x00831888"
   ],
   "0x83188c": [
-    5589704,
+    5589856,
     "g_unk0x0083188c"
   ],
   "0x831a90": [
-    5598988,
+    5599140,
     "g_optionCommonArchive"
   ],
   "0x831aa0": [
-    5629652,
+    5629804,
     "g_optionStageArchive"
   ],
   "0x831ab0": [
-    5611116,
+    5611268,
     "g_optionLanguageArchive"
   ],
   "0x831ac8": [
-    5629556,
+    5629708,
     "g_unk0x00831ac8"
   ],
   "0x831acc": [
-    5590436,
+    5590588,
     "g_unk0x00831acc"
   ],
   "0x831ad0": [
-    5606228,
+    5606380,
     "g_pUnk0x00831ad0"
   ],
   "0x831ad4": [
-    5606972,
+    5607124,
     "g_pUnk0x00831ad4"
   ],
   "0x831c54": [
-    5630208,
+    5630360,
     "g_pUnk0x00831c54"
   ],
   "0x831c58": [
-    5630232,
+    5630384,
     "g_unk0x00831c58"
   ],
   "0x831c5c": [
-    5629528,
+    5629680,
     "g_unk0x00831c5c"
   ],
   "0x831c60": [
-    5630224,
+    5630376,
     "g_unk0x00831c60"
   ],
   "0x831c64": [
-    5630228,
+    5630380,
     "g_unk0x00831c64"
   ],
   "0x831c68": [
-    5630216,
+    5630368,
     "g_unk0x00831c68"
   ],
   "0x831c6c": [
-    5630220,
+    5630372,
     "g_pUnk0x00831c6c"
   ]
 }

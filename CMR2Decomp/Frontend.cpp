@@ -1018,9 +1018,11 @@ void Frontend_SetObjectField118(Texture *pTexture, int value)
 // ---------------------------------------------------------------------------
 
 // Split times mirrored out of the loaded game info record; 10 entries for the
-// rally records, the arcade records only fill the first 6.
+// rally records, the arcade records only fill the first 6. The stage HUD reads
+// twelve (Frontend_StoreSelectedDeviceOption); the last two are never written
+// and read as zero, as the free space after the array does in the original.
 // GLOBAL: CMR2 0x00817448
-int g_loadedSplitTimes[10];
+int g_loadedSplitTimes[12];
 // Lowest split value seen so far, reset to a whole stage length.
 // GLOBAL: CMR2 0x00817570
 int g_lowestSplitValue;

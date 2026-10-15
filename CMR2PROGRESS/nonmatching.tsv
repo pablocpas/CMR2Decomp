@@ -153,10 +153,10 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x486910	StageObject_RebuildMirroredTiltMatrix	FixedPoint.cpp	206	0.738255033557047	0.7516778523489933
 0x4fc620	FrontendControls_UpdateAxisCalibration	FrontendMenus.cpp	548	0.7388535031847133	0.7290322580645161
 0x4efe60	RallyData_FillStageSplitEditorRows	RallyData.cpp	492	0.7412140575079872	0.7476038338658147
+0x44a1b0	GameMenu_SetupStageResults	GameMenus.cpp	3438	0.743342776203966	0.7264420331239292
 0x489b20	Collision_SphereVsBox	Collision2D.cpp	1740	0.7448389760528489	0.7345932621199671
 0x418580	Race_DecodeCallSlotIcon	Race.cpp	448	0.7453416149068323	0.749185667752443
 0x510410	CGameInfo::InitDefaultGameInfo	GameInfo.cpp	344	0.7482993197278912	0.7973856209150327
-0x44a1b0	GameMenu_SetupStageResults	GameMenus.cpp	3438	0.7490084985835694	0.741290691033695
 0x466100	StageObject_UpdateProjectedDistanceFade	StageObjects.cpp	604	0.7493112947658402	0.7287671232876712
 0x448de0	StageTiming_AdvanceJitteredClock	StageTiming.cpp	125	0.75	0.75
 0x44bcd0	GameMenu_DrawSplitTimes	GameMenus.cpp	4308	0.7503628447024674	0.7491972886193364
@@ -432,8 +432,8 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b50b0	Scene_ApplyGroundLightToMeshTree	SceneNode.cpp	613	0.990990990990991	0.990990990990991
 0x50a920	OptionMenu_DrawResultsRallyInfo	GameInfo.cpp	2201	0.9911111111111112	0.9940740740740741
 0x40c610	CInput::InitDetectedControllerSlot	Input.cpp	1604	0.9920424403183024	0.9920424403183024
-0x4d9c40	FrontendMenu_DrawRallySummary	FrontendScreens.cpp	2529	0.9943644333124608	0.9843260188087775
 0x4dbd80	FrontendMenu_DrawRallyReport	FrontendScreens.cpp	2436	0.9954633830200907	0.9850746268656716
+0x4d9c40	FrontendMenu_DrawRallySummary	FrontendScreens.cpp	2529	0.9956167814652473	0.9855799373040752
 0x508890	CarDamage_ApplyCameraSpaceMeshDent	StageTiming.cpp	1614	0.9962049335863378	0.9962049335863378
 0x441500	Car_UpdateWheelForces	Car.cpp	6536	0.9966507177033492	0.9966507177033492
 0x4556f0	StageTiming_PairPlayerOpponentSlots	StageTiming.cpp	898	0.9966666666666667	0.9964664310954063
