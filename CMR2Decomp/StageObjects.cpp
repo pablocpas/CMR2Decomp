@@ -14471,8 +14471,8 @@ void Replay_RecordPeriodicCarSamples(void)
 
 extern FixVector g_collisionPush;
 extern FixVector g_collisionContactNormal;
-extern int g_physicsCollisionFlags;
-extern int g_unk0x00591468;
+extern int g_contactImpactLowThreshold;
+extern int g_contactImpactHighThreshold;
 extern int g_wallScrapeCount;
 int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pBoxB, FixVector *pOffset, int scale);
 int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
@@ -14605,8 +14605,8 @@ int Collision_ResolveCarTurnedObjectContact(Car *pCar, StageObject **pEntry, Col
         }
         g_collisionContactNormal = dir;
         FixMatrix_InverseRotateVector(&pCar->field_0x5dc, &sum, pCar->pWorld);
-        g_physicsCollisionFlags = 0x8000;
-        g_unk0x00591468 = 0x1570a;
+        g_contactImpactLowThreshold = 0x8000;
+        g_contactImpactHighThreshold = 0x1570a;
     }
     return hit;
 }

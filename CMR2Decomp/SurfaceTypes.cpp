@@ -779,9 +779,9 @@ int g_unk0x0051f290 = 0xb333;
 int g_gearWhineLoopStart[14] = {
     0x32a8, 0x42d6, 0, 0x5a08, 0x5a08, 0, 0, 0x880, 0x3af2, 0x21c0, 0, 0x2400, 0x1444, 0xf80,
 };
-// Per-player engine sound state.
+// Per player: when the random one-shot surface sound last started or stopped.
 // GLOBAL: CMR2 0x0058dd60
-unsigned int g_engineSoundState[2];
+unsigned int g_oneShotSoundLastTime[2];
 // GLOBAL: CMR2 0x0058dda0
 unsigned int g_unk0x0058dda0[2];
 // GLOBAL: CMR2 0x0058df28
@@ -929,19 +929,19 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
     }
     Surface_SmoothPlayerSoundLevel(pState[4], player);
     if (!NetRace_GetRaceSoundMode()) {
-        if (now - g_engineSoundState[player] > g_unk0x0058df28[player]) {
+        if (now - g_oneShotSoundLastTime[player] > g_unk0x0058df28[player]) {
             if (g_unk0x0058ddf8[player] != 0) {
                 Surface_StopSecondOneShotSound(player);
                 g_unk0x0058ddf8[player] = 0;
             }
             if (g_unk0x0058dd98[player] != 0) {
                 g_unk0x0058dd98[player] = 0;
-                g_engineSoundState[player] = now;
+                g_oneShotSoundLastTime[player] = now;
                 g_unk0x0058df28[player] = rand() % 10 + 5;
             } else if (pState[1] < 4000) {
                 int v;
                 g_unk0x0058dd98[player] = 1;
-                g_engineSoundState[player] = now;
+                g_oneShotSoundLastTime[player] = now;
                 if (pState[1] <= 3000)
                     v = 10;
                 else if (pState[1] >= 5000)
@@ -950,7 +950,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
                     v = (3000 - pState[1]) * 10 / 2000 + 10;
                 g_unk0x0058df28[player] = v;
             } else {
-                g_engineSoundState[player] = now;
+                g_oneShotSoundLastTime[player] = now;
                 g_unk0x0058df28[player] = rand() % 10 + 5;
             }
         }
@@ -996,7 +996,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
         } else if (CFrontend::GetArchiveSecondaryFlagEntry(pCar->type) != 0) {
             if (pState[4] == 0 && pState[1] > hi) {
                 g_unk0x0058df78[player] = 1;
-                g_engineSoundState[player] = now;
+                g_oneShotSoundLastTime[player] = now;
                 g_unk0x0058dda0[player] = now;
                 g_unk0x0058df28[player] = rand() % 10 + 10;
                 g_unk0x0058dd98[player] = 0;
@@ -1010,7 +1010,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
                 if (Sound_IsPlaying(g_unk0x0058ddc0[player]) == 0) {
                     g_unk0x0058ddc0[player] =
                         Sound_PlaySampleWithParameters((unsigned short)(rand() % 4 + g_unk0x0058ddb4[player] + 8), 0, 0x5622, 0, 0, 0);
-                    g_engineSoundState[player] = now;
+                    g_oneShotSoundLastTime[player] = now;
                     g_unk0x0058df20[player] = 1;
                     g_unk0x0058ddf8[player] = 1;
                     g_unk0x0058df28[player] = rand() % 10 + 5;
@@ -1028,7 +1028,7 @@ void Surface_UpdatePlayerEngineSounds(int *pState, int player, int listener)
                         Sound_PlaySampleWithParameters((unsigned short)(rand() % 4 + g_unk0x0058ddb4[player] + 8), 0, 0x5622, 0, 0, 0);
                     g_unk0x0058df20[player] = 1;
                 }
-                pct = 100 - (now * 100 - g_engineSoundState[player] * 100) / g_unk0x0058df28[player];
+                pct = 100 - (now * 100 - g_oneShotSoundLastTime[player] * 100) / g_unk0x0058df28[player];
                 Sound_SetPlayingSlotVolume(g_unk0x0058ddc0[player], CAR_VOLUME(0x10000, g_unk0x0051f294));
                 if (pct == 100 && rand() % pct < 75)
                     StageTiming_ForceWheelTrailSurface(player, rand() % 2 + 2);

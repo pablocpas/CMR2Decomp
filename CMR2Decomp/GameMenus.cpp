@@ -1533,7 +1533,7 @@ int RallyTiming_GetStageOrderDriverID(int iPosition);
 
 // Stage points of the sixteen stage positions, for the tie checks below.
 // GLOBAL: CMR2 0x005418c4
-BYTE g_stagePositionPoints[0x10];
+BYTE g_stagePositionSeconds[0x10];
 
 // Draw callback of the scrolling stage points table: driver, car, points and
 // position; tied drivers get the tie-break note (count-back) and "=" instead
@@ -1559,7 +1559,7 @@ void GameMenu_DrawScrollingStagePoints(Menu *pMenu)
                           CFrontend::GetTextString(0x8d), (char *)NULL);
     i = 0;
     do {
-        g_stagePositionPoints[i] = (BYTE)RallyTiming_GetStageTimeSeconds(RallyTiming_GetStageOrderDriverID(i));
+        g_stagePositionSeconds[i] = (BYTE)RallyTiming_GetStageTimeSeconds(RallyTiming_GetStageOrderDriverID(i));
         i++;
     } while (i < 0x10);
     for (row = 0; row < rows; row++) {
@@ -1610,9 +1610,9 @@ void GameMenu_DrawScrollingStagePoints(Menu *pMenu)
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
                        (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
                       (int *)g_menuFrameColour, 9);
-        if (g_stagePositionPoints[pos] != 0) {
+        if (g_stagePositionSeconds[pos] != 0) {
             for (i = 0; i < 0x10; i++) {
-                if (i != pos && g_stagePositionPoints[pos] == g_stagePositionPoints[i]) {
+                if (i != pos && g_stagePositionSeconds[pos] == g_stagePositionSeconds[i]) {
                     if (RallyTiming_GetStageTieBreak(id) == 1)
                         sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xb9), RallyTiming_GetStageTieBreak(id));
                     else
@@ -1622,7 +1622,7 @@ void GameMenu_DrawScrollingStagePoints(Menu *pMenu)
                                    (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
                                   (int *)g_menuFrameColour, 0xc);
                     if (pos > 0 && RallyTiming_GetStageTieBreak(RallyTiming_GetStageOrderDriverID(pos - 1)) == RallyTiming_GetStageTieBreak(id) &&
-                        g_stagePositionPoints[pos - 1] == g_stagePositionPoints[pos]) {
+                        g_stagePositionSeconds[pos - 1] == g_stagePositionSeconds[pos]) {
                         sprintf(CFrontend::m_stringDest, g_stageResultSameTime);
                         goto draw;
                     }
@@ -1940,7 +1940,7 @@ void GameMenu_DrawRallyPointsTable(Menu *pMenu)
                           CInput::FormatString(CFrontend::GetTextString(0x43), 0x62 - (RallyData_GetSelectionBits10To11() & 0xff)),
                           CFrontend::GetTextString(0x42), CFrontend::GetTextString(0x8d), (char *)NULL);
     for (i = 0; i < (BYTE)Race_GetBaseCarCount(); i++)
-        g_stagePositionPoints[i] = (BYTE)RallyTiming_GetChampionshipTimeSeconds(RallyTiming_GetChampionshipDriverAtPosition(i));
+        g_stagePositionSeconds[i] = (BYTE)RallyTiming_GetChampionshipTimeSeconds(RallyTiming_GetChampionshipDriverAtPosition(i));
     for (i = 0; i < (BYTE)Race_GetBaseCarCount(); i++) {
         isPlayer = FALSE;
         tied = FALSE;
@@ -1960,9 +1960,9 @@ void GameMenu_DrawRallyPointsTable(Menu *pMenu)
                       ((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * i) -
                           (int)(g_pGraphics->resY * 8) / 480,
                       (int *)g_menuFrameColour, 9);
-        if (g_stagePositionPoints[i] != 0) {
+        if (g_stagePositionSeconds[i] != 0) {
             for (j = 0; j < (BYTE)Race_GetBaseCarCount(); j++) {
-                if (j != i && g_stagePositionPoints[i] == g_stagePositionPoints[j]) {
+                if (j != i && g_stagePositionSeconds[i] == g_stagePositionSeconds[j]) {
                     if (RallyTiming_GetChampionshipTieBreak(id) == 1)
                         sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xb8), RallyTiming_GetChampionshipTieBreak(id));
                     else
@@ -1972,7 +1972,7 @@ void GameMenu_DrawRallyPointsTable(Menu *pMenu)
                                       (int)(g_pGraphics->resY * 8) / 480,
                                   (int *)g_menuFrameColour, 0xc);
                     if (i > 0 && RallyTiming_GetChampionshipTieBreak(RallyTiming_GetChampionshipDriverAtPosition(i - 1)) == RallyTiming_GetChampionshipTieBreak(id) &&
-                        g_stagePositionPoints[i - 1] == g_stagePositionPoints[i])
+                        g_stagePositionSeconds[i - 1] == g_stagePositionSeconds[i])
                         tied = TRUE;
                     break;
                 }

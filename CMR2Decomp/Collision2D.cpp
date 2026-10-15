@@ -379,11 +379,11 @@ done:
     return side;
 }
 
-// Collision flags published for the rest of the physics step.
+// Contact speed thresholds of a light and a hard impact, set after a contact.
 // GLOBAL: CMR2 0x005915dc
-int g_physicsCollisionFlags;
+int g_contactImpactLowThreshold;
 // GLOBAL: CMR2 0x00591468
-int g_unk0x00591468;
+int g_contactImpactHighThreshold;
 
 void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, int flag);
 
@@ -457,8 +457,8 @@ int Collision_CarVsBox(Car *car, CollisionBox *pBox, int scale)
         }
 
         StageObject_ApplyRecursiveFrameDelta((BYTE)car->index, -1, (int *)&along, 1);
-        g_physicsCollisionFlags = 0x8000;
-        g_unk0x00591468 = 0x1578d;
+        g_contactImpactLowThreshold = 0x8000;
+        g_contactImpactHighThreshold = 0x1578d;
         return 1;
     }
     return 0;
@@ -1077,10 +1077,10 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
 
     if (param_1->field_0xb64 == 0 && param_1->useUpperCollisionCorners == 0) {
         dot = FIX_ABS(FixVecDot(&vA, &g_collisionContactNormal));
-        if (dot > g_unk0x00591468) {
+        if (dot > g_contactImpactHighThreshold) {
             flagA = 1;
             flagB = 1;
-        } else if (dot > g_physicsCollisionFlags) {
+        } else if (dot > g_contactImpactLowThreshold) {
             flagA = 1;
             flagB = 0;
         }

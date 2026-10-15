@@ -682,8 +682,8 @@ void StageObject_ForwardSessionUpdate(void);
 void RallyData_RebuildSectorStaticObjectTables(void);
 void NetRace_ResetPlayerFadeStates(void);
 extern char g_tgaSuffix[];
-extern BYTE *g_stageTextureHandles;
-extern BYTE *g_unk0x00538238;
+extern BYTE *g_stageLightPresetSecondary;
+extern BYTE *g_stageLightPresetPrimary;
 
 // GLOBAL: CMR2 0x0051946c
 char g_str0x0051946c[] = "%s.xhi";
@@ -765,7 +765,7 @@ BYTE Race_LoadSelectedStage(void)
     StageTiming_InitRaceDriverRecords(1);
     StageObject_ForwardSessionUpdate();
     RallyData_DrawLoadingProgress(0x3c, 1, 0xff);
-    StageObject_SetLighting((const StageLightPreset *)g_unk0x00538238, (const StageLightPreset *)g_stageTextureHandles);
+    StageObject_SetLighting((const StageLightPreset *)g_stageLightPresetPrimary, (const StageLightPreset *)g_stageLightPresetSecondary);
     RallyData_RebuildSectorStaticObjectTables();
     NetRace_ResetPlayerFadeStates();
     return 1;
@@ -4338,11 +4338,12 @@ char g_str0x005194b4[12] = "2200BLI.hor";
 char g_str0x005194a8[12] = "2400BLI.hor";
 
 
-// Handles of the resolved stage texture records.
+// The two time-of-day lighting presets (.hor files) the stage lighting
+// blends, picked from the 48 resolved preset files.
 // GLOBAL: CMR2 0x00538234
-BYTE *g_stageTextureHandles;
+BYTE *g_stageLightPresetSecondary;
 // GLOBAL: CMR2 0x00538238
-BYTE *g_unk0x00538238;
+BYTE *g_stageLightPresetPrimary;
 
 // Resolves the 48 stage texture names through the generic file loader, builds
 // the six palette entries of the stage geometry from the primary/secondary
@@ -4409,12 +4410,12 @@ void Race_ResolveStageTexturesAndPalettes(void)
     for (i = 0; i < 48; i++)
         handles[i] = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
                                                        pNames[i], NULL, NULL, 0);
-    StageObject_BlendSettingPairRecords(RallyData_GetPrimaryStageScoreScale(), RallyData_GetSecondaryStageScoreScale(), handles, &g_unk0x00538238,
-                 &g_stageTextureHandles);
-    StageObject_SetPairSpeedLimits(g_unk0x00538238, g_stageTextureHandles);
-    if (g_unk0x00538238 != NULL && g_stageTextureHandles != NULL) {
-        pPrimary = g_stageTextureHandles;
-        pSecondary = g_unk0x00538238;
+    StageObject_BlendSettingPairRecords(RallyData_GetPrimaryStageScoreScale(), RallyData_GetSecondaryStageScoreScale(), handles, &g_stageLightPresetPrimary,
+                 &g_stageLightPresetSecondary);
+    StageObject_SetPairSpeedLimits(g_stageLightPresetPrimary, g_stageLightPresetSecondary);
+    if (g_stageLightPresetPrimary != NULL && g_stageLightPresetSecondary != NULL) {
+        pPrimary = g_stageLightPresetSecondary;
+        pSecondary = g_stageLightPresetPrimary;
         for (i = 0; i < 6; i++) {
             avg = ((int)pSecondary[0x48 + i] + (int)pPrimary[0x48 + i]) / 2;
             if (avg > 0xff)

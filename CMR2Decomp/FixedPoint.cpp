@@ -83,7 +83,7 @@ FixMatrix *FloatMatrix_ToFix(FixMatrix *pOut, D3DMATRIX *pIn)
 
 // Projects a point through a 16.16 view-projection matrix to screen offsets
 // from the centre (16.16 pixels, y up). The z row is computed but unused.
-extern const float g_shadowVertexScale;
+extern const float g_floatHalf;
 
 // FUNCTION: CMR2 0x004ba870
 void FixMatrix_ProjectToScreen(int *pOut, FixVector *pV, int *pM)
@@ -95,8 +95,8 @@ void FixMatrix_ProjectToScreen(int *pOut, FixVector *pV, int *pM)
     float w;
     int z;
 
-    halfH = (float)(int)g_pGraphics->resY * g_shadowVertexScale;
-    halfW = (float)(int)g_pGraphics->resX * g_shadowVertexScale;
+    halfH = (float)(int)g_pGraphics->resY * g_floatHalf;
+    halfW = (float)(int)g_pGraphics->resX * g_floatHalf;
     x = (float)(FixMul(pM[0], pV->x) + FixMul(pM[4], pV->y) + FixMul(pM[8], pV->z) + pM[12]) *
         CGraphics::m_oneOver65536;
     y = (float)(FixMul(pM[1], pV->x) + FixMul(pM[5], pV->y) + FixMul(pM[9], pV->z) + pM[13]) *

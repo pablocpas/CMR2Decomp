@@ -5440,11 +5440,11 @@ void InRaceMenu_LoadTextures(void)
                                                      &loaded, 0, 0, 0);
 }
 
-// Driver position record the camera menu started with.
+// Driver record the camera options menu started with, and its working copy.
 // GLOBAL: CMR2 0x00529900
-int g_cameraMenuStartDriverPosition[5];
+int g_cameraMenuStartDriverRecord[5];
 // GLOBAL: CMR2 0x0052a858
-int g_unk0x0052a858[5];
+int g_cameraMenuDriverRecord[5];
 
 void HudDash_GetCameraUpVector(FixVector *pOut, BYTE index);
 int HudDash_GetPlayerGaugeValue(BYTE index);
@@ -5458,9 +5458,9 @@ void InRaceMenu_EnterCameraOffsetOptions(Menu *pMenu, char unused)
 {
     BYTE index;
 
-    memcpy(g_cameraMenuStartDriverPosition, RallyData_GetDriverTyreChoiceRecord(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1]), sizeof(g_cameraMenuStartDriverPosition));
+    memcpy(g_cameraMenuStartDriverRecord, RallyData_GetDriverTyreChoiceRecord(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1]), sizeof(g_cameraMenuStartDriverRecord));
     index = g_unk0x0052af58[1];
-    memcpy(g_unk0x0052a858, g_cameraMenuStartDriverPosition, sizeof(g_unk0x0052a858));
+    memcpy(g_cameraMenuDriverRecord, g_cameraMenuStartDriverRecord, sizeof(g_cameraMenuDriverRecord));
     HudDash_GetCameraUpVector(&g_cameraMenuStartOffset, index);
     g_unk0x00529914 = HudDash_GetPlayerGaugeValue(g_unk0x0052af58[1]);
     g_unk0x0052a48c = HudDash_GetGaugeTarget(g_unk0x0052af58[1]);
