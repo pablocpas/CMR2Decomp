@@ -3082,6 +3082,11 @@ void GameMenu_SetupStageResults(int param_1)
     bVar1 = 0;
     if (Race_GetStateByte() != 0xff)
         StageObject_AddCarSoundTimeSeconds((char)Race_GetStateByte(), 0xb4);
+    // The stage records cover the eight rally countries (88 entries). The
+    // Rally Challenge runs in Japan (country 8), which has none: there the
+    // original reads the split times behind the records as the name, and with
+    // a profile that holds records writes tens of bytes into the four-byte
+    // g_ghostName, over g_unk0x00519ee4 and the chat characters.
     sprintf(g_ghostName, CGameInfo::GetGameInfoFieldA4Address()->rallyStageRecordTimes[
                  (RallyDataCountryIndex() & 0xff) * 11 + (RallyDataStageIndex() & 0xff)].ident);
     CGenericFileLoader::StrLowerPolish(g_ghostName);
