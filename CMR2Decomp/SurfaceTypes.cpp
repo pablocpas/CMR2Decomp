@@ -809,7 +809,7 @@ extern int g_unk0x0051f29c;
 extern int g_unk0x0058df38;
 extern int g_unk0x0058df3c;
 extern int g_unk0x0058df40;
-extern int g_unk0x0051f2d8[13];
+extern int g_unk0x0051f2d8[14];
 BYTE NetRace_GetRaceSoundMode(void);
 bool NetRace_IsValueWithinCurveRange(int value, SoundCurve *pRange);
 unsigned int NetRace_InterpolateByteCurve(int value, SoundCurve *pCurve);

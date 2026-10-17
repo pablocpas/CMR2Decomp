@@ -12065,10 +12065,12 @@ extern int g_unk0x0058ddc8Pair[2]; // two sound handles (0x58ddc8, 0x58ddcc)
 int g_unk0x0058ddb4[2];
 // GLOBAL: CMR2 0x0051f27c
 int g_unk0x0051f27c = 0x10000;
+// Loop start of the second gear-whine sample, per car (one entry per
+// CFrontend::GetArchivePrimaryIDEntry value; the Escort Mk1 uses the last).
 // GLOBAL: CMR2 0x0051f2d8
-int g_unk0x0051f2d8[13] = {
+int g_unk0x0051f2d8[14] = {
     0x486a, 0x4ec0, 0xf6e0, 0x715a, 0x715a, 0x590e, 0x590e,
-    0x5126, 0x3366, 0x0b42, 0x10f36, 0x4388, 0x280a
+    0x5126, 0x3366, 0x0b42, 0x10f36, 0x4388, 0x280a, 0xb17a
 };
 // Advances one stage-object record between two animation states: on entering the
 // 1/2 states it re-derives the scaled component and notifies the timing module;
