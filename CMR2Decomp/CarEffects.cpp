@@ -21,7 +21,7 @@ short *Car_GetOrder(void);
 short Car_GetOrderCount(void);
 extern float g_oneOverRandMax;
 
-#define EFFECT_RAND() (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536)
+#define EFFECT_RAND() (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536))
 
 // A car window: four vertices of the car's window list, the Z of each
 // mirrored for the other side of the car.
@@ -1112,7 +1112,7 @@ BYTE StageObject_GetViewWeatherStateByte(int index);
 int StageObject_GetViewWeatherField54(int index);
 extern BYTE g_unk0x00538d2c[0xc8];
 
-#define EFFECT_RAND_NEG() (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * g_minus65536)
+#define EFFECT_RAND_NEG() (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), g_minus65536))
 extern double g_minus65536;
 
 // Colour of the wheel splashes and its brightened copy.

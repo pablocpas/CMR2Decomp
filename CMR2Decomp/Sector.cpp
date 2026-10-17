@@ -448,16 +448,16 @@ int Sector_NearestCornerHeight(unsigned int side, int index)
     pMesh = (Mesh *)((BYTE *)g_sectors[index]->pMesh + g_sectors[index]->pMesh->lodIndex * offsetof(Mesh, field_0x108));
     pVert = (float *)pMesh->pVertexData;
     height = 0;
-    best.x = -cx - (int)FTOI(__int64, pVert[0] * -65536.0);
+    best.x = -cx - (int)FTOI(__int64, X87S_MUL(pVert[0], -65536.0));
     best.y = 0;
-    best.z = -cz - (int)FTOI(__int64, pVert[2] * -65536.0);
+    best.z = -cz - (int)FTOI(__int64, X87S_MUL(pVert[2], -65536.0));
     for (i = 1; i < ((Mesh *)((BYTE *)g_sectors[index]->pMesh + g_sectors[index]->pMesh->lodIndex * offsetof(Mesh, field_0x108)))->field_0x10; i++) {
-        d.x = -cx - (int)FTOI(__int64, pVert[0] * -65536.0);
-        d.z = -cz - (int)FTOI(__int64, pVert[2] * -65536.0);
+        d.x = -cx - (int)FTOI(__int64, X87S_MUL(pVert[0], -65536.0));
+        d.z = -cz - (int)FTOI(__int64, X87S_MUL(pVert[2], -65536.0));
         d.y = 0;
         if (FixVecLength(&d) < FixVecLength(&best)) {
             best = d;
-            height = (int)FTOI(__int64, pVert[1] * CGraphics::m_65536);
+            height = (int)FTOI(__int64, X87S_MUL(pVert[1], CGraphics::m_65536));
         }
         pVert += 12;
     }
@@ -931,15 +931,15 @@ void Sector_ComputeBounds(void)
                 if ((float)minZ < pVertex[2])
                     minZ = (int)FTOI(__int64, pVertex[2]);
             }
-            minX = (int)FTOI(__int64, (double)minX * CGraphics::m_65536);
+            minX = (int)FTOI(__int64, X87S_MUL((double)minX, CGraphics::m_65536));
             pSector->bounds[0][0] = minX;
-            minZ = (int)FTOI(__int64, (double)minZ * CGraphics::m_65536);
+            minZ = (int)FTOI(__int64, X87S_MUL((double)minZ, CGraphics::m_65536));
             g_sectors[i]->bounds[0][1] = minZ;
-            maxX = (int)FTOI(__int64, (double)maxX * CGraphics::m_65536);
+            maxX = (int)FTOI(__int64, X87S_MUL((double)maxX, CGraphics::m_65536));
             g_sectors[i]->bounds[1][0] = maxX;
             g_sectors[i]->bounds[1][1] = minZ;
             g_sectors[i]->bounds[3][0] = minX;
-            maxZ = (int)FTOI(__int64, (double)maxZ * CGraphics::m_65536);
+            maxZ = (int)FTOI(__int64, X87S_MUL((double)maxZ, CGraphics::m_65536));
             g_sectors[i]->bounds[3][1] = maxZ;
             g_sectors[i]->bounds[2][0] = maxX;
             g_sectors[i]->bounds[2][1] = maxZ;

@@ -363,9 +363,9 @@ void View_SelectVisibleCars(unsigned int view, short *pRect)
             if ((proj1[0] == -100 && proj1[1] == -100) || (proj2[0] == -100 && proj2[1] == -100)) {
                 distTable[g_carOrder[j]] = 0x7fbc0000;
             } else {
-                ftmp = (float)(proj1[0] - proj2[0]) / (float)(int)g_pGraphics->resX;
+                ftmp = X87S_DIV(X87S_FILD(float, (proj1[0] - proj2[0])), X87S_FILD(float, (int)g_pGraphics->resX));
                 ix = FTOI(int, ftmp * g_65536f);
-                ftmp = (float)(proj1[1] - proj2[1]) / (float)(int)g_pGraphics->resY;
+                ftmp = X87S_DIV(X87S_FILD(float, (proj1[1] - proj2[1])), X87S_FILD(float, (int)g_pGraphics->resY));
                 iy = FTOI(int, ftmp * g_65536f);
                 xx = FixMul(FixMul(ix, 0x2800000), 0x28f);
                 yy = FixMul(iy, 0x1e00000);
@@ -1293,7 +1293,7 @@ void Car_UpdateWheelTravel(void)
                 g_pCurrentCar->wheelPhase[i] += 0x28b;
             }
         } else {
-            delta = (short)FTOI(__int64, (double)g_pCurrentCar->wheelLoad[i] * g_unk0x00511398);
+            delta = (short)FTOI(__int64, X87S_MUL((double)g_pCurrentCar->wheelLoad[i], g_unk0x00511398));
             g_pCurrentCar->wheelPhase[i] += delta;
         }
         if (g_physicsPartSet->damageValues[i] > 0) {
@@ -2826,7 +2826,7 @@ void Car_UpdateSuspension(void)
         flat.x = 0;
         flat.y = 0;
         flat.z = 0x10000;
-        angle = FTOI(short, (double)FixMul(g_pCurrentCar->field_0xb1d << 16, 0x3333) * g_fixedDegreesToAngle12);
+        angle = FTOI(short, X87S_MUL((double)FixMul(g_pCurrentCar->field_0xb1d << 16, 0x3333), g_fixedDegreesToAngle12));
         ((void (__stdcall *)(FixMatrix *, FixVector *, short))FixMatrix_FromAxisAngle)(&m, &flat, angle);
         for (i = 0; i < 3; i++) {
             FixMatrix_RotateVector(&flat, &basis[i], &m);
@@ -3467,8 +3467,8 @@ void Car_StoreRenderTransforms(short *pList, short count)
         } else {
             pRecord = StageTiming_GetCarReplayRecord(car);
             for (j = 3; j >= 0; j--) {
-                typeAngle = (short)(int)FTOI(__int64, (double)FixMul(0x50000,
-                        pRecord->damageValues[j]) * g_fixedDegreesToAngle12);
+                typeAngle = (short)(int)FTOI(__int64, X87S_MUL((double)FixMul(0x50000,
+                        pRecord->damageValues[j]), g_fixedDegreesToAngle12));
                 if (j < 2) {
                     pWheels[j].tiltDegrees = typeAngle * 0x1680;
                     pWheels[j].steeringDegrees = steering * 0x1680;
@@ -3885,13 +3885,13 @@ void Car_InterpolateRenderTransforms(void)
                 // The right-hand wheels point backwards: 180 degrees plus the
                 // wheel angles.
                 if (wheel % 2 == 1) {
-                    angles[0] = (short)FTOI(__int64, (double)(-result[0]) * g_fixedDegreesToAngle12);
-                    angles[1] = (short)FTOI(__int64, (double)(result[1] + 0xb40000) * g_fixedDegreesToAngle12);
-                    angles[2] = (short)FTOI(__int64, (double)(-result[2]) * g_fixedDegreesToAngle12);
+                    angles[0] = (short)FTOI(__int64, X87S_MUL((double)(-result[0]), g_fixedDegreesToAngle12));
+                    angles[1] = (short)FTOI(__int64, X87S_MUL((double)(result[1] + 0xb40000), g_fixedDegreesToAngle12));
+                    angles[2] = (short)FTOI(__int64, X87S_MUL((double)(-result[2]), g_fixedDegreesToAngle12));
                 } else {
-                    angles[0] = (short)FTOI(__int64, (double)result[0] * g_fixedDegreesToAngle12);
-                    angles[1] = (short)FTOI(__int64, (double)result[1] * g_fixedDegreesToAngle12);
-                    angles[2] = (short)FTOI(__int64, (double)result[2] * g_fixedDegreesToAngle12);
+                    angles[0] = (short)FTOI(__int64, X87S_MUL((double)result[0], g_fixedDegreesToAngle12));
+                    angles[1] = (short)FTOI(__int64, X87S_MUL((double)result[1], g_fixedDegreesToAngle12));
+                    angles[2] = (short)FTOI(__int64, X87S_MUL((double)result[2], g_fixedDegreesToAngle12));
                 }
 
                 basis.right.x = 0x10000;
@@ -4066,12 +4066,10 @@ int Car_UpdateEngineNoteFalloff(int *pOut)
             pCar->simulationInterpolation = g_carBuffer->simulationInterpolation;
             offset = g_carBuffer->simulationStepsRemaining;
         } else {
-            fromStart = ((float)(unsigned int)(g_carSimulationPreviousMs - g_carSimulationEpochMs) * g_carMillisecondsToSeconds) *
-                        pCar->simulationRateHz;
-            toEnd = ((float)(unsigned int)(g_carSimulationFrameMs - g_carSimulationEpochMs) * g_carMillisecondsToSeconds) *
-                    pCar->simulationRateHz;
+            fromStart = X87S_MUL((X87S_MUL(X87S_FILD(float, (unsigned int)(g_carSimulationPreviousMs - g_carSimulationEpochMs)), g_carMillisecondsToSeconds)), pCar->simulationRateHz);
+            toEnd = X87S_MUL((X87S_MUL(X87S_FILD(float, (unsigned int)(g_carSimulationFrameMs - g_carSimulationEpochMs)), g_carMillisecondsToSeconds)), pCar->simulationRateHz);
             mid = (int)FTOI(__int64, toEnd);
-            frac = toEnd - (float)mid;
+            frac = X87S_SUB(toEnd, X87S_FILD(float, mid));
             pCar->simulationInterpolation = FTOI(int, frac * g_65536f);
             offset = mid - (int)FTOI(__int64, fromStart);
             if (offset > 5)
@@ -4978,7 +4976,7 @@ void Car_UpdateSteering(void)
             if (g_pCurrentCar->speed < 0x10000)
                 w = FixMul(w, g_pCurrentCar->speed);
             w = FixMul(w, g_physicsPartSet->steeringWobble);
-            angle += (short)FTOI(__int64, (double)w * g_fixedDegreesToAngle12);
+            angle += (short)FTOI(__int64, X87S_MUL((double)w, g_fixedDegreesToAngle12));
         }
     }
     right = g_pCurrentCar->right;
@@ -5098,14 +5096,14 @@ void Car_UpdateCornerLoads(void)
         if (g_pCurrentCar->field_0xb74 == 0) {
             if (g_pCurrentCar->field_0xb34 >= 1)
                 FixVecScaleRecip(&g_carStepAccel, &f,
-                                 (int)FTOI(__int64, (double)g_pCurrentCar->field_0xb34 * CGraphics::m_65536));
+                                 (int)FTOI(__int64, X87S_MUL((double)g_pCurrentCar->field_0xb34, CGraphics::m_65536)));
             else
                 FixVecScaleRecip(&g_carStepAccel, &f,
-                                 (int)FTOI(__int64, (double)g_pCurrentCar->field_0xb28 * CGraphics::m_65536));
+                                 (int)FTOI(__int64, X87S_MUL((double)g_pCurrentCar->field_0xb28, CGraphics::m_65536)));
         } else if (g_pCurrentCar->field_0xb28 > 0) {
-            FixVecScaleRecip(&g_carStepAccel, &f, (int)FTOI(__int64, (double)g_pCurrentCar->field_0xb28 * CGraphics::m_65536));
+            FixVecScaleRecip(&g_carStepAccel, &f, (int)FTOI(__int64, X87S_MUL((double)g_pCurrentCar->field_0xb28, CGraphics::m_65536)));
         } else {
-            FixVecScaleRecip(&g_carStepAccel, &f, (int)FTOI(__int64, (double)g_pCurrentCar->field_0xb34 * CGraphics::m_65536));
+            FixVecScaleRecip(&g_carStepAccel, &f, (int)FTOI(__int64, X87S_MUL((double)g_pCurrentCar->field_0xb34, CGraphics::m_65536)));
         }
         k = FixMul(-0xb333, FixDiv(0x10000, 0x3d70));
         if (k < 0)
@@ -5141,7 +5139,7 @@ void Car_UpdateEngineSpeed(void)
         } else if (g_pCurrentCar->engineStartTimer > 0) {
             excess = 0x190000 - FixMul(0x41, g_pCurrentCar->engineStartTimer << 16);
             excess = FixMul(excess, 0xa3d);
-            angle = (short)FTOI(__int64, (double)FixMul(excess, 0x8c0000) * g_fixedDegreesToAngle12);
+            angle = (short)FTOI(__int64, X87S_MUL((double)FixMul(excess, 0x8c0000), g_fixedDegreesToAngle12));
             g_pCurrentCar->engineSpeed = FixMul(FixMul(g_sinTable[(unsigned short)angle & 0xfff], 0x10000), g_pCurrentCar->engineSpeedLimit);
             g_pCurrentCar->engineStartTimer -= (short)(FixMul(g_physicsTimeStep, 0x3e80000) >> 16);
             if (g_pCurrentCar->engineStartTimer < 0)
@@ -5533,10 +5531,10 @@ int Render_GetDetailDistanceScale(void)
     steps[8] = 3.5f;
     steps[9] = 4.0f;
     *(volatile float *)&base =
-        (float)(g_pGraphics->baseDrawDistance * CGraphics::m_oneOver65536);
+        (float)(X87S_MUL(g_pGraphics->baseDrawDistance, CGraphics::m_oneOver65536));
     float scale = base * steps[CGameInfo::GetGraphicsOptionBits21To24()];
 
-    return (int)FTOI(__int64, (scale + base) * CGraphics::m_65536);
+    return (int)FTOI(__int64, X87S_MUL((scale + base), CGraphics::m_65536));
 }
 
 // FUNCTION: CMR2 0x00423fc0
@@ -6116,7 +6114,7 @@ void Car_IntegrateWheelRotation(int *pList, short count)
                 int v = FixMul(*pList, g_physicsTimeStep);
                 if (carBase->field_0xb60 == 0 || (BYTE)carBase->flag0x1d0[2] > 0 ||
                     (BYTE)carBase->flag0x1d0[3] > 0 || carBase->handbrake > 0) {
-                    local_14 = (short)FTOI(__int64, (double)v * g_unk0x00511398);
+                    local_14 = (short)FTOI(__int64, X87S_MUL((double)v, g_unk0x00511398));
                     g_wheelRotation[carIndex][w] += local_14;
                 }
                 if (v < 0)
@@ -6368,13 +6366,13 @@ void Car_IntegrateContacts(void)
         angStep.x -= angAccel.x;
         angStep.y -= angAccel.y;
         angStep.z -= angAccel.z;
-        angles[0] = (short)FTOI(__int64, (double)angStep.x * g_unk0x00511380);
-        angles[1] = (short)FTOI(__int64, (double)angStep.y * g_unk0x00511380);
-        angles[2] = (short)FTOI(__int64, (double)angStep.z * g_unk0x00511380);
+        angles[0] = (short)FTOI(__int64, X87S_MUL((double)angStep.x, g_unk0x00511380));
+        angles[1] = (short)FTOI(__int64, X87S_MUL((double)angStep.y, g_unk0x00511380));
+        angles[2] = (short)FTOI(__int64, X87S_MUL((double)angStep.z, g_unk0x00511380));
     } else {
-        angles[0] = (short)FTOI(__int64, (double)FixMul(g_pCurrentCar->angularVelocity.x, g_physicsTimeStep) * g_unk0x00511380);
-        angles[1] = (short)FTOI(__int64, (double)FixMul(g_pCurrentCar->angularVelocity.y, g_physicsTimeStep) * g_unk0x00511380);
-        angles[2] = (short)FTOI(__int64, (double)FixMul(g_pCurrentCar->angularVelocity.z, g_physicsTimeStep) * g_unk0x00511380);
+        angles[0] = (short)FTOI(__int64, X87S_MUL((double)FixMul(g_pCurrentCar->angularVelocity.x, g_physicsTimeStep), g_unk0x00511380));
+        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul(g_pCurrentCar->angularVelocity.y, g_physicsTimeStep), g_unk0x00511380));
+        angles[2] = (short)FTOI(__int64, X87S_MUL((double)FixMul(g_pCurrentCar->angularVelocity.z, g_physicsTimeStep), g_unk0x00511380));
     }
     if (g_pCurrentCar->field_0xb34 > 0) {
         int upDot = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
@@ -7289,10 +7287,9 @@ void View_PlaceCarCamera(BYTE param_1)
         FixMatrix_SetPosition(&pos, pView);
     }
     if (g_unk0x00538f00[index] != 0) {
-        angle = (short)FTOI(__int64, (double)FixMul(
+        angle = (short)FTOI(__int64, X87S_MUL((double)FixMul(
                     g_sinTable[g_unk0x00538df8[index] & 0xfff],
-                    FixDiv(HudDash_GetPlayerGaugeValue(param_1) - 0x80000, 0x100000) * 0x5a + 0x140000) *
-                    g_fixedDegreesToAngle12);
+                    FixDiv(HudDash_GetPlayerGaugeValue(param_1) - 0x80000, 0x100000) * 0x5a + 0x140000), g_fixedDegreesToAngle12));
         FixMatrix_CopyRotationFrom(&src, Car_Get(index)->pBodyMatrix);
         basis = *pView;
         FixMatrix_RebuildBasis(&basis);
@@ -7905,7 +7902,7 @@ found:
 #define VIEW_PREV_STATE(v) ((CameraRecord *)g_unk0x00538e38 + (v))
 // Smooth-step weight of a camera blend timer (0xc8000 = the whole transition).
 #define VIEW_EASE(t)                                                                               \
-    (0x10000 - (FixCos((short)(int)FTOI(__int64, (double)(FixDiv((t), 0xc8000) * 180) * g_unk0x00511308)) + \
+    (0x10000 - (FixCos((short)(int)FTOI(__int64, X87S_MUL((double)(FixDiv((t), 0xc8000) * 180), g_unk0x00511308))) + \
                 0x10000) / 2)
 
 extern double g_unk0x00511308;
@@ -8280,7 +8277,7 @@ void View_UpdateCamera(BYTE view)
         CameraState_Interpolate(VIEW_STATE(index), pActive, pNext, t);
         if ((activeFree && nextTracked) || (activeTracked && nextFree))
             VIEW_STATE(index)->matrix.position.y +=
-                FixMul(g_sinTable[(short)(int)FTOI(__int64, (double)(t * 180) * g_fixedDegreesToAngle12) & 0xfff], 0x10000);
+                FixMul(g_sinTable[(short)(int)FTOI(__int64, X87S_MUL((double)(t * 180), g_fixedDegreesToAngle12)) & 0xfff], 0x10000);
         *(int *)(g_unk0x00538d2c + index * 100) = 8;
         *pTimer -= g_physicsTimeStep;
         return;

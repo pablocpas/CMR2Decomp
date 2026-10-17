@@ -1,9 +1,12 @@
 #ifndef _FLOATTOINT_H
 #define _FLOATTOINT_H
 
+#include "X87Single.h"
+
 // Float to integer conversions. Most of the game is built with /QIfist
 // (scripts/build.py): there a conversion is an x87 FISTP, which rounds to
-// nearest (even) under the game's control word (0x027f) instead of truncating.
+// nearest (even) under the game's control word instead of truncating (0x027f
+// at startup, 0x007f once Direct3D has set single precision: see X87Single.h).
 // FTOI(type, value) marks each one. MSVC6 compiles it as the plain cast, so
 // the TU's /QIfist decides, as in the original. Other compilers round like
 // FISTP in the TUs built with CMR2_QIFIST (the same list) and truncate in the

@@ -839,10 +839,10 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
                 acc += 0x18000;
                 if (limit < acc) {
                     if (side < 0)
-                        FixVecScale(&w, &g_physPatchSide, FixSin(FTOI(__int64, (double)-acc * g_fixedDegreesToAngle12)));
+                        FixVecScale(&w, &g_physPatchSide, FixSin(FTOI(__int64, X87S_MUL((double)-acc, g_fixedDegreesToAngle12))));
                     else
-                        FixVecScale(&w, &g_physPatchSide, FixSin(FTOI(__int64, (double)acc * g_fixedDegreesToAngle12)));
-                    sideDot = FixCos(FTOI(__int64, (double)acc * g_unk0x00511308));
+                        FixVecScale(&w, &g_physPatchSide, FixSin(FTOI(__int64, X87S_MUL((double)acc, g_fixedDegreesToAngle12))));
+                    sideDot = FixCos(FTOI(__int64, X87S_MUL((double)acc, g_unk0x00511308)));
                     p.x = FixMul(g_physPatchDir.x, sideDot) + w.x;
                     p.y = FixMul(g_physPatchDir.y, sideDot) + w.y;
                     p.z = FixMul(g_physPatchDir.z, sideDot);

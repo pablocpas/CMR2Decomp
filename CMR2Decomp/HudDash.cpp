@@ -154,7 +154,7 @@ char g_strDashSpeedDigits[] = "%03d";
 #define DASH_Y(f) (short)(FixMul(g_pGraphics->resY << 16, (f)) >> 16)
 #define DASH_HIRES()                                                                                   \
     (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::IsTextureWidthSupported(0x400) && CFrontend::IsTextureHeightSupported(0x400))
-#define DASH_RAND() (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536)
+#define DASH_RAND() (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536))
 
 // FUNCTION: CMR2 0x00445a60
 void Dash_LoadTextures(void)
@@ -375,7 +375,7 @@ void Dash_DrawBar(int player, int *pViewRect)
         index = pos >> 16;
         if (index >= 0) {
             lit = g_dashRevTicks[index];
-            scale = (int)FTOI(__int64, (double)(int)(g_dashRevTicks[index + 1] - lit) * CGraphics::m_65536);
+            scale = (int)FTOI(__int64, X87S_MUL((double)(int)(g_dashRevTicks[index + 1] - lit), CGraphics::m_65536));
             frac = pos - (index << 16);
             lit = lit + (FixMul(frac, scale) >> 16);
             if ((int)lit >= (int)g_dashRevTicks[27])
@@ -416,7 +416,7 @@ void Dash_DrawBar(int player, int *pViewRect)
         dst.x = DASH_X(0xfd70) - dst.w;
         Sprite_Queue(&src, &dst, g_dashBarTexture, 3, 0, NULL, NULL, g_dashWhite, 8);
     } else {
-        scale = (int)FTOI(__int64, (double)((g_pGraphics->resX * 0x4b) / 640) * CGraphics::m_65536);
+        scale = (int)FTOI(__int64, X87S_MUL((double)((g_pGraphics->resX * 0x4b) / 640), CGraphics::m_65536));
         len = FixMul(g_dashRevNext[player], scale) >> 16;
         if (CGameInfo::IsSplitBarEnabled() == 0) {
             if (player == 0)

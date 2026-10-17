@@ -2278,7 +2278,7 @@ void RallyData_UpdateStageWetShares(void)
                 ((BYTE)RallyDataCountryIndex() == 7 && (index / 4 == 0 || index / 4 == 2))) {
                 track = (unsigned short)RallyData_GetIndexedStageScoreScale(g_selectedRallyData & 0x1f, index, 0);
                 if (track < 0x834) {
-                    value = (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+                    value = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536));
                     value = FixMulShift32(value, 0x640000);
                     if (value > 0x50)
                         *pFlag = 1;
@@ -2904,11 +2904,11 @@ void RallyData_DrawCarStageGapPanel(int car, short *pRect)
             rect[3] += (short)((int)g_pGraphics->resY * -24 / 480);
     }
 
-    pixelFixed = (int)FTOI(__int64, (double)(rect[3] + rect[1] - topMarginY + 1) * CGraphics::m_65536);
-    dimensionFixed = (int)FTOI(__int64, (double)g_pGraphics->resY * CGraphics::m_65536);
+    pixelFixed = (int)FTOI(__int64, X87S_MUL((double)(rect[3] + rect[1] - topMarginY + 1), CGraphics::m_65536));
+    dimensionFixed = (int)FTOI(__int64, X87S_MUL((double)g_pGraphics->resY, CGraphics::m_65536));
     y = FixDiv(pixelFixed, dimensionFixed);
-    pixelFixed = (int)FTOI(__int64, (double)(rect[0] + 16 + marginX) * CGraphics::m_65536);
-    dimensionFixed = (int)FTOI(__int64, (double)g_pGraphics->resX * CGraphics::m_65536);
+    pixelFixed = (int)FTOI(__int64, X87S_MUL((double)(rect[0] + 16 + marginX), CGraphics::m_65536));
+    dimensionFixed = (int)FTOI(__int64, X87S_MUL((double)g_pGraphics->resX, CGraphics::m_65536));
     x = FixDiv(pixelFixed, dimensionFixed);
     // The running time UpdateCarSplitBar stores at 0x536e0c (times[0]).
     FormatGapToLeader(g_stageSplitData[car].times[0], 4, 4, x, y,
@@ -3435,16 +3435,16 @@ void RallyData_DrawStageResultRows(int car, short *position)
                       (short)((int)g_pGraphics->resX * 0xf95 >> 16) + position[0],
                       textY, (int *)&g_stageResultTextColour, 0x21);
         if (time != 0) {
-            pixelFixed = (int)FTOI(__int64, (double)(textY - 1) * CGraphics::m_65536);
-            dimensionFixed = (int)FTOI(__int64, (double)g_pGraphics->resY * CGraphics::m_65536);
+            pixelFixed = (int)FTOI(__int64, X87S_MUL((double)(textY - 1), CGraphics::m_65536));
+            dimensionFixed = (int)FTOI(__int64, X87S_MUL((double)g_pGraphics->resY, CGraphics::m_65536));
             FormatGapToLeader(time, 5, 5,
-                              0x51e4 - (int)FTOI(__int64, (double)position[0] * g_minus65536),
+                              0x51e4 - (int)FTOI(__int64, X87S_MUL((double)position[0], g_minus65536)),
                               FixDiv(pixelFixed, dimensionFixed), &g_stageResultTextColour, 0x24, NULL, 0);
         } else {
-            pixelFixed = (int)FTOI(__int64, (double)(textY - 1) * CGraphics::m_65536);
-            dimensionFixed = (int)FTOI(__int64, (double)g_pGraphics->resY * CGraphics::m_65536);
+            pixelFixed = (int)FTOI(__int64, X87S_MUL((double)(textY - 1), CGraphics::m_65536));
+            dimensionFixed = (int)FTOI(__int64, X87S_MUL((double)g_pGraphics->resY, CGraphics::m_65536));
             FormatGapToLeader(-1, 5, 5,
-                              0x51e4 - (int)FTOI(__int64, (double)position[0] * g_minus65536),
+                              0x51e4 - (int)FTOI(__int64, X87S_MUL((double)position[0], g_minus65536)),
                               FixDiv(pixelFixed, dimensionFixed), &g_stageResultTextColour, 0x24, NULL, 0);
         }
         rect[1] += (short)baseHeight;
@@ -6281,17 +6281,17 @@ void RallyData_UpdateViewFrameAndDebugOverlay(CallbackStateMachine *param1, int 
                 CGame::GetDrawnOverlayTriangleCount() + CGame::GetDrawnMeshTriangleCount());
         Font_DrawText(1, CFrontend::m_stringDest, 0, 0x2d, (int *)colour, 9);
         vramKB = CGraphics::GetTextureMemoryKilobytes();
-        vramMB = (float)CGraphics::GetTextureMemoryKilobytes() * g_kilobytesToMegabytes;
+        vramMB = X87S_MUL(X87S_FILD(float, CGraphics::GetTextureMemoryKilobytes()), g_kilobytesToMegabytes);
         resX = g_pGraphics->resX;
         resY = g_pGraphics->resY;
         resZ = g_pGraphics->depth;
         pixels = resX * resY * resZ;
-        buffersMB = (float)resX * resY * resZ * g_frameBufferBytesToMegabytes;
+        buffersMB = X87S_MUL(X87S_MUL(X87S_MUL((float)resX, X87S_LOAD(resY)), X87S_LOAD(resZ)), g_frameBufferBytesToMegabytes);
         sprintf(CFrontend::m_stringDest, g_strVramUsed0x00516d88, vramKB, (double)vramMB,
                 pixels / 8 / 1024 * 3, (double)buffersMB);
         Font_DrawText(1, CFrontend::m_stringDest, 0, 0x3c, (int *)colour, 9);
         sprintf(CFrontend::m_stringDest, g_strVbMemUsed0x00516d68, CGraphics::GetSharedVertexMemoryKilobytes(),
-                (double)((float)CGraphics::GetSharedVertexMemoryKilobytes() * g_kilobytesToMegabytes));
+                (double)(X87S_MUL(X87S_FILD(float, CGraphics::GetSharedVertexMemoryKilobytes()), g_kilobytesToMegabytes)));
         Font_DrawText(1, CFrontend::m_stringDest, 0, 0x4b, (int *)colour, 9);
         if (CGraphics::GetSelectedRenderDeviceSurfaceCaps() == 2)
             sprintf(CFrontend::m_stringDest, g_strHardwareTl0x00516d54);
@@ -7833,7 +7833,7 @@ void RallyData_PickOpponentLineups(void)
             }
             if (hold <= 0) {
                 prev = cls;
-                hold = (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+                hold = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536));
                 hold = FixMul(hold, 0xa0000);
                 cls = g_unk0x0051627c[g_selectedRallyData & 0x1f][group * 10 + (hold >> 16)];
                 rating = (char)FixMulShift32(0xa0000, hold);
@@ -8158,10 +8158,10 @@ draw:
     x = (short)((int)(g_pGraphics->resX * 0xc00) >> 16) + dx;
     y = (short)(((int)(g_pGraphics->resY * 0xd668) >> 16) + dy) + (short)((int)(g_pGraphics->resY * 0xccc) >> 16) - 1;
 #define GAP_POS()                                                                                   \
-    yFixed = FixDiv((int)FTOI(__int64, (double)(y + 1) * CGraphics::m_65536),                          \
-                    (int)FTOI(__int64, (double)(int)g_pGraphics->resY * CGraphics::m_65536));          \
-    xFixed = FixDiv((int)FTOI(__int64, (double)(x + 4) * CGraphics::m_65536),                          \
-                    (int)FTOI(__int64, (double)(int)g_pGraphics->resX * CGraphics::m_65536))
+    yFixed = FixDiv((int)FTOI(__int64, X87S_MUL((double)(y + 1), CGraphics::m_65536)),                          \
+                    (int)FTOI(__int64, X87S_MUL((double)(int)g_pGraphics->resY, CGraphics::m_65536)));          \
+    xFixed = FixDiv((int)FTOI(__int64, X87S_MUL((double)(x + 4), CGraphics::m_65536)),                          \
+                    (int)FTOI(__int64, X87S_MUL((double)(int)g_pGraphics->resX, CGraphics::m_65536)))
     if (CGameInfo::GetConfiguredGameMode() == 8 || CGameInfo::GetConfiguredGameMode() == 9 || CGameInfo::GetConfiguredGameMode() == 10 ||
         CGameInfo::GetConfiguredGameMode() == 11 || CGameInfo::GetConfiguredGameMode() == 12) {
         if (g_splitTargetTimes[0] == 0) {
@@ -8256,17 +8256,17 @@ void RallyData_DrawStageTimePanel(int car, short *pRect)
             rect[0] += 7;
         else
             rect[0] += 10;
-        yFixed = FixDiv((int)FTOI(__int64, (double)pRect[1] * CGraphics::m_65536),
-                        (int)FTOI(__int64, (double)(int)g_pGraphics->resY * CGraphics::m_65536));
-        xFixed = FixDiv((int)FTOI(__int64, (double)rect[0] * CGraphics::m_65536),
-                        (int)FTOI(__int64, (double)(int)g_pGraphics->resX * CGraphics::m_65536));
+        yFixed = FixDiv((int)FTOI(__int64, X87S_MUL((double)pRect[1], CGraphics::m_65536)),
+                        (int)FTOI(__int64, X87S_MUL((double)(int)g_pGraphics->resY, CGraphics::m_65536)));
+        xFixed = FixDiv((int)FTOI(__int64, X87S_MUL((double)rect[0], CGraphics::m_65536)),
+                        (int)FTOI(__int64, X87S_MUL((double)(int)g_pGraphics->resX, CGraphics::m_65536)));
         FormatGapToLeader(*(int *)(g_unk0x00536e00 + car * 0x48 + 0xc), 4, 4, xFixed, yFixed + 0x2e66,
                           &g_stageHudTextColour, 0x21, NULL, 0);
     } else {
-        yFixed = FixDiv((int)FTOI(__int64, (double)pRect[1] * CGraphics::m_65536),
-                        (int)FTOI(__int64, (double)(int)g_pGraphics->resY * CGraphics::m_65536));
-        xFixed = FixDiv((int)FTOI(__int64, (double)(pRect[0] + dx) * CGraphics::m_65536),
-                        (int)FTOI(__int64, (double)(int)g_pGraphics->resX * CGraphics::m_65536));
+        yFixed = FixDiv((int)FTOI(__int64, X87S_MUL((double)pRect[1], CGraphics::m_65536)),
+                        (int)FTOI(__int64, X87S_MUL((double)(int)g_pGraphics->resY, CGraphics::m_65536)));
+        xFixed = FixDiv((int)FTOI(__int64, X87S_MUL((double)(pRect[0] + dx), CGraphics::m_65536)),
+                        (int)FTOI(__int64, X87S_MUL((double)(int)g_pGraphics->resX, CGraphics::m_65536)));
         FormatGapToLeader(*(int *)(g_unk0x00536e00 + car * 0x48 + 0xc), 4, 4, xFixed + 0xaf30, yFixed + 0x2e66,
                           &g_stageHudTextColour, 0x21, NULL, 0);
     }
@@ -8329,8 +8329,8 @@ void RallyData_DrawSplitStandingsPanel(int car, short *pRect)
                     time = 3000;
                 }
                 FormatGapToLeader(time, 5, 5,
-                                  FixDiv((int)FTOI(__int64, (double)pRect[0] * CGraphics::m_65536),
-                                         (int)FTOI(__int64, (double)(int)g_pGraphics->resX * CGraphics::m_65536)) +
+                                  FixDiv((int)FTOI(__int64, X87S_MUL((double)pRect[0], CGraphics::m_65536)),
+                                         (int)FTOI(__int64, X87S_MUL((double)(int)g_pGraphics->resX, CGraphics::m_65536))) +
                                       0x3d69,
                                   FixDiv(textY - 1, g_pGraphics->resY), &g_stageResultTextColour, 0x24, NULL, 0);
             }
@@ -8371,8 +8371,8 @@ void RallyData_DrawSplitStandingsPanel(int car, short *pRect)
                 time = 3000;
             }
             FormatGapToLeader(time, 5, 5,
-                              FixDiv((int)FTOI(__int64, (double)pRect[0] * CGraphics::m_65536),
-                                     (int)FTOI(__int64, (double)(int)g_pGraphics->resX * CGraphics::m_65536)) +
+                              FixDiv((int)FTOI(__int64, X87S_MUL((double)pRect[0], CGraphics::m_65536)),
+                                     (int)FTOI(__int64, X87S_MUL((double)(int)g_pGraphics->resX, CGraphics::m_65536))) +
                                   0x51e4,
                               FixDiv(textY - 1, g_pGraphics->resY), &g_stageResultTextColour, 0x24, NULL, 0);
         }

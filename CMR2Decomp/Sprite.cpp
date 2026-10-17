@@ -112,11 +112,11 @@ void Sprite_DrawLayer(int layer)
         if (pSprite->pTexture == NULL)
             continue;
         w = (float)(unsigned int)pSprite->pTexture->width;
-        u0 = (float)pSprite->src.x / w;
-        u1 = (float)(pSprite->src.x + pSprite->src.w) / w;
+        u0 = X87S_DIV((float)pSprite->src.x, w);
+        u1 = X87S_DIV(X87S_FILD(float, (pSprite->src.x + pSprite->src.w)), w);
         h = (float)(unsigned int)pSprite->pTexture->height;
-        v0 = (float)pSprite->src.y / h;
-        v1 = (float)(pSprite->src.y + pSprite->src.h) / h;
+        v0 = X87S_DIV((float)pSprite->src.y, h);
+        v1 = X87S_DIV(X87S_FILD(float, (pSprite->src.y + pSprite->src.h)), h);
         if (CGraphics::GetSelectedDisplayDriverIndex() == 0) {
             u0 += 0.5f / w;
             u1 += 0.5f / w;
@@ -234,8 +234,8 @@ void Tri2D_Init(void)
 // FUNCTION: CMR2 0x004bb800
 void Tri2D_SetVertex(D3DTLVERTEX *pVertex, int *pPos, BYTE *pColour)
 {
-    pVertex->sx = (float)(pPos[0] * CGraphics::m_oneOver65536);
-    pVertex->sy = (float)(pPos[1] * CGraphics::m_oneOver65536);
+    pVertex->sx = (float)(X87S_MUL(pPos[0], CGraphics::m_oneOver65536));
+    pVertex->sy = (float)(X87S_MUL(pPos[1], CGraphics::m_oneOver65536));
     pVertex->color = RGBA_MAKE(pColour[0], pColour[1], pColour[2], pColour[3]);
 }
 
@@ -384,13 +384,13 @@ int Sprite_FillRect(BYTE *unused, short *pRect, BYTE *pColour, int layer)
             if (h + y0 > (int)g_pGraphics->resY)
                 h = (short)g_pGraphics->resX - y;
                 h -= 1;
-            a[0] = (int)FTOI(__int64, (double)x0 * CGraphics::m_65536);
+            a[0] = (int)FTOI(__int64, X87S_MUL((double)x0, CGraphics::m_65536));
             c[0] = a[0];
-            a[1] = (int)FTOI(__int64, (double)y0 * CGraphics::m_65536);
-            x1 = 0x8000 - (int)FTOI(__int64, (double)(w - 1 + x0) * g_minus65536);
+            a[1] = (int)FTOI(__int64, X87S_MUL((double)y0, CGraphics::m_65536));
+            x1 = 0x8000 - (int)FTOI(__int64, X87S_MUL((double)(w - 1 + x0), g_minus65536));
             b[0] = x1;
             b[1] = a[1];
-            y1 = 0x8000 - (int)FTOI(__int64, (double)(h - 1 + y0) * g_minus65536);
+            y1 = 0x8000 - (int)FTOI(__int64, X87S_MUL((double)(h - 1 + y0), g_minus65536));
             c[1] = y1;
             Tri2D_Queue(a, b, c, pColour, layer);
             a[0] = x1;
@@ -505,21 +505,21 @@ void ScreenLine2D_Draw(int layer)
     for (i = 0, p = g_screenLine2D; i < (unsigned int)g_unk0x0072f2a0; i++, p++) {
         if (layer != p->layer)
             continue;
-        v[0].sx = (float)p->a[0] * CGraphics::m_oneOver65536;
+        v[0].sx = X87S_MUL(X87S_FILD(float, p->a[0]), CGraphics::m_oneOver65536);
         v[0].color = RGBA_MAKE(p->colourA[0], p->colourA[1], p->colourA[2], p->colourA[3]);
         v[0].rhw = 1.0f;
-        v[0].sy = (float)p->a[1] * CGraphics::m_oneOver65536;
+        v[0].sy = X87S_MUL(X87S_FILD(float, p->a[1]), CGraphics::m_oneOver65536);
         v[0].specular = RGBA_MAKE(p->colourB[0], p->colourB[1], p->colourB[2], p->colourB[3]);
-        v[0].sz = (float)p->a[2] * CGraphics::m_oneOver65536;
+        v[0].sz = X87S_MUL(X87S_FILD(float, p->a[2]), CGraphics::m_oneOver65536);
         v[0].tv = 0.0f;
         v[0].tu = 0.0f;
         v[1].color = RGBA_MAKE(p->colourB[0], p->colourB[1], p->colourB[2], p->colourB[3]);
-        v[1].sx = (float)p->b[0] * CGraphics::m_oneOver65536;
+        v[1].sx = X87S_MUL(X87S_FILD(float, p->b[0]), CGraphics::m_oneOver65536);
         v[1].rhw = 1.0f;
         v[1].tv = 0.0f;
         v[1].tu = 0.0f;
-        v[1].sy = (float)p->b[1] * CGraphics::m_oneOver65536;
-        v[1].sz = (float)p->b[2] * CGraphics::m_oneOver65536;
+        v[1].sy = X87S_MUL(X87S_FILD(float, p->b[1]), CGraphics::m_oneOver65536);
+        v[1].sz = X87S_MUL(X87S_FILD(float, p->b[2]), CGraphics::m_oneOver65536);
         CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_LINELIST, D3DFVF_TLVERTEX, v, 2, 0);
     }
     if (layer == 1)
@@ -542,14 +542,14 @@ void Line2D_Draw(void)
     CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
     CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
     for (i = 0, p = g_line2D; i < g_line2DCount; i++, p++) {
-        v[0].x = (float)p->a[0] * CGraphics::m_oneOver65536;
-        v[0].y = (float)p->a[1] * CGraphics::m_oneOver65536;
+        v[0].x = X87S_MUL(X87S_FILD(float, p->a[0]), CGraphics::m_oneOver65536);
+        v[0].y = X87S_MUL(X87S_FILD(float, p->a[1]), CGraphics::m_oneOver65536);
         v[0].diffuse = RGBA_MAKE(p->colourA[0], p->colourA[1], p->colourA[2], p->colourA[3]);
-        v[0].z = (float)p->a[2] * CGraphics::m_oneOver65536;
+        v[0].z = X87S_MUL(X87S_FILD(float, p->a[2]), CGraphics::m_oneOver65536);
         v[1].diffuse = RGBA_MAKE(p->colourB[0], p->colourB[1], p->colourB[2], p->colourB[3]);
-        v[1].x = (float)p->b[0] * CGraphics::m_oneOver65536;
-        v[1].y = (float)p->b[1] * CGraphics::m_oneOver65536;
-        v[1].z = (float)p->b[2] * CGraphics::m_oneOver65536;
+        v[1].x = X87S_MUL(X87S_FILD(float, p->b[0]), CGraphics::m_oneOver65536);
+        v[1].y = X87S_MUL(X87S_FILD(float, p->b[1]), CGraphics::m_oneOver65536);
+        v[1].z = X87S_MUL(X87S_FILD(float, p->b[2]), CGraphics::m_oneOver65536);
         CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_LINELIST, 0x2d2, v, 2, 0);
     }
     g_line2DCount = 0;
@@ -828,29 +828,29 @@ void Quad2D_QueueFixedTriangle(int, Quad2DInputVertex *pA,
     p->pTexture = pTexture;
     p->flags = (unsigned int)pDest;
 
-    p->verts.v[0].x = (float)(pA->x * CGraphics::m_oneOver65536);
-    p->verts.v[0].y = (float)(pA->y * CGraphics::m_oneOver65536);
-    p->verts.v[0].z = (float)(pA->z * CGraphics::m_oneOver65536);
-    p->verts.v[0].u = (float)(pA->u * CGraphics::m_oneOver65536);
-    p->verts.v[0].v = (float)(pA->v * CGraphics::m_oneOver65536);
+    p->verts.v[0].x = (float)(X87S_MUL(pA->x, CGraphics::m_oneOver65536));
+    p->verts.v[0].y = (float)(X87S_MUL(pA->y, CGraphics::m_oneOver65536));
+    p->verts.v[0].z = (float)(X87S_MUL(pA->z, CGraphics::m_oneOver65536));
+    p->verts.v[0].u = (float)(X87S_MUL(pA->u, CGraphics::m_oneOver65536));
+    p->verts.v[0].v = (float)(X87S_MUL(pA->v, CGraphics::m_oneOver65536));
     p->verts.v[0].colour = RGBA_MAKE(pA->colour[0], pA->colour[1],
                                       pA->colour[2], pA->colour[3]);
     p->verts.v[0].specular = 0xff000000;
 
-    p->verts.v[1].x = (float)(pB->x * CGraphics::m_oneOver65536);
-    p->verts.v[1].y = (float)(pB->y * CGraphics::m_oneOver65536);
-    p->verts.v[1].z = (float)(pB->z * CGraphics::m_oneOver65536);
-    p->verts.v[1].u = (float)(pB->u * CGraphics::m_oneOver65536);
-    p->verts.v[1].v = (float)(pB->v * CGraphics::m_oneOver65536);
+    p->verts.v[1].x = (float)(X87S_MUL(pB->x, CGraphics::m_oneOver65536));
+    p->verts.v[1].y = (float)(X87S_MUL(pB->y, CGraphics::m_oneOver65536));
+    p->verts.v[1].z = (float)(X87S_MUL(pB->z, CGraphics::m_oneOver65536));
+    p->verts.v[1].u = (float)(X87S_MUL(pB->u, CGraphics::m_oneOver65536));
+    p->verts.v[1].v = (float)(X87S_MUL(pB->v, CGraphics::m_oneOver65536));
     p->verts.v[1].colour = RGBA_MAKE(pB->colour[0], pB->colour[1],
                                       pB->colour[2], pB->colour[3]);
     p->verts.v[1].specular = 0xff000000;
 
-    p->verts.v[2].x = (float)(pC->x * CGraphics::m_oneOver65536);
-    p->verts.v[2].y = (float)(pC->y * CGraphics::m_oneOver65536);
-    p->verts.v[2].z = (float)(pC->z * CGraphics::m_oneOver65536);
-    p->verts.v[2].u = (float)(pC->u * CGraphics::m_oneOver65536);
-    p->verts.v[2].v = (float)(pC->v * CGraphics::m_oneOver65536);
+    p->verts.v[2].x = (float)(X87S_MUL(pC->x, CGraphics::m_oneOver65536));
+    p->verts.v[2].y = (float)(X87S_MUL(pC->y, CGraphics::m_oneOver65536));
+    p->verts.v[2].z = (float)(X87S_MUL(pC->z, CGraphics::m_oneOver65536));
+    p->verts.v[2].u = (float)(X87S_MUL(pC->u, CGraphics::m_oneOver65536));
+    p->verts.v[2].v = (float)(X87S_MUL(pC->v, CGraphics::m_oneOver65536));
     p->verts.v[2].colour = RGBA_MAKE(pC->colour[0], pC->colour[1],
                                       pC->colour[2], pC->colour[3]);
     p->verts.v[2].specular = 0xff000000;

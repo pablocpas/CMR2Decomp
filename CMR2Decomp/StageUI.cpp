@@ -1104,11 +1104,11 @@ char g_strMapNumber[] = "%d";
 // Screen position of a route point on the stage map (map = x, y, w, h).
 // t = FixMul(d.x or -d.z, g_stageMapScale) + 0x8000: the route point scaled to 0..1.
 #define MAP_X(t, map) \
-    ((FixMul(t, (int)FTOI(__int64, (double)(map)[2] * CGraphics::m_65536)) - \
-      (int)FTOI(__int64, (double)(map)[0] * g_minus65536)) >> 16)
+    ((FixMul(t, (int)FTOI(__int64, X87S_MUL((double)(map)[2], CGraphics::m_65536))) - \
+      (int)FTOI(__int64, X87S_MUL((double)(map)[0], g_minus65536))) >> 16)
 #define MAP_Y(t, map) \
-    ((FixMul(t, (int)FTOI(__int64, (double)(map)[3] * CGraphics::m_65536)) - \
-      (int)FTOI(__int64, (double)(map)[1] * g_minus65536)) >> 16)
+    ((FixMul(t, (int)FTOI(__int64, X87S_MUL((double)(map)[3], CGraphics::m_65536))) - \
+      (int)FTOI(__int64, X87S_MUL((double)(map)[1], g_minus65536))) >> 16)
 
 // Stage map of the HUD: the route thumbnail, a dot per car (network players,
 // or every car in race order) and the number of each local player.

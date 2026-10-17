@@ -556,11 +556,11 @@ found:
 
     pLight = (SceneLight *)CFileBuffer::AllocateLockedBuffer(sizeof(SceneLight));
     g_sceneType1Objects[index] = pLight;
-    fr = (float)r * CGraphics::m_oneOver65536;
+    fr = X87S_MUL(X87S_FILD(float, r), CGraphics::m_oneOver65536);
     memset(pLight, 0, sizeof(D3DLIGHT7));
-    fg = (float)g * CGraphics::m_oneOver65536;
+    fg = X87S_MUL(X87S_FILD(float, g), CGraphics::m_oneOver65536);
     ((SceneLight *)g_sceneType1Objects[index])->index = index;
-    fb = (float)b * CGraphics::m_oneOver65536;
+    fb = X87S_MUL(X87S_FILD(float, b), CGraphics::m_oneOver65536);
     ((SceneLight *)g_sceneType1Objects[index])->light.dcvDiffuse.r = fr;
     ((SceneLight *)g_sceneType1Objects[index])->light.dcvDiffuse.g = fg;
     ((SceneLight *)g_sceneType1Objects[index])->light.dcvDiffuse.b = fb;
@@ -573,9 +573,9 @@ found:
     ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.g = 0.0f;
     ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.b = 0.0f;
     ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.a = 0.0f;
-    ((SceneLight *)g_sceneType1Objects[index])->light.dvPosition.x = (float)pPosition->x * CGraphics::m_oneOver65536;
-    ((SceneLight *)g_sceneType1Objects[index])->light.dvPosition.y = (float)pPosition->y * CGraphics::m_oneOver65536;
-    ((SceneLight *)g_sceneType1Objects[index])->light.dvPosition.z = (float)pPosition->z * CGraphics::m_oneOver65536;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvPosition.x = X87S_MUL(X87S_FILD(float, pPosition->x), CGraphics::m_oneOver65536);
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvPosition.y = X87S_MUL(X87S_FILD(float, pPosition->y), CGraphics::m_oneOver65536);
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvPosition.z = X87S_MUL(X87S_FILD(float, pPosition->z), CGraphics::m_oneOver65536);
     ((SceneLight *)g_sceneType1Objects[index])->light.dvAttenuation0 = 1.0f;
     ((SceneLight *)g_sceneType1Objects[index])->light.dvAttenuation1 = 0.0f;
     ((SceneLight *)g_sceneType1Objects[index])->light.dvAttenuation2 = 0.0f;
@@ -618,9 +618,9 @@ found:
         dir.y = -pPosition->y;
         dir.z = -pPosition->z;
         FIX_NORMALIZE_INTO(dir, dir);
-        ((SceneLight *)g_sceneType1Objects[index])->light.dvDirection.x = (float)dir.x * CGraphics::m_oneOver65536;
-        ((SceneLight *)g_sceneType1Objects[index])->light.dvDirection.y = (float)dir.y * CGraphics::m_oneOver65536;
-        ((SceneLight *)g_sceneType1Objects[index])->light.dvDirection.z = (float)dir.z * CGraphics::m_oneOver65536;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvDirection.x = X87S_MUL(X87S_FILD(float, dir.x), CGraphics::m_oneOver65536);
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvDirection.y = X87S_MUL(X87S_FILD(float, dir.y), CGraphics::m_oneOver65536);
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvDirection.z = X87S_MUL(X87S_FILD(float, dir.z), CGraphics::m_oneOver65536);
         break;
     case 3:
         ((SceneLight *)g_sceneType1Objects[index])->light.dltType = D3DLIGHT_PARALLELPOINT;
@@ -1322,23 +1322,23 @@ void Scene_LoadLighting(int *pData)
         pCursor += 6;
     } while (pBasis < &g_sceneLightBasis[3]);
     g_sceneLightRight.x = g_sceneLightBasis[0].x;
-    g_sceneLightDirF[0] = (float)g_sceneLightDir.x * (float)CGraphics::m_oneOver65536;
+    g_sceneLightDirF[0] = X87S_MUL(X87S_FILD(float, g_sceneLightDir.x), (float)CGraphics::m_oneOver65536);
     g_sceneLightRight.z = g_sceneLightBasis[0].z;
     g_sceneLightRight.y = 0;
     g_sceneLightForward.x = g_sceneLightBasis[2].x;
     g_sceneLightForward.y = 0;
     g_sceneLightForward.z = g_sceneLightBasis[2].z;
-    g_sceneLightDirF[1] = (float)g_sceneLightDir.y * (float)CGraphics::m_oneOver65536;
-    g_sceneLightDirF[2] = (float)g_sceneLightDir.z * (float)CGraphics::m_oneOver65536;
-    g_sceneLightBasisF[0] = (float)g_sceneLightBasis[0].x * (float)CGraphics::m_oneOver65536;
-    g_sceneLightBasisF[1] = (float)g_sceneLightBasis[0].y * (float)CGraphics::m_oneOver65536;
-    g_sceneLightBasisF[2] = (float)g_sceneLightBasis[0].z * (float)CGraphics::m_oneOver65536;
-    g_sceneLightBasisF[3] = (float)g_sceneLightBasis[1].x * (float)CGraphics::m_oneOver65536;
-    g_sceneLightBasisF[4] = (float)g_sceneLightBasis[1].y * (float)CGraphics::m_oneOver65536;
-    g_sceneLightBasisF[5] = (float)g_sceneLightBasis[1].z * (float)CGraphics::m_oneOver65536;
-    g_sceneLightBasisF[6] = (float)g_sceneLightBasis[2].x * (float)CGraphics::m_oneOver65536;
-    g_sceneLightBasisF[7] = (float)g_sceneLightBasis[2].y * (float)CGraphics::m_oneOver65536;
-    g_sceneLightBasisF[8] = (float)g_sceneLightBasis[2].z * (float)CGraphics::m_oneOver65536;
+    g_sceneLightDirF[1] = X87S_MUL(X87S_FILD(float, g_sceneLightDir.y), (float)CGraphics::m_oneOver65536);
+    g_sceneLightDirF[2] = X87S_MUL(X87S_FILD(float, g_sceneLightDir.z), (float)CGraphics::m_oneOver65536);
+    g_sceneLightBasisF[0] = X87S_MUL(X87S_FILD(float, g_sceneLightBasis[0].x), (float)CGraphics::m_oneOver65536);
+    g_sceneLightBasisF[1] = X87S_MUL(X87S_FILD(float, g_sceneLightBasis[0].y), (float)CGraphics::m_oneOver65536);
+    g_sceneLightBasisF[2] = X87S_MUL(X87S_FILD(float, g_sceneLightBasis[0].z), (float)CGraphics::m_oneOver65536);
+    g_sceneLightBasisF[3] = X87S_MUL(X87S_FILD(float, g_sceneLightBasis[1].x), (float)CGraphics::m_oneOver65536);
+    g_sceneLightBasisF[4] = X87S_MUL(X87S_FILD(float, g_sceneLightBasis[1].y), (float)CGraphics::m_oneOver65536);
+    g_sceneLightBasisF[5] = X87S_MUL(X87S_FILD(float, g_sceneLightBasis[1].z), (float)CGraphics::m_oneOver65536);
+    g_sceneLightBasisF[6] = X87S_MUL(X87S_FILD(float, g_sceneLightBasis[2].x), (float)CGraphics::m_oneOver65536);
+    g_sceneLightBasisF[7] = X87S_MUL(X87S_FILD(float, g_sceneLightBasis[2].y), (float)CGraphics::m_oneOver65536);
+    g_sceneLightBasisF[8] = X87S_MUL(X87S_FILD(float, g_sceneLightBasis[2].z), (float)CGraphics::m_oneOver65536);
 
     // Zones, followed by their items, headers, vertices, triangles and
     // vertex heights.
@@ -1762,8 +1762,8 @@ void Scene_ProjectCasterIntoLightZone(LightZoneItem *pItem, ShadowCaster *pCaste
     minW = 10.0f;
     maxW = -10.0f;
     pLand = pItem->pOwner;
-    zoneScaleX = (float)pLand->matrix.right.x * CGraphics::m_oneOver65536;
-    zoneScaleY = (float)pLand->matrix.up.y * CGraphics::m_oneOver65536;
+    zoneScaleX = X87S_MUL(X87S_FILD(float, pLand->matrix.right.x), CGraphics::m_oneOver65536);
+    zoneScaleY = X87S_MUL(X87S_FILD(float, pLand->matrix.up.y), CGraphics::m_oneOver65536);
     pZone = pLand->pMesh;
     count = pZone->field_0x10;
     if (count > 0) {
@@ -1794,10 +1794,10 @@ void Scene_ProjectCasterIntoLightZone(LightZoneItem *pItem, ShadowCaster *pCaste
             pVert += 0xc;
         } while (--count != 0);
     }
-    scaleX = (float)pItem->field_0x18 * CGraphics::m_oneOver65536 + g_netOne;
+    scaleX = X87S_ADD(X87S_MUL(X87S_FILD(float, pItem->field_0x18), CGraphics::m_oneOver65536), g_netOne);
     maxX = scaleX * maxX;
     minX = scaleX * minX;
-    scaleY = (float)pItem->field_0x1c * CGraphics::m_oneOver65536 + g_netOne;
+    scaleY = X87S_ADD(X87S_MUL(X87S_FILD(float, pItem->field_0x1c), CGraphics::m_oneOver65536), g_netOne);
     maxY = scaleY * maxY;
     spanZ = maxZ - minZ;
     spanW = maxW - minW;
@@ -1807,10 +1807,10 @@ void Scene_ProjectCasterIntoLightZone(LightZoneItem *pItem, ShadowCaster *pCaste
     minY = (invY * minY + g_netOne) * spanW;
     projScaleX = invX * spanZ;
     projScaleY = invY * spanW;
-    origin[0] = (float)pLand->position.x * CGraphics::m_oneOver65536;
-    origin[1] = (float)pLand->position.y * CGraphics::m_oneOver65536;
+    origin[0] = X87S_MUL(X87S_FILD(float, pLand->position.x), CGraphics::m_oneOver65536);
+    origin[1] = X87S_MUL(X87S_FILD(float, pLand->position.y), CGraphics::m_oneOver65536);
     tex = pZone->pTriangles->textureIndex;
-    origin[2] = (float)pLand->position.z * CGraphics::m_oneOver65536;
+    origin[2] = X87S_MUL(X87S_FILD(float, pLand->position.z), CGraphics::m_oneOver65536);
     if (g_shadowLastTexture == -1 || g_shadowLastFlags == -1) {
         ((BYTE *)g_shadowBatch)[0xc] = param3;
         g_shadowBatch[0] = g_shadowVertexCount;
@@ -2125,7 +2125,7 @@ void Scene_SetLightAttenuation(SceneNode *pNode, int attenuation)
     SceneLight *pLight;
 
     if (pNode != NULL && (pLight = (SceneLight *)pNode->pObject) != NULL) {
-        pLight->light.dvAttenuation0 = (float)attenuation * CGraphics::m_oneOver65536;
+        pLight->light.dvAttenuation0 = X87S_MUL(X87S_FILD(float, attenuation), CGraphics::m_oneOver65536);
         CGraphics::m_pTextureManager->pD3D->SetLight(pLight->index, &pLight->light);
     }
 }
@@ -2167,9 +2167,9 @@ void Scene_SetLightColour(SceneNode *pNode, int r, int g, int b)
         g = 0xff0000;
     if (b > 0xff0000)
         b = 0xff0000;
-    pLight->light.dcvDiffuse.r = (float)r * CGraphics::m_oneOver65536;
-    pLight->light.dcvDiffuse.g = (float)g * CGraphics::m_oneOver65536;
-    pLight->light.dcvDiffuse.b = (float)b * CGraphics::m_oneOver65536;
+    pLight->light.dcvDiffuse.r = X87S_MUL(X87S_FILD(float, r), CGraphics::m_oneOver65536);
+    pLight->light.dcvDiffuse.g = X87S_MUL(X87S_FILD(float, g), CGraphics::m_oneOver65536);
+    pLight->light.dcvDiffuse.b = X87S_MUL(X87S_FILD(float, b), CGraphics::m_oneOver65536);
     CGraphics::m_pTextureManager->pD3D->SetLight(pLight->index, &pLight->light);
 }
 
@@ -2183,9 +2183,9 @@ int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int co
 
 #define CORNER_NORMAL(i) \
     ((float *)((BYTE *)pMesh->pVertexData + pTri->vertexIndex[corner] * 0x30))[3 + (i)]
-    normal.x = (int)FTOI(__int64, CORNER_NORMAL(0) * CGraphics::m_65536);
-    normal.y = (int)FTOI(__int64, CORNER_NORMAL(1) * CGraphics::m_65536);
-    normal.z = (int)FTOI(__int64, CORNER_NORMAL(2) * CGraphics::m_65536);
+    normal.x = (int)FTOI(__int64, X87S_MUL(CORNER_NORMAL(0), CGraphics::m_65536));
+    normal.y = (int)FTOI(__int64, X87S_MUL(CORNER_NORMAL(1), CGraphics::m_65536));
+    normal.z = (int)FTOI(__int64, X87S_MUL(CORNER_NORMAL(2), CGraphics::m_65536));
 #undef CORNER_NORMAL
     level = FixMul(FixVecDot(pDir, &normal), 0x40000);
     if (level < 0)
@@ -2217,11 +2217,11 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
     rgb[1] = 0xff;
     rgb[2] = 0xff;
     *pLevel = 0x10000;
-    pos[0] = (float)pPos->x * CGraphics::m_oneOver65536;
+    pos[0] = X87S_MUL(X87S_FILD(float, pPos->x), CGraphics::m_oneOver65536);
     pNearest = NULL;
     rgb[3] = 0;
     best = 32000.0f;
-    pos[2] = (float)pPos->z * CGraphics::m_oneOver65536;
+    pos[2] = X87S_MUL(X87S_FILD(float, pPos->z), CGraphics::m_oneOver65536);
     {
         int sector = (short)Sector_FromPosition(pPos);
         pMesh = (Mesh *)g_sectors[sector]->pMesh;
@@ -2438,22 +2438,22 @@ void Scene_SetViewFromCamera(SceneNode *pCamera)
     if (g_viewSetupMode < 5 && pCamera->dirty != 0) {
         FixMatrix_Invert(&CGraphics::m_pTextureManager->viewMatrix, &pCamera->world);
         pView = (D3DMATRIX *)view;
-        view[0] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[0] * CGraphics::m_oneOver65536;
-        view[1] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[1] * CGraphics::m_oneOver65536;
-        view[2] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[2] * CGraphics::m_oneOver65536;
-        view[3] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[3] * CGraphics::m_oneOver65536;
-        view[4] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[4] * CGraphics::m_oneOver65536;
-        view[5] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[5] * CGraphics::m_oneOver65536;
-        view[6] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[6] * CGraphics::m_oneOver65536;
-        view[7] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[7] * CGraphics::m_oneOver65536;
-        view[8] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[8] * CGraphics::m_oneOver65536;
-        view[9] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[9] * CGraphics::m_oneOver65536;
-        view[10] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[10] * CGraphics::m_oneOver65536;
-        view[11] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[11] * CGraphics::m_oneOver65536;
-        view[12] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[12] * CGraphics::m_oneOver65536;
-        view[13] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[13] * CGraphics::m_oneOver65536;
-        view[14] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[14] * CGraphics::m_oneOver65536;
-        view[15] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[15] * CGraphics::m_oneOver65536;
+        view[0] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[0]), CGraphics::m_oneOver65536);
+        view[1] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[1]), CGraphics::m_oneOver65536);
+        view[2] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[2]), CGraphics::m_oneOver65536);
+        view[3] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[3]), CGraphics::m_oneOver65536);
+        view[4] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[4]), CGraphics::m_oneOver65536);
+        view[5] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[5]), CGraphics::m_oneOver65536);
+        view[6] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[6]), CGraphics::m_oneOver65536);
+        view[7] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[7]), CGraphics::m_oneOver65536);
+        view[8] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[8]), CGraphics::m_oneOver65536);
+        view[9] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[9]), CGraphics::m_oneOver65536);
+        view[10] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[10]), CGraphics::m_oneOver65536);
+        view[11] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[11]), CGraphics::m_oneOver65536);
+        view[12] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[12]), CGraphics::m_oneOver65536);
+        view[13] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[13]), CGraphics::m_oneOver65536);
+        view[14] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[14]), CGraphics::m_oneOver65536);
+        view[15] = X87S_MUL(X87S_FILD(float, ((int *)&CGraphics::m_pTextureManager->viewMatrix)[15]), CGraphics::m_oneOver65536);
         CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_VIEW, (D3DMATRIX *)&view[0]);
     }
 }
@@ -2467,16 +2467,16 @@ void Scene_SetLightPosition(SceneNode *pNode, int x, int y, int z)
     FixVector d;
 
     pLight = (SceneLight *)pNode->pObject;
-    pLight->light.dvPosition.x = (float)x * CGraphics::m_oneOver65536;
-    pLight->light.dvPosition.y = (float)y * CGraphics::m_oneOver65536;
-    pLight->light.dvPosition.z = (float)z * CGraphics::m_oneOver65536;
+    pLight->light.dvPosition.x = X87S_MUL(X87S_FILD(float, x), CGraphics::m_oneOver65536);
+    pLight->light.dvPosition.y = X87S_MUL(X87S_FILD(float, y), CGraphics::m_oneOver65536);
+    pLight->light.dvPosition.z = X87S_MUL(X87S_FILD(float, z), CGraphics::m_oneOver65536);
     d.x = -x;
     d.y = -y;
     d.z = -z;
     FIX_NORMALIZE_INTO(d, d);
-    pLight->light.dvDirection.x = (float)d.x * CGraphics::m_oneOver65536;
-    pLight->light.dvDirection.y = (float)d.y * CGraphics::m_oneOver65536;
-    pLight->light.dvDirection.z = (float)d.z * CGraphics::m_oneOver65536;
+    pLight->light.dvDirection.x = X87S_MUL(X87S_FILD(float, d.x), CGraphics::m_oneOver65536);
+    pLight->light.dvDirection.y = X87S_MUL(X87S_FILD(float, d.y), CGraphics::m_oneOver65536);
+    pLight->light.dvDirection.z = X87S_MUL(X87S_FILD(float, d.z), CGraphics::m_oneOver65536);
     CGraphics::m_pTextureManager->pD3D->SetLight(pLight->index, &pLight->light);
 }
 
@@ -2496,22 +2496,22 @@ void SceneNode_FlushTransforms(SceneNode *pNode)
             case SCENE_NODE_EMPTY:
                 if (pNode->dirty == 1) {
                     m = (int *)&pNode->world;
-                    pNode->worldF[0] = (float)m[0] * CGraphics::m_oneOver65536;
-                    pNode->worldF[1] = (float)m[1] * CGraphics::m_oneOver65536;
-                    pNode->worldF[2] = (float)m[2] * CGraphics::m_oneOver65536;
-                    pNode->worldF[3] = (float)m[3] * CGraphics::m_oneOver65536;
-                    pNode->worldF[4] = (float)m[4] * CGraphics::m_oneOver65536;
-                    pNode->worldF[5] = (float)m[5] * CGraphics::m_oneOver65536;
-                    pNode->worldF[6] = (float)m[6] * CGraphics::m_oneOver65536;
-                    pNode->worldF[7] = (float)m[7] * CGraphics::m_oneOver65536;
-                    pNode->worldF[8] = (float)m[8] * CGraphics::m_oneOver65536;
-                    pNode->worldF[9] = (float)m[9] * CGraphics::m_oneOver65536;
-                    pNode->worldF[10] = (float)m[10] * CGraphics::m_oneOver65536;
-                    pNode->worldF[11] = (float)m[11] * CGraphics::m_oneOver65536;
-                    pNode->worldF[12] = (float)m[12] * CGraphics::m_oneOver65536;
-                    pNode->worldF[13] = (float)m[13] * CGraphics::m_oneOver65536;
-                    pNode->worldF[14] = (float)m[14] * CGraphics::m_oneOver65536;
-                    pNode->worldF[15] = (float)m[15] * CGraphics::m_oneOver65536;
+                    pNode->worldF[0] = X87S_MUL(X87S_FILD(float, m[0]), CGraphics::m_oneOver65536);
+                    pNode->worldF[1] = X87S_MUL(X87S_FILD(float, m[1]), CGraphics::m_oneOver65536);
+                    pNode->worldF[2] = X87S_MUL(X87S_FILD(float, m[2]), CGraphics::m_oneOver65536);
+                    pNode->worldF[3] = X87S_MUL(X87S_FILD(float, m[3]), CGraphics::m_oneOver65536);
+                    pNode->worldF[4] = X87S_MUL(X87S_FILD(float, m[4]), CGraphics::m_oneOver65536);
+                    pNode->worldF[5] = X87S_MUL(X87S_FILD(float, m[5]), CGraphics::m_oneOver65536);
+                    pNode->worldF[6] = X87S_MUL(X87S_FILD(float, m[6]), CGraphics::m_oneOver65536);
+                    pNode->worldF[7] = X87S_MUL(X87S_FILD(float, m[7]), CGraphics::m_oneOver65536);
+                    pNode->worldF[8] = X87S_MUL(X87S_FILD(float, m[8]), CGraphics::m_oneOver65536);
+                    pNode->worldF[9] = X87S_MUL(X87S_FILD(float, m[9]), CGraphics::m_oneOver65536);
+                    pNode->worldF[10] = X87S_MUL(X87S_FILD(float, m[10]), CGraphics::m_oneOver65536);
+                    pNode->worldF[11] = X87S_MUL(X87S_FILD(float, m[11]), CGraphics::m_oneOver65536);
+                    pNode->worldF[12] = X87S_MUL(X87S_FILD(float, m[12]), CGraphics::m_oneOver65536);
+                    pNode->worldF[13] = X87S_MUL(X87S_FILD(float, m[13]), CGraphics::m_oneOver65536);
+                    pNode->worldF[14] = X87S_MUL(X87S_FILD(float, m[14]), CGraphics::m_oneOver65536);
+                    pNode->worldF[15] = X87S_MUL(X87S_FILD(float, m[15]), CGraphics::m_oneOver65536);
                     pNode->dirty = 0;
                 }
                 break;
@@ -2521,17 +2521,17 @@ void SceneNode_FlushTransforms(SceneNode *pNode)
                     if (pLight->light.dltType != D3DLIGHT_DIRECTIONAL) {
                         if (pLight->light.dltType != D3DLIGHT_POINT) {
                             if (pLight->light.dltType == D3DLIGHT_SPOT) {
-                                pLight->light.dvDirection.x = (float)pNode->world.right.x * CGraphics::m_oneOver65536;
-                                pLight->light.dvDirection.y = (float)pNode->world.right.y * CGraphics::m_oneOver65536;
-                                pLight->light.dvDirection.z = (float)pNode->world.right.z * CGraphics::m_oneOver65536;
+                                pLight->light.dvDirection.x = X87S_MUL(X87S_FILD(float, pNode->world.right.x), CGraphics::m_oneOver65536);
+                                pLight->light.dvDirection.y = X87S_MUL(X87S_FILD(float, pNode->world.right.y), CGraphics::m_oneOver65536);
+                                pLight->light.dvDirection.z = X87S_MUL(X87S_FILD(float, pNode->world.right.z), CGraphics::m_oneOver65536);
                             } else {
                                 pNode->dirty = 0;
                                 goto next;
                             }
                         }
-                        pLight->light.dvPosition.x = (float)pNode->world.position.x * CGraphics::m_oneOver65536;
-                        pLight->light.dvPosition.y = (float)pNode->world.position.y * CGraphics::m_oneOver65536;
-                        pLight->light.dvPosition.z = (float)pNode->world.position.z * CGraphics::m_oneOver65536;
+                        pLight->light.dvPosition.x = X87S_MUL(X87S_FILD(float, pNode->world.position.x), CGraphics::m_oneOver65536);
+                        pLight->light.dvPosition.y = X87S_MUL(X87S_FILD(float, pNode->world.position.y), CGraphics::m_oneOver65536);
+                        pLight->light.dvPosition.z = X87S_MUL(X87S_FILD(float, pNode->world.position.z), CGraphics::m_oneOver65536);
                         CGraphics::m_pTextureManager->pD3D->SetLight(pLight->index, &pLight->light);
                     }
                     pNode->dirty = 0;
@@ -2592,8 +2592,8 @@ void Scene_InitFixedMathTables(void)
     int value;
 
     for (i = 0; i < 4096; i++) {
-        g_sinTable[i] = (int)FTOI(__int64, sin((double)i * g_unk0x00511d08) * CGraphics::m_65536);
-        g_tanTable[i] = (int)FTOI(__int64, tan((double)i * g_unk0x00511d08) * CGraphics::m_65536);
+        g_sinTable[i] = (int)FTOI(__int64, X87S_MUL(sin(X87S_MUL((double)i, g_unk0x00511d08)), CGraphics::m_65536));
+        g_tanTable[i] = (int)FTOI(__int64, X87S_MUL(tan(X87S_MUL((double)i, g_unk0x00511d08)), CGraphics::m_65536));
     }
     i = 8;
     // tan(90°) and tan(270°) would overflow: the original clamps them
@@ -2601,16 +2601,16 @@ void Scene_InitFixedMathTables(void)
     g_tanTable[1024] = 0x7fffffff;
 
     for (n = 0; n < 4096; n++, i += 16)
-        g_sqrtTable[n] = (unsigned short)(int)FTOI(__int64, sqrt((double)i * CGraphics::m_oneOver65536) * CGraphics::m_65536);
+        g_sqrtTable[n] = (unsigned short)(int)FTOI(__int64, X87S_MUL(X87S_SQRT(X87S_MUL((double)i, CGraphics::m_oneOver65536)), CGraphics::m_65536));
 
     for (i = 0; i < 4096; i++) {
-        value = (int)FTOI(__int64, asin((double)i * g_unk0x00511d00) * CGraphics::m_65536);
-        g_acosTable[i] = (short)FTOI(__int64, (double)value * g_unk0x00511380);
+        value = (int)FTOI(__int64, X87S_MUL(asin(X87S_MUL((double)i, g_unk0x00511d00)), CGraphics::m_65536));
+        g_acosTable[i] = (short)FTOI(__int64, X87S_MUL((double)value, g_unk0x00511380));
     }
 
     for (i = 0; i < 512; i++) {
-        value = (int)FTOI(__int64, atan((double)i * g_unk0x00511cf8) * CGraphics::m_65536);
-        g_atanTable[i] = (unsigned short)FTOI(__int64, (double)value * g_unk0x00511380);
+        value = (int)FTOI(__int64, X87S_MUL(atan(X87S_MUL((double)i, g_unk0x00511cf8)), CGraphics::m_65536));
+        g_atanTable[i] = (unsigned short)FTOI(__int64, X87S_MUL((double)value, g_unk0x00511380));
     }
 }
 
@@ -2655,7 +2655,7 @@ void Scene_EmitProjectedShadowMesh(ShadowPart *pPart, int param_2)
     if (param_2 > 0x10000)
         param_2 = 0x10000;
     param_2 = FixMul(g_shadowLevel, param_2);
-    scale = (float)((double)param_2 * CGraphics::m_oneOver65536);
+    scale = (float)(X87S_MUL((double)param_2, CGraphics::m_oneOver65536));
     baseColour = (BYTE)FTOI(__int64, scale);
     pPart->faceCount = 0;
     pPart->vertexCount = 0;

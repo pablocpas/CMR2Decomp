@@ -95,7 +95,7 @@ void RallyTiming_AddChampionshipPoints(char *pPositions, int *pPoints)
         if (i == 0)
             g_unk0x00533628[car]++;
         score = RallyTiming_GetPositionPoints(i);
-        g_unk0x005335b8[car] += (int)FTOI(__int64, (double)score * CGraphics::m_65536);
+        g_unk0x005335b8[car] += (int)FTOI(__int64, X87S_MUL((double)score, CGraphics::m_65536));
         *(char *)((char *)g_unk0x005335d8 + car * 3 + (RallyData_GetSelectionBits12To13() & 0xff)) =
             (char)score;
     }
@@ -235,7 +235,7 @@ void RallyTiming_AwardStagePoints(void)
         if (position == 0)
             g_stageTieBreak[driver]++;
         g_stagePenalty[driver] = (char)points;
-        g_stageTimesRaw[driver] += (int)FTOI(__int64, points * CGraphics::m_65536);
+        g_stageTimesRaw[driver] += (int)FTOI(__int64, X87S_MUL(points, CGraphics::m_65536));
         i++;
     } while (position < 5);
     RallyTiming_SortOrder(g_stageTimesRaw, g_stageOrderDriverID, 0, 16, 0);
@@ -485,7 +485,7 @@ void RallyTiming_SortStageAndOverallResults(void)
 // FUNCTION: CMR2 0x0040d090
 void RallyTiming_SetStageTimeSeconds(int index, int seconds)
 {
-    g_stageTimesRaw[index] = (int)FTOI(__int64, (double)seconds * CGraphics::m_65536);
+    g_stageTimesRaw[index] = (int)FTOI(__int64, X87S_MUL((double)seconds, CGraphics::m_65536));
 }
 
 // Adds each stage's penalty seconds to its raw time.
@@ -495,5 +495,5 @@ void RallyTiming_AddStagePenalties(void)
     int i;
 
     for (i = 0; i < 16; i++)
-        g_stageTimesRaw[i] += (int)FTOI(__int64, (double)g_stagePenalty[i] * g_minus65536);
+        g_stageTimesRaw[i] += (int)FTOI(__int64, X87S_MUL((double)g_stagePenalty[i], g_minus65536));
 }

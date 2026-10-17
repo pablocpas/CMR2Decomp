@@ -663,7 +663,7 @@ HRESULT Sound_DecodeMusicBlocks(BYTE *pDst, int count)
                 memset(buffer + read, 0, pad);
                 pos += pad;
                 Sound_DecodeADPCMBlock(buffer, pOut);
-                blocks = FTOI(UINT, read * (1.0f / 2048.0f));
+                blocks = FTOI(UINT, X87S_MUL(X87S_LOAD(read), (1.0f / 2048.0f)));
                 CSound::IsSoundCallSuccessful(CSound::m_pMMIO->StartDataRead());
                 CSound::IsSoundCallSuccessful(CSound::m_pMMIO->Read(0x4000 - pos, buffer + pos, &read));
                 Sound_DecodeADPCMBlock(buffer, pDst + (blocks + 0xfe80) * i);
@@ -783,11 +783,11 @@ HRESULT Sound_RefillMusicBufferRegions(int unused)
         if (CSound::m_pDirectSoundBuffer->Lock(g_unk0x005a2714 * 0xfe80, g_unk0x005a2718 * 0xfe80,
                                                &pAudio1, &bytes1, &pAudio2, &bytes2, 0) == 0) {
             if (pAudio1 != NULL) {
-                UINT n1 = FTOI(UINT, bytes1 * g_unk0x00511420);
+                UINT n1 = FTOI(UINT, X87S_MUL(X87S_LOAD(bytes1), g_unk0x00511420));
                 CSound::IsSoundCallSuccessful(Sound_DecodeMusicBlocks((BYTE *)pAudio1, n1));
             }
             if (pAudio2 != NULL) {
-                UINT n2 = FTOI(UINT, bytes2 * g_unk0x00511420);
+                UINT n2 = FTOI(UINT, X87S_MUL(X87S_LOAD(bytes2), g_unk0x00511420));
                 CSound::IsSoundCallSuccessful(Sound_DecodeMusicBlocks((BYTE *)pAudio2, n2));
             }
             CSound::IsSoundCallSuccessful(CSound::m_pDirectSoundBuffer->Unlock(pAudio1, bytes1, pAudio2, bytes2));
@@ -1082,9 +1082,9 @@ void Sound_ApplySlotVolumeAttenuation(SoundSlot *pSlot)
     int volume;
     int attenuation;
 
-    volume = FTOI(int, (float)Sound_GetMasterVolume() * pSlot->field_0xc * g_unk0x00511418);
+    volume = FTOI(int, X87S_MUL(X87S_MUL(X87S_FILD(float, Sound_GetMasterVolume()), X87S_LOAD(pSlot->field_0xc)), g_unk0x00511418));
     attenuation = DSBVOLUME_MIN -
-                  FTOI(int, log((double)volume) * g_unk0x00511410) * abs(10000) / FTOI(int, log(CGraphics::m_65536) * g_unk0x005113c0);
+                  FTOI(int, X87S_MUL(log((double)volume), g_unk0x00511410)) * abs(10000) / FTOI(int, X87S_MUL(log(CGraphics::m_65536), g_unk0x005113c0));
     CSound::IsSoundCallSuccessful(pSlot->pBuffer->SetVolume(attenuation));
     if (pSlot->pLoopBuffer != NULL)
         CSound::IsSoundCallSuccessful(pSlot->pLoopBuffer->SetVolume(attenuation));

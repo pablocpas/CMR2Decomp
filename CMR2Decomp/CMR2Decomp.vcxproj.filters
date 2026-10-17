@@ -164,6 +164,9 @@
     <ClInclude Include="FloatToInt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="X87Single.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="PauseMenus.h">
       <Filter>Header Files</Filter>
     </ClInclude>

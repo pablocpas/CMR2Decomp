@@ -382,7 +382,7 @@ inline short FixAcos(int x)
     if (x > 0x10000) {
         return g_acosTable[4095];
     }
-    t = (double)x * CGraphics::m_oneOver65536 * -4095.0;
+    t = X87S_MUL(X87S_MUL((double)x, CGraphics::m_oneOver65536), -4095.0);
     if (neg) {
         return -g_acosTable[-FTOI(__int64, t)];
     }

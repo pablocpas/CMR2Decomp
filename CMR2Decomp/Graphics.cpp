@@ -1039,11 +1039,11 @@ void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BY
             dst[0] = (BYTE)((BYTE)m_lockedTextures[i].masks[0] & px) >> (BYTE)m_lockedTextures[i].depths[0];
             dst[1] = (BYTE)((BYTE)m_lockedTextures[i].masks[1] & px) << (BYTE)m_lockedTextures[i].depths[1];
             dst[2] = (BYTE)((BYTE)m_lockedTextures[i].masks[2] & px) << (BYTE)-m_lockedTextures[i].depths[2];
-            f = (float)pColour[3] * g_unk0x00511364;
+            f = X87S_MUL((float)pColour[3], g_unk0x00511364);
             inv = g_netOne - f;
-            r = (int)FTOI(__int64, (float)r * f + (float)dst[0] * inv);
-            g = (int)FTOI(__int64, (float)g * f + (float)dst[1] * inv);
-            b = (int)FTOI(__int64, (float)b * f + (float)dst[2] * inv);
+            r = (int)FTOI(__int64, X87S_ADD(X87S_MUL(X87S_FILD(float, r), f), X87S_MUL((float)dst[0], inv)));
+            g = (int)FTOI(__int64, X87S_ADD(X87S_MUL(X87S_FILD(float, g), f), X87S_MUL((float)dst[1], inv)));
+            b = (int)FTOI(__int64, X87S_ADD(X87S_MUL(X87S_FILD(float, b), f), X87S_MUL((float)dst[2], inv)));
         }
         *p16 = (WORD)(PACK_CHANNEL(m_lockedTextures[i].masks[3], (short)m_lockedTextures[i].depths[3], 0xff) |
                       PACK_CHANNEL(m_lockedTextures[i].masks[0], (short)m_lockedTextures[i].depths[0], r) |
@@ -1055,11 +1055,11 @@ void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BY
             dst[0] = 0;
             dst[1] = 0;
             dst[2] = *(BYTE *)p32;
-            f = (float)pColour[3] * g_unk0x00511364;
+            f = X87S_MUL((float)pColour[3], g_unk0x00511364);
             inv = g_netOne - f;
-            r = (int)FTOI(__int64, (float)r * f + g_netZero * inv);
-            g = (int)FTOI(__int64, (float)g * f + g_netZero * inv);
-            b = (int)FTOI(__int64, (float)b * f + (float)dst[2] * inv);
+            r = (int)FTOI(__int64, X87S_ADD(X87S_MUL(X87S_FILD(float, r), f), g_netZero * inv));
+            g = (int)FTOI(__int64, X87S_ADD(X87S_MUL(X87S_FILD(float, g), f), g_netZero * inv));
+            b = (int)FTOI(__int64, X87S_ADD(X87S_MUL(X87S_FILD(float, b), f), X87S_MUL((float)dst[2], inv)));
         }
         *p32 = RGBA_MAKE(r, g, b, 0xff);
     }
@@ -1264,14 +1264,14 @@ DWORD CGraphics::GetTextureFormatCap200(int param1)
 void CGraphics::SetPrimaryColourScale(BYTE param1)
 {
     if (param1 <= 0xff)
-        m_unk0x00520b34 = (float)param1 * m_oneOver128;
+        m_unk0x00520b34 = X87S_MUL((float)param1, m_oneOver128);
 }
 
 // FUNCTION: CMR2 0x004a6080
 void CGraphics::SetSecondaryColourScale(BYTE param1)
 {
     if (param1 <= 0xff)
-        m_unk0x00520b38 = (float)param1 * m_oneOver128;
+        m_unk0x00520b38 = X87S_MUL((float)param1, m_oneOver128);
 }
 
 // FUNCTION: CMR2 0x004a6670
@@ -2042,13 +2042,13 @@ void CGraphics::SetProjection(int fovX, int fovY, int farPlane, int nearPlane)
 
     scale = m_projectionScale;
     if (fovX != 0)
-        m_fovX = (float)fovX * m_oneOver65536;
+        m_fovX = X87S_MUL(X87S_FILD(float, fovX), m_oneOver65536);
     if (fovY != 0)
-        m_fovY = (float)fovY * m_oneOver65536;
+        m_fovY = X87S_MUL(X87S_FILD(float, fovY), m_oneOver65536);
     if (farPlane != 0)
-        m_farPlane = (float)farPlane * m_oneOver65536;
+        m_farPlane = X87S_MUL(X87S_FILD(float, farPlane), m_oneOver65536);
     if (nearPlane != 0)
-        m_nearPlane = (float)nearPlane * m_oneOver65536;
+        m_nearPlane = X87S_MUL(X87S_FILD(float, nearPlane), m_oneOver65536);
 
     matrix._12 = 0.0f;
     matrix._13 = 0.0f;
@@ -2070,21 +2070,21 @@ void CGraphics::SetProjection(int fovX, int fovY, int farPlane, int nearPlane)
     matrix._11 = m_projection11;
     matrix._22 = m_projection22 = scale * m_fovY;
     matrix._43 = m_projection43;
-    m_pTextureManager->fixedProjection[0] = (int)FTOI(__int64, m_projection11 * m_65536);
+    m_pTextureManager->fixedProjection[0] = (int)FTOI(__int64, X87S_MUL(m_projection11, m_65536));
     m_pTextureManager->fixedProjection[1] = 0;
     m_pTextureManager->fixedProjection[2] = 0;
     m_pTextureManager->fixedProjection[3] = 0;
     m_pTextureManager->fixedProjection[4] = 0;
-    m_pTextureManager->fixedProjection[5] = (int)FTOI(__int64, matrix._22 * m_65536);
+    m_pTextureManager->fixedProjection[5] = (int)FTOI(__int64, X87S_MUL(matrix._22, m_65536));
     m_pTextureManager->fixedProjection[6] = 0;
     m_pTextureManager->fixedProjection[7] = 0;
     m_pTextureManager->fixedProjection[8] = 0;
     m_pTextureManager->fixedProjection[8] = 0;
-    m_pTextureManager->fixedProjection[10] = (int)FTOI(__int64, matrix._33 * m_65536);
+    m_pTextureManager->fixedProjection[10] = (int)FTOI(__int64, X87S_MUL(matrix._33, m_65536));
     m_pTextureManager->fixedProjection[11] = 0x10000;
     m_pTextureManager->fixedProjection[12] = 0;
     m_pTextureManager->fixedProjection[12] = 0;
-    m_pTextureManager->fixedProjection[14] = (int)FTOI(__int64, matrix._43 * m_65536);
+    m_pTextureManager->fixedProjection[14] = (int)FTOI(__int64, X87S_MUL(matrix._43, m_65536));
     m_pTextureManager->fixedProjection[15] = 0;
 
     tmp = matrix;
@@ -2933,22 +2933,22 @@ int Graphics_RenderNodeCubeMapFaces(SceneNode *pNode, int bit)
                             *(D3DMATRIX *)pObject->matrix = g_unk0x00597cc0;
                             if (pObject->scaleX != 0x10000 || pObject->scaleY != 0x10000 ||
                                 pObject->scaleZ != 0x10000) {
-                                scale = (float)pObject->scaleX * CGraphics::m_oneOver65536;
+                                scale = X87S_MUL(X87S_FILD(float, pObject->scaleX), CGraphics::m_oneOver65536);
                                 pObject->matrix[0] = scale * pObject->matrix[0];
                                 pObject->matrix[1] = scale * pObject->matrix[1];
                                 pObject->matrix[2] = scale * pObject->matrix[2];
-                                scale = (float)pObject->scaleY * CGraphics::m_oneOver65536;
+                                scale = X87S_MUL(X87S_FILD(float, pObject->scaleY), CGraphics::m_oneOver65536);
                                 pObject->matrix[4] = scale * pObject->matrix[4];
                                 pObject->matrix[5] = scale * pObject->matrix[5];
                                 pObject->matrix[6] = scale * pObject->matrix[6];
-                                scale = (float)pObject->scaleZ * CGraphics::m_oneOver65536;
+                                scale = X87S_MUL(X87S_FILD(float, pObject->scaleZ), CGraphics::m_oneOver65536);
                                 pObject->matrix[8] = scale * pObject->matrix[8];
                                 pObject->matrix[9] = scale * pObject->matrix[9];
                                 pObject->matrix[10] = scale * pObject->matrix[10];
                             }
-                            pObject->matrix[12] = (float)pObject->offsetX * CGraphics::m_oneOver65536;
-                            pObject->matrix[13] = (float)pObject->offsetY * CGraphics::m_oneOver65536;
-                            pObject->matrix[14] = (float)pObject->offsetZ * CGraphics::m_oneOver65536;
+                            pObject->matrix[12] = X87S_MUL(X87S_FILD(float, pObject->offsetX), CGraphics::m_oneOver65536);
+                            pObject->matrix[13] = X87S_MUL(X87S_FILD(float, pObject->offsetY), CGraphics::m_oneOver65536);
+                            pObject->matrix[14] = X87S_MUL(X87S_FILD(float, pObject->offsetZ), CGraphics::m_oneOver65536);
                             CGraphics::m_pTextureManager->pD3D->SetTransform(
                                 D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pObject->matrix);
                         } else {
@@ -3362,7 +3362,7 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
                   (pC->z > 0.0f && pB->z < 0.0f && pA->z < 0.0f)))
                 pC = pLone;
             if (pC != NULL) {
-                d = (float)sqrt(pC->x * pC->x + pC->y * pC->y);
+                d = (float)X87S_SQRT(pC->x * pC->x + pC->y * pC->y);
                 if (d > radius)
                     radius = d;
             }
@@ -3382,11 +3382,11 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
         ((MeshVertexF *)pCyl->pVertexData)[0].y = 0.0f;
         angle = 0;
         for (i = 1; i <= 10; i++) {
-            idx = (unsigned short)FTOI(__int64, (double)angle * g_fixedDegreesToAngle12);
+            idx = (unsigned short)FTOI(__int64, X87S_MUL((double)angle, g_fixedDegreesToAngle12));
             ((MeshVertexF *)pCyl->pVertexData)[i].x =
-                (float)g_sinTable[idx & 0xfff] * CGraphics::m_oneOver65536 * radius;
+                X87S_MUL(X87S_MUL(X87S_FILD(float, g_sinTable[idx & 0xfff]), CGraphics::m_oneOver65536), radius);
             ((MeshVertexF *)pCyl->pVertexData)[i].y =
-                (float)g_sinTable[(idx + 0x400) & 0xfff] * CGraphics::m_oneOver65536 * radius;
+                X87S_MUL(X87S_MUL(X87S_FILD(float, g_sinTable[(idx + 0x400) & 0xfff]), CGraphics::m_oneOver65536), radius);
             angle += FixDiv(360 << 16, 10 << 16);
         }
         for (i = 0; i < 11; i++) {
@@ -3456,14 +3456,14 @@ int Scene_AttenuateSectorLight(int sector, int light)
     pLight = (D3DLIGHT7 *)g_sceneType1Objects[light];
     if (pLight == NULL)
         return changed;
-    range = (int)FTOI(__int64, pLight->dvRange * CGraphics::m_65536);
-    att0 = (int)FTOI(__int64, pLight->dvAttenuation0 * CGraphics::m_65536);
+    range = (int)FTOI(__int64, X87S_MUL(pLight->dvRange, CGraphics::m_65536));
+    att0 = (int)FTOI(__int64, X87S_MUL(pLight->dvAttenuation0, CGraphics::m_65536));
     base = FixMul(0x20000, att0);
-    att2 = (int)FTOI(__int64, pLight->dvAttenuation2 * CGraphics::m_65536);
+    att2 = (int)FTOI(__int64, X87S_MUL(pLight->dvAttenuation2, CGraphics::m_65536));
     limit = g_sectorHalfSize + range + 0x140000;
-    lpos.x = (int)FTOI(__int64, pLight->dvPosition.x * CGraphics::m_65536);
-    lpos.y = (int)FTOI(__int64, pLight->dvPosition.y * CGraphics::m_65536);
-    lpos.z = (int)FTOI(__int64, pLight->dvPosition.z * CGraphics::m_65536);
+    lpos.x = (int)FTOI(__int64, X87S_MUL(pLight->dvPosition.x, CGraphics::m_65536));
+    lpos.y = (int)FTOI(__int64, X87S_MUL(pLight->dvPosition.y, CGraphics::m_65536));
+    lpos.z = (int)FTOI(__int64, X87S_MUL(pLight->dvPosition.z, CGraphics::m_65536));
     wasLit = g_sceneSectorFlags[sector];
     d.x = g_sectors[sector]->x - lpos.x;
     d.y = g_sectors[sector]->y - lpos.y;
@@ -3828,7 +3828,7 @@ void Pulse_Update(unsigned int dt)
 {
     if (g_pulseFrozen != 0)
         return;
-    g_pulsePhase = (float)dt * g_unk0x00511d1c + g_pulsePhase;
+    g_pulsePhase = X87S_ADD(X87S_MUL(X87S_FILD(float, dt), g_unk0x00511d1c), g_pulsePhase);
     if (g_pulseRising != 0) {
         if (g_pulseLevel <= g_unk0x00511d18)
             g_pulseSpeed = 0.0007f;
@@ -3859,12 +3859,12 @@ void Pulse_Update(unsigned int dt)
     if (g_pulseLevel >= g_pulseMax)
         g_pulseRising = 0;
     if (g_pulseLevel <= g_pulseMin && g_pulseRising == 0) {
-        g_pulseLevel = (float)dt * g_pulseSpeed + g_pulseLevel;
+        g_pulseLevel = X87S_ADD(X87S_MUL(X87S_FILD(float, dt), g_pulseSpeed), g_pulseLevel);
         g_pulseRising = 1;
     } else if (g_pulseRising != 0) {
-        g_pulseLevel = (float)dt * g_pulseSpeed + g_pulseLevel;
+        g_pulseLevel = X87S_ADD(X87S_MUL(X87S_FILD(float, dt), g_pulseSpeed), g_pulseLevel);
     } else {
-        g_pulseLevel = g_pulseLevel - (float)dt * g_pulseSpeed;
+        g_pulseLevel = X87S_SUB(g_pulseLevel, X87S_MUL(X87S_FILD(float, dt), g_pulseSpeed));
     }
 }
 
@@ -3988,10 +3988,10 @@ float g_fogStart;
 // FUNCTION: CMR2 0x004bcaf0
 void Graphics_SetFog(int start, int end, int a, int b, DWORD colour)
 {
-    g_fogStart = (float)start * CGraphics::m_oneOver65536;
-    g_fogEnd = (float)end * CGraphics::m_oneOver65536;
-    g_fogField1 = (float)a * CGraphics::m_oneOver65536;
-    g_fogField2 = (float)b * CGraphics::m_oneOver65536;
+    g_fogStart = X87S_MUL(X87S_FILD(float, start), CGraphics::m_oneOver65536);
+    g_fogEnd = X87S_MUL(X87S_FILD(float, end), CGraphics::m_oneOver65536);
+    g_fogField1 = X87S_MUL(X87S_FILD(float, a), CGraphics::m_oneOver65536);
+    g_fogField2 = X87S_MUL(X87S_FILD(float, b), CGraphics::m_oneOver65536);
     CGraphics::m_pTextureManager->pD3D->SetRenderState(
         D3DRENDERSTATE_FOGCOLOR, RGBA_MAKE(((BYTE *)&colour)[0], ((BYTE *)&colour)[1], ((BYTE *)&colour)[2], 0xff));
     if (Graphics_GetDeviceCaps90() != 0) {
@@ -4420,10 +4420,10 @@ void Billboard_Add(BillboardDef *pDef, Texture *pTexture)
     if (pTexture == NULL || pDef == NULL || (unsigned int)g_unk0x006dd784 >= 800)
         return;
     pQuad = &g_billboards[g_unk0x006dd784];
-    left = (float)pDef->left * CGraphics::m_oneOver65536;
-    top = (float)pDef->top * CGraphics::m_oneOver65536;
-    right = (float)pDef->right * CGraphics::m_oneOver65536;
-    bottom = (float)pDef->bottom * CGraphics::m_oneOver65536;
+    left = X87S_MUL(X87S_FILD(float, pDef->left), CGraphics::m_oneOver65536);
+    top = X87S_MUL(X87S_FILD(float, pDef->top), CGraphics::m_oneOver65536);
+    right = X87S_MUL(X87S_FILD(float, pDef->right), CGraphics::m_oneOver65536);
+    bottom = X87S_MUL(X87S_FILD(float, pDef->bottom), CGraphics::m_oneOver65536);
     pQuad->corner[0].x = 0.0f;
     pQuad->corner[1].x = 0.0f;
     pQuad->corner[2].x = 0.0f;
@@ -4437,9 +4437,9 @@ void Billboard_Add(BillboardDef *pDef, Texture *pTexture)
     pQuad->corner[3].y = -right;
     pQuad->corner[3].z = bottom;
     pQuad->texture = pTexture->textureId;
-    pQuad->pos.x = (float)pDef->pos.x * CGraphics::m_oneOver65536;
-    pQuad->pos.y = (float)pDef->pos.y * CGraphics::m_oneOver65536;
-    pQuad->pos.z = (float)pDef->pos.z * CGraphics::m_oneOver65536;
+    pQuad->pos.x = X87S_MUL(X87S_FILD(float, pDef->pos.x), CGraphics::m_oneOver65536);
+    pQuad->pos.y = X87S_MUL(X87S_FILD(float, pDef->pos.y), CGraphics::m_oneOver65536);
+    pQuad->pos.z = X87S_MUL(X87S_FILD(float, pDef->pos.z), CGraphics::m_oneOver65536);
     if ((pDef->flags & 2) == 0) {
         pQuad->colour = RGBA_MAKE(pDef->r, pDef->g, pDef->b, pDef->a);
     } else {
@@ -4541,8 +4541,8 @@ void Billboard_Draw(SceneNode *pCamera)
             angle = pQuad->field_0x54;
             colour = pQuad->colour;
             if (angle != 0) {
-                c = (float)g_sinTable[(angle + 0x400) & 0xfff] * CGraphics::m_oneOver65536;
-                s = (float)g_sinTable[angle & 0xfff] * CGraphics::m_oneOver65536;
+                c = X87S_MUL(X87S_FILD(float, g_sinTable[(angle + 0x400) & 0xfff]), CGraphics::m_oneOver65536);
+                s = X87S_MUL(X87S_FILD(float, g_sinTable[angle & 0xfff]), CGraphics::m_oneOver65536);
                 axes._11 = view._11 * c + view._21 * s;
                 axes._12 = view._12 * c + view._22 * s;
                 axes._13 = view._13 * c + view._23 * s;
@@ -5373,21 +5373,21 @@ void Graphics_UpdateFrameStatistics(void)
     } else {
         if (g_averageFpsDone == 0 && g_unk0x006dd8a4 - g_unk0x006dd8a0 > 3000) {
             g_averageFpsDone = 1;
-            g_averageFps = (float)g_frameCount * g_netFontInverseScale / (double)(g_unk0x006dd8a4 - g_unk0x006dd8a0);
+            g_averageFps = X87S_DIV(X87S_MUL(X87S_FILD(float, g_frameCount), g_netFontInverseScale), (double)(g_unk0x006dd8a4 - g_unk0x006dd8a0));
         }
         if (g_lastSecond != g_unk0x006dd8a4 / 1000) {
             g_lastSecond = g_unk0x006dd8a4 / 1000;
             elapsed = (double)(g_unk0x006dd8a4 - g_unk0x006dd89c);
             g_unk0x006dd89c = g_unk0x006dd8a4;
-            g_fps = (float)g_framesThisSecond * g_netFontInverseScale / elapsed;
+            g_fps = X87S_DIV(X87S_MUL(X87S_FILD(float, g_framesThisSecond), g_netFontInverseScale), elapsed);
             g_framesThisSecond = 0;
         }
     }
     {
         double dt = (double)(g_unk0x006dd8a4 - g_unk0x006dd898);
 
-        g_frameScale2 = g_netFontInverseScale / dt;
-        g_frameScale = g_netFontInverseScale / dt;
+        g_frameScale2 = X87S_DIV(g_netFontInverseScale, dt);
+        g_frameScale = X87S_DIV(g_netFontInverseScale, dt);
     }
 }
 
@@ -6080,9 +6080,9 @@ void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition,
 
 particleFound:
 
-    randomX = -0x8000 - (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * g_minus65536);
-    randomY = -0x8000 - (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * g_minus65536);
-    randomZ = -0x8000 - (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * g_minus65536);
+    randomX = -0x8000 - (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), g_minus65536));
+    randomY = -0x8000 - (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), g_minus65536));
+    randomZ = -0x8000 - (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), g_minus65536));
 
     pParticle->position.x = pPosition->x;
     pParticle->position.y = pPosition->y;
@@ -6137,7 +6137,7 @@ particleFound:
     }
     if ((pType->flags & 0x10) != 0) {
         int sizeVariation = pType->sizeVariation;
-        int variation = (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+        int variation = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536));
         pParticle->size = pType->size + FixMul(sizeVariation, variation);
     } else {
         pParticle->size = pType->size;
@@ -6607,9 +6607,9 @@ BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pI
         m_tgaPixel[2] = b;
     }
     if (contrast != g_unk0x00511428) {
-        in.r = m_tgaPixel[0] * g_unk0x00511364;
-        in.g = m_tgaPixel[1] * g_unk0x00511364;
-        in.b = m_tgaPixel[2] * g_unk0x00511364;
+        in.r = X87S_MUL(X87S_LOAD(m_tgaPixel[0]), g_unk0x00511364);
+        in.g = X87S_MUL(X87S_LOAD(m_tgaPixel[1]), g_unk0x00511364);
+        in.b = X87S_MUL(X87S_LOAD(m_tgaPixel[2]), g_unk0x00511364);
         D3DXColorAdjustContrast(&out, &in, contrast);
         if (out.r > g_netOne)
             out.r = 1.0f;

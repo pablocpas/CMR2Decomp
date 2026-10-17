@@ -663,7 +663,7 @@ int Game_DrawFadingBootLabel(int x, int y, char *pText, char flag)
             alpha = 0;
         else
             alpha = 0xff -
-                    (int)FTOI(__int64, (float)(elapsed - 0x9c4) * g_netByteScale * g_bootFadeStep);
+                    (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, (elapsed - 0x9c4)), g_netByteScale), g_bootFadeStep));
     } else {
         alpha = 0xff;
     }
@@ -2324,22 +2324,22 @@ void Game_DrawStaticStageObjects(void)
                     if (pObject->scaleX != 0x10000 || pObject->scaleY != 0x10000 ||
                         pObject->scaleZ != 0x10000) {
                         float scale;
-                        scale = (float)pObject->scaleX * CGraphics::m_oneOver65536;
+                        scale = X87S_MUL(X87S_FILD(float, pObject->scaleX), CGraphics::m_oneOver65536);
                         pObject->matrix[0] = scale * pObject->matrix[0];
                         pObject->matrix[1] = scale * pObject->matrix[1];
                         pObject->matrix[2] = scale * pObject->matrix[2];
-                        scale = (float)pObject->scaleY * CGraphics::m_oneOver65536;
+                        scale = X87S_MUL(X87S_FILD(float, pObject->scaleY), CGraphics::m_oneOver65536);
                         pObject->matrix[4] = scale * pObject->matrix[4];
                         pObject->matrix[5] = scale * pObject->matrix[5];
                         pObject->matrix[6] = scale * pObject->matrix[6];
-                        scale = (float)pObject->scaleZ * CGraphics::m_oneOver65536;
+                        scale = X87S_MUL(X87S_FILD(float, pObject->scaleZ), CGraphics::m_oneOver65536);
                         pObject->matrix[8] = scale * pObject->matrix[8];
                         pObject->matrix[9] = scale * pObject->matrix[9];
                         pObject->matrix[10] = scale * pObject->matrix[10];
                     }
-                    pObject->matrix[12] = (float)pObject->offsetX * CGraphics::m_oneOver65536;
-                    pObject->matrix[13] = (float)pObject->offsetY * CGraphics::m_oneOver65536;
-                    pObject->matrix[14] = (float)pObject->offsetZ * CGraphics::m_oneOver65536;
+                    pObject->matrix[12] = X87S_MUL(X87S_FILD(float, pObject->offsetX), CGraphics::m_oneOver65536);
+                    pObject->matrix[13] = X87S_MUL(X87S_FILD(float, pObject->offsetY), CGraphics::m_oneOver65536);
+                    pObject->matrix[14] = X87S_MUL(X87S_FILD(float, pObject->offsetZ), CGraphics::m_oneOver65536);
                 }
                 if ((pObject->pMesh->flags & 2) != 0) {
                     delta.x = g_unk0x0059be6c->world.position.x - pObject->position.x;

@@ -4764,7 +4764,7 @@ void FrontendAnimation_GetFrameDistance(int *pOut, int speed)
         *pOut = FixMul(speed, FixDiv(20 << 16, 1000 << 16));
         return;
     }
-    *pOut = FixMul(speed, FixDiv((int)FTOI(__int64, (unsigned int)(CFrontend::GetFrontendTimestamp() - g_menuAnimTime) * CGraphics::m_65536),
+    *pOut = FixMul(speed, FixDiv((int)FTOI(__int64, X87S_MUL((unsigned int)(CFrontend::GetFrontendTimestamp() - g_menuAnimTime), CGraphics::m_65536)),
                                  1000 << 16));
 }
 
@@ -4868,14 +4868,14 @@ void FrontendAnimation_UpdateMainPath(void)
         if (elapsed > 250) {
             g_pMenuPath = g_menuPaths[g_menuPathMode][0];
         } else {
-            f = FixDiv((int)FTOI(__int64, elapsed * CGraphics::m_65536), 250 << 16);
+            f = FixDiv((int)FTOI(__int64, X87S_MUL(elapsed, CGraphics::m_65536)), 250 << 16);
             j = 0;
             pPoint = g_menuPathMorph[0];
             do {
                 dy = g_menuPaths[g_menuPathMode][j][1] - g_menuPaths[g_menuPathPrevMode][j][1];
                 dx = g_menuPaths[g_menuPathMode][j][0] - g_menuPaths[g_menuPathPrevMode][j][0];
-                pPoint[0] = g_menuPaths[g_menuPathPrevMode][j][0] + (FixMul((int)FTOI(__int64, dx * CGraphics::m_65536), f) >> 16);
-                pPoint[1] = g_menuPaths[g_menuPathPrevMode][j][1] + (FixMul((int)FTOI(__int64, dy * CGraphics::m_65536), f) >> 16);
+                pPoint[0] = g_menuPaths[g_menuPathPrevMode][j][0] + (FixMul((int)FTOI(__int64, X87S_MUL(dx, CGraphics::m_65536)), f) >> 16);
+                pPoint[1] = g_menuPaths[g_menuPathPrevMode][j][1] + (FixMul((int)FTOI(__int64, X87S_MUL(dy, CGraphics::m_65536)), f) >> 16);
                 pPoint += 2;
                 j++;
             } while (pPoint < g_menuPathMorph[19]);
@@ -4889,7 +4889,7 @@ void FrontendAnimation_UpdateMainPath(void)
         *pPos = pPos[-1];
     pSpeed = g_menuStreamSpeed;
     do {
-        *pSpeed += FixDiv((int)FTOI(__int64, (rand() % 101 - 50) * CGraphics::m_65536), 1000 << 16);
+        *pSpeed += FixDiv((int)FTOI(__int64, X87S_MUL((rand() % 101 - 50), CGraphics::m_65536)), 1000 << 16);
         if (*pSpeed > 0x18000)
             *pSpeed = 0x18000;
         if (*pSpeed < 0x8000)
@@ -5879,13 +5879,13 @@ void FrontendDraw_RipplingDotIcon(int x, int y, short phase)
     col = 0;
     do {
         row = 0;
-        u = (int)FTOI(__int64, ((int)(g_pGraphics->resX * 18) / 640 * col + x) * CGraphics::m_65536) / (int)g_pGraphics->resX;
+        u = (int)FTOI(__int64, X87S_MUL(((int)(g_pGraphics->resX * 18) / 640 * col + x), CGraphics::m_65536)) / (int)g_pGraphics->resX;
         g_unk0x008189a8[1] = y;
         pDot = &g_dotIconMap[col];
         do {
             if (*pDot != 0) {
                 b = Frontend_ComputeRippleHeight(centre, u,
-                                 (int)FTOI(__int64, ((int)(g_pGraphics->resY * 18) / 480 * row + y) * CGraphics::m_65536)
+                                 (int)FTOI(__int64, X87S_MUL(((int)(g_pGraphics->resY * 18) / 480 * row + y), CGraphics::m_65536))
                                      / (int)g_pGraphics->resX,
                                  phase, 0x140000) / 4 + 0xc000;
                 colour[0] = FixMulShift32(0xff0000, b);

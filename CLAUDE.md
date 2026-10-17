@@ -240,3 +240,10 @@ change, e.g. `Sprite_FillRect byte-exact (24.8% -> exact): ...`.
 - Keep annotations, struct offsets, declaration order; do not rename while matching.
 - Behaviour must stay identical; no inline asm, no `#pragma` tricks to fake bytes.
 - A change that makes one function exact but breaks another in the TU is not progress.
+- Floating point follows the original's x87: a float-to-integer conversion is
+  `FTOI(type, x)` (FloatToInt.h), and an add, subtract, multiply, divide or
+  `sqrt` of double type, or one with an integer operand converted to float, is
+  `X87S_ADD/SUB/MUL/DIV`, `X87S_SQRT`, `X87S_FILD`/`X87S_LOAD` (X87Single.h):
+  the game ran them at single precision once Direct3D existed. MSVC6 compiles
+  both as the plain code. After writing new code, run OpenCMR2's
+  `tools/ftoi_rewrite.py` and `tools/x87s_rewrite.py`; a second run finds nothing.

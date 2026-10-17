@@ -1915,7 +1915,7 @@ int StageTiming_UpdateSplitRatesForSlot(int slot, int driverID)
             if (pRates[splitIndex].rate < 10)
                 pRates[splitIndex].rate = 10;
         }
-        pRates[splitIndex].scale = (float)(g_unk0x005113a8 / ((double)driverTime / (double)splitTime * g_unk0x005113b0));
+        pRates[splitIndex].scale = (float)(X87S_DIV(g_unk0x005113a8, (X87S_MUL(X87S_DIV((double)driverTime, (double)splitTime), g_unk0x005113b0))));
     }
     return 0;
 }
@@ -1939,8 +1939,8 @@ void StageTiming_GetObjectRampParameters(int *p1, int *p2, int *p3, int *p4)
 {
     *p1 = g_unk0x00543e88;
     *p2 = g_unk0x00543d9c;
-    *p3 = (int)FTOI(__int64, g_unk0x00543e8c * CGraphics::m_65536);
-    *p4 = (int)FTOI(__int64, g_unk0x00543e94 * CGraphics::m_65536);
+    *p3 = (int)FTOI(__int64, X87S_MUL(g_unk0x00543e8c, CGraphics::m_65536));
+    *p4 = (int)FTOI(__int64, X87S_MUL(g_unk0x00543e94, CGraphics::m_65536));
 }
 
 // Fades precipitation through sheltered route intervals of special stages.
@@ -2217,9 +2217,9 @@ void StageDeform_ClampVertex(int *pPosition, int meshIndex, int vertexIndex, Def
     pPosition[1] = base.y + (y << 6);
     i = vertexIndex * sizeof(DeformFloatVertex);
     pPosition[2] = base.z + (z << 6);
-    ((DeformFloatVertex *)((BYTE *)pRecord->meshes[meshIndex]->pVertexData + i))->pos[2] = (float)((double)pPosition[2] * CGraphics::m_oneOver65536);
-    ((DeformFloatVertex *)((BYTE *)pRecord->meshes[meshIndex]->pVertexData + i))->pos[1] = (float)((double)pPosition[1] * CGraphics::m_oneOver65536);
-    ((DeformFloatVertex *)((BYTE *)pRecord->meshes[meshIndex]->pVertexData + i))->pos[0] = (float)((double)pPosition[0] * CGraphics::m_oneOver65536);
+    ((DeformFloatVertex *)((BYTE *)pRecord->meshes[meshIndex]->pVertexData + i))->pos[2] = (float)(X87S_MUL((double)pPosition[2], CGraphics::m_oneOver65536));
+    ((DeformFloatVertex *)((BYTE *)pRecord->meshes[meshIndex]->pVertexData + i))->pos[1] = (float)(X87S_MUL((double)pPosition[1], CGraphics::m_oneOver65536));
+    ((DeformFloatVertex *)((BYTE *)pRecord->meshes[meshIndex]->pVertexData + i))->pos[0] = (float)(X87S_MUL((double)pPosition[0], CGraphics::m_oneOver65536));
 }
 
 // Pushes the body mesh vertices within the impact radius, then refreshes each
@@ -2293,9 +2293,9 @@ void StageDeform_ApplyRadialDent(void)
         for (vertexIndex = 0; vertexIndex < ((CarPartSet *)((BYTE *)pSlot - ((BYTE *)pSlot - (BYTE *)pRecord->geometry.meshes) *
                                                       (sizeof(Mesh *) - sizeof(int)) / sizeof(Mesh *)))->vertexCount[0];
              vertexIndex++) {
-            pos.x = (int)FTOI(__int64, ((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].pos[0] * CGraphics::m_65536);
-            pos.y = (int)FTOI(__int64, ((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].pos[1] * CGraphics::m_65536);
-            pos.z = (int)FTOI(__int64, ((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].pos[2] * CGraphics::m_65536);
+            pos.x = (int)FTOI(__int64, X87S_MUL(((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].pos[0], CGraphics::m_65536));
+            pos.y = (int)FTOI(__int64, X87S_MUL(((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].pos[1], CGraphics::m_65536));
+            pos.z = (int)FTOI(__int64, X87S_MUL(((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].pos[2], CGraphics::m_65536));
             dir.x = g_stageDeformOffset.x - pos.x;
             dir.y = g_stageDeformOffset.y - pos.y;
             dir.z = g_stageDeformOffset.z - pos.z;
@@ -2339,9 +2339,9 @@ void StageDeform_ApplyRadialDent(void)
             }
             StageDeform_ClampVertex(&pos.x, meshIndex, vertexIndex, &pRecord->geometry);
             // The second vertex position moves three times as far.
-            limit.x = (int)FTOI(__int64, ((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].normal[0] * CGraphics::m_65536);
-            limit.y = (int)FTOI(__int64, ((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].normal[1] * CGraphics::m_65536);
-            limit.z = (int)FTOI(__int64, ((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].normal[2] * CGraphics::m_65536);
+            limit.x = (int)FTOI(__int64, X87S_MUL(((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].normal[0], CGraphics::m_65536));
+            limit.y = (int)FTOI(__int64, X87S_MUL(((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].normal[1], CGraphics::m_65536));
+            limit.z = (int)FTOI(__int64, X87S_MUL(((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].normal[2], CGraphics::m_65536));
             scaled.x = pos.x - saved.x;
             scaled.y = pos.y - saved.y;
             scaled.z = pos.z - saved.z;
@@ -2349,9 +2349,9 @@ void StageDeform_ApplyRadialDent(void)
             limit.x += scaled.x;
             limit.y += scaled.y;
             limit.z += scaled.z;
-            ((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].normal[0] = (float)((double)limit.x * CGraphics::m_oneOver65536);
-            ((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].normal[1] = (float)((double)limit.y * CGraphics::m_oneOver65536);
-            ((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].normal[2] = (float)((double)limit.z * CGraphics::m_oneOver65536);
+            ((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].normal[0] = (float)(X87S_MUL((double)limit.x, CGraphics::m_oneOver65536));
+            ((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].normal[1] = (float)(X87S_MUL((double)limit.y, CGraphics::m_oneOver65536));
+            ((DeformFloatVertex *)(*pSlot)->pVertexData)[vertexIndex].normal[2] = (float)(X87S_MUL((double)limit.z, CGraphics::m_oneOver65536));
             changed = 1;
         }
         if (changed) {
@@ -2413,9 +2413,9 @@ void StageDeform_ApplyPlanarDent(void)
         for (vertexIndex = 0; vertexIndex < ((CarPartSet *)((BYTE *)pSlot - ((BYTE *)pSlot - (BYTE *)pRecord->geometry.meshes) *
                                                       (sizeof(Mesh *) - sizeof(int)) / sizeof(Mesh *)))->vertexCount[0];
              vertexIndex++) {
-            pos.x = (int)FTOI(__int64, DENT_POS(0) * CGraphics::m_65536);
-            pos.y = (int)FTOI(__int64, DENT_POS(1) * CGraphics::m_65536);
-            pos.z = (int)FTOI(__int64, DENT_POS(2) * CGraphics::m_65536);
+            pos.x = (int)FTOI(__int64, X87S_MUL(DENT_POS(0), CGraphics::m_65536));
+            pos.y = (int)FTOI(__int64, X87S_MUL(DENT_POS(1), CGraphics::m_65536));
+            pos.z = (int)FTOI(__int64, X87S_MUL(DENT_POS(2), CGraphics::m_65536));
             dir.x = g_stageDeformOffset.x - pos.x;
             dir.y = g_stageDeformOffset.y - pos.y;
             dir.z = g_stageDeformOffset.z - pos.z;
@@ -2458,9 +2458,9 @@ void StageDeform_ApplyPlanarDent(void)
             }
             StageDeform_ClampVertex(&pos.x, meshIndex, vertexIndex, &pRecord->geometry);
             // The second vertex position moves three times as far.
-            limit.x = (int)FTOI(__int64, DENT_NORMAL(0) * CGraphics::m_65536);
-            limit.y = (int)FTOI(__int64, DENT_NORMAL(1) * CGraphics::m_65536);
-            limit.z = (int)FTOI(__int64, DENT_NORMAL(2) * CGraphics::m_65536);
+            limit.x = (int)FTOI(__int64, X87S_MUL(DENT_NORMAL(0), CGraphics::m_65536));
+            limit.y = (int)FTOI(__int64, X87S_MUL(DENT_NORMAL(1), CGraphics::m_65536));
+            limit.z = (int)FTOI(__int64, X87S_MUL(DENT_NORMAL(2), CGraphics::m_65536));
             scaled.x = pos.x - saved.x;
             scaled.y = pos.y - saved.y;
             scaled.z = pos.z - saved.z;
@@ -2468,9 +2468,9 @@ void StageDeform_ApplyPlanarDent(void)
             limit.x += scaled.x;
             limit.y += scaled.y;
             limit.z += scaled.z;
-            DENT_NORMAL(0) = (float)((double)limit.x * CGraphics::m_oneOver65536);
-            DENT_NORMAL(1) = (float)((double)limit.y * CGraphics::m_oneOver65536);
-            DENT_NORMAL(2) = (float)((double)limit.z * CGraphics::m_oneOver65536);
+            DENT_NORMAL(0) = (float)(X87S_MUL((double)limit.x, CGraphics::m_oneOver65536));
+            DENT_NORMAL(1) = (float)(X87S_MUL((double)limit.y, CGraphics::m_oneOver65536));
+            DENT_NORMAL(2) = (float)(X87S_MUL((double)limit.z, CGraphics::m_oneOver65536));
             changed = 1;
         }
         if (changed) {
@@ -2764,7 +2764,7 @@ void StageTiming_SetNodeTreeMeshAlpha(SceneNode *pNode, int alpha, BYTE checkFla
 void StageTiming_ProjectPointToTenUnitRadius(int *param1, int *param2, int *param3);
 
 // Square of a float expression; the original expands it twice.
-#define FSQR(x) ((x) * (x))
+#define FSQR(x) (X87S_MUL((x), (x)))
 
 // Fade factors of StageTiming_DrawProjectedCarMarker, expanded where they are used (the original
 // computes each one once and keeps it in an x87 scratch slot).
@@ -2813,8 +2813,8 @@ void StageTiming_DrawProjectedCarMarker(int param_1, int param_2)
     else
         flag = 1;
     if (proj[0] != -0x640000 || proj[1] != -0x640000) {
-        prevX = proj[0] * CGraphics::m_oneOver65536;
-        prevY = proj[1] * CGraphics::m_oneOver65536;
+        prevX = X87S_MUL(proj[0], CGraphics::m_oneOver65536);
+        prevY = X87S_MUL(proj[1], CGraphics::m_oneOver65536);
         FixMatrix_GetUp(&up, &pView->current);
         up.x += nodePos.x;
         up.y += nodePos.y;
@@ -2822,10 +2822,7 @@ void StageTiming_DrawProjectedCarMarker(int param_1, int param_2)
         StageTiming_ProjectPointToTenUnitRadius((int *)&up, (int *)&viewPos, (int *)&out);
         FixMatrix_ProjectWorldPointToView(proj, &out, pView);
         if (proj[0] != -0x640000 || proj[1] != -0x640000) {
-            distance = (float)sqrt(FSQR((proj[0] * CGraphics::m_oneOver65536 - prevX) * g_unk0x005113e0 /
-                                        (int)g_pGraphics->resX) +
-                                   FSQR((proj[1] * CGraphics::m_oneOver65536 - prevY) * g_unk0x005113dc /
-                                        (int)g_pGraphics->resY));
+            distance = (float)X87S_SQRT(X87S_ADD(FSQR(X87S_DIV(X87S_MUL((X87S_SUB(X87S_MUL(proj[0], CGraphics::m_oneOver65536), prevX)), g_unk0x005113e0), (int)g_pGraphics->resX)), FSQR(X87S_DIV(X87S_MUL((X87S_SUB(X87S_MUL(proj[1], CGraphics::m_oneOver65536), prevY)), g_unk0x005113dc), (int)g_pGraphics->resY))));
             if (distance > g_unk0x00511378) {
                 if (TIMER_ALPHA >= g_netOne)
                     colour[3] = 0xdc;
@@ -2927,9 +2924,9 @@ void StageTiming_ProjectPointToTenUnitRadius(int *pPoint, int *pOrigin, int *pOu
     d[0] = pPoint[0] - pOrigin[0];
     d[1] = pPoint[1] - pOrigin[1];
     d[2] = pPoint[2] - pOrigin[2];
-    v[0] = d[0] * CGraphics::m_oneOver65536;
-    v[1] = d[1] * CGraphics::m_oneOver65536;
-    v[2] = d[2] * CGraphics::m_oneOver65536;
+    v[0] = X87S_MUL(d[0], CGraphics::m_oneOver65536);
+    v[1] = X87S_MUL(d[1], CGraphics::m_oneOver65536);
+    v[2] = X87S_MUL(d[2], CGraphics::m_oneOver65536);
     if (fabs(v[0]) > fabs(v[1]) && fabs(v[0]) > fabs(v[2]))
         big = fabs(v[0]);
     else if (fabs(v[1]) > fabs(v[0]) && fabs(v[2]) < fabs(v[1]))
@@ -2937,14 +2934,14 @@ void StageTiming_ProjectPointToTenUnitRadius(int *pPoint, int *pOrigin, int *pOu
     else
         big = fabs(v[2]);
     if (big > g_zero0x005113c8) {
-        v[0] /= big;
-        v[1] /= big;
-        v[2] /= big;
+        v[0] = X87S_DIV(v[0], big);
+        v[1] = X87S_DIV(v[1], big);
+        v[2] = X87S_DIV(v[2], big);
     }
-    length = sqrt(v[2] * v[2] + v[1] * v[1] + v[0] * v[0]);
-    v[0] = v[0] * 10.0 / length;
-    v[1] = v[1] * 10.0 / length;
-    v[2] = v[2] * 10.0 / length;
+    length = X87S_SQRT(X87S_ADD(X87S_ADD(X87S_MUL(v[2], v[2]), X87S_MUL(v[1], v[1])), X87S_MUL(v[0], v[0])));
+    v[0] = X87S_DIV(X87S_MUL(v[0], 10.0), length);
+    v[1] = X87S_DIV(X87S_MUL(v[1], 10.0), length);
+    v[2] = X87S_DIV(X87S_MUL(v[2], 10.0), length);
     x = FloatToFix((float)v[0]);
     y = FloatToFix((float)v[1]);
     z = FloatToFix((float)v[2]);
@@ -3524,7 +3521,7 @@ void StageTiming_AdvancePlayerHalfLapCounter(int player, int *pCount, int *pFrac
         slot = NetPlayers_GetPlayerField8(player);
     if (g_unk0x00542cb4[slot] == 0) {
         count = (float)g_stageCheckpointCount;
-        value = count * g_unk0x005113b8 + *pFrac;
+        value = X87S_ADD(X87S_MUL(count, g_unk0x005113b8), *pFrac);
         if (value >= count) {
             (*pCount)++;
             *pFrac = (int)FTOI(__int64, value - count);
@@ -4333,13 +4330,13 @@ void StageTiming_RebuildDamagedPartMeshes(Car *pCar)
         for (i = 0; i < set->count; i++) {
             for (j = 0; j < set->vertexCount[i]; j++) {
                 pos = set->geometry.vertices[i][j].pos;
-                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[0] = pos.x * CGraphics::m_oneOver65536;
-                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[1] = pos.y * CGraphics::m_oneOver65536;
-                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[2] = pos.z * CGraphics::m_oneOver65536;
+                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[0] = X87S_MUL(pos.x, CGraphics::m_oneOver65536);
+                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[1] = X87S_MUL(pos.y, CGraphics::m_oneOver65536);
+                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].pos[2] = X87S_MUL(pos.z, CGraphics::m_oneOver65536);
                 normal = set->geometry.vertices[i][j].normal;
-                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].normal[0] = normal.x * CGraphics::m_oneOver65536;
-                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].normal[1] = normal.y * CGraphics::m_oneOver65536;
-                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].normal[2] = normal.z * CGraphics::m_oneOver65536;
+                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].normal[0] = X87S_MUL(normal.x, CGraphics::m_oneOver65536);
+                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].normal[1] = X87S_MUL(normal.y, CGraphics::m_oneOver65536);
+                ((DeformFloatVertex *)set->geometry.meshes[i]->pVertexData)[j].normal[2] = X87S_MUL(normal.z, CGraphics::m_oneOver65536);
             }
             pMesh = (Mesh *)set->geometry.nodes[i]->pObject;
             if (pMesh != NULL) {
@@ -4462,7 +4459,7 @@ void StageTiming_BlendCarPaintDecalRows(StageTimingSpread *pCar, int *pOut)
     int i;
 
     v = (unsigned int)RallyData_GetRouteAvailabilityState();
-    v = FTOI(__int64, (double)v * CGraphics::m_65536);
+    v = FTOI(__int64, X87S_MUL((double)v, CGraphics::m_65536));
     t = (int)v;
     // The original computes this and discards it (inline __asm FixMul is opaque
     // to MSVC6, so it cannot be eliminated); reproduced to match the codegen.
@@ -4473,9 +4470,9 @@ void StageTiming_BlendCarPaintDecalRows(StageTimingSpread *pCar, int *pOut)
     rc = 0x10000 - ac;
     sum = r8 + rc;
     for (i = 0; i < 0x50; i += 5, pOut++) {
-        d3 = (int)FTOI(__int64, g_splitSpreadTable[i + 3] * CGraphics::m_65536);
-        d4 = (int)FTOI(__int64, g_splitSpreadTable[i + 4] * CGraphics::m_65536);
-        d0 = (int)FTOI(__int64, g_splitSpreadTable[i] * CGraphics::m_65536);
+        d3 = (int)FTOI(__int64, X87S_MUL(g_splitSpreadTable[i + 3], CGraphics::m_65536));
+        d4 = (int)FTOI(__int64, X87S_MUL(g_splitSpreadTable[i + 4], CGraphics::m_65536));
+        d0 = (int)FTOI(__int64, X87S_MUL(g_splitSpreadTable[i], CGraphics::m_65536));
         t1 = FixDiv(pCar->startPositionFixed, t);
         t2 = FixDiv(t - pCar->endPositionFixed, t);
         t3 = 0x10000 - t2 - t1;
@@ -4508,9 +4505,9 @@ void StageTiming_RandomizeComputerTimes(int *pTimes)
     unsigned int r;
 
     for (i = 0; i < 0x50; i += 5, p++) {
-        low = (int)FTOI(__int64, g_splitSpreadTable[i + 2] * CGraphics::m_65536);
-        high = (int)FTOI(__int64, g_splitSpreadTable[i + 1] * g_minus65536);
-        r = (unsigned int)FTOI(__int64, rand() * CGraphics::m_65536);
+        low = (int)FTOI(__int64, X87S_MUL(g_splitSpreadTable[i + 2], CGraphics::m_65536));
+        high = (int)FTOI(__int64, X87S_MUL(g_splitSpreadTable[i + 1], g_minus65536));
+        r = (unsigned int)FTOI(__int64, X87S_MUL(rand(), CGraphics::m_65536));
         *p += FixMul(FixDiv(r, 0x7fff0000), -low - high) + low;
     }
     RallyTiming_SortOrder(pTimes, g_stageSplitDriverIndices[split], 0, g_unk0x00541f98, 1);
@@ -4526,7 +4523,7 @@ void StageTiming_AdvanceTimedLapCheckpoint(int car, int time)
     int count;
 
     if (g_unk0x00542e78[car].field_0x2 == g_unk0x00542e78[car].field_0x8 &&
-        (int)FTOI(__int64, time * CGraphics::m_65536) == g_unk0x00542c7c[g_unk0x00542e78[car].field_0xa]) {
+        (int)FTOI(__int64, X87S_MUL(time, CGraphics::m_65536)) == g_unk0x00542c7c[g_unk0x00542e78[car].field_0xa]) {
         g_unk0x00542e78[car].field_0x17 = 1;
         g_unk0x00542e78[car].field_0x4 = g_unk0x00542e78[car].field_0x8;
         g_unk0x00542e78[car].field_0x6 = g_unk0x00542e78[car].field_0xa;
@@ -4691,7 +4688,7 @@ void StageTiming_AdvanceLoopedCarCheckpoint(int car, int time)
         g_unk0x00542e78[car].field_0x17 = 1;
         return;
     }
-    if ((int)FTOI(__int64, time * CGraphics::m_65536) == g_unk0x00542c7c[g_unk0x00542e78[car].field_0xa]) {
+    if ((int)FTOI(__int64, X87S_MUL(time, CGraphics::m_65536)) == g_unk0x00542c7c[g_unk0x00542e78[car].field_0xa]) {
         g_unk0x00542e78[car].field_0x17 = 1;
         g_unk0x00542e78[car].field_0x6 = g_unk0x00542e78[car].field_0xa;
         g_unk0x00542e78[car].field_0xa++;
@@ -4960,11 +4957,11 @@ void ForceFeedback_ComputeRoadNoise(void)
     int k;
 
     if (g_unk0x00539278->field_0x20 == 0)
-        g_unk0x00539278->field_0x20 = (int)FTOI(__int64, rand() * g_oneOverRandMax * CGraphics::m_65536);
+        g_unk0x00539278->field_0x20 = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_LOAD(rand()), g_oneOverRandMax), CGraphics::m_65536));
     else if (g_unk0x00539278->field_0x20 > 0)
-        g_unk0x00539278->field_0x20 = (int)FTOI(__int64, rand() * g_oneOverRandMax * g_minus65536);
+        g_unk0x00539278->field_0x20 = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_LOAD(rand()), g_oneOverRandMax), g_minus65536));
     else
-        g_unk0x00539278->field_0x20 = (int)FTOI(__int64, rand() * g_oneOverRandMax * CGraphics::m_65536);
+        g_unk0x00539278->field_0x20 = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_LOAD(rand()), g_oneOverRandMax), CGraphics::m_65536));
     k = g_unk0x0053937c->cornerGrip[1].field_0x1c + g_unk0x0053937c->cornerGrip[0].field_0x1c;
     speed = FixMul(g_unk0x0053937c->speed, 0x10000);
     if (speed > 0x10000)
@@ -5081,7 +5078,7 @@ void CarPart_SmoothSteeringOffset(void)
             target = g_unk0x00590b10[index] - step;
     }
     g_unk0x00590b10[index] = target;
-    *(short *)&g_unk0x00590c68 = (short)(int)FTOI(__int64, (double)target * g_unk0x00511380);
+    *(short *)&g_unk0x00590c68 = (short)(int)FTOI(__int64, X87S_MUL((double)target, g_unk0x00511380));
 }
 
 BYTE Car_GetDrawnFlag(int index);
@@ -5140,7 +5137,7 @@ extern int Race_GetPlayerRecordField4(BYTE);
 extern void Tyre_AddWear(int, int, int, int);
 extern void Particle_Spawn(int, FixVector *, FixVector *, int, FixMatrix *, BYTE *, BYTE, void *, BYTE);
 
-#define TRAIL_RANDOM(scale) ((int)FTOI(__int64, rand() * g_oneOverRandMax * (scale)))
+#define TRAIL_RANDOM(scale) ((int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_LOAD(rand()), g_oneOverRandMax), (scale))))
 
 // Chooses wheel spray/dust from the surface, then interpolates its spawn position.
 // match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -5401,9 +5398,9 @@ void CarDamage_ApplyCameraSpaceMeshDent(OptionPreviewMeshRecord *pRecord)
         changed = 0;
         for (vertexIndex = 0; vertexIndex < pRecord->vertexCount[meshIndex];
              vertexIndex++) {
-            pos.x = (int)FTOI(__int64, DENT_POS(0) * CGraphics::m_65536);
-            pos.y = (int)FTOI(__int64, DENT_POS(1) * CGraphics::m_65536);
-            pos.z = (int)FTOI(__int64, DENT_POS(2) * CGraphics::m_65536);
+            pos.x = (int)FTOI(__int64, X87S_MUL(DENT_POS(0), CGraphics::m_65536));
+            pos.y = (int)FTOI(__int64, X87S_MUL(DENT_POS(1), CGraphics::m_65536));
+            pos.z = (int)FTOI(__int64, X87S_MUL(DENT_POS(2), CGraphics::m_65536));
             dir.x = g_previewDentPosition.x - pos.x;
             dir.y = g_previewDentPosition.y - pos.y;
             dir.z = g_previewDentPosition.z - pos.z;
@@ -5446,9 +5443,9 @@ void CarDamage_ApplyCameraSpaceMeshDent(OptionPreviewMeshRecord *pRecord)
             }
             StageDeform_ClampVertex(&pos.x, meshIndex, vertexIndex, &pRecord->geometry);
             // The second vertex position moves three times as far.
-            limit.x = (int)FTOI(__int64, DENT_NORMAL(0) * CGraphics::m_65536);
-            limit.y = (int)FTOI(__int64, DENT_NORMAL(1) * CGraphics::m_65536);
-            limit.z = (int)FTOI(__int64, DENT_NORMAL(2) * CGraphics::m_65536);
+            limit.x = (int)FTOI(__int64, X87S_MUL(DENT_NORMAL(0), CGraphics::m_65536));
+            limit.y = (int)FTOI(__int64, X87S_MUL(DENT_NORMAL(1), CGraphics::m_65536));
+            limit.z = (int)FTOI(__int64, X87S_MUL(DENT_NORMAL(2), CGraphics::m_65536));
             scaled.x = pos.x - saved.x;
             scaled.y = pos.y - saved.y;
             scaled.z = pos.z - saved.z;
@@ -5456,9 +5453,9 @@ void CarDamage_ApplyCameraSpaceMeshDent(OptionPreviewMeshRecord *pRecord)
             limit.x += scaled.x;
             limit.y += scaled.y;
             limit.z += scaled.z;
-            DENT_NORMAL(0) = limit.x * CGraphics::m_oneOver65536;
-            DENT_NORMAL(1) = limit.y * CGraphics::m_oneOver65536;
-            DENT_NORMAL(2) = limit.z * CGraphics::m_oneOver65536;
+            DENT_NORMAL(0) = X87S_MUL(limit.x, CGraphics::m_oneOver65536);
+            DENT_NORMAL(1) = X87S_MUL(limit.y, CGraphics::m_oneOver65536);
+            DENT_NORMAL(2) = X87S_MUL(limit.z, CGraphics::m_oneOver65536);
             changed = 1;
         }
         if (changed) {
@@ -5736,7 +5733,7 @@ void StageTiming_BuildCheckpointSplitPositions(void)
         return;
     for (i = 0; i < g_stageCheckpointCount; i++) {
         if ((RallyData_GetAvailableRouteNodeRecord(i)->flags & 1) != 0) {
-            g_unk0x00542c7c[count] = (int)FTOI(__int64, (double)i * CGraphics::m_65536);
+            g_unk0x00542c7c[count] = (int)FTOI(__int64, X87S_MUL((double)i, CGraphics::m_65536));
             count++;
         }
     }
@@ -5751,11 +5748,11 @@ void StageTiming_BuildCheckpointSplitPositions(void)
     if ((char)RallyData_GetFlag24() != 0 || (char)RallyData_GetFlag25() != 0) {
         g_unk0x00542c74 = (char)RallyData_GetFlag24() != 0 ? 4 : 2;
         g_timingSplitCount = g_unk0x00542c74;
-        unit = (int)FTOI(__int64, (double)g_unk0x00542c74 * CGraphics::m_65536);
+        unit = (int)FTOI(__int64, X87S_MUL((double)g_unk0x00542c74, CGraphics::m_65536));
         if ((char)RallyData_GetFlag24() != 0) {
-            scale = FixDiv((int)FTOI(__int64, (double)g_stageCheckpointCount * CGraphics::m_65536), unit);
+            scale = FixDiv((int)FTOI(__int64, X87S_MUL((double)g_stageCheckpointCount, CGraphics::m_65536)), unit);
             for (i = 0; i < g_unk0x00542c74; i++)
-                g_unk0x00542c7c[i] = FixMul((int)FTOI(__int64, (double)i * CGraphics::m_65536), scale)
+                g_unk0x00542c7c[i] = FixMul((int)FTOI(__int64, X87S_MUL((double)i, CGraphics::m_65536)), scale)
                                      & 0xffff0000;
         }
     }
@@ -5981,7 +5978,7 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
     case 0:
         RallyData_GetRouteNodeGroundPosition(RallyData_GetRouteAvailabilityState() - 1, p0);
         RallyData_GetRouteNodeGroundPosition(0, p1);
-        a = (unsigned short)(int)FTOI(__int64, (double)StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]) * g_fixedDegreesToAngle12);
+        a = (unsigned short)(int)FTOI(__int64, X87S_MUL((double)StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]), g_fixedDegreesToAngle12));
         value = 0x40000;
         sinA = FixMul(value, g_sinTable[a & 0xfff]);
         cosA = FixMul(value, g_sinTable[(a + 0x400) & 0xfff]);
@@ -5994,8 +5991,8 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
                 slot = n;
             g_unk0x00542d38[slot] = RallyData_GetRouteAvailabilityState() - 1;
             if (g_stageArchiveTables.driverCount > 2)
-                t = FixMul(0x50000, (int)FTOI(__int64, (double)slot * CGraphics::m_65536)) -
-                    (int)FTOI(__int64, (double)(g_stageArchiveTables.driverCount * 5) * CGraphics::m_65536);
+                t = FixMul(0x50000, (int)FTOI(__int64, X87S_MUL((double)slot, CGraphics::m_65536))) -
+                    (int)FTOI(__int64, X87S_MUL((double)(g_stageArchiveTables.driverCount * 5), CGraphics::m_65536));
             else
                 t = 0xfff60000;
             x = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]);
@@ -6036,7 +6033,7 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
     case 2:
         RallyData_GetRouteNodeGroundPosition(RallyData_GetRouteAvailabilityState() - 1, p0);
         RallyData_GetRouteNodeGroundPosition(0, p1);
-        a = (unsigned short)(int)FTOI(__int64, (double)StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]) * g_fixedDegreesToAngle12);
+        a = (unsigned short)(int)FTOI(__int64, X87S_MUL((double)StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]), g_fixedDegreesToAngle12));
         value = 0x40000;
         sinA = FixMul(value, g_sinTable[a & 0xfff]);
         cosA = FixMul(value, g_sinTable[(a + 0x400) & 0xfff]);
@@ -6048,8 +6045,8 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
                 slot = NetPlayers_GetPlayerField8(NetPlayers_FindPlayerIndexByID(NetPlayers_GetSortedPlayerID(i)));
             g_unk0x00542d38[slot] = RallyData_GetRouteAvailabilityState() - 1;
             if (count > 2)
-                t = FixMul(0x50000, (int)FTOI(__int64, (double)i * CGraphics::m_65536)) -
-                    (int)FTOI(__int64, (double)(count * 5) * CGraphics::m_65536);
+                t = FixMul(0x50000, (int)FTOI(__int64, X87S_MUL((double)i, CGraphics::m_65536))) -
+                    (int)FTOI(__int64, X87S_MUL((double)(count * 5), CGraphics::m_65536));
             else
                 t = 0xfff60000;
             x = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]);
@@ -6549,7 +6546,7 @@ void CarPart_IntegrateHubGroundContact(void)
                         t = 0x10000;
                     t = FixMul(t, 0x50000);
                     g_partState->angle =
-                        (short)FTOI(__int64, (double)(g_partState->angle * 0x1680 + FixMul(t, scale)) * g_fixedDegreesToAngle12);
+                        (short)FTOI(__int64, X87S_MUL((double)(g_partState->angle * 0x1680 + FixMul(t, scale)), g_fixedDegreesToAngle12));
                     if (flip) {
                         if (g_partState->angle > 0)
                             g_partState->angle = 0;
@@ -6631,9 +6628,9 @@ void CarPart_IntegrateHubGroundContact(void)
                 turn.x -= torque.x;
                 turn.y -= torque.y;
                 turn.z -= torque.z;
-                angles[0] = (short)FTOI(__int64, (double)turn.x * g_unk0x00511380);
-                angles[1] = (short)FTOI(__int64, (double)turn.y * g_unk0x00511380);
-                angles[2] = (short)FTOI(__int64, (double)turn.z * g_unk0x00511380);
+                angles[0] = (short)FTOI(__int64, X87S_MUL((double)turn.x, g_unk0x00511380));
+                angles[1] = (short)FTOI(__int64, X87S_MUL((double)turn.y, g_unk0x00511380));
+                angles[2] = (short)FTOI(__int64, X87S_MUL((double)turn.z, g_unk0x00511380));
                 FixBasis_Rotate(&g_partState->basis, angles);
             }
         }
@@ -6707,7 +6704,7 @@ renormalize:
             angles[1] = 0;
             angles[2] = 0;
             if ((g_partState->flags & 2) == 0) {
-                a = (short)FTOI(__int64, (double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000) * g_fixedDegreesToAngle12);
+                a = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000), g_fixedDegreesToAngle12));
                 if ((g_partState->flags & 0xf0) == 0x10) {
                     angles[2] = a;
                     StageTiming_RotatePartBasisFromAngles(angles);
@@ -6716,7 +6713,7 @@ renormalize:
                     StageTiming_RotatePartBasisFromAngles(angles);
                 }
             } else {
-                a = (short)FTOI(__int64, (double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x8000) * g_fixedDegreesToAngle12);
+                a = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x8000), g_fixedDegreesToAngle12));
                 if ((g_partState->flags & 0xf0) == 0x10) {
                     if (g_partState->position.z > 0) {
                         angles[0] = -a;
@@ -6740,13 +6737,13 @@ renormalize:
     } else if (type == 9) {
         detached = 0;
         angles[0] = 0;
-        angles[1] = (short)FTOI(__int64, (double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000) * g_unk0x00511308);
+        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000), g_unk0x00511308));
         angles[2] = 0;
         StageTiming_RotatePartBasisFromAngles(angles);
     } else {
         detached = 0;
         angles[0] = 0;
-        angles[1] = (short)FTOI(__int64, (double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x20000) * g_unk0x00511308);
+        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x20000), g_unk0x00511308));
         angles[2] = 0;
         StageTiming_RotatePartBasisFromAngles(angles);
     }
@@ -7114,9 +7111,9 @@ void StageTiming_IntegratePartSpringMotion(void)
             turn.x -= torque.x;
             turn.y -= torque.y;
             turn.z -= torque.z;
-            angles[0] = (short)FTOI(__int64, (double)turn.x * g_unk0x00511380);
-            angles[1] = (short)FTOI(__int64, (double)turn.y * g_unk0x00511380);
-            angles[2] = (short)FTOI(__int64, (double)turn.z * g_unk0x00511380);
+            angles[0] = (short)FTOI(__int64, X87S_MUL((double)turn.x, g_unk0x00511380));
+            angles[1] = (short)FTOI(__int64, X87S_MUL((double)turn.y, g_unk0x00511380));
+            angles[2] = (short)FTOI(__int64, X87S_MUL((double)turn.z, g_unk0x00511380));
             FixBasis_Rotate(&g_partState->basis, angles);
         } else {
             g_partState->angularVelocity.x = 0;
@@ -7152,7 +7149,7 @@ void StageTiming_IntegratePartSpringMotion(void)
                 t = -t;
             angles[1] = 0;
             angles[2] = 0;
-            angles[0] = (short)FTOI(__int64, (double)t * g_fixedDegreesToAngle12);
+            angles[0] = (short)FTOI(__int64, X87S_MUL((double)t, g_fixedDegreesToAngle12));
             StageTiming_RotatePartBasisFromAngles(angles);
         } else {
             FixMatrix_SetRight(&g_partState->basis.right, g_partState->pWorld);
@@ -7163,7 +7160,7 @@ void StageTiming_IntegratePartSpringMotion(void)
         detached = 0;
         angles[0] = 0;
         angles[1] = 0;
-        angles[2] = (short)FTOI(__int64, (double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x50000) * g_unk0x00511308);
+        angles[2] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x50000), g_unk0x00511308));
         StageTiming_RotatePartBasisFromAngles(angles);
     }
     VehicleMotion_UpdateWorldPosition();
@@ -7663,7 +7660,7 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
     if (mask & 2)
         result[1] = StageObject_Atan2Degrees(nodeZ[1] - pz, nodeX[1] - px);
     baseAngle = FixDiv(pCar->speed, 0x4000000);
-    baseAngle = (int)FTOI(__int64, (double)baseAngle * CGraphics::m_65536);
+    baseAngle = (int)FTOI(__int64, X87S_MUL((double)baseAngle, CGraphics::m_65536));
     RallyData_GetRouteNodeGroundPosition(angles[1], (int *)&node);
     nz = node.z;
     nx = node.x;
@@ -7710,7 +7707,7 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
             tmp = curAngle - pOut[0x14];
             WRAP(tmp)
             pOut[0xd] = FixMul(len,
-                               g_sinTable[(unsigned short)FTOI(int, (double)tmp * g_fixedDegreesToAngle12) & 0xfff]);
+                               g_sinTable[(unsigned short)FTOI(int, X87S_MUL((double)tmp, g_fixedDegreesToAngle12)) & 0xfff]);
             break;
         case 9:
             tmp = frontAngle - curAngle;
@@ -8572,7 +8569,7 @@ extern StageLightingState g_stageLighting;
 // frame's value (0x547ac2), inside the lighting block of StageObjects.cpp.
 #define g_lightningSector (g_stageLighting.lightningSector)
 #define g_previousLightningSector (g_stageLighting.previousLightningSector)
-#define RAND_FIX() ((int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536))
+#define RAND_FIX() ((int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536)))
 
 int StageObject_FindClosestMeshVertex(void);
 void StageObject_RandomizeStageTriangleTextures(void);
@@ -8882,9 +8879,9 @@ void StageTiming_PerturbComputerSplitDeltas(int *pDeltas)
         amplitude = top;
         limits[1] = top;
         if (splits >= 3) {
-            step = (int)FTOI(__int64, (double)(splits - 1) * CGraphics::m_65536);
+            step = (int)FTOI(__int64, X87S_MUL((double)(splits - 1), CGraphics::m_65536));
             for (k = 2; k < splits; k++)
-                limits[k] = limits[1] - FixMul(FixDiv(limits[1] - scale, step), (int)FTOI(__int64, (double)(k - 1) * CGraphics::m_65536));
+                limits[k] = limits[1] - FixMul(FixDiv(limits[1] - scale, step), (int)FTOI(__int64, X87S_MUL((double)(k - 1), CGraphics::m_65536)));
         }
     } else {
         amplitude = FixMul(scale, 0x8000);
@@ -8898,7 +8895,7 @@ void StageTiming_PerturbComputerSplitDeltas(int *pDeltas)
             total += value;
             sum += value;
             range = FixMul(FixMul(amplitude, FixDiv(value, 0x640000)), 0x20000);
-            error = FixMul(FixDiv((int)FTOI(__int64, (double)rand() * CGraphics::m_65536), 0x7fff0000), range) -
+            error = FixMul(FixDiv((int)FTOI(__int64, X87S_MUL((double)rand(), CGraphics::m_65536)), 0x7fff0000), range) -
                     FixDiv(range, 0x20000);
             if ((char)RallyData_GetFlag25() == 0) {
                 mid = FixMul(FixDiv(limits[row + 1], 0x640000), total);
@@ -9016,7 +9013,7 @@ void CarEffect_UpdateExhaustSmokeAndBackfire(int car)
             velocity.y += carVelocity.y;
             velocity.x += carVelocity.x;
             velocity.z += carVelocity.z;
-            t = FixMul((int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0x3d7);
+            t = FixMul((int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536)), 0x3d7);
             Particle_Spawn(big, &g_carExhaustWorldPositions[car], &velocity, g_carExhaustWorldPositions[car].y - 0x10000, 0, NULL, 0, 0,
                            pCar->pBodyNode->viewMask);
         }
@@ -9024,7 +9021,7 @@ void CarEffect_UpdateExhaustSmokeAndBackfire(int car)
             g_carExhaustBurstFrames[car] = (BYTE)g_trailForcedSurface[car];
         if (heat > 0x50 && speed < 0x5cccc) {
             heat -= rand() % 20;
-            r = (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+            r = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536));
             line = rand() % 4;
             spark.x = g_exhaustSparkLines[line][1].x - g_exhaustSparkLines[line][0].x;
             spark.y = g_exhaustSparkLines[line][1].y - g_exhaustSparkLines[line][0].y;
@@ -9039,7 +9036,7 @@ void CarEffect_UpdateExhaustSmokeAndBackfire(int car)
             position.y += pCar->pBodyMatrix->position.y - 0x3333;
             position.z += pCar->pBodyMatrix->position.z;
             FixVecScale(&velocity, &pCar->up, revs);
-            t = FixMul((int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0x3d7);
+            t = FixMul((int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536)), 0x3d7);
             if (speed > 0x8000)
                 Particle_Spawn(2, &position, &velocity, position.y - 0x10000, 0, NULL, 0, 0,
                                pCar->pBodyNode->viewMask);
@@ -9063,7 +9060,7 @@ void CarEffect_UpdateExhaustSmokeAndBackfire(int car)
         g_trailForced[car] = 0;
         Particle_Spawn(3, &zero, &velocity, -0x640000, 0, NULL, 0, &car,
                        pCar->pBodyNode->viewMask);
-        r = (int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+        r = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536));
         if (g_carExhaustGlows[car][exhaust] != 0) {
             Glow_SetIntensity(g_carExhaustGlows[car][exhaust], r);
             Glow_SetEnabled(g_carExhaustGlows[car][exhaust], 1);
@@ -9170,7 +9167,7 @@ void StageObject_SetUnboostedStageLight(FixVector *pLight);
 void Scene_ApplyShadowLightDirection(FixVector *pLightDir);
 void Scene_AnimateAmbientRedChannel(void);
 
-#define RAND_FIX() ((int)FTOI(__int64, (float)rand() * g_oneOverRandMax * CGraphics::m_65536))
+#define RAND_FIX() ((int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536)))
 
 // Shares the 400 weather particles between the views and places each view's
 // share in a random box in front of its camera; resets the views' weather
