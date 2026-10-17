@@ -4577,6 +4577,9 @@ char RallyData_GetUsableRecordCategory(BYTE param1)
 
     if (CGameInfo::GetConfiguredGameMode() == 4) {
         index = param1 & 0xff;
+        // The record is compared before the index is checked: for the
+        // knockout's computer drivers (8 and over) it reads past the eight
+        // records, then ignores the result.
         if (strcmp((char *)(g_saveCarRecords + index * 196), CMain::m_logFileBlankLine) != 0 && (BYTE)param1 < 8)
             return -1;
         return (char)((*(unsigned int *)&g_saveSlots[index] >> 0xe) & 0xf);

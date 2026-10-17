@@ -5238,6 +5238,12 @@ void Race_UpdatePlayerViewAndDrivenCars(BYTE param1, int param2)
     g_unk0x00537f0c[4] = 0;
     for (; g_unk0x00537f0c[4] < g_unk0x00538124; g_unk0x00537f0c[4]++) {
         player = Car_Get(0)->simulationStepsRemaining > 0;
+        // Every step reads the devices, which keeps only the presses new since
+        // the last read, but the results menu is updated only on the player's
+        // steps: where the other cars run at another rate (the Rally Challenge
+        // and super special opponents), a press read on a step of theirs
+        // alone never reaches the menu. More of them are lost at higher frame
+        // rates.
         CInput::UpdateAllAvailableDevices();
         if (player != 0) {
             g_unk0x00537f24++;
