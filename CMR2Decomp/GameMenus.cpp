@@ -3487,7 +3487,7 @@ void GameMenu_SetupStageResults(int param_1)
         g_pSavedHeaderMenu = &g_menu0x005404d8;
     } else {
         g_pHeaderMenu = NULL;
-        if (param_1 == 0)
+        if ((char)param_1 != 0)
             g_pSavedHeaderMenu = &g_menu0x0053ff38;
         else
             g_pSavedHeaderMenu = &g_menu0x0053ea68;
