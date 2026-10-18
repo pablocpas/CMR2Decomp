@@ -87,7 +87,7 @@ class Wheels(Lighting):
         self.put(CAR + 0xbac, '<4i', *(bool(ground & (1 << w)) for w in range(4)))
         self.put(CAR + 0x2d0, '<3i', 124234, 327644, -65434)
         self.put(CAR + 0x360, '<3i', -65536 if self.slip < 0 else 65536, 0, 0)
-        self.put(self.addr(0x538d2c) + 4 + car * 100 + 24, '<3i', 65536, 0, 0)
+        self.put(self.member(0x538d2c, 0x538d28) + 4 + car * 100 + 24, '<3i', 65536, 0, 0)
         self.put(CAR + 0x6b4, '<6i', 52344, -1213, 12345, -42311, 1234, 16566)
         self.put(CAR + 0x6cc, '<6i', 12354, 1454, -65533, 16346, 4344, 62345)
         for wheel in range(4):

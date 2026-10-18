@@ -82,7 +82,7 @@ class Deformation(Lighting):
             self.put(self.addr(0x543fb0) + i * 36, '<9i', *values,
                      0x10000, 0, 0x167ffff, 0x10000, 0, 0)
         self.invoke(0x4219b0, [view])
-        camera = self.read(self.addr(0x538d2c), 196)
+        camera = self.read(self.member(0x538d2c, 0x538d28), 196)
         self.invoke(0x45f9d0, [update, EVENT, view])
         return (camera, self.read(EVENT, 0x180),
                 self.read(self.addr(0x543fb0), 36 * nodes), list(self.trace))
