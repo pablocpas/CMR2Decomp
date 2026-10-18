@@ -7326,11 +7326,8 @@ BYTE View_GetActiveCameraFlags(BYTE index);
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri,
                           unsigned short *pSurface, int defaultY);
 
-// CameraRecord::field_0x54 in the blended view state (100-byte stride).
-// This must share the records populated by View_UpdateCamera; it is not a
-// separate contact-grid array.
-extern BYTE g_unk0x00538d2c[];
-#define g_unk0x00538d7c ((int *)(g_unk0x00538d2c + 0x50))
+// Blended camera state of each view (View_UpdateCamera).
+extern CameraRecord g_viewStates[2];
 
 
 // GLOBAL: CMR2 0x00543fb0
@@ -7407,7 +7404,7 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *rec
     rec->previousCentre.y = pos.y;
     rec->relativeVelocity.z = rec->velocity.z - dv.z;
     rec->previousCentre.z = pos.z;
-    t = FixMul(FixDiv(g_unk0x00538d7c[param_3 * 25], 0xa000) - 0x10000, 0x4ccc);
+    t = FixMul(FixDiv(g_viewStates[param_3].field_0x54, 0xa000) - 0x10000, 0x4ccc);
     FixVecScale(&gn, &fwd, t);
     pos.x += gn.x;
     pos.y += gn.y;

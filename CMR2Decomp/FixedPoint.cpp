@@ -704,8 +704,7 @@ void FixBasis_Integrate(FixVector *pRows, FixVector *pW)
     }
 }
 
-extern BYTE g_unk0x00538d2c[0xcc];
-#define g_unk0x00538df0 ((int *)(g_unk0x00538d2c + 0xc4))
+extern int g_unk0x00538df0[2];
 extern int g_unk0x00538e04[2];
 extern int g_unk0x005391cc[2];
 int Race_IsMultiplayerRecordMode10(void);

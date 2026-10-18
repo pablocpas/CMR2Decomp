@@ -12055,7 +12055,7 @@ void Sound_SetPan(unsigned int handle, int pan);
 void CarPart_ResolveLocalPointGroundContact(unsigned int param_1);
 struct SoundCurve;
 extern struct SoundCurve g_engineWhineSoundCurve;
-extern BYTE g_unk0x00538d2c[];
+extern CameraRecord g_viewStates[2];
 extern int g_unk0x0058ddc8Pair[2]; // two sound handles (0x58ddc8, 0x58ddcc)
 // ---- GLOBALS nuevos ----
 // First engine sample slot of each loaded car sound set.
@@ -12272,7 +12272,7 @@ void SurfaceSound_UpdateNearestLocalCarEngines(void)
             Car *pCar = Car_Get((int)(RallyDataState() & 0xff) + i);
             FixMatrix_CopyRotationFrom(&rot, pCar->pWorld);
             FixMatrix_GetPosition(&pos, &rot);
-            FixMatrix_GetPosition(&viewPos, (FixMatrix *)(g_unk0x00538d2c + 4));
+            FixMatrix_GetPosition(&viewPos, &g_viewStates[0].matrix);
             delta.x = pos.x - viewPos.x;
             delta.y = pos.y - viewPos.y;
             delta.z = pos.z - viewPos.z;
@@ -12372,7 +12372,7 @@ void SurfaceSound_UpdateNearestNetworkCarEngines(void)
         Car *pCar = Car_Get(carIds[i]);
         FixMatrix_CopyRotationFrom(&rot, pCar->pWorld);
         FixMatrix_GetPosition(&pos, &rot);
-        FixMatrix_GetPosition(&viewPos, (FixMatrix *)(g_unk0x00538d2c + 4));
+        FixMatrix_GetPosition(&viewPos, &g_viewStates[0].matrix);
         delta.x = pos.x - viewPos.x;
         delta.y = pos.y - viewPos.y;
         delta.z = pos.z - viewPos.z;
@@ -12710,7 +12710,7 @@ void StageObject_DrawListedCarLightBeams(short *pOrder, short count, int view)
     int lit;
     BYTE mask;
 
-    FixMatrix_GetPosition(&viewPos, (FixMatrix *)(g_unk0x00538d2c + 4 + view * 100));
+    FixMatrix_GetPosition(&viewPos, &g_viewStates[view].matrix);
     inCar = View_IsNegativeRightAngleCameraSpot(view);
     if (inCar == 0 && View_GetActiveCameraMode((BYTE)view) == 10)
         inCar = 1;

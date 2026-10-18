@@ -1110,7 +1110,7 @@ void WheelSpray_Update(int player)
 
 BYTE StageObject_GetViewWeatherStateByte(int index);
 int StageObject_GetViewWeatherField54(int index);
-extern BYTE g_unk0x00538d2c[0xc8];
+extern CameraRecord g_viewStates[2];
 
 #define EFFECT_RAND_NEG() (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), g_minus65536))
 extern double g_minus65536;
@@ -1349,7 +1349,7 @@ void WheelSplash_Update(int player)
         if (wet) {
             emitting = 1;
             colour[3] = 0xff;
-            FixMatrix_GetForward(&fwd, (FixMatrix *)(g_unk0x00538d2c + 4 + player * 100));
+            FixMatrix_GetForward(&fwd, &g_viewStates[player].matrix);
             if (FixVecDot(&pCar->right, &fwd) < 0)
                 type = front == 0 ? 0xe : 0xf;
             else

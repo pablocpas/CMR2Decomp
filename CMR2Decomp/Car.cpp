@@ -25,19 +25,18 @@ short g_carOrderCount;
 short g_carOrder[48];
 int g_carViewScale[15][2];
 SceneNode *g_viewNodes[3];
-// Previous camera state of each view (two 100-byte records laid out like the
-// view records; the first dword of each is unused). Its matrices start at 0x538e40.
+// Previous camera state of each view, laid out like the view records.
 // GLOBAL: CMR2 0x00538e38
-BYTE g_unk0x00538e38[0xc8];
-#define g_unk0x00538e40 (g_unk0x00538e38 + 8)
+CameraRecord g_viewPreviousStates[2];
 // GLOBAL: CMR2 0x00538e04
 int g_unk0x00538e04[2];
 // GLOBAL: CMR2 0x00538e0c
 BYTE g_unk0x00538e0c[4];
-// GLOBAL: CMR2 0x00538d2c
-BYTE g_unk0x00538d2c[0xcc];
-// View of the final eight bytes of the camera records at 0x00538df0.
-#define g_unk0x00538df0 ((int *)(g_unk0x00538d2c + 0xc4))
+// Blended camera state of each view, laid out like the view records.
+// GLOBAL: CMR2 0x00538d28
+CameraRecord g_viewStates[2];
+// GLOBAL: CMR2 0x00538df0
+int g_unk0x00538df0[2];
 // GLOBAL: CMR2 0x00538df8
 short g_unk0x00538df8[2];
 // GLOBAL: CMR2 0x00538c98
@@ -60,8 +59,8 @@ void Car_GetViewPositionDelta(FixVector *pOut, unsigned int view)
     FixVector b;
     int offset = (view & 0xff) * 100;
 
-    FixMatrix_GetPosition(&b, (FixMatrix *)(g_unk0x00538e40 + offset));
-    FixMatrix_GetPosition(&a, (FixMatrix *)(g_unk0x00538d2c + 4 + offset));
+    FixMatrix_GetPosition(&b, (FixMatrix *)((BYTE *)&g_viewPreviousStates[0].matrix + offset));
+    FixMatrix_GetPosition(&a, (FixMatrix *)((BYTE *)&g_viewStates[0].matrix + offset));
     pOut->x = a.x - b.x;
     pOut->y = a.y - b.y;
     pOut->z = a.z - b.z;
@@ -76,7 +75,7 @@ void View_SetDistanceOverride(BYTE index, int value)
 // FUNCTION: CMR2 0x00422f50
 int View_GetActiveCameraMode(BYTE index)
 {
-    if (*(int *)(g_unk0x00538d2c + index * 100) != 8)
+    if (g_viewStates[index].type != 8)
         return *(int *)(g_unk0x0053901c + ((unsigned int)g_unk0x00538e0c[index] + index * 2) * 100);
     return 8;
 }
@@ -239,7 +238,7 @@ void Car_MarkHiddenFromCameras(Car *pCar)
         (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState != '\t' && (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState != '\r') {
         rejected = 0;
         count = RallyDataState() & 0xff;
-        pView = (FixMatrix *)(g_unk0x00538d2c + 4);
+        pView = &g_viewStates[0].matrix;
         for (i = 0; i < count; i++, pView = (FixMatrix *)((BYTE *)pView + 100)) {
             FixMatrix_GetPosition(&position, pView);
             FixMatrix_GetForward(&forward, pView);
@@ -5682,7 +5681,7 @@ void View_GetHeading(short *pOut, unsigned int view)
     int ax;
     short angle;
 
-    FixMatrix_GetForward(&forward, (FixMatrix *)(g_unk0x00538d2c + 4 + (view & 0xff) * 100));
+    FixMatrix_GetForward(&forward, &g_viewStates[view & 0xff].matrix);
     az = forward.z < 0 ? -forward.z : forward.z;
     ax = forward.x < 0 ? -forward.x : forward.x;
     angle = FixAtan2(ax, az);
@@ -5992,7 +5991,7 @@ BYTE View_ReleaseNodes(void)
             SceneNode_Destroy(*pNode);
             *pNode = NULL;
         }
-        *(int *)(g_unk0x00538d2c + i * 100) = 0;
+        g_viewStates[i].type = 0;
         *(int *)((BYTE *)g_unk0x00538d20 + off) = -0x10000;
         g_unk0x00538e0c[i] = 0;
         *(int *)((BYTE *)g_unk0x005391b0 + off) = 0;
@@ -7894,11 +7893,11 @@ found:
 // Each view has two camera records in g_viewRecords (index view * 2 + the
 // active slot g_unk0x00538e0c[view]): +0 record index, +1 view, +2 car,
 // +4 camera type, +8 matrix, +0x48.. parameters, +0x60 ground clearance.
-// g_unk0x00538d2c - 4 holds the blended state of each view in the same layout.
+// g_viewStates holds the blended state of each view in the same layout.
 
 #define VIEW_RECORD(i) (&g_viewRecords[i])
-#define VIEW_STATE(v) ((CameraRecord *)(g_unk0x00538d2c - 4) + (v))
-#define VIEW_PREV_STATE(v) ((CameraRecord *)g_unk0x00538e38 + (v))
+#define VIEW_STATE(v) (&g_viewStates[v])
+#define VIEW_PREV_STATE(v) (&g_viewPreviousStates[v])
 // Smooth-step weight of a camera blend timer (0xc8000 = the whole transition).
 #define VIEW_EASE(t)                                                                               \
     (0x10000 - (FixCos((short)(int)FTOI(__int64, X87S_MUL((double)(FixDiv((t), 0xc8000) * 180), g_unk0x00511308))) + \
@@ -8139,7 +8138,7 @@ void View_SetupCameras(void)
     i = 0;
     for (i = 0; i < 2; i++) {
         g_viewNodes[i] = SceneType2_Create(&position, &angles, NULL, RallyData_GetChallengeRenderState());
-        *(int *)(g_unk0x00538d2c + i * 100) = 0;
+        g_viewStates[i].type = 0;
         g_unk0x00538d20[i] = -0x10000;
         g_unk0x00538e0c[i] = 0;
         g_unk0x005391b0[i] = 0;
@@ -8277,7 +8276,7 @@ void View_UpdateCamera(BYTE view)
         if ((activeFree && nextTracked) || (activeTracked && nextFree))
             VIEW_STATE(index)->matrix.position.y +=
                 FixMul(g_sinTable[(short)(int)FTOI(__int64, X87S_MUL((double)(t * 180), g_fixedDegreesToAngle12)) & 0xfff], 0x10000);
-        *(int *)(g_unk0x00538d2c + index * 100) = 8;
+        g_viewStates[index].type = 8;
         *pTimer -= g_physicsTimeStep;
         return;
     }

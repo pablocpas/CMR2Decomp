@@ -349,7 +349,7 @@ FixVector g_unk0x00539f00;
 FixMatrix *Car_GetCameraReferenceMatrix(BYTE index);
 int Race_IsMultiplayerRecordMode10(void);
 unsigned int FixVec_Length(FixVector *pV);
-extern BYTE g_unk0x00538d2c[0xc8];
+extern CameraRecord g_viewStates[2];
 
 // Loudness of a view's sounds by distance to the listener: 1 up to 2 units,
 // fading to 0 at 100.
@@ -365,7 +365,7 @@ int NetRace_GetListenerDistanceAttenuation(unsigned int view, int listener)
     else
         index = listener;
     FixMatrix_GetPosition(&g_unk0x00539f00, Car_GetCameraReferenceMatrix(view));
-    FixMatrix_GetPosition(&g_unk0x00539ee0, (FixMatrix *)(g_unk0x00538d2c + 4 + index * 100));
+    FixMatrix_GetPosition(&g_unk0x00539ee0, &g_viewStates[index].matrix);
     g_unk0x00539ef0.x = g_unk0x00539f00.x - g_unk0x00539ee0.x;
     g_unk0x00539ef0.y = g_unk0x00539f00.y - g_unk0x00539ee0.y;
     g_unk0x00539ef0.z = g_unk0x00539f00.z - g_unk0x00539ee0.z;
@@ -1051,7 +1051,7 @@ unsigned short NetRace_ScaleViewAngleByDistance(int param_1, int param_2, unsign
     index = param_1;
     if (Race_IsMultiplayerRecordMode10() != 0)
         index = 1;
-    FixMatrix_GetPosition(&carPos, (FixMatrix *)(g_unk0x00538d2c + 4 + index * 100));
+    FixMatrix_GetPosition(&carPos, &g_viewStates[index].matrix);
     delta.x = carPos.x - Car_Get(param_2)->position.x;
     delta.y = carPos.y - Car_Get(param_2)->position.y;
     delta.z = carPos.z - Car_Get(param_2)->position.z;
