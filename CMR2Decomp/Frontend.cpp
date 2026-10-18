@@ -4,6 +4,7 @@
 #include "FileBuffer.h"
 #include "GameInfo.h"
 #include "CategoryBestResults.h"
+#include "ProfileEventResults.h"
 #include "RallyData.h"
 #include "InstallInfo.h"
 #include "main.h"
@@ -25,7 +26,7 @@ void Game_CreateSplashScene(void);
 
 // Callees that live in other translation units and are not declared in their
 // headers yet.
-BYTE *RallyData_GetCategoryOptionRecord(int index);
+ProfileEventResults *RallyData_GetCategoryOptionRecord(int index);
 CategoryBestResults *RallyData_GetAvailableCategorySaveRecord(int index);
 unsigned int RallyData_GetFlag30(void);
 unsigned int RallyData_GetFlag23(void);
@@ -1089,11 +1090,11 @@ void Frontend_AdvanceDeviceOptionNibble(int index, int mode)
 // FUNCTION: CMR2 0x004cf3f0
 void FrontendRecords_ResetDeviceStats(int index)
 {
-    BYTE *pDevice = RallyData_GetCategoryOptionRecord(index);
+    ProfileEventResults *pDevice = RallyData_GetCategoryOptionRecord(index);
 
     if (pDevice != NULL) {
-        *(int *)(pDevice + 4) = 0;
-        memset(pDevice + 8, 0, 3);
+        pDevice->playerPoints = 0;
+        memset(pDevice->playerPlacings, 0, 3);
     }
 }
 
@@ -1101,12 +1102,12 @@ void FrontendRecords_ResetDeviceStats(int index)
 // FUNCTION: CMR2 0x004cf420
 void Frontend_AddDeviceValueAndStatistic(int index, int amount, int stat)
 {
-    BYTE *pDevice = RallyData_GetCategoryOptionRecord(index);
+    ProfileEventResults *pDevice = RallyData_GetCategoryOptionRecord(index);
 
     if (pDevice != NULL) {
-        *(int *)(pDevice + 4) = *(int *)(pDevice + 4) + amount;
+        pDevice->playerPoints = pDevice->playerPoints + amount;
         if (stat < 3)
-            pDevice[8 + stat]++;
+            pDevice->playerPlacings[stat]++;
     }
 }
 
@@ -1144,7 +1145,7 @@ struct DeviceBits4cf4d0 { unsigned a : 4; unsigned b : 2; unsigned f : 8; unsign
 // FUNCTION: CMR2 0x004cf4d0
 void Frontend_SetDeviceRecordOptionFields(int index, unsigned int value, unsigned int field)
 {
-    DeviceBits4cf4d0 *p = (DeviceBits4cf4d0 *)RallyData_GetCategoryOptionRecord(index);
+    DeviceBits4cf4d0 *p = (DeviceBits4cf4d0 *)&RallyData_GetCategoryOptionRecord(index)->playerResult;
 
     if (p != NULL) {
         p->f = field;
@@ -1163,7 +1164,7 @@ void Frontend_SetDeviceExtraValue(int index, int value)
     int *pField;
 
     Frontend_StoreCurrentCountryStageSelection();
-    pField = (int *)(RallyData_GetCategoryOptionRecord(index) + 0x20);
+    pField = (int *)&RallyData_GetCategoryOptionRecord(index)->arcadeStageTime;
     if (pField != NULL)
         *pField = value;
 }
@@ -1174,7 +1175,7 @@ struct DeviceBits4cf550 { unsigned a : 3; unsigned b : 2; unsigned f : 6; unsign
 // FUNCTION: CMR2 0x004cf550
 void Frontend_SetSecondaryRecordOptionFields(int index, unsigned int value, unsigned int field, int extra)
 {
-    DeviceBits4cf550 *p = (DeviceBits4cf550 *)(RallyData_GetCategoryOptionRecord(index) + 0x18);
+    DeviceBits4cf550 *p = (DeviceBits4cf550 *)&RallyData_GetCategoryOptionRecord(index)->arcadeResult;
     if (p != NULL) {
         p->extra = extra;
         p->f = field;
@@ -1301,7 +1302,7 @@ BYTE Frontend_MergeBestPlayerStageOption(int index, CategoryBestResults *pBlock)
     DeviceResult *pValue;
     BOOL better;
 
-    pDevice = (DeviceResult *)RallyData_GetCategoryOptionRecord(index);
+    pDevice = (DeviceResult *)&RallyData_GetCategoryOptionRecord(index)->playerResult;
     if (pDevice != NULL) {
         pEntry = (RecordHeader *)&pBlock->playerResults[g_frontendRecordDifficulty].result.header;
         pValue = (DeviceResult *)(pEntry + 1);
@@ -1334,7 +1335,7 @@ BYTE Frontend_MergeBestArcadeRecordOption(int index)
     unsigned int value;
 
     base = RallyData_GetAvailableCategorySaveRecord(index);
-    pDevice = (unsigned int *)(RallyData_GetCategoryOptionRecord(index) + 0x20);
+    pDevice = &RallyData_GetCategoryOptionRecord(index)->arcadeStageTime;
     pEntry = &base->arcadeStageTimes[g_unk0x00817404][g_frontendRecordStage].header;
     pValue = pEntry + 1;
     if (pDevice != NULL && (*pDevice < *pValue || (*pEntry & 0x80) == 0)) {
@@ -1359,7 +1360,7 @@ BYTE Frontend_MergeBestSecondaryPlayerOption(int index, CategoryBestResults *pBl
     RecordEntry *pEntry;
     BOOL better;
 
-    pValue = (RecordResult *)(RallyData_GetCategoryOptionRecord(index) + 0x18);
+    pValue = (RecordResult *)&RallyData_GetCategoryOptionRecord(index)->arcadeResult;
     pEntry = (RecordEntry *)&pBlock->arcadeResults[g_unk0x00817404][g_frontendRecordDifficulty];
     better = FALSE;
     if (pValue != NULL) {
@@ -1504,7 +1505,7 @@ struct RecordLevelBits {
 // FUNCTION: CMR2 0x004cfc90
 int FrontendRecords_InsertStageCategoryRecord(int param1, int index, char *pName)
 {
-    unsigned int *pDevice;
+    ProfileEventResults *pDevice;
     GameInfo0xa4SubStruct12 *pRecords;
     int better;
     int slot;
@@ -1512,7 +1513,7 @@ int FrontendRecords_InsertStageCategoryRecord(int param1, int index, char *pName
     int k;
     int i;
 
-    pDevice = (unsigned int *)RallyData_GetCategoryOptionRecord(index);
+    pDevice = RallyData_GetCategoryOptionRecord(index);
     pRecords = (GameInfo0xa4SubStruct12 *)CGameInfo::GetGameInfoFieldA4Address();
     better = 0;
     slot = 0;
@@ -1520,19 +1521,19 @@ int FrontendRecords_InsertStageCategoryRecord(int param1, int index, char *pName
     for (;;) {
         pRecord = &pRecords[slot];
         if (pDevice != NULL) {
-            if ((*pDevice & 0xf) < LEVEL_BITS(pRecord).level)
+            if ((pDevice->playerResult & 0xf) < LEVEL_BITS(pRecord).level)
                 better = 1;
-            if ((LEVEL_BITS(pRecord).level == (*pDevice & 0xf) &&
-                 (*pDevice & 0x3fc0) < ((pRecord->flags >> 1) & 0x1fc0)) || better) {
+            if ((LEVEL_BITS(pRecord).level == (pDevice->playerResult & 0xf) &&
+                 (pDevice->playerResult & 0x3fc0) < ((pRecord->flags >> 1) & 0x1fc0)) || better) {
                 for (i = 4; i > slot; i--)
                     Frontend_MergeNamedRecordSevenBitFields((int *)&pRecords[i], (int *)&pRecords[i - 1]);
                 strcpy(pRecord->ident, pName);
                 LEVEL_BITS(pRecord).car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
                 LEVEL_BITS(pRecord).manual = RallyData_GetDriverOrCategoryFlag((BYTE)index);
-                LEVEL_BITS(pRecord).level = *pDevice;
-                LEVEL_BITS(pRecord).score = *pDevice >> 6;
+                LEVEL_BITS(pRecord).level = pDevice->playerResult;
+                LEVEL_BITS(pRecord).score = pDevice->playerResult >> 6;
                 for (k = 0; k < 3; k++)
-                    ((char *)&pRecord->value)[k] = ((char *)pDevice)[8 + k];
+                    ((char *)&pRecord->value)[k] = pDevice->playerPlacings[k];
                 g_unk0x00817412 = 1;
                 return (slot != 0) + 1;
             }
@@ -1550,7 +1551,7 @@ int Frontend_AccumulateMinimumArcadeOption(int param_1, int param_2)
     unsigned int *pDevice;
     unsigned int value;
 
-    pDevice = (unsigned int *)(RallyData_GetCategoryOptionRecord(param_2) + 0x20);
+    pDevice = &RallyData_GetCategoryOptionRecord(param_2)->arcadeStageTime;
     if (pDevice != NULL) {
         value = *pDevice;
         if (value < (unsigned int)g_lowestSplitValue) {
@@ -1571,21 +1572,21 @@ int FrontendRecords_CopyArcadeSplitMirror(int param_1, int param_2)
     GameInfo0xa4 *pInfo;
     GameInfo0xa4SubStruct8 *pRecord;
     short *pSplits;
-    unsigned int *pOption;
+    ProfileEventResults *pOption;
     unsigned int *pTime;
     char placeholder[16];
     int stage;
     int group;
     int i;
 
-    pOption = (unsigned int *)RallyData_GetCategoryOptionRecord(param_2);
+    pOption = RallyData_GetCategoryOptionRecord(param_2);
     pInfo = CGameInfo::GetGameInfoFieldA4Address();
     stage = g_frontendRecordStage;
     group = g_unk0x00817404;
     StageTiming_GetCheckpointField2(param_1);
     strcpy(placeholder, g_str0x00523bb4);
     pSplits = pInfo->arcadeRecordSplits[stage + group * 3];
-    pTime = (unsigned int *)((BYTE *)pOption + 0x20);
+    pTime = &pOption->arcadeStageTime;
     pRecord = &pInfo->arcadeRecordTimes[stage + group * 3];
     if (pTime != NULL) {
         unsigned int value = *pTime;
@@ -1625,7 +1626,7 @@ char FrontendRecords_InsertArcadeDeviceRecord(int param1, int index, char *pName
     int slot;
     int i;
 
-    pDevice = (RecordResult *)((char *)RallyData_GetCategoryOptionRecord(index) + 0x18);
+    pDevice = (RecordResult *)&RallyData_GetCategoryOptionRecord(index)->arcadeResult;
     pInfo = (unsigned char *)CGameInfo::GetGameInfoFieldA4Address();
     better = 0;
     slot = 0;
@@ -1712,7 +1713,7 @@ int Frontend_StoreSelectedDeviceOption(int index)
 // FUNCTION: CMR2 0x004d0280
 BYTE *Frontend_GetDeviceOptionBlock(int index)
 {
-    BYTE *pDevice = RallyData_GetCategoryOptionRecord(index);
+    ProfileEventResults *pDevice = RallyData_GetCategoryOptionRecord(index);
 
     switch (g_unk0x008173f4) {
     case 0:
@@ -1722,7 +1723,7 @@ BYTE *Frontend_GetDeviceOptionBlock(int index)
     case 8:
     case 9:
     case 10:
-        return pDevice + 0x14;
+        return (BYTE *)&pDevice->rallyStageTime;
     }
     return NULL;
 }
@@ -1732,10 +1733,10 @@ BYTE *Frontend_GetDeviceOptionBlock(int index)
 // FUNCTION: CMR2 0x004d02d0
 BYTE *Frontend_GetDeviceSetupWord(int index)
 {
-    BYTE *pDevice = RallyData_GetCategoryOptionRecord(index);
+    ProfileEventResults *pDevice = RallyData_GetCategoryOptionRecord(index);
 
     if (g_unk0x008173f4 >= 0 && (g_unk0x008173f4 <= 1 || g_unk0x008173f4 == 8))
-        return pDevice + 0xc;
+        return (BYTE *)pDevice->rallyResult;
     return NULL;
 }
 

@@ -55,14 +55,14 @@ struct DriverProfile {
     unsigned int options;                // 0x054, bits 0..4 car, 5 entry, 6, 7..14 age
     int car;                             // 0x058
     DriverProfileSetup setup;            // 0x05c
-    BYTE controls[0x24];                 // 0x060, RallyData_GetCategoryOptionRecord
+    BYTE eventResults[0x24];             // 0x060, ProfileEventResults
     CategoryBestResults bestResults;     // 0x084
     BYTE hudFlags;                       // 0x588, 4/8/0x10/0x20: HUD panels shown
     BYTE reserved2[3];
     BYTE wear[0xa0];                     // 0x58c, TyreWear (ChampionshipDriver.h)
     unsigned int medals[2];              // 0x62c, CategoryMedals
     struct {
-        int tyreChoice[5];               // 0x634
+        int cameraOffsets[5];            // 0x634, x, y, z, heading (short), value
         BYTE reserved3[8];               // 0x648
     };
 };

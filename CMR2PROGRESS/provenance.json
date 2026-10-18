@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "78b4ecaf7a511fef9a7efa154c623651e0ea033f",
+    "commit": "e20ef4a3786bc685e48ec0e81097f3174614becf",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -69,7 +69,7 @@
       "CMR2Decomp/CascadeCallbacks.cpp": "a14e3a3405f956dd001d4f8e11eb1a9aa8963c12f8a713d995a81fe21db4cfd8",
       "CMR2Decomp/CascadeSeedDeps.cpp": "bfa2c3ab6259ca648c47a9b64e8be6e6660cd0eac0e4c1ca2ba25bc44812603f",
       "CMR2Decomp/CategoryBestResults.h": "601af76aeaba27ce434470d8424ad6335a6a250872682cba1cf9029c4a761400",
-      "CMR2Decomp/ChampionshipDriver.h": "f4486b8b1cc5ed68e62814fffee734b6577241908e80342258b4c62a198d7adc",
+      "CMR2Decomp/ChampionshipDriver.h": "28cffecc8dfd6bf690b82bde56182ff6a08eeabb8b3f438386e8465a6dd6c08f",
       "CMR2Decomp/Collision2D.cpp": "377c5ab8eee5355372ae4bb9637840d61bc4166a9c350c55f2d78800351cd8db",
       "CMR2Decomp/Collision2D.h": "729a39265771cdff4cf8f75d163ca3f4c70e7edf72b19f763042b84e52a8aeca",
       "CMR2Decomp/CrtTypeInfo.cpp": "4688c2e984b6a872dc2fa61cf81b9bfb8730fb8fe5ed27cb540e2ce095ed1dd2",
@@ -82,7 +82,7 @@
       "CMR2Decomp/FloatToInt.h": "c302ad50883656fcd76195df252383d669cd9b6b8165dbf64034fb8643f50af5",
       "CMR2Decomp/Font.cpp": "4e39c1d7747b8daf8b24a6f2dcbb8a2ad466e577bf4b1f54d42203d4377239ea",
       "CMR2Decomp/Font.h": "b36c74276fe538db5ece7721052b13d230474ab13ddaa214235460c079f3c912",
-      "CMR2Decomp/Frontend.cpp": "464f36a85b1e453ebb7219ad0ba976448a6cb531ec093b3ef0de8d345465bad6",
+      "CMR2Decomp/Frontend.cpp": "7ea8fe1b0f41940d3e0b8e2be515d50746b296cc5e20883acfe5d87f7cc62894",
       "CMR2Decomp/Frontend.h": "60cdf8b545fd538431a190554ee67fdb4c7830584acca37826a81536994ed24f",
       "CMR2Decomp/FrontendDraw.cpp": "1146a41def097cb318f576eed06cf7b9591a76b451829d516c02a63de17bcce3",
       "CMR2Decomp/FrontendDraw.h": "c7c40884d0b1a1e97f77833bd57e8b421f897240eeaadfd5c2b365c7c2529eb8",
@@ -130,11 +130,12 @@
       "CMR2Decomp/OptionPreviewGeometry.h": "278a64523b9ed504cb64294b8ba3ee55aaf56eee4780bf567b7106fab5a84f26",
       "CMR2Decomp/Particle.h": "a79927c8df8b658b25c19124b4079c396cda41ca09cd7dc974eebe37ec119782",
       "CMR2Decomp/PauseMenus.h": "cb2bfa8ccb4eb55803c9f342c57c211286a80aa93e02bbdabcc690bd2db6a774",
+      "CMR2Decomp/ProfileEventResults.h": "da934a9795ee6d5ff1727718ca0373f73b931740278acf4fda5378932d5de51f",
       "CMR2Decomp/Race.cpp": "354539ede9497d40bb31fa7557c52fa2a361cc9e7cd24af3eea23368af96fb9a",
       "CMR2Decomp/RaceCallRecord.h": "e2418ff397371fd73fc5d83fbba8de474bc0f895eb1dfac5792127d8e6afd8c2",
       "CMR2Decomp/RaceCallbackStorage.h": "d540cbe431446daef4724e15b0f10f3702e8e50b8c87bcd04ff5bc1dd3a8d593",
       "CMR2Decomp/RaceRecord.h": "c86bd8aa45d6828375fee1fd908f60608b85e9b48a7416f8208b209fe98c3453",
-      "CMR2Decomp/RallyData.cpp": "97800b8ba56cefbb382cc7c4d93caa0eaeb6f231e310b803a687fbfc97035c51",
+      "CMR2Decomp/RallyData.cpp": "a48a9589cb4cf40de8f43b0390fb4b94ad73226368711657b5194f14fb9f720e",
       "CMR2Decomp/RallyData.h": "a5cf7a0fdaa66f84fb0c9596fa1b51a2c045b3db3971879b0b816ad42d971bad",
       "CMR2Decomp/RallyRoute.cpp": "df3ed62600e6eb725c5087acd8f5adb862ceb1a1625a233d6bf824efe7359da6",
       "CMR2Decomp/RallyRoute.h": "9bbc6d4afbd246b8868dbaf3bad135fc3d8005fedb81826c6dc6ac7d66cd4abd",
@@ -145,7 +146,7 @@
       "CMR2Decomp/RegKey.h": "cb2934244f3e58e032b9644f58ea83230965ed366c7000fb4690ef50d5bb62c4",
       "CMR2Decomp/ReplayStream.h": "73572a5d932cc2bd8906dc0333ef922e7121a7377ce0896d11cf476517aff27b",
       "CMR2Decomp/SavedGame.cpp": "1a7f109d0777a4c64c81b08038762b8c1a50a59efb87e2377e0d9648ddeb0eb1",
-      "CMR2Decomp/SavedGame.h": "7d21bbe4672b45cd63ae8d4bfa91cb31c16322ae5d417041a9bfffbe0c37abb3",
+      "CMR2Decomp/SavedGame.h": "eb2eb03946a7037db20a528d31f574a32f32780300ac461e9172a11e48e8fa57",
       "CMR2Decomp/SceneNode.cpp": "de514616c566967a3dfa25b38237c122ef745d73c7badd722fdf1d95593fedca",
       "CMR2Decomp/SceneNode.h": "36cb89b89381d06e4af832f582f32fcdee9f90502e826a7870c48ebbcc25c22a",
       "CMR2Decomp/Sector.cpp": "5ec8a96fb98b5d7da6122373890d26676782491ed1eea34f7fd1d7f4a7a149cc",
@@ -213,8 +214,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "c967f74ca6dccd8fc39efce29e72dd291d2431e016c75082d1b65fdca0e8c95d",
-    "pdb_sha256": "1639b95d0fcef97d6f503948412d6f382e68d6a71005317bffae75ff501dad40"
+    "exe_sha256": "13654d150bb07fa410660872c6bac385c84fdc2cf472d5f7c822ac8b251a118b",
+    "pdb_sha256": "e7f8ab88bee361161bad9943772d5b083b28f03a78ae883bb1356eac5ac3f7f4"
   },
   "perfect_match_percent": 56.28,
   "fuzzy_match_percent": 94.43,

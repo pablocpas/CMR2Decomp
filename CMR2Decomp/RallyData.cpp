@@ -1,5 +1,6 @@
 #include "SavedGame.h"
 #include "ChampionshipDriver.h"
+#include "ProfileEventResults.h"
 #include "CallbackState.h"
 #include "FloatToInt.h"
 #include <stddef.h>
@@ -2034,13 +2035,13 @@ void RallyData_SetDriverTyreChoice(BYTE index, int *pValues)
     unsigned int category;
 
     if (CGameInfo::GetConfiguredGameMode() == 4) {
-        memcpy(g_saveCarRecords[index].tyreChoice, pValues, 5 * sizeof(int));
+        memcpy(g_saveCarRecords[index].cameraOffsets, pValues, 5 * sizeof(int));
         g_saveCarRecords[index].flags |= 2;
         return;
     }
     category = g_saveSlots[index].category;
     if (category != 0xf) {
-        memcpy(g_saveProfiles[category].tyreChoice, pValues, 5 * sizeof(int));
+        memcpy(g_saveProfiles[category].cameraOffsets, pValues, 5 * sizeof(int));
         RallyData_MarkTyresChanged(index);
     }
 }
@@ -2052,10 +2053,10 @@ BYTE *RallyData_GetDriverTyreChoiceRecord(BYTE index)
 
     RallyData_ValidateIndex(index);
     if (CGameInfo::GetConfiguredGameMode() == 4)
-        return (BYTE *)g_saveCarRecords[index].tyreChoice;
+        return (BYTE *)g_saveCarRecords[index].cameraOffsets;
     category = g_saveSlots[index].category;
     if (category != 0xf)
-        return (BYTE *)g_saveProfiles[category].tyreChoice;
+        return (BYTE *)g_saveProfiles[category].cameraOffsets;
     return NULL;
 }
 
@@ -2170,13 +2171,13 @@ void RallyData_GetDriverCameraOffsets(int *pPos, short *pHeading, int *pValue, i
 }
 
 // FUNCTION: CMR2 0x00408c70
-BYTE *RallyData_GetCategoryOptionRecord(int index)
+ProfileEventResults *RallyData_GetCategoryOptionRecord(int index)
 {
     unsigned int category;
     RallyData_ValidateIndex(index);
     category = g_saveSlots[index].category;
     if (category != 0xf)
-        return g_saveProfiles[category].controls;
+        return (ProfileEventResults *)g_saveProfiles[category].eventResults;
     return NULL;
 }
 
