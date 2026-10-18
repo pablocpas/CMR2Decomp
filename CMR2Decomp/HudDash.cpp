@@ -21,7 +21,7 @@
 struct GenericFile;
 extern char g_strPathConcat[];
 int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit);
-BYTE *RallyData_GetDriverKnockoutOrTeamRecord(BYTE index);
+BYTE *RallyData_GetDriverHudFlags(BYTE index);
 BYTE StageUI_GetRaceEndEventCount(void);
 extern float g_oneOverRandMax;
 void StageTiming_ResetDashGearMarkers(void);
@@ -698,7 +698,7 @@ void Dash_DrawDial(int player, int *pViewRect)
 // FUNCTION: CMR2 0x00446210
 void Dash_Draw(int player, int *pViewRect)
 {
-    if (player < 2 && (*RallyData_GetDriverKnockoutOrTeamRecord(StageUI_GetRaceEndEventCount() + (char)player) & 0x10) != 0) {
+    if (player < 2 && (*RallyData_GetDriverHudFlags(StageUI_GetRaceEndEventCount() + (char)player) & 0x10) != 0) {
         if (g_dashDigital[StageUI_GetRaceEndEventCount() + player] != 0) {
             Dash_DrawBar(player, pViewRect);
             return;

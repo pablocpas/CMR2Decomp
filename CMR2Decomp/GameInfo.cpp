@@ -4036,8 +4036,8 @@ int g_unk0x0052ad50;
 BYTE StageUI_GetRaceEndEventCount(void);
 BYTE *StageUI_GetRaceResultTable(void);
 void Race_UpdatePlayerViewAndDrivenCars(BYTE, int);
-void RallyData_SetDriverByteSetting(BYTE index, BYTE *pValue);
-void RallyData_MarkTyresChanged(int index);
+void RallyData_SetDriverHudFlags(BYTE index, BYTE *pValue);
+void RallyData_MarkDriverRecordDirty(int index);
 int RallyData_IsHeadToHeadRaceMode(void);
 
 /* --------------------------------------------------------------------------
@@ -4262,7 +4262,7 @@ void InRaceMenu_ApplyDefaultCarSetup(Menu *pMenu, int param);
 void InRaceMenu_ApplyDefaultCarSetup(Menu *pMenu, int param)
 {
     g_unk0x005298f8 = (g_unk0x005298f8 & 0xfc) | 0x3c;
-    RallyData_SetDriverByteSetting(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1], &g_unk0x005298f8);
+    RallyData_SetDriverHudFlags(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1], &g_unk0x005298f8);
     pMenu->items[0].max = (g_unk0x005298f8 >> 2) & 1;
     pMenu->items[1].max = (g_unk0x005298f8 >> 3) & 1;
     pMenu->items[2].max = (g_unk0x005298f8 >> 4) & 1;
@@ -4306,7 +4306,7 @@ void InRaceMenu_EncodeCarSetup(Menu *pMenu)
         else
             g_unk0x005298f8 |= 0x10;
     }
-    RallyData_SetDriverByteSetting(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1], &g_unk0x005298f8);
+    RallyData_SetDriverHudFlags(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1], &g_unk0x005298f8);
 }
 
 // Callback 1 of the car setup menu: stores the setting byte (or the other
@@ -4315,16 +4315,16 @@ void InRaceMenu_EncodeCarSetup(Menu *pMenu)
 void InRaceMenu_LeaveCarSetup(Menu *pMenu, char cancel)
 {
     if (cancel != 0) {
-        RallyData_SetDriverByteSetting(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1], &g_unk0x0052a850);
+        RallyData_SetDriverHudFlags(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1], &g_unk0x0052a850);
         return;
     }
-    RallyData_SetDriverByteSetting(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1], &g_unk0x005298f8);
+    RallyData_SetDriverHudFlags(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1], &g_unk0x005298f8);
     CGameInfo::SetSoundOptionBit26((g_unk0x005298f8 >> 2) & 1);
     CGameInfo::SetSoundOptionBit27((g_unk0x005298f8 >> 3) & 1);
     CGameInfo::SetSoundOptionBit28((g_unk0x005298f8 >> 4) & 1);
     CGameInfo::SetSoundOptionBit29((g_unk0x005298f8 >> 5) & 1);
     CGameInfo::SetSoundOptionBits24To25(g_unk0x005298f8 & 3);
-    RallyData_MarkTyresChanged((StageUI_GetRaceEndEventCount() & 0xff) + g_unk0x0052af58[1]);
+    RallyData_MarkDriverRecordDirty((StageUI_GetRaceEndEventCount() & 0xff) + g_unk0x0052af58[1]);
 }
 
 // Callback 2 of the network options menu.
@@ -4356,15 +4356,15 @@ void InRaceMenu_LeaveSoundOptions(Menu *pMenu, char cancel)
     NetRace_InitializeRaceSoundVolumes();
 }
 
-BYTE *RallyData_GetDriverKnockoutOrTeamRecord(BYTE index);
+BYTE *RallyData_GetDriverHudFlags(BYTE index);
 
 // Callback 0 of the car setup menu: loads the switches from the driver's
 // setting byte (keeping a copy to restore on cancel).
 // FUNCTION: CMR2 0x00404b80
 void InRaceMenu_EnterCarSetup(Menu *pMenu, int param)
 {
-    g_unk0x0052a850 = *RallyData_GetDriverKnockoutOrTeamRecord(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1]);
-    g_unk0x005298f8 = *RallyData_GetDriverKnockoutOrTeamRecord(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1]);
+    g_unk0x0052a850 = *RallyData_GetDriverHudFlags(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1]);
+    g_unk0x005298f8 = *RallyData_GetDriverHudFlags(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1]);
     pMenu->items[0].max = (g_unk0x005298f8 >> 2) & 1;
     pMenu->items[1].max = (g_unk0x005298f8 >> 3) & 1;
     pMenu->items[2].max = (g_unk0x005298f8 >> 4) & 1;
@@ -5439,7 +5439,7 @@ int g_cameraMenuDriverRecord[5];
 void HudDash_GetCameraUpVector(FixVector *pOut, BYTE index);
 int HudDash_GetPlayerGaugeValue(BYTE index);
 short HudDash_GetGaugeTarget(BYTE index);
-BYTE *RallyData_GetDriverTyreChoiceRecord(BYTE index);
+BYTE *RallyData_GetDriverCameraRecord(BYTE index);
 
 // Callback 0 of the camera options menu: remembers the current camera and
 // shows it on the sliders.
@@ -5448,7 +5448,7 @@ void InRaceMenu_EnterCameraOffsetOptions(Menu *pMenu, char unused)
 {
     BYTE index;
 
-    memcpy(g_cameraMenuStartDriverRecord, RallyData_GetDriverTyreChoiceRecord(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1]), sizeof(g_cameraMenuStartDriverRecord));
+    memcpy(g_cameraMenuStartDriverRecord, RallyData_GetDriverCameraRecord(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1]), sizeof(g_cameraMenuStartDriverRecord));
     index = g_unk0x0052af58[1];
     memcpy(g_cameraMenuDriverRecord, g_cameraMenuStartDriverRecord, sizeof(g_cameraMenuDriverRecord));
     HudDash_GetCameraUpVector(&g_cameraMenuStartOffset, index);
@@ -11204,7 +11204,7 @@ extern BYTE g_stageRecordTexts[0x898];
 extern BYTE g_carClassRecordTexts[0x258];
 extern BYTE g_championshipRecordTexts[0x1cc];
 
-CategoryBestResults *RallyData_GetAvailableCategorySaveRecord(int index);
+CategoryBestResults *RallyData_GetDriverBestResults(int index);
 void FrontendProfile_ScrambleIdentifier(unsigned int param_1, unsigned int *pNumber, char *pByte, char *pOut);
 
 // Rewrites every best-time record of the selected rally as a scrambled
@@ -11256,8 +11256,8 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
         local_c.index = (local_10.index % 2) + 10;
         for (uVar8 = 0; (int)uVar8 < local_c.index; uVar8++) {
             {
-                puVar7 = &RallyData_GetAvailableCategorySaveRecord(0)->rallyStageTimes[local_10.index][uVar8].time;
-                puVar10 = &RallyData_GetAvailableCategorySaveRecord(0)->rallyStageTimes[local_10.index][uVar8].header;
+                puVar7 = &RallyData_GetDriverBestResults(0)->rallyStageTimes[local_10.index][uVar8].time;
+                puVar10 = &RallyData_GetDriverBestResults(0)->rallyStageTimes[local_10.index][uVar8].header;
                 if (((*puVar10 & 0x80) == 0) || (*puVar7 / 6000 >= 16)) {
                     g_stageRecordTexts[(local_10.index * 11 + uVar8) * 0x19] = 0;
                 } else {
@@ -11292,8 +11292,8 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
         uVar5 = 0;
         local_18 = local_10.bytes;
         do {
-            iVar3.rally = (BestTimeRallyTail *)&RallyData_GetAvailableCategorySaveRecord(0)->rallyResults[uVar5][local_1c].result;
-            iVar4 = &RallyData_GetAvailableCategorySaveRecord(0)->rallyResults[uVar5][local_1c].header;
+            iVar3.rally = (BestTimeRallyTail *)&RallyData_GetDriverBestResults(0)->rallyResults[uVar5][local_1c].result;
+            iVar4 = &RallyData_GetDriverBestResults(0)->rallyResults[uVar5][local_1c].header;
             puVar7 = iVar4;
             if (((*(BYTE *)iVar4 & 0x80) == 0) || (iVar3.rally->centiseconds / 6000 >= 64)) {
                 *local_18 = 0;
@@ -11328,8 +11328,8 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
     uVar5 = 0;
     puVar9 = g_eventRecordTexts;
     do {
-        puVar7 = &RallyData_GetAvailableCategorySaveRecord(0)->playerResults[uVar5].result.result;
-        puVar10 = &RallyData_GetAvailableCategorySaveRecord(0)->playerResults[uVar5].result.header;
+        puVar7 = &RallyData_GetDriverBestResults(0)->playerResults[uVar5].result.result;
+        puVar10 = &RallyData_GetDriverBestResults(0)->playerResults[uVar5].result.header;
         if ((*(BYTE *)puVar10 & 0x80) != 0) {
             local_8.word = (local_8.word & 0xfff83fff) | (*puVar7 & 0xf) << 0xe;
             local_8.word = (local_8.word & 0xffe7c07f) |
@@ -11363,8 +11363,8 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
         do {
             // The original keeps puVar7 from the championship pass here and
             // discards the first provider result. Preserve both calls.
-            RallyData_GetAvailableCategorySaveRecord(0);
-            puVar10 = &RallyData_GetAvailableCategorySaveRecord(0)->arcadeResults[uVar8][uVar5].header;
+            RallyData_GetDriverBestResults(0);
+            puVar10 = &RallyData_GetDriverBestResults(0)->arcadeResults[uVar8][uVar5].header;
             if ((*puVar10 & 0x80) != 0) {
                 local_8.word = (local_8.word & 0xffff8fff) | (*puVar7 & 7) << 0xc;
                 local_8.word = (local_8.word & 0xfffe707f) |
@@ -11397,8 +11397,8 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
     local_10.bytes = g_championshipRecordTexts;
     do {
         iVar2.index = ((int)uVar5 / 3) * 3 + (int)uVar5 % 3;
-        puVar7 = &RallyData_GetAvailableCategorySaveRecord(0)->arcadeStageTimes[0][iVar2.index].time;
-        iVar3.word = &RallyData_GetAvailableCategorySaveRecord(0)->arcadeStageTimes[0][iVar2.index].header;
+        puVar7 = &RallyData_GetDriverBestResults(0)->arcadeStageTimes[0][iVar2.index].time;
+        iVar3.word = &RallyData_GetDriverBestResults(0)->arcadeStageTimes[0][iVar2.index].header;
         uVar8 = *iVar3.word;
         puVar10 = iVar3.word;
         if (((uVar8 & 0x80) == 0) || (*puVar7 / 6000 >= 64)) {

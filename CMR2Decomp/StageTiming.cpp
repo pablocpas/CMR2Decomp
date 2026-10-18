@@ -3157,7 +3157,7 @@ void StageTiming_ForceWheelTrailSurface(int car, int surface)
 }
 
 BYTE StageUI_GetRaceEndEventCount(void);
-TyreWear *RallyData_GetTyreRecord(BYTE index);
+TyreWear *RallyData_GetDriverTyreWear(BYTE index);
 
 // Value `index` of the tyre record `offset` places after the current one.
 // FUNCTION: CMR2 0x0045c720
@@ -3165,7 +3165,7 @@ int StageTiming_GetRelativeTyreRecordValue(char offset, int index)
 {
     TyreWear *pRecord;
 
-    pRecord = RallyData_GetTyreRecord((BYTE)(StageUI_GetRaceEndEventCount() + offset));
+    pRecord = RallyData_GetDriverTyreWear((BYTE)(StageUI_GetRaceEndEventCount() + offset));
     if (pRecord != NULL)
         return pRecord->state[index];
     return 0;
@@ -3216,7 +3216,7 @@ int g_timingPartHitThresholds[8] = { 0x3333, 0x3333, 0x3333, 0x3333, 0x1999, 0x1
 int g_unk0x0051bfcc[8] = { 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999 };
 
 void StageObject_SetModelSubmeshVisibility(Car *pCar, int param_2, char param_3);
-void Race_PlayHornSound(unsigned int view, int kind, int listener);
+void Race_PlayBreakingGlassSound(unsigned int view, int kind, int listener);
 void Car_QueueWindowBreak(CarPartSet *pParts, Car *pCar, unsigned int part);
 
 // Flags window/body breaks for the eight parts of a car's timing record.
@@ -3250,13 +3250,13 @@ void StageTiming_FlagCarPartBreaks(Car *pCar, int param_2)
                             case 1:
                             case 2:
                             case 3:
-                                Race_PlayHornSound(carIndex, 2, carIndex);
+                                Race_PlayBreakingGlassSound(carIndex, 2, carIndex);
                                 break;
                             case 4:
                             case 5:
                             case 6:
                             case 7:
-                                Race_PlayHornSound(carIndex, 0, carIndex);
+                                Race_PlayBreakingGlassSound(carIndex, 0, carIndex);
                                 break;
                             }
                         }
@@ -3274,13 +3274,13 @@ void StageTiming_FlagCarPartBreaks(Car *pCar, int param_2)
                             case 1:
                             case 2:
                             case 3:
-                                Race_PlayHornSound(carIndex, 2, carIndex);
+                                Race_PlayBreakingGlassSound(carIndex, 2, carIndex);
                                 break;
                             case 4:
                             case 5:
                             case 6:
                             case 7:
-                                Race_PlayHornSound(carIndex, 0, carIndex);
+                                Race_PlayBreakingGlassSound(carIndex, 0, carIndex);
                                 break;
                             }
                         }
@@ -3531,15 +3531,15 @@ void StageTiming_AdvancePlayerHalfLapCounter(int player, int *pCount, int *pFrac
     }
 }
 
-TyreWear *RallyData_GetTyreRecord(BYTE index);
-void RallyData_MarkTyresChanged(int index);
+TyreWear *RallyData_GetDriverTyreWear(BYTE index);
+void RallyData_MarkDriverRecordDirty(int index);
 void Tyre_AddWear(int car, int wheel, int damage, int wear);
 
 // Resets the wear record of one wheel of a player's car.
 // FUNCTION: CMR2 0x0045c6b0
 void StageTiming_ResetWheelWearRecord(int player, int wheel)
 {
-    TyreWear *p = RallyData_GetTyreRecord((BYTE)(StageUI_GetRaceEndEventCount() + player));
+    TyreWear *p = RallyData_GetDriverTyreWear((BYTE)(StageUI_GetRaceEndEventCount() + player));
 
     if (p != NULL) {
         p->damage[wheel] = 0;
@@ -3551,7 +3551,7 @@ void StageTiming_ResetWheelWearRecord(int player, int wheel)
         p->savedDamage[wheel] = 0;
         p->savedWear[wheel] = 0;
         p->savedWear2[wheel] = 0;
-        RallyData_MarkTyresChanged((StageUI_GetRaceEndEventCount() & 0xff) + player);
+        RallyData_MarkDriverRecordDirty((StageUI_GetRaceEndEventCount() & 0xff) + player);
         Tyre_AddWear(player, wheel, 0, 0);
     }
 }
@@ -3835,7 +3835,7 @@ void CarTyres_CommitPlayerWear(int a, int b, int count)
     // w[-0x14] peakWear, w[-0x10] peakWear2, w[-0xc] peakDamage,
     // w[-8] savedWear2, w[-4] savedWear, w[4] wear, w[8] wear2, w[0xc] damage.
     for (i = 0; i < count; i++) {
-        pRecord = RallyData_GetTyreRecord((BYTE)(StageUI_GetRaceEndEventCount() + i));
+        pRecord = RallyData_GetDriverTyreWear((BYTE)(StageUI_GetRaceEndEventCount() + i));
         if (pRecord != NULL) {
             w = pRecord->savedDamage;
             for (j = 0; j < 4; j++, w++) {
@@ -3846,7 +3846,7 @@ void CarTyres_CommitPlayerWear(int a, int b, int count)
                 }
                 w[4] = w[-4];
                 w[8] = w[-8];
-                RallyData_MarkTyresChanged((StageUI_GetRaceEndEventCount() & 0xff) + i);
+                RallyData_MarkDriverRecordDirty((StageUI_GetRaceEndEventCount() & 0xff) + i);
                 w[0xc] = w[0];
                 Tyre_AddWear(i, j, 0, 0);
             }
@@ -8685,10 +8685,10 @@ void StageTiming_UpdateAllViewWeather(void)
 extern char g_strDemoName0x00519ec4[4];
 void NetPlayers_UpdateBestLapTime(unsigned int time);
 void NetPlayers_RecordLocalStageTime(unsigned int time, int stage);
-void Frontend_SetDeviceExtraValue(int index, int value);
-BYTE Frontend_MergeBestArcadeRecordOption(int index);
+void Frontend_SetEventArcadeStageTime(int index, int value);
+BYTE Frontend_MergeBestArcadeStageTime(int index);
 int FrontendRecords_CopyArcadeSplitMirror(int param_1, int param_2);
-int Frontend_AccumulateMinimumArcadeOption(int param_1, int param_2);
+int Frontend_AccumulateMinimumArcadeStageTime(int param_1, int param_2);
 int StageTiming_GetCarTimingByte81(int car);
 unsigned int RallyData_GetSetupHighNibble(void);
 
@@ -8747,12 +8747,12 @@ void StageTiming_HandleCarSplitCrossing(int car)
         strncmp((char *)RallyData_GetRecord(0), g_strDemoName0x00519ec4, 3) != 0) {
         slot = StageUI_GetRaceEndEventCount() + car;
         if ((char)RallyData_GetFlag24()) {
-            Frontend_SetDeviceExtraValue(slot, g_carStageTiming[car].splitTimes[group]);
-            g_unk0x0053e18d[car] |= Frontend_MergeBestArcadeRecordOption(slot);
+            Frontend_SetEventArcadeStageTime(slot, g_carStageTiming[car].splitTimes[group]);
+            g_unk0x0053e18d[car] |= Frontend_MergeBestArcadeStageTime(slot);
             bits = FrontendRecords_CopyArcadeSplitMirror(car, slot);
             g_unk0x0053e18f |= bits & 1;
             g_carStageTiming[car].field_0x84 = bits & 1;
-            g_carStageTiming[car].pad_0x85[0] = (BYTE)Frontend_AccumulateMinimumArcadeOption(car, slot) & 1;
+            g_carStageTiming[car].pad_0x85[0] = (BYTE)Frontend_AccumulateMinimumArcadeStageTime(car, slot) & 1;
         }
     }
     if ((char)RallyData_GetSetupFlag11()) {

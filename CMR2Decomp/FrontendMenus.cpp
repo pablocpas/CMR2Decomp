@@ -2985,7 +2985,7 @@ void FrontendMenu_BuildProfileDateEntry(void)
     Menu_AddItemType3(&g_menu0x0081bc98, 0, -1, 0xc, 0, 1, 0, 0, 1);
     Menu_AddItemType3(&g_menu0x0081bc98, 0, -1, 0x1f, 0, 1, 0, 0, 2);
     Menu_AddItemType4(&g_menu0x0081bc98, 0, 0x67, (MenuItemAction)FrontendProfile_ApplyDateEntry, -1);
-    Menu_SetCallbacks(&g_menu0x0081bc98, FrontendProfile_FillColourPicker, (MenuCallback)FrontendMenu_UpdateProfileDateEntry, (MenuCallback)FrontendMenu_DrawProfileDateEntry, FrontendMenu_ClearOverlayMode);
+    Menu_SetCallbacks(&g_menu0x0081bc98, FrontendProfile_FillDateOfBirthPicker, (MenuCallback)FrontendMenu_UpdateProfileDateEntry, (MenuCallback)FrontendMenu_DrawProfileDateEntry, FrontendMenu_ClearOverlayMode);
     Menu_ValidateCursor(&g_menu0x0081bc98, 0);
 }
 

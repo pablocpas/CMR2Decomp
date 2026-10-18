@@ -1793,13 +1793,13 @@
     "symbol_name": "Profile_WriteSaveFile"
   },
   "0x4eb450": {
-    "n": "Profile_GetFileDateRecord",
+    "n": "Profile_GetFileIdentifier",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FileBuffer.cpp",
-    "symbol_name": "Profile_GetFileDateRecord"
+    "symbol_name": "Profile_GetFileIdentifier"
   },
   "0x4eb3e0": {
     "n": "Profile_SaveEditedNames",
@@ -1883,13 +1883,13 @@
     "symbol_name": "Profile_ResetCategoryData"
   },
   "0x4ebee0": {
-    "n": "Profile_ReadFileHeaderDate",
+    "n": "Profile_ReadFileIdentifier",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FileBuffer.cpp",
-    "symbol_name": "Profile_ReadFileHeaderDate"
+    "symbol_name": "Profile_ReadFileIdentifier"
   },
   "0x4eb6d0": {
     "n": "Profile_ReleaseLoadBuffer",
@@ -2828,121 +2828,121 @@
     "symbol_name": "Frontend_AdvanceDeviceOptionNibble"
   },
   "0x4cf3f0": {
-    "n": "FrontendRecords_ResetDeviceStats",
+    "n": "FrontendRecords_ResetEventPoints",
     "s": 0.9090909090909091,
     "x": false,
     "fz": 0.9090909090909091,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "FrontendRecords_ResetDeviceStats"
+    "symbol_name": "FrontendRecords_ResetEventPoints"
   },
   "0x4cf420": {
-    "n": "Frontend_AddDeviceValueAndStatistic",
+    "n": "Frontend_AddEventPointsAndPlacing",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_AddDeviceValueAndStatistic"
+    "symbol_name": "Frontend_AddEventPointsAndPlacing"
   },
   "0x4cf450": {
-    "n": "Frontend_SetDeviceOptionBlockValue",
+    "n": "Frontend_SetEventRallyStageTime",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_SetDeviceOptionBlockValue"
+    "symbol_name": "Frontend_SetEventRallyStageTime"
   },
   "0x4cf470": {
-    "n": "Frontend_SetDeviceSetupOptionFields",
+    "n": "Frontend_SetEventRallyResult",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_SetDeviceSetupOptionFields"
+    "symbol_name": "Frontend_SetEventRallyResult"
   },
   "0x4cf4d0": {
-    "n": "Frontend_SetDeviceRecordOptionFields",
+    "n": "Frontend_SetEventPlayerResult",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_SetDeviceRecordOptionFields"
+    "symbol_name": "Frontend_SetEventPlayerResult"
   },
   "0x4cf530": {
-    "n": "Frontend_SetDeviceExtraValue",
+    "n": "Frontend_SetEventArcadeStageTime",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_SetDeviceExtraValue"
+    "symbol_name": "Frontend_SetEventArcadeStageTime"
   },
   "0x4cf550": {
-    "n": "Frontend_SetSecondaryRecordOptionFields",
+    "n": "Frontend_SetEventArcadeResult",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_SetSecondaryRecordOptionFields"
+    "symbol_name": "Frontend_SetEventArcadeResult"
   },
   "0x4cf5b0": {
-    "n": "Frontend_MergeBestDeviceStageOption",
+    "n": "Frontend_MergeBestRallyStageTime",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_MergeBestDeviceStageOption"
+    "symbol_name": "Frontend_MergeBestRallyStageTime"
   },
   "0x4cf660": {
-    "n": "Frontend_MergeBestDeviceButtonOption",
+    "n": "Frontend_MergeBestRallyResult",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_MergeBestDeviceButtonOption"
+    "symbol_name": "Frontend_MergeBestRallyResult"
   },
   "0x4cf740": {
-    "n": "Frontend_MergeBestPlayerStageOption",
+    "n": "Frontend_MergeBestPlayerResult",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_MergeBestPlayerStageOption"
+    "symbol_name": "Frontend_MergeBestPlayerResult"
   },
   "0x4cf830": {
-    "n": "Frontend_MergeBestArcadeRecordOption",
+    "n": "Frontend_MergeBestArcadeStageTime",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_MergeBestArcadeRecordOption"
+    "symbol_name": "Frontend_MergeBestArcadeStageTime"
   },
   "0x4cf8e0": {
-    "n": "Frontend_MergeBestSecondaryPlayerOption",
+    "n": "Frontend_MergeBestArcadeResult",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_MergeBestSecondaryPlayerOption"
+    "symbol_name": "Frontend_MergeBestArcadeResult"
   },
   "0x4cf9d0": {
-    "n": "Frontend_AccumulateMinimumDeviceOption",
+    "n": "Frontend_AccumulateMinimumRallyStageTime",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_AccumulateMinimumDeviceOption"
+    "symbol_name": "Frontend_AccumulateMinimumRallyStageTime"
   },
   "0x4cfa10": {
     "n": "Frontend_CopyImprovedStageRecordAndSplits",
@@ -2972,13 +2972,13 @@
     "symbol_name": "FrontendRecords_InsertStageCategoryRecord"
   },
   "0x4cfe20": {
-    "n": "Frontend_AccumulateMinimumArcadeOption",
+    "n": "Frontend_AccumulateMinimumArcadeStageTime",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_AccumulateMinimumArcadeOption"
+    "symbol_name": "Frontend_AccumulateMinimumArcadeStageTime"
   },
   "0x4cfe80": {
     "n": "FrontendRecords_CopyArcadeSplitMirror",
@@ -3017,22 +3017,22 @@
     "symbol_name": "Frontend_StoreSelectedDeviceOption"
   },
   "0x4d0280": {
-    "n": "Frontend_GetDeviceOptionBlock",
+    "n": "Frontend_GetEventRallyStageTime",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_GetDeviceOptionBlock"
+    "symbol_name": "Frontend_GetEventRallyStageTime"
   },
   "0x4d02d0": {
-    "n": "Frontend_GetDeviceSetupWord",
+    "n": "Frontend_GetEventRallyResult",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Frontend.cpp",
-    "symbol_name": "Frontend_GetDeviceSetupWord"
+    "symbol_name": "Frontend_GetEventRallyResult"
   },
   "0x4d0300": {
     "n": "Frontend_CopyOptionWord",
@@ -5996,13 +5996,13 @@
     "symbol_name": "FrontendMenu_EnterPaletteConfirmation"
   },
   "0x4f16f0": {
-    "n": "FrontendProfile_FillColourPicker",
+    "n": "FrontendProfile_FillDateOfBirthPicker",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FrontendScreens.cpp",
-    "symbol_name": "FrontendProfile_FillColourPicker"
+    "symbol_name": "FrontendProfile_FillDateOfBirthPicker"
   },
   "0x4f17d0": {
     "n": "FrontendScroller_InitRallyStageSelection",
@@ -7013,13 +7013,13 @@
     "symbol_name": "FrontendProfile_IsAlreadyInChampionship"
   },
   "0x4ebe10": {
-    "n": "FrontendProfile_SetCategoryColour",
+    "n": "FrontendProfile_SetDateOfBirth",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FrontendScreens.cpp",
-    "symbol_name": "FrontendProfile_SetCategoryColour"
+    "symbol_name": "FrontendProfile_SetDateOfBirth"
   },
   "0x4f0ac0": {
     "n": "FrontendProfile_SetupNextPlayer",
@@ -19188,13 +19188,13 @@
     "symbol_name": "Race_PlayScrapeAndShakeCar"
   },
   "0x418cd0": {
-    "n": "Race_PlayHornSound",
+    "n": "Race_PlayBreakingGlassSound",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "Race_PlayHornSound"
+    "symbol_name": "Race_PlayBreakingGlassSound"
   },
   "0x416f70": {
     "n": "Race_AdvanceRouteCalloutBlock",
@@ -19971,58 +19971,58 @@
     "symbol_name": "RallyData_GetDriverCategoryProfile"
   },
   "0x4088a0": {
-    "n": "RallyData_SetDriverTyreChoice",
+    "n": "RallyData_SetDriverCameraRecord",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_SetDriverTyreChoice"
+    "symbol_name": "RallyData_SetDriverCameraRecord"
   },
   "0x408930": {
-    "n": "RallyData_GetDriverTyreChoiceRecord",
+    "n": "RallyData_GetDriverCameraRecord",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetDriverTyreChoiceRecord"
+    "symbol_name": "RallyData_GetDriverCameraRecord"
   },
   "0x408990": {
-    "n": "RallyData_SetDriverByteSetting",
+    "n": "RallyData_SetDriverHudFlags",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_SetDriverByteSetting"
+    "symbol_name": "RallyData_SetDriverHudFlags"
   },
   "0x408a00": {
-    "n": "RallyData_GetDriverKnockoutOrTeamRecord",
+    "n": "RallyData_GetDriverHudFlags",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetDriverKnockoutOrTeamRecord"
+    "symbol_name": "RallyData_GetDriverHudFlags"
   },
   "0x408a60": {
-    "n": "RallyData_GetTyreRecord",
+    "n": "RallyData_GetDriverTyreWear",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetTyreRecord"
+    "symbol_name": "RallyData_GetDriverTyreWear"
   },
   "0x408b10": {
-    "n": "RallyData_GetDriverCategoryColour",
+    "n": "RallyData_GetDriverDateOfBirth",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetDriverCategoryColour"
+    "symbol_name": "RallyData_GetDriverDateOfBirth"
   },
   "0x408bd0": {
     "n": "RallyData_SetDriverCameraOffsets",
@@ -20043,22 +20043,22 @@
     "symbol_name": "RallyData_GetDriverCameraOffsets"
   },
   "0x408c70": {
-    "n": "RallyData_GetCategoryOptionRecord",
+    "n": "RallyData_GetDriverEventResults",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetCategoryOptionRecord"
+    "symbol_name": "RallyData_GetDriverEventResults"
   },
   "0x408d00": {
-    "n": "RallyData_MarkTyresChanged",
+    "n": "RallyData_MarkDriverRecordDirty",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_MarkTyresChanged"
+    "symbol_name": "RallyData_MarkDriverRecordDirty"
   },
   "0x408d60": {
     "n": "RallyData_GetDriverEntryRecord",
@@ -20601,13 +20601,13 @@
     "symbol_name": "RallyData_GetSelectionFlag26"
   },
   "0x408cb0": {
-    "n": "RallyData_GetAvailableCategorySaveRecord",
+    "n": "RallyData_GetDriverBestResults",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetAvailableCategorySaveRecord"
+    "symbol_name": "RallyData_GetDriverBestResults"
   },
   "0x407e90": {
     "n": "RallyData_GetSelectionFlag27",

@@ -4,7 +4,7 @@
 #include <windows.h>
 
 // Results of the event being played (DriverProfile::eventResults, returned by
-// RallyData_GetCategoryOptionRecord). The Frontend_MergeBest* functions merge
+// RallyData_GetDriverEventResults). The Frontend_MergeBest* functions merge
 // them into the matching CategoryBestResults tables. Not in SavedGame.h: any
 // new struct defined there shifts code in GameInfo.cpp.
 struct ProfileEventResults {

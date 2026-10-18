@@ -28,9 +28,9 @@ struct CategoryBestResults {
     CategoryBestTime arcadeStageTimes[3][3];    // 0x4bc group/stage
 };
 
-unsigned char Frontend_MergeBestDeviceStageOption(int index, CategoryBestResults *pBlock);
-unsigned char Frontend_MergeBestDeviceButtonOption(int index, CategoryBestResults *pBlock);
-unsigned char Frontend_MergeBestPlayerStageOption(int index, CategoryBestResults *pBlock);
-unsigned char Frontend_MergeBestSecondaryPlayerOption(int index, CategoryBestResults *pBlock);
+unsigned char Frontend_MergeBestRallyStageTime(int index, CategoryBestResults *pBlock);
+unsigned char Frontend_MergeBestRallyResult(int index, CategoryBestResults *pBlock);
+unsigned char Frontend_MergeBestPlayerResult(int index, CategoryBestResults *pBlock);
+unsigned char Frontend_MergeBestArcadeResult(int index, CategoryBestResults *pBlock);
 
 #endif

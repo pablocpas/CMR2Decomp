@@ -1057,27 +1057,27 @@
   ],
   "0x4088a0": [
     4885808,
-    "RallyData_SetDriverTyreChoice"
+    "RallyData_SetDriverCameraRecord"
   ],
   "0x408930": [
     4885952,
-    "RallyData_GetDriverTyreChoiceRecord"
+    "RallyData_GetDriverCameraRecord"
   ],
   "0x408990": [
     4886048,
-    "RallyData_SetDriverByteSetting"
+    "RallyData_SetDriverHudFlags"
   ],
   "0x408a00": [
     4886160,
-    "RallyData_GetDriverKnockoutOrTeamRecord"
+    "RallyData_GetDriverHudFlags"
   ],
   "0x408a60": [
     4886256,
-    "RallyData_GetTyreRecord"
+    "RallyData_GetDriverTyreWear"
   ],
   "0x408b10": [
     4886432,
-    "RallyData_GetDriverCategoryColour"
+    "RallyData_GetDriverDateOfBirth"
   ],
   "0x408bd0": [
     4886624,
@@ -1089,15 +1089,15 @@
   ],
   "0x408c70": [
     4886784,
-    "RallyData_GetCategoryOptionRecord"
+    "RallyData_GetDriverEventResults"
   ],
   "0x408cb0": [
     4905904,
-    "RallyData_GetAvailableCategorySaveRecord"
+    "RallyData_GetDriverBestResults"
   ],
   "0x408d00": [
     4886848,
-    "RallyData_MarkTyresChanged"
+    "RallyData_MarkDriverRecordDirty"
   ],
   "0x408d60": [
     4886944,
@@ -2385,7 +2385,7 @@
   ],
   "0x418cd0": [
     4863664,
-    "Race_PlayHornSound"
+    "Race_PlayBreakingGlassSound"
   ],
   "0x418d20": [
     4849408,
@@ -9989,55 +9989,55 @@
   ],
   "0x4cf3f0": [
     4402032,
-    "FrontendRecords_ResetDeviceStats"
+    "FrontendRecords_ResetEventPoints"
   ],
   "0x4cf420": [
     4402080,
-    "Frontend_AddDeviceValueAndStatistic"
+    "Frontend_AddEventPointsAndPlacing"
   ],
   "0x4cf450": [
     4402128,
-    "Frontend_SetDeviceOptionBlockValue"
+    "Frontend_SetEventRallyStageTime"
   ],
   "0x4cf470": [
     4402160,
-    "Frontend_SetDeviceSetupOptionFields"
+    "Frontend_SetEventRallyResult"
   ],
   "0x4cf4d0": [
     4402256,
-    "Frontend_SetDeviceRecordOptionFields"
+    "Frontend_SetEventPlayerResult"
   ],
   "0x4cf530": [
     4402352,
-    "Frontend_SetDeviceExtraValue"
+    "Frontend_SetEventArcadeStageTime"
   ],
   "0x4cf550": [
     4402384,
-    "Frontend_SetSecondaryRecordOptionFields"
+    "Frontend_SetEventArcadeResult"
   ],
   "0x4cf5b0": [
     4402480,
-    "Frontend_MergeBestDeviceStageOption"
+    "Frontend_MergeBestRallyStageTime"
   ],
   "0x4cf660": [
     4402656,
-    "Frontend_MergeBestDeviceButtonOption"
+    "Frontend_MergeBestRallyResult"
   ],
   "0x4cf740": [
     4402880,
-    "Frontend_MergeBestPlayerStageOption"
+    "Frontend_MergeBestPlayerResult"
   ],
   "0x4cf830": [
     4403120,
-    "Frontend_MergeBestArcadeRecordOption"
+    "Frontend_MergeBestArcadeStageTime"
   ],
   "0x4cf8e0": [
     4403296,
-    "Frontend_MergeBestSecondaryPlayerOption"
+    "Frontend_MergeBestArcadeResult"
   ],
   "0x4cf9d0": [
     4403536,
-    "Frontend_AccumulateMinimumDeviceOption"
+    "Frontend_AccumulateMinimumRallyStageTime"
   ],
   "0x4cfa10": [
     4403600,
@@ -10053,7 +10053,7 @@
   ],
   "0x4cfe20": [
     4404640,
-    "Frontend_AccumulateMinimumArcadeOption"
+    "Frontend_AccumulateMinimumArcadeStageTime"
   ],
   "0x4cfe50": [
     4400752,
@@ -10081,11 +10081,11 @@
   ],
   "0x4d0280": [
     4405616,
-    "Frontend_GetDeviceOptionBlock"
+    "Frontend_GetEventRallyStageTime"
   ],
   "0x4d02d0": [
     4405696,
-    "Frontend_GetDeviceSetupWord"
+    "Frontend_GetEventRallyResult"
   ],
   "0x4d0300": [
     4405744,
@@ -10929,7 +10929,7 @@
   ],
   "0x4eb450": [
     4367920,
-    "Profile_GetFileDateRecord"
+    "Profile_GetFileIdentifier"
   ],
   "0x4eb470": [
     4368064,
@@ -10973,7 +10973,7 @@
   ],
   "0x4ebe10": [
     4498304,
-    "FrontendProfile_SetCategoryColour"
+    "FrontendProfile_SetDateOfBirth"
   ],
   "0x4ebe80": [
     4368672,
@@ -10985,7 +10985,7 @@
   ],
   "0x4ebee0": [
     4369440,
-    "Profile_ReadFileHeaderDate"
+    "Profile_ReadFileIdentifier"
   ],
   "0x4ebf20": [
     4369264,
@@ -11437,7 +11437,7 @@
   ],
   "0x4f16f0": [
     4476208,
-    "FrontendProfile_FillColourPicker"
+    "FrontendProfile_FillDateOfBirthPicker"
   ],
   "0x4f17d0": [
     4476432,

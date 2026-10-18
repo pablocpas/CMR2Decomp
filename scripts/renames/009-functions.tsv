@@ -1,0 +1,31 @@
+address	old_name	new_name	evidence
+0x4ebe10	FrontendProfile_SetCategoryColour	FrontendProfile_SetDateOfBirth	Packs day (bits 16-20), month (8-11) and year (0-7) into the profile identifier; called from FrontendProfile_ApplyDateEntry with the three date items of the menu.
+0x408b10	RallyData_GetDriverCategoryColour	RallyData_GetDriverDateOfBirth	Unpacks day, month and year from the identifier of the driver's profile; the .pps file name is built from the same fields.
+0x4f16f0	FrontendProfile_FillColourPicker	FrontendProfile_FillDateOfBirthPicker	Fills the day/month/year items from RallyData_GetDriverDateOfBirth and limits the day to 30 for April, June, September and November.
+0x4088a0	RallyData_SetDriverTyreChoice	RallyData_SetDriverCameraRecord	Stores the five ints (x, y, z, heading, value) written by RallyData_SetDriverCameraOffsets into the driver record or profile.
+0x408930	RallyData_GetDriverTyreChoiceRecord	RallyData_GetDriverCameraRecord	Returns the camera offsets record that RallyData_GetDriverCameraOffsets reads and the camera menu copies.
+0x408d00	RallyData_MarkTyresChanged	RallyData_MarkDriverRecordDirty	Sets the edited bit of the championship entry or the dirty flag of the driver's profile.
+0x408a60	RallyData_GetTyreRecord	RallyData_GetDriverTyreWear	Returns the TyreWear block of the driver record or profile (NULL for time-trial ghosts).
+0x408c70	RallyData_GetCategoryOptionRecord	RallyData_GetDriverEventResults	Returns the ProfileEventResults of the driver's profile.
+0x408cb0	RallyData_GetAvailableCategorySaveRecord	RallyData_GetDriverBestResults	Returns the CategoryBestResults of the driver's profile, NULL without one.
+0x408a00	RallyData_GetDriverKnockoutOrTeamRecord	RallyData_GetDriverHudFlags	Returns the HUD flags byte; RallyData and Dash_Draw test its 4/8/0x10/0x20 bits to draw the HUD panels.
+0x408990	RallyData_SetDriverByteSetting	RallyData_SetDriverHudFlags	Stores the HUD flags byte of the driver record or profile.
+0x4d0280	Frontend_GetDeviceOptionBlock	Frontend_GetEventRallyStageTime	Returns &ProfileEventResults::rallyStageTime in the record modes that have one, else NULL.
+0x4d02d0	Frontend_GetDeviceSetupWord	Frontend_GetEventRallyResult	Returns ProfileEventResults::rallyResult in modes 0, 1 and 8, else NULL.
+0x4cf5b0	Frontend_MergeBestDeviceStageOption	Frontend_MergeBestRallyStageTime	Copies the event stage time into rallyStageTimes[country][stage] when it is lower or none is stored.
+0x4cf660	Frontend_MergeBestDeviceButtonOption	Frontend_MergeBestRallyResult	Merges the event rally result into rallyResults[country][difficulty] when it is better.
+0x4cf740	Frontend_MergeBestPlayerStageOption	Frontend_MergeBestPlayerResult	Merges the event player result into playerResults[difficulty] when it is better.
+0x4cf830	Frontend_MergeBestArcadeRecordOption	Frontend_MergeBestArcadeStageTime	Copies the event arcade stage time into arcadeStageTimes when it is lower or none is stored.
+0x4cf8e0	Frontend_MergeBestSecondaryPlayerOption	Frontend_MergeBestArcadeResult	Merges the event arcade result into arcadeResults when it is better.
+0x4cf3f0	FrontendRecords_ResetDeviceStats	FrontendRecords_ResetEventPoints	Clears ProfileEventResults::playerPoints and the three placing counters.
+0x4cf420	Frontend_AddDeviceValueAndStatistic	Frontend_AddEventPointsAndPlacing	Adds to playerPoints and counts a first, second or third place.
+0x4cf4d0	Frontend_SetDeviceRecordOptionFields	Frontend_SetEventPlayerResult	Writes the level and score fields of ProfileEventResults::playerResult and clears playerPoints.
+0x4cf530	Frontend_SetDeviceExtraValue	Frontend_SetEventArcadeStageTime	Stores ProfileEventResults::arcadeStageTime.
+0x4cf550	Frontend_SetSecondaryRecordOptionFields	Frontend_SetEventArcadeResult	Writes the fields of ProfileEventResults::arcadeResult and arcadeExtra.
+0x4cf450	Frontend_SetDeviceOptionBlockValue	Frontend_SetEventRallyStageTime	Stores the value through Frontend_GetEventRallyStageTime.
+0x4cf470	Frontend_SetDeviceSetupOptionFields	Frontend_SetEventRallyResult	Writes the fields of the rally result word and its time through Frontend_GetEventRallyResult.
+0x4cf9d0	Frontend_AccumulateMinimumDeviceOption	Frontend_AccumulateMinimumRallyStageTime	Keeps the lowest event rally stage time in g_lowestSplitValue.
+0x4cfe20	Frontend_AccumulateMinimumArcadeOption	Frontend_AccumulateMinimumArcadeStageTime	Keeps the lowest event arcade stage time in g_lowestSplitValue.
+0x4eb450	Profile_GetFileDateRecord	Profile_GetFileIdentifier	Returns the DriverProfileIdentifier of the n-th .pps file found.
+0x4ebee0	Profile_ReadFileHeaderDate	Profile_ReadFileIdentifier	Copies the DriverProfileIdentifier at +0x10 of a .pps file.
+0x418cd0	Race_PlayHornSound	Race_PlayBreakingGlassSound	Plays HLIGHT1/HLIGHT2 (kind 0) or SCREEN1 (kind 2) from g_glassFirstSample; called when a window or light part breaks.

@@ -975,7 +975,7 @@ void Race_ResetPlayerCallState(void)
 }
 
 int InRaceMenu_IsPlayerEditingCarSetup(unsigned int param1);
-BYTE *RallyData_GetDriverKnockoutOrTeamRecord(BYTE index);
+BYTE *RallyData_GetDriverHudFlags(BYTE index);
 extern int g_unk0x00537350;
 extern int g_coDriverFirstSample;
 void StageUI_DrawStageGrid(int unused, int set);
@@ -1071,7 +1071,7 @@ void Race_DrawPlayerCallSlots(unsigned int player, int *pViewRect)
     }
 
     if (iVar == 0) {
-        pState = RallyData_GetDriverKnockoutOrTeamRecord(StageUI_GetRaceEndEventCount() + player);
+        pState = RallyData_GetDriverHudFlags(StageUI_GetRaceEndEventCount() + player);
         if ((*pState & 3) == 1)
             extra = 0x10;
     }
@@ -1130,7 +1130,7 @@ void Race_DrawPlayerCallSlots(unsigned int player, int *pViewRect)
         if (iVar != 0)
             goto next;
 
-        pState = RallyData_GetDriverKnockoutOrTeamRecord(StageUI_GetRaceEndEventCount() + player);
+        pState = RallyData_GetDriverHudFlags(StageUI_GetRaceEndEventCount() + player);
         if ((*pState & 3) == 2)
             goto next;
 
@@ -1266,7 +1266,7 @@ void Race_DrawPlayerMessage(char *pText, int *pColour, int player, int shadow, i
     }
     textY = pos + ((int)g_pGraphics->resY << 14 >> 16);
     if (race == 0) {
-        pState = RallyData_GetDriverKnockoutOrTeamRecord(StageUI_GetRaceEndEventCount() + player);
+        pState = RallyData_GetDriverHudFlags(StageUI_GetRaceEndEventCount() + player);
         if ((*pState & 3) == 1)
             textY = ((int)g_pGraphics->resY << 14 >> 16) + pos + 0x10;
     }
@@ -4065,7 +4065,7 @@ void Race_PlayScrapeAndShakeCar(int view, int strength, int listener)
 
 // Plays one of the three horn sounds (random for kind 0).
 // FUNCTION: CMR2 0x00418cd0
-void Race_PlayHornSound(unsigned int view, int kind, int listener)
+void Race_PlayBreakingGlassSound(unsigned int view, int kind, int listener)
 {
     int sound = 0;
 

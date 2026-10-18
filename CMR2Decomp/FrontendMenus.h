@@ -287,7 +287,7 @@ void FrontendMenu_UpdateProfileRenameEntry(Menu *pMenu);
 void FrontendProfile_PickRenameCharacterOrCheat(Menu *pMenu, int param);
 void FrontendProfile_ApplyDateEntry(Menu *pMenu, int param);
 void FrontendMenu_UpdateProfileDateEntry(Menu *pMenu);
-void FrontendProfile_FillColourPicker(Menu *pMenu, int param);
+void FrontendProfile_FillDateOfBirthPicker(Menu *pMenu, int param);
 void FrontendScroller_InitRallyStageSelection(Menu *pMenu, int param);
 void FrontendMenu_EnterPaletteSelection(Menu *pMenu, char param);
 void FrontendMenu_EnterPaletteConfirmation(Menu *pMenu, int param);

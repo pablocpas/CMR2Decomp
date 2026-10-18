@@ -3443,7 +3443,7 @@ Menu *FrontendProfile_GetCompletionMenu(void);
 BYTE RallyData_FindCheatNameIndex(int param_1, BYTE *param_2);
 char RallyData_SaveEditedCategoryProfile(int param_1);
 BYTE Profile_LoadAndLinkSavedRecord(int param_1, int param_2);
-void FrontendProfile_SetCategoryColour(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4);
+void FrontendProfile_SetDateOfBirth(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4);
 BYTE RallyData_IsDriverRecordUsable(BYTE param1);
 
 
@@ -3525,7 +3525,7 @@ void FrontendProfile_PickRenameCharacterOrCheat(Menu *pMenu, int param)
 // FUNCTION: CMR2 0x004f15d0
 void FrontendProfile_ApplyDateEntry(Menu *pMenu, int param)
 {
-    FrontendProfile_SetCategoryColour(FrontendProfile_GetCurrentPlayer(), pMenu->items[2].max + 1, pMenu->items[1].max + 1,
+    FrontendProfile_SetDateOfBirth(FrontendProfile_GetCurrentPlayer(), pMenu->items[2].max + 1, pMenu->items[1].max + 1,
                  pMenu->items[0].max);
     if (RallyData_SaveEditedCategoryProfile(FrontendProfile_GetCurrentPlayer()) != 0) {
         Menu_SetNextAction(FrontendProfile_GetCompletionMenu());
@@ -3596,12 +3596,12 @@ void FrontendMenu_EnterPaletteConfirmation(Menu *pMenu, int param)
     else
         pMenu->items[0].max = 0;
 }
-void RallyData_GetDriverCategoryColour(int index, unsigned int *pHue, unsigned int *pShade, unsigned int *pValue);
+void RallyData_GetDriverDateOfBirth(int index, unsigned int *pHue, unsigned int *pShade, unsigned int *pValue);
 
 // Callback of the car colour menu: reads the current driver's category colour
 // and reflects it onto the colour picker items.
 // FUNCTION: CMR2 0x004f16f0
-void FrontendProfile_FillColourPicker(Menu *pMenu, int param)
+void FrontendProfile_FillDateOfBirthPicker(Menu *pMenu, int param)
 {
     int shade;
     int value;
@@ -3609,7 +3609,7 @@ void FrontendProfile_FillColourPicker(Menu *pMenu, int param)
     BYTE idx;
 
     Frontend_SetOverlayMode((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_profilePlayersRemaining & 0xff) - 1);
-    RallyData_GetDriverCategoryColour(FrontendProfile_GetCurrentPlayer(), (unsigned int *)&hue, (unsigned int *)&shade, (unsigned int *)&value);
+    RallyData_GetDriverDateOfBirth(FrontendProfile_GetCurrentPlayer(), (unsigned int *)&hue, (unsigned int *)&shade, (unsigned int *)&value);
     pMenu->items[2].max = 0;
     pMenu->cursor = 0;
     pMenu->items[1].max = (BYTE)shade - 1;
@@ -5681,7 +5681,7 @@ header:
     FrontendDraw_HelpText(CFrontend::GetTextString(0x16f), 1);
 }
 
-CategoryBestResults *RallyData_GetAvailableCategorySaveRecord(int index);
+CategoryBestResults *RallyData_GetDriverBestResults(int index);
 BYTE *FrontendRecords_GetEventRecordText(int index);
 
 // Draw callback of the record page: the record of the table shown (car,
@@ -5732,9 +5732,9 @@ header:
     g_frontendDrawRect[2] = (int)(g_pGraphics->resX * 640) / 640 + (int)(g_pGraphics->resX * 30) / 640 * -2;
     g_frontendDrawRect[3] = 1;
     y = (int)(g_pGraphics->resY * 19) / 480 + (int)(g_pGraphics->resY * 200) / 480;
-    if ((RallyData_GetAvailableCategorySaveRecord(0)->playerResults[table].result.header & 0x80) != 0) {
-        pSecond = &RallyData_GetAvailableCategorySaveRecord(0)->playerResults[table].result.result;
-        pRecord = &RallyData_GetAvailableCategorySaveRecord(0)->playerResults[table].result.header;
+    if ((RallyData_GetDriverBestResults(0)->playerResults[table].result.header & 0x80) != 0) {
+        pSecond = &RallyData_GetDriverBestResults(0)->playerResults[table].result.result;
+        pRecord = &RallyData_GetDriverBestResults(0)->playerResults[table].result.header;
         Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*pRecord & 0x3f), (int)(g_pGraphics->resX * 180) / 640, y,
                       (int *)g_colourWhite0x00524968, 0x12);
         if ((*pRecord & 0x40) != 0)
@@ -5796,9 +5796,9 @@ void FrontendMenu_DrawProfileBestStageTimes(Menu *pMenu)
     i = 0;
     do {
         y = (int)(g_pGraphics->resY * 19) / 480 + (int)(g_pGraphics->resY * 90) / 480 + (int)(g_pGraphics->resY * 25) / 480 * i;
-        pRecords = RallyData_GetAvailableCategorySaveRecord(0);
+        pRecords = RallyData_GetDriverBestResults(0);
         rally = pMenu->cursor;
-        pRecord = &RallyData_GetAvailableCategorySaveRecord(0)->rallyStageTimes[pMenu->cursor][i].header;
+        pRecord = &RallyData_GetDriverBestResults(0)->rallyStageTimes[pMenu->cursor][i].header;
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, i + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 100) / 640, y, (int *)g_colourText0x0052496c, 0x12);
         if ((*pRecord & 0x80) != 0) {
@@ -6203,7 +6203,7 @@ bool FrontendProfile_IsAlreadyInChampionship(int index)
 // Sets the colour word of the category record that the driver's entry points
 // at. param_2 is the 5-bit shade index, param_3 the 4-bit hue.
 // FUNCTION: CMR2 0x004ebe10
-void FrontendProfile_SetCategoryColour(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4)
+void FrontendProfile_SetDateOfBirth(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4)
 {
     unsigned int category;
     unsigned int colour;
@@ -8042,7 +8042,7 @@ char *Network_GetEnumeratedSessionName(BYTE index);
 int Session_GetListedUserValue(unsigned int session, BYTE index);
 DWORD Network_GetSessionPlayerCount(int index);
 DWORD Network_GetSessionMaxPlayers(BYTE index);
-BYTE *Profile_GetFileDateRecord(int index);
+BYTE *Profile_GetFileIdentifier(int index);
 void RallyData_SetDriverCategoryOption(BYTE index, BYTE value);
 unsigned int NetPlayers_GetPlayerFlag6(int index);
 int Font_GetTextWidth(BYTE index, BYTE *text);
@@ -8335,7 +8335,7 @@ BYTE FrontendDraw_ChampionshipEntryRow(int param_1, int param_2)
     index = (param_1 + param_2) % Profile_GetFileCount();
     if (index < 0)
         index += Profile_GetFileCount();
-    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)Profile_GetFileDateRecord(index));
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)Profile_GetFileIdentifier(index));
     if (FrontendProfile_IsAlreadyInChampionship(index)) {
         Font_DrawText(2, CFrontend::m_stringDest,
                       g_pGraphics->resX / 2 + g_unk0x00819868 + ((int)(g_pGraphics->resX * 0x50) / 0x280) * param_2,
@@ -8867,9 +8867,9 @@ void FrontendMenu_DrawProfileStageRecords(Menu *pMenu)
 
     g_frontendDrawRect[3] = 1;
     y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 200) / 0x1e0;
-    if ((RallyData_GetAvailableCategorySaveRecord(0)->rallyResults[pMenu->cursor][mode].header & 0x80) != 0) {
-        pEntry = &RallyData_GetAvailableCategorySaveRecord(0)->rallyResults[pMenu->cursor][mode].result;
-        pFlags = &RallyData_GetAvailableCategorySaveRecord(0)->rallyResults[pMenu->cursor][mode].header;
+    if ((RallyData_GetDriverBestResults(0)->rallyResults[pMenu->cursor][mode].header & 0x80) != 0) {
+        pEntry = &RallyData_GetDriverBestResults(0)->rallyResults[pMenu->cursor][mode].result;
+        pFlags = &RallyData_GetDriverBestResults(0)->rallyResults[pMenu->cursor][mode].header;
         Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*pFlags & 0x3f),
                       (int)(g_pGraphics->resX * 0xb4) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
@@ -9117,8 +9117,8 @@ void FrontendMenu_DrawProfileTransmissionRecords(Menu *pMenu)
 
     g_frontendDrawRect[3] = 1;
     y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 200) / 0x1e0;
-    pRow = &RallyData_GetAvailableCategorySaveRecord(0)->arcadeResults[pMenu->cursor][mode].result;
-    pFlags = &RallyData_GetAvailableCategorySaveRecord(0)->arcadeResults[pMenu->cursor][mode].header;
+    pRow = &RallyData_GetDriverBestResults(0)->arcadeResults[pMenu->cursor][mode].result;
+    pFlags = &RallyData_GetDriverBestResults(0)->arcadeResults[pMenu->cursor][mode].header;
     if ((*pFlags & 0x80) != 0) {
         Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*pFlags & 0x3f),
                       (int)(g_pGraphics->resX * 0xbe) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
@@ -9274,8 +9274,8 @@ void FrontendMenu_DrawProfileChampionshipRecords(Menu *pMenu)
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
         n = (i / 3) * 3 + i % 3; // [group][stage] as one index
-        pBase = RallyData_GetAvailableCategorySaveRecord(0);
-        pFlags = &RallyData_GetAvailableCategorySaveRecord(0)->arcadeStageTimes[0][n].header;
+        pBase = RallyData_GetDriverBestResults(0);
+        pFlags = &RallyData_GetDriverBestResults(0)->arcadeStageTimes[0][n].header;
         Font_DrawText(1, CFrontend::GetTextString(order[i] + 0x27), (int)(g_pGraphics->resX * 100) / 0x280,
                       y, (int *)g_colourText0x0052496c, 0x12);
         if ((*pFlags & 0x80) != 0) {
@@ -9900,7 +9900,7 @@ void FrontendMenu_DrawMultiplayerStageSelection(Menu *pMenu)
     if (pMenu->cursor == 0) {
         count = Profile_GetFileCount();
         if (0 < count) {
-            pRecord = Profile_GetFileDateRecord(pMenu->items[0].max);
+            pRecord = Profile_GetFileIdentifier(pMenu->items[0].max);
             sprintf(g_unk0x008183cc, g_str0x00524cfc, CFrontend::GetTextString(0x139),
                     CFrontend::GetTextString(0x7e), CFrontend::GetTextString(0x80));
             flags = *(unsigned int *)(pRecord + 4);
@@ -10816,8 +10816,8 @@ void FrontendMenu_DrawRallySummary(Menu *pMenu)
     for (n = 0; n < (CGameInfo::GetConfiguredPlayerCount() & 0xff); n++) {
         if (RallyData_IsDriverRecordUsable(n) == 0) {
             count++;
-            if ((RallyData_GetAvailableCategorySaveRecord(n)->rallyStageTimes[RallyDataCountryIndex()][pMenu->cursor].header & 0x80) != 0) {
-                time = RallyData_GetAvailableCategorySaveRecord(n)->rallyStageTimes[RallyDataCountryIndex()][pMenu->cursor].time;
+            if ((RallyData_GetDriverBestResults(n)->rallyStageTimes[RallyDataCountryIndex()][pMenu->cursor].header & 0x80) != 0) {
+                time = RallyData_GetDriverBestResults(n)->rallyStageTimes[RallyDataCountryIndex()][pMenu->cursor].time;
                 sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
                         (int)((time / 100) % 0x3c), time % 100);
             } else {
@@ -10941,8 +10941,8 @@ void FrontendMenu_DrawRallyReport(Menu *pMenu)
     while (i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff)) {
         if (RallyData_IsDriverRecordUsable(i) == 0) {
             shown++;
-            if ((RallyData_GetAvailableCategorySaveRecord(i)->arcadeStageTimes[pMenu->cursor / 3][pMenu->cursor % 3].header & 0x80) != 0) {
-                time = RallyData_GetAvailableCategorySaveRecord(i)->arcadeStageTimes[pMenu->cursor / 3][pMenu->cursor % 3].time;
+            if ((RallyData_GetDriverBestResults(i)->arcadeStageTimes[pMenu->cursor / 3][pMenu->cursor % 3].header & 0x80) != 0) {
+                time = RallyData_GetDriverBestResults(i)->arcadeStageTimes[pMenu->cursor / 3][pMenu->cursor % 3].time;
                 sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000, (int)((time / 100) % 0x3c),
                         time % 100);
             } else {

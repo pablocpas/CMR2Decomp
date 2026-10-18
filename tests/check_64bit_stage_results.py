@@ -62,13 +62,13 @@ CategoryBestResults *best;
 bool missing;
 int providerIndex, marked;
 BYTE g_unk0x00817420[40];
-BYTE *RallyData_GetCategoryOptionRecord(int i) {assert(i==providerIndex); return missing?nullptr:currentRecord;}
-BYTE *RallyData_GetAvailableCategorySaveRecord(int i) {assert(i==providerIndex); return (BYTE *)best;}
-BYTE *Frontend_GetDeviceOptionBlock(int i) {assert(i==providerIndex); return missing?nullptr:currentRecord+0x14;}
-BYTE *Frontend_GetDeviceSetupWord(int i) {assert(i==providerIndex); return missing?nullptr:currentRecord+0xc;}
+BYTE *RallyData_GetDriverEventResults(int i) {assert(i==providerIndex); return missing?nullptr:currentRecord;}
+BYTE *RallyData_GetDriverBestResults(int i) {assert(i==providerIndex); return (BYTE *)best;}
+BYTE *Frontend_GetEventRallyStageTime(int i) {assert(i==providerIndex); return missing?nullptr:currentRecord+0x14;}
+BYTE *Frontend_GetEventRallyResult(int i) {assert(i==providerIndex); return missing?nullptr:currentRecord+0xc;}
 BYTE RallyData_GetDriverRecordSelectionValue(BYTE i) {assert(i==providerIndex); return 0x45;}
 BYTE RallyData_GetDriverOrCategoryFlag(BYTE i) {assert(i==providerIndex); return 3;}
-void RallyData_MarkTyresChanged(int i) {assert(i==providerIndex); ++marked;}
+void RallyData_MarkDriverRecordDirty(int i) {assert(i==providerIndex); ++marked;}
 int fixtureRand() {return 0x7654;}
 #define rand fixtureRand
 '''
@@ -101,11 +101,11 @@ int main() {
         memset(g_unk0x00817420,0xa5,sizeof(g_unk0x00817420));
         BYTE result=0;
         switch(input[0]) {
-        case 0:result=Frontend_MergeBestDeviceStageOption(providerIndex,best);break;
-        case 1:result=Frontend_MergeBestDeviceButtonOption(providerIndex,best);break;
-        case 2:result=Frontend_MergeBestPlayerStageOption(providerIndex,best);break;
-        case 3:result=Frontend_MergeBestArcadeRecordOption(providerIndex);break;
-        case 4:result=Frontend_MergeBestSecondaryPlayerOption(providerIndex,best);break;
+        case 0:result=Frontend_MergeBestRallyStageTime(providerIndex,best);break;
+        case 1:result=Frontend_MergeBestRallyResult(providerIndex,best);break;
+        case 2:result=Frontend_MergeBestPlayerResult(providerIndex,best);break;
+        case 3:result=Frontend_MergeBestArcadeStageTime(providerIndex);break;
+        case 4:result=Frontend_MergeBestArcadeResult(providerIndex,best);break;
         default:assert(false);
         }
         assert(marked==result);
@@ -130,9 +130,9 @@ def main():
         support += '\n'+re.search(r'struct '+name+r' \{.*?\};',source,re.S)[0]
     functions = ('Frontend_CopyOptionWord','Frontend_MergeFourNibbleOptionFields',
                  'Frontend_MergeFourTwoSixBitOptionFields','Frontend_MergeThreeTwoSixBitOptionFields',
-                 'Frontend_MergeBestDeviceStageOption','Frontend_MergeBestDeviceButtonOption',
-                 'Frontend_MergeBestPlayerStageOption','Frontend_MergeBestArcadeRecordOption',
-                 'Frontend_MergeBestSecondaryPlayerOption')
+                 'Frontend_MergeBestRallyStageTime','Frontend_MergeBestRallyResult',
+                 'Frontend_MergeBestPlayerResult','Frontend_MergeBestArcadeStageTime',
+                 'Frontend_MergeBestArcadeResult')
     support += '\n'+'\n'.join(function(source,n) for n in functions)
     main = MAIN
     for placeholder, name in zip(('CFG_COUNTRY','CFG_STAGE','CFG_DIFFICULTY','CFG_GROUP'), names):
@@ -140,8 +140,8 @@ def main():
     code = PRE + support + rows + main
     old_rows = rows.replace('va_list ppNext;\n    va_start(ppNext, pText);','char **ppNext = &pText;')
     old_rows = old_rows.replace('va_arg(ppNext, char *)','*++ppNext').replace('    va_end(ppNext);','')
-    old_pointers = support.replace('base = (CategoryBestResults *)RallyData_GetAvailableCategorySaveRecord(index);',
-                                  'base = (CategoryBestResults *)(intptr_t)(int)(intptr_t)RallyData_GetAvailableCategorySaveRecord(index);')
+    old_pointers = support.replace('base = (CategoryBestResults *)RallyData_GetDriverBestResults(index);',
+                                  'base = (CategoryBestResults *)(intptr_t)(int)(intptr_t)RallyData_GetDriverBestResults(index);')
     assert old_rows != rows and old_pointers != support
     inputs, expected = bytearray(), bytearray()
     for seed in range(0,576,3):

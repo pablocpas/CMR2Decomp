@@ -717,8 +717,8 @@ void CarEffects_InitDebris(void)
     } while (pShape < g_debrisShapes[30]);
 }
 
-TyreWear *RallyData_GetTyreRecord(BYTE index);
-void RallyData_MarkTyresChanged(int index);
+TyreWear *RallyData_GetDriverTyreWear(BYTE index);
+void RallyData_MarkDriverRecordDirty(int index);
 BYTE StageUI_GetRaceEndEventCount(void);
 int StageObject_GetCarWeatherRampValue(Car *pCar);
 int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit);
@@ -902,7 +902,7 @@ void Tyre_AddWear(int car, int wheel, int damage, int wear)
     TyreWear *pRecord;
     int i;
 
-    pRecord = RallyData_GetTyreRecord(StageUI_GetRaceEndEventCount() + (char)car);
+    pRecord = RallyData_GetDriverTyreWear(StageUI_GetRaceEndEventCount() + (char)car);
     if (pRecord == NULL)
         return;
     if (pRecord->damage[wheel] < 1000)
@@ -922,7 +922,7 @@ void Tyre_AddWear(int car, int wheel, int damage, int wear)
         if (pRecord->wear[i] > 300)
             pRecord->state[i] = 2;
     }
-    RallyData_MarkTyresChanged((StageUI_GetRaceEndEventCount() & 0xff) + car);
+    RallyData_MarkDriverRecordDirty((StageUI_GetRaceEndEventCount() & 0xff) + car);
 }
 
 // Throws the spray of the car's sliding wheels (gravel, mud, dust, water)

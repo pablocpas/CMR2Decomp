@@ -213,7 +213,7 @@ BYTE Profile_WriteSaveFile(int unused, BYTE *pProfile)
 }
 
 // FUNCTION: CMR2 0x004eb450
-BYTE *Profile_GetFileDateRecord(int index)
+BYTE *Profile_GetFileIdentifier(int index)
 {
     return (BYTE *)&g_pProfileIdentifiers[index];
 }
@@ -454,7 +454,7 @@ void Profile_ResetCategoryData(int index)
 
 // Reads the profile file and copies its identifier (offset 0x10) into *pOut.
 // FUNCTION: CMR2 0x004ebee0
-BYTE Profile_ReadFileHeaderDate(DriverProfileIdentifier *pOut, char *param2)
+BYTE Profile_ReadFileIdentifier(DriverProfileIdentifier *pOut, char *param2)
 {
     void *pBuffer;
 
@@ -512,14 +512,14 @@ void Profile_RebuildFileList(void)
         (hFind = FindFirstFileA(g_strPpsPattern, &find)) != INVALID_HANDLE_VALUE) {
         g_pProfileIdentifiers = (DriverProfileIdentifier *)CFileBuffer::ReallocateLockedBuffer(
             g_pProfileIdentifiers, (g_profileFileCount * 3 + 3) * 4);
-        found = Profile_ReadFileHeaderDate(&g_pProfileIdentifiers[g_profileFileCount],
+        found = Profile_ReadFileIdentifier(&g_pProfileIdentifiers[g_profileFileCount],
                              find.cFileName);
         if (found != 0)
             g_profileFileCount++;
         while (FindNextFileA(hFind, &find) != 0) {
             g_pProfileIdentifiers = (DriverProfileIdentifier *)CFileBuffer::ReallocateLockedBuffer(
                 g_pProfileIdentifiers, (g_profileFileCount * 3 + 3) * 4);
-            found = Profile_ReadFileHeaderDate(&g_pProfileIdentifiers[g_profileFileCount],
+            found = Profile_ReadFileIdentifier(&g_pProfileIdentifiers[g_profileFileCount],
                                  find.cFileName);
             if (found != 0)
                 g_profileFileCount++;

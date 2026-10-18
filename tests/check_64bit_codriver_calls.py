@@ -54,7 +54,7 @@ unsigned int RallyData_GetSelectionFlag26(){return caseId%2;}
 int RallyData_IsHeadToHeadRaceMode(){event(3);return (caseId/2)%2;}
 int InRaceMenu_IsPlayerEditingCarSetup(unsigned int n){event(6);arg(n);return (caseId/16)%2;}
 BYTE StageUI_GetRaceEndEventCount(){event(7);return 1;}
-BYTE *RallyData_GetDriverKnockoutOrTeamRecord(BYTE i){event(8);arg(i);return image+0x2000;}
+BYTE *RallyData_GetDriverHudFlags(BYTE i){event(8);arg(i);return image+0x2000;}
 void StageUI_DrawStageGrid(int a,int b){event(9);arg(a);arg(b);}
 void Race_AssignSlotsFromCallRecord(unsigned int v){event(10);arg(v);}
 void Race_DrawPlayerMessage(char *text,int *colour,int player,int shadow,int x,int y){assert(!strcmp(text,"wrong way"));event(11);bytes(trace,colour,4);arg(player);arg(shadow);arg(x);arg(y);}

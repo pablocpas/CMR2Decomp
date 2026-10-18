@@ -36,7 +36,7 @@ class CFrontend { public: static char m_stringDest[260]; };
 char CFrontend::m_stringDest[260];
 BYTE *saved;
 unsigned calls;
-BYTE *RallyData_GetAvailableCategorySaveRecord(int index) {
+BYTE *RallyData_GetDriverBestResults(int index) {
     assert(index==0 && reinterpret_cast<uintptr_t>(saved)>UINT32_MAX);
     ++calls;return saved;
 }
