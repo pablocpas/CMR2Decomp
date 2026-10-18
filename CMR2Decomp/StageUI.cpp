@@ -444,38 +444,38 @@ RaceCallbackStorage g_raceCallbackStorage;
 // GLOBAL: CMR2 0x00537df0
 int g_unk0x00537df0;
 // GLOBAL: CMR2 0x00537ef4
-BYTE g_unk0x00537ef4;
+BYTE g_raceEndLatch;
 // GLOBAL: CMR2 0x00537ef5
 BYTE g_unk0x00537ef5;
 // GLOBAL: CMR2 0x00537ef6
-BYTE g_unk0x00537ef6;
+BYTE g_raceEndEventCount;
 // GLOBAL: CMR2 0x00537ef8
-int g_unk0x00537ef8;
+int g_raceEndPending;
 // GLOBAL: CMR2 0x00537efc
-int g_unk0x00537efc;
+int g_raceEndState;
 
 // FUNCTION: CMR2 0x0041b300
 void StageUI_ClearRaceEndLatch(void)
 {
-    g_unk0x00537ef4 = 0;
+    g_raceEndLatch = 0;
 }
 
 // FUNCTION: CMR2 0x0041b310
 void StageUI_SetRaceEndPending(void)
 {
-    g_unk0x00537ef8 = 1;
+    g_raceEndPending = 1;
 }
 
 // FUNCTION: CMR2 0x0041b320
 int StageUI_GetRaceEndState(void)
 {
-    return g_unk0x00537efc;
+    return g_raceEndState;
 }
 
 // FUNCTION: CMR2 0x0041b330
 void StageUI_ClearRaceEndState(void)
 {
-    g_unk0x00537efc = 0;
+    g_raceEndState = 0;
 }
 
 // FUNCTION: CMR2 0x0041b340
@@ -483,19 +483,19 @@ void StageUI_RecordRaceEndEvent(char bFlag)
 {
     if (bFlag != 0)
         g_unk0x00537ef5 = 1;
-    g_unk0x00537ef6++;
+    g_raceEndEventCount++;
 }
 
 // FUNCTION: CMR2 0x0041b360
 void StageUI_ResetRaceEndEventCount(void)
 {
-    g_unk0x00537ef6 = 0;
+    g_raceEndEventCount = 0;
 }
 
 // FUNCTION: CMR2 0x0041b370
 BYTE StageUI_GetRaceEndEventCount(void)
 {
-    return g_unk0x00537ef6;
+    return g_raceEndEventCount;
 }
 
 // FUNCTION: CMR2 0x0041b380

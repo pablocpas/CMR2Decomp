@@ -165,12 +165,12 @@ void CFileBuffer::FreeGenericFileBuffer(void *param1)
 }
 
 // GLOBAL: CMR2 0x00531650
-int g_unk0x00531650;
+int g_profileFileCount;
 // One value per player, cleared by RallyData_ResetSavedPlayerRecords
 // GLOBAL: CMR2 0x00531654
 int g_unk0x00531654[4];
 // GLOBAL: CMR2 0x00531764
-BYTE *g_unk0x00531764;
+BYTE *g_pProfileFileDates;
 // CMR2 0x00818cd0: generic file load flag, cleared together with the load counter
 // GLOBAL: CMR2 0x00818cd0
 BYTE g_genericFileLoaded;
@@ -214,7 +214,7 @@ BYTE Profile_WriteSaveFile(int unused, BYTE *pProfile)
 // FUNCTION: CMR2 0x004eb450
 BYTE *Profile_GetFileDateRecord(int index)
 {
-    return g_unk0x00531764 + index * 12;
+    return g_pProfileFileDates + index * 12;
 }
 
 // Saves the profiles whose name has just been edited, clearing the dirty flag
@@ -244,7 +244,7 @@ bool Profile_SaveEditedNames(void)
 // FUNCTION: CMR2 0x004eb440
 int Profile_GetFileCount(void)
 {
-    return g_unk0x00531650;
+    return g_profileFileCount;
 }
 
 // Saves every player profile marked dirty (unless it has flag 0x200000).
@@ -285,7 +285,7 @@ BYTE Profile_LoadAndLinkSavedRecord(int param_1, int param_2)
     unsigned int i;
 
     RallyData_ValidateIndex(param_1);
-    pBuffer = (BYTE *)Profile_ReadLocalFile((char *)Profile_BuildSavePath((char *)(g_unk0x00531764 + param_2 * 12)), 0);
+    pBuffer = (BYTE *)Profile_ReadLocalFile((char *)Profile_BuildSavePath((char *)(g_pProfileFileDates + param_2 * 12)), 0);
     if (pBuffer != NULL) {
         *(unsigned int *)(pBuffer + 0x54) &= 0xffff807f;
         for (i = 0, pRecord = g_saveProfiles + 0x14; (INT_PTR)pRecord < (INT_PTR)(g_saveProfiles + 0x1954); i++) {
@@ -482,11 +482,11 @@ BYTE Profile_ReadFileHeaderDate(Unk0x10Block *pOut, char *param2)
 // FUNCTION: CMR2 0x004eb6d0
 char Profile_ReleaseLoadBuffer(void)
 {
-    if (g_unk0x00531764 != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(g_unk0x00531764);
-        g_unk0x00531764 = NULL;
+    if (g_pProfileFileDates != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_pProfileFileDates);
+        g_pProfileFileDates = NULL;
     }
-    g_unk0x00531650 = 0;
+    g_profileFileCount = 0;
     g_genericFileLoaded = 0;
     return 1;
 }
@@ -511,28 +511,28 @@ void Profile_RebuildFileList(void)
         g_genericFileLoaded = 1;
         CGame::RegisterCallback((void *)Profile_ReleaseLoadBuffer, NULL);
     }
-    if (g_unk0x00531764 != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(g_unk0x00531764);
-        g_unk0x00531764 = NULL;
+    if (g_pProfileFileDates != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_pProfileFileDates);
+        g_pProfileFileDates = NULL;
     }
-    g_unk0x00531650 = 0;
+    g_profileFileCount = 0;
     GetCurrentDirectoryA(260, oldDir);
     sprintf(ppsDir, g_strPpsDirFormat, CInstallInfo::GetGameHDPath());
     if (SetCurrentDirectoryA(ppsDir) != 0 &&
         (hFind = FindFirstFileA(g_strPpsPattern, &find)) != INVALID_HANDLE_VALUE) {
-        g_unk0x00531764 = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
-            g_unk0x00531764, (g_unk0x00531650 * 3 + 3) * 4);
-        found = Profile_ReadFileHeaderDate((Unk0x10Block *)(g_unk0x00531764 + g_unk0x00531650 * 0xc),
+        g_pProfileFileDates = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
+            g_pProfileFileDates, (g_profileFileCount * 3 + 3) * 4);
+        found = Profile_ReadFileHeaderDate((Unk0x10Block *)(g_pProfileFileDates + g_profileFileCount * 0xc),
                              find.cFileName);
         if (found != 0)
-            g_unk0x00531650++;
+            g_profileFileCount++;
         while (FindNextFileA(hFind, &find) != 0) {
-            g_unk0x00531764 = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
-                g_unk0x00531764, (g_unk0x00531650 * 3 + 3) * 4);
-            found = Profile_ReadFileHeaderDate((Unk0x10Block *)(g_unk0x00531764 + g_unk0x00531650 * 0xc),
+            g_pProfileFileDates = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
+                g_pProfileFileDates, (g_profileFileCount * 3 + 3) * 4);
+            found = Profile_ReadFileHeaderDate((Unk0x10Block *)(g_pProfileFileDates + g_profileFileCount * 0xc),
                                  find.cFileName);
             if (found != 0)
-                g_unk0x00531650++;
+                g_profileFileCount++;
         }
         FindClose(hFind);
     }

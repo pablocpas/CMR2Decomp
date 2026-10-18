@@ -759,7 +759,7 @@ struct Unk0x00539278 {
     int field_0x34;                 // slot in use
 };
 extern Unk0x00539278 g_forceFeedbackSlots[2];
-extern Unk0x00539278 *g_unk0x00539278;
+extern Unk0x00539278 *g_pForceFeedbackSlot;
 extern Car *g_unk0x0053937c;
 
 // Rebuilds the rotation part of a matrix as an orthonormal basis that keeps
@@ -800,7 +800,7 @@ void ForceFeedback_UpdateSlot(Car *pCar, FixVector *pIn, int nonzero)
     int x;
 
     g_unk0x0053937c = pCar;
-    g_unk0x00539278 = &g_forceFeedbackSlots[pCar->index];
+    g_pForceFeedbackSlot = &g_forceFeedbackSlots[pCar->index];
     FixMatrix_InverseRotateVector(&v, pIn, pCar->pWorld);
     if (nonzero != 0) {
         x = v.z;
@@ -811,12 +811,12 @@ void ForceFeedback_UpdateSlot(Car *pCar, FixVector *pIn, int nonzero)
             x = 0;
         else if (x > 0x10000)
             x = 0x10000;
-        if (x > g_unk0x00539278->field_0x24) {
-            g_unk0x00539278->field_0x24 = x;
+        if (x > g_pForceFeedbackSlot->field_0x24) {
+            g_pForceFeedbackSlot->field_0x24 = x;
             if (v.z >= 0)
-                g_unk0x00539278->field_0x30 = 0;
+                g_pForceFeedbackSlot->field_0x30 = 0;
             else
-                g_unk0x00539278->field_0x30 = 1;
+                g_pForceFeedbackSlot->field_0x30 = 1;
         }
     }
     x = (unsigned int)FixVecLength(&v);
@@ -826,8 +826,8 @@ void ForceFeedback_UpdateSlot(Car *pCar, FixVector *pIn, int nonzero)
         x = 0;
     else if (x > 0x10000)
         x = 0x10000;
-    if (x > g_unk0x00539278->field_0x28)
-        g_unk0x00539278->field_0x28 = x;
+    if (x > g_pForceFeedbackSlot->field_0x28)
+        g_pForceFeedbackSlot->field_0x28 = x;
 }
 
 // Per-player camera mode (4 = free camera) and the camera up/forward vectors.
@@ -835,7 +835,7 @@ extern BYTE g_playerCameraMode[8];
 extern FixVector g_unk0x0053d000[6];
 extern FixVector g_unk0x0053d048[4];
 // Per-player dashboard gauge values.
-extern short g_unk0x0053d090[4];
+extern short g_dashGaugeTargets[4];
 // View offset of a player's camera (HudDash.cpp).
 void HudDash_GetCameraViewOffset(FixVector *pOut, BYTE *pSel);
 
@@ -889,7 +889,7 @@ void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef)
     pos.z += off.z;
     FixMatrix_SetPosition(&pos, pM);
     if (g_playerCameraMode[index] == 4)
-        FixMatrix_RotateAboutRight(pM, (unsigned short)g_unk0x0053d090[2 + pObj[1]]);
+        FixMatrix_RotateAboutRight(pM, (unsigned short)g_dashGaugeTargets[2 + pObj[1]]);
 
     *(int *)(pObj + 0x48) = 0;
     *(int *)(pObj + 0x4c) = 0x10000;

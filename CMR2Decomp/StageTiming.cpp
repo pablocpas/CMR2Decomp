@@ -796,9 +796,9 @@ struct CarStageTiming {
 // GLOBAL: CMR2 0x0053d1a0
 short g_unk0x0053d1a0;
 // GLOBAL: CMR2 0x0053d1a2
-short g_unk0x0053d1a2;
+short g_pendingDriverCount;
 // GLOBAL: CMR2 0x0053d1a4
-char g_unk0x0053d1a4[2];
+char g_pendingDrivers[2];
 // GLOBAL: CMR2 0x0053d1a6
 BYTE g_unk0x0053d1a6;
 // GLOBAL: CMR2 0x0053d1a7
@@ -806,11 +806,11 @@ BYTE g_unk0x0053d1a7;
 // GLOBAL: CMR2 0x0053d1a8
 char g_unk0x0053d1a8;
 // GLOBAL: CMR2 0x0053d1b0
-int g_unk0x0053d1b0;
+int g_stageClock;
 // GLOBAL: CMR2 0x0053d1b4
 int g_unk0x0053d1b4;
 // GLOBAL: CMR2 0x0053d1b8
-int g_unk0x0053d1b8[8];
+int g_driverFinishTimes[8];
 // GLOBAL: CMR2 0x0053d1d8
 BYTE g_unk0x0053d1d8;
 // GLOBAL: CMR2 0x0053d1da
@@ -820,11 +820,11 @@ CarStageTiming g_carStageTiming[8];
 // GLOBAL: CMR2 0x0053dda8
 char g_unk0x0053dda8[8];
 // GLOBAL: CMR2 0x0053e17c
-char g_unk0x0053e17c[8];
+char g_finishOrder[8];
 // GLOBAL: CMR2 0x0053e184
-char g_unk0x0053e184[8];
+char g_driverFinishPosition[8];
 // GLOBAL: CMR2 0x0053e18c
-BYTE g_unk0x0053e18c;
+BYTE g_finishedDriverCount;
 
 // Marks a timed driver slot as active and queues it when the selected rally
 // state exposes the slot in the ordering table.
@@ -832,11 +832,11 @@ BYTE g_unk0x0053e18c;
 void StageTiming_QueueDriverSlot(int index)
 {
     g_unk0x0053d1da[index] = 1;
-    g_unk0x0053d1b8[index] = *(volatile int *)&g_unk0x0053d1b0;
+    g_driverFinishTimes[index] = *(volatile int *)&g_stageClock;
     if ((BYTE)RallyData_GetFlag24() != 0 || (BYTE)RallyData_GetFlag25() != 0) {
-        g_unk0x0053e17c[(char)*(volatile BYTE *)&g_unk0x0053e18c] = (char)index;
-        g_unk0x0053e184[index] = (char)*(volatile BYTE *)&g_unk0x0053e18c;
-        g_unk0x0053e18c = *(volatile BYTE *)&g_unk0x0053e18c + 1;
+        g_finishOrder[(char)*(volatile BYTE *)&g_finishedDriverCount] = (char)index;
+        g_driverFinishPosition[index] = (char)*(volatile BYTE *)&g_finishedDriverCount;
+        g_finishedDriverCount = *(volatile BYTE *)&g_finishedDriverCount + 1;
     }
 }
 // GLOBAL: CMR2 0x0053e18d
@@ -844,19 +844,19 @@ BYTE g_unk0x0053e18d[2];
 // GLOBAL: CMR2 0x0053e18f
 BYTE g_unk0x0053e18f;
 // GLOBAL: CMR2 0x0053e190
-int g_unk0x0053e190[82];  // 9 splits per car, up to the menu at 0x53e2d8
+int g_driverSplitClocks[82];  // 9 splits per car, up to the menu at 0x53e2d8
 
 // FUNCTION: CMR2 0x00448100
 void StageTiming_ResetClockAndPreviousTime(void)
 {
     g_unk0x0053d1b4 = 0;
-    g_unk0x0053d1b0 = 0;
+    g_stageClock = 0;
 }
 
 // FUNCTION: CMR2 0x00448110
 int StageTiming_GetClockTime(void)
 {
-    return g_unk0x0053d1b0;
+    return g_stageClock;
 }
 
 // FUNCTION: CMR2 0x004481b0
@@ -886,7 +886,7 @@ int StageTiming_GetCarSplitTime(int car, int index)
 // FUNCTION: CMR2 0x00448210
 int StageTiming_GetClampedElapsedCarTime(int car)
 {
-    int time = g_unk0x0053d1b0 - g_carStageTiming[car].lastTime;
+    int time = g_stageClock - g_carStageTiming[car].lastTime;
     if (time >= 360000)
         time = 359999;
     return time;
@@ -960,26 +960,26 @@ BYTE StageTiming_GetCarTimingByte83(int car)
 int StageTiming_GetBoundedFinishOrderEntry(int index)
 {
     if (index >= 0 && index < 8)
-        return g_unk0x0053e17c[index];
+        return g_finishOrder[index];
     return -1;
 }
 
 // FUNCTION: CMR2 0x004483b0
 int StageTiming_GetFinishOrderSecondaryEntry(int index)
 {
-    return g_unk0x0053e184[index];
+    return g_driverFinishPosition[index];
 }
 
 // FUNCTION: CMR2 0x00448620
 void StageTiming_CommitChampionshipPoints(void)
 {
-    RallyTiming_AddChampionshipPoints(g_unk0x0053e17c, g_unk0x0053d1b8);
+    RallyTiming_AddChampionshipPoints(g_finishOrder, g_driverFinishTimes);
 }
 
 // FUNCTION: CMR2 0x00448670
 int StageTiming_GetFinishedDriverCount(void)
 {
-    return (char)g_unk0x0053e18c;
+    return (char)g_finishedDriverCount;
 }
 
 int StageTiming_GetCheckpointField12(int index);
@@ -1005,7 +1005,7 @@ int StageTiming_CompareCheckpointAndStartOrder(int a, int b)
 // FUNCTION: CMR2 0x00448780
 void StageTiming_SetCarStartClock(int car)
 {
-    g_carStageTiming[car].startTime = g_unk0x0053d1b0;
+    g_carStageTiming[car].startTime = g_stageClock;
 }
 
 unsigned int RallyData_GetSetupModeBits(void);
@@ -1018,7 +1018,7 @@ void StageTiming_QueueDriverSlot(int index);
 void StageTiming_QueueSplitRaceDriversByGap(int slot)
 {
     if (RallyData_GetSetupModeBits() == 1 && g_unk0x0053d1a6 != 0 && slot != g_unk0x0053d1a8) {
-        if (g_unk0x0053d1a2 > (int)(RallyData_GetSetupLowNibble() * 100)) {
+        if (g_pendingDriverCount > (int)(RallyData_GetSetupLowNibble() * 100)) {
             g_unk0x0053d1a7 = 1;
             StageTiming_QueueDriverSlot(g_unk0x0053d1a8);
             StageTiming_QueueDriverSlot(1 - g_unk0x0053d1a8);
@@ -1029,13 +1029,13 @@ void StageTiming_QueueSplitRaceDriversByGap(int slot)
 // FUNCTION: CMR2 0x00448c60
 int StageTiming_GetPendingDriverEntry(int index)
 {
-    return g_unk0x0053d1a4[index];
+    return g_pendingDrivers[index];
 }
 
 // FUNCTION: CMR2 0x00448c70
 int StageTiming_GetPendingDriverCount(void)
 {
-    return g_unk0x0053d1a2;
+    return g_pendingDriverCount;
 }
 
 // FUNCTION: CMR2 0x00448c80
@@ -1078,9 +1078,9 @@ BYTE StageTiming_GetCarTimingByte84(int car)
 void StageTiming_RecordDriverTimeoutFinish(int index)
 {
     g_unk0x0053d1da[index] = 1;
-    g_unk0x0053e190[GetStageSplitCount() + index * 9] = g_unk0x0053d1b0;
-    g_unk0x0053d1b8[index] = g_unk0x0053d1b0 + 0x4650;
-    g_unk0x0053e18c++;
+    g_driverSplitClocks[GetStageSplitCount() + index * 9] = g_stageClock;
+    g_driverFinishTimes[index] = g_stageClock + 0x4650;
+    g_finishedDriverCount++;
 }
 
 // FUNCTION: CMR2 0x004483c0
@@ -1088,13 +1088,13 @@ int StageTiming_GetValidStartTime(int index)
 {
     if (index == -1)
         return -1;
-    return g_unk0x0053d1b8[index];
+    return g_driverFinishTimes[index];
 }
 
 // FUNCTION: CMR2 0x00448680
 unsigned int StageTiming_GetDriverSplitClock(int index, int split)
 {
-    return g_unk0x0053e190[index * 9 + split];
+    return g_driverSplitClocks[index * 9 + split];
 }
 
 // Registers the mesh-backed node in the per-slot tables.
@@ -1374,14 +1374,14 @@ struct Unk0x00539278 {
 // GLOBAL: CMR2 0x00539200
 Unk0x00539278 g_forceFeedbackSlots[2];
 // GLOBAL: CMR2 0x00539278
-Unk0x00539278 *g_unk0x00539278;
+Unk0x00539278 *g_pForceFeedbackSlot;
 
 // FUNCTION: CMR2 0x004246a0
 void ForceFeedback_CacheAppliedForces(void)
 {
     int i;
     for (i = 0; i < 3; i++)
-        (&g_unk0x00539278->field_0x0)[i] = (&g_unk0x00539278->field_0xc)[i];
+        (&g_pForceFeedbackSlot->field_0x0)[i] = (&g_pForceFeedbackSlot->field_0xc)[i];
 }
 
 // Re-applies the stored force-feedback values to the selected device.
@@ -1389,24 +1389,24 @@ void ForceFeedback_CacheAppliedForces(void)
 // FUNCTION: CMR2 0x00424560
 void ForceFeedback_ApplyStoredForces(void)
 {
-    if (g_unk0x00539278->field_0x10 != g_unk0x00539278->field_0x4)
-        CInput::SetConditionCoefficient(1, g_unk0x00539278->field_0x10,
-                                        g_unk0x00539278->field_0x2c);
-    if (g_unk0x00539278->field_0xc != g_unk0x00539278->field_0x0)
-        CInput::SetConditionCoefficient(0, g_unk0x00539278->field_0xc,
-                                        g_unk0x00539278->field_0x2c);
-    if (g_unk0x00539278->field_0x14 != g_unk0x00539278->field_0x8) {
+    if (g_pForceFeedbackSlot->field_0x10 != g_pForceFeedbackSlot->field_0x4)
+        CInput::SetConditionCoefficient(1, g_pForceFeedbackSlot->field_0x10,
+                                        g_pForceFeedbackSlot->field_0x2c);
+    if (g_pForceFeedbackSlot->field_0xc != g_pForceFeedbackSlot->field_0x0)
+        CInput::SetConditionCoefficient(0, g_pForceFeedbackSlot->field_0xc,
+                                        g_pForceFeedbackSlot->field_0x2c);
+    if (g_pForceFeedbackSlot->field_0x14 != g_pForceFeedbackSlot->field_0x8) {
         int gain;
         int direction;
 
-        gain = g_unk0x00539278->field_0x14;
+        gain = g_pForceFeedbackSlot->field_0x14;
         if (gain < 0) {
             gain = -gain;
             direction = 0x2328;
         } else {
             direction = 0x6978;
         }
-        CInput::SetEffectGainAndDirection(2, gain, direction, g_unk0x00539278->field_0x2c);
+        CInput::SetEffectGainAndDirection(2, gain, direction, g_pForceFeedbackSlot->field_0x2c);
     }
 }
 
@@ -1418,17 +1418,17 @@ void ForceFeedback_ActivateIdleSlots(void)
     int slot;
 
     for (slot = 0; slot < 2; slot++) {
-        g_unk0x00539278 = &g_forceFeedbackSlots[slot];
-        if (g_unk0x00539278->field_0x34 == 0) {
-            if (g_unk0x00539278->field_0x2c >= 0) {
-                g_unk0x00539278->field_0x28 = 0;
-                g_unk0x00539278->field_0x24 = 0;
+        g_pForceFeedbackSlot = &g_forceFeedbackSlots[slot];
+        if (g_pForceFeedbackSlot->field_0x34 == 0) {
+            if (g_pForceFeedbackSlot->field_0x2c >= 0) {
+                g_pForceFeedbackSlot->field_0x28 = 0;
+                g_pForceFeedbackSlot->field_0x24 = 0;
                 for (i = 0; i < 3; i++) {
-                    (&g_unk0x00539278->field_0x0)[i] = 0;
-                    (&g_unk0x00539278->field_0xc)[i] = 0;
+                    (&g_pForceFeedbackSlot->field_0x0)[i] = 0;
+                    (&g_pForceFeedbackSlot->field_0xc)[i] = 0;
                 }
             }
-            g_unk0x00539278->field_0x34 = 1;
+            g_pForceFeedbackSlot->field_0x34 = 1;
         }
     }
 }
@@ -1441,15 +1441,15 @@ void ForceFeedback_DeactivateSlots(void)
     int i;
 
     for (slot = 0; slot < 2; slot++) {
-        g_unk0x00539278 = &g_forceFeedbackSlots[slot];
-        if (g_unk0x00539278->field_0x34 != 0) {
-            if (g_unk0x00539278->field_0x2c >= 0) {
+        g_pForceFeedbackSlot = &g_forceFeedbackSlots[slot];
+        if (g_pForceFeedbackSlot->field_0x34 != 0) {
+            if (g_pForceFeedbackSlot->field_0x2c >= 0) {
                 ForceFeedback_CacheAppliedForces();
                 for (i = 0; i < 3; i++)
-                    (&g_unk0x00539278->field_0xc)[i] = 0;
+                    (&g_pForceFeedbackSlot->field_0xc)[i] = 0;
                 ForceFeedback_ApplyStoredForces();
             }
-            g_unk0x00539278->field_0x34 = 0;
+            g_pForceFeedbackSlot->field_0x34 = 0;
         }
     }
 }
@@ -1462,11 +1462,11 @@ void ForceFeedback_StopSlotForces(void)
     int i;
 
     for (slot = 0; slot < 2; slot++) {
-        g_unk0x00539278 = &g_forceFeedbackSlots[slot];
-        if (g_unk0x00539278->field_0x34 != 0 && g_unk0x00539278->field_0x2c >= 0) {
+        g_pForceFeedbackSlot = &g_forceFeedbackSlots[slot];
+        if (g_pForceFeedbackSlot->field_0x34 != 0 && g_pForceFeedbackSlot->field_0x2c >= 0) {
             ForceFeedback_CacheAppliedForces();
             for (i = 0; i < 3; i++)
-                (&g_unk0x00539278->field_0xc)[i] = 0;
+                (&g_pForceFeedbackSlot->field_0xc)[i] = 0;
             ForceFeedback_ApplyStoredForces();
         }
     }
@@ -1487,7 +1487,7 @@ extern Car *g_unk0x0053937c;
 // FUNCTION: CMR2 0x00424710
 void ForceFeedback_UpdatePlayerSlot(int view)
 {
-    g_unk0x00539278 = &g_forceFeedbackSlots[view];
+    g_pForceFeedbackSlot = &g_forceFeedbackSlots[view];
     g_unk0x0053937c = Car_Get(view);
     if (g_unk0x0053937c->field_0xb74 != 0) {
         g_unk0x00539270[0] = g_unk0x0053937c->cornerOnGround[0];
@@ -1496,7 +1496,7 @@ void ForceFeedback_UpdatePlayerSlot(int view)
         g_unk0x00539270[0] = 0;
         g_unk0x00539270[1] = 0;
     }
-    if (g_unk0x00539278->field_0x34 != 0) {
+    if (g_pForceFeedbackSlot->field_0x34 != 0) {
         ForceFeedback_CacheAppliedForces();
         ForceFeedback_ComputeAxleRumble();
         ForceFeedback_ComputeRoadNoise();
@@ -1511,15 +1511,15 @@ void ForceFeedback_UpdatePlayerSlot(int view)
 // FUNCTION: CMR2 0x00424c00
 void ForceFeedback_FadeImpulseForces(void)
 {
-    if (g_unk0x00539278->field_0x24 > 0) {
-        g_unk0x00539278->field_0x24 -= 0x1999;
-        if (g_unk0x00539278->field_0x24 < 0)
-            g_unk0x00539278->field_0x24 = 0;
+    if (g_pForceFeedbackSlot->field_0x24 > 0) {
+        g_pForceFeedbackSlot->field_0x24 -= 0x1999;
+        if (g_pForceFeedbackSlot->field_0x24 < 0)
+            g_pForceFeedbackSlot->field_0x24 = 0;
     }
-    if (g_unk0x00539278->field_0x28 > 0) {
-        g_unk0x00539278->field_0x28 -= 0x1999;
-        if (g_unk0x00539278->field_0x28 < 0)
-            g_unk0x00539278->field_0x28 = 0;
+    if (g_pForceFeedbackSlot->field_0x28 > 0) {
+        g_pForceFeedbackSlot->field_0x28 -= 0x1999;
+        if (g_pForceFeedbackSlot->field_0x28 < 0)
+            g_pForceFeedbackSlot->field_0x28 = 0;
     }
 }
 
@@ -1651,15 +1651,15 @@ void ForceFeedback_CreateEffects(void)
 {
     int i;
 
-    CInput::CreateSpringEffect(-1, 0x2710, 0, -1, g_unk0x00539278->field_0x2c);
-    CInput::SetConditionCoefficient(0, 0, g_unk0x00539278->field_0x2c);
-    CInput::CreateDamperEffect(-1, 0, 0, -1, g_unk0x00539278->field_0x2c);
-    CInput::SetConditionCoefficient(1, 0, g_unk0x00539278->field_0x2c);
+    CInput::CreateSpringEffect(-1, 0x2710, 0, -1, g_pForceFeedbackSlot->field_0x2c);
+    CInput::SetConditionCoefficient(0, 0, g_pForceFeedbackSlot->field_0x2c);
+    CInput::CreateDamperEffect(-1, 0, 0, -1, g_pForceFeedbackSlot->field_0x2c);
+    CInput::SetConditionCoefficient(1, 0, g_pForceFeedbackSlot->field_0x2c);
     CInput::CreateConstantForceEffect(-1, 0, 0x2710, 0, 0, 0, 0, -1,
-                                      g_unk0x00539278->field_0x2c);
-    CInput::SetEffectGain(2, 0, g_unk0x00539278->field_0x2c);
+                                      g_pForceFeedbackSlot->field_0x2c);
+    CInput::SetEffectGain(2, 0, g_pForceFeedbackSlot->field_0x2c);
     for (i = 0; i < 3; i++)
-        CInput::StartForceFeedbackEffect(i, g_unk0x00539278->field_0x2c);
+        CInput::StartForceFeedbackEffect(i, g_pForceFeedbackSlot->field_0x2c);
 }
 
 // GLOBAL: CMR2 0x00591af0
@@ -2627,7 +2627,7 @@ struct Unk0x00542e78 {
 };
 
 // GLOBAL: CMR2 0x00542e78
-Unk0x00542e78 g_unk0x00542e78[8];
+Unk0x00542e78 g_playerCheckpointRecords[8];
 // GLOBAL: CMR2 0x00542f58
 int g_unk0x00542f58[8];
 // GLOBAL: CMR2 0x00542f78
@@ -3039,73 +3039,73 @@ int StageTiming_NoOpResourceRelease(void)
 // FUNCTION: CMR2 0x00458230
 BYTE StageTiming_GetCheckpointField16(int index)
 {
-    return g_unk0x00542e78[index].field_0x16;
+    return g_playerCheckpointRecords[index].field_0x16;
 }
 
 // FUNCTION: CMR2 0x00458250
 BYTE StageTiming_GetCheckpointField17(int index)
 {
-    return g_unk0x00542e78[index].field_0x17;
+    return g_playerCheckpointRecords[index].field_0x17;
 }
 
 // FUNCTION: CMR2 0x00458270
 BYTE StageTiming_GetCheckpointField18(int index)
 {
-    return g_unk0x00542e78[index].field_0x18;
+    return g_playerCheckpointRecords[index].field_0x18;
 }
 
 // FUNCTION: CMR2 0x00458290
 BYTE StageTiming_GetCheckpointField19(int index)
 {
-    return g_unk0x00542e78[index].field_0x19;
+    return g_playerCheckpointRecords[index].field_0x19;
 }
 
 // FUNCTION: CMR2 0x004582b0
 BYTE StageTiming_GetCheckpointField1A(int index)
 {
-    return g_unk0x00542e78[index].field_0x1a;
+    return g_playerCheckpointRecords[index].field_0x1a;
 }
 
 // FUNCTION: CMR2 0x004582d0
 int StageTiming_GetCheckpointField2(int index)
 {
-    return g_unk0x00542e78[index].field_0x2;
+    return g_playerCheckpointRecords[index].field_0x2;
 }
 
 // FUNCTION: CMR2 0x004582f0
 int StageTiming_GetCheckpointField0(int index)
 {
-    return g_unk0x00542e78[index].field_0x0;
+    return g_playerCheckpointRecords[index].field_0x0;
 }
 
 // FUNCTION: CMR2 0x00458310
 int StageTiming_GetCheckpointField12(int index)
 {
-    return g_unk0x00542e78[index].field_0x12;
+    return g_playerCheckpointRecords[index].field_0x12;
 }
 
 // FUNCTION: CMR2 0x00458330
 int StageTiming_GetCheckpointGroupIndex(int index)
 {
-    return g_unk0x00542e78[index].field_0x4;
+    return g_playerCheckpointRecords[index].field_0x4;
 }
 
 // FUNCTION: CMR2 0x00458350
 int StageTiming_GetCheckpointSplitIndex(int index)
 {
-    return g_unk0x00542e78[index].field_0x6;
+    return g_playerCheckpointRecords[index].field_0x6;
 }
 
 // FUNCTION: CMR2 0x00458370
 int StageTiming_GetCheckpointField14(int index)
 {
-    return g_unk0x00542e78[index].field_0x14;
+    return g_playerCheckpointRecords[index].field_0x14;
 }
 
 // FUNCTION: CMR2 0x004589e0
 short StageTiming_GetCheckpointField10(int index)
 {
-    return g_unk0x00542e78[index].field_0x10;
+    return g_playerCheckpointRecords[index].field_0x10;
 }
 
 // GLOBAL: CMR2 0x00543ec0
@@ -3341,17 +3341,17 @@ void StageTiming_StorePreviousCarCheckpoints(void)
 
     for (i = 0; i < g_stageArchiveTables.driverCount; i++) {
         g_unk0x00542d58[i] = Stage_GetPreviousCheckpoint(RallyData_GetActiveCarRaceRecordField0(Car_Get(i)));
-        g_unk0x00542d68[i] = g_unk0x00542e78[i].field_0x12;
+        g_unk0x00542d68[i] = g_playerCheckpointRecords[i].field_0x12;
     }
 }
 
 unsigned int RallyData_GetSetupModeBits(void);
 unsigned int RallyData_GetSetupFlag11(void);
 
-extern int g_unk0x00542c74;
+extern int g_splitPositionCount;
 extern char g_unk0x00542cad;
-extern int g_unk0x00542cb0;
-extern int g_unk0x00542cb4[8];
+extern int g_primaryStartDriver;
+extern int g_playerStartLane[8];
 
 int Stage_GetNextCheckpoint(int index);
 void RallyData_SetCarRaceRecordPosition(Car *pCar, int value);
@@ -3367,86 +3367,86 @@ void StageTiming_ResetPlayerLapRecord(int param_1, int param_2, int param_3, cha
     short value;
 
     pCar = Car_Get(param_1);
-    g_unk0x00542e78[param_1].field_0x16 = 0;
-    g_unk0x00542e78[param_1].field_0x17 = 0;
-    g_unk0x00542e78[param_1].field_0x18 = 0;
-    g_unk0x00542e78[param_1].field_0x19 = 0;
-    g_unk0x00542e78[param_1].field_0x1a = 0;
-    g_unk0x00542e78[param_1].field_0x14 = 0;
-    g_unk0x00542e78[param_1].field_0x10 = 0;
-    g_unk0x00542e78[param_1].field_0x12 = 0;
+    g_playerCheckpointRecords[param_1].field_0x16 = 0;
+    g_playerCheckpointRecords[param_1].field_0x17 = 0;
+    g_playerCheckpointRecords[param_1].field_0x18 = 0;
+    g_playerCheckpointRecords[param_1].field_0x19 = 0;
+    g_playerCheckpointRecords[param_1].field_0x1a = 0;
+    g_playerCheckpointRecords[param_1].field_0x14 = 0;
+    g_playerCheckpointRecords[param_1].field_0x10 = 0;
+    g_playerCheckpointRecords[param_1].field_0x12 = 0;
     if ((BYTE)RallyData_GetFlag24() == 0 && (BYTE)RallyData_GetFlag25() == 0) {
-        g_unk0x00542e78[param_1].field_0x0 = (short)RallyData_GetActiveCarRaceRecordField0(pCar);
-        g_unk0x00542e78[param_1].field_0x2 = 0;
-        g_unk0x00542e78[param_1].field_0x4 = 0;
-        g_unk0x00542e78[param_1].field_0x6 = 0;
-        g_unk0x00542e78[param_1].field_0x8 = 0;
-        g_unk0x00542e78[param_1].field_0xa = 1;
-        g_unk0x00542e78[param_1].field_0xc = 0;
-        g_unk0x00542e78[param_1].field_0xe = (short)g_unk0x00542c74 - 1;
+        g_playerCheckpointRecords[param_1].field_0x0 = (short)RallyData_GetActiveCarRaceRecordField0(pCar);
+        g_playerCheckpointRecords[param_1].field_0x2 = 0;
+        g_playerCheckpointRecords[param_1].field_0x4 = 0;
+        g_playerCheckpointRecords[param_1].field_0x6 = 0;
+        g_playerCheckpointRecords[param_1].field_0x8 = 0;
+        g_playerCheckpointRecords[param_1].field_0xa = 1;
+        g_playerCheckpointRecords[param_1].field_0xc = 0;
+        g_playerCheckpointRecords[param_1].field_0xe = (short)g_splitPositionCount - 1;
         goto end;
     }
-    g_unk0x00542e78[param_1].field_0x4 = 0;
-    g_unk0x00542e78[param_1].field_0x8 = 0;
+    g_playerCheckpointRecords[param_1].field_0x4 = 0;
+    g_playerCheckpointRecords[param_1].field_0x8 = 0;
     if (param_4 != 0) {
-        g_unk0x00542e78[param_1].field_0x0 = (short)Stage_GetPreviousCheckpoint(RallyData_GetActiveCarRaceRecordField0(pCar));
+        g_playerCheckpointRecords[param_1].field_0x0 = (short)Stage_GetPreviousCheckpoint(RallyData_GetActiveCarRaceRecordField0(pCar));
     }
     else {
         value = g_unk0x00542d58[param_1];
-        g_unk0x00542e78[param_1].field_0x0 = value;
+        g_playerCheckpointRecords[param_1].field_0x0 = value;
         RallyData_SetCarRaceRecordPosition(pCar, Stage_GetNextCheckpoint((int)value));
-        g_unk0x00542e78[param_1].field_0x12 = g_unk0x00542d68[param_1];
+        g_playerCheckpointRecords[param_1].field_0x12 = g_unk0x00542d68[param_1];
     }
     if ((BYTE)RallyData_GetFlag24() != 0) {
-        g_unk0x00542e78[param_1].field_0x2 = -1;
-        g_unk0x00542e78[param_1].field_0x6 = 0;
-        g_unk0x00542e78[param_1].field_0xe = 0;
+        g_playerCheckpointRecords[param_1].field_0x2 = -1;
+        g_playerCheckpointRecords[param_1].field_0x6 = 0;
+        g_playerCheckpointRecords[param_1].field_0xe = 0;
         if (g_unk0x00542cad == 0) {
-            g_unk0x00542e78[param_1].field_0xa = 1;
-            g_unk0x00542e78[param_1].field_0xc = g_stageArchiveTables.secondaryCount;
+            g_playerCheckpointRecords[param_1].field_0xa = 1;
+            g_playerCheckpointRecords[param_1].field_0xc = g_stageArchiveTables.secondaryCount;
         }
         else {
-            g_unk0x00542e78[param_1].field_0xa = 0;
-            g_unk0x00542e78[param_1].field_0xc = 1000;
+            g_playerCheckpointRecords[param_1].field_0xa = 0;
+            g_playerCheckpointRecords[param_1].field_0xc = 1000;
         }
         goto end;
     }
     if (g_unk0x00542cad == 0) {
-        if (CGameInfo::GetGameModeOptionBit19() != 0 ? (g_unk0x00542cb4[0] == 0 || CGameInfo::GetConfiguredGameMode() == 10)
-                                                     : (param_1 == g_unk0x00542cb0 || CGameInfo::GetConfiguredGameMode() == 3)) {
-        g_unk0x00542e78[param_1].field_0x2 = -1;
-        g_unk0x00542e78[param_1].field_0x6 = 0;
-        g_unk0x00542e78[param_1].field_0xa = 1;
-        g_unk0x00542e78[param_1].field_0xc = 1;
-        g_unk0x00542e78[param_1].field_0xe = 0;
+        if (CGameInfo::GetGameModeOptionBit19() != 0 ? (g_playerStartLane[0] == 0 || CGameInfo::GetConfiguredGameMode() == 10)
+                                                     : (param_1 == g_primaryStartDriver || CGameInfo::GetConfiguredGameMode() == 3)) {
+        g_playerCheckpointRecords[param_1].field_0x2 = -1;
+        g_playerCheckpointRecords[param_1].field_0x6 = 0;
+        g_playerCheckpointRecords[param_1].field_0xa = 1;
+        g_playerCheckpointRecords[param_1].field_0xc = 1;
+        g_playerCheckpointRecords[param_1].field_0xe = 0;
         } else {
-        g_unk0x00542e78[param_1].field_0x2 = 0;
-        g_unk0x00542e78[param_1].field_0x6 = 1;
-        g_unk0x00542e78[param_1].field_0xa = 0;
-        g_unk0x00542e78[param_1].field_0x8 = 1;
-        g_unk0x00542e78[param_1].field_0xc = 1;
-        g_unk0x00542e78[param_1].field_0xe = 1;
+        g_playerCheckpointRecords[param_1].field_0x2 = 0;
+        g_playerCheckpointRecords[param_1].field_0x6 = 1;
+        g_playerCheckpointRecords[param_1].field_0xa = 0;
+        g_playerCheckpointRecords[param_1].field_0x8 = 1;
+        g_playerCheckpointRecords[param_1].field_0xc = 1;
+        g_playerCheckpointRecords[param_1].field_0xe = 1;
         }
     } else {
-        g_unk0x00542e78[param_1].field_0x2 = -1;
-        g_unk0x00542e78[param_1].field_0x6 = 0;
-        g_unk0x00542e78[param_1].field_0xa = 0;
-        g_unk0x00542e78[param_1].field_0xc = 1000;
-        g_unk0x00542e78[param_1].field_0xe = 0;
+        g_playerCheckpointRecords[param_1].field_0x2 = -1;
+        g_playerCheckpointRecords[param_1].field_0x6 = 0;
+        g_playerCheckpointRecords[param_1].field_0xa = 0;
+        g_playerCheckpointRecords[param_1].field_0xc = 1000;
+        g_playerCheckpointRecords[param_1].field_0xe = 0;
     }
 end:
-    StageTiming_SetViewRouteDistanceLimit((BYTE)param_1, (int)g_unk0x00542e78[param_1].field_0x0, 1);
+    StageTiming_SetViewRouteDistanceLimit((BYTE)param_1, (int)g_playerCheckpointRecords[param_1].field_0x0, 1);
 }
 
 // Flags the record when its two positions coincide (not in some network modes).
 // FUNCTION: CMR2 0x00459180
 void StageTiming_FlagCoincidentCheckpointPositions(int index)
 {
-    if (g_unk0x00542e78[index].field_0x4 == g_unk0x00542e78[index].field_0xc &&
-        g_unk0x00542e78[index].field_0x6 == g_unk0x00542e78[index].field_0xe) {
-        g_unk0x00542e78[index].field_0x1a = 1;
+    if (g_playerCheckpointRecords[index].field_0x4 == g_playerCheckpointRecords[index].field_0xc &&
+        g_playerCheckpointRecords[index].field_0x6 == g_playerCheckpointRecords[index].field_0xe) {
+        g_playerCheckpointRecords[index].field_0x1a = 1;
         if ((BYTE)RallyData_GetSetupFlag11() && RallyData_GetSetupModeBits() == 1)
-            g_unk0x00542e78[index].field_0x1a = 0;
+            g_playerCheckpointRecords[index].field_0x1a = 0;
     }
 }
 
@@ -3501,7 +3501,7 @@ void CarPart_CacheFlexibleLineProfiles(short *pList, short count)
     }
 }
 
-extern int g_unk0x00542cb4[8];
+extern int g_playerStartLane[8];
 extern int g_stageCheckpointCount;
 int NetPlayers_GetPlayerField8(int index);
 extern double g_unk0x005113b8;
@@ -3519,7 +3519,7 @@ void StageTiming_AdvancePlayerHalfLapCounter(int player, int *pCount, int *pFrac
         slot = 0;
     else
         slot = NetPlayers_GetPlayerField8(player);
-    if (g_unk0x00542cb4[slot] == 0) {
+    if (g_playerStartLane[slot] == 0) {
         count = (float)g_stageCheckpointCount;
         value = X87S_ADD(X87S_MUL(count, g_unk0x005113b8), *pFrac);
         if (value >= count) {
@@ -3695,15 +3695,15 @@ void StageTiming_AdvanceJitteredClock(void)
     if (g_unk0x0053d1d9 == 0 && g_unk0x0053d1b4 >= 0x57e3c) {
         g_unk0x0053d1d8 = 1;
         g_unk0x0053d1b4 = 360000;
-        g_unk0x0053d1b0 = 359999;
+        g_stageClock = 359999;
     } else {
         g_unk0x0053d1b4 += 4;
         jitter = rand() % 4;
         jitter--;
-        g_unk0x0053d1b0 = g_unk0x0053d1b4 + jitter;
+        g_stageClock = g_unk0x0053d1b4 + jitter;
         if ((BYTE)RallyData_GetSetupFlag11()) {
             g_unk0x0053d1a0 += 4;
-            g_unk0x0053d1a2 = g_unk0x0053d1a0 + (short)jitter;
+            g_pendingDriverCount = g_unk0x0053d1a0 + (short)jitter;
         }
     }
 }
@@ -3741,18 +3741,18 @@ extern char g_unk0x00542cad;
 // FUNCTION: CMR2 0x00458f30
 void StageTiming_CountLapCrossings(int car, int from, int to)
 {
-    if (to < g_unk0x00542e78[car].field_0x0 && to == 0 && from == g_stageCheckpointCount - 1) {
-        g_unk0x00542e78[car].field_0x2++;
-        g_unk0x00542e78[car].field_0x18 = 1;
-        if (g_unk0x00542e78[car].field_0x2 == 1000)
-            g_unk0x00542e78[car].field_0x2 = 0;
+    if (to < g_playerCheckpointRecords[car].field_0x0 && to == 0 && from == g_stageCheckpointCount - 1) {
+        g_playerCheckpointRecords[car].field_0x2++;
+        g_playerCheckpointRecords[car].field_0x18 = 1;
+        if (g_playerCheckpointRecords[car].field_0x2 == 1000)
+            g_playerCheckpointRecords[car].field_0x2 = 0;
     }
-    if (to > g_unk0x00542e78[car].field_0x0 && to == g_stageCheckpointCount - 1 && from == 0) {
-        g_unk0x00542e78[car].field_0x2--;
-        if (g_unk0x00542e78[car].field_0x2 < -1)
-            g_unk0x00542e78[car].field_0x2 = -1;
+    if (to > g_playerCheckpointRecords[car].field_0x0 && to == g_stageCheckpointCount - 1 && from == 0) {
+        g_playerCheckpointRecords[car].field_0x2--;
+        if (g_playerCheckpointRecords[car].field_0x2 < -1)
+            g_playerCheckpointRecords[car].field_0x2 = -1;
         if (g_unk0x00542cad != 0)
-            g_unk0x00542e78[car].field_0x6 = 0;
+            g_playerCheckpointRecords[car].field_0x6 = 0;
     }
 }
 
@@ -4186,16 +4186,16 @@ int StageTiming_EstimateElapsedStageTime(void)
     int progress;
 
     g_unk0x0053d1da[0] = 1;
-    g_unk0x0053e18c++;
+    g_finishedDriverCount++;
     if (CGameInfo::GetConfiguredGameMode() == 11)
         total = (BYTE)RallyData_GetSelectionBits16To19() * RallyData_GetRouteAvailabilityState() * 0x10000;
     else
         total = RallyData_GetRouteAvailabilityState() << 16;
     progress = FixDiv((unsigned short)StageTiming_GetCheckpointField10(0) << 16, total);
     if (progress > 0x8000) {
-        return (g_unk0x0053d1b8[0] = ConvertRawTimeToCentiseconds(FixMul(Timing_CentisecondsToFixedSeconds(g_unk0x0053d1b0), FixDiv(0x10000, progress))));
+        return (g_driverFinishTimes[0] = ConvertRawTimeToCentiseconds(FixMul(Timing_CentisecondsToFixedSeconds(g_stageClock), FixDiv(0x10000, progress))));
     }
-    return (g_unk0x0053d1b8[0] = g_unk0x0053d1b0 * 2);
+    return (g_driverFinishTimes[0] = g_stageClock * 2);
 }
 
 RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index);
@@ -4513,8 +4513,8 @@ void StageTiming_RandomizeComputerTimes(int *pTimes)
     RallyTiming_SortOrder(pTimes, g_stageSplitDriverIndices[split], 0, g_unk0x00541f98, 1);
 }
 
-extern int g_unk0x00542c7c[12];
-extern int g_unk0x00542c74;
+extern int g_splitPositions[12];
+extern int g_splitPositionCount;
 
 // Advances a car's lap record when it reaches the next checkpoint on time.
 // FUNCTION: CMR2 0x00458fd0
@@ -4522,22 +4522,22 @@ void StageTiming_AdvanceTimedLapCheckpoint(int car, int time)
 {
     int count;
 
-    if (g_unk0x00542e78[car].field_0x2 == g_unk0x00542e78[car].field_0x8 &&
-        (int)FTOI(__int64, X87S_MUL(time, CGraphics::m_65536)) == g_unk0x00542c7c[g_unk0x00542e78[car].field_0xa]) {
-        g_unk0x00542e78[car].field_0x17 = 1;
-        g_unk0x00542e78[car].field_0x4 = g_unk0x00542e78[car].field_0x8;
-        g_unk0x00542e78[car].field_0x6 = g_unk0x00542e78[car].field_0xa;
-        g_unk0x00542e78[car].field_0xa++;
-        if (g_unk0x00542e78[car].field_0x6 == 0)
-            g_unk0x00542e78[car].field_0x19 = 1;
-        count = g_unk0x00542c74;
-        if (g_unk0x00542e78[car].field_0xa == count) {
-            g_unk0x00542e78[car].field_0xa = 0;
-            g_unk0x00542e78[car].field_0x8++;
+    if (g_playerCheckpointRecords[car].field_0x2 == g_playerCheckpointRecords[car].field_0x8 &&
+        (int)FTOI(__int64, X87S_MUL(time, CGraphics::m_65536)) == g_splitPositions[g_playerCheckpointRecords[car].field_0xa]) {
+        g_playerCheckpointRecords[car].field_0x17 = 1;
+        g_playerCheckpointRecords[car].field_0x4 = g_playerCheckpointRecords[car].field_0x8;
+        g_playerCheckpointRecords[car].field_0x6 = g_playerCheckpointRecords[car].field_0xa;
+        g_playerCheckpointRecords[car].field_0xa++;
+        if (g_playerCheckpointRecords[car].field_0x6 == 0)
+            g_playerCheckpointRecords[car].field_0x19 = 1;
+        count = g_splitPositionCount;
+        if (g_playerCheckpointRecords[car].field_0xa == count) {
+            g_playerCheckpointRecords[car].field_0xa = 0;
+            g_playerCheckpointRecords[car].field_0x8++;
         }
-        g_unk0x00542e78[car].field_0x14++;
-        if (g_unk0x00542e78[car].field_0x14 > count)
-            g_unk0x00542e78[car].field_0x14 = 1;
+        g_playerCheckpointRecords[car].field_0x14++;
+        if (g_playerCheckpointRecords[car].field_0x14 > count)
+            g_playerCheckpointRecords[car].field_0x14 = 1;
     }
 }
 
@@ -4679,24 +4679,24 @@ void StageWeather_SetupSettingTransition(void)
 // FUNCTION: CMR2 0x004590a0
 void StageTiming_AdvanceLoopedCarCheckpoint(int car, int time)
 {
-    if (g_unk0x00542e78[car].field_0x18 != 0) {
-        if (g_unk0x00542e78[car].field_0x6 == g_unk0x00542c74 - 1)
-            g_unk0x00542e78[car].field_0x19 = 1;
-        g_unk0x00542e78[car].field_0x6 = 0;
-        g_unk0x00542e78[car].field_0xa = 1;
-        g_unk0x00542e78[car].field_0x14 = 0;
-        g_unk0x00542e78[car].field_0x17 = 1;
+    if (g_playerCheckpointRecords[car].field_0x18 != 0) {
+        if (g_playerCheckpointRecords[car].field_0x6 == g_splitPositionCount - 1)
+            g_playerCheckpointRecords[car].field_0x19 = 1;
+        g_playerCheckpointRecords[car].field_0x6 = 0;
+        g_playerCheckpointRecords[car].field_0xa = 1;
+        g_playerCheckpointRecords[car].field_0x14 = 0;
+        g_playerCheckpointRecords[car].field_0x17 = 1;
         return;
     }
-    if ((int)FTOI(__int64, X87S_MUL(time, CGraphics::m_65536)) == g_unk0x00542c7c[g_unk0x00542e78[car].field_0xa]) {
-        g_unk0x00542e78[car].field_0x17 = 1;
-        g_unk0x00542e78[car].field_0x6 = g_unk0x00542e78[car].field_0xa;
-        g_unk0x00542e78[car].field_0xa++;
-        if (g_unk0x00542e78[car].field_0xa == g_unk0x00542c74)
-            g_unk0x00542e78[car].field_0xa = 0;
-        g_unk0x00542e78[car].field_0x14++;
-        if (g_unk0x00542e78[car].field_0x14 >= g_unk0x00542c74)
-            g_unk0x00542e78[car].field_0x14 = 0;
+    if ((int)FTOI(__int64, X87S_MUL(time, CGraphics::m_65536)) == g_splitPositions[g_playerCheckpointRecords[car].field_0xa]) {
+        g_playerCheckpointRecords[car].field_0x17 = 1;
+        g_playerCheckpointRecords[car].field_0x6 = g_playerCheckpointRecords[car].field_0xa;
+        g_playerCheckpointRecords[car].field_0xa++;
+        if (g_playerCheckpointRecords[car].field_0xa == g_splitPositionCount)
+            g_playerCheckpointRecords[car].field_0xa = 0;
+        g_playerCheckpointRecords[car].field_0x14++;
+        if (g_playerCheckpointRecords[car].field_0x14 >= g_splitPositionCount)
+            g_playerCheckpointRecords[car].field_0x14 = 0;
     }
 }
 
@@ -4799,19 +4799,19 @@ void ForceFeedback_ComputeSteeringForce(void)
         speed = 0;
     force = FixMul(speed, force);
     force = FixMul(force, 0x6666);
-    force += g_unk0x00539278->field_0x20;
-    if (g_unk0x00539278->field_0x30 != 0)
-        force += g_unk0x00539278->field_0x24;
+    force += g_pForceFeedbackSlot->field_0x20;
+    if (g_pForceFeedbackSlot->field_0x30 != 0)
+        force += g_pForceFeedbackSlot->field_0x24;
     else
-        force -= g_unk0x00539278->field_0x24;
+        force -= g_pForceFeedbackSlot->field_0x24;
     if (FIX_ABS(force) > 0x10000)
         force = force > 0 ? 0x10000 : -0x10000;
 
-    speed = FixMul(0x40000, g_unk0x00539278->field_0x18);
+    speed = FixMul(0x40000, g_pForceFeedbackSlot->field_0x18);
     force = FixMul(force, speed);
     if (FIX_ABS(force) > 0x10000)
         force = force > 0 ? 0x10000 : -0x10000;
-    g_unk0x00539278->field_0x14 = FixMul(force, 0x27100000) >> 16;
+    g_pForceFeedbackSlot->field_0x14 = FixMul(force, 0x27100000) >> 16;
 }
 
 // Computes each axle's rumble from its suspension travel and stiffness,
@@ -4888,16 +4888,16 @@ void ForceFeedback_ComputeConditionCoefficients(void)
         }
     }
 
-    speed = FixMul(0x40000, g_unk0x00539278->field_0x1c);
+    speed = FixMul(0x40000, g_pForceFeedbackSlot->field_0x1c);
     spring = FixMul(spring, speed);
     if (FIX_ABS(spring) > 0x10000)
         spring = spring > 0 ? 0x10000 : -0x10000;
-    speed = FixMul(0x40000, g_unk0x00539278->field_0x1c);
+    speed = FixMul(0x40000, g_pForceFeedbackSlot->field_0x1c);
     damper = FixMul(damper, speed);
     if (FIX_ABS(damper) > 0x10000)
         damper = damper > 0 ? 0x10000 : -0x10000;
-    g_unk0x00539278->field_0xc = FixMul(spring, 0x27100000) >> 16;
-    g_unk0x00539278->field_0x10 = FixMul(damper, 0x27100000) >> 16;
+    g_pForceFeedbackSlot->field_0xc = FixMul(spring, 0x27100000) >> 16;
+    g_pForceFeedbackSlot->field_0x10 = FixMul(damper, 0x27100000) >> 16;
 }
 
 // Releases the stage's files (registered callback of 0x455080).
@@ -4956,21 +4956,21 @@ void ForceFeedback_ComputeRoadNoise(void)
     int speed;
     int k;
 
-    if (g_unk0x00539278->field_0x20 == 0)
-        g_unk0x00539278->field_0x20 = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_LOAD(rand()), g_oneOverRandMax), CGraphics::m_65536));
-    else if (g_unk0x00539278->field_0x20 > 0)
-        g_unk0x00539278->field_0x20 = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_LOAD(rand()), g_oneOverRandMax), g_minus65536));
+    if (g_pForceFeedbackSlot->field_0x20 == 0)
+        g_pForceFeedbackSlot->field_0x20 = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_LOAD(rand()), g_oneOverRandMax), CGraphics::m_65536));
+    else if (g_pForceFeedbackSlot->field_0x20 > 0)
+        g_pForceFeedbackSlot->field_0x20 = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_LOAD(rand()), g_oneOverRandMax), g_minus65536));
     else
-        g_unk0x00539278->field_0x20 = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_LOAD(rand()), g_oneOverRandMax), CGraphics::m_65536));
+        g_pForceFeedbackSlot->field_0x20 = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_LOAD(rand()), g_oneOverRandMax), CGraphics::m_65536));
     k = g_unk0x0053937c->cornerGrip[1].field_0x1c + g_unk0x0053937c->cornerGrip[0].field_0x1c;
     speed = FixMul(g_unk0x0053937c->speed, 0x10000);
     if (speed > 0x10000)
         speed = 0x10000;
     k = FixMul(k, speed);
-    k += g_unk0x00539278->field_0x28;
+    k += g_pForceFeedbackSlot->field_0x28;
     if (k > 0x10000)
         k = 0x10000;
-    g_unk0x00539278->field_0x20 = FixMul(g_unk0x00539278->field_0x20, k);
+    g_pForceFeedbackSlot->field_0x20 = FixMul(g_pForceFeedbackSlot->field_0x20, k);
 }
 
 // Attaches a stage object to the current car and copies its matrices.
@@ -5011,8 +5011,8 @@ void StageTiming_AdvanceCrossedCheckpoints(int car, int target)
     int prev;
     int delta;
 
-    if (target != g_unk0x00542e78[car].field_0x0) {
-        current = g_unk0x00542e78[car].field_0x0;
+    if (target != g_playerCheckpointRecords[car].field_0x0) {
+        current = g_playerCheckpointRecords[car].field_0x0;
         delta = target - current;
         if (g_stageLooped == 0)
             step = delta > 0 ? 1 : -1;
@@ -5021,11 +5021,11 @@ void StageTiming_AdvanceCrossedCheckpoints(int car, int target)
         else
             step = -1;
         for (i = 0; current != target && i < g_stageCheckpointCount; i++) {
-            g_unk0x00542e78[car].field_0x12 += (short)step;
+            g_playerCheckpointRecords[car].field_0x12 += (short)step;
             prev = current;
             current += step;
-            if ((int)g_unk0x00542e78[car].field_0x12 > (unsigned short)g_unk0x00542e78[car].field_0x10)
-                g_unk0x00542e78[car].field_0x10 = g_unk0x00542e78[car].field_0x12;
+            if ((int)g_playerCheckpointRecords[car].field_0x12 > (unsigned short)g_playerCheckpointRecords[car].field_0x10)
+                g_playerCheckpointRecords[car].field_0x10 = g_playerCheckpointRecords[car].field_0x12;
             if (current < 0)
                 current = g_stageCheckpointCount - 1;
             if (current >= g_stageCheckpointCount)
@@ -5039,8 +5039,8 @@ void StageTiming_AdvanceCrossedCheckpoints(int car, int target)
             StageTiming_FlagCoincidentCheckpointPositions(car);
             StageTiming_SetViewRouteDistanceLimit(car, current, step);
         }
-        g_unk0x00542e78[car].field_0x0 = (short)target;
-        g_unk0x00542e78[car].field_0x16 = 1;
+        g_playerCheckpointRecords[car].field_0x0 = (short)target;
+        g_playerCheckpointRecords[car].field_0x16 = 1;
     }
 }
 
@@ -5102,24 +5102,24 @@ void StageTiming_InitForceFeedbackSlots(void)
     for (i = 0; i < (BYTE)RallyDataState(); i++) {
         BYTE device;
 
-        g_unk0x00539278 = &g_forceFeedbackSlots[i];
+        g_pForceFeedbackSlot = &g_forceFeedbackSlots[i];
         device = Car_GetDrawnFlag(Car_Get(i)->index);
         CInput::GetAvailableDeviceRecord((signed char)device);
         if (Input_GetControllerField118(i) != 0) {
             device = Car_GetDrawnFlag(Car_Get(i)->index);
             CInput::SetForceFeedbackDeviceValue(Input_GetControllerField11C(i), (signed char)device);
-            g_unk0x00539278->field_0x18 = Input_GetControllerPrimaryFlags(i);
-            g_unk0x00539278->field_0x1c = Input_GetControllerSecondaryFlags(i);
-            g_unk0x00539278->field_0x2c = (signed char)Input_GetControllerSlotMapping(i);
-            if (g_unk0x00539278->field_0x2c >= 0) {
+            g_pForceFeedbackSlot->field_0x18 = Input_GetControllerPrimaryFlags(i);
+            g_pForceFeedbackSlot->field_0x1c = Input_GetControllerSecondaryFlags(i);
+            g_pForceFeedbackSlot->field_0x2c = (signed char)Input_GetControllerSlotMapping(i);
+            if (g_pForceFeedbackSlot->field_0x2c >= 0) {
                 ForceFeedback_CreateEffects();
                 for (int j = 0; j < 3; j++) {
-                    (&g_unk0x00539278->field_0x0)[j] = 0;
-                    (&g_unk0x00539278->field_0xc)[j] = 0;
+                    (&g_pForceFeedbackSlot->field_0x0)[j] = 0;
+                    (&g_pForceFeedbackSlot->field_0xc)[j] = 0;
                 }
-                g_unk0x00539278->field_0x20 = 0;
-                g_unk0x00539278->field_0x24 = 0;
-                g_unk0x00539278->field_0x28 = 0;
+                g_pForceFeedbackSlot->field_0x20 = 0;
+                g_pForceFeedbackSlot->field_0x24 = 0;
+                g_pForceFeedbackSlot->field_0x28 = 0;
             }
         }
     }
@@ -5542,11 +5542,11 @@ void StageTiming_ResetOrderedCarRoadBooks(void)
     int i;
 
     for (i = 0; i < count; i++) {
-        g_unk0x00542e78[i].field_0x16 = 0;
-        g_unk0x00542e78[i].field_0x17 = 0;
-        g_unk0x00542e78[i].field_0x18 = 0;
-        g_unk0x00542e78[i].field_0x19 = 0;
-        if (g_unk0x00542e78[i].field_0x1a == 0)
+        g_playerCheckpointRecords[i].field_0x16 = 0;
+        g_playerCheckpointRecords[i].field_0x17 = 0;
+        g_playerCheckpointRecords[i].field_0x18 = 0;
+        g_playerCheckpointRecords[i].field_0x19 = 0;
+        if (g_playerCheckpointRecords[i].field_0x1a == 0)
             StageTiming_AdvanceCrossedCheckpoints(i, Stage_GetPreviousCheckpoint(RallyData_GetActiveCarRaceRecordField14(Car_Get(i)) & 0xffff));
     }
 }
@@ -5669,7 +5669,7 @@ unsigned int RallyData_GetSelectionFlag27(void);
 void StageTiming_EstimateRemainingDriverTimes(void)
 {
     int count = Stage_GetDriverCount();
-    int slot = (int)(char)g_unk0x0053e18c;
+    int slot = (int)(char)g_finishedDriverCount;
     int prev = 0;
     int total;
     int i;
@@ -5682,30 +5682,30 @@ void StageTiming_EstimateRemainingDriverTimes(void)
     while (1) {
         if (slot >= count)
             return;
-        pSlot = &g_unk0x0053e17c[slot];
+        pSlot = &g_finishOrder[slot];
         for (i = 0; i < count; i++) {
             for (j = 0; j < slot; j++) {
-                if (g_unk0x0053dda8[i] == g_unk0x0053e17c[j])
+                if (g_unk0x0053dda8[i] == g_finishOrder[j])
                     goto cont;
             }
             k = (int)(char)g_unk0x0053dda8[i];
             *pSlot = g_unk0x0053dda8[i];
-            g_unk0x0053e184[k] = (char)slot;
+            g_driverFinishPosition[k] = (char)slot;
             slot = slot + 1;
             pSlot++;
             g_unk0x0053d1da[k] = 1;
             value = FixDiv((StageTiming_GetCheckpointField10(k) & 0xffff) << 16, total);
             if (value >= 1) {
-                int elapsed = Timing_CentisecondsToFixedSeconds(g_unk0x0053d1b0);
-                g_unk0x0053d1b8[k] =
+                int elapsed = Timing_CentisecondsToFixedSeconds(g_stageClock);
+                g_driverFinishTimes[k] =
                     ConvertRawTimeToCentiseconds(FixMul(FixDiv(0x10000, value), elapsed));
             } else {
-                g_unk0x0053d1b8[k] = g_unk0x0053d1b0 * 2;
+                g_driverFinishTimes[k] = g_stageClock * 2;
             }
             if ((char)RallyData_GetSelectionFlag27() != 0)
-                g_unk0x0053e190[11] = g_unk0x0053d1b8[k];
+                g_driverSplitClocks[11] = g_driverFinishTimes[k];
             if (prev != 0 && prev == value)
-                g_unk0x0053d1b8[k]++;
+                g_driverFinishTimes[k]++;
             prev = value;
         cont:
             ;
@@ -5727,17 +5727,17 @@ void StageTiming_BuildCheckpointSplitPositions(void)
     int unit;
     int scale;
 
-    g_unk0x00542c74 = 0;
+    g_splitPositionCount = 0;
     g_stageCheckpointCount = RallyData_GetRouteAvailabilityState();
     if (g_stageCheckpointCount == 0)
         return;
     for (i = 0; i < g_stageCheckpointCount; i++) {
         if ((RallyData_GetAvailableRouteNodeRecord(i)->flags & 1) != 0) {
-            g_unk0x00542c7c[count] = (int)FTOI(__int64, X87S_MUL((double)i, CGraphics::m_65536));
+            g_splitPositions[count] = (int)FTOI(__int64, X87S_MUL((double)i, CGraphics::m_65536));
             count++;
         }
     }
-    g_unk0x00542c74 = count;
+    g_splitPositionCount = count;
     if ((char)RallyData_GetFlag24() != 0) {
         g_stageLooped = 1;
     } else {
@@ -5746,20 +5746,20 @@ void StageTiming_BuildCheckpointSplitPositions(void)
             g_stageLooped = 1;
     }
     if ((char)RallyData_GetFlag24() != 0 || (char)RallyData_GetFlag25() != 0) {
-        g_unk0x00542c74 = (char)RallyData_GetFlag24() != 0 ? 4 : 2;
-        g_timingSplitCount = g_unk0x00542c74;
-        unit = (int)FTOI(__int64, X87S_MUL((double)g_unk0x00542c74, CGraphics::m_65536));
+        g_splitPositionCount = (char)RallyData_GetFlag24() != 0 ? 4 : 2;
+        g_timingSplitCount = g_splitPositionCount;
+        unit = (int)FTOI(__int64, X87S_MUL((double)g_splitPositionCount, CGraphics::m_65536));
         if ((char)RallyData_GetFlag24() != 0) {
             scale = FixDiv((int)FTOI(__int64, X87S_MUL((double)g_stageCheckpointCount, CGraphics::m_65536)), unit);
-            for (i = 0; i < g_unk0x00542c74; i++)
-                g_unk0x00542c7c[i] = FixMul((int)FTOI(__int64, X87S_MUL((double)i, CGraphics::m_65536)), scale)
+            for (i = 0; i < g_splitPositionCount; i++)
+                g_splitPositions[i] = FixMul((int)FTOI(__int64, X87S_MUL((double)i, CGraphics::m_65536)), scale)
                                      & 0xffff0000;
         }
     }
     if ((char)RallyData_GetFlag24() != 0 || (char)RallyData_GetFlag25() != 0)
-        g_stageSplitCount = (char)g_unk0x00542c74;
+        g_stageSplitCount = (char)g_splitPositionCount;
     else
-        g_stageSplitCount = (char)g_unk0x00542c74 - 1;
+        g_stageSplitCount = (char)g_splitPositionCount - 1;
 }
 
 
@@ -5835,22 +5835,22 @@ void StageTiming_RecordAndReorderSplitTime(int car)
     if ((char)RallyData_GetFlag24() == 0 && (char)RallyData_GetFlag25() == 0) {
         if (car >= (int)((BYTE)RallyDataState()))
             return;
-        g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0;
+        g_driverSplitClocks[split + car * 9] = g_stageClock;
         return;
     }
     count = Stage_GetDriverCount();
     group = StageTiming_GetCheckpointGroupIndex(car);
     index = StageTiming_GetCheckpointSplitIndex(car);
     if ((char)RallyData_GetFlag24() != 0)
-        g_carSplitTimes[car][group][split] = g_unk0x0053d1b0;
+        g_carSplitTimes[car][group][split] = g_stageClock;
     else
-        g_carStageTiming[car].field_0x4[split] = g_unk0x0053d1b0;
+        g_carStageTiming[car].field_0x4[split] = g_stageClock;
     if (car < (int)((BYTE)RallyDataState()) || (char)RallyData_GetSelectionFlag27() != 0) {
         g_carStageTiming[car].field_0x84 = 0;
         if ((char)RallyData_GetFlag24() != 0)
-            g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0 - g_carSplitTimes[car][group][0];
+            g_driverSplitClocks[split + car * 9] = g_stageClock - g_carSplitTimes[car][group][0];
         else
-            g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0;
+            g_driverSplitClocks[split + car * 9] = g_stageClock;
     }
     if ((char)RallyData_GetSelectionFlag27() != 0) {
         group = 0;
@@ -5899,7 +5899,7 @@ void StageTiming_ResetParticipatingDriverRecords(int param_1)
             else
                 count = NetPlayers_GetPlayerIDCount();
             for (i = 0; i < count; i++) {
-                switch (g_unk0x00542cb4[i]) {
+                switch (g_playerStartLane[i]) {
                 case 0:
                     StageTiming_ResetPlayerLapRecord(i, 0, -1, param_1);
                     break;
@@ -5909,8 +5909,8 @@ void StageTiming_ResetParticipatingDriverRecords(int param_1)
                 }
             }
         } else {
-            StageTiming_ResetPlayerLapRecord(g_unk0x00542cb0, 0, -1, param_1);
-            StageTiming_ResetPlayerLapRecord(1 - g_unk0x00542cb0, 2, 0, param_1);
+            StageTiming_ResetPlayerLapRecord(g_primaryStartDriver, 0, -1, param_1);
+            StageTiming_ResetPlayerLapRecord(1 - g_primaryStartDriver, 2, 0, param_1);
         }
         return;
     }
@@ -6009,7 +6009,7 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
         }
         break;
     case 1:
-        other = g_unk0x00542c7c[1];
+        other = g_splitPositions[1];
         if (param_1 != 0) {
             slot = g_startGridSide;
         } else {
@@ -6017,7 +6017,7 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
             slot = rand() <= 0x3fff;
         }
         g_startGridSide = slot;
-        g_unk0x00542cb0 = slot;
+        g_primaryStartDriver = slot;
         for (i = 0; i < 2; i++) {
             switch ((slot + i) % 2) {
             case 0:
@@ -6073,10 +6073,10 @@ void StageTiming_PlaceEventStartingGrid(char param_1)
             }
             if (i % 2 == 0) {
                 g_unk0x00542d38[slot] = 0;
-                g_unk0x00542cb4[slot] = 0;
+                g_playerStartLane[slot] = 0;
             } else {
-                g_unk0x00542d38[slot] = g_unk0x00542c7c[1];
-                g_unk0x00542cb4[slot] = 1;
+                g_unk0x00542d38[slot] = g_splitPositions[1];
+                g_playerStartLane[slot] = 1;
             }
         }
         break;
@@ -8709,7 +8709,7 @@ void StageTiming_HandleCarSplitCrossing(int car)
     if (StageTiming_GetCheckpointField19(car) == 0)
         return;
     if ((char)RallyData_GetSelectionFlag27() == 0) {
-        g_carSplitTimes[car][group][0] = g_unk0x0053d1b0;
+        g_carSplitTimes[car][group][0] = g_stageClock;
         if ((char)RallyData_GetSelectionFlag28() == 0 && CGameInfo::GetConfiguredGameMode() != 12) {
             base = g_carSplitTimes[car][group - 1][0];
             pPrev = g_carSplitTimes[car][group - 1];
@@ -8718,7 +8718,7 @@ void StageTiming_HandleCarSplitCrossing(int car)
             for (i = 0; i < 5; i++)
                 g_carStageTiming[car].splits[i] = pPrev[i] - base;
         } else {
-            base = g_unk0x0053d1b0 - g_carStageTiming[car].lastTime;
+            base = g_stageClock - g_carStageTiming[car].lastTime;
             pTime = &g_carStageTiming[car].splitTimes[group];
             *pTime = base;
             if (base >= 360000)
@@ -8755,8 +8755,8 @@ void StageTiming_HandleCarSplitCrossing(int car)
     if ((char)RallyData_GetSetupFlag11()) {
         if (RallyData_GetSetupModeBits() == 2) {
             if (StageTiming_GetCarTimingByte81(car) == 0)
-                g_unk0x0053d1a4[car]++;
-            if (g_unk0x0053d1a4[car] == (int)RallyData_GetSetupHighNibble()) {
+                g_pendingDrivers[car]++;
+            if (g_pendingDrivers[car] == (int)RallyData_GetSetupHighNibble()) {
                 g_unk0x0053d1a7 = 1;
                 StageTiming_QueueDriverSlot(car);
                 StageTiming_QueueDriverSlot(1 - car);
@@ -8767,7 +8767,7 @@ void StageTiming_HandleCarSplitCrossing(int car)
                 if (StageTiming_GetCarTimingByte81(car) == 0) {
                     g_unk0x0053d1a6 = 1;
                     g_unk0x0053d1a0 = 0;
-                    g_unk0x0053d1a2 = 0;
+                    g_pendingDriverCount = 0;
                     g_unk0x0053d1a8 = (char)car;
                 }
             } else {
@@ -8775,7 +8775,7 @@ void StageTiming_HandleCarSplitCrossing(int car)
             }
         }
     }
-    g_carStageTiming[car].lastTime = g_unk0x0053d1b0;
+    g_carStageTiming[car].lastTime = g_stageClock;
 }
 
 // Timing of one car for the frame: start, split and finish line crossings.

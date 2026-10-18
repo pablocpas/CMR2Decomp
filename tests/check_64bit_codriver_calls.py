@@ -36,7 +36,7 @@ struct Graphics {int resX,resY;};Graphics graphics,*g_pGraphics=&graphics;
 struct CGraphics{static constexpr double m_65536=65536.0;};
 Texture texture,*g_arrowTexture=&texture;SpriteRect arrowRects[8],*g_pArrowRects=arrowRects;
 RaceCallRecord g_raceCallRecords[10];unsigned int *g_coDriverCalls,*g_loadedCoDriverCalls;
-int g_raceWrongWayFlags[2],g_unk0x00537350,g_unk0x0053735c,g_unk0x00517e24=-1;
+int g_raceWrongWayFlags[2],g_unk0x00537350,g_coDriverFirstSample,g_unk0x00517e24=-1;
 int g_sinTable[4096];BYTE image[65536];int caseId;std::vector<BYTE> trace;
 char g_strCodFormat[]="%s.cod";
 void bytes(std::vector<BYTE> &out,const void *p,size_t size){auto *b=(const BYTE *)p;out.insert(out.end(),b,b+size);}

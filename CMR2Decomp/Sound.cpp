@@ -1259,7 +1259,7 @@ int Sound_PlaySampleWithParameters(unsigned short id, int volume, int frequency,
 // GLOBAL: CMR2 0x005210f4
 int g_soundMasterVolume = 0x10000;
 // GLOBAL: CMR2 0x006e0ef0
-int g_unk0x006e0ef0;
+int g_soundSampleCount;
 
 int Sound_IsSlotPlayingOrPending(SoundSlot *pSlot);
 int Sound_FindHandle(unsigned int handle);
@@ -1306,10 +1306,10 @@ BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile)
 {
     char message[260];
 
-    if (CSound::m_unk0x006e0eec == 0 || (unsigned int)g_unk0x006e0ef0 >= 200)
+    if (CSound::m_unk0x006e0eec == 0 || (unsigned int)g_soundSampleCount >= 200)
         return FALSE;
     if (Sound_LoadWave(name, flags, pFile)) {
-        g_unk0x006e0ef0++;
+        g_soundSampleCount++;
         return TRUE;
     }
     // the original formats an error message nobody reads
@@ -1320,22 +1320,22 @@ BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile)
 // FUNCTION: CMR2 0x004b7740
 void Sound_FreeSamplesFromIndex(int first)
 {
-    int count = g_unk0x006e0ef0;
+    int count = g_soundSampleCount;
 
     if (CSound::m_unk0x006e0eec) {
         Sound_FreeAll();
-        for (; first < g_unk0x006e0ef0; first++) {
+        for (; first < g_soundSampleCount; first++) {
             Sound_ReleaseSampleBuffers(first);
             count--;
         }
-        g_unk0x006e0ef0 = count;
+        g_soundSampleCount = count;
     }
 }
 
 // FUNCTION: CMR2 0x004b7780
 int Sound_GetLoadedSampleCount(void)
 {
-    return g_unk0x006e0ef0;
+    return g_soundSampleCount;
 }
 
 // FUNCTION: CMR2 0x004b78a0
@@ -1376,7 +1376,7 @@ void Sound_FreeAll(void)
 // FUNCTION: CMR2 0x004b7940
 int Sound_GetSampleCount(void)
 {
-    return g_unk0x006e0ef0;
+    return g_soundSampleCount;
 }
 
 // FUNCTION: CMR2 0x004b7990
@@ -1539,7 +1539,7 @@ int Sound_ShutdownSystem(void)
     Sound_FreeAll();
     Sound_SetMasterVolume(0);
     Sound_ReleaseDirectSoundResources();
-    g_unk0x006e0ef0 = 0;
+    g_soundSampleCount = 0;
     CSound::m_unk0x006e0eec = 0;
     return 1;
 }

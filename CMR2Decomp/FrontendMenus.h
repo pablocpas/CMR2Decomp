@@ -346,7 +346,7 @@ void FrontendScroller_InitArcadeRally(Menu *pMenu, int param);
 void FrontendScroller_UpdateArcadeRally(Menu *pMenu);
 void FrontendMenu_SelectArcadeRallyRow(Menu *pMenu, MenuItem *unused);
 
-extern int g_unk0x00819128;
+extern int g_firstVisibleDisplayDevice;
 unsigned int RallyData_GetSelectionBits10To11(void);
 void RallyData_SetSelectionBits12To13(BYTE param1);
 int Network_CloseSession(void);
@@ -418,7 +418,7 @@ Menu *FrontendMenu_GetMultiplayerProfile(void);
 Menu *FrontendMenu_GetMain(void);
 Menu *FrontendMenu_GetNetworkSessionBrowser(void);
 Menu *FrontendMenu_GetNetworkSessionSetup(void);
-extern BYTE g_unk0x00818848;
+extern BYTE g_recordsProfileMode;
 int GameInfo_GetSessionField3984(void);
 Menu *FrontendMenu_GetOptions(void);
 Menu *FrontendMenu_GetLanguage(void);

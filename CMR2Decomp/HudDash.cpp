@@ -716,14 +716,14 @@ extern BYTE g_playerCameraMode[8];
 
 
 // GLOBAL: CMR2 0x0053d090
-short g_unk0x0053d090[4];
+short g_dashGaugeTargets[4];
 // GLOBAL: CMR2 0x0053d098
-int g_unk0x0053d098[4];
+int g_dashGaugeValues[4];
 
 // FUNCTION: CMR2 0x00447e00
 short HudDash_GetGaugeTarget(BYTE index)
 {
-    return g_unk0x0053d090[index];
+    return g_dashGaugeTargets[index];
 }
 
 extern FixVector g_unk0x0053d048[6];
@@ -733,21 +733,21 @@ extern FixVector g_unk0x0053d048[6];
 void HudDash_SetGaugeTarget(BYTE index, short value)
 {
 
-    g_unk0x0053d090[index] = value;
-    g_unk0x0053d090[index + 2] =
+    g_dashGaugeTargets[index] = value;
+    g_dashGaugeTargets[index + 2] =
         (short)FixMul(0x10000 - FixMul(FixDiv(g_unk0x0053d048[index].z - 0x50000, 0x50000), 0xcccc), value);
 }
 
 // FUNCTION: CMR2 0x00447ea0
 int HudDash_GetPlayerGaugeValue(BYTE index)
 {
-    return g_unk0x0053d098[index];
+    return g_dashGaugeValues[index];
 }
 
 // FUNCTION: CMR2 0x00447ec0
 void HudDash_SetPlayerGaugeValue(BYTE index, int value)
 {
-    g_unk0x0053d098[index] = value;
+    g_dashGaugeValues[index] = value;
 }
 
 // GLOBAL: CMR2 0x0053d048
@@ -940,7 +940,7 @@ void Dash_BuildInterpolatedCockpitMatrix(BYTE *param_1, FixMatrix *param_2, int 
         int t;
 
         if (g_playerCameraMode[index] == 4)
-            scale = g_unk0x0053d098[param_1[1]];
+            scale = g_dashGaugeValues[param_1[1]];
         else
             scale = 0xe0000;
         t = FixMul(FixDiv(g_physicsTimeStep, scale),
@@ -971,8 +971,8 @@ struct CarStageTiming {
 extern char g_unk0x0053ddb0[108];
 extern char g_splitLeaders[108][8];
 extern int g_carSplitTimes[8][12][5];
-extern int g_unk0x0053e190[82];
-extern BYTE g_unk0x0053e18c;
+extern int g_driverSplitClocks[82];
+extern BYTE g_finishedDriverCount;
 extern BYTE g_unk0x0053e18d[2];
 extern BYTE g_unk0x0053e18f;
 extern CarStageTiming g_carStageTiming[8];
@@ -980,7 +980,7 @@ extern BYTE g_unk0x0053d1da[8];
 extern BYTE g_unk0x0053d1d8;
 extern BYTE g_unk0x0053d1d9;
 extern int g_unk0x0053d1b4;
-extern char g_unk0x0053d1a4[2];
+extern char g_pendingDrivers[2];
 extern BYTE g_unk0x0053d1a6;
 extern BYTE g_unk0x0053d1a7;
 extern char g_unk0x0053dda8[8];
@@ -1004,11 +1004,11 @@ void StageTiming_ResetRaceDriverTimes(void)
     count = Stage_GetDriverCount();
     g_unk0x0053d1b4 = 0;
     if ((BYTE)RallyData_GetFlag24() != 0 || (BYTE)RallyData_GetFlag25() != 0) {
-        g_unk0x0053e18c = 0;
+        g_finishedDriverCount = 0;
         for (i = 0; i < 0x1b; i++)
             ((int *)g_unk0x0053ddb0)[i] = 0;
         for (i = 0; i < 0x12; i++)
-            ((int *)g_unk0x0053e190)[i] = 0;
+            ((int *)g_driverSplitClocks)[i] = 0;
         for (i = 0; i < 2; i++) {
             g_unk0x0053e18d[i] = 0;
             g_unk0x0053e18f = 0;
@@ -1049,7 +1049,7 @@ void StageTiming_ResetRaceDriverTimes(void)
             }
         }
         if ((BYTE)RallyData_GetSetupFlag11() != 0) {
-            *(short *)g_unk0x0053d1a4 = 0;
+            *(short *)g_pendingDrivers = 0;
             g_unk0x0053d1a7 = 0;
             g_unk0x0053d1a6 = 0;
         }

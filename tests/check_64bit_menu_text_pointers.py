@@ -14,7 +14,7 @@ using BYTE=unsigned char;using DWORD=uint32_t;using WORD=uint16_t;using USHORT=u
 struct IDirectDrawSurface7;struct IDirectDraw7;using LPDIRECTDRAW7=IDirectDraw7*;
 '''
 SUPPORT=r'''
-Graphics *g_pGraphics;Texture *g_unk0x0052aa60,*g_unk0x0052aa68;
+Graphics *g_pGraphics;Texture *g_inRaceMenuUpArrowTexture,*g_inRaceMenuDownArrowTexture;
 int g_unk0x00516074=(int)0xfffafafau,g_unk0x00516078=(int)0xffdbaca7u,g_unk0x0051608c=(int)0xbfae8072u;
 char localized[32][32],literal[7][32];
 void emit(uint32_t k,uint32_t a=0,uint32_t b=0,uint32_t c=0,uint32_t d=0,uint32_t e=0,uint32_t f=0,uint32_t g=0,uint32_t h=0) {
@@ -36,7 +36,7 @@ void Sprite_FillRect(BYTE *ctx,short *r,BYTE *c,int l) {
 void Font_DrawText(int font,char *text,int x,int y,int *colour,int flags){emit(5,font,canonical(text),x,y,(uint32_t)*colour,flags);}
 void Sprite_Queue(SpriteRect *s,SpriteRect *d,Texture *t,int l,short angle,int *centre,SpriteRect *uv,BYTE *c,int flags) {
  assert((uintptr_t)t>UINT32_MAX && !angle && !centre && !uv);
- assert(s==(SpriteRect*)&t->field_0x11c && (t==g_unk0x0052aa60 || t==g_unk0x0052aa68));
+ assert(s==(SpriteRect*)&t->field_0x11c && (t==g_inRaceMenuUpArrowTexture || t==g_inRaceMenuDownArrowTexture));
  uint32_t colour;memcpy(&colour,c,4);
  emit(6,(uint16_t)d->x|((uint32_t)(uint16_t)d->y<<16),(uint16_t)d->w|((uint32_t)(uint16_t)d->h<<16),
  (uint16_t)s->x|((uint32_t)(uint16_t)s->y<<16),(uint16_t)s->w|((uint32_t)(uint16_t)s->h<<16),colour,l,flags);
@@ -46,7 +46,7 @@ MAIN=r'''
 int main() {
  static_assert(sizeof(void*)==8 && sizeof(MenuItem)==32 && offsetof(Menu,items)==32,"native menu stride");
  static_assert(offsetof(Texture,width)!=0x120 && offsetof(Graphics,field309_0x150)!=0x150,"native record fields move after pointers");
- Graphics gfx;Texture a,b;Menu m;g_pGraphics=&gfx;g_unk0x0052aa60=&a;g_unk0x0052aa68=&b;
+ Graphics gfx;Texture a,b;Menu m;g_pGraphics=&gfx;g_inRaceMenuUpArrowTexture=&a;g_inRaceMenuDownArrowTexture=&b;
  assert((uintptr_t)&m>UINT32_MAX);int in[6];
  while(fread(in,sizeof(in),1,stdin)==1) {
   memset(&gfx,0xa5,sizeof(gfx));memset(&a,0xa5,sizeof(a));memset(&b,0xa5,sizeof(b));memset(&m,0xa5,sizeof(m));

@@ -138,7 +138,7 @@ unsigned int *RallyData_GetChampionshipState(void);
 unsigned char RallyDataState(void);
 unsigned char RallyData_GetSelectionFlag28(void);
 extern ptrdiff_t g_unk0x00537f0c[6];
-extern BYTE *g_unk0x00537f3c[8];
+extern BYTE *g_playerReplayStreams[8];
 extern BYTE g_menuFrameColour[4];
 extern Menu *g_pHeaderMenu;
 extern short g_menuRect[4];
@@ -492,7 +492,7 @@ void GameMenu_LeaveStageAndAdvanceChampionship(void)
         CarDamage_ExportStageSnapshotToRallyRecord(i);
     for (i = 0; i < *(BYTE *)g_unk0x00537f0c[5]; i++) {
         CGame::PromoteCallbackEntryByRule((CallbackStateMachine *)g_unk0x00537f0c[5], i, 0, 2);
-        Replay_ResetBufferIfActive((ReplayStream *)g_unk0x00537f3c[i]);
+        Replay_ResetBufferIfActive((ReplayStream *)g_playerReplayStreams[i]);
     }
     if ((BYTE)RallyData_GetSelectionFlag28() && (BYTE)CGameInfo::GetSoundOptionBit30())
         Replay_ResetActiveBufferState();

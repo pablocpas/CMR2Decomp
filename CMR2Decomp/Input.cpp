@@ -2248,12 +2248,12 @@ void CInput::QueueVirtualKeyPress(unsigned int param1)
 }
 
 // GLOBAL: CMR2 0x005320a4
-int g_unk0x005320a4;
+int g_inputFrameDelta;
 
 // FUNCTION: CMR2 0x0040af20
 void CInput::UpdateInputFrameDelta(void)
 {
-    g_unk0x005320a4 = CMain::GetFrameDelta();
+    g_inputFrameDelta = CMain::GetFrameDelta();
 }
 
 // FUNCTION: CMR2 0x0049eab0

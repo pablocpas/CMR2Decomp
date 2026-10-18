@@ -3360,7 +3360,7 @@ void Car_UpdateWheelForces(void)
 // GLOBAL: CMR2 0x0053a3a8
 CarTransforms g_carPhysicsTransforms[8];
 // GLOBAL: CMR2 0x0053acc8
-BYTE g_unk0x0053acc8[16];
+BYTE g_carDrawnFlags[16];
 // Invalidate interpolation from the old physics row: the next draw copies the
 // latest shadow into it before interpolation. Eight entries, indexed by car id.
 // GLOBAL: CMR2 0x0053acf0
@@ -3550,9 +3550,9 @@ void Car_BuildRaceOrder(int count)
     g_unk0x0053c9a0 = count;
     g_carOrder[44] = count;
     g_carOrder[25] = count;
-    memset(g_unk0x0053acc8, 0, 8);
+    memset(g_carDrawnFlags, 0, 8);
     for (j = 0; j < 2; j++) {
-        g_unk0x0053acc8[j] = Input_GetControllerSlotMapping(j);
+        g_carDrawnFlags[j] = Input_GetControllerSlotMapping(j);
         if (!CGameInfo::GetGameModeOptionBit19() && j >= (int)(BYTE)RallyDataState())
             Car_SetDrawnFlag(j, -1);
     }
@@ -3574,13 +3574,13 @@ short Car_GetOrderCount(void)
 // FUNCTION: CMR2 0x0042b710
 BYTE Car_GetDrawnFlag(int index)
 {
-    return g_unk0x0053acc8[index];
+    return g_carDrawnFlags[index];
 }
 
 // FUNCTION: CMR2 0x0042b720
 void Car_SetDrawnFlag(int index, char value)
 {
-    g_unk0x0053acc8[index] = value;
+    g_carDrawnFlags[index] = value;
 }
 
 void Collision_BuildOrientedBoxWorldCorners(FixVector *pCorners, FixVector *pCenter, FixMatrix *pRot, FixVector *pHalf);

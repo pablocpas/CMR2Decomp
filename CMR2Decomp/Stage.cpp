@@ -9,15 +9,15 @@ char g_unk0x00542cad;
 // GLOBAL: CMR2 0x00542cae
 char g_stageLooped;
 // GLOBAL: CMR2 0x00542cb0
-int g_unk0x00542cb0;
+int g_primaryStartDriver;
 // GLOBAL: CMR2 0x00542cb4
-int g_unk0x00542cb4[8];     // per player: finished
+int g_playerStartLane[8];     // per player: start lane (0/1) of the super special
 // GLOBAL: CMR2 0x00542c70
 int g_stageCheckpointCount;
 // GLOBAL: CMR2 0x00542c74
-int g_unk0x00542c74;
+int g_splitPositionCount;
 // GLOBAL: CMR2 0x00542c7c
-int g_unk0x00542c7c[12];
+int g_splitPositions[12];
 
 // FUNCTION: CMR2 0x004583c0
 int GetStageSplitCount(void)
@@ -34,13 +34,13 @@ int Stage_GetDriverCount(void)
 // FUNCTION: CMR2 0x004583a0
 int Stage_GetSplitPositionCount(void)
 {
-    return g_unk0x00542c74;
+    return g_splitPositionCount;
 }
 
 // FUNCTION: CMR2 0x004583b0
 int Stage_GetSplitPositionFixed(int index)
 {
-    return g_unk0x00542c7c[index];
+    return g_splitPositions[index];
 }
 
 // GLOBAL: CMR2 0x00542d38
@@ -67,12 +67,12 @@ void Stage_GetCarStartXZ(int car, int *pStarts, int *pOut)
     if (!(BYTE)RallyData_GetSelectionFlag26() && !(BYTE)RallyData_GetFlag31()) {
         if ((BYTE)RallyData_GetSelectionFlag27()) {
             if (CGameInfo::GetGameModeOptionBit19()) {
-                i = g_unk0x00542cb4[car];
+                i = g_playerStartLane[car];
                 pOut[0] = pStarts[i * 3];
                 pOut[2] = pStarts[i * 3 + 2];
                 return;
             }
-            if (car != g_unk0x00542cb0) {
+            if (car != g_primaryStartDriver) {
                 pOut[0] = pStarts[3];
                 pOut[2] = pStarts[5];
                 return;
@@ -101,7 +101,7 @@ void Stage_RestoreCarsToRoutePositions(void)
 // FUNCTION: CMR2 0x004584c0
 int Stage_GetPrimaryStartDriver(void)
 {
-    return g_unk0x00542cb0;
+    return g_primaryStartDriver;
 }
 
 // Previous checkpoint, wrapping round on looped stages.

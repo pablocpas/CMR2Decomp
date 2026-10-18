@@ -5298,7 +5298,7 @@ void Graphics_RaiseSupportedDetailLevels(void)
 
 
 // GLOBAL: CMR2 0x0052109c
-float g_unk0x0052109c = 1.0f;
+float g_playbackRate = 1.0f;
 // GLOBAL: CMR2 0x005210a0
 float g_frameScale = 25.0f;
 // GLOBAL: CMR2 0x005210a4
@@ -5400,7 +5400,7 @@ float Graphics_GetFrameScale(void)
 // FUNCTION: CMR2 0x004b23b0
 void Graphics_SetPlaybackRate(float value)
 {
-    g_unk0x0052109c = value;
+    g_playbackRate = value;
 }
 
 #include "Particle.h"

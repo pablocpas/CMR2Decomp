@@ -1,0 +1,94 @@
+address	old_name	new_name	evidence
+0x008189a8	g_unk0x008189a8	g_frontendDrawRect	x, y, w, h filled by the frontend draw code before each Sprite_FillRect / sprite draw (breadcrumb separators, cursor bars, panels).
+0x00542e78	g_unk0x00542e78	g_playerCheckpointRecords	Eight 0x1c-byte per-player records read by the StageTiming_GetCheckpoint* accessors and reset by StageTiming_ResetPlayerLapRecord.
+0x00539278	g_unk0x00539278	g_pForceFeedbackSlot	Points at g_forceFeedbackSlots[i] while the ForceFeedback_* functions update, apply or stop that slot.
+0x00819048	g_unk0x00819048	g_profilePlayersRemaining	Returned and set by FrontendProfile_GetPlayersRemaining/SetPlayersRemaining; player index = player count - remaining - 1.
+0x00537f3c	g_unk0x00537f3c	g_playerReplayStreams	Per-player ReplayStream buffers: allocated by Replay_InitRaceSlots, loaded by Replay_LoadSelectedRun/LoadCpuOpponentRun, returned by Race_GetPlayerRecordPointer.
+0x0053735c	g_unk0x0053735c	g_coDriverFirstSample	Sound_GetSampleCount() before the co-driver banks load (Race_LoadCoDriverSoundBanks); calls are played as this + call index.
+0x0052aa60	g_unk0x0052aa60	g_inRaceMenuUpArrowTexture	Returned by InRaceMenu_GetUpArrowTexture.
+0x0052aa68	g_unk0x0052aa68	g_inRaceMenuDownArrowTexture	Returned by InRaceMenu_GetDownArrowTexture.
+0x0052af4c	g_unk0x0052af4c	g_inRaceMenuRoundBoxTexture	Returned by InRaceMenu_GetRoundBoxTexture.
+0x0052af50	g_unk0x0052af50	g_inRaceMenuCurtainTexture	Returned by InRaceMenu_GetCurtainTexture.
+0x0052af41	g_unk0x0052af41	g_inRaceMenuOpening	Returned by InRaceMenu_IsOpening, cleared by InRaceMenu_ClearOpeningFlag.
+0x0052af90	g_unk0x0052af90	g_sessionTimestamp	timeGetTime() stored by GameInfo_ResetSessionTimestamp, returned by GameInfo_GetSessionTimestamp.
+0x00531650	g_unk0x00531650	g_profileFileCount	Returned by Profile_GetFileCount.
+0x00531764	g_unk0x00531764	g_pProfileFileDates	12-byte records returned by Profile_GetFileDateRecord(index).
+0x005320a4	g_unk0x005320a4	g_inputFrameDelta	CMain::GetFrameDelta() stored by CInput::UpdateInputFrameDelta, returned by NetPlayers_GetInputFrameDelta.
+0x00537194	g_unk0x00537194	g_coDriverCallState	Set and returned by Race_SetCoDriverCallState/Race_GetCoDriverCallState.
+0x00538970	g_unk0x00538970	g_raceResourceState	Set and returned by Race_SetResourceStateAndCallbackMark/Race_GetResourceState.
+0x0058cf68	g_unk0x0058cf68	g_knockoutRoundActive	Set, cleared and returned by Knockout_Set/Clear/GetRoundActiveFlag.
+0x006e0ef0	g_unk0x006e0ef0	g_soundSampleCount	Returned by Sound_GetSampleCount and Sound_GetLoadedSampleCount.
+0x00537ef4	g_unk0x00537ef4	g_raceEndLatch	Cleared by StageUI_ClearRaceEndLatch; tested by CGame::UpdateInRaceCallbackMachine with the pending flag.
+0x00537ef6	g_unk0x00537ef6	g_raceEndEventCount	Incremented by StageUI_RecordRaceEndEvent, reset and returned by StageUI_Reset/GetRaceEndEventCount.
+0x00537ef8	g_unk0x00537ef8	g_raceEndPending	Set by StageUI_SetRaceEndPending; tested by CGame::UpdateInRaceCallbackMachine.
+0x00537efc	g_unk0x00537efc	g_raceEndState	Set by CGame::UpdateInRaceCallbackMachine, returned and cleared by StageUI_GetRaceEndState/ClearRaceEndState.
+0x0053acc8	g_unk0x0053acc8	g_carDrawnFlags	Per car, set and returned by Car_SetDrawnFlag/Car_GetDrawnFlag.
+0x0053d090	g_unk0x0053d090	g_dashGaugeTargets	Per player, returned by HudDash_GetGaugeTarget.
+0x0053d098	g_unk0x0053d098	g_dashGaugeValues	Per player, set and returned by HudDash_SetPlayerGaugeValue/GetPlayerGaugeValue.
+0x0053d1b0	g_unk0x0053d1b0	g_stageClock	Returned by StageTiming_GetClockTime, advanced by StageTiming_AdvanceJitteredClock (capped at 359999), copied as each car's start and finish time.
+0x0053d1b8	g_unk0x0053d1b8	g_driverFinishTimes	Clock stored when a driver is queued as finished (StageTiming_QueueDriverSlot), clock + 0x4650 on a timeout finish.
+0x0053e17c	g_unk0x0053e17c	g_finishOrder	Driver index at each finishing position, appended by StageTiming_QueueDriverSlot; passed as the positions to RallyTiming_AddChampionshipPoints.
+0x0053e184	g_unk0x0053e184	g_driverFinishPosition	Finishing position of each driver (the inverse of g_finishOrder), set by StageTiming_QueueDriverSlot.
+0x0053e18c	g_unk0x0053e18c	g_finishedDriverCount	Number of drivers queued as finished; returned by StageTiming_GetFinishedDriverCount.
+0x0053e190	g_unk0x0053e190	g_driverSplitClocks	Nine split times per driver, returned by StageTiming_GetDriverSplitClock(index, split).
+0x00542c74	g_unk0x00542c74	g_splitPositionCount	Returned by Stage_GetSplitPositionCount.
+0x00542c7c	g_unk0x00542c7c	g_splitPositions	Returned by Stage_GetSplitPositionFixed(index).
+0x00542cb0	g_unk0x00542cb0	g_primaryStartDriver	Returned by Stage_GetPrimaryStartDriver; on the super special the other driver starts on the second lane.
+0x00542cb4	g_unk0x00542cb4	g_playerStartLane	0 or 1 per player (StageTiming_PlaceEventStartingGrid alternates them); picks the start position (Stage_GetCarStartXZ) and the lap record reset. The old comment "finished" was wrong.
+0x0058da10	g_unk0x0058da10	g_carSoundTimerStart	Per car, the scaled race time stored by StageObject_StartCarSoundTimer.
+0x0058da30	g_unk0x0058da30	g_carSoundElapsed	Per car, time since g_carSoundTimerStart (StageObject_UpdateCarSoundElapsedTime / GetCarSoundElapsedTime).
+0x00537664	g_unk0x00537664	g_carSoundVolumeScale	Set by Race_SetSurfaceSoundScale; multiplies the engine and wheel surface sound volumes.
+0x00817c84	g_unk0x00817c84	g_networkChatLines	Five line pointers appended by NetworkChat_AppendLine, returned by NetworkChat_GetLine.
+0x00817fe4	g_unk0x00817fe4	g_frontendTimestamp	Returned by CFrontend::GetFrontendTimestamp.
+0x00817fe8	g_unk0x00817fe8	g_frontendCallbackDepth	CGame::GetCallbackCount() saved by CFrontend::SaveFrontendCallbackDepth.
+0x00817fec	g_unk0x00817fec	g_frontendIntroFlag	Returned by CFrontend::GetFrontendIntroFlag.
+0x00817ff4	g_unk0x00817ff4	g_frontendElapsedMs	Returned by CFrontend::GetFrontendElapsedMilliseconds.
+0x00818274	g_unk0x00818274	g_profileHeaderText	Copied in by FrontendProfile_SetHeaderText.
+0x008182b4	g_unk0x008182b4	g_profileHeaderPlayerNumber	Set by FrontendProfile_SetHeaderMode with the player number (count - remaining + 1); printed with text 0xdc on the profile screens.
+0x00818848	g_unk0x00818848	g_recordsProfileMode	Set and returned by FrontendRecords_SetProfileMode/GetProfileMode.
+0x008189a4	g_unk0x008189a4	g_profileNameEntryFlag	Set by FrontendProfile_SetNameEntryFlag.
+0x00818ac8	g_unk0x00818ac8	g_frontendOverlayMode	Returned by Frontend_GetOverlayMode.
+0x00819030	g_unk0x00819030	g_pProfileRenameMenu	Set and returned by FrontendProfile_SetRenameMenu/GetRenameMenu.
+0x00819124	g_unk0x00819124	g_pProfileCompletionMenu	Set and returned by FrontendProfile_SetCompletionMenu/GetCompletionMenu.
+0x00819870	g_unk0x00819870	g_pProfileReturnMenu	Set by FrontendProfile_SetReturnMenu.
+0x008190f4	g_unk0x008190f4	g_profileEnteredName	Returned by FrontendProfile_GetEnteredNameBuffer.
+0x00819128	g_unk0x00819128	g_firstVisibleDisplayDevice	First display device of the list (FrontendMenu_EnterDisplayMode/UpdateDisplayMode), returned by FrontendMenu_GetFirstVisibleDisplayDevice.
+0x0081912c	g_unk0x0081912c	g_scrollerSelectionTimestamp	Returned by FrontendScroller_GetSelectionTimestamp.
+0x00525398	g_unk0x00525398	g_scrollerSelection	Returned by FrontendScroller_GetSelection.
+0x008196e0	g_unk0x008196e0	g_recordsTableMode	Returned by FrontendRecords_GetTableMode, reset by FrontendRecords_ResetCarouselSelection.
+0x008196e4	g_unk0x008196e4	g_creditsStartTime	Returned by FrontendCredits_GetStartTime.
+0x0081987c	g_unk0x0081987c	g_creditsScrollOffset	Returned by FrontendCredits_GetScrollOffset.
+0x0081a72c	g_unk0x0081a72c	g_pCreditsRoleTable	Returned by FrontendCredits_GetRoleTable.
+0x00819878	g_unk0x00819878	g_quitCancelled	0 on entering the quit confirmation, 1 from FrontendMenu_CancelQuit; FrontendMenu_LeaveQuitConfirmation quits only when it is 0.
+0x00819880	g_unk0x00819880	g_profileCurrentPlayer	Set and returned by FrontendProfile_SetCurrentPlayer/GetCurrentPlayer.
+0x0081b14c	g_unk0x0081b14c	g_pSavedGames	SavedGameImage records read by SavedGames_GetRecordData/GetDifficulty/GetDate*.
+0x0081b150	g_unk0x0081b150	g_savedGameFileNames	Returned by SavedGames_GetFileName(index).
+0x0081b154	g_unk0x0081b154	g_savedGameCount	Returned by SavedGames_GetCount.
+0x00825398	g_unk0x00825398	g_eventRecordTexts	25-byte texts returned by FrontendRecords_GetEventRecordText.
+0x008253e4	g_unk0x008253e4	g_profileCarClassRecordTexts	25-byte texts returned by FrontendRecords_GetProfileCarClassRecordText.
+0x0082547c	g_unk0x0082547c	g_stageRecordTexts	25-byte texts returned by FrontendRecords_GetStageRecordText.
+0x00825d14	g_unk0x00825d14	g_carClassRecordTexts	25-byte texts returned by FrontendRecords_GetCarClassRecordText.
+0x00825f6c	g_unk0x00825f6c	g_championshipRecordTexts	25-byte texts returned by FrontendRecords_GetChampionshipRecordText.
+0x00826138	g_unk0x00826138	g_networkMessageState	Set and returned by FrontendNetwork_SetMessageState/GetMessageState.
+0x0082a7e4	g_unk0x0082a7e4	g_controlsBindingCaptureState	Returned by FrontendControls_GetBindingCaptureState.
+0x0082a7e8	g_unk0x0082a7e8	g_controlsCalibrationState	Returned by FrontendControls_GetCalibrationState.
+0x0082a7ec	g_unk0x0082a7ec	g_controlsSelectedSlot	Set by FrontendControls_SelectDevice, returned by FrontendControls_GetSelectedSlot.
+0x0082a90c	g_unk0x0082a90c	g_optionSlotTypes	Returned by OptionMenu_GetSlotType(index).
+0x0082b0a8	g_unk0x0082b0a8	g_optionPlayerSlotOffset	Set and returned by OptionMenu_Set/GetPlayerSlotOffset; active slot = player count - this.
+0x0082b488	g_unk0x0082b488	g_advancedOptionsMenu	Returned by OptionMenu_GetAdvancedOptionsMenu.
+0x0082b668	g_unk0x0082b668	g_controlSetupMenu	Returned by OptionMenu_GetControlSetupMenu.
+0x0082b848	g_unk0x0082b848	g_valueSliderMenu	Returned by OptionMenu_GetValueSliderMenu.
+0x0082ba28	g_unk0x0082ba28	g_optionStatusMenu	Returned by OptionMenu_GetStatusMenu.
+0x0082bf20	g_unk0x0082bf20	g_optionColumnDirty	Returned by OptionMenu_GetColumnDirtyFlag(i, j).
+0x00526f54	g_unk0x00526f54	g_optionColumnLabelIds	Returned by OptionMenu_GetColumnLabelId.
+0x00526f70	g_unk0x00526f70	g_optionColumnUnitIds	Returned by OptionMenu_GetColumnUnitId.
+0x00526f8c	g_unk0x00526f8c	g_optionColumnWeights	Returned by OptionMenu_GetColumnWeight.
+0x00527098	g_unk0x00527098	g_optionColumnBaseWeights	Returned by OptionMenu_GetColumnBaseWeight.
+0x005270b4	g_unk0x005270b4	g_recordGroupWeights	Returned by OptionMenu_GetRecordGroupWeight.
+0x0052109c	g_unk0x0052109c	g_playbackRate	Set by Graphics_SetPlaybackRate (100.0f from Car_ResetPlaybackSpeed).
+0x0058cf80	g_unk0x0058cf80	g_inRaceActionMenu	Returned by StageObject_GetInRaceActionMenu.
+0x00539ed8	g_unk0x00539ed8	g_netRaceSoundMode	Returned by NetRace_GetRaceSoundMode.
+0x0053a0ac	g_unk0x0053a0ac	g_netPlayerFadeActive	Per player, tested by NetRace_IsPlayerFadeActive.
+0x00665324	g_unk0x00665324	g_networkResourceRegistered	Set by CGame::RegisterNetworkResourceRelease, cleared by its callback Network_ClearResourceRegistrationFlag.
+0x0053d1a2	g_unk0x0053d1a2	g_pendingDriverCount	Returned by StageTiming_GetPendingDriverCount.
+0x0053d1a4	g_unk0x0053d1a4	g_pendingDrivers	Returned by StageTiming_GetPendingDriverEntry(index).

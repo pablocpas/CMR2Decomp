@@ -484,8 +484,8 @@ void GameInfo_ResetSessionTimestamp(void);
 DWORD GameInfo_GetSessionTimestamp(void);
 void Input_TranslatePedalsToMenuKeys(void);
 void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut);
-extern int g_unk0x00817fe4;
-extern unsigned int g_unk0x00817ff4;
+extern int g_frontendTimestamp;
+extern unsigned int g_frontendElapsedMs;
 
 void RallyData_ResetSelection(void);
 BOOL Network_GetSessionStateFlag(void);
@@ -595,12 +595,12 @@ void Game_WaitForButtonOrSplashTimeout(CallbackStateMachine *p1, BYTE p2)
     char path[MAX_PATH];
     DeviceInfo *pDevice;
 
-    g_unk0x00817fe4 = timeGetTime();
+    g_frontendTimestamp = timeGetTime();
     CInput::UpdateAllAvailableDevices();
     Input_TranslatePedalsToMenuKeys();
     pDevice = CInput::GetAvailableDeviceRecord(0);
     Input_MergeAssignedJoystickButtons(0, pDevice);
-    if ((pDevice->field_0x8 & 0x10) != 0 || (unsigned int)(g_unk0x00817fe4 - GameInfo_GetSessionTimestamp()) > 0x1388) {
+    if ((pDevice->field_0x8 & 0x10) != 0 || (unsigned int)(g_frontendTimestamp - GameInfo_GetSessionTimestamp()) > 0x1388) {
         GameInfo_ResetSessionTimestamp();
         sprintf(path, g_strMusicSelect1Adp, CInstallInfo::GetMusicDir());
         CSound::OpenStreamingMusicFile(path);
@@ -614,11 +614,11 @@ void Game_WaitForButtonOrSplashTimeout(CallbackStateMachine *p1, BYTE p2)
 // FUNCTION: CMR2 0x004d1b40
 void Game_WaitForSplashTimeout(CallbackStateMachine *p1, BYTE p2)
 {
-    g_unk0x00817fe4 = timeGetTime();
+    g_frontendTimestamp = timeGetTime();
     CInput::UpdateAllAvailableDevices();
     Input_TranslatePedalsToMenuKeys();
     Input_MergeAssignedJoystickButtons(0, CInput::GetAvailableDeviceRecord(0));
-    if ((unsigned int)(g_unk0x00817fe4 - GameInfo_GetSessionTimestamp()) > 0x1388) {
+    if ((unsigned int)(g_frontendTimestamp - GameInfo_GetSessionTimestamp()) > 0x1388) {
         GameInfo_ResetSessionTimestamp();
         CGame::PromoteCallbackEntryByRule(p1, p2, 0, 2);
     }
@@ -628,8 +628,8 @@ void Game_WaitForSplashTimeout(CallbackStateMachine *p1, BYTE p2)
 // FUNCTION: CMR2 0x004d1c90
 void Game_RunFrontendBootFrame(CallbackStateMachine *p1, BYTE p2)
 {
-    g_unk0x00817fe4 = timeGetTime();
-    g_unk0x00817ff4 = g_unk0x00817fe4 - GameInfo_GetSessionTimestamp();
+    g_frontendTimestamp = timeGetTime();
+    g_frontendElapsedMs = g_frontendTimestamp - GameInfo_GetSessionTimestamp();
     FrontendMenu_UpdateAndSwitchActive();
 }
 
@@ -690,7 +690,7 @@ int OptionMovie_StartPlayback(char *path, Texture *pTexture, short *pRect, unsig
 
 // Cleared on entry and set while the intro video of the boot sequence is
 // being shown.
-extern BYTE g_unk0x00817fec;
+extern BYTE g_frontendIntroFlag;
 
 // Uppercase country codes of the intro videos. They are four bytes apart,
 // 0x00519264..0x00519280; the last one is CFrontend::m_strUK (already
@@ -720,19 +720,19 @@ void Game_PlayCountryIntroAfterFrontendDelay(CallbackStateMachine *p1, BYTE p2)
     DeviceInfo *pDevice;
     bool queuedVideo;
 
-    g_unk0x00817fec = 0;
+    g_frontendIntroFlag = 0;
     queuedVideo = false;
     if (CGame::m_unk0x00523d68 != 0 &&
         (CGameInfo::GetConfiguredGameMode() == 0 || CGameInfo::GetConfiguredGameMode() == 1) &&
         RallyDataStageIndex() == 0) {
-        g_unk0x00817fec = 1;
+        g_frontendIntroFlag = 1;
         CSound::CloseMusicStreamAndClearPath(0);
-        g_unk0x00817fe4 = timeGetTime();
+        g_frontendTimestamp = timeGetTime();
         CInput::UpdateAllAvailableDevices();
         Input_TranslatePedalsToMenuKeys();
         pDevice = CInput::GetAvailableDeviceRecord(0);
         Input_MergeAssignedJoystickButtons(0, pDevice);
-        if (g_unk0x00817fe4 - (int)GameInfo_GetSessionTimestamp() > 4000) {
+        if (g_frontendTimestamp - (int)GameInfo_GetSessionTimestamp() > 4000) {
             int language = CGameInfo::GetGameLanguage();
             sprintf(path, g_str0x00523dc0, CInstallInfo::GetCountrySpecificOtherDir(),
                     CGameInfo::GetGameRegionDirectory(), codes[RallyDataCountryIndex() & 0xff]);
@@ -756,7 +756,7 @@ bool Profile_SaveEditedNames(void);
 void RallyData_IncrementSelectedCategoryCounters(void);
 unsigned char RallyDataCountryIndex(void);
 unsigned char RallyDataStageIndex(void);
-extern int g_unk0x00817fe8;
+extern int g_frontendCallbackDepth;
 
 // Byte flag the exit path of the boot states tests to pick the next game
 // state (also read by the function at 0x4d2070).
@@ -800,7 +800,7 @@ void Game_FinishRaceAndAdvanceBootState(CallbackStateMachine *p1, BYTE unused)
         }
     }
 
-    CGame::UnwindCallbacks(g_unk0x00817fe8);
+    CGame::UnwindCallbacks(g_frontendCallbackDepth);
     CGraphics::EvictManagedTextureResources();
     CGraphics::FreeTextureBuffers();
     if (CGameInfo::GetConfiguredGameMode() != 4)
@@ -1316,10 +1316,10 @@ BOOL CGame::UpdateSecondaryCallbackMachine()
 // In-race callback group of the game state machine (0x0041b060), filled by
 // InitializeCallbackStateMachine; its slots live at 0x537de0.
 extern RaceCallbackStorage g_raceCallbackStorage;
-extern BYTE g_unk0x00537ef4;
+extern BYTE g_raceEndLatch;
 extern BYTE g_unk0x00537ef5;
-extern int g_unk0x00537ef8;
-extern int g_unk0x00537efc;
+extern int g_raceEndPending;
+extern int g_raceEndState;
 extern int g_unk0x00537df0;
 
 void InRaceMenu_UpdateStateMachineFrame(CallbackStateMachine *param1);
@@ -1403,7 +1403,7 @@ unsigned int g_raceStateRules[26] = {
 //  2. stack slots are swapped: original has `state` at [esp+0x10] and `level` at
 //     [esp+0x14]; ours is the reverse (9 operand mismatches). Declaration order
 //     does not move them.
-//  3. the loop's else branch has a dead `mov al,[g_unk0x00537ef4]; test al,al`
+//  3. the loop's else branch has a dead `mov al,[g_raceEndLatch]; test al,al`
 //     before `push 0` that no source form probed reproduces (2 instructions).
 //  4. the loop counter is a dword in the original (`mov ebx,ebp; and ebx,0xff;
 //     dec ebx`); the byte `i` here compiles to `dec bl`.
@@ -1420,7 +1420,7 @@ BOOL CGame::UpdateInRaceCallbackMachine(void)
     BYTE i;
     char c;
 
-    if (g_unk0x00537ef4 != 0 && g_unk0x00537ef5 == 0 && g_unk0x00537ef8 == 0) {
+    if (g_raceEndLatch != 0 && g_unk0x00537ef5 == 0 && g_raceEndPending == 0) {
         if (CGameInfo::IsInRaceMenuOpen() != 0) {
             InRaceMenu_UpdateStateMachineFrame(&g_raceCallbackStorage.machine);
             InRaceMenu_AdvanceScreenEntries(&g_raceCallbackStorage.machine);
@@ -1433,7 +1433,7 @@ BOOL CGame::UpdateInRaceCallbackMachine(void)
         return FALSE;
     }
     pState = RallyData_GetChampionshipState();
-    if (g_unk0x00537ef4 == 0)
+    if (g_raceEndLatch == 0)
         StageUI_ResetRaceEndEventCount();
     state = CGameInfo::GetConfiguredPlayerCount();
     c = (char)CGameInfo::GetConfiguredGameMode();
@@ -1490,8 +1490,8 @@ done:
         pSlot = g_raceCallbackStorage.records;
         i = state;
         do {
-            if (g_unk0x00537ef8 != 0) {
-                g_unk0x00537efc = 1;
+            if (g_raceEndPending != 0) {
+                g_raceEndState = 1;
                 InitializeCallbackStateRecord(pSlot, 5, level);
             } else {
                 InitializeCallbackStateRecord(pSlot, 0, level);
@@ -1502,13 +1502,13 @@ done:
     }
     InitializeCallbackStateMachine(&g_raceCallbackStorage.machine, state, g_raceCallbackStorage.records,
                  g_raceStateCallbacks, g_raceStateRules);
-    if (g_unk0x00537ef8 != 0) {
+    if (g_raceEndPending != 0) {
         Car_BuildRaceOrder(2);
         Dash_Reset();
     }
-    g_unk0x00537ef4 = 1;
+    g_raceEndLatch = 1;
     g_unk0x00537ef5 = 0;
-    g_unk0x00537ef8 = 0;
+    g_raceEndPending = 0;
     return FALSE;
 }
 
@@ -2738,7 +2738,7 @@ int CGame::GetSectorDrawState(void)
 // GLOBAL: CMR2 0x00537f5c
 int g_unk0x00537f5c;
 // GLOBAL: CMR2 0x00665324
-int g_unk0x00665324;
+int g_networkResourceRegistered;
 
 // FUNCTION: CMR2 0x0041f260
 void CGame::SaveRaceCallbackDepth(void)
@@ -2749,7 +2749,7 @@ void CGame::SaveRaceCallbackDepth(void)
 // FUNCTION: CMR2 0x004aae10
 int Network_ClearResourceRegistrationFlag(void)
 {
-    g_unk0x00665324 = 0;
+    g_networkResourceRegistered = 0;
     return 1;
 }
 
@@ -2757,7 +2757,7 @@ int Network_ClearResourceRegistrationFlag(void)
 void CGame::RegisterNetworkResourceRelease(void)
 {
     RegisterCallback(Network_ClearResourceRegistrationFlag, NULL);
-    g_unk0x00665324 = 1;
+    g_networkResourceRegistered = 1;
 }
 
 

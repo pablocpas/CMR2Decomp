@@ -46,7 +46,7 @@ struct CFrontend{static void ClearFrontendPlayerInputCounters(){}};
 struct CMain{static int GetFrameDelta();};
 RaceCallbackStorage g_raceCallbackStorage;
 StateCallbackPair g_raceStateCallbacks[16];unsigned int g_raceStateRules[2]={0xffffffff,0xaaaaaaaa};
-BYTE g_unk0x00537ef4,g_unk0x00537ef5;int g_unk0x00537ef8,g_unk0x00537efc,g_unk0x00537df0;
+BYTE g_raceEndLatch,g_unk0x00537ef5;int g_raceEndPending,g_raceEndState,g_unk0x00537df0;
 int g_unk0x0082a938;unsigned int g_unk0x0082b0a4;
 static int entrants,mode,menu,available,queries,clock_value,promotions;
 static unsigned int championship;static BYTE selection;
@@ -113,10 +113,10 @@ int main(){
  }
  for(int count=1;count<=2;count++)for(int late=0;late<=1;late++)for(int seed=0;seed<16;seed++){
   memset(&g_raceCallbackStorage,0xcc^seed,sizeof(g_raceCallbackStorage));auto before=g_raceCallbackStorage;
-  entrants=count;mode=0;g_unk0x00537ef4=g_unk0x00537ef5=0;g_unk0x00537ef8=late;g_unk0x00537efc=0;
+  entrants=count;mode=0;g_raceEndLatch=g_unk0x00537ef5=0;g_raceEndPending=late;g_raceEndState=0;
   CGame::UpdateInRaceCallbackMachine();
   int expectedCount=count>1?2:1,level=count>1?1:0;
-  assert(selection==expectedCount && g_unk0x00537df0==level && g_unk0x00537efc==late);
+  assert(selection==expectedCount && g_unk0x00537df0==level && g_raceEndState==late);
   assert(g_raceCallbackStorage.machine.count==expectedCount && g_raceCallbackStorage.machine.records==g_raceCallbackStorage.records);
   for(int i=0;i<2;i++)if(i<expectedCount)assert((unsigned)g_raceCallbackStorage.records[i].packedState==((unsigned(before.records[i].packedState)&0xfc000000u) | (unsigned(level)<<8) | unsigned(late?5:0)) && g_raceCallbackStorage.records[i].elapsedTicks==0);else assert(!memcmp(&g_raceCallbackStorage.records[i],&before.records[i],8));
   assert(!memcmp(g_raceCallbackStorage.machine.pad,before.machine.pad,3));cases++;

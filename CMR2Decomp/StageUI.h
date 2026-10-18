@@ -49,7 +49,7 @@ extern int g_surfaceSlotMax;         // 0x53761c
 extern int g_surfaceVolB[8];         // 0x537620
 extern int g_surfaceVolC[8];         // 0x537640
 extern int g_unk0x00537660;          // 0x537660
-extern int g_unk0x00537664;          // 0x537664
+extern int g_carSoundVolumeScale;          // 0x537664
 extern int g_surfaceVolD[8];         // 0x537668
 extern int g_surfacePrevC[8];        // 0x537788
 

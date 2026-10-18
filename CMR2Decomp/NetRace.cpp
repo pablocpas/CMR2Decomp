@@ -28,7 +28,7 @@ int g_unk0x00539dcc;
 // GLOBAL: CMR2 0x00539ed0
 int g_unk0x00539ed0;
 // GLOBAL: CMR2 0x00539ed8
-BYTE g_unk0x00539ed8;
+BYTE g_netRaceSoundMode;
 // GLOBAL: CMR2 0x0053a00c
 int g_unk0x0053a00c[8];
 // GLOBAL: CMR2 0x0053a02c
@@ -42,7 +42,7 @@ typedef void (*FadeCallback)(BYTE index);
 // GLOBAL: CMR2 0x0053a08c
 FadeCallback g_fadeCallbacks[8];
 // GLOBAL: CMR2 0x0053a0ac
-int g_unk0x0053a0ac[8];
+int g_netPlayerFadeActive[8];
 // GLOBAL: CMR2 0x0053a0cc
 int g_unk0x0053a0cc[8];
 // GLOBAL: CMR2 0x0053a0ec
@@ -326,7 +326,7 @@ void NetRace_SendType15AndResetInput(void)
 // FUNCTION: CMR2 0x00427aa0
 BYTE NetRace_GetRaceSoundMode(void)
 {
-    return g_unk0x00539ed8;
+    return g_netRaceSoundMode;
 }
 
 // FUNCTION: CMR2 0x00427ab0
@@ -384,7 +384,7 @@ void NetRace_ResetPlayerFadeStates(void)
 {
     memset(g_unk0x0053a0cc, 0, sizeof(g_unk0x0053a0cc));
     memset(g_unk0x0053a06c, 0, sizeof(g_unk0x0053a06c));
-    memset(g_unk0x0053a0ac, 0, sizeof(g_unk0x0053a0ac));
+    memset(g_netPlayerFadeActive, 0, sizeof(g_netPlayerFadeActive));
 }
 
 int Race_IsMultiplayerRecordMode10(void);
@@ -404,16 +404,16 @@ void NetRace_UpdatePlayerFlashTimer(unsigned int player, int check)
 
     if (NetRace_IsPlayerFadeActive((BYTE)player) != 0) {
         if (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0) {
-            state = g_unk0x0053a0ac[player & 0xff];
+            state = g_netPlayerFadeActive[player & 0xff];
             if (state == 4) {
-                g_unk0x0053a0ac[player & 0xff] = 0;
+                g_netPlayerFadeActive[player & 0xff] = 0;
                 return;
             }
             g_unk0x0053a02c[player & 0xff] = g_unk0x0053a04c[player & 0xff];
             value = g_unk0x0053a04c[player & 0xff] + g_physicsTimeStep;
             g_unk0x0053a04c[player & 0xff] = value;
             if (g_unk0x0053a02c[player & 0xff] < 0 && value >= 0) {
-                g_unk0x0053a0ac[player & 0xff] = 4;
+                g_netPlayerFadeActive[player & 0xff] = 4;
                 g_unk0x0053a06c[player & 0xff] = 0;
                 return;
             }
@@ -422,7 +422,7 @@ void NetRace_UpdatePlayerFlashTimer(unsigned int player, int check)
                     g_unk0x0053a04c[player & 0xff] = -g_unk0x0053a0ec[player & 0xff];
                     g_unk0x0053a02c[player & 0xff] = -g_unk0x0053a0ec[player & 0xff];
                 } else {
-                    g_unk0x0053a0ac[player & 0xff] = 0;
+                    g_netPlayerFadeActive[player & 0xff] = 0;
                     g_unk0x0053a06c[player & 0xff] = 0x10000;
                 }
                 if (g_fadeCallbacks[player & 0xff] != NULL)
@@ -479,7 +479,7 @@ void NetRace_DrawPlayerFlashOverlay(unsigned int player, short *pRect, int check
 // FUNCTION: CMR2 0x00428740
 int NetRace_IsPlayerFadeActive(BYTE index)
 {
-    return g_unk0x0053a0ac[index] != 0;
+    return g_netPlayerFadeActive[index] != 0;
 }
 
 // Starts a fade of the player's screen; an active fade is only replaced
@@ -498,7 +498,7 @@ void NetRace_StartPlayerFade(BYTE index, int speed, FadeCallback pfnDone, int mo
     g_unk0x0053a00c[index & 0xff] = param7;
     g_unk0x0053a04c[index & 0xff] = mode == 2 ? -speed : 0;
     g_fadeCallbacks[index & 0xff] = pfnDone;
-    g_unk0x0053a0ac[index & 0xff] = mode;
+    g_netPlayerFadeActive[index & 0xff] = mode;
     if ((mode == 0 || mode == 2) && pfnDone != NULL)
         pfnDone(index);
     if (mode == 0 || mode == 4)
@@ -565,7 +565,7 @@ unsigned int NetRace_InterpolateWordCurve(int value, SoundCurve *pCurve)
     return pCurve->pSamples[index];
 }
 
-// Race start: decides g_unk0x00539ed8 from the game mode and applies the
+// Race start: decides g_netRaceSoundMode from the game mode and applies the
 // volume settings (percentages scaled to 16.16).
 // FUNCTION: CMR2 0x00427c10
 void NetRace_InitializeRaceSoundVolumes(void)
@@ -574,9 +574,9 @@ void NetRace_InitializeRaceSoundVolumes(void)
         (CGameInfo::GetConfiguredPlayerCount() != 2 || CGameInfo::IsConfiguredMultiplayer()) &&
         ((BYTE)RallyDataState() != 1 || !(BYTE)RallyData_GetFlag25() || CGameInfo::GetGameModeOptionBit19() ||
          CGameInfo::GetConfiguredGameMode() == 3))
-        g_unk0x00539ed8 = 0;
+        g_netRaceSoundMode = 0;
     else
-        g_unk0x00539ed8 = 1;
+        g_netRaceSoundMode = 1;
     StageObject_SetSoundStateValue(FixMul((int)(CGameInfo::GetEffectsSoundVolume() << 16) / 100, 0x5555));
     Race_SetSurfaceSoundScale(FixMul((int)(CGameInfo::GetEffectsSoundVolume() << 16) / 100, 0x5555));
     Race_SetCoDriverCallState(FixMul((int)(CGameInfo::GetCoDriverSoundVolume() << 16) / 100, 0x10000));

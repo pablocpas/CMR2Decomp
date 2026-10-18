@@ -12,7 +12,7 @@ extern BYTE g_colourDim0x00524970[4];
 extern BYTE g_colourShadowWhite0x00524974[4];
 extern BYTE g_colourShadowText0x00524978[4];
 extern BYTE g_colourShadowDim0x0052497c[4];
-extern short g_unk0x008189a8[4];
+extern short g_frontendDrawRect[4];
 
 void FrontendDraw_ScrollerRow(MenuScroller *p, char active);
 void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int first, int active);

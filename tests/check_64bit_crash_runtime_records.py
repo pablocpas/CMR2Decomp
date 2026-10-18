@@ -25,7 +25,7 @@ PRELUDE=r'''
 typedef NetSessionDesc DPSESSIONDESC2;
 NetSessionDesc g_networkSession;
 ReplayStream *g_activeReplayStream;
-BYTE *g_unk0x00537f3c[8];void **g_replaySlots[16];Car car;
+BYTE *g_playerReplayStreams[8];void **g_replaySlots[16];Car car;
 class CGameInfo {public:
  static NetSessionDesc m_enumeratedSessions[20];static char m_unk0x005a00b8[264],m_unk0x005a02c0[264];
  static BOOL m_unk0x005a0060;static HRESULT m_unk0x005a1814;static BYTE m_unk0x005a01bc;
@@ -81,7 +81,7 @@ int main(){
   if(playing){before.stream.playing=0;before.stream.playStarted=0;before.stream.field_0x14=0;}
   assert(result==bool(playing)&&!memcmp(&before,&block,sizeof(block)));
   g_activeReplayStream=&block.stream;assert(Replay_GetActiveBufferState()==0);
-  g_unk0x00537f3c[1]=(BYTE *)&block.stream;block.stream.playing=1;block.stream.recording=-1;
+  g_playerReplayStreams[1]=(BYTE *)&block.stream;block.stream.playing=1;block.stream.recording=-1;
   assert(Race_GetPlayerRecordField4(1)==1&&Race_GetPlayerRecordFieldC(1)==-1);
  }
  for(int phase=0;phase<3;phase++)for(int count=0;count<=2;count++){

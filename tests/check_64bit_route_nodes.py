@@ -11,7 +11,7 @@ from check_64bit_race_state_pointers import body
 from differential_route_nodes import Nodes,ROOT,HEAP
 
 # Canonical pointer values are serialized separately from the numeric globals.
-GLOBALS=[('g_unk0x00538a84',0x538a84,4),('g_unk0x00538a88',0x538a88,4),('g_unk0x00538a94',0x538a94,4),('g_routeDirKey',0x538a8c,6),('g_routeDirCount',0x538aa0,2),('g_routeDir',0x538b68,36),('g_raceRecords',0x538aa8,192),('g_unk0x00538c94',0x538c94,4),('g_unk0x0053708c',0x53708c,8),('g_unk0x00537198',0x537198,8),('g_raceWrongWayFlags',0x537248,8),('g_raceCallRecords',0x5371d0,120),('g_unk0x00537354',0x537354,4),('g_unk0x00537350',0x537350,4),('g_stageCheckpointCount',0x542c70,4),('g_stageSplitCount',0x542cac,1),('g_stageLooped',0x542cae,1),('g_unk0x00542c74',0x542c74,4),('g_unk0x00542c78',0x542c78,4),('g_unk0x00542c7c',0x542c7c,48)]
+GLOBALS=[('g_unk0x00538a84',0x538a84,4),('g_unk0x00538a88',0x538a88,4),('g_unk0x00538a94',0x538a94,4),('g_routeDirKey',0x538a8c,6),('g_routeDirCount',0x538aa0,2),('g_routeDir',0x538b68,36),('g_raceRecords',0x538aa8,192),('g_unk0x00538c94',0x538c94,4),('g_unk0x0053708c',0x53708c,8),('g_unk0x00537198',0x537198,8),('g_raceWrongWayFlags',0x537248,8),('g_raceCallRecords',0x5371d0,120),('g_unk0x00537354',0x537354,4),('g_unk0x00537350',0x537350,4),('g_stageCheckpointCount',0x542c70,4),('g_stageSplitCount',0x542cac,1),('g_stageLooped',0x542cae,1),('g_splitPositionCount',0x542c74,4),('g_unk0x00542c78',0x542c78,4),('g_splitPositions',0x542c7c,48)]
 PRELUDE=r'''
 #include <cassert>
 #include <cmath>
@@ -33,8 +33,8 @@ RaceRecord g_raceRecords[8];
 #include "RaceCallRecord.h"
 RaceCallRecord g_raceCallRecords[10];
 int g_unk0x0053708c[2],g_unk0x00537198[2],g_raceWrongWayFlags[2],g_unk0x005371a0=1,g_unk0x00537350,g_unk0x00537354;
-BYTE g_unk0x0053735c[32];
-int g_stageCheckpointCount,g_unk0x00542c74,g_unk0x00542c78,g_unk0x00542c7c[12];char g_stageLooped,g_stageSplitCount;
+BYTE g_coDriverFirstSample[32];
+int g_stageCheckpointCount,g_splitPositionCount,g_unk0x00542c78,g_splitPositions[12];char g_stageLooped,g_stageSplitCount;
 Car car,*g_pCurrentCar;CallbackStateRecord states[2];CallbackStateMachine machine;
 BYTE image[65536];int caseId,nodeCount,missing,best,overlaps;unsigned int selection;
 char g_str0x00519704[8]="%s.cat";

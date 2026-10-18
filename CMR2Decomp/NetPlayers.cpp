@@ -60,7 +60,7 @@ unsigned int g_netLapBest;
 // GLOBAL: CMR2 0x005320b0
 NetClassification g_netClassification[8];
 
-extern int g_unk0x005320a4;
+extern int g_inputFrameDelta;
 
 void NetworkLeaderboard_ClearPublishedBoard(void);
 void NetworkLeaderboard_PublishBoard(BYTE *p);
@@ -928,7 +928,7 @@ void NetPlayers_UpdateBestRaceTime(unsigned int time)
 // FUNCTION: CMR2 0x0040af30
 int NetPlayers_GetInputFrameDelta(void)
 {
-    return g_unk0x005320a4;
+    return g_inputFrameDelta;
 }
 
 // FUNCTION: CMR2 0x0040af40

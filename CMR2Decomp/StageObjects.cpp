@@ -752,19 +752,19 @@ SceneNode *g_stageCloudTopNode;
 // GLOBAL: CMR2 0x00589448
 GenericFile g_stageCloudArchive;
 // GLOBAL: CMR2 0x0058cf68
-int g_unk0x0058cf68;
+int g_knockoutRoundActive;
 // GLOBAL: CMR2 0x0058cf6c
 int g_unk0x0058cf6c;
 // GLOBAL: CMR2 0x0058cf80
-Menu g_unk0x0058cf80;
+Menu g_inRaceActionMenu;
 // Scratch rotation matrix for the stage-object nodes.
 // GLOBAL: CMR2 0x0058d260
 FixMatrix g_carWiperRotationMatrix;
 StageBlock g_stageBlock;
 // GLOBAL: CMR2 0x0058da30
-int g_unk0x0058da30[8];
+int g_carSoundElapsed[8];
 // GLOBAL: CMR2 0x0058da10
-int g_unk0x0058da10[8];
+int g_carSoundTimerStart[8];
 // GLOBAL: CMR2 0x0058dda8
 int g_unk0x0058dda8;
 // GLOBAL: CMR2 0x0058e230
@@ -829,13 +829,13 @@ char Race_GetBaseCarCount(void);
 // FUNCTION: CMR2 0x00478130
 void StageObject_StartCarSoundTimer(int index)
 {
-    g_unk0x0058da10[index] = Race_GetScaledState37F24();
+    g_carSoundTimerStart[index] = Race_GetScaledState37F24();
 }
 
 // FUNCTION: CMR2 0x00478150
 void StageObject_UpdateCarSoundElapsedTime(int index)
 {
-    g_unk0x0058da30[index] = Race_GetScaledState37F24() - g_unk0x0058da10[index];
+    g_carSoundElapsed[index] = Race_GetScaledState37F24() - g_carSoundTimerStart[index];
 }
 
 // FUNCTION: CMR2 0x0047aa60
@@ -1924,19 +1924,19 @@ unsigned int StageObject_GetLoadedVariantDataAndState(SectorObjectEntry **pOut)
 // FUNCTION: CMR2 0x004728b0
 void Knockout_SetRoundActiveFlag(void)
 {
-    g_unk0x0058cf68 = 1;
+    g_knockoutRoundActive = 1;
 }
 
 // FUNCTION: CMR2 0x004728c0
 void Knockout_ClearRoundActiveFlag(void)
 {
-    g_unk0x0058cf68 = 0;
+    g_knockoutRoundActive = 0;
 }
 
 // FUNCTION: CMR2 0x004728d0
 int Knockout_GetRoundActiveFlag(void)
 {
-    return g_unk0x0058cf68;
+    return g_knockoutRoundActive;
 }
 
 // Returns 1 when a match of the current knockout round is undecided or one of
@@ -2425,17 +2425,17 @@ void Game_DrawInRaceActionMenu(Menu *pMenu);
 // FUNCTION: CMR2 0x00475f00
 void StageObject_BuildInRaceActionMenu(void)
 {
-    Menu_Init(&g_unk0x0058cf80, 0, -1, 0, NULL, NULL, 1, 0, 1);
-    Menu_AddItemType4(&g_unk0x0058cf80, 0, 0xf4, (MenuItemAction)Game_NoOpInRaceMenuItemEvent, -1);
-    Menu_AddItemType4(&g_unk0x0058cf80, 0, 0xf5, (MenuItemAction)Game_SetRaceExitFlags, -1);
-    Menu_SetCallbacks(&g_unk0x0058cf80, NULL, NULL, (MenuCallback)Game_DrawInRaceActionMenu, NULL);
-    Menu_ValidateCursor(&g_unk0x0058cf80, 0);
+    Menu_Init(&g_inRaceActionMenu, 0, -1, 0, NULL, NULL, 1, 0, 1);
+    Menu_AddItemType4(&g_inRaceActionMenu, 0, 0xf4, (MenuItemAction)Game_NoOpInRaceMenuItemEvent, -1);
+    Menu_AddItemType4(&g_inRaceActionMenu, 0, 0xf5, (MenuItemAction)Game_SetRaceExitFlags, -1);
+    Menu_SetCallbacks(&g_inRaceActionMenu, NULL, NULL, (MenuCallback)Game_DrawInRaceActionMenu, NULL);
+    Menu_ValidateCursor(&g_inRaceActionMenu, 0);
 }
 
 // FUNCTION: CMR2 0x00475f70
 Menu *StageObject_GetInRaceActionMenu(void)
 {
-    return &g_unk0x0058cf80;
+    return &g_inRaceActionMenu;
 }
 
 // Updates one stage object's state byte and re-syncs its scene node with the
@@ -2616,19 +2616,19 @@ void StageObject_ResetBodyTextureCaches(void)
 // FUNCTION: CMR2 0x00478170
 void StageObject_ResetCarSoundElapsedTime(int index)
 {
-    g_unk0x0058da30[index] = 0;
+    g_carSoundElapsed[index] = 0;
 }
 
 // FUNCTION: CMR2 0x00478190
 void StageObject_AddCarSoundTimeSeconds(int index, int seconds)
 {
-    g_unk0x0058da30[index] += seconds * 100;
+    g_carSoundElapsed[index] += seconds * 100;
 }
 
 // FUNCTION: CMR2 0x004781c0
 int StageObject_GetCarSoundElapsedTime(int index)
 {
-    return g_unk0x0058da30[index];
+    return g_carSoundElapsed[index];
 }
 
 // FUNCTION: CMR2 0x004789b0

@@ -15,7 +15,7 @@
 #include "Game.h"
 #include "RallyData.h"
 
-extern BYTE g_unk0x00819048;
+extern BYTE g_profilePlayersRemaining;
 extern int g_screenPaletteIds[23];
 
 #define PATH_X() ((int)(g_pGraphics->resX * 24) / 640)
@@ -31,18 +31,18 @@ void FrontendMenu_InitRouteScroller(Menu *pMenu, int param)
 
     count = 0;
     i = 0;
-    Frontend_SetOverlayMode(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048 - 1);
+    Frontend_SetOverlayMode(CGameInfo::GetConfiguredPlayerCount() - g_profilePlayersRemaining - 1);
     FrontendScroller_GetRouteEntryScroller()->pMenu = pMenu;
     pMenu->cursor = 0;
     for (; i < 0x16; i++) {
         if (CGameInfo::GetConfiguredGameMode() == 7 || CGameInfo::GetConfiguredGameMode() == 5 || CGameInfo::GetConfiguredGameMode() == 6) {
-            if (RallyData_HasCategoryAward(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048 - 1, i, 1)) {
+            if (RallyData_HasCategoryAward(CGameInfo::GetConfiguredPlayerCount() - g_profilePlayersRemaining - 1, i, 1)) {
                 g_screenPaletteIds[count] = i;
                 pMenu->items[count].id = i + 0x98;
                 strcpy(CFrontend::m_stringDest, CFrontend::GetTextString((short)(i + 0x98)));
                 CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
                 FrontendScroller_GetRouteEntryScroller()->widths[count] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
-                if (i == RallyData_GetDriverRecordSelectionValue(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048)))
+                if (i == RallyData_GetDriverRecordSelectionValue(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining)))
                     pMenu->cursor = count;
                 count++;
             }
@@ -68,8 +68,8 @@ BYTE RallyData_GetDriverOrCategoryFlag(BYTE index);
 // FUNCTION: CMR2 0x004fac70
 void FrontendMenu_UpdateChampionshipEntry(Menu *pMenu, char param)
 {
-    pMenu->items[0].max = RallyData_GetDriverOrCategoryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_unk0x00819048));
-    Frontend_SetOverlayMode(CGameInfo::GetConfiguredPlayerCount() - g_unk0x00819048 - 1);
+    pMenu->items[0].max = RallyData_GetDriverOrCategoryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining));
+    Frontend_SetOverlayMode(CGameInfo::GetConfiguredPlayerCount() - g_profilePlayersRemaining - 1);
     if (param != 0)
         FrontendMenu_InitRouteScroller(FrontendScroller_GetRouteEntryScroller()->pMenu, 0);
 }
@@ -527,44 +527,44 @@ BYTE *FrontendRecords_GetEventEntry(int index)
 }
 
 // GLOBAL: CMR2 0x00825398
-BYTE g_unk0x00825398[0x4c];
+BYTE g_eventRecordTexts[0x4c];
 // GLOBAL: CMR2 0x008253e4
-BYTE g_unk0x008253e4[0x98];
+BYTE g_profileCarClassRecordTexts[0x98];
 // GLOBAL: CMR2 0x0082547c
-BYTE g_unk0x0082547c[0x898];
+BYTE g_stageRecordTexts[0x898];
 // GLOBAL: CMR2 0x00825d14
-BYTE g_unk0x00825d14[0x258];
+BYTE g_carClassRecordTexts[0x258];
 // GLOBAL: CMR2 0x00825f6c
-BYTE g_unk0x00825f6c[0x1cc];
+BYTE g_championshipRecordTexts[0x1cc];
 
 // FUNCTION: CMR2 0x004f9240
 BYTE *FrontendRecords_GetStageRecordText(int row, int column)
 {
-    return g_unk0x0082547c + (column + row * 11) * 25;
+    return g_stageRecordTexts + (column + row * 11) * 25;
 }
 
 // FUNCTION: CMR2 0x004f9260
 BYTE *FrontendRecords_GetCarClassRecordText(int row, int column)
 {
-    return g_unk0x00825d14 + (column + row * 3) * 25;
+    return g_carClassRecordTexts + (column + row * 3) * 25;
 }
 
 // FUNCTION: CMR2 0x004f9280
 BYTE *FrontendRecords_GetEventRecordText(int index)
 {
-    return g_unk0x00825398 + index * 25;
+    return g_eventRecordTexts + index * 25;
 }
 
 // FUNCTION: CMR2 0x004f92a0
 BYTE *FrontendRecords_GetProfileCarClassRecordText(int row, int column)
 {
-    return g_unk0x008253e4 + (column + row * 3) * 25;
+    return g_profileCarClassRecordTexts + (column + row * 3) * 25;
 }
 
 // FUNCTION: CMR2 0x004f92c0
 BYTE *FrontendRecords_GetChampionshipRecordText(int index)
 {
-    return g_unk0x00825f6c + index * 25;
+    return g_championshipRecordTexts + index * 25;
 }
 
 // Working copy of the 6 controller configurations edited by the controls
@@ -610,26 +610,26 @@ ControlsDeviceSelection g_controlsDeviceSelection;
 // GLOBAL: CMR2 0x0082a7dc
 int g_controlsRereadDevices;
 // GLOBAL: CMR2 0x0082a7e4
-int g_unk0x0082a7e4;
+int g_controlsBindingCaptureState;
 // GLOBAL: CMR2 0x0082a7e8
-int g_unk0x0082a7e8;
+int g_controlsCalibrationState;
 // GLOBAL: CMR2 0x0082a7ec
-int g_unk0x0082a7ec;
+int g_controlsSelectedSlot;
 
 // Configuration of the device selected in the controls menu.
-#define CONTROLS_SEL (g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff])
+#define CONTROLS_SEL (g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff])
 
 // FUNCTION: CMR2 0x004fba80
 short FrontendControls_GetSelectedSlot(void)
 {
-    return (short)g_unk0x0082a7ec;
+    return (short)g_controlsSelectedSlot;
 }
 
 // Item callback of the controls list: selects the device of this entry.
 // FUNCTION: CMR2 0x004fbea0
 void FrontendControls_SelectDevice(Menu *pMenu, int param)
 {
-    *(short *)&g_unk0x0082a7ec = pMenu->cursor;
+    *(short *)&g_controlsSelectedSlot = pMenu->cursor;
 }
 
 // Enables and shows the 8 entries of the controls list.
@@ -666,13 +666,13 @@ void FrontendControls_BeginBindingCapture(Menu *pMenu, int param)
     int *pOut;
     int i;
 
-    g_unk0x0082a7e4 = 1;
+    g_controlsBindingCaptureState = 1;
     Menu_SetFlags(pMenu, 0, 0, 0, 0);
     CInput::UpdateAllAvailableDevices();
     Input_TranslatePedalsToMenuKeys();
     g_unk0x0082a7e0 = CInput::GetFirstPressedKey();
     Input_ClearKeyPressQueue();
-    pDevice = (BYTE *)CInput::GetAvailableDeviceRecord(g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]);
+    pDevice = (BYTE *)CInput::GetAvailableDeviceRecord(g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff]);
     for (i = 0; i < 8; i++)
         g_unk0x00829428[i] = 0;
     if (*(int *)pDevice == 3 || *(int *)pDevice == 2) {
@@ -692,7 +692,7 @@ void FrontendControls_EnterDeviceBindings(Menu *pMenu, char param)
     DeviceInfo *pDevice;
 
     if (param == 0) {
-        pDevice = CInput::GetAvailableDeviceRecord(g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]);
+        pDevice = CInput::GetAvailableDeviceRecord(g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff]);
         pMenu->items[1].visible = 1;
         pMenu->items[0].enabled = 1;
         pMenu->items[0].visible = 1;
@@ -724,8 +724,8 @@ void FrontendControls_LeaveDeviceBindings(Menu *pMenu, char back)
         return;
     }
     memcpy(Input_GetControllerTable(), g_controlsCopy, sizeof(g_controlsCopy));
-    CInput::ApplyControllerButtonBindings(g_unk0x0082a7ec & 0xffff);
-    if (CInput::GetAvailableDeviceRecord(g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff])->field_0x0 == 3)
+    CInput::ApplyControllerButtonBindings(g_controlsSelectedSlot & 0xffff);
+    if (CInput::GetAvailableDeviceRecord(g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff])->field_0x0 == 3)
         Menu_SetNextAction(FrontendMenu_GetDeviceCalibration());
 }
 
@@ -734,9 +734,9 @@ void FrontendControls_LeaveDeviceBindings(Menu *pMenu, char back)
 // FUNCTION: CMR2 0x004fc490
 int FrontendControls_IsSelectedAxisBound(Menu *pMenu)
 {
-    if (g_controlsCopy[g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]].field_0x110 != 0 && (pMenu->cursor == 0 || pMenu->cursor == 1))
+    if (g_controlsCopy[g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff]].field_0x110 != 0 && (pMenu->cursor == 0 || pMenu->cursor == 1))
         return 1;
-    if (g_controlsCopy[g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]].field_0x114 != 0 && (pMenu->cursor == 2 || pMenu->cursor == 3))
+    if (g_controlsCopy[g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff]].field_0x114 != 0 && (pMenu->cursor == 2 || pMenu->cursor == 3))
         return 1;
     return 0;
 }
@@ -760,7 +760,7 @@ void FrontendControls_UpdateBindingCapture(Menu *pMenu)
     int i;
 
     done = FALSE;
-    if (g_unk0x0082a7e4 == 0)
+    if (g_controlsBindingCaptureState == 0)
         return;
     Menu_SetFlags(pMenu, 0, 0, 0, 0);
     pDevice = CInput::GetAvailableDeviceRecord(CONTROLS_SEL);
@@ -815,7 +815,7 @@ void FrontendControls_UpdateBindingCapture(Menu *pMenu)
     }
     CInput::UpdateAllAvailableDevices();
     Input_TranslatePedalsToMenuKeys();
-    g_unk0x0082a7e4 = 0;
+    g_controlsBindingCaptureState = 0;
     Menu_SetFlags(pMenu, 1, 1, 1, 1);
     FrontendControls_ClearDuplicateBinding(&g_controlsCopy[CONTROLS_SEL], pMenu->cursor);
 }
@@ -879,7 +879,7 @@ void FrontendControls_UpdateAxisCalibration(Menu *pMenu)
     int axis;
     int j;
 
-    if (g_unk0x0082a7e8 != 0) {
+    if (g_controlsCalibrationState != 0) {
         pKeys = CInput::GetAvailableDeviceRecord(0);
         if (pKeys->field_0x8 & 0x10) {
             pData = &Input_GetControllerTable()[CONTROLS_SEL];
@@ -891,12 +891,12 @@ void FrontendControls_UpdateAxisCalibration(Menu *pMenu)
                         pData->field_0x210[j] = *(ControllerDataUnk0x210 *)&g_axisBindings[axis];
                 }
             }
-            g_unk0x0082a7e8 = 0;
+            g_controlsCalibrationState = 0;
         }
         if (pKeys->field_0x8 & 0x20) {
             pDevice = (BYTE *)CInput::GetAvailableDeviceRecord(CONTROLS_SEL);
             g_axisBindings[pMenu->cursor].deadzone = *(int *)(pDevice + pMenu->cursor * 0x14 + 0x474);
-            g_unk0x0082a7e8 = 0;
+            g_controlsCalibrationState = 0;
             g_axisBindings[pMenu->cursor].saturation = *(int *)(pDevice + pMenu->cursor * 0x14 + 0x478);
         }
         held = pKeys->field_0x4;
@@ -915,7 +915,7 @@ void FrontendControls_UpdateAxisCalibration(Menu *pMenu)
             if (g_axisBindings[pMenu->cursor].deadzone < 0x26de)
                 g_axisBindings[pMenu->cursor].deadzone += 0x32;
         }
-        if (g_unk0x0082a7e8 != 0)
+        if (g_controlsCalibrationState != 0)
             return;
     }
     Menu_SetFlags(pMenu, 1, 1, 1, 1);
@@ -926,9 +926,9 @@ void FrontendControls_UpdateAxisCalibration(Menu *pMenu)
 // FUNCTION: CMR2 0x004fc880
 void FrontendControls_EnterPadSettings(Menu *pMenu, int param)
 {
-    pMenu->items[0].max = (char)((int)(Input_GetControllerSecondaryFlags((unsigned short)g_unk0x0082a7ec) * 10) / 0x10000);
-    pMenu->items[1].max = (char)((int)(Input_GetControllerPrimaryFlags((unsigned short)g_unk0x0082a7ec) * 10) / 0x10000);
-    if (Input_GetControllerField11C((unsigned short)g_unk0x0082a7ec) != 0)
+    pMenu->items[0].max = (char)((int)(Input_GetControllerSecondaryFlags((unsigned short)g_controlsSelectedSlot) * 10) / 0x10000);
+    pMenu->items[1].max = (char)((int)(Input_GetControllerPrimaryFlags((unsigned short)g_controlsSelectedSlot) * 10) / 0x10000);
+    if (Input_GetControllerField11C((unsigned short)g_controlsSelectedSlot) != 0)
         pMenu->items[2].max = 0;
     else
         pMenu->items[2].max = 1;
@@ -939,9 +939,9 @@ void FrontendControls_EnterPadSettings(Menu *pMenu, int param)
 void FrontendControls_LeavePadSettings(Menu *pMenu, char back)
 {
     if (back == 0) {
-        Input_SetControllerSecondaryFlags((unsigned short)g_unk0x0082a7ec, (pMenu->items[0].max << 16) / 10);
-        Input_SetControllerPrimaryFlags((unsigned short)g_unk0x0082a7ec, (pMenu->items[1].max << 16) / 10);
-        CInput::SetControllerForceFeedbackValue((unsigned short)g_unk0x0082a7ec, 1 - pMenu->items[2].max);
+        Input_SetControllerSecondaryFlags((unsigned short)g_controlsSelectedSlot, (pMenu->items[0].max << 16) / 10);
+        Input_SetControllerPrimaryFlags((unsigned short)g_controlsSelectedSlot, (pMenu->items[1].max << 16) / 10);
+        CInput::SetControllerForceFeedbackValue((unsigned short)g_controlsSelectedSlot, 1 - pMenu->items[2].max);
     }
 }
 
@@ -978,9 +978,9 @@ void FrontendControls_FillDeviceConfiguration(void)
     pMenu->items[0].max = (BYTE)dev;
     pDevice = CInput::UpdateDevice(dev);
     if (pDevice == NULL) {
-        CONTROLS_SEL = (unsigned short)g_unk0x0082a7ec;
-        dev = (unsigned short)g_unk0x0082a7ec;
-        pDevice = CInput::UpdateDevice(g_unk0x0082a7ec & 0xffff);
+        CONTROLS_SEL = (unsigned short)g_controlsSelectedSlot;
+        dev = (unsigned short)g_controlsSelectedSlot;
+        pDevice = CInput::UpdateDevice(g_controlsSelectedSlot & 0xffff);
     }
     pMenu->items[1].enabled = pDevice->field_0x0 == 3;
     pMenu->items[1].max = (BYTE)g_controlsCopy[dev].field_0x110;
@@ -1059,9 +1059,9 @@ void FrontendControls_UpdateDeviceConfiguration(Menu *pMenu)
         g_controlsCopy[dev].field_0x124 = 1 - pMenu->items[5].max;
         return;
     }
-    if (pMenu->items[0].max == 0 && (short)g_unk0x0082a7ec == 1)
-        pMenu->items[0].max = (char)g_unk0x0082a7ec;
-    if (pMenu->items[0].max == 1 && (short)g_unk0x0082a7ec == 0)
+    if (pMenu->items[0].max == 0 && (short)g_controlsSelectedSlot == 1)
+        pMenu->items[0].max = (char)g_controlsSelectedSlot;
+    if (pMenu->items[0].max == 1 && (short)g_controlsSelectedSlot == 0)
         pMenu->items[0].max = g_unk0x0082a7d8 != 0 ? 0 : 2;
     CONTROLS_SEL = pMenu->items[0].max;
     FrontendControls_FillDeviceConfiguration();
@@ -1072,7 +1072,7 @@ void FrontendControls_UpdateDeviceConfiguration(Menu *pMenu)
 // FUNCTION: CMR2 0x004fc850
 void FrontendControls_BeginCalibration(Menu *pMenu, int param)
 {
-    g_unk0x0082a7e8 = 1;
+    g_controlsCalibrationState = 1;
     Menu_SetFlags(pMenu, 0, 0, 0, 0);
     CInput::UpdateAllAvailableDevices();
     Input_TranslatePedalsToMenuKeys();
@@ -1109,7 +1109,7 @@ void FrontendControls_ClearDuplicateBinding(ControllerData *p, int index)
 // FUNCTION: CMR2 0x004fbe60
 AxisBinding *FrontendControls_GetSelectedAxisPosition(int index)
 {
-    BYTE *pDevice = (BYTE *)CInput::GetAvailableDeviceRecord(g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]);
+    BYTE *pDevice = (BYTE *)CInput::GetAvailableDeviceRecord(g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff]);
 
     g_axisBindings[index].position = *(int *)(pDevice + index * 0x14 + 0x47c);
     return &g_axisBindings[index];
@@ -1183,19 +1183,19 @@ char *FrontendControls_GetBindingDisplayText(int index)
 // FUNCTION: CMR2 0x004fbab0
 BYTE *FrontendControls_GetSelectedDeviceName(void)
 {
-    return (BYTE *)g_controlsCopy[g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]].name;
+    return (BYTE *)g_controlsCopy[g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff]].name;
 }
 
 // FUNCTION: CMR2 0x004fc060
 int FrontendControls_GetBindingCaptureState(void)
 {
-    return g_unk0x0082a7e4;
+    return g_controlsBindingCaptureState;
 }
 
 // FUNCTION: CMR2 0x004fc610
 int FrontendControls_GetCalibrationState(void)
 {
-    return g_unk0x0082a7e8;
+    return g_controlsCalibrationState;
 }
 
 // Draw callback of the controls menu: title, one row (icon + name) per

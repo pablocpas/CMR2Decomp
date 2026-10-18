@@ -1389,15 +1389,15 @@ BYTE RallyData_IsLastAvailableStageSelected(void)
 
 
 
-extern int g_unk0x00531650;
+extern int g_profileFileCount;
 extern int g_unk0x00531654[4];
-extern BYTE *g_unk0x00531764;
+extern BYTE *g_pProfileFileDates;
 void RallyData_MarkAllDriverRecordsUnassigned(void);
 void RallyData_SetPlayerDefaultCarSetup(int player);
 
 // Resets the four players' records in the save block (all cleared, then the
 // default flags, setup values and car position of each one).
-// match 95%: only the schedule of the g_unk0x00531650 store against the two
+// match 95%: only the schedule of the g_profileFileCount store against the two
 // loop pointers differs.
 // FUNCTION: CMR2 0x004eadb0
 void RallyData_ResetSavedPlayerRecords(void)
@@ -1406,7 +1406,7 @@ void RallyData_ResetSavedPlayerRecords(void)
 
     memset(g_saveProfiles, 0, 0x650 * 4);
     memset(g_saveSlots, 0, 0xc0 * 4);
-    g_unk0x00531650 = 0;
+    g_profileFileCount = 0;
     for (i = 0; i < 4; i++) {
         *(int *)(g_saveProfiles + i * 0x650 + 0x58) = 4;
         *(unsigned int *)(g_saveProfiles + i * 0x650 + 0x14) = (*(unsigned int *)(g_saveProfiles + i * 0x650 + 0x14) & 0xffe1f17e) | 0x1017e;
@@ -1417,7 +1417,7 @@ void RallyData_ResetSavedPlayerRecords(void)
         RallyData_SetPlayerDefaultCarSetup(i);
     }
     RallyData_MarkAllDriverRecordsUnassigned();
-    g_unk0x00531764 = NULL;
+    g_pProfileFileDates = NULL;
 }
 
 // Stores a driver (GetConfiguredGameMode()==4) or category (otherwise) name into the
