@@ -28869,9 +28869,9 @@
   },
   "0x45eca0": {
     "n": "StageWeather_InitParticleAndLightState",
-    "s": 0.801980198019802,
+    "s": 0.835820895522388,
     "x": false,
-    "fz": 0.8118811881188119,
+    "fz": 0.845771144278607,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageWeather_InitParticleAndLightState"

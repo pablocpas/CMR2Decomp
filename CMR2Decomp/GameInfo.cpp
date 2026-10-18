@@ -1368,8 +1368,6 @@ Menu g_optionStatusMenu;
 BYTE g_unk0x0082bee8[8][7];
 // GLOBAL: CMR2 0x0082bf20
 BYTE g_optionColumnDirty[16][7];
-// Same table as g_unk0x0082bee8, viewed from its 4th row.
-#define g_unk0x0082bf04 ((char *)&g_unk0x0082bee8[4][0])
 // The four cached option records follow the 48 dirty flags. The copy/update
 // routines address both regions; a pointer past the flags alone has no storage.
 struct PlayerOptionCache {
@@ -1379,7 +1377,6 @@ struct PlayerOptionCache {
 CMR2_LAYOUT_CHECK(PlayerOptionCacheSize, sizeof(PlayerOptionCache) == 0x550);
 // GLOBAL: CMR2 0x0082c040
 PlayerOptionCache g_playerOptionCache;
-#define g_unk0x0082c070 ((BYTE *)g_playerOptionCache.records)
 #include "OptionPreviewGeometry.h"
 #include "CarImpact.h"
 
@@ -1934,7 +1931,7 @@ void OptionMenu_LoadRallyRecords(void)
     i = 0;
     if (CGameInfo::GetConfiguredPlayerCount() > 0) {
         pDirty = (int *)g_playerOptionCache.dirty;
-        pDst = (int *)g_unk0x0082c070;
+        pDst = (int *)g_playerOptionCache.records;
         do {
             pSrc = (int *)RallyData_GetDriverGroupRecord(i);
             i++;
@@ -3744,13 +3741,13 @@ void OptionMenu_InitDefaultRecordTables(void)
         g_unk0x0082bee8[i + 4][3] = p[3];
         g_unk0x0082bee8[i + 4][2] = p[2];
         g_unk0x0082bee8[i + 4][0] = p[0];
-        g_unk0x0082bee8[i][4] = g_unk0x0082bf04[i * 7 + 4];
-        g_unk0x0082bee8[i][5] = g_unk0x0082bf04[i * 7 + 5];
-        g_unk0x0082bee8[i][1] = g_unk0x0082bf04[i * 7 + 1];
-        g_unk0x0082bee8[i][6] = g_unk0x0082bf04[i * 7 + 6];
-        g_unk0x0082bee8[i][3] = g_unk0x0082bf04[i * 7 + 3];
-        g_unk0x0082bee8[i][2] = g_unk0x0082bf04[i * 7 + 2];
-        g_unk0x0082bee8[i][0] = g_unk0x0082bf04[i * 7 + 0];
+        g_unk0x0082bee8[i][4] = (char)g_unk0x0082bee8[i + 4][4];
+        g_unk0x0082bee8[i][5] = (char)g_unk0x0082bee8[i + 4][5];
+        g_unk0x0082bee8[i][1] = (char)g_unk0x0082bee8[i + 4][1];
+        g_unk0x0082bee8[i][6] = (char)g_unk0x0082bee8[i + 4][6];
+        g_unk0x0082bee8[i][3] = (char)g_unk0x0082bee8[i + 4][3];
+        g_unk0x0082bee8[i][2] = (char)g_unk0x0082bee8[i + 4][2];
+        g_unk0x0082bee8[i][0] = (char)g_unk0x0082bee8[i + 4][0];
         memset(&g_optionColumnDirty[i][0], 0, 7);
     }
 }
@@ -5509,13 +5506,13 @@ void OptionMenu_DrawBoxEdges(short *pRect, BYTE *pColour)
 int OptionMenu_GetRawWorkingValue(int index, int type)
 {
     switch (type) {
-    case 0: return g_unk0x0082bf04[index * 7];
-    case 1: return g_unk0x0082bf04[index * 7 + 1];
-    case 6: return g_unk0x0082bf04[index * 7 + 6];
-    case 2: return g_unk0x0082bf04[index * 7 + 2];
-    case 3: return g_unk0x0082bf04[index * 7 + 3];
-    case 4: return g_unk0x0082bf04[index * 7 + 4];
-    case 5: return g_unk0x0082bf04[index * 7 + 5];
+    case 0: return (char)g_unk0x0082bee8[index + 4][0];
+    case 1: return (char)g_unk0x0082bee8[index + 4][1];
+    case 6: return (char)g_unk0x0082bee8[index + 4][6];
+    case 2: return (char)g_unk0x0082bee8[index + 4][2];
+    case 3: return (char)g_unk0x0082bee8[index + 4][3];
+    case 4: return (char)g_unk0x0082bee8[index + 4][4];
+    case 5: return (char)g_unk0x0082bee8[index + 4][5];
     }
     return 0;
 }
@@ -5634,7 +5631,7 @@ unsigned int OptionMenu_GetRecordPercentage(int index, int type, int dynamic)
     if (dynamic != 0)
         p = (BYTE *)RallyData_GetDriverGroupRecord(index);
     else
-        p = g_unk0x0082c070 + index * 0x148;
+        p = g_playerOptionCache.records[index];
     switch (type) {
     case 1:
         value = p[0x116];
@@ -5822,13 +5819,13 @@ int OptionMenu_IsSlotValueAboveBase(int index, int type)
 BYTE OptionMenu_IsValueDefault(int index, int type)
 {
     switch (type) {
-    case 0: return g_unk0x0082bf04[index * 7] == (char)g_unk0x0082bee8[index][0];
-    case 1: return g_unk0x0082bf04[index * 7 + 1] == (char)g_unk0x0082bee8[index][1];
-    case 6: return g_unk0x0082bf04[index * 7 + 6] == (char)g_unk0x0082bee8[index][6];
-    case 2: return g_unk0x0082bf04[index * 7 + 2] == (char)g_unk0x0082bee8[index][2];
-    case 3: return g_unk0x0082bf04[index * 7 + 3] == (char)g_unk0x0082bee8[index][3];
-    case 4: return g_unk0x0082bf04[index * 7 + 4] == (char)g_unk0x0082bee8[index][4];
-    case 5: return g_unk0x0082bf04[index * 7 + 5] == (char)g_unk0x0082bee8[index][5];
+    case 0: return (char)g_unk0x0082bee8[index + 4][0] == (char)g_unk0x0082bee8[index][0];
+    case 1: return (char)g_unk0x0082bee8[index + 4][1] == (char)g_unk0x0082bee8[index][1];
+    case 6: return (char)g_unk0x0082bee8[index + 4][6] == (char)g_unk0x0082bee8[index][6];
+    case 2: return (char)g_unk0x0082bee8[index + 4][2] == (char)g_unk0x0082bee8[index][2];
+    case 3: return (char)g_unk0x0082bee8[index + 4][3] == (char)g_unk0x0082bee8[index][3];
+    case 4: return (char)g_unk0x0082bee8[index + 4][4] == (char)g_unk0x0082bee8[index][4];
+    case 5: return (char)g_unk0x0082bee8[index + 4][5] == (char)g_unk0x0082bee8[index][5];
     }
     return 0;
 }
@@ -6711,7 +6708,7 @@ void OptionMenu_CommitRallyRecords(void)
 
     i = 0;
     if ((BYTE)CGameInfo::GetConfiguredPlayerCount() > 0) {
-        pSrc = (int *)g_unk0x0082c070;
+        pSrc = (int *)g_playerOptionCache.records;
         do {
             pDst = (int *)RallyData_GetDriverGroupRecord(i);
             i++;
@@ -8152,25 +8149,25 @@ void OptionMenu_RestoreDefaultValue(int param_1, int param_2)
 
     switch (param_2) {
     case 0:
-        g_unk0x0082bee8[param_1][0] = g_unk0x0082bf04[param_1 * 7];
+        g_unk0x0082bee8[param_1][0] = (char)g_unk0x0082bee8[param_1 + 4][0];
         break;
     case 1:
-        g_unk0x0082bee8[param_1][1] = g_unk0x0082bf04[param_1 * 7 + 1];
+        g_unk0x0082bee8[param_1][1] = (char)g_unk0x0082bee8[param_1 + 4][1];
         break;
     case 6:
-        g_unk0x0082bee8[param_1][6] = g_unk0x0082bf04[param_1 * 7 + 6];
+        g_unk0x0082bee8[param_1][6] = (char)g_unk0x0082bee8[param_1 + 4][6];
         break;
     case 2:
-        g_unk0x0082bee8[param_1][2] = g_unk0x0082bf04[param_1 * 7 + 2];
+        g_unk0x0082bee8[param_1][2] = (char)g_unk0x0082bee8[param_1 + 4][2];
         break;
     case 3:
-        g_unk0x0082bee8[param_1][3] = g_unk0x0082bf04[param_1 * 7 + 3];
+        g_unk0x0082bee8[param_1][3] = (char)g_unk0x0082bee8[param_1 + 4][3];
         break;
     case 4:
-        g_unk0x0082bee8[param_1][4] = g_unk0x0082bf04[param_1 * 7 + 4];
+        g_unk0x0082bee8[param_1][4] = (char)g_unk0x0082bee8[param_1 + 4][4];
         break;
     case 5:
-        g_unk0x0082bee8[param_1][5] = g_unk0x0082bf04[param_1 * 7 + 5];
+        g_unk0x0082bee8[param_1][5] = (char)g_unk0x0082bee8[param_1 + 4][5];
         break;
     }
     OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_optionColumnBaseWeights[param_2]);
@@ -8184,19 +8181,19 @@ BYTE OptionMenu_DoesValueMatch(int param_1, int param_2, int param_3)
 {
     switch (param_2) {
     case 0:
-        return g_unk0x0082bf04[param_1 * 7] == param_3;
+        return (char)g_unk0x0082bee8[param_1 + 4][0] == param_3;
     case 1:
-        return g_unk0x0082bf04[param_1 * 7 + 1] == param_3;
+        return (char)g_unk0x0082bee8[param_1 + 4][1] == param_3;
     case 6:
-        return g_unk0x0082bf04[param_1 * 7 + 6] == param_3 * 10;
+        return (char)g_unk0x0082bee8[param_1 + 4][6] == param_3 * 10;
     case 2:
-        return g_unk0x0082bf04[param_1 * 7 + 2] == param_3 * 10;
+        return (char)g_unk0x0082bee8[param_1 + 4][2] == param_3 * 10;
     case 3:
-        return g_unk0x0082bf04[param_1 * 7 + 3] == param_3 * 10;
+        return (char)g_unk0x0082bee8[param_1 + 4][3] == param_3 * 10;
     case 4:
-        return g_unk0x0082bf04[param_1 * 7 + 4] == param_3 * 10;
+        return (char)g_unk0x0082bee8[param_1 + 4][4] == param_3 * 10;
     case 5:
-        return g_unk0x0082bf04[param_1 * 7 + 5] == param_3 * 10;
+        return (char)g_unk0x0082bee8[param_1 + 4][5] == param_3 * 10;
     }
     return 0;
 }
@@ -8499,7 +8496,7 @@ int g_unk0x005270b8[11] = { 0x17700, 0xbb80, 0xbb80, 0x11940, 0xea60, 0xea60,
 // FUNCTION: CMR2 0x005034f0
 void OptionMenu_ApplyRallyRecordGroup(int param_1, int param_2)
 {
-    BYTE *pDest = g_unk0x0082c070 + param_1 * 0x148;
+    BYTE *pDest = g_playerOptionCache.records[param_1];
     BYTE *pSrc = (BYTE *)RallyData_GetDriverGroupRecord(param_1);
     int value;
     int i;
@@ -10567,7 +10564,7 @@ void OptionMenu_ConfirmOrRevertHighlightedValue(Menu *pMenu, MenuItem *pItem)
 // FUNCTION: CMR2 0x00503010
 void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
 {
-    BYTE *pDest = g_unk0x0082c070 + param_1 * 0x148;
+    BYTE *pDest = g_playerOptionCache.records[param_1];
     int value;
     int i;
 

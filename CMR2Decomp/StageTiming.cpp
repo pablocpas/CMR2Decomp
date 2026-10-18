@@ -38,13 +38,10 @@
 #include <string.h>
 #include "Glow.h"
 #include "CarExhaust.h"
+#include "PrecipitationQuad.h"
 
-// Three 0x30-byte particle look records (rain, snow, splash): +0 scale,
-// +0x8 extent, +0x20 colour, +0x28/+0x2c texture v range. The precipitation
-// draw also builds a 0x90-byte quad at +8, so the block runs to 0x543e38.
 // GLOBAL: CMR2 0x00543da0
-BYTE g_unk0x00543da0Block[0x98];
-#define g_unk0x00543da0 (*(int *)g_unk0x00543da0Block)
+PrecipitationQuad g_precipitation;
 
 // GLOBAL: CMR2 0x00547930
 FixVector g_weatherWindDirection;
@@ -61,7 +58,7 @@ WeatherWindTransition g_weatherWindTransition;
 // FUNCTION: CMR2 0x00460270
 void StageTiming_UpdateEventDisplacement(ViewWeatherState *event)
 {
-    int t = FixMul(event->particleCount, g_unk0x00543da0);
+    int t = FixMul(event->particleCount, g_precipitation.particleScale);
     if (t > 0x10000) t = 0x10000;
     int scale = FixMul(t, g_weatherWindStrength);
     FixVecScale(&event->velocity, &g_weatherWindDirection, scale);
@@ -729,7 +726,7 @@ void StageTiming_SetNodeTreeVertexGrey(SceneNode *pNode, BYTE colour)
 // Replay streams of the eight cars (ReplayStream), reached through g_replaySlots.
 // GLOBAL: CMR2 0x00588e80
 ReplayStream *g_replayStreams[8];
-extern ReplayStream *g_unk0x00588ea0[8];
+extern ReplayStream *g_loadedReplayStreams[8];
 // GLOBAL: CMR2 0x00588d3c
 int g_unk0x00588d3c;
 
@@ -747,7 +744,7 @@ BOOL Replay_ReleaseStageBuffers(void)
             *p = NULL;
         }
         p++;
-    // 0x588ea0 in the original (g_unk0x00588ea0, the next global).
+    // 0x588ea0 in the original (g_loadedReplayStreams, the next global).
     } while ((INT_PTR)p < (INT_PTR)(g_replayStreams + 8));
     g_unk0x00588d3c = 0;
     g_replayLevelState.bufferCount = 0;
@@ -7420,7 +7417,7 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *rec
     else
         rec->inverseFallDisplacement = 0;
     if (rec->kind == 2) {
-        wheelScale = FixMul(rec->particleCount, g_unk0x00543da0);
+        wheelScale = FixMul(rec->particleCount, g_precipitation.particleScale);
         if (wheelScale > 0x10000)
             wheelScale = 0x10000;
         wheelScale = FixMul(g_stageObjectTimeStep, wheelScale);
@@ -9190,7 +9187,7 @@ void StageWeather_DistributeViewParticles(void)
     StageWeatherParticle *pNode;
 
     views = g_weatherViewCount;
-    g_unk0x00543da0 = FixDiv(views << 16, 0x1900000);
+    g_precipitation.particleScale = FixDiv(views << 16, 0x1900000);
     for (view = 0, ppNode = g_viewNodes; view < views; view++, ppNode++) {
         pView = &g_viewWeather[view];
         pSlot = pView->groundTriangles;
@@ -9270,14 +9267,14 @@ void StageWeather_InitParticleAndLightState(void)
     particleColour[0] = 0x96;
     particleColour[1] = 0x96;
     particleColour[2] = 0x96;
-    *(int *)(g_unk0x00543da0Block + 0x24) = 0xff000000;
-    *(int *)(g_unk0x00543da0Block + 0x84) = 0xff000000;
-    *(int *)(g_unk0x00543da0Block + 0x80) = 0x1e969696;
-    *(int *)(g_unk0x00543da0Block + 0x54) = 0xff000000;
-    *(int *)(g_unk0x00543da0Block + 0x50) = 0x1e969696;
+    g_precipitation.quad.v[0].specular = 0xff000000;
+    g_precipitation.quad.v[2].specular = 0xff000000;
+    g_precipitation.quad.v[2].colour = 0x1e969696;
+    g_precipitation.quad.v[1].specular = 0xff000000;
+    g_precipitation.quad.v[1].colour = 0x1e969696;
     // The original packs RGB using overlapping DWORD reads, masking each
     // channel before shifting. Keep room for the read at byte offset two.
-    *(int *)(g_unk0x00543da0Block + 0x20) =
+    g_precipitation.quad.v[0].colour =
         (((*(int *)(particleColour + 0) & 0xff) << 8 |
           (*(int *)(particleColour + 1) & 0xff)) << 8) |
           (*(int *)(particleColour + 2) & 0xff);
@@ -9285,12 +9282,12 @@ void StageWeather_InitParticleAndLightState(void)
     g_snowBillboard.left = 0x2666;
     g_snowBillboard.bottom = 0x2666;
     g_snowBillboard.right = -0x2666;
-    *(unsigned int *)(g_unk0x00543da0Block + 0x28) = 0x3f000000;
-    *(unsigned int *)(g_unk0x00543da0Block + 0x2c) = 0;
-    *(unsigned int *)(g_unk0x00543da0Block + 0x88) = 0x3e000000;
-    *(unsigned int *)(g_unk0x00543da0Block + 0x8c) = 0x3f7fff58;
-    *(unsigned int *)(g_unk0x00543da0Block + 0x58) = 0x3f600000;
-    *(unsigned int *)(g_unk0x00543da0Block + 0x5c) = 0x3f7fff58;
+    g_precipitation.quad.v[0].u = 0.5f;
+    g_precipitation.quad.v[0].v = 0.0f;
+    g_precipitation.quad.v[2].u = 0.125f;
+    g_precipitation.quad.v[2].v = 0.99999f;
+    g_precipitation.quad.v[1].u = 0.875f;
+    g_precipitation.quad.v[1].v = 0.99999f;
     g_snowBillboard.a = 0xfe;
     g_snowBillboard.r = 0xff;
     g_snowBillboard.g = 0xff;

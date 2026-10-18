@@ -43,6 +43,7 @@ short Car_GetOrderCount(void);
 #include "Graphics.h"
 #include "Font.h"
 #include "Sprite.h"
+#include "PrecipitationQuad.h"
 #include "Collision2D.h"
 #include "PauseMenus.h"
 #include "Menu.h"
@@ -7151,9 +7152,8 @@ extern ReplayStream *g_replayStreams[8];
 // Both sets share a sixteen-entry slot table, traversed as a single array.
 // GLOBAL: CMR2 0x00588d40
 ReplayStream **g_replaySlots[16];
-#define g_unk0x00588d60 (g_replaySlots + 8)
 // GLOBAL: CMR2 0x00588ea0
-ReplayStream *g_unk0x00588ea0[8];
+ReplayStream *g_loadedReplayStreams[8];
 
 // FUNCTION: CMR2 0x0046c540
 void Replay_InitSlots(void)
@@ -7165,9 +7165,9 @@ void Replay_InitSlots(void)
     for (i = 0; i < 8; i++)
         g_replaySlots[i] = &g_replayStreams[i];
     g_replayLevelState.bufferCount = 0;
-    memset(g_unk0x00588ea0, 0, sizeof(g_unk0x00588ea0));
+    memset(g_loadedReplayStreams, 0, sizeof(g_loadedReplayStreams));
     for (i = 0; i < 8; i++)
-        g_unk0x00588d60[i] = &g_unk0x00588ea0[i];
+        g_replaySlots[i + 8] = &g_loadedReplayStreams[i];
 }
 
 
@@ -7186,9 +7186,9 @@ int Replay_FreeBuffers(void)
             g_replayStreams[i] = NULL;
         }
         if (CGameInfo::GetGameInfoSessionFlag() || CGameInfo::GetConfiguredGameMode() == 3 || CGameInfo::GetConfiguredGameMode() == 7) {
-            if (g_unk0x00588ea0[i] != NULL && g_replayLevelState.pending[i] == 0) {
-                CFileBuffer::FreeGenericFileBuffer(g_unk0x00588ea0[i]);
-                g_unk0x00588ea0[i] = NULL;
+            if (g_loadedReplayStreams[i] != NULL && g_replayLevelState.pending[i] == 0) {
+                CFileBuffer::FreeGenericFileBuffer(g_loadedReplayStreams[i]);
+                g_loadedReplayStreams[i] = NULL;
                 g_replayLevelState.pending[i] = 0;
             }
         }
@@ -8540,8 +8540,8 @@ BYTE *Replay_LoadValidatedBuffer(char *path)
     }
     if (buffer == NULL)
         return NULL;
-    frames = *(short *)(buffer + 0xfc);
-    samples = *(short *)(buffer + 0xfe);
+    frames = ((ReplayStream *)buffer)->laneCapacity;
+    samples = ((ReplayStream *)buffer)->samplesPerLane;
     count = frames * samples;
     if (size != frames * 0x114c + frames * 2 + count * 4 + sizeof(ReplayStream) &&
         size != frames * 0x5c + frames * 2 + count * 4 + sizeof(ReplayStream) &&
@@ -8551,7 +8551,7 @@ BYTE *Replay_LoadValidatedBuffer(char *path)
         return NULL;
     }
     Replay_SetupPointers((ReplayStream *)buffer, 1);
-    g_unk0x00588ea0[g_replayLevelState.bufferCount] = (ReplayStream *)buffer;
+    g_loadedReplayStreams[g_replayLevelState.bufferCount] = (ReplayStream *)buffer;
     g_replayLevelState.bufferCount++;
     return buffer;
 }
@@ -14249,15 +14249,13 @@ struct Quad2D;
 void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, UINT_PTR pDest);
 int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar);
 void Scene_GetLightColour(DWORD *pColour, int level);
-extern BYTE g_unk0x00543da0Block[0x98];
-#define g_unk0x00543da0 (*(int *)g_unk0x00543da0Block)
+extern PrecipitationQuad g_precipitation;
 extern Texture *g_unk0x00543e90;
 extern Texture *g_unk0x00543ea4;
 extern Texture *g_unk0x00543ea8[3];
 extern BillboardDef g_rainSplashBillboard;
 extern BillboardDef g_snowBillboard;
 extern double g_fixedDegreesToAngle12;
-#define WEATHER_QUAD(o) (*(float *)(g_unk0x00543da0Block + (o)))
 
 // Draws the precipitation of one view. Rain: each drop is a streak quad
 // along the wind (+0x20) widened across the view, plus a splash billboard for
@@ -14301,12 +14299,12 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
             g_rainSplashBillboard.a = (BYTE)(FixMul(pView->precipitationFade, 0xaa0000) >> 16);
             g_bodySparkBillboard.a = (BYTE)(FixMul(pView->precipitationFade, 0xaa0000) >> 16);
         }
-        *(DWORD *)(g_unk0x00543da0Block + 0x50) = *(DWORD *)(g_unk0x00543da0Block + 0x80) =
+        g_precipitation.quad.v[1].colour = g_precipitation.quad.v[2].colour =
             (alpha << 24) | 0x969696;
         FixMatrix_GetForward(&forward, &g_viewNodes[view]->current);
         FixVecCross(&side, &forward, &pView->relativeVelocity);
         FIX_NORMALIZE_INTO(side, side);
-        amount = FixMul(pView->particleCount, g_unk0x00543da0);
+        amount = FixMul(pView->particleCount, g_precipitation.particleScale);
         if (amount > 0x10000)
             amount = 0x10000;
         FixVecScale(&side, &side, FixMul(0xccc, FixMul(0xcccd, amount) + 0x13333));
@@ -14319,19 +14317,19 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
         trailF[2] = (float)(X87S_MUL(trail.z, CGraphics::m_oneOver65536));
         for (i = 0; i < count; i++) {
             pNode = &g_weatherParticles[pView->firstParticle + i];
-            WEATHER_QUAD(0x68) = (float)(X87S_MUL(pNode->x, CGraphics::m_oneOver65536));
-            WEATHER_QUAD(0x6c) = (float)(X87S_MUL(pNode->y, CGraphics::m_oneOver65536));
-            WEATHER_QUAD(0x70) = (float)(X87S_MUL(pNode->z, CGraphics::m_oneOver65536));
-            WEATHER_QUAD(0x08) = WEATHER_QUAD(0x68) - trailF[0];
-            WEATHER_QUAD(0x0c) = WEATHER_QUAD(0x6c) - trailF[1];
-            WEATHER_QUAD(0x10) = WEATHER_QUAD(0x70) - trailF[2];
-            WEATHER_QUAD(0x38) = WEATHER_QUAD(0x68) + sideF[0];
-            WEATHER_QUAD(0x3c) = WEATHER_QUAD(0x6c) + sideF[1];
-            WEATHER_QUAD(0x40) = WEATHER_QUAD(0x70) + sideF[2];
-            WEATHER_QUAD(0x68) -= sideF[0];
-            WEATHER_QUAD(0x6c) -= sideF[1];
-            WEATHER_QUAD(0x70) -= sideF[2];
-            Quad2D_Queue((Quad2DVertices *)(g_unk0x00543da0Block + 8), g_unk0x00543e90, 0x16);
+            g_precipitation.quad.v[2].x = (float)(X87S_MUL(pNode->x, CGraphics::m_oneOver65536));
+            g_precipitation.quad.v[2].y = (float)(X87S_MUL(pNode->y, CGraphics::m_oneOver65536));
+            g_precipitation.quad.v[2].z = (float)(X87S_MUL(pNode->z, CGraphics::m_oneOver65536));
+            g_precipitation.quad.v[0].x = g_precipitation.quad.v[2].x - trailF[0];
+            g_precipitation.quad.v[0].y = g_precipitation.quad.v[2].y - trailF[1];
+            g_precipitation.quad.v[0].z = g_precipitation.quad.v[2].z - trailF[2];
+            g_precipitation.quad.v[1].x = g_precipitation.quad.v[2].x + sideF[0];
+            g_precipitation.quad.v[1].y = g_precipitation.quad.v[2].y + sideF[1];
+            g_precipitation.quad.v[1].z = g_precipitation.quad.v[2].z + sideF[2];
+            g_precipitation.quad.v[2].x -= sideF[0];
+            g_precipitation.quad.v[2].y -= sideF[1];
+            g_precipitation.quad.v[2].z -= sideF[2];
+            Quad2D_Queue(&g_precipitation.quad, g_unk0x00543e90, 0x16);
             if (pNode->wrapped != 0) {
                 forward = *(FixVector *)pNode;
                 forward.y -= 0xc0000;
@@ -14344,7 +14342,7 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
             }
         }
         if (CGameInfo::IsInRaceMenuOpen() == 0) {
-            amount = FixMul(pView->particleCount, g_unk0x00543da0);
+            amount = FixMul(pView->particleCount, g_precipitation.particleScale);
             if (amount > 0x10000)
                 amount = 0x10000;
             CarDamage_EmitBodySparkBillboards(amount, Car_Get(View_GetActiveCameraFlags((BYTE)view)));
@@ -14365,7 +14363,6 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
     }
     *pPos = saved;
 }
-#undef WEATHER_QUAD
 
 
 // Per-view stage objects draw: the view's precipitation, then the object
