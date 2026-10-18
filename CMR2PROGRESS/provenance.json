@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "91fff9d0c671ca20f1700b6a8590f39de20fe3fa",
+    "commit": "8bfd4ecad0c1d3f5d923c5b66af0262d2434e572",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -54,7 +54,7 @@
       "CMR2Decomp/BFL.h": "c7e2fe4e468203e911b140791b71640a4bbc2806ba298f7c1bac639d2718d8dd",
       "CMR2Decomp/BestTimeRecords.h": "7b09c04cab99c03d334b39ec5340a7216840903b2f9d51cfc8ac497473de4291",
       "CMR2Decomp/CallbackState.h": "bdcea074ac9af71d50c7f59b05e197df891b344efbf257bb8ac86e6b632a1749",
-      "CMR2Decomp/Car.cpp": "44a238e3ab86fb17de8f0e97977652ecf4d615f9ac981b9ccf5f6905b66ed0d7",
+      "CMR2Decomp/Car.cpp": "67670f695037519f123d2441f966f0188814f87c20291c9376460f7a8ff86e03",
       "CMR2Decomp/Car.h": "8cf02d5ab230dc8c2fbf07e8c28eaf0964bbde4cf4cab4dffe17074fda133af7",
       "CMR2Decomp/CarEffects.cpp": "7a4e73d1463d6e382118c75f447aa7385cdd809220a1554c95d53d7ed531f172",
       "CMR2Decomp/CarExhaust.h": "2f51d0a245b1da6a98dc0a1152098b0c9dce08b33b29d0459feb77328a9207dc",
@@ -163,7 +163,7 @@
       "CMR2Decomp/Stage.h": "4a75c6c0ce11b7ac1fa616ed12e7c7931d3e23ab12a678370ac800ef700f04cd",
       "CMR2Decomp/StageBlock.h": "d93b2676f2bece5160e17869fbca83e4e9bfb00d41107006b291a9e3c692f1f1",
       "CMR2Decomp/StageObjectCount.h": "0bcacf7fe5189f2978ab6e6fab0fc7ba8968c82a8ef7c3b4710f4bfa142a48da",
-      "CMR2Decomp/StageObjects.cpp": "487d4f4236c6442df91174cbaf2f2677066a942e3e4f062f581ac0e6ede1c6ab",
+      "CMR2Decomp/StageObjects.cpp": "e8ebdcf45335089dc81065ae9f33d4f483475e9310600252859cfbf268e116e6",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "badac490a220da4c871e2e9fa21e80035df9f7dacf04454aae4f84b427612986",
       "CMR2Decomp/StageTiming.cpp": "cf568377935c799db0f2598a0ae826f1d008fff573e8089faa30f7a789a426be",
@@ -214,8 +214,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "f7a77d4078a963aa75dde054b978c7a1e4f54faa9d755b8ea525c36ed818ae10",
-    "pdb_sha256": "21095b78d5b563e66d470474e1f033b2030256024c7e5255a95ec890860a970e"
+    "exe_sha256": "e11007391df89406949d473d2ecd06a9c22c375056b22817e627629c372e6ea4",
+    "pdb_sha256": "82245b0dfb1c7986601e356a6f3a1655a7710a2f1e75ed156bb10b6dc3275d0d"
   },
   "perfect_match_percent": 56.28,
   "fuzzy_match_percent": 94.43,

@@ -31,7 +31,7 @@ CameraRecord g_viewPreviousStates[2];
 // GLOBAL: CMR2 0x00538e04
 int g_unk0x00538e04[2];
 // GLOBAL: CMR2 0x00538e0c
-BYTE g_unk0x00538e0c[4];
+BYTE g_activeViewRecord[4];
 // Blended camera state of each view, laid out like the view records.
 // GLOBAL: CMR2 0x00538d28
 CameraRecord g_viewStates[2];
@@ -46,8 +46,6 @@ int g_unk0x00538f00[2];
 // View camera records: 2 per player (the player's two view modes).
 // GLOBAL: CMR2 0x00539018
 CameraRecord g_viewRecords[4];
-#define g_unk0x0053901a ((BYTE *)g_viewRecords + 2)
-#define g_unk0x0053901c ((BYTE *)g_viewRecords + 4)
 // GLOBAL: CMR2 0x00538ca0
 FixMatrix g_unk0x00538ca0[2];
 
@@ -76,14 +74,14 @@ void View_SetDistanceOverride(BYTE index, int value)
 int View_GetActiveCameraMode(BYTE index)
 {
     if (g_viewStates[index].type != 8)
-        return *(int *)(g_unk0x0053901c + ((unsigned int)g_unk0x00538e0c[index] + index * 2) * 100);
+        return g_viewRecords[(unsigned int)g_activeViewRecord[index] + index * 2].type;
     return 8;
 }
 
 // FUNCTION: CMR2 0x00422fb0
 BYTE View_GetActiveCameraFlags(BYTE index)
 {
-    return g_unk0x0053901a[((unsigned int)g_unk0x00538e0c[index] + index * 2) * 100];
+    return g_viewRecords[(unsigned int)g_activeViewRecord[index] + index * 2].car;
 }
 
 // match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -5455,8 +5453,8 @@ int View_IsPlaybackCameraActive(void)
 }
 
 CarTransforms *Car_GetPhysicsRow(int index);
-int StageObject_IsNegativeRightAngleCameraSpot(BYTE *pCar);
-int StageObject_GetCarCameraSpotIndex(BYTE *p);
+int StageObject_IsNegativeRightAngleCameraSpot(CameraRecord *pRecord);
+int StageObject_GetCarCameraSpotIndex(CameraRecord *pRecord);
 
 // Rotation of car `index`'s camera placement.
 // FUNCTION: CMR2 0x00423a00
@@ -5475,7 +5473,7 @@ FixVector *View_GetCarCameraTarget(FixVector *pOut, BYTE index)
 }
 
 // Current camera mode record (100 bytes) of a view.
-#define VIEW_MODE_RECORD(i) (g_unk0x0053901c - 4 + ((unsigned int)g_unk0x00538e0c[i] + (i) * 2) * 100)
+#define VIEW_MODE_RECORD(i) (&g_viewRecords[(unsigned int)g_activeViewRecord[i] + (i) * 2])
 
 struct Unk00423ee0Block {
     int value[16];
@@ -5554,8 +5552,7 @@ int View_FindFreeModeSlot(unsigned char view)
     int mode;
     int found;
 
-    mode = *(int *)(g_unk0x0053901c +
-                    (BYTE)(g_unk0x00538e0c[view & 0xff] + (char)view * 2) * 100);
+    mode = g_viewRecords[(BYTE)(g_activeViewRecord[view & 0xff] + (char)view * 2)].type;
     do {
         mode++;
         if (mode == 0xb)
@@ -5975,7 +5972,7 @@ int SceneNode_Destroy(SceneNode *pNode);
 // desplazamiento EN BYTES sobre el sÃ­mbolo ([esi + g_viewNodes],
 // [esi + g_unk0x005391b0], ...), no con Ã­ndice escalado; reproducido con
 // ((BYTE *)array + off). Lo que queda es asignaciÃ³n de registros: el contador
-// en AL (no EAX) y quÃ© arrays strength-reduce MSVC (g_unk0x00538e0c).
+// en AL (no EAX) y quÃ© arrays strength-reduce MSVC (g_activeViewRecord).
 // match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00421590
 BYTE View_ReleaseNodes(void)
@@ -5993,7 +5990,7 @@ BYTE View_ReleaseNodes(void)
         }
         g_viewStates[i].type = 0;
         *(int *)((BYTE *)g_unk0x00538d20 + off) = -0x10000;
-        g_unk0x00538e0c[i] = 0;
+        g_activeViewRecord[i] = 0;
         *(int *)((BYTE *)g_unk0x005391b0 + off) = 0;
         *(int *)((BYTE *)g_unk0x005391c4 + off) = 0;
         *(int *)((BYTE *)g_unk0x005391a8 + off) = 0;
@@ -7891,7 +7888,7 @@ found:
 
 // --- per-view camera control (0x421610-0x423780) ---------------------------
 // Each view has two camera records in g_viewRecords (index view * 2 + the
-// active slot g_unk0x00538e0c[view]): +0 record index, +1 view, +2 car,
+// active slot g_activeViewRecord[view]): +0 record index, +1 view, +2 car,
 // +4 camera type, +8 matrix, +0x48.. parameters, +0x60 ground clearance.
 // g_viewStates holds the blended state of each view in the same layout.
 
@@ -8140,7 +8137,7 @@ void View_SetupCameras(void)
         g_viewNodes[i] = SceneType2_Create(&position, &angles, NULL, RallyData_GetChallengeRenderState());
         g_viewStates[i].type = 0;
         g_unk0x00538d20[i] = -0x10000;
-        g_unk0x00538e0c[i] = 0;
+        g_activeViewRecord[i] = 0;
         g_unk0x005391b0[i] = 0;
         g_unk0x005391c4[i] = 0;
         g_unk0x005391a8[i] = 0;
@@ -8167,8 +8164,8 @@ void View_SwitchCamera(BYTE view, int type, int param, BYTE target, int blend)
     View_PlaceCarCamera(view);
     if (ok == 0)
         return;
-    active = g_unk0x00538e0c[view] + view * 2;
-    next = view * 2 - g_unk0x00538e0c[view] + 1;
+    active = g_activeViewRecord[view] + view * 2;
+    next = view * 2 - g_activeViewRecord[view] + 1;
     if (blend == 0 || type == 3 || VIEW_RECORD(active)->type == 3)
         blend = 0;
     else
@@ -8193,7 +8190,7 @@ void View_SwitchCamera(BYTE view, int type, int param, BYTE target, int blend)
     Game_DispatchObjectContactReset((BYTE *)VIEW_RECORD(next), (BYTE *)VIEW_RECORD(active));
     RallyData_ValidateType3Entry((int *)VIEW_RECORD(active));
     g_unk0x005391b0[view] = 1;
-    g_unk0x00538e0c[view] = 1 - g_unk0x00538e0c[view];
+    g_activeViewRecord[view] = 1 - g_activeViewRecord[view];
 }
 
 // Per-frame camera of a view: the shake animation, both records' cameras and
@@ -8217,8 +8214,8 @@ void View_UpdateCamera(BYTE view)
     int t;
 
     index = (BYTE)view;
-    active = g_unk0x00538e0c[index] + (BYTE)view * 2;
-    next = (BYTE)view * 2 - g_unk0x00538e0c[index] + 1;
+    active = g_activeViewRecord[index] + (BYTE)view * 2;
+    next = (BYTE)view * 2 - g_activeViewRecord[index] + 1;
     if (g_unk0x00538f00[index] != 0) {
         if (g_unk0x00538f00[index] == 1) {
             g_unk0x00538c98[index] += 0xccc;
@@ -8284,7 +8281,7 @@ void View_UpdateCamera(BYTE view)
     Game_DispatchObjectContactReset((BYTE *)pNext, (BYTE *)pActive);
     RallyData_ValidateType3Entry((int *)pActive);
     CameraState_Copy(VIEW_STATE(index), pNext);
-    g_unk0x00538e0c[index] = 1 - g_unk0x00538e0c[index];
+    g_activeViewRecord[index] = 1 - g_activeViewRecord[index];
     *pTimer -= g_physicsTimeStep;
 }
 
@@ -8295,8 +8292,8 @@ void View_ResetCameras(int view)
     BYTE active;
     BYTE next;
 
-    active = g_unk0x00538e0c[(BYTE)view] + (BYTE)view * 2;
-    next = (BYTE)view * 2 - g_unk0x00538e0c[(BYTE)view] + 1;
+    active = g_activeViewRecord[(BYTE)view] + (BYTE)view * 2;
+    next = (BYTE)view * 2 - g_activeViewRecord[(BYTE)view] + 1;
     View_PlaceCarCamera(view);
     Camera_Restart(VIEW_RECORD(active));
     VIEW_RECORD(active)->clearance = 0;
@@ -8317,8 +8314,8 @@ void View_SnapCameras(BYTE view)
     BYTE active;
     BYTE next;
 
-    active = g_unk0x00538e0c[view] + view * 2;
-    next = view * 2 - g_unk0x00538e0c[view] + 1;
+    active = g_activeViewRecord[view] + view * 2;
+    next = view * 2 - g_activeViewRecord[view] + 1;
     View_PlaceCarCamera(view);
     View_GetCarCameraRotation(&placement, view);
     Camera_SnapTo(VIEW_RECORD(active), &placement);

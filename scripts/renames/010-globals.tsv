@@ -1,0 +1,3 @@
+address	old_name	new_name	evidence
+0x00538e0c	g_unk0x00538e0c	g_activeViewRecord	Per view, which of its two g_viewRecords (view * 2 + this) is in use: View_GetActiveCameraMode/Flags and VIEW_MODE_RECORD index with it; reset to 0 for each view.
+0x00591740	g_unk0x00591740	g_viewCameraSpot	Per view record index, the CameraSpot it uses (set with the chosen spot, read as g_pCameraSpots[g_viewCameraSpot[record->index]]).

@@ -409,13 +409,13 @@ void StageObject_DispatchNearRightAngleContact(BYTE *pCar, BYTE *pInfo);
 void StageObject_UpdateNearRightAngleContactLevel(BYTE *pInfo, BYTE *pCar);
 void StageObject_ResetRightAngleContactEffect(BYTE *pCar, BYTE *pInfo);
 unsigned int StageObject_FindNearestCameraSpot(FixVector *pPos);
-int StageObject_GetCarCameraSpotIndex(BYTE *p);
+int StageObject_GetCarCameraSpotIndex(CameraRecord *pRecord);
 void StageObject_ApplySmoothedSurfaceImpact(BYTE *pSurface, FixMatrix *pMatrix);
 void StageObject_StepVectorToTarget(BYTE *p, int step);
 void StageObject_ApproachCarLevelTarget(BYTE *pCar, int step);
 void StageObject_AddClampedCarLevel(BYTE *pCar, int amount);
 void StageObject_BuildSurfaceImpactDisplacement(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix);
-int StageObject_IsNegativeRightAngleCameraSpot(BYTE *pCar);
+int StageObject_IsNegativeRightAngleCameraSpot(CameraRecord *pRecord);
 void CarPhysics_UpdateWheelSlipAndVelocityDamping(Car *param_1);
 void Collision_TestCarAgainstSectorEdges(Car *pCar, int param);
 int Collision_TestSectorEdgeEndpoints(char type);
@@ -2685,7 +2685,7 @@ FixVector g_unk0x00591868[4];
 // GLOBAL: CMR2 0x00591898
 FixVector g_unk0x00591898[4];
 // GLOBAL: CMR2 0x00591740
-int g_unk0x00591740[4];
+int g_viewCameraSpot[4];
 // GLOBAL: CMR2 0x00591750
 // Trackside camera spot of the stage (0x6c bytes); the stage file lists them
 // after a count (StageObject_SelectNonemptyRecordList).
@@ -2709,6 +2709,8 @@ struct CameraSpot {
     int field_0x64;
     int field_0x68;
 };
+// The stage's list of CameraSpot records (NULL without one). Keeps its address
+// name: any other name changes register ties in seven functions of this file.
 CameraSpot *g_unk0x00591750;
 // GLOBAL: CMR2 0x005918c8
 int g_unk0x005918c8;
@@ -3272,9 +3274,9 @@ unsigned int StageObject_FindNearestCameraSpot(FixVector *pPos)
 }
 
 // FUNCTION: CMR2 0x0048d930
-int StageObject_GetCarCameraSpotIndex(BYTE *p)
+int StageObject_GetCarCameraSpotIndex(CameraRecord *pRecord)
 {
-    return g_unk0x00591740[*p];
+    return g_viewCameraSpot[pRecord->index];
 }
 
 extern int g_unk0x00591710[4];
@@ -3287,7 +3289,7 @@ void StageObject_BuildSurfaceImpactDisplacement(FixVector *pOut, BYTE *pSurface,
 void StageObject_ApplySmoothedSurfaceImpact(BYTE *pSurface, FixMatrix *pMatrix)
 {
     BYTE index = *pSurface;
-    CameraSpot *pRecord = &g_unk0x00591750[g_unk0x00591740[index]];
+    CameraSpot *pRecord = &g_unk0x00591750[g_viewCameraSpot[index]];
     FixVector *pPos = &g_unk0x005916a0[index];
     FixVector *pImpact = &g_unk0x00591868[index];
     FixVector impact;
@@ -4369,17 +4371,17 @@ void StageObject_BuildSurfaceImpactDisplacement(FixVector *pOut, BYTE *pSurface,
     pOut->x = right.x - direction.x;
     pOut->y = right.y - direction.y;
     pOut->z = right.z - direction.z;
-    scale = FixMul(pCar->speed, g_unk0x00591750[g_unk0x00591740[*pSurface]].speedScale);
+    scale = FixMul(pCar->speed, g_unk0x00591750[g_viewCameraSpot[*pSurface]].speedScale);
     FixVecScale(pOut, pOut, scale);
 }
 
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048df10
-int StageObject_IsNegativeRightAngleCameraSpot(BYTE *pCar)
+int StageObject_IsNegativeRightAngleCameraSpot(CameraRecord *pRecord)
 {
-    if (*(int *)(pCar + 4) == 7) {
-        CameraSpot *pRecord = &g_unk0x00591750[g_unk0x00591740[*pCar]];
-        if (pRecord->heading < -0x3f4 && pRecord->heading > -0x40b)
+    if (pRecord->type == 7) {
+        CameraSpot *pSpot = &g_unk0x00591750[g_viewCameraSpot[pRecord->index]];
+        if (pSpot->heading < -0x3f4 && pSpot->heading > -0x40b)
             return 1;
     }
     return 0;
@@ -5441,7 +5443,7 @@ void StageObject_ResetRightAngleContactEffect(BYTE *pCar, BYTE *pInfo)
 {
     short v;
 
-    v = g_unk0x00591750[g_unk0x00591740[*pCar]].heading;
+    v = g_unk0x00591750[g_viewCameraSpot[*pCar]].heading;
     if (v > 0x3f4 && v < 0x40b) {
         StageObject_ResetContactEffectAndSetLevel(pCar, pInfo);
         return;
@@ -7662,7 +7664,7 @@ void StageObject_DispatchNearRightAngleContact(BYTE *pCar, BYTE *pInfo)
 {
     short v;
 
-    v = g_unk0x00591750[g_unk0x00591740[*pCar]].heading;
+    v = g_unk0x00591750[g_viewCameraSpot[*pCar]].heading;
     if (RECORD_NEAR_90(v))
         StageObject_DispatchContactAndSetLevel(pCar, pInfo);
 }
@@ -7672,7 +7674,7 @@ void StageObject_UpdateNearRightAngleContactLevel(BYTE *pInfo, BYTE *pCar)
 {
     short v;
 
-    v = g_unk0x00591750[g_unk0x00591740[*pCar]].heading;
+    v = g_unk0x00591750[g_viewCameraSpot[*pCar]].heading;
     if (RECORD_NEAR_90(v))
         StageObject_SetLevelFromContactType(pCar, pInfo);
 }
@@ -13290,7 +13292,7 @@ void StageObject_BuildSurfaceImpactDisplacement(FixVector *pOut, BYTE *pSurface,
 void View_RestartTracksideCameraDolly(BYTE *pRecord, FixMatrix *pRef);
 void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef);
 
-#define SPOT(i) (&g_unk0x00591750[g_unk0x00591740[i]])
+#define SPOT(i) (&g_unk0x00591750[g_viewCameraSpot[i]])
 
 // Places a trackside camera on spot `spot` for a view record.
 // FUNCTION: CMR2 0x0048cae0
@@ -13305,7 +13307,7 @@ void View_PlaceTracksideCameraAtSpot(BYTE *pRecord, FixMatrix *pRef, int spot)
 
     pSpot = &g_unk0x00591750[spot];
     index = pRecord[0];
-    g_unk0x00591740[index] = spot;
+    g_viewCameraSpot[index] = spot;
     heading = pSpot->heading;
     if (heading > 0x3f4 && heading < 0x40b) {
         StageObject_SelectAndCopyCarNodePayload(pRecord, (int *)pRef, (BYTE)Car_Get(pRecord[2])->index, 1);
@@ -13346,7 +13348,7 @@ void View_UpdateTracksideZoomAndShake(BYTE *pRecord, FixMatrix *pRef)
     int shake;
 
     index = pRecord[0];
-    heading = g_unk0x00591750[g_unk0x00591740[index]].heading;
+    heading = g_unk0x00591750[g_viewCameraSpot[index]].heading;
     pSpot = SPOT(index);
     if (heading > 0x3f4 && heading < 0x40b) {
         pCar = (BYTE *)Car_Get(pRecord[2]);
@@ -13398,7 +13400,7 @@ void View_RestartTracksideCameraDolly(BYTE *pRecord, FixMatrix *pRef)
     FixVector d;
 
     index = pRecord[0];
-    heading = g_unk0x00591750[g_unk0x00591740[index]].heading;
+    heading = g_unk0x00591750[g_viewCameraSpot[index]].heading;
     pSpot = SPOT(index);
     if (heading > 0x3f4 && heading < 0x40b) {
         StageObject_RebuildMirroredTiltMatrix(pRecord, (int *)pRef);
@@ -13462,7 +13464,7 @@ void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef)
     int zoom;
 
     index = pCameraRecord->index;
-    heading = g_unk0x00591750[g_unk0x00591740[index]].heading;
+    heading = g_unk0x00591750[g_viewCameraSpot[index]].heading;
     pSpot = SPOT(index);
     if (heading > 0x3f4 && heading < 0x40b) {
         View_PositionFromCarProfile((CameraRecord *)pRecord, pRef);
