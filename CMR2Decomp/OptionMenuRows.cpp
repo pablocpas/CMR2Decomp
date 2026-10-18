@@ -60,9 +60,9 @@ BYTE OptionMenu_IsValueDefault(int index, int type);
 
 int OptionMenu_IsRecordPercentageAboveBase(int index, int type);
 
-extern int g_unk0x00527380[3];
+extern int g_optionTextColours[3];
 
-extern int g_unk0x0052738c[3];
+extern int g_optionTextBrightColours[3];
 
 extern Texture *g_unk0x00831360;
 
@@ -178,7 +178,7 @@ Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_unk
         else
             Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&param6, 1);
     } else {
-        Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2], 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_optionTextColours[2], 1);
     }
 
     for (i = 0; i < param1; i++) {
@@ -206,7 +206,7 @@ Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_unk
                 OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(i)) != 0) {
                 if (i != param2) {                    Sprite_Queue((SpriteRect *)&g_unk0x008313b0->field_0x11c, (SpriteRect *)rectP,
                                  g_unk0x008313b0, 1, 0, NULL, NULL,
-                                 (BYTE *)&g_unk0x00527380[1], 8);
+                                 (BYTE *)&g_optionTextColours[1], 8);
                             } else {                                        if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_Queue((SpriteRect *)&g_unk0x008313b0->field_0x11c, (SpriteRect *)rectP,
                                      g_unk0x008313b0, 1, 0, NULL, NULL,
@@ -218,7 +218,7 @@ Sprite_Queue((SpriteRect *)&g_unk0x008313b0->field_0x11c, (SpriteRect *)rectP,
                 if (OptionMenu_GetRecordGroupAppliedFlag(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(i)) != 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)&g_unk0x008313ac->field_0x11c, (SpriteRect *)rectP,
                                      g_unk0x008313ac, 1, 0, NULL, NULL,
-                                     (BYTE *)&g_unk0x00527380[1], 8);
+                                     (BYTE *)&g_optionTextColours[1], 8);
                                 } else {                                                if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_Queue((SpriteRect *)&g_unk0x008313ac->field_0x11c, (SpriteRect *)rectP,
                                          g_unk0x008313ac, 1, 0, NULL, NULL,
@@ -230,7 +230,7 @@ Sprite_Queue((SpriteRect *)&g_unk0x008313ac->field_0x11c, (SpriteRect *)rectP,
                 } else if (OptionMenu_IsRecordPercentageAboveBase(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(i)) == 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)&g_unk0x00831648->field_0x11c, (SpriteRect *)rectP,
                                      g_unk0x00831648, 1, 0, NULL, NULL,
-                                     (BYTE *)&g_unk0x00527380[1], 8);
+                                     (BYTE *)&g_optionTextColours[1], 8);
                                 } else {                                                if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_Queue((SpriteRect *)&g_unk0x00831648->field_0x11c, (SpriteRect *)rectP,
                                          g_unk0x00831648, 1, 0, NULL, NULL,
@@ -290,7 +290,7 @@ Sprite_Queue((SpriteRect *)&g_unk0x00831648->field_0x11c, (SpriteRect *)rectP,
             if (!flag) {
                 if (i != param2) {                    Sprite_Queue((SpriteRect *)&g_unk0x008313b0->field_0x11c, (SpriteRect *)rectP,
                                  g_unk0x008313b0, 1, 0, NULL, NULL,
-                                 (BYTE *)&g_unk0x00527380[1], 8);
+                                 (BYTE *)&g_optionTextColours[1], 8);
                             } else {                                        if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_Queue((SpriteRect *)&g_unk0x008313b0->field_0x11c, (SpriteRect *)rectP,
                                      g_unk0x008313b0, 1, 0, NULL, NULL,
@@ -302,7 +302,7 @@ Sprite_Queue((SpriteRect *)&g_unk0x008313b0->field_0x11c, (SpriteRect *)rectP,
                 if ((BYTE)OptionMenu_IsValueDefault(CGameInfo::GetActiveOptionSlot(), i) == 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)&g_unk0x008313ac->field_0x11c, (SpriteRect *)rectP,
                                      g_unk0x008313ac, 1, 0, NULL, NULL,
-                                     (BYTE *)&g_unk0x00527380[1], 8);
+                                     (BYTE *)&g_optionTextColours[1], 8);
                                 } else {                                                if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_Queue((SpriteRect *)&g_unk0x008313ac->field_0x11c, (SpriteRect *)rectP,
                                          g_unk0x008313ac, 1, 0, NULL, NULL,
@@ -314,7 +314,7 @@ Sprite_Queue((SpriteRect *)&g_unk0x008313ac->field_0x11c, (SpriteRect *)rectP,
                 } else if (OptionMenu_IsSlotValueAboveBase(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnUnitId(i)) == 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)&g_unk0x00831648->field_0x11c, (SpriteRect *)rectP,
                                      g_unk0x00831648, 1, 0, NULL, NULL,
-                                     (BYTE *)&g_unk0x00527380[1], 8);
+                                     (BYTE *)&g_optionTextColours[1], 8);
                                 } else {                                                if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
 Sprite_Queue((SpriteRect *)&g_unk0x00831648->field_0x11c, (SpriteRect *)rectP,
                                          g_unk0x00831648, 1, 0, NULL, NULL,
@@ -343,7 +343,7 @@ OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
                                  (int)g_pGraphics->resX * 0x14 / 0x280 +
                                      (int)g_pGraphics->resX * param4 / 0x280,
                                  (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_gameInfoDrawRect[1],
-                                 &g_unk0x00527378, g_unk0x00527380, 0x11);
+                                 &g_unk0x00527378, g_optionTextColours, 0x11);
                 if (g_unk0x0083166c != 0)
                     Sprite_Queue((SpriteRect *)&g_unk0x0083166c->field_0x11c, (SpriteRect *)rectQ,
                                  g_unk0x0083166c, 1, 0, NULL, NULL,
@@ -354,13 +354,13 @@ OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                                  (int)g_pGraphics->resX * 0x14 / 0x280 +
                                      (int)g_pGraphics->resX * param4 / 0x280,
                                  (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_gameInfoDrawRect[1],
-                                 &param6, &g_unk0x0052738c[1], 0x11);
+                                 &param6, &g_optionTextBrightColours[1], 0x11);
                 else
 OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
                                  (int)g_pGraphics->resX * 0x14 / 0x280 +
                                      (int)g_pGraphics->resX * param4 / 0x280,
                                  (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_gameInfoDrawRect[1],
-                                 &param6, g_unk0x00527380, 0x11);
+                                 &param6, g_optionTextColours, 0x11);
                 if (g_unk0x0083166c != 0)
                     Sprite_Queue((SpriteRect *)&g_unk0x0083166c->field_0x11c, (SpriteRect *)rectQ,
                                  g_unk0x0083166c, 1, 0, NULL, NULL, (BYTE *)&param6, 8);
@@ -371,7 +371,7 @@ OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
                              (int)g_pGraphics->resX * 0x14 / 0x280 +
                                  (int)g_pGraphics->resX * param4 / 0x280,
                              (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_gameInfoDrawRect[1],
-                             &g_highlightRowColour, &g_unk0x0052738c[2], 0x11);
+                             &g_highlightRowColour, &g_optionTextBrightColours[2], 0x11);
                 if (g_unk0x0083166c != 0)
                     Sprite_Queue((SpriteRect *)&g_unk0x0083166c->field_0x11c, (SpriteRect *)rectQ,
                                  g_unk0x0083166c, 1, 0, NULL, NULL,
@@ -381,11 +381,11 @@ OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
                              (int)g_pGraphics->resX * 0x14 / 0x280 +
                                  (int)g_pGraphics->resX * param4 / 0x280,
                              (int)g_pGraphics->resY * 0x12 / 0x1e0 + g_gameInfoDrawRect[1],
-                             g_unk0x00527380, g_unk0x0052738c, 0x11);
+                             g_optionTextColours, g_optionTextBrightColours, 0x11);
                 if (g_unk0x00831670 != 0)
                     Sprite_Queue((SpriteRect *)&g_unk0x00831670->field_0x11c, (SpriteRect *)rectQ,
                                  g_unk0x00831670, 1, 0, NULL, NULL,
-                                 (BYTE *)g_unk0x00527380, 8);
+                                 (BYTE *)g_optionTextColours, 8);
             }
         }
         g_gameInfoDrawRect[1] = (short)((int)g_pGraphics->resY * param5 / 0x1e0 +
@@ -396,7 +396,7 @@ OptionMenu_DrawTransitionText(7, 0, 0, CFrontend::m_stringDest,
             else
                 Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&param6, 1);
         } else {
-            Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2], 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_optionTextColours[2], 1);
         }
     }
 }

@@ -560,7 +560,7 @@ void OptionMovie_Close(void);
 // surface type returned for it (-1 while unknown). The four screen coordinates
 // are the rectangle the movie is scaled into (left, top, right, bottom).
 // GLOBAL: CMR2 0x005297d0
-int g_unk0x005297d0 = -1;
+int g_binkSurfaceType = -1;
 // GLOBAL: CMR2 0x00831ac8
 unsigned int g_unk0x00831ac8;
 // GLOBAL: CMR2 0x00831acc
@@ -671,7 +671,7 @@ int OptionMovie_Open(char *fileName, unsigned int trackIndex)
     desc.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
     g_pGraphics->pDD7->CreateSurface(&desc, &g_pUnk0x00831c6c, NULL);
 
-    g_unk0x005297d0 = BinkDDSurfaceType(g_pUnk0x00831c6c);
+    g_binkSurfaceType = BinkDDSurfaceType(g_pUnk0x00831c6c);
     if (g_pUnk0x00831c54 == g_pGraphics->pPrimarySurface && g_pGraphics->isFullscreen)
         g_pGraphics->pDD7->FlipToGDISurface();
 
@@ -683,7 +683,7 @@ int OptionMovie_Open(char *fileName, unsigned int trackIndex)
 
 // Half of the letterbox border added to centre the movie (0.5).
 // GLOBAL: CMR2 0x005113b8
-double g_unk0x005113b8 = 0.5;
+double g_doubleHalf = 0.5;
 
 // Plays one frame of the current movie: scales and offsets the Bink buffer to
 // the game window, copies the frame into it and blits it to the screen.
@@ -728,16 +728,16 @@ BOOL OptionMovie_PlayFrame(BYTE skipOnSpace)
             }
             BinkBufferSetScale(g_pUnk0x00831ad4, scaleWidth, scaleHeight);
             BinkBufferSetOffset(g_pUnk0x00831ad4,
-                                (int)FTOI(__int64, X87S_MUL((g_pGraphics->resX - scaleWidth), g_unk0x005113b8)),
-                                (int)FTOI(__int64, X87S_MUL((g_pGraphics->resY - scaleHeight), g_unk0x005113b8)));
+                                (int)FTOI(__int64, X87S_MUL((g_pGraphics->resX - scaleWidth), g_doubleHalf)),
+                                (int)FTOI(__int64, X87S_MUL((g_pGraphics->resY - scaleHeight), g_doubleHalf)));
         } else {
-            BinkBufferSetOffset(g_pUnk0x00831ad4, (int)FTOI(__int64, X87S_MUL((g_pGraphics->resX - 0x280), g_unk0x005113b8)),
-                                (int)FTOI(__int64, X87S_MUL((g_pGraphics->resY - 0x1e0), g_unk0x005113b8)));
+            BinkBufferSetOffset(g_pUnk0x00831ad4, (int)FTOI(__int64, X87S_MUL((g_pGraphics->resX - 0x280), g_doubleHalf)),
+                                (int)FTOI(__int64, X87S_MUL((g_pGraphics->resY - 0x1e0), g_doubleHalf)));
         }
         if (CGraphics::GetTextureFormatCap80000(CGraphics::GetSelectedDisplayDriverIndex()) == 0)
             BinkBufferSetOffset(g_pUnk0x00831ad4,
-                                (int)FTOI(__int64, X87S_MUL((int)(g_pGraphics->screenResX - 0x280), g_unk0x005113b8)),
-                                (int)FTOI(__int64, X87S_MUL((int)(g_pGraphics->screenResY - 0x1e0), g_unk0x005113b8)));
+                                (int)FTOI(__int64, X87S_MUL((int)(g_pGraphics->screenResX - 0x280), g_doubleHalf)),
+                                (int)FTOI(__int64, X87S_MUL((int)(g_pGraphics->screenResY - 0x1e0), g_doubleHalf)));
     }
 
     if (BinkBufferLock(g_pUnk0x00831ad4) != 0) {
@@ -1327,7 +1327,7 @@ int g_unk0x0082ac5c;
 // GLOBAL: CMR2 0x0082b0a0
 int g_unk0x0082b0a0;
 // GLOBAL: CMR2 0x0082b2c0
-Unk0x0082b2c0 g_unk0x0082b2c0[8];
+Unk0x0082b2c0 g_optionRecordTransitions[8];
 // Byte flag the option menu state (0x500c80) derives from the stage index.
 // GLOBAL: CMR2 0x00527000
 BYTE g_unk0x00527000 = 1;
@@ -1783,7 +1783,7 @@ void OptionMenu_InitBackground(void)
 // FUNCTION: CMR2 0x00501d00
 void OptionMenu_ClearRecordTransition(int index)
 {
-    Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
+    Unk0x0082b2c0 *p = &g_optionRecordTransitions[index];
 
     p->field_0x8 = 0;
     p->field_0x4 = 0;
@@ -1804,7 +1804,7 @@ void OptionMenu_ResetRecordTransitions(int count)
 // FUNCTION: CMR2 0x005021c0
 int OptionMenu_GetRecordTransitionMode(int index)
 {
-    return g_unk0x0082b2c0[index].field_0xc;
+    return g_optionRecordTransitions[index].field_0xc;
 }
 
 // FUNCTION: CMR2 0x005021e0
@@ -1814,7 +1814,7 @@ void OptionMenu_FinishRecordTransitions(void)
     Unk0x0082b2c0 *p;
 
     if (g_unk0x0082b1bc > 0) {
-        p = g_unk0x0082b2c0;
+        p = g_optionRecordTransitions;
         i = g_unk0x0082b1bc;
         do {
             p->field_0x0 = 0x10000;
@@ -2469,7 +2469,7 @@ void CGameInfo::StartOptionRecordTransition(int index, int param2, int param3)
 {
     Unk0x0082b2c0 *pEntry;
 
-    pEntry = &g_unk0x0082b2c0[index];
+    pEntry = &g_optionRecordTransitions[index];
     pEntry->field_0x8 = CMain::GetFrameDelta();
     pEntry->field_0x4 = param2;
     pEntry->field_0x0 = 0;
@@ -4750,7 +4750,7 @@ void OptionMenu_DrawTransitionTextShortCoords(int index, int font1, int font2, c
     int width;
     int i;
 
-    pRec = &g_unk0x0082b2c0[index];
+    pRec = &g_optionRecordTransitions[index];
     if (pRec->field_0xc == 2) {
         Font_DrawText(font1, text, x, y, pColour1, flags);
         return;
@@ -4810,9 +4810,9 @@ extern BYTE g_unk0x0052af58[2];
 
 // Colours the in-race menu text and the selected/unselected sprites use.
 // GLOBAL: CMR2 0x00516074
-int g_unk0x00516074 = 0xfffafafa;
+int g_inRaceMenuSelectedColour = 0xfffafafa;
 // GLOBAL: CMR2 0x00516078
-int g_unk0x00516078 = 0xffdbaca7;
+int g_inRaceMenuUnselectedColour = 0xffdbaca7;
 // GLOBAL: CMR2 0x00516084
 int g_unk0x00516084 = 0x80fafafa;
 // GLOBAL: CMR2 0x0051608c
@@ -4862,18 +4862,18 @@ void InRaceMenu_DrawHeaderBar(void)
     count = (StageUI_GetRaceEndEventCount() & 0xff) + (*(int *)g_unk0x0052af58 & 0xff) + 1;
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x98), count);
     Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 0x45) / 0x1e0,
-                  &g_unk0x00516074, 0x11);
+                  &g_inRaceMenuSelectedColour, 0x11);
     y = (int)(g_pGraphics->resY * 10) / 0x1e0 + x
         + Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
     rect[0] = (short)y;
     rect[2] = 1;
     rect[1] = (short)((int)(g_pGraphics->resY * 0x25) / 0x1e0);
     rect[3] = (short)((int)(g_pGraphics->resY * 0x2d) / 0x1e0);
-    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, (BYTE *)&g_unk0x00516074, 2);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, rect, (BYTE *)&g_inRaceMenuSelectedColour, 2);
     rect[0] = rect[0] + 1;
     Sprite_FillRect(&g_pGraphics->field309_0x150, rect, (BYTE *)&g_unk0x00516084, 2);
     Font_DrawText(2, CFrontend::GetTextString(0x18), y + (int)(g_pGraphics->resY * 10) / 0x1e0,
-                  (int)(g_pGraphics->resY * 0x45) / 0x1e0, &g_unk0x00516074, 0x11);
+                  (int)(g_pGraphics->resY * 0x45) / 0x1e0, &g_inRaceMenuSelectedColour, 0x11);
 }
 
 // Draws the list of an in-race menu (0x402c90) with the selected row in a
@@ -4914,18 +4914,18 @@ void InRaceMenu_DrawOptionList(Menu *pMenu)
                 }
                 if (pMenu->cursor == i) {
                     Font_DrawText(1, string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
-                                  &g_unk0x00516074, 0x11);
+                                  &g_inRaceMenuSelectedColour, 0x11);
                     Font_DrawText(0, string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
-                                  (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516074, 0x11);
+                                  (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_inRaceMenuSelectedColour, 0x11);
                     Sprite_Queue((SpriteRect *)&g_inRaceMenuUpArrowTexture->field_0x11c, (SpriteRect *)rect,
-                                 g_inRaceMenuUpArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516074, 8);
+                                 g_inRaceMenuUpArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_inRaceMenuSelectedColour, 8);
                 } else {
                     Font_DrawText(1, string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
-                                  &g_unk0x00516078, 0x11);
+                                  &g_inRaceMenuUnselectedColour, 0x11);
                     Font_DrawText(0, string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
-                                  (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516078, 0x11);
+                                  (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_inRaceMenuUnselectedColour, 0x11);
                     Sprite_Queue((SpriteRect *)&g_inRaceMenuDownArrowTexture->field_0x11c, (SpriteRect *)rect,
-                                 g_inRaceMenuDownArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516078, 8);
+                                 g_inRaceMenuDownArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_inRaceMenuUnselectedColour, 8);
                 }
                 y = y + (int)(g_pGraphics->resY * 0x36) / 0x1e0;
             }
@@ -4971,17 +4971,17 @@ void InRaceMenu_DrawMenuRows(Menu *pMenu)
         }
         if (pMenu->cursor == i) {
             Font_DrawText(1, string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
-                          &g_unk0x00516074, 0x11);
+                          &g_inRaceMenuSelectedColour, 0x11);
             Font_DrawText(0, string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
-                          (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516074, 0x11);
-            pColour = &g_unk0x00516074;
+                          (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_inRaceMenuSelectedColour, 0x11);
+            pColour = &g_inRaceMenuSelectedColour;
             texture = g_inRaceMenuUpArrowTexture;
         } else {
             Font_DrawText(1, string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
-                          &g_unk0x00516078, 0x11);
+                          &g_inRaceMenuUnselectedColour, 0x11);
             Font_DrawText(0, string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
-                          (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516078, 0x11);
-            pColour = &g_unk0x00516078;
+                          (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_inRaceMenuUnselectedColour, 0x11);
+            pColour = &g_inRaceMenuUnselectedColour;
             texture = g_inRaceMenuDownArrowTexture;
         }
         Sprite_Queue((SpriteRect *)&texture->field_0x11c, (SpriteRect *)rect, texture,
@@ -5031,14 +5031,14 @@ void InRaceMenu_DrawNetworkPlayerList(Menu *pMenu)
             str1 = CFrontend::GetTextString(pItem->id);
             str2 = CFrontend::GetTextString(pItem->id + 1);
             if (pMenu->cursor == i) {
-                pColour = &g_unk0x00516074;
+                pColour = &g_inRaceMenuSelectedColour;
                 texture = g_inRaceMenuUpArrowTexture;
             } else {
-                pColour = &g_unk0x00516078;
+                pColour = &g_inRaceMenuUnselectedColour;
                 texture = g_inRaceMenuDownArrowTexture;
             }
             Sprite_Queue((SpriteRect *)&texture->field_0x11c, (SpriteRect *)g_inRaceMenuScratchRect,
-                         texture, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516078, 8);
+                         texture, 2, 0, NULL, NULL, (BYTE *)&g_inRaceMenuUnselectedColour, 8);
             twoLines = true;
             if (pItem->value != 0) {
                 sub[0] = CFrontend::GetTextString(pItem->id);
@@ -5069,11 +5069,11 @@ void InRaceMenu_DrawNetworkPlayerList(Menu *pMenu)
                 if (pItem->max != j)
                     Font_DrawText(1, text, x,
                                   (int)(g_pGraphics->resY * 0xaa) / 0x1e0
-                                      + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i, &g_unk0x00516078, 0x11);
+                                      + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i, &g_inRaceMenuUnselectedColour, 0x11);
                 else
                     Font_DrawText(1, text, x,
                                   (int)(g_pGraphics->resY * 0xaa) / 0x1e0
-                                      + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i, &g_unk0x00516074, 0x11);
+                                      + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i, &g_inRaceMenuSelectedColour, 0x11);
                 strcpy(CFrontend::m_stringDest, text);
                 pB--;
                 pA++;
@@ -5106,7 +5106,7 @@ void InRaceMenu_DrawPlayerClassRows(Menu *pMenu)
     rect[3] = g_inRaceMenuUpArrowTexture->height;
     pItem = pMenu->items;
     for (i = 0; i < pMenu->itemCount; i++, pItem++) {
-        pColour = pMenu->cursor == i ? &g_unk0x00516074 : &g_unk0x00516078;
+        pColour = pMenu->cursor == i ? &g_inRaceMenuSelectedColour : &g_inRaceMenuUnselectedColour;
         type = pItem->value;
         if (type >= 0) {
             if (type > 2) {
@@ -5131,10 +5131,10 @@ void InRaceMenu_DrawPlayerClassRows(Menu *pMenu)
                           - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
         if (pMenu->cursor == i) {
             Sprite_Queue((SpriteRect *)&g_inRaceMenuUpArrowTexture->field_0x11c, (SpriteRect *)rect,
-                         g_inRaceMenuUpArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516074, 8);
+                         g_inRaceMenuUpArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_inRaceMenuSelectedColour, 8);
         } else {
             Sprite_Queue((SpriteRect *)&g_inRaceMenuDownArrowTexture->field_0x11c, (SpriteRect *)rect,
-                         g_inRaceMenuDownArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516078, 8);
+                         g_inRaceMenuDownArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_inRaceMenuUnselectedColour, 8);
         }
     }
     Font_SetBlendMode(2);
@@ -5535,7 +5535,7 @@ int OptionMenu_GetRawWorkingValue(int index, int type)
 // FUNCTION: CMR2 0x00501d50
 void OptionMenu_EaseRecordBar(int index, short *pBar, int direction, int unused)
 {
-    Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
+    Unk0x0082b2c0 *p = &g_optionRecordTransitions[index];
 
     if (p->field_0xc == 1) {
         if (direction != 0) {
@@ -5601,7 +5601,7 @@ int OptionMenu_FindFirstDetailedSlot(void)
 void OptionMenu_DrawTransitionText(int index, int font1, int font2, char *text, short x, short y,
                   int *pColour1, int *pColour2, unsigned int flags)
 {
-    Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
+    Unk0x0082b2c0 *p = &g_optionRecordTransitions[index];
     int len;
     int count;
     int width;
@@ -5718,7 +5718,7 @@ unsigned int OptionMenu_GetRecordPercentage(int index, int type, int dynamic)
 // FUNCTION: CMR2 0x00501f00
 void OptionMenu_ScaleRecordBar(int index, short *pBar)
 {
-    Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
+    Unk0x0082b2c0 *p = &g_optionRecordTransitions[index];
 
     if (p->field_0xc == 1) {
         pBar[2] = (short)(FixMul(pBar[2] << 16, p->field_0x0) >> 16);
@@ -5773,23 +5773,23 @@ void OptionMenu_UpdateRecordTransitions(void)
     for (i = 0; i < g_unk0x0082b1bc; i++) {
         int elapsed;
 
-        if (g_unk0x0082b2c0[i].field_0xc != 1)
+        if (g_optionRecordTransitions[i].field_0xc != 1)
             continue;
-        elapsed = CMain::GetFrameDelta() - g_unk0x0082b2c0[i].field_0x8;
-        if (elapsed >= g_unk0x0082b2c0[i].field_0x4) {
-            g_unk0x0082b2c0[i].field_0xc = 2;
-            g_unk0x0082b2c0[i].field_0x0 = 0x10000;
+        elapsed = CMain::GetFrameDelta() - g_optionRecordTransitions[i].field_0x8;
+        if (elapsed >= g_optionRecordTransitions[i].field_0x4) {
+            g_optionRecordTransitions[i].field_0xc = 2;
+            g_optionRecordTransitions[i].field_0x0 = 0x10000;
         } else {
-            int value = FixDiv(elapsed << 16, g_unk0x0082b2c0[i].field_0x4 << 16);
-            int kind = g_unk0x0082b2c0[i].field_0x10;
-            g_unk0x0082b2c0[i].field_0x0 = value;
+            int value = FixDiv(elapsed << 16, g_optionRecordTransitions[i].field_0x4 << 16);
+            int kind = g_optionRecordTransitions[i].field_0x10;
+            g_optionRecordTransitions[i].field_0x0 = value;
             switch (kind) {
             case 2:
-                g_unk0x0082b2c0[i].field_0x0 = FixSqrt(g_unk0x0082b2c0[i].field_0x0);
+                g_optionRecordTransitions[i].field_0x0 = FixSqrt(g_optionRecordTransitions[i].field_0x0);
                 break;
             case 1:
-                g_unk0x0082b2c0[i].field_0x0 =
-                    FixMul(g_unk0x0082b2c0[i].field_0x0, g_unk0x0082b2c0[i].field_0x0);
+                g_optionRecordTransitions[i].field_0x0 =
+                    FixMul(g_optionRecordTransitions[i].field_0x0, g_optionRecordTransitions[i].field_0x0);
                 break;
             }
         }
@@ -5907,7 +5907,7 @@ BYTE OptionMenu_UpdateBackgroundRoot(void)
 // Option menu sound names (7 bytes each) and the file name they are loaded
 // from, plus the volume/index state of the option menu.
 // GLOBAL: CMR2 0x005296c4
-char g_unk0x005296c4[5][7] = {"move", "select", "back", "error", "toggle"};
+char g_optionMenuSoundNames[5][7] = {"move", "select", "back", "error", "toggle"};
 // GLOBAL: CMR2 0x005296e8
 char g_str0x005296e8[16] = "%s\\menu\\%s.wav";
 // GLOBAL: CMR2 0x00831888
@@ -5925,8 +5925,8 @@ BYTE OptionMenu_LoadSounds(void)
 
     result = 1;
     g_unk0x00831888 = 0;
-    name = (char *)g_unk0x005296c4;
-    nameEnd = (int)g_unk0x005296c4 + sizeof(g_unk0x005296c4);
+    name = (char *)g_optionMenuSoundNames;
+    nameEnd = (int)g_optionMenuSoundNames + sizeof(g_optionMenuSoundNames);
     do {
         sprintf(CFrontend::m_stringDest, g_str0x005296e8, CInstallInfo::GetSoundsDir(), name);
         if (Sound_LoadSample(CFrontend::m_stringDest, 0, OptionMenu_GetCommonArchive()) == 0)
@@ -6289,16 +6289,16 @@ int g_unk0x0082ac4c;
 // GLOBAL: CMR2 0x0082ac50
 int g_unk0x0082ac50;
 // Defined in FrontendScreens.cpp
-extern int g_unk0x0082a924;
-extern int g_unk0x0082aa3c;
+extern int g_savedGameListSelection;
+extern int g_savedGameListTop;
 extern int g_unk0x0082aa40;
 extern int g_unk0x0082ac48;
 // GLOBAL: CMR2 0x0082ab44
 BYTE g_unk0x0082ab44;
 // GLOBAL: CMR2 0x00527380
-int g_unk0x00527380[3] = { -11579569, -11579569, -11579569 };
+int g_optionTextColours[3] = { -11579569, -11579569, -11579569 };
 // GLOBAL: CMR2 0x0052738c
-int g_unk0x0052738c[3] = { -1, -2130706433, 1078939471 };
+int g_optionTextBrightColours[3] = { -1, -2130706433, 1078939471 };
 // Text of the option menu's status line (written elsewhere before it is drawn).
 // GLOBAL: CMR2 0x0082a93c
 char g_optionStatusLine[0x100];
@@ -6389,8 +6389,8 @@ void OptionMenu_ConsumeRefreshRequest(int unused, int unused2)
     g_unk0x0082aa40 = SavedGames_GetCount();
     if (g_unk0x0082ac60 == 0) {
         g_unk0x0082ab44 = 0;
-        g_unk0x0082a924 = 0;
-        g_unk0x0082aa3c = 0;
+        g_savedGameListSelection = 0;
+        g_savedGameListTop = 0;
         g_unk0x0082ac48 = 0;
         return;
     }
@@ -6415,7 +6415,7 @@ void OptionMenu_RestartEmptyItemRecords(Menu *pMenu, MenuItem *unused)
 void OptionMenu_DrawStatusLine(int unused)
 {
     OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, g_optionStatusLine, (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 2,
-                 g_unk0x00527380, g_unk0x0052738c, 0x12);
+                 g_optionTextColours, g_optionTextBrightColours, 0x12);
 }
 
 // Fills pRect with `count` vertical strips shading from colour 0 to colour 1
@@ -8238,7 +8238,7 @@ void OptionMenu_AnimateLayoutRectangleEdge(int param_1, short *param_2)
     int a;
     int delta;
 
-    p = &g_unk0x0082b2c0[param_1];
+    p = &g_optionRecordTransitions[param_1];
     if (p->field_0xc == 1) {
         lo = param_2[2] / 2 + param_2[0];
         hi = lo + 1;
@@ -8350,7 +8350,7 @@ void OptionMenu_DrawScreenTitle(void)
     width = Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
     OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::m_stringDest,
                  (int)g_pGraphics->resX * 0x140 / 0x280 - width / 2,
-                 (int)g_pGraphics->resY * 0xf0 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+                 (int)g_pGraphics->resY * 0xf0 / 0x1e0, g_optionTextColours, g_optionTextBrightColours, 0x11);
 }
 
 // Moves the shared value one position up; clamps it to the option count.
@@ -8413,22 +8413,22 @@ void OptionMenu_DrawRightColumn(void)
                  CFrontend::GetTextString(CFrontend::GetArchivePrimaryIDEntry(
                      RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot())) * 4 + 0x4c),
                  g_optionLayoutXScale * (int)g_pGraphics->resX / 0x280,
-                 (int)g_pGraphics->resY * 0xb4 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+                 (int)g_pGraphics->resY * 0xb4 / 0x1e0, g_optionTextColours, g_optionTextBrightColours, 0x11);
     OptionMenu_DrawTransitionTextShortCoords(3, 1, 0,
                  CFrontend::GetTextString(CFrontend::GetArchivePrimaryIDEntry(
                      RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot())) * 4 + 0x4d),
                  g_optionLayoutXScale * (int)g_pGraphics->resX / 0x280,
-                 (int)g_pGraphics->resY * 0xc2 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+                 (int)g_pGraphics->resY * 0xc2 / 0x1e0, g_optionTextColours, g_optionTextBrightColours, 0x11);
     OptionMenu_DrawTransitionTextShortCoords(3, 1, 0,
                  CFrontend::GetTextString(CFrontend::GetArchivePrimaryIDEntry(
                      RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot())) * 4 + 0x4e),
                  g_optionLayoutXScale * (int)g_pGraphics->resX / 0x280,
-                 (int)g_pGraphics->resY * 0xd0 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+                 (int)g_pGraphics->resY * 0xd0 / 0x1e0, g_optionTextColours, g_optionTextBrightColours, 0x11);
     OptionMenu_DrawTransitionTextShortCoords(3, 1, 0,
                  CFrontend::GetTextString(CFrontend::GetArchivePrimaryIDEntry(
                      RallyData_GetDriverRecordSelectionValue(CGameInfo::GetActiveOptionSlot())) * 4 + 0x4f),
                  g_optionLayoutXScale * (int)g_pGraphics->resX / 0x280,
-                 (int)g_pGraphics->resY * 0xde / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+                 (int)g_pGraphics->resY * 0xde / 0x1e0, g_optionTextColours, g_optionTextBrightColours, 0x11);
 }
 
 // GLOBAL: CMR2 0x0051a904
@@ -8461,12 +8461,12 @@ void OptionMenu_DrawClampedStageTime(void)
     }
     OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::GetTextString(0x90),
                  g_optionLayoutXScale * (int)g_pGraphics->resX / 0x280,
-                 (int)g_pGraphics->resY * 0x5d / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+                 (int)g_pGraphics->resY * 0x5d / 0x1e0, g_optionTextColours, g_optionTextBrightColours, 0x11);
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x91),
             OptionMenu_GetSlotBaseSelector(CGameInfo::GetActiveOptionSlot()));
     OptionMenu_DrawTransitionTextShortCoords(4, 1, 0, CFrontend::m_stringDest,
                  g_optionLayoutXScale * (int)g_pGraphics->resX / 0x280,
-                 (int)g_pGraphics->resY * 0x6d / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+                 (int)g_pGraphics->resY * 0x6d / 0x1e0, g_optionTextColours, g_optionTextBrightColours, 0x11);
     OptionMenu_SetSharedValue(shown);
     sprintf(CFrontend::m_stringDest, g_str0x0051a904, (shown / 100) / 0x3c, (shown / 100) % 0x3c);
     if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
@@ -8478,7 +8478,7 @@ void OptionMenu_DrawClampedStageTime(void)
         OptionMenu_DrawTransitionTextShortCoords(4, 3, 3, CFrontend::m_stringDest,
                      g_optionLayoutXScale * (int)g_pGraphics->resX / 0x280,
                      (int)g_pGraphics->resY * 0x96 / 0x1e0,
-                     &g_unk0x0052737c, &g_unk0x0052738c[1], 0x11);
+                     &g_unk0x0052737c, &g_optionTextBrightColours[1], 0x11);
     width = Font_GetTextWidth(3, (BYTE *)CFrontend::m_stringDest);
     x = g_optionLayoutXScale * (int)g_pGraphics->resX;
     sprintf(CFrontend::m_stringDest, g_str0x005295f0);
@@ -8489,7 +8489,7 @@ void OptionMenu_DrawClampedStageTime(void)
     else
         OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::m_stringDest, x / 0x280 + width,
                      (int)g_pGraphics->resY * 0x90 / 0x1e0,
-                     &g_unk0x0052737c, &g_unk0x0052738c[1], 0x11);
+                     &g_unk0x0052737c, &g_optionTextBrightColours[1], 0x11);
 }
 
 // 13-byte entry of the option record's 0x104-byte block at +0x0.
@@ -8773,10 +8773,10 @@ void InRaceMenu_DrawLabelAndValueRows(Menu *pMenu)
             str1 = CFrontend::GetTextString(pItem->id);
             str2 = CFrontend::GetTextString(pItem->id + 1);
             if (pMenu->cursor == i) {
-                pColour = &g_unk0x00516074;
+                pColour = &g_inRaceMenuSelectedColour;
                 texture = g_inRaceMenuUpArrowTexture;
             } else {
-                pColour = &g_unk0x00516078;
+                pColour = &g_inRaceMenuUnselectedColour;
                 texture = g_inRaceMenuDownArrowTexture;
             }
             Sprite_Queue((SpriteRect *)&texture->field_0x11c, (SpriteRect *)g_inRaceMenuScratchRect,
@@ -8819,7 +8819,7 @@ void InRaceMenu_DrawLabelAndValueRows(Menu *pMenu)
                 x = (int)(g_pGraphics->resX * 10) / 0x280 + x
                     + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
                 Font_DrawText(1, text, x, y,
-                              pItem->max != j ? &g_unk0x00516078 : &g_unk0x00516074, 0x11);
+                              pItem->max != j ? &g_inRaceMenuUnselectedColour : &g_inRaceMenuSelectedColour, 0x11);
                 strcpy(CFrontend::m_stringDest, text);
                 pA++;
                 pB--;
@@ -8883,7 +8883,7 @@ void InRaceMenu_DrawSliderRows(Menu *pMenu)
     if (pMenu->itemCount > 0) {
         pItem = pMenu->items;
         do {
-            pColour = pMenu->cursor == i ? &g_unk0x00516074 : &g_unk0x00516078;
+            pColour = pMenu->cursor == i ? &g_inRaceMenuSelectedColour : &g_inRaceMenuUnselectedColour;
             switch (pItem->value) {
             case 4:
                 y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
@@ -8932,10 +8932,10 @@ void InRaceMenu_DrawSliderRows(Menu *pMenu)
                               - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
             if (pMenu->cursor == i)
                 Sprite_Queue((SpriteRect *)&g_inRaceMenuUpArrowTexture->field_0x11c, (SpriteRect *)rect,
-                             g_inRaceMenuUpArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516074, 8);
+                             g_inRaceMenuUpArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_inRaceMenuSelectedColour, 8);
             else
                 Sprite_Queue((SpriteRect *)&g_inRaceMenuDownArrowTexture->field_0x11c, (SpriteRect *)rect,
-                             g_inRaceMenuDownArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516078, 8);
+                             g_inRaceMenuDownArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_inRaceMenuUnselectedColour, 8);
             i++;
             pItem++;
         } while (i < pMenu->itemCount);
@@ -8979,7 +8979,7 @@ void InRaceMenu_DrawCarSetupChoices(Menu *pMenu)
     if (pMenu->itemCount > 0) {
         pItem = pMenu->items;
         do {
-            pColour = pMenu->cursor == i ? &g_unk0x00516074 : &g_unk0x00516078;
+            pColour = pMenu->cursor == i ? &g_inRaceMenuSelectedColour : &g_inRaceMenuUnselectedColour;
             switch (pItem->value) {
             case 0:
             case 1:
@@ -8991,7 +8991,7 @@ void InRaceMenu_DrawCarSetupChoices(Menu *pMenu)
                 if (pItem->min != 0) {
                     do {
                         width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-                        pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        pSubColour = pItem->max == j ? &g_inRaceMenuSelectedColour : &g_inRaceMenuUnselectedColour;
                         x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
                         Font_DrawText(1, CFrontend::GetTextString(j + 0x9c), x, MENU_ITEM_Y(i),
                                       pSubColour, 0x11);
@@ -9008,7 +9008,7 @@ void InRaceMenu_DrawCarSetupChoices(Menu *pMenu)
                 if (pItem->min == 2) {
                     do {
                         width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-                        pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        pSubColour = pItem->max == j ? &g_inRaceMenuSelectedColour : &g_inRaceMenuUnselectedColour;
                         x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
                         Font_DrawText(1, CFrontend::GetTextString(j + 0x9c), x, MENU_ITEM_Y(i),
                                       pSubColour, 0x11);
@@ -9019,7 +9019,7 @@ void InRaceMenu_DrawCarSetupChoices(Menu *pMenu)
                     do {
                         width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
                         x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
-                        pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        pSubColour = pItem->max == j ? &g_inRaceMenuSelectedColour : &g_inRaceMenuUnselectedColour;
                         index = j == 0 ? 0x9c : j + 0xef;
                         Font_DrawText(1, CFrontend::GetTextString(index), x, MENU_ITEM_Y(i),
                                       pSubColour, 0x11);
@@ -9037,7 +9037,7 @@ void InRaceMenu_DrawCarSetupChoices(Menu *pMenu)
                     k = 0xa4;
                     do {
                         width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-                        pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        pSubColour = pItem->max == j ? &g_inRaceMenuSelectedColour : &g_inRaceMenuUnselectedColour;
                         x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
                         if (RallyData_IsHeadToHeadRaceMode() != 0)
                             strcpy(CFrontend::m_stringDest,
@@ -9063,10 +9063,10 @@ void InRaceMenu_DrawCarSetupChoices(Menu *pMenu)
             }
             rect[1] = (short)(MENU_ITEM_Y(i) - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
             if (pMenu->cursor == i) {
-                pColour = &g_unk0x00516074;
+                pColour = &g_inRaceMenuSelectedColour;
                 texture = g_inRaceMenuUpArrowTexture;
             } else {
-                pColour = &g_unk0x00516078;
+                pColour = &g_inRaceMenuUnselectedColour;
                 texture = g_inRaceMenuDownArrowTexture;
             }
             Sprite_Queue((SpriteRect *)&texture->field_0x11c, (SpriteRect *)rect,
@@ -9340,7 +9340,7 @@ void OptionMenu_DrawModeTitle(void)
 {
     OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::GetTextString(0x133),
                  (int)g_pGraphics->resX * 0xf0 / 0x280, (int)g_pGraphics->resY * 200 / 0x1e0,
-                 g_unk0x00527380, g_unk0x0052738c, 0x11);
+                 g_optionTextColours, g_optionTextBrightColours, 0x11);
     int value = OptionMenu_GetControlSetupMenu()->items[Menu_FindItem(OptionMenu_GetControlSetupMenu(), 5)].max;
     OptionMenu_DrawAnimatedScreenRows(2, value, 3, 0xf0, 0xd7, 0);
 }
@@ -9406,7 +9406,7 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
     g_gameInfoDrawRect[2] = (short)((int)g_pGraphics->resX * 0x147 / 0x280);
     g_gameInfoDrawRect[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0);
     if (!(char)param_2)
-        pColour = &g_unk0x00527380[2];
+        pColour = &g_optionTextColours[2];
     Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_gameInfoBackgroundColour, 3);
     if ((char)param_2 != '\0' && (CMain::GetFrameDelta() / 0x14 & 1) == 0) {
         g_gameInfoDrawRect[0] -= 3;
@@ -9432,7 +9432,7 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
         g_gameInfoDrawRect[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_gameInfoDrawRect[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2]);
+            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_optionTextColours[2]);
         if (OptionMenu_GetValueSliderMenu()->items[0].max == 6)
             g_gameInfoDrawRect[0] = (short)((int)g_pGraphics->resX * 0x151 / 0x280);
         else
@@ -9452,19 +9452,19 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
                 sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                         CFrontend::GetTextString(0x41));
                 y = (int)g_pGraphics->resY * 0x16c / 0x1e0;
-                Font_DrawText(1, CFrontend::m_stringDest, x, y, g_unk0x00527380, 9);
+                Font_DrawText(1, CFrontend::m_stringDest, x, y, g_optionTextColours, 9);
             } else if (i == 6) {
                 x = (int)g_pGraphics->resX * 0x163 / 0x280;
                 sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                         CFrontend::GetTextString(0x40));
                 y = (int)g_pGraphics->resY * 0x16c / 0x1e0;
-                Font_DrawText(1, CFrontend::m_stringDest, x, y, g_unk0x00527380, 0xc);
+                Font_DrawText(1, CFrontend::m_stringDest, x, y, g_optionTextColours, 0xc);
             } else {
                 x = ((i * 0x1824) / 0x78 + 0x25) * (int)g_pGraphics->resX / 0x280;
                 sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                         CFrontend::GetTextString(i % 2 + 0x41));
                 y = (int)g_pGraphics->resY * 0x16c / 0x1e0;
-                Font_DrawText(1, CFrontend::m_stringDest, x, y, g_unk0x00527380, 10);
+                Font_DrawText(1, CFrontend::m_stringDest, x, y, g_optionTextColours, 10);
             }
             if (i % 2 == 1) {
                 if (i > 0)
@@ -9472,7 +9472,7 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
                 x += (int)g_pGraphics->resX * -0x1a / 0x280;
                 Font_DrawText(1, CFrontend::GetTextString(i / 2 + 0x3d), x,
                               (int)g_pGraphics->resY * 0x179 / 0x1e0,
-                              g_unk0x00527380, 10);
+                              g_optionTextColours, 10);
             }
             if (i % 2 == 0 && i > 0) {
                 if (i == 6)
@@ -9481,7 +9481,7 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
                     x -= Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest) / 2;
                 g_gameInfoDrawRect[0] = (short)((centre + x) / 2);
                 Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect,
-                                (BYTE *)&g_unk0x00527380[2], 3);
+                                (BYTE *)&g_optionTextColours[2], 3);
             }
         }
         return;
@@ -9495,7 +9495,7 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
         g_gameInfoDrawRect[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_gameInfoDrawRect[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2]);
+            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_optionTextColours[2]);
         if (OptionMenu_GetValueSliderMenu()->items[0].max == 4)
             g_gameInfoDrawRect[0] = (short)((int)g_pGraphics->resX * 0x151 / 0x280);
         else
@@ -9508,10 +9508,10 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
             Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)pColour, 3);
         Font_DrawText(1, CFrontend::GetTextString(0xc9),
                       (int)g_pGraphics->resX * 0x1c / 0x280,
-                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_optionTextColours, 9);
         Font_DrawText(1, CFrontend::GetTextString(0xca),
                       (int)g_pGraphics->resX * 0x163 / 0x280,
-                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 0xc);
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_optionTextColours, 0xc);
         return;
     case 2:
         g_gameInfoDrawRect[0] = (short)((count * 0x135 / 100 + 0x1c) *
@@ -9520,7 +9520,7 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
         g_gameInfoDrawRect[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_gameInfoDrawRect[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2]);
+            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_optionTextColours[2]);
         g_gameInfoDrawRect[0] = (short)((OptionMenu_GetValueSliderMenu()->items[0].max * 0x135 / 10 + 0x1c) *
                                      (int)g_pGraphics->resX / 0x280);
         g_gameInfoDrawRect[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
@@ -9530,10 +9530,10 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
             Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)pColour, 3);
         Font_DrawText(1, CFrontend::GetTextString(0xcb),
                       (int)g_pGraphics->resX * 0x1c / 0x280,
-                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_optionTextColours, 9);
         Font_DrawText(1, CFrontend::GetTextString(0xcc),
                       (int)g_pGraphics->resX * 0x163 / 0x280,
-                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 0xc);
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_optionTextColours, 0xc);
         return;
     case 3:
         g_gameInfoDrawRect[0] = (short)((count * 0x135 / 100 + 0x1c) *
@@ -9542,7 +9542,7 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
         g_gameInfoDrawRect[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_gameInfoDrawRect[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2]);
+            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_optionTextColours[2]);
         g_gameInfoDrawRect[0] = (short)((OptionMenu_GetValueSliderMenu()->items[0].max * 0x135 / 10 + 0x1c) *
                                      (int)g_pGraphics->resX / 0x280);
         g_gameInfoDrawRect[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
@@ -9552,10 +9552,10 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
             Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)pColour, 3);
         Font_DrawText(1, CFrontend::GetTextString(0xce),
                       (int)g_pGraphics->resX * 0x1c / 0x280,
-                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_optionTextColours, 9);
         Font_DrawText(1, CFrontend::GetTextString(0xcd),
                       (int)g_pGraphics->resX * 0x163 / 0x280,
-                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 0xc);
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_optionTextColours, 0xc);
         return;
     case 4:
         g_gameInfoDrawRect[0] = (short)((count * 0x135 / 100 + 0x1c) *
@@ -9564,7 +9564,7 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
         g_gameInfoDrawRect[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_gameInfoDrawRect[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2]);
+            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_optionTextColours[2]);
         g_gameInfoDrawRect[0] = (short)((OptionMenu_GetValueSliderMenu()->items[0].max * 0x135 / 10 + 0x1c) *
                                      (int)g_pGraphics->resX / 0x280);
         g_gameInfoDrawRect[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
@@ -9574,10 +9574,10 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
             Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)pColour, 3);
         Font_DrawText(1, CFrontend::GetTextString(0xce),
                       (int)g_pGraphics->resX * 0x1c / 0x280,
-                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_optionTextColours, 9);
         Font_DrawText(1, CFrontend::GetTextString(0xcd),
                       (int)g_pGraphics->resX * 0x163 / 0x280,
-                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 0xc);
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_optionTextColours, 0xc);
         return;
     case 6:
         g_gameInfoDrawRect[0] = (short)((count * 0x135 / 100 + 0x1c) *
@@ -9586,7 +9586,7 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
         g_gameInfoDrawRect[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_gameInfoDrawRect[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2]);
+            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_optionTextColours[2]);
         g_gameInfoDrawRect[0] = (short)((OptionMenu_GetValueSliderMenu()->items[0].max * 0x135 / 10 + 0x1c) *
                                      (int)g_pGraphics->resX / 0x280);
         g_gameInfoDrawRect[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
@@ -9596,10 +9596,10 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
             Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)pColour, 3);
         Font_DrawText(1, CFrontend::GetTextString(0xd2),
                       (int)g_pGraphics->resX * 0x1c / 0x280,
-                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_optionTextColours, 9);
         Font_DrawText(1, CFrontend::GetTextString(0xd1),
                       (int)g_pGraphics->resX * 0x163 / 0x280,
-                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 0xc);
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_optionTextColours, 0xc);
         return;
     case 5:
         g_gameInfoDrawRect[0] = (short)((count * 0x135 / 100 + 0x1c) *
@@ -9608,7 +9608,7 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
         g_gameInfoDrawRect[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_gameInfoDrawRect[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
         if ((char)param_2 != '\0')
-            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2]);
+            OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_optionTextColours[2]);
         g_gameInfoDrawRect[0] = (short)((OptionMenu_GetValueSliderMenu()->items[0].max * 0x135 / 10 + 0x1c) *
                                      (int)g_pGraphics->resX / 0x280);
         g_gameInfoDrawRect[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
@@ -9618,10 +9618,10 @@ void OptionMenu_DrawGameInfoLayout(Menu *pMenu, int param_2)
             Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)pColour, 3);
         Font_DrawText(1, CFrontend::GetTextString(0xcf),
                       (int)g_pGraphics->resX * 0x1c / 0x280,
-                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_optionTextColours, 9);
         Font_DrawText(1, CFrontend::GetTextString(0xd0),
                       (int)g_pGraphics->resX * 0x163 / 0x280,
-                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 0xc);
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_optionTextColours, 0xc);
         break;
     }
 }
@@ -9671,54 +9671,54 @@ void OptionMenu_DrawRecordValues(Menu *pMenu)
 
     if (g_unk0x0082ab44 != 0) {
         pSel = &g_unk0x0052737c;
-        pUnsel = &g_unk0x0052738c[1];
+        pUnsel = &g_optionTextBrightColours[1];
     } else {
-        pSel = &g_unk0x0052738c[1];
-        pUnsel = g_unk0x00527380;
+        pSel = &g_optionTextBrightColours[1];
+        pUnsel = g_optionTextColours;
     }
     if (g_unk0x0082ac48 > 0) {
         for (i = 0; i < g_unk0x0082ac48; i++) {
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x145),
-                    SavedGames_GetDifficulty(g_unk0x0082aa3c + i),
-                    CFrontend::GetTextString(SavedGames_GetDateLowBits(g_unk0x0082aa3c + i) + 0x93),
-                    pLabels[SavedGames_GetDateMiddleBits(g_unk0x0082aa3c + i)]);
-            if (g_unk0x0082a924 == g_unk0x0082aa3c + i) {
-                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, (char *)SavedGames_GetFileName(g_unk0x0082aa3c + i),
+                    SavedGames_GetDifficulty(g_savedGameListTop + i),
+                    CFrontend::GetTextString(SavedGames_GetDateLowBits(g_savedGameListTop + i) + 0x93),
+                    pLabels[SavedGames_GetDateMiddleBits(g_savedGameListTop + i)]);
+            if (g_savedGameListSelection == g_savedGameListTop + i) {
+                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, (char *)SavedGames_GetFileName(g_savedGameListTop + i),
                              (int)g_pGraphics->resX * 0x32 / 0x280,
                              (int)g_pGraphics->resY * 100 / 0x1e0 +
                                  ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
-                             pSel, g_unk0x0052738c, 0x11);
+                             pSel, g_optionTextBrightColours, 0x11);
                 OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, CFrontend::m_stringDest,
                              (int)g_pGraphics->resX * 0x9b / 0x280,
                              (int)g_pGraphics->resY * 100 / 0x1e0 +
                                  ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
-                             pSel, g_unk0x0052738c, 0x11);
-                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, (char *)SavedGames_GetRecordData(g_unk0x0082aa3c + i),
+                             pSel, g_optionTextBrightColours, 0x11);
+                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, (char *)SavedGames_GetRecordData(g_savedGameListTop + i),
                              (int)g_pGraphics->resX * 0xff / 0x280,
                              (int)g_pGraphics->resY * 100 / 0x1e0 +
                                  ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
-                             pSel, g_unk0x0052738c, 0x11);
+                             pSel, g_optionTextBrightColours, 0x11);
             } else {
-                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, (char *)SavedGames_GetFileName(g_unk0x0082aa3c + i),
+                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, (char *)SavedGames_GetFileName(g_savedGameListTop + i),
                              (int)g_pGraphics->resX * 0x32 / 0x280,
                              (int)g_pGraphics->resY * 100 / 0x1e0 +
                                  ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
-                             pUnsel, g_unk0x0052738c, 0x11);
+                             pUnsel, g_optionTextBrightColours, 0x11);
                 OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, CFrontend::m_stringDest,
                              (int)g_pGraphics->resX * 0x9b / 0x280,
                              (int)g_pGraphics->resY * 100 / 0x1e0 +
                                  ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
-                             pUnsel, g_unk0x0052738c, 0x11);
-                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, (char *)SavedGames_GetRecordData(g_unk0x0082aa3c + i),
+                             pUnsel, g_optionTextBrightColours, 0x11);
+                OptionMenu_DrawTransitionTextShortCoords(4, 1, 1, (char *)SavedGames_GetRecordData(g_savedGameListTop + i),
                              (int)g_pGraphics->resX * 0xff / 0x280,
                              (int)g_pGraphics->resY * 100 / 0x1e0 +
                                  ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
-                             pUnsel, g_unk0x0052738c, 0x11);
+                             pUnsel, g_optionTextBrightColours, 0x11);
             }
         }
     } else {
         OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::GetTextString(0x140), (int)g_pGraphics->resX / 2,
-                     (int)g_pGraphics->resY / 2, pUnsel, g_unk0x0052738c, 0x12);
+                     (int)g_pGraphics->resY / 2, pUnsel, g_optionTextBrightColours, 0x12);
     }
     OptionMenu_DrawAnimatedScreenRows(2, pMenu->items[Menu_FindItem(pMenu, 4)].max,
                  4, 0x32, 0x17c, 1);
@@ -9746,7 +9746,7 @@ void OptionMenu_DrawValueSelectionRows(Menu *pMenu)
     destRect[3] = 0;
     OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::GetTextString(0x13f),
                  (int)g_pGraphics->resX * 0xf0 / 0x280, (int)g_pGraphics->resY * 200 / 0x1e0,
-                 g_unk0x00527380, g_unk0x0052738c, 0x11);
+                 g_optionTextColours, g_optionTextBrightColours, 0x11);
     g_gameInfoDrawRect[0] = (short)x0;
     g_gameInfoDrawRect[1] = (short)yBase;
     g_gameInfoDrawRect[2] = (short)((int)g_pGraphics->resX * 0xa2 / 0x280);
@@ -9755,7 +9755,7 @@ void OptionMenu_DrawValueSelectionRows(Menu *pMenu)
     if (sel == 0)
         Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&colour, 1);
     else
-        Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2], 1);
+        Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_optionTextColours[2], 1);
     for (i = 0; i < pMenu->itemCount; i++) {
         if (g_unk0x0083166c != 0) {
             if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::IsTextureWidthSupported(0x400) ||
@@ -9772,7 +9772,7 @@ void OptionMenu_DrawValueSelectionRows(Menu *pMenu)
             ((void (__stdcall *)(int, int, int, char *, int, short, int *, int *, unsigned int))OptionMenu_DrawTransitionText)(7, 0, 0, CFrontend::m_stringDest,
                          (int)g_pGraphics->resX * 0x14 / 0x280 + x0,
                          (short)((int)g_pGraphics->resY * 0x12 / 0x1e0) + g_gameInfoDrawRect[1],
-                         &colour, g_unk0x00527380, 0x11);
+                         &colour, g_optionTextColours, 0x11);
             if (g_unk0x0083166c != 0)
                 Sprite_Queue((SpriteRect *)&g_unk0x0083166c->field_0x11c, (SpriteRect *)destRect,
                              g_unk0x0083166c, 1, 0, 0, 0, (BYTE *)&colour, 8);
@@ -9780,10 +9780,10 @@ void OptionMenu_DrawValueSelectionRows(Menu *pMenu)
             OptionMenu_DrawTransitionTextShortCoords(3, 0, 0, CFrontend::m_stringDest,
                          (int)g_pGraphics->resX * 0x14 / 0x280 + x0,
                          (short)((int)g_pGraphics->resY * 0x12 / 0x1e0 + g_gameInfoDrawRect[1]),
-                         g_unk0x00527380, g_unk0x0052738c, 0x11);
+                         g_optionTextColours, g_optionTextBrightColours, 0x11);
             if (g_unk0x00831670 != 0)
                 Sprite_Queue((SpriteRect *)&g_unk0x00831670->field_0x11c, (SpriteRect *)destRect,
-                             g_unk0x00831670, 1, 0, 0, 0, (BYTE *)g_unk0x00527380, 8);
+                             g_unk0x00831670, 1, 0, 0, 0, (BYTE *)g_optionTextColours, 8);
         }
         g_gameInfoDrawRect[1] =
             (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1) + yBase);
@@ -9793,7 +9793,7 @@ void OptionMenu_DrawValueSelectionRows(Menu *pMenu)
             else
                 Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&colour, 1);
         } else {
-            Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2], 1);
+            Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&g_optionTextColours[2], 1);
         }
     }
 }
@@ -9922,7 +9922,7 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
         sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                     CFrontend::GetTextString(0x135));
     x = x - Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest) / 2;
-    Font_DrawText(1, CFrontend::m_stringDest, x, y, g_unk0x00527380, 0x11);
+    Font_DrawText(1, CFrontend::m_stringDest, x, y, g_optionTextColours, 0x11);
     if (param_1 != 0) {
         tex = g_unk0x0083137c[OptionMenu_GetColumnWeight(
             OptionMenu_GetControlSetupMenu()->items[Menu_FindItem(OptionMenu_GetControlSetupMenu(), 2)].max)];
@@ -9947,14 +9947,14 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
         OptionMenu_DrawThreeColourGradientStrips(g_gameInfoDrawRect, 1, 0x15, col);
         sprintf(CFrontend::m_stringDest, g_str0x00519fb0);
         Font_DrawText(0, CFrontend::m_stringDest, g_gameInfoDrawRect[0],
-                      (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x11);
+                      (int)g_pGraphics->resY * 0x17c / 0x1e0, g_optionTextColours, 0x11);
         sprintf(CFrontend::m_stringDest, g_str0x00524e20);
         Font_DrawText(0, CFrontend::m_stringDest,
                       OptionMenu_AddPackedScreenRectangleWords((int *)g_gameInfoDrawRect),
-                      (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x14);
+                      (int)g_pGraphics->resY * 0x17c / 0x1e0, g_optionTextColours, 0x14);
         Font_DrawText(1, CFrontend::GetTextString(0xf9),
                       g_gameInfoDrawRect[2] / 2 + *(int *)&g_gameInfoDrawRect[0],
-                      (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x12);
+                      (int)g_pGraphics->resY * 0x17c / 0x1e0, g_optionTextColours, 0x12);
         int idx = OptionMenu_GetControlSetupMenu()->items[Menu_FindItem(OptionMenu_GetControlSetupMenu(), 2)].max;
         t = FixDiv(OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(idx), 1) << 16,
                    0x640000);
@@ -9967,7 +9967,7 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
         g_gameInfoDrawRect[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
         g_gameInfoDrawRect[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
         g_gameInfoDrawRect[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
-        OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_unk0x00527380[2]);
+        OptionMenu_DrawBoxEdges(g_gameInfoDrawRect, (BYTE *)&g_optionTextColours[2]);
         t = FixDiv(OptionMenu_GetRecordPercentage(CGameInfo::GetActiveOptionSlot(), OptionMenu_GetColumnWeight(idx), 0) << 16,
                    0x640000);
         if (t < 0)
@@ -10004,7 +10004,7 @@ void OptionMenu_DrawResultsRallyInfo(int param_1)
     do {
         OptionMenu_DrawTransitionTextShortCoords(5, 1, 1, CFrontend::GetTextString(base), x,
                      (int)g_pGraphics->resY * y / 0x1e0,
-                     g_unk0x00527380, g_unk0x0052738c, 0x11);
+                     g_optionTextColours, g_optionTextBrightColours, 0x11);
         y += 0xe;
         base++;
     } while (--i != 0);
@@ -10045,7 +10045,7 @@ void OptionMenu_DrawStageSelectionPanel(Menu *pMenu)
                           (int)g_pGraphics->resX * 0x25f / 0x280,
                           (int)g_pGraphics->resY * 0xb4 / 0x1e0 +
                               (int)g_pGraphics->resY * 0x14 / 0x1e0 * i,
-                          g_unk0x00527380, 0xc);
+                          g_optionTextColours, 0xc);
         }
     }
     pRec = RallyData_GetDriverSettingPair(OptionMenu_GetControlSetupMenu()->items[Menu_FindItem(OptionMenu_GetControlSetupMenu(), 0)].max);
@@ -10053,7 +10053,7 @@ void OptionMenu_DrawStageSelectionPanel(Menu *pMenu)
             CFrontend::GetTextString(*pRec + 0x9d));
     Font_DrawText(0, CFrontend::m_stringDest,
                   (int)g_pGraphics->resX * 100 / 0x280,
-                  (int)g_pGraphics->resY * 400 / 0x1e0, g_unk0x00527380, 9);
+                  (int)g_pGraphics->resY * 400 / 0x1e0, g_optionTextColours, 9);
     OptionMenu_SelectAndAnimateSlot(OptionMenu_GetControlSetupMenu()->items[Menu_FindItem(OptionMenu_GetControlSetupMenu(), 0)].max, 1);
 }
 
@@ -10157,21 +10157,21 @@ void OptionMenu_DrawResultsOptions(int param_1)
     case 0:
         f = 0x10000 - FixDiv(0x10000 - (int)FTOI(__int64, X87S_MUL((double)(unsigned)frames, CGraphics::m_65536)), 0x10000);
         FixMul((int)FTOI(__int64, X87S_MUL((double)(colour & 0xff), CGraphics::m_65536)), f);
-        FixMul((int)FTOI(__int64, X87S_MUL((double)(g_unk0x00527380[0] & 0xff), CGraphics::m_65536)), 0x10000 - f);
+        FixMul((int)FTOI(__int64, X87S_MUL((double)(g_optionTextColours[0] & 0xff), CGraphics::m_65536)), 0x10000 - f);
         FixMul((int)FTOI(__int64, X87S_MUL((double)(colour >> 8 & 0xff), CGraphics::m_65536)), f);
-        FixMul((int)FTOI(__int64, X87S_MUL((double)(g_unk0x00527380[0] >> 8 & 0xff), CGraphics::m_65536)), 0x10000 - f);
+        FixMul((int)FTOI(__int64, X87S_MUL((double)(g_optionTextColours[0] >> 8 & 0xff), CGraphics::m_65536)), 0x10000 - f);
         FixMul((int)FTOI(__int64, X87S_MUL((double)(colour >> 16 & 0xff), CGraphics::m_65536)), f);
-        FixMul(0x10000 - f, (int)FTOI(__int64, X87S_MUL((double)(g_unk0x00527380[0] >> 16 & 0xff), CGraphics::m_65536)));
+        FixMul(0x10000 - f, (int)FTOI(__int64, X87S_MUL((double)(g_optionTextColours[0] >> 16 & 0xff), CGraphics::m_65536)));
         break;
     case 1:
         break;
     case 2:
         f = 0x10000 - FixDiv(0x10000 - (int)FTOI(__int64, X87S_MUL((double)(unsigned)frames, CGraphics::m_65536)), 0x10000);
-        FixMul(f, (int)FTOI(__int64, X87S_MUL((double)(g_unk0x00527380[0] & 0xff), CGraphics::m_65536)));
+        FixMul(f, (int)FTOI(__int64, X87S_MUL((double)(g_optionTextColours[0] & 0xff), CGraphics::m_65536)));
         FixMul((int)FTOI(__int64, X87S_MUL((double)(colour & 0xff), CGraphics::m_65536)), 0x10000 - f);
-        FixMul((int)FTOI(__int64, X87S_MUL((double)(g_unk0x00527380[0] >> 8 & 0xff), CGraphics::m_65536)), f);
+        FixMul((int)FTOI(__int64, X87S_MUL((double)(g_optionTextColours[0] >> 8 & 0xff), CGraphics::m_65536)), f);
         FixMul((int)FTOI(__int64, X87S_MUL((double)(colour >> 8 & 0xff), CGraphics::m_65536)), 0x10000 - f);
-        FixMul((int)FTOI(__int64, X87S_MUL((double)(g_unk0x00527380[0] >> 16 & 0xff), CGraphics::m_65536)), f);
+        FixMul((int)FTOI(__int64, X87S_MUL((double)(g_optionTextColours[0] >> 16 & 0xff), CGraphics::m_65536)), f);
         FixMul(0x10000 - f, (int)FTOI(__int64, X87S_MUL((double)(colour >> 16 & 0xff), CGraphics::m_65536)));
         break;
     }
@@ -10185,11 +10185,11 @@ void OptionMenu_DrawResultsOptions(int param_1)
         if (a == i)
             OptionMenu_DrawTransitionText(6, 0, 0,
                          CFrontend::GetTextString(OptionMenu_GetControlSetupMenu()->items[i].id),
-                         x, (int)g_pGraphics->resY * 0x2c / 0x1e0, &colour, g_unk0x00527380, 0x11);
+                         x, (int)g_pGraphics->resY * 0x2c / 0x1e0, &colour, g_optionTextColours, 0x11);
         else
             Font_DrawText(0,
                           CFrontend::GetTextString(OptionMenu_GetControlSetupMenu()->items[i].id),
-                          x, (int)g_pGraphics->resY * 0x2c / 0x1e0, g_unk0x00527380, 0x11);
+                          x, (int)g_pGraphics->resY * 0x2c / 0x1e0, g_optionTextColours, 0x11);
         x += Font_GetTextWidth(0, (BYTE *)CFrontend::GetTextString(
                                       OptionMenu_GetControlSetupMenu()->items[i].id));
         x += Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
@@ -10199,7 +10199,7 @@ void OptionMenu_DrawResultsOptions(int param_1)
                 Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)&colour, 3);
             else
                 Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect,
-                                (BYTE *)(g_unk0x00527380 + 2), 3);
+                                (BYTE *)(g_optionTextColours + 2), 3);
         }
         x += 2 + Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
         i++;
@@ -10208,14 +10208,14 @@ void OptionMenu_DrawResultsOptions(int param_1)
     sprintf(CFrontend::m_stringDest, g_classRowHeaderFormat, CFrontend::GetTextString(0x4a),
             CGameInfo::GetActiveOptionSlot() + 1);
     Font_DrawText(0, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0x2c / 0x1e0,
-                  g_unk0x00527380, 0x11);
+                  g_optionTextColours, 0x11);
     x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
     x += Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
     g_gameInfoDrawRect[0] = (short)x;
-    Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)(g_unk0x00527380 + 2), 3);
+    Sprite_FillRect(&g_pGraphics->field309_0x150, g_gameInfoDrawRect, (BYTE *)(g_optionTextColours + 2), 3);
     x += 2 + Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
     Font_DrawText(0, (char *)RallyData_GetRecord((BYTE)CGameInfo::GetActiveOptionSlot()), x,
-                  (int)g_pGraphics->resY * 0x2c / 0x1e0, g_unk0x00527380, 0x11);
+                  (int)g_pGraphics->resY * 0x2c / 0x1e0, g_optionTextColours, 0x11);
     if (CGameInfo::GetGameModeOptionBit19() == 0)
         return;
     x = (int)g_pGraphics->resX * 0x1e / 0x280 + x +
@@ -10238,7 +10238,7 @@ void OptionMenu_DrawResultsOptions(int param_1)
     sprintf(CFrontend::m_stringDest, g_str0x0051a904, (remaining / 100) / 0x3c,
             (remaining / 100) % 0x3c);
     Font_DrawText(2, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0x2c / 0x1e0,
-                  g_unk0x00527380, 0x11);
+                  g_optionTextColours, 0x11);
 }
 
 // Draws the stage summary panel: the event header (special stage or round), the
@@ -10498,7 +10498,7 @@ BYTE SavedGames_WriteSessionImage(int index, const char *name)
 // FUNCTION: CMR2 0x00500020
 void OptionMenu_LoadSelectedSavedGame(unsigned int param1, unsigned int param2)
 {
-    if (SavedGames_WriteSessionImage(g_unk0x0082a924, NULL)) {
+    if (SavedGames_WriteSessionImage(g_savedGameListSelection, NULL)) {
         strcpy(g_optionStatusLine, CFrontend::GetTextString(0x143));
         Menu_SetNextAction(OptionMenu_GetStatusMenu());
         SavedGames_LoadRecords();
@@ -10528,7 +10528,7 @@ void OptionMenu_LoadGameItem(Menu *pMenu, MenuItem *pItem)
             strcpy(g_optionStatusLine, CFrontend::GetTextString(0x143));
             Menu_SetNextAction(OptionMenu_GetStatusMenu());
             SavedGames_LoadRecords();
-            g_unk0x0082a924 = SavedGames_GetCount() - 1;
+            g_savedGameListSelection = SavedGames_GetCount() - 1;
         } else {
             strcpy(g_optionStatusLine, CFrontend::GetTextString(0x144));
             Menu_SetNextAction(OptionMenu_GetStatusMenu());
@@ -10773,28 +10773,28 @@ void OptionMenu_UpdateLoadGameAndNameEntry(Menu *pMenu)
         Menu_SetFlags(pMenu, 0, 0, 1, 1);
         pDevice = CInput::GetAvailableDeviceRecord(0);
         if (g_unk0x0082aa40 > 0) {
-            if (g_unk0x0082a924 == -1) {
-                g_unk0x0082a924 = 0;
+            if (g_savedGameListSelection == -1) {
+                g_savedGameListSelection = 0;
             } else if ((pDevice->field_0x8 & 0x20) != 0) {
                 g_unk0x0082ab44 = 0;
                 g_unk0x0082ac60 = 1;
-            } else if ((pDevice->field_0x8 & 4) != 0 && g_unk0x0082a924 > 0) {
-                g_unk0x0082a924--;
-            } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x0082a924 < g_unk0x0082aa40 - 1) {
-                g_unk0x0082a924++;
+            } else if ((pDevice->field_0x8 & 4) != 0 && g_savedGameListSelection > 0) {
+                g_savedGameListSelection--;
+            } else if ((pDevice->field_0x8 & 8) != 0 && g_savedGameListSelection < g_unk0x0082aa40 - 1) {
+                g_savedGameListSelection++;
             }
         } else {
-            g_unk0x0082a924 = -1;
+            g_savedGameListSelection = -1;
             g_unk0x0082ab44 = 0;
-            g_unk0x0082aa3c = 0;
+            g_savedGameListTop = 0;
         }
-        if (g_unk0x0082a924 < g_unk0x0082aa3c) {
-            g_unk0x0082aa3c--;
-            if (g_unk0x0082aa3c < 0)
-                g_unk0x0082aa3c = 0;
+        if (g_savedGameListSelection < g_savedGameListTop) {
+            g_savedGameListTop--;
+            if (g_savedGameListTop < 0)
+                g_savedGameListTop = 0;
         }
-        if (g_unk0x0082a924 >= g_unk0x0082aa3c + 13)
-            g_unk0x0082aa3c++;
+        if (g_savedGameListSelection >= g_savedGameListTop + 13)
+            g_savedGameListTop++;
         if (g_unk0x0082aa40 > 13)
             g_unk0x0082ac48 = 13;
         else
@@ -10802,13 +10802,13 @@ void OptionMenu_UpdateLoadGameAndNameEntry(Menu *pMenu)
         return;
     }
 
-    if (g_unk0x0082a924 < g_unk0x0082aa3c) {
-        g_unk0x0082aa3c--;
-        if (g_unk0x0082aa3c < 0)
-            g_unk0x0082aa3c = 0;
+    if (g_savedGameListSelection < g_savedGameListTop) {
+        g_savedGameListTop--;
+        if (g_savedGameListTop < 0)
+            g_savedGameListTop = 0;
     }
-    if (g_unk0x0082a924 >= g_unk0x0082aa3c + 13)
-        g_unk0x0082aa3c++;
+    if (g_savedGameListSelection >= g_savedGameListTop + 13)
+        g_savedGameListTop++;
     if (g_unk0x0082aa40 > 13)
         g_unk0x0082ac48 = 13;
     else

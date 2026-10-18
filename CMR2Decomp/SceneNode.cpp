@@ -1703,7 +1703,7 @@ void Scene_EndShadowBatch(void)
 void Scene_ProjectCasterIntoLightZone(LightZoneItem *pItem, ShadowCaster *pCaster, BYTE param3);
 
 // GLOBAL: CMR2 0x00511cf0
-extern const double g_unk0x00511cf0 = 0.009999999776482582;
+extern const double g_double0_01f = 0.009999999776482582;
 extern const float g_netOne;           // 0x00511350, 1.0f   (NetRace.cpp)
 extern const float g_netMinusOne;      // 0x0051134c, -1.0f  (NetRace.cpp)
 int FloatMatrix_InverseRotateVector(float *pOut, float *pV, float *pM);
@@ -1858,7 +1858,7 @@ void Scene_ProjectCasterIntoLightZone(LightZoneItem *pItem, ShadowCaster *pCaste
                 delta[2] = origin[2] - pos[2];
                 FloatMatrix_InverseRotateVector(pos, delta, pPart->pNode->worldF);
                 dot = plane[0] * axis[0] + plane[1] * axis[1] + plane[2] * axis[2];
-                if (fabs(dot) > g_unk0x00511cf0) {
+                if (fabs(dot) > g_double0_01f) {
                     inv = g_netMinusOne / dot;
                     ray[0] = plane[0] * inv;
                     ray[1] = plane[1] * inv;
@@ -1923,7 +1923,7 @@ void Scene_EmitProjectedShadowMesh(ShadowPart *pPart, int param_2);
 // Scale of the normal added to the vertex position when a shadow part is
 // projected (0x00511cec, 0.005f).
 // GLOBAL: CMR2 0x00511cec
-extern const float g_unk0x00511cec = 0.005f;
+extern const float g_float0_005 = 0.005f;
 
 // Projects the shadow parts of a caster that were marked dirty: for every vertex
 // of the part the position and the normal are copied into its two work buffers
@@ -1954,10 +1954,10 @@ void Scene_ProjectDirtyShadowParts(ShadowCaster *pCaster, int param2)
                         pWork[1] = pSrc[4];
                         pWork[2] = pSrc[5];
                         scaled[0] = pWork[0];
-                        scaled[0] *= g_unk0x00511cec;
+                        scaled[0] *= g_float0_005;
                         scaled[1] = pWork[1];
-                        scaled[1] *= g_unk0x00511cec;
-                        scaled[2] = pWork[2] * g_unk0x00511cec;
+                        scaled[1] *= g_float0_005;
+                        scaled[2] = pWork[2] * g_float0_005;
                         pWork2[0] += scaled[0];
                         pWork2[1] += scaled[1];
                         pWork2[2] += scaled[2];
@@ -2562,14 +2562,14 @@ void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask)
 }
 
 // GLOBAL: CMR2 0x00511cf8
-extern const double g_unk0x00511cf8 = 0.0019569471624266144;
+extern const double g_doubleOneOver511 = 0.0019569471624266144;
 // GLOBAL: CMR2 0x00511d00
-extern const double g_unk0x00511d00 = 0.0002442002442002442;
+extern const double g_doubleOneOver4095 = 0.0002442002442002442;
 // GLOBAL: CMR2 0x00511d08
-extern const double g_unk0x00511d08 = 0.0015339807878856412;
+extern const double g_angle12ToRadians = 0.0015339807878856412;
 
 extern short g_acosTable[4096];
-extern const double g_unk0x00511380;
+extern const double g_fixedRadiansToAngle12;
 
 // Fills the 16.16 maths tables the original computes at startup. The original
 // uses the x87 instructions in brackets; this is plain C with the same maths:
@@ -2592,8 +2592,8 @@ void Scene_InitFixedMathTables(void)
     int value;
 
     for (i = 0; i < 4096; i++) {
-        g_sinTable[i] = (int)FTOI(__int64, X87S_MUL(sin(X87S_MUL((double)i, g_unk0x00511d08)), CGraphics::m_65536));
-        g_tanTable[i] = (int)FTOI(__int64, X87S_MUL(tan(X87S_MUL((double)i, g_unk0x00511d08)), CGraphics::m_65536));
+        g_sinTable[i] = (int)FTOI(__int64, X87S_MUL(sin(X87S_MUL((double)i, g_angle12ToRadians)), CGraphics::m_65536));
+        g_tanTable[i] = (int)FTOI(__int64, X87S_MUL(tan(X87S_MUL((double)i, g_angle12ToRadians)), CGraphics::m_65536));
     }
     i = 8;
     // tan(90°) and tan(270°) would overflow: the original clamps them
@@ -2604,22 +2604,22 @@ void Scene_InitFixedMathTables(void)
         g_sqrtTable[n] = (unsigned short)(int)FTOI(__int64, X87S_MUL(X87S_SQRT(X87S_MUL((double)i, CGraphics::m_oneOver65536)), CGraphics::m_65536));
 
     for (i = 0; i < 4096; i++) {
-        value = (int)FTOI(__int64, X87S_MUL(asin(X87S_MUL((double)i, g_unk0x00511d00)), CGraphics::m_65536));
-        g_acosTable[i] = (short)FTOI(__int64, X87S_MUL((double)value, g_unk0x00511380));
+        value = (int)FTOI(__int64, X87S_MUL(asin(X87S_MUL((double)i, g_doubleOneOver4095)), CGraphics::m_65536));
+        g_acosTable[i] = (short)FTOI(__int64, X87S_MUL((double)value, g_fixedRadiansToAngle12));
     }
 
     for (i = 0; i < 512; i++) {
-        value = (int)FTOI(__int64, X87S_MUL(atan(X87S_MUL((double)i, g_unk0x00511cf8)), CGraphics::m_65536));
-        g_atanTable[i] = (unsigned short)FTOI(__int64, X87S_MUL((double)value, g_unk0x00511380));
+        value = (int)FTOI(__int64, X87S_MUL(atan(X87S_MUL((double)i, g_doubleOneOver511)), CGraphics::m_65536));
+        g_atanTable[i] = (unsigned short)FTOI(__int64, X87S_MUL((double)value, g_fixedRadiansToAngle12));
     }
 }
 
 
 int FloatMatrix_RotateVector(float *pOut, float *pV, float *pM);
 int FloatMatrix_InverseRotateVector(float *pOut, float *pV, float *pM);
-extern const float g_unk0x00511360;   // 10.0f, defined in NetRace.cpp
+extern const float g_float10;   // 10.0f, defined in NetRace.cpp
 extern const float g_netZero;          // 0x0051131c, 0.0f
-extern const float g_unk0x00511ce8;    // 0x00511ce8, 0.1f
+extern const float g_float0_1;    // 0x00511ce8, 0.1f
 // Scratch table of emitted vertex indices of the shadow mesh builder (-1 none).
 // GLOBAL: CMR2 0x006e0354
 unsigned short g_shadowVertexRemap[0x3f0];
@@ -2721,8 +2721,8 @@ void Scene_EmitProjectedShadowMesh(ShadowPart *pPart, int param_2)
                             colour[3] = baseColour;
                             if (vy < g_netZero)
                                 colour[3] = 0;
-                            else if (vy < g_unk0x00511ce8)
-                                colour[3] = (BYTE)FTOI(__int64, vy * g_unk0x00511360 * scale);
+                            else if (vy < g_float0_1)
+                                colour[3] = (BYTE)FTOI(__int64, vy * g_float10 * scale);
                         }
                         *(DWORD *)(pVtx + 0x18) =
                             ((((DWORD)colour[3] << 8 | colour[0]) << 8 | colour[1]) << 8) | colour[2];

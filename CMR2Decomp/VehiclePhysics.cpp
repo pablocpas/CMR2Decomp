@@ -502,7 +502,7 @@ void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, i
 int Collision_TestSectorEdgeEndpoints(char type);
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
 
-extern FinRecord *g_unk0x0059190c;
+extern FinRecord *g_pCollisionFinRecord;
 extern FixVector g_unk0x005918e0;
 extern int g_unk0x00591930;
 extern FixVector g_unk0x00591938;
@@ -512,7 +512,7 @@ extern FixVector g_unk0x00591ad0;
 extern FinRecord *g_unk0x00591948;
 extern int g_unk0x0051fb00[52];
 
-// Resolves the car's contact with the sector edge tracked in g_unk0x0059190c:
+// Resolves the car's contact with the sector edge tracked in g_pCollisionFinRecord:
 // picks the contact vertex of the face tracked in g_collisionFace, slides the
 // car, its eight corners and the face's four vertices out of the surface,
 // applies the impact impulse and spawns the impact debris.
@@ -537,14 +537,14 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
     int *pDistance;
 
     result = 0;
-    if ((g_unk0x0059190c->flags & 1) != 0)
+    if ((g_pCollisionFinRecord->flags & 1) != 0)
         found = VehiclePhysics_SelectParallelCollisionSide();
     else
         found = VehiclePhysics_TestBehindFaceCollision();
     if (found == 0)
         goto finish;
 
-    if ((g_unk0x0059190c->flags & 1) == 0)
+    if ((g_pCollisionFinRecord->flags & 1) == 0)
         result = Collision_TestSectorEdgeEndpoints(type);
 
     StageObject_QueueViewLensFlare((int *)g_collisionFace, &g_collisionCar->right.x,
@@ -561,7 +561,7 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
                 if (g_collisionVertexDistances[index] > best) {
                     best = g_collisionVertexDistances[index];
                     g_collisionBestVertex = index;
-                    g_unk0x00591948 = g_unk0x0059190c;
+                    g_unk0x00591948 = g_pCollisionFinRecord;
                 }
             }
         } else {
@@ -572,7 +572,7 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
                 if (g_collisionVertexDistances[index] < best) {
                     best = g_collisionVertexDistances[index];
                     g_collisionBestVertex = index;
-                    g_unk0x00591948 = g_unk0x0059190c;
+                    g_unk0x00591948 = g_pCollisionFinRecord;
                 }
             }
         }
@@ -587,7 +587,7 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
                 if (*pDistance > best) {
                     best = *pDistance;
                     g_collisionBestVertex = i;
-                    g_unk0x00591948 = g_unk0x0059190c;
+                    g_unk0x00591948 = g_pCollisionFinRecord;
                 }
                 i++;
                 pDistance++;
@@ -600,7 +600,7 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
                 if (*pDistance < best) {
                     best = *pDistance;
                     g_collisionBestVertex = i;
-                    g_unk0x00591948 = g_unk0x0059190c;
+                    g_unk0x00591948 = g_pCollisionFinRecord;
                 }
                 i++;
                 pDistance++;

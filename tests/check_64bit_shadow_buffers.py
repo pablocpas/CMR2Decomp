@@ -38,7 +38,7 @@ class CFileBuffer {public:static void *AllocateLockedBuffer(unsigned size){
 ShadowCaster *g_shadowCasters[30];BYTE g_shadowCasterCount;
 unsigned short g_shadowVertexRemap[0x3f0];int g_shadowLevel;DWORD g_shadowColour;
 float g_sceneLightDirF[3]={0,0,1},g_sceneLightBasisF[9]={0,0,1,0,1,0,1,0,0};
-float g_netZero=0,g_unk0x00511ce8=0.1f,g_unk0x00511360=10;
+float g_netZero=0,g_float0_1=0.1f,g_float10=10;
 Mesh *Mesh_GetShadowCylinder(Mesh *){assert(false);return NULL;}
 #define CASTS_SHADOW(n) ((n)->type==0 && (n)->pObject!=NULL && ((n)->flags&255)!=6 && ((n)->flags&255)!=15 && ((n)->flags&255)!=14)
 '''

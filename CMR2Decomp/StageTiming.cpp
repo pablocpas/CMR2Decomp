@@ -1479,7 +1479,7 @@ void ForceFeedback_ComputeRoadNoise(void);
 void ForceFeedback_FadeImpulseForces(void);
 
 extern int g_unk0x00539270[2];
-extern Car *g_unk0x0053937c;
+extern Car *g_pForceFeedbackCar;
 
 // Selects the force-feedback slot and car of a player, copies the car's
 // centring state into the shared road-rumble values and re-applies the slot's
@@ -1488,10 +1488,10 @@ extern Car *g_unk0x0053937c;
 void ForceFeedback_UpdatePlayerSlot(int view)
 {
     g_pForceFeedbackSlot = &g_forceFeedbackSlots[view];
-    g_unk0x0053937c = Car_Get(view);
-    if (g_unk0x0053937c->field_0xb74 != 0) {
-        g_unk0x00539270[0] = g_unk0x0053937c->cornerOnGround[0];
-        g_unk0x00539270[1] = g_unk0x0053937c->cornerOnGround[1];
+    g_pForceFeedbackCar = Car_Get(view);
+    if (g_pForceFeedbackCar->field_0xb74 != 0) {
+        g_unk0x00539270[0] = g_pForceFeedbackCar->cornerOnGround[0];
+        g_unk0x00539270[1] = g_pForceFeedbackCar->cornerOnGround[1];
     } else {
         g_unk0x00539270[0] = 0;
         g_unk0x00539270[1] = 0;
@@ -1888,9 +1888,9 @@ void *CarInfo_GetSection(Car *pCar, int section)
 }
 
 // GLOBAL: CMR2 0x005113b0
-float g_unk0x005113b0 = 4.0f;
+float g_float4 = 4.0f;
 // GLOBAL: CMR2 0x005113a8
-double g_unk0x005113a8 = 100.0;
+double g_double100 = 100.0;
 
 // Reparte el tiempo del piloto entre los dos tramos de la tabla 0x542420.
 // FUNCTION: CMR2 0x00456a40
@@ -1915,15 +1915,15 @@ int StageTiming_UpdateSplitRatesForSlot(int slot, int driverID)
             if (pRates[splitIndex].rate < 10)
                 pRates[splitIndex].rate = 10;
         }
-        pRates[splitIndex].scale = (float)(X87S_DIV(g_unk0x005113a8, (X87S_MUL(X87S_DIV((double)driverTime, (double)splitTime), g_unk0x005113b0))));
+        pRates[splitIndex].scale = (float)(X87S_DIV(g_double100, (X87S_MUL(X87S_DIV((double)driverTime, (double)splitTime), g_float4))));
     }
     return 0;
 }
 
 // GLOBAL: CMR2 0x0051bd3c
-int g_unk0x0051bd3c = 0x10000;
+int g_stageObjectTimeStep = 0x10000;
 // GLOBAL: CMR2 0x0051bd40
-int g_unk0x0051bd40 = 0x10000;
+int g_stageObjectScale = 0x10000;
 
 // GLOBAL: CMR2 0x00543d9c
 int g_unk0x00543d9c;
@@ -1957,11 +1957,11 @@ void StageTiming_MarkSpecialStageNodeDirty(ViewWeatherState *pNode)
         pNode->routePosition < 0x1d8)
         pNode->sheltered = 1;
     if (pNode->sheltered != 0) {
-        pNode->precipitationFade -= FixMul(0x3333, g_unk0x0051bd3c);
+        pNode->precipitationFade -= FixMul(0x3333, g_stageObjectTimeStep);
         if (pNode->precipitationFade < 0)
             pNode->precipitationFade = 0;
     } else {
-        pNode->precipitationFade += FixMul(0x3333, g_unk0x0051bd3c);
+        pNode->precipitationFade += FixMul(0x3333, g_stageObjectTimeStep);
         if (pNode->precipitationFade > 0x10000)
             pNode->precipitationFade = 0x10000;
     }
@@ -2734,14 +2734,14 @@ void StageTiming_DrawClockAndCountdown(void)
     Font_DrawText(3, CFrontend::m_stringDest, x2, y, (int *)colour, 0x24);
 }
 
-extern const float g_unk0x00511378;  // defined in StageObjects.cpp (single definition)
-extern const float g_unk0x005113d0;  // defined in StageObjects.cpp (single definition)
+extern const float g_float5;  // defined in StageObjects.cpp (single definition)
+extern const float g_floatOneOver45;  // defined in StageObjects.cpp (single definition)
 // GLOBAL: CMR2 0x005113d4
-const float g_unk0x005113d4 = 220.0f;
+const float g_float220 = 220.0f;
 // GLOBAL: CMR2 0x005113d8
-const float g_unk0x005113d8 = 0.04f;
-extern const float g_unk0x005113dc;  // defined in StageObjects.cpp (single definition)
-extern const float g_unk0x005113e0;  // defined in StageObjects.cpp (single definition)
+const float g_float0_04 = 0.04f;
+extern const float g_float480;  // defined in StageObjects.cpp (single definition)
+extern const float g_float640;  // defined in StageObjects.cpp (single definition)
 // Degrees -> radians factors of the object yaw angles (StageObject_YawMainAndSunNodes).
 // GLOBAL: CMR2 0x005113e8
 extern const double g_oneOver180 = 1.0 / 180.0;
@@ -2768,8 +2768,8 @@ void StageTiming_ProjectPointToTenUnitRadius(int *param1, int *param2, int *para
 
 // Fade factors of StageTiming_DrawProjectedCarMarker, expanded where they are used (the original
 // computes each one once and keeps it in an x87 scratch slot).
-#define TIMER_ALPHA ((distance - g_unk0x00511378) * g_unk0x005113d8)
-#define TIMER_LEVEL (g_netOne - (distance - g_unk0x00511378) * g_unk0x005113d0)
+#define TIMER_ALPHA ((distance - g_float5) * g_float0_04)
+#define TIMER_LEVEL (g_netOne - (distance - g_float5) * g_floatOneOver45)
 
 // Projects a car's body node into one player's view and draws the stage timing
 // marker (driver name or rally record) at the projected position, then updates
@@ -2822,14 +2822,14 @@ void StageTiming_DrawProjectedCarMarker(int param_1, int param_2)
         StageTiming_ProjectPointToTenUnitRadius((int *)&up, (int *)&viewPos, (int *)&out);
         FixMatrix_ProjectWorldPointToView(proj, &out, pView);
         if (proj[0] != -0x640000 || proj[1] != -0x640000) {
-            distance = (float)X87S_SQRT(X87S_ADD(FSQR(X87S_DIV(X87S_MUL((X87S_SUB(X87S_MUL(proj[0], CGraphics::m_oneOver65536), prevX)), g_unk0x005113e0), (int)g_pGraphics->resX)), FSQR(X87S_DIV(X87S_MUL((X87S_SUB(X87S_MUL(proj[1], CGraphics::m_oneOver65536), prevY)), g_unk0x005113dc), (int)g_pGraphics->resY))));
-            if (distance > g_unk0x00511378) {
+            distance = (float)X87S_SQRT(X87S_ADD(FSQR(X87S_DIV(X87S_MUL((X87S_SUB(X87S_MUL(proj[0], CGraphics::m_oneOver65536), prevX)), g_float640), (int)g_pGraphics->resX)), FSQR(X87S_DIV(X87S_MUL((X87S_SUB(X87S_MUL(proj[1], CGraphics::m_oneOver65536), prevY)), g_float480), (int)g_pGraphics->resY))));
+            if (distance > g_float5) {
                 if (TIMER_ALPHA >= g_netOne)
                     colour[3] = 0xdc;
                 else if (TIMER_ALPHA <= g_netZero)
                     colour[3] = 0;
                 else
-                    colour[3] = (BYTE)FTOI(int, TIMER_ALPHA * g_unk0x005113d4);
+                    colour[3] = (BYTE)FTOI(int, TIMER_ALPHA * g_float220);
                 if (param_1 != 0) {
                     if (NetPlayers_HasPlayerWithField8(param_1)) {
                         pName = NetPlayers_GetPlayerName(NetPlayers_FindPlayerByField8(param_1));
@@ -2852,7 +2852,7 @@ void StageTiming_DrawProjectedCarMarker(int param_1, int param_2)
             }
             if (CGameInfo::GetConfiguredGameMode() == '\b' || CGameInfo::GetConfiguredGameMode() == '\t' ||
                 CGameInfo::GetConfiguredGameMode() == '\n') {
-                if (distance > g_unk0x00511378 && param_1 > 0) {
+                if (distance > g_float5 && param_1 > 0) {
                     if (TIMER_LEVEL >= g_netOne)
                         g_unk0x00542f78[param_1] = 0xff;
                     else if (TIMER_LEVEL <= g_netZero)
@@ -3504,7 +3504,7 @@ void CarPart_CacheFlexibleLineProfiles(short *pList, short count)
 extern int g_playerStartLane[8];
 extern int g_stageCheckpointCount;
 int NetPlayers_GetPlayerField8(int index);
-extern double g_unk0x005113b8;
+extern double g_doubleHalf;
 
 // Advances a player's lap counter by half the checkpoint count (with the
 // fractional part kept in *pFrac), unless the player has finished.
@@ -3521,7 +3521,7 @@ void StageTiming_AdvancePlayerHalfLapCounter(int player, int *pCount, int *pFrac
         slot = NetPlayers_GetPlayerField8(player);
     if (g_playerStartLane[slot] == 0) {
         count = (float)g_stageCheckpointCount;
-        value = X87S_ADD(X87S_MUL(count, g_unk0x005113b8), *pFrac);
+        value = X87S_ADD(X87S_MUL(count, g_doubleHalf), *pFrac);
         if (value >= count) {
             (*pCount)++;
             *pFrac = (int)FTOI(__int64, value - count);
@@ -4757,7 +4757,7 @@ int g_roadRumbleStrength[2];
 // GLOBAL: CMR2 0x00539270
 int g_unk0x00539270[2];
 // GLOBAL: CMR2 0x0053937c
-Car *g_unk0x0053937c;
+Car *g_pForceFeedbackCar;
 // GLOBAL: CMR2 0x00539380
 int g_unk0x00539380;
 
@@ -4775,15 +4775,15 @@ void ForceFeedback_ComputeSteeringForce(void)
 
     force = g_roadRumbleStrength[1] - g_roadRumbleStrength[0];
     if (g_unk0x00539270[0] != 0) {
-        pAxis = &g_unk0x0053937c->cornerAxis[0];
-        pForward = &g_unk0x0053937c->forward;
+        pAxis = &g_pForceFeedbackCar->cornerAxis[0];
+        pForward = &g_pForceFeedbackCar->forward;
         left = FixVecDot(pForward, pAxis);
     } else {
         left = 0;
     }
     if (g_unk0x00539270[1] != 0) {
-        pAxis = &g_unk0x0053937c->cornerAxis[1];
-        pForward = &g_unk0x0053937c->forward;
+        pAxis = &g_pForceFeedbackCar->cornerAxis[1];
+        pForward = &g_pForceFeedbackCar->forward;
         right = FixVecDot(pForward, pAxis);
     } else {
         right = 0;
@@ -4792,7 +4792,7 @@ void ForceFeedback_ComputeSteeringForce(void)
     if (FIX_ABS(force) > 0x10000)
         force = force > 0 ? 0x10000 : -0x10000;
 
-    speed = FixMul(g_unk0x0053937c->speed - 0x8000, 0x20000);
+    speed = FixMul(g_pForceFeedbackCar->speed - 0x8000, 0x20000);
     if (speed > 0x10000)
         speed = 0x10000;
     else if (speed < 0)
@@ -4822,7 +4822,7 @@ void ForceFeedback_ComputeAxleRumble(void)
 {
     int i;
     int v;
-    Car *p = g_unk0x0053937c;
+    Car *p = g_pForceFeedbackCar;
 
     for (i = 0; i < 2; i++) {
         if (g_unk0x00539270[i] == 0) {
@@ -4838,7 +4838,7 @@ void ForceFeedback_ComputeAxleRumble(void)
                 g_roadRumbleStrength[i] = 0;
             if (g_roadRumbleStrength[i] > 0x9999)
                 g_roadRumbleStrength[i] = 0x9999;
-            p = g_unk0x0053937c;
+            p = g_pForceFeedbackCar;
             g_roadRumbleStrength[i] += p->cornerGrip[i].drag;
             if (g_roadRumbleStrength[i] > 0x10000)
                 g_roadRumbleStrength[i] = 0x10000;
@@ -4862,8 +4862,8 @@ void ForceFeedback_ComputeConditionCoefficients(void)
     spring = FixMul(g_unk0x00539380, 0x6666) + 0x1999;
     damper = FixMul(g_unk0x00539380, 0x4ccc);
     if (g_unk0x00539270[0] != 0 && g_unk0x00539270[1] != 0) {
-        pForward = &g_unk0x0053937c->forward;
-        pVelocity = &g_unk0x0053937c->velocity;
+        pForward = &g_pForceFeedbackCar->forward;
+        pVelocity = &g_pForceFeedbackCar->velocity;
         contact = FixVecDot(pForward, pVelocity);
         if (contact < 0)
             contact = -contact;
@@ -4877,8 +4877,8 @@ void ForceFeedback_ComputeConditionCoefficients(void)
             spring = 0;
         damper -= FixMul(contact, 0x4ccc);
 
-        if (g_unk0x0053937c->speed <= 0x1999) {
-            speed = 0x10000 - FixMul(g_unk0x0053937c->speed, 0xa0000);
+        if (g_pForceFeedbackCar->speed <= 0x1999) {
+            speed = 0x10000 - FixMul(g_pForceFeedbackCar->speed, 0xa0000);
             spring += FixMul(-spring, speed);
             if (spring < 0)
                 spring = 0;
@@ -4962,8 +4962,8 @@ void ForceFeedback_ComputeRoadNoise(void)
         g_pForceFeedbackSlot->field_0x20 = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_LOAD(rand()), g_oneOverRandMax), g_minus65536));
     else
         g_pForceFeedbackSlot->field_0x20 = (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_LOAD(rand()), g_oneOverRandMax), CGraphics::m_65536));
-    k = g_unk0x0053937c->cornerGrip[1].field_0x1c + g_unk0x0053937c->cornerGrip[0].field_0x1c;
-    speed = FixMul(g_unk0x0053937c->speed, 0x10000);
+    k = g_pForceFeedbackCar->cornerGrip[1].field_0x1c + g_pForceFeedbackCar->cornerGrip[0].field_0x1c;
+    speed = FixMul(g_pForceFeedbackCar->speed, 0x10000);
     if (speed > 0x10000)
         speed = 0x10000;
     k = FixMul(k, speed);
@@ -5047,7 +5047,7 @@ void StageTiming_AdvanceCrossedCheckpoints(int car, int target)
 // GLOBAL: CMR2 0x00590b10
 int g_unk0x00590b10[8];
 // GLOBAL: CMR2 0x00511380
-extern const double g_unk0x00511380 = 0.0099471839432434591;
+extern const double g_fixedRadiansToAngle12 = 0.0099471839432434591;
 
 // Smooths the active car's steering offset and derives a short angle.
 // match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -5078,7 +5078,7 @@ void CarPart_SmoothSteeringOffset(void)
             target = g_unk0x00590b10[index] - step;
     }
     g_unk0x00590b10[index] = target;
-    *(short *)&g_unk0x00590c68 = (short)(int)FTOI(__int64, X87S_MUL((double)target, g_unk0x00511380));
+    *(short *)&g_unk0x00590c68 = (short)(int)FTOI(__int64, X87S_MUL((double)target, g_fixedRadiansToAngle12));
 }
 
 BYTE Car_GetDrawnFlag(int index);
@@ -6427,7 +6427,7 @@ inline void Motion_NormalizeInto(FixVector *out, FixVector *v)
 int VehiclePhysics_TestMotionCorrectionCollision(void);
 void Vehicle_UpdateMotion(FixVector *pInput);
 void StageTiming_FireCarPartDebris(int *param_1, unsigned int param_2);
-extern double g_unk0x00511308;
+extern double g_minusFixedDegreesToAngle12;
 
 // Per-slot integrator for slot 1 (CarPart_InitWheelHubSlot installs its address at
 // +0x110): swings the hub about its axis, resolves the ground contact of the
@@ -6628,9 +6628,9 @@ void CarPart_IntegrateHubGroundContact(void)
                 turn.x -= torque.x;
                 turn.y -= torque.y;
                 turn.z -= torque.z;
-                angles[0] = (short)FTOI(__int64, X87S_MUL((double)turn.x, g_unk0x00511380));
-                angles[1] = (short)FTOI(__int64, X87S_MUL((double)turn.y, g_unk0x00511380));
-                angles[2] = (short)FTOI(__int64, X87S_MUL((double)turn.z, g_unk0x00511380));
+                angles[0] = (short)FTOI(__int64, X87S_MUL((double)turn.x, g_fixedRadiansToAngle12));
+                angles[1] = (short)FTOI(__int64, X87S_MUL((double)turn.y, g_fixedRadiansToAngle12));
+                angles[2] = (short)FTOI(__int64, X87S_MUL((double)turn.z, g_fixedRadiansToAngle12));
                 FixBasis_Rotate(&g_partState->basis, angles);
             }
         }
@@ -6737,13 +6737,13 @@ renormalize:
     } else if (type == 9) {
         detached = 0;
         angles[0] = 0;
-        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000), g_unk0x00511308));
+        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000), g_minusFixedDegreesToAngle12));
         angles[2] = 0;
         StageTiming_RotatePartBasisFromAngles(angles);
     } else {
         detached = 0;
         angles[0] = 0;
-        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x20000), g_unk0x00511308));
+        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x20000), g_minusFixedDegreesToAngle12));
         angles[2] = 0;
         StageTiming_RotatePartBasisFromAngles(angles);
     }
@@ -7111,9 +7111,9 @@ void StageTiming_IntegratePartSpringMotion(void)
             turn.x -= torque.x;
             turn.y -= torque.y;
             turn.z -= torque.z;
-            angles[0] = (short)FTOI(__int64, X87S_MUL((double)turn.x, g_unk0x00511380));
-            angles[1] = (short)FTOI(__int64, X87S_MUL((double)turn.y, g_unk0x00511380));
-            angles[2] = (short)FTOI(__int64, X87S_MUL((double)turn.z, g_unk0x00511380));
+            angles[0] = (short)FTOI(__int64, X87S_MUL((double)turn.x, g_fixedRadiansToAngle12));
+            angles[1] = (short)FTOI(__int64, X87S_MUL((double)turn.y, g_fixedRadiansToAngle12));
+            angles[2] = (short)FTOI(__int64, X87S_MUL((double)turn.z, g_fixedRadiansToAngle12));
             FixBasis_Rotate(&g_partState->basis, angles);
         } else {
             g_partState->angularVelocity.x = 0;
@@ -7160,7 +7160,7 @@ void StageTiming_IntegratePartSpringMotion(void)
         detached = 0;
         angles[0] = 0;
         angles[1] = 0;
-        angles[2] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x50000), g_unk0x00511308));
+        angles[2] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x50000), g_minusFixedDegreesToAngle12));
         StageTiming_RotatePartBasisFromAngles(angles);
     }
     VehicleMotion_UpdateWorldPosition();
@@ -7397,7 +7397,7 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *rec
     dv.x = pos.x - rec->previousCentre.x;
     dv.y = 0;
     dv.z = pos.z - rec->previousCentre.z;
-    FixVecScale(&dv, &dv, g_unk0x0051bd40);
+    FixVecScale(&dv, &dv, g_stageObjectScale);
     rec->relativeVelocity.x = rec->velocity.x - dv.x;
     rec->relativeVelocity.y = rec->velocity.y - dv.y;
     rec->previousCentre.x = pos.x;
@@ -7410,7 +7410,7 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *rec
     pos.y += gn.y;
     pos.z += gn.z;
     rec->centre = pos;
-    FixVecScale(&corr, &rec->velocity, g_unk0x0051bd3c);
+    FixVecScale(&corr, &rec->velocity, g_stageObjectTimeStep);
     FixVecScale(&rec->splashDisplacement, &corr, -0x10000);
     if (rec->splashDisplacement.y != 0)
         rec->inverseFallDisplacement = FixDiv(0x10000, rec->splashDisplacement.y);
@@ -7420,7 +7420,7 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *rec
         wheelScale = FixMul(rec->particleCount, g_unk0x00543da0);
         if (wheelScale > 0x10000)
             wheelScale = 0x10000;
-        wheelScale = FixMul(g_unk0x0051bd3c, wheelScale);
+        wheelScale = FixMul(g_stageObjectTimeStep, wheelScale);
     }
     if (rec->kind == 1) {
         x0 = rec->centre.x - FixMul(0x4cccc, 0x8000) + 0xc0000;
@@ -7501,18 +7501,18 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *rec
         pNode->y = rec->centre.y + h.y;
         pNode->z = h.z + rec->centre.z;
         if (rec->kind == 2) {
-            pNode->snowPhaseDegrees += FixMul(pNode->spin, g_unk0x0051bd3c);
+            pNode->snowPhaseDegrees += FixMul(pNode->spin, g_stageObjectTimeStep);
             if (pNode->snowPhaseDegrees > 0x1680000)
                 pNode->snowPhaseDegrees -= 0x1680000;
         }
     }
     if (param_1 != 0 && rec->particleCount != rec->targetParticleCount) {
         if (rec->particleCount < rec->targetParticleCount) {
-            rec->particleCount += FixMul(rec->particleCountChangeRate, g_unk0x0051bd3c);
+            rec->particleCount += FixMul(rec->particleCountChangeRate, g_stageObjectTimeStep);
             if (rec->particleCount > rec->targetParticleCount)
                 rec->particleCount = rec->targetParticleCount;
         } else if (rec->targetParticleCount < rec->particleCount) {
-            rec->particleCount -= FixMul(rec->particleCountChangeRate, g_unk0x0051bd3c);
+            rec->particleCount -= FixMul(rec->particleCountChangeRate, g_stageObjectTimeStep);
             if (rec->particleCount < rec->targetParticleCount)
                 rec->particleCount = rec->targetParticleCount;
         }
@@ -7990,7 +7990,7 @@ int StageTiming_LoadStageCarsAndEffects(void)
 // Uses the shared detail settings updated by Graphics.cpp.
 // Team of the previous knockout opponent (-1 = none yet).
 // GLOBAL: CMR2 0x0051a8b8
-int g_unk0x0051a8b8 = -1;
+int g_previousOpponentTeam = -1;
 // GLOBAL: CMR2 0x0051a8c4
 char g_strLightWheelsC3d[] = "L.c3d";
 // GLOBAL: CMR2 0x0051a8cc
@@ -8169,11 +8169,11 @@ BYTE StageTiming_LoadSelectedCarModel(int car)
     } else {
         if (car == 0) {
             team = rand() % 6;
-            while (team == g_unk0x0051a8b8)
+            while (team == g_previousOpponentTeam)
                 team = rand() % 6;
-            g_unk0x0051a8b8 = team;
+            g_previousOpponentTeam = team;
         } else {
-            team = g_unk0x0051a8b8;
+            team = g_previousOpponentTeam;
         }
         model = (unsigned int)CFrontend::GetArchiveSecondaryIDEntry(team);
         RallyData_SetDriverCategoryOption((BYTE)car, (BYTE)model);
@@ -8585,20 +8585,20 @@ void StageTiming_UpdateWindStrength(void)
     int i;
 
     if (g_weatherWindTransition.holdTime != 0) {
-        g_weatherWindTransition.holdTime -= g_unk0x0051bd3c;
+        g_weatherWindTransition.holdTime -= g_stageObjectTimeStep;
         if (g_weatherWindTransition.holdTime < 0)
             g_weatherWindTransition.holdTime = 0;
         return;
     }
     if (g_weatherWindStrength != g_weatherWindTransition.targetStrength) {
         if (g_weatherWindStrength > g_weatherWindTransition.targetStrength) {
-            g_weatherWindStrength -= FixMul(g_weatherWindTransition.changeRate, g_unk0x0051bd3c);
+            g_weatherWindStrength -= FixMul(g_weatherWindTransition.changeRate, g_stageObjectTimeStep);
             if (g_weatherWindStrength < g_weatherWindTransition.targetStrength) {
                 g_weatherWindStrength = g_weatherWindTransition.targetStrength;
                 goto change;
             }
         } else if (g_weatherWindStrength < g_weatherWindTransition.targetStrength) {
-            g_weatherWindStrength += FixMul(g_weatherWindTransition.changeRate, g_unk0x0051bd3c);
+            g_weatherWindStrength += FixMul(g_weatherWindTransition.changeRate, g_stageObjectTimeStep);
             if (g_weatherWindStrength > g_weatherWindTransition.targetStrength) {
                 g_weatherWindStrength = g_weatherWindTransition.targetStrength;
                 goto change;
@@ -8634,14 +8634,14 @@ void StageTiming_UpdateLightningFlash(void)
 
     pWeather = g_viewWeather;
     if (g_unk0x00543ec0 != 0) {
-        g_unk0x00543ec0 -= g_unk0x0051bd3c;
+        g_unk0x00543ec0 -= g_stageObjectTimeStep;
         if (g_unk0x00543ec0 < 0) {
             g_unk0x00543ec8 = (short)StageObject_FindClosestMeshVertex();
             StageObject_RandomizeStageTriangleTextures();
             g_unk0x00543ec0 = 0;
         }
     } else {
-        g_unk0x00543ec4 -= g_unk0x0051bd3c;
+        g_unk0x00543ec4 -= g_stageObjectTimeStep;
         if (g_unk0x00543ec4 < 0) {
             g_unk0x00543ec0 = FixMul(RAND_FIX(), 0x1770000) + 0x7d0000;
             g_unk0x00543ec4 = FixMul(RAND_FIX(), 0x140000) + 0x140000;

@@ -1004,7 +1004,7 @@ void CGraphics::BltTexture(Texture *pTexture, int surfaceIndex)
 
 extern const float g_netOne;
 extern const float g_netZero;
-extern const float g_unk0x00511364;
+extern const float g_floatOneOver255;
 
 // Blends pColour (r, g, b, a) into pixel (x, y) of a locked texture.
 // match 24%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -1039,7 +1039,7 @@ void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BY
             dst[0] = (BYTE)((BYTE)m_lockedTextures[i].masks[0] & px) >> (BYTE)m_lockedTextures[i].depths[0];
             dst[1] = (BYTE)((BYTE)m_lockedTextures[i].masks[1] & px) << (BYTE)m_lockedTextures[i].depths[1];
             dst[2] = (BYTE)((BYTE)m_lockedTextures[i].masks[2] & px) << (BYTE)-m_lockedTextures[i].depths[2];
-            f = X87S_MUL((float)pColour[3], g_unk0x00511364);
+            f = X87S_MUL((float)pColour[3], g_floatOneOver255);
             inv = g_netOne - f;
             r = (int)FTOI(__int64, X87S_ADD(X87S_MUL(X87S_FILD(float, r), f), X87S_MUL((float)dst[0], inv)));
             g = (int)FTOI(__int64, X87S_ADD(X87S_MUL(X87S_FILD(float, g), f), X87S_MUL((float)dst[1], inv)));
@@ -1055,7 +1055,7 @@ void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BY
             dst[0] = 0;
             dst[1] = 0;
             dst[2] = *(BYTE *)p32;
-            f = X87S_MUL((float)pColour[3], g_unk0x00511364);
+            f = X87S_MUL((float)pColour[3], g_floatOneOver255);
             inv = g_netOne - f;
             r = (int)FTOI(__int64, X87S_ADD(X87S_MUL(X87S_FILD(float, r), f), g_netZero * inv));
             g = (int)FTOI(__int64, X87S_ADD(X87S_MUL(X87S_FILD(float, g), f), g_netZero * inv));
@@ -3811,47 +3811,47 @@ float g_pulseSpeed;
 
 // Level thresholds and the phase step, taken from the original's constant block.
 // GLOBAL: CMR2 0x00511ce8
-extern const float g_unk0x00511ce8 = 0.1f;
+extern const float g_float0_1 = 0.1f;
 // GLOBAL: CMR2 0x00511d10
-extern const float g_unk0x00511d10 = 0.25f;
+extern const float g_float0_25 = 0.25f;
 // GLOBAL: CMR2 0x00511d14
-extern const float g_unk0x00511d14 = 0.15f;
+extern const float g_float0_15 = 0.15f;
 // GLOBAL: CMR2 0x00511d18
-extern const float g_unk0x00511d18 = 0.05f;
+extern const float g_float0_05 = 0.05f;
 // GLOBAL: CMR2 0x00511d1c
-extern const float g_unk0x00511d1c = 0.004f;
+extern const float g_float0_004 = 0.004f;
 // GLOBAL: CMR2 0x0051136c
-extern const float g_unk0x0051136c = 0.2f;
+extern const float g_float0_2 = 0.2f;
 
 // FUNCTION: CMR2 0x004bcc60
 void Pulse_Update(unsigned int dt)
 {
     if (g_pulseFrozen != 0)
         return;
-    g_pulsePhase = X87S_ADD(X87S_MUL(X87S_FILD(float, dt), g_unk0x00511d1c), g_pulsePhase);
+    g_pulsePhase = X87S_ADD(X87S_MUL(X87S_FILD(float, dt), g_float0_004), g_pulsePhase);
     if (g_pulseRising != 0) {
-        if (g_pulseLevel <= g_unk0x00511d18)
+        if (g_pulseLevel <= g_float0_05)
             g_pulseSpeed = 0.0007f;
-        else if (g_pulseLevel <= g_unk0x00511ce8)
+        else if (g_pulseLevel <= g_float0_1)
             g_pulseSpeed = 0.0011f;
-        else if (g_pulseLevel <= g_unk0x00511d14)
+        else if (g_pulseLevel <= g_float0_15)
             g_pulseSpeed = 0.0014f;
-        else if (g_pulseLevel <= g_unk0x0051136c)
+        else if (g_pulseLevel <= g_float0_2)
             g_pulseSpeed = 0.0011f;
-        else if (g_pulseLevel <= g_unk0x00511d10)
+        else if (g_pulseLevel <= g_float0_25)
             g_pulseSpeed = 0.0007f;
         else
             g_pulseSpeed = 0.0004f;
     } else {
-        if (g_pulseLevel <= g_unk0x00511d18)
+        if (g_pulseLevel <= g_float0_05)
             g_pulseSpeed = 0.0007f;
-        else if (g_pulseLevel <= g_unk0x00511ce8)
+        else if (g_pulseLevel <= g_float0_1)
             g_pulseSpeed = 0.0011f;
-        else if (g_pulseLevel <= g_unk0x00511d14)
+        else if (g_pulseLevel <= g_float0_15)
             g_pulseSpeed = 0.0014f;
-        else if (g_pulseLevel <= g_unk0x0051136c)
+        else if (g_pulseLevel <= g_float0_2)
             g_pulseSpeed = 0.0011f;
-        else if (g_pulseLevel <= g_unk0x00511d10)
+        else if (g_pulseLevel <= g_float0_25)
             g_pulseSpeed = 0.0007f;
         else
             g_pulseSpeed = 0.0004f;
@@ -6536,9 +6536,9 @@ Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
 
 // 1/255 and the double 1.0 the original keeps in its constant block.
 // GLOBAL: CMR2 0x00511364
-extern const float g_unk0x00511364 = 1.0f / 255.0f;
+extern const float g_floatOneOver255 = 1.0f / 255.0f;
 // GLOBAL: CMR2 0x00511428
-extern const double g_unk0x00511428 = 1.0;
+extern const double g_doubleOne = 1.0;
 extern const float g_netZero;
 extern const float g_netByteScale;
 extern const float g_netOne;
@@ -6606,10 +6606,10 @@ BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pI
         m_tgaPixel[1] = g;
         m_tgaPixel[2] = b;
     }
-    if (contrast != g_unk0x00511428) {
-        in.r = X87S_MUL(X87S_LOAD(m_tgaPixel[0]), g_unk0x00511364);
-        in.g = X87S_MUL(X87S_LOAD(m_tgaPixel[1]), g_unk0x00511364);
-        in.b = X87S_MUL(X87S_LOAD(m_tgaPixel[2]), g_unk0x00511364);
+    if (contrast != g_doubleOne) {
+        in.r = X87S_MUL(X87S_LOAD(m_tgaPixel[0]), g_floatOneOver255);
+        in.g = X87S_MUL(X87S_LOAD(m_tgaPixel[1]), g_floatOneOver255);
+        in.b = X87S_MUL(X87S_LOAD(m_tgaPixel[2]), g_floatOneOver255);
         D3DXColorAdjustContrast(&out, &in, contrast);
         if (out.r > g_netOne)
             out.r = 1.0f;

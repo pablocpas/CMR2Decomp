@@ -43,7 +43,7 @@ extern StageSoundBank g_stageSoundBank;
 extern int g_surfacePrevB[8];        // 0x5375b0
 extern unsigned int g_stageSoundCount; // 0x5375d0
 extern BYTE g_stageSoundUsed[0x1f];  // 0x5375d4: sound groups in use
-extern BYTE g_unk0x005375f4[8];      // 0x5375f4: surface per car
+extern BYTE g_carSoundViewSet[8];      // 0x5375f4: surface per car
 extern int g_surfacePrevA[8];        // 0x5375fc
 extern int g_surfaceSlotMax;         // 0x53761c
 extern int g_surfaceVolB[8];         // 0x537620

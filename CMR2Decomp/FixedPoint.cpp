@@ -760,7 +760,7 @@ struct Unk0x00539278 {
 };
 extern Unk0x00539278 g_forceFeedbackSlots[2];
 extern Unk0x00539278 *g_pForceFeedbackSlot;
-extern Car *g_unk0x0053937c;
+extern Car *g_pForceFeedbackCar;
 
 // Rebuilds the rotation part of a matrix as an orthonormal basis that keeps
 // the current forward direction and the world up axis.
@@ -799,7 +799,7 @@ void ForceFeedback_UpdateSlot(Car *pCar, FixVector *pIn, int nonzero)
     FixVector v;
     int x;
 
-    g_unk0x0053937c = pCar;
+    g_pForceFeedbackCar = pCar;
     g_pForceFeedbackSlot = &g_forceFeedbackSlots[pCar->index];
     FixMatrix_InverseRotateVector(&v, pIn, pCar->pWorld);
     if (nonzero != 0) {
@@ -1381,12 +1381,12 @@ extern MovingObjects g_movingObjects;
 
 // 16.16 -> 12-bit angle of a turn rate (its negated twin is 0x511398 in Car.cpp);
 // defined in StageTiming.cpp, which owns the GLOBAL annotation.
-extern const double g_unk0x00511380;
+extern const double g_fixedRadiansToAngle12;
 
 // The original converts the 16.16 value on the FPU (fild / fmul / fistp) and
 // keeps the low word of the nearest-even result with the original FPU mode.
 // MSVC6 /QIfist is required; a standard C++ cast alone would truncate instead.
-#define FIX_ANGLE(v) ((short)FTOI(__int64, X87S_MUL((double)(v), g_unk0x00511380)))
+#define FIX_ANGLE(v) ((short)FTOI(__int64, X87S_MUL((double)(v), g_fixedRadiansToAngle12)))
 
 // The eight ground-probe vectors of an object: its reference axes at 0x104 (x),
 // 0x108 (y) and 0x10c (z) with the sign pattern StageObject_ProbeGroundDistance selects with its

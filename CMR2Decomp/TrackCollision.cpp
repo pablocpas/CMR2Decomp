@@ -1204,7 +1204,7 @@ void CarPhysics_DampSurfaceSteeringAngle(void)
 // GLOBAL: CMR2 0x00592168
 int g_unk0x00592168;
 // GLOBAL: CMR2 0x00511308
-double g_unk0x00511308 = -4096.0 / (360.0 * 65536.0);
+double g_minusFixedDegreesToAngle12 = -4096.0 / (360.0 * 65536.0);
 
 // Integrates the auto-gear steering accumulator for the current surface and
 // eases the signed 12-bit wheel angle towards the new target.
@@ -1271,7 +1271,7 @@ void AutoGear_IntegrateSteeringAccumulator(void)
     }
 convert:
     target = (short)FTOI(__int64, X87S_MUL((double)FixMul(g_unk0x00592160,
-                                             g_pAutoGearCar->steeringAccumulator), g_unk0x00511308));
+                                             g_pAutoGearCar->steeringAccumulator), g_minusFixedDegreesToAngle12));
     g_pAutoGearCar->targetSteeringAngle = target;
     step = g_pAutoGearCar->targetSteeringAngle - *(short *)&g_pAutoGearCar->wheelSteeringAngle;
     limit = (short)(FixMul(0x22, 0x10000 - v) + 0x22);

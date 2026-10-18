@@ -1275,7 +1275,7 @@ extern CarPartSet *g_physicsPartSet;
 // and turns it into the per-wheel contact-point offset (0x6fc/0x700), scaled
 // by the per-wheel spring constant of the car setup.
 // GLOBAL: CMR2 0x00511398
-double g_unk0x00511398 = -0.009947183943243459;
+double g_minusFixedRadiansToAngle12 = -0.009947183943243459;
 // FUNCTION: CMR2 0x004336f0
 void Car_UpdateWheelTravel(void)
 {
@@ -1292,7 +1292,7 @@ void Car_UpdateWheelTravel(void)
                 g_pCurrentCar->wheelPhase[i] += 0x28b;
             }
         } else {
-            delta = (short)FTOI(__int64, X87S_MUL((double)g_pCurrentCar->wheelLoad[i], g_unk0x00511398));
+            delta = (short)FTOI(__int64, X87S_MUL((double)g_pCurrentCar->wheelLoad[i], g_minusFixedRadiansToAngle12));
             g_pCurrentCar->wheelPhase[i] += delta;
         }
         if (g_physicsPartSet->damageValues[i] > 0) {
@@ -6113,7 +6113,7 @@ void Car_IntegrateWheelRotation(int *pList, short count)
                 int v = FixMul(*pList, g_physicsTimeStep);
                 if (carBase->field_0xb60 == 0 || (BYTE)carBase->flag0x1d0[2] > 0 ||
                     (BYTE)carBase->flag0x1d0[3] > 0 || carBase->handbrake > 0) {
-                    local_14 = (short)FTOI(__int64, X87S_MUL((double)v, g_unk0x00511398));
+                    local_14 = (short)FTOI(__int64, X87S_MUL((double)v, g_minusFixedRadiansToAngle12));
                     g_wheelRotation[carIndex][w] += local_14;
                 }
                 if (v < 0)
@@ -6217,7 +6217,7 @@ void Car_SmoothForceFeedback(void)
 // GLOBAL: CMR2 0x005391cc
 int g_unk0x005391cc[2];
 
-extern const double g_unk0x00511380;
+extern const double g_fixedRadiansToAngle12;
 
 // Integrates contact forces and body motion, including the transition to tumbling.
 // match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -6364,13 +6364,13 @@ void Car_IntegrateContacts(void)
         angStep.x -= angAccel.x;
         angStep.y -= angAccel.y;
         angStep.z -= angAccel.z;
-        angles[0] = (short)FTOI(__int64, X87S_MUL((double)angStep.x, g_unk0x00511380));
-        angles[1] = (short)FTOI(__int64, X87S_MUL((double)angStep.y, g_unk0x00511380));
-        angles[2] = (short)FTOI(__int64, X87S_MUL((double)angStep.z, g_unk0x00511380));
+        angles[0] = (short)FTOI(__int64, X87S_MUL((double)angStep.x, g_fixedRadiansToAngle12));
+        angles[1] = (short)FTOI(__int64, X87S_MUL((double)angStep.y, g_fixedRadiansToAngle12));
+        angles[2] = (short)FTOI(__int64, X87S_MUL((double)angStep.z, g_fixedRadiansToAngle12));
     } else {
-        angles[0] = (short)FTOI(__int64, X87S_MUL((double)FixMul(g_pCurrentCar->angularVelocity.x, g_physicsTimeStep), g_unk0x00511380));
-        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul(g_pCurrentCar->angularVelocity.y, g_physicsTimeStep), g_unk0x00511380));
-        angles[2] = (short)FTOI(__int64, X87S_MUL((double)FixMul(g_pCurrentCar->angularVelocity.z, g_physicsTimeStep), g_unk0x00511380));
+        angles[0] = (short)FTOI(__int64, X87S_MUL((double)FixMul(g_pCurrentCar->angularVelocity.x, g_physicsTimeStep), g_fixedRadiansToAngle12));
+        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul(g_pCurrentCar->angularVelocity.y, g_physicsTimeStep), g_fixedRadiansToAngle12));
+        angles[2] = (short)FTOI(__int64, X87S_MUL((double)FixMul(g_pCurrentCar->angularVelocity.z, g_physicsTimeStep), g_fixedRadiansToAngle12));
     }
     if (g_pCurrentCar->field_0xb34 > 0) {
         int upDot = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
@@ -7900,10 +7900,10 @@ found:
 #define VIEW_PREV_STATE(v) (&g_viewPreviousStates[v])
 // Smooth-step weight of a camera blend timer (0xc8000 = the whole transition).
 #define VIEW_EASE(t)                                                                               \
-    (0x10000 - (FixCos((short)(int)FTOI(__int64, X87S_MUL((double)(FixDiv((t), 0xc8000) * 180), g_unk0x00511308))) + \
+    (0x10000 - (FixCos((short)(int)FTOI(__int64, X87S_MUL((double)(FixDiv((t), 0xc8000) * 180), g_minusFixedDegreesToAngle12))) + \
                 0x10000) / 2)
 
-extern double g_unk0x00511308;
+extern double g_minusFixedDegreesToAngle12;
 extern double g_fixedDegreesToAngle12;
 struct Unk004238e0;
 void Game_DispatchObjectTypeEvent(BYTE *pObject, BYTE *pInfo);

@@ -1,0 +1,66 @@
+address	old_name	new_name	evidence
+0x00511358	g_unk0x00511358	g_float12Over17	Constant 12.0f / 17.0f of the original's constant block (network quantization).
+0x0051135c	g_unk0x0051135c	g_float24Over17	Constant 24.0f / 17.0f.
+0x00511360	g_unk0x00511360	g_float10	Constant 10.0f.
+0x00511368	g_unk0x00511368	g_float128	Constant 128.0f.
+0x00511370	g_unk0x00511370	g_floatOneOver127	Constant 1.0f / 127.
+0x00511374	g_unk0x00511374	g_floatOneOver65530	Constant 1.0f / 65530.
+0x0051137c	g_unk0x0051137c	g_floatOneOver32765	Constant 1.0f / 32765.
+0x00511420	g_unk0x00511420	g_floatOneOver65152	Constant 1.0f / 0xfe80 (one music stream chunk as a fraction).
+0x00511418	g_unk0x00511418	g_floatOneOver65536	Constant 1.0f / 65536.
+0x00511410	g_unk0x00511410	g_doubleMinus10	Constant -10.0.
+0x005113c0	g_unk0x005113c0	g_double10	Constant 10.0.
+0x00511380	g_unk0x00511380	g_fixedRadiansToAngle12	0.00994718... = 4096 / (2 pi * 65536): 16.16 radians to a 4096-step angle (acos/atan tables, angular steps), like g_fixedDegreesToAngle12.
+0x00511398	g_unk0x00511398	g_minusFixedRadiansToAngle12	The negative of g_fixedRadiansToAngle12.
+0x00511308	g_unk0x00511308	g_minusFixedDegreesToAngle12	-4096 / (360 * 65536), the negative of g_fixedDegreesToAngle12.
+0x00511ce8	g_unk0x00511ce8	g_float0_1	Constant 0.1f.
+0x00511d10	g_unk0x00511d10	g_float0_25	Constant 0.25f.
+0x00511d14	g_unk0x00511d14	g_float0_15	Constant 0.15f.
+0x00511d18	g_unk0x00511d18	g_float0_05	Constant 0.05f.
+0x00511d1c	g_unk0x00511d1c	g_float0_004	Constant 0.004f.
+0x0051136c	g_unk0x0051136c	g_float0_2	Constant 0.2f.
+0x00511364	g_unk0x00511364	g_floatOneOver255	Constant 1.0f / 255.
+0x00511428	g_unk0x00511428	g_doubleOne	Constant 1.0.
+0x005113b8	g_unk0x005113b8	g_doubleHalf	Constant 0.5.
+0x00511cf0	g_unk0x00511cf0	g_double0_01f	Constant 0.01f widened to double (0.009999999776...).
+0x00511cec	g_unk0x00511cec	g_float0_005	Constant 0.005f.
+0x00511cf8	g_unk0x00511cf8	g_doubleOneOver511	Constant 1.0 / 511.
+0x00511d00	g_unk0x00511d00	g_doubleOneOver4095	Constant 1.0 / 4095.
+0x00511d08	g_unk0x00511d08	g_angle12ToRadians	0.00153398... = 2 pi / 4096: a 4096-step angle in radians.
+0x005113b0	g_unk0x005113b0	g_float4	Constant 4.0f.
+0x005113a8	g_unk0x005113a8	g_double100	Constant 100.0.
+0x005113d4	g_unk0x005113d4	g_float220	Constant 220.0f.
+0x005113d8	g_unk0x005113d8	g_float0_04	Constant 0.04f.
+0x00511378	g_unk0x00511378	g_float5	Constant 5.0f.
+0x005113d0	g_unk0x005113d0	g_floatOneOver45	Constant 1.0f / 45.
+0x005113dc	g_unk0x005113dc	g_float480	Constant 480.0f.
+0x005113e0	g_unk0x005113e0	g_float640	Constant 640.0f.
+0x00527380	g_unk0x00527380	g_optionTextColours	Grey (0xff4f4f4f) colours passed as the text colour to OptionMenu_DrawTransitionText* and Font_DrawText on the option screens.
+0x0052738c	g_unk0x0052738c	g_optionTextBrightColours	White / half-transparent white colours passed as the second (leading character) colour and as the selected row colour.
+0x00537f68	g_unk0x00537f68	g_playerEventAwardFlags	Per player, cleared and given bits 1 and 0x80 by StageUI_UpdateDriverEventAwards; drawn by StageUI_DrawHudRouteMap.
+0x005375f4	g_unk0x005375f4	g_carSoundViewSet	Per car, 0 in camera modes 1-3 and 1 otherwise (Race_SetPartSurfaceAndRefreshVisuals); selects the sample set of the car sound patterns.
+0x0082a924	g_unk0x0082a924	g_savedGameListSelection	Selected row of the saved game list (FrontendMenu_UpdateSingleRallySelection); the record loaded or written by OptionMenu_LoadSelectedSavedGame.
+0x0082aa3c	g_unk0x0082aa3c	g_savedGameListTop	First visible row of the saved game list; rows are drawn as this + index.
+0x00537f04	g_unk0x00537f04	g_raceUpdatePlayer	Loop index over the players in Race_UpdatePlayerViewAndDrivenCars, kept in a global by the original.
+0x00538104	g_unk0x00538104	g_raceUpdateCar	Loop index over the ordered cars in Race_UpdatePlayerViewAndDrivenCars, kept in a global by the original.
+0x0051bd40	g_unk0x0051bd40	g_stageObjectScale	Set by StageObject_SetPhysicsScaleAndReciprocal to value / 25, at least 0.6: the stage objects' copy of g_physicsScale (Physics_SetScale computes the same).
+0x0051bd3c	g_unk0x0051bd3c	g_stageObjectTimeStep	1 / g_stageObjectScale, set by StageObject_SetPhysicsScaleAndReciprocal; the stage objects' copy of g_physicsTimeStep, scales per-frame steps.
+0x0058cf7c	g_unk0x0058cf7c	g_knockoutRaceState	State switched on by Knockout_UpdateRaceStateAndFades and StageObject_DrawInRacePauseMenu; reset by Knockout_ResetRaceStateMachine, 7 from StageUI_RequestPauseMenuExit.
+0x00516074	g_unk0x00516074	g_inRaceMenuSelectedColour	Colour of the row under the cursor in the in-race menus (cursor == i ? this : unselected).
+0x00516078	g_unk0x00516078	g_inRaceMenuUnselectedColour	Colour of the other rows of the in-race menus.
+0x0058e394	g_unk0x0058e394	g_aiRouteTables	The AIRouteTables loaded by AI_LoadStageRouteTables and read by AI_UpdateRouteDrivingControls.
+0x00525288	g_unk0x00525288	g_selectedNetworkSession	Session index chosen in the network session browser (-1 = none), joined by FrontendNetwork_JoinSelectedSession/JoinNamedSession.
+0x0059190c	g_unk0x0059190c	g_pCollisionFinRecord	FinRecord of the sector edge being tested (Collision_TestCarAgainstSectorEdges walks g_sectors[s]->pFinRecords with it).
+0x00540c60	g_unk0x00540c60	g_gameMenuScrollY	Subtracted from the y of every row of the scrolling result menus (GameMenus_DrawRowFrame, GameMenu_DrawScrolling*).
+0x0053e698	g_unk0x0053e698	g_gameMenuRowYOffset	Extra row offset of the scrolling championship points and rally times (10/480 of the height or 0).
+0x0082b2c0	g_unk0x0082b2c0	g_optionRecordTransitions	Eight transition records used by CGameInfo::StartOptionRecordTransition and the OptionMenu_*RecordTransition / DrawTransitionText functions.
+0x0053937c	g_unk0x0053937c	g_pForceFeedbackCar	Car whose forces the ForceFeedback_* functions are computing (set by ForceFeedback_UpdateSlot/UpdatePlayerSlot).
+0x005296c4	g_unk0x005296c4	g_optionMenuSoundNames	{"move", "select", "back", "error", "toggle"}, loaded by OptionMenu_LoadSounds.
+0x005297d0	g_unk0x005297d0	g_binkSurfaceType	BinkDDSurfaceType() of the movie surface, stored by OptionMovie_Open (-1 while unknown).
+0x0051a8b8	g_unk0x0051a8b8	g_previousOpponentTeam	StageTiming_LoadSelectedCarModel picks a team different from this and stores it (-1 = none yet).
+0x00590c54	g_unk0x00590c54	g_frameColourGainRed	Red gain of the frame (StageObject_DrawListedCarLightBeams, clamped to 1.0), applied by StageObject_DrawObjectDustTrail.
+0x00590c58	g_unk0x00590c58	g_frameColourGainGreen	Green gain, as g_frameColourGainRed.
+0x00590c5c	g_unk0x00590c5c	g_frameColourGainBlue	Blue gain, as g_frameColourGainRed.
+0x00537360	g_unk0x00537360	g_collisionFirstSample	Sound_GetSampleCount() before the ten g_collisionSounds load (Race_LoadCollisionSoundBanks).
+0x005373ac	g_unk0x005373ac	g_rollFirstSample	Sound_GetSampleCount() before the seven g_rollSounds load; Race_PlayImpactAndShakeCar plays this + random.
+0x005373a8	g_unk0x005373a8	g_glassFirstSample	Sound_GetSampleCount() before the four g_glassSounds load; played by Race_PlayHornSound.

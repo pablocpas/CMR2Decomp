@@ -39,8 +39,8 @@ extern BYTE g_unk0x00540898;
 extern BYTE g_unk0x00541210;
 extern int g_standingsExtraRow;
 extern int g_unk0x005413f8;
-extern int g_unk0x00540c60;
-extern int g_unk0x0053e698;
+extern int g_gameMenuScrollY;
+extern int g_gameMenuRowYOffset;
 extern char g_classRowHeaderFormat[];
 BYTE RallyData_GetDriverSelectGridSlot(int param1);
 int StageTiming_GetValidStartTime(int index);
@@ -1021,18 +1021,18 @@ void GameMenu_DrawScrollingStageSplits(Menu *pMenu)
             strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                       (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
+                       (int)(g_pGraphics->resY * 8) / 480) - g_gameMenuScrollY,
                       (int *)g_menuFrameColour, 9);
         FormatCentisecondsAsMinSecMSec(time, CFrontend::m_stringDest);
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21e) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                       (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
+                       (int)(g_pGraphics->resY * 8) / 480) - g_gameMenuScrollY,
                       (int *)g_menuFrameColour, 9);
         if (isPlayer) {
             strcpy(CFrontend::m_stringDest, (char *)CFrontend::GetModeSpecificCountryText(RallyData_GetDriverRecordSelectionValue(player)));
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
             g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row -
-                                    g_unk0x00540c60 - 1);
+                                    g_gameMenuScrollY - 1);
             g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
             g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
             g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
@@ -1044,7 +1044,7 @@ void GameMenu_DrawScrollingStageSplits(Menu *pMenu)
         }
         Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       ((int)(g_pGraphics->resY * 0xa3) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                          g_unk0x00540c60,
+                          g_gameMenuScrollY,
                       (int *)g_menuFrameColour, 0x21);
         if (StageTiming_GetTimeForPosition(pos) != StageTiming_GetTimeForPosition(pos - 1))
             sprintf(CFrontend::m_stringDest, g_stageNumberFormat, pos + 1);
@@ -1056,7 +1056,7 @@ void GameMenu_DrawScrollingStageSplits(Menu *pMenu)
                       (((int)(g_pGraphics->resY * 8) / 480 +
                         ((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480) / 2 +
                         ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                       g_unk0x00540c60) + (int)(g_pGraphics->resY * 0x82) / 480,
+                       g_gameMenuScrollY) + (int)(g_pGraphics->resY * 0x82) / 480,
                       (int *)g_menuFrameColour, 0x12);
         if (g_standingsExtraRow != 0 || g_unk0x005413f8 != 0)
             row--;
@@ -1165,8 +1165,8 @@ BYTE RallyData_GetDriverSelectGridSlot(int param1);
 int StageTiming_GetValidStartTime(int index);
 void GameMenu_DrawInGameBreadcrumb(Menu *pMenu);
 void GameMenus_DrawRowSeparator(short row);
-extern int g_unk0x00540c60;
-extern int g_unk0x0053e698;
+extern int g_gameMenuScrollY;
+extern int g_gameMenuRowYOffset;
 
 // Set when the standings menus of the stage end / pause screens show their
 // extra first row.
@@ -1207,9 +1207,9 @@ void GameMenu_DrawScrollingChampionshipPoints(Menu *pMenu)
             pos = pMenu->items[0].max + row;
         }
         if (pos > 5 && pMenu->items[0].max < 6)
-            g_unk0x0053e698 = (int)(g_pGraphics->resY * 10) / 480;
+            g_gameMenuRowYOffset = (int)(g_pGraphics->resY * 10) / 480;
         else
-            g_unk0x0053e698 = 0;
+            g_gameMenuRowYOffset = 0;
         id = RallyTiming_GetOverallPositionDriverID(pos);
         points = RallyTiming_GetStagePenalty(id, RallyDataCountryIndex());
         isPlayer = false;
@@ -1224,18 +1224,18 @@ void GameMenu_DrawScrollingChampionshipPoints(Menu *pMenu)
             strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                       (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60 + g_unk0x0053e698,
+                       (int)(g_pGraphics->resY * 8) / 480) - g_gameMenuScrollY + g_gameMenuRowYOffset,
                       (int *)g_menuFrameColour, 9);
         sprintf(CFrontend::m_stringDest, g_stageNumberFormat, points);
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21e) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                       (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60 + g_unk0x0053e698,
+                       (int)(g_pGraphics->resY * 8) / 480) - g_gameMenuScrollY + g_gameMenuRowYOffset,
                       (int *)g_menuFrameColour, 9);
         if (isPlayer) {
             strcpy(CFrontend::m_stringDest, (char *)CFrontend::GetModeSpecificCountryText(RallyData_GetDriverRecordSelectionValue(player)));
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
             g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row -
-                                    g_unk0x00540c60 - 1 + g_unk0x0053e698);
+                                    g_gameMenuScrollY - 1 + g_gameMenuRowYOffset);
             g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
             g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
             g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
@@ -1249,7 +1249,7 @@ void GameMenu_DrawScrollingChampionshipPoints(Menu *pMenu)
         }
         Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       ((int)(g_pGraphics->resY * 0xa3) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                          g_unk0x00540c60 + g_unk0x0053e698,
+                          g_gameMenuScrollY + g_gameMenuRowYOffset,
                       (int *)g_menuFrameColour, 0x21);
         sprintf(CFrontend::m_stringDest, g_stageNumberFormat, pos + 1);
         Font_DrawText(1, CFrontend::m_stringDest,
@@ -1258,7 +1258,7 @@ void GameMenu_DrawScrollingChampionshipPoints(Menu *pMenu)
                       (((int)(g_pGraphics->resY * 8) / 480 +
                         ((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480) / 2 +
                         ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                       g_unk0x00540c60) + (int)(g_pGraphics->resY * 0x82) / 480 + g_unk0x0053e698,
+                       g_gameMenuScrollY) + (int)(g_pGraphics->resY * 0x82) / 480 + g_gameMenuRowYOffset,
                       (int *)g_menuFrameColour, 0x12);
         if (pos == 5 && pMenu->items[0].max != 0)
             GameMenus_DrawRowSeparator(row);
@@ -1302,9 +1302,9 @@ void GameMenu_DrawScrollingRallyTimes(Menu *pMenu)
             pos = pMenu->items[0].max + row;
         }
         if (pos <= 5 || pMenu->items[0].max >= 6)
-            g_unk0x0053e698 = 0;
+            g_gameMenuRowYOffset = 0;
         else
-            g_unk0x0053e698 = (int)(g_pGraphics->resY * 10) / 480;
+            g_gameMenuRowYOffset = (int)(g_pGraphics->resY * 10) / 480;
         id = RallyTiming_GetOverallPositionDriverID(pos);
         time = RallyTiming_GetOverallTimeForPosition(pos);
         isPlayer = FALSE;
@@ -1319,18 +1319,18 @@ void GameMenu_DrawScrollingRallyTimes(Menu *pMenu)
             strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                       (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60 + g_unk0x0053e698,
+                       (int)(g_pGraphics->resY * 8) / 480) - g_gameMenuScrollY + g_gameMenuRowYOffset,
                       (int *)g_menuFrameColour, 9);
         FormatCentisecondsAsMinSecMSec(time, CFrontend::m_stringDest);
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21e) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                       (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60 + g_unk0x0053e698,
+                       (int)(g_pGraphics->resY * 8) / 480) - g_gameMenuScrollY + g_gameMenuRowYOffset,
                       (int *)g_menuFrameColour, 9);
         if (isPlayer) {
             strcpy(CFrontend::m_stringDest, (char *)CFrontend::GetModeSpecificCountryText(RallyData_GetDriverRecordSelectionValue(player)));
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
             g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row -
-                                    g_unk0x00540c60 - 1 + g_unk0x0053e698);
+                                    g_gameMenuScrollY - 1 + g_gameMenuRowYOffset);
             g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
             g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
             g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
@@ -1344,7 +1344,7 @@ void GameMenu_DrawScrollingRallyTimes(Menu *pMenu)
         }
         Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       ((int)(g_pGraphics->resY * 0xa3) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                          g_unk0x00540c60 + g_unk0x0053e698,
+                          g_gameMenuScrollY + g_gameMenuRowYOffset,
                       (int *)g_menuFrameColour, 0x21);
         sprintf(CFrontend::m_stringDest, g_stageNumberFormat, pos + 1);
         Font_DrawText(1, CFrontend::m_stringDest,
@@ -1353,7 +1353,7 @@ void GameMenu_DrawScrollingRallyTimes(Menu *pMenu)
                       (((int)(g_pGraphics->resY * 8) / 480 +
                         ((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480) / 2 +
                         ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                       g_unk0x00540c60) + (int)(g_pGraphics->resY * 0x82) / 480 + g_unk0x0053e698,
+                       g_gameMenuScrollY) + (int)(g_pGraphics->resY * 0x82) / 480 + g_gameMenuRowYOffset,
                       (int *)g_menuFrameColour, 0x12);
         if (pos == 5 && pMenu->items[0].max != 0)
             GameMenus_DrawRowSeparator(row);
@@ -1585,13 +1585,13 @@ void GameMenu_DrawScrollingStagePoints(Menu *pMenu)
             strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                       (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
+                       (int)(g_pGraphics->resY * 8) / 480) - g_gameMenuScrollY,
                       (int *)g_menuFrameColour, 9);
         if (isPlayer) {
             strcpy(CFrontend::m_stringDest, (char *)CFrontend::GetModeSpecificCountryText(RallyData_GetDriverRecordSelectionValue(player)));
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
             g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row -
-                                    g_unk0x00540c60 - 1);
+                                    g_gameMenuScrollY - 1);
             g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
             g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
             g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
@@ -1603,12 +1603,12 @@ void GameMenu_DrawScrollingStagePoints(Menu *pMenu)
         }
         Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
                       ((int)(g_pGraphics->resY * 0xa3) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                          g_unk0x00540c60,
+                          g_gameMenuScrollY,
                       (int *)g_menuFrameColour, 0x21);
         sprintf(CFrontend::m_stringDest, g_stageNumberFormat, points);
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21e) / 640,
                       (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                       (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
+                       (int)(g_pGraphics->resY * 8) / 480) - g_gameMenuScrollY,
                       (int *)g_menuFrameColour, 9);
         if (g_stagePositionSeconds[pos] != 0) {
             for (i = 0; i < 0x10; i++) {
@@ -1619,7 +1619,7 @@ void GameMenu_DrawScrollingStagePoints(Menu *pMenu)
                         sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xb7), RallyTiming_GetStageTieBreak(id));
                     Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1fe) / 640,
                                   (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                                   (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
+                                   (int)(g_pGraphics->resY * 8) / 480) - g_gameMenuScrollY,
                                   (int *)g_menuFrameColour, 0xc);
                     if (pos > 0 && RallyTiming_GetStageTieBreak(RallyTiming_GetStageOrderDriverID(pos - 1)) == RallyTiming_GetStageTieBreak(id) &&
                         g_stagePositionSeconds[pos - 1] == g_stagePositionSeconds[pos]) {
@@ -1638,7 +1638,7 @@ void GameMenu_DrawScrollingStagePoints(Menu *pMenu)
                       (((int)(g_pGraphics->resY * 8) / 480 +
                         ((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480) / 2 +
                         ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
-                       g_unk0x00540c60) + (int)(g_pGraphics->resY * 0x82) / 480,
+                       g_gameMenuScrollY) + (int)(g_pGraphics->resY * 0x82) / 480,
                       (int *)g_menuFrameColour, 0x12);
         if (g_standingsExtraRow != 0 || g_unk0x005413f8 != 0)
             row--;
@@ -2239,9 +2239,9 @@ short g_menuRect[4];
 // GLOBAL: CMR2 0x00519ecc
 BYTE g_menuFrameColour[4] = { 250, 250, 250, 255 };
 // GLOBAL: CMR2 0x00540c60
-int g_unk0x00540c60;
+int g_gameMenuScrollY;
 // GLOBAL: CMR2 0x0053e698
-int g_unk0x0053e698;
+int g_gameMenuRowYOffset;
 
 // GLOBAL: CMR2 0x00516098
 char g_classRowHeaderFormat[] = "%s %d";
@@ -2697,16 +2697,16 @@ void GameMenus_DrawRowFrame(short row, short yOffset, char compact)
     row = row * (short)(height / 0x1e0);
 
     g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280) + 2;
-    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) - (short)g_unk0x00540c60 +
-                    row + (short)g_unk0x0053e698 + yOffset;
+    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) - (short)g_gameMenuScrollY +
+                    row + (short)g_gameMenuRowYOffset + yOffset;
     g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280) -
                     (short)((int)(g_pGraphics->resX * 0x20) / 0x280) - 4;
     g_menuRect[3] = 2;
     Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
 
     g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280) + 2;
-    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) - (short)g_unk0x00540c60 +
-                    row + (short)g_unk0x0053e698 - 2 + yOffset;
+    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) - (short)g_gameMenuScrollY +
+                    row + (short)g_gameMenuRowYOffset - 2 + yOffset;
     g_menuRect[3] = 2;
     g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280) -
                     (short)((int)(g_pGraphics->resX * 0x20) / 0x280) - 4;
@@ -2714,16 +2714,16 @@ void GameMenus_DrawRowFrame(short row, short yOffset, char compact)
 
     g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280) - 2;
     g_menuRect[2] = 2;
-    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) - (short)g_unk0x00540c60 +
-                    row + (short)g_unk0x0053e698 + yOffset;
+    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) - (short)g_gameMenuScrollY +
+                    row + (short)g_gameMenuRowYOffset + yOffset;
     g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) -
                     (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0);
     Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
 
     g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
     g_menuRect[2] = 2;
-    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) - (short)g_unk0x00540c60 +
-                    row + (short)g_unk0x0053e698 + yOffset;
+    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) - (short)g_gameMenuScrollY +
+                    row + (short)g_gameMenuRowYOffset + yOffset;
     g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) -
                     (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0);
     Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
@@ -3663,7 +3663,7 @@ void GameMenus_DrawRowHighlight(short row)
     *((BYTE *)&colour + 3) = 0xff;
     g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) +
                     (short)((int)(g_pGraphics->resY * 0x34) / 0x1e0) * row -
-                    (short)g_unk0x00540c60 - 1;
+                    (short)g_gameMenuScrollY - 1;
     g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) -
                     (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) + 1;
     g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
@@ -3683,7 +3683,7 @@ void GameMenus_DrawRowSeparator(short row)
     g_menuRect[1] = (short)((resY * 0x2f) / 0x1e0) +
                     (short)((resY * 0x82) / 0x1e0) +
                     (short)((resY * 0x34) / 0x1e0) * row -
-                    (short)g_unk0x00540c60;
+                    (short)g_gameMenuScrollY;
     g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x240) / 0x280);
     g_menuRect[3] = 1;
     Sprite_FillRect(&g_pGraphics->field309_0x150, g_menuRect, g_menuFrameColour, 2);
@@ -3797,7 +3797,7 @@ void GameMenu_UpdateHeaderCallbacks(void)
         Menu_CallCallback2(g_pHeaderMenu);
         if ((BYTE)RallyData_IsChampionshipFinalStage())
             GameMenu_DrawStageEndBanner();
-        g_unk0x0053e698 = 0;
+        g_gameMenuRowYOffset = 0;
         return;
     } else {
         g_unk0x00541dfc = g_pHeaderMenu;
@@ -3805,7 +3805,7 @@ void GameMenu_UpdateHeaderCallbacks(void)
     }
 tail:
     GameMenu_ClearMenuListWithHighlight();
-    g_unk0x0053e698 = 0;
+    g_gameMenuRowYOffset = 0;
     g_unk0x00541e00--;
 }
 
@@ -3895,16 +3895,16 @@ void GameMenu_RefreshResultsHeader(void)
         }
         if (Graphics_IsRegisteredTimerRunning(g_resultsHeaderFadeTimer)) {
             g_unk0x00541cf4 = Timer_GetValue(g_resultsHeaderFadeTimer[0]);
-            g_unk0x00540c60 = (FixMul(((int)g_pGraphics->resY * 0x34) / 0x1e0 * 0x10000, g_unk0x00541cf4) >> 16);
+            g_gameMenuScrollY = (FixMul(((int)g_pGraphics->resY * 0x34) / 0x1e0 * 0x10000, g_unk0x00541cf4) >> 16);
         } else {
             g_standingsExtraRow = 0;
             g_unk0x005413f8 = 0;
-            g_unk0x00540c60 = 0;
+            g_gameMenuScrollY = 0;
         }
     } else {
         g_standingsExtraRow = 0;
         g_unk0x005413f8 = 0;
-        g_unk0x00540c60 = 0;
+        g_gameMenuScrollY = 0;
     }
     action = Menu_Update(g_pHeaderMenu, flags);
     if (action != 0) {

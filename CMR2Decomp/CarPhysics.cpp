@@ -21,7 +21,7 @@ extern int g_carContactCount;
 
 // Skid-trail bend unit conversion (16.16 degree steps -> sine-table angle).
 extern double g_fixedDegreesToAngle12;
-extern double g_unk0x00511308;
+extern double g_minusFixedDegreesToAngle12;
 
 void *CarInfo_GetSection(Car *pCar, int section);
 int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass,
@@ -842,7 +842,7 @@ void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar)
                         FixVecScale(&w, &g_physPatchSide, FixSin(FTOI(__int64, X87S_MUL((double)-acc, g_fixedDegreesToAngle12))));
                     else
                         FixVecScale(&w, &g_physPatchSide, FixSin(FTOI(__int64, X87S_MUL((double)acc, g_fixedDegreesToAngle12))));
-                    sideDot = FixCos(FTOI(__int64, X87S_MUL((double)acc, g_unk0x00511308)));
+                    sideDot = FixCos(FTOI(__int64, X87S_MUL((double)acc, g_minusFixedDegreesToAngle12)));
                     p.x = FixMul(g_physPatchDir.x, sideDot) + w.x;
                     p.y = FixMul(g_physPatchDir.y, sideDot) + w.y;
                     p.z = FixMul(g_physPatchDir.z, sideDot);

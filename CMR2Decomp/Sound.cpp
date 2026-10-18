@@ -766,7 +766,7 @@ HRESULT Sound_StartLoopingMusicStream(int param1)
 
 // One chunk (0xfe80 bytes) as a 16.16 fraction; the original's constant block.
 // GLOBAL: CMR2 0x00511420
-extern const float g_unk0x00511420 = 1.0f / 0xfe80;
+extern const float g_floatOneOver65152 = 1.0f / 0xfe80;
 
 // Refills the part of the streaming buffer that has already been played.
 
@@ -783,11 +783,11 @@ HRESULT Sound_RefillMusicBufferRegions(int unused)
         if (CSound::m_pDirectSoundBuffer->Lock(g_unk0x005a2714 * 0xfe80, g_unk0x005a2718 * 0xfe80,
                                                &pAudio1, &bytes1, &pAudio2, &bytes2, 0) == 0) {
             if (pAudio1 != NULL) {
-                UINT n1 = FTOI(UINT, X87S_MUL(X87S_LOAD(bytes1), g_unk0x00511420));
+                UINT n1 = FTOI(UINT, X87S_MUL(X87S_LOAD(bytes1), g_floatOneOver65152));
                 CSound::IsSoundCallSuccessful(Sound_DecodeMusicBlocks((BYTE *)pAudio1, n1));
             }
             if (pAudio2 != NULL) {
-                UINT n2 = FTOI(UINT, X87S_MUL(X87S_LOAD(bytes2), g_unk0x00511420));
+                UINT n2 = FTOI(UINT, X87S_MUL(X87S_LOAD(bytes2), g_floatOneOver65152));
                 CSound::IsSoundCallSuccessful(Sound_DecodeMusicBlocks((BYTE *)pAudio2, n2));
             }
             CSound::IsSoundCallSuccessful(CSound::m_pDirectSoundBuffer->Unlock(pAudio1, bytes1, pAudio2, bytes2));
@@ -1068,11 +1068,11 @@ void Sound_BuildSlotLoopBuffer(SoundSlot *pSlot)
 
 // The scale factors of the logarithmic attenuation, from the original's block.
 // GLOBAL: CMR2 0x00511418
-extern const float g_unk0x00511418 = 1.0f / 65536.0f;
+extern const float g_floatOneOver65536 = 1.0f / 65536.0f;
 // GLOBAL: CMR2 0x00511410
-extern const double g_unk0x00511410 = -10.0;
+extern const double g_doubleMinus10 = -10.0;
 // GLOBAL: CMR2 0x005113c0
-extern const double g_unk0x005113c0 = 10.0;
+extern const double g_double10 = 10.0;
 
 // Applies the slot volume (scaled by the master volume) as a logarithmic
 // attenuation in hundredths of a decibel.
@@ -1082,9 +1082,9 @@ void Sound_ApplySlotVolumeAttenuation(SoundSlot *pSlot)
     int volume;
     int attenuation;
 
-    volume = FTOI(int, X87S_MUL(X87S_MUL(X87S_FILD(float, Sound_GetMasterVolume()), X87S_LOAD(pSlot->field_0xc)), g_unk0x00511418));
+    volume = FTOI(int, X87S_MUL(X87S_MUL(X87S_FILD(float, Sound_GetMasterVolume()), X87S_LOAD(pSlot->field_0xc)), g_floatOneOver65536));
     attenuation = DSBVOLUME_MIN -
-                  FTOI(int, X87S_MUL(log((double)volume), g_unk0x00511410)) * abs(10000) / FTOI(int, X87S_MUL(log(CGraphics::m_65536), g_unk0x005113c0));
+                  FTOI(int, X87S_MUL(log((double)volume), g_doubleMinus10)) * abs(10000) / FTOI(int, X87S_MUL(log(CGraphics::m_65536), g_double10));
     CSound::IsSoundCallSuccessful(pSlot->pBuffer->SetVolume(attenuation));
     if (pSlot->pLoopBuffer != NULL)
         CSound::IsSoundCallSuccessful(pSlot->pLoopBuffer->SetVolume(attenuation));

@@ -15,7 +15,7 @@ struct IDirectDrawSurface7;struct IDirectDraw7;using LPDIRECTDRAW7=IDirectDraw7*
 '''
 SUPPORT=r'''
 Graphics *g_pGraphics;Texture *g_inRaceMenuUpArrowTexture,*g_inRaceMenuDownArrowTexture;
-int g_unk0x00516074=(int)0xfffafafau,g_unk0x00516078=(int)0xffdbaca7u,g_unk0x0051608c=(int)0xbfae8072u;
+int g_inRaceMenuSelectedColour=(int)0xfffafafau,g_inRaceMenuUnselectedColour=(int)0xffdbaca7u,g_unk0x0051608c=(int)0xbfae8072u;
 char localized[32][32],literal[7][32];
 void emit(uint32_t k,uint32_t a=0,uint32_t b=0,uint32_t c=0,uint32_t d=0,uint32_t e=0,uint32_t f=0,uint32_t g=0,uint32_t h=0) {
  uint32_t v[]={k,a,b,c,d,e,f,g,h};assert(fwrite(v,sizeof(v),1,stdout)==1);

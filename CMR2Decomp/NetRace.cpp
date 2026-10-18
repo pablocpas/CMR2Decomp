@@ -878,7 +878,7 @@ void NetRace_ClampRemoteCarDisplacement(CarNetRecord *p, int param_2)
     }
 }
 
-extern const double g_unk0x00511380;
+extern const double g_fixedRadiansToAngle12;
 
 // Integrates the remote car's body for one frame: turns the tick delta into a
 // fixed-point step, advances the two position bases (0x64 and 0x70), rotates
@@ -927,9 +927,9 @@ void NetRace_IntegrateRemoteCarBody(CarNetRecord *p, int param_2)
     p->velocity.z += v.z;
 
     FixVecScale(&v, &p->angularVelocity, delta);
-    angles[0] = (short)FTOI(__int64, X87S_MUL((double)v.x, g_unk0x00511380));
-    angles[1] = (short)FTOI(__int64, X87S_MUL((double)v.y, g_unk0x00511380));
-    angles[2] = (short)FTOI(__int64, X87S_MUL((double)v.z, g_unk0x00511380));
+    angles[0] = (short)FTOI(__int64, X87S_MUL((double)v.x, g_fixedRadiansToAngle12));
+    angles[1] = (short)FTOI(__int64, X87S_MUL((double)v.y, g_fixedRadiansToAngle12));
+    angles[2] = (short)FTOI(__int64, X87S_MUL((double)v.z, g_fixedRadiansToAngle12));
     FixBasis_Rotate((FixBasis *)&p->right, (unsigned short *)angles);
 
     p->field_0xbc += FixMul(p->field_0xc0, delta) -
@@ -1117,27 +1117,27 @@ unsigned short NetRace_ScaleViewAngleByDistance(int param_1, int param_2, unsign
 // 0x00511374 = 1/65530, 0x00511370 = 1/127, 0x00511368 = 128,
 // 0x0051135c = 24/17, 0x00511358 = 12/17, 0x00511360 = 10).
 // GLOBAL: CMR2 0x00511358
-extern const float g_unk0x00511358 = 12.0f / 17.0f;
+extern const float g_float12Over17 = 12.0f / 17.0f;
 // GLOBAL: CMR2 0x0051135c
-extern const float g_unk0x0051135c = 24.0f / 17.0f;
+extern const float g_float24Over17 = 24.0f / 17.0f;
 // GLOBAL: CMR2 0x00511360
-extern const float g_unk0x00511360 = 10.0f;
+extern const float g_float10 = 10.0f;
 // GLOBAL: CMR2 0x00511368
-extern const float g_unk0x00511368 = 128.0f;
+extern const float g_float128 = 128.0f;
 // GLOBAL: CMR2 0x00511370
-extern const float g_unk0x00511370 = 1.0f / 127.0f;
+extern const float g_floatOneOver127 = 1.0f / 127.0f;
 // GLOBAL: CMR2 0x00511374
-extern const float g_unk0x00511374 = 1.0f / 65530.0f;
+extern const float g_floatOneOver65530 = 1.0f / 65530.0f;
 // GLOBAL: CMR2 0x0051137c
-extern const float g_unk0x0051137c = 1.0f / 32765.0f;
+extern const float g_floatOneOver32765 = 1.0f / 32765.0f;
 
 // Sector index of the last packet applied to each player record.
 // GLOBAL: CMR2 0x00539394
 int g_unk0x00539394;
 
-extern const float g_unk0x00511364;
-extern const float g_unk0x0051136c;
-extern const float g_unk0x00511378;
+extern const float g_floatOneOver255;
+extern const float g_float0_2;
+extern const float g_float5;
 extern float g_65536f;
 
 inline int NetRace_FloatToFix(float f)
@@ -1193,22 +1193,22 @@ int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
         pRec->seq = g_localCarStats.seq;
         pRec->lastSeq = g_localCarStats.seq;
 
-        pRec->velocity.x = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(short)g_localCarPacket.dispX, g_unk0x00511378), g_unk0x0051137c));
+        pRec->velocity.x = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(short)g_localCarPacket.dispX, g_float5), g_floatOneOver32765));
         pRec->velocity.y = 0;
-        pRec->velocity.z = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(short)g_localCarPacket.dispZ, g_unk0x00511378), g_unk0x0051137c));
-        engine = NetRace_FloatToFix(X87S_MUL((float)g_localCarPacket.wheelSpread, g_unk0x00511374));
+        pRec->velocity.z = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(short)g_localCarPacket.dispZ, g_float5), g_floatOneOver32765));
+        engine = NetRace_FloatToFix(X87S_MUL((float)g_localCarPacket.wheelSpread, g_floatOneOver65530));
         pRec->engineSpeed = engine;
         if (engine != 0)
             pRec->engineSpeedInv = FixDiv(0x10000, engine);
         else
             pRec->engineSpeedInv = 0;
-        pRec->angularVelocity.x = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(signed char)g_localCarPacket.angVelX, g_unk0x0051136c), g_unk0x00511370));
-        pRec->angularVelocity.y = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(signed char)g_localCarPacket.angVelY, g_unk0x0051136c), g_unk0x00511370));
-        pRec->angularVelocity.z = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(signed char)g_localCarPacket.angVelZ, g_unk0x0051136c), g_unk0x00511370));
+        pRec->angularVelocity.x = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(signed char)g_localCarPacket.angVelX, g_float0_2), g_floatOneOver127));
+        pRec->angularVelocity.y = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(signed char)g_localCarPacket.angVelY, g_float0_2), g_floatOneOver127));
+        pRec->angularVelocity.z = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(signed char)g_localCarPacket.angVelZ, g_float0_2), g_floatOneOver127));
         pRec->flag_0xcc = g_localCarPacket.flagB35;
         pRec->useUpperCollisionCorners = g_localCarPacket.flagC00;
-        offX = X87S_MUL(X87S_MUL((float)(short)g_localCarPacket.posX, g_unk0x00511368), g_unk0x0051137c);
-        offZ = X87S_MUL(X87S_MUL((float)(short)g_localCarPacket.posZ, g_unk0x00511368), g_unk0x0051137c);
+        offX = X87S_MUL(X87S_MUL((float)(short)g_localCarPacket.posX, g_float128), g_floatOneOver32765);
+        offZ = X87S_MUL(X87S_MUL((float)(short)g_localCarPacket.posZ, g_float128), g_floatOneOver32765);
         pRec->position.x = NetRace_FloatToFix(offX);
         pRec->position.y = 0;
         pRec->position.z = NetRace_FloatToFix(offZ);
@@ -1216,8 +1216,8 @@ int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
         pRec->position.x += pSector->x;
         pRec->position.y += pSector->y;
         pRec->position.z += pSector->z;
-        pRec->field_0xbc = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)g_localCarPacket.height, g_unk0x00511360), g_unk0x00511364));
-        pRec->field_0xc0 = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(signed char)g_localCarPacket.heightDelta, g_unk0x00511378), g_unk0x00511370));
+        pRec->field_0xbc = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)g_localCarPacket.height, g_float10), g_floatOneOver255));
+        pRec->field_0xc0 = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(signed char)g_localCarPacket.heightDelta, g_float5), g_floatOneOver127));
 
         // Two body axes: each packed pair of bytes is an angle in 1/17th of a unit.
         axisA[0] = (float)(g_localCarPacket.axes[0] & 0xff);
@@ -1226,8 +1226,8 @@ int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
         axisB[1] = (float)(g_localCarPacket.axes[1] >> 8);
         pRow = &pRec->right;
         for (i = 0; i < 2; i++, pRow += 2) {
-            float valueA = (axisA[i] *= g_unk0x0051135c);
-            float valueB = (axisB[i] *= g_unk0x00511358);
+            float valueA = (axisA[i] *= g_float24Over17);
+            float valueB = (axisB[i] *= g_float12Over17);
             ang1[i] = (short)FTOI(__int64, X87S_MUL((double)NetRace_FloatToFix(valueA), g_fixedDegreesToAngle12));
             ang2[i] = (short)FTOI(__int64, X87S_MUL((double)NetRace_FloatToFix(valueB), g_fixedDegreesToAngle12));
             pRow->x = FixMul(g_sinTable[ang2[i] & 0xfff], g_sinTable[(ang1[i] + 0x400) & 0xfff]);

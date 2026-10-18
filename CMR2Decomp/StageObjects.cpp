@@ -539,7 +539,7 @@ extern BYTE *g_movingObjectMeshIndex;
 extern Mesh **g_movingObjectMeshes;
 extern int *g_movingObjectTypes;
 extern CarSurfaceRamp *g_carSurfaceRamps;
-extern int g_unk0x0058cf7c;
+extern int g_knockoutRaceState;
 extern SectorObjectEntry *g_movingSectorEntries;
 extern unsigned int g_unk0x0058ca6c;
 
@@ -872,7 +872,7 @@ struct AIRouteTables {
 CMR2_LAYOUT_CHECK(AIRouteTablesSize, sizeof(AIRouteTables) == 0x110);
 
 // GLOBAL: CMR2 0x0058e394
-AIRouteTables g_unk0x0058e394;
+AIRouteTables g_aiRouteTables;
 // GLOBAL: CMR2 0x0058e4a4
 BYTE *g_unk0x0058e4a4;
 
@@ -881,13 +881,13 @@ BYTE *g_unk0x0058e4a4;
 void StageObject_LookupKeyedValuePair(int unused, int table, int entry, int *pOut1, int *pOut2)
 {
     int key = *(int *)(entry * 0x10 + 4 + g_unk0x0058e4a4);
-    BYTE *p = g_unk0x0058e394.routes[table];
+    BYTE *p = g_aiRouteTables.routes[table];
     int i;
 
     for (i = 0; i < *(int *)(p + 0x84); i++) {
         if (key == (char)p[4 + i * 8]) {
             *pOut1 = (char)p[7 + i * 8];
-            *pOut2 = (char)g_unk0x0058e394.routes[table][6 + i * 8];
+            *pOut2 = (char)g_aiRouteTables.routes[table][6 + i * 8];
             return;
         }
     }
@@ -1992,7 +1992,7 @@ int Knockout_HasHumanLostMatch(KnockoutMatch *pMatch)
 // FUNCTION: CMR2 0x00472ca0
 void Knockout_ResetRaceStateMachine(void)
 {
-    g_unk0x0058cf7c = 0;
+    g_knockoutRaceState = 0;
 }
 
 // Sets the ground material of the two cars from the current championship
@@ -2065,7 +2065,7 @@ extern PauseMenus g_unk0x0058ca90;
 extern CallbackStateMachine *g_unk0x0058ca88;
 extern BYTE g_unk0x0058ca8c[4];
 extern int g_unk0x0058cf64;
-extern int g_unk0x0058cf7c;
+extern int g_knockoutRaceState;
 
 typedef void (*FadeCallback)(BYTE index);
 
@@ -2134,7 +2134,7 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
     else
         g_unk0x0058ce58 = 0;
 
-    switch (g_unk0x0058cf7c) {
+    switch (g_knockoutRaceState) {
     case 0:
         Graphics_ResetInterpolationTimers();
         g_unk0x0058cc74 = 0;
@@ -2144,7 +2144,7 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
         }
         *pState = *pState & 0xff1fffff;
         StageUI_BuildPauseMenus();
-        g_unk0x0058cf7c = 1;
+        g_knockoutRaceState = 1;
         for (i = 0; i < 2; i++) {
             if (i >= (int)(RallyDataState() & 0xff))
                 Car_SetDrawnFlag(i, -1);
@@ -2154,7 +2154,7 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
     case 1:
         if (g_unk0x0058cf64 != 0) {
             StageTiming_InitRaceDriverRecords(1);
-            g_unk0x0058cf7c = 2;
+            g_knockoutRaceState = 2;
             g_unk0x0058cf64 = 0;
             return;
         }
@@ -2162,7 +2162,7 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
     case 2:
         pEntry = RallyData_GetRoundEntry();
         if (Knockout_HasUnknownMatchDriver(pEntry) != 0) {
-            g_unk0x0058cf7c = 5;
+            g_knockoutRaceState = 5;
             Knockout_RecordCurrentMatchResults();
             g_unk0x0058cf78 = 0;
             g_unk0x0058cf74 = 0;
@@ -2172,7 +2172,7 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
             Replay_ReleaseStageBuffers();
             Replay_InitRaceSlots();
             if (Knockout_AreCurrentDriversKnown() != 0) {
-                g_unk0x0058cf7c = 3;
+                g_knockoutRaceState = 3;
                 Knockout_RecordCurrentMatchResults();
                 g_unk0x0058cf78 = 0;
                 g_unk0x0058cf74 = 0;
@@ -2181,14 +2181,14 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
             } else {
                 g_unk0x0058ce5c = RallyData_GetRoundEntry();
                 g_unk0x0058cf64 = 0;
-                g_unk0x0058cf7c = 4;
+                g_knockoutRaceState = 4;
                 return;
             }
         }
         break;
     case 3:
         if (g_unk0x0058cf64 != 0) {
-            g_unk0x0058cf7c = 5;
+            g_knockoutRaceState = 5;
             Graphics_StartShapedInterpolationTimer(&g_unk0x0058cf60, 2, 7, 0, 0, 0x10000, 0);
             g_unk0x0058cf64 = 0;
             return;
@@ -2207,20 +2207,20 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
     case 5:
         if ((*pState & 0x400000) == 0) {
             g_unk0x0058cf64 = 0;
-            g_unk0x0058cf7c = 2;
+            g_knockoutRaceState = 2;
             return;
         }
         if ((*pState & 0x38) == 0x20) {
             if (g_unk0x0058cf64 != 0) {
                 g_unk0x0058cf64 = 0;
-                g_unk0x0058cf7c = 7;
+                g_knockoutRaceState = 7;
                 return;
             }
         } else if (g_unk0x0058cf64 != 0) {
             g_unk0x0058cc74 = 0x10000;
             Graphics_StartShapedInterpolationTimer(&g_unk0x0058cc70, 2, 0xd, 0, 0, 0x10000, 0);
             g_unk0x0058cf64 = 0;
-            g_unk0x0058cf7c = 6;
+            g_knockoutRaceState = 6;
             return;
         }
         break;
@@ -2256,7 +2256,7 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
                     i++;
                 } while (i < (int)g_unk0x0058ca88->count);
             }
-            g_unk0x0058cf7c = 0;
+            g_knockoutRaceState = 0;
             g_unk0x0058cf64 = 0;
             return;
         }
@@ -3666,13 +3666,13 @@ void CarDamage_UpdateOrderedCarsOffRoadState(short *param_1, short param_2, int 
 // Fixed-point to float conversion factors and the fade thresholds of the
 // stage object lighting.
 // GLOBAL: CMR2 0x00511378
-extern const float g_unk0x00511378 = 5.0f;
+extern const float g_float5 = 5.0f;
 // GLOBAL: CMR2 0x005113d0
-extern const float g_unk0x005113d0 = 1.0f / 45.0f;
+extern const float g_floatOneOver45 = 1.0f / 45.0f;
 // GLOBAL: CMR2 0x005113dc
-extern const float g_unk0x005113dc = 480.0f;
+extern const float g_float480 = 480.0f;
 // GLOBAL: CMR2 0x005113e0
-extern const float g_unk0x005113e0 = 640.0f;
+extern const float g_float640 = 640.0f;
 // GLOBAL: CMR2 0x005113c8
 extern const double g_zero0x005113c8 = 0.0;
 
@@ -3712,12 +3712,12 @@ void StageObject_UpdateProjectedDistanceFade(int param_1)
         dir.z = dir.z + pos.z;
         FixMatrix_ProjectWorldPointToView(screen, &dir, pView);
         if (screen[0] != -0x640000 || screen[1] != -0x640000) {
-            f1 = X87S_DIV(((float)(X87S_MUL(screen[0], CGraphics::m_oneOver65536)) - f2) * g_unk0x005113e0, X87S_FILD(float, g_pGraphics->resX));
-            f2 = X87S_DIV(((float)(X87S_MUL(screen[1], CGraphics::m_oneOver65536)) - f4) * g_unk0x005113dc, X87S_FILD(float, g_pGraphics->resY));
+            f1 = X87S_DIV(((float)(X87S_MUL(screen[0], CGraphics::m_oneOver65536)) - f2) * g_float640, X87S_FILD(float, g_pGraphics->resX));
+            f2 = X87S_DIV(((float)(X87S_MUL(screen[1], CGraphics::m_oneOver65536)) - f4) * g_float480, X87S_FILD(float, g_pGraphics->resY));
             f1 = (float)X87S_SQRT(f1 * f1 + f2 * f2);
-            if (f1 <= g_unk0x00511378)
+            if (f1 <= g_float5)
                 return;
-            f1 = g_netOne - (f1 - g_unk0x00511378) * g_unk0x005113d0;
+            f1 = g_netOne - (f1 - g_float5) * g_floatOneOver45;
             if (f1 >= g_netOne) {
                 alpha = 0xff;
             } else {
@@ -3810,7 +3810,7 @@ BYTE Knockout_ClearChampionshipPendingFlag(void)
     if ((*pState & 0x800000) == 0 && g_unk0x0058cf70 != 0)
         return 0;
     *pState &= 0xff7fffff;
-    g_unk0x0058cf7c = 0;
+    g_knockoutRaceState = 0;
     CGame::SetFrontendResourceMode(0);
     return 1;
 }
@@ -3998,7 +3998,7 @@ void CarInterior_UpdateGearDigitTexture(Texture *pTexture, int state, int cacheB
 
 // Fades two sets of five car-light channels towards their enable masks,
 // repaints the cached body textures on change and stores the applied levels.
-extern int g_unk0x0051bd3c;
+extern int g_stageObjectTimeStep;
 // FUNCTION: CMR2 0x00477ce0
 void StageObject_AnimateCarLightLevels(int car)
 {
@@ -4010,22 +4010,22 @@ void StageObject_AnimateCarLightLevels(int car)
 
     for (i = 0; i < 5; i++) {
         if (0 == (pRecord->channelMasks[0] & (1 << i))) {
-            value = pRecord->fadedLevels[0][i] - FixMul(0x50, g_unk0x0051bd3c);
+            value = pRecord->fadedLevels[0][i] - FixMul(0x50, g_stageObjectTimeStep);
             if (value < 0)
                 value = 0;
         } else {
-            value = pRecord->fadedLevels[0][i] + FixMul(0x80, g_unk0x0051bd3c);
+            value = pRecord->fadedLevels[0][i] + FixMul(0x80, g_stageObjectTimeStep);
             if (value > 0xff)
                 value = 0xff;
         }
         pRecord->fadedLevels[0][i] = value;
         pRecord->levels[0][i] = value;
         if ((pRecord->channelMasks[1] & (1 << i)) == 0) {
-            value = pRecord->fadedLevels[1][i] - FixMul(0x50, g_unk0x0051bd3c);
+            value = pRecord->fadedLevels[1][i] - FixMul(0x50, g_stageObjectTimeStep);
             if (value < 0)
                 value = 0;
         } else {
-            value = pRecord->fadedLevels[1][i] + FixMul(0x80, g_unk0x0051bd3c);
+            value = pRecord->fadedLevels[1][i] + FixMul(0x80, g_stageObjectTimeStep);
             if (value > 0xff)
                 value = 0xff;
         }
@@ -4624,17 +4624,17 @@ int Collision_FindQuadEdgeOverlap(FixVector *pVertsA, FixVector *pVertsB, FixVec
     return 0;
 }
 
-extern int g_unk0x0051bd40;
-extern int g_unk0x0051bd3c;
+extern int g_stageObjectScale;
+extern int g_stageObjectTimeStep;
 
 // Sets the scale 0x51bd40 (value / 25, at least 0.6) and its reciprocal 0x51bd3c.
 // FUNCTION: CMR2 0x00466630
 void StageObject_SetPhysicsScaleAndReciprocal(int value)
 {
-    g_unk0x0051bd40 = FixMul(0xa3d, value);
-    if (g_unk0x0051bd40 < 0x9999)
-        g_unk0x0051bd40 = 0x9999;
-    g_unk0x0051bd3c = FixDiv(0x10000, g_unk0x0051bd40);
+    g_stageObjectScale = FixMul(0xa3d, value);
+    if (g_stageObjectScale < 0x9999)
+        g_stageObjectScale = 0x9999;
+    g_stageObjectTimeStep = FixDiv(0x10000, g_stageObjectScale);
 }
 
 extern FixVector g_stageDeformHull[12];
@@ -5614,7 +5614,7 @@ void Knockout_DrawCurrentRoundBracket(void)
     round = (pTable->state >> 3) & 7;
     bracket = Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c);
     fading = 0;
-    if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058cc70) || (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c) && g_unk0x0058cf7c == 6))
+    if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058cc70) || (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c) && g_knockoutRaceState == 6))
         fading = 1;
     switch (round) {
     case 1:
@@ -5693,16 +5693,16 @@ void Knockout_DrawCurrentRoundBracket(void)
         }
         y += y0;
         x += (round == 1 && i % 2) ? KO_X(0x78) + x0 : x0;
-        if (g_unk0x0058cf7c == 3 && i == (int)((pTable->state >> 12) & 0xf) - 1)
+        if (g_knockoutRaceState == 3 && i == (int)((pTable->state >> 12) & 0xf) - 1)
             current = 1;
         pMatch = &pMatches[i];
         if ((pMatch->flags & 0x3e0) == 0x3e0)
             highlight2 = 1;
         if ((pMatch->flags & 0x1f) == 0x1f)
             highlight1 = 1;
-        if (((g_unk0x0058cf7c == 2 || g_unk0x0058cf7c == 4 || g_unk0x0058cf7c == 5) &&
+        if (((g_knockoutRaceState == 2 || g_knockoutRaceState == 4 || g_knockoutRaceState == 5) &&
              i == (int)((pTable->state >> 12) & 0xf)) ||
-            (g_unk0x0058cf7c == 3 && i == (int)((pTable->state >> 12) & 0xf) - 1)) {
+            (g_knockoutRaceState == 3 && i == (int)((pTable->state >> 12) & 0xf) - 1)) {
             pName1 = NULL;
             vs = 1;
             pName2 = NULL;
@@ -9384,9 +9384,9 @@ void StageObject_SpawnCarWheelSkidEffects(int param_1)
 
 // GLOBAL: CMR2 0x0058e088
 int g_unk0x0058e088[6];
-#define g_unk0x0058e3ac (g_unk0x0058e394.descriptors)
-#define g_unk0x0058e44c (g_unk0x0058e394.networks)
-#define g_unk0x0058e4a0 (g_unk0x0058e394.pActivation)
+#define g_unk0x0058e3ac (g_aiRouteTables.descriptors)
+#define g_unk0x0058e44c (g_aiRouteTables.networks)
+#define g_unk0x0058e4a0 (g_aiRouteTables.pActivation)
 
 // Projects a stage object's rotation table into its output rows.
 // match 23%: nested projection loops do not match the original layout
@@ -10300,13 +10300,13 @@ void StageObject_DrawProjectedViewIcon(int *pViewRect, int param_2)
         ramp = 0x10000;
     value = FixMul((int)g_sunVisibility << 16, 0x28f);
     diff = value - g_viewWeather[param_2].sunVisibility;
-    if ((diff < 0 ? -diff : diff) <= FixMul(0x4ccc, g_unk0x0051bd3c)) {
+    if ((diff < 0 ? -diff : diff) <= FixMul(0x4ccc, g_stageObjectTimeStep)) {
         g_viewWeather[param_2].sunVisibility = value;
     } else {
         if (diff > 0)
-            g_viewWeather[param_2].sunVisibility += FixMul(0x4ccc, g_unk0x0051bd3c);
+            g_viewWeather[param_2].sunVisibility += FixMul(0x4ccc, g_stageObjectTimeStep);
         else
-            g_viewWeather[param_2].sunVisibility -= FixMul(0x4ccc, g_unk0x0051bd3c);
+            g_viewWeather[param_2].sunVisibility -= FixMul(0x4ccc, g_stageObjectTimeStep);
     }
     ramp += g_viewWeather[param_2].sunVisibility;
     if (ramp > 0x10000)
@@ -11281,10 +11281,10 @@ extern const float g_netMinusOne;
 extern const float g_netOne;
 extern float g_65536f;
 extern double g_fixedDegreesToAngle12;
-extern const float g_unk0x00511358;   // defined in NetRace.cpp (single definition)
-extern const float g_unk0x0051135c;   // defined in NetRace.cpp (single definition)
-extern const float g_unk0x00511368;   // defined in NetRace.cpp (single definition)
-extern const float g_unk0x0051137c;   // defined in NetRace.cpp (single definition)
+extern const float g_float12Over17;   // defined in NetRace.cpp (single definition)
+extern const float g_float24Over17;   // defined in NetRace.cpp (single definition)
+extern const float g_float128;   // defined in NetRace.cpp (single definition)
+extern const float g_floatOneOver32765;   // defined in NetRace.cpp (single definition)
 
 // Rebuilds the per-frame light/colour record of a car from its render matrix:
 // the car position relative to the sector it stands in is packed as a signed
@@ -11427,8 +11427,8 @@ void Replay_DecodeCarPoseSample(unsigned int *pFlag24, unsigned int *pFlag27, un
     FixVector *pAxis;
     DWORD angles;
 
-    offX = X87S_MUL((X87S_MUL((float)(short)(((DWORD *)pSample)[1] & 0xffff), g_unk0x0051137c)), g_unk0x00511368);
-    offZ = X87S_MUL((X87S_MUL((float)(short)(((DWORD *)pSample)[1] >> 16), g_unk0x0051137c)), g_unk0x00511368);
+    offX = X87S_MUL((X87S_MUL((float)(short)(((DWORD *)pSample)[1] & 0xffff), g_floatOneOver32765)), g_float128);
+    offZ = X87S_MUL((X87S_MUL((float)(short)(((DWORD *)pSample)[1] >> 16), g_floatOneOver32765)), g_float128);
     pos.x = FloatToFix(offX);
     pos.y = 0;
     pos.z = FloatToFix(offZ);
@@ -11444,8 +11444,8 @@ void Replay_DecodeCarPoseSample(unsigned int *pFlag24, unsigned int *pFlag27, un
     heading[1] = (float)((BYTE *)pSample)[0xc];
     pitch[1] = (float)(WORD)((BYTE *)pSample)[0xd];
     for (i = 0; i < 2; i++) {
-        float vh = (heading[i] *= g_unk0x0051135c);
-        float vp = (pitch[i] *= g_unk0x00511358);
+        float vh = (heading[i] *= g_float24Over17);
+        float vp = (pitch[i] *= g_float12Over17);
         yaw[i] = (short)FTOI(__int64, X87S_MUL((double)FloatToFix(vh), g_fixedDegreesToAngle12));
         tilt[i] = (short)FTOI(__int64, X87S_MUL((double)FloatToFix(vp), g_fixedDegreesToAngle12));
         a = yaw[i];
@@ -11692,7 +11692,7 @@ void StageObject_UpdateCarLightFlagsAndGlows(Car *pCar)
     if (pRec->damageValues[23] > 0x4ccc) {
         old = g_carDamageHazardTimer[LIGHT_CAR];
         g_carDamageHazardTimer[LIGHT_CAR] = old;
-        g_carDamageHazardTimer[LIGHT_CAR] += g_unk0x0051bd3c;
+        g_carDamageHazardTimer[LIGHT_CAR] += g_stageObjectTimeStep;
         if (g_carDamageHazardTimer[LIGHT_CAR] > 0x140000)
             g_carDamageHazardTimer[LIGHT_CAR] = 0;
         if (g_carDamageHazardTimer[LIGHT_CAR] == 0)
@@ -11979,16 +11979,14 @@ void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *p
 extern CarFlexibleLineDescriptor *g_carLineDescriptors[8];
 extern CarFlexibleLineState **g_carLineStates;
 extern int g_physicsTimeStep;
-// ---- GLOBALS nuevos (no existen en el repo) ----
-// Per-channel colour gains of the current frame, written by StageObject_DrawListedCarLightBeams
-// (0x00590c54 = red, 0x00590c58 = green, 0x00590c5c = blue, each clamped to
-// 0x10000). Not defined anywhere else in the project yet.
+// Per-channel colour gains of the current frame, written by
+// StageObject_DrawListedCarLightBeams, each clamped to 0x10000.
 // GLOBAL: CMR2 0x00590c54
-int g_unk0x00590c54;
+int g_frameColourGainRed;
 // GLOBAL: CMR2 0x00590c58
-int g_unk0x00590c58;
+int g_frameColourGainGreen;
 // GLOBAL: CMR2 0x00590c5c
-int g_unk0x00590c5c;
+int g_frameColourGainBlue;
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
 extern FixVector g_collisionPush;
 extern FixVector g_collisionPushB;
@@ -12008,7 +12006,7 @@ FixVector g_unk0x005918f0;
 // GLOBAL: CMR2 0x00591900
 FixVector g_unk0x00591900;
 // GLOBAL: CMR2 0x0059190c
-FinRecord *g_unk0x0059190c;
+FinRecord *g_pCollisionFinRecord;
 // GLOBAL: CMR2 0x00591920
 FixVector g_unk0x00591920;
 // GLOBAL: CMR2 0x00591930
@@ -12690,8 +12688,8 @@ void CarDamage_StepClimbingCarRecords(short *param_1, short param_2)
 
 int View_IsNegativeRightAngleCameraSpot(int view);
 void StageObject_DrawObjectDustTrail(unsigned int index, int *pTarget, int flag);
-extern int g_unk0x00590c58;
-extern int g_unk0x00590c5c;
+extern int g_frameColourGainGreen;
+extern int g_frameColourGainBlue;
 
 // Draws the light beams of every car in the order list for one view (not the
 // player's own car from the in-car cameras): the beam colour follows the
@@ -12722,15 +12720,15 @@ void StageObject_DrawListedCarLightBeams(short *pOrder, short count, int view)
             (&g_partCar->firstCameraBlocked)[view] != 0)
             continue;
         Scene_GetLightColour((DWORD *)colour, g_partCar->field_0xa70);
-        g_unk0x00590c54 = FixMul(colour[0] << 16, 0x106);
-        if (g_unk0x00590c54 > 0x10000)
-            g_unk0x00590c54 = 0x10000;
-        g_unk0x00590c58 = FixMul(colour[1] << 16, 0x106);
-        if (g_unk0x00590c58 > 0x10000)
-            g_unk0x00590c58 = 0x10000;
-        g_unk0x00590c5c = FixMul(colour[2] << 16, 0x106);
-        if (g_unk0x00590c5c > 0x10000)
-            g_unk0x00590c5c = 0x10000;
+        g_frameColourGainRed = FixMul(colour[0] << 16, 0x106);
+        if (g_frameColourGainRed > 0x10000)
+            g_frameColourGainRed = 0x10000;
+        g_frameColourGainGreen = FixMul(colour[1] << 16, 0x106);
+        if (g_frameColourGainGreen > 0x10000)
+            g_frameColourGainGreen = 0x10000;
+        g_frameColourGainBlue = FixMul(colour[2] << 16, 0x106);
+        if (g_frameColourGainBlue > 0x10000)
+            g_frameColourGainBlue = 0x10000;
         mask = (BYTE)(1 << view);
         lit = 0;
         if (g_partCar->pAlternateBodyNode == NULL) {
@@ -12778,9 +12776,9 @@ void StageObject_DrawObjectDustTrail(unsigned int index, int *pTarget, int flag)
     car = g_partCar->index;
     pEntry = g_carLineStates[car] + (index & 0xff);
     pDesc = g_carLineDescriptors[car] + (index & 0xff);
-    colour[0] = (BYTE)FixMulShift32(g_unk0x00590c54, pDesc->colour[0] << 16);
-    colour[1] = (BYTE)FixMulShift32(g_unk0x00590c58, pDesc->colour[1] << 16);
-    colour[2] = (BYTE)FixMulShift32(g_unk0x00590c5c, pDesc->colour[2] << 16);
+    colour[0] = (BYTE)FixMulShift32(g_frameColourGainRed, pDesc->colour[0] << 16);
+    colour[1] = (BYTE)FixMulShift32(g_frameColourGainGreen, pDesc->colour[1] << 16);
+    colour[2] = (BYTE)FixMulShift32(g_frameColourGainBlue, pDesc->colour[2] << 16);
     colour[3] = pDesc->colour[3];
     if (pEntry->grounded != 0) {
         // Flag set: one straight segment from +0x0 to +0x9, each end nudged at
@@ -13103,7 +13101,7 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
 // Resolves the car's contact with the face tracked in g_collisionFace: picks
 // the contact axis, slides the car (position, eight corners and the face's
 // four vertices) out of the surface and latches the impact direction and point
-// from the surface descriptor in g_unk0x0059190c.
+// from the surface descriptor in g_pCollisionFinRecord.
 // match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048e730
 int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, char param_4)
@@ -13192,7 +13190,7 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
             StageObject_ApplyRecursiveFrameDelta((BYTE)g_collisionCar->index, -1, (int *)&g_unk0x00591900, 0);
             // Surface descriptor of the tracked point: 0xff means there is no contact
             // surface, in which case the second tracked point decides the direction.
-            surface = g_unk0x0059190c->surfaces[param_3 != 0];
+            surface = g_pCollisionFinRecord->surfaces[param_3 != 0];
             if (surface != 0xff) {
                 // Impact direction from the surface angle (12-bit angle into the sine
                 // table, with the +0x400 entry as the perpendicular component).
@@ -13708,8 +13706,8 @@ void AI_UpdateRouteDrivingControls(Car *pCar, int car, int preview)
     node = RallyData_GetActiveCarRaceRecordField0(pCar);
     AI_INT(0x54) = node;
     StageObject_LookupKeyedValuePair(car, table, node, &variant, &modes[2]);
-    *(unsigned int *)g_unk0x0058e394.routes[table] |= 0xfffffffc;
-    StageTiming_RecomputeCarSplitBarSamples(pCar, *(unsigned int *)g_unk0x0058e394.routes[table], g_aiDriveState, variant);
+    *(unsigned int *)g_aiRouteTables.routes[table] |= 0xfffffffc;
+    StageTiming_RecomputeCarSplitBarSamples(pCar, *(unsigned int *)g_aiRouteTables.routes[table], g_aiDriveState, variant);
     ahead = -AI_INT(0x34) - (int)FTOI(__int64, X87S_MUL((double)*(signed char *)(g_unk0x0058e4a4 + node * 0x10 + 0xa), g_minus65536));
     behind = AI_INT(0x34) - (int)FTOI(__int64, X87S_MUL((double)*(signed char *)(g_unk0x0058e4a4 + node * 0x10 + 0xe), g_minus65536));
     g_unk0x0058e230[car] = behind;
@@ -13982,32 +13980,32 @@ BYTE *AI_LoadStageRouteTables(void)
         g_unk0x0058e37c[i] = (int *)p;
         p += 4;
     }
-    g_unk0x0058e394.counts[1] = *p;
+    g_aiRouteTables.counts[1] = *p;
     p += 4;
-    for (i = 1; i <= g_unk0x0058e394.counts[1]; i++) {
-        g_unk0x0058e394.routes[i] = p;
+    for (i = 1; i <= g_aiRouteTables.counts[1]; i++) {
+        g_aiRouteTables.routes[i] = p;
         p += 0x88;
     }
-    g_unk0x0058e394.counts[2] = *p;
+    g_aiRouteTables.counts[2] = *p;
     p += 4;
-    for (i = 1; i <= g_unk0x0058e394.counts[2]; i++) {
-        g_unk0x0058e394.descriptors[i] = (char *)p;
+    for (i = 1; i <= g_aiRouteTables.counts[2]; i++) {
+        g_aiRouteTables.descriptors[i] = (char *)p;
         p += 0x14;
     }
-    g_unk0x0058e394.counts[0] = *p;
+    g_aiRouteTables.counts[0] = *p;
     p += 4;
-    for (i = 1; i <= g_unk0x0058e394.counts[0]; i++) {
-        g_unk0x0058e394.points[i] = p;
+    for (i = 1; i <= g_aiRouteTables.counts[0]; i++) {
+        g_aiRouteTables.points[i] = p;
         p += 0x10;
     }
-    g_unk0x0058e394.counts[3] = *p;
+    g_aiRouteTables.counts[3] = *p;
     p += 4;
-    for (i = 1; i <= g_unk0x0058e394.counts[3]; i++) {
-        g_unk0x0058e394.networks[i] = (AINetwork *)p;
+    for (i = 1; i <= g_aiRouteTables.counts[3]; i++) {
+        g_aiRouteTables.networks[i] = (AINetwork *)p;
         p += 0x20;
     }
-    for (i = 1; i <= g_unk0x0058e394.counts[3]; i++) {
-        pEntry = g_unk0x0058e394.networks[i];
+    for (i = 1; i <= g_aiRouteTables.counts[3]; i++) {
+        pEntry = g_aiRouteTables.networks[i];
         if (1 < pEntry->layerCount) {
             for (k = 1; k < pEntry->layerCount; k++) {
                 pEntry->pWeights[k] = (int *)p;
@@ -14015,9 +14013,9 @@ BYTE *AI_LoadStageRouteTables(void)
             }
         }
     }
-    g_unk0x0058e394.pActivation = (int *)p;
+    g_aiRouteTables.pActivation = (int *)p;
     g_unk0x0058e4a4 = p + 0x100;
-    StageTiming_RelocateCarRecordRoutePoints(g_unk0x0058e4a4 + 0x1720, g_unk0x0058e394.points, g_unk0x0058e394.counts[0]);
+    StageTiming_RelocateCarRecordRoutePoints(g_unk0x0058e4a4 + 0x1720, g_aiRouteTables.points, g_aiRouteTables.counts[0]);
     return pEnd;
 }
 #undef AI_INT
@@ -14246,7 +14244,7 @@ int CarDamage_PickRandomTriangleEdgePoint(FixVector *pOut, CarPartSet *pParts, i
 // GLOBAL: CMR2 0x00547908
 BillboardDef g_bodySparkBillboard;
 
-extern int g_unk0x0051bd3c;
+extern int g_stageObjectTimeStep;
 extern Texture *g_unk0x005477f0;
 CarPartSet *StageTiming_GetCarReplayRecord(int index);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
@@ -14406,7 +14404,7 @@ int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar)
     FixVector origin;
 
     pParts = StageTiming_GetCarReplayRecord(pCar->index);
-    count = FixMul(0x1e0000, FixMul(g_unk0x0051bd3c, amount)) >> 16;
+    count = FixMul(0x1e0000, FixMul(g_stageObjectTimeStep, amount)) >> 16;
     result = count;
     if (count > 0) {
         result = rand();
@@ -14788,14 +14786,14 @@ void Collision_TestCarAgainstSectorEdges(Car *pCar, int param)
     sector = g_collisionCar->sector;
     if (sector == -1)
         return;
-    g_unk0x0059190c = g_sectors[sector]->pFinRecords;
+    g_pCollisionFinRecord = g_sectors[sector]->pFinRecords;
     g_unk0x005919b8 = FixMul(g_collisionCar->collisionRadius, 0x13333);
-    while (g_unk0x0059190c != NULL) {
+    while (g_pCollisionFinRecord != NULL) {
         nearZ = 0;
         g_unk0x00591930 = 0;
         nearX = 0;
-        g_collisionTarget = g_unk0x0059190c->target;
-        g_collisionLineStart = g_unk0x0059190c->lineStart;
+        g_collisionTarget = g_pCollisionFinRecord->target;
+        g_collisionLineStart = g_pCollisionFinRecord->lineStart;
         g_unk0x005918d0 = g_collisionTarget.x - g_collisionCar->position.x;
         g_unk0x0059195c = g_collisionTarget.z - g_collisionCar->position.z;
         g_unk0x005918d4 = g_collisionLineStart.x - g_collisionCar->position.x;
@@ -14816,9 +14814,9 @@ void Collision_TestCarAgainstSectorEdges(Car *pCar, int param)
             goto next;
         if (nearZ && FIX_ABS(g_unk0x0059195c) >= g_unk0x005919b8 && FIX_ABS(g_unk0x00591960) >= g_unk0x005919b8)
             goto next;
-        g_collisionDirection = g_unk0x0059190c->direction;
+        g_collisionDirection = g_pCollisionFinRecord->direction;
         g_collisionDirectionDirty = 0;
-        switch (g_unk0x0059190c->type) {
+        switch (g_pCollisionFinRecord->type) {
         case 6:
             if (StageObject_IsCarOutsideCollisionHeightInterval() == 0 && VehiclePhysics_ClassifyCandidateFace(1) != 0)
                 g_collisionCar->field_0xbf8 = 1;
@@ -14854,11 +14852,11 @@ void Collision_TestCarAgainstSectorEdges(Car *pCar, int param)
             goto next;
         default:
             if (StageObject_IsCarOutsideCollisionHeightInterval() == 0) {
-                if ((g_unk0x0059190c->flags & 1) && Collision_TestSectorEdgeEndpoints(g_unk0x0059190c->type) &&
-                    g_unk0x0059190c->type == 0x19)
+                if ((g_pCollisionFinRecord->flags & 1) && Collision_TestSectorEdgeEndpoints(g_pCollisionFinRecord->type) &&
+                    g_pCollisionFinRecord->type == 0x19)
                     g_collisionCar->field_0xbf8 = 1;
-                if (Collision_ResolveSectorEdgeContact(g_unk0x0059190c->type, param) &&
-                    g_unk0x0059190c->type == 0x19)
+                if (Collision_ResolveSectorEdgeContact(g_pCollisionFinRecord->type, param) &&
+                    g_pCollisionFinRecord->type == 0x19)
                     g_collisionCar->field_0xbf8 = 1;
             }
             break;
@@ -14868,14 +14866,14 @@ void Collision_TestCarAgainstSectorEdges(Car *pCar, int param)
             saved = *(FixVector *)p;
             *(FixVector *)p = g_unk0x005918e0;
             FixVecScaleRecip(&g_collisionCar->field_0x5c4, &g_collisionCar->field_0x5c4,
-                             0x10000 - g_unk0x0051fb00[g_unk0x0059190c->type]);
+                             0x10000 - g_unk0x0051fb00[g_pCollisionFinRecord->type]);
             if (g_collisionCar->field_0xb42 <= 0)
                 CarDamage_ApplyCollisionDeformImpulse(g_collisionCar, (int *)&g_unk0x00591ad0, &g_unk0x00591938, 0, g_unk0x0059199c, 0);
             g_collisionCar->field_0x5c4 = saved;
             g_collisionCar->field_0xb42 = 10;
         }
     next:
-        g_unk0x0059190c = g_unk0x0059190c->pNext;
+        g_pCollisionFinRecord = g_pCollisionFinRecord->pNext;
     }
     if (g_collisionCar->field_0xa7c > 0) {
         g_collisionCar->field_0xa7c -= 0x10000;
@@ -14947,7 +14945,7 @@ char g_strFireworksFalling2[] = "\\Fireworks\\Falling_2.wav";
 char g_strFireworksFalling1[] = "\\Fireworks\\Falling_1.wav";
 
 extern char g_strPathConcat[];
-extern double g_unk0x00511308;
+extern double g_minusFixedDegreesToAngle12;
 void StageObject_SetVehicleEffectState(int value);
 int Sound_GetSampleCount(void);
 BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
@@ -15006,13 +15004,13 @@ void Fireworks_Init(BYTE count)
         b = start;
         for (i = 0; i < 3; i++) {
             sinA = (unsigned short)(int)FTOI(__int64, X87S_MUL(X87S_FILD(float, a), g_fixedDegreesToAngle12)) & 0xfff;
-            cosA = (0x400 - (unsigned short)(int)FTOI(__int64, X87S_MUL(X87S_FILD(float, a), g_unk0x00511308))) & 0xfff;
+            cosA = (0x400 - (unsigned short)(int)FTOI(__int64, X87S_MUL(X87S_FILD(float, a), g_minusFixedDegreesToAngle12))) & 0xfff;
             for (n = 0; n < 3; n++) {
                 ((FixVector *)g_unk0x00590b0c[i])[n].x =
                     FixMul(g_sinTable[sinA],
                            g_sinTable[(unsigned short)(int)FTOI(__int64, X87S_MUL(X87S_FILD(float, b), g_fixedDegreesToAngle12)) & 0xfff]);
                 ((FixVector *)g_unk0x00590b0c[i])[n].y =
-                    g_sinTable[(0x400 - (unsigned short)(int)FTOI(__int64, X87S_MUL(X87S_FILD(float, b), g_unk0x00511308))) & 0xfff];
+                    g_sinTable[(0x400 - (unsigned short)(int)FTOI(__int64, X87S_MUL(X87S_FILD(float, b), g_minusFixedDegreesToAngle12))) & 0xfff];
                 ((FixVector *)g_unk0x00590b0c[i])[n].z =
                     FixMul(g_sinTable[cosA],
                            g_sinTable[(unsigned short)(int)FTOI(__int64, X87S_MUL(X87S_FILD(float, b), g_fixedDegreesToAngle12)) & 0xfff]);
@@ -15633,7 +15631,7 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
             pColour = g_unk0x0051c994;
             texture = InRaceMenu_GetDownArrowTexture();
         }
-        switch (g_unk0x0058cf7c) {
+        switch (g_knockoutRaceState) {
         case 1:
             if (i == 0)
                 sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x77));
@@ -15712,7 +15710,7 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
 void StageTiming_RotatePartBasisFromAngles(unsigned short *pAngles);
 void VehicleMotion_UpdateWorldPosition(void);
 extern int g_unk0x00590c68;
-extern const double g_unk0x00511380;
+extern const double g_fixedRadiansToAngle12;
 
 // FUNCTION: CMR2 0x00484310
 void CarPart_IntegrateDetachedMotion(void)
@@ -15770,7 +15768,7 @@ void CarPart_IntegrateDetachedMotion(void)
             g_partState->angularVelocity.z += t;
             angles[2] = FTOI(short, X87S_MUL((double)(FixMul(g_partState->angularVelocity.z,
                                                 g_physicsTimeStep) -
-                                          FixMul(t, g_physicsTimeStep / 2)), g_unk0x00511380));
+                                          FixMul(t, g_physicsTimeStep / 2)), g_fixedRadiansToAngle12));
             angles[0] = 0;
             angles[1] = 0;
             FixBasis_Rotate(&g_partState->basis, angles);
@@ -15837,16 +15835,16 @@ void CarPart_IntegrateDetachedMotion(void)
     anglesZ:
         angles[0] = 0;
         angles[1] = 0;
-        angles[2] = FTOI(short, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000), g_unk0x00511308));
+        angles[2] = FTOI(short, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000), g_minusFixedDegreesToAngle12));
     } else {
         if (g_partCar->type == 9) {
             angles[0] = 0;
             angles[2] = 0;
-            angles[1] = FTOI(short, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000), g_unk0x00511308));
+            angles[1] = FTOI(short, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000), g_minusFixedDegreesToAngle12));
         } else {
             angles[1] = 0;
             angles[2] = 0;
-            angles[0] = FTOI(short, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x30000), g_unk0x00511308));
+            angles[0] = FTOI(short, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x30000), g_minusFixedDegreesToAngle12));
         }
     }
     StageTiming_RotatePartBasisFromAngles(angles);

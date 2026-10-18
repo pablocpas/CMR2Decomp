@@ -76,15 +76,15 @@ MenuDotTrail g_menuDotTrail;
 // GLOBAL: CMR2 0x0081987c
 int g_creditsScrollOffset;
 // GLOBAL: CMR2 0x0082a924
-int g_unk0x0082a924;
+int g_savedGameListSelection;
 // GLOBAL: CMR2 0x0082aa3c
-int g_unk0x0082aa3c;
+int g_savedGameListTop;
 // GLOBAL: CMR2 0x0082aa40
 int g_unk0x0082aa40;
 // GLOBAL: CMR2 0x0082ac48
 int g_unk0x0082ac48;
 // GLOBAL: CMR2 0x00525288
-int g_unk0x00525288 = -1;
+int g_selectedNetworkSession = -1;
 // GLOBAL: CMR2 0x0052528c
 int g_unk0x0052528c = -1;
 // GLOBAL: CMR2 0x00525330
@@ -1996,53 +1996,53 @@ void FrontendMenu_UpdateNetworkSessionBrowser(Menu *pMenu)
                         for (i = 0; i < g_unk0x00819018; i++) {
                             Network_CopyEnumeratedSessionGUID((BYTE)i, &guid);
                             if (IsEqualGUID(guid, g_unk0x00818cf0)) {
-                                g_unk0x00525288 = i;
+                                g_selectedNetworkSession = i;
                                 break;
                             }
                         }
                     } else {
-                        g_unk0x00525288 = -1;
+                        g_selectedNetworkSession = -1;
                     }
                 }
                 g_unk0x0052528c = g_unk0x00819018;
-                if (g_unk0x00525288 == -1) {
-                    g_unk0x00525288 = 0;
+                if (g_selectedNetworkSession == -1) {
+                    g_selectedNetworkSession = 0;
                     Network_CopyEnumeratedSessionGUID(0, &g_unk0x00818cf0);
                     g_unk0x00819024 = 1;
                 } else if ((pDevice->field_0x8 & 0x20) != 0) {
                     g_unk0x00819014 = 0;
-                    g_unk0x00525288 = -1;
+                    g_selectedNetworkSession = -1;
                     g_unk0x00819024 = 0;
                     CGameInfo::EnumerateNetworkSessions();
                     g_unk0x00818ef4 = 0;
                 } else {
                     Menu_SetFlags(pMenu, 0, 0, 1, 0);
-                    if ((pDevice->field_0x8 & 4) != 0 && g_unk0x00525288 > 0) {
-                        g_unk0x00525288--;
-                        Network_CopyEnumeratedSessionGUID((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
+                    if ((pDevice->field_0x8 & 4) != 0 && g_selectedNetworkSession > 0) {
+                        g_selectedNetworkSession--;
+                        Network_CopyEnumeratedSessionGUID((BYTE)g_selectedNetworkSession, &g_unk0x00818cf0);
                         g_unk0x00819024 = 1;
-                    } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x00525288 < g_unk0x00819018 - 1) {
-                        g_unk0x00525288++;
-                        Network_CopyEnumeratedSessionGUID((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
+                    } else if ((pDevice->field_0x8 & 8) != 0 && g_selectedNetworkSession < g_unk0x00819018 - 1) {
+                        g_selectedNetworkSession++;
+                        Network_CopyEnumeratedSessionGUID((BYTE)g_selectedNetworkSession, &g_unk0x00818cf0);
                         g_unk0x00819024 = 1;
                     }
                 }
             } else {
                 g_unk0x00819014 = 0;
-                g_unk0x00525288 = -1;
+                g_selectedNetworkSession = -1;
                 g_unk0x0052528c = -1;
                 g_unk0x00819024 = 0;
                 g_unk0x0081901c = 0;
             }
-            if (g_unk0x00525288 < g_unk0x0081901c) {
+            if (g_selectedNetworkSession < g_unk0x0081901c) {
                 g_unk0x0081901c--;
                 if (g_unk0x0081901c < 0)
                     g_unk0x0081901c = 0;
             }
-            if (g_unk0x00525288 >= g_unk0x0081901c + 5)
+            if (g_selectedNetworkSession >= g_unk0x0081901c + 5)
                 g_unk0x0081901c++;
         } else {
-            g_unk0x00525288 = 0;
+            g_selectedNetworkSession = 0;
             g_unk0x0052528c = -1;
             g_unk0x00819024 = 0;
             Menu_SetFlags(pMenu, 1, 1, 1, 1);
@@ -2066,7 +2066,7 @@ void FrontendMenu_EnterNetworkSessionBrowser(Menu *pMenu, char param)
     g_unk0x00819024 = 0;
     g_unk0x00819014 = 0;
     g_unk0x0052528c = -1;
-    g_unk0x00525288 = -1;
+    g_selectedNetworkSession = -1;
     Input_ClearCharacterQueue();
     sprintf(g_unk0x00818da8, CMain::m_logFileBlankLine);
     g_unk0x0081901c = 0;
@@ -2086,16 +2086,16 @@ void FrontendMenu_EnterNetworkSessionBrowser(Menu *pMenu, char param)
 void FrontendNetwork_JoinSelectedSession(Menu *pMenu, int param)
 {
     if (g_unk0x00818ef4 != 0) {
-        if (g_unk0x00819014 != 0 && g_unk0x00819024 != 0 && g_unk0x00525288 >= 0
-            && (int)g_unk0x00525288 < (int)Network_GetEnumeratedSessionCount()) {
+        if (g_unk0x00819014 != 0 && g_unk0x00819024 != 0 && g_selectedNetworkSession >= 0
+            && (int)g_selectedNetworkSession < (int)Network_GetEnumeratedSessionCount()) {
             g_unk0x00818ce4 = 0;
             NetPlayers_ResetAllTables();
             NetworkChat_ClearLog();
             g_unk0x00818ef4 = 0;
-            if (Network_IsSessionFlag10Set((BYTE)g_unk0x00525288) == 0) {
+            if (Network_IsSessionFlag10Set((BYTE)g_selectedNetworkSession) == 0) {
                 // The original reuses the menu parameter slot for the
                 // invalid-password flag of the join call (its value is unused).
-                if (Network_JoinEnumeratedSession((BYTE)g_unk0x00525288, g_unk0x00818da8, (BYTE *)&pMenu) != 0) {
+                if (Network_JoinEnumeratedSession((BYTE)g_selectedNetworkSession, g_unk0x00818da8, (BYTE *)&pMenu) != 0) {
                     GameInfo_SetConfiguredGameMode((BYTE)Session_GetUserValue(0));
                     GameInfo_SetSessionField398C(Session_GetUserValue(2));
                     Network_GetLocalPlayerID();
@@ -2111,7 +2111,7 @@ void FrontendNetwork_JoinSelectedSession(Menu *pMenu, int param)
                     return;
                 }
             }
-            if (Network_IsSessionFlag10Set((BYTE)g_unk0x00525288) != 0) {
+            if (Network_IsSessionFlag10Set((BYTE)g_selectedNetworkSession) != 0) {
                 Menu_SetNextAction(FrontendMenu_GetNetworkNameEntry());
                 return;
             }
@@ -2865,7 +2865,7 @@ void FrontendNetwork_JoinNamedSession(Menu *pMenu, int param)
     NetPlayers_ResetAllTables();
     NetworkChat_ClearLog();
     g_unk0x00818ef4 = 0;
-    if (Network_JoinEnumeratedSession((BYTE)g_unk0x00525288, g_unk0x00818da8, &invalidPassword) != 0) {
+    if (Network_JoinEnumeratedSession((BYTE)g_selectedNetworkSession, g_unk0x00818da8, &invalidPassword) != 0) {
         GameInfo_SetConfiguredGameMode((BYTE)Session_GetUserValue(0));
         GameInfo_SetSessionField398C(Session_GetUserValue(2));
         Network_GetLocalPlayerID();
@@ -3014,13 +3014,13 @@ void FrontendScroller_SetSelection(int value)
 void FrontendMenu_EnterSingleRallySelection(Menu *pMenu, int param)
 {
     g_unk0x0082aa40 = SavedGames_GetCount();
-    g_unk0x0082a924 = 0;
-    g_unk0x0082aa3c = 0;
+    g_savedGameListSelection = 0;
+    g_savedGameListTop = 0;
     g_unk0x0082ac48 = 0;
 }
 
-// Scroll of a 13-row list: g_unk0x0082a924 is the selected row,
-// g_unk0x0082aa3c the first visible one.
+// Scroll of a 13-row list: g_savedGameListSelection is the selected row,
+// g_savedGameListTop the first visible one.
 // FUNCTION: CMR2 0x004ef4e0
 void FrontendMenu_UpdateSingleRallySelection(Menu *pMenu)
 {
@@ -3030,23 +3030,23 @@ void FrontendMenu_UpdateSingleRallySelection(Menu *pMenu)
     Menu_SetFlags(pMenu, 0, 0, 1, 1);
     pDevice = CInput::GetAvailableDeviceRecord(0);
     if (g_unk0x0082aa40 > 0) {
-        if (g_unk0x0082a924 == -1)
-            g_unk0x0082a924 = 0;
-        else if ((pDevice->field_0x8 & 4) && g_unk0x0082a924 > 0)
-            g_unk0x0082a924--;
-        else if ((pDevice->field_0x8 & 8) && g_unk0x0082a924 < g_unk0x0082aa40 - 1)
-            g_unk0x0082a924++;
+        if (g_savedGameListSelection == -1)
+            g_savedGameListSelection = 0;
+        else if ((pDevice->field_0x8 & 4) && g_savedGameListSelection > 0)
+            g_savedGameListSelection--;
+        else if ((pDevice->field_0x8 & 8) && g_savedGameListSelection < g_unk0x0082aa40 - 1)
+            g_savedGameListSelection++;
     } else {
-        g_unk0x0082a924 = -1;
-        g_unk0x0082aa3c = 0;
+        g_savedGameListSelection = -1;
+        g_savedGameListTop = 0;
     }
-    if (g_unk0x0082a924 < g_unk0x0082aa3c) {
-        g_unk0x0082aa3c--;
-        if (g_unk0x0082aa3c < 0)
-            g_unk0x0082aa3c = 0;
+    if (g_savedGameListSelection < g_savedGameListTop) {
+        g_savedGameListTop--;
+        if (g_savedGameListTop < 0)
+            g_savedGameListTop = 0;
     }
-    if (g_unk0x0082a924 >= g_unk0x0082aa3c + 13)
-        g_unk0x0082aa3c++;
+    if (g_savedGameListSelection >= g_savedGameListTop + 13)
+        g_savedGameListTop++;
     g_unk0x0082ac48 = 13;
     if (g_unk0x0082aa40 <= 13)
         g_unk0x0082ac48 = g_unk0x0082aa40;
@@ -4464,7 +4464,7 @@ void FrontendCar_ApplyPreviewSelection(Menu *pMenu, int param)
     char ok;
 
     if (g_unk0x0082aa40 > 0) {
-        ok = FrontendProfile_ApplyDriverProfileBlock(SavedGames_GetRecord(g_unk0x0082a924));
+        ok = FrontendProfile_ApplyDriverProfileBlock(SavedGames_GetRecord(g_savedGameListSelection));
         if (ok != 0)
             Frontend_SetDebugOverlayChannels(0, 1, 0);
     }
@@ -8101,7 +8101,7 @@ void FrontendMenu_DrawNetworkSessionBrowser(Menu *pMenu)
         index = g_unk0x0081901c;
         do {
             pColour = pSelColour;
-            if (g_unk0x00525288 != index)
+            if (g_selectedNetworkSession != index)
                 pColour = pUnselColour;
             Font_DrawText(1, Network_GetEnumeratedSessionName(index), (int)(g_pGraphics->resX * 100) / 0x280, (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * row, pColour, 10);
             Font_DrawText(1, CGameInfo::GetCodeEntryText(Session_GetListedUserValue(index, 0) - 8),
@@ -8187,25 +8187,25 @@ void FrontendMenu_DrawSingleRallySelection(Menu *pMenu)
     if (g_unk0x0082ac48 > 0) {
         for (index = 0; index < g_unk0x0082ac48; index++) {
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x210),
-                    SavedGames_GetDifficulty(g_unk0x0082aa3c + index),
-                    CFrontend::GetTextString(SavedGames_GetDateLowBits(g_unk0x0082aa3c + index) + 0x27),
-                    names[SavedGames_GetDateMiddleBits(g_unk0x0082aa3c + index)]);
-            if (g_unk0x0082a924 == g_unk0x0082aa3c + index) {
-                Font_DrawText(0, (char *)SavedGames_GetFileName(g_unk0x0082aa3c + index), (int)(g_pGraphics->resX * 0x32) / 0x280, (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
+                    SavedGames_GetDifficulty(g_savedGameListTop + index),
+                    CFrontend::GetTextString(SavedGames_GetDateLowBits(g_savedGameListTop + index) + 0x27),
+                    names[SavedGames_GetDateMiddleBits(g_savedGameListTop + index)]);
+            if (g_savedGameListSelection == g_savedGameListTop + index) {
+                Font_DrawText(0, (char *)SavedGames_GetFileName(g_savedGameListTop + index), (int)(g_pGraphics->resX * 0x32) / 0x280, (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
                               (int *)g_colourWhite0x00524968, 0x11);
                 Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x9b) / 0x280,
                               (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
                               (int *)g_colourWhite0x00524968, 0x11);
-                Font_DrawText(0, (char *)SavedGames_GetRecordData(g_unk0x0082aa3c + index), (int)(g_pGraphics->resX * 0xff) / 0x280,
+                Font_DrawText(0, (char *)SavedGames_GetRecordData(g_savedGameListTop + index), (int)(g_pGraphics->resX * 0xff) / 0x280,
                               (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
                               (int *)g_colourWhite0x00524968, 0x11);
             } else {
-                Font_DrawText(0, (char *)SavedGames_GetFileName(g_unk0x0082aa3c + index), (int)(g_pGraphics->resX * 0x32) / 0x280, (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
+                Font_DrawText(0, (char *)SavedGames_GetFileName(g_savedGameListTop + index), (int)(g_pGraphics->resX * 0x32) / 0x280, (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
                               (int *)g_colourText0x0052496c, 0x11);
                 Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x9b) / 0x280,
                               (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
                               (int *)g_colourText0x0052496c, 0x11);
-                Font_DrawText(0, (char *)SavedGames_GetRecordData(g_unk0x0082aa3c + index), (int)(g_pGraphics->resX * 0xff) / 0x280,
+                Font_DrawText(0, (char *)SavedGames_GetRecordData(g_savedGameListTop + index), (int)(g_pGraphics->resX * 0xff) / 0x280,
                               (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
                               (int *)g_colourText0x0052496c, 0x11);
             }
