@@ -1379,7 +1379,6 @@ struct PlayerOptionCache {
 CMR2_LAYOUT_CHECK(PlayerOptionCacheSize, sizeof(PlayerOptionCache) == 0x550);
 // GLOBAL: CMR2 0x0082c040
 PlayerOptionCache g_playerOptionCache;
-#define g_unk0x0082c040 (g_playerOptionCache.dirty)
 #define g_unk0x0082c070 ((BYTE *)g_playerOptionCache.records)
 #include "OptionPreviewGeometry.h"
 #include "CarImpact.h"
@@ -1496,7 +1495,6 @@ struct Unk0x0082ace8 {
 };
 // GLOBAL: CMR2 0x0082ace8
 Unk0x0082ace8 g_unk0x0082ace8;
-#define g_unk0x0082acf0 (g_unk0x0082ace8.pairs)
 // 16.16 coordinate pairs of the option menu's layout records: the current
 // position, the target it animates to and the interpolated delta.
 // GLOBAL: CMR2 0x0082ac68
@@ -1527,9 +1525,9 @@ void OptionMenu_InterpolateLayoutPairs(int param1, int param2, int param3)
     if (param2 == 0) {
         for (i = 0; i < 4; i++) {
             g_optionLayoutCoords[param1 * 4 + i][0] =
-                (g_unk0x0082adf0[param1 * 4 + i][0] * param3) / 100 + g_unk0x0082acf0[param1 * 4 + i][0];
+                (g_unk0x0082adf0[param1 * 4 + i][0] * param3) / 100 + g_unk0x0082ace8.pairs[param1 * 4 + i][0];
             g_optionLayoutCoords[param1 * 4 + i][1] =
-                (g_unk0x0082adf0[param1 * 4 + i][1] * param3) / 100 + g_unk0x0082acf0[param1 * 4 + i][1];
+                (g_unk0x0082adf0[param1 * 4 + i][1] * param3) / 100 + g_unk0x0082ace8.pairs[param1 * 4 + i][1];
         }
         return;
     }
@@ -1545,20 +1543,20 @@ void OptionMenu_SetTargetLayoutPairs(int param1, int *param2, int param3)
     int i;
 
     for (i = 0; i < 4; i++) {
-        g_unk0x0082acf0[param1 * 4 + i][0] = g_optionLayoutCoords[param1 * 4 + i][0];
-        g_unk0x0082acf0[param1 * 4 + i][1] = g_optionLayoutCoords[param1 * 4 + i][1];
+        g_unk0x0082ace8.pairs[param1 * 4 + i][0] = g_optionLayoutCoords[param1 * 4 + i][0];
+        g_unk0x0082ace8.pairs[param1 * 4 + i][1] = g_optionLayoutCoords[param1 * 4 + i][1];
         g_unk0x0082ad70[param1 * 4 + i][0] = param2[0];
         g_unk0x0082ad70[param1 * 4 + i][1] = param2[1];
         if (param3 != 0) {
             g_optionLayoutCoords[param1 * 4 + i][0] = param2[0];
             g_optionLayoutCoords[param1 * 4 + i][1] = param2[1];
-            g_unk0x0082acf0[param1 * 4 + i][0] = g_unk0x0082ad70[param1 * 4 + i][0];
-            g_unk0x0082acf0[param1 * 4 + i][1] = g_unk0x0082ad70[param1 * 4 + i][1];
+            g_unk0x0082ace8.pairs[param1 * 4 + i][0] = g_unk0x0082ad70[param1 * 4 + i][0];
+            g_unk0x0082ace8.pairs[param1 * 4 + i][1] = g_unk0x0082ad70[param1 * 4 + i][1];
         }
         g_unk0x0082adf0[param1 * 4 + i][0] =
-            g_unk0x0082ad70[param1 * 4 + i][0] - g_unk0x0082acf0[param1 * 4 + i][0];
+            g_unk0x0082ad70[param1 * 4 + i][0] - g_unk0x0082ace8.pairs[param1 * 4 + i][0];
         g_unk0x0082adf0[param1 * 4 + i][1] =
-            g_unk0x0082ad70[param1 * 4 + i][1] - g_unk0x0082acf0[param1 * 4 + i][1];
+            g_unk0x0082ad70[param1 * 4 + i][1] - g_unk0x0082ace8.pairs[param1 * 4 + i][1];
         param2 += 2;
     }
 }
@@ -1935,7 +1933,7 @@ void OptionMenu_LoadRallyRecords(void)
 
     i = 0;
     if (CGameInfo::GetConfiguredPlayerCount() > 0) {
-        pDirty = (int *)g_unk0x0082c040;
+        pDirty = (int *)g_playerOptionCache.dirty;
         pDst = (int *)g_unk0x0082c070;
         do {
             pSrc = (int *)RallyData_GetDriverGroupRecord(i);
@@ -1958,7 +1956,7 @@ int OptionMenu_GetRecordGroupWeight(int index)
 // FUNCTION: CMR2 0x00503940
 BYTE OptionMenu_GetRecordGroupAppliedFlag(int i, int j)
 {
-    return g_unk0x0082c040[i][j];
+    return g_playerOptionCache.dirty[i][j];
 }
 
 // FUNCTION: CMR2 0x00509d00
@@ -3509,9 +3507,6 @@ double g_fixedDegreesToAngle12 = 4096.0 / (360.0 * 65536.0);   // 16.16 degrees 
 // read as a dword. Independent globals do not preserve this layout.
 // GLOBAL: CMR2 0x0082b1b8
 BYTE g_unk0x0082b1b8[4];
-#define g_unk0x0082b1b9 g_unk0x0082b1b8[1]
-#define g_unk0x0082b1ba g_unk0x0082b1b8[2]
-#define g_unk0x0082b1bb g_unk0x0082b1b8[3]
 
 
 // GLOBAL: CMR2 0x00511cd8
@@ -3998,8 +3993,6 @@ short g_unk0x0052a86c;
 // Camera offset chosen in the camera options menu.
 // GLOBAL: CMR2 0x0052aa50
 FixVector g_cameraMenuOffset;
-#define g_unk0x0052aa54 (g_cameraMenuOffset.y)
-#define g_unk0x0052aa58 (g_cameraMenuOffset.z)
 // GLOBAL: CMR2 0x0052aa5c
 int g_unk0x0052aa5c;
 
@@ -4009,8 +4002,8 @@ void InRaceMenu_ReadCameraOffsetSliders(Menu *pMenu)
 {
     g_unk0x0052aa5c = (int)(pMenu->items[2].max << 19) / (pMenu->items[2].min - 1) + 0x80000;
     g_unk0x0052a86c = (short)((int)(pMenu->items[3].max * 0x11c) / (pMenu->items[3].min - 1));
-    g_unk0x0052aa54 = (int)(pMenu->items[0].max * 0xcccd) / (pMenu->items[0].min - 1) + 0x13333;
-    g_unk0x0052aa58 = (int)(pMenu->items[1].max * 0x50000) / (pMenu->items[1].min - 1) + 0x50000;
+    g_cameraMenuOffset.y = (int)(pMenu->items[0].max * 0xcccd) / (pMenu->items[0].min - 1) + 0x13333;
+    g_cameraMenuOffset.z = (int)(pMenu->items[1].max * 0x50000) / (pMenu->items[1].min - 1) + 0x50000;
 }
 
 int Race_IsFlag24Clear(void);
@@ -4459,8 +4452,6 @@ BYTE InRaceMenu_IsOpening(void)
 int g_unk0x00529ec8;
 // GLOBAL: CMR2 0x00529cd8
 FixVector g_unk0x00529cd8;
-#define g_unk0x00529cdc (g_unk0x00529cd8.y)
-#define g_unk0x00529ce0 (g_unk0x00529cd8.z)
 // GLOBAL: CMR2 0x00529ed0
 int g_unk0x00529ed0;
 // GLOBAL: CMR2 0x0052a0bc
@@ -4558,13 +4549,13 @@ pushCamera:
     HudDash_GetCameraUpVector(&g_unk0x00529cd8, g_unk0x0052af58[1]);
     g_unk0x0052a2a0 = HudDash_GetGaugeTarget(g_unk0x0052af58[1]);
     g_unk0x0052aa64 = g_unk0x0052aa5c - g_unk0x00529ed0;
-    g_unk0x00529ec8 = g_unk0x0052aa54 - g_unk0x00529cdc;
+    g_unk0x00529ec8 = g_cameraMenuOffset.y - g_unk0x00529cd8.y;
     g_unk0x0052aa6c = g_unk0x0052a86c - g_unk0x0052a2a0;
-    g_unk0x0052a0bc = g_unk0x0052aa58 - g_unk0x00529ce0;
+    g_unk0x0052a0bc = g_cameraMenuOffset.z - g_unk0x00529cd8.z;
     g_unk0x0052a86c = g_unk0x0052a2a0 + FixMul(g_unk0x0052aa6c, 0x1999);
     g_cameraMenuOffset.x = 0;
-    g_unk0x0052aa54 = g_unk0x00529cdc + FixMul(g_unk0x00529ec8, 0x1999);
-    g_unk0x0052aa58 = g_unk0x00529ce0 + FixMul(g_unk0x0052a0bc, 0x1999);
+    g_cameraMenuOffset.y = g_unk0x00529cd8.y + FixMul(g_unk0x00529ec8, 0x1999);
+    g_cameraMenuOffset.z = g_unk0x00529cd8.z + FixMul(g_unk0x0052a0bc, 0x1999);
     HudDash_SetPlayerGaugeValue(g_unk0x0052af58[1], g_unk0x0052aa5c);
     HudDash_SetCameraOffset(g_unk0x0052af58[1], &g_cameraMenuOffset);
     HudDash_SetGaugeTarget(g_unk0x0052af58[1], g_unk0x0052a86c);
@@ -5394,8 +5385,8 @@ void InRaceMenu_FillCameraOffsetSliders(Menu *pMenu)
 {
     int distance = FixDiv((pMenu->items[2].min - 1) * (g_unk0x0052aa5c - 0x80000), 0x80000);
     int angle = FixDiv((pMenu->items[3].min - 1) * g_unk0x0052a86c, 0x11c);
-    int height = FixDiv((pMenu->items[0].min - 1) * (g_unk0x0052aa54 - 0x13333), 0xcccd);
-    int depth = FixDiv((pMenu->items[1].min - 1) * (g_unk0x0052aa58 - 0x50000), 0x50000);
+    int height = FixDiv((pMenu->items[0].min - 1) * (g_cameraMenuOffset.y - 0x13333), 0xcccd);
+    int depth = FixDiv((pMenu->items[1].min - 1) * (g_cameraMenuOffset.z - 0x50000), 0x50000);
     pMenu->items[2].max = (BYTE)((distance + 0x8000) >> 16);
     pMenu->items[3].max = (BYTE)((angle + 0x8000) >> 16);
     pMenu->items[0].max = (BYTE)((height + 0x8000) >> 16);
@@ -5464,8 +5455,8 @@ void InRaceMenu_EnterCameraOffsetOptions(Menu *pMenu, char unused)
     g_unk0x00529914 = HudDash_GetPlayerGaugeValue(g_unk0x0052af58[1]);
     g_unk0x0052a48c = HudDash_GetGaugeTarget(g_unk0x0052af58[1]);
     g_cameraMenuOffset.x = g_cameraMenuStartOffset.x;
-    g_unk0x0052aa54 = g_cameraMenuStartOffset.y;
-    g_unk0x0052aa58 = g_cameraMenuStartOffset.z;
+    g_cameraMenuOffset.y = g_cameraMenuStartOffset.y;
+    g_cameraMenuOffset.z = g_cameraMenuStartOffset.z;
     g_unk0x0052aa5c = g_unk0x00529914;
     g_unk0x0052a86c = g_unk0x0052a48c;
     InRaceMenu_FillCameraOffsetSliders(pMenu);
@@ -5478,8 +5469,8 @@ void InRaceMenu_ResetCameraDefaults(Menu *pMenu, char unused)
 {
     g_unk0x0052aa5c = 0xe0000;
     g_unk0x0052a86c = 0x2d;
-    g_unk0x0052aa54 = 0x18000;
-    g_unk0x0052aa58 = 0x68000;
+    g_cameraMenuOffset.y = 0x18000;
+    g_cameraMenuOffset.z = 0x68000;
     InRaceMenu_FillCameraOffsetSliders(pMenu);
 }
 
@@ -5756,9 +5747,9 @@ void OptionMenu_UpdateOverlayPulse(void)
     else if (value > 0x10000)
         value = 0x10000;
     shade = (BYTE)((FixMul(value, 0x7f0000) + 0x800000) >> 16);
-    g_unk0x0082b1bb = 0xff;
-    g_unk0x0082b1ba = shade;
-    g_unk0x0082b1b9 = shade;
+    g_unk0x0082b1b8[3] = 0xff;
+    g_unk0x0082b1b8[2] = shade;
+    g_unk0x0082b1b8[1] = shade;
     g_unk0x0082b1b8[0] = shade;
 }
 
@@ -5851,7 +5842,7 @@ int OptionMenu_IsRecordPercentageAboveBase(int index, int type)
     value = OptionMenu_GetSlotSelector(index);
     if (g_recordGroupWeights[type] <= value)
         return OptionMenu_GetRecordPercentage(index, type, 1) != 0;
-    return g_unk0x0082c040[index][type] != 0;
+    return g_playerOptionCache.dirty[index][type] != 0;
 }
 
 // Finds the index of the entry with the given id in the list at 0x3c, or -1.
@@ -8517,12 +8508,12 @@ void OptionMenu_ApplyRallyRecordGroup(int param_1, int param_2)
     case 1:
         pDest[0x116] = pSrc[0x116];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[0]);
-        g_unk0x0082c040[param_1][1] = 0;
+        g_playerOptionCache.dirty[param_1][1] = 0;
         return;
     case 2:
         pDest[0x117] = pSrc[0x117];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[1]);
-        g_unk0x0082c040[param_1][2] = 0;
+        g_playerOptionCache.dirty[param_1][2] = 0;
         return;
     case 3:
         pDest[0x10e] = pSrc[0x10e];
@@ -8531,12 +8522,12 @@ void OptionMenu_ApplyRallyRecordGroup(int param_1, int param_2)
         pDest[0x111] = pSrc[0x111];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[2]);
         OptionPreview_UpdateCornerHeightOffsets(param_1);
-        g_unk0x0082c040[param_1][3] = 0;
+        g_playerOptionCache.dirty[param_1][3] = 0;
         return;
     case 4:
         pDest[0x118] = pSrc[0x118];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[3]);
-        g_unk0x0082c040[param_1][4] = 0;
+        g_playerOptionCache.dirty[param_1][4] = 0;
         return;
     case 5:
         pDest[0x112] = pSrc[0x112];
@@ -8544,7 +8535,7 @@ void OptionMenu_ApplyRallyRecordGroup(int param_1, int param_2)
         pDest[0x114] = pSrc[0x114];
         pDest[0x115] = pSrc[0x115];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[4]);
-        g_unk0x0082c040[param_1][5] = 0;
+        g_playerOptionCache.dirty[param_1][5] = 0;
         return;
     case 6:
         pDest[0x119] = pSrc[0x119];
@@ -8583,29 +8574,29 @@ void OptionMenu_ApplyRallyRecordGroup(int param_1, int param_2)
             ((Unk0x0082c070Item *)pDest)[i].field_0x0[12] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[12];
         }
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[5]);
-        g_unk0x0082c040[param_1][6] = 0;
+        g_playerOptionCache.dirty[param_1][6] = 0;
         OptionPreview_ApplyStoredDamage(param_1);
         return;
     case 7:
         pDest[0x10c] = pSrc[0x10c];
         pDest[0x10d] = pSrc[0x10d];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[6]);
-        g_unk0x0082c040[param_1][7] = 0;
+        g_playerOptionCache.dirty[param_1][7] = 0;
         return;
     case 8:
         pDest[0x11f] = pSrc[0x11f];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[7]);
-        g_unk0x0082c040[param_1][8] = 0;
+        g_playerOptionCache.dirty[param_1][8] = 0;
         return;
     case 9:
         pDest[0x120] = pSrc[0x120];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[8]);
-        g_unk0x0082c040[param_1][9] = 0;
+        g_playerOptionCache.dirty[param_1][9] = 0;
         return;
     case 10:
         pDest[0x121] = pSrc[0x121];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[9]);
-        g_unk0x0082c040[param_1][10] = 0;
+        g_playerOptionCache.dirty[param_1][10] = 0;
         return;
     case 11:
         pDest[0x108] = pSrc[0x108];
@@ -8614,7 +8605,7 @@ void OptionMenu_ApplyRallyRecordGroup(int param_1, int param_2)
         pDest[0x10b] = pSrc[0x10b];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[10]);
         OptionPreview_UnpackPartDamageFractions(param_1);
-        g_unk0x0082c040[param_1][11] = 0;
+        g_playerOptionCache.dirty[param_1][11] = 0;
     }
 }
 
@@ -10587,7 +10578,7 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
         pDest[0x116] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[0]);
-        g_unk0x0082c040[param_1][1] = 1;
+        g_playerOptionCache.dirty[param_1][1] = 1;
         return;
     case 2:
         if (pDest[0x117] == 0)
@@ -10595,7 +10586,7 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
         pDest[0x117] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[1]);
-        g_unk0x0082c040[param_1][2] = 1;
+        g_playerOptionCache.dirty[param_1][2] = 1;
         return;
     case 3:
         if (pDest[0x10e] == 0 && pDest[0x10f] == 0 && pDest[0x110] == 0 && pDest[0x111] == 0)
@@ -10607,7 +10598,7 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[2]);
         OptionPreview_ClearCornerHeightOffsets(param_1);
-        g_unk0x0082c040[param_1][3] = 1;
+        g_playerOptionCache.dirty[param_1][3] = 1;
         return;
     case 4:
         if (pDest[0x118] == 0)
@@ -10615,7 +10606,7 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
         pDest[0x118] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[3]);
-        g_unk0x0082c040[param_1][4] = 1;
+        g_playerOptionCache.dirty[param_1][4] = 1;
         return;
     case 5:
         if (pDest[0x112] == 0 && pDest[0x113] == 0 && pDest[0x114] == 0 && pDest[0x115] == 0)
@@ -10626,7 +10617,7 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
         pDest[0x115] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[4]);
-        g_unk0x0082c040[param_1][5] = 1;
+        g_playerOptionCache.dirty[param_1][5] = 1;
         return;
     case 6:
         {
@@ -10689,7 +10680,7 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
                 }
                 value = OptionMenu_GetSlotSelector(param_1);
                 OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[5]);
-                g_unk0x0082c040[param_1][6] = 1;
+                g_playerOptionCache.dirty[param_1][6] = 1;
             }
             OptionPreview_RestoreOriginalMeshVertices(param_1);
             return;
@@ -10701,7 +10692,7 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
         pDest[0x10d] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[6]);
-        g_unk0x0082c040[param_1][7] = 1;
+        g_playerOptionCache.dirty[param_1][7] = 1;
         return;
     case 8:
         if (pDest[0x11f] == 0)
@@ -10709,7 +10700,7 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
         pDest[0x11f] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[7]);
-        g_unk0x0082c040[param_1][8] = 1;
+        g_playerOptionCache.dirty[param_1][8] = 1;
         return;
     case 9:
         if (pDest[0x120] == 0)
@@ -10717,7 +10708,7 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
         pDest[0x120] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[8]);
-        g_unk0x0082c040[param_1][9] = 1;
+        g_playerOptionCache.dirty[param_1][9] = 1;
         return;
     case 10:
         if (pDest[0x121] == 0)
@@ -10725,7 +10716,7 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
         pDest[0x121] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[9]);
-        g_unk0x0082c040[param_1][10] = 1;
+        g_playerOptionCache.dirty[param_1][10] = 1;
         return;
     case 11:
         if (pDest[0x108] == 0 && pDest[0x109] == 0 && pDest[0x10a] == 0 && pDest[0x10b] == 0)
@@ -10737,7 +10728,7 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[10]);
         OptionPreview_ClearPartDamageFractions(param_1);
-        g_unk0x0082c040[param_1][11] = 1;
+        g_playerOptionCache.dirty[param_1][11] = 1;
         return;
     }
 }
@@ -11070,7 +11061,6 @@ void OptionMenu_UpdateMessagesAndRecordStates(Menu *pMenu)
 }
 
 // The frontend and geometry loader use the same scratch buffer in the original.
-#define g_unk0x00663b60 CFrontend::m_stringDest
 SceneNode *SceneNode_FindByType(SceneNode *, unsigned int);
 // Dependencias de OptionPreview_LoadStageGeometryRecord: las funciones de clase se toman de sus cabeceras.
 #include "Game.h"
@@ -11118,24 +11108,24 @@ int OptionPreview_LoadStageGeometryRecord(int index)
     }
     model = (BYTE)(int)RallyData_GetDriverRecordSelectionValue(index);
     variant = (BYTE)CFrontend::GetArchivePrimaryIDEntry(model);
-    sprintf(g_unk0x00663b60, "%s.c3d", Car_GetTextureSetPath(model, 0, 0));
+    sprintf(CFrontend::m_stringDest, "%s.c3d", Car_GetTextureSetPath(model, 0, 0));
     if (CGameInfo::GetPreviewMode() == 0) {
-        strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1N.c3d", 8);
-        hC3D = (BYTE *)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+        strncpy(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 6, "A1N.c3d", 8);
+        hC3D = (BYTE *)CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, 0);
         if (!(OptionPreview_UsesLowWheelVariant(variant, 1) == 0)) {
-            strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 5, "L.c3d", 5);
-            hL = (BYTE *)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+            strncpy(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 5, "L.c3d", 5);
+            hL = (BYTE *)CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, 0);
         } else {
             hL = NULL;
         }
         if (OptionPreview_UsesWheelVariantSix(variant, 6) != 0) {
-            strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 5, "S.c3d", 5);
-            hS = (BYTE *)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+            strncpy(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 5, "S.c3d", 5);
+            hS = (BYTE *)CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, 0);
         } else {
             hS = NULL;
         }
     } else {
-        hC3D = (BYTE *)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+        hC3D = (BYTE *)CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, 0);
         hL = NULL;
         hS = NULL;
     }
@@ -11143,15 +11133,15 @@ int OptionPreview_LoadStageGeometryRecord(int index)
     g_previewLowWheelModelBuffers[index] = hL;
     g_previewSixWheelModelBuffers[index] = hS;
 
-    sprintf(g_unk0x00663b60, "%s.bfl", Car_GetTextureSetPath(model, 0, 0));
+    sprintf(CFrontend::m_stringDest, "%s.bfl", Car_GetTextureSetPath(model, 0, 0));
     if (CGameInfo::GetPreviewMode() == 0)
-        strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1.bfl", 6);
+        strncpy(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 6, "A1.bfl", 6);
 
     pEntry = &g_previewSceneRecords[index];
     // the .bfl and the geometry relocations go to the 12-byte loader record of
     // this entry (0x831088, cleared on the first call above), not to pEntry
     pRecord = &g_unk0x00831088[index];
-    CGenericFileLoader::LoadIntoFileRecord(pRecord, g_unk0x00663b60);
+    CGenericFileLoader::LoadIntoFileRecord(pRecord, CFrontend::m_stringDest);
     if (hC3D == NULL)
         return 0;
 

@@ -30,13 +30,6 @@ struct ChampionshipTables {
 CMR2_LAYOUT_CHECK(ChampionshipTablesSize, sizeof(ChampionshipTables) == 0x78);
 // GLOBAL: CMR2 0x005335b8
 ChampionshipTables g_championshipTables;
-#define g_unk0x005335b8 (g_championshipTables.totals)
-#define g_unk0x005335d8 (g_championshipTables.rounds)
-#define g_unk0x005335f0 (g_championshipTables.points)
-#define g_unk0x00533610 (g_championshipTables.order)
-#define g_unk0x00533618 (g_championshipTables.positions)
-#define g_unk0x00533620 (g_championshipTables.tieBreak)
-#define g_unk0x00533628 (g_championshipTables.wins)
 
 // FUNCTION: CMR2 0x0040cc60
 void RallyTiming_ResetDriverSplitState(void)
@@ -46,15 +39,15 @@ void RallyTiming_ResetDriverSplitState(void)
     Unk0x005335d8 *r;
 
     i = 0;
-    q = g_unk0x005335d8;
+    q = g_championshipTables.rounds;
     do {
-        g_unk0x005335b8[i] = 0;
-        g_unk0x005335f0[i] = 0;
-        g_unk0x00533628[i] = 0;
-        g_unk0x00533610[i] = i;
+        g_championshipTables.totals[i] = 0;
+        g_championshipTables.points[i] = 0;
+        g_championshipTables.wins[i] = 0;
+        g_championshipTables.order[i] = i;
         r = q;
-        g_unk0x00533618[i] = i;
-        g_unk0x00533620[i] = i;
+        g_championshipTables.positions[i] = i;
+        g_championshipTables.tieBreak[i] = i;
         memset(r, 0, 3);
         i++;
         q++;
@@ -67,15 +60,15 @@ void RallyTiming_RebuildChampionshipPositionMap(void)
     int i;
 
     for (i = 0; i < 8; i++)
-        g_unk0x00533620[g_unk0x00533610[i]] = i;
+        g_championshipTables.tieBreak[g_championshipTables.order[i]] = i;
 }
 
 unsigned int RallyData_GetSelectionBits12To13(void);
 int RallyTiming_GetPositionPoints(int position);
 
 // match 89.7%: below the bar only because the pPoints loop bound compiles to the
-// address after g_unk0x005335f0, which reccmp renders as the next .bss global of
-// our image (g_unk0x005335d8) instead of the original's g_unk0x00533610.
+// address after g_championshipTables.points, which reccmp renders as the next .bss global of
+// our image (g_championshipTables.rounds) instead of the original's g_championshipTables.order.
 // Adds the championship points of one finishing order to the per-car totals and
 // resolves the ties of the overall classification.
 // pPositions: finishing position of each of the eight cars.
@@ -93,41 +86,41 @@ void RallyTiming_AddChampionshipPoints(char *pPositions, int *pPoints)
     for (i = 0; i < 8; i++) {
         car = pPositions[i];
         if (i == 0)
-            g_unk0x00533628[car]++;
+            g_championshipTables.wins[car]++;
         score = RallyTiming_GetPositionPoints(i);
-        g_unk0x005335b8[car] += (int)FTOI(__int64, X87S_MUL((double)score, CGraphics::m_65536));
-        *(char *)((char *)g_unk0x005335d8 + car * 3 + (RallyData_GetSelectionBits12To13() & 0xff)) =
+        g_championshipTables.totals[car] += (int)FTOI(__int64, X87S_MUL((double)score, CGraphics::m_65536));
+        *(char *)((char *)g_championshipTables.rounds + car * 3 + (RallyData_GetSelectionBits12To13() & 0xff)) =
             (char)score;
     }
-    RallyTiming_SortOrder(g_unk0x005335b8, g_unk0x00533610, 0, 8, 0);
+    RallyTiming_SortOrder(g_championshipTables.totals, g_championshipTables.order, 0, 8, 0);
     for (i = 0; i < 8; i++)
-        g_unk0x00533618[g_unk0x00533610[i]] = (char)i;
+        g_championshipTables.positions[g_championshipTables.order[i]] = (char)i;
     {
         // The original walks the accumulator table up to the global that follows
-        // it (g_unk0x00533610); writing the bound with that symbol reproduces the
+        // it (g_championshipTables.order); writing the bound with that symbol reproduces the
         // operand the original emits.
         int *pAcc;
         int *pPts;
-        for (pAcc = g_unk0x005335f0, pPts = pPoints; (INT_PTR)pAcc < (INT_PTR)(g_championshipTables.points + 8); pAcc++, pPts++)
+        for (pAcc = g_championshipTables.points, pPts = pPoints; (INT_PTR)pAcc < (INT_PTR)(g_championshipTables.points + 8); pAcc++, pPts++)
             *pAcc += *pPts;
     }
     i = 0;
     do {
         for (j = i + 1; j < 8; j++) {
-            car = g_unk0x00533610[i];
-            other = g_unk0x00533610[j];
-            if (g_unk0x005335b8[car] != g_unk0x005335b8[other])
+            car = g_championshipTables.order[i];
+            other = g_championshipTables.order[j];
+            if (g_championshipTables.totals[car] != g_championshipTables.totals[other])
                 break;
             swap = 0;
-            if ((char)g_unk0x00533628[other] > (char)g_unk0x00533628[car])
+            if ((char)g_championshipTables.wins[other] > (char)g_championshipTables.wins[car])
                 swap = 1;
-            if (g_unk0x00533628[other] == g_unk0x00533628[car] && other == 0)
+            if (g_championshipTables.wins[other] == g_championshipTables.wins[car] && other == 0)
                 swap = 1;
             if (swap) {
-                g_unk0x00533618[car] = (char)j;
-                g_unk0x00533618[other] = (char)i;
-                g_unk0x00533610[i] = (char)other;
-                g_unk0x00533610[j] = (char)car;
+                g_championshipTables.positions[car] = (char)j;
+                g_championshipTables.positions[other] = (char)i;
+                g_championshipTables.order[i] = (char)other;
+                g_championshipTables.order[j] = (char)car;
             }
         }
         i++;
@@ -137,7 +130,7 @@ void RallyTiming_AddChampionshipPoints(char *pPositions, int *pPoints)
 // FUNCTION: CMR2 0x0040ce30
 int RallyTiming_GetChampionshipTieBreak(int index)
 {
-    return g_unk0x00533628[index];
+    return g_championshipTables.wins[index];
 }
 
 // Championship points for a finishing position.
@@ -165,31 +158,31 @@ int RallyTiming_GetPositionPoints(int position)
 // FUNCTION: CMR2 0x0040cea0
 int RallyTiming_GetChampionshipDriverAtPosition(int index)
 {
-    return g_unk0x00533610[index];
+    return g_championshipTables.order[index];
 }
 
 // FUNCTION: CMR2 0x0040ceb0
 int RallyTiming_GetChampionshipPointsByPosition(int index)
 {
-    return g_unk0x00533618[index];
+    return g_championshipTables.positions[index];
 }
 
 // FUNCTION: CMR2 0x0040cec0
 int RallyTiming_GetChampionshipDriverPosition(int index)
 {
-    return g_unk0x00533620[index];
+    return g_championshipTables.tieBreak[index];
 }
 
 // FUNCTION: CMR2 0x0040ced0
 int RallyTiming_GetChampionshipTimeSeconds(int index)
 {
-    return g_unk0x005335b8[index] >> 16;
+    return g_championshipTables.totals[index] >> 16;
 }
 
 // FUNCTION: CMR2 0x0040cef0
 int RallyTiming_GetChampionshipStagePoints(int index)
 {
-    return g_unk0x005335f0[index];
+    return g_championshipTables.points[index];
 }
 
 // FUNCTION: CMR2 0x0040cf00

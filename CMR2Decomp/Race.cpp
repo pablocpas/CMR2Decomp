@@ -113,7 +113,6 @@ int g_playerEventAwardFlags[4];
 // GLOBAL: CMR2 0x00537f78
 int g_unk0x00537f78[7];
 // The frame callback flag is the sixth dword of the same race state block.
-#define g_unk0x00537f8c (g_unk0x00537f78[5])
 // GLOBAL: CMR2 0x00537f94
 int g_unk0x00537f94;
 // GLOBAL: CMR2 0x00537ffa
@@ -5346,9 +5345,9 @@ void Race_UpdatePlayerViewAndDrivenCars(BYTE param1, int param2)
         }
         if ((char)CGameInfo::GetGameInfoSessionFlag() != 0 && player != 0 &&
             (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[0].packedState == 13) {
-            if (g_unk0x00537f8c != 0) {
+            if (g_unk0x00537f78[5] != 0) {
                 Input_ClearCharacterQueue();
-                g_unk0x00537f8c = 0;
+                g_unk0x00537f78[5] = 0;
             }
             if (StageObject_GetAnyDeviceHeldButtons() != 0 || Input_PopQueuedCharacter(&key) != 0) {
                 Replay_ResetBufferIfActive((ReplayStream *)g_playerReplayStreams[0]);

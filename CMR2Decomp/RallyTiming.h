@@ -38,7 +38,6 @@ extern RallyOverallTables g_rallyOverallTables;
 #define g_rallyOverallOrderDriverID (g_rallyOverallTables.order)
 #define g_rallyOverallPositionOfDriver (g_rallyOverallTables.positions)
 #define g_rallyOverallTimesRaw (g_rallyOverallTables.times)
-#define g_unk0x00533698 (g_rallyOverallTables.count)
 
 void RallyTiming_AddChampionshipPoints(char *pPositions, int *pPoints);
 int RallyTiming_GetStageOrderDriverID(int iPosition);

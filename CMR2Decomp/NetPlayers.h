@@ -130,6 +130,5 @@ struct NetTriangleState {
 CMR2_LAYOUT_CHECK(NetTriangleStateSize, sizeof(NetTriangleState) == 0x194);
 extern NetTriangleState g_netTriangleState;
 #define g_triangleNumbers (g_netTriangleState.values)
-#define g_unk0x00539cc8 (g_netTriangleState.enabled)
 
 #endif

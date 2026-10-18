@@ -226,7 +226,7 @@ void NetPlayers_ReceiveStatistics(DPID *pId, NetStats *pStats)
         if (g_netPlayers[i].id == *pId)
             g_netPlayers[i].field_0xc++;
         if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].id == *pId && !(g_netPlayers[i].flags & 0x400000)) {
-            if (g_unk0x00539cc8 != 0 && g_netPlayers[i].stats.seq < pStats->seq) {
+            if (g_netTriangleState.enabled != 0 && g_netPlayers[i].stats.seq < pStats->seq) {
                 g_netPlayers[i].stats = *pStats;
                 g_netPlayers[i].statsNew = 1;
             }

@@ -8,6 +8,5 @@ union StageObjectCount {
     unsigned char value;
 };
 extern StageObjectCount g_stageObjectCount;
-#define g_unk0x00547acc (g_stageObjectCount.value)
 
 #endif

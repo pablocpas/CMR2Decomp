@@ -29,9 +29,6 @@ struct ReplayLevelState {
 };
 CMR2_LAYOUT_CHECK(ReplayLevelSizeCheck, sizeof(ReplayLevelState) == 0x64);
 extern ReplayLevelState g_replayLevelState;
-#define g_unk0x00588cd4 (g_replayLevelState.levels)
-#define g_unk0x00588d14 (g_replayLevelState.bufferCount)
-#define g_unk0x00588d18 (g_replayLevelState.pending)
 
 int StageTiming_GetDriverIDForPosition(int positionIx);
 int StageTiming_GetTimeForPosition(int iPosition);

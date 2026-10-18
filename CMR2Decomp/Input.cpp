@@ -2176,8 +2176,6 @@ struct InputQueues {
 
 // GLOBAL: CMR2 0x006ed3f4
 InputQueues g_inputQueues;
-#define g_unk0x006ed3f4 (g_inputQueues.characters)
-#define g_unk0x006ed46c (g_inputQueues.keys)
 
 // FUNCTION: CMR2 0x004b7c80
 void Input_ClearCharacterQueue(void)
@@ -2185,7 +2183,7 @@ void Input_ClearCharacterQueue(void)
     int i;
 
     for (i = 0; i < 30; i++)
-        g_unk0x006ed3f4[i] = 0;
+        g_inputQueues.characters[i] = 0;
 }
 
 // Queues one character for the input ring buffer.
@@ -2196,10 +2194,10 @@ void CInput::QueueInputCharacter(int param1)
     int i;
 
     i = 0;
-    p = g_unk0x006ed3f4;
-    while ((INT_PTR)p < (INT_PTR)(g_unk0x006ed3f4 + 30)) {
+    p = g_inputQueues.characters;
+    while ((INT_PTR)p < (INT_PTR)(g_inputQueues.characters + 30)) {
         if (*p == 0) {
-            g_unk0x006ed3f4[i] = param1;
+            g_inputQueues.characters[i] = param1;
             return;
         }
         p++;
@@ -2213,14 +2211,14 @@ bool Input_PopQueuedCharacter(int *pOut)
 {
     int i;
 
-    if (g_unk0x006ed3f4[0] != 0) {
-        *pOut = g_unk0x006ed3f4[0];
+    if (g_inputQueues.characters[0] != 0) {
+        *pOut = g_inputQueues.characters[0];
         i = 0;
         do {
-            g_unk0x006ed3f4[i] = g_unk0x006ed3f4[i + 1];
+            g_inputQueues.characters[i] = g_inputQueues.characters[i + 1];
             i++;
         } while (i < 29);
-        g_unk0x006ed3f4[29] = 0;
+        g_inputQueues.characters[29] = 0;
         return true;
     }
     return false;
@@ -2235,10 +2233,10 @@ void CInput::QueueVirtualKeyPress(unsigned int param1)
 
     if ((param1 & 0xff0000) != 0) {
         i = 0;
-        p = g_unk0x006ed46c;
-        while ((int)p < (int)(g_unk0x006ed46c + 30)) {
+        p = g_inputQueues.keys;
+        while ((int)p < (int)(g_inputQueues.keys + 30)) {
             if (*p == 0) {
-                g_unk0x006ed46c[i] = param1;
+                g_inputQueues.keys[i] = param1;
                 return;
             }
             p++;
@@ -2288,7 +2286,7 @@ void Input_ClearKeyPressQueue(void)
     int i;
 
     for (i = 0; i < 30; i++)
-        g_unk0x006ed46c[i] = 0;
+        g_inputQueues.keys[i] = 0;
 }
 
 // Pops the oldest key of the key press queue.
@@ -2297,14 +2295,14 @@ int Input_PopQueuedKeyPress(int *pOut)
 {
     int i;
 
-    if (g_unk0x006ed46c[0] != 0) {
-        *pOut = g_unk0x006ed46c[0];
+    if (g_inputQueues.keys[0] != 0) {
+        *pOut = g_inputQueues.keys[0];
         i = 0;
         do {
-            g_unk0x006ed46c[i] = g_unk0x006ed46c[i + 1];
+            g_inputQueues.keys[i] = g_inputQueues.keys[i + 1];
             i++;
         } while (i < 29);
-        g_unk0x006ed46c[29] = 0;
+        g_inputQueues.keys[29] = 0;
         return 1;
     }
     return 0;

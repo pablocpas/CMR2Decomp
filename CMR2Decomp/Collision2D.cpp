@@ -1027,7 +1027,6 @@ int g_wallScrapeCount;
 // Corner copy the wall collision keeps for the other body of the contact:
 // the corners of the object box at 0x5915f8 (StageObjects.cpp), from +0x30.
 extern CollisionBox g_sectorObjectCollisionBox;
-#define g_unk0x00591628 (g_sectorObjectCollisionBox.points)
 
 // Slides one car along a static obstacle. Zeroes the vertical contact offset,
 // clamps the offset by the half extents (including y this time) and turns the
@@ -1113,7 +1112,7 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
                          &g_collisionContactNormal, 0, 0, 0);
         } else if (g_unk0x005914d4 != 0) {
             CarDamage_ApplyCollisionDeformImpulse(param_1,
-                         (int *)&g_unk0x00591628[g_unk0x00590ecc[0]],
+                         (int *)&g_sectorObjectCollisionBox.points[g_unk0x00590ecc[0]],
                          &g_collisionContactNormal, 0, 2, 0);
         }
     } else {

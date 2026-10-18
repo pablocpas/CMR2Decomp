@@ -1453,19 +1453,19 @@ int StageObject_GetCarStateSlot(BYTE *pCar)
 void StageObject_ResetPairedCarValues(void)
 {
     int *p;
-    p = &g_unk0x00588cd4[1];
+    p = &g_replayLevelState.levels[1];
     memset(g_carPairValuePending, 0, 8 * sizeof(int));
     do {
         p[-1] = 0;
         *p = 0;
         p += 2;
-    } while ((INT_PTR)p < (INT_PTR)g_unk0x00588d18);
+    } while ((INT_PTR)p < (INT_PTR)g_replayLevelState.pending);
 }
 
 // FUNCTION: CMR2 0x0046b740
 void StageObject_SetPairedCarValue(int i, int value, int j)
 {
-    g_unk0x00588cd4[j + i * 2] = value;
+    g_replayLevelState.levels[j + i * 2] = value;
 }
 
 // FUNCTION: CMR2 0x0046b760
@@ -1481,7 +1481,7 @@ void StageObject_SetCarValuePendingFlag(int index, int reset)
 // FUNCTION: CMR2 0x0046bd20
 int StageObject_GetPairedCarValue(int i, int j)
 {
-    return g_unk0x00588cd4[j + i * 2];
+    return g_replayLevelState.levels[j + i * 2];
 }
 
 // FUNCTION: CMR2 0x0046bd40
@@ -2056,11 +2056,6 @@ int g_unk0x0058ca84;
 // StageUI.cpp, so they are addressed as offsets of it (a separate declaration
 // would overlap it).
 extern PauseMenus g_unk0x0058ca90;
-#define g_unk0x0058cc70 (g_unk0x0058ca90.bracketTimer)
-#define g_unk0x0058cc74 (g_unk0x0058ca90.bracketFade)
-#define g_unk0x0058ce58 (g_unk0x0058ca90.textFade)
-#define g_unk0x0058ce5c (g_unk0x0058ca90.roundEntry)
-#define g_unk0x0058cf60 (g_unk0x0058ca90.textTimer)
 
 extern CallbackStateMachine *g_unk0x0058ca88;
 extern BYTE g_unk0x0058ca8c[4];
@@ -2128,19 +2123,19 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
     if (g_unk0x0058cf6c != 0)
         StageUI_UpdatePauseMenu();
     if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca80))
-        g_unk0x0058cc74 = Timer_GetValue(g_unk0x0058ca80);
-    if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058cf60))
-        g_unk0x0058ce58 = Timer_GetValue(g_unk0x0058cf60);
+        g_unk0x0058ca90.bracketFade = Timer_GetValue(g_unk0x0058ca80);
+    if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.textTimer))
+        g_unk0x0058ca90.textFade = Timer_GetValue(g_unk0x0058ca90.textTimer);
     else
-        g_unk0x0058ce58 = 0;
+        g_unk0x0058ca90.textFade = 0;
 
     switch (g_knockoutRaceState) {
     case 0:
         Graphics_ResetInterpolationTimers();
-        g_unk0x0058cc74 = 0;
+        g_unk0x0058ca90.bracketFade = 0;
         if ((*pState & 0x38) == 8) {
             Graphics_StartShapedInterpolationTimer(&g_unk0x0058ca80, 2, 0xd, 0, 0, 0x10000, 0);
-            Graphics_StartShapedInterpolationTimer(&g_unk0x0058cf60, 2, 7, 0, 0, 0x10000, 0);
+            Graphics_StartShapedInterpolationTimer(&g_unk0x0058ca90.textTimer, 2, 7, 0, 0, 0x10000, 0);
         }
         *pState = *pState & 0xff1fffff;
         StageUI_BuildPauseMenus();
@@ -2179,7 +2174,7 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
                 g_unk0x0058cf64 = 0;
                 return;
             } else {
-                g_unk0x0058ce5c = RallyData_GetRoundEntry();
+                g_unk0x0058ca90.roundEntry = RallyData_GetRoundEntry();
                 g_unk0x0058cf64 = 0;
                 g_knockoutRaceState = 4;
                 return;
@@ -2189,7 +2184,7 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
     case 3:
         if (g_unk0x0058cf64 != 0) {
             g_knockoutRaceState = 5;
-            Graphics_StartShapedInterpolationTimer(&g_unk0x0058cf60, 2, 7, 0, 0, 0x10000, 0);
+            Graphics_StartShapedInterpolationTimer(&g_unk0x0058ca90.textTimer, 2, 7, 0, 0, 0x10000, 0);
             g_unk0x0058cf64 = 0;
             return;
         }
@@ -2217,33 +2212,33 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
                 return;
             }
         } else if (g_unk0x0058cf64 != 0) {
-            g_unk0x0058cc74 = 0x10000;
-            Graphics_StartShapedInterpolationTimer(&g_unk0x0058cc70, 2, 0xd, 0, 0, 0x10000, 0);
+            g_unk0x0058ca90.bracketFade = 0x10000;
+            Graphics_StartShapedInterpolationTimer(&g_unk0x0058ca90.bracketTimer, 2, 0xd, 0, 0, 0x10000, 0);
             g_unk0x0058cf64 = 0;
             g_knockoutRaceState = 6;
             return;
         }
         break;
     case 6:
-        if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058cc70)) {
-            g_unk0x0058cc74 = Timer_GetValue(g_unk0x0058cc70);
+        if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.bracketTimer)) {
+            g_unk0x0058ca90.bracketFade = Timer_GetValue(g_unk0x0058ca90.bracketTimer);
             g_unk0x0058cf64 = 0;
             return;
         }
         if (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c)) {
-            Graphics_StopRegisteredTimer(&g_unk0x0058cc70);
-            g_unk0x0058cc74 = 0;
+            Graphics_StopRegisteredTimer(&g_unk0x0058ca90.bracketTimer);
+            g_unk0x0058ca90.bracketFade = 0;
             Graphics_StartShapedInterpolationTimer(g_unk0x0058ca8c, 2, 0xd, 0, 0, 0x10000, 1);
             g_unk0x0058cf64 = 0;
             return;
         }
-        g_unk0x0058cc74 = Timer_GetValue(g_unk0x0058ca8c[0]);
+        g_unk0x0058ca90.bracketFade = Timer_GetValue(g_unk0x0058ca8c[0]);
         if (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c))
-            g_unk0x0058cc74 = 0;
+            g_unk0x0058ca90.bracketFade = 0;
         if (g_unk0x0058cf64 != 0 || !Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c)) {
             Graphics_ResetInterpolationTimers();
-            g_unk0x0058cc74 = 0;
-            g_unk0x0058ce58 = 0;
+            g_unk0x0058ca90.bracketFade = 0;
+            g_unk0x0058ca90.textFade = 0;
             g_unk0x0058cf70 = Knockout_HasUndecidedRoundMatch();
             state = *pState;
             *pState = (((state & 0xfffffff8) + 8 ^ state) & 0x38 ^ state) & 0xffbf0fff | 0x200000;
@@ -5614,7 +5609,7 @@ void Knockout_DrawCurrentRoundBracket(void)
     round = (pTable->state >> 3) & 7;
     bracket = Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c);
     fading = 0;
-    if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058cc70) || (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c) && g_knockoutRaceState == 6))
+    if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.bracketTimer) || (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c) && g_knockoutRaceState == 6))
         fading = 1;
     switch (round) {
     case 1:
@@ -5730,16 +5725,16 @@ void Knockout_DrawCurrentRoundBracket(void)
                 Font_DrawText(0, CFrontend::m_stringDest, (int)g_pGraphics->resX / 0x280 + x, y - KO_Y(5), (int *)pText, 0x11);
             } else {
                 sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x4f), i + 1);
-                StageObject_DrawTypingTextFraction(CFrontend::m_stringDest, g_unk0x0058cc74, 0, (int)g_pGraphics->resX / 0x280 + x, y - KO_Y(5),
+                StageObject_DrawTypingTextFraction(CFrontend::m_stringDest, g_unk0x0058ca90.bracketFade, 0, (int)g_pGraphics->resX / 0x280 + x, y - KO_Y(5),
                              (int *)pText, 0x11);
             }
             if (fading && highlight1) {
                 if (pName1 != NULL)
-                    pName1[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058cc74) >> 16);
+                    pName1[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058ca90.bracketFade) >> 16);
                 if (pBox1 != NULL)
-                    pBox1[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058cc74) >> 16);
+                    pBox1[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058ca90.bracketFade) >> 16);
                 if (pText != NULL)
-                    pText[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058cc74) >> 16);
+                    pText[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058ca90.bracketFade) >> 16);
             } else {
                 if (pName1 != NULL)
                     pName1[3] = 0xff;
@@ -5763,11 +5758,11 @@ void Knockout_DrawCurrentRoundBracket(void)
         if (!bracket) {
             if (fading && highlight2) {
                 if (pName2 != NULL)
-                    pName2[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058cc74) >> 16);
+                    pName2[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058ca90.bracketFade) >> 16);
                 if (pBox2 != NULL)
-                    pBox2[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058cc74) >> 16);
+                    pBox2[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058ca90.bracketFade) >> 16);
                 if (pText != NULL)
-                    pText[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058cc74) >> 16);
+                    pText[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058ca90.bracketFade) >> 16);
             } else {
                 if (pName2 != NULL)
                     pName2[3] = 0xff;
@@ -6427,7 +6422,7 @@ void StageObject_InterpolateSecondaryRampRecords(int t)
     int i;
     ViewLightingRamp *p;
 
-    for (i = 0; i < g_unk0x00547acc; i++) {
+    for (i = 0; i < g_stageObjectCount.value; i++) {
         p = &g_viewLightingRamps[i];
         p->drawBlend = FixMul(t, p->blend - p->previousBlend) + p->previousBlend;
         p->drawSunYaw = p->previousSunYaw + FixMul(t, p->sunYaw - p->previousSunYaw);
@@ -7167,7 +7162,7 @@ void Replay_InitSlots(void)
     memset(g_replayStreams, 0, sizeof(g_replayStreams));
     for (i = 0; i < 8; i++)
         g_replaySlots[i] = &g_replayStreams[i];
-    g_unk0x00588d14 = 0;
+    g_replayLevelState.bufferCount = 0;
     memset(g_unk0x00588ea0, 0, sizeof(g_unk0x00588ea0));
     for (i = 0; i < 8; i++)
         g_unk0x00588d60[i] = &g_unk0x00588ea0[i];
@@ -7189,15 +7184,15 @@ int Replay_FreeBuffers(void)
             g_replayStreams[i] = NULL;
         }
         if (CGameInfo::GetGameInfoSessionFlag() || CGameInfo::GetConfiguredGameMode() == 3 || CGameInfo::GetConfiguredGameMode() == 7) {
-            if (g_unk0x00588ea0[i] != NULL && g_unk0x00588d18[i] == 0) {
+            if (g_unk0x00588ea0[i] != NULL && g_replayLevelState.pending[i] == 0) {
                 CFileBuffer::FreeGenericFileBuffer(g_unk0x00588ea0[i]);
                 g_unk0x00588ea0[i] = NULL;
-                g_unk0x00588d18[i] = 0;
+                g_replayLevelState.pending[i] = 0;
             }
         }
     }
     g_unk0x00588d3c = 0;
-    g_unk0x00588d14 = 0;
+    g_replayLevelState.bufferCount = 0;
     g_unk0x00588ec8 = 0;
     return 1;
 }
@@ -8536,10 +8531,10 @@ BYTE *Replay_LoadValidatedBuffer(char *path)
     if (buffer == NULL) {
         buffer = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
                                                       path, NULL, &size, 0);
-        g_unk0x00588d18[g_unk0x00588d14] = 1;
+        g_replayLevelState.pending[g_replayLevelState.bufferCount] = 1;
     } else {
         size = CGenericFileLoader::GetGenericFileSize();
-        g_unk0x00588d18[g_unk0x00588d14] = 0;
+        g_replayLevelState.pending[g_replayLevelState.bufferCount] = 0;
     }
     if (buffer == NULL)
         return NULL;
@@ -8554,8 +8549,8 @@ BYTE *Replay_LoadValidatedBuffer(char *path)
         return NULL;
     }
     Replay_SetupPointers((ReplayStream *)buffer, 1);
-    g_unk0x00588ea0[g_unk0x00588d14] = (ReplayStream *)buffer;
-    g_unk0x00588d14++;
+    g_unk0x00588ea0[g_replayLevelState.bufferCount] = (ReplayStream *)buffer;
+    g_replayLevelState.bufferCount++;
     return buffer;
 }
 
@@ -8908,8 +8903,8 @@ void StageObject_ResetCarNodeViewFlags(Car *pCar)
     *(short *)(g_unk0x00588ba4 + 12) = 0;
     g_unk0x00588ba4[14] = 0;
     g_unk0x00588ba4[pCar->index] = 0;
-    StageObject_SetCarVisibilityBits(g_unk0x00588cd4[pCar->index * 2], 0, pCar->index);
-    StageObject_SetCarVisibilityBits(g_unk0x00588cd4[pCar->index * 2 + 1], 1, pCar->index);
+    StageObject_SetCarVisibilityBits(g_replayLevelState.levels[pCar->index * 2], 0, pCar->index);
+    StageObject_SetCarVisibilityBits(g_replayLevelState.levels[pCar->index * 2 + 1], 1, pCar->index);
     pCar->pSceneRoot->viewMask = 0xff;
     SceneNode_SetViewMaskTree(pCar->pWheelNodes[0], g_unk0x00588ba4[9]);
     SceneNode_SetViewMaskTree(pCar->pWheelNodes[1], g_unk0x00588ba4[9]);
@@ -9384,9 +9379,6 @@ void StageObject_SpawnCarWheelSkidEffects(int param_1)
 
 // GLOBAL: CMR2 0x0058e088
 int g_unk0x0058e088[6];
-#define g_unk0x0058e3ac (g_aiRouteTables.descriptors)
-#define g_unk0x0058e44c (g_aiRouteTables.networks)
-#define g_unk0x0058e4a0 (g_aiRouteTables.pActivation)
 
 // Projects a stage object's rotation table into its output rows.
 // match 23%: nested projection loops do not match the original layout
@@ -9434,9 +9426,9 @@ void StageObject_ProjectRotationTableRows(AINetwork *param_1)
                             if (-idx >= 0x40)
                                 ((int *)g_unk0x0058e0b8)[row + j] = 0xffff0000;
                             else
-                                ((int *)g_unk0x0058e0b8)[row + j] = -g_unk0x0058e4a0[-idx];
+                                ((int *)g_unk0x0058e0b8)[row + j] = -g_aiRouteTables.pActivation[-idx];
                         } else if (idx < 0x40) {
-                            ((int *)g_unk0x0058e0b8)[row + j] = g_unk0x0058e4a0[idx];
+                            ((int *)g_unk0x0058e0b8)[row + j] = g_aiRouteTables.pActivation[idx];
                         } else {
                             ((int *)g_unk0x0058e0b8)[row + j] = 0x10000;
                         }
@@ -9460,21 +9452,21 @@ void StageObject_BuildTypeTableRowOutput(int param_1, int *pControls, int *param
     int i = 0;
 
     do {
-        BYTE b = *(BYTE *)(g_unk0x0058e3ac[param_1] + 1 + i);
+        BYTE b = *(BYTE *)(g_aiRouteTables.descriptors[param_1] + 1 + i);
         int v = (int)(signed char)b;
         if (v != 0) {
             unsigned int bit = 1 << v;
             if ((mask & bit) == 0) {
                 mask |= bit;
-                StageTiming_CollectDescriptorCarValues(g_unk0x0058e44c[v]->inputs, param_3, (int *)g_unk0x0058e0b8);
-                StageObject_ProjectRotationTableRows(g_unk0x0058e44c[v]);
+                StageTiming_CollectDescriptorCarValues(g_aiRouteTables.networks[v]->inputs, param_3, (int *)g_unk0x0058e0b8);
+                StageObject_ProjectRotationTableRows(g_aiRouteTables.networks[v]);
             }
             // The original addresses the projection rows through 0x58e088,
             // 0x30 bytes before 0x58e0b8. These globals need not be adjacent
             // after linking, so address the actual row storage directly.
             *(int *)((BYTE *)pControls + i) =
-                ((int *)g_unk0x0058e0b8)[(int)*(char *)(g_unk0x0058e3ac[param_1] + i) +
-                                       (g_unk0x0058e44c[v]->layerCount - 1) * 0xc];
+                ((int *)g_unk0x0058e0b8)[(int)*(char *)(g_aiRouteTables.descriptors[param_1] + i) +
+                                       (g_aiRouteTables.networks[v]->layerCount - 1) * 0xc];
         }
         i += 4;
     } while (i < 0x14);
@@ -10068,9 +10060,9 @@ void Knockout_DrawAnimatedMatchHeader(int param1, int param2, int param3, int pa
     int x;
     int y;
 
-    x = (param3 - param1) * g_unk0x0058cc74 / 0x10000 + param1;
+    x = (param3 - param1) * g_unk0x0058ca90.bracketFade / 0x10000 + param1;
     rect[0] = (short)x;
-    y = (param4 - param2) * g_unk0x0058cc74 / 0x10000 + param2;
+    y = (param4 - param2) * g_unk0x0058ca90.bracketFade / 0x10000 + param2;
     rect[1] = (short)y;
     rect[2] = (short)((int)g_pGraphics->resX * 0x56 / 0x280);
     rect[3] = (short)((int)g_pGraphics->resY * 0x26 / 0x1e0);
@@ -10115,8 +10107,8 @@ void StageObject_DrawAnimatedTextPair(int param1, KnockoutMatch *param2, short *
     if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca80) != 0 || param9 != 0) {
         rect[0] = param3[0];
         rect[1] = param3[1];
-        rect[2] = (short)(FixMul(param3[2] << 16, g_unk0x0058cc74) >> 16);
-        rect[3] = (short)(FixMul(param3[3] << 16, g_unk0x0058cc74) >> 16);
+        rect[2] = (short)(FixMul(param3[2] << 16, g_unk0x0058ca90.bracketFade) >> 16);
+        rect[3] = (short)(FixMul(param3[3] << 16, g_unk0x0058ca90.bracketFade) >> 16);
         StageObject_DrawOutlinedStageBox(rect, param4, param5, param6);
         return;
     }
@@ -15658,12 +15650,12 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
             continue;
         }
         if (i == 0 || pMenu->cursor == i) {
-            if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058cf60)) {
+            if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.textTimer)) {
                 rect2[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
                 rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0 + y0);
                 rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
                 rect2[3] = 1;
-                StageObject_FillWidthScaledRectangle(g_unk0x0058ce58, &g_pGraphics->field309_0x150, rect2, pColour, 1);
+                StageObject_FillWidthScaledRectangle(g_unk0x0058ca90.textFade, &g_pGraphics->field309_0x150, rect2, pColour, 1);
             } else {
                 rect2[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
                 rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0 + y0);
@@ -15676,10 +15668,10 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
         rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0 + y0);
         rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
         rect2[3] = 1;
-        if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058cf60)) {
+        if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.textTimer)) {
             Sprite_Queue((SpriteRect *)&texture->field_0x11c, (SpriteRect *)rect, texture, 2,
                          0, NULL, NULL, pColour, 8);
-            StageObject_DrawTypingTextFraction(CFrontend::m_stringDest, g_unk0x0058ce58, 0,
+            StageObject_DrawTypingTextFraction(CFrontend::m_stringDest, g_unk0x0058ca90.textFade, 0,
                          (int)(g_pGraphics->resX * 0x7a) / 0x280,
                          y, (int *)pColour, 0x21);
         } else {
@@ -15693,10 +15685,10 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
                            (int)(g_pGraphics->resY * 0x24) / 0x1e0 + y0);
         rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
         rect2[3] = 1;
-        if (!(Graphics_IsRegisteredTimerRunning(&g_unk0x0058cf60)))
+        if (!(Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.textTimer)))
             Sprite_FillRect(&g_pGraphics->field309_0x150, rect2, pColour, 2);
         else
-            StageObject_FillWidthScaledRectangle(g_unk0x0058ce58, &g_pGraphics->field309_0x150, rect2, pColour, 2);
+            StageObject_FillWidthScaledRectangle(g_unk0x0058ca90.textFade, &g_pGraphics->field309_0x150, rect2, pColour, 2);
     }
     Font_SetBlendMode(2);
     Knockout_DrawCurrentRoundBracket();

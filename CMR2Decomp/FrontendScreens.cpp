@@ -9712,8 +9712,6 @@ void FrontendMenu_DrawProfileDateEntry(Menu *pMenu)
 // two-entry name array.
 // GLOBAL: CMR2 0x0081854c
 char *g_nameEntryPath0x0081854c[2];
-#define g_unk0x0081854c (g_nameEntryPath0x0081854c[0])
-#define g_unk0x00818550 (g_nameEntryPath0x0081854c[1])
 
 // The 30 keys of the name entry keyboard, three rows of ten.
 // GLOBAL: CMR2 0x005249a8
@@ -9740,12 +9738,12 @@ void FrontendMenu_DrawProfileNameEntry(Menu *pMenu)
     int col;
     int i;
 
-    g_unk0x0081854c = g_profileHeaderText;
+    g_nameEntryPath0x0081854c[0] = g_profileHeaderText;
     if (g_profileNameEntryFlag != 0) {
         if (RallyData_IsDriverRecordUsable((BYTE)FrontendProfile_GetCurrentPlayer()))
-            g_unk0x00818550 = CFrontend::GetTextString(0xe5);
+            g_nameEntryPath0x0081854c[1] = CFrontend::GetTextString(0xe5);
         else
-            g_unk0x00818550 = CFrontend::GetTextString(0x17b);
+            g_nameEntryPath0x0081854c[1] = CFrontend::GetTextString(0x17b);
     }
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, g_nameEntryPath0x0081854c, 2);
     FrontendDraw_PlayTime();

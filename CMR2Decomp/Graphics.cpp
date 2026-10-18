@@ -3150,7 +3150,6 @@ TimerPulseState g_timerPulseState = { {
     { 5 },
     { 5 }
 }, 1, 0.3f };
-#define g_unk0x00521138 (g_timerPulseState.timers)
 #define g_pulseRising (g_timerPulseState.rising)
 #define g_pulseMax (g_timerPulseState.maximum)
 
@@ -3617,7 +3616,7 @@ int Timer_GetValue(BYTE index)
     int now;
 
     index &= 0xff;
-    t = &g_unk0x00521138[index];
+    t = &g_timerPulseState.timers[index];
     pos = t->step;
     dur = t->length;
     step = (BYTE)pos;
@@ -3675,7 +3674,7 @@ int Timer_GetValue(BYTE index)
 // FUNCTION: CMR2 0x004bc0c0
 BYTE Graphics_IsRegisteredTimerRunning(BYTE *p)
 {
-    InterpolationTimer *timer = &g_unk0x00521138[*p];
+    InterpolationTimer *timer = &g_timerPulseState.timers[*p];
 
     if (timer->pOwner != p)
         return 0;
@@ -3709,10 +3708,10 @@ void Graphics_StartShapedInterpolationTimer(BYTE *pSlot, int shape, int length, 
         param7 = 0;
     }
     tri = (length + 1) * length / 2;
-    if (*pSlot < 0x20 && g_unk0x00521138[*pSlot].pOwner == pSlot)
-        g_unk0x00521138[*pSlot].shape = 5;
+    if (*pSlot < 0x20 && g_timerPulseState.timers[*pSlot].pOwner == pSlot)
+        g_timerPulseState.timers[*pSlot].shape = 5;
     *pSlot = Timer_FindFree();
-    rec = &g_unk0x00521138[*pSlot];
+    rec = &g_timerPulseState.timers[*pSlot];
     switch (shape) {
     case 0:
         rec->base = start;
@@ -3755,7 +3754,7 @@ void Graphics_StartShapedInterpolationTimer(BYTE *pSlot, int shape, int length, 
 // FUNCTION: CMR2 0x004bc3e0
 BYTE Graphics_GetTimerRecordBitUnion(BYTE index)
 {
-    BYTE *p = (BYTE *)&g_unk0x00521138[index & 0xff];
+    BYTE *p = (BYTE *)&g_timerPulseState.timers[index & 0xff];
     BYTE r = (BYTE)index;
     int i = 24;
 
@@ -3770,18 +3769,18 @@ void Graphics_ResetInterpolationTimers(void)
 {
     InterpolationTimer *p;
 
-    memset(g_unk0x00521138, 0, sizeof(g_unk0x00521138));
-    p = g_unk0x00521138;
+    memset(g_timerPulseState.timers, 0, sizeof(g_timerPulseState.timers));
+    p = g_timerPulseState.timers;
     do {
         p->shape = 5;
         p++;
-    } while ((INT_PTR)p < (INT_PTR)&g_unk0x00521138[32]);
+    } while ((INT_PTR)p < (INT_PTR)&g_timerPulseState.timers[32]);
 }
 
 // FUNCTION: CMR2 0x004bc470
 void Graphics_StopRegisteredTimer(BYTE *p)
 {
-    g_unk0x00521138[*p].shape = 5;
+    g_timerPulseState.timers[*p].shape = 5;
 }
 
 // GLOBAL: CMR2 0x008164c8
@@ -6967,7 +6966,7 @@ BYTE Timer_FindFree(void)
 
     slot = 0;
     for (i = 0; i < 32; i++) {
-        if (g_unk0x00521138[slot].shape == 5)
+        if (g_timerPulseState.timers[slot].shape == 5)
             return (BYTE)slot;
         slot = (slot + 1) % 32;
     }

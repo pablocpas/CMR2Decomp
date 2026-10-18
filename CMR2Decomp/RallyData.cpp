@@ -157,16 +157,7 @@ CMR2_LAYOUT_CHECK(RallyPairingTablesSize, sizeof(RallyPairingTables) == 0x190);
 CMR2_LAYOUT_CHECK(RallyDriverGroupTableSize, sizeof(RallyDriverGroupTable) == 0x6e8);
 // GLOBAL: CMR2 0x0052ebc0
 RallyDriverGroupTable g_driverGroupTable;
-#define g_unk0x0052ebc0 (g_driverGroupTable.groups)
-#define g_unk0x0052f0e0 (g_driverGroupTable.field_0x520)
-#define g_unk0x0052f0fc (g_driverGroupTable.field_0x53c)
 #define g_rallyPairingTables (g_driverGroupTable.pairing)
-#define g_unk0x0052f290 (g_driverGroupTable.field_0x6d0)
-#define g_unk0x0052f294 (g_driverGroupTable.field_0x6d4)
-#define g_unk0x0052f100 (g_rallyPairingTables.pairs)
-#define g_unk0x0052f1a0 (g_rallyPairingTables.skills)
-#define g_unk0x0052f1f0 (g_rallyPairingTables.flags)
-#define g_unk0x0052f240 (g_rallyPairingTables.otherFlags)
 
 // Picks the AI skill of the four opponents of a slot: for each opponent a
 // random window around its rating (pRatings[1], [3], [5], [7]) is spread over
@@ -214,7 +205,7 @@ void RallyData_SelectOpponentSkillClasses(int slot, int *pClasses, char *pRating
         }
         classes[opponent] = bestClass;
     }
-    pDest = &g_unk0x0052f1a0[slot * 4];
+    pDest = &g_rallyPairingTables.skills[slot * 4];
     for (i = 0; i < 4; i++) {
         if (slot == 2 && i > 1)
             *pDest = 0;
@@ -241,11 +232,11 @@ void RallyData_ResetDriverPairingTables(int value)
     int i;
 
     for (i = 0; i < 20; i++) {
-        g_unk0x0052f100[i][0] = value;
-        g_unk0x0052f100[i][1] = value;
-        g_unk0x0052f1a0[i] = value;
-        g_unk0x0052f1f0[i] = 0;
-        g_unk0x0052f240[i] = 0;
+        g_rallyPairingTables.pairs[i][0] = value;
+        g_rallyPairingTables.pairs[i][1] = value;
+        g_rallyPairingTables.skills[i] = value;
+        g_rallyPairingTables.flags[i] = 0;
+        g_rallyPairingTables.otherFlags[i] = 0;
     }
     RallyData_InterpolateGroupGrip(0);
     RallyData_InterpolateGroupGrip(1);
@@ -1269,7 +1260,7 @@ void RallyData_CopyCountryPlayerDefaults(void)
         p = RallyData_GetDriverSkillRecord(i);
         *(CountryPlayerDefaults *)p =
             *(CountryPlayerDefaults *)(g_unk0x0051682c + (RallyDataCountryIndex() & 0xff) * 7);
-        if (g_unk0x0052f290 != 0 && g_unk0x0052f0fc > 2) {
+        if (g_driverGroupTable.field_0x6d0 != 0 && g_driverGroupTable.field_0x53c > 2) {
             c = p[0];
             if (c % 2 == 0 && c != 6)
                 p[0] = c + 1;
@@ -1900,31 +1891,31 @@ int *RallyData_GetDriverSettingPair(int index)
         g_unk0x0052ea60[0] = g_unk0x0052ea60[1];
         return g_unk0x0052ea60;
     }
-    return g_unk0x0052f100[index];
+    return g_rallyPairingTables.pairs[index];
 }
 
 // FUNCTION: CMR2 0x004075b0
 int *RallyData_GetDriverPairRecord(int index)
 {
-    return &g_unk0x0052f1f0[index];
+    return &g_rallyPairingTables.flags[index];
 }
 
 // FUNCTION: CMR2 0x004075c0
 int *RallyData_GetDriverSecondaryPairRecord(int index)
 {
-    return &g_unk0x0052f240[index];
+    return &g_rallyPairingTables.otherFlags[index];
 }
 
 // FUNCTION: CMR2 0x004075d0
 BYTE *RallyData_GetDriverSelectionFlagRecord(int index)
 {
-    return &g_unk0x0052f294[index];
+    return &g_driverGroupTable.field_0x6d4[index];
 }
 
 // FUNCTION: CMR2 0x004075e0
 int *RallyData_GetDriverPrimaryPairRecord(int index)
 {
-    return &g_unk0x0052f1a0[index];
+    return &g_rallyPairingTables.skills[index];
 }
 
 // FUNCTION: CMR2 0x004075f0
@@ -1937,7 +1928,7 @@ unsigned int *RallyData_GetSelectedCountryValueTable(void)
 // FUNCTION: CMR2 0x00407630
 BYTE *RallyData_GetDriverSkillRecord(int index)
 {
-    return g_unk0x0052f0e0[index];
+    return g_driverGroupTable.field_0x520[index];
 }
 
 // GLOBAL: CMR2 0x00516188
@@ -2265,16 +2256,16 @@ void RallyData_UpdateStageWetShares(void)
     unsigned short track;
 
     index = 0;
-    pOther = g_unk0x0052f240;
-    pPairs = &g_unk0x0052f100[0][1];
-    pFlag = g_unk0x0052f1f0;
+    pOther = g_rallyPairingTables.otherFlags;
+    pPairs = &g_rallyPairingTables.pairs[0][1];
+    pFlag = g_rallyPairingTables.flags;
     do {
         *pFlag = 0;
         *pOther = 0;
         if (pPairs[-1] == 2 && pPairs[0] == 2) {
             if (((BYTE)RallyDataCountryIndex() == 6 &&
-                 (pPairs == &g_unk0x0052f100[2][1] || pPairs == &g_unk0x0052f100[5][1] ||
-                  pPairs == &g_unk0x0052f100[7][1])) ||
+                 (pPairs == &g_rallyPairingTables.pairs[2][1] || pPairs == &g_rallyPairingTables.pairs[5][1] ||
+                  pPairs == &g_rallyPairingTables.pairs[7][1])) ||
                 ((BYTE)RallyDataCountryIndex() == 7 && (index / 4 == 0 || index / 4 == 2))) {
                 track = (unsigned short)RallyData_GetIndexedStageScoreScale(g_selectedRallyData & 0x1f, index, 0);
                 if (track < 0x834) {
@@ -2313,7 +2304,7 @@ void RallyData_UpdateStageWetShares(void)
         pFlag++;
         pPairs += 2;
         pOther++;
-    } while ((INT_PTR)pPairs < (INT_PTR)&g_unk0x0052f100[11][1]);
+    } while ((INT_PTR)pPairs < (INT_PTR)&g_rallyPairingTables.pairs[11][1]);
 }
 
 // Recomputes the grip byte of the four stages of a rally group, interpolating
@@ -2332,7 +2323,7 @@ void RallyData_InterpolateGroupGrip(int group)
     int track;
 
     index = group << 2;
-    pPairs = &g_unk0x0052f100[index][1];
+    pPairs = &g_rallyPairingTables.pairs[index][1];
     k = 4;
     do {
         m = pPairs[-1];
@@ -2354,15 +2345,15 @@ void RallyData_InterpolateGroupGrip(int group)
             FixMul(g_unk0x005169e0[(BYTE)RallyDataCountryIndex()], fade);
         track = (unsigned short)RallyData_GetIndexedStageScoreScale((BYTE)RallyDataCountryIndex(), index, 0);
         if (track <= 0x1f4 || track >= 0x834) {
-            g_unk0x0052f294[index] = (BYTE)(n >> 16);
+            g_driverGroupTable.field_0x6d4[index] = (BYTE)(n >> 16);
         } else if (track < 0x4b0) {
-            g_unk0x0052f294[index] =
+            g_driverGroupTable.field_0x6d4[index] =
                 (BYTE)((FixMul(FixDiv((track / 100 - 5) << 16, 0x70000), m - n) + n) >> 16);
         } else if (track > 0x640) {
-            g_unk0x0052f294[index] =
+            g_driverGroupTable.field_0x6d4[index] =
                 (BYTE)((FixMul(FixDiv((track / 100 - 0x10) << 16, 0x50000), n - m) + m) >> 16);
         } else {
-            g_unk0x0052f294[index] = (BYTE)(m >> 16);
+            g_driverGroupTable.field_0x6d4[index] = (BYTE)(m >> 16);
         }
         index++;
         pPairs += 2;
@@ -3919,11 +3910,6 @@ BYTE g_unk0x00520128[0x28] = {
 // walks it as an array, so it must be one block).
 // GLOBAL: CMR2 0x0082c698
 int g_championshipFlagCountries[6];
-#define g_unk0x0082c69c (g_championshipFlagCountries[1])
-#define g_unk0x0082c6a0 (g_championshipFlagCountries[2])
-#define g_unk0x0082c6a4 (g_championshipFlagCountries[3])
-#define g_unk0x0082c6a8 (g_championshipFlagCountries[4])
-#define g_unk0x0082c6ac (g_championshipFlagCountries[5])
 // GLOBAL: CMR2 0x0082c6bc
 int g_unk0x0082c6bc;
 
@@ -3933,19 +3919,19 @@ void RallyData_BuildCountryWeatherIndexMap(void)
     if ((unsigned char)RallyDataCountryIndex() == 3) {
         g_championshipFlagCountries[0] = 0;
         g_unk0x0082c6bc = 6;
-        g_unk0x0082c69c = 1;
-        g_unk0x0082c6a0 = 2;
-        g_unk0x0082c6a4 = 6;
-        g_unk0x0082c6a8 = 7;
-        g_unk0x0082c6ac = 8;
+        g_championshipFlagCountries[1] = 1;
+        g_championshipFlagCountries[2] = 2;
+        g_championshipFlagCountries[3] = 6;
+        g_championshipFlagCountries[4] = 7;
+        g_championshipFlagCountries[5] = 8;
     } else {
         g_unk0x0082c6bc = 6;
         g_championshipFlagCountries[0] = 0;
-        g_unk0x0082c69c = 1;
-        g_unk0x0082c6a0 = 2;
-        g_unk0x0082c6a4 = 3;
-        g_unk0x0082c6a8 = 4;
-        g_unk0x0082c6ac = 5;
+        g_championshipFlagCountries[1] = 1;
+        g_championshipFlagCountries[2] = 2;
+        g_championshipFlagCountries[3] = 3;
+        g_championshipFlagCountries[4] = 4;
+        g_championshipFlagCountries[5] = 5;
     }
 }
 
@@ -4830,7 +4816,7 @@ unsigned int RallyData_GetSetupModeBits(void)
 // FUNCTION: CMR2 0x00407610
 Unk0x0052ebc0 *RallyData_GetDriverGroupRecord(int index)
 {
-    return &g_unk0x0052ebc0[index];
+    return &g_driverGroupTable.groups[index];
 }
 
 // GLOBAL: CMR2 0x00516cd0
@@ -4951,8 +4937,8 @@ void RallyData_DrawLoadingProgress(int progress, char drawScene, BYTE alpha)
 // FUNCTION: CMR2 0x0040df60
 void RallyData_SetDriverPairingStateValues(int param1, int param2)
 {
-    g_unk0x0052f290 = param1;
-    g_unk0x0052f0fc = param2;
+    g_driverGroupTable.field_0x6d0 = param1;
+    g_driverGroupTable.field_0x53c = param2;
 }
 
 unsigned int RallyData_GetKnockoutCountryNibble(void);
@@ -5017,7 +5003,7 @@ unsigned int RallyData_GetFlag30(void)
 // FUNCTION: CMR2 0x00408290
 void RallyData_ClearDriverGroupRecords(void)
 {
-    memset(g_unk0x0052ebc0, 0, 4 * sizeof(Unk0x0052ebc0));
+    memset(g_driverGroupTable.groups, 0, 4 * sizeof(Unk0x0052ebc0));
 }
 
 // FUNCTION: CMR2 0x004082c0
@@ -7813,9 +7799,9 @@ void RallyData_PickOpponentLineups(void)
     int *pOut;
     int *pIn;
 
-    if ((CGameInfo::GetConfiguredGameMode() == 2 || CGameInfo::GetConfiguredGameMode() == 9) && g_unk0x0052f290 != 0) {
+    if ((CGameInfo::GetConfiguredGameMode() == 2 || CGameInfo::GetConfiguredGameMode() == 9) && g_driverGroupTable.field_0x6d0 != 0) {
         puts(g_strHere);
-        RallyData_ResetDriverPairingTables(g_unk0x0052f0fc);
+        RallyData_ResetDriverPairingTables(g_driverGroupTable.field_0x53c);
         return;
     }
     srand(timeGetTime());
@@ -7888,7 +7874,7 @@ void RallyData_PickOpponentLineups(void)
                 ratings[row] = rating;
             }
         }
-        pOut = &g_unk0x0052f100[group * 4][1];
+        pOut = &g_rallyPairingTables.pairs[group * 4][1];
         for (i = 0; i < 4; i++) {
             pOut[-1] = classes[i * 2];
             if (split == 0)
@@ -7903,9 +7889,9 @@ void RallyData_PickOpponentLineups(void)
     } while (group < 3);
     for (i = 0; i < 11; i++) {
         if ((unsigned short)RallyData_GetIndexedStageScoreScale(g_selectedRallyData & 0x1f, i, 0) >= 0x834) {
-            g_unk0x0052f100[i][0] = 2;
-            g_unk0x0052f100[i][1] = 2;
-            g_unk0x0052f1a0[i] = 2;
+            g_rallyPairingTables.pairs[i][0] = 2;
+            g_rallyPairingTables.pairs[i][1] = 2;
+            g_rallyPairingTables.skills[i] = 2;
         }
     }
     RallyData_UpdateStageWetShares();

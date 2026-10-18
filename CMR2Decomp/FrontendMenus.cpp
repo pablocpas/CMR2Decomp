@@ -604,8 +604,6 @@ struct ControlsDeviceSelection {
 };
 // GLOBAL: CMR2 0x0082a7c8
 ControlsDeviceSelection g_controlsDeviceSelection;
-#define g_unk0x0082a7c8 (g_controlsDeviceSelection.slots)
-#define g_unk0x0082a7d8 (g_controlsDeviceSelection.lastDevice)
 // Set when the devices must be re-read (the game lost the focus).
 // GLOBAL: CMR2 0x0082a7dc
 int g_controlsRereadDevices;
@@ -617,7 +615,7 @@ int g_controlsCalibrationState;
 int g_controlsSelectedSlot;
 
 // Configuration of the device selected in the controls menu.
-#define CONTROLS_SEL (g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff])
+#define CONTROLS_SEL (g_controlsDeviceSelection.slots[g_controlsSelectedSlot & 0xffff])
 
 // FUNCTION: CMR2 0x004fba80
 short FrontendControls_GetSelectedSlot(void)
@@ -672,7 +670,7 @@ void FrontendControls_BeginBindingCapture(Menu *pMenu, int param)
     Input_TranslatePedalsToMenuKeys();
     g_unk0x0082a7e0 = CInput::GetFirstPressedKey();
     Input_ClearKeyPressQueue();
-    pDevice = (BYTE *)CInput::GetAvailableDeviceRecord(g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff]);
+    pDevice = (BYTE *)CInput::GetAvailableDeviceRecord(g_controlsDeviceSelection.slots[g_controlsSelectedSlot & 0xffff]);
     for (i = 0; i < 8; i++)
         g_unk0x00829428[i] = 0;
     if (*(int *)pDevice == 3 || *(int *)pDevice == 2) {
@@ -692,7 +690,7 @@ void FrontendControls_EnterDeviceBindings(Menu *pMenu, char param)
     DeviceInfo *pDevice;
 
     if (param == 0) {
-        pDevice = CInput::GetAvailableDeviceRecord(g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff]);
+        pDevice = CInput::GetAvailableDeviceRecord(g_controlsDeviceSelection.slots[g_controlsSelectedSlot & 0xffff]);
         pMenu->items[1].visible = 1;
         pMenu->items[0].enabled = 1;
         pMenu->items[0].visible = 1;
@@ -725,7 +723,7 @@ void FrontendControls_LeaveDeviceBindings(Menu *pMenu, char back)
     }
     memcpy(Input_GetControllerTable(), g_controlsCopy, sizeof(g_controlsCopy));
     CInput::ApplyControllerButtonBindings(g_controlsSelectedSlot & 0xffff);
-    if (CInput::GetAvailableDeviceRecord(g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff])->field_0x0 == 3)
+    if (CInput::GetAvailableDeviceRecord(g_controlsDeviceSelection.slots[g_controlsSelectedSlot & 0xffff])->field_0x0 == 3)
         Menu_SetNextAction(FrontendMenu_GetDeviceCalibration());
 }
 
@@ -734,9 +732,9 @@ void FrontendControls_LeaveDeviceBindings(Menu *pMenu, char back)
 // FUNCTION: CMR2 0x004fc490
 int FrontendControls_IsSelectedAxisBound(Menu *pMenu)
 {
-    if (g_controlsCopy[g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff]].field_0x110 != 0 && (pMenu->cursor == 0 || pMenu->cursor == 1))
+    if (g_controlsCopy[g_controlsDeviceSelection.slots[g_controlsSelectedSlot & 0xffff]].field_0x110 != 0 && (pMenu->cursor == 0 || pMenu->cursor == 1))
         return 1;
-    if (g_controlsCopy[g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff]].field_0x114 != 0 && (pMenu->cursor == 2 || pMenu->cursor == 3))
+    if (g_controlsCopy[g_controlsDeviceSelection.slots[g_controlsSelectedSlot & 0xffff]].field_0x114 != 0 && (pMenu->cursor == 2 || pMenu->cursor == 3))
         return 1;
     return 0;
 }
@@ -955,7 +953,7 @@ void FrontendControls_LeaveDeviceConfiguration(Menu *pMenu, char back)
 
     if (back == 0) {
         i = 0;
-        pSlot = g_unk0x0082a7c8;
+        pSlot = g_controlsDeviceSelection.slots;
         do {
             Input_SetControllerSlotMapping(i, *pSlot);
             pSlot++;
@@ -1016,7 +1014,7 @@ void FrontendControls_EnterDeviceConfiguration(Menu *pMenu, int param)
 
     CInput::RefreshControllerConfigurations();
     i = 0;
-    pSlot = g_unk0x0082a7c8;
+    pSlot = g_controlsDeviceSelection.slots;
     do {
         *pSlot = Input_GetControllerSlotMapping(i);
         pSlot++;
@@ -1050,7 +1048,7 @@ void FrontendControls_UpdateDeviceConfiguration(Menu *pMenu)
     } else if (g_controlsRereadDevices != 0) {
         return;
     }
-    if (pMenu->items[0].max == g_unk0x0082a7d8) {
+    if (pMenu->items[0].max == g_controlsDeviceSelection.lastDevice) {
         dev = CONTROLS_SEL;
         g_controlsCopy[dev].field_0x110 = pMenu->items[1].max;
         g_controlsCopy[dev].field_0x114 = pMenu->items[2].max;
@@ -1062,10 +1060,10 @@ void FrontendControls_UpdateDeviceConfiguration(Menu *pMenu)
     if (pMenu->items[0].max == 0 && (short)g_controlsSelectedSlot == 1)
         pMenu->items[0].max = (char)g_controlsSelectedSlot;
     if (pMenu->items[0].max == 1 && (short)g_controlsSelectedSlot == 0)
-        pMenu->items[0].max = g_unk0x0082a7d8 != 0 ? 0 : 2;
+        pMenu->items[0].max = g_controlsDeviceSelection.lastDevice != 0 ? 0 : 2;
     CONTROLS_SEL = pMenu->items[0].max;
     FrontendControls_FillDeviceConfiguration();
-    g_unk0x0082a7d8 = pMenu->items[0].max;
+    g_controlsDeviceSelection.lastDevice = pMenu->items[0].max;
 }
 
 // Starts calibrating: freezes the menu and waits for the keys to be released.
@@ -1109,7 +1107,7 @@ void FrontendControls_ClearDuplicateBinding(ControllerData *p, int index)
 // FUNCTION: CMR2 0x004fbe60
 AxisBinding *FrontendControls_GetSelectedAxisPosition(int index)
 {
-    BYTE *pDevice = (BYTE *)CInput::GetAvailableDeviceRecord(g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff]);
+    BYTE *pDevice = (BYTE *)CInput::GetAvailableDeviceRecord(g_controlsDeviceSelection.slots[g_controlsSelectedSlot & 0xffff]);
 
     g_axisBindings[index].position = *(int *)(pDevice + index * 0x14 + 0x47c);
     return &g_axisBindings[index];
@@ -1183,7 +1181,7 @@ char *FrontendControls_GetBindingDisplayText(int index)
 // FUNCTION: CMR2 0x004fbab0
 BYTE *FrontendControls_GetSelectedDeviceName(void)
 {
-    return (BYTE *)g_controlsCopy[g_unk0x0082a7c8[g_controlsSelectedSlot & 0xffff]].name;
+    return (BYTE *)g_controlsCopy[g_controlsDeviceSelection.slots[g_controlsSelectedSlot & 0xffff]].name;
 }
 
 // FUNCTION: CMR2 0x004fc060

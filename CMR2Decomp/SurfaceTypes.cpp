@@ -563,8 +563,6 @@ int g_unk0x0058df30[2];
 // Two sound handles; the release loop walks them as one block.
 // GLOBAL: CMR2 0x0058ddc8
 int g_unk0x0058ddc8Pair[2];
-#define g_unk0x0058ddc8 (g_unk0x0058ddc8Pair[0])
-#define g_unk0x0058ddcc (g_unk0x0058ddc8Pair[1])
 #pragma data_seg()
 
 void Sound_SetMasterVolume(int volume);
@@ -610,8 +608,8 @@ void SurfaceSound_ResetPlayerParameters(void)
         g_surfaceSoundState[i] = 0;
         g_unk0x0058df20[i] = 0;
     }
-    g_unk0x0058ddc8 = -1;
-    g_unk0x0058ddcc = -1;
+    g_unk0x0058ddc8Pair[0] = -1;
+    g_unk0x0058ddc8Pair[1] = -1;
     g_engineSoundCurve.pSamples = g_unk0x0051ea74;
     g_engineSoundCurve.pBytes = g_unk0x0051ea9e;
     g_engineLoadSoundCurve.pSamples = g_unk0x0051eacc;
@@ -1593,7 +1591,7 @@ void Surface_StopAndFreeSounds(void)
         if (Sound_IsPlaying((unsigned int)g_unk0x0058ddd0[i]) != 0)
             Sound_SetPlayingSlotVolume((unsigned int)g_unk0x0058ddd0[i], 0);
     }
-    pHandle = &g_unk0x0058ddc8;
+    pHandle = &g_unk0x0058ddc8Pair[0];
     while ((INT_PTR)pHandle < (INT_PTR)(g_unk0x0058ddc8Pair + 2)) { // 0x58ddd0 in the original
         if (*pHandle != -1)
             Sound_Free((unsigned int)*pHandle);

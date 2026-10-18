@@ -95,7 +95,6 @@ struct StageSplitState {
 };
 // GLOBAL: CMR2 0x00541f98
 StageSplitState g_stageSplit;
-#define g_unk0x00541f98 (g_stageSplit.driverCount)
 #define g_stageDriverSlot (g_stageSplit.driverSlot)
 #define g_stageSplitDriverIndices (g_stageSplit.indices)
 #define g_stageSplitPositions (g_stageSplit.positions)
@@ -231,11 +230,11 @@ void StageTiming_AssignReservedDriverSlots(int count)
 {
     int i;
 
-    g_unk0x00541f98 = 16 - count;
+    g_stageSplit.driverCount = 16 - count;
     for (i = 0; i < count; i++)
         g_stageDriverSlot[i] = 15 - i;
     for (i = 1; i <= Stage_GetSplitPositionCount(); i++)
-        g_stageSplitDriverCount[i] = g_unk0x00541f98;
+        g_stageSplitDriverCount[i] = g_stageSplit.driverCount;
 }
 
 // GLOBAL: CMR2 0x0051a14c
@@ -295,14 +294,14 @@ void StageTiming_PairPlayerOpponentSlots(void)
         pSlot = slots;
         for (; i < 16; i++) {
             id = RallyTiming_GetOverallPositionDriverID(i);
-            if (id >= g_unk0x00541f98) {
+            if (id >= g_stageSplit.driverCount) {
                 slot = 15 - id;
                 *pSlot++ = slot;
                 g_stageSplitUnk0x00541f78[slot][0] = (char)id;
                 g_stageSplitUnk0x00541f78[slot][1] = 16;
             }
         }
-        remaining = g_unk0x00541f98;
+        remaining = g_stageSplit.driverCount;
         left = players;
         pos = 15;
         pSlot = &slots[players - 1];
@@ -310,13 +309,13 @@ void StageTiming_PairPlayerOpponentSlots(void)
             if (left <= 0)
                 break;
             id = RallyTiming_GetOverallPositionDriverID(pos);
-            if (id >= g_unk0x00541f98) {
+            if (id >= g_stageSplit.driverCount) {
                 slot = 15 - id;
                 if (g_stageSplitUnk0x00541f78[slot][1] == 16) {
                     k = pos;
                     do
                         id = RallyTiming_GetOverallPositionDriverID(--k);
-                    while (id >= g_unk0x00541f98 || used[id] != 0);
+                    while (id >= g_stageSplit.driverCount || used[id] != 0);
                     left--;
                     g_stageSplitUnk0x00541f78[slot][1] = (char)id;
                     used[id] = 1;
@@ -531,7 +530,7 @@ void StageTiming_Reset(void)
     int i;
 
     memset(g_stageDriverSlot, 0, sizeof(g_stageDriverSlot));
-    g_unk0x00541f98 = 16;
+    g_stageSplit.driverCount = 16;
     for (iSplit = 0; iSplit < 10; iSplit++)
     {
         for (i = 0; i < 16; i++)
@@ -584,24 +583,24 @@ void StageTiming_RebuildSplitPositions(void)
     int t;
 
     iSplit = GetStageSplitCount();
-    for (i = 0; i < g_unk0x00541f98; i++) {
+    for (i = 0; i < g_stageSplit.driverCount; i++) {
         d = g_stageSplitDriverIndices[iSplit][i];
         aiDriverForSlot[g_stageSplitTimesRawDriverIx[iSplit][i]] = d;
         g_stageSplitPositions[iSplit][d] = i;
     }
-    for (i = g_unk0x00541f98; i < 16; i++) {
+    for (i = g_stageSplit.driverCount; i < 16; i++) {
         g_stageSplitDriverIndices[iSplit][i] = i;
         g_stageSplitPositions[iSplit][i] = i;
     }
 
     for (s = 1; s < iSplit; s++) {
         p = g_stageSplitDriverIndices[s];
-        for (i = 0; i < g_unk0x00541f98; i++) {
+        for (i = 0; i < g_stageSplit.driverCount; i++) {
             d = aiDriverForSlot[g_stageSplitTimesRawDriverIx[s][i]];
             p[i] = d;
             g_stageSplitPositions[s][d] = i;
         }
-        for (i = g_unk0x00541f98; i < 16; i++) {
+        for (i = g_stageSplit.driverCount; i < 16; i++) {
             p[i] = i;
             g_stageSplitPositions[s][i] = i;
         }
@@ -750,7 +749,7 @@ BOOL Replay_ReleaseStageBuffers(void)
     // 0x588ea0 in the original (g_unk0x00588ea0, the next global).
     } while ((INT_PTR)p < (INT_PTR)(g_replayStreams + 8));
     g_unk0x00588d3c = 0;
-    g_unk0x00588d14 = 0;
+    g_replayLevelState.bufferCount = 0;
     return TRUE;
 }
 
@@ -1182,7 +1181,7 @@ int StageTiming_FreeViewWeatherRecords(void)
         CFileBuffer::FreeGenericFileBuffer(g_viewLightingRamps);
         g_viewLightingRamps = NULL;
     }
-    g_unk0x00547acc = 0;
+    g_stageObjectCount.value = 0;
     return 1;
 }
 
@@ -1192,7 +1191,7 @@ void StageTiming_AllocateViewWeatherRecords(int count)
     g_viewWeather = (ViewWeatherState *)CFileBuffer::AllocateLockedBuffer(count * sizeof(ViewWeatherState));
     g_carSurfaceRamps = (CarSurfaceRamp *)CFileBuffer::AllocateLockedBuffer(count * sizeof(CarSurfaceRamp));
     g_viewLightingRamps = (ViewLightingRamp *)CFileBuffer::AllocateLockedBuffer(count * sizeof(ViewLightingRamp));
-    g_unk0x00547acc = (BYTE)count;
+    g_stageObjectCount.value = (BYTE)count;
     CGame::RegisterCallback(StageTiming_FreeViewWeatherRecords, NULL);
 }
 
@@ -4107,7 +4106,7 @@ void StageTiming_SetSecondaryObjectRamp(int v1, int v2, int from, int to)
         g_lightingBlendRouteScale = FixDiv(0x10000, g_lightingBlendRouteScale);
     g_lightingBlendRouteScale = FixMul(g_lightingBlendRouteScale, g_lightingBlendTo - g_lightingBlendFrom);
     i = 0;
-    if (g_unk0x00547acc > 0) {
+    if (g_stageObjectCount.value > 0) {
     do {
         p = &g_viewLightingRamps[i];
         p->lastRoutePosition = 0;
@@ -4396,7 +4395,7 @@ void StageTiming_InsertDriverSplitRanking(int driver, int hundredths, int split)
     int i;
     int c;
 
-    if (driver < g_unk0x00541f98)
+    if (driver < g_stageSplit.driverCount)
         slot = g_unk0x00541f90[StageUI_GetRaceEndEventCount() & 0xff];
     else
         slot = driver;
@@ -4510,7 +4509,7 @@ void StageTiming_RandomizeComputerTimes(int *pTimes)
         r = (unsigned int)FTOI(__int64, X87S_MUL(rand(), CGraphics::m_65536));
         *p += FixMul(FixDiv(r, 0x7fff0000), -low - high) + low;
     }
-    RallyTiming_SortOrder(pTimes, g_stageSplitDriverIndices[split], 0, g_unk0x00541f98, 1);
+    RallyTiming_SortOrder(pTimes, g_stageSplitDriverIndices[split], 0, g_stageSplit.driverCount, 1);
 }
 
 extern int g_splitPositions[12];
@@ -4616,7 +4615,7 @@ void StageTiming_SetThirdObjectRamp(int v1, int v2, int from, int to)
         g_surfaceBlendRouteScale = FixDiv(0x10000, g_surfaceBlendRouteScale);
     g_surfaceBlendRouteScale = FixMul(g_surfaceBlendRouteScale, g_surfaceBlendTo - g_surfaceBlendFrom);
     i = 0;
-    if (g_unk0x00547acc > 0) {
+    if (g_stageObjectCount.value > 0) {
     do {
         p = &g_carSurfaceRamps[i];
         p->lastRoutePosition = 0;
@@ -8934,7 +8933,7 @@ void StageTiming_BuildAndSortCPUSplitTimes(StageTimingSpread *pTimes)
         pOrder = g_stageSplitTimesRawDriverIx[0];
         i = n + 1;
         do {
-            RallyTiming_SortOrder(pSplit, pOrder, 1, g_unk0x00541f98, 1);
+            RallyTiming_SortOrder(pSplit, pOrder, 1, g_stageSplit.driverCount, 1);
             pOrder += 0x10;
             pSplit += 0x10;
             i--;

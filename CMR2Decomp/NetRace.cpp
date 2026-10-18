@@ -84,7 +84,7 @@ int NetRace_GetPlayerStatisticsValue(int index)
 // FUNCTION: CMR2 0x00427640
 void NetRace_SetRaceControlFlag(BYTE param1)
 {
-    g_unk0x00539cc8 = param1;
+    g_netTriangleState.enabled = param1;
 }
 
 // FUNCTION: CMR2 0x00427650
@@ -135,7 +135,7 @@ void NetRace_DispatchRacePacket(DWORD *pId, BYTE *pPacket)
 {
     switch (pPacket[0]) {
     case 0xb:
-        if (g_unk0x00539cc8 != 0) {
+        if (g_netTriangleState.enabled != 0) {
             NetPlayers_ReceiveStatistics(pId, (NetStats *)(pPacket + 2));
             return;
         }
@@ -830,12 +830,12 @@ void NetRace_PackListedCars(Car *base, short *pIndices, short count)
 {
     int i;
 
-    if (g_unk0x00539cc8 != 0) {
+    if (g_netTriangleState.enabled != 0) {
         for (i = (int)count - 1; i >= 0; i--) {
             Car *pCar = base + pIndices[i];
 
             if (pCar->field_0xc1c == 0 &&
-                (NetRace_PackCarState(pCar), g_unk0x00539cc8 != 0))
+                (NetRace_PackCarState(pCar), g_netTriangleState.enabled != 0))
                 NetRace_SendLocalCarState(&g_localCarStats);
         }
     }
@@ -1187,7 +1187,7 @@ int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
     int i;
 
     diff = (int)(unsigned short)g_localCarStats.seq - (int)pRec->lastSeq;
-    if (diff > 0 && g_unk0x00539cc8 != 0 && diff < 100 &&
+    if (diff > 0 && g_netTriangleState.enabled != 0 && diff < 100 &&
         (unsigned short)g_localCarPacket.sector < (unsigned int)g_sectorCount) {
         pRec->updated = 1;
         pRec->seq = g_localCarStats.seq;
@@ -1305,7 +1305,7 @@ void NetRace_ReceiveAndIntegrateListedCars(Car *pCars, short *pIndices, short co
     int progress;
     int i;
 
-    if (g_unk0x00539cc8 == 0) {
+    if (g_netTriangleState.enabled == 0) {
         progress = (RallyData_GetCarRaceRecordField10(Car_Get(0)) * 100) >> 16;
         NetPlayers_RebuildStageResults(StageTiming_GetCheckpointField0(0), progress, StageTiming_GetCheckpointField2(0));
         return;
