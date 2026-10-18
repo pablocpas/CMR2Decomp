@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "fef37bf866a47da82c6780a6a2ba949918541882",
+    "commit": "78b4ecaf7a511fef9a7efa154c623651e0ea033f",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -56,7 +56,7 @@
       "CMR2Decomp/CallbackState.h": "bdcea074ac9af71d50c7f59b05e197df891b344efbf257bb8ac86e6b632a1749",
       "CMR2Decomp/Car.cpp": "44a238e3ab86fb17de8f0e97977652ecf4d615f9ac981b9ccf5f6905b66ed0d7",
       "CMR2Decomp/Car.h": "8cf02d5ab230dc8c2fbf07e8c28eaf0964bbde4cf4cab4dffe17074fda133af7",
-      "CMR2Decomp/CarEffects.cpp": "7d185067a91e691c60e6a1d4bdd5494beb8a92e8262f74ba2baa0597650dea7c",
+      "CMR2Decomp/CarEffects.cpp": "166ce3779f16e852aac6f14e57f8f01d34b9c6d2c762b4b6d0e44cecf85cf61f",
       "CMR2Decomp/CarExhaust.h": "2f51d0a245b1da6a98dc0a1152098b0c9dce08b33b29d0459feb77328a9207dc",
       "CMR2Decomp/CarImpact.h": "1800bc27ccd9f5c0ea2398977c5ae92c33ff8ad44084d687cb711e0a67c795db",
       "CMR2Decomp/CarInfo.h": "3c677f96cb8c0c97bf56c33151505283e3453be93448f64c77e99f463f6d456a",
@@ -69,7 +69,7 @@
       "CMR2Decomp/CascadeCallbacks.cpp": "a14e3a3405f956dd001d4f8e11eb1a9aa8963c12f8a713d995a81fe21db4cfd8",
       "CMR2Decomp/CascadeSeedDeps.cpp": "bfa2c3ab6259ca648c47a9b64e8be6e6660cd0eac0e4c1ca2ba25bc44812603f",
       "CMR2Decomp/CategoryBestResults.h": "601af76aeaba27ce434470d8424ad6335a6a250872682cba1cf9029c4a761400",
-      "CMR2Decomp/ChampionshipDriver.h": "c92cd43e43743ab6ef15c43c09df9a65607647ad21004fddc31ca30feed848aa",
+      "CMR2Decomp/ChampionshipDriver.h": "f4486b8b1cc5ed68e62814fffee734b6577241908e80342258b4c62a198d7adc",
       "CMR2Decomp/Collision2D.cpp": "377c5ab8eee5355372ae4bb9637840d61bc4166a9c350c55f2d78800351cd8db",
       "CMR2Decomp/Collision2D.h": "729a39265771cdff4cf8f75d163ca3f4c70e7edf72b19f763042b84e52a8aeca",
       "CMR2Decomp/CrtTypeInfo.cpp": "4688c2e984b6a872dc2fa61cf81b9bfb8730fb8fe5ed27cb540e2ce095ed1dd2",
@@ -134,7 +134,7 @@
       "CMR2Decomp/RaceCallRecord.h": "e2418ff397371fd73fc5d83fbba8de474bc0f895eb1dfac5792127d8e6afd8c2",
       "CMR2Decomp/RaceCallbackStorage.h": "d540cbe431446daef4724e15b0f10f3702e8e50b8c87bcd04ff5bc1dd3a8d593",
       "CMR2Decomp/RaceRecord.h": "c86bd8aa45d6828375fee1fd908f60608b85e9b48a7416f8208b209fe98c3453",
-      "CMR2Decomp/RallyData.cpp": "c3d770031571031b88c5113239fb01e35cd3ea7983d7132ef736fa6e90f4a508",
+      "CMR2Decomp/RallyData.cpp": "97800b8ba56cefbb382cc7c4d93caa0eaeb6f231e310b803a687fbfc97035c51",
       "CMR2Decomp/RallyData.h": "a5cf7a0fdaa66f84fb0c9596fa1b51a2c045b3db3971879b0b816ad42d971bad",
       "CMR2Decomp/RallyRoute.cpp": "df3ed62600e6eb725c5087acd8f5adb862ceb1a1625a233d6bf824efe7359da6",
       "CMR2Decomp/RallyRoute.h": "9bbc6d4afbd246b8868dbaf3bad135fc3d8005fedb81826c6dc6ac7d66cd4abd",
@@ -145,7 +145,7 @@
       "CMR2Decomp/RegKey.h": "cb2934244f3e58e032b9644f58ea83230965ed366c7000fb4690ef50d5bb62c4",
       "CMR2Decomp/ReplayStream.h": "73572a5d932cc2bd8906dc0333ef922e7121a7377ce0896d11cf476517aff27b",
       "CMR2Decomp/SavedGame.cpp": "1a7f109d0777a4c64c81b08038762b8c1a50a59efb87e2377e0d9648ddeb0eb1",
-      "CMR2Decomp/SavedGame.h": "c1dab8ed8852af99ae9ecd5fbf267f44e9db1f4dcd722d5ca406b147a0ebf821",
+      "CMR2Decomp/SavedGame.h": "7d21bbe4672b45cd63ae8d4bfa91cb31c16322ae5d417041a9bfffbe0c37abb3",
       "CMR2Decomp/SceneNode.cpp": "de514616c566967a3dfa25b38237c122ef745d73c7badd722fdf1d95593fedca",
       "CMR2Decomp/SceneNode.h": "36cb89b89381d06e4af832f582f32fcdee9f90502e826a7870c48ebbcc25c22a",
       "CMR2Decomp/Sector.cpp": "5ec8a96fb98b5d7da6122373890d26676782491ed1eea34f7fd1d7f4a7a149cc",
@@ -165,7 +165,7 @@
       "CMR2Decomp/StageObjects.cpp": "487d4f4236c6442df91174cbaf2f2677066a942e3e4f062f581ac0e6ede1c6ab",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "badac490a220da4c871e2e9fa21e80035df9f7dacf04454aae4f84b427612986",
-      "CMR2Decomp/StageTiming.cpp": "f39fea28176973a06fcad4d7cb0c55657f40566d73515e6f1a3aeb79f6dc0d84",
+      "CMR2Decomp/StageTiming.cpp": "4a97cee2403bfe6e832c570107a0f9e6d68d3bbaebc043a9e5d8eeb4e71d60da",
       "CMR2Decomp/StageTiming.h": "e15be88e3746f121f292c6708104871d626bcbe4f85a06b891532acee45665ad",
       "CMR2Decomp/StageTimingSpread.h": "36af19e0df03fc5af5e038804cf927cd111f2796b1e28383abf73447d5496a09",
       "CMR2Decomp/StageUI.cpp": "85d6944c75ef79d24c5f39c472e692c4c88bd2eb8f4413ef62428a8e84e8ffc5",
@@ -181,6 +181,7 @@
       "CMR2Decomp/TrackCollision.cpp": "6b52f8469cd9eacf7aee887e18e526e717da81dc0cb795af3ef6864cc2734664",
       "CMR2Decomp/TrackCollisionData.h": "84be23243800722cd07ff24d57d0bc64e12912f1c3cc6c71112efcad7fbf085b",
       "CMR2Decomp/TrackLighting.cpp": "9b56233302833aba597636badef75f3ec11f9b49e0a53a8bfcd5d236f41aeae9",
+      "CMR2Decomp/TyreWear.h": "f562dada6d87d59c9d2ea3a173dca4858b3a32bec7745f4cd2c783adbd506fae",
       "CMR2Decomp/VehiclePhysics.cpp": "8265e63923783f1107e6ca1dbe63ce108017e49bf14bed2b93ea5e94aa683e53",
       "CMR2Decomp/WheelTrail.cpp": "dfe77badcde6ea688b606ce78a5d3c1b3ea4ac3934cc4b318764934f446461cf",
       "CMR2Decomp/WheelTrail.h": "1d9972aa866c7b133f0868ac11ef87ebd0e0010501b1c470e4a00373510e70d5",
@@ -212,8 +213,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "9ce2ba888838ce70624ac113d95a5e6b6bb1fe75ff2bfb598537b46f6dc5aa5c",
-    "pdb_sha256": "a3fad81173b7af63ba72d8f731128e8e380a474953fb33bc7c731c8bf6e83576"
+    "exe_sha256": "c967f74ca6dccd8fc39efce29e72dd291d2431e016c75082d1b65fdca0e8c95d",
+    "pdb_sha256": "1639b95d0fcef97d6f503948412d6f382e68d6a71005317bffae75ff501dad40"
   },
   "perfect_match_percent": 56.28,
   "fuzzy_match_percent": 94.43,

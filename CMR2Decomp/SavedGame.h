@@ -59,7 +59,7 @@ struct DriverProfile {
     CategoryBestResults bestResults;     // 0x084
     BYTE hudFlags;                       // 0x588, 4/8/0x10/0x20: HUD panels shown
     BYTE reserved2[3];
-    BYTE wear[0xa0];                     // 0x58c, RallyData_GetTyreRecord
+    BYTE wear[0xa0];                     // 0x58c, TyreWear (ChampionshipDriver.h)
     unsigned int medals[2];              // 0x62c, CategoryMedals
     struct {
         int tyreChoice[5];               // 0x634

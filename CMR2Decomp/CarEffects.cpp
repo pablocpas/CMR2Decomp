@@ -1,5 +1,6 @@
 #include "CarInfo.h"
 #include "FloatToInt.h"
+#include "TyreWear.h"
 #include <windows.h>
 #include <stdlib.h>
 #include "Car.h"
@@ -716,7 +717,7 @@ void CarEffects_InitDebris(void)
     } while (pShape < g_debrisShapes[30]);
 }
 
-BYTE *RallyData_GetTyreRecord(BYTE index);
+TyreWear *RallyData_GetTyreRecord(BYTE index);
 void RallyData_MarkTyresChanged(int index);
 BYTE StageUI_GetRaceEndEventCount(void);
 int StageObject_GetCarWeatherRampValue(Car *pCar);
@@ -898,31 +899,28 @@ int WheelSpray_GetEffect(int surface)
 // FUNCTION: CMR2 0x0045c750
 void Tyre_AddWear(int car, int wheel, int damage, int wear)
 {
-    BYTE *pRecord;
-    int *pState;
+    TyreWear *pRecord;
     int i;
 
     pRecord = RallyData_GetTyreRecord(StageUI_GetRaceEndEventCount() + (char)car);
     if (pRecord == NULL)
         return;
-    if (((int *)(pRecord + 0x80))[wheel] < 1000)
-        ((int *)(pRecord + 0x80))[wheel] += damage;
-    if (((int *)(pRecord + 0x60))[wheel] < 1000)
-        ((int *)(pRecord + 0x60))[wheel] += wear;
-    if (((int *)(pRecord + 0x80))[wheel] > ((int *)(pRecord + 0x20))[wheel])
-        ((int *)(pRecord + 0x20))[wheel] = ((int *)(pRecord + 0x80))[wheel];
-    if (((int *)(pRecord + 0x60))[wheel] > ((int *)pRecord)[wheel])
-        ((int *)pRecord)[wheel] = ((int *)(pRecord + 0x60))[wheel];
-    ((int *)(pRecord + 0x90))[wheel] = 0;
-    pState = (int *)(pRecord + 0x90);
-    for (i = 4; i != 0; i--) {
-        if (pState[-4] > 0x32)
-            *pState = 3;
-        if (pState[-0xc] > 0x32)
-            *pState = 1;
-        if (pState[-0xc] > 300)
-            *pState = 2;
-        pState++;
+    if (pRecord->damage[wheel] < 1000)
+        pRecord->damage[wheel] += damage;
+    if (pRecord->wear[wheel] < 1000)
+        pRecord->wear[wheel] += wear;
+    if (pRecord->damage[wheel] > pRecord->peakDamage[wheel])
+        pRecord->peakDamage[wheel] = pRecord->damage[wheel];
+    if (pRecord->wear[wheel] > pRecord->peakWear[wheel])
+        pRecord->peakWear[wheel] = pRecord->wear[wheel];
+    pRecord->state[wheel] = 0;
+    for (i = 0; i < 4; i++) {
+        if (pRecord->damage[i] > 0x32)
+            pRecord->state[i] = 3;
+        if (pRecord->wear[i] > 0x32)
+            pRecord->state[i] = 1;
+        if (pRecord->wear[i] > 300)
+            pRecord->state[i] = 2;
     }
     RallyData_MarkTyresChanged((StageUI_GetRaceEndEventCount() & 0xff) + car);
 }

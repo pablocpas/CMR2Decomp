@@ -52,7 +52,10 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
   same TU; `match.py` reports every function of the TU for that reason. Any
   floating-point code earlier in a TU changes some later integer functions, and
   even declaring an unused inline function in a shared header moved code in
-  other TUs. The original has ~193 C++ objects (Rich header); a function that
+  other TUs. Any new struct defined in SavedGame.h (the first include of
+  GameInfo.cpp), or a sixteenth member of DriverProfile, flips an addition in
+  OptionMenu_DrawResultsRallyInfo: put new save-data types in
+  ChampionshipDriver.h / TyreWear.h. The original has ~193 C++ objects (Rich header); a function that
   only matches in a different neighbourhood can move to its own TU with
   `scripts/split_tu.py` (OptionMenuRows.cpp).
 

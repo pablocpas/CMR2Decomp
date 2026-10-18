@@ -2092,7 +2092,7 @@ BYTE *RallyData_GetDriverKnockoutOrTeamRecord(BYTE index)
 
 // Tyre record of a driver (NULL for the ghost cars of the time trials).
 // FUNCTION: CMR2 0x00408a60
-BYTE *RallyData_GetTyreRecord(BYTE index)
+TyreWear *RallyData_GetTyreRecord(BYTE index)
 {
     unsigned int category;
 
@@ -2102,11 +2102,11 @@ BYTE *RallyData_GetTyreRecord(BYTE index)
             return NULL;
     }
     if (CGameInfo::GetConfiguredGameMode() == 4)
-        return g_saveCarRecords[index].wear;
+        return &g_saveCarRecords[index].wear;
     RallyData_ValidateIndex(index);
     category = g_saveSlots[index].category;
     if (category != 0xf)
-        return g_saveProfiles[category].wear;
+        return (TyreWear *)g_saveProfiles[category].wear;
     return NULL;
 }
 

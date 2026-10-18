@@ -1,5 +1,6 @@
 #include "AIReferenceRoute.h"
 #include "FloatToInt.h"
+#include "TyreWear.h"
 #include "StageObjectCount.h"
 #include "StageTimingSpread.h"
 #include "StageBlock.h"
@@ -3156,17 +3157,17 @@ void StageTiming_ForceWheelTrailSurface(int car, int surface)
 }
 
 BYTE StageUI_GetRaceEndEventCount(void);
-BYTE *RallyData_GetTyreRecord(BYTE index);
+TyreWear *RallyData_GetTyreRecord(BYTE index);
 
 // Value `index` of the tyre record `offset` places after the current one.
 // FUNCTION: CMR2 0x0045c720
 int StageTiming_GetRelativeTyreRecordValue(char offset, int index)
 {
-    BYTE *pRecord;
+    TyreWear *pRecord;
 
     pRecord = RallyData_GetTyreRecord((BYTE)(StageUI_GetRaceEndEventCount() + offset));
     if (pRecord != NULL)
-        return *(int *)(pRecord + 0x90 + index * 4);
+        return pRecord->state[index];
     return 0;
 }
 
@@ -3530,7 +3531,7 @@ void StageTiming_AdvancePlayerHalfLapCounter(int player, int *pCount, int *pFrac
     }
 }
 
-BYTE *RallyData_GetTyreRecord(BYTE index);
+TyreWear *RallyData_GetTyreRecord(BYTE index);
 void RallyData_MarkTyresChanged(int index);
 void Tyre_AddWear(int car, int wheel, int damage, int wear);
 
@@ -3538,18 +3539,18 @@ void Tyre_AddWear(int car, int wheel, int damage, int wear);
 // FUNCTION: CMR2 0x0045c6b0
 void StageTiming_ResetWheelWearRecord(int player, int wheel)
 {
-    BYTE *p = RallyData_GetTyreRecord((BYTE)(StageUI_GetRaceEndEventCount() + player));
+    TyreWear *p = RallyData_GetTyreRecord((BYTE)(StageUI_GetRaceEndEventCount() + player));
 
     if (p != NULL) {
-        *(int *)(p + 0x80 + wheel * 4) = 0;
-        *(int *)(p + 0x60 + wheel * 4) = 0;
-        *(int *)(p + 0x70 + wheel * 4) = 0;
-        *(int *)(p + 0x20 + wheel * 4) = 0;
-        *(int *)(p + wheel * 4) = 0;
-        *(int *)(p + 0x10 + wheel * 4) = 0;
-        *(int *)(p + 0x50 + wheel * 4) = 0;
-        *(int *)(p + 0x40 + wheel * 4) = 0;
-        *(int *)(p + 0x30 + wheel * 4) = 0;
+        p->damage[wheel] = 0;
+        p->wear[wheel] = 0;
+        p->wear2[wheel] = 0;
+        p->peakDamage[wheel] = 0;
+        p->peakWear[wheel] = 0;
+        p->peakWear2[wheel] = 0;
+        p->savedDamage[wheel] = 0;
+        p->savedWear[wheel] = 0;
+        p->savedWear2[wheel] = 0;
         RallyData_MarkTyresChanged((StageUI_GetRaceEndEventCount() & 0xff) + player);
         Tyre_AddWear(player, wheel, 0, 0);
     }
@@ -3827,13 +3828,16 @@ void CarTyres_CommitPlayerWear(int a, int b, int count)
 {
     int i;
     int j;
-    BYTE *pRecord;
+    TyreWear *pRecord;
     int *w;
 
+    // The original walks the wheels with a pointer into savedDamage:
+    // w[-0x14] peakWear, w[-0x10] peakWear2, w[-0xc] peakDamage,
+    // w[-8] savedWear2, w[-4] savedWear, w[4] wear, w[8] wear2, w[0xc] damage.
     for (i = 0; i < count; i++) {
         pRecord = RallyData_GetTyreRecord((BYTE)(StageUI_GetRaceEndEventCount() + i));
         if (pRecord != NULL) {
-            w = (int *)(pRecord + 0x50);
+            w = pRecord->savedDamage;
             for (j = 0; j < 4; j++, w++) {
                 if (a == 0 && b == 0) {
                     w[0] = w[-0xc];

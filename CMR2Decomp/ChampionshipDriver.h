@@ -5,6 +5,7 @@
 #include <windows.h>
 
 #include "SavedGame.h"
+#include "TyreWear.h"
 
 // One championship driver entry (CMR2 0x0052f3e0, eight of them), used
 // instead of the driver's profile in game mode 4. Kept out of SavedGame.h:
@@ -16,7 +17,7 @@ struct ChampionshipDriver {
     BYTE flags;                          // 0x0c, bit 0 entered, bit 1 edited
     BYTE hudFlags;                       // 0x0d, as DriverProfile::hudFlags
     BYTE reserved[2];
-    BYTE wear[0xa0];                     // 0x10, as DriverProfile::wear
+    TyreWear wear;                       // 0x10, as DriverProfile::wear
     int tyreChoice[5];                   // 0xb0
 };
 
