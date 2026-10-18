@@ -79,6 +79,7 @@ struct StageLightPreset {
     int fogStart;           // 0x14
     int fogEnd;             // 0x18
     BYTE colour[11][4];     // 0x1c
+    BYTE colourCorrection[6]; // 0x48, averaged into the CGraphics colour byte/scale/bias settings
 };
 
 // One expanded weather lighting preset (0xb4 bytes). RGB channels are

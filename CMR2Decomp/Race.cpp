@@ -652,7 +652,7 @@ BYTE *GameMenu_GetChampionshipTransitionState(void);
 int Graphics_ReserveCubeMapsAndLoadEnvironment(char *name, int count, GenericFile *pFile, DWORD size);
 void StageTiming_InitRaceDriverRecords(char);
 void Scene_InitLighting(int *pData, int *pHeights);
-struct StageLightPreset;
+#include "StageWeather.h"
 void StageObject_SetLighting(const StageLightPreset *pPrimary, const StageLightPreset *pSecondary);
 void RallyData_DrawLoadingProgress(int progress, char drawScene, BYTE alpha);
 void Race_ResolveStageTexturesAndPalettes(void);
@@ -681,8 +681,8 @@ void StageObject_ForwardSessionUpdate(void);
 void RallyData_RebuildSectorStaticObjectTables(void);
 void NetRace_ResetPlayerFadeStates(void);
 extern char g_tgaSuffix[];
-extern BYTE *g_stageLightPresetSecondary;
-extern BYTE *g_stageLightPresetPrimary;
+extern StageLightPreset *g_stageLightPresetSecondary;
+extern StageLightPreset *g_stageLightPresetPrimary;
 
 // GLOBAL: CMR2 0x0051946c
 char g_str0x0051946c[] = "%s.xhi";
@@ -764,7 +764,7 @@ BYTE Race_LoadSelectedStage(void)
     StageTiming_InitRaceDriverRecords(1);
     StageObject_ForwardSessionUpdate();
     RallyData_DrawLoadingProgress(0x3c, 1, 0xff);
-    StageObject_SetLighting((const StageLightPreset *)g_stageLightPresetPrimary, (const StageLightPreset *)g_stageLightPresetSecondary);
+    StageObject_SetLighting(g_stageLightPresetPrimary, g_stageLightPresetSecondary);
     RallyData_RebuildSectorStaticObjectTables();
     NetRace_ResetPlayerFadeStates();
     return 1;
@@ -4191,9 +4191,9 @@ unsigned short RallyData_GetPrimaryStageScoreScale(void);
 unsigned short RallyData_GetSecondaryStageScoreScale(void);
 void RallyData_SetSelectionFlag20(unsigned int param1);
 void StageTiming_CreateWhiteStageLight(void);
-void StageObject_BlendSettingPairRecords(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, BYTE **pPrimary,
-                  BYTE **pSecondary);
-void StageObject_SetPairSpeedLimits(BYTE *pA, BYTE *pB);
+void StageObject_BlendSettingPairRecords(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, StageLightPreset **pPrimary,
+                  StageLightPreset **pSecondary);
+void StageObject_SetPairSpeedLimits(StageLightPreset *pA, StageLightPreset *pB);
 
 
 // GLOBAL: CMR2 0x005196dc
@@ -4344,9 +4344,9 @@ char g_str0x005194a8[12] = "2400BLI.hor";
 // The two time-of-day lighting presets (.hor files) the stage lighting
 // blends, picked from the 48 resolved preset files.
 // GLOBAL: CMR2 0x00538234
-BYTE *g_stageLightPresetSecondary;
+StageLightPreset *g_stageLightPresetSecondary;
 // GLOBAL: CMR2 0x00538238
-BYTE *g_stageLightPresetPrimary;
+StageLightPreset *g_stageLightPresetPrimary;
 
 // Resolves the 48 stage texture names through the generic file loader, builds
 // the six palette entries of the stage geometry from the primary/secondary
@@ -4357,8 +4357,8 @@ void Race_ResolveStageTexturesAndPalettes(void)
     char *pNames[48];
     BYTE *handles[48];
     BYTE colour[6];
-    BYTE *pPrimary;
-    BYTE *pSecondary;
+    StageLightPreset *pPrimary;
+    StageLightPreset *pSecondary;
     int i;
     int avg;
 
@@ -4420,7 +4420,7 @@ void Race_ResolveStageTexturesAndPalettes(void)
         pPrimary = g_stageLightPresetSecondary;
         pSecondary = g_stageLightPresetPrimary;
         for (i = 0; i < 6; i++) {
-            avg = ((int)pSecondary[0x48 + i] + (int)pPrimary[0x48 + i]) / 2;
+            avg = ((int)pSecondary->colourCorrection[i] + (int)pPrimary->colourCorrection[i]) / 2;
             if (avg > 0xff)
                 avg = 0xff;
             colour[i] = (BYTE)avg;

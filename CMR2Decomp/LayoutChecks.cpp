@@ -316,7 +316,7 @@ CMR2_LAYOUT_CHECK(WeatherWindTransitionSizeCheck, sizeof(WeatherWindTransition) 
 CMR2_LAYOUT_CHECK(WeatherWindTransition_targetStrengthOffsetCheck, offsetof(WeatherWindTransition, targetStrength) == 0x0);
 CMR2_LAYOUT_CHECK(WeatherWindTransition_changeRateOffsetCheck, offsetof(WeatherWindTransition, changeRate) == 0x4);
 CMR2_LAYOUT_CHECK(WeatherWindTransition_holdTimeOffsetCheck, offsetof(WeatherWindTransition, holdTime) == 0x8);
-CMR2_LAYOUT_CHECK(StageLightPresetSizeCheck, sizeof(StageLightPreset) == 0x48);
+CMR2_LAYOUT_CHECK(StageLightPresetSizeCheck, offsetof(StageLightPreset, colourCorrection) == 0x48);
 CMR2_LAYOUT_CHECK(StageLightPreset_meshHeightParametersOffsetCheck, offsetof(StageLightPreset, meshHeightParameters) == 0x0);
 CMR2_LAYOUT_CHECK(StageLightPreset_field_0xcOffsetCheck, offsetof(StageLightPreset, field_0xc) == 0xc);
 CMR2_LAYOUT_CHECK(StageLightPreset_sunIconSizeOffsetCheck, offsetof(StageLightPreset, sunIconSize) == 0x10);

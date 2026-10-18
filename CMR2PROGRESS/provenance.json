@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "207f0f66e3896bcde93650ded554ec90d2eb7f22",
+    "commit": "9b727c92a8df054ff61fa6af563fb8e5914b8198",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -109,7 +109,7 @@
       "CMR2Decomp/Input.h": "6c8ce64e581da4f84e04af836ec4276d106ed118b58ddd8521fff3d05eeacb8c",
       "CMR2Decomp/InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
       "CMR2Decomp/InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
-      "CMR2Decomp/LayoutChecks.cpp": "7fad179c08b241e8f845071e4c3924c65e9942f9973fb482ff2fac467398a0fe",
+      "CMR2Decomp/LayoutChecks.cpp": "824bca81e5602d9269a4fb3d4b830bc98b91a598cfd8ccc13d61f453e6ad5878",
       "CMR2Decomp/LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
       "CMR2Decomp/LightZone.h": "61ede4fe7c41bff3944aaef341f31848c7eb9eb0e8ed8b2c7842633d5f626deb",
       "CMR2Decomp/Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
@@ -132,7 +132,7 @@
       "CMR2Decomp/PauseMenus.h": "cb2bfa8ccb4eb55803c9f342c57c211286a80aa93e02bbdabcc690bd2db6a774",
       "CMR2Decomp/PrecipitationQuad.h": "c96e38658a320049bb9500e3e48e3f5002d0dbdd87cd72a47db6d4cd225247c6",
       "CMR2Decomp/ProfileEventResults.h": "78ccc7f0196b01ec711d818658db48623372d682fd76fe4d6f919a1019a76a7b",
-      "CMR2Decomp/Race.cpp": "cd9f05f711492a6e6d34139766e36cc7d0790a60e3d1be7da20fde6eb4ee8039",
+      "CMR2Decomp/Race.cpp": "c6a412d8728c7533e6a9c2b3db635d5cf9930d30f011c09f92c5447b98fa57e0",
       "CMR2Decomp/RaceCallRecord.h": "e2418ff397371fd73fc5d83fbba8de474bc0f895eb1dfac5792127d8e6afd8c2",
       "CMR2Decomp/RaceCallbackStorage.h": "d540cbe431446daef4724e15b0f10f3702e8e50b8c87bcd04ff5bc1dd3a8d593",
       "CMR2Decomp/RaceRecord.h": "c86bd8aa45d6828375fee1fd908f60608b85e9b48a7416f8208b209fe98c3453",
@@ -164,7 +164,7 @@
       "CMR2Decomp/Stage.h": "4a75c6c0ce11b7ac1fa616ed12e7c7931d3e23ab12a678370ac800ef700f04cd",
       "CMR2Decomp/StageBlock.h": "d93b2676f2bece5160e17869fbca83e4e9bfb00d41107006b291a9e3c692f1f1",
       "CMR2Decomp/StageObjectCount.h": "0bcacf7fe5189f2978ab6e6fab0fc7ba8968c82a8ef7c3b4710f4bfa142a48da",
-      "CMR2Decomp/StageObjects.cpp": "b4ee3c3ed3be3ef149df6fd45913fc782459a0292b77a9d6500b8309c1188116",
+      "CMR2Decomp/StageObjects.cpp": "b6546732b842dd8c5e6178bd09fd9feec7d11a669fc951a3fd3eddc9c2467697",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "badac490a220da4c871e2e9fa21e80035df9f7dacf04454aae4f84b427612986",
       "CMR2Decomp/StageTiming.cpp": "d55d9d704e55eb90c4086d84563221db33c46bf36037588abdffa31cc2ad9cdc",
@@ -172,7 +172,7 @@
       "CMR2Decomp/StageTimingSpread.h": "36af19e0df03fc5af5e038804cf927cd111f2796b1e28383abf73447d5496a09",
       "CMR2Decomp/StageUI.cpp": "85d6944c75ef79d24c5f39c472e692c4c88bd2eb8f4413ef62428a8e84e8ffc5",
       "CMR2Decomp/StageUI.h": "86689b7eab80f84872753c8aff17b0e47a9e25441ef3091b976dca7150f3a52b",
-      "CMR2Decomp/StageWeather.h": "29941250ba41afaa63578e0c91a2835998339b9302bcd12a7717787984219dc1",
+      "CMR2Decomp/StageWeather.h": "69dee7cbfae5a2407f5503c3cf0716927c84c6042b6080cbd6432c101c8c7e43",
       "CMR2Decomp/StageWeatherParticle.h": "bc58dc39786b7226607aa6dd7779ad3198afa98c4620eb7228436c5573682bdf",
       "CMR2Decomp/SurfaceTypes.cpp": "ca2ae04d4db2545eb2e1711cb275a187d0c465abe980072672ca4dc4ce31d6fc",
       "CMR2Decomp/SurfaceTypes.h": "1c81086631cfd2493e9c5a4af7da66e1d02417ed38b7628c7a1e1a986d52e8e7",
@@ -215,8 +215,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "f8792b0ea37faf801c4f0d20bdbbc7a43c7a81448af5cec03abb0b9359a358e9",
-    "pdb_sha256": "7422c25a686bdeb50d81a43e97fd62d9174e7d9cff4b83ee1015463b1fba251d"
+    "exe_sha256": "63b9569bd2fe0314e9626c9fb8517b57b862842d2c07b50c87c1bd303f419dcf",
+    "pdb_sha256": "275a161e4922dfc74c652e818ff0945ad8a0f1ea0d8652fc8bd7bbab9180c423"
   },
   "perfect_match_percent": 56.28,
   "fuzzy_match_percent": 94.44,

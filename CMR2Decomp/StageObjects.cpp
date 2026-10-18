@@ -64,9 +64,9 @@ void StageObject_SetLighting(const StageLightPreset *pPrimary, const StageLightP
 int StageObject_BlendClampedByteValues(BYTE a, BYTE b, int t);
 void StageObject_InterpolateFrameRecord(BYTE *out, BYTE *from, BYTE *to, int t);
 BYTE *StageObject_BlendTimeOfDayRecord(unsigned short timeOfDay, int slot, BYTE **records);
-void StageObject_BlendSettingPairRecords(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, BYTE **pPrimary, BYTE **pSecondary);
-void StageObject_SetPairSpeedLimits(BYTE *pA, BYTE *pB);
-void StageObject_SetTypeDifficultySpeedLimit(BYTE *pObject, int type);
+void StageObject_BlendSettingPairRecords(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, StageLightPreset **pPrimary, StageLightPreset **pSecondary);
+void StageObject_SetPairSpeedLimits(StageLightPreset *pA, StageLightPreset *pB);
+void StageObject_SetTypeDifficultySpeedLimit(StageLightPreset *pPreset, int type);
 void StageObject_InterpolateSecondaryRampRecords(int t);
 void StageObject_RebuildViewWeatherLighting(int index);
 void StageObject_AverageWheelGroundLighting(unsigned int param_1, int param_2);
@@ -6137,24 +6137,24 @@ int g_unk0x0051b114[9] = { 0, 0, 0, 0x6666, 0x8000, 0x9999, 0x6666, 0x8000, 0x99
 // Speed limits of a stage object: fixed in some stages, else scaled by the
 // difficulty and the object's type factor.
 // FUNCTION: CMR2 0x00461b30
-void StageObject_SetTypeDifficultySpeedLimit(BYTE *pObject, int type)
+void StageObject_SetTypeDifficultySpeedLimit(StageLightPreset *pPreset, int type)
 {
     unsigned int speed;
 
-    *(int *)(pObject + 0x14) = 0;
-    *(int *)(pObject + 0x18) = 0;
+    pPreset->fogStart = 0;
+    pPreset->fogEnd = 0;
     speed = (CGameInfo::GetGraphicsOptionBits21To24() + 2) * 0x320000;
     if (*RallyData_GetDriverPairRecord(RallyDataStageIndex()) != 0) {
-        *(int *)(pObject + 0x14) = 0xf0000;
-        *(int *)(pObject + 0x18) = 0x500000;
+        pPreset->fogStart = 0xf0000;
+        pPreset->fogEnd = 0x500000;
         return;
     }
     if (g_unk0x0051b114[type] != 0)
-        *(int *)(pObject + 0x18) = FixDiv(speed, g_unk0x0051b114[type]);
+        pPreset->fogEnd = FixDiv(speed, g_unk0x0051b114[type]);
 }
 
 int *RallyData_GetDriverSettingPair(int index);
-void StageObject_SetTypeDifficultySpeedLimit(BYTE *pObject, int type);
+void StageObject_SetTypeDifficultySpeedLimit(StageLightPreset *pPreset, int type);
 
 // Time of day steps (mm*100+ss, 500 = 05:00) that bound the twelve stage object
 // record columns.
@@ -6280,21 +6280,21 @@ BYTE *StageObject_BlendTimeOfDayRecord(unsigned short timeOfDay, int slot, BYTE 
 // pointers: the primary from the first setting's time of day, the secondary
 // from the second one.
 // FUNCTION: CMR2 0x00461a30
-void StageObject_BlendSettingPairRecords(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, BYTE **pPrimary, BYTE **pSecondary)
+void StageObject_BlendSettingPairRecords(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, StageLightPreset **pPrimary, StageLightPreset **pSecondary)
 {
     BYTE *pObjectPrimary;
     BYTE *pObjectSecondary;
 
     pObjectPrimary = StageObject_BlendTimeOfDayRecord(timePrimary, 0, records);
     pObjectSecondary = StageObject_BlendTimeOfDayRecord(timeSecondary, 1, records);
-    *pPrimary = pObjectPrimary;
-    *pSecondary = pObjectSecondary;
+    *pPrimary = (StageLightPreset *)pObjectPrimary;
+    *pSecondary = (StageLightPreset *)pObjectSecondary;
 }
 
 // Sets the speed limits of the two stage objects of a pair from the stage's
 // setting pair; a stopped one takes over the other's limit.
 // FUNCTION: CMR2 0x00461a70
-void StageObject_SetPairSpeedLimits(BYTE *pA, BYTE *pB)
+void StageObject_SetPairSpeedLimits(StageLightPreset *pA, StageLightPreset *pB)
 {
     int *pPair;
     int a;
@@ -6307,30 +6307,30 @@ void StageObject_SetPairSpeedLimits(BYTE *pA, BYTE *pB)
         b = pPair[1];
         if (a == 1) {
             if (b != 0 && b != 1)
-                pA[0x2f] = 0x32;
+                pA->colour[4][3] = 0x32;
             else
-                pA[0x2f] = 200;
+                pA->colour[4][3] = 200;
         }
         if (b == 1) {
             if (a != 0 && a != 1)
-                pB[0x2f] = 0x32;
+                pB->colour[4][3] = 0x32;
             else
-                pB[0x2f] = 200;
+                pB->colour[4][3] = 200;
         }
         StageObject_SetTypeDifficultySpeedLimit(pA, a);
         StageObject_SetTypeDifficultySpeedLimit(pB, b);
-        if (*(int *)(pA + 0x14) == 0 && *(int *)(pA + 0x18) == 0 &&
-            (*(int *)(pB + 0x14) != 0 || *(int *)(pB + 0x18) != 0)) {
-            limit = *(int *)(pB + 0x18);
-            *(int *)(pA + 0x18) = limit;
-            *(int *)(pA + 0x14) = limit;
+        if (pA->fogStart == 0 && pA->fogEnd == 0 &&
+            (pB->fogStart != 0 || pB->fogEnd != 0)) {
+            limit = pB->fogEnd;
+            pA->fogEnd = limit;
+            pA->fogStart = limit;
             return;
         }
-        if (*(int *)(pB + 0x14) == 0 && *(int *)(pB + 0x18) == 0 &&
-            (*(int *)(pA + 0x14) != 0 || *(int *)(pA + 0x18) != 0)) {
-            limit = *(int *)(pA + 0x18);
-            *(int *)(pB + 0x18) = limit;
-            *(int *)(pB + 0x14) = limit;
+        if (pB->fogStart == 0 && pB->fogEnd == 0 &&
+            (pA->fogStart != 0 || pA->fogEnd != 0)) {
+            limit = pA->fogEnd;
+            pB->fogEnd = limit;
+            pB->fogStart = limit;
         }
     }
 }
