@@ -25122,40 +25122,40 @@
     "symbol_name": "StageObject_ResetVectorListRecord"
   },
   "0x461b30": {
-    "n": "StageObject_SetTypeDifficultySpeedLimit",
+    "n": "StageLights_SetWeatherFogDistance",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_SetTypeDifficultySpeedLimit"
+    "symbol_name": "StageLights_SetWeatherFogDistance"
   },
   "0x461830": {
-    "n": "StageObject_BlendTimeOfDayRecord",
+    "n": "StageLights_BlendTimeOfDayPreset",
     "s": 0.6297376093294461,
     "x": false,
     "fz": 0.880466472303207,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_BlendTimeOfDayRecord"
+    "symbol_name": "StageLights_BlendTimeOfDayPreset"
   },
   "0x461a30": {
-    "n": "StageObject_BlendSettingPairRecords",
+    "n": "StageLights_BlendPresetPair",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_BlendSettingPairRecords"
+    "symbol_name": "StageLights_BlendPresetPair"
   },
   "0x461a70": {
-    "n": "StageObject_SetPairSpeedLimits",
+    "n": "StageLights_SetPairFogDistances",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_SetPairSpeedLimits"
+    "symbol_name": "StageLights_SetPairFogDistances"
   },
   "0x462aa0": {
     "n": "StageObject_AverageWheelGroundLighting",
@@ -25617,13 +25617,13 @@
     "symbol_name": "Replay_CanExtendControlPacketRun"
   },
   "0x461710": {
-    "n": "StageObject_InterpolateFrameRecord",
+    "n": "StageLights_InterpolatePreset",
     "s": 0.6306306306306306,
     "x": false,
     "fz": 0.8108108108108109,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_InterpolateFrameRecord"
+    "symbol_name": "StageLights_InterpolatePreset"
   },
   "0x477340": {
     "n": "StageObject_FindPlayerRevTextures",

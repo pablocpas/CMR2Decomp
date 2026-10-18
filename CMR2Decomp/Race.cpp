@@ -4191,9 +4191,9 @@ unsigned short RallyData_GetPrimaryStageScoreScale(void);
 unsigned short RallyData_GetSecondaryStageScoreScale(void);
 void RallyData_SetSelectionFlag20(unsigned int param1);
 void StageTiming_CreateWhiteStageLight(void);
-void StageObject_BlendSettingPairRecords(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, StageLightPreset **pPrimary,
+void StageLights_BlendPresetPair(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, StageLightPreset **pPrimary,
                   StageLightPreset **pSecondary);
-void StageObject_SetPairSpeedLimits(StageLightPreset *pA, StageLightPreset *pB);
+void StageLights_SetPairFogDistances(StageLightPreset *pA, StageLightPreset *pB);
 
 
 // GLOBAL: CMR2 0x005196dc
@@ -4413,9 +4413,9 @@ void Race_ResolveStageTexturesAndPalettes(void)
     for (i = 0; i < 48; i++)
         handles[i] = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
                                                        pNames[i], NULL, NULL, 0);
-    StageObject_BlendSettingPairRecords(RallyData_GetPrimaryStageScoreScale(), RallyData_GetSecondaryStageScoreScale(), handles, &g_stageLightPresetPrimary,
+    StageLights_BlendPresetPair(RallyData_GetPrimaryStageScoreScale(), RallyData_GetSecondaryStageScoreScale(), handles, &g_stageLightPresetPrimary,
                  &g_stageLightPresetSecondary);
-    StageObject_SetPairSpeedLimits(g_stageLightPresetPrimary, g_stageLightPresetSecondary);
+    StageLights_SetPairFogDistances(g_stageLightPresetPrimary, g_stageLightPresetSecondary);
     if (g_stageLightPresetPrimary != NULL && g_stageLightPresetSecondary != NULL) {
         pPrimary = g_stageLightPresetSecondary;
         pSecondary = g_stageLightPresetPrimary;

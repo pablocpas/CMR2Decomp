@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "9b727c92a8df054ff61fa6af563fb8e5914b8198",
+    "commit": "816df7f8f6556b618726763e90ead796bf839e14",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -132,7 +132,7 @@
       "CMR2Decomp/PauseMenus.h": "cb2bfa8ccb4eb55803c9f342c57c211286a80aa93e02bbdabcc690bd2db6a774",
       "CMR2Decomp/PrecipitationQuad.h": "c96e38658a320049bb9500e3e48e3f5002d0dbdd87cd72a47db6d4cd225247c6",
       "CMR2Decomp/ProfileEventResults.h": "78ccc7f0196b01ec711d818658db48623372d682fd76fe4d6f919a1019a76a7b",
-      "CMR2Decomp/Race.cpp": "c6a412d8728c7533e6a9c2b3db635d5cf9930d30f011c09f92c5447b98fa57e0",
+      "CMR2Decomp/Race.cpp": "146288ac1499efd4431287d6af26f158e1575aa1ede866fd94a19e468795fdc2",
       "CMR2Decomp/RaceCallRecord.h": "e2418ff397371fd73fc5d83fbba8de474bc0f895eb1dfac5792127d8e6afd8c2",
       "CMR2Decomp/RaceCallbackStorage.h": "d540cbe431446daef4724e15b0f10f3702e8e50b8c87bcd04ff5bc1dd3a8d593",
       "CMR2Decomp/RaceRecord.h": "c86bd8aa45d6828375fee1fd908f60608b85e9b48a7416f8208b209fe98c3453",
@@ -164,7 +164,7 @@
       "CMR2Decomp/Stage.h": "4a75c6c0ce11b7ac1fa616ed12e7c7931d3e23ab12a678370ac800ef700f04cd",
       "CMR2Decomp/StageBlock.h": "d93b2676f2bece5160e17869fbca83e4e9bfb00d41107006b291a9e3c692f1f1",
       "CMR2Decomp/StageObjectCount.h": "0bcacf7fe5189f2978ab6e6fab0fc7ba8968c82a8ef7c3b4710f4bfa142a48da",
-      "CMR2Decomp/StageObjects.cpp": "b6546732b842dd8c5e6178bd09fd9feec7d11a669fc951a3fd3eddc9c2467697",
+      "CMR2Decomp/StageObjects.cpp": "a33623cfa0ebb39722a9d329cb56a0be00262e2ca60b8fbb9a831fd8f18cb226",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "badac490a220da4c871e2e9fa21e80035df9f7dacf04454aae4f84b427612986",
       "CMR2Decomp/StageTiming.cpp": "d55d9d704e55eb90c4086d84563221db33c46bf36037588abdffa31cc2ad9cdc",
@@ -215,8 +215,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "63b9569bd2fe0314e9626c9fb8517b57b862842d2c07b50c87c1bd303f419dcf",
-    "pdb_sha256": "275a161e4922dfc74c652e818ff0945ad8a0f1ea0d8652fc8bd7bbab9180c423"
+    "exe_sha256": "a3211c75d20eb4c2059fa255c83b11af39c95ddf4dd3c4cf4462be65001143a4",
+    "pdb_sha256": "51416e3789b5e39de0d87d914757e43dc13cbab47a2fa55a66ead688f2dca919"
   },
   "perfect_match_percent": 56.28,
   "fuzzy_match_percent": 94.44,

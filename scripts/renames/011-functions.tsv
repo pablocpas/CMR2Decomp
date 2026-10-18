@@ -1,0 +1,6 @@
+address	old_name	new_name	evidence
+0x461a70	StageObject_SetPairSpeedLimits	StageLights_SetPairFogDistances	Sets fogStart/fogEnd of the two StageLightPresets from the stage setting pair; a preset without fog takes the other one's fog end.
+0x461b30	StageObject_SetTypeDifficultySpeedLimit	StageLights_SetWeatherFogDistance	fogEnd = draw distance option (GetGraphicsOptionBits21To24 + 2) * 50 / weather factor g_unk0x0051b114[type]; fixed 15/80 on some stages.
+0x461a30	StageObject_BlendSettingPairRecords	StageLights_BlendPresetPair	Blends the primary and secondary StageLightPreset of the stage setting pair from the .hor records for the two times of day.
+0x461830	StageObject_BlendTimeOfDayRecord	StageLights_BlendTimeOfDayPreset	Interpolates the .hor light preset records of the two time columns around a time of day into one preset.
+0x461710	StageObject_InterpolateFrameRecord	StageLights_InterpolatePreset	Interpolates two 0x4e-byte light presets: the seven fixed-point values, the eleven colours and the six colour correction bytes.

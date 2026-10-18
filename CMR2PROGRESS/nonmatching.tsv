@@ -74,7 +74,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x42c890	Car_UpdateEngineNoteFalloff	Car.cpp	471	0.6206896551724138	0.5891472868217055
 0x4177d0	Race_DrawPlayerCallSlots	Race.cpp	1665	0.6216216216216216	0.5793357933579336
 0x4b45d0	Scene_AddShadowCaster	SceneNode.cpp	825	0.6284584980237155	0.6081871345029239
-0x461710	StageObject_InterpolateFrameRecord	StageObjects.cpp	282	0.6301369863013698	0.6306306306306306
+0x461710	StageLights_InterpolatePreset	StageObjects.cpp	282	0.6301369863013698	0.6306306306306306
 0x4a6370	CGraphics::LoadTGABumpMap	Graphics.cpp	768	0.6325411334552102	0.6361974405850092
 0x5062d0	OptionPreview_LoadStageGeometryRecord	GameInfo.cpp	1100	0.6362252663622526	0.6379821958456974
 0x41b460	StageUI_UpdateDriverEventAwards	StageUI.cpp	2709	0.6366559485530546	0.6124338624338624
@@ -92,7 +92,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x50ee50	OptionMenu_DrawThreeColourGradientStrips	GameInfo.cpp	715	0.6474226804123712	0.632
 0x459630	StageTiming_ProjectPointToTenUnitRadius	StageTiming.cpp	346	0.648	0.6039215686274509
 0x4658e0	CarEffects_DrawTyreMarks	StageObjects.cpp	1166	0.649546827794562	0.6438152011922503
-0x461830	StageObject_BlendTimeOfDayRecord	StageObjects.cpp	498	0.6507462686567164	0.6297376093294461
+0x461830	StageLights_BlendTimeOfDayPreset	StageObjects.cpp	498	0.6507462686567164	0.6297376093294461
 0x49b0d0	WheelSpray_GetEffect	CarEffects.cpp	575	0.6515837104072398	0.6782608695652174
 0x497db0	CarPhysics_UpdateWheelContactPatches	CarPhysics.cpp	1471	0.6530612244897959	0.6558375634517767
 0x476a40	CarInterior_AnimateWipers	StageObjects.cpp	547	0.6538461538461539	0.816793893129771

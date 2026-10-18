@@ -62,11 +62,11 @@ int StageObject_GetCarWeatherRampValue(Car *pCar);
 int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar);
 void StageObject_SetLighting(const StageLightPreset *pPrimary, const StageLightPreset *pSecondary);
 int StageObject_BlendClampedByteValues(BYTE a, BYTE b, int t);
-void StageObject_InterpolateFrameRecord(BYTE *out, BYTE *from, BYTE *to, int t);
-BYTE *StageObject_BlendTimeOfDayRecord(unsigned short timeOfDay, int slot, BYTE **records);
-void StageObject_BlendSettingPairRecords(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, StageLightPreset **pPrimary, StageLightPreset **pSecondary);
-void StageObject_SetPairSpeedLimits(StageLightPreset *pA, StageLightPreset *pB);
-void StageObject_SetTypeDifficultySpeedLimit(StageLightPreset *pPreset, int type);
+void StageLights_InterpolatePreset(BYTE *out, BYTE *from, BYTE *to, int t);
+BYTE *StageLights_BlendTimeOfDayPreset(unsigned short timeOfDay, int slot, BYTE **records);
+void StageLights_BlendPresetPair(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, StageLightPreset **pPrimary, StageLightPreset **pSecondary);
+void StageLights_SetPairFogDistances(StageLightPreset *pA, StageLightPreset *pB);
+void StageLights_SetWeatherFogDistance(StageLightPreset *pPreset, int type);
 void StageObject_InterpolateSecondaryRampRecords(int t);
 void StageObject_RebuildViewWeatherLighting(int index);
 void StageObject_AverageWheelGroundLighting(unsigned int param_1, int param_2);
@@ -6132,12 +6132,12 @@ StageObjectCount g_stageObjectCount;
 
 int *RallyData_GetDriverPairRecord(int index);
 // GLOBAL: CMR2 0x0051b114
-int g_unk0x0051b114[9] = { 0, 0, 0, 0x6666, 0x8000, 0x9999, 0x6666, 0x8000, 0x9999 };
+int g_weatherFogFactors[9] = { 0, 0, 0, 0x6666, 0x8000, 0x9999, 0x6666, 0x8000, 0x9999 };
 
 // Speed limits of a stage object: fixed in some stages, else scaled by the
 // difficulty and the object's type factor.
 // FUNCTION: CMR2 0x00461b30
-void StageObject_SetTypeDifficultySpeedLimit(StageLightPreset *pPreset, int type)
+void StageLights_SetWeatherFogDistance(StageLightPreset *pPreset, int type)
 {
     unsigned int speed;
 
@@ -6149,12 +6149,12 @@ void StageObject_SetTypeDifficultySpeedLimit(StageLightPreset *pPreset, int type
         pPreset->fogEnd = 0x500000;
         return;
     }
-    if (g_unk0x0051b114[type] != 0)
-        pPreset->fogEnd = FixDiv(speed, g_unk0x0051b114[type]);
+    if (g_weatherFogFactors[type] != 0)
+        pPreset->fogEnd = FixDiv(speed, g_weatherFogFactors[type]);
 }
 
 int *RallyData_GetDriverSettingPair(int index);
-void StageObject_SetTypeDifficultySpeedLimit(StageLightPreset *pPreset, int type);
+void StageLights_SetWeatherFogDistance(StageLightPreset *pPreset, int type);
 
 // Time of day steps (mm*100+ss, 500 = 05:00) that bound the twelve stage object
 // record columns.
@@ -6184,7 +6184,7 @@ BYTE g_stageObjectPrimary[0x4e];
 // GLOBAL: CMR2 0x00543e38
 BYTE g_stageObjectSecondary[0x4e];
 
-void StageObject_InterpolateFrameRecord(BYTE *out, BYTE *from, BYTE *to, int t);
+void StageLights_InterpolatePreset(BYTE *out, BYTE *from, BYTE *to, int t);
 
 // Blends the stage object record for one time of day into the primary (slot 0)
 // or secondary (slot 1) global record: the time picks the two adjacent columns
@@ -6192,7 +6192,7 @@ void StageObject_InterpolateFrameRecord(BYTE *out, BYTE *from, BYTE *to, int t);
 // their fixed factor, and the two column results are interpolated by how far
 // the time lies into its band. NULL when a record is missing or invalid.
 // FUNCTION: CMR2 0x00461830
-BYTE *StageObject_BlendTimeOfDayRecord(unsigned short timeOfDay, int slot, BYTE **records)
+BYTE *StageLights_BlendTimeOfDayPreset(unsigned short timeOfDay, int slot, BYTE **records)
 {
     BYTE buffer0[0x50];
     BYTE buffer1[0x50];
@@ -6270,9 +6270,9 @@ BYTE *StageObject_BlendTimeOfDayRecord(unsigned short timeOfDay, int slot, BYTE 
     else
         dest = g_stageObjectSecondary;
 
-    StageObject_InterpolateFrameRecord(buffer0, pFrom0, pTo0, rowFactor);
-    StageObject_InterpolateFrameRecord(buffer1, pFrom1, pTo1, rowFactor);
-    StageObject_InterpolateFrameRecord(dest, buffer0, buffer1, factor);
+    StageLights_InterpolatePreset(buffer0, pFrom0, pTo0, rowFactor);
+    StageLights_InterpolatePreset(buffer1, pFrom1, pTo1, rowFactor);
+    StageLights_InterpolatePreset(dest, buffer0, buffer1, factor);
     return dest;
 }
 
@@ -6280,13 +6280,13 @@ BYTE *StageObject_BlendTimeOfDayRecord(unsigned short timeOfDay, int slot, BYTE 
 // pointers: the primary from the first setting's time of day, the secondary
 // from the second one.
 // FUNCTION: CMR2 0x00461a30
-void StageObject_BlendSettingPairRecords(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, StageLightPreset **pPrimary, StageLightPreset **pSecondary)
+void StageLights_BlendPresetPair(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, StageLightPreset **pPrimary, StageLightPreset **pSecondary)
 {
     BYTE *pObjectPrimary;
     BYTE *pObjectSecondary;
 
-    pObjectPrimary = StageObject_BlendTimeOfDayRecord(timePrimary, 0, records);
-    pObjectSecondary = StageObject_BlendTimeOfDayRecord(timeSecondary, 1, records);
+    pObjectPrimary = StageLights_BlendTimeOfDayPreset(timePrimary, 0, records);
+    pObjectSecondary = StageLights_BlendTimeOfDayPreset(timeSecondary, 1, records);
     *pPrimary = (StageLightPreset *)pObjectPrimary;
     *pSecondary = (StageLightPreset *)pObjectSecondary;
 }
@@ -6294,7 +6294,7 @@ void StageObject_BlendSettingPairRecords(unsigned short timePrimary, unsigned sh
 // Sets the speed limits of the two stage objects of a pair from the stage's
 // setting pair; a stopped one takes over the other's limit.
 // FUNCTION: CMR2 0x00461a70
-void StageObject_SetPairSpeedLimits(StageLightPreset *pA, StageLightPreset *pB)
+void StageLights_SetPairFogDistances(StageLightPreset *pA, StageLightPreset *pB)
 {
     int *pPair;
     int a;
@@ -6317,8 +6317,8 @@ void StageObject_SetPairSpeedLimits(StageLightPreset *pA, StageLightPreset *pB)
             else
                 pB->colour[4][3] = 200;
         }
-        StageObject_SetTypeDifficultySpeedLimit(pA, a);
-        StageObject_SetTypeDifficultySpeedLimit(pB, b);
+        StageLights_SetWeatherFogDistance(pA, a);
+        StageLights_SetWeatherFogDistance(pB, b);
         if (pA->fogStart == 0 && pA->fogEnd == 0 &&
             (pB->fogStart != 0 || pB->fogEnd != 0)) {
             limit = pB->fogEnd;
@@ -8401,7 +8401,7 @@ int Replay_CanExtendControlPacketRun(BYTE *pPacket, BYTE car)
 // Interpolates a stage object record between two frames.
 // match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00461710
-void StageObject_InterpolateFrameRecord(BYTE *out, BYTE *from, BYTE *to, int t)
+void StageLights_InterpolatePreset(BYTE *out, BYTE *from, BYTE *to, int t)
 {
     int i;
 

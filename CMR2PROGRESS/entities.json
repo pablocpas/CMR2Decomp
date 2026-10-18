@@ -4941,23 +4941,23 @@
   ],
   "0x461710": [
     5040608,
-    "StageObject_InterpolateFrameRecord"
+    "StageLights_InterpolatePreset"
   ],
   "0x461830": [
     5024448,
-    "StageObject_BlendTimeOfDayRecord"
+    "StageLights_BlendTimeOfDayPreset"
   ],
   "0x461a30": [
     5024944,
-    "StageObject_BlendSettingPairRecords"
+    "StageLights_BlendPresetPair"
   ],
   "0x461a70": [
     5025008,
-    "StageObject_SetPairSpeedLimits"
+    "StageLights_SetPairFogDistances"
   ],
   "0x461b30": [
     5024320,
-    "StageObject_SetTypeDifficultySpeedLimit"
+    "StageLights_SetWeatherFogDistance"
   ],
   "0x461bb0": [
     5025728,
@@ -16845,7 +16845,7 @@
   ],
   "0x51b114": [
     5426460,
-    "g_unk0x0051b114"
+    "g_weatherFogFactors"
   ],
   "0x51b138": [
     5431636,
