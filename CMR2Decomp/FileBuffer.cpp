@@ -1,4 +1,5 @@
 #include "SavedGame.h"
+#include "ChampionshipDriver.h"
 #include "FileBuffer.h"
 #include "GenericFileLoader.h"
 #include "Game.h"
@@ -170,7 +171,7 @@ int g_profileFileCount;
 // GLOBAL: CMR2 0x00531654
 int g_unk0x00531654[4];
 // GLOBAL: CMR2 0x00531764
-BYTE *g_pProfileFileDates;
+DriverProfileIdentifier *g_pProfileIdentifiers;
 // CMR2 0x00818cd0: generic file load flag, cleared together with the load counter
 // GLOBAL: CMR2 0x00818cd0
 BYTE g_genericFileLoaded;
@@ -180,9 +181,9 @@ char g_strPpsPathFormat[32] = "%s\\pps\\%s%.2d%.2d%.2d%.2d.pps";
 // GLOBAL: CMR2 0x00818acc
 char g_ppsPath[260];
 
-extern BYTE g_saveCarRecords[8 * 0xc4];
+extern ChampionshipDriver g_saveCarRecords[8];
 extern BYTE g_saveDirty[8];
-extern BYTE g_saveProfiles[4 * 0x650];
+extern DriverProfile g_saveProfiles[4];
 extern SaveSlot g_saveSlots[16];
 
 #define SLOT(i) (g_saveSlots[i])
@@ -214,7 +215,7 @@ BYTE Profile_WriteSaveFile(int unused, BYTE *pProfile)
 // FUNCTION: CMR2 0x004eb450
 BYTE *Profile_GetFileDateRecord(int index)
 {
-    return g_pProfileFileDates + index * 12;
+    return (BYTE *)&g_pProfileIdentifiers[index];
 }
 
 // Saves the profiles whose name has just been edited, clearing the dirty flag
@@ -227,9 +228,9 @@ bool Profile_SaveEditedNames(void)
     int i;
 
     for (i = 0; i < 4; i++) {
-        if ((*(unsigned int *)(g_saveProfiles + i * 0x650 + 0x14) & 0x200000) == 0 &&
-            g_saveProfiles[i * 0x650 + 0x10] != 0 && g_saveDirty[i] != 0) {
-            BYTE result = Profile_WriteSaveFile(0, g_saveProfiles + i * 0x650);
+        if ((g_saveProfiles[i].identifier.flags & 0x200000) == 0 &&
+            g_saveProfiles[i].identifier.name[0] != 0 && g_saveDirty[i] != 0) {
+            BYTE result = Profile_WriteSaveFile(0, (BYTE *)&g_saveProfiles[i]);
             if (result != 0)
                 g_saveDirty[i] = 0;
             if (saved && result != 0)
@@ -255,8 +256,8 @@ void Profile_SaveDirtyRecords(void)
     int i;
 
     for (i = 0; i < 4; i++) {
-        if ((*(unsigned int *)(g_saveProfiles + i * 0x650 + 0x14) & 0x200000) == 0 && g_saveDirty[i] != 0) {
-            Profile_WriteSaveFile(0, g_saveProfiles + i * 0x650);
+        if ((g_saveProfiles[i].identifier.flags & 0x200000) == 0 && g_saveDirty[i] != 0) {
+            Profile_WriteSaveFile(0, (BYTE *)&g_saveProfiles[i]);
             g_saveDirty[i] = 0;
         }
     }
@@ -279,34 +280,32 @@ void Profile_ResetCategoryData(int index);
 // FUNCTION: CMR2 0x004eb4c0
 BYTE Profile_LoadAndLinkSavedRecord(int param_1, int param_2)
 {
-    BYTE *pBuffer;
-    BYTE *pRecord;
+    DriverProfile *pBuffer;
     unsigned int diff;
-    unsigned int i;
+    int i;
 
     RallyData_ValidateIndex(param_1);
-    pBuffer = (BYTE *)Profile_ReadLocalFile((char *)Profile_BuildSavePath((char *)(g_pProfileFileDates + param_2 * 12)), 0);
+    pBuffer = (DriverProfile *)Profile_ReadLocalFile((char *)Profile_BuildSavePath((char *)&g_pProfileIdentifiers[param_2]), 0);
     if (pBuffer != NULL) {
-        *(unsigned int *)(pBuffer + 0x54) &= 0xffff807f;
-        for (i = 0, pRecord = g_saveProfiles + 0x14; (INT_PTR)pRecord < (INT_PTR)(g_saveProfiles + 0x1954); i++) {
-            if (strcmp((char *)(pRecord - 4), (char *)(pBuffer + 0x10)) == 0) {
-                diff = *(unsigned int *)(pBuffer + 0x14) ^ *(unsigned int *)pRecord;
+        pBuffer->options &= 0xffff807f;
+        for (i = 0; i < 4; i++) {
+            if (strcmp(g_saveProfiles[i].identifier.name, pBuffer->identifier.name) == 0) {
+                diff = pBuffer->identifier.flags ^ g_saveProfiles[i].identifier.flags;
                 if ((diff & 0x1f0f00) == 0 && (char)diff == 0 && (diff & 0xfc0f000) == 0)
                     goto matched;
             }
-            pRecord += 0x650;
         }
 notfound:
         SLOT(param_1).category = 0xf;
         Profile_AssignAvailableCategory(param_1, -1);
         Profile_ResetCategoryData(param_1);
 found:
-        memcpy(g_saveProfiles + SLOT(param_1).category * 0x650, pBuffer, 0x650);
-        g_saveProfiles[0x1a + SLOT(param_1).category * 0x650] = 0;
-        g_saveProfiles[0x19 + SLOT(param_1).category * 0x650] = 0;
-        g_saveProfiles[0x18 + SLOT(param_1).category * 0x650] = 0;
-        SLOT(param_1).car = *(unsigned int *)(g_saveProfiles + 0x54 + SLOT(param_1).category * 0x650) & 0x1f;
-        SLOT(param_1).bit25 = (*(unsigned int *)(g_saveProfiles + 0x54 + SLOT(param_1).category * 0x650) & 0x40) >> 6;
+        memcpy(&g_saveProfiles[SLOT(param_1).category], pBuffer, sizeof(DriverProfile));
+        g_saveProfiles[SLOT(param_1).category].identifier.counters[2] = 0;
+        g_saveProfiles[SLOT(param_1).category].identifier.counters[1] = 0;
+        g_saveProfiles[SLOT(param_1).category].identifier.counters[0] = 0;
+        SLOT(param_1).car = g_saveProfiles[SLOT(param_1).category].options & 0x1f;
+        SLOT(param_1).bit25 = (g_saveProfiles[SLOT(param_1).category].options & 0x40) >> 6;
         SLOT(param_1).seconds = 0;
         SLOT(param_1).bit13 = 1;
         SLOT(param_1).time = 0;
@@ -368,7 +367,6 @@ void Profile_AssignAvailableCategory(int index, int profile)
     int chosen;
     int c;
     int i;
-    BYTE *p;
     SaveSlot *pRec;
     char allSame;
 
@@ -377,16 +375,15 @@ void Profile_AssignAvailableCategory(int index, int profile)
     if ((*pRecord & 0x3c0000) != 0x3c0000)
         return;
     if (profile != -1) {
-        flags = *(unsigned int *)(g_saveProfiles + 0x54 + profile * 0x650);
+        flags = g_saveProfiles[profile].options;
         *pRecord = ((flags & 0x40) << 1 | profile & 0xf) << 0x12 | *pRecord & 0xfdc3ffc0 | flags & 0x1f;
         return;
     }
-    c = 0;
-    for (p = g_saveProfiles + 0x14; p < g_saveProfiles + 0x1954; p += 0x650, c++) {
-        if (p[-4] == 0 || (*(unsigned int *)p & 0x200000))
+    for (c = 0; c < 4; c++) {
+        if (g_saveProfiles[c].identifier.name[0] == 0 || (g_saveProfiles[c].identifier.flags & 0x200000))
             break;
     }
-    if (p < g_saveProfiles + 0x1954 && c != -1) {
+    if (c < 4 && c != -1) {
         for (i = 0; i < index; i++) {
             if ((g_saveSlots[i].category) == (unsigned int)c)
                 c = -1;
@@ -410,10 +407,10 @@ void Profile_AssignAvailableCategory(int index, int profile)
     }
     minAge = 0xff;
     allSame = 1;
-    firstAge = *(unsigned int *)(g_saveProfiles + 0x54 + free[0] * 0x650) >> 7 & 0xff;
+    firstAge = g_saveProfiles[free[0]].options >> 7 & 0xff;
     chosen = index;
     for (i = 0; i < count; i++) {
-        age = *(unsigned int *)(g_saveProfiles + 0x54 + free[i] * 0x650) >> 7 & 0xff;
+        age = g_saveProfiles[free[i]].options >> 7 & 0xff;
         if (firstAge != age)
             allSame = 0;
         if (minAge >= age) {
@@ -444,33 +441,26 @@ void Profile_ResetCategoryData(int index)
 
     RallyData_ValidateIndex(index);
     category = g_saveSlots[index].category;
-    memset(g_saveProfiles + category * 0x650, 0, 0x650);
-    *(int *)(g_saveProfiles + 0x58 + category * 0x650) = 4;
-    *(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) =
-        (*(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) & 0xffe1f17e) | 0x1017e;
-    *(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) |= 0x20;
-    *(int *)(g_saveProfiles + 0x4c + category * 0x650) = 0xf11;
-    g_saveProfiles[0x588 + category * 0x650] = (g_saveProfiles[0x588 + category * 0x650] & 0xfc) | 0x3c;
+    memset(&g_saveProfiles[category], 0, sizeof(DriverProfile));
+    g_saveProfiles[category].car = 4;
+    g_saveProfiles[category].identifier.flags =
+        (g_saveProfiles[category].identifier.flags & 0xffe1f17e) | 0x1017e;
+    g_saveProfiles[category].options |= 0x20;
+    g_saveProfiles[category].awards = 0xf11;
+    g_saveProfiles[category].hudFlags = (g_saveProfiles[category].hudFlags & 0xfc) | 0x3c;
     RallyData_SetPlayerDefaultCarSetup(index);
     g_saveDirty[(g_saveSlots[index].category)] = 0;
 }
 
-// 12-byte block read from the file buffer (at offset 0x10).
-struct Unk0x10Block {
-    int field_0x0;
-    int field_0x4;
-    int field_0x8;
-};
-
-// Reads the file and copies the 12 bytes at offset 0x10 into *pOut.
+// Reads the profile file and copies its identifier (offset 0x10) into *pOut.
 // FUNCTION: CMR2 0x004ebee0
-BYTE Profile_ReadFileHeaderDate(Unk0x10Block *pOut, char *param2)
+BYTE Profile_ReadFileHeaderDate(DriverProfileIdentifier *pOut, char *param2)
 {
     void *pBuffer;
 
     pBuffer = CFileBuffer::GetGenericFileBuffer(param2, 1);
     if (pBuffer != NULL) {
-        *pOut = *(Unk0x10Block *)((char *)pBuffer + 0x10);
+        *pOut = ((DriverProfile *)pBuffer)->identifier;
         CFileBuffer::FreeGenericFileBuffer(pBuffer);
         return TRUE;
     }
@@ -482,9 +472,9 @@ BYTE Profile_ReadFileHeaderDate(Unk0x10Block *pOut, char *param2)
 // FUNCTION: CMR2 0x004eb6d0
 char Profile_ReleaseLoadBuffer(void)
 {
-    if (g_pProfileFileDates != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(g_pProfileFileDates);
-        g_pProfileFileDates = NULL;
+    if (g_pProfileIdentifiers != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_pProfileIdentifiers);
+        g_pProfileIdentifiers = NULL;
     }
     g_profileFileCount = 0;
     g_genericFileLoaded = 0;
@@ -511,25 +501,25 @@ void Profile_RebuildFileList(void)
         g_genericFileLoaded = 1;
         CGame::RegisterCallback((void *)Profile_ReleaseLoadBuffer, NULL);
     }
-    if (g_pProfileFileDates != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(g_pProfileFileDates);
-        g_pProfileFileDates = NULL;
+    if (g_pProfileIdentifiers != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_pProfileIdentifiers);
+        g_pProfileIdentifiers = NULL;
     }
     g_profileFileCount = 0;
     GetCurrentDirectoryA(260, oldDir);
     sprintf(ppsDir, g_strPpsDirFormat, CInstallInfo::GetGameHDPath());
     if (SetCurrentDirectoryA(ppsDir) != 0 &&
         (hFind = FindFirstFileA(g_strPpsPattern, &find)) != INVALID_HANDLE_VALUE) {
-        g_pProfileFileDates = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
-            g_pProfileFileDates, (g_profileFileCount * 3 + 3) * 4);
-        found = Profile_ReadFileHeaderDate((Unk0x10Block *)(g_pProfileFileDates + g_profileFileCount * 0xc),
+        g_pProfileIdentifiers = (DriverProfileIdentifier *)CFileBuffer::ReallocateLockedBuffer(
+            g_pProfileIdentifiers, (g_profileFileCount * 3 + 3) * 4);
+        found = Profile_ReadFileHeaderDate(&g_pProfileIdentifiers[g_profileFileCount],
                              find.cFileName);
         if (found != 0)
             g_profileFileCount++;
         while (FindNextFileA(hFind, &find) != 0) {
-            g_pProfileFileDates = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
-                g_pProfileFileDates, (g_profileFileCount * 3 + 3) * 4);
-            found = Profile_ReadFileHeaderDate((Unk0x10Block *)(g_pProfileFileDates + g_profileFileCount * 0xc),
+            g_pProfileIdentifiers = (DriverProfileIdentifier *)CFileBuffer::ReallocateLockedBuffer(
+                g_pProfileIdentifiers, (g_profileFileCount * 3 + 3) * 4);
+            found = Profile_ReadFileHeaderDate(&g_pProfileIdentifiers[g_profileFileCount],
                                  find.cFileName);
             if (found != 0)
                 g_profileFileCount++;

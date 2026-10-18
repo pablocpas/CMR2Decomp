@@ -19812,8 +19812,8 @@
     "g_unk0x00531654"
   ],
   "0x531764": [
-    5477604,
-    "g_pProfileFileDates"
+    5477596,
+    "g_pProfileIdentifiers"
   ],
   "0x531768": [
     5576836,
@@ -24636,7 +24636,7 @@
     "CInstallInfo::m_isCDInstall"
   ],
   "0x66461c": [
-    5477596,
+    5477600,
     "CFileBuffer::m_unk0x0066461c"
   ],
   "0x664620": [
@@ -25800,7 +25800,7 @@
     "g_ppsPath"
   ],
   "0x818cd0": [
-    5477600,
+    5477604,
     "g_genericFileLoaded"
   ],
   "0x818cd8": [

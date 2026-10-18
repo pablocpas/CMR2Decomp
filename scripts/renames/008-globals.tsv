@@ -1,0 +1,2 @@
+address	old_name	new_name	evidence
+0x00531764	g_pProfileFileDates	g_pProfileIdentifiers	The 12-byte records are the DriverProfileIdentifier at +0x10 of each .pps file (Profile_ReadFileHeaderDate copies it; FrontendProfile_IsAlreadyInChampionship compares name and flags with the profiles).
