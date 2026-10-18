@@ -6269,8 +6269,7 @@ void Car_IntegrateContacts(void)
                 tmp.x = tmp.y = tmp.z = 0;
             }
             FixMatrix_InverseRotateVector(&bodyForce, &tmp, g_pCurrentCar->pWorld);
-            // The eight local corner positions start at 0x210 (four are named wheelPos).
-            FixVecCross(&cross, &bodyForce, &g_pCurrentCar->wheelPos[corner]);
+            FixVecCross(&cross, &bodyForce, &g_pCurrentCar->collisionCornersLocal[corner]);
             torque.x += cross.x;
             torque.y += cross.y;
             torque.z += cross.z;

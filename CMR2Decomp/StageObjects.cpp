@@ -9510,7 +9510,7 @@ void StageObject_UpdateCarCornerGroundHeights(Car *pCar, int count)
                     t = 0x10000;
                 pCar->cornerHeight[i] += FixMul(t, pCar->field_0x938[i]);
             }
-            if (pCar->cornerOnGround[4 + i] != 0) {
+            if (pCar->objectContactState[i] != 0) {
                 pCar->cornerHeight[i] += pCar->field_0x8fc[i];
                 pCar->cornerAxis[i] = pCar->field_0x564[i];
                 pCar->wheelSurface[i] = 0x2f;

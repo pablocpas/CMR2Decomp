@@ -396,8 +396,10 @@ void FrontendMenu_DrawMultiplayerCarClass(Menu *pMenu)
 char g_unk0x00818368[32];
 // GLOBAL: CMR2 0x008183cc
 char g_unk0x008183cc[32];
+// Text of the championship entry selection (FrontendMenu_DrawMultiplayerStageSelection:
+// heading, profile name and date), up to the next global at 0x8185b8.
 // GLOBAL: CMR2 0x00818554
-char g_unk0x00818554[32];
+char g_unk0x00818554[0x64];
 
 // Draws the header of the rally-info screen: the framed title rect, the
 // "event: date" lines and the list of stages, all scaled to the screen.

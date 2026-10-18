@@ -7199,8 +7199,10 @@ BYTE g_unk0x0082ca18;
 // 0x54-byte per-slot entry of the table at 0x82cb78: the scene node whose
 // mesh is shown and the three wheel-mesh variants that can be assigned to it.
 
+// One per preview slot (OptionPreview_LoadStageGeometryRecord), up to the
+// next global at 0x82d19c.
 // GLOBAL: CMR2 0x0082d15c
-int g_previewWheelVariant[2];
+int g_previewWheelVariant[16];
 
 // GLOBAL: CMR2 0x0082d0b8
 PreviewSignedAngles g_previewRotationAngles[4];
