@@ -726,7 +726,7 @@ short HudDash_GetGaugeTarget(BYTE index)
     return g_unk0x0053d090[index];
 }
 
-extern FixVector g_unk0x0053d048[4];
+extern FixVector g_unk0x0053d048[6];
 
 // Sets the player's gauge target and its speed-scaled copy (less at speed).
 // FUNCTION: CMR2 0x00447e20
@@ -751,7 +751,7 @@ void HudDash_SetPlayerGaugeValue(BYTE index, int value)
 }
 
 // GLOBAL: CMR2 0x0053d048
-FixVector g_unk0x0053d048[4];
+FixVector g_unk0x0053d048[6];
 
 // FUNCTION: CMR2 0x00447cf0
 void HudDash_GetCameraUpVector(FixVector *pOut, BYTE index)

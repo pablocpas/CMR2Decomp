@@ -392,10 +392,11 @@ void FrontendMenu_DrawMultiplayerCarClass(Menu *pMenu)
 
 // Text lines built by the screen code above the title (rally name, date and
 // the list of stages); the third is the one built by FrontendMenu_DrawMultiplayerStageSelection.
+// Texts of the championship entry selection, each up to the next global.
 // GLOBAL: CMR2 0x00818368
-char g_unk0x00818368[32];
+char g_unk0x00818368[0x64];
 // GLOBAL: CMR2 0x008183cc
-char g_unk0x008183cc[32];
+char g_unk0x008183cc[0x64];
 // Text of the championship entry selection (FrontendMenu_DrawMultiplayerStageSelection:
 // heading, profile name and date), up to the next global at 0x8185b8.
 // GLOBAL: CMR2 0x00818554

@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "225e600f5ed8604a8af72873dfdff611e9271d83",
+    "commit": "afa1224691b51a0a01ec74564eca518b2a3b9290",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -88,7 +88,7 @@
       "CMR2Decomp/FrontendMenus.cpp": "14041c11601a79b56745057ef8cd87ec2fa75f481ecefcec8482dfca601b58e3",
       "CMR2Decomp/FrontendMenus.h": "49453d0a6d21639bbf190b739f2e7a38d16b1cf547b6c1c4ff697055a5e561ad",
       "CMR2Decomp/FrontendNetworkRally.cpp": "04877e99bd48400fbbce1fcca1a48f7611af8e0e9d6992529062dd7537bfd635",
-      "CMR2Decomp/FrontendScreens.cpp": "a4f674ae7b3092c2cd694c27e5b72221629b0365c8710580610ace609903e5c8",
+      "CMR2Decomp/FrontendScreens.cpp": "a592e85fe551bdae54dcf02e8d37e7268b4788f43112fb3f9c969a7ef8227505",
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
       "CMR2Decomp/Game.cpp": "2a9c51fbfaae6d2a492236e179ed000178c73386a74a382e91dc041fc05eeca4",
       "CMR2Decomp/Game.h": "9aa1c73ab23a116baede7d7d9789ba129b730bb55de16926fa4202daecb377dc",
@@ -103,7 +103,7 @@
       "CMR2Decomp/Glow.h": "3578d2d56f4b05aff49532c1f67c83942688b7190ea44fb6ba38c3f110792e8b",
       "CMR2Decomp/Graphics.cpp": "5f857ed54ffc3d5b433ce9b179f8b7088899203f9fc15e563a5e3faada47229f",
       "CMR2Decomp/Graphics.h": "2b79ef3a9c150e989a26deeade11b62b7861baa14d83e6a51eace62794219054",
-      "CMR2Decomp/HudDash.cpp": "0a80a5921e733bcadb2019b53e0521712669c2725e102f440d5cfcbeb4c377e5",
+      "CMR2Decomp/HudDash.cpp": "4b910f67fccc4e6e681b08657c840e2d44f04dd7bb985d0cf9f65d5df1f88504",
       "CMR2Decomp/Input.cpp": "7ac3c10169abe054c371cd4da1e6c1a51f0b4fe33d74027c9db991e0429fe2dd",
       "CMR2Decomp/Input.h": "6c8ce64e581da4f84e04af836ec4276d106ed118b58ddd8521fff3d05eeacb8c",
       "CMR2Decomp/InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
@@ -211,8 +211,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "fc8227590063f4da718f29d3b00eae6914812b0639469e5915d2fd87e04de115",
-    "pdb_sha256": "25c8f26aa4c02f3555f189fab95942d76ae6d869a3e907d2cbdf308c97046629"
+    "exe_sha256": "c2962767e85b5ed986b220bbd39e31ce808e3c1db005b462dbfd14c276187075",
+    "pdb_sha256": "7c36f088a6a7858294c48c3b7a5eece79f35a74dc2d1ee3432761b583f1de947"
   },
   "perfect_match_percent": 56.28,
   "fuzzy_match_percent": 94.43,
