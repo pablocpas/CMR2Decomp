@@ -77,6 +77,29 @@ SceneNode *Sector_BuildC3DModelScene(void *data, SceneNode *parent, GenericFile 
     return result;
 }
 
+// Header of a C3D model file ("PP_F"); the records follow it at +0x30 in this
+// order: scene nodes, meshes (plain then stage object meshes), stage objects,
+// sectors and their portals, triangles, vertices, light levels, vertex flags,
+// mesh records, then the texture records.
+struct C3DFileHeader {
+    char magic[4];
+    int textureArchiveFlags;           // 0x04, passed to Graphics_LoadTextureRecordList
+    int field_0x8;
+    int textureNamesOffset;            // 0x0c, from the start of the file
+    int vertexFlagCount;               // 0x10, 0x14-byte records
+    int vertexCount;                   // 0x14, 0x30 bytes and a light level each
+    unsigned short nodeCount;          // 0x18, SceneNode
+    unsigned short meshCount;          // 0x1a, Mesh
+    unsigned short objectMeshCount;    // 0x1c, Mesh and StageObject
+    unsigned short sectorCount;        // 0x1e, Sector
+    unsigned int triangleCount;        // 0x20, 0x4c bytes each
+    unsigned short textureCount;       // 0x24
+    unsigned short recordCount;        // 0x26, 0x5c-byte mesh records
+    unsigned short portalCount;        // 0x28, 0x1c bytes each
+    BYTE reserved[6];
+};
+
+
 // Relocates the stage mesh file: turns the offsets stored in the node, mesh,
 // object and sector records into pointers, registers them in the scene node,
 // mesh, stage object and sector tables, loads the textures and re-uploads the
@@ -84,6 +107,7 @@ SceneNode *Sector_BuildC3DModelScene(void *data, SceneNode *parent, GenericFile 
 // FUNCTION: CMR2 0x004b93c0
 void *Sector_RelocateStageMeshFile(BYTE *pData, SceneNode *parent, GenericFile *archive)
 {
+    C3DFileHeader *pHeader = (C3DFileHeader *)pData;
     int count = 0;
     BYTE *pNodes;
     BYTE *pMeshArray;
@@ -106,18 +130,18 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, SceneNode *parent, GenericFile *
     BYTE *pEnd;
 
     pNodes = pData + 0x30;
-    pMeshArray = pNodes + *(unsigned short *)(pData + 0x18) * 0x18c;
-    pStageObjects = pMeshArray + (*(unsigned short *)(pData + 0x1a) + *(unsigned short *)(pData + 0x1c)) * 0x120;
-    pSectors = pStageObjects + *(unsigned short *)(pData + 0x1c) * 0xa0;
-    pTriangles = pSectors + *(unsigned short *)(pData + 0x1e) * 0x88 + *(unsigned short *)(pData + 0x28) * 0x1c;
-    pVertexData = pTriangles + *(int *)(pData + 0x20) * 0x4c;
-    pLightLevels = pVertexData + *(int *)(pData + 0x14) * 0x30;
-    pVertexFlags = pLightLevels + *(int *)(pData + 0x14) * 4;
-    pRecords = pVertexFlags + *(int *)(pData + 0x10) * 0x14;
-    recordSize = *(unsigned short *)(pData + 0x26);
+    pMeshArray = pNodes + pHeader->nodeCount * 0x18c;
+    pStageObjects = pMeshArray + (pHeader->meshCount + pHeader->objectMeshCount) * 0x120;
+    pSectors = pStageObjects + pHeader->objectMeshCount * 0xa0;
+    pTriangles = pSectors + pHeader->sectorCount * 0x88 + pHeader->portalCount * 0x1c;
+    pVertexData = pTriangles + pHeader->triangleCount * 0x4c;
+    pLightLevels = pVertexData + pHeader->vertexCount * 0x30;
+    pVertexFlags = pLightLevels + pHeader->vertexCount * 4;
+    pRecords = pVertexFlags + pHeader->vertexFlagCount * 0x14;
+    recordSize = pHeader->recordCount;
     pEnd = pRecords + recordSize * 0x5c;
-    textureRecords = (char *)pData + *(int *)(pData + 0xc);
-    if (*(unsigned int *)(pData + 0x20) > 0) {
+    textureRecords = (char *)pData + pHeader->textureNamesOffset;
+    if (pHeader->triangleCount > 0) {
         // Ten texture indices per triangle (0x4c bytes) are moved past the
         // textures already loaded.
         pRow = (int *)(pTriangles + 4);
@@ -132,13 +156,13 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, SceneNode *parent, GenericFile *
             } while (k != 0);
             count++;
             pRow += 0x13;
-        } while (count < *(unsigned int *)(pData + 0x20));
+        } while (count < pHeader->triangleCount);
     }
     Graphics_LoadTextureRecordList(pEnd, textureRecords,
-                 *(unsigned short *)(pData + 0x24), *(int *)(pData + 4), archive);
+                 pHeader->textureCount, pHeader->textureArchiveFlags, archive);
     savedNodeCount = g_sceneNodeCount;
-    if (*(unsigned short *)(pData + 0x18) > 0) {
-        for (i = 0, p = pNodes; i < *(unsigned short *)(pData + 0x18); i++, p += 0x18c) {
+    if (pHeader->nodeCount > 0) {
+        for (i = 0, p = pNodes; i < pHeader->nodeCount; i++, p += 0x18c) {
             Graphics_AccumulateCounterOrInitialize((int *)p, (int)pNodes);
             Graphics_AccumulateCounterOrInitialize((int *)(p + 4), (int)pNodes);
             if (parent != NULL && *(short *)(p + 0x24) == -1) {
@@ -152,17 +176,17 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, SceneNode *parent, GenericFile *
             g_sceneNodes[g_sceneNodeCount + i] = (SceneNode *)p;
             *(short *)(p + 0x26) = (short)(g_sceneNodeCount + i);
         }
-        g_sceneNodeCount += *(unsigned short *)(pData + 0x18);
+        g_sceneNodeCount += pHeader->nodeCount;
     }
-    if (*(unsigned short *)(pData + 0x26) > 0) {
-        for (j = 0, p = pRecords; j < *(unsigned short *)(pData + 0x26); j++, p += 0x5c) {
+    if (pHeader->recordCount > 0) {
+        for (j = 0, p = pRecords; j < pHeader->recordCount; j++, p += 0x5c) {
             Graphics_AccumulateCounterOrInitialize((int *)(p + 0x58), (int)pRecords);
             g_meshesBySize[g_meshTotalSize + j] = p;
         }
-        g_meshTotalSize += *(unsigned short *)(pData + 0x26);
+        g_meshTotalSize += pHeader->recordCount;
     }
-    if (*(unsigned short *)(pData + 0x1a) > 0) {
-        for (i = 0, p = pMeshArray + 0x113; i < *(unsigned short *)(pData + 0x1a); i++, p += 0x120) {
+    if (pHeader->meshCount > 0) {
+        for (i = 0, p = pMeshArray + 0x113; i < pHeader->meshCount; i++, p += 0x120) {
             pField = (int *)(p - 0x107);
             for (j = 0; j < *p; j++) {
                 Graphics_AccumulateCounterOrInitialize(pField + 6, (int)pTriangles);
@@ -175,15 +199,15 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, SceneNode *parent, GenericFile *
                 pField += 0x42;
             }
             Graphics_AccumulateCounterOrInitialize((int *)(p - 7), (int)pRecords);
-            if (*(short *)(pData + 0x1e) == 0)
+            if (pHeader->sectorCount == 0)
                 g_meshes[g_meshCount + i] = (Mesh *)(p - 0x113);
         }
-        if (*(short *)(pData + 0x1e) == 0)
-            g_meshCount += *(unsigned short *)(pData + 0x1a);
+        if (pHeader->sectorCount == 0)
+            g_meshCount += pHeader->meshCount;
     }
-    if (*(unsigned short *)(pData + 0x1c) > 0) {
-        for (j = *(unsigned short *)(pData + 0x1a), p = pMeshArray + j * 0x120 + 0x113;
-             j < *(unsigned short *)(pData + 0x1c) + *(unsigned short *)(pData + 0x1a);
+    if (pHeader->objectMeshCount > 0) {
+        for (j = pHeader->meshCount, p = pMeshArray + j * 0x120 + 0x113;
+             j < pHeader->objectMeshCount + pHeader->meshCount;
              j++, p += 0x120) {
             pField = (int *)(p - 0x107);
             for (i = 0; i < *p; i++) {
@@ -199,22 +223,22 @@ void *Sector_RelocateStageMeshFile(BYTE *pData, SceneNode *parent, GenericFile *
             Graphics_AccumulateCounterOrInitialize((int *)(p - 7), (int)pRecords);
         }
         i = 0;
-        if (*(unsigned short *)(pData + 0x1c) > 0) {
-            for (p = pStageObjects + 0x98; i < *(unsigned short *)(pData + 0x1c); i++, p += 0xa0) {
+        if (pHeader->objectMeshCount > 0) {
+            for (p = pStageObjects + 0x98; i < pHeader->objectMeshCount; i++, p += 0xa0) {
                 Graphics_AccumulateCounterOrInitialize((int *)(p - 0x8c),
-                             (int)(pMeshArray + *(unsigned short *)(pData + 0x1a) * 0x120));
+                             (int)(pMeshArray + pHeader->meshCount * 0x120));
                 Graphics_AccumulateCounterOrInitialize((int *)p, (int)pStageObjects);
                 g_stageObjects[g_unk0x0067f228 + i] = (StageObject *)(p - 0x98);
             }
         }
-        g_unk0x0067f228 += *(unsigned short *)(pData + 0x1c);
+        g_unk0x0067f228 += pHeader->objectMeshCount;
     }
-    if (*(unsigned short *)(pData + 0x1e) > 0) {
-        for (i = 0, p = pSectors; i < *(unsigned short *)(pData + 0x1e); i++, p += 0x88) {
+    if (pHeader->sectorCount > 0) {
+        for (i = 0, p = pSectors; i < pHeader->sectorCount; i++, p += 0x88) {
             Graphics_AccumulateCounterOrInitialize((int *)(p + 0x10), (int)pMeshArray);
             g_sectors[i] = (Sector *)p;
         }
-        g_sectorCount = *(unsigned short *)(pData + 0x1e);
+        g_sectorCount = pHeader->sectorCount;
     }
     return g_sceneNodes[savedNodeCount];
 }

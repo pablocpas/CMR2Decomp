@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "46bf89f92a5ac1994f3de34070d14b0c8ea0ca51",
+    "commit": "207f0f66e3896bcde93650ded554ec90d2eb7f22",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -150,7 +150,7 @@
       "CMR2Decomp/SavedGame.h": "eb2eb03946a7037db20a528d31f574a32f32780300ac461e9172a11e48e8fa57",
       "CMR2Decomp/SceneNode.cpp": "de514616c566967a3dfa25b38237c122ef745d73c7badd722fdf1d95593fedca",
       "CMR2Decomp/SceneNode.h": "36cb89b89381d06e4af832f582f32fcdee9f90502e826a7870c48ebbcc25c22a",
-      "CMR2Decomp/Sector.cpp": "5ec8a96fb98b5d7da6122373890d26676782491ed1eea34f7fd1d7f4a7a149cc",
+      "CMR2Decomp/Sector.cpp": "f7abd1b1572c8d94ead1f036d9e42d85e165c6c8b5d45dca999b36eebe31fcc1",
       "CMR2Decomp/Sector.h": "2a76908aa33a707e3013845085abd79e7c61038c2248db26cd1b9417cdbd48cf",
       "CMR2Decomp/SectorObjectEntry.h": "36593e63c9880e33bf96b17da04737129b1d6fc7037bae1d759f386a17e4a19b",
       "CMR2Decomp/ShadowPart.h": "7b3d96538cda487ec312d3ffba16cbf85aa43b3fb799341a7c032ce483a238f1",
@@ -215,8 +215,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "44c54e12c8997fbc1a624d90b9590a00c5413e6b859359dd7c6eb866cc16c989",
-    "pdb_sha256": "d609f86e1846ee7e83bcd06ae74ea90dc9dc6f61de61b14ddb4d52e6ecd33f94"
+    "exe_sha256": "f8792b0ea37faf801c4f0d20bdbbc7a43c7a81448af5cec03abb0b9359a358e9",
+    "pdb_sha256": "7422c25a686bdeb50d81a43e97fd62d9174e7d9cff4b83ee1015463b1fba251d"
   },
   "perfect_match_percent": 56.28,
   "fuzzy_match_percent": 94.44,
