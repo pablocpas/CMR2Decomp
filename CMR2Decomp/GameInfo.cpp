@@ -11204,7 +11204,7 @@ extern BYTE g_stageRecordTexts[0x898];
 extern BYTE g_carClassRecordTexts[0x258];
 extern BYTE g_championshipRecordTexts[0x1cc];
 
-BYTE *RallyData_GetAvailableCategorySaveRecord(int index);
+CategoryBestResults *RallyData_GetAvailableCategorySaveRecord(int index);
 void FrontendProfile_ScrambleIdentifier(unsigned int param_1, unsigned int *pNumber, char *pByte, char *pOut);
 
 // Rewrites every best-time record of the selected rally as a scrambled
@@ -11246,21 +11246,18 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
     } local_8;
     BestTimeCursor local_c;
     BestTimeCursor local_10;
-    int local_14;
     BYTE *local_18;
     int local_1c;
 
     local_8.word = 0;
     local_4.word = 0;
     local_10.index = 0;
-    local_14 = 0x150;
     do {
         local_c.index = (local_10.index % 2) + 10;
-        local_1c = local_14;
         for (uVar8 = 0; (int)uVar8 < local_c.index; uVar8++) {
             {
-                puVar7 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 4 + local_1c);
-                puVar10 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + local_1c);
+                puVar7 = &RallyData_GetAvailableCategorySaveRecord(0)->rallyStageTimes[local_10.index][uVar8].time;
+                puVar10 = &RallyData_GetAvailableCategorySaveRecord(0)->rallyStageTimes[local_10.index][uVar8].header;
                 if (((*puVar10 & 0x80) == 0) || (*puVar7 / 6000 >= 16)) {
                     g_stageRecordTexts[(local_10.index * 11 + uVar8) * 0x19] = 0;
                 } else {
@@ -11284,23 +11281,19 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
                                  (char *)&g_stageRecordTexts[(local_10.index * 11 + uVar8) * 0x19]);
                     FrontendText_FormatCodeGroups((char *)&g_stageRecordTexts[(local_10.index * 11 + uVar8) * 0x19]);
                 }
-                local_1c += 8;
             }
         }
-        local_14 += 0x60;
         local_10.index = local_10.index + 1;
-    } while (local_14 < 0x450);
+    } while (local_10.index < 8);
 
     local_10.bytes = g_carClassRecordTexts;
     local_1c = 0;
-    local_14 = 0;
     do {
         uVar5 = 0;
         local_18 = local_10.bytes;
-        local_c.index = local_14;
         do {
-            iVar3.rally = (BestTimeRallyTail *)(RallyData_GetAvailableCategorySaveRecord(0) + 0x34 + local_c.index);
-            iVar4 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 0x30 + local_c.index);
+            iVar3.rally = (BestTimeRallyTail *)&RallyData_GetAvailableCategorySaveRecord(0)->rallyResults[uVar5][local_1c].result;
+            iVar4 = &RallyData_GetAvailableCategorySaveRecord(0)->rallyResults[uVar5][local_1c].header;
             puVar7 = iVar4;
             if (((*(BYTE *)iVar4 & 0x80) == 0) || (iVar3.rally->centiseconds / 6000 >= 64)) {
                 *local_18 = 0;
@@ -11326,20 +11319,17 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
                 FrontendText_FormatCodeGroups((char *)local_18);
             }
             uVar5++;
-            local_c.index += 0x24;
             local_18 += 0x4b;
         } while ((int)uVar5 < 8);
         local_1c++;
-        local_14 += 0xc;
         local_10.bytes += 0x19;
     } while (local_10.bytes < g_carClassRecordTexts + 0x4b);
 
     uVar5 = 0;
-    local_c.index = 0;
     puVar9 = g_eventRecordTexts;
     do {
-        puVar7 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 4 + local_c.index);
-        puVar10 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + local_c.index);
+        puVar7 = &RallyData_GetAvailableCategorySaveRecord(0)->playerResults[uVar5].result.result;
+        puVar10 = &RallyData_GetAvailableCategorySaveRecord(0)->playerResults[uVar5].result.header;
         if ((*(BYTE *)puVar10 & 0x80) != 0) {
             local_8.word = (local_8.word & 0xfff83fff) | (*puVar7 & 0xf) << 0xe;
             local_8.word = (local_8.word & 0xffe7c07f) |
@@ -11363,22 +11353,18 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
         }
         puVar9 += 0x19;
         uVar5++;
-        local_c.index += 0x10;
     } while (puVar9 < g_eventRecordTexts + 0x4b);
 
     uVar5 = 0;
-    local_14 = 0x450;
     local_18 = g_profileCarClassRecordTexts;
     do {
         uVar8 = 0;
-        local_10.index = local_14;
         local_c.bytes = local_18;
         do {
             // The original keeps puVar7 from the championship pass here and
             // discards the first provider result. Preserve both calls.
             RallyData_GetAvailableCategorySaveRecord(0);
-            iVar2.bytes = RallyData_GetAvailableCategorySaveRecord(0);
-            puVar10 = (unsigned int *)(iVar2.bytes + local_10.index);
+            puVar10 = &RallyData_GetAvailableCategorySaveRecord(0)->arcadeResults[uVar8][uVar5].header;
             if ((*puVar10 & 0x80) != 0) {
                 local_8.word = (local_8.word & 0xffff8fff) | (*puVar7 & 7) << 0xc;
                 local_8.word = (local_8.word & 0xfffe707f) |
@@ -11401,20 +11387,18 @@ void FrontendRecords_BuildScrambledBestTimeTables(void)
                 *local_c.bytes = 0;
             }
             uVar8++;
-            local_10.index = local_10.index + 0x24;
             local_c.bytes += 0x4b;
         } while ((int)uVar8 < 2);
-        local_14 += 0xc;
         uVar5++;
         local_18 += 0x19;
-    } while (local_14 < 0x474);
+    } while ((int)uVar5 < 3);
 
     uVar5 = 0;
     local_10.bytes = g_championshipRecordTexts;
     do {
         iVar2.index = ((int)uVar5 / 3) * 3 + (int)uVar5 % 3;
-        puVar7 = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 0x4c0 + iVar2.index * 8);
-        iVar3.word = (unsigned int *)(RallyData_GetAvailableCategorySaveRecord(0) + 0x4bc + iVar2.index * 8);
+        puVar7 = &RallyData_GetAvailableCategorySaveRecord(0)->arcadeStageTimes[0][iVar2.index].time;
+        iVar3.word = &RallyData_GetAvailableCategorySaveRecord(0)->arcadeStageTimes[0][iVar2.index].header;
         uVar8 = *iVar3.word;
         puVar10 = iVar3.word;
         if (((uVar8 & 0x80) == 0) || (*puVar7 / 6000 >= 64)) {

@@ -26,7 +26,7 @@ void Game_CreateSplashScene(void);
 // Callees that live in other translation units and are not declared in their
 // headers yet.
 BYTE *RallyData_GetCategoryOptionRecord(int index);
-BYTE *RallyData_GetAvailableCategorySaveRecord(int index);
+CategoryBestResults *RallyData_GetAvailableCategorySaveRecord(int index);
 unsigned int RallyData_GetFlag30(void);
 unsigned int RallyData_GetFlag23(void);
 BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
@@ -1333,7 +1333,7 @@ BYTE Frontend_MergeBestArcadeRecordOption(int index)
     unsigned int *pValue;
     unsigned int value;
 
-    base = (CategoryBestResults *)RallyData_GetAvailableCategorySaveRecord(index);
+    base = RallyData_GetAvailableCategorySaveRecord(index);
     pDevice = (unsigned int *)(RallyData_GetCategoryOptionRecord(index) + 0x20);
     pEntry = &base->arcadeStageTimes[g_unk0x00817404][g_frontendRecordStage].header;
     pValue = pEntry + 1;

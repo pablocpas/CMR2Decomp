@@ -3044,7 +3044,7 @@ int FrontendRecords_InsertStageCategoryRecord(int param1, int index, char *pName
 char FrontendRecords_InsertArcadeDeviceRecord(int param1, int index, char *pName);
 unsigned char GameInfo_GetFrontendSessionFlag(void);
 void GameMenu_BuildStageResultsMenu(char param1, Menu *pParent);
-BYTE *RallyData_GetAvailableCategorySaveRecord(int index);
+CategoryBestResults *RallyData_GetAvailableCategorySaveRecord(int index);
 extern int g_unk0x00541cf0;
 void GameMenu_SortStageResults(void);
 void GameMenu_BuildTimeTrialResultsMenu(char param1, Menu *pParent);
@@ -3125,7 +3125,7 @@ void GameMenu_SetupStageResults(int param_1)
                             Frontend_ClearDeviceKeyFields(car);
                         Frontend_AdvanceDeviceOptionNibble(car, driver);
                     }
-                    Frontend_MergeBestDeviceStageOption(car, (CategoryBestResults *)RallyData_GetAvailableCategorySaveRecord(car));
+                    Frontend_MergeBestDeviceStageOption(car, RallyData_GetAvailableCategorySaveRecord(car));
                     state = Frontend_CopyImprovedStageRecordAndSplits(i, car, (char *)RallyData_GetRecord(car));
                     stageFlag = (char)Frontend_AccumulateMinimumDeviceOption(i, car);
                 }
@@ -3134,7 +3134,7 @@ void GameMenu_SetupStageResults(int param_1)
                         time = RallyTiming_GetChampionshipTimeSeconds(i);
                         position = RallyTiming_GetChampionshipPointsByPosition(i);
                         Frontend_SetSecondaryRecordOptionFields(car, position, time, RallyTiming_GetChampionshipStagePoints(i));
-                        Frontend_MergeBestSecondaryPlayerOption(car, (CategoryBestResults *)RallyData_GetAvailableCategorySaveRecord(car));
+                        Frontend_MergeBestSecondaryPlayerOption(car, RallyData_GetAvailableCategorySaveRecord(car));
                         FrontendRecords_InsertArcadeDeviceRecord(i, car, (char *)RallyData_GetRecord(car));
                     }
                     if ((Race_ReadPlayerState37F68(i) & 0x80) != 0 || (Race_ReadPlayerState37F68(i) & 0x2000) != 0 ||
@@ -3158,7 +3158,7 @@ void GameMenu_SetupStageResults(int param_1)
                                 FrontendRecords_ResetDeviceStats(j);
                             Frontend_AddDeviceValueAndStatistic(j, time, position);
                         }
-                        Frontend_MergeBestDeviceButtonOption(j, (CategoryBestResults *)RallyData_GetAvailableCategorySaveRecord(j));
+                        Frontend_MergeBestDeviceButtonOption(j, RallyData_GetAvailableCategorySaveRecord(j));
                         FrontendRecords_InsertStageDeviceRecord(j, j, (char *)RallyData_GetRecord(j));
                         if ((Race_ReadPlayerState37F68(j) & 0x80) != 0 || (Race_ReadPlayerState37F68(j) & 0x2000) != 0)
                             bVar1 = 1;
@@ -3171,7 +3171,7 @@ void GameMenu_SetupStageResults(int param_1)
                     time = RallyTiming_GetStageTimeSeconds(driver);
                     position = RallyTiming_GetStagePositionOfDriver(driver);
                     Frontend_SetDeviceRecordOptionFields(j, position, time);
-                    Frontend_MergeBestPlayerStageOption(j, (CategoryBestResults *)RallyData_GetAvailableCategorySaveRecord(j));
+                    Frontend_MergeBestPlayerStageOption(j, RallyData_GetAvailableCategorySaveRecord(j));
                     FrontendRecords_InsertStageCategoryRecord(j, j, (char *)RallyData_GetRecord(j));
                 }
             }

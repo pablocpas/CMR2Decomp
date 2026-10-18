@@ -3220,7 +3220,7 @@ BYTE RallyData_IsDriverRecordUsable(BYTE param1);
 extern BYTE g_itemColour[4];
 extern char g_classRowHeaderFormat[];
 int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha);
-BYTE *RallyData_GetAvailableCategorySaveRecord(int index);
+CategoryBestResults *RallyData_GetAvailableCategorySaveRecord(int index);
 unsigned char RallyData_GetSelectionFlag26(void);
 unsigned int RallyData_GetSetupFlag11(void);
 
@@ -3258,7 +3258,7 @@ unsigned int g_stageResultPanelColour = 0x96dcbebc;
 // FUNCTION: CMR2 0x004147f0
 void RallyData_DrawStageResultRows(int car, short *position)
 {
-    BYTE *record;
+    CategoryBestResults *record;
     BYTE *gameInfo;
     unsigned int carTime;
     unsigned int recordTime;
@@ -3284,7 +3284,7 @@ void RallyData_DrawStageResultRows(int car, short *position)
     if (CGameInfo::GetConfiguredGameMode() == 3) {
         record = RallyData_GetAvailableCategorySaveRecord((StageUI_GetRaceEndEventCount() & 0xff) + car);
         index = (RallyDataCountryIndex() & 0xff) * 12 + (RallyDataStageIndex() & 0xff);
-        carTime = *(unsigned int *)(record + 0x154 + index * 8);
+        carTime = record->rallyStageTimes[0][index].time; // [country][stage] as one index
         index = (RallyDataCountryIndex() & 0xff) * 11;
         index += (RallyDataStageIndex() & 0xff);
         gameInfo = (BYTE *)CGameInfo::GetGameInfoFieldA4Address();
@@ -3294,8 +3294,7 @@ void RallyData_DrawStageResultRows(int car, short *position)
         sprintf(recordName, (char *)(gameInfo + 0x654 + index * 8));
     } else {
         record = RallyData_GetAvailableCategorySaveRecord((StageUI_GetRaceEndEventCount() & 0xff) + car);
-        index = (RallyData_GetSelectionBits10To11() & 0xff) * 3 + (RallyData_GetSelectionBits12To13() & 0xff);
-        carTime = *(unsigned int *)(record + 0x4c0 + index * 8);
+        carTime = record->arcadeStageTimes[RallyData_GetSelectionBits10To11() & 0xff][RallyData_GetSelectionBits12To13() & 0xff].time;
         index = (RallyData_GetSelectionBits10To11() & 0xff) * 3;
         index += (RallyData_GetSelectionBits12To13() & 0xff);
         gameInfo = (BYTE *)CGameInfo::GetGameInfoFieldA4Address();
@@ -3550,7 +3549,7 @@ BYTE RallyData_IsDriverRecordUsable(BYTE param1);
 extern BYTE g_itemColour[4];
 extern char g_classRowHeaderFormat[];
 int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha);
-BYTE *RallyData_GetAvailableCategorySaveRecord(int index);
+CategoryBestResults *RallyData_GetAvailableCategorySaveRecord(int index);
 
 // GLOBAL: CMR2 0x00516e3c
 char g_loadRecordTimeFormat[] = "%.2d:%.2d.%.2d";
@@ -3633,10 +3632,10 @@ void RallyData_DrawFadedLoadingText(BYTE alpha)
         for (i = 0; i < (int)(RallyDataState() & 0xff); i++) {
             if (!RallyData_IsDriverRecordUsable(i)) {
                 shown++;
-                if (*(RallyData_GetAvailableCategorySaveRecord(i) + 0x150 +
-                      ((RallyDataStageIndex() & 0xff) + (RallyDataCountryIndex() & 0xff) * 12) * 8) & 0x80) {
-                    time = *(unsigned int *)(RallyData_GetAvailableCategorySaveRecord(i) + 0x154 +
-                                             ((RallyDataStageIndex() & 0xff) + (RallyDataCountryIndex() & 0xff) * 12) * 8);
+                if (RallyData_GetAvailableCategorySaveRecord(i)
+                        ->rallyStageTimes[RallyDataCountryIndex() & 0xff][RallyDataStageIndex() & 0xff].header & 0x80) {
+                    time = RallyData_GetAvailableCategorySaveRecord(i)
+                               ->rallyStageTimes[RallyDataCountryIndex() & 0xff][RallyDataStageIndex() & 0xff].time;
                     LOAD_TIME_TEXT(time);
                 } else {
                     sprintf(CFrontend::m_stringDest, g_noTimeText);
@@ -3692,10 +3691,12 @@ void RallyData_DrawFadedLoadingText(BYTE alpha)
         for (i = 0; i < (int)(RallyDataState() & 0xff); i++) {
             if (!RallyData_IsDriverRecordUsable(i)) {
                 shown++;
-                if (*(RallyData_GetAvailableCategorySaveRecord(i) + 0x4bc +
-                      ((RallyData_GetSelectionBits10To11() & 0xff) * 3 + (RallyData_GetSelectionBits12To13() & 0xff)) * 8) & 0x80) {
-                    time = *(unsigned int *)(RallyData_GetAvailableCategorySaveRecord(i) + 0x4c0 +
-                                             ((RallyData_GetSelectionBits10To11() & 0xff) * 3 + (RallyData_GetSelectionBits12To13() & 0xff)) * 8);
+                if (RallyData_GetAvailableCategorySaveRecord(i)
+                        ->arcadeStageTimes[RallyData_GetSelectionBits10To11() & 0xff][RallyData_GetSelectionBits12To13() & 0xff]
+                        .header & 0x80) {
+                    time = RallyData_GetAvailableCategorySaveRecord(i)
+                               ->arcadeStageTimes[RallyData_GetSelectionBits10To11() & 0xff][RallyData_GetSelectionBits12To13() & 0xff]
+                               .time;
                     LOAD_TIME_TEXT(time);
                 } else {
                     sprintf(CFrontend::m_stringDest, g_noTimeText);
@@ -4573,17 +4574,16 @@ unsigned char RallyData_GetSelectionFlag26(void)
     return (g_selectedRallyData >> 26) & 1;
 }
 
-// Returns the 0x650-byte record of the id, or NULL when its 0x3c0000 field is
-// already full. The record base is 0x30 bytes into the 0x52fa5c table.
+// Best results of the driver's profile, or NULL when the driver has none.
 // FUNCTION: CMR2 0x00408cb0
-BYTE *RallyData_GetAvailableCategorySaveRecord(int index)
+CategoryBestResults *RallyData_GetAvailableCategorySaveRecord(int index)
 {
     unsigned int value;
 
     RallyData_ValidateIndex(index);
     value = *(unsigned int *)&g_saveSlots[index];
     if ((value & 0x3c0000) != 0x3c0000)
-        return (BYTE *)&g_saveProfiles[((value >> 0x12) & 0xf)].bestResults;
+        return &g_saveProfiles[(value >> 0x12) & 0xf].bestResults;
     return NULL;
 }
 
@@ -7550,7 +7550,7 @@ int g_splitBarEnabled;
 // FUNCTION: CMR2 0x00411f70
 void RallyData_UpdateCarSplitBar(int param_1, int param_2)
 {
-    BYTE *pInfo;
+    CategoryBestResults *pInfo;
     int splitTime;
     int marker;
     int splitIndex;
@@ -7575,18 +7575,16 @@ void RallyData_UpdateCarSplitBar(int param_1, int param_2)
             if (CGameInfo::GetConfiguredGameMode() == 7) {
                 g_stageTargetTime = CFrontend::GetCurrentRecordOptionValue();
                 pInfo = RallyData_GetAvailableCategorySaveRecord((StageUI_GetRaceEndEventCount() & 0xff) + param_1);
-                g_profileBestStageTime = *(int *)(pInfo + 0x4c0 +
-                    ((RallyData_GetSelectionBits10To11() & 0xff) * 3 +
-                     (RallyData_GetSelectionBits12To13() & 0xff)) * 8);
+                g_profileBestStageTime = pInfo->arcadeStageTimes[RallyData_GetSelectionBits10To11() & 0xff]
+                                                                [RallyData_GetSelectionBits12To13() & 0xff].time;
             }
             if (CGameInfo::GetConfiguredGameMode() == 3) {
                 g_stageTargetTime = *(unsigned int *)((BYTE *)CGameInfo::GetGameInfoFieldA4Address() + 0x658 +
                     ((RallyDataCountryIndex() & 0xff) * 0xb +
                      (RallyDataStageIndex() & 0xff)) * 8) >> 7 & 0xffff;
                 pInfo = RallyData_GetAvailableCategorySaveRecord((StageUI_GetRaceEndEventCount() & 0xff) + param_1);
-                g_profileBestStageTime = *(int *)(pInfo + 0x154 +
-                    ((RallyDataStageIndex() & 0xff) +
-                     (RallyDataCountryIndex() & 0xff) * 0xc) * 8);
+                g_profileBestStageTime = pInfo->rallyStageTimes[RallyDataCountryIndex() & 0xff]
+                                                               [RallyDataStageIndex() & 0xff].time;
             }
             for (i = 0; i < 12; i++)
                 g_splitTargetTimes[i + 1] = Frontend_StoreSelectedDeviceOption(i);
@@ -7599,9 +7597,8 @@ void RallyData_UpdateCarSplitBar(int param_1, int param_2)
             if (CGameInfo::GetConfiguredGameMode() == 6 || CGameInfo::GetConfiguredGameMode() == 5) {
                 g_stageTargetTime = CFrontend::GetCurrentRecordOptionValue();
                 pInfo = RallyData_GetAvailableCategorySaveRecord((StageUI_GetRaceEndEventCount() & 0xff) + param_1);
-                g_profileBestStageTime = *(int *)(pInfo + 0x4c0 +
-                    ((RallyData_GetSelectionBits10To11() & 0xff) * 3 +
-                     (RallyData_GetSelectionBits12To13() & 0xff)) * 8);
+                g_profileBestStageTime = pInfo->arcadeStageTimes[RallyData_GetSelectionBits10To11() & 0xff]
+                                                                [RallyData_GetSelectionBits12To13() & 0xff].time;
             }
         }
     }

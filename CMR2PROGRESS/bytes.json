@@ -13023,9 +13023,9 @@
   },
   "0x4f8b30": {
     "n": "FrontendRecords_BuildScrambledBestTimeTables",
-    "s": 0.6875,
+    "s": 0.6625,
     "x": false,
-    "fz": 0.7571428571428571,
+    "fz": 0.7714285714285715,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FrontendRecords_BuildScrambledBestTimeTables"
@@ -20269,7 +20269,7 @@
   },
   "0x4147f0": {
     "n": "RallyData_DrawStageResultRows",
-    "s": 0.7782026768642447,
+    "s": 0.7839388145315488,
     "x": false,
     "fz": 0.8776290630975143,
     "unknown": [],

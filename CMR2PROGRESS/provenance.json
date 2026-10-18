@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "d2199b79cf1d8a5723b3a50ae2fd415d0f555df9",
+    "commit": "fef37bf866a47da82c6780a6a2ba949918541882",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -82,21 +82,21 @@
       "CMR2Decomp/FloatToInt.h": "c302ad50883656fcd76195df252383d669cd9b6b8165dbf64034fb8643f50af5",
       "CMR2Decomp/Font.cpp": "4e39c1d7747b8daf8b24a6f2dcbb8a2ad466e577bf4b1f54d42203d4377239ea",
       "CMR2Decomp/Font.h": "b36c74276fe538db5ece7721052b13d230474ab13ddaa214235460c079f3c912",
-      "CMR2Decomp/Frontend.cpp": "13193612c1d3bf14ca8a581b273b81c0bacad5d81104993c1fbc50d877a578fa",
+      "CMR2Decomp/Frontend.cpp": "464f36a85b1e453ebb7219ad0ba976448a6cb531ec093b3ef0de8d345465bad6",
       "CMR2Decomp/Frontend.h": "60cdf8b545fd538431a190554ee67fdb4c7830584acca37826a81536994ed24f",
       "CMR2Decomp/FrontendDraw.cpp": "1146a41def097cb318f576eed06cf7b9591a76b451829d516c02a63de17bcce3",
       "CMR2Decomp/FrontendDraw.h": "c7c40884d0b1a1e97f77833bd57e8b421f897240eeaadfd5c2b365c7c2529eb8",
       "CMR2Decomp/FrontendMenus.cpp": "f9c11066a7dd511cee0c994ecf9f4b2e368144bbad998119ec320d59426fc5bc",
       "CMR2Decomp/FrontendMenus.h": "bcbc624b659bad64621ff3f7d7a9dabb6d7fc33ddf63a90fec81b2f95c12d2f9",
       "CMR2Decomp/FrontendNetworkRally.cpp": "04877e99bd48400fbbce1fcca1a48f7611af8e0e9d6992529062dd7537bfd635",
-      "CMR2Decomp/FrontendScreens.cpp": "efba1b4d7862b23124197df754564b86f323e645965514572a65820ef5cba140",
+      "CMR2Decomp/FrontendScreens.cpp": "863fd93acf1e1e0288f1a23d9d501a81f49f87f29a304f5d1ffca549b0463a07",
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
       "CMR2Decomp/Game.cpp": "5cc0bbb299d4d1b3a48476566e6025a348ea0064d635954052cd8a8c586af5b1",
       "CMR2Decomp/Game.h": "9aa1c73ab23a116baede7d7d9789ba129b730bb55de16926fa4202daecb377dc",
       "CMR2Decomp/GameConnections.cpp": "c9034f5c8d5de0e88a5e107895406e2c2a444c211ce6b1dd0e422a1e0751f4f7",
-      "CMR2Decomp/GameInfo.cpp": "dea564e2258c8f9e6f6852cb0d5bc7c4c0e190c63dc88d890314d4459f6508a0",
+      "CMR2Decomp/GameInfo.cpp": "ba3863c675e8c578e7ac5aeffa10cb22443523ca64bba3ed4b5bb450c87e4743",
       "CMR2Decomp/GameInfo.h": "47740ec5c796dbd6b7543f969f5185e41e66aeb12a05dda3c0ad01bc6fefde57",
-      "CMR2Decomp/GameMenus.cpp": "7dad1da2008959b6f708e6e1dd0abadf8d369d02fc80daf8cf0ada66cefa18ff",
+      "CMR2Decomp/GameMenus.cpp": "a363b1cc400ec79fc20222f556ab2dea4c018f297e29df29b63ba897d5f94d31",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
       "CMR2Decomp/GameNetwork.cpp": "e4162b9288f4fd3b48d47ecbf7b79328455dafbd04afb997b4e2f427a22f3b57",
       "CMR2Decomp/GenericFileLoader.cpp": "eba2ddfd0571387fcb1bc7c23202b10d552442c4270cfeccb41d4742e522abb1",
@@ -134,7 +134,7 @@
       "CMR2Decomp/RaceCallRecord.h": "e2418ff397371fd73fc5d83fbba8de474bc0f895eb1dfac5792127d8e6afd8c2",
       "CMR2Decomp/RaceCallbackStorage.h": "d540cbe431446daef4724e15b0f10f3702e8e50b8c87bcd04ff5bc1dd3a8d593",
       "CMR2Decomp/RaceRecord.h": "c86bd8aa45d6828375fee1fd908f60608b85e9b48a7416f8208b209fe98c3453",
-      "CMR2Decomp/RallyData.cpp": "938fa5c49d0e56fc6bed6c72c51cec4525e04b5c24c403ff49f46f36c9810804",
+      "CMR2Decomp/RallyData.cpp": "c3d770031571031b88c5113239fb01e35cd3ea7983d7132ef736fa6e90f4a508",
       "CMR2Decomp/RallyData.h": "a5cf7a0fdaa66f84fb0c9596fa1b51a2c045b3db3971879b0b816ad42d971bad",
       "CMR2Decomp/RallyRoute.cpp": "df3ed62600e6eb725c5087acd8f5adb862ceb1a1625a233d6bf824efe7359da6",
       "CMR2Decomp/RallyRoute.h": "9bbc6d4afbd246b8868dbaf3bad135fc3d8005fedb81826c6dc6ac7d66cd4abd",
@@ -212,8 +212,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "0d9e41c4effd169ada8daf70fc24c39b59abcc0b15a1c3e243e9dc71f7319cf1",
-    "pdb_sha256": "ead766618e25203a792065aaa442ba416e4ff70990e4ad26aaa53762f2077a09"
+    "exe_sha256": "9ce2ba888838ce70624ac113d95a5e6b6bb1fe75ff2bfb598537b46f6dc5aa5c",
+    "pdb_sha256": "a3fad81173b7af63ba72d8f731128e8e380a474953fb33bc7c731c8bf6e83576"
   },
   "perfect_match_percent": 56.28,
   "fuzzy_match_percent": 94.43,
