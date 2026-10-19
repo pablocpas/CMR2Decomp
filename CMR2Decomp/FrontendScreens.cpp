@@ -1650,7 +1650,6 @@ void FrontendNetwork_SendPlayerDescription(void)
 }
 
 void RallyData_PickOpponentLineups(void);
-struct Unk0x0052ebc0;
 RallyDriverGroupTable *RallyData_GetDriverGroupTable(void);
 BYTE *RallyData_GetStageAvailabilityFlags(void);
 void NetPlayers_AddOrUpdatePlayerInfo(DPID *pId, NetPlayerInfo *pInfo, char add);
@@ -7867,7 +7866,7 @@ void Profile_ResetCategoryData(int index);
 char *Profile_BuildSavePath(char *pName);
 void *Profile_ReadLocalFile(char *param1, int param2);
 BYTE *RallyData_GetDriverCategoryProfile(int index);
-Unk0x0052ebc0 *RallyData_GetDriverGroupRecord(int index);
+RallyCarDamageState *RallyData_GetDriverGroupRecord(int index);
 BYTE *RallyData_GetDriverSkillRecord(int index);
 BYTE *RallyData_GetDriverEntryRecord(int index);
 BYTE RallyData_SetCategoryAwardBit(int index, int bit);

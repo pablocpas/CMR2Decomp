@@ -4780,9 +4780,9 @@ unsigned int RallyData_GetSetupModeBits(void)
 // (0x52f2a9), so it may cover further undeclared values.
 
 // FUNCTION: CMR2 0x00407610
-Unk0x0052ebc0 *RallyData_GetDriverGroupRecord(int index)
+RallyCarDamageState *RallyData_GetDriverGroupRecord(int index)
 {
-    return &g_driverGroupTable.groups[index];
+    return &g_driverGroupTable.groups[index].damage;
 }
 
 // GLOBAL: CMR2 0x00516cd0
@@ -4969,7 +4969,7 @@ unsigned int RallyData_GetFlag30(void)
 // FUNCTION: CMR2 0x00408290
 void RallyData_ClearDriverGroupRecords(void)
 {
-    memset(g_driverGroupTable.groups, 0, 4 * sizeof(Unk0x0052ebc0));
+    memset(g_driverGroupTable.groups, 0, 4 * sizeof(DriverCarRecord));
 }
 
 // FUNCTION: CMR2 0x004082c0

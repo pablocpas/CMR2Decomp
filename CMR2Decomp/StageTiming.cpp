@@ -2485,7 +2485,7 @@ void StageDeform_ApplyPlanarDent(void)
 }
 
 struct Car *Car_Get(int index);
-struct Unk0x0052ebc0 *RallyData_GetDriverGroupRecord(int index);
+RallyCarDamageState *RallyData_GetDriverGroupRecord(int index);
 
 // Exports the preserved stage impact list and quantised damage snapshot to
 // the persistent rally record, leaving its two alignment bytes untouched.
@@ -2498,7 +2498,7 @@ void CarDamage_ExportStageSnapshotToRallyRecord(int index)
 
     pCar = Car_Get(index);
     pTiming = (g_carDamageRecords + pCar->index);
-    pRecord = (RallyCarDamageState *)RallyData_GetDriverGroupRecord(StageUI_GetRaceEndEventCount() + pCar->index);
+    pRecord = RallyData_GetDriverGroupRecord(StageUI_GetRaceEndEventCount() + pCar->index);
     memcpy(&pRecord->impacts, &pTiming->stageImpacts, sizeof(pRecord->impacts));
     memcpy(&pRecord->damage, &pTiming->stageDamage, sizeof(pRecord->damage));
 }
@@ -5336,8 +5336,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
 }
 #undef TRAIL_RANDOM
 
-struct Unk0x0052ebc0;
-Unk0x0052ebc0 *RallyData_GetDriverGroupRecord(int index);
+RallyCarDamageState *RallyData_GetDriverGroupRecord(int index);
 void OptionPreview_SetMeshRenderFlags(int index, int param2, BYTE param3);
 
 // Preview dent parameters: position, normal, axis, axis radius,
@@ -5481,7 +5480,7 @@ int g_previewLightDamageThresholds[8] = { 0x1999, 0x1999, 0x1999, 0x1999,
 // FUNCTION: CMR2 0x00508ee0
 void OptionPreview_SelectDamageMaterials(int index)
 {
-    RallyCarDamageState *pValue = (RallyCarDamageState *)RallyData_GetDriverGroupRecord(index);
+    RallyCarDamageState *pValue = RallyData_GetDriverGroupRecord(index);
     BYTE level = 0;
     do {
         int value = FixDiv((int)pValue->damage.intensity[26 + level] << 16, 0xff0000);
@@ -8436,7 +8435,7 @@ void CarDamage_SetupOrderedCarParts(int lock, int keep, short *pOrder, short cou
     int k;
     int moved;
     int i;
-    BYTE *pSaved;
+    RallyCarDamageState *pSaved;
     BYTE *p;
 
     StageObject_ResetPartTuningAndRandomSeed();
@@ -8535,13 +8534,13 @@ void CarDamage_SetupOrderedCarParts(int lock, int keep, short *pOrder, short cou
                 if (keep == 0)
                     pDamage->stageSnapshotCaptured = 0;
                 if ((int)pCar->index < (int)(BYTE)RallyDataState()) {
-                    pSaved = (BYTE *)RallyData_GetDriverGroupRecord(StageUI_GetRaceEndEventCount() + pCar->index);
+                    pSaved = RallyData_GetDriverGroupRecord(StageUI_GetRaceEndEventCount() + pCar->index);
                     if (keep == 0) {
-                        memcpy(&pDamage->stageImpacts, pSaved, sizeof(pDamage->stageImpacts));
-                        memcpy(&pDamage->stageDamage, pSaved + 0x108, sizeof(pDamage->stageDamage));
+                        memcpy(&pDamage->stageImpacts, &pSaved->impacts, sizeof(pDamage->stageImpacts));
+                        memcpy(&pDamage->stageDamage, &pSaved->damage, sizeof(pDamage->stageDamage));
                     }
-                    memcpy(&pDamage->impacts, pSaved, sizeof(pDamage->impacts));
-                    memcpy(&pDamage->damage, pSaved + 0x108, sizeof(pDamage->damage));
+                    memcpy(&pDamage->impacts, &pSaved->impacts, sizeof(pDamage->impacts));
+                    memcpy(&pDamage->damage, &pSaved->damage, sizeof(pDamage->damage));
                     if (pDamage->impacts.count == 0) {
                         p = (BYTE *)&pDamage->impacts.links[0].next;
                         for (i = 0x14; i != 0; i--) {

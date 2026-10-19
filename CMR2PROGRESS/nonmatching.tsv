@@ -212,11 +212,11 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x448550	StageTiming_EstimateElapsedStageTime	StageTiming.cpp	202	0.796875	0.796875
 0x4cfc90	FrontendRecords_InsertStageCategoryRecord	Frontend.cpp	386	0.7971014492753623	0.7971014492753623
 0x494db0	CarPhysics_DrawBodyWheelAndSkidShadows	CarPhysics.cpp	4510	0.797134238310709	0.7777359909740504
+0x503010	OptionMenu_RevertRallyRecordGroup	GameInfo.cpp	1248	0.799410029498525	0.7123695976154992
 0x446270	Dash_DrawBar	HudDash.cpp	2424	0.8	0.7931937172774869
 0x46ec40	StageObject_QueueTimedEventDraw	StageObjects.cpp	246	0.8	0.8
 0x4994f0	GlassShard_Draw	CarEffects.cpp	535	0.8011204481792717	0.7853107344632768
 0x4d50a0	FrontendMenu_DrawProfileRecordsSummary	FrontendScreens.cpp	2601	0.8021917808219178	0.7984665936473165
-0x503010	OptionMenu_RevertRallyRecordGroup	GameInfo.cpp	1248	0.8023598820058997	0.7123695976154992
 0x422140	View_BlendCameraStates	Car.cpp	920	0.8026315789473685	0.8045977011494253
 0x40f0c0	RallyData_UpdateViewFrameAndDebugOverlay	RallyData.cpp	2058	0.8042763157894737	0.7162489894907034
 0x4584d0	StageTiming_PlaceEventStartingGrid	StageTiming.cpp	1284	0.8042959427207638	0.7557160048134778

@@ -1368,17 +1368,20 @@ Menu g_optionStatusMenu;
 BYTE g_unk0x0082bee8[8][7];
 // GLOBAL: CMR2 0x0082bf20
 BYTE g_optionColumnDirty[16][7];
-// The four cached option records follow the 48 dirty flags. The copy/update
-// routines address both regions; a pointer past the flags alone has no storage.
+#include "OptionPreviewGeometry.h"
+#include "CarImpact.h"
+
+// Working copy of each player's car damage in the option (service) menus:
+// OptionMenu_RevertRallyRecordGroup clears a damage group from records[] and
+// sets dirty[player][group]; OptionMenu_ApplyRallyRecordGroup copies the group
+// back from the driver's record and clears the flag.
 struct PlayerOptionCache {
     BYTE dirty[4][12];
-    BYTE records[4][0x148];
+    RallyCarDamageState records[4];
 };
 CMR2_LAYOUT_CHECK(PlayerOptionCacheSize, sizeof(PlayerOptionCache) == 0x550);
 // GLOBAL: CMR2 0x0082c040
 PlayerOptionCache g_playerOptionCache;
-#include "OptionPreviewGeometry.h"
-#include "CarImpact.h"
 
 // GLOBAL: CMR2 0x0082d220
 OptionPreviewMeshRecord g_previewMeshRecords[16];
@@ -1915,7 +1918,7 @@ int OptionMenu_GetColumnBaseWeight(int index)
     return g_optionColumnBaseWeights[index];
 }
 
-struct Unk0x0052ebc0 *RallyData_GetDriverGroupRecord(int index);
+RallyCarDamageState *RallyData_GetDriverGroupRecord(int index);
 
 // Copies every option record from the rally data into the working table and
 // clears the per-record dirty words.
@@ -1924,21 +1927,21 @@ void OptionMenu_LoadRallyRecords(void)
 {
     int i;
     int j;
-    int *pDst;
+    RallyCarDamageState *pDst;
     int *pDirty;
-    int *pSrc;
+    RallyCarDamageState *pSrc;
 
     i = 0;
     if (CGameInfo::GetConfiguredPlayerCount() > 0) {
         pDirty = (int *)g_playerOptionCache.dirty;
-        pDst = (int *)g_playerOptionCache.records;
+        pDst = g_playerOptionCache.records;
         do {
-            pSrc = (int *)RallyData_GetDriverGroupRecord(i);
+            pSrc = RallyData_GetDriverGroupRecord(i);
             i++;
-            memcpy(pDst, pSrc, 0x148);
+            memcpy(pDst, pSrc, sizeof(RallyCarDamageState));
             for (j = 0; j < 3; j++)
                 pDirty[j] = 0;
-            pDst += 0x52;
+            pDst++;
             pDirty += 3;
         } while (i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff));
     }
@@ -2675,7 +2678,7 @@ void OptionPreview_ApplyStoredDamage(int index)
 
     pRecord = &g_previewMeshRecords[index];
     OptionPreview_RestoreOriginalMeshVertices(index);
-    pRally = (RallyCarDamageState *)RallyData_GetDriverGroupRecord(index);
+    pRally = RallyData_GetDriverGroupRecord(index);
     pEntry = &pRally->impacts.links[pRally->impacts.firstLink];
     if (pRally->impacts.count != 0) {
         while (pEntry != NULL) {
@@ -5476,8 +5479,7 @@ void InRaceMenu_ResetCameraDefaults(Menu *pMenu, char unused)
 
 // ===== Agent3 batch 1: GameInfo option records (>= 0x4f0000) =====
 
-struct Unk0x0052ebc0;
-extern struct Unk0x0052ebc0 *RallyData_GetDriverGroupRecord(int index);
+extern RallyCarDamageState *RallyData_GetDriverGroupRecord(int index);
 
 // Draws the four one pixel edges of the option record's box (x, y, w, h);
 // the vertical edges start one pixel inside the horizontal ones.
@@ -5626,70 +5628,70 @@ void OptionMenu_DrawTransitionText(int index, int font1, int font2, char *text, 
 // FUNCTION: CMR2 0x00502df0
 unsigned int OptionMenu_GetRecordPercentage(int index, int type, int dynamic)
 {
-    BYTE *p;
+    RallyCarDamageState *p;
     int value;
     int other;
 
     value = 0;
     if (dynamic != 0)
-        p = (BYTE *)RallyData_GetDriverGroupRecord(index);
+        p = RallyData_GetDriverGroupRecord(index);
     else
-        p = g_playerOptionCache.records[index];
+        p = &g_playerOptionCache.records[index];
     switch (type) {
     case 1:
-        value = p[0x116];
+        value = p->damage.intensity[14];
         break;
     case 2:
-        value = p[0x117];
+        value = p->damage.intensity[15];
         break;
     case 3:
-        value = p[0x10e];
-        if (p[0x10f] > value)
-            value = p[0x10f];
-        if (p[0x110] > value)
-            value = p[0x110];
-        other = p[0x111];
+        value = p->damage.intensity[6];
+        if (p->damage.intensity[7] > value)
+            value = p->damage.intensity[7];
+        if (p->damage.intensity[8] > value)
+            value = p->damage.intensity[8];
+        other = p->damage.intensity[9];
         if (other > value)
             value = other;
         break;
     case 4:
-        value = p[0x118];
+        value = p->damage.intensity[16];
         break;
     case 5:
-        value = p[0x112];
-        if (p[0x113] > value)
-            value = p[0x113];
-        if (p[0x114] > value)
-            value = p[0x114];
-        other = p[0x115];
+        value = p->damage.intensity[10];
+        if (p->damage.intensity[11] > value)
+            value = p->damage.intensity[11];
+        if (p->damage.intensity[12] > value)
+            value = p->damage.intensity[12];
+        other = p->damage.intensity[13];
         if (other > value)
             value = other;
         break;
     case 6:
-        value = p[0x119];
+        value = p->damage.intensity[17];
         break;
     case 7:
-        value = p[0x10c];
-        other = p[0x10d];
+        value = p->damage.intensity[4];
+        other = p->damage.intensity[5];
         if (other > value)
             value = other;
         break;
     case 8:
-        value = p[0x11f];
+        value = p->damage.intensity[23];
         break;
     case 9:
-        value = p[0x120];
+        value = p->damage.intensity[24];
         break;
     case 10:
-        value = p[0x121];
+        value = p->damage.intensity[25];
         break;
     case 11:
-        value = p[0x108];
-        if (p[0x109] > value)
-            value = p[0x109];
-        if (p[0x10a] > value)
-            value = p[0x10a];
-        other = p[0x10b];
+        value = p->damage.intensity[0];
+        if (p->damage.intensity[1] > value)
+            value = p->damage.intensity[1];
+        if (p->damage.intensity[2] > value)
+            value = p->damage.intensity[2];
+        other = p->damage.intensity[3];
         if (other > value)
             value = other;
         break;
@@ -6121,7 +6123,7 @@ void OptionPreview_UnpackPartDamageFractions(int index)
     int i;
 
     pRec = &g_previewMeshRecords[index];
-    p = (RallyCarDamageState *)RallyData_GetDriverGroupRecord(index);
+    p = RallyData_GetDriverGroupRecord(index);
     for (i = 0; i < 4; i++)
         pRec->partDamageFractions[i] = FixDiv(p->damage.intensity[i] << 16, 0xff0000);
 }
@@ -6136,7 +6138,7 @@ void OptionPreview_UpdateCornerHeightOffsets(int index)
     int i;
 
     pRec = &g_previewMeshRecords[index];
-    p = (RallyCarDamageState *)RallyData_GetDriverGroupRecord(index);
+    p = RallyData_GetDriverGroupRecord(index);
     for (i = 0; i < 4; i++)
         pRec->cornerHeightOffsets[i] = FixDiv(p->damage.intensity[6 + i] << 16, 0xff0000);
     pRec->cornerHeightOffsets[0] = FixMul(pRec->cornerHeightOffsets[0], FixMul(0x3333, 0xffff0000));
@@ -6704,19 +6706,19 @@ void OptionMenu_FadeToStoredColour(int param1, int unused)
 // FUNCTION: CMR2 0x00502db0
 void OptionMenu_CommitRallyRecords(void)
 {
-    int *pSrc;
-    int *pDst;
+    RallyCarDamageState *pSrc;
+    RallyCarDamageState *pDst;
     int i;
     int j;
 
     i = 0;
     if ((BYTE)CGameInfo::GetConfiguredPlayerCount() > 0) {
-        pSrc = (int *)g_playerOptionCache.records;
+        pSrc = g_playerOptionCache.records;
         do {
-            pDst = (int *)RallyData_GetDriverGroupRecord(i);
+            pDst = RallyData_GetDriverGroupRecord(i);
             i++;
-            memcpy(pDst, pSrc, 0x148);
-            pSrc += 0x52;
+            memcpy(pDst, pSrc, sizeof(RallyCarDamageState));
+            pSrc++;
         } while (i < (int)(CGameInfo::GetConfiguredPlayerCount() & 0xff));
     }
 }
@@ -8484,10 +8486,6 @@ void OptionMenu_DrawClampedStageTime(void)
 }
 
 // 13-byte entry of the option record's 0x104-byte block at +0x0.
-struct Unk0x0082c070Item {
-    BYTE field_0x0[0xd];
-};
-
 // GLOBAL: CMR2 0x005270b8
 int g_unk0x005270b8[11] = { 0x17700, 0xbb80, 0xbb80, 0x11940, 0xea60, 0xea60,
                             0x14820, 0x8ca0, 0x5dc0, 0xbb80, 0xbb80 };
@@ -8499,110 +8497,110 @@ int g_unk0x005270b8[11] = { 0x17700, 0xbb80, 0xbb80, 0x11940, 0xea60, 0xea60,
 // FUNCTION: CMR2 0x005034f0
 void OptionMenu_ApplyRallyRecordGroup(int param_1, int param_2)
 {
-    BYTE *pDest = g_playerOptionCache.records[param_1];
-    BYTE *pSrc = (BYTE *)RallyData_GetDriverGroupRecord(param_1);
+    RallyCarDamageState *pDest = &g_playerOptionCache.records[param_1];
+    RallyCarDamageState *pSrc = RallyData_GetDriverGroupRecord(param_1);
     int value;
     int i;
 
     switch (param_2) {
     case 1:
-        pDest[0x116] = pSrc[0x116];
+        pDest->damage.intensity[14] = pSrc->damage.intensity[14];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[0]);
         g_playerOptionCache.dirty[param_1][1] = 0;
         return;
     case 2:
-        pDest[0x117] = pSrc[0x117];
+        pDest->damage.intensity[15] = pSrc->damage.intensity[15];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[1]);
         g_playerOptionCache.dirty[param_1][2] = 0;
         return;
     case 3:
-        pDest[0x10e] = pSrc[0x10e];
-        pDest[0x10f] = pSrc[0x10f];
-        pDest[0x110] = pSrc[0x110];
-        pDest[0x111] = pSrc[0x111];
+        pDest->damage.intensity[6] = pSrc->damage.intensity[6];
+        pDest->damage.intensity[7] = pSrc->damage.intensity[7];
+        pDest->damage.intensity[8] = pSrc->damage.intensity[8];
+        pDest->damage.intensity[9] = pSrc->damage.intensity[9];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[2]);
         OptionPreview_UpdateCornerHeightOffsets(param_1);
         g_playerOptionCache.dirty[param_1][3] = 0;
         return;
     case 4:
-        pDest[0x118] = pSrc[0x118];
+        pDest->damage.intensity[16] = pSrc->damage.intensity[16];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[3]);
         g_playerOptionCache.dirty[param_1][4] = 0;
         return;
     case 5:
-        pDest[0x112] = pSrc[0x112];
-        pDest[0x113] = pSrc[0x113];
-        pDest[0x114] = pSrc[0x114];
-        pDest[0x115] = pSrc[0x115];
+        pDest->damage.intensity[10] = pSrc->damage.intensity[10];
+        pDest->damage.intensity[11] = pSrc->damage.intensity[11];
+        pDest->damage.intensity[12] = pSrc->damage.intensity[12];
+        pDest->damage.intensity[13] = pSrc->damage.intensity[13];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[4]);
         g_playerOptionCache.dirty[param_1][5] = 0;
         return;
     case 6:
-        pDest[0x119] = pSrc[0x119];
-        pDest[0x11a] = pSrc[0x11a];
-        pDest[0x11b] = pSrc[0x11b];
-        pDest[0x11c] = pSrc[0x11c];
-        pDest[0x11d] = pSrc[0x11d];
-        pDest[0x11e] = pSrc[0x11e];
-        pDest[0x122] = pSrc[0x122];
-        pDest[0x123] = pSrc[0x123];
-        pDest[0x124] = pSrc[0x124];
-        pDest[0x125] = pSrc[0x125];
-        pDest[0x126] = pSrc[0x126];
-        pDest[0x127] = pSrc[0x127];
-        pDest[0x128] = pSrc[0x128];
-        pDest[0x129] = pSrc[0x129];
+        pDest->damage.intensity[17] = pSrc->damage.intensity[17];
+        pDest->damage.intensity[18] = pSrc->damage.intensity[18];
+        pDest->damage.intensity[19] = pSrc->damage.intensity[19];
+        pDest->damage.intensity[20] = pSrc->damage.intensity[20];
+        pDest->damage.intensity[21] = pSrc->damage.intensity[21];
+        pDest->damage.intensity[22] = pSrc->damage.intensity[22];
+        pDest->damage.intensity[26] = pSrc->damage.intensity[26];
+        pDest->damage.intensity[27] = pSrc->damage.intensity[27];
+        pDest->damage.intensity[28] = pSrc->damage.intensity[28];
+        pDest->damage.intensity[29] = pSrc->damage.intensity[29];
+        pDest->damage.intensity[30] = pSrc->damage.intensity[30];
+        pDest->damage.intensity[31] = pSrc->damage.intensity[31];
+        pDest->damage.intensity[32] = pSrc->damage.intensity[32];
+        pDest->damage.intensity[33] = pSrc->damage.intensity[33];
         for (i = 0; i < 3; i++)
-            *(int *)(pDest + 0x13c + i * 4) = *(int *)(pSrc + 0x13c + i * 4);
+            pDest->damage.lineGrounded[i] = pSrc->damage.lineGrounded[i];
         for (i = 0; i < 4; i++)
-            *(int *)(pDest + 0x12c + i * 4) = *(int *)(pSrc + 0x12c + i * 4);
-        pDest[0x104] = pSrc[0x104];
-        pDest[0x105] = pSrc[0x105];
+            pDest->damage.partHidden[i] = pSrc->damage.partHidden[i];
+        pDest->impacts.count = pSrc->impacts.count;
+        pDest->impacts.firstLink = pSrc->impacts.firstLink;
         for (i = 0; i < 20; i++) {
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[0] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[0];
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[1] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[1];
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[2] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[2];
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[3] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[3];
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[4] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[4];
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[5] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[5];
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[6] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[6];
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[7] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[7];
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[8] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[8];
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[9] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[9];
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[10] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[10];
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[11] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[11];
-            ((Unk0x0082c070Item *)pDest)[i].field_0x0[12] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[12];
+            pDest->impacts.links[i].impact.strength = pSrc->impacts.links[i].impact.strength;
+            pDest->impacts.links[i].impact.mode = pSrc->impacts.links[i].impact.mode;
+            pDest->impacts.links[i].impact.axisRadius = pSrc->impacts.links[i].impact.axisRadius;
+            pDest->impacts.links[i].impact.normal[0] = pSrc->impacts.links[i].impact.normal[0];
+            pDest->impacts.links[i].impact.normal[1] = pSrc->impacts.links[i].impact.normal[1];
+            pDest->impacts.links[i].impact.normal[2] = pSrc->impacts.links[i].impact.normal[2];
+            pDest->impacts.links[i].impact.axis[0] = pSrc->impacts.links[i].impact.axis[0];
+            pDest->impacts.links[i].impact.axis[1] = pSrc->impacts.links[i].impact.axis[1];
+            pDest->impacts.links[i].impact.axis[2] = pSrc->impacts.links[i].impact.axis[2];
+            pDest->impacts.links[i].impact.position[0] = pSrc->impacts.links[i].impact.position[0];
+            pDest->impacts.links[i].impact.position[1] = pSrc->impacts.links[i].impact.position[1];
+            pDest->impacts.links[i].impact.position[2] = pSrc->impacts.links[i].impact.position[2];
+            pDest->impacts.links[i].next = pSrc->impacts.links[i].next;
         }
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[5]);
         g_playerOptionCache.dirty[param_1][6] = 0;
         OptionPreview_ApplyStoredDamage(param_1);
         return;
     case 7:
-        pDest[0x10c] = pSrc[0x10c];
-        pDest[0x10d] = pSrc[0x10d];
+        pDest->damage.intensity[4] = pSrc->damage.intensity[4];
+        pDest->damage.intensity[5] = pSrc->damage.intensity[5];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[6]);
         g_playerOptionCache.dirty[param_1][7] = 0;
         return;
     case 8:
-        pDest[0x11f] = pSrc[0x11f];
+        pDest->damage.intensity[23] = pSrc->damage.intensity[23];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[7]);
         g_playerOptionCache.dirty[param_1][8] = 0;
         return;
     case 9:
-        pDest[0x120] = pSrc[0x120];
+        pDest->damage.intensity[24] = pSrc->damage.intensity[24];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[8]);
         g_playerOptionCache.dirty[param_1][9] = 0;
         return;
     case 10:
-        pDest[0x121] = pSrc[0x121];
+        pDest->damage.intensity[25] = pSrc->damage.intensity[25];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[9]);
         g_playerOptionCache.dirty[param_1][10] = 0;
         return;
     case 11:
-        pDest[0x108] = pSrc[0x108];
-        pDest[0x109] = pSrc[0x109];
-        pDest[0x10a] = pSrc[0x10a];
-        pDest[0x10b] = pSrc[0x10b];
+        pDest->damage.intensity[0] = pSrc->damage.intensity[0];
+        pDest->damage.intensity[1] = pSrc->damage.intensity[1];
+        pDest->damage.intensity[2] = pSrc->damage.intensity[2];
+        pDest->damage.intensity[3] = pSrc->damage.intensity[3];
         OptionMenu_SetSlotSelector(param_1, OptionMenu_GetSlotSelector(param_1) + g_unk0x005270b8[10]);
         OptionPreview_UnpackPartDamageFractions(param_1);
         g_playerOptionCache.dirty[param_1][11] = 0;
@@ -10567,54 +10565,54 @@ void OptionMenu_ConfirmOrRevertHighlightedValue(Menu *pMenu, MenuItem *pItem)
 // FUNCTION: CMR2 0x00503010
 void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
 {
-    BYTE *pDest = g_playerOptionCache.records[param_1];
+    RallyCarDamageState *pDest = &g_playerOptionCache.records[param_1];
     int value;
     int i;
 
     switch (param_2) {
     case 1:
-        if (pDest[0x116] == 0)
+        if (pDest->damage.intensity[14] == 0)
             return;
-        pDest[0x116] = 0;
+        pDest->damage.intensity[14] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[0]);
         g_playerOptionCache.dirty[param_1][1] = 1;
         return;
     case 2:
-        if (pDest[0x117] == 0)
+        if (pDest->damage.intensity[15] == 0)
             return;
-        pDest[0x117] = 0;
+        pDest->damage.intensity[15] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[1]);
         g_playerOptionCache.dirty[param_1][2] = 1;
         return;
     case 3:
-        if (pDest[0x10e] == 0 && pDest[0x10f] == 0 && pDest[0x110] == 0 && pDest[0x111] == 0)
+        if (pDest->damage.intensity[6] == 0 && pDest->damage.intensity[7] == 0 && pDest->damage.intensity[8] == 0 && pDest->damage.intensity[9] == 0)
             return;
-        pDest[0x10e] = 0;
-        pDest[0x10f] = 0;
-        pDest[0x110] = 0;
-        pDest[0x111] = 0;
+        pDest->damage.intensity[6] = 0;
+        pDest->damage.intensity[7] = 0;
+        pDest->damage.intensity[8] = 0;
+        pDest->damage.intensity[9] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[2]);
         OptionPreview_ClearCornerHeightOffsets(param_1);
         g_playerOptionCache.dirty[param_1][3] = 1;
         return;
     case 4:
-        if (pDest[0x118] == 0)
+        if (pDest->damage.intensity[16] == 0)
             return;
-        pDest[0x118] = 0;
+        pDest->damage.intensity[16] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[3]);
         g_playerOptionCache.dirty[param_1][4] = 1;
         return;
     case 5:
-        if (pDest[0x112] == 0 && pDest[0x113] == 0 && pDest[0x114] == 0 && pDest[0x115] == 0)
+        if (pDest->damage.intensity[10] == 0 && pDest->damage.intensity[11] == 0 && pDest->damage.intensity[12] == 0 && pDest->damage.intensity[13] == 0)
             return;
-        pDest[0x112] = 0;
-        pDest[0x113] = 0;
-        pDest[0x114] = 0;
-        pDest[0x115] = 0;
+        pDest->damage.intensity[10] = 0;
+        pDest->damage.intensity[11] = 0;
+        pDest->damage.intensity[12] = 0;
+        pDest->damage.intensity[13] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[4]);
         g_playerOptionCache.dirty[param_1][5] = 1;
@@ -10625,58 +10623,58 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
             int changed = 0;
             int has104 = 0;
 
-            if (pDest[0x119] != 0 || pDest[0x11a] != 0 || pDest[0x11b] != 0 ||
-                pDest[0x11c] != 0 || pDest[0x11d] != 0 || pDest[0x11e] != 0 ||
-                pDest[0x122] != 0 || pDest[0x123] != 0 || pDest[0x124] != 0 ||
-                pDest[0x125] != 0 || pDest[0x126] != 0 || pDest[0x127] != 0 ||
-                pDest[0x128] != 0 || pDest[0x129] != 0)
+            if (pDest->damage.intensity[17] != 0 || pDest->damage.intensity[18] != 0 || pDest->damage.intensity[19] != 0 ||
+                pDest->damage.intensity[20] != 0 || pDest->damage.intensity[21] != 0 || pDest->damage.intensity[22] != 0 ||
+                pDest->damage.intensity[26] != 0 || pDest->damage.intensity[27] != 0 || pDest->damage.intensity[28] != 0 ||
+                pDest->damage.intensity[29] != 0 || pDest->damage.intensity[30] != 0 || pDest->damage.intensity[31] != 0 ||
+                pDest->damage.intensity[32] != 0 || pDest->damage.intensity[33] != 0)
                 any = 1;
             for (i = 0; i < 3; i++)
-                if (*(int *)(pDest + 0x13c + i * 4) != 0)
+                if (pDest->damage.lineGrounded[i] != 0)
                     changed = 1;
             for (i = 0; i < 4; i++)
-                if (*(int *)(pDest + 0x12c + i * 4) != 0)
+                if (pDest->damage.partHidden[i] != 0)
                     changed = 1;
-            if (pDest[0x104] != 0)
+            if (pDest->impacts.count != 0)
                 has104 = 1;
             if (any != 0 || changed != 0 || has104 != 0) {
-                pDest[0x119] = 0;
-                pDest[0x11a] = 0;
-                pDest[0x11b] = 0;
-                pDest[0x11c] = 0;
-                pDest[0x11d] = 0;
-                pDest[0x11e] = 0;
-                pDest[0x122] = 0;
-                pDest[0x123] = 0;
-                pDest[0x124] = 0;
-                pDest[0x125] = 0;
-                pDest[0x126] = 0;
-                pDest[0x127] = 0;
-                pDest[0x128] = 0;
-                pDest[0x129] = 0;
-                *(int *)(pDest + 0x13c) = 0;
-                *(int *)(pDest + 0x140) = 0;
-                *(int *)(pDest + 0x144) = 0;
-                *(int *)(pDest + 0x12c) = 0;
-                *(int *)(pDest + 0x130) = 0;
-                *(int *)(pDest + 0x134) = 0;
-                *(int *)(pDest + 0x138) = 0;
-                pDest[0x104] = 0;
-                pDest[0x105] = 0;
+                pDest->damage.intensity[17] = 0;
+                pDest->damage.intensity[18] = 0;
+                pDest->damage.intensity[19] = 0;
+                pDest->damage.intensity[20] = 0;
+                pDest->damage.intensity[21] = 0;
+                pDest->damage.intensity[22] = 0;
+                pDest->damage.intensity[26] = 0;
+                pDest->damage.intensity[27] = 0;
+                pDest->damage.intensity[28] = 0;
+                pDest->damage.intensity[29] = 0;
+                pDest->damage.intensity[30] = 0;
+                pDest->damage.intensity[31] = 0;
+                pDest->damage.intensity[32] = 0;
+                pDest->damage.intensity[33] = 0;
+                pDest->damage.lineGrounded[0] = 0;
+                pDest->damage.lineGrounded[1] = 0;
+                pDest->damage.lineGrounded[2] = 0;
+                pDest->damage.partHidden[0] = 0;
+                pDest->damage.partHidden[1] = 0;
+                pDest->damage.partHidden[2] = 0;
+                pDest->damage.partHidden[3] = 0;
+                pDest->impacts.count = 0;
+                pDest->impacts.firstLink = 0;
                 for (i = 0; i < 20; i++) {
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[0] = 0;
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[1] = 0;
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[2] = 0;
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[3] = 0;
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[4] = 0;
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[5] = 0;
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[6] = 0;
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[7] = 0;
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[8] = 0;
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[9] = 0;
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[10] = 0;
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[11] = 0;
-                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[12] = 0xff;
+                    pDest->impacts.links[i].impact.strength = 0;
+                    pDest->impacts.links[i].impact.mode = 0;
+                    pDest->impacts.links[i].impact.axisRadius = 0;
+                    pDest->impacts.links[i].impact.normal[0] = 0;
+                    pDest->impacts.links[i].impact.normal[1] = 0;
+                    pDest->impacts.links[i].impact.normal[2] = 0;
+                    pDest->impacts.links[i].impact.axis[0] = 0;
+                    pDest->impacts.links[i].impact.axis[1] = 0;
+                    pDest->impacts.links[i].impact.axis[2] = 0;
+                    pDest->impacts.links[i].impact.position[0] = 0;
+                    pDest->impacts.links[i].impact.position[1] = 0;
+                    pDest->impacts.links[i].impact.position[2] = 0;
+                    pDest->impacts.links[i].next = 0xff;
                 }
                 value = OptionMenu_GetSlotSelector(param_1);
                 OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[5]);
@@ -10686,45 +10684,45 @@ void OptionMenu_RevertRallyRecordGroup(int param_1, int param_2)
             return;
         }
     case 7:
-        if (pDest[0x10c] == 0 && pDest[0x10d] == 0)
+        if (pDest->damage.intensity[4] == 0 && pDest->damage.intensity[5] == 0)
             return;
-        pDest[0x10c] = 0;
-        pDest[0x10d] = 0;
+        pDest->damage.intensity[4] = 0;
+        pDest->damage.intensity[5] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[6]);
         g_playerOptionCache.dirty[param_1][7] = 1;
         return;
     case 8:
-        if (pDest[0x11f] == 0)
+        if (pDest->damage.intensity[23] == 0)
             return;
-        pDest[0x11f] = 0;
+        pDest->damage.intensity[23] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[7]);
         g_playerOptionCache.dirty[param_1][8] = 1;
         return;
     case 9:
-        if (pDest[0x120] == 0)
+        if (pDest->damage.intensity[24] == 0)
             return;
-        pDest[0x120] = 0;
+        pDest->damage.intensity[24] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[8]);
         g_playerOptionCache.dirty[param_1][9] = 1;
         return;
     case 10:
-        if (pDest[0x121] == 0)
+        if (pDest->damage.intensity[25] == 0)
             return;
-        pDest[0x121] = 0;
+        pDest->damage.intensity[25] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[9]);
         g_playerOptionCache.dirty[param_1][10] = 1;
         return;
     case 11:
-        if (pDest[0x108] == 0 && pDest[0x109] == 0 && pDest[0x10a] == 0 && pDest[0x10b] == 0)
+        if (pDest->damage.intensity[0] == 0 && pDest->damage.intensity[1] == 0 && pDest->damage.intensity[2] == 0 && pDest->damage.intensity[3] == 0)
             return;
-        pDest[0x108] = 0;
-        pDest[0x109] = 0;
-        pDest[0x10a] = 0;
-        pDest[0x10b] = 0;
+        pDest->damage.intensity[0] = 0;
+        pDest->damage.intensity[1] = 0;
+        pDest->damage.intensity[2] = 0;
+        pDest->damage.intensity[3] = 0;
         value = OptionMenu_GetSlotSelector(param_1);
         OptionMenu_SetSlotSelector(param_1, value - g_unk0x005270b8[10]);
         OptionPreview_ClearPartDamageFractions(param_1);
