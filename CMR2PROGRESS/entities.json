@@ -1041,7 +1041,7 @@
   ],
   "0x4086f0": [
     4889232,
-    "RallyData_GetDriverOrCategoryFlag"
+    "RallyData_GetDriverAutomaticGearbox"
   ],
   "0x408760": [
     4885488,
@@ -10893,7 +10893,7 @@
   ],
   "0x4eb0c0": [
     4497664,
-    "FrontendChampionship_SetDriverEntryFlag"
+    "RallyData_SetDriverAutomaticGearbox"
   ],
   "0x4eb160": [
     4497824,

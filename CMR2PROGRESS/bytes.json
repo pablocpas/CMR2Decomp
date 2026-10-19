@@ -6977,13 +6977,13 @@
     "symbol_name": "FrontendChampionship_InitEntries"
   },
   "0x4eb0c0": {
-    "n": "FrontendChampionship_SetDriverEntryFlag",
+    "n": "RallyData_SetDriverAutomaticGearbox",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FrontendScreens.cpp",
-    "symbol_name": "FrontendChampionship_SetDriverEntryFlag"
+    "symbol_name": "RallyData_SetDriverAutomaticGearbox"
   },
   "0x4eb160": {
     "n": "FrontendChampionship_RestoreStageTimes",
@@ -20169,13 +20169,13 @@
     "symbol_name": "RallyData_GetDriverRecordSelectionValue"
   },
   "0x4086f0": {
-    "n": "RallyData_GetDriverOrCategoryFlag",
+    "n": "RallyData_GetDriverAutomaticGearbox",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetDriverOrCategoryFlag"
+    "symbol_name": "RallyData_GetDriverAutomaticGearbox"
   },
   "0x411ab0": {
     "n": "RallyData_PlayAlternateStageLoopSound",

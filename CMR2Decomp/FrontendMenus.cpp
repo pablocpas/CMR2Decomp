@@ -62,14 +62,14 @@ void FrontendMenu_InitRouteScroller(Menu *pMenu, int param)
     }
 }
 
-BYTE RallyData_GetDriverOrCategoryFlag(BYTE index);
+BYTE RallyData_GetDriverAutomaticGearbox(BYTE index);
 
 // Change callback of the championship entry screens. Its external byte state
 // preserves the original byte loads without changing the other screen callbacks.
 // FUNCTION: CMR2 0x004fac70
 void FrontendMenu_UpdateChampionshipEntry(Menu *pMenu, char param)
 {
-    pMenu->items[0].max = RallyData_GetDriverOrCategoryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining));
+    pMenu->items[0].max = RallyData_GetDriverAutomaticGearbox(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining));
     Frontend_SetOverlayMode(CGameInfo::GetConfiguredPlayerCount() - g_profilePlayersRemaining - 1);
     if (param != 0)
         FrontendMenu_InitRouteScroller(FrontendScroller_GetRouteEntryScroller()->pMenu, 0);

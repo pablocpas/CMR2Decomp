@@ -52,7 +52,7 @@ struct DriverProfile {
     char name[0x30];                     // 0x01c, compared in lower case
     unsigned int awards;                 // 0x04c, bit mask (RallyData_SetCategoryAwardBit)
     BYTE reserved1[4];                   // 0x050
-    unsigned int options;                // 0x054, bits 0..4 car, 5 entry, 6, 7..14 age
+    unsigned int options;                // 0x054, bits 0..4 car, 5 automatic gearbox, 6, 7..14 age
     int car;                             // 0x058
     DriverProfileSetup setup;            // 0x05c
     BYTE eventResults[0x24];             // 0x060, ProfileEventResults

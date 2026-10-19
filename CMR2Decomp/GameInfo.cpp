@@ -10383,7 +10383,7 @@ char g_str0x00529600[] = "%s %d (%s)";
 /* ===== W194: saved-game image + option menu callbacks (0x4f5190-0x5004xx) ===== */
 
 extern void RallyData_CopyDriverStageTimesToRecords(void);
-extern BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
+extern BYTE RallyData_GetDriverAutomaticGearbox(BYTE param1);
 extern BYTE *RallyData_GetDriverEntryRecord(int index);
 extern int RallyTiming_GetStageTieBreak(int index);
 extern BYTE *RallyData_GetDriverCategoryProfile(int index);
@@ -10449,7 +10449,7 @@ BYTE SavedGames_WriteSessionImage(int index, const char *name)
         const DriverProfile *profile = (const DriverProfile *)RallyData_GetDriverCategoryProfile(i);
         if (!profile)
             return 0;
-        image.drivers[i].entryFlag = RallyData_GetDriverOrCategoryFlag((BYTE)i);
+        image.drivers[i].entryFlag = RallyData_GetDriverAutomaticGearbox((BYTE)i);
         image.playerSetup[i] = profile->setup;
         image.playerSetup[i].reserved = 0;
         image.playerIdentifiers[i] = profile->identifier;

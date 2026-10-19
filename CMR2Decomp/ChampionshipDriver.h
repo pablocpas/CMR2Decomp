@@ -15,7 +15,7 @@ struct ChampionshipDriver {
     char name[4];
     int car;                             // 0x04
     unsigned int options;                // 0x08, as DriverProfile::options
-    BYTE flags;                          // 0x0c, bit 0 entered, bit 1 edited
+    BYTE flags;                          // 0x0c, bit 0 automatic gearbox, bit 1 edited
     BYTE hudFlags;                       // 0x0d, as DriverProfile::hudFlags
     BYTE reserved[2];
     TyreWear wear;                       // 0x10, as DriverProfile::wear

@@ -24,6 +24,7 @@
 #include "NetworkLeaderboards.h"
 #include "NetPlayers.h"
 #include "FileBuffer.h"
+#include "RecordBits.h"
 #include "StageInfo.h"
 
 extern int g_unk0x00819744;
@@ -1322,7 +1323,7 @@ void RallyData_SetSetupFlag11(char param1);
 void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
 void RallyData_FillEventSlotSelections(void);
 void RallyData_SetDriverCategoryOption(BYTE index, BYTE value);
-void FrontendChampionship_SetDriverEntryFlag(BYTE index, BYTE flag);
+void RallyData_SetDriverAutomaticGearbox(BYTE index, BYTE flag);
 void GameInfo_SetConfiguredPlayerCount(BYTE param1);
 void GameInfo_SetConfiguredDifficulty(BYTE param1);
 void GameInfo_SetConfiguredGameMode(BYTE param1);
@@ -1342,7 +1343,7 @@ void FrontendSession_InitFreshRace(void)
     RallyData_SetPlayerProfileInUse(0, 1);
     RallyData_SetEditedDriverOrCategoryName(0, g_strDemoName0x00519ec4);
     RallyData_SetDriverCategoryOption(0, 0);
-    FrontendChampionship_SetDriverEntryFlag(0, 1);
+    RallyData_SetDriverAutomaticGearbox(0, 1);
     CGameInfo::SaveFrontendOptionSettings();
     if (index == 3) {
         GameInfo_SetConfiguredGameMode(6);
@@ -1635,7 +1636,7 @@ Menu *FrontendMenu_GetActiveMenu(void)
 extern BYTE g_unk0x00818ce4;
 DPID Network_GetLocalPlayerID(void);
 BYTE RallyData_GetDriverRecordSelectionValue(BYTE index);
-BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
+BYTE RallyData_GetDriverAutomaticGearbox(BYTE param1);
 void NetPlayers_SetNotificationMask(void *param);
 
 // Sends this machine's player description (id, car, flags) to the network
@@ -1648,7 +1649,7 @@ void FrontendNetwork_SendPlayerDescription(void)
     memset(&info, 0, sizeof(info));
     info.id = Network_GetLocalPlayerID();
     info.bits.car = RallyData_GetDriverRecordSelectionValue(0);
-    info.bits.bit5 = RallyData_GetDriverOrCategoryFlag(0);
+    info.bits.bit5 = RallyData_GetDriverAutomaticGearbox(0);
     info.bits.bit6 = g_unk0x00818ce4;
     info.bits.active = 1;
     info.bits.ready = 0;
@@ -1679,7 +1680,7 @@ char Network_SendPlayerMessage(int to, int guaranteed, void *data, int size);
 void NetworkChat_AppendLine(DPID *pFrom, char *text, char local);
 void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
 void RallyData_SetDriverCategoryOption(BYTE index, BYTE value);
-void FrontendChampionship_SetDriverEntryFlag(BYTE index, BYTE flag);
+void RallyData_SetDriverAutomaticGearbox(BYTE index, BYTE flag);
 void FrontendMenu_EnablePlayerSetupItems(void);
 void RallyData_FillEventSlotSelections(void);
 void GameInfo_SetSessionField3990(int param1);
@@ -1893,7 +1894,7 @@ void FrontendNetwork_HandleHostMessage(DPID *pFrom, BYTE *pMsg)
         pItem = Menu_GetItem(FrontendMenu_GetNetworkSessionSetup(), 1);
         RallyData_SetDriverCategoryOption(0, g_filteredRouteIds[pItem->max]);
         pItem = Menu_GetItem(FrontendMenu_GetNetworkSessionSetup(), 2);
-        FrontendChampionship_SetDriverEntryFlag(0, pItem->max);
+        RallyData_SetDriverAutomaticGearbox(0, pItem->max);
         FrontendNetwork_ReadSetupPacket(pSetup);
         g_hostSetupAppliedTime = CMain::GetFrameDelta();
         NetPlayers_ResetStageState(0, 1);
@@ -2202,7 +2203,7 @@ void FrontendNetwork_LeaveConnectionPages(Menu *pMenu, char param)
 
 void Session_SetOpen(char open);
 DWORD Network_GetSessionPlayerCount(int index);
-BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
+BYTE RallyData_GetDriverAutomaticGearbox(BYTE param1);
 int GameInfo_GetSessionField398C(void);
 int GameInfo_GetSessionField3990(void);
 BYTE GameInfo_GetLastNetworkGameMode(void);
@@ -2289,7 +2290,7 @@ void FrontendMenu_LeaveNetworkSessionDetails(Menu *pMenu, char param)
 
 // Rebuilds a front-end stage/route list menu from the current selection.
 bool RallyData_HasCategoryAward(int index, int bit, char check);
-BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
+BYTE RallyData_GetDriverAutomaticGearbox(BYTE param1);
 
 // FUNCTION: CMR2 0x004ed530
 void FrontendMenu_EnterNetworkSessionSetup(Menu *pMenu, int unused)
@@ -2317,7 +2318,7 @@ void FrontendMenu_EnterNetworkSessionSetup(Menu *pMenu, int unused)
             pEntry++;
         }
     }
-    if (RallyData_GetDriverOrCategoryFlag(0) != 0)
+    if (RallyData_GetDriverAutomaticGearbox(0) != 0)
         Menu_GetItem(pMenu, 2)->max = 1;
     else
         Menu_GetItem(pMenu, 2)->max = 0;
@@ -2359,7 +2360,7 @@ void FrontendNetwork_StartHostRace(Menu *pMenu, int param)
             }
         }
         RallyData_SetDriverCategoryOption(0, g_filteredRouteIds[Menu_GetItem(pMenu, 1)->max]);
-        FrontendChampionship_SetDriverEntryFlag(0, Menu_GetItem(pMenu, 2)->max);
+        RallyData_SetDriverAutomaticGearbox(0, Menu_GetItem(pMenu, 2)->max);
         packet.type = 2;
         packet.gameMode = CGameInfo::GetConfiguredGameMode();
         switch (CGameInfo::GetConfiguredGameMode()) {
@@ -3593,7 +3594,7 @@ void RallyData_SetDriverCategoryOption(BYTE index, BYTE value);
 // FUNCTION: CMR2 0x004f1960
 void FrontendMenu_EnterPaletteSelection(Menu *pMenu, char param)
 {
-    pMenu->items[0].max = RallyData_GetDriverOrCategoryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining));
+    pMenu->items[0].max = RallyData_GetDriverAutomaticGearbox(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining));
     Frontend_SetOverlayMode((CGameInfo::GetConfiguredPlayerCount() & 0xff) - (g_profilePlayersRemaining & 0xff) - 1);
     if (param != 0 && CGameInfo::GetConfiguredGameMode() != 4)
         FrontendScroller_InitRallyStageSelection(FrontendScroller_GetRouteEntryScroller()->pMenu, 0);
@@ -3603,7 +3604,7 @@ void FrontendMenu_EnterPaletteSelection(Menu *pMenu, char param)
 // FUNCTION: CMR2 0x004f19d0
 void FrontendMenu_EnterPaletteConfirmation(Menu *pMenu, int param)
 {
-    if (RallyData_GetDriverOrCategoryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining)) != 0)
+    if (RallyData_GetDriverAutomaticGearbox(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining)) != 0)
         pMenu->items[0].max = 1;
     else
         pMenu->items[0].max = 0;
@@ -3715,7 +3716,7 @@ void FrontendProfile_SetupNextPlayer(Menu *pMenu, int param);
 void FrontendProfile_OpenPaletteEditor(Menu *pMenu, int param)
 {
     Frontend_SetOverlayMode(0);
-    FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining), pMenu->items[0].max);
+    RallyData_SetDriverAutomaticGearbox(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining), pMenu->items[0].max);
     if (g_profilePlayersRemaining == 0) {
         switch (CGameInfo::GetConfiguredGameMode()) {
         case 0:
@@ -3758,7 +3759,7 @@ void FrontendProfile_SelectPalette(Menu *pMenu, int unused)
 // FUNCTION: CMR2 0x004f1b30
 void FrontendChampionship_ToggleAndAdvanceEntry(Menu *pMenu, int param)
 {
-    FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining), pMenu->items[0].max);
+    RallyData_SetDriverAutomaticGearbox(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining), pMenu->items[0].max);
     if (g_profilePlayersRemaining == 0) {
         FrontendMenu_EnablePlayerSetupItems();
         Menu_SetNextAction(FrontendMenu_GetMultiplayerRaceSettings());
@@ -6119,10 +6120,11 @@ void FrontendChampionship_InitEntries(void)
 
 extern DriverProfileIdentifier *g_pProfileIdentifiers;
 
-// Toggles the championship entry bit of a driver slot; in game mode 4 it
-// toggles the |2 flag of that slot's profile record instead.
+// Sets the automatic gearbox flag of a driver (bit 5 of the profile options,
+// bit 0 of the championship entry's flags in game mode 4, which is also marked
+// edited).
 // FUNCTION: CMR2 0x004eb0c0
-void FrontendChampionship_SetDriverEntryFlag(BYTE index, BYTE flag)
+void RallyData_SetDriverAutomaticGearbox(BYTE index, BYTE flag)
 {
     unsigned int category;
     BYTE *pEntry;
@@ -7631,7 +7633,7 @@ void FrontendChampionship_SelectRouteEntry(Menu *pMenu, int param)
 // FUNCTION: CMR2 0x004fad40
 void FrontendChampionship_ToggleRouteEntry(Menu *pMenu, int param)
 {
-    FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining), pMenu->items[0].max);
+    RallyData_SetDriverAutomaticGearbox(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining), pMenu->items[0].max);
     if (g_profilePlayersRemaining == 0) {
         Menu_SetNextAction(FrontendMenu_GetArcadeChampionshipTransmission());
         return;
@@ -7656,7 +7658,7 @@ void FrontendChampionship_UpdateAlternateRouteEntry(Menu *pMenu, int param)
 // FUNCTION: CMR2 0x004fadd0
 void FrontendChampionship_ApplySharedRouteEntry(Menu *pMenu, int param)
 {
-    FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining), pMenu->items[0].max);
+    RallyData_SetDriverAutomaticGearbox(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining), pMenu->items[0].max);
     if (g_profilePlayersRemaining == 0) {
         if (CGameInfo::GetConfiguredPlayerCount() == 2) {
             FrontendMenu_GetMultiplayerProfile()->pParent = pMenu;
@@ -7690,7 +7692,7 @@ void FrontendChampionship_UpdateArcadeRouteEntry(Menu *pMenu, int param)
 // FUNCTION: CMR2 0x004faea0
 void FrontendChampionship_ToggleArcadeRouteEntry(Menu *pMenu, int param)
 {
-    FrontendChampionship_SetDriverEntryFlag(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining), pMenu->items[0].max);
+    RallyData_SetDriverAutomaticGearbox(CGameInfo::GetConfiguredPlayerCount() + (0xff - g_profilePlayersRemaining), pMenu->items[0].max);
     if (g_profilePlayersRemaining == 0) {
         Menu_SetNextAction(FrontendMenu_GetArcadeChampionshipRallySelection());
         return;
@@ -7946,7 +7948,7 @@ unsigned int FrontendProfile_ApplyDriverProfileBlock(const SavedGameImage *pBloc
     }
     {
     for (unsigned i = 0; i < image.options.playerCount; i++) {
-        FrontendChampionship_SetDriverEntryFlag((BYTE)i, image.drivers[i].entryFlag);
+        RallyData_SetDriverAutomaticGearbox((BYTE)i, image.drivers[i].entryFlag);
         const SaveSlot &slot = *(const SaveSlot *)RallyData_GetDriverEntryRecord(i);
         RallyData_SetCategoryAwardBit(i, slot.car);
     }
@@ -8454,7 +8456,7 @@ void FrontendMenu_UpdateNetworkSessionSetup(Menu *pMenu)
         g_unk0x00818ce8 = Menu_GetItem(pMenu, 1)->max;
     }
     if (g_unk0x00818ce0 != Menu_GetItem(pMenu, 2)->max) {
-        FrontendChampionship_SetDriverEntryFlag(0, Menu_GetItem(pMenu, 2)->max);
+        RallyData_SetDriverAutomaticGearbox(0, Menu_GetItem(pMenu, 2)->max);
         FrontendNetwork_SendPlayerDescription();
         g_unk0x00818ce0 = Menu_GetItem(pMenu, 2)->max;
     }
@@ -8918,7 +8920,7 @@ void FrontendMenu_DrawProfileStageRecords(Menu *pMenu)
 // FUNCTION: CMR2 0x004e4fc0
 void FrontendMenu_DrawBestStageTimes(Menu *pMenu)
 {
-    BYTE *pRow;
+    GameInfo0xa4SubStruct8 *pRow;
     unsigned int time;
     int count;
     int i;
@@ -8957,21 +8959,21 @@ void FrontendMenu_DrawBestStageTimes(Menu *pMenu)
     for (i = 0; i < count; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0x5a) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
-        pRow = (BYTE *)CGameInfo::GetGameInfoFieldA4Address() + 0x654 + (pMenu->cursor * 0xb + i) * 8;
+        pRow = &CGameInfo::GetGameInfoFieldA4Address()->rallyStageRecordTimes[pMenu->cursor * 0xb + i];
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, i + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 100) / 0x280, y,
                       (int *)g_colourText0x0052496c, 0x12);
-        Font_DrawText(1, (char *)pRow, (int)(g_pGraphics->resX * 0x96) / 0x280, y,
+        Font_DrawText(1, pRow->ident, (int)(g_pGraphics->resX * 0x96) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*(unsigned int *)(pRow + 4) & 0x3f),
+        Font_DrawText(1, CFrontend::GetModeSpecificCountryText(pRow->bits.car),
                       (int)(g_pGraphics->resX * 0x122) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
-        if ((*(unsigned int *)(pRow + 4) & 0x40) != 0)
+        if (pRow->bits.automatic != 0)
             Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         else
             Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
-        time = *(unsigned int *)(pRow + 4) >> 7 & 0xffff;
+        time = pRow->bits.time;
         sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
                 (int)((time / 100) % 0x3c), time % 100);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x208) / 0x280, y,
@@ -8992,7 +8994,7 @@ MenuScroller *FrontendScroller_GetTransmissionRecordsScroller(void);
 // FUNCTION: CMR2 0x004e5c90
 void FrontendMenu_DrawTransmissionRecords(Menu *pMenu)
 {
-    BYTE *pRow;
+    GameInfo0xa4SubStruct12 *pRow;
     int mode;
     int i;
     int x;
@@ -9044,25 +9046,24 @@ void FrontendMenu_DrawTransmissionRecords(Menu *pMenu)
     for (i = 0; i < 5; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
-        pRow = (BYTE *)CGameInfo::GetGameInfoFieldA4Address() + 0xff4 +
-               ((mode + pMenu->cursor * 3) * 5 + i) * 0xc;
+        pRow = &CGameInfo::GetGameInfoFieldA4Address()->thirdLoop[(mode + pMenu->cursor * 3) * 5 + i];
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, i + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 100) / 0x280, y,
                       (int *)g_colourText0x0052496c, 0x12);
-        Font_DrawText(1, (char *)pRow, (int)(g_pGraphics->resX * 0x96) / 0x280, y,
+        Font_DrawText(1, pRow->ident, (int)(g_pGraphics->resX * 0x96) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(1, CFrontend::GetModeSpecificCountryText(*(unsigned int *)(pRow + 4) & 0x3f),
+        Font_DrawText(1, CFrontend::GetModeSpecificCountryText(SCORE_BITS(pRow).car),
                       (int)(g_pGraphics->resX * 0x122) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
-        if ((*(unsigned int *)(pRow + 4) & 0x40) != 0)
+        if (SCORE_BITS(pRow).automatic != 0)
             Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         else
             Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
-        sprintf(CFrontend::m_stringDest, g_strTwoDigits, *(unsigned int *)(pRow + 4) >> 10 & 0x3f);
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, SCORE_BITS(pRow).score);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21c) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        sprintf(CFrontend::m_stringDest, g_strTwoDigits, (*(unsigned int *)(pRow + 4) >> 7 & 7) + 1);
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, SCORE_BITS(pRow).level + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1e5) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
         g_frontendDrawRect[1] = (short)(((int)(g_pGraphics->resY * 0xa0) / 0x1e0) +
@@ -9213,6 +9214,9 @@ void FrontendMenu_DrawChampionshipRecords(Menu *pMenu)
     for (i = 0; i < 8; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
+        // arcadeRecordTimes[(i / 3) * 3 + i % 3] (ident, then car, automatic and time
+        // bits). Typed like the stage list, it shifts registers in
+        // FrontendMenu_DrawRallyReport (98.51% -> 98.38%).
         pRow = (BYTE *)CGameInfo::GetGameInfoFieldA4Address() + 0x1210 + ((i / 3) * 3 + i % 3) * 8;
         Font_DrawText(1, CFrontend::GetTextString(order[i] + 0x27), (int)(g_pGraphics->resX * 0x82) / 0x280,
                       y, (int *)g_colourText0x0052496c, 0x12);
@@ -11780,7 +11784,7 @@ void FrontendMenu_DrawChampionshipEntry(Menu *pMenu)
 // ---------------------------------------------------------------------------
 extern char g_keypadFormat[];   // 0x516940 "%s %s" (Input.cpp)
 extern char g_str0x00519fb8[];  // 0x519fb8 "%s_" (GameMenus.cpp)
-BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
+BYTE RallyData_GetDriverAutomaticGearbox(BYTE param1);
 char *NetworkChat_GetLine(int index);
 unsigned int NetPlayers_GetPlayerFlag5(int index);
 
@@ -11886,7 +11890,7 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
 
     sprintf(CFrontend::m_stringDest, g_str0x00524da8, (char *)RallyData_GetRecord(0),
             CFrontend::GetModeSpecificStageText(RallyData_GetDriverRecordSelectionValue(0)),
-            RallyData_GetDriverOrCategoryFlag(0) != 0 ? g_strGearboxAuto : g_strGearboxManual);
+            RallyData_GetDriverAutomaticGearbox(0) != 0 ? g_strGearboxAuto : g_strGearboxManual);
     if (Network_GetSessionStateFlag() != 0) {
         Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX - (g_pGraphics->resX * 20) / 640, (g_pGraphics->resY * 100) / 480, (int *)g_colourWhite0x00524968, 0xc);
     } else {

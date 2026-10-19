@@ -67,7 +67,7 @@ BYTE *RallyData_GetDriverBestResults(int i) {assert(i==providerIndex); return (B
 BYTE *Frontend_GetEventRallyStageTime(int i) {assert(i==providerIndex); return missing?nullptr:currentRecord+0x14;}
 BYTE *Frontend_GetEventRallyResult(int i) {assert(i==providerIndex); return missing?nullptr:currentRecord+0xc;}
 BYTE RallyData_GetDriverRecordSelectionValue(BYTE i) {assert(i==providerIndex); return 0x45;}
-BYTE RallyData_GetDriverOrCategoryFlag(BYTE i) {assert(i==providerIndex); return 3;}
+BYTE RallyData_GetDriverAutomaticGearbox(BYTE i) {assert(i==providerIndex); return 3;}
 void RallyData_MarkDriverRecordDirty(int i) {assert(i==providerIndex); ++marked;}
 int fixtureRand() {return 0x7654;}
 #define rand fixtureRand

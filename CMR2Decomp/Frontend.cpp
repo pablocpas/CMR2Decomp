@@ -30,7 +30,7 @@ ProfileEventResults *RallyData_GetDriverEventResults(int index);
 CategoryBestResults *RallyData_GetDriverBestResults(int index);
 unsigned int RallyData_GetFlag30(void);
 unsigned int RallyData_GetFlag23(void);
-BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
+BYTE RallyData_GetDriverAutomaticGearbox(BYTE param1);
 void RallyData_MarkDriverRecordDirty(int index);
 BYTE RallyData_GetModeStageGroup(BYTE flags, char mode);
 BYTE StageTiming_GetFinishStateEntry(int index);
@@ -1205,7 +1205,7 @@ BYTE Frontend_MergeBestRallyStageTime(int index, CategoryBestResults *pBlock)
         *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
         Frontend_CopyOptionWord((int *)pValue, (int *)pOption);
         *pEntry = (RallyData_GetDriverRecordSelectionValue((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
-        *pEntry = (RallyData_GetDriverOrCategoryFlag((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+        *pEntry = (RallyData_GetDriverAutomaticGearbox((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
         RallyData_MarkDriverRecordDirty(index);
         g_playerKeyStates[index * 0xa] = 1;
         return 1;
@@ -1239,7 +1239,7 @@ BYTE Frontend_MergeBestRallyResult(int index, CategoryBestResults *pBlock)
             *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
             Frontend_MergeFourNibbleOptionFields((int *)pValue, (int *)pOption);
             *pEntry = (RallyData_GetDriverRecordSelectionValue((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
-            *pEntry = (RallyData_GetDriverOrCategoryFlag((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+            *pEntry = (RallyData_GetDriverAutomaticGearbox((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
             RallyData_MarkDriverRecordDirty(index);
             g_playerKeyStates[index * 0xa + 1] = 1;
             return 1;
@@ -1250,21 +1250,11 @@ BYTE Frontend_MergeBestRallyResult(int index, CategoryBestResults *pBlock)
 
 // Best-result records of the frontend: a header word (car, flags, a random
 // tag) followed by the result, compared field by field.
-// The flags word of a GameInfo0xa4SubStruct12 record with a 3-bit level and a 6-bit score.
-struct RecordScoreBits {
-    unsigned car : 6;
-    unsigned manual : 1;
-    unsigned level : 3;
-    unsigned score : 6;
-    unsigned rest : 16;
-};
-// Kept out of GameInfo.h: one more type there changes MSVC6's register ties in
-// GameInfo.cpp (0x4f4b90 drops from 94.9% to 76.7%).
-#define SCORE_BITS(pRecord) (*(RecordScoreBits *)&(pRecord)->flags)
+#include "RecordBits.h"
 
 struct RecordHeader {
     unsigned car : 6;
-    unsigned bit6 : 1;
+    unsigned automatic : 1;
     unsigned used : 1;
     unsigned tag : 5;
     unsigned rest : 19;
@@ -1314,7 +1304,7 @@ BYTE Frontend_MergeBestPlayerResult(int index, CategoryBestResults *pBlock)
             pEntry->tag = rand();
             Frontend_MergeFourTwoSixBitOptionFields((int *)pValue, (int *)pDevice);
             pEntry->car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
-            pEntry->bit6 = RallyData_GetDriverOrCategoryFlag((BYTE)index);
+            pEntry->automatic = RallyData_GetDriverAutomaticGearbox((BYTE)index);
             RallyData_MarkDriverRecordDirty(index);
             g_playerKeyStates[index * 0xa + 2] = 1;
             return 1;
@@ -1344,7 +1334,7 @@ BYTE Frontend_MergeBestArcadeStageTime(int index)
         *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
         Frontend_CopyOptionWord((int *)pValue, (int *)pDevice);
         *pEntry = (RallyData_GetDriverRecordSelectionValue((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
-        *pEntry = (RallyData_GetDriverOrCategoryFlag((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+        *pEntry = (RallyData_GetDriverAutomaticGearbox((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
         RallyData_MarkDriverRecordDirty(index);
         return 1;
     }
@@ -1372,7 +1362,7 @@ BYTE Frontend_MergeBestArcadeResult(int index, CategoryBestResults *pBlock)
             pEntry->header.tag = rand();
             Frontend_MergeThreeTwoSixBitOptionFields((int *)&pEntry->result, (int *)pValue);
             pEntry->header.car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
-            pEntry->header.bit6 = RallyData_GetDriverOrCategoryFlag((BYTE)index);
+            pEntry->header.automatic = RallyData_GetDriverAutomaticGearbox((BYTE)index);
             RallyData_MarkDriverRecordDirty(index);
             g_playerKeyStates[index * 0xa + 3] = 1;
             return 1;
@@ -1420,7 +1410,7 @@ int Frontend_CopyImprovedStageRecordAndSplits(int param_1, int param_2, char *pN
         return 0;
     strcpy(pRecord->ident, pName);
     pRecord->bits.car = RallyData_GetDriverRecordSelectionValue((BYTE)param_2);
-    pRecord->bits.manual = RallyData_GetDriverOrCategoryFlag((BYTE)param_2);
+    pRecord->bits.automatic = RallyData_GetDriverAutomaticGearbox((BYTE)param_2);
     pRecord->bits.time = *pOption;
     for (i = 0; i < 10; i++) {
         unsigned short value = (unsigned short)StageTiming_GetDriverSplitClock(param_1, i);
@@ -1475,7 +1465,7 @@ int FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName)
                 }
                 strcpy(pRecord->ident, pName);
                 pRecord->bits.car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
-                pRecord->bits.manual = RallyData_GetDriverOrCategoryFlag((BYTE)index);
+                pRecord->bits.automatic = RallyData_GetDriverAutomaticGearbox((BYTE)index);
                 pRecord->bits.level = *pDevice;
                 pRecord->value = pDevice[1];
                 pRecord->bits.extra = (*pDevice & 0x3c00) >> 10;
@@ -1492,15 +1482,6 @@ int FrontendRecords_InsertStageDeviceRecord(int param1, int index, char *pName)
 
 // Inserts a device name and its option word into the five-entry record list of
 // the current car group, keeping the list sorted by the option value.
-// The flags word with a 7-bit score and a 4-bit level (0x4cfc90).
-struct RecordLevelBits {
-    unsigned car : 6;
-    unsigned manual : 1;
-    unsigned score : 7;
-    unsigned level : 4;
-    unsigned rest : 14;
-};
-#define LEVEL_BITS(pRecord) (*(RecordLevelBits *)&(pRecord)->flags)
 
 // FUNCTION: CMR2 0x004cfc90
 int FrontendRecords_InsertStageCategoryRecord(int param1, int index, char *pName)
@@ -1529,7 +1510,7 @@ int FrontendRecords_InsertStageCategoryRecord(int param1, int index, char *pName
                     Frontend_MergeNamedRecordSevenBitFields((int *)&pRecords[i], (int *)&pRecords[i - 1]);
                 strcpy(pRecord->ident, pName);
                 LEVEL_BITS(pRecord).car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
-                LEVEL_BITS(pRecord).manual = RallyData_GetDriverOrCategoryFlag((BYTE)index);
+                LEVEL_BITS(pRecord).automatic = RallyData_GetDriverAutomaticGearbox((BYTE)index);
                 LEVEL_BITS(pRecord).level = pDevice->playerResult;
                 LEVEL_BITS(pRecord).score = pDevice->playerResult >> 6;
                 for (k = 0; k < 3; k++)
@@ -1603,7 +1584,7 @@ int FrontendRecords_CopyArcadeSplitMirror(int param_1, int param_2)
             g_loadedSplitTimes[i] = value;
             strcpy(pRecord->ident, (char *)RallyData_GetRecord((BYTE)param_2));
             pRecord->value = (RallyData_GetDriverRecordSelectionValue((BYTE)param_2) & 0x3f) | (pRecord->value & 0xffffffc0);
-            pRecord->value = (RallyData_GetDriverOrCategoryFlag((BYTE)param_2) & 1) << 6 | (pRecord->value & 0xffffffbf);
+            pRecord->value = (RallyData_GetDriverAutomaticGearbox((BYTE)param_2) & 1) << 6 | (pRecord->value & 0xffffffbf);
             return 1;
         }
     }
@@ -1652,7 +1633,7 @@ char FrontendRecords_InsertArcadeDeviceRecord(int param1, int index, char *pName
                 }
                 strcpy(pRecord->ident, pName);
                 SCORE_BITS(pRecord).car = RallyData_GetDriverRecordSelectionValue((BYTE)index);
-                SCORE_BITS(pRecord).manual = RallyData_GetDriverOrCategoryFlag((BYTE)index);
+                SCORE_BITS(pRecord).automatic = RallyData_GetDriverAutomaticGearbox((BYTE)index);
                 SCORE_BITS(pRecord).level = pDevice->level;
                 SCORE_BITS(pRecord).score = pDevice->score;
                 pRecord->value = ((unsigned int *)pDevice)[1];

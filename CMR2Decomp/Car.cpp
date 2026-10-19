@@ -6762,7 +6762,7 @@ public:
 unsigned char RallyData_GetSelectionFlag28(void);
 unsigned int StageTiming_GetTotalCarCount(void);
 int Replay_GetSelectionStateByte(void);
-BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1);
+BYTE RallyData_GetDriverAutomaticGearbox(BYTE param1);
 char *RallyData_GetCountrySevenByteRecord(void);
 char *RallyData_GetSelectedSettingSevenByteRecord(void);
 BYTE *RallyData_GetDriverSkillRecord(int index);
@@ -7201,14 +7201,14 @@ LAB_0043d703:
     g_pCurrentCar->groundUpDot = 0x10000;
     g_pCurrentCar->groundForwardDot = 0;
     if (flagC != 0) {
-        if (RallyData_GetDriverOrCategoryFlag((BYTE)Replay_GetSelectionStateByte()) != 0)
+        if (RallyData_GetDriverAutomaticGearbox((BYTE)Replay_GetSelectionStateByte()) != 0)
             g_pCurrentCar->field_0xb48 = 2;
         else
             g_pCurrentCar->field_0xb48 = 1;
     } else if (flag8 != 0) {
         g_pCurrentCar->field_0xb48 = 2;
     } else if ((int)g_pCurrentCar->index < (int)(unsigned int)RallyDataState()) {
-        if (RallyData_GetDriverOrCategoryFlag((BYTE)(StageUI_GetRaceEndEventCount() + g_pCurrentCar->index)) != 0)
+        if (RallyData_GetDriverAutomaticGearbox((BYTE)(StageUI_GetRaceEndEventCount() + g_pCurrentCar->index)) != 0)
             g_pCurrentCar->field_0xb48 = 2;
         else
             g_pCurrentCar->field_0xb48 = 1;

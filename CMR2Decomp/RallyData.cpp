@@ -2518,7 +2518,7 @@ BYTE RallyData_GetDriverRecordSelectionValue(BYTE index)
 // Returns bit 0 of the record flag, or bit 5 of the category flag when the
 // record belongs to a category.
 // FUNCTION: CMR2 0x004086f0
-BYTE RallyData_GetDriverOrCategoryFlag(BYTE param1)
+BYTE RallyData_GetDriverAutomaticGearbox(BYTE param1)
 {
     unsigned int category;
     BYTE flag;

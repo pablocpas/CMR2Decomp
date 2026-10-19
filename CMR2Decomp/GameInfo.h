@@ -8,14 +8,14 @@
 // Record words as the original's bitfields (it merges adjacent field stores).
 struct RecordTimeBits {
 	unsigned car : 6;
-	unsigned manual : 1;
+	unsigned automatic : 1;  // automatic gearbox ("AT" in the record lists)
 	unsigned time : 16;
 	unsigned rest : 9;
 };
 
 struct RecordFlagBits {
 	unsigned car : 6;
-	unsigned manual : 1;
+	unsigned automatic : 1;  // automatic gearbox ("AT" in the record lists)
 	unsigned level : 4;
 	unsigned extra : 4;
 	unsigned rest : 17;

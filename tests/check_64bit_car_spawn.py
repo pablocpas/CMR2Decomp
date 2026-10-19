@@ -69,7 +69,7 @@ int RallyDataState(){return 1;}
 int RallyData_GetFlag24(){return 0;}
 int RallyData_GetFlag25(){return flag25;}
 int RallyData_GetUsableRecordCategory(BYTE){return -1;}
-int RallyData_GetDriverOrCategoryFlag(BYTE){return 0;}
+int RallyData_GetDriverAutomaticGearbox(BYTE){return 0;}
 int StageUI_GetRaceEndEventCount(){return 0;}
 BYTE *RallyData_GetDriverSkillRecord(int index){return fixtureHeap+0x6000+(index&255)*16;}
 char *RallyData_GetSelectedSettingSevenByteRecord(){return (char *)fixtureHeap+0x7100;}
