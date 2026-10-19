@@ -9890,8 +9890,6 @@ int View_IsModeAvailable(BYTE index, int mode);
 int RallyData_GetDriverCarSelection(BYTE index);
 void View_SwitchCamera(unsigned char, int, int, unsigned char, int);
 
-// GLOBAL: CMR2 0x0051f4c0
-unsigned int g_unk0x0051f4c0 = 0x100;
 // GLOBAL: CMR2 0x0058df98
 unsigned int g_unk0x0058df98;
 // GLOBAL: CMR2 0x0058df9c
@@ -9909,12 +9907,12 @@ void StageObject_CycleDriverCameraSelection(unsigned int param_1, unsigned int p
 
     if ((char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[param_2].packedState == 7 ||
         (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[param_2].packedState == 8) {
-        if ((param_1 & (unsigned short)g_unk0x0051f4c0) != 0) {
+        if ((param_1 & g_carButtonMasks[8]) != 0) {
             if (View_GetActiveCameraMode(param_2) != 10)
                 View_SwitchCamera(g_controlCar->index, 10, 0xffff,
                              View_GetActiveCameraFlags(g_controlCar->index), 0);
         }
-        if ((param_1 & (unsigned short)g_unk0x0051f4c0) == 0) {
+        if ((param_1 & g_carButtonMasks[8]) == 0) {
             if (View_GetActiveCameraMode(g_controlCar->index) == 10) {
                 switch (StageUI_GetRaceResultValue()) {
                 case 4:
