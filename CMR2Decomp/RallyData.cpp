@@ -1093,10 +1093,10 @@ int RallyData_IsDriverViewModeAllowed(unsigned char index, int mode)
 }
 
 // FUNCTION: CMR2 0x004239e0
-void RallyData_ValidateType3Entry(int *p)
+void Camera_AfterLeave(CameraRecord *pRecord)
 {
-    if (p[1] == 3)
-        RallyData_ValidateIndex((INT_PTR)p);
+    if (pRecord->type == 3)
+        RallyData_ValidateIndex((INT_PTR)pRecord);
 }
 
 // FUNCTION: CMR2 0x00406940

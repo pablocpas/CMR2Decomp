@@ -29,14 +29,14 @@ SceneNode *g_viewNodes[3];
 // GLOBAL: CMR2 0x00538e38
 CameraRecord g_viewPreviousStates[2];
 // GLOBAL: CMR2 0x00538e04
-int g_unk0x00538e04[2];
+int g_viewFarPlanes[2];
 // GLOBAL: CMR2 0x00538e0c
 BYTE g_activeViewRecord[4];
 // Blended camera state of each view, laid out like the view records.
 // GLOBAL: CMR2 0x00538d28
 CameraRecord g_viewStates[2];
 // GLOBAL: CMR2 0x00538df0
-int g_unk0x00538df0[2];
+int g_viewNearPlanes[2];
 // GLOBAL: CMR2 0x00538df8
 short g_unk0x00538df8[2];
 // GLOBAL: CMR2 0x00538c98
@@ -65,9 +65,9 @@ void Car_GetViewPositionDelta(FixVector *pOut, unsigned int view)
 }
 
 // FUNCTION: CMR2 0x00422f90
-void View_SetDistanceOverride(BYTE index, int value)
+void View_SetFarPlane(BYTE index, int value)
 {
-    g_unk0x00538e04[index] = value;
+    g_viewFarPlanes[index] = value;
 }
 
 // FUNCTION: CMR2 0x00422f50
@@ -5486,11 +5486,11 @@ void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tR
 void CameraState_Interpolate(CameraRecord *pOut, CameraRecord *pA, CameraRecord *pB, int t)
 {
     FixMatrix_Interpolate(&pOut->matrix, &pA->matrix, &pB->matrix, t, t, t, 1);
-    pOut->field_0x48 = pA->field_0x48 + FixMul(pB->field_0x48 - pA->field_0x48, t);
-    pOut->field_0x4c = pA->field_0x4c + FixMul(pB->field_0x4c - pA->field_0x4c, t);
-    pOut->field_0x54 = pA->field_0x54 + FixMul(pB->field_0x54 - pA->field_0x54, t);
-    pOut->field_0x58 = pA->field_0x58 + FixMul(pB->field_0x58 - pA->field_0x58, t);
-    pOut->field_0x5c = pA->field_0x5c + FixMul(pB->field_0x5c - pA->field_0x5c, t);
+    pOut->carLift = pA->carLift + FixMul(pB->carLift - pA->carLift, t);
+    pOut->nearPlane = pA->nearPlane + FixMul(pB->nearPlane - pA->nearPlane, t);
+    pOut->zoom = pA->zoom + FixMul(pB->zoom - pA->zoom, t);
+    pOut->liftPitch = pA->liftPitch + FixMul(pB->liftPitch - pA->liftPitch, t);
+    pOut->lookDistance = pA->lookDistance + FixMul(pB->lookDistance - pA->lookDistance, t);
     pOut->field_0x50 = pA->field_0x50 + FixMul(pB->field_0x50 - pA->field_0x50, t);
     pOut->clearance = pA->clearance + FixMul(pB->clearance - pA->clearance, t);
 }
@@ -5501,11 +5501,11 @@ void CameraState_Copy(CameraRecord *dst, CameraRecord *src)
 {
     dst->type = src->type;
     *(Unk00423ee0Block *)&dst->matrix = *(Unk00423ee0Block *)&src->matrix;
-    dst->field_0x48 = src->field_0x48;
-    dst->field_0x4c = src->field_0x4c;
-    dst->field_0x54 = src->field_0x54;
-    dst->field_0x58 = src->field_0x58;
-    dst->field_0x5c = src->field_0x5c;
+    dst->carLift = src->carLift;
+    dst->nearPlane = src->nearPlane;
+    dst->zoom = src->zoom;
+    dst->liftPitch = src->liftPitch;
+    dst->lookDistance = src->lookDistance;
     dst->field_0x50 = src->field_0x50;
     dst->clearance = src->clearance;
 }
@@ -6212,7 +6212,7 @@ void Car_SmoothForceFeedback(void)
 }
 
 // GLOBAL: CMR2 0x005391cc
-int g_unk0x005391cc[2];
+int g_viewZooms[2];
 
 extern const double g_fixedRadiansToAngle12;
 
@@ -7888,9 +7888,9 @@ found:
 
 // --- per-view camera control (0x421610-0x423780) ---------------------------
 // Each view has two camera records in g_viewRecords (index view * 2 + the
-// active slot g_activeViewRecord[view]): +0 record index, +1 view, +2 car,
-// +4 camera type, +8 matrix, +0x48.. parameters, +0x60 ground clearance.
-// g_viewStates holds the blended state of each view in the same layout.
+// active slot g_activeViewRecord[view]), laid out as CameraRecord.
+// g_viewStates holds the blended state of each view in the same layout
+// (type 8 while a blend between the two records runs).
 
 #define VIEW_RECORD(i) (&g_viewRecords[i])
 #define VIEW_STATE(v) (&g_viewStates[v])
@@ -7902,29 +7902,28 @@ found:
 
 extern double g_minusFixedDegreesToAngle12;
 extern double g_fixedDegreesToAngle12;
-struct Unk004238e0;
-void Game_DispatchObjectTypeEvent(BYTE *pObject, BYTE *pInfo);
-void Game_DispatchObjectTypeUpdate(BYTE *pObject, BYTE *pInfo);
-void Game_UpdateType3ObjectState(Unk004238e0 *param1, void *param2);
-void Game_DispatchObjectContactReset(BYTE *pObject, BYTE *pInfo);
-void RallyData_ValidateType3Entry(int *p);
+void Camera_BeginLeave(CameraRecord *pRecord, CameraRecord *pOther);
+void Camera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther);
+void Camera_EndLeave(CameraRecord *pRecord, CameraRecord *pOther);
+void Camera_EndEnter(CameraRecord *pRecord, CameraRecord *pOther);
+void Camera_AfterLeave(CameraRecord *pRecord);
 void Glow_NoOpEntryCallback(BYTE a, BYTE b, int c, int d);
-void StageObject_SelectAndCopyCarNodePayload(BYTE *pObj, int *pSrc, BYTE index, BYTE value);
-void StageObject_SyncStateAndSceneMatrix(BYTE *p, int *src, int unused, BYTE value);
-void Dash_UpdateCameraModeOffset(BYTE *param_1, BYTE *param_2, int param_3);
-void View_PlaceTracksideCameraAtSpot(BYTE *pRecord, FixMatrix *pRef, int param);
-void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc);
-void StageObject_BuildCarNodeOrientation(BYTE *object, int *src);
-void View_CacheReferenceBasisAndBuildMatrix(BYTE *pObj, FixMatrix *pRef);
-void View_RestartTracksideCameraDolly(BYTE *pRecord, FixMatrix *pRef);
+void StageObject_SelectAndCopyCarNodePayload(CameraRecord *pObj, int *pSrc, BYTE index, BYTE value);
+void StageObject_SyncStateAndSceneMatrix(CameraRecord *p, int *src, int unused, BYTE value);
+void Dash_UpdateCameraModeOffset(CameraRecord *param_1, BYTE *param_2, int param_3);
+void View_PlaceTracksideCameraAtSpot(CameraRecord *pRecord, FixMatrix *pRef, int param);
+void StageObject_RebuildMirroredTiltMatrix(CameraRecord *pObj, int *pSrc);
+void StageObject_BuildCarNodeOrientation(CameraRecord *object, int *src);
+void View_CacheReferenceBasisAndBuildMatrix(CameraRecord *pObj, FixMatrix *pRef);
+void View_RestartTracksideCameraDolly(CameraRecord *pRecord, FixMatrix *pRef);
 void View_PositionFromCarProfile(CameraRecord *pObj, FixMatrix *pRef);
-void StageObject_BuildCarMountWorldMatrix(BYTE *object, void *unused);
-void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef);
-void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef);
-void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3);
-void StageObject_DispatchActiveCarObjectUpdate(BYTE *pObj, FixMatrix *pRef, int b);
-void Dash_BuildInterpolatedCockpitMatrix(BYTE *param_1, FixMatrix *param_2, int param_3);
-void View_UpdateTracksideZoomAndShake(BYTE *pRecord, FixMatrix *pRef);
+void StageObject_BuildCarMountWorldMatrix(CameraRecord *object, void *unused);
+void View_BuildMatrixFromCameraBasis(CameraRecord *pObj, FixMatrix *pRef);
+void View_BuildTracksideCameraMatrix(CameraRecord *pRecord, FixMatrix *pRef);
+void StageObject_InterpolateReferenceMatrix(CameraRecord *pObj, int *pSrc, int param_3);
+void StageObject_DispatchActiveCarObjectUpdate(CameraRecord *pObj, FixMatrix *pRef, int b);
+void Dash_BuildInterpolatedCockpitMatrix(CameraRecord *param_1, FixMatrix *param_2, int param_3);
+void View_UpdateTracksideZoomAndShake(CameraRecord *pRecord, FixMatrix *pRef);
 int Track_GetGroundHeight5(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass, int defaultY);
 void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car);
 unsigned short RallyData_GetPrimaryStageScoreScale(void);
@@ -7953,28 +7952,28 @@ void Camera_Start(CameraRecord *pRecord, int type, int param)
     View_GetCarBodyMatrix(&body, car);
     switch (type) {
     case 6:
-        Dash_UpdateCameraModeOffset((BYTE *)pRecord, (BYTE *)Car_GetCameraReferenceMatrix(car), 3);
+        Dash_UpdateCameraModeOffset(pRecord, (BYTE *)Car_GetCameraReferenceMatrix(car), 3);
         return;
     case 4:
-        Dash_UpdateCameraModeOffset((BYTE *)pRecord, (BYTE *)Car_GetCameraReferenceMatrix(car), 0);
+        Dash_UpdateCameraModeOffset(pRecord, (BYTE *)Car_GetCameraReferenceMatrix(car), 0);
         return;
     case 5:
-        Dash_UpdateCameraModeOffset((BYTE *)pRecord, (BYTE *)Car_GetCameraReferenceMatrix(car), 4);
+        Dash_UpdateCameraModeOffset(pRecord, (BYTE *)Car_GetCameraReferenceMatrix(car), 4);
         return;
     case 3:
-        StageObject_SyncStateAndSceneMatrix((BYTE *)pRecord, (int *)Car_GetCameraReferenceMatrix(car), View_GetActiveCameraMode(view), (BYTE)pCar->type);
+        StageObject_SyncStateAndSceneMatrix(pRecord, (int *)Car_GetCameraReferenceMatrix(car), View_GetActiveCameraMode(view), (BYTE)pCar->type);
         return;
     case 2:
-        StageObject_SelectAndCopyCarNodePayload((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 0);
+        StageObject_SelectAndCopyCarNodePayload(pRecord, (int *)&body, *(BYTE *)&pCar->index, 0);
         return;
     case 10:
-        StageObject_SelectAndCopyCarNodePayload((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 2);
+        StageObject_SelectAndCopyCarNodePayload(pRecord, (int *)&body, *(BYTE *)&pCar->index, 2);
         return;
     case 1:
-        StageObject_SelectAndCopyCarNodePayload((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 1);
+        StageObject_SelectAndCopyCarNodePayload(pRecord, (int *)&body, *(BYTE *)&pCar->index, 1);
         return;
     case 7:
-        View_PlaceTracksideCameraAtSpot((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car), param);
+        View_PlaceTracksideCameraAtSpot(pRecord, Car_GetCameraReferenceMatrix(car), param);
     }
 }
 
@@ -7996,7 +7995,7 @@ void Camera_Update(CameraRecord *pRecord)
     short surface;
 
     onCar = 0;
-    if (pRecord->field_0x48 != 0 || pRecord->field_0x5c != 0)
+    if (pRecord->carLift != 0 || pRecord->lookDistance != 0)
         check = 1;
     else
         check = 0;
@@ -8009,25 +8008,25 @@ void Camera_Update(CameraRecord *pRecord)
     case 4:
     case 5:
     case 6:
-        Dash_BuildInterpolatedCockpitMatrix((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car), onCar);
+        Dash_BuildInterpolatedCockpitMatrix(pRecord, Car_GetCameraReferenceMatrix(car), onCar);
         break;
     case 3:
         if (onCar == 0 && pCar->field_0xb60 == 0)
-            StageObject_DispatchActiveCarObjectUpdate((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car), 0);
+            StageObject_DispatchActiveCarObjectUpdate(pRecord, Car_GetCameraReferenceMatrix(car), 0);
         else
-            StageObject_DispatchActiveCarObjectUpdate((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car), 1);
+            StageObject_DispatchActiveCarObjectUpdate(pRecord, Car_GetCameraReferenceMatrix(car), 1);
         break;
     case 2:
-        StageObject_InterpolateReferenceMatrix((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
+        StageObject_InterpolateReferenceMatrix(pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         break;
     case 10:
-        StageObject_InterpolateReferenceMatrix((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
+        StageObject_InterpolateReferenceMatrix(pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         break;
     case 1:
-        StageObject_InterpolateReferenceMatrix((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
+        StageObject_InterpolateReferenceMatrix(pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         break;
     case 7:
-        View_UpdateTracksideZoomAndShake((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car));
+        View_UpdateTracksideZoomAndShake(pRecord, Car_GetCameraReferenceMatrix(car));
         break;
     }
     if (View_IsPlaybackCameraActive() == 0 && check != 0) {
@@ -8059,22 +8058,22 @@ void Camera_Restart(CameraRecord *pRecord)
     case 4:
     case 5:
     case 6:
-        View_CacheReferenceBasisAndBuildMatrix((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car));
+        View_CacheReferenceBasisAndBuildMatrix(pRecord, Car_GetCameraReferenceMatrix(car));
         return;
     case 3:
-        StageObject_BuildCarNodeOrientation((BYTE *)pRecord, (int *)Car_GetCameraReferenceMatrix(car));
+        StageObject_BuildCarNodeOrientation(pRecord, (int *)Car_GetCameraReferenceMatrix(car));
         return;
     case 2:
-        StageObject_RebuildMirroredTiltMatrix((BYTE *)pRecord, (int *)&body);
+        StageObject_RebuildMirroredTiltMatrix(pRecord, (int *)&body);
         return;
     case 10:
-        StageObject_RebuildMirroredTiltMatrix((BYTE *)pRecord, (int *)&body);
+        StageObject_RebuildMirroredTiltMatrix(pRecord, (int *)&body);
         return;
     case 1:
-        StageObject_RebuildMirroredTiltMatrix((BYTE *)pRecord, (int *)&body);
+        StageObject_RebuildMirroredTiltMatrix(pRecord, (int *)&body);
         return;
     case 7:
-        View_RestartTracksideCameraDolly((BYTE *)pRecord, Car_GetCameraReferenceMatrix(car));
+        View_RestartTracksideCameraDolly(pRecord, Car_GetCameraReferenceMatrix(car));
     }
 }
 
@@ -8085,23 +8084,23 @@ void Camera_SnapTo(CameraRecord *pRecord, FixMatrix *pRef)
     switch (pRecord->type) {
     case 5:
     case 6:
-        View_BuildMatrixFromCameraBasis((BYTE *)pRecord, pRef);
+        View_BuildMatrixFromCameraBasis(pRecord, pRef);
         return;
     case 4:
-        View_BuildMatrixFromCameraBasis((BYTE *)pRecord, pRef);
+        View_BuildMatrixFromCameraBasis(pRecord, pRef);
         return;
     case 3:
-        StageObject_BuildCarMountWorldMatrix((BYTE *)pRecord, pRef);
+        StageObject_BuildCarMountWorldMatrix(pRecord, pRef);
         return;
     case 10:
-        View_PositionFromCarProfile((CameraRecord *)pRecord, pRef);
+        View_PositionFromCarProfile(pRecord, pRef);
         return;
     case 1:
     case 2:
-        View_PositionFromCarProfile((CameraRecord *)pRecord, pRef);
+        View_PositionFromCarProfile(pRecord, pRef);
         return;
     case 7:
-        View_BuildTracksideCameraMatrix((BYTE *)pRecord, pRef);
+        View_BuildTracksideCameraMatrix(pRecord, pRef);
     }
 }
 
@@ -8178,17 +8177,17 @@ void View_SwitchCamera(BYTE view, int type, int param, BYTE target, int blend)
         Glow_NoOpEntryCallback(target, VIEW_RECORD(next)->view, 1, 1);
     }
     VIEW_RECORD(next)->car = target;
-    Game_DispatchObjectTypeEvent((BYTE *)VIEW_RECORD(active), (BYTE *)VIEW_RECORD(next));
-    Game_DispatchObjectTypeUpdate((BYTE *)VIEW_RECORD(next), (BYTE *)VIEW_RECORD(active));
+    Camera_BeginLeave(VIEW_RECORD(active), VIEW_RECORD(next));
+    Camera_BeginEnter(VIEW_RECORD(next), VIEW_RECORD(active));
     Camera_Start(VIEW_RECORD(next), type, param);
     VIEW_RECORD(next)->clearance = 0;
     if (blend) {
         g_unk0x00538d20[view] = 0xc8000;
         return;
     }
-    Game_UpdateType3ObjectState((Unk004238e0 *)VIEW_RECORD(active), VIEW_RECORD(next));
-    Game_DispatchObjectContactReset((BYTE *)VIEW_RECORD(next), (BYTE *)VIEW_RECORD(active));
-    RallyData_ValidateType3Entry((int *)VIEW_RECORD(active));
+    Camera_EndLeave(VIEW_RECORD(active), VIEW_RECORD(next));
+    Camera_EndEnter(VIEW_RECORD(next), VIEW_RECORD(active));
+    Camera_AfterLeave(VIEW_RECORD(active));
     g_unk0x005391b0[view] = 1;
     g_activeViewRecord[view] = 1 - g_activeViewRecord[view];
 }
@@ -8277,9 +8276,9 @@ void View_UpdateCamera(BYTE view)
         *pTimer -= g_physicsTimeStep;
         return;
     }
-    Game_UpdateType3ObjectState((Unk004238e0 *)pActive, pNext);
-    Game_DispatchObjectContactReset((BYTE *)pNext, (BYTE *)pActive);
-    RallyData_ValidateType3Entry((int *)pActive);
+    Camera_EndLeave(pActive, pNext);
+    Camera_EndEnter(pNext, pActive);
+    Camera_AfterLeave(pActive);
     CameraState_Copy(VIEW_STATE(index), pNext);
     g_activeViewRecord[index] = 1 - g_activeViewRecord[index];
     *pTimer -= g_physicsTimeStep;
@@ -8361,13 +8360,13 @@ void View_BlendCameraStates(BYTE view, int t)
     int shake;
 
     CameraState_Interpolate(&state, VIEW_PREV_STATE(view), VIEW_STATE(view), t);
-    g_unk0x005391cc[view] = state.field_0x54;
+    g_viewZooms[view] = state.zoom;
     g_unk0x005391a8[view] = state.field_0x50;
-    g_unk0x00538df0[view] = state.field_0x4c;
+    g_viewNearPlanes[view] = state.nearPlane;
     matrix = state.matrix;
-    f48 = state.field_0x48;
-    f58 = state.field_0x58;
-    f5c = state.field_0x5c;
+    f48 = state.carLift;
+    f58 = state.liftPitch;
+    f5c = state.lookDistance;
     f60 = state.clearance;
     if (f60 != 0) {
         Car *car = Car_Get(view);

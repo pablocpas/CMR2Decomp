@@ -627,9 +627,9 @@ CMR2_LAYOUT_CHECK(g_carInteriorProfilePointers_CINCapacityCheck, sizeof(g_carInt
 CMR2_LAYOUT_CHECK(g_carInteriorNodeRows_CINCapacityCheck, sizeof(g_carInteriorNodeRows) / sizeof(g_carInteriorNodeRows[0]) == 2);
 
 extern BYTE g_viewObjectCarIndices[16];
-extern int g_viewObjectLevels[64];
+extern int g_viewCarLift[64];
 CMR2_LAYOUT_CHECK(ViewObjectCarIndexCapacityCheck, sizeof(g_viewObjectCarIndices) == 16);
-CMR2_LAYOUT_CHECK(ViewObjectLevelCapacityCheck, sizeof(g_viewObjectLevels) / sizeof(g_viewObjectLevels[0]) == 64);
+CMR2_LAYOUT_CHECK(ViewObjectLevelCapacityCheck, sizeof(g_viewCarLift) / sizeof(g_viewCarLift[0]) == 64);
 
 // Stage interior resources and shared light records (tandas 19–21).
 CMR2_LAYOUT_CHECK(CarDriverPoseState_RecoveredSizeCheck, (sizeof(CarDriverPoseState) == 0x24));

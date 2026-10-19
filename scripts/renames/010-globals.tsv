@@ -3,3 +3,19 @@ address	old_name	new_name	evidence
 0x00591740	g_unk0x00591740	g_viewCameraSpot	Per view record index, the CameraSpot it uses (set with the chosen spot, read as g_pCameraSpots[g_viewCameraSpot[record->index]]).
 0x00588ea0	g_unk0x00588ea0	g_loadedReplayStreams	Replay files loaded for playback (validated by size, set up with Replay_SetupPointers and counted in g_replayLevelState.bufferCount); slots 8..15 of g_replaySlots point at them; freed unless pending.
 0x0051b114	g_unk0x0051b114	g_weatherFogFactors	Per weather type, the divisor of the draw distance that gives the fog end (0 = no fog limit; 0.4/0.5/0.6 for the two foggy groups), StageLights_SetWeatherFogDistance.
+0x00538e04	g_unk0x00538e04	g_viewFarPlanes	Per view, the far plane View_SetPlayerProjection passes to CGraphics::SetProjection (raised to 0x960000 on the championship final stage); set by View_SetFarPlane.
+0x00538df0	g_unk0x00538df0	g_viewNearPlanes	Per view, CameraRecord::nearPlane of the blended camera state (View_BlendCameraStates), the near plane passed to CGraphics::SetProjection.
+0x005391cc	g_unk0x005391cc	g_viewZooms	Per view, CameraRecord::zoom of the blended state; View_SetPlayerProjection scales both field-of-view terms by it.
+0x005916a0	g_unk0x005916a0	g_tracksideAimTargets	Per view record, car position plus the smoothed lead (View_UpdateTracksideAimTarget), or the start of the spot's range; the target of g_tracksideAims.
+0x00591898	g_unk0x00591898	g_tracksideAims	Per view record, the point the following trackside camera looks at (View_BuildTracksideCameraMatrix); stepped towards g_tracksideAimTargets.
+0x005916f0	g_unk0x005916f0	g_tracksideAimLocked	Set once the aim reaches its target; the aim then copies the target (View_StepTracksideAim).
+0x00591868	g_unk0x00591868	g_tracksideAimLeads	Smoothed (0.9/0.1) View_BuildTracksideAimLead vector added to the car position for the aim target.
+0x00591710	g_unk0x00591710	g_tracksideZoomTargets	Zoom target blended between CameraSpot::zoom and zoomAtRange by the car's distance over the range.
+0x00591690	g_unk0x00591690	g_tracksideZooms	Zoom stepped towards g_tracksideZoomTargets; becomes CameraRecord::zoom (times 0xa000) when following.
+0x00591730	g_unk0x00591730	g_tracksideDollyProgress	0..1.0 fraction of (trackEnd - position) the camera is moved along (times 2) when the spot's dollyStep > 0.
+0x005916d0	g_unk0x005916d0	g_tracksideFollowing	Set once the car is within the spot's range: the camera turns to the aim instead of the spot's fixed basis.
+0x005916e0	g_unk0x005916e0	g_tracksideCarDistances	Camera-to-car distance; below CameraSpot::shakeRange the camera shakes, and it selects aimStep/zoomStep [0] or [1].
+0x00591700	g_unk0x00591700	g_tracksideDollySpeeds	Smoothed CameraSpot::dollyStep passed to View_AdvanceTracksideDolly.
+0x00591720	g_unk0x00591720	g_tracksideZoomSpeeds	Smoothed CameraSpot::zoomStep[] passed to View_StepTracksideZoom.
+0x00591754	g_unk0x00591754	g_tracksideAimSpeeds	Smoothed CameraSpot::aimStep[] passed to View_StepTracksideAim.
+0x00590db0	g_viewObjectLevels	g_viewCarLift	Per view record, the CameraRecord::carLift of the car-mounted views (View_PositionFromCarProfile): 1.0 or 0 from the camera switch handlers (CarCamera_*).

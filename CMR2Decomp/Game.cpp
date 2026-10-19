@@ -26,6 +26,7 @@
 #include <float.h>
 #include "Glow.h"
 #include "LayoutChecks.h"
+#include "CameraRecord.h"
 
 BOOL CGame::m_shouldExit = FALSE;
 BOOL CGame::m_isActive = FALSE;
@@ -2762,102 +2763,97 @@ void CGame::RegisterNetworkResourceRelease(void)
 
 
 // FUNCTION: CMR2 0x004764c0
-void Game_SetObjectRenderModeZero(void *param1)
+void InteriorCamera_EndLeave(CameraRecord *pRecord)
 {
-    if (g_carInteriorRoots[*((BYTE *)param1 + 2)] != NULL)
+    if (g_carInteriorRoots[pRecord->car] != NULL)
         CGame::SetObjectRenderMode(0);
 }
 
 // FUNCTION: CMR2 0x00476500
-void Game_SetObjectRenderModeOne(void *param1)
+void InteriorCamera_EndEnter(CameraRecord *pRecord)
 {
-    if (g_carInteriorRoots[*((BYTE *)param1 + 2)] != NULL)
+    if (g_carInteriorRoots[pRecord->car] != NULL)
         CGame::SetObjectRenderMode(1);
 }
 
-void StageObject_DispatchContactAndSetLevel(BYTE *pCar, BYTE *pInfo);
-void StageObject_DispatchNearRightAngleContact(BYTE *pCar, BYTE *pInfo);
+void CarCamera_BeginLeave(CameraRecord *pRecord, CameraRecord *pOther);
+void TracksideCamera_BeginLeave(CameraRecord *pRecord, CameraRecord *pOther);
 
-// Dispatches by the object type stored at +4.
+// Dispatches by the camera type.
 // FUNCTION: CMR2 0x00423810
-void Game_DispatchObjectTypeEvent(BYTE *pObject, BYTE *pInfo)
+void Camera_BeginLeave(CameraRecord *pRecord, CameraRecord *pOther)
 {
-    switch (*(int *)(pObject + 4)) {
+    switch (pRecord->type) {
     case 1:
     case 2:
     case 10:
-        StageObject_DispatchContactAndSetLevel(pObject, pInfo);
+        CarCamera_BeginLeave(pRecord, pOther);
         return;
     case 7:
-        StageObject_DispatchNearRightAngleContact(pObject, pInfo);
+        TracksideCamera_BeginLeave(pRecord, pOther);
     }
 }
 
-struct Unk004238e0 {
-    int field_0x0;
-    int field_0x4;
-};
+void CarCamera_EndEnter(CameraRecord *pRecord, CameraRecord *pOther);
+void CarCamera_SetFullCarLift(CameraRecord *pRecord, CameraRecord *pOther);
+void InteriorCamera_EndEnter(CameraRecord *pRecord);
+void TracksideCamera_EndEnter(CameraRecord *pRecord, CameraRecord *pOther);
 
-void StageObject_ResetContactEffectAndSetLevel(BYTE *p, BYTE *q);
-void StageObject_SetContactLevelToUnity(BYTE *p, void *unused);
-void Game_SetObjectRenderModeOne(void *param1);
-void StageObject_ResetRightAngleContactEffect(BYTE *pCar, BYTE *pInfo);
-
-// Dispatches by the object type stored at +4.
+// Dispatches by the camera type.
 // match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423900
-void Game_DispatchObjectContactReset(BYTE *pObject, BYTE *pInfo)
+void Camera_EndEnter(CameraRecord *pRecord, CameraRecord *pOther)
 {
-    switch (*(int *)(pObject + 4)) {
+    switch (pRecord->type) {
     case 3:
-        Game_SetObjectRenderModeOne(pObject);
+        InteriorCamera_EndEnter(pRecord);
         return;
     case 2:
-        StageObject_SetContactLevelToUnity(pObject, pInfo);
+        CarCamera_SetFullCarLift(pRecord, pOther);
         return;
     case 1:
     case 10:
-        StageObject_ResetContactEffectAndSetLevel(pObject, pInfo);
+        CarCamera_EndEnter(pRecord, pOther);
         return;
     case 7:
-        StageObject_ResetRightAngleContactEffect(pObject, pInfo);
+        TracksideCamera_EndEnter(pRecord, pOther);
     }
 }
 
-void StageObject_SetLevelFromContactType(BYTE *pCar, BYTE *pInfo);
-void CarInterior_ResetDriverPoseOnNextUpdate(BYTE *p);
+void CarCamera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther);
+void CarInterior_ResetDriverPoseOnNextUpdate(CameraRecord *pRecord);
 FixMatrix *Car_GetCameraReferenceMatrix(BYTE index);
-void HudDash_UpdateCameraBasis(BYTE *pDst, BYTE *pSrc, FixMatrix *pM);
-void StageObject_UpdateNearRightAngleContactLevel(BYTE *pInfo, BYTE *pCar);
+void HudDash_UpdateCameraBasis(CameraRecord *pRecord, CameraRecord *pOther, FixMatrix *pRef);
+void TracksideCamera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther);
 
-// Dispatches by the object type stored at +4.
+// Dispatches by the camera type.
 // match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423860
-void Game_DispatchObjectTypeUpdate(BYTE *pObject, BYTE *pInfo)
+void Camera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther)
 {
-    switch (*(int *)(pObject + 4)) {
+    switch (pRecord->type) {
     case 4:
     case 5:
-        HudDash_UpdateCameraBasis(pObject, pInfo, Car_GetCameraReferenceMatrix(pObject[2]));
+        HudDash_UpdateCameraBasis(pRecord, pOther, Car_GetCameraReferenceMatrix(pRecord->car));
         return;
     case 3:
-        CarInterior_ResetDriverPoseOnNextUpdate(pObject);
+        CarInterior_ResetDriverPoseOnNextUpdate(pRecord);
         return;
     case 1:
     case 2:
     case 10:
-        StageObject_SetLevelFromContactType(pObject, pInfo);
+        CarCamera_BeginEnter(pRecord, pOther);
         return;
     case 7:
-        StageObject_UpdateNearRightAngleContactLevel(pObject, pInfo);
+        TracksideCamera_BeginEnter(pRecord, pOther);
     }
 }
 
 // FUNCTION: CMR2 0x004238e0
-void Game_UpdateType3ObjectState(Unk004238e0 *param1, void *param2)
+void Camera_EndLeave(CameraRecord *pRecord, CameraRecord *pOther)
 {
-    if (param1->field_0x4 == 3)
-        Game_SetObjectRenderModeZero(param1);
+    if (pRecord->type == 3)
+        InteriorCamera_EndLeave(pRecord);
 }
 
 typedef HRESULT (__stdcall *DPMethod0)(void *pThis);

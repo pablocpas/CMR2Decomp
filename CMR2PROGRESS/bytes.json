@@ -27,13 +27,13 @@
     "symbol_name": "Car_GetViewPositionDelta"
   },
   "0x422f90": {
-    "n": "View_SetDistanceOverride",
+    "n": "View_SetFarPlane",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "View_SetDistanceOverride"
+    "symbol_name": "View_SetFarPlane"
   },
   "0x422f50": {
     "n": "View_GetActiveCameraMode",
@@ -8797,58 +8797,58 @@
     "symbol_name": "CGame::RegisterNetworkResourceRelease"
   },
   "0x4764c0": {
-    "n": "Game_SetObjectRenderModeZero",
+    "n": "InteriorCamera_EndLeave",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Game.cpp",
-    "symbol_name": "Game_SetObjectRenderModeZero"
+    "symbol_name": "InteriorCamera_EndLeave"
   },
   "0x476500": {
-    "n": "Game_SetObjectRenderModeOne",
+    "n": "InteriorCamera_EndEnter",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Game.cpp",
-    "symbol_name": "Game_SetObjectRenderModeOne"
+    "symbol_name": "InteriorCamera_EndEnter"
   },
   "0x423810": {
-    "n": "Game_DispatchObjectTypeEvent",
+    "n": "Camera_BeginLeave",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Game.cpp",
-    "symbol_name": "Game_DispatchObjectTypeEvent"
+    "symbol_name": "Camera_BeginLeave"
   },
   "0x423900": {
-    "n": "Game_DispatchObjectContactReset",
+    "n": "Camera_EndEnter",
     "s": 0.4583333333333333,
     "x": false,
     "fz": 0.9999,
     "unknown": [],
     "f": "Game.cpp",
-    "symbol_name": "Game_DispatchObjectContactReset"
+    "symbol_name": "Camera_EndEnter"
   },
   "0x423860": {
-    "n": "Game_DispatchObjectTypeUpdate",
+    "n": "Camera_BeginEnter",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Game.cpp",
-    "symbol_name": "Game_DispatchObjectTypeUpdate"
+    "symbol_name": "Camera_BeginEnter"
   },
   "0x4238e0": {
-    "n": "Game_UpdateType3ObjectState",
+    "n": "Camera_EndLeave",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Game.cpp",
-    "symbol_name": "Game_UpdateType3ObjectState"
+    "symbol_name": "Camera_EndLeave"
   },
   "0x4a0d60": {
     "n": "Network_ReadJoinedSessionDescription",
@@ -19494,13 +19494,13 @@
     "symbol_name": "RallyData_IsDriverViewModeAllowed"
   },
   "0x4239e0": {
-    "n": "RallyData_ValidateType3Entry",
+    "n": "Camera_AfterLeave",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_ValidateType3Entry"
+    "symbol_name": "Camera_AfterLeave"
   },
   "0x406940": {
     "n": "RallyData_GetSelectionBits10To11",
@@ -24339,22 +24339,22 @@
     "symbol_name": "StageObject_InterpolateOrderedMotionRecords"
   },
   "0x486be0": {
-    "n": "StageObject_SetContactLevelToUnity",
+    "n": "CarCamera_SetFullCarLift",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_SetContactLevelToUnity"
+    "symbol_name": "CarCamera_SetFullCarLift"
   },
   "0x486c00": {
-    "n": "StageObject_ResetContactEffectAndSetLevel",
+    "n": "CarCamera_EndEnter",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ResetContactEffectAndSetLevel"
+    "symbol_name": "CarCamera_EndEnter"
   },
   "0x487130": {
     "n": "StageObject_GetCollisionRecordState",
@@ -24429,13 +24429,13 @@
     "symbol_name": "StageObject_GetCarCameraSpotIndex"
   },
   "0x48d950": {
-    "n": "StageObject_ApplySmoothedSurfaceImpact",
+    "n": "View_UpdateTracksideAimTarget",
     "s": 0.9523809523809523,
     "x": false,
     "fz": 0.9523809523809523,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ApplySmoothedSurfaceImpact"
+    "symbol_name": "View_UpdateTracksideAimTarget"
   },
   "0x492890": {
     "n": "StageObject_GetRotatedStageLightVector",
@@ -24735,22 +24735,22 @@
     "symbol_name": "StageObject_IsWheelOnActiveEffectSurface"
   },
   "0x48dca0": {
-    "n": "StageObject_AddClampedCarLevel",
+    "n": "View_AdvanceTracksideDolly",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_AddClampedCarLevel"
+    "symbol_name": "View_AdvanceTracksideDolly"
   },
   "0x48dce0": {
-    "n": "StageObject_BuildSurfaceImpactDisplacement",
+    "n": "View_BuildTracksideAimLead",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_BuildSurfaceImpactDisplacement"
+    "symbol_name": "View_BuildTracksideAimLead"
   },
   "0x48df10": {
     "n": "StageObject_IsNegativeRightAngleCameraSpot",
@@ -24762,13 +24762,13 @@
     "symbol_name": "StageObject_IsNegativeRightAngleCameraSpot"
   },
   "0x486b90": {
-    "n": "StageObject_SetLevelFromContactType",
+    "n": "CarCamera_BeginEnter",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_SetLevelFromContactType"
+    "symbol_name": "CarCamera_BeginEnter"
   },
   "0x473290": {
     "n": "Knockout_HasUndecidedRoundMatch",
@@ -24969,13 +24969,13 @@
     "symbol_name": "StageObject_DestroyStageKindCarNodes"
   },
   "0x48d850": {
-    "n": "StageObject_ResetRightAngleContactEffect",
+    "n": "TracksideCamera_EndEnter",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ResetRightAngleContactEffect"
+    "symbol_name": "TracksideCamera_EndEnter"
   },
   "0x477c80": {
     "n": "CarLight_GetScaledChannelLevels",
@@ -25068,22 +25068,22 @@
     "symbol_name": "StageObject_ResetAttachedCarNodes"
   },
   "0x48db00": {
-    "n": "StageObject_StepVectorToTarget",
+    "n": "View_StepTracksideAim",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_StepVectorToTarget"
+    "symbol_name": "View_StepTracksideAim"
   },
   "0x48dc30": {
-    "n": "StageObject_ApproachCarLevelTarget",
+    "n": "View_StepTracksideZoom",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ApproachCarLevelTarget"
+    "symbol_name": "View_StepTracksideZoom"
   },
   "0x4735a0": {
     "n": "Knockout_GetCurrentDriverField",
@@ -25104,13 +25104,13 @@
     "symbol_name": "StageObject_IsCarOutsideCollisionHeightInterval"
   },
   "0x486b20": {
-    "n": "StageObject_DispatchContactAndSetLevel",
+    "n": "CarCamera_BeginLeave",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_DispatchContactAndSetLevel"
+    "symbol_name": "CarCamera_BeginLeave"
   },
   "0x486630": {
     "n": "StageObject_ResetVectorListRecord",
@@ -25401,22 +25401,22 @@
     "symbol_name": "StageObject_PositionSplitViewNodes"
   },
   "0x48d7b0": {
-    "n": "StageObject_DispatchNearRightAngleContact",
+    "n": "TracksideCamera_BeginLeave",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_DispatchNearRightAngleContact"
+    "symbol_name": "TracksideCamera_BeginLeave"
   },
   "0x48d800": {
-    "n": "StageObject_UpdateNearRightAngleContactLevel",
+    "n": "TracksideCamera_BeginEnter",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_UpdateNearRightAngleContactLevel"
+    "symbol_name": "TracksideCamera_BeginEnter"
   },
   "0x47d510": {
     "n": "StageObject_CreateRecordGlows",

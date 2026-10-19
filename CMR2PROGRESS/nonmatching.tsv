@@ -79,7 +79,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x5062d0	OptionPreview_LoadStageGeometryRecord	GameInfo.cpp	1100	0.6362252663622526	0.6379821958456974
 0x41b460	StageUI_UpdateDriverEventAwards	StageUI.cpp	2709	0.6366559485530546	0.6124338624338624
 0x462aa0	StageObject_AverageWheelGroundLighting	StageObjects.cpp	518	0.6386554621848739	0.6267806267806267
-0x423900	Game_DispatchObjectContactReset	Game.cpp	71	0.6388888888888888	0.4583333333333333
+0x423900	Camera_EndEnter	Game.cpp	71	0.6388888888888888	0.4583333333333333
 0x428bf0	View_SelectVisibleCars	Car.cpp	1734	0.6401414677276747	0.5681818181818182
 0x467700	StageDeform_ApplyRadialDent	StageTiming.cpp	1933	0.6408227848101266	0.6055335968379446
 0x47b970	View_UpdateDriverCameraCycle	StageObjects.cpp	317	0.6408839779005525	0.5875706214689266
@@ -373,7 +373,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4e0770	FrontendMenu_DrawAdvancedGraphicsOptions	FrontendScreens.cpp	2721	0.9353948094975152	0.9113218070273285
 0x40d6c0	RallyData_SelectOpponentSkillClasses	RallyData.cpp	340	0.9365079365079365	0.9523809523809523
 0x509dc0	OptionPreview_AnimatePreviewNodeTransforms	GameInfo.cpp	605	0.9370277078085643	0.8944723618090452
-0x48d950	StageObject_ApplySmoothedSurfaceImpact	StageObjects.cpp	417	0.9383561643835616	0.9523809523809523
+0x48d950	View_UpdateTracksideAimTarget	StageObjects.cpp	417	0.9383561643835616	0.9523809523809523
 0x404f40	InRaceMenu_UpdateStateMachineFrame	GameInfo.cpp	1294	0.9408672798948752	0.8380187416331994
 0x421470	RallyData_GetCarRecordValueRatio	RallyData.cpp	144	0.9425287356321839	0.8275862068965517
 0x460a30	StageObject_DeriveLoadedScaleVector	StageObjects.cpp	302	0.9433962264150944	0.9433962264150944

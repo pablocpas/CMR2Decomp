@@ -704,9 +704,9 @@ void FixBasis_Integrate(FixVector *pRows, FixVector *pW)
     }
 }
 
-extern int g_unk0x00538df0[2];
-extern int g_unk0x00538e04[2];
-extern int g_unk0x005391cc[2];
+extern int g_viewNearPlanes[2];
+extern int g_viewFarPlanes[2];
+extern int g_viewZooms[2];
 int Race_IsMultiplayerRecordMode10(void);
 int RallyData_IsChampionshipFinalStage(void);
 int RallyData_IsHeadToHeadRaceMode(void);
@@ -717,7 +717,7 @@ int RallyData_IsHeadToHeadRaceMode(void);
 void View_SetPlayerProjection(unsigned int player)
 {
     BYTE i = (BYTE)player;
-    int zoom = g_unk0x005391cc[i];
+    int zoom = g_viewZooms[i];
     int fovX = FixMul(0x123d7, FixMul(FixMul(zoom, 0x275c2),
         (int)FTOI(__int64, X87S_MUL((X87S_DIV((double)g_pGraphics->resX, (double)g_pGraphics->resY)), CGraphics::m_65536))));
     int fovY = FixMul(0x2147a, FixMul(zoom, 0x275c2));
@@ -729,14 +729,14 @@ void View_SetPlayerProjection(unsigned int player)
             fovX *= 2;
     }
     if (CGameInfo::IsActiveCheatEnabled(2)) {
-        CGraphics::SetProjection(-fovX, fovY, g_unk0x00538e04[i], g_unk0x00538df0[i]);
+        CGraphics::SetProjection(-fovX, fovY, g_viewFarPlanes[i], g_viewNearPlanes[i]);
         return;
     }
-    if ((BYTE)RallyData_IsChampionshipFinalStage() && g_unk0x00538e04[i] < 0x960000) {
-        CGraphics::SetProjection(fovX, fovY, 0x960000, g_unk0x00538df0[i]);
+    if ((BYTE)RallyData_IsChampionshipFinalStage() && g_viewFarPlanes[i] < 0x960000) {
+        CGraphics::SetProjection(fovX, fovY, 0x960000, g_viewNearPlanes[i]);
         return;
     }
-    CGraphics::SetProjection(fovX, fovY, g_unk0x00538e04[i], g_unk0x00538df0[i]);
+    CGraphics::SetProjection(fovX, fovY, g_viewFarPlanes[i], g_viewNearPlanes[i]);
 }
 
 // Layout of one force-feedback slot (0x539200). The full definition lives in
@@ -837,17 +837,17 @@ extern FixVector g_unk0x0053d048[4];
 // Per-player dashboard gauge values.
 extern short g_dashGaugeTargets[4];
 // View offset of a player's camera (HudDash.cpp).
-void HudDash_GetCameraViewOffset(FixVector *pOut, BYTE *pSel);
+void HudDash_GetCameraViewOffset(FixVector *pOut, CameraRecord *pSel);
 
-void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef);
+void View_BuildMatrixFromCameraBasis(CameraRecord *pObj, FixMatrix *pRef);
 
 // Caches the reference matrix's up and right basis vectors in the player's
 // camera slots, then builds the view object's matrix from them.
 // FUNCTION: CMR2 0x00447a00
-void View_CacheReferenceBasisAndBuildMatrix(BYTE *pObj, FixMatrix *pRef)
+void View_CacheReferenceBasisAndBuildMatrix(CameraRecord *pObj, FixMatrix *pRef)
 {
-    FixMatrix_GetUp(&g_unk0x0053d048[2 + pObj[0]], pRef);
-    FixMatrix_GetRight(&g_unk0x0053d000[2 + pObj[0]], pRef);
+    FixMatrix_GetUp(&g_unk0x0053d048[2 + pObj->index], pRef);
+    FixMatrix_GetRight(&g_unk0x0053d000[2 + pObj->index], pRef);
     View_BuildMatrixFromCameraBasis(pObj, pRef);
 }
 
@@ -855,7 +855,7 @@ void View_CacheReferenceBasisAndBuildMatrix(BYTE *pObj, FixMatrix *pRef)
 // up/forward vectors, the position from the player's view offset plus the
 // object's own, and then the object's remaining fields are set.
 // FUNCTION: CMR2 0x00447a40
-void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef)
+void View_BuildMatrixFromCameraBasis(CameraRecord *pObj, FixMatrix *pRef)
 {
     FixMatrix identity;
     FixVector right;
@@ -867,20 +867,20 @@ void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef)
     int index;
     int v;
 
-    sel = pObj[0];
+    sel = pObj->index;
     HudDash_GetCameraViewOffset(&base, pObj);
     FixMatrix_Identity(&identity);
     FixMatrix_SetPosition(&base, &identity);
     index = sel & 0xff;
 
     FixVecCross(&right, &g_unk0x0053d048[2 + index], &g_unk0x0053d000[2 + index]);
-    pM = (FixMatrix *)(pObj + 8);
+    pM = &pObj->matrix;
     FixMatrix_SetRight(&right, pM);
     FixMatrix_SetUp(&g_unk0x0053d048[2 + index], pM);
     FixMatrix_SetForward(&g_unk0x0053d000[2 + index], pM);
-    *(int *)(pObj + 0x38) = 0;
-    *(int *)(pObj + 0x3c) = 0;
-    *(int *)(pObj + 0x40) = 0;
+    pObj->matrix.position.x = 0;
+    pObj->matrix.position.y = 0;
+    pObj->matrix.position.z = 0;
     FixMatrix_Multiply(pM, &identity, pM);
     FixMatrix_GetPosition(&pos, pM);
     FixMatrix_GetPosition(&off, pRef);
@@ -889,17 +889,17 @@ void View_BuildMatrixFromCameraBasis(BYTE *pObj, FixMatrix *pRef)
     pos.z += off.z;
     FixMatrix_SetPosition(&pos, pM);
     if (g_playerCameraMode[index] == 4)
-        FixMatrix_RotateAboutRight(pM, (unsigned short)g_dashGaugeTargets[2 + pObj[1]]);
+        FixMatrix_RotateAboutRight(pM, (unsigned short)g_dashGaugeTargets[2 + pObj->view]);
 
-    *(int *)(pObj + 0x48) = 0;
-    *(int *)(pObj + 0x4c) = 0x10000;
-    *(int *)(pObj + 0x58) = 0x10000;
-    *(int *)(pObj + 0x54) = 0xa000;
+    pObj->carLift = 0;
+    pObj->nearPlane = 0x10000;
+    pObj->liftPitch = 0x10000;
+    pObj->zoom = 0xa000;
     v = base.z;
     if (v < 0)
         v = -v;
-    *(int *)(pObj + 0x5c) = v;
-    *(int *)(pObj + 0x50) = v - 0x10000;
+    pObj->lookDistance = v;
+    pObj->field_0x50 = v - 0x10000;
 }
 
 extern CarPartSet *g_physicsPartSet;
@@ -1047,7 +1047,7 @@ void CarPhysics_IntegrateWheelSuspension(void)
 // GLOBAL: CMR2 0x00590ec0
 BYTE g_viewObjectCarIndices[16];
 extern FixVector *g_carCameraOffsets[8];
-extern int g_viewObjectLevels[64];
+extern int g_viewCarLift[64];
 
 // Positions a view from the per-mode offset of its car's CIN section 4,
 // transforms it through the current basis and adds the reference position.
@@ -1089,12 +1089,12 @@ void View_PositionFromCarProfile(CameraRecord *pObj, FixMatrix *pRef)
     pos.z += off.z;
     FixMatrix_SetPosition(&pos, pM);
 
-    base = g_viewObjectLevels[pObj->index];
-    pObj->field_0x54 = 0xa000;
-    pObj->field_0x48 = base;
-    pObj->field_0x4c = 0x1999;
-    pObj->field_0x58 = 0;
-    pObj->field_0x5c = 0x10000;
+    base = g_viewCarLift[pObj->index];
+    pObj->zoom = 0xa000;
+    pObj->carLift = base;
+    pObj->nearPlane = 0x1999;
+    pObj->liftPitch = 0;
+    pObj->lookDistance = 0x10000;
     pObj->field_0x50 = 0;
 }
 
@@ -1173,16 +1173,16 @@ extern double g_fixedDegreesToAngle12;
 // the object's split axis and applies the car's tilt rotation.
 // Differential coverage: affine axes, tilt and split positioning with real helpers.
 // FUNCTION: CMR2 0x00486910
-void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc)
+void StageObject_RebuildMirroredTiltMatrix(CameraRecord *pObj, int *pSrc)
 {
-    FixMatrix *pMat = (FixMatrix *)(pObj + 8);
+    FixMatrix *pMat = &pObj->matrix;
     FixMatrix *pRef = (FixMatrix *)pSrc;
     int idx;
     int angle;
     int v;
 
     memcpy(pMat, pSrc, 0x40);
-    idx = *pObj;
+    idx = pObj->index;
     if (g_carPartStateTables.modes[idx] == 2) {
         pMat->right.x = pRef->forward.x;
         pMat->right.y = pRef->forward.y;
@@ -1203,7 +1203,7 @@ void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc)
     v = (int)FTOI(__int64, X87S_MUL((double)angle, CGraphics::m_65536));
     FixMatrix_RotateAboutRight((FixMatrix *)pMat,
                                (unsigned short)FTOI(__int64, X87S_MUL((double)v, g_fixedDegreesToAngle12)));
-    View_PositionFromCarProfile((CameraRecord *)pObj, (FixMatrix *)pSrc);
+    View_PositionFromCarProfile(pObj, (FixMatrix *)pSrc);
 }
 
 // Rebuilds an object's local matrix from a reference matrix and interpolates
@@ -1211,7 +1211,7 @@ void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc)
 // match 65%: same structure and calls; register allocation of the source loads differs
 // (setne vs the original's neg/sbb mask for the angle).
 // FUNCTION: CMR2 0x00486810
-void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3)
+void StageObject_InterpolateReferenceMatrix(CameraRecord *pObj, int *pSrc, int param_3)
 {
     int m[16];
     int angle;
@@ -1219,7 +1219,7 @@ void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3)
     __int64 v;
 
     memcpy(m, pSrc, 0x40);
-    if (g_carPartStateTables.modes[*pObj] == 2) {
+    if (g_carPartStateTables.modes[pObj->index] == 2) {
         m[0] = pSrc[8];
         m[1] = pSrc[9];
         m[2] = pSrc[10];
@@ -1234,7 +1234,7 @@ void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3)
         m[9] = pSrc[1];
         m[10] = pSrc[2];
     }
-    angle = g_carPartStateTables.modes[*pObj] == 0 ? 10 : 0;
+    angle = g_carPartStateTables.modes[pObj->index] == 0 ? 10 : 0;
     v = (int)FTOI(__int64, X87S_MUL((double)angle, CGraphics::m_65536));
     FixMatrix_RotateAboutRight((FixMatrix *)m,
                                (unsigned short)FTOI(__int64, X87S_MUL((double)(int)v, g_fixedDegreesToAngle12)));
@@ -1242,9 +1242,9 @@ void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3)
         tAxis = 0x10000;
     else
         tAxis = FixMul(0x4ccc, g_physicsTimeStep);
-    FixMatrix_Interpolate((FixMatrix *)(pObj + 8), (FixMatrix *)(pObj + 8), (FixMatrix *)m,
+    FixMatrix_Interpolate(&pObj->matrix, &pObj->matrix, (FixMatrix *)m,
                           0x10000, tAxis, 0x10000, 0);
-    View_PositionFromCarProfile((CameraRecord *)pObj, (FixMatrix *)pSrc);
+    View_PositionFromCarProfile(pObj, (FixMatrix *)pSrc);
 }
 
 // (defined in StageTiming.cpp, which owns the GLOBAL annotation)

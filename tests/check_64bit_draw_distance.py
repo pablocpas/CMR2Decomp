@@ -35,7 +35,7 @@ int CGameInfo::GetGraphicsOptionBits21To24() { return detail; }
 RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index) {
     request = index; assert(index >= 0 && index < 4); return &route[index];
 }
-void View_SetDistanceOverride(BYTE player, int distance) {
+void View_SetFarPlane(BYTE player, int distance) {
     assert(calls < 2); recipients[calls] = player; distances[calls++] = distance;
 }
 '''

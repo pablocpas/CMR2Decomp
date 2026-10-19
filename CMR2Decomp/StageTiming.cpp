@@ -4199,7 +4199,7 @@ int StageTiming_EstimateElapsedStageTime(void)
 }
 
 RallyRouteNode *RallyData_GetAvailableRouteNodeRecord(int index);
-void View_SetDistanceOverride(BYTE index, int value);
+void View_SetFarPlane(BYTE index, int value);
 int Render_GetDetailDistanceScale(void);
 int Race_IsMultiplayerRecordMode10(void);
 
@@ -4236,14 +4236,14 @@ void StageTiming_SetViewRouteDistanceLimit(BYTE player, unsigned int node, int d
             distance = Render_GetDetailDistanceScale();
             if (distance > g_pGraphics->maxDrawDistance)
                 distance = g_pGraphics->maxDrawDistance;
-            View_SetDistanceOverride(player, distance);
+            View_SetFarPlane(player, distance);
         }
         if (nearDist > 0) {
             g_pGraphics->baseDrawDistance = nearDist;
             distance = Render_GetDetailDistanceScale();
             if (distance > g_pGraphics->maxDrawDistance)
                 distance = g_pGraphics->maxDrawDistance;
-            View_SetDistanceOverride(player, distance);
+            View_SetFarPlane(player, distance);
         }
     }
 }
@@ -7404,7 +7404,7 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *rec
     rec->previousCentre.y = pos.y;
     rec->relativeVelocity.z = rec->velocity.z - dv.z;
     rec->previousCentre.z = pos.z;
-    t = FixMul(FixDiv(g_viewStates[param_3].field_0x54, 0xa000) - 0x10000, 0x4ccc);
+    t = FixMul(FixDiv(g_viewStates[param_3].zoom, 0xa000) - 0x10000, 0x4ccc);
     FixVecScale(&gn, &fwd, t);
     pos.x += gn.x;
     pos.y += gn.y;

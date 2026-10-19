@@ -284,21 +284,21 @@ void StageObject_ClearAndDrawSplitPositions(int unused1, int unused2);
 void StageObject_BuildInRaceActionMenu(void);
 Menu *StageObject_GetInRaceActionMenu(void);
 void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car);
-void StageObject_SyncStateAndSceneMatrix(BYTE *p, int *src, int unused, BYTE value);
-void CarInterior_ResetDriverPoseOnNextUpdate(BYTE *p);
+void StageObject_SyncStateAndSceneMatrix(CameraRecord *p, int *src, int unused, BYTE value);
+void CarInterior_ResetDriverPoseOnNextUpdate(CameraRecord *pRecord);
 int CarInterior_IsLoaded(BYTE index);
 void CarInterior_CacheProfilePointers(int index);
-void StageObject_DispatchActiveCarObjectUpdate(BYTE *pObj, FixMatrix *pRef, int b);
+void StageObject_DispatchActiveCarObjectUpdate(CameraRecord *pObj, FixMatrix *pRef, int b);
 void StageObject_BlendCarMountTransform(int car);
 int CarInterior_UpdateSteeringBlendFraction(int car, Car *pCar);
 void CarInterior_AnimateWipers(int index);
 void CarInterior_UpdateWiperSweep(int index);
-void CarInterior_IntegrateDriverPose(BYTE *param_1, FixMatrix *param_2, int unused);
+void CarInterior_IntegrateDriverPose(CameraRecord *param_1, FixMatrix *param_2, int unused);
 void StageObject_FindPlayerRevTextures(int player);
 void StageObject_UpdateRevCounterTextures(int index);
 void CarInterior_UpdateGearDigitTexture(Texture *pTexture, int state, int cacheBase, int index);
-void StageObject_BuildCarNodeOrientation(BYTE *object, int *src);
-void StageObject_BuildCarMountWorldMatrix(BYTE *object, void *unused);
+void StageObject_BuildCarNodeOrientation(CameraRecord *object, int *src);
+void StageObject_BuildCarMountWorldMatrix(CameraRecord *object, void *unused);
 void StageObject_ResetBodyTextureCaches(void);
 void CarLight_ResetTextureState(int index);
 void CarLight_CacheBodyTextures(int car, int unused1, int unused2, BYTE flag);
@@ -377,11 +377,11 @@ void StageObject_InterpolateOrderedMotionRecords(int scale);
 void StageObject_ResetVectorListRecord(int list, int index, int value);
 void StageObject_DestroyStageKindCarNodes(void);
 void CarInfo_CacheCameraOffsets(void);
-void StageObject_SelectAndCopyCarNodePayload(BYTE *pObj, int *pSrc, BYTE index, BYTE value);
-void StageObject_DispatchContactAndSetLevel(BYTE *pCar, BYTE *pInfo);
-void StageObject_SetLevelFromContactType(BYTE *pCar, BYTE *pInfo);
-void StageObject_SetContactLevelToUnity(BYTE *p, void *unused);
-void StageObject_ResetContactEffectAndSetLevel(BYTE *p, BYTE *q);
+void StageObject_SelectAndCopyCarNodePayload(CameraRecord *pObj, int *pSrc, BYTE index, BYTE value);
+void CarCamera_BeginLeave(CameraRecord *pRecord, CameraRecord *pOther);
+void CarCamera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther);
+void CarCamera_SetFullCarLift(CameraRecord *pRecord, CameraRecord *pOther);
+void CarCamera_EndEnter(CameraRecord *pRecord, CameraRecord *pOther);
 void StageObject_QueueViewLensFlare(int *pObj, int *param2, int *param3, FixVector *pVerts);
 void CarPart_BuildScaledWheelOrientation(int *pMatrix, int *pOffset);
 int StageObject_GetCollisionRecordState(void);
@@ -402,20 +402,20 @@ BYTE *StageObject_GetCarCameraSelectionValue(int index);
 void StageObject_StartAndRegisterFrameCallback(void);
 int StageObject_GetSelectedRecordListState(void);
 int StageObject_SelectNonemptyRecordList(int *pList);
-void View_PlaceTracksideCameraAtSpot(BYTE *pRecord, FixMatrix *pRef, int spot);
-void View_UpdateTracksideZoomAndShake(BYTE *pRecord, FixMatrix *pRef);
-void View_RestartTracksideCameraDolly(BYTE *pRecord, FixMatrix *pRef);
-void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef);
-void StageObject_DispatchNearRightAngleContact(BYTE *pCar, BYTE *pInfo);
-void StageObject_UpdateNearRightAngleContactLevel(BYTE *pInfo, BYTE *pCar);
-void StageObject_ResetRightAngleContactEffect(BYTE *pCar, BYTE *pInfo);
+void View_PlaceTracksideCameraAtSpot(CameraRecord *pRecord, FixMatrix *pRef, int spot);
+void View_UpdateTracksideZoomAndShake(CameraRecord *pRecord, FixMatrix *pRef);
+void View_RestartTracksideCameraDolly(CameraRecord *pRecord, FixMatrix *pRef);
+void View_BuildTracksideCameraMatrix(CameraRecord *pRecord, FixMatrix *pRef);
+void TracksideCamera_BeginLeave(CameraRecord *pRecord, CameraRecord *pOther);
+void TracksideCamera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther);
+void TracksideCamera_EndEnter(CameraRecord *pRecord, CameraRecord *pOther);
 unsigned int StageObject_FindNearestCameraSpot(FixVector *pPos);
 int StageObject_GetCarCameraSpotIndex(CameraRecord *pRecord);
-void StageObject_ApplySmoothedSurfaceImpact(BYTE *pSurface, FixMatrix *pMatrix);
-void StageObject_StepVectorToTarget(BYTE *p, int step);
-void StageObject_ApproachCarLevelTarget(BYTE *pCar, int step);
-void StageObject_AddClampedCarLevel(BYTE *pCar, int amount);
-void StageObject_BuildSurfaceImpactDisplacement(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix);
+void View_UpdateTracksideAimTarget(CameraRecord *pRecord, FixMatrix *pMatrix);
+void View_StepTracksideAim(CameraRecord *pRecord, int step);
+void View_StepTracksideZoom(CameraRecord *pRecord, int step);
+void View_AdvanceTracksideDolly(CameraRecord *pRecord, int amount);
+void View_BuildTracksideAimLead(FixVector *pOut, CameraRecord *pRecord, Car *pCar, FixMatrix *pMatrix);
 int StageObject_IsNegativeRightAngleCameraSpot(CameraRecord *pRecord);
 void CarPhysics_UpdateWheelSlipAndVelocityDamping(Car *param_1);
 void Collision_TestCarAgainstSectorEdges(Car *pCar, int param);
@@ -465,7 +465,7 @@ int *RallyData_GetDriverSettingPair(int index);
 void Track_ShiftMeshAndAmbientHeights(int oldHeight, int newHeight, int mode);
 void StageObject_SetStageLightState(int value);
 void StageObject_SetForwardedFlareState(int value);
-void StageObject_BuildCarNodeOrientation(BYTE *object, int *src);
+void StageObject_BuildCarNodeOrientation(CameraRecord *object, int *src);
 void CarPhysics_UpdateWheelSlipAndVelocityDamping(Car *param_1);
 short *Car_GetOrder(void);
 short Car_GetOrderCount(void);
@@ -2438,30 +2438,30 @@ Menu *StageObject_GetInRaceActionMenu(void)
 // given source matrix; when the node ends up in another sector it is detached
 // and released from the scene again.
 // FUNCTION: CMR2 0x00476410
-void StageObject_SyncStateAndSceneMatrix(BYTE *p, int *src, int unused, BYTE value)
+void StageObject_SyncStateAndSceneMatrix(CameraRecord *p, int *src, int unused, BYTE value)
 {
     int index;
     FixVector pos;
 
-    g_carInteriorModelClasses[*p] = value;
+    g_carInteriorModelClasses[p->index] = value;
     StageObject_BuildCarNodeOrientation(p, src);
-    if (g_carInteriorRoots[p[2]] != NULL) {
-        SceneNode_Unused(g_carInteriorRoots[p[2]]);
-        pos.x = (g_carInteriorRoots[p[2]])->world.position.x;
-        pos.y = (g_carInteriorRoots[p[2]])->world.position.y;
-        pos.z = (g_carInteriorRoots[p[2]])->world.position.z;
+    if (g_carInteriorRoots[p->car] != NULL) {
+        SceneNode_Unused(g_carInteriorRoots[p->car]);
+        pos.x = (g_carInteriorRoots[p->car])->world.position.x;
+        pos.y = (g_carInteriorRoots[p->car])->world.position.y;
+        pos.z = (g_carInteriorRoots[p->car])->world.position.z;
         index = (short)Sector_FromPosition(&pos);
-        if (index != (g_carInteriorRoots[p[2]])->sector) {
-            Sector_InsertNodeByPosition(g_carInteriorRoots[p[2]]);
-            SceneNode_Unused(g_carInteriorRoots[p[2]]);
+        if (index != (g_carInteriorRoots[p->car])->sector) {
+            Sector_InsertNodeByPosition(g_carInteriorRoots[p->car]);
+            SceneNode_Unused(g_carInteriorRoots[p->car]);
         }
     }
 }
 
 // FUNCTION: CMR2 0x004764e0
-void CarInterior_ResetDriverPoseOnNextUpdate(BYTE *p)
+void CarInterior_ResetDriverPoseOnNextUpdate(CameraRecord *pRecord)
 {
-    g_carDriverPoseNeedsReset[p[2]] = 1;
+    g_carDriverPoseNeedsReset[pRecord->car] = 1;
 }
 
 // FUNCTION: CMR2 0x00476520
@@ -2660,7 +2660,7 @@ BYTE g_wheelSlotDamageIndices[4];
 // GLOBAL: CMR2 0x00590d70
 int g_unk0x00590d70;
 // GLOBAL: CMR2 0x00590db0
-int g_viewObjectLevels[64];
+int g_viewCarLift[64];
 // GLOBAL: CMR2 0x00590ed0
 CollisionBox g_unk0x00590ed0[8];
 // GLOBAL: CMR2 0x00591390
@@ -2677,14 +2677,18 @@ BYTE g_unk0x005913f8[8][8];
 int g_unk0x0059146c[8];
 // GLOBAL: CMR2 0x005914c8
 FixVector g_unk0x005914c8;
+// Per view record, the trackside camera's state: the point it turns to (the
+// car plus a speed lead) and the aim that steps towards it.
 // GLOBAL: CMR2 0x005916a0
-FixVector g_unk0x005916a0[4];
+FixVector g_tracksideAimTargets[4];
+// The aim has reached its target and follows it directly.
 // GLOBAL: CMR2 0x005916f0
-int g_unk0x005916f0[4];
+int g_tracksideAimLocked[4];
+// Smoothed lead of the aim ahead of the car (View_BuildTracksideAimLead).
 // GLOBAL: CMR2 0x00591868
-FixVector g_unk0x00591868[4];
+FixVector g_tracksideAimLeads[4];
 // GLOBAL: CMR2 0x00591898
-FixVector g_unk0x00591898[4];
+FixVector g_tracksideAims[4];
 // GLOBAL: CMR2 0x00591740
 int g_viewCameraSpot[4];
 // GLOBAL: CMR2 0x00591750
@@ -2699,16 +2703,14 @@ struct CameraSpot {
     FixVector position;     // 0x28
     FixVector trackEnd;     // 0x34 end of the dolly track
     int range;              // 0x40 trigger range
-    int field_0x44;
-    int speedScale;         // 0x48
-    int field_0x4c;         // 0x4c.. zoom and shake settings
-    int field_0x50;
-    int field_0x54;
-    int field_0x58;
-    int field_0x5c;
-    int field_0x60;
-    int field_0x64;
-    int field_0x68;
+    int zoomAtRange;        // 0x44 zoom with the car at the trigger range
+    int speedScale;         // 0x48 lead of the aim point per unit of car speed
+    int aimStep[2];         // 0x4c step of the aim point (car nearer the spot / the camera)
+    int zoom;               // 0x54 zoom with the car at the spot
+    int shakeRange;         // 0x58 camera-to-car distance below which the camera shakes
+    int shakeAmplitude;     // 0x5c shake at distance 0, per unit of car speed
+    int dollyStep;          // 0x60 progress along the dolly track per frame (none when <= 0)
+    int zoomStep[2];        // 0x64 step of the zoom, as aimStep
 };
 // The stage's list of CameraSpot records (NULL without one). Keeps its address
 // name: any other name changes register ties in seven functions of this file.
@@ -3144,16 +3146,16 @@ void StageObject_InterpolateOrderedMotionRecords(int scale)
 }
 
 // FUNCTION: CMR2 0x00486be0
-void StageObject_SetContactLevelToUnity(BYTE *p, void *unused)
+void CarCamera_SetFullCarLift(CameraRecord *pRecord, CameraRecord *pOther)
 {
-    g_viewObjectLevels[*p] = 0x10000;
+    g_viewCarLift[pRecord->index] = 0x10000;
 }
 
 // FUNCTION: CMR2 0x00486c00
-void StageObject_ResetContactEffectAndSetLevel(BYTE *p, BYTE *q)
+void CarCamera_EndEnter(CameraRecord *pRecord, CameraRecord *pOther)
 {
-    Glow_NoOpEntryCallback(q[2], q[1], 0, 0);
-    g_viewObjectLevels[*p] = 0x10000;
+    Glow_NoOpEntryCallback(pOther->car, pOther->view, 0, 0);
+    g_viewCarLift[pRecord->index] = 0x10000;
 }
 
 // FUNCTION: CMR2 0x00487130
@@ -3280,26 +3282,27 @@ int StageObject_GetCarCameraSpotIndex(CameraRecord *pRecord)
     return g_viewCameraSpot[pRecord->index];
 }
 
-extern int g_unk0x00591710[4];
-void StageObject_BuildSurfaceImpactDisplacement(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix);
+extern int g_tracksideZoomTargets[4];
+void View_BuildTracksideAimLead(FixVector *pOut, CameraRecord *pRecord, Car *pCar, FixMatrix *pMatrix);
 
-// Sliding impact of a car on a surface: decays the accumulated displacement by
-// 0.9, adds the new weighted impact vector (0.1 * StageObject_BuildSurfaceImpactDisplacement), moves the
-// object position by it, then refreshes the interpolated radius target.
+// Aim target of a trackside camera: decays the smoothed lead by 0.9, adds 0.1 of
+// the new one (View_BuildTracksideAimLead), aims at the car plus that lead, and
+// sets the zoom target from the spot's zoom (car at the spot) to its
+// zoomAtRange (car at the trigger range).
 // FUNCTION: CMR2 0x0048d950
-void StageObject_ApplySmoothedSurfaceImpact(BYTE *pSurface, FixMatrix *pMatrix)
+void View_UpdateTracksideAimTarget(CameraRecord *pRecord, FixMatrix *pMatrix)
 {
-    BYTE index = *pSurface;
-    CameraSpot *pRecord = &g_unk0x00591750[g_viewCameraSpot[index]];
-    FixVector *pPos = &g_unk0x005916a0[index];
-    FixVector *pImpact = &g_unk0x00591868[index];
+    BYTE index = pRecord->index;
+    CameraSpot *pSpot = &g_unk0x00591750[g_viewCameraSpot[index]];
+    FixVector *pPos = &g_tracksideAimTargets[index];
+    FixVector *pImpact = &g_tracksideAimLeads[index];
     FixVector impact;
     FixVector delta;
     int t;
     Car *pCar;
 
-    pCar = Car_Get(pSurface[2]);
-    StageObject_BuildSurfaceImpactDisplacement(&impact, pSurface, pCar, pMatrix);
+    pCar = Car_Get(pRecord->car);
+    View_BuildTracksideAimLead(&impact, pRecord, pCar, pMatrix);
     FixVecScale(pImpact, pImpact, 0xe666);
     FixVecScale(&impact, &impact, 0x1999);
     pImpact->x += impact.x;
@@ -3309,12 +3312,12 @@ void StageObject_ApplySmoothedSurfaceImpact(BYTE *pSurface, FixMatrix *pMatrix)
     pPos->x += pImpact->x;
     pPos->y += pImpact->y;
     pPos->z += pImpact->z;
-    delta.x = pPos->x - pRecord->position.x;
-    delta.y = pPos->y - pRecord->position.y;
-    delta.z = pPos->z - pRecord->position.z;
-    t = FixDiv(FixVec_Length(&delta), pRecord->range);
-    g_unk0x00591710[index] = FixMul(t, pRecord->field_0x44) +
-                             FixMul(0x10000 - t, pRecord->field_0x54);
+    delta.x = pPos->x - pSpot->position.x;
+    delta.y = pPos->y - pSpot->position.y;
+    delta.z = pPos->z - pSpot->position.z;
+    t = FixDiv(FixVec_Length(&delta), pSpot->range);
+    g_tracksideZoomTargets[index] = FixMul(t, pSpot->zoomAtRange) +
+                             FixMul(0x10000 - t, pSpot->zoom);
 }
 
 // FUNCTION: CMR2 0x00492890
@@ -4319,27 +4322,28 @@ BYTE StageObject_IsWheelOnActiveEffectSurface(int index, int wheel)
     return result;
 }
 
+// Fraction (0..1.0) of the spot's dolly track the camera has moved along.
 // GLOBAL: CMR2 0x00591730
-int g_unk0x00591730[4];
+int g_tracksideDollyProgress[4];
 
-// Adds to a car's level (clamped to 1.0).
+// Moves a trackside camera along its dolly track (progress clamped to 1.0).
 // FUNCTION: CMR2 0x0048dca0
-void StageObject_AddClampedCarLevel(BYTE *pCar, int amount)
+void View_AdvanceTracksideDolly(CameraRecord *pRecord, int amount)
 {
     BYTE car;
 
     if (amount > 0) {
-        car = *pCar;
-        if ((g_unk0x00591730[car] += amount) > 0x10000)
-            g_unk0x00591730[car] = 0x10000;
+        car = pRecord->index;
+        if ((g_tracksideDollyProgress[car] += amount) > 0x10000)
+            g_tracksideDollyProgress[car] = 0x10000;
     }
 }
 
-// Builds the impact displacement of a car on a surface record: the surface's
-// right vector minus the car's (normalised) velocity direction, scaled by the
-// record's factor and the car speed.
+// Lead of a trackside camera's aim ahead of the car: the reference right
+// vector minus the car's (normalised) velocity direction, scaled by the car
+// speed and the spot's speedScale.
 // FUNCTION: CMR2 0x0048dce0
-void StageObject_BuildSurfaceImpactDisplacement(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix)
+void View_BuildTracksideAimLead(FixVector *pOut, CameraRecord *pRecord, Car *pCar, FixMatrix *pMatrix)
 {
     FixVector direction;
     FixVector right;
@@ -4372,7 +4376,7 @@ void StageObject_BuildSurfaceImpactDisplacement(FixVector *pOut, BYTE *pSurface,
     pOut->x = right.x - direction.x;
     pOut->y = right.y - direction.y;
     pOut->z = right.z - direction.z;
-    scale = FixMul(pCar->speed, g_unk0x00591750[g_viewCameraSpot[*pSurface]].speedScale);
+    scale = FixMul(pCar->speed, g_unk0x00591750[g_viewCameraSpot[pRecord->index]].speedScale);
     FixVecScale(pOut, pOut, scale);
 }
 
@@ -4389,17 +4393,17 @@ int StageObject_IsNegativeRightAngleCameraSpot(CameraRecord *pRecord)
 }
 
 // FUNCTION: CMR2 0x00486b90
-void StageObject_SetLevelFromContactType(BYTE *pCar, BYTE *pInfo)
+void CarCamera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther)
 {
     int kind;
     int value;
 
-    kind = *(int *)(pInfo + 4);
+    kind = pOther->type;
     if (kind != 2 && kind != 1 && kind != 10)
         value = 0;
     else
         value = 0x10000;
-    g_viewObjectLevels[*pCar] = value;
+    g_viewCarLift[pRecord->index] = value;
 }
 
 int Knockout_HasHumanLostMatch(KnockoutMatch *pMatch);
@@ -5440,17 +5444,17 @@ void StageObject_DestroyStageKindCarNodes(void)
 }
 
 // FUNCTION: CMR2 0x0048d850
-void StageObject_ResetRightAngleContactEffect(BYTE *pCar, BYTE *pInfo)
+void TracksideCamera_EndEnter(CameraRecord *pRecord, CameraRecord *pOther)
 {
     short v;
 
-    v = g_unk0x00591750[g_viewCameraSpot[*pCar]].heading;
+    v = g_unk0x00591750[g_viewCameraSpot[pRecord->index]].heading;
     if (v > 0x3f4 && v < 0x40b) {
-        StageObject_ResetContactEffectAndSetLevel(pCar, pInfo);
+        CarCamera_EndEnter(pRecord, pOther);
         return;
     }
     if (v < -0x3f4 && v > -0x40b)
-        StageObject_ResetContactEffectAndSetLevel(pCar, pInfo);
+        CarCamera_EndEnter(pRecord, pOther);
 }
 
 // Returns the two signed levels of light channel `slot` scaled by 256.
@@ -5952,57 +5956,59 @@ void StageObject_ResetAttachedCarNodes(BYTE *pCar)
 }
 
 // Per-car values eased towards their targets (0x591710) by a step.
+// Zoom of the trackside camera and the zoom it steps towards.
 // GLOBAL: CMR2 0x00591690
-int g_unk0x00591690[4];
+int g_tracksideZooms[4];
 // GLOBAL: CMR2 0x00591710
-int g_unk0x00591710[4];
+int g_tracksideZoomTargets[4];
 
-// Steps one stage object's current vector toward its target by `step`,
-// marking it arrived (and snapping to the target) once it is closer than that.
+// Steps a trackside camera's aim toward its target by `step`, locking it on
+// (and snapping to the target) once it is closer than that.
 // FUNCTION: CMR2 0x0048db00
-void StageObject_StepVectorToTarget(BYTE *p, int step)
+void View_StepTracksideAim(CameraRecord *pRecord, int step)
 {
     BYTE index;
     FixVector delta;
 
-    index = *p;
-    if (g_unk0x005916f0[index] == 0) {
-        delta.x = g_unk0x005916a0[index].x - g_unk0x00591898[index].x;
-        delta.y = g_unk0x005916a0[index].y - g_unk0x00591898[index].y;
-        delta.z = g_unk0x005916a0[index].z - g_unk0x00591898[index].z;
+    index = pRecord->index;
+    if (g_tracksideAimLocked[index] == 0) {
+        delta.x = g_tracksideAimTargets[index].x - g_tracksideAims[index].x;
+        delta.y = g_tracksideAimTargets[index].y - g_tracksideAims[index].y;
+        delta.z = g_tracksideAimTargets[index].z - g_tracksideAims[index].z;
         if ((int)FixVec_Length(&delta) < step) {
-            g_unk0x005916f0[index] = 1;
+            g_tracksideAimLocked[index] = 1;
         } else {
             FixVec_Normalize(&delta, &delta);
             FixVecScale(&delta, &delta, step);
-            g_unk0x00591898[index].x += delta.x;
-            g_unk0x00591898[index].y += delta.y;
-            g_unk0x00591898[index].z += delta.z;
+            g_tracksideAims[index].x += delta.x;
+            g_tracksideAims[index].y += delta.y;
+            g_tracksideAims[index].z += delta.z;
         }
     }
-    if (g_unk0x005916f0[index] != 0)
-        g_unk0x00591898[index] = g_unk0x005916a0[index];
+    if (g_tracksideAimLocked[index] != 0)
+        g_tracksideAims[index] = g_tracksideAimTargets[index];
 }
 
+// Steps a trackside camera's zoom toward its target by `step`.
 // FUNCTION: CMR2 0x0048dc30
-void StageObject_ApproachCarLevelTarget(BYTE *pCar, int step)
+void View_StepTracksideZoom(CameraRecord *pRecord, int step)
 {
     BYTE car;
     int cur;
     int d;
 
-    car = *pCar;
-    cur = g_unk0x00591690[car];
-    d = g_unk0x00591710[car] - cur;
+    car = pRecord->index;
+    cur = g_tracksideZooms[car];
+    d = g_tracksideZoomTargets[car] - cur;
     if (FIX_ABS(d) < step) {
-        g_unk0x00591690[car] = g_unk0x00591710[car];
+        g_tracksideZooms[car] = g_tracksideZoomTargets[car];
         return;
     }
     if (d > 0) {
-        g_unk0x00591690[car] = cur + step;
+        g_tracksideZooms[car] = cur + step;
         return;
     }
-    g_unk0x00591690[car] = cur - step;
+    g_tracksideZooms[car] = cur - step;
 }
 
 // Five-bit field of the current round entry (bits 0..4, or 5..9 with pHigh).
@@ -6073,21 +6079,21 @@ int StageObject_IsCarOutsideCollisionHeightInterval(void)
 void Glow_NoOpEntryCallback(BYTE a, BYTE b, int c, int d);
 
 // FUNCTION: CMR2 0x00486b20
-void StageObject_DispatchContactAndSetLevel(BYTE *pCar, BYTE *pInfo)
+void CarCamera_BeginLeave(CameraRecord *pRecord, CameraRecord *pOther)
 {
     int kind;
 
-    if (*(int *)(pCar + 4) == 1 && *(int *)(pInfo + 4) == 2)
-        StageObject_SetContactLevelToUnity(pInfo, pCar);
+    if (pRecord->type == 1 && pOther->type == 2)
+        CarCamera_SetFullCarLift(pOther, pRecord);
     else
-        Glow_NoOpEntryCallback(pCar[2], pCar[1], 1, 1);
-    kind = *(int *)(pInfo + 4);
+        Glow_NoOpEntryCallback(pRecord->car, pRecord->view, 1, 1);
+    kind = pOther->type;
     int value;
     if (kind != 2 && kind != 1 && kind != 10)
         value = 0;
     else
         value = 0x10000;
-    g_viewObjectLevels[*pCar] = value;
+    g_viewCarLift[pRecord->index] = value;
 }
 
 extern CarFlexibleLineState **g_carLineStates;
@@ -7654,29 +7660,29 @@ void StageObject_PositionSplitViewNodes(int param_1)
     FixMatrix_SetUp(&offset, &g_stageSkyNode->current);
 }
 
-void StageObject_DispatchContactAndSetLevel(BYTE *pCar, BYTE *pInfo);
-void StageObject_SetLevelFromContactType(BYTE *pCar, BYTE *pInfo);
+void CarCamera_BeginLeave(CameraRecord *pRecord, CameraRecord *pOther);
+void CarCamera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther);
 
 #define RECORD_NEAR_90(v) (((v) > 0x3f4 && (v) < 0x40b) || ((v) < -0x3f4 && (v) > -0x40b))
 
 // FUNCTION: CMR2 0x0048d7b0
-void StageObject_DispatchNearRightAngleContact(BYTE *pCar, BYTE *pInfo)
+void TracksideCamera_BeginLeave(CameraRecord *pRecord, CameraRecord *pOther)
 {
     short v;
 
-    v = g_unk0x00591750[g_viewCameraSpot[*pCar]].heading;
+    v = g_unk0x00591750[g_viewCameraSpot[pRecord->index]].heading;
     if (RECORD_NEAR_90(v))
-        StageObject_DispatchContactAndSetLevel(pCar, pInfo);
+        CarCamera_BeginLeave(pRecord, pOther);
 }
 
 // FUNCTION: CMR2 0x0048d800
-void StageObject_UpdateNearRightAngleContactLevel(BYTE *pInfo, BYTE *pCar)
+void TracksideCamera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther)
 {
     short v;
 
-    v = g_unk0x00591750[g_viewCameraSpot[*pCar]].heading;
+    v = g_unk0x00591750[g_viewCameraSpot[pOther->index]].heading;
     if (RECORD_NEAR_90(v))
-        StageObject_SetLevelFromContactType(pCar, pInfo);
+        CarCamera_BeginEnter(pOther, pRecord);
 }
 
 // Ground-normal view (+0x18) of the same 100 headlight-glow records. These
@@ -8564,9 +8570,9 @@ short g_carMountRightRotationAngle = 0x71;
 // Builds a stage object's world matrix from its car and mount point.
 // match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004778b0
-void StageObject_BuildCarMountWorldMatrix(BYTE *object, void *unused)
+void StageObject_BuildCarMountWorldMatrix(CameraRecord *object, void *unused)
 {
-    FixVector position = g_carDriverPoseStates[object[2]].mountOffset;
+    FixVector position = g_carDriverPoseStates[object->car].mountOffset;
     FixMatrix orient;
     FixMatrix mount;
     FixMatrix combined;
@@ -8584,17 +8590,17 @@ void StageObject_BuildCarMountWorldMatrix(BYTE *object, void *unused)
     orient.forward.y = 0;
     orient.forward.z = 0;
     FixMatrix_RotateAboutRight(&orient, (unsigned short)g_carMountRightRotationAngle);
-    FixMatrix_SetPosition(&g_carDriverPoseStates[object[2]].mountOffset, &orient);
+    FixMatrix_SetPosition(&g_carDriverPoseStates[object->car].mountOffset, &orient);
     FixMatrix_Multiply(&combined, &orient,
-                       &g_carInteriorNodeRows[object[2]].driverPoseNode->current);
-    FixMatrix_Multiply((FixMatrix *)(object + 8), &combined,
-                       Car_Get(object[2])->pBodyMatrix);
-    *(int *)(object + 0x58) = 0;
-    *(int *)(object + 0x50) = 0;
-    *(int *)(object + 0x48) = 0x10000;
-    *(int *)(object + 0x54) = 0xa000;
-    *(int *)(object + 0x4c) = 0x1999;
-    *(int *)(object + 0x5c) = 0x10000;
+                       &g_carInteriorNodeRows[object->car].driverPoseNode->current);
+    FixMatrix_Multiply(&object->matrix, &combined,
+                       Car_Get(object->car)->pBodyMatrix);
+    object->liftPitch = 0;
+    object->field_0x50 = 0;
+    object->carLift = 0x10000;
+    object->zoom = 0xa000;
+    object->nearPlane = 0x1999;
+    object->lookDistance = 0x10000;
 }
 
 GenericFile *Race_GetLoadedStageFile(void);
@@ -8688,17 +8694,17 @@ struct ObjectMatrix16 { int v[16]; };
 // Builds a stage object's orientation matrix from a car and a node, flipping
 // the right-hand column and rotating about the object's right axis.
 // FUNCTION: CMR2 0x00477850
-void StageObject_BuildCarNodeOrientation(BYTE *object, int *src)
+void StageObject_BuildCarNodeOrientation(CameraRecord *object, int *src)
 {
-    int *dst = (int *)(object + 8);
+    int *dst = (int *)&object->matrix;
 
     *(ObjectMatrix16 *)dst = *(ObjectMatrix16 *)src;
     dst[0] = -src[8];
-    *(int *)(object + 0xc) = -src[9];
-    *(int *)(object + 0x10) = -src[10];
-    *(int *)(object + 0x28) = src[0];
-    *(int *)(object + 0x2c) = src[1];
-    *(int *)(object + 0x30) = src[2];
+    object->matrix.right.y = -src[9];
+    object->matrix.right.z = -src[10];
+    object->matrix.forward.x = src[0];
+    object->matrix.forward.y = src[1];
+    object->matrix.forward.z = src[2];
     FixMatrix_RotateAboutRight((FixMatrix *)dst, (unsigned short)g_carMountRightRotationAngle);
     StageObject_BuildCarMountWorldMatrix(object, src);
 }
@@ -9790,7 +9796,7 @@ extern int g_unk0x0067f228;
 
 short Car_GetOrderCount(void);
 SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
-void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc);
+void StageObject_RebuildMirroredTiltMatrix(CameraRecord *pObj, int *pSrc);
 
 extern BYTE g_viewObjectCarIndices[16];
 
@@ -9798,10 +9804,10 @@ extern BYTE g_viewObjectCarIndices[16];
 // ('C' or 'A' select the 9-mode node, anything else the 5-mode one) and stores
 // it in both per-object tables, then copies the payload into the object.
 // FUNCTION: CMR2 0x00486740
-void StageObject_SelectAndCopyCarNodePayload(BYTE *pObj, int *pSrc, BYTE index, BYTE value)
+void StageObject_SelectAndCopyCarNodePayload(CameraRecord *pObj, int *pSrc, BYTE index, BYTE value)
 {
-    g_carPartStateTables.modes[*pObj] = value;
-    g_viewObjectCarIndices[*pObj] = index;
+    g_carPartStateTables.modes[pObj->index] = value;
+    g_viewObjectCarIndices[pObj->index] = index;
     if ((short)index < Car_GetOrderCount() && Car_Get(index)->pBodyNode != NULL) {
         if (StageTiming_GetStartTableRecord(index)->detailCode == 'C' || StageTiming_GetStartTableRecord(index)->detailCode == 'A')
             g_carDetailBodyNodes[index] =
@@ -10925,9 +10931,9 @@ int Replay_InitCarStreamState(ReplayStream *p, int unused, BYTE car)
 // basis, low-pass filters the object's angles against the car's body axes and
 // moves the object's scene node.
 // FUNCTION: CMR2 0x00476e00
-void CarInterior_IntegrateDriverPose(BYTE *param_1, FixMatrix *param_2, int unused)
+void CarInterior_IntegrateDriverPose(CameraRecord *param_1, FixMatrix *param_2, int unused)
 {
-#define POSE (g_carDriverPoseStates[param_1[2]])
+#define POSE (g_carDriverPoseStates[param_1->car])
     Car *pCar;
     FixVector acc;
     FixVector off;
@@ -10936,7 +10942,7 @@ void CarInterior_IntegrateDriverPose(BYTE *param_1, FixMatrix *param_2, int unus
     int right;
 
     target.pad = 0;
-    pCar = Car_Get(param_1[2]);
+    pCar = Car_Get(param_1->car);
 
     // Object matrix: rows 0 and 2 swapped (the old row 2 negated), translation
     // cleared, then rotated about the object's right axis.
@@ -10967,15 +10973,15 @@ void CarInterior_IntegrateDriverPose(BYTE *param_1, FixMatrix *param_2, int unus
     acc.y = pCar->velocity.y - pCar->velocityNext.y;
     acc.z = pCar->velocity.z - pCar->velocityNext.z;
     target.x = (unsigned short)FixDiv(FixVecDot(&acc, &pCar->forward), 0x1e0000);
-    target.y = *g_carInteriorProfilePointers[param_1[2]].driverRestYaw;
+    target.y = *g_carInteriorProfilePointers[param_1->car].driverRestYaw;
 
     // Eases each angle a fifth of the way towards its target.
     POSE.rotation.x += ((short)target.x - (short)POSE.rotation.x) / 5;
     POSE.rotation.y += ((short)target.y - (short)POSE.rotation.y) / 5;
     POSE.rotation.z += ((short)right - (short)POSE.rotation.z) / 5;
-    if (g_carDriverPoseNeedsReset[param_1[2]] != 0)
+    if (g_carDriverPoseNeedsReset[param_1->car] != 0)
         POSE.rotation = target;
-    SceneNode_SetRotation(g_carInteriorNodeRows[param_1[2]].driverPoseNode, &POSE.rotation);
+    SceneNode_SetRotation(g_carInteriorNodeRows[param_1->car].driverPoseNode, &POSE.rotation);
 
     // Pose offset from the body axes, clamped and eased towards its target.
     off.x = FixDiv(-FixVecDot(&acc, &pCar->right), 0x4ccc);
@@ -10989,9 +10995,9 @@ void CarInterior_IntegrateDriverPose(BYTE *param_1, FixMatrix *param_2, int unus
     else if (off.z > 0xf5c)
         off.z = 0xf5c;
     off.y = 0;
-    if (g_carDriverPoseNeedsReset[param_1[2]] != 0) {
+    if (g_carDriverPoseNeedsReset[param_1->car] != 0) {
         POSE.offset = off;
-        g_carDriverPoseNeedsReset[param_1[2]] = 0;
+        g_carDriverPoseNeedsReset[param_1->car] = 0;
     } else {
         off.x -= POSE.offset.x;
         off.y = -POSE.offset.y;
@@ -11002,12 +11008,12 @@ void CarInterior_IntegrateDriverPose(BYTE *param_1, FixMatrix *param_2, int unus
         POSE.offset.z += off.z;
     }
 
-    pos.x = g_carDriverRestPositions[param_1[2]].x + POSE.offset.x;
-    pos.y = g_carDriverRestPositions[param_1[2]].y + POSE.offset.y;
-    pos.z = g_carDriverRestPositions[param_1[2]].z + POSE.offset.z;
+    pos.x = g_carDriverRestPositions[param_1->car].x + POSE.offset.x;
+    pos.y = g_carDriverRestPositions[param_1->car].y + POSE.offset.y;
+    pos.z = g_carDriverRestPositions[param_1->car].z + POSE.offset.z;
     if (CGameInfo::IsActiveCheatEnabled(6) != 0)
-        pos.y += FixMul(Car_Get(param_1[2])->cheatBodyLift, 0x8000);
-    SceneNode_SetPosition(g_carInteriorNodeRows[param_1[2]].driverPoseNode, &pos);
+        pos.y += FixMul(Car_Get(param_1->car)->cheatBodyLift, 0x8000);
+    SceneNode_SetPosition(g_carInteriorNodeRows[param_1->car].driverPoseNode, &pos);
 #undef POSE
 }
 
@@ -12215,13 +12221,13 @@ void Replay_InterpolatePoseStream(ReplayStream *p)
 // Dispatches one stage object's per-frame update when its stage-block slot is
 // active, refreshing the car's order, light and mesh state.
 // FUNCTION: CMR2 0x004765e0
-void StageObject_DispatchActiveCarObjectUpdate(BYTE *pObj, FixMatrix *pRef, int b)
+void StageObject_DispatchActiveCarObjectUpdate(CameraRecord *pObj, FixMatrix *pRef, int b)
 {
-    if (g_carInteriorLoaded[pObj[2]] != 0) {
+    if (g_carInteriorLoaded[pObj->car] != 0) {
         CarInterior_IntegrateDriverPose(pObj, pRef, b);
-        StageObject_BlendCarMountTransform(pObj[2]);
-        CarInterior_AnimateWipers(pObj[2]);
-        StageObject_UpdateRevCounterTextures(pObj[2]);
+        StageObject_BlendCarMountTransform(pObj->car);
+        CarInterior_AnimateWipers(pObj->car);
+        StageObject_UpdateRevCounterTextures(pObj->car);
         StageObject_BuildCarMountWorldMatrix(pObj, pRef);
     }
 }
@@ -13265,36 +13271,39 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
 // +0x4c.. zoom and shake settings). Spots turned (almost) 90 degrees behave as
 // chase cameras. Every array below is indexed by the record index (0..3).
 
+// The car has come within the spot's range: the camera turns to follow it.
 // GLOBAL: CMR2 0x005916d0
-int g_unk0x005916d0[4];
+int g_tracksideFollowing[4];
+// Distance from the camera to the car (for the shake).
 // GLOBAL: CMR2 0x005916e0
-int g_unk0x005916e0[4];
+int g_tracksideCarDistances[4];
+// Smoothed per-frame steps of the dolly, the zoom and the aim.
 // GLOBAL: CMR2 0x00591700
-int g_unk0x00591700[4];
+int g_tracksideDollySpeeds[4];
 // GLOBAL: CMR2 0x00591720
-int g_unk0x00591720[4];
+int g_tracksideZoomSpeeds[4];
 // GLOBAL: CMR2 0x00591754
-int g_unk0x00591754[4];
+int g_tracksideAimSpeeds[4];
 
 extern float g_oneOverRandMax;
 extern double g_minus65536;
-void StageObject_SelectAndCopyCarNodePayload(BYTE *pObj, int *pSrc, BYTE index, BYTE value);
-void StageObject_InterpolateReferenceMatrix(BYTE *pObj, int *pSrc, int param_3);
-void StageObject_RebuildMirroredTiltMatrix(BYTE *pObj, int *pSrc);
+void StageObject_SelectAndCopyCarNodePayload(CameraRecord *pObj, int *pSrc, BYTE index, BYTE value);
+void StageObject_InterpolateReferenceMatrix(CameraRecord *pObj, int *pSrc, int param_3);
+void StageObject_RebuildMirroredTiltMatrix(CameraRecord *pObj, int *pSrc);
 void View_PositionFromCarProfile(CameraRecord *pObj, FixMatrix *pRef);
-void StageObject_ApplySmoothedSurfaceImpact(BYTE *pSurface, FixMatrix *pMatrix);
-void StageObject_StepVectorToTarget(BYTE *p, int step);
-void StageObject_ApproachCarLevelTarget(BYTE *pCar, int step);
-void StageObject_AddClampedCarLevel(BYTE *pCar, int amount);
-void StageObject_BuildSurfaceImpactDisplacement(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix);
-void View_RestartTracksideCameraDolly(BYTE *pRecord, FixMatrix *pRef);
-void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef);
+void View_UpdateTracksideAimTarget(CameraRecord *pRecord, FixMatrix *pMatrix);
+void View_StepTracksideAim(CameraRecord *pRecord, int step);
+void View_StepTracksideZoom(CameraRecord *pRecord, int step);
+void View_AdvanceTracksideDolly(CameraRecord *pRecord, int amount);
+void View_BuildTracksideAimLead(FixVector *pOut, CameraRecord *pRecord, Car *pCar, FixMatrix *pMatrix);
+void View_RestartTracksideCameraDolly(CameraRecord *pRecord, FixMatrix *pRef);
+void View_BuildTracksideCameraMatrix(CameraRecord *pRecord, FixMatrix *pRef);
 
 #define SPOT(i) (&g_unk0x00591750[g_viewCameraSpot[i]])
 
 // Places a trackside camera on spot `spot` for a view record.
 // FUNCTION: CMR2 0x0048cae0
-void View_PlaceTracksideCameraAtSpot(BYTE *pRecord, FixMatrix *pRef, int spot)
+void View_PlaceTracksideCameraAtSpot(CameraRecord *pRecord, FixMatrix *pRef, int spot)
 {
     CameraSpot *pSpot;
     BYTE index;
@@ -13304,17 +13313,17 @@ void View_PlaceTracksideCameraAtSpot(BYTE *pRecord, FixMatrix *pRef, int spot)
     int near_;
 
     pSpot = &g_unk0x00591750[spot];
-    index = pRecord[0];
+    index = pRecord->index;
     g_viewCameraSpot[index] = spot;
     heading = pSpot->heading;
     if (heading > 0x3f4 && heading < 0x40b) {
-        StageObject_SelectAndCopyCarNodePayload(pRecord, (int *)pRef, (BYTE)Car_Get(pRecord[2])->index, 1);
+        StageObject_SelectAndCopyCarNodePayload(pRecord, (int *)pRef, (BYTE)Car_Get(pRecord->car)->index, 1);
     } else if (heading < -0x3f4 && heading > -0x40b) {
-        StageObject_SelectAndCopyCarNodePayload(pRecord, (int *)pRef, (BYTE)Car_Get(pRecord[2])->index, 2);
+        StageObject_SelectAndCopyCarNodePayload(pRecord, (int *)pRef, (BYTE)Car_Get(pRecord->car)->index, 2);
     } else {
     FixMatrix_GetPosition(&position, pRef);
-    g_unk0x00591754[index] = 0;
-    g_unk0x00591720[index] = 0;
+    g_tracksideAimSpeeds[index] = 0;
+    g_tracksideZoomSpeeds[index] = 0;
     d.x = position.x - pSpot->position.x;
     d.y = position.y - pSpot->position.y;
     d.z = position.z - pSpot->position.z;
@@ -13323,39 +13332,40 @@ void View_PlaceTracksideCameraAtSpot(BYTE *pRecord, FixMatrix *pRef, int spot)
         near_ = 1;
     else
         near_ = 0;
-    g_unk0x005916d0[index] = near_;
-    g_unk0x005916f0[index] = near_;
+    g_tracksideFollowing[index] = near_;
+    g_tracksideAimLocked[index] = near_;
         View_RestartTracksideCameraDolly(pRecord, pRef);
-        g_unk0x00591730[index] = 0;
+        g_tracksideDollyProgress[index] = 0;
     }
 }
 
-// Per-frame update of a trackside camera: eases its zoom and shake settings
-// towards the spot's near/far values once the car is in range.
+// Per-frame update of a trackside camera: once the car is in range, eases the
+// aim, zoom and dolly steps towards the spot's values and moves the aim, the
+// zoom and the dolly by them.
 // FUNCTION: CMR2 0x0048cc30
-void View_UpdateTracksideZoomAndShake(BYTE *pRecord, FixMatrix *pRef)
+void View_UpdateTracksideZoomAndShake(CameraRecord *pRecord, FixMatrix *pRef)
 {
     CameraSpot *pSpot;
-    BYTE *pCar;
+    Car *pCar;
     BYTE index;
     short heading;
     FixVector position;
     FixVector d;
     int distance;
-    int zoom;
-    int shake;
+    int aimStep;
+    int zoomStep;
 
-    index = pRecord[0];
+    index = pRecord->index;
     heading = g_unk0x00591750[g_viewCameraSpot[index]].heading;
     pSpot = SPOT(index);
     if (heading > 0x3f4 && heading < 0x40b) {
-        pCar = (BYTE *)Car_Get(pRecord[2]);
-        StageObject_InterpolateReferenceMatrix(pRecord, (int *)pRef, (((Car *)pCar)->field_0xc04[0] == 0 && ((Car *)pCar)->field_0xb60 == 0) ? 0 : 1);
+        pCar = Car_Get(pRecord->car);
+        StageObject_InterpolateReferenceMatrix(pRecord, (int *)pRef, (pCar->field_0xc04[0] == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         return;
     }
     if (heading < -0x3f4 && heading > -0x40b) {
-        pCar = (BYTE *)Car_Get(pRecord[2]);
-        StageObject_InterpolateReferenceMatrix(pRecord, (int *)pRef, (((Car *)pCar)->field_0xc04[0] == 0 && ((Car *)pCar)->field_0xb60 == 0) ? 0 : 1);
+        pCar = Car_Get(pRecord->car);
+        StageObject_InterpolateReferenceMatrix(pRecord, (int *)pRef, (pCar->field_0xc04[0] == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         return;
     }
     FixMatrix_GetPosition(&position, pRef);
@@ -13363,33 +13373,33 @@ void View_UpdateTracksideZoomAndShake(BYTE *pRecord, FixMatrix *pRef)
     d.y = pSpot->position.y - position.y;
     d.z = pSpot->position.z - position.z;
     distance = FixVec_Length(&d);
-    if (g_unk0x005916d0[index] != 0) {
-        if (distance < g_unk0x005916e0[index]) {
-            zoom = pSpot->field_0x4c;
-            shake = pSpot->field_0x64;
+    if (g_tracksideFollowing[index] != 0) {
+        if (distance < g_tracksideCarDistances[index]) {
+            aimStep = pSpot->aimStep[0];
+            zoomStep = pSpot->zoomStep[0];
         } else {
-            zoom = pSpot->field_0x50;
-            shake = pSpot->field_0x68;
+            aimStep = pSpot->aimStep[1];
+            zoomStep = pSpot->zoomStep[1];
         }
-        g_unk0x00591754[index] = FixMul(zoom, 0x3333) + FixMul(g_unk0x00591754[index], 0xcccc);
-        g_unk0x00591720[index] = FixMul(shake, 0x3333) + FixMul(g_unk0x00591720[index], 0xcccc);
-        g_unk0x00591700[index] = FixMul(pSpot->field_0x60, 0x1999) + FixMul(g_unk0x00591700[index], 0xe666);
-        StageObject_ApplySmoothedSurfaceImpact(pRecord, pRef);
-        StageObject_StepVectorToTarget(pRecord, g_unk0x00591754[index]);
-        StageObject_ApproachCarLevelTarget(pRecord, g_unk0x00591720[index]);
-        StageObject_AddClampedCarLevel(pRecord, g_unk0x00591700[index]);
+        g_tracksideAimSpeeds[index] = FixMul(aimStep, 0x3333) + FixMul(g_tracksideAimSpeeds[index], 0xcccc);
+        g_tracksideZoomSpeeds[index] = FixMul(zoomStep, 0x3333) + FixMul(g_tracksideZoomSpeeds[index], 0xcccc);
+        g_tracksideDollySpeeds[index] = FixMul(pSpot->dollyStep, 0x1999) + FixMul(g_tracksideDollySpeeds[index], 0xe666);
+        View_UpdateTracksideAimTarget(pRecord, pRef);
+        View_StepTracksideAim(pRecord, g_tracksideAimSpeeds[index]);
+        View_StepTracksideZoom(pRecord, g_tracksideZoomSpeeds[index]);
+        View_AdvanceTracksideDolly(pRecord, g_tracksideDollySpeeds[index]);
         View_BuildTracksideCameraMatrix(pRecord, pRef);
         return;
     }
     if (distance < pSpot->range)
-        g_unk0x005916d0[index] = 1;
+        g_tracksideFollowing[index] = 1;
     View_BuildTracksideCameraMatrix(pRecord, pRef);
 }
 
 // Restarts a trackside camera: back to the start of its dolly track (or to the
 // car when the car is already in range).
 // FUNCTION: CMR2 0x0048ce80
-void View_RestartTracksideCameraDolly(BYTE *pRecord, FixMatrix *pRef)
+void View_RestartTracksideCameraDolly(CameraRecord *pRecord, FixMatrix *pRef)
 {
     CameraSpot *pSpot;
     BYTE index;
@@ -13397,7 +13407,7 @@ void View_RestartTracksideCameraDolly(BYTE *pRecord, FixMatrix *pRef)
     FixVector position;
     FixVector d;
 
-    index = pRecord[0];
+    index = pRecord->index;
     heading = g_unk0x00591750[g_viewCameraSpot[index]].heading;
     pSpot = SPOT(index);
     if (heading > 0x3f4 && heading < 0x40b) {
@@ -13408,13 +13418,13 @@ void View_RestartTracksideCameraDolly(BYTE *pRecord, FixMatrix *pRef)
         StageObject_RebuildMirroredTiltMatrix(pRecord, (int *)pRef);
         return;
     }
-    g_unk0x00591730[index] = 0;
-    if (g_unk0x005916d0[index] != 0) {
-        StageObject_BuildSurfaceImpactDisplacement(&g_unk0x00591868[index], pRecord, Car_Get(pRecord[2]), pRef);
-        StageObject_ApplySmoothedSurfaceImpact(pRecord, pRef);
-        if (g_unk0x00591754[index] > 0)
-            g_unk0x00591730[index] = 0x10000;
-        g_unk0x005916f0[index] = 1;
+    g_tracksideDollyProgress[index] = 0;
+    if (g_tracksideFollowing[index] != 0) {
+        View_BuildTracksideAimLead(&g_tracksideAimLeads[index], pRecord, Car_Get(pRecord->car), pRef);
+        View_UpdateTracksideAimTarget(pRecord, pRef);
+        if (g_tracksideAimSpeeds[index] > 0)
+            g_tracksideDollyProgress[index] = 0x10000;
+        g_tracksideAimLocked[index] = 1;
     } else {
         FixMatrix_GetPosition(&position, pRef);
         d.x = position.x - pSpot->position.x;
@@ -13422,21 +13432,21 @@ void View_RestartTracksideCameraDolly(BYTE *pRecord, FixMatrix *pRef)
         d.z = position.z - pSpot->position.z;
         if ((int)FixVec_Length(&d) < pSpot->range ||
             (FixVecDot(&d, &pSpot->forward) < 0 && pSpot->range > 0)) {
-            StageObject_ApplySmoothedSurfaceImpact(pRecord, pRef);
+            View_UpdateTracksideAimTarget(pRecord, pRef);
         } else {
-            FixVecScale(&g_unk0x005916a0[index], &pSpot->forward, pSpot->range);
-            g_unk0x005916a0[index].x += pSpot->position.x;
-            g_unk0x005916a0[index].y += pSpot->position.y;
-            g_unk0x005916a0[index].z += pSpot->position.z;
-            g_unk0x00591710[index] = pSpot->field_0x54;
+            FixVecScale(&g_tracksideAimTargets[index], &pSpot->forward, pSpot->range);
+            g_tracksideAimTargets[index].x += pSpot->position.x;
+            g_tracksideAimTargets[index].y += pSpot->position.y;
+            g_tracksideAimTargets[index].z += pSpot->position.z;
+            g_tracksideZoomTargets[index] = pSpot->zoom;
         }
-        g_unk0x00591868[index].x = 0;
-        g_unk0x00591868[index].y = 0;
-        g_unk0x00591868[index].z = 0;
+        g_tracksideAimLeads[index].x = 0;
+        g_tracksideAimLeads[index].y = 0;
+        g_tracksideAimLeads[index].z = 0;
     }
-    g_unk0x00591700[index] = 0;
-    g_unk0x00591898[index] = g_unk0x005916a0[index];
-    g_unk0x00591690[index] = g_unk0x00591710[index];
+    g_tracksideDollySpeeds[index] = 0;
+    g_tracksideAims[index] = g_tracksideAimTargets[index];
+    g_tracksideZooms[index] = g_tracksideZoomTargets[index];
     View_BuildTracksideCameraMatrix(pRecord, pRef);
 }
 
@@ -13444,9 +13454,9 @@ void View_RestartTracksideCameraDolly(BYTE *pRecord, FixMatrix *pRef)
 // and shaken while the car is close), looking along the spot's basis or at the
 // car, turned by the spot's heading, with the spot's zoom.
 // FUNCTION: CMR2 0x0048d0f0
-void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef)
+void View_BuildTracksideCameraMatrix(CameraRecord *pRecord, FixMatrix *pRef)
 {
-    CameraRecord *pCameraRecord = (CameraRecord *)pRecord;
+    CameraRecord *pCameraRecord = pRecord;
     FixMatrix turn;
     FixVector right;
     FixVector up;
@@ -13465,27 +13475,27 @@ void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef)
     heading = g_unk0x00591750[g_viewCameraSpot[index]].heading;
     pSpot = SPOT(index);
     if (heading > 0x3f4 && heading < 0x40b) {
-        View_PositionFromCarProfile((CameraRecord *)pRecord, pRef);
+        View_PositionFromCarProfile(pRecord, pRef);
         return;
     }
     if (heading < -0x3f4 && heading > -0x40b) {
-        View_PositionFromCarProfile((CameraRecord *)pRecord, pRef);
+        View_PositionFromCarProfile(pRecord, pRef);
         return;
     }
     FixMatrix_GetPosition(&carPos, pRef);
     camera = *&pSpot->position;
-    if (pSpot->field_0x60 > 0) {
+    if (pSpot->dollyStep > 0) {
         right.x = pSpot->trackEnd.x - pSpot->position.x;
         right.y = pSpot->trackEnd.y - pSpot->position.y;
         right.z = pSpot->trackEnd.z - pSpot->position.z;
-        FixVecScale(&up, &right, g_unk0x00591730[index]);
+        FixVecScale(&up, &right, g_tracksideDollyProgress[index]);
         FixVecScale(&up, &up, 0x20000);
         camera.x += up.x;
         camera.y += up.y;
         camera.z += up.z;
     }
-    if (g_unk0x005916e0[index] < pSpot->field_0x58) {
-        amplitude = FixMul(pSpot->field_0x5c, 0x10000 - FixDiv(g_unk0x005916e0[index], pSpot->field_0x58));
+    if (g_tracksideCarDistances[index] < pSpot->shakeRange) {
+        amplitude = FixMul(pSpot->shakeAmplitude, 0x10000 - FixDiv(g_tracksideCarDistances[index], pSpot->shakeRange));
         amplitude = FixMul(amplitude, Car_Get(pCameraRecord->car)->speed / 2);
         shake.x = -0x8000 - (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), g_minus65536));
         shake.y = -0x8000 - (int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), g_minus65536));
@@ -13499,13 +13509,13 @@ void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef)
     toCar.x = camera.x - carPos.x;
     toCar.y = camera.y - carPos.y;
     toCar.z = camera.z - carPos.z;
-    g_unk0x005916e0[index] = FixVec_Length(&toCar);
-    if (g_unk0x005916d0[index] != 0) {
-        offset.x = g_unk0x00591898[index].x - camera.x;
-        offset.y = g_unk0x00591898[index].y - camera.y;
-        offset.z = g_unk0x00591898[index].z - camera.z;
+    g_tracksideCarDistances[index] = FixVec_Length(&toCar);
+    if (g_tracksideFollowing[index] != 0) {
+        offset.x = g_tracksideAims[index].x - camera.x;
+        offset.y = g_tracksideAims[index].y - camera.y;
+        offset.z = g_tracksideAims[index].z - camera.z;
         FixVec_Normalize(&offset, &offset);
-        zoom = g_unk0x00591690[index];
+        zoom = g_tracksideZooms[index];
         up.x = 0;
         up.z = 0;
         up.y = 0x10000;
@@ -13514,19 +13524,19 @@ void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef)
         FixVec_Normalize(&right, &right);
         FixVec_Normalize(&up, &up);
         FixVec_Normalize(&offset, &offset);
-        FixMatrix_SetRight(&right, (FixMatrix *)(pRecord + 8));
-        FixMatrix_SetUp(&up, (FixMatrix *)(pRecord + 8));
-        FixMatrix_SetForward(&offset, (FixMatrix *)(pRecord + 8));
+        FixMatrix_SetRight(&right, &pRecord->matrix);
+        FixMatrix_SetUp(&up, &pRecord->matrix);
+        FixMatrix_SetForward(&offset, &pRecord->matrix);
     } else {
-        FixMatrix_SetRight(&pSpot->right, (FixMatrix *)(pRecord + 8));
-        FixMatrix_SetUp(&pSpot->up, (FixMatrix *)(pRecord + 8));
-        FixMatrix_SetForward(&pSpot->forward, (FixMatrix *)(pRecord + 8));
-        zoom = pSpot->field_0x54;
+        FixMatrix_SetRight(&pSpot->right, &pRecord->matrix);
+        FixMatrix_SetUp(&pSpot->up, &pRecord->matrix);
+        FixMatrix_SetForward(&pSpot->forward, &pRecord->matrix);
+        zoom = pSpot->zoom;
     }
     if (zoom < 0x10000)
-        pCameraRecord->field_0x54 = FixMul(0xa000, 0x10000);
+        pCameraRecord->zoom = FixMul(0xa000, 0x10000);
     else
-        pCameraRecord->field_0x54 = FixMul(0xa000, zoom);
+        pCameraRecord->zoom = FixMul(0xa000, zoom);
     pCameraRecord->matrix.position.x = 0;
     pCameraRecord->matrix.position.y = 0;
     pCameraRecord->matrix.position.z = 0;
@@ -13541,15 +13551,15 @@ void View_BuildTracksideCameraMatrix(BYTE *pRecord, FixMatrix *pRef)
     turn.up.z = 0;
     turn.forward.x = 0;
     turn.forward.y = 0;
-    FixMatrix_Multiply((FixMatrix *)(pRecord + 8), &turn, (FixMatrix *)(pRecord + 8));
-    FixMatrix_SetPosition(&camera, (FixMatrix *)(pRecord + 8));
-    pCameraRecord->field_0x48 = 0;
-    pCameraRecord->field_0x4c = 0x1999;
-    pCameraRecord->field_0x4c = FixMul(pCameraRecord->field_0x4c, 0x50000);
-    pCameraRecord->field_0x4c = FixMul(pCameraRecord->field_0x4c, FixDiv(pCameraRecord->field_0x54, 0xa000));
+    FixMatrix_Multiply(&pRecord->matrix, &turn, &pRecord->matrix);
+    FixMatrix_SetPosition(&camera, &pRecord->matrix);
+    pCameraRecord->carLift = 0;
+    pCameraRecord->nearPlane = 0x1999;
+    pCameraRecord->nearPlane = FixMul(pCameraRecord->nearPlane, 0x50000);
+    pCameraRecord->nearPlane = FixMul(pCameraRecord->nearPlane, FixDiv(pCameraRecord->zoom, 0xa000));
     pCameraRecord->field_0x50 = 0;
-    pCameraRecord->field_0x58 = 0;
-    pCameraRecord->field_0x5c = 0x10000;
+    pCameraRecord->liftPitch = 0;
+    pCameraRecord->lookDistance = 0x10000;
 }
 #undef SPOT
 

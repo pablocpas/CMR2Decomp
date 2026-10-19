@@ -1,0 +1,21 @@
+address	old_name	new_name	evidence
+0x423810	Game_DispatchObjectTypeEvent	Camera_BeginLeave	View_SwitchCamera calls it first on the active record with the next one; dispatches by camera type to the car / trackside leave handlers.
+0x423860	Game_DispatchObjectTypeUpdate	Camera_BeginEnter	View_SwitchCamera calls it on the next record (with the active one) before Camera_Start; types 4/5 copy the camera basis, 3 resets the driver pose, 1/2/10 and 7 set the car lift.
+0x4238e0	Game_UpdateType3ObjectState	Camera_EndLeave	Called on the previous record when the switch (or its blend) completes; an interior camera (type 3) turns the interior render mode off.
+0x423900	Game_DispatchObjectContactReset	Camera_EndEnter	Called on the new record when the switch (or its blend) completes; type 3 turns the interior render mode on, 1/2/10 and chase-like 7 give the car full lift.
+0x4239e0	RallyData_ValidateType3Entry	Camera_AfterLeave	Last call of a completed switch on the previous record: for an interior camera (type 3) it calls the empty RallyData_ValidateIndex.
+0x4764c0	Game_SetObjectRenderModeZero	InteriorCamera_EndLeave	Camera_EndLeave handler of type 3: CGame::SetObjectRenderMode(0) when the record's car has an interior root.
+0x476500	Game_SetObjectRenderModeOne	InteriorCamera_EndEnter	Camera_EndEnter handler of type 3: CGame::SetObjectRenderMode(1) when the record's car has an interior root.
+0x486b20	StageObject_DispatchContactAndSetLevel	CarCamera_BeginLeave	Camera_BeginLeave handler of types 1/2/10: sets g_viewCarLift of the record from the next camera's type (and full lift for the next one on 1 -> 2).
+0x486b90	StageObject_SetLevelFromContactType	CarCamera_BeginEnter	Camera_BeginEnter handler of types 1/2/10: g_viewCarLift[record] = 1.0 when the other camera is also car-mounted (1/2/10), else 0.
+0x486be0	StageObject_SetContactLevelToUnity	CarCamera_SetFullCarLift	g_viewCarLift[record] = 1.0; Camera_EndEnter handler of type 2.
+0x486c00	StageObject_ResetContactEffectAndSetLevel	CarCamera_EndEnter	Camera_EndEnter handler of types 1/10: no-op glow callback for the other record, then g_viewCarLift[record] = 1.0.
+0x48d7b0	StageObject_DispatchNearRightAngleContact	TracksideCamera_BeginLeave	Camera_BeginLeave handler of type 7: only for a spot whose heading is near +/-0x400 (a chase-like spot), CarCamera_BeginLeave.
+0x48d800	StageObject_UpdateNearRightAngleContactLevel	TracksideCamera_BeginEnter	Camera_BeginEnter handler of type 7: when the other record uses a chase-like spot (heading near +/-0x400), CarCamera_BeginEnter on the other record.
+0x48d850	StageObject_ResetRightAngleContactEffect	TracksideCamera_EndEnter	Camera_EndEnter handler of type 7: for a chase-like spot (heading near +/-0x400), CarCamera_EndEnter.
+0x48db00	StageObject_StepVectorToTarget	View_StepTracksideAim	Moves g_tracksideAims[record] towards g_tracksideAimTargets by the step (locks on when closer); the aim is what View_BuildTracksideCameraMatrix looks at.
+0x48dc30	StageObject_ApproachCarLevelTarget	View_StepTracksideZoom	Moves g_tracksideZooms[record] towards g_tracksideZoomTargets by the step; the zoom becomes CameraRecord::zoom in View_BuildTracksideCameraMatrix.
+0x48dca0	StageObject_AddClampedCarLevel	View_AdvanceTracksideDolly	Adds the step to g_tracksideDollyProgress (clamped to 1.0), the fraction of the spot's dolly track View_BuildTracksideCameraMatrix moves along.
+0x48d950	StageObject_ApplySmoothedSurfaceImpact	View_UpdateTracksideAimTarget	Aim target = car position + smoothed speed lead; zoom target blended from CameraSpot::zoom to zoomAtRange by distance / range.
+0x48dce0	StageObject_BuildSurfaceImpactDisplacement	View_BuildTracksideAimLead	Spot right axis minus the car's velocity direction, scaled by car speed * CameraSpot::speedScale: the lead added to the aim point.
+0x422f90	View_SetDistanceOverride	View_SetFarPlane	Stores g_viewFarPlanes[view], the far plane View_SetPlayerProjection passes to CGraphics::SetProjection.
