@@ -24,6 +24,7 @@
 #include "NetworkLeaderboards.h"
 #include "NetPlayers.h"
 #include "FileBuffer.h"
+#include "StageInfo.h"
 
 extern int g_unk0x00819744;
 
@@ -10713,9 +10714,9 @@ extern char g_str0x00524d0c[];  // "%d%% %s"   (GameInfo.cpp)
 extern char g_str0x00524d14[];  // "%s: "      (GameInfo.cpp)
 extern char g_str0x00524d20[];  // "%s: %d.%d" (GameInfo.cpp)
 extern char g_str0x00524d2c[];  // "%s: %d.0"  (GameInfo.cpp)
-BYTE FrontendRecords_GetStageEntryPayload(BYTE **out, int row, int column);
+BYTE FrontendRecords_GetStageEntryPayload(StageSurfaceShare **out, int row, int column);
 const char *FrontendRecords_GetStageName(int row, int column);
-BYTE *FrontendRecords_GetStageEntry(int row, int column);
+StageInfoEntry *FrontendRecords_GetStageEntry(int row, int column);
 
 // Placeholder shown in the stage rows of the rally summary when the stage has
 // no recorded time yet.
@@ -10730,7 +10731,7 @@ extern char g_str0x00524d1c[];
 void FrontendMenu_DrawRallySummary(Menu *pMenu)
 {
     char *text[2];
-    BYTE *table;
+    StageSurfaceShare *table;
     unsigned int country;
     unsigned int time;
     BYTE rating[2];
@@ -10776,8 +10777,8 @@ void FrontendMenu_DrawRallySummary(Menu *pMenu)
             FrontendRecords_GetStageName(country, column));
     Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
-    rating[0] = FrontendRecords_GetStageEntry(country, column)[0];
-    rating[1] = FrontendRecords_GetStageEntry(country, column)[1];
+    rating[0] = FrontendRecords_GetStageEntry(country, column)->lengthKm;
+    rating[1] = FrontendRecords_GetStageEntry(country, column)->lengthTenths;
     if (rating[1] == 0)
         sprintf(CFrontend::m_stringDest, g_str0x00524d2c, CFrontend::GetTextString(0x18c), rating[0]);
     else
@@ -10793,16 +10794,16 @@ void FrontendMenu_DrawRallySummary(Menu *pMenu)
     if (limit >= 2)
         limit = 2;
     for (i = 0; i < limit; i++) {
-        sprintf(CFrontend::m_stringDest, g_str0x00524d0c, table[i * 8 + 4],
-                CFrontend::GetTextString(*(int *)(table + i * 8) + 0x18e));
+        sprintf(CFrontend::m_stringDest, g_str0x00524d0c, table[i].percent,
+                CFrontend::GetTextString(table[i].surface + 0x18e));
         Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
         y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
         n = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
         if (n > width)
             width = n;
     }
-    time = *(unsigned int *)((char *)CGameInfo::GetGameInfoFieldA4Address() + 0x658 +
-                             ((RallyDataCountryIndex() & 0xff) * 0xb + pMenu->cursor) * 8) >> 7 & 0xffff;
+    time = CGameInfo::GetGameInfoFieldA4Address()->rallyStageRecordTimes[
+               (RallyDataCountryIndex() & 0xff) * 0xb + pMenu->cursor].value >> 7 & 0xffff;
     sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
             (int)((time / 100) % 0x3c), time % 100);
     Font_DrawText(1, CFrontend::m_stringDest,
@@ -10811,8 +10812,8 @@ void FrontendMenu_DrawRallySummary(Menu *pMenu)
                       ((int)(g_pGraphics->resY * 8) / 0x1e0) * 0x24,
                   (int *)g_colourText0x0052496c, 0x21);
     sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
-            (char *)CGameInfo::GetGameInfoFieldA4Address() + 0x654 +
-                ((RallyDataCountryIndex() & 0xff) * 0xb + pMenu->cursor) * 8);
+            CGameInfo::GetGameInfoFieldA4Address()->rallyStageRecordTimes[
+                (RallyDataCountryIndex() & 0xff) * 0xb + pMenu->cursor].ident);
     Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x19f) / 0x280,
                   (int)(g_pGraphics->resY * 0x4b) / 0x1e0 +
                       ((int)(g_pGraphics->resY * 8) / 0x1e0) * 0x24,
@@ -10862,9 +10863,9 @@ void FrontendMenu_DrawRallySummary(Menu *pMenu)
 // ---------------------------------------------------------------------------
 // Rally report (cascade pass).
 
-BYTE FrontendRecords_GetEventEntryPayload(BYTE **out, int index);
+BYTE FrontendRecords_GetEventEntryPayload(StageSurfaceShare **out, int index);
 const char *FrontendRecords_GetEventName(int index);
-BYTE *FrontendRecords_GetEventEntry(int index);
+StageInfoEntry *FrontendRecords_GetEventEntry(int index);
 
 extern char g_str0x00524d0c[];
 extern char g_str0x00524d14[];
@@ -10881,7 +10882,7 @@ extern char g_noTimeText[];
 void FrontendMenu_DrawRallyReport(Menu *pMenu)
 {
     int order[8] = { 6, 3, 1, 4, 0, 2, 5, 7 };
-    BYTE *table;
+    StageSurfaceShare *table;
     int x;
     int y;
     int width;
@@ -10906,8 +10907,8 @@ void FrontendMenu_DrawRallyReport(Menu *pMenu)
     sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x18b), FrontendRecords_GetEventName(pMenu->cursor));
     Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
-    entry[0] = FrontendRecords_GetEventEntry(pMenu->cursor)[0];
-    entry[1] = FrontendRecords_GetEventEntry(pMenu->cursor)[1];
+    entry[0] = FrontendRecords_GetEventEntry(pMenu->cursor)->lengthKm;
+    entry[1] = FrontendRecords_GetEventEntry(pMenu->cursor)->lengthTenths;
     if (entry[1] == 0)
         sprintf(CFrontend::m_stringDest, g_str0x00524d2c, CFrontend::GetTextString(0x18c), entry[0]);
     else
@@ -10923,23 +10924,23 @@ void FrontendMenu_DrawRallyReport(Menu *pMenu)
     if (count >= 2)
         count = 2;
     for (i = 0; i < count; i++) {
-        sprintf(CFrontend::m_stringDest, g_str0x00524d0c, table[i * 8 + 4],
-                CFrontend::GetTextString(*(int *)(table + i * 8) + 0x18e));
+        sprintf(CFrontend::m_stringDest, g_str0x00524d0c, table[i].percent,
+                CFrontend::GetTextString(table[i].surface + 0x18e));
         Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
         y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
         w = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
         if (w > width)
             width = w;
     }
-    time = *(unsigned int *)((char *)CGameInfo::GetGameInfoFieldA4Address() + 0x1214 +
-                             ((pMenu->cursor / 3) * 3 + pMenu->cursor % 3) * 8) >> 7 & 0xffff;
+    time = CGameInfo::GetGameInfoFieldA4Address()->arcadeRecordTimes[
+               (pMenu->cursor / 3) * 3 + pMenu->cursor % 3].value >> 7 & 0xffff;
     sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000, (int)((time / 100) % 0x3c), time % 100);
     Font_DrawText(1, CFrontend::m_stringDest,
                   (int)(g_pGraphics->resX * 0x3a) / 0x280 + (int)(g_pGraphics->resX * 0x19f) / 0x280,
                   (int)(g_pGraphics->resY * 0x4b) / 0x1e0 + (int)(g_pGraphics->resY * 8) / 0x1e0 * 0x24,
                   (int *)g_colourText0x0052496c, 0x21);
     sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
-            (char *)CGameInfo::GetGameInfoFieldA4Address() + 0x1210 + ((pMenu->cursor / 3) * 3 + pMenu->cursor % 3) * 8);
+            CGameInfo::GetGameInfoFieldA4Address()->arcadeRecordTimes[(pMenu->cursor / 3) * 3 + pMenu->cursor % 3].ident);
     Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x19f) / 0x280,
                   (int)(g_pGraphics->resY * 0x4b) / 0x1e0 + (int)(g_pGraphics->resY * 8) / 0x1e0 * 0x24,
                   (int *)g_colourText0x0052496c, 0x21);

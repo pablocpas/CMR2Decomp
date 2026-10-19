@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "a87d9c21914917c7c227d3aacfb16ac24b98fcae",
+    "commit": "d040cef42629866c41ebf226c37a6c5dd145c355",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -88,15 +88,15 @@
       "CMR2Decomp/Frontend.h": "60cdf8b545fd538431a190554ee67fdb4c7830584acca37826a81536994ed24f",
       "CMR2Decomp/FrontendDraw.cpp": "1146a41def097cb318f576eed06cf7b9591a76b451829d516c02a63de17bcce3",
       "CMR2Decomp/FrontendDraw.h": "c7c40884d0b1a1e97f77833bd57e8b421f897240eeaadfd5c2b365c7c2529eb8",
-      "CMR2Decomp/FrontendMenus.cpp": "58b28543d4651be23b06e4f57f923a17ff103807ae3ac8cbe20675ccf7e9aeef",
+      "CMR2Decomp/FrontendMenus.cpp": "d14e670c0766aeeb9a39d2f96e6aa21f2fecb1c1dfd5c599741f6abb3a31c435",
       "CMR2Decomp/FrontendMenus.h": "3e73c222064aef6fef1265249058b00e308b13370a4f69298ac97b0c927fa852",
       "CMR2Decomp/FrontendNetworkRally.cpp": "04877e99bd48400fbbce1fcca1a48f7611af8e0e9d6992529062dd7537bfd635",
-      "CMR2Decomp/FrontendScreens.cpp": "cae2a2bc5cfb84eedd7560daacc777aec2f679a20763b81c4999641957e7c506",
+      "CMR2Decomp/FrontendScreens.cpp": "5a764122ad04ae8679c22a2baff397edc33b0b0eea0ad18d0192513b27e4f031",
       "CMR2Decomp/FrontendStubs.cpp": "553691030d808295c83da06d764b85ab0b30583d3638632a3394ce4f112a2101",
       "CMR2Decomp/Game.cpp": "6a63310cf7ee1c52dcd3e3c4c20c86905c81aa989c5d1e165c63800e62e8bba6",
       "CMR2Decomp/Game.h": "9aa1c73ab23a116baede7d7d9789ba129b730bb55de16926fa4202daecb377dc",
       "CMR2Decomp/GameConnections.cpp": "c9034f5c8d5de0e88a5e107895406e2c2a444c211ce6b1dd0e422a1e0751f4f7",
-      "CMR2Decomp/GameInfo.cpp": "603b9523a378c00732e296c1aa62efe13537808ae5670a47122b6e395897bdb7",
+      "CMR2Decomp/GameInfo.cpp": "0ac6d80da44799a7ff672d5cbf564db80a9a8bd4f8533384514431fadb009dde",
       "CMR2Decomp/GameInfo.h": "78e091a9bf3dabbe8d4b116a2225f2fc87c1df2d30fa72f6d8237fc02a183819",
       "CMR2Decomp/GameMenus.cpp": "0d88762e27ac5e435cb1196f68b4371b548bfb0753256229fa8a1c7e8e6d1b92",
       "CMR2Decomp/GameMenus.h": "22a20f4835ce55e9d25b117d0d8ef54390367344081e3aee85042cf63ce14fe8",
@@ -138,7 +138,7 @@
       "CMR2Decomp/RaceCallRecord.h": "e2418ff397371fd73fc5d83fbba8de474bc0f895eb1dfac5792127d8e6afd8c2",
       "CMR2Decomp/RaceCallbackStorage.h": "d540cbe431446daef4724e15b0f10f3702e8e50b8c87bcd04ff5bc1dd3a8d593",
       "CMR2Decomp/RaceRecord.h": "c86bd8aa45d6828375fee1fd908f60608b85e9b48a7416f8208b209fe98c3453",
-      "CMR2Decomp/RallyData.cpp": "7cdab632b902e7905edfbda9cb5e095a011f99d4920cafdd267331471ee3dafe",
+      "CMR2Decomp/RallyData.cpp": "79679d94436bfa8a7a3bcc8e7a203a71235843b3115d0334f1109f8c81172820",
       "CMR2Decomp/RallyData.h": "1297b257b1a88c6a713ba9255df2e21c94610b853669ff0e4cddc795aafd653b",
       "CMR2Decomp/RallyRoute.cpp": "df3ed62600e6eb725c5087acd8f5adb862ceb1a1625a233d6bf824efe7359da6",
       "CMR2Decomp/RallyRoute.h": "9bbc6d4afbd246b8868dbaf3bad135fc3d8005fedb81826c6dc6ac7d66cd4abd",
@@ -165,6 +165,7 @@
       "CMR2Decomp/Stage.cpp": "29c0ac684465f5273aeff2797aa98ff489d1362c619cac78d82eab9e24357d83",
       "CMR2Decomp/Stage.h": "4a75c6c0ce11b7ac1fa616ed12e7c7931d3e23ab12a678370ac800ef700f04cd",
       "CMR2Decomp/StageBlock.h": "d93b2676f2bece5160e17869fbca83e4e9bfb00d41107006b291a9e3c692f1f1",
+      "CMR2Decomp/StageInfo.h": "0c69f56127d2208cda8f6917a7d536eda53cc4d0bb9e1258aa3b0958fd501299",
       "CMR2Decomp/StageObjectCount.h": "0bcacf7fe5189f2978ab6e6fab0fc7ba8968c82a8ef7c3b4710f4bfa142a48da",
       "CMR2Decomp/StageObjects.cpp": "6951abf98061bea616b542a7e123831fd270d3e46c7ccf3daa7b0a6043143511",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
@@ -217,8 +218,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "f146d76b234fedbd160bd1066aeb1580f3ff80285d9afaee86bdea771826aabf",
-    "pdb_sha256": "3413b4edce2e7197e69131f756c1728e8102b8bfda198d6db16c8a6ad5169877"
+    "exe_sha256": "2eaedd0f599f6027f89bfb931311298cedffa4d79d4c418ca3254defaa1e73e2",
+    "pdb_sha256": "b5812750ca766bee10d1ec4bce6119aef62a074b48cd2b25e7455a89fff61a36"
   },
   "perfect_match_percent": 56.28,
   "fuzzy_match_percent": 94.44,
