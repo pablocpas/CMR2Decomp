@@ -107,8 +107,10 @@ int g_setupRouteIndex;
 // Route ids of the four selected stages of the outgoing setup packet.
 // GLOBAL: CMR2 0x00818d74
 int g_setupSelectedRouteIds[4];
+// Name of the network session being created or joined (edited on the
+// session setup screen).
 // GLOBAL: CMR2 0x00818ebc
-char g_unk0x00818ebc[20];
+char g_sessionName[20];
 // GLOBAL: CMR2 0x00818ed0
 BYTE g_unk0x00818ed0;
 // GLOBAL: CMR2 0x00818d04
@@ -119,8 +121,12 @@ char g_unk0x00818da8[256];
 int g_unk0x00818ed4[8];
 // GLOBAL: CMR2 0x00818ef4
 BYTE g_unk0x00818ef4;
+// Password of the network session being created or joined.
 // GLOBAL: CMR2 0x00818ef8
-char g_unk0x00818ef8[24];
+char g_sessionPassword[20];
+// Time the host's setup packet was last applied (written only).
+// GLOBAL: CMR2 0x00818f0c
+unsigned int g_hostSetupAppliedTime;
 // GLOBAL: CMR2 0x00819014
 BYTE g_unk0x00819014;
 // GLOBAL: CMR2 0x0081901c
@@ -1690,47 +1696,8 @@ void FrontendNetwork_SetMessageState(int value);
 // the rest are the current selection values.
 #define NET_SETUP_COUNT 0x14
 
-// Copies the local player's setup (20 rows) into the outgoing packet.
-// FUNCTION: CMR2 0x004ec320
-void FrontendNetwork_WriteSetupPacket(BYTE *pPacket)
-{
-    RallyDriverGroupTable *pState;
-    int i;
-
-    RallyData_PickOpponentLineups();
-    pState = RallyData_GetDriverGroupTable();
-    for (i = 0; i < NET_SETUP_COUNT; i++) {
-        *(unsigned int *)(pPacket + 0x18 + i * 8) = pState->pairing.pairs[i][0];
-        *(unsigned int *)(pPacket + 0x1c + i * 8) = pState->pairing.pairs[i][1];
-        *(unsigned int *)(pPacket + 0xb8 + i * 4) = pState->pairing.skills[i];
-        *(unsigned int *)(pPacket + 0x108 + i * 4) = pState->pairing.flags[i];
-        *(unsigned int *)(pPacket + 0x158 + i * 4) = pState->pairing.otherFlags[i];
-        *(BYTE *)(pPacket + 0x1a8 + i) = pState->field_0x6d4[i];
-        *(unsigned int *)(pPacket + 0x1bc) = pState->field_0x53c;
-        *(unsigned int *)(pPacket + 0x1c0) = pState->field_0x6d0;
-    }
-}
-
-// Copies a received setup packet (20 rows) into the local rally data block.
-// FUNCTION: CMR2 0x004ec3c0
-void FrontendNetwork_ReadSetupPacket(BYTE *pPacket)
-{
-    RallyDriverGroupTable *pState = RallyData_GetDriverGroupTable();
-    int i;
-
-    for (i = 0; i < NET_SETUP_COUNT; i++) {
-        pState->pairing.pairs[i][0] = *(unsigned int *)(pPacket + 0x18 + i * 8);
-        pState->pairing.pairs[i][1] = *(unsigned int *)(pPacket + 0x1c + i * 8);
-        pState->pairing.skills[i] = *(unsigned int *)(pPacket + 0xb8 + i * 4);
-        pState->pairing.flags[i] = *(unsigned int *)(pPacket + 0x108 + i * 4);
-        pState->pairing.otherFlags[i] = *(unsigned int *)(pPacket + 0x158 + i * 4);
-        pState->field_0x6d4[i] = *(BYTE *)(pPacket + 0x1a8 + i);
-        pState->field_0x53c = *(unsigned int *)(pPacket + 0x1bc);
-        pState->field_0x6d0 = *(unsigned int *)(pPacket + 0x1c0);
-    }
-}
-
-// Outgoing player setup packet (type 3).
+// Player setup packet (type 3 from a joining player, 2 from the host when the
+// race starts); 0x1c4 bytes.
 struct NetSetupPacket {
     BYTE type;                  // 0x0
     BYTE field_0x1[3];
@@ -1741,10 +1708,54 @@ struct NetSetupPacket {
     unsigned int rallyB : 2;    // bits 18..19
     unsigned int rallyC : 4;    // bits 20..23
     unsigned int unused : 8;
-    BYTE field_0x8[0xc];        // 0x8
-    int field_0x14;             // 0x14
-    BYTE field_0x18[0x1ac];     // 0x18
+    BYTE stageStates[0xc];      // 0x8 CGameInfo::GetStageOptionState of the 11 stages
+    int field_0x14;             // 0x14 GameInfo_GetSessionField397C
+    RallyPairingTables pairing; // 0x18 RallyDriverGroupTable::pairing
+    BYTE field_0x1a8[0x14];     // 0x1a8 RallyDriverGroupTable::field_0x6d4
+    int field_0x1bc;            // 0x1bc RallyDriverGroupTable::field_0x53c
+    int field_0x1c0;            // 0x1c0 RallyDriverGroupTable::field_0x6d0
 };
+
+// Copies the local player's setup (20 rows) into the outgoing packet.
+// FUNCTION: CMR2 0x004ec320
+void FrontendNetwork_WriteSetupPacket(NetSetupPacket *pPacket)
+{
+    RallyDriverGroupTable *pState;
+    int i;
+
+    RallyData_PickOpponentLineups();
+    pState = RallyData_GetDriverGroupTable();
+    for (i = 0; i < NET_SETUP_COUNT; i++) {
+        pPacket->pairing.pairs[i][0] = pState->pairing.pairs[i][0];
+        pPacket->pairing.pairs[i][1] = pState->pairing.pairs[i][1];
+        pPacket->pairing.skills[i] = pState->pairing.skills[i];
+        pPacket->pairing.flags[i] = pState->pairing.flags[i];
+        pPacket->pairing.otherFlags[i] = pState->pairing.otherFlags[i];
+        pPacket->field_0x1a8[i] = pState->field_0x6d4[i];
+        pPacket->field_0x1bc = pState->field_0x53c;
+        pPacket->field_0x1c0 = pState->field_0x6d0;
+    }
+}
+
+// Copies a received setup packet (20 rows) into the local rally data block.
+// FUNCTION: CMR2 0x004ec3c0
+void FrontendNetwork_ReadSetupPacket(NetSetupPacket *pPacket)
+{
+    RallyDriverGroupTable *pState = RallyData_GetDriverGroupTable();
+    int i;
+
+    for (i = 0; i < NET_SETUP_COUNT; i++) {
+        pState->pairing.pairs[i][0] = pPacket->pairing.pairs[i][0];
+        pState->pairing.pairs[i][1] = pPacket->pairing.pairs[i][1];
+        pState->pairing.skills[i] = pPacket->pairing.skills[i];
+        pState->pairing.flags[i] = pPacket->pairing.flags[i];
+        pState->pairing.otherFlags[i] = pPacket->pairing.otherFlags[i];
+        pState->field_0x6d4[i] = pPacket->field_0x1a8[i];
+        pState->field_0x53c = pPacket->field_0x1bc;
+        pState->field_0x6d0 = pPacket->field_0x1c0;
+    }
+}
+
 
 // Builds and sends this machine's player setup packet.
 // FUNCTION: CMR2 0x004ec460
@@ -1769,7 +1780,7 @@ void FrontendNetwork_SendSetupPacket(void)
         break;
     }
     packet.field_0x14 = GameInfo_GetSessionField397C();
-    FrontendNetwork_WriteSetupPacket((BYTE *)&packet);
+    FrontendNetwork_WriteSetupPacket(&packet);
     Network_SendPlayerMessage(0, 1, &packet, 0x1c4);
 }
 
@@ -1795,9 +1806,9 @@ void FrontendNetwork_HandleJoinerMessage(DPID *pFrom, unsigned int *pData)
     case 0x101:
         Network_SetSessionStateFlag(1);
         if (Network_GetSessionNamePointer() != NULL)
-            strcpy(g_unk0x00818ebc, (char *)Network_GetSessionNamePointer());
+            strcpy(g_sessionName, (char *)Network_GetSessionNamePointer());
         if (Network_GetSessionPasswordPointer() != NULL)
-            strcpy(g_unk0x00818ef8, (char *)Network_GetSessionPasswordPointer());
+            strcpy(g_sessionPassword, (char *)Network_GetSessionPasswordPointer());
         g_unk0x00818ce4 = 1;
         FrontendNetwork_SendPlayerDescription();
         switch (CGameInfo::GetConfiguredGameMode()) {
@@ -1839,6 +1850,7 @@ void FrontendNetwork_HandleJoinerMessage(DPID *pFrom, unsigned int *pData)
 // FUNCTION: CMR2 0x004ec6f0
 void FrontendNetwork_HandleHostMessage(DPID *pFrom, BYTE *pMsg)
 {
+    NetSetupPacket *pSetup = (NetSetupPacket *)pMsg;
     BYTE *pState = RallyData_GetStageAvailabilityFlags();
     MenuItem *pItem;
     int i;
@@ -1850,11 +1862,11 @@ void FrontendNetwork_HandleHostMessage(DPID *pFrom, BYTE *pMsg)
     case 2:
     case 3:
         for (i = 0; i < 0xb; i++)
-            pState[i] = pMsg[i + 8];
-        GameInfo_SetConfiguredGameMode(pMsg[4]);
+            pState[i] = pSetup->stageStates[i];
+        GameInfo_SetConfiguredGameMode(pSetup->gameMode);
         switch (CGameInfo::GetConfiguredGameMode()) {
         case 8:
-            RallyData_SetCountrySelectionBits((*(unsigned int *)(pMsg + 4) >> 8) & 0xf);
+            RallyData_SetCountrySelectionBits(pSetup->country);
             for (i = 0; i < 0xb; i++) {
                 if ((pState[i] & 1) != 0 && ((pState[i] & 2) == 0 || CGameInfo::IsRecordFlagSet(0xd))
                     && (pState[i] & 4) == 0) {
@@ -1865,26 +1877,26 @@ void FrontendNetwork_HandleHostMessage(DPID *pFrom, BYTE *pMsg)
             break;
         case 9:
         case 10:
-            RallyData_SetCountrySelectionBits((*(unsigned int *)(pMsg + 4) >> 8) & 0xf);
-            RallyData_SetStageSelectionAndRefreshFlags((*(unsigned int *)(pMsg + 4) >> 0xc) & 0xf);
+            RallyData_SetCountrySelectionBits(pSetup->country);
+            RallyData_SetStageSelectionAndRefreshFlags(pSetup->stage);
             break;
         case 0xb:
         case 0xc:
             RallyData_SetStageSelectionAndRefreshFlags(0);
-            RallyData_SetSelectionBits10To11((*(unsigned int *)(pMsg + 4) >> 0x10) & 3);
-            RallyData_SetSelectionBits12To13((*(unsigned int *)(pMsg + 4) >> 0x12) & 3);
-            RallyData_SetSelectionBits16To19((*(unsigned int *)(pMsg + 4) >> 0x14) & 0xf);
+            RallyData_SetSelectionBits10To11(pSetup->rallyA);
+            RallyData_SetSelectionBits12To13(pSetup->rallyB);
+            RallyData_SetSelectionBits16To19(pSetup->rallyC);
             break;
         }
-        GameInfo_SetSessionField397C(*(unsigned int *)(pMsg + 0x14));
+        GameInfo_SetSessionField397C(pSetup->field_0x14);
         pItem = Menu_GetItem(FrontendMenu_GetNetworkSessionSetup(), 1);
         RallyData_SetDriverCategoryOption(0, g_filteredRouteIds[pItem->max]);
         pItem = Menu_GetItem(FrontendMenu_GetNetworkSessionSetup(), 2);
         FrontendChampionship_SetDriverEntryFlag(0, pItem->max);
-        FrontendNetwork_ReadSetupPacket((BYTE *)pMsg);
-        *(unsigned int *)(g_unk0x00818ef8 + 0x14) = CMain::GetFrameDelta();
+        FrontendNetwork_ReadSetupPacket(pSetup);
+        g_hostSetupAppliedTime = CMain::GetFrameDelta();
         NetPlayers_ResetStageState(0, 1);
-        if (pMsg[0] == 2) {
+        if (pSetup->type == 2) {
             Menu_SetNextAction(FrontendMenu_GetRallyStartTransition());
             NetPlayers_ResetRaceReadyAndTimeState(1, 1);
             NetPlayers_ResetBestTimes();
@@ -1981,7 +1993,7 @@ void FrontendMenu_UpdateNetworkSessionBrowser(Menu *pMenu)
         g_pGraphics->pDD7->FlipToGDISurface();
         ShowCursor(1);
     }
-    status = CGameInfo::EnumerateNetworkSessionsWithUserData(g_unk0x00818ef8);
+    status = CGameInfo::EnumerateNetworkSessionsWithUserData(g_sessionPassword);
     if (g_unk0x00818d04 == 0) {
         ShowCursor(0);
         ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
@@ -2209,8 +2221,8 @@ void FrontendMenu_EnterNetworkSessionDetails(Menu *pMenu, char param)
     if (Menu_GetItem(pMenu, 1)->max >= Menu_GetItem(pMenu, 1)->min)
         Menu_GetItem(pMenu, 1)->max = Menu_GetItem(pMenu, 1)->min - 1;
     if (param == 0) {
-        strcpy(g_unk0x00818ebc, CGameInfo::GetSessionName());
-        strcpy(g_unk0x00818ef8, CGameInfo::GetSessionPassword());
+        strcpy(g_sessionName, CGameInfo::GetSessionName());
+        strcpy(g_sessionPassword, CGameInfo::GetSessionPassword());
         Menu_GetItem(pMenu, 2)->max = GameInfo_GetSessionField398C() + 1;
         Menu_GetItem(pMenu, 3)->max = GameInfo_GetSessionField3990() - 2;
     }
@@ -2222,7 +2234,7 @@ void FrontendMenu_EnterNetworkSessionDetails(Menu *pMenu, char param)
 // FUNCTION: CMR2 0x004ed340
 void FrontendNetwork_ApplyHostSessionDetails(Menu *pMenu, int param)
 {
-    if (strcmp(CMain::m_logFileBlankLine, g_unk0x00818ebc) == 0) {
+    if (strcmp(CMain::m_logFileBlankLine, g_sessionName) == 0) {
         pMenu->cursor = 0;
         Menu_PlaySoundId(3);
         return;
@@ -2231,10 +2243,10 @@ void FrontendNetwork_ApplyHostSessionDetails(Menu *pMenu, int param)
     GameInfo_SetSessionField398C(Menu_GetItem(pMenu, 2)->max - 1);
     if (Session_SetMaxPlayers(Menu_GetItem(pMenu, 3)->max + 2)) {
         GameInfo_SetSessionField3990(Menu_GetItem(pMenu, 3)->max + 2);
-        Session_SetName(g_unk0x00818ebc);
-        CGameInfo::SetSessionName(g_unk0x00818ebc);
-        Session_SetPassword(g_unk0x00818ef8);
-        CGameInfo::SetSessionPassword(g_unk0x00818ef8);
+        Session_SetName(g_sessionName);
+        CGameInfo::SetSessionName(g_sessionName);
+        Session_SetPassword(g_sessionPassword);
+        CGameInfo::SetSessionPassword(g_sessionPassword);
         GameInfo_SetConfiguredGameMode(Menu_GetItem(pMenu, 1)->max + 8);
         Session_SetUserValue(0, Menu_GetItem(pMenu, 1)->max + 8);
         Session_SetOpen(1);
@@ -2329,10 +2341,10 @@ void FrontendNetwork_StartHostRace(Menu *pMenu, int param)
     if (Network_GetSessionStateFlag()) {
         Session_SetOpen(0);
         for (i = 0; i < 0xb; i++) {
-            packet.field_0x8[i] = CGameInfo::GetStageOptionState((BYTE)RallyDataCountryIndex(), i);
+            packet.stageStates[i] = CGameInfo::GetStageOptionState((BYTE)RallyDataCountryIndex(), i);
             if (CGameInfo::IsRecordFlagSet(0xd))
-                packet.field_0x8[i] &= 0xfd;
-            pState[i] = packet.field_0x8[i];
+                packet.stageStates[i] &= 0xfd;
+            pState[i] = packet.stageStates[i];
         }
         if (CGameInfo::GetConfiguredGameMode() == 8) {
             for (i = 0; i < 0xb; i++) {
@@ -2364,7 +2376,7 @@ void FrontendNetwork_StartHostRace(Menu *pMenu, int param)
             break;
         }
         packet.field_0x14 = GameInfo_GetSessionField397C();
-        FrontendNetwork_WriteSetupPacket((BYTE *)&packet);
+        FrontendNetwork_WriteSetupPacket(&packet);
         Network_SendPlayerMessage(0, 1, &packet, 0x1c4);
         NetPlayers_ResetRaceReadyAndTimeState(1, 1);
         NetPlayers_ResetBestTimes();
@@ -8562,9 +8574,9 @@ void FrontendMenu_UpdateNetworkSessionDetails(Menu *pMenu)
         Menu_GetItem(pMenu, 3)->max = Menu_GetItem(pMenu, 3)->min - 1;
     value = pMenu->items[pMenu->cursor].value;
     if (value == 0)
-        g_unk0x00818cdc = (char *)g_unk0x00818ebc;
+        g_unk0x00818cdc = (char *)g_sessionName;
     else if (value == 4)
-        g_unk0x00818cdc = (char *)g_unk0x00818ef8;
+        g_unk0x00818cdc = (char *)g_sessionPassword;
     if (value == 0 || value == 4) {
         strcpy(CFrontend::m_stringDest, g_unk0x00818cdc);
         if (Input_PopQueuedCharacter(&key) != 0) {
@@ -11232,7 +11244,7 @@ void FrontendMenu_DrawNetworkSessionDetails(Menu *pMenu)
             switch (pItem->value) {
             case 0:
                 sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x1bf),
-                        g_unk0x00818ebc);
+                        g_sessionName);
                 blink = (int)CMain::GetFrameDelta() % 20;
                 if (pMenu->cursor == i && blink > 9)
                     strcat(CFrontend::m_stringDest, g_strTextCursor);
@@ -11263,7 +11275,7 @@ void FrontendMenu_DrawNetworkSessionDetails(Menu *pMenu)
                 break;
             case 4:
                 sprintf(CFrontend::m_stringDest, g_strLabelSpacedText, CFrontend::GetTextString(0x1c3),
-                        g_unk0x00818ef8);
+                        g_sessionPassword);
                 blink = (int)CMain::GetFrameDelta() % 20;
                 if (pMenu->cursor == i && blink > 9)
                     strcat(CFrontend::m_stringDest, g_strTextCursor);
