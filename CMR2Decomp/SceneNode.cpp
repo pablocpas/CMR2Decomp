@@ -977,7 +977,7 @@ Mesh **g_sceneShadowMeshes;         // shadow mesh of each sector
 // GLOBAL: CMR2 0x006dfdcc
 unsigned short *g_sceneLightData;   // lighting data of the stage
 // GLOBAL: CMR2 0x006dfdbc
-BYTE *g_sceneLightZones;            // 0x14 bytes each
+LightZone *g_sceneLightZones;
 // GLOBAL: CMR2 0x006dfdfc
 int *g_sceneSectorFlags;            // per sector
 // GLOBAL: CMR2 0x006e0204
@@ -1080,7 +1080,7 @@ void Scene_RelightSector(int sector)
         (pShadow = g_sceneShadowMeshes[sector]) != NULL) {
         pLevel = pShadow->pLightLevels;
         if (g_unk0x005210c0 != 0) {
-            pZone = &((LightZone *)g_sceneLightZones)[g_sceneSectorZone[sector]];
+            pZone = &g_sceneLightZones[g_sceneSectorZone[sector]];
             pVertex = (BYTE *)pShadow->pVertexData;
             pZoneVertex = &pZone->pItems->vertexCount;
             for (k = 0; k < pZone->itemCount; k++) {
@@ -1286,11 +1286,10 @@ char g_strShadowMeshName[] = "SHAD%d";
 // FUNCTION: CMR2 0x004b4aa0
 void Scene_LoadLighting(int *pData)
 {
-    BYTE *pZone;
     BYTE *p;
-    int *pHeader;
-    int *pItem;
-    int *pObj;
+    LightZoneMesh *pHeader;
+    LightZoneItem *pItem;
+    StageObject *pObj;
     Mesh *pMesh;
     FixVector *pBasis;
     unsigned short *pCursor;
@@ -1299,9 +1298,6 @@ void Scene_LoadLighting(int *pData)
     unsigned int next;
     int zone;
     int item;
-    int off;
-    int itemOff;
-    int zoneOff;
     int d;
     int i;
     unsigned int flags;
@@ -1340,95 +1336,95 @@ void Scene_LoadLighting(int *pData)
     g_sceneLightBasisF[7] = X87S_MUL(X87S_FILD(float, g_sceneLightBasis[2].y), (float)CGraphics::m_oneOver65536);
     g_sceneLightBasisF[8] = X87S_MUL(X87S_FILD(float, g_sceneLightBasis[2].z), (float)CGraphics::m_oneOver65536);
 
-    // Zones, followed by their items, headers, vertices, triangles and
-    // vertex heights.
+    // Zones, followed by their items, meshes, vertices, triangles and
+    // vertex levels.
     g_sceneLightData = pCursor;
-    g_sceneLightZones = (BYTE *)(pCursor + 1);
-    p = g_sceneLightZones + *g_sceneLightData * 0x14;
-    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
-        *(BYTE **)(g_sceneLightZones + off + 0xc) = p;
-        p += *(unsigned short *)(g_sceneLightZones + off + 2) * 0x30;
+    g_sceneLightZones = (LightZone *)(pCursor + 1);
+    p = (BYTE *)(g_sceneLightZones + *g_sceneLightData);
+    for (zone = 0; zone < *g_sceneLightData; zone++) {
+        g_sceneLightZones[zone].pItems = (LightZoneItem *)p;
+        p += g_sceneLightZones[zone].itemCount * sizeof(LightZoneItem);
     }
-    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
-        *(BYTE **)(g_sceneLightZones + off + 0x10) = p;
-        p += 0x14;
+    for (zone = 0; zone < *g_sceneLightData; zone++) {
+        g_sceneLightZones[zone].pMesh = (LightZoneMesh *)p;
+        p += sizeof(LightZoneMesh);
     }
-    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
-        pHeader = *(int **)(g_sceneLightZones + off + 0x10);
-        pHeader[2] = (int)p;
-        p += pHeader[1] * 0x30;
+    for (zone = 0; zone < *g_sceneLightData; zone++) {
+        pHeader = g_sceneLightZones[zone].pMesh;
+        pHeader->pVertices = (MeshVertexF *)p;
+        p += pHeader->vertexCount * 0x30;
     }
-    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
-        pHeader = *(int **)(g_sceneLightZones + off + 0x10);
-        pHeader[3] = (int)p;
-        p += pHeader[0] * 0x4c;
+    for (zone = 0; zone < *g_sceneLightData; zone++) {
+        pHeader = g_sceneLightZones[zone].pMesh;
+        pHeader->pTriangles = (MeshTriangle *)p;
+        p += pHeader->triangleCount * sizeof(MeshTriangle);
     }
-    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
-        pHeader = *(int **)(g_sceneLightZones + off + 0x10);
-        pHeader[4] = (int)p;
-        p += pHeader[1] * 4;
+    for (zone = 0; zone < *g_sceneLightData; zone++) {
+        pHeader = g_sceneLightZones[zone].pMesh;
+        pHeader->pLevels = (int *)p;
+        p += pHeader->vertexCount * sizeof(int);
     }
 
     // Sector of each zone.
-    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
+    for (zone = 0; zone < *g_sceneLightData; zone++) {
         found = 0xffffffff;
         s = 0;
         if (g_sectorCount == 0) {
-            *(short *)(g_sceneLightZones + off) = -1;
+            g_sceneLightZones[zone].sector = -1;
             continue;
         }
         do {
             next = s;
-            if (g_sectors[s]->x == *(int *)(g_sceneLightZones + off + 4) &&
-                g_sectors[s]->z == *(int *)(g_sceneLightZones + off + 8)) {
+            if (g_sectors[s]->x == g_sceneLightZones[zone].x &&
+                g_sectors[s]->z == g_sceneLightZones[zone].z) {
                 found = s;
                 next = g_sectorCount;
             }
             s = next + 1;
         } while (s < (unsigned int)g_sectorCount);
         if ((int)found >= 0)
-            *(short *)(g_sceneLightZones + off) = (short)found;
+            g_sceneLightZones[zone].sector = (short)found;
         else
-            *(short *)(g_sceneLightZones + off) = -1;
+            g_sceneLightZones[zone].sector = -1;
     }
 
     // Scene object under each item.
-    for (zone = 0, zoneOff = 0; zone < *g_sceneLightData; zone++, zoneOff += 0x14) {
-        for (item = 0, itemOff = 0; item < *(unsigned short *)(g_sceneLightZones + zoneOff + 2);
-             item++, itemOff += 0x30) {
-            pItem = (int *)(*(BYTE **)(g_sceneLightZones + zoneOff + 0xc) + itemOff);
+    for (zone = 0; zone < *g_sceneLightData; zone++) {
+        for (item = 0; item < g_sceneLightZones[zone].itemCount; item++) {
+            pItem = &g_sceneLightZones[zone].pItems[item];
             for (s = 0; s < (unsigned int)g_sectorCount; s++) {
                 done = FALSE;
-                pObj = (int *)g_sectors[s]->pObjects;
+                pObj = g_sectors[s]->pObjects;
                 if (pObj == NULL)
                     continue;
                 do {
                     if (done)
                         break;
-                    d = pObj[0] - pItem[0];
+                    d = pObj->position.x - pItem->ownerX;
                     if (abs(d) < 0x28f) {
-                        d = pObj[2] - pItem[1];
+                        d = pObj->position.z - pItem->ownerZ;
                         if (FIX_ABS(d) < 0x28f) {
-                            pItem[0xb] = (int)pObj;
+                            pItem->pOwner = pObj;
                             done = TRUE;
                         }
                     }
-                    pObj = (int *)pObj[0x26];
+                    pObj = pObj->pNext;
                 } while (pObj != NULL);
                 if (done)
                     s = g_sectorCount;
             }
-            pItem[8] = 0x10000;
+            pItem->intensity = 0x10000;
         }
     }
 
-    // Each shadow triangle takes the texture of its item's object.
-    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
-        pHeader = *(int **)(g_sceneLightZones + off + 0x10);
-        for (i = 0, itemOff = 0; i < pHeader[0]; i++, itemOff += 0x4c) {
-            int *pTri = (int *)(pHeader[3] + 4 + itemOff);
-            int *pOwner = (int *)(*(BYTE **)(g_sceneLightZones + off + 0xc) + *pTri * 0x30);
-            *pTri = *(int *)(*(BYTE **)(*(BYTE **)(pOwner[0xb] + 0xc) + 0x24) + 4);
+    // Each shadow triangle takes the texture of its item's object; until then
+    // its texture field holds the index of the item.
+    for (zone = 0; zone < *g_sceneLightData; zone++) {
+        pHeader = g_sceneLightZones[zone].pMesh;
+        for (i = 0; i < pHeader->triangleCount; i++) {
+            MeshTriangle *pTri = &pHeader->pTriangles[i];
+            LightZoneItem *pOwner = &g_sceneLightZones[zone].pItems[pTri->textureIndex];
+            pTri->textureIndex = pOwner->pOwner->pMesh->pTriangles[0].textureIndex;
         }
     }
 
@@ -1444,30 +1440,30 @@ void Scene_LoadLighting(int *pData)
         } while (s < (unsigned int)g_sectorCount);
     }
     // The original builds the flags from an uninitialised local that shares its
-    // stack slot with zoneOff of the item loop above (zone count * 0x14).
-    flags = (zoneOff & 0xffffe02d) | 0x402d;
-    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
-        if (*(short *)(g_sceneLightZones + off) == -1)
+    // stack slot with the byte offset of the item loop's zone (zone count * 0x14).
+    flags = ((*g_sceneLightData * sizeof(LightZone)) & 0xffffe02d) | 0x402d;
+    for (zone = 0; zone < *g_sceneLightData; zone++) {
+        if (g_sceneLightZones[zone].sector == -1)
             continue;
-        g_sceneShadowMeshes[*(unsigned short *)(g_sceneLightZones + off)] = Mesh_Alloc();
-        g_sceneSectorZone[*(unsigned short *)(g_sceneLightZones + off)] = (short)zone;
-        pMesh = g_sceneShadowMeshes[*(unsigned short *)(g_sceneLightZones + off)];
+        g_sceneShadowMeshes[(unsigned short)g_sceneLightZones[zone].sector] = Mesh_Alloc();
+        g_sceneSectorZone[(unsigned short)g_sceneLightZones[zone].sector] = (short)zone;
+        pMesh = g_sceneShadowMeshes[(unsigned short)g_sceneLightZones[zone].sector];
         pMesh->field_0x108[0] = 0xff;
         pMesh->field_0x108[1] = 0xff;
         pMesh->field_0x108[2] = 0xff;
         // Clears the tail of the record, pCollisionRecords to the end.
         for (i = offsetof(Mesh, pCollisionRecords); i < sizeof(Mesh); i++)
             ((BYTE *)pMesh)[i] = 0;
-        pHeader = *(int **)(g_sceneLightZones + off + 0x10);
+        pHeader = g_sceneLightZones[zone].pMesh;
         for (i = 0xc; i != 0; i--)
             sprintf((char *)pMesh, g_strShadowMeshName, zone);
-        pMesh->field_0x10 = pHeader[1];
-        pMesh->pVertexData = (DWORD *)pHeader[2];
-        pMesh->triangleCount = pHeader[0];
-        pMesh->pTriangles = (MeshTriangle *)pHeader[3];
+        pMesh->field_0x10 = pHeader->vertexCount;
+        pMesh->pVertexData = (DWORD *)pHeader->pVertices;
+        pMesh->triangleCount = pHeader->triangleCount;
+        pMesh->pTriangles = pHeader->pTriangles;
         pMesh->pField20 = NULL;
         pMesh->field_0x104[0] = 0;
-        pMesh->pLightLevels = (int *)pHeader[4];
+        pMesh->pLightLevels = pHeader->pLevels;
         pMesh->flags = flags;
         pMesh->field_0x2c = 0;
         Mesh_BuildParts(pMesh);
@@ -2072,7 +2068,7 @@ void Scene_CollectNearbyLightZones(SceneNode *pNode, int radius, short *pSector)
                     if ((unsigned int)s < (unsigned int)g_sectorCount && s >= 0) {
                         short zone = g_sceneSectorZone[s];
                         if (zone != -1) {
-                            pZone = &((LightZone *)g_sceneLightZones)[zone];
+                            pZone = &g_sceneLightZones[zone];
                             for (item = 0, itemOff = 0; item < pZone->itemCount;
                                  item++, itemOff += sizeof(LightZoneItem)) {
                                 pItem = (LightZoneItem *)((BYTE *)pZone->pItems + itemOff);

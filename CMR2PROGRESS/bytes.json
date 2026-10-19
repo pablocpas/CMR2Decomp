@@ -22105,9 +22105,9 @@
   },
   "0x4b4aa0": {
     "n": "Scene_LoadLighting",
-    "s": 0.47417840375586856,
+    "s": 0.5011655011655012,
     "x": false,
-    "fz": 0.8051643192488263,
+    "fz": 0.8368298368298368,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Scene_LoadLighting"

@@ -3442,7 +3442,7 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
 
 extern void *g_sceneType1Objects[60];
 extern int *g_sceneSectorFlags;
-extern BYTE *g_sceneLightZones;
+extern LightZone *g_sceneLightZones;
 extern short *g_sceneSectorZone;
 
 // Attenuates the light-zone vertices of a sector by D3D light `light` (by
@@ -3489,7 +3489,7 @@ int Scene_AttenuateSectorLight(int sector, int light)
     if (FIX_ABS(d.x) <= limit && FIX_ABS(d.z) <= limit)
         g_sceneSectorFlags[sector] = 1;
     if (g_sceneSectorFlags[sector] != 0) {
-        pZone = &((LightZone *)g_sceneLightZones)[g_sceneSectorZone[sector]];
+        pZone = &g_sceneLightZones[g_sceneSectorZone[sector]];
         pIntensity = &pZone->pItems->intensity;
         for (i = 0; i < pZone->itemCount; i++) {
             old = *pIntensity;
@@ -3511,7 +3511,7 @@ int Scene_AttenuateSectorLight(int sector, int light)
             pIntensity += sizeof(LightZoneItem) / sizeof(int);
         }
     } else if (wasLit != 0) {
-        pZone = &((LightZone *)g_sceneLightZones)[g_sceneSectorZone[sector]];
+        pZone = &g_sceneLightZones[g_sceneSectorZone[sector]];
         if (pZone->itemCount != 0) {
             pIntensity = &pZone->pItems->intensity;
             for (i = 0; i < pZone->itemCount; i++) {

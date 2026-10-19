@@ -21,7 +21,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4a91b0	CGraphics::EnumTextureFormatsCallback	Graphics.cpp	1294	0.48313090418353577	0.4372574385510996
 0x45c820	WheelSplash_Update	CarEffects.cpp	2496	0.4838921761998685	0.48104575163398694
 0x46ea80	CarSkid_EmitSlippingWheelEffects	StageObjects.cpp	438	0.4934210526315789	0.5048543689320388
-0x4b4aa0	Scene_LoadLighting	SceneNode.cpp	1538	0.49391727493917276	0.47417840375586856
+0x4b4aa0	Scene_LoadLighting	SceneNode.cpp	1538	0.49459783913565425	0.5011655011655012
 0x4b5770	Scene_ProjectCasterIntoLightZone	SceneNode.cpp	1763	0.5005537098560354	0.4449244060475162
 0x4b6ca0	Scene_AttenuateSectorLight	Graphics.cpp	589	0.5013774104683195	0.46236559139784944
 0x504eb0	RallyData_DrawClippedHudRectangleEdges	RallyData.cpp	776	0.511340206185567	0.5051334702258727
@@ -242,13 +242,13 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4a28d0	CSound::OpenStreamingMusicFile	Sound.cpp	333	0.8252427184466019	0.7358490566037735
 0x4a0570	Menu_Update	Menu.cpp	1363	0.8252631578947368	0.7190775681341719
 0x408600	RallyData_SetDriverCategoryOption	RallyData.cpp	172	0.8269230769230769	0.8269230769230769
+0x464960	StageObject_PositionRearViewLightNodes	StageObjects.cpp	391	0.8292682926829268	0.8286852589641435
 0x4f4b90	FrontendText_LoadRegionLanguages	GameInfo.cpp	281	0.8304093567251462	0.8176100628930818
 0x505b40	OptionMenu_AnimateSelectedPanel	GameInfo.cpp	713	0.8340425531914893	0.7295597484276729
 0x413e00	RallyData_DrawRacePositionMarker	RallyData.cpp	473	0.8354430379746836	0.8354430379746836
 0x401b60	InRaceMenu_DrawHeaderBar	GameInfo.cpp	436	0.8356164383561644	0.8413793103448276
 0x4878a0	Collision_TestCarAgainstSectorObjects	StageObjects.cpp	732	0.8370044052863436	0.7868131868131868
 0x413330	RallyData_RecordPassedSplit	RallyData.cpp	490	0.837037037037037	0.7867647058823529
-0x464960	StageObject_PositionRearViewLightNodes	StageObjects.cpp	391	0.8373983739837398	0.8286852589641435
 0x472cb0	Knockout_ApplyCarGroundMaterials	StageObjects.cpp	317	0.8376068376068376	0.8017241379310345
 0x4bdd30	CGraphics::ProbeDisplayDriverCapabilities	Graphics.cpp	239	0.8378378378378378	0.8378378378378378
 0x460390	StageWeather_DrawViewPrecipitation	StageObjects.cpp	1691	0.8404669260700389	0.7934044616876819
