@@ -41,3 +41,4 @@ address	old_name	new_name	evidence
 0x00541cd8	g_unk0x00541cd8	g_stageRecordTime	Only store: rallyStageRecordTimes[stage] time bits when the stage results menus are set up.
 0x00539ed0	g_unk0x00539ed0	g_netLastSentSplit	Set to the split index by the sender of type-8 split time messages (NetRace_SendSplitTime), -1 on reset.
 0x00539dcc	g_unk0x00539dcc	g_netLastSentStageIndex	Set to the index by the sender of type-9 stage time messages (NetRace_SendStageTime), -1 on reset.
+0x0058e4a4	g_unk0x0058e4a4	g_aiRouteNodes	Set to the 370 16-byte node records after the AI networks' activation buffer (StageTiming_RelocateCarRecordRoutePoints gets the data after them); read per route node for its key and wall clearances.

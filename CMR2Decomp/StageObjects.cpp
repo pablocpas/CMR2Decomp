@@ -874,14 +874,23 @@ CMR2_LAYOUT_CHECK(AIRouteTablesSize, sizeof(AIRouteTables) == 0x110);
 
 // GLOBAL: CMR2 0x0058e394
 AIRouteTables g_aiRouteTables;
+// ON-DISK: one record per route node (370 of them) in the AI archive, after
+// the networks' activation buffer and before the reference routes.
+struct AIRouteNodeInfo {
+    BYTE field_0x0;
+    BYTE pad_0x1[3];
+    int key;                // 0x4 matched against the route tables' entries
+    signed char wall[8];    // 0x8 clearance to the walls: 9, 10 on one side,
+                            //     0xc..0xe on the other (StageObject offsets)
+};
 // GLOBAL: CMR2 0x0058e4a4
-BYTE *g_unk0x0058e4a4;
+AIRouteNodeInfo *g_aiRouteNodes;
 
 // Looks up the pair of values that table `table` gives for the key of entry `entry`.
 // FUNCTION: CMR2 0x0047cbc0
 void StageObject_LookupKeyedValuePair(int unused, int table, int entry, int *pOut1, int *pOut2)
 {
-    int key = *(int *)(entry * 0x10 + 4 + g_unk0x0058e4a4);
+    int key = g_aiRouteNodes[entry].key;
     BYTE *p = g_aiRouteTables.routes[table];
     int i;
 
@@ -3549,7 +3558,7 @@ unsigned int AI_SelectCarsWithinOvertakeWindow(int index, BYTE *pOut, int *pCoun
         pOut[i] = (BYTE)active[i];
         *pCount += active[i];
     }
-    return g_unk0x0058e4a4[referenceTime * 0x10];
+    return g_aiRouteNodes[referenceTime].field_0x0;
 }
 
 void Graphics_SetFlareStateValue(int value);
@@ -10670,7 +10679,7 @@ unsigned int AI_SelectWallCollisionResponse(int *pState)
     int index;
     char farLimit;
 
-#define WALL_DISTANCE(i) ((int)FTOI(__int64, X87S_MUL((double)(int)(signed char)g_unk0x0058e4a4[index + (i)], g_minus65536)))
+#define WALL_DISTANCE(i) ((int)FTOI(__int64, X87S_MUL((double)(int)g_aiRouteNodes[index].wall[(i) - 8], g_minus65536)))
 
     side = 0;
     if (pState[0x17] < -0xa0000)
@@ -10680,9 +10689,9 @@ unsigned int AI_SelectWallCollisionResponse(int *pState)
 
     lateral = pState[0xd];
     if (lateral < 0) {
-        index = pState[0x15] * 0x10;
+        index = pState[0x15];
         nearGap = lateral - WALL_DISTANCE(0xd);
-        farLimit = g_unk0x0058e4a4[index + 0xe];
+        farLimit = g_aiRouteNodes[index].wall[0xe - 8];
         farGap = lateral - WALL_DISTANCE(0xe);
         if (farGap < 0x40000 && farLimit <= 0x10)
             gap = farGap;
@@ -10717,10 +10726,10 @@ unsigned int AI_SelectWallCollisionResponse(int *pState)
                 return 3;
         }
     } else {
-        index = pState[0x15] * 0x10;
+        index = pState[0x15];
         lateral = -lateral;
         nearGap = lateral - WALL_DISTANCE(9);
-        farLimit = g_unk0x0058e4a4[index + 10];
+        farLimit = g_aiRouteNodes[index].wall[10 - 8];
         farGap = lateral - WALL_DISTANCE(10);
         gap = 0;
         if (farGap < 0x40000 && farLimit <= 0x10)
@@ -10807,8 +10816,7 @@ int AI_FindClosestCarInAngleWindow(int param_1, int *param_2, int param_3, int *
     for (i = 0; i < (signed char)g_unk0x0058e0b0[0]; i++) {
         if (flags[i] != 0) {
             angle = StageObject_WrapFixedDegreeAngle(
-                base - StageObject_Atan2Degrees(*(int *)((BYTE *)cars[i] + 0x368),
-                                                *(int *)((BYTE *)cars[i] + 0x360)));
+                base - StageObject_Atan2Degrees(cars[i]->right.z, cars[i]->right.x));
             if (angle >= -0x5a0000 && angle <= 0x5a0000)
                 maxAhead[i] = 5;
             else
@@ -13123,7 +13131,7 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
     xRatio = 0;
     yRatio = 0;
     axis = -1;
-    StageObject_QueueViewLensFlare(((int *)g_collisionFace), &g_collisionCar->right.x,
+    StageObject_QueueViewLensFlare((int *)g_collisionFace, &g_collisionCar->right.x,
                  &g_collisionCar->position.x,
                  &g_collisionCar->corners[0]);
     // Offset of the tracked point from the car, flattened to the ground plane.
@@ -13131,9 +13139,9 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
     g_unk0x00591968.y = param_1[1] - g_collisionCar->position.y;
     g_unk0x00591968.z = param_1[2] - g_collisionCar->position.z;
     g_unk0x00591968.y = 0;
-    posDot0 = FixVecDot(&g_unk0x00591968, (FixVector *)(((int *)g_collisionFace) + 4));
-    posDot1 = FixVecDot(&g_unk0x00591968, (FixVector *)(((int *)g_collisionFace) + 7));
-    if (FIX_ABS(posDot0) <= ((int *)g_collisionFace)[0] && FIX_ABS(posDot1) <= ((int *)g_collisionFace)[1]) {
+    posDot0 = FixVecDot(&g_unk0x00591968, &g_collisionFace->axisA);
+    posDot1 = FixVecDot(&g_unk0x00591968, &g_collisionFace->axisB);
+    if (FIX_ABS(posDot0) <= g_collisionFace->halfWidth && FIX_ABS(posDot1) <= g_collisionFace->halfLength) {
         g_unk0x00591950.x = param_1[0] - g_collisionCar->positionPrev.x;
         g_unk0x00591950.y = param_1[1] - g_collisionCar->positionPrev.y;
         g_unk0x00591950.z = param_1[2] - g_collisionCar->positionPrev.z;
@@ -13143,23 +13151,23 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
             FixVecScaleRecip(&g_unk0x00591920, &g_unk0x00591950, len);
             // Fraction of the move left before the car's box leaves each face axis; the
             // smallest of the two is the axis the car is pushed back along.
-            dot0 = FixVecDot(&g_unk0x00591920, (FixVector *)(((int *)g_collisionFace) + 4));
-            dot1 = FixVecDot(&g_unk0x00591920, (FixVector *)(((int *)g_collisionFace) + 7));
+            dot0 = FixVecDot(&g_unk0x00591920, &g_collisionFace->axisA);
+            dot1 = FixVecDot(&g_unk0x00591920, &g_collisionFace->axisB);
             haveX = 0;
             haveY = 0;
             bestRatio = 0x7d000000;
             if (dot0 > 0x41) {
-                xRatio = FixDiv(((int *)g_collisionFace)[0] - posDot0, dot0);
+                xRatio = FixDiv(g_collisionFace->halfWidth - posDot0, dot0);
                 haveX = 1;
             } else if (dot0 < -0x41) {
-                xRatio = FixDiv(FIX_ABS(((int *)g_collisionFace)[0] + posDot0), -dot0);
+                xRatio = FixDiv(FIX_ABS(g_collisionFace->halfWidth + posDot0), -dot0);
                 haveX = 1;
             }
             if (dot1 > 0x41) {
-                yRatio = FixDiv(((int *)g_collisionFace)[1] - posDot1, dot1);
+                yRatio = FixDiv(g_collisionFace->halfLength - posDot1, dot1);
                 haveY = 1;
             } else if (dot1 < -0x41) {
-                yRatio = FixDiv(FIX_ABS(((int *)g_collisionFace)[1] + posDot1), -dot1);
+                yRatio = FixDiv(FIX_ABS(g_collisionFace->halfLength + posDot1), -dot1);
                 haveY = 1;
             }
             if (haveX && xRatio < bestRatio) {
@@ -13181,9 +13189,9 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
                 g_collisionCar->corners[i].z += g_unk0x00591900.z;
             }
             for (i = 0; i < 4; i++) {
-                ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].x += g_unk0x00591900.x;
-                ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].y += g_unk0x00591900.y;
-                ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].z += g_unk0x00591900.z;
+                g_collisionFace->points[i].x += g_unk0x00591900.x;
+                g_collisionFace->points[i].y += g_unk0x00591900.y;
+                g_collisionFace->points[i].z += g_unk0x00591900.z;
             }
             StageObject_ApplyRecursiveFrameDelta((BYTE)g_collisionCar->index, -1, (int *)&g_unk0x00591900, 0);
             // Surface descriptor of the tracked point: 0xff means there is no contact
@@ -13238,9 +13246,9 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
                 if (FixVecDot(&g_unk0x00591990, &g_collisionCar->velocity) > 0) {
                     // The contact axis picked above doubles as the bounce direction.
                     if (axis == 0)
-                        g_unk0x00591990 = *(FixVector *)((BYTE *)g_collisionFace + 0x10);
+                        g_unk0x00591990 = g_collisionFace->axisA;
                     else
-                        g_unk0x00591990 = *(FixVector *)((BYTE *)g_collisionFace + 0x1c);
+                        g_unk0x00591990 = g_collisionFace->axisB;
                     dot = FixVecDot(&g_collisionCar->velocity, &g_unk0x00591990);
                     impulse = -FixMul(dot, g_unk0x0051fb00[param_4] + 0x10000);
                     FixVecScale(&g_unk0x005918f0, &g_unk0x00591990, impulse);
@@ -13710,8 +13718,8 @@ void AI_UpdateRouteDrivingControls(Car *pCar, int car, int preview)
     StageObject_LookupKeyedValuePair(car, table, node, &variant, &modes[2]);
     *(unsigned int *)g_aiRouteTables.routes[table] |= 0xfffffffc;
     StageTiming_RecomputeCarSplitBarSamples(pCar, *(unsigned int *)g_aiRouteTables.routes[table], g_aiDriveState, variant);
-    ahead = -AI_INT(0x34) - (int)FTOI(__int64, X87S_MUL((double)*(signed char *)(g_unk0x0058e4a4 + node * 0x10 + 0xa), g_minus65536));
-    behind = AI_INT(0x34) - (int)FTOI(__int64, X87S_MUL((double)*(signed char *)(g_unk0x0058e4a4 + node * 0x10 + 0xe), g_minus65536));
+    ahead = -AI_INT(0x34) - (int)FTOI(__int64, X87S_MUL((double)g_aiRouteNodes[node].wall[0xa - 8], g_minus65536));
+    behind = AI_INT(0x34) - (int)FTOI(__int64, X87S_MUL((double)g_aiRouteNodes[node].wall[0xe - 8], g_minus65536));
     g_unk0x0058e230[car] = behind;
     if (ahead < behind)
         g_unk0x0058e230[car] = ahead;
@@ -14016,8 +14024,8 @@ BYTE *AI_LoadStageRouteTables(void)
         }
     }
     g_aiRouteTables.pActivation = (int *)p;
-    g_unk0x0058e4a4 = p + 0x100;
-    StageTiming_RelocateCarRecordRoutePoints(g_unk0x0058e4a4 + 0x1720, g_aiRouteTables.points, g_aiRouteTables.counts[0]);
+    g_aiRouteNodes = (AIRouteNodeInfo *)(p + 0x100);
+    StageTiming_RelocateCarRecordRoutePoints((BYTE *)(g_aiRouteNodes + 370), g_aiRouteTables.points, g_aiRouteTables.counts[0]);
     return pEnd;
 }
 #undef AI_INT
