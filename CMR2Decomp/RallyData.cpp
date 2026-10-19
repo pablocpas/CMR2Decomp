@@ -1846,12 +1846,10 @@ int *RallyData_GetDriverSettingPair(int index)
 {
     if ((BYTE)RallyData_GetFlag24()) {
         if ((BYTE)RallyData_GetSelectionFlag26())
-            g_unk0x0052ea60[1] = *(int *)((BYTE *)&g_knockout + 0xb8 +
-                                       (((RallyData_GetSelectionBits10To11() & 0xff) * 3 + (RallyData_GetSelectionBits12To13() & 0xff)) * 3 +
-                                        (CGameInfo::GetConfiguredDifficulty() & 0xff)) * 4);
+            g_unk0x0052ea60[1] = g_knockout.settingPairs[(RallyData_GetSelectionBits10To11() & 0xff) * 3 + (RallyData_GetSelectionBits12To13() & 0xff)]
+                                                     [CGameInfo::GetConfiguredDifficulty() & 0xff];
         else
-            g_unk0x0052ea60[1] = *(int *)((BYTE *)&g_knockout + 0xb8 +
-                                       ((RallyData_GetSelectionBits10To11() & 0xff) * 3 + (RallyData_GetSelectionBits12To13() & 0xff)) * 0xc);
+            g_unk0x0052ea60[1] = g_knockout.settingPairs[(RallyData_GetSelectionBits10To11() & 0xff) * 3 + (RallyData_GetSelectionBits12To13() & 0xff)][0];
         g_unk0x0052ea60[0] = g_unk0x0052ea60[1];
         return g_unk0x0052ea60;
     }

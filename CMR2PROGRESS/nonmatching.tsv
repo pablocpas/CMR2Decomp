@@ -334,7 +334,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47cd10	AI_FindClosestCarInAngleWindow	StageObjects.cpp	965	0.9063444108761329	0.790273556231003
 0x414ed0	RallyData_DrawSplitStandingsPanel	RallyData.cpp	1452	0.9081419624217119	0.86875
 0x463fe0	StageObject_RebuildCarLightMeshes	StageObjects.cpp	1026	0.9084967320261438	0.9084967320261438
-0x48a5f0	Collision_SeparateCarBoxes	Collision2D.cpp	2193	0.9085631349782293	0.9016751638747269
 0x4cf3f0	FrontendRecords_ResetEventPoints	Frontend.cpp	35	0.9090909090909091	0.9090909090909091
 0x4a24a0	Sound_BuildSlotLoopBuffer	Sound.cpp	326	0.9105691056910569	0.9105691056910569
 0x4373c0	Car_UpdateRollover	Car.cpp	2470	0.9112426035502958	0.8956007879185818
@@ -346,6 +345,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4a3650	Sprite_DrawLayer	Sprite.cpp	1503	0.9163879598662207	0.9242761692650334
 0x4e9f70	FrontendMenu_BuildPagesAndSelectInitial	FrontendScreens.cpp	1226	0.9169139465875371	0.8768
 0x40dfa0	RallyData_FillEventSlotSelections	RallyData.cpp	472	0.9172413793103448	0.9172413793103448
+0x48a5f0	Collision_SeparateCarBoxes	Collision2D.cpp	2193	0.9172714078374455	0.9104151493080845
 0x495f50	CarShadow_OffsetPointsTowardsCamera	CarPhysics.cpp	871	0.9173419773095624	0.8947368421052632
 0x48cc30	View_UpdateTracksideZoomAndShake	StageObjects.cpp	587	0.9178743961352657	0.9204819277108434
 0x466030	Replay_RestartGhostCar	StageObjects.cpp	66	0.918918918918919	0.9714285714285714

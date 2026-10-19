@@ -751,10 +751,10 @@ int Collision_SeparateCarBoxes(Car *param_1, Car *param_2)
                 (g_pContacts0x005915e0)->pArray[i].y += dy;
                 (g_pContacts0x005915e0)->pArray[i].z += dz;
             }
-            for (i = 0; i < 0x30; i += 0xc) {
-                *(int *)((BYTE *)g_pContacts0x005915e0 + i + 0x30) += dx;
-                *(int *)((BYTE *)g_pContacts0x005915e0 + i + 0x34) += dy;
-                *(int *)((BYTE *)g_pContacts0x005915e0 + i + 0x38) += dz;
+            for (i = 0; i < 4; i++) {
+                (g_pContacts0x005915e0)->points[i].x += dx;
+                (g_pContacts0x005915e0)->points[i].y += dy;
+                (g_pContacts0x005915e0)->points[i].z += dz;
             }
         }
         StageObject_ApplyRecursiveFrameDelta(param_1->index, param_2->index, (int *)&delta, 1);
@@ -772,10 +772,10 @@ int Collision_SeparateCarBoxes(Car *param_1, Car *param_2)
                 (g_pContacts0x00591394)->pArray[i].y += dy;
                 (g_pContacts0x00591394)->pArray[i].z += dz;
             }
-            for (i = 0; i < 0x30; i += 0xc) {
-                *(int *)((BYTE *)g_pContacts0x00591394 + i + 0x30) += dx;
-                *(int *)((BYTE *)g_pContacts0x00591394 + i + 0x34) += dy;
-                *(int *)((BYTE *)g_pContacts0x00591394 + i + 0x38) += dz;
+            for (i = 0; i < 4; i++) {
+                (g_pContacts0x00591394)->points[i].x += dx;
+                (g_pContacts0x00591394)->points[i].y += dy;
+                (g_pContacts0x00591394)->points[i].z += dz;
             }
         }
         StageObject_ApplyRecursiveFrameDelta(param_2->index, param_1->index, (int *)&delta, 1);

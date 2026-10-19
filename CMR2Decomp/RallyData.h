@@ -37,7 +37,9 @@ struct KnockoutTable {
     KnockoutMatch final;        // 0x52f2b8
     KnockoutMatch semis[2];     // 0x52f2c4
     KnockoutMatch quarters[4];  // 0x52f2dc
-    KnockoutMatch round1[16];   // 0x52f30c
+    KnockoutMatch round1[8];    // 0x52f30c
+    int settingPairs[9][3];     // 0x52f36c value of both settings of an arcade driver,
+                                //          per arcade * 3 + round and difficulty
 };
 
 struct Car;
