@@ -1274,25 +1274,43 @@ void CGraphics::SetSecondaryColourScale(BYTE param1)
         m_unk0x00520b38 = X87S_MUL((float)param1, m_oneOver128);
 }
 
+// Header of a .tga file (18 bytes).
+struct TGAHeader {
+    BYTE idLength;          // 0x00 bytes of image id after the header
+    BYTE colourMapType;     // 0x01
+    BYTE imageType;         // 0x02 2 = uncompressed true colour
+    BYTE colourMapSpec[5];  // 0x03
+    short xOrigin;          // 0x08
+    short yOrigin;          // 0x0a
+    unsigned short width;   // 0x0c
+    unsigned short height;  // 0x0e
+    BYTE bitsPerPixel;      // 0x10
+    BYTE descriptor;        // 0x11 bits 0..3 alpha bits, 4..5 origin
+};
+
+// Accepts an uncompressed 24-bit or 32-bit (8-bit alpha) TGA without colour
+// map, origin or right-to-left / top-down order, and describes its pixels.
 // FUNCTION: CMR2 0x004a6670
-TGAImageInfo *CGraphics::ParseTGAHeader(BYTE *pHeader)
+TGAImageInfo *CGraphics::ParseTGAHeader(BYTE *pData)
 {
-    if (pHeader == NULL || pHeader[1] != 0 || *(short *)(pHeader + 8) != 0 || *(short *)(pHeader + 10) != 0 ||
-        (pHeader[17] & 0x70) != 0 || pHeader[2] == 3 || pHeader[2] != 2)
+    TGAHeader *pHeader = (TGAHeader *)pData;
+
+    if (pHeader == NULL || pHeader->colourMapType != 0 || pHeader->xOrigin != 0 || pHeader->yOrigin != 0 ||
+        (pHeader->descriptor & 0x70) != 0 || pHeader->imageType == 3 || pHeader->imageType != 2)
         return NULL;
 
-    if (pHeader[16] == 24) {
+    if (pHeader->bitsPerPixel == 24) {
         m_tgaImageInfo.bytesPerPixel = 3;
     } else {
-        if (pHeader[16] != 32)
+        if (pHeader->bitsPerPixel != 32)
             return NULL;
-        if ((pHeader[17] & 0xf) != 8)
+        if ((pHeader->descriptor & 0xf) != 8)
             return NULL;
         m_tgaImageInfo.bytesPerPixel = 4;
     }
-    m_tgaImageInfo.width = *(unsigned short *)(pHeader + 12);
-    m_tgaImageInfo.height = *(unsigned short *)(pHeader + 14);
-    m_tgaImageInfo.pixels = pHeader + pHeader[0] + 18;
+    m_tgaImageInfo.width = pHeader->width;
+    m_tgaImageInfo.height = pHeader->height;
+    m_tgaImageInfo.pixels = pData + pHeader->idLength + sizeof(TGAHeader);
     return &m_tgaImageInfo;
 }
 

@@ -381,15 +381,8 @@ BYTE *FrontendRecords_GetChampionshipRecordText(int index)
 ControllerData g_controlsCopy[6];
 
 // Calibration of one axis as shown by the controls menu.
-struct AxisBinding {
-    int field_0x0;
-    int field_0x4;
-    int deadzone;       // 0x8  0..10000
-    int saturation;     // 0xc  0..10000
-    int position;       // 0x10 16.16, -1..1
-};
 // GLOBAL: CMR2 0x0082a5e8
-AxisBinding g_axisBindings[8];
+JoystickBinding g_axisBindings[8];
 
 void FrontendControls_ClearDuplicateBinding(ControllerData *p, int index);
 void Input_GetLastKeyName(LPSTR pName, unsigned int size);
@@ -468,7 +461,7 @@ void Input_ClearKeyPressQueue(void);
 // FUNCTION: CMR2 0x004fbec0
 void FrontendControls_BeginBindingCapture(Menu *pMenu, int param)
 {
-    BYTE *pDevice;
+    DeviceInfo *pDevice;
     int *pOut;
     int i;
 
@@ -478,13 +471,13 @@ void FrontendControls_BeginBindingCapture(Menu *pMenu, int param)
     Input_TranslatePedalsToMenuKeys();
     g_unk0x0082a7e0 = CInput::GetFirstPressedKey();
     Input_ClearKeyPressQueue();
-    pDevice = (BYTE *)CInput::GetAvailableDeviceRecord(g_controlsDeviceSelection.slots[g_controlsSelectedSlot & 0xffff]);
+    pDevice = CInput::GetAvailableDeviceRecord(g_controlsDeviceSelection.slots[g_controlsSelectedSlot & 0xffff]);
     for (i = 0; i < 8; i++)
         g_unk0x00829428[i] = 0;
-    if (*(int *)pDevice == 3 || *(int *)pDevice == 2) {
+    if (pDevice->field_0x0 == 3 || pDevice->field_0x0 == 2) {
         for (i = 0; i < 8; i++) {
-            if (*(int *)(pDevice + 0x46c + i * 0x14) != 0)
-                g_unk0x00829428[i] = *(int *)(pDevice + 0x47c + i * 0x14);
+            if (pDevice->joystick.bindings[i].present != 0)
+                g_unk0x00829428[i] = pDevice->joystick.bindings[i].position;
         }
     }
 }
@@ -583,7 +576,7 @@ void FrontendControls_UpdateBindingCapture(Menu *pMenu)
     axisPair = g_controlsCopy[CONTROLS_SEL].field_0x110 != 0 && (pMenu->cursor == 0 || pMenu->cursor == 1);
     if (((g_controlsCopy[CONTROLS_SEL].field_0x114 != 0 && (pMenu->cursor == 2 || pMenu->cursor == 3)) || axisPair)
         && (pDevice->field_0x0 == 3 || pDevice->field_0x0 == 2)) {
-        pPosition = (int *)((BYTE *)pDevice + 0x47c);
+        pPosition = &pDevice->joystick.bindings[0].position;
         pReference = g_unk0x00829428;
         axis = 0;
         do {
@@ -636,7 +629,7 @@ void FrontendControls_EnterCalibration(Menu *pMenu, int param)
     ControllerData *pData;
     unsigned int dev;
     unsigned int axis;
-    AxisBinding *pBinding;
+    JoystickBinding *pBinding;
     MenuItem *pItem;
     int *pFlag;
     int j;
@@ -652,7 +645,7 @@ void FrontendControls_EnterCalibration(Menu *pMenu, int param)
             pItem->enabled = 1;
             pItem->visible = 1;
             for (j = 0; j < 10; j++) {
-                if (pData->field_0x2d8[j] == axis && pData->field_0x210[j].field_0x0 != 0)
+                if (pData->field_0x2d8[j] == axis && pData->field_0x210[j].present != 0)
                     *(ControllerDataUnk0x210 *)pBinding = pData->field_0x210[j];
             }
         } else {
@@ -679,8 +672,8 @@ void FrontendControls_UpdateAxisCalibration(Menu *pMenu)
 {
     DeviceInfo *pKeys;
     ControllerData *pData;
-    AxisBinding *pBinding;
-    BYTE *pDevice;
+    JoystickBinding *pBinding;
+    DeviceInfo *pDevice;
     unsigned int held;
     int axis;
     int j;
@@ -693,17 +686,17 @@ void FrontendControls_UpdateAxisCalibration(Menu *pMenu)
                 CInput::SetJoystickAxisSaturation(CONTROLS_SEL, axis, g_axisBindings[axis].saturation);
                 CInput::SetJoystickAxisDeadzone(CONTROLS_SEL, axis, g_axisBindings[axis].deadzone);
                 for (j = 0; j < 10; j++) {
-                    if (pData->field_0x2d8[j] == axis && pData->field_0x210[j].field_0x0 != 0)
+                    if (pData->field_0x2d8[j] == axis && pData->field_0x210[j].present != 0)
                         pData->field_0x210[j] = *(ControllerDataUnk0x210 *)&g_axisBindings[axis];
                 }
             }
             g_controlsCalibrationState = 0;
         }
         if (pKeys->field_0x8 & 0x20) {
-            pDevice = (BYTE *)CInput::GetAvailableDeviceRecord(CONTROLS_SEL);
-            g_axisBindings[pMenu->cursor].deadzone = *(int *)(pDevice + pMenu->cursor * 0x14 + 0x474);
+            pDevice = CInput::GetAvailableDeviceRecord(CONTROLS_SEL);
+            g_axisBindings[pMenu->cursor].deadzone = pDevice->joystick.bindings[pMenu->cursor].deadzone;
             g_controlsCalibrationState = 0;
-            g_axisBindings[pMenu->cursor].saturation = *(int *)(pDevice + pMenu->cursor * 0x14 + 0x478);
+            g_axisBindings[pMenu->cursor].saturation = pDevice->joystick.bindings[pMenu->cursor].saturation;
         }
         held = pKeys->field_0x4;
         if (CInput::IsShiftPressed() == 0) {
@@ -794,7 +787,7 @@ void FrontendControls_FillDeviceConfiguration(void)
     pMenu->items[2].max = (BYTE)g_controlsCopy[dev].field_0x114;
     pMenu->items[4].enabled = pDevice->field_0x0 == 3;
     pMenu->items[5].enabled = pDevice->field_0x0 == 3;
-    if (*(int *)((BYTE *)pDevice + 0x464) != 0)
+    if (pDevice->supportsForceFeedback != 0)
         pMenu->items[3].enabled = 1;
     else
         pMenu->items[3].enabled = 0;
@@ -913,11 +906,11 @@ void FrontendControls_ClearDuplicateBinding(ControllerData *p, int index)
 
 // Current position of axis `index` of the selected device.
 // FUNCTION: CMR2 0x004fbe60
-AxisBinding *FrontendControls_GetSelectedAxisPosition(int index)
+JoystickBinding *FrontendControls_GetSelectedAxisPosition(int index)
 {
-    BYTE *pDevice = (BYTE *)CInput::GetAvailableDeviceRecord(g_controlsDeviceSelection.slots[g_controlsSelectedSlot & 0xffff]);
+    DeviceInfo *pDevice = CInput::GetAvailableDeviceRecord(g_controlsDeviceSelection.slots[g_controlsSelectedSlot & 0xffff]);
 
-    g_axisBindings[index].position = *(int *)(pDevice + index * 0x14 + 0x47c);
+    g_axisBindings[index].position = pDevice->joystick.bindings[index].position;
     return &g_axisBindings[index];
 }
 
@@ -942,7 +935,7 @@ char *FrontendControls_GetBindingDisplayText(int index)
     if (CInput::IsControllerActionBound(index, &g_controlsCopy[CONTROLS_SEL]) != 0)
         return g_controlsCopy[CONTROLS_SEL].keyNames[index];
     dev = CONTROLS_SEL;
-    if (g_controlsCopy[dev].field_0x210[index].field_0x0 == 0 || pDevice->field_0x0 != 3) {
+    if (g_controlsCopy[dev].field_0x210[index].present == 0 || pDevice->field_0x0 != 3) {
         button = (&g_controlsCopy[dev].field_0x128)[index];
         if (pDevice->field_0x0 == 0 && button == 1)
             return CFrontend::GetTextString(0x1f9);
@@ -1533,7 +1526,7 @@ int FrontendControls_MultiplyScaledPercent(int a, int b);
 // deadzone and saturation marks and the current position.
 // match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ff0f0
-void FrontendControls_DrawAxisCalibrationBar(short x, short y, DWORD colour, AxisBinding *pAxis)
+void FrontendControls_DrawAxisCalibrationBar(short x, short y, DWORD colour, JoystickBinding *pAxis)
 {
     short deadzone[4];
     short saturation[4];
@@ -1577,7 +1570,7 @@ void FrontendControls_DrawAxisCalibrationBar(short x, short y, DWORD colour, Axi
 // FUNCTION: CMR2 0x004ff060
 void FrontendControls_DrawCalibrationAxisRow(short x, int y, Menu *pMenu, int index)
 {
-    AxisBinding *pAxis;
+    JoystickBinding *pAxis;
     BYTE red[4];
     red[1] = 0x14;
     red[2] = 0x14;

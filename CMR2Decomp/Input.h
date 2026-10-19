@@ -9,18 +9,18 @@
 #endif
 #include "../third_party/dx7sdk-7001/include/dinput.h"
 
+// One of the eight axes of a joystick (x, y, z, rx, ry, rz, two sliders).
 struct JoystickBinding {
-    DWORD range;
-    DWORD deadzone;
-    DWORD saturation;
-    int field_0xc;
-    BOOL field_0x10;
+    BOOL present;       // 0x00 the device reports a range for the axis
+    int range;          // 0x04
+    int deadzone;       // 0x08 0..10000
+    int saturation;     // 0x0c 0..10000
+    int position;       // 0x10 last polled position
 };
 
 struct JoystickInfo {
-    int controlCount; // or button count?
-    DWORD field_0x4;
-    JoystickBinding bindings[7];
+    int controlCount;               // axes the device reports
+    JoystickBinding bindings[8];
 };
 
 struct KeyboardInfo {
@@ -65,7 +65,6 @@ struct DeviceInfo {
         KeyboardInfo keyboard;
         JoystickInfo joystick;
     };
-    BYTE pad6[16]; // bindings[7].range/deadzone/saturation/field_0xc overlap this (struct is 0x50c bytes)
 };
 
 struct Unk0x0059f8cc {
@@ -83,9 +82,12 @@ struct ForceFeedbackDevice {
     LPDIRECTINPUTEFFECT effects[10];       // +0xC (10 effect pointers)
 };
 
+// A control's copy of the JoystickBinding of the device axis it is bound to;
+// the rest stays opaque (naming those fields changes
+// OptionMenu_DrawResultsRallyInfo in GameInfo.cpp).
 struct ControllerDataUnk0x210 {
-    DWORD field_0x0;
-    BYTE field_0x4[16];
+    BOOL present;
+    BYTE field_0x4[16];   // range, deadzone, saturation, position
 };
 
 struct ControllerData {

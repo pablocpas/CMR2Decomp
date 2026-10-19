@@ -815,10 +815,9 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
     DeviceInfo *pDeviceInfo;
     LPDIRECTINPUTDEVICEA pDevice;
     BYTE iVar6[4];
-    int iVar10, axisID, iVar11;
+    int i, iVar11;
     int count;
     int offset;
-    JoystickBinding * joystickBinding;
     DIPROPDWORD dipd;
     DIDEVCAPS devCaps;
     DIDEVICEOBJECTINSTANCEA didoi;
@@ -846,22 +845,12 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
 
             SetupJoystickDeviceInfo(pDeviceInfo);
 
-            iVar10 = 0;
-            axisID = 0;
-
-            if (pDeviceInfo->joystick.controlCount > 0) {
-                joystickBinding = pDeviceInfo->joystick.bindings;
-                do {
-                    if (joystickBinding[-1].field_0x10 != FALSE) {
-                        SetJoystickAxisRange(m_unk0x0059f8cc.field_0x0, axisID, joystickBinding->range);
-                        SetJoystickAxisDeadzone(m_unk0x0059f8cc.field_0x0, axisID, joystickBinding->deadzone);
-                        SetJoystickAxisSaturation(m_unk0x0059f8cc.field_0x0, axisID, joystickBinding->saturation);
-                    }
-
-                    iVar10++;
-                    axisID++;
-                    joystickBinding ++;
-                } while (iVar10 < pDeviceInfo->joystick.controlCount);
+            for (i = 0; i < pDeviceInfo->joystick.controlCount; i++) {
+                if (pDeviceInfo->joystick.bindings[i].present != FALSE) {
+                    SetJoystickAxisRange(m_unk0x0059f8cc.field_0x0, i, pDeviceInfo->joystick.bindings[i].range);
+                    SetJoystickAxisDeadzone(m_unk0x0059f8cc.field_0x0, i, pDeviceInfo->joystick.bindings[i].deadzone);
+                    SetJoystickAxisSaturation(m_unk0x0059f8cc.field_0x0, i, pDeviceInfo->joystick.bindings[i].saturation);
+                }
             }
 
             devCaps.dwSize = 0x2c;
@@ -887,17 +876,17 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
                 count = devCaps.dwButtons;
                 didoi.dwSize = 0x13c;
                 pDeviceInfo->field_0x14 = 0;
-                for (iVar10 = 0; iVar10 < count; iVar10++) {
-                    hr = m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->GetObjectInfo(&didoi, iVar10 + 0x30, DIPH_BYOFFSET);
+                for (i = 0; i < count; i++) {
+                    hr = m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->GetObjectInfo(&didoi, i + 0x30, DIPH_BYOFFSET);
                     if (SUCCEEDED(hr)) {
-                        strncpy(pDeviceInfo->field_0x284[iVar10], didoi.tszName, 20);
+                        strncpy(pDeviceInfo->field_0x284[i], didoi.tszName, 20);
                         pDeviceInfo->field_0x14++;
                     }
                 }
 
                 // The first POV hat (DIJOFS_POV(0) = 0x20) gives four direction names.
                 count = devCaps.dwPOVs;
-                iVar10 = 0;
+                i = 0;
                 if (count > 0) {
                     offset = 0x20;
                     do {
@@ -917,19 +906,19 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
                             strncpy(pDeviceInfo->field_0x447, didoi.tszName, 0x11);
                             strcat(pDeviceInfo->field_0x447, m_strD);
                         }
-                        iVar10++;
+                        i++;
                         offset += 4;
-                    } while (iVar10 < count);
+                    } while (i < count);
                 }
 
-                iVar10 = 0;
+                i = 0;
 
                 if (pDeviceInfo->field_0x14 > 0) {
                     int * pUnk0x1c = &pDeviceInfo->field_0x1c;
                     do {
-                        *pUnk0x1c++ = 1u << iVar10;
-                        iVar10++;
-                    } while (iVar10 < pDeviceInfo->field_0x14);
+                        *pUnk0x1c++ = 1u << i;
+                        i++;
+                    } while (i < pDeviceInfo->field_0x14);
                 }
 
                 m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->Acquire();
@@ -945,8 +934,7 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
 // FUNCTION: CMR2 0x0049fad0
 void CInput::SetupJoystickDeviceInfo(DeviceInfo *deviceInfo) {
     HRESULT hr;
-    USHORT * unk0x00511400;
-    JoystickBinding * bindings;
+    int i;
 
     DIPROPRANGE dipd;
     dipd.diph.dwSize = 0x18;
@@ -954,28 +942,22 @@ void CInput::SetupJoystickDeviceInfo(DeviceInfo *deviceInfo) {
     dipd.diph.dwHow = DIPH_BYOFFSET;
 
     deviceInfo->joystick.controlCount = 0;
-    unk0x00511400 = m_unk0x00511400;
-    bindings = deviceInfo->joystick.bindings;
-
-    do {
-        dipd.diph.dwObj = *unk0x00511400;
+    for (i = 0; i < 8; i++) {
+        dipd.diph.dwObj = m_unk0x00511400[i];
         hr = m_unk0x0059f6b0[deviceInfo->field_0x18]->GetProperty(DIPROP_RANGE, &dipd.diph);
 
         if (SUCCEEDED(hr)) {
-            bindings[-1].field_0x10 = TRUE; // esentially just deviceInfo->supportsForceFeedback but it doesnt match
-            bindings->deadzone = 0xc8;
-            bindings->range = 0x10000;
-            bindings->saturation = 0x2710;
+            deviceInfo->joystick.bindings[i].present = TRUE;
+            deviceInfo->joystick.bindings[i].deadzone = 0xc8;
+            deviceInfo->joystick.bindings[i].range = 0x10000;
+            deviceInfo->joystick.bindings[i].saturation = 0x2710;
 
             deviceInfo->joystick.controlCount ++;
         }
         else {
-            bindings[-1].field_0x10 = FALSE;
+            deviceInfo->joystick.bindings[i].present = FALSE;
         }
-
-        unk0x00511400++;
-        bindings++;
-    } while ((int)unk0x00511400 < (int)(m_unk0x00511400 + 8));
+    }
 }
 
 // FUNCTION: CMR2 0x0049ee10
@@ -1359,7 +1341,7 @@ void CInput::ClearFirstJoystickControlBindings(void)
     for (i = 0; i < 8; i++) {
         if (m_availableDevices[i].field_0x0 == 2) {
             m_availableDevices[i].joystick.bindings[0].range = 0;
-            m_availableDevices[i].joystick.field_0x4 = 0;
+            m_availableDevices[i].joystick.bindings[0].present = 0;
             m_availableDevices[i].joystick.controlCount = 0;
             return;
         }
@@ -1434,7 +1416,7 @@ unsigned int CInput::GetEnabledControllerAxisBinding(unsigned int param1, int pa
     unsigned int controller;
 
     controller = m_unk0x005168f4[(unsigned short)param1];
-    if (m_controllerInfo[controller].field_0x210[param2].field_0x0 != 0)
+    if (m_controllerInfo[controller].field_0x210[param2].present != 0)
         return m_controllerInfo[controller].field_0x2d8[param2];
     return -1;
 }
@@ -1502,13 +1484,13 @@ void CInput::ReadMouse(DeviceInfo *pDevice)
         hr = m_pDirectInputMouse->GetDeviceState(sizeof(mouseState), &mouseState);
     }
 
-    pDevice->joystick.bindings[0].field_0xc += mouseState.lX * 150;
-    if (pDevice->joystick.bindings[0].field_0xc > 0x10000)
-        pDevice->joystick.bindings[0].field_0xc = 0x10000;
-    if (pDevice->joystick.bindings[0].field_0xc < -0x10000)
-        pDevice->joystick.bindings[0].field_0xc = -0x10000;
-    pDevice->joystick.bindings[1].field_0xc += mouseState.lY * 150;
-    pDevice->joystick.bindings[2].field_0xc += mouseState.lZ * 150;
+    pDevice->joystick.bindings[0].position += mouseState.lX * 150;
+    if (pDevice->joystick.bindings[0].position > 0x10000)
+        pDevice->joystick.bindings[0].position = 0x10000;
+    if (pDevice->joystick.bindings[0].position < -0x10000)
+        pDevice->joystick.bindings[0].position = -0x10000;
+    pDevice->joystick.bindings[1].position += mouseState.lY * 150;
+    pDevice->joystick.bindings[2].position += mouseState.lZ * 150;
 
     for (i = 0; i < 8; i++) {
         if (i < 24 && (mouseState.rgbButtons[i] & 0x80))
@@ -1596,14 +1578,14 @@ void CInput::ReadJoystick(DeviceInfo *pDevice)
         hr = pJoystick->GetDeviceState(sizeof(joyState), &joyState);
     }
 
-    pDevice->joystick.bindings[0].field_0xc = joyState.lX;
-    pDevice->joystick.bindings[1].field_0xc = joyState.lY;
-    pDevice->joystick.bindings[2].field_0xc = joyState.lZ;
-    pDevice->joystick.bindings[3].field_0xc = joyState.lRx;
-    pDevice->joystick.bindings[4].field_0xc = joyState.lRy;
-    pDevice->joystick.bindings[5].field_0xc = joyState.lRz;
-    pDevice->joystick.bindings[6].field_0xc = joyState.rglSlider[0];
-    pDevice->joystick.bindings[7].field_0xc = joyState.rglSlider[1];
+    pDevice->joystick.bindings[0].position = joyState.lX;
+    pDevice->joystick.bindings[1].position = joyState.lY;
+    pDevice->joystick.bindings[2].position = joyState.lZ;
+    pDevice->joystick.bindings[3].position = joyState.lRx;
+    pDevice->joystick.bindings[4].position = joyState.lRy;
+    pDevice->joystick.bindings[5].position = joyState.lRz;
+    pDevice->joystick.bindings[6].position = joyState.rglSlider[0];
+    pDevice->joystick.bindings[7].position = joyState.rglSlider[1];
 
     if (joyState.lX < -39321)
         pDevice->field_0x4 |= 0x1;
@@ -2021,8 +2003,6 @@ char g_keyOpenBracket[] = "[";
 // GLOBAL: CMR2 0x00516958
 char g_keyCloseBracket[] = "]";
 
-// The five-dword joystick axis bindings of a device start at 0x46c.
-#define DEVICE_BINDING(pDevice, i) ((ControllerDataUnk0x210 *)((BYTE *)(pDevice) + 0x46c + (i) * 0x14))
 
 // Fills controller slot index from a detected device: its name, type flags,
 // the default bindings and the texts shown for them in the controls menu.
@@ -2083,10 +2063,10 @@ void CInput::InitDetectedControllerSlot(DeviceInfo *pDevice, int index)
         return;
     }
     if (pDevice->field_0x0 == 2) {
-        *(DWORD *)DEVICE_BINDING(pDevice, 0) = 1;
-        pController->field_0x210[0] = *DEVICE_BINDING(pDevice, 0);
+        pDevice->joystick.bindings[0].present = 1;
+        pController->field_0x210[0] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
         pController->field_0x2d8[0] = 0;
-        pController->field_0x210[1] = *DEVICE_BINDING(pDevice, 0);
+        pController->field_0x210[1] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
         pController->field_0x2d8[1] = 0;
         pController->field_0x128 = 0;
         pController->field_0x12a = 0;
@@ -2098,7 +2078,7 @@ void CInput::InitDetectedControllerSlot(DeviceInfo *pDevice, int index)
         pController->field_0x136 = 0;
         pController->field_0x138 = 0;
         pController->field_0x13a = 0;
-        pController->field_0x13e[4] = (BYTE)*(DWORD *)DEVICE_BINDING(pDevice, 0);
+        pController->field_0x13e[4] = (BYTE)pDevice->joystick.bindings[0].present;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[4], CFrontend::GetTextString(0x1fe));
         pController->field_0x13e[5] = pDevice->keyboard.field_0x46d;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[5], CFrontend::GetTextString(0x1fe));
@@ -2113,22 +2093,22 @@ void CInput::InitDetectedControllerSlot(DeviceInfo *pDevice, int index)
     if (pController->field_0x10c != 0) {
         pController->field_0x128 = 1;
         pController->field_0x12a = 2;
-        if (*(DWORD *)DEVICE_BINDING(pDevice, 0) != 0) {
-            pController->field_0x210[0] = *DEVICE_BINDING(pDevice, 0);
+        if (pDevice->joystick.bindings[0].present != 0) {
+            pController->field_0x210[0] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
             pController->field_0x2d8[0] = 0;
-            if (*(DWORD *)DEVICE_BINDING(pDevice, 0) != 0) {
-                pController->field_0x210[1] = *DEVICE_BINDING(pDevice, 0);
+            if (pDevice->joystick.bindings[0].present != 0) {
+                pController->field_0x210[1] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
                 pController->field_0x2d8[1] = 0;
             }
         }
         pController->field_0x12c = 4;
-        if (*(DWORD *)DEVICE_BINDING(pDevice, 1) != 0) {
-            pController->field_0x210[2] = *DEVICE_BINDING(pDevice, 1);
+        if (pDevice->joystick.bindings[1].present != 0) {
+            pController->field_0x210[2] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[1];
             pController->field_0x2d8[2] = 1;
         }
         pController->field_0x12e = 8;
-        if (*(DWORD *)DEVICE_BINDING(pDevice, 1) != 0) {
-            pController->field_0x210[3] = *DEVICE_BINDING(pDevice, 1);
+        if (pDevice->joystick.bindings[1].present != 0) {
+            pController->field_0x210[3] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[1];
             pController->field_0x2d8[3] = 1;
         }
         pController->field_0x130 = 0x10;

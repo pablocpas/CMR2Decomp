@@ -40,7 +40,14 @@ GenericFile* CGenericFileLoader::GetGenericFile(void) {
     return &m_genericFile;
 }
 
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Directory entry of an archive file: the directory starts at the offset in
+// the file's last four bytes and runs up to them.
+struct ArchiveEntry {
+    DWORD id;
+    int offset;             // 0x4 of the file data from the archive start
+    DWORD nameLength;       // 0x8 of the name that follows, padded to 4 bytes
+};
+
 // FUNCTION: CMR2 0x004a9c70
 void *CGenericFileLoader::FindFileInArchive(GenericFile *pFile, char *name, DWORD *pId)
 {
@@ -54,10 +61,10 @@ void *CGenericFileLoader::FindFileInArchive(GenericFile *pFile, char *name, DWOR
     pEntry = (BYTE *)pFile->buffer + *(int *)((BYTE *)pFile->buffer + pFile->fileSize - 4);
     while (pEntry < (BYTE *)pFile->buffer + pFile->fileSize - 4) {
         if (pId != NULL)
-            *pId = *(DWORD *)pEntry;
-        nameLen = *(DWORD *)(pEntry + 8);
-        offset = *(int *)(pEntry + 4);
-        pEntry += 12;
+            *pId = ((ArchiveEntry *)pEntry)->id;
+        nameLen = ((ArchiveEntry *)pEntry)->nameLength;
+        offset = ((ArchiveEntry *)pEntry)->offset;
+        pEntry += sizeof(ArchiveEntry);
         memcpy(entryName, pEntry, nameLen);
         entryName[nameLen] = '\0';
         if (strcmp(entryName, name) == 0)
