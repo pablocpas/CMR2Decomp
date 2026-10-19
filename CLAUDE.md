@@ -55,7 +55,11 @@ Automated search (on a snapshot, writes a patch to review and `patch -p1`):
   other TUs. Any new struct defined in SavedGame.h (the first include of
   GameInfo.cpp), or a sixteenth member of DriverProfile, flips an addition in
   OptionMenu_DrawResultsRallyInfo: put new save-data types in
-  ChampionshipDriver.h / TyreWear.h. Renaming a global can do the same:
+  ChampionshipDriver.h / TyreWear.h. The same flip (which makes
+  FrontendText_LoadRegionLanguages exact instead) follows a struct defined in
+  GameInfo.cpp, one removed from a header it includes (RallyData.h, Input.h),
+  or some member renames there: keep such a type (DriverCarRecord,
+  ControllerDataUnk0x210) and try each header edit alone. Renaming a global can do the same:
   every name for 0x591750 except ones starting `g_unk0x00591750` loses seven
   exact functions of StageObjects.cpp, so check `match.py` after renames. The original has ~193 C++ objects (Rich header); a function that
   only matches in a different neighbourhood can move to its own TU with
