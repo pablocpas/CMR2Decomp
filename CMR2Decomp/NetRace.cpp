@@ -23,10 +23,12 @@ int NetPlayers_GetAccumulatedTotal(void);
 void NetPlayers_BlockStatisticsReception(void);
 
 
+// Index of the last stage time and split time sent to the other players
+// (-1 when none since the reset).
 // GLOBAL: CMR2 0x00539dcc
-int g_unk0x00539dcc;
+int g_netLastSentStageIndex;
 // GLOBAL: CMR2 0x00539ed0
-int g_unk0x00539ed0;
+int g_netLastSentSplit;
 // GLOBAL: CMR2 0x00539ed8
 BYTE g_netRaceSoundMode;
 // GLOBAL: CMR2 0x0053a00c
@@ -88,22 +90,22 @@ void NetRace_SetRaceControlFlag(BYTE param1)
 }
 
 // FUNCTION: CMR2 0x00427650
-void NetRace_ResetType8And9PlayerIndices(void)
+void NetRace_ResetLastSentTimeIndices(void)
 {
-    g_unk0x00539ed0 = -1;
-    g_unk0x00539dcc = -1;
+    g_netLastSentSplit = -1;
+    g_netLastSentStageIndex = -1;
 }
 
 // FUNCTION: CMR2 0x00427660
-int NetRace_GetType8PlayerIndex(void)
+int NetRace_GetLastSentSplit(void)
 {
-    return g_unk0x00539ed0;
+    return g_netLastSentSplit;
 }
 
 // FUNCTION: CMR2 0x00427670
-int NetRace_GetType9PlayerIndex(void)
+int NetRace_GetLastSentStageIndex(void)
 {
-    return g_unk0x00539dcc;
+    return g_netLastSentStageIndex;
 }
 
 // GLOBAL: CMR2 0x00539ed4
@@ -129,6 +131,20 @@ void NetRace_FadeOutPlayerScreen(BYTE index, FadeCallback pfnDone, int param3, i
 extern int g_unk0x00537f34[2];
 extern int g_unk0x005199b0;
 
+// Split (type 8) or stage (type 9) time of a player in the in-race stream.
+struct NetTimeMessage {
+    BYTE type;
+    BYTE index;         // 0x1 split or stage index
+    int time;           // 0x4
+};
+
+// Finish message (type 10): the stage time and the accumulated total.
+struct NetFinishMessage {
+    BYTE type;
+    int time;           // 0x4
+    int total;          // 0x8
+};
+
 // Dispatches a message of the in-race network stream to its handler.
 // FUNCTION: CMR2 0x004276c0
 void NetRace_DispatchRacePacket(DWORD *pId, BYTE *pPacket)
@@ -144,14 +160,14 @@ void NetRace_DispatchRacePacket(DWORD *pId, BYTE *pPacket)
         NetPlayers_MarkPlayerReadyByID(pId);
         return;
     case 8:
-        NetPlayers_RecordRemoteSplitTime(pId, pPacket[1], *(unsigned int *)(pPacket + 4));
+        NetPlayers_RecordRemoteSplitTime(pId, ((NetTimeMessage *)pPacket)->index, ((NetTimeMessage *)pPacket)->time);
         return;
     case 9:
-        NetPlayers_RecordRemoteStageTime(pId, pPacket[1], *(unsigned int *)(pPacket + 4));
+        NetPlayers_RecordRemoteStageTime(pId, ((NetTimeMessage *)pPacket)->index, ((NetTimeMessage *)pPacket)->time);
         return;
     case 10:
         NetPlayers_MarkPlayerFinishedByID(pId);
-        NetPlayers_RecordPlayerFinishTime(pId, *(unsigned int *)(pPacket + 4), *(unsigned int *)(pPacket + 8));
+        NetPlayers_RecordPlayerFinishTime(pId, ((NetFinishMessage *)pPacket)->time, ((NetFinishMessage *)pPacket)->total);
         return;
     case 12:
         NetRace_FadeOutPlayerScreen(0, GameMenu_FinishNetworkResultsQuitFade, 1, 0, g_unk0x005199b0, 1);
@@ -227,7 +243,7 @@ void NetRace_SendLocalCarState(NetStats *pStats)
 }
 
 // FUNCTION: CMR2 0x00427930
-void NetRace_SendType7Notification(void)
+void NetRace_SendReady(void)
 {
     BYTE msg;
 
@@ -239,11 +255,7 @@ void NetRace_SendType7Notification(void)
 // FUNCTION: CMR2 0x00427950
 void NetRace_SendStageAndOverallTimes(int time)
 {
-    struct {
-        BYTE type;
-        int time;
-        int total;
-    } msg;
+    NetFinishMessage msg;
 
     msg.type = 0xa;
     msg.time = time;
@@ -252,39 +264,31 @@ void NetRace_SendStageAndOverallTimes(int time)
 }
 
 // FUNCTION: CMR2 0x00427990
-void NetRace_SendType8PlayerValue(int index, int value)
+void NetRace_SendSplitTime(int index, int value)
 {
-    struct {
-        BYTE type;
-        BYTE index;
-        int value;
-    } msg;
+    NetTimeMessage msg;
 
-    g_unk0x00539ed0 = index;
+    g_netLastSentSplit = index;
     msg.type = 8;
-    msg.value = value;
+    msg.time = value;
     msg.index = index;
     Network_SendPlayerMessage(0, 0, &msg, sizeof(msg));
 }
 
 // FUNCTION: CMR2 0x004279d0
-void NetRace_SendType9PlayerValue(int index, int value)
+void NetRace_SendStageTime(int index, int value)
 {
-    struct {
-        BYTE type;
-        BYTE index;
-        int value;
-    } msg;
+    NetTimeMessage msg;
 
-    g_unk0x00539dcc = index;
+    g_netLastSentStageIndex = index;
     msg.type = 9;
-    msg.value = value;
+    msg.time = value;
     msg.index = index;
     Network_SendPlayerMessage(0, 1, &msg, sizeof(msg));
 }
 
 // FUNCTION: CMR2 0x00427a10
-void NetRace_SendType12Notification(void)
+void NetRace_SendResultsQuit(void)
 {
     BYTE msg;
 
@@ -293,7 +297,7 @@ void NetRace_SendType12Notification(void)
 }
 
 // FUNCTION: CMR2 0x00427a30
-void NetRace_SendType13AndResetInput(void)
+void NetRace_SendContinue(void)
 {
     BYTE msg;
 
@@ -303,7 +307,7 @@ void NetRace_SendType13AndResetInput(void)
 }
 
 // FUNCTION: CMR2 0x00427a50
-void NetRace_SendType14AndClearRaceFlag(void)
+void NetRace_SendClose(void)
 {
     BYTE msg;
 
@@ -314,7 +318,7 @@ void NetRace_SendType14AndClearRaceFlag(void)
 }
 
 // FUNCTION: CMR2 0x00427a80
-void NetRace_SendType15AndResetInput(void)
+void NetRace_SendRestart(void)
 {
     BYTE msg;
 
@@ -666,7 +670,8 @@ struct NetCarPacket {
     unsigned short seq;            // 0x00 packet sequence
     unsigned short dispX;          // 0x02 movement of the last step
     unsigned short dispZ;          // 0x04
-    unsigned short wheelSpread;    // 0x06 product of the averaged wheel offsets
+    unsigned short engineSpeed;    // 0x06 NetCarRecord::engineSpeed of the receiver: product
+                                   //      of the two averaged wheel surface/corner grip sums
     unsigned short posX;           // 0x08 position in its sector
     unsigned short posZ;           // 0x0a
     short sector;                  // 0x0c
@@ -701,12 +706,12 @@ void NetRace_PackCarState(Car *car)
     float value, z;
     int i;
     g_localCarPacket.seq = (unsigned short)Race_ReadState37F24();
-    displacement.x = *(int *)(raw + 0x2dc) - *(int *)(raw + 0x2e8);
-    displacement.z = *(int *)(raw + 0x2e4) - *(int *)(raw + 0x2f0);
+    displacement.x = ((Car *)raw)->field_0x2dc.x - ((Car *)raw)->positionPrev.x;
+    displacement.z = ((Car *)raw)->field_0x2dc.z - ((Car *)raw)->positionPrev.z;
     average.x = average.y = average.z = 0;
     for (i = 0; i < 4; i++) {
-        average.x += *(int *)(raw + 0x1a4 + i * 12) + *(int *)(raw + 0x88 + i * 36);
-        average.z += *(int *)(raw + 0x1a8 + i * 12) + *(int *)(raw + 0x8c + i * 36);
+        average.x += ((Car *)raw)->wheelSurfaceFx[i].drag + ((Car *)raw)->cornerGrip[i].grip2A;
+        average.z += ((Car *)raw)->wheelSurfaceFx[i].extraGrip + ((Car *)raw)->cornerGrip[i].grip2B;
     }
     FixVecScaleRecip(&average, &average, 0x40000);
     value = (float)(X87S_MUL(displacement.x, CGraphics::m_oneOver65536)) * g_netDeltaScale;
@@ -718,8 +723,8 @@ void NetRace_PackCarState(Car *car)
     else if (value <= g_netMinusOne) g_localCarPacket.dispZ = 0x8003;
     else g_localCarPacket.dispZ = (short)(int)FTOI(__int64, value * 32765.0f);
     value = (float)(X87S_MUL((double)FixMul(average.z, average.x), CGraphics::m_oneOver65536));
-    if (value >= g_netOne) g_localCarPacket.wheelSpread = 0xfffa;
-    else g_localCarPacket.wheelSpread = (unsigned short)(int)FTOI(__int64, value * 65530.0f);
+    if (value >= g_netOne) g_localCarPacket.engineSpeed = 0xfffa;
+    else g_localCarPacket.engineSpeed = (unsigned short)(int)FTOI(__int64, value * 65530.0f);
     value = (float)(X87S_MUL(car->angularVelocity.x, CGraphics::m_oneOver65536)) * g_netAngularScale;
     if (value >= g_netOne) g_localCarPacket.angVelX = 0x7f;
     else if (value <= g_netMinusOne) g_localCarPacket.angVelX = 0x81;
@@ -1196,7 +1201,7 @@ int NetRace_DecodeReceivedCarState(CarNetRecord *pRec, int *pOut)
         pRec->velocity.x = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(short)g_localCarPacket.dispX, g_float5), g_floatOneOver32765));
         pRec->velocity.y = 0;
         pRec->velocity.z = NetRace_FloatToFix(X87S_MUL(X87S_MUL((float)(short)g_localCarPacket.dispZ, g_float5), g_floatOneOver32765));
-        engine = NetRace_FloatToFix(X87S_MUL((float)g_localCarPacket.wheelSpread, g_floatOneOver65530));
+        engine = NetRace_FloatToFix(X87S_MUL((float)g_localCarPacket.engineSpeed, g_floatOneOver65530));
         pRec->engineSpeed = engine;
         if (engine != 0)
             pRec->engineSpeedInv = FixDiv(0x10000, engine);

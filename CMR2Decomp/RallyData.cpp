@@ -3036,7 +3036,7 @@ int StageTiming_GetCheckpointGroupIndex(int index);
 int StageTiming_GetCheckpointSplitIndex(int index);
 int StageTiming_GetCheckpointField14(int index);
 int StageTiming_GetCarSplitTime(int car, int index);
-void NetRace_SendType9PlayerValue(int index, int value);
+void NetRace_SendStageTime(int index, int value);
 int NetPlayers_IsNewLocalRecord(void);
 unsigned int NetPlayers_GetPreviousBestTime(void);
 
@@ -3140,14 +3140,14 @@ void RallyData_RecordStageStartAndGhostSplit(int car)
             g_stageSplitData[car].times[g_lastSplitGroup + 1] = time;
             g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
             g_stageSplitData[car].split = g_lastSplitGroup;
-            NetRace_SendType9PlayerValue(g_lastSplitGroup, g_stageSplitData[car].times[0]);
+            NetRace_SendStageTime(g_lastSplitGroup, g_stageSplitData[car].times[0]);
             g_stageStartRecorded = 1;
         } else {
             if (g_lastSplitGroup >= 1 && g_lastSplitGroup < 10) {
                 g_stageSplitData[car].times[g_lastSplitGroup + 1] = g_stageSplitData[car].times[0];
                 g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
                 g_stageSplitData[car].split = g_lastSplitGroup;
-                NetRace_SendType9PlayerValue(g_lastSplitGroup, g_stageSplitData[car].times[0]);
+                NetRace_SendStageTime(g_lastSplitGroup, g_stageSplitData[car].times[0]);
             }
             g_stageStartRecorded = 1;
         }
@@ -5497,7 +5497,7 @@ void RallyData_UpdateSplitDisplayAndStageRecord(int car)
 }
 
 BYTE StageTiming_GetCheckpointField17(int index);
-void NetRace_SendType8PlayerValue(int index, int value);
+void NetRace_SendSplitTime(int index, int value);
 unsigned int NetPlayers_GetSplitRecordTime(int split);
 void RallyData_PlayAlternateStageLoopSound(BYTE param1, int param2);
 
@@ -5517,7 +5517,7 @@ void RallyData_RecordPassedSplitAndTimeToBeat(int car)
             g_stageSplitData[car].times[split + 1] = g_stageSplitData[car].times[0];
             g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
             g_stageSplitData[car].split = split;
-            NetRace_SendType8PlayerValue(split, g_stageSplitData[car].times[0]);
+            NetRace_SendSplitTime(split, g_stageSplitData[car].times[0]);
             split = g_stageLeader.lastSplit;
         }
         g_stageStartRecorded = 1;

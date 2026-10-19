@@ -3153,15 +3153,15 @@
   ],
   "0x427650": [
     4824016,
-    "NetRace_ResetType8And9PlayerIndices"
+    "NetRace_ResetLastSentTimeIndices"
   ],
   "0x427660": [
     4824032,
-    "NetRace_GetType8PlayerIndex"
+    "NetRace_GetLastSentSplit"
   ],
   "0x427670": [
     4824048,
-    "NetRace_GetType9PlayerIndex"
+    "NetRace_GetLastSentStageIndex"
   ],
   "0x427680": [
     4832096,
@@ -3181,7 +3181,7 @@
   ],
   "0x427930": [
     4824688,
-    "NetRace_SendType7Notification"
+    "NetRace_SendReady"
   ],
   "0x427950": [
     4824720,
@@ -3189,27 +3189,27 @@
   ],
   "0x427990": [
     4824784,
-    "NetRace_SendType8PlayerValue"
+    "NetRace_SendSplitTime"
   ],
   "0x4279d0": [
     4824848,
-    "NetRace_SendType9PlayerValue"
+    "NetRace_SendStageTime"
   ],
   "0x427a10": [
     4824912,
-    "NetRace_SendType12Notification"
+    "NetRace_SendResultsQuit"
   ],
   "0x427a30": [
     4824944,
-    "NetRace_SendType13AndResetInput"
+    "NetRace_SendContinue"
   ],
   "0x427a50": [
     4824976,
-    "NetRace_SendType14AndClearRaceFlag"
+    "NetRace_SendClose"
   ],
   "0x427a80": [
     4825024,
-    "NetRace_SendType15AndResetInput"
+    "NetRace_SendRestart"
   ],
   "0x427aa0": [
     4825056,
@@ -16485,7 +16485,7 @@
   ],
   "0x519edc": [
     5414104,
-    "g_unk0x00519edc"
+    "g_stageRecordHolder"
   ],
   "0x519ee0": [
     5414100,
@@ -20868,27 +20868,27 @@
     "g_localCarStats"
   ],
   "0x539394": [
-    6028912,
+    6028908,
     "g_unk0x00539394"
   ],
   "0x5393a8": [
-    6029364,
+    6029356,
     "g_unk0x005393a8"
   ],
   "0x5393ac": [
-    6028928,
+    6028920,
     "g_unk0x005393ac"
   ],
   "0x5393cc": [
-    6028920,
+    6028912,
     "g_unk0x005393cc"
   ],
   "0x5393d0": [
-    6029368,
+    6029360,
     "g_unk0x005393d0"
   ],
   "0x5393d4": [
-    6028924,
+    6028916,
     "g_netRaceFont"
   ],
   "0x5393d8": [
@@ -20896,23 +20896,23 @@
     "g_carNetRecords"
   ],
   "0x539b38": [
-    6028960,
+    6028952,
     "g_netTriangleState"
   ],
   "0x539dcc": [
-    6028916,
-    "g_unk0x00539dcc"
+    6029400,
+    "g_netLastSentStageIndex"
   ],
   "0x539ed0": [
-    6028908,
-    "g_unk0x00539ed0"
+    6029404,
+    "g_netLastSentSplit"
   ],
   "0x539ed4": [
     6028892,
     "g_unk0x00539ed4"
   ],
   "0x539ed8": [
-    6029404,
+    6029396,
     "g_netRaceSoundMode"
   ],
   "0x539ee0": [
@@ -20944,7 +20944,7 @@
     "g_unk0x0053a06c"
   ],
   "0x53a08c": [
-    6029372,
+    6029364,
     "g_fadeCallbacks"
   ],
   "0x53a0ac": [
@@ -21460,7 +21460,7 @@
     "g_driverSplitClocks"
   ],
   "0x53e2d8": [
-    5641152,
+    5641144,
     "g_menu0x0053e2d8"
   ],
   "0x53e4b8": [
@@ -21516,7 +21516,7 @@
     "g_menu0x0053f5b0"
   ],
   "0x53f790": [
-    5641632,
+    5641624,
     "g_menu0x0053f790"
   ],
   "0x53f970": [
@@ -21588,7 +21588,7 @@
     "g_menu0x00541030"
   ],
   "0x541210": [
-    5641144,
+    5641140,
     "g_unk0x00541210"
   ],
   "0x541218": [
@@ -21620,7 +21620,7 @@
     "g_unk0x005418d4"
   ],
   "0x5418d8": [
-    5642112,
+    5642104,
     "g_menu0x005418d8"
   ],
   "0x541ab8": [
@@ -21652,8 +21652,8 @@
     "g_unk0x00541cd4"
   ],
   "0x541cd8": [
-    5641140,
-    "g_unk0x00541cd8"
+    5642584,
+    "g_stageRecordTime"
   ],
   "0x541cdc": [
     5631100,

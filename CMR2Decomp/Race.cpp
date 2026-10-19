@@ -2482,7 +2482,7 @@ extern BYTE g_unk0x0053811d;
 extern BYTE g_unk0x0053811e;
 extern BYTE g_unk0x00538120;
 
-void NetRace_SendType7Notification(void);
+void NetRace_SendReady(void);
 void StageObject_StartCarSoundTimer(int index);
 void StageObject_ResetCarSoundElapsedTime(int index);
 int StageObject_GetCarSoundElapsedTime(int index);
@@ -2520,7 +2520,7 @@ void Race_UpdateDriverPreRaceScene(CallbackStateMachine *param1, unsigned int pa
     g_unk0x0053811e = 0;
     g_unk0x0053811d = 0;
     if (g_unk0x00537fd4 == 0) {
-        NetRace_SendType7Notification();
+        NetRace_SendReady();
         g_unk0x00537fd4 = 1;
     }
     index = param2 & 0xff;
@@ -3146,7 +3146,7 @@ void StageLights_SetTransform(FixVector *pAxes);
 void StageTiming_IndexSerializedStageTables(BYTE *pData);
 
 void NetPlayers_UpdateLocalSplitRecords(int splitCount);
-int NetRace_GetType8PlayerIndex(void);
+int NetRace_GetLastSentSplit(void);
 void Frontend_MergeMenuKeysIntoPlayerState(void);
 void StageUI_ClearRaceEndLatch(void);
 void StageUI_ResetRaceEndEventCount(void);
@@ -3327,7 +3327,7 @@ void Race_HandleStageReplayViewTransitions(CallbackStateMachine *param1, unsigne
     if ((char)RallyData_GetSelectionFlag26() != 0)
         CSound::StopDirectSoundBuffer();
     if (CGameInfo::GetConfiguredGameMode() == 10)
-        NetPlayers_UpdateLocalSplitRecords(NetRace_GetType8PlayerIndex());
+        NetPlayers_UpdateLocalSplitRecords(NetRace_GetLastSentSplit());
     Frontend_MergeMenuKeysIntoPlayerState();
     InRaceMenu_ResetAndBuildPages();
     g_unk0x00537f08 = 1;

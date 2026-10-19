@@ -4129,7 +4129,7 @@ void GameInfo_LeaveStageGroup(CallbackStateMachine *param1, int param2)
 
 void NetPlayers_SendCarClass(BYTE);
 void NetRace_SetRaceControlFlag(BYTE);
-void NetRace_ResetType8And9PlayerIndices(void);
+void NetRace_ResetLastSentTimeIndices(void);
 void Race_SetFlag37F08(void);
 void NetRace_ResetStateAndTriangleTable(void);
 void StageTiming_RestoreDeviceStageResources(void);
@@ -4158,7 +4158,7 @@ void InRaceMenu_AdvanceCascade(CallbackStateMachine *param1, int param2)
         NetPlayers_SendCarClass(2);
     NetRace_SetRaceControlFlag(0);
     g_unk0x0053811d = 0;
-    NetRace_ResetType8And9PlayerIndices();
+    NetRace_ResetLastSentTimeIndices();
     CSound::NoOpSoundDeviceCallback();
     g_unk0x00537fd4 = 0;
     Race_SetFlag37F08();

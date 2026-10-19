@@ -1,0 +1,11 @@
+address	old_name	new_name	evidence
+0x427650	NetRace_ResetType8And9PlayerIndices	NetRace_ResetLastSentTimeIndices	Sets g_netLastSentSplit and g_netLastSentStageIndex to -1.
+0x427660	NetRace_GetType8PlayerIndex	NetRace_GetLastSentSplit	Returns g_netLastSentSplit (set by NetRace_SendSplitTime).
+0x427670	NetRace_GetType9PlayerIndex	NetRace_GetLastSentStageIndex	Returns g_netLastSentStageIndex (set by NetRace_SendStageTime).
+0x427930	NetRace_SendType7Notification	NetRace_SendReady	Sends message 7; the receiver's NetRace_DispatchRacePacket calls NetPlayers_MarkPlayerReadyByID.
+0x427990	NetRace_SendType8PlayerValue	NetRace_SendSplitTime	Sends a NetTimeMessage of type 8 (split index, time) that the receiver passes to NetPlayers_RecordRemoteSplitTime.
+0x4279d0	NetRace_SendType9PlayerValue	NetRace_SendStageTime	Sends a NetTimeMessage of type 9 that the receiver passes to NetPlayers_RecordRemoteStageTime.
+0x427a10	NetRace_SendType12Notification	NetRace_SendResultsQuit	Sends message 12; the receiver fades out with GameMenu_FinishNetworkResultsQuitFade.
+0x427a30	NetRace_SendType13AndResetInput	NetRace_SendContinue	Sends message 13 (receiver fades out with GameMenu_FinishContinueFade) and blocks statistics reception.
+0x427a50	NetRace_SendType14AndClearRaceFlag	NetRace_SendClose	Sends message 14 (receiver fades out with GameMenu_FinishNetworkCloseFade), clears the race control flag and blocks statistics.
+0x427a80	NetRace_SendType15AndResetInput	NetRace_SendRestart	Sends message 15 (receiver fades out with GameMenu_FinishNetworkRestartFade) and blocks statistics reception.

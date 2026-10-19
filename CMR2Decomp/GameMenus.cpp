@@ -122,10 +122,10 @@ void Race_SetFlag3810D(void);
 void Race_ClearState38118(void);
 void InRaceMenu_Close(void);
 void StageUI_PublishNetworkRaceWins(void);
-void NetRace_SendType12Notification(void);
-void NetRace_SendType13AndResetInput(void);
-void NetRace_SendType14AndClearRaceFlag(void);
-void NetRace_SendType15AndResetInput(void);
+void NetRace_SendResultsQuit(void);
+void NetRace_SendContinue(void);
+void NetRace_SendClose(void);
+void NetRace_SendRestart(void);
 void NetPlayers_BuildFinalClassification(void);
 void NetPlayers_ClearReadyFlags(void);
 void CarDamage_ExportStageSnapshotToRallyRecord(int index);
@@ -185,9 +185,9 @@ void GameMenu_FinishNetworkCloseFade(BYTE index)
 // GLOBAL: CMR2 0x00516090
 int g_netMenuFadeColour = 0xacb49c;
 
-void NetRace_SendType15AndResetInput(void);
+void NetRace_SendRestart(void);
 void StageUI_PublishNetworkRaceWins(void);
-void NetRace_SendType12Notification(void);
+void NetRace_SendResultsQuit(void);
 
 // Fade callback: promotes the cars and quits the (network) championship.
 // FUNCTION: CMR2 0x004016b0
@@ -224,7 +224,7 @@ void GameMenu_FinishLeaveChampionshipFade(BYTE index)
 int g_unk0x0052af54;
 
 void NetPlayers_ClearReadyFlags(void);
-void NetRace_SendType14AndClearRaceFlag(void);
+void NetRace_SendClose(void);
 
 // Item callback of the in-race "restart stage" item.
 // FUNCTION: CMR2 0x00401590
@@ -241,7 +241,7 @@ void GameMenu_RequestStageRestart(Menu *pMenu, int param)
     }
     if (CGameInfo::GetGameModeOptionBit19() && Network_GetSessionStateFlag() && CGameInfo::GetConfiguredGameMode() != 10) {
         NetPlayers_ClearReadyFlags();
-        NetRace_SendType14AndClearRaceFlag();
+        NetRace_SendClose();
     }
 }
 
@@ -254,7 +254,7 @@ void GameMenu_RequestNetworkRestart(Menu *pMenu, int param)
     for (i = 0; (short)i < Car_GetOrderCount(); i++)
         NetRace_FadeOutPlayerScreen(i, i != 0 ? NULL : (FadeCallback)GameMenu_FinishNetworkRestartFade, 1, 0, g_netMenuFadeColour, 1);
     if (CGameInfo::GetGameModeOptionBit19() && Network_GetSessionStateFlag() && CGameInfo::GetConfiguredGameMode() != 10)
-        NetRace_SendType15AndResetInput();
+        NetRace_SendRestart();
 }
 
 // Item callback of the network "quit" item.
@@ -277,7 +277,7 @@ void GameMenu_RequestNetworkLeave(Menu *pMenu, int param)
         NetRace_FadeOutPlayerScreen(i, i != 0 ? NULL : (FadeCallback)GameMenu_FinishLeaveChampionshipFade, 1, 0, g_netMenuFadeColour, 1);
     if (CGameInfo::GetGameModeOptionBit19() && Network_GetSessionStateFlag()) {
         StageUI_PublishNetworkRaceWins();
-        NetRace_SendType12Notification();
+        NetRace_SendResultsQuit();
     }
 }
 
@@ -309,7 +309,7 @@ void GameMenu_FinishNetworkResultsQuitFade(BYTE index)
     PROMOTE_CARS();
     if (Network_GetSessionStateFlag()) {
         StageUI_PublishNetworkRaceWins();
-        NetRace_SendType12Notification();
+        NetRace_SendResultsQuit();
     }
     NetPlayers_BuildFinalClassification();
     Race_SetFlag3810D();
@@ -461,7 +461,7 @@ void GameMenu_RequestResultsRestart(Menu *pMenu, int param)
     if (CGameInfo::GetGameModeOptionBit19() && Network_GetSessionStateFlag() && CGameInfo::GetConfiguredGameMode() != 10 &&
         CGameInfo::GetConfiguredGameMode() != 12) {
         NetPlayers_ClearReadyFlags();
-        NetRace_SendType14AndClearRaceFlag();
+        NetRace_SendClose();
     }
 }
 
@@ -474,7 +474,7 @@ void GameMenu_RequestResultsContinue(Menu *pMenu, int param1)
     if (CGameInfo::GetGameModeOptionBit19()) {
         NetRace_FadeOutPlayerScreen(0, GameMenu_FinishContinueFade, 1, 0, g_stageEndMenuFade, 1);
         if (Network_GetSessionStateFlag())
-            NetRace_SendType13AndResetInput();
+            NetRace_SendContinue();
         return;
     }
     for (i = 0; (short)i < Car_GetOrderCount(); i++)
@@ -522,7 +522,7 @@ void GameMenu_RequestResultsRetry(Menu *pMenu, int param)
     for (i = 0; (short)i < Car_GetOrderCount(); i++)
         NetRace_FadeOutPlayerScreen(i, i != 0 ? NULL : GameMenu_FinishRetryFade, 1, 0, g_stageEndMenuFade, 1);
     if (CGameInfo::GetGameModeOptionBit19() && Network_GetSessionStateFlag() && CGameInfo::GetConfiguredGameMode() != 10)
-        NetRace_SendType15AndResetInput();
+        NetRace_SendRestart();
 }
 
 int Race_IsMultiplayerRecordMode10(void);
@@ -665,8 +665,8 @@ void GameMenu_DrawKnockoutSplitComparison(void)
 }
 
 Texture *InRaceMenu_GetCurtainTexture(void);
-int NetRace_GetType8PlayerIndex(void);
-int NetRace_GetType9PlayerIndex(void);
+int NetRace_GetLastSentSplit(void);
+int NetRace_GetLastSentStageIndex(void);
 int StageTiming_GetCarSplitTime(int car, int index);
 unsigned int RallyData_GetSelectionBits12To13(void);
 unsigned int RallyData_GetSelectionBits16To19(void);
@@ -777,14 +777,14 @@ void GameMenu_DrawSplitTimes(Menu *pMenu)
             total = 0;
             x = (int)(g_pGraphics->resX * 0xb1) / 640 + ((int)(g_pGraphics->resX * 0x166) / 640) * car;
             if (!(!CGameInfo::GetGameModeOptionBit19())) {
-                for (split = 1; split <= NetRace_GetType9PlayerIndex(); split++) {
+                for (split = 1; split <= NetRace_GetLastSentStageIndex(); split++) {
                     FormatCentisecondsAsMinSecMSec(StageTiming_GetCarSplitTime(0, split), CFrontend::m_stringDest);
                     Font_DrawText(1, CFrontend::m_stringDest, x,
                                   (int)(g_pGraphics->resY * 0x91) / 480 + yOffset +
                                       ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
                                   (int *)g_menuFrameColour, 0x11);
                 }
-                for (split = NetRace_GetType9PlayerIndex() + 1; split < (int)(RallyData_GetSelectionBits16To19() & 0xff) + 1; split++) {
+                for (split = NetRace_GetLastSentStageIndex() + 1; split < (int)(RallyData_GetSelectionBits16To19() & 0xff) + 1; split++) {
                     if (split > 0) {
                         sprintf(CFrontend::m_stringDest, g_noTimeText);
                         Font_DrawText(1, CFrontend::m_stringDest, x,
@@ -870,7 +870,7 @@ void GameMenu_DrawSplitTimes(Menu *pMenu)
                     goto draw_total;
                 }
             } else {
-                for (split = 0; split < NetRace_GetType8PlayerIndex(); split++) {
+                for (split = 0; split < NetRace_GetLastSentSplit(); split++) {
                     FormatCentisecondsAsMinSecMSec(StageTiming_GetDriverSplitClock(car, split + 1) - StageTiming_GetDriverSplitClock(car, split),
                                                    CFrontend::m_stringDest);
                     Font_DrawText(1, CFrontend::m_stringDest, x,
@@ -878,7 +878,7 @@ void GameMenu_DrawSplitTimes(Menu *pMenu)
                                       ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
                                   (int *)pColour, 0x11);
                 }
-                for (split = NetRace_GetType8PlayerIndex(); split < GetStageSplitCount(); split++) {
+                for (split = NetRace_GetLastSentSplit(); split < GetStageSplitCount(); split++) {
                     if (split >= 0) {
                         sprintf(CFrontend::m_stringDest, g_noTimeText);
                         Font_DrawText(1, CFrontend::m_stringDest, x,
@@ -907,8 +907,10 @@ void GameMenus_DrawTextRow(int x, int y, char *pText, ...);
 void GameMenu_ClearMenuListWithHighlight(void);
 extern char g_standingsRowFormat[];
 
+// Initials of the holder of the current stage's record, shown as the stage
+// winner outside the arcade modes.
 // GLOBAL: CMR2 0x00519edc
-char g_unk0x00519edc[4] = "jml";
+char g_stageRecordHolder[4] = "jml";
 // GLOBAL: CMR2 0x00519f68
 char g_winnerFormat[] = "%s, %s";
 
@@ -940,7 +942,7 @@ void GameMenu_DrawStageWinner(Menu *pMenu)
     if (CGameInfo::GetConfiguredGameMode() != 5 && CGameInfo::GetConfiguredGameMode() != 6) {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
                               CFrontend::GetTextString(0x49), CFrontend::GetTextString(0x46), (char *)NULL);
-        sprintf(CFrontend::m_stringDest, g_winnerFormat, g_unk0x00519edc, CFrontend::GetTextString(0x4a));
+        sprintf(CFrontend::m_stringDest, g_winnerFormat, g_stageRecordHolder, CFrontend::GetTextString(0x4a));
     } else {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
                               CFrontend::GetTextString(0x49), (char *)NULL);
@@ -2995,8 +2997,9 @@ void GameMenu_DrawNetworkTimeTrialResults(Menu *pMenu)
     Font_SetBlendMode(2);
 }
 
+// Record time of the current stage (written only).
 // GLOBAL: CMR2 0x00541cd8
-int g_unk0x00541cd8;
+int g_stageRecordTime;
 extern char g_strDemoName0x00519ec4[4];
 
 BYTE Race_GetStateByte(void);
@@ -3178,12 +3181,10 @@ void GameMenu_SetupStageResults(int param_1)
         }
     }
     if (CGameInfo::GetConfiguredGameMode() != 4 && CGameInfo::GetGameInfoFieldA4Address() != NULL) {
-        g_unk0x00541cd8 = *(unsigned int *)((char *)CGameInfo::GetGameInfoFieldA4Address() + 0x658 +
-                                            ((RallyDataCountryIndex() & 0xff) * 0xb +
-                                             (RallyDataStageIndex() & 0xff)) * 8) >> 7 & 0xffff;
-        strcpy(g_unk0x00519edc, (char *)CGameInfo::GetGameInfoFieldA4Address() + 0x654 +
-                                    ((RallyDataCountryIndex() & 0xff) * 0xb +
-                                     (RallyDataStageIndex() & 0xff)) * 8);
+        g_stageRecordTime = CGameInfo::GetGameInfoFieldA4Address()->rallyStageRecordTimes[
+                              (RallyDataCountryIndex() & 0xff) * 0xb + (RallyDataStageIndex() & 0xff)].value >> 7 & 0xffff;
+        strcpy(g_stageRecordHolder, CGameInfo::GetGameInfoFieldA4Address()->rallyStageRecordTimes[
+                                    (RallyDataCountryIndex() & 0xff) * 0xb + (RallyDataStageIndex() & 0xff)].ident);
     }
     if ((state & 1) != 0) {
         g_menu0x00541218.items[0].pSubMenu = &g_menu0x0053f5b0;

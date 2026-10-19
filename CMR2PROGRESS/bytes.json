@@ -17815,31 +17815,31 @@
     "symbol_name": "NetRace_SetRaceControlFlag"
   },
   "0x427650": {
-    "n": "NetRace_ResetType8And9PlayerIndices",
+    "n": "NetRace_ResetLastSentTimeIndices",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "NetRace.cpp",
-    "symbol_name": "NetRace_ResetType8And9PlayerIndices"
+    "symbol_name": "NetRace_ResetLastSentTimeIndices"
   },
   "0x427660": {
-    "n": "NetRace_GetType8PlayerIndex",
+    "n": "NetRace_GetLastSentSplit",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "NetRace.cpp",
-    "symbol_name": "NetRace_GetType8PlayerIndex"
+    "symbol_name": "NetRace_GetLastSentSplit"
   },
   "0x427670": {
-    "n": "NetRace_GetType9PlayerIndex",
+    "n": "NetRace_GetLastSentStageIndex",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "NetRace.cpp",
-    "symbol_name": "NetRace_GetType9PlayerIndex"
+    "symbol_name": "NetRace_GetLastSentStageIndex"
   },
   "0x4276c0": {
     "n": "NetRace_DispatchRacePacket",
@@ -17869,13 +17869,13 @@
     "symbol_name": "NetRace_SendLocalCarState"
   },
   "0x427930": {
-    "n": "NetRace_SendType7Notification",
+    "n": "NetRace_SendReady",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "NetRace.cpp",
-    "symbol_name": "NetRace_SendType7Notification"
+    "symbol_name": "NetRace_SendReady"
   },
   "0x427950": {
     "n": "NetRace_SendStageAndOverallTimes",
@@ -17887,58 +17887,58 @@
     "symbol_name": "NetRace_SendStageAndOverallTimes"
   },
   "0x427990": {
-    "n": "NetRace_SendType8PlayerValue",
+    "n": "NetRace_SendSplitTime",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "NetRace.cpp",
-    "symbol_name": "NetRace_SendType8PlayerValue"
+    "symbol_name": "NetRace_SendSplitTime"
   },
   "0x4279d0": {
-    "n": "NetRace_SendType9PlayerValue",
+    "n": "NetRace_SendStageTime",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "NetRace.cpp",
-    "symbol_name": "NetRace_SendType9PlayerValue"
+    "symbol_name": "NetRace_SendStageTime"
   },
   "0x427a10": {
-    "n": "NetRace_SendType12Notification",
+    "n": "NetRace_SendResultsQuit",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "NetRace.cpp",
-    "symbol_name": "NetRace_SendType12Notification"
+    "symbol_name": "NetRace_SendResultsQuit"
   },
   "0x427a30": {
-    "n": "NetRace_SendType13AndResetInput",
+    "n": "NetRace_SendContinue",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "NetRace.cpp",
-    "symbol_name": "NetRace_SendType13AndResetInput"
+    "symbol_name": "NetRace_SendContinue"
   },
   "0x427a50": {
-    "n": "NetRace_SendType14AndClearRaceFlag",
+    "n": "NetRace_SendClose",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "NetRace.cpp",
-    "symbol_name": "NetRace_SendType14AndClearRaceFlag"
+    "symbol_name": "NetRace_SendClose"
   },
   "0x427a80": {
-    "n": "NetRace_SendType15AndResetInput",
+    "n": "NetRace_SendRestart",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "NetRace.cpp",
-    "symbol_name": "NetRace_SendType15AndResetInput"
+    "symbol_name": "NetRace_SendRestart"
   },
   "0x427aa0": {
     "n": "NetRace_GetRaceSoundMode",
