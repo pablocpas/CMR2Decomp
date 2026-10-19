@@ -5371,13 +5371,13 @@ void CarLight_CacheBodyTextures(int car, int unused1, int unused2, BYTE flag)
     RallyData_ValidateIndex(car);
     pMesh = (Mesh *)SceneNode_FindByType(Car_Get(car)->pBodyNode, 0xe)->pObject;
     Graphics_SetRecordField2C(pMesh, 0);
-    pTexture = CGraphics::m_pTextureManager->textureBuffer[pMesh->pTriangles->textureIndex];
+    pTexture = CGraphics::m_pTextureManager->textureBuffer[pMesh->pTriangles->textures[0]];
     pRecord->textures[0] = pTexture;
     Frontend_SetObjectField118(pTexture, 2);
     if (Car_Get(car)->pAlternateBodyNode != NULL) {
         pMesh = (Mesh *)SceneNode_FindByType(Car_Get(car)->pAlternateBodyNode, 0xe)->pObject;
         Graphics_SetRecordField2C(pMesh, 0);
-        pTexture = CGraphics::m_pTextureManager->textureBuffer[pMesh->pTriangles->textureIndex];
+        pTexture = CGraphics::m_pTextureManager->textureBuffer[pMesh->pTriangles->textures[0]];
         pRecord->textures[1] = pTexture;
         Frontend_SetObjectField118(pTexture, 2);
     }

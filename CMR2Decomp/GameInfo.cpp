@@ -7315,7 +7315,7 @@ void OptionPreview_UpdateWheelMeshVariants(int param1)
             for (w = 0; w < 4; w++) {
                 pMesh = (Mesh *)PREVIEW_SCENE_AT_OFFSET(off)->wheelNodes[0]->pObject;
                 for (k = 0; k < pMesh->triangleCount; k++) {
-                    pTex = CGraphics::m_pTextureManager->textureBuffer[pMesh->pTriangles[k].textureIndex];
+                    pTex = CGraphics::m_pTextureManager->textureBuffer[pMesh->pTriangles[k].textures[0]];
                     if (OptionPreview_UsesLowWheelVariant(PREVIEW_SCENE_AT_OFFSET(off)->modelClass, g_previewWheelVariant[param1]) != 0) {
                         if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
                             strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
@@ -11180,7 +11180,7 @@ int OptionPreview_LoadStageGeometryRecord(int index)
     {
         SceneNode *h = SceneNode_FindByType(root, (unsigned int)0xe);
         if (h != NULL) {
-            Texture *tex = CGraphics::m_pTextureManager->textureBuffer[((Mesh *)h->pObject)->pTriangles->textureIndex];
+            Texture *tex = CGraphics::m_pTextureManager->textureBuffer[((Mesh *)h->pObject)->pTriangles->textures[0]];
             CGraphics::RemapTextureAlpha(tex, 0xbf, 0, 0x40, 0, 0x80, 0, index);
             CGraphics::RemapTextureAlpha(tex, 0xe0, 0, 0xe0, 0, 0xe0, 0, index);
         }

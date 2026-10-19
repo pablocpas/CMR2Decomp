@@ -2112,7 +2112,7 @@ void Game_DrawMeshTextureRuns(Mesh *pMesh)
     MeshTriangle *pTri = pMesh->pTriangles;
 
     for (i = total; i > 0; i--) {
-        texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
+        texture = pTri->textures[pTri->field_0x2c];
         if (prev != texture) {
             if (count > 0) {
                 CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
@@ -2138,8 +2138,7 @@ void Game_DrawMeshTextureRuns(Mesh *pMesh)
     }
     if (count != 0) {
         CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[
-            *(int *)((BYTE *)&pMesh->pTriangles[total - 1] + 4 +
-                     pMesh->pTriangles[total - 1].field_0x2c * 4)]);
+            pMesh->pTriangles[total - 1].textures[pMesh->pTriangles[total - 1].field_0x2c]]);
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
             D3DPT_TRIANGLELIST,
             CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
@@ -2259,7 +2258,7 @@ void Game_DrawDeferredObjects(void)
             qsort(CGame::m_deferredDrawObjects, CGame::m_deferredDrawCount, sizeof(CGame::m_deferredDrawObjects[0]), Game_CompareDeferredDrawDepth);
         for (i = 0; i < (unsigned int)CGame::m_deferredDrawCount; i++) {
             Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[
-                ((StageObjectDraw *)CGame::m_deferredDrawObjects[i])->pMesh->pTriangles->textureIndex], 0);
+                ((StageObjectDraw *)CGame::m_deferredDrawObjects[i])->pMesh->pTriangles->textures[0]], 0);
             CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
                 (D3DMATRIX *)((StageObjectDraw *)CGame::m_deferredDrawObjects[i])->matrix);
             if (((StageObjectDraw *)CGame::m_deferredDrawObjects[i])->pMesh->field_0x114 < 0xc80000)

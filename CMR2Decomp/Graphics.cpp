@@ -3240,7 +3240,7 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
             triangleCount > 0) {
             for (i = 0; i < triangleCount; i++) {
                 textureIndex = pMesh->pTriangles[i].field_0x30;
-                if (currentTexture != *(int *)((BYTE *)&pMesh->pTriangles[i] + 4 + textureIndex * 4)) {
+                if (currentTexture != pMesh->pTriangles[i].textures[textureIndex]) {
                     if (count > 0) {
                         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
                             D3DPT_TRIANGLELIST,
@@ -3248,7 +3248,7 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
                             pMesh->vertexOffset, pMesh->field_0x10, g_unk0x006dd9bc, count, 0);
                     }
                     count = 0;
-                    currentTexture = *(int *)((BYTE *)&pMesh->pTriangles[i] + 4 + textureIndex * 4);
+                    currentTexture = pMesh->pTriangles[i].textures[textureIndex];
                     if (currentTexture > -1) {
                         Frontend_SetObjectField118(
                             CGraphics::m_pTextureManager->textureBuffer[currentTexture], 5);
@@ -3265,7 +3265,7 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
                 }
             }
             if (count != 0) {
-                texture = *(int *)((BYTE *)&pMesh->pTriangles[triangleCount - 1] + 4 + textureIndex * 4);
+                texture = pMesh->pTriangles[triangleCount - 1].textures[textureIndex];
                 if (texture > -1) {
                     Frontend_SetObjectField118(
                         CGraphics::m_pTextureManager->textureBuffer[texture], 5);
@@ -7093,7 +7093,7 @@ void Graphics_DrawCubeMappedShadowTriangles(Mesh *pMesh)
         goto done;
     for (i = 0; i < triangleCount; i++) {
         textureIndex = pMesh->pTriangles[i].field_0x30;
-        if (currentTexture != *(int *)((BYTE *)&pMesh->pTriangles[i] + 4 + textureIndex * 4)) {
+        if (currentTexture != pMesh->pTriangles[i].textures[textureIndex]) {
             if (count > 0) {
                 CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
                     D3DPT_TRIANGLELIST,
@@ -7101,7 +7101,7 @@ void Graphics_DrawCubeMappedShadowTriangles(Mesh *pMesh)
                     pMesh->vertexOffset, pMesh->field_0x10, g_unk0x006dd9bc, count, 0);
             }
             count = 0;
-            currentTexture = *(int *)((BYTE *)&pMesh->pTriangles[i] + 4 + textureIndex * 4);
+            currentTexture = pMesh->pTriangles[i].textures[textureIndex];
             if (currentTexture > -1) {
                 if ((g_pGraphics->field913_0x3bc & 0x10) != 0) {
                     Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[currentTexture], 8);
@@ -7127,7 +7127,7 @@ void Graphics_DrawCubeMappedShadowTriangles(Mesh *pMesh)
     }
     if (count == 0)
         goto done;
-    texture = *(int *)((BYTE *)&pMesh->pTriangles[triangleCount - 1] + 4 + textureIndex * 4);
+    texture = pMesh->pTriangles[triangleCount - 1].textures[textureIndex];
     if (texture > -1) {
         if ((g_pGraphics->field913_0x3bc & 0x10) != 0) {
             Frontend_SetObjectField118(CGraphics::m_pTextureManager->textureBuffer[texture], 8);
@@ -7304,7 +7304,7 @@ void Graphics_DrawMeshTextureBatches(Mesh *pMesh)
     int n;
 
     for (n = total; n > 0; n--) {
-        int texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
+        int texture = pTri->textures[pTri->field_0x2c];
         if (texture != currentTexture) {
             if (count > 0) {
                 CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
@@ -7324,7 +7324,7 @@ void Graphics_DrawMeshTextureBatches(Mesh *pMesh)
     }
     if (count != 0) {
         MeshTriangle *pLast = &pMesh->pTriangles[total - 1];
-        int texture = *(int *)((BYTE *)pLast + 4 + pLast->field_0x2c * 4);
+        int texture = pLast->textures[pLast->field_0x2c];
         CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[texture]);
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
             D3DPT_TRIANGLELIST,

@@ -319,7 +319,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4e7120	FrontendMenu_DrawProfileChampionshipRecords	FrontendScreens.cpp	1602	0.8940955951265229	0.9013282732447818
 0x4a4c40	Graphics_ReloadAllTextures	Graphics.cpp	233	0.8941176470588236	0.8823529411764706
 0x4fbae0	FrontendControls_GetBindingDisplayText	FrontendMenus.cpp	891	0.8943089430894309	0.7875816993464052
-0x4b1ac0	Mesh_BuildParts	Mesh.cpp	561	0.8980582524271845	0.8217821782178217
 0x4fe240	FrontendControls_DrawDeviceConfiguration	FrontendMenus.cpp	3582	0.8984689766317486	0.8896999188969992
 0x466570	CarDamage_UpdateOrderedCarsOffRoadState	StageObjects.cpp	190	0.8985507246376812	0.8985507246376812
 0x50f650	OptionMenu_DrawStageSummaryPanel	GameInfo.cpp	1758	0.8986547085201794	0.895870736086176
@@ -357,6 +356,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x42eae0	Car_UpdateGroundContact	Car.cpp	3380	0.9202037351443124	0.8787366046249295
 0x4dfe20	FrontendMenu_DrawGraphicsOptions	FrontendScreens.cpp	2321	0.9207792207792208	0.928763440860215
 0x4eadb0	RallyData_ResetSavedPlayerRecords	RallyData.cpp	141	0.9210526315789473	0.9473684210526315
+0x4b1ac0	Mesh_BuildParts	Mesh.cpp	561	0.9211822660098522	0.8557213930348259
 0x4a7910	CGraphics::CreateSelectedDisplayAndRenderDevice	Graphics.cpp	1826	0.9221902017291066	0.8829174664107485
 0x480cb0	CarPart_SmoothSteeringOffset	StageTiming.cpp	291	0.9239130434782609	0.9239130434782609
 0x49da50	Tri2D_Contains	Graphics.cpp	544	0.9254498714652957	0.9156010230179028

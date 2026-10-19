@@ -1423,8 +1423,8 @@ void Scene_LoadLighting(int *pData)
         pHeader = g_sceneLightZones[zone].pMesh;
         for (i = 0; i < pHeader->triangleCount; i++) {
             MeshTriangle *pTri = &pHeader->pTriangles[i];
-            LightZoneItem *pOwner = &g_sceneLightZones[zone].pItems[pTri->textureIndex];
-            pTri->textureIndex = pOwner->pOwner->pMesh->pTriangles[0].textureIndex;
+            LightZoneItem *pOwner = &g_sceneLightZones[zone].pItems[pTri->textures[0]];
+            pTri->textures[0] = pOwner->pOwner->pMesh->pTriangles[0].textures[0];
         }
     }
 
@@ -1805,7 +1805,7 @@ void Scene_ProjectCasterIntoLightZone(LightZoneItem *pItem, ShadowCaster *pCaste
     projScaleY = invY * spanW;
     origin[0] = X87S_MUL(X87S_FILD(float, pLand->position.x), CGraphics::m_oneOver65536);
     origin[1] = X87S_MUL(X87S_FILD(float, pLand->position.y), CGraphics::m_oneOver65536);
-    tex = pZone->pTriangles->textureIndex;
+    tex = pZone->pTriangles->textures[0];
     origin[2] = X87S_MUL(X87S_FILD(float, pLand->position.z), CGraphics::m_oneOver65536);
     if (g_shadowLastTexture == -1 || g_shadowLastFlags == -1) {
         ((BYTE *)g_shadowBatch)[0xc] = param3;

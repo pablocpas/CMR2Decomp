@@ -143,7 +143,6 @@ void Mesh_BuildParts(Mesh *pMesh)
     int last;
     int i;
     int k;
-    int off;
     int n;
     int lo;
     int hi;
@@ -153,14 +152,10 @@ void Mesh_BuildParts(Mesh *pMesh)
         return;
     count = 0;
     last = -99;
-    if (pMesh->triangleCount > 0) {
-        int *pTex = (int *)((BYTE *)pMesh->pTriangles + 4);
-        for (i = pMesh->triangleCount; i != 0; i--) {
-            if (last != *pTex) {
-                last = *pTex;
-                count++;
-            }
-            pTex += 0x13;
+    for (i = 0; i < pMesh->triangleCount; i++) {
+        if (last != pMesh->pTriangles[i].textures[0]) {
+            last = pMesh->pTriangles[i].textures[0];
+            count++;
         }
     }
     pMesh->partCount = count;
@@ -170,18 +165,17 @@ void Mesh_BuildParts(Mesh *pMesh)
             *ppPart++ = (MeshPart *)CFileBuffer::AllocateLockedBuffer(sizeof(MeshPart));
     }
     count = 0;
-    off = 0;
     last = -99;
     ppPart = pMesh->pParts - 1;
-    for (i = 0; i < pMesh->triangleCount; i++, off += 0x4c) {
-        n = *(int *)((BYTE *)pMesh->pTriangles + off + 4);
+    for (i = 0; i < pMesh->triangleCount; i++) {
+        n = pMesh->pTriangles[i].textures[0];
         if (last != n) {
             count++;
             ppPart++;
             last = n;
             (*ppPart)->indexCount = 0;
-            (*ppPart)->texture = *(int *)((BYTE *)pMesh->pTriangles + off + 4);
-            (*ppPart)->field_0x4 = *(int *)((BYTE *)pMesh->pTriangles + off + 8);
+            (*ppPart)->texture = pMesh->pTriangles[i].textures[0];
+            (*ppPart)->field_0x4 = pMesh->pTriangles[i].textures[1];
         }
         for (k = 3; k != 0; k--)
             (*ppPart)->indexCount++;
@@ -195,23 +189,18 @@ void Mesh_BuildParts(Mesh *pMesh)
     }
     count = 0;
     last = -99;
-    off = 0;
     ppPart = pMesh->pParts - 1;
-    for (i = 0; i < pMesh->triangleCount; i++, off += 0x4c) {
-        n = *(int *)((BYTE *)pMesh->pTriangles + off + 4);
+    for (i = 0; i < pMesh->triangleCount; i++) {
+        n = pMesh->pTriangles[i].textures[0];
         if (last != n) {
             last = n;
             count++;
             ppPart++;
             (*ppPart)->indexCount = 0;
         }
-        {
-            int po = off + 0x40;
-            for (k = 3; k != 0; k--) {
-                (*ppPart)->pData[(*ppPart)->indexCount] = *(unsigned short *)((BYTE *)pMesh->pTriangles + po);
-                (*ppPart)->indexCount++;
-                po += 2;
-            }
+        for (k = 0; k < 3; k++) {
+            (*ppPart)->pData[(*ppPart)->indexCount] = pMesh->pTriangles[i].vertexIndex[k];
+            (*ppPart)->indexCount++;
         }
     }
     if (count > 0) {
