@@ -1621,20 +1621,20 @@ unsigned int RallyData_GetCategoryFourthFifthBlockSetting(int param_1, int param
     return 0;
 }
 
-void GameInfo_GetDefaultCameraParameters(int *pValues, short *pOut1, int *pOut2);
+void GameInfo_GetDefaultCameraParameters(FixVector *pOffset, short *pPitch, int *pLag);
 int GameInfo_GetField98(void);
-void RallyData_SetDriverCameraRecord(BYTE index, int *pValues);
+void RallyData_SetDriverCameraRecord(BYTE index, ChaseCameraSettings *pValues);
 
 // Resets the settings of record `index` to the defaults of the options.
 // FUNCTION: CMR2 0x004ec210
 void RallyData_ResetRecordOptionDefaults(int index)
 {
-    int values[5];
+    ChaseCameraSettings values;
 
     RallyData_ValidateIndex(index);
-    memset(values, 0, sizeof(values));
-    GameInfo_GetDefaultCameraParameters(values, (short *)&values[3], &values[4]);
-    RallyData_SetDriverCameraRecord(index, values);
+    memset(&values, 0, sizeof(values));
+    GameInfo_GetDefaultCameraParameters(&values.offset, &values.pitch, &values.lag);
+    RallyData_SetDriverCameraRecord(index, &values);
 }
 
 // Marks record `index` (and its category's profile) as in use or not; when
@@ -2030,33 +2030,33 @@ void RallyData_MarkDriverRecordDirty(int index);
 
 // Stores a driver's 20-byte tyre choice (driver record or category record).
 // FUNCTION: CMR2 0x004088a0
-void RallyData_SetDriverCameraRecord(BYTE index, int *pValues)
+void RallyData_SetDriverCameraRecord(BYTE index, ChaseCameraSettings *pValues)
 {
     unsigned int category;
 
     if (CGameInfo::GetConfiguredGameMode() == 4) {
-        memcpy(g_saveCarRecords[index].cameraOffsets, pValues, 5 * sizeof(int));
+        memcpy(&g_saveCarRecords[index].chaseCamera, pValues, sizeof(ChaseCameraSettings));
         g_saveCarRecords[index].flags |= 2;
         return;
     }
     category = g_saveSlots[index].category;
     if (category != 0xf) {
-        memcpy(g_saveProfiles[category].cameraOffsets, pValues, 5 * sizeof(int));
+        memcpy(g_saveProfiles[category].chaseCamera, pValues, sizeof(ChaseCameraSettings));
         RallyData_MarkDriverRecordDirty(index);
     }
 }
 
 // FUNCTION: CMR2 0x00408930
-BYTE *RallyData_GetDriverCameraRecord(BYTE index)
+ChaseCameraSettings *RallyData_GetDriverCameraRecord(BYTE index)
 {
     unsigned int category;
 
     RallyData_ValidateIndex(index);
     if (CGameInfo::GetConfiguredGameMode() == 4)
-        return (BYTE *)g_saveCarRecords[index].cameraOffsets;
+        return &g_saveCarRecords[index].chaseCamera;
     category = g_saveSlots[index].category;
     if (category != 0xf)
-        return (BYTE *)g_saveProfiles[category].cameraOffsets;
+        return (ChaseCameraSettings *)g_saveProfiles[category].chaseCamera;
     return NULL;
 }
 
@@ -2142,32 +2142,32 @@ void RallyData_GetDriverDateOfBirth(int index, unsigned int *pHue, unsigned int 
 
 // Stores a driver's camera offsets (y/z of pPos), heading and value.
 // FUNCTION: CMR2 0x00408bd0
-void RallyData_SetDriverCameraOffsets(int *pPos, short heading, int value, int index)
+void RallyData_SetDriverCameraOffsets(FixVector *pOffset, short pitch, int lag, int index)
 {
-    int record[5];
+    ChaseCameraSettings record;
 
     RallyData_ValidateIndex(index);
-    record[0] = 0;
-    *(short *)&record[3] = heading;
-    record[1] = pPos[1];
-    record[2] = pPos[2];
-    record[4] = value;
-    RallyData_SetDriverCameraRecord(index, record);
+    record.offset.x = 0;
+    record.pitch = pitch;
+    record.offset.y = pOffset->y;
+    record.offset.z = pOffset->z;
+    record.lag = lag;
+    RallyData_SetDriverCameraRecord(index, &record);
 }
 
 // Reads a driver's stored position, heading and value.
 // FUNCTION: CMR2 0x00408c20
-void RallyData_GetDriverCameraOffsets(int *pPos, short *pHeading, int *pValue, int index)
+void RallyData_GetDriverCameraOffsets(FixVector *pOffset, short *pPitch, int *pLag, int index)
 {
-    int *p;
+    ChaseCameraSettings *p;
 
     RallyData_ValidateIndex(index);
-    p = (int *)RallyData_GetDriverCameraRecord(index);
-    pPos[0] = p[0];
-    pPos[1] = p[1];
-    pPos[2] = p[2];
-    *pHeading = *(short *)(RallyData_GetDriverCameraRecord(index) + 0xc);
-    *pValue = *(int *)(RallyData_GetDriverCameraRecord(index) + 0x10);
+    p = RallyData_GetDriverCameraRecord(index);
+    pOffset->x = p->offset.x;
+    pOffset->y = p->offset.y;
+    pOffset->z = p->offset.z;
+    *pPitch = RallyData_GetDriverCameraRecord(index)->pitch;
+    *pLag = RallyData_GetDriverCameraRecord(index)->lag;
 }
 
 // FUNCTION: CMR2 0x00408c70
@@ -3879,16 +3879,16 @@ void RallyData_IncrementSelectedCategoryCounters(void)
 // FUNCTION: CMR2 0x004ec260
 void RallyData_SetPlayerDefaultCarSetup(int player)
 {
-    int values[5];
+    ChaseCameraSettings values;
 
     if (CGameInfo::GetConfiguredGameMode() != 4)
         RallyData_ValidateIndex(player);
-    *(short *)&values[3] = 0x2d;
-    values[0] = 0;
-    values[1] = 0x18000;
-    values[2] = 0x68000;
-    values[4] = 0xe0000;
-    RallyData_SetDriverCameraRecord((BYTE)player, values);
+    values.pitch = 0x2d;
+    values.offset.x = 0;
+    values.offset.y = 0x18000;
+    values.offset.z = 0x68000;
+    values.lag = 0xe0000;
+    RallyData_SetDriverCameraRecord((BYTE)player, &values);
 }
 
 // GLOBAL: CMR2 0x00520128

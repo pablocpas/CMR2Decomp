@@ -1,0 +1,14 @@
+address	old_name	new_name	evidence
+0x447530	Dash_UpdateCameraModeOffset	ChaseCamera_Start	Camera_Start handler of types 4/5/6: sets g_playerCameraMode (0/4/3), applies the followed driver's ChaseCameraSettings and builds the matrix.
+0x4475f0	Dash_BuildInterpolatedCockpitMatrix	ChaseCamera_Update	Camera_Update handler of types 4/5/6: eases the record's chase basis towards the car by timeStep / lag (g_chaseCameraLag) and rebuilds the matrix.
+0x447a00	View_CacheReferenceBasisAndBuildMatrix	ChaseCamera_Restart	Camera_Restart handler of types 4/5/6: takes the record's up/right from the reference matrix, then ChaseCamera_BuildMatrix.
+0x447a40	View_BuildMatrixFromCameraBasis	ChaseCamera_BuildMatrix	Camera_SnapTo handler of types 4/5/6 and the last step of Start/Update/Restart: matrix from the record's chase basis, positioned at the view offset, pitched by g_chaseCameraPitch.
+0x447be0	HudDash_UpdateCameraBasis	ChaseCamera_BeginEnter	Camera_BeginEnter handler of types 4/5: copies the other record's chase basis when it follows the same car with a chase camera, else takes it from the matrix.
+0x447ca0	HudDash_ResetPlayerCamera	ChaseCamera_Reset	Sets a player's chase camera to the default settings (offset 0/1.5/6.5, pitch 0x2d, lag 14.0), as RallyData_SetPlayerDefaultCarSetup stores them.
+0x447cf0	HudDash_GetCameraUpVector	ChaseCamera_GetOffset	Returns g_chaseCameraOffsets[player], the offset ChaseCamera_SetOffset stored (read back by the camera menu).
+0x447d20	HudDash_SetCameraOffset	ChaseCamera_SetOffset	Stores a player's chase camera offset and the derived view offset, and refreshes the distance-scaled pitch.
+0x447e00	HudDash_GetGaugeTarget	ChaseCamera_GetPitch	Returns g_chaseCameraPitch[player]; the camera menu reads it as ChaseCameraSettings::pitch.
+0x447e20	HudDash_SetGaugeTarget	ChaseCamera_SetPitch	Stores the pitch and the copy reduced by the offset distance that ChaseCamera_BuildMatrix passes to FixMatrix_RotateAboutRight.
+0x447ea0	HudDash_GetPlayerGaugeValue	ChaseCamera_GetLag	Returns g_chaseCameraLag[player] (ChaseCameraSettings::lag); also scales the view sway angle in Car.cpp.
+0x447ec0	HudDash_SetPlayerGaugeValue	ChaseCamera_SetLag	Stores g_chaseCameraLag[player], the follow time ChaseCamera_Update divides the time step by.
+0x447ee0	HudDash_GetCameraViewOffset	ChaseCamera_GetViewOffset	View offset of a chase camera: the player's derived offset in mode 4, else g_fixedCameraDefaultOffsets[mode]; lowered in the split-screen view.

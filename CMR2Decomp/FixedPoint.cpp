@@ -830,32 +830,31 @@ void ForceFeedback_UpdateSlot(Car *pCar, FixVector *pIn, int nonzero)
         g_pForceFeedbackSlot->field_0x28 = x;
 }
 
-// Per-player camera mode (4 = free camera) and the camera up/forward vectors.
+// Chase camera state (HudDash.cpp): mode per view record, the records' up and
+// forward vectors (entries 2..5) and the pitch.
 extern BYTE g_playerCameraMode[8];
-extern FixVector g_unk0x0053d000[6];
-extern FixVector g_unk0x0053d048[4];
-// Per-player dashboard gauge values.
-extern short g_dashGaugeTargets[4];
-// View offset of a player's camera (HudDash.cpp).
-void HudDash_GetCameraViewOffset(FixVector *pOut, CameraRecord *pSel);
+extern FixVector g_chaseCameraViewOffsets[6];
+extern FixVector g_chaseCameraOffsets[4];
+extern short g_chaseCameraPitch[4];
+void ChaseCamera_GetViewOffset(FixVector *pOut, CameraRecord *pSel);
 
-void View_BuildMatrixFromCameraBasis(CameraRecord *pObj, FixMatrix *pRef);
+void ChaseCamera_BuildMatrix(CameraRecord *pObj, FixMatrix *pRef);
 
 // Caches the reference matrix's up and right basis vectors in the player's
 // camera slots, then builds the view object's matrix from them.
 // FUNCTION: CMR2 0x00447a00
-void View_CacheReferenceBasisAndBuildMatrix(CameraRecord *pObj, FixMatrix *pRef)
+void ChaseCamera_Restart(CameraRecord *pObj, FixMatrix *pRef)
 {
-    FixMatrix_GetUp(&g_unk0x0053d048[2 + pObj->index], pRef);
-    FixMatrix_GetRight(&g_unk0x0053d000[2 + pObj->index], pRef);
-    View_BuildMatrixFromCameraBasis(pObj, pRef);
+    FixMatrix_GetUp(&g_chaseCameraOffsets[2 + pObj->index], pRef);
+    FixMatrix_GetRight(&g_chaseCameraViewOffsets[2 + pObj->index], pRef);
+    ChaseCamera_BuildMatrix(pObj, pRef);
 }
 
 // Builds a view object's matrix: the basis comes from the player's camera
 // up/forward vectors, the position from the player's view offset plus the
 // object's own, and then the object's remaining fields are set.
 // FUNCTION: CMR2 0x00447a40
-void View_BuildMatrixFromCameraBasis(CameraRecord *pObj, FixMatrix *pRef)
+void ChaseCamera_BuildMatrix(CameraRecord *pObj, FixMatrix *pRef)
 {
     FixMatrix identity;
     FixVector right;
@@ -868,16 +867,16 @@ void View_BuildMatrixFromCameraBasis(CameraRecord *pObj, FixMatrix *pRef)
     int v;
 
     sel = pObj->index;
-    HudDash_GetCameraViewOffset(&base, pObj);
+    ChaseCamera_GetViewOffset(&base, pObj);
     FixMatrix_Identity(&identity);
     FixMatrix_SetPosition(&base, &identity);
     index = sel & 0xff;
 
-    FixVecCross(&right, &g_unk0x0053d048[2 + index], &g_unk0x0053d000[2 + index]);
+    FixVecCross(&right, &g_chaseCameraOffsets[2 + index], &g_chaseCameraViewOffsets[2 + index]);
     pM = &pObj->matrix;
     FixMatrix_SetRight(&right, pM);
-    FixMatrix_SetUp(&g_unk0x0053d048[2 + index], pM);
-    FixMatrix_SetForward(&g_unk0x0053d000[2 + index], pM);
+    FixMatrix_SetUp(&g_chaseCameraOffsets[2 + index], pM);
+    FixMatrix_SetForward(&g_chaseCameraViewOffsets[2 + index], pM);
     pObj->matrix.position.x = 0;
     pObj->matrix.position.y = 0;
     pObj->matrix.position.z = 0;
@@ -889,7 +888,7 @@ void View_BuildMatrixFromCameraBasis(CameraRecord *pObj, FixMatrix *pRef)
     pos.z += off.z;
     FixMatrix_SetPosition(&pos, pM);
     if (g_playerCameraMode[index] == 4)
-        FixMatrix_RotateAboutRight(pM, (unsigned short)g_dashGaugeTargets[2 + pObj->view]);
+        FixMatrix_RotateAboutRight(pM, (unsigned short)g_chaseCameraPitch[2 + pObj->view]);
 
     pObj->carLift = 0;
     pObj->nearPlane = 0x10000;

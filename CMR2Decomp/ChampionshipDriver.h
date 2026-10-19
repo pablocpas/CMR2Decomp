@@ -6,6 +6,7 @@
 
 #include "SavedGame.h"
 #include "TyreWear.h"
+#include "ChaseCamera.h"
 
 // One championship driver entry (CMR2 0x0052f3e0, eight of them), used
 // instead of the driver's profile in game mode 4. Kept out of SavedGame.h:
@@ -18,13 +19,13 @@ struct ChampionshipDriver {
     BYTE hudFlags;                       // 0x0d, as DriverProfile::hudFlags
     BYTE reserved[2];
     TyreWear wear;                       // 0x10, as DriverProfile::wear
-    int cameraOffsets[5];                // 0xb0, as DriverProfile::cameraOffsets
+    ChaseCameraSettings chaseCamera;     // 0xb0, as DriverProfile::chaseCamera
 };
 
 typedef char ChampionshipDriverLayoutCheck1[(sizeof(ChampionshipDriver) == 0xc4) ? 1 : -1];
-typedef char ChampionshipDriverLayoutCheck2[(offsetof(ChampionshipDriver, cameraOffsets) == 0xb0) ? 1 : -1];
+typedef char ChampionshipDriverLayoutCheck2[(offsetof(ChampionshipDriver, chaseCamera) == 0xb0) ? 1 : -1];
 typedef char ChampionshipDriverLayoutCheck3[(offsetof(DriverProfile, bestResults) == 0x84) ? 1 : -1];
 typedef char ChampionshipDriverLayoutCheck4[(offsetof(DriverProfile, wear) == 0x58c) ? 1 : -1];
-typedef char ChampionshipDriverLayoutCheck5[(offsetof(DriverProfile, cameraOffsets) == 0x634) ? 1 : -1];
+typedef char ChampionshipDriverLayoutCheck5[(offsetof(DriverProfile, chaseCamera) == 0x634) ? 1 : -1];
 
 #endif

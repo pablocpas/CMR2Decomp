@@ -285,12 +285,12 @@ void CGameInfo::SetSoundOptionBit29(BYTE param1)
 }
 
 // FUNCTION: CMR2 0x00405fa0
-void CGameInfo::SetDefaultCameraParameters(DWORD *param1, WORD param2, DWORD param3)
+void CGameInfo::SetDefaultCameraParameters(FixVector *pOffset, WORD pitch, DWORD lag)
 {
-    m_gameInfo.field_0x88 = param1[1];
-    m_gameInfo.field_0x8c = param1[2];
-    m_gameInfo.field_0x94 = param2;
-    m_gameInfo.field_0x90 = param3;
+    m_gameInfo.chaseCameraHeight = pOffset->y;
+    m_gameInfo.chaseCameraDistance = pOffset->z;
+    m_gameInfo.chaseCameraPitch = pitch;
+    m_gameInfo.chaseCameraLag = lag;
 }
 
 // FUNCTION: CMR2 0x00405fd0
@@ -808,10 +808,10 @@ void CGameInfo::InitDefaultGameInfo(void)
 // FUNCTION: CMR2 0x00510570
 void CGameInfo::ResetDefaultCameraParameters(void)
 {
-    m_gameInfo.field_0x88 = 0x18000;
-    m_gameInfo.field_0x8c = 0x68000;
-    m_gameInfo.field_0x94 = 0x2d;
-    m_gameInfo.field_0x90 = 0xe0000;
+    m_gameInfo.chaseCameraHeight = 0x18000;
+    m_gameInfo.chaseCameraDistance = 0x68000;
+    m_gameInfo.chaseCameraPitch = 0x2d;
+    m_gameInfo.chaseCameraLag = 0xe0000;
 }
 
 // Initializes profile record labels, flags, default times and split tables.
@@ -3382,16 +3382,15 @@ int GameInfo_CountSetBits(unsigned int value)
 
 
 
-// Reads back the current camera defaults: fills a 3 dword vector out of
-// 0x52b028/0x52b02c, a short out of 0x52b034 and an int out of 0x52b030.
+// Reads back the default chase camera settings.
 // FUNCTION: CMR2 0x004eaae0
-void GameInfo_GetDefaultCameraParameters(int *param_1, short *param_2, int *param_3)
+void GameInfo_GetDefaultCameraParameters(FixVector *pOffset, short *pPitch, int *pLag)
 {
-    param_1[0] = 0;
-    param_1[1] = CGameInfo::m_gameInfo.field_0x88;
-    param_1[2] = CGameInfo::m_gameInfo.field_0x8c;
-    *param_2 = CGameInfo::m_gameInfo.field_0x94;
-    *param_3 = CGameInfo::m_gameInfo.field_0x90;
+    pOffset->x = 0;
+    pOffset->y = CGameInfo::m_gameInfo.chaseCameraHeight;
+    pOffset->z = CGameInfo::m_gameInfo.chaseCameraDistance;
+    *pPitch = CGameInfo::m_gameInfo.chaseCameraPitch;
+    *pLag = CGameInfo::m_gameInfo.chaseCameraLag;
 }
 
 // FUNCTION: CMR2 0x004eab20
@@ -3984,21 +3983,21 @@ int InRaceMenu_IsBackPressed(unsigned short slot)
     return 0;
 }
 
-// Camera options chosen in the camera menu (0x4035e0): offset, height, distance.
+// Chase camera settings chosen on the camera menu's sliders: pitch, offset
+// (height, distance) and lag.
 // GLOBAL: CMR2 0x0052a86c
-short g_unk0x0052a86c;
-// Camera offset chosen in the camera options menu.
+short g_cameraMenuPitch;
 // GLOBAL: CMR2 0x0052aa50
 FixVector g_cameraMenuOffset;
 // GLOBAL: CMR2 0x0052aa5c
-int g_unk0x0052aa5c;
+int g_cameraMenuLag;
 
 // Callback of the camera options menu: turns the four sliders into values.
 // FUNCTION: CMR2 0x00403200
 void InRaceMenu_ReadCameraOffsetSliders(Menu *pMenu)
 {
-    g_unk0x0052aa5c = (int)(pMenu->items[2].max << 19) / (pMenu->items[2].min - 1) + 0x80000;
-    g_unk0x0052a86c = (short)((int)(pMenu->items[3].max * 0x11c) / (pMenu->items[3].min - 1));
+    g_cameraMenuLag = (int)(pMenu->items[2].max << 19) / (pMenu->items[2].min - 1) + 0x80000;
+    g_cameraMenuPitch = (short)((int)(pMenu->items[3].max * 0x11c) / (pMenu->items[3].min - 1));
     g_cameraMenuOffset.y = (int)(pMenu->items[0].max * 0xcccd) / (pMenu->items[0].min - 1) + 0x13333;
     g_cameraMenuOffset.z = (int)(pMenu->items[1].max * 0x50000) / (pMenu->items[1].min - 1) + 0x50000;
 }
@@ -4379,18 +4378,19 @@ void InRaceMenu_EnterCarSetup(Menu *pMenu, int param)
     }
 }
 
-// Offset, height and distance the camera menu started with (restored on cancel).
+// Chase camera offset, lag and pitch the camera menu started with (restored on
+// cancel).
 // GLOBAL: CMR2 0x0052af60
 FixVector g_cameraMenuStartOffset;
 // GLOBAL: CMR2 0x00529914
-int g_unk0x00529914;
+int g_cameraMenuStartLag;
 // GLOBAL: CMR2 0x0052a48c
-short g_unk0x0052a48c;
+short g_cameraMenuStartPitch;
 
-void HudDash_SetCameraOffset(BYTE index, FixVector *pOffset);
-void HudDash_SetGaugeTarget(BYTE index, short value);
-void HudDash_SetPlayerGaugeValue(BYTE index, int value);
-void RallyData_SetDriverCameraOffsets(int *pPos, short heading, int value, int index);
+void ChaseCamera_SetOffset(BYTE index, FixVector *pOffset);
+void ChaseCamera_SetPitch(BYTE index, short value);
+void ChaseCamera_SetLag(BYTE index, int value);
+void RallyData_SetDriverCameraOffsets(FixVector *pOffset, short pitch, int lag, int index);
 
 // Callback 1 of the camera options menu: applies the chosen offset (and
 // stores it for the driver), or restores the old one when cancelled.
@@ -4398,18 +4398,18 @@ void RallyData_SetDriverCameraOffsets(int *pPos, short heading, int value, int i
 void InRaceMenu_LeaveCameraOffsetOptions(Menu *pMenu, char cancel)
 {
     if (cancel != 0) {
-        HudDash_SetCameraOffset(g_unk0x0052af58[1], &g_cameraMenuStartOffset);
-        HudDash_SetPlayerGaugeValue(g_unk0x0052af58[1], g_unk0x00529914);
-        HudDash_SetGaugeTarget(g_unk0x0052af58[1], g_unk0x0052a48c);
+        ChaseCamera_SetOffset(g_unk0x0052af58[1], &g_cameraMenuStartOffset);
+        ChaseCamera_SetLag(g_unk0x0052af58[1], g_cameraMenuStartLag);
+        ChaseCamera_SetPitch(g_unk0x0052af58[1], g_cameraMenuStartPitch);
         return;
     }
-    HudDash_SetPlayerGaugeValue(g_unk0x0052af58[1], g_unk0x0052aa5c);
-    HudDash_SetCameraOffset(g_unk0x0052af58[1], &g_cameraMenuOffset);
-    HudDash_SetGaugeTarget(g_unk0x0052af58[1], g_unk0x0052a86c);
-    CGameInfo::SetDefaultCameraParameters((DWORD *)&g_cameraMenuOffset, g_unk0x0052a86c, g_unk0x0052aa5c);
+    ChaseCamera_SetLag(g_unk0x0052af58[1], g_cameraMenuLag);
+    ChaseCamera_SetOffset(g_unk0x0052af58[1], &g_cameraMenuOffset);
+    ChaseCamera_SetPitch(g_unk0x0052af58[1], g_cameraMenuPitch);
+    CGameInfo::SetDefaultCameraParameters(&g_cameraMenuOffset, g_cameraMenuPitch, g_cameraMenuLag);
     int id = (StageUI_GetRaceEndEventCount() & 0xff) + g_unk0x0052af58[1];
 
-    RallyData_SetDriverCameraOffsets((int *)&g_cameraMenuOffset, g_unk0x0052a86c, g_unk0x0052aa5c, id);
+    RallyData_SetDriverCameraOffsets(&g_cameraMenuOffset, g_cameraMenuPitch, g_cameraMenuLag, id);
 }
 
 // FUNCTION: CMR2 0x00404ea0
@@ -4443,22 +4443,23 @@ BYTE InRaceMenu_IsOpening(void)
     return g_inRaceMenuOpening;
 }
 
-// Scratch camera state of the in-race step (0x404f40): current offset, height
-// and distance interpolated from the menu values.
+// Chase camera state of the in-race step (0x404f40) while the camera menu is
+// up: the player's current settings and their distance to the menu's, of
+// which a tenth is applied each frame.
 // GLOBAL: CMR2 0x00529ec8
-int g_unk0x00529ec8;
+int g_cameraMenuHeightStep;
 // GLOBAL: CMR2 0x00529cd8
-FixVector g_unk0x00529cd8;
+FixVector g_cameraMenuCurrentOffset;
 // GLOBAL: CMR2 0x00529ed0
-int g_unk0x00529ed0;
+int g_cameraMenuCurrentLag;
 // GLOBAL: CMR2 0x0052a0bc
-int g_unk0x0052a0bc;
+int g_cameraMenuDistanceStep;
 // GLOBAL: CMR2 0x0052a2a0
-short g_unk0x0052a2a0;
+short g_cameraMenuCurrentPitch;
 // GLOBAL: CMR2 0x0052aa64
-int g_unk0x0052aa64;
+int g_cameraMenuLagStep;
 // GLOBAL: CMR2 0x0052aa6c
-short g_unk0x0052aa6c;
+short g_cameraMenuPitchStep;
 extern int g_unk0x00537f34[2];
 
 extern BYTE g_unk0x0053811e;
@@ -4485,12 +4486,12 @@ short Car_GetOrderCount(void);
 int Race_ReadState37F60(void);
 int View_GetActiveCameraMode(BYTE index);
 BYTE View_GetActiveCameraFlags(BYTE index);
-int HudDash_GetPlayerGaugeValue(BYTE index);
-void HudDash_GetCameraUpVector(FixVector *pOut, BYTE index);
-short HudDash_GetGaugeTarget(BYTE index);
-void HudDash_SetCameraOffset(BYTE index, FixVector *pOffset);
-void HudDash_SetGaugeTarget(BYTE index, short value);
-void HudDash_SetPlayerGaugeValue(BYTE index, int value);
+int ChaseCamera_GetLag(BYTE index);
+void ChaseCamera_GetOffset(FixVector *pOut, BYTE index);
+short ChaseCamera_GetPitch(BYTE index);
+void ChaseCamera_SetOffset(BYTE index, FixVector *pOffset);
+void ChaseCamera_SetPitch(BYTE index, short value);
+void ChaseCamera_SetLag(BYTE index, int value);
 int StageUI_GetRaceResultValue(void);
 BYTE StageUI_GetRaceEndEventCount(void);
 void GameMenu_FinishNetworkResultsQuitFade(BYTE index);
@@ -4542,20 +4543,20 @@ void InRaceMenu_UpdateStateMachineFrame(CallbackStateMachine *param1)
     RallyData_SetDriverCarSelection(first, 5);
 
 pushCamera:
-    g_unk0x00529ed0 = HudDash_GetPlayerGaugeValue(g_unk0x0052af58[1]);
-    HudDash_GetCameraUpVector(&g_unk0x00529cd8, g_unk0x0052af58[1]);
-    g_unk0x0052a2a0 = HudDash_GetGaugeTarget(g_unk0x0052af58[1]);
-    g_unk0x0052aa64 = g_unk0x0052aa5c - g_unk0x00529ed0;
-    g_unk0x00529ec8 = g_cameraMenuOffset.y - g_unk0x00529cd8.y;
-    g_unk0x0052aa6c = g_unk0x0052a86c - g_unk0x0052a2a0;
-    g_unk0x0052a0bc = g_cameraMenuOffset.z - g_unk0x00529cd8.z;
-    g_unk0x0052a86c = g_unk0x0052a2a0 + FixMul(g_unk0x0052aa6c, 0x1999);
+    g_cameraMenuCurrentLag = ChaseCamera_GetLag(g_unk0x0052af58[1]);
+    ChaseCamera_GetOffset(&g_cameraMenuCurrentOffset, g_unk0x0052af58[1]);
+    g_cameraMenuCurrentPitch = ChaseCamera_GetPitch(g_unk0x0052af58[1]);
+    g_cameraMenuLagStep = g_cameraMenuLag - g_cameraMenuCurrentLag;
+    g_cameraMenuHeightStep = g_cameraMenuOffset.y - g_cameraMenuCurrentOffset.y;
+    g_cameraMenuPitchStep = g_cameraMenuPitch - g_cameraMenuCurrentPitch;
+    g_cameraMenuDistanceStep = g_cameraMenuOffset.z - g_cameraMenuCurrentOffset.z;
+    g_cameraMenuPitch = g_cameraMenuCurrentPitch + FixMul(g_cameraMenuPitchStep, 0x1999);
     g_cameraMenuOffset.x = 0;
-    g_cameraMenuOffset.y = g_unk0x00529cd8.y + FixMul(g_unk0x00529ec8, 0x1999);
-    g_cameraMenuOffset.z = g_unk0x00529cd8.z + FixMul(g_unk0x0052a0bc, 0x1999);
-    HudDash_SetPlayerGaugeValue(g_unk0x0052af58[1], g_unk0x0052aa5c);
-    HudDash_SetCameraOffset(g_unk0x0052af58[1], &g_cameraMenuOffset);
-    HudDash_SetGaugeTarget(g_unk0x0052af58[1], g_unk0x0052a86c);
+    g_cameraMenuOffset.y = g_cameraMenuCurrentOffset.y + FixMul(g_cameraMenuHeightStep, 0x1999);
+    g_cameraMenuOffset.z = g_cameraMenuCurrentOffset.z + FixMul(g_cameraMenuDistanceStep, 0x1999);
+    ChaseCamera_SetLag(g_unk0x0052af58[1], g_cameraMenuLag);
+    ChaseCamera_SetOffset(g_unk0x0052af58[1], &g_cameraMenuOffset);
+    ChaseCamera_SetPitch(g_unk0x0052af58[1], g_cameraMenuPitch);
 
     if (g_unk0x0052ad54 != 0) {
         View_SnapCameras(g_unk0x0052af58[1]);
@@ -5380,14 +5381,14 @@ void InRaceMenu_Close(void)
 // FUNCTION: CMR2 0x00403110
 void InRaceMenu_FillCameraOffsetSliders(Menu *pMenu)
 {
-    int distance = FixDiv((pMenu->items[2].min - 1) * (g_unk0x0052aa5c - 0x80000), 0x80000);
-    int angle = FixDiv((pMenu->items[3].min - 1) * g_unk0x0052a86c, 0x11c);
+    int lag = FixDiv((pMenu->items[2].min - 1) * (g_cameraMenuLag - 0x80000), 0x80000);
+    int pitch = FixDiv((pMenu->items[3].min - 1) * g_cameraMenuPitch, 0x11c);
     int height = FixDiv((pMenu->items[0].min - 1) * (g_cameraMenuOffset.y - 0x13333), 0xcccd);
-    int depth = FixDiv((pMenu->items[1].min - 1) * (g_cameraMenuOffset.z - 0x50000), 0x50000);
-    pMenu->items[2].max = (BYTE)((distance + 0x8000) >> 16);
-    pMenu->items[3].max = (BYTE)((angle + 0x8000) >> 16);
+    int distance = FixDiv((pMenu->items[1].min - 1) * (g_cameraMenuOffset.z - 0x50000), 0x50000);
+    pMenu->items[2].max = (BYTE)((lag + 0x8000) >> 16);
+    pMenu->items[3].max = (BYTE)((pitch + 0x8000) >> 16);
     pMenu->items[0].max = (BYTE)((height + 0x8000) >> 16);
-    pMenu->items[1].max = (BYTE)((depth + 0x8000) >> 16);
+    pMenu->items[1].max = (BYTE)((distance + 0x8000) >> 16);
 }
 
 // GLOBAL: CMR2 0x005160a0
@@ -5427,16 +5428,18 @@ void InRaceMenu_LoadTextures(void)
                                                      &loaded, 0, 0, 0);
 }
 
-// Driver record the camera options menu started with, and its working copy.
+// Driver record the camera options menu started with, and its working copy
+// (ChaseCameraSettings; defining that struct in this file changes an addition
+// in OptionMenu_DrawResultsRallyInfo).
 // GLOBAL: CMR2 0x00529900
 int g_cameraMenuStartDriverRecord[5];
 // GLOBAL: CMR2 0x0052a858
 int g_cameraMenuDriverRecord[5];
 
-void HudDash_GetCameraUpVector(FixVector *pOut, BYTE index);
-int HudDash_GetPlayerGaugeValue(BYTE index);
-short HudDash_GetGaugeTarget(BYTE index);
-BYTE *RallyData_GetDriverCameraRecord(BYTE index);
+void ChaseCamera_GetOffset(FixVector *pOut, BYTE index);
+int ChaseCamera_GetLag(BYTE index);
+short ChaseCamera_GetPitch(BYTE index);
+struct ChaseCameraSettings *RallyData_GetDriverCameraRecord(BYTE index);
 
 // Callback 0 of the camera options menu: remembers the current camera and
 // shows it on the sliders.
@@ -5448,14 +5451,14 @@ void InRaceMenu_EnterCameraOffsetOptions(Menu *pMenu, char unused)
     memcpy(g_cameraMenuStartDriverRecord, RallyData_GetDriverCameraRecord(StageUI_GetRaceEndEventCount() + g_unk0x0052af58[1]), sizeof(g_cameraMenuStartDriverRecord));
     index = g_unk0x0052af58[1];
     memcpy(g_cameraMenuDriverRecord, g_cameraMenuStartDriverRecord, sizeof(g_cameraMenuDriverRecord));
-    HudDash_GetCameraUpVector(&g_cameraMenuStartOffset, index);
-    g_unk0x00529914 = HudDash_GetPlayerGaugeValue(g_unk0x0052af58[1]);
-    g_unk0x0052a48c = HudDash_GetGaugeTarget(g_unk0x0052af58[1]);
+    ChaseCamera_GetOffset(&g_cameraMenuStartOffset, index);
+    g_cameraMenuStartLag = ChaseCamera_GetLag(g_unk0x0052af58[1]);
+    g_cameraMenuStartPitch = ChaseCamera_GetPitch(g_unk0x0052af58[1]);
     g_cameraMenuOffset.x = g_cameraMenuStartOffset.x;
     g_cameraMenuOffset.y = g_cameraMenuStartOffset.y;
     g_cameraMenuOffset.z = g_cameraMenuStartOffset.z;
-    g_unk0x0052aa5c = g_unk0x00529914;
-    g_unk0x0052a86c = g_unk0x0052a48c;
+    g_cameraMenuLag = g_cameraMenuStartLag;
+    g_cameraMenuPitch = g_cameraMenuStartPitch;
     InRaceMenu_FillCameraOffsetSliders(pMenu);
     g_unk0x0052ad54 = 1;
 }
@@ -5464,8 +5467,8 @@ void InRaceMenu_EnterCameraOffsetOptions(Menu *pMenu, char unused)
 // FUNCTION: CMR2 0x004036c0
 void InRaceMenu_ResetCameraDefaults(Menu *pMenu, char unused)
 {
-    g_unk0x0052aa5c = 0xe0000;
-    g_unk0x0052a86c = 0x2d;
+    g_cameraMenuLag = 0xe0000;
+    g_cameraMenuPitch = 0x2d;
     g_cameraMenuOffset.y = 0x18000;
     g_cameraMenuOffset.z = 0x68000;
     InRaceMenu_FillCameraOffsetSliders(pMenu);

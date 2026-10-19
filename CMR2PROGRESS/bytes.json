@@ -2225,22 +2225,22 @@
     "symbol_name": "ForceFeedback_UpdateSlot"
   },
   "0x447a00": {
-    "n": "View_CacheReferenceBasisAndBuildMatrix",
+    "n": "ChaseCamera_Restart",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FixedPoint.cpp",
-    "symbol_name": "View_CacheReferenceBasisAndBuildMatrix"
+    "symbol_name": "ChaseCamera_Restart"
   },
   "0x447a40": {
-    "n": "View_BuildMatrixFromCameraBasis",
+    "n": "ChaseCamera_BuildMatrix",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FixedPoint.cpp",
-    "symbol_name": "View_BuildMatrixFromCameraBasis"
+    "symbol_name": "ChaseCamera_BuildMatrix"
   },
   "0x43ecd0": {
     "n": "Car_SyncBodySceneNodes",
@@ -15655,103 +15655,103 @@
     "symbol_name": "Dash_Draw"
   },
   "0x447e00": {
-    "n": "HudDash_GetGaugeTarget",
+    "n": "ChaseCamera_GetPitch",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "HudDash.cpp",
-    "symbol_name": "HudDash_GetGaugeTarget"
+    "symbol_name": "ChaseCamera_GetPitch"
   },
   "0x447e20": {
-    "n": "HudDash_SetGaugeTarget",
+    "n": "ChaseCamera_SetPitch",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "HudDash.cpp",
-    "symbol_name": "HudDash_SetGaugeTarget"
+    "symbol_name": "ChaseCamera_SetPitch"
   },
   "0x447ea0": {
-    "n": "HudDash_GetPlayerGaugeValue",
+    "n": "ChaseCamera_GetLag",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "HudDash.cpp",
-    "symbol_name": "HudDash_GetPlayerGaugeValue"
+    "symbol_name": "ChaseCamera_GetLag"
   },
   "0x447ec0": {
-    "n": "HudDash_SetPlayerGaugeValue",
+    "n": "ChaseCamera_SetLag",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "HudDash.cpp",
-    "symbol_name": "HudDash_SetPlayerGaugeValue"
+    "symbol_name": "ChaseCamera_SetLag"
   },
   "0x447cf0": {
-    "n": "HudDash_GetCameraUpVector",
+    "n": "ChaseCamera_GetOffset",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "HudDash.cpp",
-    "symbol_name": "HudDash_GetCameraUpVector"
+    "symbol_name": "ChaseCamera_GetOffset"
   },
   "0x447ee0": {
-    "n": "HudDash_GetCameraViewOffset",
+    "n": "ChaseCamera_GetViewOffset",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "HudDash.cpp",
-    "symbol_name": "HudDash_GetCameraViewOffset"
+    "symbol_name": "ChaseCamera_GetViewOffset"
   },
   "0x447be0": {
-    "n": "HudDash_UpdateCameraBasis",
+    "n": "ChaseCamera_BeginEnter",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "HudDash.cpp",
-    "symbol_name": "HudDash_UpdateCameraBasis"
+    "symbol_name": "ChaseCamera_BeginEnter"
   },
   "0x447d20": {
-    "n": "HudDash_SetCameraOffset",
+    "n": "ChaseCamera_SetOffset",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "HudDash.cpp",
-    "symbol_name": "HudDash_SetCameraOffset"
+    "symbol_name": "ChaseCamera_SetOffset"
   },
   "0x447ca0": {
-    "n": "HudDash_ResetPlayerCamera",
+    "n": "ChaseCamera_Reset",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "HudDash.cpp",
-    "symbol_name": "HudDash_ResetPlayerCamera"
+    "symbol_name": "ChaseCamera_Reset"
   },
   "0x447530": {
-    "n": "Dash_UpdateCameraModeOffset",
+    "n": "ChaseCamera_Start",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "HudDash.cpp",
-    "symbol_name": "Dash_UpdateCameraModeOffset"
+    "symbol_name": "ChaseCamera_Start"
   },
   "0x4475f0": {
-    "n": "Dash_BuildInterpolatedCockpitMatrix",
+    "n": "ChaseCamera_Update",
     "s": 0.6889226100151745,
     "x": false,
     "fz": 0.7921092564491654,
     "unknown": [],
     "f": "HudDash.cpp",
-    "symbol_name": "Dash_BuildInterpolatedCockpitMatrix"
+    "symbol_name": "ChaseCamera_Update"
   },
   "0x447f70": {
     "n": "StageTiming_ResetRaceDriverTimes",

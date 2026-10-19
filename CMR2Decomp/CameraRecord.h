@@ -7,7 +7,7 @@
 // the same layout for each view's blended and previous state. Camera types
 // (Camera_Start): 1, 2, 10 car-mounted views placed from the car's CIN offsets
 // (View_PositionFromCarProfile); 3 the interior view; 4, 5, 6 the chase views
-// (Dash_UpdateCameraModeOffset); 7 a trackside camera spot; 8 a blend in
+// (ChaseCamera_Start); 7 a trackside camera spot; 8 a blend in
 // progress (view states only); 9 the replay playback camera.
 struct CameraRecord {
     BYTE index;             // 0x00 record index

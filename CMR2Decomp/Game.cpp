@@ -2823,7 +2823,7 @@ void Camera_EndEnter(CameraRecord *pRecord, CameraRecord *pOther)
 void CarCamera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther);
 void CarInterior_ResetDriverPoseOnNextUpdate(CameraRecord *pRecord);
 FixMatrix *Car_GetCameraReferenceMatrix(BYTE index);
-void HudDash_UpdateCameraBasis(CameraRecord *pRecord, CameraRecord *pOther, FixMatrix *pRef);
+void ChaseCamera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther, FixMatrix *pRef);
 void TracksideCamera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther);
 
 // Dispatches by the camera type.
@@ -2834,7 +2834,7 @@ void Camera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther)
     switch (pRecord->type) {
     case 4:
     case 5:
-        HudDash_UpdateCameraBasis(pRecord, pOther, Car_GetCameraReferenceMatrix(pRecord->car));
+        ChaseCamera_BeginEnter(pRecord, pOther, Car_GetCameraReferenceMatrix(pRecord->car));
         return;
     case 3:
         CarInterior_ResetDriverPoseOnNextUpdate(pRecord);

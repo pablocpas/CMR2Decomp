@@ -707,63 +707,74 @@ void Dash_Draw(int player, int *pViewRect)
     }
 }
 
-void RallyData_GetDriverCameraOffsets(int *pPos, short *pHeading, int *pValue, int index);
-void View_BuildMatrixFromCameraBasis(CameraRecord *pObj, FixMatrix *pRef);
-void HudDash_SetCameraOffset(BYTE index, FixVector *pOffset);
-void HudDash_SetGaugeTarget(BYTE index, short value);
-void HudDash_SetPlayerGaugeValue(BYTE index, int value);
+void RallyData_GetDriverCameraOffsets(FixVector *pOffset, short *pPitch, int *pLag, int index);
+void ChaseCamera_BuildMatrix(CameraRecord *pObj, FixMatrix *pRef);
+void ChaseCamera_SetOffset(BYTE index, FixVector *pOffset);
+void ChaseCamera_SetPitch(BYTE index, short value);
+void ChaseCamera_SetLag(BYTE index, int value);
 extern BYTE g_playerCameraMode[8];
 
 
+// Chase camera pitch of each player, and from index 2 the copy reduced with
+// the camera's distance that ChaseCamera_BuildMatrix applies.
 // GLOBAL: CMR2 0x0053d090
-short g_dashGaugeTargets[4];
+short g_chaseCameraPitch[4];
+// Follow time of each player's chase camera (ChaseCameraSettings::lag).
 // GLOBAL: CMR2 0x0053d098
-int g_dashGaugeValues[4];
+int g_chaseCameraLag[4];
 
 // FUNCTION: CMR2 0x00447e00
-short HudDash_GetGaugeTarget(BYTE index)
+short ChaseCamera_GetPitch(BYTE index)
 {
-    return g_dashGaugeTargets[index];
+    return g_chaseCameraPitch[index];
 }
 
-extern FixVector g_unk0x0053d048[6];
+extern FixVector g_chaseCameraOffsets[6];
 
-// Sets the player's gauge target and its speed-scaled copy (less at speed).
+// Sets a player's chase camera pitch and the copy of it reduced as the camera
+// moves away from the car (index + 2).
 // FUNCTION: CMR2 0x00447e20
-void HudDash_SetGaugeTarget(BYTE index, short value)
+void ChaseCamera_SetPitch(BYTE index, short value)
 {
 
-    g_dashGaugeTargets[index] = value;
-    g_dashGaugeTargets[index + 2] =
-        (short)FixMul(0x10000 - FixMul(FixDiv(g_unk0x0053d048[index].z - 0x50000, 0x50000), 0xcccc), value);
+    g_chaseCameraPitch[index] = value;
+    g_chaseCameraPitch[index + 2] =
+        (short)FixMul(0x10000 - FixMul(FixDiv(g_chaseCameraOffsets[index].z - 0x50000, 0x50000), 0xcccc), value);
 }
 
 // FUNCTION: CMR2 0x00447ea0
-int HudDash_GetPlayerGaugeValue(BYTE index)
+int ChaseCamera_GetLag(BYTE index)
 {
-    return g_dashGaugeValues[index];
+    return g_chaseCameraLag[index];
 }
 
 // FUNCTION: CMR2 0x00447ec0
-void HudDash_SetPlayerGaugeValue(BYTE index, int value)
+void ChaseCamera_SetLag(BYTE index, int value)
 {
-    g_dashGaugeValues[index] = value;
+    g_chaseCameraLag[index] = value;
 }
 
+// Chase camera offset of each player (entries 0, 1), then the up vector of
+// each view record's chase camera (2 + record index).
 // GLOBAL: CMR2 0x0053d048
-FixVector g_unk0x0053d048[6];
+FixVector g_chaseCameraOffsets[6];
 
 // FUNCTION: CMR2 0x00447cf0
-void HudDash_GetCameraUpVector(FixVector *pOut, BYTE index)
+void ChaseCamera_GetOffset(FixVector *pOut, BYTE index)
 {
-    *pOut = g_unk0x0053d048[index];
+    *pOut = g_chaseCameraOffsets[index];
 }
 
-// Camera mode of each player (4 = free camera using g_unk0x0053d000).
+// Chase camera mode of each view record: 0, 4 or 3 for camera types 4, 5 and
+// 6 (Camera_Start); 4 uses the player's own offset (g_chaseCameraViewOffsets),
+// the others g_fixedCameraDefaultOffsets.
 // GLOBAL: CMR2 0x0053cff8
 BYTE g_playerCameraMode[8];
+// Each player's view offset derived from the chase camera offset (height
+// eased with the distance, z negated: behind the car), then the forward vector
+// of each view record's chase camera (2 + record index).
 // GLOBAL: CMR2 0x0053d000
-FixVector g_unk0x0053d000[6];
+FixVector g_chaseCameraViewOffsets[6];
 // Default view offsets of the fixed camera modes.
 // GLOBAL: CMR2 0x00519ea0
 FixVector g_fixedCameraDefaultOffsets[3] = { { 0, 0x13333, -0x50000 }, { 0, 0x13333, -0x50000 }, { 0, 0x13333, -0x50000 } };
@@ -773,14 +784,14 @@ int RallyData_IsHeadToHeadRaceMode(void);
 
 // View offset of a player's camera (lowered in the split-screen cockpit view).
 // FUNCTION: CMR2 0x00447ee0
-void HudDash_GetCameraViewOffset(FixVector *pOut, CameraRecord *pSel)
+void ChaseCamera_GetViewOffset(FixVector *pOut, CameraRecord *pSel)
 {
     BYTE mode;
     FixVector *p;
 
     mode = g_playerCameraMode[pSel->index];
     if (mode == 4)
-        p = &g_unk0x0053d000[pSel->view];
+        p = &g_chaseCameraViewOffsets[pSel->view];
     else
         p = &g_fixedCameraDefaultOffsets[mode];
     *pOut = *p;
@@ -796,62 +807,63 @@ void FixMatrix_GetRight(FixVector *pOut, FixMatrix *pM);
 // Takes the camera up/right vectors of a view from the matrix, or copies them
 // from the other view when both follow the same car in modes 4..6.
 // FUNCTION: CMR2 0x00447be0
-void HudDash_UpdateCameraBasis(CameraRecord *pRecord, CameraRecord *pOther, FixMatrix *pRef)
+void ChaseCamera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther, FixMatrix *pRef)
 {
     int mode;
 
     if (pOther->car == pRecord->car) {
         mode = pOther->type;
         if (mode == 4 || mode == 5 || mode == 6) {
-            g_unk0x0053d048[2 + pRecord->index] = g_unk0x0053d048[2 + pOther->index];
-            g_unk0x0053d000[2 + pRecord->index] = g_unk0x0053d000[2 + pOther->index];
+            g_chaseCameraOffsets[2 + pRecord->index] = g_chaseCameraOffsets[2 + pOther->index];
+            g_chaseCameraViewOffsets[2 + pRecord->index] = g_chaseCameraViewOffsets[2 + pOther->index];
             return;
         }
     }
-    FixMatrix_GetUp(&g_unk0x0053d048[2 + pRecord->index], pRef);
-    FixMatrix_GetRight(&g_unk0x0053d000[2 + pRecord->index], pRef);
+    FixMatrix_GetUp(&g_chaseCameraOffsets[2 + pRecord->index], pRef);
+    FixMatrix_GetRight(&g_chaseCameraViewOffsets[2 + pRecord->index], pRef);
 }
 
-// Sets a player's camera offset (and its adjusted copy for the gauges).
+// Sets a player's chase camera offset and the view offset derived from it, then
+// recomputes the distance-scaled pitch.
 // FUNCTION: CMR2 0x00447d20
-void HudDash_SetCameraOffset(BYTE index, FixVector *pOffset)
+void ChaseCamera_SetOffset(BYTE index, FixVector *pOffset)
 {
     int i = index;
 
-    g_unk0x0053d048[i] = *pOffset;
-    g_unk0x0053d000[i] = *pOffset;
-    g_unk0x0053d000[i].y =
-        0x20000 - FixMul(0x10000 - FixMul(FixDiv(g_unk0x0053d048[i].z - 0x50000, 0x50000), 0xcccc),
-                         0x20000 - g_unk0x0053d000[i].y);
-    g_unk0x0053d000[i].z = -g_unk0x0053d000[i].z;
-    HudDash_SetGaugeTarget(index, HudDash_GetGaugeTarget(index));
+    g_chaseCameraOffsets[i] = *pOffset;
+    g_chaseCameraViewOffsets[i] = *pOffset;
+    g_chaseCameraViewOffsets[i].y =
+        0x20000 - FixMul(0x10000 - FixMul(FixDiv(g_chaseCameraOffsets[i].z - 0x50000, 0x50000), 0xcccc),
+                         0x20000 - g_chaseCameraViewOffsets[i].y);
+    g_chaseCameraViewOffsets[i].z = -g_chaseCameraViewOffsets[i].z;
+    ChaseCamera_SetPitch(index, ChaseCamera_GetPitch(index));
 }
 
 // Resets a player's camera to the default offset, height and distance.
 // FUNCTION: CMR2 0x00447ca0
-void HudDash_ResetPlayerCamera(BYTE index)
+void ChaseCamera_Reset(BYTE index)
 {
     FixVector offset;
 
     offset.x = 0;
     offset.y = 0x18000;
     offset.z = 0x68000;
-    HudDash_SetCameraOffset(index, &offset);
-    HudDash_SetGaugeTarget(index, 0x2d);
-    HudDash_SetPlayerGaugeValue(index, 0xe0000);
+    ChaseCamera_SetOffset(index, &offset);
+    ChaseCamera_SetPitch(index, 0x2d);
+    ChaseCamera_SetLag(index, 0xe0000);
 }
 
-void RallyData_GetDriverCameraOffsets(int *pPos, short *pHeading, int *pValue, int index);
-void View_BuildMatrixFromCameraBasis(CameraRecord *pObj, FixMatrix *pRef);
+void RallyData_GetDriverCameraOffsets(FixVector *pOffset, short *pPitch, int *pLag, int index);
+void ChaseCamera_BuildMatrix(CameraRecord *pObj, FixMatrix *pRef);
 
-// Stores the camera mode of the owner of a HUD slot and, when the slot's delay
-// has elapsed, rebuilds its offset heading (through the shared position helper)
-// and pushes the new height/offset into the dash state.
+// Starts a chase camera (types 4, 5, 6 as modes 0, 4, 3): applies the chase
+// camera settings of the followed car's driver (driver 0 past the drivers of
+// this event) to the view, then builds the matrix.
 // match 29.79%: implementada; MSVC6 mantiene param_1 en ESI (y no en EDI) y el marco es de
 // 12 bytes en vez de 16, asi que todos los desplazamientos de pila difieren; la logica y el
 // orden de llamadas coinciden.
 // FUNCTION: CMR2 0x00447530
-void Dash_UpdateCameraModeOffset(CameraRecord *param_1, BYTE *param_2, int param_3)
+void ChaseCamera_Start(CameraRecord *param_1, FixMatrix *param_2, int param_3)
 {
     FixVector offset;
     short heading;
@@ -861,18 +873,18 @@ void Dash_UpdateCameraModeOffset(CameraRecord *param_1, BYTE *param_2, int param
     index = pSettings->view;
     g_playerCameraMode[pSettings->index] = (BYTE)param_3;
     if (pSettings->car >= (BYTE)RallyDataState()) {
-        RallyData_GetDriverCameraOffsets((int *)&offset, &heading, &param_3, 0);
-        HudDash_SetCameraOffset(index, &offset);
-        HudDash_SetPlayerGaugeValue(index, param_3);
-        HudDash_SetGaugeTarget(index, heading);
+        RallyData_GetDriverCameraOffsets(&offset, &heading, &param_3, 0);
+        ChaseCamera_SetOffset(index, &offset);
+        ChaseCamera_SetLag(index, param_3);
+        ChaseCamera_SetPitch(index, heading);
     } else {
-        RallyData_GetDriverCameraOffsets((int *)&offset, &heading, &param_3,
+        RallyData_GetDriverCameraOffsets(&offset, &heading, &param_3,
                                (int)(BYTE)StageUI_GetRaceEndEventCount() + pSettings->car);
-        HudDash_SetCameraOffset(index, &offset);
-        HudDash_SetPlayerGaugeValue(index, param_3);
-        HudDash_SetGaugeTarget(index, heading);
+        ChaseCamera_SetOffset(index, &offset);
+        ChaseCamera_SetLag(index, param_3);
+        ChaseCamera_SetPitch(index, heading);
     }
-    View_BuildMatrixFromCameraBasis(pSettings, (FixMatrix *)param_2);
+    ChaseCamera_BuildMatrix(pSettings, param_2);
 }
 
 void FixMatrix_RebuildBasis(FixMatrix *pOut);
@@ -884,7 +896,7 @@ void FixMatrix_RebuildBasis(FixMatrix *pOut);
 // match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // Implementada; MSVC6 reparte los locales al reves (marco 0xa8 en vez de 0xb0, ESI/EDI invertidos); la logica y el orden de llamadas son exactos.
 // FUNCTION: CMR2 0x004475f0
-void Dash_BuildInterpolatedCockpitMatrix(CameraRecord *param_1, FixMatrix *param_2, int param_3)
+void ChaseCamera_Update(CameraRecord *param_1, FixMatrix *param_2, int param_3)
 {
     FixVector *pUp;
     FixVector *pRight;
@@ -894,8 +906,8 @@ void Dash_BuildInterpolatedCockpitMatrix(CameraRecord *param_1, FixMatrix *param
     int index;
 
     index = param_1->index;
-    pUp = &g_unk0x0053d048[2 + index];
-    pRight = &g_unk0x0053d000[2 + index];
+    pUp = &g_chaseCameraOffsets[2 + index];
+    pRight = &g_chaseCameraViewOffsets[2 + index];
     FixVecCross(&cross, pUp, pRight);
     FixMatrix_Identity(&mat);
     FixMatrix_SetRight(&cross, &mat);
@@ -940,7 +952,7 @@ void Dash_BuildInterpolatedCockpitMatrix(CameraRecord *param_1, FixMatrix *param
         int t;
 
         if (g_playerCameraMode[index] == 4)
-            scale = g_dashGaugeValues[param_1->view];
+            scale = g_chaseCameraLag[param_1->view];
         else
             scale = 0xe0000;
         t = FixMul(FixDiv(g_physicsTimeStep, scale),
@@ -949,7 +961,7 @@ void Dash_BuildInterpolatedCockpitMatrix(CameraRecord *param_1, FixMatrix *param
         FixMatrix_GetUp(pUp, &xform);
         FixMatrix_GetForward(pRight, &xform);
     }
-    View_BuildMatrixFromCameraBasis(param_1, param_2);
+    ChaseCamera_BuildMatrix(param_1, param_2);
 }
 
 // Mirror of the CarStageTiming layout that StageTiming.cpp owns; the race

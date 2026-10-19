@@ -19,3 +19,18 @@ address	old_name	new_name	evidence
 0x00591720	g_unk0x00591720	g_tracksideZoomSpeeds	Smoothed CameraSpot::zoomStep[] passed to View_StepTracksideZoom.
 0x00591754	g_unk0x00591754	g_tracksideAimSpeeds	Smoothed CameraSpot::aimStep[] passed to View_StepTracksideAim.
 0x00590db0	g_viewObjectLevels	g_viewCarLift	Per view record, the CameraRecord::carLift of the car-mounted views (View_PositionFromCarProfile): 1.0 or 0 from the camera switch handlers (CarCamera_*).
+0x0053d090	g_dashGaugeTargets	g_chaseCameraPitch	Per player, the chase camera pitch (ChaseCamera_SetPitch); entries 2/3 the distance-reduced copy ChaseCamera_BuildMatrix rotates the view by.
+0x0053d098	g_dashGaugeValues	g_chaseCameraLag	Per player, ChaseCameraSettings::lag; ChaseCamera_Update eases the view by timeStep / lag (14.0 for the fixed modes).
+0x0053d048	g_unk0x0053d048	g_chaseCameraOffsets	Entries 0/1: each player's chase camera offset (ChaseCamera_SetOffset/GetOffset); 2..5: each view record's chase up vector.
+0x0053d000	g_unk0x0053d000	g_chaseCameraViewOffsets	Entries 0/1: the view offset derived from the chase offset (ChaseCamera_GetViewOffset in mode 4); 2..5: each view record's chase forward vector.
+0x0052aa5c	g_unk0x0052aa5c	g_cameraMenuLag	Lag read from camera menu slider 2 (InRaceMenu_ReadCameraOffsetSliders), applied with ChaseCamera_SetLag and stored as the driver's lag.
+0x0052a86c	g_unk0x0052a86c	g_cameraMenuPitch	Pitch read from camera menu slider 3, eased in and applied with ChaseCamera_SetPitch, stored as the driver's pitch.
+0x00529914	g_unk0x00529914	g_cameraMenuStartLag	ChaseCamera_GetLag when the camera menu opens; restored on cancel.
+0x0052a48c	g_unk0x0052a48c	g_cameraMenuStartPitch	ChaseCamera_GetPitch when the camera menu opens; restored on cancel.
+0x00529ed0	g_unk0x00529ed0	g_cameraMenuCurrentLag	ChaseCamera_GetLag each frame of the in-race step while the camera menu is up.
+0x00529cd8	g_unk0x00529cd8	g_cameraMenuCurrentOffset	ChaseCamera_GetOffset each frame; the menu offset is moved from it by a tenth of the difference.
+0x0052a2a0	g_unk0x0052a2a0	g_cameraMenuCurrentPitch	ChaseCamera_GetPitch each frame; the menu pitch is moved from it by a tenth of the difference.
+0x0052aa64	g_unk0x0052aa64	g_cameraMenuLagStep	Menu lag minus the current lag (computed, not used further).
+0x00529ec8	g_unk0x00529ec8	g_cameraMenuHeightStep	Menu height minus the current one; a tenth of it is applied per frame.
+0x0052aa6c	g_unk0x0052aa6c	g_cameraMenuPitchStep	Menu pitch minus the current one; a tenth of it is applied per frame.
+0x0052a0bc	g_unk0x0052a0bc	g_cameraMenuDistanceStep	Menu distance minus the current one; a tenth of it is applied per frame.

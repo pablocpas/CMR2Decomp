@@ -5964,7 +5964,7 @@ int g_unk0x005391b0[2];
 // GLOBAL: CMR2 0x005391c4
 int g_unk0x005391c4[2];
 
-void HudDash_ResetPlayerCamera(BYTE index);
+void ChaseCamera_Reset(BYTE index);
 int SceneNode_Destroy(SceneNode *pNode);
 
 // Releases both players' view nodes and resets their view state (callback).
@@ -5995,7 +5995,7 @@ BYTE View_ReleaseNodes(void)
         *(int *)((BYTE *)g_unk0x005391c4 + off) = 0;
         *(int *)((BYTE *)g_unk0x005391a8 + off) = 0;
         *(int *)((BYTE *)g_unk0x00538f00 + off) = 0;
-        HudDash_ResetPlayerCamera(i);
+        ChaseCamera_Reset(i);
         i++;
     }
     return 1;
@@ -7245,7 +7245,7 @@ LAB_0043d703:
 
 }
 
-int HudDash_GetPlayerGaugeValue(BYTE index);
+int ChaseCamera_GetLag(BYTE index);
 void FixMatrix_RebuildBasis(FixMatrix *pOut);
 
 // Places one car's view-camera basis for the given view slot: copies the car
@@ -7284,7 +7284,7 @@ void View_PlaceCarCamera(BYTE param_1)
     if (g_unk0x00538f00[index] != 0) {
         angle = (short)FTOI(__int64, X87S_MUL((double)FixMul(
                     g_sinTable[g_unk0x00538df8[index] & 0xfff],
-                    FixDiv(HudDash_GetPlayerGaugeValue(param_1) - 0x80000, 0x100000) * 0x5a + 0x140000), g_fixedDegreesToAngle12));
+                    FixDiv(ChaseCamera_GetLag(param_1) - 0x80000, 0x100000) * 0x5a + 0x140000), g_fixedDegreesToAngle12));
         FixMatrix_CopyRotationFrom(&src, Car_Get(index)->pBodyMatrix);
         basis = *pView;
         FixMatrix_RebuildBasis(&basis);
@@ -7910,19 +7910,19 @@ void Camera_AfterLeave(CameraRecord *pRecord);
 void Glow_NoOpEntryCallback(BYTE a, BYTE b, int c, int d);
 void StageObject_SelectAndCopyCarNodePayload(CameraRecord *pObj, int *pSrc, BYTE index, BYTE value);
 void StageObject_SyncStateAndSceneMatrix(CameraRecord *p, int *src, int unused, BYTE value);
-void Dash_UpdateCameraModeOffset(CameraRecord *param_1, BYTE *param_2, int param_3);
+void ChaseCamera_Start(CameraRecord *param_1, FixMatrix *param_2, int param_3);
 void View_PlaceTracksideCameraAtSpot(CameraRecord *pRecord, FixMatrix *pRef, int param);
 void StageObject_RebuildMirroredTiltMatrix(CameraRecord *pObj, int *pSrc);
 void StageObject_BuildCarNodeOrientation(CameraRecord *object, int *src);
-void View_CacheReferenceBasisAndBuildMatrix(CameraRecord *pObj, FixMatrix *pRef);
+void ChaseCamera_Restart(CameraRecord *pObj, FixMatrix *pRef);
 void View_RestartTracksideCameraDolly(CameraRecord *pRecord, FixMatrix *pRef);
 void View_PositionFromCarProfile(CameraRecord *pObj, FixMatrix *pRef);
 void StageObject_BuildCarMountWorldMatrix(CameraRecord *object, void *unused);
-void View_BuildMatrixFromCameraBasis(CameraRecord *pObj, FixMatrix *pRef);
+void ChaseCamera_BuildMatrix(CameraRecord *pObj, FixMatrix *pRef);
 void View_BuildTracksideCameraMatrix(CameraRecord *pRecord, FixMatrix *pRef);
 void StageObject_InterpolateReferenceMatrix(CameraRecord *pObj, int *pSrc, int param_3);
 void StageObject_DispatchActiveCarObjectUpdate(CameraRecord *pObj, FixMatrix *pRef, int b);
-void Dash_BuildInterpolatedCockpitMatrix(CameraRecord *param_1, FixMatrix *param_2, int param_3);
+void ChaseCamera_Update(CameraRecord *param_1, FixMatrix *param_2, int param_3);
 void View_UpdateTracksideZoomAndShake(CameraRecord *pRecord, FixMatrix *pRef);
 int Track_GetGroundHeight5(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass, int defaultY);
 void StageObject_LoadAndAttachCarInterior(BYTE record, BYTE car);
@@ -7952,13 +7952,13 @@ void Camera_Start(CameraRecord *pRecord, int type, int param)
     View_GetCarBodyMatrix(&body, car);
     switch (type) {
     case 6:
-        Dash_UpdateCameraModeOffset(pRecord, (BYTE *)Car_GetCameraReferenceMatrix(car), 3);
+        ChaseCamera_Start(pRecord, Car_GetCameraReferenceMatrix(car), 3);
         return;
     case 4:
-        Dash_UpdateCameraModeOffset(pRecord, (BYTE *)Car_GetCameraReferenceMatrix(car), 0);
+        ChaseCamera_Start(pRecord, Car_GetCameraReferenceMatrix(car), 0);
         return;
     case 5:
-        Dash_UpdateCameraModeOffset(pRecord, (BYTE *)Car_GetCameraReferenceMatrix(car), 4);
+        ChaseCamera_Start(pRecord, Car_GetCameraReferenceMatrix(car), 4);
         return;
     case 3:
         StageObject_SyncStateAndSceneMatrix(pRecord, (int *)Car_GetCameraReferenceMatrix(car), View_GetActiveCameraMode(view), (BYTE)pCar->type);
@@ -8008,7 +8008,7 @@ void Camera_Update(CameraRecord *pRecord)
     case 4:
     case 5:
     case 6:
-        Dash_BuildInterpolatedCockpitMatrix(pRecord, Car_GetCameraReferenceMatrix(car), onCar);
+        ChaseCamera_Update(pRecord, Car_GetCameraReferenceMatrix(car), onCar);
         break;
     case 3:
         if (onCar == 0 && pCar->field_0xb60 == 0)
@@ -8058,7 +8058,7 @@ void Camera_Restart(CameraRecord *pRecord)
     case 4:
     case 5:
     case 6:
-        View_CacheReferenceBasisAndBuildMatrix(pRecord, Car_GetCameraReferenceMatrix(car));
+        ChaseCamera_Restart(pRecord, Car_GetCameraReferenceMatrix(car));
         return;
     case 3:
         StageObject_BuildCarNodeOrientation(pRecord, (int *)Car_GetCameraReferenceMatrix(car));
@@ -8084,10 +8084,10 @@ void Camera_SnapTo(CameraRecord *pRecord, FixMatrix *pRef)
     switch (pRecord->type) {
     case 5:
     case 6:
-        View_BuildMatrixFromCameraBasis(pRecord, pRef);
+        ChaseCamera_BuildMatrix(pRecord, pRef);
         return;
     case 4:
-        View_BuildMatrixFromCameraBasis(pRecord, pRef);
+        ChaseCamera_BuildMatrix(pRecord, pRef);
         return;
     case 3:
         StageObject_BuildCarMountWorldMatrix(pRecord, pRef);
@@ -8142,7 +8142,7 @@ void View_SetupCameras(void)
         g_unk0x005391a8[i] = 0;
         StageTiming_SetViewRouteDistanceLimit(0, 0, 1);
         g_unk0x00538f00[i] = 0;
-        HudDash_ResetPlayerCamera(i);
+        ChaseCamera_Reset(i);
     }
 }
 

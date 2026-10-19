@@ -62,7 +62,7 @@ struct DriverProfile {
     BYTE wear[0xa0];                     // 0x58c, TyreWear (ChampionshipDriver.h)
     unsigned int medals[2];              // 0x62c, CategoryMedals
     struct {
-        int cameraOffsets[5];            // 0x634, x, y, z, heading (short), value
+        int chaseCamera[5];              // 0x634, ChaseCameraSettings (ChaseCamera.h)
         BYTE reserved3[8];               // 0x648
     };
 };
