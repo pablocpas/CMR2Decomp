@@ -1129,19 +1129,19 @@
   ],
   "0x409090": [
     4910224,
-    "RallyData_RecordBestFinishingPlace"
+    "RallyData_RecordChampionshipMedal"
   ],
   "0x409150": [
     4878656,
-    "RallyData_RecordBestCategoryMedal"
+    "RallyData_RecordRallyMedal"
   ],
   "0x409680": [
     4913168,
-    "RallyData_RecordBestCategoryDifficulty"
+    "RallyData_RecordArcadeMedal"
   ],
   "0x4097b0": [
     4879984,
-    "RallyData_HasCompletedCategorySetupFields"
+    "RallyData_HasOnlySilverMedals"
   ],
   "0x409a30": [
     4817728,
@@ -10957,15 +10957,15 @@
   ],
   "0x4eba60": [
     4882784,
-    "RallyData_GetCategoryDisplaySetting"
+    "RallyData_GetChampionshipMedal"
   ],
   "0x4ebad0": [
     4882896,
-    "RallyData_GetCategoryBlockSetting"
+    "RallyData_GetRallyMedal"
   ],
   "0x4ebcd0": [
     4883408,
-    "RallyData_GetCategoryFourthFifthBlockSetting"
+    "RallyData_GetArcadeMedal"
   ],
   "0x4ebd60": [
     4498128,

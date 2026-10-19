@@ -1226,10 +1226,10 @@ void StageUI_DrawHudRouteMap(int car, short *pRect)
 BYTE RallyData_IsDriverRecordUsable(BYTE param1);
 BYTE RallyData_GetDriverGridRow(BYTE param1, char param2);
 BYTE RallyData_SetCategoryAwardBit(int index, int bit);
-void RallyData_RecordBestFinishingPlace(int index, int place);
-void RallyData_RecordBestCategoryMedal(int index, int item, int level);
-void RallyData_RecordBestCategoryDifficulty(int index, int player, int difficulty);
-char RallyData_HasCompletedCategorySetupFields(int param_1);
+void RallyData_RecordChampionshipMedal(int index, int place);
+void RallyData_RecordRallyMedal(int index, int item, int level);
+void RallyData_RecordArcadeMedal(int index, int player, int difficulty);
+char RallyData_HasOnlySilverMedals(int param_1);
 bool RallyData_HasCategoryAward(int index, int bit, char check);
 int RallyTiming_GetChampionshipPointsByPosition(int index);
 int StageTiming_GetFinishOrderSecondaryEntry(int index);
@@ -1278,7 +1278,7 @@ void StageUI_UpdateDriverEventAwards(void)
             if (CGameInfo::GetConfiguredGameMode() == 0) {
                 if ((BYTE)RallyDataCountryIndex() == 7 && RallyDataStageIndex() == 0xa &&
                     RallyTiming_GetStagePositionOfDriver(pos) <= 2)
-                    RallyData_RecordBestFinishingPlace(i, RallyTiming_GetStagePositionOfDriver(pos));
+                    RallyData_RecordChampionshipMedal(i, RallyTiming_GetStagePositionOfDriver(pos));
                 if (CGameInfo::GetConfiguredDifficulty() == 1 && (BYTE)RallyDataCountryIndex() == 7 &&
                     RallyDataStageIndex() == 0xa && RallyTiming_GetStagePositionOfDriver(pos) == 0 && (pFlags[0] & 1) == 0) {
                     pFlags[0] |= 1;
@@ -1296,7 +1296,7 @@ void StageUI_UpdateDriverEventAwards(void)
                                        (char)CGameInfo::GetConfiguredDifficulty()) - 1;
             if (RallyDataStageIndex() == stage || RallyDataStageIndex() == 0xa) {
                 if (RallyTiming_GetOverallPositionOfDriver(pos) <= 2)
-                    RallyData_RecordBestCategoryMedal(i, RallyDataCountryIndex() & 0xff,
+                    RallyData_RecordRallyMedal(i, RallyDataCountryIndex() & 0xff,
                                  RallyTiming_GetOverallPositionOfDriver(pos));
             }
             stage = (BYTE)RallyData_GetDriverGridRow((BYTE)RallyDataCountryIndex(),
@@ -1390,7 +1390,7 @@ void StageUI_UpdateDriverEventAwards(void)
             break;
         case 5:
             if ((BYTE)RallyData_GetSelectionBits12To13() == 2 && RallyTiming_GetChampionshipPointsByPosition(i) <= 2)
-                RallyData_RecordBestCategoryDifficulty(i, (BYTE)RallyData_GetSelectionBits10To11(), RallyTiming_GetChampionshipPointsByPosition(i));
+                RallyData_RecordArcadeMedal(i, (BYTE)RallyData_GetSelectionBits10To11(), RallyTiming_GetChampionshipPointsByPosition(i));
             if (RallyData_GetDriverRecordSelectionValue((BYTE)i) < 0xc && (BYTE)RallyData_GetSelectionBits12To13() == 2 &&
                 RallyTiming_GetChampionshipPointsByPosition(i) == 0) {
                 if ((BYTE)RallyData_GetSelectionBits10To11() == 0) {
@@ -1525,7 +1525,7 @@ void StageUI_UpdateDriverEventAwards(void)
                 }
             }
         }
-        if (bAward == 0 && RallyData_HasCompletedCategorySetupFields(i) && RallyData_SetCategoryAwardBit(i, 1)) {
+        if (bAward == 0 && RallyData_HasOnlySilverMedals(i) && RallyData_SetCategoryAwardBit(i, 1)) {
             g_unk0x00537f78[i] = 1;
             g_playerEventAwardFlags[i] |= 0x80;
         }

@@ -10137,9 +10137,9 @@ void FrontendMenu_DrawNetworkLeaderboard(Menu *pMenu)
     FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, 0);
 }
 
-extern unsigned int RallyData_GetCategoryDisplaySetting(int param_1, int param_2);
-extern unsigned int RallyData_GetCategoryBlockSetting(int param_1, int param_2, int param_3);
-extern unsigned int RallyData_GetCategoryFourthFifthBlockSetting(int param_1, int param_2, int param_3);
+extern unsigned int RallyData_GetChampionshipMedal(int param_1, int param_2);
+extern unsigned int RallyData_GetRallyMedal(int param_1, int param_2, int param_3);
+extern unsigned int RallyData_GetArcadeMedal(int param_1, int param_2, int param_3);
 
 // Draws the multiplayer entry screen: breadcrumb and play time, the three
 // driver columns with their flags, the three car rows and the bottom row of
@@ -10185,7 +10185,7 @@ void FrontendMenu_DrawProfileRecordsSummary(Menu *pMenu)
         FrontendDraw_MatrixMedalRect(((int)g_pGraphics->resX / 4) * (i + 1),
                      (int)(g_pGraphics->resY * 0x19) / 0x1e0 +
                      (int)(g_pGraphics->resY * 0x46) / 0x1e0,
-                     RallyData_GetCategoryDisplaySetting(0, i));
+                     RallyData_GetChampionshipMedal(0, i));
         Font_DrawText(1, CFrontend::GetTextString(i + 0xd0),
                       ((int)g_pGraphics->resX / 4) * (i + 1),
                       (int)(g_pGraphics->resY * 0x19) / 0x1e0 +
@@ -10228,7 +10228,7 @@ void FrontendMenu_DrawProfileRecordsSummary(Menu *pMenu)
                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
                          (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
                          ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * j,
-                         RallyData_GetCategoryBlockSetting(0, i, j));
+                         RallyData_GetRallyMedal(0, i, j));
         }
     }
 
@@ -10266,14 +10266,14 @@ void FrontendMenu_DrawProfileRecordsSummary(Menu *pMenu)
                      (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
                      (int)(g_pGraphics->resY * 0x145) / 0x1e0 +
                      ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * i,
-                     RallyData_GetCategoryFourthFifthBlockSetting(0, 0, i));
+                     RallyData_GetArcadeMedal(0, 0, i));
         if (i != 0) {
             FrontendDraw_MatrixMedalRect((int)(g_pGraphics->resX * 0x17c) / 0x280,
                          (int)(g_pGraphics->resY * 5) / 0x1e0 +
                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
                          (int)(g_pGraphics->resY * 0x145) / 0x1e0 +
                          ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * i,
-                         RallyData_GetCategoryFourthFifthBlockSetting(0, 1, i));
+                         RallyData_GetArcadeMedal(0, 1, i));
         } else {
             g_frontendDrawRect[0] = (int)(g_pGraphics->resX * 0x17c) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x30) / 0x280) / 2;

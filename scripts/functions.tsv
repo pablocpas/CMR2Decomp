@@ -279,10 +279,10 @@ addr	size	name	callers	callees	fpu	thunk	external
 00408f70	77	RallyData_IncrementCategoryUse	3	1	0	false	false
 00408fc0	77	RallyData_IncrementCategoryCounter10	1	1	0	false	false
 00409010	123	RallyData_SetCategoryAwardBit	2	2	0	false	false
-00409090	191	RallyData_RecordBestFinishingPlace	1	3	0	false	false
-00409150	1217	RallyData_RecordBestCategoryMedal	1	3	0	false	false
-00409680	303	RallyData_RecordBestCategoryDifficulty	1	3	0	false	false
-004097b0	634	RallyData_HasCompletedCategorySetupFields	1	1	0	false	false
+00409090	191	RallyData_RecordChampionshipMedal	1	3	0	false	false
+00409150	1217	RallyData_RecordRallyMedal	1	3	0	false	false
+00409680	303	RallyData_RecordArcadeMedal	1	3	0	false	false
+004097b0	634	RallyData_HasOnlySilverMedals	1	1	0	false	false
 00409a30	115	NetPlayers_ResetAllTables	3	2	0	false	false
 00409ab0	174	NetPlayers_ResetStageState	4	4	0	false	false
 00409b60	86	NetPlayers_ResetBestTimes	4	0	0	false	false
@@ -2943,9 +2943,9 @@ addr	size	name	callers	callees	fpu	thunk	external
 004eb6d0	45	Profile_ReleaseLoadBuffer	0	1	0	false	false
 004eb700	344	Profile_RebuildFileList	1	11	0	false	false
 004eb860	500	Profile_AssignAvailableCategory	6	2	0	false	false
-004eba60	97	RallyData_GetCategoryDisplaySetting	1	1	0	false	false
-004ebad0	402	RallyData_GetCategoryBlockSetting	1	1	0	false	false
-004ebcd0	134	RallyData_GetCategoryFourthFifthBlockSetting	1	1	0	false	false
+004eba60	97	RallyData_GetChampionshipMedal	1	1	0	false	false
+004ebad0	402	RallyData_GetRallyMedal	1	1	0	false	false
+004ebcd0	134	RallyData_GetArcadeMedal	1	1	0	false	false
 004ebd60	166	FrontendProfile_IsAlreadyInChampionship	3	0	0	false	false
 004ebe10	101	FrontendProfile_SetDateOfBirth	1	1	0	false	false
 004ebe80	51	Profile_ResetRecordCategory	3	0	0	false	false

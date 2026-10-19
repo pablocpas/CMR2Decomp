@@ -19467,22 +19467,22 @@
     "symbol_name": "RallyData_IncrementCategoryCounter10"
   },
   "0x409150": {
-    "n": "RallyData_RecordBestCategoryMedal",
+    "n": "RallyData_RecordRallyMedal",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_RecordBestCategoryMedal"
+    "symbol_name": "RallyData_RecordRallyMedal"
   },
   "0x4097b0": {
-    "n": "RallyData_HasCompletedCategorySetupFields",
+    "n": "RallyData_HasOnlySilverMedals",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_HasCompletedCategorySetupFields"
+    "symbol_name": "RallyData_HasOnlySilverMedals"
   },
   "0x423970": {
     "n": "RallyData_IsDriverViewModeAllowed",
@@ -19755,31 +19755,31 @@
     "symbol_name": "RallyData_SaveEditedCategoryProfile"
   },
   "0x4eba60": {
-    "n": "RallyData_GetCategoryDisplaySetting",
+    "n": "RallyData_GetChampionshipMedal",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetCategoryDisplaySetting"
+    "symbol_name": "RallyData_GetChampionshipMedal"
   },
   "0x4ebad0": {
-    "n": "RallyData_GetCategoryBlockSetting",
+    "n": "RallyData_GetRallyMedal",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetCategoryBlockSetting"
+    "symbol_name": "RallyData_GetRallyMedal"
   },
   "0x4ebcd0": {
-    "n": "RallyData_GetCategoryFourthFifthBlockSetting",
+    "n": "RallyData_GetArcadeMedal",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetCategoryFourthFifthBlockSetting"
+    "symbol_name": "RallyData_GetArcadeMedal"
   },
   "0x4ec210": {
     "n": "RallyData_ResetRecordOptionDefaults",
@@ -21114,13 +21114,13 @@
     "symbol_name": "RallyData_SetCategoryAwardBit"
   },
   "0x409090": {
-    "n": "RallyData_RecordBestFinishingPlace",
+    "n": "RallyData_RecordChampionshipMedal",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_RecordBestFinishingPlace"
+    "symbol_name": "RallyData_RecordChampionshipMedal"
   },
   "0x411f00": {
     "n": "RallyData_UpdateLocalAndNetworkSplitPositions",
@@ -21240,13 +21240,13 @@
     "symbol_name": "RallyData_DispatchActiveGameModeState"
   },
   "0x409680": {
-    "n": "RallyData_RecordBestCategoryDifficulty",
+    "n": "RallyData_RecordArcadeMedal",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_RecordBestCategoryDifficulty"
+    "symbol_name": "RallyData_RecordArcadeMedal"
   },
   "0x411120": {
     "n": "RallyData_LoadNavigationSounds",

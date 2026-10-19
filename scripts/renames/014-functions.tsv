@@ -1,0 +1,8 @@
+address	old_name	new_name	evidence
+0x4097b0	RallyData_HasCompletedCategorySetupFields	RallyData_HasOnlySilverMedals	Byte-exact as CategoryMedals bitfield tests: every championship, rally and arcade medal == 2 (3 - place 1); gates category award bit 1.
+0x4eba60	RallyData_GetCategoryDisplaySetting	RallyData_GetChampionshipMedal	Returns CategoryMedals::championshipD<difficulty>; drawn per difficulty by FrontendMenu_DrawProfileRecordsSummary with FrontendDraw_MatrixMedalRect.
+0x4ebad0	RallyData_GetCategoryBlockSetting	RallyData_GetRallyMedal	Returns CategoryMedals::d<difficulty>i<country>; drawn in the summary under each country flag, one row per difficulty.
+0x4ebcd0	RallyData_GetCategoryFourthFifthBlockSetting	RallyData_GetArcadeMedal	Returns the arcade medal bits 6..15 written by RallyData_RecordArcadeMedal (arcade selection 0/1 on difficulties 1 and 2).
+0x409090	RallyData_RecordBestFinishingPlace	RallyData_RecordChampionshipMedal	StageUI calls it in game mode 0 on the final stage of the last rally with the stage place <= 2; stores 3 - place per difficulty if higher.
+0x409680	RallyData_RecordBestCategoryDifficulty	RallyData_RecordArcadeMedal	StageUI calls it in game mode 5 (arcade, Frontend_SetEventArcadeResult) on the final round with the place <= 2 and the arcade selection.
+0x409150	RallyData_RecordBestCategoryMedal	RallyData_RecordRallyMedal	StageUI calls it in modes 0/1 on a rally's last stage with the overall place <= 2; stores 3 - place in d<difficulty>i<country>.

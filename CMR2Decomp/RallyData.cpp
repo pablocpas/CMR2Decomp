@@ -807,84 +807,87 @@ void RallyData_IncrementCategoryCounter10(int index)
     }
 }
 
-// Raises the level (0..3) of one of the eight per-profile items of a category
-// and marks that category as used. `level` is stored inverted: the stored value
-// is 3 - level, and only ever raised.
-// Best result per event of a category record (profile + 0x62c): 2 bits per
-// event, 8 events for each of the three difficulties.
+// Best medals of a category profile (DriverProfile::medals), each 3 - place
+// (3 gold, 2 silver, 1 bronze, 0 none): the championship per difficulty, the
+// arcade final per difficulty (two arcade selections on the two harder ones)
+// and the rally of each of the eight countries (d<difficulty>i<country>).
+// FrontendMenu_DrawProfileRecordsSummary shows them as a medal matrix.
 struct CategoryMedals {
-    unsigned other : 16;
+    unsigned championshipD0 : 2, championshipD1 : 2, championshipD2 : 2;
+    unsigned arcadeD0 : 2, arcadeD1 : 2, arcadeD2 : 2, arcadeD1B : 2, arcadeD2B : 2;
     unsigned d0i0 : 2, d0i1 : 2, d0i2 : 2, d0i3 : 2, d0i4 : 2, d0i5 : 2, d0i6 : 2, d0i7 : 2;
     unsigned d1i0 : 2, d1i1 : 2, d1i2 : 2, d1i3 : 2, d1i4 : 2, d1i5 : 2, d1i6 : 2, d1i7 : 2;
     unsigned d2i0 : 2, d2i1 : 2, d2i2 : 2, d2i3 : 2, d2i4 : 2, d2i5 : 2, d2i6 : 2, d2i7 : 2;
 };
 
+// Records the medal of a rally finish (overall place 0..2) for `country` at
+// the current difficulty if it beats the stored one, and counts the use.
 // FUNCTION: CMR2 0x00409150
-void RallyData_RecordBestCategoryMedal(int index, int item, int level)
+void RallyData_RecordRallyMedal(int index, int country, int place)
 {
     CategoryMedals *pMedals;
-    unsigned int limit;
+    unsigned int medal;
     int category;
 
     RallyData_ValidateIndex(index);
     category = g_saveSlots[index].category;
     pMedals = (CategoryMedals *)g_saveProfiles[category].medals;
-    limit = 3 - level;
+    medal = 3 - place;
     switch (CGameInfo::GetConfiguredDifficulty()) {
     case 0:
-        switch (item) {
+        switch (country) {
         case 0:
-            if (limit > pMedals->d0i0) {
-                pMedals->d0i0 = limit;
+            if (medal > pMedals->d0i0) {
+                pMedals->d0i0 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 1:
-            if (limit > pMedals->d0i1) {
-                pMedals->d0i1 = limit;
+            if (medal > pMedals->d0i1) {
+                pMedals->d0i1 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 2:
-            if (limit > pMedals->d0i2) {
-                pMedals->d0i2 = limit;
+            if (medal > pMedals->d0i2) {
+                pMedals->d0i2 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 3:
-            if (limit > pMedals->d0i3) {
-                pMedals->d0i3 = limit;
+            if (medal > pMedals->d0i3) {
+                pMedals->d0i3 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 4:
-            if (limit > pMedals->d0i4) {
-                pMedals->d0i4 = limit;
+            if (medal > pMedals->d0i4) {
+                pMedals->d0i4 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 5:
-            if (limit > pMedals->d0i5) {
-                pMedals->d0i5 = limit;
+            if (medal > pMedals->d0i5) {
+                pMedals->d0i5 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 6:
-            if (limit > pMedals->d0i6) {
-                pMedals->d0i6 = limit;
+            if (medal > pMedals->d0i6) {
+                pMedals->d0i6 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 7:
-            if (limit > pMedals->d0i7) {
-                pMedals->d0i7 = limit;
+            if (medal > pMedals->d0i7) {
+                pMedals->d0i7 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
@@ -892,59 +895,59 @@ void RallyData_RecordBestCategoryMedal(int index, int item, int level)
         }
         break;
     case 1:
-        switch (item) {
+        switch (country) {
         case 0:
-            if (limit > pMedals->d1i0) {
-                pMedals->d1i0 = limit;
+            if (medal > pMedals->d1i0) {
+                pMedals->d1i0 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 1:
-            if (limit > pMedals->d1i1) {
-                pMedals->d1i1 = limit;
+            if (medal > pMedals->d1i1) {
+                pMedals->d1i1 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 2:
-            if (limit > pMedals->d1i2) {
-                pMedals->d1i2 = limit;
+            if (medal > pMedals->d1i2) {
+                pMedals->d1i2 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 3:
-            if (limit > pMedals->d1i3) {
-                pMedals->d1i3 = limit;
+            if (medal > pMedals->d1i3) {
+                pMedals->d1i3 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 4:
-            if (limit > pMedals->d1i4) {
-                pMedals->d1i4 = limit;
+            if (medal > pMedals->d1i4) {
+                pMedals->d1i4 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 5:
-            if (limit > pMedals->d1i5) {
-                pMedals->d1i5 = limit;
+            if (medal > pMedals->d1i5) {
+                pMedals->d1i5 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 6:
-            if (limit > pMedals->d1i6) {
-                pMedals->d1i6 = limit;
+            if (medal > pMedals->d1i6) {
+                pMedals->d1i6 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 7:
-            if (limit > pMedals->d1i7) {
-                pMedals->d1i7 = limit;
+            if (medal > pMedals->d1i7) {
+                pMedals->d1i7 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
@@ -952,59 +955,59 @@ void RallyData_RecordBestCategoryMedal(int index, int item, int level)
         }
         break;
     case 2:
-        switch (item) {
+        switch (country) {
         case 0:
-            if (limit > pMedals->d2i0) {
-                pMedals->d2i0 = limit;
+            if (medal > pMedals->d2i0) {
+                pMedals->d2i0 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 1:
-            if (limit > pMedals->d2i1) {
-                pMedals->d2i1 = limit;
+            if (medal > pMedals->d2i1) {
+                pMedals->d2i1 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 2:
-            if (limit > pMedals->d2i2) {
-                pMedals->d2i2 = limit;
+            if (medal > pMedals->d2i2) {
+                pMedals->d2i2 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 3:
-            if (limit > pMedals->d2i3) {
-                pMedals->d2i3 = limit;
+            if (medal > pMedals->d2i3) {
+                pMedals->d2i3 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 4:
-            if (limit > pMedals->d2i4) {
-                pMedals->d2i4 = limit;
+            if (medal > pMedals->d2i4) {
+                pMedals->d2i4 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 5:
-            if (limit > pMedals->d2i5) {
-                pMedals->d2i5 = limit;
+            if (medal > pMedals->d2i5) {
+                pMedals->d2i5 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 6:
-            if (limit > pMedals->d2i6) {
-                pMedals->d2i6 = limit;
+            if (medal > pMedals->d2i6) {
+                pMedals->d2i6 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 7:
-            if (limit > pMedals->d2i7) {
-                pMedals->d2i7 = limit;
+            if (medal > pMedals->d2i7) {
+                pMedals->d2i7 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
@@ -1014,53 +1017,26 @@ void RallyData_RecordBestCategoryMedal(int index, int item, int level)
     }
 }
 
-// True when every packed 2-bit field of the two setup words of the category
-// profile of the unassigned-checked record has the "10" pattern.
+// True when every medal of the driver's category profile (championship, every
+// rally and arcade final at every difficulty) is exactly silver.
 // FUNCTION: CMR2 0x004097b0
-char RallyData_HasCompletedCategorySetupFields(int param_1)
+char RallyData_HasOnlySilverMedals(int index)
 {
-    unsigned int record;
-    unsigned int *pSetup;
-    unsigned int value;
+    CategoryMedals *pMedals;
 
-    RallyData_ValidateIndex(param_1);
-    record = *(unsigned int *)&g_saveSlots[param_1];
-    if ((record & 0x3c0000) == 0x3c0000)
+    RallyData_ValidateIndex(index);
+    if (g_saveSlots[index].category == 0xf)
         return 0;
-    pSetup = g_saveProfiles[(record >> 0x12) & 0xf].medals;
-    value = *pSetup;
-    if ((value & 0x3) == 2 &&
-        (value & 0xc) == 8 &&
-        (value & 0x30) == 0x20 &&
-        (value & 0x30000) == 0x20000 &&
-        (value & 0xc0000) == 0x80000 &&
-        (value & 0x300000) == 0x200000 &&
-        (value & 0xc00000) == 0x800000 &&
-        (value & 0x3000000) == 0x2000000 &&
-        (value & 0xc000000) == 0x8000000 &&
-        (value & 0x30000000) == 0x20000000 &&
-        (value & 0xc0000000) == 0x80000000 &&
-        (pSetup[1] & 0x3) == 2 &&
-        (pSetup[1] & 0xc) == 8 &&
-        (pSetup[1] & 0x30) == 0x20 &&
-        (pSetup[1] & 0xc0) == 0x80 &&
-        (pSetup[1] & 0x300) == 0x200 &&
-        (pSetup[1] & 0xc00) == 0x800 &&
-        (pSetup[1] & 0x3000) == 0x2000 &&
-        (pSetup[1] & 0xc000) == 0x8000 &&
-        (pSetup[1] & 0x30000) == 0x20000 &&
-        (pSetup[1] & 0xc0000) == 0x80000 &&
-        (pSetup[1] & 0x300000) == 0x200000 &&
-        (pSetup[1] & 0xc00000) == 0x800000 &&
-        (pSetup[1] & 0x3000000) == 0x2000000 &&
-        (pSetup[1] & 0xc000000) == 0x8000000 &&
-        (pSetup[1] & 0x30000000) == 0x20000000 &&
-        (pSetup[1] & 0xc0000000) == 0x80000000 &&
-        (value & 0xc0) == 0x80 &&
-        (value & 0x300) == 0x200 &&
-        (value & 0x3000) == 0x2000 &&
-        (value & 0xc00) == 0x800 &&
-        (value & 0xc000) == 0x8000)
+    pMedals = (CategoryMedals *)g_saveProfiles[g_saveSlots[index].category].medals;
+    if (pMedals->championshipD0 == 2 && pMedals->championshipD1 == 2 && pMedals->championshipD2 == 2 &&
+        pMedals->d0i0 == 2 && pMedals->d0i1 == 2 && pMedals->d0i2 == 2 && pMedals->d0i3 == 2 &&
+        pMedals->d0i4 == 2 && pMedals->d0i5 == 2 && pMedals->d0i6 == 2 && pMedals->d0i7 == 2 &&
+        pMedals->d1i0 == 2 && pMedals->d1i1 == 2 && pMedals->d1i2 == 2 && pMedals->d1i3 == 2 &&
+        pMedals->d1i4 == 2 && pMedals->d1i5 == 2 && pMedals->d1i6 == 2 && pMedals->d1i7 == 2 &&
+        pMedals->d2i0 == 2 && pMedals->d2i1 == 2 && pMedals->d2i2 == 2 && pMedals->d2i3 == 2 &&
+        pMedals->d2i4 == 2 && pMedals->d2i5 == 2 && pMedals->d2i6 == 2 && pMedals->d2i7 == 2 &&
+        pMedals->arcadeD0 == 2 && pMedals->arcadeD1 == 2 && pMedals->arcadeD1B == 2 &&
+        pMedals->arcadeD2 == 2 && pMedals->arcadeD2B == 2)
         return 1;
     return 0;
 }
@@ -1530,93 +1506,91 @@ char RallyData_SaveEditedCategoryProfile(int param_1)
     return result;
 }
 
-// Returns the 2-bit display setting `param_2` (0..2) of the category profile
-// that record `param_1` points at; zero when `param_2` is out of range.
+// Championship medal of the driver's category at `difficulty` (0..2).
 // FUNCTION: CMR2 0x004eba60
-unsigned int RallyData_GetCategoryDisplaySetting(int param_1, int param_2)
+unsigned int RallyData_GetChampionshipMedal(int index, int difficulty)
 {
-    unsigned int *pSetup;
+    CategoryMedals *pMedals;
 
-    RallyData_ValidateIndex(param_1);
-    pSetup = g_saveProfiles[g_saveSlots[param_1].category].medals;
-    switch (param_2) {
-    case 0: return *pSetup & 3;
-    case 1: return *pSetup >> 2 & 3;
-    case 2: return *pSetup >> 4 & 3;
+    RallyData_ValidateIndex(index);
+    pMedals = (CategoryMedals *)g_saveProfiles[g_saveSlots[index].category].medals;
+    switch (difficulty) {
+    case 0: return pMedals->championshipD0;
+    case 1: return pMedals->championshipD1;
+    case 2: return pMedals->championshipD2;
     }
     return 0;
 }
 
-// Returns the 2-bit setting of record `param_1` for block `param_2` (0..7) and
-// field group `param_3` (0..2).
+// Rally medal of the driver's category for `country` (0..7) at `difficulty`.
 // FUNCTION: CMR2 0x004ebad0
-unsigned int RallyData_GetCategoryBlockSetting(int param_1, int param_2, int param_3)
+unsigned int RallyData_GetRallyMedal(int index, int country, int difficulty)
 {
-    unsigned int *pSetup;
+    CategoryMedals *pMedals;
 
-    RallyData_ValidateIndex(param_1);
-    pSetup = g_saveProfiles[g_saveSlots[param_1].category].medals;
-    switch (param_3) {
+    RallyData_ValidateIndex(index);
+    pMedals = (CategoryMedals *)g_saveProfiles[g_saveSlots[index].category].medals;
+    switch (difficulty) {
     case 0:
-        switch (param_2) {
-        case 0: return *pSetup >> 0x10 & 3;
-        case 1: return *pSetup >> 0x12 & 3;
-        case 2: return *pSetup >> 0x14 & 3;
-        case 3: return *pSetup >> 0x16 & 3;
-        case 4: return *pSetup >> 0x18 & 3;
-        case 5: return *pSetup >> 0x1a & 3;
-        case 6: return *pSetup >> 0x1c & 3;
-        case 7: return *pSetup >> 0x1e & 3;
+        switch (country) {
+        case 0: return pMedals->d0i0;
+        case 1: return pMedals->d0i1;
+        case 2: return pMedals->d0i2;
+        case 3: return pMedals->d0i3;
+        case 4: return pMedals->d0i4;
+        case 5: return pMedals->d0i5;
+        case 6: return pMedals->d0i6;
+        case 7: return pMedals->d0i7;
         }
         break;
     case 1:
-        switch (param_2) {
-        case 0: return *(unsigned int *)((BYTE *)pSetup + 4) & 3;
-        case 1: return *(unsigned int *)((BYTE *)pSetup + 4) >> 2 & 3;
-        case 2: return *(unsigned int *)((BYTE *)pSetup + 4) >> 4 & 3;
-        case 3: return *(unsigned int *)((BYTE *)pSetup + 4) >> 6 & 3;
-        case 4: return *(unsigned int *)((BYTE *)pSetup + 4) >> 8 & 3;
-        case 5: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0xa & 3;
-        case 6: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0xc & 3;
-        case 7: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0xe & 3;
+        switch (country) {
+        case 0: return pMedals->d1i0;
+        case 1: return pMedals->d1i1;
+        case 2: return pMedals->d1i2;
+        case 3: return pMedals->d1i3;
+        case 4: return pMedals->d1i4;
+        case 5: return pMedals->d1i5;
+        case 6: return pMedals->d1i6;
+        case 7: return pMedals->d1i7;
         }
         break;
     case 2:
-        switch (param_2) {
-        case 0: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x10 & 3;
-        case 1: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x12 & 3;
-        case 2: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x14 & 3;
-        case 3: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x16 & 3;
-        case 4: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x18 & 3;
-        case 5: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x1a & 3;
-        case 6: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x1c & 3;
-        case 7: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x1e & 3;
+        switch (country) {
+        case 0: return pMedals->d2i0;
+        case 1: return pMedals->d2i1;
+        case 2: return pMedals->d2i2;
+        case 3: return pMedals->d2i3;
+        case 4: return pMedals->d2i4;
+        case 5: return pMedals->d2i5;
+        case 6: return pMedals->d2i6;
+        case 7: return pMedals->d2i7;
         }
         break;
     }
     return 0;
 }
 
-// Returns the 2-bit setting of record `param_1` for the fourth and fifth
-// blocks (param_3 0/1/2) selected by `param_2` (0..1 for param_3 1 and 2).
+// Arcade final medal of the driver's category at `difficulty`; the two harder
+// difficulties keep one per arcade selection (`arcade` 0 or 1).
 // FUNCTION: CMR2 0x004ebcd0
-unsigned int RallyData_GetCategoryFourthFifthBlockSetting(int param_1, int param_2, int param_3)
+unsigned int RallyData_GetArcadeMedal(int index, int arcade, int difficulty)
 {
-    unsigned int *pSetup;
+    CategoryMedals *pMedals;
 
-    RallyData_ValidateIndex(param_1);
-    pSetup = g_saveProfiles[g_saveSlots[param_1].category].medals;
-    switch (param_3) {
+    RallyData_ValidateIndex(index);
+    pMedals = (CategoryMedals *)g_saveProfiles[g_saveSlots[index].category].medals;
+    switch (difficulty) {
     case 0:
-        return *pSetup >> 6 & 3;
+        return pMedals->arcadeD0;
     case 1:
-        if (param_2 == 0)
-            return *pSetup >> 8 & 3;
-        return *pSetup >> 0xc & 3;
+        if (arcade == 0)
+            return pMedals->arcadeD1;
+        return pMedals->arcadeD1B;
     case 2:
-        if (param_2 == 0)
-            return *pSetup >> 0xa & 3;
-        return *pSetup >> 0xe & 3;
+        if (arcade == 0)
+            return pMedals->arcadeD2;
+        return pMedals->arcadeD2B;
     }
     return 0;
 }
@@ -5390,33 +5364,33 @@ BYTE RallyData_SetCategoryAwardBit(int index, int bit)
     return 1;
 }
 
-// Records the best finishing place (3 - place) of the driver's category at
-// the current difficulty.
+// Records the championship medal (final place 0..2) of the driver's category at
+// the current difficulty if it beats the stored one.
 // FUNCTION: CMR2 0x00409090
-void RallyData_RecordBestFinishingPlace(int index, int place)
+void RallyData_RecordChampionshipMedal(int index, int place)
 {
-    unsigned int *pBest;
-    unsigned int value;
+    CategoryMedals *pMedals;
+    unsigned int medal;
 
     RallyData_ValidateIndex(index);
-    pBest = g_saveProfiles[g_saveSlots[index].category].medals;
-    value = 3 - place;
+    pMedals = (CategoryMedals *)g_saveProfiles[g_saveSlots[index].category].medals;
+    medal = 3 - place;
     switch (CGameInfo::GetConfiguredDifficulty()) {
     case 0:
-        if (value > (*pBest & 3)) {
-            *pBest = ((*pBest ^ value) & 3) ^ *pBest;
+        if (medal > pMedals->championshipD0) {
+            pMedals->championshipD0 = medal;
             RallyData_IncrementCategoryUse(index);
         }
         break;
     case 1:
-        if (value > ((*pBest >> 2) & 3)) {
-            *pBest = ((value & 3) << 2) | (*pBest & 0xfffffff3);
+        if (medal > pMedals->championshipD1) {
+            pMedals->championshipD1 = medal;
             RallyData_IncrementCategoryUse(index);
         }
         break;
     case 2:
-        if (value > ((*pBest >> 4) & 3)) {
-            *pBest = ((value & 3) << 4) | (*pBest & 0xffffffcf);
+        if (medal > pMedals->championshipD2) {
+            pMedals->championshipD2 = medal;
             RallyData_IncrementCategoryUse(index);
         }
         break;
@@ -5913,48 +5887,48 @@ void RallyData_DispatchActiveGameModeState(int car)
     }
 }
 
-// Sets the 2-bit difficulty field of the category of a rally entry, keeping the
-// best value seen so far. mode selects the game mode, player the player slot.
+// Records the arcade final medal (place 0..2) of the driver's category at the
+// current difficulty and arcade selection if it beats the stored one.
 // FUNCTION: CMR2 0x00409680
-void RallyData_RecordBestCategoryDifficulty(int index, int player, int difficulty)
+void RallyData_RecordArcadeMedal(int index, int arcade, int place)
 {
-    unsigned int *pRecord;
+    CategoryMedals *pMedals;
     unsigned char mode;
-    unsigned int level;
+    unsigned int medal;
 
     RallyData_ValidateIndex(index);
-    pRecord = g_saveProfiles[g_saveSlots[index].category].medals;
-    level = 3 - difficulty;
+    pMedals = (CategoryMedals *)g_saveProfiles[g_saveSlots[index].category].medals;
+    medal = 3 - place;
     mode = CGameInfo::GetConfiguredDifficulty();
     switch (mode) {
     case 0:
-        if (level > (*pRecord >> 6 & 3)) {
-            *pRecord = (level & 3) << 6 | *pRecord & 0xffffff3f;
+        if (medal > pMedals->arcadeD0) {
+            pMedals->arcadeD0 = medal;
             RallyData_IncrementCategoryUse(index);
         }
         break;
     case 1:
-        if (player == 0) {
-            if (level > (*pRecord >> 8 & 3)) {
-                *pRecord = (level & 3) << 8 | *pRecord & 0xfffffcff;
+        if (arcade == 0) {
+            if (medal > pMedals->arcadeD1) {
+                pMedals->arcadeD1 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
-        } else if (level > (*pRecord >> 0xc & 3)) {
-            *pRecord = (level & 3) << 0xc | *pRecord & 0xffffcfff;
+        } else if (medal > pMedals->arcadeD1B) {
+            pMedals->arcadeD1B = medal;
             RallyData_IncrementCategoryUse(index);
             return;
         }
         break;
     case 2:
-        if (player == 0) {
-            if (level > (*pRecord >> 10 & 3)) {
-                *pRecord = (level & 3) << 10 | *pRecord & 0xfffff3ff;
+        if (arcade == 0) {
+            if (medal > pMedals->arcadeD2) {
+                pMedals->arcadeD2 = medal;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
-        } else if (level > (*pRecord >> 0xe & 3)) {
-            *pRecord = (level & 3) << 0xe | *pRecord & 0xffff3fff;
+        } else if (medal > pMedals->arcadeD2B) {
+            pMedals->arcadeD2B = medal;
             RallyData_IncrementCategoryUse(index);
             return;
         }
