@@ -1778,9 +1778,9 @@ BYTE NetRace_GetRaceSoundMode(void);
 // sound state change, stopping the ones that don't carry over.
 // match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00419b90
-void Race_MoveCarSoundBank(int car, BYTE *pInfo)
+void Race_MoveCarSoundBank(int car, RaceCarSoundState *pInfo)
 {
-    switch (*(int *)(pInfo + 0xa8)) {
+    switch (pInfo->pattern) {
     case 6:
     case 0x15:
         if (!NetRace_GetRaceSoundMode())
@@ -1959,7 +1959,7 @@ void Race_RestartChangedSurfaceSounds(int car, int unused)
 // FUNCTION: CMR2 0x0041a0a0
 void Race_UpdateIndependentEngineSound(int car, int param2)
 {
-    BYTE *pRow = (BYTE *)g_carSoundStates + car * 0xb4;
+    RaceCarSoundState *pRow = &g_carSoundStates[car];
     int volume;
     int engSpeed;
     int speedVol;
@@ -1973,7 +1973,7 @@ void Race_UpdateIndependentEngineSound(int car, int param2)
     if (g_carSoundViewSet[car] == 0) {
         if (volume > 0x10000)
             volume = 0x10000;
-        if (Sound_IsPlaying(*(int *)(pRow + 0x40)))
+        if (Sound_IsPlaying(pRow->handle[9]))
             CarSound_StopSlot(car, 9, 1);
         if (engSpeed < 0)
             speedVol = 0;
@@ -1990,22 +1990,22 @@ void Race_UpdateIndependentEngineSound(int car, int param2)
         else
             engSpeed = engSpeed * 11000 / 100;
         engSpeed += 0x5622;
-        if (!Sound_IsPlaying(*(int *)(pRow + 0x3c)))
+        if (!Sound_IsPlaying(pRow->handle[8]))
             CarSound_PlaySlot(car, g_unk0x00537564, 8,
                          FixMul(NetRace_GetListenerDistanceAttenuation(car, param2), FixMul(g_carSoundVolumeScale, volume)), 0);
-        Sound_SetPlayingSlotVolume(*(int *)(pRow + 0x3c),
+        Sound_SetPlayingSlotVolume(pRow->handle[8],
                      FixMul(NetRace_GetListenerDistanceAttenuation(car, param2), FixMul(g_carSoundVolumeScale, volume)));
-        Sound_SetPan(*(int *)(pRow + 0x3c), engSpeed);
+        Sound_SetPan(pRow->handle[8], engSpeed);
     } else {
         if (volume > 0x10000)
             volume = 0x10000;
-        if (Sound_IsPlaying(*(int *)(pRow + 0x3c)))
+        if (Sound_IsPlaying(pRow->handle[8]))
             CarSound_StopSlot(car, 8, 1);
-        if (!Sound_IsPlaying(*(int *)(pRow + 0x40)))
+        if (!Sound_IsPlaying(pRow->handle[9]))
             CarSound_PlaySlot(car, g_unk0x00537dc8, 9,
                          FixMul(NetRace_GetListenerDistanceAttenuation(car, param2), FixMul(g_carSoundVolumeScale, volume)), 0);
         volume = FixMul(volume, speedVol);
-        Sound_SetPlayingSlotVolume(*(int *)(pRow + 0x40),
+        Sound_SetPlayingSlotVolume(pRow->handle[9],
                      FixMul(NetRace_GetListenerDistanceAttenuation(car, param2), FixMul(g_carSoundVolumeScale, volume)));
     }
 }
@@ -2016,8 +2016,7 @@ void Race_UpdateIndependentEngineSound(int car, int param2)
 // FUNCTION: CMR2 0x0041a340
 void Race_UpdateCarSurfaceSoundState(int car, int unused)
 {
-    int offset = car * 0xb4;
-    RaceCarSoundState *pState = (RaceCarSoundState *)((BYTE *)g_carSoundStates + offset);
+    RaceCarSoundState *pState = &g_carSoundStates[car];
     Car *pCar;
     short value;
     short v;
@@ -2096,47 +2095,47 @@ void Race_UpdateCarSurfaceSoundState(int car, int unused)
         newCount = g_stageSoundPatterns[g_stageSoundPatterns[chosen].redirect].count;
     if (pState->countOld != newCount || pState->stateOld != chosen) {
         if (pState->pattern != 0x19)
-            Race_MoveCarSoundBank(car, (BYTE *)pState);
+            Race_MoveCarSoundBank(car, pState);
         pState->state = (short)chosen;
         pState->count = newCount;
         pState->time = StageObject_GetCarSoundElapsedTime(car);
-        pState->pattern = *(int *)((BYTE *)g_carSoundStates + 0xa0 + offset) + pState->countOld * 5;
-        StageUI_ApplySoundState(car, (BYTE *)pState);
+        pState->pattern = g_carSoundStates[car].count + pState->countOld * 5;
+        StageUI_ApplySoundState(car, pState);
         pState->countOld = pState->count;
         pState->stateOld = pState->state;
     }
     if (pState->pattern != 0x19 && (unsigned int)(StageObject_GetCarSoundElapsedTime(car) - pState->time) > 0x32) {
-        Race_MoveCarSoundBank(car, (BYTE *)pState);
+        Race_MoveCarSoundBank(car, pState);
         pState->pattern = 0x19;
     }
 }
 
-// Switches car's engine sound between its two samples of stage sound group 25
-// as the rolling direction speed (0x79c) changes sign.
-// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// While the car's stage sound state is group 25, switches its slot-4 sound
+// between the group's throttle sample and the coasting one as the throttle
+// torque turns positive or not (RaceCarSoundState::throttleSample).
 // FUNCTION: CMR2 0x0041ae80
-void Race_SwitchEngineSampleByRollingDirection(int car, int unused)
+void Race_SwitchEngineSampleByThrottle(int car, int unused)
 {
-    BYTE *pSet = (BYTE *)g_carSoundStates + car * 0xb4;
-    int *pHandle = (int *)(pSet + 0x2c);
+    RaceCarSoundState *pSet = &g_carSoundStates[car];
+    int *pHandle = &pSet->handle[4];
 
-    if (*(short *)(pSet + 0x18) == 0x19) {
+    if (pSet->state == 0x19) {
         if (Car_Get(car)->throttleTorque > 0) {
-            if (pSet[0xb0] == 0) {
+            if (pSet->throttleSample == 0) {
                 if (Sound_IsPlaying(*pHandle)) {
                     Sound_Free(*pHandle);
                     *pHandle = -1;
                 }
                 CarSound_PlaySlot(car, g_stageSoundPatterns[25].base[g_carSoundViewSet[car]], 4, 0, 0);
-                pSet[0xb0] = 1;
+                pSet->throttleSample = 1;
             }
-        } else if (pSet[0xb0] != 0) {
+        } else if (pSet->throttleSample != 0) {
             if (Sound_IsPlaying(*pHandle)) {
                 Sound_Free(*pHandle);
                 *pHandle = -1;
             }
             CarSound_PlaySlot(car, g_stageSoundPatterns[25].base[g_carSoundViewSet[car]] + 1, 4, 0, 0x3542);
-            pSet[0xb0] = 0;
+            pSet->throttleSample = 0;
         }
     }
 }
@@ -4745,7 +4744,7 @@ void Race_ComputeWheelSurfaceSoundVolumes(int param_1, int param_2)
             g_wheelSlipVolume[param_1][1] = FixMul(g_wheelSlipVolume[param_1][1], 0x10000 - g_surfaceSlotMax);
             g_wheelSlipVolume[param_1][2] = FixMul(g_wheelSlipVolume[param_1][2], 0x10000 - g_surfaceSlotMax);
             g_wheelSlipVolume[param_1][3] = FixMul(g_wheelSlipVolume[param_1][3], 0x10000 - g_surfaceSlotMax);
-        } else if (pState->field_0xb0[0] != 0) {
+        } else if (pState->throttleSample != 0) {
             g_surfaceVolA[param_1] = 0;
             g_surfaceVolB[param_1] = 0;
             g_surfaceVolD[param_1] = 0;
@@ -4842,7 +4841,7 @@ void Race_SetPartSurfaceAndRefreshVisuals(int param_1, int param_2)
     g_carSoundViewSet[param_1] = 0;
 done:
     Race_UpdateCarSurfaceSoundState(param_1, param_2);
-    Race_SwitchEngineSampleByRollingDirection(param_1, param_2);
+    Race_SwitchEngineSampleByThrottle(param_1, param_2);
     Race_ComputeWheelSurfaceSoundVolumes(param_1, param_2);
     if (NetRace_GetRaceSoundMode() == 0)
         Race_UpdateIndependentEngineSound(param_1, param_2);

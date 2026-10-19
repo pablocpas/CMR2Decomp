@@ -9,7 +9,8 @@
 #endif
 #include <windows.h>
 
-void StageUI_ApplySoundState(int channel, BYTE *pState);
+struct RaceCarSoundState;
+void StageUI_ApplySoundState(int channel, RaceCarSoundState *pState);
 
 void FormatGapToLeader(int iLeaderGap, unsigned int param_2, unsigned char param_3, int param_4, int param_5, void *param_6, unsigned int param_7, char *pcNegPosSymbol, int param_9);
 
@@ -90,7 +91,8 @@ struct RaceCarSoundState {
     int countOld;              // 0xa4  count of the previous pattern
     int pattern;               // 0xa8  pattern index (0x19 = none)
     int time;                  // 0xac  timestamp of the last change
-    BYTE field_0xb0[0x4];
+    BYTE throttleSample;       // 0xb0  group 25's throttle sample (not the coasting one) is playing
+    BYTE field_0xb1[0x3];
 };
 CMR2_LAYOUT_CHECK(RaceCarSoundStateSizeCheck, sizeof(RaceCarSoundState) == 0xb4);
 extern RaceCarSoundState g_carSoundStates[8];                     // 0x5377a8

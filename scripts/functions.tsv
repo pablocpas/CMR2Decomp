@@ -611,7 +611,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 0041a0a0	660	Race_UpdateIndependentEngineSound	1	10	3	false	false
 0041a340	625	Race_UpdateCarSurfaceSoundState	1	4	0	false	false
 0041a5c0	2227	Race_ComputeWheelSurfaceSoundVolumes	1	10	0	false	false
-0041ae80	210	Race_SwitchEngineSampleByRollingDirection	1	4	0	false	false
+0041ae80	210	Race_SwitchEngineSampleByThrottle	1	4	0	false	false
 0041af60	119	Race_SetPartSurfaceAndRefreshVisuals	1	8	0	false	false
 0041afe0	91	Race_MarkUsedSurfaceSoundGroups	1	1	0	false	false
 0041b040	26	Race_SetSurfaceSoundScale	1	0	0	false	false

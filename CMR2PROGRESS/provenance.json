@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "d44b0fba80fa8a22f3c9d6de2f9f133d872964dd",
+    "commit": "800e738cfbf588a0a1faa93b5644ea9d0b64ddf7",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -134,7 +134,7 @@
       "CMR2Decomp/PauseMenus.h": "cb2bfa8ccb4eb55803c9f342c57c211286a80aa93e02bbdabcc690bd2db6a774",
       "CMR2Decomp/PrecipitationQuad.h": "c96e38658a320049bb9500e3e48e3f5002d0dbdd87cd72a47db6d4cd225247c6",
       "CMR2Decomp/ProfileEventResults.h": "78ccc7f0196b01ec711d818658db48623372d682fd76fe4d6f919a1019a76a7b",
-      "CMR2Decomp/Race.cpp": "b0919e80ce93864da089bfbb1adb1dd66dbc7530b7134f776eda827f3bb0f10c",
+      "CMR2Decomp/Race.cpp": "491d144a387193876bb8a1605aacee1dc08d58df3293ac917ecc48d8a768b1fd",
       "CMR2Decomp/RaceCallRecord.h": "e2418ff397371fd73fc5d83fbba8de474bc0f895eb1dfac5792127d8e6afd8c2",
       "CMR2Decomp/RaceCallbackStorage.h": "d540cbe431446daef4724e15b0f10f3702e8e50b8c87bcd04ff5bc1dd3a8d593",
       "CMR2Decomp/RaceRecord.h": "c86bd8aa45d6828375fee1fd908f60608b85e9b48a7416f8208b209fe98c3453",
@@ -173,8 +173,8 @@
       "CMR2Decomp/StageTiming.cpp": "52ca93ad86272c8b934d39c864760e98bba2ac1d0ce2aaf8fd42d00aa09471b9",
       "CMR2Decomp/StageTiming.h": "e15be88e3746f121f292c6708104871d626bcbe4f85a06b891532acee45665ad",
       "CMR2Decomp/StageTimingSpread.h": "36af19e0df03fc5af5e038804cf927cd111f2796b1e28383abf73447d5496a09",
-      "CMR2Decomp/StageUI.cpp": "e2bd8fe85a2a60d3c30871ecd76292c4dbedba0151324f6e69a3f87fa908402a",
-      "CMR2Decomp/StageUI.h": "86689b7eab80f84872753c8aff17b0e47a9e25441ef3091b976dca7150f3a52b",
+      "CMR2Decomp/StageUI.cpp": "7faa499aae109e80995d225a143d32c1437e46ad275a14c735ec05d7910b5cd2",
+      "CMR2Decomp/StageUI.h": "ec824b2383e7eb264be6d0dd4b34b5a9d88c3e48e82b279382566047923bb52e",
       "CMR2Decomp/StageWeather.h": "69dee7cbfae5a2407f5503c3cf0716927c84c6042b6080cbd6432c101c8c7e43",
       "CMR2Decomp/StageWeatherParticle.h": "bc58dc39786b7226607aa6dd7779ad3198afa98c4620eb7228436c5573682bdf",
       "CMR2Decomp/SurfaceTypes.cpp": "ca2ae04d4db2545eb2e1711cb275a187d0c465abe980072672ca4dc4ce31d6fc",
@@ -218,8 +218,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "e8bd63122d4fdc49a6fc320404dba9ff22879a91a9928f60d8c5933a3c8968a4",
-    "pdb_sha256": "21b4d66fad85ee07cec63dbf9fcc989aa423682ab7462f59fca57fbc00e43bf9"
+    "exe_sha256": "067261e32e27e0e59825f374f9f81b23c8c094569314d29aaf99537b4b767ec6",
+    "pdb_sha256": "7a6ed925871f5ca2b5f69685f406c15a26fdb2d7e89fc0b9f014e14c3ff21829"
   },
   "perfect_match_percent": 56.28,
   "fuzzy_match_percent": 94.44,

@@ -1,0 +1,2 @@
+address	old_name	new_name	evidence
+0x41ae80	Race_SwitchEngineSampleByRollingDirection	Race_SwitchEngineSampleByThrottle	Tests Car::throttleTorque > 0 (0x79c), not a rolling direction, to switch between g_stageSoundPatterns[25].base and base + 1.

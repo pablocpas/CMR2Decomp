@@ -18828,13 +18828,13 @@
     "symbol_name": "Race_UpdateCarSurfaceSoundState"
   },
   "0x41ae80": {
-    "n": "Race_SwitchEngineSampleByRollingDirection",
+    "n": "Race_SwitchEngineSampleByThrottle",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "Race_SwitchEngineSampleByRollingDirection"
+    "symbol_name": "Race_SwitchEngineSampleByThrottle"
   },
   "0x41afe0": {
     "n": "Race_MarkUsedSurfaceSoundGroups",

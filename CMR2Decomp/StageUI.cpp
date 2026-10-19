@@ -275,9 +275,9 @@ void StageSound_LoadSurfaceVariations(void)
 // the combinations of continuous, secondary and network-gated sound slots.
 // match 35%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00419200
-void StageUI_ApplySoundState(int channel, BYTE *pState)
+void StageUI_ApplySoundState(int channel, RaceCarSoundState *pState)
 {
-    RaceCarSoundState *pRaceCarSoundState = (RaceCarSoundState *)pState;
+    RaceCarSoundState *pRaceCarSoundState = pState;
     StageSoundPattern *pPattern = NULL;
     short pattern = pRaceCarSoundState->state;
 
