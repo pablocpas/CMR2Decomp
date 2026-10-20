@@ -5625,16 +5625,16 @@ void Car_ClearRecords(int first, int count)
         memset(g_carBuffer + i, 0, sizeof(Car));
 }
 
-float Graphics_GetFrameScale(void);
+float Graphics_GetFrameRate(void);
 void Graphics_SetPlaybackRate(float value);
-void StageObject_SetPhysicsScaleAndReciprocal(int value);
+void StageObject_SetFrameRate(int value);
 extern int g_unk0x0053c9a8;
 
 // GLOBAL: CMR2 0x005210c8
 float g_65536f = 65536.0f;
 
 // Counts down the frame-rate hold (restoring rate 1.0 when it ends) and
-// passes the current rate on to the stage objects.
+// passes the current frame rate on to the stage objects.
 // FUNCTION: CMR2 0x0042b790
 void Physics_UpdateRateHold(void)
 {
@@ -5644,7 +5644,7 @@ void Physics_UpdateRateHold(void)
         g_unk0x0053c9a8--;
     }
     {
-        float rate = Graphics_GetFrameScale();
+        float rate = Graphics_GetFrameRate();
         int scaled;
 
         __asm {
@@ -5652,7 +5652,7 @@ void Physics_UpdateRateHold(void)
             fmul g_65536f
             fistp scaled
         }
-        StageObject_SetPhysicsScaleAndReciprocal(scaled);
+        StageObject_SetFrameRate(scaled);
     }
 }
 

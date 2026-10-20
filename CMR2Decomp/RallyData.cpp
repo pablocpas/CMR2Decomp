@@ -4605,7 +4605,7 @@ SceneNode *RallyData_GetChallengeRenderState(void);
 int Game_PrepareScene(SceneNode *, SceneNode *, void *, int);
 int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 void Graphics_PresentFrameAndResetCounters(void);
-float Graphics_GetFrameScale(void);
+float Graphics_GetFrameRate(void);
 void GameMenu_UpdateHeaderCallbacks(void);
 BYTE Race_ReadTransitionState3811C(void);
 extern char g_strFpsFormat0x00516e14[];
@@ -4645,7 +4645,7 @@ void RallyData_RunChallengeLoadingScreen(int param1, char param2)
                 colour[1] = 0xff;
                 colour[2] = 0xff;
                 colour[3] = 0xff;
-                sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
+                sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameRate());
                 Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
                 if (CGraphics::GetSelectedRenderDeviceSurfaceCaps() == 2)
                     sprintf(CFrontend::m_stringDest, g_strHardwareTl0x00516d54);
@@ -6024,7 +6024,7 @@ unsigned int NetPlayers_GetPlayerFlag23(int index);
 void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask);
 int Graphics_RenderNodeCubeMapFaces(SceneNode *pNode, int bit);
 void Graphics_SetShadowGeometryState(int value);
-float Graphics_GetFrameScale(void);
+float Graphics_GetFrameRate(void);
 void StageTiming_DrawProjectedCarMarker(int param1, int param2);
 void StageTiming_DrawClockAndCountdown(void);
 void View_SetPlayerProjection(unsigned int player);
@@ -6221,7 +6221,7 @@ void RallyData_UpdateViewFrameAndDebugOverlay(CallbackStateMachine *param1, int 
         colour[1] = 0;
         colour[2] = 0;
         colour[3] = 0xff;
-        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameRate());
         Font_DrawText(1, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
         sprintf(CFrontend::m_stringDest, g_strScenePolygons0x00516dfc, CGame::GetDrawnMeshTriangleCount());
         Font_DrawText(1, CFrontend::m_stringDest, 0, 0xf, (int *)colour, 9);

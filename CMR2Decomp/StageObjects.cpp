@@ -115,7 +115,7 @@ void StageObject_UpdateDeviceEffectSupportFlag(void);
 void StageObject_UpdateListedCarPhysicsAndWeather(short *pOrder, short count);
 void StageObjects_Update(void);
 void CarDamage_UpdateOrderedCarsOffRoadState(short *param_1, short param_2, int *pViewRect, int param_4);
-void StageObject_SetPhysicsScaleAndReciprocal(int value);
+void StageObject_SetFrameRate(int value);
 void CarDamage_BuildRelativeVelocityHull(Car *pCar, CarPartSet *pParts);
 void CarDamage_DecodeImpactPayload(CarImpactPayload *p);
 void StageObject_ApplyWeightedContactDamage(Car *pCar, int amount);
@@ -4638,9 +4638,13 @@ int Collision_FindQuadEdgeOverlap(FixVector *pVertsA, FixVector *pVertsB, FixVec
 extern int g_stageObjectScale;
 extern int g_stageObjectTimeStep;
 
-// Sets the scale 0x51bd40 (value / 25, at least 0.6) and its reciprocal 0x51bd3c.
+// Sets the stage effects' scale (the frame rate `value`, 16.16, divided by 25
+// and at least 0.6) and their time step (its reciprocal). Physics_UpdateRateHold
+// passes the rate of every frame. A frame under a millisecond has an infinite
+// rate (Graphics_UpdateFrameStatistics), which fistp turns into a negative
+// value and so the longest step, that of 15 frames a second.
 // FUNCTION: CMR2 0x00466630
-void StageObject_SetPhysicsScaleAndReciprocal(int value)
+void StageObject_SetFrameRate(int value)
 {
     g_stageObjectScale = FixMul(0xa3d, value);
     if (g_stageObjectScale < 0x9999)

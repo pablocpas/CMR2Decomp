@@ -5165,7 +5165,7 @@
   ],
   "0x466630": [
     5010192,
-    "StageObject_SetPhysicsScaleAndReciprocal"
+    "StageObject_SetFrameRate"
   ],
   "0x466680": [
     5122176,
@@ -8765,7 +8765,7 @@
   ],
   "0x4b23a0": [
     4769568,
-    "Graphics_GetFrameScale"
+    "Graphics_GetFrameRate"
   ],
   "0x4b23b0": [
     4769584,
@@ -17885,7 +17885,7 @@
   ],
   "0x5210a0": [
     5416376,
-    "g_frameScale"
+    "g_frameRate"
   ],
   "0x5210a4": [
     5416380,
@@ -17901,7 +17901,7 @@
   ],
   "0x5210b0": [
     5416388,
-    "g_frameScale2"
+    "g_frameRate2"
   ],
   "0x5210b4": [
     5414424,

@@ -1,3 +1,5 @@
 address	old_name	new_name	evidence
 0x4086f0	RallyData_GetDriverOrCategoryFlag	RallyData_GetDriverAutomaticGearbox	Returns profile options bit 5 / championship entry flags bit 0; stored in every best-time record as the bit the record lists show as "AT" (else "MT"); defaults to 1.
 0x4eb0c0	FrontendChampionship_SetDriverEntryFlag	RallyData_SetDriverAutomaticGearbox	Writes the bit RallyData_GetDriverAutomaticGearbox reads (profile options bit 5, or championship flags bit 0 plus the edited bit).
+0x4b23a0	Graphics_GetFrameScale	Graphics_GetFrameRate	Returns g_frameRate (1000 / the last frame time in ms); its callers print it with the fps format or pass it to StageObject_SetFrameRate.
+0x466630	StageObject_SetPhysicsScaleAndReciprocal	StageObject_SetFrameRate	Called every frame with Graphics_GetFrameRate() in 16.16 (25 at reset); sets g_stageObjectScale = rate / 25 and g_stageObjectTimeStep = its reciprocal.

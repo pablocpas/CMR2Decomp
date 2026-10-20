@@ -15124,13 +15124,13 @@
     "symbol_name": "Graphics_UpdateFrameStatistics"
   },
   "0x4b23a0": {
-    "n": "Graphics_GetFrameScale",
+    "n": "Graphics_GetFrameRate",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Graphics.cpp",
-    "symbol_name": "Graphics_GetFrameScale"
+    "symbol_name": "Graphics_GetFrameRate"
   },
   "0x4b23b0": {
     "n": "Graphics_SetPlaybackRate",
@@ -24825,13 +24825,13 @@
     "symbol_name": "Collision_FindQuadEdgeOverlap"
   },
   "0x466630": {
-    "n": "StageObject_SetPhysicsScaleAndReciprocal",
+    "n": "StageObject_SetFrameRate",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_SetPhysicsScaleAndReciprocal"
+    "symbol_name": "StageObject_SetFrameRate"
   },
   "0x4675c0": {
     "n": "CarDamage_BuildRelativeVelocityHull",

@@ -1291,7 +1291,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 004664c0	88	StageObject_UpdateListedCarPhysicsAndWeather	1	5	0	false	false
 00466520	68	StageObjects_Update	1	8	0	false	false
 00466570	190	CarDamage_UpdateOrderedCarsOffRoadState	1	10	0	false	false
-00466630	69	StageObject_SetPhysicsScaleAndReciprocal	2	0	0	false	false
+00466630	69	StageObject_SetFrameRate	2	0	0	false	false
 00466680	308	StageTiming_FreeCarReplayRecordTables	0	1	0	false	false
 004667c0	167	StageTiming_AllocateCarReplayRecordTables	1	2	0	false	false
 00466870	83	StageTiming_ReadCarReplayTailValues	1	0	0	false	false
@@ -2190,7 +2190,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 004b2110	202	Mesh_ReuploadAll	1	3	0	false	false
 004b21e0	431	Graphics_UpdateFrameStatistics	1	1	15	false	false
 004b2390	11	CMain::ResetFpsWarmup	1	0	0	false	false
-004b23a0	7	Graphics_GetFrameScale	3	0	1	false	false
+004b23a0	7	Graphics_GetFrameRate	3	0	1	false	false
 004b23b0	12	Graphics_SetPlaybackRate	2	0	0	false	false
 004b23c0	148	Graphics_ReserveCubeMapsAndLoadEnvironment	2	3	0	false	false
 004b2460	424	Graphics_ProjectMeshVertexMidpoints	1	1	30	false	false

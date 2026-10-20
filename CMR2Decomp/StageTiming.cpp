@@ -1917,8 +1917,12 @@ int StageTiming_UpdateSplitRatesForSlot(int slot, int driverID)
     return 0;
 }
 
+// The time step of the per-frame stage effects (weather, lights, sparks):
+// the frame's length in frames of 25 a second, 25 / the frame rate, at most
+// 1 / 0.6 (15 frames a second). StageObject_SetFrameRate sets both.
 // GLOBAL: CMR2 0x0051bd3c
 int g_stageObjectTimeStep = 0x10000;
+// The frame rate in frames of 25 a second, at least 0.6.
 // GLOBAL: CMR2 0x0051bd40
 int g_stageObjectScale = 0x10000;
 
@@ -7874,7 +7878,7 @@ void StageTiming_AllocateViewWeatherRecords(int count);
 void Car_ClearRecords(int first, int count);
 void Car_ClearWheelRotation(int first, int count);
 void Physics_SetScale(int value);
-void StageObject_SetPhysicsScaleAndReciprocal(int value);
+void StageObject_SetFrameRate(int value);
 void Car_ResetPlaybackSpeed(void);
 unsigned int NetPlayers_IsPlayerPresent(int index);
 void NetPlayers_SetPlayerField8(int index, int value);
@@ -7937,7 +7941,7 @@ int StageTiming_LoadStageCarsAndEffects(void)
     Car_ClearRecords(0, count);
     Car_ClearWheelRotation(0, count);
     Physics_SetScale(0x190000);
-    StageObject_SetPhysicsScaleAndReciprocal(0x190000);
+    StageObject_SetFrameRate(0x190000);
     Car_ResetPlaybackSpeed();
     if (CGameInfo::GetGameModeOptionBit19()) {
         number = 1;

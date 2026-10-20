@@ -5317,7 +5317,7 @@ void Graphics_RaiseSupportedDetailLevels(void)
 // GLOBAL: CMR2 0x0052109c
 float g_playbackRate = 1.0f;
 // GLOBAL: CMR2 0x005210a0
-float g_frameScale = 25.0f;
+float g_frameRate = 25.0f;
 // GLOBAL: CMR2 0x005210a4
 float g_averageFps = 25.0f;
 // GLOBAL: CMR2 0x005210a8
@@ -5325,7 +5325,7 @@ float g_fps = 25.0f;
 extern int g_unk0x005210ac;
 #define g_fpsWarmup g_unk0x005210ac
 // GLOBAL: CMR2 0x005210b0
-float g_frameScale2 = 25.0f;
+float g_frameRate2 = 25.0f;
 // GLOBAL: CMR2 0x006dd9a8
 int g_averageFpsDone;
 // GLOBAL: CMR2 0x006dd9b0
@@ -5352,7 +5352,8 @@ static unsigned int g_unk0x006dd898;
 static unsigned int g_unk0x006dd89c;
 
 // Frame timing: average fps after a 3 s warm-up, fps of the last second and
-// the time scale of the current frame (1000 / frame time in ms).
+// the rate of the current frame (1000 / frame time in whole ms, infinite when
+// the frame took under one).
 // FUNCTION: CMR2 0x004b21e0
 void Graphics_UpdateFrameStatistics(void)
 {
@@ -5403,15 +5404,15 @@ void Graphics_UpdateFrameStatistics(void)
     {
         double dt = (double)(g_unk0x006dd8a4 - g_unk0x006dd898);
 
-        g_frameScale2 = X87S_DIV(g_netFontInverseScale, dt);
-        g_frameScale = X87S_DIV(g_netFontInverseScale, dt);
+        g_frameRate2 = X87S_DIV(g_netFontInverseScale, dt);
+        g_frameRate = X87S_DIV(g_netFontInverseScale, dt);
     }
 }
 
 // FUNCTION: CMR2 0x004b23a0
-float Graphics_GetFrameScale(void)
+float Graphics_GetFrameRate(void)
 {
-    return g_frameScale;
+    return g_frameRate;
 }
 
 // FUNCTION: CMR2 0x004b23b0

@@ -256,7 +256,7 @@ char g_strFpsFormat0x00516e14[10] = "FPS: %.2f";
 int g_fpsTextColours[5] = { -1, 120, 120, 120, 120 };
 
 void FrontendMenu_DrawActiveMenu(void);
-float Graphics_GetFrameScale(void);
+float Graphics_GetFrameRate(void);
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int param);
 int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 void Graphics_PresentFrameAndResetCounters(void);
@@ -290,7 +290,7 @@ void Game_DrawBootCameraAndFPS(CallbackStateMachine *p1, BYTE p2)
     FrontendMenu_DrawActiveMenu();
     Game_PrepareScene(g_splashSceneRoot, g_splashCamera, rect, 0);
     if ((g_pGraphics->field913_0x3bc & 4) != 0) {
-        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameRate());
         Font_DrawText(0, CFrontend::m_stringDest, 0, 0, g_fpsTextColours, 9);
     }
     Game_DrawSceneViewport(g_splashSceneRoot, g_splashCamera, rect, 0, 1);
@@ -379,7 +379,7 @@ void Game_DrawLogoAndLoadingSprites(CallbackStateMachine *p1, BYTE p2)
 
     Game_PrepareScene(g_splashSceneRoot, g_splashCamera, &screen, 0);
     if (g_pGraphics->field913_0x3bc & 4) {
-        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameRate());
         Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
     }
     Game_DrawSceneViewport(g_splashSceneRoot, g_splashCamera, &screen, 0, 1);
@@ -527,7 +527,7 @@ char g_strMusicSelect1Adp[16] = "%s\\select1.adp";
 void FrontendMenu_UpdateAndSwitchActive(void);
 
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int param);
-float Graphics_GetFrameScale(void);
+float Graphics_GetFrameRate(void);
 int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 void Graphics_PresentFrameAndResetCounters(void);
 
@@ -579,7 +579,7 @@ void Game_DrawBootTextureScreen(CallbackStateMachine *p1, BYTE p2)
     Game_PrepareScene(g_splashSceneRoot, g_splashCamera, &screenRect, 0);
 
     if ((g_pGraphics->field913_0x3bc & 4) != 0) {
-        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameRate());
         Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
     }
 
@@ -840,7 +840,7 @@ void Game_FinishRaceAndAdvanceBootState(CallbackStateMachine *p1, BYTE unused)
     CGame::SetShouldExit();
 }
 
-float Graphics_GetFrameScale(void);
+float Graphics_GetFrameRate(void);
 int Game_DrawSceneViewport(struct SceneNode *pRoot, struct SceneNode *pCamera, void *pRect, int bit, BYTE flag);
 void Graphics_PresentFrameAndResetCounters(void);
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, void *pRect, int param);
@@ -897,7 +897,7 @@ void Game_DrawMovieFrameAndCredits(CallbackStateMachine *p1, BYTE p2)
     }
     Game_PrepareScene(g_splashSceneRoot, g_splashCamera, &viewport, 0);
     if ((g_pGraphics->field913_0x3bc & 4) != 0) {
-        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameScale());
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, Graphics_GetFrameRate());
         Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)white, 9);
     }
     if (CGameInfo::GetGameRegion() == 3)
