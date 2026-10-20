@@ -387,19 +387,19 @@
     "symbol_name": "Car_UpdateSuspension"
   },
   "0x43c640": {
-    "n": "Car_UpdateWheelTorques",
+    "n": "Car_UpdateWheelLoads",
     "s": 0.8984375,
     "x": false,
     "fz": 0.9921875,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "Car_UpdateWheelTorques"
+    "symbol_name": "Car_UpdateWheelLoads"
   },
   "0x440840": {
     "n": "Car_Integrate",
-    "s": 0.7161430119176598,
+    "s": 0.7370689655172413,
     "x": false,
-    "fz": 0.8039003250270856,
+    "fz": 0.8125,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_Integrate"

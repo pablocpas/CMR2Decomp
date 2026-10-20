@@ -266,6 +266,11 @@ CMR2_LAYOUT_CHECK(g_carInfoBuffersCapacityCheck, sizeof(g_carInfoBuffers) / size
 // Scene binding and matrix identities established by model load and reload.
 CMR2_LAYOUT_CHECK(CarBinding_physicsMatrixCheck, offsetof(Car, physicsMatrix) == 0x0);
 CMR2_LAYOUT_CHECK(CarBinding_bodyMatrixCheck, offsetof(Car, bodyMatrix) == 0x40);
+CMR2_LAYOUT_CHECK(CarBodyAxisVectorsCheck, offsetof(Car, bodyAxisVectors) == 0x360);
+CMR2_LAYOUT_CHECK(CarBodyAxisVectorsSizeCheck, sizeof(((Car *)0)->bodyAxisVectors) == 3 * sizeof(FixVector));
+CMR2_LAYOUT_CHECK(CarBodyRightRowCheck, offsetof(Car, right) == offsetof(Car, bodyAxisVectors));
+CMR2_LAYOUT_CHECK(CarBodyUpRowCheck, offsetof(Car, up) == offsetof(Car, bodyAxisVectors) + sizeof(FixVector));
+CMR2_LAYOUT_CHECK(CarBodyForwardRowCheck, offsetof(Car, forward) == offsetof(Car, bodyAxisVectors) + 2 * sizeof(FixVector));
 CMR2_LAYOUT_CHECK(CarBinding_pSceneRootCheck, offsetof(Car, pSceneRoot) == 0x71c);
 CMR2_LAYOUT_CHECK(CarBinding_pBodyNodeCheck, offsetof(Car, pBodyNode) == 0x720);
 CMR2_LAYOUT_CHECK(CarBinding_pAlternateBodyNodeCheck, offsetof(Car, pAlternateBodyNode) == 0x724);
@@ -871,7 +876,7 @@ CMR2_LAYOUT_CHECK(CarSurfaceWheelLean_Check, offsetof(Car, wheelSpinForWheelLean
 CMR2_LAYOUT_CHECK(CarSurfaceBodyLean_Check, offsetof(Car, wheelSpinForBodyLean) == 0x8a0);
 CMR2_LAYOUT_CHECK(CarSurfaceCornerMass_Check, offsetof(Car, cornerMass) == 0x8b0);
 CMR2_LAYOUT_CHECK(CarSurfaceTyreGrip_Check, offsetof(Car, tyreGrip) == 0x8b4);
-CMR2_LAYOUT_CHECK(CarSurfaceNextInputs_Check, offsetof(Car, field_0x8b8) == 0x8b8);
+CMR2_LAYOUT_CHECK(CarSurfaceNextInputs_Check, offsetof(Car, cornerWeight) == 0x8b8);
 CMR2_LAYOUT_CHECK(CarSurfaceOutputWords_Check, offsetof(Car, surfaceOutputWords) == 0);
 CMR2_LAYOUT_CHECK(CarSurfaceOutputBytes_Check, offsetof(Car, surfaceOutputBytes) == 0);
 CMR2_LAYOUT_CHECK(CarSurfaceOutputWordsSize_Check, sizeof(((Car *)0)->surfaceOutputWords) == 0x1d0);

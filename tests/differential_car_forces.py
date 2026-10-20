@@ -68,7 +68,7 @@ class Forces(Drawing):
             0x406940: (0, lambda: self.setting((self.seed // 3) % 2)),
             0x406950: (0, lambda: self.setting((self.seed // 6) % 3)),
             0x43a920: (4, lambda: self.trace.append(('corner-friction', self.args(1)))),
-            0x43c640: (0, lambda: self.trace.append(('wheel-torques',))),
+            0x43c640: (0, lambda: self.trace.append(('wheel-loads',))),
         }
 
     def setting(self, value):

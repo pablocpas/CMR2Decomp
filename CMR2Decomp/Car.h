@@ -79,6 +79,7 @@ struct Car {
             FixVector forward;       // 0x378
         };
         int bodyAxes[9];
+        FixVector bodyAxisVectors[3]; // same right/up/forward rows, without a byte cursor
     };
     union {
         struct {
@@ -176,11 +177,11 @@ struct Car {
             int wheelSpinForBodyLean[4];       // 0x8a0  filtered wheel spin (body lean)
             int cornerMass;                   // 0x8b0  mass carried by each touching corner
             int tyreGrip;                     // 0x8b4  tyre grip, times the physics scale each step
-            int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)
+            int cornerWeight[8];               // 0x8b8  per-corner load shares, rebuilt from suspension/lean
         };
         int surfaceCompressionWords[22]; // 0x880..0x8d7, original contiguous walk
     };
-    int field_0x8d8;                  // 0x8d8
+    int suspensionLoadScale;          // 0x8d8 mass / 8, converts height differences to load shares
     int cornerHeight[8];              // 0x8dc  ground height under each box corner
     int field_0x8fc[8];               // 0x8fc  per-corner height offset while cornerOnGround[4 + i]
     int groundRightDot;                // 0x91c  ground normal projected on the body right axis
@@ -428,7 +429,7 @@ void Car_UpdateBodyAxes(void);
 void Car_UpdateEngineSpeed(void);
 void Car_ApplyCornerFriction(int grip);
 void Car_BalanceWheelPairs(void);
-void Car_UpdateWheelTorques(void);
+void Car_UpdateWheelLoads(void);
 void Car_UpdateCorners(Car *pCar);
 void Car_ApplyCornerOffsets(void);
 void Car_UpdateBodyAxesNoDamping(void);

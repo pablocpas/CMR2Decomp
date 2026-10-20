@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "663af9986f678e30a8c7fa62ddde021324fe68df",
+    "commit": "6db03ee66eae0dd1db28511f6da6b72a54a3a8d4",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -55,8 +55,8 @@
       "CMR2Decomp/BestTimeRecords.h": "7b09c04cab99c03d334b39ec5340a7216840903b2f9d51cfc8ac497473de4291",
       "CMR2Decomp/CallbackState.h": "bdcea074ac9af71d50c7f59b05e197df891b344efbf257bb8ac86e6b632a1749",
       "CMR2Decomp/CameraRecord.h": "bbd648cd2f1beef839cf3ec385cf72947134902e8e230e35d4b50153c3815b2d",
-      "CMR2Decomp/Car.cpp": "a16b2e225e7db979c090f08c0ed4296a4787cd8d6a32800522ada65bfba19db0",
-      "CMR2Decomp/Car.h": "13096fe5e4ed4d644511b7db977ecdd476da92d55801d76d4a4e0cefd4fbe185",
+      "CMR2Decomp/Car.cpp": "4f1b37054413647625aee49e708eebb03345bc434dad90d76223de7c4319b87d",
+      "CMR2Decomp/Car.h": "dfc4915dd7df07d2d32a6c7d2671a3daa77c9d1feb53c20ac9d024903b0faa9e",
       "CMR2Decomp/CarEffects.cpp": "7a4e73d1463d6e382118c75f447aa7385cdd809220a1554c95d53d7ed531f172",
       "CMR2Decomp/CarExhaust.h": "2f51d0a245b1da6a98dc0a1152098b0c9dce08b33b29d0459feb77328a9207dc",
       "CMR2Decomp/CarImpact.h": "1800bc27ccd9f5c0ea2398977c5ae92c33ff8ad44084d687cb711e0a67c795db",
@@ -111,7 +111,7 @@
       "CMR2Decomp/Input.h": "70247972fa5b28d76ada3b7b4e42adada4eb83aa1d204f493e5d982a922591a2",
       "CMR2Decomp/InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
       "CMR2Decomp/InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
-      "CMR2Decomp/LayoutChecks.cpp": "48b950f60d93145ec829f616488d63b3a7d28a9fec2872f87c6108b172d44989",
+      "CMR2Decomp/LayoutChecks.cpp": "5ce8a675bae6b367e4c7dd53cac0ff9931550270cf0419133b5e6a1b99a96c88",
       "CMR2Decomp/LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
       "CMR2Decomp/LightZone.h": "61ede4fe7c41bff3944aaef341f31848c7eb9eb0e8ed8b2c7842633d5f626deb",
       "CMR2Decomp/Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
@@ -178,7 +178,7 @@
       "CMR2Decomp/StageUI.h": "ec824b2383e7eb264be6d0dd4b34b5a9d88c3e48e82b279382566047923bb52e",
       "CMR2Decomp/StageWeather.h": "69dee7cbfae5a2407f5503c3cf0716927c84c6042b6080cbd6432c101c8c7e43",
       "CMR2Decomp/StageWeatherParticle.h": "bc58dc39786b7226607aa6dd7779ad3198afa98c4620eb7228436c5573682bdf",
-      "CMR2Decomp/SurfaceTypes.cpp": "ca2ae04d4db2545eb2e1711cb275a187d0c465abe980072672ca4dc4ce31d6fc",
+      "CMR2Decomp/SurfaceTypes.cpp": "da7f4a27f1d813253322e4e709a41f0d69b9029e9fa9ef544a5b296e5834755d",
       "CMR2Decomp/SurfaceTypes.h": "1c81086631cfd2493e9c5a4af7da66e1d02417ed38b7628c7a1e1a986d52e8e7",
       "CMR2Decomp/Texture.cpp": "64e99779f9b2fa571978122803e703d9097d5b7dd11468ac5cf5221c486f8f44",
       "CMR2Decomp/Texture.h": "9add549607a4a937acf9d387b2a736628e486fd63e435cfd53174c6f96b4eb36",
@@ -219,8 +219,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "e335843513ff5eb3b2ae899e37e879ea03c8db7ada8c56ec047a1c5f84a94dd0",
-    "pdb_sha256": "3754614f0916528161f92d84722ce74eff5cc8ef9e7357f775cb92af60e32b79"
+    "exe_sha256": "481c9376e270e863b1aafdd459a5ee85552955e0323992283a45a827c28672e6",
+    "pdb_sha256": "b29c1565e72807ed7f69e14e02329ce497ac26123333089fd6b408d03543b8d5"
   },
   "perfect_match_percent": 56.28,
   "fuzzy_match_percent": 94.45,

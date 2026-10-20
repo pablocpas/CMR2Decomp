@@ -270,6 +270,7 @@
   "differential_car_step.py": {
     "arguments": "entities",
     "targets": [
+      "0x440840",
       "0x433890"
     ]
   },

@@ -897,7 +897,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 0043b020	106	Car_StartPendingCountdown	1	0	0	false	false
 0043b090	102	Car_ScaleRatesByTimeStep	2	0	0	false	false
 0043b100	5428	Car_UpdateSuspension	2	4	3	false	false
-0043c640	417	Car_UpdateWheelTorques	1	1	0	false	false
+0043c640	417	Car_UpdateWheelLoads	1	1	0	false	false
 0043c7f0	6024	Car_Spawn	1	37	0	false	false
 0043dff0	362	Car_SetRideHeight	1	1	0	false	false
 0043e160	38	Car_SetSteeringSwingTarget	1	0	0	false	false
