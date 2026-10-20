@@ -1289,7 +1289,7 @@ convert:
         *(short *)&g_pAutoGearCar->wheelSteeringAngle -= limit;
 }
 
-CarPartSet *StageTiming_GetCarReplayRecord(int index);
+CarPartSet *CarPart_GetSet(int carIndex);
 extern double g_fixedDegreesToAngle12;
 
 // Applies the automatic-gear state to the car for one frame: rebuilds the body
@@ -1305,7 +1305,7 @@ void AutoGear_UpdateCarGearState(Car *pCar)
     int v;
 
     g_pAutoGearCar = pCar;
-    g_autoGearPartSet = StageTiming_GetCarReplayRecord((int)pCar->index);
+    g_autoGearPartSet = CarPart_GetSet((int)pCar->index);
     AutoGear_ApplyShiftBodyNudge();
     if (g_pAutoGearCar->analogThrottle != 0) {
         if (*(BYTE *)&g_pAutoGearCar->flag0x1d0[2] != 0) {

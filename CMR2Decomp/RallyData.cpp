@@ -6009,7 +6009,7 @@ void CarDamage_UpdateOrderedCarsOffRoadState(short *param1, short param2, int *p
 void StageObject_PositionRearViewLightNodes(unsigned int param1);
 BYTE StageObject_GetCarRecordState(int index);
 void StageObject_ResetCarNodeViewFlags(Car *pCar);
-void StageObject_ResetCarPartNodeValues(BYTE *pCar);
+void CarPart_ApplyHiddenStates(Car *pCar);
 void Replay_HideFinishedGhostCarNodes(void);
 void StageObject_StampPendingEventDraws(int unused);
 void StageObject_SpawnCarWheelSkidEffects(int param1);
@@ -6210,7 +6210,7 @@ void RallyData_UpdateViewFrameAndDebugOverlay(CallbackStateMachine *param1, int 
             }
         }
         StageObject_ResetCarNodeViewFlags(pCar);
-        StageObject_ResetCarPartNodeValues((BYTE *)pCar);
+        CarPart_ApplyHiddenStates(pCar);
     }
     Graphics_SetShadowGeometryState(!CGameInfo::IsRecordFlagSet(0xf));
     View_SetPlayerProjection(param2);

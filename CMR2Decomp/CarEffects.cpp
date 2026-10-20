@@ -536,7 +536,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
     BYTE light;
 
     glass = 0;
-    pRecord = StageTiming_GetCarReplayRecord(pCar->index);
+    pRecord = CarPart_GetSet(pCar->index);
     if ((BYTE)RallyData_GetSelectionFlag26() != 0 || pCar->isGhost != 0)
         return;
     n = EFFECT_RAND();

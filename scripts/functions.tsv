@@ -1292,8 +1292,8 @@ addr	size	name	callers	callees	fpu	thunk	external
 00466520	68	StageObjects_Update	1	8	0	false	false
 00466570	190	CarDamage_UpdateOrderedCarsOffRoadState	1	10	0	false	false
 00466630	69	StageObject_SetFrameRate	2	0	0	false	false
-00466680	308	StageTiming_FreeCarReplayRecordTables	0	1	0	false	false
-004667c0	167	StageTiming_AllocateCarReplayRecordTables	1	2	0	false	false
+00466680	308	CarPart_FreeTables	0	1	0	false	false
+004667c0	167	CarPart_AllocateTables	1	2	0	false	false
 00466870	83	StageTiming_ReadCarReplayTailValues	1	0	0	false	false
 004668d0	79	StageTiming_ResetAllCarReplayRecords	1	1	0	false	false
 00466920	144	StageTiming_ResetCarReplayRecord	1	0	0	false	false
@@ -1312,13 +1312,13 @@ addr	size	name	callers	callees	fpu	thunk	external
 004692b0	56	StageTiming_FindModelPartByNodeType	1	0	0	false	false
 004692f0	395	StageTiming_FlagCarPartBreaks	2	5	0	false	false
 004694a0	449	StageObject_SetModelSubmeshVisibility	2	5	0	false	false
-00469680	14	StageTiming_GetCarReplayRecord	22	0	0	false	false
+00469680	14	CarPart_GetSet	22	0	0	false	false
 00469690	514	StageObject_ResetCarObjectState	3	8	0	false	false
 004698a0	480	StageTiming_RebuildDamagedPartMeshes	1	5	18	false	false
 00469a80	208	StageTiming_SnapshotStageReplayColours	1	1	0	false	false
 00469b50	105	StageTiming_CopyCarTimesToRallyRecord	2	3	0	false	false
-00469bc0	42	StageTiming_GetCarReplayTailEntry	4	0	0	false	false
-00469bf0	53	StageObject_SetReplayEntryHitFlag	1	1	0	false	false
+00469bc0	42	CarPart_GetHiddenState	4	0	0	false	false
+00469bf0	53	CarPart_MarkHidden	1	1	0	false	false
 00469c30	420	CarDamage_PickRandomTriangleEdgePoint	1	1	22	false	false
 00469de0	51	StageObject_IsEligibleType	3	0	0	false	false
 00469e40	1716	StageObject_UpdateEnabledCornerContactFrames	1	4	0	false	false
@@ -1330,7 +1330,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 0046b440	114	Mesh_ReadVertexFixed	1	0	9	false	false
 0046b4c0	21	StageObject_GetCarStateSlot	2	0	0	false	false
 0046b4e0	388	CarEffects_UpdateBrokenLightFlicker	1	2	8	false	false
-0046b670	53	StageObject_ResetCarPartNodeValues	1	2	0	false	false
+0046b670	53	CarPart_ApplyHiddenStates	1	2	0	false	false
 0046b6b0	45	StageObject_ClearNodeValueBelowThreshold	2	0	0	false	false
 0046b6e0	46	StageObject_ClearNodeTreeValuesBelowThreshold	2	2	0	false	false
 0046b710	38	StageObject_ResetPairedCarValues	1	0	0	false	false
@@ -1567,7 +1567,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 004809e0	100	StageTiming_CacheListedCarTimingPointers	1	2	0	false	false
 00480a50	11	StageObject_ClearPartTuningState	1	0	0	false	false
 00480a60	86	StageObject_ResetPartTuningAndRandomSeed	1	1	0	false	false
-00480ac0	47	StageObject_ResetCarPartNodeValue	2	0	0	false	false
+00480ac0	47	CarPart_HideNode	2	0	0	false	false
 00480af0	79	StageObject_AssignMatchingCarClassSlots	1	0	0	false	false
 00480b40	97	StageObject_ResetAttachedCarNodes	2	1	0	false	false
 00480bb0	256	StageTiming_UpdateAttachedCarParts	1	6	0	false	false
@@ -1586,9 +1586,9 @@ addr	size	name	callers	callees	fpu	thunk	external
 00483100	1134	StageTiming_FireCarPartDebris	1	3	0	false	false
 00483570	3480	StageTiming_IntegratePartSpringMotion	0	9	15	false	false
 00484310	2557	CarPart_IntegrateDetachedMotion	0	4	12	false	false
-00484d10	20	StageObject_GetCarPartTableValue	1	0	0	false	false
+00484d10	20	CarPart_GetModelIndex	1	0	0	false	false
 00484d30	172	StageTiming_InterpolateMovingPartMatrices	1	5	0	false	false
-00484de0	28	StageObject_GetCarPartNode	1	0	0	false	false
+00484de0	28	CarPart_GetNode	1	0	0	false	false
 00484e00	316	CarDamage_StepClimbingCarRecords	2	6	0	false	false
 00484f40	1142	CarPart_ResolveLocalPointGroundContact	1	2	0	false	false
 004853c0	222	StageObject_ApplyRandomizedBodyImpulse	1	2	4	false	false

@@ -1558,50 +1558,49 @@ int g_stageDeformFalloff;
 // GLOBAL: CMR2 0x00588a7c
 int g_stageDeformScale;
 
-// Reads entry `index` of the 0x4b0-byte tail of a car's 0x4d0-byte record.
+// Returns the stored hidden flag for one of the car's four moving-part slots.
 // FUNCTION: CMR2 0x00469bc0
-int StageTiming_GetCarReplayTailEntry(void *pCar, int index)
+int CarPart_GetHiddenState(Car *pCar, int slot)
 {
-    return g_carPartSets[((Car *)pCar)->index].partHidden[index];
+    return g_carPartSets[pCar->index].partHidden[slot];
 }
 
-// Release callback of StageTiming_AllocateCarReplayRecordTables: frees the per-record part tables
-// (0x588b9c), the per-record buffers (0x588ba0) and the record arrays.
+// Releases the original geometry copies and both per-car damage/part arrays.
 // FUNCTION: CMR2 0x00466680
-int StageTiming_FreeCarReplayRecordTables(void)
+int CarPart_FreeTables(void)
 {
-    DeformVertex ***pParts;
-    BYTE **pBuffers;
-    int i;
-    int j;
+    DeformVertex ***pVertexTables;
+    BYTE **pNodeTypeTables;
+    int carIndex;
+    int partIndex;
 
     if (g_carOriginalPartVertices != NULL) {
-        pParts = g_carOriginalPartVertices;
-        for (i = 0; i < g_carPartSetCount; i++) {
-            if (g_carOriginalPartVertices[i] != NULL) {
-                for (j = 0; j < g_carPartSets[i].count; j++) {
-                    if (g_carOriginalPartVertices[i][j] != NULL) {
-                        CFileBuffer::FreeGenericFileBuffer(g_carOriginalPartVertices[i][j]);
-                        g_carOriginalPartVertices[i][j] = NULL;
+        pVertexTables = g_carOriginalPartVertices;
+        for (carIndex = 0; carIndex < g_carPartSetCount; carIndex++) {
+            if (g_carOriginalPartVertices[carIndex] != NULL) {
+                for (partIndex = 0; partIndex < g_carPartSets[carIndex].count; partIndex++) {
+                    if (g_carOriginalPartVertices[carIndex][partIndex] != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(g_carOriginalPartVertices[carIndex][partIndex]);
+                        g_carOriginalPartVertices[carIndex][partIndex] = NULL;
                     }
                 }
-                CFileBuffer::FreeGenericFileBuffer(g_carOriginalPartVertices[i]);
-                g_carOriginalPartVertices[i] = NULL;
+                CFileBuffer::FreeGenericFileBuffer(g_carOriginalPartVertices[carIndex]);
+                g_carOriginalPartVertices[carIndex] = NULL;
             }
         }
         CFileBuffer::FreeGenericFileBuffer(g_carOriginalPartVertices);
         g_carOriginalPartVertices = NULL;
     }
     if (g_carOriginalPartNodeTypes != NULL) {
-        pBuffers = g_carOriginalPartNodeTypes;
-        for (i = 0; i < g_carPartSetCount; i++) {
-            if (pBuffers[i] != NULL) {
-                CFileBuffer::FreeGenericFileBuffer(pBuffers[i]);
-                g_carOriginalPartNodeTypes[i] = NULL;
-                pBuffers = g_carOriginalPartNodeTypes;
+        pNodeTypeTables = g_carOriginalPartNodeTypes;
+        for (carIndex = 0; carIndex < g_carPartSetCount; carIndex++) {
+            if (pNodeTypeTables[carIndex] != NULL) {
+                CFileBuffer::FreeGenericFileBuffer(pNodeTypeTables[carIndex]);
+                g_carOriginalPartNodeTypes[carIndex] = NULL;
+                pNodeTypeTables = g_carOriginalPartNodeTypes;
             }
         }
-        CFileBuffer::FreeGenericFileBuffer(pBuffers);
+        CFileBuffer::FreeGenericFileBuffer(pNodeTypeTables);
         g_carOriginalPartNodeTypes = NULL;
     }
     if (g_carPartSets != NULL) {
@@ -1617,28 +1616,25 @@ int StageTiming_FreeCarReplayRecordTables(void)
 }
 
 // FUNCTION: CMR2 0x004667c0
-void StageTiming_AllocateCarReplayRecordTables(int count)
+void CarPart_AllocateTables(int count)
 {
-    int i;
-    int offset;
+    int carIndex;
 
     g_carPartSets = (CarPartSet *)CFileBuffer::AllocateLockedBuffer(count * sizeof(CarPartSet));
     g_carDamageRecords = (CarDamageRecord *)CFileBuffer::AllocateLockedBuffer(count * sizeof(CarDamageRecord));
     g_carOriginalPartVertices = (DeformVertex ***)CFileBuffer::AllocateLockedBuffer(count * sizeof(*g_carOriginalPartVertices));
     g_carOriginalPartNodeTypes = (BYTE **)CFileBuffer::AllocateLockedBuffer(count * sizeof(*g_carOriginalPartNodeTypes));
     g_carPartSetCount = count;
-    i = 0;
-    if (i < g_carPartSetCount) {
-        offset = 0;
+    carIndex = 0;
+    if (carIndex < g_carPartSetCount) {
         do {
-            g_carOriginalPartNodeTypes[i] = 0;
-            g_carOriginalPartVertices[i] = 0;
-            g_carPartSetLookup[i] = (CarPartSet *)((BYTE *)g_carPartSets + offset);
-            offset += sizeof(CarPartSet);
-            i++;
-        } while (i < g_carPartSetCount);
+            g_carOriginalPartNodeTypes[carIndex] = 0;
+            g_carOriginalPartVertices[carIndex] = 0;
+            g_carPartSetLookup[carIndex] = &g_carPartSets[carIndex];
+            carIndex++;
+        } while (carIndex < g_carPartSetCount);
     }
-    CGame::RegisterCallback(StageTiming_FreeCarReplayRecordTables, NULL);
+    CGame::RegisterCallback(CarPart_FreeTables, NULL);
 }
 
 // Sets up the whole force-feedback effect set (spring, damper, constant force)
@@ -2173,9 +2169,9 @@ void CarDamage_AllocateImpactDeformRecord(void)
 }
 
 // FUNCTION: CMR2 0x00469680
-CarPartSet *StageTiming_GetCarReplayRecord(int index)
+CarPartSet *CarPart_GetSet(int carIndex)
 {
-    return g_carPartSetLookup[index];
+    return g_carPartSetLookup[carIndex];
 }
 
 // Restricts a deformed vertex to the per-axis displacement limits and writes it
@@ -3941,7 +3937,7 @@ void StageTiming_InterpolateMovingPartMatrices(int t)
 CarPartSet *g_partSet;
 extern BYTE g_wheelSlotDamageIndices[4];
 
-void StageObject_SetReplayEntryHitFlag(Car *pCar, int index);
+void CarPart_MarkHidden(Car *pCar, int slot);
 
 // Clears the low bit of the vehicle's part-state byte and re-selects the part
 // index held in its high nibble.
@@ -3949,7 +3945,7 @@ void StageObject_SetReplayEntryHitFlag(Car *pCar, int index);
 void StageTiming_ClearPartFlagAndReselectIndex(void)
 {
     g_partState->flags &= 0xfe;
-    StageObject_SetReplayEntryHitFlag(g_partCar, g_partState->flags >> 4);
+    CarPart_MarkHidden(g_partCar, g_partState->flags >> 4);
 }
 
 // Starts a part's swing when the load on its side exceeds 0.8: the swing
@@ -7550,7 +7546,7 @@ void StageTiming_WakeUnloadedWheelSlots(void)
     slot = 3;
     offset = 0;
     for (; offset >= -0xc; slot--) {
-        if (StageTiming_GetCarReplayTailEntry(g_partCar, slot) == 0 &&
+        if (CarPart_GetHiddenState(g_partCar, slot) == 0 &&
             // offset steps over ints; the parts table holds pointers, scaled where
             // they are wider than an int (the factor is 1 on Win32).
             (*(PartState **)((BYTE *)&g_carPartStateTables.parts[3] +
@@ -7871,7 +7867,7 @@ void StageTiming_LoadEffectParticleTextures(void)
 
 unsigned int StageTiming_GetTotalCarCount(void);
 void Car_AllocateTable(int count);
-void StageTiming_AllocateCarReplayRecordTables(int count);
+void CarPart_AllocateTables(int count);
 void StageTiming_AllocateCarPartNodeTables(int count);
 void StageTiming_AllocateMotionRecordTable(int count);
 void StageTiming_AllocateViewWeatherRecords(int count);
@@ -7921,7 +7917,7 @@ int StageTiming_LoadStageCarsAndEffects(void)
     count = StageTiming_GetTotalCarCount();
     memset(g_carInfoBuffers, 0, sizeof(g_carInfoBuffers));
     Car_AllocateTable(count);
-    StageTiming_AllocateCarReplayRecordTables(count);
+    CarPart_AllocateTables(count);
     StageTiming_AllocateCarPartNodeTables(count);
     StageTiming_AllocateMotionRecordTable(count);
     StageTiming_AllocateViewWeatherRecords(count);
@@ -8992,7 +8988,7 @@ void CarEffect_UpdateExhaustSmokeAndBackfire(int car)
         revs = -revs;
     speed = (pCar->velocity.x < 0 ? -pCar->velocity.x : pCar->velocity.x) +
             (pCar->velocity.z < 0 ? -pCar->velocity.z : pCar->velocity.z);
-    heat = 0x17c - (FixMul(0x15e0000, (StageTiming_GetCarReplayRecord(pCar->index))->engineTorqueScale) >> 16);
+    heat = 0x17c - (FixMul(0x15e0000, (CarPart_GetSet(pCar->index))->engineTorqueScale) >> 16);
     if (heat > 0xff)
         heat = 0xff;
     else if (heat < 0)
@@ -9128,7 +9124,7 @@ void StageTiming_UpdateAttachedCarParts(Car *pCars, short *pOrder, short count)
         int remaining = n + 1;
         do {
             g_partCar = pCars + *pIndex;
-            g_partSet = StageTiming_GetCarReplayRecord(g_partCar->index);
+            g_partSet = CarPart_GetSet(g_partCar->index);
             StageTiming_WakeUnloadedWheelSlots();
             CarPart_SmoothSteeringOffset();
             pTable = &g_carPartStateTables.parts[3];

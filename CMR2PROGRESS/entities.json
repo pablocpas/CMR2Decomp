@@ -5169,11 +5169,11 @@
   ],
   "0x466680": [
     5122240,
-    "StageTiming_FreeCarReplayRecordTables"
+    "CarPart_FreeTables"
   ],
   "0x4667c0": [
     5122560,
-    "StageTiming_AllocateCarReplayRecordTables"
+    "CarPart_AllocateTables"
   ],
   "0x466870": [
     5133824,
@@ -5249,7 +5249,7 @@
   ],
   "0x469680": [
     5125312,
-    "StageTiming_GetCarReplayRecord"
+    "CarPart_GetSet"
   ],
   "0x469690": [
     5071216,
@@ -5269,11 +5269,11 @@
   ],
   "0x469bc0": [
     5122192,
-    "StageTiming_GetCarReplayTailEntry"
+    "CarPart_GetHiddenState"
   ],
   "0x469bf0": [
     5051696,
-    "StageObject_SetReplayEntryHitFlag"
+    "CarPart_MarkHidden"
   ],
   "0x469c30": [
     5096016,
@@ -5321,7 +5321,7 @@
   ],
   "0x46b670": [
     5004304,
-    "StageObject_ResetCarPartNodeValues"
+    "CarPart_ApplyHiddenStates"
   ],
   "0x46b6b0": [
     4984848,
@@ -6273,7 +6273,7 @@
   ],
   "0x480ac0": [
     4999472,
-    "StageObject_ResetCarPartNodeValue"
+    "CarPart_HideNode"
   ],
   "0x480af0": [
     5017600,
@@ -6349,7 +6349,7 @@
   ],
   "0x484d10": [
     4999520,
-    "StageObject_GetCarPartTableValue"
+    "CarPart_GetModelIndex"
   ],
   "0x484d30": [
     5136848,
@@ -6357,7 +6357,7 @@
   ],
   "0x484de0": [
     4999552,
-    "StageObject_GetCarPartNode"
+    "CarPart_GetNode"
   ],
   "0x484e00": [
     5079392,

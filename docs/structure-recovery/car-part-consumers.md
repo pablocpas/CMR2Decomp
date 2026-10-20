@@ -1,8 +1,9 @@
 # Consumidores de piezas del coche: tandas 10–11
 
-La cadena que recupera `StageTiming_GetCarReplayRecord` devuelve ahora
-`CarPartSet *` en todos sus consumidores y declaraciones. El nombre histórico
-se conserva; el registro contiene geometría y daños, no muestras de replay.
+La cadena que entonces se llamaba `StageTiming_GetCarReplayRecord` pasó a devolver
+`CarPartSet *` en todos sus consumidores y declaraciones. La tanda posterior
+[Interfaz de piezas](car-part-table-interface.md) la renombra `CarPart_GetSet`
+con evidencia de sus productores y consumidores de geometría y daños.
 El lote modifica 43 definiciones/cuerpos de función en siete unidades y los
 headers compartidos, nombra 12 globals y dos campos, y añade 34 verificaciones
 de tamaño, offset y capacidad.

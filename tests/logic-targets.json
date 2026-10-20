@@ -215,6 +215,8 @@
   "differential_car_part_records.py": {
     "arguments": "entities",
     "targets": [
+      "0x4667c0",
+      "0x466680",
       "0x466e90",
       "0x4692b0",
       "0x46b4e0",

@@ -123,7 +123,7 @@ void StageObject_RebuildDamagePartValues(Car *pCar);
 int CarDamage_AverageVertexDisplacement(Car *pCar, CarPartSet *set);
 void StageObject_SetModelSubmeshVisibility(Car *pCar, int param_2, char param_3);
 void StageObject_ResetCarObjectState(Car *pCar);
-void StageObject_SetReplayEntryHitFlag(Car *pCar, int index);
+void CarPart_MarkHidden(Car *pCar, int slot);
 int CarDamage_PickRandomTriangleEdgePoint(FixVector *pOut, CarPartSet *pParts, int index);
 int StageObject_IsEligibleType(short type, int mode, int category);
 void StageObject_UpdateEnabledCornerContactFrames(Car *param_1, short *param_2, short param_3);
@@ -135,7 +135,7 @@ void StageObject_ClearCarStateSlots(void);
 void Mesh_ReadVertexFixed(Mesh **ppMeshes, int mesh, int vertex, int *pOut);
 int StageObject_GetCarStateSlot(BYTE *pCar);
 void CarEffects_UpdateBrokenLightFlicker(BYTE *pCar);
-void StageObject_ResetCarPartNodeValues(BYTE *pCar);
+void CarPart_ApplyHiddenStates(Car *pCar);
 void StageObject_ClearNodeValueBelowThreshold(SceneNode *pNode, BYTE threshold);
 void StageObject_ClearNodeTreeValuesBelowThreshold(SceneNode *pNode, BYTE threshold);
 void StageObject_ResetPairedCarValues(void);
@@ -361,12 +361,12 @@ void StageObject_SetVehicleEffectState(int value);
 void StageObject_UpdateDebris(int scale);
 void StageObject_ClearPartTuningState(void);
 void StageObject_ResetPartTuningAndRandomSeed(void);
-void StageObject_ResetCarPartNodeValue(BYTE *pCar, int slot, int reset);
+void CarPart_HideNode(Car *pCar, int slot, int hidden);
 void StageObject_AssignMatchingCarClassSlots(Car *pCar, SceneNode *pObject, BYTE flag);
 void StageObject_ResetAttachedCarNodes(BYTE *pCar);
 void CarPart_IntegrateDetachedMotion(void);
-unsigned int StageObject_GetCarPartTableValue(int i, int j);
-BYTE *StageObject_GetCarPartNode(BYTE *pCar, int slot);
+unsigned int CarPart_GetModelIndex(int slot, int carIndex);
+SceneNode *CarPart_GetNode(Car *pCar, int slot);
 void CarDamage_StepClimbingCarRecords(short *param_1, short count);
 void StageObject_ApplyRandomizedBodyImpulse(FixVector *pImpulse);
 void StageObject_IntegrateCarMotionRecord(int index);
@@ -475,7 +475,7 @@ char *StageObject_FormatAnimatedLapTime(int *p, int index, int mode);
 void RallyData_SetSelectionBits14To15(BYTE param1);
 unsigned short Input_GetControllerSlotMapping(unsigned short slot);
 void Car_SetDrawnFlag(int index, char value);
-int StageTiming_GetCarReplayTailEntry(void *pCar, int index);
+int CarPart_GetHiddenState(Car *pCar, int slot);
 void CarInterior_UpdateWiperSweep(int index);
 Texture *InRaceMenu_GetRoundBoxTexture(void);
 int CarInterior_UpdateSteeringBlendFraction(int car, Car *pCar);
@@ -584,7 +584,7 @@ void StageObject_SetModelSubmeshVisibility(Car *pCar, int param_2, char param_3)
     int uVar4;
     int uVar3;
 
-    pParts = StageTiming_GetCarReplayRecord(pCar->index);
+    pParts = CarPart_GetSet(pCar->index);
     pType = StageTiming_GetStartTableRecord(pCar->index);
     if ((char)pType->detailCode == 'C' ||
         (pType = StageTiming_GetStartTableRecord(pCar->index), (char)pType->detailCode == 'A')) {
@@ -1429,7 +1429,7 @@ void CarEffects_UpdateBrokenLightFlicker(BYTE *pCar)
     CarPartSet *p;
     int k;
 
-    p = StageTiming_GetCarReplayRecord(((Car *)pCar)->index);
+    p = CarPart_GetSet(((Car *)pCar)->index);
     if (p->damageValues[23] > 0x8000) {
         k = FixMul(p->damageValues[23] - 0x8000, 0x20000);
         if (k < 0)
@@ -1628,7 +1628,7 @@ void Replay_CopyBlock6(Block6 *pSrc, Block6 *pDst)
     *pDst = *pSrc;
 }
 
-CarPartSet *StageTiming_GetCarReplayRecord(int index);
+CarPartSet *CarPart_GetSet(int carIndex);
 struct RaceRecord;
 RaceRecord *RallyData_GetCarRaceRecord(int index);
 void RallyData_ResetRaceRecordAndRouteProbe(int index);
@@ -1639,7 +1639,7 @@ void Replay_CaptureCarSnapshot(ReplayInputLane *pDst, BYTE car)
 {
     Car *pCar = Car_Get(car);
 
-    Replay_CopyAuxState((Block0x134 *)StageTiming_GetCarReplayRecord(car), (Block0x134 *)pDst->partState);
+    Replay_CopyAuxState((Block0x134 *)CarPart_GetSet(car), (Block0x134 *)pDst->partState);
     Replay_CopyBlock309((Block0x309 *)pCar, (Block0x309 *)pDst->carState);
     Replay_CopyBlock6((Block6 *)RallyData_GetCarRaceRecord(car), (Block6 *)pDst->raceRecord);
     RallyData_ResetRaceRecordAndRouteProbe(car);
@@ -3045,22 +3045,22 @@ void StageObject_ClearPartTuningState(void)
 }
 
 // FUNCTION: CMR2 0x00480ac0
-void StageObject_ResetCarPartNodeValue(BYTE *pCar, int slot, int reset)
+void CarPart_HideNode(Car *pCar, int slot, int hidden)
 {
-    if (g_carPartNodes[slot][((Car *)pCar)->index] != NULL && reset != 0)
-        g_carPartNodes[slot][((Car *)pCar)->index]->viewMask = 0;
+    if (g_carPartNodes[slot][pCar->index] != NULL && hidden != 0)
+        g_carPartNodes[slot][pCar->index]->viewMask = 0;
 }
 
 // FUNCTION: CMR2 0x00484d10
-unsigned int StageObject_GetCarPartTableValue(int i, int j)
+unsigned int CarPart_GetModelIndex(int slot, int carIndex)
 {
-    return g_carPartModelIndices[i][j];
+    return g_carPartModelIndices[slot][carIndex];
 }
 
 // FUNCTION: CMR2 0x00484de0
-BYTE *StageObject_GetCarPartNode(BYTE *pCar, int slot)
+SceneNode *CarPart_GetNode(Car *pCar, int slot)
 {
-    return (BYTE *)g_carPartNodes[slot][((Car *)pCar)->index];
+    return g_carPartNodes[slot][pCar->index];
 }
 
 extern int *g_carLineCounts[8];
@@ -3569,8 +3569,8 @@ int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *p
 DWORD Graphics_GetDeviceCaps3C(void);
 DWORD Graphics_GetDeviceCaps40(void);
 DWORD Graphics_GetDeviceCaps44(void);
-CarPartSet *StageTiming_GetCarReplayRecord(int index);
-void StageObject_ResetCarPartNodeValue(BYTE *pCar, int slot, int reset);
+CarPartSet *CarPart_GetSet(int carIndex);
+void CarPart_HideNode(Car *pCar, int slot, int hidden);
 void Car_SetDrawnFlag(int index, char value);
 void *CarInfo_GetSection(Car *pCar, int section);
 struct KnockoutMatch;
@@ -3774,16 +3774,16 @@ void Replay_SwapPendingSlotValue(int **pValue, int slot, int flag)
 }
 
 // FUNCTION: CMR2 0x0046b670
-void StageObject_ResetCarPartNodeValues(BYTE *pCar)
+void CarPart_ApplyHiddenStates(Car *pCar)
 {
-    CarPartSet *p;
-    int i;
+    CarPartSet *pParts;
+    int slot;
 
-    p = StageTiming_GetCarReplayRecord(((Car *)pCar)->index);
-    i = 0;
-    while (i < 4) {
-        StageObject_ResetCarPartNodeValue(pCar, i, p->partHidden[i]);
-        i++;
+    pParts = CarPart_GetSet(pCar->index);
+    slot = 0;
+    while (slot < 4) {
+        CarPart_HideNode(pCar, slot, pParts->partHidden[slot]);
+        slot++;
     }
 }
 
@@ -4821,7 +4821,7 @@ void StageObject_RebuildDamagePartValues(Car *pCar)
     pRecord->gearShiftDamage = (char)FixMulShift32(pRecord->damageValues[14], 0xf0000);
     value = CarDamage_AverageVertexDisplacement(pCar, pRecord);
     pRecord->bodyDamageDrag = FixMul(0x4000, value);
-    if (StageTiming_GetCarReplayTailEntry(pCar, 3) != 0)
+    if (CarPart_GetHiddenState(pCar, 3) != 0)
         pRecord->bodyDamageDrag = pRecord->bodyDamageDrag + -0x3333;
     pRecord->damageValues[17] = value;
     if (value > 0x10000)
@@ -4899,15 +4899,15 @@ int CarDamage_AverageVertexDisplacement(Car *pCar, CarPartSet *set)
 
     if (g_carDamageModelEnabled[pCar->index] == 0)
         return 0;
-    partA = StageObject_GetCarPartTableValue(1, pCar->index);
-    partB = StageObject_GetCarPartTableValue(3, pCar->index);
+    partA = CarPart_GetModelIndex(1, pCar->index);
+    partB = CarPart_GetModelIndex(3, pCar->index);
     sum = 0;
     total = 0;
     for (i = 0; i < set->count; i++) {
         if (i == partA) {
-            if (StageTiming_GetCarReplayTailEntry(pCar, 1) != 0)
+            if (CarPart_GetHiddenState(pCar, 1) != 0)
                 goto skip;
-        } else if (i == partB && StageTiming_GetCarReplayTailEntry(pCar, 3) != 0) {
+        } else if (i == partB && CarPart_GetHiddenState(pCar, 3) != 0) {
 skip:
             total += set->vertexCount[i];
             continue;
@@ -9510,7 +9510,7 @@ void StageObject_UpdateCarCornerGroundHeights(Car *pCar, int count)
     short i;
     short missing;
 
-    p = StageTiming_GetCarReplayRecord(pCar->index);
+    p = CarPart_GetSet(pCar->index);
     missing = 0;
     i = 0;
     if (count > 0) {
@@ -9838,12 +9838,11 @@ void StageObject_SelectAndCopyCarNodePayload(CameraRecord *pObj, int *pSrc, BYTE
     StageObject_RebuildMirroredTiltMatrix(pObj, pSrc);
 }
 
-// Sets the hit flag of one entry of a car's timing record and refreshes the
-// derived record block.
+// Marks a moving part hidden and refreshes the derived damage values.
 // FUNCTION: CMR2 0x00469bf0
-void StageObject_SetReplayEntryHitFlag(Car *pCar, int index)
+void CarPart_MarkHidden(Car *pCar, int slot)
 {
-    g_carPartSets[pCar->index].partHidden[index] = 1;
+    g_carPartSets[pCar->index].partHidden[slot] = 1;
     StageObject_RebuildDamagePartValues(pCar);
 }
 
@@ -11068,7 +11067,7 @@ void CarDamage_UpdateSuspensionImpactContacts(Car *pCar)
     FixVector vHit;
 
     iFlagC = 0;
-    pParts = StageTiming_GetCarReplayRecord(pCar->index);
+    pParts = CarPart_GetSet(pCar->index);
     bVar5 = FALSE;
     bVar14 = TRUE;
     i = 0;
@@ -11553,7 +11552,7 @@ void StageObject_RebuildCarLightMeshes(Car *pCar)
                 if (StageObject_GetCarStateSlot((BYTE *)pCar) == 0 || pPoint->part == -1) {
                     node = pCar->pBodyNode;
                 } else {
-                    node = (SceneNode *)StageObject_GetCarPartNode((BYTE *)pCar, (int)pPoint->part);
+                    node = CarPart_GetNode(pCar, (int)pPoint->part);
                     if (node == NULL)
                         node = pCar->pBodyNode;
                 }
@@ -11590,7 +11589,7 @@ void StageObject_RebuildCarLightMeshes(Car *pCar)
         int k;
         int *pMin;
 
-        pRec = StageTiming_GetCarReplayRecord(LCAR);
+        pRec = CarPart_GetSet(LCAR);
         i = 0;
         if (0 < pRec->count) {
             pObj = pRec->vertexCount;
@@ -11678,7 +11677,7 @@ void StageObject_UpdateCarLightFlagsAndGlows(Car *pCar)
     int ii;
     DeformVertex *pVertex;
 
-    pRec = StageTiming_GetCarReplayRecord(LIGHT_CAR);
+    pRec = CarPart_GetSet(LIGHT_CAR);
     if (pCar->field_0xb70 != 0) {
         CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 2);
         CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 8);
@@ -11795,7 +11794,7 @@ void StageTiming_FlagCarPartBreaks(Car *pCar, int param_2);
 void CarDamage_DecodeImpactPayload(CarImpactPayload *p);
 void StageObject_RebuildDamagePartValues(Car *pCar);
 void StageObject_ResetVectorListRecord(int list, int index, int value);
-void StageObject_ResetCarPartNodeValue(BYTE *pCar, int slot, int reset);
+void CarPart_HideNode(Car *pCar, int slot, int hidden);
 void StageObject_ResetAttachedCarNodes(BYTE *pCar);
 void RallyData_MarkAllElementsReached(void);
 void StageTiming_ResetScaledViewObjectStates(void);
@@ -11804,7 +11803,7 @@ void StageTiming_PlaceEventStartingGrid(char param_1);
 void StageTiming_ResetParticipatingDriverRecords(int param_1);
 void StageObject_StartReplaySession(char restart);
 void Car_ReloadModels(int, int, int);
-CarPartSet *StageTiming_GetCarReplayRecord(int index);
+CarPartSet *CarPart_GetSet(int carIndex);
 void RallyData_ResetRaceRecordAndRouteProbe(int index);
 void RallyData_RestoreAllCarRaceRecords(void);
 RaceRecord *RallyData_GetCarRaceRecord(int index);
@@ -11866,7 +11865,7 @@ void StageObject_ResetCarObjectState(Car *pCar)
     }
     for (i = 0; i < 4; i++) {
         set->partHidden[i] = pRecord->damage.partHidden[i];
-        StageObject_ResetCarPartNodeValue((BYTE *)pCar, i, set->partHidden[i]);
+        CarPart_HideNode(pCar, i, set->partHidden[i]);
     }
     StageObject_RebuildDamagePartValues(pCar);
     StageTiming_FlagCarPartBreaks(pCar, 1);
@@ -11885,7 +11884,7 @@ void Replay_InitObjectListCarState(ReplayInputLane *pLane, BYTE param_2)
     StageObject_ResetCarObjectState(pCar);
     Replay_RestoreCarState((Block0x309 *)pLane->carState, pCar);
     if (pCar->field_0xb50 != 0) {
-        Replay_RestoreAuxState((Block0x134 *)pLane->partState, (Block0x134 *)StageTiming_GetCarReplayRecord((int)param_2));
+        Replay_RestoreAuxState((Block0x134 *)pLane->partState, (Block0x134 *)CarPart_GetSet((int)param_2));
     }
     pRecord = RallyData_GetCarRaceRecord((int)param_2);
     Replay_CopyBlock6((Block6 *)pLane->raceRecord, (Block6 *)pRecord);
@@ -12675,7 +12674,7 @@ void CarDamage_StepClimbingCarRecords(short *param_1, short param_2)
         int idx = *pIndex;
         int m;
         g_partCar = (Car *)Car_Get(idx);
-        g_partSet = StageTiming_GetCarReplayRecord(idx);
+        g_partSet = CarPart_GetSet(idx);
         if (g_partCar->isGhost == 0) {
             if (g_partCar->field_0xb64 == 0 &&
                 g_partCar->useUpperCollisionCorners != 0 &&
@@ -14263,7 +14262,7 @@ BillboardDef g_bodySparkBillboard;
 
 extern int g_stageObjectTimeStep;
 extern Texture *g_unk0x005477f0;
-CarPartSet *StageTiming_GetCarReplayRecord(int index);
+CarPartSet *CarPart_GetSet(int carIndex);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 
 
@@ -14417,7 +14416,7 @@ int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar)
     FixVector rotated;
     FixVector origin;
 
-    pParts = StageTiming_GetCarReplayRecord(pCar->index);
+    pParts = CarPart_GetSet(pCar->index);
     count = FixMul(0x1e0000, FixMul(g_stageObjectTimeStep, amount)) >> 16;
     result = count;
     if (count > 0) {

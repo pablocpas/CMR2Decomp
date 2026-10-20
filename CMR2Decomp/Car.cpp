@@ -2595,7 +2595,7 @@ void Car_UpdateTyreForces(void)
 }
 
 
-int StageTiming_GetCarReplayTailEntry(void *pCar, int index);
+int CarPart_GetHiddenState(Car *pCar, int slot);
 
 extern double g_fixedDegreesToAngle12;
 
@@ -2880,7 +2880,7 @@ void Car_UpdateWheelLoads(void)
         g_pCurrentCar->cornerWeight[i] = quarterMass - FixMul(heightTerm, g_pCurrentCar->suspensionLoadScale);
     }
 
-    if (StageTiming_GetCarReplayTailEntry(g_pCurrentCar, 3) != 0) {
+    if (CarPart_GetHiddenState(g_pCurrentCar, 3) != 0) {
         int rate = FixMul(g_pCurrentCar->speed, 0x2000);
 
         if (rate > 0x10000) {
@@ -3377,7 +3377,7 @@ short g_wheelRotation[8][4];
 
 extern int g_unk0x005199c8[14];
 extern int g_unk0x00519a00[14];
-CarPartSet *StageTiming_GetCarReplayRecord(int index);
+CarPartSet *CarPart_GetSet(int carIndex);
 
 // Rebuilds the transforms of the cars of a list: the previous rows are
 // restored into the physics rows and moved by the ride height, and the wheel
@@ -3464,7 +3464,7 @@ void Car_StoreRenderTransforms(short *pList, short count)
             for (j = 3; j >= 0; j--)
                 pWheels[j].position = pCar->wheelEmitter[j];
         } else {
-            pRecord = StageTiming_GetCarReplayRecord(car);
+            pRecord = CarPart_GetSet(car);
             for (j = 3; j >= 0; j--) {
                 typeAngle = (short)(int)FTOI(__int64, X87S_MUL((double)FixMul(0x50000,
                         pRecord->damageValues[j]), g_fixedDegreesToAngle12));
@@ -3479,7 +3479,7 @@ void Car_StoreRenderTransforms(short *pList, short count)
                 }
                 up = pCar->wheelEmitter[j];
                 up.y += pCar->field_0x928[j];
-                sum = (StageTiming_GetCarReplayRecord(pCar->index))->damageValues[4 + j] +
+                sum = (CarPart_GetSet(pCar->index))->damageValues[4 + j] +
                       pCar->field_0x978[j];
                 if (sum > 0x10000)
                     sum = 0x10000;
@@ -4386,7 +4386,7 @@ void Car_UpdateSuspensionPass(Car *param_1, short *param_2, short param_3)
     n++;
     do {
         g_pCurrentCar = param_1 + *p;
-        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         Car_UpdateWheelTravel();
         g_pCurrentCar->previousWheelSurface[0] = g_pCurrentCar->wheelSurface[0];
         g_pCurrentCar->previousWheelSurface[1] = g_pCurrentCar->wheelSurface[1];
@@ -4789,7 +4789,7 @@ void Car_StepAll(Car *base, short *pList, short count)
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = base + pList[i];
-        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         if (g_physicsPartSet->glassDebrisEmitted == 0 && g_physicsPartSet->glassCooldown != 0)
             g_physicsPartSet->glassCooldown -= 1;
         g_physicsPartSet->glassDebrisEmitted = 0;
@@ -4809,7 +4809,7 @@ void Car_StepAll(Car *base, short *pList, short count)
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = base + pList[i];
-        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         Car_UpdateEngineTorque();
     }
     for (i = count - 1; i >= 0; i--) {
@@ -4818,7 +4818,7 @@ void Car_StepAll(Car *base, short *pList, short count)
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = base + pList[i];
-        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         Car_IntegrateContacts();
     }
     for (i = count - 1; i >= 0; i--) {
@@ -7329,7 +7329,7 @@ void Car_PrepareBodies(Car *base, short *pList, short count)
 
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = base + pList[i];
-        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         Car_UpdateWheelTravel();
         g_pCurrentCar->previousWheelSurface[0] = g_pCurrentCar->wheelSurface[0];
         g_pCurrentCar->previousWheelSurface[1] = g_pCurrentCar->wheelSurface[1];
@@ -7571,7 +7571,7 @@ void Car_RunStepPasses(Car *carBase, short *pOrder, short count)
     // Pass 3: corner loads and forces.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = carBase + pOrder[i];
-        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         Car_UpdateCornerVelocityPair();
         for (j = 7; j >= 0; j--) {
             g_pCurrentCar->cornerLoad[j].x = 0;
@@ -7588,7 +7588,7 @@ void Car_RunStepPasses(Car *carBase, short *pOrder, short count)
     // Pass 4: body lean and steering.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = carBase + pOrder[i];
-        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         Car_UpdateBodyLean();
         if (g_pCurrentCar->field_0xb74 != 0) {
             Car_SetupSuspensionRates();
@@ -7599,7 +7599,7 @@ void Car_RunStepPasses(Car *carBase, short *pOrder, short count)
     // Pass 5: wheel forces.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = carBase + pOrder[i];
-        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         if (g_pCurrentCar->field_0xb74 != 0) {
             Car_SplitEngineTorque();
             Car_UpdateWheelForces();
@@ -7610,7 +7610,7 @@ void Car_RunStepPasses(Car *carBase, short *pOrder, short count)
     // Pass 6: body axes without damping.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = carBase + pOrder[i];
-        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         if (g_pCurrentCar->field_0xb74 != 0)
             Car_UpdateBodyAxesNoDamping();
     }
@@ -7618,7 +7618,7 @@ void Car_RunStepPasses(Car *carBase, short *pOrder, short count)
     // Pass 7: integrate the rigid body.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = carBase + pOrder[i];
-        g_physicsPartSet = StageTiming_GetCarReplayRecord((int)g_pCurrentCar->index);
+        g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         Car_Integrate();
     }
 

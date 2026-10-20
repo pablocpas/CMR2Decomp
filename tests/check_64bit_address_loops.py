@@ -41,7 +41,7 @@ struct SceneNode{SceneNode *pNext,*pFirstChild;};struct Car{SceneNode *pSceneRoo
 struct Menu;struct SoundSlot;struct CarFlexibleLineState;
 CarPartStateTables g_carPartStateTables;ReplayLevelState g_replayLevelState;
 RallyStageTables g_rallyStageTables;RallyOverallTables g_rallyOverallTables;NetPlayer g_netPlayers[8];
-void *g_replayStreams[8];int g_unk0x00588d3c;int g_carPairValuePending[16];
+struct ReplayStream;ReplayStream *g_replayStreams[8];int g_unk0x00588d3c;int g_carPairValuePending[16];
 CarFlexibleLineState **g_carLineStates;int g_carPartTableCarCount,g_soundMasterVolume;
 struct CSound{static SoundSlot *m_soundSlots[32];};SoundSlot *CSound::m_soundSlots[32];
 alignas(16) BYTE payload[32][32];std::vector<void*> freed,volumes;
@@ -63,7 +63,7 @@ int main(){
  assert((uintptr_t)g_replayStreams>UINT32_MAX && (uintptr_t)payload>UINT32_MAX && (uintptr_t)&g_carScenes>UINT32_MAX);unsigned cases=0;
  for(unsigned mask:{0u,1u,0x55u,0x80u,0xaau,0xffu})for(int count:{-1,0,1,8}){
   BYTE dataBefore[sizeof(payload)];memset(payload,0xc3,sizeof(payload));memcpy(dataBefore,payload,sizeof(payload));std::vector<void*> want;
-  for(unsigned i=0;i<8;i++){g_replayStreams[i]=(mask&(1u<<i))?payload[i]:nullptr;if(g_replayStreams[i])want.push_back(payload[i]);}
+  for(unsigned i=0;i<8;i++){g_replayStreams[i]=(mask&(1u<<i))?(ReplayStream*)payload[i]:nullptr;if(g_replayStreams[i])want.push_back(payload[i]);}
   memset(&g_replayLevelState,0x93,sizeof(g_replayLevelState));ReplayLevelState expected=g_replayLevelState;expected.bufferCount=0;g_unk0x00588d3c=5;freed.clear();
   assert(Replay_ReleaseStageBuffers()==1 && freed==want && !g_unk0x00588d3c && !memcmp(&expected,&g_replayLevelState,sizeof(expected)));for(auto p:g_replayStreams)assert(!p);++cases;
   for(unsigned linesPresent=0;linesPresent<2;linesPresent++){
@@ -114,7 +114,7 @@ void FrontendControls_FillDeviceConfiguration(){++controllerCalls;}
  # Leaves on the complete early failure path are counted; every later-path
  # provider rejects accidental execution. Actual record/header layouts remain.
  stage=body(sources['StageTiming.cpp'],'StageTiming_LoadStageCarsAndEffects')
- early={'StageTiming_GetTotalCarCount','Car_AllocateTable','StageTiming_AllocateCarReplayRecordTables','StageTiming_AllocateCarPartNodeTables','StageTiming_AllocateMotionRecordTable','StageTiming_AllocateViewWeatherRecords','Car_ClearRecords','Car_ClearWheelRotation','Physics_SetScale','StageObject_SetPhysicsScaleAndReciprocal','Car_ResetPlaybackSpeed','RallyData_GetFlag22','RallyData_GetFlag31','NetPlayers_ClearPlayerFlag23','StageTiming_LoadSelectedCarModel'}
+ early={'StageTiming_GetTotalCarCount','Car_AllocateTable','CarPart_AllocateTables','StageTiming_AllocateCarPartNodeTables','StageTiming_AllocateMotionRecordTable','StageTiming_AllocateViewWeatherRecords','Car_ClearRecords','Car_ClearWheelRotation','Physics_SetScale','StageObject_SetFrameRate','Car_ResetPlaybackSpeed','RallyData_GetFlag22','RallyData_GetFlag31','NetPlayers_ClearPlayerFlag23','StageTiming_LoadSelectedCarModel'}
  calls=set(re.findall(r'\b(\w+(?:::\w+)?)\(',stage))-{'sizeof','offsetof','if','while','for','memset','StageTiming_LoadStageCarsAndEffects'}
  for name in sorted(calls):
   if '::' in name:continue

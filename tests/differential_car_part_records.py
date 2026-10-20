@@ -19,6 +19,7 @@ from unicorn.x86_const import (UC_X86_REG_EAX, UC_X86_REG_EBX, UC_X86_REG_ECX,
                               UC_X86_REG_EBP, UC_X86_REG_ESP)
 from differential_menu_list import ROOT, HEAP, STACK
 from differential_stage_lighting import Lighting, add, mul, signed
+from differential_car_info_records import Records
 
 CAR, PARTS, NODE = HEAP + 0x1000, HEAP + 0x2000, HEAP + 0x3000
 MESH, TRIANGLES, VERTICES = HEAP + 0x5000, HEAP + 0x6000, HEAP + 0x7000
@@ -243,6 +244,105 @@ class Parts(Lighting):
         return self.check(0x4669F0, [lock, keep, ORDER, 1], expected, trace)
 
 
+class PartTables(Records):
+    """Real allocation/release loops, with only allocator and callback leaves."""
+    buffers = (HEAP + 0x2000, HEAP + 0x6000, HEAP + 0x8000, HEAP + 0x9000)
+    globals = (0x588B94, 0x588B98, 0x588B9C, 0x588BA0)
+
+    def provider(self, address, nargs):
+        args = tuple(self.args(nargs))
+        value = 0
+        if address == 0x4AAD70:
+            value = self.buffers[len(self.trace)]
+            self.trace.append(('allocate', *args))
+        elif address == 0x4AADE0:
+            self.trace.append(('free', *args))
+        elif address == 0x49C0A0:
+            assert args == (self.addr(0x466680), 0), 'part-table release callback'
+            self.trace.append(('register', 0x466680, 0))
+        else:
+            raise AssertionError(hex(address))
+        self.u.reg_write(UC_X86_REG_EAX, value)
+        self.u.reg_write(UC_X86_REG_ECX, 0xA5A5A5A5)
+        self.u.reg_write(UC_X86_REG_EDX, 0x5A5A5A5A)
+
+    def prepare(self, seed):
+        h = self.begin(seed)
+        self.trace = []
+        self.intercept((0x4AAD70, 1), (0x4AADE0, 1), (0x49C0A0, 2))
+        self.allowed = {(self.addr(a), 4) for a in (*self.globals, 0x588A90)}
+        for i in range(8):
+            self.allowed.add((self.addr(0x588990) + 4*i, 4))
+        return h
+
+    def allocate(self, count, seed):
+        h = self.prepare(seed)
+        self.put(self.addr(0x588990), '<8I', *range(0x11220000, 0x11220008))
+        expected = bytearray(h)
+        for i in range(max(0, count)):
+            for table in self.buffers[2:]:
+                write(expected, table + 4*i, '<I', 0)
+        actual = self.invoke_guarded(0x4667C0, [count])
+        assert actual == expected, 'allocation initialization / complete heap guards'
+        assert self.trace == [('allocate', count*size & 0xFFFFFFFF) for size in (0x4D0,0x290,4,4)] + [('register',0x466680,0)]
+        state = tuple(struct.unpack('<I', self.read(self.addr(a),4))[0] for a in self.globals)
+        assert state == self.buffers
+        assert struct.unpack('<i',self.read(self.addr(0x588A90),4))[0] == count
+        lookup = struct.unpack('<8I',self.read(self.addr(0x588990),32))
+        assert lookup == tuple(self.buffers[0] + i*0x4D0 if i < count else 0x11220000+i for i in range(8))
+        return actual, self.trace, state, lookup
+
+    def release(self, count, mask, seed):
+        h = self.prepare(seed)
+        for address, value in zip(self.globals, self.buffers):
+            self.put(self.addr(address), '<I', value)
+        if not mask & 1:
+            self.put(self.addr(self.globals[2]), '<I', 0)
+        if not mask & 2:
+            self.put(self.addr(self.globals[3]), '<I', 0)
+        self.put(self.addr(0x588A90), '<i', count)
+        expected, trace = bytearray(h), []
+        for i in range(max(0,count)):
+            n = (-1,0,1,15)[(i+seed)%4]
+            write(h,self.buffers[0]+i*0x4D0+0x45C,'<i',n)
+            present = (i+seed)%3 != 0
+            vertices = HEAP+0xA000+i*0x40 if present else 0
+            types = HEAP+0xB000+i*0x20 if (i+seed)%2 else 0
+            write(h,self.buffers[2]+4*i,'<I',vertices)
+            write(h,self.buffers[3]+4*i,'<I',types)
+            for j in range(max(0,n)):
+                if vertices:
+                    write(h,vertices+4*j,'<I',HEAP+0xC000+i*0x200+j*8 if (i+j+seed)%2 else 0)
+        expected = bytearray(h)
+        if mask & 1:
+            for i in range(max(0,count)):
+                vertices = struct.unpack_from('<I',h,self.buffers[2]+4*i-HEAP)[0]
+                if vertices:
+                    n = struct.unpack_from('<i',h,self.buffers[0]+i*0x4D0+0x45C-HEAP)[0]
+                    for j in range(max(0,n)):
+                        vertex = struct.unpack_from('<I',h,vertices+4*j-HEAP)[0]
+                        if vertex:
+                            trace.append(('free',vertex))
+                            write(expected,vertices+4*j,'<I',0)
+                    trace.append(('free',vertices))
+                    write(expected,self.buffers[2]+4*i,'<I',0)
+            trace.append(('free',self.buffers[2]))
+        if mask & 2:
+            for i in range(max(0,count)):
+                types = struct.unpack_from('<I',h,self.buffers[3]+4*i-HEAP)[0]
+                if types:
+                    trace.append(('free',types))
+                    write(expected,self.buffers[3]+4*i,'<I',0)
+            trace.append(('free',self.buffers[3]))
+        trace += [('free',self.buffers[0]),('free',self.buffers[1])]
+        actual = self.invoke_guarded(0x466680,[])
+        assert actual == expected and self.trace == trace, 'nested release order / entire heap'
+        assert self.u.reg_read(UC_X86_REG_EAX) == 1
+        state = tuple(struct.unpack('<I',self.read(self.addr(a),4))[0] for a in (*self.globals,0x588A90))
+        assert state == (0,)*5
+        return actual, self.trace, state
+
+
 def main():
     entities = json.loads(Path(sys.argv[1]).read_text())
     rebuilt = Path(sys.argv[2]) if len(sys.argv) > 2 else ROOT / 'build/CMR2.exe'
@@ -272,8 +372,14 @@ def main():
         except Exception as exc:
             raise AssertionError((method, args, 8137 + i)) from exc
         assert results[0] == results[1], (method, args, 'original / rebuilt')
-    print(f'{len(cases)} car part cases: 0 differences; slot registration/search, sparse compaction, '
-          'saved snapshots, signed flicker, all triangle edges, RNG order, heap guards and ABI checked')
+    tables = (PartTables(ROOT / 'cmr2bin/CMR2.exe'), PartTables(rebuilt, entities))
+    table_cases = [('allocate',(count,seed)) for count,seed in itertools.product((-1,0,1,8),(0,17))]
+    table_cases += [('release',(count,mask,seed)) for count,mask,seed in itertools.product((-1,0,1,8),range(4),range(4))]
+    for method,args in table_cases:
+        results = [getattr(image,method)(*args) for image in tables]
+        assert results[0] == results[1], (method,args,'original / rebuilt')
+    print(f'{len(cases)} car part cases and {len(table_cases)} table lifecycle cases: 0 differences; slot registration/search, sparse compaction, '
+          'saved snapshots, signed flicker, all triangle edges, RNG order, typed table initialization, nested release order, heap guards and ABI checked')
 
 
 if __name__ == '__main__':

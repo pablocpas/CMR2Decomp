@@ -24294,31 +24294,31 @@
     "symbol_name": "StageObject_ClearPartTuningState"
   },
   "0x480ac0": {
-    "n": "StageObject_ResetCarPartNodeValue",
+    "n": "CarPart_HideNode",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ResetCarPartNodeValue"
+    "symbol_name": "CarPart_HideNode"
   },
   "0x484d10": {
-    "n": "StageObject_GetCarPartTableValue",
+    "n": "CarPart_GetModelIndex",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_GetCarPartTableValue"
+    "symbol_name": "CarPart_GetModelIndex"
   },
   "0x484de0": {
-    "n": "StageObject_GetCarPartNode",
+    "n": "CarPart_GetNode",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_GetCarPartNode"
+    "symbol_name": "CarPart_GetNode"
   },
   "0x4854a0": {
     "n": "StageObject_IntegrateCarMotionRecord",
@@ -24618,13 +24618,13 @@
     "symbol_name": "Replay_SwapPendingSlotValue"
   },
   "0x46b670": {
-    "n": "StageObject_ResetCarPartNodeValues",
+    "n": "CarPart_ApplyHiddenStates",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ResetCarPartNodeValues"
+    "symbol_name": "CarPart_ApplyHiddenStates"
   },
   "0x486700": {
     "n": "CarInfo_CacheCameraOffsets",
@@ -25932,13 +25932,13 @@
     "symbol_name": "StageObject_SelectAndCopyCarNodePayload"
   },
   "0x469bf0": {
-    "n": "StageObject_SetReplayEntryHitFlag",
+    "n": "CarPart_MarkHidden",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_SetReplayEntryHitFlag"
+    "symbol_name": "CarPart_MarkHidden"
   },
   "0x46c320": {
     "n": "Replay_SaveCarTorqueAndRecordState",
@@ -27408,31 +27408,31 @@
     "symbol_name": "ForceFeedback_FadeImpulseForces"
   },
   "0x469bc0": {
-    "n": "StageTiming_GetCarReplayTailEntry",
+    "n": "CarPart_GetHiddenState",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_GetCarReplayTailEntry"
+    "symbol_name": "CarPart_GetHiddenState"
   },
   "0x466680": {
-    "n": "StageTiming_FreeCarReplayRecordTables",
+    "n": "CarPart_FreeTables",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_FreeCarReplayRecordTables"
+    "symbol_name": "CarPart_FreeTables"
   },
   "0x4667c0": {
-    "n": "StageTiming_AllocateCarReplayRecordTables",
+    "n": "CarPart_AllocateTables",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_AllocateCarReplayRecordTables"
+    "symbol_name": "CarPart_AllocateTables"
   },
   "0x424120": {
     "n": "ForceFeedback_CreateEffects",
@@ -27633,13 +27633,13 @@
     "symbol_name": "CarDamage_AllocateImpactDeformRecord"
   },
   "0x469680": {
-    "n": "StageTiming_GetCarReplayRecord",
+    "n": "CarPart_GetSet",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_GetCarReplayRecord"
+    "symbol_name": "CarPart_GetSet"
   },
   "0x508740": {
     "n": "StageDeform_ClampVertex",

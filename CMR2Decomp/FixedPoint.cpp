@@ -902,7 +902,7 @@ void ChaseCamera_BuildMatrix(CameraRecord *pObj, FixMatrix *pRef)
 }
 
 extern CarPartSet *g_physicsPartSet;
-CarPartSet *StageTiming_GetCarReplayRecord(int index);
+CarPartSet *CarPart_GetSet(int carIndex);
 
 // Copies the car's body and world matrices into the local transform of its two
 // body scene nodes.
@@ -912,7 +912,7 @@ void Car_SyncBodySceneNodes(Car *pCar)
     FixVector v;
 
     g_pCurrentCar = pCar;
-    g_physicsPartSet = StageTiming_GetCarReplayRecord((int)pCar->index);
+    g_physicsPartSet = CarPart_GetSet((int)pCar->index);
     Car_StoreBodyMatrix();
     FixMatrix_GetRight(&v, g_pCurrentCar->pBodyMatrix);
     g_pCurrentCar->pBodyNode->current.right = v;

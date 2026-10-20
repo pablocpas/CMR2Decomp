@@ -10,3 +10,12 @@ address	old_name	new_name	evidence
 0x487e00	StageObject_SetCollisionSphereAndMaterial	Collision_SetObjectSphere	Caches the object position, SectorObjectBounds::radius and the first MeshCollisionRecord::height; called when the sector entry has no box projection, with no material access.
 0x487e50	StageObject_UpdateCarBoxShadowLighting	Collision_ApplyObjectOverlapDamping	Projects the object sphere centre onto the car box axes, tests half extents plus radius, and calls CarPhysics_UpdateWheelSlipAndVelocityDamping; reads no rendering or lighting state.
 0x43c640	Car_UpdateWheelTorques	Car_UpdateWheelLoads	Starts from mass/4, subtracts suspension-height and travel corrections times mass/8, and writes the eight-corner load table at 0x8b8 (first four here); the grip solver consumes these scalar loads, not wheel torque.
+0x469680	StageTiming_GetCarReplayRecord	CarPart_GetSet	Returns g_carPartSetLookup[index], populated with CarPartSet records by 0x4667c0; consumers read geometry, damage and hidden states.
+0x469bc0	StageTiming_GetCarReplayTailEntry	CarPart_GetHiddenState	Reads g_carPartSets[Car::index].partHidden[slot] at +0x4b0; 0x469bf0 sets it and 0x46b670 applies it to node visibility.
+0x466680	StageTiming_FreeCarReplayRecordTables	CarPart_FreeTables	Release callback frees original per-part vertex copies, node-type copies, CarPartSet and CarDamageRecord arrays, then clears the car count.
+0x4667c0	StageTiming_AllocateCarReplayRecordTables	CarPart_AllocateTables	Allocates the CarPartSet/CarDamageRecord arrays and original vertex/node-type pointer tables, builds the set lookup and registers their release callback.
+0x480ac0	StageObject_ResetCarPartNodeValue	CarPart_HideNode	For a nonzero hidden flag and present node, writes zero to g_carPartNodes[slot][Car::index]->viewMask; zero flag leaves the mask unchanged.
+0x484d10	StageObject_GetCarPartTableValue	CarPart_GetModelIndex	Returns byte g_carPartModelIndices[slot][carIndex], filled alongside the node by matching model node classes in 0x480af0.
+0x484de0	StageObject_GetCarPartNode	CarPart_GetNode	Returns g_carPartNodes[slot][Car::index]; assignment 0x480af0 stores SceneNode pointers and light setup 0x463fe0 reads node geometry.
+0x46b670	StageObject_ResetCarPartNodeValues	CarPart_ApplyHiddenStates	Looks up the car part set and passes each of its four partHidden flags to the node-hiding helper 0x480ac0.
+0x469bf0	StageObject_SetReplayEntryHitFlag	CarPart_MarkHidden	Writes one to partHidden[slot] then rebuilds derived damage values; 0x483010 calls it when deactivating a moving part.
