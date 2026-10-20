@@ -73,14 +73,14 @@ void RallyData_SetElementFlagBit(SectorObjectEntry **,int,int);
 void RallyData_MarkElementReachedByCar(SectorObjectEntry *,int);
 
 
-BYTE g_unk0x00590ed0[8][0x98];CollisionBox g_sectorObjectCollisionBox;
-int g_unk0x005914d8,contactResult,overlapResult,contacts,views,shadows;Car *g_collisionCar;
+CollisionBox g_unk0x00590ed0[8],g_sectorObjectCollisionBox;
+int g_wallScrapeCount,contactResult,overlapResult,contacts,views,shadows;Car *g_collisionCar;
 int Collision_DoSpheresOverlap(int a,int b,int *left,int *right){
  assert(a==65536 && b>=0 && left==(int *)&cars[0].position && (uintptr_t)left>UINT32_MAX);
  assert(right && (uintptr_t)right>UINT32_MAX);return overlapResult;
 }
 void StageObject_QueueViewLensFlare(int *box,int *axes,int *position,FixVector *corners){
- assert(box==(int *)g_unk0x00590ed0[0] && axes==cars[0].bodyAxes && position==(int *)&cars[0].position && corners==cars[0].corners);views++;
+ assert(box==(int *)&g_unk0x00590ed0[0] && axes==cars[0].bodyAxes && position==(int *)&cars[0].position && corners==cars[0].corners);views++;
 }
 int contact(Car *c){assert(c==&cars[0]);int i=c->pendingContactCount;if(i<5)c->contactSurfaces[1][c->pendingContactCount++]=(short)(100+contacts);contacts++;return contactResult;}
 int Collision_ResolveCarTurnedObjectContact(Car *c,StageObject **,CollisionBox *,CollisionBox *){return contact(c);}
@@ -222,7 +222,7 @@ def main():
  env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1')
  with tempfile.TemporaryDirectory(prefix='cmr2-native-sector-objects-') as directory:
   tmp=Path(directory)
-  for header in ('FloatToInt.h','Car.h','SceneNode.h','Sector.h','Mesh.h','LayoutChecks.h','MovingObject.h','SectorObjectEntry.h','MeshCollisionRecord.h','Collision2D.h'):shutil.copyfile(source/header,tmp/header)
+  for header in ('FloatToInt.h','Car.h','CameraRecord.h','SceneNode.h','Sector.h','Mesh.h','LayoutChecks.h','MovingObject.h','SectorObjectEntry.h','MeshCollisionRecord.h','Collision2D.h'):shutil.copyfile(source/header,tmp/header)
   shutil.copyfile(ROOT.parent/'OpenCMR2/game/FixedPoint.h',tmp/'FixedPoint.h')
   (tmp/'windows.h').write_text('typedef unsigned char BYTE;typedef unsigned int DWORD;typedef int BOOL;\n')
   (tmp/'Graphics.h').write_text('struct Graphics;struct Texture;class CGraphics{public:static constexpr double m_oneOver65536=1.0/65536.0;static constexpr double m_65536=65536.0;};\n')

@@ -14634,7 +14634,7 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
 // FUNCTION: CMR2 0x004878a0
 int Collision_TestCarAgainstSectorObjects(Car *pCar)
 {
-    BYTE *pBox;
+    CollisionBox *pBox;
     short sectors[4];
     int moving;
     int n;
@@ -14650,7 +14650,7 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
 
     result = 0;
     pCar->pendingContactCount = 0;
-    pBox = (BYTE *)&g_unk0x00590ed0[pCar->index];
+    pBox = &g_unk0x00590ed0[pCar->index];
     memset(pCar->objectContactState, 0, sizeof(pCar->objectContactState));
     memcpy(&sectors[1], pCar->neighbours.s, 2 * sizeof(sectors[1]));
     sectors[0] = pCar->sector;
@@ -14689,17 +14689,17 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                     StageObject_SetCollisionSphereAndMaterial(&position, pEntry);
                 }
                 if (g_wallScrapeCount != 0) {
-                    result = Collision_ResolveCarTurnedObjectContact(pCar, &pEntry->pObject, (CollisionBox *)pBox, &g_sectorObjectCollisionBox);
+                    result = Collision_ResolveCarTurnedObjectContact(pCar, &pEntry->pObject, pBox, &g_sectorObjectCollisionBox);
                 } else {
                     if (pObject->flags & 0x4000) {
                         if (pCar->field_0xc20 == 0)
-                            StageObject_UpdateCarBoxShadowLighting((CollisionBox *)pBox, pCar);
+                            StageObject_UpdateCarBoxShadowLighting(pBox, pCar);
                         continue;
                     }
                     if (!((pObject->flags & 0x2001000) != 0)) {
-                        result = Collision_CarVsBox(pCar, (CollisionBox *)pBox, 0x10000);
+                        result = Collision_CarVsBox(pCar, pBox, 0x10000);
                     } else {
-                        result = Collision_CarVsBox(pCar, (CollisionBox *)pBox, 0);
+                        result = Collision_CarVsBox(pCar, pBox, 0);
                     }
                 }
                 if (result != 0 && Collision_ResolveStaticObstacleContact(pCar, &pEntry->pObject, &position, 0) != 0)
@@ -14902,12 +14902,14 @@ int StageObject_GetCarSlotStateValue(int index);
 // Collisions of the cars in `pOrder` for the frame: car against car (when the
 // mode allows it), car against stage objects, car against the sector edges;
 // then each car's contact box state is kept for the next frame.
+// The car-indexed CollisionBox table keeps its built flag (0x28) at 0x2c
+// and its first four points (0x30) in points[4..7] (0x60) for the next frame.
 // FUNCTION: CMR2 0x004877a0
 void Collision_UpdateOrderedCars(Car *pCars, short *pOrder, short count)
 {
     int i;
     Car *pCar;
-    BYTE *pBox;
+    CollisionBox *pBox;
     int car;
 
     for (i = count - 1; i >= 0; i--)
@@ -14917,15 +14919,15 @@ void Collision_UpdateOrderedCars(Car *pCars, short *pOrder, short count)
     for (i = count - 1; i >= 0; i--) {
         car = pOrder[i];
         pCar = pCars + car;
-        pBox = (BYTE *)&g_unk0x00590ed0[car];
+        pBox = &g_unk0x00590ed0[car];
         if (pCar->field_0xb64 == 0)
             Collision_TestCarAgainstSectorObjects(pCar);
         if (pCar->field_0xc18 == 0 &&
             (pCar->field_0xb64 == 0 || StageObject_GetCarSlotStateValue(pCar->index) < 0x20000))
             Collision_TestCarAgainstSectorEdges(pCar, car);
-        *(int *)(pBox + 0x2c) = *(int *)(pBox + 0x28);
-        if (*(int *)(pBox + 0x28) != 0)
-            memcpy(pBox + 0x60, pBox + 0x30, 0x30);
+        pBox->hasSecondaryVertices = pBox->built;
+        if (pBox->built != 0)
+            memcpy(&pBox->points[4], pBox->points, 4 * sizeof(pBox->points[0]));
     }
 }
 
