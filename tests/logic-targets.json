@@ -195,6 +195,10 @@
   "differential_car_light_state.py": {
     "arguments": "entities",
     "targets": [
+      "0x4643f0",
+      "0x466870",
+      "0x46b440",
+      "0x46b4c0",
       "0x477ce0",
       "0x477ac0",
       "0x477f30",

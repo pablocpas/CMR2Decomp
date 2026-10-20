@@ -83,7 +83,7 @@ void StageObject_SetBoundedWeatherKind(int value);
 void StageLights_Off(void);
 void CarLights_LoadTextures(void);
 void StageObject_RebuildCarLightMeshes(Car *pCar);
-void StageObject_UpdateCarLightFlagsAndGlows(Car *pCar);
+void CarLight_UpdateFlagsAndGlows(Car *pCar);
 int StageObject_GetSceneLightBrightness(void);
 void StageObject_PositionRearViewLightNodes(unsigned int param_1);
 BYTE *StageObject_GetViewRectangleIndex(int index);
@@ -132,9 +132,9 @@ void CarDamage_RebuildPartBounds(int param_1, SceneNode *param_2, CarPartSet *pa
 void CarDamage_BuildPartVertexBuffer(int param_1, SceneNode *param_2, CarPartSet *set);
 void StageObject_SetCarStateSlot(int value, int index);
 void StageObject_ClearCarStateSlots(void);
-void Mesh_ReadVertexFixed(Mesh **ppMeshes, int mesh, int vertex, int *pOut);
-int StageObject_GetCarStateSlot(BYTE *pCar);
-void CarEffects_UpdateBrokenLightFlicker(BYTE *pCar);
+void Mesh_ReadVertexFixed(Mesh **ppMeshes, int mesh, int vertex, FixVector *pOut);
+int CarDamage_GetModelEnabled(Car *pCar);
+void CarEffects_UpdateBrokenLightFlicker(Car *pCar);
 void CarPart_ApplyHiddenStates(Car *pCar);
 void StageObject_ClearNodeValueBelowThreshold(SceneNode *pNode, BYTE threshold);
 void StageObject_ClearNodeTreeValuesBelowThreshold(SceneNode *pNode, BYTE threshold);
@@ -363,7 +363,7 @@ void StageObject_ClearPartTuningState(void);
 void StageObject_ResetPartTuningAndRandomSeed(void);
 void CarPart_HideNode(Car *pCar, int slot, int hidden);
 void StageObject_AssignMatchingCarClassSlots(Car *pCar, SceneNode *pObject, BYTE flag);
-void StageObject_ResetAttachedCarNodes(BYTE *pCar);
+void CarPart_ResetAttachedNodes(Car *pCar);
 void CarPart_IntegrateDetachedMotion(void);
 unsigned int CarPart_GetModelIndex(int slot, int carIndex);
 SceneNode *CarPart_GetNode(Car *pCar, int slot);
@@ -1405,16 +1405,16 @@ void StageObject_ClearCarStateSlots(void)
 
 // Reads vertex `vertex` of mesh `mesh` (float source data) as a 16.16 vector.
 // FUNCTION: CMR2 0x0046b440
-void Mesh_ReadVertexFixed(Mesh **ppMeshes, int mesh, int vertex, int *pOut)
+void Mesh_ReadVertexFixed(Mesh **ppMeshes, int mesh, int vertex, FixVector *pOut)
 {
     float f;
 
     f = ((MeshVertexF *)ppMeshes[mesh]->pVertexData)[vertex].x;
-    pOut[0] = (int)FTOI(__int64, X87S_MUL(f, CGraphics::m_65536));
+    pOut->x = (int)FTOI(__int64, X87S_MUL(f, CGraphics::m_65536));
     f = ((MeshVertexF *)ppMeshes[mesh]->pVertexData)[vertex].y;
-    pOut[1] = (int)FTOI(__int64, X87S_MUL(f, CGraphics::m_65536));
+    pOut->y = (int)FTOI(__int64, X87S_MUL(f, CGraphics::m_65536));
     f = ((MeshVertexF *)ppMeshes[mesh]->pVertexData)[vertex].z;
-    pOut[2] = (int)FTOI(__int64, X87S_MUL(f, CGraphics::m_65536));
+    pOut->z = (int)FTOI(__int64, X87S_MUL(f, CGraphics::m_65536));
 }
 
 
@@ -1424,39 +1424,39 @@ extern float g_oneOverRandMax;
 // half, the light alternates on and off (+0x4cc) for random spans, the off
 // spans getting shorter and the on spans longer the heavier the damage.
 // FUNCTION: CMR2 0x0046b4e0
-void CarEffects_UpdateBrokenLightFlicker(BYTE *pCar)
+void CarEffects_UpdateBrokenLightFlicker(Car *pCar)
 {
-    CarPartSet *p;
-    int k;
+    CarPartSet *pParts;
+    int damageRate;
 
-    p = CarPart_GetSet(((Car *)pCar)->index);
-    if (p->damageValues[23] > 0x8000) {
-        k = FixMul(p->damageValues[23] - 0x8000, 0x20000);
-        if (k < 0)
-            k = 0;
-        else if (k > 0x10000)
-            k = 0x10000;
-        k = FixMul(k, 0xcccc);
-        if (p->brokenLightFlickerTimer <= 0) {
-            if (p->brokenLightFlickerPhase != 0) {
-                p->brokenLightFlickerPhase = 0;
-                p->brokenLightFlickerTimer = FixMul(0x10000 - k, FixMul((int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536)), 0xfa0000));
-                p->brokenLightFlickerTimer += FixMul(0x10000 - k, 0x320000);
+    pParts = CarPart_GetSet(pCar->index);
+    if (pParts->damageValues[23] > 0x8000) {
+        damageRate = FixMul(pParts->damageValues[23] - 0x8000, 0x20000);
+        if (damageRate < 0)
+            damageRate = 0;
+        else if (damageRate > 0x10000)
+            damageRate = 0x10000;
+        damageRate = FixMul(damageRate, 0xcccc);
+        if (pParts->brokenLightFlickerTimer <= 0) {
+            if (pParts->brokenLightFlickerPhase != 0) {
+                pParts->brokenLightFlickerPhase = 0;
+                pParts->brokenLightFlickerTimer = FixMul(0x10000 - damageRate, FixMul((int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536)), 0xfa0000));
+                pParts->brokenLightFlickerTimer += FixMul(0x10000 - damageRate, 0x320000);
             } else {
-                p->brokenLightFlickerPhase = 1;
-                p->brokenLightFlickerTimer = FixMul(k, FixMul((int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536)), 0xf0000));
-                p->brokenLightFlickerTimer += FixMul(k, 0);
+                pParts->brokenLightFlickerPhase = 1;
+                pParts->brokenLightFlickerTimer = FixMul(damageRate, FixMul((int)FTOI(__int64, X87S_MUL(X87S_MUL(X87S_FILD(float, rand()), g_oneOverRandMax), CGraphics::m_65536)), 0xf0000));
+                pParts->brokenLightFlickerTimer += FixMul(damageRate, 0);
             }
         } else {
-            p->brokenLightFlickerTimer -= 0x10000;
+            pParts->brokenLightFlickerTimer -= 0x10000;
         }
     }
 }
 
 // FUNCTION: CMR2 0x0046b4c0
-int StageObject_GetCarStateSlot(BYTE *pCar)
+int CarDamage_GetModelEnabled(Car *pCar)
 {
-    return g_carDamageModelEnabled[((Car *)pCar)->index];
+    return g_carDamageModelEnabled[pCar->index];
 }
 
 // FUNCTION: CMR2 0x0046b710
@@ -5953,20 +5953,20 @@ void StageObject_PositionRearViewLightNodes(unsigned int param_1)
 // Puts the car's (up to four) attached nodes back to their creation transform
 // and forgets them.
 // FUNCTION: CMR2 0x00480b40
-void StageObject_ResetAttachedCarNodes(BYTE *pCar)
+void CarPart_ResetAttachedNodes(Car *pCar)
 {
     SceneNode *pNode;
-    int offset;
-    int i;
+    int carIndex;
+    int slot;
 
     srand(400);
-    g_partCar = (Car *)pCar;
-    offset = g_partCar->index;
-    for (i = 3; i >= 0; i--) {
-        pNode = g_carPartStateTables.parts[i][offset].pNode;
+    g_partCar = pCar;
+    carIndex = g_partCar->index;
+    for (slot = 3; slot >= 0; slot--) {
+        pNode = g_carPartStateTables.parts[slot][carIndex].pNode;
         if (pNode != NULL) {
             pNode->current = pNode->local;
-            g_carPartStateTables.parts[i][offset].pNode = NULL;
+            g_carPartStateTables.parts[slot][carIndex].pNode = NULL;
         }
     }
 }
@@ -11481,7 +11481,7 @@ void Replay_DecodeCarPoseSample(unsigned int *pFlag24, unsigned int *pFlag27, un
     *pFlag26 = pSample->flag26;
 }
 
-void StageTiming_ReadCarReplayTailValues(int *pA, int *pB, Car *pCar);
+void CarLight_GetBrokenFlags(int *pBroken0, int *pBroken1, Car *pCar);
 int Surface_GetTransitionBlend(int surface, int t);
 SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles,
                              SceneNode *pParent);
@@ -11549,7 +11549,7 @@ void StageObject_RebuildCarLightMeshes(Car *pCar)
             off = 0;
             do {
                 pPoint = (CarLightPoint *)((BYTE *)g_carLightPoints[LCAR] + off);
-                if (StageObject_GetCarStateSlot((BYTE *)pCar) == 0 || pPoint->part == -1) {
+                if (CarDamage_GetModelEnabled(pCar) == 0 || pPoint->part == -1) {
                     node = pCar->pBodyNode;
                 } else {
                     node = CarPart_GetNode(pCar, (int)pPoint->part);
@@ -11582,7 +11582,7 @@ void StageObject_RebuildCarLightMeshes(Car *pCar)
             } while (n < g_carLightProfiles[LCAR]->count);
         }
     }
-    if (StageObject_GetCarStateSlot((BYTE *)pCar) != 0) {
+    if (CarDamage_GetModelEnabled(pCar) != 0) {
         int off;
         int j;
         int *pObj;
@@ -11646,93 +11646,90 @@ void StageObject_RebuildCarLightMeshes(Car *pCar)
 // updates the glow light of every collision point: it enables/fades it from
 // the per-lane tuning table, colours it by the point type and hangs it on the
 // car body, or disables every glow when the car is not racing.
-// match 18%: implementada (flags de luces del coche + glow por punto de colision);
-// el codegen de la tabla de ajuste por carril y de las llamadas a CarLight_SetChannelMasks difiere
 // FUNCTION: CMR2 0x004643f0
-void StageObject_UpdateCarLightFlagsAndGlows(Car *pCar)
+void CarLight_UpdateFlagsAndGlows(Car *pCar)
 {
 // the original re-reads the car index at every use
 #define LIGHT_CAR (pCar->index)
 #define LIGHT_COUNT(c) (g_carLightProfiles[c]->count)
 #define LIGHT_POINTS(c) g_carLightPoints[c]
-    int lights[11];
+    int channelLevels[11];
     FixVector planePos;
     FixVector colour;
     FixVector pos;
-    int out[3];
-    CarPartSet *pRec;
+    FixVector meshPosition;
+    CarPartSet *pParts;
     CarLightPoint *pPoint;
     GlowLight *glow;
-    int vA;
-    int vB;
-    int old;
-    int n;
-    int off;
-    int intensity;
-    int idx;
-    int vx;
-    int vy;
-    int vz;
-    int oi;
-    int ii;
+    int broken0;
+    int broken1;
+    int previousHazardTime;
+    int lightIndex;
+    int glowIntensity;
+    int wheelCorner;
+    int originalX;
+    int originalY;
+    int originalZ;
+    int meshIndex;
+    int vertexIndex;
     DeformVertex *pVertex;
 
-    pRec = CarPart_GetSet(LIGHT_CAR);
+    pParts = CarPart_GetSet(LIGHT_CAR);
     if (pCar->field_0xb70 != 0) {
         CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 2);
         CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 8);
-        for (n = 0; n < LIGHT_COUNT(LIGHT_CAR); n++)
-            Glow_SetEnabled(g_carLightGlowSlots[n + LIGHT_CAR * 0x14], 0);
+        for (lightIndex = 0; lightIndex < LIGHT_COUNT(LIGHT_CAR); lightIndex++)
+            Glow_SetEnabled(g_carLightGlowSlots[lightIndex + LIGHT_CAR * 0x14], 0);
         return;
     }
-    StageTiming_ReadCarReplayTailValues(&vA, &vB, pCar);
+    CarLight_GetBrokenFlags(&broken0, &broken1, pCar);
     if (pCar->braking != 0)
-        CarLight_SetChannelMasks(LIGHT_CAR, vA == 0, vB == 0, 2);
+        CarLight_SetChannelMasks(LIGHT_CAR, broken0 == 0, broken1 == 0, 2);
     else
         CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 2);
     if (pCar->reversing != 0)
-        CarLight_SetChannelMasks(LIGHT_CAR, vA == 0, vB == 0, 8);
+        CarLight_SetChannelMasks(LIGHT_CAR, broken0 == 0, broken1 == 0, 8);
     else
         CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 8);
     if (pCar->field_0xb58 != 0) {
-        CarLight_SetChannelMasks(LIGHT_CAR, vA == 0, vB == 0, 1);
+        CarLight_SetChannelMasks(LIGHT_CAR, broken0 == 0, broken1 == 0, 1);
         CarLight_SetChannelMasks(LIGHT_CAR, 1, 1, 0x10);
     } else {
         CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 1);
         CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 0x10);
     }
-    if (pRec->damageValues[23] > 0x4ccc) {
-        old = g_carDamageHazardTimer[LIGHT_CAR];
-        g_carDamageHazardTimer[LIGHT_CAR] = old;
+    if (pParts->damageValues[23] > 0x4ccc) {
+        previousHazardTime = g_carDamageHazardTimer[LIGHT_CAR];
+        g_carDamageHazardTimer[LIGHT_CAR] = previousHazardTime;
         g_carDamageHazardTimer[LIGHT_CAR] += g_stageObjectTimeStep;
         if (g_carDamageHazardTimer[LIGHT_CAR] > 0x140000)
             g_carDamageHazardTimer[LIGHT_CAR] = 0;
         if (g_carDamageHazardTimer[LIGHT_CAR] == 0)
             CarLight_SetChannelMasks(LIGHT_CAR, 0, 0, 4);
-        if (old < 0xa0000 && g_carDamageHazardTimer[LIGHT_CAR] >= 0xa0000)
-            CarLight_SetChannelMasks(LIGHT_CAR, vA == 0, vB == 0, 4);
+        if (previousHazardTime < 0xa0000 && g_carDamageHazardTimer[LIGHT_CAR] >= 0xa0000)
+            CarLight_SetChannelMasks(LIGHT_CAR, broken0 == 0, broken1 == 0, 4);
     }
-    CarLight_GetScaledChannelLevels(LIGHT_CAR, &lights[0], &lights[1], 1);
-    CarLight_GetScaledChannelLevels(LIGHT_CAR, &lights[2], &lights[3], 3);
-    CarLight_GetScaledChannelLevels(LIGHT_CAR, &lights[4], &lights[5], 2);
-    CarLight_GetScaledChannelLevels(LIGHT_CAR, &lights[6], &lights[7], 0);
-    CarLight_GetScaledChannelLevels(LIGHT_CAR, &lights[8], &lights[8], 4);
-    lights[10] = 0;
-    lights[9] = 0;
+    CarLight_GetScaledChannelLevels(LIGHT_CAR, &channelLevels[0], &channelLevels[1], 1);
+    CarLight_GetScaledChannelLevels(LIGHT_CAR, &channelLevels[2], &channelLevels[3], 3);
+    CarLight_GetScaledChannelLevels(LIGHT_CAR, &channelLevels[4], &channelLevels[5], 2);
+    CarLight_GetScaledChannelLevels(LIGHT_CAR, &channelLevels[6], &channelLevels[7], 0);
+    CarLight_GetScaledChannelLevels(LIGHT_CAR, &channelLevels[8], &channelLevels[8], 4);
+    channelLevels[10] = 0;
+    channelLevels[9] = 0;
     planePos = pCar->corners[0];
     planePos.y = pCar->cornerHeight[0];
-    for (n = 0, off = 0; n < LIGHT_COUNT(LIGHT_CAR); n++, off += 0x28) {
-        pPoint = (CarLightPoint *)((BYTE *)LIGHT_POINTS(LIGHT_CAR) + off);
-        glow = g_carLightGlowSlots[n + LIGHT_CAR * 0x14];
+    for (lightIndex = 0; lightIndex < LIGHT_COUNT(LIGHT_CAR); lightIndex++) {
+        pPoint = &LIGHT_POINTS(LIGHT_CAR)[lightIndex];
+        glow = g_carLightGlowSlots[lightIndex + LIGHT_CAR * 0x14];
         if (glow == NULL)
             continue;
-        if (lights[pPoint->type] == 0) {
+        if (channelLevels[pPoint->type] == 0) {
             Glow_SetEnabled(glow, 0);
         } else {
             Glow_SetEnabled(glow, 1);
-            Glow_SetIntensity(glow, FixMul(lights[pPoint->type], pPoint->intensity));
-            intensity = FixMul(lights[pPoint->type], pPoint->intensity);
-            intensity = FixMul(intensity, 0x8000);
+            Glow_SetIntensity(glow, FixMul(channelLevels[pPoint->type], pPoint->intensity));
+            glowIntensity = FixMul(channelLevels[pPoint->type], pPoint->intensity);
+            glowIntensity = FixMul(glowIntensity, 0x8000);
             switch (pPoint->slot) {
             case 0:
                 colour.x = 0xe000;
@@ -11751,28 +11748,28 @@ void StageObject_UpdateCarLightFlagsAndGlows(Car *pCar)
                 colour.z = 0;
                 break;
             }
-            FixVecScale(&colour, &colour, intensity);
+            FixVecScale(&colour, &colour, glowIntensity);
             Glow_NoOpEntryCallback((BYTE)(INT_PTR)glow, (BYTE)colour.x, colour.y, colour.z);
         }
-        idx = 0;
+        wheelCorner = 0;
         if (glow->pos.x < 0)
-            idx = 2;
+            wheelCorner = 2;
         if (glow->pos.z < 0)
-            idx++;
+            wheelCorner++;
         Glow_SetLayerPlane(glow, &planePos, &pCar->groundNormal,
-                           Surface_GetTransitionBlend(pCar->wheelSurface[idx],
+                           Surface_GetTransitionBlend(pCar->wheelSurface[wheelCorner],
                                         StageObject_GetCarWeatherRampValue(pCar)));
-        if (StageObject_GetCarStateSlot((BYTE *)pCar) != 0) {
-            ii = (unsigned short)pPoint->vertex;
-            oi = (unsigned short)pPoint->object;
-            pVertex = pRec->geometry.vertices[oi] + ii;
-            vx = pVertex->pos.x;
-            vy = pVertex->pos.y;
-            vz = pVertex->pos.z;
-            Mesh_ReadVertexFixed(pRec->geometry.meshes, oi, ii, out);
-            pos.x = out[0] - vx;
-            pos.y = out[1] - vy;
-            pos.z = out[2] - vz;
+        if (CarDamage_GetModelEnabled(pCar) != 0) {
+            vertexIndex = (unsigned short)pPoint->vertex;
+            meshIndex = (unsigned short)pPoint->object;
+            pVertex = pParts->geometry.vertices[meshIndex] + vertexIndex;
+            originalX = pVertex->pos.x;
+            originalY = pVertex->pos.y;
+            originalZ = pVertex->pos.z;
+            Mesh_ReadVertexFixed(pParts->geometry.meshes, meshIndex, vertexIndex, &meshPosition);
+            pos.x = meshPosition.x - originalX;
+            pos.y = meshPosition.y - originalY;
+            pos.z = meshPosition.z - originalZ;
             pos.x += pPoint->pos.x;
             pos.y += pPoint->pos.y;
             pos.z += pPoint->pos.z;
@@ -11795,7 +11792,7 @@ void CarDamage_DecodeImpactPayload(CarImpactPayload *p);
 void StageObject_RebuildDamagePartValues(Car *pCar);
 void StageObject_ResetVectorListRecord(int list, int index, int value);
 void CarPart_HideNode(Car *pCar, int slot, int hidden);
-void StageObject_ResetAttachedCarNodes(BYTE *pCar);
+void CarPart_ResetAttachedNodes(Car *pCar);
 void RallyData_MarkAllElementsReached(void);
 void StageTiming_ResetScaledViewObjectStates(void);
 void Stage_RestoreCarsToRoutePositions(void);
@@ -11829,7 +11826,7 @@ void StageObject_ResetCarObjectState(Car *pCar)
 
     set = g_carPartSets + pCar->index;
     pRecord = g_carDamageRecords + pCar->index;
-    StageObject_ResetAttachedCarNodes((BYTE *)pCar);
+    CarPart_ResetAttachedNodes(pCar);
     StageTiming_RebuildDamagedPartMeshes(pCar);
     set->engineTorqueScale = 0x10000;
     set->frontBrakeScale = 0x10000;
@@ -14044,7 +14041,7 @@ struct ReplayStream;
 void Replay_InterpolatePoseStream(ReplayStream *p);
 void CarPhysics_UpdateBodyContactAndSkidTrail(Car *pCar);
 void StageObject_AnimateCarLightLevels(int car);
-void StageObject_UpdateCarLightFlagsAndGlows(Car *pCar);
+void CarLight_UpdateFlagsAndGlows(Car *pCar);
 void StageTiming_UpdateAllViewWeather(void);
 
 // Plays back one frame of a replay stream: at the start of a section it
@@ -14195,7 +14192,7 @@ void StageObject_UpdateListedCarPhysicsAndWeather(short *pOrder, short count)
             if (pCar->field_0xb70 == 0)
                 CarPhysics_UpdateBodyContactAndSkidTrail(pCar);
             StageObject_AnimateCarLightLevels(i);
-            StageObject_UpdateCarLightFlagsAndGlows(pCar);
+            CarLight_UpdateFlagsAndGlows(pCar);
         }
     }
     StageTiming_UpdateAllViewWeather();

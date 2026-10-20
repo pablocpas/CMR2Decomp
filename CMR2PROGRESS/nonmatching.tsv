@@ -126,7 +126,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x499de0	Car_ShatterWindow	CarEffects.cpp	2697	0.7103825136612022	0.6378492356352135
 0x46bdc0	Replay_EncodeControlPacket	StageObjects.cpp	254	0.711340206185567	0.7448979591836735
 0x4111a0	RallyData_ResetPlayerSplitDisplays	RallyData.cpp	209	0.7115384615384616	0.6923076923076923
-0x4643f0	StageObject_UpdateCarLightFlagsAndGlows	StageObjects.cpp	1272	0.7118226600985221	0.7008547008547008
 0x46c5a0	Replay_AllocateStreamBuffer	StageObjects.cpp	299	0.7157894736842105	0.7165775401069518
 0x435470	Car_IntegrateContacts	Car.cpp	4530	0.7185354691075515	0.6709677419354839
 0x47c5e0	AI_SelectWallCollisionResponse	StageObjects.cpp	946	0.7190684133915575	0.6589928057553956
@@ -136,6 +135,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x447f70	StageTiming_ResetRaceDriverTimes	HudDash.cpp	400	0.7226890756302521	0.6776859504132231
 0x47aa70	SurfaceSound_UpdateNearestLocalCarEngines	StageObjects.cpp	676	0.7247706422018348	0.7155963302752294
 0x4816f0	CarPart_IntegrateHubGroundContact	StageTiming.cpp	5064	0.7258637391023571	0.7448453608247423
+0x4643f0	CarLight_UpdateFlagsAndGlows	StageObjects.cpp	1272	0.725925925925926	0.7383863080684596
 0x4b4180	Scene_EmitProjectedShadowMesh	SceneNode.cpp	781	0.7261663286004056	0.7217741935483871
 0x442e90	Car_SmoothForceFeedback	Car.cpp	301	0.7261904761904762	0.7058823529411765
 0x496e00	CarPhysics_UpdateBodyContactAndSkidTrail	CarPhysics.cpp	4014	0.7262434290335624	0.6752308309915697
@@ -366,7 +366,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x421230	RallyData_ProjectCarRouteSegmentProgress	RallyData.cpp	316	0.9316239316239316	0.919831223628692
 0x4cfe80	FrontendRecords_CopyArcadeSplitMirror	Frontend.cpp	356	0.9327731092436975	0.9327731092436975
 0x492910	StageObject_FindClosestMeshVertex	StageObjects.cpp	565	0.9333333333333333	0.8203753351206434
-0x480b40	StageObject_ResetAttachedCarNodes	StageObjects.cpp	97	0.9333333333333333	0.9333333333333333
+0x480b40	CarPart_ResetAttachedNodes	StageObjects.cpp	97	0.9333333333333333	0.9333333333333333
 0x506720	OptionPreview_AnimateModelRotations	GameInfo.cpp	397	0.9344978165938864	0.9170305676855895
 0x46f060	StageObjects_LoadSkyAndGround	StageObjects.cpp	714	0.9351669941060904	0.8976377952755905
 0x4e0770	FrontendMenu_DrawAdvancedGraphicsOptions	FrontendScreens.cpp	2721	0.9353948094975152	0.9113218070273285

@@ -3303,22 +3303,22 @@ int StageTiming_FindModelPartByNodeType(unsigned int type, CarPartSet *pModel)
     return -1;
 }
 
-// Reads the two values at +0x4a0 of the car's 0x4d0-byte record.
+// Returns breakage of the two light model parts (break slots 4 and 5).
 // FUNCTION: CMR2 0x00466870
-void StageTiming_ReadCarReplayTailValues(int *pA, int *pB, Car *pCar)
+void CarLight_GetBrokenFlags(int *pBroken0, int *pBroken1, Car *pCar)
 {
-    *pA = g_carPartSets[pCar->index].partBroken[4];
-    *pB = g_carPartSets[pCar->index].partBroken[5];
+    *pBroken0 = g_carPartSets[pCar->index].partBroken[4];
+    *pBroken1 = g_carPartSets[pCar->index].partBroken[5];
 }
 
-// Clears `count` stage records (0x4d0 bytes) from `first`.
+// Clears `count` part sets starting at car index `first`.
 // FUNCTION: CMR2 0x004669b0
-void StageTiming_ClearCarReplayRecordRange(int first, int count)
+void CarPart_ClearSetRange(int first, int count)
 {
-    int i;
+    int carIndex;
 
-    for (i = first; i < count + first; i++)
-        memset(g_carPartSets + i, 0, sizeof(CarPartSet));
+    for (carIndex = first; carIndex < count + first; carIndex++)
+        memset(g_carPartSets + carIndex, 0, sizeof(CarPartSet));
 }
 
 // GLOBAL: CMR2 0x00542d58
@@ -3853,21 +3853,21 @@ void CarTyres_CommitPlayerWear(int a, int b, int count)
 
 // Resets the stage snapshots, then restores the active impact pool and damage.
 // FUNCTION: CMR2 0x00466920
-void StageTiming_ResetCarReplayRecord(CarDamageRecord *p)
+void CarDamage_ResetRecord(CarDamageRecord *pRecord)
 {
     int i;
 
-    p->stageImpacts.count = 0;
-    p->stageImpacts.firstLink = 0;
+    pRecord->stageImpacts.count = 0;
+    pRecord->stageImpacts.firstLink = 0;
     for (i = 0; i < 20; i++)
-        p->stageImpacts.links[i].next = 0xff;
-    memset(p->stageDamage.intensity, 0, sizeof(p->stageDamage.intensity));
+        pRecord->stageImpacts.links[i].next = 0xff;
+    memset(pRecord->stageDamage.intensity, 0, sizeof(pRecord->stageDamage.intensity));
     for (i = 0; i < 4; i++)
-        p->stageDamage.partHidden[i] = 0;
+        pRecord->stageDamage.partHidden[i] = 0;
     for (i = 0; i < 3; i++)
-        p->stageDamage.lineGrounded[i] = 0;
-    memcpy(&p->impacts, &p->stageImpacts, sizeof(p->impacts));
-    memcpy(&p->damage, &p->stageDamage, sizeof(p->damage));
+        pRecord->stageDamage.lineGrounded[i] = 0;
+    memcpy(&pRecord->impacts, &pRecord->stageImpacts, sizeof(pRecord->impacts));
+    memcpy(&pRecord->damage, &pRecord->stageDamage, sizeof(pRecord->damage));
 }
 
 int Stage_GetDriverCount(void);
@@ -3939,10 +3939,9 @@ extern BYTE g_wheelSlotDamageIndices[4];
 
 void CarPart_MarkHidden(Car *pCar, int slot);
 
-// Clears the low bit of the vehicle's part-state byte and re-selects the part
-// index held in its high nibble.
+// Deactivates the current moving part and marks its high-nibble slot hidden.
 // FUNCTION: CMR2 0x00483010
-void StageTiming_ClearPartFlagAndReselectIndex(void)
+void CarPart_DeactivateAndMarkHidden(void)
 {
     g_partState->flags &= 0xfe;
     CarPart_MarkHidden(g_partCar, g_partState->flags >> 4);
@@ -3981,18 +3980,18 @@ int g_deformImpactTicks[2];
 // GLOBAL: CMR2 0x00588a88
 int g_deformPulseTicks[2];
 
-// Resets every car's replay recording record.
+// Resets every car's damage record and both local-player deform cooldowns.
 // FUNCTION: CMR2 0x004668d0
-void StageTiming_ResetAllCarReplayRecords(void)
+void CarDamage_ResetAllRecords(void)
 {
-    int i;
+    int index;
 
-    for (i = g_carPartSetCount - 1; i >= 0; i--)
-        StageTiming_ResetCarReplayRecord((g_carDamageRecords + i));
-    for (i = 0; i < 2; i++)
-        g_deformPulseTicks[i] = 0;
-    for (i = 0; i < 2; i++)
-        g_deformImpactTicks[i] = 0;
+    for (index = g_carPartSetCount - 1; index >= 0; index--)
+        CarDamage_ResetRecord((g_carDamageRecords + index));
+    for (index = 0; index < 2; index++)
+        g_deformPulseTicks[index] = 0;
+    for (index = 0; index < 2; index++)
+        g_deformImpactTicks[index] = 0;
 }
 
 void Events_Init(char *unused, int slot, char animate);
@@ -7889,8 +7888,8 @@ short *Car_GetOrder(void);
 short Car_GetOrderCount(void);
 void CarPart_CacheFlexibleLineProfiles(short *pList, short count);
 void StageTiming_ResetCarPartRecordsAndSlots(void);
-void StageTiming_ClearCarReplayRecordRange(int first, int count);
-void StageTiming_ResetAllCarReplayRecords(void);
+void CarPart_ClearSetRange(int first, int count);
+void CarDamage_ResetAllRecords(void);
 void CarDamage_SetupOrderedCarParts(int, int, short *, short);
 void CarTyres_CommitPlayerWear(int a, int b, int count);
 void Particle_KillAll(void);
@@ -7962,8 +7961,8 @@ int StageTiming_LoadStageCarsAndEffects(void)
     Car_BuildRaceOrder(count);
     CarPart_CacheFlexibleLineProfiles(Car_GetOrder(), Car_GetOrderCount());
     StageTiming_ResetCarPartRecordsAndSlots();
-    StageTiming_ClearCarReplayRecordRange(0, count);
-    StageTiming_ResetAllCarReplayRecords();
+    CarPart_ClearSetRange(0, count);
+    CarDamage_ResetAllRecords();
     CarDamage_SetupOrderedCarParts(0, 0, Car_GetOrder(), Car_GetOrderCount());
     CarTyres_CommitPlayerWear(0, 0, (BYTE)RallyDataState());
     Particle_KillAll();
@@ -8410,7 +8409,7 @@ wheelsDone:
 
 void StageObject_ResetPartTuningAndRandomSeed(void);
 void StageObject_ClearPartTuningState(void);
-void StageObject_ResetAttachedCarNodes(BYTE *pCar);
+void CarPart_ResetAttachedNodes(Car *pCar);
 void StageTiming_RegisterSlotMeshNode(SceneNode *pNode, CarPartSet *pSlot);
 void StageObject_AssignMatchingCarClassSlots(Car *pCar, SceneNode *pObject, BYTE flag);
 void CarDamage_RebuildPartBounds(int param_1, SceneNode *param_2, CarPartSet *param_3);
@@ -8445,7 +8444,7 @@ void CarDamage_SetupOrderedCarParts(int lock, int keep, short *pOrder, short cou
         {
             car = pOrder[n];
             pCar = Car_Get(car);
-            StageObject_ResetAttachedCarNodes((BYTE *)pCar);
+            CarPart_ResetAttachedNodes(pCar);
             pParts = g_carPartSets + car;
             pDamage = g_carDamageRecords + car;
             pParts->count = 0;

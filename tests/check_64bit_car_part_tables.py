@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Execute the actual car-part table lifecycle and visibility helpers on x64.
+"""Execute car-part lifecycle, visibility, attached-node and damage resets on x64.
 
 Use the production Car/CarPartSet/SceneNode layouts and pointers above 4 GB.
 Allocation, release, callback registration and damage recomputation are leaves;
@@ -28,6 +28,7 @@ PRELUDE = r'''
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <cstdio>
 #include <cstring>
 #include <initializer_list>
@@ -35,6 +36,7 @@ PRELUDE = r'''
 typedef unsigned char BYTE;typedef unsigned int DWORD;typedef long long __int64;
 #include "Car.h"
 #include "CarParts.h"
+#include "StageTiming.h"
 int g_carPartSetCount;
 CarPartSet *g_carPartSets,*g_carPartSetLookup[8];
 CarDamageRecord *g_carDamageRecords;
@@ -42,6 +44,10 @@ DeformVertex ***g_carOriginalPartVertices;
 BYTE **g_carOriginalPartNodeTypes;
 SceneNode *g_carPartNodes[4][8];
 BYTE g_carPartModelIndices[4][8];
+CarPartStateTables g_carPartStateTables;
+Car *g_partCar;PartState *g_partState;
+int g_deformPulseTicks[2],g_deformImpactTicks[2];
+void CarPart_MarkHidden(Car *,int);
 alignas(16) BYTE pool[4][16384];
 std::vector<size_t> sizes;std::vector<void *> freed;
 int registered,rebuilt;Car *expectedCar;int expectedSlot;
@@ -145,8 +151,43 @@ int main() {
         assert(!memcmp(nodes,expectedNodes,sizeof(nodes)));
         expectedCar=&car;expectedSlot=seed;rebuilt=0;CarPart_MarkHidden(&car,expectedSlot);beforeSets[carIndex].partHidden[expectedSlot]=1;
         assert(rebuilt==1 && !memcmp(sets,beforeSets,sizeof(sets)) && !memcmp(aliases,beforeAliases,sizeof(aliases)) && !memcmp(&car,&beforeCar,sizeof(car)));++cases;
+        PartState part;memset(&part,0x63,sizeof(part));part.flags=BYTE((seed<<4)|seed|8);
+        PartState beforePart=part;beforePart.flags&=0xfe;g_partState=&part;g_partCar=&car;rebuilt=0;
+        CarPart_DeactivateAndMarkHidden();
+        assert(rebuilt==1 && !memcmp(&part,&beforePart,sizeof(part)) && !memcmp(sets,beforeSets,sizeof(sets)));++cases;
+        PartState states[4][8],expectedStates[4][8];memset(states,0x74,sizeof(states));
+        for(int slot=0;slot<4;slot++)for(int i=0;i<8;i++) {
+            states[slot][i].pNode=present&(1u<<slot)?&nodes[slot][i]:nullptr;
+            memset(&nodes[slot][i].local,0x31+slot,sizeof(FixMatrix));
+            g_carPartStateTables.parts[slot]=states[slot];
+        }
+        memcpy(expectedStates,states,sizeof(states));memcpy(expectedNodes,nodes,sizeof(nodes));
+        for(int slot=0;slot<4;slot++)if(states[slot][carIndex].pNode) {
+            expectedNodes[slot][carIndex].current=nodes[slot][carIndex].local;expectedStates[slot][carIndex].pNode=nullptr;
+        }
+        std::srand(400);int expectedRandom=std::rand();g_partCar=nullptr;CarPart_ResetAttachedNodes(&car);
+        assert(g_partCar==&car && std::rand()==expectedRandom && !memcmp(nodes,expectedNodes,sizeof(nodes)) && !memcmp(states,expectedStates,sizeof(states)) && !memcmp(&car,&beforeCar,sizeof(car)));++cases;
     }
-    printf("PASS: %u native car-part cases; nine production bodies, real layouts/pointers >4 GB, allocation sizes, nested release order, lookup aliases, hidden flags and full guards; ASan/UBSan\n",cases);
+    for(int count:{-1,0,1,8}) {
+        static_assert(sizeof(CarDamageRecord)==0x290,"pointer-free damage record");
+        memset(damage,0x71,sizeof(damage));CarDamageRecord expectedDamage[8];memcpy(expectedDamage,damage,sizeof(damage));
+        for(int i=0;i<count;i++) {
+            BYTE *bytes=reinterpret_cast<BYTE *>(&expectedDamage[i]);
+            bytes[0x20a]=bytes[0x20b]=0;
+            for(int link=0;link<20;link++)bytes[0x112+link*13]=0xff;
+            memset(bytes+0x24c,0,34);memset(bytes+0x270,0,28);
+            memcpy(bytes,bytes+0x106,0x106);memcpy(bytes+0x20c,bytes+0x24c,0x40);
+        }
+        g_carDamageRecords=damage;g_carPartSetCount=count;memset(g_deformPulseTicks,0x73,sizeof(g_deformPulseTicks));memset(g_deformImpactTicks,0x84,sizeof(g_deformImpactTicks));
+        CarDamage_ResetAllRecords();assert(!memcmp(damage,expectedDamage,sizeof(damage)));
+        for(int i=0;i<2;i++)assert(!g_deformPulseTicks[i] && !g_deformImpactTicks[i]);++cases;
+    }
+    for(int first:{0,1,7})for(int count:{0,1}) {
+        memset(sets,0x69,sizeof(sets));CarPartSet expectedSets[8];memcpy(expectedSets,sets,sizeof(sets));
+        memset(expectedSets+first,0,count*sizeof(CarPartSet));g_carPartSets=sets;CarPart_ClearSetRange(first,count);
+        assert(!memcmp(sets,expectedSets,sizeof(sets)));++cases;
+    }
+    printf("PASS: %u native car-part cases; fourteen production bodies, real layouts/pointers >4 GB, allocation sizes, release order, aliases, hidden flags, attached nodes/RNG, damage resets and full guards; ASan/UBSan\n",cases);
 }
 '''
 
@@ -156,7 +197,8 @@ def main():
     with tempfile.TemporaryDirectory(prefix='cmr2-native-part-tables-') as directory:
         tmp = Path(directory)
         for name in ('FloatToInt.h','X87Single.h','Car.h','CameraRecord.h','SceneNode.h',
-                     'Sector.h','CarParts.h','DeformGeometry.h','CarImpact.h','CarInfo.h','LayoutChecks.h'):
+                     'Sector.h','CarParts.h','DeformGeometry.h','CarImpact.h','CarInfo.h','LayoutChecks.h',
+                     'StageTiming.h','StageWeatherParticle.h'):
             shutil.copyfile(source/name,tmp/name)
         shutil.copyfile(ROOT.parent/'OpenCMR2/game/FixedPoint.h',tmp/'FixedPoint.h')
         (tmp/'Graphics.h').write_text('struct Graphics;struct Texture;class CGraphics{public:static constexpr double m_oneOver65536=1.0/65536.0;};\n')
@@ -164,8 +206,9 @@ def main():
         (tmp/'windows.h').write_text('typedef unsigned char BYTE;typedef unsigned int DWORD;typedef int BOOL;\n')
         functions = []
         for file,names in {
-            'StageTiming.cpp':('CarPart_FreeTables','CarPart_AllocateTables','CarPart_GetSet','CarPart_GetHiddenState'),
-            'StageObjects.cpp':('CarPart_HideNode','CarPart_GetModelIndex','CarPart_GetNode','CarPart_ApplyHiddenStates','CarPart_MarkHidden'),
+            'StageTiming.cpp':('CarPart_FreeTables','CarPart_AllocateTables','CarPart_GetSet','CarPart_GetHiddenState',
+                               'CarDamage_ResetRecord','CarDamage_ResetAllRecords','CarPart_ClearSetRange','CarPart_DeactivateAndMarkHidden'),
+            'StageObjects.cpp':('CarPart_HideNode','CarPart_GetModelIndex','CarPart_GetNode','CarPart_ApplyHiddenStates','CarPart_MarkHidden','CarPart_ResetAttachedNodes'),
         }.items():
             text=(source/file).read_text()
             functions.extend(body(text,name) for name in names)
@@ -173,7 +216,7 @@ def main():
         exe=tmp/'parts'
         subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing',
                         '-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast',
-                        '-fsanitize=address,undefined',str(fixture),'-o',str(exe)],check=True)
+                        '-fsanitize=address,undefined','-I'+str(tmp),str(fixture),'-o',str(exe)],check=True)
         result=subprocess.run([str(exe)],capture_output=True,
                               env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1'))
         assert result.returncode==0,result.stderr.decode()

@@ -23790,13 +23790,13 @@
     "symbol_name": "CarEffects_UpdateBrokenLightFlicker"
   },
   "0x46b4c0": {
-    "n": "StageObject_GetCarStateSlot",
+    "n": "CarDamage_GetModelEnabled",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_GetCarStateSlot"
+    "symbol_name": "CarDamage_GetModelEnabled"
   },
   "0x46b710": {
     "n": "StageObject_ResetPairedCarValues",
@@ -25059,13 +25059,13 @@
     "symbol_name": "StageObject_PositionRearViewLightNodes"
   },
   "0x480b40": {
-    "n": "StageObject_ResetAttachedCarNodes",
+    "n": "CarPart_ResetAttachedNodes",
     "s": 0.9333333333333333,
     "x": false,
     "fz": 0.9999,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ResetAttachedCarNodes"
+    "symbol_name": "CarPart_ResetAttachedNodes"
   },
   "0x48db00": {
     "n": "View_StepTracksideAim",
@@ -26139,13 +26139,13 @@
     "symbol_name": "StageObject_RebuildCarLightMeshes"
   },
   "0x4643f0": {
-    "n": "StageObject_UpdateCarLightFlagsAndGlows",
-    "s": 0.7008547008547008,
+    "n": "CarLight_UpdateFlagsAndGlows",
+    "s": 0.7383863080684596,
     "x": false,
-    "fz": 0.7643467643467643,
+    "fz": 0.7775061124694377,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_UpdateCarLightFlagsAndGlows"
+    "symbol_name": "CarLight_UpdateFlagsAndGlows"
   },
   "0x469690": {
     "n": "StageObject_ResetCarObjectState",
@@ -27977,22 +27977,22 @@
     "symbol_name": "StageTiming_FindModelPartByNodeType"
   },
   "0x466870": {
-    "n": "StageTiming_ReadCarReplayTailValues",
+    "n": "CarLight_GetBrokenFlags",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_ReadCarReplayTailValues"
+    "symbol_name": "CarLight_GetBrokenFlags"
   },
   "0x4669b0": {
-    "n": "StageTiming_ClearCarReplayRecordRange",
+    "n": "CarPart_ClearSetRange",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_ClearCarReplayRecordRange"
+    "symbol_name": "CarPart_ClearSetRange"
   },
   "0x458b80": {
     "n": "StageTiming_StorePreviousCarCheckpoints",
@@ -28139,13 +28139,13 @@
     "symbol_name": "CarTyres_CommitPlayerWear"
   },
   "0x466920": {
-    "n": "StageTiming_ResetCarReplayRecord",
+    "n": "CarDamage_ResetRecord",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_ResetCarReplayRecord"
+    "symbol_name": "CarDamage_ResetRecord"
   },
   "0x448d50": {
     "n": "StageTiming_BubbleRunningOrder",
@@ -28166,13 +28166,13 @@
     "symbol_name": "StageTiming_InterpolateMovingPartMatrices"
   },
   "0x483010": {
-    "n": "StageTiming_ClearPartFlagAndReselectIndex",
+    "n": "CarPart_DeactivateAndMarkHidden",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_ClearPartFlagAndReselectIndex"
+    "symbol_name": "CarPart_DeactivateAndMarkHidden"
   },
   "0x483050": {
     "n": "StageTiming_StartLoadedPartSwing",
@@ -28184,13 +28184,13 @@
     "symbol_name": "StageTiming_StartLoadedPartSwing"
   },
   "0x4668d0": {
-    "n": "StageTiming_ResetAllCarReplayRecords",
+    "n": "CarDamage_ResetAllRecords",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_ResetAllCarReplayRecords"
+    "symbol_name": "CarDamage_ResetAllRecords"
   },
   "0x458050": {
     "n": "StageTiming_InitStageTypeEvents",

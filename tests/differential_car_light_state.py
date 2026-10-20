@@ -328,6 +328,131 @@ class LightState(Records):
         assert self.u.reg_read(UC_X86_REG_EAX) == 1
 
 
+# Complete 0x4643f0 execution: masks/levels, part getters, vertex conversion and
+# glow setters are real. Only the weather and surface providers are leaves.
+PART_SETS, GLOW_POOL = HEAP + 0x2000, HEAP + 0x5000
+PROFILE, POINTS = HEAP + 0x6000, HEAP + 0x6100
+MESHES, FLOATS, DEFORM = HEAP + 0x7000, HEAP + 0x8000, HEAP + 0x9000
+
+
+def glow_update_cases():
+    return itertools.product((0,7), (0,1), (-1,0,1,20), (0,-1), (0,2,5,15), range(4))
+
+
+class GlowUpdate(LightState):
+    def provider(self, address, nargs):
+        args = tuple(self.args(nargs))
+        if address == 0x460C80:
+            assert args == (CAR,)
+            self.trace.append(('weather', CAR))
+            value = self.ramp
+        elif address == 0x4789D0:
+            assert signed(args[1]) == self.ramp
+            self.trace.append(('surface', signed(args[0]), self.ramp))
+            value = signed(signed(args[0])*997 + self.ramp)
+        else:
+            raise AssertionError(hex(address))
+        self.u.reg_write(UC_X86_REG_EAX, value & 0xFFFFFFFF)
+        self.u.reg_write(UC_X86_REG_ECX, 0xA5A5A5A5)
+        self.u.reg_write(UC_X86_REG_EDX, 0x5A5A5A5A)
+
+    def update(self, car, inactive, count, damage_enabled, controls, scenario, seed):
+        h, records = self.light_begin(seed)
+        self.intercept((0x460C80,1),(0x4789D0,2))
+        base = 4 + car*72
+        levels = tuple(LEVEL_EDGES[(i+seed)%len(LEVEL_EDGES)] for i in range(10))
+        struct.pack_into('<10h',records,base+8,*levels)
+        before_masks = tuple(records[base+68:base+70])
+        self.u.mem_write(self.addr(LIGHTS)-4,bytes(records))
+        part = PART_SETS+car*0x4D0
+        put(h,CAR+0xB1A,'<b',car)
+        put(h,CAR+0xB70,'<i',inactive)
+        for offset,value in ((0xB54,controls&1),(0xB5C,controls&2),(0xB58,controls&4)):
+            put(h,CAR+offset,'<i',value)
+        put(h,CAR+0x270,'<3i',-12345,54321,32145)
+        put(h,CAR+0x8DC,'<i',123456)
+        put(h,CAR+0x48C,'<3i',333,65000,-444)
+        put(h,CAR+0xAAE,'<4h',-1,0,13,26)
+        broken = (0,1,-1,-0x80000000)
+        flags = (broken[seed%4],broken[(seed//4)%4])
+        put(h,part+0x4A0,'<2i',*flags)
+        put(h,PROFILE,'<i',count)
+        self.put(self.addr(0x588B94),'<I',PART_SETS)
+        self.put(self.addr(0x588990)+car*4,'<I',part)
+        self.put(self.addr(0x588970)+car*4,'<i',damage_enabled)
+        self.put(self.addr(0x547F80)+car*4,'<I',PROFILE)
+        self.put(self.addr(0x547FC0)+car*4,'<I',POINTS)
+        mesh_float_values = (-1.5/65536,-0.5/65536,0.5/65536,1.5/65536,1.25,-2.75,3.5,0)
+        for mesh in range(2):
+            put(h,part+4*mesh,'<I',MESHES+mesh*0x200)
+            put(h,part+0x78+4*mesh,'<I',DEFORM+mesh*0x200)
+            put(h,MESHES+mesh*0x200+0xC,'<I',FLOATS+mesh*0x200)
+            for vertex in range(4):
+                put(h,FLOATS+mesh*0x200+vertex*48,'<3f',*(mesh_float_values[(vertex+axis+mesh)%8] for axis in range(3)))
+                put(h,DEFORM+mesh*0x200+vertex*32,'<3i',vertex*731-331,mesh*777-101,vertex*257+911)
+        present = 0
+        for i in range(20):
+            point = POINTS+i*40
+            put(h,point,'<6i',i*121-456,i*257+77,333-i*97,100+i,-200-i,300+i)
+            put(h,point+0x1C,'<i',(1,32768,65536,98304)[(i+seed)%4])
+            put(h,point+0x20,'<BBb',i%11,i%6,-1)
+            put(h,point+0x24,'<2h',i%2,i%4)
+            put(h,GLOW_POOL+i*92+4,'<3i',(-1 if i&1 else 1)*12345,23333,(-1 if i&2 else 1)*45678)
+            pointer = GLOW_POOL+i*92 if (i+seed)%4 else 0
+            if pointer: present |= 1<<i
+            self.put(self.addr(0x547D00)+4*(20*car+i),'<I',pointer)
+        previous = (-1,0x9FFFF,0x140000,0x7FFFFFFF)[scenario]
+        timestep = (1,1,65536,65536)[scenario]
+        self.ramp = (seed%5-2)*16384
+        timers = bytearray(struct.pack('<8i',*(i*19317-seed for i in range(8))))
+        struct.pack_into('<i',timers,car*4,previous)
+        self.u.mem_write(self.addr(0x547CE0),bytes(timers))
+        self.put(self.addr(0x51BD3C),'<i',timestep)
+        put(h,part+0x29C,'<i',0x4CCC if scenario==0 else 0x4CCD)
+        self.allow(LIGHTS,car*72+68,2,widths=(1,))
+        self.allowed.add((self.addr(0x547CE0)+car*4,4))
+        self.native_input = bytes(h)+bytes(records)+bytes(timers)+struct.pack('<Iiii',present,self.ramp,damage_enabled,timestep)
+        before = bytes(h)
+        actual = self.invoke_guarded(0x4643F0,[CAR])
+        # Only selected glow fields may change; all other car, part, mesh,
+        # vertex and point bytes remain guarded, including absent glow slots.
+        guarded = bytearray(before)
+        for i in range(max(0,count)):
+            if not present&(1<<i):continue
+            spans = [(0x50,1)]
+            if not inactive:
+                spans += [(0x1C,24),(0x3C,4),(0x44,4)]
+                if damage_enabled:spans.append((4,24))
+            for offset,size in spans:
+                start=GLOW_POOL-HEAP+i*92+offset
+                guarded[start:start+size]=actual[start:start+size]
+        assert actual==guarded,'car/part/mesh/point/absent-glow guards'
+        masks = list(before_masks)
+        def mask(bit,on0,on1):
+            for channel,on in enumerate((on0,on1)):
+                masks[channel] = (masks[channel]|bit) if on else (masks[channel]&~bit)
+        if inactive:
+            mask(2,False,False);mask(8,False,False)
+        else:
+            for bit,enabled in ((2,controls&1),(8,controls&2),(1,controls&4)):
+                mask(bit,enabled and not flags[0],enabled and not flags[1])
+            mask(16,controls&4,controls&4)
+            if scenario:
+                timer=signed(previous+timestep)
+                if timer>0x140000:timer=0
+                struct.pack_into('<i',timers,car*4,timer)
+                if timer==0:mask(4,False,False)
+                if previous<0xA0000<=timer:mask(4,not flags[0],not flags[1])
+        records[base+68:base+70]=bytes(masks)
+        assert self.read(self.addr(LIGHTS)-4,len(records))==records,'both channel masks / all light records'
+        assert self.read(self.addr(0x547CE0),32)==timers,'hazard threshold/overflow / neighbour timers'
+        if inactive:
+            assert not self.trace, 'inactive car skips weather/surface providers'
+        else:
+            assert len(self.trace)==2*sum(bool(present&(1<<i)) for i in range(max(0,count)))
+        return actual,bytes(records),bytes(timers),self.trace
+
+
 def main():
     entities = json.loads(Path(sys.argv[1]).read_text())
     runs = (LightState(ROOT / 'cmr2bin/CMR2.exe'), LightState(ROOT / 'build/CMR2.exe', entities))
@@ -359,6 +484,13 @@ def main():
         check('rev', args)
     for args in itertools.product(range(4), range(4), range(4), range(3)):
         check('release', args)
+    glows = (GlowUpdate(ROOT / 'cmr2bin/CMR2.exe'), GlowUpdate(ROOT / 'build/CMR2.exe', entities))
+    glow_cases = 0
+    for i,args in enumerate(glow_update_cases()):
+        results = [run.update(*args,20000+i) for run in glows]
+        assert results[0]==results[1],(args,'complete glow update original / rebuilt')
+        glow_cases += 1
+    print(glow_cases,'complete car-glow updates: 0 differences; real masks/levels/getters/vertex conversion/setters, hazard thresholds and guards')
     print(cases, 'light/interior cases: 0 differences; independent signed fades, alias outputs, byte masks, gear/rev cache thresholds, sequential steering phases and release ownership; full poisoned records/block/heap, guards, widths, provider order and ABI; render/release leaves controlled')
     return 0
 

@@ -3609,7 +3609,7 @@ void Car_ClearRecords(int first, int count);
 void Car_InvalidateTransformsRange(int first, int count);
 void StageTiming_PlaceCarViewNodesAndBody(SceneNode *pNodeA, SceneNode *pNodeB, int carIndex, int param_4,
                   FixAngles *pAngles, FixVector *pPosition, int param_7);
-void StageTiming_ClearCarReplayRecordRange(int first, int count);
+void CarPart_ClearSetRange(int first, int count);
 void CarDamage_SetupOrderedCarParts(int lock, int keep, short *pOrder, short count);
 void CarTyres_CommitPlayerWear(int a, int b, int count);
 FixAngles *StageTiming_GetStartTableField244(int unused);
@@ -3692,7 +3692,7 @@ void Car_ReloadModels(int first, int count, int param_3)
     for (i = first; i < end; i++)
         StageTiming_PlaceCarViewNodesAndBody(g_savedCarSceneRoots[i], g_savedCarBodyNodes[i], i,
                      g_unk0x0053a398[i], StageTiming_GetStartTableField244(i), (FixVector *)StageTiming_GetCarStartPosition(i), 1);
-    StageTiming_ClearCarReplayRecordRange(first, count);
+    CarPart_ClearSetRange(first, count);
     CarDamage_SetupOrderedCarParts(1, param_3, g_unk0x0053a300, count);
     CarTyres_CommitPlayerWear(1, param_3, (BYTE)RallyDataState());
     Events_Flush();
@@ -4711,7 +4711,7 @@ int StageTiming_GetCheckpointField12(int index);
 void Car_BalanceTwoPlayerRideHeight(Car *param_1, short *param_2, short param_3);
 void Car_StartPendingCountdown(void);
 void Car_UpdateLowSpeedWheelLoadTimer(void);
-void CarEffects_UpdateBrokenLightFlicker(BYTE *pCar);
+void CarEffects_UpdateBrokenLightFlicker(Car *pCar);
 void Car_UpdateSlopeGrip(void);
 void Car_ShareWeightOnWheels(void);
 void Car_UpdateEngineTorque(void);
@@ -4769,7 +4769,7 @@ void Car_StepAll(Car *base, short *pList, short count)
             Car_StartPendingCountdown();
         Car_UpdateSurfaceParams(g_pCurrentCar, StageObject_GetCarWeatherRampValue(g_pCurrentCar));
         Car_UpdateLowSpeedWheelLoadTimer();
-        CarEffects_UpdateBrokenLightFlicker((BYTE *)g_pCurrentCar);
+        CarEffects_UpdateBrokenLightFlicker(g_pCurrentCar);
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = base + pList[i];

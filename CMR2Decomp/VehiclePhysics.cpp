@@ -471,7 +471,7 @@ int VehiclePhysics_ClassifyCandidateFace(int useParallelSide)
     return result;
 }
 
-void StageTiming_ClearPartFlagAndReselectIndex(void);
+void CarPart_DeactivateAndMarkHidden(void);
 
 // Tests whether the length of the motion-state correction vector exceeds the
 // current ground offset; when it does, latches the collision and reports it.
@@ -482,7 +482,7 @@ int VehiclePhysics_TestMotionCorrectionCollision(void)
 
     if (FixVecLength(pV) >
         g_partCar->collisionRadius + g_partState->boundsRadius) {
-        StageTiming_ClearPartFlagAndReselectIndex();
+        CarPart_DeactivateAndMarkHidden();
         return 1;
     }
     return 0;

@@ -51,3 +51,7 @@ ahora el allocator renombrado, el nombre vigente `StageObject_SetFrameRate` y
 el tipo opaco `ReplayStream *` que ya empleaba el cuerpo de producción.
 
 La batería completa de 136 harnesses diferenciales pasa sin fallos.
+
+La tanda posterior de [daño y luces](car-damage-light-update.md) continúa con
+los resets, los nodos adjuntos y los consumidores de rotura/deformación. Amplía
+la prueba nativa de piezas a 462 casos y catorce cuerpos de producción.

@@ -5025,7 +5025,7 @@
   ],
   "0x4643f0": [
     5069952,
-    "StageObject_UpdateCarLightFlagsAndGlows"
+    "CarLight_UpdateFlagsAndGlows"
   ],
   "0x4648f0": [
     5022912,
@@ -5177,19 +5177,19 @@
   ],
   "0x466870": [
     5133824,
-    "StageTiming_ReadCarReplayTailValues"
+    "CarLight_GetBrokenFlags"
   ],
   "0x4668d0": [
     5137264,
-    "StageTiming_ResetAllCarReplayRecords"
+    "CarDamage_ResetAllRecords"
   ],
   "0x466920": [
     5136560,
-    "StageTiming_ResetCarReplayRecord"
+    "CarDamage_ResetRecord"
   ],
   "0x4669b0": [
     5133920,
-    "StageTiming_ClearCarReplayRecordRange"
+    "CarPart_ClearSetRange"
   ],
   "0x4669f0": [
     5181536,
@@ -5313,7 +5313,7 @@
   ],
   "0x46b4c0": [
     4989152,
-    "StageObject_GetCarStateSlot"
+    "CarDamage_GetModelEnabled"
   ],
   "0x46b4e0": [
     4988752,
@@ -6281,7 +6281,7 @@
   ],
   "0x480b40": [
     5023408,
-    "StageObject_ResetAttachedCarNodes"
+    "CarPart_ResetAttachedNodes"
   ],
   "0x480bb0": [
     5186912,
@@ -6329,7 +6329,7 @@
   ],
   "0x483010": [
     5137024,
-    "StageTiming_ClearPartFlagAndReselectIndex"
+    "CarPart_DeactivateAndMarkHidden"
   ],
   "0x483050": [
     5137088,
