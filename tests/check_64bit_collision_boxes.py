@@ -32,6 +32,10 @@ int main(int argc,char **argv) {
  static_assert(offsetof(CollisionBox,pArray)==0x90,"fixed scalar prefix");
  static_assert(offsetof(CollisionBox,pVertex)==0x98,"centre follows native corner pointer");
  static_assert(sizeof(CollisionBox)==0xa0,"native runtime box");
+ static_assert(offsetof(CollisionBox,primaryPoints)==0x30,"current point group");
+ static_assert(offsetof(CollisionBox,secondaryPoints)==0x60,"secondary point group");
+ static_assert(sizeof(((CollisionBox *)0)->primaryPoints)==4*sizeof(FixVector),"four current points");
+ static_assert(sizeof(((CollisionBox *)0)->secondaryPoints)==4*sizeof(FixVector),"four secondary points");
  alignas(16) BYTE heap[65536];assert(fread(heap,1,sizeof(heap),stdin)==sizeof(heap));
  FixVector *globals[]={&g_collisionPush,&g_collisionPushB,&g_collisionContactNormal};
  for(auto p:globals)assert(fread(p,1,sizeof(*p),stdin)==sizeof(*p));

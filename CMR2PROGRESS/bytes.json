@@ -24807,13 +24807,13 @@
     "symbol_name": "Collision_SetObjectSphere"
   },
   "0x487e50": {
-    "n": "StageObject_UpdateCarBoxShadowLighting",
+    "n": "Collision_ApplyObjectOverlapDamping",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_UpdateCarBoxShadowLighting"
+    "symbol_name": "Collision_ApplyObjectOverlapDamping"
   },
   "0x488de0": {
     "n": "Collision_FindQuadEdgeOverlap",
@@ -29715,9 +29715,9 @@
   },
   "0x490720": {
     "n": "Collision_ClassifyFaceVertices",
-    "s": 0.9054054054054054,
+    "s": 0.9702702702702702,
     "x": false,
-    "fz": 0.9378378378378378,
+    "fz": 0.9756756756756757,
     "unknown": [],
     "f": "VehiclePhysics.cpp",
     "symbol_name": "Collision_ClassifyFaceVertices"

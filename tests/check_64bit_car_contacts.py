@@ -39,14 +39,15 @@ typedef unsigned char BYTE;
 typedef long long __int64;
 #include "Car.h"
 #include "Sector.h"
+#include "Collision2D.h"
 #include "LayoutChecks.h"
 #define FIX_ABS(x) ((x) < 0 ? -(x) : (x))
 unsigned short g_sqrtTable[4096];
 int g_physicsScale = 65536;
 FixVector g_collisionPush, g_collisionPushB, g_collisionContactNormal, g_collisionSphereCentre;
-int g_collisionSphereRadius = 16384, g_unk0x005915dc = 32768, g_unk0x00591468 = 87949;
-int g_unk0x005914d8, g_unk0x005915f8[0x26];
-#define g_unk0x00591628 ((FixVector *)&g_unk0x005915f8[0xc])
+int g_collisionSphereRadius = 16384, g_contactImpactLowThreshold = 32768, g_contactImpactHighThreshold = 87949;
+int g_collisionObjectHasBox;
+CollisionBox g_sectorObjectCollisionBox;
 char g_unk0x00590ecc[4], g_unk0x005914c4[4], g_unk0x005914d4, g_unk0x005915f4;
 BYTE g_unk0x00590ec8[4], g_unk0x005914a4[4];
 struct CollisionBox;
@@ -139,7 +140,7 @@ def main():
     source = ROOT / 'CMR2Decomp'
     with tempfile.TemporaryDirectory(prefix='cmr2-native-car-contacts-') as directory:
         tmp = Path(directory)
-        for name in ('FloatToInt.h','Car.h', 'SceneNode.h', 'Sector.h', 'LayoutChecks.h', 'Collision2D.h'):
+        for name in ('FloatToInt.h','X87Single.h','Car.h', 'CameraRecord.h', 'SceneNode.h', 'Sector.h', 'LayoutChecks.h', 'Collision2D.h'):
             shutil.copyfile(source / name, tmp / name)
         shutil.copyfile(args.port_root / 'game/FixedPoint.h', tmp / 'FixedPoint.h')
         (tmp / 'Graphics.h').write_text('struct Graphics;\nstruct Texture;\nclass CGraphics { public: static const double m_oneOver65536; };\n')

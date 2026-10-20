@@ -46,3 +46,4 @@ address	old_name	new_name	evidence
 0x005210b0	g_frameScale2	g_frameRate2	Stored with the same 1000 / frame time as g_frameRate in Graphics_UpdateFrameStatistics; no reader found.
 0x00590ed0	g_unk0x00590ed0	g_carCollisionBoxes	Eight CollisionBox records indexed by car order or Car::index; cleared at each collision frame, built from car body axes/position/corners and returned by Collision_GetCarBox.
 0x00591494	g_unk0x00591494	g_collisionRecordHeight	Only store: the first mesh collision record height in Collision_SetObjectSphere (0x487e00); no readers found.
+0x005914d8	g_wallScrapeCount	g_collisionObjectHasBox	Only store is pEntry->pBounds->pProjection != 0 in Collision_TestCarAgainstSectorObjects; the obstacle solver selects box contact corners or sphere data and spin scaling with this boolean. It is not incremented.

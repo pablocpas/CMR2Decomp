@@ -906,6 +906,10 @@ CMR2_LAYOUT_CHECK(CollisionBox_axisB_Check, offsetof(CollisionBox, axisB) == 0x1
 CMR2_LAYOUT_CHECK(CollisionBox_built_Check, offsetof(CollisionBox, built) == 0x28);
 CMR2_LAYOUT_CHECK(CollisionBox_hasSecondaryVertices_Check, offsetof(CollisionBox, hasSecondaryVertices) == 0x2c);
 CMR2_LAYOUT_CHECK(CollisionBox_points_Check, offsetof(CollisionBox, points) == 0x30);
+CMR2_LAYOUT_CHECK(CollisionBox_primaryPoints_Check, offsetof(CollisionBox, primaryPoints) == 0x30);
+CMR2_LAYOUT_CHECK(CollisionBox_secondaryPoints_Check, offsetof(CollisionBox, secondaryPoints) == 0x60);
+CMR2_LAYOUT_CHECK(CollisionBox_primaryPointsSize_Check, sizeof(((CollisionBox *)0)->primaryPoints) == 4 * sizeof(FixVector));
+CMR2_LAYOUT_CHECK(CollisionBox_secondaryPointsSize_Check, sizeof(((CollisionBox *)0)->secondaryPoints) == 4 * sizeof(FixVector));
 CMR2_LAYOUT_CHECK(CollisionBox_pArray_Check, offsetof(CollisionBox, pArray) == 0x90);
 CMR2_LAYOUT_CHECK(CollisionBox_pVertex_Check, offsetof(CollisionBox, pVertex) == 0x94);
 CMR2_LAYOUT_CHECK(CollisionBoxSizeCheck, sizeof(CollisionBox) == 0x98);

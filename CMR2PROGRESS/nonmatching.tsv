@@ -323,7 +323,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x466570	CarDamage_UpdateOrderedCarsOffRoadState	StageObjects.cpp	190	0.8985507246376812	0.8985507246376812
 0x50f650	OptionMenu_DrawStageSummaryPanel	GameInfo.cpp	1758	0.8986547085201794	0.895870736086176
 0x500270	OptionMenu_ConfirmOrRevertHighlightedValue	GameInfo.cpp	224	0.8993288590604027	0.9019607843137255
-0x490720	Collision_ClassifyFaceVertices	VehiclePhysics.cpp	1126	0.8997289972899729	0.9054054054054054
 0x4d45b0	FrontendDraw_Carousel	FrontendDraw.cpp	1511	0.9020021074815595	0.8740740740740741
 0x458fd0	StageTiming_AdvanceTimedLapCheckpoint	StageTiming.cpp	203	0.9024390243902439	0.9024390243902439
 0x499070	Spark_Draw	CarEffects.cpp	1117	0.9027237354085603	0.9097938144329897
@@ -391,6 +390,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4fb8d0	FrontendProfile_ScrambleIdentifier	FrontendScreens.cpp	232	0.9594594594594594	0.9594594594594594
 0x487f60	Collision_ResolveCarTurnedObjectContact	StageObjects.cpp	1752	0.9623287671232876	0.894781864841745
 0x4387a0	Car_UpdateTyreForces	Car.cpp	8567	0.9646050670640834	0.9646050670640834
+0x490720	Collision_ClassifyFaceVertices	VehiclePhysics.cpp	1126	0.964769647696477	0.9702702702702702
 0x46fe70	StageObject_QueueOrEvictMovingObject	StageObjects.cpp	969	0.964968152866242	0.964968152866242
 0x448920	StageTiming_HandleCarSplitCrossing	StageTiming.cpp	706	0.9651741293532339	0.9701492537313433
 0x4487a0	StageTiming_RecordAndReorderSplitTime	StageTiming.cpp	381	0.9652173913043478	0.9739130434782609

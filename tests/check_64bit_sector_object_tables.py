@@ -74,7 +74,7 @@ void RallyData_MarkElementReachedByCar(SectorObjectEntry *,int);
 
 
 CollisionBox g_carCollisionBoxes[8],g_sectorObjectCollisionBox;
-int g_wallScrapeCount,contactResult,overlapResult,contacts,views,shadows;Car *g_collisionCar;
+int g_collisionObjectHasBox,contactResult,overlapResult,contacts,views,dampingCalls;Car *g_collisionCar;
 int Collision_DoSpheresOverlap(int a,int b,int *left,int *right){
  assert(a==65536 && b>=0 && left==(int *)&cars[0].position && (uintptr_t)left>UINT32_MAX);
  assert(right && (uintptr_t)right>UINT32_MAX);return overlapResult;
@@ -86,7 +86,7 @@ int contact(Car *c){assert(c==&cars[0]);int i=c->pendingContactCount;if(i<5)c->c
 int Collision_ResolveCarTurnedObjectContact(Car *c,StageObject **,CollisionBox *,CollisionBox *){return contact(c);}
 int Collision_CarVsBox(Car *c,CollisionBox *,int){return contact(c);}
 int Collision_ResolveStaticObstacleContact(Car *,StageObject **,FixVector *,int){return 0;}
-void StageObject_UpdateCarBoxShadowLighting(CollisionBox *,Car *){shadows++;}
+void Collision_ApplyObjectOverlapDamping(CollisionBox *,Car *){dampingCalls++;}
 int Collision_TestCarAgainstSectorObjects(Car *);
 void CarPhysics_UpdateWheelSlipAndVelocityDamping(Car *);
 
@@ -190,7 +190,7 @@ int main(int argc,char **argv){
   cars[0]=oldCars[0];auto &c=cars[0];c.sector=0;c.neighbours.s[0]=1;c.neighbours.s[1]=2;c.neighbours.s[2]=-1;
   c.collisionRadius=65536;c.field_0xc18=movingOnly;c.field_0xc20=0;c.index=0;
   memset(c.objectContactState,0xa5,sizeof(c.objectContactState));c.previousContactCount=7;c.pendingContactCount=3;
-  Car expected=c;contacts=views=shadows=0;overlapResult=overlap;contactResult=response;
+  Car expected=c;contacts=views=dampingCalls=0;overlapResult=overlap;contactResult=response;
   Collision_TestCarAgainstSectorObjects(&c);
   memset(expected.objectContactState,0,sizeof(expected.objectContactState));expected.pendingContactCount=expected.previousContactCount=(char)(contacts<5?contacts:5);
   for(int i=0;i<expected.pendingContactCount;i++)expected.contactSurfaces[0][i]=expected.contactSurfaces[1][i]=(short)(100+i);

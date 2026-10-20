@@ -93,13 +93,13 @@ class Boxes(Records):
 
     def provider(self,address,nargs):
         assert address==0x48df50 and tuple(self.args(nargs))==(HEAP+0x8000,)
-        self.trace.append(('light',HEAP+0x8000))
+        self.trace.append(('damping',HEAP+0x8000))
         from unicorn.x86_const import UC_X86_REG_ECX,UC_X86_REG_EDX
         self.u.reg_write(UC_X86_REG_EAX,0x12345678)
         self.u.reg_write(UC_X86_REG_ECX,0xa5a5a5a5)
         self.u.reg_write(UC_X86_REG_EDX,0x5a5a5a5a)
 
-    def lighting(self,x,z,radius,seed):
+    def damping(self,x,z,radius,seed):
         h=self.fixture(seed)
         put(h,CENTRE_A,'<3i',0,0,0)
         self.put(self.addr(0x591498),'<3i',x,seed*100,z)
@@ -107,7 +107,7 @@ class Boxes(Records):
         self.intercept((0x48df50,1))
         result=self.result(0x487e50,[BOX_A,HEAP+0x8000],h,True)
         expected=(not(abs(x)>65536 and abs(z)>32768) and abs(x)<=65536+radius and abs(z)<=32768+radius)
-        assert result[0]==bytes(h) and len(self.trace)==int(expected),('lighting model',x,z,radius)
+        assert result[0]==bytes(h) and len(self.trace)==int(expected),('damping overlap model',x,z,radius)
         return result,tuple(self.trace)
 
     def fixture(self,seed,nulls=0,alias=0):
@@ -251,15 +251,15 @@ def main():
                                  (-131072,-65536,-32768,0,32768,65536,131072),
                                  (-32768,0,32768,65536),(0,1),(0,1),(3,)):
         assert original.sphere(*args)==rebuilt.sphere(*args),('sphere',args);count+=1
-    light_count=0
+    damping_count=0
     for args in itertools.product((-98305,-98304,-65536,0,65536,98304,98305),
                                   (-65537,-65536,-32768,0,32768,65536,65537),(0,1,32768),(13,)):
-        assert original.lighting(*args)==rebuilt.lighting(*args),('lighting',args);light_count+=1
+        assert original.damping(*args)==rebuilt.damping(*args),('damping',args);damping_count+=1
     left,right=Turned(ROOT/'cmr2bin/CMR2.exe'),Turned(ROOT/'build/CMR2.exe',entities)
     turned_count=0
     for args in itertools.product((0,1),((0,1),(1,0),(1,1),(2,3)),(0,1,2,3),(0,1),(7,19)):
         assert left.turned(*args)==right.turned(*args),('turned',args);turned_count+=1
-    print(f'PASS: {construction_count} car box constructions/cache guards, {footprint_count} independent footprints, 8 box getters, {light_count} lighting bounds, {turned_count} turned object contacts, {split_count} independent split cases, {count-split_count} complete sphere cases; whole guarded heap/globals/ABI, real geometry and fixed-point helpers')
+    print(f'PASS: {construction_count} car box constructions/cache guards, {footprint_count} independent footprints, 8 box getters, {damping_count} damping overlap bounds, {turned_count} turned object contacts, {split_count} independent split cases, {count-split_count} complete sphere cases; whole guarded heap/globals/ABI, real geometry and fixed-point helpers')
 
 
 if __name__=='__main__':main()

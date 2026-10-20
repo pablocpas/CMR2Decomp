@@ -32,7 +32,7 @@ class Tables(Lighting):
   self.leaf(0x487f60,4,lambda:self.emit('turned-contact',result=self.contact))
   self.leaf(0x489750,3,lambda:self.emit('box-contact',self.args(3)[2],result=self.contact))
   self.leaf(0x48be20,4,lambda:self.emit('obstacle-contact',result=1))
-  self.leaf(0x487e50,2,lambda:self.emit('shadow'))
+  self.leaf(0x487e50,2,lambda:self.emit('damping'))
  def leaf(self,address,n,callback):self.callbacks[self.addr(address)]=(n*4,callback)
  def emit(self,name,*args,result=0):self.trace.append((name,*args));self.u.reg_write(UC_X86_REG_EAX,result&0xffffffff)
  def allocate(self):

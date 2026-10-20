@@ -311,6 +311,7 @@
   "differential_collision_face_decision.py": {
     "arguments": "entities",
     "targets": [
+      "0x490720",
       "0x490b90"
     ]
   },

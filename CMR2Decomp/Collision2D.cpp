@@ -1021,9 +1021,10 @@ void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2)
     }
 }
 
-// Bumped by 0x4878a0 while a car is scraping along a wall.
+// The current sector object has a box projection rather than sphere bounds.
+// Set to a boolean by Collision_TestCarAgainstSectorObjects, never counted.
 // GLOBAL: CMR2 0x005914d8
-int g_wallScrapeCount;
+int g_collisionObjectHasBox;
 // Corner copy the wall collision keeps for the other body of the contact:
 // the corners of the object box at 0x5915f8 (StageObjects.cpp), from +0x30.
 extern CollisionBox g_sectorObjectCollisionBox;
@@ -1047,7 +1048,7 @@ extern CollisionBox g_sectorObjectCollisionBox;
 // diff is the FPU-dense block scheduling and the reused stack slots of the
 // original (CONOCIMIENTO 4.t).
 // FUNCTION: CMR2 0x0048be20
-int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, FixVector *param_3, int param_4)
+int Collision_ResolveStaticObstacleContact(Car *pCar, StageObject **ppObject, FixVector *unusedPosition, int contactId)
 {
     FixVector tmp;
     FixVector vA;
@@ -1065,16 +1066,16 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
     flagA = 0;
     flagB = 0;
     flagC = 0;
-    param_1->field_0x5dc.y = 0;
-    Collision_ClampContactOffset((int *)&param_1->field_0x5dc, (int *)&param_1->halfExtents, 1);
+    pCar->field_0x5dc.y = 0;
+    Collision_ClampContactOffset((int *)&pCar->field_0x5dc, (int *)&pCar->halfExtents, 1);
 
-    FixVecCross(&tmp, &param_1->angularVelocity, &param_1->field_0x5dc);
-    FixMatrix_RotateVector(&vA, &tmp, param_1->pWorld);
-    vA.x += param_1->velocity.x;
-    vA.y += param_1->velocity.y;
-    vA.z += param_1->velocity.z;
+    FixVecCross(&tmp, &pCar->angularVelocity, &pCar->field_0x5dc);
+    FixMatrix_RotateVector(&vA, &tmp, pCar->pWorld);
+    vA.x += pCar->velocity.x;
+    vA.y += pCar->velocity.y;
+    vA.z += pCar->velocity.z;
 
-    if (param_1->field_0xb64 == 0 && param_1->useUpperCollisionCorners == 0) {
+    if (pCar->field_0xb64 == 0 && pCar->useUpperCollisionCorners == 0) {
         dot = FIX_ABS(FixVecDot(&vA, &g_collisionContactNormal));
         if (dot > g_contactImpactHighThreshold) {
             flagA = 1;
@@ -1087,7 +1088,7 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
 
     dot = FixVecDot(&vA, &g_collisionContactNormal);
     impulse = FixMul(dot, 0) - dot;
-    if ((*(unsigned int *)(*param_2)->field_0x10 & 0x2001000) != 0 && FIX_ABS(impulse) > 0) {
+    if (((*ppObject)->flags & 0x2001000) != 0 && FIX_ABS(impulse) > 0) {
         flagC = 1;
         flagB = 0;
         impulse = FixMul(impulse, 0x28f);
@@ -1096,93 +1097,93 @@ int Collision_ResolveStaticObstacleContact(Car *param_1, StageObject **param_2, 
     FixVecScale(&imp, &g_collisionContactNormal, impulse);
     FixVecScale(&imp, &imp, g_physicsScale);
 
-    FixMatrix_InverseRotateVector(&tmp, &imp, param_1->pWorld);
-    param_1->field_0x5c4.x += imp.x;
-    param_1->field_0x5c4.y += imp.y;
-    param_1->field_0x5c4.z += imp.z;
+    FixMatrix_InverseRotateVector(&tmp, &imp, pCar->pWorld);
+    pCar->field_0x5c4.x += imp.x;
+    pCar->field_0x5c4.y += imp.y;
+    pCar->field_0x5c4.z += imp.z;
 
-    for (i = 0; i < param_1->previousContactCount; i++) {
-        if (param_1->contactSurfaces[0][i] == param_4)
+    for (i = 0; i < pCar->previousContactCount; i++) {
+        if (pCar->contactSurfaces[0][i] == contactId)
             goto known;
     }
-    if (g_wallScrapeCount != 0) {
+    if (g_collisionObjectHasBox != 0) {
         if (g_unk0x005915f4 != 0) {
-            CarDamage_ApplyCollisionDeformImpulse(param_1,
-                         (int *)&param_1->corners[g_unk0x005914c4[0]],
+            CarDamage_ApplyCollisionDeformImpulse(pCar,
+                         (int *)&pCar->corners[g_unk0x005914c4[0]],
                          &g_collisionContactNormal, 0, 0, 0);
         } else if (g_unk0x005914d4 != 0) {
-            CarDamage_ApplyCollisionDeformImpulse(param_1,
+            CarDamage_ApplyCollisionDeformImpulse(pCar,
                          (int *)&g_sectorObjectCollisionBox.points[g_unk0x00590ecc[0]],
                          &g_collisionContactNormal, 0, 2, 0);
         }
     } else {
-        CarDamage_ApplyCollisionDeformImpulse(param_1, (int *)&g_collisionSphereCentre, &g_collisionContactNormal,
+        CarDamage_ApplyCollisionDeformImpulse(pCar, (int *)&g_collisionSphereCentre, &g_collisionContactNormal,
                      g_collisionSphereRadius, 1, 0);
     }
 known:
 
-    FixMatrix_RotateVector(&vPos, &param_1->field_0x5dc, param_1->pWorld);
-    vPos.x += param_1->position.x;
-    vPos.y += param_1->position.y;
-    vPos.z += param_1->position.z;
+    FixMatrix_RotateVector(&vPos, &pCar->field_0x5dc, pCar->pWorld);
+    vPos.x += pCar->position.x;
+    vPos.y += pCar->position.y;
+    vPos.z += pCar->position.z;
 
     if (flagC == 0 && flagA != 0) {
-        param_1->field_0x96c = 0x10000;
-        param_1->useUpperCollisionCorners = 1;
-        param_1->field_0xc04[0] = 1;
+        pCar->field_0x96c = 0x10000;
+        pCar->useUpperCollisionCorners = 1;
+        pCar->field_0xc04[0] = 1;
     }
-    param_1->field_0x5dc.y = 0;
+    pCar->field_0x5dc.y = 0;
 
     if (flagA == 0) {
-        FixVecCross(&spin, &tmp, &param_1->field_0x5dc);
-        if (g_wallScrapeCount != 0)
+        FixVecCross(&spin, &tmp, &pCar->field_0x5dc);
+        if (g_collisionObjectHasBox != 0)
             FixVecScale(&spin, &spin, 0x18000);
         else
             FixVecScale(&spin, &spin, 0x30000);
-        param_1->field_0x5d0.x += spin.x;
-        param_1->field_0x5d0.y += spin.y;
-        param_1->field_0x5d0.z += spin.z;
+        pCar->field_0x5d0.x += spin.x;
+        pCar->field_0x5d0.y += spin.y;
+        pCar->field_0x5d0.z += spin.z;
     } else {
         if (flagB != 0) {
-            off.x = -param_1->right.y;
-            off.y = -param_1->up.y;
-            off.z = -param_1->forward.y;
+            off.x = -pCar->right.y;
+            off.y = -pCar->up.y;
+            off.z = -pCar->forward.y;
             FixVecScale(&off, &off, 0x40000);
-            off.x += param_1->field_0x5dc.x;
-            off.y += param_1->field_0x5dc.y;
-            off.z += param_1->field_0x5dc.z;
+            off.x += pCar->field_0x5dc.x;
+            off.y += pCar->field_0x5dc.y;
+            off.z += pCar->field_0x5dc.z;
             FixVecCross(&spin, &tmp, &off);
             FixVecScale(&spin, &spin, 0x40000);
-            param_1->velocity.y += 0x4000;
+            pCar->velocity.y += 0x4000;
         } else {
-            off.x = -param_1->right.y;
-            off.y = -param_1->up.y;
-            off.z = -param_1->forward.y;
+            off.x = -pCar->right.y;
+            off.y = -pCar->up.y;
+            off.z = -pCar->forward.y;
             FixVecScale(&off, &off, 0x10000);
-            off.x += param_1->field_0x5dc.x;
-            off.y += param_1->field_0x5dc.y;
-            off.z += param_1->field_0x5dc.z;
+            off.x += pCar->field_0x5dc.x;
+            off.y += pCar->field_0x5dc.y;
+            off.z += pCar->field_0x5dc.z;
             FixVecCross(&spin, &tmp, &off);
             FixVecScale(&spin, &spin, 0x40000);
         }
-        param_1->field_0x5d0.x += spin.x;
-        param_1->field_0x5d0.y += spin.y;
-        param_1->field_0x5d0.z += spin.z;
+        pCar->field_0x5d0.x += spin.x;
+        pCar->field_0x5d0.y += spin.y;
+        pCar->field_0x5d0.z += spin.z;
     }
-    Collision_ClampAngularCorrection((int *)&param_1->field_0x5d0);
+    Collision_ClampAngularCorrection((int *)&pCar->field_0x5d0);
 
-    if (param_1->pendingContactCount < 5) {
-        param_1->contactSurfaces[1][param_1->pendingContactCount] = (short)param_4;
-        param_1->pendingContactCount = param_1->pendingContactCount + 1;
+    if (pCar->pendingContactCount < 5) {
+        pCar->contactSurfaces[1][pCar->pendingContactCount] = (short)contactId;
+        pCar->pendingContactCount = pCar->pendingContactCount + 1;
     }
 
     if (CGameInfo::IsActiveCheatEnabled(4) != 0) {
-        param_1->field_0x5c4.x -= imp.x;
-        param_1->field_0x5c4.y -= imp.y;
-        param_1->field_0x5c4.z -= imp.z;
-        param_1->velocity.x += imp.x * 2;
-        param_1->velocity.y += imp.y * 2;
-        param_1->velocity.z += imp.z * 2;
+        pCar->field_0x5c4.x -= imp.x;
+        pCar->field_0x5c4.y -= imp.y;
+        pCar->field_0x5c4.z -= imp.z;
+        pCar->velocity.x += imp.x * 2;
+        pCar->velocity.y += imp.y * 2;
+        pCar->velocity.z += imp.z * 2;
     }
     return flagC;
 }
