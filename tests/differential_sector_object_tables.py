@@ -64,6 +64,35 @@ class Tables(Lighting):
   assert self.u.reg_read(UC_X86_REG_ESP)==STACK+0xff00+4+len(args)*4,(hex(target),'stdcall')
   assert all(self.u.reg_read(reg)==0x1234a000+i for i,reg in enumerate(PRESERVED))
   return self.u.reg_read(UC_X86_REG_EAX)
+ def bounds_case(self,right_y,heights,seed):
+  self.reset();self.u.mem_write(HEAP,random.Random(seed).randbytes(0x10000))
+  basis,corners,bounds,projection,entry,box,position=[HEAP+n for n in (0x6000,0x6100,0x6200,0x6300,0x6400,0x6500,0x6600)]
+  self.put(basis,'<9i',32768,right_y,-49152,49152,32768,16384,0,0,65536)
+  for i,y in enumerate(heights):self.put(corners+i*12,'<3i',(i-3)*17777,y,(4-i)*21317)
+  self.put(bounds,'<2I',0x12345678,projection);self.put(entry,'<2I',0xdead0000,bounds)
+  self.put(position,'<3i',seed*131-65536,seed*97+32768,-seed*73)
+  self.put(self.addr(0x6e0ef4),'<4096H',*[math.isqrt((8+16*i)*65536) for i in range(4096)])
+  before=self.read(HEAP,0x10000);self.checked(0x4873f0,[basis,corners,bounds]);packed=self.read(projection,12)
+  expected=bytearray(before);expected[projection-HEAP:projection-HEAP+12]=packed
+  assert self.read(HEAP,0x10000)==bytes(expected),'projection writes outside its twelve-byte record'
+  self.put(box+0x28,'<i',0);before=self.read(HEAP,0x10000)
+  self.checked(0x487c40,[box,entry,position]);built=self.read(box,0x98)
+  expected=bytearray(before)
+  for start,end in ((0,0x2c),(0x30,0x60),(0x90,0x98)):
+   expected[box-HEAP+start:box-HEAP+end]=built[start:end]
+  assert self.read(HEAP,0x10000)==bytes(expected),'object box writes outside current fields/points'
+  dx,dz,top,bottom,width,length=struct.unpack('<6h',packed)
+  px,py,pz=struct.unpack('<3i',self.read(position,12))
+  assert struct.unpack_from('<4i',built)==(width*512,length*512,signed(top*512+py),signed(bottom*512+py))
+  assert struct.unpack_from('<6i',built,0x10)==(dx*512,0,dz*512,dz*512,0,-dx*512)
+  assert struct.unpack_from('<i',built,0x28)==(1,)
+  assert struct.unpack_from('<2I',built,0x90)==(0,position)
+  # Rebuilding a cached object box must preserve the snapshot even when its
+  # valid backing projection and position change between calls.
+  self.put(position,'<3i',px+1234,py-4321,pz+7654);self.put(projection,'<6h',-12,34,56,-78,90,123)
+  before=self.read(HEAP,0x10000);self.checked(0x487c40,[box,entry,position])
+  assert self.read(HEAP,0x10000)==before,'cached object box changed'
+  return packed,built,self.read(HEAP,0x10000)
  def initialize(self,seed,count,mode,failed=-1):
   self.reset();self.u.mem_write(HEAP,random.Random(seed).randbytes(0x10000));self.trace=[]
   self.mode=mode;self.failed=failed;self.cursor=HEAP+0x9000;self.allocations=[];self.created=0
@@ -168,9 +197,16 @@ class Tables(Lighting):
 
 def main():
  entities=json.loads(Path(sys.argv[1]).read_text());a=Tables(ROOT/'cmr2bin/CMR2.exe');b=Tables(Path(sys.argv[2]) if len(sys.argv)>2 else ROOT/'build/CMR2.exe',entities);n=0
+ heights=((-1025,-513,-512,-511,0,1,511,513),
+          (1,511,512,513,1023,1024,1025,2047),
+          (-1,-511,-512,-513,-1023,-1024,-1025,-2047),
+          (0x1000001,-0x1000001,0xffffff,-0xffffff,0,511,-512,1025))
+ bounds_cases=0
+ for args in itertools.product((0,0xfd70,0xfd71,-0xfd70,-0xfd71),heights,(0,19)):
+  assert a.bounds_case(*args)==b.bounds_case(*args),('packed bounds and object box',args);bounds_cases+=1
  for args in itertools.product(range(4),[0,1,2,5], [1,2,3],[-1,1]):
   x=a.pipeline(*args);y=b.pipeline(*args);assert x==y,(args,[(i,x[i] if i==3 else 'memory',y[i] if i==3 else 'memory') for i in range(len(x)) if x[i]!=y[i]]);n+=1
  for args in itertools.product(range(2),[0,1,2,5],[1,2,3],[0,1],[0,1],[0,1]):
   assert a.collide(*args)==b.collide(*args),('collision',args);n+=1
- print(f'PASS: {n} sector-object original/rebuilt lifecycle scenarios; full guarded heap, runtime globals/owner, provider order and stdcall ABI')
+ print(f'PASS: {n} sector-object original/rebuilt lifecycle scenarios and {bounds_cases} packed-bound/object-box cases; full guarded heap, runtime globals/owner, provider order and stdcall ABI')
 if __name__=='__main__':main()

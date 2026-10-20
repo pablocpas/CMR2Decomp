@@ -24798,13 +24798,13 @@
     "symbol_name": "Collision_DoSpheresOverlap"
   },
   "0x487e00": {
-    "n": "StageObject_SetCollisionSphereAndMaterial",
+    "n": "Collision_SetObjectSphere",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_SetCollisionSphereAndMaterial"
+    "symbol_name": "Collision_SetObjectSphere"
   },
   "0x487e50": {
     "n": "StageObject_UpdateCarBoxShadowLighting",
@@ -25734,13 +25734,13 @@
     "symbol_name": "Collision_BuildBoxFootprint"
   },
   "0x487c40": {
-    "n": "StageObject_BuildSpriteExtentOrientation",
+    "n": "Collision_BuildObjectBox",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_BuildSpriteExtentOrientation"
+    "symbol_name": "Collision_BuildObjectBox"
   },
   "0x47f510": {
     "n": "Firework_InterpolateRocketColours",
@@ -26050,9 +26050,9 @@
   },
   "0x4873f0": {
     "n": "Collision_BuildObjectPointBounds",
-    "s": 0.7563527653213752,
+    "s": 0.7779433681073026,
     "x": false,
-    "fz": 0.9327354260089686,
+    "fz": 0.9448584202682563,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Collision_BuildObjectPointBounds"

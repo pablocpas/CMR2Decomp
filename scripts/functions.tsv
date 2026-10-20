@@ -1616,8 +1616,8 @@ addr	size	name	callers	callees	fpu	thunk	external
 004877a0	241	Collision_UpdateOrderedCars	1	5	0	false	false
 004878a0	732	Collision_TestCarAgainstSectorObjects	1	14	0	false	false
 00487b80	192	Collision_DoSpheresOverlap	2	0	0	false	false
-00487c40	448	StageObject_BuildSpriteExtentOrientation	1	0	0	false	false
-00487e00	66	StageObject_SetCollisionSphereAndMaterial	1	0	0	false	false
+00487c40	448	Collision_BuildObjectBox	1	0	0	false	false
+00487e00	66	Collision_SetObjectSphere	1	0	0	false	false
 00487e50	266	StageObject_UpdateCarBoxShadowLighting	1	1	0	false	false
 00487f60	1752	Collision_ResolveCarTurnedObjectContact	1	3	0	false	false
 00488640	1948	Collision_TestOrientedBoxCornerOverlap	2	2	0	false	false

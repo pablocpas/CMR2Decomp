@@ -252,7 +252,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x472cb0	Knockout_ApplyCarGroundMaterials	StageObjects.cpp	317	0.8376068376068376	0.8017241379310345
 0x4bdd30	CGraphics::ProbeDisplayDriverCapabilities	Graphics.cpp	239	0.8378378378378378	0.8378378378378378
 0x460390	StageWeather_DrawViewPrecipitation	StageObjects.cpp	1691	0.8404669260700389	0.7934044616876819
-0x4873f0	Collision_BuildObjectPointBounds	StageObjects.cpp	931	0.8411497730711044	0.7563527653213752
 0x456110	StageTiming_RandomizeComputerTimes	StageTiming.cpp	204	0.8413793103448276	0.8794326241134752
 0x464cb0	StageObject_UpdateSkidTrails	StageObjects.cpp	2172	0.8424242424242424	0.831306990881459
 0x45f530	StageObject_ScaleViewValueByRoute	StageTiming.cpp	154	0.8440366972477065	0.8518518518518519
@@ -289,6 +288,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4248a0	ForceFeedback_ComputeConditionCoefficients	StageTiming.cpp	584	0.8657534246575342	0.8509485094850948
 0x4f0820	FrontendProfile_ApplyStageSelectionAndAdvance	FrontendScreens.cpp	297	0.8673469387755102	0.7914438502673797
 0x47d5a0	StageObject_SpawnCarHeadlightGlow	StageObjects.cpp	673	0.8679245283018868	0.8752941176470588
+0x4873f0	Collision_BuildObjectPointBounds	StageObjects.cpp	931	0.869172932330827	0.7779433681073026
 0x502570	OptionMenu_InitDefaultRecordTables	GameInfo.cpp	191	0.8695652173913043	0.8695652173913043
 0x4786b0	Surface_BlendWheelContactParameters	SurfaceTypes.cpp	764	0.8721461187214612	0.8662131519274376
 0x47d0e0	AI_SelectCarsWithinOvertakeWindow	StageObjects.cpp	578	0.8733850129198967	0.8144329896907216

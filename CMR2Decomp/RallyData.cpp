@@ -7179,7 +7179,7 @@ extern int g_unk0x0058c950;
 extern int g_unk0x0058ca68;
 extern StageObject *g_stageObjects[6000];
 StageObject *StageObject_GetNext(StageObject *pObject);
-void Collision_BuildObjectPointBounds(int *param_1, FixVector *param_2, SectorObjectBounds *param_3);
+void Collision_BuildObjectPointBounds(FixVector *pBasis, FixVector *pCorners, SectorObjectBounds *pBounds);
 void StageObject_LoadAndClassifyMeshes(void);
 void StageObject_ResetMovingObjectCountsAndPhases(void);
 
@@ -7228,6 +7228,7 @@ void RallyData_RebuildSectorStaticObjectTables(void)
     int hz;
     int length;
     SectorObjectEntry *pEntry;
+    SectorObjectEntry *pList;
     SectorObjectBounds *pScratch;
     ObjectPointBounds *pRecordScratch;
     StageObject *pObject;
@@ -7367,15 +7368,15 @@ void RallyData_RebuildSectorStaticObjectTables(void)
             sector++;
         } while (sector < g_sectorCount);
     }
-    pScratch = (SectorObjectBounds *)g_movingSectorEntries;
+    pList = g_movingSectorEntries;
     for (i = 0; i < countB; i++) {
-        g_sectorListEntriesB[i] = (SectorObjectEntry *)pScratch;
-        pScratch = (SectorObjectBounds *)((SectorObjectEntry *)pScratch + g_sectorListCountB[i]);
+        g_sectorListEntriesB[i] = pList;
+        pList += g_sectorListCountB[i];
     }
-    pScratch = (SectorObjectBounds *)g_staticSectorEntries;
+    pList = g_staticSectorEntries;
     for (i = 0; i < countA; i++) {
-        g_sectorListEntriesA[i] = (SectorObjectEntry *)pScratch;
-        pScratch = (SectorObjectBounds *)((SectorObjectEntry *)pScratch + g_sectorListCountA[i]);
+        g_sectorListEntriesA[i] = pList;
+        pList += g_sectorListCountA[i];
     }
     for (i = 0; i < (int)g_unk0x0058ca6c; i++) {
         g_sectorEntryCarFlags[i] = 0xff;
@@ -7475,7 +7476,7 @@ void RallyData_RebuildSectorStaticObjectTables(void)
                         FixMatrix_GetRight(&basis[0], &matrix);
                         FixMatrix_GetUp(&basis[1], &matrix);
                         FixMatrix_GetForward(&basis[2], &matrix);
-                        Collision_BuildObjectPointBounds((int *)&basis[0], &corners[0], pEntry->pBounds);
+                        Collision_BuildObjectPointBounds(basis, corners, pEntry->pBounds);
                     } else {
                         pEntry->pBounds->pProjection = 0;
                         pEntry->pBounds->radius = hx;

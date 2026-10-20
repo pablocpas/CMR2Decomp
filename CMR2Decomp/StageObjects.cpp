@@ -386,12 +386,12 @@ void Collision_BuildCarBox(CollisionBox *pBox, int *pBodyAxes, FixVector *pPosit
 void Collision_BuildBoxFootprint(CollisionBox *pBox, FixVector *pPosition);
 int StageObject_GetCollisionRecordState(void);
 void Collision_BuildOrientedBoxWorldCorners(FixVector *pCorners, FixVector *pCenter, FixMatrix *pRot, FixVector *pHalf);
-void Collision_BuildObjectPointBounds(int *param_1, FixVector *param_2, SectorObjectBounds *param_3);
+void Collision_BuildObjectPointBounds(FixVector *pBasis, FixVector *pCorners, SectorObjectBounds *pBounds);
 void Collision_UpdateOrderedCars(Car *pCars, short *pOrder, short count);
 int Collision_TestCarAgainstSectorObjects(Car *pCar);
 int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB);
-void StageObject_BuildSpriteExtentOrientation(CollisionBox *pMatrix, SectorObjectEntry *param_2, int *pOffset);
-void StageObject_SetCollisionSphereAndMaterial(FixVector *pPos, SectorObjectEntry *pInfo);
+void Collision_BuildObjectBox(CollisionBox *pBox, SectorObjectEntry *pEntry, FixVector *pPosition);
+void Collision_SetObjectSphere(FixVector *pPosition, SectorObjectEntry *pEntry);
 void StageObject_UpdateCarBoxShadowLighting(CollisionBox *pBox, Car *pCar);
 int Collision_ResolveCarTurnedObjectContact(Car *pCar, StageObject **pEntry, CollisionBox *pBox, CollisionBox *pObject);
 int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pBoxB, FixVector *pOffset, int scale);
@@ -4469,7 +4469,7 @@ int Knockout_AreCurrentDriversKnown(void)
 // GLOBAL: CMR2 0x00591490
 int g_collisionSphereRadius;
 // GLOBAL: CMR2 0x00591494
-int g_unk0x00591494;
+int g_collisionRecordHeight;
 // GLOBAL: CMR2 0x00591498
 FixVector g_collisionSphereCentre;
 
@@ -4502,12 +4502,14 @@ int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB)
     return 0;
 }
 
+// Selects the sphere of an object without a box projection, retaining the
+// first mesh collision record's height in the otherwise unread height cache.
 // FUNCTION: CMR2 0x00487e00
-void StageObject_SetCollisionSphereAndMaterial(FixVector *pPos, SectorObjectEntry *pInfo)
+void Collision_SetObjectSphere(FixVector *pPosition, SectorObjectEntry *pEntry)
 {
-    g_collisionSphereCentre = *pPos;
-    g_collisionSphereRadius = pInfo->pBounds->radius;
-    g_unk0x00591494 = pInfo->pObject->pMesh->pCollisionRecords->height;
+    g_collisionSphereCentre = *pPosition;
+    g_collisionSphereRadius = pEntry->pBounds->radius;
+    g_collisionRecordHeight = pEntry->pObject->pMesh->pCollisionRecords->height;
 }
 
 // Updates a car's stage shadow/light when its position, projected on the two
@@ -8755,44 +8757,46 @@ void Collision_BuildBoxFootprint(CollisionBox *pBox, FixVector *pPosition)
     }
 }
 
-// Builds a sprite orientation matrix from a pair of 16-bit extents.
+// Reconstructs a world-space object collision box from its packed projection.
+// The projection producer stores the axes, height interval and half extents
+// in 16-bit units of 512; the four footprint points use the lower height.
 // FUNCTION: CMR2 0x00487c40
-void StageObject_BuildSpriteExtentOrientation(CollisionBox *pMatrix, SectorObjectEntry *param_2, int *pOffset)
+void Collision_BuildObjectBox(CollisionBox *pBox, SectorObjectEntry *pEntry, FixVector *pPosition)
 {
-    short *p = (short *)param_2->pBounds->pProjection;
-    FixVector t, u;
-    int i;
+    ObjectPointBounds *pProjection = pEntry->pBounds->pProjection;
+    FixVector widthAxis, lengthAxis;
+    int corner;
 
-    if (pMatrix->built == 0) {
-        pMatrix->halfWidth = (int)p[4] << 9;
-        pMatrix->halfLength = (int)p[5] << 9;
-        pMatrix->axisA.x = (int)p[0] << 9;
-        pMatrix->axisA.y = 0;
-        pMatrix->axisA.z = (int)p[1] << 9;
-        pMatrix->axisB.x = (int)p[1] << 9;
-        pMatrix->axisB.y = 0;
-        pMatrix->axisB.z = -((int)p[0] << 9);
-        pMatrix->top = p[2] * 0x200 + pOffset[1];
-        pMatrix->bottom = p[3] * 0x200 + pOffset[1];
-        pMatrix->pVertex = (FixVector *)pOffset;
-        pMatrix->pArray = 0;
-        FixVecScale(&t, &pMatrix->axisA, pMatrix->halfWidth);
-        FixVecScale(&u, &pMatrix->axisB, pMatrix->halfLength);
-        pMatrix->pointWords[3] = t.x + u.x;
-        pMatrix->pointWords[5] = t.z + u.z;
-        pMatrix->pointWords[0] = t.x - u.x;
-        pMatrix->pointWords[2] = t.z - u.z;
-        FixVecScale(&t, &t, -0x10000);
-        pMatrix->pointWords[6] = t.x - u.x;
-        pMatrix->pointWords[8] = t.z - u.z;
-        pMatrix->pointWords[9] = t.x + u.x;
-        pMatrix->pointWords[11] = t.z + u.z;
-        for (i = 0; i < 4; i++) {
-            pMatrix->points[i].x += pOffset[0];
-            pMatrix->points[i].y = pMatrix->bottom;
-            pMatrix->points[i].z += pOffset[2];
+    if (pBox->built == 0) {
+        pBox->halfWidth = (int)pProjection->halfWidth << 9;
+        pBox->halfLength = (int)pProjection->halfLength << 9;
+        pBox->axisA.x = (int)pProjection->directionX << 9;
+        pBox->axisA.y = 0;
+        pBox->axisA.z = (int)pProjection->directionZ << 9;
+        pBox->axisB.x = (int)pProjection->directionZ << 9;
+        pBox->axisB.y = 0;
+        pBox->axisB.z = -((int)pProjection->directionX << 9);
+        pBox->top = pProjection->top * 0x200 + pPosition->y;
+        pBox->bottom = pProjection->bottom * 0x200 + pPosition->y;
+        pBox->pVertex = pPosition;
+        pBox->pArray = 0;
+        FixVecScale(&widthAxis, &pBox->axisA, pBox->halfWidth);
+        FixVecScale(&lengthAxis, &pBox->axisB, pBox->halfLength);
+        pBox->points[1].x = widthAxis.x + lengthAxis.x;
+        pBox->points[1].z = widthAxis.z + lengthAxis.z;
+        pBox->points[0].x = widthAxis.x - lengthAxis.x;
+        pBox->points[0].z = widthAxis.z - lengthAxis.z;
+        FixVecScale(&widthAxis, &widthAxis, -0x10000);
+        pBox->points[2].x = widthAxis.x - lengthAxis.x;
+        pBox->points[2].z = widthAxis.z - lengthAxis.z;
+        pBox->points[3].x = widthAxis.x + lengthAxis.x;
+        pBox->points[3].z = widthAxis.z + lengthAxis.z;
+        for (corner = 0; corner < 4; corner++) {
+            pBox->points[corner].x += pPosition->x;
+            pBox->points[corner].y = pBox->bottom;
+            pBox->points[corner].z += pPosition->z;
         }
-        pMatrix->built = 1;
+        pBox->built = 1;
     }
 }
 
@@ -10586,80 +10590,83 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
     }
 }
 
-// Builds the bounding box of an object's collision points (8 triples): the
-// object's 2D direction is normalised from its accumulated translation and
-// every point is projected onto it, tracking the box bounds.
-// match 59%: implementada, difiere el marco de pila y la fusion de bloques de normalizacion
+// Packs the local bounds of eight rotated collision corners. The loader
+// supplies right/up/forward as a three-vector array; use up when right is
+// nearly vertical, then project each point onto the horizontal basis.
+// Heights and half extents are stored in signed 16-bit units of 512.
 // FUNCTION: CMR2 0x004873f0
-void Collision_BuildObjectPointBounds(int *param_1, FixVector *param_2, SectorObjectBounds *param_3)
+void Collision_BuildObjectPointBounds(FixVector *pBasis, FixVector *pCorners, SectorObjectBounds *pBounds)
 {
-    short *pOut = (short *)param_3->pProjection;
-    FixVector dir;
-    FixVector perp;
-    FixVector pt;
-    int maxLeft = 0;
-    int maxRight = 0;
-    int absY = param_1[1];
-    int right;
-    int left;
-    int len;
-    int *p;
-    int n;
+    ObjectPointBounds *pProjection = pBounds->pProjection;
+    FixVector axisA;
+    FixVector axisB;
+    FixVector point;
+    int halfLength = 0;
+    int halfWidth = 0;
+    int absRightY;
+    int alongA;
+    int alongB;
+    int axisLength;
+    FixVector *pCorner;
+    int remainingCorners;
 
-    pOut[3] = 0;
-    pOut[2] = 0;
+    pProjection->bottom = 0;
+    pProjection->top = 0;
 
-    if (absY < 0)
-        absY = -absY;
+    absRightY = pBasis[0].y;
+    if (absRightY < 0)
+        absRightY = -absRightY;
 
-    if (absY > 0xfd70) {
-        dir = *(FixVector *)&param_1[3];
-        dir.y = 0;
-        len = FixVecLength(&dir);
-        if (len == 0) {
-            dir.x = 0;
-            dir.y = 0;
-            dir.z = 0;
+    if (absRightY > 0xfd70) {
+        axisA = pBasis[1];
+        axisA.y = 0;
+        axisLength = FixVecLength(&axisA);
+        if (axisLength == 0) {
+            axisA.x = 0;
+            axisA.y = 0;
+            axisA.z = 0;
         } else {
-            FixVecScaleRecip(&dir, &dir, len);
+            FixVecScaleRecip(&axisA, &axisA, axisLength);
         }
     } else {
-        dir = *(FixVector *)param_1;
-        dir.y = 0;
-        len = FixVecLength(&dir);
-        if (len == 0) {
-            dir.x = 0;
-            dir.y = 0;
-            dir.z = 0;
+        axisA = pBasis[0];
+        axisA.y = 0;
+        axisLength = FixVecLength(&axisA);
+        if (axisLength == 0) {
+            axisA.x = 0;
+            axisA.y = 0;
+            axisA.z = 0;
         } else {
-            FixVecScaleRecip(&dir, &dir, len);
+            FixVecScaleRecip(&axisA, &axisA, axisLength);
         }
     }
-    perp.x = dir.z;
-    perp.y = 0;
-    perp.z = -dir.x;
+    axisB.x = axisA.z;
+    axisB.y = 0;
+    axisB.z = -axisA.x;
 
-    p = &param_2[0].z;
-    n = 8;
+    pCorner = pCorners;
+    remainingCorners = 8;
     do {
-        pt = *(FixVector *)(p - 2);
-        right = FixVecDot(&pt, &dir);
-        left = FixVecDot(&perp, &pt);
-        if (right > 0 && right > maxRight)
-            maxRight = right;
-        if (left > 0 && left > maxLeft)
-            maxLeft = left;
-        if (pt.y > pOut[2] * 0x200)
-            pOut[2] = (short)(pt.y >> 9);
-        if (pt.y < pOut[3] * 0x200)
-            pOut[3] = (short)(pt.y >> 9);
-        p += 3;
-    } while (--n != 0);
+        point.x = pCorner->x;
+        point.y = pCorner->y;
+        point.z = pCorner->z;
+        alongA = FixVecDot(&point, &axisA);
+        alongB = FixVecDot(&axisB, &point);
+        if (alongA > 0 && alongA > halfWidth)
+            halfWidth = alongA;
+        if (alongB > 0 && alongB > halfLength)
+            halfLength = alongB;
+        if (point.y > pProjection->top * 0x200)
+            pProjection->top = (short)(point.y >> 9);
+        if (point.y < pProjection->bottom * 0x200)
+            pProjection->bottom = (short)(point.y >> 9);
+        pCorner++;
+    } while (--remainingCorners != 0);
 
-    pOut[0] = (short)(dir.x >> 9);
-    pOut[1] = (short)(dir.z >> 9);
-    pOut[4] = (short)(maxRight >> 9);
-    pOut[5] = (short)(maxLeft >> 9);
+    pProjection->directionX = (short)(axisA.x >> 9);
+    pProjection->directionZ = (short)(axisA.z >> 9);
+    pProjection->halfWidth = (short)(halfWidth >> 9);
+    pProjection->halfLength = (short)(halfLength >> 9);
 }
 
 extern double g_minus65536;
@@ -14680,9 +14687,9 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                 result = 0;
                 if (g_wallScrapeCount != 0) {
                     g_sectorObjectCollisionBox.built = 0;
-                    StageObject_BuildSpriteExtentOrientation(&g_sectorObjectCollisionBox, pEntry, (int *)&position);
+                    Collision_BuildObjectBox(&g_sectorObjectCollisionBox, pEntry, &position);
                 } else {
-                    StageObject_SetCollisionSphereAndMaterial(&position, pEntry);
+                    Collision_SetObjectSphere(&position, pEntry);
                 }
                 if (g_wallScrapeCount != 0) {
                     result = Collision_ResolveCarTurnedObjectContact(pCar, &pEntry->pObject, pBox, &g_sectorObjectCollisionBox);

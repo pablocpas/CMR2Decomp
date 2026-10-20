@@ -6469,11 +6469,11 @@
   ],
   "0x487c40": [
     5042896,
-    "StageObject_BuildSpriteExtentOrientation"
+    "Collision_BuildObjectBox"
   ],
   "0x487e00": [
     5009216,
-    "StageObject_SetCollisionSphereAndMaterial"
+    "Collision_SetObjectSphere"
   ],
   "0x487e50": [
     5009296,
@@ -22124,7 +22124,7 @@
     "g_precipitation"
   ],
   "0x543e38": [
-    8200740,
+    8200736,
     "g_stageObjectSecondary"
   ],
   "0x543e88": [
@@ -22164,7 +22164,7 @@
     "g_unk0x00543ea8"
   ],
   "0x543eb4": [
-    8200604,
+    8200600,
     "g_sunIconColour"
   ],
   "0x543eb8": [
@@ -22288,11 +22288,11 @@
     "g_stageLightsActive"
   ],
   "0x547cd8": [
-    8200060,
+    8200052,
     "g_stageLightCount"
   ],
   "0x547ce0": [
-    8200952,
+    8200948,
     "g_carDamageHazardTimer"
   ],
   "0x547d00": [
@@ -22340,7 +22340,7 @@
     "g_carLightTexB"
   ],
   "0x548110": [
-    8200072,
+    8200064,
     "g_unk0x00548110"
   ],
   "0x548220": [
@@ -22352,11 +22352,11 @@
     "g_unk0x00549b20"
   ],
   "0x549ba0": [
-    8198364,
+    8198356,
     "g_unk0x00549ba0"
   ],
   "0x549c20": [
-    8200184,
+    8200176,
     "g_carTyreTrailCenters"
   ],
   "0x549da0": [
@@ -22364,7 +22364,7 @@
     "g_trailPoints"
   ],
   "0x5885a0": [
-    8200612,
+    8200608,
     "g_unk0x005885a0"
   ],
   "0x588620": [
@@ -22496,7 +22496,7 @@
     "g_carOriginalPartNodeTypes"
   ],
   "0x588ba4": [
-    8198492,
+    8198484,
     "g_unk0x00588ba4"
   ],
   "0x588bb4": [
@@ -22504,7 +22504,7 @@
     "g_carPairValuePending"
   ],
   "0x588cd4": [
-    8198008,
+    8198000,
     "g_replayLevelState"
   ],
   "0x588d38": [
@@ -22536,7 +22536,7 @@
     "g_eventTextures"
   ],
   "0x588ed8": [
-    8199720,
+    8199712,
     "g_eventRecords"
   ],
   "0x589010": [
@@ -22616,7 +22616,7 @@
     "g_movingObjectTypes"
   ],
   "0x58c934": [
-    8199680,
+    8199672,
     "g_unk0x0058c934"
   ],
   "0x58c938": [
@@ -22644,7 +22644,7 @@
     "g_movingSectorEntries"
   ],
   "0x58c950": [
-    8199716,
+    8199708,
     "g_unk0x0058c950"
   ],
   "0x58c954": [
@@ -22744,7 +22744,7 @@
     "g_carWiperRotationMatrix"
   ],
   "0x58d2a0": [
-    8198608,
+    8198600,
     "g_stageBlock"
   ],
   "0x58d6d0": [
@@ -22932,7 +22932,7 @@
     "g_unk0x0058df9c"
   ],
   "0x58e088": [
-    8198524,
+    8198516,
     "g_unk0x0058e088"
   ],
   "0x58e0a0": [
@@ -22960,15 +22960,15 @@
     "g_aiDriveState"
   ],
   "0x58e230": [
-    8198548,
+    8198540,
     "g_unk0x0058e230"
   ],
   "0x58e26c": [
-    8200600,
+    8200596,
     "g_stageRandomSeed"
   ],
   "0x58e270": [
-    8198508,
+    8198500,
     "g_unk0x0058e270"
   ],
   "0x58e378": [
@@ -22996,7 +22996,7 @@
     "g_carHeadlightGlowRecords"
   ],
   "0x5909b8": [
-    8200820,
+    8200816,
     "g_stageAmbientFlashLevel"
   ],
   "0x5909bc": [
@@ -23056,7 +23056,7 @@
     "g_carFlexibleLineConstraintAxes"
   ],
   "0x590b7c": [
-    8200824,
+    8200820,
     "g_carPartNodes"
   ],
   "0x590bfc": [
@@ -23084,11 +23084,11 @@
     "g_wheelSlotDamageThresholds"
   ],
   "0x590c54": [
-    8200596,
+    8200588,
     "g_frameColourGainRed"
   ],
   "0x590c58": [
-    8200608,
+    8200604,
     "g_frameColourGainGreen"
   ],
   "0x590c5c": [
@@ -23132,7 +23132,7 @@
     "g_carCameraOffsets"
   ],
   "0x590db0": [
-    8198108,
+    8198100,
     "g_viewCarLift"
   ],
   "0x590ec0": [
@@ -23192,8 +23192,8 @@
     "g_collisionSphereRadius"
   ],
   "0x591494": [
-    8197992,
-    "g_unk0x00591494"
+    8200592,
+    "g_collisionRecordHeight"
   ],
   "0x591498": [
     7941024,
@@ -23292,7 +23292,7 @@
     "g_tracksideAimSpeeds"
   ],
   "0x591868": [
-    8200136,
+    8200128,
     "g_tracksideAimLeads"
   ],
   "0x591898": [
@@ -23360,7 +23360,7 @@
     "g_collisionPositiveVertexCount"
   ],
   "0x591938": [
-    8200584,
+    8200576,
     "g_unk0x00591938"
   ],
   "0x591944": [
@@ -23372,11 +23372,11 @@
     "g_collisionPositiveCandidateCount"
   ],
   "0x591948": [
-    8200068,
+    8200060,
     "g_unk0x00591948"
   ],
   "0x591950": [
-    8200568,
+    8200560,
     "g_unk0x00591950"
   ],
   "0x59195c": [
@@ -23384,15 +23384,15 @@
     "g_unk0x0059195c"
   ],
   "0x591960": [
-    8200064,
+    8200056,
     "g_unk0x00591960"
   ],
   "0x591968": [
-    8199688,
+    8199680,
     "g_unk0x00591968"
   ],
   "0x591978": [
-    8200048,
+    8200040,
     "g_unk0x00591978"
   ],
   "0x591984": [
@@ -23408,7 +23408,7 @@
     "g_collisionPositiveCandidates"
   ],
   "0x591990": [
-    8200032,
+    8200024,
     "g_unk0x00591990"
   ],
   "0x59199c": [
@@ -23616,7 +23616,7 @@
     "g_stageRangeOrigin"
   ],
   "0x592114": [
-    8199704,
+    8199696,
     "g_lightMeshReferencePoint"
   ],
   "0x592120": [
@@ -23628,7 +23628,7 @@
     "g_stageHeightScale"
   ],
   "0x592128": [
-    8198000,
+    8197996,
     "g_unk0x00592128"
   ],
   "0x59212c": [
@@ -23640,7 +23640,7 @@
     "g_unk0x00592130"
   ],
   "0x592134": [
-    8197996,
+    8197992,
     "g_unk0x00592134"
   ],
   "0x592138": [

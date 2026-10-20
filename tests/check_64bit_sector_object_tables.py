@@ -37,7 +37,7 @@ SectorObjectEntry *g_movingSectorEntries,*g_staticSectorEntries,**g_sectorListEn
 SectorObjectBounds *g_sectorObjectBounds;ObjectPointBounds *g_objectPointBounds;
 short *g_sectorListIndexA,*g_sectorListIndexB;unsigned short *g_sectorListCountA,*g_sectorListCountB;
 unsigned int g_unk0x0058ca6c;int g_unk0x0058c95c,g_unk0x0058c950,g_unk0x0058ca68,g_sectorCount=3,g_fixMatrixMultiplyCount;
-int g_collisionSphereRadius,g_unk0x00591494;FixVector g_collisionSphereCentre;
+int g_collisionSphereRadius,g_collisionRecordHeight;FixVector g_collisionSphereCentre;
 unsigned short g_sqrtTable[4096];int g_sinTable[4096];int g_physicsTimeStep=65536;
 double g_minus65536=-65536.0;
 int mode,failed,created;BYTE image[65536];
@@ -66,7 +66,7 @@ int StageObject_RunNodeActionAndSoundCallback(void *,int v){return v+1;}
 unsigned int StageObject_GetLoadedVariantDataAndState(SectorObjectEntry **);
 void StageObject_InitMovingObject(MovingObject *,int);
 void StageObject_LoadAndClassifyMeshes();void StageObject_ResetMovingObjectCountsAndPhases();
-void Collision_BuildObjectPointBounds(int *,FixVector *,SectorObjectBounds *);
+void Collision_BuildObjectPointBounds(FixVector *,FixVector *,SectorObjectBounds *);
 void RallyData_CopyRaisedElementVector(int *,SectorObjectEntry **);
 int RallyData_IsElementFlagSet(SectorObjectEntry **,int);
 void RallyData_SetElementFlagBit(SectorObjectEntry **,int,int);
@@ -169,12 +169,12 @@ int main(int argc,char **argv){
   StageObject_ApplyInterpolatedNodeMatrices(0);
  }
  canonical(count);
- // Both cached and uncached sprite-box paths retain complete pointer values and immutable backing data.
+ // Both cached and uncached object-box paths retain complete pointer values and immutable backing data.
  for(int i=0;i<n;i++){
-  auto *e=&g_movingSectorEntries[i];if(e->pBounds->pProjection){CollisionBox box={};StageObject_BuildSpriteExtentOrientation(&box,e,(int *)&position);
+  auto *e=&g_movingSectorEntries[i];if(e->pBounds->pProjection){CollisionBox box={};Collision_BuildObjectBox(&box,e,&position);
    assert(box.pVertex==&position && (uintptr_t)box.pVertex>UINT32_MAX && box.pArray==nullptr);auto before=box;
-   StageObject_BuildSpriteExtentOrientation(&box,e,(int *)&position);assert(!memcmp(&box,&before,sizeof(box)));
-  }else {StageObject_SetCollisionSphereAndMaterial(&position,e);assert(g_collisionSphereRadius==e->pBounds->radius && g_unk0x00591494==e->pObject->pMesh->pCollisionRecords->height);}
+   Collision_BuildObjectBox(&box,e,&position);assert(!memcmp(&box,&before,sizeof(box)));
+  }else {Collision_SetObjectSphere(&position,e);assert(g_collisionSphereRadius==e->pBounds->radius && g_collisionRecordHeight==e->pObject->pMesh->pCollisionRecords->height);}
  }
  assert(!memcmp(meshes,oldMeshes.data(),sizeof(meshes)) && !memcmp(records,oldRecords,sizeof(records)));
  // A distant address used only as an identity must not alias slot zero after division.
@@ -217,7 +217,7 @@ def main():
  source=ROOT/'CMR2Decomp'
  names={'FixedPoint.cpp':['FixMatrix_Multiply','FixMatrix_RotateVector','FixMatrix_InverseRotateVector','FixMatrix_GetRight','FixMatrix_GetUp','FixMatrix_GetForward','FixMatrix_SetRight','FixMatrix_SetUp','FixMatrix_SetForward','FixMatrix_SetPosition'],
  'RallyData.cpp':['Sector_GetListA','Sector_GetListB','RallyData_ApplyPlayerFlagsToObjects','RallyData_CopyRaisedElementVector','RallyData_IsElementFlagSet','RallyData_SetElementFlagBit','RallyData_MarkElementReachedByCar','RallyData_RebuildSectorStaticObjectTables'],
- 'StageObjects.cpp':['StageObject_GetLoadedVariantDataAndState','StageObject_ResetMovingObjectCountsAndPhases','StageObject_LoadAndClassifyMeshes','StageObject_InitMovingObject','StageObject_QueueOrEvictMovingObject','StageObject_ApplyInterpolatedNodeMatrices','Collision_BuildObjectPointBounds','StageObject_SetCollisionSphereAndMaterial','StageObject_BuildSpriteExtentOrientation','Collision_TestCarAgainstSectorObjects','CarPhysics_UpdateWheelSlipAndVelocityDamping']}
+ 'StageObjects.cpp':['StageObject_GetLoadedVariantDataAndState','StageObject_ResetMovingObjectCountsAndPhases','StageObject_LoadAndClassifyMeshes','StageObject_InitMovingObject','StageObject_QueueOrEvictMovingObject','StageObject_ApplyInterpolatedNodeMatrices','Collision_BuildObjectPointBounds','Collision_SetObjectSphere','Collision_BuildObjectBox','Collision_TestCarAgainstSectorObjects','CarPhysics_UpdateWheelSlipAndVelocityDamping']}
  funcs='\n'.join(body((source/file).read_text(),name) for file,items in names.items() for name in items)
  env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1')
  with tempfile.TemporaryDirectory(prefix='cmr2-native-sector-objects-') as directory:
