@@ -44,3 +44,4 @@ address	old_name	new_name	evidence
 0x0058e4a4	g_unk0x0058e4a4	g_aiRouteNodes	Set to the 370 16-byte node records after the AI networks' activation buffer (StageTiming_RelocateCarRecordRoutePoints gets the data after them); read per route node for its key and wall clearances.
 0x005210a0	g_frameScale	g_frameRate	Graphics_UpdateFrameStatistics stores 1000 / the frame time in ms; printed with the fps format by the debug overlays and turned into the stage effects' time step by Physics_UpdateRateHold.
 0x005210b0	g_frameScale2	g_frameRate2	Stored with the same 1000 / frame time as g_frameRate in Graphics_UpdateFrameStatistics; no reader found.
+0x00590ed0	g_unk0x00590ed0	g_carCollisionBoxes	Eight CollisionBox records indexed by car order or Car::index; cleared at each collision frame, built from car body axes/position/corners and returned by Collision_GetCarBox.

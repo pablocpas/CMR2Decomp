@@ -448,7 +448,7 @@ void Vehicle_UpdateMotion(FixVector *pInput)
     g_partState->flags &= (BYTE)~2;
 }
 
-void StageObject_QueueViewLensFlare(int *pObj, int *param2, int *param3, FixVector *pVerts);
+void Collision_BuildCarBox(CollisionBox *pBox, int *pBodyAxes, FixVector *pPosition, FixVector *pCorners);
 
 // Selects a candidate face, transforms and classifies its vertices, then uses
 // candidate and side counts to decide whether it participates in car collision.
@@ -464,8 +464,8 @@ int VehiclePhysics_ClassifyCandidateFace(int param_1)
     else
         found = VehiclePhysics_TestBehindFaceCollision();
     if (found != 0) {
-        StageObject_QueueViewLensFlare((int *)g_collisionFace, &g_collisionCar->right.x,
-                     &g_collisionCar->position.x,
+        Collision_BuildCarBox(g_collisionFace, &g_collisionCar->right.x,
+                     &g_collisionCar->position,
                      &g_collisionCar->corners[0]);
         Collision_ClassifyFaceVertices();
         result = 0;
@@ -547,8 +547,8 @@ int Collision_ResolveSectorEdgeContact(char type, int param)
     if ((g_pCollisionFinRecord->flags & 1) == 0)
         result = Collision_TestSectorEdgeEndpoints(type);
 
-    StageObject_QueueViewLensFlare((int *)g_collisionFace, &g_collisionCar->right.x,
-                 &g_collisionCar->position.x,
+    Collision_BuildCarBox(g_collisionFace, &g_collisionCar->right.x,
+                 &g_collisionCar->position,
                  &g_collisionCar->corners[0]);
     Collision_ClassifyFaceVertices();
 

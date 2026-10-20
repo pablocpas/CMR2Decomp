@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Actual box movement and sphere/box bodies, full guarded heap and global ABI.
+"""Actual box construction/movement and sphere/box bodies with guarded memory.
 
 No geometry or arithmetic helpers are intercepted. The split movement has an
 independent integer model, including aliased geometry and nullable pointers.
 Sphere fixtures cover both axes, four corners, zero direction and outside cases.
+Construction covers the vertical-axis fallback, cached boxes with unreadable
+inputs, preserved secondary points and an independent footprint model.
 """
 import itertools
 import json
@@ -26,6 +28,69 @@ GLOBALS=((0x5914a8,12),(0x5914b8,12),(0x5915e8,12))
 
 
 class Boxes(Records):
+    def build_car(self,axes,built,seed):
+        h=self.begin(seed)
+        position=(seed*131-65536,seed*97+32768,-seed*73)
+        put(h,CENTRE_A,'<3i',*position)
+        put(h,DIRECTION,'<9i',*axes)
+        corners=[]
+        for i in range(8):
+            corner=(position[0]+(65536 if i&1 else -98304),
+                    position[1]+(131072 if i&4 else -32768),
+                    position[2]+(49152 if i&2 else -65536))
+            corners.append(corner)
+            put(h,VERTICES_A+12*i,'<3i',*corner)
+        put(h,BOX_A+0x28,'<i',built)
+        self.put(self.addr(0x6e0ef4),'<4096H',
+                 *(math.isqrt((8+16*i)*65536) for i in range(4096)))
+        # A cached box must return before reading any of the input geometry.
+        args=[BOX_A,DIRECTION,CENTRE_A,VERTICES_A] if not built else [BOX_A,0xdead0000,0xdead1000,0xdead2000]
+        memory=self.invoke_guarded(0x486c30,args)
+        if built:
+            assert memory==bytes(h),'cached box touched memory'
+            return memory
+        before=BOX_A-HEAP
+        expected=bytearray(h)
+        # Only the published box fields and its first four points may change.
+        # In particular the secondary flag and previous-frame points survive.
+        for start,end in ((0,0x2c),(0x30,0x60),(0x90,0x98)):
+            expected[before+start:before+end]=memory[before+start:before+end]
+        assert memory==bytes(expected),'box construction guards/input geometry'
+        width,length,top,bottom=struct.unpack_from('<4i',memory,before)
+        axis_a=struct.unpack_from('<3i',memory,before+0x10)
+        axis_b=struct.unpack_from('<3i',memory,before+0x1c)
+        assert axis_a[1]==axis_b[1]==0 and axis_b==(axis_a[2],0,signed(-axis_a[0]))
+        def projection(corner,axis):
+            return signed(sum(mul(signed(a-b),v) for a,b,v in zip(corner,position,axis)))
+        assert width==max(0,*(projection(c,axis_a) for c in corners))
+        assert length==max(0,*(projection(c,axis_b) for c in corners))
+        assert (top,bottom)==(max(c[1] for c in corners),min(c[1] for c in corners))
+        assert struct.unpack_from('<i',memory,before+0x28)==(1,)
+        assert struct.unpack_from('<2I',memory,before+0x90)==(VERTICES_A,CENTRE_A)
+        return memory
+
+    def footprint(self,axes,extents,seed):
+        h=self.begin(seed)
+        position=(seed*17-32768,seed*31+65536,-seed*43)
+        put(h,CENTRE_A,'<3i',*position)
+        put(h,BOX_A,'<4i',*extents,seed*101-65536,0x12345678)
+        put(h,BOX_A+0x10,'<6i',*axes)
+        expected=bytearray(h)
+        a=tuple(mul(v,extents[0]) for v in axes[:3])
+        b=tuple(mul(v,extents[1]) for v in axes[3:])
+        for i,(sign_a,sign_b) in enumerate(((1,-1),(1,1),(-1,-1),(-1,1))):
+            point=[signed(sign_a*x+sign_b*y+p) for x,y,p in zip(a,b,position)]
+            point[1]=seed*101-65536
+            put(expected,BOX_A+0x30+12*i,'<3i',*point)
+        memory=self.invoke_guarded(0x486fc0,[BOX_A,CENTRE_A])
+        assert memory==bytes(expected),'independent footprint model and guards'
+        return memory
+
+    def getter(self,index,seed):
+        h=self.begin(seed)
+        assert self.invoke_guarded(0x48ca40,[index])==bytes(h)
+        assert self.u.reg_read(UC_X86_REG_EAX)==self.addr(0x590ed0)+index*0x98
+
     def provider(self,address,nargs):
         assert address==0x48df50 and tuple(self.args(nargs))==(HEAP+0x8000,)
         self.trace.append(('light',HEAP+0x8000))
@@ -158,6 +223,26 @@ def main():
     original=Boxes(ROOT/'cmr2bin/CMR2.exe')
     rebuilt=Boxes(Path(sys.argv[2]) if len(sys.argv)>2 else ROOT/'build/CMR2.exe',entities)
     count=0
+    build_axes=((65536,0,0,0,65536,0,0,0,65536),
+                (0,0,65536,0,65536,0,-65536,0,0),
+                (32768,32768,49152,0,65536,0,0,0,65536),
+                (0,65536,0,65536,0,0,0,0,65536),
+                (0,-65536,0,0,0,-65536,65536,0,0),
+                (0,0,0,0,0,0,0,0,0))
+    threshold_axes=tuple((32768,y,0,0,0,65536,0,65536,0)
+                         for y in (0xfd70,0xfd71,-0xfd70,-0xfd71))
+    construction_count=0
+    for args in itertools.product(build_axes+threshold_axes,(0,1,-1),(0,19)):
+        assert original.build_car(*args)==rebuilt.build_car(*args),('build car box',args)
+        construction_count+=1
+    footprint_count=0
+    footprint_axes=((65536,0,0,0,0,65536),(0,0,65536,-65536,0,0),
+                    (32768,16384,-49152,-49152,8192,-32768),(0,0,0,0,0,0))
+    for args in itertools.product(footprint_axes,((0,0),(65536,32768),(-32768,98304),(0x7fffffff,-1)),(0,19)):
+        assert original.footprint(*args)==rebuilt.footprint(*args),('footprint',args)
+        footprint_count+=1
+    for index in range(8):
+        original.getter(index,index);rebuilt.getter(index,index)
     directions=((0,0,0),(65536,0,0),(0,-65536,0),(0,0,65536),(-32768,8192,49152))
     for args in itertools.product(directions,(-1,0,1,65536,196609),(-32768,0,32768,65536,98304),(0,1,2,3,4,8,15),(0,1),(0,17)):
         assert original.movement(*args)==rebuilt.movement(*args),('split',args);count+=1
@@ -174,7 +259,7 @@ def main():
     turned_count=0
     for args in itertools.product((0,1),((0,1),(1,0),(1,1),(2,3)),(0,1,2,3),(0,1),(7,19)):
         assert left.turned(*args)==right.turned(*args),('turned',args);turned_count+=1
-    print(f'PASS: {light_count} lighting bounds, {turned_count} turned object contacts, {split_count} independent split cases, {count-split_count} complete sphere cases; whole guarded heap/globals/ABI, real geometry and fixed-point helpers')
+    print(f'PASS: {construction_count} car box constructions/cache guards, {footprint_count} independent footprints, 8 box getters, {light_count} lighting bounds, {turned_count} turned object contacts, {split_count} independent split cases, {count-split_count} complete sphere cases; whole guarded heap/globals/ABI, real geometry and fixed-point helpers')
 
 
 if __name__=='__main__':main()

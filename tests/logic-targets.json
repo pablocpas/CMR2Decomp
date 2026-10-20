@@ -292,6 +292,9 @@
   "differential_collision_boxes.py": {
     "arguments": "entities",
     "targets": [
+      "0x486c30",
+      "0x486fc0",
+      "0x48ca40",
       "0x4894b0",
       "0x489b20",
       "0x487f60",

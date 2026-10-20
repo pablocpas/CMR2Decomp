@@ -489,7 +489,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 void CarDamage_ApplyCollisionDeformImpulse(Car *pCar, int *param_2, FixVector *param_3, int param_4, unsigned char param_5, int param_6);
 
 // Collision box of a car while a contact is resolved (0x98 bytes): the two body
-// axes from 0x10, the eight contact points built by StageObject_QueueViewLensFlare and the two
+// axes from 0x10, the eight contact points built by Collision_BuildCarBox and the two
 // pointers at 0x90/0x94 to the point array and to the box vertex.
 
 extern int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pBoxB, FixVector *pOffset, int scale);
@@ -503,7 +503,7 @@ int g_unk0x005913f4;
 extern int g_unk0x00591390;
 extern BYTE g_carContactCounts[8];
 extern BYTE g_unk0x005913f8[8][8];
-extern CollisionBox g_unk0x00590ed0[8];
+extern CollisionBox g_carCollisionBoxes[8];
 extern BYTE g_unk0x00590ec8[4];
 extern BYTE g_unk0x005914a4[4];
 extern int g_physicsTimeStep;
@@ -513,7 +513,7 @@ unsigned char RallyData_GetFlag24(void);
 unsigned int RallyData_GetSelectionFlag27(void);
 int Collision_DoSpheresOverlap(int r1, int r2, int *pA, int *pB);
 void StageObject_TestHeadlightGlowsAgainstCarBox(Car *pCar, CollisionBox *pBox);
-void StageObject_QueueViewLensFlare(int *pObj, int *param2, int *param3, FixVector *pVerts);
+void Collision_BuildCarBox(CollisionBox *pBox, int *pBodyAxes, FixVector *pPosition, FixVector *pCorners);
 int Collision_SeparateCarBoxes(Car *param_1, Car *param_2);
 void Collision_ResolveCarContactImpulse(Car *param_1, Car *param_2);
 
@@ -570,12 +570,12 @@ void Collision_TestOrderedCarPairs(Car *pCars, short *pOrder, short count)
                 if (pCarA->field_0xc04[1] == 0 && pCarB->field_0xc04[1] == 0 &&
                     pCarA->isGhost == 0 && pCarB->isGhost == 0 &&
                     (pCarA->field_0xc18 == 0 || pCarB->field_0xc18 == 0)) {
-                    g_pContacts0x005915e0 = &g_unk0x00590ed0[pOrder[i]];
-                    g_pContacts0x00591394 = &g_unk0x00590ed0[pOrder[j]];
-                    StageObject_QueueViewLensFlare((int *)g_pContacts0x005915e0, (int *)&pCarA->right,
-                                                   (int *)&pCarA->position, pCarA->corners);
-                    StageObject_QueueViewLensFlare((int *)g_pContacts0x00591394, (int *)&pCarB->right,
-                                                   (int *)&pCarB->position, pCarB->corners);
+                    g_pContacts0x005915e0 = &g_carCollisionBoxes[pOrder[i]];
+                    g_pContacts0x00591394 = &g_carCollisionBoxes[pOrder[j]];
+                    Collision_BuildCarBox(g_pContacts0x005915e0, (int *)&pCarA->right,
+                                                   &pCarA->position, pCarA->corners);
+                    Collision_BuildCarBox(g_pContacts0x00591394, (int *)&pCarB->right,
+                                                   &pCarB->position, pCarB->corners);
                     result = Collision_SeparateCarBoxes(pCarA, pCarB);
                     g_unk0x00591390 = 0;
                     if (result != 0) {
@@ -613,9 +613,9 @@ void Collision_TestOrderedCarPairs(Car *pCars, short *pOrder, short count)
         CGameInfo::IsActiveCheatEnabled(0) != 0) {
         for (i = n; i >= 0; i--) {
             pCarA = &pCars[pOrder[i]];
-            g_pContacts0x005915e0 = &g_unk0x00590ed0[pOrder[i]];
-            StageObject_QueueViewLensFlare((int *)g_pContacts0x005915e0, (int *)&pCarA->right,
-                                           (int *)&pCarA->position, pCarA->corners);
+            g_pContacts0x005915e0 = &g_carCollisionBoxes[pOrder[i]];
+            Collision_BuildCarBox(g_pContacts0x005915e0, (int *)&pCarA->right,
+                                           &pCarA->position, pCarA->corners);
             StageObject_TestHeadlightGlowsAgainstCarBox(pCarA, g_pContacts0x005915e0);
         }
     }

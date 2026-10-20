@@ -24384,13 +24384,13 @@
     "symbol_name": "StageObject_MoveRecursiveBoxCorners"
   },
   "0x48ca40": {
-    "n": "StageObject_GetCarCameraSelectionValue",
+    "n": "Collision_GetCarBox",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_GetCarCameraSelectionValue"
+    "symbol_name": "Collision_GetCarBox"
   },
   "0x48ca60": {
     "n": "StageObject_ForwardSessionUpdate",
@@ -25725,13 +25725,13 @@
     "symbol_name": "StageObject_BuildCarNodeOrientation"
   },
   "0x486fc0": {
-    "n": "CarPart_BuildScaledWheelOrientation",
+    "n": "Collision_BuildBoxFootprint",
     "s": 0.7527675276752768,
     "x": false,
     "fz": 0.8487084870848709,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "CarPart_BuildScaledWheelOrientation"
+    "symbol_name": "Collision_BuildBoxFootprint"
   },
   "0x487c40": {
     "n": "StageObject_BuildSpriteExtentOrientation",
@@ -25977,13 +25977,13 @@
     "symbol_name": "StageObject_CycleDriverCameraSelection"
   },
   "0x486c30": {
-    "n": "StageObject_QueueViewLensFlare",
+    "n": "Collision_BuildCarBox",
     "s": 0.7289156626506024,
     "x": false,
     "fz": 0.9036144578313253,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_QueueViewLensFlare"
+    "symbol_name": "Collision_BuildCarBox"
   },
   "0x474fe0": {
     "n": "Knockout_DrawAnimatedMatchHeader",

@@ -73,14 +73,14 @@ void RallyData_SetElementFlagBit(SectorObjectEntry **,int,int);
 void RallyData_MarkElementReachedByCar(SectorObjectEntry *,int);
 
 
-CollisionBox g_unk0x00590ed0[8],g_sectorObjectCollisionBox;
+CollisionBox g_carCollisionBoxes[8],g_sectorObjectCollisionBox;
 int g_wallScrapeCount,contactResult,overlapResult,contacts,views,shadows;Car *g_collisionCar;
 int Collision_DoSpheresOverlap(int a,int b,int *left,int *right){
  assert(a==65536 && b>=0 && left==(int *)&cars[0].position && (uintptr_t)left>UINT32_MAX);
  assert(right && (uintptr_t)right>UINT32_MAX);return overlapResult;
 }
-void StageObject_QueueViewLensFlare(int *box,int *axes,int *position,FixVector *corners){
- assert(box==(int *)&g_unk0x00590ed0[0] && axes==cars[0].bodyAxes && position==(int *)&cars[0].position && corners==cars[0].corners);views++;
+void Collision_BuildCarBox(CollisionBox *box,int *axes,FixVector *position,FixVector *corners){
+ assert(box==&g_carCollisionBoxes[0] && axes==cars[0].bodyAxes && position==&cars[0].position && corners==cars[0].corners);views++;
 }
 int contact(Car *c){assert(c==&cars[0]);int i=c->pendingContactCount;if(i<5)c->contactSurfaces[1][c->pendingContactCount++]=(short)(100+contacts);contacts++;return contactResult;}
 int Collision_ResolveCarTurnedObjectContact(Car *c,StageObject **,CollisionBox *,CollisionBox *){return contact(c);}

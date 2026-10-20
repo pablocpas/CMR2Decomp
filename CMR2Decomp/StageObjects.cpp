@@ -382,8 +382,8 @@ void CarCamera_BeginLeave(CameraRecord *pRecord, CameraRecord *pOther);
 void CarCamera_BeginEnter(CameraRecord *pRecord, CameraRecord *pOther);
 void CarCamera_SetFullCarLift(CameraRecord *pRecord, CameraRecord *pOther);
 void CarCamera_EndEnter(CameraRecord *pRecord, CameraRecord *pOther);
-void StageObject_QueueViewLensFlare(int *pObj, int *param2, int *param3, FixVector *pVerts);
-void CarPart_BuildScaledWheelOrientation(int *pMatrix, int *pOffset);
+void Collision_BuildCarBox(CollisionBox *pBox, int *pBodyAxes, FixVector *pPosition, FixVector *pCorners);
+void Collision_BuildBoxFootprint(CollisionBox *pBox, FixVector *pPosition);
 int StageObject_GetCollisionRecordState(void);
 void Collision_BuildOrientedBoxWorldCorners(FixVector *pCorners, FixVector *pCenter, FixMatrix *pRot, FixVector *pHalf);
 void Collision_BuildObjectPointBounds(int *param_1, FixVector *param_2, SectorObjectBounds *param_3);
@@ -398,7 +398,7 @@ int Collision_TestOrientedBoxCornerOverlap(CollisionBox *pBoxA, CollisionBox *pB
 int Collision_FindQuadEdgeOverlap(FixVector *pVertsA, FixVector *pVertsB, FixVector *pDir, int *pDistance);
 void StageObject_ApplyRecursiveFrameDelta(BYTE index, char other, int *pDelta, int flag);
 void StageObject_MoveRecursiveBoxCorners(BYTE index);
-BYTE *StageObject_GetCarCameraSelectionValue(int index);
+CollisionBox *Collision_GetCarBox(int index);
 void StageObject_StartAndRegisterFrameCallback(void);
 int StageObject_GetSelectedRecordListState(void);
 int StageObject_SelectNonemptyRecordList(int *pList);
@@ -2671,7 +2671,7 @@ int g_unk0x00590d70;
 // GLOBAL: CMR2 0x00590db0
 int g_viewCarLift[64];
 // GLOBAL: CMR2 0x00590ed0
-CollisionBox g_unk0x00590ed0[8];
+CollisionBox g_carCollisionBoxes[8];
 // GLOBAL: CMR2 0x00591390
 int g_unk0x00591390;
 // GLOBAL: CMR2 0x005913d8
@@ -3223,8 +3223,8 @@ void StageObject_MoveRecursiveBoxCorners(BYTE index)
         p += 3;
     } while (--j);
     if (g_unk0x005913d8 != 0) {
-        if (g_unk0x00590ed0[index].built != 0) {
-            p = &g_unk0x00590ed0[index].pointWords[1];
+        if (g_carCollisionBoxes[index].built != 0) {
+            p = &g_carCollisionBoxes[index].pointWords[1];
             j = 4;
             do {
                 p[-1] += g_unk0x005914c8.x;
@@ -3243,10 +3243,11 @@ void StageObject_MoveRecursiveBoxCorners(BYTE index)
     }
 }
 
+// Returns the car-indexed box shared by car-pair and sector collision tests.
 // FUNCTION: CMR2 0x0048ca40
-BYTE *StageObject_GetCarCameraSelectionValue(int index)
+CollisionBox *Collision_GetCarBox(int index)
 {
-    return (BYTE *)&g_unk0x00590ed0[index];
+    return &g_carCollisionBoxes[index];
 }
 
 // A plain forward to AI_LoadStageRouteTables (compiled as a tail jump).
@@ -8722,35 +8723,35 @@ void StageObject_BuildCarNodeOrientation(CameraRecord *object, int *src)
     StageObject_BuildCarMountWorldMatrix(object, src);
 }
 
-// Builds a wheel/damper orientation matrix from two scale factors.
-// match 76%: FixVector temp slot order differs from the original (same logic)
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Builds the four top-plane footprint points from the box's two horizontal
+// axes and half extents, then translates them by the car's world position.
+// Remaining mismatch: temporary stack slots and instruction scheduling.
 // FUNCTION: CMR2 0x00486fc0
-void CarPart_BuildScaledWheelOrientation(int *pMatrix, int *pOffset)
+void Collision_BuildBoxFootprint(CollisionBox *pBox, FixVector *pPosition)
 {
-    FixVector u, t;
-    int i;
+    FixVector lengthAxis, widthAxis;
+    int corner;
 
-    FixVecScale(&t, (FixVector *)&pMatrix[4], pMatrix[0]);
-    FixVecScale(&u, (FixVector *)&pMatrix[7], pMatrix[1]);
-    pMatrix[0xc] = t.x - u.x;
-    pMatrix[0xd] = t.y - u.y;
-    pMatrix[0xe] = t.z - u.z;
-    pMatrix[0xf] = u.x + t.x;
-    pMatrix[0x10] = u.y + t.y;
-    pMatrix[0x11] = u.z + t.z;
-    FixVecScale(&t, &t, -0x10000);
-    pMatrix[0x12] = t.x - u.x;
-    pMatrix[0x13] = t.y - u.y;
-    pMatrix[0x14] = t.z - u.z;
-    pMatrix[0x15] = u.x + t.x;
-    pMatrix[0x16] = u.y + t.y;
-    pMatrix[0x17] = u.z + t.z;
-    for (i = 0; i < 4; i++) {
-        pMatrix[0xc + i * 3] += pOffset[0];
-        pMatrix[0xd + i * 3] += pOffset[1];
-        pMatrix[0xe + i * 3] += pOffset[2];
-        pMatrix[0xd + i * 3] = pMatrix[2];
+    FixVecScale(&widthAxis, &pBox->axisA, pBox->halfWidth);
+    FixVecScale(&lengthAxis, &pBox->axisB, pBox->halfLength);
+    pBox->points[0].x = widthAxis.x - lengthAxis.x;
+    pBox->points[0].y = widthAxis.y - lengthAxis.y;
+    pBox->points[0].z = widthAxis.z - lengthAxis.z;
+    pBox->points[1].x = lengthAxis.x + widthAxis.x;
+    pBox->points[1].y = lengthAxis.y + widthAxis.y;
+    pBox->points[1].z = lengthAxis.z + widthAxis.z;
+    FixVecScale(&widthAxis, &widthAxis, -0x10000);
+    pBox->points[2].x = widthAxis.x - lengthAxis.x;
+    pBox->points[2].y = widthAxis.y - lengthAxis.y;
+    pBox->points[2].z = widthAxis.z - lengthAxis.z;
+    pBox->points[3].x = lengthAxis.x + widthAxis.x;
+    pBox->points[3].y = lengthAxis.y + widthAxis.y;
+    pBox->points[3].z = lengthAxis.z + widthAxis.z;
+    for (corner = 0; corner < 4; corner++) {
+        pBox->points[corner].x += pPosition->x;
+        pBox->points[corner].y += pPosition->y;
+        pBox->points[corner].z += pPosition->z;
+        pBox->points[corner].y = pBox->top;
     }
 }
 
@@ -9975,92 +9976,87 @@ extern Texture *g_unk0x00547ad0;
 // 0x547abc is g_stageLighting.intensity (the lighting block runs to 0x547ac8).
 #define g_weatherLightIntensity (g_stageLighting.intensity)
 
-// Positions a lens flare of the given view node on screen: its brightness
-// follows the sun visibility and the camera's pitch, its colour is scaled by
-// the same factor and the sprite is queued on layer 2.
-// match 61%: same structure, calls and constants; MSVC places the brightness
-// temporaries in the unused parameter homes instead of the original's slots.
-// Rebuilds the box axes of a stage object from the car/ground vectors and
-// accumulates the extent of the eight corner points of the object.
-// match 82%: MSVC6 keeps the constant zero in ESI in the original and in EDX here (register
-// allocation only; logic, constants and block layout match)
+// Builds a car's horizontal collision box once per frame. All callers pass
+// the body axes (right followed by up), world position and eight world corners.
+// When right is nearly vertical, use up as the first horizontal box axis.
+// Remaining mismatch: register allocation, temporary slots and scheduling.
 // FUNCTION: CMR2 0x00486c30
-void StageObject_QueueViewLensFlare(int *pObj, int *param2, int *param3, FixVector *pVerts)
+void Collision_BuildCarBox(CollisionBox *pBox, int *pBodyAxes, FixVector *pPosition, FixVector *pCorners)
 {
-    FixVector *p;
-    FixVector d;
-    int len;
-    int dot1;
-    int dot2;
-    int m;
-    int i;
+    FixVector *pCorner;
+    FixVector offset;
+    int axisLength;
+    int alongA;
+    int alongB;
+    int absRightY;
+    int remainingCorners;
 
-    if (pObj[10] != 0)
+    if (pBox->built != 0)
         return;
 
-    pObj[3] = 0;
-    pObj[2] = 0;
-    pObj[1] = 0;
-    pObj[0] = 0;
-    m = param2[1];
-    if (m < 0)
-        m = -m;
-    if (m > 0xfd70) {
-        ((FixVector *)(pObj + 4))->x = param2[3];
-        ((FixVector *)(pObj + 4))->y = param2[4];
-        ((FixVector *)(pObj + 4))->z = param2[5];
-        pObj[5] = 0;
-        len = FixVecLength((FixVector *)(pObj + 4));
-        if (len == 0) {
-            pObj[4] = 0;
-            pObj[5] = 0;
-            pObj[6] = 0;
+    pBox->bottom = 0;
+    pBox->top = 0;
+    pBox->halfLength = 0;
+    pBox->halfWidth = 0;
+    absRightY = pBodyAxes[1];
+    if (absRightY < 0)
+        absRightY = -absRightY;
+    if (absRightY > 0xfd70) {
+        pBox->axisA.x = pBodyAxes[3];
+        pBox->axisA.y = pBodyAxes[4];
+        pBox->axisA.z = pBodyAxes[5];
+        pBox->axisA.y = 0;
+        axisLength = FixVecLength(&pBox->axisA);
+        if (axisLength == 0) {
+            pBox->axisA.x = 0;
+            pBox->axisA.y = 0;
+            pBox->axisA.z = 0;
         } else {
-            FixVecScaleRecip((FixVector *)(pObj + 4), (FixVector *)(pObj + 4), len);
+            FixVecScaleRecip(&pBox->axisA, &pBox->axisA, axisLength);
         }
     } else {
-        ((FixVector *)(pObj + 4))->x = param2[0];
-        ((FixVector *)(pObj + 4))->y = param2[1];
-        ((FixVector *)(pObj + 4))->z = param2[2];
-        pObj[5] = 0;
-        len = FixVecLength((FixVector *)(pObj + 4));
-        if (len == 0) {
-            pObj[4] = 0;
-            pObj[5] = 0;
-            pObj[6] = 0;
+        pBox->axisA.x = pBodyAxes[0];
+        pBox->axisA.y = pBodyAxes[1];
+        pBox->axisA.z = pBodyAxes[2];
+        pBox->axisA.y = 0;
+        axisLength = FixVecLength(&pBox->axisA);
+        if (axisLength == 0) {
+            pBox->axisA.x = 0;
+            pBox->axisA.y = 0;
+            pBox->axisA.z = 0;
         } else {
-            FixVecScaleRecip((FixVector *)(pObj + 4), (FixVector *)(pObj + 4), len);
+            FixVecScaleRecip(&pBox->axisA, &pBox->axisA, axisLength);
         }
     }
-    pObj[8] = 0;
-    pObj[7] = pObj[6];
-    pObj[9] = -pObj[4];
+    pBox->axisB.y = 0;
+    pBox->axisB.x = pBox->axisA.z;
+    pBox->axisB.z = -pBox->axisA.x;
 
-    p = pVerts;
-    i = 8;
+    pCorner = pCorners;
+    remainingCorners = 8;
     do {
-        d.x = p->x - param3[0];
-        d.y = p->y - param3[1];
-        d.z = p->z - param3[2];
-        dot1 = FixVecDot(&d, (FixVector *)(pObj + 4));
-        dot2 = FixVecDot(&d, (FixVector *)(pObj + 7));
-        if (dot1 > 0 && dot1 > pObj[0])
-            pObj[0] = dot1;
-        if (dot2 > 0 && dot2 > pObj[1])
-            pObj[1] = dot2;
-        if (d.y > pObj[2])
-            pObj[2] = d.y;
-        if (d.y < pObj[3])
-            pObj[3] = d.y;
-        p++;
-    } while (--i);
+        offset.x = pCorner->x - pPosition->x;
+        offset.y = pCorner->y - pPosition->y;
+        offset.z = pCorner->z - pPosition->z;
+        alongA = FixVecDot(&offset, &pBox->axisA);
+        alongB = FixVecDot(&offset, &pBox->axisB);
+        if (alongA > 0 && alongA > pBox->halfWidth)
+            pBox->halfWidth = alongA;
+        if (alongB > 0 && alongB > pBox->halfLength)
+            pBox->halfLength = alongB;
+        if (offset.y > pBox->top)
+            pBox->top = offset.y;
+        if (offset.y < pBox->bottom)
+            pBox->bottom = offset.y;
+        pCorner++;
+    } while (--remainingCorners);
 
-    pObj[2] += param3[1];
-    pObj[3] += param3[1];
-    ((CollisionBox *)pObj)->pArray = pVerts;
-    ((CollisionBox *)pObj)->pVertex = (FixVector *)param3;
-    pObj[10] = 1;
-    CarPart_BuildScaledWheelOrientation(pObj, param3);
+    pBox->top += pPosition->y;
+    pBox->bottom += pPosition->y;
+    pBox->pArray = pCorners;
+    pBox->pVertex = pPosition;
+    pBox->built = 1;
+    Collision_BuildBoxFootprint(pBox, pPosition);
 }
 
 // Text colour and layer used by the knockout screen header.
@@ -13135,8 +13131,8 @@ int Collision_ResolveSectorFaceContact(int *param_1, int *param_2, int param_3, 
     xRatio = 0;
     yRatio = 0;
     axis = -1;
-    StageObject_QueueViewLensFlare((int *)g_collisionFace, &g_collisionCar->right.x,
-                 &g_collisionCar->position.x,
+    Collision_BuildCarBox(g_collisionFace, &g_collisionCar->right.x,
+                 &g_collisionCar->position,
                  &g_collisionCar->corners[0]);
     // Offset of the tracked point from the car, flattened to the ground plane.
     g_unk0x00591968.x = param_1[0] - g_collisionCar->position.x;
@@ -14650,7 +14646,7 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
 
     result = 0;
     pCar->pendingContactCount = 0;
-    pBox = &g_unk0x00590ed0[pCar->index];
+    pBox = &g_carCollisionBoxes[pCar->index];
     memset(pCar->objectContactState, 0, sizeof(pCar->objectContactState));
     memcpy(&sectors[1], pCar->neighbours.s, 2 * sizeof(sectors[1]));
     sectors[0] = pCar->sector;
@@ -14680,7 +14676,7 @@ int Collision_TestCarAgainstSectorObjects(Car *pCar)
                 result = 0;
                 if (moving == 1 && RallyData_IsElementFlagSet(&pEntry, pCar->index) == 0)
                     continue;
-                StageObject_QueueViewLensFlare((int *)pBox, (int *)&pCar->right, (int *)&pCar->position, pCar->corners);
+                Collision_BuildCarBox(pBox, (int *)&pCar->right, &pCar->position, pCar->corners);
                 result = 0;
                 if (g_wallScrapeCount != 0) {
                     g_sectorObjectCollisionBox.built = 0;
@@ -14789,7 +14785,7 @@ void Collision_TestCarAgainstSectorEdges(Car *pCar, int param)
     int sector;
 
     g_collisionCar = pCar;
-    g_collisionFace = (CollisionBox *)StageObject_GetCarCameraSelectionValue(pCar->index);
+    g_collisionFace = Collision_GetCarBox(pCar->index);
     g_collisionCar->field_0xb42--;
     if (g_collisionCar->field_0xb42 < 0)
         g_collisionCar->field_0xb42 = 0;
@@ -14913,13 +14909,13 @@ void Collision_UpdateOrderedCars(Car *pCars, short *pOrder, short count)
     int car;
 
     for (i = count - 1; i >= 0; i--)
-        g_unk0x00590ed0[pOrder[i]].built = 0;
+        g_carCollisionBoxes[pOrder[i]].built = 0;
     if (StageObject_UsesExtendedMode())
         Collision_TestOrderedCarPairs(pCars, pOrder, count);
     for (i = count - 1; i >= 0; i--) {
         car = pOrder[i];
         pCar = pCars + car;
-        pBox = &g_unk0x00590ed0[car];
+        pBox = &g_carCollisionBoxes[car];
         if (pCar->field_0xb64 == 0)
             Collision_TestCarAgainstSectorObjects(pCar);
         if (pCar->field_0xc18 == 0 &&

@@ -1608,8 +1608,8 @@ addr	size	name	callers	callees	fpu	thunk	external
 00486b90	65	CarCamera_BeginEnter	2	0	0	false	false
 00486be0	22	CarCamera_SetFullCarLift	2	0	0	false	false
 00486c00	43	CarCamera_EndEnter	2	1	0	false	false
-00486c30	907	StageObject_QueueViewLensFlare	5	1	0	false	false
-00486fc0	365	CarPart_BuildScaledWheelOrientation	1	0	0	false	false
+00486c30	907	Collision_BuildCarBox	5	1	0	false	false
+00486fc0	365	Collision_BuildBoxFootprint	1	0	0	false	false
 00487130	6	StageObject_GetCollisionRecordState	1	0	0	false	false
 00487140	681	Collision_BuildOrientedBoxWorldCorners	2	0	0	false	false
 004873f0	931	Collision_BuildObjectPointBounds	1	0	0	false	false
@@ -1634,7 +1634,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 0048c750	279	Collision_ClampAngularCorrection	2	0	0	false	false
 0048c870	138	StageObject_ApplyRecursiveFrameDelta	5	1	0	false	false
 0048c900	310	StageObject_MoveRecursiveBoxCorners	2	2	0	false	false
-0048ca40	20	StageObject_GetCarCameraSelectionValue	1	0	0	false	false
+0048ca40	20	Collision_GetCarBox	1	0	0	false	false
 0048ca60	5	StageObject_ForwardSessionUpdate	1	0	0	true	false
 0048ca70	18	StageObject_StartAndRegisterFrameCallback	1	2	0	false	false
 0048ca90	6	StageObject_GetSelectedRecordListState	1	0	0	false	false

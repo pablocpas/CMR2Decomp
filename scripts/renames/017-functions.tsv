@@ -3,3 +3,6 @@ address	old_name	new_name	evidence
 0x4eb0c0	FrontendChampionship_SetDriverEntryFlag	RallyData_SetDriverAutomaticGearbox	Writes the bit RallyData_GetDriverAutomaticGearbox reads (profile options bit 5, or championship flags bit 0 plus the edited bit).
 0x4b23a0	Graphics_GetFrameScale	Graphics_GetFrameRate	Returns g_frameRate (1000 / the last frame time in ms); its callers print it with the fps format or pass it to StageObject_SetFrameRate.
 0x466630	StageObject_SetPhysicsScaleAndReciprocal	StageObject_SetFrameRate	Called every frame with Graphics_GetFrameRate() in 16.16 (25 at reset); sets g_stageObjectScale = rate / 25 and g_stageObjectTimeStep = its reciprocal.
+0x486c30	StageObject_QueueViewLensFlare	Collision_BuildCarBox	All callers pass the car box, body axes, position and eight world corners; computes horizontal axes and extents, stores geometry pointers, sets built and builds the footprint.
+0x486fc0	CarPart_BuildScaledWheelOrientation	Collision_BuildBoxFootprint	Only caller is Collision_BuildCarBox; scales CollisionBox axes by half extents, writes points[0..3] and translates them by position with y fixed to box top.
+0x48ca40	StageObject_GetCarCameraSelectionValue	Collision_GetCarBox	Returns the indexed CollisionBox from the eight-car table at 0x590ed0; Collision_TestCarAgainstSectorEdges uses it as g_collisionFace.

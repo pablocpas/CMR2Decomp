@@ -170,7 +170,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x40b880	Font_DrawText	Font.cpp	548	0.7558139534883721	0.7065527065527065
 0x45f9d0	StageObject_IntegrateViewDeformationGrid	StageTiming.cpp	2204	0.7563739376770539	0.7280453257790368
 0x4041e0	InRaceMenu_DrawCarSetupChoices	GameInfo.cpp	2427	0.7564026206075045	0.7548076923076923
-0x486fc0	CarPart_BuildScaledWheelOrientation	StageObjects.cpp	365	0.7573529411764706	0.7527675276752768
+0x486fc0	Collision_BuildBoxFootprint	StageObjects.cpp	365	0.7573529411764706	0.7527675276752768
 0x4b1150	Particle_BuildTriangleStripIndices	Graphics.cpp	105	0.7586206896551724	0.7586206896551724
 0x5004c0	CGameInfo::IsOptionMenuTimeoutPulseOn	GameInfo.cpp	50	0.7586206896551724	0.9090909090909091
 0x41a5c0	Race_ComputeWheelSurfaceSoundVolumes	Race.cpp	2227	0.7604327666151468	0.6959199384141648
@@ -230,7 +230,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47e4d0	Fireworks_Init	StageObjects.cpp	1348	0.8122392211404729	0.8183079056865464
 0x47b0e0	StageObject_UpdatePlayerControlIndicators	StageObjects.cpp	1344	0.815114709851552	0.7908232118758435
 0x4201d0	RallyRoute_GetNodeDirection	RallyRoute.cpp	1120	0.8160200250312891	0.7173100871731009
-0x486c30	StageObject_QueueViewLensFlare	StageObjects.cpp	907	0.8173652694610778	0.7289156626506024
+0x486c30	Collision_BuildCarBox	StageObjects.cpp	907	0.8173652694610778	0.7289156626506024
 0x4b7de0	Sector_CullGridAroundViewNode	Sector.cpp	1164	0.8180645161290323	0.7644787644787645
 0x47cc50	StageObject_UpdateApproachingCar	StageObjects.cpp	169	0.8181818181818182	0.8181818181818182
 0x46ed80	CarSkid_SpawnWheelDustPuff	StageObjects.cpp	304	0.819047619047619	0.8699551569506726
