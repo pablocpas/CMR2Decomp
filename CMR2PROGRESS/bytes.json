@@ -838,9 +838,9 @@
   },
   "0x444c10": {
     "n": "Car_PrepareStep",
-    "s": 0.816079295154185,
+    "s": 0.9164835164835164,
     "x": false,
-    "fz": 0.8997797356828194,
+    "fz": 0.9747252747252747,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_PrepareStep"
@@ -1315,9 +1315,9 @@
   },
   "0x499de0": {
     "n": "Car_ShatterWindow",
-    "s": 0.6378492356352135,
+    "s": 0.6944596818431158,
     "x": false,
-    "fz": 0.7179757511860833,
+    "fz": 0.7833241908941305,
     "unknown": [],
     "f": "CarEffects.cpp",
     "symbol_name": "Car_ShatterWindow"

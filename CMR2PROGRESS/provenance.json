@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "35bc1efc56b152f8fc48dc0482e51b6f364601c1",
+    "commit": "4e36f8277cd7517e8c7fc257251791e801fd9274",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -55,9 +55,9 @@
       "CMR2Decomp/BestTimeRecords.h": "7b09c04cab99c03d334b39ec5340a7216840903b2f9d51cfc8ac497473de4291",
       "CMR2Decomp/CallbackState.h": "bdcea074ac9af71d50c7f59b05e197df891b344efbf257bb8ac86e6b632a1749",
       "CMR2Decomp/CameraRecord.h": "bbd648cd2f1beef839cf3ec385cf72947134902e8e230e35d4b50153c3815b2d",
-      "CMR2Decomp/Car.cpp": "9773068b5b43c3e2ca44ebd595997011df6e5fcb2c6f91429cc6c61e9c560815",
+      "CMR2Decomp/Car.cpp": "9c9927a8d26e641d22cbd3e617bc07be28d72ae7b43aa7a9fe21f74d5021a11e",
       "CMR2Decomp/Car.h": "188a2e6a7d2a47a0a4f460f56e727bac1d16cd235519f13d32525229aec44fd3",
-      "CMR2Decomp/CarEffects.cpp": "d3012c15677fea29d8ac6bc9531e1c96c8a20a64588840709104cfad9184444d",
+      "CMR2Decomp/CarEffects.cpp": "70f7f7d041de617b5f75c6578f8cb2219a64f89beb7cf771c3e5905dd2555c74",
       "CMR2Decomp/CarExhaust.h": "2f51d0a245b1da6a98dc0a1152098b0c9dce08b33b29d0459feb77328a9207dc",
       "CMR2Decomp/CarImpact.h": "1800bc27ccd9f5c0ea2398977c5ae92c33ff8ad44084d687cb711e0a67c795db",
       "CMR2Decomp/CarInfo.h": "3c677f96cb8c0c97bf56c33151505283e3453be93448f64c77e99f463f6d456a",
@@ -223,11 +223,11 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "d44c7f40d13f3ba778381308998921d36b69f4b5e6cbd76ae3986e46e28192dd",
-    "pdb_sha256": "d1a6de62a2cf0a5d01201663c9a96a12a573225dcbf53d2830c9a05db10caa93"
+    "exe_sha256": "2cb31c1a00bfa36ab0690d903bdc426eaf926a9989c13dd8f0edbb6f25cb15c6",
+    "pdb_sha256": "f94a481fb4df4c3d2b39153fd4af08a8204443df076cb094a582845607390520"
   },
   "perfect_match_percent": 56.34,
-  "fuzzy_match_percent": 94.59,
+  "fuzzy_match_percent": 94.63,
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
   "measured_functions": 3368,

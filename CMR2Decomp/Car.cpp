@@ -5231,8 +5231,7 @@ void Car_PrepareStep(Car *pCars, short *pOrder, short count)
     int lift;
     short neighbourSectors[3];
     FixVector work;
-    FixVector *pRight;
-    FixVector *pForward;
+    FixVector *pAxis;
 
 
     remaining = count - 1;
@@ -5312,20 +5311,20 @@ void Car_PrepareStep(Car *pCars, short *pOrder, short count)
                     Car_FlagAirborneCorners();
                     Car_ShareWeightOnWheels();
                 } else {
-                    pRight = &g_pCurrentCar->right;
-                    pForward = &g_pCurrentCar->forward;
                     g_pCurrentCar->up = g_pCurrentCar->groundNormal;
-                    i = FixVecDot(&g_pCurrentCar->up, pRight);
+                    i = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->right);
                     FixVecScale(&work, &g_pCurrentCar->up, i);
-                    work.x = pRight->x - work.x;
-                    work.y = pRight->y - work.y;
-                    work.z = pRight->z - work.z;
-                    FIX_NORMALIZE_INTO(pRight[0], work)
-                    FixVecCross(&work, pRight, &g_pCurrentCar->up);
-                    FIX_NORMALIZE_INTO(pForward[0], work)
-                    FixMatrix_SetRight(pRight, g_pCurrentCar->pWorld);
+                    work.x = g_pCurrentCar->right.x - work.x;
+                    work.y = g_pCurrentCar->right.y - work.y;
+                    work.z = g_pCurrentCar->right.z - work.z;
+                    pAxis = &g_pCurrentCar->right;
+                    FIX_NORMALIZE_INTO(pAxis[0], work)
+                    FixVecCross(&work, pAxis, &g_pCurrentCar->up);
+                    pAxis = &g_pCurrentCar->forward;
+                    FIX_NORMALIZE_INTO(pAxis[0], work)
+                    FixMatrix_SetRight(&g_pCurrentCar->right, g_pCurrentCar->pWorld);
                     FixMatrix_SetUp(&g_pCurrentCar->up, g_pCurrentCar->pWorld);
-                    FixMatrix_SetForward(pForward, g_pCurrentCar->pWorld);
+                    FixMatrix_SetForward(&g_pCurrentCar->forward, g_pCurrentCar->pWorld);
                     Car_UpdateCorners(g_pCurrentCar);
                     StageObject_UpdateCarCornerGroundHeights(g_pCurrentCar, 8);
                     Car_LiftOutOfGround();
