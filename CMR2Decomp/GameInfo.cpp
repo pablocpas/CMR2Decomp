@@ -7181,9 +7181,6 @@ void OptionPreview_BuildCornerHeightTransform(int index)
 // Number of filled slots (1 or 2), from CGameInfo::GetPreviewLayoutMode.
 // GLOBAL: CMR2 0x0082c694
 int g_optionPreviewPanelCount;
-// Active slot read from the current mode entry's field 0x48.
-// GLOBAL: CMR2 0x0082c710
-BYTE g_activeModeSlot;
 // Texture set index of each slot (100 = no data); g_unk0x0082ca18 holds how
 // many of them are valid.
 // GLOBAL: CMR2 0x0082ca04
@@ -7248,7 +7245,9 @@ void OptionPreview_FillTextureSetIndices(void)
     // The original reads [index * 0x50 + 0x82c6c0]: byte 0x48 of the previous
     // 0x50-byte entry of the table at 0x82c6c8 (index is 1-based).
     count = g_optionPreviewPanels[g_optionPreviewPanelCount - 1].count;
-    slot = g_activeModeSlot & 0xff;
+    // 0x82c710 is byte 0x48 of the first panel, not independent storage.
+    // It advances with the service day's first stage.
+    slot = g_optionPreviewPanels[0].count;
     g_unk0x0082ca18 = count - slot + 2;
     pEntry = RallyData_GetDriverSecondaryPairRecord(slot);
     if (*pEntry != 0)

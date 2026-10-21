@@ -876,6 +876,12 @@
       "0x405ca0"
     ]
   },
+  "differential_service_forecast.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x505e70"
+    ]
+  },
   "differential_service_menus.py": {
     "arguments": "entities",
     "targets": [
