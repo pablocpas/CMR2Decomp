@@ -3819,7 +3819,6 @@ void StageTiming_ResetScaledViewObjectStates(void)
 }
 
 // Commits (or, with a == b == 0, first resets) the tyre wear of count players.
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045c610
 void CarTyres_CommitPlayerWear(int a, int b, int count)
 {
@@ -3838,13 +3837,16 @@ void CarTyres_CommitPlayerWear(int a, int b, int count)
             for (j = 0; j < 4; j++, w++) {
                 if (a == 0 && b == 0) {
                     w[0] = w[-0xc];
-                    w[-8] = (w[-0x14] > w[-0x10]) ? w[-0x14] : w[-0x10];
+                    if (w[-0x14] > w[-0x10])
+                        w[-8] = w[-0x14];
+                    else
+                        w[-8] = w[-0x10];
                     w[-4] = 0;
                 }
+                w[0xc] = w[0];
                 w[4] = w[-4];
                 w[8] = w[-8];
                 RallyData_MarkDriverRecordDirty((StageUI_GetRaceEndEventCount() & 0xff) + i);
-                w[0xc] = w[0];
                 Tyre_AddWear(i, j, 0, 0);
             }
         }

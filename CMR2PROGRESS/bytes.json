@@ -15332,9 +15332,9 @@
   },
   "0x4b06a0": {
     "n": "Particle_Interpolate",
-    "s": 0.6136363636363636,
+    "s": 0.5028571428571429,
     "x": false,
-    "fz": 0.8636363636363636,
+    "fz": 0.88,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "Particle_Interpolate"
@@ -28131,9 +28131,9 @@
   },
   "0x45c610": {
     "n": "CarTyres_CommitPlayerWear",
-    "s": 0.7272727272727273,
+    "s": 0.7377049180327869,
     "x": false,
-    "fz": 0.8925619834710744,
+    "fz": 0.9180327868852459,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "CarTyres_CommitPlayerWear"
