@@ -907,9 +907,10 @@ void Race_QueuePlayerCallout(unsigned int player, BYTE callId, BYTE prevCallId, 
             typeCall = 1;
         else
             typeCall = 0;
-        levelCall = 0;
         if (b3 != 0 && b1 != 0)
             levelCall = 1;
+        else
+            levelCall = 0;
         if (prev == 0) {
             if (typeCall) {
                 id -= type * 0x20000;
@@ -1029,8 +1030,8 @@ void Race_DrawPlayerCallSlots(unsigned int player, int *pViewRect)
     flagA = 0;
     flagB = 0;
     second = 0;
-    xOff = 0;
     yOff = 0;
+    xOff = 0;
     curve[0] = 0;
     curve[1] = 0xc;
     curve[2] = 0x19;
@@ -1203,10 +1204,10 @@ void Race_DrawPlayerCallSlots(unsigned int player, int *pViewRect)
 
         rectSecond.x = (short)(rectMain.x + rectMain.w);
         if (second != 0 && rectSecond.w != 0) {
-            if (flagB == 0)
-                Sprite_Queue(&rectTex, &rectSecond, texB, 2, 0, NULL, NULL, colA, 8);
-            else
+            if (flagB != 0)
                 Sprite_Queue(&rectTex, &rectSecond, texB, 2, 0, NULL, NULL, colA, 1);
+            else
+                Sprite_Queue(&rectTex, &rectSecond, texB, 2, 0, NULL, NULL, colA, 8);
         }
 
 next:
@@ -4541,7 +4542,7 @@ void Race_UpdateCarRouteAndWrongWayState(int param_1)
             g_raceWrongWayFlags[param_1] = 0;
     }
 
-    if (g_unk0x00537198[param_1] < best)
+    if (best > g_unk0x00537198[param_1])
         g_raceWrongWayFlags[param_1] = 0;
 
     g_pendingCalloutNodeFound = 0;
@@ -4565,7 +4566,7 @@ void Race_UpdateCarRouteAndWrongWayState(int param_1)
         (char)((CallbackStateMachine *)StageUI_GetRaceResultTable())->records[param_1].packedState == '\b') {
         if (!((char)RallyData_GetFlag25() != '\0' &&
               RallyData_GetCarRecordValueRatio(Car_Get(param_1)) >= 0x10000)) {
-            if (g_unk0x0053708c[param_1] < best) {
+            if (best > g_unk0x0053708c[param_1]) {
                 node = cur + 1;
                 if (node <= best) {
                     prev = cur + 2;
@@ -4574,7 +4575,10 @@ void Race_UpdateCarRouteAndWrongWayState(int param_1)
                         if (n->callId != -1 &&
                             Race_IsFlag24Clear() != 0 && Car_IsStateC10Set(param_1) == 0) {
                             int ok = 1;
-                            if (prev >= 2) {
+                            if (prev <= 1) {
+                                callId = (BYTE)RallyData_GetAvailableRouteNodeRecord(node)->callId;
+                                prevCallId = (BYTE)RallyData_GetAvailableRouteNodeRecord(prev)->callId;
+                            } else {
                                 n = RallyData_GetAvailableRouteNodeRecord(node - 1);
                                 if (n->callId != -1) {
                                     ok = 0;
@@ -4582,9 +4586,6 @@ void Race_UpdateCarRouteAndWrongWayState(int param_1)
                                     callId = (BYTE)RallyData_GetAvailableRouteNodeRecord(node)->callId;
                                     prevCallId = (BYTE)RallyData_GetAvailableRouteNodeRecord(prev)->callId;
                                 }
-                            } else {
-                                callId = (BYTE)RallyData_GetAvailableRouteNodeRecord(node)->callId;
-                                prevCallId = (BYTE)RallyData_GetAvailableRouteNodeRecord(prev)->callId;
                             }
                             if (ok)
                                 Race_QueuePlayerCallout(param_1, callId, prevCallId, (BYTE)node);

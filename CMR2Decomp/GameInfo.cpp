@@ -837,8 +837,8 @@ void CGameInfo::InitProfileRecordDefaults(GameInfo0xa4 *pInfo)
     } while (--group);
     pFlags = &pInfo->secondLoop[0].flags;
     track = 0xcb;
-    pFinalTime = &pInfo->rallyStageRecordTimes[10].value;
     pFinalSplits = pInfo->rallyStageRecordSplits[10];
+    pFinalTime = &pInfo->rallyStageRecordTimes[10].value;
     do {
         group = 3;
         do {
@@ -4940,8 +4940,6 @@ void InRaceMenu_DrawMenuRows(Menu *pMenu)
     int y;
     char *string1;
     char *string2;
-    int *pColour;
-    Texture *texture;
 
     rect[0] = 0;
     rect[1] = 0;
@@ -4968,18 +4966,16 @@ void InRaceMenu_DrawMenuRows(Menu *pMenu)
                           &g_inRaceMenuSelectedColour, 0x11);
             Font_DrawText(0, string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
                           (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_inRaceMenuSelectedColour, 0x11);
-            pColour = &g_inRaceMenuSelectedColour;
-            texture = g_inRaceMenuUpArrowTexture;
+            Sprite_Queue((SpriteRect *)&g_inRaceMenuUpArrowTexture->field_0x11c, (SpriteRect *)rect,
+                         g_inRaceMenuUpArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_inRaceMenuSelectedColour, 8);
         } else {
             Font_DrawText(1, string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
                           &g_inRaceMenuUnselectedColour, 0x11);
             Font_DrawText(0, string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
                           (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_inRaceMenuUnselectedColour, 0x11);
-            pColour = &g_inRaceMenuUnselectedColour;
-            texture = g_inRaceMenuDownArrowTexture;
+            Sprite_Queue((SpriteRect *)&g_inRaceMenuDownArrowTexture->field_0x11c, (SpriteRect *)rect,
+                         g_inRaceMenuDownArrowTexture, 2, 0, NULL, NULL, (BYTE *)&g_inRaceMenuUnselectedColour, 8);
         }
-        Sprite_Queue((SpriteRect *)&texture->field_0x11c, (SpriteRect *)rect, texture,
-                     2, 0, NULL, NULL, (BYTE *)pColour, 8);
         y = y + (int)(g_pGraphics->resY * 0x36) / 0x1e0;
     }
     Font_SetBlendMode(2);
@@ -8799,8 +8795,8 @@ void InRaceMenu_DrawLabelAndValueRows(Menu *pMenu)
             Font_DrawText(1, str1, x, y, pColour, 0x11);
             if (twoLines)
                 Font_DrawText(0, str2, x, (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, pColour, 0x11);
-            pA = sub;
             pB = sub + 1;
+            pA = sub;
             for (j = 0; j < (int)(BYTE)pItem->min; j++) {
                 text = *pB;
                 if (single == 0)
@@ -8980,8 +8976,8 @@ void InRaceMenu_DrawCarSetupChoices(Menu *pMenu)
                 if (pItem->min != 0) {
                     do {
                         width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-                        pSubColour = pItem->max == j ? &g_inRaceMenuSelectedColour : &g_inRaceMenuUnselectedColour;
                         x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
+                        pSubColour = pItem->max == j ? &g_inRaceMenuSelectedColour : &g_inRaceMenuUnselectedColour;
                         Font_DrawText(1, CFrontend::GetTextString(j + 0x9c), x, MENU_ITEM_Y(i),
                                       pSubColour, 0x11);
                         strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x9c));
@@ -8997,8 +8993,8 @@ void InRaceMenu_DrawCarSetupChoices(Menu *pMenu)
                 if (pItem->min == 2) {
                     do {
                         width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-                        pSubColour = pItem->max == j ? &g_inRaceMenuSelectedColour : &g_inRaceMenuUnselectedColour;
                         x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
+                        pSubColour = pItem->max == j ? &g_inRaceMenuSelectedColour : &g_inRaceMenuUnselectedColour;
                         Font_DrawText(1, CFrontend::GetTextString(j + 0x9c), x, MENU_ITEM_Y(i),
                                       pSubColour, 0x11);
                         strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x9c));

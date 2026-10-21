@@ -2326,7 +2326,7 @@ void StageDeform_ApplyRadialDent(void)
                 phase = (phase & ~0x7f) % 0x400 * 0x40;
                 if (phase < 0x8000)
                     phase -= 0x10000;
-                depth = FixMul(depth, phase);
+                depth = FixMul(phase, depth);
                 limit.x = (int)((DeformMeshSources *)pSlot)->vertices[0][vertexIndex].normal8[0] << 9;
                 limit.y = (int)((DeformMeshSources *)pSlot)->vertices[0][vertexIndex].normal8[1] << 9;
                 limit.z = (int)((DeformMeshSources *)pSlot)->vertices[0][vertexIndex].normal8[2] << 9;
@@ -3596,23 +3596,22 @@ int RallyData_GetRouteAvailabilityState(void);
 
 // Lays out count 0x1720-byte car records from p and offsets their route
 // points by the route origin; returns the end of the records.
-// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00498590
 BYTE *StageTiming_RelocateCarRecordRoutePoints(BYTE *p, BYTE **unused, int count)
 {
     int origin[3];
-    short points;
-    AIReferenceRoute **pp;
+    int points;
+    int n;
     int i;
 
     RallyData_GetRouteNodeGroundPosition(0, origin);
     points = RallyData_GetRouteAvailabilityState();
-    for (pp = g_aiReferenceRoutes + 1; count > 0; count--, pp++) {
-        *pp = (AIReferenceRoute *)p;
+    for (n = 1; n <= count; n++) {
+        g_aiReferenceRoutes[n] = (AIReferenceRoute *)p;
         p += sizeof(AIReferenceRoute);
         for (i = 0; i < points; i++) {
-            (*pp)->positionX[i] += origin[0];
-            (*pp)->positionZ[i] += origin[2];
+            g_aiReferenceRoutes[n]->positionX[i] += origin[0];
+            g_aiReferenceRoutes[n]->positionZ[i] += origin[2];
         }
     }
     return p;
@@ -3839,7 +3838,7 @@ void CarTyres_CommitPlayerWear(int a, int b, int count)
             for (j = 0; j < 4; j++, w++) {
                 if (a == 0 && b == 0) {
                     w[0] = w[-0xc];
-                    w[-8] = (w[-0x10] < w[-0x14]) ? w[-0x14] : w[-0x10];
+                    w[-8] = (w[-0x14] > w[-0x10]) ? w[-0x14] : w[-0x10];
                     w[-4] = 0;
                 }
                 w[4] = w[-4];
@@ -5270,13 +5269,11 @@ void StageTiming_SpawnWheelParticles(int carIndex)
         random = TRAIL_RANDOM(g_minus65536);
         FixVecScale(&jitter, &delta, random);
         int t;
-        if (!(!leading)) {
+        if (!leading) {
             t = TRAIL_RANDOM(CGraphics::m_65536);
             if (!uniform) {
                 random = TRAIL_RANDOM(g_minus65536);
                 t = FixDiv(t, 0x1547a - random * 9);
-                random = TRAIL_RANDOM(g_minus65536);
-                t = FixDiv(t, 0x30000 - random * 14);
             }
             FixVecScale(&position, &g_trailPos[carIndex][other], t);
             t = 0x10000 - t;
@@ -5286,6 +5283,8 @@ void StageTiming_SpawnWheelParticles(int carIndex)
             if (!uniform) {
                 random = TRAIL_RANDOM(g_minus65536);
                 t = FixDiv(t, 0x1547a - random * 9);
+                random = TRAIL_RANDOM(g_minus65536);
+                t = FixDiv(t, 0x30000 - random * 14);
             }
             FixVecScale(&position, &g_trailPos[carIndex][other], t);
             t = 0x10000 - t;
@@ -5696,7 +5695,7 @@ void StageTiming_EstimateRemainingDriverTimes(void)
             pSlot++;
             g_unk0x0053d1da[k] = 1;
             value = FixDiv((StageTiming_GetCheckpointField10(k) & 0xffff) << 16, total);
-            if (value >= 1) {
+            if (value > 0) {
                 int elapsed = Timing_CentisecondsToFixedSeconds(g_stageClock);
                 g_driverFinishTimes[k] =
                     ConvertRawTimeToCentiseconds(FixMul(FixDiv(0x10000, value), elapsed));
@@ -7708,9 +7707,7 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
             b = REF_TRACK->speedSamples[angles[1]];
             t = REF_TRACK->headingDegrees[angles[1]];
             if (b > 0x3c0000) {
-                if (baseAngle < 0x280000) {
-                    t = curAngle;
-                } else {
+                if (baseAngle >= 0x280000) {
                     a = b - baseAngle;
                     if (a > 0) {
                         scale = FixMul(0xb333, b - 0x280000);
@@ -7721,6 +7718,8 @@ void StageTiming_RecomputeCarSplitBarSamples(Car *pCar, unsigned int mask, int *
                             t -= FixMul(FixDiv(slack, scale), tmp);
                         }
                     }
+                } else {
+                    t = curAngle;
                 }
             }
             tmp = frontAngle - t;

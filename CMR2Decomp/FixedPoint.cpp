@@ -1480,9 +1480,9 @@ void StageObject_UpdateMovingTransforms(void)
             FixMatrix_GetUp(&basis.up, pMatrix);
             FixMatrix_GetForward(&basis.forward, pMatrix);
 
-            angles.x = FIX_ANGLE(FixMul(vecE0.x, g_physicsTimeStep));
-            angles.y = FIX_ANGLE(FixMul(vecE0.y, g_physicsTimeStep));
-            angles.z = FIX_ANGLE(FixMul(vecE0.z, g_physicsTimeStep));
+            angles.x = FIX_ANGLE(FixMul(g_physicsTimeStep, vecE0.x));
+            angles.y = FIX_ANGLE(FixMul(g_physicsTimeStep, vecE0.y));
+            angles.z = FIX_ANGLE(FixMul(g_physicsTimeStep, vecE0.z));
             FixBasis_Rotate(&basis, (unsigned short *)&angles);
 
             // Rebuilds an orthonormal basis out of up/right unless the object is
@@ -1559,9 +1559,9 @@ void StageObject_UpdateMovingTransforms(void)
 
             FILL_PROBE_TABLE(pObj)
             vecE0 = pObj->spin;
-            angles.x = FIX_ANGLE(FixMul(vecE0.x, g_physicsTimeStep));
-            angles.y = FIX_ANGLE(FixMul(vecE0.y, g_physicsTimeStep));
-            angles.z = FIX_ANGLE(FixMul(vecE0.z, g_physicsTimeStep));
+            angles.x = FIX_ANGLE(FixMul(g_physicsTimeStep, vecE0.x));
+            angles.y = FIX_ANGLE(FixMul(g_physicsTimeStep, vecE0.y));
+            angles.z = FIX_ANGLE(FixMul(g_physicsTimeStep, vecE0.z));
             FixBasis_Rotate(&basis, (unsigned short *)&angles);
 
             // Gravity of the object (zeroed while its "on the ground" flag at
@@ -1589,19 +1589,7 @@ void StageObject_UpdateMovingTransforms(void)
             world.y += step.y;
             world.z += step.z;
 
-            if (pObj->field_0x120 == 0) {
-                FixMatrix_SetRight(&basis.right, pMatrix);
-                FixMatrix_SetUp(&basis.up, pMatrix);
-                FixMatrix_SetForward(&basis.forward, pMatrix);
-
-                if (pObj->velocity.y < 0) {
-                    height = StageObject_ProbeGroundDistance(pObj, &world);
-                    if (height > -0xccc) {
-                        pObj->mode = 1;
-                        world.y += height;
-                    }
-                }
-            } else {
+            if (pObj->field_0x120 != 0) {
                 // Airborne: the spin is damped twice and, while it is slow
                 // enough, the basis is rebuilt from the fallen-over up axis.
                 FixVecScale(&vecE0, &vecE0, 0xcccc);
@@ -1627,10 +1615,7 @@ void StageObject_UpdateMovingTransforms(void)
                     pos.y = v.y - basis.forward.y;
                     pos.z = v.z - basis.forward.z;
                     len = FixVecLength(&pos);
-                    if (!(len > 0x1999)) {
-                        basis.forward = v;
-                        pObj->mode = 0;
-                    } else {
+                    if (len > 0x1999) {
                         FixVecScaleRecip(&pos, &pos, len);
                         FixVecScale(&pos, &pos, 0x1999);
                         pos.x += basis.forward.x;
@@ -1644,6 +1629,9 @@ void StageObject_UpdateMovingTransforms(void)
                         } else {
                             FixVecScaleRecip(&basis.forward, &pos, len);
                         }
+                    } else {
+                        basis.forward = v;
+                        pObj->mode = 0;
                     }
 
                     dot = FixVecDot(&basis.right, &basis.forward);
@@ -1675,6 +1663,17 @@ void StageObject_UpdateMovingTransforms(void)
                 FixMatrix_SetUp(&basis.up, pMatrix);
                 FixMatrix_SetForward(&basis.forward, pMatrix);
                 world.y += StageObject_ProbeGroundDistance(pObj, &world);
+            } else {
+                FixMatrix_SetRight(&basis.right, pMatrix);
+                FixMatrix_SetUp(&basis.up, pMatrix);
+                FixMatrix_SetForward(&basis.forward, pMatrix);
+                if (pObj->velocity.y < 0) {
+                    height = StageObject_ProbeGroundDistance(pObj, &world);
+                    if (height > -0xccc) {
+                        pObj->mode = 1;
+                        world.y += height;
+                    }
+                }
             }
 
             FixMatrix_RotateVector(&pos, &pObj->field_0xf8, pMatrix);

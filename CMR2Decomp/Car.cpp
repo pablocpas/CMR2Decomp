@@ -3000,8 +3000,8 @@ void Car_Integrate(void)
     if (yawOnly != 0) {
         int angAccelY = -FixMul(torque.y, g_pCurrentCar->inertia.y);
 
-        angAccelY = angAccelY - FixMul(FixMul(g_pCurrentCar->inertia.y, g_pCurrentCar->mass), g_pCurrentCar->field_0x5d0.y);
-        angAccelY = FixMul(angAccelY, g_physicsTimeStep);
+        angAccelY = angAccelY - FixMul(g_pCurrentCar->field_0x5d0.y, FixMul(g_pCurrentCar->inertia.y, g_pCurrentCar->mass));
+        angAccelY = FixMul(g_physicsTimeStep, angAccelY);
         g_pCurrentCar->angularVelocity.y = g_pCurrentCar->angularVelocity.y + angAccelY;
         angularStep.y = FixMul(g_pCurrentCar->angularVelocity.y, g_physicsTimeStep);
         halfStep = g_physicsTimeStep / 2;
@@ -3010,9 +3010,9 @@ void Car_Integrate(void)
     } else {
         FixVector angAccel;
 
-        angAccel.x = -FixMul(torque.x, g_pCurrentCar->inertia.x);
+        angAccel.x = -FixMul(g_pCurrentCar->inertia.x, torque.x);
         angAccel.y = -FixMul(torque.y, g_pCurrentCar->inertia.y);
-        angAccel.z = -FixMul(torque.z, g_pCurrentCar->inertia.z);
+        angAccel.z = -FixMul(g_pCurrentCar->inertia.z, torque.z);
         angAccel.x = angAccel.x - FixMul(g_pCurrentCar->field_0x5d0.x,
                                          FixMul(g_pCurrentCar->inertia.x, g_pCurrentCar->mass));
         angAccel.y = angAccel.y - FixMul(g_pCurrentCar->field_0x5d0.y,
@@ -6543,7 +6543,7 @@ void Car_IntegrateWheelTravel(void)
         }
         if (max > 0x10000) {
             for (i = 0; i < 4; i++)
-                g_pCurrentCar->wheelTravelLoadBias[i] = FixMul(g_pCurrentCar->wheelTravelLoadBias[i], FixDiv(0x10000, max));
+                g_pCurrentCar->wheelTravelLoadBias[i] = FixMul(FixDiv(0x10000, max), g_pCurrentCar->wheelTravelLoadBias[i]);
         }
     } else {
         for (i = 0; i < 4; i++) {
@@ -6563,17 +6563,12 @@ void Car_IntegrateWheelTravel(void)
                 g_pCurrentCar->field_0x938[i] = 0;
                 g_pCurrentCar->field_0x948[i] = 0;
             } else {
-                t = g_pCurrentCar->speed - FixVecDot(&g_pCurrentCar->groundNormal,
-                                            &g_pCurrentCar->cornerVelocity[i]);
+                t = g_pCurrentCar->speed - FixVecDot(&g_pCurrentCar->cornerVelocity[i], &g_pCurrentCar->groundNormal);
                 if (t > 0x10000)
                     t = 0x10000;
                 else if (t < 0xccc)
                     t = 0;
-                if (g_pCurrentCar->field_0x948[i] >= 1) {
-                    g_pCurrentCar->field_0x948[i] -= t;
-                    if (g_pCurrentCar->field_0x948[i] < 0)
-                        g_pCurrentCar->field_0x948[i] = 0;
-                } else {
+                if (g_pCurrentCar->field_0x948[i] < 1) {
                     a = g_pCurrentCar->corners[i].x;
                     b = g_pCurrentCar->corners[i].z;
                     if (g_pCurrentCar->field_0x938[i] == 0) {
@@ -6586,6 +6581,10 @@ void Car_IntegrateWheelTravel(void)
                             FixMul(FixMul((FIX_ABS(FIX_ABS(a) - FIX_ABS(b)) % 0x201) << 7, 0x320000),
                                    g_pCurrentCar->cornerGrip[i].field_0x20);
                     }
+                } else {
+                    g_pCurrentCar->field_0x948[i] -= t;
+                    if (g_pCurrentCar->field_0x948[i] < 0)
+                        g_pCurrentCar->field_0x948[i] = 0;
                 }
             }
         }

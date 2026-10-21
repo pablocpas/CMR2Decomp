@@ -3376,12 +3376,12 @@ void GameMenu_SetupStageResults(int param_1)
             result = 0x23;
             break;
         }
-        if (!(g_menu0x00541218.items[0].pSubMenu == &g_menu0x0053f5b0)) {
-            g_menu0x00541218.items[0].pSubMenu = &g_menu0x00541400;
-            GameMenu_BuildStageResultsMenu(1, &g_menu0x00541218);
-        } else {
+        if (g_menu0x00541218.items[0].pSubMenu == &g_menu0x0053f5b0) {
             g_menu0x0053f5b0.items[0].pSubMenu = &g_menu0x00541400;
             GameMenu_BuildStageResultsMenu(1, &g_menu0x0053f5b0);
+        } else {
+            g_menu0x00541218.items[0].pSubMenu = &g_menu0x00541400;
+            GameMenu_BuildStageResultsMenu(1, &g_menu0x00541218);
         }
         result = 0x23;
         break;

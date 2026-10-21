@@ -407,8 +407,8 @@ void RallyData_InitKnockoutBracket(void)
     p = g_knockout.round1;
     do {
         if ((CGameInfo::GetConfiguredPlayerCount() & 0xff) > p->bits.first) {
-            oldFirst = p->bits.first;
             oldSecond = p->bits.second;
+            oldFirst = p->bits.first;
             if ((CGameInfo::GetConfiguredPlayerCount() & 0xff) > oldSecond && oldSecond < oldFirst) {
                 p->bits.first = oldSecond;
                 p->bits.second = oldFirst;
@@ -419,8 +419,8 @@ void RallyData_InitKnockoutBracket(void)
     p = g_knockout.quarters;
     do {
         if ((CGameInfo::GetConfiguredPlayerCount() & 0xff) > p->bits.first) {
-            oldFirst = p->bits.first;
             oldSecond = p->bits.second;
+            oldFirst = p->bits.first;
             if ((CGameInfo::GetConfiguredPlayerCount() & 0xff) > oldSecond && oldSecond < oldFirst) {
                 p->bits.first = oldSecond;
                 p->bits.second = oldFirst;
@@ -2920,8 +2920,8 @@ void RallyData_DrawCarStageGapPanel(int car, short *pRect)
             if (stage < count)
                 stage++;
             sprintf(CFrontend::m_stringDest, g_nameSpaceFormat, CFrontend::GetTextString(0x2f), stage, count);
-            x = rect[0] + marginX;
             y = rect[1] + topMarginY - (int)g_pGraphics->resY * 2 / 480;
+            x = rect[0] + marginX;
             Font_DrawText(0, CFrontend::m_stringDest, x, y, (int *)&g_stageHudTextColour, 9);
             x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
             sprintf(CFrontend::m_stringDest, g_stageNumberFormat, stage % 100);
@@ -3106,10 +3106,10 @@ void RallyData_RecordPassedSplit(int car)
         g_splitTargetsLoaded = 0;
     if (g_stageTargetTime != g_stageDefaultTargetTime) {
         time = g_stageSplitData[car].times[split + 1];
-        if (g_splitTargetTimes[split + 1] - g_splitTargetTimes[split] <= time - g_stageSplitData[car].times[split])
-            g_splitTimeColours[car * 0x28 + split] = g_unk0x005170a0;
-        else
+        if (g_splitTargetTimes[split + 1] - g_splitTargetTimes[split] > time - g_stageSplitData[car].times[split])
             g_splitTimeColours[car * 0x28 + split] = g_unk0x0051709c;
+        else
+            g_splitTimeColours[car * 0x28 + split] = g_unk0x005170a0;
         if (split != 0) {
             RallyData_PlayAlternateStageLoopSound(car, (time < g_stageSplitData[car].targetTime) ? 1 : 0);
         }
@@ -4321,13 +4321,13 @@ void RallyData_UpdateCarRoute(Car *pCar)
 
     if (FixVecDot(&delta, &routeDir) < 0) {
         if (g_unk0x00538a94 == 0) {
-            if ((unsigned int)node < (unsigned int)(g_unk0x00538a88 - 1)) {
+            if ((unsigned int)node >= (unsigned int)(g_unk0x00538a88 - 1)) {
+                record->field_0x14++;
+                record->field_0x8 = g_routeNodeCount + 1;
+            } else {
                 record->field_0x14++;
                 record->routeNodeIndex++;
                 record->field_0x8++;
-            } else {
-                record->field_0x14++;
-                record->field_0x8 = g_routeNodeCount + 1;
             }
         } else if ((unsigned int)node < (unsigned int)(g_routeNodeCount - 1)) {
             record->field_0x14++;
@@ -6855,7 +6855,7 @@ storeSplitColour:
                 pSpan++;
             } while (split != 0);
             car++;
-        } while (car <= 1);
+        } while (car < 2);
     }
 }
 
@@ -7990,11 +7990,11 @@ void RallyData_DrawViewEndFrameOverlay(CallbackStateMachine *pKey, int view)
                                 sprintf(name, g_strName0x00516e2c, (char *)RallyData_GetRecord(i));
                             sprintf(CFrontend::m_stringDest, g_keypadFormat, CFrontend::GetTextString(0x94), name);
                         } else {
-                            if (!(CGameInfo::GetConfiguredGameMode() == 4)) {
-                                sprintf(name, g_strName0x00516e2c, (char *)RallyData_GetRecord(other));
-                            } else {
+                            if ((CGameInfo::GetConfiguredGameMode() == 4)) {
                                 sprintf(name, g_strName0x00516e2c,
                                         Knockout_GetCarNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), other));
+                            } else {
+                                sprintf(name, g_strName0x00516e2c, (char *)RallyData_GetRecord(other));
                             }
                             sprintf(CFrontend::m_stringDest, g_strVersusFormat, CFrontend::GetTextString(0x86),
                                     CFrontend::GetTextString(0x87), name);
@@ -8068,8 +8068,8 @@ void RallyData_DrawTargetTimeGap(int car, short *pRect)
     if (CGameInfo::GetConfiguredGameMode() == 6 || CGameInfo::GetConfiguredGameMode() == 5 ||
         ((char)RallyData_GetSelectionFlag27() && CGameInfo::GetGameModeOptionBit19() == 0)) {
         reference = 0;
-        split = g_stageSplitData[car].split;
         time = g_splitGapTime[car];
+        split = g_stageSplitData[car].split;
     } else {
         g_splitGapBlank[car] = 0;
         time = g_stageSplitData[car].lastSplitTime;
@@ -8105,8 +8105,8 @@ void RallyData_DrawTargetTimeGap(int car, short *pRect)
     if (split == 0 && lastMode == 0)
         return;
 draw:
-    dx = 0;
     dy = 0;
+    dx = 0;
     if (RallyData_IsHeadToHeadRaceMode()) {
         if (car == 0) {
             if (CGameInfo::IsSplitBarEnabled())
@@ -8115,8 +8115,8 @@ draw:
             dx = (int)g_pGraphics->resX / 2;
         }
     }
-    x = (short)((int)(g_pGraphics->resX * 0xc00) >> 16) + dx;
     y = (short)(((int)(g_pGraphics->resY * 0xd668) >> 16) + dy) + (short)((int)(g_pGraphics->resY * 0xccc) >> 16) - 1;
+    x = (short)((int)(g_pGraphics->resX * 0xc00) >> 16) + dx;
 #define GAP_POS()                                                                                   \
     yFixed = FixDiv((int)FTOI(__int64, X87S_MUL((double)(y + 1), CGraphics::m_65536)),                          \
                     (int)FTOI(__int64, X87S_MUL((double)(int)g_pGraphics->resY, CGraphics::m_65536)));          \
@@ -8139,7 +8139,10 @@ draw:
     } else {
         if (CGameInfo::GetConfiguredGameMode() == 12)
             return;
-        if (g_splitGapBlank[car] == 0) {
+        if (g_splitGapBlank[car] != 0) {
+            GAP_POS();
+            PrepareFormatGapToLeader(-1, 0, 4, 4, xFixed, yFixed, &g_unk0x0051709c, 9, 1, 1);
+        } else {
             if (time <= reference) {
                 GAP_POS();
                 PrepareFormatGapToLeader(reference - time, 0, 4, 4, xFixed, yFixed, &g_unk0x0051709c, 9, 1, 1);
@@ -8147,9 +8150,6 @@ draw:
                 GAP_POS();
                 PrepareFormatGapToLeader(time - reference, 0, 4, 4, xFixed, yFixed, &g_unk0x005170a0, 9, 0, 1);
             }
-        } else {
-            GAP_POS();
-            PrepareFormatGapToLeader(-1, 0, 4, 4, xFixed, yFixed, &g_unk0x0051709c, 9, 1, 1);
         }
     }
 #undef GAP_POS
@@ -8489,8 +8489,8 @@ void RallyData_LoadSelectedRouteNodes(void)
         }
         RallyData_GetRouteNodeGroundPosition(0, start);
         RallyData_GetRouteNodeGroundPosition(g_routeNodeCount - 1, end);
-        dy = end[2] - start[2];
         dx = end[0] - start[0];
+        dy = end[2] - start[2];
         if (dx < 0)
             dx = -dx;
         value = g_routeNodeCount;

@@ -4699,14 +4699,14 @@ void FrontendAnimation_EvaluatePathSpline(int *pPoints, int t, int *pOut)
     seg = ((t << 4) >> 16) + 1;
     u = (((seg << 16) - 0x10000) / 16 - t + 0x1000) << 4;
     u2 = FixMul(u, u);
-    u3 = FixMul(u2, u);
+    u3 = FixMul(u, u2);
+    h00 = u3 * 2 + 0x10000 - u2 * 3;
     h01 = u2 * 3 - u3 * 2;
     h10 = u3 - u2 * 2 + u;
-    h00 = u3 * 2 + 0x10000 - u2 * 3;
     h11 = u3 - u2;
     p = &pPoints[seg * 2];
-    tanB = (p[4] - p[0]) * (0x10000 - g_menuPathTension) / 2;
     tanA = (p[2] - p[-2]) * (0x10000 - g_menuPathTension) / 2;
+    tanB = (p[4] - p[0]) * (0x10000 - g_menuPathTension) / 2;
     x = p[2] * h00 + (FixMul(h11, tanA) + p[0] * h01);
     x += FixMul(h10, tanB);
     tanA = (p[3] - p[-1]) * (0x10000 - g_menuPathTension) / 2;
@@ -8245,7 +8245,7 @@ void FrontendMenu_UpdateNetworkCarSetup(Menu *pMenu)
 
     pFlags = CGameInfo::GetGameInfoField9CAddress();
     max = Menu_GetItem(pMenu, 0)->max;
-    if (max != (BYTE)g_setupRouteIndex) {
+    if (max != g_setupRouteIndex) {
         Menu_GetItem(pMenu, 2)->max = 0;
         g_setupRouteIndex = max;
     }
@@ -8262,7 +8262,7 @@ void FrontendMenu_UpdateNetworkCarSetup(Menu *pMenu)
         count = 10;
     }
     i = 0;
-    if (count != 0) {
+    if (count > 0) {
         pDest = g_unk0x00818d84;
         do {
             i++;
@@ -8272,14 +8272,14 @@ void FrontendMenu_UpdateNetworkCarSetup(Menu *pMenu)
     }
     sprintf(&g_unk0x00818d84[i * 3], g_strFlagSS);
     if (!(CGameInfo::IsRecordFlagSet(0xd) == 0)) {
-        count = ((max & 1) != 0) + 10;
+        count = (max % 2 != 0) + 10;
     } else {
-        if ((max & 1) != 0) {
-            mask = 1 << (((char)((max + 1) / 2) - 1) & 0x1f);
+        if (max % 2 != 0) {
+            mask = 1 << ((max + 1) / 2 - 1);
             bits = (BYTE)mask;
             if ((pFlags[1] & mask & 0x1f) != 0 ||
-                (bits & (BYTE)(pFlags[1] >> 5) & 0x1f) != 0 ||
-                (bits & (BYTE)(pFlags[1] >> 10) & 0x1f) != 0)
+                ((BYTE)(pFlags[1] >> 5 & 0x1f) & bits) != 0 ||
+                ((BYTE)(pFlags[1] >> 10 & 0x1f) & bits) != 0)
                 count++;
         }
     }

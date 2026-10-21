@@ -1429,15 +1429,15 @@ void WheelSplash_Update(int player)
                     vel.y = FixMul(vel.y, k);
                     vel.z = FixMul(vel.z, k);
                 }
-                if (type != 0xd) {
-                    pPos = &rel;
-                    f48 = rel.y - 0x10000;
-                } else {
+                if (type == 0xd) {
                     vel.x = pVel->x / 3;
                     vel.y = pVel->y / 3;
                     vel.z = pVel->z / 3;
                     pPos = &p;
                     f48 = p.y - 0x630000;
+                } else {
+                    pPos = &rel;
+                    f48 = rel.y - 0x10000;
                 }
                 Particle_Spawn(type, pPos, &vel, f48, 0, colour, g_trailLevel[player][wheel], &player,
                                pCar->pBodyNode->viewMask);

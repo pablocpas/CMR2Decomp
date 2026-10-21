@@ -926,8 +926,8 @@ void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD 
 
     desc.dwSize = sizeof(DDSURFACEDESC2);
     rect.left = 0;
-    h = pTexture->height;
     w = pTexture->width;
+    h = pTexture->height;
     rect.right = w;
     rect.top = 0;
     rect.bottom = h;
@@ -1020,8 +1020,8 @@ void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BY
     WORD *p16;
     DWORD *p32;
 
-    r = pColour[0];
     g = pColour[1];
+    r = pColour[0];
     b = pColour[2];
     if (x >= (unsigned int)pTexture->width || y >= (unsigned int)pTexture->height)
         return;
@@ -1627,8 +1627,8 @@ HRESULT CALLBACK CGraphics::EnumTextureFormatsCallback(DDPIXELFORMAT *pddpf, LPV
         return result;
 
     if (pddpf->dwFlags & DDPF_RGB) {
-        bits = pddpf->dwRBitMask;
         alphaMask = ~(pddpf->dwRBitMask | pddpf->dwGBitMask | pddpf->dwBBitMask) & pddpf->dwRGBAlphaBitMask;
+        bits = pddpf->dwRBitMask;
         count = 0;
         for (i = 32; i != 0; i--) {
             if (bits & 1)
@@ -1665,7 +1665,7 @@ HRESULT CALLBACK CGraphics::EnumTextureFormatsCallback(DDPIXELFORMAT *pddpf, LPV
         aBits = (BYTE)count;
     aBits = aBits;
 
-        if (rBits <= 0 || gBits < 1 || bBits < 1)
+        if (rBits < 1 || gBits < 1 || bBits < 1)
             return result;
 
         bits = pddpf->dwRBitMask;
@@ -3004,8 +3004,8 @@ Texture *CGraphics::LoadDDSTexture(DDSFile *pDDS, Texture *pTexture)
     int width;
     int height;
 
-    width = pDDS->desc.dwWidth;
     height = pDDS->desc.dwHeight;
+    width = pDDS->desc.dwWidth;
     if (width != 2 && width != 4 && width != 8 && width != 16 && width != 32 && width != 64 &&
         width != 128 && width != 256 && width != 512 && width != 1024 && width != 2048)
         _splitpath(pTexture->name, NULL, NULL, CFrontend::m_stringDest, NULL);
@@ -4326,7 +4326,7 @@ sample:
                 if (c < gLo || c > gHi)
                     continue;
                 c = (BYTE)(((pixel & desc.ddpfPixelFormat.dwBBitMask) >> bShift) << (8 - bBits));
-                if (c < bLo || c > bHi)
+                if (bLo > c || c > bHi)
                     continue;
                 count++;
             }
@@ -5780,7 +5780,9 @@ void Particle_UpdateAll(SceneNode *pView)
             Particle_Kill(p);
             continue;
         }
-        if (pType->update == NULL) {
+        if (pType->update != NULL) {
+            pType->update(p, pType, pView);
+        } else {
             if (pType->drag > 0) {
                 keep = 0x10000 - FixMul(pType->drag, 0x290);
                 FixVecScale(&wind, &g_particleWind, 0x1999);
@@ -5859,8 +5861,6 @@ void Particle_UpdateAll(SceneNode *pView)
                 }
             }
             p->vector0x28 = p->sourceVector;
-        } else {
-            pType->update(p, pType, pView);
         }
         if (pType->postUpdate != NULL)
             pType->postUpdate(p, pType, pView);
@@ -6422,8 +6422,8 @@ Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
         return NULL;
     if (pInfo->bytesPerPixel == 4)
         pTexture->flags |= 1;
-    height = pInfo->height;
     width = pInfo->width;
+    height = pInfo->height;
     memset(&createDesc, 0, sizeof(createDesc));
     createDesc.dwSize = sizeof(createDesc);
     createDesc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
