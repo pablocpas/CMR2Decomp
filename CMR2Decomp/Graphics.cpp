@@ -926,8 +926,8 @@ void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD 
 
     desc.dwSize = sizeof(DDSURFACEDESC2);
     rect.left = 0;
-    w = pTexture->width;
     h = pTexture->height;
+    w = pTexture->width;
     rect.right = w;
     rect.top = 0;
     rect.bottom = h;
@@ -961,11 +961,11 @@ void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD 
         skip = (unsigned int)(desc.lPitch - width * 4) >> 2;
         p32 = (DWORD *)desc.lpSurface;
         f0 = from0;
-        t0 = to0;
         f1 = from1;
+        t0 = to0;
         t1 = to1;
-        f2 = from2;
         t2 = to2;
+        f2 = from2;
         for (y = 0; y < height; y++) {
             for (x = 0; x < width; x++) {
                 if ((*p32 >> 24) == f0)
@@ -5917,7 +5917,7 @@ void Particle_DrawAll(SceneNode *pCamera, BYTE view)
 
     def.flags &= 0xfe;
     mask = 1 << view;
-    if (g_particleCount > 0) {
+    if (0 < g_particleCount) {
         pb = (BYTE *)g_particles + offsetof(Particle, field0x55);
         for (i = 0; i < g_particleCount; i++, pb += sizeof(Particle)) {
             if (DRAW_PARTICLE.active == 0 || (DRAW_PARTICLE.field0x55 & mask) == 0)

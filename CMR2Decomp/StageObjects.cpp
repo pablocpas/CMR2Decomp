@@ -8086,7 +8086,7 @@ void StageObject_StampPendingEventDraws(int unused)
             }
             idx = rand() % 4;
             n = CGameInfo::GetPreviewMode() ? 4 : 0x10;
-            if (n >= 1) {
+            if (n > 0) {
                 do {
                     k = 0;
                     do {
@@ -12253,8 +12253,8 @@ void SurfaceSound_UpdateNearestLocalCarEngines(void)
     }
     if (slots <= 0)
         return;
-    pHandle = g_unk0x0058ddc8Pair;
     limit = slots;
+    pHandle = g_unk0x0058ddc8Pair;
     do {
         chosen = 0;
         bestDist = 0x42400000;

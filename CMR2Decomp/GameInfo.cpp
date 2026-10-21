@@ -8475,14 +8475,14 @@ void OptionMenu_DrawClampedStageTime(void)
                      (int)g_pGraphics->resY * 0x96 / 0x1e0,
                      &g_unk0x0052737c, &g_optionTextBrightColours[1], 0x11);
     width = Font_GetTextWidth(3, (BYTE *)CFrontend::m_stringDest);
-    x = g_optionLayoutXScale * (int)g_pGraphics->resX;
+    x = g_optionLayoutXScale * (int)g_pGraphics->resX / 0x280 + width;
     sprintf(CFrontend::m_stringDest, g_str0x005295f0);
     if (CGameInfo::IsOptionMenuTimeoutPulseOn() != 0)
-        OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::m_stringDest, x / 0x280 + width,
+        OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::m_stringDest, x,
                      (int)g_pGraphics->resY * 0x90 / 0x1e0,
                      &g_unk0x00527378, &g_unk0x00527378, 0x11);
     else
-        OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::m_stringDest, x / 0x280 + width,
+        OptionMenu_DrawTransitionTextShortCoords(4, 0, 0, CFrontend::m_stringDest, x,
                      (int)g_pGraphics->resY * 0x90 / 0x1e0,
                      &g_unk0x0052737c, &g_optionTextBrightColours[1], 0x11);
 }

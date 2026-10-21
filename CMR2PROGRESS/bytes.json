@@ -7520,9 +7520,9 @@
   },
   "0x4ed100": {
     "n": "FrontendMenu_UpdateNetworkSessionDetails",
-    "s": 0.8136482939632546,
+    "s": 0.8825065274151436,
     "x": false,
-    "fz": 0.8976377952755905,
+    "fz": 0.9242819843342036,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FrontendMenu_UpdateNetworkSessionDetails"
@@ -12679,9 +12679,9 @@
   },
   "0x50a3f0": {
     "n": "OptionMenu_DrawClampedStageTime",
-    "s": 0.8767123287671232,
+    "s": 0.8846153846153846,
     "x": false,
-    "fz": 0.8995433789954338,
+    "fz": 0.9134615384615384,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "OptionMenu_DrawClampedStageTime"
@@ -13509,9 +13509,9 @@
   },
   "0x454df0": {
     "n": "GameMenus_DrawTextRow",
-    "s": 0.8677248677248677,
+    "s": 0.9468085106382979,
     "x": false,
-    "fz": 0.8994708994708994,
+    "fz": 0.9468085106382979,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenus_DrawTextRow"
@@ -13545,9 +13545,9 @@
   },
   "0x44a1b0": {
     "n": "GameMenu_SetupStageResults",
-    "s": 0.7424328954882924,
+    "s": 0.7431506849315068,
     "x": false,
-    "fz": 0.8715019988577956,
+    "fz": 0.8732876712328768,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenu_SetupStageResults"
@@ -14022,9 +14022,9 @@
   },
   "0x4a4d30": {
     "n": "CGraphics::RemapTextureAlpha",
-    "s": 0.5493562231759657,
+    "s": 0.6781857451403888,
     "x": false,
-    "fz": 0.721030042918455,
+    "fz": 0.838012958963283,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::RemapTextureAlpha"
@@ -15341,9 +15341,9 @@
   },
   "0x4b0480": {
     "n": "Particle_DrawAll",
-    "s": 0.5463659147869674,
+    "s": 0.5664160401002506,
     "x": false,
-    "fz": 0.7969924812030075,
+    "fz": 0.8020050125313283,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "Particle_DrawAll"
@@ -22168,9 +22168,9 @@
   },
   "0x4b5770": {
     "n": "Scene_ProjectCasterIntoLightZone",
-    "s": 0.4449244060475162,
+    "s": 0.4470842332613391,
     "x": false,
-    "fz": 0.6177105831533477,
+    "fz": 0.6198704103671706,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Scene_ProjectCasterIntoLightZone"
@@ -25501,9 +25501,9 @@
   },
   "0x46e780": {
     "n": "StageObject_StampPendingEventDraws",
-    "s": 0.5128205128205128,
+    "s": 0.5154639175257731,
     "x": false,
-    "fz": 0.6666666666666666,
+    "fz": 0.6752577319587629,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_StampPendingEventDraws"
@@ -26221,9 +26221,9 @@
   },
   "0x47aa70": {
     "n": "SurfaceSound_UpdateNearestLocalCarEngines",
-    "s": 0.7155963302752294,
+    "s": 0.735632183908046,
     "x": false,
-    "fz": 0.8486238532110092,
+    "fz": 0.8873563218390804,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "SurfaceSound_UpdateNearestLocalCarEngines"
@@ -28410,9 +28410,9 @@
   },
   "0x4248a0": {
     "n": "ForceFeedback_ComputeConditionCoefficients",
-    "s": 0.8509485094850948,
+    "s": 0.9513513513513514,
     "x": false,
-    "fz": 0.8997289972899729,
+    "fz": 0.972972972972973,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "ForceFeedback_ComputeConditionCoefficients"
@@ -28689,9 +28689,9 @@
   },
   "0x45f9d0": {
     "n": "StageObject_IntegrateViewDeformationGrid",
-    "s": 0.7280453257790368,
+    "s": 0.7337110481586402,
     "x": false,
-    "fz": 0.8342776203966006,
+    "fz": 0.8371104815864022,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "StageObject_IntegrateViewDeformationGrid"

@@ -8573,22 +8573,22 @@ void FrontendMenu_UpdateNetworkSessionDetails(Menu *pMenu)
         Menu_GetItem(pMenu, 3)->min = 5;
     else
         Menu_GetItem(pMenu, 3)->min = 7;
-    if (Menu_GetItem(pMenu, 3)->min <= Menu_GetItem(pMenu, 3)->max)
+    if (Menu_GetItem(pMenu, 3)->max >= Menu_GetItem(pMenu, 3)->min)
         Menu_GetItem(pMenu, 3)->max = Menu_GetItem(pMenu, 3)->min - 1;
     value = pMenu->items[pMenu->cursor].value;
-    if (value == 0)
-        g_unk0x00818cdc = (char *)g_sessionName;
-    else if (value == 4)
-        g_unk0x00818cdc = (char *)g_sessionPassword;
     if (value == 0 || value == 4) {
+        if (pMenu->items[pMenu->cursor].value == 0)
+            g_unk0x00818cdc = (char *)g_sessionName;
+        else
+            g_unk0x00818cdc = (char *)g_sessionPassword;
         strcpy(CFrontend::m_stringDest, g_unk0x00818cdc);
         if (Input_PopQueuedCharacter(&key) != 0) {
             if (key != 8) {
                 i = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                n = ((g_pGraphics->resX < 0x400) - 1 & 0x54) + 0x8c;
                 len = strlen(CFrontend::m_stringDest);
-                if ((int)(len - 1) < 0x13 &&
-                    i < (int)(((g_pGraphics->resX < 0x400) - 1 & 0x54) + 0x8c)) {
-                    pc = strchr(g_strValidLetters, key);
+                if ((int)len < 0x13 && i < n) {
+                    pc = strchr(g_strValidLetters, (char)key);
                     if (pc != NULL) {
                         CFrontend::m_stringDest[len] = (char)key;
                         CFrontend::m_stringDest[len + 1] = 0;

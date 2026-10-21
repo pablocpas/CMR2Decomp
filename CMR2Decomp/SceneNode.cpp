@@ -1859,8 +1859,8 @@ void Scene_ProjectCasterIntoLightZone(LightZoneItem *pItem, ShadowCaster *pCaste
                     ray[0] = plane[0] * inv;
                     ray[1] = plane[1] * inv;
                     ray[2] = plane[2] * inv;
-                    pIn = pPart->pEmittedPositions;
                     pOut = pPart->pVertices;
+                    pIn = pPart->pEmittedPositions;
                     for (vi = 0; vi < (unsigned short)pPart->vertexCount; vi++) {
                         {
                             dx = (*pIn)[0] - pos[0];

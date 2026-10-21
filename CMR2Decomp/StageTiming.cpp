@@ -4883,7 +4883,8 @@ void ForceFeedback_ComputeConditionCoefficients(void)
             spring += FixMul(-spring, speed);
             if (spring < 0)
                 spring = 0;
-            damper += FixMul(0x8000, speed);
+            contact = 0x8000;
+            damper += FixMul(contact, speed);
             if (damper > 0x10000)
                 damper = 0x10000;
         }
@@ -7498,12 +7499,12 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *rec
                 pNode->snowPhaseDegrees -= 0x1680000;
         }
     }
-    if (param_1 != 0 && rec->particleCount != rec->targetParticleCount) {
+    if (param_1 != 0 && rec->targetParticleCount != rec->particleCount) {
         if (rec->particleCount < rec->targetParticleCount) {
             rec->particleCount += FixMul(rec->particleCountChangeRate, g_stageObjectTimeStep);
             if (rec->particleCount > rec->targetParticleCount)
                 rec->particleCount = rec->targetParticleCount;
-        } else if (rec->targetParticleCount < rec->particleCount) {
+        } else if (rec->particleCount > rec->targetParticleCount) {
             rec->particleCount -= FixMul(rec->particleCountChangeRate, g_stageObjectTimeStep);
             if (rec->particleCount < rec->targetParticleCount)
                 rec->particleCount = rec->targetParticleCount;
