@@ -7324,9 +7324,8 @@ void Graphics_DrawMeshTextureBatches(Mesh *pMesh)
         pTri++;
     }
     if (count != 0) {
-        MeshTriangle *pLast = &pMesh->pTriangles[total - 1];
-        int texture = pLast->textures[pLast->field_0x2c];
-        CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[texture]);
+        CGraphics::ApplyTextureStageChange(0, CGraphics::m_pTextureManager->textureBuffer[
+            pMesh->pTriangles[total - 1].textures[pMesh->pTriangles[total - 1].field_0x2c]]);
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
             D3DPT_TRIANGLELIST,
             CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],

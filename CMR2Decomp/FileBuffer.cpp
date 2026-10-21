@@ -54,7 +54,7 @@ void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
     BFLHeader pFileHeaderOut;
     DWORD fileAttributes, fileSize, fileSizeRead;
     size_t iHeaderSize;
-    bool bIsBFL;
+    BOOL bIsBFL;
     HANDLE hFile;
     char _fileName[MAX_PATH];
     // Graphics *pGraphics;
@@ -95,9 +95,10 @@ void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
             // retry counter; the original discards the retry's result and
             // carries on with the failed handle (gzread then fails and it
             // falls back to CreateFileA below)
-            if (++m_unk0x0066461c >= 50)
+            if (++m_unk0x0066461c < 50)
+                GetGenericFileBuffer(fileName, isLocalFile);
+            else
                 return NULL;
-            GetGenericFileBuffer(fileName, isLocalFile);
         }
     }
 
@@ -111,7 +112,7 @@ void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
         lpBuffer = AllocateLockedBuffer(pFileHeaderOut.archiveSize);
         CGenericFileLoader::m_fileSize = pFileHeaderOut.archiveSize;
         gzread(unk0x004bdee0, lpBuffer, pFileHeaderOut.archiveSize);
-        bIsBFL = true;
+        bIsBFL = TRUE;
     }
 
     gzclose(unk0x004bdee0);

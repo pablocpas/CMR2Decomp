@@ -1599,9 +1599,9 @@ int Race_DecodeCallSlotIcon(unsigned int id, Texture **pTexture, SpriteRect *pRe
     int afterFirst;
 
     type = id & 0xf;
-    b3 = id >> 0x15 & 3;
-    b2 = id >> 0x11 & 0xf;
     b1 = id >> 4 & 3;
+    b2 = id >> 0x11 & 0xf;
+    b3 = id >> 0x15 & 3;
 
     if (type == 0 || type == 9)
         afterFirst = 0;
@@ -1616,14 +1616,21 @@ int Race_DecodeCallSlotIcon(unsigned int id, Texture **pTexture, SpriteRect *pRe
     pColour[1] = 0xff;
     pColour[2] = 0xff;
     pColour[3] = 0xff;
-    if (b1 == 1)
+    switch (b1) {
+    case 1:
         *pFlag = 1;
-    else
+        break;
+    default:
         *pFlag = 0;
+        break;
+    }
     if (CGameInfo::IsActiveCheatEnabled(2) != 0)
         *pFlag ^= 1;
 
     switch (type) {
+    case 1:
+        pSrc = &g_pArrowRects[6];
+        break;
     case 2:
         pSrc = &g_pArrowRects[5];
         break;

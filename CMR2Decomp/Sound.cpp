@@ -869,7 +869,6 @@ BOOL Sound_FindADPCMDriver(void);
 // Creates the DirectSound device and sets the format of the primary buffer
 // (16-bit PCM at sampleRate; mono when the speakers are mono). bits and
 // unused are ignored: the original always uses 16 bits.
-// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1d60
 BOOL Sound_InitDevice(int sampleRate, int channels, int bits, int unused)
 {
@@ -877,7 +876,6 @@ BOOL Sound_InitDevice(int sampleRate, int channels, int bits, int unused)
     WAVEFORMATEX format;
     DSBUFFERDESC desc;
 
-    pPrimary = NULL;
     if (!CSound::IsSoundCallSuccessful(DirectSoundCreate(NULL, &g_unk0x005a2844, NULL)))
         return FALSE;
     if (!CSound::IsSoundCallSuccessful(g_unk0x005a2844->SetCooperativeLevel(CMain::m_hWndList[CMain::m_hWndIx], DSSCL_PRIORITY)))
@@ -896,13 +894,13 @@ BOOL Sound_InitDevice(int sampleRate, int channels, int bits, int unused)
     desc.dwBufferBytes = 0;
     desc.lpwfxFormat = NULL;
 
+    memset(&format, 0, sizeof(format));
     format.wFormatTag = WAVE_FORMAT_PCM;
     format.nChannels = (WORD)channels;
     format.nSamplesPerSec = sampleRate;
     format.wBitsPerSample = 16;
     format.nBlockAlign = (WORD)(channels * 2);
     format.nAvgBytesPerSec = format.nBlockAlign * sampleRate;
-    format.cbSize = 0;
 
     if (!CSound::IsSoundCallSuccessful(g_unk0x005a2844->CreateSoundBuffer(&desc, &pPrimary, NULL)))
         return FALSE;

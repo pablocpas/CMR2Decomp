@@ -10571,9 +10571,10 @@ void View_UpdateDriverCameraCycle(unsigned int param_1)
             break;
         case 2:
             RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058df9c);
-            g_unk0x0058e0a4 = g_unk0x0058df9c;
             if (RallyData_GetUsableRecordCategory(g_unk0x0058df98 & 0xff) == -1)
                 g_unk0x0058e0a4 = g_unk0x0058df98;
+            else
+                g_unk0x0058e0a4 = g_unk0x0058df9c;
             break;
         case 3:
             if (param_1 == 0)

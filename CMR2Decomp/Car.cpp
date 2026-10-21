@@ -247,7 +247,7 @@ void Car_MarkHiddenFromCameras(Car *pCar)
                 if (FIX_ABS(delta.x) > 0x3c0000 || FIX_ABS(delta.y) > 0x3c0000 ||
                     FIX_ABS(delta.z) > 0x3c0000)
                     *pRejected = 1;
-                if (*pRejected == 0 && FixVecDot(&delta, &delta) > 0xe100000)
+                else if (FixVecDot(&delta, &delta) > 0xe100000)
                     *pRejected = 1;
                 if (*pRejected == 0 && FixVecDot(&forward, &delta) < 0)
                     *pRejected = 1;
@@ -8006,10 +8006,8 @@ void Camera_Update(CameraRecord *pRecord)
         ChaseCamera_Update(pRecord, Car_GetCameraReferenceMatrix(car), onCar);
         break;
     case 3:
-        if (onCar == 0 && pCar->field_0xb60 == 0)
-            StageObject_DispatchActiveCarObjectUpdate(pRecord, Car_GetCameraReferenceMatrix(car), 0);
-        else
-            StageObject_DispatchActiveCarObjectUpdate(pRecord, Car_GetCameraReferenceMatrix(car), 1);
+        StageObject_DispatchActiveCarObjectUpdate(pRecord, Car_GetCameraReferenceMatrix(car),
+                                                  (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         break;
     case 2:
         StageObject_InterpolateReferenceMatrix(pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);

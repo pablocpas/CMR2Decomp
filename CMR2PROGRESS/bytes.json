@@ -91,9 +91,9 @@
   },
   "0x428a00": {
     "n": "Car_MarkHiddenFromCameras",
-    "s": 0.6133333333333333,
+    "s": 0.6308724832214765,
     "x": false,
-    "fz": 0.8933333333333333,
+    "fz": 0.9261744966442953,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_MarkHiddenFromCameras"
@@ -1216,9 +1216,9 @@
   },
   "0x423460": {
     "n": "Camera_Update",
-    "s": 0.700507614213198,
+    "s": 0.6834170854271356,
     "x": false,
-    "fz": 0.8934010152284264,
+    "fz": 0.8944723618090452,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Camera_Update"
@@ -1758,9 +1758,9 @@
   },
   "0x4aa220": {
     "n": "CFileBuffer::GetGenericFileBuffer",
-    "s": 0.7165532879818595,
+    "s": 0.7559808612440191,
     "x": false,
-    "fz": 0.8979591836734694,
+    "fz": 0.9617224880382775,
     "unknown": [],
     "f": "FileBuffer.cpp",
     "symbol_name": "CFileBuffer::GetGenericFileBuffer"
@@ -15557,9 +15557,9 @@
   },
   "0x49c680": {
     "n": "Graphics_DrawMeshTextureBatches",
-    "s": 0.6153846153846154,
+    "s": 0.8934010152284264,
     "x": false,
-    "fz": 0.8923076923076924,
+    "fz": 0.934010152284264,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "Graphics_DrawMeshTextureBatches"
@@ -18739,9 +18739,9 @@
   },
   "0x418580": {
     "n": "Race_DecodeCallSlotIcon",
-    "s": 0.749185667752443,
+    "s": 0.864516129032258,
     "x": false,
-    "fz": 0.8925081433224755,
+    "fz": 0.9741935483870968,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "Race_DecodeCallSlotIcon"
@@ -22873,9 +22873,9 @@
   },
   "0x4a1d60": {
     "n": "Sound_InitDevice",
-    "s": 0.7169811320754716,
-    "x": false,
-    "fz": 0.8867924528301887,
+    "s": 1.0,
+    "x": true,
+    "fz": 1.0,
     "unknown": [],
     "f": "Sound.cpp",
     "symbol_name": "Sound_InitDevice"
@@ -26041,9 +26041,9 @@
   },
   "0x47b970": {
     "n": "View_UpdateDriverCameraCycle",
-    "s": 0.5875706214689266,
+    "s": 0.550561797752809,
     "x": false,
-    "fz": 0.8926553672316384,
+    "fz": 0.9213483146067416,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "View_UpdateDriverCameraCycle"
