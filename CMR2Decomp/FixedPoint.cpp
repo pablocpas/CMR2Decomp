@@ -969,7 +969,7 @@ void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc)
     pDst->positionPrev2 = pDst->positionPrev;
     pDst->positionPrev = pDst->position;
     pDst->normal0x498 = pDst->groundNormal;
-    memcpy((BYTE *)pDst + 0x384, (BYTE *)pDst + 0x360, 9 * sizeof(int));
+    memcpy(pDst->targetAxes, pDst->bodyAxes, sizeof(pDst->targetAxes));
 
     FixMatrix_GetPosition(&pDst->position, pDst->pWorld);
     FixMatrix_GetRight(&pDst->right, pDst->pWorld);
@@ -985,57 +985,56 @@ void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc)
     pDst->field_0xc20 = 1;
 }
 
-// One suspension step of the current car: for each wheel, the spring force from
-// the corner heights and the damper force are integrated into the suspension
-// travel (0x9c8) and its rate (0x9d8).
-// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Integrates each wheel's restoring/damping force into spring velocity, then
+// offset. Near the ground, the corner's second position difference also
+// contributes an impulse to velocity.
 // FUNCTION: CMR2 0x0042e8e0
 void CarPhysics_IntegrateWheelSuspension(void)
 {
-    FixVector d;
-    FixVector mid;
-    FixVector t;
-    FixVector v;
-    int h;
-    int f;
-    int w;
+    FixVector secondDifference;
+    FixVector previousStep;
+    FixVector currentStep;
+    FixVector bodySecondDifference;
+    int groundDistance;
+    int velocityStep;
+    int wheel;
 
-    for (w = 0; w < 4; w++) {
+    for (wheel = 0; wheel < 4; wheel++) {
         if (g_pCurrentCar->field_0xb74 != 0) {
-            h = g_pCurrentCar->cornerHeight[w] - g_pCurrentCar->corners[w].y;
-            if (h < 0)
-                h = -h;
-            if (h < 0x4ccc &&
-                ((&g_pCurrentCar->cornerPrev2[0])[w].x != 0 ||
-                 (&g_pCurrentCar->cornerPrev2[0])[w].y != 0 ||
-                 (&g_pCurrentCar->cornerPrev2[0])[w].z != 0)) {
-                mid.x = (&g_pCurrentCar->cornerPrev[0])[w].x - (&g_pCurrentCar->cornerPrev2[0])[w].x;
-                mid.y = (&g_pCurrentCar->cornerPrev[0])[w].y - (&g_pCurrentCar->cornerPrev2[0])[w].y;
-                mid.z = (&g_pCurrentCar->cornerPrev[0])[w].z - (&g_pCurrentCar->cornerPrev2[0])[w].z;
-                t.x = g_pCurrentCar->corners[w].x - (&g_pCurrentCar->cornerPrev[0])[w].x;
-                t.y = g_pCurrentCar->corners[w].y - (&g_pCurrentCar->cornerPrev[0])[w].y;
-                t.z = g_pCurrentCar->corners[w].z - (&g_pCurrentCar->cornerPrev[0])[w].z;
-                d.x = t.x - mid.x;
-                d.y = t.y - mid.y;
-                d.z = t.z - mid.z;
-                FixMatrix_InverseRotateVector(&v, &d, g_pCurrentCar->pWorld);
-                // vertical (car-space y) speed of the corner over the last two steps
-                f = v.y;
-                f = FixMul(f, FixMul(0x9c28, g_physicsScale));
-                if (f > 0)
-                    (g_pCurrentCar->field_0x9c8)[w] -= f;
+            groundDistance = g_pCurrentCar->cornerHeight[wheel] - g_pCurrentCar->corners[wheel].y;
+            if (groundDistance < 0)
+                groundDistance = -groundDistance;
+            if (groundDistance < 0x4ccc &&
+                (g_pCurrentCar->cornerPrev2[wheel].x != 0 ||
+                 g_pCurrentCar->cornerPrev2[wheel].y != 0 ||
+                 g_pCurrentCar->cornerPrev2[wheel].z != 0)) {
+                previousStep.x = g_pCurrentCar->cornerPrev[wheel].x - g_pCurrentCar->cornerPrev2[wheel].x;
+                previousStep.y = g_pCurrentCar->cornerPrev[wheel].y - g_pCurrentCar->cornerPrev2[wheel].y;
+                previousStep.z = g_pCurrentCar->cornerPrev[wheel].z - g_pCurrentCar->cornerPrev2[wheel].z;
+                currentStep.x = g_pCurrentCar->corners[wheel].x - g_pCurrentCar->cornerPrev[wheel].x;
+                currentStep.y = g_pCurrentCar->corners[wheel].y - g_pCurrentCar->cornerPrev[wheel].y;
+                currentStep.z = g_pCurrentCar->corners[wheel].z - g_pCurrentCar->cornerPrev[wheel].z;
+                secondDifference.x = currentStep.x - previousStep.x;
+                secondDifference.y = currentStep.y - previousStep.y;
+                secondDifference.z = currentStep.z - previousStep.z;
+                FixMatrix_InverseRotateVector(&bodySecondDifference, &secondDifference, g_pCurrentCar->pWorld);
+                // Car-space Y of the corner's second position difference.
+                velocityStep = bodySecondDifference.y;
+                velocityStep = FixMul(velocityStep, FixMul(0x9c28, g_physicsScale));
+                if (velocityStep > 0)
+                    g_pCurrentCar->wheelSpringVelocity[wheel] -= velocityStep;
             }
         }
-        f = FixMul(g_physicsTimeStep,
-                   -(FixMul(g_pCurrentCar->field_0x9e8[w], g_pCurrentCar->wheel0x9d8[w]) +
-                     FixMul(g_pCurrentCar->field_0x9f8[w], (g_pCurrentCar->field_0x9c8)[w])));
-        (g_pCurrentCar->field_0x9c8)[w] += f;
-        (&g_pCurrentCar->wheel0x9d8[0])[w] +=
-            FixMul(g_physicsTimeStep, (g_pCurrentCar->field_0x9c8)[w]);
-        if ((&g_pCurrentCar->wheel0x9d8[0])[w] < -0x3333) {
-            (&g_pCurrentCar->wheel0x9d8[0])[w] = -0x3333;
-            if ((g_pCurrentCar->field_0x9c8)[w] < 0)
-                (g_pCurrentCar->field_0x9c8)[w] = 0;
+        velocityStep = FixMul(g_physicsTimeStep,
+                   -(FixMul(g_pCurrentCar->wheelSpringStiffness[wheel], g_pCurrentCar->wheelSpringOffset[wheel]) +
+                     FixMul(g_pCurrentCar->wheelSpringDamping[wheel], g_pCurrentCar->wheelSpringVelocity[wheel])));
+        g_pCurrentCar->wheelSpringVelocity[wheel] += velocityStep;
+        g_pCurrentCar->wheelSpringOffset[wheel] +=
+            FixMul(g_physicsTimeStep, g_pCurrentCar->wheelSpringVelocity[wheel]);
+        if (g_pCurrentCar->wheelSpringOffset[wheel] < -0x3333) {
+            g_pCurrentCar->wheelSpringOffset[wheel] = -0x3333;
+            if (g_pCurrentCar->wheelSpringVelocity[wheel] < 0)
+                g_pCurrentCar->wheelSpringVelocity[wheel] = 0;
         }
     }
 }

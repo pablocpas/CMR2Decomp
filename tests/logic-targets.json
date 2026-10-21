@@ -286,6 +286,13 @@
       "0x43c7f0"
     ]
   },
+  "differential_car_spring_state.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x43dff0",
+      "0x42e8e0"
+    ]
+  },
   "differential_car_step.py": {
     "arguments": "entities",
     "targets": [

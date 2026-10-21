@@ -198,17 +198,17 @@ struct Car {
     int field_0x96c;                  // 0x96c
     int field_0x970[2];               // 0x970
     int field_0x978[4];               // 0x978  per-wheel offset added to the part's value
-    int wheel0x988[4];                // 0x988
+    int wheelRideHeight[4];          // 0x988 setting-derived body lift / spring-impact limit
     int wheelLeanHeight[4];          // 0x998 lean-frame corner Y plus suspension damage offset
-    int wheel0x9a8[4];                // 0x9a8  suspension height of each corner, body lean frame
+    int bodyLeanHeight[4];           // 0x9a8 body-lean corner Y plus suspension damage offset
     int wheelLeanDamping;              // 0x9b8  damping of wheelLean
     int bodyLeanDamping;               // 0x9bc
-    int field_0x9c0;
+    int wheelTravelLoadScale;        // 0x9c0 converts mean-relative wheel travel to load bias
     int field_0x9c4;                  // 0x9c4
-    int field_0x9c8[4];               // 0x9c8
-    int wheel0x9d8[4];                // 0x9d8
-    int field_0x9e8[4];               // 0x9e8
-    int field_0x9f8[4];               // 0x9f8
+    int wheelSpringVelocity[4];      // 0x9c8 integrated restoring/damping force
+    int wheelSpringOffset[4];        // 0x9d8 integrated velocity; clamped below at -0x3333
+    int wheelSpringStiffness[4];     // 0x9e8 coefficient multiplying spring offset
+    int wheelSpringDamping[4];       // 0x9f8 coefficient multiplying spring velocity
     int field_0xa08;
     int cornerGripA[8];               // 0xa0c  grip limits of a corner without a wheel
     int cornerGripB[8];               // 0xa2c

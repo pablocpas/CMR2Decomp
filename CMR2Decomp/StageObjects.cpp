@@ -11074,10 +11074,10 @@ void CarDamage_UpdateSuspensionImpactContacts(Car *pCar)
     do {
         int limit;
 
-        limit = pCar->wheel0x988[i];
+        limit = pCar->wheelRideHeight[i];
         if (limit < 0x51e)
             limit = 0x51e;
-        if (pCar->wheel0x9d8[i] >= -limit) {
+        if (pCar->wheelSpringOffset[i] >= -limit) {
             bVar14 = FALSE;
             i = 4;
         }
@@ -11090,7 +11090,7 @@ void CarDamage_UpdateSuspensionImpactContacts(Car *pCar)
 
         bVar5 = TRUE;
         iBig = 0;
-        p = pCar->field_0x9c8;
+        p = pCar->wheelSpringVelocity;
         n = 4;
         do {
             int v;

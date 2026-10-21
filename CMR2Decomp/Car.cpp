@@ -1171,7 +1171,7 @@ void Car_UpdateBodyMatrix(void)
     int factor;
 
     for (i = 0; i < 4; i++) {
-        comp[i] = g_pCurrentCar->wheel0x988[i] + g_pCurrentCar->wheel0x9d8[i] + g_pCurrentCar->wheel0x9a8[i];
+        comp[i] = g_pCurrentCar->wheelRideHeight[i] + g_pCurrentCar->wheelSpringOffset[i] + g_pCurrentCar->bodyLeanHeight[i];
         if (CGameInfo::IsActiveCheatEnabled(6) != 0) {
             if (comp[i] < -0x5999)
                 comp[i] = -0x5999;
@@ -2834,8 +2834,8 @@ void Car_UpdateSuspension(void)
     }
     for (i = 0; i < 4; i++) {
         FixMatrix_RotateVector(&flat, &box[i], &m);
-        g_pCurrentCar->wheel0x9a8[i] = flat.y;
-        g_pCurrentCar->wheel0x9a8[i] += g_physicsPartSet->suspensionDamageOffset[i];
+        g_pCurrentCar->bodyLeanHeight[i] = flat.y;
+        g_pCurrentCar->bodyLeanHeight[i] += g_physicsPartSet->suspensionDamageOffset[i];
     }
     if (g_pCurrentCar->field_0xb28 == 4) {
         Car_UpdateWheelLoads();
@@ -4126,28 +4126,28 @@ int Car_UsesNarrowWheels(Car *pCar, int param2)
 // Sets the suspension geometry of the current car from the ride-height
 // setting (0..0x10000).
 // FUNCTION: CMR2 0x0043dff0
-void Car_SetRideHeight(int param_1)
+void Car_SetRideHeight(int heightSetting)
 {
-    int off;
-    int inv;
-    int n0;
-    int n1;
+    int wheel;
+    int inverseHeightSetting;
+    int normalDragRange;
+    int loadTravelRange;
 
     if (CGameInfo::IsActiveCheatEnabled(6) != 0)
-        param_1 = -0x6666;
-    g_pCurrentCar->wheelLeanDamping = FixMul(param_1, 0x6666) + 0x9999;
-    g_pCurrentCar->bodyLeanDamping = FixMul(param_1, 0x3333) + 0x6666;
-    n0 = FixMul(param_1, -0x1aaaa) + 0x50000;
-    n1 = FixMul(param_1, -0x1999) + 0x3333;
+        heightSetting = -0x6666;
+    g_pCurrentCar->wheelLeanDamping = FixMul(heightSetting, 0x6666) + 0x9999;
+    g_pCurrentCar->bodyLeanDamping = FixMul(heightSetting, 0x3333) + 0x6666;
+    normalDragRange = FixMul(heightSetting, -0x1aaaa) + 0x50000;
+    loadTravelRange = FixMul(heightSetting, -0x1999) + 0x3333;
     g_pCurrentCar->suspensionLoadScale = g_pCurrentCar->mass / 8;
-    g_pCurrentCar->field_0x9c0 = FixDiv(0x10000, n1);
-    g_pCurrentCar->field_0x9c4 = FixDiv(0x10000, n0);
-    inv = 0x10000 - param_1;
-    for (off = 0; off < 4; off++) {
-        ((int *)g_pCurrentCar->field_0x9e8)[off] = 0x4ccc;
-        ((int *)g_pCurrentCar->field_0x9e8)[off + 4] = FixMul(param_1, 0x5999) + 0x4000;
-        g_pCurrentCar->wheel0x988[off] = FixMul(0x1999, inv);
-        g_pCurrentCar->field_0x978[off] = FixMul(param_1, 0x8000) + 0x8000;
+    g_pCurrentCar->wheelTravelLoadScale = FixDiv(0x10000, loadTravelRange);
+    g_pCurrentCar->field_0x9c4 = FixDiv(0x10000, normalDragRange);
+    inverseHeightSetting = 0x10000 - heightSetting;
+    for (wheel = 0; wheel < 4; wheel++) {
+        g_pCurrentCar->wheelSpringStiffness[wheel] = 0x4ccc;
+        g_pCurrentCar->wheelSpringDamping[wheel] = FixMul(heightSetting, 0x5999) + 0x4000;
+        g_pCurrentCar->wheelRideHeight[wheel] = FixMul(0x1999, inverseHeightSetting);
+        g_pCurrentCar->field_0x978[wheel] = FixMul(heightSetting, 0x8000) + 0x8000;
     }
     g_pCurrentCar->field_0xa08 = -0x1999;
 }
@@ -5203,7 +5203,7 @@ void Car_RebuildBodyAxes(void)
         FixMatrix_SetUp(&g_pCurrentCar->up, g_pCurrentCar->pBodyMatrix);
         FixMatrix_SetForward(&g_pCurrentCar->forward, g_pCurrentCar->pBodyMatrix);
     }
-    scale = g_pCurrentCar->wheel0x988[0];
+    scale = g_pCurrentCar->wheelRideHeight[0];
     FixVecScale(&tmp, &g_pCurrentCar->up, scale);
     tmp.x += g_pCurrentCar->position.x;
     tmp.y += g_pCurrentCar->position.y;
@@ -6536,7 +6536,7 @@ void Car_IntegrateWheelTravel(void)
         avg = sum / 4;
         max = 0;
         for (i = 0; i < 4; i++) {
-            t = FixMul(g_pCurrentCar->field_0x9c0, v[i] - avg);
+            t = FixMul(g_pCurrentCar->wheelTravelLoadScale, v[i] - avg);
             g_pCurrentCar->wheelTravelLoadBias[i] = t;
             if (max < FIX_ABS(t))
                 max = FIX_ABS(t);
