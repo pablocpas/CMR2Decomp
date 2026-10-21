@@ -850,6 +850,10 @@ CMR2_LAYOUT_CHECK(CarState_cornerPrev_Check, offsetof(Car, cornerPrev) == 0x300)
 CMR2_LAYOUT_CHECK(CarState_cornerPrev2_Check, offsetof(Car, cornerPrev2) == 0x330);
 CMR2_LAYOUT_CHECK(CarState_cornerAxis_Check, offsetof(Car, cornerAxis) == 0x4a4);
 CMR2_LAYOUT_CHECK(CarState_cornerNormal_Check, offsetof(Car, cornerNormal) == 0x504);
+CMR2_LAYOUT_CHECK(CarState_wheelLeanHeight_Check, offsetof(Car, wheelLeanHeight) == 0x998);
+CMR2_LAYOUT_CHECK(CarState_wheelLeanHeight_Count, sizeof(((Car *)0)->wheelLeanHeight) / sizeof(int) == 4);
+CMR2_LAYOUT_CHECK(CarState_wheelTravelLoadBias_Check, offsetof(Car, wheelTravelLoadBias) == 0x808);
+CMR2_LAYOUT_CHECK(CarState_wheelTravelLoadBias_Count, sizeof(((Car *)0)->wheelTravelLoadBias) / sizeof(int) == 4);
 CMR2_LAYOUT_CHECK(CarState_steepTime_Check, offsetof(Car, steepTime) == 0xa9c);
 CMR2_LAYOUT_CHECK(CarState_cornerTriangle_Check, offsetof(Car, cornerTriangle) == 0xa9e);
 CMR2_LAYOUT_CHECK(CarState_tipAngle_Check, offsetof(Car, tipAngle) == 0xb18);

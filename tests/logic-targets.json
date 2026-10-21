@@ -290,7 +290,8 @@
     "arguments": "entities",
     "targets": [
       "0x440840",
-      "0x433890"
+      "0x433890",
+      "0x444c10"
     ]
   },
   "differential_checkpoint_advance.py": {

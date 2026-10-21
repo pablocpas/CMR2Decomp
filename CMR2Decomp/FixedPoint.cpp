@@ -963,7 +963,7 @@ void Car_RestorePhysicsFromRecord(Car *pDst, CarNetRecord *pSrc)
     }
     for (i = 0; i < 8; i++) {
         pDst->cornerNormal[i] = pDst->cornerAxis[i];
-        pDst->cornerOnGround[4 + i] = 0;
+        pDst->objectContactState[i] = 0;
     }
     pDst->field_0x7a8 = pDst->engineSpeed;
     pDst->positionPrev2 = pDst->positionPrev;

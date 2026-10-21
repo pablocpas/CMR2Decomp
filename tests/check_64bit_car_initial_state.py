@@ -128,7 +128,7 @@ def main():
     env = dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1')
     with tempfile.TemporaryDirectory(prefix='cmr2-native-car-state-') as directory:
         tmp = Path(directory)
-        for name in ('FloatToInt.h','Car.h','SceneNode.h','Sector.h','LayoutChecks.h'):
+        for name in ('FloatToInt.h','X87Single.h','Car.h','CameraRecord.h','SceneNode.h','Sector.h','LayoutChecks.h'):
             shutil.copyfile(source/name,tmp/name)
         shutil.copyfile(ROOT.parent/'OpenCMR2/game/FixedPoint.h',tmp/'FixedPoint.h')
         (tmp/'Graphics.h').write_text('struct Graphics;struct Texture;class CGraphics{public:static const double m_oneOver65536;};\n')

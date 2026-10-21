@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "656873195105114275859cd19ac37800c98f1c19",
+    "commit": "3ffff173a719b065dd0f579c948c84d668a6839b",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -55,8 +55,8 @@
       "CMR2Decomp/BestTimeRecords.h": "7b09c04cab99c03d334b39ec5340a7216840903b2f9d51cfc8ac497473de4291",
       "CMR2Decomp/CallbackState.h": "bdcea074ac9af71d50c7f59b05e197df891b344efbf257bb8ac86e6b632a1749",
       "CMR2Decomp/CameraRecord.h": "bbd648cd2f1beef839cf3ec385cf72947134902e8e230e35d4b50153c3815b2d",
-      "CMR2Decomp/Car.cpp": "ea8fc270a825e17d8844e363a98fe8bd5928fe21d335ebcb65f464be40f9617d",
-      "CMR2Decomp/Car.h": "dfc4915dd7df07d2d32a6c7d2671a3daa77c9d1feb53c20ac9d024903b0faa9e",
+      "CMR2Decomp/Car.cpp": "d78653b8a42315abe8d306c46ec74e8ce3b0205693b49ab5e7735f05922ada59",
+      "CMR2Decomp/Car.h": "5827aae3252c6e2ac6fe845eda010d12a1e5e54084b01342a9176e27e80fa211",
       "CMR2Decomp/CarEffects.cpp": "f0120d0d4959b630ecd13b47b449f6c4ab6228e324a166fca617a56bed73b6df",
       "CMR2Decomp/CarExhaust.h": "2f51d0a245b1da6a98dc0a1152098b0c9dce08b33b29d0459feb77328a9207dc",
       "CMR2Decomp/CarImpact.h": "1800bc27ccd9f5c0ea2398977c5ae92c33ff8ad44084d687cb711e0a67c795db",
@@ -79,7 +79,7 @@
       "CMR2Decomp/FileBuffer.cpp": "60df65fc8d807f5dac9434d86b8f93e45ec7f14db1ad7dce0f8fe3534dd68dc6",
       "CMR2Decomp/FileBuffer.h": "38afa99a1ea6bc78ef37511f715e61e494639a6e711308824858aefe2198eeee",
       "CMR2Decomp/FinRecord.h": "2b04d78504592498ee3163732bd80cf37d8f0a631c7e10d189e24657dd79e0b3",
-      "CMR2Decomp/FixedPoint.cpp": "7969a8ba1c4938e316d99904af5b14a40417072be6f91b054e7db785696660a0",
+      "CMR2Decomp/FixedPoint.cpp": "9352245d93842cb8ad1a101c8dfcec99bd23a0e8eaced4cf537f2bdadfd694c4",
       "CMR2Decomp/FixedPoint.h": "b4ee0888257b77acfdd3a770b56cb4cf2402c9cda4d200d55ac8443d9852be88",
       "CMR2Decomp/FloatToInt.h": "c302ad50883656fcd76195df252383d669cd9b6b8165dbf64034fb8643f50af5",
       "CMR2Decomp/Font.cpp": "4e39c1d7747b8daf8b24a6f2dcbb8a2ad466e577bf4b1f54d42203d4377239ea",
@@ -111,7 +111,7 @@
       "CMR2Decomp/Input.h": "70247972fa5b28d76ada3b7b4e42adada4eb83aa1d204f493e5d982a922591a2",
       "CMR2Decomp/InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
       "CMR2Decomp/InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
-      "CMR2Decomp/LayoutChecks.cpp": "5ce8a675bae6b367e4c7dd53cac0ff9931550270cf0419133b5e6a1b99a96c88",
+      "CMR2Decomp/LayoutChecks.cpp": "6111cbeacb07c26a0b304ced973535dc54e54c3d7a5b39c2629eebe4f3a13edf",
       "CMR2Decomp/LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
       "CMR2Decomp/LightZone.h": "61ede4fe7c41bff3944aaef341f31848c7eb9eb0e8ed8b2c7842633d5f626deb",
       "CMR2Decomp/Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
@@ -219,8 +219,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "cd7420cb871fb2e17877d500da9962166e4a12805d50d267871fd99484229214",
-    "pdb_sha256": "7e396ffa1ab608518804ae4856e876db6b88126b41dffa9775de3aed026d3acd"
+    "exe_sha256": "8be8a785eafa484dd823ec8ed88d801057718690cb7defd2f30722feba43e625",
+    "pdb_sha256": "3085f402bc00b14d7b61096b645f5a678befd89ee9545f7cc0c4f1cda16cebbc"
   },
   "perfect_match_percent": 56.28,
   "fuzzy_match_percent": 94.46,

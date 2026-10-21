@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Compare car-step scheduling and the complete rigid-body integration pass.
+"""Compare car-step scheduling, preparation and complete rigid-body integration.
 
 Physics leaves and terrain queries are controlled providers. The complete pass
 scheduler, per-car state copies, resets and helper order run in both images;
 rotation into the body frame uses the actual matrix helper.
+Preparation checks the corner history/velocities, filters and signed count;
+terrain and later physics passes are controlled, with real matrix helpers.
 The integrator path executes its real vector, basis and corner helpers, with
 whole-heap/car/setup guards, matrix alias cases and a zero-time-step model.
 Usage: differential_car_step.py entities.json [rebuilt.exe]
@@ -13,6 +15,7 @@ import json
 import math
 from pathlib import Path
 import random
+import struct
 import sys
 
 from unicorn.x86_const import UC_X86_REG_EAX
@@ -145,10 +148,79 @@ class Step(Lighting):
         if reverse:
             order.reverse()
         self.put(HEAP + 0x9000, '<' + 'h' * count, *order)
+        self.native_input = self.read(HEAP, 0x10000)
+        self.native_globals = (self.read(self.addr(0x53CADC), 4) +
+                               self.read(self.addr(0x53C9D4), 16))
         self.invoke(0x433890, [HEAP + 0x1000, HEAP + 0x9000, count])
         state = b''.join(self.read(self.addr(a), length) for a, length in
                          ((0x53CC18, 4), (0x53CC1C, 4), (0x53C9D4, 16)))
-        return self.read(HEAP, 0x10000), state, self.trace
+        out = self.read(HEAP, 0x10000)
+        for index in range(count):
+            car = 0x1000 + index * 0xC24
+            assert out[car+0x330:car+0x360] == self.native_input[car+0x300:car+0x330], 'second corner snapshot'
+            assert out[car+0x300:car+0x330] == self.native_input[car+0x270:car+0x2A0], 'first corner snapshot'
+        return out, state, self.trace
+
+
+class Preparation(Records):
+    """The complete preparation pass; later physics/terrain work is controlled."""
+
+    def provider(self, address, nargs):
+        args = tuple(self.args(nargs))
+        if address == 0x4781D0:
+            assert args[1] == 0, 'initial surface blend'
+        elif address == 0x4930E0:
+            assert args[1] == 8, 'all eight ground corners'
+        elif address == 0x484E00:
+            assert args == (HEAP + 0x9000, self.count & 0xFFFFFFFF), 'climbing pass/order'
+        elif address == 0x4B8910:
+            self.put(args[1], '<3h', 17, 23, 31)
+        # Sector output is a stack address; compare the values and car position.
+        self.trace.append((address, args[:1] if address == 0x4B8910 else args))
+        self.u.reg_write(UC_X86_REG_EAX, 5 if address == 0x4B8910 else 0)
+
+    def run_prepare(self, count, seed, reverse):
+        h = self.begin(seed)
+        self.count = count
+        self.intercept((0x43EEF0, 1), (0x4930E0, 2), (0x42F820, 0),
+                       (0x432B30, 0), (0x42DE20, 0), (0x4458D0, 0),
+                       (0x4781D0, 2), (0x42E450, 0), (0x43B100, 0),
+                       (0x432C20, 0), (0x4B8910, 2), (0x484E00, 2))
+        order = list(range(max(count, 0)))
+        if reverse:
+            order.reverse()
+        put(h, HEAP + 0x9000, '<' + 'h' * len(order), *order)
+        for index in range(max(count, 0)):
+            car, matrix = HEAP + 0x1000 + index * 0xC24, HEAP + 0x8000 + index * 64
+            put(h, car + 0xB1A, '<b', index)
+            put(h, car + 0x750, '<I', matrix)
+            put(h, matrix, '<16i', 65536,0,0,0, 0,65536,0,0, 0,0,65536,0,
+                seed*131,-seed*71,index*1000,65536)
+            put(h, car + 0x408, '<3i', (seed%5-2)*32768, index*8192, (seed%7-3)*16384)
+            put(h, car + 0x48C, '<3i', 0,65536,0)
+            put(h, car + 0x360, '<9i', 65536,0,0, 0,65536,0, 0,0,65536)
+            put(h, car + 0xC20, '<i', seed & 1)
+            put(h, car + 0xC00, '<i', (seed >> 1) & 1)
+            put(h, car + 0xBF8, '<i', (seed >> 2) & 1)
+            put(h, car + 0x960, '<i', (seed%3-1)*8192)
+            put(h, car + 0x7BC, '<8i', *(i*16384 for i in range(8)))
+            put(h, car + 0x794, '<i', 0x50000)
+        self.put(self.addr(0x53CC18), '<I', 0)
+        self.put(self.addr(0x6E0EF4), '<4096H', *(math.isqrt((8+16*i)*65536) for i in range(4096)))
+        self.allowed.add((self.addr(0x53CC18), 4))
+        self.native_input = bytes(h)
+        out = self.invoke_guarded(0x444C10, [HEAP + 0x1000, HEAP + 0x9000, count])
+        selected = struct.unpack('<I', self.read(self.addr(0x53CC18), 4))[0]
+        assert selected == (HEAP + 0x1000 + order[0]*0xC24 if order else 0)
+        if count <= 0:
+            assert out == h, 'empty/negative order touches no cars'
+        for index in range(max(count, 0)):
+            car = 0x1000 + index * 0xC24
+            assert out[car+0x42C:car+0x48C] == h[car+0x408:car+0x414]*8, 'all corner velocities'
+            if not (seed & 5):
+                assert out[car+0x330:car+0x360] == h[car+0x300:car+0x330], 'second corner snapshot'
+                assert out[car+0x300:car+0x330] == h[car+0x270:car+0x2A0], 'first corner snapshot'
+        return out, selected, self.trace
 
 
 def main():
@@ -163,13 +235,20 @@ def main():
             print('FAIL car-step passes', case, 'car offsets:', offsets[:20])
             return 1
         total += 1
+    preparation = (Preparation(ROOT / 'cmr2bin/CMR2.exe'),
+                   Preparation(Path(sys.argv[2]) if len(sys.argv)>2 else ROOT/'build/CMR2.exe', entities))
+    preparation_count = 0
+    for case in itertools.product((-1, 0, 1, 2, 8), range(16), (False, True)):
+        assert preparation[0].run_prepare(*case) == preparation[1].run_prepare(*case), ('preparation', case)
+        preparation_count += 1
     left = Integrator(ROOT / 'cmr2bin/CMR2.exe')
     right = Integrator(Path(sys.argv[2]) if len(sys.argv)>2 else ROOT/'build/CMR2.exe', entities)
     integration_count = 0
     for case in itertools.product((0,1),range(3),(0,1),(0,1),(0,1),(0,16384,65536),(0,17)):
         assert left.integrate(*case) == right.integrate(*case), ('complete rigid-body integration',case)
         integration_count += 1
-    print(f'{total} car-step cases and {integration_count} complete rigid-body integrations: guarded cars/setup/forces/matrices, zero-step model, real geometry/fixed-point helpers and ABI')
+    print(f'{total} car-step cases, {preparation_count} preparations and {integration_count} complete rigid-body integrations: '
+          'corner history/velocity models, empty/negative orders, guarded cars/setup/forces/matrices, zero-step model, real geometry/fixed-point helpers and ABI')
     return 0
 
 

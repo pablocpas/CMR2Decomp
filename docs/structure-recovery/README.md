@@ -85,6 +85,12 @@ slots y conserva todas las puntuaciones. El inventario regenerado contiene
 tanda distingue sus dos accesos eliminados del trabajo previo aún no reflejado
 en el inventario antiguo.
 
+La tanda de [estado de esquinas](car-corner-step-state.md) tipa snapshots y
+velocidades, nombra dos campos de suspensión con evidencia y corrige tres
+resets que excedían el array corto de contactos. Mejora dos puntuaciones sin
+regresiones y deja el inventario en 113 candidatos crudos y 1405 campos sin
+nombre semántico.
+
 Las tandas 07–09 recuperan la familia de clima, iluminación y escenas de etapa
 con 97 comprobaciones de layouts y capacidad. El inventario actualizado tiene
 1987 accesos crudos, 1389 identificadores desconocidos distintos y 1512 campos

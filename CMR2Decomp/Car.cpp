@@ -2774,8 +2774,8 @@ void Car_UpdateSuspension(void)
     box[3].z = -g_pCurrentCar->halfExtents.z;
     for (i = 0; i < 4; i++) {
         FixMatrix_RotateVector(&flat, &box[i], &m);
-        g_pCurrentCar->field_0x998[i] = flat.y;
-        g_pCurrentCar->field_0x998[i] += g_physicsPartSet->suspensionDamageOffset[i];
+        g_pCurrentCar->wheelLeanHeight[i] = flat.y;
+        g_pCurrentCar->wheelLeanHeight[i] += g_physicsPartSet->suspensionDamageOffset[i];
     }
 
     // Body.
@@ -2855,7 +2855,7 @@ void Car_UpdateWheelLoads(void)
 {
     int quarterMass = g_pCurrentCar->mass / 4;
     int maxHeightOffset = 0;
-    int *pHeight = g_pCurrentCar->field_0x998;
+    int *pHeight = g_pCurrentCar->wheelLeanHeight;
     int i = 4;
 
     do {
@@ -2870,13 +2870,13 @@ void Car_UpdateWheelLoads(void)
     if (maxHeightOffset > 0x4000) {
         int scale = FixDiv(0x4000, maxHeightOffset);
         for (i = 0; i < 4; i++) {
-            g_pCurrentCar->field_0x998[i] = FixMul(g_pCurrentCar->field_0x998[i], scale);
+            g_pCurrentCar->wheelLeanHeight[i] = FixMul(g_pCurrentCar->wheelLeanHeight[i], scale);
         }
     }
 
     for (i = 0; i < 4; i++) {
-        int heightTerm = FixMul(g_pCurrentCar->field_0x998[i], 0x40000);
-        heightTerm += g_pCurrentCar->field_0x808[i];
+        int heightTerm = FixMul(g_pCurrentCar->wheelLeanHeight[i], 0x40000);
+        heightTerm += g_pCurrentCar->wheelTravelLoadBias[i];
         g_pCurrentCar->cornerWeight[i] = quarterMass - FixMul(heightTerm, g_pCurrentCar->suspensionLoadScale);
     }
 
@@ -4730,34 +4730,27 @@ void AutoGear_UpdateCarGearState(Car *pCar);
 // the corner state of each car, runs its ground/contact, engine, steering and
 // friction updates, then publishes the final position and the surface of every
 // car.
-// match 75%: same logic, offsets, constants and calls as the original; MSVC6
-// keeps the shared loop bound in the count parameter slot of the original and
-// spills it into a frame slot here, which re-numbers the registers of every
-// loop prologue, and the two inner clear loops get a different instruction
-// order. Kept as FUNCTION so reccmp keeps measuring it.
 // FUNCTION: CMR2 0x00433890
-void Car_StepAll(Car *base, short *pList, short count)
+void Car_StepAll(Car *pCars, short *pOrder, short count)
 {
-    FixVector v;
-    short out[3];
-    int f;
-    int m;
-    int i;
-    int k;
+    FixVector bodyGroundNormal;
+    short neighbourSectors[3];
+    int halfGravity;
+    int mass;
+    int orderIndex;
+    int cornerIndex;
 
-    Car_BalanceTwoPlayerRideHeight(base, pList, count);
-    for (i = count - 1; i >= 0; i--) {
+    Car_BalanceTwoPlayerRideHeight(pCars, pOrder, count);
+    for (orderIndex = count - 1; orderIndex >= 0; orderIndex--) {
         g_unk0x0053c9d4 = 0;
         g_carStepAccel.x = 0;
         g_carStepAccel.y = 0;
         g_carStepAccel.z = 0;
-        g_pCurrentCar = base + pList[i];
+        g_pCurrentCar = pCars + pOrder[orderIndex];
         Car_ScaleRatesByTimeStep(g_pCurrentCar);
-        for (k = 0x300; k < 0x330; k += 0xc) {
-            *(FixVector *)((BYTE *)g_pCurrentCar + k + 0x30) =
-                *(FixVector *)((BYTE *)g_pCurrentCar + k);
-            *(FixVector *)((BYTE *)g_pCurrentCar + k) =
-                *(FixVector *)((BYTE *)g_pCurrentCar + k - 0x90);
+        for (cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+            g_pCurrentCar->cornerPrev2[cornerIndex] = g_pCurrentCar->cornerPrev[cornerIndex];
+            g_pCurrentCar->cornerPrev[cornerIndex] = g_pCurrentCar->corners[cornerIndex];
         }
         g_pCurrentCar->positionPrev2 =
             g_pCurrentCar->positionPrev;
@@ -4771,24 +4764,24 @@ void Car_StepAll(Car *base, short *pList, short count)
         Car_UpdateLowSpeedWheelLoadTimer();
         CarEffects_UpdateBrokenLightFlicker(g_pCurrentCar);
     }
-    for (i = count - 1; i >= 0; i--) {
-        g_pCurrentCar = base + pList[i];
+    for (orderIndex = count - 1; orderIndex >= 0; orderIndex--) {
+        g_pCurrentCar = pCars + pOrder[orderIndex];
         AutoGear_UpdateCarGearState(g_pCurrentCar);
-        for (k = 3; k >= 0; k--) {
-            g_pCurrentCar->wheelSlip[k] = 0;
-            g_pCurrentCar->wheelSlipLateral[k] = 0;
+        for (cornerIndex = 3; cornerIndex >= 0; cornerIndex--) {
+            g_pCurrentCar->wheelSlip[cornerIndex] = 0;
+            g_pCurrentCar->wheelSlipLateral[cornerIndex] = 0;
         }
     }
-    for (i = count - 1; i >= 0; i--) {
-        g_pCurrentCar = base + pList[i];
+    for (orderIndex = count - 1; orderIndex >= 0; orderIndex--) {
+        g_pCurrentCar = pCars + pOrder[orderIndex];
         g_pCurrentCar->field_0xb74 = 1;
-        FixMatrix_InverseRotateVector(&v, &g_pCurrentCar->groundNormal, g_pCurrentCar->pWorld);
-        if (v.y <= 0x106 || FIX_ABS(v.x) > FixMul(abs(v.y), 0x93cd) ||
-            FIX_ABS(v.z) > FixMul(FIX_ABS(v.y), 0x10000))
+        FixMatrix_InverseRotateVector(&bodyGroundNormal, &g_pCurrentCar->groundNormal, g_pCurrentCar->pWorld);
+        if (bodyGroundNormal.y <= 0x106 || FIX_ABS(bodyGroundNormal.x) > FixMul(abs(bodyGroundNormal.y), 0x93cd) ||
+            FIX_ABS(bodyGroundNormal.z) > FixMul(FIX_ABS(bodyGroundNormal.y), 0x10000))
             g_pCurrentCar->field_0xb74 = 0;
     }
-    for (i = count - 1; i >= 0; i--) {
-        g_pCurrentCar = base + pList[i];
+    for (orderIndex = count - 1; orderIndex >= 0; orderIndex--) {
+        g_pCurrentCar = pCars + pOrder[orderIndex];
         g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         if (g_physicsPartSet->glassDebrisEmitted == 0 && g_physicsPartSet->glassCooldown != 0)
             g_physicsPartSet->glassCooldown -= 1;
@@ -4797,9 +4790,9 @@ void Car_StepAll(Car *base, short *pList, short count)
         memset(&g_pCurrentCar->cornerLoad, 0, sizeof(g_pCurrentCar->cornerLoad));
         memset(&g_pCurrentCar->cornerForce, 0, sizeof(g_pCurrentCar->cornerForce));
         g_pCurrentCar->baseForce.x = 0;
-        f = FixMul(0x8000, g_gravityScale);
-        m = g_pCurrentCar->mass;
-        g_pCurrentCar->baseForce.y = -FixMul(m, f);
+        halfGravity = FixMul(0x8000, g_gravityScale);
+        mass = g_pCurrentCar->mass;
+        g_pCurrentCar->baseForce.y = -FixMul(mass, halfGravity);
         g_pCurrentCar->baseForce.z = 0;
         Car_ShareWeightOnWheels();
         Car_UpdateSuspension();
@@ -4807,22 +4800,22 @@ void Car_StepAll(Car *base, short *pList, short count)
         Car_UpdateCornerLoads();
         Car_UpdateSteering();
     }
-    for (i = count - 1; i >= 0; i--) {
-        g_pCurrentCar = base + pList[i];
+    for (orderIndex = count - 1; orderIndex >= 0; orderIndex--) {
+        g_pCurrentCar = pCars + pOrder[orderIndex];
         g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         Car_UpdateEngineTorque();
     }
-    for (i = count - 1; i >= 0; i--) {
-        g_pCurrentCar = base + pList[i];
+    for (orderIndex = count - 1; orderIndex >= 0; orderIndex--) {
+        g_pCurrentCar = pCars + pOrder[orderIndex];
         Car_UpdateCornerFriction();
     }
-    for (i = count - 1; i >= 0; i--) {
-        g_pCurrentCar = base + pList[i];
+    for (orderIndex = count - 1; orderIndex >= 0; orderIndex--) {
+        g_pCurrentCar = pCars + pOrder[orderIndex];
         g_physicsPartSet = CarPart_GetSet((int)g_pCurrentCar->index);
         Car_IntegrateContacts();
     }
-    for (i = count - 1; i >= 0; i--) {
-        g_pCurrentCar = base + pList[i];
+    for (orderIndex = count - 1; orderIndex >= 0; orderIndex--) {
+        g_pCurrentCar = pCars + pOrder[orderIndex];
         g_pCurrentCar->field_0x7a8 = g_pCurrentCar->engineSpeed;
         Car_UpdateEngineSpeed();
         Car_UpdateResponseValueCountdown();
@@ -4833,13 +4826,13 @@ void Car_StepAll(Car *base, short *pList, short count)
         g_pCurrentCar->field_0x5d0.y = 0;
         g_pCurrentCar->field_0x5d0.z = 0;
     }
-    for (i = count - 1; i >= 0; i--) {
-        g_pCurrentCar = base + pList[i];
+    for (orderIndex = count - 1; orderIndex >= 0; orderIndex--) {
+        g_pCurrentCar = pCars + pOrder[orderIndex];
         g_pCurrentCar->sector =
-            Sector_GetNeighbours(&g_pCurrentCar->position, out);
-        g_pCurrentCar->neighbours.s[0] = out[0];
-        g_pCurrentCar->neighbours.s[1] = out[1];
-        g_pCurrentCar->neighbours.s[2] = out[2];
+            Sector_GetNeighbours(&g_pCurrentCar->position, neighbourSectors);
+        g_pCurrentCar->neighbours.s[0] = neighbourSectors[0];
+        g_pCurrentCar->neighbours.s[1] = neighbourSectors[1];
+        g_pCurrentCar->neighbours.s[2] = neighbourSectors[2];
         g_pCurrentCar->field_0x2dc = g_pCurrentCar->position;
     }
 }
@@ -5230,24 +5223,24 @@ short Sector_GetNeighbours(FixVector *pPos, short *pOut);
 // body axes and the wheel loads, lifts the car out of the ground and refreshes
 // its surface parameters and the sector neighbours of its position.
 // FUNCTION: CMR2 0x00444c10
-void Car_PrepareStep(Car *carBase, short *pOrder, short count)
+void Car_PrepareStep(Car *pCars, short *pOrder, short count)
 {
-    short *p;
-    int n;
+    short *pCarIndex;
+    int remaining;
     int i;
     int lift;
-    short nb[3];
-    FixVector v;
+    short neighbourSectors[3];
+    FixVector work;
     FixVector *pRight;
     FixVector *pForward;
 
 
-    n = count - 1;
-    if (n >= 0) {
-        p = &pOrder[n];
-        n++;
+    remaining = count - 1;
+    if (remaining >= 0) {
+        pCarIndex = &pOrder[remaining];
+        remaining++;
         do {
-            g_pCurrentCar = carBase + *p;
+            g_pCurrentCar = pCars + *pCarIndex;
             lift = g_pCurrentCar->field_0x960;
             if (lift < 0)
                 lift = 0;
@@ -5263,7 +5256,7 @@ void Car_PrepareStep(Car *carBase, short *pOrder, short count)
                 for (i = 0; i < 8; i++) {
                     g_pCurrentCar->cornerNormal[i] =
                         g_pCurrentCar->cornerAxis[i];
-                    g_pCurrentCar->cornerOnGround[4 + i] = 0;
+                    g_pCurrentCar->objectContactState[i] = 0;
                 }
                 g_pCurrentCar->field_0x7a8 = g_pCurrentCar->engineSpeed;
                 g_pCurrentCar->positionPrev2 = g_pCurrentCar->positionPrev;
@@ -5278,8 +5271,8 @@ void Car_PrepareStep(Car *carBase, short *pOrder, short count)
             }
 
             g_pCurrentCar->speed = FixVecLength(&g_pCurrentCar->velocity);
-            for (i = 0x42c; i < 0x48c; i += 0xc)
-                *(FixVector *)((BYTE *)g_pCurrentCar + i) = g_pCurrentCar->velocity;
+            for (i = 0; i < 8; i++)
+                g_pCurrentCar->cornerVelocity[i] = g_pCurrentCar->velocity;
             g_pCurrentCar->renderSteeringAngle = *(short *)&g_pCurrentCar->wheelSteeringAngle;
             g_pCurrentCar->targetSteeringAngle = g_pCurrentCar->renderSteeringAngle;
             g_pCurrentCar->groundHeightCorrection = 0;
@@ -5323,13 +5316,13 @@ void Car_PrepareStep(Car *carBase, short *pOrder, short count)
                     pForward = &g_pCurrentCar->forward;
                     g_pCurrentCar->up = g_pCurrentCar->groundNormal;
                     i = FixVecDot(&g_pCurrentCar->up, pRight);
-                    FixVecScale(&v, &g_pCurrentCar->up, i);
-                    v.x = pRight->x - v.x;
-                    v.y = pRight->y - v.y;
-                    v.z = pRight->z - v.z;
-                    FIX_NORMALIZE_INTO(pRight[0], v)
-                    FixVecCross(&v, pRight, &g_pCurrentCar->up);
-                    FIX_NORMALIZE_INTO(pForward[0], v)
+                    FixVecScale(&work, &g_pCurrentCar->up, i);
+                    work.x = pRight->x - work.x;
+                    work.y = pRight->y - work.y;
+                    work.z = pRight->z - work.z;
+                    FIX_NORMALIZE_INTO(pRight[0], work)
+                    FixVecCross(&work, pRight, &g_pCurrentCar->up);
+                    FIX_NORMALIZE_INTO(pForward[0], work)
                     FixMatrix_SetRight(pRight, g_pCurrentCar->pWorld);
                     FixMatrix_SetUp(&g_pCurrentCar->up, g_pCurrentCar->pWorld);
                     FixMatrix_SetForward(pForward, g_pCurrentCar->pWorld);
@@ -5363,7 +5356,7 @@ void Car_PrepareStep(Car *carBase, short *pOrder, short count)
                 for (i = 0; i < 8; i++) {
                     g_pCurrentCar->cornerNormal[i] =
                         g_pCurrentCar->cornerAxis[i];
-                    g_pCurrentCar->cornerOnGround[4 + i] = 0;
+                    g_pCurrentCar->objectContactState[i] = 0;
                 }
                 g_pCurrentCar->field_0x7a8 = g_pCurrentCar->engineSpeed;
                 g_pCurrentCar->positionPrev2 = g_pCurrentCar->position;
@@ -5380,9 +5373,9 @@ void Car_PrepareStep(Car *carBase, short *pOrder, short count)
             g_pCurrentCar->field_0xbf8 = 0;
             g_pCurrentCar->field_0xc20 = 0;
             g_pCurrentCar->field_0xb74 = 1;
-            FixMatrix_InverseRotateVector(&v, &g_pCurrentCar->groundNormal, g_pCurrentCar->pWorld);
-            if (!(v.y > 0x106 && FIX_ABS(v.x) <= FixMul(FIX_ABS(v.y), 0x93cd) &&
-                  FIX_ABS(v.z) <= FixMul(FIX_ABS(v.y), 0x10000)))
+            FixMatrix_InverseRotateVector(&work, &g_pCurrentCar->groundNormal, g_pCurrentCar->pWorld);
+            if (!(work.y > 0x106 && FIX_ABS(work.x) <= FixMul(FIX_ABS(work.y), 0x93cd) &&
+                  FIX_ABS(work.z) <= FixMul(FIX_ABS(work.y), 0x10000)))
                 g_pCurrentCar->field_0xb74 = 0;
             for (i = 0; i < 4; i++) {
                 g_pCurrentCar->wheelSpinForWheelLean[i] = 0;
@@ -5394,12 +5387,12 @@ void Car_PrepareStep(Car *carBase, short *pOrder, short count)
             Car_UpdateSuspension();
             Car_StoreBodyMatrix();
             g_pCurrentCar->sector =
-                Sector_GetNeighbours(&g_pCurrentCar->position, nb);
-            g_pCurrentCar->neighbours.s[0] = nb[0];
-            g_pCurrentCar->neighbours.s[1] = nb[1];
-            g_pCurrentCar->neighbours.s[2] = nb[2];
-            p--;
-        } while (--n != 0);
+                Sector_GetNeighbours(&g_pCurrentCar->position, neighbourSectors);
+            g_pCurrentCar->neighbours.s[0] = neighbourSectors[0];
+            g_pCurrentCar->neighbours.s[1] = neighbourSectors[1];
+            g_pCurrentCar->neighbours.s[2] = neighbourSectors[2];
+            pCarIndex--;
+        } while (--remaining != 0);
     }
     CarDamage_StepClimbingCarRecords(pOrder, count);
 }
@@ -6544,18 +6537,18 @@ void Car_IntegrateWheelTravel(void)
         max = 0;
         for (i = 0; i < 4; i++) {
             t = FixMul(g_pCurrentCar->field_0x9c0, v[i] - avg);
-            g_pCurrentCar->field_0x808[i] = t;
+            g_pCurrentCar->wheelTravelLoadBias[i] = t;
             if (max < FIX_ABS(t))
                 max = FIX_ABS(t);
         }
         if (max > 0x10000) {
             for (i = 0; i < 4; i++)
-                g_pCurrentCar->field_0x808[i] = FixMul(g_pCurrentCar->field_0x808[i], FixDiv(0x10000, max));
+                g_pCurrentCar->wheelTravelLoadBias[i] = FixMul(g_pCurrentCar->wheelTravelLoadBias[i], FixDiv(0x10000, max));
         }
     } else {
         for (i = 0; i < 4; i++) {
             g_pCurrentCar->field_0x928[i] = 0;
-            g_pCurrentCar->field_0x808[i] = 0;
+            g_pCurrentCar->wheelTravelLoadBias[i] = 0;
         }
     }
     if (g_pCurrentCar->useUpperCollisionCorners != 0) {

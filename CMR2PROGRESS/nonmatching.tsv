@@ -257,7 +257,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x45f530	StageObject_ScaleViewValueByRoute	StageTiming.cpp	154	0.8440366972477065	0.8518518518518519
 0x468520	CarDamage_AllocateImpactDeformRecord	StageTiming.cpp	908	0.8455008488964346	0.7269681742043551
 0x426fc0	NetRace_ExtrapolateOrderedCarPoses	FixedPoint.cpp	1466	0.8459915611814346	0.821917808219178
-0x444c10	Car_PrepareStep	Car.cpp	3256	0.8477777777777777	0.8138766519823789
+0x444c10	Car_PrepareStep	Car.cpp	3256	0.85	0.816079295154185
 0x45c610	CarTyres_CommitPlayerWear	StageTiming.cpp	145	0.85	0.85
 0x467e90	StageDeform_ApplyPlanarDent	StageTiming.cpp	1666	0.8505106778087279	0.8051948051948052
 0x463070	StageLights_UpdateDirection	StageObjects.cpp	512	0.850632911392405	0.7182044887780549
@@ -339,7 +339,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4db850	FrontendMenu_DrawArcadeChampionshipTransmission	FrontendScreens.cpp	1322	0.9130434782608695	0.8894230769230769
 0x443250	Car_UpdateBodyLean	Car.cpp	2000	0.9141455437448897	0.8994276369582993
 0x4d65c0	FrontendDraw_RallyInfoHeader	FrontendScreens.cpp	683	0.9146608315098468	0.9197396963123644
-0x433890	Car_StepAll	Car.cpp	1507	0.9161747343565525	0.8699763593380615
 0x4a3650	Sprite_DrawLayer	Sprite.cpp	1503	0.9163879598662207	0.9242761692650334
 0x4e9f70	FrontendMenu_BuildPagesAndSelectInitial	FrontendScreens.cpp	1226	0.9169139465875371	0.8768
 0x40dfa0	RallyData_FillEventSlotSelections	RallyData.cpp	472	0.9172413793103448	0.9172413793103448
@@ -352,6 +351,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4b9910	Graphics_LoadTextureRecordList	Graphics.cpp	467	0.92	0.8637873754152824
 0x4bcaf0	Graphics_SetFog	Graphics.cpp	181	0.92	0.92
 0x42eae0	Car_UpdateGroundContact	Car.cpp	3380	0.9202037351443124	0.8787366046249295
+0x433890	Car_StepAll	Car.cpp	1507	0.9207100591715977	0.8865248226950354
 0x4dfe20	FrontendMenu_DrawGraphicsOptions	FrontendScreens.cpp	2321	0.9207792207792208	0.928763440860215
 0x4eadb0	RallyData_ResetSavedPlayerRecords	RallyData.cpp	141	0.9210526315789473	0.9473684210526315
 0x4b1ac0	Mesh_BuildParts	Mesh.cpp	561	0.9211822660098522	0.8557213930348259

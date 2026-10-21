@@ -152,7 +152,7 @@ struct Car {
     int field_0x7fc;                  // 0x7fc  set from the difficulty (0x43e530)
     int field_0x800;                  // 0x800
     int field_0x804;                  // 0x804
-    int field_0x808[4];               // 0x808
+    int wheelTravelLoadBias[4];       // 0x808 mean-relative wheel travel, scaled/clamped for corner loads
     int steeringInput;                 // 0x818  ramps -1..1 with flag0x1d0[0]/[1] (0x494540)
     int steeringAccumulator;           // 0x81c
     int steeringReturnRate;            // 0x820  rate applied when steering returns towards zero
@@ -199,7 +199,7 @@ struct Car {
     int field_0x970[2];               // 0x970
     int field_0x978[4];               // 0x978  per-wheel offset added to the part's value
     int wheel0x988[4];                // 0x988
-    int field_0x998[4];               // 0x998  suspension height of each corner, front lean frame
+    int wheelLeanHeight[4];          // 0x998 lean-frame corner Y plus suspension damage offset
     int wheel0x9a8[4];                // 0x9a8  suspension height of each corner, body lean frame
     int wheelLeanDamping;              // 0x9b8  damping of wheelLean
     int bodyLeanDamping;               // 0x9bc
