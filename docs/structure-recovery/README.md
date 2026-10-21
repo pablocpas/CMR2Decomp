@@ -115,6 +115,13 @@ inventario queda en 92 candidatos crudos. La evidencia distingue este formato
 fijo de un lector general de chunks y documenta los retornos y la propiedad
 del archivo que mantiene el original.
 
+La tanda de [perfiles TM de tiempos](stage-time-profile.md) identifica los
+coeficientes de 16 pilotos y dos bancos de splits en archivos de `0x550` bytes.
+Corrige cuatro nombres de funciones, tipa el global y elimina dos lecturas
+crudas de tiempos. Mejora el consumidor aleatorio sin regresiones y deja
+90 candidatos crudos; las seis lecturas del interpolador siguen documentadas
+como deuda de coincidencia con MSVC6.
+
 Las tandas 07–09 recuperan la familia de clima, iluminación y escenas de etapa
 con 97 comprobaciones de layouts y capacidad. El inventario actualizado tiene
 1987 accesos crudos, 1389 identificadores desconocidos distintos y 1512 campos

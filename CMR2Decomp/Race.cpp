@@ -675,7 +675,7 @@ void RallyData_LayoutPlayerSplitBars(void);
 void Frontend_LoadSplitTimeMirror(void);
 void Replay_InitRaceSlots(void);
 void StageWeather_SetupSettingTransition(void);
-void StageTiming_LoadSelectedTeamArchive(void);
+void StageTiming_LoadSelectedTimeProfile(void);
 BYTE *AI_LoadStageRouteTables(void);
 void StageObject_ForwardSessionUpdate(void);
 void RallyData_RebuildSectorStaticObjectTables(void);
@@ -760,7 +760,7 @@ BYTE Race_LoadSelectedStage(void)
     if (CGameInfo::GetGameInfoSessionFlag() == 0 && CGameInfo::GetConfiguredGameMode() == 3)
         Replay_InitRaceSlots();
     StageWeather_SetupSettingTransition();
-    StageTiming_LoadSelectedTeamArchive();
+    StageTiming_LoadSelectedTimeProfile();
     StageTiming_InitRaceDriverRecords(1);
     StageObject_ForwardSessionUpdate();
     RallyData_DrawLoadingProgress(0x3c, 1, 0xff);

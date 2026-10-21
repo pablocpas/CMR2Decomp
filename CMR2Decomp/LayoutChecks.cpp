@@ -37,11 +37,16 @@
 #include "LayoutChecks.h"
 #include "Input.h"
 #include "PcmWaveHeader.h"
+#include "StageTimeProfile.h"
 #include "LightZone.h"
 
 // Preserve the original Win32 layouts used by array indexing, bulk copies
 // and packed callback tables. Keep these checks out of shared headers:
 // extra declarations there can alter MSVC6 code generation in unrelated TUs.
+CMR2_LAYOUT_CHECK(StageDriverTimeTuningSizeCheck, sizeof(StageDriverTimeTuning) == 5);
+CMR2_LAYOUT_CHECK(StageTimeProfileSizeCheck, sizeof(StageTimeProfile) == 0x550);
+CMR2_LAYOUT_CHECK(StageTimeProfileBlend0OffsetCheck, offsetof(StageTimeProfile, blend0Times) == 0x50);
+CMR2_LAYOUT_CHECK(StageTimeProfileBlend1OffsetCheck, offsetof(StageTimeProfile, blend1Times) == 0x2d0);
 CMR2_LAYOUT_CHECK(PcmWaveHeaderSizeCheck, sizeof(PcmWaveHeader) == 0x2c);
 CMR2_LAYOUT_CHECK(PcmWaveIdOffsetCheck, offsetof(PcmWaveHeader, waveId) == 8);
 CMR2_LAYOUT_CHECK(PcmWaveChannelsOffsetCheck, offsetof(PcmWaveHeader, channels) == 0x16);

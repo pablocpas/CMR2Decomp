@@ -11,9 +11,11 @@ from unicorn import UC_HOOK_CODE
 from unicorn.x86_const import UC_X86_REG_FPCW
 from differential_lookup_pointers import Lookup,cases
 from differential_rally_times import Times
+from differential_stage_time_profile import TimeProfile, cases as profile_cases
 from differential_ai_telemetry import Telemetry
 from differential_menu_list import ROOT,HEAP
 from check_64bit_race_state_pointers import body
+from check_64bit_address_loops import record
 
 PRELUDE=r'''
 #include <cassert>
@@ -31,16 +33,19 @@ typedef long long __int64;
 #include "SoundCurve.h"
 #include "AIReferenceRoute.h"
 #include "StageTimingSpread.h"
+#include "StageTimeProfile.h"
 unsigned short g_sqrtTable[4096];int g_sinTable[4096];
 AIReferenceRoute *g_aiReferenceRoutes[9];
-char *g_unk0x0054241c;
+StageTimeProfile *g_stageTimeProfile;
 int fixturePoints,fixtureSplits;
+bool profileCase;unsigned profileSeed,randomCursor;
+std::vector<unsigned> profileEvents;
 std::array<int,3> fixtureOrigin;
 std::vector<std::array<int,3>> fixtureNodes,fixtureAngles;
 size_t angleCursor;
-int RallyData_GetRouteAvailabilityState(){return fixturePoints;}
+int RallyData_GetRouteAvailabilityState(){if(profileCase)profileEvents.push_back(1);return fixturePoints;}
 int RallyData_GetRouteStateValue(){return (int)fixtureNodes.size();}
-int GetStageSplitCount(){return fixtureSplits;}
+int GetStageSplitCount(){if(profileCase)profileEvents.push_back(2);return fixtureSplits;}
 int Stage_GetSplitPositionFixed(int index){return index*(10000/fixtureSplits)*65536;}
 void RallyData_GetRouteNodeGroundPosition(int index,int *out){
  const auto &p=fixtureNodes.empty()?fixtureOrigin:fixtureNodes.at(index);
@@ -51,6 +56,17 @@ int StageObject_Atan2Degrees(int y,int x){
 }
 double g_fixedDegreesToAngle12=4096.0/(360.0*65536.0);
 double g_minus65536=-65536.0;
+int fixtureRand(){unsigned draws[]={0,1,16383,16384,32766,32767};assert(randomCursor<16);unsigned v=draws[(profileSeed+randomCursor++)%6];profileEvents.push_back(3);profileEvents.push_back(v);return (int)v;}
+#define rand fixtureRand
+'''
+PROFILE_API=r'''
+StageSplitState g_stageSplit;
+#define g_stageSplitDriverIndices (g_stageSplit.indices)
+void RallyTiming_SortOrder(int *times,char *order,int direction,int count,char initialize){
+ assert(profileCase && (uintptr_t)times>UINT32_MAX && order==g_stageSplit.indices[fixtureSplits] &&
+        !direction && count==g_stageSplit.driverCount && initialize==1);
+ profileEvents.push_back(4);profileEvents.push_back((unsigned)fixtureSplits);profileEvents.push_back((unsigned)count);
+}
 '''
 MAIN=r'''
 int main(int argc,char **argv){
@@ -58,10 +74,20 @@ int main(int argc,char **argv){
  static_assert(sizeof(SoundCurve)==32 && offsetof(SoundCurve,pSamples)==16 && offsetof(SoundCurve,pBytes)==24,"native sound fields");
  static_assert(sizeof(AIReferenceRoute)==0x1720 && offsetof(AIReferenceRoute,positionZ)==0x1158,"unchanged disk layout");
  static_assert(sizeof(StageTimingSpread)==0xb0 && offsetof(StageTimingSpread,startBlendFixed)==0xa8,"numeric workspace");
+ static_assert(sizeof(StageDriverTimeTuning)==5 && sizeof(StageTimeProfile)==0x550 &&
+  offsetof(StageTimeProfile,blend0Times)==0x50 && offsetof(StageTimeProfile,blend1Times)==0x2d0,"serialized TM layout");
  alignas(16) BYTE heap[65536];assert(fread(heap,1,sizeof(heap),stdin)==sizeof(heap));
  assert((uintptr_t)heap>UINT32_MAX && (uintptr_t)g_aiReferenceRoutes>UINT32_MAX);
  unsigned result=0;bool routes=!strcmp(argv[1],"route");
- if(!strcmp(argv[1],"curve")){
+ profileCase=!strcmp(argv[1],"profile");
+ if(profileCase){
+  int target=atoi(argv[2]);profileSeed=(unsigned)atoi(argv[3]);fixtureSplits=atoi(argv[4]);g_stageSplit.driverCount=atoi(argv[5]);fixturePoints=10000;
+  g_stageTimeProfile=(StageTimeProfile *)(heap+0x1000);auto *workspace=(StageTimingSpread *)(heap+0x3000);auto *out=(int *)(heap+0x4000);
+  assert((uintptr_t)g_stageTimeProfile>UINT32_MAX);
+  if(target==0)StageTiming_BlendDriverTimeTuning(workspace,out);
+  else if(target==1)StageTiming_InterpolateCarFixedSampleRows(workspace,out);
+  else {assert(target==2);StageTiming_RandomizeAndSortDriverTimeTuning(out);assert(randomCursor==16);}
+ }else if(!strcmp(argv[1],"curve")){
   int value=atoi(argv[2]),target=atoi(argv[3]);SoundCurve curve;
   memcpy(&curve,heap+0x800,12);curve.pSamples=(unsigned short *)(heap+0x2000);curve.pBytes=heap+0x1000;auto before=curve;
   assert((uintptr_t)&curve>UINT32_MAX && (uintptr_t)curve.pSamples>UINT32_MAX && (uintptr_t)curve.pBytes>UINT32_MAX);
@@ -75,10 +101,10 @@ int main(int argc,char **argv){
   BYTE *end=StageTiming_RelocateCarRecordRoutePoints(heap+0x1000,nullptr,count);
   assert((uintptr_t)end>UINT32_MAX);result=0x10000000u+(unsigned)(end-heap);
  }else if(!strcmp(argv[1],"spread")){
-  fixtureSplits=atoi(argv[2]);fixturePoints=10000;g_unk0x0054241c=(char *)(heap+0x1000);
+  fixtureSplits=atoi(argv[2]);fixturePoints=10000;g_stageTimeProfile=(StageTimeProfile *)(heap+0x1000);
   StageTimingSpread workspace;memcpy(&workspace,heap+0x3000,sizeof(workspace));
   assert((uintptr_t)&workspace>UINT32_MAX);
-  StageTiming_BlendCarPaintDecalRows(&workspace,(int *)(heap+0x4000));
+  StageTiming_BlendDriverTimeTuning(&workspace,(int *)(heap+0x4000));
   StageTiming_BuildSplitInterpolationFactors(&workspace);
   StageTiming_InterpolateCarFixedSampleRows(&workspace,(int *)(heap+0x5000));
   memcpy(heap+0x3000,&workspace,sizeof(workspace));
@@ -100,23 +126,24 @@ int main(int argc,char **argv){
   assert(!memcmp(&car,&before,sizeof(car)) && angleCursor==fixtureAngles.size());
  }
  assert(fwrite(heap,1,sizeof(heap),stdout)==sizeof(heap));assert(fwrite(&result,4,1,stdout)==1);
+ if(profileCase)assert(fwrite(profileEvents.data(),sizeof(unsigned),profileEvents.size(),stdout)==profileEvents.size());
  if(routes)for(int i=0;i<9;i++){assert((uintptr_t)g_aiReferenceRoutes[i]>UINT32_MAX);unsigned p=0x10000000u+(unsigned)((BYTE *)g_aiReferenceRoutes[i]-heap);assert(fwrite(&p,4,1,stdout)==1);}
 }
 '''
 
 def main():
  source=ROOT/'CMR2Decomp'
- names={'NetRace.cpp':['NetRace_IsValueWithinCurveRange','NetRace_InterpolateByteCurve','NetRace_InterpolateWordCurve'],'StageTiming.cpp':['StageTiming_RelocateCarRecordRoutePoints','StageTiming_BlendCarPaintDecalRows','StageTiming_BuildSplitInterpolationFactors','StageTiming_InterpolateCarFixedSampleRows','StageTiming_RecomputeCarSplitBarSamples']}
+ names={'NetRace.cpp':['NetRace_IsValueWithinCurveRange','NetRace_InterpolateByteCurve','NetRace_InterpolateWordCurve'],'StageTiming.cpp':['StageTiming_RelocateCarRecordRoutePoints','StageTiming_BlendDriverTimeTuning','StageTiming_RandomizeAndSortDriverTimeTuning','StageTiming_BuildSplitInterpolationFactors','StageTiming_InterpolateCarFixedSampleRows','StageTiming_RecomputeCarSplitBarSamples']}
  funcs='\n'.join(body((source/file).read_text(),name) for file,items in names.items() for name in items)
  env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1')
  with tempfile.TemporaryDirectory(prefix='cmr2-native-lookups-') as directory:
   tmp=Path(directory)
-  for header in ('FloatToInt.h','Car.h','SceneNode.h','Sector.h','LayoutChecks.h','SoundCurve.h','AIReferenceRoute.h','StageTimingSpread.h'):shutil.copyfile(source/header,tmp/header)
+  for header in source.glob('*.h'):shutil.copyfile(header,tmp/header.name)
   shutil.copyfile(ROOT.parent/'OpenCMR2/game/FixedPoint.h',tmp/'FixedPoint.h')
   (tmp/'windows.h').write_text('typedef unsigned char BYTE;typedef unsigned int DWORD;typedef int BOOL;\n')
   (tmp/'Graphics.h').write_text('struct Graphics;struct Texture;class CGraphics{public:static constexpr double m_oneOver65536=1.0/65536.0;static constexpr double m_65536=65536.0;};\n')
   (tmp/'Mesh.h').write_text('struct Mesh;\n')
-  fixture=tmp/'lookup.cpp';fixture.write_text(PRELUDE+funcs+MAIN);exe=tmp/'lookup'
+  fixture=tmp/'lookup.cpp';fixture.write_text(PRELUDE+record((source/'StageTiming.cpp').read_text(),'StageSplitState')+PROFILE_API+funcs+MAIN);exe=tmp/'lookup'
   subprocess.run(['clang++','-include',str(ROOT/'CMR2Decomp/FloatToInt.h'),'-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing','-I',str(tmp),'-Werror=int-to-pointer-cast','-Werror=pointer-to-int-cast','-fsanitize=address,undefined',str(fixture),'-o',str(exe)],check=True)
   def native(args,input,expected):
    p=subprocess.run([str(exe),*map(str,args)],input=input,capture_output=True,env=env)
@@ -140,6 +167,17 @@ def main():
    initial=times.read(HEAP,0x10000)
    times.invoke(0x455f00,[HEAP+0x3000,HEAP+0x4000]);times.invoke(0x456330,[HEAP+0x3000]);times.invoke(0x4564d0,[HEAP+0x3000,HEAP+0x5000])
    native(['spread',splits],initial,times.read(HEAP,0x10000)+struct.pack('<I',0));count+=1
+  profile=TimeProfile(ROOT/'cmr2bin/CMR2.exe')
+  for kind,args in profile_cases():
+   heap,trace=profile.run_case(kind,args);seed,a,b,splits=args;events=[]
+   for event in trace:
+    if event[0]=='route':events.append(1)
+    elif event[0]=='splits':events.append(2)
+    elif event[0]=='rand':events.extend((3,event[1]))
+    else:assert event[0]=='sort';events.extend((4,event[2],event[3]))
+   target={'blend':0,'interpolate':1,'randomize':2}[kind]
+   native(['profile',target,seed,a if kind=='randomize' else splits,b if kind=='randomize' else 0],profile.initial,
+          heap+struct.pack('<I',0)+struct.pack('<'+str(len(events))+'I',*events));count+=1
   telemetry=Telemetry(ROOT/'cmr2bin/CMR2.exe');capture={}
   def before(u,address,size,data):
    if address==0x498620:capture['heap']=telemetry.read(HEAP,0x10000)

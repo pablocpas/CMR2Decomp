@@ -29,7 +29,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x456710	StageTiming_PerturbComputerSplitDeltas	StageTiming.cpp	592	0.5172413793103449	0.508557457212714
 0x4eb860	Profile_AssignAvailableCategory	FileBuffer.cpp	500	0.5227963525835866	0.5149700598802395
 0x46e780	StageObject_StampPendingEventDraws	StageObjects.cpp	637	0.5230769230769231	0.5128205128205128
-0x455f00	StageTiming_BlendCarPaintDecalRows	StageTiming.cpp	527	0.5263157894736842	0.5348837209302325
+0x455f00	StageTiming_BlendDriverTimeTuning	StageTiming.cpp	527	0.5263157894736842	0.5348837209302325
 0x42e450	Car_IntegrateWheelTravel	Car.cpp	1165	0.5358166189111748	0.48732394366197185
 0x4919a0	Stage_InitLightMeshes	TrackCollision.cpp	918	0.5384615384615384	0.50682261208577
 0x463410	StageLights_Create	StageObjects.cpp	1983	0.5450274079874706	0.7799530148786218
@@ -225,7 +225,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4d5fb0	FrontendMenu_DrawDifficulty	FrontendScreens.cpp	695	0.8074534161490683	0.8068669527896996
 0x47c2f0	AI_LoadStageRouteTables	StageObjects.cpp	701	0.8088888888888889	0.756152125279642
 0x457e10	CarInfo_GetSection	StageTiming.cpp	59	0.8095238095238095	0.7619047619047619
-0x455300	StageTiming_LoadSelectedTeamArchive	StageTiming.cpp	341	0.8097560975609757	0.7843137254901961
+0x455300	StageTiming_LoadSelectedTimeProfile	StageTiming.cpp	341	0.8097560975609757	0.7843137254901961
 0x4ed100	FrontendMenu_UpdateNetworkSessionDetails	FrontendScreens.cpp	561	0.8106666666666666	0.8136482939632546
 0x47e4d0	Fireworks_Init	StageObjects.cpp	1348	0.8122392211404729	0.8183079056865464
 0x47b0e0	StageObject_UpdatePlayerControlIndicators	StageObjects.cpp	1344	0.815114709851552	0.7908232118758435
@@ -252,7 +252,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x472cb0	Knockout_ApplyCarGroundMaterials	StageObjects.cpp	317	0.8376068376068376	0.8017241379310345
 0x4bdd30	CGraphics::ProbeDisplayDriverCapabilities	Graphics.cpp	239	0.8378378378378378	0.8378378378378378
 0x460390	StageWeather_DrawViewPrecipitation	StageObjects.cpp	1691	0.8404669260700389	0.7934044616876819
-0x456110	StageTiming_RandomizeComputerTimes	StageTiming.cpp	204	0.8413793103448276	0.8794326241134752
 0x464cb0	StageObject_UpdateSkidTrails	StageObjects.cpp	2172	0.8424242424242424	0.831306990881459
 0x45f530	StageObject_ScaleViewValueByRoute	StageTiming.cpp	154	0.8440366972477065	0.8518518518518519
 0x468520	CarDamage_AllocateImpactDeformRecord	StageTiming.cpp	908	0.8455008488964346	0.7269681742043551
@@ -288,6 +287,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4248a0	ForceFeedback_ComputeConditionCoefficients	StageTiming.cpp	584	0.8657534246575342	0.8509485094850948
 0x4f0820	FrontendProfile_ApplyStageSelectionAndAdvance	FrontendScreens.cpp	297	0.8673469387755102	0.7914438502673797
 0x47d5a0	StageObject_SpawnCarHeadlightGlow	StageObjects.cpp	673	0.8679245283018868	0.8752941176470588
+0x456110	StageTiming_RandomizeAndSortDriverTimeTuning	StageTiming.cpp	204	0.8689655172413793	0.9078014184397163
 0x4873f0	Collision_BuildObjectPointBounds	StageObjects.cpp	931	0.869172932330827	0.7779433681073026
 0x502570	OptionMenu_InitDefaultRecordTables	GameInfo.cpp	191	0.8695652173913043	0.8695652173913043
 0x4786b0	Surface_BlendWheelContactParameters	SurfaceTypes.cpp	764	0.8721461187214612	0.8662131519274376

@@ -28292,22 +28292,22 @@
     "symbol_name": "StageTiming_InsertDriverSplitRanking"
   },
   "0x455f00": {
-    "n": "StageTiming_BlendCarPaintDecalRows",
+    "n": "StageTiming_BlendDriverTimeTuning",
     "s": 0.5348837209302325,
     "x": false,
     "fz": 0.6104651162790697,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_BlendCarPaintDecalRows"
+    "symbol_name": "StageTiming_BlendDriverTimeTuning"
   },
   "0x456110": {
-    "n": "StageTiming_RandomizeComputerTimes",
-    "s": 0.8794326241134752,
+    "n": "StageTiming_RandomizeAndSortDriverTimeTuning",
+    "s": 0.9078014184397163,
     "x": false,
     "fz": 0.950354609929078,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_RandomizeComputerTimes"
+    "symbol_name": "StageTiming_RandomizeAndSortDriverTimeTuning"
   },
   "0x458fd0": {
     "n": "StageTiming_AdvanceTimedLapCheckpoint",
@@ -28535,13 +28535,13 @@
     "symbol_name": "StageTiming_LoadWeatherParticleTextures"
   },
   "0x455300": {
-    "n": "StageTiming_LoadSelectedTeamArchive",
+    "n": "StageTiming_LoadSelectedTimeProfile",
     "s": 0.7843137254901961,
     "x": false,
     "fz": 0.9019607843137255,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_LoadSelectedTeamArchive"
+    "symbol_name": "StageTiming_LoadSelectedTimeProfile"
   },
   "0x4483e0": {
     "n": "StageTiming_EstimateRemainingDriverTimes",
@@ -28589,13 +28589,13 @@
     "symbol_name": "StageTiming_RecordAndReorderSplitTime"
   },
   "0x455ed0": {
-    "n": "StageTiming_RefreshPaintSamplesAndTimeSpread",
+    "n": "StageTiming_BuildAndSortDriverTimeTuning",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_RefreshPaintSamplesAndTimeSpread"
+    "symbol_name": "StageTiming_BuildAndSortDriverTimeTuning"
   },
   "0x458100": {
     "n": "StageTiming_ResetParticipatingDriverRecords",

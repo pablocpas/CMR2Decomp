@@ -4301,7 +4301,7 @@
   ],
   "0x455300": [
     5151584,
-    "StageTiming_LoadSelectedTeamArchive"
+    "StageTiming_LoadSelectedTimeProfile"
   ],
   "0x455460": [
     5115968,
@@ -4401,15 +4401,15 @@
   ],
   "0x455ed0": [
     5153408,
-    "StageTiming_RefreshPaintSamplesAndTimeSpread"
+    "StageTiming_BuildAndSortDriverTimeTuning"
   ],
   "0x455f00": [
     5139552,
-    "StageTiming_BlendCarPaintDecalRows"
+    "StageTiming_BlendDriverTimeTuning"
   ],
   "0x456110": [
     5140080,
-    "StageTiming_RandomizeComputerTimes"
+    "StageTiming_RandomizeAndSortDriverTimeTuning"
   ],
   "0x4561e0": [
     5185168,
@@ -20632,7 +20632,7 @@
     "g_unk0x0053811f"
   ],
   "0x538120": [
-    8229248,
+    8229240,
     "g_unk0x00538120"
   ],
   "0x538124": [
@@ -20856,7 +20856,7 @@
     "g_pForceFeedbackSlot"
   ],
   "0x53937c": [
-    8229208,
+    8229200,
     "g_pForceFeedbackCar"
   ],
   "0x539380": [
@@ -21448,11 +21448,11 @@
     "g_finishedDriverCount"
   ],
   "0x53e18d": [
-    8229204,
+    8229196,
     "g_unk0x0053e18d"
   ],
   "0x53e18f": [
-    8229196,
+    8229188,
     "g_unk0x0053e18f"
   ],
   "0x53e190": [
@@ -21708,7 +21708,7 @@
     "g_unk0x00541f90"
   ],
   "0x541f98": [
-    8227992,
+    8227984,
     "g_stageSplit"
   ],
   "0x542418": [
@@ -21716,27 +21716,27 @@
     "g_unk0x00542418"
   ],
   "0x54241c": [
-    8227660,
-    "g_splitSpreadTable"
+    8229296,
+    "g_stageTimeProfile"
   ],
   "0x542420": [
     8248312,
     "g_unk0x00542420"
   ],
   "0x542528": [
-    8227748,
+    8227744,
     "g_unk0x00542528"
   ],
   "0x542600": [
-    8227744,
+    8227740,
     "g_unk0x00542600"
   ],
   "0x542604": [
-    8227964,
+    8227960,
     "g_unk0x00542604"
   ],
   "0x542608": [
-    8227668,
+    8227664,
     "g_unk0x00542608"
   ],
   "0x54260c": [
@@ -21760,7 +21760,7 @@
     "g_carStartPosition"
   ],
   "0x542884": [
-    8227672,
+    8227668,
     "g_carAuxiliaryBuffers"
   ],
   "0x5428c4": [
@@ -21812,7 +21812,7 @@
     "g_splitPositionCount"
   ],
   "0x542c78": [
-    8229256,
+    8229248,
     "g_timingSplitCount"
   ],
   "0x542c7c": [
@@ -21872,7 +21872,7 @@
     "g_unk0x00542f78"
   ],
   "0x543098": [
-    8227740,
+    8227736,
     "g_unk0x00543098"
   ],
   "0x5430a0": [
@@ -21928,15 +21928,15 @@
     "g_trailSurface"
   ],
   "0x543650": [
-    8229200,
+    8229192,
     "g_unk0x00543650"
   ],
   "0x543654": [
-    8229160,
+    8229152,
     "g_unk0x00543654"
   ],
   "0x543658": [
-    8229172,
+    8229164,
     "g_unk0x00543658"
   ],
   "0x54365c": [
@@ -21944,15 +21944,15 @@
     "g_unk0x0054365c"
   ],
   "0x543660": [
-    8229156,
+    8229148,
     "g_unk0x00543660"
   ],
   "0x543664": [
-    8229168,
+    8229160,
     "g_unk0x00543664"
   ],
   "0x543668": [
-    8227984,
+    8227980,
     "g_unk0x00543668"
   ],
   "0x54366c": [
@@ -21960,15 +21960,15 @@
     "g_unk0x0054366c"
   ],
   "0x543670": [
-    8229164,
+    8229156,
     "g_unk0x00543670"
   ],
   "0x543674": [
-    8227980,
+    8227976,
     "g_unk0x00543674"
   ],
   "0x543678": [
-    8229152,
+    8229144,
     "g_unk0x00543678"
   ],
   "0x54367c": [
@@ -21976,11 +21976,11 @@
     "g_unk0x0054367c"
   ],
   "0x543690": [
-    8229144,
+    8229136,
     "g_unk0x00543690"
   ],
   "0x543698": [
-    8227972,
+    8227968,
     "g_unk0x00543698"
   ],
   "0x5436a0": [
@@ -22072,7 +22072,7 @@
     "g_weatherIntensityRouteFrom"
   ],
   "0x543d70": [
-    8227664,
+    8227660,
     "g_weatherIntensityRouteTo"
   ],
   "0x543d74": [
@@ -22088,7 +22088,7 @@
     "g_surfaceBlendRouteScale"
   ],
   "0x543d80": [
-    8229244,
+    8229236,
     "g_surfaceBlendRouteFrom"
   ],
   "0x543d84": [
@@ -22244,7 +22244,7 @@
     "g_stageLighting"
   ],
   "0x547ac8": [
-    8229252,
+    8229244,
     "g_viewWeather"
   ],
   "0x547acc": [
@@ -22448,7 +22448,7 @@
     "g_stageDeformStrength"
   ],
   "0x588a6c": [
-    8229296,
+    8229288,
     "g_stageDeformMode"
   ],
   "0x588a70": [
@@ -22456,7 +22456,7 @@
     "g_stageDeformCar"
   ],
   "0x588a74": [
-    8227968,
+    8227964,
     "g_stageDeformRadius"
   ],
   "0x588a78": [
@@ -22520,7 +22520,7 @@
     "g_replaySlots"
   ],
   "0x588e80": [
-    8229212,
+    8229204,
     "g_replayStreams"
   ],
   "0x588ea0": [
@@ -23068,7 +23068,7 @@
     "g_unk0x00590bfd"
   ],
   "0x590c00": [
-    8229260,
+    8229252,
     "g_carLineDescriptors"
   ],
   "0x590c20": [
@@ -23124,7 +23124,7 @@
     "g_partSet"
   ],
   "0x590d7c": [
-    8229176,
+    8229168,
     "g_carPartStateTables"
   ],
   "0x590d90": [
@@ -23448,7 +23448,7 @@
     "g_collisionTarget"
   ],
   "0x591af0": [
-    8229292,
+    8229284,
     "g_trackTriangles"
   ],
   "0x591af4": [
@@ -23804,7 +23804,7 @@
     "g_carContactCount"
   ],
   "0x59273c": [
-    8229300,
+    8229292,
     "g_unk0x0059273c"
   ],
   "0x592740": [
@@ -26912,7 +26912,7 @@
     "g_previewDentMode"
   ],
   "0x82d150": [
-    8227736,
+    8227732,
     "g_previewDentRadius"
   ],
   "0x82d154": [

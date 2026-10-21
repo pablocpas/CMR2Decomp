@@ -1073,7 +1073,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 004552d0	6	StageTiming_GetStageFile4	2	0	0	false	false
 004552e0	6	StageTiming_GetStageFile5	2	0	0	false	false
 004552f0	6	StageTiming_GetStageFile6	2	0	0	false	false
-00455300	341	StageTiming_LoadSelectedTeamArchive	1	9	0	false	false
+00455300	341	StageTiming_LoadSelectedTimeProfile	1	9	0	false	false
 00455460	6	StageTiming_GetStageArchiveState	1	0	0	false	false
 00455470	276	StageTiming_InitRaceDriverRecords	3	15	0	false	false
 00455590	114	StageTiming_RecordSplitGroupTimes	1	2	0	false	false
@@ -1098,9 +1098,9 @@ addr	size	name	callers	callees	fpu	thunk	external
 00455de0	14	StageTiming_GetDriverSlot	13	0	0	false	false
 00455df0	97	StageTiming_GetSplitTimesForPositions	1	3	0	false	false
 00455e60	99	StageTiming_Reset	1	0	0	false	false
-00455ed0	34	StageTiming_RefreshPaintSamplesAndTimeSpread	1	2	0	false	false
-00455f00	527	StageTiming_BlendCarPaintDecalRows	1	1	12	false	false
-00456110	204	StageTiming_RandomizeComputerTimes	1	3	9	false	false
+00455ed0	34	StageTiming_BuildAndSortDriverTimeTuning	1	2	0	false	false
+00455f00	527	StageTiming_BlendDriverTimeTuning	1	1	12	false	false
+00456110	204	StageTiming_RandomizeAndSortDriverTimeTuning	1	3	9	false	false
 004561e0	106	StageTiming_BuildAndSortCPUSplitTimes	1	8	0	false	false
 00456250	222	StageTiming_RebuildSplitPositions	1	1	0	false	false
 00456330	407	StageTiming_BuildSplitInterpolationFactors	1	2	0	false	false

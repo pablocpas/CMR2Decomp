@@ -730,6 +730,14 @@
       "0x50c130"
     ]
   },
+  "differential_stage_time_profile.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x455f00",
+      "0x456110",
+      "0x4564d0"
+    ]
+  },
   "differential_rally_times.py": {
     "arguments": "entities",
     "targets": [

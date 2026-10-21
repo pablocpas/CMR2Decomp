@@ -66,7 +66,7 @@
     "Input.h": "45dea00b8bdf4351d13fca5fcf7d8902634579d9ea003cb5fc69a6a95ba29775",
     "InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
     "InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
-    "LayoutChecks.cpp": "468b76cd12047dabf1ba0fead031e9825a9d36f4356654948b6d4f0d8b4979b1",
+    "LayoutChecks.cpp": "da023c4a13faa7c9b9fd0266e8dc79c904b004c0923961d9644292ab9f333c77",
     "LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
     "LightZone.h": "61ede4fe7c41bff3944aaef341f31848c7eb9eb0e8ed8b2c7842633d5f626deb",
     "Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
@@ -90,7 +90,7 @@
     "PcmWaveHeader.h": "e7e0f18ffbe11e9c8391a911f556728790f347cd80a6f14fc886fb6e81424b3e",
     "PrecipitationQuad.h": "c96e38658a320049bb9500e3e48e3f5002d0dbdd87cd72a47db6d4cd225247c6",
     "ProfileEventResults.h": "78ccc7f0196b01ec711d818658db48623372d682fd76fe4d6f919a1019a76a7b",
-    "Race.cpp": "7d11594410bbfe2507f19ec47c8865098027796a6f9754f839428f7a565806bb",
+    "Race.cpp": "ad383ff69be02c80cae0017fb5b894121eeb656cd30c154cb362e0a91b44175c",
     "RaceCallRecord.h": "e2418ff397371fd73fc5d83fbba8de474bc0f895eb1dfac5792127d8e6afd8c2",
     "RaceCallbackStorage.h": "d540cbe431446daef4724e15b0f10f3702e8e50b8c87bcd04ff5bc1dd3a8d593",
     "RaceRecord.h": "c86bd8aa45d6828375fee1fd908f60608b85e9b48a7416f8208b209fe98c3453",
@@ -127,7 +127,8 @@
     "StageObjects.cpp": "ebc9bc5d685fa8678f3f85e5ab8a97206c1501d5cbc82d20d60996d58fc7ad45",
     "StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
     "StageSplitData.h": "badac490a220da4c871e2e9fa21e80035df9f7dacf04454aae4f84b427612986",
-    "StageTiming.cpp": "35dc2f467bbb26669cf16d2fd1034d660962b2127c42dd5b386c7ec9cdbbd43e",
+    "StageTimeProfile.h": "88815d450915f305c63f5ff994aa40bb1ea7ffd7c559f96f17e6af705f5bbbc2",
+    "StageTiming.cpp": "8d956e7bfcf38711fd895b4b2081d1b40c2b17afd3084c4c98d3488dfc37c0f4",
     "StageTiming.h": "cb7b5efb659841a12590d8f405c11414b88711eb3159002b198301319dcdbb9b",
     "StageTimingSpread.h": "36af19e0df03fc5af5e038804cf927cd111f2796b1e28383abf73447d5496a09",
     "StageUI.cpp": "7faa499aae109e80995d225a143d32c1437e46ad275a14c735ec05d7910b5cd2",
@@ -165,8 +166,8 @@
     "temp.h": "a8b4567967c12c06874c2e5b422ee5163d2814b2bab28869cfde9ca7bcb576a5"
   },
   "metrics": {
-    "types": 339,
-    "raw_accesses": 92,
+    "types": 341,
+    "raw_accesses": 90,
     "fixed_sizes": 29,
     "hex_multipliers": 1885,
     "unknown_identifiers": 5064,
@@ -1049,9 +1050,16 @@
       "hex_multipliers": 0,
       "unknown_identifiers": 0
     },
+    "StageTimeProfile.h": {
+      "types": 2,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
     "StageTiming.cpp": {
       "types": 5,
-      "raw_accesses": 12,
+      "raw_accesses": 10,
       "fixed_sizes": 1,
       "hex_multipliers": 20,
       "unknown_identifiers": 320
@@ -11830,69 +11838,85 @@
       "unnamed_fields": []
     },
     {
+      "file": "StageTimeProfile.h",
+      "line": 6,
+      "kind": "struct",
+      "name": "StageDriverTimeTuning",
+      "end_line": 12,
+      "unnamed_fields": []
+    },
+    {
+      "file": "StageTimeProfile.h",
+      "line": 16,
+      "kind": "struct",
+      "name": "StageTimeProfile",
+      "end_line": 20,
+      "unnamed_fields": []
+    },
+    {
       "file": "StageTiming.cpp",
-      "line": 85,
+      "line": 86,
       "nearest_function": "0x00460270",
       "kind": "struct",
       "name": "StageSplitState",
-      "end_line": 93,
+      "end_line": 94,
       "unnamed_fields": []
     },
     {
       "file": "StageTiming.cpp",
-      "line": 244,
+      "line": 245,
       "nearest_function": "0x004556a0",
       "kind": "struct",
       "name": "SplitRate",
-      "end_line": 248,
+      "end_line": 249,
       "unnamed_fields": []
     },
     {
       "file": "StageTiming.cpp",
-      "line": 779,
+      "line": 780,
       "nearest_function": "0x00456b70",
       "kind": "struct",
       "name": "CarStageTiming",
-      "end_line": 791,
+      "end_line": 792,
       "unnamed_fields": [
         {
           "file": "StageTiming.cpp",
-          "line": 781,
+          "line": 782,
           "nearest_function": "0x00456b70",
           "name": "field_0x4",
           "declaration": "int field_0x4[9];       // 0x04"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 785,
+          "line": 786,
           "nearest_function": "0x00456b70",
           "name": "field_0x80",
           "declaration": "char field_0x80;        // 0x80"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 786,
+          "line": 787,
           "nearest_function": "0x00456b70",
           "name": "field_0x81",
           "declaration": "char field_0x81;        // 0x81"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 787,
+          "line": 788,
           "nearest_function": "0x00456b70",
           "name": "field_0x82",
           "declaration": "char field_0x82;        // 0x82"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 788,
+          "line": 789,
           "nearest_function": "0x00456b70",
           "name": "field_0x83",
           "declaration": "BYTE field_0x83;        // 0x83"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 789,
+          "line": 790,
           "nearest_function": "0x00456b70",
           "name": "field_0x84",
           "declaration": "BYTE field_0x84;        // 0x84"
@@ -11901,106 +11925,106 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1352,
+      "line": 1353,
       "nearest_function": "0x00480900",
       "kind": "struct",
       "name": "Unk0x00539278",
-      "end_line": 1368,
+      "end_line": 1369,
       "unnamed_fields": [
         {
           "file": "StageTiming.cpp",
-          "line": 1353,
+          "line": 1354,
           "nearest_function": "0x00480900",
           "name": "field_0x0",
           "declaration": "int field_0x0;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1354,
+          "line": 1355,
           "nearest_function": "0x00480900",
           "name": "field_0x4",
           "declaration": "int field_0x4;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1355,
+          "line": 1356,
           "nearest_function": "0x00480900",
           "name": "field_0x8",
           "declaration": "int field_0x8;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1356,
+          "line": 1357,
           "nearest_function": "0x00480900",
           "name": "field_0xc",
           "declaration": "int field_0xc;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1357,
+          "line": 1358,
           "nearest_function": "0x00480900",
           "name": "field_0x10",
           "declaration": "int field_0x10;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1358,
+          "line": 1359,
           "nearest_function": "0x00480900",
           "name": "field_0x14",
           "declaration": "int field_0x14;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1359,
+          "line": 1360,
           "nearest_function": "0x00480900",
           "name": "field_0x18",
           "declaration": "int field_0x18;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1360,
+          "line": 1361,
           "nearest_function": "0x00480900",
           "name": "field_0x1c",
           "declaration": "int field_0x1c;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1361,
+          "line": 1362,
           "nearest_function": "0x00480900",
           "name": "field_0x20",
           "declaration": "int field_0x20;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1362,
+          "line": 1363,
           "nearest_function": "0x00480900",
           "name": "field_0x24",
           "declaration": "int field_0x24;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1363,
+          "line": 1364,
           "nearest_function": "0x00480900",
           "name": "field_0x28",
           "declaration": "int field_0x28;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1364,
+          "line": 1365,
           "nearest_function": "0x00480900",
           "name": "field_0x2c",
           "declaration": "signed char field_0x2c;         // device index, < 0 when none"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1366,
+          "line": 1367,
           "nearest_function": "0x00480900",
           "name": "field_0x30",
           "declaration": "int field_0x30;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 1367,
+          "line": 1368,
           "nearest_function": "0x00480900",
           "name": "field_0x34",
           "declaration": "int field_0x34;                 // slot in use"
@@ -12009,120 +12033,120 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2606,
+      "line": 2607,
       "nearest_function": "0x004815e0",
       "kind": "struct",
       "name": "Unk0x00542e78",
-      "end_line": 2624,
+      "end_line": 2625,
       "unnamed_fields": [
         {
           "file": "StageTiming.cpp",
-          "line": 2607,
+          "line": 2608,
           "nearest_function": "0x004815e0",
           "name": "field_0x0",
           "declaration": "short field_0x0;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2608,
+          "line": 2609,
           "nearest_function": "0x004815e0",
           "name": "field_0x2",
           "declaration": "short field_0x2;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2609,
+          "line": 2610,
           "nearest_function": "0x004815e0",
           "name": "field_0x4",
           "declaration": "short field_0x4;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2610,
+          "line": 2611,
           "nearest_function": "0x004815e0",
           "name": "field_0x6",
           "declaration": "short field_0x6;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2611,
+          "line": 2612,
           "nearest_function": "0x004815e0",
           "name": "field_0x8",
           "declaration": "short field_0x8;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2612,
+          "line": 2613,
           "nearest_function": "0x004815e0",
           "name": "field_0xa",
           "declaration": "short field_0xa;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2613,
+          "line": 2614,
           "nearest_function": "0x004815e0",
           "name": "field_0xc",
           "declaration": "short field_0xc;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2614,
+          "line": 2615,
           "nearest_function": "0x004815e0",
           "name": "field_0xe",
           "declaration": "short field_0xe;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2615,
+          "line": 2616,
           "nearest_function": "0x004815e0",
           "name": "field_0x10",
           "declaration": "short field_0x10;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2616,
+          "line": 2617,
           "nearest_function": "0x004815e0",
           "name": "field_0x12",
           "declaration": "short field_0x12;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2617,
+          "line": 2618,
           "nearest_function": "0x004815e0",
           "name": "field_0x14",
           "declaration": "short field_0x14;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2618,
+          "line": 2619,
           "nearest_function": "0x004815e0",
           "name": "field_0x16",
           "declaration": "BYTE field_0x16;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2619,
+          "line": 2620,
           "nearest_function": "0x004815e0",
           "name": "field_0x17",
           "declaration": "BYTE field_0x17;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2620,
+          "line": 2621,
           "nearest_function": "0x004815e0",
           "name": "field_0x18",
           "declaration": "BYTE field_0x18;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2621,
+          "line": 2622,
           "nearest_function": "0x004815e0",
           "name": "field_0x19",
           "declaration": "BYTE field_0x19;"
         },
         {
           "file": "StageTiming.cpp",
-          "line": 2622,
+          "line": 2623,
           "nearest_function": "0x004815e0",
           "name": "field_0x1a",
           "declaration": "BYTE field_0x1a;"
@@ -13099,87 +13123,73 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 667,
+      "line": 668,
       "nearest_function": "0x00456330",
       "access_type": "volatile int *",
       "expression": "*(volatile int *)(piVar8 + 0x14)"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1260,
-      "nearest_function": "0x004564d0",
-      "access_type": "int *",
-      "expression": "*(int *)(g_splitSpreadTable + off - 0x280)"
-    },
-    {
-      "file": "StageTiming.cpp",
       "line": 1261,
       "nearest_function": "0x004564d0",
       "access_type": "int *",
-      "expression": "*(int *)(g_splitSpreadTable + off)"
+      "expression": "*(int *)((BYTE *)g_stageTimeProfile + off - 0x280)"
     },
     {
       "file": "StageTiming.cpp",
       "line": 1262,
       "nearest_function": "0x004564d0",
       "access_type": "int *",
-      "expression": "*(int *)(g_splitSpreadTable + off - 0x280)"
+      "expression": "*(int *)((BYTE *)g_stageTimeProfile + off)"
     },
     {
       "file": "StageTiming.cpp",
       "line": 1263,
       "nearest_function": "0x004564d0",
       "access_type": "int *",
-      "expression": "*(int *)(g_splitSpreadTable + off)"
+      "expression": "*(int *)((BYTE *)g_stageTimeProfile + off - 0x280)"
     },
     {
       "file": "StageTiming.cpp",
       "line": 1264,
       "nearest_function": "0x004564d0",
       "access_type": "int *",
-      "expression": "*(int *)(g_splitSpreadTable + off - 0x280)"
+      "expression": "*(int *)((BYTE *)g_stageTimeProfile + off)"
     },
     {
       "file": "StageTiming.cpp",
       "line": 1265,
       "nearest_function": "0x004564d0",
       "access_type": "int *",
-      "expression": "*(int *)(g_splitSpreadTable + off)"
+      "expression": "*(int *)((BYTE *)g_stageTimeProfile + off - 0x280)"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 9258,
-      "nearest_function": "0x0045eca0",
+      "line": 1266,
+      "nearest_function": "0x004564d0",
       "access_type": "int *",
-      "expression": "*(int *)(particleColour + 0)"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 9259,
-      "nearest_function": "0x0045eca0",
-      "access_type": "int *",
-      "expression": "*(int *)(particleColour + 1)"
+      "expression": "*(int *)((BYTE *)g_stageTimeProfile + off)"
     },
     {
       "file": "StageTiming.cpp",
       "line": 9260,
       "nearest_function": "0x0045eca0",
       "access_type": "int *",
+      "expression": "*(int *)(particleColour + 0)"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 9261,
+      "nearest_function": "0x0045eca0",
+      "access_type": "int *",
+      "expression": "*(int *)(particleColour + 1)"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 9262,
+      "nearest_function": "0x0045eca0",
+      "access_type": "int *",
       "expression": "*(int *)(particleColour + 2)"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 9421,
-      "nearest_function": "0x00455470",
-      "access_type": "int *",
-      "expression": "*(int *)(g_splitSpreadTable + 0x2d0)"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 9422,
-      "nearest_function": "0x00455470",
-      "access_type": "int *",
-      "expression": "*(int *)(g_splitSpreadTable + 0x310)"
     },
     {
       "file": "TimingUtils.cpp",
@@ -13535,7 +13545,7 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 8906,
+      "line": 8908,
       "nearest_function": "0x004561e0",
       "call": "AllocateLockedBuffer",
       "size_expressions": [
@@ -24262,121 +24272,121 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2325,
+      "line": 2326,
       "nearest_function": "0x00467700",
       "value": "0x40"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2444,
+      "line": 2445,
       "nearest_function": "0x00467e90",
       "value": "0x40"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2715,
+      "line": 2716,
       "nearest_function": "0x004593a0",
       "value": "0xaf30"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2716,
+      "line": 2717,
       "nearest_function": "0x004593a0",
       "value": "0xf06b"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2719,
+      "line": 2720,
       "nearest_function": "0x004593a0",
       "value": "0x14"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2719,
+      "line": 2720,
       "nearest_function": "0x004593a0",
       "value": "0x3000"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2721,
+      "line": 2722,
       "nearest_function": "0x004593a0",
       "value": "0x14"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2724,
+      "line": 2725,
       "nearest_function": "0x004593a0",
       "value": "0x1c2"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4190,
+      "line": 4191,
       "nearest_function": "0x00448550",
       "value": "0x10000"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5430,
+      "line": 5432,
       "nearest_function": "0x00508890",
       "value": "0x40"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5679,
+      "line": 5681,
       "nearest_function": "0x004483e0",
       "value": "0x10000"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6542,
+      "line": 6544,
       "nearest_function": "0x004816f0",
       "value": "0x1680"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6700,
+      "line": 6702,
       "nearest_function": "0x004816f0",
       "value": "0x1680"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6709,
+      "line": 6711,
       "nearest_function": "0x004816f0",
       "value": "0x1680"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6733,
+      "line": 6735,
       "nearest_function": "0x004816f0",
       "value": "0x1680"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6739,
+      "line": 6741,
       "nearest_function": "0x004816f0",
       "value": "0x1680"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7136,
+      "line": 7138,
       "nearest_function": "0x00483570",
       "value": "0x1680"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7152,
+      "line": 7154,
       "nearest_function": "0x00483570",
       "value": "0x1680"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7451,
+      "line": 7453,
       "nearest_function": "0x0045f9d0",
       "value": "0x180000"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7453,
+      "line": 7455,
       "nearest_function": "0x0045f9d0",
       "value": "0x180000"
     },
@@ -49904,177 +49914,171 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 78,
+      "line": 79,
       "nearest_function": "0x00460270",
       "name": "g_unk0x00541f8c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 81,
+      "line": 82,
       "nearest_function": "0x00460270",
       "name": "g_unk0x00541f90"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 103,
+      "line": 104,
       "nearest_function": "0x00460270",
       "name": "g_unk0x00542418"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 111,
+      "line": 112,
       "nearest_function": "0x00456a30",
       "name": "g_unk0x00542418"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 115,
+      "line": 116,
       "nearest_function": "0x00456a30",
       "name": "g_unk0x00542604"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 214,
+      "line": 215,
       "nearest_function": "0x00455460",
       "name": "g_unk0x00541f8c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 220,
+      "line": 221,
       "nearest_function": "0x00455610",
       "name": "g_unk0x00542418"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 444,
+      "line": 445,
       "nearest_function": "0x00455ae0",
       "name": "g_unk0x00542604"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 458,
+      "line": 459,
       "nearest_function": "0x00455bc0",
       "name": "g_unk0x00541f90"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 731,
+      "line": 732,
       "nearest_function": "0x00456d60",
       "name": "g_unk0x00588d3c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 749,
+      "line": 750,
       "nearest_function": "0x0046c500",
       "name": "g_unk0x00588d3c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 794,
+      "line": 795,
       "nearest_function": "0x00456b70",
       "name": "g_unk0x0053d1a0"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 800,
+      "line": 801,
       "nearest_function": "0x00456b70",
       "name": "g_unk0x0053d1a6"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 802,
+      "line": 803,
       "nearest_function": "0x00456b70",
       "name": "g_unk0x0053d1a7"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 804,
+      "line": 805,
       "nearest_function": "0x00456b70",
       "name": "g_unk0x0053d1a8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 808,
+      "line": 809,
       "nearest_function": "0x00456b70",
       "name": "g_unk0x0053d1b4"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 812,
+      "line": 813,
       "nearest_function": "0x00456b70",
       "name": "g_unk0x0053d1d8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 814,
+      "line": 815,
       "nearest_function": "0x00456b70",
       "name": "g_unk0x0053d1da"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 818,
+      "line": 819,
       "nearest_function": "0x00456b70",
       "name": "g_unk0x0053dda8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 831,
+      "line": 832,
       "nearest_function": "0x00448cf0",
       "name": "g_unk0x0053d1da"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 840,
+      "line": 841,
       "nearest_function": "0x00448cf0",
       "name": "g_unk0x0053e18d"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 842,
+      "line": 843,
       "nearest_function": "0x00448cf0",
       "name": "g_unk0x0053e18f"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 849,
+      "line": 850,
       "nearest_function": "0x00448100",
       "name": "g_unk0x0053d1b4"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 862,
+      "line": 863,
       "nearest_function": "0x004481b0",
       "name": "g_unk0x0053d1d8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 874,
+      "line": 875,
       "nearest_function": "0x004481e0",
       "name": "g_unk0x0053dda8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1017,
+      "line": 1018,
       "nearest_function": "0x00448bf0",
       "name": "g_unk0x0053d1a6"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1017,
+      "line": 1018,
       "nearest_function": "0x00448bf0",
       "name": "g_unk0x0053d1a8"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 1019,
-      "nearest_function": "0x00448bf0",
-      "name": "g_unk0x0053d1a7"
     },
     {
       "file": "StageTiming.cpp",
       "line": 1020,
       "nearest_function": "0x00448bf0",
-      "name": "g_unk0x0053d1a8"
+      "name": "g_unk0x0053d1a7"
     },
     {
       "file": "StageTiming.cpp",
@@ -50084,92 +50088,92 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1041,
+      "line": 1022,
+      "nearest_function": "0x00448bf0",
+      "name": "g_unk0x0053d1a8"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 1042,
       "nearest_function": "0x00448c80",
       "name": "g_unk0x0053d1a8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1047,
+      "line": 1048,
       "nearest_function": "0x00448c90",
       "name": "g_unk0x0053d1a6"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1053,
+      "line": 1054,
       "nearest_function": "0x00448ca0",
       "name": "g_unk0x0053d1a7"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1059,
+      "line": 1060,
       "nearest_function": "0x00448cb0",
       "name": "g_unk0x0053e18d"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1065,
+      "line": 1066,
       "nearest_function": "0x00448cc0",
       "name": "g_unk0x0053e18f"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1077,
+      "line": 1078,
       "nearest_function": "0x00448630",
       "name": "g_unk0x0053d1da"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1127,
+      "line": 1128,
       "nearest_function": "0x00466e90",
       "name": "g_unk0x0059273c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1129,
+      "line": 1130,
       "nearest_function": "0x00466e90",
       "name": "g_unk0x00592740"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 1140,
-      "nearest_function": "0x00494b10",
-      "name": "g_unk0x0059273c"
     },
     {
       "file": "StageTiming.cpp",
       "line": 1141,
       "nearest_function": "0x00494b10",
+      "name": "g_unk0x0059273c"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 1142,
+      "nearest_function": "0x00494b10",
       "name": "g_unk0x00592740"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1352,
+      "line": 1353,
       "nearest_function": "0x00480900",
       "name": "Unk0x00539278"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1372,
+      "line": 1373,
       "nearest_function": "0x00480900",
       "name": "Unk0x00539278"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1374,
+      "line": 1375,
       "nearest_function": "0x00480900",
       "name": "Unk0x00539278"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1478,
+      "line": 1479,
       "nearest_function": "0x004246c0",
-      "name": "g_unk0x00539270"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 1490,
-      "nearest_function": "0x00424710",
       "name": "g_unk0x00539270"
     },
     {
@@ -50180,7 +50184,7 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1493,
+      "line": 1492,
       "nearest_function": "0x00424710",
       "name": "g_unk0x00539270"
     },
@@ -50192,14 +50196,14 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1745,
-      "nearest_function": "0x00490d50",
-      "name": "g_unk0x0053cdbc"
+      "line": 1495,
+      "nearest_function": "0x00424710",
+      "name": "g_unk0x00539270"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1750,
-      "nearest_function": "0x00445a40",
+      "line": 1746,
+      "nearest_function": "0x00490d50",
       "name": "g_unk0x0053cdbc"
     },
     {
@@ -50210,67 +50214,67 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1781,
+      "line": 1752,
+      "nearest_function": "0x00445a40",
+      "name": "g_unk0x0053cdbc"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 1782,
       "nearest_function": "0x00445dd0",
       "name": "g_unk0x00542420"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1783,
+      "line": 1784,
       "nearest_function": "0x00445dd0",
       "name": "g_unk0x00542528"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1787,
+      "line": 1788,
       "nearest_function": "0x00445dd0",
       "name": "g_unk0x00542600"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1789,
+      "line": 1790,
       "nearest_function": "0x00445dd0",
       "name": "g_unk0x0054260c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1794,
+      "line": 1795,
       "nearest_function": "0x00456b00",
       "name": "g_unk0x00542600"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1801,
+      "line": 1802,
       "nearest_function": "0x00456b10",
       "name": "g_unk0x00542600"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1829,
+      "line": 1830,
       "nearest_function": "0x00456ae0",
       "name": "g_unk0x00542528"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1835,
+      "line": 1836,
       "nearest_function": "0x00456c00",
       "name": "g_unk0x0054260c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1839,
+      "line": 1840,
       "nearest_function": "0x00456c00",
       "name": "g_unk0x00542608"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1851,
-      "nearest_function": "0x00456c10",
-      "name": "g_unk0x00542608"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 1853,
+      "line": 1852,
       "nearest_function": "0x00456c10",
       "name": "g_unk0x00542608"
     },
@@ -50288,217 +50292,217 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1899,
+      "line": 1856,
+      "nearest_function": "0x00456c10",
+      "name": "g_unk0x00542608"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 1900,
       "nearest_function": "0x00456a40",
       "name": "g_unk0x00542528"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1901,
+      "line": 1902,
       "nearest_function": "0x00456a40",
       "name": "g_unk0x00542420"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1926,
+      "line": 1927,
       "nearest_function": "0x00456a40",
       "name": "g_unk0x00543d9c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1928,
+      "line": 1929,
       "nearest_function": "0x00456a40",
       "name": "g_unk0x00543e88"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1930,
+      "line": 1931,
       "nearest_function": "0x00456a40",
       "name": "g_unk0x00543e8c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 1932,
+      "line": 1933,
       "nearest_function": "0x00456a40",
       "name": "g_unk0x00543e94"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 1937,
-      "nearest_function": "0x0045e6b0",
-      "name": "g_unk0x00543e88"
     },
     {
       "file": "StageTiming.cpp",
       "line": 1938,
       "nearest_function": "0x0045e6b0",
-      "name": "g_unk0x00543d9c"
+      "name": "g_unk0x00543e88"
     },
     {
       "file": "StageTiming.cpp",
       "line": 1939,
       "nearest_function": "0x0045e6b0",
-      "name": "g_unk0x00543e8c"
+      "name": "g_unk0x00543d9c"
     },
     {
       "file": "StageTiming.cpp",
       "line": 1940,
       "nearest_function": "0x0045e6b0",
+      "name": "g_unk0x00543e8c"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 1941,
+      "nearest_function": "0x0045e6b0",
       "name": "g_unk0x00543e94"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2529,
+      "line": 2530,
       "nearest_function": "0x00469b50",
       "name": "g_unk0x005429c6"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2533,
+      "line": 2534,
       "nearest_function": "0x00469b50",
       "name": "g_unk0x005429e8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2606,
+      "line": 2607,
       "nearest_function": "0x004815e0",
       "name": "Unk0x00542e78"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2627,
+      "line": 2628,
       "nearest_function": "0x004815e0",
       "name": "Unk0x00542e78"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2629,
+      "line": 2630,
       "nearest_function": "0x004815e0",
       "name": "g_unk0x00542f58"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2631,
+      "line": 2632,
       "nearest_function": "0x004815e0",
       "name": "g_unk0x00542f78"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2633,
+      "line": 2634,
       "nearest_function": "0x004815e0",
       "name": "g_unk0x00543098"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2641,
+      "line": 2642,
       "nearest_function": "0x00459370",
       "name": "g_unk0x00542f58"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2643,
+      "line": 2644,
       "nearest_function": "0x00459370",
       "name": "g_unk0x00542f78"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2649,
+      "line": 2650,
       "nearest_function": "0x00459390",
       "name": "g_unk0x00543098"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2653,
+      "line": 2654,
       "nearest_function": "0x00459390",
       "name": "g_unk0x00537f30"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2655,
+      "line": 2656,
       "nearest_function": "0x00459390",
       "name": "g_unk0x00538120"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2681,
+      "line": 2682,
       "nearest_function": "0x004593a0",
       "name": "g_unk0x00543098"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2690,
+      "line": 2691,
       "nearest_function": "0x004593a0",
       "name": "g_unk0x00543098"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2692,
+      "line": 2693,
       "nearest_function": "0x004593a0",
       "name": "g_unk0x00543098"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2696,
+      "line": 2697,
       "nearest_function": "0x004593a0",
       "name": "g_unk0x00543098"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 2701,
-      "nearest_function": "0x004593a0",
-      "name": "g_unk0x00538120"
     },
     {
       "file": "StageTiming.cpp",
       "line": 2702,
       "nearest_function": "0x004593a0",
+      "name": "g_unk0x00538120"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 2703,
+      "nearest_function": "0x004593a0",
       "name": "g_unk0x00537f30"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2708,
+      "line": 2709,
       "nearest_function": "0x004593a0",
       "name": "g_unk0x00543098"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2710,
+      "line": 2711,
       "nearest_function": "0x004593a0",
       "name": "g_unk0x00543098"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2713,
+      "line": 2714,
       "nearest_function": "0x004593a0",
       "name": "g_unk0x00543098"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2726,
+      "line": 2727,
       "nearest_function": "0x004593a0",
       "name": "g_unk0x00543098"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2854,
+      "line": 2855,
       "nearest_function": "0x00459790",
       "name": "g_unk0x00542f78"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2856,
+      "line": 2857,
       "nearest_function": "0x00459790",
       "name": "g_unk0x00542f78"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2858,
-      "nearest_function": "0x00459790",
-      "name": "g_unk0x00542f78"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 2860,
+      "line": 2859,
       "nearest_function": "0x00459790",
       "name": "g_unk0x00542f78"
     },
@@ -50510,39 +50514,33 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2861,
+      "line": 2862,
+      "nearest_function": "0x00459790",
+      "name": "g_unk0x00542f78"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 2862,
       "nearest_function": "0x00459790",
       "name": "g_unk0x00542f58"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2863,
+      "line": 2864,
       "nearest_function": "0x00459790",
       "name": "g_unk0x00542f78"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2865,
+      "line": 2866,
       "nearest_function": "0x00459790",
       "name": "g_unk0x00542f78"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2867,
+      "line": 2868,
       "nearest_function": "0x00459790",
       "name": "g_unk0x00542f78"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 2869,
-      "nearest_function": "0x00459790",
-      "name": "g_unk0x00542f78"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 2870,
-      "nearest_function": "0x00459790",
-      "name": "g_unk0x00542f58"
     },
     {
       "file": "StageTiming.cpp",
@@ -50552,171 +50550,177 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2878,
+      "line": 2871,
       "nearest_function": "0x00459790",
       "name": "g_unk0x00542f58"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 2871,
+      "nearest_function": "0x00459790",
+      "name": "g_unk0x00542f78"
     },
     {
       "file": "StageTiming.cpp",
       "line": 2879,
       "nearest_function": "0x00459790",
+      "name": "g_unk0x00542f58"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 2880,
+      "nearest_function": "0x00459790",
       "name": "g_unk0x00542f78"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 2885,
+      "line": 2886,
       "nearest_function": "0x00459790",
       "name": "g_unk0x00542f58"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3109,
+      "line": 3110,
       "nearest_function": "0x004589e0",
       "name": "g_unk0x00543ec0"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3111,
+      "line": 3112,
       "nearest_function": "0x004589e0",
       "name": "g_unk0x00543ec4"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3113,
+      "line": 3114,
       "nearest_function": "0x004589e0",
-      "name": "g_unk0x00543ec8"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 3118,
-      "nearest_function": "0x0045f240",
       "name": "g_unk0x00543ec8"
     },
     {
       "file": "StageTiming.cpp",
       "line": 3119,
       "nearest_function": "0x0045f240",
-      "name": "g_unk0x00543ec0"
+      "name": "g_unk0x00543ec8"
     },
     {
       "file": "StageTiming.cpp",
       "line": 3120,
       "nearest_function": "0x0045f240",
+      "name": "g_unk0x00543ec0"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 3121,
+      "nearest_function": "0x0045f240",
       "name": "g_unk0x00543ec4"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3213,
+      "line": 3214,
       "nearest_function": "0x00465f20",
       "name": "g_unk0x0051bfcc"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3262,
+      "line": 3263,
       "nearest_function": "0x004692f0",
       "name": "g_unk0x0051bfcc"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3325,
+      "line": 3326,
       "nearest_function": "0x004669b0",
       "name": "g_unk0x00542d58"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3327,
+      "line": 3328,
       "nearest_function": "0x004669b0",
       "name": "g_unk0x00542d68"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 3340,
-      "nearest_function": "0x00458b80",
-      "name": "g_unk0x00542d58"
     },
     {
       "file": "StageTiming.cpp",
       "line": 3341,
       "nearest_function": "0x00458b80",
+      "name": "g_unk0x00542d58"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 3342,
+      "nearest_function": "0x00458b80",
       "name": "g_unk0x00542d68"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3349,
+      "line": 3350,
       "nearest_function": "0x00458b80",
       "name": "g_unk0x00542cad"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3392,
+      "line": 3393,
       "nearest_function": "0x00458bd0",
       "name": "g_unk0x00542d58"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3395,
+      "line": 3396,
       "nearest_function": "0x00458bd0",
       "name": "g_unk0x00542d68"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3401,
+      "line": 3402,
       "nearest_function": "0x00458bd0",
       "name": "g_unk0x00542cad"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3411,
+      "line": 3412,
       "nearest_function": "0x00458bd0",
       "name": "g_unk0x00542cad"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3683,
+      "line": 3684,
       "nearest_function": "0x00498ca0",
       "name": "g_unk0x0053d1d9"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3692,
+      "line": 3693,
       "nearest_function": "0x00448de0",
       "name": "g_unk0x0053d1d9"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3692,
-      "nearest_function": "0x00448de0",
-      "name": "g_unk0x0053d1b4"
-    },
-    {
-      "file": "StageTiming.cpp",
       "line": 3693,
       "nearest_function": "0x00448de0",
-      "name": "g_unk0x0053d1d8"
+      "name": "g_unk0x0053d1b4"
     },
     {
       "file": "StageTiming.cpp",
       "line": 3694,
       "nearest_function": "0x00448de0",
-      "name": "g_unk0x0053d1b4"
+      "name": "g_unk0x0053d1d8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3697,
+      "line": 3695,
       "nearest_function": "0x00448de0",
       "name": "g_unk0x0053d1b4"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3700,
+      "line": 3698,
       "nearest_function": "0x00448de0",
       "name": "g_unk0x0053d1b4"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3702,
+      "line": 3701,
       "nearest_function": "0x00448de0",
-      "name": "g_unk0x0053d1a0"
+      "name": "g_unk0x0053d1b4"
     },
     {
       "file": "StageTiming.cpp",
@@ -50726,9 +50730,9 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3722,
-      "nearest_function": "0x00455620",
-      "name": "g_unk0x00542528"
+      "line": 3704,
+      "nearest_function": "0x00448de0",
+      "name": "g_unk0x0053d1a0"
     },
     {
       "file": "StageTiming.cpp",
@@ -50738,49 +50742,49 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3727,
+      "line": 3724,
       "nearest_function": "0x00455620",
       "name": "g_unk0x00542528"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3729,
+      "line": 3728,
       "nearest_function": "0x00455620",
       "name": "g_unk0x00542528"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3734,
+      "line": 3730,
+      "nearest_function": "0x00455620",
+      "name": "g_unk0x00542528"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 3735,
       "nearest_function": "0x00455620",
       "name": "g_unk0x00542cad"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3751,
+      "line": 3752,
       "nearest_function": "0x00458f30",
       "name": "g_unk0x00542cad"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3887,
+      "line": 3888,
       "nearest_function": "0x00448d50",
       "name": "g_unk0x0053dda8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3889,
+      "line": 3890,
       "nearest_function": "0x00448d50",
       "name": "g_unk0x0053dda8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 3891,
-      "nearest_function": "0x00448d50",
-      "name": "g_unk0x0053dda8"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 3893,
+      "line": 3892,
       "nearest_function": "0x00448d50",
       "name": "g_unk0x0053dda8"
     },
@@ -50792,85 +50796,73 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4187,
+      "line": 3895,
+      "nearest_function": "0x00448d50",
+      "name": "g_unk0x0053dda8"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 4188,
       "nearest_function": "0x00448550",
       "name": "g_unk0x0053d1da"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4399,
+      "line": 4400,
       "nearest_function": "0x00455af0",
       "name": "g_unk0x00541f90"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4639,
+      "line": 4641,
       "nearest_function": "0x0045e710",
       "name": "g_unk0x00543d54"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4641,
-      "nearest_function": "0x0045e710",
-      "name": "g_unk0x00543e9c"
-    },
-    {
-      "file": "StageTiming.cpp",
       "line": 4643,
       "nearest_function": "0x0045e710",
-      "name": "g_unk0x00543fa8"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 4654,
-      "nearest_function": "0x0045ea70",
       "name": "g_unk0x00543e9c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4655,
-      "nearest_function": "0x0045ea70",
+      "line": 4645,
+      "nearest_function": "0x0045e710",
       "name": "g_unk0x00543fa8"
     },
     {
       "file": "StageTiming.cpp",
       "line": 4656,
       "nearest_function": "0x0045ea70",
-      "name": "g_unk0x00543e88"
+      "name": "g_unk0x00543e9c"
     },
     {
       "file": "StageTiming.cpp",
       "line": 4657,
       "nearest_function": "0x0045ea70",
-      "name": "g_unk0x00543d9c"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 4660,
-      "nearest_function": "0x0045ea70",
-      "name": "g_unk0x00543e9c"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 4664,
-      "nearest_function": "0x0045ea70",
       "name": "g_unk0x00543fa8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4666,
+      "line": 4658,
       "nearest_function": "0x0045ea70",
-      "name": "g_unk0x00543d54"
+      "name": "g_unk0x00543e88"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4667,
+      "line": 4659,
+      "nearest_function": "0x0045ea70",
+      "name": "g_unk0x00543d9c"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 4662,
       "nearest_function": "0x0045ea70",
       "name": "g_unk0x00543e9c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4667,
+      "line": 4666,
       "nearest_function": "0x0045ea70",
       "name": "g_unk0x00543fa8"
     },
@@ -50878,161 +50870,167 @@
       "file": "StageTiming.cpp",
       "line": 4668,
       "nearest_function": "0x0045ea70",
-      "name": "g_unk0x00543e8c"
+      "name": "g_unk0x00543d54"
     },
     {
       "file": "StageTiming.cpp",
       "line": 4669,
       "nearest_function": "0x0045ea70",
-      "name": "g_unk0x00543e94"
+      "name": "g_unk0x00543e9c"
     },
     {
       "file": "StageTiming.cpp",
       "line": 4669,
       "nearest_function": "0x0045ea70",
-      "name": "g_unk0x00543e8c"
+      "name": "g_unk0x00543fa8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4672,
+      "line": 4670,
       "nearest_function": "0x0045ea70",
       "name": "g_unk0x00543e8c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4673,
+      "line": 4671,
       "nearest_function": "0x0045ea70",
       "name": "g_unk0x00543e94"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4737,
+      "line": 4671,
+      "nearest_function": "0x0045ea70",
+      "name": "g_unk0x00543e8c"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 4674,
+      "nearest_function": "0x0045ea70",
+      "name": "g_unk0x00543e8c"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 4675,
+      "nearest_function": "0x0045ea70",
+      "name": "g_unk0x00543e94"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 4739,
       "nearest_function": "0x0045f260",
       "name": "g_unk0x00543e9c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4737,
+      "line": 4739,
       "nearest_function": "0x0045f260",
       "name": "g_unk0x00543fa8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4737,
+      "line": 4739,
       "nearest_function": "0x0045f260",
       "name": "g_unk0x00543e8c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4737,
+      "line": 4739,
       "nearest_function": "0x0045f260",
       "name": "g_unk0x00543e94"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4737,
+      "line": 4739,
       "nearest_function": "0x0045f260",
       "name": "g_unk0x00543d54"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4738,
+      "line": 4740,
       "nearest_function": "0x0045f260",
       "name": "g_unk0x00543e88"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4738,
+      "line": 4740,
       "nearest_function": "0x0045f260",
       "name": "g_unk0x00543d9c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4738,
+      "line": 4740,
       "nearest_function": "0x0045f260",
       "name": "g_unk0x00543e8c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4738,
+      "line": 4740,
       "nearest_function": "0x0045f260",
       "name": "g_unk0x00543e94"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4757,
+      "line": 4759,
       "nearest_function": "0x004569c0",
       "name": "g_unk0x00539270"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4761,
+      "line": 4763,
       "nearest_function": "0x004569c0",
       "name": "g_unk0x00539380"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4776,
+      "line": 4778,
       "nearest_function": "0x00424360",
       "name": "g_unk0x00539270"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4783,
+      "line": 4785,
       "nearest_function": "0x00424360",
       "name": "g_unk0x00539270"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4827,
+      "line": 4829,
       "nearest_function": "0x004247a0",
       "name": "g_unk0x00539270"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4846,
+      "line": 4848,
       "nearest_function": "0x004247a0",
-      "name": "g_unk0x00539380"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 4861,
-      "nearest_function": "0x004248a0",
-      "name": "g_unk0x00539380"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 4862,
-      "nearest_function": "0x004248a0",
       "name": "g_unk0x00539380"
     },
     {
       "file": "StageTiming.cpp",
       "line": 4863,
       "nearest_function": "0x004248a0",
-      "name": "g_unk0x00539270"
+      "name": "g_unk0x00539380"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4863,
+      "line": 4864,
+      "nearest_function": "0x004248a0",
+      "name": "g_unk0x00539380"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 4865,
       "nearest_function": "0x004248a0",
       "name": "g_unk0x00539270"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4935,
-      "nearest_function": "0x00455590",
-      "name": "g_unk0x00542418"
+      "line": 4865,
+      "nearest_function": "0x004248a0",
+      "name": "g_unk0x00539270"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 4940,
-      "nearest_function": "0x00455590",
-      "name": "g_unk0x00542528"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 4941,
+      "line": 4937,
       "nearest_function": "0x00455590",
       "name": "g_unk0x00542418"
     },
@@ -51044,69 +51042,75 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5034,
+      "line": 4943,
+      "nearest_function": "0x00455590",
+      "name": "g_unk0x00542418"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 4944,
+      "nearest_function": "0x00455590",
+      "name": "g_unk0x00542528"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 5036,
       "nearest_function": "0x00458e00",
       "name": "g_unk0x00542cad"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5569,
-      "nearest_function": "0x004581d0",
-      "name": "g_unk0x00543e90"
-    },
-    {
-      "file": "StageTiming.cpp",
       "line": 5571,
       "nearest_function": "0x004581d0",
-      "name": "g_unk0x00543ea4"
+      "name": "g_unk0x00543e90"
     },
     {
       "file": "StageTiming.cpp",
       "line": 5573,
       "nearest_function": "0x004581d0",
-      "name": "g_unk0x00543ea8"
+      "name": "g_unk0x00543ea4"
     },
     {
       "file": "StageTiming.cpp",
       "line": 5575,
       "nearest_function": "0x004581d0",
-      "name": "g_unk0x005477f0"
+      "name": "g_unk0x00543ea8"
     },
     {
       "file": "StageTiming.cpp",
       "line": 5577,
       "nearest_function": "0x004581d0",
+      "name": "g_unk0x005477f0"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 5579,
+      "nearest_function": "0x004581d0",
       "name": "g_unk0x00547ad0"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5587,
+      "line": 5589,
       "nearest_function": "0x0045eb50",
       "name": "g_unk0x00543e90"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5590,
+      "line": 5592,
       "nearest_function": "0x0045eb50",
       "name": "g_unk0x00543ea4"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5593,
+      "line": 5595,
       "nearest_function": "0x0045eb50",
       "name": "g_unk0x005477f0"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5597,
+      "line": 5599,
       "nearest_function": "0x0045eb50",
       "name": "g_unk0x00543ea8"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 5601,
-      "nearest_function": "0x0045eb50",
-      "name": "g_unk0x00547ad0"
     },
     {
       "file": "StageTiming.cpp",
@@ -51116,457 +51120,457 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5626,
+      "line": 5605,
+      "nearest_function": "0x0045eb50",
+      "name": "g_unk0x00547ad0"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 5628,
       "nearest_function": "0x00455300",
       "name": "g_unk0x00542604"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5627,
+      "line": 5629,
       "nearest_function": "0x00455300",
       "name": "g_unk0x00541f8c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5641,
+      "line": 5643,
       "nearest_function": "0x00455300",
       "name": "g_unk0x00541f8c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5652,
+      "line": 5654,
       "nearest_function": "0x00455300",
       "name": "g_unk0x00541f8c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5655,
+      "line": 5657,
       "nearest_function": "0x00455300",
       "name": "g_unk0x00542604"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5686,
+      "line": 5688,
       "nearest_function": "0x004483e0",
       "name": "g_unk0x0053dda8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5689,
+      "line": 5691,
       "nearest_function": "0x004483e0",
       "name": "g_unk0x0053dda8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5690,
+      "line": 5692,
       "nearest_function": "0x004483e0",
       "name": "g_unk0x0053dda8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5694,
+      "line": 5696,
       "nearest_function": "0x004483e0",
       "name": "g_unk0x0053d1da"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5765,
+      "line": 5767,
       "nearest_function": "0x00458a00",
       "name": "g_unk0x00542cad"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5777,
+      "line": 5779,
       "nearest_function": "0x00458090",
       "name": "g_unk0x00542cad"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5783,
+      "line": 5785,
       "nearest_function": "0x00458090",
       "name": "g_unk0x00542cad"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5821,
+      "line": 5823,
       "nearest_function": "0x0045f5d0",
       "name": "g_unk0x0053ddb0"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5857,
+      "line": 5859,
       "nearest_function": "0x004487a0",
       "name": "g_unk0x0053ddb0"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5860,
+      "line": 5862,
       "nearest_function": "0x004487a0",
       "name": "g_unk0x0053ddb0"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5931,
+      "line": 5933,
       "nearest_function": "0x00458100",
       "name": "g_unk0x00542d38"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 5990,
+      "line": 5992,
       "nearest_function": "0x004584d0",
       "name": "g_unk0x00542d38"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6028,
+      "line": 6030,
       "nearest_function": "0x004584d0",
       "name": "g_unk0x00542d38"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6044,
+      "line": 6046,
       "nearest_function": "0x004584d0",
       "name": "g_unk0x00542d38"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6073,
+      "line": 6075,
       "nearest_function": "0x004584d0",
       "name": "g_unk0x00542d38"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6076,
+      "line": 6078,
       "nearest_function": "0x004584d0",
       "name": "g_unk0x00542d38"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 6091,
-      "nearest_function": "0x004584d0",
-      "name": "g_unk0x00543650"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6093,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x00543654"
+      "name": "g_unk0x00543650"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6095,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x00543658"
+      "name": "g_unk0x00543654"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6097,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x0054365c"
+      "name": "g_unk0x00543658"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6099,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x00543660"
+      "name": "g_unk0x0054365c"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6101,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x00543664"
+      "name": "g_unk0x00543660"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6103,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x00543668"
+      "name": "g_unk0x00543664"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6105,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x0054366c"
+      "name": "g_unk0x00543668"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6107,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x00543670"
+      "name": "g_unk0x0054366c"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6109,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x00543674"
+      "name": "g_unk0x00543670"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6111,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x00543678"
+      "name": "g_unk0x00543674"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6113,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x0054367c"
+      "name": "g_unk0x00543678"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6115,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x00543690"
+      "name": "g_unk0x0054367c"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6117,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x00543698"
+      "name": "g_unk0x00543690"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6119,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x005436a0"
+      "name": "g_unk0x00543698"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6121,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x005436b8"
+      "name": "g_unk0x005436a0"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6123,
       "nearest_function": "0x004584d0",
-      "name": "g_unk0x005436d8"
+      "name": "g_unk0x005436b8"
     },
     {
       "file": "StageTiming.cpp",
       "line": 6125,
       "nearest_function": "0x004584d0",
+      "name": "g_unk0x005436d8"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 6127,
+      "nearest_function": "0x004584d0",
       "name": "g_unk0x00547fb4"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6182,
+      "line": 6184,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x0054365c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6191,
+      "line": 6193,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x00543660"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6195,
+      "line": 6197,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x00543664"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6206,
+      "line": 6208,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x005436d8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6212,
+      "line": 6214,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x0054366c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6223,
+      "line": 6225,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x0054366c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6229,
+      "line": 6231,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x0054366c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6239,
+      "line": 6241,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x005436b8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6246,
+      "line": 6248,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x005436b8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6251,
+      "line": 6253,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x005436b8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6260,
+      "line": 6262,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x0054366c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6269,
+      "line": 6271,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x005436b8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6276,
+      "line": 6278,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x005436b8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6283,
+      "line": 6285,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x00543674"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6291,
+      "line": 6293,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x00543670"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6294,
+      "line": 6296,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x0054367c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6309,
+      "line": 6311,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x00543690"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6324,
+      "line": 6326,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x00543698"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6350,
+      "line": 6352,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x00543650"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6359,
+      "line": 6361,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x00543654"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6368,
+      "line": 6370,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x00543658"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6378,
+      "line": 6380,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x005436a0"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6387,
+      "line": 6389,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x005436a0"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 6397,
+      "line": 6399,
       "nearest_function": "0x0045a170",
       "name": "g_unk0x00547fb4"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7170,
-      "nearest_function": "0x00483570",
-      "name": "g_unk0x0051bf94"
-    },
-    {
-      "file": "StageTiming.cpp",
       "line": 7172,
       "nearest_function": "0x00483570",
-      "name": "g_unk0x0051bfa0"
+      "name": "g_unk0x0051bf94"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7217,
-      "nearest_function": "0x00466ef0",
-      "name": "g_unk0x0051bf94"
+      "line": 7174,
+      "nearest_function": "0x00483570",
+      "name": "g_unk0x0051bfa0"
     },
     {
       "file": "StageTiming.cpp",
       "line": 7219,
       "nearest_function": "0x00466ef0",
-      "name": "g_unk0x0051bfa0"
+      "name": "g_unk0x0051bf94"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7793,
-      "nearest_function": "0x00459c80",
-      "name": "g_unk0x00543650"
+      "line": 7221,
+      "nearest_function": "0x00466ef0",
+      "name": "g_unk0x0051bfa0"
     },
     {
       "file": "StageTiming.cpp",
       "line": 7795,
       "nearest_function": "0x00459c80",
-      "name": "g_unk0x00543654"
+      "name": "g_unk0x00543650"
     },
     {
       "file": "StageTiming.cpp",
       "line": 7797,
       "nearest_function": "0x00459c80",
-      "name": "g_unk0x00543658"
+      "name": "g_unk0x00543654"
     },
     {
       "file": "StageTiming.cpp",
       "line": 7799,
       "nearest_function": "0x00459c80",
-      "name": "g_unk0x0054365c"
+      "name": "g_unk0x00543658"
     },
     {
       "file": "StageTiming.cpp",
       "line": 7801,
       "nearest_function": "0x00459c80",
-      "name": "g_unk0x00543660"
+      "name": "g_unk0x0054365c"
     },
     {
       "file": "StageTiming.cpp",
       "line": 7803,
       "nearest_function": "0x00459c80",
-      "name": "g_unk0x0054366c"
+      "name": "g_unk0x00543660"
     },
     {
       "file": "StageTiming.cpp",
       "line": 7805,
       "nearest_function": "0x00459c80",
-      "name": "g_unk0x00543668"
+      "name": "g_unk0x0054366c"
     },
     {
       "file": "StageTiming.cpp",
       "line": 7807,
       "nearest_function": "0x00459c80",
-      "name": "g_unk0x00543670"
+      "name": "g_unk0x00543668"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7808,
+      "line": 7809,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x00543670"
     },
@@ -51574,11 +51578,11 @@
       "file": "StageTiming.cpp",
       "line": 7810,
       "nearest_function": "0x00459c80",
-      "name": "g_unk0x00543674"
+      "name": "g_unk0x00543670"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7811,
+      "line": 7812,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x00543674"
     },
@@ -51586,91 +51590,85 @@
       "file": "StageTiming.cpp",
       "line": 7813,
       "nearest_function": "0x00459c80",
+      "name": "g_unk0x00543674"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 7815,
+      "nearest_function": "0x00459c80",
       "name": "g_unk0x00543678"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7816,
+      "line": 7818,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x005436b8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7820,
+      "line": 7822,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x005436d8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7821,
+      "line": 7823,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x005436d8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7825,
+      "line": 7827,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x0054367c"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7829,
+      "line": 7831,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x00543690"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7833,
+      "line": 7835,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x00543698"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7840,
+      "line": 7842,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x005436a0"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7843,
+      "line": 7845,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x00543664"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7843,
+      "line": 7845,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x00543660"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7844,
+      "line": 7846,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x00543650"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 7844,
+      "line": 7846,
       "nearest_function": "0x00459c80",
       "name": "g_unk0x00543654"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 8257,
+      "line": 8259,
       "nearest_function": "0x00457000",
       "name": "g_unk0x0054260c"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 8616,
-      "nearest_function": "0x0045f890",
-      "name": "g_unk0x00543ec0"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 8617,
-      "nearest_function": "0x0045f890",
-      "name": "g_unk0x00543ec0"
     },
     {
       "file": "StageTiming.cpp",
@@ -51682,31 +51680,31 @@
       "file": "StageTiming.cpp",
       "line": 8619,
       "nearest_function": "0x0045f890",
-      "name": "g_unk0x00543ec8"
+      "name": "g_unk0x00543ec0"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 8620,
+      "nearest_function": "0x0045f890",
+      "name": "g_unk0x00543ec0"
     },
     {
       "file": "StageTiming.cpp",
       "line": 8621,
       "nearest_function": "0x0045f890",
+      "name": "g_unk0x00543ec8"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 8623,
+      "nearest_function": "0x0045f890",
       "name": "g_unk0x00543ec0"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 8624,
-      "nearest_function": "0x0045f890",
-      "name": "g_unk0x00543ec4"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 8625,
-      "nearest_function": "0x0045f890",
-      "name": "g_unk0x00543ec4"
     },
     {
       "file": "StageTiming.cpp",
       "line": 8626,
       "nearest_function": "0x0045f890",
-      "name": "g_unk0x00543ec0"
+      "name": "g_unk0x00543ec4"
     },
     {
       "file": "StageTiming.cpp",
@@ -51718,43 +51716,49 @@
       "file": "StageTiming.cpp",
       "line": 8628,
       "nearest_function": "0x0045f890",
-      "name": "g_unk0x00543ec8"
+      "name": "g_unk0x00543ec0"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 8633,
+      "line": 8629,
+      "nearest_function": "0x0045f890",
+      "name": "g_unk0x00543ec4"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 8630,
       "nearest_function": "0x0045f890",
       "name": "g_unk0x00543ec8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 8723,
+      "line": 8635,
+      "nearest_function": "0x0045f890",
+      "name": "g_unk0x00543ec8"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 8725,
       "nearest_function": "0x00448920",
       "name": "g_unk0x0053d1d8"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 8728,
+      "line": 8730,
       "nearest_function": "0x00448920",
       "name": "g_unk0x0053e18d"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 8730,
+      "line": 8732,
       "nearest_function": "0x00448920",
       "name": "g_unk0x0053e18f"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 8740,
+      "line": 8742,
       "nearest_function": "0x00448920",
       "name": "g_unk0x0053d1a7"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 8746,
-      "nearest_function": "0x00448920",
-      "name": "g_unk0x0053d1a6"
     },
     {
       "file": "StageTiming.cpp",
@@ -51764,61 +51768,67 @@
     },
     {
       "file": "StageTiming.cpp",
-      "line": 8749,
-      "nearest_function": "0x00448920",
-      "name": "g_unk0x0053d1a0"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 8751,
-      "nearest_function": "0x00448920",
-      "name": "g_unk0x0053d1a8"
-    },
-    {
-      "file": "StageTiming.cpp",
-      "line": 8754,
+      "line": 8750,
       "nearest_function": "0x00448920",
       "name": "g_unk0x0053d1a6"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 8801,
+      "line": 8751,
+      "nearest_function": "0x00448920",
+      "name": "g_unk0x0053d1a0"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 8753,
+      "nearest_function": "0x00448920",
+      "name": "g_unk0x0053d1a8"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 8756,
+      "nearest_function": "0x00448920",
+      "name": "g_unk0x0053d1a6"
+    },
+    {
+      "file": "StageTiming.cpp",
+      "line": 8803,
       "nearest_function": "0x00448120",
       "name": "g_unk0x0053d1da"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 8807,
+      "line": 8809,
       "nearest_function": "0x00448120",
       "name": "g_unk0x0053d1da"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 9399,
+      "line": 9401,
       "nearest_function": "0x00455470",
       "name": "g_unk0x00542604"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 9415,
+      "line": 9417,
       "nearest_function": "0x00455470",
       "name": "g_unk0x00542528"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 9420,
+      "line": 9422,
       "nearest_function": "0x00455470",
       "name": "g_unk0x00542528"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 9421,
+      "line": 9423,
       "nearest_function": "0x00455470",
       "name": "g_unk0x00542420"
     },
     {
       "file": "StageTiming.cpp",
-      "line": 9422,
+      "line": 9424,
       "nearest_function": "0x00455470",
       "name": "g_unk0x00542420"
     },
