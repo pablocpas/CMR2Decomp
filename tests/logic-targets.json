@@ -1087,6 +1087,13 @@
       "0x491d40"
     ]
   },
+  "differential_wave_loading.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4a1f50",
+      "0x4a3250"
+    ]
+  },
   "differential_saved_game.py": {
     "arguments": "entities",
     "targets": [

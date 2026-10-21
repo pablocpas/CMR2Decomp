@@ -108,6 +108,13 @@ mejora una puntuación sin regresiones. El inventario queda en 99 candidatos
 crudos y 1391 campos sin nombre semántico; la frontera entre las nueve teclas
 y los nombres sigue documentada como deuda.
 
+La tanda de [cabecera fija WAV](pcm-wave-header.md) expresa el formato de
+44 bytes que ya interpretaba el cargador de muestras y sustituye siete
+lecturas crudas por campos tipados. Conserva todas las puntuaciones; el
+inventario queda en 92 candidatos crudos. La evidencia distingue este formato
+fijo de un lector general de chunks y documenta los retornos y la propiedad
+del archivo que mantiene el original.
+
 Las tandas 07–09 recuperan la familia de clima, iluminación y escenas de etapa
 con 97 comprobaciones de layouts y capacidad. El inventario actualizado tiene
 1987 accesos crudos, 1389 identificadores desconocidos distintos y 1512 campos

@@ -66,7 +66,7 @@
     "Input.h": "45dea00b8bdf4351d13fca5fcf7d8902634579d9ea003cb5fc69a6a95ba29775",
     "InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
     "InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
-    "LayoutChecks.cpp": "6e967cfbebfcdc986a1895a18156c198efd3c6eda2e1e11f19ab935d1f03d6ab",
+    "LayoutChecks.cpp": "468b76cd12047dabf1ba0fead031e9825a9d36f4356654948b6d4f0d8b4979b1",
     "LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
     "LightZone.h": "61ede4fe7c41bff3944aaef341f31848c7eb9eb0e8ed8b2c7842633d5f626deb",
     "Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
@@ -87,6 +87,7 @@
     "OptionPreviewGeometry.h": "278a64523b9ed504cb64294b8ba3ee55aaf56eee4780bf567b7106fab5a84f26",
     "Particle.h": "a79927c8df8b658b25c19124b4079c396cda41ca09cd7dc974eebe37ec119782",
     "PauseMenus.h": "cb2bfa8ccb4eb55803c9f342c57c211286a80aa93e02bbdabcc690bd2db6a774",
+    "PcmWaveHeader.h": "e7e0f18ffbe11e9c8391a911f556728790f347cd80a6f14fc886fb6e81424b3e",
     "PrecipitationQuad.h": "c96e38658a320049bb9500e3e48e3f5002d0dbdd87cd72a47db6d4cd225247c6",
     "ProfileEventResults.h": "78ccc7f0196b01ec711d818658db48623372d682fd76fe4d6f919a1019a76a7b",
     "Race.cpp": "7d11594410bbfe2507f19ec47c8865098027796a6f9754f839428f7a565806bb",
@@ -113,7 +114,7 @@
     "SectorObjectEntry.h": "36593e63c9880e33bf96b17da04737129b1d6fc7037bae1d759f386a17e4a19b",
     "ShadowPart.h": "0cfba34a95edc1ae44d8e174207d51ee40c37113f160604b6360790b6ef044e4",
     "SharedData.cpp": "89e9d55481bb4e820d8cd6c7f0924e70f78d255d7b02b73e67785e291c1406df",
-    "Sound.cpp": "3e0edb6900485feb6f20ad578433195f7dc1c959032cbab8d05cfefb678b5dca",
+    "Sound.cpp": "f02d8d1b67042a7b9c2155dc068f68b79d488a0850133440f8bb4bd31b1f1bf1",
     "Sound.h": "5b972d156316f420fed6f54f55d219e8f2863df1219bb9c22e755fcbe474c015",
     "SoundCurve.h": "9436e5bdc041c9f74d847f10351dd84bf799c359a2adb833d57759746f641beb",
     "Sprite.cpp": "c834c484f0c6c343603a44971e7ef6827e664fb3d8c7bfa168b015d83160a086",
@@ -164,8 +165,8 @@
     "temp.h": "a8b4567967c12c06874c2e5b422ee5163d2814b2bab28869cfde9ca7bcb576a5"
   },
   "metrics": {
-    "types": 338,
-    "raw_accesses": 99,
+    "types": 339,
+    "raw_accesses": 92,
     "fixed_sizes": 29,
     "hex_multipliers": 1885,
     "unknown_identifiers": 5064,
@@ -768,6 +769,13 @@
       "hex_multipliers": 0,
       "unknown_identifiers": 0
     },
+    "PcmWaveHeader.h": {
+      "types": 1,
+      "raw_accesses": 0,
+      "fixed_sizes": 0,
+      "hex_multipliers": 0,
+      "unknown_identifiers": 0
+    },
     "PrecipitationQuad.h": {
       "types": 1,
       "raw_accesses": 0,
@@ -952,7 +960,7 @@
     },
     "Sound.cpp": {
       "types": 0,
-      "raw_accesses": 7,
+      "raw_accesses": 0,
       "fixed_sizes": 0,
       "hex_multipliers": 3,
       "unknown_identifiers": 113
@@ -10597,6 +10605,14 @@
       ]
     },
     {
+      "file": "PcmWaveHeader.h",
+      "line": 8,
+      "kind": "struct",
+      "name": "PcmWaveHeader",
+      "end_line": 22,
+      "unnamed_fields": []
+    },
+    {
       "file": "PrecipitationQuad.h",
       "line": 9,
       "kind": "struct",
@@ -12940,55 +12956,6 @@
       "nearest_function": "0x004b93c0",
       "access_type": "unsigned int *",
       "expression": "*(unsigned int *)((BYTE *)pField + 0x24)"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 951,
-      "nearest_function": "0x004a1f50",
-      "access_type": "WORD *",
-      "expression": "*(WORD *)(pWave + 0x16)"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 952,
-      "nearest_function": "0x004a1f50",
-      "access_type": "DWORD *",
-      "expression": "*(DWORD *)(pWave + 0x18)"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 953,
-      "nearest_function": "0x004a1f50",
-      "access_type": "WORD *",
-      "expression": "*(WORD *)(pWave + 0x22)"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 957,
-      "nearest_function": "0x004a1f50",
-      "access_type": "DWORD *",
-      "expression": "*(DWORD *)(pWave + 0x28)"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 959,
-      "nearest_function": "0x004a1f50",
-      "access_type": "DWORD *",
-      "expression": "*(DWORD *)(pWave + 0x28)"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 962,
-      "nearest_function": "0x004a1f50",
-      "access_type": "DWORD *",
-      "expression": "*(DWORD *)(pWave + 0x28)"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 966,
-      "nearest_function": "0x004a1f50",
-      "access_type": "DWORD *",
-      "expression": "*(DWORD *)(pWave + 0x28)"
     },
     {
       "file": "Sprite.cpp",
@@ -23641,19 +23608,19 @@
     },
     {
       "file": "Sound.cpp",
-      "line": 655,
+      "line": 656,
       "nearest_function": "0x004a2d90",
       "value": "0xfe80"
     },
     {
       "file": "Sound.cpp",
-      "line": 783,
+      "line": 784,
       "nearest_function": "0x004a3050",
       "value": "0xfe80"
     },
     {
       "file": "Sound.cpp",
-      "line": 783,
+      "line": 784,
       "nearest_function": "0x004a3050",
       "value": "0xfe80"
     },
@@ -44522,304 +44489,298 @@
     },
     {
       "file": "Sound.cpp",
-      "line": 16,
+      "line": 17,
       "name": "m_unk0x006e0eec"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 19,
-      "name": "m_unk0x005a2728"
     },
     {
       "file": "Sound.cpp",
       "line": 20,
-      "name": "m_unk0x005a272c"
+      "name": "m_unk0x005a2728"
     },
     {
       "file": "Sound.cpp",
       "line": 21,
+      "name": "m_unk0x005a272c"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 22,
       "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
-      "line": 24,
+      "line": 25,
       "name": "m_unk0x00816a7c"
     },
     {
       "file": "Sound.cpp",
-      "line": 25,
+      "line": 26,
       "name": "m_unk0x005a2720"
     },
     {
       "file": "Sound.cpp",
-      "line": 26,
+      "line": 27,
       "name": "m_unk0x005a2724"
     },
     {
       "file": "Sound.cpp",
-      "line": 27,
+      "line": 28,
       "name": "m_unk0x005a2734"
     },
     {
       "file": "Sound.cpp",
-      "line": 28,
+      "line": 29,
       "name": "m_unk0x005a2738"
     },
     {
       "file": "Sound.cpp",
-      "line": 48,
+      "line": 49,
       "nearest_function": "0x004a28d0",
       "name": "m_unk0x006e0eec"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 51,
-      "nearest_function": "0x004a28d0",
-      "name": "m_unk0x005a2728"
     },
     {
       "file": "Sound.cpp",
       "line": 52,
       "nearest_function": "0x004a28d0",
-      "name": "m_unk0x005a272c"
+      "name": "m_unk0x005a2728"
     },
     {
       "file": "Sound.cpp",
       "line": 53,
       "nearest_function": "0x004a28d0",
+      "name": "m_unk0x005a272c"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 54,
+      "nearest_function": "0x004a28d0",
       "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
-      "line": 68,
+      "line": 69,
       "nearest_function": "0x004a28d0",
       "name": "m_unk0x005a2728"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 70,
-      "nearest_function": "0x004a28d0",
-      "name": "m_unk0x005a272c"
     },
     {
       "file": "Sound.cpp",
       "line": 71,
       "nearest_function": "0x004a28d0",
-      "name": "m_unk0x005a2734"
+      "name": "m_unk0x005a272c"
     },
     {
       "file": "Sound.cpp",
-      "line": 74,
+      "line": 72,
       "nearest_function": "0x004a28d0",
-      "name": "m_unk0x005a2730"
+      "name": "m_unk0x005a2734"
     },
     {
       "file": "Sound.cpp",
       "line": 75,
       "nearest_function": "0x004a28d0",
-      "name": "m_unk0x005a2734"
+      "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
       "line": 76,
       "nearest_function": "0x004a28d0",
+      "name": "m_unk0x005a2734"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 77,
+      "nearest_function": "0x004a28d0",
       "name": "m_unk0x005a2738"
     },
     {
       "file": "Sound.cpp",
-      "line": 84,
+      "line": 85,
       "nearest_function": "0x004a28d0",
       "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
-      "line": 91,
+      "line": 92,
       "nearest_function": "0x004a2b50",
       "name": "m_unk0x005a2734"
     },
     {
       "file": "Sound.cpp",
-      "line": 92,
+      "line": 93,
       "nearest_function": "0x004a2b50",
       "name": "m_unk0x005a2738"
     },
     {
       "file": "Sound.cpp",
-      "line": 100,
+      "line": 101,
       "nearest_function": "0x004a2ac0",
       "name": "m_unk0x005a2728"
     },
     {
       "file": "Sound.cpp",
-      "line": 101,
+      "line": 102,
       "nearest_function": "0x004a2ac0",
       "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
-      "line": 105,
+      "line": 106,
       "nearest_function": "0x004a2ac0",
       "name": "m_unk0x005a272c"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 123,
-      "nearest_function": "0x004a2ac0",
-      "name": "m_unk0x005a2728"
     },
     {
       "file": "Sound.cpp",
       "line": 124,
       "nearest_function": "0x004a2ac0",
-      "name": "m_unk0x005a272c"
+      "name": "m_unk0x005a2728"
     },
     {
       "file": "Sound.cpp",
       "line": 125,
       "nearest_function": "0x004a2ac0",
+      "name": "m_unk0x005a272c"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 126,
+      "nearest_function": "0x004a2ac0",
       "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
-      "line": 143,
+      "line": 144,
       "nearest_function": "0x004bd1b0",
       "name": "m_unk0x00816a7c"
     },
     {
       "file": "Sound.cpp",
-      "line": 145,
+      "line": 146,
       "nearest_function": "0x004bd1b0",
       "name": "m_unk0x00816a7c"
     },
     {
       "file": "Sound.cpp",
-      "line": 150,
+      "line": 151,
       "nearest_function": "0x004bd230",
       "name": "m_unk0x00816a7c"
     },
     {
       "file": "Sound.cpp",
-      "line": 157,
+      "line": 158,
       "nearest_function": "0x004a2f00",
       "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
-      "line": 164,
+      "line": 165,
       "nearest_function": "0x004a2f00",
       "name": "m_unk0x005a2720"
     },
     {
       "file": "Sound.cpp",
-      "line": 197,
+      "line": 198,
       "nearest_function": "0x004a31f0",
       "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
-      "line": 556,
+      "line": 557,
       "nearest_function": "0x004a31a0",
       "name": "m_unk0x005a2728"
     },
     {
       "file": "Sound.cpp",
-      "line": 560,
+      "line": 561,
       "nearest_function": "0x004a31a0",
       "name": "m_unk0x005a2720"
     },
     {
       "file": "Sound.cpp",
-      "line": 566,
+      "line": 567,
       "nearest_function": "0x004a31a0",
       "name": "g_unk0x00816978"
     },
     {
       "file": "Sound.cpp",
-      "line": 574,
+      "line": 575,
       "nearest_function": "0x004bd100",
       "name": "g_unk0x00816978"
     },
     {
       "file": "Sound.cpp",
-      "line": 588,
-      "nearest_function": "0x004bd120",
-      "name": "m_unk0x00816a7c"
-    },
-    {
-      "file": "Sound.cpp",
       "line": 589,
       "nearest_function": "0x004bd120",
-      "name": "g_unk0x00816978"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 592,
-      "nearest_function": "0x004bd120",
-      "name": "g_unk0x00816978"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 596,
-      "nearest_function": "0x004bd120",
-      "name": "g_unk0x00816978"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 598,
-      "nearest_function": "0x004bd120",
       "name": "m_unk0x00816a7c"
     },
     {
       "file": "Sound.cpp",
-      "line": 604,
-      "nearest_function": "0x004a3160",
-      "name": "m_unk0x005a2730"
+      "line": 590,
+      "nearest_function": "0x004bd120",
+      "name": "g_unk0x00816978"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 593,
+      "nearest_function": "0x004bd120",
+      "name": "g_unk0x00816978"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 597,
+      "nearest_function": "0x004bd120",
+      "name": "g_unk0x00816978"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 599,
+      "nearest_function": "0x004bd120",
+      "name": "m_unk0x00816a7c"
     },
     {
       "file": "Sound.cpp",
       "line": 605,
       "nearest_function": "0x004a3160",
+      "name": "m_unk0x005a2730"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 606,
+      "nearest_function": "0x004a3160",
       "name": "m_unk0x005a2724"
     },
     {
       "file": "Sound.cpp",
-      "line": 611,
+      "line": 612,
       "nearest_function": "0x004a3160",
       "name": "g_unk0x005a2710"
     },
     {
       "file": "Sound.cpp",
-      "line": 613,
+      "line": 614,
       "nearest_function": "0x004a3160",
       "name": "g_unk0x005a2714"
     },
     {
       "file": "Sound.cpp",
-      "line": 615,
+      "line": 616,
       "nearest_function": "0x004a3160",
       "name": "g_unk0x005a2718"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 628,
-      "nearest_function": "0x004a2d30",
-      "name": "g_unk0x005a2710"
     },
     {
       "file": "Sound.cpp",
       "line": 629,
       "nearest_function": "0x004a2d30",
+      "name": "g_unk0x005a2710"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 630,
+      "nearest_function": "0x004a2d30",
       "name": "g_unk0x005a2714"
     },
     {
       "file": "Sound.cpp",
-      "line": 631,
-      "nearest_function": "0x004a2d30",
-      "name": "g_unk0x005a2718"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 633,
+      "line": 632,
       "nearest_function": "0x004a2d30",
       "name": "g_unk0x005a2718"
     },
@@ -44831,15 +44792,15 @@
     },
     {
       "file": "Sound.cpp",
-      "line": 637,
+      "line": 635,
       "nearest_function": "0x004a2d30",
-      "name": "g_unk0x005a271c"
+      "name": "g_unk0x005a2718"
     },
     {
       "file": "Sound.cpp",
-      "line": 675,
-      "nearest_function": "0x004a2d90",
-      "name": "g_unk0x005a2714"
+      "line": 638,
+      "nearest_function": "0x004a2d30",
+      "name": "g_unk0x005a271c"
     },
     {
       "file": "Sound.cpp",
@@ -44855,277 +44816,277 @@
     },
     {
       "file": "Sound.cpp",
-      "line": 696,
+      "line": 678,
+      "nearest_function": "0x004a2d90",
+      "name": "g_unk0x005a2714"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 697,
       "nearest_function": "0x004a2c70",
       "name": "g_unk0x005a271c"
     },
     {
       "file": "Sound.cpp",
-      "line": 706,
+      "line": 707,
       "nearest_function": "0x004a2f50",
-      "name": "m_unk0x005a2730"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 750,
-      "nearest_function": "0x004a2bd0",
       "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
       "line": 751,
       "nearest_function": "0x004a2bd0",
-      "name": "g_unk0x005a2710"
+      "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
       "line": 752,
       "nearest_function": "0x004a2bd0",
-      "name": "g_unk0x005a2714"
+      "name": "g_unk0x005a2710"
     },
     {
       "file": "Sound.cpp",
       "line": 753,
       "nearest_function": "0x004a2bd0",
-      "name": "m_unk0x005a2720"
+      "name": "g_unk0x005a2714"
     },
     {
       "file": "Sound.cpp",
       "line": 754,
       "nearest_function": "0x004a2bd0",
+      "name": "m_unk0x005a2720"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 755,
+      "nearest_function": "0x004a2bd0",
       "name": "m_unk0x005a2724"
     },
     {
       "file": "Sound.cpp",
-      "line": 782,
+      "line": 783,
       "nearest_function": "0x004a3050",
       "name": "g_unk0x005a2718"
     },
     {
       "file": "Sound.cpp",
-      "line": 783,
+      "line": 784,
       "nearest_function": "0x004a3050",
       "name": "g_unk0x005a2714"
     },
     {
       "file": "Sound.cpp",
-      "line": 783,
+      "line": 784,
       "nearest_function": "0x004a3050",
       "name": "g_unk0x005a2718"
     },
     {
       "file": "Sound.cpp",
-      "line": 806,
+      "line": 807,
       "nearest_function": "0x004a2fe0",
       "name": "m_unk0x005a2724"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 806,
-      "nearest_function": "0x004a2fe0",
-      "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
       "line": 807,
       "nearest_function": "0x004a2fe0",
-      "name": "m_unk0x005a2720"
+      "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
-      "line": 811,
+      "line": 808,
       "nearest_function": "0x004a2fe0",
       "name": "m_unk0x005a2720"
     },
     {
       "file": "Sound.cpp",
-      "line": 817,
+      "line": 812,
       "nearest_function": "0x004a2fe0",
       "name": "m_unk0x005a2720"
     },
     {
       "file": "Sound.cpp",
-      "line": 845,
+      "line": 818,
+      "nearest_function": "0x004a2fe0",
+      "name": "m_unk0x005a2720"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 846,
       "nearest_function": "0x004a2430",
       "name": "g_unk0x005a283c"
     },
     {
       "file": "Sound.cpp",
-      "line": 847,
+      "line": 848,
       "nearest_function": "0x004a2430",
       "name": "g_unk0x005a2844"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 864,
-      "nearest_function": "0x004a2430",
-      "name": "g_unk0x005a2848"
     },
     {
       "file": "Sound.cpp",
       "line": 865,
       "nearest_function": "0x004a2430",
+      "name": "g_unk0x005a2848"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 866,
+      "nearest_function": "0x004a2430",
       "name": "g_unk0x005a284c"
     },
     {
       "file": "Sound.cpp",
-      "line": 880,
+      "line": 881,
       "nearest_function": "0x004a1d60",
       "name": "g_unk0x005a2844"
     },
     {
       "file": "Sound.cpp",
-      "line": 882,
+      "line": 883,
       "nearest_function": "0x004a1d60",
       "name": "g_unk0x005a2844"
     },
     {
       "file": "Sound.cpp",
-      "line": 885,
+      "line": 886,
       "nearest_function": "0x004a1d60",
       "name": "g_unk0x005a2844"
     },
     {
       "file": "Sound.cpp",
-      "line": 892,
+      "line": 893,
       "nearest_function": "0x004a1d60",
       "name": "g_unk0x005a283c"
     },
     {
       "file": "Sound.cpp",
-      "line": 906,
+      "line": 907,
       "nearest_function": "0x004a1d60",
       "name": "g_unk0x005a2844"
     },
     {
       "file": "Sound.cpp",
-      "line": 911,
+      "line": 912,
       "nearest_function": "0x004a1d60",
       "name": "g_unk0x005a2848"
     },
     {
       "file": "Sound.cpp",
-      "line": 913,
+      "line": 914,
       "nearest_function": "0x004a1d60",
       "name": "g_unk0x005a284c"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 917,
-      "nearest_function": "0x004a1d60",
-      "name": "m_unk0x005a2734"
     },
     {
       "file": "Sound.cpp",
       "line": 918,
       "nearest_function": "0x004a1d60",
+      "name": "m_unk0x005a2734"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 919,
+      "nearest_function": "0x004a1d60",
       "name": "m_unk0x005a2738"
     },
     {
       "file": "Sound.cpp",
-      "line": 956,
+      "line": 957,
       "nearest_function": "0x004a1f50",
       "name": "g_unk0x005a2844"
     },
     {
       "file": "Sound.cpp",
-      "line": 961,
+      "line": 962,
       "nearest_function": "0x004a1f50",
       "name": "g_unk0x005a2844"
     },
     {
       "file": "Sound.cpp",
-      "line": 1003,
+      "line": 1004,
       "nearest_function": "0x004a20c0",
       "name": "g_unk0x005a283c"
     },
     {
       "file": "Sound.cpp",
-      "line": 1060,
+      "line": 1061,
       "nearest_function": "0x004a24a0",
       "name": "g_unk0x005a2844"
     },
     {
       "file": "Sound.cpp",
-      "line": 1123,
+      "line": 1124,
       "nearest_function": "0x004a22c0",
       "name": "g_unk0x005a2844"
     },
     {
       "file": "Sound.cpp",
-      "line": 1155,
+      "line": 1156,
       "nearest_function": "0x004a2690",
       "name": "g_unk0x005a271c"
     },
     {
       "file": "Sound.cpp",
-      "line": 1157,
+      "line": 1158,
       "nearest_function": "0x004a2690",
       "name": "g_unk0x005a2844"
     },
     {
       "file": "Sound.cpp",
-      "line": 1291,
+      "line": 1292,
       "nearest_function": "0x004b7650",
       "name": "m_unk0x006e0eec"
     },
     {
       "file": "Sound.cpp",
-      "line": 1299,
+      "line": 1300,
       "nearest_function": "0x004b7650",
       "name": "m_unk0x006e0eec"
     },
     {
       "file": "Sound.cpp",
-      "line": 1309,
+      "line": 1310,
       "nearest_function": "0x004b76c0",
       "name": "m_unk0x006e0eec"
     },
     {
       "file": "Sound.cpp",
-      "line": 1325,
+      "line": 1326,
       "nearest_function": "0x004b7740",
       "name": "m_unk0x006e0eec"
     },
     {
       "file": "Sound.cpp",
-      "line": 1438,
+      "line": 1439,
       "nearest_function": "0x004a1d00",
       "name": "g_unk0x005a2844"
     },
     {
       "file": "Sound.cpp",
-      "line": 1444,
+      "line": 1445,
       "nearest_function": "0x004a3180",
       "name": "m_unk0x005a2730"
     },
     {
       "file": "Sound.cpp",
-      "line": 1445,
+      "line": 1446,
       "nearest_function": "0x004a3180",
       "name": "m_unk0x005a2724"
     },
     {
       "file": "Sound.cpp",
-      "line": 1485,
+      "line": 1486,
       "nearest_function": "0x004a1d10",
       "name": "g_unk0x005a2848"
     },
     {
       "file": "Sound.cpp",
-      "line": 1487,
+      "line": 1488,
       "nearest_function": "0x004a1d10",
       "name": "g_unk0x005a284c"
     },
     {
       "file": "Sound.cpp",
-      "line": 1503,
-      "nearest_function": "0x004a2830",
-      "name": "g_unk0x005a2848"
-    },
-    {
-      "file": "Sound.cpp",
-      "line": 1503,
+      "line": 1504,
       "nearest_function": "0x004a2830",
       "name": "g_unk0x005a2848"
     },
@@ -45139,11 +45100,11 @@
       "file": "Sound.cpp",
       "line": 1505,
       "nearest_function": "0x004a2830",
-      "name": "g_unk0x005a2844"
+      "name": "g_unk0x005a2848"
     },
     {
       "file": "Sound.cpp",
-      "line": 1505,
+      "line": 1506,
       "nearest_function": "0x004a2830",
       "name": "g_unk0x005a2844"
     },
@@ -45157,35 +45118,41 @@
       "file": "Sound.cpp",
       "line": 1507,
       "nearest_function": "0x004a2830",
+      "name": "g_unk0x005a2844"
+    },
+    {
+      "file": "Sound.cpp",
+      "line": 1508,
+      "nearest_function": "0x004a2830",
       "name": "g_unk0x005a284c"
     },
     {
       "file": "Sound.cpp",
-      "line": 1517,
+      "line": 1518,
       "nearest_function": "0x004a2a20",
       "name": "g_unk0x005a271c"
     },
     {
       "file": "Sound.cpp",
-      "line": 1530,
+      "line": 1531,
       "nearest_function": "0x004a2a20",
       "name": "g_unk0x005a2844"
     },
     {
       "file": "Sound.cpp",
-      "line": 1543,
+      "line": 1544,
       "nearest_function": "0x004b7ae0",
       "name": "m_unk0x006e0eec"
     },
     {
       "file": "Sound.cpp",
-      "line": 1552,
+      "line": 1553,
       "nearest_function": "0x004a2ba0",
       "name": "m_unk0x005a2734"
     },
     {
       "file": "Sound.cpp",
-      "line": 1553,
+      "line": 1554,
       "nearest_function": "0x004a2ba0",
       "name": "m_unk0x005a2738"
     },

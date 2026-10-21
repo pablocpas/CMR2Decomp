@@ -36,11 +36,18 @@
 #include <stddef.h>
 #include "LayoutChecks.h"
 #include "Input.h"
+#include "PcmWaveHeader.h"
 #include "LightZone.h"
 
 // Preserve the original Win32 layouts used by array indexing, bulk copies
 // and packed callback tables. Keep these checks out of shared headers:
 // extra declarations there can alter MSVC6 code generation in unrelated TUs.
+CMR2_LAYOUT_CHECK(PcmWaveHeaderSizeCheck, sizeof(PcmWaveHeader) == 0x2c);
+CMR2_LAYOUT_CHECK(PcmWaveIdOffsetCheck, offsetof(PcmWaveHeader, waveId) == 8);
+CMR2_LAYOUT_CHECK(PcmWaveChannelsOffsetCheck, offsetof(PcmWaveHeader, channels) == 0x16);
+CMR2_LAYOUT_CHECK(PcmWaveSampleRateOffsetCheck, offsetof(PcmWaveHeader, sampleRate) == 0x18);
+CMR2_LAYOUT_CHECK(PcmWaveBitsPerSampleOffsetCheck, offsetof(PcmWaveHeader, bitsPerSample) == 0x22);
+CMR2_LAYOUT_CHECK(PcmWaveDataSizeOffsetCheck, offsetof(PcmWaveHeader, dataSize) == 0x28);
 CMR2_LAYOUT_CHECK(ControllerDataSizeCheck, sizeof(ControllerData) == 0x2f0);
 CMR2_LAYOUT_CHECK(ControllerActionMasksOffsetCheck, offsetof(ControllerData, actionMasks) == 0x128);
 CMR2_LAYOUT_CHECK(ControllerActionMasksCountCheck, sizeof(((ControllerData *)0)->actionMasks) / sizeof(unsigned short) == 10);

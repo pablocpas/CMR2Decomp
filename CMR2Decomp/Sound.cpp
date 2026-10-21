@@ -7,6 +7,7 @@
 #include "Sprite.h"
 #include "Game.h"
 #include "Sound.h"
+#include "PcmWaveHeader.h"
 #include "main.h"
 #include "InstallInfo.h"
 #include "GameInfo.h"
@@ -936,34 +937,34 @@ BOOL Sound_CopyBufferData(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData
 // FUNCTION: CMR2 0x004a1f50
 BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
 {
-    BYTE *pWave;
+    PcmWaveHeader *pWave;
     BYTE inArchive;
     int channels, bits;
     DWORD rate;
     BYTE *pData;
     int slot;
 
-    pWave = (BYTE *)CGenericFileLoader::FindFile(pFile, name, &inArchive, NULL, 0);
+    pWave = (PcmWaveHeader *)CGenericFileLoader::FindFile(pFile, name, &inArchive, NULL, 0);
     if (pWave == NULL)
         return FALSE;
 
-    if (strncmp((char *)pWave + 8, g_strWave, 4) == 0) {
-        channels = *(WORD *)(pWave + 0x16);
-        rate = *(DWORD *)(pWave + 0x18);
-        bits = *(WORD *)(pWave + 0x22);
-        pData = pWave + 0x2c;
+    if (strncmp(pWave->waveId, g_strWave, 4) == 0) {
+        channels = pWave->channels;
+        rate = pWave->sampleRate;
+        bits = pWave->bitsPerSample;
+        pData = (BYTE *)(pWave + 1);
         if ((flags & 1) == 0 || !g_sound3DEnabled) {
             if (!Sound_CreatePcmSampleBuffer(g_unk0x005a2844, &g_soundBuffers[Sound_GetLoadedSampleCount()], rate, bits, channels, 0,
-                              *(DWORD *)(pWave + 0x28)))
+                              pWave->dataSize))
                 return FALSE;
-            Sound_CopyBufferData(g_soundBuffers[Sound_GetLoadedSampleCount()], 0, pData, *(DWORD *)(pWave + 0x28));
+            Sound_CopyBufferData(g_soundBuffers[Sound_GetLoadedSampleCount()], 0, pData, pWave->dataSize);
         } else {
             if (!Sound_CreatePcmSampleBuffer(g_unk0x005a2844, &g_soundBuffers[Sound_GetLoadedSampleCount()], rate, bits, channels, 1,
-                              *(DWORD *)(pWave + 0x28)))
+                              pWave->dataSize))
                 return FALSE;
             if (CSound::IsSoundCallSuccessful(g_soundBuffers[Sound_GetLoadedSampleCount()]->QueryInterface(IID_IDirectSound3DBuffer,
                                                                             (LPVOID *)&g_sound3DBuffers[Sound_GetLoadedSampleCount()]))) {
-                if (!Sound_CopyBufferData(g_soundBuffers[Sound_GetLoadedSampleCount()], 0, pData, *(DWORD *)(pWave + 0x28)))
+                if (!Sound_CopyBufferData(g_soundBuffers[Sound_GetLoadedSampleCount()], 0, pData, pWave->dataSize))
                     return FALSE;
                 CSound::IsSoundCallSuccessful(g_sound3DBuffers[Sound_GetLoadedSampleCount()]->SetMode(DS3DMODE_NORMAL, DS3D_DEFERRED));
             }
