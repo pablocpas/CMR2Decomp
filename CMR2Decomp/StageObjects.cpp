@@ -360,7 +360,7 @@ void StageObject_SpawnRandomDebrisBurst(void);
 void StageObject_SetVehicleEffectState(int value);
 void StageObject_UpdateDebris(int scale);
 void StageObject_ClearPartTuningState(void);
-void StageObject_ResetPartTuningAndRandomSeed(void);
+void CarPart_ResetDamageThresholds(void);
 void CarPart_HideNode(Car *pCar, int slot, int hidden);
 void StageObject_AssignMatchingCarClassSlots(Car *pCar, SceneNode *pObject, BYTE flag);
 void CarPart_ResetAttachedNodes(Car *pCar);
@@ -2661,11 +2661,11 @@ BYTE g_unk0x00590bfc;
 BYTE g_unk0x00590bfd;
 // GLOBAL: CMR2 0x00590c24
 BYTE g_carPartModelIndices[4][8];
-// Per wheel-hub slot damage threshold (StageTiming_WakeUnloadedWheelSlots).
+// Per moving body-part slot damage threshold (CarPart_AttachDamagedSlots).
 // GLOBAL: CMR2 0x00590c44
-int g_wheelSlotDamageThresholds[4];
+int g_carPartDamageThresholds[4];
 // GLOBAL: CMR2 0x00590c60
-BYTE g_wheelSlotDamageIndices[4];
+BYTE g_carPartDamageIndices[4];
 // GLOBAL: CMR2 0x00590d70
 int g_unk0x00590d70;
 // GLOBAL: CMR2 0x00590db0
@@ -5485,19 +5485,19 @@ void CarLight_GetScaledChannelLevels(int lane, int *pA, int *pB, int slot)
         *pB = (p->levels[1][slot] * 0x10000) / 256;
 }
 
-// Resets the car slot tuning values and reseeds the random generator.
+// Resets moving-part damage thresholds/indices and reseeds the random generator.
 // FUNCTION: CMR2 0x00480a60
-void StageObject_ResetPartTuningAndRandomSeed(void)
+void CarPart_ResetDamageThresholds(void)
 {
     srand(400);
-    g_wheelSlotDamageThresholds[0] = 0x8000;
-    g_wheelSlotDamageThresholds[1] = 0x8000;
-    g_wheelSlotDamageThresholds[2] = 0x8000;
-    g_wheelSlotDamageThresholds[3] = 0x3333;
-    g_wheelSlotDamageIndices[0] = 0x16;
-    g_wheelSlotDamageIndices[1] = 0x14;
-    g_wheelSlotDamageIndices[2] = 0x15;
-    g_wheelSlotDamageIndices[3] = 0x12;
+    g_carPartDamageThresholds[0] = 0x8000;
+    g_carPartDamageThresholds[1] = 0x8000;
+    g_carPartDamageThresholds[2] = 0x8000;
+    g_carPartDamageThresholds[3] = 0x3333;
+    g_carPartDamageIndices[0] = 0x16;
+    g_carPartDamageIndices[1] = 0x14;
+    g_carPartDamageIndices[2] = 0x15;
+    g_carPartDamageIndices[3] = 0x12;
     g_unk0x00590bfc = 1;
     g_unk0x00590bfd = 2;
 }
@@ -15684,9 +15684,9 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
 // operandos del FixMul del rotor) y el orden de los stores de angles[].
 
 
-void StageTiming_RotatePartBasisFromAngles(unsigned short *pAngles);
+void CarPart_StoreRotatedBasis(unsigned short *pAngles);
 void VehicleMotion_UpdateWorldPosition(void);
-extern int g_unk0x00590c68;
+extern int g_carPartVibrationAngle;
 extern const double g_fixedRadiansToAngle12;
 
 // FUNCTION: CMR2 0x00484310
@@ -15812,19 +15812,19 @@ void CarPart_IntegrateDetachedMotion(void)
     anglesZ:
         angles[0] = 0;
         angles[1] = 0;
-        angles[2] = FTOI(short, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000), g_minusFixedDegreesToAngle12));
+        angles[2] = FTOI(short, X87S_MUL((double)FixMul((short)g_carPartVibrationAngle * 0x1680, 0x10000), g_minusFixedDegreesToAngle12));
     } else {
         if (g_partCar->type == 9) {
             angles[0] = 0;
             angles[2] = 0;
-            angles[1] = FTOI(short, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000), g_minusFixedDegreesToAngle12));
+            angles[1] = FTOI(short, X87S_MUL((double)FixMul((short)g_carPartVibrationAngle * 0x1680, 0x10000), g_minusFixedDegreesToAngle12));
         } else {
             angles[1] = 0;
             angles[2] = 0;
-            angles[0] = FTOI(short, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x30000), g_minusFixedDegreesToAngle12));
+            angles[0] = FTOI(short, X87S_MUL((double)FixMul((short)g_carPartVibrationAngle * 0x1680, 0x30000), g_minusFixedDegreesToAngle12));
         }
     }
-    StageTiming_RotatePartBasisFromAngles(angles);
+    CarPart_StoreRotatedBasis(angles);
     VehicleMotion_UpdateWorldPosition();
 }
 // Draws the fireworks every frame: the rising rocket as a single billboard, or

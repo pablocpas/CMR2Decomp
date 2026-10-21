@@ -47,3 +47,7 @@ address	old_name	new_name	evidence
 0x00590ed0	g_unk0x00590ed0	g_carCollisionBoxes	Eight CollisionBox records indexed by car order or Car::index; cleared at each collision frame, built from car body axes/position/corners and returned by Collision_GetCarBox.
 0x00591494	g_unk0x00591494	g_collisionRecordHeight	Only store: the first mesh collision record height in Collision_SetObjectSphere (0x487e00); no readers found.
 0x005914d8	g_wallScrapeCount	g_collisionObjectHasBox	Only store is pEntry->pBounds->pProjection != 0 in Collision_TestCarAgainstSectorObjects; the obstacle solver selects box contact corners or sphere data and spin scaling with this boolean. It is not incremented.
+0x00590c44	g_wheelSlotDamageThresholds	g_carPartDamageThresholds	Four activation thresholds read by CarPart_AttachDamagedSlots, initialized by CarPart_ResetDamageThresholds.
+0x00590c60	g_wheelSlotDamageIndices	g_carPartDamageIndices	Maps moving-part slot to damageValues entry (22,20,21,18); used for attachment thresholds and damage swing.
+0x00590b10	g_unk0x00590b10	g_carPartVibrationOffsets	Eight rate-limited 16.16 scalars driven by car speed and world-position phase; producer converts the current car scalar to the shared rotation angle.
+0x00590c68	g_unk0x00590c68	g_carPartVibrationAngle	Low-word angle written by CarPart_UpdateVibrationAngle and read with signed/unsigned short semantics by moving-part rotations; int storage and upper word are preserved.

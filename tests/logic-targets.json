@@ -220,6 +220,15 @@
       "0x462aa0"
     ]
   },
+  "differential_car_moving_parts.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x480de0",
+      "0x480e50",
+      "0x4813b0",
+      "0x469bc0"
+    ]
+  },
   "differential_car_part_records.py": {
     "arguments": "entities",
     "targets": [

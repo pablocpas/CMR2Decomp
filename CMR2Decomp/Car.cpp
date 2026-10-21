@@ -3595,7 +3595,7 @@ void NetRace_ExtrapolateOrderedCarPoses(Car *pCars, short *pOrder, short count);
 void Replay_RecordAllStreamFrames(void);
 void Car_PrepareStep(Car *base, short *pList, short count);
 void Replay_RecordPeriodicCarSamples(void);
-void StageTiming_UpdateAttachedCarParts(Car *pCars, short *pOrder, short count);
+void CarPart_UpdateOrderedCars(Car *pCars, short *pOrder, short count);
 void StageObject_UpdateEnabledCornerContactFrames(Car *base, short *pList, short count);
 void ForceFeedback_UpdatePlayerSlot(int param_1);
 void NetRace_PackListedCars(Car *base, short *pList, short count);
@@ -3734,7 +3734,7 @@ void Car_UpdateAndRenderAll(void)
     Car_StoreRenderTransforms(g_unk0x0053a314, g_unk0x0053c9a0);
     Car_StoreRenderTransforms(g_unk0x0053bd6c, g_carOrder[25]);
     Replay_RecordPeriodicCarSamples();
-    StageTiming_UpdateAttachedCarParts(g_carBuffer, g_unk0x0053a314, g_unk0x0053c9a0);
+    CarPart_UpdateOrderedCars(g_carBuffer, g_unk0x0053a314, g_unk0x0053c9a0);
     StageObject_UpdateEnabledCornerContactFrames(g_carBuffer, g_unk0x0053b4f0, g_unk0x0053a310);
     ForceFeedback_UpdatePlayerSlot(0);
     NetRace_PackListedCars(g_carBuffer, g_carOrder, g_carOrderCount);

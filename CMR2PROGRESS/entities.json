@@ -6269,7 +6269,7 @@
   ],
   "0x480a60": [
     5018512,
-    "StageObject_ResetPartTuningAndRandomSeed"
+    "CarPart_ResetDamageThresholds"
   ],
   "0x480ac0": [
     4999472,
@@ -6285,23 +6285,23 @@
   ],
   "0x480bb0": [
     5186912,
-    "StageTiming_UpdateAttachedCarParts"
+    "CarPart_UpdateOrderedCars"
   ],
   "0x480cb0": [
     5144528,
-    "CarPart_SmoothSteeringOffset"
+    "CarPart_UpdateVibrationAngle"
   ],
   "0x480de0": [
     5174800,
-    "StageTiming_WakeUnloadedWheelSlots"
+    "CarPart_AttachDamagedSlots"
   ],
   "0x480e50": [
     5163680,
-    "CarPart_InitWheelHubSlot"
+    "CarPart_InitMovingSlot"
   ],
   "0x4813b0": [
     5143936,
-    "StageTiming_AttachObjectToCurrentCar"
+    "CarPart_AttachSlotNode"
   ],
   "0x4814d0": [
     5135152,
@@ -6309,7 +6309,7 @@
   ],
   "0x481560": [
     5129488,
-    "StageTiming_RotatePartBasisFromAngles"
+    "CarPart_StoreRotatedBasis"
   ],
   "0x4815e0": [
     5129616,
@@ -6317,7 +6317,7 @@
   ],
   "0x4816f0": [
     5158448,
-    "CarPart_IntegrateHubGroundContact"
+    "CarPart_IntegrateSwingAndDrag"
   ],
   "0x482ac0": [
     5229728,
@@ -6333,11 +6333,11 @@
   ],
   "0x483050": [
     5137088,
-    "StageTiming_StartLoadedPartSwing"
+    "CarPart_StartDamageSwing"
   ],
   "0x483100": [
     5165040,
-    "StageTiming_FireCarPartDebris"
+    "CarPart_EmitGroundDebris"
   ],
   "0x483570": [
     5167328,
@@ -20840,7 +20840,7 @@
     "g_interpRight"
   ],
   "0x5391f8": [
-    8236652,
+    8236684,
     "g_roadRumbleStrength"
   ],
   "0x539200": [
@@ -20852,7 +20852,7 @@
     "g_unk0x00539270"
   ],
   "0x539278": [
-    8252032,
+    8252064,
     "g_pForceFeedbackSlot"
   ],
   "0x53937c": [
@@ -21252,7 +21252,7 @@
     "g_unk0x0053cdb4"
   ],
   "0x53cdbc": [
-    8252956,
+    8252952,
     "g_unk0x0053cdbc"
   ],
   "0x53ce10": [
@@ -21372,11 +21372,11 @@
     "g_unk0x0053d1a0"
   ],
   "0x53d1a2": [
-    8252104,
+    8252136,
     "g_pendingDriverCount"
   ],
   "0x53d1a4": [
-    8252112,
+    8252144,
     "g_pendingDrivers"
   ],
   "0x53d1a6": [
@@ -21392,7 +21392,7 @@
     "g_unk0x0053d1a8"
   ],
   "0x53d1b0": [
-    8252116,
+    8252148,
     "g_stageClock"
   ],
   "0x53d1b4": [
@@ -21432,7 +21432,7 @@
     "g_unk0x0053ddb0"
   ],
   "0x53de1c": [
-    8236752,
+    8236784,
     "g_splitLeaders"
   ],
   "0x53e17c": [
@@ -21444,7 +21444,7 @@
     "g_driverFinishPosition"
   ],
   "0x53e18c": [
-    8236692,
+    8236724,
     "g_finishedDriverCount"
   ],
   "0x53e18d": [
@@ -21692,7 +21692,7 @@
     "g_stageFiles"
   ],
   "0x541f78": [
-    8252132,
+    8252164,
     "g_stageSplitUnk0x00541f78"
   ],
   "0x541f88": [
@@ -21748,7 +21748,7 @@
     "g_carScenes"
   ],
   "0x542870": [
-    8252024,
+    8252056,
     "g_carStartData"
   ],
   "0x542874": [
@@ -21764,15 +21764,15 @@
     "g_carAuxiliaryBuffers"
   ],
   "0x5428c4": [
-    8252152,
+    8252184,
     "g_carAlternateBodyScenes"
   ],
   "0x542904": [
-    8252260,
+    8252292,
     "g_carWheelModelBuffers"
   ],
   "0x542944": [
-    8252036,
+    8252068,
     "g_carAlternateBodyBuffers"
   ],
   "0x542984": [
@@ -21900,7 +21900,7 @@
     "g_carExhaustWorldPositions"
   ],
   "0x5433e0": [
-    8252224,
+    8252256,
     "g_trailForced"
   ],
   "0x543400": [
@@ -21996,7 +21996,7 @@
     "g_unk0x005436d8"
   ],
   "0x5436e8": [
-    8236720,
+    8236752,
     "g_trailForcedSurface"
   ],
   "0x543708": [
@@ -22016,7 +22016,7 @@
     "g_trailOffset"
   ],
   "0x5439b0": [
-    8252124,
+    8252156,
     "g_carExhaustBurstFrames"
   ],
   "0x5439b8": [
@@ -22064,7 +22064,7 @@
     "g_weatherIntensityTo"
   ],
   "0x543d68": [
-    8252020,
+    8252052,
     "g_weatherIntensityRouteScale"
   ],
   "0x543d6c": [
@@ -22108,7 +22108,7 @@
     "g_lightingBlendRouteScale"
   ],
   "0x543d94": [
-    8252016,
+    8252048,
     "g_lightingBlendRouteFrom"
   ],
   "0x543d98": [
@@ -22132,7 +22132,7 @@
     "g_unk0x00543e88"
   ],
   "0x543e8c": [
-    8252216,
+    8252248,
     "g_unk0x00543e8c"
   ],
   "0x543e90": [
@@ -22148,11 +22148,11 @@
     "g_weatherViewCount"
   ],
   "0x543e9c": [
-    8252256,
+    8252288,
     "g_unk0x00543e9c"
   ],
   "0x543ea0": [
-    7944088,
+    7944104,
     "g_sunVisibility"
   ],
   "0x543ea4": [
@@ -22184,7 +22184,7 @@
     "g_unk0x00543ec8"
   ],
   "0x543ecc": [
-    8252108,
+    8252140,
     "g_carSurfaceRamps"
   ],
   "0x543ed0": [
@@ -22208,11 +22208,11 @@
     "g_unk0x00543fa8"
   ],
   "0x543fb0": [
-    8237616,
+    8237648,
     "g_weatherParticles"
   ],
   "0x5477f0": [
-    8252120,
+    8252152,
     "g_unk0x005477f0"
   ],
   "0x5477f8": [
@@ -22220,7 +22220,7 @@
     "g_stageLightDirection"
   ],
   "0x547908": [
-    7944144,
+    7944160,
     "g_bodySparkBillboard"
   ],
   "0x547930": [
@@ -22236,7 +22236,7 @@
     "g_weatherWindStrength"
   ],
   "0x547944": [
-    8236680,
+    8236712,
     "g_weatherWindTransition"
   ],
   "0x547950": [
@@ -22260,7 +22260,7 @@
     "g_stageLightKind"
   ],
   "0x547adc": [
-    7944012,
+    7944028,
     "g_stageLightHasMatrix"
   ],
   "0x547ae0": [
@@ -22268,7 +22268,7 @@
     "g_stageLights"
   ],
   "0x547b40": [
-    7944208,
+    7944224,
     "g_stageLightMatrix"
   ],
   "0x547b80": [
@@ -22284,7 +22284,7 @@
     "g_stageLightTextures"
   ],
   "0x547cd4": [
-    7944044,
+    7944060,
     "g_stageLightsActive"
   ],
   "0x547cd8": [
@@ -22300,7 +22300,7 @@
     "g_carLightGlowSlots"
   ],
   "0x547f80": [
-    7944108,
+    7944124,
     "g_carLightProfiles"
   ],
   "0x547fa0": [
@@ -22316,7 +22316,7 @@
     "g_unk0x00547fb4"
   ],
   "0x547fc0": [
-    8206324,
+    8206328,
     "g_carLightPoints"
   ],
   "0x547fe0": [
@@ -22416,7 +22416,7 @@
     "g_unk0x0058896c"
   ],
   "0x588970": [
-    7944052,
+    7944068,
     "g_carDamageModelEnabled"
   ],
   "0x588990": [
@@ -22428,11 +22428,11 @@
     "g_stageDeformHull"
   ],
   "0x588a40": [
-    8236664,
+    8236696,
     "g_stageDeformOffset"
   ],
   "0x588a4c": [
-    8236704,
+    8236736,
     "g_stageDeformNormal"
   ],
   "0x588a58": [
@@ -22464,7 +22464,7 @@
     "g_stageDeformFalloff"
   ],
   "0x588a7c": [
-    8236696,
+    8236728,
     "g_stageDeformScale"
   ],
   "0x588a80": [
@@ -22492,7 +22492,7 @@
     "g_carOriginalPartVertices"
   ],
   "0x588ba0": [
-    8252100,
+    8252132,
     "g_carOriginalPartNodeTypes"
   ],
   "0x588ba4": [
@@ -22508,7 +22508,7 @@
     "g_replayLevelState"
   ],
   "0x588d38": [
-    7944036,
+    7944052,
     "g_unk0x00588d38"
   ],
   "0x588d3c": [
@@ -22552,7 +22552,7 @@
     "g_unk0x00589318"
   ],
   "0x58931c": [
-    7934756,
+    7934772,
     "g_eventCount"
   ],
   "0x589320": [
@@ -22580,11 +22580,11 @@
     "g_stageGroundNode"
   ],
   "0x589440": [
-    8220500,
+    8220496,
     "g_stageCloudNode"
   ],
   "0x589444": [
-    7944016,
+    7944032,
     "g_stageCloudTopNode"
   ],
   "0x589448": [
@@ -22716,7 +22716,7 @@
     "g_knockoutRoundActive"
   ],
   "0x58cf6c": [
-    7944184,
+    7944200,
     "g_unk0x0058cf6c"
   ],
   "0x58cf70": [
@@ -22756,7 +22756,7 @@
     "g_carSoundTimerStart"
   ],
   "0x58da30": [
-    8220468,
+    8220464,
     "g_carSoundElapsed"
   ],
   "0x58db50": [
@@ -22924,11 +22924,11 @@
     "g_unk0x0058df88"
   ],
   "0x58df98": [
-    7934764,
+    7934780,
     "g_unk0x0058df98"
   ],
   "0x58df9c": [
-    7944048,
+    7944064,
     "g_unk0x0058df9c"
   ],
   "0x58e088": [
@@ -22984,7 +22984,7 @@
     "g_aiRouteTables"
   ],
   "0x58e4a4": [
-    7944084,
+    7944100,
     "g_aiRouteNodes"
   ],
   "0x58e4a8": [
@@ -22992,7 +22992,7 @@
     "g_carHeadlightGlowCooldowns"
   ],
   "0x58e4c8": [
-    7934792,
+    7934808,
     "g_carHeadlightGlowRecords"
   ],
   "0x5909b8": [
@@ -23004,7 +23004,7 @@
     "g_unk0x005909bc"
   ],
   "0x5909c0": [
-    7944272,
+    7944288,
     "g_stageAmbientBaseColour"
   ],
   "0x5909c4": [
@@ -23016,15 +23016,15 @@
     "g_unk0x005909c8"
   ],
   "0x590af8": [
-    7944204,
+    7944220,
     "g_unk0x00590af8"
   ],
   "0x590afc": [
-    7934760,
+    7934776,
     "g_unk0x00590afc"
   ],
   "0x590b00": [
-    8220508,
+    8220504,
     "g_unk0x00590b00"
   ],
   "0x590b04": [
@@ -23032,7 +23032,7 @@
     "g_unk0x00590b04"
   ],
   "0x590b08": [
-    8220504,
+    8220500,
     "g_unk0x00590b08"
   ],
   "0x590b0c": [
@@ -23040,8 +23040,8 @@
     "g_unk0x00590b0c"
   ],
   "0x590b10": [
-    8252324,
-    "g_unk0x00590b10"
+    8236652,
+    "g_carPartVibrationOffsets"
   ],
   "0x590b30": [
     8231332,
@@ -23060,11 +23060,11 @@
     "g_carPartNodes"
   ],
   "0x590bfc": [
-    7934740,
+    7934756,
     "g_unk0x00590bfc"
   ],
   "0x590bfd": [
-    7934741,
+    7934757,
     "g_unk0x00590bfd"
   ],
   "0x590c00": [
@@ -23080,8 +23080,8 @@
     "g_carPartModelIndices"
   ],
   "0x590c44": [
-    7944276,
-    "g_wheelSlotDamageThresholds"
+    7934740,
+    "g_carPartDamageThresholds"
   ],
   "0x590c54": [
     8204676,
@@ -23096,16 +23096,16 @@
     "g_frameColourGainBlue"
   ],
   "0x590c60": [
-    8220464,
-    "g_wheelSlotDamageIndices"
+    8206324,
+    "g_carPartDamageIndices"
   ],
   "0x590c64": [
-    8252220,
+    8252252,
     "g_carPartTableCarCount"
   ],
   "0x590c68": [
-    8252952,
-    "g_unk0x00590c68"
+    8236692,
+    "g_carPartVibrationAngle"
   ],
   "0x590c6c": [
     8236648,
@@ -23144,7 +23144,7 @@
     "g_unk0x00590ec8"
   ],
   "0x590ecc": [
-    7944040,
+    7944056,
     "g_unk0x00590ecc"
   ],
   "0x590ed0": [
@@ -23152,7 +23152,7 @@
     "g_carCollisionBoxes"
   ],
   "0x591390": [
-    7944008,
+    7944024,
     "g_unk0x00591390"
   ],
   "0x591394": [
@@ -23248,7 +23248,7 @@
     "g_sectorObjectCollisionBox"
   ],
   "0x591690": [
-    7934768,
+    7934784,
     "g_tracksideZooms"
   ],
   "0x5916a0": [
@@ -23264,11 +23264,11 @@
     "g_tracksideCarDistances"
   ],
   "0x5916f0": [
-    7944092,
+    7944108,
     "g_tracksideAimLocked"
   ],
   "0x591700": [
-    7944188,
+    7944204,
     "g_tracksideDollySpeeds"
   ],
   "0x591710": [
@@ -23276,7 +23276,7 @@
     "g_tracksideZoomTargets"
   ],
   "0x591720": [
-    7944020,
+    7944036,
     "g_tracksideZoomSpeeds"
   ],
   "0x591730": [
@@ -23288,7 +23288,7 @@
     "g_viewCameraSpot"
   ],
   "0x591754": [
-    7943992,
+    7944008,
     "g_tracksideAimSpeeds"
   ],
   "0x591868": [
@@ -23436,7 +23436,7 @@
     "g_collisionLineStart"
   ],
   "0x591ad0": [
-    7934744,
+    7934760,
     "g_unk0x00591ad0"
   ],
   "0x591adc": [
@@ -23456,7 +23456,7 @@
     "g_trackEdgeSide"
   ],
   "0x591af8": [
-    8252028,
+    8252060,
     "g_trackCollisionHeader"
   ],
   "0x591afc": [
@@ -23468,7 +23468,7 @@
     "g_trackCollisionTables"
   ],
   "0x591b18": [
-    8236716,
+    8236748,
     "g_trackTriangleIndices"
   ],
   "0x591b1c": [
@@ -23636,7 +23636,7 @@
     "g_unk0x0059212c"
   ],
   "0x592130": [
-    7934784,
+    7934800,
     "g_unk0x00592130"
   ],
   "0x592134": [

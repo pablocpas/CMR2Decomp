@@ -2,7 +2,7 @@
 """Execute car-part lifecycle, visibility, attached-node and damage resets on x64.
 
 Use the production Car/CarPartSet/SceneNode layouts and pointers above 4 GB.
-Allocation, release, callback registration and damage recomputation are leaves;
+Allocation, release, callback registration, slot initialization and damage recomputation are leaves;
 check native allocation sizes, nested free order, lookup aliases and full guards.
 """
 import os
@@ -47,6 +47,15 @@ SceneNode *g_carPartNodes[4][8];
 BYTE g_carPartModelIndices[4][8];
 CarPartStateTables g_carPartStateTables;
 Car *g_partCar;PartState *g_partState;
+CarPartSet *g_partSet;
+int g_carPartDamageThresholds[4];BYTE g_carPartDamageIndices[4];
+std::vector<int> initializedSlots;
+void CarPart_InitMovingSlot(int slot) {
+    assert(slot>=0 && slot<4);
+    g_partState=&g_carPartStateTables.parts[slot][g_partCar->index];
+    assert(reinterpret_cast<uintptr_t>(g_partState)>UINT32_MAX);
+    initializedSlots.push_back(slot);
+}
 int g_deformPulseTicks[2],g_deformImpactTicks[2];
 int g_carPartTableCarCount;
 void CarPart_MarkHidden(Car *,int);
@@ -204,7 +213,39 @@ int main() {
         }
         ++cases;
     }
-    printf("PASS: %u native car-part cases; fifteen production bodies, real layouts/pointers >4 GB, allocation sizes, release order, aliases, hidden flags, attached nodes/RNG, damage/moving-table resets and full guards; ASan/UBSan\n",cases);
+    for(int carIndex:{0,7})for(int extreme:{0,1})for(int pattern=0;pattern<625;pattern++) {
+        PartState states[4][8],beforeStates[4][8],sentinelState;
+        memset(states,0x72,sizeof(states));memset(sets,0x49,sizeof(sets));
+        memset(aliases,0x31,sizeof(aliases));Car car={};car.index=carIndex;
+        g_partCar=&car;g_partSet=&aliases[carIndex];g_partState=&sentinelState;
+        g_carPartSets=sets;initializedSlots.clear();std::vector<int> expectedSlots;
+        int thresholds[4]={extreme?INT32_MIN:0x8000,extreme?-1:0x8000,0x8000,extreme?INT32_MAX:0x3333};
+        int indices[4]={22,20,21,18};int modes=pattern;
+        for(int slot=0;slot<4;slot++) {
+            int mode=modes%5;modes/=5;
+            g_carPartStateTables.parts[slot]=states[slot];
+            g_carPartStateTables.modes[slot]=0x91+slot;
+            g_carPartDamageThresholds[slot]=thresholds[slot];g_carPartDamageIndices[slot]=indices[slot];
+            sets[carIndex].partHidden[slot]=mode==1?(slot&1?-1:1):0;
+            states[slot][carIndex].pNode=mode==2?&nodes[slot][carIndex]:nullptr;
+            int damage=mode==3?thresholds[slot]:mode==4?
+                (thresholds[slot]==INT32_MIN?INT32_MIN:thresholds[slot]-1):
+                (thresholds[slot]==INT32_MAX?INT32_MAX:thresholds[slot]+1);
+            aliases[carIndex].damageValues[indices[slot]]=damage;
+            if(mode!=1 && mode!=2 && damage>thresholds[slot])expectedSlots.insert(expectedSlots.begin(),slot);
+        }
+        memcpy(beforeStates,states,sizeof(states));Car beforeCar=car;
+        CarPartSet beforeSets[8],beforeAliases[8];memcpy(beforeSets,sets,sizeof(sets));memcpy(beforeAliases,aliases,sizeof(aliases));
+        CarPartStateTables beforeTables=g_carPartStateTables;
+        CarPart_AttachDamagedSlots();
+        assert(initializedSlots==expectedSlots);
+        assert(g_partState==(expectedSlots.empty()?&sentinelState:&states[expectedSlots.back()][carIndex]));
+        assert(!memcmp(states,beforeStates,sizeof(states)) && !memcmp(sets,beforeSets,sizeof(sets)) &&
+               !memcmp(aliases,beforeAliases,sizeof(aliases)) && !memcmp(&car,&beforeCar,sizeof(car)) &&
+               !memcmp(&g_carPartStateTables,&beforeTables,sizeof(beforeTables)));
+        ++cases;
+    }
+    printf("PASS: %u native car-part cases; sixteen production bodies, real layouts/pointers >4 GB, allocation sizes, release order, aliases, hidden flags, attached nodes/RNG, damage/moving-table resets, signed attachment thresholds/order and full guards; ASan/UBSan\n",cases);
 }
 '''
 
@@ -224,7 +265,7 @@ def main():
         functions = []
         for file,names in {
             'StageTiming.cpp':('CarPart_FreeTables','CarPart_AllocateTables','CarPart_GetSet','CarPart_GetHiddenState',
-                               'CarDamage_ResetRecord','CarDamage_ResetAllRecords','CarPart_ClearSetRange','CarPart_DeactivateAndMarkHidden','CarPart_ResetMovingStateTables'),
+                               'CarDamage_ResetRecord','CarDamage_ResetAllRecords','CarPart_ClearSetRange','CarPart_DeactivateAndMarkHidden','CarPart_ResetMovingStateTables','CarPart_AttachDamagedSlots'),
             'StageObjects.cpp':('CarPart_HideNode','CarPart_GetModelIndex','CarPart_GetNode','CarPart_ApplyHiddenStates','CarPart_MarkHidden','CarPart_ResetAttachedNodes'),
         }.items():
             text=(source/file).read_text()

@@ -2567,7 +2567,7 @@ Car *g_partCar;
 // Rotates the basis kept at 0x17c with the given angles and writes the three
 // axes into the object's matrix.
 // FUNCTION: CMR2 0x00481560
-void StageTiming_RotatePartBasisFromAngles(unsigned short *pAngles)
+void CarPart_StoreRotatedBasis(unsigned short *pAngles)
 {
     FixBasis basis;
 
@@ -3554,7 +3554,7 @@ void StageTiming_ResetWheelWearRecord(int player, int wheel)
 }
 
 // GLOBAL: CMR2 0x00590c68
-int g_unk0x00590c68;
+int g_carPartVibrationAngle;
 
 // Turns the vehicle about its vertical axis by the per-frame rate, toward the
 // side given by its orientation.
@@ -3566,22 +3566,22 @@ void CarPart_IntegrateVerticalAxisTurn(void)
 
     if ((g_partState->flags & 0xf0) == 0x20) {
         angles[0] = 0;
-        int direction = *(int *)&g_partState->basis;
+        int direction = g_partState->basis.right.x;
         angles[1] = 0;
         if (direction < 0)
-            angles[2] = (unsigned short)g_unk0x00590c68;
+            angles[2] = (unsigned short)g_carPartVibrationAngle;
         else
-            angles[2] = (unsigned short)-g_unk0x00590c68;
+            angles[2] = (unsigned short)-g_carPartVibrationAngle;
     } else {
-        int direction = *(int *)&g_partState->basis;
+        int direction = g_partState->basis.right.x;
         angles[0] = 0;
         angles[1] = 0;
         if (direction > 0)
-            angles[2] = (unsigned short)g_unk0x00590c68;
+            angles[2] = (unsigned short)g_carPartVibrationAngle;
         else
-            angles[2] = (unsigned short)-g_unk0x00590c68;
+            angles[2] = (unsigned short)-g_carPartVibrationAngle;
     }
-    StageTiming_RotatePartBasisFromAngles(angles);
+    CarPart_StoreRotatedBasis(angles);
     VehicleMotion_UpdateWorldPosition();
 }
 
@@ -3935,7 +3935,7 @@ void StageTiming_InterpolateMovingPartMatrices(int t)
 
 // GLOBAL: CMR2 0x00590d78
 CarPartSet *g_partSet;
-extern BYTE g_wheelSlotDamageIndices[4];
+extern BYTE g_carPartDamageIndices[4];
 
 void CarPart_MarkHidden(Car *pCar, int slot);
 
@@ -3947,25 +3947,25 @@ void CarPart_DeactivateAndMarkHidden(void)
     CarPart_MarkHidden(g_partCar, g_partState->flags >> 4);
 }
 
-// Starts a part's swing when the load on its side exceeds 0.8: the swing
-// speed (+0x11c) is added or removed depending on which wheel is loaded more.
+// Starts a part's swing above its damage threshold. The paired damage values
+// select which end of the local Z extent becomes the pivot.
 // FUNCTION: CMR2 0x00483050
-void StageTiming_StartLoadedPartSwing(void)
+void CarPart_StartDamageSwing(void)
 {
-    int idx;
-    int a;
-    int b;
+    int damageIndex;
+    int firstDamageIndex;
+    int secondDamageIndex;
 
-    idx = g_wheelSlotDamageIndices[g_partState->flags >> 4];
-    if (g_partSet->damageValues[idx] > 0xcccc) {
+    damageIndex = g_carPartDamageIndices[g_partState->flags >> 4];
+    if (g_partSet->damageValues[damageIndex] > 0xcccc) {
         if ((g_partState->flags & 0xf0) == 0x10) {
-            a = 2;
-            b = 3;
+            firstDamageIndex = 2;
+            secondDamageIndex = 3;
         } else {
-            a = 0;
-            b = 1;
+            firstDamageIndex = 0;
+            secondDamageIndex = 1;
         }
-        if (g_partSet->damageValues[a] > g_partSet->damageValues[b])
+        if (g_partSet->damageValues[firstDamageIndex] > g_partSet->damageValues[secondDamageIndex])
             g_partState->position.z -= g_partState->swingAxis.z;
         else
             g_partState->position.z += g_partState->swingAxis.z;
@@ -4974,14 +4974,14 @@ void ForceFeedback_ComputeRoadNoise(void)
 
 // Attaches a stage object to the current car and copies its matrices.
 // FUNCTION: CMR2 0x004813b0
-int StageTiming_AttachObjectToCurrentCar(int slot)
+int CarPart_AttachSlotNode(int slot)
 {
-    SceneNode *object;
+    SceneNode *pNode;
 
     if (g_partState->pNode == NULL) {
-        object = g_carPartNodes[slot][g_partCar->index];
-        if (object != NULL) {
-            g_partState->pNode = object;
+        pNode = g_carPartNodes[slot][g_partCar->index];
+        if (pNode != NULL) {
+            g_partState->pNode = pNode;
             g_partState->pWorld = &g_partState->matrix;
             g_partState->pForceFrame = &g_partState->worldMatrix;
             memcpy(&g_partState->matrix, &g_partState->pNode->current, sizeof(FixMatrix));
@@ -5044,14 +5044,14 @@ void StageTiming_AdvanceCrossedCheckpoints(int car, int target)
 }
 
 // GLOBAL: CMR2 0x00590b10
-int g_unk0x00590b10[8];
+int g_carPartVibrationOffsets[8];
 // GLOBAL: CMR2 0x00511380
 extern const double g_fixedRadiansToAngle12 = 0.0099471839432434591;
 
-// Smooths the active car's steering offset and derives a short angle.
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Smooths speed/position-derived vibration per car and stores the shared angle
+// in the low word; the upper word retains its previous value.
 // FUNCTION: CMR2 0x00480cb0
-void CarPart_SmoothSteeringOffset(void)
+void CarPart_UpdateVibrationAngle(void)
 {
     int speed = FixMul(g_partCar->speed, FixDiv(0x10000, 0x18000));
     int step;
@@ -5069,15 +5069,15 @@ void CarPart_SmoothSteeringOffset(void)
     phase = FIX_ABS(phase);
     target = FixMul(target, phase << 6);
     index = g_partCar->index;
-    delta = target - g_unk0x00590b10[index];
+    delta = target - g_carPartVibrationOffsets[index];
     if (FIX_ABS(delta) > step) {
         if (delta > 0)
-            target = g_unk0x00590b10[index] + step;
+            target = g_carPartVibrationOffsets[index] + step;
         else
-            target = g_unk0x00590b10[index] - step;
+            target = g_carPartVibrationOffsets[index] - step;
     }
-    g_unk0x00590b10[index] = target;
-    *(short *)&g_unk0x00590c68 = (short)(int)FTOI(__int64, X87S_MUL((double)target, g_fixedRadiansToAngle12));
+    g_carPartVibrationOffsets[index] = target;
+    *(short *)&g_carPartVibrationAngle = (short)(int)FTOI(__int64, X87S_MUL((double)target, g_fixedRadiansToAngle12));
 }
 
 BYTE Car_GetDrawnFlag(int index);
@@ -6404,9 +6404,7 @@ void Car_Spawn(Car *param_1, SceneNode *param_2, int param_3, FixVector *param_4
 void Car_ResetBodyBasis(Car *param_1);
 void StageTiming_IntegratePartSpringMotion(void);
 
-// One wheel/hub record (stride 0x1a0) of the four slots CarPart_InitWheelHubSlot installs:
-// the hub transform, the offsets accumulated during the physics step and the
-// collision state used while resolving ground contact.
+// Normalises a moving part's axis, preserving a zero vector.
 inline void Motion_NormalizeInto(FixVector *out, FixVector *v)
 {
     int len = FixVecLength(v);
@@ -6424,16 +6422,13 @@ inline void Motion_NormalizeInto(FixVector *out, FixVector *v)
 
 int VehiclePhysics_TestMotionCorrectionCollision(void);
 void Vehicle_UpdateMotion(FixVector *pInput);
-void StageTiming_FireCarPartDebris(int *param_1, unsigned int param_2);
+void CarPart_EmitGroundDebris(FixVector *pVelocity, unsigned int cornerIndex);
 extern double g_minusFixedDegreesToAngle12;
 
-// Per-slot integrator for slot 1 (CarPart_InitWheelHubSlot installs its address at
-// +0x110): swings the hub about its axis, resolves the ground contact of the
-// part against the three contact planes, re-orthogonalises the part's basis
-// and finally integrates the motion offset into the world position.
-// match 65%: logic checked against the original; the stack slots differ.
+// Slot 1 integrates the moving part's swing, spring force and ground drag,
+// re-orthogonalises its basis and updates its world position.
 // FUNCTION: CMR2 0x004816f0
-void CarPart_IntegrateHubGroundContact(void)
+void CarPart_IntegrateSwingAndDrag(void)
 {
     int detached;
     int len;
@@ -6462,7 +6457,7 @@ void CarPart_IntegrateHubGroundContact(void)
     type = g_partCar->type;
     if (type != 9 && type != 11) {
         if ((g_partState->flags & 6) == 0)
-            StageTiming_StartLoadedPartSwing();
+            CarPart_StartDamageSwing();
         torque.x = 0;
         torque.y = 0;
         torque.z = 0;
@@ -6509,7 +6504,7 @@ void CarPart_IntegrateHubGroundContact(void)
                 v3c.y = g_partCar->velocity.y - v3c.y;
                 v3c.z = g_partCar->velocity.z - v3c.z;
                 FixVecScale(&v3c, &v3c, 0x3333);
-                StageTiming_FireCarPartDebris((int *)&v3c, idx);
+                CarPart_EmitGroundDebris(&v3c, idx);
             }
             v24.x = v3c.x + v4c.x;
             v24.y = v3c.y + v4c.y;
@@ -6702,16 +6697,16 @@ renormalize:
             angles[1] = 0;
             angles[2] = 0;
             if ((g_partState->flags & 2) == 0) {
-                a = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000), g_fixedDegreesToAngle12));
+                a = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_carPartVibrationAngle * 0x1680, 0x10000), g_fixedDegreesToAngle12));
                 if ((g_partState->flags & 0xf0) == 0x10) {
                     angles[2] = a;
-                    StageTiming_RotatePartBasisFromAngles(angles);
+                    CarPart_StoreRotatedBasis(angles);
                 } else {
                     angles[2] = -a;
-                    StageTiming_RotatePartBasisFromAngles(angles);
+                    CarPart_StoreRotatedBasis(angles);
                 }
             } else {
-                a = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x8000), g_fixedDegreesToAngle12));
+                a = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_carPartVibrationAngle * 0x1680, 0x8000), g_fixedDegreesToAngle12));
                 if ((g_partState->flags & 0xf0) == 0x10) {
                     if (g_partState->position.z > 0) {
                         angles[0] = -a;
@@ -6725,7 +6720,7 @@ renormalize:
                     angles[0] = a;
                 }
                 angles[1] = a;
-                StageTiming_RotatePartBasisFromAngles(angles);
+                CarPart_StoreRotatedBasis(angles);
             }
         } else {
             FixMatrix_SetRight(&g_partState->basis.right, g_partState->pWorld);
@@ -6735,22 +6730,22 @@ renormalize:
     } else if (type == 9) {
         detached = 0;
         angles[0] = 0;
-        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000), g_minusFixedDegreesToAngle12));
+        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_carPartVibrationAngle * 0x1680, 0x10000), g_minusFixedDegreesToAngle12));
         angles[2] = 0;
-        StageTiming_RotatePartBasisFromAngles(angles);
+        CarPart_StoreRotatedBasis(angles);
     } else {
         detached = 0;
         angles[0] = 0;
-        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x20000), g_minusFixedDegreesToAngle12));
+        angles[1] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_carPartVibrationAngle * 0x1680, 0x20000), g_minusFixedDegreesToAngle12));
         angles[2] = 0;
-        StageTiming_RotatePartBasisFromAngles(angles);
+        CarPart_StoreRotatedBasis(angles);
     }
     VehicleMotion_UpdateWorldPosition();
     if (detached != 0)
         Vehicle_UpdateMotion(&saved);
 }
 
-// Defined in StageObjects.cpp; CarPart_InitWheelHubSlot installs this callback.
+// Defined in StageObjects.cpp; CarPart_InitMovingSlot installs this callback.
 void CarPart_IntegrateDetachedMotion(void);
 
 // Places the two view nodes of a car at the shared angle/position buffers and
@@ -6769,24 +6764,21 @@ void StageTiming_PlaceCarViewNodesAndBody(SceneNode *pNodeA, SceneNode *pNodeB, 
         StageTiming_SnapshotCarNetworkPose(Car_Get(carIndex));
 }
 
-// Initialises one of a car's four wheel/hub records: points the shared record
-// pointer at the car's slot, picks the static geometry for the wheel type,
-// installs the per-slot integrator and clears the dynamic state.
-// match 13%: implementada; MSVC6 se queda con g_partState y el puntero base en registro
-// en vez de releerlos del global en cada acceso como hace el original
+// Attaches one of four moving body-part slots using its model's centre/extents,
+// selects a pivot and update callback, and clears the dynamic state.
 // FUNCTION: CMR2 0x00480e50
-void CarPart_InitWheelHubSlot(int slot)
+void CarPart_InitMovingSlot(int slot)
 {
-    int type = g_carPartModelIndices[slot][g_partCar->index];
-    FixVector off;
+    int modelIndex = g_carPartModelIndices[slot][g_partCar->index];
+    FixVector pivotOffset;
 
-    off.x = 0;
-    off.z = 0;
-    off.y = 0;
+    pivotOffset.x = 0;
+    pivotOffset.z = 0;
+    pivotOffset.y = 0;
 
     g_partState =
         g_carPartStateTables.parts[slot] + g_partCar->index;
-    if (StageTiming_AttachObjectToCurrentCar(slot) == 0)
+    if (CarPart_AttachSlotNode(slot) == 0)
         return;
     g_partState->flags = (g_partState->flags & 0xf) | (slot << 4);
     g_partState->flags |= 1;
@@ -6796,46 +6788,46 @@ void CarPart_InitWheelHubSlot(int slot)
     g_partState->pNode->useParentWorld = 0;
     switch (slot) {
     case 0:
-        off.x = -g_partSet->halfExtents[type].x;
-        off.y = g_partSet->halfExtents[type].y;
-        off.z = 0;
+        pivotOffset.x = -g_partSet->halfExtents[modelIndex].x;
+        pivotOffset.y = g_partSet->halfExtents[modelIndex].y;
+        pivotOffset.z = 0;
         g_partState->angle = 0x288;
         g_partState->update = CarPart_IntegrateVerticalAxisTurn;
         break;
     case 2:
         if (g_partCar->type == 11) {
-            off.x = 0;
-            off.y = g_partSet->halfExtents[type].y;
-            off.z = -g_partSet->halfExtents[type].z;
+            pivotOffset.x = 0;
+            pivotOffset.y = g_partSet->halfExtents[modelIndex].y;
+            pivotOffset.z = -g_partSet->halfExtents[modelIndex].z;
         } else if (g_partCar->type == 9) {
-            off.x = -g_partSet->halfExtents[type].x;
-            off.y = 0;
-            off.z = g_partSet->halfExtents[type].z;
+            pivotOffset.x = -g_partSet->halfExtents[modelIndex].x;
+            pivotOffset.y = 0;
+            pivotOffset.z = g_partSet->halfExtents[modelIndex].z;
         } else {
             if (g_partCar->type == 8) {
-                off.x = -g_partSet->halfExtents[type].x;
-                off.y = -g_partSet->halfExtents[type].y;
+                pivotOffset.x = -g_partSet->halfExtents[modelIndex].x;
+                pivotOffset.y = -g_partSet->halfExtents[modelIndex].y;
             } else {
-                off.x = g_partSet->halfExtents[type].x;
-                off.y = g_partSet->halfExtents[type].y;
+                pivotOffset.x = g_partSet->halfExtents[modelIndex].x;
+                pivotOffset.y = g_partSet->halfExtents[modelIndex].y;
             }
-            off.z = 0;
+            pivotOffset.z = 0;
         }
         g_partState->angle = 0x288;
         g_partState->update = CarPart_IntegrateDetachedMotion;
         break;
     case 1:
         if (g_partCar->type != 9 && g_partCar->type != 11) {
-            off.x = FixMul(g_partSet->halfExtents[type].x, 0x8000);
-            off.y = g_partSet->halfExtents[type].y;
-            off.z = 0;
+            pivotOffset.x = FixMul(g_partSet->halfExtents[modelIndex].x, 0x8000);
+            pivotOffset.y = g_partSet->halfExtents[modelIndex].y;
+            pivotOffset.z = 0;
         } else {
-            off.y = 0;
-            off.x = g_partSet->halfExtents[type].x;
-            off.z = -g_partSet->halfExtents[type].z;
+            pivotOffset.y = 0;
+            pivotOffset.x = g_partSet->halfExtents[modelIndex].x;
+            pivotOffset.z = -g_partSet->halfExtents[modelIndex].z;
         }
         g_partState->angle = 0;
-        g_partState->update = CarPart_IntegrateHubGroundContact;
+        g_partState->update = CarPart_IntegrateSwingAndDrag;
         g_partState->stiffness.x = 0x10e5;
         g_partState->stiffness.y = 0x1eb8;
         g_partState->stiffness.z = 0x10e5;
@@ -6843,17 +6835,17 @@ void CarPart_InitWheelHubSlot(int slot)
     case 3:
         g_partState->flags |= 2;
         if (g_partCar->type == 8) {
-            off.x = 0;
-            off.z = 0;
-            off.y = g_partSet->halfExtents[type].y;
+            pivotOffset.x = 0;
+            pivotOffset.z = 0;
+            pivotOffset.y = g_partSet->halfExtents[modelIndex].y;
         } else {
-            off.x = 0;
+            pivotOffset.x = 0;
             if (g_partSet->damageValues[2] > g_partSet->damageValues[3]) {
-                off.z = g_partSet->halfExtents[type].z;
-                off.y = -g_partSet->halfExtents[type].y;
+                pivotOffset.z = g_partSet->halfExtents[modelIndex].z;
+                pivotOffset.y = -g_partSet->halfExtents[modelIndex].y;
             } else {
-                off.z = -g_partSet->halfExtents[type].z;
-                off.y = -g_partSet->halfExtents[type].y;
+                pivotOffset.z = -g_partSet->halfExtents[modelIndex].z;
+                pivotOffset.y = -g_partSet->halfExtents[modelIndex].y;
             }
         }
         g_partState->angle = 0;
@@ -6866,12 +6858,12 @@ void CarPart_InitWheelHubSlot(int slot)
     g_partState->stiffness.y = 0x1eb8;
     g_partState->stiffness.z = 0x6ccc;
 common:
-    g_partState->position.x = g_partSet->centres[type].x + off.x;
-    g_partState->position.y = g_partSet->centres[type].y + off.y;
-    g_partState->position.z = g_partSet->centres[type].z + off.z;
-    g_partState->boundsRadius = FixVecLength(&g_partSet->halfExtents[type]);
-    g_partState->previousPosition = g_partSet->centres[type];
-    g_partState->swingAxis = g_partSet->halfExtents[type];
+    g_partState->position.x = g_partSet->centres[modelIndex].x + pivotOffset.x;
+    g_partState->position.y = g_partSet->centres[modelIndex].y + pivotOffset.y;
+    g_partState->position.z = g_partSet->centres[modelIndex].z + pivotOffset.z;
+    g_partState->boundsRadius = FixVecLength(&g_partSet->halfExtents[modelIndex]);
+    g_partState->previousPosition = g_partSet->centres[modelIndex];
+    g_partState->swingAxis = g_partSet->halfExtents[modelIndex];
     g_partState->velocity.x = 0;
     g_partState->velocity.y = 0;
     g_partState->velocity.z = 0;
@@ -6890,32 +6882,31 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 // Aims and fires the debris/particles of a car part: rotates the part's local
 // offset into world space, normalises the part's direction, and spawns debris
 // along the cross product of the two.
-// match 44%: implementada, difiere la extension del argumento short y el reparto de locales/registros
 // FUNCTION: CMR2 0x00483100
-void StageTiming_FireCarPartDebris(int *param_1, unsigned int param_2)
+void CarPart_EmitGroundDebris(FixVector *pVelocity, unsigned int cornerIndex)
 {
-    int sel = g_carPartModelIndices[g_partState->flags >> 4][g_partCar->index];
+    int modelIndex = g_carPartModelIndices[g_partState->flags >> 4][g_partCar->index];
     FixVector pos;
     FixVector offset;
     FixVector debrisAxes[3];
     int len;
 
-    if (StageObject_IsEligibleType(g_partCar->wheelSurface[param_2 & 0xff], 0, 0) != 0) {
+    if (StageObject_IsEligibleType(g_partCar->wheelSurface[cornerIndex & 0xff], 0, 0) != 0) {
         pos = g_partState->position;
-        pos.y -= FixMul(0x20000, g_partSet->halfExtents[sel].y);
+        pos.y -= FixMul(0x20000, g_partSet->halfExtents[modelIndex].y);
         if (g_partState->position.z > 0)
             FixVecScale(&offset, &g_partState->basis.forward,
-                        -FixMul(0x1cccc, g_partSet->halfExtents[sel].z));
+                        -FixMul(0x1cccc, g_partSet->halfExtents[modelIndex].z));
         else
             FixVecScale(&offset, &g_partState->basis.forward,
-                        FixMul(0x1cccc, g_partSet->halfExtents[sel].z));
+                        FixMul(0x1cccc, g_partSet->halfExtents[modelIndex].z));
         pos.x += offset.x;
         pos.y += offset.y;
         pos.z += offset.z;
         FixMatrix_RotateVector(&offset, &pos, g_partCar->pWorld);
-        len = FixVecLength((FixVector *)param_1);
+        len = FixVecLength(pVelocity);
         if (len > 0) {
-            FixVecScaleRecip(&debrisAxes[0], (FixVector *)param_1, -len);
+            FixVecScaleRecip(&debrisAxes[0], pVelocity, -len);
             len = FixMul(len, 0x50000);
             if (len > 0x10000)
                 len = 0x10000;
@@ -6924,7 +6915,7 @@ void StageTiming_FireCarPartDebris(int *param_1, unsigned int param_2)
             debrisAxes[1] = g_partCar->groundNormal;
             FixVecCross(&debrisAxes[2], &debrisAxes[0], &debrisAxes[1]);
             Motion_NormalizeInto(&debrisAxes[2], &debrisAxes[2]);
-            Car_SpawnDebris(len, &offset, (Car *)((BYTE *)g_partCar), &debrisAxes[0], 0x40000, 0x6666);
+            Car_SpawnDebris(len, &offset, g_partCar, &debrisAxes[0], 0x40000, 0x6666);
         }
     }
 }
@@ -7142,13 +7133,13 @@ void StageTiming_IntegratePartSpringMotion(void)
                 FixVecScale(&g_partState->angularVelocity,
                             g_carFlexibleLineConstraintAxes[(g_partCar)->index], t);
             }
-                t = FixMul((short)g_unk0x00590c68 * 0x1680, 0x8000);
+                t = FixMul((short)g_carPartVibrationAngle * 0x1680, 0x8000);
             if (g_partState->position.z < 0)
                 t = -t;
             angles[1] = 0;
             angles[2] = 0;
             angles[0] = (short)FTOI(__int64, X87S_MUL((double)t, g_fixedDegreesToAngle12));
-            StageTiming_RotatePartBasisFromAngles(angles);
+            CarPart_StoreRotatedBasis(angles);
         } else {
             FixMatrix_SetRight(&g_partState->basis.right, g_partState->pWorld);
             FixMatrix_SetUp(&g_partState->basis.up, g_partState->pWorld);
@@ -7158,8 +7149,8 @@ void StageTiming_IntegratePartSpringMotion(void)
         detached = 0;
         angles[0] = 0;
         angles[1] = 0;
-        angles[2] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x50000), g_minusFixedDegreesToAngle12));
-        StageTiming_RotatePartBasisFromAngles(angles);
+        angles[2] = (short)FTOI(__int64, X87S_MUL((double)FixMul((short)g_carPartVibrationAngle * 0x1680, 0x50000), g_minusFixedDegreesToAngle12));
+        CarPart_StoreRotatedBasis(angles);
     }
     VehicleMotion_UpdateWorldPosition();
     if (detached != 0)
@@ -7520,8 +7511,8 @@ void StageObject_IntegrateViewDeformationGrid(int param_1, ViewWeatherState *rec
 // Helpers implemented in other translation units.
 struct ReplaySample;
 void Replay_EncodeCarPoseSample(Car *pCar, ReplaySample *pSample);
-extern int g_wheelSlotDamageThresholds[4];   // per-slot thresholds 0x590c44..0x590c53
-extern BYTE g_wheelSlotDamageIndices[4];
+extern int g_carPartDamageThresholds[4];   // per-slot thresholds 0x590c44..0x590c53
+extern BYTE g_carPartDamageIndices[4];
 
 // Encodes one car pose into the next periodic replay sample.
 // FUNCTION: CMR2 0x0046c4e0
@@ -7532,29 +7523,20 @@ void Replay_RecordCarPoseSample(ReplaySample *pSample, BYTE index)
     Replay_EncodeCarPoseSample(pCar, pSample);
 }
 
-// Wakes the wheels of the current car whose static slot record has no model
-// installed yet and whose slot clock is still below the load threshold: the
-// slot is empty (0x469bc0 returns 0), the car's slot entry is 0 and the source
-// value of the slot exceeds the per-slot threshold.
+// Attaches visible, unattached body-part slots whose damage exceeds their
+// threshold, visiting slots from 3 down to 0.
 // FUNCTION: CMR2 0x00480de0
-void StageTiming_WakeUnloadedWheelSlots(void)
+void CarPart_AttachDamagedSlots(void)
 {
     int slot;
-    int offset;
 
-    slot = 3;
-    offset = 0;
-    for (; offset >= -0xc; slot--) {
+    for (slot = 3; slot >= 0; slot--) {
         if (CarPart_GetHiddenState(g_partCar, slot) == 0 &&
-            // offset steps over ints; the parts table holds pointers, scaled where
-            // they are wider than an int (the factor is 1 on Win32).
-            (*(PartState **)((BYTE *)&g_carPartStateTables.parts[3] +
-                             offset * (int)(sizeof(PartState *) / sizeof(int))))[g_partCar->index].pNode == NULL &&
-            g_partSet->damageValues[g_wheelSlotDamageIndices[slot]] >
-                *(int *)((BYTE *)&g_wheelSlotDamageThresholds[3] + offset)) {
-            CarPart_InitWheelHubSlot(slot);
+            g_carPartStateTables.parts[slot][g_partCar->index].pNode == NULL &&
+            g_partSet->damageValues[g_carPartDamageIndices[slot]] >
+                g_carPartDamageThresholds[slot]) {
+            CarPart_InitMovingSlot(slot);
         }
-        offset -= 4;
     }
 }
 
@@ -8407,7 +8389,7 @@ wheelsDone:
     return 1;
 }
 
-void StageObject_ResetPartTuningAndRandomSeed(void);
+void CarPart_ResetDamageThresholds(void);
 void StageObject_ClearPartTuningState(void);
 void CarPart_ResetAttachedNodes(Car *pCar);
 void StageTiming_RegisterSlotMeshNode(SceneNode *pNode, CarPartSet *pSlot);
@@ -8437,7 +8419,7 @@ void CarDamage_SetupOrderedCarParts(int lock, int keep, short *pOrder, short cou
     RallyCarDamageState *pSaved;
     BYTE *p;
 
-    StageObject_ResetPartTuningAndRandomSeed();
+    CarPart_ResetDamageThresholds();
     if (lock == 0)
         StageObject_ClearPartTuningState();
     for (n = count - 1; n >= 0; n--) {
@@ -9103,14 +9085,14 @@ void StageTiming_UpdateCarWheelAndExhaustEffects(int car)
 
 void CarDamage_StepClimbingCarRecords(short *param_1, short count);
 void Car_BreakQueuedWindows(Car *pCar);
-void CarPart_SmoothSteeringOffset(void);
-void StageTiming_WakeUnloadedWheelSlots(void);
+void CarPart_UpdateVibrationAngle(void);
+void CarPart_AttachDamagedSlots(void);
 
 // Per-frame update of the attached body parts (bonnet, doors, bumpers...) of
 // the cars in `pOrder` (last first): each active part's world transform is
 // rebuilt and its per-part handler runs; then queued windows break.
 // FUNCTION: CMR2 0x00480bb0
-void StageTiming_UpdateAttachedCarParts(Car *pCars, short *pOrder, short count)
+void CarPart_UpdateOrderedCars(Car *pCars, short *pOrder, short count)
 {
     int n;
     short *pIndex;
@@ -9124,8 +9106,8 @@ void StageTiming_UpdateAttachedCarParts(Car *pCars, short *pOrder, short count)
         do {
             g_partCar = pCars + *pIndex;
             g_partSet = CarPart_GetSet(g_partCar->index);
-            StageTiming_WakeUnloadedWheelSlots();
-            CarPart_SmoothSteeringOffset();
+            CarPart_AttachDamagedSlots();
+            CarPart_UpdateVibrationAngle();
             pTable = &g_carPartStateTables.parts[3];
             do {
                 pPart = *pTable + g_partCar->index;

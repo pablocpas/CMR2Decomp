@@ -24987,13 +24987,13 @@
     "symbol_name": "CarLight_GetScaledChannelLevels"
   },
   "0x480a60": {
-    "n": "StageObject_ResetPartTuningAndRandomSeed",
+    "n": "CarPart_ResetDamageThresholds",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ResetPartTuningAndRandomSeed"
+    "symbol_name": "CarPart_ResetDamageThresholds"
   },
   "0x4738f0": {
     "n": "StageObject_DrawPauseStageDataPanel",
@@ -27696,13 +27696,13 @@
     "symbol_name": "StageTiming_GetStartTableRecord"
   },
   "0x481560": {
-    "n": "StageTiming_RotatePartBasisFromAngles",
+    "n": "CarPart_StoreRotatedBasis",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_RotatePartBasisFromAngles"
+    "symbol_name": "CarPart_StoreRotatedBasis"
   },
   "0x4815e0": {
     "n": "VehicleMotion_UpdateWorldPosition",
@@ -28175,13 +28175,13 @@
     "symbol_name": "CarPart_DeactivateAndMarkHidden"
   },
   "0x483050": {
-    "n": "StageTiming_StartLoadedPartSwing",
+    "n": "CarPart_StartDamageSwing",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_StartLoadedPartSwing"
+    "symbol_name": "CarPart_StartDamageSwing"
   },
   "0x4668d0": {
     "n": "CarDamage_ResetAllRecords",
@@ -28445,13 +28445,13 @@
     "symbol_name": "ForceFeedback_ComputeRoadNoise"
   },
   "0x4813b0": {
-    "n": "StageTiming_AttachObjectToCurrentCar",
+    "n": "CarPart_AttachSlotNode",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_AttachObjectToCurrentCar"
+    "symbol_name": "CarPart_AttachSlotNode"
   },
   "0x458e00": {
     "n": "StageTiming_AdvanceCrossedCheckpoints",
@@ -28463,13 +28463,13 @@
     "symbol_name": "StageTiming_AdvanceCrossedCheckpoints"
   },
   "0x480cb0": {
-    "n": "CarPart_SmoothSteeringOffset",
+    "n": "CarPart_UpdateVibrationAngle",
     "s": 0.9239130434782609,
     "x": false,
     "fz": 0.9565217391304348,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "CarPart_SmoothSteeringOffset"
+    "symbol_name": "CarPart_UpdateVibrationAngle"
   },
   "0x423ff0": {
     "n": "StageTiming_InitForceFeedbackSlots",
@@ -28625,13 +28625,13 @@
     "symbol_name": "StageTiming_InitEffectParticleTypes"
   },
   "0x4816f0": {
-    "n": "CarPart_IntegrateHubGroundContact",
+    "n": "CarPart_IntegrateSwingAndDrag",
     "s": 0.7448453608247423,
     "x": false,
     "fz": 0.7938144329896907,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "CarPart_IntegrateHubGroundContact"
+    "symbol_name": "CarPart_IntegrateSwingAndDrag"
   },
   "0x457e50": {
     "n": "StageTiming_PlaceCarViewNodesAndBody",
@@ -28643,22 +28643,22 @@
     "symbol_name": "StageTiming_PlaceCarViewNodesAndBody"
   },
   "0x480e50": {
-    "n": "CarPart_InitWheelHubSlot",
+    "n": "CarPart_InitMovingSlot",
     "s": 0.8632218844984803,
     "x": false,
     "fz": 0.9787234042553191,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "CarPart_InitWheelHubSlot"
+    "symbol_name": "CarPart_InitMovingSlot"
   },
   "0x483100": {
-    "n": "StageTiming_FireCarPartDebris",
+    "n": "CarPart_EmitGroundDebris",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_FireCarPartDebris"
+    "symbol_name": "CarPart_EmitGroundDebris"
   },
   "0x484f40": {
     "n": "CarPart_ResolveLocalPointGroundContact",
@@ -28706,13 +28706,13 @@
     "symbol_name": "Replay_RecordCarPoseSample"
   },
   "0x480de0": {
-    "n": "StageTiming_WakeUnloadedWheelSlots",
+    "n": "CarPart_AttachDamagedSlots",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_WakeUnloadedWheelSlots"
+    "symbol_name": "CarPart_AttachDamagedSlots"
   },
   "0x498620": {
     "n": "StageTiming_RecomputeCarSplitBarSamples",
@@ -28850,13 +28850,13 @@
     "symbol_name": "StageTiming_UpdateCarWheelAndExhaustEffects"
   },
   "0x480bb0": {
-    "n": "StageTiming_UpdateAttachedCarParts",
+    "n": "CarPart_UpdateOrderedCars",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_UpdateAttachedCarParts"
+    "symbol_name": "CarPart_UpdateOrderedCars"
   },
   "0x45eed0": {
     "n": "StageWeather_DistributeViewParticles",

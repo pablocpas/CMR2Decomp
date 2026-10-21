@@ -78,6 +78,13 @@ Los campos desconocidos y formatos de los buffers conservan su estado
 pendiente. La siguiente investigación preparada es la de perfiles CIN,
 registros de vista y variantes de los objetos/nodos de etapa.
 
+La tanda de [activación de piezas móviles](car-moving-part-activation.md)
+recupera diez nombres de funciones y cuatro globals, tipa el recorrido por
+slots y conserva todas las puntuaciones. El inventario regenerado contiene
+118 candidatos crudos y 1407 campos sin nombre semántico; la evidencia de la
+tanda distingue sus dos accesos eliminados del trabajo previo aún no reflejado
+en el inventario antiguo.
+
 Las tandas 07–09 recuperan la familia de clima, iluminación y escenas de etapa
 con 97 comprobaciones de layouts y capacidad. El inventario actualizado tiene
 1987 accesos crudos, 1389 identificadores desconocidos distintos y 1512 campos

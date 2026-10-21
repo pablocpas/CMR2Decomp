@@ -134,7 +134,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x40d9e0	RallyData_InterpolateGroupGrip	RallyData.cpp	511	0.7218543046357616	0.752411575562701
 0x447f70	StageTiming_ResetRaceDriverTimes	HudDash.cpp	400	0.7226890756302521	0.6776859504132231
 0x47aa70	SurfaceSound_UpdateNearestLocalCarEngines	StageObjects.cpp	676	0.7247706422018348	0.7155963302752294
-0x4816f0	CarPart_IntegrateHubGroundContact	StageTiming.cpp	5064	0.7258637391023571	0.7448453608247423
+0x4816f0	CarPart_IntegrateSwingAndDrag	StageTiming.cpp	5064	0.7258637391023571	0.7448453608247423
 0x4643f0	CarLight_UpdateFlagsAndGlows	StageObjects.cpp	1272	0.725925925925926	0.7383863080684596
 0x4b4180	Scene_EmitProjectedShadowMesh	SceneNode.cpp	781	0.7261663286004056	0.7217741935483871
 0x442e90	Car_SmoothForceFeedback	Car.cpp	301	0.7261904761904762	0.7058823529411765
@@ -311,7 +311,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x43c640	Car_UpdateWheelLoads	Car.cpp	417	0.8862745098039215	0.8984375
 0x50a3f0	OptionMenu_DrawClampedStageTime	GameInfo.cpp	656	0.8868360277136259	0.8767123287671232
 0x5043b0	RallyData_EnterSelectedOptionPanel	RallyData.cpp	278	0.8875	0.9012345679012346
-0x480e50	CarPart_InitWheelHubSlot	StageTiming.cpp	1345	0.8885542168674698	0.8632218844984803
+0x480e50	CarPart_InitMovingSlot	StageTiming.cpp	1345	0.8885542168674698	0.8632218844984803
 0x443d10	Car_FollowGround	Car.cpp	3415	0.8887795275590551	0.8293398533007335
 0x4814d0	CarPart_IntegrateVerticalAxisTurn	StageTiming.cpp	135	0.8888888888888888	0.8888888888888888
 0x4657d0	StageObject_RebuildCarExhaustPoints	StageObjects.cpp	264	0.8901098901098901	0.8901098901098901
@@ -356,7 +356,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x4eadb0	RallyData_ResetSavedPlayerRecords	RallyData.cpp	141	0.9210526315789473	0.9473684210526315
 0x4b1ac0	Mesh_BuildParts	Mesh.cpp	561	0.9211822660098522	0.8557213930348259
 0x4a7910	CGraphics::CreateSelectedDisplayAndRenderDevice	Graphics.cpp	1826	0.9221902017291066	0.8829174664107485
-0x480cb0	CarPart_SmoothSteeringOffset	StageTiming.cpp	291	0.9239130434782609	0.9239130434782609
+0x480cb0	CarPart_UpdateVibrationAngle	StageTiming.cpp	291	0.9239130434782609	0.9239130434782609
 0x49da50	Tri2D_Contains	Graphics.cpp	544	0.9254498714652957	0.9156010230179028
 0x488de0	Collision_FindQuadEdgeOverlap	StageObjects.cpp	615	0.925531914893617	0.9301075268817204
 0x4564d0	StageTiming_InterpolateCarFixedSampleRows	StageTiming.cpp	564	0.9281767955801105	0.9337016574585635
