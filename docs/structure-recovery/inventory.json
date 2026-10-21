@@ -66,7 +66,7 @@
     "Input.h": "70247972fa5b28d76ada3b7b4e42adada4eb83aa1d204f493e5d982a922591a2",
     "InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
     "InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
-    "LayoutChecks.cpp": "1753eba6f6c3f16bf1977c85e311a60d5d497bc3519a4bea9faf4d5ce3cae530",
+    "LayoutChecks.cpp": "a685393eb6fe1408e4adc02efe4812e1738451e11e6f0eb79cc63866c621beca",
     "LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
     "LightZone.h": "61ede4fe7c41bff3944aaef341f31848c7eb9eb0e8ed8b2c7842633d5f626deb",
     "Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
@@ -106,12 +106,12 @@
     "ReplayStream.h": "73572a5d932cc2bd8906dc0333ef922e7121a7377ce0896d11cf476517aff27b",
     "SavedGame.cpp": "1a7f109d0777a4c64c81b08038762b8c1a50a59efb87e2377e0d9648ddeb0eb1",
     "SavedGame.h": "b22bc45a52276ec2bf749459d02ed13026f1973b3284e9a6a2f040fa9ad6e3dc",
-    "SceneNode.cpp": "5ab3d768a17c537d3ee0bce96aade19d5596461aeb54ad4add00338f385d1f89",
+    "SceneNode.cpp": "568bced245e99d51845ce2536d7159f57b80d86ecfe19d9b77d6c4376f8aa35f",
     "SceneNode.h": "36cb89b89381d06e4af832f582f32fcdee9f90502e826a7870c48ebbcc25c22a",
     "Sector.cpp": "f7abd1b1572c8d94ead1f036d9e42d85e165c6c8b5d45dca999b36eebe31fcc1",
     "Sector.h": "2a76908aa33a707e3013845085abd79e7c61038c2248db26cd1b9417cdbd48cf",
     "SectorObjectEntry.h": "36593e63c9880e33bf96b17da04737129b1d6fc7037bae1d759f386a17e4a19b",
-    "ShadowPart.h": "7b3d96538cda487ec312d3ffba16cbf85aa43b3fb799341a7c032ce483a238f1",
+    "ShadowPart.h": "0cfba34a95edc1ae44d8e174207d51ee40c37113f160604b6360790b6ef044e4",
     "SharedData.cpp": "89e9d55481bb4e820d8cd6c7f0924e70f78d255d7b02b73e67785e291c1406df",
     "Sound.cpp": "3e0edb6900485feb6f20ad578433195f7dc1c959032cbab8d05cfefb678b5dca",
     "Sound.h": "5b972d156316f420fed6f54f55d219e8f2863df1219bb9c22e755fcbe474c015",
@@ -165,9 +165,9 @@
   },
   "metrics": {
     "types": 338,
-    "raw_accesses": 113,
-    "fixed_sizes": 33,
-    "hex_multipliers": 1892,
+    "raw_accesses": 109,
+    "fixed_sizes": 29,
+    "hex_multipliers": 1885,
     "unknown_identifiers": 5064,
     "unnamed_field_declarations": 1401,
     "unique_unknown_identifiers": 770
@@ -903,9 +903,9 @@
     },
     "SceneNode.cpp": {
       "types": 1,
-      "raw_accesses": 8,
-      "fixed_sizes": 9,
-      "hex_multipliers": 13,
+      "raw_accesses": 4,
+      "fixed_sizes": 5,
+      "hex_multipliers": 6,
       "unknown_identifiers": 3
     },
     "SceneNode.h": {
@@ -11350,18 +11350,18 @@
     },
     {
       "file": "ShadowPart.h",
-      "line": 11,
+      "line": 12,
       "kind": "struct",
       "name": "ShadowPart",
-      "end_line": 24,
+      "end_line": 25,
       "unnamed_fields": []
     },
     {
       "file": "ShadowPart.h",
-      "line": 26,
+      "line": 27,
       "kind": "struct",
       "name": "ShadowCaster",
-      "end_line": 32,
+      "end_line": 33,
       "unnamed_fields": []
     },
     {
@@ -13010,13 +13010,6 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1201,
-      "nearest_function": "0x004b4100",
-      "access_type": "DWORD *",
-      "expression": "*(DWORD *)(pPart->pVertices + i * 0x30 + 0x1c)"
-    },
-    {
-      "file": "SceneNode.cpp",
       "line": 1315,
       "nearest_function": "0x004b4aa0",
       "access_type": "int *",
@@ -13031,38 +13024,17 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2713,
+      "line": 2711,
       "nearest_function": "0x004b4180",
-      "access_type": "BYTE **",
-      "expression": "*(BYTE **)((char *)pi + off + (pi - index) * (sizeof(*pEdge) - sizeof(*pi)))"
+      "access_type": "MeshVertexF **",
+      "expression": "*(MeshVertexF **)((char *)pSourceIndex + referenceOffset + (pSourceIndex - sourceIndices) * (sizeof(*pFaceVertex) - sizeof(*pSourceIndex)))"
     },
     {
       "file": "SceneNode.cpp",
-      "line": 2723,
+      "line": 2735,
       "nearest_function": "0x004b4180",
-      "access_type": "DWORD *",
-      "expression": "*(DWORD *)(pVtx + 0x18)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2731,
-      "nearest_function": "0x004b4180",
-      "access_type": "float *",
-      "expression": "*(float *)(pVtx + 4)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2732,
-      "nearest_function": "0x004b4180",
-      "access_type": "float *",
-      "expression": "*(float *)(pVtx + 8)"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2737,
-      "nearest_function": "0x004b4180",
-      "access_type": "BYTE **",
-      "expression": "*(BYTE **)((char *)pi + off + (pi - index) * (sizeof(*pEdge) - sizeof(*pi)))"
+      "access_type": "MeshVertexF **",
+      "expression": "*(MeshVertexF **)((char *)pSourceIndex + referenceOffset + (pSourceIndex - sourceIndices) * (sizeof(*pFaceVertex) - sizeof(*pSourceIndex)))"
     },
     {
       "file": "Sector.cpp",
@@ -13641,42 +13613,6 @@
       "call": "AllocateLockedBuffer",
       "size_expressions": [
         "0x104"
-      ]
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1195,
-      "nearest_function": "0x004b4100",
-      "call": "AllocateLockedBuffer",
-      "size_expressions": [
-        "pPart->pMesh->field_0x10 * 0xc"
-      ]
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1197,
-      "nearest_function": "0x004b4100",
-      "call": "AllocateLockedBuffer",
-      "size_expressions": [
-        "pPart->pMesh->field_0x10 * 0xc"
-      ]
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1199,
-      "nearest_function": "0x004b4100",
-      "call": "AllocateLockedBuffer",
-      "size_expressions": [
-        "pPart->pMesh->field_0x10 * 0x30"
-      ]
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1202,
-      "nearest_function": "0x004b4100",
-      "call": "AllocateLockedBuffer",
-      "size_expressions": [
-        "pPart->pMesh->field_0x10 * 0xc"
       ]
     },
     {
@@ -23751,36 +23687,6 @@
     },
     {
       "file": "SceneNode.cpp",
-      "line": 1195,
-      "nearest_function": "0x004b4100",
-      "value": "0xc"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1197,
-      "nearest_function": "0x004b4100",
-      "value": "0xc"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1199,
-      "nearest_function": "0x004b4100",
-      "value": "0x30"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1201,
-      "nearest_function": "0x004b4100",
-      "value": "0x30"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 1202,
-      "nearest_function": "0x004b4100",
-      "value": "0xc"
-    },
-    {
-      "file": "SceneNode.cpp",
       "line": 1355,
       "nearest_function": "0x004b4aa0",
       "value": "0x30"
@@ -23795,18 +23701,6 @@
       "file": "SceneNode.cpp",
       "line": 2181,
       "nearest_function": "0x004b4040",
-      "value": "0x30"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2708,
-      "nearest_function": "0x004b4180",
-      "value": "0xc"
-    },
-    {
-      "file": "SceneNode.cpp",
-      "line": 2737,
-      "nearest_function": "0x004b4180",
       "value": "0x30"
     },
     {

@@ -96,6 +96,11 @@ desde la integración y sus consumidores, separa las escrituras de rigidez y
 amortiguación, y tipa la copia de ejes del restore. Conserva todas las
 puntuaciones; los campos detectados sin nombre semántico bajan a 1401.
 
+La tanda de [buffers de sombras](shadow-render-buffers.md) tipa y nombra las
+normales, posiciones, productos escalares y referencias de caras, y usa los
+campos de vértice para posición, colores y UV. Conserva todas las puntuaciones;
+el inventario queda en 109 candidatos crudos y 29 tamaños literales.
+
 Las tandas 07–09 recuperan la familia de clima, iluminación y escenas de etapa
 con 97 comprobaciones de layouts y capacidad. El inventario actualizado tiene
 1987 accesos crudos, 1389 identificadores desconocidos distintos y 1512 campos

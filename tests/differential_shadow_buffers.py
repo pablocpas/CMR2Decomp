@@ -11,12 +11,14 @@ import struct
 import sys
 from pathlib import Path
 
-from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_ESP
+from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_ESP, UC_X86_REG_FPCW
 from differential_stage_lighting import Lighting
 from differential_menu_list import ROOT, HEAP, STACK
 
 POSITIONS = ((-2., 0., 1.), (0., 2., 1.), (2., 0., 1.),
              (-2., 0., -1.), (0., -2., -1.), (2., 0., -1.))
+NORMALS = ((0.,0.,1.), (1.,0.,0.), (0.,0.,0.05),
+           (0.,0.,-1.), (0.,1.,-0.25), (0.,0.,-1.))
 FACES = (((0, 1, 2),), ((3, 4, 5),), ((0, 1, 2), (3, 4, 5)),
          ((0, 1, 2), (0, 2, 4)), ())
 IDENTITY = (1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0.)
@@ -43,8 +45,9 @@ class ShadowBuffers(Lighting):
         self.invoke(target, args)
         assert self.u.reg_read(UC_X86_REG_ESP) == STACK + 0xff04 + 4 * len(args)
 
-    def run(self, part_count, face_case, factor, project=False):
+    def run(self, part_count, face_case, factor, project=False, cached=False):
         self.reset()
+        self.u.reg_write(UC_X86_REG_FPCW, 0x007f)
         self.u.mem_write(HEAP, bytes([0xa5]) * 0x10000)
         self.cursor = 0x6000
         self.allocations = []
@@ -62,6 +65,11 @@ class ShadowBuffers(Lighting):
             self.put(node + 0x118, '<16f', *IDENTITY, float(i), float(-i), float(i * 2), 1.)
             self.put(mesh + 0x10, '<i', len(POSITIONS))
             self.put(mesh + 0x24, '<Ii', triangles, len(faces))
+            if cached:
+                source = HEAP + 0x4000 + i * 0x200
+                self.put(mesh + 0xC, '<I', source)
+                for j,(position,normal) in enumerate(zip(POSITIONS,NORMALS)):
+                    self.put(source+j*48,'<6f',*position,*normal)
             for j, face in enumerate(faces):
                 self.put(triangles + j * 0x4c + 0x40, '<3H', *face)
         immutable = self.read(HEAP + 0x1000, 0x3000)
@@ -74,16 +82,34 @@ class ShadowBuffers(Lighting):
         self.put(self.addr(0x6e0098), '<I', 0xff123456)
         self.put(self.addr(0x6e01b0), '<3f', 0., 0., 1.)
         self.put(self.addr(0x6e0220), '<9f', 0., 0., 1., 0., 1., 0., 1., 0., 0.)
+        if cached:
+            source_before = self.read(HEAP + 0x4000,0x800)
+            self.put(caster + 0x10,'<i',1)
+            self.checked(0x4b4490,[caster,factor & 0xffffffff])
+            assert self.read(HEAP + 0x4000,0x800)==source_before,'source mesh immutable'
+            assert self.read(caster+0xC,8)==bytes(8),'cache dirty flags cleared'
+            clean = self.read(HEAP,0x10000)
+            self.checked(0x4b4490,[caster,(65536-factor) & 0xffffffff])
+            assert self.read(HEAP,0x10000)==clean,'clean cache must not re-emit with another intensity'
         outputs = []
         for i in range(part_count):
             part = parts + i * 88
             pointers = struct.unpack('<6I', self.read(part + 0x38, 24))
             work, work2, flags, work3, vertices, triangles = pointers
-            self.u.mem_write(work, struct.pack('<18f', *(v for p in POSITIONS for v in p)))
-            self.u.mem_write(work2, struct.pack('<18f', *(v for p in POSITIONS for v in p)))
-            self.checked(0x4b4180, [part, factor & 0xffffffff])
+            if not cached:
+                self.u.mem_write(work, struct.pack('<18f', *(v for p in POSITIONS for v in p)))
+                self.u.mem_write(work2, struct.pack('<18f', *(v for p in POSITIONS for v in p)))
+                self.checked(0x4b4180, [part, factor & 0xffffffff])
+            else:
+                assert self.read(work,72)==struct.pack('<18f',*(v for n in NORMALS for v in n)),'normal cache'
+                def f32(value):
+                    return struct.unpack('<f',struct.pack('<f',value))[0]
+                expected_bias = [f32(p+f32(f32(n)*f32(0.005)))
+                                 for position,normal in zip(POSITIONS,NORMALS) for p,n in zip(position,normal)]
+                assert self.read(work2,72)==struct.pack('<18f',*expected_bias),'normal-biased positions'
             face_count, vertex_count = struct.unpack('<2h', self.read(part + 0x50, 4))
-            visible = [face for face in faces if any(POSITIONS[v][2] >= 0 for v in face)]
+            normals = NORMALS if cached else POSITIONS
+            visible = [face for face in faces if any(normals[v][2] >= 0 for v in face)]
             assert face_count == len(visible)
             assert vertex_count == len(set(v for face in visible for v in face))
             edge_values = struct.unpack('<' + 'I' * (3 * len(faces)), self.read(triangles, 12 * len(faces)))
@@ -139,10 +165,12 @@ def main():
     original = ShadowBuffers(ROOT / 'cmr2bin/CMR2.exe')
     rebuilt = ShadowBuffers(Path(sys.argv[2]) if len(sys.argv) > 2 else ROOT / 'build/CMR2.exe', entities)
     count = 0
-    for case in cases():
-        assert original.run(*case, project=True) == rebuilt.run(*case, project=True), case
-        count += 1
-    print(f'PASS: {count} shadow registration/emission/projection cases; full guarded buffers, shared vertices, complete batches, emitted-face model and x86 ABI')
+    for cached in (False,True):
+        for case in cases():
+            assert original.run(*case, project=True,cached=cached) == rebuilt.run(*case, project=True,cached=cached), (case,cached)
+            count += 1
+    print(f'PASS: {count} shadow registration/cache/emission/projection cases; independent normals/bias and emitted-face models, '
+          'single-precision x87, full guarded buffers, shared vertices, complete batches and x86 ABI')
 
 
 if __name__ == '__main__':
