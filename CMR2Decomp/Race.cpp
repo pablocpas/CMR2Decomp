@@ -3153,7 +3153,7 @@ void StageUI_RecordRaceEndEvent(char bFlag);
 void RallyTiming_AddStagePenalties(void);
 void RallyData_SetStageSelectionAndRefreshFlags(BYTE param1);
 void RallyData_ClearDriverGroupRecords(void);
-void RallyData_CopyCountryPlayerDefaults(void);
+void RallyData_ApplyCountryCarSetups(void);
 void RallyData_SelectFirstAvailableStage(void);
 void NetPlayers_ResetBestTimes(void);
 void NetPlayers_ResetRaceReadyAndTimeState(char resetTotal, char resetTimes);
@@ -3345,7 +3345,7 @@ void Race_HandleStageReplayViewTransitions(CallbackStateMachine *param1, unsigne
             for (i = 0; i < pPlayers->count; i++)
                 CGame::PromoteCallbackEntryByRule(pPlayers, i, 0, 3);
             RallyData_ClearDriverGroupRecords();
-            RallyData_CopyCountryPlayerDefaults();
+            RallyData_ApplyCountryCarSetups();
             Race_ReleaseFrameResources();
             StageUI_ClearRaceEndLatch();
             return;
@@ -3355,7 +3355,7 @@ void Race_HandleStageReplayViewTransitions(CallbackStateMachine *param1, unsigne
             for (i = 0; i < pPlayers->count; i++)
                 CGame::PromoteCallbackEntryByRule(pPlayers, i, 0, 3);
             RallyData_ClearDriverGroupRecords();
-            RallyData_CopyCountryPlayerDefaults();
+            RallyData_ApplyCountryCarSetups();
             Race_ReleaseFrameResources();
             StageUI_ClearRaceEndLatch();
             NetPlayers_ResetBestTimes();

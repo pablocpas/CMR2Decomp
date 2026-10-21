@@ -289,7 +289,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x47d5a0	StageObject_SpawnCarHeadlightGlow	StageObjects.cpp	673	0.8679245283018868	0.8752941176470588
 0x456110	StageTiming_RandomizeAndSortDriverTimeTuning	StageTiming.cpp	204	0.8689655172413793	0.9078014184397163
 0x4873f0	Collision_BuildObjectPointBounds	StageObjects.cpp	931	0.869172932330827	0.7779433681073026
-0x502570	OptionMenu_InitDefaultRecordTables	GameInfo.cpp	191	0.8695652173913043	0.8695652173913043
+0x502570	OptionMenu_LoadCarSetups	GameInfo.cpp	191	0.8695652173913043	0.8695652173913043
 0x4786b0	Surface_BlendWheelContactParameters	SurfaceTypes.cpp	764	0.8721461187214612	0.8662131519274376
 0x47d0e0	AI_SelectCarsWithinOvertakeWindow	StageObjects.cpp	578	0.8733850129198967	0.8144329896907216
 0x508740	StageDeform_ClampVertex	StageTiming.cpp	330	0.8734693877551021	0.6829268292682927

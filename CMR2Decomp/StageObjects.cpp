@@ -1180,9 +1180,9 @@ BYTE *StageObject_GetViewRectangleIndex(int index)
 }
 
 
-extern Texture *g_unk0x00588740;
-extern Texture *g_unk0x00588744;
-extern Texture *g_unk0x00588748;
+extern Texture *g_skidTrailTexture;
+extern Texture *g_skidMarkTexture;
+extern Texture *g_skidBlankTexture;
 extern int g_unk0x00549ba0[8][4];
 int StageObject_ClampByteRange(int value);
 #define TRAIL_POINT(i) (&g_trailPoints[0][0][0] + (i))
@@ -1298,7 +1298,7 @@ void CarEffects_DrawTyreMarks(int index)
                         continue;
                     switch ((g_stageSurfaceInfo[pCur->material & 0xf].flags >> 2) & 3) {
                     case 1:
-                        pTexture = g_unk0x00588744;
+                        pTexture = g_skidMarkTexture;
                         break;
                     case 2:
                         a.colour[0] = 0;
@@ -1311,10 +1311,10 @@ void CarEffects_DrawTyreMarks(int index)
                         b.colour[2] = 0;
                         b.colour[3] = (BYTE)(alpha1 / 3);
                         *(DWORD *)d.colour = *(DWORD *)b.colour;
-                        pTexture = g_unk0x00588748;
+                        pTexture = g_skidBlankTexture;
                         break;
                     default:
-                        pTexture = g_unk0x00588740;
+                        pTexture = g_skidTrailTexture;
                         break;
                     }
                     Quad2D_QueueFixedTriangle(0, &b, &a, &c, pTexture, 0x26);
@@ -2065,7 +2065,7 @@ int g_unk0x0058ca84;
 // The five fade-timer objects below live inside the 0x58ca90 block declared in
 // StageUI.cpp, so they are addressed as offsets of it (a separate declaration
 // would overlap it).
-extern PauseMenus g_unk0x0058ca90;
+extern PauseMenus g_pauseMenus;
 
 extern CallbackStateMachine *g_unk0x0058ca88;
 extern BYTE g_unk0x0058ca8c[4];
@@ -2133,19 +2133,19 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
     if (g_unk0x0058cf6c != 0)
         StageUI_UpdatePauseMenu();
     if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca80))
-        g_unk0x0058ca90.bracketFade = Timer_GetValue(g_unk0x0058ca80);
-    if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.textTimer))
-        g_unk0x0058ca90.textFade = Timer_GetValue(g_unk0x0058ca90.textTimer);
+        g_pauseMenus.bracketFade = Timer_GetValue(g_unk0x0058ca80);
+    if (Graphics_IsRegisteredTimerRunning(&g_pauseMenus.textTimer))
+        g_pauseMenus.textFade = Timer_GetValue(g_pauseMenus.textTimer);
     else
-        g_unk0x0058ca90.textFade = 0;
+        g_pauseMenus.textFade = 0;
 
     switch (g_knockoutRaceState) {
     case 0:
         Graphics_ResetInterpolationTimers();
-        g_unk0x0058ca90.bracketFade = 0;
+        g_pauseMenus.bracketFade = 0;
         if ((*pState & 0x38) == 8) {
             Graphics_StartShapedInterpolationTimer(&g_unk0x0058ca80, 2, 0xd, 0, 0, 0x10000, 0);
-            Graphics_StartShapedInterpolationTimer(&g_unk0x0058ca90.textTimer, 2, 7, 0, 0, 0x10000, 0);
+            Graphics_StartShapedInterpolationTimer(&g_pauseMenus.textTimer, 2, 7, 0, 0, 0x10000, 0);
         }
         *pState = *pState & 0xff1fffff;
         StageUI_BuildPauseMenus();
@@ -2184,7 +2184,7 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
                 g_unk0x0058cf64 = 0;
                 return;
             } else {
-                g_unk0x0058ca90.roundEntry = RallyData_GetRoundEntry();
+                g_pauseMenus.roundEntry = RallyData_GetRoundEntry();
                 g_unk0x0058cf64 = 0;
                 g_knockoutRaceState = 4;
                 return;
@@ -2194,7 +2194,7 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
     case 3:
         if (g_unk0x0058cf64 != 0) {
             g_knockoutRaceState = 5;
-            Graphics_StartShapedInterpolationTimer(&g_unk0x0058ca90.textTimer, 2, 7, 0, 0, 0x10000, 0);
+            Graphics_StartShapedInterpolationTimer(&g_pauseMenus.textTimer, 2, 7, 0, 0, 0x10000, 0);
             g_unk0x0058cf64 = 0;
             return;
         }
@@ -2222,33 +2222,33 @@ void Knockout_UpdateRaceStateAndFades(CallbackStateMachine *param_1, unsigned in
                 return;
             }
         } else if (g_unk0x0058cf64 != 0) {
-            g_unk0x0058ca90.bracketFade = 0x10000;
-            Graphics_StartShapedInterpolationTimer(&g_unk0x0058ca90.bracketTimer, 2, 0xd, 0, 0, 0x10000, 0);
+            g_pauseMenus.bracketFade = 0x10000;
+            Graphics_StartShapedInterpolationTimer(&g_pauseMenus.bracketTimer, 2, 0xd, 0, 0, 0x10000, 0);
             g_unk0x0058cf64 = 0;
             g_knockoutRaceState = 6;
             return;
         }
         break;
     case 6:
-        if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.bracketTimer)) {
-            g_unk0x0058ca90.bracketFade = Timer_GetValue(g_unk0x0058ca90.bracketTimer);
+        if (Graphics_IsRegisteredTimerRunning(&g_pauseMenus.bracketTimer)) {
+            g_pauseMenus.bracketFade = Timer_GetValue(g_pauseMenus.bracketTimer);
             g_unk0x0058cf64 = 0;
             return;
         }
         if (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c)) {
-            Graphics_StopRegisteredTimer(&g_unk0x0058ca90.bracketTimer);
-            g_unk0x0058ca90.bracketFade = 0;
+            Graphics_StopRegisteredTimer(&g_pauseMenus.bracketTimer);
+            g_pauseMenus.bracketFade = 0;
             Graphics_StartShapedInterpolationTimer(g_unk0x0058ca8c, 2, 0xd, 0, 0, 0x10000, 1);
             g_unk0x0058cf64 = 0;
             return;
         }
-        g_unk0x0058ca90.bracketFade = Timer_GetValue(g_unk0x0058ca8c[0]);
+        g_pauseMenus.bracketFade = Timer_GetValue(g_unk0x0058ca8c[0]);
         if (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c))
-            g_unk0x0058ca90.bracketFade = 0;
+            g_pauseMenus.bracketFade = 0;
         if (g_unk0x0058cf64 != 0 || !Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c)) {
             Graphics_ResetInterpolationTimers();
-            g_unk0x0058ca90.bracketFade = 0;
-            g_unk0x0058ca90.textFade = 0;
+            g_pauseMenus.bracketFade = 0;
+            g_pauseMenus.textFade = 0;
             g_unk0x0058cf70 = Knockout_HasUndecidedRoundMatch();
             state = *pState;
             *pState = (((state & 0xfffffff8) + 8 ^ state) & 0x38 ^ state) & 0xffbf0fff | 0x200000;
@@ -5632,7 +5632,7 @@ void Knockout_DrawCurrentRoundBracket(void)
     round = (pTable->state >> 3) & 7;
     bracket = Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c);
     fading = 0;
-    if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.bracketTimer) || (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c) && g_knockoutRaceState == 6))
+    if (Graphics_IsRegisteredTimerRunning(&g_pauseMenus.bracketTimer) || (!Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c) && g_knockoutRaceState == 6))
         fading = 1;
     switch (round) {
     case 1:
@@ -5748,16 +5748,16 @@ void Knockout_DrawCurrentRoundBracket(void)
                 Font_DrawText(0, CFrontend::m_stringDest, (int)g_pGraphics->resX / 0x280 + x, y - KO_Y(5), (int *)pText, 0x11);
             } else {
                 sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x4f), i + 1);
-                StageObject_DrawTypingTextFraction(CFrontend::m_stringDest, g_unk0x0058ca90.bracketFade, 0, (int)g_pGraphics->resX / 0x280 + x, y - KO_Y(5),
+                StageObject_DrawTypingTextFraction(CFrontend::m_stringDest, g_pauseMenus.bracketFade, 0, (int)g_pGraphics->resX / 0x280 + x, y - KO_Y(5),
                              (int *)pText, 0x11);
             }
             if (fading && highlight1) {
                 if (pName1 != NULL)
-                    pName1[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058ca90.bracketFade) >> 16);
+                    pName1[3] = (BYTE)(FixMul(0xff0000, g_pauseMenus.bracketFade) >> 16);
                 if (pBox1 != NULL)
-                    pBox1[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058ca90.bracketFade) >> 16);
+                    pBox1[3] = (BYTE)(FixMul(0xff0000, g_pauseMenus.bracketFade) >> 16);
                 if (pText != NULL)
-                    pText[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058ca90.bracketFade) >> 16);
+                    pText[3] = (BYTE)(FixMul(0xff0000, g_pauseMenus.bracketFade) >> 16);
             } else {
                 if (pName1 != NULL)
                     pName1[3] = 0xff;
@@ -5781,11 +5781,11 @@ void Knockout_DrawCurrentRoundBracket(void)
         if (!bracket) {
             if (fading && highlight2) {
                 if (pName2 != NULL)
-                    pName2[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058ca90.bracketFade) >> 16);
+                    pName2[3] = (BYTE)(FixMul(0xff0000, g_pauseMenus.bracketFade) >> 16);
                 if (pBox2 != NULL)
-                    pBox2[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058ca90.bracketFade) >> 16);
+                    pBox2[3] = (BYTE)(FixMul(0xff0000, g_pauseMenus.bracketFade) >> 16);
                 if (pText != NULL)
-                    pText[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058ca90.bracketFade) >> 16);
+                    pText[3] = (BYTE)(FixMul(0xff0000, g_pauseMenus.bracketFade) >> 16);
             } else {
                 if (pName2 != NULL)
                     pName2[3] = 0xff;
@@ -7784,11 +7784,11 @@ char g_strNewImageSkidMarkTga[] = "\\NEWIMAGE\\skid\\skids_mark.tga";
 char g_strNewImageSkid1Tga[] = "\\NEWIMAGE\\skid\\skids_1.tga";
 
 // GLOBAL: CMR2 0x00588740
-Texture *g_unk0x00588740;
+Texture *g_skidTrailTexture;
 // GLOBAL: CMR2 0x00588744
-Texture *g_unk0x00588744;
+Texture *g_skidMarkTexture;
 // GLOBAL: CMR2 0x00588748
-Texture *g_unk0x00588748;
+Texture *g_skidBlankTexture;
 
 // Loads the three skid mark textures and picks the trail lifetime and the
 // skid colour for the current weather and country.
@@ -7801,11 +7801,11 @@ void StageObject_LoadSkidTrailTextures(void)
 
     CarSkid_ClearWheelTrails();
     sprintf(name, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strNewImageSkid1Tga);
-    g_unk0x00588740 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), name, &loaded, 0, 0, 0);
+    g_skidTrailTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), name, &loaded, 0, 0, 0);
     sprintf(name, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strNewImageSkidMarkTga);
-    g_unk0x00588744 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), name, &loaded, 0, 0, 0);
+    g_skidMarkTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), name, &loaded, 0, 0, 0);
     sprintf(name, g_strPathConcat, CInstallInfo::GetTexturesDirectory(), g_strNewImageSkidBlankTga);
-    g_unk0x00588748 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), name, &loaded, 0, 0, 0);
+    g_skidBlankTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), name, &loaded, 0, 0, 0);
     if (CGameInfo::GetConfiguredGameMode() == 5 || CGameInfo::GetConfiguredGameMode() == 6 ||
         CGameInfo::GetConfiguredGameMode() == 7)
         g_stageSurfaceInfo[8].flags = 4;
@@ -8620,7 +8620,7 @@ void StageObject_BuildCarMountWorldMatrix(CameraRecord *object, void *unused)
 }
 
 GenericFile *Race_GetLoadedStageFile(void);
-Menu *StageUI_GetStageOverlayNode(void);
+Menu *StageUI_GetCurrentPauseMenu(void);
 void StageUI_DrawChampionshipBar(void);
 // El prototipo real: devuelve int y el 5o parametro es BYTE (los llamadores de Game.cpp/RallyData.cpp
 // y la definicion en Game.cpp:2575 coinciden en esa firma). Un prototipo viejo aqui generaba otro
@@ -8693,7 +8693,7 @@ void StageObject_ClearAndDrawSplitPositions(int unused1, int unused2)
     CGraphics::ClearTarget();
     CGraphics::ClearZBuffer();
     StageUI_DrawChampionshipBar();
-    Menu_CallCallback2(StageUI_GetStageOverlayNode());
+    Menu_CallCallback2(StageUI_GetCurrentPauseMenu());
     i = 0;
     if ((BYTE)RallyDataState() > 0) {
         do {
@@ -9974,7 +9974,7 @@ void StageObject_CycleDriverCameraSelection(unsigned int param_1, unsigned int p
     }
 }
 
-extern Texture *g_unk0x00547ad0;
+extern Texture *g_sunGlowTexture;
 
 // 0x547abc is g_stageLighting.intensity (the lighting block runs to 0x547ac8).
 #define g_weatherLightIntensity (g_stageLighting.intensity)
@@ -10078,9 +10078,9 @@ void Knockout_DrawAnimatedMatchHeader(int param1, int param2, int param3, int pa
     int x;
     int y;
 
-    x = (param3 - param1) * g_unk0x0058ca90.bracketFade / 0x10000 + param1;
+    x = (param3 - param1) * g_pauseMenus.bracketFade / 0x10000 + param1;
     rect[0] = (short)x;
-    y = (param4 - param2) * g_unk0x0058ca90.bracketFade / 0x10000 + param2;
+    y = (param4 - param2) * g_pauseMenus.bracketFade / 0x10000 + param2;
     rect[1] = (short)y;
     rect[2] = (short)((int)g_pGraphics->resX * 0x56 / 0x280);
     rect[3] = (short)((int)g_pGraphics->resY * 0x26 / 0x1e0);
@@ -10125,8 +10125,8 @@ void StageObject_DrawAnimatedTextPair(int param1, KnockoutMatch *param2, short *
     if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca80) != 0 || param9 != 0) {
         rect[0] = param3[0];
         rect[1] = param3[1];
-        rect[2] = (short)(FixMul(param3[2] << 16, g_unk0x0058ca90.bracketFade) >> 16);
-        rect[3] = (short)(FixMul(param3[3] << 16, g_unk0x0058ca90.bracketFade) >> 16);
+        rect[2] = (short)(FixMul(param3[2] << 16, g_pauseMenus.bracketFade) >> 16);
+        rect[3] = (short)(FixMul(param3[3] << 16, g_pauseMenus.bracketFade) >> 16);
         StageObject_DrawOutlinedStageBox(rect, param4, param5, param6);
         return;
     }
@@ -10285,12 +10285,12 @@ void StageObject_DrawProjectedViewIcon(int *pViewRect, int param_2)
     icon.h = 0x10;
     icon.x = 0;
     icon.y = 0;
-    if (g_unk0x00547ad0 == 0)
+    if (g_sunGlowTexture == 0)
         return;
-    uv.x = g_unk0x00547ad0->field_0x11c;
-    uv.y = g_unk0x00547ad0->field_0x11e;
-    uv.w = g_unk0x00547ad0->width;
-    uv.h = g_unk0x00547ad0->height;
+    uv.x = g_sunGlowTexture->field_0x11c;
+    uv.y = g_sunGlowTexture->field_0x11e;
+    uv.w = g_sunGlowTexture->width;
+    uv.h = g_sunGlowTexture->height;
     view = g_viewNodes[param_2];
     StageObject_GetRotatedStageLightVector(&vR);
     StageObject_GetCurrentObjectPosition(&vP);
@@ -10332,7 +10332,7 @@ void StageObject_DrawProjectedViewIcon(int *pViewRect, int param_2)
     dst.h = (short)(FixMul(g_sunIconHeightScale, *((int *)g_pGraphics + 1) << 16) >> 16);
     dst.x = (short)(vOut.x - dst.w / 2);
     dst.y = (short)(vOut.y - dst.h / 2);
-    Sprite_Queue(&uv, &dst, g_unk0x00547ad0, 2, 0, 0, 0, colour, 8);
+    Sprite_Queue(&uv, &dst, g_sunGlowTexture, 2, 0, 0, 0, colour, 8);
 }
 
 
@@ -14223,7 +14223,7 @@ int CarDamage_PickRandomTriangleEdgePoint(FixVector *pOut, CarPartSet *pParts, i
 BillboardDef g_bodySparkBillboard;
 
 extern int g_stageObjectTimeStep;
-extern Texture *g_unk0x005477f0;
+extern Texture *g_splat2Texture;
 CarPartSet *CarPart_GetSet(int carIndex);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 
@@ -14234,9 +14234,9 @@ void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, UINT_PTR pDest);
 int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar);
 void Scene_GetLightColour(DWORD *pColour, int level);
 extern PrecipitationQuad g_precipitation;
-extern Texture *g_unk0x00543e90;
-extern Texture *g_unk0x00543ea4;
-extern Texture *g_unk0x00543ea8[3];
+extern Texture *g_rainTexture;
+extern Texture *g_splatTexture;
+extern Texture *g_snowTextures[3];
 extern BillboardDef g_rainSplashBillboard;
 extern BillboardDef g_snowBillboard;
 extern double g_fixedDegreesToAngle12;
@@ -14313,7 +14313,7 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
             g_precipitation.quad.v[2].x -= sideF[0];
             g_precipitation.quad.v[2].y -= sideF[1];
             g_precipitation.quad.v[2].z -= sideF[2];
-            Quad2D_Queue(&g_precipitation.quad, g_unk0x00543e90, 0x16);
+            Quad2D_Queue(&g_precipitation.quad, g_rainTexture, 0x16);
             if (pNode->wrapped != 0) {
                 forward = *(FixVector *)pNode;
                 forward.y -= 0xc0000;
@@ -14322,7 +14322,7 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
                 g_rainSplashBillboard.pos.x = offset.x + forward.x;
                 g_rainSplashBillboard.pos.y = offset.y + forward.y;
                 g_rainSplashBillboard.pos.z = offset.z + forward.z;
-                Billboard_Add(&g_rainSplashBillboard, g_unk0x00543ea4);
+                Billboard_Add(&g_rainSplashBillboard, g_splatTexture);
             }
         }
         if (CGameInfo::IsInRaceMenuOpen() == 0) {
@@ -14342,7 +14342,7 @@ void StageWeather_DrawViewPrecipitation(int index, int view)
             g_snowBillboard.pos.x += offset.x;
             g_snowBillboard.pos.y += offset.y;
             g_snowBillboard.pos.z += offset.z;
-            Billboard_Add(&g_snowBillboard, g_unk0x00543ea8[pNode->textureVariant]);
+            Billboard_Add(&g_snowBillboard, g_snowTextures[pNode->textureVariant]);
         }
     }
     *pPos = saved;
@@ -14397,7 +14397,7 @@ int CarDamage_EmitBodySparkBillboards(int amount, Car *pCar)
                     rotated.y += origin.y;
                     rotated.z += origin.z;
                     g_bodySparkBillboard.pos = rotated;
-                    Billboard_Add(&g_bodySparkBillboard, g_unk0x005477f0);
+                    Billboard_Add(&g_bodySparkBillboard, g_splat2Texture);
                 }
             }
         }
@@ -15635,12 +15635,12 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
             continue;
         }
         if (i == 0 || pMenu->cursor == i) {
-            if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.textTimer)) {
+            if (Graphics_IsRegisteredTimerRunning(&g_pauseMenus.textTimer)) {
                 rect2[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
                 rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0 + y0);
                 rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
                 rect2[3] = 1;
-                StageObject_FillWidthScaledRectangle(g_unk0x0058ca90.textFade, &g_pGraphics->field309_0x150, rect2, pColour, 1);
+                StageObject_FillWidthScaledRectangle(g_pauseMenus.textFade, &g_pGraphics->field309_0x150, rect2, pColour, 1);
             } else {
                 rect2[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
                 rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0 + y0);
@@ -15653,10 +15653,10 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
         rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0 + y0);
         rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
         rect2[3] = 1;
-        if (Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.textTimer)) {
+        if (Graphics_IsRegisteredTimerRunning(&g_pauseMenus.textTimer)) {
             Sprite_Queue((SpriteRect *)&texture->field_0x11c, (SpriteRect *)rect, texture, 2,
                          0, NULL, NULL, pColour, 8);
-            StageObject_DrawTypingTextFraction(CFrontend::m_stringDest, g_unk0x0058ca90.textFade, 0,
+            StageObject_DrawTypingTextFraction(CFrontend::m_stringDest, g_pauseMenus.textFade, 0,
                          (int)(g_pGraphics->resX * 0x7a) / 0x280,
                          y, (int *)pColour, 0x21);
         } else {
@@ -15670,10 +15670,10 @@ void StageObject_DrawInRacePauseMenu(Menu *pMenu)
                            (int)(g_pGraphics->resY * 0x24) / 0x1e0 + y0);
         rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
         rect2[3] = 1;
-        if (!(Graphics_IsRegisteredTimerRunning(&g_unk0x0058ca90.textTimer)))
+        if (!(Graphics_IsRegisteredTimerRunning(&g_pauseMenus.textTimer)))
             Sprite_FillRect(&g_pGraphics->field309_0x150, rect2, pColour, 2);
         else
-            StageObject_FillWidthScaledRectangle(g_unk0x0058ca90.textFade, &g_pGraphics->field309_0x150, rect2, pColour, 2);
+            StageObject_FillWidthScaledRectangle(g_pauseMenus.textFade, &g_pGraphics->field309_0x150, rect2, pColour, 2);
     }
     Font_SetBlendMode(2);
     Knockout_DrawCurrentRoundBracket();

@@ -243,3 +243,16 @@ La tanda de [cajas de colisión](64bit-collision-boxes.md) elimina 18 conversion
 La tanda de [tablas de pista](64bit-track-tables.md) elimina 57 conversiones (558 → 501), conserva las 3364 puntuaciones y 2924 funciones exactas. Pasan los 119 arneses, incluidos 408 casos nuevos, y 444 escenarios nativos con punteros superiores a 4 GB. El inventario queda en 1304 accesos crudos.
 
 La tanda de [interfaces de dibujo, textos y red](64bit-native-interfaces.md) elimina 66 avisos de conversiones (501 → 435) en 35 funciones, conserva todas las puntuaciones y las 2924 funciones exactas. Pasan los 122 arneses, incluidos 1240 casos nuevos, y 2184 escenarios x64 con direcciones mayores que 4 GB.
+
+La tanda de [reglajes del coche](car-setup-records.md) identifica el registro
+de 7 bytes por los textos de la pantalla de reglaje y sus setters en
+`Car_Spawn`, y lo tipa como `CarSetup` en sus seis copias (jugadores, partida
+guardada, pantalla de opciones, países, desafíos y tabla alternativa), con el
+bloque `0x51682c` descrito por offsets. Corrige 20 nombres de funciones (entre
+ellos `OptionMenu_DrawWeatherChoices`, que no dibuja banderas) y nombra 3 campos
+del coche y 50 globals desconocidos (casi todos texturas, por el archivo que
+cargan) y corrige 4 nombres de globals engañosos. Añade
+10 comprobaciones de layout. Conserva todas las puntuaciones, las 2924
+funciones exactas y los 3193 datos auditados; pasan los 142 arneses. El
+inventario queda en 89 accesos crudos, 1388 campos sin nombre y 722
+identificadores desconocidos distintos (770 antes).

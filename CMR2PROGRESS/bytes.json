@@ -144,13 +144,13 @@
     "symbol_name": "Car_SelectGearSpeedTable"
   },
   "0x43e530": {
-    "n": "Car_SetDifficultyHandling",
+    "n": "Car_SetSteeringSensitivity",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "Car_SetDifficultyHandling"
+    "symbol_name": "Car_SetSteeringSensitivity"
   },
   "0x43e5a0": {
     "n": "Car_BindModel",
@@ -612,22 +612,22 @@
     "symbol_name": "Car_UsesNarrowWheels"
   },
   "0x43dff0": {
-    "n": "Car_SetRideHeight",
+    "n": "Car_SetSuspension",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "Car_SetRideHeight"
+    "symbol_name": "Car_SetSuspension"
   },
   "0x43e160": {
-    "n": "Car_SetSteeringSwingTarget",
+    "n": "Car_SetBrakePower",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "Car_SetSteeringSwingTarget"
+    "symbol_name": "Car_SetBrakePower"
   },
   "0x43e190": {
     "n": "Car_SetBrakeBias",
@@ -648,13 +648,13 @@
     "symbol_name": "Car_SetDriveSplit"
   },
   "0x43e1d0": {
-    "n": "Car_SetSurfaceDragLevel",
+    "n": "Car_SetTyreType",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "Car_SetSurfaceDragLevel"
+    "symbol_name": "Car_SetTyreType"
   },
   "0x442fc0": {
     "n": "Car_SplitEngineTorque",
@@ -11346,13 +11346,13 @@
     "symbol_name": "OptionMenu_GetValueSliderMenu"
   },
   "0x502570": {
-    "n": "OptionMenu_InitDefaultRecordTables",
+    "n": "OptionMenu_LoadCarSetups",
     "s": 0.8695652173913043,
     "x": false,
     "fz": 0.8695652173913043,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionMenu_InitDefaultRecordTables"
+    "symbol_name": "OptionMenu_LoadCarSetups"
   },
   "0x502520": {
     "n": "OptionMenu_ResetModeCursor",
@@ -11931,13 +11931,13 @@
     "symbol_name": "OptionMenu_DrawBoxEdges"
   },
   "0x502c60": {
-    "n": "OptionMenu_GetRawWorkingValue",
+    "n": "OptionMenu_GetEntryCarSetupValue",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionMenu_GetRawWorkingValue"
+    "symbol_name": "OptionMenu_GetEntryCarSetupValue"
   },
   "0x501d50": {
     "n": "OptionMenu_EaseRecordBar",
@@ -11949,13 +11949,13 @@
     "symbol_name": "OptionMenu_EaseRecordBar"
   },
   "0x5028a0": {
-    "n": "OptionMenu_GetScaledWorkingValue",
+    "n": "OptionMenu_GetCarSetupChoice",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionMenu_GetScaledWorkingValue"
+    "symbol_name": "OptionMenu_GetCarSetupChoice"
   },
   "0x4ff550": {
     "n": "OptionMenu_FindFirstDetailedSlot",
@@ -12039,13 +12039,13 @@
     "symbol_name": "OptionMenu_IsSlotValueAboveBase"
   },
   "0x502b10": {
-    "n": "OptionMenu_IsValueDefault",
+    "n": "OptionMenu_IsCarSetupValueUnchanged",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionMenu_IsValueDefault"
+    "symbol_name": "OptionMenu_IsCarSetupValueUnchanged"
   },
   "0x502fc0": {
     "n": "OptionMenu_IsRecordPercentageAboveBase",
@@ -12354,13 +12354,13 @@
     "symbol_name": "OptionMenu_CommitRallyRecords"
   },
   "0x5029b0": {
-    "n": "OptionMenu_CopyDefaultValues",
+    "n": "OptionMenu_StoreCarSetups",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionMenu_CopyDefaultValues"
+    "symbol_name": "OptionMenu_StoreCarSetups"
   },
   "0x5000b0": {
     "n": "OptionMenu_AdvanceSelectedOption",
@@ -12552,31 +12552,31 @@
     "symbol_name": "OptionMenu_ToggleValueAnimation"
   },
   "0x502670": {
-    "n": "OptionMenu_SetWorkingValue",
+    "n": "OptionMenu_SetCarSetupChoice",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionMenu_SetWorkingValue"
+    "symbol_name": "OptionMenu_SetCarSetupChoice"
   },
   "0x502790": {
-    "n": "OptionMenu_RestoreDefaultValue",
+    "n": "OptionMenu_RevertCarSetupValue",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionMenu_RestoreDefaultValue"
+    "symbol_name": "OptionMenu_RevertCarSetupValue"
   },
   "0x502a00": {
-    "n": "OptionMenu_DoesValueMatch",
+    "n": "OptionMenu_IsEntryCarSetupChoice",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionMenu_DoesValueMatch"
+    "symbol_name": "OptionMenu_IsEntryCarSetupChoice"
   },
   "0x50a3c0": {
     "n": "OptionPreview_UpdateAllSlots",
@@ -12714,13 +12714,13 @@
     "symbol_name": "OptionMenu_ConfirmHighlightedItem"
   },
   "0x5057e0": {
-    "n": "OptionMenu_DrawCountryFlags",
+    "n": "OptionMenu_DrawWeatherChoices",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "GameInfo.cpp",
-    "symbol_name": "OptionMenu_DrawCountryFlags"
+    "symbol_name": "OptionMenu_DrawWeatherChoices"
   },
   "0x402000": {
     "n": "InRaceMenu_DrawLabelAndValueRows",
@@ -19620,22 +19620,22 @@
     "symbol_name": "RallyData_SetKnockoutCountryNibble"
   },
   "0x406820": {
-    "n": "RallyData_CopyCountryPlayerDefaults",
+    "n": "RallyData_ApplyCountryCarSetups",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_CopyCountryPlayerDefaults"
+    "symbol_name": "RallyData_ApplyCountryCarSetups"
   },
   "0x406890": {
-    "n": "RallyData_GetCountrySevenByteRecord",
+    "n": "RallyData_GetCountryCarSetup",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetCountrySevenByteRecord"
+    "symbol_name": "RallyData_GetCountryCarSetup"
   },
   "0x4068b0": {
     "n": "RallyData_SetCountrySelectionBits",
@@ -19674,13 +19674,13 @@
     "symbol_name": "RallyData_SetStageSelectionAndRefreshFlags"
   },
   "0x494a40": {
-    "n": "RallyData_GetSelectedSettingSevenByteRecord",
+    "n": "RallyData_GetChallengeCarSetup",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetSelectedSettingSevenByteRecord"
+    "symbol_name": "RallyData_GetChallengeCarSetup"
   },
   "0x408300": {
     "n": "RallyData_IsFirstAvailableStageSelected",
@@ -19908,13 +19908,13 @@
     "symbol_name": "RallyData_GetSelectedCountryValueTable"
   },
   "0x407630": {
-    "n": "RallyData_GetDriverSkillRecord",
+    "n": "RallyData_GetPlayerCarSetup",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetDriverSkillRecord"
+    "symbol_name": "RallyData_GetPlayerCarSetup"
   },
   "0x407650": {
     "n": "RallyData_GetPrimaryStageScoreScale",
@@ -20088,13 +20088,13 @@
     "symbol_name": "RallyData_InterpolateGroupGrip"
   },
   "0x40df30": {
-    "n": "RallyData_ClearDriverSkillFlags",
+    "n": "RallyData_ClearPlayerCarSetups",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_ClearDriverSkillFlags"
+    "symbol_name": "RallyData_ClearPlayerCarSetups"
   },
   "0x407150": {
     "n": "RallyData_GetDriverGridRow",
@@ -21087,13 +21087,13 @@
     "symbol_name": "RallyData_MarkElementReachedByCar"
   },
   "0x494a70": {
-    "n": "RallyData_GetCountrySettingSevenByteRecord",
+    "n": "RallyData_GetAlternateCountryCarSetup",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "RallyData_GetCountrySettingSevenByteRecord"
+    "symbol_name": "RallyData_GetAlternateCountryCarSetup"
   },
   "0x4702a0": {
     "n": "RallyData_MarkAllElementsReached",
@@ -29066,13 +29066,13 @@
     "symbol_name": "StageUI_PublishNetworkRaceWins"
   },
   "0x475a40": {
-    "n": "StageUI_GetStageOverlayNode",
+    "n": "StageUI_GetCurrentPauseMenu",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageUI.cpp",
-    "symbol_name": "StageUI_GetStageOverlayNode"
+    "symbol_name": "StageUI_GetCurrentPauseMenu"
   },
   "0x473360": {
     "n": "StageUI_BuildPauseMenus",

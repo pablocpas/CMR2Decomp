@@ -51,7 +51,7 @@ int main(int argc,char **argv) {
         uintptr_t pointer;memcpy(&pointer,(BYTE *)&car.pSceneRoot+i*sizeof(void *),sizeof(pointer));
         assert(pointer>UINT32_MAX);
     }
-    if(!strcmp(argv[1],"setter"))Car_SetRideHeight(atoi(argv[2]));
+    if(!strcmp(argv[1],"setter"))Car_SetSuspension(atoi(argv[2]));
     else {assert(!strcmp(argv[1],"integrate"));CarPhysics_IntegrateWheelSuspension();}
     assert(g_pCurrentCar==&car);
     assert(!memcmp((BYTE *)&car+0x71c,(BYTE *)&before+0x71c,offsetof(Car,collisionRadius)-0x71c));
@@ -80,7 +80,7 @@ def main():
         fixed = (source/'FixedPoint.cpp').read_text()
         fixture = tmp/'springs.cpp'
         fixture.write_text(PRELUDE+body(fixed,'FixMatrix_InverseRotateVector')+'\n'+
-                           body((source/'Car.cpp').read_text(),'Car_SetRideHeight')+'\n'+
+                           body((source/'Car.cpp').read_text(),'Car_SetSuspension')+'\n'+
                            body(fixed,'CarPhysics_IntegrateWheelSuspension')+MAIN)
         exe = tmp/'springs'
         subprocess.run(['clang++','-m64','-std=c++17','-O2','-fPIE','-pie','-fwrapv','-fno-strict-aliasing',

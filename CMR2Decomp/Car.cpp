@@ -524,11 +524,11 @@ void Car_SelectGearSpeedTable(unsigned int param_1)
 
 // Sets three handling factors of the current car from a 16.16 level.
 // FUNCTION: CMR2 0x0043e530
-void Car_SetDifficultyHandling(int level)
+void Car_SetSteeringSensitivity(int level)
 {
-    g_pCurrentCar->field_0x804 = FixMul(0xcccc, level) + 0x9999;
-    g_pCurrentCar->field_0x7fc = FixMul(0xa3d, level) + 0xccc;
-    g_pCurrentCar->field_0x800 = FixMul(0x3333, level) + 0x1999;
+    g_pCurrentCar->steeringForceScale = FixMul(0xcccc, level) + 0x9999;
+    g_pCurrentCar->steeringOutwardRate = FixMul(0xa3d, level) + 0xccc;
+    g_pCurrentCar->steeringCentringRate = FixMul(0x3333, level) + 0x1999;
 }
 
 CarSceneRecord *StageTiming_GetStartTableRecord(int index);
@@ -4126,7 +4126,7 @@ int Car_UsesNarrowWheels(Car *pCar, int param2)
 // Sets the suspension geometry of the current car from the ride-height
 // setting (0..0x10000).
 // FUNCTION: CMR2 0x0043dff0
-void Car_SetRideHeight(int heightSetting)
+void Car_SetSuspension(int heightSetting)
 {
     int wheel;
     int inverseHeightSetting;
@@ -4153,7 +4153,7 @@ void Car_SetRideHeight(int heightSetting)
 }
 
 // FUNCTION: CMR2 0x0043e160
-void Car_SetSteeringSwingTarget(int value)
+void Car_SetBrakePower(int value)
 {
     g_pCurrentCar->maxBrakeForce = FixMul(0x13333, value) + 0x3333;
 }
@@ -4171,7 +4171,7 @@ void Car_SetDriveSplit(int value)
 }
 
 // FUNCTION: CMR2 0x0043e1d0
-void Car_SetSurfaceDragLevel(int value)
+void Car_SetTyreType(int value)
 {
     g_pCurrentCar->surfaceDragLevel = (BYTE)value;
 }
@@ -6758,10 +6758,10 @@ unsigned char RallyData_GetSelectionFlag28(void);
 unsigned int StageTiming_GetTotalCarCount(void);
 int Replay_GetSelectionStateByte(void);
 BYTE RallyData_GetDriverAutomaticGearbox(BYTE param1);
-char *RallyData_GetCountrySevenByteRecord(void);
-char *RallyData_GetSelectedSettingSevenByteRecord(void);
-BYTE *RallyData_GetDriverSkillRecord(int index);
-BYTE *RallyData_GetCountrySettingSevenByteRecord(void);
+CarSetup *RallyData_GetCountryCarSetup(void);
+CarSetup *RallyData_GetChallengeCarSetup(void);
+CarSetup *RallyData_GetPlayerCarSetup(int index);
+CarSetup *RallyData_GetAlternateCountryCarSetup(void);
 BYTE StageUI_GetRaceEndEventCount(void);
 
 // Spawns the current car at a stage/restart: picks the car model from the
@@ -6786,7 +6786,7 @@ void Car_Spawn(Car *param_1, SceneNode *param_2, int param_3, FixVector *param_4
     int hx;
     int hy;
     int hz;
-    char *pcVar13;
+    CarSetup *pSetup;
 
 
     limit = 0;
@@ -7059,11 +7059,11 @@ void Car_Spawn(Car *param_1, SceneNode *param_2, int param_3, FixVector *param_4
     g_pCurrentCar->field_0xb7c = CFrontend::GetArchiveSecondaryFlagEntry((int)g_pCurrentCar->type);
     g_pCurrentCar->field_0xb80 = CFrontend::GetArchivePrimaryFlagEntry((int)g_pCurrentCar->type);
     if (flagC != 0) {
-        pcVar13 = (char *)RallyData_GetDriverSkillRecord(Replay_GetSelectionStateByte());
+        pSetup = RallyData_GetPlayerCarSetup(Replay_GetSelectionStateByte());
         goto LAB_0043d703;
     }
     if (RallyData_GetFlag24() != 0) {
-        pcVar13 = (char *)RallyData_GetSelectedSettingSevenByteRecord();
+        pSetup = RallyData_GetChallengeCarSetup();
         goto LAB_0043d703;
     }
     if (CGameInfo::GetConfiguredGameMode() == 4 ||
@@ -7071,13 +7071,13 @@ void Car_Spawn(Car *param_1, SceneNode *param_2, int param_3, FixVector *param_4
          RallyData_GetUsableRecordCategory((BYTE)g_pCurrentCar->index) != -1) ||
         (RallyData_GetFlag25() != 0 && flag8 != 0 && CGameInfo::GetGameModeOptionBit19() == 0)) {
 LAB_0043d6fe:
-        pcVar13 = (char *)RallyData_GetCountrySettingSevenByteRecord();
+        pSetup = RallyData_GetAlternateCountryCarSetup();
         goto LAB_0043d703;
     }
     if (!(CGameInfo::IsConfiguredMultiplayer() == 0 || param_5 != 1 || RallyData_GetFlag25() == 0)) {
         if (flag8 != 0) {
 LAB_0043d6f7:
-            pcVar13 = (char *)RallyData_GetCountrySevenByteRecord();
+            pSetup = RallyData_GetCountryCarSetup();
             goto LAB_0043d703;
         }
         if (CGameInfo::GetGameModeOptionBit19() == 0)
@@ -7086,20 +7086,20 @@ LAB_0043d6f7:
         if (flag8 != 0)
             goto LAB_0043d6f7;
     }
-    pcVar13 = (char *)RallyData_GetDriverSkillRecord((StageUI_GetRaceEndEventCount() & 0xff) + (int)g_pCurrentCar->index);
+    pSetup = RallyData_GetPlayerCarSetup((StageUI_GetRaceEndEventCount() & 0xff) + (int)g_pCurrentCar->index);
 LAB_0043d703:
-    Car_SetRideHeight(FixMul((int)pcVar13[2] << 0x10, 0x28f));
-    if (pcVar13[4] == '2') {
+    Car_SetSuspension(FixMul((int)pSetup->suspension << 0x10, 0x28f));
+    if (pSetup->brakeBias == 50) {
         i = 0x8000;
     } else {
-        i = FixMul((int)pcVar13[4] << 0x10, 0x28f);
+        i = FixMul((int)pSetup->brakeBias << 0x10, 0x28f);
     }
     Car_SetBrakeBias(i);
     if (g_pCurrentCar->field_0xb80 != 0) {
-        if (pcVar13[3] == '2') {
+        if (pSetup->powerRatio == 50) {
             i = 0x8000;
         } else {
-            i = FixMul((int)pcVar13[3] << 0x10, 0x83) + 0x6666;
+            i = FixMul((int)pSetup->powerRatio << 0x10, 0x83) + 0x6666;
         }
         if (g_pCurrentCar->type == 9)
             i += -0x2666;
@@ -7120,10 +7120,10 @@ LAB_0043d703:
             Car_SetDriveSplit(0x8000);
         }
     }
-    Car_SetSteeringSwingTarget(FixMul((int)pcVar13[5] << 0x10, 0x28f));
-    Car_SetSurfaceDragLevel(*pcVar13);
-    Car_SelectGearSpeedTable((unsigned int)pcVar13[1]);
-    Car_SetDifficultyHandling(FixMul((int)pcVar13[6] << 0x10, 0x28f));
+    Car_SetBrakePower(FixMul((int)pSetup->brakePower << 0x10, 0x28f));
+    Car_SetTyreType(pSetup->tyres);
+    Car_SelectGearSpeedTable((unsigned int)pSetup->gearbox);
+    Car_SetSteeringSensitivity(FixMul((int)pSetup->steering << 0x10, 0x28f));
     if (bVar6)
         g_pCurrentCar->driveSplit = 0x8000;
     g_pCurrentCar->engineDragCoefficient = 0x83;

@@ -7882,7 +7882,7 @@ char *Profile_BuildSavePath(char *pName);
 void *Profile_ReadLocalFile(char *param1, int param2);
 BYTE *RallyData_GetDriverCategoryProfile(int index);
 RallyCarDamageState *RallyData_GetDriverGroupRecord(int index);
-BYTE *RallyData_GetDriverSkillRecord(int index);
+CarSetup *RallyData_GetPlayerCarSetup(int index);
 BYTE *RallyData_GetDriverEntryRecord(int index);
 BYTE RallyData_SetCategoryAwardBit(int index, int bit);
 BYTE *RallyData_GetDriverSelectionFlagRecord(int index);
@@ -7923,7 +7923,7 @@ unsigned int FrontendProfile_ApplyDriverProfileBlock(const SavedGameImage *pBloc
         profile.setup.value4 = image.playerSetup[i].value4;
         profile.identifier = image.playerIdentifiers[i];
         memcpy(RallyData_GetDriverGroupRecord(i), &image.playerCars[i], sizeof(image.playerCars[i]));
-        memcpy(RallyData_GetDriverSkillRecord(i), &image.playerControllers[i], sizeof(image.playerControllers[i]));
+        memcpy(RallyData_GetPlayerCarSetup(i), &image.playerCarSetups[i], sizeof(image.playerCarSetups[i]));
         if ((profile.identifier.flags & 0x200000) == 0) {
             BYTE *buffer = (BYTE *)Profile_ReadLocalFile(Profile_BuildSavePath((char *)&profile.identifier), 0);
             if (buffer != NULL && CGenericFileLoader::m_fileSize == sizeof(DriverProfile)) {

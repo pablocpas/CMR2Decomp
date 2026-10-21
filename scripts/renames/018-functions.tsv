@@ -1,0 +1,21 @@
+address	old_name	new_name	evidence
+0x407630	RallyData_GetDriverSkillRecord	RallyData_GetPlayerCarSetup	Returns &g_driverGroupTable.playerCarSetups[index]; the 7-byte record whose columns follow the setup screen labels (text 0x2b7..0x2bd: Tyres, Gearbox, Suspension, Power Ratio, Brake Bias, Brake Power, Steering) and that Car_Init applies to the car.
+0x406890	RallyData_GetCountrySevenByteRecord	RallyData_GetCountryCarSetup	Returns the current country's default CarSetup from g_countryCarSetupBlock (Sweden's has the snow tyres, 6); one of the setups Car_Init can apply.
+0x494a40	RallyData_GetSelectedSettingSevenByteRecord	RallyData_GetChallengeCarSetup	Returns g_challengeCarSetups[bits 10-11 * 3 + bits 12-13], the same index plus one that names the challenge map (chall\\cha%.2d.tga); Car_Init applies it when RallyData_GetFlag24 is set.
+0x494a70	RallyData_GetCountrySettingSevenByteRecord	RallyData_GetAlternateCountryCarSetup	Maps the country (1/2, 3, 5, 7, 8; else the first) to one of the five setups of g_alternateCountryCarSetups; Car_Init uses it in game mode 4 and some flag 25 cases.
+0x406820	RallyData_CopyCountryPlayerDefaults	RallyData_ApplyCountryCarSetups	Copies the country's default CarSetup into the four player setups and moves an even tyre choice other than 6 to the next one in late championship stages.
+0x40df30	RallyData_ClearDriverSkillFlags	RallyData_ClearPlayerCarSetups	Zeroes all seven columns of the four player car setups.
+0x43e160	Car_SetSteeringSwingTarget	Car_SetBrakePower	Car_Init passes CarSetup::brakePower (column 5, text "Brake Power"); sets maxBrakeForce = 1.2 * value + 0.2.
+0x43e530	Car_SetDifficultyHandling	Car_SetSteeringSensitivity	Car_Init passes CarSetup::steering (column 6, "Steering"/"Steering Sensitivity"); sets the outward and centring steering rates and the steering force scale read by CarPhysics_DampSurfaceSteeringAngle and AutoGear_IntegrateSteeringAccumulator.
+0x43e1d0	Car_SetSurfaceDragLevel	Car_SetTyreType	Car_Init passes CarSetup::tyres (column 0, "Tyres"); stores the group of nine surface drag values the wheels use.
+0x43dff0	Car_SetRideHeight	Car_SetSuspension	Car_Init passes CarSetup::suspension (column 2, "Suspension": soft for rough terrain, hard for tarmac); sets spring damping, lean damping, travel ranges and ride height from it.
+0x502570	OptionMenu_InitDefaultRecordTables	OptionMenu_LoadCarSetups	Copies the four player car setups into rows 4..7 of g_optionCarSetups and mirrors them into the edited rows 0..3, clearing the changed-column flags.
+0x5029b0	OptionMenu_CopyDefaultValues	OptionMenu_StoreCarSetups	Copies the edited rows 0..3 of g_optionCarSetups back into the four player car setups.
+0x502c60	OptionMenu_GetRawWorkingValue	OptionMenu_GetEntryCarSetupValue	Returns a column of g_optionCarSetups[index + 4], the setup the player had on entering the screen.
+0x5028a0	OptionMenu_GetScaledWorkingValue	OptionMenu_GetCarSetupChoice	Returns a column of the edited setup as the screen shows it: tyres and gearbox as stored, the five sliders divided by 10.
+0x502670	OptionMenu_SetWorkingValue	OptionMenu_SetCarSetupChoice	Stores a screen choice into the edited setup (sliders times 10) and charges the column's weight the first time it changes.
+0x502790	OptionMenu_RestoreDefaultValue	OptionMenu_RevertCarSetupValue	Copies one column of the entry setup back into the edited setup and clears its changed flag.
+0x502a00	OptionMenu_DoesValueMatch	OptionMenu_IsEntryCarSetupChoice	Whether the entry setup's column equals a screen choice (sliders times 10).
+0x502b10	OptionMenu_IsValueDefault	OptionMenu_IsCarSetupValueUnchanged	Whether a column of the edited setup still equals the entry setup's.
+0x475a40	StageUI_GetStageOverlayNode	StageUI_GetCurrentPauseMenu	Returns g_pPauseMenu, the pause menu being shown (g_pauseMenus.main or .stageData; the update loop stores the menu Menu_Update returns).
+0x5057e0	OptionMenu_DrawCountryFlags	OptionMenu_DrawWeatherChoices	Draws, for each of g_weatherChoices (filled by RallyData_BuildCountryWeatherIndexMap), its weather symbol texture (Textures\\Weather\\Symbols) and its text 0x9d + type (Bright, Dry, Cloudy, ... after the text base); no flag is drawn.

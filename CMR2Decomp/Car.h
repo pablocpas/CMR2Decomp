@@ -149,9 +149,9 @@ struct Car {
     int baseDriveSplit;                // 0x7b8
     int gearRatio[8];                  // 0x7bc
     int gearSpeed[8];                 // 0x7dc  per-gear speed table (Car_SelectGearSpeedTable)
-    int field_0x7fc;                  // 0x7fc  set from the difficulty (0x43e530)
-    int field_0x800;                  // 0x800
-    int field_0x804;                  // 0x804
+    int steeringOutwardRate;          // 0x7fc  angle step steering away from centre (CarSetup::steering)
+    int steeringCentringRate;         // 0x800  angle step steering back towards centre
+    int steeringForceScale;           // 0x804  scales the steering accumulator inputs
     int wheelTravelLoadBias[4];       // 0x808 mean-relative wheel travel, scaled/clamped for corner loads
     int steeringInput;                 // 0x818  ramps -1..1 with flag0x1d0[0]/[1] (0x494540)
     int steeringAccumulator;           // 0x81c

@@ -38,11 +38,24 @@
 #include "Input.h"
 #include "PcmWaveHeader.h"
 #include "StageTimeProfile.h"
+#include "CountryCarSetups.h"
+#include "RallyData.h"
+#include "SavedGame.h"
 #include "LightZone.h"
 
 // Preserve the original Win32 layouts used by array indexing, bulk copies
 // and packed callback tables. Keep these checks out of shared headers:
 // extra declarations there can alter MSVC6 code generation in unrelated TUs.
+CMR2_LAYOUT_CHECK(CarSetupSizeCheck, sizeof(CarSetup) == 7);
+CMR2_LAYOUT_CHECK(CarSetupPowerRatioCheck, offsetof(CarSetup, powerRatio) == 3);
+CMR2_LAYOUT_CHECK(CarSetupSteeringCheck, offsetof(CarSetup, steering) == 6);
+CMR2_LAYOUT_CHECK(CountryCarSetupBlockSizeCheck, sizeof(CountryCarSetupBlock) == 0x84);
+CMR2_LAYOUT_CHECK(CountryCarSetupBlockUnknownCheck, offsetof(CountryCarSetupBlock, unknown40) == 0x40);
+CMR2_LAYOUT_CHECK(CountryCarSetupBlockSpaceCheck, offsetof(CountryCarSetupBlock, space) == 0x44);
+CMR2_LAYOUT_CHECK(CountryCarSetupBlockWeatherCheck, offsetof(CountryCarSetupBlock, weatherNames) == 0x48);
+CMR2_LAYOUT_CHECK(CountryCarSetupBlockBlizzardCheck, offsetof(CountryCarSetupBlock, blizzard) == 0x78);
+CMR2_LAYOUT_CHECK(DriverGroupCarSetupsCheck, offsetof(RallyDriverGroupTable, playerCarSetups) == 0x520);
+CMR2_LAYOUT_CHECK(DriverGroupAfterCarSetupsCheck, offsetof(RallyDriverGroupTable, field_0x53c) == 0x53c);
 CMR2_LAYOUT_CHECK(StageDriverTimeTuningSizeCheck, sizeof(StageDriverTimeTuning) == 5);
 CMR2_LAYOUT_CHECK(StageTimeProfileSizeCheck, sizeof(StageTimeProfile) == 0x550);
 CMR2_LAYOUT_CHECK(StageTimeProfileBlend0OffsetCheck, offsetof(StageTimeProfile, blend0Times) == 0x50);

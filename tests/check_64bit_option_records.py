@@ -73,10 +73,10 @@ int main() {
     for(int i=0;i<14;i++) assert(CFrontend::GetArchiveSecondaryFlagEntry(i)==g_unk0x00516b40.flags[i+14]);
     for(country=0;country<8;country++) for(nullResidue=-1;nullResidue<3;nullResidue++) {
         loads=0;OptionMenu_LoadPartTextures();assert(loads==22);
-        Texture *values[22]={g_unk0x00831360,g_unk0x00831364,g_unk0x00831368,g_unk0x00831668,
-                            g_unk0x0083166c,g_unk0x00831670,g_unk0x008313ac,g_unk0x00831648,
-                            g_unk0x008313b0,g_unk0x00831674};
-        for(int i=0;i<12;i++) values[i+10]=g_unk0x0083137c[i];
+        Texture *values[22]={g_symbolDanRedTexture,g_symbolDanOrangeTexture,g_symbolDanYellowTexture,g_countryBannerTexture,
+                            g_arrow640ATexture,g_arrow640DTexture,g_symbolTickTexture,g_symbolCrossTexture,
+                            g_symbolBoxTexture,g_symbolCircleTexture};
+        for(int i=0;i<12;i++) values[i+10]=g_carPartTextures[i];
         for(int i=0;i<22;i++) assert(values[i]==(i%3==nullResidue?nullptr:&textures[i]));
     }
     return 0;

@@ -480,7 +480,7 @@ void CGame::SetFrontendResourceMode(int param1)
 BYTE Game_GetOptionStateByte(void);
 void Game_SetOptionStateByte(BYTE param1);
 void RallyData_ClearDriverGroupRecords(void);
-void RallyData_ClearDriverSkillFlags(void);
+void RallyData_ClearPlayerCarSetups(void);
 void GameInfo_ResetSessionTimestamp(void);
 DWORD GameInfo_GetSessionTimestamp(void);
 void Input_TranslatePedalsToMenuKeys(void);
@@ -750,7 +750,7 @@ void Game_PlayCountryIntroAfterFrontendDelay(CallbackStateMachine *p1, BYTE p2)
 // modules.
 void GameInfo_ApplyCheatsForGameMode(void);
 void GameInfo_SetPlayerOptionNibbles(unsigned int param1, unsigned int param2);
-void RallyData_CopyCountryPlayerDefaults(void);
+void RallyData_ApplyCountryCarSetups(void);
 void RallyData_SetSelectionStateByte(char param1);
 void RallyData_PickOpponentLineups(void);
 bool Profile_SaveEditedNames(void);
@@ -786,7 +786,7 @@ void Game_FinishRaceAndAdvanceBootState(CallbackStateMachine *p1, BYTE unused)
             CGameInfo::GetConfiguredGameMode() != 12)
             RallyData_PickOpponentLineups();
 
-        RallyData_CopyCountryPlayerDefaults();
+        RallyData_ApplyCountryCarSetups();
         RallyData_SetSelectionStateByte(-1);
         CGameInfo::ApplyStageOptionUnlockFlags();
 
@@ -1059,7 +1059,7 @@ void CGame::InitializeGame(CallbackStateMachine *p1, BYTE p2)
         FrontendAudio_ConfigureMenuSounds();
         Game_SetConfigurationStateByte(0);
         RallyData_ClearDriverGroupRecords();
-        RallyData_ClearDriverSkillFlags();
+        RallyData_ClearPlayerCarSetups();
         CGame::PromoteCallbackEntryByRule(p1, p2, 1, 2);
         GameInfo_ResetSessionTimestamp();
         FrontendMap_FindStageFiles();
@@ -1118,7 +1118,7 @@ void CGame::InitializeGame(CallbackStateMachine *p1, BYTE p2)
     if (CGameInfo::GetGameModeOptionBit19() == 0 && Game_GetOptionStateByte() == 0)
         Profile_ResetAllRecordCategories();
     RallyData_ClearDriverGroupRecords();
-    RallyData_ClearDriverSkillFlags();
+    RallyData_ClearPlayerCarSetups();
     GameInfo_ResetSessionTimestamp();
     if (Game_GetOptionStateByte() == 1) {
         Game_SetOptionStateByte(0);

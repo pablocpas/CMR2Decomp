@@ -71,18 +71,18 @@ int RallyData_GetFlag25(){return flag25;}
 int RallyData_GetUsableRecordCategory(BYTE){return -1;}
 int RallyData_GetDriverAutomaticGearbox(BYTE){return 0;}
 int StageUI_GetRaceEndEventCount(){return 0;}
-BYTE *RallyData_GetDriverSkillRecord(int index){return fixtureHeap+0x6000+(index&255)*16;}
-char *RallyData_GetSelectedSettingSevenByteRecord(){return (char *)fixtureHeap+0x7100;}
-char *RallyData_GetCountrySettingSevenByteRecord(){return (char *)fixtureHeap+0x7200;}
-char *RallyData_GetCountrySevenByteRecord(){return (char *)fixtureHeap+0x7000;}
+BYTE *RallyData_GetPlayerCarSetup(int index){return fixtureHeap+0x6000+(index&255)*16;}
+char *RallyData_GetChallengeCarSetup(){return (char *)fixtureHeap+0x7100;}
+char *RallyData_GetAlternateCountryCarSetup(){return (char *)fixtureHeap+0x7200;}
+char *RallyData_GetCountryCarSetup(){return (char *)fixtureHeap+0x7000;}
 void Car_BindModel(int index,Car *car){assert(index==slot && car==g_pCurrentCar);}
-void Car_SetRideHeight(int){}
-void Car_SetSteeringSwingTarget(int){}
+void Car_SetSuspension(int){}
+void Car_SetBrakePower(int){}
 void Car_SetBrakeBias(int){}
 void Car_SetDriveSplit(int){}
-void Car_SetSurfaceDragLevel(int){}
+void Car_SetTyreType(int){}
 void Car_SelectGearSpeedTable(unsigned int){}
-void Car_SetDifficultyHandling(int){}
+void Car_SetSteeringSensitivity(int){}
 void Car_UpdateCorners(Car *car){assert(car==g_pCurrentCar);}
 '''
 MAIN = r'''
