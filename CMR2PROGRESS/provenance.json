@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "8eab347f4820e37b0e946e99f15977b02d52e87c",
+    "commit": "37b78ec215ab17caf2c0b738fc338073927e91e6",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -134,7 +134,7 @@
       "CMR2Decomp/PauseMenus.h": "cb2bfa8ccb4eb55803c9f342c57c211286a80aa93e02bbdabcc690bd2db6a774",
       "CMR2Decomp/PrecipitationQuad.h": "c96e38658a320049bb9500e3e48e3f5002d0dbdd87cd72a47db6d4cd225247c6",
       "CMR2Decomp/ProfileEventResults.h": "78ccc7f0196b01ec711d818658db48623372d682fd76fe4d6f919a1019a76a7b",
-      "CMR2Decomp/Race.cpp": "491d144a387193876bb8a1605aacee1dc08d58df3293ac917ecc48d8a768b1fd",
+      "CMR2Decomp/Race.cpp": "7d11594410bbfe2507f19ec47c8865098027796a6f9754f839428f7a565806bb",
       "CMR2Decomp/RaceCallRecord.h": "e2418ff397371fd73fc5d83fbba8de474bc0f895eb1dfac5792127d8e6afd8c2",
       "CMR2Decomp/RaceCallbackStorage.h": "d540cbe431446daef4724e15b0f10f3702e8e50b8c87bcd04ff5bc1dd3a8d593",
       "CMR2Decomp/RaceRecord.h": "c86bd8aa45d6828375fee1fd908f60608b85e9b48a7416f8208b209fe98c3453",
@@ -168,10 +168,10 @@
       "CMR2Decomp/StageBlock.h": "d93b2676f2bece5160e17869fbca83e4e9bfb00d41107006b291a9e3c692f1f1",
       "CMR2Decomp/StageInfo.h": "0c69f56127d2208cda8f6917a7d536eda53cc4d0bb9e1258aa3b0958fd501299",
       "CMR2Decomp/StageObjectCount.h": "0bcacf7fe5189f2978ab6e6fab0fc7ba8968c82a8ef7c3b4710f4bfa142a48da",
-      "CMR2Decomp/StageObjects.cpp": "062a493566bcf6303be1fad541f3edbe8d67cd5a55699621f922af690c8fa12c",
+      "CMR2Decomp/StageObjects.cpp": "8296d58337d471b3069f5433a14fce60e835ac74ff3d1388cae7457e3457d119",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "badac490a220da4c871e2e9fa21e80035df9f7dacf04454aae4f84b427612986",
-      "CMR2Decomp/StageTiming.cpp": "5901f21d87ac3ed9f5bbda514e7a72c54810e3d7cca79065a4fdb5fea0c71f5d",
+      "CMR2Decomp/StageTiming.cpp": "23042be4ec10d521aecd6cf9f84ddb6e16959aeffedd9ff98c364d33dcab56fa",
       "CMR2Decomp/StageTiming.h": "cb7b5efb659841a12590d8f405c11414b88711eb3159002b198301319dcdbb9b",
       "CMR2Decomp/StageTimingSpread.h": "36af19e0df03fc5af5e038804cf927cd111f2796b1e28383abf73447d5496a09",
       "CMR2Decomp/StageUI.cpp": "7faa499aae109e80995d225a143d32c1437e46ad275a14c735ec05d7910b5cd2",
@@ -219,11 +219,11 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "246b76ce125e118fd2e887a873d508ae1443286d45bdc47b283932a6621e8fb9",
-    "pdb_sha256": "c6f2331d23909aeb445be2a7b81d9b1bd2110407374f3268a07930aa736d7efb"
+    "exe_sha256": "14942a2059dc0a9c4434f0f3c289b5a8acc032f2b0463e81d0fd095c6d7781c8",
+    "pdb_sha256": "2f6807c9837f4fdf9f723c23935cfaf077e22af3e3354113e9bf0e375bd0f277"
   },
   "perfect_match_percent": 56.28,
-  "fuzzy_match_percent": 94.45,
+  "fuzzy_match_percent": 94.46,
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3649,
   "measured_functions": 3368,

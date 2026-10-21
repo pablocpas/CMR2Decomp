@@ -42,10 +42,10 @@ en `+0x71c`; se comprueban ambos offsets. Se conservan la ordenación inversa,
 el número de slots y los recorridos/copias originales, incluidos los límites
 que aún requieren investigación.
 
-El recorrido de luces sigue sesgado en `vertexCount`: obtener los vértices por
-`vertices[i]` introducía otro puntero de inducción y empeoraba el matching.
-La relación entre los arrays se expresa con tipos y `offsetof`, sin el índice
-mágico `pObj[-0xea]`. Se conserva la carga de vértices y el recorrido original.
+En esta tanda el recorrido de luces quedó sesgado en `vertexCount`: obtener los
+vértices directamente introducía otro puntero de inducción. La tanda posterior
+[Montaje de glows](car-light-glow-build.md) recupera el orden de adquisición de
+punto/vértice y elimina ese sesgo con bucles tipados, mejorando el matching.
 
 ## Validación
 

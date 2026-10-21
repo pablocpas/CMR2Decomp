@@ -3458,21 +3458,21 @@ extern BYTE g_carPartModelIndices[4][8];
 
 // Clears every car's four 0x1a0-byte record arrays and the slot tables.
 // FUNCTION: CMR2 0x00480980
-void StageTiming_ResetCarPartRecordsAndSlots(void)
+void CarPart_ResetMovingStateTables(void)
 {
-    PartState **pp;
-    int i;
-    int offset;
+    PartState **pSlot;
+    int carIndex;
+    int recordOffset;
 
-    for (pp = g_carPartStateTables.parts; (INT_PTR)pp < (INT_PTR)(g_carPartStateTables.parts + 4); pp++) {
-        i = 0;
+    for (pSlot = g_carPartStateTables.parts; (INT_PTR)pSlot < (INT_PTR)(g_carPartStateTables.parts + 4); pSlot++) {
+        carIndex = 0;
         if (g_carPartTableCarCount > 0) {
-            offset = 0;
+            recordOffset = 0;
             do {
-                memset((BYTE *)*pp + offset, 0, sizeof(PartState));
-                i++;
-                offset += sizeof(PartState);
-            } while (i < g_carPartTableCarCount);
+                memset((BYTE *)*pSlot + recordOffset, 0, sizeof(PartState));
+                carIndex++;
+                recordOffset += sizeof(PartState);
+            } while (carIndex < g_carPartTableCarCount);
         }
     }
     memset(g_carPartNodes, 0, sizeof(g_carPartNodes));
@@ -7887,7 +7887,7 @@ void Car_BuildRaceOrder(int count);
 short *Car_GetOrder(void);
 short Car_GetOrderCount(void);
 void CarPart_CacheFlexibleLineProfiles(short *pList, short count);
-void StageTiming_ResetCarPartRecordsAndSlots(void);
+void CarPart_ResetMovingStateTables(void);
 void CarPart_ClearSetRange(int first, int count);
 void CarDamage_ResetAllRecords(void);
 void CarDamage_SetupOrderedCarParts(int, int, short *, short);
@@ -7960,7 +7960,7 @@ int StageTiming_LoadStageCarsAndEffects(void)
     CGame::RegisterCallback(StageTiming_FreeSceneAndFinishResources, NULL);
     Car_BuildRaceOrder(count);
     CarPart_CacheFlexibleLineProfiles(Car_GetOrder(), Car_GetOrderCount());
-    StageTiming_ResetCarPartRecordsAndSlots();
+    CarPart_ResetMovingStateTables();
     CarPart_ClearSetRange(0, count);
     CarDamage_ResetAllRecords();
     CarDamage_SetupOrderedCarParts(0, 0, Car_GetOrder(), Car_GetOrderCount());
@@ -8029,7 +8029,7 @@ BOOL Car_ShowsCleanWheels(Car *pCar);
 void Car_SwapWheelTextures(char mode, SceneNode **pWheels);
 void Scene_AddShadowCaster(SceneNode *pNode, int exactMeshes);
 void SceneNode_SetMeshFlagBits(SceneNode *pNode, unsigned int value);
-void StageObject_SetCarStateSlot(int value, int index);
+void CarDamage_SetModelEnabled(int enabled, int carIndex);
 void StageTiming_ResetWheelWearRecord(int player, int wheel);
 void StageTiming_InitStageTypeEvents(char *unused, int slot, int type);
 
@@ -8348,7 +8348,7 @@ wheelsDone:
         if ((char)RallyData_GetSelectionFlag28())
             CGameInfo::GetSoundOptionBit30();
     } else {
-        StageObject_SetCarStateSlot(1, car);
+        CarDamage_SetModelEnabled(1, car);
     }
     if (car < (int)(BYTE)RallyDataState() &&
         ((CGameInfo::GetConfiguredGameMode() != 0 && CGameInfo::GetConfiguredGameMode() != 1) || RallyDataStageIndex() == 0 ||

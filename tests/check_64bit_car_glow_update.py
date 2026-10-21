@@ -6,6 +6,7 @@ real Car, CarPartSet, Mesh, GlowLight and channel-state headers on native x64.
 Weather/surface providers are controlled identically to the differential test.
 """
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import tempfile

@@ -82,7 +82,7 @@ void StageLights_Update(void);
 void StageObject_SetBoundedWeatherKind(int value);
 void StageLights_Off(void);
 void CarLights_LoadTextures(void);
-void StageObject_RebuildCarLightMeshes(Car *pCar);
+void CarLight_BuildPointGlows(Car *pCar);
 void CarLight_UpdateFlagsAndGlows(Car *pCar);
 int StageObject_GetSceneLightBrightness(void);
 void StageObject_PositionRearViewLightNodes(unsigned int param_1);
@@ -130,8 +130,8 @@ void StageObject_UpdateEnabledCornerContactFrames(Car *param_1, short *param_2, 
 void CarDamage_UpdateSuspensionImpactContacts(Car *pCar);
 void CarDamage_RebuildPartBounds(int param_1, SceneNode *param_2, CarPartSet *param_3);
 void CarDamage_BuildPartVertexBuffer(int param_1, SceneNode *param_2, CarPartSet *set);
-void StageObject_SetCarStateSlot(int value, int index);
-void StageObject_ClearCarStateSlots(void);
+void CarDamage_SetModelEnabled(int enabled, int carIndex);
+void CarDamage_ClearModelEnabled(void);
 void Mesh_ReadVertexFixed(Mesh **ppMeshes, int mesh, int vertex, FixVector *pOut);
 int CarDamage_GetModelEnabled(Car *pCar);
 void CarEffects_UpdateBrokenLightFlicker(Car *pCar);
@@ -1392,13 +1392,13 @@ int Replay_GetSelectionStateByte(void)
 }
 
 // FUNCTION: CMR2 0x0046b400
-void StageObject_SetCarStateSlot(int value, int index)
+void CarDamage_SetModelEnabled(int enabled, int carIndex)
 {
-    g_carDamageModelEnabled[index] = value;
+    g_carDamageModelEnabled[carIndex] = enabled;
 }
 
 // FUNCTION: CMR2 0x0046b420
-void StageObject_ClearCarStateSlots(void)
+void CarDamage_ClearModelEnabled(void)
 {
     memset(g_carDamageModelEnabled, 0, 8 * sizeof(int));
 }
@@ -11491,34 +11491,31 @@ int g_carDamageHazardTimer[8];
 // GLOBAL: CMR2 0x00547d00
 GlowLight *g_carLightGlowSlots[8 * 0x14]; // 20 glow slots per car, up to 8 cars (runs to 0x547f80)
 
-// Rebuilds the two light meshes of a car. First a glow light is created for
-// every collision point of the car (the (object, vertex) slot is stored into
-// the point afterwards), then for every object vertex each collision point
-// keeps the object/vertex index of the closest vertex.
-// match 29%: implementada (mallas de luces por punto de colision + asignacion
-// del vertice mas cercano); difiere el codegen de los productos escalares 16.16
+// Creates the CIN point glows, links exhaust emitters and records each point's
+// closest deform vertex. Car zero also creates the two rear-view lights.
 // FUNCTION: CMR2 0x00463fe0
-void StageObject_RebuildCarLightMeshes(Car *pCar)
+void CarLight_BuildPointGlows(Car *pCar)
 {
 // the original re-reads the car index at every use
 #define LCAR (pCar->index)
-    int minDot[20];
-    CarPartSet *pRec;
+    int nearestDistanceSquared[20];
+    CarPartSet *pParts;
     FixVector scale;
-    FixAngles angles;
+    FixAngles lightAngles;
     FixVector position;
-    int i;
-    int n;
+    int meshIndex;
+    int carIndex;
+    int lightIndex;
     CarLightPoint *pPoint;
 
-    n = 0;
-    angles.z = 0xff1d;
+    lightIndex = 0;
+    lightAngles.z = 0xff1d;
     scale.x = 0;
     scale.y = 0;
     scale.z = 0;
-    angles.x = 0;
-    angles.y = 0;
-    angles.pad = 0;
+    lightAngles.x = 0;
+    lightAngles.y = 0;
+    lightAngles.pad = 0;
     if (LCAR == 0) {
         g_rearViewLightOffsetA.x = 0x1e0000;
         g_rearViewLightOffsetA.y = 0;
@@ -11529,116 +11526,84 @@ void StageObject_RebuildCarLightMeshes(Car *pCar)
         position.x = 0;
         position.y = 0;
         position.z = 0;
-        g_rearViewLightNodeA = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &angles,
+        g_rearViewLightNodeA = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &lightAngles,
                                             RallyData_GetChallengeRenderState());
-        g_rearViewLightNodeB = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &angles,
+        g_rearViewLightNodeB = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &lightAngles,
                                             RallyData_GetChallengeRenderState());
     }
     {
         CarLightProfile *pSet = (CarLightProfile *)CarInfo_GetSection(pCar, CAR_INFO_LIGHTS);
-        int side = 0;
-        int *pMin;
-        int off;
-        char projected;
-        SceneNode *node;
+        int exhaustSide = 0;
+        int *pNearestDistance;
+        char projectedBrightness;
+        SceneNode *pNode;
 
         g_carLightProfiles[LCAR] = pSet;
         g_carLightPoints[LCAR] = pSet->points;
         if (0 < g_carLightProfiles[LCAR]->count) {
-            pMin = minDot;
-            off = 0;
+            pNearestDistance = nearestDistanceSquared;
             do {
-                pPoint = (CarLightPoint *)((BYTE *)g_carLightPoints[LCAR] + off);
+                pPoint = &g_carLightPoints[LCAR][lightIndex];
                 if (CarDamage_GetModelEnabled(pCar) == 0 || pPoint->part == -1) {
-                    node = pCar->pBodyNode;
+                    pNode = pCar->pBodyNode;
                 } else {
-                    node = CarPart_GetNode(pCar, (int)pPoint->part);
-                    if (node == NULL)
-                        node = pCar->pBodyNode;
+                    pNode = CarPart_GetNode(pCar, (int)pPoint->part);
+                    if (pNode == NULL)
+                        pNode = pCar->pBodyNode;
                 }
                 Frontend_SetObjectField118(g_carLightTexA[pPoint->slot], 1);
                 Frontend_SetObjectField118(g_carLightTexB[pPoint->slot], 1);
                 scale.x = 0x10000;
-                projected = 0;
+                projectedBrightness = 0;
                 if (pPoint->type == 9)
-                    projected = (char)0xff;
+                    projectedBrightness = (char)0xff;
                 position.x = 0;
                 position.y = 0;
                 position.z = 0;
-                g_carLightGlowSlots[n + LCAR * 0x14] =
+                g_carLightGlowSlots[lightIndex + LCAR * 0x14] =
                     Glow_Add(2, &pPoint->pos, &pPoint->dir, &scale, pPoint->size, pPoint->size,
                                   g_carLightTexA[pPoint->slot], g_carLightTexB[pPoint->slot],
-                                  pPoint->intensity, node, (BYTE)projected, &position, 0x10000);
-                Glow_SetEnabled(g_carLightGlowSlots[n + LCAR * 0x14], 1);
-                *pMin = 0x3e80000;
+                                  pPoint->intensity, pNode, (BYTE)projectedBrightness, &position, 0x10000);
+                Glow_SetEnabled(g_carLightGlowSlots[lightIndex + LCAR * 0x14], 1);
+                *pNearestDistance = 0x3e80000;
                 if (pPoint->type == 9) {
-                    CarExhaust_SetPoint(pPoint, side, LCAR);
-                    CarExhaust_SetGlow(g_carLightGlowSlots[n + LCAR * 0x14], side, LCAR);
-                    side++;
+                    CarExhaust_SetPoint(pPoint, exhaustSide, LCAR);
+                    CarExhaust_SetGlow(g_carLightGlowSlots[lightIndex + LCAR * 0x14], exhaustSide, LCAR);
+                    exhaustSide++;
                 }
-                pMin++;
-                off += sizeof(CarLightPoint);
-                n++;
-            } while (n < g_carLightProfiles[LCAR]->count);
+                pNearestDistance++;
+                lightIndex++;
+            } while (lightIndex < g_carLightProfiles[LCAR]->count);
         }
     }
     if (CarDamage_GetModelEnabled(pCar) != 0) {
-        int off;
-        int j;
-        int *pObj;
-        int k;
-        int *pMin;
+        int vertexIndex;
 
-        pRec = CarPart_GetSet(LCAR);
-        i = 0;
-        if (0 < pRec->count) {
-            pObj = pRec->vertexCount;
-            do {
-                j = 0;
-                if (0 < *pObj) {
-                    do {
-                        k = 0;
-                        if (0 < g_carLightProfiles[LCAR]->count) {
-                            off = 0;
-                            pMin = minDot;
-                            do {
-                                int dot;
+        pParts = CarPart_GetSet(LCAR);
+        for (meshIndex = 0; meshIndex < pParts->count; meshIndex++) {
+            for (vertexIndex = 0; vertexIndex < pParts->vertexCount[meshIndex]; vertexIndex++) {
+                for (lightIndex = 0; lightIndex < g_carLightProfiles[LCAR]->count; lightIndex++) {
+                    int distanceSquared;
+                    FixVector vertexPosition;
 
-                                pPoint = (CarLightPoint *)((BYTE *)g_carLightPoints[LCAR] + off);
-                                {
-                                    // Keep the original walk biased at vertexCount: MSVC6 otherwise
-                                    // creates a second induction pointer and changes the full body.
-                                    // vertexCount holds ints and vertices pointers, so where a pointer
-                                    // is wider the bias grows with the part index (the term is 0 on Win32).
-                                    FixVector v = ((DeformVertex **)((BYTE *)pObj +
-                                        offsetof(CarPartSet, geometry) + offsetof(DeformMeshSources, vertices) - offsetof(CarPartSet, vertexCount) +
-                                        ((BYTE *)pObj - (BYTE *)pRec->vertexCount) * (sizeof(DeformVertex *) / sizeof(int) - 1)))[0][j].pos;
-                                    position.x = pPoint->pos.x - v.x;
-                                    position.y = pPoint->pos.y - v.y;
-                                    position.z = pPoint->pos.z - v.z;
-                                }
-                                dot = FixVecDot(&position, &position);
-                                if (dot < *pMin) {
-                                    *pMin = dot;
-                                    pPoint->object = (short)i;
-                                    pPoint->vertex = (short)j;
-                                }
-                                pMin++;
-                                off += sizeof(CarLightPoint);
-                                k++;
-                            } while (k < g_carLightProfiles[LCAR]->count);
-                        }
-                        j++;
-                    } while (j < *pObj);
+                    pPoint = &g_carLightPoints[LCAR][lightIndex];
+                    vertexPosition = pParts->geometry.vertices[meshIndex][vertexIndex].pos;
+                    position.x = pPoint->pos.x - vertexPosition.x;
+                    position.y = pPoint->pos.y - vertexPosition.y;
+                    position.z = pPoint->pos.z - vertexPosition.z;
+                    distanceSquared = FixVecDot(&position, &position);
+                    if (distanceSquared < nearestDistanceSquared[lightIndex]) {
+                        nearestDistanceSquared[lightIndex] = distanceSquared;
+                        pPoint->object = (short)meshIndex;
+                        pPoint->vertex = (short)vertexIndex;
+                    }
                 }
-                i++;
-                pObj++;
-            } while (i < pRec->count);
+            }
         }
     }
     g_rearViewLightAttenuation = 0xffff0000;
-    for (i = 0; i < 8; i++)
-        g_carDamageHazardTimer[i] = 0;
+    for (carIndex = 0; carIndex < 8; carIndex++)
+        g_carDamageHazardTimer[carIndex] = 0;
 #undef LCAR
 }
 
@@ -15453,7 +15418,7 @@ void StageObjects_Init(void)
         CarExhaust_SetGlow(0, 0, i);
         CarExhaust_SetGlow(0, 1, i);
         if (Car_Get(car)->isGhost == 0) {
-            StageObject_RebuildCarLightMeshes(Car_Get(car));
+            CarLight_BuildPointGlows(Car_Get(car));
             if (Car_Get(car)->type == 6 || Car_Get(car)->type == 7 ||
                 Car_Get(car)->type == 10)
                 CarLight_CacheBodyTextures(i, 0, 0, 0);

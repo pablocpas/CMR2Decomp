@@ -166,6 +166,10 @@
       "0x441500"
     ]
   },
+  "differential_car_glow_build.py": {
+    "arguments": "entities",
+    "targets": ["0x463fe0", "0x4ae2f0", "0x46b4c0", "0x484de0", "0x45a150", "0x45b530"]
+  },
   "differential_car_info_records.py": {
     "arguments": "entities",
     "targets": [

@@ -332,7 +332,6 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x46d610	Replay_InterpolatePoseStream	StageObjects.cpp	700	0.90625	0.90625
 0x47cd10	AI_FindClosestCarInAngleWindow	StageObjects.cpp	965	0.9063444108761329	0.790273556231003
 0x414ed0	RallyData_DrawSplitStandingsPanel	RallyData.cpp	1452	0.9081419624217119	0.86875
-0x463fe0	StageObject_RebuildCarLightMeshes	StageObjects.cpp	1026	0.9084967320261438	0.9084967320261438
 0x4cf3f0	FrontendRecords_ResetEventPoints	Frontend.cpp	35	0.9090909090909091	0.9090909090909091
 0x4a24a0	Sound_BuildSlotLoopBuffer	Sound.cpp	326	0.9105691056910569	0.9105691056910569
 0x4373c0	Car_UpdateRollover	Car.cpp	2470	0.9112426035502958	0.8956007879185818
@@ -397,6 +396,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x48cae0	View_PlaceTracksideCameraAtSpot	StageObjects.cpp	329	0.9658119658119658	0.9743589743589743
 0x41e6b0	Race_TeardownStage	Race.cpp	544	0.9659090909090909	0.9050279329608939
 0x443a20	Car_UpdateCornerVelocityPair	Car.cpp	451	0.9661538461538461	0.9693251533742331
+0x463fe0	CarLight_BuildPointGlows	StageObjects.cpp	1026	0.9673202614379085	0.9673202614379085
 0x46f330	StageObject_PositionSplitViewNodes	StageObjects.cpp	353	0.9674418604651163	0.9014084507042254
 0x49f0e0	CInput::SetupKeyboard	Input.cpp	517	0.968503937007874	0.9669421487603306
 0x4af120	Glow_Draw	Graphics.cpp	2078	0.9690140845070423	0.9746478873239437

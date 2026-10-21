@@ -27,3 +27,7 @@ address	old_name	new_name	evidence
 0x480b40	StageObject_ResetAttachedCarNodes	CarPart_ResetAttachedNodes	Seeds rand with 400, selects g_partCar, restores each attached SceneNode::current from local, and clears its PartState::pNode in slots 3..0.
 0x4643f0	StageObject_UpdateCarLightFlagsAndGlows	CarLight_UpdateFlagsAndGlows	Sets both light-channel masks from car controls and part breakage, updates hazard timing, then fades/positions each CarLightPoint glow from channel levels and deformed vertices.
 0x46b4c0	StageObject_GetCarStateSlot	CarDamage_GetModelEnabled	Returns g_carDamageModelEnabled[Car::index]; light setup/update use it to choose deformed geometry, matching other damage-enabled consumers.
+0x463fe0	StageObject_RebuildCarLightMeshes	CarLight_BuildPointGlows	Loads CIN light points, creates one GlowLight per point plus the two rear-view SceneNode lights, links type-9 points/glows to exhaust emitters, then records the closest deform mesh/vertex; no Mesh is built.
+0x46b400	StageObject_SetCarStateSlot	CarDamage_SetModelEnabled	Stores the supplied integer in g_carDamageModelEnabled[carIndex], read by CarDamage_GetModelEnabled and deformation consumers.
+0x46b420	StageObject_ClearCarStateSlots	CarDamage_ClearModelEnabled	Zeroes all eight g_carDamageModelEnabled integers on race-state reset.
+0x480980	StageTiming_ResetCarPartRecordsAndSlots	CarPart_ResetMovingStateTables	Zeroes all four PartState arrays for g_carPartTableCarCount cars, clears the four-by-eight SceneNode table and initializes model indices to 0xff.

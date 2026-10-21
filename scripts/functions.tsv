@@ -1255,7 +1255,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 00463ce0	23	StageObject_SetBoundedWeatherKind	2	0	0	false	false
 00463d00	95	StageLights_Off	1	1	0	false	false
 00463d60	630	CarLights_LoadTextures	1	6	0	false	false
-00463fe0	1026	StageObject_RebuildCarLightMeshes	1	11	0	false	false
+00463fe0	1026	CarLight_BuildPointGlows	1	11	0	false	false
 004643f0	1272	CarLight_UpdateFlagsAndGlows	1	13	0	false	false
 004648f0	97	StageObject_GetSceneLightBrightness	1	1	0	false	false
 00464960	391	StageObject_PositionRearViewLightNodes	1	8	0	false	false
@@ -1325,8 +1325,8 @@ addr	size	name	callers	callees	fpu	thunk	external
 0046a500	1963	CarDamage_UpdateSuspensionImpactContacts	1	8	0	false	false
 0046acb0	801	CarDamage_RebuildPartBounds	1	1	27	false	false
 0046afe0	1055	CarDamage_BuildPartVertexBuffer	1	1	18	false	false
-0046b400	18	StageObject_SetCarStateSlot	1	0	0	false	false
-0046b420	17	StageObject_ClearCarStateSlots	1	0	0	false	false
+0046b400	18	CarDamage_SetModelEnabled	1	0	0	false	false
+0046b420	17	CarDamage_ClearModelEnabled	1	0	0	false	false
 0046b440	114	Mesh_ReadVertexFixed	1	0	9	false	false
 0046b4c0	21	CarDamage_GetModelEnabled	2	0	0	false	false
 0046b4e0	388	CarEffects_UpdateBrokenLightFlicker	1	2	8	false	false
@@ -1563,7 +1563,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 00480600	617	StageObject_UpdateDebris	1	0	0	false	false
 00480870	130	StageTiming_FreeCarPartNodeTables	0	1	0	false	false
 00480900	113	StageTiming_AllocateCarPartNodeTables	1	2	0	false	false
-00480980	94	StageTiming_ResetCarPartRecordsAndSlots	1	0	0	false	false
+00480980	94	CarPart_ResetMovingStateTables	1	0	0	false	false
 004809e0	100	StageTiming_CacheListedCarTimingPointers	1	2	0	false	false
 00480a50	11	StageObject_ClearPartTuningState	1	0	0	false	false
 00480a60	86	StageObject_ResetPartTuningAndRandomSeed	1	1	0	false	false

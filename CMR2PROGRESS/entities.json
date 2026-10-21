@@ -5021,7 +5021,7 @@
   ],
   "0x463fe0": [
     5068912,
-    "StageObject_RebuildCarLightMeshes"
+    "CarLight_BuildPointGlows"
   ],
   "0x4643f0": [
     5069952,
@@ -5301,11 +5301,11 @@
   ],
   "0x46b400": [
     4988560,
-    "StageObject_SetCarStateSlot"
+    "CarDamage_SetModelEnabled"
   ],
   "0x46b420": [
     4988592,
-    "StageObject_ClearCarStateSlots"
+    "CarDamage_ClearModelEnabled"
   ],
   "0x46b440": [
     4988624,
@@ -6257,7 +6257,7 @@
   ],
   "0x480980": [
     5134720,
-    "StageTiming_ResetCarPartRecordsAndSlots"
+    "CarPart_ResetMovingStateTables"
   ],
   "0x4809e0": [
     5134816,

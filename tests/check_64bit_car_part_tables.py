@@ -34,6 +34,7 @@ PRELUDE = r'''
 #include <initializer_list>
 #include <vector>
 typedef unsigned char BYTE;typedef unsigned int DWORD;typedef long long __int64;
+typedef intptr_t INT_PTR;
 #include "Car.h"
 #include "CarParts.h"
 #include "StageTiming.h"
@@ -47,6 +48,7 @@ BYTE g_carPartModelIndices[4][8];
 CarPartStateTables g_carPartStateTables;
 Car *g_partCar;PartState *g_partState;
 int g_deformPulseTicks[2],g_deformImpactTicks[2];
+int g_carPartTableCarCount;
 void CarPart_MarkHidden(Car *,int);
 alignas(16) BYTE pool[4][16384];
 std::vector<size_t> sizes;std::vector<void *> freed;
@@ -187,7 +189,22 @@ int main() {
         memset(expectedSets+first,0,count*sizeof(CarPartSet));g_carPartSets=sets;CarPart_ClearSetRange(first,count);
         assert(!memcmp(sets,expectedSets,sizeof(sets)));++cases;
     }
-    printf("PASS: %u native car-part cases; fourteen production bodies, real layouts/pointers >4 GB, allocation sizes, release order, aliases, hidden flags, attached nodes/RNG, damage resets and full guards; ASan/UBSan\n",cases);
+    for(int count:{-1,0,1,8}) {
+        PartState states[4][8],expectedStates[4][8];memset(states,0x72,sizeof(states));memcpy(expectedStates,states,sizeof(states));
+        for(int slot=0;slot<4;slot++) {
+            g_carPartStateTables.parts[slot]=states[slot];g_carPartStateTables.modes[slot]=0x80+slot;
+            memset(expectedStates[slot],0,(count>0?count:0)*sizeof(PartState));
+            for(int i=0;i<8;i++){g_carPartNodes[slot][i]=&nodes[slot][i];g_carPartModelIndices[slot][i]=0x73;}
+        }
+        g_carPartTableCarCount=count;CarPart_ResetMovingStateTables();
+        assert(!memcmp(states,expectedStates,sizeof(states)));
+        for(int slot=0;slot<4;slot++) {
+            assert(g_carPartStateTables.parts[slot]==states[slot] && g_carPartStateTables.modes[slot]==0x80+slot);
+            for(int i=0;i<8;i++)assert(!g_carPartNodes[slot][i] && g_carPartModelIndices[slot][i]==0xff);
+        }
+        ++cases;
+    }
+    printf("PASS: %u native car-part cases; fifteen production bodies, real layouts/pointers >4 GB, allocation sizes, release order, aliases, hidden flags, attached nodes/RNG, damage/moving-table resets and full guards; ASan/UBSan\n",cases);
 }
 '''
 
@@ -207,7 +224,7 @@ def main():
         functions = []
         for file,names in {
             'StageTiming.cpp':('CarPart_FreeTables','CarPart_AllocateTables','CarPart_GetSet','CarPart_GetHiddenState',
-                               'CarDamage_ResetRecord','CarDamage_ResetAllRecords','CarPart_ClearSetRange','CarPart_DeactivateAndMarkHidden'),
+                               'CarDamage_ResetRecord','CarDamage_ResetAllRecords','CarPart_ClearSetRange','CarPart_DeactivateAndMarkHidden','CarPart_ResetMovingStateTables'),
             'StageObjects.cpp':('CarPart_HideNode','CarPart_GetModelIndex','CarPart_GetNode','CarPart_ApplyHiddenStates','CarPart_MarkHidden','CarPart_ResetAttachedNodes'),
         }.items():
             text=(source/file).read_text()

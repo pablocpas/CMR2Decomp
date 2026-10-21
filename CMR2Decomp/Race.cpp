@@ -779,7 +779,7 @@ int Race_GetResourceState(void)
 void Race_SetResourceStateAndCallbackMark(int value);
 int Sound_GetSampleCount(void);
 void StageTiming_InitStageFileTable(void);
-void StageObject_ClearCarStateSlots(void);
+void CarDamage_ClearModelEnabled(void);
 int StageTiming_LoadStageCarsAndEffects(void);
 void Sector_RebuildNodeLists(void);
 void Surface_LoadCarEngineSounds(void);
@@ -794,7 +794,7 @@ BYTE Race_LoadStageGeometry(void)
 
     Race_SetResourceStateAndCallbackMark(Sound_GetSampleCount());
     StageTiming_InitStageFileTable();
-    StageObject_ClearCarStateSlots();
+    CarDamage_ClearModelEnabled();
     if (StageTiming_LoadStageCarsAndEffects()) {
         Sector_RebuildNodeLists();
         Surface_LoadCarEngineSounds();

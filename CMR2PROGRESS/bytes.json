@@ -23754,22 +23754,22 @@
     "symbol_name": "Replay_GetSelectionStateByte"
   },
   "0x46b400": {
-    "n": "StageObject_SetCarStateSlot",
+    "n": "CarDamage_SetModelEnabled",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_SetCarStateSlot"
+    "symbol_name": "CarDamage_SetModelEnabled"
   },
   "0x46b420": {
-    "n": "StageObject_ClearCarStateSlots",
+    "n": "CarDamage_ClearModelEnabled",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_ClearCarStateSlots"
+    "symbol_name": "CarDamage_ClearModelEnabled"
   },
   "0x46b440": {
     "n": "Mesh_ReadVertexFixed",
@@ -26130,13 +26130,13 @@
     "symbol_name": "Replay_DecodeCarPoseSample"
   },
   "0x463fe0": {
-    "n": "StageObject_RebuildCarLightMeshes",
-    "s": 0.9084967320261438,
+    "n": "CarLight_BuildPointGlows",
+    "s": 0.9673202614379085,
     "x": false,
-    "fz": 0.934640522875817,
+    "fz": 0.9803921568627451,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "StageObject_RebuildCarLightMeshes"
+    "symbol_name": "CarLight_BuildPointGlows"
   },
   "0x4643f0": {
     "n": "CarLight_UpdateFlagsAndGlows",
@@ -28022,13 +28022,13 @@
     "symbol_name": "StageTiming_FlagCoincidentCheckpointPositions"
   },
   "0x480980": {
-    "n": "StageTiming_ResetCarPartRecordsAndSlots",
+    "n": "CarPart_ResetMovingStateTables",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "StageTiming_ResetCarPartRecordsAndSlots"
+    "symbol_name": "CarPart_ResetMovingStateTables"
   },
   "0x4809e0": {
     "n": "CarPart_CacheFlexibleLineProfiles",
