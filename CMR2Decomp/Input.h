@@ -101,16 +101,21 @@ struct ControllerData {
     DWORD field_0x11c;
     DWORD field_0x120;
     DWORD field_0x124;
-    unsigned short field_0x128; // are you actually a struct?
-    unsigned short field_0x12a;
-    unsigned short field_0x12c;
-    unsigned short field_0x12e;
-    unsigned short field_0x130;
-    unsigned short field_0x132;
-    unsigned short field_0x134;
-    unsigned short field_0x136;
-    unsigned short field_0x138;
-    unsigned short field_0x13a;
+    union {
+        unsigned short actionMasks[10]; // 0x128 indexed action/device masks
+        struct {
+            unsigned short steerLeftMask;
+            unsigned short steerRightMask;
+            unsigned short throttleMask;
+            unsigned short brakeMask;
+            unsigned short handbrakeMask;
+            unsigned short shiftUpMask;
+            unsigned short shiftDownMask;
+            unsigned short cameraCycleMask;
+            unsigned short driverCycleMask;
+            unsigned short backMask;
+        };
+    };
     unsigned short field_0x13c;
     BYTE field_0x13e[9];            // key (DIK_*) of each keyboard binding
     char keyNames[9][20];           // 0x147 text shown for each binding
@@ -296,7 +301,7 @@ public:
     static void DInputReleaseDevices(void);
     static void LoadControllerInfo(void);
     static void ApplyControllerButtonBindings(unsigned short param1);
-    static void AssignUnmappedControllerActions(unsigned int param1, ControllerData * param2);
+    static void AssignUnmappedControllerActions(unsigned int deviceIndex, ControllerData *pController);
     static void SetDeviceKeyBinding(int param1, unsigned int param2, unsigned int param3);
     static DeviceInfo *GetAvailableDeviceRecord(int index);
     static BYTE FindFirstClearBindingBit(unsigned int param1);
@@ -317,7 +322,7 @@ public:
     static DWORD GetControllerField120(unsigned int param1);
     static DWORD GetControllerField124(unsigned short param1);
     static unsigned int GetEnabledControllerAxisBinding(unsigned int param1, int param2);
-    static BOOL IsControllerActionBound(int param1, ControllerData *param2);
+    static BOOL IsControllerActionBound(int action, ControllerData *pController);
     static void SetForceFeedbackDeviceValue(DWORD param1, int index);
     static void StartForceFeedbackEffect(int effectIndex, int deviceIndex);
     static char *FormatString(LPCSTR format, ...);
@@ -330,7 +335,7 @@ public:
     static int CreateForceFeedbackEffect(int effectType, DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex);
     static int CreateSpringEffect(DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex);
     static int CreateDamperEffect(DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex);
-    static short GetButtonMapping(unsigned short controller, int button);
+    static short GetButtonMapping(unsigned short controllerSlot, int action);
     static HRESULT SetEffectGain(int effectIndex, DWORD gain, int deviceIndex);
     static HRESULT SetEffectGainAndDirection(int effectIndex, DWORD gain, LONG direction, int deviceIndex);
     static int CreateConstantForceEffect(DWORD duration, LONG direction, LONG magnitude, DWORD attackTime, DWORD attackLevel, DWORD fadeTime, DWORD fadeLevel, int triggerButton, int deviceIndex);

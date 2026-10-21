@@ -1171,40 +1171,40 @@ void CInput::ApplyControllerButtonBindings(unsigned short param1) {
 }
 
 // FUNCTION: CMR2 0x0040c440
-void CInput::AssignUnmappedControllerActions(unsigned int param1, ControllerData* param2) {
-    unsigned short* puVar2;
-    unsigned short uVar4;
-    unsigned char bVar1;
-    int iVar3;
-    unsigned short combinedFlags;
+void CInput::AssignUnmappedControllerActions(unsigned int deviceIndex, ControllerData* pController) {
+    unsigned short* pActionMask;
+    unsigned short assignedMask;
+    unsigned char freeBit;
+    int action;
+    unsigned short usedMasks;
     
-    iVar3 = 0;
-    puVar2 = &param2->field_0x128;
+    action = 0;
+    pActionMask = pController->actionMasks;
     
     do {
-        if (*puVar2 == 0) {
-            if (param2->field_0x13e[iVar3] != 0) {
+        if (*pActionMask == 0) {
+            if (pController->field_0x13e[action] != 0) {
                 
-                combinedFlags = param2->field_0x13a | param2->field_0x136 | 
-                                param2->field_0x134 | param2->field_0x132 |
-                                param2->field_0x130 | param2->field_0x12e | 
-                                param2->field_0x12c | param2->field_0x12a |
-                                param2->field_0x128 | 0x400;
+                usedMasks = pController->backMask | pController->cameraCycleMask |
+                                pController->shiftDownMask | pController->shiftUpMask |
+                                pController->handbrakeMask | pController->brakeMask |
+                                pController->throttleMask | pController->steerRightMask |
+                                pController->steerLeftMask | 0x400;
 
-                bVar1 = FindFirstClearBindingBit(combinedFlags & 0xffff);
+                freeBit = FindFirstClearBindingBit(usedMasks & 0xffff);
                 
-                uVar4 = 1 << bVar1;
+                assignedMask = 1 << freeBit;
                 
-                SetDeviceKeyBinding(param1 & 0xffff, uVar4 & 0xffff, param2->field_0x13e[iVar3]);
-                SetDeviceKeyBinding(param1 & 0xffff, (1 << iVar3) & 0xffff, 0);
+                SetDeviceKeyBinding(deviceIndex & 0xffff, assignedMask & 0xffff, pController->field_0x13e[action]);
+                SetDeviceKeyBinding(deviceIndex & 0xffff, (1 << action) & 0xffff, 0);
                 
-                *puVar2 = uVar4;
+                *pActionMask = assignedMask;
             }
         }
         
-        iVar3++;
-        puVar2++;
-    } while (iVar3 < 10);
+        action++;
+        pActionMask++;
+    } while (action < 10);
 }
 
 // FUNCTION: CMR2 0x0049eb90
@@ -1422,9 +1422,9 @@ unsigned int CInput::GetEnabledControllerAxisBinding(unsigned int param1, int pa
 }
 
 // FUNCTION: CMR2 0x0040c270
-BOOL CInput::IsControllerActionBound(int param1, ControllerData *param2)
+BOOL CInput::IsControllerActionBound(int action, ControllerData *pController)
 {
-    if ((&param2->field_0x128)[param1] != 0 && param2->field_0x13e[param1] != 0)
+    if (pController->actionMasks[action] != 0 && pController->field_0x13e[action] != 0)
         return TRUE;
     return FALSE;
 }
@@ -1791,40 +1791,42 @@ int CInput::CreateDamperEffect(DWORD duration, LONG coefficient, LONG offset, in
 }
 
 // FUNCTION: CMR2 0x0040c2a0
-short CInput::GetButtonMapping(unsigned short controller, int button)
+short CInput::GetButtonMapping(unsigned short controllerSlot, int action)
 {
-    int index;
+    int controllerIndex;
     ControllerData *pController;
+    unsigned short *pActionMask;
     short mapping;
 
     mapping = 0;
-    index = m_unk0x005168f4[controller] * sizeof(ControllerData);
-    switch (button) {
-    case 0: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x128 + index); break;
-    case 1: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x12a + index); break;
-    case 2: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x12c + index); break;
-    case 3: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x12e + index); break;
-    case 4: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x130 + index); break;
-    case 5: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x132 + index); break;
-    case 6: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x134 + index); break;
-    case 7: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x136 + index); break;
-    case 8: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x138 + index); break;
-    case 9: mapping = *(short *)((BYTE *)&m_controllerInfo[0].field_0x13a + index); break;
+    controllerIndex = m_unk0x005168f4[controllerSlot];
+    pActionMask = m_controllerInfo[controllerIndex].actionMasks;
+    switch (action) {
+    case 0: mapping = pActionMask[0]; break;
+    case 1: mapping = pActionMask[1]; break;
+    case 2: mapping = pActionMask[2]; break;
+    case 3: mapping = pActionMask[3]; break;
+    case 4: mapping = pActionMask[4]; break;
+    case 5: mapping = pActionMask[5]; break;
+    case 6: mapping = pActionMask[6]; break;
+    case 7: mapping = pActionMask[7]; break;
+    case 8: mapping = pActionMask[8]; break;
+    case 9: mapping = pActionMask[9]; break;
     default: goto defaults;
     }
 
     if (mapping == 0) {
 defaults:
-        if (controller == 0 || controller == 1)
+        if (controllerSlot == 0 || controllerSlot == 1)
             goto fixed;
     }
 
-    pController = (ControllerData *)((BYTE *)m_controllerInfo + index);
-    if (!IsControllerActionBound(button, pController))
+    pController = &m_controllerInfo[controllerIndex];
+    if (!IsControllerActionBound(action, pController))
         return mapping;
 
 fixed:
-    switch (button) {
+    switch (action) {
     case 0: mapping = 1; break;
     case 1: mapping = 2; break;
     case 2: mapping = 4; break;
@@ -2068,16 +2070,16 @@ void CInput::InitDetectedControllerSlot(DeviceInfo *pDevice, int index)
         pController->field_0x2d8[0] = 0;
         pController->field_0x210[1] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
         pController->field_0x2d8[1] = 0;
-        pController->field_0x128 = 0;
-        pController->field_0x12a = 0;
-        pController->field_0x12c = 0x10;
-        pController->field_0x12e = 0x20;
-        pController->field_0x130 = 0;
-        pController->field_0x132 = 0;
-        pController->field_0x134 = 0;
-        pController->field_0x136 = 0;
-        pController->field_0x138 = 0;
-        pController->field_0x13a = 0;
+        pController->steerLeftMask = 0;
+        pController->steerRightMask = 0;
+        pController->throttleMask = 0x10;
+        pController->brakeMask = 0x20;
+        pController->handbrakeMask = 0;
+        pController->shiftUpMask = 0;
+        pController->shiftDownMask = 0;
+        pController->cameraCycleMask = 0;
+        pController->driverCycleMask = 0;
+        pController->backMask = 0;
         pController->field_0x13e[4] = (BYTE)pDevice->joystick.bindings[0].present;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[4], CFrontend::GetTextString(0x1fe));
         pController->field_0x13e[5] = pDevice->keyboard.field_0x46d;
@@ -2091,8 +2093,8 @@ void CInput::InitDetectedControllerSlot(DeviceInfo *pDevice, int index)
         return;
     }
     if (pController->field_0x10c != 0) {
-        pController->field_0x128 = 1;
-        pController->field_0x12a = 2;
+        pController->steerLeftMask = 1;
+        pController->steerRightMask = 2;
         if (pDevice->joystick.bindings[0].present != 0) {
             pController->field_0x210[0] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
             pController->field_0x2d8[0] = 0;
@@ -2101,35 +2103,35 @@ void CInput::InitDetectedControllerSlot(DeviceInfo *pDevice, int index)
                 pController->field_0x2d8[1] = 0;
             }
         }
-        pController->field_0x12c = 4;
+        pController->throttleMask = 4;
         if (pDevice->joystick.bindings[1].present != 0) {
             pController->field_0x210[2] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[1];
             pController->field_0x2d8[2] = 1;
         }
-        pController->field_0x12e = 8;
+        pController->brakeMask = 8;
         if (pDevice->joystick.bindings[1].present != 0) {
             pController->field_0x210[3] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[1];
             pController->field_0x2d8[3] = 1;
         }
-        pController->field_0x130 = 0x10;
-        pController->field_0x132 = 0x20;
-        pController->field_0x134 = 0x40;
-        pController->field_0x136 = 0x80;
-        pController->field_0x138 = 0x100;
-        pController->field_0x13a = 0x200;
+        pController->handbrakeMask = 0x10;
+        pController->shiftUpMask = 0x20;
+        pController->shiftDownMask = 0x40;
+        pController->cameraCycleMask = 0x80;
+        pController->driverCycleMask = 0x100;
+        pController->backMask = 0x200;
         return;
     }
     memset(pController->field_0x210, 0, 0x32 * 4);
-    pController->field_0x128 = 1;
-    pController->field_0x12a = 2;
-    pController->field_0x12c = 0x10;
-    pController->field_0x12e = 0x20;
-    pController->field_0x130 = 0x40;
-    pController->field_0x132 = 0x80;
-    pController->field_0x134 = 0x100;
-    pController->field_0x136 = 0x200;
-    pController->field_0x138 = 0x800;
-    pController->field_0x13a = 0x400;
+    pController->steerLeftMask = 1;
+    pController->steerRightMask = 2;
+    pController->throttleMask = 0x10;
+    pController->brakeMask = 0x20;
+    pController->handbrakeMask = 0x40;
+    pController->shiftUpMask = 0x80;
+    pController->shiftDownMask = 0x100;
+    pController->cameraCycleMask = 0x200;
+    pController->driverCycleMask = 0x800;
+    pController->backMask = 0x400;
 }
 
 // FUNCTION: CMR2 0x0040c050

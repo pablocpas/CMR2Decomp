@@ -101,6 +101,13 @@ normales, posiciones, productos escalares y referencias de caras, y usa los
 campos de vértice para posición, colores y UV. Conserva todas las puntuaciones;
 el inventario queda en 109 candidatos crudos y 29 tamaños literales.
 
+La tanda de [máscaras de acciones del controlador](controller-action-masks.md)
+nombra diez campos desde los consumidores de conducción, cámara y menús, y
+tipa el getter y los accesos del editor. Conserva las 2924 funciones exactas y
+mejora una puntuación sin regresiones. El inventario queda en 99 candidatos
+crudos y 1391 campos sin nombre semántico; la frontera entre las nueve teclas
+y los nombres sigue documentada como deuda.
+
 Las tandas 07–09 recuperan la familia de clima, iluminación y escenas de etapa
 con 97 comprobaciones de layouts y capacidad. El inventario actualizado tiene
 1987 accesos crudos, 1389 identificadores desconocidos distintos y 1512 campos

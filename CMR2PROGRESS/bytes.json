@@ -13545,9 +13545,9 @@
   },
   "0x44a1b0": {
     "n": "GameMenu_SetupStageResults",
-    "s": 0.7275842375785265,
+    "s": 0.7424328954882924,
     "x": false,
-    "fz": 0.8657909765848086,
+    "fz": 0.8715019988577956,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "GameMenu_SetupStageResults"

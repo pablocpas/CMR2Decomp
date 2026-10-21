@@ -571,7 +571,7 @@ void FrontendControls_UpdateBindingCapture(Menu *pMenu)
         Input_GetLastKeyName(g_controlsCopy[CONTROLS_SEL].keyNames[pMenu->cursor], 20);
         CInput::SetIndexedByteBinding(g_controlsCopy[CONTROLS_SEL].field_0x13e, pMenu->cursor, key);
         if (pDevice->field_0x0 != 1)
-            CInput::SetIndexedWordBinding(&g_controlsCopy[CONTROLS_SEL].field_0x128, pMenu->cursor, 0);
+            CInput::SetIndexedWordBinding(g_controlsCopy[CONTROLS_SEL].actionMasks, pMenu->cursor, 0);
     }
     axisPair = g_controlsCopy[CONTROLS_SEL].field_0x110 != 0 && (pMenu->cursor == 0 || pMenu->cursor == 1);
     if (((g_controlsCopy[CONTROLS_SEL].field_0x114 != 0 && (pMenu->cursor == 2 || pMenu->cursor == 3)) || axisPair)
@@ -584,7 +584,7 @@ void FrontendControls_UpdateBindingCapture(Menu *pMenu)
                 done = TRUE;
                 g_controlsCopy[CONTROLS_SEL].field_0x210[pMenu->cursor] = *(ControllerDataUnk0x210 *)(pPosition - 4);
                 g_controlsCopy[CONTROLS_SEL].field_0x2d8[pMenu->cursor] = axis;
-                CInput::SetIndexedWordBinding(&g_controlsCopy[CONTROLS_SEL].field_0x128, pMenu->cursor, 0);
+                CInput::SetIndexedWordBinding(g_controlsCopy[CONTROLS_SEL].actionMasks, pMenu->cursor, 0);
                 CInput::SetIndexedByteBinding(g_controlsCopy[CONTROLS_SEL].field_0x13e, pMenu->cursor, 0);
                 *pReference = *pPosition;
             }
@@ -607,7 +607,7 @@ void FrontendControls_UpdateBindingCapture(Menu *pMenu)
         buttons >>= 1;
     }
     if (count == 1 && pDevice->field_0x0 != 1 && FrontendControls_IsSelectedAxisBound(pMenu) == 0) {
-        CInput::SetIndexedWordBinding(&g_controlsCopy[CONTROLS_SEL].field_0x128, pMenu->cursor, (unsigned short)pDevice->field_0x8);
+        CInput::SetIndexedWordBinding(g_controlsCopy[CONTROLS_SEL].actionMasks, pMenu->cursor, (unsigned short)pDevice->field_0x8);
         CInput::SetIndexedByteBinding(g_controlsCopy[CONTROLS_SEL].field_0x13e, pMenu->cursor, 0);
     } else if (!done) {
         return;
@@ -888,10 +888,10 @@ void FrontendControls_ClearDuplicateBinding(ControllerData *p, int index)
 
     i = 0;
     pName = p->keyNames[0];
-    pButton = &p->field_0x128;
+    pButton = p->actionMasks;
     do {
         if (i != index) {
-            if (*pButton == (&p->field_0x128)[index])
+            if (*pButton == p->actionMasks[index])
                 *pButton = 0;
             if (p->field_0x13e[i] == p->field_0x13e[index]) {
                 p->field_0x13e[i] = 0;
@@ -936,7 +936,7 @@ char *FrontendControls_GetBindingDisplayText(int index)
         return g_controlsCopy[CONTROLS_SEL].keyNames[index];
     dev = CONTROLS_SEL;
     if (g_controlsCopy[dev].field_0x210[index].present == 0 || pDevice->field_0x0 != 3) {
-        button = (&g_controlsCopy[dev].field_0x128)[index];
+        button = g_controlsCopy[dev].actionMasks[index];
         if (pDevice->field_0x0 == 0 && button == 1)
             return CFrontend::GetTextString(0x1f9);
         if (pDevice->field_0x0 == 0 && button == 2)
@@ -953,7 +953,7 @@ char *FrontendControls_GetBindingDisplayText(int index)
         if (i != -1)
             return pDevice->field_0x284[i];
     } else if (g_controlsCopy[dev].field_0x110 == 0 && (index == 0 || index == 1)) {
-        button = (&g_controlsCopy[dev].field_0x128)[index];
+        button = g_controlsCopy[dev].actionMasks[index];
         i = CInput::GetButtonIndexFromMask(button);
         if (i != -1) {
             if (strcmp(pDevice->field_0x284[i], CMain::m_logFileBlankLine) != 0)
@@ -966,7 +966,7 @@ char *FrontendControls_GetBindingDisplayText(int index)
         sprintf(g_bindingText, CFrontend::GetTextString(0x77), g_controlsCopy[dev].field_0x2d8[index]);
         return g_bindingText;
     } else {
-        button = (&g_controlsCopy[dev].field_0x128)[index];
+        button = g_controlsCopy[dev].actionMasks[index];
         i = CInput::GetButtonIndexFromMask(button);
         if (i != -1) {
             if (strcmp(pDevice->field_0x284[i], CMain::m_logFileBlankLine) != 0)

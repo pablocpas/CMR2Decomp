@@ -35,11 +35,25 @@
 #include "Menu.h"
 #include <stddef.h>
 #include "LayoutChecks.h"
+#include "Input.h"
 #include "LightZone.h"
 
 // Preserve the original Win32 layouts used by array indexing, bulk copies
 // and packed callback tables. Keep these checks out of shared headers:
 // extra declarations there can alter MSVC6 code generation in unrelated TUs.
+CMR2_LAYOUT_CHECK(ControllerDataSizeCheck, sizeof(ControllerData) == 0x2f0);
+CMR2_LAYOUT_CHECK(ControllerActionMasksOffsetCheck, offsetof(ControllerData, actionMasks) == 0x128);
+CMR2_LAYOUT_CHECK(ControllerActionMasksCountCheck, sizeof(((ControllerData *)0)->actionMasks) / sizeof(unsigned short) == 10);
+CMR2_LAYOUT_CHECK(ControllerSteerLeftMaskCheck, offsetof(ControllerData, steerLeftMask) == 0x128);
+CMR2_LAYOUT_CHECK(ControllerSteerRightMaskCheck, offsetof(ControllerData, steerRightMask) == 0x12a);
+CMR2_LAYOUT_CHECK(ControllerThrottleMaskCheck, offsetof(ControllerData, throttleMask) == 0x12c);
+CMR2_LAYOUT_CHECK(ControllerBrakeMaskCheck, offsetof(ControllerData, brakeMask) == 0x12e);
+CMR2_LAYOUT_CHECK(ControllerHandbrakeMaskCheck, offsetof(ControllerData, handbrakeMask) == 0x130);
+CMR2_LAYOUT_CHECK(ControllerShiftUpMaskCheck, offsetof(ControllerData, shiftUpMask) == 0x132);
+CMR2_LAYOUT_CHECK(ControllerShiftDownMaskCheck, offsetof(ControllerData, shiftDownMask) == 0x134);
+CMR2_LAYOUT_CHECK(ControllerCameraCycleMaskCheck, offsetof(ControllerData, cameraCycleMask) == 0x136);
+CMR2_LAYOUT_CHECK(ControllerDriverCycleMaskCheck, offsetof(ControllerData, driverCycleMask) == 0x138);
+CMR2_LAYOUT_CHECK(ControllerBackMaskCheck, offsetof(ControllerData, backMask) == 0x13a);
 CMR2_LAYOUT_CHECK(CarSizeCheck, sizeof(Car) == 0xc24);
 CMR2_LAYOUT_CHECK(ShadowPartSizeCheck, sizeof(ShadowPart) == 0x58);
 CMR2_LAYOUT_CHECK(ShadowPartLightCheck, offsetof(ShadowPart, light) == 0);

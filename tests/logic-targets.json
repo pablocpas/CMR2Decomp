@@ -1031,6 +1031,13 @@
       "0x45c820"
     ]
   },
+  "differential_controller_mapping.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x40c2a0",
+      "0x40c270"
+    ]
+  },
   "differential_crash_runtime_records.py": {
     "arguments": "entities",
     "targets": [

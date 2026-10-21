@@ -43,7 +43,7 @@
     "Frontend.h": "60cdf8b545fd538431a190554ee67fdb4c7830584acca37826a81536994ed24f",
     "FrontendDraw.cpp": "1146a41def097cb318f576eed06cf7b9591a76b451829d516c02a63de17bcce3",
     "FrontendDraw.h": "c7c40884d0b1a1e97f77833bd57e8b421f897240eeaadfd5c2b365c7c2529eb8",
-    "FrontendMenus.cpp": "6ac0f8e626e3f59d2d81bd3cd5cc4b2649b5a0167c4a67f6cd8e4ebaf28acf5a",
+    "FrontendMenus.cpp": "529391237f6155c96717f96da7534e0e36a632b4ee706e95056ea6ad83164725",
     "FrontendMenus.h": "3e73c222064aef6fef1265249058b00e308b13370a4f69298ac97b0c927fa852",
     "FrontendNetworkRally.cpp": "04877e99bd48400fbbce1fcca1a48f7611af8e0e9d6992529062dd7537bfd635",
     "FrontendScreens.cpp": "ff98b2b71cf24a07ad3aa803600252d903f5636ea048253212f7cb5cb881cbf6",
@@ -62,11 +62,11 @@
     "Graphics.cpp": "3a27ecab4e450a6d39a683231ae57fdebe867b235d4326f16444006a5febb259",
     "Graphics.h": "2b79ef3a9c150e989a26deeade11b62b7861baa14d83e6a51eace62794219054",
     "HudDash.cpp": "8b774a22ef3674bc4add6e085c9e0b135efb70fa31217840abb8eacf35e35078",
-    "Input.cpp": "bd0edf3c361f8bfb8bc65c35f18c9ab9e75d912f13e8ca4d4b58e3b58d127c60",
-    "Input.h": "70247972fa5b28d76ada3b7b4e42adada4eb83aa1d204f493e5d982a922591a2",
+    "Input.cpp": "999da3d32aee691386f3ac3bc00bf757c58128f9df8e88701756acec90d41b30",
+    "Input.h": "45dea00b8bdf4351d13fca5fcf7d8902634579d9ea003cb5fc69a6a95ba29775",
     "InstallInfo.cpp": "e097dfa399feed255b4e43e3dacb6c1277303a3cedade133a6f376416a6fbad6",
     "InstallInfo.h": "79865bd03d8f15ec13df4f7a6c475b43dd1f80644ac413cbdf4c7dccfe927164",
-    "LayoutChecks.cpp": "a685393eb6fe1408e4adc02efe4812e1738451e11e6f0eb79cc63866c621beca",
+    "LayoutChecks.cpp": "6e967cfbebfcdc986a1895a18156c198efd3c6eda2e1e11f19ab935d1f03d6ab",
     "LayoutChecks.h": "f0af0057b31844eff94f79f652576c1689a303d60914a32955a5fce46d6c64fe",
     "LightZone.h": "61ede4fe7c41bff3944aaef341f31848c7eb9eb0e8ed8b2c7842633d5f626deb",
     "Logger.cpp": "363783cc105539cabf95fda452d03282521a4b3a1723ed031da6b0025e5c153b",
@@ -165,11 +165,11 @@
   },
   "metrics": {
     "types": 338,
-    "raw_accesses": 109,
+    "raw_accesses": 99,
     "fixed_sizes": 29,
     "hex_multipliers": 1885,
     "unknown_identifiers": 5064,
-    "unnamed_field_declarations": 1401,
+    "unnamed_field_declarations": 1391,
     "unique_unknown_identifiers": 770
   },
   "files": {
@@ -595,7 +595,7 @@
     },
     "Input.cpp": {
       "types": 1,
-      "raw_accesses": 10,
+      "raw_accesses": 0,
       "fixed_sizes": 2,
       "hex_multipliers": 0,
       "unknown_identifiers": 96
@@ -9400,11 +9400,11 @@
     },
     {
       "file": "Input.cpp",
-      "line": 2152,
+      "line": 2154,
       "nearest_function": "0x0040c050",
       "kind": "struct",
       "name": "InputQueues",
-      "end_line": 2155,
+      "end_line": 2157,
       "unnamed_fields": []
     },
     {
@@ -9689,7 +9689,7 @@
       "line": 93,
       "kind": "struct",
       "name": "ControllerData",
-      "end_line": 122,
+      "end_line": 127,
       "unnamed_fields": [
         {
           "file": "Input.h",
@@ -9747,97 +9747,37 @@
         },
         {
           "file": "Input.h",
-          "line": 104,
-          "name": "field_0x128",
-          "declaration": "unsigned short field_0x128; // are you actually a struct?"
-        },
-        {
-          "file": "Input.h",
-          "line": 105,
-          "name": "field_0x12a",
-          "declaration": "unsigned short field_0x12a;"
-        },
-        {
-          "file": "Input.h",
-          "line": 106,
-          "name": "field_0x12c",
-          "declaration": "unsigned short field_0x12c;"
-        },
-        {
-          "file": "Input.h",
-          "line": 107,
-          "name": "field_0x12e",
-          "declaration": "unsigned short field_0x12e;"
-        },
-        {
-          "file": "Input.h",
-          "line": 108,
-          "name": "field_0x130",
-          "declaration": "unsigned short field_0x130;"
-        },
-        {
-          "file": "Input.h",
-          "line": 109,
-          "name": "field_0x132",
-          "declaration": "unsigned short field_0x132;"
-        },
-        {
-          "file": "Input.h",
-          "line": 110,
-          "name": "field_0x134",
-          "declaration": "unsigned short field_0x134;"
-        },
-        {
-          "file": "Input.h",
-          "line": 111,
-          "name": "field_0x136",
-          "declaration": "unsigned short field_0x136;"
-        },
-        {
-          "file": "Input.h",
-          "line": 112,
-          "name": "field_0x138",
-          "declaration": "unsigned short field_0x138;"
-        },
-        {
-          "file": "Input.h",
-          "line": 113,
-          "name": "field_0x13a",
-          "declaration": "unsigned short field_0x13a;"
-        },
-        {
-          "file": "Input.h",
-          "line": 114,
+          "line": 119,
           "name": "field_0x13c",
           "declaration": "unsigned short field_0x13c;"
         },
         {
           "file": "Input.h",
-          "line": 115,
+          "line": 120,
           "name": "field_0x13e",
           "declaration": "BYTE field_0x13e[9];            // key (DIK_*) of each keyboard binding"
         },
         {
           "file": "Input.h",
-          "line": 117,
+          "line": 122,
           "name": "field_0x1fb",
           "declaration": "BYTE field_0x1fb[0x15];"
         },
         {
           "file": "Input.h",
-          "line": 118,
+          "line": 123,
           "name": "field_0x210",
           "declaration": "ControllerDataUnk0x210 field_0x210[10];"
         },
         {
           "file": "Input.h",
-          "line": 119,
+          "line": 124,
           "name": "field_0x2d8",
           "declaration": "unsigned short field_0x2d8[10];"
         },
         {
           "file": "Input.h",
-          "line": 121,
+          "line": 126,
           "name": "field_0x2ed",
           "declaration": "BYTE field_0x2ed[3];"
         }
@@ -9845,86 +9785,86 @@
     },
     {
       "file": "Input.h",
-      "line": 124,
+      "line": 129,
       "kind": "struct",
       "name": "ControllerInfo",
-      "end_line": 140,
+      "end_line": 145,
       "unnamed_fields": [
         {
           "file": "Input.h",
-          "line": 125,
+          "line": 130,
           "name": "field_0x0",
           "declaration": "int field_0x0;"
         },
         {
           "file": "Input.h",
-          "line": 126,
+          "line": 131,
           "name": "field_0x4",
           "declaration": "int field_0x4;"
         },
         {
           "file": "Input.h",
-          "line": 127,
+          "line": 132,
           "name": "field_0x8",
           "declaration": "BYTE field_0x8;"
         },
         {
           "file": "Input.h",
-          "line": 128,
+          "line": 133,
           "name": "field_0x9",
           "declaration": "BYTE field_0x9;"
         },
         {
           "file": "Input.h",
-          "line": 130,
+          "line": 135,
           "name": "field_0x13e",
           "declaration": "BYTE field_0x13e;"
         },
         {
           "file": "Input.h",
-          "line": 131,
+          "line": 136,
           "name": "field_0x13f",
           "declaration": "BYTE field_0x13f;"
         },
         {
           "file": "Input.h",
-          "line": 132,
+          "line": 137,
           "name": "field_0x140",
           "declaration": "BYTE field_0x140;"
         },
         {
           "file": "Input.h",
-          "line": 133,
+          "line": 138,
           "name": "field_0x141",
           "declaration": "BYTE field_0x141;"
         },
         {
           "file": "Input.h",
-          "line": 134,
+          "line": 139,
           "name": "field_0x142",
           "declaration": "BYTE field_0x142;"
         },
         {
           "file": "Input.h",
-          "line": 135,
+          "line": 140,
           "name": "field_0x143",
           "declaration": "BYTE field_0x143;"
         },
         {
           "file": "Input.h",
-          "line": 136,
+          "line": 141,
           "name": "field_0x144",
           "declaration": "BYTE field_0x144;"
         },
         {
           "file": "Input.h",
-          "line": 137,
+          "line": 142,
           "name": "field_0x145",
           "declaration": "BYTE field_0x145;"
         },
         {
           "file": "Input.h",
-          "line": 138,
+          "line": 143,
           "name": "field_0x146",
           "declaration": "BYTE field_0x146;"
         }
@@ -9932,26 +9872,26 @@
     },
     {
       "file": "Input.h",
-      "line": 205,
+      "line": 210,
       "kind": "struct",
       "name": "InputDeviceState",
-      "end_line": 208,
+      "end_line": 213,
       "unnamed_fields": []
     },
     {
       "file": "Input.h",
-      "line": 211,
+      "line": 216,
       "kind": "struct",
       "name": "InputFeedbackState",
-      "end_line": 214,
+      "end_line": 219,
       "unnamed_fields": []
     },
     {
       "file": "Input.h",
-      "line": 222,
+      "line": 227,
       "kind": "class",
       "name": "CInput",
-      "end_line": 353,
+      "end_line": 358,
       "unnamed_fields": []
     },
     {
@@ -12876,76 +12816,6 @@
       "expression": "*(Particle *)(pb - offsetof(Particle, field0x55))"
     },
     {
-      "file": "Input.cpp",
-      "line": 1803,
-      "nearest_function": "0x0040c2a0",
-      "access_type": "short *",
-      "expression": "*(short *)((BYTE *)&m_controllerInfo[0].field_0x128 + index)"
-    },
-    {
-      "file": "Input.cpp",
-      "line": 1804,
-      "nearest_function": "0x0040c2a0",
-      "access_type": "short *",
-      "expression": "*(short *)((BYTE *)&m_controllerInfo[0].field_0x12a + index)"
-    },
-    {
-      "file": "Input.cpp",
-      "line": 1805,
-      "nearest_function": "0x0040c2a0",
-      "access_type": "short *",
-      "expression": "*(short *)((BYTE *)&m_controllerInfo[0].field_0x12c + index)"
-    },
-    {
-      "file": "Input.cpp",
-      "line": 1806,
-      "nearest_function": "0x0040c2a0",
-      "access_type": "short *",
-      "expression": "*(short *)((BYTE *)&m_controllerInfo[0].field_0x12e + index)"
-    },
-    {
-      "file": "Input.cpp",
-      "line": 1807,
-      "nearest_function": "0x0040c2a0",
-      "access_type": "short *",
-      "expression": "*(short *)((BYTE *)&m_controllerInfo[0].field_0x130 + index)"
-    },
-    {
-      "file": "Input.cpp",
-      "line": 1808,
-      "nearest_function": "0x0040c2a0",
-      "access_type": "short *",
-      "expression": "*(short *)((BYTE *)&m_controllerInfo[0].field_0x132 + index)"
-    },
-    {
-      "file": "Input.cpp",
-      "line": 1809,
-      "nearest_function": "0x0040c2a0",
-      "access_type": "short *",
-      "expression": "*(short *)((BYTE *)&m_controllerInfo[0].field_0x134 + index)"
-    },
-    {
-      "file": "Input.cpp",
-      "line": 1810,
-      "nearest_function": "0x0040c2a0",
-      "access_type": "short *",
-      "expression": "*(short *)((BYTE *)&m_controllerInfo[0].field_0x136 + index)"
-    },
-    {
-      "file": "Input.cpp",
-      "line": 1811,
-      "nearest_function": "0x0040c2a0",
-      "access_type": "short *",
-      "expression": "*(short *)((BYTE *)&m_controllerInfo[0].field_0x138 + index)"
-    },
-    {
-      "file": "Input.cpp",
-      "line": 1812,
-      "nearest_function": "0x0040c2a0",
-      "access_type": "short *",
-      "expression": "*(short *)((BYTE *)&m_controllerInfo[0].field_0x13a + index)"
-    },
-    {
       "file": "Mesh.cpp",
       "line": 98,
       "nearest_function": "0x004ab960",
@@ -13509,7 +13379,7 @@
     },
     {
       "file": "Input.cpp",
-      "line": 1971,
+      "line": 1973,
       "nearest_function": "0x0040bff0",
       "call": "AllocateLockedBuffer",
       "size_expressions": [
@@ -13518,7 +13388,7 @@
     },
     {
       "file": "Input.cpp",
-      "line": 2122,
+      "line": 2124,
       "nearest_function": "0x0040c610",
       "call": "memset",
       "size_expressions": [
@@ -38165,91 +38035,91 @@
     },
     {
       "file": "Input.cpp",
-      "line": 1801,
+      "line": 1802,
       "nearest_function": "0x0040c2a0",
       "name": "m_unk0x005168f4"
     },
     {
       "file": "Input.cpp",
-      "line": 1851,
+      "line": 1853,
       "nearest_function": "0x004ab030",
       "name": "m_unk0x00666ec8"
     },
     {
       "file": "Input.cpp",
-      "line": 1871,
+      "line": 1873,
       "nearest_function": "0x004ab0b0",
       "name": "m_unk0x00666ec8"
     },
     {
       "file": "Input.cpp",
-      "line": 1948,
+      "line": 1950,
       "nearest_function": "0x004ab2b0",
       "name": "m_unk0x00666ec8"
     },
     {
       "file": "Input.cpp",
-      "line": 1973,
+      "line": 1975,
       "nearest_function": "0x0040bff0",
       "name": "m_unk0x005168f4"
     },
     {
       "file": "Input.cpp",
-      "line": 2252,
+      "line": 2254,
       "nearest_function": "0x0040bc90",
       "name": "m_unk0x005168f4"
     },
     {
       "file": "Input.cpp",
-      "line": 2343,
+      "line": 2345,
       "nearest_function": "0x0040bbc0",
       "name": "m_unk0x005168f4"
     },
     {
       "file": "Input.cpp",
-      "line": 2349,
+      "line": 2351,
       "nearest_function": "0x0040bbe0",
       "name": "m_unk0x005168f4"
     },
     {
       "file": "Input.cpp",
-      "line": 2355,
+      "line": 2357,
       "nearest_function": "0x0040bc00",
       "name": "m_unk0x005168f4"
     },
     {
       "file": "Input.cpp",
-      "line": 2361,
+      "line": 2363,
       "nearest_function": "0x0040bc30",
       "name": "m_unk0x005168f4"
     },
     {
       "file": "Input.cpp",
-      "line": 2367,
+      "line": 2369,
       "nearest_function": "0x0040bc60",
       "name": "m_unk0x005168f4"
     },
     {
       "file": "Input.cpp",
-      "line": 2373,
+      "line": 2375,
       "nearest_function": "0x0040bcd0",
       "name": "m_unk0x005168f4"
     },
     {
       "file": "Input.cpp",
-      "line": 2379,
+      "line": 2381,
       "nearest_function": "0x0040bd00",
       "name": "m_unk0x005168f4"
     },
     {
       "file": "Input.cpp",
-      "line": 2385,
+      "line": 2387,
       "nearest_function": "0x0040bd30",
       "name": "m_unk0x005168f4"
     },
     {
       "file": "Input.cpp",
-      "line": 2407,
+      "line": 2409,
       "nearest_function": "0x0040bdd0",
       "name": "m_unk0x005168f4"
     },
@@ -38260,72 +38130,72 @@
     },
     {
       "file": "Input.h",
-      "line": 220,
+      "line": 225,
       "name": "m_unk0x00666ec8"
     },
     {
       "file": "Input.h",
-      "line": 225,
+      "line": 230,
       "name": "Unk0x0059f8cc"
     },
     {
       "file": "Input.h",
-      "line": 225,
+      "line": 230,
       "name": "m_unk0x0059f8cc"
     },
     {
       "file": "Input.h",
-      "line": 237,
+      "line": 242,
       "name": "m_unk0x00511400"
     },
     {
       "file": "Input.h",
-      "line": 238,
+      "line": 243,
       "name": "m_unk0x0059f6b0"
     },
     {
       "file": "Input.h",
-      "line": 244,
+      "line": 249,
       "name": "m_unk0x00666ee8"
     },
     {
       "file": "Input.h",
-      "line": 253,
+      "line": 258,
       "name": "m_unk0x0059f8f0"
     },
     {
       "file": "Input.h",
-      "line": 255,
+      "line": 260,
       "name": "m_unk0x0059f8f4"
     },
     {
       "file": "Input.h",
-      "line": 257,
+      "line": 262,
       "name": "m_unk0x0059f8f8"
     },
     {
       "file": "Input.h",
-      "line": 259,
+      "line": 264,
       "name": "m_unk0x0059f900"
     },
     {
       "file": "Input.h",
-      "line": 261,
+      "line": 266,
       "name": "m_unk0x0059f90c"
     },
     {
       "file": "Input.h",
-      "line": 263,
+      "line": 268,
       "name": "m_unk0x0059f910"
     },
     {
       "file": "Input.h",
-      "line": 275,
+      "line": 280,
       "name": "m_unk0x005168f4"
     },
     {
       "file": "Input.h",
-      "line": 348,
+      "line": 353,
       "name": "m_unk0x0052086c"
     },
     {
