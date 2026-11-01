@@ -14557,7 +14557,7 @@
   ],
   "0x511400": [
     5416924,
-    "CInput::m_unk0x00511400"
+    "CInput::m_axisOffsets"
   ],
   "0x511410": [
     5358144,
@@ -14969,7 +14969,7 @@
   ],
   "0x5168f4": [
     5417096,
-    "CInput::m_unk0x005168f4"
+    "CInput::m_playerControllers"
   ],
   "0x516904": [
     5417060,
@@ -19472,19 +19472,19 @@
     "g_unk0x005298f8"
   ],
   "0x529900": [
-    5606448,
+    5606456,
     "g_cameraMenuStartDriverRecord"
   ],
   "0x529914": [
-    5598808,
+    5598816,
     "g_cameraMenuStartLag"
   ],
   "0x529918": [
-    5605776,
+    5605784,
     "g_menu0x00529918"
   ],
   "0x529af8": [
-    5613280,
+    5613288,
     "g_menu0x00529af8"
   ],
   "0x529cd8": [
@@ -19492,7 +19492,7 @@
     "g_cameraMenuCurrentOffset"
   ],
   "0x529ce8": [
-    5611056,
+    5611064,
     "g_menu0x00529ce8"
   ],
   "0x529ec8": [
@@ -19508,19 +19508,19 @@
     "g_cameraMenuCurrentLag"
   ],
   "0x529ed8": [
-    5608640,
+    5608648,
     "g_menu0x00529ed8"
   ],
   "0x52a0b8": [
-    5606260,
+    5606268,
     "g_unk0x0052a0b8"
   ],
   "0x52a0bc": [
-    5608636,
+    5608644,
     "g_cameraMenuDistanceStep"
   ],
   "0x52a0c0": [
-    5598816,
+    5598824,
     "g_menu0x0052a0c0"
   ],
   "0x52a2a0": [
@@ -19528,31 +19528,31 @@
     "g_cameraMenuCurrentPitch"
   ],
   "0x52a2a8": [
-    5598328,
+    5598336,
     "g_menu0x0052a2a8"
   ],
   "0x52a488": [
-    5628604,
+    5628608,
     "g_unk0x0052a488"
   ],
   "0x52a48c": [
-    5613136,
+    5613144,
     "g_cameraMenuStartPitch"
   ],
   "0x52a490": [
-    5605032,
+    5605040,
     "g_menu0x0052a490"
   ],
   "0x52a670": [
-    5604520,
+    5604528,
     "g_menu0x0052a670"
   ],
   "0x52a850": [
-    5628596,
+    5628600,
     "g_unk0x0052a850"
   ],
   "0x52a858": [
-    5605004,
+    5605012,
     "g_cameraMenuDriverRecord"
   ],
   "0x52a86c": [
@@ -19560,11 +19560,11 @@
     "g_cameraMenuPitch"
   ],
   "0x52a870": [
-    5603376,
+    5603384,
     "g_menu0x0052a870"
   ],
   "0x52aa50": [
-    5603864,
+    5603872,
     "g_cameraMenuOffset"
   ],
   "0x52aa5c": [
@@ -19580,11 +19580,11 @@
     "g_cameraMenuLagStep"
   ],
   "0x52aa68": [
-    5606280,
+    5606288,
     "g_inRaceMenuDownArrowTexture"
   ],
   "0x52aa6c": [
-    5605028,
+    5605036,
     "g_cameraMenuPitchStep"
   ],
   "0x52aa70": [
@@ -19592,15 +19592,15 @@
     "g_menu0x0052aa70"
   ],
   "0x52ad50": [
-    5605512,
+    5605520,
     "g_unk0x0052ad50"
   ],
   "0x52ad54": [
-    5605024,
+    5605032,
     "g_unk0x0052ad54"
   ],
   "0x52ad58": [
-    5613140,
+    5613148,
     "g_inRaceMenuScratchRect"
   ],
   "0x52ad60": [
@@ -19608,7 +19608,7 @@
     "g_menu0x0052ad60"
   ],
   "0x52af40": [
-    5628588,
+    5628592,
     "CGameInfo::m_unk0x0052af40"
   ],
   "0x52af41": [
@@ -19616,11 +19616,11 @@
     "g_inRaceMenuOpening"
   ],
   "0x52af44": [
-    5611052,
+    5611060,
     "g_pMenu0x0052af44"
   ],
   "0x52af48": [
-    5611048,
+    5611056,
     "g_pMenu0x0052af48"
   ],
   "0x52af4c": [
@@ -19628,7 +19628,7 @@
     "g_inRaceMenuRoundBoxTexture"
   ],
   "0x52af50": [
-    5597552,
+    5597556,
     "g_inRaceMenuCurtainTexture"
   ],
   "0x52af54": [
@@ -19644,15 +19644,15 @@
     "g_cameraMenuStartOffset"
   ],
   "0x52af6c": [
-    5598132,
+    5598140,
     "g_unk0x0052af6c"
   ],
   "0x52af80": [
-    5606276,
+    5606284,
     "CGameInfo::m_unk0x0052af80"
   ],
   "0x52af84": [
-    5597556,
+    5597560,
     "CGameInfo::m_unk0x0052af84"
   ],
   "0x52af88": [
@@ -19664,7 +19664,7 @@
     "CGameInfo::m_unk0x0052af8c"
   ],
   "0x52af90": [
-    5628608,
+    5628612,
     "g_sessionTimestamp"
   ],
   "0x52af94": [
@@ -19676,11 +19676,11 @@
     "CGameInfo::m_unk0x0052af98"
   ],
   "0x52af9c": [
-    5608632,
+    5608640,
     "CGameInfo::m_unk0x0052af9c"
   ],
   "0x52afa0": [
-    5613768,
+    5613776,
     "CGameInfo::m_gameInfo"
   ],
   "0x52e93c": [
@@ -19688,7 +19688,7 @@
     "CGameInfo::m_unk0x0052e93c"
   ],
   "0x52e940": [
-    5597544,
+    5597548,
     "CGameInfo::m_unk0x0052e940"
   ],
   "0x52ea44": [
@@ -19696,7 +19696,7 @@
     "CGameInfo::m_unk0x0052ea44"
   ],
   "0x52ea48": [
-    5613760,
+    5613768,
     "CGameInfo::m_unk0x0052ea48"
   ],
   "0x52ea4c": [
@@ -19712,11 +19712,11 @@
     "CGame::m_unk0x0052ea51"
   ],
   "0x52ea52": [
-    5599296,
+    5599304,
     "CGameInfo::m_unk0x0052ea52"
   ],
   "0x52ea54": [
-    5601836,
+    5601844,
     "CGameInfo::m_gameRegion"
   ],
   "0x52ea58": [
@@ -19888,7 +19888,7 @@
     "g_netSplitBest"
   ],
   "0x5320a4": [
-    5945152,
+    5945124,
     "g_inputFrameDelta"
   ],
   "0x5320a8": [
@@ -19924,7 +19924,7 @@
     "g_fontColour"
   ],
   "0x532250": [
-    5951576,
+    5951544,
     "CInput::m_controllerInfo"
   ],
   "0x5334f0": [
@@ -24020,8 +24020,8 @@
     "CInput::m_deviceState"
   ],
   "0x59f6b0": [
-    5945116,
-    "CInput::m_unk0x0059f6b0"
+    5956060,
+    "CInput::m_joysticks"
   ],
   "0x59f7c4": [
     5957392,
@@ -24032,19 +24032,19 @@
     "CInput::m_keyboardState"
   ],
   "0x59f8c8": [
-    5945148,
+    5945120,
     "CInput::m_lpDirectInput7"
   ],
   "0x59f8cc": [
-    5956088,
-    "CInput::m_unk0x0059f8cc"
+    5945112,
+    "CInput::m_deviceCounts"
   ],
   "0x59f8d0": [
-    5628516,
-    "CGameInfo::m_unk0x0059f8d0"
+    5597276,
+    "CGameInfo::m_fixedMenuKeys"
   ],
   "0x59f8d4": [
-    5951564,
+    5951532,
     "CInput::m_mouseGranularity"
   ],
   "0x59f8d8": [
@@ -24056,7 +24056,7 @@
     "CInput::m_keyboardSpeed"
   ],
   "0x59f8f0": [
-    5956092,
+    5956056,
     "CInput::m_unk0x0059f8f0"
   ],
   "0x59f8f4": [
@@ -24064,7 +24064,7 @@
     "CInput::m_unk0x0059f8f4"
   ],
   "0x59f8f8": [
-    5951560,
+    5951528,
     "CInput::m_unk0x0059f8f8"
   ],
   "0x59f8fc": [
@@ -24084,11 +24084,11 @@
     "g_menuNextAction"
   ],
   "0x59f90c": [
-    5945112,
+    5945116,
     "CInput::m_unk0x0059f90c"
   ],
   "0x59f910": [
-    5951568,
+    5951536,
     "CInput::m_unk0x0059f910"
   ],
   "0x59fa14": [
@@ -24112,11 +24112,11 @@
     "g_menuLastInput"
   ],
   "0x59fa20": [
-    5611536,
+    5611544,
     "CGameInfo::m_enumeratedSessions"
   ],
   "0x5a0060": [
-    5598812,
+    5598820,
     "CGameInfo::m_unk0x005a0060"
   ],
   "0x5a0068": [
@@ -24124,7 +24124,7 @@
     "g_networkSession"
   ],
   "0x5a00b8": [
-    5603876,
+    5603884,
     "CGameInfo::m_unk0x005a00b8"
   ],
   "0x5a01bc": [
@@ -24132,7 +24132,7 @@
     "CGameInfo::m_unk0x005a01bc"
   ],
   "0x5a02c0": [
-    5597280,
+    5597284,
     "CGameInfo::m_unk0x005a02c0"
   ],
   "0x5a03c4": [
@@ -24664,11 +24664,11 @@
     "g_networkResourceRegistered"
   ],
   "0x665328": [
-    5947080,
+    5947048,
     "CInput::m_forceFeedbackEffects"
   ],
   "0x6664a8": [
-    5945160,
+    5945128,
     "CInput::m_forceFeedbackConditions"
   ],
   "0x666d28": [
@@ -25540,7 +25540,7 @@
     "g_lowestSplitValue"
   ],
   "0x817574": [
-    5606262,
+    5606270,
     "CGameInfo::m_unk0x00817574"
   ],
   "0x817678": [
@@ -25788,7 +25788,7 @@
     "g_unk0x00818ac4"
   ],
   "0x818ac8": [
-    5613208,
+    5613216,
     "g_frontendOverlayMode"
   ],
   "0x818acc": [
@@ -25956,7 +25956,7 @@
     "g_pProfileCompletionMenu"
   ],
   "0x819128": [
-    5606256,
+    5606264,
     "g_firstVisibleDisplayDevice"
   ],
   "0x81912c": [
@@ -26100,7 +26100,7 @@
     "g_creditsLineCount"
   ],
   "0x81a72c": [
-    5598044,
+    5598052,
     "g_pCreditsRoleTable"
   ],
   "0x81a730": [
@@ -26108,7 +26108,7 @@
     "g_creditsFileBuffer"
   ],
   "0x81a734": [
-    5628584,
+    5628588,
     "g_creditsLines"
   ],
   "0x81a738": [
@@ -26120,7 +26120,7 @@
     "g_languageTextInArchive"
   ],
   "0x81a754": [
-    5628600,
+    5628604,
     "CGameInfo::m_unk0x0081a754"
   ],
   "0x81a858": [
@@ -26132,7 +26132,7 @@
     "g_pSavedGames"
   ],
   "0x81b150": [
-    5613764,
+    5613772,
     "g_savedGameFileNames"
   ],
   "0x81b154": [
@@ -26620,7 +26620,7 @@
     "g_unk0x0082a928"
   ],
   "0x82a92c": [
-    5597276,
+    5597280,
     "g_unk0x0082a92c"
   ],
   "0x82a930": [
@@ -26628,7 +26628,7 @@
     "g_unk0x0082a930"
   ],
   "0x82a934": [
-    5599300,
+    5599308,
     "g_nameEditorBuffer"
   ],
   "0x82a938": [
@@ -26636,7 +26636,7 @@
     "g_unk0x0082a938"
   ],
   "0x82a93c": [
-    5606600,
+    5606608,
     "g_optionStatusLine"
   ],
   "0x82aa3c": [
@@ -26648,11 +26648,11 @@
     "g_unk0x0082aa40"
   ],
   "0x82aa44": [
-    5605520,
+    5605528,
     "g_unk0x0082aa44"
   ],
   "0x82ab44": [
-    5610480,
+    5610488,
     "g_unk0x0082ab44"
   ],
   "0x82ac48": [
@@ -26664,11 +26664,11 @@
     "g_unk0x0082ac4c"
   ],
   "0x82ac50": [
-    5606860,
+    5606868,
     "g_unk0x0082ac50"
   ],
   "0x82ac58": [
-    5606856,
+    5606864,
     "g_unk0x0082ac58"
   ],
   "0x82ac5c": [
@@ -26676,11 +26676,11 @@
     "g_unk0x0082ac5c"
   ],
   "0x82ac60": [
-    5606864,
+    5606872,
     "g_unk0x0082ac60"
   ],
   "0x82ac68": [
-    5601840,
+    5601848,
     "g_optionLayoutCoords"
   ],
   "0x82ace8": [
@@ -26688,7 +26688,7 @@
     "g_unk0x0082ace8"
   ],
   "0x82ad70": [
-    5606468,
+    5606476,
     "g_unk0x0082ad70"
   ],
   "0x82adf0": [
@@ -26724,7 +26724,7 @@
     "g_unk0x0082b0a4"
   ],
   "0x82b0a8": [
-    5606596,
+    5606604,
     "g_optionPlayerSlotOffset"
   ],
   "0x82b0ac": [
@@ -26736,7 +26736,7 @@
     "g_optionMenuCamera"
   ],
   "0x82b1b4": [
-    5628592,
+    5628596,
     "g_optionMenuSceneRoot"
   ],
   "0x82b1b8": [
@@ -26752,15 +26752,15 @@
     "g_truncatedTextBuffer"
   ],
   "0x82b2c0": [
-    5598136,
+    5598144,
     "g_optionRecordTransitions"
   ],
   "0x82b488": [
-    5610568,
+    5610576,
     "g_advancedOptionsMenu"
   ],
   "0x82b668": [
-    5597560,
+    5597568,
     "g_controlSetupMenu"
   ],
   "0x82b848": [
@@ -26768,7 +26768,7 @@
     "g_valueSliderMenu"
   ],
   "0x82ba28": [
-    5608152,
+    5608160,
     "g_optionStatusMenu"
   ],
   "0x82bc08": [
@@ -26776,15 +26776,15 @@
     "g_unk0x0082bc08"
   ],
   "0x82bee8": [
-    5613152,
+    5613160,
     "g_optionCarSetups"
   ],
   "0x82bf20": [
-    5606336,
+    5606344,
     "g_optionColumnDirty"
   ],
   "0x82c040": [
-    5609120,
+    5609128,
     "g_playerOptionCache"
   ],
   "0x82c690": [
@@ -26792,7 +26792,7 @@
     "g_symbolArrowTexture"
   ],
   "0x82c694": [
-    5606272,
+    5606280,
     "g_optionPreviewPanelCount"
   ],
   "0x82c698": [
@@ -26804,11 +26804,11 @@
     "g_weatherChoiceCount"
   ],
   "0x82c6c0": [
-    5601832,
+    5601840,
     "g_unk0x0082c6c0"
   ],
   "0x82c6c8": [
-    5606872,
+    5606880,
     "g_optionPreviewPanels"
   ],
   "0x82c9e8": [
@@ -26848,7 +26848,7 @@
     "g_unk0x0082ca18"
   ],
   "0x82ca1c": [
-    5606332,
+    5606340,
     "g_selectedOptionPreviewPanel"
   ],
   "0x82ca20": [
@@ -26864,7 +26864,7 @@
     "g_weatherMaps"
   ],
   "0x82cb78": [
-    5601968,
+    5601976,
     "g_previewSceneRecords"
   ],
   "0x82d0b8": [
@@ -26872,7 +26872,7 @@
     "g_previewRotationAngles"
   ],
   "0x82d0d8": [
-    5599304,
+    5599312,
     "g_previewRotationDeltas"
   ],
   "0x82d0f8": [
@@ -26888,7 +26888,7 @@
     "g_previewDentPosition"
   ],
   "0x82d12c": [
-    5598296,
+    5598304,
     "g_previewDentNormal"
   ],
   "0x82d138": [
@@ -26896,7 +26896,7 @@
     "g_previewDentAxis"
   ],
   "0x82d144": [
-    5606268,
+    5606276,
     "g_previewDentAxisRadius"
   ],
   "0x82d148": [
@@ -26904,7 +26904,7 @@
     "g_previewDentStrength"
   ],
   "0x82d14c": [
-    5597540,
+    5597544,
     "g_previewDentMode"
   ],
   "0x82d150": [
@@ -26924,11 +26924,11 @@
     "g_previewWheelVariant"
   ],
   "0x82d19c": [
-    5610484,
+    5610492,
     "g_previewNormalModelBuffers"
   ],
   "0x82d1dc": [
-    5628612,
+    5628616,
     "g_previewOriginalNodeTypes"
   ],
   "0x82d220": [
@@ -26940,7 +26940,7 @@
     "g_previewRotationTargets"
   ],
   "0x82fd00": [
-    5599336,
+    5599344,
     "g_previewDeformGeometry"
   ],
   "0x831080": [
@@ -26952,23 +26952,23 @@
     "g_unk0x00831088"
   ],
   "0x831148": [
-    5598052,
+    5598060,
     "g_previewRotationStartTimes"
   ],
   "0x831158": [
-    5628520,
+    5628524,
     "g_previewSixWheelModelBuffers"
   ],
   "0x831198": [
-    5603312,
+    5603320,
     "g_previewOriginalVertices"
   ],
   "0x8311d8": [
-    5613212,
+    5613220,
     "g_previewLowWheelModelBuffers"
   ],
   "0x831318": [
-    5628589,
+    5628593,
     "g_previewSessionRegistered"
   ],
   "0x83131c": [
@@ -26976,7 +26976,7 @@
     "g_previewRotationActive"
   ],
   "0x831360": [
-    5605000,
+    5605008,
     "g_symbolDanRedTexture"
   ],
   "0x831364": [
@@ -26988,19 +26988,19 @@
     "g_symbolDanYellowTexture"
   ],
   "0x83137c": [
-    5606284,
+    5606292,
     "g_carPartTextures"
   ],
   "0x8313ac": [
-    5603856,
+    5603864,
     "g_symbolTickTexture"
   ],
   "0x8313b0": [
-    5597548,
+    5597552,
     "g_symbolBoxTexture"
   ],
   "0x8313c8": [
-    5604136,
+    5604144,
     "g_previewProjectedPartQuads"
   ],
   "0x831648": [
@@ -27012,7 +27012,7 @@
     "g_gameInfoDrawRect"
   ],
   "0x831668": [
-    5598048,
+    5598056,
     "g_countryBannerTexture"
   ],
   "0x83166c": [
@@ -27024,7 +27024,7 @@
     "g_arrow640DTexture"
   ],
   "0x831674": [
-    5598040,
+    5598048,
     "g_symbolCircleTexture"
   ],
   "0x831778": [
@@ -27052,7 +27052,7 @@
     "g_unk0x0083188c"
   ],
   "0x831a90": [
-    5598308,
+    5598316,
     "g_optionCommonArchive"
   ],
   "0x831aa0": [
@@ -27060,7 +27060,7 @@
     "g_optionStageArchive"
   ],
   "0x831ab0": [
-    5610548,
+    5610556,
     "g_optionLanguageArchive"
   ],
   "0x831ac8": [
@@ -27072,11 +27072,11 @@
     "g_unk0x00831acc"
   ],
   "0x831ad0": [
-    5605516,
+    5605524,
     "g_pUnk0x00831ad0"
   ],
   "0x831ad4": [
-    5606264,
+    5606272,
     "g_pUnk0x00831ad4"
   ],
   "0x831c54": [

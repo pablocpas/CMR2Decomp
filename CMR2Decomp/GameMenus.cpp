@@ -2807,9 +2807,9 @@ void GameMenu_HandleNetworkResultsChatInput(Menu *pMenu)
 
     if (g_chatLineSelected) {
         pDevice = CInput::GetAvailableDeviceRecord(0);
-        if (pDevice->field_0x8 & 8)
+        if (pDevice->pressed & 8)
             pMenu->cursor = 1;
-        else if (pDevice->field_0x8 & 4)
+        else if (pDevice->pressed & 4)
             pMenu->cursor = pMenu->itemCount - 1;
     }
     if (g_unk0x00519ee4 != pMenu->cursor) {
@@ -3874,7 +3874,7 @@ void GameMenu_RefreshResultsHeader(void)
     Input_TranslatePedalsToMenuKeys();
     Input_MergeAssignedJoystickButtons(0, CInput::GetAvailableDeviceRecord(0));
     pDevice = CInput::GetAvailableDeviceRecord(0);
-    flags = pDevice->field_0x8;
+    flags = pDevice->pressed;
     if ((BYTE)RallyData_IsChampionshipFinalStage() != 0)
         flags &= 0x10;
     if (g_pHeaderMenu == &g_menu0x0053ea68)

@@ -601,7 +601,7 @@ void Game_WaitForButtonOrSplashTimeout(CallbackStateMachine *p1, BYTE p2)
     Input_TranslatePedalsToMenuKeys();
     pDevice = CInput::GetAvailableDeviceRecord(0);
     Input_MergeAssignedJoystickButtons(0, pDevice);
-    if ((pDevice->field_0x8 & 0x10) != 0 || (unsigned int)(g_frontendTimestamp - GameInfo_GetSessionTimestamp()) > 0x1388) {
+    if ((pDevice->pressed & 0x10) != 0 || (unsigned int)(g_frontendTimestamp - GameInfo_GetSessionTimestamp()) > 0x1388) {
         GameInfo_ResetSessionTimestamp();
         sprintf(path, g_strMusicSelect1Adp, CInstallInfo::GetMusicDir());
         CSound::OpenStreamingMusicFile(path);
@@ -740,7 +740,7 @@ void Game_PlayCountryIntroAfterFrontendDelay(CallbackStateMachine *p1, BYTE p2)
             OptionMovie_StartPlayback(path, NULL, NULL, 2, language);
             queuedVideo = true;
         }
-        if ((pDevice->field_0x8 & 0x10) == 0 && !queuedVideo)
+        if ((pDevice->pressed & 0x10) == 0 && !queuedVideo)
             return;
     }
     CGame::PromoteCallbackEntryByRule(p1, p2, 0, 2);

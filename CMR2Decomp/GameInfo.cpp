@@ -62,7 +62,7 @@ int CGameInfo::m_unk0x0081a754;
 
 char CGameInfo::m_stringCMR[4] = "cmr";
 char CGameInfo::m_stringGameInfoRCF[32] = "%s\\Configuration\\GameInfo.rcf";
-unsigned int CGameInfo::m_unk0x0059f8d0;
+unsigned int CGameInfo::m_fixedMenuKeys;
 unsigned int CGameInfo::m_unk0x00520870 = 1;
 void* CGameInfo::m_unk0x0081777c = NULL;
 BOOL CGameInfo::m_unk0x00817678 = FALSE;
@@ -701,7 +701,7 @@ BOOL OptionMovie_PlayFrame(BYTE skipOnSpace)
     CInput::UpdateAllAvailableDevices();
     pDevice = CInput::GetAvailableDeviceRecord(0);
     Input_MergeAssignedJoystickButtons(0, pDevice);
-    if (pDevice->field_0x8 & 0x10)
+    if (pDevice->pressed & 0x10)
         return FALSE;
     if (skipOnSpace & 1) {
         keyByte = (BYTE)((USHORT)GetAsyncKeyState(VK_SPACE) >> 8);
@@ -1004,13 +1004,13 @@ void CGameInfo::ApplyStageOptionUnlockFlags(void) {
 // FUNCTION: CMR2 0x0049eaf0
 DWORD CGameInfo::SetupInputs(int unused) {
     if (CInput::DInputCreate()) {
-        CInput::m_unk0x0059f8cc.field_0x0 = 0;
-        CInput::m_unk0x0059f8cc.field_0x1 = 2;
-        CInput::m_unk0x0059f8cc.field_0x2 = 0;
+        CInput::m_deviceCounts.nextDevice = 0;
+        CInput::m_deviceCounts.keyboardCount = 2;
+        CInput::m_deviceCounts.joystickCount = 0;
         
         for (int i = 0; i < 8; i++) {
-            CInput::m_availableDevices[i].field_0x0 = -1;
-            CInput::m_availableDevices[i].field_0x18 = -1;
+            CInput::m_availableDevices[i].type = -1;
+            CInput::m_availableDevices[i].joystickIndex = -1;
         }
         
         CInput::SetupKeyboard();
@@ -1018,7 +1018,7 @@ DWORD CGameInfo::SetupInputs(int unused) {
         CInput::GetAttachedJoysticks();
     }
 
-    return CInput::m_unk0x0059f8cc.field_0x0 & 0xFF;
+    return CInput::m_deviceCounts.nextDevice & 0xFF;
 }
 
 // match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -1266,7 +1266,7 @@ void CGameInfo::SetFrontendSessionFlag(BYTE param1) {
 // FUNCTION: CMR2 0x0049ea90
 void CGameInfo::SetInputAndGamePaused(unsigned int param1) {
     SetInputPausedFlag(param1);
-    m_unk0x0059f8d0 = param1;
+    m_fixedMenuKeys = param1;
 }
 
 // FUNCTION: CMR2 0x0049e930
@@ -2269,7 +2269,7 @@ void OptionMenu_UpdateActivePage(void)
     Input_TranslatePedalsToMenuKeys();
     pDevice = CInput::GetAvailableDeviceRecord(input);
     Input_MergeAssignedJoystickButtons(input, pDevice);
-    pNextMenu = (Menu *)Menu_Update(g_pMenu0x00831778, pDevice->field_0x8);
+    pNextMenu = (Menu *)Menu_Update(g_pMenu0x00831778, pDevice->pressed);
     if (pNextMenu != NULL)
         g_pMenu0x0083177c = pNextMenu;
 }
@@ -3974,15 +3974,15 @@ int InRaceMenu_IsBackPressed(unsigned short slot)
 {
     DeviceInfo *pDev = CInput::GetAvailableDeviceRecord(Input_GetControllerSlotMapping(slot));
 
-    if (pDev->field_0x0 == 1 || pDev->field_0x0 == 2) {
-        if ((pDev->field_0x8 & 0x400) != 0)
+    if (pDev->type == 1 || pDev->type == 2) {
+        if ((pDev->pressed & 0x400) != 0)
             return 1;
     } else {
-        if ((pDev->field_0x8 & (unsigned short)CInput::GetButtonMapping(slot, 9)) != 0) {
+        if ((pDev->pressed & (unsigned short)CInput::GetButtonMapping(slot, 9)) != 0) {
             g_unk0x0052a0b8 = CInput::GetButtonMapping(slot, 9);
             return 1;
         }
-        if ((CInput::GetAvailableDeviceRecord(0)->field_0x8 & 0x400) != 0)
+        if ((CInput::GetAvailableDeviceRecord(0)->pressed & 0x400) != 0)
             return 1;
     }
     return 0;
@@ -4586,7 +4586,7 @@ updateMenus:
     Input_TranslatePedalsToMenuKeys();
     pDev = CInput::GetAvailableDeviceRecord(g_unk0x0052af58[0]);
     Input_MergeAssignedJoystickButtons(*(unsigned int *)&g_unk0x0052af58[0] & 0xff, pDev);
-    if ((pDev->field_0x8 & (unsigned short)g_unk0x0052a0b8) != 0) {
+    if ((pDev->pressed & (unsigned short)g_unk0x0052a0b8) != 0) {
         g_unk0x0052a0b8 = 0;
         if (g_pMenu0x0052af44 != NULL)
             Menu_CallCallback3(g_pMenu0x0052af44);
@@ -4594,7 +4594,7 @@ updateMenus:
     } else {
         if (g_pMenu0x0052af44 != NULL)
             Menu_SetFlags(g_pMenu0x0052af44, 1, 1, 1, 1);
-        pNext = Menu_Update(g_pMenu0x0052af44, pDev->field_0x8);
+        pNext = Menu_Update(g_pMenu0x0052af44, pDev->pressed);
         if (pNext != NULL)
             g_pMenu0x0052af48 = pNext;
     }
@@ -8633,7 +8633,7 @@ void OptionMenu_ConfirmHighlightedItem(Menu *pMenu)
         if (CGameInfo::IsConfiguredMultiplayer() == 0)
             slot = 1;
     }
-    if ((CInput::GetAvailableDeviceRecord(slot)->field_0x8 & 0x20) == 0)
+    if ((CInput::GetAvailableDeviceRecord(slot)->pressed & 0x20) == 0)
         return;
     if (pMenu->cursor == Menu_FindItem(pMenu, 0)) {
         OptionMenu_ToggleValueAnimation(0, 1);
@@ -10762,12 +10762,12 @@ void OptionMenu_UpdateLoadGameAndNameEntry(Menu *pMenu)
         if (g_unk0x0082aa40 > 0) {
             if (g_savedGameListSelection == -1) {
                 g_savedGameListSelection = 0;
-            } else if ((pDevice->field_0x8 & 0x20) != 0) {
+            } else if ((pDevice->pressed & 0x20) != 0) {
                 g_unk0x0082ab44 = 0;
                 g_unk0x0082ac60 = 1;
-            } else if ((pDevice->field_0x8 & 4) != 0 && g_savedGameListSelection > 0) {
+            } else if ((pDevice->pressed & 4) != 0 && g_savedGameListSelection > 0) {
                 g_savedGameListSelection--;
-            } else if ((pDevice->field_0x8 & 8) != 0 && g_savedGameListSelection < g_unk0x0082aa40 - 1) {
+            } else if ((pDevice->pressed & 8) != 0 && g_savedGameListSelection < g_unk0x0082aa40 - 1) {
                 g_savedGameListSelection++;
             }
         } else {
@@ -10805,19 +10805,19 @@ void OptionMenu_UpdateLoadGameAndNameEntry(Menu *pMenu)
     if (pMenu->items[index].max == 1) {
         Menu_SetFlags(pMenu, 0, 0, 1, 0);
         pDevice = CInput::GetAvailableDeviceRecord(0);
-        if (pDevice->field_0x8 == 0) {
+        if (pDevice->pressed == 0) {
             g_nameEditorOpened = 1;
         } else if (g_nameEditorOpened == 0) {
             goto editor;
         }
-        if ((pDevice->field_0x8 & 4) != 0) {
+        if ((pDevice->pressed & 4) != 0) {
             index = Menu_FindItem(pMenu, 4);
             pMenu->items[index].max = 0;
             strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
-        } else if ((pDevice->field_0x8 & 1) != 0) {
+        } else if ((pDevice->pressed & 1) != 0) {
             pMenu->cursor--;
             strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
-        } else if ((pDevice->field_0x8 & 2) != 0) {
+        } else if ((pDevice->pressed & 2) != 0) {
             pMenu->cursor++;
             strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
         }

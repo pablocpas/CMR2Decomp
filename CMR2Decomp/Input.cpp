@@ -488,7 +488,7 @@ IDirectInput7A* CInput::m_lpDirectInput7;
 char CInput::m_strKeyboard[12] = "Keyboard";
 
 // GLOBAL: CMR2 0x0059f8cc
-Unk0x0059f8cc CInput::m_unk0x0059f8cc; // device count or something
+DeviceCounts CInput::m_deviceCounts; // device count or something
 
 // GLOBAL: CMR2 0x0059ce48
 InputDeviceState CInput::m_deviceState;
@@ -507,10 +507,10 @@ PVOID CInput::m_keyboardSpeed;
 LPDIRECTINPUTDEVICEA CInput::m_pDirectInputMouse = NULL;
 
 // GLOBAL: CMR2 0x00511400
-USHORT CInput::m_unk0x00511400[8] = {0, 4, 8, 12, 16, 20, 24, 28};
+USHORT CInput::m_axisOffsets[8] = {0, 4, 8, 12, 16, 20, 24, 28};
 
 // GLOBAL: CMR2 0x0059f6b0
-LPDIRECTINPUTDEVICEA CInput::m_unk0x0059f6b0[8];
+LPDIRECTINPUTDEVICEA CInput::m_joysticks[8];
 
 // GLOBAL: CMR2 0x00520880
 CHAR CInput::m_strD[4] = " D";
@@ -548,7 +548,7 @@ unsigned short CInput::m_controllerCount = 1;
 char CInput::m_strControllerInfoDir[32] = "%s\\Configuration\\Controller.rcf";
 BOOL CInput::m_hasLoadedControllerInfo;
 ControllerData CInput::m_controllerInfo[6];
-unsigned short CInput::m_unk0x005168f4[8] = {0, 1, 2, 3, 0, 0, 0, 0};
+unsigned short CInput::m_playerControllers[8] = {0, 1, 2, 3, 0, 0, 0, 0};
 
 // FUNCTION: CMR2 0x0049fd30
 BOOL CInput::DInputCreate(void) {
@@ -642,12 +642,12 @@ void CInput::DInputReleaseDevices(void) {
     CountAttachedInputDevices();
     
     iVar2 = 0;
-    LPDIRECTINPUTDEVICEA *pDevices = m_unk0x0059f6b0;
+    LPDIRECTINPUTDEVICEA *pDevices = m_joysticks;
 
     do {
         if (*pDevices != NULL) {
             hr = (*pDevices)->Unacquire();
-            if (SUCCEEDED(hr) && iVar2 < m_unk0x0059f8cc.field_0x3) {
+            if (SUCCEEDED(hr) && iVar2 < m_deviceCounts.attachedJoystickCount) {
                 if (*pDevices != NULL) {
                     result = (*pDevices)->Release();
                     if (result == 0)
@@ -658,19 +658,19 @@ void CInput::DInputReleaseDevices(void) {
 
         pDevices++;
         iVar2++;
-    } while ((int)pDevices < (int)(m_unk0x0059f6b0 + 4));
+    } while ((int)pDevices < (int)(m_joysticks + 4));
 }
 
 // FUNCTION: CMR2 0x0049ef90
 int CInput::CountAttachedInputDevices(void) {
-  m_unk0x0059f8cc.field_0x3 = 0;
+  m_deviceCounts.attachedJoystickCount = 0;
   m_lpDirectInput7->EnumDevices(DIDEVTYPE_JOYSTICK, CountJoystickEnumerationCallback, NULL, DIEDFL_ATTACHEDONLY);
-  return m_unk0x0059f8cc.field_0x1 + m_unk0x0059f8cc.field_0x3;
+  return m_deviceCounts.keyboardCount + m_deviceCounts.attachedJoystickCount;
 }
 
 // FUNCTION: CMR2 0x0049f6b0
 BOOL CInput::CountJoystickEnumerationCallback(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
-    m_unk0x0059f8cc.field_0x3++;
+    m_deviceCounts.attachedJoystickCount++;
     return TRUE;
 }
 
@@ -682,39 +682,39 @@ BOOL CInput::SetupKeyboard(void) {
     int iVar3 = 0;
 
     do {
-        uVar1 = m_unk0x0059f8cc.field_0x0;
-        m_availableDevices[uVar1].field_0x0 = 1;
-        m_availableDevices[uVar1].field_0x18 = FALSE;
+        uVar1 = m_deviceCounts.nextDevice;
+        m_availableDevices[uVar1].type = 1;
+        m_availableDevices[uVar1].joystickIndex = FALSE;
 
         ((int (__cdecl *)(char *, const char *))sprintf)(m_availableDevices[uVar1].deviceInstanceName, m_strKeyboard);
-        ((int (__cdecl *)(char *, const char *))sprintf)(m_availableDevices[m_unk0x0059f8cc.field_0x0].deviceProductName, m_strKeyboard);
+        ((int (__cdecl *)(char *, const char *))sprintf)(m_availableDevices[m_deviceCounts.nextDevice].deviceProductName, m_strKeyboard);
         
-        uVar1 = m_unk0x0059f8cc.field_0x0;
+        uVar1 = m_deviceCounts.nextDevice;
         m_availableDevices[uVar1].supportsForceFeedback = FALSE;
 
         if (!iVar3) {
-            m_availableDevices[uVar1].keyboard.field_0x468 = 0xcb;
-            m_availableDevices[uVar1].keyboard.field_0x469 = 0xcd;
-            m_availableDevices[uVar1].keyboard.field_0x46a = 0xc8;
-            m_availableDevices[uVar1].keyboard.field_0x46b = 0xd0;
-            m_availableDevices[uVar1].keyboard.field_0x46c = 0x39;
-            m_availableDevices[uVar1].keyboard.field_0x46d = 0x1b;
-            m_availableDevices[uVar1].keyboard.field_0x46e = 0x1a;
-            m_availableDevices[uVar1].keyboard.field_0x46f = 0x2e;
-            m_availableDevices[uVar1].keyboard.field_0x470 = 0x13;
+            m_availableDevices[uVar1].keyboard.steerLeftKey = 0xcb;
+            m_availableDevices[uVar1].keyboard.steerRightKey = 0xcd;
+            m_availableDevices[uVar1].keyboard.throttleKey = 0xc8;
+            m_availableDevices[uVar1].keyboard.brakeKey = 0xd0;
+            m_availableDevices[uVar1].keyboard.handbrakeKey = 0x39;
+            m_availableDevices[uVar1].keyboard.shiftUpKey = 0x1b;
+            m_availableDevices[uVar1].keyboard.shiftDownKey = 0x1a;
+            m_availableDevices[uVar1].keyboard.cameraCycleKey = 0x2e;
+            m_availableDevices[uVar1].keyboard.driverCycleKey = 0x13;
         } else {
-            m_availableDevices[uVar1].keyboard.field_0x468 = 0x4b;
-            m_availableDevices[uVar1].keyboard.field_0x469 = 0x4d;
-            m_availableDevices[uVar1].keyboard.field_0x46a = 0x48;
-            m_availableDevices[uVar1].keyboard.field_0x46b = 0x50;
-            m_availableDevices[uVar1].keyboard.field_0x46c = 0x51;
-            m_availableDevices[uVar1].keyboard.field_0x46d = 0xc9;
-            m_availableDevices[uVar1].keyboard.field_0x46e = 0xd1;
-            m_availableDevices[uVar1].keyboard.field_0x46f = 0x49;
-            m_availableDevices[uVar1].keyboard.field_0x470 = 0x47;            
+            m_availableDevices[uVar1].keyboard.steerLeftKey = 0x4b;
+            m_availableDevices[uVar1].keyboard.steerRightKey = 0x4d;
+            m_availableDevices[uVar1].keyboard.throttleKey = 0x48;
+            m_availableDevices[uVar1].keyboard.brakeKey = 0x50;
+            m_availableDevices[uVar1].keyboard.handbrakeKey = 0x51;
+            m_availableDevices[uVar1].keyboard.shiftUpKey = 0xc9;
+            m_availableDevices[uVar1].keyboard.shiftDownKey = 0xd1;
+            m_availableDevices[uVar1].keyboard.cameraCycleKey = 0x49;
+            m_availableDevices[uVar1].keyboard.driverCycleKey = 0x47;            
         }
 
-        m_availableDevices[uVar1].keyboard.field_0x471 = 0x0;
+        m_availableDevices[uVar1].keyboard.backKey = 0x0;
         m_availableDevices[uVar1].keyboard.field_0x474 = 0x3b;
         m_availableDevices[uVar1].keyboard.field_0x475 = 0x3c;
         m_availableDevices[uVar1].keyboard.field_0x476 = 0x3e;
@@ -722,7 +722,7 @@ BOOL CInput::SetupKeyboard(void) {
         m_availableDevices[uVar1].keyboard.field_0x472 = 0x1;
         m_availableDevices[uVar1].keyboard.field_0x473 = 0x0;
 
-        m_unk0x0059f8cc.field_0x0 = m_unk0x0059f8cc.field_0x0 + 1;
+        m_deviceCounts.nextDevice = m_deviceCounts.nextDevice + 1;
         iVar3++;
     } while (iVar3 < 2);
 
@@ -822,39 +822,39 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
     DIDEVCAPS devCaps;
     DIDEVICEOBJECTINSTANCEA didoi;
 
-    uVar2 = m_unk0x0059f8cc.field_0x0;
-    pDeviceInfo = &m_availableDevices[m_unk0x0059f8cc.field_0x0];
+    uVar2 = m_deviceCounts.nextDevice;
+    pDeviceInfo = &m_availableDevices[m_deviceCounts.nextDevice];
     if (GET_DIDEVICE_TYPE(lpddi->dwDevType) == DIDEVTYPE_JOYSTICK) {
         switch (GET_DIDEVICE_SUBTYPE(lpddi->dwDevType)) {
         case DIDEVTYPE_MOUSE:
-            pDeviceInfo->field_0x0 = 0;
+            pDeviceInfo->type = 0;
             break;
         default:
-            pDeviceInfo->field_0x0 = 3;
+            pDeviceInfo->type = 3;
             break;
         }
     
         pDevice = DInputCreateDevice(lpddi->guidInstance, &c_dfDIJoystick2);
-        m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2] = pDevice;
+        m_joysticks[m_deviceCounts.joystickCount] = pDevice;
 
         if (pDevice != NULL) {
             strncpy(pDeviceInfo->deviceInstanceName, lpddi->tszInstanceName, sizeof(pDeviceInfo->deviceInstanceName));
             strncpy(pDeviceInfo->deviceProductName, lpddi->tszProductName, sizeof(pDeviceInfo->deviceProductName));
         
-            pDeviceInfo->field_0x18 = m_unk0x0059f8cc.field_0x2;
+            pDeviceInfo->joystickIndex = m_deviceCounts.joystickCount;
 
             SetupJoystickDeviceInfo(pDeviceInfo);
 
             for (i = 0; i < pDeviceInfo->joystick.controlCount; i++) {
                 if (pDeviceInfo->joystick.bindings[i].present != FALSE) {
-                    SetJoystickAxisRange(m_unk0x0059f8cc.field_0x0, i, pDeviceInfo->joystick.bindings[i].range);
-                    SetJoystickAxisDeadzone(m_unk0x0059f8cc.field_0x0, i, pDeviceInfo->joystick.bindings[i].deadzone);
-                    SetJoystickAxisSaturation(m_unk0x0059f8cc.field_0x0, i, pDeviceInfo->joystick.bindings[i].saturation);
+                    SetJoystickAxisRange(m_deviceCounts.nextDevice, i, pDeviceInfo->joystick.bindings[i].range);
+                    SetJoystickAxisDeadzone(m_deviceCounts.nextDevice, i, pDeviceInfo->joystick.bindings[i].deadzone);
+                    SetJoystickAxisSaturation(m_deviceCounts.nextDevice, i, pDeviceInfo->joystick.bindings[i].saturation);
                 }
             }
 
             devCaps.dwSize = 0x2c;
-            hr = m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->GetCapabilities(&devCaps);
+            hr = m_joysticks[m_deviceCounts.joystickCount]->GetCapabilities(&devCaps);
             
             if (SUCCEEDED(hr)) {
                 if ((devCaps.dwFlags & DIDC_FORCEFEEDBACK)) {
@@ -866,8 +866,8 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
                     dipd.diph.dwHow = DIPH_DEVICE;
                     dipd.dwData = 0;
 
-                    m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->SetProperty(DIPROP_AUTOCENTER, &dipd.diph);
-                    InitializeForceFeedbackDevice(m_unk0x0059f8cc.field_0x0, (LPDIRECTINPUTDEVICE7)m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]);
+                    m_joysticks[m_deviceCounts.joystickCount]->SetProperty(DIPROP_AUTOCENTER, &dipd.diph);
+                    InitializeForceFeedbackDevice(m_deviceCounts.nextDevice, (LPDIRECTINPUTDEVICE7)m_joysticks[m_deviceCounts.joystickCount]);
                 } else {
                     pDeviceInfo->supportsForceFeedback = FALSE;
                 }
@@ -875,12 +875,12 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
                 // Button names (DIJOFS_BUTTON(i) = 0x30 + i).
                 count = devCaps.dwButtons;
                 didoi.dwSize = 0x13c;
-                pDeviceInfo->field_0x14 = 0;
+                pDeviceInfo->buttonCount = 0;
                 for (i = 0; i < count; i++) {
-                    hr = m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->GetObjectInfo(&didoi, i + 0x30, DIPH_BYOFFSET);
+                    hr = m_joysticks[m_deviceCounts.joystickCount]->GetObjectInfo(&didoi, i + 0x30, DIPH_BYOFFSET);
                     if (SUCCEEDED(hr)) {
                         strncpy(pDeviceInfo->field_0x284[i], didoi.tszName, 20);
-                        pDeviceInfo->field_0x14++;
+                        pDeviceInfo->buttonCount++;
                     }
                 }
 
@@ -892,7 +892,7 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
                     do {
                         if (offset > 0x20)
                             break;
-                        hr = m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->GetObjectInfo(&didoi, offset, DIPH_BYOFFSET);
+                        hr = m_joysticks[m_deviceCounts.joystickCount]->GetObjectInfo(&didoi, offset, DIPH_BYOFFSET);
                         if (SUCCEEDED(hr)) {
                             strncpy(pDeviceInfo->field_0x414, didoi.tszName, 0x11);
                             strcat(pDeviceInfo->field_0x414, m_strL);
@@ -913,17 +913,17 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
 
                 i = 0;
 
-                if (pDeviceInfo->field_0x14 > 0) {
+                if (pDeviceInfo->buttonCount > 0) {
                     int * pUnk0x1c = &pDeviceInfo->field_0x1c;
                     do {
                         *pUnk0x1c++ = 1u << i;
                         i++;
-                    } while (i < pDeviceInfo->field_0x14);
+                    } while (i < pDeviceInfo->buttonCount);
                 }
 
-                m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2]->Acquire();
-                m_unk0x0059f8cc.field_0x2++;
-                m_unk0x0059f8cc.field_0x0++;
+                m_joysticks[m_deviceCounts.joystickCount]->Acquire();
+                m_deviceCounts.joystickCount++;
+                m_deviceCounts.nextDevice++;
             }
         }
     }
@@ -943,8 +943,8 @@ void CInput::SetupJoystickDeviceInfo(DeviceInfo *deviceInfo) {
 
     deviceInfo->joystick.controlCount = 0;
     for (i = 0; i < 8; i++) {
-        dipd.diph.dwObj = m_unk0x00511400[i];
-        hr = m_unk0x0059f6b0[deviceInfo->field_0x18]->GetProperty(DIPROP_RANGE, &dipd.diph);
+        dipd.diph.dwObj = m_axisOffsets[i];
+        hr = m_joysticks[deviceInfo->joystickIndex]->GetProperty(DIPROP_RANGE, &dipd.diph);
 
         if (SUCCEEDED(hr)) {
             deviceInfo->joystick.bindings[i].present = TRUE;
@@ -971,9 +971,9 @@ void CInput::SetJoystickAxisRange(int deviceID, int axisID, DWORD range) {
     dipd.diph.dwHow = DIPH_BYOFFSET;
     dipd.lMax = range;
     dipd.lMin = -range;
-    dipd.diph.dwObj = m_unk0x00511400[axisID];
+    dipd.diph.dwObj = m_axisOffsets[axisID];
 
-    m_unk0x0059f6b0[pDeviceInfo->field_0x18]->SetProperty(DIPROP_RANGE, &dipd.diph);
+    m_joysticks[pDeviceInfo->joystickIndex]->SetProperty(DIPROP_RANGE, &dipd.diph);
     pDeviceInfo->joystick.bindings[axisID].range = range;
 }
 
@@ -987,9 +987,9 @@ void CInput::SetJoystickAxisDeadzone(int deviceID, int axisID, DWORD deadzone) {
     dipd.diph.dwHeaderSize = 0x10;
     dipd.diph.dwHow = DIPH_BYOFFSET;
     dipd.dwData = deadzone;
-    dipd.diph.dwObj = m_unk0x00511400[axisID];
+    dipd.diph.dwObj = m_axisOffsets[axisID];
 
-    m_unk0x0059f6b0[pDeviceInfo->field_0x18]->SetProperty(DIPROP_DEADZONE, &dipd.diph);
+    m_joysticks[pDeviceInfo->joystickIndex]->SetProperty(DIPROP_DEADZONE, &dipd.diph);
     pDeviceInfo->joystick.bindings[axisID].deadzone = deadzone;
 }
 
@@ -1003,9 +1003,9 @@ void CInput::SetJoystickAxisSaturation(int deviceID, int axisID, DWORD saturatio
     dipd.diph.dwHeaderSize = 0x10;
     dipd.diph.dwHow = DIPH_BYOFFSET;
     dipd.dwData = saturation;
-    dipd.diph.dwObj = m_unk0x00511400[axisID];
+    dipd.diph.dwObj = m_axisOffsets[axisID];
 
-    m_unk0x0059f6b0[pDeviceInfo->field_0x18]->SetProperty(DIPROP_SATURATION, &dipd.diph);
+    m_joysticks[pDeviceInfo->joystickIndex]->SetProperty(DIPROP_SATURATION, &dipd.diph);
     pDeviceInfo->joystick.bindings[axisID].saturation = saturation;
 }
 
@@ -1132,7 +1132,7 @@ void CInput::LoadControllerInfo(void) {
             memcpy(&m_controllerInfo, fileBuffer, sizeof(m_controllerInfo));
 
             // write the first two elements of the array
-            memcpy(m_unk0x005168f4, &((unsigned int*)fileBuffer)[0x468], 4);
+            memcpy(m_playerControllers, &((unsigned int*)fileBuffer)[0x468], 4);
 
             CFileBuffer::FreeGenericFileBuffer(fileBuffer);
             m_hasLoadedControllerInfo = TRUE;
@@ -1152,22 +1152,22 @@ void CInput::ApplyControllerButtonBindings(unsigned short param1) {
 
     raw = *(unsigned int *)&param1;
     uVar2 = param1;
-    uVar1 = m_unk0x005168f4[uVar2];
+    uVar1 = m_playerControllers[uVar2];
     pController = &m_controllerInfo[uVar1];
 
     if (uVar1 > 1) {
         AssignUnmappedControllerActions(raw, pController);
     }
 
-    SetDeviceKeyBinding(uVar2, 1, pController->field_0x13e[0]);
-    SetDeviceKeyBinding(uVar2, 2, pController->field_0x13e[1]);
-    SetDeviceKeyBinding(uVar2, 4, pController->field_0x13e[2]);
-    SetDeviceKeyBinding(uVar2, 8, pController->field_0x13e[3]);
-    SetDeviceKeyBinding(uVar2, 0x10, pController->field_0x13e[4]);
-    SetDeviceKeyBinding(uVar2, 0x20, pController->field_0x13e[5]);
-    SetDeviceKeyBinding(uVar2, 0x40, pController->field_0x13e[6]);
-    SetDeviceKeyBinding(uVar2, 0x80, pController->field_0x13e[7]);
-    SetDeviceKeyBinding(uVar2, 0x100, pController->field_0x13e[8]);
+    SetDeviceKeyBinding(uVar2, 1, pController->keys[0]);
+    SetDeviceKeyBinding(uVar2, 2, pController->keys[1]);
+    SetDeviceKeyBinding(uVar2, 4, pController->keys[2]);
+    SetDeviceKeyBinding(uVar2, 8, pController->keys[3]);
+    SetDeviceKeyBinding(uVar2, 0x10, pController->keys[4]);
+    SetDeviceKeyBinding(uVar2, 0x20, pController->keys[5]);
+    SetDeviceKeyBinding(uVar2, 0x40, pController->keys[6]);
+    SetDeviceKeyBinding(uVar2, 0x80, pController->keys[7]);
+    SetDeviceKeyBinding(uVar2, 0x100, pController->keys[8]);
 }
 
 // FUNCTION: CMR2 0x0040c440
@@ -1183,7 +1183,7 @@ void CInput::AssignUnmappedControllerActions(unsigned int deviceIndex, Controlle
     
     do {
         if (*pActionMask == 0) {
-            if (pController->field_0x13e[action] != 0) {
+            if (pController->keys[action] != 0) {
                 
                 usedMasks = pController->backMask | pController->cameraCycleMask |
                                 pController->shiftDownMask | pController->shiftUpMask |
@@ -1195,7 +1195,7 @@ void CInput::AssignUnmappedControllerActions(unsigned int deviceIndex, Controlle
                 
                 assignedMask = 1 << freeBit;
                 
-                SetDeviceKeyBinding(deviceIndex & 0xffff, assignedMask & 0xffff, pController->field_0x13e[action]);
+                SetDeviceKeyBinding(deviceIndex & 0xffff, assignedMask & 0xffff, pController->keys[action]);
                 SetDeviceKeyBinding(deviceIndex & 0xffff, (1 << action) & 0xffff, 0);
                 
                 *pActionMask = assignedMask;
@@ -1212,43 +1212,43 @@ void CInput::SetDeviceKeyBinding(int param1, unsigned int param2, unsigned int p
     DeviceInfo* device = &m_availableDevices[param1];
     switch(param2) {
         case 1:
-            device->keyboard.field_0x468 = param3;
+            device->keyboard.steerLeftKey = param3;
             break;
 
         case 2:
-            device->keyboard.field_0x469 = param3;
+            device->keyboard.steerRightKey = param3;
             break;
 
         case 4:
-            device->keyboard.field_0x46a = param3;
+            device->keyboard.throttleKey = param3;
             break;
 
         case 8:
-            device->keyboard.field_0x46b = param3;
+            device->keyboard.brakeKey = param3;
             break;
 
         case 0x10:
-            device->keyboard.field_0x46c = param3;
+            device->keyboard.handbrakeKey = param3;
             break;
 
         case 0x20:
-            device->keyboard.field_0x46d = param3;
+            device->keyboard.shiftUpKey = param3;
             break;
 
         case 0x40:
-            device->keyboard.field_0x46e = param3;
+            device->keyboard.shiftDownKey = param3;
             break;
         
         case 0x80:
-            device->keyboard.field_0x46f = param3;
+            device->keyboard.cameraCycleKey = param3;
             break;
 
         case 0x100:
-            device->keyboard.field_0x470 = param3;
+            device->keyboard.driverCycleKey = param3;
             break;
 
         case 0x200:
-            device->keyboard.field_0x471 = param3;
+            device->keyboard.backKey = param3;
             break;
 
         case 0x400:
@@ -1297,12 +1297,12 @@ void CInput::RebuildAvailableInputDevices(void)
     int i;
 
     DInputReleaseDevices();
-    m_unk0x0059f8cc.field_0x1 = 2;
-    m_unk0x0059f8cc.field_0x0 = 0;
-    m_unk0x0059f8cc.field_0x2 = 0;
+    m_deviceCounts.keyboardCount = 2;
+    m_deviceCounts.nextDevice = 0;
+    m_deviceCounts.joystickCount = 0;
     for (i = 0; i < 8; i++) {
-        m_availableDevices[i].field_0x0 = -1;
-        m_availableDevices[i].field_0x18 = -1;
+        m_availableDevices[i].type = -1;
+        m_availableDevices[i].joystickIndex = -1;
     }
     SetupKeyboard();
     SetupMouse();
@@ -1339,7 +1339,7 @@ void CInput::ClearFirstJoystickControlBindings(void)
     int i;
 
     for (i = 0; i < 8; i++) {
-        if (m_availableDevices[i].field_0x0 == 2) {
+        if (m_availableDevices[i].type == 2) {
             m_availableDevices[i].joystick.bindings[0].range = 0;
             m_availableDevices[i].joystick.bindings[0].present = 0;
             m_availableDevices[i].joystick.controlCount = 0;
@@ -1395,19 +1395,19 @@ void CInput::SetInputRepeatTimingState(DWORD param1)
 // FUNCTION: CMR2 0x0040be00
 DWORD CInput::GetControllerField114(unsigned int param1)
 {
-    return m_controllerInfo[m_unk0x005168f4[(unsigned short)param1]].field_0x114;
+    return m_controllerInfo[m_playerControllers[(unsigned short)param1]].analogPedals;
 }
 
 // FUNCTION: CMR2 0x0040be30
 DWORD CInput::GetControllerField120(unsigned int param1)
 {
-    return m_controllerInfo[m_unk0x005168f4[(unsigned short)param1]].field_0x120;
+    return m_controllerInfo[m_playerControllers[(unsigned short)param1]].throttleOnPositive;
 }
 
 // FUNCTION: CMR2 0x0040be60
 DWORD CInput::GetControllerField124(unsigned short param1)
 {
-    return m_controllerInfo[m_unk0x005168f4[(unsigned short)param1]].field_0x124;
+    return m_controllerInfo[m_playerControllers[(unsigned short)param1]].smoothSteering;
 }
 
 // FUNCTION: CMR2 0x0040c210
@@ -1415,16 +1415,16 @@ unsigned int CInput::GetEnabledControllerAxisBinding(unsigned int param1, int pa
 {
     unsigned int controller;
 
-    controller = m_unk0x005168f4[(unsigned short)param1];
-    if (m_controllerInfo[controller].field_0x210[param2].present != 0)
-        return m_controllerInfo[controller].field_0x2d8[param2];
+    controller = m_playerControllers[(unsigned short)param1];
+    if (m_controllerInfo[controller].axisBindings[param2].present != 0)
+        return m_controllerInfo[controller].axisIndices[param2];
     return -1;
 }
 
 // FUNCTION: CMR2 0x0040c270
 BOOL CInput::IsControllerActionBound(int action, ControllerData *pController)
 {
-    if (pController->actionMasks[action] != 0 && pController->field_0x13e[action] != 0)
+    if (pController->actionMasks[action] != 0 && pController->keys[action] != 0)
         return TRUE;
     return FALSE;
 }
@@ -1472,7 +1472,7 @@ void CInput::ReadMouse(DeviceInfo *pDevice)
     int i;
 
     retries = 0;
-    pDevice->field_0x4 = 0;
+    pDevice->held = 0;
     ((LPDIRECTINPUTDEVICE7A)m_pDirectInputMouse)->Poll();
     hr = m_pDirectInputMouse->GetDeviceState(sizeof(mouseState), &mouseState);
     while (hr == DIERR_INPUTLOST) {
@@ -1494,64 +1494,64 @@ void CInput::ReadMouse(DeviceInfo *pDevice)
 
     for (i = 0; i < 8; i++) {
         if (i < 24 && (mouseState.rgbButtons[i] & 0x80))
-            pDevice->field_0x4 |= m_buttonMasks[i];
+            pDevice->held |= m_buttonMasks[i];
     }
 }
 
 // FUNCTION: CMR2 0x0049f480
 void CInput::ReadKeyboardDevice(DeviceInfo *pDevice)
 {
-    pDevice->field_0x4 = 0;
-    if (CGameInfo::m_unk0x0059f8d0 != 0) {
+    pDevice->held = 0;
+    if (CGameInfo::m_fixedMenuKeys != 0) {
         if (m_keyboardState[DIK_LEFT] & 0x80)
-            pDevice->field_0x4 = 1;
+            pDevice->held = 1;
         if (m_keyboardState[DIK_RIGHT] & 0x80)
-            pDevice->field_0x4 |= 0x2;
+            pDevice->held |= 0x2;
         if (m_keyboardState[DIK_UP] & 0x80)
-            pDevice->field_0x4 |= 0x4;
+            pDevice->held |= 0x4;
         if (m_keyboardState[DIK_DOWN] & 0x80)
-            pDevice->field_0x4 |= 0x8;
+            pDevice->held |= 0x8;
         if (m_keyboardState[DIK_RETURN] & 0x80)
-            pDevice->field_0x4 |= 0x10;
+            pDevice->held |= 0x10;
         if (m_keyboardState[DIK_ESCAPE] & 0x80)
-            pDevice->field_0x4 |= 0x20;
+            pDevice->held |= 0x20;
         if (m_keyboardState[DIK_F1] & 0x80)
-            pDevice->field_0x4 |= 0x1000;
+            pDevice->held |= 0x1000;
         if (m_keyboardState[DIK_F2] & 0x80)
-            pDevice->field_0x4 |= 0x2000;
+            pDevice->held |= 0x2000;
     } else {
-        if (m_keyboardState[pDevice->keyboard.field_0x468] & 0x80)
-            pDevice->field_0x4 = 1;
-        if (m_keyboardState[pDevice->keyboard.field_0x469] & 0x80)
-            pDevice->field_0x4 |= 0x2;
-        if (m_keyboardState[pDevice->keyboard.field_0x46a] & 0x80)
-            pDevice->field_0x4 |= 0x4;
-        if (m_keyboardState[pDevice->keyboard.field_0x46b] & 0x80)
-            pDevice->field_0x4 |= 0x8;
-        if (m_keyboardState[pDevice->keyboard.field_0x46c] & 0x80)
-            pDevice->field_0x4 |= 0x10;
-        if (m_keyboardState[pDevice->keyboard.field_0x46d] & 0x80)
-            pDevice->field_0x4 |= 0x20;
-        if (m_keyboardState[pDevice->keyboard.field_0x46e] & 0x80)
-            pDevice->field_0x4 |= 0x40;
-        if (m_keyboardState[pDevice->keyboard.field_0x46f] & 0x80)
-            pDevice->field_0x4 |= 0x80;
-        if (m_keyboardState[pDevice->keyboard.field_0x470] & 0x80)
-            pDevice->field_0x4 |= 0x100;
-        if (m_keyboardState[pDevice->keyboard.field_0x471] & 0x80)
-            pDevice->field_0x4 |= 0x200;
+        if (m_keyboardState[pDevice->keyboard.steerLeftKey] & 0x80)
+            pDevice->held = 1;
+        if (m_keyboardState[pDevice->keyboard.steerRightKey] & 0x80)
+            pDevice->held |= 0x2;
+        if (m_keyboardState[pDevice->keyboard.throttleKey] & 0x80)
+            pDevice->held |= 0x4;
+        if (m_keyboardState[pDevice->keyboard.brakeKey] & 0x80)
+            pDevice->held |= 0x8;
+        if (m_keyboardState[pDevice->keyboard.handbrakeKey] & 0x80)
+            pDevice->held |= 0x10;
+        if (m_keyboardState[pDevice->keyboard.shiftUpKey] & 0x80)
+            pDevice->held |= 0x20;
+        if (m_keyboardState[pDevice->keyboard.shiftDownKey] & 0x80)
+            pDevice->held |= 0x40;
+        if (m_keyboardState[pDevice->keyboard.cameraCycleKey] & 0x80)
+            pDevice->held |= 0x80;
+        if (m_keyboardState[pDevice->keyboard.driverCycleKey] & 0x80)
+            pDevice->held |= 0x100;
+        if (m_keyboardState[pDevice->keyboard.backKey] & 0x80)
+            pDevice->held |= 0x200;
         if (m_keyboardState[pDevice->keyboard.field_0x472] & 0x80)
-            pDevice->field_0x4 |= 0x400;
+            pDevice->held |= 0x400;
         if (m_keyboardState[pDevice->keyboard.field_0x473] & 0x80)
-            pDevice->field_0x4 |= 0x800;
+            pDevice->held |= 0x800;
         if (m_keyboardState[pDevice->keyboard.field_0x474] & 0x80)
-            pDevice->field_0x4 |= 0x1000;
+            pDevice->held |= 0x1000;
         if (m_keyboardState[pDevice->keyboard.field_0x475] & 0x80)
-            pDevice->field_0x4 |= 0x2000;
+            pDevice->held |= 0x2000;
         if (m_keyboardState[pDevice->keyboard.field_0x476] & 0x80)
-            pDevice->field_0x4 |= 0x4000;
+            pDevice->held |= 0x4000;
         if (m_keyboardState[pDevice->keyboard.field_0x477] & 0x80)
-            pDevice->field_0x4 |= 0x8000;
+            pDevice->held |= 0x8000;
     }
 }
 
@@ -1565,8 +1565,8 @@ void CInput::ReadJoystick(DeviceInfo *pDevice)
     int i;
 
     retries = 0;
-    pJoystick = (LPDIRECTINPUTDEVICE7A)m_unk0x0059f6b0[pDevice->field_0x18];
-    pDevice->field_0x4 = 0;
+    pJoystick = (LPDIRECTINPUTDEVICE7A)m_joysticks[pDevice->joystickIndex];
+    pDevice->held = 0;
     pJoystick->Poll();
     hr = pJoystick->GetDeviceState(sizeof(joyState), &joyState);
     while (hr == DIERR_INPUTLOST) {
@@ -1588,28 +1588,28 @@ void CInput::ReadJoystick(DeviceInfo *pDevice)
     pDevice->joystick.bindings[7].position = joyState.rglSlider[1];
 
     if (joyState.lX < -39321)
-        pDevice->field_0x4 |= 0x1;
+        pDevice->held |= 0x1;
     else if (joyState.lX > 39321)
-        pDevice->field_0x4 |= 0x2;
+        pDevice->held |= 0x2;
     if (joyState.lY < -39321)
-        pDevice->field_0x4 |= 0x4;
+        pDevice->held |= 0x4;
     else if (joyState.lY > 39321)
-        pDevice->field_0x4 |= 0x8;
+        pDevice->held |= 0x8;
 
     if (LOWORD(joyState.rgdwPOV[0]) != 0xffff) {
         if (joyState.rgdwPOV[0] >= 4500 && joyState.rgdwPOV[0] <= 13500)
-            pDevice->field_0x4 |= 0x2;
+            pDevice->held |= 0x2;
         if (joyState.rgdwPOV[0] >= 13500 && joyState.rgdwPOV[0] <= 22500)
-            pDevice->field_0x4 |= 0x8;
+            pDevice->held |= 0x8;
         if (joyState.rgdwPOV[0] >= 22500 && joyState.rgdwPOV[0] <= 31500)
-            pDevice->field_0x4 |= 0x1;
+            pDevice->held |= 0x1;
         if (joyState.rgdwPOV[0] >= 31500 || joyState.rgdwPOV[0] <= 4500)
-            pDevice->field_0x4 |= 0x4;
+            pDevice->held |= 0x4;
     }
 
-    for (i = 0; i < pDevice->field_0x14; i++) {
+    for (i = 0; i < pDevice->buttonCount; i++) {
         if (i < 24 && (joyState.rgbButtons[i] & 0x80))
-            pDevice->field_0x4 |= m_buttonMasks[i];
+            pDevice->held |= m_buttonMasks[i];
     }
 }
 
@@ -1659,13 +1659,13 @@ DeviceInfo *CInput::UpdateDevice(int index)
         return NULL;
 
     pDevice = &m_availableDevices[index];
-    oldButtons = pDevice->field_0x4;
+    oldButtons = pDevice->held;
     if (index > 1) {
-        if (pDevice->field_0x18 < 0 || pDevice->field_0x18 > 3)
+        if (pDevice->joystickIndex < 0 || pDevice->joystickIndex > 3)
             return NULL;
     }
 
-    switch (pDevice->field_0x0) {
+    switch (pDevice->type) {
     case 1:
         if (index == 0)
             ReadKeyboardState();
@@ -1680,30 +1680,30 @@ DeviceInfo *CInput::UpdateDevice(int index)
         break;
     }
 
-    buttons = pDevice->field_0x4;
-    pDevice->field_0x8 = (buttons ^ oldButtons) & buttons;
+    buttons = pDevice->held;
+    pDevice->pressed = (buttons ^ oldButtons) & buttons;
     if (buttons & 0xfffffff0)
-        pDevice->field_0x4 = buttons | 0x10000;
+        pDevice->held = buttons | 0x10000;
 
     now = CMain::GetFrameTime();
-    dirButtons = pDevice->field_0x4 & m_directionButtonMask;
+    dirButtons = pDevice->held & m_directionButtonMask;
     if (dirButtons != 0) {
         if (dirButtons != (m_directionButtonMask & oldButtons)) {
-            pDevice->field_0xc = ~oldButtons & pDevice->field_0x4 & m_directionButtonMask;
-            pDevice->field_0x10 = (int)m_keyboardDelay + now;
-        } else if (pDevice->field_0x10 - now <= 0) {
-            pDevice->field_0xc = dirButtons;
-            pDevice->field_0x10 = (int)m_keyboardSpeed + now;
+            pDevice->repeated = ~oldButtons & pDevice->held & m_directionButtonMask;
+            pDevice->repeatTime = (int)m_keyboardDelay + now;
+        } else if (pDevice->repeatTime - now <= 0) {
+            pDevice->repeated = dirButtons;
+            pDevice->repeatTime = (int)m_keyboardSpeed + now;
         } else {
-            pDevice->field_0xc = 0;
+            pDevice->repeated = 0;
         }
     } else {
-        pDevice->field_0xc = 0;
-        pDevice->field_0x10 = 0;
+        pDevice->repeated = 0;
+        pDevice->repeatTime = 0;
     }
 
     if (m_unk0x0052086c != 0)
-        pDevice->field_0x8 |= pDevice->field_0xc;
+        pDevice->pressed |= pDevice->repeated;
 
     return pDevice;
 }
@@ -1799,7 +1799,7 @@ short CInput::GetButtonMapping(unsigned short controllerSlot, int action)
     short mapping;
 
     mapping = 0;
-    controllerIndex = m_unk0x005168f4[controllerSlot];
+    controllerIndex = m_playerControllers[controllerSlot];
     pActionMask = m_controllerInfo[controllerIndex].actionMasks;
     switch (action) {
     case 0: mapping = pActionMask[0]; break;
@@ -1972,7 +1972,7 @@ void CInput::SaveControllerInfo(void)
 
     buffer = (unsigned int *)CFileBuffer::AllocateLockedBuffer(0x11a4);
     memcpy(buffer, m_controllerInfo, sizeof(m_controllerInfo));
-    buffer[0x468] = *(unsigned int *)m_unk0x005168f4;
+    buffer[0x468] = *(unsigned int *)m_playerControllers;
     sprintf(CFrontend::m_stringDest, m_strControllerInfoDir, CInstallInfo::GetGameHDPath());
     CInstallInfo::WriteFileToDisk(CFrontend::m_stringDest, 2, buffer, 0x11a4);
     CFileBuffer::FreeGenericFileBuffer(buffer);
@@ -2016,60 +2016,60 @@ void CInput::InitDetectedControllerSlot(DeviceInfo *pDevice, int index)
     pController = &m_controllerInfo[index];
     pController->index = (BYTE)index;
     ((int (__cdecl *)(char *, const char *))sprintf)(pController->name, pDevice->deviceInstanceName);
-    pController->field_0x10c = (pDevice->field_0x0 == 3 || pDevice->field_0x0 == 2) ? 1 : 0;
-    pController->field_0x110 = (pDevice->field_0x0 == 3 || pDevice->field_0x0 == 2) ? 1 : 0;
-    pController->field_0x114 = (pDevice->field_0x0 == 3 || pDevice->field_0x0 == 2) ? 1 : 0;
-    pController->field_0x118 = pDevice->supportsForceFeedback;
+    pController->hasAxes = (pDevice->type == 3 || pDevice->type == 2) ? 1 : 0;
+    pController->analogSteering = (pDevice->type == 3 || pDevice->type == 2) ? 1 : 0;
+    pController->analogPedals = (pDevice->type == 3 || pDevice->type == 2) ? 1 : 0;
+    pController->forceFeedback = pDevice->supportsForceFeedback;
     m_controllerInfo[index].field_0x4 = 0x8000;
     m_controllerInfo[index].field_0x0 = 0x8000;
-    if (pDevice->field_0x0 == 1) {
+    if (pDevice->type == 1) {
         if (index == 0) {
-            m_controllerInfo[0].field_0x13e[0] = pDevice->keyboard.field_0x468;
+            m_controllerInfo[0].keys[0] = pDevice->keyboard.steerLeftKey;
             ((int (__cdecl *)(char *, const char *))sprintf)(m_controllerInfo[0].keyNames[0], CFrontend::GetTextString(0x1f9));
-            m_controllerInfo[0].field_0x13e[1] = pDevice->keyboard.field_0x469;
+            m_controllerInfo[0].keys[1] = pDevice->keyboard.steerRightKey;
             ((int (__cdecl *)(char *, const char *))sprintf)(m_controllerInfo[0].keyNames[1], CFrontend::GetTextString(0x1fa));
-            m_controllerInfo[0].field_0x13e[2] = pDevice->keyboard.field_0x46a;
+            m_controllerInfo[0].keys[2] = pDevice->keyboard.throttleKey;
             ((int (__cdecl *)(char *, const char *))sprintf)(m_controllerInfo[0].keyNames[2], CFrontend::GetTextString(0x1fb));
-            m_controllerInfo[0].field_0x13e[3] = pDevice->keyboard.field_0x46b;
+            m_controllerInfo[0].keys[3] = pDevice->keyboard.brakeKey;
             ((int (__cdecl *)(char *, const char *))sprintf)(m_controllerInfo[0].keyNames[3], CFrontend::GetTextString(0x1fc));
-            m_controllerInfo[0].field_0x13e[4] = pDevice->keyboard.field_0x46c;
+            m_controllerInfo[0].keys[4] = pDevice->keyboard.handbrakeKey;
             ((int (__cdecl *)(char *, const char *))sprintf)(m_controllerInfo[0].keyNames[4], CFrontend::GetTextString(0x1fd));
-            m_controllerInfo[0].field_0x13e[5] = pDevice->keyboard.field_0x46d;
+            m_controllerInfo[0].keys[5] = pDevice->keyboard.shiftUpKey;
             ((int (__cdecl *)(char *, const char *))sprintf)(m_controllerInfo[0].keyNames[5], g_keyCloseBracket);
-            m_controllerInfo[0].field_0x13e[6] = pDevice->keyboard.field_0x46e;
+            m_controllerInfo[0].keys[6] = pDevice->keyboard.shiftDownKey;
             ((int (__cdecl *)(char *, const char *))sprintf)(m_controllerInfo[0].keyNames[6], g_keyOpenBracket);
-            m_controllerInfo[0].field_0x13e[7] = pDevice->keyboard.field_0x46f;
+            m_controllerInfo[0].keys[7] = pDevice->keyboard.cameraCycleKey;
             ((int (__cdecl *)(char *, const char *))sprintf)(m_controllerInfo[0].keyNames[7], g_keyC);
-            m_controllerInfo[0].field_0x13e[8] = pDevice->keyboard.field_0x470;
+            m_controllerInfo[0].keys[8] = pDevice->keyboard.driverCycleKey;
             ((int (__cdecl *)(char *, const char *))sprintf)(m_controllerInfo[0].keyNames[8], g_keyR);
             return;
         }
-        pController->field_0x13e[0] = pDevice->keyboard.field_0x468;
+        pController->keys[0] = pDevice->keyboard.steerLeftKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[0], FormatString(g_keypadFormat, CFrontend::GetTextString(0x203), g_keypad4));
-        pController->field_0x13e[1] = pDevice->keyboard.field_0x469;
+        pController->keys[1] = pDevice->keyboard.steerRightKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[1], FormatString(g_keypadFormat, CFrontend::GetTextString(0x203), g_keypad6));
-        pController->field_0x13e[2] = pDevice->keyboard.field_0x46a;
+        pController->keys[2] = pDevice->keyboard.throttleKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[2], FormatString(g_keypadFormat, CFrontend::GetTextString(0x203), g_keypad8));
-        pController->field_0x13e[3] = pDevice->keyboard.field_0x46b;
+        pController->keys[3] = pDevice->keyboard.brakeKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[3], FormatString(g_keypadFormat, CFrontend::GetTextString(0x203), g_keypad2));
-        pController->field_0x13e[4] = pDevice->keyboard.field_0x46c;
+        pController->keys[4] = pDevice->keyboard.handbrakeKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[4], FormatString(g_keypadFormat, CFrontend::GetTextString(0x203), g_keypad3));
-        pController->field_0x13e[5] = pDevice->keyboard.field_0x46d;
+        pController->keys[5] = pDevice->keyboard.shiftUpKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[5], CFrontend::GetTextString(0x204));
-        pController->field_0x13e[6] = pDevice->keyboard.field_0x46e;
+        pController->keys[6] = pDevice->keyboard.shiftDownKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[6], CFrontend::GetTextString(0x205));
-        pController->field_0x13e[7] = pDevice->keyboard.field_0x46f;
+        pController->keys[7] = pDevice->keyboard.cameraCycleKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[7], FormatString(g_keypadFormat, CFrontend::GetTextString(0x203), g_keypad9));
-        pController->field_0x13e[8] = pDevice->keyboard.field_0x470;
+        pController->keys[8] = pDevice->keyboard.driverCycleKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[8], FormatString(g_keypadFormat, CFrontend::GetTextString(0x203), g_keypad7));
         return;
     }
-    if (pDevice->field_0x0 == 2) {
+    if (pDevice->type == 2) {
         pDevice->joystick.bindings[0].present = 1;
-        pController->field_0x210[0] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
-        pController->field_0x2d8[0] = 0;
-        pController->field_0x210[1] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
-        pController->field_0x2d8[1] = 0;
+        pController->axisBindings[0] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
+        pController->axisIndices[0] = 0;
+        pController->axisBindings[1] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
+        pController->axisIndices[1] = 0;
         pController->steerLeftMask = 0;
         pController->steerRightMask = 0;
         pController->throttleMask = 0x10;
@@ -2080,38 +2080,38 @@ void CInput::InitDetectedControllerSlot(DeviceInfo *pDevice, int index)
         pController->cameraCycleMask = 0;
         pController->driverCycleMask = 0;
         pController->backMask = 0;
-        pController->field_0x13e[4] = (BYTE)pDevice->joystick.bindings[0].present;
+        pController->keys[4] = (BYTE)pDevice->joystick.bindings[0].present;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[4], CFrontend::GetTextString(0x1fe));
-        pController->field_0x13e[5] = pDevice->keyboard.field_0x46d;
+        pController->keys[5] = pDevice->keyboard.shiftUpKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[5], CFrontend::GetTextString(0x1fe));
-        pController->field_0x13e[6] = pDevice->keyboard.field_0x46e;
+        pController->keys[6] = pDevice->keyboard.shiftDownKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[6], CFrontend::GetTextString(0x1fe));
-        pController->field_0x13e[7] = pDevice->keyboard.field_0x46f;
+        pController->keys[7] = pDevice->keyboard.cameraCycleKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[7], CFrontend::GetTextString(0x1fe));
-        pController->field_0x13e[8] = pDevice->keyboard.field_0x470;
+        pController->keys[8] = pDevice->keyboard.driverCycleKey;
         ((int (__cdecl *)(char *, const char *))sprintf)(pController->keyNames[8], CFrontend::GetTextString(0x1fe));
         return;
     }
-    if (pController->field_0x10c != 0) {
+    if (pController->hasAxes != 0) {
         pController->steerLeftMask = 1;
         pController->steerRightMask = 2;
         if (pDevice->joystick.bindings[0].present != 0) {
-            pController->field_0x210[0] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
-            pController->field_0x2d8[0] = 0;
+            pController->axisBindings[0] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
+            pController->axisIndices[0] = 0;
             if (pDevice->joystick.bindings[0].present != 0) {
-                pController->field_0x210[1] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
-                pController->field_0x2d8[1] = 0;
+                pController->axisBindings[1] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[0];
+                pController->axisIndices[1] = 0;
             }
         }
         pController->throttleMask = 4;
         if (pDevice->joystick.bindings[1].present != 0) {
-            pController->field_0x210[2] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[1];
-            pController->field_0x2d8[2] = 1;
+            pController->axisBindings[2] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[1];
+            pController->axisIndices[2] = 1;
         }
         pController->brakeMask = 8;
         if (pDevice->joystick.bindings[1].present != 0) {
-            pController->field_0x210[3] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[1];
-            pController->field_0x2d8[3] = 1;
+            pController->axisBindings[3] = *(ControllerDataUnk0x210 *)&pDevice->joystick.bindings[1];
+            pController->axisIndices[3] = 1;
         }
         pController->handbrakeMask = 0x10;
         pController->shiftUpMask = 0x20;
@@ -2121,7 +2121,7 @@ void CInput::InitDetectedControllerSlot(DeviceInfo *pDevice, int index)
         pController->backMask = 0x200;
         return;
     }
-    memset(pController->field_0x210, 0, 0x32 * 4);
+    memset(pController->axisBindings, 0, 0x32 * 4);
     pController->steerLeftMask = 1;
     pController->steerRightMask = 2;
     pController->throttleMask = 0x10;
@@ -2251,7 +2251,7 @@ void CInput::SetControllerForceFeedbackValue(unsigned short param1, DWORD param2
 {
     unsigned short index;
 
-    index = CInput::m_unk0x005168f4[param1];
+    index = CInput::m_playerControllers[param1];
     SetForceFeedbackDeviceValue(m_controllerInfo[index].field_0x11c = param2, index);
 }
 
@@ -2304,11 +2304,11 @@ void Input_TranslatePedalsToMenuKeys(void)
 
     for (i = 0; i < 8; i++) {
         pDev = CInput::GetAvailableDeviceRecord(i);
-        if (pDev->field_0x0 == 3 && CInput::GetEnabledControllerAxisBinding(0, 2) != CInput::GetEnabledControllerAxisBinding(0, 3)) {
-            pDev->field_0x8 &= 0xfffffff3;
+        if (pDev->type == 3 && CInput::GetEnabledControllerAxisBinding(0, 2) != CInput::GetEnabledControllerAxisBinding(0, 3)) {
+            pDev->pressed &= 0xfffffff3;
             if (((int *)pDev)[CInput::GetEnabledControllerAxisBinding(0, 2) * 5 + 0x11f] < 0x3333) {
                 if (g_latchedThrottleAxes[i][0] == 0) {
-                    pDev->field_0x8 |= 4;
+                    pDev->pressed |= 4;
                     g_latchedThrottleAxes[i][0] = 1;
                 }
             } else {
@@ -2316,7 +2316,7 @@ void Input_TranslatePedalsToMenuKeys(void)
             }
             if (((int *)pDev)[CInput::GetEnabledControllerAxisBinding(0, 3) * 5 + 0x11f] < 0x3333) {
                 if (g_latchedThrottleAxes[i][1] == 0) {
-                    pDev->field_0x8 |= 8;
+                    pDev->pressed |= 8;
                     g_latchedThrottleAxes[i][1] = 1;
                 }
             } else {
@@ -2326,7 +2326,7 @@ void Input_TranslatePedalsToMenuKeys(void)
     }
 }
 
-// Controller slots are mapped to entries of m_controllerInfo through m_unk0x005168f4.
+// Controller slots are mapped to entries of m_controllerInfo through m_playerControllers.
 // FUNCTION: CMR2 0x0040bba0
 unsigned short Input_GetAssignedController(void)
 {
@@ -2342,49 +2342,49 @@ ControllerData *Input_GetControllerTable(void)
 // FUNCTION: CMR2 0x0040bbc0
 unsigned short Input_GetControllerSlotMapping(unsigned short slot)
 {
-    return CInput::m_unk0x005168f4[slot];
+    return CInput::m_playerControllers[slot];
 }
 
 // FUNCTION: CMR2 0x0040bbe0
 void Input_SetControllerSlotMapping(unsigned short slot, unsigned short index)
 {
-    CInput::m_unk0x005168f4[slot] = index;
+    CInput::m_playerControllers[slot] = index;
 }
 
 // FUNCTION: CMR2 0x0040bc00
 unsigned int Input_GetControllerPrimaryFlags(unsigned short slot)
 {
-    return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x0;
+    return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].field_0x0;
 }
 
 // FUNCTION: CMR2 0x0040bc30
 unsigned int Input_GetControllerSecondaryFlags(unsigned short slot)
 {
-    return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x4;
+    return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].field_0x4;
 }
 
 // FUNCTION: CMR2 0x0040bc60
 void Input_SetControllerPrimaryFlags(unsigned short slot, unsigned int value)
 {
-    CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x0 = value;
+    CInput::m_controllerInfo[CInput::m_playerControllers[slot]].field_0x0 = value;
 }
 
 // FUNCTION: CMR2 0x0040bcd0
 DWORD Input_GetControllerField11C(unsigned short slot)
 {
-    return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x11c;
+    return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].field_0x11c;
 }
 
 // FUNCTION: CMR2 0x0040bd00
 void Input_SetControllerSecondaryFlags(unsigned short slot, unsigned int value)
 {
-    CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x4 = value;
+    CInput::m_controllerInfo[CInput::m_playerControllers[slot]].field_0x4 = value;
 }
 
 // FUNCTION: CMR2 0x0040bd30
 DWORD Input_GetControllerField118(unsigned short slot)
 {
-    return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x118;
+    return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].forceFeedback;
 }
 
 // Merges the buttons of the joystick assigned to the slot into pOut.
@@ -2395,10 +2395,10 @@ void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut)
 
     if ((short)Input_GetControllerSlotMapping(slot) != 0 && (short)Input_GetControllerSlotMapping(slot) != 1) {
         pDev = CInput::GetAvailableDeviceRecord(Input_GetControllerSlotMapping(slot));
-        if (pDev->field_0x0 == 0 || pDev->field_0x0 == 3) {
-            pOut->field_0x8 |= pDev->field_0x8;
-            pOut->field_0x4 |= pDev->field_0x4;
-            pOut->field_0xc |= pDev->field_0xc;
+        if (pDev->type == 0 || pDev->type == 3) {
+            pOut->pressed |= pDev->pressed;
+            pOut->held |= pDev->held;
+            pOut->repeated |= pDev->repeated;
         }
     }
 }
@@ -2406,7 +2406,7 @@ void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut)
 // FUNCTION: CMR2 0x0040bdd0
 DWORD Input_GetControllerField110(unsigned short slot)
 {
-    return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x110;
+    return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].analogSteering;
 }
 
 

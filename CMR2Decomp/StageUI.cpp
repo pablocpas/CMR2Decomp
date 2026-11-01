@@ -1011,7 +1011,7 @@ void StageUI_UpdatePauseMenu(void)
     if (!Graphics_IsRegisteredTimerRunning(&g_pauseMenus.bracketTimer) && !Graphics_IsRegisteredTimerRunning(g_unk0x0058ca8c)) {
         pDev = CInput::GetAvailableDeviceRecord(0);
         Input_MergeAssignedJoystickButtons(0, pDev);
-        next = Menu_Update(g_pPauseMenu, pDev->field_0x8);
+        next = Menu_Update(g_pPauseMenu, pDev->pressed);
     } else {
         next = Menu_Update(g_pPauseMenu, 0);
     }

@@ -1605,9 +1605,9 @@ void FrontendMenu_UpdateAndSwitchActive(void)
     Sound_UpdateMusicStreaming();
     if (g_pMenu0x00818abc != FrontendMenu_GetDeviceBindings() && g_pMenu0x00818abc != FrontendMenu_GetDeviceCalibration())
         Input_MergeAssignedJoystickButtons(g_frontendOverlayMode, pDevice);
-    input = pDevice->field_0x8;
+    input = pDevice->pressed;
     if (g_frontendOverlayMode == 1)
-        input |= CInput::GetAvailableDeviceRecord(Input_GetControllerSlotMapping(0))->field_0x8 & 0x20;
+        input |= CInput::GetAvailableDeviceRecord(Input_GetControllerSlotMapping(0))->pressed & 0x20;
     pNext = (Menu *)Menu_Update(g_pMenu0x00818abc, input);
     if (pNext != NULL) {
         g_menuEnterTime = CFrontend::GetFrontendTimestamp();
@@ -2023,7 +2023,7 @@ void FrontendMenu_UpdateNetworkSessionBrowser(Menu *pMenu)
                     g_selectedNetworkSession = 0;
                     Network_CopyEnumeratedSessionGUID(0, &g_unk0x00818cf0);
                     g_unk0x00819024 = 1;
-                } else if ((pDevice->field_0x8 & 0x20) != 0) {
+                } else if ((pDevice->pressed & 0x20) != 0) {
                     g_unk0x00819014 = 0;
                     g_selectedNetworkSession = -1;
                     g_unk0x00819024 = 0;
@@ -2031,11 +2031,11 @@ void FrontendMenu_UpdateNetworkSessionBrowser(Menu *pMenu)
                     g_unk0x00818ef4 = 0;
                 } else {
                     Menu_SetFlags(pMenu, 0, 0, 1, 0);
-                    if ((pDevice->field_0x8 & 4) != 0 && g_selectedNetworkSession > 0) {
+                    if ((pDevice->pressed & 4) != 0 && g_selectedNetworkSession > 0) {
                         g_selectedNetworkSession--;
                         Network_CopyEnumeratedSessionGUID((BYTE)g_selectedNetworkSession, &g_unk0x00818cf0);
                         g_unk0x00819024 = 1;
-                    } else if ((pDevice->field_0x8 & 8) != 0 && g_selectedNetworkSession < g_unk0x00819018 - 1) {
+                    } else if ((pDevice->pressed & 8) != 0 && g_selectedNetworkSession < g_unk0x00819018 - 1) {
                         g_selectedNetworkSession++;
                         Network_CopyEnumeratedSessionGUID((BYTE)g_selectedNetworkSession, &g_unk0x00818cf0);
                         g_unk0x00819024 = 1;
@@ -3046,9 +3046,9 @@ void FrontendMenu_UpdateSingleRallySelection(Menu *pMenu)
     if (g_unk0x0082aa40 > 0) {
         if (g_savedGameListSelection == -1)
             g_savedGameListSelection = 0;
-        else if ((pDevice->field_0x8 & 4) && g_savedGameListSelection > 0)
+        else if ((pDevice->pressed & 4) && g_savedGameListSelection > 0)
             g_savedGameListSelection--;
-        else if ((pDevice->field_0x8 & 8) && g_savedGameListSelection < g_unk0x0082aa40 - 1)
+        else if ((pDevice->pressed & 8) && g_savedGameListSelection < g_unk0x0082aa40 - 1)
             g_savedGameListSelection++;
     } else {
         g_savedGameListSelection = -1;
@@ -8443,10 +8443,10 @@ void FrontendMenu_UpdateNetworkSessionSetup(Menu *pMenu)
     b = 1;
     if (g_unk0x00818ed0 != 0) {
         pDevice = CInput::GetAvailableDeviceRecord(0);
-        if (!((pDevice->field_0x8 & 8) == 0)) {
+        if (!((pDevice->pressed & 8) == 0)) {
             pMenu->cursor = 1;
         } else {
-            if ((pDevice->field_0x8 & 4) != 0)
+            if ((pDevice->pressed & 4) != 0)
                 pMenu->cursor = pMenu->itemCount - 1;
         }
     }

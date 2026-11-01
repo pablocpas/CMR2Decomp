@@ -3974,7 +3974,7 @@ void Race_UpdatePauseState(CallbackStateMachine *p, BYTE index)
     Input_TranslatePedalsToMenuKeys();
     pDev = CInput::GetAvailableDeviceRecord(0);
     Input_MergeAssignedJoystickButtons(0, pDev);
-    Menu_Update(StageObject_GetInRaceActionMenu(), pDev->field_0x8);
+    Menu_Update(StageObject_GetInRaceActionMenu(), pDev->pressed);
     if (g_unk0x00537f94 != 0)
         CGame::PromoteCallbackEntryByRule(p, index, 1, 2);
 }
@@ -4144,7 +4144,7 @@ void Race_UpdatePlayerSelectionCursor(int param_1)
 
     if (Race_GetPlayerRecordField4((BYTE)param_1) == 0)
         return;
-    flags = (int)CInput::GetAvailableDeviceRecord(param_1)->field_0x8;
+    flags = (int)CInput::GetAvailableDeviceRecord(param_1)->pressed;
     if (Race_IsMultiplayerRecordMode10() != 0) {
         if (param_1 != 0 && Race_GetPlayerRecordField4(0) != 0)
             return;

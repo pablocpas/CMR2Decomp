@@ -23,17 +23,20 @@ struct JoystickInfo {
     JoystickBinding bindings[8];
 };
 
+// Key (DIK_*) of each button bit of a keyboard device: bit 1 << n for the
+// first ten (the actions of ControllerData::actionMasks), then Escape and
+// function keys.
 struct KeyboardInfo {
-    BYTE field_0x468;
-    BYTE field_0x469;
-    BYTE field_0x46a;
-    BYTE field_0x46b;
-    BYTE field_0x46c;
-    BYTE field_0x46d;
-    BYTE field_0x46e;
-    BYTE field_0x46f;
-    BYTE field_0x470;
-    BYTE field_0x471;
+    BYTE steerLeftKey;
+    BYTE steerRightKey;
+    BYTE throttleKey;
+    BYTE brakeKey;
+    BYTE handbrakeKey;
+    BYTE shiftUpKey;
+    BYTE shiftDownKey;
+    BYTE cameraCycleKey;
+    BYTE driverCycleKey;
+    BYTE backKey;
     BYTE field_0x472;
     BYTE field_0x473;
     BYTE field_0x474;
@@ -43,13 +46,13 @@ struct KeyboardInfo {
 };
 
 struct DeviceInfo {
-    DWORD field_0x0;        // device type: 0/3 joystick, 1 keyboard, 2 mouse
-    unsigned int field_0x4; // buttons held
-    unsigned int field_0x8; // buttons pressed this frame
-    unsigned int field_0xc; // direction buttons auto-repeated this frame
-    int field_0x10;         // next auto-repeat time
-    int field_0x14;
-    int field_0x18;
+    DWORD type;             // 0/3 joystick, 1 keyboard, 2 mouse, -1 none
+    unsigned int held;      // buttons held
+    unsigned int pressed;   // buttons pressed this frame
+    unsigned int repeated;  // direction buttons auto-repeated this frame
+    int repeatTime;         // next auto-repeat time
+    int buttonCount;        // joystick buttons read (names in field_0x284)
+    int joystickIndex;      // into CInput::m_joysticks, -1 without one
     int field_0x1c;
     BYTE pad2[92];
     char deviceInstanceName[MAX_PATH];
@@ -67,11 +70,11 @@ struct DeviceInfo {
     };
 };
 
-struct Unk0x0059f8cc {
-    BYTE field_0x0;
-    BYTE field_0x1;
-    BYTE field_0x2;
-    BYTE field_0x3;
+struct DeviceCounts {
+    BYTE nextDevice;
+    BYTE keyboardCount;
+    BYTE joystickCount;
+    BYTE attachedJoystickCount;
 };
 
 struct ForceFeedbackDevice {
@@ -94,13 +97,13 @@ struct ControllerData {
     unsigned int field_0x0;
     unsigned int field_0x4;
     char name[MAX_PATH];
-    DWORD field_0x10c;
-    DWORD field_0x110;
-    DWORD field_0x114;
-    DWORD field_0x118;
+    DWORD hasAxes;              // a joystick or mouse
+    DWORD analogSteering;       // steering from axisIndices[0], [1]
+    DWORD analogPedals;         // throttle and brake from axisIndices[2], [3]
+    DWORD forceFeedback;        // the device has force feedback
     DWORD field_0x11c;
-    DWORD field_0x120;
-    DWORD field_0x124;
+    DWORD throttleOnPositive;   // one pedal axis: throttle on its positive half
+    DWORD smoothSteering;       // Car::steeringInputMode 1 (eased), else 2 (direct)
     union {
         unsigned short actionMasks[10]; // 0x128 indexed action/device masks
         struct {
@@ -117,11 +120,11 @@ struct ControllerData {
         };
     };
     unsigned short field_0x13c;
-    BYTE field_0x13e[9];            // key (DIK_*) of each keyboard binding
+    BYTE keys[9];            // key (DIK_*) of each keyboard binding
     char keyNames[9][20];           // 0x147 text shown for each binding
     BYTE field_0x1fb[0x15];
-    ControllerDataUnk0x210 field_0x210[10];
-    unsigned short field_0x2d8[10];
+    ControllerDataUnk0x210 axisBindings[10];
+    unsigned short axisIndices[10];
     BYTE index;                     // 0x2ec
     BYTE field_0x2ed[3];
 };
@@ -227,7 +230,7 @@ CMR2_LAYOUT_CHECK(InputFeedbackStateSize, sizeof(InputFeedbackState) == 0x1c0);
 class CInput {
 public:
     static IDirectInput7A *m_lpDirectInput7;
-    static Unk0x0059f8cc m_unk0x0059f8cc;
+    static DeviceCounts m_deviceCounts;
     static char m_strKeyboard[12];
     static InputDeviceState m_deviceState;
     static PVOID m_keyboardDelay;
@@ -239,8 +242,8 @@ public:
     
 
     
-    static USHORT m_unk0x00511400[8];
-    static LPDIRECTINPUTDEVICEA m_unk0x0059f6b0[8];
+    static USHORT m_axisOffsets[8];
+    static LPDIRECTINPUTDEVICEA m_joysticks[8];
     static CHAR m_strD[4];
     static CHAR m_strU[4];
     static CHAR m_strR[4];
@@ -277,7 +280,7 @@ public:
     static ControllerData m_controllerInfo[6];
 
     // GLOBAL: CMR2 0x005168f4
-    static unsigned short m_unk0x005168f4[8];
+    static unsigned short m_playerControllers[8];
 
     static BOOL DInputCreate(void);
     static LPDIRECTINPUTDEVICEA DInputCreateDevice(REFGUID param1, LPCDIDATAFORMAT pDataFormat);

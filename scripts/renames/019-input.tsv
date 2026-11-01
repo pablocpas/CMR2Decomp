@@ -1,0 +1,28 @@
+address	old_name	new_name	evidence
+DeviceInfo	field_0x0	type	CInput::UpdateDevice reads a keyboard for 1, a joystick for 0/3, the mouse for 2; RebuildAvailableInputDevices sets -1 for no device.
+DeviceInfo	field_0x4	held	Buttons the Read* functions set this update; UpdateDevice derives the presses from it and the previous value.
+DeviceInfo	field_0x8	pressed	UpdateDevice: (held ^ old) & held, the buttons pressed since the previous update.
+DeviceInfo	field_0xc	repeated	UpdateDevice: direction buttons newly held, then again every m_keyboardSpeed ms after m_keyboardDelay.
+DeviceInfo	field_0x10	repeatTime	UpdateDevice: frame time of the next auto-repeat of the held direction buttons.
+DeviceInfo	field_0x14	buttonCount	SetupJoystick counts the named buttons into it; ReadJoystick reads that many buttons.
+DeviceInfo	field_0x18	joystickIndex	SetupJoystick stores its index into m_unk0x0059f6b0 (now m_joysticks); -1 for keyboards and no device; UpdateDevice skips devices without one.
+KeyboardInfo	field_0x468..0x471	steerLeftKey..backKey	ReadKeyboardDevice sets bit 1 << n for the key at offset n; ApplyControllerButtonBindings stores ControllerData keys[n] there (SetDeviceKeyBinding bit 1 << n), and actionMasks names the same bits (steerLeft..back).
+DeviceCounts	Unk0x0059f8cc	DeviceCounts	Type of m_deviceCounts.
+DeviceCounts	field_0x0	nextDevice	Index of the next DeviceInfo SetupKeyboard and SetupJoystick fill, incremented after each.
+DeviceCounts	field_0x1	keyboardCount	Set to 2 (the two keyboard configurations); CountAttachedInputDevices returns it plus attachedJoystickCount.
+DeviceCounts	field_0x2	joystickCount	Index into m_joysticks of the next joystick SetupJoystick opens.
+DeviceCounts	field_0x3	attachedJoystickCount	Counted by CountJoystickEnumerationCallback, one per attached joystick.
+ControllerData	field_0x10c	hasAxes	InitDetectedControllerSlot sets it for joysticks and the mouse (types 2, 3) and gives axis bindings only then.
+ControllerData	field_0x110	analogSteering	StageObject_ReadCarControllerMapping enables axis steering only when set; FrontendControls_IsSelectedAxisBound for entries 0/1.
+ControllerData	field_0x114	analogPedals	StageObject_ReadCarControllerMapping enables axis throttle and brake only when set; entries 2/3 in FrontendControls_IsSelectedAxisBound.
+ControllerData	field_0x118	forceFeedback	Copied from DeviceInfo::supportsForceFeedback; the calibration page leads to the pad page and StageTiming_InitForceFeedbackSlots creates effects only when set.
+ControllerData	field_0x120	throttleOnPositive	StageObject_UpdatePlayerControlIndicators, throttle and brake on one axis: the positive half is the throttle when set, the negative half otherwise.
+ControllerData	field_0x124	smoothSteering	StageObject_UpdatePlayerControlIndicators sets Car::steeringInputMode 1 when set, else 2; mode 2 snaps the wheel angle to the target in AutoGear_IntegrateSteeringAccumulator, mode 1 eases it.
+ControllerData	field_0x13e	keys	Key (DIK_*) of each of the nine actions; written by FrontendControls_UpdateBindingCapture, applied by ApplyControllerButtonBindings.
+ControllerData	field_0x210	axisBindings	Copy of the JoystickBinding of the axis bound to each action (FrontendControls_UpdateBindingCapture, EnterCalibration).
+ControllerData	field_0x2d8	axisIndices	Axis number bound to each action; read back by GetEnabledControllerAxisBinding when axisBindings[n].present.
+0x0059f8d0	CGameInfo::m_unk0x0059f8d0	CGameInfo::m_fixedMenuKeys	Only read by ReadKeyboardDevice: when set, the cursor keys, Return, Escape, F1 and F2 instead of the bound keys; set by SetInputAndGamePaused.
+0x005168f4	CInput::m_unk0x005168f4	CInput::m_playerControllers	Controller configuration (m_controllerInfo index, also the device index) of each player; GetButtonMapping and the Get/SetControllerSlotMapping accessors index it by player, SaveControllerInfo stores its first two entries.
+0x0059f6b0	CInput::m_unk0x0059f6b0	CInput::m_joysticks	The DirectInput devices SetupJoystick creates, indexed by DeviceInfo::joystickIndex.
+0x0059f8cc	CInput::m_unk0x0059f8cc	CInput::m_deviceCounts	Device counters used while enumerating (see DeviceCounts).
+0x00511400	CInput::m_unk0x00511400	CInput::m_axisOffsets	{0, 4, ..., 28}: DIJOFS_X..DIJOFS_SLIDER(1), the data-format offset of each of the eight axes.

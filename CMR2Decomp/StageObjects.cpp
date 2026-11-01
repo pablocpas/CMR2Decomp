@@ -3469,8 +3469,8 @@ unsigned int StageObject_GetAnyDeviceHeldButtons(void)
     int i;
 
     for (i = 0; i < 8; i++) {
-        if (CInput::m_availableDevices[i].field_0x0 != -1)
-            buttons |= CInput::m_availableDevices[i].field_0x4;
+        if (CInput::m_availableDevices[i].type != -1)
+            buttons |= CInput::m_availableDevices[i].held;
     }
     return buttons;
 }
@@ -8351,7 +8351,7 @@ void Replay_EncodeCarControls(BYTE *pOut, BYTE car)
     Car *pCar = Car_Get(car);
     DeviceInfo *pDev = CInput::GetAvailableDeviceRecord((char)Car_GetDrawnFlag(pCar->index));
 
-    Replay_EncodeControlPacket((BYTE *)pCar->flag0x1d0, pOut, pDev->field_0x0 == 3, pCar->steeringInputMode,
+    Replay_EncodeControlPacket((BYTE *)pCar->flag0x1d0, pOut, pDev->type == 3, pCar->steeringInputMode,
                  pCar->analogThrottle, pCar->analogBrake);
 }
 
@@ -12431,11 +12431,11 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
     }
     StageObject_ReadCarControllerMapping(player);
     pDev = CInput::GetAvailableDeviceRecord(device);
-    if (pDev->field_0x0 != 1) {
+    if (pDev->type != 1) {
         pSrc = CInput::GetAvailableDeviceRecord(player);
-        pDev->field_0x4 |= pSrc->field_0x4;
-        pDev->field_0x8 |= pSrc->field_0x8;
-        pDev->field_0xc |= pSrc->field_0xc;
+        pDev->held |= pSrc->held;
+        pDev->pressed |= pSrc->pressed;
+        pDev->repeated |= pSrc->repeated;
     }
     p = StageUI_GetRaceResultTable();
     if ((char)((CallbackStateMachine *)p)->records[player].packedState != '\n' || GameMenu_IsPauseHeaderActive() != 0) {
@@ -12443,20 +12443,20 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
         if ((char)((CallbackStateMachine *)p)->records[player].packedState == '\n') {
             idx = Race_IsMultiplayerRecordMode10() ? 1 : 0;
             if (View_GetActiveCameraMode((BYTE)idx) != 10 && View_GetActiveCameraMode((BYTE)idx) != 7) {
-                if ((pDev->field_0x8 & g_carButtonMasks[7]) != 0)
+                if ((pDev->pressed & g_carButtonMasks[7]) != 0)
                     View_UpdateDriverCameraCycle(player);
             }
         } else {
             if (View_GetActiveCameraMode((BYTE)player) != 10 && View_GetActiveCameraMode((BYTE)player) != 7) {
-                if ((pDev->field_0x8 & g_carButtonMasks[7]) != 0)
+                if ((pDev->pressed & g_carButtonMasks[7]) != 0)
                     View_UpdateDriverCameraCycle(player);
             }
         }
     }
     if (Race_GetPlayerRecordField4((BYTE)player) == 0) {
-        if ((pDev->field_0x8 & g_carButtonMasks[7]) == 0 && View_GetActiveCameraMode((BYTE)player) != 8)
-            StageObject_CycleDriverCameraSelection(pDev->field_0x4, player);
-        if (pDev->field_0x0 == 3 || pDev->field_0x0 == 2) {
+        if ((pDev->pressed & g_carButtonMasks[7]) == 0 && View_GetActiveCameraMode((BYTE)player) != 8)
+            StageObject_CycleDriverCameraSelection(pDev->held, player);
+        if (pDev->type == 3 || pDev->type == 2) {
             axisSteer = g_carAxisInputEnabled[0] ? (int)CInput::GetEnabledControllerAxisBinding(player, 0) : -1;
             if (g_carAxisInputEnabled[1]) {
                 axisThrottle = (int)CInput::GetEnabledControllerAxisBinding(player, 2);
@@ -12477,9 +12477,9 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
                     g_controlCar->flag0x1d0[0] = (char)half;
                 else
                     g_controlCar->flag0x1d0[1] = (char)half;
-            } else if ((pDev->field_0x4 & g_carButtonMasks[0]) != 0) {
+            } else if ((pDev->held & g_carButtonMasks[0]) != 0) {
                 g_controlCar->flag0x1d0[0] = 0x3f;
-            } else if ((pDev->field_0x4 & g_carButtonMasks[1]) != 0) {
+            } else if ((pDev->held & g_carButtonMasks[1]) != 0) {
                 g_controlCar->flag0x1d0[1] = 0x3f;
             }
             if (axisThrottle != -1) {
@@ -12503,7 +12503,7 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
                 }
             } else {
                 g_controlCar->analogThrottle = 0;
-                if ((pDev->field_0x4 & g_carButtonMasks[2]) != 0)
+                if ((pDev->held & g_carButtonMasks[2]) != 0)
                     g_controlCar->flag0x1d0[2] = 0x3f;
             }
             if (axisBrake != -1) {
@@ -12520,28 +12520,28 @@ void StageObject_UpdatePlayerControlIndicators(int player, int device)
                 }
             } else {
                 g_controlCar->analogBrake = 0;
-                if ((pDev->field_0x4 & g_carButtonMasks[3]) != 0)
+                if ((pDev->held & g_carButtonMasks[3]) != 0)
                     g_controlCar->flag0x1d0[3] = 0x3f;
             }
         } else {
             g_controlCar->analogThrottle = 0;
             g_controlCar->analogBrake = 0;
             g_controlCar->steeringInputMode = 0;
-            if ((pDev->field_0x4 & g_carButtonMasks[2]) != 0)
+            if ((pDev->held & g_carButtonMasks[2]) != 0)
                 g_controlCar->flag0x1d0[2] = 0x3f;
-            if ((pDev->field_0x4 & g_carButtonMasks[3]) != 0)
+            if ((pDev->held & g_carButtonMasks[3]) != 0)
                 g_controlCar->flag0x1d0[3] = 0x3f;
-            if ((pDev->field_0x4 & g_carButtonMasks[0]) != 0)
+            if ((pDev->held & g_carButtonMasks[0]) != 0)
                 g_controlCar->flag0x1d0[0] = 0x3f;
-            else if ((pDev->field_0x4 & g_carButtonMasks[1]) != 0)
+            else if ((pDev->held & g_carButtonMasks[1]) != 0)
                 g_controlCar->flag0x1d0[1] = 0x3f;
         }
-        if ((pDev->field_0x4 & g_carButtonMasks[4]) != 0)
+        if ((pDev->held & g_carButtonMasks[4]) != 0)
             g_controlCar->handbrake = 1;
         if (g_controlCar->automaticGearbox != 0) {
-            if ((pDev->field_0x8 & g_carButtonMasks[5]) != 0)
+            if ((pDev->pressed & g_carButtonMasks[5]) != 0)
                 g_controlCar->field_0x1d4[0] = 1;
-            if ((pDev->field_0x8 & g_carButtonMasks[6]) != 0)
+            if ((pDev->pressed & g_carButtonMasks[6]) != 0)
                 g_controlCar->field_0x1d4[0] = 0xff;
         }
     }
