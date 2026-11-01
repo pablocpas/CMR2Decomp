@@ -537,12 +537,12 @@ unsigned int CInput::m_directionButtonMask = 0xf;
 BOOL CInput::m_unk0x0052086c = TRUE;
 DIEFFECT CInput::m_forceFeedbackEffects[80];
 DICONDITION CInput::m_forceFeedbackConditions[80];
-DWORD CInput::m_unk0x0059f8f0;
-DWORD CInput::m_unk0x0059f8f4;
-DWORD CInput::m_unk0x0059f8f8;
-DWORD CInput::m_unk0x0059f900;
-DWORD CInput::m_unk0x0059f90c;
-DWORD CInput::m_unk0x0059f910;
+DWORD CInput::m_menuErrorSound;
+DWORD CInput::m_menuBackSound;
+DWORD CInput::m_menuMoveSound;
+DWORD CInput::m_menuSoundVolume;
+DWORD CInput::m_menuChangeSound;
+DWORD CInput::m_menuSelectSound;
 
 unsigned short CInput::m_controllerCount = 1;
 char CInput::m_strControllerInfoDir[32] = "%s\\Configuration\\Controller.rcf";
@@ -719,7 +719,7 @@ BOOL CInput::SetupKeyboard(void) {
         m_availableDevices[uVar1].keyboard.field_0x475 = 0x3c;
         m_availableDevices[uVar1].keyboard.field_0x476 = 0x3e;
         m_availableDevices[uVar1].keyboard.field_0x477 = 0x0;
-        m_availableDevices[uVar1].keyboard.field_0x472 = 0x1;
+        m_availableDevices[uVar1].keyboard.escapeKey = 0x1;
         m_availableDevices[uVar1].keyboard.field_0x473 = 0x0;
 
         m_deviceCounts.nextDevice = m_deviceCounts.nextDevice + 1;
@@ -1015,7 +1015,7 @@ BOOL CInput::InitializeForceFeedbackDevice(int deviceID, LPDIRECTINPUTDEVICE7 pD
     HRESULT hr;
 
     pGraphics = g_pGraphics;
-    if (m_forceFeedbackDevices[deviceID].field_0x0 == 0) {
+    if (m_forceFeedbackDevices[deviceID].active == 0) {
         m_forceFeedbackDevices[deviceID].device = (LPDIRECTINPUTDEVICE7A)pDevice;
         if (pGraphics->isFullscreen) {
             hr = pDevice->SendForceFeedbackCommand(DISFFC_STOPALL);
@@ -1023,7 +1023,7 @@ BOOL CInput::InitializeForceFeedbackDevice(int deviceID, LPDIRECTINPUTDEVICE7 pD
         }
 
         SetForceFeedbackAutocenter(0, deviceID);
-        m_forceFeedbackDevices[deviceID].field_0x0 = TRUE;
+        m_forceFeedbackDevices[deviceID].active = TRUE;
         ResetForceFeedbackEffects();
     }
 
@@ -1044,7 +1044,7 @@ bool CInput::IsForceFeedbackCallSuccessful(HRESULT hr) {
 void CInput::SetForceFeedbackAutocenter(DWORD param1, int deviceID) {
     DIPROPDWORD dipdw;
 
-    if (m_forceFeedbackDevices[deviceID].field_0x0 != FALSE) {
+    if (m_forceFeedbackDevices[deviceID].active != FALSE) {
         dipdw.dwData = param1;
         dipdw.diph.dwSize = 0x14;
         dipdw.diph.dwHeaderSize = 0x10;
@@ -1065,7 +1065,7 @@ void CInput::ResetForceFeedbackEffects(void) {
     do {
         ForceFeedbackDevice* pDevice = (ForceFeedbackDevice*)((BYTE*)pEffects - 0xC);
         
-        if (pDevice->field_0x0 != FALSE) {
+        if (pDevice->active != FALSE) {
             LPDIRECTINPUTEFFECT* pEffect = pEffects;
             int count = 10;
             
@@ -1095,7 +1095,7 @@ BOOL CInput::ResetForceFeedbackEffectsAlt(void) {
     ForceFeedbackDevice* pDevice = m_forceFeedbackDevices;
     
     do {
-        if (pDevice->field_0x0 != FALSE) {
+        if (pDevice->active != FALSE) {
             LPDIRECTINPUTEFFECT* pEffect = pDevice->effects;
             int count = 10;
             
@@ -1111,7 +1111,7 @@ BOOL CInput::ResetForceFeedbackEffectsAlt(void) {
             } while (count != 0);
             
             pDevice->field_0x8 = 0;
-            pDevice->field_0x0 = 0;
+            pDevice->active = 0;
         }
         pDevice++;
     } while ((int)pDevice < (int)&m_forceFeedbackDevices[8]);
@@ -1252,7 +1252,7 @@ void CInput::SetDeviceKeyBinding(int param1, unsigned int param2, unsigned int p
             break;
 
         case 0x400:
-            device->keyboard.field_0x472 = param3;
+            device->keyboard.escapeKey = param3;
             break;
 
         case 0x800:
@@ -1379,17 +1379,17 @@ int CInput::GetButtonIndexFromMask(unsigned int mask)
 // FUNCTION: CMR2 0x0049ff80
 void CInput::SetInputRepeatTimingParameters(DWORD p1, DWORD p2, DWORD p3, DWORD p4, DWORD p5)
 {
-    m_unk0x0059f8f8 = p1;
-    m_unk0x0059f910 = p2;
-    m_unk0x0059f8f4 = p3;
-    m_unk0x0059f8f0 = p4;
-    m_unk0x0059f90c = p5;
+    m_menuMoveSound = p1;
+    m_menuSelectSound = p2;
+    m_menuBackSound = p3;
+    m_menuErrorSound = p4;
+    m_menuChangeSound = p5;
 }
 
 // FUNCTION: CMR2 0x0049ffc0
 void CInput::SetInputRepeatTimingState(DWORD param1)
 {
-    m_unk0x0059f900 = param1;
+    m_menuSoundVolume = param1;
 }
 
 // FUNCTION: CMR2 0x0040be00
@@ -1432,7 +1432,7 @@ BOOL CInput::IsControllerActionBound(int action, ControllerData *pController)
 // FUNCTION: CMR2 0x004aaf50
 void CInput::SetForceFeedbackDeviceValue(DWORD param1, int index)
 {
-    m_unk0x00666ec8[index] = param1;
+    m_quickForceUpdate[index] = param1;
 }
 
 // FUNCTION: CMR2 0x004aaf70
@@ -1443,7 +1443,7 @@ void CInput::StartForceFeedbackEffect(int effectIndex, int deviceIndex)
     DWORD status;
 
     pDevice = &m_forceFeedbackDevices[deviceIndex];
-    if (pDevice->field_0x0 != 0) {
+    if (pDevice->active != 0) {
         pEffect = pDevice->effects[effectIndex];
         if (pEffect != NULL) {
             IsForceFeedbackCallSuccessful(pEffect->GetEffectStatus(&status));
@@ -1540,7 +1540,7 @@ void CInput::ReadKeyboardDevice(DeviceInfo *pDevice)
             pDevice->held |= 0x100;
         if (m_keyboardState[pDevice->keyboard.backKey] & 0x80)
             pDevice->held |= 0x200;
-        if (m_keyboardState[pDevice->keyboard.field_0x472] & 0x80)
+        if (m_keyboardState[pDevice->keyboard.escapeKey] & 0x80)
             pDevice->held |= 0x400;
         if (m_keyboardState[pDevice->keyboard.field_0x473] & 0x80)
             pDevice->held |= 0x800;
@@ -1720,7 +1720,7 @@ int CInput::CreateForceFeedbackEffect(int effectType, DWORD duration, LONG coeff
 
     i = 0;
     pDevice = &m_forceFeedbackDevices[deviceIndex];
-    if (pDevice->field_0x0 == 0)
+    if (pDevice->active == 0)
         return -1;
 
     while (pDevice->effects[i] != NULL) {
@@ -1850,10 +1850,10 @@ HRESULT CInput::SetEffectGain(int effectIndex, DWORD gain, int deviceIndex)
 
     pDevice = &m_forceFeedbackDevices[deviceIndex];
     flags = DIEP_GAIN;
-    if (m_unk0x00666ec8[deviceIndex] == 0)
+    if (m_quickForceUpdate[deviceIndex] == 0)
         flags = DIEP_GAIN | DIEP_NODOWNLOAD;
 
-    if (pDevice->field_0x0 != 0 && (pEffect = pDevice->effects[effectIndex]) != NULL) {
+    if (pDevice->active != 0 && (pEffect = pDevice->effects[effectIndex]) != NULL) {
         DIEFFECT effect = { sizeof(DIEFFECT) };
         effect.dwGain = gain;
         return pDevice->effects[effectIndex]->SetParameters(&effect, flags);
@@ -1870,10 +1870,10 @@ HRESULT CInput::SetEffectGainAndDirection(int effectIndex, DWORD gain, LONG dire
 
     pDevice = &m_forceFeedbackDevices[deviceIndex];
     flags = DIEP_GAIN | DIEP_DIRECTION;
-    if (m_unk0x00666ec8[deviceIndex] == 0)
+    if (m_quickForceUpdate[deviceIndex] == 0)
         flags = DIEP_GAIN | DIEP_DIRECTION | DIEP_NODOWNLOAD;
 
-    if (pDevice->field_0x0 != 0 && (pEffect = pDevice->effects[effectIndex]) != NULL) {
+    if (pDevice->active != 0 && (pEffect = pDevice->effects[effectIndex]) != NULL) {
         DIEFFECT effect = { sizeof(DIEFFECT) };
         LONG lDirection[2];
         effect.dwFlags = DIEFF_POLAR | DIEFF_OBJECTOFFSETS;
@@ -1898,7 +1898,7 @@ int CInput::CreateConstantForceEffect(DWORD duration, LONG direction, LONG magni
 
     i = 0;
     pDevice = &m_forceFeedbackDevices[deviceIndex];
-    if (pDevice->field_0x0 == 0)
+    if (pDevice->active == 0)
         return -1;
 
     while (pDevice->effects[i] != NULL) {
@@ -1947,10 +1947,10 @@ HRESULT CInput::SetConditionCoefficient(int effectIndex, LONG coefficient, int d
 
     pDevice = &m_forceFeedbackDevices[deviceIndex];
     flags = DIEP_TYPESPECIFICPARAMS;
-    if (m_unk0x00666ec8[deviceIndex] == 0)
+    if (m_quickForceUpdate[deviceIndex] == 0)
         flags = DIEP_TYPESPECIFICPARAMS | DIEP_NODOWNLOAD;
 
-    if (pDevice->field_0x0 != 0 && pDevice->effects[effectIndex] != NULL) {
+    if (pDevice->active != 0 && pDevice->effects[effectIndex] != NULL) {
         slot = deviceIndex * 10 + effectIndex;
         m_forceFeedbackConditions[slot].lOffset = 0;
         m_forceFeedbackConditions[slot].lPositiveCoefficient = coefficient;
@@ -2020,8 +2020,8 @@ void CInput::InitDetectedControllerSlot(DeviceInfo *pDevice, int index)
     pController->analogSteering = (pDevice->type == 3 || pDevice->type == 2) ? 1 : 0;
     pController->analogPedals = (pDevice->type == 3 || pDevice->type == 2) ? 1 : 0;
     pController->forceFeedback = pDevice->supportsForceFeedback;
-    m_controllerInfo[index].field_0x4 = 0x8000;
-    m_controllerInfo[index].field_0x0 = 0x8000;
+    m_controllerInfo[index].effectsForce = 0x8000;
+    m_controllerInfo[index].textureForce = 0x8000;
     if (pDevice->type == 1) {
         if (index == 0) {
             m_controllerInfo[0].keys[0] = pDevice->keyboard.steerLeftKey;
@@ -2252,7 +2252,7 @@ void CInput::SetControllerForceFeedbackValue(unsigned short param1, DWORD param2
     unsigned short index;
 
     index = CInput::m_playerControllers[param1];
-    SetForceFeedbackDeviceValue(m_controllerInfo[index].field_0x11c = param2, index);
+    SetForceFeedbackDeviceValue(m_controllerInfo[index].quickForceUpdate = param2, index);
 }
 
 
@@ -2354,31 +2354,31 @@ void Input_SetControllerSlotMapping(unsigned short slot, unsigned short index)
 // FUNCTION: CMR2 0x0040bc00
 unsigned int Input_GetControllerPrimaryFlags(unsigned short slot)
 {
-    return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].field_0x0;
+    return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].textureForce;
 }
 
 // FUNCTION: CMR2 0x0040bc30
 unsigned int Input_GetControllerSecondaryFlags(unsigned short slot)
 {
-    return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].field_0x4;
+    return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].effectsForce;
 }
 
 // FUNCTION: CMR2 0x0040bc60
 void Input_SetControllerPrimaryFlags(unsigned short slot, unsigned int value)
 {
-    CInput::m_controllerInfo[CInput::m_playerControllers[slot]].field_0x0 = value;
+    CInput::m_controllerInfo[CInput::m_playerControllers[slot]].textureForce = value;
 }
 
 // FUNCTION: CMR2 0x0040bcd0
 DWORD Input_GetControllerField11C(unsigned short slot)
 {
-    return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].field_0x11c;
+    return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].quickForceUpdate;
 }
 
 // FUNCTION: CMR2 0x0040bd00
 void Input_SetControllerSecondaryFlags(unsigned short slot, unsigned int value)
 {
-    CInput::m_controllerInfo[CInput::m_playerControllers[slot]].field_0x4 = value;
+    CInput::m_controllerInfo[CInput::m_playerControllers[slot]].effectsForce = value;
 }
 
 // FUNCTION: CMR2 0x0040bd30

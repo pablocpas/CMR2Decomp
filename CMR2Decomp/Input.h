@@ -37,7 +37,7 @@ struct KeyboardInfo {
     BYTE cameraCycleKey;
     BYTE driverCycleKey;
     BYTE backKey;
-    BYTE field_0x472;
+    BYTE escapeKey;
     BYTE field_0x473;
     BYTE field_0x474;
     BYTE field_0x475;
@@ -78,7 +78,7 @@ struct DeviceCounts {
 };
 
 struct ForceFeedbackDevice {
-    BOOL field_0x0;              // +0x0 (active flag)
+    BOOL active;                 // +0x0 the device has force feedback
     LPDIRECTINPUTDEVICE7A device; // +0x4
     BYTE field_0x8;              // +0x8 (flag cleared at end)
     BYTE padding1[3];            // +0x9-0xB
@@ -94,14 +94,14 @@ struct ControllerDataUnk0x210 {
 };
 
 struct ControllerData {
-    unsigned int field_0x0;
-    unsigned int field_0x4;
+    unsigned int textureForce;  // 0..0x10000, pad page "Texture Forces": the steering force
+    unsigned int effectsForce;  // 0..0x10000, pad page "Effects Forces": spring and damper
     char name[MAX_PATH];
     DWORD hasAxes;              // a joystick or mouse
     DWORD analogSteering;       // steering from axisIndices[0], [1]
     DWORD analogPedals;         // throttle and brake from axisIndices[2], [3]
     DWORD forceFeedback;        // the device has force feedback
-    DWORD field_0x11c;
+    DWORD quickForceUpdate;     // send each change at once (pad page "Quick Force Update")
     DWORD throttleOnPositive;   // one pedal axis: throttle on its positive half
     DWORD smoothSteering;       // Car::steeringInputMode 1 (eased), else 2 (direct)
     union {
@@ -218,14 +218,14 @@ CMR2_LAYOUT_CHECK(InputDeviceStateSize, sizeof(InputDeviceState) == 0x2864);
 
 struct InputFeedbackState {
     ForceFeedbackDevice devices[8];
-    DWORD gains[8];
+    DWORD quickUpdate[8];        // per device: ControllerData::quickForceUpdate
 };
 CMR2_LAYOUT_CHECK(InputFeedbackStateSize, sizeof(InputFeedbackState) == 0x1c0);
 
 #define m_availableDevices m_deviceState.availableDevices
 #define m_pDirectInputKeyboard m_deviceState.keyboard
 #define m_forceFeedbackDevices m_feedbackState.devices
-#define m_unk0x00666ec8 m_feedbackState.gains
+#define m_quickForceUpdate m_feedbackState.quickUpdate
 
 class CInput {
 public:
@@ -258,17 +258,17 @@ public:
     // GLOBAL: CMR2 0x00520808
     static DWORD m_buttonMasks[24];
     // GLOBAL: CMR2 0x0059f8f0
-    static DWORD m_unk0x0059f8f0;
+    static DWORD m_menuErrorSound;
     // GLOBAL: CMR2 0x0059f8f4
-    static DWORD m_unk0x0059f8f4;
+    static DWORD m_menuBackSound;
     // GLOBAL: CMR2 0x0059f8f8
-    static DWORD m_unk0x0059f8f8;
+    static DWORD m_menuMoveSound;
     // GLOBAL: CMR2 0x0059f900
-    static DWORD m_unk0x0059f900;
+    static DWORD m_menuSoundVolume;
     // GLOBAL: CMR2 0x0059f90c
-    static DWORD m_unk0x0059f90c;
+    static DWORD m_menuChangeSound;
     // GLOBAL: CMR2 0x0059f910
-    static DWORD m_unk0x0059f910;
+    static DWORD m_menuSelectSound;
 
     // GLOBAL: CMR2 0x00516908
     static char m_strControllerInfoDir[32];

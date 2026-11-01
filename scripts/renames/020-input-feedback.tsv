@@ -1,0 +1,27 @@
+address	old_name	new_name	evidence
+KeyboardInfo	field_0x472	escapeKey	SetupKeyboard sets DIK_ESCAPE (0x01) for both keyboards; ReadKeyboardDevice gives it bit 0x400, which InRaceMenu_IsBackPressed tests on keyboards.
+ForceFeedbackDevice	field_0x0	active	InitializeForceFeedbackDevice sets it once the device is set up; every effect call returns without it; ResetForceFeedbackEffectsAlt clears it.
+ControllerData	field_0x0	textureForce	Pad page item 1 (text 0x7b "Texture Forces") through Input_Get/SetControllerPrimaryFlags; StageTiming_InitForceFeedbackSlots copies it into the slot that scales the steering force.
+ControllerData	field_0x4	effectsForce	Pad page item 0 (text 0x7a "Effects Forces") through Input_Get/SetControllerSecondaryFlags; the slot copy scales the spring and damper coefficients.
+ControllerData	field_0x11c	quickForceUpdate	Pad page item 2 (text 0x1a8 "Quick Force Update", On = 1); copied per device by SetForceFeedbackDeviceValue, without it SetEffectGain, SetEffectGainAndDirection and SetConditionCoefficient add DIEP_NODOWNLOAD.
+InputFeedbackState	gains	quickUpdate	The per-device copy of quickForceUpdate (see above), read as m_unk0x00666ec8 by the effect setters.
+0x00666ec8	m_unk0x00666ec8	m_quickForceUpdate	Macro for InputFeedbackState::quickUpdate.
+ForceFeedbackSlot	Unk0x00539278	ForceFeedbackSlot	Type of g_forceFeedbackSlots, one per player: the forces sent to its device.
+ForceFeedbackSlot	field_0x0..0x8	appliedSpring, appliedDamper, appliedConstant	ForceFeedback_ApplyStoredForces compares each with field_0xc..0x14 and sends the change: effect 0 (spring), 1 (damper), 2 (constant force), the order StageTiming_InitForceFeedbackSlots creates them in; ForceFeedback_CacheAppliedForces copies them back.
+ForceFeedbackSlot	field_0xc..0x14	spring, damper, constant	Written by ForceFeedback_ComputeConditionCoefficients (spring, damper) and ForceFeedback_ComputeSteeringForce (constant, sent with SetEffectGainAndDirection).
+ForceFeedbackSlot	field_0x18	textureForce	ControllerData::textureForce; ForceFeedback_ComputeSteeringForce scales the force by it.
+ForceFeedbackSlot	field_0x1c	effectsForce	ControllerData::effectsForce; ForceFeedback_ComputeConditionCoefficients scales spring and damper by it.
+ForceFeedbackSlot	field_0x20	roadNoise	ForceFeedback_ComputeRoadNoise: rand() with alternating sign, scaled by the corners' surface roughness times speed plus field_0x28; added to the steering force.
+ForceFeedbackSlot	field_0x24	impactKick	Set from the longitudinal part of an impact (FixedPoint.cpp), faded by ForceFeedback_FadeImpulseForces, added to or subtracted from the steering force by field_0x30.
+ForceFeedbackSlot	field_0x28	impactShake	Set from the length of an impact, faded, added to the road noise amplitude.
+ForceFeedbackSlot	field_0x2c	device	Device record of the player (Input_GetControllerSlotMapping), < 0 without force feedback; passed to every CInput effect call.
+ForceFeedbackSlot	field_0x30	impactKickReversed	Set when the impact's longitudinal part is negative; the kick is then added instead of subtracted.
+ForceFeedbackSlot	field_0x34	active	ForceFeedback_ActivateIdleSlots / DeactivateSlots; ForceFeedback_UpdatePlayerSlot computes the forces only while set.
+0x00539270	g_unk0x00539270	g_forceFeedbackFrontOnGround	ForceFeedback_UpdatePlayerSlot copies cornerOnGround[0..1] (the front wheels, whose cornerAxis the steering force uses), 0 off the stage.
+0x00539380	g_unk0x00539380	g_forceFeedbackRoadRumble	ForceFeedback_ComputeAxleRumble: the average of the two axles' rumble; ForceFeedback_ComputeConditionCoefficients builds spring and damper from it.
+0x0059f8f8	CInput::m_unk0x0059f8f8	CInput::m_menuMoveSound	Menu_Update plays it when the cursor moves; Menu_PlaySoundId(0).
+0x0059f910	CInput::m_unk0x0059f910	CInput::m_menuSelectSound	Played on entering a submenu (Menu_Update, Menu_SetNextAction); Menu_PlaySoundId(1).
+0x0059f8f4	CInput::m_unk0x0059f8f4	CInput::m_menuBackSound	Played when Menu_Update goes back; Menu_PlaySoundId(2).
+0x0059f8f0	CInput::m_unk0x0059f8f0	CInput::m_menuErrorSound	Menu_PlaySoundId(3): an empty session name, an invalid character in a name.
+0x0059f90c	CInput::m_unk0x0059f90c	CInput::m_menuChangeSound	Played when Menu_Update changes an item's value left or right; Menu_PlaySoundId(4).
+0x0059f900	CInput::m_unk0x0059f900	CInput::m_menuSoundVolume	Volume Menu_PlaySound plays them at; callers set the effects volume / 4.
