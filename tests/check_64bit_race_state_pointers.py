@@ -41,7 +41,7 @@ struct CGameInfo {
  static int GetGameModeOptionBit19(){return 0;}
  static int GetConfiguredPlayerCount();static int GetConfiguredGameMode();static int IsConfiguredMultiplayer();static int IsInRaceMenuOpen();
 };
-struct CInput{template<class... T>static void SetInputRepeatTimingParameters(T...) {}};
+struct CInput{template<class... T>static void SetMenuSounds(T...) {}};
 struct CFrontend{static void ClearFrontendPlayerInputCounters(){}};
 struct CMain{static int GetFrameDelta();};
 RaceCallbackStorage g_raceCallbackStorage;

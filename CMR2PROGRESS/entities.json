@@ -1541,31 +1541,31 @@
   ],
   "0x40bc00": [
     4807344,
-    "Input_GetControllerPrimaryFlags"
+    "Input_GetControllerTextureForce"
   ],
   "0x40bc30": [
     4807392,
-    "Input_GetControllerSecondaryFlags"
+    "Input_GetControllerEffectsForce"
   ],
   "0x40bc60": [
     4807440,
-    "Input_SetControllerPrimaryFlags"
+    "Input_SetControllerTextureForce"
   ],
   "0x40bc90": [
     4806848,
-    "CInput::SetControllerForceFeedbackValue"
+    "CInput::SetControllerQuickForceUpdate"
   ],
   "0x40bcd0": [
     4807488,
-    "Input_GetControllerField11C"
+    "Input_GetControllerQuickForceUpdate"
   ],
   "0x40bd00": [
     4807536,
-    "Input_SetControllerSecondaryFlags"
+    "Input_SetControllerEffectsForce"
   ],
   "0x40bd30": [
     4807584,
-    "Input_GetControllerField118"
+    "Input_GetControllerForceFeedback"
   ],
   "0x40bd60": [
     4807632,
@@ -1573,19 +1573,19 @@
   ],
   "0x40bdd0": [
     4807744,
-    "Input_GetControllerField110"
+    "Input_GetControllerAnalogSteering"
   ],
   "0x40be00": [
     4800400,
-    "CInput::GetControllerField114"
+    "CInput::GetControllerAnalogPedals"
   ],
   "0x40be30": [
     4800448,
-    "CInput::GetControllerField120"
+    "CInput::GetControllerThrottleOnPositive"
   ],
   "0x40be60": [
     4800496,
-    "CInput::GetControllerField124"
+    "CInput::GetControllerSmoothSteering"
   ],
   "0x40be90": [
     4798992,
@@ -6833,11 +6833,11 @@
   ],
   "0x493ed0": [
     5223456,
-    "CarPhysics_DampSurfaceSteeringAngle"
+    "AutoGear_FollowAnalogSteering"
   ],
   "0x494110": [
     5224032,
-    "AutoGear_IntegrateSteeringAccumulator"
+    "AutoGear_IntegrateDigitalSteering"
   ],
   "0x4943d0": [
     5221984,
@@ -6853,11 +6853,11 @@
   ],
   "0x4946c0": [
     5221072,
-    "AutoGear_UpdateRollingFollowRate"
+    "AutoGear_RampDigitalThrottle"
   ],
   "0x494880": [
     5221520,
-    "AutoGear_UpdateSteeringSwing"
+    "AutoGear_RampDigitalBrake"
   ],
   "0x494960": [
     5220640,
@@ -7369,11 +7369,11 @@
   ],
   "0x49ff80": [
     4800320,
-    "CInput::SetInputRepeatTimingParameters"
+    "CInput::SetMenuSounds"
   ],
   "0x49ffc0": [
     4800384,
-    "CInput::SetInputRepeatTimingState"
+    "CInput::SetMenuSoundVolume"
   ],
   "0x49ffd0": [
     4810064,
@@ -8349,7 +8349,7 @@
   ],
   "0x4aaf50": [
     4800688,
-    "CInput::SetForceFeedbackDeviceValue"
+    "CInput::SetQuickForceUpdate"
   ],
   "0x4aaf70": [
     4800720,

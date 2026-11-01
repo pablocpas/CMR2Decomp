@@ -1,0 +1,19 @@
+address	old_name	new_name	evidence
+0x49ff80	CInput::SetInputRepeatTimingParameters	CInput::SetMenuSounds	Stores the five menu sounds: move, select, back, error, change (see 020-input-feedback.tsv).
+0x49ffc0	CInput::SetInputRepeatTimingState	CInput::SetMenuSoundVolume	Stores the volume Menu_PlaySound plays the menu sounds at; callers pass the effects volume / 4.
+0x40bc00	Input_GetControllerPrimaryFlags	Input_GetControllerTextureForce	Returns ControllerData::textureForce of the slot's configuration.
+0x40bc30	Input_GetControllerSecondaryFlags	Input_GetControllerEffectsForce	Returns ControllerData::effectsForce of the slot's configuration.
+0x40bc60	Input_SetControllerPrimaryFlags	Input_SetControllerTextureForce	Stores ControllerData::textureForce (pad page item "Texture Forces").
+0x40bd00	Input_SetControllerSecondaryFlags	Input_SetControllerEffectsForce	Stores ControllerData::effectsForce (pad page item "Effects Forces").
+0x40bcd0	Input_GetControllerField11C	Input_GetControllerQuickForceUpdate	Returns ControllerData::quickForceUpdate.
+0x40bd30	Input_GetControllerField118	Input_GetControllerForceFeedback	Returns ControllerData::forceFeedback; StageTiming_InitForceFeedbackSlots creates effects only when set.
+0x40bdd0	Input_GetControllerField110	Input_GetControllerAnalogSteering	Returns ControllerData::analogSteering.
+0x40be00	CInput::GetControllerField114	CInput::GetControllerAnalogPedals	Returns ControllerData::analogPedals.
+0x40be30	CInput::GetControllerField120	CInput::GetControllerThrottleOnPositive	Returns ControllerData::throttleOnPositive.
+0x40be60	CInput::GetControllerField124	CInput::GetControllerSmoothSteering	Returns ControllerData::smoothSteering.
+0x40bc90	CInput::SetControllerForceFeedbackValue	CInput::SetControllerQuickForceUpdate	Stores ControllerData::quickForceUpdate and passes it to SetForceFeedbackDeviceValue (pad page item "Quick Force Update").
+0x4aaf50	CInput::SetForceFeedbackDeviceValue	CInput::SetQuickForceUpdate	Stores a device's quick update flag, read by the effect setters to send changes at once or with DIEP_NODOWNLOAD.
+0x493ed0	CarPhysics_DampSurfaceSteeringAngle	AutoGear_FollowAnalogSteering	Steering of an analogue device (Car::steeringInputMode != 0): the wheels' target from flag0x1d0[0..1] as 0..63 values, taken at once in mode 2 or eased by the setup's outward and centring rates.
+0x494110	AutoGear_IntegrateSteeringAccumulator	AutoGear_IntegrateDigitalSteering	Steering of keys and buttons (steeringInputMode 0, the else of AutoGear_UpdateCarGearState): an accumulator driven by the steering torque and the return rate, the wheels following it at a limited rate.
+0x494880	AutoGear_UpdateSteeringSwing	AutoGear_RampDigitalBrake	Digital brake (analogBrake 0): brakePhase rises by brakeRampStep while flag0x1d0[3] is held and brakeInput follows a sine of it; reset on release.
+0x4946c0	AutoGear_UpdateRollingFollowRate	AutoGear_RampDigitalThrottle	Digital throttle (analogThrottle 0): throttlePhase rises by throttleRampStep while flag0x1d0[2] is held and falls at twice the rate on release; throttleTorque follows a sine of it.

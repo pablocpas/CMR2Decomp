@@ -44,7 +44,7 @@ address	name	file	original_bytes	reccmp_score	byte_audit_score
 0x477ce0	StageObject_AnimateCarLightLevels	StageObjects.cpp	584	0.5647668393782384	0.5244215938303342
 0x417090	Race_UpdateCarRouteAndWrongWayState	Race.cpp	1081	0.5665101721439749	0.5402124430955993
 0x46bfd0	Replay_RestoreCarState	StageObjects.cpp	428	0.5674418604651162	0.5545454545454546
-0x40bc90	CInput::SetControllerForceFeedbackValue	Input.cpp	61	0.5714285714285714	0.6666666666666666
+0x40bc90	CInput::SetControllerQuickForceUpdate	Input.cpp	61	0.5714285714285714	0.6666666666666666
 0x418f20	StageSound_ResetRecordsAndRegisterCleanup	StageUI.cpp	185	0.574468085106383	0.6041666666666666
 0x4b1530	Billboard_Draw	Graphics.cpp	1078	0.5756578947368421	0.5886287625418061
 0x429f20	FixBasis_Rotate	FixedPoint.cpp	4129	0.5796703296703297	0.6013698630136987

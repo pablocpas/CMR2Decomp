@@ -1377,7 +1377,7 @@ int CInput::GetButtonIndexFromMask(unsigned int mask)
 }
 
 // FUNCTION: CMR2 0x0049ff80
-void CInput::SetInputRepeatTimingParameters(DWORD p1, DWORD p2, DWORD p3, DWORD p4, DWORD p5)
+void CInput::SetMenuSounds(DWORD p1, DWORD p2, DWORD p3, DWORD p4, DWORD p5)
 {
     m_menuMoveSound = p1;
     m_menuSelectSound = p2;
@@ -1387,25 +1387,25 @@ void CInput::SetInputRepeatTimingParameters(DWORD p1, DWORD p2, DWORD p3, DWORD 
 }
 
 // FUNCTION: CMR2 0x0049ffc0
-void CInput::SetInputRepeatTimingState(DWORD param1)
+void CInput::SetMenuSoundVolume(DWORD param1)
 {
     m_menuSoundVolume = param1;
 }
 
 // FUNCTION: CMR2 0x0040be00
-DWORD CInput::GetControllerField114(unsigned int param1)
+DWORD CInput::GetControllerAnalogPedals(unsigned int param1)
 {
     return m_controllerInfo[m_playerControllers[(unsigned short)param1]].analogPedals;
 }
 
 // FUNCTION: CMR2 0x0040be30
-DWORD CInput::GetControllerField120(unsigned int param1)
+DWORD CInput::GetControllerThrottleOnPositive(unsigned int param1)
 {
     return m_controllerInfo[m_playerControllers[(unsigned short)param1]].throttleOnPositive;
 }
 
 // FUNCTION: CMR2 0x0040be60
-DWORD CInput::GetControllerField124(unsigned short param1)
+DWORD CInput::GetControllerSmoothSteering(unsigned short param1)
 {
     return m_controllerInfo[m_playerControllers[(unsigned short)param1]].smoothSteering;
 }
@@ -1430,7 +1430,7 @@ BOOL CInput::IsControllerActionBound(int action, ControllerData *pController)
 }
 
 // FUNCTION: CMR2 0x004aaf50
-void CInput::SetForceFeedbackDeviceValue(DWORD param1, int index)
+void CInput::SetQuickForceUpdate(DWORD param1, int index)
 {
     m_quickForceUpdate[index] = param1;
 }
@@ -2247,12 +2247,12 @@ void CInput::UpdateAllAvailableDevices(void)
 
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040bc90
-void CInput::SetControllerForceFeedbackValue(unsigned short param1, DWORD param2)
+void CInput::SetControllerQuickForceUpdate(unsigned short param1, DWORD param2)
 {
     unsigned short index;
 
     index = CInput::m_playerControllers[param1];
-    SetForceFeedbackDeviceValue(m_controllerInfo[index].quickForceUpdate = param2, index);
+    SetQuickForceUpdate(m_controllerInfo[index].quickForceUpdate = param2, index);
 }
 
 
@@ -2352,37 +2352,37 @@ void Input_SetControllerSlotMapping(unsigned short slot, unsigned short index)
 }
 
 // FUNCTION: CMR2 0x0040bc00
-unsigned int Input_GetControllerPrimaryFlags(unsigned short slot)
+unsigned int Input_GetControllerTextureForce(unsigned short slot)
 {
     return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].textureForce;
 }
 
 // FUNCTION: CMR2 0x0040bc30
-unsigned int Input_GetControllerSecondaryFlags(unsigned short slot)
+unsigned int Input_GetControllerEffectsForce(unsigned short slot)
 {
     return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].effectsForce;
 }
 
 // FUNCTION: CMR2 0x0040bc60
-void Input_SetControllerPrimaryFlags(unsigned short slot, unsigned int value)
+void Input_SetControllerTextureForce(unsigned short slot, unsigned int value)
 {
     CInput::m_controllerInfo[CInput::m_playerControllers[slot]].textureForce = value;
 }
 
 // FUNCTION: CMR2 0x0040bcd0
-DWORD Input_GetControllerField11C(unsigned short slot)
+DWORD Input_GetControllerQuickForceUpdate(unsigned short slot)
 {
     return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].quickForceUpdate;
 }
 
 // FUNCTION: CMR2 0x0040bd00
-void Input_SetControllerSecondaryFlags(unsigned short slot, unsigned int value)
+void Input_SetControllerEffectsForce(unsigned short slot, unsigned int value)
 {
     CInput::m_controllerInfo[CInput::m_playerControllers[slot]].effectsForce = value;
 }
 
 // FUNCTION: CMR2 0x0040bd30
-DWORD Input_GetControllerField118(unsigned short slot)
+DWORD Input_GetControllerForceFeedback(unsigned short slot)
 {
     return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].forceFeedback;
 }
@@ -2404,7 +2404,7 @@ void Input_MergeAssignedJoystickButtons(int slot, DeviceInfo *pOut)
 }
 
 // FUNCTION: CMR2 0x0040bdd0
-DWORD Input_GetControllerField110(unsigned short slot)
+DWORD Input_GetControllerAnalogSteering(unsigned short slot)
 {
     return CInput::m_controllerInfo[CInput::m_playerControllers[slot]].analogSteering;
 }

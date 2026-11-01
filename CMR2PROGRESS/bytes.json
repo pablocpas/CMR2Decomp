@@ -16042,49 +16042,49 @@
     "symbol_name": "CInput::GetButtonIndexFromMask"
   },
   "0x49ff80": {
-    "n": "CInput::SetInputRepeatTimingParameters",
+    "n": "CInput::SetMenuSounds",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "CInput::SetInputRepeatTimingParameters"
+    "symbol_name": "CInput::SetMenuSounds"
   },
   "0x49ffc0": {
-    "n": "CInput::SetInputRepeatTimingState",
+    "n": "CInput::SetMenuSoundVolume",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "CInput::SetInputRepeatTimingState"
+    "symbol_name": "CInput::SetMenuSoundVolume"
   },
   "0x40be00": {
-    "n": "CInput::GetControllerField114",
+    "n": "CInput::GetControllerAnalogPedals",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "CInput::GetControllerField114"
+    "symbol_name": "CInput::GetControllerAnalogPedals"
   },
   "0x40be30": {
-    "n": "CInput::GetControllerField120",
+    "n": "CInput::GetControllerThrottleOnPositive",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "CInput::GetControllerField120"
+    "symbol_name": "CInput::GetControllerThrottleOnPositive"
   },
   "0x40be60": {
-    "n": "CInput::GetControllerField124",
+    "n": "CInput::GetControllerSmoothSteering",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "CInput::GetControllerField124"
+    "symbol_name": "CInput::GetControllerSmoothSteering"
   },
   "0x40c210": {
     "n": "CInput::GetEnabledControllerAxisBinding",
@@ -16105,13 +16105,13 @@
     "symbol_name": "CInput::IsControllerActionBound"
   },
   "0x4aaf50": {
-    "n": "CInput::SetForceFeedbackDeviceValue",
+    "n": "CInput::SetQuickForceUpdate",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "CInput::SetForceFeedbackDeviceValue"
+    "symbol_name": "CInput::SetQuickForceUpdate"
   },
   "0x4aaf70": {
     "n": "CInput::StartForceFeedbackEffect",
@@ -16339,13 +16339,13 @@
     "symbol_name": "CInput::UpdateAllAvailableDevices"
   },
   "0x40bc90": {
-    "n": "CInput::SetControllerForceFeedbackValue",
+    "n": "CInput::SetControllerQuickForceUpdate",
     "s": 0.6666666666666666,
     "x": false,
     "fz": 0.8,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "CInput::SetControllerForceFeedbackValue"
+    "symbol_name": "CInput::SetControllerQuickForceUpdate"
   },
   "0x49ead0": {
     "n": "CInput::GetAvailableDeviceRecord",
@@ -16420,58 +16420,58 @@
     "symbol_name": "Input_SetControllerSlotMapping"
   },
   "0x40bc00": {
-    "n": "Input_GetControllerPrimaryFlags",
+    "n": "Input_GetControllerTextureForce",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "Input_GetControllerPrimaryFlags"
+    "symbol_name": "Input_GetControllerTextureForce"
   },
   "0x40bc30": {
-    "n": "Input_GetControllerSecondaryFlags",
+    "n": "Input_GetControllerEffectsForce",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "Input_GetControllerSecondaryFlags"
+    "symbol_name": "Input_GetControllerEffectsForce"
   },
   "0x40bc60": {
-    "n": "Input_SetControllerPrimaryFlags",
+    "n": "Input_SetControllerTextureForce",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "Input_SetControllerPrimaryFlags"
+    "symbol_name": "Input_SetControllerTextureForce"
   },
   "0x40bcd0": {
-    "n": "Input_GetControllerField11C",
+    "n": "Input_GetControllerQuickForceUpdate",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "Input_GetControllerField11C"
+    "symbol_name": "Input_GetControllerQuickForceUpdate"
   },
   "0x40bd00": {
-    "n": "Input_SetControllerSecondaryFlags",
+    "n": "Input_SetControllerEffectsForce",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "Input_SetControllerSecondaryFlags"
+    "symbol_name": "Input_SetControllerEffectsForce"
   },
   "0x40bd30": {
-    "n": "Input_GetControllerField118",
+    "n": "Input_GetControllerForceFeedback",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "Input_GetControllerField118"
+    "symbol_name": "Input_GetControllerForceFeedback"
   },
   "0x40bd60": {
     "n": "Input_MergeAssignedJoystickButtons",
@@ -16483,13 +16483,13 @@
     "symbol_name": "Input_MergeAssignedJoystickButtons"
   },
   "0x40bdd0": {
-    "n": "Input_GetControllerField110",
+    "n": "Input_GetControllerAnalogSteering",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "Input.cpp",
-    "symbol_name": "Input_GetControllerField110"
+    "symbol_name": "Input_GetControllerAnalogSteering"
   },
   "0x49ed80": {
     "n": "Input_GetLastKeyName",
@@ -29570,22 +29570,22 @@
     "symbol_name": "Track_SetFogAndSkyAlpha"
   },
   "0x4946c0": {
-    "n": "AutoGear_UpdateRollingFollowRate",
+    "n": "AutoGear_RampDigitalThrottle",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "TrackCollision.cpp",
-    "symbol_name": "AutoGear_UpdateRollingFollowRate"
+    "symbol_name": "AutoGear_RampDigitalThrottle"
   },
   "0x494880": {
-    "n": "AutoGear_UpdateSteeringSwing",
+    "n": "AutoGear_RampDigitalBrake",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "TrackCollision.cpp",
-    "symbol_name": "AutoGear_UpdateSteeringSwing"
+    "symbol_name": "AutoGear_RampDigitalBrake"
   },
   "0x493a40": {
     "n": "AutoGear_UpdateBestGearFlag",
@@ -29633,22 +29633,22 @@
     "symbol_name": "AutoGear_ApplyShiftBodyNudge"
   },
   "0x493ed0": {
-    "n": "CarPhysics_DampSurfaceSteeringAngle",
+    "n": "AutoGear_FollowAnalogSteering",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "TrackCollision.cpp",
-    "symbol_name": "CarPhysics_DampSurfaceSteeringAngle"
+    "symbol_name": "AutoGear_FollowAnalogSteering"
   },
   "0x494110": {
-    "n": "AutoGear_IntegrateSteeringAccumulator",
+    "n": "AutoGear_IntegrateDigitalSteering",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "TrackCollision.cpp",
-    "symbol_name": "AutoGear_IntegrateSteeringAccumulator"
+    "symbol_name": "AutoGear_IntegrateDigitalSteering"
   },
   "0x493520": {
     "n": "AutoGear_UpdateCarGearState",

@@ -5086,10 +5086,10 @@ void CarPart_UpdateVibrationAngle(void)
 
 BYTE Car_GetDrawnFlag(int index);
 unsigned short Input_GetControllerSlotMapping(unsigned short slot);
-unsigned int Input_GetControllerPrimaryFlags(unsigned short slot);
-unsigned int Input_GetControllerSecondaryFlags(unsigned short slot);
-DWORD Input_GetControllerField11C(unsigned short slot);
-DWORD Input_GetControllerField118(unsigned short slot);
+unsigned int Input_GetControllerTextureForce(unsigned short slot);
+unsigned int Input_GetControllerEffectsForce(unsigned short slot);
+DWORD Input_GetControllerQuickForceUpdate(unsigned short slot);
+DWORD Input_GetControllerForceFeedback(unsigned short slot);
 
 // Initializes the two force feedback slots and registers their stop callback.
 // FUNCTION: CMR2 0x00423ff0
@@ -5108,11 +5108,11 @@ void StageTiming_InitForceFeedbackSlots(void)
         g_pForceFeedbackSlot = &g_forceFeedbackSlots[i];
         device = Car_GetDrawnFlag(Car_Get(i)->index);
         CInput::GetAvailableDeviceRecord((signed char)device);
-        if (Input_GetControllerField118(i) != 0) {
+        if (Input_GetControllerForceFeedback(i) != 0) {
             device = Car_GetDrawnFlag(Car_Get(i)->index);
-            CInput::SetForceFeedbackDeviceValue(Input_GetControllerField11C(i), (signed char)device);
-            g_pForceFeedbackSlot->textureForce = Input_GetControllerPrimaryFlags(i);
-            g_pForceFeedbackSlot->effectsForce = Input_GetControllerSecondaryFlags(i);
+            CInput::SetQuickForceUpdate(Input_GetControllerQuickForceUpdate(i), (signed char)device);
+            g_pForceFeedbackSlot->textureForce = Input_GetControllerTextureForce(i);
+            g_pForceFeedbackSlot->effectsForce = Input_GetControllerEffectsForce(i);
             g_pForceFeedbackSlot->device = (signed char)Input_GetControllerSlotMapping(i);
             if (g_pForceFeedbackSlot->device >= 0) {
                 ForceFeedback_CreateEffects();

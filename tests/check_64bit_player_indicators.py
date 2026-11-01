@@ -32,8 +32,8 @@ struct CGameInfo{static int IsInRaceMenuOpen(){event(0x404f20);return 0;}static 
 struct CInput{
  static DeviceInfo *GetAvailableDeviceRecord(int n){event(0x49ead0,{n});return n==3?&device:&source;}
  static unsigned int GetEnabledControllerAxisBinding(int n,int axis){event(0x40c210,{n,axis});return axes[axis];}
- static DWORD GetControllerField124(short n){event(0x40be60,{n});return inverted;}
- static DWORD GetControllerField120(int n){event(0x40be30,{n});return inverted;}
+ static DWORD GetControllerSmoothSteering(short n){event(0x40be60,{n});return inverted;}
+ static DWORD GetControllerThrottleOnPositive(int n){event(0x40be30,{n});return inverted;}
 };
 BYTE RallyDataState(){event(0x4074f0);return 4;}
 void StageObject_ReadCarControllerMapping(int n){event(0x47bca0,{n});}
