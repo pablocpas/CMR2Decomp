@@ -1,0 +1,15 @@
+address	old_name	new_name	evidence
+0x00818da8	g_unk0x00818da8	g_joinPassword	Cleared on entering the join password menu, typed into by its update, drawn as "Session Password: %s" and passed to Network_JoinEnumeratedSession as the session's password.
+0x00818cd8	g_unk0x00818cd8	g_pJoinPasswordText	FrontendMenu_UpdateJoinPasswordEntry points it at g_unk0x00818da8 and copies the edited text back through it.
+0x00818cdc	g_unk0x00818cdc	g_pSessionDetailsText	FrontendMenu_UpdateNetworkSessionDetails points it at g_sessionName or g_sessionPassword, by the item under the cursor, and copies the edited text back through it.
+0x0082aa44	g_unk0x0082aa44	g_saveGameName	The name typed in OptionMenu_UpdateLoadGameAndNameEntry; SavedGames_WriteSessionImage(-1, it) saves under it and it is cleared after.
+0x00818ed0	g_unk0x00818ed0	g_lobbyChatSelected	Set when the lobby's cursor is on its chat line (item value 0), which then takes typed characters and turns off menu navigation; cleared when the cursor leaves it or with Escape.
+0x00818f14	g_unk0x00818f14	g_lobbyChatLine	The lobby's chat line: typed characters are appended, Backspace deletes, Enter sends it with NetworkChat_SendLine and clears it.
+0x00819028	g_unk0x00819028	g_lobbyChatLineLength	Characters in g_unk0x00818f14: its index for the next character, incremented and decremented with it, reset when it is sent or selected.
+0x00818d00	g_unk0x00818d00	g_lobbyLastCursor	FrontendMenu_UpdateNetworkSessionSetup compares the lobby's cursor with it to notice moves onto or off the chat line, then stores the cursor.
+0x00519ee4	g_unk0x00519ee4	g_resultsChatLastCursor	GameMenu_HandleNetworkResultsChatInput compares the menu's cursor with it to notice moves onto or off the chat item (0x3eb), then stores the cursor; -1 when the menu is built.
+0x00589318	g_unk0x00589318	g_pendingEventDrawCount	StageObject_QueueTimedEventDraw stores a draw at g_eventDraws[it] and increments it (up to 0x40); StageObject_StampPendingEventDraws stamps that many and clears it.
+0x00589334	g_unk0x00589334	g_eventStampQuadrant	StageObject_StampPendingEventDraws advances it 0..3 and locks that quadrant of the event texture.
+0x0065aa70	CFrontend::m_unk0x0065aa70	CFrontend::m_textLanguage	Frontend_SelectTextLanguage sets it (with m_textFirstId = m_textCount * language) when the language is below the count.
+0x0065aa71	CFrontend::m_unk0x0065aa71	CFrontend::m_textLanguageCount	BuildLocalizedTextStringTable sets it to the number of language files; Frontend_SelectTextLanguage accepts languages below it.
+0x00524008	g_matrixMapIndex	g_languageFlagMaps	FrontendMenu_DrawLanguage draws g_matrixMaps[it[cursor]] for the language menu's entries: 10 (UK), 2 (France), 9 (Spain), 6 (Italy), 8 (Germany).

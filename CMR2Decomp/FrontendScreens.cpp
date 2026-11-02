@@ -93,13 +93,13 @@ int g_unk0x0052528c = -1;
 // GLOBAL: CMR2 0x00525330
 char g_nameChars0x00525330[68] = "abcdefghijklmnopqrstuvwxyz. ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 // GLOBAL: CMR2 0x00818cd8
-char *g_unk0x00818cd8;
+char *g_pJoinPasswordText;
 // GLOBAL: CMR2 0x00818ce0
 int g_unk0x00818ce0;
 // GLOBAL: CMR2 0x00818ce8
 int g_unk0x00818ce8;
 // GLOBAL: CMR2 0x00818d00
-int g_unk0x00818d00;
+int g_lobbyLastCursor;
 // Filtered stage/route ids, one int per entry (up to 0x16).
 // GLOBAL: CMR2 0x00818d18
 int g_filteredRouteIds[0x16];
@@ -114,11 +114,11 @@ int g_setupSelectedRouteIds[4];
 // GLOBAL: CMR2 0x00818ebc
 char g_sessionName[20];
 // GLOBAL: CMR2 0x00818ed0
-BYTE g_unk0x00818ed0;
+BYTE g_lobbyChatSelected;
 // GLOBAL: CMR2 0x00818d04
 BYTE g_unk0x00818d04;
 // GLOBAL: CMR2 0x00818da8
-char g_unk0x00818da8[256];
+char g_joinPassword[256];
 // GLOBAL: CMR2 0x00818ed4
 int g_unk0x00818ed4[8];
 // GLOBAL: CMR2 0x00818ef4
@@ -156,7 +156,7 @@ Menu *g_pMenu0x00818ac0;
 // GLOBAL: CMR2 0x00818ac4
 BYTE g_unk0x00818ac4;
 // GLOBAL: CMR2 0x00818f14
-BYTE g_unk0x00818f14[0xe0];
+BYTE g_lobbyChatLine[0xe0];
 // GLOBAL: CMR2 0x00819030
 Menu *g_pProfileRenameMenu;
 // GLOBAL: CMR2 0x00819050
@@ -833,9 +833,10 @@ void FrontendMenu_DrawQuitConfirmation(Menu *pMenu)
     FrontendDraw_Carousel(FrontendMenu_GetMain(), 0, NULL);
 }
 
-// Which background matrix map each entry of the main menu shows.
+// The flag (a g_matrixMaps index) each entry of the language menu shows:
+// English, French, Spanish, Italian, German.
 // GLOBAL: CMR2 0x00524008
-int g_matrixMapIndex[5] = { 10, 2, 9, 6, 8 };
+int g_languageFlagMaps[5] = { 10, 2, 9, 6, 8 };
 // 18x12 cell maps (colour indices into g_matrixColours) of the background.
 // GLOBAL: CMR2 0x0052401c
 char g_matrixMaps[11][0xd8] = {
@@ -1052,7 +1053,7 @@ void FrontendMenu_DrawLanguage(Menu *pMenu)
     FrontendDraw_ScrollerRow(FrontendScroller_GetLanguageScroller(), 1);
     cellW = (int)(g_pGraphics->resX * 18) / 640;
     FrontendDraw_AnimatedMatrixBackground((cellW - (int)(g_pGraphics->resX * 11) / 640) / 2 - cellW * 18 / 2 + (int)g_pGraphics->resX / 2,
-                 (int)(g_pGraphics->resY * 100) / 480, g_matrixMaps[g_matrixMapIndex[pMenu->cursor]]);
+                 (int)(g_pGraphics->resY * 100) / 480, g_matrixMaps[g_languageFlagMaps[pMenu->cursor]]);
 }
 
 // FUNCTION: CMR2 0x004e3230
@@ -1186,7 +1187,7 @@ void FrontendMenu_DrawJoinPasswordEntry(Menu *pMenu)
     FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 3);
     Font_DrawText(1, CFrontend::GetTextString(0x1e8), (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 4,
                   (int *)g_colourWhite0x00524968, 0x12);
-    sprintf(CFrontend::m_stringDest, g_strLabelSpacedText, CFrontend::GetTextString(0x1c3), g_unk0x00818da8);
+    sprintf(CFrontend::m_stringDest, g_strLabelSpacedText, CFrontend::GetTextString(0x1c3), g_joinPassword);
     if ((int)CMain::GetFrameDelta() % 20 > 9)
         strcat(CFrontend::m_stringDest, g_strTextCursor);
     Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 260) / 640, (int)g_pGraphics->resY / 2,
@@ -2082,7 +2083,7 @@ void FrontendMenu_EnterNetworkSessionBrowser(Menu *pMenu, char param)
     g_unk0x0052528c = -1;
     g_selectedNetworkSession = -1;
     Input_ClearCharacterQueue();
-    sprintf(g_unk0x00818da8, CMain::m_logFileBlankLine);
+    sprintf(g_joinPassword, CMain::m_logFileBlankLine);
     g_unk0x0081901c = 0;
     g_unk0x00819020 = 0;
     pMenu->items[0].id = 0x1ff;
@@ -2109,7 +2110,7 @@ void FrontendNetwork_JoinSelectedSession(Menu *pMenu, int param)
             if (Network_IsSessionFlag10Set((BYTE)g_selectedNetworkSession) == 0) {
                 // The original reuses the menu parameter slot for the
                 // invalid-password flag of the join call (its value is unused).
-                if (Network_JoinEnumeratedSession((BYTE)g_selectedNetworkSession, g_unk0x00818da8, (BYTE *)&pMenu) != 0) {
+                if (Network_JoinEnumeratedSession((BYTE)g_selectedNetworkSession, g_joinPassword, (BYTE *)&pMenu) != 0) {
                     GameInfo_SetConfiguredGameMode((BYTE)Session_GetUserValue(0));
                     GameInfo_SetSessionField398C(Session_GetUserValue(2));
                     Network_GetLocalPlayerID();
@@ -2299,13 +2300,13 @@ void FrontendMenu_EnterNetworkSessionSetup(Menu *pMenu, int unused)
     int index;
     int *pEntry;
 
-    g_unk0x00818ed0 = 1;
+    g_lobbyChatSelected = 1;
     g_unk0x00818ce8 = -1;
     g_unk0x00818ce0 = -1;
     FrontendMenu_SetInputState(0);
     Menu_SetFlags(pMenu, 1, 1, 1, 1);
     pMenu->cursor = 0;
-    g_unk0x00818d00 = 0;
+    g_lobbyLastCursor = 0;
     index = 0;
     pEntry = g_filteredRouteIds;
     for (i = 0; i < 0x16; i++) {
@@ -2401,7 +2402,7 @@ void FrontendMenu_LeaveNetworkSessionSetup(Menu *pMenu, char param)
 // FUNCTION: CMR2 0x004edb50
 BYTE *FrontendNetwork_GetLobbyChatLine(void)
 {
-    return g_unk0x00818f14;
+    return g_lobbyChatLine;
 }
 
 // Update callback of the session browser menu: drains the network queue.
@@ -2835,7 +2836,7 @@ void FrontendMenu_EnterJoinPasswordEntry(Menu *pMenu, int param)
 {
     Menu_SetFlags(pMenu, 0, 0, 1, 1);
     Input_ClearCharacterQueue();
-    sprintf(g_unk0x00818da8, CMain::m_logFileBlankLine);
+    sprintf(g_joinPassword, CMain::m_logFileBlankLine);
 }
 
 // Name entry: appends the typed character or deletes the last one.
@@ -2845,8 +2846,8 @@ void FrontendMenu_UpdateJoinPasswordEntry(Menu *pMenu)
     int key;
     int len;
 
-    g_unk0x00818cd8 = g_unk0x00818da8;
-    strcpy(CFrontend::m_stringDest, g_unk0x00818da8);
+    g_pJoinPasswordText = g_joinPassword;
+    strcpy(CFrontend::m_stringDest, g_joinPassword);
     if (!Input_PopQueuedCharacter(&key))
         return;
     if (key != 8) {
@@ -2860,7 +2861,7 @@ void FrontendMenu_UpdateJoinPasswordEntry(Menu *pMenu)
         CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 1] = 0;
         Menu_PlaySoundId(2);
     }
-    strcpy(g_unk0x00818cd8, CFrontend::m_stringDest);
+    strcpy(g_pJoinPasswordText, CFrontend::m_stringDest);
 }
 
 void NetworkChat_ClearLog(void);
@@ -2879,7 +2880,7 @@ void FrontendNetwork_JoinNamedSession(Menu *pMenu, int param)
     NetPlayers_ResetAllTables();
     NetworkChat_ClearLog();
     g_unk0x00818ef4 = 0;
-    if (Network_JoinEnumeratedSession((BYTE)g_selectedNetworkSession, g_unk0x00818da8, &invalidPassword) != 0) {
+    if (Network_JoinEnumeratedSession((BYTE)g_selectedNetworkSession, g_joinPassword, &invalidPassword) != 0) {
         GameInfo_SetConfiguredGameMode((BYTE)Session_GetUserValue(0));
         GameInfo_SetSessionField398C(Session_GetUserValue(2));
         Network_GetLocalPlayerID();
@@ -8145,13 +8146,13 @@ char g_strValidLetters[68] = "abcdefghijklmnopqrstuvwxyz. ABCDEFGHIJKLMNOPQRSTUV
 // GLOBAL: CMR2 0x005252d4
 char g_strValidChars[92] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ., !\"%&*()-=_+`/?\\:;[]{}'~";
 // GLOBAL: CMR2 0x00818cdc
-char *g_unk0x00818cdc;
+char *g_pSessionDetailsText;
 // GLOBAL: CMR2 0x00818d08
 int g_unk0x00818d08[4];
 // GLOBAL: CMR2 0x00818d84
 char g_unk0x00818d84[0x24];
 // GLOBAL: CMR2 0x00819028
-int g_unk0x00819028;
+int g_lobbyChatLineLength;
 
 extern char g_keypad2[];
 extern char g_keypad3[];
@@ -8441,7 +8442,7 @@ void FrontendMenu_UpdateNetworkSessionSetup(Menu *pMenu)
     DeviceInfo *pDevice;
 
     b = 1;
-    if (g_unk0x00818ed0 != 0) {
+    if (g_lobbyChatSelected != 0) {
         pDevice = CInput::GetAvailableDeviceRecord(0);
         if (!((pDevice->pressed & 8) == 0)) {
             pMenu->cursor = 1;
@@ -8460,56 +8461,56 @@ void FrontendMenu_UpdateNetworkSessionSetup(Menu *pMenu)
         FrontendNetwork_SendPlayerDescription();
         g_unk0x00818ce0 = Menu_GetItem(pMenu, 2)->max;
     }
-    if (g_unk0x00818d00 != pMenu->cursor) {
+    if (g_lobbyLastCursor != pMenu->cursor) {
         if (pMenu->items[pMenu->cursor].value != 0) {
-            if (pMenu->items[g_unk0x00818d00].value == 0) {
+            if (pMenu->items[g_lobbyLastCursor].value == 0) {
                 FrontendMenu_SetInputState(0);
                 Menu_SetFlags(pMenu, 1, 1, 1, 1);
             }
-            g_unk0x00818ed0 = 0;
+            g_lobbyChatSelected = 0;
         } else {
             Input_ClearCharacterQueue();
-            g_unk0x00818f14[0] = 0;
-            g_unk0x00819028 = 0;
-            g_unk0x00818ed0 = 1;
+            g_lobbyChatLine[0] = 0;
+            g_lobbyChatLineLength = 0;
+            g_lobbyChatSelected = 1;
             FrontendMenu_SetInputState(1);
             Menu_SetFlags(pMenu, 0, 0, 0, 0);
         }
-        g_unk0x00818d00 = pMenu->cursor;
+        g_lobbyLastCursor = pMenu->cursor;
     }
     Network_RebuildSessionPlayerList();
-    if (g_unk0x00818ed0 != 0 && Input_PopQueuedCharacter(&key)) {
+    if (g_lobbyChatSelected != 0 && Input_PopQueuedCharacter(&key)) {
         switch (key) {
         default:
             pc = strchr(g_strValidChars, (char)key);
             if (pc != NULL) {
-                i = Font_GetTextWidth(1, g_unk0x00818f14);
+                i = Font_GetTextWidth(1, g_lobbyChatLine);
                 int maxWidth = (int)(((g_pGraphics->resX < 0x400) - 1 & 0xc6) + 0x14a);
-                if (g_unk0x00819028 < 0xff && i < maxWidth) {
-                    g_unk0x00818f14[g_unk0x00819028] = key;
-                    g_unk0x00818f14[g_unk0x00819028 + 1] = 0;
-                    g_unk0x00819028++;
+                if (g_lobbyChatLineLength < 0xff && i < maxWidth) {
+                    g_lobbyChatLine[g_lobbyChatLineLength] = key;
+                    g_lobbyChatLine[g_lobbyChatLineLength + 1] = 0;
+                    g_lobbyChatLineLength++;
                 }
             }
             break;
         case 0x1b:
-            g_unk0x00818ed0 = 0;
+            g_lobbyChatSelected = 0;
             FrontendMenu_SetInputState(0);
             Menu_SetFlags(pMenu, 1, 1, 1, 1);
             pMenu->cursor = 1;
             break;
         case 0xd:
-            if (g_unk0x00818f14[0] != 0) {
-                NetworkChat_SendLine((char *)g_unk0x00818f14);
-                g_unk0x00819028 = 0;
-                g_unk0x00818f14[0] = 0;
+            if (g_lobbyChatLine[0] != 0) {
+                NetworkChat_SendLine((char *)g_lobbyChatLine);
+                g_lobbyChatLineLength = 0;
+                g_lobbyChatLine[0] = 0;
             }
             break;
         case 8:
-            len = strlen((char *)g_unk0x00818f14);
+            len = strlen((char *)g_lobbyChatLine);
             if (0 < (int)len) {
-                g_unk0x00818f14[len - 1] = 0;
-                g_unk0x00819028--;
+                g_lobbyChatLine[len - 1] = 0;
+                g_lobbyChatLineLength--;
             }
             break;
         }
@@ -8578,10 +8579,10 @@ void FrontendMenu_UpdateNetworkSessionDetails(Menu *pMenu)
     value = pMenu->items[pMenu->cursor].value;
     if (value == 0 || value == 4) {
         if (pMenu->items[pMenu->cursor].value == 0)
-            g_unk0x00818cdc = (char *)g_sessionName;
+            g_pSessionDetailsText = (char *)g_sessionName;
         else
-            g_unk0x00818cdc = (char *)g_sessionPassword;
-        strcpy(CFrontend::m_stringDest, g_unk0x00818cdc);
+            g_pSessionDetailsText = (char *)g_sessionPassword;
+        strcpy(CFrontend::m_stringDest, g_pSessionDetailsText);
         if (Input_PopQueuedCharacter(&key) != 0) {
             if (key != 8) {
                 i = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
@@ -8604,7 +8605,7 @@ void FrontendMenu_UpdateNetworkSessionDetails(Menu *pMenu)
                 }
             }
         }
-        strcpy(g_unk0x00818cdc, CFrontend::m_stringDest);
+        strcpy(g_pSessionDetailsText, CFrontend::m_stringDest);
     }
     FrontendNetwork_DrainMessageQueue();
 }
@@ -11875,7 +11876,7 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
     else
         texts[3] = CFrontend::GetTextString(0x1c5);
     FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), texts, 4);
-    if (g_unk0x00818ed0 != 0) {
+    if (g_lobbyChatSelected != 0) {
         colour[3] = 0x20;
         pChatColour = g_colourWhite0x00524968;
     } else {
@@ -11926,7 +11927,7 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
         Font_DrawText(1, NetworkChat_GetLine(j), (g_pGraphics->resX * 35) / 640,
                       ((count + 3) * g_pGraphics->resY * 20) / 480, (int *)pChatColour, 9);
     }
-    if (g_unk0x00818ed0 != 0) {
+    if (g_lobbyChatSelected != 0) {
         if ((unsigned int)CFrontend::GetFrontendTimestamp() % 20 > 9)
             sprintf(CFrontend::m_stringDest, g_str0x00519fb8,
                     (char *)FrontendNetwork_GetLobbyChatLine());
