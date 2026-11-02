@@ -10681,7 +10681,7 @@
   ],
   "0x4e9820": [
     4460784,
-    "FrontendMenu_DrawNetworkNameEntry"
+    "FrontendMenu_DrawJoinPasswordEntry"
   ],
   "0x4e9990": [
     4544304,
@@ -11121,7 +11121,7 @@
   ],
   "0x4edb50": [
     4467840,
-    "FrontendNetwork_GetSessionState"
+    "FrontendNetwork_GetLobbyChatLine"
   ],
   "0x4edb60": [
     4467856,
@@ -11189,11 +11189,11 @@
   ],
   "0x4eed50": [
     4471328,
-    "FrontendMenu_EnterNetworkNameEntry"
+    "FrontendMenu_EnterJoinPasswordEntry"
   ],
   "0x4eed80": [
     4471376,
-    "FrontendMenu_UpdateNetworkNameEntry"
+    "FrontendMenu_UpdateJoinPasswordEntry"
   ],
   "0x4eee60": [
     4471600,
@@ -12357,11 +12357,11 @@
   ],
   "0x4f8870": [
     4443808,
-    "FrontendMenu_BuildNetworkNameEntry"
+    "FrontendMenu_BuildJoinPasswordEntry"
   ],
   "0x4f88d0": [
     4448064,
-    "FrontendMenu_GetNetworkNameEntry"
+    "FrontendMenu_GetJoinPasswordEntry"
   ],
   "0x4f88e0": [
     4443904,

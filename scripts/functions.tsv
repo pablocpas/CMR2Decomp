@@ -2874,7 +2874,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 004e8b60	1394	FrontendMenu_DrawNetworkStageSetup	0	10	0	false	false
 004e90f0	1487	FrontendMenu_DrawNetworkExtendedStageSetup	0	10	0	false	false
 004e96d0	311	FrontendMenu_DrawNetworkMessage	0	7	0	false	false
-004e9820	357	FrontendMenu_DrawNetworkNameEntry	0	8	0	false	false
+004e9820	357	FrontendMenu_DrawJoinPasswordEntry	0	8	0	false	false
 004e9990	1199	FrontendMenu_DrawNetworkLeaderboard	0	11	0	false	false
 004e9e40	292	FrontendSession_InitFreshRace	1	19	0	false	false
 004e9f70	1226	FrontendMenu_BuildPagesAndSelectInitial	0	127	0	false	false
@@ -2984,7 +2984,7 @@ addr	size	name	callers	callees	fpu	thunk	external
 004ed610	525	FrontendNetwork_StartHostRace	0	25	0	false	false
 004ed840	742	FrontendMenu_UpdateNetworkSessionSetup	0	17	0	false	false
 004edb30	30	FrontendMenu_LeaveNetworkSessionSetup	0	3	0	false	false
-004edb50	6	FrontendNetwork_GetSessionState	1	0	0	false	false
+004edb50	6	FrontendNetwork_GetLobbyChatLine	1	0	0	false	false
 004edb60	13	FrontendMenu_UpdateNetworkStageTimes	0	2	0	false	false
 004edb70	291	FrontendMenu_EnterNetworkPlayerSetup	0	5	0	false	false
 004edca0	162	FrontendNetwork_ToggleStageOption	0	3	0	false	false
@@ -3001,8 +3001,8 @@ addr	size	name	callers	callees	fpu	thunk	external
 004eeab0	381	FrontendMenu_EnterNetworkExtendedStageSetup	0	5	0	false	false
 004eec30	8	FrontendNetwork_PumpMenuMessages	0	1	0	false	false
 004eec40	265	FrontendNetwork_ApplyChampionshipRally	0	9	0	false	false
-004eed50	44	FrontendMenu_EnterNetworkNameEntry	0	3	0	false	false
-004eed80	217	FrontendMenu_UpdateNetworkNameEntry	0	3	0	false	false
+004eed50	44	FrontendMenu_EnterJoinPasswordEntry	0	3	0	false	false
+004eed80	217	FrontendMenu_UpdateJoinPasswordEntry	0	3	0	false	false
 004eee60	207	FrontendNetwork_JoinNamedSession	0	17	0	false	false
 004eef30	119	FrontendMenu_EnterNetworkLeaderboard	0	4	0	false	false
 004eefb0	34	FrontendLeaderboard_SelectEntry	0	3	0	false	false
@@ -3293,8 +3293,8 @@ addr	size	name	callers	callees	fpu	thunk	external
 004f8670	186	FrontendMenu_BuildNetworkRallySetup	1	6	0	false	false
 004f8730	160	FrontendMenu_BuildNetworkStageSetup	1	6	0	false	false
 004f87d0	160	FrontendMenu_BuildNetworkExtendedStageSetup	1	6	0	false	false
-004f8870	90	FrontendMenu_BuildNetworkNameEntry	1	4	0	false	false
-004f88d0	6	FrontendMenu_GetNetworkNameEntry	2	0	0	false	false
+004f8870	90	FrontendMenu_BuildJoinPasswordEntry	1	4	0	false	false
+004f88d0	6	FrontendMenu_GetJoinPasswordEntry	2	0	0	false	false
 004f88e0	161	FrontendMenu_BuildNetworkLeaderboard	1	6	0	false	false
 004f8990	6	FrontendMenu_GetQuitTransition	1	0	0	false	false
 004f89a0	6	FrontendMenu_GetNetworkStageTimes	1	0	0	false	false

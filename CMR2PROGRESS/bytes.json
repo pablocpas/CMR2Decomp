@@ -4358,13 +4358,13 @@
     "symbol_name": "FrontendMenu_BuildNetworkExtendedStageSetup"
   },
   "0x4f8870": {
-    "n": "FrontendMenu_BuildNetworkNameEntry",
+    "n": "FrontendMenu_BuildJoinPasswordEntry",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FrontendMenus.cpp",
-    "symbol_name": "FrontendMenu_BuildNetworkNameEntry"
+    "symbol_name": "FrontendMenu_BuildJoinPasswordEntry"
   },
   "0x4f88e0": {
     "n": "FrontendMenu_BuildNetworkLeaderboard",
@@ -4817,13 +4817,13 @@
     "symbol_name": "FrontendMenu_GetNetworkExtendedStageSetup"
   },
   "0x4f88d0": {
-    "n": "FrontendMenu_GetNetworkNameEntry",
+    "n": "FrontendMenu_GetJoinPasswordEntry",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FrontendMenus.cpp",
-    "symbol_name": "FrontendMenu_GetNetworkNameEntry"
+    "symbol_name": "FrontendMenu_GetJoinPasswordEntry"
   },
   "0x4f89a0": {
     "n": "FrontendMenu_GetNetworkStageTimes",
@@ -5267,13 +5267,13 @@
     "symbol_name": "FrontendProfile_SetNameEntryFlag"
   },
   "0x4e9820": {
-    "n": "FrontendMenu_DrawNetworkNameEntry",
+    "n": "FrontendMenu_DrawJoinPasswordEntry",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FrontendScreens.cpp",
-    "symbol_name": "FrontendMenu_DrawNetworkNameEntry"
+    "symbol_name": "FrontendMenu_DrawJoinPasswordEntry"
   },
   "0x4e9e40": {
     "n": "FrontendSession_InitFreshRace",
@@ -5528,13 +5528,13 @@
     "symbol_name": "FrontendMenu_LeaveNetworkSessionSetup"
   },
   "0x4edb50": {
-    "n": "FrontendNetwork_GetSessionState",
+    "n": "FrontendNetwork_GetLobbyChatLine",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FrontendScreens.cpp",
-    "symbol_name": "FrontendNetwork_GetSessionState"
+    "symbol_name": "FrontendNetwork_GetLobbyChatLine"
   },
   "0x4edb60": {
     "n": "FrontendMenu_UpdateNetworkStageTimes",
@@ -5663,22 +5663,22 @@
     "symbol_name": "FrontendNetwork_ApplyChampionshipRally"
   },
   "0x4eed50": {
-    "n": "FrontendMenu_EnterNetworkNameEntry",
+    "n": "FrontendMenu_EnterJoinPasswordEntry",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FrontendScreens.cpp",
-    "symbol_name": "FrontendMenu_EnterNetworkNameEntry"
+    "symbol_name": "FrontendMenu_EnterJoinPasswordEntry"
   },
   "0x4eed80": {
-    "n": "FrontendMenu_UpdateNetworkNameEntry",
+    "n": "FrontendMenu_UpdateJoinPasswordEntry",
     "s": 1.0,
     "x": true,
     "fz": 1.0,
     "unknown": [],
     "f": "FrontendScreens.cpp",
-    "symbol_name": "FrontendMenu_UpdateNetworkNameEntry"
+    "symbol_name": "FrontendMenu_UpdateJoinPasswordEntry"
   },
   "0x4eee60": {
     "n": "FrontendNetwork_JoinNamedSession",

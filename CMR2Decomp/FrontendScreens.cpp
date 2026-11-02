@@ -1175,7 +1175,7 @@ extern char g_strLabelSpacedText[];
 extern char g_strTextCursor[];
 
 // FUNCTION: CMR2 0x004e9820
-void FrontendMenu_DrawNetworkNameEntry(Menu *pMenu)
+void FrontendMenu_DrawJoinPasswordEntry(Menu *pMenu)
 {
     char *text[3];
 
@@ -1278,7 +1278,7 @@ void FrontendMenu_BuildNetworkCarSetup(void);
 void FrontendMenu_BuildNetworkRallySetup(void);
 void FrontendMenu_BuildNetworkStageSetup(void);
 void FrontendMenu_BuildNetworkExtendedStageSetup(void);
-void FrontendMenu_BuildNetworkNameEntry(void);
+void FrontendMenu_BuildJoinPasswordEntry(void);
 void FrontendMenu_BuildNetworkLeaderboard(void);
 void FrontendMenu_BuildNetworkMessage(void);
 void FrontendMenu_BuildArcade(void);
@@ -1478,7 +1478,7 @@ void FrontendMenu_BuildPagesAndSelectInitial(BYTE param1, BYTE back)
     FrontendMenu_BuildNetworkStageSetup();
     FrontendMenu_BuildNetworkExtendedStageSetup();
     FrontendMenu_BuildNetworkMessage();
-    FrontendMenu_BuildNetworkNameEntry();
+    FrontendMenu_BuildJoinPasswordEntry();
     FrontendMenu_BuildNetworkLeaderboard();
     FrontendMenu_BuildOptions();
     FrontendMenu_BuildGameOptions();
@@ -2126,7 +2126,7 @@ void FrontendNetwork_JoinSelectedSession(Menu *pMenu, int param)
                 }
             }
             if (Network_IsSessionFlag10Set((BYTE)g_selectedNetworkSession) != 0) {
-                Menu_SetNextAction(FrontendMenu_GetNetworkNameEntry());
+                Menu_SetNextAction(FrontendMenu_GetJoinPasswordEntry());
                 return;
             }
             Network_CloseSession();
@@ -2399,7 +2399,7 @@ void FrontendMenu_LeaveNetworkSessionSetup(Menu *pMenu, char param)
 }
 
 // FUNCTION: CMR2 0x004edb50
-BYTE *FrontendNetwork_GetSessionState(void)
+BYTE *FrontendNetwork_GetLobbyChatLine(void)
 {
     return g_unk0x00818f14;
 }
@@ -2831,7 +2831,7 @@ void FrontendNetwork_ApplyChampionshipRally(Menu *pMenu, int param)
 }
 
 // FUNCTION: CMR2 0x004eed50
-void FrontendMenu_EnterNetworkNameEntry(Menu *pMenu, int param)
+void FrontendMenu_EnterJoinPasswordEntry(Menu *pMenu, int param)
 {
     Menu_SetFlags(pMenu, 0, 0, 1, 1);
     Input_ClearCharacterQueue();
@@ -2840,7 +2840,7 @@ void FrontendMenu_EnterNetworkNameEntry(Menu *pMenu, int param)
 
 // Name entry: appends the typed character or deletes the last one.
 // FUNCTION: CMR2 0x004eed80
-void FrontendMenu_UpdateNetworkNameEntry(Menu *pMenu)
+void FrontendMenu_UpdateJoinPasswordEntry(Menu *pMenu)
 {
     int key;
     int len;
@@ -2896,7 +2896,7 @@ void FrontendNetwork_JoinNamedSession(Menu *pMenu, int param)
         return;
     }
     if (invalidPassword != 0) {
-        Menu_SetNextAction(FrontendMenu_GetNetworkNameEntry());
+        Menu_SetNextAction(FrontendMenu_GetJoinPasswordEntry());
         return;
     }
     Network_CloseSession();
@@ -11929,10 +11929,10 @@ void FrontendMenu_DrawNetworkSessionSetup(Menu *pMenu)
     if (g_unk0x00818ed0 != 0) {
         if ((unsigned int)CFrontend::GetFrontendTimestamp() % 20 > 9)
             sprintf(CFrontend::m_stringDest, g_str0x00519fb8,
-                    (char *)FrontendNetwork_GetSessionState());
+                    (char *)FrontendNetwork_GetLobbyChatLine());
         else
             sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
-                    (char *)FrontendNetwork_GetSessionState());
+                    (char *)FrontendNetwork_GetLobbyChatLine());
         Font_DrawText(1, CFrontend::m_stringDest, (g_pGraphics->resX * 35) / 640,
                       ((count + 4) * g_pGraphics->resY * 20) / 480, (int *)g_colourWhite0x00524968, 9);
     }
