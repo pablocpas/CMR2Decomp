@@ -24312,23 +24312,23 @@
     "g_spriteCount4"
   ],
   "0x65aa6c": [
-    5478864,
+    5478860,
     "CFrontend::m_textStrings"
   ],
   "0x65aa70": [
-    5478580,
+    5478565,
     "CFrontend::m_textLanguage"
   ],
   "0x65aa71": [
-    5478910,
+    5478906,
     "CFrontend::m_textLanguageCount"
   ],
   "0x65aa74": [
-    5478952,
+    5478948,
     "CFrontend::m_textFirstId"
   ],
   "0x65aa78": [
-    5478612,
+    5478592,
     "CFrontend::m_textCount"
   ],
   "0x65aa80": [
@@ -25488,47 +25488,47 @@
     "g_frontendRecordCountry"
   ],
   "0x8173fc": [
-    5478476,
+    5478472,
     "g_frontendRecordStage"
   ],
   "0x817400": [
-    5478900,
+    5478896,
     "g_frontendRecordDifficulty"
   ],
   "0x817404": [
-    5478852,
+    5478848,
     "g_unk0x00817404"
   ],
   "0x817410": [
-    5478848,
+    5478844,
     "g_unk0x00817410"
   ],
   "0x817411": [
-    5478856,
+    5478852,
     "g_unk0x00817411"
   ],
   "0x817412": [
-    5478857,
+    5478853,
     "g_unk0x00817412"
   ],
   "0x817413": [
-    5478858,
+    5478854,
     "g_unk0x00817413"
   ],
   "0x817414": [
-    5478904,
+    5478900,
     "g_unk0x00817414"
   ],
   "0x817416": [
-    5478906,
+    5478902,
     "g_unk0x00817416"
   ],
   "0x817418": [
-    5478908,
+    5478904,
     "g_unk0x00817418"
   ],
   "0x817420": [
-    5478804,
+    5478784,
     "g_playerKeyStates"
   ],
   "0x817448": [
@@ -25536,7 +25536,7 @@
     "g_loadedSplitTimes"
   ],
   "0x817570": [
-    5478844,
+    5478824,
     "g_lowestSplitValue"
   ],
   "0x817574": [
@@ -25576,7 +25576,7 @@
     "CGame::m_frontendCallbackInitialized"
   ],
   "0x817ebc": [
-    5478504,
+    5478500,
     "CFrontend::m_unk0x00817ebc"
   ],
   "0x817fc4": [
@@ -25592,23 +25592,23 @@
     "g_bootLoadingDone"
   ],
   "0x817fd0": [
-    5478896,
+    5478892,
     "CFrontend::m_unk0x00817fd0"
   ],
   "0x817fd4": [
-    5478868,
+    5478864,
     "CFrontend::m_unk0x00817fd4"
   ],
   "0x817fe4": [
-    5478608,
+    5478588,
     "g_frontendTimestamp"
   ],
   "0x817fe8": [
-    5478604,
+    5478584,
     "g_frontendCallbackDepth"
   ],
   "0x817fec": [
-    5478572,
+    5478564,
     "g_frontendIntroFlag"
   ],
   "0x817ff0": [
@@ -25616,7 +25616,7 @@
     "g_unk0x00817ff0"
   ],
   "0x817ff4": [
-    5478712,
+    5478692,
     "g_frontendElapsedMs"
   ],
   "0x8180f9": [
@@ -25632,11 +25632,11 @@
     "CGame::m_unk0x008180fc"
   ],
   "0x818200": [
-    5478512,
+    5478504,
     "CFrontend::m_languageFiles"
   ],
   "0x818240": [
-    5478584,
+    5478568,
     "CFrontend::m_commonFile"
   ],
   "0x818250": [
@@ -25648,7 +25648,7 @@
     "CFrontend::m_unk0x00818260"
   ],
   "0x818270": [
-    5478956,
+    5478952,
     "g_helpPulse0x00818270"
   ],
   "0x818274": [
@@ -25660,31 +25660,19 @@
     "g_profileHeaderPlayerNumber"
   ],
   "0x8182b8": [
-    5478472,
-    "CFrontend::m_pLgMatrixTexture"
-  ],
-  "0x8182bc": [
-    5478596,
-    "CFrontend::m_pTBronze"
-  ],
-  "0x8182c0": [
-    5478492,
-    "CFrontend::m_pTSilver"
-  ],
-  "0x8182c4": [
-    5478576,
-    "CFrontend::m_pTGold"
+    5478828,
+    "CFrontend::m_matrixTextures"
   ],
   "0x8182cc": [
-    5478716,
+    5478696,
     "CFrontend::m_unk0x008182cc"
   ],
   "0x818324": [
-    5478860,
+    5478856,
     "CFrontend::m_pSmMatrixTexture"
   ],
   "0x818328": [
-    5478916,
+    5478912,
     "CFrontend::m_pSetupRepBanners"
   ],
   "0x818348": [
@@ -25700,27 +25688,27 @@
     "g_unk0x008183cc"
   ],
   "0x818430": [
-    5478960,
+    5478956,
     "g_unk0x00818430"
   ],
   "0x818530": [
-    5478884,
+    5478880,
     "CFrontend::m_unk0x00818530"
   ],
   "0x81853c": [
-    5478912,
+    5478908,
     "CFrontend::m_unk0x0081853c"
   ],
   "0x818540": [
-    5478496,
+    5478492,
     "g_unk0x00818540"
   ],
   "0x818544": [
-    5478500,
+    5478496,
     "g_unk0x00818544"
   ],
   "0x818548": [
-    5478616,
+    5478596,
     "CFrontend::m_pAr640ATexture"
   ],
   "0x81854c": [
@@ -25732,7 +25720,7 @@
     "g_unk0x00818554"
   ],
   "0x8185b8": [
-    5478600,
+    5478580,
     "CFrontend::m_pAr640DTexture"
   ],
   "0x8185bc": [
@@ -25740,11 +25728,11 @@
     "g_dmdFiles"
   ],
   "0x818848": [
-    5478948,
+    5478944,
     "g_recordsProfileMode"
   ],
   "0x81884c": [
-    5478624,
+    5478604,
     "CFrontend::m_unk0x0081884c"
   ],
   "0x8188a4": [
@@ -25756,15 +25744,15 @@
     "g_profileNameEntryFlag"
   ],
   "0x8189a8": [
-    5479216,
+    5479212,
     "g_frontendDrawRect"
   ],
   "0x8189b0": [
-    5478622,
+    5478602,
     "g_matrixPhase1"
   ],
   "0x8189b2": [
-    5478620,
+    5478600,
     "g_matrixPhase2"
   ],
   "0x8189b4": [
